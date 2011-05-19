@@ -116,7 +116,7 @@ bool matchValue(const boost::any& value, const boost::any& query,
   }
 }
 
-std::string asJSLiteral(const boost::any& v, bool xhtml)
+std::string asJSLiteral(const boost::any& v, TextFormat textFormat)
 {
   if (v.empty())
     return std::string("''");
@@ -124,13 +124,13 @@ std::string asJSLiteral(const boost::any& v, bool xhtml)
     WString s = boost::any_cast<WString>(v);
 
     bool plainText = false;
-    if (xhtml) {
+    if (textFormat == XHTMLText) {
       if (s.literal())
 	plainText = !WWebWidget::removeScript(s);
     } else
       plainText = true;
 
-    if (plainText)
+    if (plainText && textFormat != XHTMLUnsafeText)
       s = WWebWidget::escapeText(s);
 
     return s.jsStringLiteral();
@@ -141,12 +141,12 @@ std::string asJSLiteral(const boost::any& v, bool xhtml)
       : WString::fromUTF8(boost::any_cast<const char *>(v));
 
     bool plainText;
-    if (xhtml)
+    if (textFormat == XHTMLText)
       plainText = !WWebWidget::removeScript(s);
     else
       plainText = true;
 
-    if (plainText)
+    if (plainText && textFormat != XHTMLUnsafeText)
       s = WWebWidget::escapeText(s);
 
     return s.jsStringLiteral();

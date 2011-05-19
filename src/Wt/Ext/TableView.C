@@ -509,7 +509,7 @@ void TableView::createConfig(std::ostream& config)
     if (i != 0)
       config << ',';
     config << "{id:'c" << i << "',header:"
-	   << Wt::Impl::asJSLiteral(model_->headerData(i), false);
+	   << Wt::Impl::asJSLiteral(model_->headerData(i), PlainText);
 
     ColumnMap::const_iterator k = columnInfo_.find(i);
     if (k != columnInfo_.end()) {

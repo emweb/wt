@@ -166,6 +166,8 @@ public:
   inline bool operator!=(int zero) const;
 #endif
 
+  inline int value() const { return flags_; }
+
 private:
   unsigned int flags_;
 

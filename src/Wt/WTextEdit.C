@@ -7,11 +7,14 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WTextEdit"
+#include "Wt/WBoostAny"
 
 #include "DomElement.h"
 #include "WebSession.h"
 
 namespace Wt {
+
+typedef std::map<std::string, boost::any> SettingsMapType;
 
 WTextEdit::WTextEdit(WContainerWidget *parent)
   : WTextArea(parent),
@@ -29,22 +32,37 @@ WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
 
 void WTextEdit::init()
 {
-#ifdef WT_TARGET_JAVA
-  for (unsigned i = 0; i < 4; ++i)
-    buttons_[i] = "";
-#endif // WT_TARGET_JAVA
+  WApplication *app = WApplication::instance();
 
   setInline(false);
-  buttons_[0] = "fontselect,|,bold,italic,underline,|,fontsizeselect,|"
-    ",forecolor,backcolor,|"
-    ",justifyleft,justifycenter,justifyright,justifyfull,|,anchor,|"
-    ",numlist,bullist";
 
   initTinyMCE();
   
   setJavaScriptMember
     (WT_RESIZE_JS,
      "function(e,w,h){" WT_CLASS ".tinyMCEResize(e, w, h); };");
+
+  std::string direction = app->layoutDirection() == LeftToRight ? "ltr" : "rtl";
+  setConfigurationSetting("directionality", direction);
+
+  std::string toolbar = 
+    "fontselect,|,bold,italic,underline,|,fontsizeselect,|"
+    ",forecolor,backcolor,|"
+    ",justifyleft,justifycenter,justifyright,justifyfull,|,anchor,|"
+    ",numlist,bullist";
+  setToolBar(0, toolbar);
+  for (int i = 1; i <= 3; i++)
+    setToolBar(i, std::string());
+
+  //this setting is no longer mentioned in the tinymce documenation though...
+  setConfigurationSetting("button_tile_map", true);
+  
+  setConfigurationSetting("doctype", wApp->docType());
+  setConfigurationSetting("relative_urls", true);
+  setConfigurationSetting("theme", std::string("advanced"));
+  setConfigurationSetting("theme_advanced_toolbar_location", 
+			  std::string("top"));
+  setConfigurationSetting("theme_advanced_toolbar_align", std::string("left"));
 }
 
 WTextEdit::~WTextEdit()
@@ -55,17 +73,29 @@ WTextEdit::~WTextEdit()
 
 void WTextEdit::setStyleSheet(const std::string& uri)
 {
-  styleSheet_ = uri;
+  setConfigurationSetting("content_css", uri);
+}
+
+const std::string WTextEdit::styleSheet() const
+{
+  return asString(configurationSetting("content_css")).toUTF8();
 }
 
 void WTextEdit::setExtraPlugins(const std::string& plugins)
 {
-  extraPlugins_ = plugins;
+  setConfigurationSetting("plugings", plugins);
+}
+
+const std::string WTextEdit::extraPlugins() const
+{
+  return asString(configurationSetting("plugins")).toUTF8();
 }
 
 void WTextEdit::setToolBar(int i, const std::string& config)
 {
-  buttons_[i] = config;
+  setConfigurationSetting(std::string("theme_advanced_buttons") 
+			  + boost::lexical_cast<std::string>(i + 1),
+			  config);
 }
 
 std::string WTextEdit::renderRemoveJs()
@@ -90,11 +120,6 @@ void WTextEdit::initTinyMCE()
 
   if (app->require(tinyMCEBaseURL + "tiny_mce.js", "window['tinyMCE']")) {
     /*
-      interesting config options:
-
-      directionality, docs_language, language ?
-      entities ?
-
       we should not use display:none for hiding?
     */
     if (app->environment().ajax())
@@ -139,6 +164,15 @@ void WTextEdit::setText(const WT_USTRING& text)
   contentChanged_ = true;
 }
 
+std::string WTextEdit::plugins() const
+{
+  std::string plugins = extraPlugins();
+  if (!plugins.empty())
+    plugins += ",";
+  plugins += "safari";
+  return plugins;
+}
+
 void WTextEdit::updateDom(DomElement& element, bool all)
 {
   WTextArea::updateDom(element, all);
@@ -149,29 +183,19 @@ void WTextEdit::updateDom(DomElement& element, bool all)
   // we are creating the actual element
   if (all && element.type() == DomElement_TEXTAREA) {
     std::stringstream config;
+    config << "{";
 
-    config <<
-      "{button_tile_map:true"
-      ",doctype:'" + wApp->docType() + "'"
-      ",relative_urls:true"
-      ",plugins:'safari";
+    for (SettingsMapType::const_iterator it = configurationSettings_.begin();
+	 it != configurationSettings_.end(); ++it) {
+      if (it->first == "plugins")
+	continue;
 
-    if (!extraPlugins_.empty())
-      config << ',' << extraPlugins_;
-    config << "'";
-
-    config << ",theme:'advanced'";
-
-    for (unsigned i = 0; i < 4; ++i)
-      config << ",theme_advanced_buttons" << (i+1) << ":'"
-	     << buttons_[i] << '\'';
-
-    config <<
-      ",theme_advanced_toolbar_location:'top'"
-      ",theme_advanced_toolbar_align:'left'";
-
-    if (!styleSheet_.empty())
-      config << ",content_css: '" << styleSheet_ << '\''; 
+      if (it != configurationSettings_.begin())
+	config << "," ;
+      config << it->first << ": "
+	     << Impl::asJSLiteral(it->second, XHTMLUnsafeText);
+    }
+    config << ",plugins: '" << plugins() << "'";
 
     config <<
       ",init_instance_callback: " << jsRef() << ".init" << ""
@@ -236,6 +260,22 @@ int WTextEdit::boxPadding(Orientation orientation) const
 int WTextEdit::boxBorder(Orientation orientation) const
 {
   return 0;
+}
+
+void WTextEdit::setConfigurationSetting(const std::string& name, 
+					const boost::any& value)
+{
+  configurationSettings_[name] = value;
+}
+
+boost::any WTextEdit::configurationSetting(const std::string& name) const
+{
+  SettingsMapType::const_iterator it = configurationSettings_.find(name);
+
+  if (it != configurationSettings_.end())
+    return it->second;
+  else
+    return boost::any();
 }
 
 }

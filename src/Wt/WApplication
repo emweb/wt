@@ -363,7 +363,7 @@ public:
    * default text alignment and reverse the column orders of &lt;table&gt;
    * elements.
    *
-   * In addition, %Wt will take this setting into account in
+   * In addition, %Wt will take this setting into account in WTextEdit,
    * WTableView and WTreeView (so that columns are reverted), and swap
    * the behaviour of WWidget::setFloatSide() and
    * WWidget::setOffsets() for RightToLeft languages. Note that CSS

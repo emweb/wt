@@ -664,15 +664,20 @@ this.getSelectionRange = function(elem) {
 
       return {start: caretPos, end: selStr.length + caretPos};
     } else {
-      var start, end;
+      var start = -1;
+      var end = -1;
+      
       var val = $(elem).val();
-      var range = document.selection.createRange().duplicate();
-      range.moveEnd("character", val.length);
-      start = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+      if (val) {
+        var range = document.selection.createRange().duplicate();
 
-      range = document.selection.createRange().duplicate();
-      range.moveStart("character", -val.length);
-      end = range.text.length;
+        range.moveEnd("character", val.length);
+        start = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+
+        range = document.selection.createRange().duplicate();
+        range.moveStart("character", -val.length);
+        end = range.text.length;
+      }
 
       return {start: start, end: end};
     }

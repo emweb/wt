@@ -48,7 +48,7 @@ public:
   std::vector<Contact> addressees() const;
 
   //! Reimplement hide() and show() to also hide() and show() the label.
-  virtual void setHidden(bool);
+  virtual void setHidden(bool hidden, const WAnimation& animation);
 
 private:
   //! The label associated with this edit.

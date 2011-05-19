@@ -172,6 +172,9 @@ void WPanel::expand()
 void WPanel::setAnimation(const WAnimation& transition)
 {
   animation_ = transition;
+
+  if (!animation_.empty())
+    addStyleClass("Wt-animated");
 }
 
 void WPanel::doCollapse()

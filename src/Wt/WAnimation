@@ -57,6 +57,12 @@ public:
 	     int duration = 250);
 
 #ifdef WT_TARGET_JAVA
+  WAnimation(AnimationEffect effect, TimingFunction timing = Linear,
+	     int duration = 250);
+
+  WAnimation(AnimationEffect effect1, AnimationEffect effect2,
+	     TimingFunction timing = Linear, int duration = 250);
+  
   /*! \brief Clone method.
    *
    * Clones this transition object.

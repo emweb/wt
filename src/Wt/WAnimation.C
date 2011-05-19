@@ -21,6 +21,21 @@ WAnimation::WAnimation(WFlags<AnimationEffect> effects, TimingFunction timing,
 { }
 
 #ifdef WT_TARGET_JAVA
+
+WAnimation::WAnimation(AnimationEffect effect, TimingFunction timing,
+		       int duration)
+  : effects_(effect),
+    timing_(timing),
+    duration_(duration)
+{ }
+
+WAnimation::WAnimation(AnimationEffect effect1, AnimationEffect effect2,
+		       TimingFunction timing, int duration)
+  : effects_(effect1 | effect2),
+    timing_(timing),
+    duration_(duration)
+{ }
+
 WAnimation WAnimation::clone() const
 {
   WAnimation result;

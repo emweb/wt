@@ -97,7 +97,7 @@ public:
    *
    * \sa setStyleSheet()
    */
-  const std::string& styleSheet() const { return styleSheet_; }
+  const std::string styleSheet() const;
 
   /*! \brief Loads additional TinyMCE plugins.
    *
@@ -119,7 +119,7 @@ public:
    *
    * \sa setExtraPlugins()
    */
-  const std::string& extraPlugins() const { return extraPlugins_; }
+  const std::string extraPlugins() const;
 
   /*! \brief Configures a tool bar.
    *
@@ -149,7 +149,24 @@ public:
    *
    * \sa setToolBar()
    */
-  const std::string& toolBar(int i) { return buttons_[i]; }
+  const std::string toolBar(int i);
+
+  /* \brief Configure a TinyMCE setting.
+   *
+   * A list of possible settings can be found at:
+   * http://tinymce.moxiecode.com/wiki.php/Configuration.
+   *
+   * %Wt's default settings can be overrided using this method.
+   */
+  void setConfigurationSetting(const std::string& name, 
+			       const boost::any& value);
+
+  /* \brief Returns a TinyMCE configuration setting's value.
+   *
+   * An empty boost::any is returned when no value could be found for the 
+   * provided argument.
+   */
+  boost::any configurationSetting(const std::string& name) const;
 
   virtual void resize(const WLength& width, const WLength& height);
 
@@ -164,8 +181,9 @@ protected:
 
 private:
   bool contentChanged_;
-  std::string styleSheet_, extraPlugins_;
-  std::string buttons_[4];
+  std::map<std::string, boost::any> configurationSettings_;
+
+  std::string plugins() const;
 
   void init();
   static void initTinyMCE();

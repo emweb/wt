@@ -180,8 +180,9 @@ std::string DataStore::dataAsJSLiteral(int row, int col) const
 {
   WModelIndex index = model_->index(row, col);
 
-  return Wt::Impl::asJSLiteral(model_->data(index),
-			       model_->flags(index) & ItemIsXHTMLText);
+  TextFormat tf = 
+    model_->flags(index) & ItemIsXHTMLText ? XHTMLText : PlainText;
+  return Wt::Impl::asJSLiteral(model_->data(index), tf);
 }
 
 std::string DataStore::jsGetUpdates(const std::string& storeVar)

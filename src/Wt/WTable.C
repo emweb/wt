@@ -318,6 +318,7 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
 
   // because of the mix of addChild() and insertChildAt()
   tr->setWasEmpty(false);
+  int spanCounter = 0;
 
   for (int col = 0; col < columnCount(); ++col) {
     WTableRow::TableData& d = itemAt(row, col);
@@ -333,7 +334,7 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
       if (col < headerColumnCount_ || row < headerRowCount_)
 	tr->addChild(td);
       else
-	tr->insertChildAt(td, col);
+	tr->insertChildAt(td, col - spanCounter);
 
       for (int i = 0; i < d.cell->rowSpan(); ++i)
 	for (int j = 0; j < d.cell->columnSpan(); ++j)
@@ -341,6 +342,8 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
 	    itemAt(row + i, col + j).overSpanned = true;
 	    itemAt(row + i, col + j).cell->setRendered(false);
 	  }
+    } else {
+      spanCounter++;
     }
   }
 

@@ -318,10 +318,10 @@ public:
       /*
        * This is for bools, which we map to int values
        */
-      if (strcmp(v, "f") == 0)
-	return 0;
-      else if (strcmp(v, "t") == 0)
-	return 1;
+      if (strcasecmp(v, "f") == 0)
+	*value = 0;
+      else if (strcasecmp(v, "t") == 0)
+	*value = 1;
       else
 	throw;
     }

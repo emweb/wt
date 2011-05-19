@@ -23,10 +23,14 @@
     position: fixed;
 }
 
+.Wt-animated {
+    -webkit-backface-visibility: hidden; /* avoids flicker on Chrome */
+}
+
 /*
  * WStackedWidget
  */
-.Wt-animated {
+.Wt-stack.Wt-animated {
     overflow: hidden;
     position: relative;
 }
@@ -255,6 +259,7 @@
   border: 3px solid #888888;
   background: #EEEEEE none repeat scroll 0%;
 }
+
 .Wt-panel .titlebar {
   padding: 0px 6px 3px;
   background: #888888; color: #FFFFFF;
@@ -264,6 +269,7 @@
 .Wt-panel .body {
   background: #FFFFFF;
   padding: 4px 6px 4px;
+  -webkit-backface-visibility: hidden; /* !flicker on Chrome */
 }
 
 /*

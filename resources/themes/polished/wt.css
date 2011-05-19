@@ -2,6 +2,10 @@
  * Effects
  */
 
+.Wt-animated {
+    -webkit-backface-visibility: hidden; /* avoids flicker on Chrome */
+}
+
 /*
  * Outset using a dropshadow
  */
@@ -50,6 +54,14 @@
     height:12px;
     left:-14px;
     width:14px;
+}
+
+/*
+ * WStackedWidget
+ */
+.Wt-stack.Wt-animated {
+    overflow: hidden;
+    position: relative;
 }
 
 /*

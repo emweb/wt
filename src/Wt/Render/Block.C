@@ -618,7 +618,7 @@ void Block::layoutInline(Line& line, BlockList& floats,
 {
   inlineLayout.clear();
 
-  if (isText() || type_ == DomElement_IMG) {
+  if (isText() || type_ == DomElement_IMG || type_ == DomElement_BR) {
     std::string s;
     unsigned utf8Pos = 0, utf8Count = 0;
     double whitespaceWidth = 0;

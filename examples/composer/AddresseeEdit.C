@@ -79,8 +79,8 @@ std::vector<Contact> AddresseeEdit::addressees() const
   return result;
 }
 
-void AddresseeEdit::setHidden(bool how)
+void AddresseeEdit::setHidden(bool hidden, const WAnimation& animation)
 {
-  WTextArea::setHidden(how);
-  label_->setHidden(how);
+  WTextArea::setHidden(hidden, animation);
+  label_->setHidden(hidden, animation);
 }

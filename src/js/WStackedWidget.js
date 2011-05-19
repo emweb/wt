@@ -47,11 +47,11 @@ WT_DECLARE_WT_MEMBER
        $(from).removeClass(anim + ' out');
        $(to).removeClass(anim + ' in');
 
-       to.style.position = '';
        to.style.left = '';
        to.style.width = '';
        to.style.top = '';
        to.style.height = '';
+       to.style.position = '';
        to.style['-webkit-animation-duration'] = '';
        to.style['-webkit-animation-timing-function'] = '';
 

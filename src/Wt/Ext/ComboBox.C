@@ -144,11 +144,13 @@ void ComboBox::setCurrentIndex(int index)
     WModelIndex modelIndex = model_->index(index, modelColumn_);
     const boost::any& v = model_->data(modelIndex);
 
-    if (isRendered())
+    if (isRendered()) {
+      TextFormat tf = 
+	model_->flags(modelIndex) & ItemIsXHTMLText ? XHTMLText : PlainText;
       addUpdateJS(elVar() + ".setValue("
-		  + Wt::Impl::asJSLiteral(v, model_->flags(modelIndex)
-					  & ItemIsXHTMLText)
+		  + Wt::Impl::asJSLiteral(v, tf)
 		  + ");");
+    }
 
     lineEdit()->setText(asString(v));
   }

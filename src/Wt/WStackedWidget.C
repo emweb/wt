@@ -23,6 +23,8 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
 {
   WT_DEBUG( setObjectName("WStackedWidget") );
   setJavaScriptMember(WT_RESIZE_JS, StdGridLayoutImpl::childrenResizeJS());
+
+  addStyleClass("Wt-stack");
 }
 
 void WStackedWidget::addWidget(WWidget *widget)
@@ -74,7 +76,7 @@ void WStackedWidget::setTransitionAnimation(const WAnimation& animation,
 {
   if (loadAnimateJS()) {
     if (!animation.empty())
-      setStyleClass("Wt-animated");
+      addStyleClass("Wt-animated");
 
     animation_ = animation;
     autoReverseAnimation_ = autoReverse;
@@ -94,6 +96,9 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
 {
   if (loadAnimateJS() && !animation.empty()
       && (isRendered() || !canOptimizeUpdates())) {
+    if (canOptimizeUpdates() && index == currentIndex_)
+      return;
+
     WWidget *previous = currentWidget();
 
     setJavaScriptMember("wtAutoReverse", autoReverse ? "true" : "false");

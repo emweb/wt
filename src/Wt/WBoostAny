@@ -209,7 +209,8 @@ namespace Impl {
 
   extern WT_API boost::any updateFromJS(const boost::any& v, std::string s);
 
-  extern WT_API std::string asJSLiteral(const boost::any& v, bool xhtml);
+  extern WT_API std::string asJSLiteral(const boost::any& v, 
+					TextFormat textFormatbool);
 }
 
 template <typename Type> void registerType()

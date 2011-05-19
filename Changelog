@@ -1,3 +1,6 @@
+19-05-2011:
+	* WTextEdit: make all things configurable per instance (#801).
+
 13-05-2011:
 	* WebSession: relax needs for setting baseURL. Looks good !
 
