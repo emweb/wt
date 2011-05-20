@@ -4,6 +4,8 @@
 
 	* WAbstractSpinBox: fix behaviour on IE
 
+	* Wt.js: fix button up registration
+
 19-05-2011:
 	* WTextEdit: make all things configurable per instance (#801).
 

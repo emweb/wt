@@ -86,7 +86,7 @@ this.mouseDown = function(e) {
 };
 
 this.mouseUp = function(e) {
-  WT.buttons ^= WT.button(e);
+  WT.buttons &= ~WT.button(e);
 };
 
 /**
@@ -666,7 +666,7 @@ this.getSelectionRange = function(elem) {
     } else {
       var start = -1;
       var end = -1;
-      
+
       var val = $(elem).val();
       if (val) {
         var range = document.selection.createRange().duplicate();
