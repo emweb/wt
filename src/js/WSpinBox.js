@@ -17,6 +17,9 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var tooSmallError = "The number must be at least ";
    /** @const */ var tooLargeError = "The number may be at most ";
 
+   /** @const */ var CLASS_DOWN = 'Wt-spinbox-dn';
+   /** @const */ var CLASS_UP = 'Wt-spinbox-up';
+
    jQuery.data(edit, 'obj', this);
 
    var self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = 'crosshair',
@@ -26,7 +29,7 @@ WT_DECLARE_WT_MEMBER
    var validator = null;
 
    function isReadOnly() {
-     return edit.getAttribute("readonly") !== null;
+     return !!edit.getAttribute("readonly");
    }
 
    function getValue() {
@@ -85,7 +88,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseOut = function(o, event) {
-     $edit.removeClass('Wt-spinbox-dn').removeClass('Wt-spinbox-up');
+     $edit.removeClass(CLASS_DOWN).removeClass(CLASS_UP);
    };
 
    this.mouseMove = function(o, event) {
@@ -94,7 +97,10 @@ WT_DECLARE_WT_MEMBER
 
      if (!dragStartXY) {
        var xy = WT.widgetCoordinates(edit, event);
-       $edit.removeClass('Wt-spinbox-dn').removeClass('Wt-spinbox-up');
+
+       if ($edit.hasClass(CLASS_DOWN) || $edit.hasClass(CLASS_UP))
+	 $edit.removeClass(CLASS_DOWN).removeClass(CLASS_UP);
+
        if (xy.x > edit.offsetWidth - 16) {
 	 var mid = edit.offsetHeight/2;
 	 if (xy.y >= mid - 1 && xy.y <= mid + 1)
@@ -102,12 +108,13 @@ WT_DECLARE_WT_MEMBER
 	 else {
 	   edit.style.cursor = 'default';
 	   if (xy.y < mid - 1)
-	     $edit.addClass('Wt-spinbox-up');
+	     $edit.addClass(CLASS_UP);
 	   else
-	     $edit.addClass('Wt-spinbox-dn');
+	     $edit.addClass(CLASS_DOWN);
 	 }
        } else
-	 edit.style.cursor = '';
+	 if (edit.style.cursor != '')
+	   edit.style.cursor = '';
      } else {
        var dy = WT.pageCoordinates(event).y - dragStartXY.y;
 
@@ -120,6 +127,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseDown = function(o, event) {
+     WT.capture(null);
      if (isReadOnly())
        return;
 

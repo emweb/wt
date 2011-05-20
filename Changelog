@@ -2,6 +2,8 @@
 	* WServer, http: remove singleton objects to allow multiple 
 	WServer instances
 
+	* WAbstractSpinBox: fix behaviour on IE
+
 19-05-2011:
 	* WTextEdit: make all things configurable per instance (#801).
 

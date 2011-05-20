@@ -43,7 +43,9 @@ WAbstractSpinBox::WAbstractSpinBox(WContainerWidget *parent)
     changed_(false),
     valueChangedConnection_(false),
     preferNative_(false)
-{ }
+{ 
+  setJavaScriptMember("_a", "0");
+}
 
 void WAbstractSpinBox::setNativeControl(bool nativeControl)
 {
