@@ -150,8 +150,9 @@ const char crlf[] = { '\r', '\n' };
 
 } // namespace misc_strings
 
-Reply::Reply(const Request& request)
+Reply::Reply(const Request& request, const Configuration& config)
   : request_(request),
+    configuration_(config),
     emptyBuffer((void *)0, 0),
     transmitting_(false),
     closeConnection_(false),
@@ -286,7 +287,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	 */
 	gzipEncoding_ = 
 	     !haveContentEncoding
-	  && Configuration::instance().compression()
+	  && configuration_.compression()
 	  && request_.acceptGzipEncoding()
 	  && (cl == -1)
 	  && (ct.find("text/html") != std::string::npos

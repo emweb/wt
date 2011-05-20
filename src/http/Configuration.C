@@ -31,8 +31,6 @@
 namespace http {
 namespace server {
 
-Configuration *Configuration::instance_ = 0;
-
 Configuration::Configuration(Wt::WLogger& logger, bool silent)
   : logger_(logger),
     silent_(silent),
@@ -55,10 +53,6 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     accessLog_(),
     maxMemoryRequestSize_(128*1024)
 {
-  if (instance_)
-    throw Wt::WServer::Exception("Internal error: two Configuration instances?");
-  instance_ = this;
-
   char buf[100];
   if (gethostname(buf, 100) == 0)
     serverName_ = buf;
@@ -70,7 +64,6 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
 
 Configuration::~Configuration()
 {
-  instance_ = 0;
   unlink(pidPath_.c_str());
 }
 

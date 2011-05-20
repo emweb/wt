@@ -99,7 +99,7 @@ std::string HTTPRequest::envValue(const std::string& name) const
 
 std::string HTTPRequest::serverName() const
 {
-  return Configuration::instance().serverName();
+  return reply_->configuration().serverName();
 }
 
 std::string HTTPRequest::serverPort() const

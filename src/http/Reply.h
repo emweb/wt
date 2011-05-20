@@ -47,6 +47,7 @@ namespace asio = boost::asio;
 namespace http {
 namespace server {
 
+class Configuration;
 class Connection;
 class Reply;
 
@@ -58,7 +59,7 @@ typedef boost::weak_ptr<Connection> ConnectionWeakPtr;
 class WTHTTP_API Reply : public boost::enable_shared_from_this<Reply>
 {
 public:
-  Reply(const Request& request);
+  Reply(const Request& request, const Configuration& config);
   virtual ~Reply();
 
   enum status_type
@@ -103,12 +104,15 @@ public:
   void send();
   virtual void release();
 
+  const Configuration& configuration() { return configuration_; }
+
   void logReply(Wt::WLogger& logger);
 
   virtual status_type responseStatus() = 0;
 
 protected:
   const Request& request_;
+  const Configuration& configuration_;
   std::string remoteAddress_;
   std::string requestMethod_;
   std::string requestUri_;

@@ -75,8 +75,6 @@ public:
   /// Returns the http port number.
   int httpPort() const;
 
-  static Server* instance() { return instance_; }
-
   Wt::WebController *controller() { return controller_; }
 
   const Configuration &configuration() { return config_; }
@@ -138,8 +136,6 @@ private:
   RequestHandler request_handler_;
 
   Wt::WebController *controller_;
-
-  static Server *instance_;
 };
 
 } // namespace server

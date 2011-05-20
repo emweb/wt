@@ -32,11 +32,11 @@ namespace server {
 class WTHTTP_API StockReply : public Reply
 {
 public:
-  StockReply(const Request& request, status_type status);
   StockReply(const Request& request, status_type status,
-	     std::string extraContent);
+	     const Configuration& configuration);
   StockReply(const Request& request, status_type status,
-	     const std::string &extraContent, const std::string &err_root);
+	     std::string extraContent,
+	     const Configuration& configuration);
 
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
@@ -51,7 +51,6 @@ protected:
 
 private:
   status_type status_;
-  std::string err_root_;
   std::string content_;
   bool transmitted_;
 };

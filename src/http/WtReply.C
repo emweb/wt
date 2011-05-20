@@ -22,7 +22,7 @@ namespace http {
 
 WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
                  const Configuration &config)
-  : Reply(request),
+  : Reply(request, config),
     entryPoint_(entryPoint),
     contentLength_(-1),
     bodyReceived_(0),
@@ -167,7 +167,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
     if (status_ >= 300) {
       release();
-      setRelay(ReplyPtr(new StockReply(request(), status_)));
+      setRelay(ReplyPtr(new StockReply(request(), status_, configuration())));
       Reply::send();
       return;
     }

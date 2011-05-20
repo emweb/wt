@@ -21,8 +21,8 @@ namespace server {
 StaticReply::StaticReply(const std::string &full_path,
 			 const std::string &extension,
 			 const Request& request,
-			 const std::string &err_root)
-  : Reply(request),
+			 const Configuration& config)
+  : Reply(request, config),
     path_(full_path),
     extension_(extension)
 {
@@ -51,7 +51,7 @@ StaticReply::StaticReply(const std::string &full_path,
   if (!stream_) {
     stockReply = true;
     setRelay(ReplyPtr(new StockReply(request, StockReply::not_found,
-				     "", err_root)));
+				     "", config)));
   } else {
     try {
       fileSize_ = boost::filesystem::file_size(path_);
@@ -74,8 +74,9 @@ StaticReply::StaticReply(const std::string &full_path,
     if (curpos != rangeBegin_) {
       // Won't be able to send even a single byte -> error 416
       stockReply = true;
-      ReplyPtr sr(new StockReply(request,
-        StockReply::requested_range_not_satisfiable, "", err_root));
+      ReplyPtr sr(new StockReply
+		  (request, StockReply::requested_range_not_satisfiable,
+		   "", config));
       if (fileSize_ != -1) {
         // 416 SHOULD include a Content-Range with byte-range-resp-spec * and
         // instance-length set to current lenght
@@ -115,7 +116,8 @@ StaticReply::StaticReply(const std::string &full_path,
     if ((ims != request.headerMap.end() && ims->second == modifiedDate)
 	|| (inm != request.headerMap.end() && inm->second == etag)) {
       stockReply = true;
-      setRelay(ReplyPtr(new StockReply(request, StockReply::not_modified)));
+      setRelay(ReplyPtr(new StockReply(request, StockReply::not_modified,
+				       config)));
     }
   }
   if (!stockReply) {

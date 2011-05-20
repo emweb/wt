@@ -140,8 +140,7 @@ void Connection::sendStockReply(StockReply::status_type status)
 {
   if (reply_)
     reply_->release();
-  reply_.reset(new StockReply(request_, status, "",
-			      request_handler_.getErrorRoot()));
+  reply_.reset(new StockReply(request_, status, "", server_->configuration()));
 
   reply_->setConnection(shared_from_this());
   reply_->setCloseConnection();

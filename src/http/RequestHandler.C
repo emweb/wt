@@ -81,19 +81,16 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
       && (req.method != "POST")
       && (req.method != "PUT")
       && (req.method != "DELETE"))
-    return ReplyPtr(new StockReply(req, Reply::not_implemented,
-				   "", config_.errRoot()));
+    return ReplyPtr(new StockReply(req, Reply::not_implemented, "", config_));
 
   if ((req.http_version_major != 1)
       || (req.http_version_minor != 0 
 	  && req.http_version_minor != 1))
-    return ReplyPtr(new StockReply(req, Reply::not_implemented, 
-				   "", config_.errRoot()));
+    return ReplyPtr(new StockReply(req, Reply::not_implemented, "", config_));
 
   // Decode url to path.
   if (!url_decode(req.uri, req.request_path, req.request_query)) {
-    return ReplyPtr(new StockReply(req, Reply::bad_request,
-				   "", config_.errRoot()));
+    return ReplyPtr(new StockReply(req, Reply::bad_request,"", config_));
   }
 
   std::size_t anchor = req.request_path.find("/#");
@@ -106,8 +103,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
   // Request path must be absolute and not contain "..".
   if (req.request_path.empty() || req.request_path[0] != '/'
       || req.request_path.find("..") != std::string::npos) {
-    return ReplyPtr(new StockReply(req, Reply::bad_request,
-				   "", config_.errRoot()));
+    return ReplyPtr(new StockReply(req, Reply::bad_request, "", config_));
   }
 
   bool isStaticFile = false;
@@ -160,8 +156,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
   }
 
   std::string full_path = config_.docRoot() + req.request_path;
-  return ReplyPtr(new StaticReply(full_path, extension,
-    req, config_.errRoot()));
+  return ReplyPtr(new StaticReply(full_path, extension, req, config_));
 }
 
 bool RequestHandler::url_decode(const std::string& in,

@@ -14,6 +14,7 @@
 //
 
 #include "StockReply.h"
+#include "Configuration.h"
 
 #include <string>
 #include <boost/lexical_cast.hpp>
@@ -281,26 +282,19 @@ void escapeOriginalUrl(const std::string &original, std::string &escaped)
 } // namespace stock_replies
 
 StockReply::StockReply(const Request& request,
-		       status_type status)
-  : Reply(request),
+		       status_type status,
+		       const Configuration& configuration)
+  : Reply(request, configuration),
     status_(status),
     transmitted_(false)
 { }
 
 StockReply::StockReply(const Request& request,
-		       status_type status, std::string extraContent)
-  : Reply(request),
+		       status_type status,
+		       std::string extraContent,
+		       const Configuration& configuration)
+  : Reply(request, configuration),
     status_(status),
-    content_(extraContent),
-    transmitted_(false)
-{ }
-
-StockReply::StockReply(const Request& request, status_type status,
-		       const std::string &extraContent,
-		       const std::string &err_root)
-  : Reply(request),
-    status_(status),
-    err_root_(err_root),
     content_(extraContent),
     transmitted_(false)
 { }
@@ -325,7 +319,8 @@ std::string StockReply::contentType()
 
 ::int64_t StockReply::contentLength()
 {
-  std::string full_path(err_root_ + stock_replies::toName(status_));
+  std::string full_path(configuration().errRoot()
+			+ stock_replies::toName(status_));
   std::string original_url;
   std::string content = "";
   std::string line;

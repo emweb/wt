@@ -40,8 +40,6 @@ public:
 
   void setOptions(int argc, char **argv, const std::string& configurationFile);
 
-  static Configuration& instance() { return *instance_; }
-
   int threads() const { return threads_; }
   const std::string& docRoot() const { return docRoot_; }
   const std::string& appRoot() const { return appRoot_; }
@@ -102,8 +100,6 @@ private:
   std::string accessLog_;
 
   ::int64_t maxMemoryRequestSize_;
-
-  static Configuration *instance_;
 
   void createOptions(po::options_description& options);
   void readOptions(const po::variables_map& vm);

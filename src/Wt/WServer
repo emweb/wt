@@ -67,9 +67,6 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
   }
 }
  * \endcode
- *
- * \note Currently, only a single server instance may be created. We plan to
- *       remove this limiation in the future.
  */
 class WTCONNECTOR_API WServer : public WAbstractServer
 {
@@ -305,6 +302,9 @@ public:
    * WRun(), which does not provide direct access to the instantiated
    * server, but still you want to use functions like
    * post().
+   *
+   * \note When instantiating multiple servers, this will simply return the
+   *       last instance. You probably want to avoid this function then.
    */
   static WServer *instance() { return instance_; }
 

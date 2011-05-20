@@ -1,6 +1,7 @@
 SUBDIRS(
   dbo
   miniwebgl
+  multiple_servers
   serverpush
   socketnotifier
   suggestionpopup

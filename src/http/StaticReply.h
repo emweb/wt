@@ -35,7 +35,7 @@ class StaticReply : public Reply
 {
 public:
   StaticReply(const std::string &full_path, const std::string &extension,
-	      const Request& request, const std::string &err_root);
+	      const Request& request, const Configuration& configuration);
 
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,

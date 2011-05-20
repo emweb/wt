@@ -30,8 +30,6 @@
 namespace http {
 namespace server {
 
-Server *Server::instance_ = 0;
-
 Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
                Wt::WebController& controller)
   : config_(config),
@@ -48,9 +46,6 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
 		     accessLogger_),
     controller_(&controller)
 {
-  assert(instance_ == 0);
-  instance_ = this;
-
   if (config.accessLog().empty())
     accessLogger_.setStream(std::cout);
   else {
@@ -198,9 +193,7 @@ void Server::startAccept()
 }
 
 Server::~Server()
-{
-  instance_ = 0;
-}
+{ }
 
 void Server::run()
 {
