@@ -608,18 +608,20 @@ std::string DomElement::cssStyle() const
       if ((j->first == PropertyStyleCursor) && (j->second == "pointer")) {
 	style << "cursor:pointer;cursor:hand;";	    
       } else {
-	style << cssNames_[j->first - PropertyStylePosition]
-	      << ':' << j->second << ';';
-	if (j->first >= PropertyStyleBoxSizing) {
-	  WApplication *app = WApplication::instance(); // XXX
-
-	  if (app->environment().agentIsGecko())
-	    style << "-moz-";
-	  else if (app->environment().agentIsWebKit())
-	    style << "-webkit-";
-
+	if (!j->second.empty()) {
 	  style << cssNames_[j->first - PropertyStylePosition]
 		<< ':' << j->second << ';';
+	  if (j->first >= PropertyStyleBoxSizing) {
+	    WApplication *app = WApplication::instance(); // XXX
+
+	    if (app->environment().agentIsGecko())
+	      style << "-moz-";
+	    else if (app->environment().agentIsWebKit())
+	      style << "-webkit-";
+
+	    style << cssNames_[j->first - PropertyStylePosition]
+		  << ':' << j->second << ';';
+	  }
 	}
       }
     } else if (j->first == PropertyStyleWidthExpression) {

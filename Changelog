@@ -1,3 +1,9 @@
+23-05-2011:
+	* WTextEdit: implement missing toolBar() method
+
+	* WCssDecorationStyle: fix operator= behaviour and unset properties
+	(#816)
+
 20-05-2011:
 	* WServer, http: remove singleton objects to allow multiple 
 	WServer instances

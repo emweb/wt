@@ -93,9 +93,16 @@ const std::string WTextEdit::extraPlugins() const
 
 void WTextEdit::setToolBar(int i, const std::string& config)
 {
-  setConfigurationSetting(std::string("theme_advanced_buttons") 
-			  + boost::lexical_cast<std::string>(i + 1),
-			  config);
+  setConfigurationSetting
+    ("theme_advanced_buttons" + boost::lexical_cast<std::string>(i + 1),
+     config);
+}
+
+const std::string WTextEdit::toolBar(int i) const
+{
+  return asString(configurationSetting
+		  ("theme_advanced_buttons"
+		   + boost::lexical_cast<std::string>(i + 1))).toUTF8();
 }
 
 std::string WTextEdit::renderRemoveJs()

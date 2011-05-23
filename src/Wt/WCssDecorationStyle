@@ -74,6 +74,10 @@ public:
    */
   WCssDecorationStyle();
 
+  /*! \brief Destructor.
+   */
+  ~WCssDecorationStyle();
+
   /*! \brief Assignment operator.
    */
   WCssDecorationStyle& operator= (const WCssDecorationStyle& other);
@@ -83,6 +87,8 @@ public:
   void setCursor(Cursor c);
 
   /*! \brief Returns the cursor style.
+   *
+   * \sa setCursor()
    */
   Cursor cursor() const { return cursor_; }
 
@@ -94,6 +100,8 @@ public:
   void setCursor(std::string cursorImage, Cursor fallback = ArrowCursor);
 
   /*! \brief Returns the cursor image.
+   *
+   * \setCursor()
    */
   std::string cursorImage() const { return cursorImage_; }
 
@@ -102,67 +110,83 @@ public:
   void setBackgroundColor(WColor color);
 
   /*! \brief Returns the background color.
+   *
+   * \sa setBackgroundColor()
    */
   WColor backgroundColor() const { return backgroundColor_; }
 
-  /*! \brief Sets a background image URL.
+  /*! \brief Sets a background image.
    *
    * The image may be placed in a particular location by specifying
    * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
-   *
-   * \sa setBackgroundImage()
    */
   void setBackgroundImage(const std::string& imageHRef,
 			  Repeat repeat = RepeatXY,
 			  WFlags<Side> sides = 0);
 
-  /*! \brief Sets a background image URL.
+  /*! \brief Sets a background image (from a resource).
    *
    * The image may be placed in a particular location by specifying
    * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
-   *
-   * \sa setBackgroundImage()
    */
   void setBackgroundImage(WResource *resource,
 			  Repeat repeat = RepeatXY,
 			  WFlags<Side> sides = 0);
 
   /*! \brief Returns the background image URL.
+   *
+   * \sa setBackgroundImage()
    */
   const std::string& backgroundImage() const { return backgroundImage_; }
 
   /*! \brief Returns the background image repeat.
+   *
+   * \sa setBackgroundImage()
    */
   Repeat backgroundImageRepeat() const { return backgroundImageRepeat_; }
 
-  /*! \brief Sets the foreground color.
+  /*! \brief Sets the text color.
    */
   void setForegroundColor(WColor color);
 
-  /*! \brief Returns the foreground color.
+  /*! \brief Returns the text color.
+   *
+   * \sa setForegroundColor()
    */
   WColor foregroundColor() const { return foregroundColor_; }
 
   /*! \brief Sets the border style.
    *  
-   * A border may be placed in a particular location by specifying
-   * sides by OR'ing WWidget::Side values together, e.g. (Right | Top).
+   * The given \p border will be set for the specified \p sides.
+   *
+   * A different border style may be specified for each of the four
+   * sides.
    */
   void setBorder(WBorder border, WFlags<Side> sides = All);
 
   /*! \brief Returns the border style.
+   *
+   * Returns the border style set using setBorder() for the given \p
+   * side.
+   *
+   * \sa setBorder()
+   *
+   * \note Prior to version 3.1.9 it was not possible to pass a side
+   *       and only one border could be configured.
    */
-  WBorder border() const { return border_; }
+  WBorder border(Side side = Top) const;
 
-  /*! \brief Sets the font.
+  /*! \brief Sets the text font.
    */
   void setFont(const WFont& font);
 
-  /*! \brief Returns a reference to the font.
+  /*! \brief Returns the font.
+   *
+   * \sa setFont()
    */
   WFont& font() { return font_; }
 
-  /*! \brief Sets the text decoration options.
+  /*! \brief Sets text decoration options.
    *
    * You may logically or together any of the options of the
    * TextDecoration enumeration.
@@ -172,6 +196,8 @@ public:
   void setTextDecoration(WFlags<TextDecoration> decoration);
 
   /*! \brief Returns the text decoration options.
+   *
+   * \sa setTextDecoration()
    */
   WFlags<TextDecoration> textDecoration() const { return textDecoration_; }
 
@@ -182,7 +208,7 @@ private:
   WWebWidget               *widget_;
   Cursor                    cursor_;
   std::string               cursorImage_;
-  WBorder                   border_;
+  WBorder                  *border_[4];
   WColor                    backgroundColor_;
   WColor	            foregroundColor_;
   std::string	            backgroundImage_;
@@ -191,7 +217,6 @@ private:
   WFlags<Side>              backgroundImageLocation_;
   WFont		            font_;
   WFlags<TextDecoration>    textDecoration_;
-  WFlags<Side>              borderPosition_;
 
   bool		            cursorChanged_;
   bool		            borderChanged_;
@@ -203,6 +228,7 @@ private:
 
   void changed();
   void backgroundImageResourceChanged();
+  WBorder borderI(unsigned i) const;
 
   void setWebWidget(WWebWidget *widget);
   friend class WWebWidget;

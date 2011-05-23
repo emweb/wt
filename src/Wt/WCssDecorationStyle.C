@@ -20,7 +20,6 @@ WCssDecorationStyle::WCssDecorationStyle()
     backgroundImageRepeat_(RepeatXY),
     backgroundImageLocation_(0),
     textDecoration_(0),
-    borderPosition_(0),
     cursorChanged_(false),
     borderChanged_(false),
     foregroundColorChanged_(false),
@@ -28,7 +27,16 @@ WCssDecorationStyle::WCssDecorationStyle()
     backgroundImageChanged_(false),
     fontChanged_(false),
     textDecorationChanged_(false)
-{ }
+{
+  for (unsigned i = 0; i < 4; ++i)
+    border_[i] = 0;
+}
+
+WCssDecorationStyle::~WCssDecorationStyle()
+{
+  for (unsigned i = 0; i < 4; ++i)
+    delete border_[i];
+}
 
 WCssDecorationStyle&
 WCssDecorationStyle::operator= (const WCssDecorationStyle& other)
@@ -39,7 +47,17 @@ WCssDecorationStyle::operator= (const WCssDecorationStyle& other)
 		     other.backgroundImageRepeat(),
 		     other.backgroundImageLocation_);
   setForegroundColor(other.foregroundColor());
-  setBorder(other.border());
+
+  for (unsigned i = 0; i < 4; ++i) {
+    delete border_[i];
+    if (other.border_[i])
+      border_[i] = new WBorder(*other.border_[i]);
+    else
+      border_[i] = 0;
+  }
+
+  borderChanged_ = true;
+
   setFont(other.font_);
   setTextDecoration(other.textDecoration());
 
@@ -149,14 +167,40 @@ void WCssDecorationStyle::setForegroundColor(WColor color)
 
 void WCssDecorationStyle::setBorder(WBorder border, WFlags<Side> sides)
 {
-  if (!WWebWidget::canOptimizeUpdates()
-      || border_ != border
-      || borderPosition_ != sides) {
-    border_ = border;
-    borderPosition_ = sides;
+  Side theSides[4] = { Top, Right, Bottom, Left };
+
+  for (unsigned i = 0; i < 4; ++i) {
+    if (sides & theSides[i]) {
+      delete border_[i];
+      border_[i] = new WBorder(border);
+    }
+
     borderChanged_ = true;
-    changed();
   }
+
+  if (borderChanged_)
+    changed();
+}
+
+WBorder WCssDecorationStyle::border(Side side) const
+{
+  switch (side) {
+  case Top: return borderI(0);
+  case Right: return borderI(1);
+  case Bottom: return borderI(2);
+  case Left: return borderI(3);
+  default: break;
+  }
+
+  return WBorder();
+}
+
+WBorder WCssDecorationStyle::borderI(unsigned i) const
+{
+  if (border_[i])
+    return *border_[i];
+  else
+    return WBorder();
 }
 
 void WCssDecorationStyle::setTextDecoration(WFlags<TextDecoration> options)
@@ -214,25 +258,20 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
   /*
    * set border
    */
-  if (borderChanged_ || all) {
-    bool elementHasDefaultBorder
-      = element.type() == DomElement_IFRAME
-      || element.type() == DomElement_INPUT
-      || element.type() == DomElement_SELECT
-      || element.type() == DomElement_TEXTAREA;
+  Property properties[4] 
+    = { PropertyStyleBorderTop,
+	PropertyStyleBorderRight,
+	PropertyStyleBorderBottom,
+	PropertyStyleBorderLeft };
 
-    if (borderChanged_
-	|| elementHasDefaultBorder
-	|| (border_.style() != WBorder::None)) {
-      if (borderPosition_ & Top)
-	  element.setProperty(PropertyStyleBorderTop, border_.cssText());
-      if (borderPosition_ & Left)
-	  element.setProperty(PropertyStyleBorderLeft, border_.cssText());
-      if (borderPosition_ & Right)
-	  element.setProperty(PropertyStyleBorderRight, border_.cssText());
-      if (borderPosition_ & Bottom)
-	  element.setProperty(PropertyStyleBorderBottom, border_.cssText());
+  if (borderChanged_ || all) {
+    for (unsigned i = 0; i < 4; ++i) {
+      if (border_[i])
+	element.setProperty(properties[i], border_[0]->cssText());
+      else if (borderChanged_)
+	element.setProperty(properties[i], "");
     }
+
     borderChanged_ = false;
   }
 
