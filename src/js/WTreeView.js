@@ -331,7 +331,7 @@ WT_DECLARE_WT_MEMBER
 	    headers.style.width = table.offsetWidth + 'px';
 	}
 
-	if (!rowHeaderCount)
+	if (!rowHeaderCount && (table.offsetWidth - hc.offsetWidth >= 8))
 	  c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
 
 	el.changed = false;

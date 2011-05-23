@@ -43,10 +43,15 @@ WT_DECLARE_WT_MEMBER
        return { from: fromI, to: toI };
      }
 
-     function restore() {
+     function restoreFrom() {
        $(from).removeClass(anim + ' out');
-       $(to).removeClass(anim + ' in');
+       from.style.display = 'none';
+       from.style['-webkit-animation-duration'] = '';
+       from.style['-webkit-animation-timing-function'] = '';
+     }
 
+     function restoreTo() {
+       $(to).removeClass(anim + ' in');
        to.style.left = '';
        to.style.width = '';
        to.style.top = '';
@@ -54,10 +59,6 @@ WT_DECLARE_WT_MEMBER
        to.style.position = '';
        to.style['-webkit-animation-duration'] = '';
        to.style['-webkit-animation-timing-function'] = '';
-
-       from.style.display = 'none';
-       from.style['-webkit-animation-duration'] = '';
-       from.style['-webkit-animation-timing-function'] = '';
      }
 
      var index = getIndexes();
@@ -90,8 +91,8 @@ WT_DECLARE_WT_MEMBER
        anim = "";
 
      switch (effects & 0xFF) {
-     case SlideInFromRight: needReverse = !needReverse;
-     case SlideInFromLeft: anim = "slide"; break;
+     case SlideInFromLeft: needReverse = !needReverse;
+     case SlideInFromRight: anim = "slide"; break;
      case SlideInFromBottom: anim = "slideup"; break;
      case SlideInFromTop: anim = "slidedown"; break;
      case Pop: anim = "pop"; break;
@@ -111,7 +112,8 @@ WT_DECLARE_WT_MEMBER
 
      $(from).addClass(anim + ' out');
      $(to).addClass(anim + ' in');
-     $(to).one('webkitAnimationEnd', restore);
+     $(from).one('webkitAnimationEnd', restoreFrom);
+     $(to).one('webkitAnimationEnd', restoreTo);
    }
 
    return {

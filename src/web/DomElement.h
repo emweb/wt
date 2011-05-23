@@ -123,6 +123,7 @@ public:
 		const std::string& signalName,
 		bool isExposed = false);
   void setEvent(const char *eventName, const std::string& jsCode);
+  void addEvent(const char *eventName, const std::string& jsCode);
 
   struct EventAction
   {

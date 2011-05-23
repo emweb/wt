@@ -333,10 +333,14 @@ void DomElement::setEvent(const char *eventName,
   eventHandlers_[eventName] = EventHandler(js.str(), signalName);
 }
 
-void DomElement::setEvent(const char *eventName,
-			  const std::string& jsCode)
+void DomElement::setEvent(const char *eventName, const std::string& jsCode)
 {
   eventHandlers_[eventName] = EventHandler(jsCode, std::string());
+}
+
+void DomElement::addEvent(const char *eventName, const std::string& jsCode)
+{
+  eventHandlers_[eventName].jsCode += jsCode;
 }
 
 void DomElement::setDiscardWithParent(bool discard)

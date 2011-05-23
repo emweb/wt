@@ -69,7 +69,8 @@ void WScrollBar::updateDom(DomElement& element, bool all)
 	+ "=" + scrollElement + ".scroll" + side + ";";
     }
 
-    element.setEvent("scroll", jsCode, "");
+    if (!all || !jsCode.empty())
+      element.addEvent("scroll", jsCode);
 
     tiesChanged_ = false;
   }

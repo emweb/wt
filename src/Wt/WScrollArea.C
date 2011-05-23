@@ -106,10 +106,11 @@ void WScrollArea::updateDom(DomElement& element, bool all)
 
   if (scrollBarChanged_ || all) {
     if ((horizontalScrollBar_->tiesChanged_)
-	|| (verticalScrollBar_->tiesChanged_)) {
+	 || (verticalScrollBar_->tiesChanged_)) {
       horizontalScrollBar_->tiesChanged_ = true;
       verticalScrollBar_->tiesChanged_ = true;
     }
+
     horizontalScrollBar_->updateDom(element, all);
     verticalScrollBar_->updateDom(element, all);
 
