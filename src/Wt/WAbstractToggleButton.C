@@ -269,7 +269,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     WLabel *l = label();
   
     if (l && l->parent() == this)
-      element.addChild(((WWebWidget *)l)->createDomElement(app));
+      element.addChild(l->createSDomElement(app));
   }
 }
 

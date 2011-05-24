@@ -154,7 +154,7 @@ void WLabel::updateImage(DomElement& element, bool all, WApplication *app,
 {
   if (newImage_ || all) {
     if (image_)
-      element.insertChildAt(((WWebWidget *)image_)->createDomElement(app), pos);
+      element.insertChildAt(image_->createSDomElement(app), pos);
     newImage_ = false;
   }
 }
@@ -164,7 +164,7 @@ void WLabel::updateText(DomElement& element, bool all, WApplication *app,
 {
   if (newText_ || all) {
     if (text_)
-      element.insertChildAt(((WWebWidget *)text_)->createDomElement(app), pos);
+      element.insertChildAt(text_->createSDomElement(app), pos);
     newText_ = false;
   }
 }

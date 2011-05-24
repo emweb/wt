@@ -1063,6 +1063,7 @@ public:
   private:
 #ifdef WT_TARGET_JAVA
     UpdateLock(WApplication *app);
+    bool createdHandler_;
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA

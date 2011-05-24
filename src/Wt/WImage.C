@@ -183,7 +183,7 @@ void WImage::updateDom(DomElement& element, bool all)
 {
   DomElement *img = &element;
   if (all && element.type() == DomElement_SPAN) {
-    DomElement *map = map_->createDomElement(WApplication::instance());
+    DomElement *map = map_->createSDomElement(WApplication::instance());
     element.addChild(map);
 
     img = DomElement::createNew(DomElement_IMG);

@@ -98,8 +98,7 @@ void WScrollArea::updateDom(DomElement& element, bool all)
 
   if (widgetChanged_ || all) {
     if (widget_)
-      element.addChild(widget_->webWidget()
-		       ->createDomElement(WApplication::instance()));
+      element.addChild(widget_->createSDomElement(WApplication::instance()));
 
     widgetChanged_ = false;
   }

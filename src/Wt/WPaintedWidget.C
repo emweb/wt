@@ -311,8 +311,7 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 void WPaintedWidget::updateDom(DomElement& element, bool all)
 {
   if ((all && areaImage_) || areaImageAdded_) {
-    element.addChild(((WWebWidget *)areaImage_)
-		     ->createDomElement(WApplication::instance()));
+    element.addChild(areaImage_->createSDomElement(WApplication::instance()));
     areaImageAdded_ = false;
   }
 

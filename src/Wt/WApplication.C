@@ -1285,17 +1285,21 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
 
   WebSession::Handler *handler = WebSession::Handler::instance();
 
+  createdHandler_ = false;
   if (handler && handler->haveLock() && handler->session() == app->session_)
     return;
 
   std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
   new WebSession::Handler(app->session_, true);
+
+  createdHandler_ = true;
 }
 
 void WApplication::UpdateLock::release()
 {
   std::cerr << "Releasing update lock" << std::endl;
-  if (WebSession::Handler::instance()) {
+
+  if (createdHandler_) {
     std::cerr << "Releasing handler" << std::endl;
     WebSession::Handler::instance()->release();
   }
