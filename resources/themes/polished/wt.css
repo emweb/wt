@@ -304,6 +304,11 @@
     white-space: nowrap;
 }
 
+.Wt-popupmenu .content {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .Wt-popupmenu .Wt-item, .Wt-popupmenu .Wt-selected {
     padding: 2px 0px;
 }

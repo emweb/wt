@@ -274,7 +274,11 @@ public:
    */
   WPopupMenuItem *result() const { return result_; }
 
-  virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
+
+  virtual void setMaximumSize(const WLength& width, const WLength& height);
+  virtual void setMinimumSize(const WLength& width, const WLength& height);
 
   /*! \brief %Signal emitted when the popup is hidden.
    *

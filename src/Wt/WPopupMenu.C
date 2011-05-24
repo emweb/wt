@@ -36,7 +36,9 @@ WPopupMenu::WPopupMenu()
   setStyleClass("Wt-popupmenu Wt-outset");
 
   impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
-  impl_->bindWidget("contents", new WContainerWidget());
+  WContainerWidget *content = new WContainerWidget();
+  content->setStyleClass("content");
+  impl_->bindWidget("contents", content);
 
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
 
@@ -54,6 +56,20 @@ WPopupMenu::WPopupMenu()
 WContainerWidget *WPopupMenu::contents()
 {
   return dynamic_cast<WContainerWidget *>(impl_->resolveWidget("contents"));
+}
+
+void WPopupMenu::setMaximumSize(const WLength& width,
+				const WLength& height)
+{
+  WCompositeWidget::setMaximumSize(width, height);
+  contents()->setMaximumSize(width, height);
+}
+
+void WPopupMenu::setMinimumSize(const WLength& width,
+				const WLength& height)
+{
+  WCompositeWidget::setMinimumSize(width, height);
+  contents()->setMinimumSize(width, height);
 }
 
 WPopupMenuItem *WPopupMenu::addItem(const WString& text)
