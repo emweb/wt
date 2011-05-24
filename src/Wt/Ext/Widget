@@ -37,7 +37,8 @@ public:
    */
   ~Widget();
 
-  virtual void setHidden(bool how);
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
 
   const std::string elVar() const;
   const std::string elRef() const;

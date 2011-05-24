@@ -174,7 +174,8 @@ public:
 
   /*! \brief Show or hide the message box.
    */
-  virtual void setHidden(bool hidden);
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
 
   virtual void refresh();
 

@@ -111,12 +111,12 @@ Widget::~Widget()
 		    + ".deleteExtW('" + id() + "');");
 }
 
-void Widget::setHidden(bool how)
+void Widget::setHidden(bool hidden, const WAnimation& animation)
 {
-  WWebWidget::setHidden(how);
+  WWebWidget::setHidden(hidden, animation);
 
   if (isRendered() || !canOptimizeUpdates())
-    addUpdateJS(elVar() + ".setVisible(" + (how ? "false" : "true") + ");");
+    addUpdateJS(elVar() + ".setVisible(" + (hidden ? "false" : "true") + ");");
 }
 
 std::string Widget::extId() const

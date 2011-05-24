@@ -111,7 +111,7 @@ void MessageBox::setValue(const WString& value)
   value_ = value;
 }
 
-void MessageBox::setHidden(bool hidden)
+void MessageBox::setHidden(bool hidden, const WAnimation& animation)
 {
   if (hidden != hidden_) {
     hidden_ = hidden;

@@ -138,12 +138,12 @@ void Dialog::wasHidden()
   reject();
 }
 
-void Dialog::setHidden(bool hidden)
+void Dialog::setHidden(bool hidden, const WAnimation& animation)
 {
   if (hidden_ != hidden) {
     hidden_ = hidden;
 
-    Panel::setHidden(hidden);
+    Panel::setHidden(hidden, animation);
 
     WApplication *app = WApplication::instance();
     if (!app->environment().agentIsIE() && !hidden_)

@@ -153,7 +153,8 @@ public:
    */
   DialogCode result() const { return result_; }
 
-  virtual void setHidden(bool hidden);
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
 
   /*! \brief Add a button at the bottom of this dialog.
    *
