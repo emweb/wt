@@ -95,4 +95,16 @@ std::string WBorder::cssText() const
   return width + " " + style + " " + color_.cssText();
 }
 
+#ifdef WT_TARGET_JAVA
+WBorder WBorder::clone() const
+{
+  WBorder b;
+  b.width_ = width_;
+  b.explicitWidth_ = explicitWidth_;
+  b.color_ = color_;
+  b.style_ = style_;
+  return b;
+}
+#endif
+
 }

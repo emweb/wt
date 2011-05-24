@@ -105,6 +105,14 @@ public:
   /*! \brief Returns the CSS text for this border style.
    */
   std::string cssText() const;
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Clone method.
+   *
+   * Clones this border.
+   */
+  WBorder clone() const;
+#endif
   
 private:
   Width   width_;

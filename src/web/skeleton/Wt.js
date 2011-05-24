@@ -1643,6 +1643,7 @@ function dragStart(obj, e) {
 
   WT.capture(null);
   WT.capture(ds.object);
+
   ds.object.onmousemove = dragDrag;
   ds.object.onmouseup = dragEnd;
 
@@ -1652,7 +1653,7 @@ function dragStart(obj, e) {
   ds.mimeType = obj.getAttribute("dmt");
   ds.xy = WT.pageCoordinates(e);
 
-  WT.cancelEvent(e);
+  WT.cancelEvent(e, WT.CancelPropagate);
 
   return false;
 };

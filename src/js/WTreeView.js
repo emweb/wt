@@ -321,7 +321,6 @@ WT_DECLARE_WT_MEMBER
 			     .css('width', w2 + 'px')
 			     .css('width', '');
 			 }, 0);
-
 	  }
 	} else {
 	  if (contentstoo) {
