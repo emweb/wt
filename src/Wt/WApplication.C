@@ -123,6 +123,8 @@ WApplication::WApplication(const WEnvironment& env)
 
   if (environment().agentIsIElt(9))
     addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=7");
+  else if (environment().agent() == WEnvironment::IE9)
+    addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=9");
 
   domRoot_ = new WContainerWidget();
   domRoot_->setStyleClass("Wt-domRoot");
@@ -378,7 +380,7 @@ std::string WApplication::resourcesUrl()
   if (!result.empty() && result[result.length()-1] != '/')
     result += '/';
 
-  return WApplication::instance()->fixRelativeUrl(result);
+  return WApplication::instance()->resolveRelativeUrl(result);
 #else
   const std::string* path = WebSession::instance()->controller()
     ->configuration().property(WApplication::RESOURCES_URL);
@@ -567,7 +569,7 @@ void WApplication::setConfirmCloseMessage(const WString& message)
 
 std::string WApplication::url() const
 {
-  return fixRelativeUrl(session_->applicationName());
+  return resolveRelativeUrl(session_->applicationName());
 }
 
 std::string WApplication::makeAbsoluteUrl(const std::string& url) const
@@ -575,7 +577,7 @@ std::string WApplication::makeAbsoluteUrl(const std::string& url) const
   return session_->makeAbsoluteUrl(url);
 }
 
-std::string WApplication::fixRelativeUrl(const std::string& url) const
+std::string WApplication::resolveRelativeUrl(const std::string& url) const
 {
   return session_->fixRelativeUrl(url);
 }
@@ -949,7 +951,8 @@ void WApplication::enableInternalPaths()
 
     doJavaScript
       (javaScriptClass() + "._p_.enableInternalPaths("
-       + WWebWidget::jsStringLiteral(internalPath()) + ");" , false);
+       + WWebWidget::jsStringLiteral(session_->pagePathInfo())
+       + ");" , false);
 
     if (session_->useUglyInternalPaths())
       log("warn") << "Deploy-path ends with '/', using /?_= for "

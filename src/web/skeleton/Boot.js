@@ -75,6 +75,7 @@ var qstart = hash.indexOf('?');
 if (qstart != -1)
   hash = hash.substr(0, qstart);
 
+// workaround inconsistencies in hash character encoding
 var ua = navigator.userAgent.toLowerCase();
 if ((ua.indexOf("gecko") == -1) || (ua.indexOf("webkit") != -1))
   hash = unescape(hash);
@@ -86,6 +87,13 @@ if (screen.deviceXDPI != screen.logicalXDPI)
 
 // determine url
 var selfUrl=_$_SELF_URL_$_;
+
+// determine html history support
+var isMobileWebKit
+      = (ua.indexOf("applewebkit") != -1) && (ua.indexOf("mobile") != -1),
+    htmlHistory = !isMobileWebKit
+      && !!(window.history && window.history.pushState),
+    htmlHistoryInfo = htmlHistory ? "&htmlHistory=true" : "";
 
 var needSessionInUrl = !no_replace || !ajax;
 
@@ -118,8 +126,7 @@ if (needSessionInUrl) {
     selfurl += '#' + hash;
   setUrl(selfUrl);
 } else if (ajax) {
-  var htmlHistory = !!(win.history && win.history.pushState),
-      canonicalUrl = _$_AJAX_CANONICAL_URL_$_,
+  var canonicalUrl = _$_AJAX_CANONICAL_URL_$_,
       hashInfo = '';
   if (!htmlHistory && canonicalUrl.length > 1) {
 _$_$if_HYBRID_$_();
@@ -137,15 +144,16 @@ _$_$if_HYBRID_$_();
 _$_$endif_$_();
     }
 
+    var allInfo = hashInfo + scaleInfo + htmlHistoryInfo;
 _$_$ifnot_SPLIT_SCRIPT_$_();
-    loadScript(selfUrl + hashInfo + scaleInfo + '&request=script&rand=' + rand(),
+    loadScript(selfUrl + allInfo + '&request=script&rand=' + rand(),
                null);
 _$_$endif_$_();
 _$_$if_SPLIT_SCRIPT_$_();
     /* Ideally, we should be able to omit the sessionid too */
-    loadScript(selfUrl + '&request=script&skeleton=true',
+    loadScript(selfUrl + allInfo + '&request=script&skeleton=true',
                function() {
-                 loadScript(selfUrl + hashInfo + scaleInfo
+                 loadScript(selfUrl +
                             + '&request=script&rand=' + rand(), null);
                });
 _$_$endif_$_();

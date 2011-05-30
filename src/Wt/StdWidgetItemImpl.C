@@ -60,7 +60,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   // Note to self: we should support actual IE8 since this version has
   // box-sizing too.
-  bool boxSizing = !app->environment().agentIsIElt(9);
+  bool boxSizing = !app->environment().agentIsIE();
 
   if (!boxSizing) {
     if (fitWidth)

@@ -225,7 +225,7 @@ public:
    */
   const std::vector<WWidget *>& children() const;
 
-  static std::string fixRelativeUrl(const std::string& url);
+  static std::string resolveRelativeUrl(const std::string& url);
 
   void setFormObject(bool how);
   static bool canOptimizeUpdates();

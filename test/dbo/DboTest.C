@@ -473,6 +473,17 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     BOOST_REQUIRE(c2->bsManyToMany.size() == 0);
     BOOST_REQUIRE(c3->bsManyToMany.size() == 0);
 
+    /*
+     * I had to write this example to convince myself that I actually
+     * implemented this so that this kind of things simply work !
+     */
+    dbo::collection<std::string> names
+      = session_->query<std::string>("select name from table_b");
+
+    for (dbo::collection<std::string>::const_iterator i = names.begin();
+	 i != names.end(); ++i)
+      std::cerr << *i << std::endl;
+
     t.commit();
   }
 

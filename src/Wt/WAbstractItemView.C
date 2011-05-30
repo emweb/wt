@@ -272,7 +272,7 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
 
   columnWidthChanged_.connect(this, &Self::updateColumnWidth);
 
-  headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
+  headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh", this);
   app->styleSheet().addRule(headerHeightRule_);
   setHeaderHeight(headerLineHeight_);
 }
@@ -385,12 +385,12 @@ void WAbstractItemView::initDragDrop()
   WApplication *app = WApplication::instance();
 
   /* item drag & drop */
-  app->styleSheet().addRule
+  addCssRule
     ("#" + id() + "dw",
      "width: 32px; height: 32px;"
      "background: url(" + WApplication::resourcesUrl() + "items-not-ok.gif);");
 
-  app->styleSheet().addRule
+  addCssRule
     ("#" + id() + "dw.Wt-valid-drop",
      "width: 32px; height: 32px;"
      "background: url(" + WApplication::resourcesUrl() + "items-ok.gif);");

@@ -1,3 +1,13 @@
+30-05-2011:
+	* WAbstractItemView, WTreeView: fix browser memory leaks of
+	inline stylesheet definitions (#834)
+
+27-05-2011:
+	* WebRenderer, WebSession: better detection of IE9 and workaround
+	its bugs (box-sizeing border-box)
+
+	* WWebWidget: do not set an offset auto for IE (gets confused)
+
 23-05-2011:
 	* WTextEdit: implement missing toolBar() method
 

@@ -188,7 +188,7 @@ void WHTML5Media::renderSource(DomElement* element,
                                WHTML5Media::Source &source, bool isLast)
 {
   // src is mandatory
-  element->setAttribute("src", fixRelativeUrl(source.url));
+  element->setAttribute("src", resolveRelativeUrl(source.url));
   if (source.type != "") element->setAttribute("type", source.type);
   if (source.media != "") element->setAttribute("media", source.media);
   if (isLast && alternative_) {

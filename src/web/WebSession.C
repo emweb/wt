@@ -58,7 +58,7 @@ namespace {
       else
 	++pos;
     }
-    return url.substr(0, pos);
+    return url.substr(0, pos - 1);
   }
 }
 
@@ -218,7 +218,7 @@ std::string WebSession::docType() const
       "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
       "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
   else
-    return "<!DOCTYPE html>"; // HTML5 hoeray
+    return "<!doctype html>"; // HTML5 hoeray
 }
 
 #ifndef WT_TARGET_JAVA
@@ -303,7 +303,9 @@ void WebSession::init(const WebRequest& request)
   std::string path = request.pathInfo();
   if (path.empty() && hashE)
     path = *hashE;
+
   env_->setInternalPath(path);
+  pagePathInfo_ = request.pathInfo();
 }
 
 bool WebSession::useUglyInternalPaths() const
@@ -318,7 +320,6 @@ bool WebSession::useUglyInternalPaths() const
   else
     return false;
 #else
-  //TODO redmine #725
   return false;
 #endif
 }
@@ -394,11 +395,14 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
   if (!isAbsoluteUrl(applicationUrl_)) {
     if (url.empty() || url[0] == '/')
       return url;
+    else if (env_->hashInternalPaths())
+      return url;
     else {
       std::string rel = "";
+      std::string pi = pagePathInfo_;
 
-      for (unsigned i = 0; i < pagePathInfo_.length(); ++i) {
-	if (pagePathInfo_[i] == '/')
+      for (unsigned i = 0; i < pi.length(); ++i) {
+	if (pi[i] == '/')
 	  rel += "../";
       }
 
@@ -1129,6 +1133,8 @@ void WebSession::handleRequest(Handler& handler)
 	    init(request); // env, url/internalpath, initial query parameters
 	    env_->doesAjax_ = true;
 
+	    // FIXME html history support?
+
 	    if (!start())
 	      throw WtException("Could not start application.");
 
@@ -1221,9 +1227,13 @@ void WebSession::handleRequest(Handler& handler)
 	    if (!request.getParameter("skeleton")) {
 	      const std::string *hashE = request.getParameter("_");
 	      const std::string *scaleE = request.getParameter("scale");
+	      const std::string *htmlHistoryE
+		= request.getParameter("htmlHistory");
 
 	      env_->doesAjax_ = true;
 	      env_->doesCookies_ = !request.headerValue("Cookie").empty();
+	      if (!htmlHistoryE)
+		env_->hashInternalPaths_ = true;
 
 	      try {
 		env_->dpiScale_

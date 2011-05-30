@@ -44,6 +44,7 @@ WEnvironment::WEnvironment(WebSession *session)
   : session_(session),
     doesAjax_(false),
     doesCookies_(false),
+    hashInternalPaths_(false),
     dpiScale_(1),
     contentType_(HTML4)
 { }
@@ -177,6 +178,8 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = IEMobile;
   else if (userAgent_.find("MSIE 6") != std::string::npos)
     agent_ = IE6;
+  else if (userAgent_.find("Trident/5.0") != std::string::npos)
+    agent_ = IE9;
   else if (userAgent_.find("MSIE 7") != std::string::npos)
     agent_ = IE7;
   else if (userAgent_.find("MSIE 8") != std::string::npos)

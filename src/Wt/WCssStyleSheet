@@ -35,7 +35,7 @@ class WCssTemplateWidget;
  *
  * \ingroup style
  */
-class WT_API WCssRule
+class WT_API WCssRule : public WObject
 {
 public:
   /*! \brief Destructor.
@@ -65,7 +65,7 @@ public:
 protected:
   /*! \brief Creates a new CSS rule with given selector.
    */
-  WCssRule(const std::string& selector);
+  WCssRule(const std::string& selector, WObject* parent = 0);
 
 private:
   std::string  selector_;
@@ -108,7 +108,7 @@ public:
    * unique and not contain commas, since this is not supported by
    * Microsoft Internet Explorer.
    */
-  WCssTemplateRule(const std::string& selector);
+  WCssTemplateRule(const std::string& selector, WObject* parent = 0);
 
   ~WCssTemplateRule();
 
@@ -163,7 +163,9 @@ class WT_API WCssTextRule : public WCssRule
 public:
   /*! \brief Creates a CSS rule with a given selector and declarations.
    */
-  WCssTextRule(const std::string& selector, const WT_USTRING& declarations);
+  WCssTextRule(const std::string& selector, 
+	       const WT_USTRING& declarations,
+	       WObject* parent = 0);
 
   const std::string declarations();
 

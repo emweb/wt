@@ -43,14 +43,13 @@ WT_DECLARE_WT_MEMBER
        return { from: fromI, to: toI };
      }
 
-     function restoreFrom() {
+     function restore() {
+	 debugger;
        $(from).removeClass(anim + ' out');
        from.style.display = 'none';
        from.style['-webkit-animation-duration'] = '';
        from.style['-webkit-animation-timing-function'] = '';
-     }
 
-     function restoreTo() {
        $(to).removeClass(anim + ' in');
        to.style.left = '';
        to.style.width = '';
@@ -112,8 +111,7 @@ WT_DECLARE_WT_MEMBER
 
      $(from).addClass(anim + ' out');
      $(to).addClass(anim + ' in');
-     $(from).one('webkitAnimationEnd', restoreFrom);
-     $(to).one('webkitAnimationEnd', restoreTo);
+     $(to).one('webkitAnimationEnd', restore);
    }
 
    return {

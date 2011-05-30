@@ -115,13 +115,21 @@ WT_DECLARE_WT_MEMBER
      if (WT.hasTag(ch, 'TABLE'))
        return;
 
-     if (!shallow && ch.wtResize) {
-       var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
-       var cw = self.getColumn(col).style.width, cwl = cw.length;
-       if (cwl > 0 && cw[cwl-1] == '%') {
-	 ch.style.position = 'absolute';
-	 ch.style.width = w+'px';
+     var p, w;
+
+     if (!shallow) {
+       p = ch.parentNode;
+       w = p.offsetWidth - self.marginH(ch);
+       if (self.getColumn(col)) {
+	 var cw = self.getColumn(col).style.width, cwl = cw.length;
+	 if (cwl > 0 && cw[cwl-1] == '%') {
+	   ch.style.position = 'absolute';
+	   ch.style.width = w+'px';
+	 }
        }
+     }
+
+     if (!shallow && ch.wtResize) {
        ch.wtResize(ch, w, height);
      } else if (ch.style.height != height+'px') {
        ch.style.height = height+'px';

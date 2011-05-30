@@ -202,6 +202,9 @@ std::string DomElement::urlEncodeS(const std::string& url,
         result.put(c);
       } else {
         result << '%';
+        if ((int)c < 16) {
+          result << '0';
+        }
 #ifndef WT_CNOR
         result << (int)c;
 #else

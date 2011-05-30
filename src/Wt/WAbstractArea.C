@@ -307,7 +307,8 @@ void WAbstractArea::repaint()
 void WAbstractArea::updateDom(DomElement& element, bool all)
 {
   if (!hole_ && anchor_) {
-    element.setAttribute("href", WWebWidget::fixRelativeUrl(anchor_->ref_));
+    element.setAttribute("href",
+			 WWebWidget::resolveRelativeUrl(anchor_->ref_));
 
     switch (anchor_->target_) {
     case TargetSelf:

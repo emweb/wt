@@ -299,7 +299,7 @@ namespace Wt {
      * search for a subset or to browse the results in a particular order.
      *
      * \note This only works for a collection that represents the many-side
-     *       of a collection (i.e. for which hasMany() is called).
+     *       of a relation (i.e. for which hasMany() is called).
      */
     Query<C, DynamicBinding> find() const;
 

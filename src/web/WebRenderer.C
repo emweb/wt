@@ -318,8 +318,7 @@ void WebRenderer::serveLinkedCss(WebResponse& response)
 
   for (unsigned i = 0; i < app->styleSheets_.size(); ++i) {
     std::string url = app->styleSheets_[i].uri;
-    response.out() << "@import url(\""
-		   << app->fixRelativeUrl(url) << "\")";
+    response.out() << "@import url(\"" << url << "\")";
     if (!app->styleSheets_[i].media.empty()
 	&& app->styleSheets_[i].media != "all")
       response.out() << ' ' << app->styleSheets_[i].media;
@@ -678,8 +677,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
       keepAlive = conf.sessionTimeout() / 2;
     script.setVar("KEEP_ALIVE", boost::lexical_cast<std::string>(keepAlive));
 
-    script.setVar("INITIAL_HASH",
-		  WWebWidget::jsStringLiteral(app->internalPath()));
     script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
     script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
 
@@ -775,7 +772,12 @@ void WebRenderer::serveMainscript(WebResponse& response)
     response.out()
       << collectedJS1_.str()
       << app->javaScriptClass()
-      << "._p_.response(" << expectedAckId_ << ");";
+      << "._p_.response(" << expectedAckId_ << ");"
+      << app->javaScriptClass()
+      << "._p_.setHash('" << app->newInternalPath_ << "');\n";
+
+    if (!app->environment().hashInternalPaths())
+      session_.pagePathInfo_ = app->newInternalPath_;
 
     response.out()
 	<< app->javaScriptClass()
@@ -1044,7 +1046,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
     std::string url = app->styleSheets_[i].uri;
     url = Wt::Utils::replace(url, '&', "&amp;");
     styleSheets += "<link href=\""
-      + app->fixRelativeUrl(url) + "\" rel=\"stylesheet\" type=\"text/css\"";
+      + session_.fixRelativeUrl(url)
+      + "\" rel=\"stylesheet\" type=\"text/css\"";
 
     if (!app->styleSheets_[i].media.empty()
 	&& app->styleSheets_[i].media != "all")
@@ -1059,7 +1062,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
   for (unsigned i = 0; i < app->scriptLibraries_.size(); ++i) {
     std::string url = app->scriptLibraries_[i].uri;
     url = Wt::Utils::replace(url, '&', "&amp;");
-    styleSheets += "<script src='" + app->fixRelativeUrl(url) + "'></script>\n";
+    styleSheets += "<script src='"
+      + session_.fixRelativeUrl(url) + "'></script>\n";
 
     beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadJS;
   }
@@ -1080,7 +1084,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
     ? session_.bookmarkUrl(app->newInternalPath_)
     : session_.mostRelativeUrl(app->newInternalPath_);
 
-  url = app->fixRelativeUrl(url);
+  url = session_.fixRelativeUrl(url);
 
   url = Wt::Utils::replace(url, '&', "&amp;");
   page.setVar("RELATIVE_URL", url);
@@ -1150,7 +1154,7 @@ int WebRenderer::loadScriptLibraries(std::ostream& out,
     int first = app->scriptLibraries_.size() - app->scriptLibrariesAdded_;
 
     for (unsigned i = first; i < app->scriptLibraries_.size(); ++i) {
-      std::string uri = app->fixRelativeUrl(app->scriptLibraries_[i].uri);
+      std::string uri = session_.fixRelativeUrl(app->scriptLibraries_[i].uri);
 
       out << app->scriptLibraries_[i].beforeLoadJS
 	  << app->javaScriptClass() << "._p_.loadScript('" << uri << "',";
@@ -1181,7 +1185,7 @@ void WebRenderer::loadStyleSheets(std::ostream& out, WApplication *app)
 
   for (unsigned i = first; i < app->styleSheets_.size(); ++i) {
     out << WT_CLASS << ".addStyleSheet('"
-	<< app->fixRelativeUrl(app->styleSheets_[i].uri) << "', '"
+	<< session_.fixRelativeUrl(app->styleSheets_[i].uri) << "', '"
 	<< app->styleSheets_[i].media << "');\n";
   }
 
@@ -1385,11 +1389,14 @@ void WebRenderer::collectJS(std::ostream* js)
   if (js) {
     int librariesLoaded = loadScriptLibraries(*js, app);
 
-    if (app->internalPathIsChanged_)
+    app->streamAfterLoadJavaScript(*js);
+
+    if (app->internalPathIsChanged_) {
       *js << app->javaScriptClass()
 	  << "._p_.setHash('" << app->newInternalPath_ << "');\n";
-
-    app->streamAfterLoadJavaScript(*js);
+      if (!app->environment().hashInternalPaths())
+	session_.pagePathInfo_ = app->newInternalPath_;
+    }
 
     loadScriptLibraries(*js, app, librariesLoaded);
   } else
@@ -1512,9 +1519,11 @@ std::string WebRenderer::headDeclarations() const
       result << (xhtml ? "\"/>" : "\">");
     }
   } else
-    if (session_.env().agentIsIE()
-	&& session_.env().agent() <= WEnvironment::IE8)
+    if (session_.env().agentIsIElt(9))
       result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7"
+	     << (xhtml ? "\"/>" : "\">") << '\n';
+    else if (session_.env().agent() == WEnvironment::IE9)
+      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9"
 	     << (xhtml ? "\"/>" : "\">") << '\n';
 
   if (!session_.favicon().empty())

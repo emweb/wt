@@ -463,4 +463,14 @@ bool WWidget::hasParent() const
     return WObject::hasParent();
 }
 
+WCssTextRule *WWidget::addCssRule(const std::string& selector,
+				  const std::string& declarations,
+				  const std::string& ruleName)
+{
+  WApplication *app = WApplication::instance();
+  WCssTextRule *result = new WCssTextRule(selector, declarations, this);
+  app->styleSheet().addRule(result, ruleName);
+  return result;
+}
+
 }

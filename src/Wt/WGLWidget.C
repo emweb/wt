@@ -541,7 +541,7 @@ void WGLWidget::updateDom(DomElement &element, bool all)
       for (unsigned i = 0; i < preloadImages_.size(); ++i) {
         if (i != 0)
           tmp << ',';
-        tmp << '\'' << fixRelativeUrl(preloadImages_[i].second) << '\'';
+        tmp << '\'' << resolveRelativeUrl(preloadImages_[i].second) << '\'';
       }
       tmp <<
         "],function(images){\n"

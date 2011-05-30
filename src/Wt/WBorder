@@ -49,7 +49,7 @@ public:
 
   /*! \brief Creates a border with given style, thickness and color.
    */
-  explicit WBorder(Style style, Width = Medium, WColor color = WColor());
+  WBorder(Style style, Width = Medium, WColor color = WColor());
 
   /*! \brief Creates a border with an absolute width.
    */

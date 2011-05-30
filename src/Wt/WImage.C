@@ -192,7 +192,7 @@ void WImage::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_IMAGE_REF_CHANGED) || all) {
     if (!imageRef_.empty())
-      img->setProperty(Wt::PropertySrc, fixRelativeUrl(imageRef_));
+      img->setProperty(Wt::PropertySrc, resolveRelativeUrl(imageRef_));
     flags_.reset(BIT_IMAGE_REF_CHANGED);
   }
 

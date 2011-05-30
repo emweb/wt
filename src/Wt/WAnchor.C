@@ -268,7 +268,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
       changeInternalPathJS_ = 0;
     }
 
-    element.setAttribute("href", fixRelativeUrl(url));
+    element.setAttribute("href", resolveRelativeUrl(url));
 
     flags_.reset(BIT_REF_CHANGED);
   }

@@ -563,10 +563,13 @@ public:
   WAbstractServer *server() const;
 #endif // WT_TARGET_JAVA
 
+  bool hashInternalPaths() const { return hashInternalPaths_; }
+
 protected:
   WebSession *session_;
   bool        doesAjax_;
   bool        doesCookies_;
+  bool        hashInternalPaths_;
   UserAgent   agent_;
   double      dpiScale_;
   ContentType contentType_;

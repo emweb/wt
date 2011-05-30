@@ -298,7 +298,8 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
       element.setProperty(PropertyStyleBackgroundImage,
 			  backgroundImage_.length() > 0
 			  ? "url("
-	  + WApplication::instance()->fixRelativeUrl(backgroundImage_) + ")" 
+			  + WApplication::instance()
+			  ->resolveRelativeUrl(backgroundImage_) + ")" 
 			  : "none");
       switch (backgroundImageRepeat_) {
       case RepeatXY:

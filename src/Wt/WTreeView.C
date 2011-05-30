@@ -934,20 +934,21 @@ WTreeView::WTreeView(WContainerWidget *parent)
   if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
     if (!app->styleSheet().isDefined(CSS_RULES_NAME))
       /* bottom scrollbar */
-      app->styleSheet().addRule
+      addCssRule
 	(".Wt-treeview .Wt-tv-rowc", "position: relative;", CSS_RULES_NAME);
 
   setColumnBorder(white);
 
-  app->styleSheet().addRule("#" + id() + " .cwidth", "");
+  addCssRule("#" + id() + " .cwidth", "");
 
-  rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh");
+  rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh", this);
   app->styleSheet().addRule(rowHeightRule_);
 
-  rowWidthRule_ = new WCssTemplateRule("#" + id() + " .Wt-tv-row");
+  rowWidthRule_ = new WCssTemplateRule("#" + id() + " .Wt-tv-row", this);
   app->styleSheet().addRule(rowWidthRule_);
 
-  rowContentsWidthRule_ = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc");
+  rowContentsWidthRule_ 
+    = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc", this);
   app->styleSheet().addRule(rowContentsWidthRule_);
 
   app->addAutoJavaScript
@@ -1215,7 +1216,8 @@ void WTreeView::setColumnBorder(const WColor& color)
      ".Wt-treeview .header .Wt-tv-row, "    // header column 0
      ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c, "   // data columns 1-n
      ".Wt-treeview .Wt-tv-node .Wt-tv-row", // data column 0
-     "border-color: " + color.cssText());
+     "border-color: " + color.cssText(),
+     this);
   WApplication::instance()->styleSheet().addRule(borderColorRule_);
 }
 
@@ -2652,6 +2654,7 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(int column) const
     ci.width = WLength::Auto;
     ci.styleRule->templateWidget()->resize(WLength::Auto, WLength::Auto);
 
+    //TODO should use this->addRule(), but this is const here
     WApplication *app = WApplication::instance();
     app->styleSheet().addRule("#" + this->id() + " .Wt-tv-node"
 			      " ." + ci.styleClass(),

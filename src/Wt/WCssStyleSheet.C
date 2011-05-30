@@ -101,8 +101,9 @@ private:
   WCssTemplateRule *rule_;
 };
 
-WCssRule::WCssRule(const std::string& selector)
-  : selector_(selector),
+WCssRule::WCssRule(const std::string& selector, WObject* parent)
+  : WObject(parent),
+    selector_(selector),
     sheet_(0)
 { }
 
@@ -123,8 +124,9 @@ bool WCssRule::updateDomElement(DomElement& cssRuleElement, bool all)
   return false;
 }
 
-WCssTemplateRule::WCssTemplateRule(const std::string& selector)
-  : WCssRule(selector)
+WCssTemplateRule::WCssTemplateRule(const std::string& selector, 
+				   WObject* parent)
+  : WCssRule(selector, parent)
 {
   widget_ = new WCssTemplateWidget(this);
 }
@@ -153,8 +155,9 @@ bool WCssTemplateRule::updateDomElement(DomElement& element, bool all)
 }
 
 WCssTextRule::WCssTextRule(const std::string& selector,
-			   const WT_USTRING& declarations)
-  : WCssRule(selector),
+			   const WT_USTRING& declarations,
+			   WObject* parent)
+  : WCssRule(selector, parent),
     declarations_(declarations)
 { }
 
@@ -290,7 +293,7 @@ void WCssStyleSheet::javaScriptUpdate(WApplication *app,
     rulesModified_.clear();
   }
 
-  if (!app->environment().agentIsIE()
+  if (!app->environment().agentIsIElt(9)
       && app->environment().agent() != WEnvironment::Konqueror) {
     RuleList& toProcess = all ? rules_ : rulesAdded_;
 

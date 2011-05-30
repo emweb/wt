@@ -22,7 +22,7 @@ void parseSql(const std::string& sql,  int listsCount,
 
   dbo::Impl::parseSql(sql, result, simpleSelectCount);
 
-  BOOST_REQUIRE(result.size() == listsCount);
+  BOOST_REQUIRE(result.size() == (unsigned)listsCount);
 
   int fields = 0;
   for (unsigned i = 0; i < result.size(); ++i) {

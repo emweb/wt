@@ -117,6 +117,7 @@ public:
   const std::string& deploymentPath() const { return deploymentPath_; }
 
   bool useUglyInternalPaths() const;
+  std::string pagePathInfo() const { return pagePathInfo_; }
 
   //    (http://www.bigapp.com/myapp/app.wt) ?wtd=ABCD
   // or (http://www.bigapp.com/myapp/) app.wt/path?wtd=ABCD
@@ -320,6 +321,7 @@ private:
   std::string sessionQuery() const;
 
   friend class WebSocketMessage;
+  friend class WebRenderer;
 };
 
 struct WEvent::Impl {

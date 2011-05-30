@@ -39,7 +39,7 @@ void WHTML5Video::updateMediaDom(DomElement& element, bool all)
   }
   if (all || posterChanged_) {
     if ((!all) || posterUrl_ != "") {
-      element.setAttribute("poster", fixRelativeUrl(posterUrl_));
+      element.setAttribute("poster", resolveRelativeUrl(posterUrl_));
     }
   }
   sizeChanged_ = posterChanged_ = false;

@@ -1299,7 +1299,7 @@ _$_$endif_$_();
       currentState = state;
 
       var url = baseUrl + state;
-      if (baseUrl.length < 3 && baseUrl.substr(baseUrl.length - 3) != "?_=")
+      if (baseUrl.length > 3 && baseUrl.substr(baseUrl.length - 3) != "?_=")
 	url += window.location.search;
 
       try {

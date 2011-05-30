@@ -1191,7 +1191,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    else if (i == 3) property = properties[1];
 	  }
 
-	  element.setProperty(property, layoutImpl_->offsets_[i].cssText());
+	  if (!app->environment().agentIsIE()
+	      || !layoutImpl_->offsets_[i].isAuto())
+	    element.setProperty(property, layoutImpl_->offsets_[i].cssText());
 	}
       }
 
@@ -2136,9 +2138,9 @@ bool WWebWidget::canOptimizeUpdates()
   return !WApplication::instance()->session()->renderer().preLearning();
 }
 
-std::string WWebWidget::fixRelativeUrl(const std::string& url)
+std::string WWebWidget::resolveRelativeUrl(const std::string& url)
 {
-  return WApplication::instance()->fixRelativeUrl(url);
+  return WApplication::instance()->resolveRelativeUrl(url);
 }
 
 bool WWebWidget::removeScript(WString& text)

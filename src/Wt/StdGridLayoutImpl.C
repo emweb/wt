@@ -510,7 +510,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    break;
 	  }
 
-	  if (!app->environment().agentIsIElt(9))
+	  if (!app->environment().agentIsIE())
 	    c->setProperty(PropertyStyleBoxSizing, "border-box");
 
 	  /* Buttons are strange or I am not understanding CSS */

@@ -591,6 +591,35 @@ public:
    */
   std::string makeAbsoluteUrl(const std::string& url) const;
 
+  /*! \brief "Resolves" a relative URL taking into account internal paths.
+   *
+   * Using HTML5 History API or in a plain HTML session (without ugly
+   * internal paths), the internal path is present as a full part of
+   * the URL. This has a consequence that relative URLs, if not dealt
+   * with, would be resolved against the last 'folder' name of the
+   * internal path, rather than against the application deployment
+   * path (which is what you probably want).
+   *
+   * When using a widgetset mode deployment, or when configuring a
+   * baseURL property in the configuration, this method will make an
+   * absolute URL so that the property is fetched from the right
+   * server.
+   *
+   * Otherwise, this method will fixup a relative URL so that it
+   * resolves correctly against the base path of an application. This
+   * does not necessarily mean that the URL is resolved into an
+   * absolute URL. In fact, Wt will simply prepend a sequence of "../"
+   * path elements to correct for the internal path. When passed an
+   * absolute URL (i.e. starting with '/'), the url is returned
+   * unchanged.
+   *
+   * For URLs passed to the Wt API (and of which the library knows it
+   * is represents a URL) this method is called internally by the
+   * library. But it may be useful for URLs which are set e.g. inside
+   * a WTemplate.
+   */
+  std::string resolveRelativeUrl(const std::string& url) const;
+
   /*! \brief Returns a bookmarkable URL for the current internal path.
    *
    * Is equivalent to <tt>bookmarkUrl(internalPath())</tt>, see
@@ -1279,13 +1308,6 @@ public:
    * \see encodeObject()
    */
   WObject *decodeObject(const std::string& objectId) const;
-
-  /*
-   * Check if the url needs to be modified when it should be a
-   * url relative to the application path, but the query info will make
-   * it point to some internal path.
-   */
-  std::string fixRelativeUrl(const std::string& url) const;
 
   /*! \brief Initializes the application, post-construction.
    *
