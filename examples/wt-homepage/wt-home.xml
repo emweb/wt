@@ -41,8 +41,8 @@
 	</div>
 
 	<div id="footer_menu"> 
-	  <a href="http://www.webtoolkit.eu/wt/">Home</a>
-	  | <a href="http://www.emweb.be/?page=contact">Contact</a>
+	  <a href="http://www.webtoolkit.eu/wt">Home</a>
+	  | <a href="http://www.emweb.be/contact">Contact</a>
 
 	</div>
 
@@ -518,12 +518,12 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
   for each menu entry, and in this way participate in browser
   navigation history and bookmarking. When the user browses through
   the history, each menu listens for changes that affect their own
-  contents, by listening to the <a
+  contents, by listening to the the <a
   href="/wt/doc/reference/html/classWt_1_1WApplication.html#3e68c4b6bb387f27a614e7962e11967b"
-  target="_blank">the internalPathChanged signal</a> of the
-  WApplication object. Similarly, when a user bookmarks a URL to
-  revisit it later, widgets read the initial internal path when
-  created to set the initial content accordingly.
+  target="_blank">internalPathChanged()</a> signal of the WApplication
+  object. Similarly, when a user bookmarks a URL to revisit it later,
+  widgets read the initial internal path when created to set the
+  initial content accordingly.
 </p>
 
 <p>
@@ -817,14 +817,80 @@ be it selling or giving away for free, then you must include the source
 code, as per terms of the GPL. This also applies to redistribution of
 the Wt library, in original or modified form.</p>
 
-<p><b>The Commercial License</b> has no such limitations. Please visit
-our <a href="http://www.emweb.be/?page=license-wt">Licensing
-information</a> page for license terms, pricing and ordering.</p>
+<p><b>The Commercial License</b> has no such limitations. The license
+is a royalty-free, perpetual license for one developer to use the API
+of Wt (respectively Wt::Dbo) for application development, using the
+latest version of Wt or any version released during one year.
+</p>
 
-<p>You may also obtain <a
-href="http://www.emweb.be/?page=services">support and training</a>
-options, directly from the library authors.</p>
+<table class="versions">
+  <tr class="trh">
+    <th>Feature</th>
+    <th class="product">Dbo</th>
+    <th class="product">Wt + Dbo</th>
+  </tr>
+  <tr>
+    <th>Widget library</th>
+    <td></td>
+    <td>+</td>
+  </tr>
+  <tr>
+    <th>Web application server</th>
+    <td></td>
+    <td>+</td>
+  </tr>
+  <tr>
+    <th>HTTP + WebSockets server</th>
+    <td></td>
+    <td>+</td>
+  </tr>
+  <tr>
+    <th>C++ ORM</th>
+    <td>+</td>
+    <td>+</td>
+  </tr>
+  <tr>
+    <th>Sqlite3 driver</th>
+    <td>+</td>
+    <td>+</td>
+  </tr>
+  <tr>
+    <th>PostgreSQL driver</th>
+    <td>+</td>
+    <td>+</td>
+  </tr>
+  <tr>
+    <th>License</th>
+  </tr>
+  <tr>
+    <th class="indent">
+      GNU General Public License
+    </th>
+    <td>free</td>
+    <td>free</td>
+  </tr>
+  <tr>
+    <th class="indent">
+      Commercial License
+    </th>
+    <td>&euro;175 <span class="cart" /></td>
+    <td>&euro;599 <span class="cart" /></td>
+  </tr>
+</table>
+
+<p>
+  In the public fora, an active community may help you out on small
+  issues. Contractual support is also given by <a
+  href="http://www.emweb.be/">the authors</a> with a guaranteed
+  three-day response time and high priority solution commitment.
+</p>
+
+<p>
+  To get up to speed with Wt and/or Wt::Dbo, you may also obtain <a
+  href="http://www.emweb.be/?page=services">training</a> directly from
+  the library authors.</p>
   </message>
+  
   <message id="home.download.requirements">
 
 <h4>The Wt installer: winst <span class="emph">(new!)</span></h4>
@@ -1218,7 +1284,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for all examples included in 
-	<a href="http://www.webtoolkit.eu/wt">Wt</a>.
+	<a href="#/">Wt</a>.
       </p>
     </div>
   </message>
@@ -1231,8 +1297,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/hello_world">
-	  Hello world</a> example.
+	<a href="#/examples/">Hello world</a> example.
       </p>
     </div>
   </message>
@@ -1245,8 +1310,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/charts">
-	  Charts</a> example.
+	<a href="#/examples/charts">Charts</a> example.
       </p>
     </div>
   </message>
@@ -1258,8 +1322,7 @@ tips and tricks.
       <h2>Source code of the <i>Treeview</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/treeview">
+	Browse below the source code for Wt's <a href="#/examples/treeview">
 	  Treeview</a> example.
       </p>
     </div>
@@ -1273,8 +1336,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/composer">
-	  Mail composer</a> example.
+	<a href="#/examples/composer">Mail composer</a> example.
       </p>
     </div>
   </message>
@@ -1287,8 +1349,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/wt-homepage">
-	  Homepage </a> example.
+	<a href="#/examples/wt-homepage">Homepage</a> example.
       </p>
     </div>
   </message>
@@ -1301,8 +1362,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/gitmodel">
-	  Git explorer</a> example.
+	<a href="#/examples/gitmodel">Git explorer</a> example.
       </p>
     </div>
   </message>
@@ -1315,8 +1375,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/simplechat">
-	  Chat</a> example.
+	<a href="#/examples/simplechat">Chat</a> example.
       </p>
     </div>
   </message>
@@ -1329,8 +1388,7 @@ tips and tricks.
 
       <p>
 	Browse below the source code for Wt's 
-	<a href="http://www.webtoolkit.eu/wt/examples/widgetgallery">
-	  Widget gallery</a> example.
+	<a href="#/examples/widgetgallery">Widget gallery</a> example.
       </p>
     </div>
   </message>

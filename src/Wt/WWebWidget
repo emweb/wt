@@ -136,7 +136,8 @@ public:
 				    const WLength& length = WLength());
   virtual AlignmentFlag verticalAlignment() const;
   virtual WLength verticalAlignmentLength() const;
-  virtual void setToolTip(const WString& toolTip);
+  virtual void setToolTip(const WString& toolTip,
+			  TextFormat textFormat = PlainText);
   virtual WString toolTip() const;
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
@@ -345,6 +346,7 @@ private:
     WCssDecorationStyle    *decorationStyle_;
     WT_USTRING              styleClass_;
     WString                *toolTip_;
+    TextFormat              toolTipTextFormat_;
 
     LookImpl();
     ~LookImpl();

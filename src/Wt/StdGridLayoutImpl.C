@@ -89,6 +89,20 @@ void StdGridLayoutImpl::updateDom()
     app->doJavaScript(app->javaScriptClass() + ".layouts.adjust('"
 		      + id() + "');");
   }
+
+  const unsigned colCount = grid_.columns_.size();
+  const unsigned rowCount = grid_.rows_.size();
+
+  for (unsigned i = 0; i < rowCount; ++i) {
+    for (unsigned j = 0; j < colCount; ++j) {
+      WLayoutItem *item = grid_.items_[i][j].item_;
+      if (item) {
+	WLayout *nested = item->layout();
+	if (nested)
+	  (dynamic_cast<StdLayoutImpl *>(nested->impl()))->updateDom();
+      }
+    }
+  }
 }
 
 const char *StdGridLayoutImpl::childrenResizeJS()
@@ -467,6 +481,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  DomElement *c = getImpl(item.item_)
 	    ->createDomElement(itemFitWidth, itemFitHeight, app);
 
+	  if (!app->environment().agentIsIE())
+	    c->setProperty(PropertyStyleBoxSizing, "border-box");
+
 	  if (hAlign == 0)
 	    hAlign = AlignJustify;
 
@@ -519,8 +536,18 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    c->setProperty(PropertyStyleMarginRight, "0");
 	  }
 
-	  td->addChild(c);
-
+	  int s = std::max(0, grid_.columns_[col].stretch_);
+	  if (itemFitWidth && itemFitHeight) {
+	    td->setProperty(PropertyClass, "Wt-chwrap");
+	    if (!app->environment().agentIsIE()) {
+	      DomElement *chwrap = DomElement::createNew(DomElement_DIV);
+	      chwrap->setProperty(PropertyClass, "Wt-chwrap");
+	      chwrap->addChild(c);
+	      td->addChild(chwrap);
+	    } else
+	      td->addChild(c);
+	  } else
+	    td->addChild(c);
 	}
 
 	{

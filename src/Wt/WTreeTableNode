@@ -40,6 +40,10 @@ public:
    *
    * Columns are counted starting from 0 for the tree list itself, and 1
    * for the first additional column.
+   *
+   * The node label (in column 0) is not considered a column widget.
+   * To set a custom widget in column 0, you can add a widget to the
+   * labelArea().
    */
   void setColumnWidget(int column, WWidget *item);
 

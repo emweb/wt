@@ -144,6 +144,8 @@ void WAnchor::setRefInternalPath(const std::string& path)
 
   flags_.set(BIT_REF_CHANGED);
 
+  WApplication::instance()->enableInternalPaths();
+
   repaint(RepaintPropertyIEMobile);
 }
 
@@ -226,11 +228,13 @@ void WAnchor::enableAjax()
 
 void WAnchor::updateDom(DomElement& element, bool all)
 {
+  bool needsUrlResolution = false;
+
   if (flags_.test(BIT_REF_CHANGED) || all) {
     std::string url;
-    if (flags_.test(BIT_REF_INTERNAL_PATH)) {
-      WApplication *app = WApplication::instance();
 
+    WApplication *app = WApplication::instance();
+    if (flags_.test(BIT_REF_INTERNAL_PATH)) {
       if (app->environment().ajax()) {
 	url = app->bookmarkUrl(ref_);
 
@@ -270,6 +274,8 @@ void WAnchor::updateDom(DomElement& element, bool all)
 
     element.setAttribute("href", resolveRelativeUrl(url));
 
+    needsUrlResolution = !app->environment().hashInternalPaths();
+
     flags_.reset(BIT_REF_CHANGED);
   }
 
@@ -289,6 +295,14 @@ void WAnchor::updateDom(DomElement& element, bool all)
   }
 
   WContainerWidget::updateDom(element, all);
+
+  if (needsUrlResolution) {
+    if (all)
+      element.setProperty(PropertyClass,
+			  Utils::addWord(styleClass().toUTF8(), "Wt-rr"));
+    else
+      element.callJavaScript("$('#" + id() + "').addClass('Wt-rr');");
+  }
 }
 
 void WAnchor::propagateRenderOk(bool deep)

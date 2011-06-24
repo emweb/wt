@@ -155,6 +155,8 @@ public:
    */
   EventSignal<>& focussed();
 
+  virtual void refresh();
+
 protected:
   WLabel     *label_;
   WValidator *validator_;
@@ -164,7 +166,7 @@ protected:
   // also used in WAbstractToggleButton
   static const char *CHANGE_SIGNAL;
 
-  void updateEmptyText();
+  void applyEmptyText();
 
   virtual void enableAjax();
 
@@ -179,8 +181,9 @@ private:
   static const int BIT_READONLY         = 3;
   static const int BIT_READONLY_CHANGED = 4;
   static const int BIT_TABINDEX_CHANGED = 5;
+  static const int BIT_JS_OBJECT        = 6;
 
-  std::bitset<6> flags_;
+  std::bitset<7> flags_;
   int            tabIndex_;
 
   void undoSetFocus();
@@ -188,6 +191,8 @@ private:
   void setLabel(WLabel *label);
 
   void validatorChanged();
+  void defineJavaScript(bool force = false);
+  void updateEmptyText();
 
 protected:
   virtual void updateDom(DomElement& element, bool all);

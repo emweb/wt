@@ -157,7 +157,7 @@ public:
    */
   int cursorPosition() const;
 
-  WValidator::State validate();
+  virtual WValidator::State validate();
 
 private:
   WT_USTRING content_;

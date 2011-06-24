@@ -318,9 +318,9 @@ WWebWidget *WCompositeWidget::webWidget()
   return impl_ ? impl_->webWidget() : 0;
 }
 
-void WCompositeWidget::setToolTip(const WString& text)
+void WCompositeWidget::setToolTip(const WString& text, TextFormat textFormat)
 {
-  impl_->setToolTip(text);
+  impl_->setToolTip(text, textFormat);
 }
 
 WString WCompositeWidget::toolTip() const

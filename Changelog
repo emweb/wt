@@ -1,3 +1,35 @@
+24-06-2011:
+	* WApplication: implemented changeSessionId() method, useful to
+	mitigate session fixation attacks
+
+	* WApplication: added removeMetaHeader() method
+
+	* WFontMetrics: solve pango font-based metrics for cursive fonts
+
+	* WTableCell, WTableRow, WTableColumn: add more convenience
+	methods for navigating the row, column
+
+23-06-2011:
+	* WApplication: button img style to keep HTML4 behaviour of centering
+	the icon vertically in the button
+
+	* WWidget, WWebWidget, js/ToolTip: implement an XHTML tooltip using
+	JavaScript
+
+	* WTableView: fix setHeaderRowHeight() in plain HTML mode, other
+	plain HTML style consistency improvements
+
+19-06-2011:
+	* collection: implement copy constructor which is needed for relational
+	collections
+
+14-06-2011:
+	* WTemplate, WText: implement setInternalPathEncoding() method which
+	encodes anchors with internal path references
+
+	* WAnchor, ... resolve relative paths correctly when HTML5 History
+	internal path implementations are used
+
 30-05-2011:
 	* WAbstractItemView, WTreeView: fix browser memory leaks of
 	inline stylesheet definitions (#834)
@@ -15,7 +47,7 @@
 	(#816)
 
 20-05-2011:
-	* WServer, http: remove singleton objects to allow multiple 
+	* WServer, http: remove singleton objects to allow multiple
 	WServer instances
 
 	* WAbstractSpinBox: fix behaviour on IE

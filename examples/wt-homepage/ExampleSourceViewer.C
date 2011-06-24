@@ -123,6 +123,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   WApplication::instance()->setTitle(tr("srcview.title." + example));
   WText *title = 
     new WText(tr("srcview.title." + examplesType_ + "." + example));
+  title->setInternalPathEncoding(true);
 
   exampleView_ = new WTreeView();
   exampleView_->setHeaderHeight(0);

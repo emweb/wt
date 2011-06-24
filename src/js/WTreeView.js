@@ -143,7 +143,7 @@ WT_DECLARE_WT_MEMBER
      setTimeout(function() {
        adjustScheduled = false;
 
-       var t = contents.firstChild, // table parent
+       var wrapRoot = contents.firstChild, // table parent
 	   hc = headers.firstChild, // Wt-tv-row
            allw_1=0, allw=0,
            c0id = headers.lastChild.className.split(' ')[0],
@@ -174,10 +174,15 @@ WT_DECLARE_WT_MEMBER
 	 else
 	   $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
 
-       allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 8);
+      /*
+       * IE6 is still not entirely right. It seems to be caused by a padding
+       * of 7 pixels in the first column which gets added to the width.
+       */
+
+       allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 7);
 
        if (!rowHeaderCount) {
-	 headers.style.width = t.style.width = allw + 'px';
+	 headers.style.width = wrapRoot.style.width = allw + 'px';
 	 hc.style.width = allw_1 + 'px';
        } else {
 	 var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
@@ -263,14 +268,14 @@ WT_DECLARE_WT_MEMBER
       var scrollwidth = contentsContainer.offsetWidth
         - contentsContainer.clientWidth;
 
-      tw -= scrollwidth;
+      if (contentsContainer.clientWidth > 0)
+	tw -= scrollwidth;
 
       if ($el.hasClass('column1')) {
 	c0id = $el.find('.Wt-headerdiv').get(0)
 	  .lastChild.className.split(' ')[0];
 	c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
 	c0w = WT.pxself(c0r, 'width');
-
       }
 
       // XXX: IE's incremental rendering foobars completely
@@ -301,7 +306,7 @@ WT_DECLARE_WT_MEMBER
 	  headerContainer.style.marginRight = scrollwidth + 'px';
 
 	if (c0w != null) {
-	  var w = tw - c0w - (WT.isIE6 ? 10 : 8);
+	  var w = tw - c0w - (WT.isIE6 ? 10 : 7);
 
 	  if (w > 0) {
 	    var w2
@@ -330,8 +335,8 @@ WT_DECLARE_WT_MEMBER
 	    headers.style.width = table.offsetWidth + 'px';
 	}
 
-	if (!rowHeaderCount && (table.offsetWidth - hc.offsetWidth >= 8))
-	  c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
+	if (!rowHeaderCount && (table.offsetWidth - hc.offsetWidth >= 7))
+	  c0r.style.width = (table.offsetWidth - hc.offsetWidth - 7) + 'px';
 
 	el.changed = false;
 

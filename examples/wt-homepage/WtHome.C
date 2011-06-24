@@ -87,7 +87,9 @@ WWidget *WtHome::examples()
 {
   WContainerWidget *result = new WContainerWidget();
 
-  result->addWidget(new WText(tr("home.examples")));
+  WText *intro = new WText(tr("home.examples"));
+  intro->setInternalPathEncoding(true);
+  result->addWidget(intro);
 
   examplesMenu_ = new WTabWidget(AlignTop | AlignJustify, result);
 

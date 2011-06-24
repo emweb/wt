@@ -191,7 +191,7 @@ public:
    *
    * \sa setWordWrap(bool)
    */
-  bool wordWrap() const { return wordWrap_; }
+  bool wordWrap() const { return flags_.test(BIT_WORD_WRAP); }
 
   /*! \brief Sets padding inside the widget
    *
@@ -207,14 +207,47 @@ public:
    */
   WLength padding(Side side) const;
 
+  /*! \brief Enables internal path encoding of anchors in the XHTML text.
+   *
+   * Anchors to internal paths are represented differently depending
+   * on the session implementation (plain HTML, Ajax or HTML5
+   * history). By enabling this option, anchors which reference an
+   * internal path (by referring a URL of the form
+   * <tt>href="#/..."</tt>), are re-encoded to link to the internal
+   * path.
+   *
+   * When using Wt::XHTMLText (or Wt::XHTMLUnsafeText) formatted text,
+   * the text is pasted verbatim in the browser (with the exception of
+   * XSS filtering if applicable). With this option, however, the
+   * XHTML text may be transformed at the cost of an additional XML
+   * parsing step.
+   *
+   * The default value is \c false.
+   *
+   * \sa WAnchor::setInternalPath()
+   */
+  void setInternalPathEncoding(bool enabled);
+
+  /*! \brief Returns whether internal paths are encoded.
+   *
+   * \sa setInternalPathEncoding()
+   */
+  bool hasInternalPathEncoding() const
+    { return flags_.test(BIT_ENCODE_INTERNAL_PATHS); }
+
   virtual void refresh();
 
 private:
   WString      text_;
   TextFormat   textFormat_;
-  bool         wordWrap_;
 
-  bool textChanged_, wordWrapChanged_, paddingsChanged_;
+  static const int BIT_WORD_WRAP = 0;
+  static const int BIT_TEXT_CHANGED = 1;
+  static const int BIT_WORD_WRAP_CHANGED = 2;
+  static const int BIT_PADDINGS_CHANGED = 3;
+  static const int BIT_ENCODE_INTERNAL_PATHS = 4;
+
+  std::bitset<5> flags_;
 
   bool        checkWellFormed();
   std::string formattedText() const;

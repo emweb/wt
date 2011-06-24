@@ -33,6 +33,16 @@ WTable *WTableCell::table() const
   return row_->table();
 }
 
+WTableRow *WTableCell::tableRow() const
+{
+  return row_;
+}
+
+WTableColumn *WTableCell::tableColumn() const
+{
+  return table()->columnAt(column());
+}
+
 void WTableCell::setRowSpan(int rowSpan)
 {
   if (rowSpan_ != rowSpan) {

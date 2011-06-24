@@ -28,7 +28,7 @@ namespace Wt {
  * \if cpp
  * To use this widget, you need to download TinyMCE (version 3.0.7 or
  * later) and deploy the <tt>tinymce/jscripts/tiny_mce</tt> folder to
- * <i>tinyMCEURL</i>. The default value for <i>tinyMCEURL</i> is
+ * <i>tinyMCEBaseURL</i>. The default value for <i>tinyMCEBaseURL</i> is
  * <i>resourcesURL</i><tt>/tiny_mce</tt>, where <i>resourcesURL</i> is
  * the configuration property that locates the %Wt <tt>resources/</tt>
  * folder (i.e., we assume by default that you copy the
@@ -37,7 +37,7 @@ namespace Wt {
  *
  * The value may be overridden with a URL that points to the directory
  * where the <tt>tiny_mce</tt> folder is located, by configuring the
- * <i>tinyMCEURL</i> property in your %Wt configuration file, see \ref
+ * <i<>tinyMCEBaseURL/i> property in your %Wt configuration file, see \ref
  * config_general "configuration properties".
  * \endif
  *

@@ -24,6 +24,7 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/WWebWidget.min.js"
+#include "js/ToolTip.min.js"
 #endif
 
 #ifdef max
@@ -898,7 +899,7 @@ void WWebWidget::callJavaScriptMember(const std::string& name,
   repaint(RepaintPropertyAttribute);
 }
 
-void WWebWidget::setToolTip(const WString& message)
+void WWebWidget::setToolTip(const WString& message, TextFormat textFormat)
 {
   if (canOptimizeUpdates() && (toolTip() == message))
     return;
@@ -910,6 +911,7 @@ void WWebWidget::setToolTip(const WString& message)
     lookImpl_->toolTip_ = new WString();
 
   *lookImpl_->toolTip_ = message;
+  lookImpl_->toolTipTextFormat_ = textFormat;
 
   flags_.set(BIT_TOOLTIP_CHANGED);
 
@@ -1065,6 +1067,7 @@ void WWebWidget::setHideWithOffsets(bool how)
 
 void WWebWidget::updateDom(DomElement& element, bool all)
 {
+  WApplication *app = 0;
   /*
    * determine display
    */
@@ -1080,7 +1083,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  if (element.type() == DomElement_LI)
 	    element.setProperty(PropertyStyleDisplay, "inline");
 	  else if (element.type() != DomElement_TD) {
-	    WApplication *app = WApplication::instance();
+	    if (!app) app = WApplication::instance();
 	    if (app->environment().agentIsIElt(9)) {
 	      element.setProperty(PropertyStyleDisplay, "inline");
 	      element.setProperty(PropertyStyleZoom, "1");
@@ -1124,7 +1127,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       if (layoutImpl_->zIndex_ > 0) {
 	element.setProperty(PropertyStyleZIndex,
 		    boost::lexical_cast<std::string>(layoutImpl_->zIndex_));
-	WApplication *app = WApplication::instance();
+	if (!app) app = WApplication::instance();
 	if (all && app->environment().agent() == WEnvironment::IE6
 	    && element.type() == DomElement_DIV) {
 	  DomElement *i = DomElement::createNew(DomElement_IFRAME);
@@ -1185,7 +1188,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	for (unsigned i = 0; i < 4; ++i) {
 	  Property property = properties[i];
 
-	  WApplication *app = WApplication::instance();
+	  if (!app) app = WApplication::instance();
+
 	  if (app->layoutDirection() == RightToLeft) {
 	    if (i == 1) property = properties[3];
 	    else if (i == 3) property = properties[1];
@@ -1260,7 +1264,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
         /*
         * set float
         */
-	bool ltr = WApplication::instance()->layoutDirection() == LeftToRight;
+	if (!app) app = WApplication::instance();
+
+	bool ltr = app->layoutDirection() == LeftToRight;
         switch (layoutImpl_->floatSide_) {
         case Left:
 	  element.setProperty(PropertyStyleFloat, ltr ? "left" : "right");
@@ -1300,8 +1306,20 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   if (lookImpl_) {
     if (lookImpl_->toolTip_
 	&& (flags_.test(BIT_TOOLTIP_CHANGED) || all)) {
-      if (!all || (!lookImpl_->toolTip_->empty()))
-	element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
+      if (!all || (!lookImpl_->toolTip_->empty())) {
+	if (!app) app = WApplication::instance();
+
+	if (lookImpl_->toolTipTextFormat_ != PlainText
+	    && app->environment().ajax()) {
+	  LOAD_JAVASCRIPT(app, "js/ToolTip.js", "toolTip", wtjs10);
+
+	  element.callJavaScript(WT_CLASS ".toolTip(" WT_CLASS ","
+				 + jsStringLiteral(id()) + ","
+				 + lookImpl_->toolTip_->jsStringLiteral()
+				 + ");");
+	} else
+	  element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
+      }
 
       flags_.reset(BIT_TOOLTIP_CHANGED);
     }
@@ -1481,7 +1499,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     if (transientImpl_ && !transientImpl_->animation_.empty()) {
       const char *THIS_JS = "js/WWebWidget.js";
 
-      WApplication *app = WApplication::instance();
+      if (!app) app = WApplication::instance();
 
       LOAD_JAVASCRIPT(app, THIS_JS, "animateDisplay", wtjs1);
       LOAD_JAVASCRIPT(app, THIS_JS, "animateVisible", wtjs2);

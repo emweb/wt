@@ -44,7 +44,6 @@ WT_DECLARE_WT_MEMBER
      }
 
      function restore() {
-	 debugger;
        $(from).removeClass(anim + ' out');
        from.style.display = 'none';
        from.style['-webkit-animation-duration'] = '';

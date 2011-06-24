@@ -923,8 +923,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
   expandConfig_->addState("Wt-collapse");
   expandConfig_->generate();
 
-  itemEvent_.connect(this, &WTreeView::onItemEvent);
-
   setStyleClass("Wt-itemview Wt-treeview");
 
   const char *CSS_RULES_NAME = "Wt::WTreeView";
@@ -1383,6 +1381,9 @@ void WTreeView::scheduleRerender(RenderState what)
 void WTreeView::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull) {
+    if (!itemEvent_.isConnected())
+      itemEvent_.connect(this, &WTreeView::onItemEvent);
+
     defineJavaScript();
   }
 

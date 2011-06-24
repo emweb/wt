@@ -264,6 +264,16 @@ collection<C>::collection(Session *session, SqlStatement *statement,
 }
 
 template <class C>
+collection<C>::collection(const collection<C>& other)
+  : session_(other.session_),
+    type_(other.type_),
+    data_(other.data_)
+{
+  if (type_ == RelationCollection)
+    data_.relation.activity = 0;
+}
+
+template <class C>
 collection<C>::~collection()
 {
   if (type_ == RelationCollection)
@@ -412,6 +422,10 @@ void collection<C>::insert(C c)
 			     "only for a ManyToMany relation.");
 
   RelationData& relation = data_.relation;
+
+  if (relation.dbo)
+    relation.dbo->setDirty();
+
   if (!relation.activity)
     relation.activity = new Activity();
 
@@ -429,6 +443,10 @@ void collection<C>::erase(C c)
     throw std::runtime_error("collection<C>::erase() "
 			     "only for a ManyToMany relation.");
   RelationData& relation = data_.relation;
+
+  if (relation.dbo)
+    relation.dbo->setDirty();
+
   if (!relation.activity)
     relation.activity = new Activity();
 

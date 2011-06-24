@@ -270,7 +270,7 @@ void WGoogleMap::clearOverlays()
   } else {
     std::stringstream strm;
     strm 
-      << """var mapLocal = " << jsRef() + ".map;\n"
+      << """var mapLocal = " << jsRef() + ".map, i;\n"
       << """if (mapLocal.overlays) {\n"
       << """  for (i in mapLocal.overlays) {\n"
       << """    mapLocal.overlays[i].setMap(null);\n"
@@ -290,6 +290,10 @@ void WGoogleMap::clearOverlays()
 void WGoogleMap::doGmJavaScript(const std::string& jscode, bool sepScope)
 {
   std::string js = jscode;
+
+  // note from Koen -- the following is nonsense: JavaScript only has
+  // function scopes.
+
   // to keep the variables inside a scope where they don't interfere
   if (sepScope)
     js = "{" + js + "}";

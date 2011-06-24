@@ -7,7 +7,9 @@
 #include <iostream>
 
 #include "Wt/WTemplate"
+
 #include "DomElement.h"
+#include "InternalPathEncoder.h"
 
 namespace Wt {
 
@@ -21,6 +23,7 @@ const char *WTemplate::DropShadow_x1_x2
 
 WTemplate::WTemplate(WContainerWidget *parent)
   : WInteractWidget(parent),
+    encodeInternalPaths_(false),
     changed_(false)
 {
   setInline(false);
@@ -28,6 +31,7 @@ WTemplate::WTemplate(WContainerWidget *parent)
 
 WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
   : WInteractWidget(parent),
+    encodeInternalPaths_(false),
     changed_(false)
 {
   setInline(false);
@@ -74,7 +78,7 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
 {
   WString v = value;
 
-  if (textFormat == XHTMLText && text_.literal()) {
+  if (textFormat == XHTMLText && value.literal()) {
     if (!removeScript(v))
       v = escapeText(v, true);
   } else if (textFormat == PlainText)
@@ -203,7 +207,14 @@ void WTemplate::updateDom(DomElement& element, bool all)
 
 void WTemplate::renderTemplate(std::ostream& result)
 {
-  std::string text = text_.toUTF8();
+  std::string text;
+
+  if (encodeInternalPaths_) {
+    WString t = text_;
+    EncodeInternalPathRefs(t);
+    text = t.toUTF8();
+  } else
+    text = text_.toUTF8();
 
   std::size_t lastPos = 0;
   for (std::size_t pos = text.find('$'); pos != std::string::npos;
@@ -279,6 +290,15 @@ void WTemplate::enableAjax()
 DomElementType WTemplate::domElementType() const
 {
   return isInline() ? DomElement_SPAN : DomElement_DIV;
+}
+
+void WTemplate::setInternalPathEncoding(bool enabled)
+{
+  if (encodeInternalPaths_ != enabled) {
+    encodeInternalPaths_ = enabled;
+    changed_ = true;
+    repaint(RepaintInnerHtml);
+  }
 }
 
 void WTemplate::refresh()

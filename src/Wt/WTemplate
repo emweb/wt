@@ -26,6 +26,12 @@ namespace Wt {
  * reference the variable <tt>"varName"</tt>. To use a literal
  * <tt>"${"</tt>, use <tt>"$${"</tt>.
  *
+ * \note The use of XML comments (<tt>&lt;!-- ... --&gt;</tt>)
+ *       around variables that are bound to widgets will result in bad
+ *       behaviour since the template parser is ignorant about these
+ *       comments and the corresponding widgets will believe that they
+ *       are rendered but aren't actually.
+ *
  * You can bind widgets and values to variables using bindWidget(),
  * bindString() or bindInt() or by reimplementing the resolveString()
  * and resolveWidget() methods.
@@ -216,6 +222,27 @@ public:
    */
   void clear();
 
+  /*! \brief Enables internal path anchors in the XHTML template.
+   *
+   * Anchors to internal paths are represented differently depending
+   * on the session implementation (plain HTML, Ajax or HTML5
+   * history). By enabling this option, anchors which reference an
+   * internal path (by referring a URL of the form
+   * <tt>href="#/..."</tt>), are re-encoded to link to the internal
+   * path.
+   *
+   * The default value is \c false.
+   *
+   * \sa WAnchor::setInternalPath()
+   */
+  void setInternalPathEncoding(bool enabled);
+
+  /*! \brief Returns whether internal paths are enabled.
+   *
+   * \sa setInternalPathEncoding()
+   */
+  bool hasInternalPathEncoding() const { return encodeInternalPaths_; }
+
   /*! \brief Refreshes the template.
    *
    * This rerenders the template.
@@ -271,7 +298,7 @@ private:
   StringMap strings_;
   WString   text_;
 
-  bool      changed_;
+  bool      encodeInternalPaths_, changed_;
 };
 
 template <typename T> T WTemplate::resolve(const std::string& varName)

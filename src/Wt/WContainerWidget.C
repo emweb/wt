@@ -550,7 +550,8 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     WApplication *app = WApplication::instance();
     if (app->environment().agentIsIE()
 	&& (overflow_[0] == OverflowAuto || overflow_[0] == OverflowScroll))
-      element.setProperty(PropertyStylePosition, "relative");
+      if (positionScheme() == Static)
+	element.setProperty(PropertyStylePosition, "relative");
   }
 }
 

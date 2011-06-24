@@ -244,6 +244,8 @@ namespace Wt {
      */
     collection();
 
+    collection(const collection<C>& other);
+
     /*! \brief Destructor.
      */
     ~collection();

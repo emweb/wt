@@ -10,30 +10,25 @@
 #include "Wt/WText"
 #include "DomElement.h"
 #include "WtException.h"
+#include "InternalPathEncoder.h"
 
 namespace Wt {
 
 WText::WText(WContainerWidget *parent)
   : WInteractWidget(parent),
     textFormat_(XHTMLText),
-    wordWrap_(true),
-    textChanged_(false),
-    wordWrapChanged_(false),
-    paddingsChanged_(false),
     padding_(0)
 {
+  flags_.set(BIT_WORD_WRAP);
   WT_DEBUG(setObjectName("WText"));
 }
 
 WText::WText(const WString& text, WContainerWidget *parent)
   : WInteractWidget(parent),
     textFormat_(XHTMLText),
-    wordWrap_(true),
-    textChanged_(false),
-    wordWrapChanged_(false),
-    paddingsChanged_(false),
     padding_(0)
 {
+  flags_.set(BIT_WORD_WRAP);
   WT_DEBUG(setObjectName("WText"));
   setText(text);
 }
@@ -41,12 +36,9 @@ WText::WText(const WString& text, WContainerWidget *parent)
 WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
   : WInteractWidget(parent),
     textFormat_(format),
-    wordWrap_(true),
-    textChanged_(false),
-    wordWrapChanged_(false),
-    paddingsChanged_(false),
     padding_(0)
 {
+  flags_.set(BIT_WORD_WRAP);
   WT_DEBUG(setObjectName("WText"));
   setText(text);
 }
@@ -67,7 +59,7 @@ bool WText::setText(const WString& text)
   if (!textok)
     textFormat_ = PlainText;
 
-  textChanged_ = true;
+  flags_.set(BIT_TEXT_CHANGED);
   repaint(RepaintInnerHtml);
 
   return textok;
@@ -87,37 +79,37 @@ void WText::autoAdjustInline()
 
 void WText::setWordWrap(bool wordWrap)
 {
-  if (wordWrap_ != wordWrap) {
-    wordWrap_ = wordWrap;
-    wordWrapChanged_ = true;
+  if (flags_.test(BIT_WORD_WRAP) != wordWrap) {
+    flags_.set(BIT_WORD_WRAP, wordWrap);
+    flags_.set(BIT_WORD_WRAP_CHANGED);
     repaint(RepaintPropertyAttribute);
   }
 }
 
 void WText::updateDom(DomElement& element, bool all)
 {
-  if (textChanged_ || all) {
+  if (flags_.test(BIT_TEXT_CHANGED) || all) {
     std::string text = formattedText();
-    if (textChanged_ || !text.empty())
+    if (flags_.test(BIT_TEXT_CHANGED) || !text.empty())
       element.setProperty(Wt::PropertyInnerHTML, formattedText());
-    textChanged_ = false;
+    flags_.reset(BIT_TEXT_CHANGED);
   }
 
-  if (wordWrapChanged_ || all) {
-    if (!all || !wordWrap_)
+  if (flags_.test(BIT_WORD_WRAP_CHANGED) || all) {
+    if (!all || !flags_.test(BIT_WORD_WRAP))
       element.setProperty(Wt::PropertyStyleWhiteSpace,
-			  wordWrap_ ? "normal" : "nowrap");
-    wordWrapChanged_ = false;
+			  flags_.test(BIT_WORD_WRAP) ? "normal" : "nowrap");
+    flags_.reset(BIT_WORD_WRAP_CHANGED);
   }
 
-  if (paddingsChanged_
+  if (flags_.test(BIT_PADDINGS_CHANGED)
       || (all && padding_ &&
 	  !(padding_[0].isAuto() && padding_[1].isAuto()))) {
     
     element.setProperty(PropertyStylePaddingRight, padding_[0].cssText());
     element.setProperty(PropertyStylePaddingLeft, padding_[1].cssText());
 
-    paddingsChanged_ = false;
+    flags_.reset(BIT_PADDINGS_CHANGED);
   }
 
   WInteractWidget::updateDom(element, all);
@@ -125,8 +117,9 @@ void WText::updateDom(DomElement& element, bool all)
 
 void WText::propagateRenderOk(bool deep)
 {
-  textChanged_ = false;
-  wordWrapChanged_ = false;
+  flags_.reset(BIT_TEXT_CHANGED);
+  flags_.reset(BIT_WORD_WRAP_CHANGED);
+  flags_.reset(BIT_PADDINGS_CHANGED);
 
   WInteractWidget::propagateRenderOk(deep);
 }
@@ -155,6 +148,14 @@ bool WText::checkWellFormed()
     return true;
 }
 
+void WText::setInternalPathEncoding(bool enabled)
+{
+  if (flags_.test(BIT_ENCODE_INTERNAL_PATHS) != enabled) {
+    flags_.set(BIT_ENCODE_INTERNAL_PATHS, enabled);
+    flags_.set(BIT_TEXT_CHANGED);
+  }
+}
+
 void WText::setPadding(const WLength& length, WFlags<Side> sides)
 {
   if (!padding_) {
@@ -174,7 +175,7 @@ void WText::setPadding(const WLength& length, WFlags<Side> sides)
   if (sides.testFlag(Bottom))
     throw WtException("WText::padding on Bottom is not supported.");
 
-  paddingsChanged_ = true;
+  flags_.set(BIT_PADDINGS_CHANGED);
   repaint(RepaintPropertyAttribute);
 }
 
@@ -201,8 +202,14 @@ std::string WText::formattedText() const
 {
   if (textFormat_ == PlainText)
     return escapeText(text_, true).toUTF8();
-  else
-    return text_.toUTF8();
+  else {
+    if (flags_.test(BIT_ENCODE_INTERNAL_PATHS)) {
+      WString result = text_;
+      EncodeInternalPathRefs(result);
+      return result.toUTF8();
+    } else
+      return text_.toUTF8();
+  }
 }
 
 DomElementType WText::domElementType() const
@@ -212,7 +219,7 @@ DomElementType WText::domElementType() const
 
 void WText::render(WFlags<RenderFlag> flags)
 {
-  if (textChanged_)
+  if (flags_.test(BIT_TEXT_CHANGED))
     autoAdjustInline();
 
   WInteractWidget::render(flags);
@@ -221,7 +228,7 @@ void WText::render(WFlags<RenderFlag> flags)
 void WText::refresh()
 {
   if (text_.refresh()) {
-    textChanged_ = true;
+    flags_.set(BIT_TEXT_CHANGED);
     repaint(RepaintInnerHtml);
   }
 

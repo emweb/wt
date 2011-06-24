@@ -354,6 +354,8 @@ struct DboHelper
   static void setMeta(C& c, MetaDboBase *m) { }
 };
 
+template <class C> class ptr;
+
 /*! \class Dbo Wt/Dbo/Dbo Wt/Dbo/Dbo
  *  \brief A base class for database objects.
  *
@@ -412,6 +414,30 @@ public:
    */
   Session *session() const;
 
+  /*! \brief Marks the object as modified.
+   *
+   * When accessing a database object using ptr.modify(), the object
+   * is marked as dirty. Any intermediate query will however flush the
+   * current transaction and other changes within a member method will
+   * not be recorded.
+   *
+   * You can call this method to achieve the same as ptr.modify() but
+   * from within member methods.
+   */
+  void setDirty();
+
+  /*! \brief Returns a dbo::ptr to this object.
+   *
+   * The returned pointer points to the current object only if there
+   * exists at least one other pointer to the object. Otherwise it
+   * returns a \c null ptr.
+   *
+   * This means that in practice you should adopt the habit of wrapping
+   * a newly created database object directly in a ptr (and perhaps also
+   * add it to a session):
+   */
+  ptr<C> self() const;
+  
 private:
   MetaDbo<C> *meta_;
 
@@ -647,6 +673,7 @@ private:
   friend class SaveBaseAction;
   friend class ToAnysAction;
   friend class FromAnyAction;
+  friend class Dbo<C>;
 };
 
 template <class C>

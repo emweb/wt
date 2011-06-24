@@ -9,7 +9,7 @@
 
 namespace Wt {
 
-  class WString;
+class WString;
 
 extern bool XSSFilterRemoveScript(WString& text);
 

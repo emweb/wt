@@ -483,12 +483,25 @@ body.Wt-rtl .Wt-tabs span {
 }
 
 /*
+ * XHTML Tooltips
+ */
+.Wt-tooltip {
+    position: absolute;
+    max-width: 300px;
+    background-color: #ede0b2;
+    border: 1px solid black;
+    padding: 1px 2px;
+    font-family: sans-serif;
+    font-size: smaller;
+}
+
+/*
  * WTree(node)
  */
 
 .Wt-tree {
     table-layout: fixed;
-    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-family: verdana, helvetica, tahoma, sans-serif;
     font-size: 9pt;
     cursor: default;
     white-space: nowrap;   
@@ -606,6 +619,10 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
     background-color: #EEEEEE;
 }
 
+.Wt-itemview th, .Wt-itemview th .Wt-tv-br {
+    overflow: hidden;
+}
+
 .Wt-itemview .Wt-header .Wt-label {
     font-weight: bold;
     text-overflow: ellipsis;
@@ -665,7 +682,9 @@ body.Wt-rtl .Wt-tableview .Wt-header .Wt-tv-c {
 }
 
 .Wt-tableview .Wt-tv-contents img.icon,
-.Wt-tableview .Wt-tv-contents input.icon {
+.Wt-tableview .Wt-plaintable img.icon,
+.Wt-tableview .Wt-tv-contents input.icon,
+.Wt-tableview .Wt-plaintable input.icon {
     margin: 0px 3px 2px 0px;
     vertical-align: middle;
 }

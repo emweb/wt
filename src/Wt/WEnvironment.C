@@ -52,15 +52,6 @@ WEnvironment::WEnvironment(WebSession *session)
 void WEnvironment::setInternalPath(const std::string& path)
 {
   internalPath_ = Utils::prepend(path, '/');
-
-#ifndef WT_TARGET_JAVA
-  // emulate historyKey argument for < Wt-2.2
-  if (!path.empty()) {
-    Http::ParameterValues v;
-    v.push_back(internalPath_);
-    parameters_["historyKey"] = v;
-  }
-#endif // WT_TARGET_JAVA
 }
 
 const std::string& WEnvironment::deploymentPath() const

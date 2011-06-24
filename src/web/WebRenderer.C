@@ -264,7 +264,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bootJs.setVar("SELF_URL",
 		safeJsStringLiteral
 		(session_.bootstrapUrl(response, 
-				       WebSession::KeepInternalPath)));
+				       WebSession::ClearInternalPath)));
   bootJs.setVar("SESSION_ID", session_.sessionId());
   bootJs.setVar("RANDOMSEED",
 		boost::lexical_cast<std::string>(WRandom::get()));
@@ -356,7 +356,9 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   std::stringstream bootStyleUrl;
   DomElement::htmlAttributeValue
-    (bootStyleUrl, session_.mostRelativeUrl() + "&request=style");
+    (bootStyleUrl,
+     session_.bootstrapUrl(response, WebSession::ClearInternalPath)
+     + "&request=style");
 
   boot.setVar("BOOT_STYLE_URL", bootStyleUrl.str());
 
@@ -441,6 +443,15 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
   setCaching(response, false);
   setHeaders(response, "text/javascript; charset=UTF-8");
+
+  if (session_.sessionIdChanged_) {
+    collectedJS1_ << session_.app()->javaScriptClass()
+		  << "._p_.setSessionUrl("
+		  << WWebWidget::jsStringLiteral
+      (session_.bootstrapUrl(response, WebSession::ClearInternalPath))
+		  << ");";
+    session_.sessionIdChanged_ = false;
+  }
 
   if (!rendered_) {
     serveMainAjax(response);
@@ -586,6 +597,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   bool serveSkeletons = !conf.splitScript() || response.getParameter("skeleton");
   bool serveRest = !conf.splitScript() || !serveSkeletons;
+
+  session_.sessionIdChanged_ = false;
 
   setCaching(response, conf.splitScript() && serveSkeletons);
   setHeaders(response, "text/javascript; charset=UTF-8");
@@ -978,6 +991,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
   ++expectedAckId_;
   ++pageId_;
 
+  session_.sessionIdChanged_ = false;
+
   Configuration& conf = session_.controller()->configuration();
 
   WApplication *app = session_.app();
@@ -994,7 +1009,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 	  || */(app->internalPathIsChanged_
 		&& app->oldInternalPath_ != app->newInternalPath_))) {
     app->oldInternalPath_ = app->newInternalPath_;
-    session_.redirect(session_.appendSessionQuery(app->bookmarkUrl(app->newInternalPath_)));
+    session_.redirect(session_.mostRelativeUrl(app->newInternalPath_));
   }
 
   std::string redirect = session_.getRedirect();

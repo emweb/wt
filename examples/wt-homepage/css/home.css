@@ -2,6 +2,10 @@
     background-color: #F7F7F7;
 }
 
+.Wt-animated {
+    -webkit-backface-visibility: visible;
+}
+
 .home .Wt-tabs {
     margin-top: 5px;
     margin-bottom: 0px;
@@ -89,3 +93,30 @@ img.java-language-icon {
     color: #CC1111;
     vertical-align: top;
 } 
+
+.versions {
+    width: 90%;
+    margin: 5%;
+    background: #E1E1E1;
+}
+
+.versions th {
+    text-align: left;    
+    padding: 2px 5px;
+}
+
+.versions th.product {
+    width: 7em;
+}
+
+.versions td, .versions .trh th {
+    text-align: center;
+}
+
+.versions .indent {
+    padding-left: 2em;
+}
+
+#footer_wrapper {
+    position: relative; /* avoids example menu animation glitch */
+}

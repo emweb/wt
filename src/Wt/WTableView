@@ -227,6 +227,7 @@ private:
   virtual void selectRange(const WModelIndex& first, const WModelIndex& last);
   void shiftModelIndexes(int start, int count);
   void renderSelected(bool selected, const WModelIndex& index);
+  int renderedColumnsCount() const;
 
   void defineJavaScript();
 

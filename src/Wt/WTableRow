@@ -38,6 +38,13 @@ public:
    */
   WTable *table() const { return table_; }
 
+  /*! \brief Access the row element at the given column.
+   *
+   * Like WTable::elementAt(), if the column is beyond the current
+   * table dimensions, then the table is expanded automatically.
+   */
+  WTableCell *elementAt(int column);
+
   /*! \brief Returns the row number of this row in the table.
    *
    * \sa WTable::rowAt()

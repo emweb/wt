@@ -193,7 +193,7 @@ bool WPaintedWidget::createPainter()
   const WEnvironment& env = WApplication::instance()->environment();
 
   /*
-   * For IE: no choice. Use VML
+   * For IE < 9: no choice. Use VML
    */
   if (env.agentIsIElt(9)) {
     painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineVml);
@@ -203,7 +203,12 @@ bool WPaintedWidget::createPainter()
   /* Otherwise, combined preferred method with actual capabilities */
   Method method;
 
-  if (env.contentType() != WEnvironment::XHTML1)
+  if (env.contentType() != WEnvironment::XHTML1 &&
+      !((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
+        || (env.agentIsGecko() && env.agent() >= WEnvironment::Firefox4_0)))
+    // on older browsers, inline svg is only supported in xhtml mode. HTML5
+    // also allows inline svg
+    // Safari 5 and Opera 11 do not seem to support inline svg in html mode
     method = HtmlCanvas;
   else 
     if (!env.javaScript())
@@ -507,6 +512,7 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
 
   DomElement *canvas = DomElement::createNew(DomElement_CANVAS);
   canvas->setId('c' + widget_->id());
+  canvas->setProperty(PropertyStyleDisplay, "block");
   canvas->setAttribute("width", wstr);
   canvas->setAttribute("height", hstr);
   result->addChild(canvas);

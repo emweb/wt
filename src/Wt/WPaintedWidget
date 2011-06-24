@@ -31,6 +31,8 @@ class WWidgetPainter;
  *       <td>HtmlCanvas</td></tr>
  *   <tr><td>Internet Explorer 6.0+</td><td>InlineVML, PngImage</td>
  *       <td>InlineVML</td></tr>
+ *   <tr><td>Internet Explorer 9+</td><td>HtmlCanvas, InlineSVG, PngImage</td>
+ *       <td>HtmlCanvas</td></tr>
  *   <tr><td>Safari</td><td>HtmlCanvas, InlineSVG, PngImage</td>
  *       <td>HtmlCanvas</td></tr>
  *   <tr><td>Opera</td><td>InlineSVG, HtmlCanvas*, PngImage</td>
@@ -48,10 +50,10 @@ class WWidgetPainter;
  * not be used, and InlineSVG will be used instead. The method used
  * may be changed by using setPreferredMethod().
  *
- * InlineSVG requires that the document is rendered as XHTML. This
- * must be enabled in the configuration file using the
+ * In some browsers, InlineSVG requires that the document is rendered as
+ * XHTML. This must be enabled in the configuration file using the
  * <tt>&lt;send-xhtml-mime-type&gt;</tt> option. By default, this
- * option is off.
+ * option is off. Firefox 4 and Chrome do support svg in normal html mode.
  *
  * The PngImage is the most portable rendering method, and may be the
  * fastest if the painting is of high complexity and/or the image is
@@ -110,7 +112,7 @@ public:
   /*! \brief Enumeration that indicates a rendering method.
    */
   enum Method {
-    /*! \brief SVG (Most browsers) or VML (Internet Explorer) embedded in
+    /*! \brief SVG (Most browsers) or VML (Internet Explorer < 9) embedded in
      *         the page.
      */
     InlineSvgVml,

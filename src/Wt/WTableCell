@@ -78,9 +78,17 @@ public:
    */
   int column() const { return column_; }
 
-  /*! \brief Returns the table to which this cell belongs.
+  /*! \brief Returns the table containing this cell.
    */
   WTable *table() const;
+
+  /*! \brief Returns the table row containing this cell.
+   */
+  WTableRow *tableRow() const;
+
+  /*! \brief Returns the table column containing this cell.
+   */
+  WTableColumn *tableColumn() const;
 
 private:
   WTableCell(WTableRow *row, int column);

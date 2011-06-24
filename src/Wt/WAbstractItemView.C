@@ -382,8 +382,6 @@ void WAbstractItemView::showColumn(int column)
 
 void WAbstractItemView::initDragDrop()
 {
-  WApplication *app = WApplication::instance();
-
   /* item drag & drop */
   addCssRule
     ("#" + id() + "dw",

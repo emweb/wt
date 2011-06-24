@@ -143,7 +143,10 @@ void WFormWidget::setEmptyText(const WString& emptyText)
 
   if (env.ajax()) {
     if (!emptyText_.empty()) {
-      LOAD_JAVASCRIPT(app, "js/WFormWidget.js", "WFormWidget", wtjs1);
+      if (!flags_.test(BIT_JS_OBJECT))
+	defineJavaScript();
+      else
+	updateEmptyText();
 
       if (!removeEmptyText_) {
 	removeEmptyText_ = new JSlot(this);
@@ -154,39 +157,65 @@ void WFormWidget::setEmptyText(const WString& emptyText)
 
 	std::string jsFunction = 
 	  "function(obj, event) {"
-	  """jQuery.data(" + jsRef() + ", 'obj').updateEmptyText();"
+	  """jQuery.data(" + jsRef() + ", 'obj').applyEmptyText();"
 	  "}";
 	removeEmptyText_->setJavaScript(jsFunction);
       }
     } else {
       delete removeEmptyText_;
+      removeEmptyText_ = 0;
     }
   } else {
     setToolTip(emptyText);
   }
 }
 
+void WFormWidget::defineJavaScript(bool force)
+{
+  if (force || !flags_.test(BIT_JS_OBJECT)) {
+    flags_.set(BIT_JS_OBJECT);
+
+    if (!isRendered())
+      return;
+
+    WApplication *app = WApplication::instance();
+
+    LOAD_JAVASCRIPT(app, "js/WFormWidget.js", "WFormWidget", wtjs1);
+
+    doJavaScript("new " WT_CLASS ".WFormWidget("
+		 + app->javaScriptClass() + "," 
+		 + jsRef() + ","
+		 + emptyText_.jsStringLiteral() + ");");
+  }
+}
+
 void WFormWidget::render(WFlags<RenderFlag> flags)
 {
-  if ((flags & RenderFull) && !emptyText_.empty()) {
-    WApplication* app = WApplication::instance();
-    const WEnvironment& env = app->environment();
-    if (env.ajax())
-      app->doJavaScript("new " WT_CLASS ".WFormWidget("
-			+ app->javaScriptClass() + "," 
-			+ jsRef() + ","
-			+ "'" + emptyText_.toUTF8() + "');");
-  }
+  if ((flags & RenderFull) && flags_.test(BIT_JS_OBJECT))
+    defineJavaScript(true);
 
   WInteractWidget::render(flags);
 }
 
 void WFormWidget::updateEmptyText()
 {
-  if (!emptyText_.empty() && isRendered())
-    WApplication::instance()
-      ->doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
-		     ".updateEmptyText();");
+  if (isRendered())
+    doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+		 ".setEmptyText(" + emptyText_.jsStringLiteral() + ");");
+}
+
+void WFormWidget::applyEmptyText()
+{
+  if (isRendered() && !emptyText_.empty())
+    doJavaScript("jQuery.data(" + jsRef() + ", 'obj').applyEmptyText();");
+}
+
+void WFormWidget::refresh()
+{
+  if (emptyText_.refresh())
+    updateEmptyText();
+
+  WInteractWidget::refresh();
 }
 
 void WFormWidget::enableAjax()

@@ -38,7 +38,7 @@ void WViewWidget::refresh()
 
 void WViewWidget::render(WFlags<RenderFlag> flags)
 {
-  if (needContentsUpdate_) {
+  if (needContentsUpdate_ || (flags & RenderFull)) {
     delete contents_; // just to be safe
 
     WApplication::instance()->setExposeSignals(false);
@@ -46,6 +46,7 @@ void WViewWidget::render(WFlags<RenderFlag> flags)
     WApplication::instance()->setExposeSignals(true);
 
     addChild(contents_);
+    contents_->render(flags); // it may affect isInline(), e.g. WText
     setInline(contents_->isInline());
 
     needContentsUpdate_ = false;

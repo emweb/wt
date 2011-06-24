@@ -114,7 +114,8 @@ public:
   virtual AlignmentFlag verticalAlignment() const;
   virtual WLength verticalAlignmentLength() const;
   virtual WWebWidget *webWidget();
-  virtual void setToolTip(const WString& text);
+  virtual void setToolTip(const WString& text,
+			  TextFormat textFormat = PlainText);
   virtual WString toolTip() const;
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,

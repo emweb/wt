@@ -161,6 +161,7 @@ private:
 			       int& encodedSize);
 #ifdef WTHTTP_WITH_ZLIB
   void initGzip();
+  bool gzipBusy_;
   z_stream gzipStrm_;
 #endif
 };

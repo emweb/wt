@@ -207,6 +207,9 @@ private:
 
   void loginAs(dbo::ptr<User> user) {
     session_.setUser(user);
+
+    WApplication::instance()->changeSessionId();
+
     blogView_->userChanged().emit(user->name);
 
     refresh();

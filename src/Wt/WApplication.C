@@ -113,6 +113,7 @@ WApplication::WApplication(const WEnvironment& env)
   locale_ = environment().locale();
 
   newInternalPath_ = environment().internalPath();
+
   internalPathIsChanged_ = false;
 
 #ifndef WT_TARGET_JAVA
@@ -168,7 +169,8 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule("td", "vertical-align: top;");
   styleSheet_.addRule(LTR "td", "text-align: left;");
   styleSheet_.addRule(RTL "td", "text-align: right;");
-  styleSheet_.addRule("button", "white-space: nowrap");
+  styleSheet_.addRule("button", "white-space: nowrap;");
+  styleSheet_.addRule("button img", "vertical-align: middle;");
   styleSheet_.addRule("video", "display: block");
 
   if (environment().contentType() == WEnvironment::XHTML1) {
@@ -202,6 +204,7 @@ WApplication::WApplication(const WEnvironment& env)
 
   styleSheet_.addRule(LTR ".Wt-wrap", "text-align: left;");
   styleSheet_.addRule(RTL ".Wt-wrap", "text-align: right;");
+  styleSheet_.addRule("div.Wt-chwrap", "width: 100%; height: 100%");
 
   if (environment().agentIsIE())
     styleSheet_.addRule(".Wt-wrap",
@@ -450,6 +453,13 @@ std::string WApplication::sessionId() const
 {
   return session_->sessionId();
 }
+
+#ifndef WT_TARGET_JAVA
+void WApplication::changeSessionId()
+{
+  session_->generateNewSessionId();
+}
+#endif // WT_TARGET_JAVA
 
 void WApplication::setCssTheme(const std::string& theme)
 {
@@ -859,6 +869,10 @@ void WApplication::enableAjax()
 
   if (domRoot2_)
     domRoot2_->enableAjax();
+
+  doJavaScript
+    (WT_CLASS ".ajaxInternalPaths(" +
+     WWebWidget::jsStringLiteral(resolveRelativeUrl(bookmarkUrl("/"))) + ");");
 }
 
 void WApplication::redirect(const std::string& url)
@@ -914,7 +928,7 @@ void WApplication::addMetaHeader(MetaHeaderType type,
   for (unsigned i = 0; i < metaHeaders_.size(); ++i) {
     MetaHeader& m = metaHeaders_[i];
 
-    if (m.type == MetaHttpHeader && m.name == name) {
+    if (m.type == type && m.name == name) {
       if (content.empty())
 	metaHeaders_.erase(metaHeaders_.begin() + i);
       else
@@ -925,6 +939,26 @@ void WApplication::addMetaHeader(MetaHeaderType type,
 
   if (!content.empty())
     metaHeaders_.push_back(MetaHeader(type, name, content, lang));
+}
+
+void WApplication::removeMetaHeader(MetaHeaderType type,
+				    const std::string& name)
+{
+  if (environment().javaScript())
+    log("warn") << "WApplication::removeMetaHeader() with no effect";
+
+  for (unsigned i = 0; i < metaHeaders_.size(); ++i) {
+    MetaHeader& m = metaHeaders_[i];
+
+    if (m.type == type && (name.empty() || m.name == name)) {
+      metaHeaders_.erase(metaHeaders_.begin() + i);
+
+      if (name.empty())
+	--i;
+      else
+	break;
+    }
+  }
 }
 
 WApplication *WApplication::instance()
@@ -1284,15 +1318,12 @@ WApplication::UpdateLock::~UpdateLock()
 
 WApplication::UpdateLock::UpdateLock(WApplication *app)
 {
-  std::cerr << "Grabbing update lock" << std::endl;
-
   WebSession::Handler *handler = WebSession::Handler::instance();
 
   createdHandler_ = false;
   if (handler && handler->haveLock() && handler->session() == app->session_)
     return;
 
-  std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
   new WebSession::Handler(app->session_, true);
 
   createdHandler_ = true;
@@ -1300,10 +1331,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
 
 void WApplication::UpdateLock::release()
 {
-  std::cerr << "Releasing update lock" << std::endl;
-
   if (createdHandler_) {
-    std::cerr << "Releasing handler" << std::endl;
     WebSession::Handler::instance()->release();
   }
 }

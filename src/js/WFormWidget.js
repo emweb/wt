@@ -11,12 +11,9 @@ WT_DECLARE_WT_MEMBER
  function(APP, el, emptyText) {
    jQuery.data(el, 'obj', this);
 
-   var self = this;
-   var WT = APP.WT;
+   var self = this, WT = APP.WT, emptyTextStyle = 'Wt-edit-emptyText';
 
-   this.updateEmptyText = function() {
-     var emptyTextStyle = 'Wt-edit-emptyText';
-
+   this.applyEmptyText = function() {
      if (WT.hasFocus(el)) {
        if ($(el).hasClass(emptyTextStyle)) {
 	 if (!WT.isIE && el.oldtype) {
@@ -40,5 +37,12 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
-   this.updateEmptyText();
+   this.setEmptyText = function(newEmptyText) {
+     emptyText = newEmptyText;
+
+     if ($(el).hasClass(emptyTextStyle))
+       el.value = emptyText;
+   };
+
+   this.applyEmptyText();
  });

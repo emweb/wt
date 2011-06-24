@@ -139,7 +139,6 @@ if (this.isAndroid) {
   console.warn('init console.warn');
 }
 
-
 var traceStart = new Date();
 this.trace = function(v, start) {
   if (start)
@@ -160,7 +159,8 @@ function host(url) {
 }
 
 this.initAjaxComm = function(url, handler) {
-  var crossDomain = url.indexOf("://") != -1 && host(url) != window.location.host;
+  var crossDomain = url.indexOf("://") != -1
+                    && host(url) != window.location.host;
 
   function createRequest(method, url) {
     var request = null;
@@ -212,8 +212,10 @@ this.initAjaxComm = function(url, handler) {
 
   if (req != null) {
     return new (function() {
+      var sessionUrl = url;
+
       function Request(data, userData, id, timeout) {
-	var request = createRequest('POST', url);
+	var request = createRequest('POST', sessionUrl);
 	var timer = null;
 	var handled = false;
 
@@ -293,9 +295,14 @@ this.initAjaxComm = function(url, handler) {
       this.sendUpdate = function(data, userData, id, timeout) {
 	return new Request(data, userData, id, timeout);
       };
+
+      this.setUrl = function(url) {
+	sessionUrl = url;
+      }
     })();
   } else {
     return new (function() {
+      var sessionUrl = url;
       var request = null;
 
       function Request(data, userData, id, timeout) {
@@ -305,7 +312,7 @@ this.initAjaxComm = function(url, handler) {
 
 	var s = this.script = document.createElement('script');
 	s.id = "script" + id;
-	s.setAttribute('src', url + '&' + data);
+	s.setAttribute('src', sessionUrl + '&' + data);
 
 	function onerror() {
 	  handler(1, null, userData);
@@ -342,6 +349,10 @@ this.initAjaxComm = function(url, handler) {
         request = new Request(data, userData, id, timeout);
         return request;
       };
+
+      this.setUrl = function(url) {
+	sessionUrl = url;
+      }
     })();
   }
 };
@@ -479,6 +490,40 @@ this.unwrap = function(e) {
       e.parentNode.replaceChild(img, e);
     }
   }
+};
+
+this.navigateInternalPath = function(event, path) {
+  var e = event || window.event;
+  if (!e.ctrlKey && !e.metaKey && WT.button(e) <= 1) {
+    WT.history.navigate(path, true);
+    WT.cancelEvent(e, WT.CancelDefaultAction);
+  };
+}
+
+this.ajaxInternalPaths = function(basePath) {
+  $('.Wt-ip').each(function() {
+      var href = this.getAttribute('href'), wtd = href.lastIndexOf('?wtd');
+      if (wtd === -1)
+	wtd = href.lastIndexOf('&wtd');
+      if (wtd !== -1)
+	href = href.substr(0, wtd);
+      var internalPath = href.substr(basePath.length);
+      if (internalPath.substr(0, 3) == "?_=")
+	  internalPath = internalPath.substr(3);
+      this.setAttribute('href', href); // computes this.href
+      this.setAttribute('href', this.href);
+      this.onclick = function(event) {
+	WT.navigateInternalPath(event, internalPath);
+      };
+      $(this).removeClass("Wt-ip");
+    });
+};
+
+this.resolveRelativeAnchors = function() {
+  $('.Wt-rr').each(function() {
+      this.setAttribute('href', this.href);
+      $(this).removeClass("Wt-rr");
+    });
 };
 
 var delegating = false;
@@ -1014,14 +1059,16 @@ this.getElementsByClassName = function(className, parentElement) {
   }
 };
 
-/* Firefox etc... */
+/* Firefox, IE9 etc... */
 this.addCss = function(selector, style) {
-  var s = document.styleSheets[0];
-
-  s.insertRule(selector + ' { ' + style + ' }', s.cssRules.length);
+   // on IE we have the VML too
+  var s = document.styleSheets[WT.isIE ? 1 : 0];
+  // strange error with IE9 when in iframe
+  var pos = s.cssRules ? s.cssRules.length : 0;
+  s.insertRule(selector + ' { ' + style + ' }', pos);
 };
 
-/* IE & Konqueror */
+/* IE<9 & Konqueror */
 this.addCssText = function(cssText) {
   var s = document.getElementById('Wt-inline-css');
 
@@ -1036,14 +1083,13 @@ this.addCssText = function(cssText) {
     s.appendChild(t);
   } else {
     var ss = s.previousSibling;
-    if (!ss || ss.tagName.toLowerCase()!='style' || ss.styleSheet.cssText.length > 32*1024)
-    {
+    if (!ss
+	|| !WT.hasTag(ss, "STYLE")
+	|| ss.styleSheet.cssText.length > 32*1024) {
       ss = document.createElement('style');
       s.parentNode.insertBefore(ss, s);
       ss.styleSheet.cssText = cssText;
-    }
-    else
-    {
+    } else {
       ss.styleSheet.cssText += cssText;
     }
   }
@@ -1282,6 +1328,8 @@ if (html5History) {
     },
 
     initialize: function (stateField, histFrame, deployUrl) {
+      WT.resolveRelativeAnchors();
+
       if (deployUrl && deployUrl[deployUrl.length - 1] == '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
 	baseUrl = deployUrl + "?_=";
@@ -1296,6 +1344,8 @@ _$_$endif_$_();
     },
 
     navigate: function (state, generateEvent) {
+      WT.resolveRelativeAnchors();
+
       currentState = state;
 
       var url = baseUrl + state;
@@ -1605,7 +1655,7 @@ var dragState = {
 };
 
 function initDragDrop() {
-  window.onresize=function() { doJavaScript(); };
+  window.onresize = function() { doJavaScript(); };
 
   document.body.ondragstart=function() {
     return false;
@@ -1957,7 +2007,7 @@ function encodePendingEvents() {
   return { feedback: feedback, result: result };
 }
 
-var url = _$_RELATIVE_URL_$_,
+var sessionUrl = _$_RELATIVE_URL_$_,
   quited = false,
   norestart = false,
   loaded = false,
@@ -2148,7 +2198,12 @@ _$_$endif_$_();
   }
 };
 
-var comm = WT.initAjaxComm(url, handleResponse);
+var comm = WT.initAjaxComm(sessionUrl, handleResponse);
+
+function setSessionUrl(url) {
+  sessionUrl = url;
+  comm.setUrl(url);
+}
 
 function doPollTimeout() {
   responsePending.abort();
@@ -2219,11 +2274,11 @@ _$_$if_WEB_SOCKETS_$_();
 	    setTimeout(function() { scheduleUpdate(); }, ms);
 	  }
 
-	  var protocolEnd = url.indexOf("://"), wsurl;
+	  var protocolEnd = sessionUrl.indexOf("://"), wsurl;
 	  if (protocolEnd != -1) {
-	    wsurl = "ws" + url.substr(4);
+	    wsurl = "ws" + sessionUrl.substr(4);
 	  } else {
-	    var query = url.substr(url.indexOf('?'));
+	    var query = sessionUrl.substr(sessionUrl.indexOf('?'));
 	    wsurl = "ws" + location.protocol.substr(4)
 	      + "//" + location.hostname + ":"
 	     + location.port + _$_DEPLOY_PATH_$_ + query;
@@ -2579,6 +2634,7 @@ this._p_ = {
   setTitle : setTitle,
   update : update,
   quit : quit,
+  setSessionUrl : setSessionUrl,
   setFormObjects : function(o) { formObjects = o; },
   saveDownPos : saveDownPos,
   addTimerEvent : addTimerEvent,

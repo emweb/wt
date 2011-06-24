@@ -865,6 +865,18 @@ public:
    */
   std::string sessionId() const;
 
+#ifndef WT_TARGET_JAVA
+  /*! \brief Changes the session id.
+   *
+   * To mitigate session ID fixation attacks, you should use this
+   * method to change the session ID to a new random value after a
+   * user has authenticated himself.
+   *
+   * \sa sessionId()
+   */
+  void changeSessionId();
+#endif // WT_TARGET_JAVA
+
   WebSession *session() const { return session_; }
 
   /** @name Manipulation outside the main event loop
@@ -1394,8 +1406,7 @@ public:
    *   application is hosted within a foreign HTML page.
    *
    * When a header was previously set for the same \p name, its
-   * contents is replaced. You can remove a previously set header by
-   * replacing it with empty content.
+   * contents is replaced.
    *
    * These situations coincide with WEnvironment::ajax()
    * returning \c false (see environment()).
@@ -1409,10 +1420,19 @@ public:
    * relating to document properties as well as "http-equiv" meta
    * headers, which define HTTP headers.
    *
-   * \sa addMetaHeader()
+   * \sa removeMetaHeader()
    */
   void addMetaHeader(MetaHeaderType type, const std::string& name,
 		     const WString& content, const std::string& lang = "");
+
+  /*! \brief Removes one or all meta headers.
+   *
+   * Removes the meta header with given type and name (if it is present).
+   * If name is empty, all meta headers of the given type are removed.
+   *
+   * \sa addMetaHeader()
+   */
+  void removeMetaHeader(MetaHeaderType type, const std::string& name = "");
 
   /*! \brief Adds an entry to the application log.
    *
@@ -1608,6 +1628,8 @@ public:
 
   void storeObject(const char *key, const boost::any& value);
   boost::any getObject(const char *key) const;
+
+  void enableInternalPaths();
 
 protected:
   /*! \brief Notifies an event to the application.
@@ -1844,7 +1866,6 @@ private:
   /*
    * Methods for application state handling
    */
-  void enableInternalPaths();
   void changeInternalPath(const std::string& path);
 
 #ifdef WT_WITH_OLD_INTERNALPATH_API

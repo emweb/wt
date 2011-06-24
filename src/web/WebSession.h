@@ -254,6 +254,7 @@ private:
   State          state_;
 
   std::string   sessionId_;
+  bool          sessionIdChanged_;
 
   WebController *controller_;
   WebRenderer   renderer_;

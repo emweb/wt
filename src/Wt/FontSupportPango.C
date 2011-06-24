@@ -342,7 +342,13 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
     = pangoUnitsToDouble(pango_font_metrics_get_descent(metrics));
 
   double leading = (ascent + descent) - font.sizeLength(12).toPixels();
-  ascent -= leading;
+
+  // ascent < leading is an odd thing. it happens with a font like
+  // Cursive.
+  if (ascent > leading)
+    ascent -= leading;
+  else
+    leading = 0;
 
   WFontMetrics result(font, leading, ascent, descent);
 

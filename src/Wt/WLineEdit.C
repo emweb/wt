@@ -45,7 +45,7 @@ void WLineEdit::setText(const WT_USTRING& text)
 
     validate();
 
-    updateEmptyText();
+    applyEmptyText();
   }
 }
 

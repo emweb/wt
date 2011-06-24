@@ -66,6 +66,11 @@ void WTableRow::deleteColumn(int column)
     cells_[i].cell->column_ = i;
 }
 
+WTableCell *WTableRow::elementAt(int column)
+{
+  return table_->elementAt(rowNum(), column);
+}
+
 int WTableRow::rowNum() const
 {
   return Utils::indexOf(table_->rows_, const_cast<WTableRow *>(this));

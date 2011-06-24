@@ -614,8 +614,12 @@ public:
   /*! \brief Sets a tooltip.
    *
    * The tooltip is displayed when the cursor hovers over the widget.
+   *
+   * When \p textFormat is XHTMLText, the tooltip may contain any valid
+   * XHTML snippet. The tooltip will then be rendered using JavaScript.
    */
-  virtual void setToolTip(const WString& text) = 0;
+  virtual void setToolTip(const WString& text,
+			  TextFormat textFormat = PlainText) = 0;
 
   /*! \brief Returns the tooltip.
    */

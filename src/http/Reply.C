@@ -162,6 +162,9 @@ Reply::Reply(const Request& request, const Configuration& config)
     finishing_(false),
     contentSent_(0),
     contentOriginalSize_(0)
+#ifdef WTHTTP_WITH_ZLIB
+    , gzipBusy_(false)
+#endif // WTHTTP_WITH_ZLIB
 {
 #ifndef WIN32
   gettimeofday(&startTime_, 0);
@@ -169,7 +172,12 @@ Reply::Reply(const Request& request, const Configuration& config)
 }
 
 Reply::~Reply()
-{ }
+{ 
+#ifdef WTHTTP_WITH_ZLIB
+  if (gzipBusy_)
+    deflateEnd(&gzipStrm_);
+#endif // WTHTTP_WITH_ZLIB
+}
 
 void Reply::release()
 { }
@@ -484,6 +492,7 @@ void Reply::initGzip()
   int r = 0;
   r = deflateInit2(&gzipStrm_, Z_DEFAULT_COMPRESSION,
 		   Z_DEFLATED, 15+16, 8, Z_DEFAULT_STRATEGY);
+  gzipBusy_ = true;
   assert(r == Z_OK);
 }
 #endif
@@ -525,8 +534,10 @@ void Reply::encodeNextContentBuffer(
       }
     } while (gzipStrm_.avail_out == 0);
 
-    if (originalSize == 0)
+    if (originalSize == 0) {
       deflateEnd(&gzipStrm_);
+      gzipBusy_ = false;
+    }
 
   } else {
 #endif

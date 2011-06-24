@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+/* Note: this is at the same time valid JavaScript and C++. */
+
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptFunction, "animateDisplay",
  function(id, effects, timing, duration, display) {

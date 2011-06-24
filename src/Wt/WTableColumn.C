@@ -26,6 +26,11 @@ WTableColumn::~WTableColumn()
   delete id_;
 }
 
+WTableCell *WTableColumn::elementAt(int row)
+{
+  return table_->elementAt(row, columnNum());
+}
+
 int WTableColumn::columnNum() const
 {
   for (unsigned i =0; i < table_->columns_.size(); i++) 

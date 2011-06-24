@@ -223,10 +223,9 @@ web/Configuration.C
 web/DomElement.C
 web/EscapeOStream.C
 web/FileServe.C
+web/InternalPathEncoder.C
 web/SoundManager.C
 web/Utils.C
-web/XSSFilter.C
-web/XSSUtils.C
 web/WebRequest.C
 web/WebStream.C
 web/WebSession.C
@@ -235,6 +234,8 @@ web/WebRenderer.C
 web/WebController.C
 web/WtException.C
 web/TimeUtil.C
+web/XSSFilter.C
+web/XSSUtils.C
 web/random_device.cpp
 web/base64.cpp
 Plain_html.C

@@ -10,7 +10,7 @@ WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WRegExpValidator",
    function(mandatory, regexp, modifiers, blankError, invalidError) {
 
-     var r = regexp ? new RegExp(regexp, modifiers) : null;
+     var r = regexp ? new RegExp("^" + regexp + "$", modifiers) : null;
 
      this.validate = function(text) {
        if (text.length == 0)

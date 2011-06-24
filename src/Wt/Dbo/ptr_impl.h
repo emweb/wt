@@ -403,6 +403,22 @@ Session *Dbo<C>::session() const
 }
 
 template <class C>
+void Dbo<C>::setDirty()
+{
+  if (meta_)
+    meta_->setDirty();
+}
+
+template <class C>
+ptr<C> Dbo<C>::self() const
+{
+  if (meta_)
+    return ptr<C>(meta_);
+  else
+    return ptr<C>();
+}
+
+template <class C>
 void query_result_traits< ptr<C> >
 ::getFields(Session& session, std::vector<std::string> *aliases,
 	    std::vector<FieldInfo>& result)

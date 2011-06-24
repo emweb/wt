@@ -147,7 +147,6 @@ WTableView::WTableView(WContainerWidget *parent)
   } else {
     plainTable_ = new WTable();
     plainTable_->setStyleClass("Wt-plaintable");
-    plainTable_->setAttributeValue("style", "table-layout: fixed;");
     plainTable_->setHeaderCount(1);
 
     impl_->addWidget(plainTable_);
@@ -242,6 +241,8 @@ void WTableView::setModel(WAbstractItemModel* model)
 			      (this, &Self::modelLayoutChanged));
   modelConnections_.push_back(model->modelReset().connect
 			      (this, &Self::modelReset));
+
+  firstColumn_ = lastColumn_ = -1;
 }
 
 WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index) 
@@ -322,7 +323,7 @@ void WTableView::setRenderedHeight(double th)
 {
   table_->setHeight(th);
   headerColumnsTable_->setHeight(th);
-  for (int i = 0; i < headerColumnsTable_->count() + table_->count(); ++i) {
+  for (int i = 0; i < renderedColumnsCount(); ++i) {
     ColumnWidget *w = columnContainer(i);
     w->setHeight(th);
   }
@@ -466,7 +467,7 @@ void WTableView::removeSection(const Side side)
   case Top:
     setSpannerCount(side, spannerCount(side) + 1);
 
-    for (int i = 0; i < headerColumnsTable_->count() + table_->count(); ++i) {
+    for (int i = 0; i < renderedColumnsCount(); ++i) {
       ColumnWidget *w = columnContainer(i);
       deleteItem(row, col + i, w->widget(0));
     }
@@ -475,7 +476,7 @@ void WTableView::removeSection(const Side side)
     row = lastRow();
     setSpannerCount(side, spannerCount(side) + 1);
 
-    for (int i = 0; i < headerColumnsTable_->count() + table_->count(); ++i) {
+    for (int i = 0; i < renderedColumnsCount(); ++i) {
       ColumnWidget *w = columnContainer(i);
       deleteItem(row, col + i, w->widget(w->count() - 1));
     }
@@ -803,6 +804,7 @@ void WTableView::rerenderHeader()
     for (int i = 0; i < columnCount(); ++i) {
       WWidget *w = createHeaderWidget(app, i);
       WTableCell *cell = plainTable_->elementAt(0, i);
+      cell->setStyleClass("headerrh");
       cell->addWidget(w);
       w->setWidth(columnInfo(i).width.toPixels() + 1);
       cell->resize(columnInfo(i).width.toPixels() + 1, w->height());
@@ -981,8 +983,9 @@ void WTableView::setRowHeight(const WLength& rowHeight)
 
   WAbstractItemView::setRowHeight(rowHeight);
 
+  std::string lh = "line-height: " + rowHeight.cssText();
+
   if (ajaxMode()) {
-    std::string lh = "line-height: " + rowHeight.cssText();
     canvas_->setAttributeValue("style", lh);
     headerColumnsCanvas_->setAttributeValue("style", lh);
 
@@ -993,8 +996,10 @@ void WTableView::setRowHeight(const WLength& rowHeight)
       double th = renderedRowCount * rowHeight.toPixels();
       setRenderedHeight(th);
     }
-  } else // Plain HTML mode
+  } else { // Plain HTML mode
+    plainTable_->setAttributeValue("style", lh + ";table-layout: fixed;");
     resize(width(), height());
+  }
 
   updateTableBackground();
 
@@ -1452,6 +1457,13 @@ bool WTableView::internalSelect(const WModelIndex& index, SelectionFlag option)
     return false;
 }
 
+int WTableView::renderedColumnsCount() const
+{
+  assert(ajaxMode());
+
+  return headerColumnsTable_->count() + table_->count();
+}
+
 void WTableView::renderSelected(bool selected, const WModelIndex& index)
 {
   if (selectionBehavior() == SelectRows) {
@@ -1459,7 +1471,7 @@ void WTableView::renderSelected(bool selected, const WModelIndex& index)
       int renderedRow = index.row() - firstRow();
 
       if (ajaxMode()) {
-	for (int i = 0; i < table_->count(); ++i) {
+	for (int i = 0; i < renderedColumnsCount(); ++i) {
 	  ColumnWidget *column = columnContainer(i);
 	  WWidget *w = column->widget(renderedRow);
 	  if (selected)

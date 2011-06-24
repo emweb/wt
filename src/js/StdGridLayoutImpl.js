@@ -120,12 +120,14 @@ WT_DECLARE_WT_MEMBER
      if (!shallow) {
        p = ch.parentNode;
        w = p.offsetWidth - self.marginH(ch);
-       if (self.getColumn(col)) {
-	 var cw = self.getColumn(col).style.width, cwl = cw.length;
-	 if (cwl > 0 && cw[cwl-1] == '%') {
-	   ch.style.position = 'absolute';
-	   ch.style.width = w+'px';
+
+       if (p.className == 'Wt-chwrap') {
+	 if (!WT.isIE) {
+	   ch.style.position = 'relative';
+	   ch = ch.firstChild;
 	 }
+	 ch.style.width = w + 'px';
+	 ch.style.position = 'absolute';
        }
      }
 

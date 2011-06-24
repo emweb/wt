@@ -326,10 +326,14 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
 
     BOOST_REQUIRE(ptrA->session() == session_);
 
+    BOOST_REQUIRE(ptrA->self() == ptrA);
+
     As allAs = session_->find<A>();
     BOOST_REQUIRE(allAs.size() == 1);
     dbo::ptr<A> a2 = *allAs.begin();
     BOOST_REQUIRE(*a2 == a1);
+
+    BOOST_REQUIRE(a2->self() == ptrA);
 
     t.commit();
   }
@@ -458,6 +462,11 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     BOOST_REQUIRE(c2->bsManyToMany.size() == 1);
     BOOST_REQUIRE(c3->bsManyToMany.size() == 0);
 
+    Cs cs = b1->csManyToMany;
+    for (Cs::const_iterator i = cs.begin(); i != cs.end(); ++i) {
+      std::cerr << "C: " << (*i)->name << std::endl;
+    }
+
     b1.modify()->csManyToMany.erase(c2);
 
     BOOST_REQUIRE(b1->csManyToMany.size() == 1);
@@ -517,6 +526,9 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     dbo::Transaction t(*session_);
 
     dbo::ptr<A> a1(new A());
+
+    BOOST_REQUIRE(a1->self() == a1);
+
     a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
 					  Wt::WTime(12, 11, 31));
     a1.modify()->date = Wt::WDate(1980, 12, 4);

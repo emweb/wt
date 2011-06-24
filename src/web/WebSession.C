@@ -80,6 +80,7 @@ WebSession::WebSession(WebController *controller,
     favicon_(favicon),
     state_(JustCreated),
     sessionId_(sessionId),
+    sessionIdChanged_(false),
     controller_(controller),
     renderer_(*this),
     asyncResponse_(0),
@@ -218,7 +219,14 @@ std::string WebSession::docType() const
       "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
       "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
   else
-    return "<!doctype html>"; // HTML5 hoeray
+    return
+#ifdef HTML4_DOCTYPE
+      "<!DOCTYPE html PUBLIC "
+      "\"-//W3C//DTD HTML 4.01 Transitional//EN\" "
+      "\"http://www.w3.org/TR/html4/loose.dtd\">";
+#else
+      "<!doctype html>"; // HTML5 hoeray
+#endif
 }
 
 #ifndef WT_TARGET_JAVA
@@ -368,14 +376,14 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
     return appendSessionQuery(url);
   }
   case ClearInternalPath: {
-    if (!isAbsoluteUrl(applicationUrl_)) {
-      if (pagePathInfo_.length() > 1)
-	return appendSessionQuery(deploymentPath_);
-      else
-	return appendSessionQuery(applicationName_);
-    } else {
-      return appendSessionQuery(applicationUrl_);
-    }
+    std::string url;
+    if (applicationName_.empty()) {
+      url = fixRelativeUrl(".");
+      url = url.substr(0, url.length() - 1);
+    } else
+      url = fixRelativeUrl(applicationName_);
+
+    return appendSessionQuery(url);
   }
   default:
     assert(false);
@@ -469,15 +477,6 @@ std::string WebSession::bookmarkUrl() const
 std::string WebSession::bookmarkUrl(const std::string& internalPath) const
 {
   std::string result = bookmarkUrl_;
-
-  // Without Ajax, we either should use an absolute URL, or a relative
-  // url that takes into account the internal path of the current request.
-  //
-  // For now, we make an absolute URL, and will fix this in Wt 3.0 since
-  // there we always know the current request (?)
-  if (!env_->ajax() && result.find("://") == std::string::npos
-      && (env_->internalPath().length() > 1 || internalPath.length() > 1))
-    result = deploymentPath_;
 
   return appendInternalPath(result, internalPath);
 }
@@ -2138,7 +2137,8 @@ void WebSession::notifySignal(const WEvent& e)
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
 	  app_->changeInternalPath(*hashE);
-	  app_->doJavaScript(WT_CLASS ".scrollIntoView('" + *hashE + "');");
+	  app_->doJavaScript(WT_CLASS ".scrollIntoView("
+			     + WWebWidget::jsStringLiteral(*hashE) + ");");
 	} else
 	  app_->changeInternalPath("");
       } else {
@@ -2197,6 +2197,8 @@ void WebSession::generateNewSessionId()
 {
   std::string oldId = sessionId_;
   sessionId_ = controller_->generateNewSessionId(shared_from_this());
+  sessionIdChanged_ = true;
+
   log("notice") << "New session id for " << oldId;
 
   if (controller_->configuration().sessionTracking()

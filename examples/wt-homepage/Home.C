@@ -132,7 +132,7 @@ WWidget *Home::initHome()
     (tr("blog"), deferCreate(boost::bind(&Home::blog, this)));
 
   mainMenu_->addItem
-    (tr("features"), wrapView(&Home::features),  WMenuItem::PreLoading);
+    (tr("features"), wrapView(&Home::features), WMenuItem::PreLoading);
 
   mainMenu_->addItem
     (tr("documentation"), wrapView(&Home::documentation),
