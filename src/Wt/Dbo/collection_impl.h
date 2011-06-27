@@ -418,43 +418,53 @@ template <class C>
 void collection<C>::insert(C c)
 {
   if (type_ != RelationCollection)
-    throw std::runtime_error("collection<C>::insert() "
-			     "only for a ManyToMany relation.");
+    throw std::runtime_error("collection<C>::insert() only for a "
+			     "relational collection.");
 
   RelationData& relation = data_.relation;
 
   if (relation.dbo)
     relation.dbo->setDirty();
 
-  if (!relation.activity)
-    relation.activity = new Activity();
+  if (relation.setInfo->type == ManyToMany) {
+    if (!relation.activity)
+      relation.activity = new Activity();
 
-  bool wasJustErased = relation.activity->erased.erase(c) > 0;
-  relation.activity->transactionErased.erase(c);
+    bool wasJustErased = relation.activity->erased.erase(c) > 0;
+    relation.activity->transactionErased.erase(c);
 
-  if (!wasJustErased && !relation.activity->transactionInserted.count(c))
-    relation.activity->inserted.insert(c);
+    if (!wasJustErased && !relation.activity->transactionInserted.count(c))
+      relation.activity->inserted.insert(c);
+  } else {
+    SetReciproceAction setPtr(relation.setInfo->joinName, relation.dbo);
+    setPtr.visit(*c.modify());
+  }
 }
 
 template <class C>
 void collection<C>::erase(C c)
 {
   if (type_ != RelationCollection)
-    throw std::runtime_error("collection<C>::erase() "
-			     "only for a ManyToMany relation.");
+    throw std::runtime_error("collection<C>::erase() only for a relational "
+			     "relation.");
   RelationData& relation = data_.relation;
 
   if (relation.dbo)
     relation.dbo->setDirty();
 
-  if (!relation.activity)
-    relation.activity = new Activity();
+  if (relation.setInfo->type == ManyToMany) {
+    if (!relation.activity)
+      relation.activity = new Activity();
 
-  bool wasJustInserted = relation.activity->inserted.erase(c) > 0;
-  relation.activity->transactionInserted.erase(c);
+    bool wasJustInserted = relation.activity->inserted.erase(c) > 0;
+    relation.activity->transactionInserted.erase(c);
 
-  if (!wasJustInserted && !relation.activity->transactionErased.count(c))
-    relation.activity->erased.insert(c);
+    if (!wasJustInserted && !relation.activity->transactionErased.count(c))
+      relation.activity->erased.insert(c);
+  } else {
+    SetReciproceAction setPtr(relation.setInfo->joinName, 0);
+    setPtr.visit(*c.modify());
+  }
 }
 
 template <class C>
@@ -466,14 +476,15 @@ void collection<C>::resetActivity()
 }
 
 template <class C>
-void collection<C>::setRelationData(Session *session,
+void collection<C>::setRelationData(MetaDboBase *dbo,
 				    const std::string *sql,
-				    MetaDboBase *dbo)
+				    Session::SetInfo *setInfo)
 {
-  session_ = session;
+  session_ = dbo->session();
 
   data_.relation.sql = sql;
   data_.relation.dbo = dbo;
+  data_.relation.setInfo = setInfo;
 }
 
   }

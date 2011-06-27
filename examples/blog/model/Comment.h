@@ -43,9 +43,9 @@ public:
     dbo::field(a, textSrc_, "text_source");
     dbo::field(a, textHtml_, "text_html");
 
-    dbo::belongsTo(a, post, "post");
+    dbo::belongsTo(a, post, "post", dbo::OnDeleteCascade);
     dbo::belongsTo(a, author, "author");
-    dbo::belongsTo(a, parent, "parent");
+    dbo::belongsTo(a, parent, "parent", dbo::OnDeleteCascade);
 
     dbo::hasMany(a, children, dbo::ManyToOne, "parent");
   }

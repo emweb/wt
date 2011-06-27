@@ -576,10 +576,8 @@ At the _Many_-side, you may read or write the +ptr+ to set a user to
 which this post belongs.
 
 The collection at the _One_-side allows us to retrieve all associated
-elements, but is read-only: inserting elements will not have any
-effect: to add a _post_ to a _user_, you need to set the _user_ for
-the _post_, rather than adding the post to the collection in
-user.
+elements, and also insert() and remove() elements, which has the same
+effect as setting the +ptr+ on the _Many_-side.
 
 Example:
 
@@ -587,14 +585,14 @@ Example:
 [source,cpp]
 ----
 dbo::ptr<Post> post = session.add(new Post());
-post.modify()->user = joe;
+post.modify()->user = joe; // or joe.modify()->posts.insert(post);
 
 // will print 'Joe has 1 post(s).'
 std::cerr << "Joe has " << joe->posts.size() << " post(s)." << std::endl;
 ----
 
 As you can see, as soon as _joe_ is set as _user_ for the new post, the
-post is reflected in the _posts_ collection of _joe_.
+post is reflected in the _posts_ collection of _joe_, and vice-versa.
 
 [WARNING]
 ===============================

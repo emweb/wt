@@ -10,10 +10,11 @@
 #include <string>
 
 #include <Wt/Dbo/ptr>
-#include <Wt/Dbo/collection>
 
 namespace Wt {
   namespace Dbo {
+    template <class C> class collection;
+
     namespace Impl {
 const int FKNotNull = 0x01;
 const int FKOnUpdateCascade = 0x02;
@@ -198,7 +199,7 @@ public:
 
   const std::string& name() const { return name_; }
   int fkConstraints() const { return fkConstraints_; }
-  const ptr<C>& value() const { return value_; }
+  ptr<C>& value() const { return value_; }
   typename dbo_traits<C>::IdType id() const { return value_.id(); }
 
   const std::type_info *type() const;

@@ -50,7 +50,8 @@ WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
   setRenderAsList(false);
 
 #ifndef WT_CNOR
-  contentsStack->destroyed().connect(this, &WMenu::contentsDestroyed);
+  contentsStackConnection_ = contentsStack->destroyed().connect(
+    this, &WMenu::contentsDestroyed);
 #endif // WT_CNOR
 }
 
@@ -79,6 +80,8 @@ void WMenu::setRenderAsList(bool enable)
 
 WMenu::~WMenu()
 {
+  contentsStackConnection_.disconnect();
+
   for (unsigned i = 0; i < items_.size(); ++i) {
     items_[i]->setMenu(0);
     delete items_[i];

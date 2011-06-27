@@ -134,75 +134,80 @@ WT_DECLARE_WT_MEMBER
     */
    var adjustScheduled = false;
 
+   function doAdjustColumns() {
+     if (!adjustScheduled)
+       return;
+
+     adjustScheduled = false;
+
+     var wrapRoot = contents.firstChild, // table parent
+       hc = headers.firstChild, // Wt-tv-row
+       allw_1=0, allw=0,
+       c0id = headers.lastChild.className.split(' ')[0],
+       c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
+
+     if (rowHeaderCount)
+       hc = hc.firstChild; // Wt-tv-rowc
+
+     if (WT.isHidden(el) || (headers.offsetWidth - hc.offsetWidth < 8))
+       return;
+
+     for (var i=0, length=hc.childNodes.length; i < length; ++i) {
+       if (hc.childNodes[i].className) { // IE may have only a text node
+	 var cl = hc.childNodes[i].className.split(' ')[0],
+	   r = WT.getCssRule('#' + el.id + ' .' + cl);
+
+	 if (r.style.display == 'none')
+	   continue;
+
+	 // 7 = 2 * 3px (padding) + 1px border
+	 allw_1 += WT.pxself(r, 'width') + 7;
+       }
+     }
+
+     if (!rowHeaderCount)
+       if (!c0r.style.width)  // first resize and c0 width not set
+	 c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
+       else
+	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
+
+     /*
+      * IE6 is still not entirely right. It seems to be caused by a padding
+      * of 7 pixels in the first column which gets added to the width.
+      */
+
+     allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 7);
+
+     if (!rowHeaderCount) {
+       headers.style.width = wrapRoot.style.width = allw + 'px';
+       hc.style.width = allw_1 + 'px';
+     } else {
+       var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
+       r.style.width = allw_1 + 'px';
+
+       if (WT.isIE) {
+	 setTimeout(function() {
+	     $(el).find('.Wt-tv-rowc')
+	       .css('width', allw_1 + 'px')
+	       .css('width', '');
+	   }, 0);
+       }
+
+       el.changed = true;
+
+       /*
+	* self.autoJavaScript();
+        */
+     }
+   }
+
    this.adjustColumns = function() {
      if (adjustScheduled)
        return;
 
      adjustScheduled = true;
 
-     setTimeout(function() {
-       adjustScheduled = false;
-
-       var wrapRoot = contents.firstChild, // table parent
-	   hc = headers.firstChild, // Wt-tv-row
-           allw_1=0, allw=0,
-           c0id = headers.lastChild.className.split(' ')[0],
-           c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
-
-       if (rowHeaderCount)
-	 hc = hc.firstChild; // Wt-tv-rowc
-
-       if (WT.isHidden(el) || (headers.offsetWidth - hc.offsetWidth < 8))
-	 return;
-
-       for (var i=0, length=hc.childNodes.length; i < length; ++i) {
-	 if (hc.childNodes[i].className) { // IE may have only a text node
-	   var cl = hc.childNodes[i].className.split(' ')[0],
-	     r = WT.getCssRule('#' + el.id + ' .' + cl);
-
-	   if (r.style.display == 'none')
-	     continue;
-
-	   // 7 = 2 * 3px (padding) + 1px border
-	   allw_1 += WT.pxself(r, 'width') + 7;
-	 }
-       }
-
-       if (!rowHeaderCount)
-	 if (!c0r.style.width)  // first resize and c0 width not set
-	   c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
-	 else
-	   $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
-
-      /*
-       * IE6 is still not entirely right. It seems to be caused by a padding
-       * of 7 pixels in the first column which gets added to the width.
-       */
-
-       allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 7);
-
-       if (!rowHeaderCount) {
-	 headers.style.width = wrapRoot.style.width = allw + 'px';
-	 hc.style.width = allw_1 + 'px';
-       } else {
-	 var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
-	 r.style.width = allw_1 + 'px';
-
-	 if (WT.isIE) {
-	   setTimeout(function() {
-			$(el).find('.Wt-tv-rowc')
-			  .css('width', allw_1 + 'px')
-			  .css('width', '');
-		      }, 0);
-	 }
-
-	 el.changed = true;
-
-	 /*
-	    self.autoJavaScript();
-	  */
-       }
-     }, 0);
+     setTimeout(doAdjustColumns, 0);
    };
 
    var dropEl = null;
@@ -252,6 +257,8 @@ WT_DECLARE_WT_MEMBER
 
       if (WT.isHidden(el))
 	return;
+
+      doAdjustColumns();
 
       var $el=$(el),
         c0id, c0r, c0w = null;

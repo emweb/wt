@@ -12,6 +12,7 @@
 #include <set>
 
 #include <Wt/Dbo/ptr>
+#include <Wt/Dbo/Session>
 
 namespace Wt {
   namespace Dbo {
@@ -37,14 +38,14 @@ namespace Wt {
    * you can only iterate the results just once: i.e. you can have
    * only one begin() call.
    *
-   * The container is read only, unless it is being used as a member
-   * of a dbo to manage a Many-to-Many relation. In that case, you may
-   * also insert() and erase() may also be used.
+   * The container is read only when it reflects results of a query.
+   * Otherwise, when involved in a Many-to-One or Many-to-Many
+   * relation, you may also insert() and erase() objects in it.
    *
    * You will typically iterate the container results for local
    * processing, or copy the results into a standard STL container for
    * extended processing. Not only the weak guarantees of the
-   * iterators make this useful, but also in the current
+   * iterators make this recommended, but also in the current
    * implementation of the library, all sql statements are
    * non-reentrant prepared statements (this limitation is likely to
    * be removed in the future): only one %collection, which is backed
@@ -279,15 +280,21 @@ namespace Wt {
 
     /*! \brief Inserts an object.
      *
-     * This is only useful for a %collection that implements one side
-     * of a ManyToMany relation.
+     * This is only implemented for %collections that are involved in
+     * a ManyToOne or ManyToMany relation, and not for collections that
+     * are used to iterated the result of a query.
+     *
+     * \sa erase()
      */
     void insert(C c);
 
     /*! \brief Removes an object.
      *
-     * This is only useful for a %collection that implements one side
-     * of a ManyToMany relation.
+     * This is only implemented for %collections that are involved in
+     * a ManyToOne or ManyToMany relation, and not for collections that
+     * are used to iterated the result of a query.
+     *
+     * \sa insert()
      */
     void erase(C c);
 
@@ -313,6 +320,7 @@ namespace Wt {
     struct RelationData {
       const std::string *sql;
       MetaDboBase *dbo;
+      Session::SetInfo *setInfo;
       Activity *activity; // only for ManyToMany collections
     };
 
@@ -336,8 +344,8 @@ namespace Wt {
     collection(Session *session, SqlStatement *selectStatement,
 	       SqlStatement *countStatement);
 
-    void setRelationData(Session *session, const std::string *sql,
-			 MetaDboBase *dbo);
+    void setRelationData(MetaDboBase *dbo, const std::string *sql,
+			 Session::SetInfo *info);
     Activity *activity() const { return data_.relation.activity; }
     void resetActivity();
 

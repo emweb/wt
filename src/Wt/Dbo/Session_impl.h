@@ -177,7 +177,7 @@ ptr<C> Session::add(ptr<C>& obj)
     dirtyObjects_.insert(dbo);
     dbo->incRef();
 
-    SessionAddAction act(this);
+    SessionAddAction act(*dbo, *getMapping<C>());
     act.visit(*dbo->obj());
   }
 

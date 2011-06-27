@@ -1,3 +1,7 @@
+27-06-2011:
+	* Dbo/collection: implement insert() and erase() for ManyToOne
+	collections
+
 24-06-2011:
 	* WApplication: implemented changeSessionId() method, useful to
 	mitigate session fixation attacks

@@ -564,6 +564,8 @@ private:
   std::vector<WMenuItem *> items_;
 
   void select(int index, bool changePath);
+
+  boost::signals::connection contentsStackConnection_;
   void contentsDestroyed();
 
   int current_;

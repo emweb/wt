@@ -361,6 +361,14 @@ ptr<C>::ptr(MetaDbo<C> *obj)
 }
 
 template <class C>
+void ptr<C>::reset(MetaDboBase *dbo)
+{
+  freeObj();
+  obj_ = dynamic_cast<MetaDbo<C> *>(dbo);
+  takeObj();
+}
+
+template <class C>
 void ptr<C>::transactionDone(bool success)
 {
   obj_->transactionDone(success);

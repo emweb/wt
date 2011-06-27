@@ -103,7 +103,7 @@ private:
   MetaDboBase *dbo_;
   Session::MappingInfo *mapping_;
 
-  int setStatementIdx_;
+  int setStatementIdx_, setIdx_;
 };
 
 class WTDBO_API LoadBaseAction : public DboAction
@@ -210,10 +210,27 @@ private:
   int dummy_;
 };
 
-class WTDBO_API SessionAddAction
+class WTDBO_API SessionAddAction : public DboAction
 {
 public:
-  SessionAddAction(Session *session);
+  SessionAddAction(MetaDboBase& dbo, Session::MappingInfo& mapping);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void actId(V& value, const std::string& name, int size);
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+
+  bool getsValue() const;
+  bool setsValue() const;
+  bool isSchema() const;
+};
+
+class WTDBO_API SetReciproceAction
+{
+public:
+  SetReciproceAction(const std::string& joinName, MetaDboBase *value);
 
   template<class C> void visit(C& obj);
 
@@ -227,7 +244,8 @@ public:
   bool isSchema() const;
 
 private:
-  Session *session_;
+  const std::string& joinName_;
+  MetaDboBase *value_;
 };
 
 class WTDBO_API ToAnysAction

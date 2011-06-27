@@ -11,10 +11,12 @@
 
 #include <Wt/Dbo/SqlTraits>
 #include <Wt/Dbo/ptr>
-#include <Wt/Dbo/collection>
 
 namespace Wt {
   namespace Dbo {
+
+    template <class C> class collection;
+
     namespace Impl {
 
       struct SelectField

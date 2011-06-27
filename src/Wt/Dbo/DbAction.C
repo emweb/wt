@@ -50,13 +50,15 @@ bool DropSchema::isSchema() const { return true; }
 DboAction::DboAction()
   : dbo_(0),
     mapping_(0),
-    setStatementIdx_(0)
+    setStatementIdx_(0),
+    setIdx_(0)
 { }
 
 DboAction::DboAction(MetaDboBase& dbo, Session::MappingInfo& mapping)
   : dbo_(&dbo),
     mapping_(&mapping),
-    setStatementIdx_(0)
+    setStatementIdx_(0),
+    setIdx_(0)
 { }
 
 bool DboAction::getsValue() const { return false; }
@@ -143,13 +145,24 @@ TransactionDoneAction::TransactionDoneAction(MetaDboBase& dbo,
 
 bool TransactionDoneAction::getsValue() const { return true; }
 
-SessionAddAction::SessionAddAction(Session *session)
-  : session_(session)
+SessionAddAction::SessionAddAction(MetaDboBase& dbo,
+				   Session::MappingInfo& mapping)
+  : DboAction(dbo, mapping)
 { }
 
 bool SessionAddAction::getsValue() const { return true; }
 bool SessionAddAction::setsValue() const { return false; }
 bool SessionAddAction::isSchema() const { return false; }
+
+SetReciproceAction::SetReciproceAction(const std::string& joinName,
+				       MetaDboBase *value)
+  : joinName_(joinName),
+    value_(value)
+{ }
+
+bool SetReciproceAction::getsValue() const { return false; }
+bool SetReciproceAction::setsValue() const { return true; }
+bool SetReciproceAction::isSchema() const { return false; }
 
 ToAnysAction::ToAnysAction(std::vector<boost::any>& result)
   : result_(result)

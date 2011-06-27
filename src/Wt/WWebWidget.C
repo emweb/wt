@@ -899,9 +899,9 @@ void WWebWidget::callJavaScriptMember(const std::string& name,
   repaint(RepaintPropertyAttribute);
 }
 
-void WWebWidget::setToolTip(const WString& message, TextFormat textFormat)
+void WWebWidget::setToolTip(const WString& text, TextFormat textFormat)
 {
-  if (canOptimizeUpdates() && (toolTip() == message))
+  if (canOptimizeUpdates() && (toolTip() == text))
     return;
 
   if (!lookImpl_)
@@ -910,7 +910,7 @@ void WWebWidget::setToolTip(const WString& message, TextFormat textFormat)
   if (!lookImpl_->toolTip_)
     lookImpl_->toolTip_ = new WString();
 
-  *lookImpl_->toolTip_ = message;
+  *lookImpl_->toolTip_ = text;
   lookImpl_->toolTipTextFormat_ = textFormat;
 
   flags_.set(BIT_TOOLTIP_CHANGED);

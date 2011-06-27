@@ -145,15 +145,17 @@ void DropSchema::actCollection(const CollectionRef<C>& field)
 template<class C>
 void DboAction::actCollection(const CollectionRef<C>& field)
 {
+  Session::SetInfo *setInfo = &mapping_->sets[setIdx_++];
+
   if (dbo_->isPersisted()) {
     int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
 
     const std::string& sql
       = dbo_->session()->getStatementSql(mapping_->tableName, statementIdx);
 
-    field.value().setRelationData(dbo_->session(), &sql, dbo_);
+    field.value().setRelationData(dbo_, &sql, setInfo);
   } else
-    field.value().setRelationData(0, 0, 0);
+    field.value().setRelationData(dbo_, 0, setInfo);
 
   if (field.type() == ManyToOne)
     setStatementIdx_ += 1;
@@ -490,10 +492,41 @@ void SessionAddAction::actPtr(const PtrRef<C>& field)
 template<class C>
 void SessionAddAction::actCollection(const CollectionRef<C>& field)
 {
-  if (field.value().session() != session_)
-    field.value().setRelationData(session_, 0, 0);
+  DboAction::actCollection(field);
 
   // FIXME: cascade add ?
+}
+
+    /*
+     * SetReciproceAction
+     */
+
+template<class C>
+void SetReciproceAction::visit(C& obj)
+{
+  persist<C>::apply(obj, *this);
+}
+
+template<typename V>
+void SetReciproceAction::actId(V& value, const std::string& name, int size)
+{ 
+  field(*this, value, name, size);
+}
+
+template<typename V>
+void SetReciproceAction::act(const FieldRef<V>& field)
+{ }
+
+template<class C>
+void SetReciproceAction::actPtr(const PtrRef<C>& field)
+{ 
+  if (field.name() == joinName_)
+    field.value().reset(value_);
+}
+
+template<class C>
+void SetReciproceAction::actCollection(const CollectionRef<C>& field)
+{
 }
 
     /*

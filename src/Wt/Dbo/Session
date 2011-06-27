@@ -13,7 +13,6 @@
 #include <typeinfo>
 
 #include <Wt/Dbo/ptr>
-#include <Wt/Dbo/collection>
 #include <Wt/Dbo/Field>
 #include <Wt/Dbo/Query>
 #include <Wt/Dbo/Transaction>
@@ -516,6 +515,7 @@ private:
   friend class LoadBaseAction;
   template <class C> friend class LoadDbAction;
   template <class C> friend class PtrRef;
+  friend class SessionAddAction;
   friend class TransactionDoneAction;
   friend class DropSchema;
   friend class ToAnysAction;

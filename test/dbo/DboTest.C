@@ -1030,4 +1030,61 @@ BOOST_AUTO_TEST_CASE( dbo_test13 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test14 )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  A a1;
+  a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+  a1.date = Wt::WDate(1980, 12, 4);
+  a1.time = Wt::WTime(12, 13, 14, 123);
+  a1.wstring = "Hello";
+  a1.string = "There";
+  a1.checked = false;
+  a1.i = 42;
+  a1.i64 = 9223372036854775804LL;
+  a1.ll = 6066005651767221LL;
+  a1.f = (float)42.42;
+  a1.d = 42.424242;
+
+  B b1;
+  b1.name = "b1";
+  b1.state = B::State1;
+
+  /* Create an A + B  */
+  {
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->add(new A(a1));    
+    dbo::ptr<B> b = session_->add(new B(b1));
+
+    BOOST_REQUIRE(!a->b);
+
+    b.modify()->asManyToOne.insert(a);
+
+    BOOST_REQUIRE(a->b == b);
+
+    b.modify()->asManyToOne.erase(a);
+
+    BOOST_REQUIRE(!a->b);
+
+    b.modify()->asManyToOne.insert(a);
+
+    t.commit();
+  }
+
+  /* Check that A + B are found in other transaction */
+  {
+    dbo::Transaction t(*session_);
+
+    As allAs = session_->find<A>();
+    BOOST_REQUIRE(allAs.size() == 1);
+    dbo::ptr<A> a2 = *allAs.begin();
+    BOOST_REQUIRE(*a2->b == b1);
+
+    t.commit();
+  }
+}
+
 #endif
