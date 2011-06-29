@@ -16,8 +16,25 @@ WT_DECLARE_WT_MEMBER
      /* const */ var EaseInOut = 4;
      /* const */ var CubicBezier = 5;
 
-     var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ];
-     var inverseTiming = [ 0, 1, 3, 2, 4, 5 ];
+     function getPrefix(prop) {
+       var prefixes = ['Moz', 'Webkit'],
+	 elem = document.createElement('div'),
+	 i, il;
+
+       for (i = 0, il = prefixes.length; i < il; ++i) {
+	 if ((prefixes[i] + prop) in elem.style)
+	   return prefixes[i];
+       }
+     }
+
+     var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ],
+       inverseTiming = [ 0, 1, 3, 2, 4, 5 ],
+       prefix = getPrefix("AnimationDuration");
+
+     var cssAnimation = prefix + "Animation",
+       animationEventEnd = prefix == "Moz"
+       ? "animationend" : "webkitAnimationEnd";
+
      /*
       * We only need to implement the show() -- we hide the currently
       * active one at the same time
@@ -46,8 +63,8 @@ WT_DECLARE_WT_MEMBER
      function restore() {
        $(from).removeClass(anim + ' out');
        from.style.display = 'none';
-       from.style['-webkit-animation-duration'] = '';
-       from.style['-webkit-animation-timing-function'] = '';
+       from.style[cssAnimation + 'Duration'] = '';
+       from.style[cssAnimation + 'TimingFunction'] = '';
 
        $(to).removeClass(anim + ' in');
        to.style.left = '';
@@ -55,8 +72,8 @@ WT_DECLARE_WT_MEMBER
        to.style.top = '';
        to.style.height = '';
        to.style.position = '';
-       to.style['-webkit-animation-duration'] = '';
-       to.style['-webkit-animation-timing-function'] = '';
+       to.style[cssAnimation + 'Duration'] = '';
+       to.style[cssAnimation + 'TimingFunction'] = '';
      }
 
      var index = getIndexes();
@@ -72,7 +89,7 @@ WT_DECLARE_WT_MEMBER
       * If an animation is already busy, then wait until it is done
       */
      if ($(from).hasClass("in")) {
-       $(from).one('webkitAnimationEnd', function() {
+       $(from).one(animationEventEnd, function() {
 	   animateChild(child, effects, timing, duration, style);
 	 });
        return;
@@ -102,15 +119,16 @@ WT_DECLARE_WT_MEMBER
      if (needReverse)
        anim += " reverse";
 
-     from.style['-webkit-animation-duration'] = duration + 'ms';
-     to.style['-webkit-animation-duration'] = duration + 'ms';
-     from.style['-webkit-animation-timing-function']
+     from.style[cssAnimation + 'Duration'] = duration + 'ms';
+     to.style[cssAnimation + 'Duration'] = duration + 'ms';
+     from.style[cssAnimation + 'TimingFunction']
        = timings[inverseTiming[timing]];
-     to.style['-webkit-animation-timing-function'] = timings[timing];
+     to.style[cssAnimation + 'TimingFunction'] = timings[timing];
 
      $(from).addClass(anim + ' out');
      $(to).addClass(anim + ' in');
-     $(to).one('webkitAnimationEnd', restore);
+
+     $(to).one(animationEventEnd, restore);
    }
 
    return {

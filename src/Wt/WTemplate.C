@@ -78,7 +78,7 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
 {
   WString v = value;
 
-  if (textFormat == XHTMLText && value.literal()) {
+  if (textFormat == XHTMLText && v.literal()) {
     if (!removeScript(v))
       v = escapeText(v, true);
   } else if (textFormat == PlainText)

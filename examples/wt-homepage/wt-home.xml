@@ -14,7 +14,11 @@
 
     <div id="banner_wrapper">
       <div id="banner_content">
-	<div id="banner_end"> <div id="banner"><a href="#">Wt</a></div> </div>
+	<div id="banner_end">
+	  <div id="banner">
+	    <!-- <a href="#">Wt</a> -->
+	  </div>
+	</div>
       </div>
     </div>
 

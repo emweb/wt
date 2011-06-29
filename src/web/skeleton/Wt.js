@@ -863,6 +863,17 @@ this.pctself = function(c, s) {
   return parsePct(c.style[s], 0);
 };
 
+this.cssPrefix = function(prop) {
+  var prefixes = ['Moz', 'Webkit'],
+    elem = document.createElement('div'),
+    i, il;
+
+  for (i = 0, il = prefixes.length; i < il; ++i) {
+    if ((prefixes[i] + prop) in elem.style)
+      return prefixes[i];
+  }
+}
+
 this.boxSizing = function(w) {
   return (w.style['boxSizing']
 	  || w.style['MozBoxSizing']

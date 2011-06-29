@@ -450,7 +450,8 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     dbo::ptr<C> c2 = session_->add(new C("c2"));
     dbo::ptr<C> c3 = session_->add(new C("c3"));
 
-    b1.modify()->csManyToMany.insert(c1);
+    B *m = b1.modify();
+    m->csManyToMany.insert(c1);
 
     BOOST_REQUIRE(b1->csManyToMany.size() == 1);
     BOOST_REQUIRE(c1->bsManyToMany.size() == 1);

@@ -1595,14 +1595,6 @@ void WebSession::notify(const WEvent& event)
 
   switch (state_) {
   case WebSession::JustCreated:
-
-#ifdef WT_WITH_OLD_INTERNALPATH_API
-    if (app_->oldInternalPathAPI() && env_->internalPath() != "/") {
-      app_->setInternalPath("/");
-      app_->changeInternalPath(env_->internalPath());
-    }
-#endif // WT_WITH_OLD_INTERNALPATH_API
-
     render(handler);
 
     break;

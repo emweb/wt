@@ -578,6 +578,7 @@ private:
   void selectVisual(WMenuItem *item);
   void selectVisual(int item, bool changePath);
   void undoSelectVisual();
+
   friend class WMenuItem;
   friend class WSubMenuItem;
 
@@ -586,6 +587,7 @@ private:
   void doSetHiddenItem(int index, bool hidden);
   void doSetHiddenItem(WMenuItem *item, bool hidden);
   void updateItems();
+  void updateSelectionEvent();
 };
 
 }

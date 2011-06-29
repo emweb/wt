@@ -120,7 +120,7 @@ bool WStackedWidget::loadAnimateJS()
 {
   WApplication *app = WApplication::instance();
 
-  if (app->environment().agentIsWebKit()) {
+  if (app->environment().supportsCss3Animations()) {
     LOAD_JAVASCRIPT(app, "js/WStackedWidget.js", "WStackedWidget", wtjs1);
     return true;
   } else

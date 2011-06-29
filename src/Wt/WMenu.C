@@ -19,6 +19,35 @@
 #include "WtException.h"
 #include "Utils.h"
 
+namespace {
+
+  /*
+   * Returns the length of the longest matching sub path.
+   *
+   * ("a", "b") -> -1
+   * ("a", "") -> 0
+   * ("a/ab", "a/ac") -> -1
+   * ("a", "a") -> 1
+   */
+  int match(const std::string& path, const std::string& component) {
+    if (component.length() > path.length())
+      return -1;
+
+    int length = std::min(component.length(), path.length());
+
+    int current = -1;
+
+    for (int i = 0; i < length; ++i) {
+      if (component[i] != path[i]) {
+	return current;
+      } else if (component[i] == '/')
+	current = i;
+    }
+
+    return length;
+  }
+}
+
 namespace Wt {
 
 WMenu::WMenu(Orientation orientation, WContainerWidget *parent)
@@ -101,13 +130,7 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
     app->internalPathChanged().connect(this, &WMenu::internalPathChanged);
 
     previousInternalPath_ = app->internalPath();
-
-#ifdef WT_WITH_OLD_INTERNALPATH_API
-    if (app->oldInternalPathAPI())
-      internalPathChanged(basePath_);
-    else
-#endif // WT_WITH_OLD_INTERNALPATH_API
-      internalPathChanged(app->internalPath());
+    internalPathChanged(app->internalPath());
 
     updateItems();
   }
@@ -132,12 +155,7 @@ void WMenu::setInternalBasePath(const std::string& basePath)
     if (internalPathEnabled_) {
       WApplication *app = wApp;
       previousInternalPath_ = app->internalPath();
-#ifdef WT_WITH_OLD_INTERNALPATH_API
-      if (app->oldInternalPathAPI())
-	internalPathChanged(basePath_);
-      else
-#endif // WT_WITH_OLD_INTERNALPATH_API
-	internalPathChanged(app->internalPath());
+      internalPathChanged(app->internalPath());
 
       updateItems();
     }
@@ -149,8 +167,9 @@ void WMenu::updateItems()
   for (unsigned i = 0; i < items_.size(); ++i) {
     WMenuItem *item = items_[i];
     item->updateItemWidget(item->itemWidget());
-    item->resetLearnedSlots();
   }
+
+  updateSelectionEvent();
 }
 
 WMenuItem *WMenu::addItem(const WString& name, WWidget *contents,
@@ -184,8 +203,7 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
     }
   }
 
-  for (unsigned i = 0; i < items_.size(); ++i)
-    items_[i]->resetLearnedSlots();
+  updateSelectionEvent();
 
   if (contentsStack_) {
     WWidget *contents = item->contents();
@@ -258,8 +276,7 @@ void WMenu::removeItem(WMenuItem *item)
     if (itemIndex <= current_ && current_ >= 0)
       --current_;
 
-    for (unsigned i = 0; i < items_.size(); ++i)
-      items_[i]->resetLearnedSlots();
+    updateSelectionEvent();
 
     select(current_, true);
   }
@@ -416,26 +433,31 @@ void WMenu::internalPathChanged(const std::string& path)
 {
   WApplication *app = wApp;
 
-  if (
-#ifdef WT_WITH_OLD_INTERNALPATH_API
-      (app->oldInternalPathAPI() && path == basePath_) ||
-#endif // WT_WITH_OLD_INTERNALPATH_API 
-      app->internalPathMatches(basePath_)) {
+  if (app->internalPathMatches(basePath_)) {
+    std::string subPath = app->internalSubPath(basePath_);
 
-    std::string value = app->internalPathNextPart(basePath_);
+    int bestI = -1, bestMatchLength = -1;
 
     for (unsigned i = 0; i < items_.size(); ++i) {
-      if (items_[i]->pathComponent() == value
-	  || items_[i]->pathComponent() == (value + '/')) {
-	items_[i]->setFromInternalPath(path);
-	return;
+      int matchLength = match(subPath, items_[i]->pathComponent());
+
+      std::cerr << items_[i]->pathComponent() << ", "
+		<< subPath << ": " << matchLength << std::endl;
+
+      if (matchLength > bestMatchLength) {
+	bestMatchLength = matchLength;
+	bestI = i;
       }
     }
 
-    if (!value.empty())
-      wApp->log("error") << "WMenu: unknown path: '"<< value << "'";
-    else
-      select(-1, false);
+    if (bestI != -1)
+      items_[bestI]->setFromInternalPath(path);
+    else {
+      if (!subPath.empty())
+	wApp->log("error") << "WMenu: unknown path: '"<< subPath << "'";
+      else
+	select(-1, false);
+    }
   }
 }
 
@@ -499,13 +521,18 @@ void WMenu::recreateItem(int index)
   item->renderSelected(current_ == index);
   item->renderHidden(item->isHidden());
 
-  for (unsigned i = 0; i < items_.size(); ++i)
-    items_[i]->resetLearnedSlots();
+  updateSelectionEvent();
 }
 
 void WMenu::recreateItem(WMenuItem *item)
 {
   recreateItem(indexOf(item));
+}
+
+void WMenu::updateSelectionEvent()
+{
+  for (unsigned i = 0; i < items_.size(); ++i)
+    items_[i]->updateSelectionEvent();
 }
 
 }

@@ -253,8 +253,10 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
 	agent_ = Firefox3_5;
       else if (userAgent_.find("Firefox/3.6") != std::string::npos)
 	agent_ = Firefox3_6;
-      else
+      else if (userAgent_.find("Firefox/4.") != std::string::npos)
 	agent_ = Firefox4_0;
+      else
+	agent_ = Firefox5_0;
     }
   }
 
@@ -271,6 +273,12 @@ bool WEnvironment::agentSupportsAjax() const
     return matches;
   else
     return !matches;
+}
+
+bool WEnvironment::supportsCss3Animations() const
+{
+  return (agentIsGecko() && agent_ >= Firefox5_0
+	  || agentIsWebKit());
 }
 
 std::string WEnvironment::libraryVersion()

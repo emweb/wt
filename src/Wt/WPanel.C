@@ -226,8 +226,10 @@ void WPanel::setCentralWidget(WWidget * w)
   delete centralWidget_;
   centralWidget_ = w;
 
-  if (w)
+  if (w) {
     centralArea()->addWidget(w);
+    w->setInline(false);
+  }
 }
 
 WContainerWidget *WPanel::centralArea() const

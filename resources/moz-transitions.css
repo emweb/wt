@@ -1,0 +1,271 @@
+/*
+* jQuery Mobile Framework
+* Copyright (c) jQuery Project
+* Dual licensed under the MIT (MIT-LICENSE.txt) or GPL (GPL-LICENSE.txt) licenses.
+*/
+.spin  {
+	-moz-transform: rotate(360deg);
+	-moz-animation-name: spin;
+	-moz-animation-duration: 1s;
+	-moz-animation-iteration-count:  infinite;
+}
+@-moz-keyframes spin {
+	from {-moz-transform: rotate(0deg);}
+  	to {-moz-transform: rotate(360deg);}
+}
+
+/*
+  Transitions from jQtouch (with small modifications): http://www.jqtouch.com/
+  Built by David Kaneda and maintained by Jonathan Stark.
+*/
+.in, .out.reverse {
+	z-index: 10;
+}
+
+.out, .in.reverse {
+	z-index: 0;
+}
+
+.slide.in {
+	-moz-transform: translate(0,0);
+	-moz-animation-name: slideinfromright;
+}
+
+.slide.out {
+	-moz-transform: translate(-100%,0);
+	-moz-animation-name: slideouttoleft;
+}
+
+.slide.in.reverse {
+	-moz-transform: translate(0,0);
+	-moz-animation-name: slideinfromleft;
+}
+
+.slide.out.reverse {
+	-moz-transform: translate(100%,0);
+	-moz-animation-name: slideouttoright;
+}
+
+.slideup.in {
+	-moz-transform: translate(0,0);
+	-moz-animation-name: slideinfrombottom;
+}
+
+.slideup.out {
+	-moz-animation-name: dontmove;
+	z-index: 0;
+}
+
+.slideup.out.reverse {
+	-moz-transform: translate(0,100%);
+	-moz-animation-name: slideouttobottom;
+}
+
+.slideup.in.reverse {
+	-moz-animation-name: dontmove;
+}
+.slidedown.in {
+	-moz-transform: translate(0,0);
+	-moz-animation-name: slideinfromtop;
+}
+
+.slidedown.out {
+	-moz-animation-name: dontmove;
+}
+
+.slidedown.out.reverse {
+	-moz-transform: translate(0,-100%);
+	-moz-animation-name: slideouttotop;
+}
+
+.slidedown.in.reverse {
+	-moz-animation-name: dontmove;
+}
+
+@-moz-keyframes slideinfromright {
+    from { -moz-transform: translate(100%,0); }
+    to { -moz-transform: translate(0,0); }
+}
+
+@-moz-keyframes slideinfromleft {
+    from { -moz-transform: translate(-100%,0); }
+    to { -moz-transform: translate(0,0); }
+}
+
+@-moz-keyframes slideouttoleft {
+    from { -moz-transform: translate(0,0); }
+    to { -moz-transform: translate(-100%,0); }
+}
+
+@-moz-keyframes slideouttoright {
+    from { -moz-transform: translate(0,0); }
+    to { -moz-transform: translate(100%,0); }
+}
+
+
+@-moz-keyframes slideinfromtop {
+    from { -moz-transform: translate(0,-100%); }
+    to { -moz-transform: translate(0,0); }
+}
+
+@-moz-keyframes slideinfrombottom {
+    from { -moz-transform: translate(0,100%); }
+    to { -moz-transform: translate(0,0); }
+}
+
+@-moz-keyframes slideouttobottom {
+    from { -moz-transform: translate(0,0); }
+    to { -moz-transform: translate(0,100%); }
+}
+
+@-moz-keyframes slideouttotop {
+    from { -moz-transform: translate(0,0); }
+    to { -moz-transform: translate(0,-100%); }
+}
+
+@-moz-keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@-moz-keyframes fadeout {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.fade.in {
+	opacity: 1;
+	-moz-animation-name: fadein;
+}
+.fade.out {
+	-moz-animation-name: fadeout;
+}
+
+/* The properties in this body rule are only necessary for the 'flip' transition.
+ * We need specify the perspective to create a projection matrix. This will add
+ * some depth as the element flips. The depth number represents the distance of
+ * the viewer from the z-plane. According to the CSS3 spec, 1000 is a moderate
+ * value.
+ */
+.ui-mobile-viewport-perspective {
+	-moz-perspective: 1000;
+	position: absolute;
+}
+
+.ui-mobile-viewport-transitioning,
+.ui-mobile-viewport-transitioning .ui-page {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.flip {
+	-moz-animation-duration: .65s;
+	-moz-backface-visibility:hidden;
+}
+
+.flip.in {
+	-moz-transform: rotateY(0) scale(1);
+	-moz-animation-name: flipinfromleft;
+}
+
+.flip.out {
+	-moz-transform: rotateY(-180deg) scale(.8);
+	-moz-animation-name: flipouttoleft;
+}
+
+/* Shake it all about */
+
+.flip.in.reverse {
+	-moz-transform: rotateY(0) scale(1);
+	-moz-animation-name: flipinfromright;
+}
+
+.flip.out.reverse {
+	-moz-transform: rotateY(180deg) scale(.8);
+	-moz-animation-name: flipouttoright;
+}
+
+@-moz-keyframes flipinfromright {
+    from { -moz-transform: rotateY(-180deg) scale(.8); }
+    to { -moz-transform: rotateY(0) scale(1); }
+}
+
+@-moz-keyframes flipinfromleft {
+    from { -moz-transform: rotateY(180deg) scale(.8); }
+    to { -moz-transform: rotateY(0) scale(1); }
+}
+
+@-moz-keyframes flipouttoleft {
+    from { -moz-transform: rotateY(0) scale(1); }
+    to { -moz-transform: rotateY(-180deg) scale(.8); }
+}
+
+@-moz-keyframes flipouttoright {
+    from { -moz-transform: rotateY(0) scale(1); }
+    to { -moz-transform: rotateY(180deg) scale(.8); }
+}
+
+
+/* Hackish, but reliable. */
+
+@-moz-keyframes dontmove {
+    from { opacity: 1; }
+    to { opacity: 1; }
+}
+
+.pop {
+	-moz-transform-origin: 50% 50%;
+}
+
+.pop.in {
+	-moz-transform: scale(1);
+	-moz-animation-name: popin;
+	z-index: 10;
+}
+
+.pop.out.reverse {
+	-moz-transform: scale(.2);
+	-moz-animation-name: popout;
+	z-index: 10;
+}
+
+.pop.in.reverse {
+	z-index: 0;
+	-moz-animation-name: dontmove;
+}
+
+@-moz-keyframes popin {
+    from {
+        -moz-transform: scale(.2);
+    }
+    to {
+        -moz-transform: scale(1);
+    }
+}
+
+@-moz-keyframes popout {
+    from {
+        -moz-transform: scale(1);
+    }
+    to {
+        -moz-transform: scale(.2);
+    }
+}
+
+
+.slide.in.fade {
+	-moz-animation-name: slideinfromright, fadein;
+}
+
+.slide.out.fade {
+	-moz-animation-name: slideinfromright, fadeout;
+}
+
+.pop.fade.in {
+        -moz-animation-name: popin, fadein;
+}
+
+.pop.fade.out {
+        -moz-animation-name: popout, fadeout;
+}

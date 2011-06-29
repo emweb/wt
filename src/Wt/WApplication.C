@@ -244,8 +244,15 @@ WApplication::WApplication(const WEnvironment& env)
     else
       styleSheet_.addRule("img.Wt-indeterminate", "margin: 3px 3px 0px 4px;");
 
-  // if (environment().agentIsWebKit())
-  useStyleSheet(WApplication::resourcesUrl() + "transitions.css");
+  if (environment().supportsCss3Animations()) {
+    std::string prefix = "";
+    if (environment().agentIsWebKit())
+      prefix = "webkit-";
+    else if (environment().agentIsGecko())
+      prefix = "moz-";
+
+    useStyleSheet(WApplication::resourcesUrl() + prefix + "transitions.css");
+  }
 
   setLoadingIndicator(new WDefaultLoadingIndicator());
 
@@ -1024,6 +1031,18 @@ bool WApplication::pathMatches(const std::string& path,
 
 std::string WApplication::internalPathNextPart(const std::string& path) const
 {
+  std::string subPath = internalSubPath(path);
+
+  std::size_t t = subPath.find('/');
+
+  if (t == std::string::npos)
+    return subPath;
+  else
+    return subPath.substr(0, t);
+}
+
+std::string WApplication::internalSubPath(const std::string& path) const
+{
   std::string current = Utils::append(newInternalPath_, '/');
 
   if (!pathMatches(current, path)) {
@@ -1033,16 +1052,7 @@ std::string WApplication::internalPathNextPart(const std::string& path) const
     return std::string();
   }
 
-  int startPos = path.length();
-  std::size_t t = current.find('/', startPos);
-
-  std::string result;
-  if (t == std::string::npos)
-    result = current.substr(startPos);
-  else
-    result = current.substr(startPos, t - startPos);
-
-  return result;
+  return current.substr(path.length());
 }
 
 std::string WApplication::internalPath() const
@@ -1065,14 +1075,6 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
   internalPathIsChanged_ = true;
 }
 
-#ifdef WT_WITH_OLD_INTERNALPATH_API
-bool WApplication::oldInternalPathAPI() const
-{
-  std::string v;
-  return readConfigurationProperty("oldInternalPathAPI", v) && v == "true";
-}
-#endif // WT_WITH_OLD_INTERNALPATH_API
-
 void WApplication::changeInternalPath(const std::string& aPath)
 {
   std::string path = Utils::prepend(aPath, '/');
@@ -1080,47 +1082,7 @@ void WApplication::changeInternalPath(const std::string& aPath)
   // internal paths start with a '/'; other anchor changes are not reacted on
   if (path.empty() || path[0] == '/') {
     if (path != newInternalPath_) {
-      std::string v;
-
-#ifdef WT_WITH_OLD_INTERNALPATH_API
-    if (oldInternalPathAPI()) {
-      std::size_t fileStart = 0;
-      std::size_t i = 0;
-      std::size_t length = std::min(path.length(), newInternalPath_.length());
-      for (; i < length; ++i) {
-	if (path[i] == newInternalPath_[i]) {
-	  if (path[i] == '/')
-	    fileStart = i+1;
-	} else {
-	  i = fileStart;
-	  break;
-	}
-      }
-
-      std::string common = path.substr(0, fileStart);
-
-      for (;;) {
-	common = Utils::append(common, '/');
-	newInternalPath_ = path;
-	std::string next = internalPathNextPart(common);
-
-	if (!next.empty())
-	  newInternalPath_ = common + next;
-	internalPathChanged_.emit(common);
-
-	if (next.empty()) {
-	  newInternalPath_ = path;
-	  break;
-	}
-
-	common = newInternalPath_;
-      }
-
-      return;
-    }
-#endif // WT_WITH_OLD_INTERNALPATH_API
       newInternalPath_ = path;
-
       internalPathChanged_.emit(newInternalPath_);
     }
   }

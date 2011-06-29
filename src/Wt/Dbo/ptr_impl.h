@@ -209,6 +209,37 @@ void MetaDbo<C>::doLoad()
 }
 
 template <class C>
+ptr<C>::mutator::mutator(MetaDbo<C> *obj)
+  : obj_(obj)
+{ 
+  obj_->setDirty();
+}
+
+template <class C>
+ptr<C>::mutator::~mutator()
+{ 
+  obj_->setDirty();
+}
+
+template <class C>
+C *ptr<C>::mutator::operator->() const
+{
+  return obj_->obj();
+}
+
+template <class C>
+C& ptr<C>::mutator::operator*() const
+{
+  return *obj_->obj();
+}
+
+template <class C>
+ptr<C>::mutator::operator C*() const
+{
+  return obj_->obj();
+}
+
+template <class C>
 ptr<C>::ptr(C *obj)
   : obj_(0)
 {
@@ -272,12 +303,11 @@ const C& ptr<C>::operator*() const
 }
 
 template <class C>
-C *ptr<C>::modify() const
+typename ptr<C>::mutator ptr<C>::modify() const
 {
-  if (obj_) {
-    obj_->setDirty();
-    return obj_->obj();
-  } else
+  if (obj_)
+    return mutator(obj_);
+  else
     throw std::runtime_error("ptr: null dereference");
 }
 

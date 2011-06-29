@@ -25,10 +25,15 @@ WT_DECLARE_WT_MEMBER
   /* const */ var EaseInOut = 4;
   /* const */ var CubicBezier = 5;
 
-  var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ];
-  var inverseTiming = [ 0, 1, 3, 2, 4, 5 ];
+  var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ],
+    inverseTiming = [ 0, 1, 3, 2, 4, 5 ];
 
-  var WT = this, $el = $("#" + id), el = $el.get(0);
+  var WT = this, $el = $("#" + id), el = $el.get(0),
+    prefix = WT.cssPrefix("Transition"),
+    animationEventEnd = prefix == "Moz"
+      ? "animationend" : "webkitAnimationEnd",
+    transitionEventEnd = prefix == "Moz"
+      ? "transitionend" : "webkitTransitionEnd";
 
   if ($el.css("display") !== display) {
     var p = $el.get(0).parentNode;
@@ -48,9 +53,13 @@ WT_DECLARE_WT_MEMBER
       var i, il;
 
       for (i in style) {
-	if (savedStyle && typeof(savedStyle[i]) === "undefined")
-	  savedStyle[i] = el.style[i];
-	el.style[i] = style[i];
+	var k = i;
+	if (k == "transform" || k == "transition")
+	  k = prefix + k.substring(0, 1).toUpperCase() + k.substring(1);
+
+	if (savedStyle && typeof(savedStyle[k]) === "undefined")
+	  savedStyle[k] = el.style[k];
+	el.style[k] = style[i];
       }
     }
 
@@ -74,7 +83,7 @@ WT_DECLARE_WT_MEMBER
 
 	if (effect == SlideInFromTop && el.childNodes.length == 1) {
 	  elc = el.firstChild;
-	  set(elc, { webkitTransform: "translateY(0)" }, elcStyle);
+	  set(elc, { transform: "translateY(0)" }, elcStyle);
 	  if (!WT.hasTag(elc, 'TABLE'))
 	    set(elc, { display: "block" }, elcStyle);
 	}
@@ -97,8 +106,10 @@ WT_DECLARE_WT_MEMBER
 	    elStyle);
 	restore(p, pStyle);
 
-	if (effect == SlideInFromTop)
+	if (effect == SlideInFromTop) {
+	  set (el, { WebkitBackfaceVisibility: "visible"} , elStyle);
 	  el.scrollTop = 1000;
+	}
       }
 
       if (effects & Fade)
@@ -106,8 +117,8 @@ WT_DECLARE_WT_MEMBER
 
       setTimeout(function() {
 	  set(el,
-	      { webkitTransition: "all " + duration + "ms " + cssTiming,
-		          height: targetHeight },
+	      { transition: "all " + duration + "ms " + cssTiming,
+		    height: targetHeight },
 	      elStyle);
 
 	  if (effects & Fade)
@@ -115,13 +126,12 @@ WT_DECLARE_WT_MEMBER
 
 	  if (elc) {
 	    set(elc,
-		{ webkitTransition: "-webkit-transform "
-		                    + duration + "ms " + cssTiming,
-		    webkitTransform: "translateY(-" + currentHeight + ")" },
+		{ transition: "all " + duration + "ms " + cssTiming,
+		   transform: "translateY(-" + currentHeight + ")" },
 		elcStyle);
 	  }
 
-	  $el.one("webkitTransitionEnd", function() {
+	  $el.one(transitionEventEnd, function() {
 	      if (hide)
 		el.style.display = display;
 
@@ -144,10 +154,10 @@ WT_DECLARE_WT_MEMBER
 
       var targetU;
       if (hide) {
-	set(el, { webkitTransform: "translate" + U + "(0px)" }, elStyle);
+	set(el, { transform: "translate" + U + "(0px)" }, elStyle);
 	targetU = hiddenU;
       } else {
-	set(el, { webkitTransform: "translate" + U + "(" + hiddenU + "px)" },
+	set(el, { transform: "translate" + U + "(" + hiddenU + "px)" },
 	    elStyle);
 	targetU = 0;
       }
@@ -157,14 +167,14 @@ WT_DECLARE_WT_MEMBER
 
       setTimeout(function() {
 	  set(el,
-	      { webkitTransition: "all " + duration + "ms " + cssTiming,
-		 webkitTransform: "translate" + U + "(" + targetU + "px)" },
+	      { transition: "all " + duration + "ms " + cssTiming,
+		 transform: "translate" + U + "(" + targetU + "px)" },
 	      elStyle);
 
 	  if (effects & Fade)
 	    set(el, { opacity: (hide ? 0 : 1) });
 
-	  $el.one("webkitTransitionEnd", function() {
+	  $el.one(transitionEventEnd, function() {
 	      if (hide)
 		el.style.display = display;
 
@@ -184,7 +194,7 @@ WT_DECLARE_WT_MEMBER
     }
 
     function animateTransition() {
-      set(el, { webkitAnimationDuration: duration + 'ms' }, elStyle);
+      set(el, { animationDuration: duration + 'ms' }, elStyle);
 
       var cl = (effect == Pop ? "pop " : "") + (hide ? "out" : "in");
       if (effects & Fade)
@@ -194,7 +204,7 @@ WT_DECLARE_WT_MEMBER
 	show();
 
       $el.addClass(cl);
-      $el.one('webkitAnimationEnd', function() {
+      $el.one(animationEventEnd, function() {
 	  $el.removeClass(cl);
 	  el.style.display = display;
 	  restore(el, elStyle);

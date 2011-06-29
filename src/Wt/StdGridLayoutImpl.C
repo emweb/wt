@@ -536,7 +536,6 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    c->setProperty(PropertyStyleMarginRight, "0");
 	  }
 
-	  int s = std::max(0, grid_.columns_[col].stretch_);
 	  if (itemFitWidth && itemFitHeight) {
 	    td->setProperty(PropertyClass, "Wt-chwrap");
 	    if (!app->environment().agentIsIE()) {

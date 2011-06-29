@@ -946,7 +946,7 @@ void WWebWidget::setHidden(bool hidden, const WAnimation& animation)
   flags_.set(BIT_HIDDEN_CHANGED);
 
   if (!animation.empty()
-      && WApplication::instance()->environment().agentIsWebKit()) {
+      && WApplication::instance()->environment().supportsCss3Animations()) {
     if (!transientImpl_)
       transientImpl_ = new TransientImpl();
     transientImpl_->animation_ = animation;

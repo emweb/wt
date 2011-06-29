@@ -508,6 +508,20 @@ class ptr : public ptr_base
 public:
   typedef C pointed;
 
+  class mutator
+  {
+  public:
+    mutator(MetaDbo<C> *obj);
+    ~mutator();
+
+    C *operator->() const;
+    C& operator*() const;
+    operator C*() const;
+
+  private:
+    MetaDbo<C> *obj_;
+  };
+
   /*! \brief Creates a new pointer.
    *
    * When \p obj is not 0, the pointer points to the new unpersisted
@@ -561,13 +575,25 @@ public:
 
   /*! \brief Dereference operator, for writing.
    *
-   * Returns the underlying object with the intention to modify it. It
-   * marks the underlying object as dirty.
+   * Returns the underlying object (or, rather, a proxy for it) with
+   * the intention to modify it. The proxy object will mark the object
+   * as dirty from its destructor. An involved modification should
+   * therefore preferably be implemented as a separate method or
+   * function to make sure that the object is marked as dirty after the
+   * whole modification:
+   * \code
+   *   ptr<A> a = ...;
+   *   a.modify()->doSomething();
+   * \endcode
    *
    * Since this may lazy-load the underlying database object, you
    * should have an active transaction.
    */
+#ifdef DOXYGEN_ONLY
   C *modify() const;
+#else
+  mutator modify() const;
+#endif // DOXYGEN_ONLY
 
   /*! \brief Comparison operator.
    *

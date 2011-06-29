@@ -2,8 +2,8 @@
     background-color: #F7F7F7;
 }
 
-.Wt-animated {
-    -webkit-backface-visibility: visible;
+#main_page {
+    -webkit-backface-visibility: visible; /* avoid flicker on Safari */
 }
 
 .home .Wt-tabs {

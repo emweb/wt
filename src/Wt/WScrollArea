@@ -44,8 +44,8 @@ public:
    */
   enum ScrollBarPolicy {
     ScrollBarAsNeeded,	//!< Automatic
-    ScrollBarAlwaysOff, //!< Always show a scrollbar
-    ScrollBarAlwaysOn   //!< Never show a scrollbar
+    ScrollBarAlwaysOff, //!< Never show a scrollbar
+    ScrollBarAlwaysOn   //!< Always show a scrollbar
   };
 
   /*! \brief Creates a scroll area.

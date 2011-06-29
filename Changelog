@@ -1,3 +1,17 @@
+29-06-2011:
+	* WWidget: show/hide animations also work on FF5 now
+
+	* WMenu: better handling of internal path changes to use best
+	match (when components include more than one level)
+
+	* WMenu: fix stateless slot learning issue with submenu items
+
+28-06-2011:
+	* Dbo/ptr: let modify() return a proxy mutator object which marks
+	dirty from its constructor and destructor, ensuring that
+	modifications are not lost in the case the session is flushed
+	amidst a modification.
+
 27-06-2011:
 	* Dbo/collection: implement insert() and erase() for ManyToOne
 	collections

@@ -766,6 +766,8 @@ public:
    */
   std::string internalPathNextPart(const std::string& path) const;
 
+  std::string internalSubPath(const std::string& path) const;
+
   /*! \brief Checks if the internal path matches a given path.
    *
    * Returns whether the current internalPath() starts with
@@ -1867,10 +1869,6 @@ private:
    * Methods for application state handling
    */
   void changeInternalPath(const std::string& path);
-
-#ifdef WT_WITH_OLD_INTERNALPATH_API
-  bool oldInternalPathAPI() const;
-#endif // WT_WITH_OLD_INTERNALPATH_API
 
   /*
    * Methods for accessing javaScript, which may have erase-on-read

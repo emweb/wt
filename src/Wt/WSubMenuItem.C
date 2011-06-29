@@ -14,13 +14,14 @@ namespace Wt {
 
 WSubMenuItem::WSubMenuItem(const WString& text, WWidget *contents,
 			   LoadPolicy policy)
-  : WMenuItem(text, contents, policy)
+  : WMenuItem(text, contents, policy),
+    subMenu_(0),
+    updatingSelectionEvent_(false)
 { }
 
 void WSubMenuItem::setSubMenu(WMenu *subMenu)
 {
   subMenu_ = subMenu;
-
   subMenu_->itemSelected().connect(this, &WSubMenuItem::subItemSelected);
 }
 
@@ -82,5 +83,19 @@ void WSubMenuItem::setFromInternalPath(const std::string& path)
   if (subMenu_ && subMenu_->internalPathEnabled())
     subMenu_->internalPathChanged(path);
 }
+
+void WSubMenuItem::updateSelectionEvent()
+{
+  if (!updatingSelectionEvent_) {
+    updatingSelectionEvent_ = true;
+
+    WMenuItem::updateSelectionEvent();
+    if (subMenu_)
+      subMenu_->updateSelectionEvent();
+
+    updatingSelectionEvent_ = false;
+  }
+}
+
 
 }
