@@ -1869,6 +1869,7 @@ private:
    * Methods for application state handling
    */
   void changeInternalPath(const std::string& path);
+  void changedInternalPath(const std::string& path);
 
   /*
    * Methods for accessing javaScript, which may have erase-on-read

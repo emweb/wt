@@ -1088,6 +1088,14 @@ void WApplication::changeInternalPath(const std::string& aPath)
   }
 }
 
+void WApplication::changedInternalPath(const std::string& path)
+{
+  if (!environment().hashInternalPaths())
+    session_->setPagePathInfo(path);
+
+  changeInternalPath(path);
+}
+
 std::string WApplication::bookmarkUrl() const
 {
   return bookmarkUrl(newInternalPath_);

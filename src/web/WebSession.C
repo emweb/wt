@@ -1625,10 +1625,10 @@ void WebSession::notify(const WEvent& event)
 
 	  app_->enableAjax();
 	  if (env_->internalPath().length() > 1)
-	    app_->changeInternalPath(env_->internalPath());
+	    app_->changedInternalPath(env_->internalPath());
 	} else {
 	  if (hashE)
-	    app_->changeInternalPath(*hashE);
+	    app_->changedInternalPath(*hashE);
 	}
       }
 
@@ -1785,11 +1785,11 @@ void WebSession::notify(const WEvent& event)
 	    && !env_->ajax()) {
 	  const std::string *hashE = request.getParameter("_");
 	  if (hashE)
-	    app_->changeInternalPath(*hashE);
+	    app_->changedInternalPath(*hashE);
 	  else if (!request.pathInfo().empty())
-	    app_->changeInternalPath(request.pathInfo());
+	    app_->changedInternalPath(request.pathInfo());
 	  else
-	    app_->changeInternalPath("");
+	    app_->changedInternalPath("");
 	}
 
 	if (!signalE) {
@@ -2128,11 +2128,12 @@ void WebSession::notifySignal(const WEvent& e)
       if (*signalE == "hash") {
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
-	  app_->changeInternalPath(*hashE);
+	  app_->changedInternalPath(*hashE);
 	  app_->doJavaScript(WT_CLASS ".scrollIntoView("
 			     + WWebWidget::jsStringLiteral(*hashE) + ");");
 	} else
-	  app_->changeInternalPath("");
+	  app_->changedInternalPath("");
+
       } else {
 	for (unsigned k = 0; k < 3; ++k) {
 	  SignalKind kind = (SignalKind)k;
@@ -2182,6 +2183,11 @@ void WebSession::processSignal(EventSignalBase *s, const std::string& se,
     // ! what with other slots triggered after the one that
     // ! did the recursive call ? That's very bad ??
   }
+}
+
+void WebSession::setPagePathInfo(const std::string& path)
+{
+  pagePathInfo_ = path;
 }
 
 #ifndef WT_TARGET_JAVA

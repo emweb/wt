@@ -790,7 +790,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
       << "._p_.setHash('" << app->newInternalPath_ << "');\n";
 
     if (!app->environment().hashInternalPaths())
-      session_.pagePathInfo_ = app->newInternalPath_;
+      session_.setPagePathInfo(app->newInternalPath_);
 
     response.out()
 	<< app->javaScriptClass()
@@ -1410,7 +1410,7 @@ void WebRenderer::collectJS(std::ostream* js)
       *js << app->javaScriptClass()
 	  << "._p_.setHash('" << app->newInternalPath_ << "');\n";
       if (!app->environment().hashInternalPaths())
-	session_.pagePathInfo_ = app->newInternalPath_;
+	session_.setPagePathInfo(app->newInternalPath_);
     }
 
     loadScriptLibraries(*js, app, librariesLoaded);

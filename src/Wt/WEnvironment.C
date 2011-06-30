@@ -277,8 +277,7 @@ bool WEnvironment::agentSupportsAjax() const
 
 bool WEnvironment::supportsCss3Animations() const
 {
-  return (agentIsGecko() && agent_ >= Firefox5_0
-	  || agentIsWebKit());
+  return ((agentIsGecko() && agent_ >= Firefox5_0) || agentIsWebKit());
 }
 
 std::string WEnvironment::libraryVersion()

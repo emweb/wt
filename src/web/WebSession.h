@@ -117,6 +117,7 @@ public:
   const std::string& deploymentPath() const { return deploymentPath_; }
 
   bool useUglyInternalPaths() const;
+  void setPagePathInfo(const std::string& path);
   std::string pagePathInfo() const { return pagePathInfo_; }
 
   //    (http://www.bigapp.com/myapp/app.wt) ?wtd=ABCD
