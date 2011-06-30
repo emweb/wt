@@ -410,7 +410,7 @@ this.setHtml = function (el, html, add) {
 };
 
 this.hasTag = function(e, s) {
-  return e.nodeType == 1 && e.tagName.toUpperCase() === s;
+  return e.nodeType == 1 && e.tagName && e.tagName.toUpperCase() === s;
 };
 
 this.insertAt = function(p, c, i) {
@@ -430,7 +430,7 @@ this.remove = function(id)
 this.contains = function(w1, w2) {
   var p = w2.parentNode;
 
-  while (p && p.tagName.toLowerCase() != "body") {
+  while (p && !WT.hasTag(p, "BODY")) {
     if (p == w1)
       return true;
     p = p.parentNode;
@@ -886,7 +886,7 @@ this.isHidden = function(w) {
     return true;
   else {
     w = w.parentNode;
-    if (w != null && w.tagName.toLowerCase() != "body")
+    if (w && !WT.hasTag(w, "BODY"))
       return WT.isHidden(w);
     else
       return false;
@@ -1108,7 +1108,7 @@ this.addCssText = function(cssText) {
 
 // from: http://www.hunlock.com/blogs/Totally_Pwn_CSS_with_Javascript
 this.getCssRule = function(selector, deleteFlag) {
-  selector=selector.toLowerCase();
+  selector = selector.toLowerCase();
 
   if (document.styleSheets) {
     for (var i=0; i<document.styleSheets.length; i++) {

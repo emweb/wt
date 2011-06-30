@@ -137,7 +137,9 @@ WStandardItemModel *TreeViewExample::createModel(bool useInternalPath,
 
 WStandardItem *TreeViewExample::continentItem(const std::string& continent)
 {
-  return new WStandardItem(continent);
+  WStandardItem *result = new WStandardItem(continent);
+  result->setColumnCount(4);
+  return result;
 }
 
 WStandardItem *TreeViewExample::countryItem(const std::string& country,

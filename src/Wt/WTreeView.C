@@ -2141,7 +2141,7 @@ int WTreeView::getIndexRow(const WModelIndex& child,
 			   const WModelIndex& ancestor,
 			   int lowerBound, int upperBound)
 {
-  if (child == ancestor)
+  if (!child.isValid() || child == ancestor)
     return 0;
   else {
     WModelIndex parent = child.parent();
