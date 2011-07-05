@@ -421,15 +421,13 @@
 	       because it may be hosted in a web page from an entirely
 	       different domain.
 
-	       Eg. "http://www.webtoolkit.eu/wt"
-
-	       The default value is empty, in which case Wt will avoid using
-               absolute URLs. Relative URLs passed in API calls will be
-	       "fixed" so that they resolve against the location of the
+	       By default, no baseURL is specified, in which case Wt will
+	       avoid using absolute URLs. Relative URLs passed in API calls
+	       will be "fixed" so that they resolve against the location of the
 	       application deploy path, even in the presence of an
 	       internal path.
 	      -->
-	    <property name="baseURL"></property>
+	    <!-- <property name="baseURL">"http://www.webtoolkit.eu/wt</property> -->
 
             <!-- resourcesURL property
 
