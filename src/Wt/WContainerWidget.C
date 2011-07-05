@@ -236,16 +236,7 @@ void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
     transientImpl_ = new TransientImpl();
   transientImpl_->addedChildren_.push_back(widget);
 
-  // would try to add the widget again to children_
-  // widget->setParent(this);
-  // so instead, we copy the code from WWebWidget::addChild() here:
-  widget->setParent(this);
-
-  if (loaded())
-    doLoad(widget);
-
-  WApplication::instance()
-    ->session()->renderer().updateFormObjects(this, false);
+  childAdded(widget);
 }
 
 void WContainerWidget::removeFromLayout(WWidget *widget)

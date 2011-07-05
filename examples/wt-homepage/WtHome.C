@@ -6,6 +6,10 @@
 
 #include "WtHome.h"
 
+#ifdef WT_EMWEB_BUILD
+#include "QuoteForm.h"
+#endif // WT_EMWEB_BUILD
+
 #include <Wt/WAnchor>
 #include <Wt/WEnvironment>
 #include <Wt/WLogger>
@@ -38,7 +42,8 @@ WtHome::WtHome(const WEnvironment& env)
 WWidget *WtHome::example(const char *textKey, const std::string& sourceDir)
 {
   WContainerWidget *result = new WContainerWidget();
-  new WText(tr(textKey), result);
+  WText *w = new WText(tr(textKey), result);
+  w->setInternalPathEncoding(true);
   result->addWidget(linkSourceBrowser(sourceDir));
   return result;
 }
@@ -135,23 +140,13 @@ WWidget *WtHome::examples()
   return result;
 }
 
-WWidget *WtHome::download()
+WWidget *WtHome::createQuoteForm()
 {
-  WContainerWidget *result = new WContainerWidget();
-  result->addWidget(new WText(tr("home.download")));
-  result->addWidget(new WText(tr("home.download.license")));
-  result->addWidget(new WText(tr("home.download.packages")));
-
-  releases_ = new WTable();
-  readReleases(releases_);
-  result->addWidget(releases_);
-  
-  result->addWidget(new WText(tr("home.download.other")));
-
-  result->addWidget(new WText(tr("home.download.requirements")));
-  result->addWidget(new WText(tr("home.download.cvs")));
-
-  return result;
+#ifdef WT_EMWEB_BUILD
+  return new QuoteForm(QuoteForm::Wt);
+#else
+  return 0;
+#endif
 }
 
 WWidget *WtHome::sourceViewer(const std::string& deployPath)

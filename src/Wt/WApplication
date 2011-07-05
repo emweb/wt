@@ -608,12 +608,12 @@ public:
    * Otherwise, this method will fixup a relative URL so that it
    * resolves correctly against the base path of an application. This
    * does not necessarily mean that the URL is resolved into an
-   * absolute URL. In fact, Wt will simply prepend a sequence of "../"
+   * absolute URL. In fact, %Wt will simply prepend a sequence of "../"
    * path elements to correct for the internal path. When passed an
    * absolute URL (i.e. starting with '/'), the url is returned
    * unchanged.
    *
-   * For URLs passed to the Wt API (and of which the library knows it
+   * For URLs passed to the %Wt API (and of which the library knows it
    * is represents a URL) this method is called internally by the
    * library. But it may be useful for URLs which are set e.g. inside
    * a WTemplate.

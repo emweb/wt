@@ -59,7 +59,8 @@ WMenu::WMenu(Orientation orientation, WContainerWidget *parent)
     itemSelected_(this),
     itemSelectRendered_(this),
     itemClosed_(this),
-    current_(-1)
+    current_(-1),
+    needSelectionEventUpdate_(false)
 {
   setRenderAsList(false);
 }
@@ -74,7 +75,8 @@ WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
     itemSelected_(this),
     itemSelectRendered_(this),
     itemClosed_(this),
-    current_(-1)
+    current_(-1),
+    needSelectionEventUpdate_(false)
 {
   setRenderAsList(false);
 
@@ -82,6 +84,8 @@ WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
   contentsStackConnection_ = contentsStack->destroyed().connect(
     this, &WMenu::contentsDestroyed);
 #endif // WT_CNOR
+
+  contentsStack->childrenChanged().connect(this, &WMenu::updateSelectionEvent);
 }
 
 void WMenu::contentsDestroyed()
@@ -191,7 +195,8 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
   } else {
     WTable *layout = dynamic_cast<WTable *>(impl_);
     WTableCell *parent
-      = layout->elementAt((orientation_ == Vertical) ? items_.size() - 1 : 0, 0);
+      = layout->elementAt((orientation_ == Vertical) ? items_.size() - 1 : 0,
+			  0);
 
     WWidget *w = item->itemWidget();
     parent->addWidget(w);
@@ -202,8 +207,6 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
       new WText(" ", parent);
     }
   }
-
-  updateSelectionEvent();
 
   if (contentsStack_) {
     WWidget *contents = item->contents();
@@ -275,8 +278,6 @@ void WMenu::removeItem(WMenuItem *item)
 
     if (itemIndex <= current_ && current_ >= 0)
       --current_;
-
-    updateSelectionEvent();
 
     select(current_, true);
   }
@@ -441,9 +442,6 @@ void WMenu::internalPathChanged(const std::string& path)
     for (unsigned i = 0; i < items_.size(); ++i) {
       int matchLength = match(subPath, items_[i]->pathComponent());
 
-      std::cerr << items_[i]->pathComponent() << ", "
-		<< subPath << ": " << matchLength << std::endl;
-
       if (matchLength > bestMatchLength) {
 	bestMatchLength = matchLength;
 	bestI = i;
@@ -529,10 +527,21 @@ void WMenu::recreateItem(WMenuItem *item)
   recreateItem(indexOf(item));
 }
 
+void WMenu::render(WFlags<RenderFlag> flags)
+{
+  if (needSelectionEventUpdate_) {
+    for (unsigned i = 0; i < items_.size(); ++i)
+      items_[i]->resetLearnedSlots();
+    needSelectionEventUpdate_ = false;
+  }
+
+  WCompositeWidget::render(flags);
+}
+
 void WMenu::updateSelectionEvent()
 {
-  for (unsigned i = 0; i < items_.size(); ++i)
-    items_[i]->updateSelectionEvent();
+  needSelectionEventUpdate_ = true;
+  askRerender();
 }
 
 }

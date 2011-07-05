@@ -15,8 +15,7 @@ namespace Wt {
 WSubMenuItem::WSubMenuItem(const WString& text, WWidget *contents,
 			   LoadPolicy policy)
   : WMenuItem(text, contents, policy),
-    subMenu_(0),
-    updatingSelectionEvent_(false)
+    subMenu_(0)
 { }
 
 void WSubMenuItem::setSubMenu(WMenu *subMenu)
@@ -27,8 +26,10 @@ void WSubMenuItem::setSubMenu(WMenu *subMenu)
 
 void WSubMenuItem::subItemSelected()
 {
-  menu()->select(-1);
-  renderSelected(true);
+  if (menu()) {
+    menu()->select(-1);
+    renderSelected(true);
+  }
 }
 
 WWidget *WSubMenuItem::createItemWidget()
@@ -83,19 +84,5 @@ void WSubMenuItem::setFromInternalPath(const std::string& path)
   if (subMenu_ && subMenu_->internalPathEnabled())
     subMenu_->internalPathChanged(path);
 }
-
-void WSubMenuItem::updateSelectionEvent()
-{
-  if (!updatingSelectionEvent_) {
-    updatingSelectionEvent_ = true;
-
-    WMenuItem::updateSelectionEvent();
-    if (subMenu_)
-      subMenu_->updateSelectionEvent();
-
-    updatingSelectionEvent_ = false;
-  }
-}
-
 
 }

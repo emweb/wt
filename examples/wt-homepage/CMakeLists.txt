@@ -2,7 +2,7 @@ IF(BOOST_FS_LIB)
 
 INCLUDE(CheckFunctionExists)
 
-WT_ADD_EXAMPLE(Home.wt
+SET(SRC
 	main.C
 	Home.C
 	WtHome.C
@@ -22,6 +22,13 @@ WT_ADD_EXAMPLE(Home.wt
 	../blog/model/User.C
 	../blog/asciidoc/asciidoc.C
 )
+
+IF(WT_EMWEB_BUILD)
+  SET(SRC ${SRC} QuoteForm.C)
+  ADD_DEFINITIONS(-DWT_EMWEB_BUILD)
+ENDIF(WT_EMWEB_BUILD)
+
+WT_ADD_EXAMPLE(Home.wt ${SRC})
 
 TARGET_LINK_LIBRARIES(Home.wt wtdbo wtdbosqlite3 ${BOOST_FS_LIB})
 

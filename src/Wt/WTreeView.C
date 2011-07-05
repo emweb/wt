@@ -2655,13 +2655,11 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(int column) const
     ci.width = WLength::Auto;
     ci.styleRule->templateWidget()->resize(WLength::Auto, WLength::Auto);
 
-    //TODO should use this->addRule(), but this is const here
-    WApplication *app = WApplication::instance();
-    app->styleSheet().addRule("#" + this->id() + " .Wt-tv-node"
-			      " ." + ci.styleClass(),
-			      "width: auto;"
-			      "text-overflow: ellipsis;"
-			      "overflow: hidden");
+    const_cast<WTreeView*>(this)->addCssRule("#" + this->id() + " .Wt-tv-node"
+					     " ." + ci.styleClass(),
+					     "width: auto;"
+					     "text-overflow: ellipsis;"
+					     "overflow: hidden");
   }
 
   return ci;

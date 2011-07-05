@@ -102,6 +102,13 @@ public:
    */
   WLineEdit *lineEdit() const { return edit_; }
 
+  /*! \brief Returns the WText widget that renders the current string.
+   *
+   * You may use this for example to set the text format of the displayed
+   * string.
+   */
+  WText *textWidget() const { return text_; }
+
   /*! \brief Returns the save button.
    *
    * This method returns \c 0 if the buttons were disabled.

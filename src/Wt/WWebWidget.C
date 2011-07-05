@@ -93,7 +93,7 @@ WWebWidget::LookImpl::~LookImpl()
   delete toolTip_;
 }
 
-WWebWidget::OtherImpl::OtherImpl()
+WWebWidget::OtherImpl::OtherImpl(WWebWidget *self)
   : id_(0),
     attributes_(0),
     attributesSet_(0),
@@ -102,7 +102,8 @@ WWebWidget::OtherImpl::OtherImpl()
     jsMemberCalls_(0),
     dropSignal_(0),
     acceptedDropMimeTypes_(0),
-    delayedDoJavaScript_(0)
+    delayedDoJavaScript_(0),
+    childrenChanged_(self)
 { }
 
 WWebWidget::OtherImpl::~OtherImpl()
@@ -146,7 +147,7 @@ void WWebWidget::setFormObject(bool how)
 void WWebWidget::setId(const std::string& id)
 {
   if (!otherImpl_)
-    otherImpl_ = new OtherImpl();
+    otherImpl_ = new OtherImpl(this);
 
   if (!otherImpl_->id_)
     otherImpl_->id_ = new std::string();
@@ -341,6 +342,17 @@ void WWebWidget::removeChild(WWidget *child)
 
   WApplication::instance()
     ->session()->renderer().updateFormObjects(child->webWidget(), true);
+
+  if (otherImpl_)
+    otherImpl_->childrenChanged_.emit();
+}
+
+Signal<>& WWebWidget::childrenChanged()
+{
+  if (!otherImpl_)
+    otherImpl_ = new OtherImpl(this);
+
+  return otherImpl_->childrenChanged_;
 }
 
 void WWebWidget::setPositionScheme(PositionScheme scheme)
@@ -793,7 +805,7 @@ void WWebWidget::setAttributeValue(const std::string& name,
 				   const WT_USTRING& value)
 {
   if (!otherImpl_)
-    otherImpl_ = new OtherImpl();
+    otherImpl_ = new OtherImpl(this);
 
   if (!otherImpl_->attributes_)
     otherImpl_->attributes_ = new std::map<std::string, WT_USTRING>;
@@ -831,7 +843,7 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
 				     const std::string& value)
 {
   if (!otherImpl_)
-    otherImpl_ = new OtherImpl();
+    otherImpl_ = new OtherImpl(this);
 
   if (!otherImpl_->jsMembers_)
     otherImpl_->jsMembers_ = new std::vector<OtherImpl::Member>;
@@ -889,7 +901,7 @@ void WWebWidget::callJavaScriptMember(const std::string& name,
 				      const std::string& args)
 {
   if (!otherImpl_)
-    otherImpl_ = new OtherImpl();
+    otherImpl_ = new OtherImpl(this);
 
   if (!otherImpl_->jsMemberCalls_)
     otherImpl_->jsMemberCalls_ = new std::vector<std::string>;
@@ -1031,6 +1043,11 @@ void WWebWidget::addChild(WWidget *child)
 
   children_->push_back(child);
 
+  childAdded(child);
+}
+
+void WWebWidget::childAdded(WWidget *child)
+{
   child->setParent(this);
 
   WWebWidget *ww = child->webWidget();
@@ -1042,6 +1059,9 @@ void WWebWidget::addChild(WWidget *child)
 
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, false);
+
+  if (otherImpl_)
+    otherImpl_->childrenChanged_.emit();
 }
 
 const std::vector<WWidget *>& WWebWidget::children() const
@@ -1926,7 +1946,7 @@ void WWebWidget::render(WFlags<RenderFlag> flags)
 void WWebWidget::doJavaScript(const std::string& javascript)
 {
   if (!otherImpl_)
-    otherImpl_ = new OtherImpl;
+    otherImpl_ = new OtherImpl(this);
   if (!otherImpl_->delayedDoJavaScript_)
     otherImpl_->delayedDoJavaScript_ = new SStream;
   (*otherImpl_->delayedDoJavaScript_) << javascript;
@@ -1977,7 +1997,7 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
   bool changed = false;
 
   if (!otherImpl_)
-    otherImpl_ = new OtherImpl();
+    otherImpl_ = new OtherImpl(this);
   if (!otherImpl_->acceptedDropMimeTypes_)
     otherImpl_->acceptedDropMimeTypes_ = new OtherImpl::MimeTypesMap;
 

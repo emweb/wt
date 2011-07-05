@@ -226,6 +226,12 @@ public:
    */
   const std::vector<WWidget *>& children() const;
 
+  /*! \brief %Signal emitted when children have been added or removed.
+   *
+   * \sa children()
+   */
+  Signal<>& childrenChanged();
+
   static std::string resolveRelativeUrl(const std::string& url);
 
   void setFormObject(bool how);
@@ -234,6 +240,7 @@ public:
   void setZIndex(int zIndex);
 
   bool isRendered() const;
+
 
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
@@ -255,6 +262,7 @@ protected:
   virtual void setHideWithOffsets(bool how = true);
 
   void doLoad(WWidget *w);
+  void childAdded(WWidget *child);
 
   virtual void render(WFlags<RenderFlag> flags);
 
@@ -371,7 +379,7 @@ private:
 
     std::map<std::string, WT_USTRING>   *attributes_;
     std::vector<std::string>            *attributesSet_;
-    std::vector<Member>            *jsMembers_;
+    std::vector<Member>                 *jsMembers_;
     std::vector<std::string>            *jsMembersSet_;
     std::vector<std::string>            *jsMemberCalls_;
 
@@ -384,7 +392,9 @@ private:
 
     SStream *delayedDoJavaScript_;
 
-    OtherImpl();
+    Signal<> childrenChanged_;
+
+    OtherImpl(WWebWidget *self);
     ~OtherImpl();
   };
 

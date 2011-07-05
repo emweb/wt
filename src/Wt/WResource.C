@@ -28,7 +28,8 @@ WResource::WResource(WObject* parent)
   : WObject(parent),
     dataChanged_(this),
     beingDeleted_(false),
-    trackUploadProgress_(false)
+    trackUploadProgress_(false),
+    dispositionType_(NoDisposition)
 { 
 #ifdef WT_THREADED
   mutex_.reset(new boost::recursive_mutex());
@@ -112,31 +113,51 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   Http::Request  request(*webRequest, continuation);
   Http::Response response(this, webResponse, continuation);
 
-  if (!continuation && !suggestedFileName_.empty()) {
-    // Browser incompatibility hell: internatianalized filename suggestions
-    // First filename is for browsers that don't support RFC 5987
-    // Second filename is for browsers that do support RFC 5987
-    std::string fileField;
-    // We cannot query wApp here, because wApp doesn't exist for
-    // static resources.
-    bool isIE = webRequest->userAgent().find("MSIE") != std::string::npos;
-    bool isChrome = webRequest->userAgent().find("Chrome") != std::string::npos;
-    if (isIE || isChrome) {
-      // filename="foo-%c3%a4-%e2%82%ac.html"
-      // Note: IE never converts %20 back to space, so avoid escaping
-      // IE wil also not url decode the filename if the file has no ASCII
-      // extension (e.g. .txt)
-      fileField = "filename=\"" +
-        Utils::urlEncode(suggestedFileName_.toUTF8(), " ") + "\";";
-    } else {
-      // Binary UTF-8 sequence: for FF3, Safari, Chrome, Chrome9
-      fileField = "filename=\"" + suggestedFileName_.toUTF8() + "\";";
+  if (!continuation &&
+      (dispositionType_ != NoDisposition ||
+       !suggestedFileName_.empty())) {
+    std::string theDisposition;
+    switch (dispositionType_) {
+      default:
+      case Inline:
+        theDisposition = "inline";
+        break;
+      case Attachment:
+        theDisposition = "attachment";
+        break;
     }
-    // Next will be picked by RFC 5987 in favour of the
-    // one without specified encoding (Chrome9, 
-    fileField+= Utils::EncodeHttpHeaderField("filename", suggestedFileName_);
-    response.addHeader("Content-Disposition",
-		       "attachment;" + fileField);
+    if (!suggestedFileName_.empty()) {
+      if (dispositionType_ == NoDisposition) {
+        // backward compatibility-ish with older Wt versions
+        theDisposition = "attachment";
+      }
+      // Browser incompatibility hell: internatianalized filename suggestions
+      // First filename is for browsers that don't support RFC 5987
+      // Second filename is for browsers that do support RFC 5987
+      std::string fileField;
+      // We cannot query wApp here, because wApp doesn't exist for
+      // static resources.
+      bool isIE = webRequest->userAgent().find("MSIE") != std::string::npos;
+      bool isChrome = webRequest->userAgent().find("Chrome") != std::string::npos;
+      if (isIE || isChrome) {
+        // filename="foo-%c3%a4-%e2%82%ac.html"
+        // Note: IE never converts %20 back to space, so avoid escaping
+        // IE wil also not url decode the filename if the file has no ASCII
+        // extension (e.g. .txt)
+        fileField = "filename=\"" +
+          Utils::urlEncode(suggestedFileName_.toUTF8(), " ") + "\";";
+      } else {
+        // Binary UTF-8 sequence: for FF3, Safari, Chrome, Chrome9
+        fileField = "filename=\"" + suggestedFileName_.toUTF8() + "\";";
+      }
+      // Next will be picked by RFC 5987 in favour of the
+      // one without specified encoding (Chrome9, 
+      fileField+= Utils::EncodeHttpHeaderField("filename", suggestedFileName_);
+      response.addHeader("Content-Disposition",
+        theDisposition + ";" + fileField);
+    } else {
+      response.addHeader("Content-Disposition", theDisposition);
+    }
   }
 
   handleRequest(request, response);
@@ -153,9 +174,11 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 				   response.continuation_));
 }
 
-void WResource::suggestFileName(const WString& name)
+void WResource::suggestFileName(const WString& name,
+                                DispositionType dispositionType)
 {
   suggestedFileName_ = name;
+  dispositionType_ = dispositionType;
 
   generateUrl();
 }
@@ -165,6 +188,11 @@ void WResource::setInternalPath(const std::string& path)
   internalPath_ = path;
 
   generateUrl();
+}
+
+void WResource::setDispositionType(DispositionType dispositionType)
+{
+  dispositionType_ = dispositionType;
 }
 
 void WResource::setChanged()

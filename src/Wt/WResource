@@ -168,6 +168,14 @@ private:
 class WT_API WResource : public WObject
 {
 public:
+  /*! \brief Values for the disposition type in the Content-Disposition header
+   */
+  enum DispositionType {
+    NoDisposition, //!< Do not specify a disposition type
+    Attachment,    //!< Open with a helper application or show 'Save As' dialog
+    Inline         //!< View with a browser plugin
+  };
+
   /*! \brief Creates a new resource.
    */
   WResource(WObject* parent = 0);
@@ -186,14 +194,42 @@ public:
    * For resources, intended to be downloaded by the user, suggest a
    * name used for saving. The filename extension may also help the
    * browser to identify the correct program for opening the resource.
+   *
+   * The disposition type determines if the resource is intended to
+   * be opened by a plugin in the browser (Inline), or to be saved to disk
+   * (Attachment). NoDisposition is not a valid Content-Disposition when a
+   * filename is suggested; this will be rendered as Attachment.
+   *
+   * \sa setDispositionType().
    */
-  void suggestFileName(const Wt::WString &name);
+  void suggestFileName(const Wt::WString &name,
+                       DispositionType dispositionType = Attachment);
 
   /*! \brief Returns the suggested file name.
    *
    * \sa suggestFileName();
    */
   const Wt::WString& suggestedFileName() const { return suggestedFileName_; }
+
+  /*! \brief Configures the Content-Disposition header
+   *
+   * The Content-Disposition header allows to instruct the browser that a
+   * resource should be shown inline or as attachment. This function enables
+   * you to set this property.
+   *
+   * This is often used in combination with suggestFilename(). The
+   * Content-Disposition must not be None when a filename is given;
+   * if this case is encountered, None will be rendered as Attachment.
+   *
+   * \sa suggestFilename().
+   */
+  void setDispositionType(DispositionType cd);
+
+  /*! \brief Returns the currently configured content disposition
+   *
+   * \sa setDispositionType()
+   */
+  DispositionType dispositionType() const { return dispositionType_; }
 
   /*! \brief Generates a new URL for this resource and emits the changed signal
    *
@@ -340,6 +376,7 @@ private:
 	      Http::ResponseContinuation *continuation = 0);
 
   Wt::WString suggestedFileName_;
+  DispositionType dispositionType_;
   std::string currentUrl_;
   std::string internalPath_;
 

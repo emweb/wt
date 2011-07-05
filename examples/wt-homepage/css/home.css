@@ -98,6 +98,7 @@ img.java-language-icon {
     width: 90%;
     margin: 5%;
     background: #E1E1E1;
+    border: 5px solid white;
 }
 
 .versions th {
@@ -109,7 +110,7 @@ img.java-language-icon {
     width: 7em;
 }
 
-.versions td, .versions .trh th {
+table.versions td, .versions .trh th {
     text-align: center;
 }
 
@@ -117,6 +118,91 @@ img.java-language-icon {
     padding-left: 2em;
 }
 
+.versions .multiline {
+    vertical-align: baseline;
+}
+
+.versions .separate td, .versions .separate th {
+    padding-top: 1em;
+}
+
+.versions .r0 {
+    background-color: white;
+}
+
+.versions .r1 {
+}
+
 #footer_wrapper {
     position: relative; /* avoids example menu animation glitch */
+}
+
+.price {
+    font-style: italic;
+}
+
+.smallprint {
+    font-size: smaller;
+}
+
+.quote {
+    text-align: center;
+}
+
+.quote .quoteform {
+    width: 86%;
+    margin: 5%;
+    text-align: left;
+    padding: 2%;
+    background-color: #F1F1F1;
+}
+
+.quote .form {
+    width: 100%;
+    line-height: 1.5em;
+    margin: 1em 0px;
+}
+
+.quote .form .label {
+    text-align: right;
+    padding-right: 1em;
+}
+
+.quote .form .value {
+    width: 65%;
+}
+
+.quote .form input {
+    width: 100%;
+}
+
+.quote .button-box {
+    text-align: center;
+}
+
+.quoteform h4 {
+    border-top: 0px;
+    margin-top: 0px;
+}
+
+.quoteform .licenses {
+    width: 98%;
+    margin: 1em 1%;
+}
+
+.quoteform .licenses td.button {
+    text-align: center;
+    padding: 0px 0.5em;
+}
+
+.quoteform td.button button {
+    width: 2em;
+}
+
+.licenses input {
+    width: 90%;
+}
+
+.quoteform .comment textarea {
+    width: 99%;
 }

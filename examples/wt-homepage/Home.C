@@ -16,14 +16,15 @@
 #include <Wt/WEnvironment>
 #include <Wt/WLogger>
 #include <Wt/WMenu>
+#include <Wt/WPushButton>
 #include <Wt/WStackedWidget>
-#include <Wt/WVBoxLayout>
 #include <Wt/WTabWidget>
 #include <Wt/WTable>
 #include <Wt/WTableCell>
 #include <Wt/WTemplate>
 #include <Wt/WText>
 #include <Wt/WViewWidget>
+#include <Wt/WVBoxLayout>
 
 #include "Home.h"
 #include "view/BlogView.h"
@@ -42,6 +43,7 @@ Home::Home(const WEnvironment& env, const std::string& title,
     sourceViewer_(0)
 {
   messageResourceBundle().use(appRoot() + resourceBundle, false);
+
   useStyleSheet(cssPath + "/wt.css");
   useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7");
   useStyleSheet("css/home.css");
@@ -188,8 +190,14 @@ void Home::setLanguage(int index)
 
 WWidget *Home::linkSourceBrowser(const std::string& example)
 {
-  WAnchor *a = new WAnchor("", tr("source-browser"));
-  a->setRefInternalPath("/" + SRC_INTERNAL_PATH + "/" + example);
+  /*
+   * Instead of using a WAnchor, which will not progress properly because
+   * it is wrapped with wrapView() (-- should we not fix that?), we use
+   * a WText which contains an anchor, and enable internal path encoding.
+   */
+  std::string path = "#/" + SRC_INTERNAL_PATH + "/" + example;
+  WText *a = new WText(tr("source-browser-link").arg(path));
+  a->setInternalPathEncoding(true);
   return a;
 }
 
@@ -276,7 +284,9 @@ WWidget *Home::features()
 
 WWidget *Home::documentation()
 {
-  return new WText(tr("home.documentation"));
+  WText *result = new WText(tr("home.documentation"));
+  result->setInternalPathEncoding(true);
+  return result;
 }
 
 WWidget *Home::otherLanguage()
@@ -342,6 +352,48 @@ void Home::readReleases(WTable *releaseTable)
     }
   }
 }
+
+#ifdef WT_EMWEB_BUILD
+WWidget *Home::quoteForm()
+{
+  WContainerWidget *result = new WContainerWidget();
+  result->setStyleClass("quote");
+
+  WPushButton *quoteButton = new WPushButton(tr("quote.request"), result);
+  WWidget *quoteForm = createQuoteForm();
+  result->addWidget(quoteForm);
+
+  quoteButton->clicked().connect(quoteForm, &WWidget::show);
+  quoteButton->clicked().connect(quoteButton, &WWidget::hide);
+
+  quoteForm->hide();
+
+  return result;
+}
+#endif // WT_EMWEB_BUILD
+
+WWidget *Home::download()
+{
+  WContainerWidget *result = new WContainerWidget();
+  result->addWidget(new WText(tr("home.download")));
+
+  result->addWidget(new WText(tr("home.download.license")));
+
+#ifdef WT_EMWEB_BUILD
+  result->addWidget(quoteForm());
+#endif // WT_EMWEB_BUILD
+
+  result->addWidget(new WText(tr("home.download.packages")));
+
+  releases_ = new WTable();
+  readReleases(releases_);
+  result->addWidget(releases_);
+
+  result->addWidget(new WText(tr("home.download.other")));
+
+  return result;
+}
+
 
 WString Home::tr(const char *key)
 {

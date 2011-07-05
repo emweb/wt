@@ -20,7 +20,7 @@ public:
 
 protected:
   virtual WWidget *examples();
-  virtual WWidget *download();
+  virtual WWidget *createQuoteForm();
   virtual WWidget *sourceViewer(const std::string& deployPath);
   virtual std::string filePrefix() const { return "jwt-"; }
 

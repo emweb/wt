@@ -349,8 +349,6 @@ protected:
    */
   virtual void enableAjax();
 
-  virtual void updateSelectionEvent();
-
 private:
   WWidget          *itemWidget_;
   WContainerWidget *contentsContainer_;

@@ -766,7 +766,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
       collectedJS2_ << "}";
 
       app->enableAjax_ = false;
-    }
+    } else
+      app->streamBeforeLoadJavaScript(response.out(), true);
 
     response.out() << "window." << app->javaScriptClass()
 		   << "LoadWidgetTree = function(){\n";

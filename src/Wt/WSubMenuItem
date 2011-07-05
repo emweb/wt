@@ -85,11 +85,9 @@ protected:
   virtual void renderSelected(bool selected);
   virtual SignalBase& activateSignal();
   virtual void setFromInternalPath(const std::string& path);
-  virtual void updateSelectionEvent();
 
 private:
   WMenu *subMenu_;
-  bool updatingSelectionEvent_;
 
   void subItemSelected();
 };

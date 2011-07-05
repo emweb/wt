@@ -77,7 +77,7 @@ public:
 
 protected:
   virtual WWidget *examples() = 0;
-  virtual WWidget *download() = 0;
+  virtual WWidget *createQuoteForm() = 0;
   virtual WWidget *sourceViewer(const std::string &deployPath) = 0;
   virtual std::string filePrefix() const = 0;
 
@@ -109,6 +109,8 @@ private:
   WWidget *documentation();
   WWidget *community();
   WWidget *otherLanguage();
+  WWidget *download();
+  WWidget *quoteForm();
 
   WMenu *mainMenu_;
 

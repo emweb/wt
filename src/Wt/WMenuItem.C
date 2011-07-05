@@ -430,9 +430,4 @@ void WMenuItem::connectSignals()
     connectClose();
 }
 
-void WMenuItem::updateSelectionEvent()
-{
-  resetLearnedSlots();
-}
-
 }

@@ -1,3 +1,7 @@
+04-07-2011:
+	* WWebWidget: added childrenChanged() signal and use this in
+	WMenu to track contents stack updates
+
 29-06-2011:
 	* WWidget: show/hide animations also work on FF5 now
 

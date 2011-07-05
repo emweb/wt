@@ -521,6 +521,7 @@ public:
 
 protected:
   virtual void enableAjax();
+  virtual void render(WFlags<RenderFlag> flags);
 
   /*! \brief Handling of internal path changes.
    *
@@ -571,6 +572,7 @@ private:
   int current_;
   int previousCurrent_;
   int previousStackIndex_;
+  bool needSelectionEventUpdate_;
 
   int indexOf(WMenuItem *item) const;
 

@@ -6,8 +6,13 @@
 
 #include "JWtHome.h"
 
+#ifdef WT_EMWEB_BUILD
+#include "QuoteForm.h"
+#endif // WT_EMWEB_BUILD
+
 #include <Wt/WText>
 #include <Wt/WAnchor>
+#include <Wt/WStackedWidget>
 #include <Wt/WTreeNode>
 #include <Wt/WWidget>
 #include <Wt/WViewWidget>
@@ -39,9 +44,13 @@ WWidget *JWtHome::examples()
 {
   WContainerWidget *result = new WContainerWidget();
 
-  result->addWidget(new WText(tr("home.examples")));
+  WText *intro = new WText(tr("home.examples"));
+  intro->setInternalPathEncoding(true);
+  result->addWidget(intro);
 
   examplesMenu_ = new WTabWidget(AlignTop | AlignJustify, result);
+  WAnimation animation(WAnimation::SlideInFromRight, WAnimation::EaseIn);
+  examplesMenu_->contentsStack()->setTransitionAnimation(animation, true);
 
   /*
    * The following code is functionally equivalent to:
@@ -80,20 +89,13 @@ WWidget *JWtHome::examples()
   return result;
 }
 
-WWidget *JWtHome::download()
+WWidget *JWtHome::createQuoteForm()
 {
-  WContainerWidget *result = new WContainerWidget();
-  result->addWidget(new WText(tr("home.download")));
-  result->addWidget(new WText(tr("home.download.license")));
-  result->addWidget(new WText(tr("home.download.packages")));
-
-  releases_ = new WTable();
-  readReleases(releases_);
-  result->addWidget(releases_);
-  result->addWidget(new WText(tr("home.download.requirements")));
-  result->addWidget(new WText(tr("home.download.cvs")));
-
-  return result;
+#ifdef WT_EMWEB_BUILD
+  return new QuoteForm(QuoteForm::JWt);
+#else
+  return 0;
+#endif
 }
 
 WWidget *JWtHome::sourceViewer(const std::string &deployPath)
@@ -137,7 +139,8 @@ WWidget *JWtHome::chatExample()
 WWidget *JWtHome::figtreeExample()
 {
   WContainerWidget *result = new WContainerWidget();
-  new WText(tr("home.examples.figtree"), result);
+  WText *text = new WText(tr("home.examples.figtree"), result);
+  text->setInternalPathEncoding(true);
   return result;
 }
 
