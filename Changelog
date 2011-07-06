@@ -1,3 +1,8 @@
+06-07-2011:
+	* Wt.js: fix HTML5 history spec weirdness with null state
+
+	* WFileUpload: fix second upload() crash (#888).
+
 04-07-2011:
 	* WWebWidget: added childrenChanged() signal and use this in
 	WMenu to track contents stack updates

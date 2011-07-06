@@ -134,9 +134,11 @@ void WFileUpload::create()
   // NOTE: this is broken on konqueror: you cannot target a form anymore
   bool methodIframe = WApplication::instance()->environment().ajax();
 
-  if (methodIframe)
+  if (methodIframe) {
     fileUploadTarget_ = new WFileUploadResource(this);
-  else
+    fileUploadTarget_->setUploadProgress(true);
+    fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
+  } else
     fileUploadTarget_ = 0;
 
   setFormObject(!fileUploadTarget_);
@@ -286,9 +288,6 @@ void WFileUpload::updateDom(DomElement& element, bool all)
   if (fileUploadTarget_ && doUpload_) {
     element.callMethod("submit()");
     doUpload_ = false;
-
-    fileUploadTarget_->setUploadProgress(true);
-    fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
 
     if (progressBar_)
       if (progressBar_->parent() == this) {

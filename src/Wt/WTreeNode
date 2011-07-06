@@ -160,6 +160,10 @@ public:
   void addChildNode(WTreeNode *node);
 
   /*! \brief Removes a child node.
+   *
+   * \if cpp
+   * The child node itself is not deleted
+   * \endif
    */
   void removeChildNode(WTreeNode *node);
 

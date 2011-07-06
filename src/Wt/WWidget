@@ -780,7 +780,7 @@ public:
    */
   virtual void setId(const std::string& id) = 0;
 
-  /*! \brief Finds a descendend widget by name.
+  /*! \brief Finds a descendent widget by name.
    *
    * \sa setObjectName()
    */

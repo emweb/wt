@@ -1315,9 +1315,17 @@ if (html5History) {
 
       function onPopState(event) {
 	var newState = event.state;
-	if (newState && newState != currentState) {
+
+	/*
+	 * A null state reflects the initial state:
+	 * see http://html5.org/tools/web-apps-tracker?from=5345&to=5346
+	 */
+	if (!newState)
+	  newState = initialState;
+
+	if (newState != currentState) {
 	  currentState = newState;
-	  onStateChange(currentState);
+	  onStateChange(currentState != "" ? currentState : "/");
 	}
       }
 
@@ -1383,7 +1391,7 @@ _$_$endif_$_();
       }
 
       try {
-	window.history.pushState(state, document.title, url);
+	window.history.pushState(state ? state : "", document.title, url);
       } catch (error) {
 	/*
 	 * In case we are wrong about our baseUrl or base href
