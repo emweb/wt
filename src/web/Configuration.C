@@ -160,6 +160,7 @@ Configuration::Configuration(const std::string& applicationPath,
     serverPushTimeout_(50),
     valgrindPath_(""),
     errorReporting_(ErrorMessage),
+    logTime_(false),
     runDirectory_(RUNDIR),
     sessionIdLength_(16),
     xhtmlMimeType_(false),
@@ -305,6 +306,8 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       throw WServer::Exception("<debug>: expecting 'true', 'false',"
 			       "or 'stack'");
   }
+
+  setBoolean(app, "log-response-time", logTime_);
 
   if (serverType_ == FcgiServer) {
     xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");

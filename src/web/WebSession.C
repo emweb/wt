@@ -1383,6 +1383,9 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
 
     WebSocketMessage *message = new WebSocketMessage(lock.get());
 
+    if (lock->controller_->configuration().logTime())
+      message->trackTime();
+
     bool closing = message->contentLength() == 0;
 
     if (!closing) {

@@ -517,6 +517,9 @@ void WebController::handleRequest(WebRequest *request)
 
 void WebController::handleAsyncRequest(WebRequest *request)
 {
+  if (conf_.logTime())
+    request->trackTime();
+
   if (!request->entryPoint_)
     request->entryPoint_ = getEntryPoint(request);
 

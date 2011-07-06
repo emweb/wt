@@ -12,12 +12,179 @@
 <title>Wt Release notes</title>
 </head>
 <body>
+
 <h1>Wt Release notes</h1>
 
 This file lists important notes on migrating existing applications to
 newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
+
+<h2>Release 3.1.10 (July 7, 2011)</h2>
+
+<p>
+  This release contains a mix of new features and bug fixes 
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WAnimation.html">WAnimation</a>
+  </dt>
+  <dd>
+    We have added support for animations to show or hide widgets (used
+    in <a href="classWt_1_1WWidget.html#a66bdda41220267a8c7ff9865996e2675">WWidget::setHidden()</a>,
+    and <a href="classWt_1_1WStackedWidget.html">WStackedWidget</a>). These
+    animations will only be used when the browser supports CSS3
+    animations (at the moment of writing that includes latest Firefox,
+    Chrome and Safari releases).
+  </dd>
+  <dt>
+    <a href="classWt_1_1WStreamResource.html">WStreamResource</a>
+  </dt>
+  <dd>
+    Dmitriy Igrishin factored this out of the WFileResource since most
+    of its functionality (continuations, range support) could be
+    generalized to streaming from a std::istream.
+  </dd>
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+<dl>
+  <dt>
+    Allowing multiple WServer instances.
+  </dt>
+  <dd>
+    Apparently for no good reasons at all, some singletons were still
+    around which prevented you from instantiating
+    multiple <a href="classWt_1_1WServer">application servers</a>. Now
+    you can (but only using the built-in httpd) instantiate multiple
+    servers side by side in the same process, which may server the
+    same or different web applications over different ports. A feature
+    example (<tt>multiple_servers</tt>) shows how that works.
+  </dd>
+
+  <dt>
+    Internal path encoding in WTemplate and WText</a>
+  </dt>
+  <dd>
+    <div>
+      The
+      new <a href="classWt_1_1WTemplate.html#aeee888e560c519ac0e33bfc1ebb315e2">setInternalPathEncoding()</a>
+      method will, if needed, enable reencoding of &lt;a&gt; anchors
+      which reference internal paths consistent with how in the
+      current session internal paths need to be dealt with (which
+      depends on whether the browser supports Ajax and HTML5 History).
+    </div>
+    <div>
+      Since this requires an additional XML parsing step (but the
+      rapidxml parser that is used is ... rapid !), it is off by
+      default.
+    </div>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WWApplication.html">WApplication::findWidget()</a>
+  </dt>
+  <dd>
+    Like WWidget::findWidget(), but on the whole application,
+    including widgets outside the WApplication::root().
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WWApplication.html">WApplication::changeSessionId()</a>
+  </dt>
+  <dd>
+    Generates a new session ID for the application. This is useful to prevent
+    session fixation attacks by changing the session ID when a user has
+    authenticated successfully.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WResource.html">WResource::setDispositionType()</a>
+  </dt>
+  <dd>
+    This method allows to specify how the browser should preferably
+    show a (non-HTML) resource.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WTable.html">WTable</a>
+  </dt>
+  <dd>
+    Methods were added
+    to <a href="classWt_1_1WTable.html#a239d85781509ff321eb964af042bcf57">move
+    a row</a>
+    or <a href="classWt_1_1WTable.html#a0670b90a05a6c0176c773bf8766a5bf2">a
+    column</a>. In addition we added methods
+    to <a href="classWt_1_1WTableRow.html">WTableRow</a>
+    and <a href="classWt_1_1WTableColumn.html">WTableColumn</a> for
+    accessing cells in the given row or column.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WTextEdit.html">WTextEdit</a>
+  </dt>
+  <dd>
+    Various improvements to allow more flexible access to TinyMCE
+    settings on a per-instance basis.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WWidget.html">WWidget::setToolTip()</a>
+  </dt>
+  <dd>
+    An additional argument was added which may specify the use of
+    XHTML tooltips, which are implemented using a &lt;div&gt;.
+  </dd>
+
+  <dt>
+    Dbo::collection&lt;T&gt;
+  </dt>
+  <dd>
+    Make insert() and erase() also work for a collection involved in a
+    1-N relation
+  </dd>
+
+  <dt>
+    Dbo::ptr&lt;C&gt;
+  </dt>
+  <dd>
+    Improved modify() behaviour returns a proxy object which marks the
+    the object dirty also from its destructor, avoiding situations where
+    the transaction is flushed during a modification and remainig changes
+    are forgotten.
+  </dd>
+
+  <dt>
+    Dbo::Dbo&lt;C&gt;
+  </dt>
+  <dd>
+    Added setDirty() and self() methods.
+  </dd>
+
+  <dt>
+    Dbo::backend::Sqlite3
+  </dt>
+  <dd>
+    The packaged sqlite3 version was bumped from 3.6.20 to 3.7.6
+  </dd>
+
+</dl>
+
+<h3>C) Non-backwwards compatible changes</h3>
+
+<dl>
+  <dt>The signature of the virtual method WWidget::setHidden() has changed.</dt>
+  <dd>
+    Probably the biggest breaking change since long, this was needed
+    to add support for animations. This will break existing code which
+    specializes the WWidget::setHidden() method. This code should be
+    updated to pass the WAnimation object.
+  </dd>
+</dl>
 
 <h2>Release 3.1.9 (April 7, 2011)</h2>
 

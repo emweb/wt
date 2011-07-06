@@ -8,6 +8,7 @@
 #define WEB_REQUEST_H_
 
 #include <iostream>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <Wt/WDllDefs.h>
 #include <Wt/WGlobal>
 #include <Wt/Http/Request>
@@ -27,6 +28,8 @@ class WT_API WebRequest
 {
 public:
   WebRequest();
+
+  void trackTime();
 
   enum ResponseState {
     ResponseDone,
@@ -197,6 +200,7 @@ private:
   Http::UploadedFileMap files_;
   ResponseType          responseType_;
   bool                  webSocketRequest_;
+  boost::posix_time::ptime start_;
 
   static Http::ParameterValues emptyValues_;
 

@@ -233,7 +233,7 @@ public:
    *
    * The default value is \c false.
    *
-   * \sa WAnchor::setInternalPath()
+   * \sa WAnchor::setRefInternalPath()
    */
   void setInternalPathEncoding(bool enabled);
 

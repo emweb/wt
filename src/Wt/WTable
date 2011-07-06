@@ -156,8 +156,8 @@ public:
 
   /*! \brief Move a table row from its original position to a new position.
    *
-   * The table expands automatically when to is beyond the current 
-   * table dimensions.
+   * The table expands automatically when the \p to row is beyond the
+   * current table dimensions.
    *
    * \sa moveColumn()
    */
@@ -165,8 +165,8 @@ public:
 
   /*! \brief Move a table column from its original position to a new position.
    *
-   * The table expands automatically when to is beyond the current 
-   * table dimensions.
+   * The table expands automatically when the \p to column is beyond
+   * the current table dimensions.
    *
    * \sa moveRow()
    */

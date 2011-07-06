@@ -228,6 +228,16 @@
          -->
 	<log-file></log-file>
 
+	<!-- Log response times
+
+	   Log the response time for each HTTP request or websocket
+	   message (to stderr). This includes the time to parse the
+	   request parameters and body, generate the result, and send
+	   it to the client (so it will depend also on the distance to
+	   the client).
+	  -->
+	<log-response-time>false</log-response-time>
+
 	<!-- Maximum HTTP request size (Kb)
 
            Maximum size of an incoming POST request. This value must be

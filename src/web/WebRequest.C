@@ -35,8 +35,23 @@ WebRequest::WebRequest()
     webSocketRequest_(false)
 { }
 
+void WebRequest::trackTime()
+{
+  start_ = boost::posix_time::microsec_clock::local_time();
+}
+
 WebRequest::~WebRequest()
-{ }
+{
+  if (!isWebSocketRequest() && !start_.is_not_a_date_time()) {
+    boost::posix_time::ptime
+      end = boost::posix_time::microsec_clock::local_time();
+
+    boost::posix_time::time_duration d = end - start_;
+
+    std::cerr << "Took: " << (double)d.total_microseconds() / 1000
+	      << "ms" << std::endl;
+  }
+}
 
 void WebRequest::readWebSocketMessage(CallbackFunction callback)
 { 

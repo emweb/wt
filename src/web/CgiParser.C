@@ -181,6 +181,9 @@ CgiParser::CgiParser(::int64_t maxPostData)
 
 void CgiParser::parse(WebRequest& request, ReadOption readOption)
 {
+  /*
+   * TODO: optimize this ...
+   */
   request_ = &request;
 
   ::int64_t len = request.contentLength();

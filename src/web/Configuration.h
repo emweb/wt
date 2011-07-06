@@ -120,6 +120,7 @@ public:
   std::string        valgrindPath() const { return valgrindPath_; }
   ErrorReporting     errorReporting() const { return errorReporting_; }
   bool               debug() const { return errorReporting_ != ErrorMessage; }
+  bool               logTime() const { return logTime_; }
   std::string        runDirectory() const { return runDirectory_; }
   ServerType         serverType() const { return serverType_; }
   int                sessionIdLength() const { return sessionIdLength_; }
@@ -178,6 +179,7 @@ private:
   int             serverPushTimeout_;
   std::string     valgrindPath_;
   ErrorReporting  errorReporting_;
+  bool            logTime_;
   std::string     runDirectory_;
   int             sessionIdLength_;
   std::string     sessionIdPrefix_;

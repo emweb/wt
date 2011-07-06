@@ -151,7 +151,7 @@ public:
    */
   const std::string toolBar(int i) const;
 
-  /* \brief Configure a TinyMCE setting.
+  /*! \brief Configure a TinyMCE setting.
    *
    * A list of possible settings can be found at:
    * http://tinymce.moxiecode.com/wiki.php/Configuration.
@@ -162,7 +162,7 @@ public:
   void setConfigurationSetting(const std::string& name, 
 			       const boost::any& value);
 
-  /* \brief Returns a TinyMCE configuration setting's value.
+  /*! \brief Returns a TinyMCE configuration setting's value.
    *
    * An empty boost::any is returned when no value could be found for the 
    * provided argument.
