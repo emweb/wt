@@ -992,7 +992,7 @@ void WApplication::enableInternalPaths()
 
     doJavaScript
       (javaScriptClass() + "._p_.enableInternalPaths("
-       + WWebWidget::jsStringLiteral(session_->pagePathInfo())
+       + WWebWidget::jsStringLiteral(newInternalPath_)
        + ");" , false);
 
     if (session_->useUglyInternalPaths())
