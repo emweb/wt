@@ -49,27 +49,41 @@ void InitSchema::actId(V& value, const std::string& name, int size)
   idField_ = false;
 }
 
+template<class C>
+void InitSchema::actId(ptr<C>& value, const std::string& name, int size,
+		       int fkConstraints)
+{
+  mapping_.naturalIdFieldName = name;
+  mapping_.naturalIdFieldSize = size;
+
+  if (mapping_.surrogateIdFieldName)
+    throw std::logic_error("Error: Wt::Dbo::id() called for class C "
+			   "with surrogate key: "
+			   "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
+
+  idField_ = true;
+  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+  idField_ = false;
+}
+
 template<typename V>
 void InitSchema::act(const FieldRef<V>& field)
 {
-  if (idField_) {
-    // Natural id
-    mapping_.fields.push_back
-      (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
-		 FieldInfo::Mutable | FieldInfo::NeedsQuotes
-		 | FieldInfo::NaturalId));
-  } else if (!foreignKeyName_.empty())
+  int flags = FieldInfo::Mutable | FieldInfo::NeedsQuotes;
+
+  if (idField_)
+    flags |= FieldInfo::NaturalId; // Natural id
+
+  if (!foreignKeyName_.empty())
     // Foreign key
     mapping_.fields.push_back
       (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
 		 foreignKeyTable_, foreignKeyName_,
-		 FieldInfo::Mutable | FieldInfo::NeedsQuotes
-		 | FieldInfo::ForeignKey, fkConstraints_));
+		 flags | FieldInfo::ForeignKey, fkConstraints_));
   else
     // Normal field
     mapping_.fields.push_back
-      (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
-		 FieldInfo::Mutable | FieldInfo::NeedsQuotes));
+      (FieldInfo(field.name(), &typeid(V), field.sqlType(session_), flags));
 }
 
 template<class C>
@@ -112,6 +126,11 @@ void DropSchema::visit(C& obj)
 
 template<typename V>
 void DropSchema::actId(V& value, const std::string& name, int size)
+{ }
+
+template<class C>
+void DropSchema::actId(ptr<C>& value, const std::string& name, int size,
+		       int fkConstraints)
 { }
 
 template<typename V>
@@ -226,6 +245,16 @@ template<typename V>
 void LoadDbAction<C>::actId(V& value, const std::string& name, int size)
 {
   field(*this, value, name, size);
+
+  dbo_.setId(value);
+}
+
+template<class C>
+template<class D>
+void LoadDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
+			    int fkConstraints)
+{ 
+  actPtr(PtrRef<D>(value, name, size, fkConstraints));
 
   dbo_.setId(value);
 }
@@ -418,6 +447,19 @@ void SaveDbAction<C>::actId(V& value, const std::string& name, int size)
     dbo_.setId(value);
 }
 
+template<class C>
+template<class D>
+void SaveDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
+			   int fkConstraints)
+{ 
+  actPtr(PtrRef<D>(value, name, size, fkConstraints));
+
+  /* Later, we may also want to support id changes ? */
+  if (pass_ == Self && isInsert_)
+    dbo_.setId(value);
+}
+
+
     /*
      * TransactionDoneAction
      */
@@ -432,6 +474,13 @@ template<typename V>
 void TransactionDoneAction::actId(V& value, const std::string& name, int size)
 { 
   field(*this, value, name, size);
+}
+
+template<class C>
+void TransactionDoneAction::actId(ptr<C>& value, const std::string& name,
+				  int size, int fkConstraints)
+{ 
+  actPtr(PtrRef<C>(value, name, size, fkConstraints));
 }
 
 template<typename V>
@@ -481,6 +530,13 @@ void SessionAddAction::actId(V& value, const std::string& name, int size)
   field(*this, value, name, size);
 }
 
+template<class C>
+void SessionAddAction::actId(ptr<C>& value, const std::string& name,
+			     int size, int fkConstraints)
+{ 
+  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+}
+
 template<typename V>
 void SessionAddAction::act(const FieldRef<V>& field)
 { }
@@ -511,6 +567,13 @@ template<typename V>
 void SetReciproceAction::actId(V& value, const std::string& name, int size)
 { 
   field(*this, value, name, size);
+}
+
+template<class C>
+void SetReciproceAction::actId(ptr<C>& value, const std::string& name,
+			       int size, int fkConstraints)
+{ 
+  actPtr(PtrRef<C>(value, name, size, fkConstraints));
 }
 
 template<typename V>
@@ -577,6 +640,13 @@ template<typename V>
 void ToAnysAction::actId(V& value, const std::string& name, int size)
 { 
   field(*this, value, name, size);
+}
+
+template<class C>
+void ToAnysAction::actId(ptr<C>& value, const std::string& name,
+			 int size, int fkConstraints)
+{ 
+  actPtr(PtrRef<C>(value, name, size, fkConstraints));
 }
 
 template<typename V>

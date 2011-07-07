@@ -40,6 +40,8 @@ public:
   template<class C> void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class C> void actId(ptr<C>& value, const std::string& name, int size,
+			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
@@ -66,6 +68,8 @@ public:
   template<class C> void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class C> void actId(ptr<C>& value, const std::string& name, int size,
+			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
@@ -134,6 +138,8 @@ public:
   void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class D> void actId(ptr<D>& value, const std::string& name, int size,
+			       int fkConstraints);
 
 private:
   MetaDbo<C>& dbo_;
@@ -184,6 +190,8 @@ public:
   void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class D> void actId(ptr<D>& value, const std::string& name, int size,
+			       int fkConstraints);
 
 private:
   MetaDbo<C>& dbo_;
@@ -198,7 +206,9 @@ public:
   template<class C> void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
-  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actId(ptr<C>& value, const std::string& name, int size,
+			       int fkConstraints);
+template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
@@ -218,6 +228,8 @@ public:
   template<class C> void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class C> void actId(ptr<C>& value, const std::string& name, int size,
+			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
@@ -235,6 +247,8 @@ public:
   template<class C> void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class C> void actId(ptr<C>& value, const std::string& name, int size,
+			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
@@ -256,6 +270,8 @@ public:
   template<class C> void visit(const ptr<C>& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class C> void actId(ptr<C>& value, const std::string& name, int size,
+			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
@@ -278,6 +294,8 @@ public:
   template<class C> void visit(const ptr<C>& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
+  template<class C> void actId(ptr<C>& value, const std::string& name, int size,
+			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);

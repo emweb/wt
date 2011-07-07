@@ -53,6 +53,7 @@ WColor::WColor(const WString& name)
   boost::trim(n);
   
   if (boost::starts_with(n, "#")) {
+    alpha_ = 255;
     if (n.size() - 1 == 3) {
       red_ = strtol(n.substr(1,1).c_str(), 0, 16);
       red_ = red_ * 16 + red_;

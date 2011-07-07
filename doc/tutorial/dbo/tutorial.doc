@@ -857,7 +857,179 @@ namespace Wt {
 }
 ----
 
-A natural primary key may also be a composite key.
+The +id()+ function has the same syntax as the +field()+ function.
+
+A natural primary key may also be a composite key or even a foreign key.
+
+=== Specifying foreign key constraints
+
+The +belongsTo()+ function is overloaded so that you can add foreign
+key constraints which are enforced by the database, such as:
+
+* +NotNull+: cannot be null
+* +OnUpdateCascade+: cascade an update of the (natural) primary key to the
+  foreign keys that reference it
+* +OnUpdateSetNull+: an update of the (natural) primary key sets referencing
+  foreign keys to null
+* +OnDeleteCascade+: cascade a delete of the object to also delete objects
+  that reference it using a foreign key
+* +OnDeleteSetNull+: when the object is deleted, set the referencing foreign
+  keys to null.
+
+In the next chapter we will see how you can specify these foreign key
+constraints also for foreign keys that double as primary key.
+
+=== Specifying a natural primary key that is also a foreign key
+
+Let's define a class UserInfo which provides additional data for a
+User. We will only allow exactly one UserInfo object per User, and
+therefore chose as primary key for the UserInfo a reference to the
+User.
+
+.Using a foreign key as primary key (tutorial6.C)
+[source,cpp]
+----
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Sqlite3>
+
+namespace dbo = Wt::Dbo;
+
+class UserInfo;
+class User;
+
+namespace Wt {
+  namespace Dbo {
+
+    template<>
+    struct dbo_traits<UserInfo> : public dbo_default_traits {
+      typedef ptr<User> IdType;
+
+      static IdType invalidId() {
+        return ptr<User>();
+      }
+
+      static const char *surrogateIdField() { return 0; }
+    };
+
+  }
+}
+
+class User {
+public:
+  std::string name;
+
+  dbo::collection< dbo::ptr<UserInfo> > infos;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    dbo::field(a, name,     "name");
+
+    // In fact, this is really constrained to hasOne() ...
+    dbo::hasMany(a, infos, dbo::ManyToOne, "user");
+  }
+};
+
+class UserInfo {
+public:
+  dbo::ptr<User> user;
+  std::string info;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    dbo::id(a, user, "user", dbo::OnDeleteCascade);
+    dbo::field(a, info, "info");
+  }
+};
+
+void run()
+{
+  /*
+   * Setup a session, would typically be done once at application startup.
+   */
+  dbo::backend::Sqlite3 sqlite3(":memory:");
+  sqlite3.setProperty("show-queries", "true");
+  dbo::Session session;
+  session.setConnection(sqlite3);
+
+  session.mapClass<User>("user");
+  session.mapClass<UserInfo>("user_info");
+
+  /*
+   * Try to create the schema (will fail if already exists).
+   */
+  session.createTables();
+
+  dbo::Transaction transaction(session);
+
+  {
+    User *user = new User();
+    user->name = "Joe";
+
+    dbo::ptr<User> userPtr = session.add(user);
+
+    UserInfo *userInfo = new UserInfo();
+    userInfo->user = userPtr;
+    userInfo->info = "great guy";
+
+    session.add(userInfo);
+
+    transaction.commit();
+  }
+
+  {
+    dbo::Transaction transaction(session);
+
+    dbo::ptr<UserInfo> info = session.find<UserInfo>();
+    
+    std::cerr << info->user->name << " is a " << info->info << std::endl;
+
+    transaction.commit();
+  }
+}
+
+int main(int argc, char **argv)
+{
+  run();
+}
+----
+
+As you can see, in this example we would really need a One-to-One
+relationship, but this currently not yet supported in Dbo and thus we
+emulate it using a Many-to-One relationship (which has the same
+representation in SQL).
+
+When run, this should output:
+
+[source,sql]
+----
+begin transaction
+create table "user" (
+  "id" integer primary key autoincrement,
+  "version" integer not null,
+  "name" text not null
+)
+
+create table "user_info" (
+  "version" integer not null,
+  "user_id" bigint,
+  "info" text not null,
+  primary key ("user_id"),
+ constraint "fk_user_info_user" foreign key ("user_id") references "user" ("id") on delete cascade
+)
+
+commit transaction
+begin transaction
+insert into "user" ("version", "name") values (?, ?)
+insert into "user_info" ("version", "user_id", "info") values (?, ?, ?)
+commit transaction
+begin transaction
+select version, "user_id", "info" from "user_info" 
+select "version", "name" from "user" where "id" = ?
+Joe is a great guy
+commit transaction
+----
 
 == Transactions and concurrency
 

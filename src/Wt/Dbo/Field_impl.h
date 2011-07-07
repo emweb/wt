@@ -128,6 +128,13 @@ void id(A& action, V& value, const std::string& name, int size)
   action.actId(value, name, size);
 }
 
+template <class A, class C>
+void id(A& action, ptr<C>& value, const std::string& name,
+	ForeignKeyConstraint constraint, int size)
+{
+  action.actId(value, name, size, constraint.value());
+}
+
 template <class A, typename V>
 void field(A& action, V& value, const std::string& name, int size)
 {

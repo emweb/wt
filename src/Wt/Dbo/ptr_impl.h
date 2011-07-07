@@ -421,6 +421,18 @@ void ptr<C>::freeObj()
 }
 
 template <class C>
+std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr)
+{
+  if (ptr.obj_ && ptr.obj_->session())
+    return o << "["
+	     << ptr.obj_->session()->template tableName<C>()
+	     << ": " << ptr.id()
+	     << "]";
+  else
+    return o << "[null]";
+}
+
+template <class C>
 Dbo<C>::Dbo()
   : meta_(0)
 { }

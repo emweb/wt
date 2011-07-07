@@ -18,6 +18,7 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
     BOOST_REQUIRE(c.red() == 255);
     BOOST_REQUIRE(c.green() == 136);
     BOOST_REQUIRE(c.blue() == 0);
+    BOOST_REQUIRE(c.alpha() == 255); 
   }
 
   {
@@ -25,6 +26,15 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
     BOOST_REQUIRE(c.red() == 18);
     BOOST_REQUIRE(c.green() == 160);
     BOOST_REQUIRE(c.blue() == 207);
+    BOOST_REQUIRE(c.alpha() == 255); 
+  }
+
+  {
+    Wt::WColor c("#FF0000");
+    BOOST_REQUIRE(c.red() == 255);
+    BOOST_REQUIRE(c.green() == 0);
+    BOOST_REQUIRE(c.blue() == 0);
+    BOOST_REQUIRE(c.alpha() == 255); 
   }
 
   {
@@ -32,6 +42,7 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
     BOOST_REQUIRE(c.red() == 18);
     BOOST_REQUIRE(c.green() == 160);
     BOOST_REQUIRE(c.blue() == 207);
+    BOOST_REQUIRE(c.alpha() == 255); 
   }
 
   {
@@ -39,6 +50,7 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
     BOOST_REQUIRE(c.red() == 18);
     BOOST_REQUIRE(c.green() == 160);
     BOOST_REQUIRE(c.blue() == 207);
+    BOOST_REQUIRE(c.alpha() == 255);
   }
 
   {

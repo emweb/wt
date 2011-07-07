@@ -19,6 +19,9 @@ TARGET_LINK_LIBRARIES(dbo-tutorial4 ${tutorial_libs})
 ADD_EXECUTABLE(dbo-tutorial5  tutorial5.C)
 TARGET_LINK_LIBRARIES(dbo-tutorial5 ${tutorial_libs})
 
+ADD_EXECUTABLE(dbo-tutorial6  tutorial6.C)
+TARGET_LINK_LIBRARIES(dbo-tutorial6 ${tutorial_libs})
+
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
 IF(INSTALL_EXAMPLES)

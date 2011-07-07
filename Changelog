@@ -1,3 +1,9 @@
+07-07-2011:
+	* Dbo: allow foreign key constraints to be passed to a
+	primary key (that is also a foreing key)
+
+	* Dbo: implement ostream<< for a ptr<C>.
+
 06-07-2011:
 	* Wt.js: fix HTML5 history spec weirdness with null state
 

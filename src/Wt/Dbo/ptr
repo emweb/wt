@@ -459,6 +459,9 @@ public:
   virtual void transactionDone(bool success) = 0;
 };
 
+template <class C>
+std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr);
+
 /*! \defgroup dbo Database Objects (Dbo)
  *  \brief An implemenation of an Object Relational Mapping layer.
  *
@@ -702,6 +705,8 @@ private:
   friend class FromAnyAction;
   friend class SetReciproceAction;
   friend class Dbo<C>;
+
+  friend std::ostream& operator<< <> (std::ostream& o, const ptr<C>& ptr);
 };
 
 template <class C>
