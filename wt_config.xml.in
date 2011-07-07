@@ -232,9 +232,8 @@
 
 	   Log the response time for each HTTP request or websocket
 	   message (to stderr). This includes the time to parse the
-	   request parameters and body, generate the result, and send
-	   it to the client (so it will depend also on the distance to
-	   the client).
+	   request parameters and body, generate the result, but
+	   excludes time spent in HTTP I/O.
 	  -->
 	<log-response-time>false</log-response-time>
 

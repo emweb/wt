@@ -153,7 +153,7 @@ _$_$if_SPLIT_SCRIPT_$_();
     /* Ideally, we should be able to omit the sessionid too */
     loadScript(selfUrl + allInfo + '&request=script&skeleton=true',
                function() {
-                 loadScript(selfUrl +
+                 loadScript(selfUrl + allInfo
                             + '&request=script&rand=' + rand(), null);
                });
 _$_$endif_$_();
