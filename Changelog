@@ -1,3 +1,6 @@
+08-07-2011:
+	* Wt 3.1.10 !
+
 07-07-2011:
 	* Dbo: allow foreign key constraints to be passed to a
 	primary key (that is also a foreing key)

@@ -129,6 +129,7 @@ this.isAndroid = (agent.indexOf("safari") != -1)
 		  && (agent.indexOf("android") != -1);
 this.isMobileWebKit = (agent.indexOf("applewebkit") != -1)
 		       && (agent.indexOf("mobile") != -1);
+this.isWebKit = (agent.indexOf("applewebkit") != -1);
 
 this.updateDelay = this.isIE ? 10 : 51;
 
@@ -498,7 +499,7 @@ this.navigateInternalPath = function(event, path) {
     WT.history.navigate(path, true);
     WT.cancelEvent(e, WT.CancelDefaultAction);
   };
-}
+};
 
 this.ajaxInternalPaths = function(basePath) {
   $('.Wt-ip').each(function() {
@@ -507,7 +508,21 @@ this.ajaxInternalPaths = function(basePath) {
 	wtd = href.lastIndexOf('&wtd');
       if (wtd !== -1)
 	href = href.substr(0, wtd);
-      var internalPath = href.substr(basePath.length);
+
+      var internalPath;
+
+      /*
+       * On IE < 8, an absolute URL is read from href. In that case we
+       * also turn the basePath into an absolute URL.
+       */
+      if (href.indexOf("://") != -1) {
+	var el= document.createElement('div');
+	el.innerHTML= '<a href="' + basePath +'">x</a>';
+	var absBase = el.firstChild.href;
+	internalPath = href.substr(absBase.length - 1);
+      } else
+	internalPath = href.substr(basePath.length);
+	
       if (internalPath.substr(0, 3) == "?_=")
 	  internalPath = internalPath.substr(3);
       this.setAttribute('href', href); // computes this.href
@@ -1312,7 +1327,7 @@ if (html5History) {
     register: function (initialState, onStateChange) {
       currentState = initialState;
       cb = onStateChange;
-      var initialLength = window.history.length;
+      var expectNullState = WT.isWebKit;
 
       function onPopState(event) {
 	var newState = event.state;
@@ -1323,11 +1338,13 @@ if (html5History) {
 	 *
 	 * see http://html5.org/tools/web-apps-tracker?from=5345&to=5346
 	 */
+
 	if (!newState)
-	  if (window.history.length == initialLength)
-	    newState = initialState;
-	  else
+	  if (expectNullState) {
+	    expectNullState = false;
 	    return;
+	  } else
+	    newState = initialState;
 
 	if (newState != currentState) {
 	  currentState = newState;
@@ -1553,7 +1570,9 @@ _$_$endif_$_();
     if (parts.length > 1) {
       _initialState = parts[0];
       _currentState = parts[1];
-    }
+    } else
+      _initialState = _currentState = "";
+
     if (parts.length > 2) {
       _fqstates = parts[2].split(",");
     }
@@ -1685,6 +1704,7 @@ function setHash(newLocation) {
     return;
 
   currentHash = newLocation;
+
   WT.history.navigate(escape(newLocation), false);
 };
 

@@ -308,7 +308,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 	|| (all && flags_.test(BIT_INITIAL_FOCUS))) {
       element.callJavaScript("setTimeout(function() {"
 			     """var f = " + jsRef() + ";"
-			     """if (f) f.focus(); }, "
+			     """if (f) try { f.focus(); } catch (e) { } }, "
 			     + (env.agentIsIElt(9) ? "500" : "10") + ");");
 
       flags_.reset(BIT_GOT_FOCUS);

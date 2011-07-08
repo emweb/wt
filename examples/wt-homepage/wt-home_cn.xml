@@ -42,7 +42,7 @@
 
 	<div id="footer_menu"> 
 	  <a href="http://www.webtoolkit.eu/wt/">首页</a>
-	  | <a href="http://www.emweb.be/?page=contact">联系我们</a>
+	  | <a href="http://www.emweb.be/contact">联系我们</a>
 	</div>
 
 	<div id="chat"></div>
@@ -706,7 +706,7 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
 </p>
 
 <p>同时，你还可以直接从Wt库作者处获得
- <a href="http://www.emweb.be/?page=services">支持与培训</a>。
+ <a href="http://www.emweb.be/services">支持与培训</a>。
 </p>
   </message>
   <message id="home.download.packages">
@@ -856,7 +856,7 @@ href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>）。</li
 <h4>支持</h4>
 
 <p>你可以直接从Wt库作者处获得
-<a href="http://www.emweb.be/?page=services">支持与培训</a>
+<a href="http://www.emweb.be/services">支持与培训</a>
 </p>
 
 <p>另外，你还可以从我们的<a
