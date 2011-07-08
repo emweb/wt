@@ -72,6 +72,8 @@ void Home::setup()
    * depending on the internal path:
    * /src -> source viewer
    * /... -> homepage
+   *
+   * FIXME: we should take into account language /cn/src ...
    */
   std::string base = internalPathNextPart("/");
 
@@ -97,6 +99,8 @@ void Home::setup()
 
       homePage_ = initHome();
       root()->addWidget(homePage_);
+
+      setLanguageFromPath();
     }
   }
 }

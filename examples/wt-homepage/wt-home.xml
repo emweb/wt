@@ -1200,7 +1200,7 @@ the "Hello World!" program in Jython in <a href="http://www.nan-tic.com/en/from-
 
 <p>
 Generic installation instructions (UNIX)
-are <a href="http://www.webtoolkit.eu/wt/doc/reference/html/Installation.html">here</a>, which
+are <a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">here</a>, which
 is also included in the source package (INSTALL or INSTALL.html).</p>
 <p>
 In addition, the <a href="http://redmine.webtoolkit.eu/wiki/wt">Wt

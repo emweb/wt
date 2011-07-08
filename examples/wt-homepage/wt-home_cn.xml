@@ -93,8 +93,8 @@
     <h4><span>重要消息</span></h4>
   </message>
 
-  <message id="source-browser">
-    查看源代码
+  <message id="source-browser-link">
+    <a href="{1}">查看源代码</a>
   </message>
 
   <message id="src-title">
@@ -270,20 +270,6 @@ Wt将最大限度的使用JavaScript和Ajax，但在Ajax功能受限时，Wt也�
 具体可进入<a href="http://www.webtoolkit.eu/widgets">Widget展示库</a>
 进行交互式体验。
 
-<ul>
-  <li>基本的HTML widgets，包括按钮、HTML锚、可选框、可选按钮、下拉菜单框、
-	各种容器组件、文件上传控制、图像、标签、文本框、按钮等等；</li>
-  <li>表单widgets，内置通过WValidator类支持客户端和服务器端验证；</li>
-  <li>复合widgets，包括日历、滚动条、树、树表、菜单、弹出菜单、就地编辑、
-	建议弹出组件、虚拟图像、面板，这些复合widgets建立在基本widgets之上，
-	并仅使用Wt公共API；</li>
-  <li>Wt还包含模态与非模态窗口（对话框和消息盒）；</li>
-  <li>内置使用文本资源集来实现I18N；</li>
-  <li>Wt提供多媒体组件（声音和视频播放）；</li>
-  <li>灵活性很大的图表widget，包括笛卡尔坐标图、饼图等，这些图表widget是
-    建立在Wt原生的绘图API和Wt的MVC架构之上的。</li>
-</ul>
-
 <h4>内置安全性</h4>
 
 <ul>
@@ -392,7 +378,7 @@ Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到�
 
 <p>
   示例源代码也以交叉链接的形式出现在
-  <a href="/wt/doc/examples/html/modules.html" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/doc/examples/html/modules.html" target="_blank">
   Wt示例doxygen文档中</a>(自动开启新窗口)。
 </p>
 
@@ -402,7 +388,7 @@ Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到�
 <h4 class="example">Hello world!</h4>
 
 <p>
-  <a href="/wt/examples/hello/hello.wt" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/hello/hello.wt" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
   </a>
 </p>
@@ -412,7 +398,7 @@ Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到�
   <li>
 	如何创建一个最小的Wt应用，如何使用<b>WRun()</b>启动web服务器，以及
     如何创建一个新的<a
-    href="/wt/doc/reference/html/classWt_1_1WApplication.html"
+    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html"
     target="_blank">WApplication</a>实例（新会话）；
   </li>
   <li>
@@ -442,19 +428,19 @@ target="_blank">Wt介绍</a>（可能有点过时）。
   虽然不是一个交互性很强的应用，但Wt的网站不仅展示了Wt如何实现高度交互的Ajax应用，
   同时说明Wt适合于内容驱动的网站建设。Wt为纯HTML会话和Ajax提供良好的URL支持，
   这允许浏览器导航、书签等操作，还有利于搜索引擎优化。另外，Wt使用<a
-  href="/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget</a>
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget</a>
   来最小化服务器端内存使用以提高应用的规模。
 </p>
 
 <p>
   导航功能由<a
-  href="/wt/doc/reference/html/classWt_1_1WMenu.html"
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenu.html"
   target="_blank">WMenu</a>和<a
-  href="/wt/doc/reference/html/classWt_1_1WTabWidget.html"
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTabWidget.html"
   target="_blank">WTabWidget</a>提供。这些widgets分享了共同的特性集。
   对于Ajax会话，他们均支持导航条目关联内容的<b>预先载入</b>和<b>滞后载入</b>，
   同时可以针对不同子条目分别<a
-  href="/wt/doc/reference/html/classWt_1_1WMenu.html#d7840197cc0caf0430792b9f4a0df60d"
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenu.html#d7840197cc0caf0430792b9f4a0df60d"
   target="_blank">指定载入模式</a>。
   需要说明的是，预先载入不会增加载入时间，因为Wt渲染引擎总是首先传输可见的
   widget和某些变化，以此来优化应答时间。不可见部分(如其他预先载入的导航子项目的内容)
@@ -468,7 +454,7 @@ target="_blank">Wt介绍</a>（可能有点过时）。
   WMenu的<b>内部路径</b>特点允许为每个菜单条目生成URL，
   这可以用于形成浏览器历史记录和书签操作。当用户通过历史记录浏览时，
   应用可以通过监听WApplication对象的
-  <a href="/wt/doc/reference/html/classWt_1_1WApplication.html#41c9bda19b28526e47e70b1b6045e7cf">
+  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html#41c9bda19b28526e47e70b1b6045e7cf">
   内部路径变化信号（internalPathChanged）</a>，直接引起菜单条目指向内容的变化。同样地，
   当用户将一个URL加入书签中，并在日后重新访问时，widgets将读取该URL初始的内部路径，并创建
   相应的内容以显示。
@@ -478,7 +464,7 @@ target="_blank">Wt介绍</a>（可能有点过时）。
   虽然说Wt占用很小的服务器CPU使用，但它确实也需要一部分内存来保持widget状态。当然，如果
   我们能够提供足够的内存（和交换空间），这将不成问题。另外，由于Wt网站部署在虚拟专用服务器
   （VPS）上，所以我们对此非常小心，并通过
-  <a href="/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget</a>
+  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget</a>
   尽可能地减小服务器资源使用。
 </p>
 </div>
@@ -489,7 +475,7 @@ target="_blank">Wt介绍</a>（可能有点过时）。
 <h4 class="example">树视图</h4>
 
 <p>
-  <a href="/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
   </a>
 </p>
@@ -498,14 +484,14 @@ target="_blank">Wt介绍</a>（可能有点过时）。
 
 <ul>
   <li>
-    该示例使用了<a href="/wt/doc/reference/html/classWt_1_1WTreeView.html"
+    该示例使用了<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html"
     target="_blank">WTreeView</a>
-    和<a href="/wt/doc/reference/html/classWt_1_1WTableView.html"
+    和<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
     target="_blank">WTableView</a>在树或表中渲染模型数据；
   </li>
   <li>
     使用了<a
-    href="/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
+    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
     target="_blank">WSortFilterProxyModel</a>
     来实现别一个模型数据的排序和过滤；
   </li>
@@ -514,19 +500,19 @@ target="_blank">Wt介绍</a>（可能有点过时）。
   </li>
   <li>
     使用了可嵌套的布局管理器（水平方向和垂直方向的
-    <a href="/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
       WBoxLayout</a>）来实现自动填充的布局；
   </li>
   <li>
     展示了如何使用模态
-    <a href="/wt/doc/reference/html/classWt_1_1WDialog.html"
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WDialog.html"
     target="_blank"> WDialog</a>显示一个简单的表单，示例中表单使用了
-    <a href="/wt/doc/reference/html/classWt_1_1WGridLayout.html"
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WGridLayout.html"
        target="_blank">WGridLayout</a>作为布局管理器；
   </li>
   <li>
     展示了如何使用基于上下文的
-    <a href="/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
       WPopupMenu</a>。
   </li>
 </ul>
@@ -537,34 +523,34 @@ target="_blank">Wt介绍</a>（可能有点过时）。
 <h4 class="example">图表</h4>
 
 <p>
-  <a href="/wt/examples/charts/charts.wt" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/charts/charts.wt" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
   </a>
 </p>
 
 <p>该示例展示了<a
-href="/wt/doc/reference/html/group__charts.html" target="_blank">Wt
+href="http://www.webtoolkit.eu/wt/doc/reference/html/group__charts.html" target="_blank">Wt
 的图表widgets</a>，这些widgets基于Wt的跨浏览器绘图API实现。
 绘图API使用了内置于浏览器的高质量图形支持（注意：不是利用传统的在服务器端
 渲染PNG/GIF图像的方法），主要依赖浏览器的内联VML、内联SVG、HTML 5画布或
 PNG图像等将绘制内容渲染于<a
-href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
 target="_blank">WPaintedWidget</a>。
 </p>
 
 <p>该示例同时展示了Wt的MVC框架，包括
-<a href="/wt/doc/reference/html/classWt_1_1WTableView.html"
+<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
 target="_blank">表视图</a>和图表所基于的
-<a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
 target="_blank">数据模型</a>。Wt采用这种方式，能够将数据模型的每个变化自动
 反应于视图的更新中。当然，数据模型可以是字符串、数值或者
-<a href="/wt/doc/reference/html/classWt_1_1WDate.html"
+<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WDate.html"
 target="_blank">日期型</a>。你可以通过编辑表视图的数据来直接观察以上动作机制。
 </p>
 
 <p>最后，我们还可以知道如何使用多项输入widgets、如何对输入的变化做出反应、
 如何设置和读取选项的内容、以及如何使用
-<a href="/wt/doc/reference/html/classWt_1_1WComboBox.html"
+<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WComboBox.html"
 target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt库实现了数据
 在浏览器端和服务器端的同步。</p>
 </div>
@@ -574,29 +560,29 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
 <h4 class="example">Git查看器</h4>
 
 <p>
-  <a href="/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
   </a>
 </p>
 
 <p>
   该示例展示了如何为Wt的MVC视图类（如
-  <a href="/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
   WTreeView</a>）实现定制数据模型。
 </p>
 <p>
   Wt提供了
-  <a href="/wt/doc/reference/html/classWt_1_1WStandardItemModel"
+  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStandardItemModel"
   target="_blank">WStandardItemModel</a>，该类可以被填充以数据
   （如由数据库获得），其缺点是所有数据存储在内存中且须提前获取。但是，
-  通过重新实现<a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
+  通过重新实现<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
   target="_blank">WAbstractItemModel</a>，我们可以实现另一类数据模型，即
   仅在需要时获取数据，这就提供了一种数据载入与数据存储的平衡。
   该示例中，我们实现了树模型，该树可在<a href="http://git-scm.com/">
   git仓库</a>的修改中导航。该模型将文件夹节点标识符滞后存储在内存中，
   以生成每个文件夹的唯一ID。最初，我们认为可以使用SHA-1 ID，但具有相同
   内容、在git仓库不同位置的文件夹却具有相同的SHA-1 ID，而我们又想采用
-  不同的<a href="/wt/doc/reference/html/classWt_1_1WModelIndex.html"
+  不同的<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WModelIndex.html"
   target="_blank">模型索引</a>来表达，因此采用了上面的方法。
 </p>
 </div>
@@ -607,7 +593,7 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
 <h4 class="example">邮件编辑器</h4>
 
 <p>
-  <a href="/wt/examples/composer/composer.wt" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/composer/composer.wt" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
   </a>
 </p>
@@ -620,9 +606,9 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
     <li>
 	  其中<i>ContactSuggestions</i>类提供了“收件人”、“抄送”、“密送”地址的
 	  自动补全功能，该类继承自
-      <a href="/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
+      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
 	  target="_blank">WSuggestionPopup</a>类，此类使用了诸多
-      <a href="/wt/doc/reference/html/classWt_1_1JSlot.html"
+      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1JSlot.html"
 	  target="_blank">JSlot</a>对象。对这些槽，客户端JavaScript事件处理代码
 	  由开发者自定义的JavaScript决定（这不同于无状态槽中客户端JavaScript
 	  代码由第一次调用时“学习”得到的方式）。Wt采用这种方式，弹出的可能适合
@@ -631,7 +617,7 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
     </li>
     <li>
       其中的<i>AttachmentEdit</i>展示了
-      <a href="/wt/doc/reference/html/classWt_1_1WFileUpload.html"
+      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileUpload.html"
 	  target="_blank">WFileUpload</a>的使用，该类允许
       <b>文件的异步传输</b>，也就是说我们可以实现编辑邮件内容的同时上传附件。
     </li>
@@ -650,7 +636,7 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
 <h4 class="example">简单聊天示例</h4>
 
 <p>
-  <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
   </a>
 </p>
@@ -681,7 +667,7 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
 <h4 class="example">Widget展示库</h4>
 
 <p>
-  <a href="/widgets" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/widgets" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>前往widget展示库 
   </a>
 </p>
@@ -723,7 +709,14 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
  <a href="http://www.emweb.be/?page=services">支持与培训</a>。
 </p>
   </message>
-  <message id="home.download.requirements">
+  <message id="home.download.packages">
+    <h4><span>可用版本</span></h4>
+  </message>
+  <message id="home.download.version"><b>版本</b></message>
+  <message id="home.download.date"><b>日期</b></message>
+  <message id="home.download.description"><b>描述</b></message>
+
+  <message id="home.download.other">
 
 <h4>Wt库安装器：winst <span class="emph">(new!)</span></h4>
 
@@ -767,14 +760,14 @@ Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>w
 下面的包是可选的，但如果能有可以体验到更多的Wt特性：
 <ul>
   <li><a href="http://www.postgresql.org/">PostgreSQL</a>：如果安装上，那么
-    <a href="/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
-    连接器</a>将会为实现ORM库（<a href="/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>）
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
+    连接器</a>将会为实现ORM库（<a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>）
 	而被编译；</li>
   <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>：如果安装上，那么
-	<a href="/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>绘图设备
+	<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>绘图设备
 	将被编译，这样就能够将图片整合进PDF文件或作为PDF文件处理；</li>
   <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>：如果安装上，那么
-    <a href="/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
 	绘图设备将被编译，这样就能够在光栅扫描图像（PNG或GIF）上绘图了；</li>
 </ul>
 
@@ -812,12 +805,11 @@ Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>w
 </ul>
 
 你可以依照<a
-href="/wt/doc/reference/html/Installation.html">安装指南
+href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">安装指南
 </a>编译Wt并运行相关示例，或者如果你的运行平台包含在列表
 <a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装指南</a>
 中的话，也可参照执行。
-  </message>
-  <message id="home.download.cvs">
+
 <h4>Git仓库</h4>
 
 <p>如果你希望跟踪最新的变化，或者参与到Wt的开发中，你可能希望使用git仓库。</p>
@@ -829,12 +821,6 @@ href="/wt/doc/reference/html/Installation.html">安装指南
 </div>
 </p>
   </message>
-  <message id="home.download.packages">
-    <h4><span>可用版本</span></h4>
-  </message>
-  <message id="home.download.version"><b>版本</b></message>
-  <message id="home.download.date"><b>日期</b></message>
-  <message id="home.download.description"><b>描述</b></message>
 
   <message id="home.community">
 <h3><span>社区</span></h3>
@@ -989,7 +975,7 @@ href="http://www.nsa.be/index.php/eng/Blog/Using-Jwt-yes-it-s-a-J-with-Clojure">
 
 <p>
 通用安装指南(UNIX)请点击
-<a href="/wt/doc/reference/html/Installation.html">此处</a>，此文档也可
+<a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">此处</a>，此文档也可
 在源文件包中找到，分别为INSTALL或INSTALL.html文件。</p>
 <p>
 另外，<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> 还有一部分涉及到
@@ -1000,7 +986,7 @@ href="http://www.nsa.be/index.php/eng/Blog/Using-Jwt-yes-it-s-a-J-with-Clojure">
 
 <ul>
 <li>请参考我们的<a
-href="/doc/Wt-WhitePaper.pdf">白皮书</a>以了解使用Wt较之于其他传统web开发框架的好处。
+href="http://www.webtoolkit.eu/doc/Wt-WhitePaper.pdf">白皮书</a>以了解使用Wt较之于其他传统web开发框架的好处。
 </li>
 
 <li>Dr Dobbs Journal上有一篇很好的<a href="http://www.ddj.com/cpp/206401952">
@@ -1011,22 +997,22 @@ href="/doc/Wt-WhitePaper.pdf">白皮书</a>以了解使用Wt较之于其他传�
 </a>，这是一篇很好的入门文章。</li>
 
 <li>Software Developers Journal上有一篇入门性文章（
-   <a href="/wt/doc/tutorial/wt-sdj.xhtml">在线阅读</a>，
-   <a href="/wt/doc/tutorial/wt-sdj.pdf">PDF版</a>）
+   <a href="http://www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.xhtml">在线阅读</a>，
+   <a href="http://www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.pdf">PDF版</a>）
    （写于2006年4月，稍微有点过时），
    这篇入门文章使用了Hangman猜词游戏示例的代码（也可参看源文件）进行介绍。
 </li>
 
 <li>Victor Venkman所写的
 <a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">Wt介绍</a>中，对
-<a href="/wt/examples/">hello world 示例</a>进行了评测。
+<a href="#/wt/examples/">hello world 示例</a>进行了评测。
 </li>
 
 </ul>
 
 <h4>参考手册</h4>
 
-<p><a href="/wt/doc/reference/html/index.html"
+<p><a href="http://www.webtoolkit.eu/wt/doc/reference/html/index.html"
 target="_blank"> Wt参考手册</a>（在新窗口中开启）直接由doxygen从源码中生成，
 手册中也包含了关于树表示例的入门教程，特别是针对无状态槽的实现机制进行了
 说明，另外还强调了Wt允许客户端代码在事件处理中可进一步优化的一些高级特性。
@@ -1034,7 +1020,7 @@ target="_blank"> Wt参考手册</a>（在新窗口中开启）直接由doxygen�
 
 <h4>注释性示例</h4>
 
-<p>示例的源码级文档也已经制作完成，<a href="/wt/doc/examples/html/modules.html"
+<p>示例的源码级文档也已经制作完成，<a href="http://www.webtoolkit.eu/wt/doc/examples/html/modules.html"
 target="_blank">在此查看</a>（新窗口中打开）。</p>
 
 <h4>Wiki</h4>
@@ -1063,7 +1049,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下 
-	<a href="http://www.webtoolkit.eu/wt/examples/hello_world">
+	<a href="#/cn/examples/hello_world">
 	  Hello world</a>示例源代码。
       </p>
     </div>
@@ -1077,7 +1063,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下
-	<a href="http://www.webtoolkit.eu/wt/examples/charts">
+	<a href="#/cn/examples/charts">
 	  图表</a>示例源代码。
       </p>
     </div>
@@ -1091,7 +1077,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下
-	<a href="http://www.webtoolkit.eu/wt/examples/treeview">
+	<a href="#/cn/examples/treeview">
 	  树视图</a>示例源代码。
       </p>
     </div>
@@ -1105,7 +1091,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下
-	<a href="http://www.webtoolkit.eu/wt/examples/composer">
+	<a href="#/cn/examples/composer">
 	  邮件编辑器</a>示例源代码。
       </p>
     </div>
@@ -1119,7 +1105,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下
-	<a href="http://www.webtoolkit.eu/wt/examples/wt-homepage">
+	<a href="#/cn/examples/wt-homepage">
 	  Wt网站</a>示例源代码。
       </p>
     </div>
@@ -1133,7 +1119,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下
-	<a href="http://www.webtoolkit.eu/wt/examples/gitmodel">
+	<a href="#/cn/examples/gitmodel">
 	  Git查看器</a>示例源代码。
       </p>
     </div>
@@ -1147,7 +1133,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下
-	<a href="http://www.webtoolkit.eu/wt/examples/simplechat">
+	<a href="#/cn/examples/simplechat">
 	  简单聊天</a>示例源代码。
       </p>
     </div>
@@ -1161,7 +1147,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
       <p>
 	浏览以下
-	<a href="http://www.webtoolkit.eu/wt/examples/widgetgallery">
+	<a href="#/cn/examples/widgetgallery">
 	  Widget展示库</a>示例源代码。
       </p>
     </div>
