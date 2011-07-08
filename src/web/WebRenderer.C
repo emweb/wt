@@ -1430,6 +1430,9 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 
   collectJS(&out);
 
+  // TODO optimize this so that only signals which require an update
+  //      are processed instead of looping through all signals.
+
   WApplication::SignalMap& ss = session_.app()->exposedSignals();
 
   for (WApplication::SignalMap::iterator i = ss.begin();

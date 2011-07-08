@@ -359,12 +359,16 @@ WWidget *Home::quoteForm()
   WContainerWidget *result = new WContainerWidget();
   result->setStyleClass("quote");
 
-  WPushButton *quoteButton = new WPushButton(tr("quote.request"), result);
+  WTemplate *requestTemplate = new WTemplate(tr("quote.request"), result);
+
+  WPushButton *quoteButton = new WPushButton(tr("quote.requestbutton"));
+  requestTemplate->bindWidget("button", quoteButton);
+
   WWidget *quoteForm = createQuoteForm();
   result->addWidget(quoteForm);
 
   quoteButton->clicked().connect(quoteForm, &WWidget::show);
-  quoteButton->clicked().connect(quoteButton, &WWidget::hide);
+  quoteButton->clicked().connect(requestTemplate, &WWidget::hide);
 
   quoteForm->hide();
 
@@ -405,8 +409,10 @@ void Home::googleAnalyticsLogger()
   std::string googleCmd = 
     "if (window.pageTracker) {"
     """try {"
+    ""  "setTimeout(function() {"
     ""  "window.pageTracker._trackPageview(\""
     + environment().deploymentPath() + internalPath() + "\");"
+    ""  "}, 1000);"
     """} catch (e) { }"
     "}";
 

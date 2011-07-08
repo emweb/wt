@@ -417,7 +417,7 @@ private:
   struct typecomp {
     bool operator() (const const_typeinfo_ptr& lhs, const const_typeinfo_ptr& rhs) const 
 	{
-		return lhs->before(*rhs);
+	  return lhs->before(*rhs) != 0;
 	}
   };
   

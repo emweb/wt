@@ -1312,16 +1312,22 @@ if (html5History) {
     register: function (initialState, onStateChange) {
       currentState = initialState;
       cb = onStateChange;
+      var initialLength = window.history.length;
 
       function onPopState(event) {
 	var newState = event.state;
 
 	/*
-	 * A null state reflects the initial state:
+	 * A null state event is given onload, but we may already have
+	 * pushed another state... this is simply silly.
+	 *
 	 * see http://html5.org/tools/web-apps-tracker?from=5345&to=5346
 	 */
 	if (!newState)
-	  newState = initialState;
+	  if (window.history.length == initialLength)
+	    newState = initialState;
+	  else
+	    return;
 
 	if (newState != currentState) {
 	  currentState = newState;

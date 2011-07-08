@@ -860,10 +860,22 @@ version released during one year.
 <p>
   If you are on Ubuntu, you can install a reasonably recent version of
   Wt from Pau Garcia's PPA repository:
-  <div class="fragment">
-    <pre class="fragment">$ sudo add-apt-repository ppa:pgquiles/wt</pre>
-  </div>
 </p>
+
+<div class="fragment">
+  <pre class="fragment">$ sudo add-apt-repository ppa:pgquiles/wt
+$ sudo apt-get update
+$ sudo apt-get install witty witty-dev witty-doc witty-examples</pre>
+</div>
+
+<p>
+  The last package (<tt>witty-examples</tt>) installs the examples
+  in <tt>/usr/lib/Wt/examples</tt>. You can run each of them like this:
+</p>
+
+<div class="fragment">
+  <pre class="fragment">$ /usr/lib/Wt/examples/hello/hello</pre>
+</div>
 
 <p>Older releases are still available at
 <a href="http://sourceforge.net/project/showfiles.php?group_id=153710#files">sourceforge.net</a>.
@@ -983,7 +995,7 @@ the browser:</p>
 </ul>
 
 Follow the <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/Installation.html">Installation
+href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">Installation
 instructions</a> to build Wt and run the examples, or see if your
 platform is listed in the <a
 href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">platform specific
