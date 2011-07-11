@@ -2,6 +2,8 @@
 	* WFileUpload, WApplication: fix maximum request size and fileTooLarge()
 	bugs (#794)
 
+	* WTestEnvironment: add methods to test reentrant eventloops (#711)
+
 08-07-2011:
 	* Wt 3.1.10 !
 

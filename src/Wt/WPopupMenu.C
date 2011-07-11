@@ -221,14 +221,21 @@ WPopupMenuItem *WPopupMenu::exec(const WPoint& p)
   if (recursiveEventLoop_)
     throw WtException("WPopupMenu::exec(): already in recursive event loop.");
 
-  WebSession *session = WApplication::instance()->session();
+  WApplication *app = WApplication::instance();
   recursiveEventLoop_ = true;
 
   popup(p);
-  do {
-    session->doRecursiveEventLoop();
-  } while (recursiveEventLoop_);
- 
+
+  if (app->environment().isTest()) {
+    app->environment().popupExecuted().emit(this);
+    if (recursiveEventLoop_)
+      throw WtException("Test case must close popup menu.");
+  } else {
+    do {
+      app->session()->doRecursiveEventLoop();
+    } while (recursiveEventLoop_);
+  }
+
   return result_;
 }
 

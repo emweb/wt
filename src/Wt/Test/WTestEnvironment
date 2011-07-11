@@ -234,10 +234,38 @@ public:
    */
   void setContentType(ContentType contentType);
 
+  /** \brief Signal used to test a dialog/messagebox reentrant event
+   *         loop.
+   *
+   * This signal is emitted when a dialog or message box is being
+   * executed using WDialog::exec() or WMessageBox::exec(), and allows
+   * you to interact with the dialog contents.
+   *
+   * In the end, the dialog should be closed while executing this
+   * signal, (calling done() directly or indirectly) so that the main
+   * event loop can continue.
+   */
+  virtual Signal<WDialog *>& dialogExecuted() const;
+
+  /** \brief Signal used to test a popup menu reentrant event loop.
+   *
+   * This signal is emitted when a popup menu is being executed using
+   * WPopupMenu::exec(), and allows you to interact with the popup
+   * menu (i.e. to select an option).
+   *
+   * \sa dialogExecuted()
+   */
+  virtual Signal<WPopupMenu *>& popupExecuted() const;
+
 private:
   Configuration *configuration_;
   boost::shared_ptr<WebSession> theSession_;
   WebController *controller_;
+
+  mutable Signal<WDialog *> dialogExecuted_;
+  mutable Signal<WPopupMenu *> popupExecuted_;
+
+  virtual bool isTest() const;
 
   void init(EntryPointType type);
 };

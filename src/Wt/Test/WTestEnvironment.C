@@ -173,5 +173,20 @@ void WTestEnvironment::setUserAgent(const std::string& userAgent)
   WEnvironment::setUserAgent(userAgent);
 }
 
+bool WTestEnvironment::isTest() const
+{
+  return true;
+}
+
+Signal<WDialog *>& WTestEnvironment::dialogExecuted() const
+{
+  return dialogExecuted_;
+}
+
+Signal<WPopupMenu *>& WTestEnvironment::popupExecuted() const
+{
+  return popupExecuted_;
+}
+
   }
 }

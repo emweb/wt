@@ -1364,7 +1364,8 @@ void WApplication::processEvents()
   doJavaScript("setTimeout(\"" + javaScriptClass_
 	       + "._p_.update(null,'none',null,false);\",0);");
 
-  session_->doRecursiveEventLoop();
+  if (!environment().isTest())
+    session_->doRecursiveEventLoop();
 }
 
 bool WApplication::require(const std::string& uri, const std::string& symbol)

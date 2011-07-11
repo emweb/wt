@@ -13,6 +13,7 @@
 
 #include <Wt/WDllDefs.h>
 #include <Wt/Http/Request>
+#include <Wt/WSignal>
 
 namespace Wt {
 
@@ -567,6 +568,10 @@ public:
   bool hashInternalPaths() const { return hashInternalPaths_; }
 
   bool supportsCss3Animations() const;
+
+  virtual Signal<WDialog *>& dialogExecuted() const;
+  virtual Signal<WPopupMenu *>& popupExecuted() const;
+  virtual bool isTest() const;
 
 protected:
   WebSession *session_;

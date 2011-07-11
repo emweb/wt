@@ -14,6 +14,7 @@
 #include "WebController.h"
 #include "Configuration.h"
 #include "Utils.h"
+#include "WtException.h"
 
 #include <stdexcept>
 #include <boost/lexical_cast.hpp>
@@ -379,6 +380,21 @@ void WEnvironment::parseCookies(const std::string& str)
       cookies_[cookieName] = cookieValue;
     }
   }
+}
+
+bool WEnvironment::isTest() const
+{
+  return false;
+}
+
+Signal<WDialog *>& WEnvironment::dialogExecuted() const
+{
+  throw WtException("Internal error");
+}
+
+Signal<WPopupMenu *>& WEnvironment::popupExecuted() const
+{
+  throw WtException("Internal error");
 }
 
 }

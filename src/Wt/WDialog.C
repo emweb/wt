@@ -195,10 +195,18 @@ WDialog::DialogCode WDialog::exec(const WAnimation& animation)
 		      "enabled.");
 #endif
 
+  WApplication *app = WApplication::instance();
   recursiveEventLoop_ = true;
-  do {
-    WApplication::instance()->session()->doRecursiveEventLoop();
-  } while (recursiveEventLoop_);
+
+  if (app->environment().isTest()) {
+    app->environment().dialogExecuted().emit(this);
+    if (recursiveEventLoop_)
+      throw WtException("Test case must close dialog");
+  } else {
+    do {
+      app->session()->doRecursiveEventLoop();
+    } while (recursiveEventLoop_);
+  }
 
   hide();
 
