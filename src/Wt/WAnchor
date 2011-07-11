@@ -220,6 +220,20 @@ public:
    */
   void setWordWrap(bool wordWrap);
 
+  /*! \brief Configures the text format.
+   *
+   * The default text format is XHTMLText.
+   *
+   * \sa WText::setTextFormat()
+   */
+  void setTextFormat(TextFormat format);
+
+  /*! \brief Returns the text format.
+   *
+   * \sa setTextFormat()
+   */
+  TextFormat textFormat() const;
+
   /*! \brief Returns whether the widget may break lines.
    *
    * \sa setWordWrap(bool)

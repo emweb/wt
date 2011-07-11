@@ -83,6 +83,8 @@ void WPopupMenuItem::load()
 {
   WCompositeWidget::load();
 
+  impl_->mouseWentUp().connect(topLevelMenu(), &WPopupMenu::hide);
+
   //impl_->mouseWentOver().connect(parentMenu(), &WPopupMenuItem::show);
   impl_->mouseWentOver().connect(this, &WPopupMenuItem::renderOver);
   impl_->mouseWentOver().setNotExposed();

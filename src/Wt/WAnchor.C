@@ -202,6 +202,19 @@ bool WAnchor::wordWrap() const
   return text_ ? text_->wordWrap() : true;
 }
 
+void WAnchor::setTextFormat(TextFormat textFormat)
+{
+  if (!text_)
+    text_ = new WText(this);
+
+  text_->setTextFormat(textFormat);
+}
+
+TextFormat WAnchor::textFormat() const
+{
+  return text_ ? text_->textFormat() : XHTMLText;
+}
+
 void WAnchor::setImage(WImage *image)
 {
   delete image_;
