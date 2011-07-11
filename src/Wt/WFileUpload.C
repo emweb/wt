@@ -173,6 +173,7 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
   if (dataExceeded) {
     if (uploading_) {
       uploading_ = false;
+      tooLargeSize_ = dataExceeded;
       handleFileTooLargeImpl();
 
       WApplication *app = WApplication::instance();
@@ -408,7 +409,7 @@ void WFileUpload::setFiles(const std::vector<Http::UploadedFile>& files)
       uploadedFiles_.push_back(files[i]);
 }
 
-void WFileUpload::setRequestTooLarge(int size)
+void WFileUpload::setRequestTooLarge(::int64_t size)
 {
   fileTooLarge().emit(size);
 }

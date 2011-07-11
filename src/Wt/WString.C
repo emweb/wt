@@ -351,6 +351,15 @@ WString& WString::arg(int value)
   return *this;
 }
 
+WString& WString::arg(::int64_t value)
+{
+  createImpl();
+
+  impl_->arguments_.push_back(boost::lexical_cast<std::string>(value));
+
+  return *this;
+}
+
 WString& WString::arg(double value)
 {
   createImpl();

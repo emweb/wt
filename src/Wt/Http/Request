@@ -215,7 +215,7 @@ public:
    *
    * \sa WApplication::requestTooLarge
    */
-  int tooLarge() const;
+  ::int64_t tooLarge() const;
 
   /*! \brief Returns a continuation object.
    *

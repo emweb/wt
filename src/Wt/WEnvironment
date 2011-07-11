@@ -576,6 +576,7 @@ protected:
   UserAgent   agent_;
   double      dpiScale_;
   ContentType contentType_;
+  std::string queryString_;
 
   Http::ParameterMap parameters_;
   CookieMap   cookies_;

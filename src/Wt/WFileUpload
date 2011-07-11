@@ -236,7 +236,7 @@ public:
    * \sa uploaded()
    * \sa WApplication::requestTooLarge()
    */
-  Signal<int>& fileTooLarge() { return fileTooLarge_; }
+  Signal< ::int64_t >& fileTooLarge() { return fileTooLarge_; }
 
   /*! \brief %Signal emitted when the user selected a new file.
    *
@@ -313,7 +313,7 @@ private:
   bool uploading_;
   bool multiple_;
 
-  Signal<int> fileTooLarge_;
+  Signal< ::int64_t > fileTooLarge_;
 
   Signal< ::uint64_t, ::uint64_t > dataReceived_;
 
@@ -324,7 +324,7 @@ private:
 
   void onData(::uint64_t current, ::uint64_t total);
 
-  virtual void setRequestTooLarge(int size);
+  virtual void setRequestTooLarge(::int64_t size);
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);

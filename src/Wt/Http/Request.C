@@ -149,7 +149,7 @@ std::string Request::headerValue(const std::string& field) const
   return request_ ? request_->headerValue(field) : std::string();
 }
 
-int Request::tooLarge() const
+::int64_t Request::tooLarge() const
 {
   return request_ ? request_->postDataExceeded() : 0;
 }

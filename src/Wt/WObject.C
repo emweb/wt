@@ -144,7 +144,7 @@ const std::string WObject::id() const
 void WObject::setFormData(const FormData& formData)
 { }
 
-void WObject::setRequestTooLarge(int size)
+void WObject::setRequestTooLarge(::int64_t size)
 { }
 
 void WObject::signalConnectionsChanged()

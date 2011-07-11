@@ -321,7 +321,7 @@ protected:
   };
 
   virtual void setFormData(const FormData& formData);
-  virtual void setRequestTooLarge(int size);
+  virtual void setRequestTooLarge(::int64_t size);
 
   /*! \brief On-demand stateless slot implementation.
    *

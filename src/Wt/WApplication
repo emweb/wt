@@ -1513,7 +1513,10 @@ public:
    */
   bool isQuited() const { return quited_; }
 
-  /*! \brief Returns the current maximum size of a request to the application.
+  /*! \brief Returns the current maximum size of a request to the
+   *         application.
+   *
+   * The returned value is the maximum request size in bytes.
    *
    * \if cpp
    * The maximum request size is configured in the configuration file,

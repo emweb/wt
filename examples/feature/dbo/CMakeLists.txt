@@ -25,6 +25,6 @@ TARGET_LINK_LIBRARIES(dbo-tutorial6 ${tutorial_libs})
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
 IF(INSTALL_EXAMPLES)
-  INSTALL(TARGETS dbo-tutorial1 dbo-tutorial2 dbo-tutorial3 dbo-tutorial4 dbo-tutorial5
+  INSTALL(TARGETS dbo-tutorial1 dbo-tutorial2 dbo-tutorial3 dbo-tutorial4 dbo-tutorial5 dbo-tutorial6
 	    DESTINATION ${CMAKE_INSTALL_PREFIX}/${EXAMPLES_DESTINATION}/feature/dbo/)
 ENDIF(INSTALL_EXAMPLES)

@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include <Wt/WAnchor>
+#include <Wt/WApplication>
 #include <Wt/WCheckBox>
 #include <Wt/WCssDecorationStyle>
 #include <Wt/WFileResource>
@@ -174,9 +175,11 @@ void AttachmentEdit::remove()
   composer_->removeAttachment(this);
 }
 
-void AttachmentEdit::fileTooLarge(int size)
+void AttachmentEdit::fileTooLarge(::int64_t size)
 {
-  error_->setText(tr("msg.file-too-large"));
+  error_->setText(tr("msg.file-too-large")
+		  .arg(size / 1024)
+		  .arg(WApplication::instance()->maximumRequestSize() / 1024));
   uploadFailed_ = true;
 
   /*

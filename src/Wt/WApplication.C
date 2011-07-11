@@ -977,7 +977,7 @@ WApplication *WApplication::instance()
 
 ::int64_t WApplication::maximumRequestSize() const
 {
-  return session_->controller()->configuration().maxRequestSize() * 1024;
+  return session_->controller()->configuration().maxRequestSize();
 }
 
 std::string WApplication::docType() const

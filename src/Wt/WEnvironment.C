@@ -63,6 +63,7 @@ void WEnvironment::init(const WebRequest& request)
 {
   Configuration& conf = session_->controller()->configuration();
 
+  queryString_ = request.queryString();
   parameters_ = request.getParameterMap();
 
   urlScheme_       = request.urlScheme();
@@ -336,7 +337,10 @@ const std::string WEnvironment::headerValue(const std::string& name) const
 
 std::string WEnvironment::getCgiValue(const std::string& varName) const
 {
-  return session_->getCgiValue(varName);
+  if (varName == "QUERY_STRING")
+    return queryString_;
+  else
+    return session_->getCgiValue(varName);
 }
 
 #ifndef WT_TARGET_JAVA

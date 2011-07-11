@@ -99,7 +99,7 @@ private:
   void uploaded();
 
   //! Slot triggered when the WFileUpload received an oversized file.
-  void fileTooLarge(int size);
+  void fileTooLarge(::int64_t size);
 
   //! Slot triggered when the users wishes to remove this attachment edit.
   void remove();
