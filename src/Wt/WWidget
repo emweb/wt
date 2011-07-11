@@ -844,8 +844,7 @@ public:
 
   /*! \brief Hides the widget using an animation.
    *
-   * To hide the widget, the animation is replayed in reverse. A \p
-   * duration can be specified in milliseconds.
+   * To hide the widget, the animation is replayed in reverse.
    *
    * \sa setHidden()
    */
@@ -858,8 +857,6 @@ public:
   void show();
 
   /*! \brief Shows the widget using an animation.
-   *
-   * A \p duration can be specified in milliseconds.
    *
    * \sa setHidden()
    */

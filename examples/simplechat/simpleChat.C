@@ -81,6 +81,7 @@ ChatWidget::ChatWidget(const WEnvironment& env, SimpleChatServer& server)
   : WApplication(env),
     login_(this, "login")
 {
+  setCssTheme("");
   useStyleSheet("chatwidget.css");
   useStyleSheet("chatwidget_ie6.css", "lt IE 7");
 
