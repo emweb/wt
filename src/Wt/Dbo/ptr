@@ -23,7 +23,7 @@ namespace Wt {
 class Session;
 class SqlStatement;
 class SaveBaseAction;
-
+template <class C> class collection;
 
 namespace Impl {
 
@@ -705,6 +705,7 @@ private:
   friend class FromAnyAction;
   friend class SetReciproceAction;
   friend class Dbo<C>;
+  template <class D> friend class collection;
 
   friend std::ostream& operator<< <> (std::ostream& o, const ptr<C>& ptr);
 };

@@ -221,7 +221,7 @@ Query< ptr<C>, BindStrategy > Session::find(const std::string& where)
   initSchema();
 
   return Query< ptr<C>, BindStrategy >
-    (*this, Impl::quoteSchemaDot(tableName<C>()), where);
+    (*this, '"' + Impl::quoteSchemaDot(tableName<C>()) + '"', where);
 }
 
 template <class Result>

@@ -304,6 +304,8 @@ void Session::prepareStatements(MappingInfo *mapping)
     idCondition
       += std::string() + "\"" + mapping->surrogateIdFieldName + "\" = ?";
 
+  mapping->idCondition = idCondition;
+
   sql << idCondition;
 
   if (mapping->versionFieldName)

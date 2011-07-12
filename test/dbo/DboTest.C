@@ -456,6 +456,14 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     BOOST_REQUIRE(b1->csManyToMany.size() == 1);
     BOOST_REQUIRE(c1->bsManyToMany.size() == 1);
 
+    BOOST_REQUIRE(c1->bsManyToMany.count(b1) == 1);
+    BOOST_REQUIRE(c1->bsManyToMany.count(b2) == 0);
+    BOOST_REQUIRE(c1->bsManyToMany.count(b3) == 0);
+
+    BOOST_REQUIRE(b1->csManyToMany.count(c1) == 1);
+    BOOST_REQUIRE(b1->csManyToMany.count(c2) == 0);
+    BOOST_REQUIRE(b1->csManyToMany.count(c3) == 0);
+
     b1.modify()->csManyToMany.insert(c2);
 
     BOOST_REQUIRE(b1->csManyToMany.size() == 2);
@@ -834,6 +842,11 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
     BOOST_REQUIRE(d2->csManyToMany.size() == 1);
     BOOST_REQUIRE(c1->dsManyToMany.size() == 1);
 
+    BOOST_REQUIRE(d2->csManyToMany.count(c1) == 1);
+    std::cerr << "Failing now" << std::endl;
+
+    BOOST_REQUIRE(c1->dsManyToMany.count(d2) == 1);
+
     d2.modify()->csManyToMany.insert(c2);
 
     BOOST_REQUIRE(d2->csManyToMany.size() == 2);
@@ -1065,6 +1078,7 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
     b.modify()->asManyToOne.insert(a);
 
     BOOST_REQUIRE(a->b == b);
+    BOOST_REQUIRE(b->asManyToOne.count(a) == 1);
 
     b.modify()->asManyToOne.erase(a);
 

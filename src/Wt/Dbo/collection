@@ -252,18 +252,26 @@ namespace Wt {
     ~collection();
 
     /*! \brief Returns an iterator to the begin of the %collection.
+     *
+     * \sa end()
      */
     iterator begin();
 
     /*! \brief Returns an iterator to the end of the %collection.
+     *
+     * \sa begin()
      */
     iterator end();
 
     /*! \brief Returns a const iterator to the begin of the %collection.
+     *
+     * \sa end()
      */
     const_iterator begin() const;
 
     /*! \brief Returns a const iterator to the end of the %collection.
+     *
+     * \sa begin()
      */
     const_iterator end() const;
 
@@ -280,9 +288,9 @@ namespace Wt {
 
     /*! \brief Inserts an object.
      *
-     * This is only implemented for %collections that are involved in
-     * a ManyToOne or ManyToMany relation, and not for collections that
-     * are used to iterated the result of a query.
+     * \note This is only implemented for %collections that are
+     *       involved in a ManyToOne or ManyToMany relation, and not for
+     *       collections that are used to iterated the result of a query.
      *
      * \sa erase()
      */
@@ -290,13 +298,28 @@ namespace Wt {
 
     /*! \brief Removes an object.
      *
-     * This is only implemented for %collections that are involved in
-     * a ManyToOne or ManyToMany relation, and not for collections that
-     * are used to iterated the result of a query.
+     * \note This is only implemented for %collections that are
+     *       involved in a ManyToOne or ManyToMany relation, and not for
+     *       collections that are used to iterated the result of a query.
      *
      * \sa insert()
      */
     void erase(C c);
+
+    /*! \brief Returns the whether the collection contains an object.
+     *
+     * This creates a suitable query that checks whether the collection
+     * contains ptr<X> objects (without getting the entire collection from
+     * the database). The returned value is the number of times the collection
+     * contains the object (0 or 1).
+     *
+     * \sa find()
+     *
+     * \note This is (currently) only implemented for %collections that are
+     *       involved in a ManyToOne or ManyToMany relation, and not for
+     *       collections that are used to iterate the result of a query.
+     */
+    int count(C c) const;
 
     /*! \brief Returns the session to which this %collection is bound.
      */
@@ -307,8 +330,11 @@ namespace Wt {
      * Returns the query that backs the collection. This can be used to
      * search for a subset or to browse the results in a particular order.
      *
-     * \note This only works for a collection that represents the many-side
-     *       of a relation (i.e. for which hasMany() is called).
+     * \sa count()
+     *
+     * \note This is (currently) only implemented for %collections that are
+     *       involved in a ManyToOne or ManyToMany relation, and not for
+     *       collections that are used to iterate the result of a query.
      */
     Query<C, DynamicBinding> find() const;
 

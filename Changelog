@@ -1,3 +1,7 @@
+12-07-2011:
+	* collection: implemented count() method for relational
+	collections (#882)
+
 11-07-2011:
 	* WFileUpload, WApplication: fix maximum request size and fileTooLarge()
 	bugs (#794)

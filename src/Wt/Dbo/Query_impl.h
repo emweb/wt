@@ -77,7 +77,8 @@ QueryBase<Result>::QueryBase(Session& session, const std::string& table,
 			     const std::string& where)
   : session_(&session)
 {
-  sql_ = "from \"" + table + "\" " + where;
+  sql_ = "from " + table + ' ' + where;
+
   simpleCount_ = true;
 }
 

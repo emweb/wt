@@ -385,6 +385,8 @@ private:
     std::string naturalIdFieldName; // for non-auto generated id
     int naturalIdFieldSize;         // for non-auto generated id
 
+    std::string idCondition;
+
     std::vector<FieldInfo> fields;
     std::vector<SetInfo> sets;
 

@@ -402,7 +402,7 @@ Query<C, DynamicBinding> collection<C>::find() const
     const std::string *sql = data_.relation.sql;
     std::size_t f = Impl::ifind(*sql, " from ");
     std::size_t w = Impl::ifind(*sql, " where ");
-    std::string tableName = sql->substr(f + 7, w - f - 8);
+    std::string tableName = sql->substr(f + 6, w - f - 6);
 
     Query<C, DynamicBinding> result = Query<C, DynamicBinding>
       (*session_, tableName, "").where(sql->substr(w + 7));
@@ -465,6 +465,28 @@ void collection<C>::erase(C c)
     SetReciproceAction setPtr(relation.setInfo->joinName, 0);
     setPtr.visit(*c.modify());
   }
+}
+
+template <class C>
+int collection<C>::count(C c) const
+{
+  if (!session_)
+    throw std::runtime_error("collection<C>::count() only for a collection "
+			     "that is bound to a session.");
+
+  session_->flush();
+
+  if (type_ != RelationCollection)
+    throw std::runtime_error("collection<C>::count() only for a relational "
+			     "relation.");
+
+  const RelationData& relation = data_.relation;
+  Session::MappingInfo *mapping
+    = session_->getMapping(relation.setInfo->tableName); 
+
+  Query<C, DynamicBinding> q = find().where(mapping->idCondition);
+  c.obj()->bindId(q.parameters_);
+  return q.resultList().size();
 }
 
 template <class C>
