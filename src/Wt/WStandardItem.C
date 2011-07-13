@@ -401,32 +401,37 @@ void WStandardItem::insertColumn(int column,
 {
   unsigned rc = rowCount();
 
-  if (!columns_)
-    columns_ = new ColumnList();
-  else {
+  if (!columns_) {
+    setRowCount(items.size());
+
+    (*columns_)[0] = items;
+    for (unsigned i = 0; i < items.size(); ++i)
+      if (items[i])
+	adoptChild(i, column, items[i]);
+  } else {
     if (rc < items.size()) {
       setRowCount(items.size());
       rc = items.size();
     }
+
+    if (model_)
+      model_->beginInsertColumns(index(), column, column);
+
+    columns_->insert(columns_->begin() + column, items);
+    for (unsigned i = 0; i < items.size(); ++i)
+      if (items[i])
+	adoptChild(i, column, items[i]);
+
+    if (items.size() < rc) {
+      std::vector<WStandardItem *>& inserted = (*columns_)[column];
+      inserted.resize(rc);
+    }
+
+    renumberColumns(column + 1);
+
+    if (model_)
+      model_->endInsertColumns();
   }
-
-  if (model_)
-    model_->beginInsertColumns(index(), column, column);
-
-  columns_->insert(columns_->begin() + column, items);
-  for (unsigned i = 0; i < items.size(); ++i)
-    if (items[i])
-      adoptChild(i, column, items[i]);
-
-  if (items.size() < rc) {
-    std::vector<WStandardItem *>& inserted = (*columns_)[column];
-    inserted.resize(rc);
-  }
-
-  renumberColumns(column + 1);
-
-  if (model_)
-    model_->endInsertColumns();
 }
 
 void WStandardItem::appendRow(const std::vector<WStandardItem *>& items)
