@@ -155,6 +155,11 @@ public:
    * \sa setRef(), setResource()
    *
    * \sa WApplication::bookmarkUrl(), WApplication::setInternalPath()
+   *
+   * \if cpp
+   * \note the \p path should be UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   void setRefInternalPath(const std::string& path);
 

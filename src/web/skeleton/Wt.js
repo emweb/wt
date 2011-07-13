@@ -522,7 +522,7 @@ this.ajaxInternalPaths = function(basePath) {
 	internalPath = href.substr(absBase.length - 1);
       } else
 	internalPath = href.substr(basePath.length);
-	
+
       if (internalPath.substr(0, 3) == "?_=")
 	  internalPath = internalPath.substr(3);
       this.setAttribute('href', href); // computes this.href
@@ -1399,7 +1399,8 @@ _$_$endif_$_();
 	  if (q.length > 1)
 	    q = q.substr(1);
 
-	  var qp = q.split("&"), i, il, q="";
+	  var qp = q.split("&"), i, il;
+	  q = "";
 
 	  for (i=0, il = qp.length; i<il; ++i)
 	    if (qp[i].split("=")[0] != '_')
@@ -1705,7 +1706,7 @@ function setHash(newLocation) {
 
   currentHash = newLocation;
 
-  WT.history.navigate(escape(newLocation), false);
+  WT.history.navigate(newLocation, false);
 };
 
 var dragState = {
@@ -1964,8 +1965,11 @@ function encodeEvent(event, i) {
       result += se + "focus=" + document.activeElement.id;
   } catch (e) { }
 
-  if (currentHash != null)
-    result += se + '_=' + encodeURIComponent(unescape(currentHash));
+  if (currentHash != null) {
+    if (WT.isIE6)
+      currentHash = encodeURIComponent(currentHash);
+    result += se + '_=' + currentHash;
+  }
 
   if (!e) {
     event.data = result;

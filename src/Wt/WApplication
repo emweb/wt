@@ -667,6 +667,11 @@ public:
    * application, use url() instead.
    *
    * \sa url(), bookmarkUrl()
+   *
+   * \if cpp
+   * \note the \p internalPath should be UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   std::string bookmarkUrl(const std::string& internalPath) const;
 
@@ -736,6 +741,11 @@ public:
    * are ignored.
    *
    * \sa bookmarkUrl(), internalPath(), internalPathChanged()
+   *
+   * \if cpp
+   * \note the \p path should be UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   void setInternalPath(const std::string& path, bool emitChange = false);
 
@@ -745,6 +755,11 @@ public:
    * WEnvironment::internalPath().
    *
    * \sa setInternalPath(), internalPathNextPart(), internalPathMatches()
+   *
+   * \if cpp
+   * \note the \p returned path is UTF8 (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   std::string internalPath() const;
 
@@ -763,6 +778,11 @@ public:
    * an empty string is returned and an error message is logged.
    *
    * \sa internalPath(), internalPathChanged()
+   *
+   * \if cpp
+   * \note the \p internal path is UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   std::string internalPathNextPart(const std::string& path) const;
 
@@ -781,6 +801,11 @@ public:
    * The \p path must start with a '/'.
    *
    * \sa setInternalPath(), internalPath()
+   *
+   * \if cpp
+   * \note the \p internal path is UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   bool internalPathMatches(const std::string& path) const;
 
@@ -793,6 +818,11 @@ public:
    * The argument contains the new internal path.
    *
    * \sa setInternalPath()
+   *
+   * \if cpp
+   * \note the \p internal path is UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   Signal<std::string>& internalPathChanged();
 

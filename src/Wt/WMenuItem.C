@@ -242,6 +242,7 @@ void WMenuItem::updateItemWidget(WWidget *itemWidget)
     std::string url;
     if (menu_ && menu_->internalPathEnabled()) {
       std::string internalPath = menu_->internalBasePath() + pathComponent();
+
       WApplication *app = WApplication::instance();
       if (app->environment().ajax() || app->environment().agentIsSpiderBot())
 	url = app->bookmarkUrl(internalPath);

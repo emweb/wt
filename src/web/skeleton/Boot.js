@@ -99,7 +99,7 @@ var needSessionInUrl = !no_replace || !ajax;
 
 if (needSessionInUrl) {
   function getSessionFromUrl() {
-    var url, idx, i, queryString, params, tokens;
+    var url, idx, i, queryString, params, tokens, len;
     url = top.location.href;
     idx = url.indexOf('?');
     queryString = idx >= 0 ? url.substr(idx + 1) : url;
@@ -123,7 +123,7 @@ if (needSessionInUrl) {
 
 if (needSessionInUrl) {
   if (hash.length > 0)
-    selfurl += '#' + hash;
+    selfUrl += '#' + hash;
   setUrl(selfUrl);
 } else if (ajax) {
   var canonicalUrl = _$_AJAX_CANONICAL_URL_$_,
@@ -134,6 +134,9 @@ _$_$if_HYBRID_$_();
       + ';path=/;expires=' + inOneSecond.toGMTString();
     doc.cookie=pathcookie;
 _$_$endif_$_();
+    /* Otherwise we do not get a page reload */
+    if (canonicalUrl.charAt(0) == '#')
+      canonicalUrl = '../' + canonicalUrl;
     setUrl(canonicalUrl);
   } else {
     if (hash.length > 1 && hash.charAt(0) == '/') {

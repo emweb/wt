@@ -131,6 +131,11 @@ public:
    * replacing white space and special characters with '_'.
    *
    * \sa setText(), WMenu::setInternalPathEnabled()
+   *
+   * \if cpp
+   * \note the \p path should be UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   void setPathComponent(const std::string& path);
 
@@ -140,6 +145,11 @@ public:
    * set by the item in the application internal path.
    *
    * \sa setPathComponent()
+   *
+   * \if cpp
+   * \note the \p path component is UTF8 encoded (we may fix the API
+   *       to use WString in the future).
+   * \endif
    */
   virtual std::string pathComponent() const;
 
