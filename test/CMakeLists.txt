@@ -2,6 +2,7 @@ SET(TEST_SOURCES
   test.C
   chart/WChartTest.C
   models/WBatchEditProxyModelTest.C
+  models/WStandardItemModelTest.C
   private/HttpTest.C
   private/CExpressionParserTest.C
   private/I18n.C
