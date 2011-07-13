@@ -139,8 +139,11 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
   {
     WApplication *app = WApplication::instance();
 
+    std::string senderId = encodeCmd();
+    senderId = senderId.substr(0, senderId.length() - eventName.length() - 1);
+
     result << app->javaScriptClass() << ".emit('"
-	   << sender()->uniqueId();
+	   << senderId;
 
     if (!jsObject.empty())
       result << "', { name:'" << eventName << "', eventObject:" << jsObject
