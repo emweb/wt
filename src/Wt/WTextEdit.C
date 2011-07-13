@@ -83,7 +83,7 @@ const std::string WTextEdit::styleSheet() const
 
 void WTextEdit::setExtraPlugins(const std::string& plugins)
 {
-  setConfigurationSetting("plugings", plugins);
+  setConfigurationSetting("plugins", plugins);
 }
 
 const std::string WTextEdit::extraPlugins() const
