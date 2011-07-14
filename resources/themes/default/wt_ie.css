@@ -65,3 +65,7 @@ body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
     overflow-x: auto;
     overflow-y: hidden;
 }
+
+.Wt-hrh {
+    line-height: 0px;
+}

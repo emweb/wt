@@ -209,8 +209,6 @@ Configuration::Configuration(const std::string& applicationPath,
   if (configFile.empty())
     configFile = WT_CONFIG_XML;
 
-  std::cerr << "Reading: " << configFile << std::endl;
-
   readConfiguration(configFile, startupMessage);
 }
 

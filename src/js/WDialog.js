@@ -77,9 +77,9 @@ WT_DECLARE_WT_MEMBER
 
    function wtResize(self, w, h) {
      h -= 2; w -= 2; // 2 = dialog border
-     self.style.height = h + 'px';
+     self.style.height = Math.max(0, h) + 'px';
      if (w > 0)
-       self.style.width = w + 'px';
+       self.style.width = Math.max(0, w) + 'px';
      var c = self.lastChild;
      var t = c.previousSibling;
      h -= t.offsetHeight + 8; // 8 = body padding
@@ -88,6 +88,11 @@ WT_DECLARE_WT_MEMBER
        if (APP.layouts)
 	 APP.layouts.adjust();
      }
+   };
+
+   this.onresize = function(w, h) {
+     centerX = centerY = false;
+     wtResize(el, w, h);
    };
 
    el.wtResize = wtResize;

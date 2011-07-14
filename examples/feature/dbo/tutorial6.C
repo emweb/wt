@@ -10,7 +10,7 @@
  *****/
 
 /*****
- * Dbo tutorial section 7.5
+ * Dbo tutorial section 7.4
  *  Specifying a natural primary key that is also a foreign key
  *****/
 
@@ -19,52 +19,72 @@
 
 namespace dbo = Wt::Dbo;
 
-class UserInfo;
-class User;
+struct Coordinate {
+  int x, y;
+
+  Coordinate()
+    : x(-1), y(-1) { }
+
+  Coordinate(int an_x, int an_y)
+    : x(an_x), y(an_y) { }
+
+  bool operator== (const Coordinate& other) const {
+    return x == other.x && y == other.y;
+  }
+
+  bool operator< (const Coordinate& other) const {
+    if (x < other.x)
+      return true;
+    else if (x == other.x)
+      return y < other.y;
+    else
+      return false;
+  }
+};
+
+std::ostream& operator<< (std::ostream& o, const Coordinate& c)
+{
+  return o << "(" << c.x << ", " << c.y << ")";
+}
+
+namespace Wt {
+  namespace Dbo {
+
+    template <class Action>
+    void field(Action& action, Coordinate& coordinate, const std::string& name,
+	       int size = -1)
+    {
+      field(action, coordinate.x, name + "_x");
+      field(action, coordinate.y, name + "_y");
+    }
+  }
+}
+
+class GeoTag;
 
 namespace Wt {
   namespace Dbo {
 
     template<>
-    struct dbo_traits<UserInfo> : public dbo_default_traits {
-      typedef ptr<User> IdType;
-
-      static IdType invalidId() {
-        return ptr<User>();
-      }
-
+    struct dbo_traits<GeoTag> : public dbo_default_traits
+    {
+      typedef Coordinate IdType;
+      static IdType invalidId() { return Coordinate(); }
       static const char *surrogateIdField() { return 0; }
     };
-
   }
 }
 
-class User {
+class GeoTag {
 public:
+  Coordinate  position;
   std::string name;
 
-  dbo::collection< dbo::ptr<UserInfo> > infos;
-
-  template<class Action>
+  template <class Action>
   void persist(Action& a)
   {
+    dbo::id(a, position, "position");
     dbo::field(a, name, "name");
-
-    // In fact, this is really constrained to hasOne() ...
-    dbo::hasMany(a, infos, dbo::ManyToOne, "user");
-  }
-};
-
-class UserInfo {
-public:
-  dbo::ptr<User> user;
-  std::string info;
-
-  template<class Action>
-  void persist(Action& a)
-  {
-    dbo::id(a, user, "user", dbo::OnDeleteCascade);
-    dbo::field(a, info, "info");
   }
 };
 
@@ -78,39 +98,25 @@ void run()
   dbo::Session session;
   session.setConnection(sqlite3);
 
-  session.mapClass<User>("user");
-  session.mapClass<UserInfo>("user_info");
+  session.mapClass<GeoTag>("geotag");
 
   /*
    * Try to create the schema (will fail if already exists).
    */
   session.createTables();
 
-  dbo::Transaction transaction(session);
-
-  {
-    User *user = new User();
-    user->name = "Joe";
-
-    dbo::ptr<User> userPtr = session.add(user);
-
-    UserInfo *userInfo = new UserInfo();
-    userInfo->user = userPtr;
-    userInfo->info = "great guy";
-
-    session.add(userInfo);
-
-    transaction.commit();
-  }
-
   {
     dbo::Transaction transaction(session);
 
-    dbo::ptr<UserInfo> info = session.find<UserInfo>();
-    
-    std::cerr << info->user->name << " is a " << info->info << std::endl;
+    GeoTag *tag = new GeoTag();
+    tag->position = Coordinate(5091, 315);
+    tag->name = "Oekene";
+
+    dbo::ptr<GeoTag> tagPtr = session.add(tag);
 
     transaction.commit();
+
+    std::cerr << tagPtr.id() << std::endl;
   }
 }
 

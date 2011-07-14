@@ -121,7 +121,7 @@ WT_DECLARE_WT_MEMBER
        p = ch.parentNode;
        w = p.offsetWidth - self.marginH(ch);
 
-       if (p.className == 'Wt-chwrap') {
+       if (p.className == 'Wt-chwrap' && w > 0) {
 	 if (!WT.isIE) {
 	   ch.style.position = 'relative';
 	   ch = ch.firstChild;
@@ -256,8 +256,8 @@ WT_DECLARE_WT_MEMBER
      for (i = 0, ri = 0; i < il; i++) {
        row = t.rows[i];
 
-       if (row.className === 'Wt-hrh') {  // Skip resize rows
-	 r -= row.offsetHeight;          // Reduce r
+       if (row.className) {     // Skip special rows
+	 r -= row.offsetHeight; // Reduce r
 	 continue;
        }
 
@@ -285,7 +285,7 @@ WT_DECLARE_WT_MEMBER
        for (i = 0, ri = 0; i < il; i++) {
 	 row = t.rows[i];
 
-	 if (row.className === 'Wt-hrh') // Skip resize rows
+	 if (row.className)
 	   continue;
 
 	 stretch = config.stretch[ri];
@@ -421,16 +421,15 @@ WT_DECLARE_WT_MEMBER
      for (i=0, ri=0, il=t.rows.length; i<il; i++) {
        row = t.rows[i];
 
-       if (row.className != 'Wt-hrh') {
+       if (!row.className) {
 	 var td, j, ci, jl;
 	 for (j=0, ci=0, jl=row.childNodes.length; j<jl; ++j) {
 	   td = row.childNodes[j];
 
 	   if (td.className != 'Wt-vrh') {
-	     if (td.colSpan == 1 && ci == columni && td.childNodes.length==1) {
+	     if (td.colSpan == 1 && ci == columni && td.childNodes.length > 0) {
 	       var ch = td.firstChild;
-	       var w = width - self.marginH(ch);
-
+	       var w = Math.max(0, width - self.marginH(ch));
 	       ch.style.width = w + 'px';
 	       break;
 	     }
@@ -572,13 +571,15 @@ WT_DECLARE_WT_MEMBER
    for (i=0, ri=0, il=t.rows.length; i<il; i++) {
      row = t.rows[i];
 
-     if (row.className == 'Wt-hrh') {
-       var td = row.firstChild;
-       td.ri = ri - 1;
-       td.onmousedown = td.ontouchstart = function(event) {
-	 var e = event||window.event;
-	 startRowResize(this, this.ri, e);
-       };
+     if (row.className) {
+       if (row.className === 'Wt-hrh') {
+	 var td = row.firstChild;
+	 td.ri = ri - 1;
+	 td.onmousedown = td.ontouchstart = function(event) {
+	   var e = event||window.event;
+	   startRowResize(this, this.ri, e);
+	 };
+       }
      } else {
        var td, j, ci, jl;
        for (j=0, ci=0, jl=row.childNodes.length; j<jl; ++j) {

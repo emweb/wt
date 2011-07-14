@@ -240,9 +240,14 @@ public:
 
   /*! \brief Sets a minimum size.
    *
-   * Specify a minimum size for this widget. When the widget is
-   * managed using a layout manager, these sizes are also taken into
-   * account.
+   * Specify a minimum size for this widget.
+   *
+   * The default minimum width and height is 0. The special value
+   * WLength::Auto indicates that the initial width is used as minimum
+   * size.
+   *
+   * When the widget size is actively managed (using e.g. a layout manager),
+   * these sizes are taken into account.
    *
    * \sa resize(), minimumWidth(), minimumHeight()
    */
@@ -266,9 +271,12 @@ public:
 
   /*! \brief Sets a maximum size.
    *
-   * Specify a minimum size for this widget.
+   * Specifies a maximum size for this widget.
    *
-   * \sa resize(), maximumWidth(), maximumHeight()
+   * The default maximum width and height are WLength::Auto, indicating no
+   * maximum size.
+   *
+   * \sa resize(), setMinimumSize()
    */
   virtual void setMaximumSize(const WLength& width, const WLength& height) = 0;
 
@@ -584,6 +592,11 @@ public:
 				bool force = false) = 0;
 
   void removeStyleClass(const char *styleClass, bool force = false);
+
+  void toggleStyleClass(const WT_USTRING& styleClass, bool add,
+			bool force = false);
+
+  void toggleStyleClass(const char *styleClass, bool add, bool force = false);
 
   /*! \brief Sets the vertical alignment.
    *

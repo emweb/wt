@@ -15,6 +15,7 @@
 #include "WebSession.h"
 #include "WtException.h"
 #include "WebController.h"
+#include "Resizable.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDialog.min.js"
@@ -24,6 +25,7 @@ namespace Wt {
 
 WDialog::WDialog(const WString& windowTitle)
   : modal_(true),
+    resizable_(false),
     finished_(this),
     recursiveEventLoop_(false),
     initialized_(false)
@@ -119,6 +121,25 @@ WDialog::WDialog(const WString& windowTitle)
 WDialog::~WDialog()
 {
   hide();
+}
+
+void WDialog::setResizable(bool resizable)
+{
+  if (resizable != resizable_) {
+    resizable_ = resizable;
+    toggleStyleClass("Wt-resizable", resizable);
+    setSelectable(!resizable);
+
+    if (resizable_) {
+      setMinimumSize(WLength::Auto, WLength::Auto);
+      Resizable::loadJavaScript(WApplication::instance());
+      doJavaScript("(new " WT_CLASS ".Resizable("
+		   WT_CLASS "," + jsRef() + ")).onresize(function(w, h) {"
+		   "var obj = $('#" + id() + "').data('obj');"
+		   "if (obj) obj.onresize(w, h);"
+		   " });");
+    }
+  }
 }
 
 void WDialog::render(WFlags<RenderFlag> flags)

@@ -566,6 +566,18 @@ public:
    */
   const C *operator->() const;
 
+  /*! \brief Returns the pointer.
+   *
+   * Note that returns a const pointer. Use modify() to get a non-const
+   * pointer.
+   *
+   * Since this may lazy-load the underlying database object, you
+   * should have an active transaction.
+   *
+   * \sa modify()
+   */
+  const C *get() const;
+
   /*! \brief Dereference operator.
    *
    * Note that this operator returns a const copy of the referenced
@@ -591,6 +603,8 @@ public:
    *
    * Since this may lazy-load the underlying database object, you
    * should have an active transaction.
+   *
+   * \sa get()
    */
 #ifdef DOXYGEN_ONLY
   C *modify() const;

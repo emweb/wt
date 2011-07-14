@@ -170,7 +170,8 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule(LTR "td", "text-align: left;");
   styleSheet_.addRule(RTL "td", "text-align: right;");
   styleSheet_.addRule("button", "white-space: nowrap;");
-  styleSheet_.addRule("button img", "vertical-align: middle;");
+  styleSheet_.addRule("button img",
+		      "vertical-align: middle; padding-right: 10px");
   styleSheet_.addRule("video", "display: block");
 
   if (environment().contentType() == WEnvironment::XHTML1) {

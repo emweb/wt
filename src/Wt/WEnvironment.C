@@ -77,7 +77,7 @@ void WEnvironment::init(const WebRequest& request)
 
   setUserAgent(request.headerValue("User-Agent"));
 
-  std::cerr << userAgent_ << std::endl;
+  session_->log("notice") << "UserAgent: " << userAgent_;
 
   /*
    * Determine server host name

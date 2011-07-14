@@ -416,7 +416,6 @@ void DomElement::processProperties(WApplication *app) const
 
     if (i != self->properties_.end()) {
       self->properties_[PropertyStyleHeight] = i->second;
-      self->properties_.erase(PropertyStyleMinHeight); // C++: could be i
     }
   }
 }
@@ -1496,11 +1495,22 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       out << ");";
       break;
     default:
-      if ((i->first >= PropertyStyle)
-	  && (i->first <= PropertyStyleBoxSizing)) {
-	out << var_ << ".style."
-	    << cssCamelNames_[i->first - PropertyStyle]
-	    << "='" << i->second << "';";
+      if (i->first >= PropertyStyle && i->first <= PropertyStyleBoxSizing) {
+	/*
+	 * Unsupported properties, like min-height, would otherwise be
+	 * ignored. But other browsers like old firefox do not properly
+	 * interpret the set value in this way
+	 */
+	if (!app->environment().agentIsIE()
+	    || (i->first < PropertyStylePosition)) {
+	  out << var_ << ".style."
+	      << cssCamelNames_[i->first - PropertyStyle]
+	      << "='" << i->second << "';";
+	} else {
+	  out << var_ << ".style['"
+	      << cssNames_[i->first - PropertyStylePosition]
+	      << "']='" << i->second << "';";
+	}
       }
     }
 

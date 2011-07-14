@@ -1,3 +1,8 @@
+14-07-2011:
+	* fix min-width being ignored in layout managers
+
+	* WDialog: implement setResiable() (#612)
+
 12-07-2011:
 	* collection: implemented count() method for relational
 	collections (#882)

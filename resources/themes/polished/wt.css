@@ -390,6 +390,16 @@
 }
 
 /*
+ * WResizable
+ */
+.Wt-resizable {
+    background-image: url(../../resizable.png);
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: right bottom;
+}
+
+/*
  * WSlider
  */
 .Wt-slider-h .Wt-slider-bg {

@@ -111,3 +111,7 @@ body.Wt-rtl .Wt-treeview .Wt-expand {
 body.Wt-rtl .Wt-treeview .Wt-collapse {
     background: url(nav-minus-rtl.gif) no-repeat 0 center;
 }
+
+.Wt-hrh {
+    line-height: 0px;
+}

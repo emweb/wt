@@ -620,7 +620,7 @@ this.widgetPageCoordinates = function(obj) {
     objX += obj.offsetLeft;
     objY += obj.offsetTop;
 
-    var f = css(obj, 'position');
+    var f = WT.css(obj, 'position');
     if (f == 'fixed') {
       objX += document.body.scrollLeft
 	+ document.documentElement.scrollLeft;
@@ -829,7 +829,7 @@ this.stopRepeat = function() {
 
 var cacheC = null, cacheS = null;
 
-function css(c, s) {
+this.css = function(c, s) {
   if (c.style[s])
     return c.style[s];
   else {
@@ -846,7 +846,7 @@ function css(c, s) {
 
     return cacheS ? cacheS[s] : null;
   }
-}
+};
 
 function parseCss(value, regex, defaultvalue) {
   if (value == 'auto' || value == null)
@@ -856,9 +856,9 @@ function parseCss(value, regex, defaultvalue) {
   return v ? parseFloat(v) : defaultvalue;
 }
 
-function parsePx(v) {
+this.parsePx = function(v) {
   return parseCss(v, /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/i, 0);
-}
+};
 
 function parsePct(v, defaultValue) {
   return parseCss(v, /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/i, defaultValue);
@@ -866,12 +866,12 @@ function parsePct(v, defaultValue) {
 
 // Get an element metric in pixels
 this.px = function(c, s) {
-  return parsePx(css(c, s));
+  return WT.parsePx(WT.css(c, s));
 };
 
 // Get a widget style in pixels, when set directly
 this.pxself = function(c, s) {
-  return parsePx(c.style[s]);
+  return WT.parsePx(c.style[s]);
 };
 
 this.pctself = function(c, s) {
@@ -906,6 +906,24 @@ this.isHidden = function(w) {
     else
       return false;
   }
+};
+
+this.innerWidth = function(el) {
+  var result = el.offsetWidth;
+  if (!WT.boxSizing(el)) {
+    result -= WT.px(el, 'paddingLeft') + WT.px(el, 'paddingRight')
+	  + WT.px(el, 'borderLeftWidth') + WT.px(el, 'borderRightWidth');
+  }
+  return result;
+};
+
+this.innerHeight = function(el) {
+  var result = el.offsetHeight;
+  if (!WT.boxSizing(el)) {
+    result -= WT.px(el, 'paddingTop') + WT.px(el, 'paddingBottom')
+	  + WT.px(el, 'borderTopWidth') + WT.px(el, 'borderBottomWidth');
+  }
+  return result;
 };
 
 this.IEwidth = function(c, min, max) {

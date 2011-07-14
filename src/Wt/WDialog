@@ -257,6 +257,21 @@ public:
    */
   bool isModal() const { return modal_; }
 
+  /*! \brief Adds a resize handle to the dialog.
+   *
+   * The resize handle is shown in the bottom right corner of the dialog,
+   * and allows the user to resize the dialog (but not smaller than the
+   * content allows).
+   *
+   * This also sets the minimum width and height to WLength::Auto
+   * to use the initial width and height as minimum sizes.
+   *
+   * \sa setMinimumSize(), setMaximumSize()
+   */
+  void setResizable(bool resizable);
+
+  bool resizable() const { return resizable_; }
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
@@ -268,7 +283,7 @@ private:
   WText            *caption_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
-  bool              modal_;
+  bool              modal_, resizable_;
 
   WWidget          *previousExposeConstraint_;
   int               coverPreviousZIndex_;

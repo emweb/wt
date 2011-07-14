@@ -22,9 +22,17 @@ TARGET_LINK_LIBRARIES(dbo-tutorial5 ${tutorial_libs})
 ADD_EXECUTABLE(dbo-tutorial6  tutorial6.C)
 TARGET_LINK_LIBRARIES(dbo-tutorial6 ${tutorial_libs})
 
+ADD_EXECUTABLE(dbo-tutorial7  tutorial7.C)
+TARGET_LINK_LIBRARIES(dbo-tutorial7 ${tutorial_libs})
+
+ADD_EXECUTABLE(dbo-tutorial8  tutorial8.C)
+TARGET_LINK_LIBRARIES(dbo-tutorial8 ${tutorial_libs})
+
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
 IF(INSTALL_EXAMPLES)
-  INSTALL(TARGETS dbo-tutorial1 dbo-tutorial2 dbo-tutorial3 dbo-tutorial4 dbo-tutorial5 dbo-tutorial6
-	    DESTINATION ${CMAKE_INSTALL_PREFIX}/${EXAMPLES_DESTINATION}/feature/dbo/)
+  INSTALL(TARGETS dbo-tutorial1 dbo-tutorial2 dbo-tutorial3
+    dbo-tutorial4 dbo-tutorial5 dbo-tutorial6
+    dbo-tutorial7 dbo-tutorial8
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/${EXAMPLES_DESTINATION}/feature/dbo/)
 ENDIF(INSTALL_EXAMPLES)

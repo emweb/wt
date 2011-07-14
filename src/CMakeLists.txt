@@ -43,6 +43,7 @@ FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C     JQuery_js)
 FILE_TO_STRING(xml/wt.xml                 WtMessages_xml.C  WtMessages_xml)
 
 SET(libsources
+Wt/Resizable.C
 Wt/SizeHandle.C
 Wt/StdGridLayoutImpl.C
 Wt/StdLayoutImpl.C

@@ -71,6 +71,8 @@ WWebWidget::LayoutImpl::LayoutImpl()
   : positionScheme_(Static),
     floatSide_(static_cast<Side>(0)),
     clearSides_(0),
+    minimumWidth_(0),
+    minimumHeight_(0),
     zIndex_(0),
     verticalAlignment_(AlignBaseline)
 { 
@@ -422,12 +424,12 @@ void WWebWidget::setMinimumSize(const WLength& width, const WLength& height)
 
 WLength WWebWidget::minimumWidth() const
 {
-  return layoutImpl_ ? layoutImpl_->minimumWidth_ : WLength::Auto;
+  return layoutImpl_ ? layoutImpl_->minimumWidth_ : WLength(0);
 }
 
 WLength WWebWidget::minimumHeight() const
 {
-  return layoutImpl_ ? layoutImpl_->minimumHeight_ : WLength::Auto;
+  return layoutImpl_ ? layoutImpl_->minimumHeight_ : WLength(0);
 }
 
 void WWebWidget::setMaximumSize(const WLength& width, const WLength& height)
@@ -1181,18 +1183,22 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyStyleClear, "both");
       }
 
-      if (!layoutImpl_->minimumWidth_.isAuto()
-	  && (layoutImpl_->minimumWidth_.value() != 0))
-	element.setProperty(PropertyStyleMinWidth,
-			    layoutImpl_->minimumWidth_.cssText());
-      if (!layoutImpl_->minimumHeight_.isAuto()
-	  && (layoutImpl_->minimumHeight_.value() != 0))
-	element.setProperty(PropertyStyleMinHeight,
-			    layoutImpl_->minimumHeight_.cssText());
-      if (!layoutImpl_->maximumWidth_.isAuto()) // == none
+      if (layoutImpl_->minimumWidth_.value() != 0) {
+	std::string text
+	  = layoutImpl_->minimumWidth_.isAuto() ? "0px"
+	  : layoutImpl_->minimumWidth_.cssText();
+	element.setProperty(PropertyStyleMinWidth, text);
+      }
+      if (layoutImpl_->minimumHeight_.value() != 0) {
+	std::string text
+	  = layoutImpl_->minimumHeight_.isAuto() ? "0px"
+	  : layoutImpl_->minimumHeight_.cssText();
+	element.setProperty(PropertyStyleMinHeight, text);
+      }
+      if (!layoutImpl_->maximumWidth_.isAuto())
 	element.setProperty(PropertyStyleMaxWidth,
 			    layoutImpl_->maximumWidth_.cssText());
-      if (!layoutImpl_->maximumHeight_.isAuto()) // == none
+      if (!layoutImpl_->maximumHeight_.isAuto())
 	element.setProperty(PropertyStyleMaxHeight,
 			    layoutImpl_->maximumHeight_.cssText());
 

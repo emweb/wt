@@ -226,7 +226,7 @@ C *ptr<C>::mutator::operator->() const
 {
   return obj_->obj();
 }
-
+ 
 template <class C>
 C& ptr<C>::mutator::operator*() const
 {
@@ -286,6 +286,12 @@ ptr<C>& ptr<C>::operator= (const ptr<C>& other)
 
 template <class C>
 const C *ptr<C>::operator->() const
+{
+  return get();
+}
+
+template <class C>
+const C *ptr<C>::get() const
 {
   if (obj_)
     return obj_->obj();

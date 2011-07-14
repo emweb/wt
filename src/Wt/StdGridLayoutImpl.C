@@ -547,6 +547,19 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	      td->addChild(c);
 	  } else
 	    td->addChild(c);
+
+	  if (app->environment().agentIsIElt(9)) {
+	    // IE7 and IE8 do support min-width but do not enforce it properly
+	    // when in a table.
+	    //  see http://stackoverflow.com/questions/2356525/css-min-width-in-ie6-7-and-8
+	    if (!c->getProperty(PropertyStyleMinWidth).empty()) {
+	      DomElement *spacer = DomElement::createNew(DomElement_DIV);
+	      spacer->setProperty(PropertyStyleWidth,
+				  c->getProperty(PropertyStyleMinWidth));
+	      spacer->setProperty(PropertyStyleHeight, "1px");
+	      td->addChild(spacer);
+	    }
+	  }
 	}
 
 	{

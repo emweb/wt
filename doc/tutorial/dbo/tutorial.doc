@@ -2,7 +2,7 @@ Wt::Dbo Tutorial
 ================
 
 Koen Deforche <koen@emweb.be>
-3.1.6, 27 October 2010
+3.1.10, July 14 2011
 
 :doc:           link:../../reference/html/
 :cpp:		pass:[C++]
@@ -859,7 +859,108 @@ namespace Wt {
 
 The +id()+ function has the same syntax as the +field()+ function.
 
-A natural primary key may also be a composite key or even a foreign key.
+A natural primary key may also be a composite key, a foreign key or
+a combination.
+
+=== Specifying a composite natural primary key
+
+To use a composite type as a natural primary key, i.e. a type which
+consists of more than one field, you need to have a corresponding C++
+type.
+
+The type has a number of basic requirements, such as default
+constructor, comparison operators (== and <), and a streaming operator.
+
+.Using a composite natural primary key (tutorial6.C)
+[source,cpp]
+----
+struct Coordinate {
+  int x, y;
+
+  Coordinate()
+    : x(-1), y(-1) { }
+
+  Coordinate(int an_x, int an_y)
+    : x(an_x), y(an_y) { }
+
+  bool operator== (const Coordinate& other) const {
+    return x == other.x && y == other.y;
+  }
+
+  bool operator< (const Coordinate& other) const {
+    if (x < other.x)
+      return true;
+    else if (x == other.x)
+      return y < other.y;
+    else
+      return false;
+  }
+};
+
+std::ostream& operator<< (std::ostream& o, const Coordinate& c)
+{
+  return o << "(" << c.x << ", " << c.y << ")";
+}
+----
+
+Next, you must indicate how the type is persisted, by overloading Dbo's
++field()+ function for it.
+
+.(tutorial6.C continued)
+[source,cpp]
+----
+namespace Wt {
+  namespace Dbo {
+
+    template <class Action>
+    void field(Action& action, Coordinate& coordinate, const std::string& name,
+	       int size = -1)
+    {
+      field(action, coordinate.x, name + "_x");
+      field(action, coordinate.y, name + "_y");
+    }
+  }
+}
+----
+
+With this in place, we can use the +Coordinate+ type as a natural primary
+key type:
+
+.(tutorial6.C continued)
+[source,cpp]
+----
+class GeoTag;
+
+namespace Wt {
+  namespace Dbo {
+
+    template<>
+    struct dbo_traits<GeoTag> : public dbo_default_traits
+    {
+      typedef Coordinate IdType;
+      static IdType invalidId() { return Coordinate(); }
+      static const char *surrogateIdField() { return 0; }
+    };
+  }
+}
+
+class GeoTag {
+public:
+  Coordinate  position;
+  std::string name;
+
+  template <class Action>
+  void persist(Action& a)
+  {
+    dbo::id(a, position, "position");
+    dbo::field(a, name, "name");
+  }
+};
+----
+
+Note that the composite key may also include foreign keys, by storing
+ptr<> objects in the composite, which you map using a +belongsTo()+
+declaration. See +tutorial8.C+ for a complete example.
 
 === Specifying foreign key constraints
 
@@ -886,7 +987,7 @@ User. We will only allow exactly one UserInfo object per User, and
 therefore chose as primary key for the UserInfo a reference to the
 User.
 
-.Using a foreign key as primary key (tutorial6.C)
+.Using a foreign key as primary key (tutorial7.C)
 [source,cpp]
 ----
 #include <Wt/Dbo/Dbo>
@@ -1016,7 +1117,7 @@ create table "user_info" (
   "user_id" bigint,
   "info" text not null,
   primary key ("user_id"),
- constraint "fk_user_info_user" foreign key ("user_id") references "user" ("id") on delete cascade
+  constraint "fk_user_info_user" foreign key ("user_id") references "user" ("id") on delete cascade
 )
 
 commit transaction
