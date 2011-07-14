@@ -264,12 +264,14 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   }
 
   int totalColStretch = 0;
-  for (unsigned col = 0; col < colCount; ++col)
-    totalColStretch += std::max(0, grid_.columns_[col].stretch_);
+  if (fitWidth)
+    for (unsigned col = 0; col < colCount; ++col)
+      totalColStretch += std::max(0, grid_.columns_[col].stretch_);
 
   int totalRowStretch = 0;
-  for (unsigned row = 0; row < rowCount; ++row)
-    totalRowStretch += std::max(0, grid_.rows_[row].stretch_);
+  if (fitHeight)
+    for (unsigned row = 0; row < rowCount; ++row)
+      totalRowStretch += std::max(0, grid_.rows_[row].stretch_);
 
   int margin[] = { 0, 0, 0, 0};
 
@@ -323,7 +325,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   DomElement *tbody = DomElement::createNew(DomElement_TBODY);
 
-  if (fitWidth)
+  if (fitWidth) {
     for (unsigned col = 0; col < colCount; ++col) {
       DomElement *c = DomElement::createNew(DomElement_COL);
       int stretch = std::max(0, grid_.columns_[col].stretch_);
@@ -349,6 +351,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	table->addChild(c);
       }
     }
+  }
 
 #ifndef WT_TARGET_JAVA
   std::vector<bool> overSpanned(colCount * rowCount, false);
@@ -357,8 +360,13 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   overSpanned.insert(0, colCount * rowCount, false);
 #endif // WT_TARGET_JAVA
 
+  /*
+   * Create grid
+   */
+
   bool resizeHandleAbove = false;
   int prevRowWithItem = -1;
+
   for (unsigned row = 0; row < rowCount; ++row) {
     bool resizeHandleBelow = row < rowCount - 1
       && grid_.rows_[row].resizable_;
@@ -366,11 +374,12 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
     DomElement *tr = DomElement::createNew(DomElement_TR);
 
     std::string heightPct;
-    int stretch = std::max(0, grid_.rows_[row].stretch_);
-    if (stretch || (fitHeight && totalRowStretch == 0)) {
+
+    int rowStretch = std::max(0, grid_.rows_[row].stretch_);
+
+    if (rowStretch || (fitHeight && totalRowStretch == 0)) {
       int pct = totalRowStretch == 0 ?
-	100 / rowCount :
-	100 * stretch / totalRowStretch;
+	100 / rowCount : 100 * rowStretch / totalRowStretch;
       std::stringstream style;
       style << "height: " << pct << "%;";
       heightPct = style.str();
@@ -381,19 +390,38 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
     int prevColumnWithItem = -1;
 
     bool rowVisible = false;
+
+    /*
+     * Create row
+     */
     for (unsigned col = 0; col < colCount; ++col) {
+
       bool resizeHandleRight = col < colCount - 1
 	&& grid_.columns_[col - 1 + grid_.items_[row][col].colSpan_].resizable_;
 
       if (!overSpanned[row * colCount + col]) {
 	Impl::Grid::Item& item = grid_.items_[row][col];
 
-	bool itemFitWidth = (item.colSpan_ == (int)colCount)
-	  || (totalColStretch == 0);
-	bool itemFitHeight = (item.rowSpan_ == (int)rowCount)
-	  || (totalRowStretch == 0);
+	/*
+	 * We always fit the item to the width of the cell.
+	 */
+	bool itemFitWidth = true;
+
+	/*
+	 * When we are fitting height in this layout, then we are fitting
+	 *  the height of this item if the item spans the entire table
+	 *  height, or no row in the table has row stretch (in which case
+	 *  we give each row stretch), or the item spans a row with row
+	 *  stretch
+	 *
+	 * Unless, the item is vertically aligned to top/middle/bottom
+	 */
+	bool itemFitHeight
+	  = fitHeight && ((item.rowSpan_ == (int)rowCount)
+			  || (totalRowStretch == 0));
 
 	int colSpan = 0;
+	bool colStretch = false;
 
 	for (int i = 0; i < item.rowSpan_; ++i) {
 	  // FIXME: when spanning multiple rows, it is not clear what we
@@ -403,11 +431,11 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  //
 	  // if stretch == 0, then we should not fit height (in which
 	  // case JavaScript will actively take over anyway), unless
-	  // the item is a layout itself.
+	  // the item is a layout itself. XXX really ?
 
 	  if (grid_.rows_[row + i].stretch_)
-	    itemFitHeight = true;
-	  else if (!stretch && !(item.item_ && item.item_->layout()))
+	    itemFitHeight = fitHeight;
+	  else if (!rowStretch && !(item.item_ && item.item_->layout()))
 	    itemFitHeight = false;
 
 	  colSpan = item.colSpan_;
@@ -415,7 +443,8 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  for (int j = 0; j < item.colSpan_; ++j) {
 	    // there is no special meaning for column stretches
 	    if (grid_.columns_[col + j].stretch_)
-	      itemFitWidth = true;
+	      colStretch = fitWidth;
+
 	    if (i + j > 0)
 	      overSpanned[(row + i) * colCount + col + j] = true;
 
@@ -474,10 +503,10 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
  	DomElement *td = DomElement::createNew(DomElement_TD);
 
-	if (app->environment().agentIsIElt(9))
-	  td->setProperty(PropertyStylePosition, "relative");
-
 	if (item.item_) {
+	  if (app->environment().agentIsIElt(9) && vAlign == 0)
+	    td->setProperty(PropertyStylePosition, "relative");
+
 	  DomElement *c = getImpl(item.item_)
 	    ->createDomElement(itemFitWidth, itemFitHeight, app);
 
@@ -498,6 +527,21 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    if (vAlign == 0)
 	      itd->setProperty(PropertyStyle, "height:100%;");
 	    itd->addChild(c);
+
+	    if (app->environment().agentIsIElt(9)) {
+	      // IE7 and IE8 do support min-width but do not enforce it properly
+	      // when in a table.
+	      //  see http://stackoverflow.com/questions/2356525
+	      //            /css-min-width-in-ie6-7-and-8
+	      if (!c->getProperty(PropertyStyleMinWidth).empty()) {
+		DomElement *spacer = DomElement::createNew(DomElement_DIV);
+		spacer->setProperty(PropertyStyleWidth,
+				    c->getProperty(PropertyStyleMinWidth));
+		spacer->setProperty(PropertyStyleHeight, "1px");
+		itd->addChild(spacer);
+	      }
+	    }
+
 	    irow->addChild(itd);
 	    itable->addChild(irow);
 	    c = itable;
@@ -536,7 +580,16 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    c->setProperty(PropertyStyleMarginRight, "0");
 	  }
 
-	  if (itemFitWidth && itemFitHeight) {
+	  /*
+	   * When the cell has stretch (and we are fitting width), we
+	   * use a relative/absolute pair so that we can force the
+	   * cell to shrink while synchronizing its width using
+	   * JavaScript.
+	   *
+	   * For now we do this only in rows in which we are also fitting
+	   * height.
+	   */
+	  if (colStretch && itemFitWidth && itemFitHeight) {
 	    td->setProperty(PropertyClass, "Wt-chwrap");
 	    if (!app->environment().agentIsIE()) {
 	      DomElement *chwrap = DomElement::createNew(DomElement_DIV);
@@ -551,7 +604,8 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  if (app->environment().agentIsIElt(9)) {
 	    // IE7 and IE8 do support min-width but do not enforce it properly
 	    // when in a table.
-	    //  see http://stackoverflow.com/questions/2356525/css-min-width-in-ie6-7-and-8
+	    //  see http://stackoverflow.com/questions/2356525
+	    //            /css-min-width-in-ie6-7-and-8
 	    if (!c->getProperty(PropertyStyleMinWidth).empty()) {
 	      DomElement *spacer = DomElement::createNew(DomElement_DIV);
 	      spacer->setProperty(PropertyStyleWidth,
@@ -566,8 +620,6 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  std::string style;
 
 	  if (vAlign == 0) style += heightPct;
-
-	  //style += "overflow:auto;";
 
 	  if (app->layoutDirection() == RightToLeft)
 	    std::swap(padding[1], padding[3]);

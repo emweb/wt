@@ -106,11 +106,10 @@ WT_DECLARE_WT_MEMBER
        ch = itd.firstChild;
      }
 
-     if (td.childNodes.length == 1)
-       height -= this.marginV(ch);
+     height -= this.marginV(ch);
 
-       if (height <= 0)
-	 height = 0;
+     if (height <= 0)
+       height = 0;
 
      if (WT.hasTag(ch, 'TABLE'))
        return;
