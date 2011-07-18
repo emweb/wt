@@ -25,10 +25,7 @@ WidgetGallery::WidgetGallery()
   : WContainerWidget()
 {
   contentsStack_ = new WStackedWidget();
-  // Show scrollbars when needed ...
   contentsStack_->setOverflow(WContainerWidget::OverflowAuto);
-  // ... and work around a bug in IE (see setOverflow() documentation)
-  contentsStack_->setPositionScheme(Relative);
   contentsStack_->setStyleClass("contents");
 
   EventDisplayer *eventDisplayer = new EventDisplayer(0);

@@ -102,3 +102,11 @@ void ControlsWidget::topic(const std::string &classname1,
 	    + title(classname3) + " and " + title(classname4) + "<br/>",
             parent);
 }
+
+WText *ControlsWidget::addText(const WString& s, WContainerWidget *parent)
+{
+  WText *text = new WText(s, parent);
+  if (!s.literal())
+    text->setInternalPathEncoding(true);
+  return text;
+}

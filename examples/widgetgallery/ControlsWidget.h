@@ -46,6 +46,9 @@ public:
 protected:
   EventDisplayer *ed_;
 
+  static Wt::WText *addText(const Wt::WString& text,
+			    Wt::WContainerWidget *parent = 0);
+
 private:
   bool hasSubMenu_;
 

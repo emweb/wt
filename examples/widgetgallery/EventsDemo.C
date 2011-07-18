@@ -21,7 +21,7 @@ EventsDemo::EventsDemo(EventDisplayer *ed)
   : ControlsWidget(ed, true),
     keyEventRepeatCounter_(0)
 {
-  new WText(tr("events-intro"), this);
+  addText(tr("events-intro"), this);
 }
 
 void EventsDemo::populateSubMenu(WMenu *menu)
@@ -36,24 +36,24 @@ WWidget *EventsDemo::wKeyEvent()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WKeyEvent", result);
-  new WText(tr("events-WKeyEvent-1"), result);
+  addText(tr("events-WKeyEvent-1"), result);
   WLineEdit *l = new WLineEdit(result);
   l->setTextSize(50);
   l->keyWentUp().connect(this, &EventsDemo::showKeyWentUp);
   l->keyWentDown().connect(this, &EventsDemo::showKeyWentDown);
   
-  new WText(tr("events-WKeyEvent-2"), result);
+  addText(tr("events-WKeyEvent-2"), result);
   l = new WLineEdit(result);
   l->setTextSize(50);
   l->keyPressed().connect(this, &EventsDemo::showKeyPressed);
   
-  new WText(tr("events-WKeyEvent-3"), result);
+  addText(tr("events-WKeyEvent-3"), result);
   l = new WLineEdit(result);
   l->setTextSize(50);
   l->enterPressed().connect(this, &EventsDemo::showEnterPressed);
   l->escapePressed().connect(this, &EventsDemo::showEscapePressed);
   new WBreak(result);
-  new WText("Last event: ", result);
+  addText("Last event: ", result);
   keyEventType_ = new WText(result);
   new WBreak(result);
   keyEventDescription_ = new WText(result);
@@ -66,7 +66,7 @@ WWidget *EventsDemo::wMouseEvent()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WMouseEvent", result);
-  new WText(tr("events-WMouseEvent"), result);
+  addText(tr("events-WMouseEvent"), result);
   WContainerWidget *c = new WContainerWidget(result);
   WHBoxLayout *hlayout = new WHBoxLayout;
   c->setLayout(hlayout);
@@ -106,7 +106,7 @@ WWidget *EventsDemo::wDropEvent()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WDropEvent", result);
-  new WText(tr("events-WDropEvent"), result);
+  addText(tr("events-WDropEvent"), result);
   new DragExample(result);
 
   return result;

@@ -43,7 +43,7 @@ NonModalDialog::NonModalDialog(const WString& title, EventDisplayer *ed)
 DialogWidgets::DialogWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  new WText(tr("dialogs-intro"), this);
+  addText(tr("dialogs-intro"), this);
 }
 
 void DialogWidgets::populateSubMenu(WMenu *menu)
@@ -61,7 +61,7 @@ WWidget *DialogWidgets::wDialog()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WDialog", result);
-  new WText(tr("dialogs-WDialog"), result);
+  addText(tr("dialogs-WDialog"), result);
   WPushButton *button = new WPushButton("Modal dialog", result);
   button->clicked().connect(this, &DialogWidgets::customModal);
 
@@ -76,7 +76,7 @@ WWidget *DialogWidgets::wMessageBox()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WMessageBox", result);
-  new WText(tr("dialogs-WMessageBox"),
+  addText(tr("dialogs-WMessageBox"),
 	    result);
   
   WContainerWidget *ex = new WContainerWidget(result);
@@ -105,7 +105,7 @@ WWidget *DialogWidgets::eDialogs()
   WContainerWidget *result = new WContainerWidget();
 
   topic("Ext::Dialog", "Ext::MessageBox", "Ext::ProgressDialog", result);
-  new WText(tr("dialogs-ExtDialog"), result);
+  addText(tr("dialogs-ExtDialog"), result);
   WContainerWidget *ex = new WContainerWidget(result);
   
   WVBoxLayout *vLayout = new WVBoxLayout();
@@ -207,11 +207,11 @@ void DialogWidgets::customModal()
 {
   WDialog dialog("Personalia (modal)");
 
-  new WText("You can freely format the contents of a WDialog by "
-	    "adding any widget you want to it.<br/>Here, we added WText, "
-	    "WLineEdit and WPushButton to a dialog", dialog.contents());
+  addText("You can freely format the contents of a WDialog by "
+	  "adding any widget you want to it.<br/>Here, we added WText, "
+	  "WLineEdit and WPushButton to a dialog", dialog.contents());
   new WBreak(dialog.contents());
-  new WText("Enter your name: ", dialog.contents());
+  addText("Enter your name: ", dialog.contents());
   WLineEdit edit(dialog.contents());
   new WBreak(dialog.contents());
   WPushButton ok("Ok", dialog.contents());
@@ -265,8 +265,8 @@ void DialogWidgets::createExtDialog()
   west->setCollapsible(true);
   west->resize(100, WLength::Auto);
   west->setLayout(new WFitLayout());
-  west->layout()->addWidget(new WText("This is a resizable and collapsible "
-				      "panel"));
+  west->layout()->addWidget(addText("This is a resizable and collapsible "
+				    "panel"));
   layout->addWidget(west, WBorderLayout::West);
 
   Ext::Panel *center = new Ext::Panel();
@@ -279,14 +279,14 @@ void DialogWidgets::createExtDialog()
   nestedLayout->addWidget(nestedNorth, WBorderLayout::North);
   nestedNorth->resize(WLength::Auto, 70);
   nestedNorth->layout()->addWidget(
-    new WText("Ext Dialogs, like Wt Dialogs, can contain any widget. This "
-	      "is a dialog with a layout manager. The left pane can be "
-	      "resized."));
+    addText("Ext Dialogs, like Wt Dialogs, can contain any widget. This "
+	    "is a dialog with a layout manager. The left pane can be "
+	    "resized."));
 
   Ext::Panel *nestedCenter = new Ext::Panel();
   nestedLayout->addWidget(nestedCenter, WBorderLayout::Center);
-  nestedCenter->layout()->addWidget(new WText("This is simply WText, but "
-					      "could have been any widget."));
+  nestedCenter->layout()->addWidget(addText("This is simply WText, but "
+					    "could have been any widget."));
 
   layout->addWidget(center, WBorderLayout::Center);
 

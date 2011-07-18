@@ -356,6 +356,9 @@ WWidget *WMenuItem::takeContents()
 
   if (!contentsLoaded())
     removeChild(contents_);
+  else
+    if (contentsContainer_)
+      contentsContainer_->removeWidget(contents_);
 
   contents_ = 0;
 

@@ -558,6 +558,7 @@ private:
   bool              internalPathEnabled_;
   bool              emitPathChange_;
   std::string       basePath_, previousInternalPath_;
+  bool              subMenu_;
 
   Signal<WMenuItem *> itemSelected_, itemSelectRendered_;
   Signal<WMenuItem *> itemClosed_;
@@ -568,6 +569,7 @@ private:
 
   boost::signals::connection contentsStackConnection_;
   void contentsDestroyed();
+  void handleInternalPathChange(const std::string& path);
 
   int current_;
   int previousCurrent_;
@@ -590,6 +592,7 @@ private:
   void doSetHiddenItem(WMenuItem *item, bool hidden);
   void updateItems();
   void updateSelectionEvent();
+  void setSubMenu(bool submenu);
 };
 
 }

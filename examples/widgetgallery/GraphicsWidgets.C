@@ -19,7 +19,7 @@ GraphicsWidgets::GraphicsWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
   topic("WPaintedWidget", this);
-  new WText(tr("graphics-intro"), this);
+  addText(tr("graphics-intro"), this);
 }
 
 void GraphicsWidgets::populateSubMenu(WMenu *menu)
@@ -59,14 +59,14 @@ WWidget* GraphicsWidgets::paintbrush()
   
   topic("WPaintedWidget", result);
 
-  new WText(tr("graphics-paintbrush"), result);
+  addText(tr("graphics-paintbrush"), result);
 
   WTable* layout = new WTable(result);
 
   PaintBrush *const canvas = new PaintBrush(710, 400, layout->elementAt(0,0));
   canvas->decorationStyle().setBorder(WBorder::Solid);
 
-  new WText("Color chooser:", layout->elementAt(0,1));
+  addText("Color chooser:", layout->elementAt(0,1));
   WTable* colorTable = new WTable(layout->elementAt(0,1));
   addColor(canvas, colorTable->elementAt(0, 0), WColor(black));
   addColor(canvas, colorTable->elementAt(0, 1), WColor(red));

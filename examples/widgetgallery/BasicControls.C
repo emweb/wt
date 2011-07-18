@@ -32,7 +32,7 @@ using namespace Wt;
 BasicControls::BasicControls(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  new WText(tr("basics-intro"), this);
+  addText(tr("basics-intro"), this);
 }
 
 void BasicControls::populateSubMenu(WMenu *menu)
@@ -58,37 +58,37 @@ WWidget *BasicControls::wText()
 {
   WContainerWidget *result = new WContainerWidget();
   topic("WText", result);
-  new WText(tr("basics-WText"), result);
+  addText(tr("basics-WText"), result);
   
-  new WText("<p>This WText unexpectedly contains JavaScript, wich the "
+  addText("<p>This WText unexpectedly contains JavaScript, wich the "
 	    "XSS attack preventer detects and disables. "
 	    "<script>alert(\"You are under attack\");</script>"
 	    "A warning is printed in Wt's log messages.</p>",
 	    result);
     
-  new WText("<p>This WText contains malformed XML <h1></h2>."
+  addText("<p>This WText contains malformed XML <h1></h2>."
 	    "It will be turned into a PlainText formatted string.</p>",
 	    result);
 
-  new WText(tr("basics-WText-events"), result);
+  addText(tr("basics-WText-events"), result);
 
   WText *text;
 
-  text = new WText("This text reacts to <tt>clicked()</tt><br/>",
+  text = addText("This text reacts to <tt>clicked()</tt><br/>",
 		   result);
   text->setStyleClass("reactive");
   ed_->showSignal(text->clicked(), "Text was clicked");
 
-  text = new WText("This text reacts to <tt>doubleClicked()</tt><br/>",
+  text = addText("This text reacts to <tt>doubleClicked()</tt><br/>",
 		   result);
   text->setStyleClass("reactive");
   ed_->showSignal(text->doubleClicked(), "Text was double clicked");
 
-  text = new WText("This text reacts to <tt>mouseWentOver()</tt><br/>", result);
+  text = addText("This text reacts to <tt>mouseWentOver()</tt><br/>", result);
   text->setStyleClass("reactive");
   ed_->showSignal(text->mouseWentOver(), "Mouse went over text");
 
-  text = new WText("This text reacts to <tt>mouseWentOut()</tt><br/>", result);
+  text = addText("This text reacts to <tt>mouseWentOut()</tt><br/>", result);
   text->setStyleClass("reactive");
   ed_->showSignal(text->mouseWentOut(), "Mouse went out text");
 
@@ -100,12 +100,12 @@ WWidget *BasicControls::wTemplate()
   WContainerWidget *result = new WContainerWidget();
   topic("WTemplate", result);
 
-  new WText(tr("basics-WTemplate"), result);
+  addText(tr("basics-WTemplate"), result);
 
   WTemplate *pre = new WTemplate("<pre>${text}</pre>", result);
   pre->bindString("text", tr("basics-WTemplate-example"), PlainText);
 
-  new WText(tr("basics-WTemplate2"), result);
+  addText(tr("basics-WTemplate2"), result);
 
   WTemplate *temp = new WTemplate(tr("basics-WTemplate-example"), result);
 
@@ -122,7 +122,7 @@ WWidget *BasicControls::wBreak()
 
   topic("WBreak", result);
 
-  new WText(tr("basics-WBreak"), result);
+  addText(tr("basics-WBreak"), result);
 
   new WBreak(result); // does not really do anything useful :-)
 
@@ -135,19 +135,19 @@ WWidget *BasicControls::wAnchor()
 
   topic("WAnchor", result);
 
-  new WText(tr("basics-WAnchor"), result);
+  addText(tr("basics-WAnchor"), result);
 
   WAnchor *a1 = new WAnchor("http://www.webtoolkit.eu/",
 			    "Wt homepage (in a new window)", result);
   a1->setTarget(TargetNewWindow);
 
-  new WText(tr("basics-WAnchor-more"), result);
+  addText(tr("basics-WAnchor-more"), result);
 
   WAnchor *a2 = new WAnchor("http://www.emweb.be/", result);
   a2->setTarget(TargetNewWindow);
   new WImage("pics/emweb_small.jpg", a2);
 
-  new WText(tr("basics-WAnchor-related"), result);
+  addText(tr("basics-WAnchor-related"), result);
     
   return result;
 }
@@ -158,12 +158,12 @@ WWidget *BasicControls::wImage()
 
   topic("WImage", result);
 
-  new WText(tr("basics-WImage"), result);
+  addText(tr("basics-WImage"), result);
 
-  new WText("An image: ", result);
+  addText("An image: ", result);
   new WImage("icons/wt_powered.jpg", result);
 
-  new WText(tr("basics-WImage-more"), result);
+  addText(tr("basics-WImage-more"), result);
 
   return result;
 }
@@ -174,29 +174,29 @@ WWidget *BasicControls::wTable()
 
   topic("WTable", result);
   
-  new WText(tr("basics-WTable"), result);
+  addText(tr("basics-WTable"), result);
 
   WTable *table = new WTable(result);
   table->setStyleClass("example-table");
 
-  new WText("First warning signal", table->elementAt(0, 0));
-  new WText("09:25am", table->elementAt(0, 1));
+  addText("First warning signal", table->elementAt(0, 0));
+  addText("09:25am", table->elementAt(0, 1));
   WImage *img = new WImage("icons/Pennant_One.png", table->elementAt(0, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
-  new WText("First perparatory signal", table->elementAt(1, 0));
-  new WText("09:26am", table->elementAt(1, 1));
+  addText("First perparatory signal", table->elementAt(1, 0));
+  addText("09:26am", table->elementAt(1, 1));
   img = new WImage("icons/Pennant_One.png", table->elementAt(1, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   img = new WImage("icons/Papa.png", table->elementAt(1, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
-  new WText("Second perparatory signal", table->elementAt(2, 0));
-  new WText("09:29am", table->elementAt(2, 1));
+  addText("Second perparatory signal", table->elementAt(2, 0));
+  addText("09:29am", table->elementAt(2, 1));
   img = new WImage("icons/Pennant_One.png", table->elementAt(2, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
-  new WText("Start", table->elementAt(3, 0));
-  new WText("09:30am", table->elementAt(3, 1));
+  addText("Start", table->elementAt(3, 0));
+  addText("09:30am", table->elementAt(3, 1));
 
-  new WText(tr("basics-WTable-more"), result);
+  addText(tr("basics-WTable-more"), result);
 
   return result;
 }
@@ -208,7 +208,7 @@ WWidget *BasicControls::wTree()
 
   topic("WTree", "WTreeNode", result);
 
-  new WText(tr("basics-WTree"), result);
+  addText(tr("basics-WTree"), result);
 
   WIconPair *folderIcon = new WIconPair("icons/yellow-folder-closed.png",
 					"icons/yellow-folder-open.png", false);
@@ -235,7 +235,7 @@ WWidget *BasicControls::wTree()
   three->addChildNode(new WTreeNode("Bashful"));
   three->addChildNode(new WTreeNode("Sleepy"));
 
-  new WText(tr("basics-WTree-more"), result);
+  addText(tr("basics-WTree-more"), result);
 
   return result;
 }
@@ -245,7 +245,7 @@ WWidget *BasicControls::wTreeTable()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WTreeTable","WTreeTableNode", result);
-  new WText(tr("basics-WTreeTable"), result);
+  addText(tr("basics-WTreeTable"), result);
 
   WTreeTable *tt = new WTreeTable(result);
   tt->resize(650, 200);
@@ -259,39 +259,39 @@ WWidget *BasicControls::wTreeTable()
   WTreeTableNode *ttr1 = new WTreeTableNode("Upper Management", 0, ttr);
   WTreeTableNode *ttn;
   ttn = new WTreeTableNode("Chief Anything Officer", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("-2.8"));
-  ttn->setColumnWidget(2, new WText("20"));
-  ttn->setColumnWidget(3, new WText("Scepter"));
+  ttn->setColumnWidget(1, addText("-2.8"));
+  ttn->setColumnWidget(2, addText("20"));
+  ttn->setColumnWidget(3, addText("Scepter"));
   ttn = new WTreeTableNode("Vice President of Parties", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("13.57"));
-  ttn->setColumnWidget(2, new WText("365"));
-  ttn->setColumnWidget(3, new WText("Flag"));
+  ttn->setColumnWidget(1, addText("13.57"));
+  ttn->setColumnWidget(2, addText("365"));
+  ttn->setColumnWidget(3, addText("Flag"));
   ttn = new WTreeTableNode("Vice President of Staplery", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("3.42"));
-  ttn->setColumnWidget(2, new WText("27"));
-  ttn->setColumnWidget(3, new WText("Perforator"));
+  ttn->setColumnWidget(1, addText("3.42"));
+  ttn->setColumnWidget(2, addText("27"));
+  ttn->setColumnWidget(3, addText("Perforator"));
   ttr1 = new WTreeTableNode("Middle management", 0, ttr);
   ttn = new WTreeTableNode("Boss of the house", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("9.78"));
-  ttn->setColumnWidget(2, new WText("35"));
-  ttn->setColumnWidget(3, new WText("Happy Animals"));
+  ttn->setColumnWidget(1, addText("9.78"));
+  ttn->setColumnWidget(2, addText("35"));
+  ttn->setColumnWidget(3, addText("Happy Animals"));
   ttn = new WTreeTableNode("Xena caretaker", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("8.66"));
-  ttn->setColumnWidget(2, new WText("10"));
-  ttn->setColumnWidget(3, new WText("Yellow bag"));
+  ttn->setColumnWidget(1, addText("8.66"));
+  ttn->setColumnWidget(2, addText("10"));
+  ttn->setColumnWidget(3, addText("Yellow bag"));
   ttr1 = new WTreeTableNode("Actual Workforce", 0, ttr);
   ttn = new WTreeTableNode("The Dork", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("9.78"));
-  ttn->setColumnWidget(2, new WText("22"));
-  ttn->setColumnWidget(3, new WText("Mojito"));
+  ttn->setColumnWidget(1, addText("9.78"));
+  ttn->setColumnWidget(2, addText("22"));
+  ttn->setColumnWidget(3, addText("Mojito"));
   ttn = new WTreeTableNode("The Stud", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("8.66"));
-  ttn->setColumnWidget(2, new WText("46"));
-  ttn->setColumnWidget(3, new WText("Toothbrush"));
+  ttn->setColumnWidget(1, addText("8.66"));
+  ttn->setColumnWidget(2, addText("46"));
+  ttn->setColumnWidget(3, addText("Toothbrush"));
   ttn = new WTreeTableNode("The Ugly", 0, ttr1);
-  ttn->setColumnWidget(1, new WText("13.0"));
-  ttn->setColumnWidget(2, new WText("25"));
-  ttn->setColumnWidget(3, new WText("Paper bag"));
+  ttn->setColumnWidget(1, addText("13.0"));
+  ttn->setColumnWidget(2, addText("25"));
+  ttn->setColumnWidget(3, addText("Paper bag"));
   ttr->expand();
 
   return result;
@@ -303,23 +303,23 @@ WWidget *BasicControls::wPanel()
 
   topic("WPanel", result);
 
-  new WText(tr("basics-WPanel"), result);
+  addText(tr("basics-WPanel"), result);
   WPanel *panel = new WPanel(result);
-  panel->setCentralWidget(new WText("This is a default panel"));
+  panel->setCentralWidget(addText("This is a default panel"));
   new WBreak(result);
   panel = new WPanel(result);
   panel->setTitle("My second WPanel.");
-  panel->setCentralWidget(new WText("This is a panel with a title"));
+  panel->setCentralWidget(addText("This is a panel with a title"));
   new WBreak(result);
   panel = new WPanel(result);
   panel->setAnimation(WAnimation(WAnimation::SlideInFromTop | WAnimation::Fade,
 				 WAnimation::EaseOut, 100));
   panel->setTitle("My third WPanel");
-  panel->setCentralWidget(new WText("This is a collapsible panel with "
+  panel->setCentralWidget(addText("This is a collapsible panel with "
 				    "a title"));
   panel->setCollapsible(true);
 
-  new WText(tr("basics-WPanel-related"), result);
+  addText(tr("basics-WPanel-related"), result);
 
   return result;
 }
@@ -329,23 +329,23 @@ WWidget *BasicControls::wTabWidget()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WTabWidget", result);
-  new WText(tr("basics-WTabWidget"), result);    
+  addText(tr("basics-WTabWidget"), result);    
   WTabWidget *tw = new WTabWidget(result);
-  tw->addTab(new WText("These are the contents of the first tab"),
+  tw->addTab(addText("These are the contents of the first tab"),
 	     "Picadilly", WTabWidget::PreLoading);
-  tw->addTab(new WText("The contents of these tabs are pre-loaded in "
+  tw->addTab(addText("The contents of these tabs are pre-loaded in "
 		       "the browser to ensure swift switching."),
 	     "Waterloo", WTabWidget::PreLoading);
-  tw->addTab(new WText("This is yet another pre-loaded tab. "
+  tw->addTab(addText("This is yet another pre-loaded tab. "
 		       "Look how good this works."),
 	     "Victoria", WTabWidget::PreLoading);
-  tw->addTab(new WText("The colors of the tab widget can be changed by "
+  tw->addTab(addText("The colors of the tab widget can be changed by "
 		       "modifying some images."),
 	     "Tottenham");
 
   tw->setStyleClass("tabwidget");
 
-  new WText(tr("basics-WTabWidget-more"), result);    
+  addText(tr("basics-WTabWidget-more"), result);    
 
   return result;
 }
@@ -356,7 +356,7 @@ WWidget *BasicControls::wContainerWidget()
 
   topic("WContainerWidget", result);
 
-  new WText(tr("basics-WContainerWidget"), result);
+  addText(tr("basics-WContainerWidget"), result);
 
   return result;
 }
@@ -366,7 +366,7 @@ WWidget *BasicControls::wMenu()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WMenu", result);
-  new WText(tr("basics-WMenu"), result);
+  addText(tr("basics-WMenu"), result);
 
   return result;
 }
@@ -376,12 +376,12 @@ WWidget *BasicControls::wGroupBox()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WGroupBox", result);
-  new WText(tr("basics-WGroupBox"), result);
+  addText(tr("basics-WGroupBox"), result);
 
   WGroupBox *gb = new WGroupBox("A group box", result);
-  gb->addWidget(new WText(tr("basics-WGroupBox-contents")));
+  gb->addWidget(addText(tr("basics-WGroupBox-contents")));
 
-  new WText(tr("basics-WGroupBox-related"), result);
+  addText(tr("basics-WGroupBox-related"), result);
 
   return result;
 }
@@ -391,7 +391,7 @@ WWidget *BasicControls::wStackedWidget()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WStackedWidget", result);
-  new WText(tr("basics-WStackedWidget"), result);
+  addText(tr("basics-WStackedWidget"), result);
 
   return result;
 }
@@ -402,7 +402,7 @@ WWidget *BasicControls::wProgressBar()
 
   topic("WProgressBar", result);
 
-  result->addWidget(new WText(tr("basics-WProgressBar")));
+  result->addWidget(addText(tr("basics-WProgressBar")));
   WProgressBar *pb = new WProgressBar(result);
   pb->setValue(27);
 

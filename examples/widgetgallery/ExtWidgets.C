@@ -28,7 +28,7 @@ using namespace Wt::Ext;
 ExtWidgets::ExtWidgets(EventDisplayer *ed):
   ControlsWidget(ed, true)
 {
-  new WText(tr("ext-intro"), this);
+  addText(tr("ext-intro"), this);
 }
 
 void ExtWidgets::populateSubMenu(WMenu *menu)
@@ -61,7 +61,7 @@ WWidget *ExtWidgets::eButton()
   WContainerWidget *result = new WContainerWidget();
 
   topic("Ext::Button", result);
-  new WText(tr("ext-Button"), result);
+  addText(tr("ext-Button"), result);
 
   WContainerWidget *ex = new WContainerWidget(result);
   WVBoxLayout *vLayout = new WVBoxLayout();
@@ -88,7 +88,7 @@ WWidget *ExtWidgets::eLineEdit()
 
   topic("Ext::LineEdit", result);
 
-  new WText(tr("ext-LineEdit"), result);
+  addText(tr("ext-LineEdit"), result);
   LineEdit *le;
   le = new LineEdit(result);
   le->setTextSize(50);
@@ -103,7 +103,7 @@ WWidget *ExtWidgets::eNumberField()
 
   topic("Ext::NumberField", result);
 
-  new WText(tr("ext-NumberField"), result);
+  addText(tr("ext-NumberField"), result);
   new WText("Total amount to pay: ", result);
   NumberField *nf = new NumberField(result);
   nf->setDecimalPrecision(2);
@@ -119,7 +119,7 @@ WWidget *ExtWidgets::eCheckBox()
 
   topic("Ext::CheckBox", result);
   
-  new WText(tr("ext-CheckBox"), result);
+  addText(tr("ext-CheckBox"), result);
   CheckBox *cb;
   cb = new CheckBox("Check me!", result);
   ed_->showSignal(cb->checked(), "Ext::CheckBox checked");
@@ -136,7 +136,7 @@ WWidget *ExtWidgets::eComboBox()
 
   topic("Ext::ComboBox", result);
 
-  new WText(tr("ext-ComboBox"), result);
+  addText(tr("ext-ComboBox"), result);
   ComboBox *cb = new ComboBox(result);
   cb->addItem("Stella");
   cb->addItem("Duvel");
@@ -158,7 +158,7 @@ WWidget *ExtWidgets::eRadioButton()
 
   topic("Ext::RadioButton", result);
 
-  new WText(tr("ext-RadioButton"), result);
+  addText(tr("ext-RadioButton"), result);
   WButtonGroup *bg = new WButtonGroup(result);
   RadioButton *rb;
   rb = new RadioButton("Kitchen", result);
@@ -183,7 +183,7 @@ WWidget *ExtWidgets::eCalendar()
 
   topic("Ext::Calendar", result);
 
-  new WText(tr("ext-Calendar"), result);
+  addText(tr("ext-Calendar"), result);
   Calendar *c = new Calendar(false, result);
   ed_->showSignal(c->selectionChanged(), "Ext::Calendar selectionChanged");
 
@@ -196,7 +196,7 @@ WWidget *ExtWidgets::eDateField()
 
   topic("Ext::DateField", result);
 
-  new WText(tr("ext-DateField"), result);
+  addText(tr("ext-DateField"), result);
   DateField *df = new DateField(result);
   df->setFormat("ddd MMM d yyyy");
   df->setTextSize(25);
@@ -210,7 +210,7 @@ WWidget *ExtWidgets::eMenu()
 
   topic("Ext::Menu", "Ext::ToolBar", result);
 
-  new WText(tr("ext-Menu"), result);
+  addText(tr("ext-Menu"), result);
   Ext::Menu *menu = new Ext::Menu();
   Ext::MenuItem *item;
 
@@ -269,7 +269,7 @@ WWidget *ExtWidgets::eDialog()
 
   topic("Ext::Dialog", "Ext::MessageBox", "Ext::ProgressDialog", result);
 
-  new WText(tr("ext-Dialog"), result);
+  addText(tr("ext-Dialog"), result);
 
   return result;
 }

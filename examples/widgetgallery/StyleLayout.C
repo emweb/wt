@@ -32,7 +32,7 @@ using namespace Wt;
 StyleLayout::StyleLayout(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  new WText(tr("style-layout-intro"), this);
+  addText(tr("style-layout-intro"), this);
 }
 
 void StyleLayout::populateSubMenu(WMenu *menu)
@@ -46,7 +46,7 @@ void StyleLayout::populateSubMenu(WMenu *menu)
 
 WWidget *StyleLayout::css()
 {
-  return new WText(tr("style-and-layout-css"));
+  return addText(tr("style-and-layout-css"));
 }
 
 WWidget *StyleLayout::wLoadingIndicator()
@@ -54,12 +54,12 @@ WWidget *StyleLayout::wLoadingIndicator()
   WContainerWidget *result = new WContainerWidget();
   topic("WLoadingIndicator", result);
 
-  new WText(tr("style-WLoadingIndicator"), result);
+  addText(tr("style-WLoadingIndicator"), result);
 
   //fix for the WOverlayLoadingIndicator
   WApplication::instance()->styleSheet().addRule("body", "margin: 0px");
 
-  new WText("Select a loading indicator:  ", result);
+  addText("Select a loading indicator:  ", result);
   WComboBox *cb = new WComboBox(result);
   cb->addItem("WDefaultLoadingIndicator");
   cb->addItem("WOverlayLoadingIndicator");
@@ -100,7 +100,7 @@ WWidget *StyleLayout::wBoxLayout()
   WContainerWidget *result = new WContainerWidget();
   topic("WHBoxLayout", "WVBoxLayout", result);
 
-  new WText(tr("layout-WBoxLayout"), result);
+  addText(tr("layout-WBoxLayout"), result);
 
   WContainerWidget *container;
   WText *item;
@@ -115,15 +115,15 @@ WWidget *StyleLayout::wBoxLayout()
   hbox = new WHBoxLayout();
   container->setLayout(hbox);
 
-  item = new WText(tr("layout-item1"));
+  item = addText(tr("layout-item1"));
   item->setStyleClass("green-box");
   hbox->addWidget(item);
   
-  item = new WText(tr("layout-item2"));
+  item = addText(tr("layout-item2"));
   item->setStyleClass("blue-box");
   hbox->addWidget(item);
 
-  new WText(tr("layout-WBoxLayout-stretch"), result);
+  addText(tr("layout-WBoxLayout-stretch"), result);
 
   /*
    * second hbox
@@ -133,15 +133,15 @@ WWidget *StyleLayout::wBoxLayout()
   hbox = new WHBoxLayout();
   container->setLayout(hbox);
 
-  item = new WText(tr("layout-item1"));
+  item = addText(tr("layout-item1"));
   item->setStyleClass("green-box");
   hbox->addWidget(item, 1);
   
-  item = new WText(tr("layout-item2"));
+  item = addText(tr("layout-item2"));
   item->setStyleClass("blue-box");
   hbox->addWidget(item);
 
-  new WText(tr("layout-WBoxLayout-vbox"), result);
+  addText(tr("layout-WBoxLayout-vbox"), result);
 
   /*
    * first vbox
@@ -152,11 +152,11 @@ WWidget *StyleLayout::wBoxLayout()
   vbox = new WVBoxLayout();
   container->setLayout(vbox);
 
-  item = new WText(tr("layout-item1"));
+  item = addText(tr("layout-item1"));
   item->setStyleClass("green-box");
   vbox->addWidget(item);
   
-  item = new WText(tr("layout-item2"));
+  item = addText(tr("layout-item2"));
   item->setStyleClass("blue-box");
   vbox->addWidget(item);
 
@@ -169,15 +169,15 @@ WWidget *StyleLayout::wBoxLayout()
   vbox = new WVBoxLayout();
   container->setLayout(vbox);
 
-  item = new WText(tr("layout-item1"));
+  item = addText(tr("layout-item1"));
   item->setStyleClass("green-box");
   vbox->addWidget(item, 1);
   
-  item = new WText(tr("layout-item2"));
+  item = addText(tr("layout-item2"));
   item->setStyleClass("blue-box");
   vbox->addWidget(item);
 
-  new WText(tr("layout-WBoxLayout-nested"), result);
+  addText(tr("layout-WBoxLayout-nested"), result);
 
   /*
    * nested boxes
@@ -189,18 +189,18 @@ WWidget *StyleLayout::wBoxLayout()
   vbox = new WVBoxLayout();
   container->setLayout(vbox);
 
-  item = new WText(tr("layout-item1"));
+  item = addText(tr("layout-item1"));
   item->setStyleClass("green-box");
   vbox->addWidget(item, 1);
 
   hbox = new WHBoxLayout();
   vbox->addLayout(hbox);
 
-  item = new WText(tr("layout-item2"));
+  item = addText(tr("layout-item2"));
   item->setStyleClass("green-box");
   hbox->addWidget(item);
 
-  item = new WText(tr("layout-item3"));
+  item = addText(tr("layout-item3"));
   item->setStyleClass("blue-box");
   hbox->addWidget(item);
 
@@ -212,7 +212,7 @@ WWidget *StyleLayout::wGridLayout()
   WContainerWidget *result = new WContainerWidget();
   topic("WGridLayout", result);
 
-  new WText(tr("layout-WGridLayout"), result);
+  addText(tr("layout-WGridLayout"), result);
 
   WContainerWidget *container;
 
@@ -224,7 +224,7 @@ WWidget *StyleLayout::wGridLayout()
 
   for (int row = 0; row < 3; ++row) {
     for (int column = 0; column < 4; ++column) {
-      WText *t = new WText(tr("grid-item").arg(row).arg(column));
+      WText *t = addText(tr("grid-item").arg(row).arg(column));
       if (row == 1 || column == 1 || column == 2)
 	t->setStyleClass("blue-box");
       else
@@ -245,7 +245,7 @@ WWidget *StyleLayout::wBorderLayout()
   WContainerWidget *result = new WContainerWidget();
   topic("WBorderLayout", result);
 
-  new WText(tr("layout-WBorderLayout"), result);
+  addText(tr("layout-WBorderLayout"), result);
 
   WContainerWidget *container;
 
@@ -257,23 +257,23 @@ WWidget *StyleLayout::wBorderLayout()
 
   WText *item;
 
-  item = new WText(tr("borderlayout-item").arg("North"));
+  item = addText(tr("borderlayout-item").arg("North"));
   item->setStyleClass("green-box");
   layout->addWidget(item, WBorderLayout::North);
 
-  item = new WText(tr("borderlayout-item").arg("West"));
+  item = addText(tr("borderlayout-item").arg("West"));
   item->setStyleClass("green-box");
   layout->addWidget(item, WBorderLayout::West);
 
-  item = new WText(tr("borderlayout-item").arg("East"));
+  item = addText(tr("borderlayout-item").arg("East"));
   item->setStyleClass("green-box");
   layout->addWidget(item, WBorderLayout::East);
 
-  item = new WText(tr("borderlayout-item").arg("South"));
+  item = addText(tr("borderlayout-item").arg("South"));
   item->setStyleClass("green-box");
   layout->addWidget(item, WBorderLayout::South);
 
-  item = new WText(tr("borderlayout-item").arg("Center"));
+  item = addText(tr("borderlayout-item").arg("Center"));
   item->setStyleClass("green-box");
   layout->addWidget(item, WBorderLayout::Center);
 

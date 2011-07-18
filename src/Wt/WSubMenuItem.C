@@ -21,15 +21,7 @@ WSubMenuItem::WSubMenuItem(const WString& text, WWidget *contents,
 void WSubMenuItem::setSubMenu(WMenu *subMenu)
 {
   subMenu_ = subMenu;
-  subMenu_->itemSelected().connect(this, &WSubMenuItem::subItemSelected);
-}
-
-void WSubMenuItem::subItemSelected()
-{
-  if (menu()) {
-    menu()->select(-1);
-    renderSelected(true);
-  }
+  subMenu_->setSubMenu(true);
 }
 
 WWidget *WSubMenuItem::createItemWidget()

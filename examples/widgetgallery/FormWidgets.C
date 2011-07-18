@@ -36,7 +36,7 @@ using namespace Wt;
 FormWidgets::FormWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  new WText(tr("formwidgets-intro"), this);
+  addText(tr("formwidgets-intro"), this);
 }
 
 void FormWidgets::populateSubMenu(WMenu *menu)
@@ -66,11 +66,11 @@ WWidget *FormWidgets::wPushButton()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WPushButton", result);
-  new WText(tr("formwidgets-WPushButton"), result);
+  addText(tr("formwidgets-WPushButton"), result);
   WPushButton *pb = new WPushButton("Click me!", result);
   ed_->showSignal(pb->clicked(), "WPushButton click");
 
-  new WText(tr("formwidgets-WPushButton-more"), result);
+  addText(tr("formwidgets-WPushButton-more"), result);
   pb = new WPushButton("Try to click me...", result);
   pb->setEnabled(false);
   
@@ -82,7 +82,7 @@ WWidget *FormWidgets::wCheckBox()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WCheckBox", result);
-  new WText(tr("formwidgets-WCheckBox"), result);
+  addText(tr("formwidgets-WCheckBox"), result);
   WCheckBox *cb = new WCheckBox("Check me!", result);
   cb->setChecked(true);
   ed_->showSignal(cb->checked(), "'Check me!' checked");
@@ -104,7 +104,7 @@ WWidget *FormWidgets::wRadioButton()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WRadioButton", result);
-  new WText(tr("formwidgets-WRadioButton"), result);
+  addText(tr("formwidgets-WRadioButton"), result);
   WRadioButton *rb = 0;
   rb = new WRadioButton("Radio me!", result);
   ed_->showSignal(rb->checked(), "'Radio me!' checked (not in buttongroup)");
@@ -113,7 +113,7 @@ WWidget *FormWidgets::wRadioButton()
   ed_->showSignal(rb->checked(), "'Radio me too!' checked "
 		 "(not in buttongroup)");
   
-  new WText(tr("formwidgets-WRadioButton-group"), result);
+  addText(tr("formwidgets-WRadioButton-group"), result);
   WButtonGroup *wgb = new WButtonGroup(result);
   rb = new WRadioButton("Radio me!", result);
   ed_->showSignal(rb->checked(), "'Radio me!' checked");
@@ -137,7 +137,7 @@ WWidget *FormWidgets::wComboBox()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WComboBox", result);
-  new WText(tr("formwidgets-WComboBox"), result);
+  addText(tr("formwidgets-WComboBox"), result);
   WComboBox *cb = new WComboBox(result);
   cb->addItem("Heavy");
   cb->addItem("Medium");
@@ -145,9 +145,9 @@ WWidget *FormWidgets::wComboBox()
   cb->setCurrentIndex(1); // select 'Medium'
   ed_->showSignal(cb->sactivated(), "Combo-box 1 activated: ");
 
-  new WText(tr("formwidgets-WComboBox-model"), result);
+  addText(tr("formwidgets-WComboBox-model"), result);
   
-  new WText(tr("formwidgets-WComboBox-style"), result);
+  addText(tr("formwidgets-WComboBox-style"), result);
   WComboBox *colorCb = new WComboBox(result);
   WStandardItemModel* model = new WStandardItemModel(colorCb);
   model->insertColumns(0, 3);
@@ -176,14 +176,14 @@ WWidget *FormWidgets::wSelectionBox()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WSelectionBox", result);
-  new WText(tr("formwidgets-WSelectionBox"), result);
+  addText(tr("formwidgets-WSelectionBox"), result);
   WSelectionBox *sb1 = new WSelectionBox(result);
   sb1->addItem("Heavy");
   sb1->addItem("Medium");
   sb1->addItem("Light");
   sb1->setCurrentIndex(1); // Select 'medium'
   ed_->showSignal(sb1->sactivated(), "SelectionBox activated: ");
-  new WText("<p>... or multiple options (use shift and/or ctrl-click "
+  addText("<p>... or multiple options (use shift and/or ctrl-click "
 	    "to select your pizza toppings)</p>", result);
   WSelectionBox *sb2 = new WSelectionBox(result);
   sb2->addItem("Bacon");
@@ -202,7 +202,7 @@ WWidget *FormWidgets::wSelectionBox()
   sb2->setSelectedIndexes(selection);
   ed_->showSignal(sb2->changed(), "SelectionBox 2 changed");
 
-  new WText(tr("formwidgets-WSelectionBox-model"), result);
+  addText(tr("formwidgets-WSelectionBox-model"), result);
   
   return result;
 }
@@ -212,19 +212,19 @@ WWidget *FormWidgets::wLineEdit()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WLineEdit", result);
-  new WText(tr("formwidgets-WLineEdit"), result);
+  addText(tr("formwidgets-WLineEdit"), result);
 
   WLineEdit *le = new WLineEdit(result);
   le->setEmptyText("Edit me");
   ed_->showSignal(le->keyWentUp(), "Line edit key up event");
 
-  new WText("<p>The line edit on the following line reacts on the "
+  addText("<p>The line edit on the following line reacts on the "
 	    "enter button:</p>", result);
 
   le = new WLineEdit(result);
   ed_->showSignal(le->enterPressed(), "Line edit enter pressed event");
 
-  new WText(tr("formwidgets-WLineEdit-more"), result);
+  addText(tr("formwidgets-WLineEdit-more"), result);
 
   return result;
 }
@@ -234,9 +234,9 @@ WWidget *FormWidgets::wSpinBox()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WSpinBox", result);
-  new WText(tr("formwidgets-WSpinBox"), result);
+  addText(tr("formwidgets-WSpinBox"), result);
 
-  new WText("Enter a number between 0 and 100: ", result);
+  addText("Enter a number between 0 and 100: ", result);
   WDoubleSpinBox *le = new WDoubleSpinBox(result);
   ed_->showSignal(le->changed(), "Spin box value changed");
   le->setValue(30.123);
@@ -252,7 +252,7 @@ WWidget *FormWidgets::wTextArea()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WTextArea", result);
-  new WText(tr("formwidgets-WTextArea"), result);
+  addText(tr("formwidgets-WTextArea"), result);
 
   WTextArea *ta = new WTextArea(result);
   ta->setColumns(80);
@@ -260,7 +260,7 @@ WWidget *FormWidgets::wTextArea()
   ta->setText(tr("formwidgets-WTextArea-contents"));
   ed_->showSignal(ta->changed(), "Text area changed");
  
-  new WText(tr("formwidgets-WTextArea-related"), result);
+  addText(tr("formwidgets-WTextArea-related"), result);
 
   return result;
 }
@@ -271,11 +271,11 @@ WWidget *FormWidgets::wCalendar()
 
   topic("WCalendar", result);
 
-  new WText(tr("formwidgets-WCalendar"), result);
+  addText(tr("formwidgets-WCalendar"), result);
 
   WCalendar *c = new WCalendar(result);
   ed_->showSignal(c->selectionChanged(), "First calendar's selection changed");
-  new WText("<p>A flag indicates if multiple dates can be selected...</p>",
+  addText("<p>A flag indicates if multiple dates can be selected...</p>",
 	    result);
   WCalendar *c2 = new WCalendar(result);
   c2->setSelectionMode(ExtendedSelection);
@@ -289,19 +289,19 @@ WWidget *FormWidgets::wDatePicker()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WDatePicker", result);
-  new WText("<p>The <tt>WDatePicker</tt> allows the entry of a date.</p>",
+  addText("<p>The <tt>WDatePicker</tt> allows the entry of a date.</p>",
 	    result);
 
   WDatePicker* dp1 = new WDatePicker(result);
   ed_->showSignal(dp1->lineEdit()->changed(), "Date picker 1 changed");
-  new WText("(format " + dp1->format() + ")", result);
+  addText("(format " + dp1->format() + ")", result);
   
   new WBreak(result);
   
   WDatePicker* dp2 = new WDatePicker(result);
   ed_->showSignal(dp2->lineEdit()->changed(), "Date picker 2 changed");
   dp2->setFormat("dd MM yyyy");
-  new WText("(format " + dp2->format() + ")", result);
+  addText("(format " + dp2->format() + ")", result);
 
   return result;
 }
@@ -311,12 +311,12 @@ WWidget *FormWidgets::wInPlaceEdit()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WInPlaceEdit", result);
-  new WText("<p>This widget allows you to edit a text in-place by clicking "
+  addText("<p>This widget allows you to edit a text in-place by clicking "
 	    "on it. You can enable the save/cancel buttons (like here below) "
 	    "or disable them (as used in the <tt>WCalendar</tt> widget to edit "
 	    "the year).</p>",
 	    result);
-  new WText("Try it here: ", result);
+  addText("Try it here: ", result);
   WInPlaceEdit *ipe = new WInPlaceEdit("This is editable text", result);
   ipe->setStyleClass("in-place-edit");
   ed_->showSignal(ipe->valueChanged(), "In-place edit changed: ");
@@ -329,7 +329,7 @@ WWidget *FormWidgets::wSuggestionPopup()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WSuggestionPopup", result);
-  new WText(tr("formwidgets-WSuggestionPopup"), result);
+  addText(tr("formwidgets-WSuggestionPopup"), result);
 
   // options for email address suggestions
   WSuggestionPopup::Options contactOptions;
@@ -365,7 +365,7 @@ WWidget *FormWidgets::wTextEdit()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WTextEdit", result);
-  new WText("<p>The <tt>WTextEdit</tt> is a full-featured editor for rich text"
+  addText("<p>The <tt>WTextEdit</tt> is a full-featured editor for rich text"
 	    "editing. It is based on the TinyMCE editor, which must be "
 	    "downloaded separately from its author's website. The TinyMCE "
 	    "toolbar layout and plugins can be configured through Wt's "
@@ -382,14 +382,14 @@ WWidget *FormWidgets::wFileUpload()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WFileUpload", result);
-  new WText(tr("formwidgets-WFileUpload"), result);
+  addText(tr("formwidgets-WFileUpload"), result);
   WFileUpload *const fu = new WFileUpload(result);
   fu->setProgressBar(new WProgressBar());
   fu->changed().connect(fu, &WFileUpload::upload);
   ed_->showSignal(fu->changed(), "File upload changed");
   ed_->showSignal(fu->uploaded(), "File upload finished");
   ed_->showSignal(fu->fileTooLarge(), "File too large");
-  new WText(tr("formwidgets-WFileUpload-more"), result);
+  addText(tr("formwidgets-WFileUpload-more"), result);
 
   return result;
 }
@@ -400,7 +400,7 @@ WWidget *FormWidgets::wPopupMenu()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WPopupMenu", "WPopupMenuItem", result);
-  new WText(tr("formwidgets-WPopupMenu"), result);
+  addText(tr("formwidgets-WPopupMenu"), result);
 
   WPopupMenu *popup = new WPopupMenu();
   popup->addItem("icons/house.png", "Build a house");

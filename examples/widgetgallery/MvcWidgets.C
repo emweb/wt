@@ -26,7 +26,7 @@ using namespace Wt;
 MvcWidgets::MvcWidgets(EventDisplayer *ed):
   ControlsWidget(ed, true)
 {
-  new WText(tr("mvc-intro"), this);
+  addText(tr("mvc-intro"), this);
 
   stringList_ = new WStringListModel(this);
   std::vector<WString> strings;
@@ -73,7 +73,7 @@ WWidget *MvcWidgets::models()
 
   topic("WAbstractItemModel", "WAbstractListModel", "WStandardItemModel",
 	"WStringListModel", result);
-  new WText(tr("mvc-models"), result);
+  addText(tr("mvc-models"), result);
   return result;
 }
 
@@ -82,7 +82,7 @@ WWidget *MvcWidgets::proxyModels()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WAbstractProxyModel", "WSortFilterProxyModel", result);
-  new WText(tr("mvc-proxymodels"), result);
+  addText(tr("mvc-proxymodels"), result);
 
   WStandardItemModel* cocktails = new WStandardItemModel(result);
   cocktails->appendRow(new WStandardItem("The Last WordLime Rickey"));
@@ -110,7 +110,7 @@ WWidget *MvcWidgets::proxyModels()
   cocktails->appendRow(new WStandardItem("My Fair Lady"));
   cocktails->appendRow(new WStandardItem("Gibson"));
 
-  new WText("<b>Filter regular expression: </b>", result);
+  addText("<b>Filter regular expression: </b>", result);
   regexpFilter = new WLineEdit(result);
   regexpFilter->setText("Gi.*");
   regexpFilter->enterPressed().
@@ -158,7 +158,7 @@ WWidget *MvcWidgets::proxyModels()
     layout->elementAt(0, i)->setPadding(4);
     layout->elementAt(0, i)->setContentAlignment(AlignCenter);
 
-    new WText(headers[i], layout->elementAt(0, i));
+    addText(headers[i], layout->elementAt(0, i));
     new WBreak(layout->elementAt(0, i));
 
     WSelectionBox *view = new WSelectionBox(layout->elementAt(0, i));
@@ -180,17 +180,17 @@ WWidget *MvcWidgets::viewsCombo()
 #else
   topic("WComboBox", "WSelectionBox", result);
 #endif
-  new WText(tr("mvc-stringlistviews"), result);
-  new WText("<h3>WComboBox</h3>", result);
+  addText(tr("mvc-stringlistviews"), result);
+  addText("<h3>WComboBox</h3>", result);
   (new WComboBox(result))->setModel(stringList_);
 
   // WSelectionBox
-  new WText("<h3>WSelectionBox</h3>", result);
+  addText("<h3>WSelectionBox</h3>", result);
   (new WSelectionBox(result))->setModel(stringList_);
 
 #ifndef WT_TARGET_JAVA
   // Ext::ComboBox
-  new WText("<h3>Ext::ComboBox</h3>", result);
+  addText("<h3>Ext::ComboBox</h3>", result);
   extComboBox_ = new Ext::ComboBox(result);
   extComboBox_->setModel(stringList_);
   extComboBox_->setEditable(true);
@@ -207,7 +207,7 @@ WWidget *MvcWidgets::viewsTable()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WTableView", result);
-  new WText(tr("mvc-WTableView"), result);
+  addText(tr("mvc-WTableView"), result);
   return result;
 }
 
@@ -238,6 +238,6 @@ WWidget *MvcWidgets::viewsChart()
   WContainerWidget *result = new WContainerWidget();
 
   topic("Chart::WCartesianChart", "Chart::WPieChart", result);
-  new WText(tr("mvc-Chart"), result);
+  addText(tr("mvc-Chart"), result);
   return result;
 }

@@ -1,3 +1,8 @@
+18-07-2011:
+	* WMenuItem: fix takeContents() (#897)
+
+	* WMenu, WMenuItem, WSubMenuItem: simplifiy internal path handling with submenus
+
 14-07-2011:
 	* fix min-width being ignored in layout managers
 

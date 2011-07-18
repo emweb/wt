@@ -467,15 +467,6 @@
 	       entry point by passing a location to WServer::addEntryPoint().
 	      -->
 	    <!-- <property name="favicon">images/favicon.ico</property> -->
-
-	    <!-- oldInternalPathAPI property
-
-	       Since wt 2.99.3, the internal path API has been simplified.
-	       The API functions are still the same, but the semantics have
-	       changed. To keep using the old semantics (which are deprecated
-	       but still implemented) you can set this property.
-	      -->
-	    <!-- <property name="oldInternalPathAPI">true</property> -->
 	</properties>
 
     </application-settings>

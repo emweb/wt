@@ -56,6 +56,7 @@ WMenu::WMenu(Orientation orientation, WContainerWidget *parent)
     orientation_(orientation),
     internalPathEnabled_(false),
     emitPathChange_(false),
+    subMenu_(false),
     itemSelected_(this),
     itemSelectRendered_(this),
     itemClosed_(this),
@@ -72,6 +73,7 @@ WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
     orientation_(orientation),
     internalPathEnabled_(false),
     emitPathChange_(false),
+    subMenu_(false),
     itemSelected_(this),
     itemSelectRendered_(this),
     itemClosed_(this),
@@ -131,13 +133,24 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
     basePath_
       = Utils::append(basePath.empty() ? app->internalPath() : basePath, '/');
 
-    app->internalPathChanged().connect(this, &WMenu::internalPathChanged);
+    app->internalPathChanged().connect(this, &WMenu::handleInternalPathChange);
 
     previousInternalPath_ = app->internalPath();
     internalPathChanged(app->internalPath());
 
     updateItems();
   }
+}
+
+void WMenu::handleInternalPathChange(const std::string& path)
+{
+  if (!subMenu_)
+    internalPathChanged(path);
+}
+
+void WMenu::setSubMenu(bool submenu)
+{
+  subMenu_ = submenu;
 }
 
 void WMenu::enableAjax()

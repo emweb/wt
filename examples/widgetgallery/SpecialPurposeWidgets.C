@@ -27,7 +27,7 @@ using namespace Wt;
 SpecialPurposeWidgets::SpecialPurposeWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  new WText(tr("specialpurposewidgets-intro"), this);
+  addText(tr("specialpurposewidgets-intro"), this);
 }
 
 void SpecialPurposeWidgets::populateSubMenu(WMenu *menu)
@@ -300,7 +300,7 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WGoogleMap", result);
-  new WText(tr("specialpurposewidgets-WGoogleMap"), result);
+  addText(tr("specialpurposewidgets-WGoogleMap"), result);
   
   new GoogleMapExample(result, this);
 
@@ -311,9 +311,9 @@ WWidget *SpecialPurposeWidgets::wSound()
 {
   WContainerWidget *result = new WContainerWidget(); 
   topic("WSound", result);
-  new WText(tr("specialpurposewidgets-WSound"), result);
+  addText(tr("specialpurposewidgets-WSound"), result);
 
-  new WText("The beep will be repeated 3 times.", result);
+  addText("The beep will be repeated 3 times.", result);
   new WBreak(result);
   WSound *const sound = new WSound("sounds/beep.mp3", result);
   sound->setLoops(3);
@@ -339,11 +339,11 @@ WWidget *SpecialPurposeWidgets::wVideo()
   std::string poster = "pics/sintel_trailer.jpg";
   WContainerWidget *result = new WContainerWidget(); 
   topic("WHTML5Video", result);
-  new WText(tr("specialpurposewidgets-WHTML5Video"), result);
+  addText(tr("specialpurposewidgets-WHTML5Video"), result);
 
   new WBreak(result);
 
-  new WText(tr("specialpurposewidgets-WHTML5Video-1"), result);
+  addText(tr("specialpurposewidgets-WHTML5Video-1"), result);
   WHTML5Video *v1 = new WHTML5Video(result);
   v1->addSource(mp4Video);
   v1->addSource(ogvVideo);
@@ -356,7 +356,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   ed_->showEvent(v1->ended(), "Video 1 ended");
   ed_->showEvent(v1->volumeChanged(), "Video 1 volume changed");
 
-  new WText(tr("specialpurposewidgets-WHTML5Video-2"), result);
+  addText(tr("specialpurposewidgets-WHTML5Video-2"), result);
   WFlashObject *flash2 =
     new WFlashObject("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
   flash2->setFlashVariable("startimage", "pics/sintel_trailer.jpg");
@@ -378,7 +378,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   ed_->showEvent(v2->volumeChanged(), "Video 2 volume changed");
 
 
-  new WText(tr("specialpurposewidgets-WHTML5Video-3"), result);
+  addText(tr("specialpurposewidgets-WHTML5Video-3"), result);
   WFlashObject *flash3 =
     new WFlashObject("http://www.youtube.com/v/HOfdboHvshg", result);
   flash3->setFlashParameter("allowFullScreen", "true");
@@ -391,7 +391,7 @@ WWidget *SpecialPurposeWidgets::wFlashObject()
 {
   WContainerWidget *result = new WContainerWidget(); 
   topic("WFlashObject", result);
-  new WText(tr("specialpurposewidgets-WFlashObject"), result);
+  addText(tr("specialpurposewidgets-WFlashObject"), result);
   WFlashObject *f =
     new WFlashObject("http://www.youtube.com/v/HOfdboHvshg", result);
   f->resize(640, 385);

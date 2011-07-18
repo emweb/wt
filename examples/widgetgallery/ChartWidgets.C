@@ -16,8 +16,8 @@ using namespace Wt;
 ChartWidgets::ChartWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  new WText(tr("charts-intro"), this);
-  new WText(tr("charts-introduction"), this);
+  addText(tr("charts-intro"), this);
+  addText(tr("charts-introduction"), this);
 }
 
 void ChartWidgets::populateSubMenu(Wt::WMenu *menu)
