@@ -250,9 +250,15 @@ void Session::prepareStatements(MappingInfo *mapping)
   sql << ")";
 
   if (mapping->surrogateIdFieldName) {
-    SqlConnection *conn = useConnection();
+    SqlConnection *conn;
+    if (transaction_)
+      conn = transaction_->connection_;
+    else
+      conn = useConnection();
     std::string autoIncrementSuffix = conn->autoincrementInsertSuffix();
-    returnConnection(conn);
+
+    if (!transaction_)
+      returnConnection(conn);
 
     if (!autoIncrementSuffix.empty())
       sql << conn->autoincrementInsertSuffix()

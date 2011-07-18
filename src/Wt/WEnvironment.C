@@ -109,30 +109,37 @@ void WEnvironment::init(const WebRequest& request)
       host_ += ":" + request.serverPort();
   }
 
+
   /*
    * Determine client address, taking into account proxies
    */
-  std::string ips;
-  ips = request.headerValue("Client-IP") + ","
-    + request.headerValue("X-Forwarded-For");
+  if (conf.behindReverseProxy()) {
+    std::vector<std::string> ips;
+    std::string clientIp = request.headerValue("Client-IP");
+    boost::trim(clientIp);
+    if (!clientIp.empty())
+      boost::split(ips, clientIp, boost::is_any_of(","));
 
-  for (std::string::size_type pos = 0; pos != std::string::npos;) {
-    std::string::size_type komma_pos = ips.find(',', pos);
-    if (komma_pos == std::string::npos)
-      break;
+    std::vector<std::string> forwardedIps;
+    std::string forwardedFor = request.headerValue("X-Forwarded-For"); 
+    boost::trim(forwardedFor);
+    if (!forwardedFor.empty())
+      boost::split(forwardedIps, forwardedFor, boost::is_any_of(","));
 
-    clientAddress_ = ips.substr(pos, komma_pos);
+    Utils::insert(ips, forwardedIps);
 
-    boost::trim(clientAddress_);
+    for (unsigned i = 0; i < ips.size(); ++i) {
+      clientAddress_ = ips[i];
 
-    if (!boost::starts_with(clientAddress_, "10.")
-	&& !boost::starts_with(clientAddress_, "172.16.")
-	&& !boost::starts_with(clientAddress_, "192.168.")) {
-      break;
+      boost::trim(clientAddress_);
+
+      if (!clientAddress_.empty()
+	  && !boost::starts_with(clientAddress_, "10.")
+	  && !boost::starts_with(clientAddress_, "172.16.")
+	  && !boost::starts_with(clientAddress_, "192.168.")) {
+	break;
+      }
     }
-
-    if (komma_pos != std::string::npos)
-      pos = komma_pos + 1;
   }
 
   if (clientAddress_.empty())
