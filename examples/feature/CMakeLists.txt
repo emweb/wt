@@ -1,4 +1,5 @@
 SUBDIRS(
+  broadcast
   dbo
   miniwebgl
   multiple_servers

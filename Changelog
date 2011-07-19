@@ -3,6 +3,11 @@
 
 	* WMenu, WMenuItem, WSubMenuItem: simplifiy internal path handling with submenus
 
+15-07-2011:
+	* examples/feature/broadcast: add an example that illustrates
+	server push, WServer::post() and synchronizing a shared resource
+	across sessions
+
 14-07-2011:
 	* fix min-width being ignored in layout managers
 

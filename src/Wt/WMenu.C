@@ -130,8 +130,8 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
 
     WApplication *app = wApp;
 
-    basePath_
-      = Utils::append(basePath.empty() ? app->internalPath() : basePath, '/');
+    basePath_ = basePath.empty() ? app->internalPath() : basePath, '/';
+    basePath_ = Utils::append(Utils::prepend(basePath_, '/'), '/');
 
     app->internalPathChanged().connect(this, &WMenu::handleInternalPathChange);
 
@@ -165,7 +165,8 @@ void WMenu::enableAjax()
 
 void WMenu::setInternalBasePath(const std::string& basePath)
 {
-  std::string bp = Utils::append(basePath, '/');
+  std::string bp = Utils::append(Utils::prepend(basePath, '/'), '/');
+
   if (basePath_ != bp) {
     basePath_ = bp;
 

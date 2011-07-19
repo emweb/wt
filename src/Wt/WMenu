@@ -473,10 +473,9 @@ public:
    * history of visited menu items, and allows indexing of pages.
    *
    * For each menu item, WMenuItem::pathComponent() is appended to the
-   * internal base path (internalBasePath()), which defaults to the
-   * internal path (WApplication::internalPath()) but may be changed
-   * using setInternalBasePath(), with a '/' appended to turn it into
-   * a folder, if needed.
+   * \p basePath, which defaults to the internal path
+   * (WApplication::internalPath()). A '/' is appended to the base
+   * path, to turn it into a folder, if needed.
    *
    * By default, menu interaction does not change the application
    * internal path.

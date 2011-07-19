@@ -92,6 +92,8 @@ WRasterImage::WRasterImage(const std::string& type,
     currentClipPath_(-1),
     currentClipPathRendered_(-1)
 {
+  InitializeMagick(0);
+
   w_ = static_cast<unsigned long>(width.toPixels());
   h_ = static_cast<unsigned long>(height.toPixels());
 
@@ -145,6 +147,8 @@ WRasterImage::~WRasterImage()
   }
 
   delete fontSupport_;
+
+  DestroyMagick();
 }
 
 void WRasterImage::addFontCollection(const std::string& directory,
