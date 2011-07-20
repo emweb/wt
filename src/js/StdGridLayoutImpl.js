@@ -428,7 +428,7 @@ WT_DECLARE_WT_MEMBER
 	   if (td.className != 'Wt-vrh') {
 	     if (td.colSpan == 1 && ci == columni && td.childNodes.length > 0) {
 	       var ch = td.firstChild;
-	       var w = Math.max(0, width - self.marginH(ch));
+	       var w = Math.max(1, width - self.marginH(ch));
 	       ch.style.width = w + 'px';
 	       break;
 	     }

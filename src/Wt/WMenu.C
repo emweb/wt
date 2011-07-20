@@ -130,7 +130,7 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
 
     WApplication *app = wApp;
 
-    basePath_ = basePath.empty() ? app->internalPath() : basePath, '/';
+    basePath_ = basePath.empty() ? app->internalPath() : basePath;
     basePath_ = Utils::append(Utils::prepend(basePath_, '/'), '/');
 
     app->internalPathChanged().connect(this, &WMenu::handleInternalPathChange);
