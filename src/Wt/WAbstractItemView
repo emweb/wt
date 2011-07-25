@@ -541,6 +541,9 @@ public:
    * Scrolls the view to ensure that the item which represents the
    * provided \p index is visible. A \p hint may indicate how the item
    * should appear in the viewport (if possible).
+   *
+   * \note Currently only implemented to scroll to the correct row, not
+   *       taking into account the column.
    */
   virtual void scrollTo(const WModelIndex& index,
 			ScrollHint hint = EnsureVisible) = 0;

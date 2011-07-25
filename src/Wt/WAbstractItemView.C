@@ -302,6 +302,7 @@ void WAbstractItemView::setModel(WAbstractItemModel *model)
   WItemSelectionModel *oldSelectionModel = selectionModel_;
   selectionModel_ = new WItemSelectionModel(model, this);
   selectionModel_->setSelectionBehavior(oldSelectionModel->selectionBehavior());
+  delete oldSelectionModel;
 
   editedItems_.clear();
 

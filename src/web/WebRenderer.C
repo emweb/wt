@@ -839,6 +839,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   formObjectsChanged_ = false;
 
   response.out() << "\n";
+
   app->streamBeforeLoadJavaScript(response.out(), true);
 
   if (!widgetset)

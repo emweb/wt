@@ -1104,9 +1104,33 @@ this.getElementsByClassName = function(className, parentElement) {
 };
 
 /* Firefox, IE9 etc... */
+var inlineStyleSheet = null;
+
+function getInlineStyleSheet() {
+  if (!inlineStyleSheet) {
+    var i, il, ds = document.styleSheets;
+    for (i = 0, il = ds.length; i < il; ++i) {
+      var s = ds[i];
+      if (WT.hasTag(ds[i].ownerNode, 'STYLE')) {
+	inlineStyleSheet = s;
+	break;
+      }
+    }
+
+    if (!inlineStyleSheet) {
+      var s = document.createElement('style');
+      document.getElementsByTagName('head')[0].appendChild(s);
+
+      inlineStyleSheet = s.sheet;
+    }
+  }
+
+  return inlineStyleSheet;
+}
+
 this.addCss = function(selector, style) {
-   // on IE we have the VML too
-  var s = document.styleSheets[WT.isIE ? 1 : 0];
+  var s = getInlineStyleSheet();
+
   // strange error with IE9 when in iframe
   var pos = s.cssRules ? s.cssRules.length : 0;
   s.insertRule(selector + ' { ' + style + ' }', pos);

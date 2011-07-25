@@ -166,6 +166,8 @@ WebSession::~WebSession()
    * app_ uses a weak_ptr to this session for which lock() returns an empty
    * shared pointer.
    */
+  state_ = Dead;
+
 #ifndef WT_TARGET_JAVA
   Handler handler(this);
 
@@ -1463,7 +1465,7 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
 
 void WebSession::pushUpdates()
 {
-  if (!renderer_.isDirty())
+  if (!renderer_.isDirty() || state_ == Dead)
     return;
 
   updatesPending_ = true;

@@ -777,6 +777,9 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,
   if (toAdd)
     for (unsigned i = 0; i < toAdd->size(); ++i) {
       DomElement *c = (*toAdd)[i]->createSDomElement(app);
+
+      app->streamBeforeLoadJavaScript(out, false);
+
       c->callMethod("omousemove=function(e) {"
 		    "if (!e) e = window.event;"
 		    "return " + app->javaScriptClass()

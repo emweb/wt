@@ -55,7 +55,6 @@ void SimpleChatWidget::letLogin()
 
   WPushButton *b = new WPushButton("Login");
   hLayout->addWidget(b, 0, AlignMiddle);
-  hLayout->addStretch(1);
 
   b->clicked().connect(this, &SimpleChatWidget::login);
   userNameEdit_->enterPressed().connect(this, &SimpleChatWidget::login);
