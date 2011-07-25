@@ -1,3 +1,6 @@
+#include <Wt/WConfig.h>
+
+#ifdef WT_NO_BOOST_RANDOM
 /* boost random_device.cpp implementation
  *
  * Copyright Jens Maurer 2000
@@ -178,3 +181,5 @@ unsigned int boost::random_device::operator()()
 {
   return pimpl->next();
 }
+
+#endif

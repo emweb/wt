@@ -23,6 +23,7 @@ WPopupMenu::WPopupMenu()
     parentItem_(0),
     result_(0),
     aboutToHide_(this),
+    triggered_(this),
     recursiveEventLoop_(false)
 {
   const char *TEMPLATE =
@@ -142,6 +143,8 @@ void WPopupMenu::done(WPopupMenuItem *result)
     .disconnect(globalEscapeConnection_);
 
   recursiveEventLoop_ = false;
+
+  triggered_.emit(result_);
 
   aboutToHide_.emit();
 }

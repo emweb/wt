@@ -7,6 +7,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
 
+// work-around for:
+// http://groups.google.com/group/boost-list/browse_thread/thread/8eb0cc99bcda9d41?fwc=2&pli=1
+#include <boost/asio.hpp>
+
 #include "Wt/WServer"
 #include "WtReply.h"
 #include "StockReply.h"

@@ -289,11 +289,21 @@ public:
    */
   Signal<>& aboutToHide() { return aboutToHide_; }
 
+  /*! \brief %Signal emitted when an item is activated.
+   *
+   * Passes the activated item as argument. This signal is only emitted
+   * for the toplevel menu.
+   *
+   * \sa WPopupMenuItem::triggered()
+   */
+  Signal<WPopupMenuItem *>& triggered() { return triggered_; }
+
 private:
   WTemplate      *impl_;
   WPopupMenuItem *parentItem_, *result_;
 
   Signal<> aboutToHide_;
+  Signal<WPopupMenuItem *> triggered_;
 
   boost::signals::connection globalClickConnection_, globalEscapeConnection_;
   bool                       recursiveEventLoop_;

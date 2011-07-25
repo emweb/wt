@@ -6,6 +6,7 @@
 
 #include "Wt/WRandom"
 
+#ifdef WT_NO_BOOST_RANDOM
 #if WIN32
 
 // Don't link to boost_random
@@ -22,6 +23,7 @@
 #endif
 
 #endif
+#endif // WT_NO_BOOST_RANDOM
 
 #include <boost/nondet_random.hpp>
 

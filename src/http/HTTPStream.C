@@ -6,10 +6,11 @@
 
 #include <assert.h>
 
+#include "Server.h"
+
 #include "Wt/WSocketNotifier"
 
 #include "HTTPStream.h"
-#include "Server.h"
 
 namespace Wt {
 

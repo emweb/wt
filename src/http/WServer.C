@@ -5,6 +5,13 @@
  * See the LICENSE file for terms of use.
  */
 
+// moved to the top of this file because of:
+// http://groups.google.com/group/boost-list/browse_thread/thread/8eb0cc99bcda9d41?fwc=2&pli=1
+#ifdef WT_THREADED
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+#endif // WT_THREADED
+
 #include "Wt/WServer"
 #include "Wt/WResource"
 
@@ -17,11 +24,6 @@
 #include <sys/wait.h>
 #include <pthread.h>
 #endif // !_WIN32
-
-#ifdef WT_THREADED
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#endif // WT_THREADED
 
 #include <boost/bind.hpp>
 

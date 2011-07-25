@@ -52,16 +52,31 @@ ENDIF(WIN32)
 
 SET(Boost_DEBUG ON)
 
-FIND_PACKAGE(Boost 1.35
-  COMPONENTS
-    date_time
-    regex
-    program_options
-    signals
-    system
-    filesystem
-    thread
-  REQUIRED)
+IF(WT_NO_BOOST_RANDOM)
+  FIND_PACKAGE(Boost 1.35
+    COMPONENTS
+      date_time
+      regex
+      program_options
+      signals
+      system
+      filesystem
+      thread
+    REQUIRED)
+ELSE(WT_NO_BOOST_RANDOM)
+  FIND_PACKAGE(Boost 1.35
+    COMPONENTS
+      date_time
+      regex
+      program_options
+      random
+      signals
+      system
+      filesystem
+      thread
+    REQUIRED)
+ENDIF(WT_NO_BOOST_RANDOM)
+
 IF (Boost_FOUND)
   # Translate variables from official cmake names to internally used names
   SET(BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
@@ -73,6 +88,7 @@ IF (Boost_FOUND)
   SET(BOOST_SIGNALS_LIB ${Boost_SIGNALS_LIBRARY})
   SET(BOOST_SYSTEM_LIB ${Boost_SYSTEM_LIBRARY})
   SET(BOOST_THREAD_LIB ${Boost_THREAD_LIBRARY})
+  SET(BOOST_RANDOM_LIB ${Boost_RANDOM_LIBRARY})
 
   SET(BOOST_WT_MT_FOUND TRUE)
   SET(BOOST_WT_FOUND TRUE)
@@ -86,6 +102,7 @@ IF (Boost_FOUND)
   ELSE(MSVC)
     SET(BOOST_WT_LIBRARIES
         ${Boost_THREAD_LIBRARY}
+        ${Boost_RANDOM_LIBRARY}
         ${Boost_REGEX_LIBRARY}
         ${Boost_SIGNALS_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}

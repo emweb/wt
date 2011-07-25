@@ -1,3 +1,7 @@
+25-07-2011:
+	* WPopupMenu, WPopupMenuItem: improved triggered() signal API and
+	added setSelectable() signals
+
 18-07-2011:
 	* WMenuItem: fix takeContents() (#897)
 

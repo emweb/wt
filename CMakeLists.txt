@@ -95,6 +95,7 @@ OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
+OPTION(WT_NO_BOOST_RANDOM "For compatibility with some really old boost versions. Do not enable for boost > 1.45" OFF)
 
 IF(APPLE)
   OPTION(USE_BOOST_FRAMEWORK "Uses a Boost framework" OFF)

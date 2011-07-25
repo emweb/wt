@@ -28,6 +28,7 @@ WPopupMenuItem::WPopupMenuItem(bool)
     subMenu_(0),
     data_(0),
     separator_(true),
+    selectable_(false),
     triggered_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
@@ -41,6 +42,7 @@ WPopupMenuItem::WPopupMenuItem(const WString& text)
     subMenu_(0),
     data_(0),
     separator_(false),
+    selectable_(true),
     triggered_(this)
 {
   create();
@@ -54,6 +56,7 @@ WPopupMenuItem::WPopupMenuItem(const std::string& iconPath, const WString& text)
     subMenu_(0),
     data_(0),
     separator_(false),
+    selectable_(true),
     triggered_(this)
 {
   create();
@@ -83,11 +86,16 @@ void WPopupMenuItem::load()
 {
   WCompositeWidget::load();
 
-  impl_->mouseWentUp().connect(topLevelMenu(), &WPopupMenu::hide);
-
-  //impl_->mouseWentOver().connect(parentMenu(), &WPopupMenuItem::show);
   impl_->mouseWentOver().connect(this, &WPopupMenuItem::renderOver);
   impl_->mouseWentOver().setNotExposed();
+}
+
+void WPopupMenuItem::render(WFlags<RenderFlag> flags)
+{
+  WCompositeWidget::render(flags);
+
+  if ((flags & RenderFull) && selectable_)
+    impl_->mouseWentUp().connect(topLevelMenu(), &WPopupMenu::hide);
 }
 
 void WPopupMenuItem::setDisabled(bool disabled)
@@ -134,10 +142,10 @@ const std::string& WPopupMenuItem::icon()
   return decorationStyle().backgroundImage();
 }
 
-void WPopupMenuItem::setCheckable(bool how)
+void WPopupMenuItem::setCheckable(bool checkable)
 {
-  if (isCheckable() != how) {
-    if (how) {
+  if (isCheckable() != checkable) {
+    if (checkable) {
       text_->setMargin(ICON_WIDTH - CHECKBOX_WIDTH, Left);
       checkBox_ = new WCheckBox();
       impl_->insertWidget(0, checkBox_);
@@ -155,6 +163,8 @@ void WPopupMenuItem::setPopupMenu(WPopupMenu *menu)
   delete subMenu_;
   subMenu_ = menu;
 
+  selectable_ = !subMenu_;
+
   std::string resources = WApplication::resourcesUrl();
 
   if (subMenu_) {
@@ -166,10 +176,15 @@ void WPopupMenuItem::setPopupMenu(WPopupMenu *menu)
   }
 }
 
-void WPopupMenuItem::setChecked(bool how)
+void WPopupMenuItem::setSelectable(bool selectable)
+{
+  selectable_ = selectable;
+}
+
+void WPopupMenuItem::setChecked(bool checked)
 {
   if (checkBox_)
-    checkBox_->setChecked(how);
+    checkBox_->setChecked(checked);
 }
 
 bool WPopupMenuItem::isChecked() const
@@ -214,7 +229,7 @@ void WPopupMenuItem::renderSelected(bool selected)
 
 void WPopupMenuItem::onMouseUp()
 {
-  if (isDisabled() || subMenu_)
+  if (isDisabled() || !selectable_)
     return;
 
   if (checkBox_)
@@ -222,7 +237,7 @@ void WPopupMenuItem::onMouseUp()
 
   topLevelMenu()->result_ = this;
 
-  triggered_.emit();
+  triggered_.emit(this);
 
   topLevelMenu()->done(this);
 }

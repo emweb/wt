@@ -82,7 +82,7 @@ public:
    *
    * \sa setChecked(), isChecked()
    */
-  void setCheckable(bool how);
+  void setCheckable(bool checkable);
 
   /*! \brief Returns whether the item is checkable.
    *
@@ -111,7 +111,7 @@ public:
    *
    * \sa setCheckable(bool), isCheckable()
    */
-  void setChecked(bool how);
+  void setChecked(bool checked);
 
   /*! \brief Returns the checked state.
    *
@@ -120,6 +120,25 @@ public:
    * \sa setChecked(bool), isCheckable()
    */
   bool isChecked() const;
+
+  /*! \brief Sets whether the menu item can be selected.
+   *
+   * Only a menu item that can be selected can be the result of a
+   * popup menu selection.
+   *
+   * The default value is \c true for a normal menu item, and \c false
+   * for a menu item that has a submenu.
+   *
+   * An item that is selectable but is disabled can still not be
+   * selected.
+   */
+  void setSelectable(bool selectable);
+
+  /*! \brief Returns whether the menu item can be selected.
+   *
+   * \sa setSelectable()
+   */
+  bool isSelectable() const { return selectable_; }
 
   /*! \brief Sets associated additional data with the item.
    */
@@ -132,11 +151,18 @@ public:
   WCheckBox *checkBox() const { return checkBox_; }
 
   /*! \brief %Signal emitted when an item is activated.
+   *
+   * Returns this item as argument.
+   *
+   * \sa WPopupMenu::triggered()
    */
-  Signal<>& triggered() { return triggered_; }
+  Signal<WPopupMenuItem *>& triggered() { return triggered_; }
 
   virtual void load();
   virtual void setDisabled(bool disabled);
+
+protected:
+  virtual void render(WFlags<RenderFlag> flags);
 
 private:
   // Constructs a separator
@@ -147,9 +173,9 @@ private:
   WCheckBox        *checkBox_;
   WPopupMenu       *subMenu_;
   void             *data_;
-  bool              separator_;
+  bool              separator_, selectable_;
 
-  Signal<>          triggered_;
+  Signal<WPopupMenuItem *> triggered_;
 
   void create();
   void renderOver();

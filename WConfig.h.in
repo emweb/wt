@@ -30,6 +30,7 @@
 #cmakedefine WT_HAS_WPDFIMAGE
 
 #cmakedefine WT_NO_BOOST_INTRUSIVE
+#cmakedefine WT_NO_BOOST_RANDOM
 #cmakedefine WT_NO_STD_LOCALE
 #cmakedefine WT_NO_STD_WSTRING
 
