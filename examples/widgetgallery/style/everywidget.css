@@ -33,6 +33,11 @@ ul {
     line-height: 130%;
 }
 
+.wmediaplayer li {
+    margin: 0px;
+    line-height: 100%;
+}
+
 .contents h1 {
     font-size: 150%;
     font-weight: bold;
@@ -294,4 +299,10 @@ div.contents {
 .googlemaps-controls td {
     white-space: nowrap;
     padding: 2px;
+}
+
+.Wt-tree .Wt-label {
+    height: 19px;
+    display: inline-block;
+    zoom: 1;
 }

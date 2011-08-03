@@ -426,7 +426,7 @@ int WCompositeWidget::tabIndex() const
 void WCompositeWidget::setImplementation(WWidget *widget)
 {
   if (widget->parent())
-    throw WtException("WCompositeWidget implemnation widget "
+    throw WtException("WCompositeWidget implementation widget "
 		      "cannot have a parent");
 
   delete impl_;

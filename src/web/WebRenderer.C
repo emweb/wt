@@ -633,7 +633,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     }
 
     if (!haveJQuery) {
-      response.out() << "if (typeof window.jQuery === 'undefined') {";
+      response.out() << "if (typeof window.$ === 'undefined') {";
 #ifndef WT_TARGET_JAVA
       std::vector<const char *> parts = skeletons::JQuery_js();
       for (std::size_t i = 0; i < parts.size(); ++i)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
   <message id="basics-intro">
-    
+
     <h1>Basic widgets</h1>
 
     <p>
@@ -14,7 +14,7 @@
     <p>
       They are often used to build more complex composite
       widgets. Wt's widgets all inherit from <a
-      href="/wt/doc/reference/html/classWt_1_1WWidget.html"><tt>WWidget</tt></a>. Widgets
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WWidget.html"><tt>WWidget</tt></a>. Widgets
       are rendered by inserting them in the widget tree
       hierarchy. You have the following possibilities to structurally organize your widgets:
     </p>
@@ -47,7 +47,7 @@
       events by connecting C++ method invocations to corresponding
       <i>signals</i> exposed by widgets. For example, the descendants
       of <a
-      href="/wt/doc/reference/html/classWt_1_1WInteractWidget.html"><tt>WInteractWidget</tt></a>
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WInteractWidget.html"><tt>WInteractWidget</tt></a>
       emit events such as key events (<tt>keyPressed()</tt>,
       <tt>keyWentDown()</tt>, <tt>keyWentUp()</tt>, ...) and mouse
       events (<tt>clicked()</tt>, <tt>doubleClicked()</tt>, but also
@@ -59,10 +59,10 @@
     <p>
       In this widget demo application, occasionally selected events
       are demonstrated and shown in the event window at the bottom of
-      the browser window. <a
-      href="/wt/doc/reference/html/index.html">The reference
-      manual</a> provides a complete reference API reference for each
-      widget, including all events implemented by a widget.
+      the browser window.
+      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/index.html">The
+      reference manual</a> provides a complete reference API reference
+      for each widget, including all events implemented by a widget.
     </p>
 
     <p>
@@ -86,16 +86,16 @@
 
     <p>
       <tt>WText</tt> displays a <a
-      href="/wt/doc/reference/html/classWt_1_1WString.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WString.html"
       target="_blank">WString</a>. This string class provides at the
       same time support for localization and internationalization:
       <ul>
 	<li>it implements a Unicode string (internally representated
 	as UTF-8).</li>
 	<li>it implements a localizable string (see also <a
-	href="/wt/doc/reference/html/classWt_1_1WString.html#0afc7dc0f9897456d71b569a86ca26c1" target="_blank">WString::tr()</a>). The
+	href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WString.html#0afc7dc0f9897456d71b569a86ca26c1" target="_blank">WString::tr()</a>). The
 	actual value corresponding to a key is retrieved from a <a
-	href="/wt/doc/reference/html/classWt_1_1WLocalizedStrings.html"
+	href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WLocalizedStrings.html"
 	target="_blank">WLocalizedStrings</a> instance, taking into
 	account the current locale. The default implementation of this
 	interface class uses XML files, which are convenient for
@@ -145,8 +145,11 @@
 
   <message id="basics-WTemplate2">
     <p>
-      When instantiated and bound using a <tt>WLineEdit</tt> and two
-      <tt>WPushButtons</tt>, this becomes:
+      When instantiated and bound using a
+      <a href="#/form-widgets/wlineedit"><tt>WLineEdit</tt></a> and
+      two
+      <a href="#/form-widgets/wpushbutton"><tt>WPushButtons</tt></a>,
+      this becomes:
     </p>
   </message>
 
@@ -165,7 +168,7 @@
     <p>
       Although the functionality of <tt>WText</tt> is very basic, it
       derives, like many widgets, from <a
-      href="/wt/doc/reference/html/classWt_1_1WInteractWidget.html">WInteractWidget</a>
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WInteractWidget.html">WInteractWidget</a>
       and thus may respond to mouse events, and keyboard events if it
       can be given keyboard focus. A few mouse events are demonstrated
       below.
@@ -208,37 +211,27 @@
     <p>
       You may specify the anchor's target URL directly, but anchors
       can also be pointed to a <a
-      href="/wt/doc/reference/html/classWt_1_1WResource.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WResource.html"
       target="_blank">WResource</a>. This allows you to serve
       auxiliary files related to a particular application session, and
       perhaps dynamically generate the content. Wt includes <a
-      href="/wt/doc/reference/html/classWt_1_1WFileResource.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileResource.html"
       target="_blank">WFileResource</a> to stream a file and <a
-      href="/wt/doc/reference/html/classWt_1_1WMemoryResource.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMemoryResource.html"
       target="_blank">WMemoryResource</a> to stream a data vector.
     </p>
     
     <p>
-      <tt>WAnchor</tt> may also play an important role for navigation
+      <tt>WAnchor</tt> also plays an important role for navigation
       within your application, using Wt's internal paths, since they
       provide support for bookmarks, the browser back/forward buttons,
-      and following links in new windows. For example, the <a
-      href="#/basics/wmenu">WMenu</a> widget (used here to navigate Wt
-      widgets) uses anchors for its items by default.
-    </p>
-
-    <p>
-      <tt>WAnchor</tt> derives from <tt>WContainerWidget</tt>, and as
-      a consequence, any <tt>WWidget</tt> can be the clickable content
-      of an anchor. It may be a table, a table cell, an image
-      (demonstrated below), ...
+      and following links in new windows. For example,
+      the <a href="#/basics/wmenu">WMenu</a> widget (used here to
+      navigate Wt widgets) uses anchors for its items by default. 
     </p>
   </message>
 
   <message id="basics-WAnchor-related">
-    <p>
-      Related topics: <a href="#/internal_paths">Internal paths</a>.
-    </p>    
   </message>
 
   <message id="basics-WImage">
@@ -293,13 +286,13 @@
 
     <p>
       The <tt>WTable</tt> widget uses the companion classes <a
-      href="/wt/doc/reference/html/classWt_1_1WTableRow.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableRow.html"
       target="_blank">WTableRow</a> and <a
-      href="/wt/doc/reference/html/classWt_1_1WTableColumn.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableColumn.html"
       target="_blank">WTableColumn</a> to represent table rows
       (<tt>&lt;tr&gt;</tt>) and columns (<tt>&lt;td&gt;</tt>). Each
       table cell corresponds to a <a
-      href="/wt/doc/reference/html/classWt_1_1WTableCell.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableCell.html"
       target="_blank">WTableCell</a> widget, which is a specialized
       <tt>WContainerWidget</tt>.
     </p>
@@ -351,7 +344,7 @@
 
     <p>
       This example also uses a small class called <a
-      href="/wt/doc/reference/html/classWt_1_1WIconPair.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WIconPair.html"
       target="_blank"><tt>WIconPair</tt></a>, which provides an easy interface
       to showing one of two icons.
     </p>
@@ -397,8 +390,9 @@
     </p>
 
     <p>
-      The can be thought of as a <tt>WContainerWidget</tt> with an
-      optional title and whose contents can be collapsed.
+      The can be thought of as
+      a <a href="#/basics/wcontainerwidget"><tt>WContainerWidget</tt></a>
+      with an optional title and whose contents can be collapsed.
     </p>
   </message>
   
@@ -416,9 +410,10 @@
 
     <p>
       <tt>WTabWidget</tt> is in fact a specialization of
-      <tt>WMenu</tt>, and therefore offers all of the features of that
-      class, including support for internal paths. It also shows how a
-      menu can be customized to provide a distinct look and feel.
+      <a href="#/basics/wmenu"><tt>WMenu</tt></a>, and therefore offers
+      all of the features of that class, including support for internal
+      paths. It also shows how a menu can be customized to provide a
+      distinct look and feel.
     </p>
   </message>
 
@@ -488,9 +483,9 @@
 
     <p>
       You can create items with submenus by using the <a
-      href="/wt/doc/reference/html/classWt_1_1WSubMenuItem.html"><tt>WSubMenuItem</tt></a>
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSubMenuItem.html"><tt>WSubMenuItem</tt></a>
       rather than the default <a
-      href="/wt/doc/reference/html/classWt_1_1WMenuItem.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenuItem.html"
       target="_blank"><tt>WMenuItem</tt></a>.
     </p>
 
@@ -717,6 +712,16 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
     </p>
   </message>
 
+  <message id="formwidgets-WInPlaceEdit">
+    <p>This widget allows you to edit a text in-place by clicking 
+      on it. You can enable the save/cancel buttons (like here below) 
+      or disable them (as used in the 
+      <a href="#/form-widgets/wcalendar"><tt>WCalendar</tt></a> widget 
+      to edit 
+      the year).
+    </p>
+  </message>
+
   <message id="formwidgets-WTextEdit">
     <p>
       A <tt>WTextEdit</tt> corresponds to an HTML
@@ -883,7 +888,7 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       The Ext radio button looks like this, and behaves similar to <a
       href="#/form-widgets/wradiobutton">Wt's native radio button</a>.
       <tt>Ext::RadioButton</tt> must be added to a <a
-      href="/wt/doc/reference/html/classWt_1_1WButtonGroup.html">
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WButtonGroup.html">
       <tt>WButtonGroup</tt></a> to give them their typical exclusive
       selection behavior. The following radio buttons all belong to
       the same button group.
@@ -962,7 +967,7 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
     <p>
       The example uses a custom cursor image (pencil), this is done by
       providing a cursor image to <a
-      href="/wt/doc/reference/html/classWt_1_1WCssDecorationStyle.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WCssDecorationStyle.html"
       target="_blank"><tt>WCssDecorationStyle</tt></a>.
     </p>
   </message>
@@ -1026,56 +1031,95 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
     </table>
   </message>
 
-  <message id="specialpurposewidgets-WSound">
+  <message id="specialpurposewidgets-WMediaPlayer">
     <p>
-      <tt>WSound</tt> provides a way to play a sound asynchonously. It is
-      intended for auditive user interface feed-back.
+      <tt>WMediaPlayer</tt> provides an interactive audio/video
+      player, with flexible support for user-interface controls, and
+      good cross-browser support through a combination of native HTML
+      elements (<tt>&lt;video&gt;</tt>, <tt>&lt;audio&gt;</tt>) and
+      flash fall-back.
     </p>
+
     <p>
-      The current implementation uses a small Adobe Flash application,
-      but future releases are expected to use the native HTML5 audio
-      tags, as these are appearing in modern browsers.
+      A unique feature of the video player is that regardless of the
+      technology used for video playback, the same <tt>WWidget</tt>
+      may be used to implement the controls, using native form
+      elements. In this way, the user-interface is easily customized
+      and adapted to your needs and skinned using CSS.
     </p>
   </message>
-  <message id="specialpurposewidgets-WHTML5Video">
+
+  <message id="specialpurposewidgets-WMediaPlayer-video">
+    <h2>Video</h2>
+
     <p>
-      Wt's video support is work in progress, but there are already a
-      few ways to play video in Wt. Currently, methods based on the
-      HTML5 Video element and Flash are provided.
+      Below shows the media player with its default controls. The
+      player will look identical on all browsers. The default controls
+      show below the player, but using CSS, or by customizing the
+      controls, any effect can be achieved including showing the
+      controls when hovering over the lower part of the video player
+      (as is also evident from the full-screen mode).
     </p>
+
+  </message>
+
+  <message id="specialpurposewidgets-WMediaPlayer-audio">
+    <h2>Audio</h2>
+
     <p>
-      As there is no single method to insert video in a web page so
-      that it plays on all browser types supported by Wt, the video
-      playing classes have fallback support, so that if a video cannot
-      be played by one class, (e.g. <tt>WHHTML5Video</tt>), it can
-      fall back to another method (e.g. using
-      <tt>WFlashObject</tt>). As such you can create a chain of video
-      players that will each attempt to play the video, and if they
-      fail pass on control to the next player.
+      Below shows the media player with its default controls. The
+      player will look identical on all browsers.
     </p>
+  </message>
+
+  <message id="specialpurposewidgets-WSound">
     <p>
-      The trailer below is <a href="http://durian.blender.org/"
+      <tt>WSound</tt> provides a simple way to add small sound effects
+      to an application, for example to attract a user's attention or to
+      provide user-interface feed-back.
+    </p>
+
+    <p>
+      Its implementation is based on
+      <a href="#/special-purpose/wmediaplayer"><tt>WMediaPlayer</tt></a>
+      to provide good cross-browser support.
+    </p>
+  </message>
+
+  <message id="specialpurposewidgets-WVideo">
+    <p>
+      Although the
+      <a href="#/special-purpose/wmediaplayer"><tt>WMediaPlayer</tt></a>
+      implements a cross-browser video player, in some cases, one may
+      want direct access to a native HTML <tt>&lt;video&gt;</tt>
+      element. This is provided by the <tt>WVideo</tt> widget.
+    </p>
+
+    <p>
+      The trailer used in the examples below
+      is <a href="http://durian.blender.org/"
       target="_blank">Sintel</a>, (c) copyright Blender Foundation |
       durian.blender.org
     </p>
   </message>
-  <message id="specialpurposewidgets-WHTML5Video-1">
-    <h2>HTML5 Playback</h2>
+  <message id="specialpurposewidgets-WVideo-1">
+    <h2>Native video</h2>
     <p>
       Below is the video class, with a <tt>WImage</tt> (a static JPEG
-      image) as fallback. The HTML5 video will play on browsers that
-      support MP4 or OGV video streams (firefox, chrome, safari, ...),
-      and show the image on other browsers (Internet Explorer, opera,
-      ...).
+      image) as fallback. The video will play on browsers that support
+      MP4 or OGV video streams (firefox, chrome, safari, ...)
+      natively (using HTML <tt>&lt;video&gt;</tt>), and show the image on other
+      browsers (Internet Explorer, opera, ...).
     </p>
   </message>
-  <message id="specialpurposewidgets-WHTML5Video-2">
-    <h2>HTML5 Playback with Flash fallback</h2>
+  <message id="specialpurposewidgets-WVideo-2">
+    <h2>Native video with Flash player fall-back</h2>
     <p>
-      For browsers that support HTML5 video, the video below looks
-      exactly like the one above. On other browsers, the player below
-      falls back to a Flash player, which plays an MP4 video. If flash
-      is not supported on your system, a static image is shown.
+      For browsers that support HTML <tt>&lt;video&gt;</tt>, this
+      video below looks exactly like the one above. On other browsers,
+      the player below falls back to a Flash player, which plays an
+      MP4 video. If flash is not supported on your system, a static
+      image is shown.
     </p>
     <p>
       The Flash-based video player can be any player. The example
@@ -1084,22 +1128,33 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       do the job.
     </p>
   </message>
-  <message id="specialpurposewidgets-WHTML5Video-3">
-    <h2>Youtube video</h2>
+  <message id="specialpurposewidgets-WVideo-3">
+    <h2>Flash-player video</h2>
     <p>
-      Another way to play videos, which has been available in Wt for a
-      long time, is to use plain flash to play your videos. Below we
-      use YouTube to play the video.
+      Of course, you may also opt to simply rely on Flash to play the
+      video. Below we use the YouTube flash player.
     </p>
   </message>
   <message id="specialpurposewidgets-WFlashObject">
     <p>
-      Any Flash object can easily be integrated in Wt. Instantiate a
-      <tt>WFlashObject</tt>, set Flash parameters and variables,
-      resize the object, and you're done. If flash is not supported,
-      you can provide any <tt>WWidget</tt> as alternative content
-      (including e.g. a link that sends the user to a page where flash
-      can be downloaded).
+      To integrate a Flash object into an application, you can
+      instantiate a <tt>WFlashObject</tt>. It's API provides ways to
+      set Flash parameters and variables. You will also need to
+      provide an explicit size to the object (as it does not respond
+      to CSS). If flash is not supported, you can provide
+      any <tt>WWidget</tt> as alternative content (including e.g. a
+      link that sends the user to a page where flash can be
+      downloaded).
+    </p>
+  </message>
+
+  <message id="specialpurposewidgets-WAudio">
+    <p>
+      Although the
+      <a href="#/special-purpose/wmediaplayer"><tt>WMediaPlayer</tt></a>
+      implements a cross-browser audio player, in some cases, one may
+      want direct access to a native HTML <tt>&lt;audio&gt;</tt>
+      element. This is provided by the <tt>WAudio</tt> widget.
     </p>
   </message>
 
@@ -1110,20 +1165,20 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       Wt supports modal and non-modal dialogs. There are four classes
       involved in dialogs:
       <dl>
-        <dt><tt>WDialog</tt></dt>
+        <dt><a href="#/dialogs/wdialog"><tt>WDialog</tt></a></dt>
 	<dd>
 	  a widget that displays contents within a window drawn on
 	  top of the screen. Any widget can be inserted in a dialog.
 	</dd>
-        <dt><tt>WMessageBox</tt></dt>
+        <dt><a href="#/dialogs/wmessagebox"><tt>WMessageBox</tt></a></dt>
 	<dd>
 	  a dialog that contains only a single line of text and some
 	  configurable buttons. It is convenient to use this class if
 	  you only have to display a simple message.
         </dd>
-	<dt><tt>Ext::Dialog</tt></dt>
+	<dt><a href="#/dialogs/ext-dialogs"><tt>Ext::Dialog</tt></a></dt>
 	<dd>The ExtJs implementation of a dialog.</dd>
-        <dt><tt>Ext::MessageBox</tt></dt>
+        <dt><a href="#/dialogs/ext-dialogs"><tt>Ext::MessageBox</tt></a></dt>
 	<dd>The ExtJs implementation of a message box.</dd>
       </dl>
     </p>
@@ -1229,19 +1284,21 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       also be used as examples to implement your own model.
     </p>
     <p>
-      An <tt>AbstractItemModel</tt> can represent tables, trees and/or
-      treetables.
+      A <tt>WAbstractItemModel</tt> can represent tables, trees and/or
+      tree-tables (hierarchical tables).
     </p>
 
     <h2>WStandardItemModel</h2>
     <p>
       This is a ready-to-use in-memory model that supports all
-      features of the WAbstractItemModel.
+      features of the <tt>WAbstractItemModel</tt>.
     </p>
 
     <h2>WStringListModel</h2>
     <p>
-      This is a simple, single-dimensional list of strings.
+      This is a simple, single-dimensional list of strings, and is the
+      default model used
+      by <a href="#/mvc-widgets/combobox-views"><tt>Combobox Views</tt></a>.
     </p>
   </message>
 
@@ -1277,7 +1334,8 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
   <message id="mvc-WTableView">
     <p>
       The <tt>WTableView</tt> is part of Wt's MVC widgets, and
-      provides the same functionality as a <tt>WTreeView</tt>, but for
+      provides the same functionality as a 
+      and <a href="#/mvc-widgets/wtreeview"><tt>WTreeView</tt></a>, but for
       tabular models (where as the treeview supports trees, tables or
       tree-tables).
     </p>
@@ -1317,10 +1375,11 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
     </p>
 
     <p>
-      This example uses a <tt>WStandardItemModel</tt> to populate the
-      tree table. As is demonstrated, various roles may be used to
-      indicate text, icons, selectable items (through check boxes),
-      and also URLs or internal paths.
+      This example uses
+      a <a href="#/mvc-widgets/the-models"><tt>WStandardItemModel</tt></a>
+      to populate the tree table. As is demonstrated, various roles
+      may be used to indicate text, icons, selectable items (through
+      check boxes), and also URLs or internal paths.
     </p>
 
     <p>
@@ -1355,7 +1414,7 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       of the model. They can be seen in action in
       <a href="#/charts/pie-charts">the Charts section</a> of this
       demo. Click on any value in a table to modify the model using
-      editing provided by <a href="/wt/doc/reference/html/classWt_1_1WItemDelegate.html">WItemDelegate</a>. The
+      editing provided by <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WItemDelegate.html">WItemDelegate</a>. The
       table and the chart are both views on the same model; the
       changes in the model are immediately reflected in the charts
       too.
@@ -1388,7 +1447,7 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       of the client-side event handling (avoids round-trip to the
       server) and how to write your own JavaScript events, please take
       a look in the
-      <a href="/wt/doc/reference/html/overview.html" target="_blank">
+      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html" target="_blank">
       library overview</a>.
     </p>
   </message>
@@ -1398,7 +1457,7 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       The <tt>WKeyEvent</tt> provides detailed information for a
       keyboard event. Type in the line edits below to demonstrate the
       events. In general, keyboard events can be generated by every <a
-      href="/wt/doc/reference/html/classWt_1_1WInteractWidget.html"
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WInteractWidget.html"
       target="_blank">WInteractWidget</a>, provided that either the
       widget itself has keyboard focus, or one of its children. While
       form widgets can receive keyboard focus out of the box, this
@@ -1432,7 +1491,7 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       <tt>WMouseEvent</tt> gives detailed information for signals
       related to mouse operations. Mouse events can be intercepted
       from any <a
-      href="/wt/doc/reference/html/classWt_1_1WInteractWidget.html"><tt>
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WInteractWidget.html"><tt>
       WInteractWidget</tt></a>.
     </p>
     <p>

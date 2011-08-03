@@ -1,3 +1,10 @@
+03-08-2011:
+	* WMediaPlayer: new cross-browser, flexible, audio/video player widget
+
+	* WHTML5Video, WHTML5Audio, WHTML5Media: renamed to WVideo, WAudio, WAbstractMedia
+
+	* WSound, SoundManager: reimplemented using WMediaPlayer
+
 25-07-2011:
 	* WPopupMenu, WPopupMenuItem: improved triggered() signal API and
 	added setSelectable() signals

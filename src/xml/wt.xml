@@ -1,12 +1,16 @@
-<?xml version="1.0" encoding="UTF8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <messages>
+  <!-- i18n strings -->
+
   <message id="Wt.WAbstractItemView.PageIOfN"><b>{1}</b> of <b>{2}</b></message>
   <message id="Wt.WAbstractItemView.PageBar.First">&#x00ab; First</message>
   <message id="Wt.WAbstractItemView.PageBar.Previous">&#x2039; Previous</message>
   <message id="Wt.WAbstractItemView.PageBar.Next">Next &#x203a;</message>
   <message id="Wt.WAbstractItemView.PageBar.Last">Last &#x00bb;</message>
+
   <message id="Wt.WCalendar.PrevMonth">&#x00ab;</message>
   <message id="Wt.WCalendar.NextMonth">&#x00bb;</message>
+
   <message id="Wt.WDate.Monday">Monday</message>
   <message id="Wt.WDate.Tuesday">Tuesday</message>
   <message id="Wt.WDate.Wednesday">Wednesday</message>
@@ -45,7 +49,9 @@
   <message id="Wt.WDate.3.Oct">Oct</message>
   <message id="Wt.WDate.3.Nov">Nov</message>
   <message id="Wt.WDate.3.Dec">Dec</message>
+
   <message id="Wt.WDatePicker.Close">Close</message>
+
   <message id="Wt.WDateTime.LessThanASecond">less than a second</message>
   <message id="Wt.WDateTime.second">one second</message>
   <message id="Wt.WDateTime.seconds">{1} seconds</message>
@@ -62,24 +68,43 @@
   <message id="Wt.WDateTime.year">one year</message>
   <message id="Wt.WDateTime.years">{1} years</message>
   <message id="Wt.WDateTime.null">Null</message>
+
   <message id="Wt.WDateValidator.DateTooEarly">The date must be after {1}</message>
   <message id="Wt.WDateValidator.DateTooLate">The date must be before {1}</message>
   <message id="Wt.WDateValidator.WrongDateRange">The date must be between {1} and {2}</message>
   <message id="Wt.WDateValidator.WrongFormat">Must be a date in the format '{1}'</message>
+
   <message id="Wt.WDefaultLoadingIndicator.Loading">Loading...</message>
+
   <message id="Wt.WDoubleValidator.NotANumber">Must be a number</message>
   <message id="Wt.WDoubleValidator.TooSmall">The number must be larger than {1}</message>
   <message id="Wt.WDoubleValidator.BadRange">The number must be in the range {1} to {2}</message>
   <message id="Wt.WDoubleValidator.TooLarge">The number must be smaller than {1}</message>
+
   <message id="Wt.WInPlaceEdit.Save">Save</message>
   <message id="Wt.WInPlaceEdit.Cancel">Cancel</message>
+
   <message id="Wt.WIntValidator.NotAnInteger">Must be an integer number</message>
   <message id="Wt.WIntValidator.TooSmall">The number must be larger than {1}</message>
   <message id="Wt.WIntValidator.BadRange">The number must be in the range {1} to {2}</message>
   <message id="Wt.WIntValidator.TooLarge">The number must be smaller than {1}</message>
+
   <message id="Wt.WLengthValidator.TooShort">The input must be at least {1} characters</message>
   <message id="Wt.WLengthValidator.BadRange">The input must have a length between {1} and {2} characters</message>
   <message id="Wt.WLengthValidator.TooLong">The input must be no more than {1} characters</message>
+
+  <message id="Wt.WMediaPlayer.play">Play</message>
+  <message id="Wt.WMediaPlayer.pause">Pause</message>
+  <message id="Wt.WMediaPlayer.stop">Stop</message>
+  <message id="Wt.WMediaPlayer.mute">Mute</message>
+  <message id="Wt.WMediaPlayer.unmute">Unmute</message>
+  <message id="Wt.WMediaPlayer.volume-max">Maximum volume</message>
+  <message id="Wt.WMediaPlayer.repeat">Repeat</message>
+  <message id="Wt.WMediaPlayer.repeat-off">Repeat off</message>
+  <message id="Wt.WMediaPlayer.video-play-icon">Play</message>
+  <message id="Wt.WMediaPlayer.full-screen">Full screen</message>
+  <message id="Wt.WMediaPlayer.restore-screen">Restore screen</message>
+
   <message id="Wt.WMessageBox.Abort">Abort</message>
   <message id="Wt.WMessageBox.Cancel">Cancel</message>
   <message id="Wt.WMessageBox.Ignore">Ignore</message>
@@ -89,9 +114,88 @@
   <message id="Wt.WMessageBox.Retry">Retry</message>
   <message id="Wt.WMessageBox.Yes">Yes</message>
   <message id="Wt.WMessageBox.YesToAll">Yes to All</message>
+
   <message id="Wt.WOverlayLoadingIndicator.Loading">Loading...</message>
+
   <message id="Wt.WRegExpValidator.Invalid">Invalid input</message>
+
   <message id="Wt.WValidator.Invalid">This field cannot be empty</message>
+
   <message id="Wt.true">true</message>
   <message id="Wt.false">false</message>
+
+  <!-- templates -->
+
+  <message id="Wt.WMediaPlayer.template">
+    <div class="jp-type-single">
+      <div class="jp-jplayer"></div>
+      ${gui}
+    </div>
+  </message>
+
+  <message id="Wt.WMediaPlayer.defaultgui-video">
+    <div class="jp-video-play">
+      ${video-play-btn}
+    </div>
+    <div class="jp-interface">
+      <div class="jp-progress">
+	${progress-bar}
+      </div>
+      ${current-time}
+      ${duration}
+      <div class="jp-controls-holder">
+	<ul class="jp-controls">
+	  <li>${play-btn}</li>
+	  <li>${pause-btn}</li>
+	  <li>${stop-btn}</li>
+	  <li>${mute-btn}</li>
+	  <li>${unmute-btn}</li>
+	  <li>${volume-max-btn}</li>
+	</ul>
+	${volume-bar}
+	<ul class="jp-toggles">
+	  <li>${full-screen-btn}</li>
+	  <li>${restore-screen-btn}</li>
+	  <li>${repeat-btn}</li>
+	  <li>${repeat-off-btn}</li>
+	</ul>
+      </div>
+      <div class="jp-title" style="display: ${title-display}">
+	<ul>
+	  <li>${title}</li>
+	</ul>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.WMediaPlayer.defaultgui-audio">
+    <div class="jp-interface">
+      <ul class="jp-controls">
+	<li>${play-btn}</li>
+	<li>${pause-btn}</li>
+	<li>${stop-btn}</li>
+	<li>${mute-btn}</li>
+	<li>${unmute-btn}</li>
+	<li>${volume-max-btn}</li>
+      </ul>
+      <div class="jp-progress">
+	${progress-bar}
+      </div>
+      ${volume-bar}
+      <div class="jp-time-holder">
+	${current-time}
+	${duration}
+	<ul class="jp-toggles">
+	  <li>${repeat-btn}</li>
+	  <li>${repeat-off-btn}</li>
+	</ul>
+      </div>
+    </div>
+    <div class="jp-title" style="display: ${title-display}">
+      <ul>
+	<li>${title}</li>
+      </ul>
+    </div>
+  </message>
+
 </messages>

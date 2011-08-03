@@ -16,6 +16,7 @@ namespace Wt {
   class WAbstractItemDelegate;
   class WAbstractItemModel;
   class WAbstractItemView;
+  class WAbstractMedia;
   class WAbstractListModel;
   class WAbstractProxyModel;
   class WAbstractServer;
@@ -25,6 +26,7 @@ namespace Wt {
   class WAnimation;
   class WAnchor;
   class WApplication;
+  class WAudio;
   class WBatchEditProxyModel;
   class WBorder;
   class WBorderLayout;
@@ -62,9 +64,6 @@ namespace Wt {
   class WGridLayout;
   class WGroupBox;
   class WHboxLayout;
-  class WHTML5Audio;
-  class WHTML5Media;
-  class WHTML5Video;
   class WMouseEvent;
   class WIconPair;
   class WImage;
@@ -84,6 +83,7 @@ namespace Wt {
   class WLoadingIndicator;
   class WLocalizedStrings;
   class WLogger;
+  class WMediaPlayer;
   class WMemoryResource;
   class WMenu;
   class WMenuItem;
@@ -154,6 +154,7 @@ namespace Wt {
   class WVBoxLayout;
   class WValidationStatus;
   class WValidator;
+  class WVideo;
   class WViewWidget;
   class WVirtualImage;
   class WVmlImage;

@@ -1,4 +1,4 @@
-WT_ADD_EXAMPLE(video.wt video.C)
+WT_ADD_EXAMPLE(mediaplayer.wt mediaplayer.C)
 
 #
 # If you have Wt installed somehwere, you should use the

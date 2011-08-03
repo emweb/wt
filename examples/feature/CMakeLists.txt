@@ -1,6 +1,7 @@
 SUBDIRS(
   broadcast
   dbo
+  mediaplayer
   miniwebgl
   multiple_servers
   serverpush

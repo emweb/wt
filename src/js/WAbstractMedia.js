@@ -6,7 +6,7 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 WT_DECLARE_WT_MEMBER
-(1, JavaScriptConstructor, "WHTML5Media",
+(1, JavaScriptConstructor, "WAbstractMedia",
  function(APP, el) {
    jQuery.data(el, 'obj', this);
 
@@ -48,4 +48,22 @@ WT_DECLARE_WT_MEMBER
      }
     };
 
+   function encodeValue() {
+     if (el.mediaId) {
+       var mediaEl = $('#' + el.mediaId).get(0);
+
+       if (mediaEl) {
+         return '' + mediaEl.volume + ';'
+	   + mediaEl.currentTime + ';'
+	   + (mediaEl.readyState >= 1 ? mediaEl.duration : 0) + ';'
+	   + (mediaEl.paused ? '1' : '0') + ';'
+	   + (mediaEl.ended ? ' 1' : '0') + ';'
+	   + mediaEl.readyState;
+       }
+     }
+
+     return null;
+   }
+
+   el.wtEncodeValue = encodeValue;
  });

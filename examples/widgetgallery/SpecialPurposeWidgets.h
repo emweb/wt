@@ -25,7 +25,9 @@ public:
 
 private:
   Wt::WWidget *wGoogleMap();
+  Wt::WWidget *wMediaPlayer();
   Wt::WWidget *wSound();
+  Wt::WWidget *wAudio();
   Wt::WWidget *wVideo();
   Wt::WWidget *wFlashObject();
 };

@@ -54,6 +54,7 @@ Wt/WAbstractItemDelegate.C
 Wt/WAbstractItemModel.C
 Wt/WAbstractItemView.C
 Wt/WAbstractListModel.C
+Wt/WAbstractMedia.C
 Wt/WAbstractProxyModel.C
 Wt/WAbstractServer.C
 Wt/WAbstractSpinBox.C
@@ -64,6 +65,7 @@ Wt/WAggregateProxyModel.C
 Wt/WAnchor.C
 Wt/WAnimation.C
 Wt/WApplication.C
+Wt/WAudio.C
 Wt/WBatchEditProxyModel.C
 Wt/WBoostAny.C
 Wt/WBorder.C
@@ -106,9 +108,6 @@ Wt/WGoogleMap.C
 Wt/WGridLayout.C
 Wt/WGroupBox.C
 Wt/WHBoxLayout.C
-Wt/WHTML5Audio.C
-Wt/WHTML5Media.C
-Wt/WHTML5Video.C
 Wt/WIconPair.C
 Wt/WImage.C
 Wt/WInPlaceEdit.C
@@ -131,6 +130,7 @@ Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.C
 Wt/WLogger.C
 Wt/WMatrix4x4.C
+Wt/WMediaPlayer.C
 Wt/WMemoryResource.C
 Wt/WMenu.C
 Wt/WMenuItem.C
@@ -204,6 +204,7 @@ Wt/WValidationStatus.C
 Wt/WValidator.C
 Wt/WVBoxLayout.C
 Wt/WVectorImage.C
+Wt/WVideo.C
 Wt/WVmlImage.C
 Wt/WViewWidget.C
 Wt/WVirtualImage.C

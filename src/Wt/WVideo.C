@@ -4,7 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WHTML5Video"
+#include "Wt/WVideo"
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
@@ -14,8 +14,8 @@
 
 using namespace Wt;
 
-WHTML5Video::WHTML5Video(WContainerWidget *parent):
-  WHTML5Media(parent),
+WVideo::WVideo(WContainerWidget *parent):
+  WAbstractMedia(parent),
   sizeChanged_(false),
   posterChanged_(false)
 {
@@ -23,9 +23,9 @@ WHTML5Video::WHTML5Video(WContainerWidget *parent):
   this->setOptions(Controls);
 }
 
-void WHTML5Video::updateMediaDom(DomElement& element, bool all)
+void WVideo::updateMediaDom(DomElement& element, bool all)
 {
-  WHTML5Media::updateMediaDom(element, all);
+  WAbstractMedia::updateMediaDom(element, all);
   // Video has a few extra attributes...
   if (all || sizeChanged_) {
     if ((!all) || !width().isAuto())
@@ -45,29 +45,29 @@ void WHTML5Video::updateMediaDom(DomElement& element, bool all)
   sizeChanged_ = posterChanged_ = false;
 }
 
-DomElement *WHTML5Video::createMediaDomElement()
+DomElement *WVideo::createMediaDomElement()
 {
   return DomElement::createNew(DomElement_VIDEO);
 }
 
-std::string WHTML5Video::jsVideoRef() const
+std::string WVideo::jsVideoRef() const
 {
   return jsMediaRef();
 }
 
-DomElementType WHTML5Video::domElementType() const
+DomElementType WVideo::domElementType() const
 {
   return DomElement_VIDEO;
 }
 
-void WHTML5Video::setPoster(const std::string &url)
+void WVideo::setPoster(const std::string &url)
 {
   posterUrl_ = url;
   posterChanged_ = true;
   this->repaint(Wt::RepaintPropertyAttribute);
 }
 
-void WHTML5Video::resize(const WLength &width, const WLength &height)
+void WVideo::resize(const WLength &width, const WLength &height)
 {
   sizeChanged_ = true;
   WWebWidget::resize(width, height);

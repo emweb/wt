@@ -32,6 +32,11 @@ WProgressBar::WProgressBar(WContainerWidget *parent)
   setInline(true);
 }
 
+void WProgressBar::setValueStyleClass(const std::string& valueStyleClass)
+{
+  valueStyleClass_ = valueStyleClass;
+}
+
 void WProgressBar::setValue(double value)
 {
   value_ = value;
@@ -70,6 +75,19 @@ void WProgressBar::setRange(double minimum, double maximum)
   repaint(RepaintInnerHtml);
 }
 
+void WProgressBar::setState(double minimum, double maximum, double value)
+{
+  min_ = minimum;
+  max_ = maximum;
+
+  if (value_ != value) {
+    value_ = value;
+
+    if (value_ == max_)
+      progressCompleted_.emit();
+  }
+}
+
 void WProgressBar::setFormat(const WString& format)
 {
   format_ = format;
@@ -82,7 +100,12 @@ WString WProgressBar::text() const
 
 double WProgressBar::percentage() const
 {
-  return (value() - minimum()) * 100 / (maximum() - minimum());
+  double max = maximum(), min = minimum();
+
+  if (max - min != 0)
+    return (value() - min) * 100 / (max - min);
+  else
+    return 0;
 }
 
 DomElementType WProgressBar::domElementType() const
@@ -105,7 +128,7 @@ void WProgressBar::updateDom(DomElement& element, bool all)
   if (all) {
     bar = DomElement::createNew(DomElement_DIV);
     bar->setId("bar" + id());
-    bar->setProperty(PropertyClass, "Wt-pgb-bar");
+    bar->setProperty(PropertyClass, "Wt-pgb-bar " + valueStyleClass_);
 
     label = DomElement::createNew(DomElement_DIV);
     label->setId("lbl" + id());

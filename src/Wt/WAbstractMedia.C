@@ -4,7 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WHTML5Media"
+#include "Wt/WAbstractMedia"
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
@@ -15,7 +15,7 @@
 #include "WtException.h"
 
 #ifndef WT_DEBUG_JS
-#include "js/WHTML5Media.min.js"
+#include "js/WAbstractMedia.min.js"
 #endif
 
 #include <stdexcept>
@@ -24,19 +24,19 @@
 #include <boost/lexical_cast.hpp>
 
 namespace {
-  Wt::WHTML5Media::ReadyState intToReadyState(int i) 
+  Wt::WAbstractMedia::ReadyState intToReadyState(int i) 
   {
     switch (i) {
     case 0:
-      return Wt::WHTML5Media::HaveNothing;
+      return Wt::WAbstractMedia::HaveNothing;
     case 1:
-      return Wt::WHTML5Media::HaveMetaData;
+      return Wt::WAbstractMedia::HaveMetaData;
     case 2:
-      return Wt::WHTML5Media::HaveCurrentData;
+      return Wt::WAbstractMedia::HaveCurrentData;
     case 3:
-      return Wt::WHTML5Media::HaveFutureData;
+      return Wt::WAbstractMedia::HaveFutureData;
     case 4:
-      return Wt::WHTML5Media::HaveEnoughData;
+      return Wt::WAbstractMedia::HaveEnoughData;
     default:
       throw std::runtime_error("Invalid readystate");
     }
@@ -44,75 +44,75 @@ namespace {
 }
 
 using namespace Wt;
-const char *WHTML5Media::PLAYBACKSTARTED_SIGNAL = "play";
-const char *WHTML5Media::PLAYBACKPAUSED_SIGNAL = "pause";
-const char *WHTML5Media::ENDED_SIGNAL = "ended";
-const char *WHTML5Media::TIMEUPDATED_SIGNAL = "timeupdate";
-const char *WHTML5Media::VOLUMECHANGED_SIGNAL = "volumechange";
+const char *WAbstractMedia::PLAYBACKSTARTED_SIGNAL = "play";
+const char *WAbstractMedia::PLAYBACKPAUSED_SIGNAL = "pause";
+const char *WAbstractMedia::ENDED_SIGNAL = "ended";
+const char *WAbstractMedia::TIMEUPDATED_SIGNAL = "timeupdate";
+const char *WAbstractMedia::VOLUMECHANGED_SIGNAL = "volumechange";
 
-WHTML5Media::WHTML5Media(WContainerWidget *parent):
-  WInteractWidget(parent),
-  sourcesRendered_(0),
-  flags_(0),
-  preloadMode_(PreloadAuto),
-  alternative_(0),
-  flagsChanged_(false),
-  preloadChanged_(false),
-  sourcesChanged_(false),
-  playing_(false),
-  volume_(-1),
-  current_(-1),
-  duration_(-1),
-  ended_(false),
-  readyState_(HaveNothing)
+WAbstractMedia::WAbstractMedia(WContainerWidget *parent)
+  : WInteractWidget(parent),
+    sourcesRendered_(0),
+    flags_(0),
+    preloadMode_(PreloadAuto),
+    alternative_(0),
+    flagsChanged_(false),
+    preloadChanged_(false),
+    sourcesChanged_(false),
+    playing_(false),
+    volume_(-1),
+    current_(-1),
+    duration_(-1),
+    ended_(false),
+    readyState_(HaveNothing)
 {
   setInline(false);
   setFormObject(true);
 
   WApplication *app = wApp;
-  LOAD_JAVASCRIPT(app, "js/WHTML5Media.js", "WHTML5Media", wtjs1);
+  LOAD_JAVASCRIPT(app, "js/WAbstractMedia.js", "WAbstractMedia", wtjs1);
 
-  doJavaScript("new " WT_CLASS ".WHTML5Media("
-    + app->javaScriptClass() + "," + jsRef() + ");");
+  doJavaScript("new " WT_CLASS ".WAbstractMedia("
+	       + app->javaScriptClass() + "," + jsRef() + ");");
 
 #ifndef WT_TARGET_JAVA
-  implementStateless(&WHTML5Media::play, &WHTML5Media::play);
-  implementStateless(&WHTML5Media::pause, &WHTML5Media::pause);
+  implementStateless(&WAbstractMedia::play, &WAbstractMedia::play);
+  implementStateless(&WAbstractMedia::pause, &WAbstractMedia::pause);
 #endif //WT_TARGET_JAVA
 }
 
-WHTML5Media::~WHTML5Media()
+WAbstractMedia::~WAbstractMedia()
 {
   for (std::size_t i = 0; i < sources_.size(); ++i)
     delete sources_[i];
 }
 
-EventSignal<>& WHTML5Media::playbackStarted()
+EventSignal<>& WAbstractMedia::playbackStarted()
 {
   return *voidEventSignal(PLAYBACKSTARTED_SIGNAL, true);
 }
 
-EventSignal<>& WHTML5Media::playbackPaused()
+EventSignal<>& WAbstractMedia::playbackPaused()
 {
   return *voidEventSignal(PLAYBACKPAUSED_SIGNAL, true);
 }
 
-EventSignal<>& WHTML5Media::ended()
+EventSignal<>& WAbstractMedia::ended()
 {
   return *voidEventSignal(ENDED_SIGNAL, true);
 }
 
-EventSignal<>& WHTML5Media::timeUpdated()
+EventSignal<>& WAbstractMedia::timeUpdated()
 {
   return *voidEventSignal(TIMEUPDATED_SIGNAL, true);
 }
 
-EventSignal<>& WHTML5Media::volumeChanged()
+EventSignal<>& WAbstractMedia::volumeChanged()
 {
   return *voidEventSignal(VOLUMECHANGED_SIGNAL, true);
 }
 
-void WHTML5Media::setFormData(const FormData& formData)
+void WAbstractMedia::setFormData(const FormData& formData)
 {
   if (!Utils::isEmpty(formData.values)) {
     std::vector<std::string> attributes;
@@ -126,33 +126,38 @@ void WHTML5Media::setFormData(const FormData& formData)
         ended_ = (attributes[4] == "1");
         readyState_ = intToReadyState(boost::lexical_cast<int>(attributes[5]));
       } catch (const std::exception& e) {
-	throw std::runtime_error("WHTML5Media: error parsing: "
+	throw std::runtime_error("WAbstractMedia: error parsing: "
 				 + formData.values[0] + ": " + e.what());
       }
     } else {
-      throw std::runtime_error("WHTML5Media: error parsing: "
+      throw std::runtime_error("WAbstractMedia: error parsing: "
 			       + formData.values[0]);
     }
   }
 }
 
-void WHTML5Media::play()
+void WAbstractMedia::play()
 {
   doJavaScript("jQuery.data(" + jsRef() + ", 'obj').play();");
 }
 
-void WHTML5Media::pause()
+void WAbstractMedia::pause()
 {
   doJavaScript("jQuery.data(" + jsRef() + ", 'obj').pause();}");
 }
 
-void WHTML5Media::renderSource(DomElement* element,
-                               WHTML5Media::Source &source, bool isLast)
+void WAbstractMedia::renderSource(DomElement* element,
+                               WAbstractMedia::Source &source, bool isLast)
 {
   // src is mandatory
   element->setAttribute("src", resolveRelativeUrl(source.url));
-  if (source.type != "") element->setAttribute("type", source.type);
-  if (source.media != "") element->setAttribute("media", source.media);
+
+  if (source.type != "")
+    element->setAttribute("type", source.type);
+
+  if (source.media != "")
+    element->setAttribute("media", source.media);
+
   if (isLast && alternative_) {
     // Last element -> add error handler for unsupported content
     element->setAttribute("onerror",
@@ -172,7 +177,7 @@ void WHTML5Media::renderSource(DomElement* element,
   }
 }
 
-void WHTML5Media::updateMediaDom(DomElement& element, bool all)
+void WAbstractMedia::updateMediaDom(DomElement& element, bool all)
 {
   // Only if not IE
   if (all && alternative_) {
@@ -221,7 +226,7 @@ void WHTML5Media::updateMediaDom(DomElement& element, bool all)
   flagsChanged_ = preloadChanged_ = false;
 }
 
-DomElement *WHTML5Media::createDomElement(WApplication *app)
+DomElement *WAbstractMedia::createDomElement(WApplication *app)
 {
   DomElement *result = 0;
 
@@ -312,7 +317,7 @@ DomElement *WHTML5Media::createDomElement(WApplication *app)
   return result;
 }
 
-std::string WHTML5Media::jsMediaRef() const
+std::string WAbstractMedia::jsMediaRef() const
 {
   if (mediaId_.empty()) {
     return "null";
@@ -321,8 +326,8 @@ std::string WHTML5Media::jsMediaRef() const
   }
 }
 
-void WHTML5Media::getDomChanges(std::vector<DomElement *>& result,
-                                WApplication *app)
+void WAbstractMedia::getDomChanges(std::vector<DomElement *>& result,
+				   WApplication *app)
 {
   if (!mediaId_.empty()) {
     DomElement *media = DomElement::getForUpdate(mediaId_, DomElement_DIV);
@@ -354,31 +359,31 @@ void WHTML5Media::getDomChanges(std::vector<DomElement *>& result,
   WInteractWidget::getDomChanges(result, app);
 }
 
-void WHTML5Media::setOptions(const WFlags<Options> &flags)
+void WAbstractMedia::setOptions(const WFlags<Options> &flags)
 {
   flags_ = flags;
   flagsChanged_ = true;
   this->repaint(Wt::RepaintPropertyAttribute);
 }
 
-WFlags<WHTML5Media::Options> WHTML5Media::getOptions() const
+WFlags<WAbstractMedia::Options> WAbstractMedia::getOptions() const
 {
   return flags_;
 }
 
-void WHTML5Media::setPreloadMode(PreloadMode mode)
+void WAbstractMedia::setPreloadMode(PreloadMode mode)
 {
   preloadMode_ = mode;
   preloadChanged_ = true;
   repaint(Wt::RepaintPropertyAttribute);
 }
 
-WHTML5Media::PreloadMode WHTML5Media::preloadMode() const
+WAbstractMedia::PreloadMode WAbstractMedia::preloadMode() const
 {
   return preloadMode_;
 }
 
-void WHTML5Media::clearSources()
+void WAbstractMedia::clearSources()
 {
   for (std::size_t i = 0; i < sources_.size(); ++i) {
     delete sources_[i];
@@ -387,24 +392,23 @@ void WHTML5Media::clearSources()
   repaint(Wt::RepaintPropertyAttribute);
 }
 
-void WHTML5Media::addSource(const std::string &url, const std::string &type,
-                            const std::string &media)
+void WAbstractMedia::addSource(const std::string &url, const std::string &type,
+			       const std::string &media)
 {
   sources_.push_back(new Source(url, type, media));
   sourcesChanged_ = true;
   repaint(Wt::RepaintPropertyAttribute);
 }
 
-void WHTML5Media::addSource(WResource *resource,
-                            const std::string &type,
-                            const std::string &media)
+void WAbstractMedia::addSource(WResource *resource, const std::string &type,
+			       const std::string &media)
 {
   sources_.push_back(new Source(this, resource, type, media));
   sourcesChanged_ = true;
   repaint(Wt::RepaintPropertyAttribute);
 }
 
-void WHTML5Media::setAlternativeContent(WWidget *alternative)
+void WAbstractMedia::setAlternativeContent(WWidget *alternative)
 {
   if (alternative_)
     delete alternative_;
@@ -413,9 +417,9 @@ void WHTML5Media::setAlternativeContent(WWidget *alternative)
     addChild(alternative_);
 }
 
-WHTML5Media::Source::Source(WHTML5Media *parent,
-                            WResource *resource, const std::string &type,
-                            const std::string &media)
+WAbstractMedia::Source::Source(WAbstractMedia *parent,
+			       WResource *resource, const std::string &type,
+			       const std::string &media)
   :  parent(parent),
      type(type),
      url(resource->url()),
@@ -425,17 +429,17 @@ WHTML5Media::Source::Source(WHTML5Media *parent,
   connection = resource->dataChanged().connect(this, &Source::resourceChanged);
 }
 
-WHTML5Media::Source::Source(const std::string &url, const std::string &type,
-			    const std::string &media)
+WAbstractMedia::Source::Source(const std::string &url, const std::string &type,
+			       const std::string &media)
   : type(type), url(url), media(media)
 { }
 
-WHTML5Media::Source::~Source()
+WAbstractMedia::Source::~Source()
 {
   connection.disconnect();
 }
 
-void WHTML5Media::Source::resourceChanged()
+void WAbstractMedia::Source::resourceChanged()
 {
   url = resource->url();
   parent->sourcesChanged_ = true;

@@ -19,7 +19,6 @@ namespace Wt {
 #define GLDEBUG
 #endif
 
-class WHTML5Video;
 class WImage;
 
 // Incomplete implementation of the new webgl standard. This is to be
@@ -1295,7 +1294,7 @@ public:
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
   //                PixelFormatEnum format, GLenum type, HTMLCanvasElement canvas);
 
-  /*! \brief GL function to load a 2D texture from a HTML5Video object
+  /*! \brief GL function to load a 2D texture from a WVideo
    *
    * Note: the video must be loaded prior to calling this function. The
    * current frame is used as texture image.
@@ -1304,7 +1303,7 @@ public:
    * glTexImage2D() OpenGL ES manpage</a>
    */
   void texImage2D(GLenum target, int level, GLenum internalformat, GLenum format,
-                  GLenum type, WHTML5Video *video);
+                  GLenum type, WVideo *video);
 
   /*! \brief GL function to load a 2D texture loaded with createTextureAndLoad()
    *

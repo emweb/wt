@@ -311,11 +311,7 @@ WWidget *FormWidgets::wInPlaceEdit()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WInPlaceEdit", result);
-  addText("<p>This widget allows you to edit a text in-place by clicking "
-	    "on it. You can enable the save/cancel buttons (like here below) "
-	    "or disable them (as used in the <tt>WCalendar</tt> widget to edit "
-	    "the year).</p>",
-	    result);
+  addText(tr("formwidgets-WInPlaceEdit"), result);
   addText("Try it here: ", result);
   WInPlaceEdit *ipe = new WInPlaceEdit("This is editable text", result);
   ipe->setStyleClass("in-place-edit");

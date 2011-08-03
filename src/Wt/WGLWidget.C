@@ -6,7 +6,7 @@
  */
 #include "Wt/WGLWidget"
 #include "Wt/WEnvironment"
-#include "Wt/WHTML5Video"
+#include "Wt/WVideo"
 #include "Wt/WImage"
 #include "Wt/WText"
 #include "Wt/WWebWidget"
@@ -1095,7 +1095,7 @@ void WGLWidget::texImage2D(GLenum target, int level,
 void WGLWidget::texImage2D(GLenum target, int level,
                            GLenum internalformat,
                            GLenum format, GLenum type,
-                           WHTML5Video *video)
+                           WVideo *video)
 {
   js_ << "if (" << video->jsMediaRef()<< ")"
     " ctx.texImage2D(" << toString(target) << "," << level << ","

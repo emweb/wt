@@ -161,7 +161,8 @@ WWidget *BasicControls::wImage()
   addText(tr("basics-WImage"), result);
 
   addText("An image: ", result);
-  new WImage("icons/wt_powered.jpg", result);
+  (new WImage("icons/wt_powered.jpg", result))
+    ->setVerticalAlignment(AlignMiddle);
 
   addText(tr("basics-WImage-more"), result);
 

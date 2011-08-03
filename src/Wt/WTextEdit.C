@@ -107,7 +107,10 @@ const std::string WTextEdit::toolBar(int i) const
 
 std::string WTextEdit::renderRemoveJs()
 {
-  return jsRef() + ".ed.remove();" WT_CLASS ".remove('" + id() + "');";
+  if (isRendered())
+    return jsRef() + ".ed.remove();" WT_CLASS ".remove('" + id() + "');";
+  else
+    return WTextEdit::renderRemoveJs();
 }
 
 void WTextEdit::initTinyMCE()

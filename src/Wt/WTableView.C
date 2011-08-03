@@ -835,7 +835,7 @@ void WTableView::setColumnHidden(int column, bool hidden)
     if (renderState_ >= NeedRerenderHeader)
       return;
 
-    WWidget *hc = headerWidget(column);
+    WWidget *hc = headerWidget(column, false);
 
     if (!ajaxMode())
       hc->parent()->setHidden(hidden);

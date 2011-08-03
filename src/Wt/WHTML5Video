@@ -7,102 +7,12 @@
 #ifndef WHTML5VIDEO_H_
 #define WHTML5VIDEO_H_
 
-#include <Wt/WHTML5Media>
+#include <Wt/WVideo>
 
 namespace Wt {
 
-/*! \class WHTML5Video Wt/WHTML5Video Wt/WHTML5Video
- *  \brief A widget that renders video using the HTML5 video element.
- *
- * This class renders HTML5 video. In a typical usage scenario,
- * you instantiate the class, set options, add one or multiple
- * video sources. Since not every browser supports HTML5 video,
- * the class provides a mechanism to display alternative content
- * in browsers that cannot play the video.
- *
- * \if cpp
- * Usage example:
- * \code
- * WHTML5Video *v = new WHTML5Video(parent);
- * v->setOptions(WHTML5Video::Autoplay | WHTML5Video::Controls);
- * // Addsources may be called multiple times for different formats:
- * // Firefox only plays ogg
- * v->addSource("wt.ogv");
- * // many others play mp4
- * v->addSource("wt.mp4", "video/mp4");
- * // Image to be displayed before playback starts
- * v->setPoster("wt.jpg");
- * // You may display a simple text to explain that you need html5 support...
- * // v->setAlternativeContent(new WText("You have no HTML5 Video!"));
- * // ... or provide an alternative player, e.g. Flash-based
- * WFlashObject *f = new WFlashObject("player.swf", root());
- * f->setFlashVariable("startimage", "wt.jpg");
- * f->setFlashVariable("flv", "wt.mp4");
- * f->resize(640, 384);
- * v->setAlternativeContent(f);
- * \endcode
- * \endif
- *
- * There are two reasons why the a browser may use the alternative
- * content: either because the browser does not support the HTML5
- * video tag (alternative content is displayed even when JavaScript
- * is not available), or because none of the specified sources contain
- * a video format that is understood by the browser (requires
- * JavaScript to display the alternative content).
- *
- * addSource() and setAlternativeContent() must not be called after
- * the WHTML5Video was rendered. This can easily be avoided by calling
- * these functions right after construction.
- *
- * This is a technology-specific class. To let %Wt choose a technology
- * (and fallback technologies) to display your videos, use the WVideo class.
- */
-class WT_API WHTML5Video : public WHTML5Media
-{
-public:
-  /*! \brief Creates a HTML5 video widget.
-   *
-   * The constructor sets the 'controls' option, which causes the browser
-   * to display a bar with play/pauze/volume/... controls.
-   *
-   * A freshly constructed HTML5Video widget has no poster image, no
-   * media sources, has preload mode set to PreloadAuto, and only the
-   * Controls flag is set.
-   */
-  WHTML5Video(WContainerWidget *parent = 0);
-  
-  /*! \brief Set the poster image
-   *
-   * On browsers that support it, the poster image is displayed before
-   * the video is playing. Some browsers display the first frame of the
-   * video stream once the video stream is loaded; it is therefore a
-   * good idea to include the poster image as first frame in the video
-   * feed too.
-   */
-  void setPoster(const std::string &url);
-  
-  /*! \brief Returns the JavaScript reference to the video object, or null.
-   *
-   * It is possible, for compatibility reasons, that jsRef() is not the
-   * HTML5 video element. jsVideoRef() is guaranteed to be an expression
-   * that evaluates to the video object. This expression may yield null, if
-   * the video object is not rendered at all (e.g. on older versions of
-   * Internet Explorer).
-   */
-  std::string jsVideoRef() const;
-
-  virtual void resize(const WLength &width, const WLength &height);
-
-protected:
-  virtual DomElement *createMediaDomElement();
-  DomElementType domElementType() const;
-  void updateMediaDom(DomElement& element, bool all);
-
-private:
-  std::string posterUrl_;
-  PreloadMode preloadMode_;
-  bool sizeChanged_, posterChanged_;
-};
+//!< Typedef for compatibility with %Wt < 3.1.11 (deprecated).
+typedef WVideo WHTML5Video;
 
 }
 

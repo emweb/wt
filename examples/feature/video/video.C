@@ -7,7 +7,7 @@
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WText>
-#include <Wt/WHTML5Video>
+#include <Wt/WVideo>
 #include <Wt/WImage>
 #include <Wt/WFlashObject>
 
@@ -26,10 +26,9 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   std::string poster = "sintel_trailer.jpg";
   
   new WText(WString::tr("intro"), app->root());
-  new WBreak(app->root());
 
   new WText(WString::tr("html5"), app->root());
-  WHTML5Video *v1 = new WHTML5Video(app->root());
+  WVideo *v1 = new WVideo(app->root());
   v1->addSource(mp4Video);
   v1->addSource(ogvVideo);
   v1->setPoster(poster);
@@ -46,7 +45,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   flash2->setFlashVariable("showfullscreen", "1");
   flash2->setAlternativeContent(new WImage(poster));
   flash2->resize(640, 360);
-  WHTML5Video *v2 = new WHTML5Video(app->root());
+  WVideo *v2 = new WVideo(app->root());
   v2->addSource(mp4Video);
   v2->addSource(ogvVideo);
   v2->setAlternativeContent(flash2);

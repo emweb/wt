@@ -287,6 +287,25 @@ public:
     boost::signals::connection connect(T *target,
 				       void (V::*method)(A1,A2,A3,A4,A5,A6));
 
+  /*! \brief Connects a JavaScript function.
+   *
+   * This will provide a client-side connection between the event and
+   * a JavaScript function. The argument must be a JavaScript function
+   * which optionally accepts one arguments (the object):
+   *
+   * \code
+   * function(object) {
+   *   ...
+   * }
+   * \endcode
+   *
+   * Unlike a JSlot, there is no automatic connection management: the
+   * connection cannot be removed. If you need automatic connection
+   * management, you should use connect(JSlot&) instead.
+   */
+  void connect(const std::string& function);
+  void connect(const char * function);
+
   /*! \brief Connect a slot that is specified as JavaScript only.
    *
    * This will provide a client-side connection between the event and
@@ -521,6 +540,28 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 }
 
 extern void WT_API throwWtException(const std::string& msg);
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+void JSignal<A1, A2, A3, A4, A5, A6>::connect(const std::string& function)
+{
+  if (!collectSlotJavaScript_)
+    throwWtException("JSignal::connect(const std::string&) only makes sense "
+		     "for a JSignal which collects JavaScript from slots");
+
+  EventSignalBase::connect(function);
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+void JSignal<A1, A2, A3, A4, A5, A6>::connect(const char *function)
+{
+  if (!collectSlotJavaScript_)
+    throwWtException("JSignal::connect(const std::string&) only makes sense "
+		     "for a JSignal which collects JavaScript from slots");
+
+  EventSignalBase::connect(function);
+}
 
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>

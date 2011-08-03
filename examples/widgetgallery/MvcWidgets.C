@@ -71,8 +71,7 @@ WWidget *MvcWidgets::models()
 {
   WContainerWidget *result = new WContainerWidget();
 
-  topic("WAbstractItemModel", "WAbstractListModel", "WStandardItemModel",
-	"WStringListModel", result);
+  topic("WAbstractItemModel", "WStandardItemModel", "WStringListModel", result);
   addText(tr("mvc-models"), result);
   return result;
 }

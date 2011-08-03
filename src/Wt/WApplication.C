@@ -163,7 +163,8 @@ WApplication::WApplication(const WEnvironment& env)
    * Subset of typical CSS "reset" styles, only those that are needed
    * for Wt's built-in widgets and are relatively harmless.
    */
-  styleSheet_.addRule("table", "border-collapse: collapse; border: 0px;");
+  styleSheet_.addRule("table", "border-collapse: collapse; border: 0px;"
+		      "border-spacing: 0px");
   styleSheet_.addRule("div, td, img",
 		      "margin: 0px; padding: 0px; border: 0px");
   styleSheet_.addRule("td", "vertical-align: top;");
@@ -1421,11 +1422,10 @@ bool WApplication::debug() const
 SoundManager *WApplication::getSoundManager()
 {
   if (!soundManager_)
-    soundManager_ = new SoundManager(this);
+    soundManager_ = new SoundManager(domRoot());
 
   return soundManager_;
 }
-
 
 #ifdef WT_DEBUG_JS
 

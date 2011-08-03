@@ -61,6 +61,13 @@ Signal<void>::Signal(WObject *sender)
 { }
 #endif // WT_CNOR
 
+EventSignalBase::EventSignalBase(const char *name, WObject *sender)
+  : SignalBase(sender), name_(name), id_(nextId_++)
+{ 
+  if (!name_)
+    flags_.set(BIT_SIGNAL_SERVER_ANYWAY);
+}
+
 void *EventSignalBase::alloc()
 {
   return WApplication::instance()->eventSignalPool_->malloc();
@@ -136,7 +143,7 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
 
   result << javaScript();
 
-  {
+  if (flags_.test(BIT_EXPOSED) || flags_.test(BIT_SIGNAL_SERVER_ANYWAY)) {
     WApplication *app = WApplication::instance();
 
     std::string senderId = encodeCmd();
@@ -203,6 +210,7 @@ const std::string EventSignalBase::javaScript() const
 void EventSignalBase::setNotExposed()
 {
   flags_.reset(BIT_EXPOSED);
+  flags_.reset(BIT_SIGNAL_SERVER_ANYWAY);
 }
 
 void EventSignalBase::disconnect(boost::signals::connection& conn)
@@ -346,6 +354,7 @@ void EventSignalBase::exposeSignal()
   }
 
   WApplication *app = WApplication::instance();
+
   app->addExposedSignal(this);
 
   flags_.set(BIT_NEEDS_AUTOLEARN);

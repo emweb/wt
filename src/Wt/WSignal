@@ -524,13 +524,14 @@ protected:
   static const int BIT_NEEDS_AUTOLEARN = 2;
   static const int BIT_PREVENT_DEFAULT = 3;
   static const int BIT_PREVENT_PROPAGATION = 4;
+  static const int BIT_SIGNAL_SERVER_ANYWAY = 5;
 
   static int nextId_;
 
   const char                       *name_;
   const int                         id_;
   std::vector<StatelessConnection>  connections_;
-  std::bitset<5>                    flags_;
+  std::bitset<6>                    flags_;
 
   /*
    * Dummy signal used for knowing if stateless connections are still
@@ -538,8 +539,7 @@ protected:
    */
   boost::signal0<void>              dummy_;
 
-  EventSignalBase(const char *name, WObject *sender)
-    : SignalBase(sender), name_(name), id_(nextId_++) { }
+  EventSignalBase(const char *name, WObject *sender);
 
   void prepareDestruct();
   void exposeSignal();
@@ -664,7 +664,7 @@ public:
    *
    * This will provide a client-side connection between the event and
    * a JavaScript function. The argument must be a JavaScript function
-   * which optinally accepts two arguments (the object and the event):
+   * which optionally accepts two arguments (the object and the event):
    *
    * \code
    * function(object, event) {

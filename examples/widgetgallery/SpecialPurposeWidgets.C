@@ -8,21 +8,34 @@
 #include "EventDisplayer.h"
 #include "DeferredWidget.h"
 
+#include "Wt/WAudio"
 #include "Wt/WBreak"
 #include "Wt/WCheckBox"
+#include "Wt/WComboBox"
 #include "Wt/WFlashObject"
-#include "Wt/WHTML5Video"
+#include "Wt/WHBoxLayout"
 #include "Wt/WImage"
+#include "Wt/WMediaPlayer"
 #include "Wt/WPushButton"
 #include "Wt/WSound"
+#include "Wt/WStandardItemModel"
 #include "Wt/WTable"
 #include "Wt/WText"
 #include "Wt/WTemplate"
-#include "Wt/WStandardItemModel"
-#include "Wt/WComboBox"
-#include "Wt/WHBoxLayout"
+#include "Wt/WVideo"
 
 using namespace Wt;
+
+namespace {
+  std::string ogvVideo =
+    "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
+  std::string mp4Video =
+    "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
+  std::string mp3Audio =
+    "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3";
+
+  std::string poster = "pics/sintel_trailer.jpg";
+}
 
 SpecialPurposeWidgets::SpecialPurposeWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
@@ -33,13 +46,17 @@ SpecialPurposeWidgets::SpecialPurposeWidgets(EventDisplayer *ed)
 void SpecialPurposeWidgets::populateSubMenu(WMenu *menu)
 {
   menu->addItem("WGoogleMap",
-		deferCreate(boost::bind(&SpecialPurposeWidgets::wGoogleMap,
-					this)));
+		deferCreate
+		(boost::bind(&SpecialPurposeWidgets::wGoogleMap, this)));
+  menu->addItem("WMediaPlayer",
+		deferCreate(boost::bind
+			    (&SpecialPurposeWidgets::wMediaPlayer, this)));
   menu->addItem("WSound",
 		deferCreate(boost::bind(&SpecialPurposeWidgets::wSound, this)));
   menu->addItem("WVideo",
-		deferCreate(boost::bind(&SpecialPurposeWidgets::wVideo,
-					this)));
+		deferCreate(boost::bind(&SpecialPurposeWidgets::wVideo, this)));
+  menu->addItem("WAudio",
+		deferCreate(boost::bind(&SpecialPurposeWidgets::wAudio, this)));
   menu->addItem("WFlashObject",
 		deferCreate(boost::bind(&SpecialPurposeWidgets::wFlashObject,
 					this)));
@@ -307,6 +324,45 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   return result;
 }
 
+WWidget *SpecialPurposeWidgets::wMediaPlayer()
+{
+  WContainerWidget *result = new WContainerWidget();
+  result->setStyleClass("wmediaplayer");
+  topic("WMediaPlayer", result);
+
+  addText(tr("specialpurposewidgets-WMediaPlayer"), result);
+
+  addText(tr("specialpurposewidgets-WMediaPlayer-video"), result);
+
+  WMediaPlayer *player = new WMediaPlayer(WMediaPlayer::Video, result);
+
+  player->addSource(WMediaPlayer::M4V, mp4Video);
+  player->addSource(WMediaPlayer::OGV, ogvVideo);
+  player->addSource(WMediaPlayer::PosterImage, poster);
+  player->setTitle("<a href=\"http://durian.blender.org/\""
+		   "target=\"_blank\">Sintel</a>, "
+		   "(c) copyright Blender Foundation");
+
+  ed_->showEvent(player->playbackStarted(), "Video playing");
+  ed_->showEvent(player->playbackPaused(), "Video paused");
+  ed_->showEvent(player->ended(), "Video ended");
+  ed_->showEvent(player->volumeChanged(), "Volume changed");
+
+  addText(tr("specialpurposewidgets-WMediaPlayer-audio"), result);
+
+  player = new WMediaPlayer(WMediaPlayer::Audio, result);
+
+  player->addSource(WMediaPlayer::MP3, mp3Audio);
+  player->setTitle("La Sera - Never Come Around");
+
+  ed_->showEvent(player->playbackStarted(), "Song playing");
+  ed_->showEvent(player->playbackPaused(), "Song paused");
+  ed_->showEvent(player->ended(), "Song ended");
+  ed_->showEvent(player->volumeChanged(), "Volume changed");
+
+  return result;
+}
+
 WWidget *SpecialPurposeWidgets::wSound()
 {
   WContainerWidget *result = new WContainerWidget(); 
@@ -330,21 +386,35 @@ WWidget *SpecialPurposeWidgets::wSound()
   return result;
 }
 
+WWidget *SpecialPurposeWidgets::wAudio()
+{
+  WContainerWidget *result = new WContainerWidget(); 
+  topic("WAudio", result);
+
+  addText(tr("specialpurposewidgets-WAudio"), result);
+
+  WAudio *a1 = new WAudio(result);
+  a1->addSource(mp3Audio);
+  a1->setOptions(WAudio::Controls);
+
+  ed_->showEvent(a1->playbackStarted(), "Audio playing");
+  ed_->showEvent(a1->playbackPaused(), "Audio paused");
+  ed_->showEvent(a1->ended(), "Audio ended");
+  ed_->showEvent(a1->volumeChanged(), "Audio volume changed");
+
+  return result;
+}
+
 WWidget *SpecialPurposeWidgets::wVideo()
 {
-  std::string ogvVideo =
-    "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
-  std::string mp4Video =
-    "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
-  std::string poster = "pics/sintel_trailer.jpg";
   WContainerWidget *result = new WContainerWidget(); 
-  topic("WHTML5Video", result);
-  addText(tr("specialpurposewidgets-WHTML5Video"), result);
+  topic("WVideo", result);
+  addText(tr("specialpurposewidgets-WVideo"), result);
 
   new WBreak(result);
 
-  addText(tr("specialpurposewidgets-WHTML5Video-1"), result);
-  WHTML5Video *v1 = new WHTML5Video(result);
+  addText(tr("specialpurposewidgets-WVideo-1"), result);
+  WVideo *v1 = new WVideo(result);
   v1->addSource(mp4Video);
   v1->addSource(ogvVideo);
   v1->setPoster(poster);
@@ -356,7 +426,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   ed_->showEvent(v1->ended(), "Video 1 ended");
   ed_->showEvent(v1->volumeChanged(), "Video 1 volume changed");
 
-  addText(tr("specialpurposewidgets-WHTML5Video-2"), result);
+  addText(tr("specialpurposewidgets-WVideo-2"), result);
   WFlashObject *flash2 =
     new WFlashObject("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
   flash2->setFlashVariable("startimage", "pics/sintel_trailer.jpg");
@@ -366,7 +436,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   flash2->setFlashVariable("showfullscreen", "1");
   flash2->setAlternativeContent(new WImage(poster));
   flash2->resize(640, 360);
-  WHTML5Video *v2 = new WHTML5Video(result);
+  WVideo *v2 = new WVideo(result);
   v2->addSource(mp4Video);
   v2->addSource(ogvVideo);
   v2->setAlternativeContent(flash2);
@@ -377,8 +447,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   ed_->showEvent(v2->ended(), "Video 2 ended");
   ed_->showEvent(v2->volumeChanged(), "Video 2 volume changed");
 
-
-  addText(tr("specialpurposewidgets-WHTML5Video-3"), result);
+  addText(tr("specialpurposewidgets-WVideo-3"), result);
   WFlashObject *flash3 =
     new WFlashObject("http://www.youtube.com/v/HOfdboHvshg", result);
   flash3->setFlashParameter("allowFullScreen", "true");

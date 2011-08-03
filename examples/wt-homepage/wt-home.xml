@@ -502,14 +502,14 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
 <p>
   URLs are associated with each menu/tab entry, and in this way
   participate in browser navigation history and bookmarking. When the
-  user browses through the history, the menu reacts to <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html#3e68c4b6bb387f27a614e7962e11967b"
+  user browses through the history, the menu reacts
+  to <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html#a674fd6a2522d66d07908e8f3d82424a9"
   target="_blank">navigation events</a>. Similarly, when a user
   bookmarks a URL to revisit it later, or follows an external link to
   your application, the menu reacts to the initial internal
-  path. Alltogether this generates a decentralized "routing framework"
-  for pretty URLs that works equally well for Ajax as plain HTML
-  sessions.
+  path. All-together this generates a decentralized "routing
+  framework" for pretty URLs that works equally well for Ajax as plain
+  HTML sessions.
 </p>
 
 <p>

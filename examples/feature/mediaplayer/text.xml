@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+   <message id="intro">
+    <h1>Using WMediaPlayer</h1>
+    <p>
+      <tt>WMediaPlayer</tt> provides an interactive audio/video
+      player, with flexible support for user-interface controls, and
+      good cross-browser support through a combination of native HTML
+      elements (<tt>&lt;video&gt;</tt>, <tt>&lt;audio&gt;</tt>) and
+      flash fall-back.
+    </p>
+
+    <p>
+      A unique feature of the video player is that regardless of the
+      technology used for video playback, the same <tt>WWidget</tt>
+      may be used to implement the controls, using native form
+      elements. In this way, the user-interface is easily customized
+      and adapted to your needs and skinned using CSS.
+    </p>
+  </message>
+
+  <message id="video">
+    <h2>Video</h2>
+
+    <p>
+      Below shows the media player with its default controls. The
+      player will look identical on all browsers. The default controls
+      show below the player, but using CSS, or by customizing the
+      controls, any effect can be achieved including showing the
+      controls when hovering over the lower part of the video player
+      (as is also evident from the full-screen mode).
+    </p>
+
+  </message>
+
+  <message id="audio">
+    <h2>Audio</h2>
+
+    <p>
+      Below shows the media player with its default controls. The
+      player will look identical on all browsers.
+    </p>
+  </message>
+</messages>
