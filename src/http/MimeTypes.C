@@ -36,8 +36,9 @@ struct mapping
   { "ogg", "audio/ogg" },
   { "ogv", "video/ogg" },
   { "mp4", "video/mp4" },
+  { "mv4", "video/mp4" },
   { "mp3", "audio/mp3" },
-  { "webm", "audio/webm" },
+  { "webm", "video/webm" },
   { 0, 0 } // Marks end of list.
 };
 

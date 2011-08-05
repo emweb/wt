@@ -80,7 +80,7 @@ WAbstractItemModel::itemData(const WModelIndex& index) const
   DataMap result;
 
   if (index.isValid()) {
-    for (int i = 0; i <= UrlRole; ++i)
+    for (int i = 0; i <= BarBrushColorRole; ++i)
       result[i] = data(index, i);
     result[UserRole] = data(index, UserRole);
   }

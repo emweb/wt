@@ -242,20 +242,13 @@ void WMenuItem::updateItemWidget(WWidget *itemWidget)
     std::string url;
     if (menu_ && menu_->internalPathEnabled()) {
       std::string internalPath = menu_->internalBasePath() + pathComponent();
-
+      WLink link(WLink::InternalPath, internalPath);
       WApplication *app = WApplication::instance();
-      if (app->environment().ajax() || app->environment().agentIsSpiderBot())
-	url = app->bookmarkUrl(internalPath);
-      else {
-	// If no JavaScript is available, then we still add the session
-	// so that when used in WAnchor it will be handled by the same
-	// session.
-	url = app->session()->mostRelativeUrl(internalPath);
-      }
+      url = link.resolveUrl(app);
     } else
       url = "#";
 
-    enabledLabel->setRef(url);
+    enabledLabel->setLink(url);
     enabledLabel->setToolTip(toolTip());
     enabledLabel->clicked().preventDefaultAction();
   } else {

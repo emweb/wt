@@ -123,8 +123,7 @@ enum ItemDataRole {
    */
   CheckStateRole = 4,   
   ToolTipRole = 5,       //!< Role for a tooltip
-  InternalPathRole = 6,  //!< Role for an internal path activated when clicked
-  UrlRole = 7,           //!< Role for a url activated when clicked
+  LinkRole = 6,          //!< Role for a link
   LevelRole = 8,         //!< Level in aggregation, for header data.
   MarkerPenColorRole = 16,  //!< Marker pen color (for Chart::WCartesianChart)
   MarkerBrushColorRole = 17,//!< Marker brush color (for Chart::WCartesianChart)

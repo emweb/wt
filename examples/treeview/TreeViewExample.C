@@ -172,7 +172,7 @@ TreeViewExample::cityItems(const std::string& city,
   // column 2: drink
   item = new WStandardItem(drink);
   if (useInternalPath)
-    item->setInternalPath("/drinks/" + drink);
+    item->setLink(WLink(WLink::InternalPath, "/drinks/" + drink));
   result.push_back(item);
   
   // column 3: visited

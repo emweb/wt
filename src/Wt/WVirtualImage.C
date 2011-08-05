@@ -87,7 +87,7 @@ void WVirtualImage::enableDragging()
 WVirtualImage::~WVirtualImage()
 {
   for (GridMap::iterator it = grid_.begin(); it != grid_.end(); ++it) {
-    delete it->second->resource();
+    delete it->second->imageLink().resource();
     delete it->second;
   }
 }
@@ -101,7 +101,7 @@ void WVirtualImage::mouseUp(const WMouseEvent& e)
 void WVirtualImage::redrawAll()
 {
   for (GridMap::iterator it = grid_.begin(); it != grid_.end(); ++it) {
-    delete it->second->resource();
+    delete it->second->imageLink().resource();
     delete it->second;
   }
 

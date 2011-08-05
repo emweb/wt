@@ -89,15 +89,16 @@ void PostView::render(RenderType type)
   case Brief: {
     setTemplateText(tr("blog-post-brief"));
 
-    WAnchor *titleAnchor = new WAnchor("");
-    titleAnchor->setText(post_->title);
-    titleAnchor->setRefInternalPath(basePath_ + post_->permaLink());
+    WAnchor *titleAnchor
+      = new WAnchor(WLink(WLink::InternalPath, basePath_ + post_->permaLink()),
+		    post_->title);
     bindWidget("title", titleAnchor);
 
     if (!post_->briefSrc.empty()) {
-      WAnchor *moreAnchor = new WAnchor("");
-      moreAnchor->setText(tr("blog-read-more"));
-      moreAnchor->setRefInternalPath(basePath_ + post_->permaLink() + "/more");
+      WAnchor *moreAnchor 
+	= new WAnchor(WLink(WLink::InternalPath,
+			    basePath_ + post_->permaLink() + "/more"),
+		      tr("blog-read-more"));
       bindWidget("read-more", moreAnchor);
     } else {
       bindString("read-more", WString::Empty);
@@ -105,10 +106,10 @@ void PostView::render(RenderType type)
 
     commentCount_ = new WText("(" + post_->commentCount() + ")");
 
-    WAnchor *commentsAnchor = new WAnchor("");
+    WAnchor *commentsAnchor
+      = new WAnchor(WLink(WLink::InternalPath,
+			  basePath_ + post_->permaLink() + "/comments"));
     commentsAnchor->addWidget(commentCount_);
-    commentsAnchor->setRefInternalPath(basePath_ + post_->permaLink()
-				       + "/comments");
     bindWidget("comment-count", commentsAnchor);
 
     break; }
@@ -156,9 +157,10 @@ void PostView::render(RenderType type)
     }
   }
 
-  WAnchor *postAnchor = new WAnchor("", post_->author->name);
-  postAnchor->setRefInternalPath(basePath_ + "author/"
-				 + post_->author->name.toUTF8());
+  WAnchor *postAnchor
+    = new WAnchor(WLink(WLink::InternalPath,
+			basePath_ + "author/" + post_->author->name.toUTF8()),
+		  post_->author->name);
   bindWidget("author", postAnchor);
 }
 

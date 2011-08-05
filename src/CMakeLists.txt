@@ -126,6 +126,7 @@ Wt/WLength.C
 Wt/WLengthValidator.C
 Wt/WLineEdit.C
 Wt/WLineF.C
+Wt/WLink.C
 Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.C
 Wt/WLogger.C

@@ -40,16 +40,35 @@ const char *WImage::LOAD_SIGNAL = "load";
 
 WImage::WImage(WContainerWidget *parent)
   : WInteractWidget(parent),
-    resource_(0),
     map_(0)
 {
   setLoadLaterWhenInvisible(false);
 }
 
+WImage::WImage(const WLink& link, WContainerWidget *parent)
+  : WInteractWidget(parent),
+    map_(0)
+{ 
+  setLoadLaterWhenInvisible(false);
+
+  setImageLink(link);
+}
+
+WImage::WImage(const WLink& link, const WString& altText,
+	       WContainerWidget *parent)
+  : WInteractWidget(parent),
+    altText_(altText),
+    map_(0)
+{ 
+  setLoadLaterWhenInvisible(false);
+
+  setImageLink(link);
+}
+
+#ifdef WT_TARGET_JAVA
 WImage::WImage(const std::string& imageRef, WContainerWidget *parent)
   : WInteractWidget(parent),
-    imageRef_(imageRef),
-    resource_(0),
+    imageLink_(WLink(WLink::Url, imageRef)),
     map_(0)
 {
   setLoadLaterWhenInvisible(false);
@@ -58,9 +77,8 @@ WImage::WImage(const std::string& imageRef, WContainerWidget *parent)
 WImage::WImage(const std::string& imageRef, const WString& altText,
 	       WContainerWidget *parent)
   : WInteractWidget(parent),
+    imageLink_(WLink(WLink::Url, imageRef)),
     altText_(altText),
-    imageRef_(imageRef),
-    resource_(0),
     map_(0)
 {
   setLoadLaterWhenInvisible(false);
@@ -70,14 +88,12 @@ WImage::WImage(WResource *resource, const WString& altText,
 	       WContainerWidget *parent)
   : WInteractWidget(parent),
     altText_(altText),
-    resource_(resource),
     map_(0)
 {
-  resource_->dataChanged().connect(this, &WImage::resourceChanged);
-  imageRef_ = resource_->url();
-
   setLoadLaterWhenInvisible(false);
+  setImageLink(WLink(resource));
 }
+#endif // WT_TARGET_JAVA
 
 WImage::~WImage()
 { 
@@ -89,15 +105,46 @@ EventSignal<>& WImage::imageLoaded()
   return *voidEventSignal(LOAD_SIGNAL, true);
 }
 
+void WImage::setImageLink(const WLink& link)
+{
+  if (link.type() != WLink::Resource && canOptimizeUpdates()
+      && (link == imageLink_))
+    return;
+
+  imageLink_ = link;
+
+  if (link.type() == WLink::Resource)
+    link.resource()->dataChanged().connect(this, &WImage::resourceChanged);
+
+  flags_.set(BIT_IMAGE_LINK_CHANGED);
+
+  repaint(RepaintPropertyIEMobile);
+}
+
 void WImage::setResource(WResource *resource)
 {
-  resource_ = resource;
+  setImageLink(WLink(resource));
+}
 
-  if (resource_) {
-    resource_->dataChanged().connect(this, &WImage::resourceChanged);
-    setImageRef(resource_->url());
-  } else
-    setImageRef("#");
+WResource *WImage::resource() const
+{
+  return imageLink_.resource();
+}
+
+void WImage::setImageRef(const std::string& ref)
+{
+  setImageLink(WLink(ref));
+}
+
+const std::string WImage::imageRef() const
+{
+  return imageLink_.url();
+}
+
+void WImage::resourceChanged()
+{
+  flags_.set(BIT_IMAGE_LINK_CHANGED);
+  repaint(RepaintPropertyIEMobile);
 }
 
 void WImage::setAlternateText(const WString& text)
@@ -109,28 +156,6 @@ void WImage::setAlternateText(const WString& text)
   flags_.set(BIT_ALT_TEXT_CHANGED);
 
   repaint(RepaintPropertyAttribute);
-}
-
-void WImage::setImageRef(const std::string& ref)
-{
-  if (canOptimizeUpdates() && (ref == imageRef_))
-    return;
-
-  imageRef_ = ref;
-  flags_.set(BIT_IMAGE_REF_CHANGED);
-
-  repaint(RepaintPropertyIEMobile);
-}
-
-const std::string WImage::imageRef() const
-{
-  return imageRef_;
-}
-
-void WImage::resourceChanged()
-{
-  if (resource_)
-    setImageRef(resource_->url());
 }
 
 void WImage::addArea(WAbstractArea *area)
@@ -190,10 +215,13 @@ void WImage::updateDom(DomElement& element, bool all)
     img->setId("i" + id());
   }
 
-  if (flags_.test(BIT_IMAGE_REF_CHANGED) || all) {
-    if (!imageRef_.empty())
-      img->setProperty(Wt::PropertySrc, resolveRelativeUrl(imageRef_));
-    flags_.reset(BIT_IMAGE_REF_CHANGED);
+  if (flags_.test(BIT_IMAGE_LINK_CHANGED) || all) {
+    if (!imageLink_.isNull())
+      img->setProperty(Wt::PropertySrc, resolveRelativeUrl(imageLink_.url()));
+    else
+      img->setProperty(Wt::PropertySrc, "#");
+
+    flags_.reset(BIT_IMAGE_LINK_CHANGED);
   }
 
   if (flags_.test(BIT_ALT_TEXT_CHANGED) || all) {
@@ -228,7 +256,7 @@ void WImage::getDomChanges(std::vector<DomElement *>& result,
 
 void WImage::propagateRenderOk(bool deep)
 {
-  flags_.reset(BIT_IMAGE_REF_CHANGED);
+  flags_.reset(BIT_IMAGE_LINK_CHANGED);
   flags_.reset(BIT_ALT_TEXT_CHANGED);
 
   WInteractWidget::propagateRenderOk(deep);

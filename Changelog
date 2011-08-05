@@ -1,9 +1,22 @@
+05-09-2011:
+	* WApplication: added a docRoot() method which returns the webserver
+	document root
+
 03-08-2011:
 	* WMediaPlayer: new cross-browser, flexible, audio/video player widget
 
 	* WHTML5Video, WHTML5Audio, WHTML5Media: renamed to WVideo, WAudio, WAbstractMedia
 
 	* WSound, SoundManager: reimplemented using WMediaPlayer
+
+	* WPopupMenu: new method setAutoHide() for automatic hide when
+	the mouse leaves
+
+	* WLink, ...: new utility class that abstracts a link destination (be
+	it a URL, a WResource or an internal path)
+
+	* WPopupMenuItem: new methods setLink() and setLinkTarget()
+	associate a link with the popup menu
 
 25-07-2011:
 	* WPopupMenu, WPopupMenuItem: improved triggered() signal API and

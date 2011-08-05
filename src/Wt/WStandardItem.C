@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "Wt/WDate"
+#include "Wt/WLink"
 #include "Wt/WStandardItem"
 #include "Wt/WStandardItemModel"
 
@@ -212,32 +213,47 @@ std::string WStandardItem::icon() const
     return std::string();
 }
 
+void WStandardItem::setLink(const WLink& link)
+{
+  setData(link, LinkRole);
+}
+
+WLink WStandardItem::link() const
+{
+  boost::any d = data(LinkRole);
+
+  if (!d.empty() && d.type() == typeid(WLink))
+    return boost::any_cast<WLink>(d);
+  else
+    return std::string();
+}
+
 void WStandardItem::setInternalPath(const std::string& internalpath)
 {
-  setData(internalpath, InternalPathRole);
+  setLink(WLink(WLink::InternalPath, internalpath));
 }
 
 std::string WStandardItem::internalPath() const
 {
-  boost::any d = data(InternalPathRole);
+  WLink l = link();
 
-  if (!d.empty() && d.type() == typeid(std::string))
-    return boost::any_cast<std::string>(d);
+  if (!l.isNull())
+    return l.internalPath().toUTF8();
   else
     return std::string();
 }
 
 void WStandardItem::setUrl(const std::string& url)
 {
-  setData(url, UrlRole);
+  setLink(WLink(url));
 }
 
 std::string WStandardItem::url() const
 {
-  boost::any d = data(UrlRole);
+  WLink l = link();
 
-  if (!d.empty() && d.type() == typeid(std::string))
-    return boost::any_cast<std::string>(d);
+  if (!l.isNull())
+    return l.url();
   else
     return std::string();
 }

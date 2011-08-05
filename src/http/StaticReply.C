@@ -100,6 +100,9 @@ StaticReply::StaticReply(const std::string &full_path,
       } else {
         contentRange << fileSize_;
       }
+
+      std::cerr << "Sending: " << contentRange.str() << std::endl;
+
       addHeader("Content-Range", contentRange.str());
     }
   }
@@ -246,6 +249,9 @@ void StaticReply::parseRangeHeader()
   rangeEnd_ = (std::numeric_limits< ::int64_t>::max)();
   if (range != request_.headerMap.end()) {
     std::string rangeHeader = range->second;
+
+    std::cerr << "Range header: " << rangeHeader << std::endl;
+
     uint_parser< ::int64_t> const uint_max_p = uint_parser< ::int64_t>();
     hasRange_ = parse(rangeHeader.c_str(),
       str_p("bytes") >> ch_p('=') >>

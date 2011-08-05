@@ -417,6 +417,12 @@ std::string WApplication::appRoot()
 {
   return WebSession::instance()->controller()->configuration().appRoot();
 }
+
+std::string WApplication::docRoot() const
+{
+  return environment().getCgiValue("DOCUMENT_ROOT");
+}
+
 #endif // WT_TARGET_JAVA
 
 void WApplication::bindWidget(WWidget *widget, const std::string& domId)

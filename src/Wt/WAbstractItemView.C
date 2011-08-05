@@ -957,12 +957,12 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
       & (ColumnIsExpandedLeft | ColumnIsExpandedRight)) {
     WImage *collapseIcon = new WImage(w);
     collapseIcon->setFloatSide(Left);
-    collapseIcon->setImageRef(WApplication::resourcesUrl() + "minus.gif");
+    collapseIcon->setImageLink(WApplication::resourcesUrl() + "minus.gif");
     clickedForCollapseMapper_->mapConnect(collapseIcon->clicked(), info.id);
   } else if (model_->headerFlags(column) & ColumnIsCollapsed) {
     WImage *expandIcon = new WImage(w);
     expandIcon->setFloatSide(Left);
-    expandIcon->setImageRef(WApplication::resourcesUrl() + "plus.gif");
+    expandIcon->setImageLink(WApplication::resourcesUrl() + "plus.gif");
     clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
   }    
 

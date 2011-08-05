@@ -10,6 +10,7 @@
 #include <Wt/WBorder>
 #include <Wt/WColor>
 #include <Wt/WFont>
+#include <Wt/WLink>
 #include <Wt/WWidget>
 
 namespace Wt {
@@ -117,27 +118,31 @@ public:
 
   /*! \brief Sets a background image.
    *
-   * The image may be placed in a particular location by specifying
-   * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
-   */
-  void setBackgroundImage(const std::string& imageHRef,
-			  Repeat repeat = RepeatXY,
-			  WFlags<Side> sides = 0);
-
-  /*! \brief Sets a background image (from a resource).
+   * The \p link may be a URL or a resource.
    *
    * The image may be placed in a particular location by specifying
    * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
    */
-  void setBackgroundImage(WResource *resource,
+  void setBackgroundImage(const WLink& link,
 			  Repeat repeat = RepeatXY,
 			  WFlags<Side> sides = 0);
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Sets a background image.
+   *
+   * The image may be placed in a particular location by specifying
+   * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
+   */
+  void setBackgroundImage(const std::string& url,
+			  Repeat repeat = RepeatXY,
+			  WFlags<Side> sides = 0);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the background image URL.
    *
    * \sa setBackgroundImage()
    */
-  const std::string& backgroundImage() const { return backgroundImage_; }
+  std::string backgroundImage() const { return backgroundImage_.url(); }
 
   /*! \brief Returns the background image repeat.
    *
@@ -211,8 +216,7 @@ private:
   WBorder                  *border_[4];
   WColor                    backgroundColor_;
   WColor	            foregroundColor_;
-  std::string	            backgroundImage_;
-  WResource                *backgroundImageResource_;
+  WLink	                    backgroundImage_;
   Repeat	            backgroundImageRepeat_;
   WFlags<Side>              backgroundImageLocation_;
   WFont		            font_;

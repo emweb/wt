@@ -8,6 +8,7 @@
 #define WMEDIA_PLAYER_H_
 
 #include <Wt/WCompositeWidget>
+#include <Wt/WLink>
 
 namespace Wt {
 
@@ -232,22 +233,17 @@ public:
 
   /*! \brief Adds a source.
    *
-   * Adds a media source.
+   * Adds a media source. The source may be specified as a URL or as a
+   * dynamic resource.
    */
-  void addSource(Encoding encoding, const std::string& url);
-
-  /*! \brief Adds a source.
-   *
-   * Adds a media source that is implemented as a resource object.
-   */
-  void addSource(Encoding encoding, WResource *resource);
+  void addSource(Encoding encoding, const WLink& link);
 
   /*! \brief Returns a source.
    *
    * Returns the media source for the given \p encoding, which must have
    * previously been added using addSource().
    */
-  std::string getSource(Encoding encoding) const;
+  WLink getSource(Encoding encoding) const;
 
   /*! \brief Clears all sources.
    *
@@ -451,7 +447,7 @@ protected:
 private:
   struct Source {
     Encoding encoding;
-    std::string url;
+    WLink link;
   };
 
   std::vector<JSignal<> *> signals_;

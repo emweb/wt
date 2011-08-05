@@ -20,7 +20,6 @@ namespace Wt {
 
 WAnchor::WAnchor(WContainerWidget *parent)
   : WContainerWidget(parent),
-    resource_(0),
     text_(0),
     image_(0),
     target_(TargetSelf),
@@ -29,10 +28,22 @@ WAnchor::WAnchor(WContainerWidget *parent)
   setInline(true);
 }
 
+WAnchor::WAnchor(const WLink& link, WContainerWidget *parent)
+  : WContainerWidget(parent),
+    text_(0),
+    image_(0),
+    target_(TargetSelf),
+    changeInternalPathJS_(0)
+{
+  setInline(true);
+
+  setLink(link);
+}
+
+#ifdef WT_TARGET_JAVA
 WAnchor::WAnchor(const std::string& ref, WContainerWidget *parent)
   : WContainerWidget(parent),
-    ref_(ref),
-    resource_(0),
+    link_(WLink::Url, ref),
     text_(0),
     image_(0),
     target_(TargetSelf),
@@ -43,55 +54,91 @@ WAnchor::WAnchor(const std::string& ref, WContainerWidget *parent)
 
 WAnchor::WAnchor(WResource *resource, WContainerWidget *parent)
   : WContainerWidget(parent),
-    resource_(0),
     text_(0),
     image_(0),
     target_(TargetSelf),
     changeInternalPathJS_(0)
 {
   setInline(true);
+
   setResource(resource);
 }
+#endif // WT_TARGET_JAVA
 
+WAnchor::WAnchor(const WLink& link, const WString& text,
+		 WContainerWidget *parent)
+  : WContainerWidget(parent),
+    text_(0),
+    image_(0),
+    target_(TargetSelf),
+    changeInternalPathJS_(0)
+{
+  setInline(true);
+
+  setLink(link);
+
+  text_ = new WText(text, this);
+}
+
+#ifdef WT_TARGET_JAVA
 WAnchor::WAnchor(const std::string& ref, const WString& text,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
-    ref_(ref),
-    resource_(0),
+    link_(WLink::Url, ref),
     text_(0),
     image_(0),
     target_(TargetSelf),
     changeInternalPathJS_(0)
 { 
   setInline(true);
+
   text_ = new WText(text, this);
 }
 
 WAnchor::WAnchor(WResource *resource, const WString& text,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
-    resource_(0),
     text_(0),
     image_(0),
     target_(TargetSelf),
     changeInternalPathJS_(0)
 { 
   setInline(true);
-  text_ = new WText(text, this);
+
   setResource(resource);
+
+  text_ = new WText(text, this);
+}
+#endif // WT_TARGET_JAVA
+
+WAnchor::WAnchor(const WLink& link, WImage *image, WContainerWidget *parent)
+  : WContainerWidget(parent),
+    text_(0),
+    image_(0),
+    target_(TargetSelf),
+    changeInternalPathJS_(0)
+{ 
+  setInline(true);
+
+  setLink(link);
+
+  image_ = image;
+  if (image_)
+    addWidget(image_);
 }
 
+#ifdef WT_TARGET_JAVA
 WAnchor::WAnchor(const std::string& ref, WImage *image,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
-    ref_(ref),
-    resource_(0),
+    link_(WLink::Url, ref),
     text_(0),
     image_(0),
     target_(TargetSelf),
     changeInternalPathJS_(0)
 { 
   setInline(true);
+
   image_ = image;
 
   if (image_)
@@ -101,62 +148,62 @@ WAnchor::WAnchor(const std::string& ref, WImage *image,
 WAnchor::WAnchor(WResource *resource, WImage *image,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
-    resource_(0),
     text_(0),
     image_(0),
     target_(TargetSelf),
     changeInternalPathJS_(0)
 { 
   setInline(true);
-  image_ = image;
-
-  if (image_)
-    addWidget(image_);
 
   setResource(resource);
+
+  image_ = image;
+  if (image_)
+    addWidget(image_);
 }
+#endif // WT_TARGET_JAVA
 
 WAnchor::~WAnchor()
 {
   delete changeInternalPathJS_;
 }
 
-void WAnchor::setRef(const std::string& url)
+void WAnchor::setLink(const WLink& link)
 {
-  if (!flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == url)
+  if (link_.type() != WLink::Resource && link_ == link)
     return;
 
-  flags_.reset(BIT_REF_INTERNAL_PATH);
-  ref_ = url;
+  link_ = link;
 
-  flags_.set(BIT_REF_CHANGED);
+  flags_.set(BIT_LINK_CHANGED);
 
   repaint(RepaintPropertyIEMobile);
+
+  switch (link_.type()) {
+  case WLink::Resource:
+    link_.resource()->dataChanged().connect(this, &WAnchor::resourceChanged);
+    break;
+  case WLink::InternalPath:
+    WApplication::instance()->enableInternalPaths();
+    break;
+  default:
+    break;
+  }
+}
+
+void WAnchor::setRef(const std::string& url)
+{
+  setLink(WLink(WLink::Url, url));
 }
 
 void WAnchor::setRefInternalPath(const std::string& path)
 {
-  if (flags_.test(BIT_REF_INTERNAL_PATH) && path == ref_)
-    return;
-
-  flags_.set(BIT_REF_INTERNAL_PATH);
-  ref_ = path;
-
-  flags_.set(BIT_REF_CHANGED);
-
-  WApplication::instance()->enableInternalPaths();
-
-  repaint(RepaintPropertyIEMobile);
+  setLink(WLink(WLink::InternalPath, path));
 }
 
 void WAnchor::setResource(WResource *resource)
 {
-  resource_ = resource;
-
-  if (resource_) {
-    resource_->dataChanged().connect(this, &WAnchor::resourceChanged);
-    resourceChanged();
-  }
+  setLink(WLink(resource));
 }
 
 void WAnchor::setTarget(AnchorTarget target)
@@ -226,13 +273,14 @@ void WAnchor::setImage(WImage *image)
 
 void WAnchor::resourceChanged()
 {
-  setRef(resource_->url());
+  flags_.set(BIT_LINK_CHANGED);
+  repaint(RepaintPropertyIEMobile);
 }
 
 void WAnchor::enableAjax()
 {
-  if (flags_.test(BIT_REF_INTERNAL_PATH)) {
-    flags_.set(BIT_REF_CHANGED);
+  if (link_.type() == WLink::InternalPath) {
+    flags_.set(BIT_LINK_CHANGED);
     repaint(RepaintPropertyIEMobile);
   }
 
@@ -241,46 +289,26 @@ void WAnchor::enableAjax()
 
 void WAnchor::updateDom(DomElement& element, bool all)
 {
+  if (element.type() != DomElement_A) {
+    WContainerWidget::updateDom(element, all);
+    return;
+  }
+
   bool needsUrlResolution = false;
 
-  if (flags_.test(BIT_REF_CHANGED) || all) {
-    std::string url;
-
+  if (flags_.test(BIT_LINK_CHANGED) || all) {
     WApplication *app = WApplication::instance();
-    if (flags_.test(BIT_REF_INTERNAL_PATH)) {
-      if (app->environment().ajax()) {
-	url = app->bookmarkUrl(ref_);
 
-	/*
-	 * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
-	 * does not work without the check below:
-	 */
-	if (target_ == TargetSelf) {
-	  if (!changeInternalPathJS_) {
-	    changeInternalPathJS_ = new JSlot();
-	    clicked().connect(*changeInternalPathJS_);
-	    clicked().preventDefaultAction();
-	  }
+    std::string url = link_.resolveUrl(app);
 
-	  changeInternalPathJS_->setJavaScript
-	    ("function(){"
-	     WT_CLASS ".history.navigate(" + jsStringLiteral(ref_) + ",true);"
-	     "}");
-	  clicked().senderRepaint(); // XXX only for Java port necessary
-	}
-      } else {
-	if (app->environment().agentIsSpiderBot())
-	  url = app->bookmarkUrl(ref_);
-	else {
-	  // If no JavaScript is available, then we still add the session
-	  // so that when used in WAnchor it will be handled by the same
-	  // session.
-	  url = app->session()->mostRelativeUrl(ref_);
-	}
-      }
-    } else {
-      url = ref_;
-
+    /*
+     * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
+     * does not work without the check below:
+     */
+    if (target_ == TargetSelf)
+      changeInternalPathJS_
+	= link_.manageInternalPathChange(app, this, changeInternalPathJS_);
+    else {
       delete changeInternalPathJS_;
       changeInternalPathJS_ = 0;
     }
@@ -289,7 +317,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
 
     needsUrlResolution = !app->environment().hashInternalPaths();
 
-    flags_.reset(BIT_REF_CHANGED);
+    flags_.reset(BIT_LINK_CHANGED);
   }
 
   if (flags_.test(BIT_TARGET_CHANGED) || all) {
@@ -320,7 +348,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
 
 void WAnchor::propagateRenderOk(bool deep)
 {
-  flags_.reset(BIT_REF_CHANGED);
+  flags_.reset(BIT_LINK_CHANGED);
   flags_.reset(BIT_TARGET_CHANGED);
 
   WContainerWidget::propagateRenderOk(deep);
@@ -328,7 +356,7 @@ void WAnchor::propagateRenderOk(bool deep)
 
 DomElementType WAnchor::domElementType() const
 {
-  return DomElement_A;
+  return link_.isNull() ? WContainerWidget::domElementType() : DomElement_A;
 }
 
 }

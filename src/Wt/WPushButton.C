@@ -15,14 +15,12 @@ namespace Wt {
 
 WPushButton::WPushButton(WContainerWidget *parent)
   : WFormWidget(parent),
-    resource_(0),
     redirectJS_(0)
 { }
 
 WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
   : WFormWidget(parent),
     text_(text),
-    resource_(0),
     redirectJS_(0)
 { }
 
@@ -53,45 +51,34 @@ void WPushButton::setIcon(const std::string& url)
   repaint(RepaintInnerHtml);
 }
 
-void WPushButton::setRef(const std::string& url)
+void WPushButton::setLink(const WLink& link)
 {
-  if (!flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == url)
+  if (link == link_)
     return;
 
-  flags_.reset(BIT_REF_INTERNAL_PATH);
-  ref_ = url;
+  link_ = link;
+  flags_.set(BIT_LINK_CHANGED);
 
-  flags_.set(BIT_REF_CHANGED);
+  if (link.type() == WLink::Resource)
+    link.resource()->dataChanged().connect(this, &WPushButton::resourceChanged);
 
   repaint(RepaintPropertyIEMobile);
 }
 
-void WPushButton::setRefInternalPath(const std::string& path)
+void WPushButton::setRef(const std::string& url)
 {
-  if (flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == path)
-    return;
-
-  flags_.set(BIT_REF_INTERNAL_PATH);
-  ref_ = path;
-
-  flags_.set(BIT_REF_CHANGED);
-
-  repaint(RepaintPropertyIEMobile);
+  setLink(WLink(url));
 }
 
 void WPushButton::setResource(WResource *resource)
 {
-  resource_ = resource;
-
-  if (resource_) {
-    resource_->dataChanged().connect(this, &WPushButton::resourceChanged);
-    resourceChanged();
-  }
+  setLink(WLink(resource));
 }
 
 void WPushButton::resourceChanged()
 {
-  setRef(resource_->url());
+  flags_.set(BIT_LINK_CHANGED);
+  repaint(RepaintPropertyIEMobile);
 }
 
 void WPushButton::doRedirect()
@@ -99,10 +86,10 @@ void WPushButton::doRedirect()
   WApplication *app = WApplication::instance();
 
   if (!app->environment().ajax()) {
-    if (flags_.test(BIT_REF_INTERNAL_PATH))
-      app->setInternalPath(ref_, true);
+    if (link_.type() == WLink::InternalPath)
+      app->setInternalPath(link_.internalPath().toUTF8(), true);
     else
-      app->redirect(ref_);
+      app->redirect(link_.url());
   }
 }
 
@@ -134,8 +121,8 @@ void WPushButton::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_TEXT_CHANGED);
   }
 
-  if (flags_.test(BIT_REF_CHANGED) || (all && !ref_.empty())) {
-    if (!ref_.empty()) {
+  if (flags_.test(BIT_LINK_CHANGED) || (all && !link_.isNull())) {
+    if (!link_.isNull()) {
       WApplication *app = WApplication::instance();
 
       if (!redirectJS_) {
@@ -146,15 +133,16 @@ void WPushButton::updateDom(DomElement& element, bool all)
 	  clicked().connect(this, &WPushButton::doRedirect);
       }
 
-      if (flags_.test(BIT_REF_INTERNAL_PATH))
+      if (link_.type() == WLink::InternalPath)
 	redirectJS_->setJavaScript
 	  ("function(){"
-	   WT_CLASS ".history.navigate(" + jsStringLiteral(ref_) + ",true);"
+	   WT_CLASS ".history.navigate(" + jsStringLiteral(link_.internalPath())
+	   + ",true);"
 	   "}");
       else
 	redirectJS_->setJavaScript
 	  ("function(){"
-	   "window.location=" + jsStringLiteral(ref_) + ";"
+	   "window.location=" + jsStringLiteral(link_.url()) + ";"
 	   "}");
       clicked().senderRepaint(); // XXX only for Java port necessary
     } else {

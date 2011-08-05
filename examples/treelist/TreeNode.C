@@ -179,12 +179,12 @@ void TreeNode::adjustExpandIcon()
 {
   ImageIndex index = isLastChildNode() ? Last : Middle;
 
-  if (expandIcon_->icon1()->imageRef() != imagePlus_[index])
-    expandIcon_->icon1()->setImageRef(imagePlus_[index]);
-  if (expandIcon_->icon2()->imageRef() != imageMin_[index])
-    expandIcon_->icon2()->setImageRef(imageMin_[index]);
-  if (noExpandIcon_->imageRef() != imageLine_[index])
-    noExpandIcon_->setImageRef(imageLine_[index]);
+  if (expandIcon_->icon1()->imageLink().url() != imagePlus_[index])
+    expandIcon_->icon1()->setImageLink(imagePlus_[index]);
+  if (expandIcon_->icon2()->imageLink().url() != imageMin_[index])
+    expandIcon_->icon2()->setImageLink(imageMin_[index]);
+  if (noExpandIcon_->imageLink().url() != imageLine_[index])
+    noExpandIcon_->setImageLink(imageLine_[index]);
 
   if (index == Last) {
     layout_->elementAt(0, 0)

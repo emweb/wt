@@ -65,7 +65,7 @@ AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f,
 					 info_.spoolFileName(),
 					 this);
   res->suggestFileName(info_.clientFileName());
-  downloadLink_->setResource(res);
+  downloadLink_->setLink(res);
 }
 
 AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)

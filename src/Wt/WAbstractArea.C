@@ -63,6 +63,16 @@ namespace Wt {
 
   }
 
+WAbstractArea::AnchorImpl::AnchorImpl()
+  : target_(TargetSelf),
+    changeInternalPathJS_(0)
+{ }
+
+WAbstractArea::AnchorImpl::~AnchorImpl()
+{
+  delete changeInternalPathJS_;
+}
+
 WAbstractArea::WAbstractArea()
   : impl_(new Impl::AreaWidget(this)),
     hole_(false),
@@ -166,17 +176,19 @@ WImage *WAbstractArea::image() const
 
 void WAbstractArea::setRef(const std::string& ref)
 {
-  createAnchorImpl();
-
-  anchor_->ref_ = ref;
-
-  repaint();
+  setLink(WLink(ref));
 }
 
 const std::string WAbstractArea::ref() const
 {
   if (anchor_)
-    return anchor_->ref_;
+    switch (anchor_->link_.type()) {
+    case WLink::InternalPath:
+      return anchor_->link_.internalPath().toUTF8();
+      break;
+    default:
+      return anchor_->link_.url();
+    }
   else
     return std::string();
 }
@@ -188,20 +200,28 @@ void WAbstractArea::setHole(bool hole)
   repaint();
 }
 
-void WAbstractArea::setResource(WResource *resource)
+void WAbstractArea::setLink(const WLink& link)
 {
   createAnchorImpl();
 
-  anchor_->resource_ = resource;
-  anchor_->resource_->dataChanged()
-    .connect(this, &WAbstractArea::resourceChanged);
-  setRef(resource->url());
+  anchor_->link_ = link;
+
+  if (anchor_->link_.type() == WLink::Resource)
+    anchor_->link_.resource()->dataChanged().connect
+      (this, &WAbstractArea::resourceChanged);
+
+  repaint();
+}
+
+void WAbstractArea::setResource(WResource *resource)
+{
+  setLink(WLink(resource));
 }
 
 WResource *WAbstractArea::resource() const
 {
   if (anchor_)
-    return anchor_->resource_;
+    return anchor_->link_.resource();
   else
     return 0;
 }
@@ -289,14 +309,13 @@ void WAbstractArea::createAnchorImpl()
 {
   if (!anchor_) {
     anchor_ = new AnchorImpl();
-    anchor_->resource_ = 0;
     anchor_->target_ = TargetSelf;
   }
 }
 
 void WAbstractArea::resourceChanged()
 {
-  setRef(anchor_->resource_->url());
+  repaint();
 }
 
 void WAbstractArea::repaint()
@@ -307,11 +326,17 @@ void WAbstractArea::repaint()
 void WAbstractArea::updateDom(DomElement& element, bool all)
 {
   if (!hole_ && anchor_) {
-    element.setAttribute("href",
-			 WWebWidget::resolveRelativeUrl(anchor_->ref_));
+    WApplication *app = WApplication::instance();
+
+    std::string url = anchor_->link_.resolveUrl(app);
+    element.setAttribute("href", WWebWidget::resolveRelativeUrl(url));
+
+    // FIXME: add Wt-rr style relative URL resolution like in WAnchor
 
     switch (anchor_->target_) {
     case TargetSelf:
+      anchor_->changeInternalPathJS_ = anchor_->link_.manageInternalPathChange
+	(app, impl_, anchor_->changeInternalPathJS_);
       break;
     case TargetThisWindow:
       element.setProperty(PropertyTarget, "_top");
@@ -322,6 +347,7 @@ void WAbstractArea::updateDom(DomElement& element, bool all)
     element.setAttribute("alt", anchor_->altText_.toUTF8());
   } else {
     element.setAttribute("alt", "");
+
     if (hole_)
       element.setAttribute("nohref", "nohref");
   }

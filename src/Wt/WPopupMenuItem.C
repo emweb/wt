@@ -8,7 +8,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WCheckBox"
-#include "Wt/WContainerWidget"
+#include "Wt/WAnchor"
 #include "Wt/WCssDecorationStyle"
 #include "Wt/WPopupMenu"
 #include "Wt/WPopupMenuItem"
@@ -31,9 +31,10 @@ WPopupMenuItem::WPopupMenuItem(bool)
     selectable_(false),
     triggered_(this)
 {
-  setImplementation(impl_ = new WContainerWidget());
+  setImplementation(impl_ = new WAnchor());
   impl_->setLoadLaterWhenInvisible(false);
   setStyleClass("Wt-separator");
+  setInline(false);
 }
 
 WPopupMenuItem::WPopupMenuItem(const WString& text)
@@ -74,7 +75,8 @@ WPopupMenuItem::~WPopupMenuItem()
 
 void WPopupMenuItem::create()
 {
-  setImplementation(impl_ = new WContainerWidget());
+  setImplementation(impl_ = new WAnchor());
+  setInline(false);
 
   implementStateless(&WPopupMenuItem::renderOver, &WPopupMenuItem::renderOut);
   impl_->mouseWentUp().connect(this, &WPopupMenuItem::onMouseUp);
@@ -137,7 +139,7 @@ void WPopupMenuItem::setIcon(const std::string& path)
   setAttributeValue("style", "background-position: 3px center");
 }
 
-const std::string& WPopupMenuItem::icon()
+std::string WPopupMenuItem::icon()
 {
   return decorationStyle().backgroundImage();
 }
@@ -156,6 +158,26 @@ void WPopupMenuItem::setCheckable(bool checkable)
       text_->setInline(false);
     }
   }
+}
+
+void WPopupMenuItem::setLink(const WLink& link)
+{
+  impl_->setLink(link);
+}
+
+WLink WPopupMenuItem::link() const
+{
+  return impl_->link();
+}
+
+void WPopupMenuItem::setLinkTarget(AnchorTarget target)
+{
+  impl_->setTarget(target);
+}
+
+AnchorTarget WPopupMenuItem::linkTarget() const
+{
+  return impl_->target();
 }
 
 void WPopupMenuItem::setPopupMenu(WPopupMenu *menu)

@@ -147,10 +147,10 @@ void WAbstractMedia::pause()
 }
 
 void WAbstractMedia::renderSource(DomElement* element,
-                               WAbstractMedia::Source &source, bool isLast)
+				  WAbstractMedia::Source &source, bool isLast)
 {
   // src is mandatory
-  element->setAttribute("src", resolveRelativeUrl(source.url));
+  element->setAttribute("src", resolveRelativeUrl(source.link.url()));
 
   if (source.type != "")
     element->setAttribute("type", source.type);
@@ -392,18 +392,10 @@ void WAbstractMedia::clearSources()
   repaint(Wt::RepaintPropertyAttribute);
 }
 
-void WAbstractMedia::addSource(const std::string &url, const std::string &type,
-			       const std::string &media)
+void WAbstractMedia::addSource(const WLink& link, const std::string &type,
+			       const std::string& media)
 {
-  sources_.push_back(new Source(url, type, media));
-  sourcesChanged_ = true;
-  repaint(Wt::RepaintPropertyAttribute);
-}
-
-void WAbstractMedia::addSource(WResource *resource, const std::string &type,
-			       const std::string &media)
-{
-  sources_.push_back(new Source(this, resource, type, media));
+  sources_.push_back(new Source(this, link, type, media));
   sourcesChanged_ = true;
   repaint(Wt::RepaintPropertyAttribute);
 }
@@ -418,21 +410,17 @@ void WAbstractMedia::setAlternativeContent(WWidget *alternative)
 }
 
 WAbstractMedia::Source::Source(WAbstractMedia *parent,
-			       WResource *resource, const std::string &type,
+			       const WLink& link, const std::string &type,
 			       const std::string &media)
   :  parent(parent),
      type(type),
-     url(resource->url()),
      media(media),
-     resource(resource)
+     link(link)
 {
-  connection = resource->dataChanged().connect(this, &Source::resourceChanged);
+  if (link.type() == WLink::Resource)
+    connection = link.resource()->dataChanged().connect
+      (this, &Source::resourceChanged);
 }
-
-WAbstractMedia::Source::Source(const std::string &url, const std::string &type,
-			       const std::string &media)
-  : type(type), url(url), media(media)
-{ }
 
 WAbstractMedia::Source::~Source()
 {
@@ -441,7 +429,6 @@ WAbstractMedia::Source::~Source()
 
 void WAbstractMedia::Source::resourceChanged()
 {
-  url = resource->url();
   parent->sourcesChanged_ = true;
   parent->repaint(Wt::RepaintPropertyAttribute);
 }

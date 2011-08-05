@@ -118,9 +118,9 @@ WWidget *Home::initHome()
 
     const Lang& l = languages[i];
 
-    WAnchor *a = new WAnchor("", WString::fromUTF8(l.longDescription_),
+    WAnchor *a = new WAnchor(WLink(WLink::InternalPath, l.path_),
+			     WString::fromUTF8(l.longDescription_),
 			     languagesDiv);
-    a->setRefInternalPath(l.path_);
   }
 
   WStackedWidget *contents = new WStackedWidget();

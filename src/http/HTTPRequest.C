@@ -93,6 +93,8 @@ std::string HTTPRequest::envValue(const std::string& name) const
     return "webmaster@localhost"; // FIXME
   } else if (name == "REMOTE_ADDR") {
     return remoteAddr();
+  } else if (name == "DOCUMENT_ROOT") {
+    return reply_->configuration().docRoot();
   } else
     return std::string();
 }

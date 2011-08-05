@@ -181,7 +181,7 @@ WWidget * SourceView::renderView()
     imageResource_->setMimeType("mime/" + imageExtension(fileName));
     imageResource_->setData((const unsigned char*)content.data(),
 			    (int)content.length());
-    image->setResource(imageResource_);
+    image->setImageLink(imageResource_);
     result = image;
   } else if (lang != "") {
     WText *text = new WText();

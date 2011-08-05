@@ -55,6 +55,7 @@ public:
   SStream& operator<< (const char *s);
   SStream& operator<< (const std::string& s);
   SStream& operator<< (int);
+  SStream& operator<< (double);
 
   iterator back_inserter();
 

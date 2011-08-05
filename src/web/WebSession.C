@@ -2123,10 +2123,10 @@ void WebSession::notifySignal(const WEvent& e)
       renderer_.setVisibleOnly(false);
     } else if (*signalE != "poll") {
       // Save pending changes (e.g. from resource completion)
+      propagateFormValues(e, se);
+
       if (i == 0)
 	renderer_.saveChanges();
-
-      propagateFormValues(e, se);
 
       handler.nextSignal = i + 1;
 

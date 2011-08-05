@@ -94,7 +94,7 @@ void Connection::handleReadRequest0()
 	      << std::string(remaining_,
 			     std::min(buffer_.data()
 				      - remaining_ + buffer_size_,
-				      (unsigned)500)) << std::endl;
+				      (long unsigned)1000)) << std::endl;
   } catch (...) {
   }
 #endif // DEBUG
@@ -228,6 +228,7 @@ void Connection::startWriteResponse()
 
 #ifdef DEBUG
   std::cerr << "Sending" << std::endl;
+  /*
   for (unsigned i = 0; i < buffers.size(); ++i) {
     char *data = (char *)asio::detail::buffer_cast_helper(buffers[i]);
     int size = asio::buffer_size(buffers[i]);
@@ -235,6 +236,7 @@ void Connection::startWriteResponse()
     for (int j = 0; j < size; ++j)
       std::cerr << data[j];
   }
+  */
 #endif
 
   if (!buffers.empty()) {

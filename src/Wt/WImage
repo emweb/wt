@@ -8,6 +8,7 @@
 #define WIMAGE_H_
 
 #include <Wt/WInteractWidget>
+#include <Wt/WLink>
 
 namespace Wt {
 
@@ -56,23 +57,42 @@ public:
    */
   WImage(WContainerWidget *parent = 0);
 
-  /*! \brief Creates an image widget with given image URL.
+  /*! \brief Creates an image widget with a given image link.
+   *
+   * The \p imageLink may link to a URL or resource.
+   */
+  WImage(const WLink& imageLink, WContainerWidget *parent = 0);
+
+  /*! \brief Creates an image widget with a given image link and alternate text.
+   *
+   * The \p imageLink may link to a URL or resource.
+   */
+  WImage(const WLink& imageLink, const WString& altText,
+	 WContainerWidget *parent = 0);
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Creates an image widget with given image URL (<b>deprecated</b>).
+   *
+   * \deprecated Use WImage(const WLink&, WContainerWidget *) instead.
    */
   WImage(const std::string& imageRef, WContainerWidget *parent = 0);
 
-  /*! \brief Creates an image widget with given image URL and alternate text.
+  /*! \brief Creates an image widget with given image URL and alternate text
+   *         (<b>deprecated</b>).
+   *
+   * \deprecated Use WImage(const WLink&, const WString&, WContainerWidget *) instead.
    */
   WImage(const std::string& imageRef, const WString& altText,
 	 WContainerWidget *parent = 0);
 
   /*! \brief Creates an image widget with given image resource and alternate
-   *         text.
+   *         text (<b>deprecated</b>).
    *
-   * Use this constructor if you want to present a dynamically generated
-   * image.
+   * \deprecated Use WImage(const WLink&, const WString&, WContainerWidget *) instead.
    */
   WImage(WResource *resource, const WString& altText,
 	 WContainerWidget *parent = 0);
+#endif // WT_TARGET_JAVA
 
   ~WImage();
 
@@ -98,41 +118,48 @@ public:
    */
   const WString& alternateText() const { return altText_; }
 
-  /*! \brief Sets the image URL.
+  /*! \brief Sets the image link.
    *
-   * This should not be used when the image is specified as a resource.
+   * The image may be specified as a URL or as a resource. A resource
+   * specifies application-dependent content, which may be used to
+   * generate an image on demand.
+   */
+  void setImageLink(const WLink& link);
+
+  /*! \brief Returns the image link.
    *
-   * \sa setResource()
+   * \sa setLink()
+   */
+  const WLink& imageLink() const { return imageLink_; }
+
+  /*! \brief Sets the image URL (<b>deprecated</b>).
+   *
+   * \deprecated Use setImageLink() instead.
    */
   void setImageRef(const std::string& url);
 
-  /*! \brief Returns the image URL.
+  /*! \brief Returns the image URL (<b>deprecated</b>).
    *
    * When the image is specified as a resource, this returns the current
    * resource URL.
+   *
+   * \deprecated Use imageLink() instead.
    */
   const std::string imageRef() const;
 
-  /*! \brief Sets the image resource.
+  /*! \brief Sets the image resource (<b>deprecated</b>).
    *
-   * A resource specifies application-dependent content, which may be
-   * used to generate an image on demand.
-   *
-   * This sets \p resource as the contents for the image, as an
-   * alternative to setImageRef(). The resource may be cleared by
-   * passing \p resource = \c 0.
-   *
-   * The image does not assume ownership of the resource.
-   *
-   * \sa setImageRef()
+   * \deprecated Use setImageLink() instead.
    */
   void setResource(WResource *resource);
 
-  /*! \brief Returns the image resource.
+  /*! \brief Returns the image resource (<b>deprecated</b>.
    *
    * Returns \c 0 if no image resource was set.
+   *
+   * \deprecated Use setImageLink() instead.
    */
-  WResource *resource() const { return resource_; }
+  WResource *resource() const;
 
   /*! \brief Adds an interactive area.
    *
@@ -191,14 +218,13 @@ private:
   static const char *LOAD_SIGNAL;
 
   static const int BIT_ALT_TEXT_CHANGED = 0;
-  static const int BIT_IMAGE_REF_CHANGED = 1;
+  static const int BIT_IMAGE_LINK_CHANGED = 1;
   static const int BIT_MAP_CREATED = 2;
 
-  WString                    altText_;
-  std::string                imageRef_;
-  WResource                 *resource_;
-  Impl::MapWidget           *map_;
-  std::bitset<3>             flags_;
+  WString          altText_;
+  WLink            imageLink_;
+  Impl::MapWidget *map_;
+  std::bitset<3>   flags_;
 
   void resourceChanged();
 

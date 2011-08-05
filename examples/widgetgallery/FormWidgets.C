@@ -399,6 +399,7 @@ WWidget *FormWidgets::wPopupMenu()
   addText(tr("formwidgets-WPopupMenu"), result);
 
   WPopupMenu *popup = new WPopupMenu();
+  popup->setAutoHide(true, 1000);
   popup->addItem("icons/house.png", "Build a house");
   popup->addItem("Roof included")->setCheckable(true);
   popup->addItem("Add a door")->setDisabled(true);
@@ -409,7 +410,8 @@ WWidget *FormWidgets::wPopupMenu()
   subMenu->addItem("Add a table");
   popup->addMenu("Add furniture", subMenu);
   
-  WLabel* clickMe = new WLabel("Clicking here will show a popup menu.", result);
+  WLabel* clickMe = new WLabel("Clicking here will show a popup menu.",
+			       result);
   clickMe->setStyleClass("popupmenuLabel");
   clickMe->clicked().connect(popup, &WPopupMenu::popup);
   

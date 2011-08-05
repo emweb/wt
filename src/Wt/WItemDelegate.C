@@ -114,16 +114,11 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     } else if (!isNew)
       delete checkBox(widgetRef, index, false);
 
-    std::string internalPath = asString(index.data(InternalPathRole)).toUTF8();
-    std::string url = asString(index.data(UrlRole)).toUTF8();
-
-    if (!internalPath.empty() || !url.empty()) {
+    boost::any linkData = index.data(LinkRole);
+    if (!linkData.empty()) {
+      WLink link = boost::any_cast<WLink>(linkData);
       WAnchor *a = anchorWidget(widgetRef);
-
-      if (!internalPath.empty())
-	a->setRefInternalPath(internalPath);
-      else
-	a->setRef(url);
+      a->setLink(link);
     }
 
     WText *t = textWidget(widgetRef);
@@ -135,7 +130,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
     std::string iconUrl = asString(index.data(DecorationRole)).toUTF8();
     if (!iconUrl.empty()) {
-      iconWidget(widgetRef, true)->setImageRef(iconUrl);
+      iconWidget(widgetRef, true)->setImageLink(iconUrl);
     } else if (!isNew)
       delete iconWidget(widgetRef, false);
   }

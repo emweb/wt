@@ -432,11 +432,13 @@ public:
    */
   void libraryVersion(int& series, int& major, int& minor) const;
 
-  /*! \brief Returns the %Wt session id.
+  /*! \brief Returns the %Wt session id (<b>deprecated</b>).
    *
    * Retrieves the session id for this session. This is an
    * auto-generated random alpha-numerical id, whose length is
    * determined by settings in the configuration file.
+   *
+   * \deprecated Use WApplication::sessionId() instead
    */
   std::string sessionId() const;
 

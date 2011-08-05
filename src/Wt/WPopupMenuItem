@@ -73,7 +73,7 @@ public:
    *
    * \sa setIcon()
    */
-  const std::string& icon();
+  std::string icon();
 
   /*! \brief Sets if the item is checkable.
    *
@@ -89,6 +89,34 @@ public:
    * \sa setCheckable()
    */
   bool isCheckable() const { return checkBox_ != 0; }
+
+  /*! \brief Associates a link with the item.
+   *
+   * You may turn the item into an anchor by specifying an link for it.
+   * The link may point to a URL, a resource, or an internal path.
+   *
+   * The default link is a \p null link, which disables the anchor-like
+   * functionality.
+   */
+  void setLink(const WLink& link);
+
+  /*! \brief Returns the associated link.
+   *
+   * \sa setLink()
+   */
+  WLink link() const;
+
+  /*! \brief Sets the link target.
+   *
+   * \sa setLink()
+   */
+  void setLinkTarget(AnchorTarget target);
+
+  /*! \brief Returns the link target.
+   *
+   * \sa setLinkTarget()
+   */
+  AnchorTarget linkTarget() const;
 
   /*! \brief Sets a sub menu for the item.
    *
@@ -168,12 +196,12 @@ private:
   // Constructs a separator
   WPopupMenuItem(bool);
 
-  WContainerWidget *impl_;
-  WText            *text_;
-  WCheckBox        *checkBox_;
-  WPopupMenu       *subMenu_;
-  void             *data_;
-  bool              separator_, selectable_;
+  WAnchor     *impl_;
+  WText       *text_;
+  WCheckBox   *checkBox_;
+  WPopupMenu  *subMenu_;
+  void        *data_;
+  bool         separator_, selectable_;
 
   Signal<WPopupMenuItem *> triggered_;
 

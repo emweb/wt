@@ -5,7 +5,7 @@
  */
 
 #include <cstring>
-#include <boost/lexical_cast.hpp>
+#include <stdio.h>
 #include "EscapeOStream.h"
 #include "Utils.h"
 #include "WtException.h"
@@ -93,6 +93,13 @@ SStream& SStream::operator<< (int v)
 {
   char buf[20];
   Utils::itoa(v, buf);
+  return *this << buf;
+}
+
+SStream& SStream::operator<< (double d)
+{
+  char buf[50];
+  snprintf(buf, 50, "%g", d);
   return *this << buf;
 }
 

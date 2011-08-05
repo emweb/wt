@@ -884,9 +884,23 @@ public:
    * \endcode
    * \endif
    *
-   * \sa WServer::appRoot()
+   * \sa WServer::appRoot(), docRoot()
    */
   static std::string appRoot();
+
+  /*! \brief Returns the server document root.
+   *
+   * This returns the filesystem path that corresponds to the document root
+   * of the webserver.
+   *
+   * \note This does not work reliably for complex webserver configurations
+   *       (e.g. using FastCGI with Apache and rewrite rules). See also the
+   *       <a href="https://issues.apache.org/bugzilla/show_bug.cgi?id=26052">
+   *       discussion here</a>.
+   *
+   * \sa appRoot()
+   */
+  std::string docRoot() const;
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns the unique identifier for the current session.

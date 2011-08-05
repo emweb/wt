@@ -107,41 +107,32 @@ void WCssDecorationStyle::setFont(const WFont& font)
   }
 }
 
-void WCssDecorationStyle::setBackgroundImage(const std::string& image,
+void WCssDecorationStyle::setBackgroundImage(const WLink& image,
 					     Repeat repeat,
 					     WFlags<Side> sides)
 {
+  if (image.type() == WLink::Resource)
+    image.resource()->dataChanged().
+      connect(this, &WCssDecorationStyle::backgroundImageResourceChanged);
+
   if (!WWebWidget::canOptimizeUpdates()
       || backgroundImage_ != image
       || backgroundImageRepeat_ != repeat
       || backgroundImageLocation_ != sides) {
     backgroundImage_ = image;
-    backgroundImageResource_ = 0;
     backgroundImageRepeat_ = repeat;
     backgroundImageLocation_ = sides;
     backgroundImageChanged_ = true;
+
     changed();
   }
 }
 
-void WCssDecorationStyle::setBackgroundImage(WResource *resource,
-					     Repeat repeat,
-					     WFlags<Side> sides)
-{
-  resource->dataChanged().
-    connect(this, &WCssDecorationStyle::backgroundImageResourceChanged);
-  setBackgroundImage(resource->url(), repeat, sides);
-
-  backgroundImageResource_ = resource;
-}
-
 void WCssDecorationStyle::backgroundImageResourceChanged()
 {
-  if (backgroundImageResource_) {
-    WResource *resource = backgroundImageResource_;
-    setBackgroundImage(resource->url(),
-		       backgroundImageRepeat_, backgroundImageLocation_);
-    backgroundImageResource_ = resource;
+  if (backgroundImage_.type() == WLink::Resource) {
+    backgroundImageChanged_ = true;
+    changed();
   }
 }
 
@@ -294,12 +285,11 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
   }
 
   if (backgroundImageChanged_ || all) {
-    if ((backgroundImage_.length() != 0) || backgroundImageChanged_) {
+    if (!backgroundImage_.isNull() || backgroundImageChanged_) {
       element.setProperty(PropertyStyleBackgroundImage,
-			  backgroundImage_.length() > 0
-			  ? "url("
+			  !backgroundImage_.isNull() ? "url("
 			  + WApplication::instance()
-			  ->resolveRelativeUrl(backgroundImage_) + ")" 
+			  ->resolveRelativeUrl(backgroundImage_.url()) + ")" 
 			  : "none");
       switch (backgroundImageRepeat_) {
       case RepeatXY:

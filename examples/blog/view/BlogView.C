@@ -119,10 +119,8 @@ private:
   }
 
   WAnchor* createArchiveLink() {
-    WAnchor* archiveLink = new WAnchor();
-    archiveLink->setText(tr("archive"));
-    archiveLink->setRefInternalPath(basePath_ + "all");
-    return archiveLink;
+    return new WAnchor(WLink(WLink::InternalPath, basePath_ + "all"),
+		       tr("archive"));
   }
 
   void init() {
@@ -547,9 +545,9 @@ private:
 	title->setStyleClass("archive-month-title");
       }
       
-      WAnchor *a = new WAnchor("", parent);
-      a->setText((*i)->title);
-      a->setRefInternalPath(basePath_ + (*i)->permaLink());
+      WAnchor *a = new WAnchor(WLink(WLink::InternalPath,
+				     basePath_ + (*i)->permaLink()),
+			       (*i)->title, parent);
       a->setInline(false);
       
       formerDate = (*i)->date;

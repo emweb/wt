@@ -298,15 +298,28 @@ public:
    */
   Signal<WPopupMenuItem *>& triggered() { return triggered_; }
 
+  /*! \brief Configure auto-hide when the mouse leaves the menu.
+   *
+   * If \p enabled, The popup menu will be hidden when the mouse
+   * leaves the menu for longer than \p autoHideDelay
+   * (milliseconds). The popup menu result will be 0, as if the user
+   * cancelled.
+   *
+   * By default, this option is disabled.
+   */
+  void setAutoHide(bool enabled, int autoHideDelay = 0);
+
 private:
   WTemplate      *impl_;
   WPopupMenuItem *parentItem_, *result_;
 
   Signal<> aboutToHide_;
   Signal<WPopupMenuItem *> triggered_;
+  JSignal<> cancel_;
 
   boost::signals::connection globalClickConnection_, globalEscapeConnection_;
   bool                       recursiveEventLoop_;
+  int                        autoHideDelay_;
 
   WContainerWidget *contents();
   WPopupMenu *topLevelMenu();

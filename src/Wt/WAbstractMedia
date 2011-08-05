@@ -8,6 +8,7 @@
 #define WABSTRACT_MEDIA_H_
 
 #include <Wt/WInteractWidget>
+#include <Wt/WLink>
 #include <Wt/WFlags>
 
 namespace Wt {
@@ -94,29 +95,17 @@ public:
 
   /*! \brief Add a media source
    *
-   * This method specifies a media source. You may add as many media
-   * sources as you want. The browser will select the appropriate
-   * media stream to display to the user.
+   * This method specifies a media source (which may be a URL or
+   * dynamic resource). You may add as many media sources as you
+   * want. The browser will select the appropriate media stream to
+   * display to the user.
    *
    * This method specifies a media source using the URL, the mime type,
    * and the media attribute. HTML allows for empty type and media
    * attributes.
    */
-  void addSource(const std::string &url, const std::string &type = "",
-    const std::string &media = "");
-
-  /*! \brief Add a media source
-   *
-   * This method specifies a media source. You may add as many media
-   * sources as you want. The browser will select the appropriate
-   * media stream to display to the user.
-   *
-   * This method specifies a media source using the URL, the mime type,
-   * and the media attribute. HTML allows for empty type and media
-   * attributes.
-   */
-  void addSource(WResource *resource, const std::string &type = "",
-    const std::string &media = "");
+  void addSource(const WLink& source, const std::string &type = "",
+		 const std::string &media = "");
 
   /*! \brief Content to be shown when media cannot be played
    *
@@ -223,21 +212,19 @@ private:
     : public WObject
 #endif
   {
-    Source(WAbstractMedia *parent, WResource *resource, const std::string &type,
+    Source(WAbstractMedia *parent, const WLink& link, const std::string &type,
            const std::string &media);
-    Source(const std::string &url, const std::string &type,
-	   const std::string &media);
     ~Source();
 
     void resourceChanged();
 
     WAbstractMedia *parent;
     boost::signals::connection connection;
-    std::string type, url, media;
-    WResource *resource;
+    std::string type, media;
+    WLink link;
   };
   void renderSource(DomElement* element, WAbstractMedia::Source &source,
-   bool isLast);
+		    bool isLast);
 
   std::vector<Source *> sources_;
   std::size_t sourcesRendered_;

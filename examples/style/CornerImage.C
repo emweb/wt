@@ -62,7 +62,7 @@ CornerImage::CornerImage(Corner c, WColor fg, WColor bg,
     radius_(radius)
 {
   resource_ = new CornerResource(this);
-  setResource(resource_);
+  setImageLink(resource_);
 }
 
 void CornerImage::setRadius(int radius)

@@ -139,32 +139,49 @@ public:
    */
   WString toolTip() const;
 
-  /*! \brief Sets an anchor to an internal path.
+  /*! \brief Sets a link.
    *
-   * The internal path is stored as \link Wt::InternalPathRole
-   * InternalPathRole\endlink data.
+   * The link is stored as \link Wt::LinkRole LinkRole\endlink data.
    *
-   * \sa internalPath(), setData()
+   * \sa setData()
+   */
+  void setLink(const WLink& link);
+
+  /*! \brief Returns a link.
+   *
+   * \sa setLink()
+   */
+  WLink link() const;
+
+  /*! \brief Sets a link to an internal path (<b>deprecated</b>).
+   *
+   * The internal path is stored as \link Wt::LinkRole LinkRole\endlink data..
+   *
+   * \deprecated Use setLink() instead.
    */
   void setInternalPath(const std::string& internalpath);
 
-  /*! \brief Returns the anchor to an internal path.
+  /*! \brief Returns the link to an internal path (<b>deprecated</b>).
    *
-   * \sa setInternalPath(), setData()
+   * \sa setInternalPath()
+   *
+   * \deprecated Use link() instead.
    */
   std::string internalPath() const;
 
-  /*! \brief Sets an anchor to an external URL.
+  /*! \brief Sets a link to a URL (<b>deprecated</b>).
    *
-   * The anchor Url is stored as \link Wt::UrlRole UrlRole\endlink data.
+   * The URL is stored as \link Wt::LinkRole LinkRole\endlink data.
    *
-   * \sa setInternalPath(), setData()
+   * \deprecated Use setLink() instead.
    */
   void setUrl(const std::string& url);
 
-  /*! \brief Returns the url referenced by this item.
+  /*! \brief Returns the linked URL (<b>deprecated</b>).
    *
-   * \sa setUrl(), setData()
+   * \sa setUrl()
+   *
+   * \deprecated Use link() instead.
    */
   std::string url() const;
 

@@ -9,6 +9,7 @@
 
 #include <Wt/WFormWidget>
 #include <Wt/WJavaScript>
+#include <Wt/WLink>
 
 namespace Wt {
 
@@ -70,32 +71,44 @@ public:
    */
   const std::string& icon() const { return icon_; }
 
-  /*! \brief Sets a destination URL.
+  /*! \brief Sets a destination link.
    *
    * This method can be used to make the button behave like a WAnchor
    * (or conversely, an anchor look like a button) and redirect to
    * another URL when clicked.
    *
-   * By default, a button does not refer to an URL and you should
-   * listen to the clicked() signal to react to a click event.
+   * The \p link may be to a URL, a resource, or an internal path.
    *
-   * \sa setResource(), setRefInternalPath()
+   * By default, a button does not link to an URL and you should
+   * listen to the clicked() signal to react to a click event.
+   */
+  void setLink(const WLink& link);
+
+  /*! \brief Returns the destination link.
+   *
+   * \sa setLink()
+   */
+  const WLink& link() const { return link_; }
+
+  /*! \brief Sets a destination URL (<b>deprecated</b>).
+   *
+   * \deprecated Use setLink() insteadd.
    */
   void setRef(const std::string& url);
 
-  /*! \brief Returns the destination URL.
+  /*! \brief Returns the destination URL (<b>deprecated</b>).
    *
    * When the button refers to a resource, the current resource URL is
    * returned. Otherwise, the URL is returned that was set using
    * setRef().
    *
    * \sa setRef(), WResource::url()
+   *
+   * \deprecated Use link() instead.
    */
-  const std::string& ref() const { return ref_; }
+  std::string ref() const { return link_.url(); }
 
-  void setRefInternalPath(const std::string& path);
-
-  /*! \brief Sets a destination resource.
+  /*! \brief Sets a destination resource (<b>deprecated</b>).
    *
    * This method can be used to make the button behave like a WAnchor
    * (or conversely, an anchor look like a button) and redirect to
@@ -111,16 +124,20 @@ public:
    * The button does not assume ownership of the resource.
    *
    * \sa setRef()
+   *
+   * \deprecated Use setLink() instead.
    */
   void setResource(WResource *resource);
 
-  /*! \brief Returns the destination resource.
+  /*! \brief Returns the destination resource (<b>deprecated</b>).
    *
    * Returns \c 0 if no resource has been set.
    *
    * \sa setResource()
+   *
+   * \deprecated Use link() instead.
    */
-  WResource *resource() const { return resource_; }
+  WResource *resource() const { return link_.resource(); }
 
   virtual void refresh();
 
@@ -128,14 +145,12 @@ private:
   static const int BIT_TEXT_CHANGED = 0;
   static const int BIT_ICON_CHANGED = 1;
   static const int BIT_ICON_RENDERED = 2;
-  static const int BIT_REF_CHANGED = 3;
-  static const int BIT_REF_INTERNAL_PATH = 4;
+  static const int BIT_LINK_CHANGED = 3;
 
   WString        text_;
   std::string    icon_;
-  std::string    ref_;
-  WResource     *resource_;
-  std::bitset<5> flags_;
+  WLink          link_;
+  std::bitset<4> flags_;
 
   JSlot         *redirectJS_;
 

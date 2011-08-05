@@ -16,6 +16,10 @@
 #include "WebSession.h"
 #include "WtException.h"
 
+#ifndef WT_DEBUG_JS
+#include "js/WPopupMenu.min.js"
+#endif
+
 namespace Wt {
 
 WPopupMenu::WPopupMenu()
@@ -24,7 +28,9 @@ WPopupMenu::WPopupMenu()
     result_(0),
     aboutToHide_(this),
     triggered_(this),
-    recursiveEventLoop_(false)
+    cancel_(this, "cancel"),
+    recursiveEventLoop_(false),
+    autoHideDelay_(-1)
 {
   const char *TEMPLATE =
     "${shadow-x1-x2}"
@@ -217,6 +223,18 @@ void WPopupMenu::prepareRender(WApplication *app)
   }
 
   // FIXME: we should really also prepareRender() of submenus when shown...
+
+  if (autoHideDelay_ >= 0) {
+    LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
+
+    if (!cancel_.isConnected()) {
+      doJavaScript("new " WT_CLASS ".WPopupMenu("
+		   + app->javaScriptClass() + "," + jsRef() + ","
+		   + boost::lexical_cast<std::string>(autoHideDelay_)
+		   + ");");
+      cancel_.connect(this, &WPopupMenu::done);
+    }
+  }
 }
 
 WPopupMenuItem *WPopupMenu::exec(const WPoint& p)
@@ -263,5 +281,12 @@ WPopupMenuItem *WPopupMenu::exec(WWidget *location, Orientation orientation)
   return result_;
 }
 
+void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
+{
+  if (enabled)
+    autoHideDelay_ = autoHideDelay;
+  else
+    autoHideDelay_ = -1;
+}
 
 }

@@ -80,6 +80,7 @@ namespace Wt {
   class WLengthValidator;
   class WLineEdit;
   class WLineF;
+  class WLink;
   class WLoadingIndicator;
   class WLocalizedStrings;
   class WLogger;

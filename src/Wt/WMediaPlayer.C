@@ -156,21 +156,21 @@ void WMediaPlayer::clearSources()
   askRerender();
 }
 
-void WMediaPlayer::addSource(Encoding encoding, const std::string& url)
+void WMediaPlayer::addSource(Encoding encoding, const WLink& link)
 {
   media_.push_back(Source());
-  media_.back().url = url;
+  media_.back().link = link;
   media_.back().encoding = encoding;
 
   mediaUpdated_ = true;
   askRerender();
 }
 
-std::string WMediaPlayer::getSource(Encoding encoding) const
+WLink WMediaPlayer::getSource(Encoding encoding) const
 {
   for (unsigned i = 0; i < media_.size(); ++i) {
     if (media_[i].encoding == encoding)
-      return media_[i].url;
+      return media_[i].link;
   }
 
   return std::string();
@@ -422,7 +422,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
       if (i != 0)
 	ss << ",";
       ss << mediaNames[media_[i].encoding] << ": "
-	 << WWebWidget::jsStringLiteral(media_[i].url);
+	 << WWebWidget::jsStringLiteral(media_[i].link.url());
     }
 
     ss << "}";
