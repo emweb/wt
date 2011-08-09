@@ -5,6 +5,8 @@
 
 	* WFormWidget.C: do not allow editing when isReadOnly()
 
+	* Dbo/ptr: fix ptr operator bool() loading the object (#909)
+
 05-08-2011:
 	* WApplication: added a docRoot() method which returns the webserver
 	document root

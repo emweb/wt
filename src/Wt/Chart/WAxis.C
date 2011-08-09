@@ -439,8 +439,9 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
     rc = chart_->model()->rowCount();
 
   if (scale_ == CategoryScale) {
+    rc = std::max(1, rc);
     segment.renderMinimum = -0.5;
-    segment.renderMaximum = rc - 0.5;    
+    segment.renderMaximum = rc - 0.5;
   } else {
     segment.renderMinimum = segment.minimum;
     segment.renderMaximum = segment.maximum;

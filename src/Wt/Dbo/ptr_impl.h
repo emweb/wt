@@ -338,7 +338,7 @@ bool ptr<C>::operator< (const ptr<C>& other) const
 template <class C>
 ptr<C>::operator bool() const
 {
-  return obj_ != 0 && obj_->obj() != 0;
+  return obj_ != 0;
 }
 
 template <class C>
