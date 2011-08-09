@@ -157,7 +157,6 @@ WApplication::WApplication(const WEnvironment& env)
 
   // a define so that it shouts at us !
   #define RTL ".Wt-rtl "
-  #define LTR ".Wt-ltr "
 
   /*
    * Subset of typical CSS "reset" styles, only those that are needed
@@ -168,7 +167,7 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule("div, td, img",
 		      "margin: 0px; padding: 0px; border: 0px");
   styleSheet_.addRule("td", "vertical-align: top;");
-  styleSheet_.addRule(LTR "td", "text-align: left;");
+  styleSheet_.addRule("td", "text-align: left;");
   styleSheet_.addRule(RTL "td", "text-align: right;");
   styleSheet_.addRule("button", "white-space: nowrap;");
   styleSheet_.addRule("button img",
@@ -204,7 +203,7 @@ WApplication::WApplication(const WEnvironment& env)
 		      "text-decoration: none;"
 		      "color: inherit;");
 
-  styleSheet_.addRule(LTR ".Wt-wrap", "text-align: left;");
+  styleSheet_.addRule(".Wt-wrap", "text-align: left;");
   styleSheet_.addRule(RTL ".Wt-wrap", "text-align: right;");
   styleSheet_.addRule("div.Wt-chwrap", "width: 100%; height: 100%");
 
