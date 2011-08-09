@@ -7,6 +7,9 @@
 
 	* Dbo/ptr: fix ptr operator bool() loading the object (#909)
 
+	* Db/CMakeLists.txt: support building and installing Wt::Dbo
+	independently from Wt (#907)
+
 05-08-2011:
 	* WApplication: added a docRoot() method which returns the webserver
 	document root

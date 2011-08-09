@@ -47,6 +47,7 @@ SUBDIRS(backend)
 
 INSTALL_FILES(/include/Wt/Dbo "^[^.]+\\.h$")
 INSTALL_FILES(/include/Wt/Dbo "^[^b.][^.]+$")
+INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
 
 IF (ASCIIDOC_FOUND)
   IF(NOT WIN32)
