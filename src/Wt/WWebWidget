@@ -257,6 +257,7 @@ protected:
   virtual bool isStubbed() const;
   virtual void enableAjax();
 
+  virtual void removeChild(WObject *child);
   virtual void addChild(WWidget *child);
   virtual void removeChild(WWidget *child);
   virtual void setHideWithOffsets(bool how = true);

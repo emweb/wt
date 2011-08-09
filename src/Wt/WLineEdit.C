@@ -135,7 +135,7 @@ void WLineEdit::setFormData(const FormData& formData)
   // if the value was updated through the API, then ignore the update from
   // the browser, this happens when an action generated multiple events,
   // and we do not want to revert the changes made through the API
-  if (flags_.test(BIT_CONTENT_CHANGED))
+  if (flags_.test(BIT_CONTENT_CHANGED) || isReadOnly())
     return;
 
   if (!Utils::isEmpty(formData.values)) {

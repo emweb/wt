@@ -7,7 +7,11 @@
 #ifndef WLINK_H_
 #define WLINK_H_
 
+#ifndef WT_CNOR
 #include <boost/variant.hpp>
+#else
+#include <boost/any.hpp>
+#endif
 
 #include <Wt/WGlobal>
 
@@ -152,7 +156,11 @@ public:
 
 private:
   Type type_;
+#ifndef WT_CNOR
   boost::variant<std::string, WResource *> value_;
+#else
+  boost::any value_;
+#endif
 
   JSlot *manageInternalPathChange(WApplication *app, WInteractWidget *widget,
 				  JSlot *slot) const;

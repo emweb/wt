@@ -173,7 +173,7 @@ WLink WMediaPlayer::getSource(Encoding encoding) const
       return media_[i].link;
   }
 
-  return std::string();
+  return WLink("");
 }
 
 void WMediaPlayer::setTitle(const WString& title)
@@ -247,6 +247,8 @@ WText *WMediaPlayer::text(TextId id) const
 
 void WMediaPlayer::setProgressBar(BarControlId id, WProgressBar *w)
 {
+  const BarControlId bc_id = id;
+
   delete progressBar_[id];
   progressBar_[id] = w;
 
@@ -254,7 +256,7 @@ void WMediaPlayer::setProgressBar(BarControlId id, WProgressBar *w)
     w->setFormat(WString::Empty);
 
     w->valueChanged().connect
-      (boost::bind(&WMediaPlayer::updateFromProgressBar, this, id, _1));
+      (boost::bind(&WMediaPlayer::updateFromProgressBar, this, bc_id, _1));
 
     updateProgressBarState(id);
   }
@@ -676,18 +678,18 @@ void WMediaPlayer::createDefaultGui()
 void WMediaPlayer::addAnchor(WTemplate *t, ButtonControlId id,
 			     const char *bindId,
 			     const std::string& styleClass,
-			     const char *altText)
+			     const std::string& altText)
 {
   std::string text;
 
-  if (!altText)
+  if (altText.empty())
     text = styleClass.substr(3).c_str();
   else
     text = altText;
 
   text = "Wt.WMediaPlayer." + text;
 
-  WAnchor *anchor = new WAnchor("javascript:;", WString::tr(text));
+  WAnchor *anchor = new WAnchor(WLink("javascript:;"), WString::tr(text));
   anchor->setStyleClass(styleClass);
   anchor->setAttributeValue("tabindex", "1");
   anchor->setToolTip(WString::tr(text));

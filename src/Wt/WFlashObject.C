@@ -9,6 +9,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
 #include "Wt/WLength"
+#include "Wt/WLink"
 #include "DomElement.h"
 #include "Utils.h"
 
@@ -39,9 +40,10 @@ WFlashObject::WFlashObject(const std::string& url,
     replaceDummyIeContent_(false)
 {
   setInline(false);
-  setAlternativeContent(new WAnchor("http://www.adobe.com/go/getflashplayer",
-    new WImage("http://www.adobe.com/images/"
-               "shared/download_buttons/get_flash_player.gif")));
+  setAlternativeContent(
+    new WAnchor(WLink("http://www.adobe.com/go/getflashplayer"),
+    new WImage(WLink("http://www.adobe.com/images/"
+		     "shared/download_buttons/get_flash_player.gif"))));
   ieRendersAlternative_.connect(this, &WFlashObject::renderIeAltnerative);
 }
 

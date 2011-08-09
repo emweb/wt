@@ -248,7 +248,7 @@ void WMenuItem::updateItemWidget(WWidget *itemWidget)
     } else
       url = "#";
 
-    enabledLabel->setLink(url);
+    enabledLabel->setLink(WLink(url));
     enabledLabel->setToolTip(toolTip());
     enabledLabel->clicked().preventDefaultAction();
   } else {

@@ -20,6 +20,7 @@
 
 #include "Utils.h"
 #include "EscapeOStream.h"
+#include "WtException.h"
 
 #ifndef WT_DEBUG_JS
 
@@ -162,6 +163,9 @@ WTableView::WTableView(WContainerWidget *parent)
 void WTableView::resize(const WLength& width, const WLength& height)
 {
   if (ajaxMode()) {
+    if (height.unit() == WLength::Percentage)
+      throw WtException("WTableView::resize(): height cannot be a Percentage");
+
     if (!height.isAuto()) {
       viewportHeight_
 	= static_cast<int>(ceil((height.toPixels()
@@ -207,11 +211,12 @@ void WTableView::updateTableBackground()
     + "px.gif";
 
   if (ajaxMode()) {
-    table_->decorationStyle().setBackgroundImage(backgroundImage);
-    headerColumnsTable_->decorationStyle().setBackgroundImage(backgroundImage);
+    table_->decorationStyle().setBackgroundImage(WLink(backgroundImage));
+    headerColumnsTable_
+      ->decorationStyle().setBackgroundImage(WLink(backgroundImage));
   } else
     // FIXME avoid background on header row ?
-    plainTable_->decorationStyle().setBackgroundImage(backgroundImage);	
+    plainTable_->decorationStyle().setBackgroundImage(WLink(backgroundImage));	
 }
 
 void WTableView::setModel(WAbstractItemModel* model)

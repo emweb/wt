@@ -54,6 +54,10 @@ public:
    */
   WWidget *columnWidget(int column);
 
+  /*! \brief Returns the table for this node.
+   *
+   * \sa WTreeTableNode::setTable()
+   */
   WTreeTable *table() const { return table_; }
 
   virtual void insertChildNode(int index, WTreeNode *node);
@@ -69,6 +73,8 @@ protected:
    * behaviour of the node depending on table properties. For example to only
    * associate data with the node when the tree list is actually used inside
    * a table.
+   *
+   * \sa WTreeTableNode::table()
    */
   virtual void setTable(WTreeTable *table);
 

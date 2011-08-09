@@ -98,10 +98,10 @@ void WMessageBox::setIcon(Icon icon)
    */
   if (false && icon_ != NoIcon) {
     if (!iconImage_) {
-      iconImage_ = new WImage(iconURI[icon_ - 1]);
+      iconImage_ = new WImage(WLink(iconURI[icon_ - 1]));
       contents()->insertBefore(iconImage_, text_);
     } else
-      iconImage_->setImageLink(iconURI[icon_ - 1]);
+      iconImage_->setImageLink(WLink(iconURI[icon_ - 1]));
   } else {
     delete iconImage_;
     iconImage_ = 0;

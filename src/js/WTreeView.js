@@ -301,7 +301,7 @@ WT_DECLARE_WT_MEMBER
 
 	var table = contents.firstChild,
           r = WT.getCssRule('#' + el.id + ' .cwidth'),
-          contentstoo = (r.style.width == table.offsetWidth + 'px'),
+          contentstoo = (r.style.width == (table.offsetWidth + 1) + 'px'),
           hc = headers.firstChild;
 
 	r.style.width = tw + 'px';

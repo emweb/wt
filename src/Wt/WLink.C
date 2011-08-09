@@ -60,11 +60,13 @@ std::string WLink::url() const
 {
   switch (type_) {
   case Url:
+#ifndef WT_CNOR
     return boost::get<std::string>(value_);
-    break;
+#else
+    return boost::any_cast<std::string>(value_);
+#endif
   case Resource:
     return resource()->url();
-    break;
   case InternalPath:
     return WApplication::instance()->bookmarkUrl(internalPath().toUTF8());
   }
@@ -80,9 +82,13 @@ void WLink::setResource(WResource *resource)
 
 WResource *WLink::resource() const
 {
-  if (type_ == Resource)
+  if (type_ == Resource) {
+#ifndef WT_CNOR
     return boost::get<WResource *>(value_);
-  else
+#else
+    return boost::any_cast<WResource *>(value_);
+#endif
+  } else
     return 0;
 }
 
@@ -94,10 +100,19 @@ void WLink::setInternalPath(const WT_USTRING& internalPath)
 
 WT_USTRING WLink::internalPath() const
 {
-  if (type_ == InternalPath)
+  if (type_ == InternalPath) {
+#ifndef WT_CNOR
     return WT_USTRING::fromUTF8(boost::get<std::string>(value_));
-  else
+#else
+    return WT_USTRING::fromUTF8(boost::any_cast<std::string>(value_));
+#endif
+  } else {
+#ifndef WT_TARGET_JAVA
     return WT_USTRING::Empty;
+#else
+    return std::string();
+#endif
+  }
 }
 
 bool WLink::operator==(const WLink& other) const
@@ -148,7 +163,7 @@ JSlot *WLink::manageInternalPathChange(WApplication *app,
 	 "}");
 
 #ifdef WT_TARGET_JAVA
-      slot->clicked().senderRepaint();
+      widget->clicked().senderRepaint();
 #endif // WT_TARGET_JAVA
 
       return slot;

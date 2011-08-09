@@ -1247,12 +1247,12 @@ void WTreeView::setRootNodeStyle()
 
   if (alternatingRowColors())
     rootNode_->decorationStyle().setBackgroundImage
-      (WApplication::resourcesUrl()
-       + "themes/" + WApplication::instance()->cssTheme()
-       + "/stripes/stripe-" + boost::lexical_cast<std::string>
-       (static_cast<int>(rowHeight().toPixels())) + "px.gif");
+      (WLink(WApplication::resourcesUrl()
+	     + "themes/" + WApplication::instance()->cssTheme()
+	     + "/stripes/stripe-" + boost::lexical_cast<std::string>
+	     (static_cast<int>(rowHeight().toPixels())) + "px.gif"));
    else
-     rootNode_->decorationStyle().setBackgroundImage("");
+     rootNode_->decorationStyle().setBackgroundImage(WLink(""));
  }
 
 void WTreeView::setRowHeight(const WLength& rowHeight)

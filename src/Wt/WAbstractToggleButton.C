@@ -300,7 +300,7 @@ void WAbstractToggleButton::propagateRenderOk(bool deep)
 
 void WAbstractToggleButton::setFormData(const FormData& formData)
 {
-  if (stateChanged_)
+  if (stateChanged_ || isReadOnly())
     return;
 
   if (!Utils::isEmpty(formData.values))

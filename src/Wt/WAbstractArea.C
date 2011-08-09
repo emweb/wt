@@ -185,7 +185,6 @@ const std::string WAbstractArea::ref() const
     switch (anchor_->link_.type()) {
     case WLink::InternalPath:
       return anchor_->link_.internalPath().toUTF8();
-      break;
     default:
       return anchor_->link_.url();
     }

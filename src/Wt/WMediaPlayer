@@ -482,7 +482,7 @@ private:
 
   void addAnchor(WTemplate *t, ButtonControlId id, const char *bindId,
 		 const std::string& styleClass,
-		 const char *altText = 0);
+		 const std::string& altText = std::string());
   void addText(WTemplate *t, TextId id, const char *bindId,
 	       const std::string& styleClass);
   void addProgressBar(WTemplate *t, BarControlId id, const char *bindId,

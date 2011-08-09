@@ -678,7 +678,7 @@ public:
    *
    * An item view does not use the vertical header data from the model
    * in any way, but instead you can configure data in the first
-   * column to be used as a row headers.
+   * column(s) to be used as a row headers.
    *
    * These columns will not scroll horizontally together with the rest
    * of the model.

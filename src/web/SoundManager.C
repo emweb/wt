@@ -34,7 +34,7 @@ void SoundManager::add(WSound *sound)
 {
   if (getSource(MP3) != sound->url()) {
     clearSources();
-    addSource(MP3, sound->url());
+    addSource(MP3, WLink(sound->url()));
   }
 }
 
@@ -45,7 +45,7 @@ void SoundManager::play(WSound *sound, int loops)
 {
   if (getSource(MP3) != sound->url()) {
     clearSources();
-    addSource(MP3, sound->url());
+    addSource(MP3, WLink(sound->url()));
   }
 
   setAttributeValue("loops", std::string());

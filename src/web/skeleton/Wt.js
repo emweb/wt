@@ -1356,6 +1356,18 @@ this.hasFocus = function(el) {
 var html5History = !WT.isMobileWebKit
     && !!(window.history && window.history.pushState);
 
+/*
+ * A less aggressive URL encoding than encodeURIComponent which does
+ * for example not encode '/'
+ */
+function gentleURIEncode(s) {
+  return s.replace(/%/g, '%25')
+    .replace(/\+/g, '%2b')
+    .replace(/ /g, '%20')
+    .replace(/#/g, '%23')
+    .replace(/&/g, '%26');
+}
+
 if (html5History) {
   this.history = (function()
 {
@@ -1432,7 +1444,7 @@ _$_$endif_$_();
 
       currentState = state;
 
-      var url = baseUrl + state;
+      var url = baseUrl + gentleURIEncode(state);
 
       if (baseUrl.length < 3 || baseUrl.substr(baseUrl.length - 3) != "?_=")
 	url += window.location.search;
@@ -1680,6 +1692,8 @@ _$_$endif_$_();
     }
   },
   navigate: function (state, generateEvent) {
+    state = gentleURIEncode(state);
+
     if (!_initialized) {
       return;
     }
@@ -1700,7 +1714,7 @@ _$_$endif_$_();
     if (!_initialized) {
       return "";
     }
-    return _currentState;
+    return unescape(_currentState);
   }
   };
 })();
@@ -1733,7 +1747,7 @@ function saveDownPos(e) {
 var currentHash = null;
 
 function onHashChange() {
-  var newLocation = WT.history.getCurrentState();
+  var newLocation = _$_WT_CLASS_$_.history.getCurrentState();
   if (currentHash == newLocation) {
     return;
   } else {
@@ -1797,6 +1811,7 @@ function dragStart(obj, e) {
   ds.object.parentNode.removeChild(ds.object);
   ds.object.style["position"] = 'absolute';
   ds.object.className = '';
+  ds.object.style["z-index"] = '1000';
   document.body.appendChild(ds.object);
 
   WT.capture(null);
@@ -1991,11 +2006,8 @@ function encodeEvent(event, i) {
       result += se + "focus=" + document.activeElement.id;
   } catch (e) { }
 
-  if (currentHash != null) {
-    if (WT.isIE6)
-      currentHash = encodeURIComponent(currentHash);
-    result += se + '_=' + currentHash;
-  }
+  if (currentHash != null)
+    result += se + '_=' + encodeURIComponent(currentHash);
 
   if (!e) {
     event.data = result;

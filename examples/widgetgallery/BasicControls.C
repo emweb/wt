@@ -137,15 +137,15 @@ WWidget *BasicControls::wAnchor()
 
   addText(tr("basics-WAnchor"), result);
 
-  WAnchor *a1 = new WAnchor("http://www.webtoolkit.eu/",
+  WAnchor *a1 = new WAnchor(WLink("http://www.webtoolkit.eu/"),
 			    "Wt homepage (in a new window)", result);
   a1->setTarget(TargetNewWindow);
 
   addText(tr("basics-WAnchor-more"), result);
 
-  WAnchor *a2 = new WAnchor("http://www.emweb.be/", result);
+  WAnchor *a2 = new WAnchor(WLink("http://www.emweb.be/"), result);
   a2->setTarget(TargetNewWindow);
-  new WImage("pics/emweb_small.jpg", a2);
+  new WImage(WLink("pics/emweb_small.jpg"), a2);
 
   addText(tr("basics-WAnchor-related"), result);
     
@@ -161,7 +161,7 @@ WWidget *BasicControls::wImage()
   addText(tr("basics-WImage"), result);
 
   addText("An image: ", result);
-  (new WImage("icons/wt_powered.jpg", result))
+  (new WImage(WLink("icons/wt_powered.jpg"), result))
     ->setVerticalAlignment(AlignMiddle);
 
   addText(tr("basics-WImage-more"), result);
@@ -182,17 +182,18 @@ WWidget *BasicControls::wTable()
 
   addText("First warning signal", table->elementAt(0, 0));
   addText("09:25am", table->elementAt(0, 1));
-  WImage *img = new WImage("icons/Pennant_One.png", table->elementAt(0, 2));
+  WImage *img 
+    = new WImage(WLink("icons/Pennant_One.png"), table->elementAt(0, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   addText("First perparatory signal", table->elementAt(1, 0));
   addText("09:26am", table->elementAt(1, 1));
-  img = new WImage("icons/Pennant_One.png", table->elementAt(1, 2));
+  img = new WImage(WLink("icons/Pennant_One.png"), table->elementAt(1, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
-  img = new WImage("icons/Papa.png", table->elementAt(1, 2));
+  img = new WImage(WLink("icons/Papa.png"), table->elementAt(1, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   addText("Second perparatory signal", table->elementAt(2, 0));
   addText("09:29am", table->elementAt(2, 1));
-  img = new WImage("icons/Pennant_One.png", table->elementAt(2, 2));
+  img = new WImage(WLink("icons/Pennant_One.png"), table->elementAt(2, 2));
   img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   addText("Start", table->elementAt(3, 0));
   addText("09:30am", table->elementAt(3, 1));

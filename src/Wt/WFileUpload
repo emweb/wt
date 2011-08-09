@@ -338,7 +338,7 @@ private:
   EventSignal<>& fileTooLargeImpl();
   void handleFileTooLargeImpl();
   void onUploaded();
-  int                    tooLargeSize_;
+  ::int64_t                    tooLargeSize_;
 
   virtual void setFormData(const FormData& formData);
   void setFiles(const std::vector<Http::UploadedFile>& files);

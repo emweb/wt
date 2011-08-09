@@ -336,9 +336,9 @@ WWidget *SpecialPurposeWidgets::wMediaPlayer()
 
   WMediaPlayer *player = new WMediaPlayer(WMediaPlayer::Video, result);
 
-  player->addSource(WMediaPlayer::M4V, mp4Video);
-  player->addSource(WMediaPlayer::OGV, ogvVideo);
-  player->addSource(WMediaPlayer::PosterImage, poster);
+  player->addSource(WMediaPlayer::M4V, WLink(mp4Video));
+  player->addSource(WMediaPlayer::OGV, WLink(ogvVideo));
+  player->addSource(WMediaPlayer::PosterImage, WLink(poster));
   player->setTitle("<a href=\"http://durian.blender.org/\""
 		   "target=\"_blank\">Sintel</a>, "
 		   "(c) copyright Blender Foundation");
@@ -352,7 +352,7 @@ WWidget *SpecialPurposeWidgets::wMediaPlayer()
 
   player = new WMediaPlayer(WMediaPlayer::Audio, result);
 
-  player->addSource(WMediaPlayer::MP3, mp3Audio);
+  player->addSource(WMediaPlayer::MP3, WLink(mp3Audio));
   player->setTitle("La Sera - Never Come Around");
 
   ed_->showEvent(player->playbackStarted(), "Song playing");
@@ -394,7 +394,7 @@ WWidget *SpecialPurposeWidgets::wAudio()
   addText(tr("specialpurposewidgets-WAudio"), result);
 
   WAudio *a1 = new WAudio(result);
-  a1->addSource(mp3Audio);
+  a1->addSource(WLink(mp3Audio));
   a1->setOptions(WAudio::Controls);
 
   ed_->showEvent(a1->playbackStarted(), "Audio playing");
@@ -415,8 +415,8 @@ WWidget *SpecialPurposeWidgets::wVideo()
 
   addText(tr("specialpurposewidgets-WVideo-1"), result);
   WVideo *v1 = new WVideo(result);
-  v1->addSource(mp4Video);
-  v1->addSource(ogvVideo);
+  v1->addSource(WLink(mp4Video));
+  v1->addSource(WLink(ogvVideo));
   v1->setPoster(poster);
   v1->setAlternativeContent(new WImage(poster));
   v1->resize(640, 360);
@@ -437,8 +437,8 @@ WWidget *SpecialPurposeWidgets::wVideo()
   flash2->setAlternativeContent(new WImage(poster));
   flash2->resize(640, 360);
   WVideo *v2 = new WVideo(result);
-  v2->addSource(mp4Video);
-  v2->addSource(ogvVideo);
+  v2->addSource(WLink(mp4Video));
+  v2->addSource(WLink(ogvVideo));
   v2->setAlternativeContent(flash2);
   v2->setPoster(poster);
   v2->resize(640, 360);

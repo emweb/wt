@@ -135,7 +135,7 @@ const WString& WPopupMenuItem::text() const
 void WPopupMenuItem::setIcon(const std::string& path)
 {
   decorationStyle().
-    setBackgroundImage(path, WCssDecorationStyle::NoRepeat, CenterY);
+    setBackgroundImage(WLink(path), WCssDecorationStyle::NoRepeat, CenterY);
   setAttributeValue("style", "background-position: 3px center");
 }
 
@@ -193,7 +193,7 @@ void WPopupMenuItem::setPopupMenu(WPopupMenu *menu)
     subMenu_->webWidget()->setLoadLaterWhenInvisible(false);
     subMenu_->parentItem_ = this;
     text_->decorationStyle().
-      setBackgroundImage(resources + "right-arrow.gif",
+      setBackgroundImage(WLink(resources + "right-arrow.gif"),
 			 WCssDecorationStyle::NoRepeat, Right | CenterY);
   }
 }

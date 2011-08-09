@@ -259,6 +259,13 @@ public:
    *
    * Return data for a given role at a given index.
    *
+   * You should check the \p role to decide what data to
+   * return. Usually a View class will ask for data for several roles
+   * which affect not only the contents (Wt::DisplayRole) but also
+   * icons (Wt::DecorationRole), URLs (Wt::LinkRole), and other visual
+   * aspects. If your item does not specify data for a particular
+   * role, it should simply return a boost::any().
+   *
    * \sa flags(), headerData(), setData()
    */
   virtual boost::any data(const WModelIndex& index, int role = DisplayRole)

@@ -225,7 +225,7 @@ WLink WStandardItem::link() const
   if (!d.empty() && d.type() == typeid(WLink))
     return boost::any_cast<WLink>(d);
   else
-    return std::string();
+    return WLink(std::string());
 }
 
 void WStandardItem::setInternalPath(const std::string& internalpath)

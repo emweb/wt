@@ -279,7 +279,7 @@ public:
    *
    * \sa addChild()
    */
-  void removeChild(WObject *child);
+  virtual void removeChild(WObject *child);
 
   /*! \brief Returns the children.
    */

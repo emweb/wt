@@ -22,7 +22,7 @@ EmwebLoadingIndicator::EmwebLoadingIndicator()
   cover_ = new WContainerWidget(this);
   center_ = new WContainerWidget(this);
 
-  WImage *img = new WImage("icons/emweb.jpg", center_);
+  WImage *img = new WImage(WLink("icons/emweb.jpg"), center_);
   img->setMargin(7, Top | Bottom);
 
   text_ = new WText("Loading...", center_);

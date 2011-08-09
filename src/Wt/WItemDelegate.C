@@ -130,7 +130,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
     std::string iconUrl = asString(index.data(DecorationRole)).toUTF8();
     if (!iconUrl.empty()) {
-      iconWidget(widgetRef, true)->setImageLink(iconUrl);
+      iconWidget(widgetRef, true)->setImageLink(WLink(iconUrl));
     } else if (!isNew)
       delete iconWidget(widgetRef, false);
   }

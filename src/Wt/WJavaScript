@@ -376,6 +376,12 @@ public:
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
 
+  
+  void connect(const std::string& function);
+  void connect(const char * function);
+
+  void connect(JSlot& slot);
+
   void emit();
 };
 

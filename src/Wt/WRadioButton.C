@@ -61,7 +61,7 @@ void WRadioButton::setGroup(WButtonGroup *group)
 
 void WRadioButton::setFormData(const FormData& formData)
 {
-  if (stateChanged_)
+  if (stateChanged_ || isReadOnly())
     return;
 
   if (!Utils::isEmpty(formData.values)) {

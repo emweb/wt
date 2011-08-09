@@ -106,7 +106,13 @@ void ControlsWidget::topic(const std::string &classname1,
 WText *ControlsWidget::addText(const WString& s, WContainerWidget *parent)
 {
   WText *text = new WText(s, parent);
-  if (!s.literal())
+  bool literal;
+#ifndef WT_TARGET_JAVA
+  literal = s.literal();
+#else
+  literal = WString(s).literal();
+#endif
+  if(literal)
     text->setInternalPathEncoding(true);
   return text;
 }

@@ -1370,7 +1370,7 @@ void WApplication::processEvents()
 {
   /* set timeout to allow other events to be interleaved */
   doJavaScript("setTimeout(\"" + javaScriptClass_
-	       + "._p_.update(null,'none',null,false);\",0);");
+	       + "._p_.update(null,'none',null,true);\",0);");
 
   if (!environment().isTest())
     session_->doRecursiveEventLoop();

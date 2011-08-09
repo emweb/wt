@@ -64,7 +64,8 @@ WWidget* GraphicsWidgets::paintbrush()
   WTable* layout = new WTable(result);
 
   PaintBrush *const canvas = new PaintBrush(710, 400, layout->elementAt(0,0));
-  canvas->decorationStyle().setBorder(WBorder::Solid);
+  canvas->decorationStyle()
+    .setBorder(WBorder(WBorder::Solid, WBorder::Medium, WColor(black)));
 
   addText("Color chooser:", layout->elementAt(0,1));
   WTable* colorTable = new WTable(layout->elementAt(0,1));

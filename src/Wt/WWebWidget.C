@@ -286,6 +286,15 @@ std::string WWebWidget::renderRemoveJs()
   return "_" + id();
 }
 
+void WWebWidget::removeChild(WObject *child)
+{
+  WWidget *w = dynamic_cast<WWidget *>(child);
+  if (w)
+    removeChild(w);
+  else
+    WObject::removeChild(child);
+}
+
 void WWebWidget::removeChild(WWidget *child)
 {
   assert(children_ != 0);

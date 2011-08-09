@@ -128,6 +128,15 @@ void WCssDecorationStyle::setBackgroundImage(const WLink& image,
   }
 }
 
+#ifdef WT_TARGET_JAVA
+void WCssDecorationStyle::setBackgroundImage(const std::string& url, 
+					     Repeat repeat, 
+					     WFlags<Side> sides)
+{
+  setBackgroundImage(WLink(url), repeat, sides);
+}
+#endif // WT_TARGET_JAVA
+
 void WCssDecorationStyle::backgroundImageResourceChanged()
 {
   if (backgroundImage_.type() == WLink::Resource) {

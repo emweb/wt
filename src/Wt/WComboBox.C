@@ -238,7 +238,7 @@ DomElementType WComboBox::domElementType() const
 
 void WComboBox::setFormData(const FormData& formData)
 {
-  if (selectionChanged_)
+  if (selectionChanged_ || isReadOnly())
     return;
 
   if (!Utils::isEmpty(formData.values)) {

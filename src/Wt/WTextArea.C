@@ -107,7 +107,7 @@ DomElementType WTextArea::domElementType() const
 
 void WTextArea::setFormData(const FormData& formData)
 {
-  if (contentChanged_)
+  if (contentChanged_ || isReadOnly())
     return;
 
   if (!Utils::isEmpty(formData.values)) {
