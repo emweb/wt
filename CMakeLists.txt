@@ -95,7 +95,6 @@ OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
-OPTION(WT_NO_BOOST_RANDOM "For compatibility with some really old boost versions. Do not enable for boost > 1.45" OFF)
 
 IF(APPLE)
   OPTION(USE_BOOST_FRAMEWORK "Uses a Boost framework" OFF)
@@ -314,7 +313,8 @@ IF(NOT BOOST_WT_FOUND)
       "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
       "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
       "c:/Program Files/boost/boost_1_38\n\n"
-      "Wt requires the following C++ boost libraries: date_time, regex, program_options, signals, and optionally thread")
+      "Note 4: if you do not have boost.random, set WT_NO_BOOST_RANDOM to ON"
+      "Wt requires the following C++ boost libraries: date_time, regex, program_options, signals, random, and optionally thread")
   MESSAGE(FATAL_ERROR ${ERR})
 ENDIF(NOT BOOST_WT_FOUND)
 

@@ -1,3 +1,13 @@
+10-08-2011:
+	* WContainerWidget, WScrollArea, DomElement: use overflow-x and
+	overflow-y CSS style since now well cross-browser supported (#830)
+
+	* Dbo/Session: add forceReread parameter to load()
+
+	* WLength: throw exception when unit is corrupt
+
+	* WTreeTable: throw exception on contract abuse
+
 09-08-2011:
 	* Wt.js: fix z-index for drag widget (#927)
 
@@ -7,7 +17,7 @@
 
 	* Dbo/ptr: fix ptr operator bool() loading the object (#909)
 
-	* Db/CMakeLists.txt: support building and installing Wt::Dbo
+	* Dbo/CMakeLists.txt: support building and installing Wt::Dbo
 	independently from Wt (#907)
 
 05-08-2011:

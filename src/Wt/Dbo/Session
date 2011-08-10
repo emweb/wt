@@ -135,11 +135,18 @@ public:
    * object is returned, otherwise the object is loaded from the
    * database.
    *
+   * If \p forceReread is set to \c true, then a fresh copy is loaded
+   * from the database. This is almost equivalent to calling \link
+   * ptr<C>::reread() reread()\endlink on the returned object, except
+   * that it will not result in two database reads in case the object was
+   * in fact not yet loaded in the session.
+   *
    * Throws an ObjectNotFoundException when the object was not found.
    *
    * \sa ptr::id()
    */
-  template <class C> ptr<C> load(const typename dbo_traits<C>::IdType& id);
+  template <class C> ptr<C> load(const typename dbo_traits<C>::IdType& id,
+				 bool forceReread = false);
 
 #ifndef DOXYGEN_ONLY
   template <class C>

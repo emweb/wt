@@ -526,7 +526,7 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     static const char *cssText[] = { "visible", "auto", "hidden", "scroll" };
 
     element.setProperty(PropertyStyleOverflowX, cssText[overflow_[0]]);
-    //element.setProperty(PropertyStyleOverflowY, cssText[overflow_[1]]);
+    element.setProperty(PropertyStyleOverflowY, cssText[overflow_[1]]);
 
     flags_.reset(BIT_OVERFLOW_CHANGED);
 

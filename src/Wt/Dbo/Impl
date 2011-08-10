@@ -31,7 +31,7 @@
   template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(ptr<C>&);		\
   template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(C *);		\
   template Wt::Dbo::ptr<C> Wt::Dbo::Session::load<C>			\
-         (const dbo_traits<C>::IdType&);				\
+	(const dbo_traits<C>::IdType&, bool forceReread = false);	\
   template void Wt::Dbo::Session::mapClass<C>(const char *);		\
   template struct Wt::Dbo::Session::Mapping<C>;				\
   template Wt::Dbo::Query< Wt::Dbo::ptr<C>, Wt::Dbo::DynamicBinding >	\

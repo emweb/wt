@@ -227,12 +227,12 @@ WT_DECLARE_WT_MEMBER
 
      lastFilterValue = edit.value;
 
-     if (filterLength) {
+     if (filterLength != 0) {
        if (text.length < filterLength && !droppedDown) {
 	 hidePopup();
 	 return;
        } else {
-	 var nf = text.substring(0, filterLength);
+	 var nf = filterLength == -1 ? text : text.substring(0, filterLength);
 	 if (nf != filter) {
 	   if (nf != filtering) {
 	     filtering = nf;

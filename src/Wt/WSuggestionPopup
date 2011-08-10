@@ -385,8 +385,11 @@ public:
    * emitted which allows you to filter the model based on the initial
    * input.
    *
-   * The default value is 0, which has the effect of always show the
-   * entire model.
+   * The default value is 0, which has the effect of always showing
+   * the entire model.
+   *
+   * A value of -1 indicates that server-side filtering is
+   * continuously applied, no matter the length of the text input.
    *
    * \sa filterModel()
    */

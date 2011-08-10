@@ -23,15 +23,15 @@ class WT_API WLength
 public:
   /*! \brief The unit
    */
-  enum Unit {FontEm,     //!< The relative font size
-	     FontEx,     //!< The height of an 'x' in the font
-	     Pixel,      //!< Pixel, relative to canvas resolution
-	     Inch,       //!< Inche
-	     Centimeter, //!< Centimeter
-	     Millimeter, //!< Millimeter
-	     Point,      //!< Point (1/72 Inch)
-	     Pica,       //!< Pica (12 Point)
-	     Percentage  //!< Percentage (meaning context-sensitive)
+  enum Unit { FontEm,     //!< The relative font size
+	      FontEx,     //!< The height of an 'x' in the font
+	      Pixel,      //!< Pixel, relative to canvas resolution
+	      Inch,       //!< Inche
+	      Centimeter, //!< Centimeter
+	      Millimeter, //!< Millimeter
+	      Point,      //!< Point (1/72 Inch)
+	      Pica,       //!< Pica (12 Point)
+	      Percentage  //!< Percentage (meaning context-sensitive)
   };
 
   /*! \brief An 'auto' length.
@@ -131,6 +131,8 @@ private:
   bool auto_;
   Unit unit_;
   double value_;
+
+  void setUnit(Unit unit);
 };
 
 inline Wt::WLength operator*(const Wt::WLength &l, double s)

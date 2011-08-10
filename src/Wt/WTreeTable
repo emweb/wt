@@ -30,10 +30,12 @@ class WText;
  *
  * The actual data is organized and provided by WTreeTableNode widgets.
  *
- * To use the tree table, you must first use addColumn() to specify
- * the additional data columns. Then, you must set the tree root using
- * setTreeRoot() and bind additional information (text or other
- * widgets) in each node using WTreeTableNode::setColumnWidget().
+ * To use the tree table, you need <b>first</b> to call addColumn() to
+ * specify the additional data columns. Next, you need to set the tree
+ * root using setTreeRoot() and bind additional information (text or
+ * other widgets) in each node using
+ * WTreeTableNode::setColumnWidget(). Thus, you cannot change the
+ * number of columns once the tree root has been set.
  *
  * The table cannot be given a height using CSS style rules, instead you
  * must use layout managers, or use resize().
@@ -124,7 +126,9 @@ public:
    * Sets the data for the tree table, and specify the header for the
    * first column.
    *
-   * \sa treeRoot(), setTree(WTree *tree, const WString&)
+   * The initial \p root is \c 0.
+   *
+   * \sa treeRoot(), setTree()
    */
   void setTreeRoot(WTreeTableNode *root, const WString& header);
 
@@ -134,13 +138,13 @@ public:
 
   /*! \brief Sets the tree which provides the data for the tree table.
    *
-   * \sa setTreeRoot(WTreeTableNode *, const WString&).
+   * \sa setTreeRoot().
    */
   void setTree(WTree *tree, const WString& header);
 
   /*! \brief Returns the tree that provides the data this table.
    *
-   * \sa setTree(WTree *tree, const WString&).
+   * \sa setTree().
    */
   WTree *tree() const { return tree_; }
 

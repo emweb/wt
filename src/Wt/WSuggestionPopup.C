@@ -209,7 +209,7 @@ void WSuggestionPopup::setDefaultIndex(int row)
 void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 					 int start, int end)
 {
-  if (filterLength_ > 0 && !filtering_)
+  if (filterLength_ != 0 && !filtering_)
     return;
 
   if (modelColumn_ >= model_->columnCount())

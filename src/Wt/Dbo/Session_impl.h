@@ -192,9 +192,12 @@ ptr<C> Session::add(C *obj)
 }
 
 template <class C>
-ptr<C> Session::load(const typename dbo_traits<C>::IdType& id)
+ptr<C> Session::load(const typename dbo_traits<C>::IdType& id,
+		     bool forceReread)
 {
   ptr<C> result = loadLazy<C>(id);
+  if (forceReread)
+    result.reread();
   *result; // Dereference to do actual load or throw exception
   return result;
 }

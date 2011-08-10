@@ -81,7 +81,7 @@ static std::string cssNames_[] =
     "margin-bottom", "margin-left", "cursor",
     "border-top", "border-right",
     "border-bottom", "border-left",
-    "color", "overflow", "overflow", // overflox-x/y not well supported
+    "color", "overflow-x", "overflow-y",
     "opacity",
     "font-family", "font-style", "font-variant",
     "font-weight", "font-size",
@@ -107,7 +107,7 @@ static std::string cssCamelNames_[] =
     "cursor", 	    
     "borderTop", "borderRight",
     "borderBottom", "borderLeft",
-    "color", "overflow", "overflow",
+    "color", "overflowX", "overflowY",
     "opacity",
     "fontFamily", "fontStyle", "fontVariant",
     "fontWeight", "fontSize",

@@ -165,10 +165,17 @@ public:
 
   /*! \brief Make it possible to close a tab interactively or by
    * \link WTabWidget::closeTab() closeTab\endlink.
+   *
+   * A tab that has been closed is marked as hidden, but not removed
+   * from the menu.
+   *
+   * \sa removeTab()
    */
   void setTabCloseable(int index, bool closeable);
 
   /*! \brief Returns whether a tab is closeable.
+   *
+   * \sa setTabCloseable()
    */
   bool isTabCloseable(int index);
 
@@ -177,6 +184,8 @@ public:
   void setTabText(int index, const WString& label);
 
   /*! \brief Returns the label for a tab.
+   *
+   * \sa setTabText()
    */
   const WString& tabText(int index) const;
 
@@ -187,6 +196,8 @@ public:
   void setTabToolTip(int index, const WString& tip);
 
   /*! \brief Returns the tooltip for a tab.
+   *
+   * \sa setTabToolTip()
    */
   const WString& tabToolTip(int index) const;
 
@@ -221,12 +232,19 @@ public:
   Signal<int>& currentChanged() { return currentChanged_; }
 
   /*! \brief Closes a tab at \p index.
+   *
+   * A tab that has been closed is marked as hidden, but not removed
+   * from the menu.
+   *
+   * \sa removeTab(), setTabHidden()
    */
   void closeTab(int index);
 
   /*! \brief %Signal emitted when the user closes a tab.
    *
    * The index of the closed tab is passed as an argument.
+   *
+   * \sa closeTab(), setTabCloseable()
    */
   Signal<int>& tabClosed() { return tabClosed_; }
 

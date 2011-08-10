@@ -64,33 +64,48 @@ WLength::WLength(const char *s)
 
 WLength::WLength(double value, Unit unit)
   : auto_(false),
-    unit_(unit),
     value_(value)
-{ }
+{ 
+  setUnit(unit);
+}
 
 WLength::WLength(int value, Unit unit)
   : auto_(false),
-    unit_(unit),
     value_((double)value)
-{ }
+{
+  setUnit(unit);
+}
 
 WLength::WLength(long value, Unit unit)
   : auto_(false),
-    unit_(unit),
     value_((double)value)
-{ }
+{
+  setUnit(unit);
+}
 
 WLength::WLength(unsigned int value, Unit unit)
   : auto_(false),
-    unit_(unit),
     value_((double)value)
-{ }
+{ 
+  setUnit(unit);
+}
 
 WLength::WLength(unsigned long value, Unit unit)
   : auto_(false),
-    unit_(unit),
     value_((double)value)
-{ }
+{
+  setUnit(unit);
+}
+
+void WLength::setUnit(Unit unit)
+{
+  unit_ = unit;
+
+#ifndef WT_TARGET_JAVA
+  if (unit_ < FontEm || unit_ > Percentage)
+    throw WtException("WLength: illegal unit value.");
+#endif // WT_TARGET_JAVA
+}
 
 bool WLength::operator== (const WLength& other) const
 {

@@ -95,13 +95,13 @@ public:
 
   /*! \brief Sets the tree root node.
    *
-   * \sa treeRoot()
+   * The initial value is \c 0.
    */
   void setTreeRoot(WTreeNode *root);
 
   /*! \brief Returns the root node.
    *
-   * \sa setTreeRoot(WTreeNode *)
+   * \sa setTreeRoot()
    */
   WTreeNode *treeRoot() const { return treeRoot_; }
 

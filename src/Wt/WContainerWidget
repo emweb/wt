@@ -295,17 +295,13 @@ public:
 
   /*! \brief Sets how overflow of contained children must be handled.
    *
-   * This is an alternative (CSS-ish) way to provide scroll bars on a
-   * container widget, compared to wrapping inside a WScrollArea.
-   *
-   * Note that currently, you cannot separately specify vertical and
-   * horizontal scroll behaviour, since this is not supported on
-   * Opera. Therefore, settings will apply automatically to both orientations.
+   * This is an alternative (CSS-ish) way to configure scroll bars on
+   * a container widget, compared to wrapping inside a WScrollArea.
    *
    * Unlike WScrollArea, horizontal scrolling does not work reliably
    * when the container widget is inserted in a layout manager: the
    * layout manager will overflow rather than use scrollbars for this
-   * container widget. A solution there is to use WScrollArea instead.
+   * container widget. A solution then is to use WScrollArea instead.
    *
    * \sa WScrollArea
    */
