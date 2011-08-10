@@ -118,9 +118,8 @@ WWidget *Home::initHome()
 
     const Lang& l = languages[i];
 
-    WAnchor *a = new WAnchor(WLink(WLink::InternalPath, l.path_),
-			     WString::fromUTF8(l.longDescription_),
-			     languagesDiv);
+    new WAnchor(WLink(WLink::InternalPath, l.path_),
+		WString::fromUTF8(l.longDescription_), languagesDiv);
   }
 
   WStackedWidget *contents = new WStackedWidget();
@@ -186,6 +185,9 @@ void Home::setLanguage(int index)
     std::string langPath = l.path_;
     mainMenu_->setInternalBasePath(langPath);
     examplesMenu_->setInternalBasePath(langPath + "examples");
+    BlogView *blog = dynamic_cast<BlogView *>(findWidget("blog"));
+    if (blog)
+      blog->setInternalBasePath(langPath + "blog/");
     updateTitle();
 
     language_ = index;
@@ -252,7 +254,11 @@ WWidget *Home::introduction()
 
 WWidget *Home::blog()
 {
-  BlogView *blog = new BlogView("/blog/", appRoot() + "blog.db", "/wt/blog/feed/");
+  const Lang& l = languages[language_];
+  std::string langPath = l.path_;
+  BlogView *blog = new BlogView(langPath + "blog/",
+				appRoot() + "blog.db", "/wt/blog/feed/");
+  blog->setObjectName("blog");
 
   if (!blog->user().empty())
     chatSetUser(blog->user());

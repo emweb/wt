@@ -18,7 +18,11 @@ namespace Wt {
 
 WLink::WLink()
   : type_(Url)
-{ }
+{ 
+#ifdef WT_TARGET_JAVA
+  setUrl("");
+#endif
+}
 
 WLink::WLink(const char *url)
 { 

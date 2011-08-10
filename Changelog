@@ -8,6 +8,9 @@
 
 	* WTreeTable: throw exception on contract abuse
 
+	* examples/wt-homepage: Russian translation contributed by Dmitriy
+	Igrishin
+
 09-08-2011:
 	* Wt.js: fix z-index for drag widget (#927)
 

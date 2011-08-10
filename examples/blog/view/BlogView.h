@@ -21,6 +21,8 @@ public:
   BlogView(const std::string& basePath, const std::string& sqliteDb,
 	   const std::string& rssFeedUrl, Wt::WContainerWidget *parent = 0);
 
+  void setInternalBasePath(const std::string& basePath);
+
   Wt::WString user();
   void login(const std::string& user);
   void logout();

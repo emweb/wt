@@ -85,6 +85,11 @@ public:
 
   BlogSession& session() { return session_; }
 
+  void setInternalBasePath(const std::string& basePath) {
+    basePath_ = basePath;
+    refresh();
+  }
+
   ~BlogImpl() {
     clear();
   }
@@ -673,6 +678,11 @@ BlogView::BlogView(const std::string& basePath, const std::string& sqliteDb,
 {
   impl_ = new BlogImpl(basePath, sqliteDb, rssFeedUrl, this);
   setImplementation(impl_);
+}
+
+void BlogView::setInternalBasePath(const std::string& basePath)
+{
+  impl_->setInternalBasePath(basePath);
 }
 
 WString BlogView::user()

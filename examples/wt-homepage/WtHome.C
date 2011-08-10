@@ -29,6 +29,7 @@ WtHome::WtHome(const WEnvironment& env)
 {
   addLanguage(Lang("en", "/", "en", "English"));
   addLanguage(Lang("cn", "/cn/", "汉语", "中文 (Chinese)"));
+  addLanguage(Lang("ru", "/ru/", "ру", "Русский (Russian)"));
 
   char* wtExamplePath  = getenv("WT_EXAMPLE_PATH");
   if (wtExamplePath)
