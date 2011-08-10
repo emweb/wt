@@ -19,6 +19,7 @@
 #include <Wt/WText>
 #include <Wt/WTreeView>
 #include <Wt/WTable>
+#include <Wt/WRegExp>
 #include <Wt/Ext/ComboBox>
 #include <iostream>
 using namespace Wt;
@@ -74,6 +75,19 @@ WWidget *MvcWidgets::models()
   topic("WAbstractItemModel", "WStandardItemModel", "WStringListModel", result);
   addText(tr("mvc-models"), result);
   return result;
+}
+
+void MvcWidgets::changeRegexp()
+{
+  WString regexp = regexpFilter->text();
+
+  if (WRegExp(regexp).isValid()) {
+    filteredCocktails->setFilterRegExp(regexp);
+    filteredSortedCocktails->setFilterRegExp(regexp);
+    regexpFilter->removeStyleClass("Wt-invalid");
+  } else {
+    regexpFilter->addStyleClass("Wt-invalid");
+  }
 }
 
 WWidget *MvcWidgets::proxyModels()

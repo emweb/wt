@@ -27,6 +27,7 @@ IF(ENABLE_SQLITE)
   SET(TEST_SOURCES ${TEST_SOURCES}
     dbo/DboTest.C
     dbo/DboTest2.C
+    dbo/Benchmark.C
     private/DboImplTest.C
   )
 

@@ -90,11 +90,11 @@ WMessageResources::keys(WFlags<WMessageResourceBundle::Scope> scope) const
   KeyValuesMap::const_iterator it;
 
   if (scope & WMessageResourceBundle::Local)
-    for (it = local_.begin() ; it != local_.end(); it++)
+    for (it = local_.map_.begin() ; it != local_.map_.end(); it++)
       keys.insert((*it).first);
 
   if (scope & WMessageResourceBundle::Default)
-    for (it = defaults_.begin() ; it != defaults_.end(); it++)
+    for (it = defaults_.map_.begin() ; it != defaults_.map_.end(); it++)
       keys.insert((*it).first);
 
   return keys;
@@ -103,10 +103,10 @@ WMessageResources::keys(WFlags<WMessageResourceBundle::Scope> scope) const
 void WMessageResources::refresh()
 {
   if (!path_.empty()) {
-    defaults_.clear();
+    defaults_.map_.clear();
     readResourceFile("", defaults_);
 
-    local_.clear();
+    local_.map_.clear();
     WApplication *app = WApplication::instance();
     std::string locale = app ? app->locale() : std::string();
 
@@ -130,8 +130,8 @@ void WMessageResources::refresh()
 void WMessageResources::hibernate()
 {
   if (!loadInMemory_) {
-    defaults_.clear();
-    local_.clear();
+    defaults_.map_.clear();
+    local_.map_.clear();
     loaded_ = false;
   }
 }
@@ -143,16 +143,16 @@ bool WMessageResources::resolveKey(const std::string& key, std::string& result)
 
   KeyValuesMap::const_iterator j;
 
-  j = local_.find(key);
-  if (j != local_.end()) {
+  j = local_.map_.find(key);
+  if (j != local_.map_.end()) {
     if (j->second.size() > 1 )
       return false;
     result = j->second[0];
     return true;
   }
 
-  j = defaults_.find(key);
-  if (j != defaults_.end()) {
+  j = defaults_.map_.find(key);
+  if (j != defaults_.map_.end()) {
     if (j->second.size() > 1 )
       return false;
     result = j->second[0];
@@ -163,13 +163,14 @@ bool WMessageResources::resolveKey(const std::string& key, std::string& result)
 }
 
 std::string WMessageResources::findCase(const std::vector<std::string> &cases, 
+					std::string pluralExpression,
 					::uint64_t amount)
 {
-  int c = Utils::calculatePluralCase(pluralExpression_, amount);
+  int c = Utils::calculatePluralCase(pluralExpression, amount);
 
   if (c > (int)cases.size() - 1 || c < 0) {
     SStream error;
-    error << "Expression '" << pluralExpression_ << "' evaluates to '" 
+    error << "Expression '" << pluralExpression << "' evaluates to '" 
 	  << c << "' for n=" << boost::lexical_cast<std::string>(amount);
     
     if (c < 0) 
@@ -193,19 +194,19 @@ bool WMessageResources::resolvePluralKey(const std::string& key,
 
   KeyValuesMap::const_iterator j;
 
-  j = local_.find(key);
-  if (j != local_.end()) {
-    if (j->second.size() != pluralCount_ )
+  j = local_.map_.find(key);
+  if (j != local_.map_.end()) {
+    if (j->second.size() != local_.pluralCount_ )
       return false;
-    result = findCase(j->second, amount);
+    result = findCase(j->second, local_.pluralExpression_, amount);
     return true;
   }
 
-  j = defaults_.find(key);
-  if (j != defaults_.end()) {
-    if (j->second.size() != pluralCount_)
+  j = defaults_.map_.find(key);
+  if (j != defaults_.map_.end()) {
+    if (j->second.size() != defaults_.pluralCount_)
       return false;
-    result = findCase(j->second, amount);
+    result = findCase(j->second, defaults_.pluralExpression_, amount);
     return true;
   }
 
@@ -213,21 +214,21 @@ bool WMessageResources::resolvePluralKey(const std::string& key,
 }
 
 bool WMessageResources::readResourceFile(const std::string& locale,
-				         KeyValuesMap& valueMap)
+				         Resource& resource)
 {
   if (!path_.empty()) {
     std::string fileName
       = path_ + (locale.length() > 0 ? "_" : "") + locale + ".xml";
 
     std::ifstream s(fileName.c_str(), std::ios::binary);
-    return readResourceStream(s, valueMap, fileName);
+    return readResourceStream(s, resource, fileName);
   } else {
     return false;
   }
 }
 
 bool WMessageResources::readResourceStream(std::istream &s,
-					   KeyValuesMap& valueMap,
+					   Resource& resource,
                                            const std::string &fileName)
 {
   if (!s)
@@ -337,11 +338,11 @@ bool WMessageResources::readResourceStream(std::istream &s,
       throw parse_error("Expected 'nplurals' attribute in <messages>",
 			x_root->value());
     if (x_nplurals && x_plural) {
-      pluralCount_ = attributeValueToInt(x_nplurals);
-      pluralExpression_ 
+      resource.pluralCount_ = attributeValueToInt(x_nplurals);
+      resource.pluralExpression_ 
 	= std::string(x_plural->value(), x_plural->value_size());
     } else {
-      pluralCount_ = 0;
+      resource.pluralCount_ = 0;
     }
 
     // factor 2 in case we expanded <span/> to <span></span>
@@ -361,40 +362,40 @@ bool WMessageResources::readResourceStream(std::istream &s,
 
       xml_node<> *x_plural = x_message->first_node("plural");
       if (x_plural) {
-	if (pluralCount_ == 0)
+	if (resource.pluralCount_ == 0)
 	  throw parse_error("Expected 'nplurals' attribute in <message>",
 			    x_plural->value());
 
-	valueMap[id] = std::vector<std::string>();
-	valueMap[id].reserve(pluralCount_);
+	resource.map_[id] = std::vector<std::string>();
+	resource.map_[id].reserve(resource.pluralCount_);
 	
 	std::vector<bool> visited;
-	visited.reserve(pluralCount_);
+	visited.reserve(resource.pluralCount_);
 	
-	for (unsigned i = 0; i < pluralCount_; i++) {
-	  valueMap[id].push_back(std::string());
+	for (unsigned i = 0; i < resource.pluralCount_; i++) {
+	  resource.map_[id].push_back(std::string());
 	  visited.push_back(false);
 	}
 	
 	for (; x_plural; x_plural = x_plural->next_sibling("plural")) {
 	  xml_attribute<> *x_case = x_plural->first_attribute("case");
 	  int c = attributeValueToInt(x_case);
-	  if (c >= (int)pluralCount_)
+	  if (c >= (int)resource.pluralCount_)
 	    throw parse_error("The attribute 'case' used in <plural> is greater"
 			      " than the nplurals <messages> attribute.", 
 			      x_plural->value());
 	  visited[c] = true;
-	  valueMap[id][c] = readElementContent(x_plural, buf);
+	  resource.map_[id][c] = readElementContent(x_plural, buf);
 	}
 
-	for (unsigned i = 0; i < pluralCount_; i++)
+	for (unsigned i = 0; i < resource.pluralCount_; i++)
 	  if (!visited[i])
 	    throw parse_error("Missing plural case in <message>", 
 			      x_message->value());
       } else {
-	valueMap[id] = std::vector<std::string>();
-	valueMap[id].reserve(1);
-	valueMap[id].push_back(readElementContent(x_message, buf));
+	resource.map_[id] = std::vector<std::string>();
+	resource.map_[id].reserve(1);
+	resource.map_[id].push_back(readElementContent(x_message, buf));
       }
     }
   } catch (parse_error& e) {

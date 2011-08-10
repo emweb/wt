@@ -29,6 +29,12 @@ namespace Wt {
  * href="http://www.jplayer.org/latest/developer-guide/#reference-html5-media">
  * HTML5 browser media support</a>.
  *
+ * You need to specify the encoding types you are going to use when
+ * instantiating the media player, since based on the chosen
+ * encodings, a particular suitable implementation will be used. Thus,
+ * you need to call addSource() immediately, but you may pass empty
+ * URLs if you do not yet want to load media.
+ *
  * The player provides a user-interface to control the playback which
  * may be freely customized, and which is independent of the
  * underlying media technology (HTML video or Flash player). The
@@ -235,6 +241,9 @@ public:
    *
    * Adds a media source. The source may be specified as a URL or as a
    * dynamic resource.
+   *
+   * You may pass a null \p link if you want to indicate the media types
+   * you will use (later) without already loading data.
    */
   void addSource(Encoding encoding, const WLink& link);
 

@@ -45,18 +45,22 @@ private:
   bool loaded_;
   const std::string path_;
 
-  KeyValuesMap local_;
-  KeyValuesMap defaults_;
+  struct Resource {
+    KeyValuesMap map_;
+    std::string pluralExpression_;
+    unsigned pluralCount_;
+  };
 
-  bool readResourceFile(const std::string& locale, KeyValuesMap& valueMap);
-  bool readResourceStream(std::istream &s, KeyValuesMap& valueMap,
+  Resource local_;
+  Resource defaults_;
+
+  bool readResourceFile(const std::string& locale, Resource& resource);
+  bool readResourceStream(std::istream &s, Resource& resource,
                           const std::string &fileName);
 
-  std::string findCase(const std::vector<std::string> &cases, 
+  std::string findCase(const std::vector<std::string> &cases,
+		       std::string pluralExpression,
 		       ::uint64_t amount);
-
-  std::string pluralExpression_;
-  unsigned pluralCount_;
 };
 
 }

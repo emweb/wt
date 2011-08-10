@@ -5,4 +5,9 @@
     <plural case="0">{1} file</plural>
     <plural case="1">{1} files</plural>
   </message>
+
+  <message id="programmer">
+        <plural case="0">{1} programmer</plural>
+        <plural case="1">{1} programmers</plural>
+  </message>
 </messages>

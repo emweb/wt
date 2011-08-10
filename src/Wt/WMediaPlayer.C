@@ -420,8 +420,12 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
     ss << "{";
 
+    bool first = true;
     for (unsigned i = 0; i < media_.size(); ++i) {
-      if (i != 0)
+      if (media_[i].link.isNull())
+	continue;
+
+      if (!first)
 	ss << ",";
       ss << mediaNames[media_[i].encoding] << ": "
 	 << WWebWidget::jsStringLiteral(media_[i].link.url());

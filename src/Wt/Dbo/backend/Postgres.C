@@ -379,8 +379,7 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    std::string v;
-    v = PQgetvalue(result_, row_, column);
+    std::string v = PQgetvalue(result_, row_, column);
 
     if (type == SqlDate)
       *value = boost::posix_time::ptime(boost::gregorian::from_string(v),
@@ -399,8 +398,7 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    std::string v;
-    v = PQgetvalue(result_, row_, column);
+    std::string v = PQgetvalue(result_, row_, column);
 
     *value = boost::posix_time::time_duration
       (boost::posix_time::duration_from_string(v));

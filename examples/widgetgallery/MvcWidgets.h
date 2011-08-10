@@ -46,10 +46,7 @@ private:
   void comboBoxAdd();
 #endif
 
-  void changeRegexp() {
-    filteredCocktails->setFilterRegExp(regexpFilter->text());
-    filteredSortedCocktails->setFilterRegExp(regexpFilter->text());
-  }
+  void changeRegexp();
 };
 
 #endif

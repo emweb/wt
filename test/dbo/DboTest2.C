@@ -95,7 +95,7 @@ struct Dbo2Fixture
 
 #ifdef POSTGRES
     connection_ = new dbo::backend::Postgres
-      ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
+      ("user=test password=test port=5432 dbname=test");
 #endif // POSTGRES
 
     connection_->setProperty("show-queries", "true");

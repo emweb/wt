@@ -27,4 +27,6 @@ BOOST_AUTO_TEST_CASE( standarditems_test1 )
   BOOST_REQUIRE(model->rowCount() == 2);
 
   model->clear();
+
+  delete model;
 }

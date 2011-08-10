@@ -56,6 +56,14 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )
   welcome = Wt::WString::tr("welcome-text").arg("Joske").toUTF8();
   BOOST_REQUIRE(welcome == 
 		"Welkom beste bezoeker, Joske van de WFooBar magic website !");
+
+  std::string programmer = Wt::WString::tr("programmer").toUTF8();
+  BOOST_REQUIRE(programmer == "Programmer");
+
+  app.setLocale("pl");
+  welcome = Wt::WString::tr("welcome-text").arg("Joske").toUTF8();
+  BOOST_REQUIRE(welcome == 
+		"Welcome dear visiter, Joske of the WFooBar magic website !");
 }
 
 BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException1 )
@@ -96,6 +104,10 @@ BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundle1 )
 
   BOOST_REQUIRE(Wt::WString::tr("welcome").toUTF8() == "??welcome??");
 
+  BOOST_REQUIRE(trn("programmer", 0) == "0 programmers");
+  BOOST_REQUIRE(trn("programmer", 1) == "1 programmer");
+  BOOST_REQUIRE(trn("programmer", 6) == "6 programmers");
+
   app.setLocale("pl");
   
   BOOST_REQUIRE(trn("file", 0) == "0 pliko'w");
@@ -106,6 +118,22 @@ BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundle1 )
   BOOST_REQUIRE(trn("file", 26) == "26 pliko'w");
 
   BOOST_REQUIRE(Wt::WString::tr("welcome").toUTF8() == "??welcome??");
+
+  BOOST_REQUIRE(trn("programmer", 0) == "0 programmers");
+  BOOST_REQUIRE(trn("programmer", 1) == "1 programmer");
+  BOOST_REQUIRE(trn("programmer", 6) == "6 programmers");
+
+  app.setLocale("nl");
+
+  BOOST_REQUIRE(trn("file", 0) == "0 files");
+  BOOST_REQUIRE(trn("file", 1) == "1 file");
+  BOOST_REQUIRE(trn("file", 6) == "6 files");
+
+  BOOST_REQUIRE(Wt::WString::tr("welcome").toUTF8() == "??welcome??");
+
+  BOOST_REQUIRE(trn("programmer", 0) == "0 programmers");
+  BOOST_REQUIRE(trn("programmer", 1) == "1 programmer");
+  BOOST_REQUIRE(trn("programmer", 6) == "6 programmers");
 }
 
 BOOST_AUTO_TEST_CASE( I18n_findCaseException1 )
