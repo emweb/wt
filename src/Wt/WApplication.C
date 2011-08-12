@@ -40,6 +40,8 @@ namespace skeletons {
 
 namespace Wt {
 
+const WtLibVersion WT_INCLUDED_VERSION = WtLibVersion();
+
 const char *WApplication::RESOURCES_URL = "resourcesURL";
 
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
@@ -69,7 +71,11 @@ bool WApplication::ScriptLibrary::operator== (const ScriptLibrary& other) const
   return uri == other.uri;
 }
 
-WApplication::WApplication(const WEnvironment& env)
+WApplication::WApplication(const WEnvironment& env
+#if !(defined(DOXYGEN_ONLY) || defined(WT_TARGET_JAVA))
+			   , WtLibVersion version
+#endif
+)
   : session_(env.session_),
 #ifndef WT_CNOR
     weakSession_(session_->shared_from_this()),

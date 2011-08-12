@@ -205,7 +205,12 @@ public:
    * The \p environment provides information on the initial request,
    * user agent, and deployment-related information.
    */
+#if defined(DOXYGEN_ONLY) || defined(WT_TARGET_JAVA) 
   WApplication(const WEnvironment& environment);
+#else
+  WApplication(const WEnvironment& environment,
+	       WtLibVersion version = WT_INCLUDED_VERSION);
+#endif
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Destructor.

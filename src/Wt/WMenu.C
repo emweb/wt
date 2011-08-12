@@ -252,7 +252,7 @@ void WMenu::itemPathChanged(WMenuItem *item)
     WApplication *app = wApp;
 
     if (app->internalPathMatches(basePath_ + item->pathComponent()))
-      select(indexOf(item), false);
+      item->setFromInternalPath(app->internalPath());
   }
 }
 
@@ -466,7 +466,7 @@ void WMenu::internalPathChanged(const std::string& path)
       items_[bestI]->setFromInternalPath(path);
     else {
       if (!subPath.empty())
-	wApp->log("error") << "WMenu: unknown path: '"<< subPath << "'";
+	wApp->log("warn") << "WMenu: unknown path: '"<< subPath << "'";
       else
 	select(-1, false);
     }

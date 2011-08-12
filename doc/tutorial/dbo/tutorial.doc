@@ -1158,8 +1158,7 @@ The minimum level of isolation which is required for the library's
 _optimistic locking_ strategy is _Read Committed_: modifications in a
 transaction are only visible to other sessions as soon as they are
 committed. This is usually the lowest level of isolation supported by
-a database (SQLite3 is currently the only backend and provides this
-isolation level by default).
+a database.
 
 The +Transaction+ class is a light-weight proxy that references a
 _logical_ transaction: multiple (usually nested) Transaction objects
@@ -1192,3 +1191,30 @@ least need to
 +{doc}classWt_1_1Dbo_1_1ptr.html#abb1db71ef910748437d69bf11a04eb6e[reread()]+
 the stale database object(s) before being able to commit changes made
 in a new transaction.
+
+== Installing +Wt::Dbo+
+
++Wt::Dbo+ is included in Wt, and can thus be installed as part of this
+library for which there may be standard packages availabe for your
+operating system.
+
+The library does however in no way depend on Wt, and can also be
+built, installed and used separately from it. Starting from a Wt
+source package (and on in a UNIX-like environment), you would do the
+following to build and install only +Wt::Dbo+:
+
+.Installing +Wt::Dbo+ from source (UNIX-like)
+[source,sh]
+----
+$ cd wt-xxx
+$ mkdir build
+$ cd build
+$ cmake ../ # extra options may be needed for locating boost, postgres, install directory, ...
+$ cd src/Wt/Dbo
+$ make
+$ sudo make install
+----
+
+See also the
+http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html[Wt
+installation instructions].

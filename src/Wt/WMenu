@@ -288,6 +288,8 @@ public:
    *
    * Select the menu item \p item.
    *
+   * When \p item is \c 0, the current selection is removed.
+   *
    * \sa select(int), currentItem(), WMenuItem::select()
    */
   void select(WMenuItem *item);
@@ -296,6 +298,8 @@ public:
    *
    * Menu items in a menu with \p N items are numbered from 0 to
    * \p N - 1.
+   *
+   * Using a value of -1 removes the current selection.
    *
    * \sa select(WMenuItem *), currentIndex()
    */
