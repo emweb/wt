@@ -25,7 +25,7 @@
 #include "FCGIStream.h"
 #include "Server.h"
 #include "SessionInfo.h"
-#include "WebController.h"
+#include "WebMain.h"
 
 #include "Wt/WResource"
 #include "Wt/WServer"
@@ -703,17 +703,15 @@ void Server::handleRequest(int serverSocket)
  */
 
 static std::string socketPath;
-static WebController *theController = 0;
+static WebMain *webMain = 0;
 
 static void doShutdown(const char *signal)
 {
   unlink(socketPath.c_str());
-  if (theController) {
-    theController->configuration().log("notice") << "Caught " << signal;
-    theController->forceShutdown();
+  if (webMain) {
+    webMain->controller().configuration().log("notice") << "Caught " << signal;
+    webMain->shutdown();
   }
-
-  exit(0);
 }
 
 static void handleSigTerm(int)
@@ -738,14 +736,14 @@ void runSession(Configuration& conf, WServer *server, std::string sessionId)
 
   try {
     FCGIStream fcgiStream;
-    WebController controller(conf, server, &fcgiStream, sessionId);
-    theController = &controller;
+    WebMain requestServer(conf, server, &fcgiStream, sessionId);
+    webMain = &requestServer;
 
-    controller.run();
+    requestServer.run();
 
     sleep(1);
 
-    theController = 0;
+    webMain = 0;
 
     unlink(socketPath.c_str());
   } catch (std::exception& e) {
@@ -774,12 +772,12 @@ void startSharedProcess(Configuration& conf, WServer *server)
 
   try {
     FCGIStream fcgiStream;
-    WebController controller(conf, server, &fcgiStream);
-    theController = &controller;
+    WebMain requestServer(conf, server, &fcgiStream);
+    webMain = &requestServer;
 
-    controller.run();
+    requestServer.run();
 
-    theController = 0;
+    webMain = 0;
 
     unlink(socketPath.c_str());
   } catch (std::exception& e) {
@@ -808,6 +806,10 @@ struct WServerImpl {
       relayServer_(0),
       running_(false)
   { }
+
+  ~WServerImpl() {
+    delete configuration_;
+  }
 
   std::string applicationPath_;
   std::string configurationFile_;
@@ -944,22 +946,31 @@ void WServer::addResource(WResource *resource, const std::string& path)
 
 void WServer::handleRequest(WebRequest *request)
 {
-  theController->handleRequest(request);
+  webMain->controller().handleRequest(request);
 }
 
-void WServer::post(const boost::function<void ()>& function)
+void WServer::schedule(int milliSeconds,
+		       const boost::function<void ()>& function)
 {
-  theController->post(function);
+  webMain->schedule(milliSeconds, function);
 }
 
 void WServer::post(const std::string& sessionId,
 		   const boost::function<void ()>& function,
                    const boost::function<void ()>& fallbackFunction)
 {
+  schedule(0, sessionId, function, fallbackFunction);
+}
+
+void WServer::schedule(int milliSeconds,
+		       const std::string& sessionId,
+		       const boost::function<void ()>& function,
+		       const boost::function<void ()>& fallbackFunction)
+{
   ApplicationEvent event(sessionId, function, fallbackFunction);
 
-  post(boost::bind(&WebController::handleApplicationEvent,
-		   theController, event));
+  schedule(milliSeconds, boost::bind(&WebController::handleApplicationEvent,
+				     &webMain->controller(), event));
 }
 
 std::string WServer::appRoot() const

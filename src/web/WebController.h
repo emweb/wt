@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WEBCONTROLLER_H_
-#define WEBCONTROLLER_H_
+#ifndef WT_WEB_CONTROLLER_H_
+#define WT_WEB_CONTROLLER_H_
 
 #include <string>
 #include <vector>
@@ -13,6 +13,7 @@
 #include <map>
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WDateTime>
 #include <Wt/WSocketNotifier>
 
 #include "SocketNotifier.h"
@@ -56,14 +57,11 @@ struct ApplicationEvent {
 #endif
 
 /*
- * The controller is a singleton class
+ * The controller handle incoming request, in handleRequest().
+ * Optionally, it will expire session on each incoming request. Seems
+ * harmless to me (but causes confusion to others).
  *
- * It either listens for incoming requests from a webstream, using run(),
- * or it may be used to handle an incoming request, using handleRequest().
- * In the latter case, sessions will only expire with a delay -- at the
- * next request. Seems harmless to me (but causes confusion to others).
- *
- * There is a method forceShutDown() to quit the controller.
+ * There is a method shutdown() to quit the controller.
  *
  * It has the following tasks:
  *  - handle session life-cycle: create new sessions, delete quit()ed
@@ -86,11 +84,10 @@ public:
    * streams.
    */
   WebController(Configuration& configuration, WAbstractServer *server,
-		WebStream *stream, std::string singleSessionId = std::string());
-
+		const std::string& singleSessionId = std::string(),
+		bool autoExpire = true);
   ~WebController();
 
-  void run();
   int sessionCount() const;
 
   // Returns whether we should continue receiving data.
@@ -101,11 +98,10 @@ public:
 
 #ifndef WT_CNOR
   bool handleApplicationEvent(const ApplicationEvent& event);
-  void post(const boost::function<void()>& function);
 #endif // WT_CNOR
 
   bool expireSessions();
-  void forceShutdown();
+  void shutdown();
 
   static std::string sessionFromCookie(std::string cookies,
 				       std::string scriptName,
@@ -122,16 +118,16 @@ public:
   // returns false if removeSocketNotifier was called while processing
   void socketSelected(int descriptor, WSocketNotifier::Type type);
 
-  std::string switchSession(WebSession *session, const std::string& newSessionId);
+  std::string switchSession(WebSession *session,
+			    const std::string& newSessionId);
   std::string generateNewSessionId(boost::shared_ptr<WebSession> session);
 
   WAbstractServer *server_;
 
 private:
-  Configuration&   conf_;
-  WebStream       *stream_;
-  std::string      singleSessionId_;
-  bool             running_;
+  Configuration& conf_;
+  std::string singleSessionId_;
+  bool autoExpire_;
 
 #ifdef WT_THREADED
   boost::mutex uploadProgressUrlsMutex_;
@@ -140,8 +136,6 @@ private:
 
   typedef std::map<std::string, boost::shared_ptr<WebSession> > SessionMap;
   SessionMap sessions_;
-
-  bool shutdown_;
 
 #ifdef WT_THREADED
   SocketNotifier socketNotifier_;
@@ -158,12 +152,8 @@ private:
 
   // mutex to protect access to the sessions map.
   boost::recursive_mutex mutex_;
-
-  boost::threadpool::pool threadPool_;
 #endif
 
-  void handleAsyncRequest(WebRequest *request);
-  void handleRequestThreaded(WebRequest *request);
   void updateResourceProgress(WebRequest *request,
 			      boost::uintmax_t current,
 			      boost::uintmax_t total);
@@ -177,4 +167,4 @@ private:
 
 }
 
-#endif // WEBCONTROLLER_H_
+#endif // WT_WEB_CONTROLLER_H_

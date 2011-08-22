@@ -321,6 +321,7 @@ private:
   bool start();
 
   std::string sessionQuery() const;
+  void flushBootStyleResponse();
 
   friend class WebSocketMessage;
   friend class WebRenderer;

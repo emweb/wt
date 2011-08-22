@@ -69,8 +69,8 @@ public:
   /// Assumes accept sockets have been closed and reopens them.
   void resume();
 
-  /// Posts an event to the thread pool
-  void post(const boost::function<void ()>& function);
+  /// Schedules or posts an event to the thread pool
+  void schedule(int milliSeconds, const boost::function<void ()>& function);
 
   /// Returns the http port number.
   int httpPort() const;
@@ -106,8 +106,8 @@ private:
   /// The strand for handleTcpAccept(), handleSslAccept() and handleStop()
   asio::strand accept_strand_;
 
-  /// The strand for post()
-  asio::strand post_strand_;
+  /// The strand for schedule()
+  // asio::strand schedule_strand_;
 
   /// Acceptor used to listen for incoming http connections.
   asio::ip::tcp::acceptor tcp_acceptor_;
@@ -121,6 +121,10 @@ private:
 
   /// Handle completion of an asynchronous SSL accept operation.
   void handleSslAccept(const asio_error_code& e);
+
+  void handleTimeout(asio::deadline_timer *timer,
+		     const boost::function<void ()>& function,
+		     const asio_error_code& err);
 
   /// The next SSL connection to be accepted.
   SslConnectionPtr new_sslconnection_;

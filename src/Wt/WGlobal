@@ -843,7 +843,7 @@ enum EventType {
  */
 enum LayoutDirection {
   LeftToRight, //!< Left-to-Right (Western and other languages)
-  RightToLeft  //<! Right-to-Left (Many Middle Eastern and Arabic languages)
+  RightToLeft  //!< Right-to-Left (Many Middle Eastern and Arabic languages)
 };
 
 }

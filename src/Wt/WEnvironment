@@ -609,6 +609,7 @@ private:
   WEnvironment(WebSession *session);
 
   void init(const WebRequest& request);
+  void enableAjax(const WebRequest& request);
 
   std::string parsePreferredAcceptValue(const std::string& value);
   void        parseCookies(const std::string& value);

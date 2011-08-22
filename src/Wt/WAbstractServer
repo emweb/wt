@@ -25,7 +25,14 @@ public:
 #ifndef WT_CNOR
   virtual void post(const std::string& sessionId,
                     const boost::function<void ()>& function,
-                    const boost::function<void ()>& fallBackFunction = boost::function<void ()>()) = 0;
+                    const boost::function<void ()>& fallBackFunction
+		      = boost::function<void ()>()) = 0;
+
+  virtual void schedule(int milliSeconds,
+			const std::string& sessionId,
+			const boost::function<void ()>& function,
+			const boost::function<void ()>& fallBackFunction
+			  = boost::function<void ()>()) = 0;
 #endif // WT_CNOR
 
 protected:

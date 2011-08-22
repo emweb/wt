@@ -296,6 +296,12 @@ public:
                     const boost::function<void ()>& fallbackFunction
 		      = boost::function<void ()>());
 
+  virtual void schedule(int milliSeconds,
+			const std::string& sessionId,
+			const boost::function<void ()>& function,
+			const boost::function<void ()>& fallbackFunction
+			= boost::function<void ()>());
+
   /*! \brief Returns the server instance.
    *
    * Returns the single server instance. This may be useful when using
@@ -324,7 +330,7 @@ public:
 private:
   WServerImpl *impl_;
 
-  void post(const boost::function<void ()>& function);
+  void schedule(int milliSeconds, const boost::function<void ()>& function);
 };
 
 }

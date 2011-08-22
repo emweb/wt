@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <memory>
+#include <stdexcept>
 #include "Wt/WRandom"
 
 #ifdef WT_NO_BOOST_RANDOM
@@ -56,7 +58,10 @@ namespace {
 #endif
   };
 
+#ifdef WT_THREADED
   boost::mutex randomInstanceMutex;
+#endif // WT_THREADED
+
   std::auto_ptr<RandomDevice> instance;
 }
 

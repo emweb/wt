@@ -8,8 +8,7 @@
 
 namespace Wt {
 
-WebStream::WebStream(bool multithreaded)
-  : multiThreaded_(multithreaded)
+WebStream::WebStream()
 { }
 
 WebStream::~WebStream()

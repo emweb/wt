@@ -439,6 +439,8 @@ public:
   const WString& title() const { return title_; }
 
   /*! \brief Returns the close message.
+   *
+   * \sa setConfirmCloseMessage()
    */
   const WString& closeMessage() const { return closeMessage_; }
 

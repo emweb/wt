@@ -46,18 +46,15 @@
 namespace Wt {
 
 WebController::WebController(Configuration& configuration,
-			     WAbstractServer *server, WebStream *stream,
-			     std::string singleSessionId)
+			     WAbstractServer *server,
+			     const std::string& singleSessionId,
+			     bool autoExpire)
   : server_(server),
     conf_(configuration),
-    stream_(stream),
     singleSessionId_(singleSessionId),
-    running_(false),
-    shutdown_(false)
+    autoExpire_(autoExpire)
 #ifdef WT_THREADED
-  , socketNotifier_(this),
-    threadPool_(conf_.serverType() == Configuration::WtHttpdServer
-		? 0 : conf_.numThreads())
+  , socketNotifier_(this)
 #endif // WT_THREADED
 {
   CgiParser::init();
@@ -67,16 +64,6 @@ WebController::WebController(Configuration& configuration,
 #ifdef HAVE_RASTER_IMAGE
   InitializeMagick(0);
 #endif
-
-  /*
-   * FastCGI + default bootstrap will not work with only 1 thread.
-   */
-  if (conf_.serverType() == Configuration::FcgiServer
-      && !conf_.progressiveBoot() && conf_.numThreads() == 1) {
-    conf_.log("fatal")
-      << "You need at least two threads configured in the config file, "
-         "when running Wt with FastCGI and using default bootstrap mode.";
-  }
 }
 
 WebController::~WebController()
@@ -86,15 +73,13 @@ WebController::~WebController()
 #endif
 }
 
-void WebController::forceShutdown()
+void WebController::shutdown()
 {
 #ifdef WT_THREADED
   boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
   conf_.log("notice") << "Shutdown: stopping sessions.";
-
-  shutdown_ = true;
 
   for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
     boost::shared_ptr<WebSession> session = i->second;
@@ -114,46 +99,6 @@ Configuration& WebController::configuration()
 int WebController::sessionCount() const
 {
   return sessions_.size();
-}
-
-void WebController::run()
-{
-  running_ = true;
-
-  WebRequest *request = stream_->getNextRequest(10);
-
-  if (request)
-    server_->handleRequest(request);
-  else
-    if (!singleSessionId_.empty()) {
-      running_ = false;
-      conf_.log("error") << "No initial request ?";
-      return;
-    }
-
-  for (;;) {
-    bool haveMoreSessions = expireSessions();
-
-    if (!haveMoreSessions && !singleSessionId_.empty()) {
-      conf_.log("notice") << "Dedicated session process exiting cleanly.";
-      break;
-    }
-
-    WebRequest *request = stream_->getNextRequest(5);
-
-    if (shutdown_) {
-      conf_.log("notice") << "Shared session server exiting cleanly.";
-#ifndef WIN32 // Not used in win32 anyway, fastcgi is not available
-      sleep(1000);
-#endif
-      break;
-    }
-
-    if (request)
-      handleRequestThreaded(request);
-  }
-
-  running_ = false;  
 }
 
 bool WebController::expireSessions()
@@ -213,31 +158,6 @@ void WebController::removeSession(const std::string& sessionId)
 std::string WebController::appSessionCookie(std::string url)
 {
   return Utils::urlEncode(url);
-}
-
-void WebController::handleRequestThreaded(WebRequest *request)
-{
-#ifdef WT_THREADED
-  if (stream_->multiThreaded()) {
-    threadPool_.schedule
-      (boost::bind(&WAbstractServer::handleRequest, server_, request));
-  } else
-    server_->handleRequest(request);
-#else
-    server_->handleRequest(request);
-#endif // WT_THREADED
-}
-
-void WebController::post(const boost::function<void()>& function)
-{
-#ifdef WT_THREADED
-  threadPool_.schedule(function);
-#else
-  // What to do? If we are handling a request we could queue the
-  // functions and then run them after the request. If not, we should
-  // invoke immediately.
-  function();
-#endif
 }
 
 std::string WebController::sessionFromCookie(std::string cookies,
@@ -482,7 +402,10 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
     WebSession::Handler handler(session, true);
 
     if (!session->dead()) {
-      session->app()->notify(WEvent(WEvent::Impl(event.function)));
+      if (session->app())
+	session->app()->notify(WEvent(WEvent::Impl(event.function)));
+      else
+	session->notify(WEvent(WEvent::Impl(event.function)));
       return true;
     } else {
       if (!event.fallbackFunction.empty())
@@ -511,11 +434,6 @@ void WebController::removeUploadProgressUrl(const std::string& url)
 }
 
 void WebController::handleRequest(WebRequest *request)
-{
-  handleAsyncRequest(request);
-}
-
-void WebController::handleAsyncRequest(WebRequest *request)
 {
   if (conf_.logTime())
     request->trackTime();
@@ -650,11 +568,11 @@ void WebController::handleAsyncRequest(WebRequest *request)
 
   session.reset();
 
-  if (!running_)
+  if (autoExpire_)
     expireSessions();
 
   if (!handled)
-    handleAsyncRequest(request);
+    handleRequest(request);
 }
 
 WApplication *WebController::doCreateApplication(WebSession *session)

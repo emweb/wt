@@ -16,7 +16,7 @@
 #include <exception>
 #include <vector>
 
-#include "WebController.h"
+#include "WebMain.h"
 
 #include "Wt/WResource"
 #include "Wt/WServer"
@@ -192,7 +192,7 @@ WLogEntry IsapiServer::log(const std::string& type)
 
 }
 
-static WebController *theController = 0;
+static WebMain *webMain = 0;
 
 struct WServerImpl {
   WServerImpl()
@@ -276,12 +276,12 @@ bool WServer::start()
 
   try {
     isapi::IsapiStream isapiStream(isapi::IsapiServer::instance());
-    WebController controller(*impl_->configuration(), this, &isapiStream);
-    theController = &controller;
+    WebMain requestServer(*impl_->configuration(), this, &isapiStream);
+    webMain = &requestServer;
 
-    controller.run();
+    requestServer.run();
 
-    theController = 0;
+    webMain = 0;
 
   } catch (std::exception& e) {
     impl_->configuration()->log("fatal")
@@ -312,7 +312,7 @@ void WServer::stop()
     std::cerr << "WServer::stop() error: server not yet started!" << std::endl;
     return;
   }
-  theController->forceShutdown();
+  webMain->shutdown();
 }
 
 int WServer::waitForShutdown(const char *restartWatchFile)
@@ -335,22 +335,30 @@ void WServer::addResource(WResource *resource, const std::string& path)
 
 void WServer::handleRequest(WebRequest *request)
 {
-  theController->handleRequest(request);
+  webMain->controller().handleRequest(request);
 }
 
-void WServer::post(const boost::function<void ()>& function)
+void WServer::schedule(const boost::function<void ()>& function)
 {
-  theController->post(function);
+  webMain->schedule(milliSeconds, function);
 }
 
 void WServer::post(const std::string& sessionId,
 		   const boost::function<void ()>& function,
 		   const boost::function<void ()>& fallbackFunction)
 {
+  schedule(0, sessionId, function, fallbackFunction);
+}
+
+void WServer::schedule(int milliSeconds,
+		       const std::string& sessionId,
+		       const boost::function<void ()>& function,
+		       const boost::function<void ()>& fallbackFunction)
+{
   ApplicationEvent event(sessionId, function, fallbackFunction);
 
-  post(boost::bind(&WebController::handleApplicationEvent,
-		   theController, event));
+  schedule(milliSeconds, boost::bind(&WebController::handleApplicationEvent,
+				     &webMain->controller(), event));
 }
 
 std::string WServer::appRoot() const

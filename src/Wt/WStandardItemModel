@@ -259,7 +259,7 @@ public:
    */
   WStandardItem *itemPrototype() const;
 
-  /*! \brief Returns the item prototype.
+  /*! \brief Sets the item prototype.
    *
    * Set the item that is cloned when an item needs to be created
    * because the model is manipulated through its WAbstractItemModel

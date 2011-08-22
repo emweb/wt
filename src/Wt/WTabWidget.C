@@ -121,6 +121,7 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
      "};");
 
   menu_->itemSelected().connect(this, &WTabWidget::onItemSelected);
+  menu_->itemClosed().connect(this, &WTabWidget::onItemClosed);
 }
 
 WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
@@ -280,6 +281,11 @@ void WTabWidget::setInternalBasePath(const std::string& path)
 void WTabWidget::onItemSelected(WMenuItem *item)
 {
   currentChanged_.emit(menu_->currentIndex());
+}
+
+void WTabWidget::onItemClosed(WMenuItem *item)
+{
+  closeTab(Utils::indexOf(menu_->items(), item));
 }
 
 WStackedWidget *WTabWidget::contentsStack() const

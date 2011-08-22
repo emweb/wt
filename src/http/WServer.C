@@ -32,7 +32,6 @@
 #include "Configuration.h"
 #include "../web/Configuration.h"
 #include "WebController.h"
-#include "HTTPStream.h"
 
 #ifdef ANDROID
 #include "Android.h"
@@ -110,7 +109,7 @@ struct WServerImpl {
 
       webController_
 	= new Wt::WebController(*wtConfiguration_,
-				const_cast<WServer *>(server), &stream_);
+				const_cast<WServer *>(server));
 
       serverConfiguration_
 	= new http::server::Configuration(wtConfiguration_->logger());
@@ -127,7 +126,6 @@ struct WServerImpl {
 
   std::string    applicationPath_, wtConfigurationFile_;
   Configuration *wtConfiguration_;
-  HTTPStream     stream_;
   WebController *webController_;
 
   http::server::Configuration *serverConfiguration_;
@@ -313,7 +311,7 @@ void WServer::stop()
 #ifdef WT_THREADED
   try {
     // Stop the Wt application server (cleaning up all sessions).
-    impl_->webController_->forceShutdown();
+    impl_->webController_->shutdown();
 
     // Stop the server.
     impl_->server_->stop();
@@ -374,19 +372,28 @@ void WServer::handleRequest(WebRequest *request)
   impl_->webController_->handleRequest(request);
 }
 
-void WServer::post(const boost::function<void ()>& function)
+void WServer::schedule(int milliSeconds,
+		       const boost::function<void ()>& function)
 {
-  impl_->server_->post(function);
+  impl_->server_->schedule(milliSeconds, function);
 }
 
 void WServer::post(const std::string& sessionId,
 		   const boost::function<void ()>& function,
-                   const boost::function<void ()>& fallbackFunction)
+		   const boost::function<void ()>& fallbackFunction)
+{
+  schedule(0, sessionId, function, fallbackFunction);
+}
+
+void WServer::schedule(int milliSeconds,
+		       const std::string& sessionId,
+		       const boost::function<void ()>& function,
+		       const boost::function<void ()>& fallbackFunction)
 {
   ApplicationEvent event(sessionId, function, fallbackFunction);
 
-  post(boost::bind(&WebController::handleApplicationEvent,
-		   impl_->webController_, event));
+  schedule(milliSeconds, boost::bind(&WebController::handleApplicationEvent,
+				     impl_->webController_, event));
 }
 
 int WServer::waitForShutdown(const char *restartWatchFile)

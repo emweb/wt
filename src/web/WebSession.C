@@ -187,10 +187,7 @@ WebSession::~WebSession()
   updatesPendingEvent_.notify_one();
 #endif // WT_BOOST_THREADS
 
-  if (bootStyleResponse_) {
-    bootStyleResponse_->flush();
-    bootStyleResponse_ = 0;
-  }
+  flushBootStyleResponse();
 
 #ifndef WT_TARGET_JAVA
   unlink(controller_->configuration().sessionSocketPath(sessionId_).c_str());
@@ -1087,9 +1084,6 @@ void WebSession::handleRequest(Handler& handler)
 	    /*
 	     * First start the application
 	     */
-	    env_->doesAjax_ = false;
-	    env_->doesCookies_ = false;
-
 	    try {
 	      std::string internalPath = env_->getCookie("WtInternalPath");
 	      env_->setInternalPath(internalPath);
@@ -1132,9 +1126,7 @@ void WebSession::handleRequest(Handler& handler)
 	    handler.response()->setResponseType(WebResponse::Script);
 
 	    init(request); // env, url/internalpath, initial query parameters
-	    env_->doesAjax_ = true;
-
-	    // FIXME html history support?
+	    env_->enableAjax(request);
 
 	    if (!start())
 	      throw WtException("Could not start application.");
@@ -1158,9 +1150,7 @@ void WebSession::handleRequest(Handler& handler)
 	  else if (*requestE == "script")
 	    handler.response()->setResponseType(WebResponse::Script);
 	  else if (*requestE == "style") {
-	    if (bootStyleResponse_)
-	      bootStyleResponse_->flush();
-	    bootStyleResponse_ = 0;
+	    flushBootStyleResponse();
 
 	    const std::string *jsE = request.getParameter("js");
 	    bool nojs = jsE && *jsE == "no";
@@ -1168,27 +1158,26 @@ void WebSession::handleRequest(Handler& handler)
 	    noBootStyleResponse_
 	      = noBootStyleResponse_ || (!app_ && (xhtml || nojs));
 
-#ifndef WT_TARGET_JAVA
 	    if (nojs || noBootStyleResponse_) {
 	      handler.response()->setContentType("text/css");
 	      handler.response()->flush();
 	      handler.setRequest(0, 0);
 	    } else {
-
+#ifndef WT_TARGET_JAVA
 	      if (!app_) {
 		bootStyleResponse_ = handler.response();
 		handler.setRequest(0, 0);
+
+		controller_->server_
+		  ->schedule(2000, sessionId_,
+			     boost::bind(&WebSession::flushBootStyleResponse,
+					 this));
 	      } else {
 		renderer_.serveLinkedCss(*handler.response());
 		handler.response()->flush();
 		handler.setRequest(0, 0);
 	      }
-	    }
 #else
-	    if (nojs || noBootStyleResponse_) {
-	      handler.response()->flush();
-	      handler.setRequest(0, 0);
-	    } else {
 	      /*
 	       * In Servlet2, we canont defer responding the request. So we
 	       * do a little spin lock here.
@@ -1212,8 +1201,8 @@ void WebSession::handleRequest(Handler& handler)
 
 	      handler.response()->flush();
 	      handler.setRequest(0, 0);
-	    }
 #endif // WT_TARGET_JAVA
+	    }
 
 	    break;
 	  }
@@ -1226,27 +1215,7 @@ void WebSession::handleRequest(Handler& handler)
 
 	  if (handler.response()->responseType() == WebResponse::Script) {
 	    if (!request.getParameter("skeleton")) {
-	      const std::string *hashE = request.getParameter("_");
-	      const std::string *scaleE = request.getParameter("scale");
-	      const std::string *htmlHistoryE
-		= request.getParameter("htmlHistory");
-
-	      env_->doesAjax_ = true;
-	      env_->doesCookies_ = !request.headerValue("Cookie").empty();
-	      if (!htmlHistoryE)
-		env_->hashInternalPaths_ = true;
-
-	      try {
-		env_->dpiScale_
-		  = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
-	      } catch (boost::bad_lexical_cast &e) {
-		env_->dpiScale_ = 1;
-	      }
-
-	      // the internal path, when present as an anchor (#), is only
-	      // conveyed in the second request
-	      if (hashE)
-		env_->setInternalPath(*hashE);
+	      env_->enableAjax(request);
 
 	      if (!start())
 		throw WtException("Could not start application.");
@@ -1337,6 +1306,14 @@ void WebSession::handleRequest(Handler& handler)
 
   if (handler.response())
     handler.response()->flush();
+}
+
+void WebSession::flushBootStyleResponse()
+{
+  if (bootStyleResponse_) {
+    bootStyleResponse_->flush();
+    bootStyleResponse_ = 0;
+  }
 }
 
 void WebSession::handleWebSocketRequest(Handler& handler)
@@ -1606,32 +1583,13 @@ void WebSession::notify(const WEvent& event)
   case WebSession::Loaded:
     if (handler.response()->responseType() == WebResponse::Script) {
       if (!request.getParameter("skeleton")) {
-	const std::string *hashE = request.getParameter("_");
-
-	if (!env_->doesAjax_) {
-	  // upgrade to AJAX -> this becomes a first update we may need
-	  // to replay this, so we cannot commit these changes until
-	  // we have received an ack for this.
-
-	  const std::string *scaleE = request.getParameter("scale");
-
-	  env_->doesAjax_ = true;
-	  env_->doesCookies_ = !request.headerValue("Cookie").empty();
-
-	  try {
-	    env_->dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE)
-	      : 1;
-	  } catch (boost::bad_lexical_cast &e) {
-	    env_->dpiScale_ = 1;
-	  }
-
-	  if (hashE)
-	    env_->setInternalPath(*hashE);
-
+	if (!env_->ajax()) {
+	  env_->enableAjax(request);
 	  app_->enableAjax();
 	  if (env_->internalPath().length() > 1)
 	    app_->changedInternalPath(env_->internalPath());
 	} else {
+	  const std::string *hashE = request.getParameter("_");
 	  if (hashE)
 	    app_->changedInternalPath(*hashE);
 	}
@@ -1800,10 +1758,7 @@ void WebSession::notify(const WEvent& event)
 	if (!signalE) {
 	  log("notice") << "Refreshing session";
 
-	  if (bootStyleResponse_) {
-	    bootStyleResponse_->flush();
-	    bootStyleResponse_ = 0;
-	  }
+	  flushBootStyleResponse();
 
 #ifndef WT_TARGET_JAVA
 	  // if we are persisting sessions, then we should make sure we
@@ -1930,7 +1885,7 @@ void WebSession::render(Handler& handler)
    */
 
   try {
-    if (!env_->doesAjax_)
+    if (!env_->ajax())
       try {
 	checkTimers();
       } catch (std::exception& e) {
@@ -1985,8 +1940,7 @@ void WebSession::serveResponse(Handler& handler)
       if (handler.response()->responseType() == WebResponse::Script
 	  && !handler.request()->getParameter("skeleton"))
 	renderer_.serveLinkedCss(*bootStyleResponse_);
-      bootStyleResponse_->flush();
-      bootStyleResponse_ = 0;
+      flushBootStyleResponse();
     }
 
     renderer_.serveResponse(*handler.response());

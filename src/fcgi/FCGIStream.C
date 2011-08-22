@@ -178,7 +178,6 @@ namespace {
 namespace Wt {
 
 FCGIStream::FCGIStream()
-  : WebStream(true)
 {
   FCGX_Init();
 }

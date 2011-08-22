@@ -110,7 +110,7 @@ std::string WTextEdit::renderRemoveJs()
   if (isRendered())
     return jsRef() + ".ed.remove();" WT_CLASS ".remove('" + id() + "');";
   else
-    return WTextEdit::renderRemoveJs();
+    return WTextArea::renderRemoveJs();
 }
 
 void WTextEdit::initTinyMCE()

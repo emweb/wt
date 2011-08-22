@@ -40,7 +40,9 @@ namespace skeletons {
 
 namespace Wt {
 
+#if !(defined(DOXYGEN_ONLY) || defined(WT_TARGET_JAVA))
 const WtLibVersion WT_INCLUDED_VERSION = WtLibVersion();
+#endif
 
 const char *WApplication::RESOURCES_URL = "resourcesURL";
 

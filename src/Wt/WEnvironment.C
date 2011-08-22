@@ -162,6 +162,30 @@ void WEnvironment::init(const WebRequest& request)
     contentType_ = XHTML1;
 }
 
+void WEnvironment::enableAjax(const WebRequest& request)
+{
+  doesAjax_ = true;
+  doesCookies_ = !request.headerValue("Cookie").empty();
+
+  if (!request.getParameter("htmlHistory"))
+    hashInternalPaths_ = true;
+
+  const std::string *scaleE = request.getParameter("scale");
+
+  try {
+    dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
+  } catch (boost::bad_lexical_cast &e) {
+    dpiScale_ = 1;
+  }
+
+  const std::string *hashE = request.getParameter("_");
+
+  // the internal path, when present as an anchor (#), is only
+  // conveyed in the second request
+  if (hashE)
+    setInternalPath(*hashE);
+}
+
 void WEnvironment::setUserAgent(const std::string& userAgent)
 {
   userAgent_ = userAgent;

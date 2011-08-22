@@ -456,16 +456,16 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
   else if (type == typeid(WDate)) {
     return WDate::fromString
       (s, format.empty() ? "dd/MM/yy" : format);
-  } else if (v.type() == typeid(WDateTime)) {
+  } else if (type == typeid(WDateTime)) {
     return WDateTime::fromString
       (s, format.empty() ? "dd/MM/yy HH:mm:ss" : format);
-  } else if (v.type() == typeid(WTime)) {
+  } else if (type == typeid(WTime)) {
     return WTime::fromString
       (s, format.empty() ? "HH:mm:ss" : format);
   }
 
 #define ELSE_LEXICAL_ANY(TYPE)						\
-  else if (v.type() == typeid(TYPE)) {					\
+  else if (type == typeid(TYPE)) {					\
     return boost::lexical_cast<TYPE>(s.toUTF8());			\
   }
 
@@ -486,7 +486,7 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
   else {
     // FIXME, add this to the traits.
     throw WtException(std::string("WAbstractItemModel: unsupported type ")
-		      + v.type().name());
+		      + type.name());
   }
 }
 

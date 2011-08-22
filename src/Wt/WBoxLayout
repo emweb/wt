@@ -164,7 +164,7 @@ public:
    * is \link WWidget::setLayoutSizeAware() layout size
    * aware\endlink).
    *
-   * The \p alignemnt parameter is a combination of a horizontal
+   * The \p alignment parameter is a combination of a horizontal
    * and/or a vertical AlignmentFlag OR'ed together.
    *
    * The \p alignment specifies the vertical and horizontal

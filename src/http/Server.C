@@ -35,7 +35,7 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
   : config_(config),
     io_service_(),
     accept_strand_(io_service_),
-    post_strand_(io_service_),
+    // post_strand_(io_service_),
     tcp_acceptor_(io_service_),
 #ifdef HTTP_WITH_SSL
     ssl_context_(io_service_, asio::ssl::context::sslv23),
@@ -154,14 +154,34 @@ int Server::httpPort() const
   return tcp_acceptor_.local_endpoint().port();
 }
 
-void Server::post(const boost::function<void ()>& function)
+void Server::schedule(int milliSeconds,
+		      const boost::function<void ()>& function)
 {
   /*
    * We would need to serialize events for a single session and thus maintain
    * a queue per sessionId ?
    */
   // io_service_.post(post_strand_.wrap(function));
-  io_service_.post(function);
+
+  if (milliSeconds == 0) {
+    io_service_.post(function);
+  } else {
+
+    asio::deadline_timer *timer = new asio::deadline_timer(io_service_);
+    timer->expires_from_now(boost::posix_time::milliseconds(milliSeconds));
+    timer->async_wait(boost::bind(&Server::handleTimeout, this,
+				  timer, function, asio::placeholders::error));
+  }
+}
+
+void Server::handleTimeout(asio::deadline_timer *timer,
+			   const boost::function<void ()>& function,
+			   const asio_error_code& e)
+{
+  if (!e)
+    function();
+
+  delete timer;
 }
 
 void Server::startAccept()

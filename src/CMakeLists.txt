@@ -176,10 +176,10 @@ Wt/WStandardItem.C
 Wt/WStandardItemModel.C
 Wt/WStatelessSlot.C
 Wt/WString.C
-Wt/WSubMenuItem.C
 Wt/WStreamResource.C
 Wt/WStringListModel.C
 Wt/WStringUtil.C
+Wt/WSubMenuItem.C
 Wt/WSuggestionPopup.C
 Wt/WSvgImage.C
 Wt/WTabWidget.C
@@ -229,12 +229,13 @@ web/FileServe.C
 web/InternalPathEncoder.C
 web/SoundManager.C
 web/Utils.C
+web/WebController.C
+web/WebMain.C
 web/WebRequest.C
 web/WebStream.C
 web/WebSession.C
 web/WebSocketMessage.C
 web/WebRenderer.C
-web/WebController.C
 web/WtException.C
 web/TimeUtil.C
 web/XSSFilter.C

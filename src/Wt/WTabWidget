@@ -260,6 +260,7 @@ private:
 
   void create(WFlags<AlignmentFlag> layoutAlignment);
   void onItemSelected(WMenuItem *item);
+  void onItemClosed(WMenuItem *item);
 
   void setJsSize();
 };

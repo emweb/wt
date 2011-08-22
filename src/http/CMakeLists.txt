@@ -7,7 +7,6 @@ IF(CONNECTOR_HTTP)
     Connection.C
     ConnectionManager.C
     HTTPRequest.C
-    HTTPStream.C
     MimeTypes.C
     Reply.C
     Request.C

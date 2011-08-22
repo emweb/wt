@@ -23,24 +23,15 @@ class WSocketNotifier;
 class WT_API WebStream
 {
 public:
-  WebStream(bool multiThreaded);
+  WebStream();
 
   virtual ~WebStream();
-
-  /*
-   * Can we get a new WebRequest before the previous one
-   * has been deleted ?
-   */
-  bool multiThreaded() const { return multiThreaded_; }
 
   /*
    * Get the next request, return 0 when a timeout occurs.
    * Otherwise throws an exception.
    */
   virtual WebRequest *getNextRequest(int timeoutsec) = 0;
-
-private:
-  bool multiThreaded_;
 };
 
 }

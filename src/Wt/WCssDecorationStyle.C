@@ -267,7 +267,7 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
   if (borderChanged_ || all) {
     for (unsigned i = 0; i < 4; ++i) {
       if (border_[i])
-	element.setProperty(properties[i], border_[0]->cssText());
+	element.setProperty(properties[i], border_[i]->cssText());
       else if (borderChanged_)
 	element.setProperty(properties[i], "");
     }

@@ -1,3 +1,13 @@
+22-08-2011:
+	* Dbo/DbAction: fix missing actId() in FromAnyAction triggered
+	by QueryModel with natural ids
+
+	* WAbstractServer, WebMain, WebSession: added support for
+	scheduling events, used to timeout bootstyle response to avoid problems
+	on IE(9) ?
+
+	* WCssDecorationStyle: fix border() segfault
+
 10-08-2011:
 	* WContainerWidget, WScrollArea, DomElement: use overflow-x and
 	overflow-y CSS style since now well cross-browser supported (#830)

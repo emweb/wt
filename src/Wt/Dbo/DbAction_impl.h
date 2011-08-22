@@ -713,6 +713,19 @@ struct FromAny<Enum, typename boost::enable_if<boost::is_enum<Enum> >::type>
 };
 
 template<typename V>
+void FromAnyAction::actId(V& value, const std::string& name, int size)
+{
+  field(*this, value, name, size);
+}
+
+template<class C>
+void FromAnyAction::actId(ptr<C>& value, const std::string& name, int size,
+			  int fkConstraints)
+{
+  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+}
+
+template<typename V>
 void FromAnyAction::act(const FieldRef<V>& field)
 {
   if (index_ == 0) {
