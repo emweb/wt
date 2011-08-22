@@ -1227,7 +1227,9 @@ void WTableView::modelDataChanged(const WModelIndex& topLeft,
     for (int i = row1; i <= row2; ++i) {
       int renderedRow = i - firstRow();
 
-      for (int j = topLeft.column(); j < rowHeaderCount(); ++j) {
+      int rhc = ajaxMode() ? rowHeaderCount() : 0;
+
+      for (int j = topLeft.column(); j < rhc; ++j) {
 	int renderedColumn = j;
 
 	WModelIndex index = model()->index(i, j, rootIndex());
@@ -1235,7 +1237,7 @@ void WTableView::modelDataChanged(const WModelIndex& topLeft,
       }
 
       for (int j = col1; j <= col2; ++j) {
-	int renderedColumn = rowHeaderCount() + j - firstColumn();
+	int renderedColumn = rhc + j - firstColumn();
 
 	WModelIndex index = model()->index(i, j, rootIndex());
 	updateItem(index, renderedRow, renderedColumn);
