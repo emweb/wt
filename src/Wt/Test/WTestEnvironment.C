@@ -22,7 +22,7 @@ WTestEnvironment::WTestEnvironment(const std::string& applicationPath,
 				     Configuration::WtHttpdServer,
 				     "Wt: initializing test environment");
 
-  controller_ = new WebController(*configuration_, 0, 0);
+  controller_ = new WebController(*configuration_, 0);
 
   init(type);
 }

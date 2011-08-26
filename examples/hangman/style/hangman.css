@@ -1,0 +1,15 @@
+.highscores * TD {
+  border-style: solid;
+  border-width: 1px;
+  border-color: LightGray;
+}
+
+.highscoresheader {
+  font-variant: small-caps;
+}
+
+.highscoresself {
+  font-style: italic;
+  font-weight: bold;
+  font-variant: normal;
+}

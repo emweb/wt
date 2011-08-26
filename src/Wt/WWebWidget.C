@@ -1797,6 +1797,11 @@ DomElement *WWebWidget::createDomElement(WApplication *app)
   return result;
 }
 
+bool WWebWidget::domCanBeSaved() const
+{
+  return true;
+}
+
 bool WWebWidget::isRendered() const
 {
   return flags_.test(WWebWidget::BIT_RENDERED);

@@ -28,8 +28,7 @@ using namespace Wt;
 class HangmanWidget: public WContainerWidget
 {
    public:
-      HangmanWidget(std::wstring user, Dictionary dict,
-		    WContainerWidget *parent = 0);
+      HangmanWidget(Dictionary dict, WContainerWidget *parent = 0);
 
    private:
       WText                     *Title;
@@ -46,7 +45,6 @@ class HangmanWidget: public WContainerWidget
       unsigned int       BadGuesses;
       unsigned int       DisplayedLetters;
       std::wstring       Word;
-      std::wstring       User;
       Dictionary         Dict;
 
       // constructor helpers

@@ -168,7 +168,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
     for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
 	 ++i) {
       WWidget *w = i->second;
-      if (w->isRendered())
+      if (w->isRendered() && w->webWidget()->domCanBeSaved())
 	previouslyRendered.insert(w);
     }
 

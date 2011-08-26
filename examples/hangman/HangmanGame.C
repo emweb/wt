@@ -32,7 +32,7 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
    MainStack->setPadding(20);
 
    MainStack->addWidget(Login = new LoginWidget());
-   Login->loginSuccessful.connect(this, &HangmanGame::play);
+   Login->startPlaying.connect(this, &HangmanGame::play);
 
    // Element (2,0) contains navigation buttons. Instead of WButton,
    // we use WText. WText inherits from WInteractWidget, and thus exposes
@@ -57,12 +57,12 @@ void HangmanGame::doLogin()
    ScoresText->hide();
 }
 
-void HangmanGame::play(std::wstring user, Dictionary dict)
+void HangmanGame::play(Dictionary dict)
 {
    // Add a widget by passing MainStack as the parent, ...
-   Game = new HangmanWidget(user, dict, MainStack);
+   Game = new HangmanWidget(dict, MainStack);
    // ... or using addWidget
-   MainStack->addWidget(Scores = new HighScoresWidget(user));
+   MainStack->addWidget(Scores = new HighScoresWidget());
 
    BackToGameText->show();
    ScoresText->show();

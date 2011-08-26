@@ -340,7 +340,7 @@ void WServer::stop()
 #endif // WIN32
 
 #else // WT_THREADED
-  impl_->webController_->forceShutdown();
+  impl_->webController_->shutdown();
   impl_->server_->stop();
 #endif // WT_THREADED
 }

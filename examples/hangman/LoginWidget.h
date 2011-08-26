@@ -21,24 +21,24 @@ using namespace Wt;
 
 class LoginWidget : public WContainerWidget
 {
-   public:
-      LoginWidget(WContainerWidget *parent = 0);
-
-      Wt::Signal<std::wstring, Dictionary> loginSuccessful;
-
-   private:
-      WText     *IntroText;
-      WLineEdit *Username;
-      WLineEdit *Password;
-      WComboBox *Language;
-
-      std::wstring User;
-      Dictionary   Dict;
-
-      void confirmLogin(const std::wstring text);
-
-      void checkCredentials();
-      void startPlaying();
+public:
+  LoginWidget(WContainerWidget *parent = 0);
+  
+  Wt::Signal<Dictionary> startPlaying;
+  
+private:
+  WText     *IntroText;
+  WLineEdit *Username;
+  WLineEdit *Password;
+  WComboBox *Language;
+  
+  Dictionary   Dict;
+  
+  void confirmLogin(const std::string text);
+  
+  void checkCredentials();
+  
+  void onStartClicked();
 };
 
 #endif

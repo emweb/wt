@@ -122,13 +122,13 @@ private:
   /// Handle completion of an asynchronous SSL accept operation.
   void handleSslAccept(const asio_error_code& e);
 
-  void handleTimeout(asio::deadline_timer *timer,
-		     const boost::function<void ()>& function,
-		     const asio_error_code& err);
-
   /// The next SSL connection to be accepted.
   SslConnectionPtr new_sslconnection_;
 #endif // HTTP_WITH_SSL
+
+void handleTimeout(asio::deadline_timer *timer,
+		   const boost::function<void ()>& function,
+		   const asio_error_code& err);
 
   /// The connection manager which owns all live connections.
   ConnectionManager connection_manager_;

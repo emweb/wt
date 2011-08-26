@@ -937,7 +937,7 @@ $ sudo apt-get install witty witty-dev witty-doc witty-examples</pre>
 
 <p>
 Загрузите пакет
-(<a href="http://www.webtoolkit.eu/packages/winst-0.2.tar.gz">winst-0.2.tar.gz</a>)
+(<a href="http://www.webtoolkit.eu/packages/winst-0.3.tar.gz">winst-0.3.tar.gz</a>)
 или получите последнюю версию git:
 <div class="fragment">
   <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/winst.git</pre>

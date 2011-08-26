@@ -262,6 +262,11 @@ void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
   result.push_back(e);
 }
 
+bool WTextEdit::domCanBeSaved() const
+{
+  return false;
+}
+
 int WTextEdit::boxPadding(Orientation orientation) const
 {
   return 0;

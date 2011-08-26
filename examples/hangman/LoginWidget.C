@@ -13,10 +13,14 @@
 #include <Wt/WTable>
 #include <Wt/WTableCell>
 #include <Wt/WComboBox>
+#include <Wt/Dbo/Dbo>
 
 #include "LoginWidget.h"
-#include "HangmanDb.h"
 #include "Dictionary.h"
+#include "User.h"
+#include "HangmanApplication.h"
+
+using namespace Wt::Dbo;
 
 LoginWidget::LoginWidget(WContainerWidget *parent):
    WContainerWidget(parent)
@@ -60,18 +64,21 @@ LoginWidget::LoginWidget(WContainerWidget *parent):
 
 void LoginWidget::checkCredentials()
 {
-   User = Username->text();
-   std::wstring pass = Password->text();
+  std::string userName = Username->text().toUTF8();
+  std::string passWord = Password->text().toUTF8();
+
    Dict = (Dictionary) Language->currentIndex();
    
-   if (HangmanDb::validLogin(User, pass)) {
-      confirmLogin(L"<p>Welcome back, " + User + L".</p>");
-   } else if (User == L"guest" && pass == L"guest") {
-      confirmLogin(L"<p>Welcome guest, good luck.</p>");
-   } else if (HangmanDb::addUser(User, pass)) {
-      confirmLogin(L"<p>Welcome, "
-		   + User + L". Good luck with your first game!</p>");
-   } else {
+   Session& session = HangmanApplication::instance()->session;
+   Transaction transaction(session);
+   ptr<User> user 
+     = session.find<User>().where("name = ?").bind(userName);
+   if (!user) {
+     user = session.add(new User(userName, passWord));
+   }
+
+   //TODO currently cleartext -> will be changed to use the Wt auth module
+   if (user->password != passWord) {
       IntroText
 	->setText("<p>You entered the wrong password, or the username "
 		  "combination is already in use. If you are a returning "
@@ -80,10 +87,21 @@ void LoginWidget::checkCredentials()
       IntroText->decorationStyle().setForegroundColor(Wt::red);
       Username->setText("");
       Password->setText("");
+   } else {
+     user.modify()->lastLogin = WDateTime::currentDateTime();
+     HangmanApplication::instance()->user = user;
+
+     if (user->name == "guest")
+       confirmLogin("<p>Welcome guest, good luck.</p>");
+     else
+       confirmLogin("<p>Welcome, " + user->name +
+		    ". Good luck with your first game!</p>");
    }
+
+   transaction.commit();
 }
 
-void LoginWidget::confirmLogin(const std::wstring text)
+void LoginWidget::confirmLogin(const std::string text)
 {
    clear();
 
@@ -91,11 +109,14 @@ void LoginWidget::confirmLogin(const std::wstring text)
    title->decorationStyle().font().setSize(WFont::XLarge);
 
    new WText(text, this);
-   (new WPushButton("Start playing", this))
-     ->clicked().connect(this, &LoginWidget::startPlaying);
+
+   WPushButton* start = new WPushButton("Start playing", this);
+
+   start->clicked().connect(boost::bind(&LoginWidget::onStartClicked, this));
 }
 
-void LoginWidget::startPlaying()
+void LoginWidget::onStartClicked()
 {
-   loginSuccessful.emit(User, Dict);
+  startPlaying.emit(Dict);
 }
+

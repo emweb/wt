@@ -176,6 +176,7 @@ protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
+  virtual bool domCanBeSaved() const;
 
   virtual int boxPadding(Orientation orientation) const;
   virtual int boxBorder(Orientation orientation) const;

@@ -521,6 +521,30 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     BOOST_REQUIRE(b1->csManyToMany.size() == 1);
     BOOST_REQUIRE(c1->bsManyToMany.size() == 1);
 
+    typedef dbo::collection<dbo::ptr<C> > Cs;
+
+    Cs c2 = session_->find<C>().orderBy("name desc");
+    Cs c3 = session_->find<C>().orderBy("name desc").limit(2);
+
+    std::vector<std::string> c2_compare;
+    c2_compare.push_back("c3");
+    c2_compare.push_back("c2");
+    c2_compare.push_back("c1");
+
+    std::vector<std::string> c3_compare;
+    c3_compare.push_back("c3");
+    c3_compare.push_back("c2");
+
+    int c = 0; 
+    BOOST_REQUIRE(c2.size() == c2_compare.size());
+    for (Cs::const_iterator i = c2.begin(); i != c2.end(); ++i)
+      BOOST_REQUIRE((*i)->name == c2_compare[c++]);
+
+    c = 0;
+    BOOST_REQUIRE(c3.size() == c3_compare.size());
+    for (Cs::const_iterator i = c3.begin(); i != c3.end(); ++i)
+      BOOST_REQUIRE((*i)->name == c3_compare[c++]);
+
     t.commit();
   }
 }

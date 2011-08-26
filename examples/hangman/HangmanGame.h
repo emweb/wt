@@ -38,7 +38,7 @@ class HangmanGame : public WTable
       // Show the initial screen
       void doLogin();
 
-      void play(std::wstring user, Dictionary dictionary);
+      void play(Dictionary dictionary);
       void showGame();
       void showHighScores();
 };

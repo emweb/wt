@@ -18,13 +18,12 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Dictionary.h"
-#include "HangmanDb.h"
+#include "HangmanApplication.h"
+#include "User.h"
 
-HangmanWidget::HangmanWidget(std::wstring user, Dictionary dict,
-			     WContainerWidget *parent):
+HangmanWidget::HangmanWidget(Dictionary dict, WContainerWidget *parent):
    WContainerWidget(parent),
    MaxGuesses(9),
-   User(user),
    Dict(dict)
 {
    setContentAlignment(AlignCenter);
@@ -94,7 +93,8 @@ void HangmanWidget::createAlphabet(WContainerWidget *parent)
 void HangmanWidget::newGame()
 {
    Word = RandomWord(Dict);
-   Title->setText(L"Guess the word, " + User + L"!");
+   Title->setText("Guess the word, " 
+		  + HangmanApplication::instance()->user->name + "!");
    NewGameButton->hide(); // don't let the player chicken out
 
    // Bring widget to initial state
@@ -142,7 +142,7 @@ void HangmanWidget::registerBadGuess()
 			     L"The correct answer was: " + Word);
 	 LetterButtonLayout->hide();
 	 NewGameButton->show();
-	 HangmanDb::addToScore(User, -10);
+	 HangmanApplication::instance()->user.modify()->score -= 10;
       }
    }
 }
@@ -161,7 +161,7 @@ void HangmanWidget::registerCorrectGuess(wchar_t c)
       HurrayImage->show();
       LetterButtonLayout->hide();
       NewGameButton->show();
-      HangmanDb::addToScore(User, 20 - BadGuesses);
+      HangmanApplication::instance()->user.modify()->score += (20 - BadGuesses);
    }
 }
 

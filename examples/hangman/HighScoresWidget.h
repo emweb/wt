@@ -11,10 +11,6 @@ using namespace Wt;
 class HighScoresWidget: public WContainerWidget
 {
    public:
-      HighScoresWidget(const std::wstring &user,
-		       WContainerWidget *parent = 0);
+      HighScoresWidget(WContainerWidget *parent = 0);
       void update();
-
-   private:
-      std::wstring User;
 };
