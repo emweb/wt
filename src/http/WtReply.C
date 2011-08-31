@@ -140,17 +140,16 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	setWaitMoreData(true);
 	responseSent_ = true;
 	sending_ = true;
-	Reply::send();
 
-	// This will read more data, starting with the hand-shake.
-	// The computed handshake response will be passed to the next
-	// invocation of this method.
-	connection->handleReadBody();
+	fetchMoreDataCallback_
+	  = boost::bind(&WtReply::readRestWebSocketHandshake, this);
+
+	Reply::send();
       } else {
 	/*
 	 * We got the nonce and the expected challenge response is
 	 * available in in(). This should be copied to out() by the
-	 * web.
+	 * web session.
 	 */
 	if (state == Request::Complete) {
 	  HTTPRequest *r = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
@@ -185,6 +184,14 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
     httpRequest_ = 0;
     connection->server()->controller()->server_->handleRequest(r);
   }
+}
+
+void WtReply::readRestWebSocketHandshake()
+{
+  ConnectionPtr connection = getConnection();
+
+  if (connection)
+    connection->handleReadBody();
 }
 
 void WtReply::consumeWebSocketMessage(Buffer::const_iterator begin,

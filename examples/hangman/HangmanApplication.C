@@ -3,25 +3,19 @@
  *
  * See the LICENSE file for terms of use.
  */
-// This may look like C code, but it's really -*- C++ -*-
-/*
- * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium.
- *
- * See the LICENSE file for terms of use.
- */
 
 #include "HangmanApplication.h"
 
 #include <Wt/WLogger>
+#include <Wt/WVBoxLayout>
 
-#include "User.h"
 #include "HangmanGame.h"
 
 using namespace Wt;
 
 HangmanApplication::HangmanApplication(const WEnvironment& env)
   : WApplication(env),
-    sqlite3_(Wt::WApplication::appRoot() + "hangman.db")
+    sqlite3_(WApplication::appRoot() + "hangman.db")
 {
   setTitle("Hangman");
 
@@ -30,15 +24,19 @@ HangmanApplication::HangmanApplication(const WEnvironment& env)
 
   session.mapClass<User>("user");
 
-  dbo::Transaction transaction(session);
+  Dbo::Transaction transaction(session);
   try {
     session.createTables();
+    session.add(new User("guest", "guest"));
     log("info") << "Database created";
   } catch (...) {
     log("info") << "Using existing database";    
   }
 
   transaction.commit();
+
+  messageResourceBundle().use(appRoot() + "strings");
+  messageResourceBundle().use(appRoot() + "templates");
 
   useStyleSheet("style/hangman.css");
 

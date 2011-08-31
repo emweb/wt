@@ -1,4 +1,5 @@
-/* this is a -*-C++-*- file
+// This may look like C code, but it's really -*- C++ -*-
+/* 
  * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium
  *
  * See the LICENSE file for terms of use.
@@ -12,9 +13,6 @@
 #include <Wt/Dbo/WtSqlTraits>
 
 #include <string>
-#include <vector>
-
-namespace dbo = Wt::Dbo;
 
 class User {
 public:
@@ -27,20 +25,20 @@ public:
   template<class Action>
   void persist(Action& a)
   {
-    dbo::field(a, name,        "name");
-    dbo::field(a, password,    "password");
-    dbo::field(a, gamesPlayed, "gamesPlayed");
-    dbo::field(a, score,       "score");
-    dbo::field(a, lastLogin,   "lastLogin");
+    Wt::Dbo::field(a, name,        "name");
+    Wt::Dbo::field(a, password,    "password");
+    Wt::Dbo::field(a, gamesPlayed, "gamesPlayed");
+    Wt::Dbo::field(a, score,       "score");
+    Wt::Dbo::field(a, lastLogin,   "lastLogin");
   }
   
   User() {}
 
   User(const std::string &name, const std::string &password);
 
-  int findRanking(dbo::Session& session) const;
+  int findRanking(Wt::Dbo::Session& session) const;
 };
 
-typedef dbo::collection< dbo::ptr<User> > Users;
+typedef Wt::Dbo::collection< Wt::Dbo::ptr<User> > Users;
 
 #endif //USER_H_

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="login.intro">
+    <p>
+      Hangman keeps track of the best players. To recognise you, we
+      ask you to log in. If you never logged in before, choose any
+      name and password. If you don't want to be in our database for
+      some reason, use the 'guest/guest' account.
+    </p>
+    <p>
+      Warning: hangman contains some words and pictures that may
+      offend really young players.
+    </p>
+  </message>
+  <message id="login.error">
+    You entered the wrong password, or the username combination is
+    already in use. If you are a returning user, please try again. If
+    you are a new user, please try a different name.
+  </message>
+
+  <message id="highscore.info">
+    <p>
+      For each game won, you gain 20 points, minus one point for each
+      wrong letter guess.  <br /> For each game lost, you loose 10
+      points, so you better try hard to guess the word!
+    </p>
+  </message>
+</messages>

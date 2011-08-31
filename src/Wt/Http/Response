@@ -105,6 +105,7 @@ private:
   WebResponse          *response_;
   ResponseContinuation *continuation_;
   WT_BOSTREAM          *out_;
+  bool                 headersCommitted_;
 
   Response(WResource *resource, WebResponse *response,
 	   ResponseContinuation *continuation);

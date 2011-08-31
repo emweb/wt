@@ -338,7 +338,8 @@ void WServer::handleRequest(WebRequest *request)
   webMain->controller().handleRequest(request);
 }
 
-void WServer::schedule(const boost::function<void ()>& function)
+void WServer::schedule(int milliSeconds,
+		       const boost::function<void ()>& function)
 {
   webMain->schedule(milliSeconds, function);
 }

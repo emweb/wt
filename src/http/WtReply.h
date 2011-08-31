@@ -77,6 +77,8 @@ protected:
   virtual asio::const_buffer nextContentBuffer();  
 
 private:
+  void readRestWebSocketHandshake();
+
   void consumeRequestBody(Buffer::const_iterator begin,
 			  Buffer::const_iterator end,
 			  Request::State state);

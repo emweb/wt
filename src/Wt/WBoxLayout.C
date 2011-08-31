@@ -226,10 +226,12 @@ void WBoxLayout::insertItem(int index, WLayoutItem *item, int stretch,
 WWidget *WBoxLayout::createSpacer(const WLength& size)
 {
   Spacer *spacer = new Spacer();
-  if (direction_ == LeftToRight || direction_ == RightToLeft)
-    spacer->setMinimumSize(size, WLength::Auto);
-  else
-    spacer->setMinimumSize(WLength::Auto, size);
+  if (size.toPixels() > 0) {
+    if (direction_ == LeftToRight || direction_ == RightToLeft)
+      spacer->setMinimumSize(size, WLength::Auto);
+    else
+      spacer->setMinimumSize(WLength::Auto, size);
+  }
 
   return spacer;
 }

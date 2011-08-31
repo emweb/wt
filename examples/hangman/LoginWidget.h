@@ -1,4 +1,5 @@
-/* this is a -*-C++-*- file
+// This may look like C code, but it's really -*- C++ -*-
+/* 
  * Copyright (C) 2005 Wim Dumon
  *
  * See the LICENSE file for terms of use.
@@ -7,38 +8,30 @@
 #ifndef LOGINWIDGET_H_
 #define LOGINWIDGET_H_
 
-#include <Wt/WContainerWidget>
-
-#include "Dictionary.h"
+#include <Wt/WCompositeWidget>
 
 namespace Wt {
   class WLineEdit;
   class WText;
   class WComboBox;
+  class WTemplate;
+  class WContainerWidget;
 }
 
-using namespace Wt;
-
-class LoginWidget : public WContainerWidget
+class LoginWidget : public Wt::WCompositeWidget
 {
 public:
-  LoginWidget(WContainerWidget *parent = 0);
-  
-  Wt::Signal<Dictionary> startPlaying;
+  LoginWidget(Wt::WContainerWidget *parent = 0);
   
 private:
-  WText     *IntroText;
-  WLineEdit *Username;
-  WLineEdit *Password;
-  WComboBox *Language;
-  
-  Dictionary   Dict;
-  
-  void confirmLogin(const std::string text);
-  
+  Wt::WText              *introText_;
+  Wt::WLineEdit          *userName_;
+  Wt::WLineEdit          *passWord_;
+  Wt::WComboBox          *language_;
+
+  Wt::WTemplate          *impl_;
+
   void checkCredentials();
-  
-  void onStartClicked();
 };
 
 #endif

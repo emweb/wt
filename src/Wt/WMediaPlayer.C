@@ -146,6 +146,9 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType, WContainerWidget *parent)
 WMediaPlayer::~WMediaPlayer()
 {
   setParentWidget(0); // to have virtual renderRemoveJs()
+
+  for (unsigned i = 0; i < signals_.size(); ++i)
+    delete signals_[i];
 }
 
 void WMediaPlayer::clearSources()

@@ -4,83 +4,105 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WAnchor>
 #include <Wt/WText>
-#include <Wt/WTable>
-#include <Wt/WTableCell>
 #include <Wt/WStackedWidget>
-#include <Wt/WCssDecorationStyle>
+#include <Wt/WVBoxLayout>
+#include <Wt/WHBoxLayout>
 
 #include "HangmanGame.h"
 #include "LoginWidget.h"
 #include "HangmanWidget.h"
 #include "HighScoresWidget.h"
+#include "HangmanApplication.h"
+
+using namespace Wt;
 
 HangmanGame::HangmanGame(WContainerWidget *parent):
-   WTable(parent)
+  WContainerWidget(parent),
+  game_(0),
+  scores_(0)
 {
-   resize(WLength(100, WLength::Percentage), WLength::Auto);
+   WVBoxLayout *layout = new WVBoxLayout();
+   layout->setContentsMargins(0, 0, 0, 0);
+   this->setLayout(layout);
 
-   WText *title = new WText(L"A Witty game: Hangman", elementAt(0,0));
-   title->decorationStyle().font().setSize(WFont::XXLarge);
+   WText *title = new WText("<h1>A Witty game: Hangman</h1>");
+   layout->addWidget(title);
 
-   // Center the title horizontally.
-   elementAt(0, 0)->setContentAlignment(AlignTop | AlignCenter);
+   mainStack_ = new WStackedWidget(this);
+   mainStack_->setPadding(20);
+   layout->addWidget(mainStack_, 1, AlignCenter | AlignMiddle);
+   
+   mainStack_->addWidget(login_ = new LoginWidget());
 
-   // Element (1,1) holds a stack of widgets with the main content.
-   // This is where we switch between Login, Game, and Highscores widgets.
-   MainStack = new WStackedWidget(elementAt(1, 0));
-   MainStack->setPadding(20);
+   WHBoxLayout *linksLayout = new WHBoxLayout();
+   linksLayout->setContentsMargins(0, 0, 0, 0);
+   layout->addLayout(linksLayout, 0, AlignCenter | AlignMiddle);
 
-   MainStack->addWidget(Login = new LoginWidget());
-   Login->startPlaying.connect(this, &HangmanGame::play);
+   backToGameAnchor_ = new WAnchor("/play", "Gaming Grounds");
+   linksLayout->addWidget(backToGameAnchor_, 0, AlignCenter | AlignMiddle);
+   backToGameAnchor_->setRefInternalPath("/play");
+   backToGameAnchor_->addStyleClass("link");
 
-   // Element (2,0) contains navigation buttons. Instead of WButton,
-   // we use WText. WText inherits from WInteractWidget, and thus exposes
-   // the click event.
-   BackToGameText = new WText(L" Gaming Grounds ", elementAt(2, 0));
-   BackToGameText->decorationStyle().setCursor(PointingHandCursor);
-   BackToGameText->clicked().connect(this, &HangmanGame::showGame);
+   scoresAnchor_ = new WAnchor("/highscores", "Highscores");
+   linksLayout->addWidget(scoresAnchor_, 0, AlignCenter | AlignMiddle);
+   scoresAnchor_->setRefInternalPath("/highscores");
+   scoresAnchor_->addStyleClass("link");
 
-   ScoresText = new WText(L" Highscores ", elementAt(2, 0));
-   ScoresText->decorationStyle().setCursor(PointingHandCursor);
-   ScoresText->clicked().connect(this, &HangmanGame::showHighScores);
-   // Center the buttons horizontally.
-   elementAt(2, 0)->setContentAlignment(AlignTop | AlignCenter);
+   HangmanApplication::instance()
+     ->internalPathChanged().connect(this, &HangmanGame::handleInternalPath);
 
-   doLogin();
+   handleInternalPath();
 }
 
-void HangmanGame::doLogin()
+void HangmanGame::handleInternalPath()
 {
-   MainStack->setCurrentWidget(Login);
-   BackToGameText->hide();
-   ScoresText->hide();
+  HangmanApplication *app = HangmanApplication::instance();
+
+  if (app->internalPath() == "/play" && app->user)
+    showGame();
+  else if (app->internalPath() == "/highscores")
+    showHighScores();
+  else
+    showLogin();
 }
 
-void HangmanGame::play(Dictionary dict)
+void HangmanGame::showLogin()
 {
-   // Add a widget by passing MainStack as the parent, ...
-   Game = new HangmanWidget(dict, MainStack);
-   // ... or using addWidget
-   MainStack->addWidget(Scores = new HighScoresWidget());
+  HangmanApplication::instance()->setInternalPath("/");
 
-   BackToGameText->show();
-   ScoresText->show();
-
-   showGame();
+  mainStack_->setCurrentWidget(login_);
+  backToGameAnchor_->hide();
+  scoresAnchor_->hide();
 }
 
 void HangmanGame::showHighScores()
 {
-   MainStack->setCurrentWidget(Scores);
-   Scores->update();
-   BackToGameText->decorationStyle().font().setWeight(WFont::NormalWeight);
-   ScoresText->decorationStyle().font().setWeight(WFont::Bold);
+  if (!scores_)
+    scores_ = new HighScoresWidget(mainStack_);
+
+  mainStack_->setCurrentWidget(scores_);
+  scores_->update();
+
+  backToGameAnchor_->show();
+  scoresAnchor_->show();
+  
+  backToGameAnchor_->removeStyleClass("selected-link");
+  scoresAnchor_->addStyleClass("selected-link");
 }
 
 void HangmanGame::showGame()
 {
-   MainStack->setCurrentWidget(Game);
-   BackToGameText->decorationStyle().font().setWeight(WFont::Bold);
-   ScoresText->decorationStyle().font().setWeight(WFont::NormalWeight);
+  if (!game_)
+    game_ = new HangmanWidget(mainStack_);
+
+  mainStack_->setCurrentWidget(game_);
+
+  backToGameAnchor_->show();
+  scoresAnchor_->show();
+    
+  backToGameAnchor_->addStyleClass("selected-link");
+  scoresAnchor_->removeStyleClass("selected-link");
 }
+

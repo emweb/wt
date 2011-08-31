@@ -1,5 +1,5 @@
-/* this is a -*-C++-*- file
- * Copyright (C) 2005 Wim Dumon
+/* 
+ * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium
  *
  * See the LICENSE file for terms of use.
  */
@@ -45,4 +45,3 @@ std::wstring RandomWord(Dictionary dictionary)
 
    return Wt::widen(retval);
 }
-

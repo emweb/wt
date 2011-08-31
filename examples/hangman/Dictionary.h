@@ -1,5 +1,6 @@
-/* this is a -*-C++-*- file
- * Copyright (C) 2005 Wim Dumon
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium
  *
  * See the LICENSE file for terms of use.
  */

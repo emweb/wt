@@ -250,8 +250,6 @@ void StaticReply::parseRangeHeader()
   if (range != request_.headerMap.end()) {
     std::string rangeHeader = range->second;
 
-    std::cerr << "Range header: " << rangeHeader << std::endl;
-
     uint_parser< ::int64_t> const uint_max_p = uint_parser< ::int64_t>();
     hasRange_ = parse(rangeHeader.c_str(),
       str_p("bytes") >> ch_p('=') >>

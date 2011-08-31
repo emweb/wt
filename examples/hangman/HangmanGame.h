@@ -1,5 +1,6 @@
-/* this is a -*-C++-*- file
- * Copyright (C) 2005 Wim Dumon
+// This may look like C code, but it's really -*- C++ -*-
+/* 
+ * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium
  *
  * See the LICENSE file for terms of use.
  */
@@ -11,36 +12,32 @@
 
 namespace Wt {
   class WStackedWidget;
-  class WText;
+  class WAnchor;
 }
-
-using namespace Wt;
-
-#include "Dictionary.h"
 
 class HangmanWidget;
 class HighScoresWidget;
 class LoginWidget;
 
-class HangmanGame : public WTable
+class HangmanGame : public Wt::WContainerWidget
 {
-   public:
-      HangmanGame(WContainerWidget *parent);
+public:
+  HangmanGame(Wt::WContainerWidget *parent = 0);
+  
+private:
+  Wt::WStackedWidget   *mainStack_;
+  LoginWidget          *login_;
+  HangmanWidget        *game_;
+  HighScoresWidget     *scores_;
+  Wt::WAnchor          *backToGameAnchor_;
+  Wt::WAnchor          *scoresAnchor_;
+  
+  void handleInternalPath();
 
-   private:
-      WStackedWidget   *MainStack;
-      LoginWidget      *Login;
-      HangmanWidget    *Game;
-      HighScoresWidget *Scores;
-      WText            *BackToGameText;
-      WText            *ScoresText;
-
-      // Show the initial screen
-      void doLogin();
-
-      void play(Dictionary dictionary);
-      void showGame();
-      void showHighScores();
+  void showLogin();
+  
+  void showGame();
+  void showHighScores();
 };
 
-#endif
+#endif //HANGMANGAME_H_

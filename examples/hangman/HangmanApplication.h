@@ -4,6 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+
 #ifndef HANGMAN_APPLICATION_H_
 #define HANGMAN_APPLICATION_H_
 
@@ -13,13 +14,15 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Sqlite3>
 
-class User;
+#include "User.h"
+#include "Dictionary.h"
 
 class HangmanApplication : public Wt::WApplication
 {
 public:
-  Wt::Dbo::Session session;
+  Wt::Dbo::Session   session;
   Wt::Dbo::ptr<User> user;
+  Dictionary         dictionary;
 
   HangmanApplication(const Wt::WEnvironment& env);
 

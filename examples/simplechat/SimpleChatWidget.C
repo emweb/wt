@@ -68,7 +68,8 @@ void SimpleChatWidget::login()
   if (!loggedIn()) {
     WString name = WWebWidget::escapeText(userNameEdit_->text());
 
-    messageReceived_ = new WSound("sounds/message_received.mp3");
+    if (!messageReceived_)
+      messageReceived_ = new WSound("sounds/message_received.mp3");
 
     if (!startChat(name))
       statusMsg_->setText("Sorry, name '" + name + "' is already taken.");

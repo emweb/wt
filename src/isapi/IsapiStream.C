@@ -12,8 +12,7 @@ namespace Wt {
   namespace isapi {
 
 IsapiStream::IsapiStream(IsapiServer *server)
-  : WebStream(true),
-  server_(server)
+  : server_(server)
 {
 }
 

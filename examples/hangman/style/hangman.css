@@ -1,15 +1,55 @@
-.highscores * TD {
-  border-style: solid;
-  border-width: 1px;
-  border-color: LightGray;
+.highscores table {
+    height:auto;
+    width:60ex;
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    border-style: solid;
+    border-width: 2px;
 }
 
-.highscoresheader {
-  font-variant: small-caps;
+.highscores td, th {
+    border-style: solid;
+    border-width: 1px;
+    border-color: LightGray;
 }
 
-.highscoresself {
-  font-style: italic;
-  font-weight: bold;
-  font-variant: normal;
+.highscores th {
+    font-variant: small-caps;
+}
+
+.highscores tr#self {
+    font-style: italic;
+    font-weight: bold;
+    font-variant: normal;
+}
+
+.fineprint {
+    font-size: smaller;
+}
+
+.score {
+    font-size: large;
+}
+
+.wordcontainer {
+    top-margin: 20px;
+    bottom-margin: 20px;
+
+    border-style: solid;
+    font-family: courier, Monospace;
+    font-size: xx-large;
+}
+
+.login-error {
+    color: red;
+}
+
+.link {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.selected-link {
+    font-weight: bold;
 }

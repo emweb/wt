@@ -1,3 +1,7 @@
+31-08-2011:
+	* WResource: use suggestedFilename() also when set during
+	handleRequest() (#920)
+
 22-08-2011:
 	* Dbo/DbAction: fix missing actId() in FromAnyAction triggered
 	by QueryModel with natural ids

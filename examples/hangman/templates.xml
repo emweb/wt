@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="login.form">
+    <h2>Login</h2>
+    ${intro}
+    <table>
+      <tr>
+	<td><label for="username">User name:</label></td>
+	<td>${username}</td>
+      </tr>
+      <tr>
+	<td><label for="password">Password:</label></td>
+	<td>${password}</td>
+      </tr>
+      <tr>
+	<td><label for="language">Language:</label></td> 
+	<td>${language}</td>
+      </tr>
+    </table>
+    <br/>
+    ${login}
+    <br/>
+    <p class="login-error">${login-error}</p>
+  </message>
+</messages>
