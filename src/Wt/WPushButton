@@ -139,6 +139,15 @@ public:
    */
   WResource *resource() const { return link_.resource(); }
 
+  void setLinkTarget(AnchorTarget target);
+
+  /*! \brief Returns the location where the linked content should be
+   *         displayed.
+   *
+   * \sa setTarget()
+   */
+  AnchorTarget linkTarget() const { return linkTarget_; }
+
   virtual void refresh();
 
 private:
@@ -150,6 +159,7 @@ private:
   WString        text_;
   std::string    icon_;
   WLink          link_;
+  AnchorTarget   linkTarget_;
   std::bitset<4> flags_;
 
   JSlot         *redirectJS_;

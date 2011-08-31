@@ -115,6 +115,8 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
   handleRequest(request, response);
 
+  response.out(); // trigger committing the headers if still necessary
+
   if (!response.continuation_ || !response.continuation_->resource_) {
     if (response.continuation_) {
       Utils::erase(continuations_, response.continuation_);

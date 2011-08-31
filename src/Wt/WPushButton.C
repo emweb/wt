@@ -15,12 +15,14 @@ namespace Wt {
 
 WPushButton::WPushButton(WContainerWidget *parent)
   : WFormWidget(parent),
+    linkTarget_(TargetSelf),
     redirectJS_(0)
 { }
 
 WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
   : WFormWidget(parent),
     text_(text),
+    linkTarget_(TargetSelf),
     redirectJS_(0)
 { }
 
@@ -63,6 +65,11 @@ void WPushButton::setLink(const WLink& link)
     link.resource()->dataChanged().connect(this, &WPushButton::resourceChanged);
 
   repaint(RepaintPropertyIEMobile);
+}
+
+void WPushButton::setLinkTarget(AnchorTarget target)
+{
+  linkTarget_ = target;
 }
 
 void WPushButton::setRef(const std::string& url)
@@ -140,10 +147,16 @@ void WPushButton::updateDom(DomElement& element, bool all)
 	   + ",true);"
 	   "}");
       else
-	redirectJS_->setJavaScript
-	  ("function(){"
-	   "window.location=" + jsStringLiteral(link_.url()) + ";"
-	   "}");
+	if (linkTarget_ == TargetNewWindow)
+	  redirectJS_->setJavaScript
+	    ("function(){"
+	     "window.open(" + jsStringLiteral(link_.url()) + ");"
+	     "}");
+	else
+	  redirectJS_->setJavaScript
+	    ("function(){"
+	     "window.location=" + jsStringLiteral(link_.url()) + ";"
+	     "}");
       clicked().senderRepaint(); // XXX only for Java port necessary
     } else {
       delete redirectJS_;
