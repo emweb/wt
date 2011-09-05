@@ -1,3 +1,7 @@
+05-09-2011
+	* WResource, Http/ResponseContinuation: added API to suspend a response
+	while for more data, and resuming later
+
 31-08-2011:
 	* WResource: use suggestedFilename() also when set during
 	handleRequest() (#920)

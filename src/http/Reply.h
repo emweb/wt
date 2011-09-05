@@ -99,8 +99,7 @@ public:
 
   void addHeader(const std::string name, const std::string value);
 
-  bool waitMoreData() const { return waitMoreData_; }
-  void setWaitMoreData(bool how);
+  virtual bool waitMoreData() const { return false; }
   void send();
   virtual void release();
 
@@ -145,8 +144,6 @@ private:
   bool closeConnection_;
   bool chunkedEncoding_;
   bool gzipEncoding_;
-  bool waitMoreData_;
-  bool finishing_;
 
   ::int64_t contentSent_;
   ::int64_t contentOriginalSize_;

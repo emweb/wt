@@ -1,12 +1,12 @@
 // This may look like C code, but it's really -*- C++ -*-
 /* 
- * Copyright (C) 2005 Wim Dumon
+ * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium
  *
  * See the LICENSE file for terms of use.
  */
 
-#ifndef LOGINWIDGET_H_
-#define LOGINWIDGET_H_
+#ifndef LOGIN_WIDGET_H_
+#define LOGIN_WIDGET_H_
 
 #include <Wt/WCompositeWidget>
 
@@ -18,10 +18,14 @@ namespace Wt {
   class WContainerWidget;
 }
 
+class Session;
+
 class LoginWidget : public Wt::WCompositeWidget
 {
 public:
-  LoginWidget(Wt::WContainerWidget *parent = 0);
+  LoginWidget(Session *session, Wt::WContainerWidget *parent = 0);
+
+  Wt::Signal<>& loggedIn() { return loggedIn_; }
   
 private:
   Wt::WText              *introText_;
@@ -31,7 +35,11 @@ private:
 
   Wt::WTemplate          *impl_;
 
+  Session                *session_;
+
+  Wt::Signal<>            loggedIn_;
+
   void checkCredentials();
 };
 
-#endif
+#endif //LOGIN_WIDGET_H_

@@ -388,7 +388,7 @@ public:
 
   /*! \brief %Signal emitted when an item is changed.
    *
-   * This signal is emitted whenever date of an item has changed. The
+   * This signal is emitted whenever data for an item has changed. The
    * item that has changed is passed as the first parameter.
    *
    * \sa WStandardItem::setData()

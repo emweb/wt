@@ -132,7 +132,7 @@ private:
   ReplyPtr reply_;
 
   /// The reply is complete.
-  bool moreDataToSend_;
+  bool moreDataToSendNow_;
 
   /// The server that owns this connection
   Server *server_;

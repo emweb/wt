@@ -1,6 +1,10 @@
+h1 {
+    text-align: center;
+}
+
 .highscores table {
-    height:auto;
-    width:60ex;
+    height: auto;
+    width: 60ex;
     margin-top: 20px;
     margin-bottom: 20px;
 

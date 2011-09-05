@@ -122,7 +122,7 @@ void Connection::handleReadRequest0()
       request_.port = socket().local_endpoint().port();
       reply_ = request_handler_.handleRequest(request_);
       reply_->setConnection(shared_from_this());
-      moreDataToSend_ = true;
+      moreDataToSendNow_ = true;
 
       handleReadBody();
     }
@@ -144,7 +144,7 @@ void Connection::sendStockReply(StockReply::status_type status)
 
   reply_->setConnection(shared_from_this());
   reply_->setCloseConnection();
-  moreDataToSend_ = true;
+  moreDataToSendNow_ = true;
 
   startWriteResponse();
 }
@@ -224,7 +224,7 @@ void Connection::handleReadBody(const asio_error_code& e,
 void Connection::startWriteResponse()
 {
   std::vector<asio::const_buffer> buffers;
-  moreDataToSend_ = !reply_->nextBuffers(buffers);
+  moreDataToSendNow_ = !reply_->nextBuffers(buffers);
 
 #ifdef DEBUG
   std::cerr << "Sending" << std::endl;
@@ -249,7 +249,7 @@ void Connection::startWriteResponse()
 
 void Connection::handleWriteResponse()
 {
-  if (moreDataToSend_) {
+  if (moreDataToSendNow_) {
     startWriteResponse();
   } else {
     if (reply_->waitMoreData()) {

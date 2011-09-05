@@ -11,12 +11,13 @@
 #include <Wt/Dbo/Dbo>
 
 #include "HighScoresWidget.h"
-#include "HangmanApplication.h"
+#include "Session.h"
 
 using namespace Wt;
 
-HighScoresWidget::HighScoresWidget(WContainerWidget *parent):
-  WContainerWidget(parent)
+HighScoresWidget::HighScoresWidget(Session *session, WContainerWidget *parent):
+  WContainerWidget(parent),
+  session_(session)
 {
   setContentAlignment(AlignCenter);
   setStyleClass("highscores");
@@ -26,11 +27,9 @@ void HighScoresWidget::update()
 {
   clear();
   
-  HangmanApplication *app = HangmanApplication::instance();
-  
   WText *title = new WText("<h2>Hall of fame</h2>", this);
   
-  int ranking = app->user->findRanking(app->session);
+  int ranking = session_->findRanking(session_->user());
   
   std::string yourScore;
   if (ranking == 1)
@@ -44,8 +43,7 @@ void HighScoresWidget::update()
   WText *score = new WText("<p>" + yourScore + "</p>", this);
   score->addStyleClass("score");
   
-  Dbo::Transaction transaction(app->session);
-  Users top = app->session.find<User>().orderBy("score desc").limit(20);
+  std::vector<User> top = session_->topUsers(20);
 
   WTable *table = new WTable(this);
 
@@ -58,23 +56,25 @@ void HighScoresWidget::update()
 
   int formerScore = -1;
   int rank = 0;
-  for (Users::const_iterator i = top.begin(); i != top.end(); ++i) {
-    if ((*i)->score != formerScore) {
-      formerScore = (*i)->score;
+  for (unsigned i = 0; i < top.size(); i++) {
+    User u = top[i];
+
+    if (u.score != formerScore) {
+      formerScore = u.score;
       ++rank;
     }
     
     int row = table->rowCount();
     new WText(boost::lexical_cast<std::string>(rank),
 	      table->elementAt(row, 0));
-    new WText((*i)->name, table->elementAt(row, 1));
-    new WText(boost::lexical_cast<std::string>((*i)->gamesPlayed),
+    new WText(u.name, table->elementAt(row, 1));
+    new WText(boost::lexical_cast<std::string>(u.gamesPlayed),
 	      table->elementAt(row, 2));
-    new WText(boost::lexical_cast<std::string>((*i)->score),
+    new WText(boost::lexical_cast<std::string>(u.score),
 	      table->elementAt(row, 3));
-    new WText((*i)->lastLogin.toString(), table->elementAt(row, 4));
+    new WText(u.lastLogin.toString(), table->elementAt(row, 4));
     
-    if (app->user && (*i) == app->user)
+    if (session_->user() && u.name == session_->user()->name)
       table->rowAt(row)->setId("self");
   }
 

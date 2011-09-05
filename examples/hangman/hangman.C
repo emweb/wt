@@ -4,11 +4,24 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "HangmanApplication.h"
+#include <Wt/WApplication>
+
+#include "HangmanGame.h"
 
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
-  return new HangmanApplication(env);
+  Wt::WApplication *app = new Wt::WApplication(env);
+  
+  app->setTitle("Hangman");
+
+  app->messageResourceBundle().use(app->appRoot() + "strings");
+  app->messageResourceBundle().use(app->appRoot() + "templates");
+
+  app->useStyleSheet("style/hangman.css");
+
+  HangmanGame *game = new HangmanGame(app->root());
+
+  return app;
 }
 
 

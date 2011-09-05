@@ -11,16 +11,15 @@
 #include <Wt/WTemplate>
 #include <Wt/WContainerWidget>
 #include <Wt/WComboBox>
-#include <Wt/Dbo/Dbo>
 
 #include "LoginWidget.h"
-#include "HangmanApplication.h"
+#include "Session.h"
 
 using namespace Wt;
-using namespace Wt::Dbo;
 
-LoginWidget::LoginWidget(WContainerWidget *parent):
-   WCompositeWidget(parent)
+LoginWidget::LoginWidget(Session* session, WContainerWidget *parent):
+  WCompositeWidget(parent),
+  session_(session)
 {
   setImplementation(impl_ = new WTemplate(tr("login.form")));
   
@@ -52,30 +51,16 @@ void LoginWidget::checkCredentials()
 {
   std::string userName = userName_->text().toUTF8();
   std::string passWord = passWord_->text().toUTF8();
+  Dictionary dictionary = (Dictionary) language_->currentIndex();
 
-  HangmanApplication *app = HangmanApplication::instance();
-
-  Session& session = app->session;
-  Transaction transaction(session);
-  ptr<User> user 
-    = session.find<User>().where("name = ?").bind(userName);
-  if (!user)
-    user = session.add(new User(userName, passWord));
-  
-  //TODO currently cleartext -> will be changed to use the Wt auth module
-  if (user->password != passWord) {
+  if (session_->login(userName, passWord)) {
     impl_->bindString("login-error", tr("login.error"));
-
+    
     userName_->setText("");
     passWord_->setText("");
   } else {
-    user.modify()->lastLogin = WDateTime::currentDateTime();
-    app->user = user;
-    app->dictionary = (Dictionary) language_->currentIndex();
-    
-    app->setInternalPath("play", true);
-   }
+    session_->setDictionary(dictionary);
 
-   transaction.commit();
+    loggedIn_.emit();
+  }
 }
-

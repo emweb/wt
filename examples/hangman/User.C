@@ -11,17 +11,3 @@ User::User(const std::string &name, const std::string &password) :
 {
 
 }
-
-int User::findRanking(Session& session) const
-{
- Transaction transaction(session);
-
- int ranking  = 
-   session.query<int>("select distinct count(score) from user")
-   .where("score > ?")
-   .bind(score);
-
-  transaction.commit(); 
- 
-  return ranking + 1;
-}

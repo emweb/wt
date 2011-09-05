@@ -350,6 +350,24 @@ public:
    */
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) = 0;
+
+  /*! \brief Indicate that more data is available.
+   *
+   * In some occasions, data may be requested for a resource which is
+   * currently not yet available. Then you can suspend the response
+   * using a continuation which you let wait for more data.
+   *
+   * Using this method you can indicate that more data is
+   * available. This will resume all responses that are currently
+   * waiting for more data.
+   *
+   * If no responses are currently waiting for data, then this method
+   * has no effect.
+   *
+   * \sa ResponseContinuation::waitForMoreData()
+   */
+  void haveMoreData();
+
 protected:
   /*! \brief Prepares the resource for deletion.
    *

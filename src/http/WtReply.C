@@ -137,7 +137,6 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	 * have sent the 101: some intermediaries may be holding back this
 	 * data because they are still in HTTP mode
 	 */
-	setWaitMoreData(true);
 	responseSent_ = true;
 	sending_ = true;
 
@@ -152,13 +151,13 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	 * web session.
 	 */
 	if (state == Request::Complete) {
-	  HTTPRequest *r = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-					   (shared_from_this()), &entryPoint_);
-	  r->setWebSocketRequest(true);
+	  httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
+					 (shared_from_this()), &entryPoint_);
+	  httpRequest_->setWebSocketRequest(true);
 
-	  connection->server()->controller()->server_->handleRequest(r);
+	  connection->server()->controller()->server_
+	    ->handleRequest(httpRequest_);
 	} else {
-	  setWaitMoreData(false);
 	  setCloseConnection();
 	  Reply::send();
 	  return;
@@ -180,9 +179,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
     cin_->seekg(0); // rewind
     responseSent_ = false;
 
-    HTTPRequest *r = httpRequest_;
-    httpRequest_ = 0;
-    connection->server()->controller()->server_->handleRequest(r);
+    connection->server()->controller()->server_->handleRequest(httpRequest_);
   }
 }
 
@@ -235,8 +232,19 @@ void WtReply::setLocation(const std::string& location)
     status_ = found;
 }
 
-void WtReply::send(const std::string& text, CallbackFunction callBack)
+bool WtReply::waitMoreData() const
 {
+  return httpRequest_ != 0;
+}
+
+void WtReply::send(const std::string& text, CallbackFunction callBack,
+		   bool responseComplete)
+{
+  if (responseComplete) {
+    delete httpRequest_;
+    httpRequest_ = 0;
+  }
+
   ConnectionPtr connection = getConnection();
 
   if (!connection)

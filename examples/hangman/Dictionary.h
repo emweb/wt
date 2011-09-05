@@ -17,4 +17,4 @@ enum Dictionary {
 
 extern std::wstring RandomWord(Dictionary dictionary);
 
-#endif
+#endif //DICTIONARY_H_

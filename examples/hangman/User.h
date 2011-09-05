@@ -14,7 +14,7 @@
 
 #include <string>
 
-class User {
+class User : public Wt::Dbo::ptr<User> {
 public:
   std::string     name;
   std::string     password;
@@ -35,8 +35,6 @@ public:
   User() {}
 
   User(const std::string &name, const std::string &password);
-
-  int findRanking(Wt::Dbo::Session& session) const;
 };
 
 typedef Wt::Dbo::collection< Wt::Dbo::ptr<User> > Users;
