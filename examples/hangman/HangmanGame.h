@@ -8,7 +8,9 @@
 #ifndef HANGMANGAME_H_
 #define HANGMANGAME_H_
 
-#include <Wt/WTable>
+#include <Wt/WContainerWidget>
+
+#include "Session.h"
 
 namespace Wt {
   class WStackedWidget;
@@ -18,12 +20,15 @@ namespace Wt {
 class HangmanWidget;
 class HighScoresWidget;
 class LoginWidget;
+class Session;
 
 class HangmanGame : public Wt::WContainerWidget
 {
 public:
   HangmanGame(Wt::WContainerWidget *parent = 0);
-  
+
+  void handleInternalPath(const std::string &internalPath);
+
 private:
   Wt::WStackedWidget   *mainStack_;
   LoginWidget          *login_;
@@ -31,11 +36,10 @@ private:
   HighScoresWidget     *scores_;
   Wt::WAnchor          *backToGameAnchor_;
   Wt::WAnchor          *scoresAnchor_;
-  
-  void handleInternalPath();
 
-  void showLogin();
+  Session               session_;
   
+  void showLogin();
   void showGame();
   void showHighScores();
 };

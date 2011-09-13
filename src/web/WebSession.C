@@ -848,11 +848,11 @@ void WebSession::doRecursiveEventLoop()
 		      "enabled servlet container and an application "
 		      "with async-supported enabled.");
 #endif
-  
+
   /*
    * Finish the request that is being handled
    *
-   * It could be that handler does not have a request/respone:
+   * It could be that handler does not have a request/response:
    *  if it is actually a long polling server push request.
    *  if we are somehow recursing recursive event loops (can anyone explain
    *  that ?)
@@ -861,6 +861,8 @@ void WebSession::doRecursiveEventLoop()
    */
   if (handler->request())
     handler->session()->notifySignal(WEvent(WEvent::Impl(handler)));
+  else
+    app_->triggerUpdate();
 
   if (handler->response())
     handler->session()->render(*handler);
@@ -1253,7 +1255,13 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	}
 
-	if (requestForResource || !unlockRecursiveEventLoop()) {
+	if (!handler.request())
+	  break;
+
+	const std::string *signalE = handler.request()->getParameter("signal");
+	bool isPoll = signalE && *signalE == "poll";
+
+	if (requestForResource || isPoll || !unlockRecursiveEventLoop()) {
 	  setLoaded();
 
 	  app_->notify(WEvent(WEvent::Impl(&handler)));

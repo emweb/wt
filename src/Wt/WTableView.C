@@ -55,7 +55,7 @@ WTableView::WTableView(WContainerWidget *parent)
     viewportWidth_(1000),
     viewportTop_(0),
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT)
-{ 
+{
   setSelectable(false);
 
   dropEvent_.connect(this, &WTableView::onDropEvent);

@@ -322,11 +322,16 @@ void DomElement::setEvent(const char *eventName,
     if (anchorClick)
       js << "if(e.ctrlKey||e.metaKey||(" WT_CLASS ".button(e) > 1))return true;else{";
 
+    /*
+     * This order, first JavaScript and then event propagation is important
+     * for WCheckBox where the tristate state is cleared before propagating
+     * its value
+     */
+    js << jsCode;
+
     if (isExposed)
       js << app->javaScriptClass() << "._p_.update(o,'"
 	 << signalName << "',e,true);";
-
-    js << jsCode;
 
     if (anchorClick)
       js << "}";
@@ -364,20 +369,28 @@ DomElement::EventAction::EventAction(const std::string& aJsCondition,
 void DomElement::setEvent(const char *eventName,
 			  const std::vector<EventAction>& actions)
 {
-  std::string code;
+  SStream code;
 
   for (unsigned i = 0; i < actions.size(); ++i) {
     if (!actions[i].jsCondition.empty())
-      code += "if(" + actions[i].jsCondition + "){";
+      code << "if(" << actions[i].jsCondition << "){";
+
+    /*
+     * This order, first JavaScript and then event propagation is important
+     * for WCheckBox where the tristate state is cleared before propagating
+     * its value
+     */
+    code << actions[i].jsCode;
+
     if (actions[i].exposed)
-      code += WApplication::instance()->javaScriptClass()
-	+ "._p_.update(this,'" + actions[i].updateCmd + "',e,true);";
-    code += actions[i].jsCode;
+      code << WApplication::instance()->javaScriptClass()
+	   << "._p_.update(this,'" << actions[i].updateCmd << "',e,true);";
+
     if (!actions[i].jsCondition.empty())
-      code += "}";
+      code << "}";
   }
 
-  setEvent(eventName, code, "");
+  setEvent(eventName, code.str(), "");
 }
 
 void DomElement::processProperties(WApplication *app) const

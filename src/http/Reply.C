@@ -158,8 +158,6 @@ Reply::Reply(const Request& request, const Configuration& config)
     closeConnection_(false),
     chunkedEncoding_(false),
     gzipEncoding_(false),
-    waitMoreData_(false),
-    finishing_(false),
     contentSent_(0),
     contentOriginalSize_(0)
 #ifdef WTHTTP_WITH_ZLIB
@@ -187,11 +185,6 @@ std::string Reply::location()
   return std::string();
 }
 
-void Reply::setWaitMoreData(bool how)
-{
-  waitMoreData_ = how;
-}
-
 void Reply::addHeader(const std::string name, const std::string value)
 {
   headers_.push_back(std::make_pair(name, value));
@@ -202,7 +195,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
   bufs_.clear();
 
   if (relay_.get())
-    return finishing_ = relay_->nextBuffers(result);
+    return relay_->nextBuffers(result);
   else {
     if (!transmitting_) {
       transmitting_ = true;
@@ -338,11 +331,11 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
 	result.push_back(asio::buffer(misc_strings::crlf));
 
-	return finishing_ = false;
+	return false;
       } else { // responseStatus() == not-modified
 	result.push_back(asio::buffer(misc_strings::crlf));
 
-	return finishing_ = true;
+	return true;
       }
     } else { // transmitting (data)
       std::vector<asio::const_buffer> contentBuffers;
@@ -351,7 +344,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
       encodeNextContentBuffer(contentBuffers, originalSize, encodedSize);
 
-      bool lastData = originalSize == 0;
+      bool lastData = (originalSize == 0 && !waitMoreData());
 
       contentSent_ += encodedSize;
       contentOriginalSize_ += originalSize;
@@ -377,11 +370,11 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	    result.push_back(asio::buffer(misc_strings::crlf));
 	}
 
-	return finishing_ = lastData;
+	return originalSize == 0;
       } else {
 	result = contentBuffers;
 
-	return finishing_ = lastData;
+	return originalSize == 0;
       }
     }
   }

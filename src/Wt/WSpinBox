@@ -26,6 +26,9 @@ namespace Wt {
  * See WAbstractSpinBox.
  *
  * \sa WDoubleSpinBox
+ *
+ * \note A spinbox configures a validator for validating the input. Therefore
+ *       you cannot set a validator yourself.
  */
 class WT_API WSpinBox : public WAbstractSpinBox
 {

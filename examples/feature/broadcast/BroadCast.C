@@ -5,6 +5,7 @@
  */
 #include <Wt/WApplication>
 #include <Wt/WText>
+#include <Wt/WMessageBox>
 #include <Wt/WServer>
 
 #include <boost/thread.hpp>
@@ -131,7 +132,7 @@ void Server::run()
    * thread.
    */
   for (;;) {
-    boost::this_thread::sleep(boost::posix_time::seconds(1));
+    boost::this_thread::sleep(boost::posix_time::seconds(10));
 
     if (stop_)
       return;

@@ -41,7 +41,7 @@ void WCheckBox::setTristate(bool tristate)
 
   if (triState_) {
     if (!supportsIndeterminate(WApplication::instance()->environment()))
-      clicked().connect(clearOpacityJS);
+      changed().connect(clearOpacityJS);
     else if (WApplication::instance()->environment().agentIsSafari()
 	     && !safariWorkaround_) {
       clicked().connect(safariWorkaroundJS);

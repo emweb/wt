@@ -210,8 +210,10 @@ void WBoxLayout::insertItem(int index, WLayoutItem *item, int stretch,
   case BottomToTop:
     index = grid_.rows_.size() - index;
   case TopToBottom:
-    if (grid_.columns_.empty())
+    if (grid_.columns_.empty()) {
       grid_.columns_.push_back(Impl::Grid::Column());
+      grid_.columns_[0].stretch_ = -1; // make width managed
+    }
     grid_.rows_.insert(grid_.rows_.begin() + index,
 		       Impl::Grid::Row(stretch));
     grid_.items_.insert(grid_.items_.begin() + index,

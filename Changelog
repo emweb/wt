@@ -1,3 +1,18 @@
+13-09-2011
+	* WConfig: added a check to detect header/library version mismatches
+
+	* Chart/WAxis.C: a fix from Joe Garcia, crash with log scaling
+
+	* WItemDelegate: set target new window for WLink data when it references
+	a resource
+
+	* WMenu: fix hiding of a menu item to hide the entire item, not just
+	the contents (label)
+
+05-09-2011
+	* WResource, Http/ResponseContinuation: added API to suspend a response
+	while waiting for more data, and resuming later
+
 31-08-2011:
 	* WResource: use suggestedFilename() also when set during
 	handleRequest() (#920)

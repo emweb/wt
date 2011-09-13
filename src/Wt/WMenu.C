@@ -239,7 +239,7 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
   } else
     item->renderSelected(false);
 
-  item->renderHidden(item->isHidden());
+  item->itemWidget()->parent()->setHidden(item->isHidden());
 
   itemPathChanged(item);
 
@@ -370,7 +370,7 @@ void WMenu::doSetHiddenItem(int index, bool hidden)
       select(nextItem);
   }
 
-  items_[index]->renderHidden(hidden);
+  items_[index]->itemWidget()->parent()->setHidden(hidden);
 }
 
 void WMenu::doSetHiddenItem(WMenuItem *item, bool hidden)
@@ -513,14 +513,12 @@ void WMenu::recreateItem(int index)
 {
   WMenuItem *item = items_[index];
 
-  if (renderAsList_) {
-    WContainerWidget *li =
-      dynamic_cast<WContainerWidget *>(item->itemWidget()->parent());
-    li->addWidget(item->recreateItemWidget());
-  } else {
-    WTableCell *parent =
-      dynamic_cast<WTableCell *>(item->itemWidget()->parent());
+  WContainerWidget *parent =
+    dynamic_cast<WContainerWidget *>(item->itemWidget()->parent());
 
+  if (renderAsList_) {
+    parent->addWidget(item->recreateItemWidget());
+  } else {
     if (orientation_ == Horizontal) {
       const int pos = parent->indexOf(item->itemWidget());
       WWidget *newItemWidget = item->recreateItemWidget();
@@ -531,7 +529,8 @@ void WMenu::recreateItem(int index)
   }
 
   item->renderSelected(current_ == index);
-  item->renderHidden(item->isHidden());
+
+  parent->setHidden(item->isHidden());
 
   updateSelectionEvent();
 }

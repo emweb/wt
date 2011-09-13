@@ -119,6 +119,8 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
       WLink link = boost::any_cast<WLink>(linkData);
       WAnchor *a = anchorWidget(widgetRef);
       a->setLink(link);
+      if (link.type() == WLink::Resource)
+	a->setTarget(TargetNewWindow);
     }
 
     WText *t = textWidget(widgetRef);
@@ -221,7 +223,7 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w, bool autoCreate)
     return image;
 
   WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w.w->find("a"));
-      
+
   if (!wc)
     wc = dynamic_cast<WContainerWidget *>(w.w->find("o"));
 

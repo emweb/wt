@@ -77,9 +77,19 @@ public:
 
   /*! \brief Create a continuation object for this response.
    *
-   * By creating a continuation object, a new request will be made for
-   * the resource to retrieve more data, after the current data has
-   * been sent out.
+   * A continuation is used to resume sending more data later for this
+   * response. There are two possible reasons for this:
+   * - the entire response is quite big and you may want to read and send
+   *   it in smaller chunks to avoid memory consumption problems since the
+   *   I/O layer buffers the response first in memory to send it then out
+   *   to a possibly slow client using async I/O.
+   * - you may not have any more data available, currently, but expect more
+   *   data later. In that case you can call
+   *   ResponseContinuation::waitForMoreData() and later call
+   *   WResource::haveMoreData() when more data is available.
+   *
+   * A new call to handleRequest() will be called to retrieve more
+   * data.
    *
    * \sa continuation()
    */

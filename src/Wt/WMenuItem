@@ -45,9 +45,6 @@ class WWidget;
  *   the item to something else than the clicked event.
  * - optionally, renderSelected(bool): if you need to do additional
  *   styling to reflect a selection, other than changing style classes.
- * - optionally, renderHidden(bool): if you need to do additionanl
- *   styling to reflect a hide, other than hiding (see
- *   WWebWidget::setHidden(bool)).
  *
  * To provide another look for the close icon you can override
  * <tt>Wt-closeicon</tt> CSS class (see WMenu for more details).
@@ -317,13 +314,6 @@ protected:
    * implementation, and thus should be stateless as well.
    */
   virtual void renderSelected(bool selected);
-
-  /*! \brief Renders the item as hidden or closed.
-   *
-   * The default implementation hides the item widget (including all its
-   * descendant widgets).
-   */
-  virtual void renderHidden(bool hidden);
 
   /*! \brief Returns the signal used to activate the item.
    *

@@ -23,10 +23,7 @@ void HTTPRequest::flush(ResponseState state, CallbackFunction callback)
 {
   std::string s = outstream_.str();
   outstream_.str("");
-  reply_->send(s, callback);
-
-  if (state == ResponseDone)
-    delete this; // also deletes the reply if the connection was closed
+  reply_->send(s, callback, state == ResponseDone);
 }
 
 void HTTPRequest::readWebSocketMessage(CallbackFunction callback)

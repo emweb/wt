@@ -298,11 +298,6 @@ void WMenuItem::renderSelected(bool selected)
     itemWidget()->setStyleClass(selected ? "itemselected" : "item");
 }
 
-void WMenuItem::renderHidden(bool hidden)
-{
-  itemWidget()->setHidden(hidden);
-}
-
 void WMenuItem::selectNotLoaded()
 {
   if (!contentsLoaded())

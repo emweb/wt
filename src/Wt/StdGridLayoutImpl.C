@@ -589,6 +589,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	   * For now we do this only in rows in which we are also fitting
 	   * height.
 	   */
+
 	  if (colStretch && itemFitWidth && itemFitHeight) {
 	    td->setProperty(PropertyClass, "Wt-chwrap");
 	    if (!app->environment().agentIsIE()) {

@@ -588,7 +588,7 @@ void WStandardItem::setChild(int row, int column, WStandardItem *item)
   if (model_) {
     WModelIndex self = item->index();
     model_->dataChanged().emit(self, self);
-    model_->itemChanged().emit(this);
+    // model_->itemChanged().emit(item);
   }
 }
 

@@ -15,7 +15,7 @@ namespace Wt {
  *  \brief A container widget that stacks its widgets on top of each
  *         other.
  *
- * This is a container widgets which at all times has only one item
+ * This is a container widget which at all times has only one item
  * visible. The widget accomplishes this using setHidden(bool) on the
  * children.
  *

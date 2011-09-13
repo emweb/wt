@@ -186,7 +186,7 @@ namespace Wt {
    WRun() to start the %Wt application server. This method will return
    only when shutdown is signaled by the environment, and after the
    application server (and all remaining active sessions) has been
-   properly shutd down. One parameter to the WRun() function is a \em
+   properly shut down. One parameter to the WRun() function is a \em
    createApplication function object. Alternatively, if you wish to
    have more control over the application server, you may also
    instantiate and configure a WServer instance directly.
@@ -395,7 +395,7 @@ namespace Wt {
   These key values will be lookup up in so-called message resource
   bundles (see WMessageResourceBundle). These are a set of xml files
   that translate the keys to a localized string. The name of the xml
-  file determines the language contained therin (e.g. foo.xml, foo-nl.xml,
+  file determines the language contained therein (e.g. foo.xml, foo-nl.xml,
   foo-cn.xml)
 
   The strings that are used by classes within the %Wt library use the

@@ -43,9 +43,12 @@ public:
   void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
-  void send(const std::string& text, CallbackFunction callBack);
+  void send(const std::string& text, CallbackFunction callBack,
+	    bool responseComplete);
   void readWebSocketMessage(CallbackFunction callBack);
   bool readAvailable();
+
+  virtual bool waitMoreData() const;
 
   std::istream& cin() { return *cin_; }
   const Request& request() const { return request_; }

@@ -32,7 +32,8 @@ void ResponseContinuation::doContinue()
 ResponseContinuation::ResponseContinuation(WResource *resource,
 					   WebResponse *response)
   : resource_(resource),
-    response_(response)
+    response_(response),
+    waiting_(false)
 {
   resource_->continuations_.push_back(this);
 }
@@ -40,6 +41,11 @@ ResponseContinuation::ResponseContinuation(WResource *resource,
 void ResponseContinuation::stop()
 {
   response_->flush(WebResponse::ResponseDone);
+}
+
+void ResponseContinuation::waitForMoreData()
+{
+  waiting_ = true;
 }
 
 ResponseContinuation::~ResponseContinuation()

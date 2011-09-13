@@ -73,6 +73,20 @@ void WResource::setUploadProgress(bool enabled)
   }
 }
 
+void WResource::haveMoreData()
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(*mutex_);
+#endif // WT_THREADED
+
+  std::vector<Http::ResponseContinuation *> cs = continuations_;
+
+  for (unsigned i = 0; i < cs.size(); ++i) {
+    if (cs[i]->isWaitingForMoreData())
+      cs[i]->doContinue();
+  }
+}
+
 void WResource::doContinue(Http::ResponseContinuation *continuation)
 {
   WebResponse *webResponse = continuation->response();
@@ -99,7 +113,8 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
     return;
 
   // when we are handling a continuation, we do not have the session
-  // lock
+  // lock, unless we are being called from haveMoreData(), but then it's
+  // fine I guess ?
   if (!continuation) {
     WebSession::Handler *h = WebSession::Handler::instance();
     if (h && h->lock().owns_lock())
@@ -110,7 +125,7 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   if (continuation)
     continuation->resource_ = 0;
 
-  Http::Request  request(*webRequest, continuation);
+  Http::Request request(*webRequest, continuation);
   Http::Response response(this, webResponse, continuation);
 
   handleRequest(request, response);
@@ -123,10 +138,19 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
       delete response.continuation_;
     }
     webResponse->flush(WebResponse::ResponseDone);
-  } else
-    webResponse->flush(WebResponse::ResponseFlush,
-		       boost::bind(&Http::ResponseContinuation::doContinue,
-				   response.continuation_));
+  } else {
+    if (response.continuation_->waiting_) {
+      response.continuation_->waiting_ = false;
+      webResponse->flush
+	(WebResponse::ResponseFlush,
+	 boost::bind(&Http::ResponseContinuation::waitForMoreData,
+		     response.continuation_));
+    } else
+      webResponse
+	->flush(WebResponse::ResponseFlush,
+		boost::bind(&Http::ResponseContinuation::doContinue,
+			    response.continuation_));
+  }
 }
 
 void WResource::suggestFileName(const WString& name,

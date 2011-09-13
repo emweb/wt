@@ -10,11 +10,16 @@
 
 #include <Wt/WContainerWidget>
 
+class Session;
+
 class HighScoresWidget: public Wt::WContainerWidget
 {
 public:
-  HighScoresWidget(Wt::WContainerWidget *parent = 0);
+  HighScoresWidget(Session *session, Wt::WContainerWidget *parent = 0);
   void update();
+
+private:
+  Session *session_;
 };
 
 #endif //HIGH_SCORES_WIDGET_H_

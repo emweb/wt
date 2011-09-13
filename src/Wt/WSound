@@ -38,7 +38,7 @@ class WT_API WSound : public WObject
 public:
   /*! \brief Constructs a sound object that will play the given URL.
    *
-   * \note As of Wt 3.1.10, the \p url must specify an MP3 file.
+   * \note As of %Wt 3.1.10, the \p url must specify an MP3 file.
    */
   WSound(const std::string &url, WObject *parent = 0);
 
