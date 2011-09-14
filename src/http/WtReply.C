@@ -119,31 +119,37 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
       if (status_ == ok) {
 	assert(state == Request::Complete);
 
-	std::string origin = request().headerMap.find("Origin")->second;
-	std::string host = request().headerMap.find("Host")->second;
+	std::string origin = request().getHeader("Origin");
+	std::string host = request().getHeader("Host");
 
-	status_ = switching_protocols;
-	addHeader("Connection", "Upgrade");
-	addHeader("Upgrade", "WebSocket");
-	addHeader("Sec-WebSocket-Origin", origin);
+	if (origin.empty() || host.empty()) {
+	  status_ = bad_request;
+	  setCloseConnection();
+	} else {	
+	  status_ = switching_protocols;
+	  addHeader("Connection", "Upgrade");
+	  addHeader("Upgrade", "WebSocket");
+	  addHeader("Sec-WebSocket-Origin", origin);
 
-	std::string location
-	  = request().urlScheme + "://" + host + request().request_path
-	  + "?" + request().request_query;
-	addHeader("Sec-WebSocket-Location", location);
+	  std::string location
+	    = request().urlScheme + "://" + host + request().request_path
+	    + "?" + request().request_query;
+	  addHeader("Sec-WebSocket-Location", location);
 
-	/*
-	 * We defer reading the rest of the handshake until after we
-	 * have sent the 101: some intermediaries may be holding back this
-	 * data because they are still in HTTP mode
-	 */
-	responseSent_ = true;
-	sending_ = true;
+	  /*
+	   * We defer reading the rest of the handshake until after we
+	   * have sent the 101: some intermediaries may be holding back this
+	   * data because they are still in HTTP mode
+	   */
+	  responseSent_ = true;
+	  sending_ = true;
 
-	fetchMoreDataCallback_
-	  = boost::bind(&WtReply::readRestWebSocketHandshake, this);
+	  fetchMoreDataCallback_
+	    = boost::bind(&WtReply::readRestWebSocketHandshake, this);
 
-	Reply::send();
+	  Reply::send();
+	  return;
+	}
       } else {
 	/*
 	 * We got the nonce and the expected challenge response is
@@ -160,11 +166,10 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	} else {
 	  setCloseConnection();
 	  Reply::send();
-	  return;
 	}
-      }
 
-      return;
+	return;
+      }
     }
 
     if (status_ >= 300) {

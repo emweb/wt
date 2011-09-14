@@ -73,6 +73,7 @@ public:
   bool closeConnection() const;
   bool acceptGzipEncoding() const;
   void enableWebSocket();
+  std::string getHeader(const std::string& name) const;
 
   void transmitHeaders(std::ostream& out) const;
 };

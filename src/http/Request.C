@@ -92,5 +92,15 @@ bool Request::acceptGzipEncoding() const
     return false;
 }
 
+std::string Request::getHeader(const std::string& name) const
+{
+  HeaderMap::const_iterator i = headerMap.find(name);
+
+  if (i != headerMap.end())
+    return i->second;
+  else
+    return std::string();
+}
+
 } // namespace server
 } // namespace http
