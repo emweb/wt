@@ -20,6 +20,8 @@ class HTTPRequest : public Wt::WebRequest
 public:
   HTTPRequest(WtReplyPtr wtReply, const Wt::EntryPoint *entryPoint);
 
+  bool done() const;
+
   virtual void flush(ResponseState state, CallbackFunction callback);
   virtual void readWebSocketMessage(CallbackFunction callback);
   virtual bool webSocketMessagePending() const;

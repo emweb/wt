@@ -19,11 +19,19 @@ HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
   entryPoint_ = entryPoint;
 }
 
+bool HTTPRequest::done() const
+{
+  return !reply_.get();
+}
+
 void HTTPRequest::flush(ResponseState state, CallbackFunction callback)
 {
   std::string s = outstream_.str();
   outstream_.str("");
   reply_->send(s, callback, state == ResponseDone);
+
+  if (state == ResponseDone)
+    reply_.reset();
 }
 
 void HTTPRequest::readWebSocketMessage(CallbackFunction callback)

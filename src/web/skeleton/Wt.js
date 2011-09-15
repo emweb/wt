@@ -1478,6 +1478,8 @@ _$_$endif_$_();
 	console.log(error.toString());
       }
 
+      WT.scrollIntoView(state);
+
       if (generateEvent)
 	cb(state);
     },

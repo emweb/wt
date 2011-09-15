@@ -177,9 +177,6 @@ Reply::~Reply()
 #endif // WTHTTP_WITH_ZLIB
 }
 
-void Reply::release()
-{ }
-
 std::string Reply::location()
 {
   return std::string();

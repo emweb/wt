@@ -58,14 +58,10 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
   httpRequest_ = 0;
 }
 
-void WtReply::release()
-{
-  delete httpRequest_;
-  httpRequest_ = 0;
-}
-
 WtReply::~WtReply()
 {
+  delete httpRequest_;
+
   if (&cin_mem_ != cin_) {
     dynamic_cast<std::fstream *>(cin_)->close();
     delete cin_;
@@ -116,6 +112,8 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
   if (state != Request::Partial) {
     if (request().webSocketRequest) {
+      setCloseConnection();
+
       if (status_ == ok) {
 	assert(state == Request::Complete);
 
@@ -124,7 +122,6 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 	if (origin.empty() || host.empty()) {
 	  status_ = bad_request;
-	  setCloseConnection();
 	} else {	
 	  status_ = switching_protocols;
 	  addHeader("Connection", "Upgrade");
@@ -173,7 +170,6 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
     }
 
     if (status_ >= 300) {
-      release();
       setRelay(ReplyPtr(new StockReply(request(), status_, configuration())));
       Reply::send();
       return;
@@ -239,17 +235,12 @@ void WtReply::setLocation(const std::string& location)
 
 bool WtReply::waitMoreData() const
 {
-  return httpRequest_ != 0;
+  return httpRequest_ != 0 && !httpRequest_->done();
 }
 
 void WtReply::send(const std::string& text, CallbackFunction callBack,
 		   bool responseComplete)
 {
-  if (responseComplete) {
-    delete httpRequest_;
-    httpRequest_ = 0;
-  }
-
   ConnectionPtr connection = getConnection();
 
   if (!connection)

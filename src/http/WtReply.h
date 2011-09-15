@@ -75,7 +75,6 @@ protected:
   virtual std::string     contentType();
   virtual std::string     location();
   virtual ::int64_t       contentLength();
-  virtual void            release();
 
   virtual asio::const_buffer nextContentBuffer();  
 

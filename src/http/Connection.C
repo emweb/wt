@@ -138,8 +138,6 @@ void Connection::handleReadRequest0()
 
 void Connection::sendStockReply(StockReply::status_type status)
 {
-  if (reply_)
-    reply_->release();
   reply_.reset(new StockReply(request_, status, "", server_->configuration()));
 
   reply_->setConnection(shared_from_this());
@@ -171,9 +169,6 @@ void Connection::close()
   cancelTimer();
 
   DEBUG_ASYNC(std::cerr << socket().native() << ": close()" << std::endl);
-
-  if (reply_)
-    reply_->release();
 
   ConnectionManager_.stop(shared_from_this());
 }

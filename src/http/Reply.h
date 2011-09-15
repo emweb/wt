@@ -101,7 +101,6 @@ public:
 
   virtual bool waitMoreData() const { return false; }
   void send();
-  virtual void release();
 
   const Configuration& configuration() { return configuration_; }
 
