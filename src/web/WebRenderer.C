@@ -756,8 +756,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
       int librariesLoaded = loadScriptLibraries(collectedJS1_, app);
 
       app->streamBeforeLoadJavaScript(collectedJS1_, false);
- 
+
       collectedJS2_
+	<< WT_CLASS ".resolveRelativeAnchors();"
 	<< "domRoot.style.visibility = 'visible';"
 	<< app->javaScriptClass() << "._p_.doAutoJavaScript();";
 
