@@ -89,6 +89,11 @@ WWidget *WtHome::widgetGalleryExample()
   return example("home.examples.widgetgallery", "widgetgallery");
 }
 
+WWidget *WtHome::hangmanExample()
+{
+  return example("home.examples.hangman", "hangman");
+}
+
 WWidget *WtHome::examples()
 {
   WContainerWidget *result = new WContainerWidget();
@@ -131,6 +136,8 @@ WWidget *WtHome::examples()
 			tr("chat"));
   examplesMenu_->addTab(wrapView(&WtHome::composerExample),
 			tr("mail-composer"));
+  examplesMenu_->addTab(wrapView(&WtHome::hangmanExample),
+			tr("hangman"));
   examplesMenu_->addTab(wrapView(&WtHome::widgetGalleryExample),
 			tr("widget-gallery"));
 

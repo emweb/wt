@@ -37,16 +37,25 @@ Connection::Connection(asio::io_service& io_service, Server *server,
     ConnectionManager& manager, RequestHandler& handler)
   : ConnectionManager_(manager),
     request_handler_(handler),
-    timer_(io_service),
+    readTimer_(io_service),
+    writeTimer_(io_service),
     request_parser_(server),
     server_(server)
 { }
 
 Connection::~Connection()
-{ }
+{
+  DEBUG_ASYNC(std::cerr << "~Connection" << std::endl);
+}
 
 void Connection::finishReply()
-{ }
+{ 
+  if (!request_.uri.empty()) {
+    DEBUG_ASYNC(std::cerr << "Last request: "
+		<< request_.method << " " << request_.uri << " (ws:"
+		<< request_.webSocketRequest << ")" << std::endl);
+  }
+}
 
 void Connection::start()
 {
@@ -65,16 +74,28 @@ void Connection::start()
   startAsyncReadRequest(buffer_, CONNECTION_TIMEOUT);
 }
 
-void Connection::setTimeout(int seconds)
+void Connection::setReadTimeout(int seconds)
 {
-  timer_.expires_from_now(boost::posix_time::seconds(seconds));
-  timer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
+  readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
+  readTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
   				asio::placeholders::error));  
 }
 
-void Connection::cancelTimer()
+void Connection::setWriteTimeout(int seconds)
 {
-  timer_.cancel();
+  writeTimer_.expires_from_now(boost::posix_time::seconds(seconds));
+  writeTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
+  				asio::placeholders::error));  
+}
+
+void Connection::cancelReadTimer()
+{
+  readTimer_.cancel();
+}
+
+void Connection::cancelWriteTimer()
+{
+  writeTimer_.cancel();
 }
 
 void Connection::timeout(const asio_error_code& e)
@@ -82,6 +103,8 @@ void Connection::timeout(const asio_error_code& e)
   if (e != asio::error::operation_aborted) {
     asio_error_code ignored_ec;
     socket().shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    readTimer_.cancel();
+    writeTimer_.cancel();
   }
 }
 
@@ -152,7 +175,7 @@ void Connection::handleReadRequest(const asio_error_code& e,
 {
   DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadRequest(): " << e.message() << std::endl);
 
-  cancelTimer();
+  cancelReadTimer();
 
   if (!e) {
     remaining_ = buffer_.data();
@@ -166,7 +189,8 @@ void Connection::handleReadRequest(const asio_error_code& e,
 
 void Connection::close()
 {
-  cancelTimer();
+  cancelReadTimer();
+  cancelWriteTimer();
 
   DEBUG_ASYNC(std::cerr << socket().native() << ": close()" << std::endl);
 
@@ -185,7 +209,7 @@ void Connection::handleReadBody()
     bool result = request_parser_
       .parseBody(request_, reply_, remaining_, buffer_.data() + buffer_size_);
 
-    if (!result)
+    if (!result && socket().is_open())
       startAsyncReadBody(buffer_, CONNECTION_TIMEOUT);
   }
 }
@@ -204,7 +228,7 @@ void Connection::handleReadBody(const asio_error_code& e,
 {
   DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadBody(): " << e.message() << std::endl);
 
-  cancelTimer();
+  cancelReadTimer();
 
   if (!e) {
     remaining_ = buffer_.data();
@@ -212,6 +236,9 @@ void Connection::handleReadBody(const asio_error_code& e,
     handleReadBody();
   } else if (e != asio::error::operation_aborted
 	     && e != asio::error::bad_descriptor) {
+    if (reply_)
+      reply_->consumeData(remaining_, remaining_, Request::Error);
+
     handleError(e);
   }
 }
@@ -237,7 +264,7 @@ void Connection::startWriteResponse()
   if (!buffers.empty()) {
     startAsyncWriteResponse(buffers, CONNECTION_TIMEOUT);
   } else {
-    cancelTimer();
+    cancelWriteTimer();
     handleWriteResponse();
   }
 }
@@ -273,7 +300,7 @@ void Connection::handleWriteResponse(const asio_error_code& e)
 {
   DEBUG_ASYNC(std::cerr << socket().native() << ": handleWriteResponse(): " << e.message() << std::endl);
 
-  cancelTimer();
+  cancelWriteTimer();
 
   if (!e)
     handleWriteResponse();

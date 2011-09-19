@@ -464,6 +464,22 @@ void WebController::handleRequest(WebRequest *request)
     return;
   }
 
+  const std::string *requestE = request->getParameter("request");
+  if (requestE && *requestE == "redirect") {
+    const std::string *urlE = request->getParameter("url");
+    if (urlE) {
+      request->setRedirect(*urlE);
+    } else {
+      request->setContentType("text/html");
+      request->out()
+	<< "<title>Error occurred.</title>"
+	<< "<h2>Error occurred.</h2><p>Invalid redirect.</p>" << std::endl;
+    }
+
+    request->flush(WebResponse::ResponseDone);
+    return;
+  }
+
   std::string sessionId;
 
   /*

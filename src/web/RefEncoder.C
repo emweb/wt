@@ -10,7 +10,7 @@
 
 #include "DomElement.h"
 #include "EscapeOStream.h"
-#include "InternalPathEncoder.h"
+#include "RefEncoder.h"
 #include "WebSession.h"
 #include "Utils.h"
 
@@ -21,16 +21,17 @@ using namespace rapidxml;
 
 namespace Wt {
 
-void EncodeInternalPathRefs(xml_node<> *x_node, WApplication *app)
+void EncodeRefs(xml_node<> *x_node, WApplication *app,
+		WFlags<RefEncoderOption> options)
 {
   if (strcmp(x_node->name(), "a") == 0) {
     xml_attribute<> *x_href = x_node->first_attribute("href");
     if (x_href) {
       std::string path = x_href->value();
+      xml_document<> *doc = x_node->document();
 
-      if (path.length() >= 2 && path.substr(0, 2) == "#/") {
-	xml_document<> *doc = x_node->document();
-
+      if ((options & EncodeInternalPaths)
+	  && path.length() >= 2 && path.substr(0, 2) == "#/") {
 	path = path.substr(1);
 	std::string addClass, url;
 
@@ -71,13 +72,18 @@ void EncodeInternalPathRefs(xml_node<> *x_node, WApplication *app)
 
 	x_href->value
 	  (doc->allocate_string(app->resolveRelativeUrl(url).c_str()));
+      } else if (options & EncodeRedirectTrampoline) {
+	if (path.find("://") != std::string::npos) {
+	  path = "?request=redirect&url=" + Utils::urlEncode(path);
+	  x_href->value(doc->allocate_string(path.c_str()));
+	}
       }
     }
   }
 
   for (xml_node<> *x_child = x_node->first_node(); x_child;
        x_child = x_child->next_sibling())
-    EncodeInternalPathRefs(x_child, app);
+    EncodeRefs(x_child, app, options);
 
   if (!x_node->first_node()
       && x_node->value_size() == 0
@@ -90,7 +96,7 @@ void EncodeInternalPathRefs(xml_node<> *x_node, WApplication *app)
   }
 }
 
-void EncodeInternalPathRefs(WString& text)
+void EncodeRefs(WString& text, WFlags<RefEncoderOption> options)
 {
   if (text.empty())
     return;
@@ -107,7 +113,7 @@ void EncodeInternalPathRefs(WString& text)
       | parse_validate_utf8
       | parse_xhtml_entity_translation>(ctext);
 
-    EncodeInternalPathRefs(doc.first_node(), app);
+    EncodeRefs(doc.first_node(), app, options);
 
     SStream out;
     print(out.back_inserter(), *doc.first_node(), print_no_indenting);

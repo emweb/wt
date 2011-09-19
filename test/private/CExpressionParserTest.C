@@ -3,6 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
+#ifndef WIN32
+
 #include <boost/test/unit_test.hpp>
 
 #include "web/Utils.h"
@@ -188,3 +190,4 @@ BOOST_AUTO_TEST_CASE( cexpression_basic_languagesTest )
     BOOST_REQUIRE(eval(e, 204) == 1);
   }
 }
+#endif //WIN32

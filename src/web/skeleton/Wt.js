@@ -299,7 +299,7 @@ this.initAjaxComm = function(url, handler) {
 
       this.setUrl = function(url) {
 	sessionUrl = url;
-      }
+      };
     })();
   } else {
     return new (function() {
@@ -353,7 +353,8 @@ this.initAjaxComm = function(url, handler) {
 
       this.setUrl = function(url) {
 	sessionUrl = url;
-      }
+      };
+
     })();
   }
 };
@@ -456,6 +457,31 @@ this.unstub = function(from, to, methodDisplay) {
     to.style.width = from.style.width;
 };
 
+this.changeTag = function(e, type)
+{
+  var n = document.createElement(type);
+
+   /* For some reason fails on 'a' */
+  if (type == 'img' && n.mergeAttributes) {
+    n.mergeAttributes(e, false);
+    n.src = e.src;
+  } else {
+    if (e.attributes && e.attributes.length > 0) {
+      var i, il;
+      for (i = 0, il = e.attributes.length; i < il; i++) {
+	var nn = e.attributes[i].nodeName;
+	if (nn != 'type' && nn != 'name')
+	  n.setAttribute(nn, e.getAttribute(nn));
+      }
+    }
+  }
+
+  while (e.firstChild)
+    n.appendChild(e.removeChild(e.firstChild));
+
+  e.parentNode.replaceChild(n, e);
+};
+
 this.unwrap = function(e) {
   e = WT.getElement(e);
   if (!e.parentNode.className.indexOf('Wt-wrap')) {
@@ -463,32 +489,20 @@ this.unwrap = function(e) {
     e = e.parentNode;
     if (e.className.length >= 8)
       wrapped.className = e.className.substring(8);
-    if (WT.isIE)
-      wrapped.style.setAttribute('cssText', e.getAttribute('style'));
-    else
-      wrapped.setAttribute('style', e.getAttribute('style'));
+    var style = e.getAttribute('style');
+    if (style) {
+      if (WT.isIE)
+	wrapped.style.setAttribute('cssText', style);
+      else
+	wrapped.setAttribute('style', style);
+    }
     e.parentNode.replaceChild(wrapped, e);
   } else {
     if (e.getAttribute('type') == 'submit') {
       e.setAttribute('type', 'button');
       e.removeAttribute('name');
     } if (WT.hasTag(e, 'INPUT') && e.getAttribute('type') == 'image') {
-      // change <input> to <image>
-      var img = document.createElement('img');
-      if (img.mergeAttributes) {
-	img.mergeAttributes(e, false);
-	img.src = e.src;
-      } else {
-	if (e.attributes && e.attributes.length > 0) {
-	  var i, il;
-	  for (i = 0, il = e.attributes.length; i < il; i++) {
-	    var n = e.attributes[i].nodeName;
-	    if (n != 'type' && n != 'name')
-	      img.setAttribute(n, e.getAttribute(n));
-	  }
-	}
-      }
-      e.parentNode.replaceChild(img, e);
+      WT.changeTag(e, 'img');
     }
   }
 };
@@ -2392,8 +2406,6 @@ _$_$if_WEB_SOCKETS_$_();
 	      + "//" + location.hostname + ":"
 	     + location.port + _$_DEPLOY_PATH_$_ + query;
 	  }
-
-	  // console.log("Url: " + wsurl);
 
 	  websocket.socket = ws = new WebSocket(wsurl);
 	  if (websocket.keepAlive)

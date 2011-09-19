@@ -18,6 +18,9 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
+//#define DEBUG_ASYNC(a) a  
+#define DEBUG_ASYNC(a)
+
 namespace http {
 namespace server {
 
@@ -28,6 +31,10 @@ void ConnectionManager::start(ConnectionPtr c)
 #endif // WT_THREADED
 
   connections_.insert(c);
+
+  DEBUG_ASYNC(std::cerr << "New connection (#" << connections_.size() << ")"
+	      << std::endl);
+
 #ifdef WT_THREADED
   lock.unlock();
 #endif // WT_THREADED
@@ -59,6 +66,11 @@ void ConnectionManager::stop(ConnectionPtr c)
     return;
 #endif // WIN32
   }
+
+  DEBUG_ASYNC(std::cerr << "Removed connection (#"
+	      << connections_.size() << ")"
+	      << std::endl);
+
 #ifdef WT_THREADED
   lock.unlock();
 #endif // WT_THREADED

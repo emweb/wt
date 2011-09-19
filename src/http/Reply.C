@@ -410,16 +410,16 @@ void Reply::send()
 
 void Reply::setRelay(ReplyPtr reply)
 {
-  assert(!transmitting_);
+  if (!transmitting_) {
+    relay_ = reply;
+    relay_->connection_ = connection_;
 
-  relay_ = reply;
-  relay_->connection_ = connection_;
-
-  relay_->remoteAddress_ = remoteAddress_;
-  relay_->requestMethod_ = requestMethod_;
-  relay_->requestUri_ = requestUri_;
-  relay_->requestMajor_ = requestMajor_;
-  relay_->requestMinor_ = requestMinor_;
+    relay_->remoteAddress_ = remoteAddress_;
+    relay_->requestMethod_ = requestMethod_;
+    relay_->requestUri_ = requestUri_;
+    relay_->requestMajor_ = requestMajor_;
+    relay_->requestMinor_ = requestMinor_;
+  }
 }
 
 void Reply::logReply(Wt::WLogger& logger)

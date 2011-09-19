@@ -26,30 +26,23 @@ protected:
   Component(WContainerWidget *parent = 0);
 
 public:
-  /*! \brief Enable or disable the widget.
+  /*! \brief Enables or disables the widget.
+   *
+   * \sa setDisabled()
    */
   void setEnabled(bool how);
 
-  /*! \brief Enable the widget.
+  /*! \brief Enables the widget.
    */
   void enable();
 
-  /*! \brief Disable the widget.
+  /*! \brief Disables the widget.
    */
   void disable();
 
-  /*! \brief Return if enabled.
-   */
-  bool isEnabled() const { return enabled_; }
-
 protected:
   virtual void createConfig(std::ostream& config);
-
-private:
-  bool enabled_;
-
-  void undoEnable();
-  bool wasEnabled_;
+  virtual void propagateSetEnabled(bool enabled);
 };
 
   }

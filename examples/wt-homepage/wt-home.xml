@@ -86,6 +86,7 @@
   <message id="git">Git explorer</message>
   <message id="chat">Chat</message>
   <message id="mail-composer">Mail composer</message>
+  <message id="hangman">Hangman</message>
   <message id="widget-gallery">Widget gallery</message>
 
   <message id="home.news">
@@ -495,7 +496,7 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
   therefore results in <b>client-side</b> event handling
   code. Optionally, CSS3 animations can be used to animate the
   transition of contents managed by a <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTabWidget.html"
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStackedWidget.html"
   target="_blank">WStackedWidget</a>.
 </p>
 
@@ -741,6 +742,43 @@ target="_blank">item model</a>.</p>
 </p>
 </div>
   </message>
+
+  <message id="home.examples.hangman">
+<div>
+<h4 class="example">Hangman</h4>
+
+<p>
+  <a href="http://www.webtoolkit.eu/wt/examples/hangman/hangman.wt" class="run" target="_blank">
+    <img src="/icons/green-play.png" style="vertical-align: top"/> Run example
+  </a>
+</p>
+
+<p>
+  This example implements a classic hangman game, including a user ranking system, backed by a small database. The example shows among other things how hidden widgets can be used to improve the application's performance.
+</p>
+<ul>
+  <li>
+    A HTML template in combination with the <a
+    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
+    target="_blank">WTemplate class</a> is used to define the layout in <b>LoginWidget</b>.
+  </li>
+  <li>
+    The use of layout managers is demonstrated in <b>HangmanGame</b>.
+  </li>
+  <li>
+    The hangman images demonstrate how <b>hidden widgets</b> may improve the 
+    application's performance.
+  </li>
+  <li>
+    The highscores widget and game widget are installed on different
+    <b>internal paths</b>.
+  </li>
+</ul>
+
+<p>For a thorough explanation of the hangman example, see also the ARTICLE</p>
+</div>
+  </message>
+
   <message id="home.examples.widgetgallery">
 <div>
 <h4 class="example">Widget gallery</h4>
@@ -1285,6 +1323,19 @@ tips and tricks.
   </message>
 
   <message id="srcview.title.hello">Example: Hello world</message>
+
+  <message id="srcview.title.CPP.hangman">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Hangman</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="#/examples/">Hangman</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.hangman">Example: Hangman</message>
 
   <message id="srcview.title.CPP.charts">
     <div class="srcviewtitle">

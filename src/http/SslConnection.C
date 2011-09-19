@@ -66,7 +66,7 @@ typedef void (Connection::*HandleWrite)(const asio_error_code&);
 
 void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
-  setTimeout(timeout);
+  setReadTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
        boost::bind(static_cast<HandleRead>(
@@ -91,7 +91,7 @@ void SslConnection::handleReadRequestSsl(const asio_error_code& e,
 
 void SslConnection::startAsyncReadBody(Buffer& buffer, int timeout)
 {
-  setTimeout(timeout);
+  setReadTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
        boost::bind(static_cast<HandleRead>(&SslConnection::handleReadBodySsl),
@@ -112,7 +112,7 @@ void SslConnection::handleReadBodySsl(const asio_error_code& e,
 void SslConnection::startAsyncWriteResponse
     (const std::vector<asio::const_buffer>& buffers, int timeout)
 {
-  setTimeout(timeout);
+  setWriteTimeout(timeout);
 
   asio::async_write(socket_, buffers,
 	boost::bind(static_cast<HandleWrite>(&Connection::handleWriteResponse),

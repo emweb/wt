@@ -116,6 +116,7 @@ public:
     { return applicationUrl_ + sessionQuery(); }
   const std::string& deploymentPath() const { return deploymentPath_; }
 
+  bool hasSessionIdInUrl() const { return sessionIdInUrl_; }
   bool useUglyInternalPaths() const;
   void setPagePathInfo(const std::string& path);
   std::string pagePathInfo() const { return pagePathInfo_; }
@@ -256,6 +257,7 @@ private:
 
   std::string   sessionId_;
   bool          sessionIdChanged_;
+  bool          sessionIdInUrl_;
 
   WebController *controller_;
   WebRenderer   renderer_;

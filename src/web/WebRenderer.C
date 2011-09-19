@@ -91,6 +91,7 @@ bool WebRenderer::isDirty() const
   return !updateMap_.empty()
     || formObjectsChanged_
     || !session_.app()->afterLoadJavaScript_.empty()
+    || session_.app()->serverPushChanged_
     || Utils::length(collectedJS1_) > 0
     || Utils::length(collectedJS2_) > 0
     || Utils::length(invisibleJS_) > 0;
@@ -439,6 +440,18 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
   response.setContentType(mimeType);
 }
 
+void WebRenderer::renderSetServerPush(std::ostream& out)
+{
+  if (session_.app()->serverPushChanged_) {
+    out
+      << session_.app()->javaScriptClass()
+      << "._p_.setServerPush("
+      << (session_.app()->updatesEnabled() ? "true" : "false") << ");";
+
+    session_.app()->serverPushChanged_ = false;
+  }
+}
+
 void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
   setCaching(response, false);
@@ -479,7 +492,11 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
      */
     response.out()
       << session_.app()->javaScriptClass()
-      << "._p_.response(" << expectedAckId_ << ");"
+      << "._p_.response(" << expectedAckId_ << ");";
+
+    renderSetServerPush(response.out());
+
+    response.out()
       << collectedJS1_.str()
       << collectedJS2_.str();
 
@@ -798,10 +815,11 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
 	<< collectedJS2_.str()
-	<< "};" // LoadWidgetTree = function() { ... }
-	<< app->javaScriptClass()
-	<< "._p_.setServerPush("
-	<< (app->updatesEnabled() ? "true" : "false") << ");"
+	<< "};"; // LoadWidgetTree = function() { ... }
+
+    renderSetServerPush(response.out());
+
+    response.out()
 	<< "$(document).ready(function() { "
 	<< app->javaScriptClass() << "._p_.load(true);});\n";
   }
@@ -936,10 +954,9 @@ void WebRenderer::serveMainAjax(WebResponse& response)
     response.out() << "};\n";
   }
 
-  response.out() << app->javaScriptClass()
-		 << "._p_.setServerPush("
-		 << (app->updatesEnabled() ? "true" : "false") << ");\n"
-		 << "$(document).ready(function() { "
+  renderSetServerPush(response.out());
+
+  response.out() << "$(document).ready(function() { "
 		 << app->javaScriptClass() << "._p_.load("
 		 << (widgetset ? "false" : "true") << ");});\n";
 

@@ -81,7 +81,8 @@ public: // huh?
   bool readAvailable();
 
 protected:
-  void setTimeout(int seconds);
+  void setReadTimeout(int seconds);
+  void setWriteTimeout(int seconds);
 
   /// The manager for this connection.
   ConnectionManager& ConnectionManager_;
@@ -111,11 +112,13 @@ private:
   /// The handler used to process the incoming request.
   RequestHandler& request_handler_;
 
-  void cancelTimer();
+  void cancelReadTimer();
+  void cancelWriteTimer();
+
   void timeout(const asio_error_code& e);
 
   /// Timer for reading data.
-  asio::deadline_timer timer_;
+  asio::deadline_timer readTimer_, writeTimer_;
 
   /// Current buffer data, from last operation.
   Buffer buffer_;

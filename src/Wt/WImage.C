@@ -216,9 +216,10 @@ void WImage::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_IMAGE_LINK_CHANGED) || all) {
-    if (!imageLink_.isNull())
+    if (!imageLink_.isNull()) {
+      // FIXME, censor session ID
       img->setProperty(Wt::PropertySrc, resolveRelativeUrl(imageLink_.url()));
-    else
+    } else
       img->setProperty(Wt::PropertySrc, "#");
 
     flags_.reset(BIT_IMAGE_LINK_CHANGED);

@@ -21,6 +21,9 @@
 
 #include <fstream>
 
+#define DEBUG_WS(a)
+//#define DEBUG_WS(a) a
+
 namespace http {
   namespace server {
 
@@ -90,43 +93,70 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
   if (!connection)
     return;
 
-  if (status_ != request_entity_too_large)
-    cin_->write(begin, static_cast<std::streamsize>(end - begin));
+  if (state != Request::Error) {
+    if (status_ != request_entity_too_large)
+      cin_->write(begin, static_cast<std::streamsize>(end - begin));
 
-  if (!request().webSocketRequest) {
-    if (!httpRequest_)
-      httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-				     (shared_from_this()), &entryPoint_);
+    /*
+     * For non-WebSocket requests, we create the HTTPRequest immediately
+     * since it may be that the web application is interested in knowing
+     * upload progress
+     */
+    if (!request().webSocketRequest) {
+      if (!httpRequest_)
+	httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
+				       (shared_from_this()), &entryPoint_);
 
-    if (end - begin > 0) {
-      bodyReceived_ += (end - begin);
+      if (end - begin > 0) {
+	bodyReceived_ += (end - begin);
 
-      if (!connection->server()->controller()->requestDataReceived
-	  (httpRequest_, bodyReceived_, request().contentLength)) {
-	status_ = request_entity_too_large;
-	setCloseConnection();
-	state = Request::Error;
+	if (!connection->server()->controller()->requestDataReceived
+	    (httpRequest_, bodyReceived_, request().contentLength)) {
+	  status_ = request_entity_too_large;
+	  setCloseConnection();
+	  state = Request::Error;
+	}
       }
     }
   }
 
+  /*
+   * If the state == Request::Partial, we need to wait for more data.
+   * Request::Partial is only for purposes above (notifying of upload
+   * progress)
+   */
   if (state != Request::Partial) {
-    if (request().webSocketRequest) {
+    if (state == Request::Error) {
+      if (status_ < 300) {
+	if (status_ == switching_protocols) {
+	  /*
+	   * We already committed the reply -- all we can (and should)
+	   * do now is close the connection.
+	   */
+	  connection->close();
+	  return;
+	} else
+	  status_ = bad_request;
+      }
+
+      setCloseConnection();
+    } else if (request().webSocketRequest) {
+      DEBUG_WS(std::cerr << "WebSocket request: " << status_ << std::endl);
       setCloseConnection();
 
       if (status_ == ok) {
-	assert(state == Request::Complete);
-
 	std::string origin = request().getHeader("Origin");
 	std::string host = request().getHeader("Host");
 
-	if (origin.empty() || host.empty()) {
+	if (host.empty()) {
+	  DEBUG_WS(std::cerr << "WebSocket: missing Host " << std::endl);
 	  status_ = bad_request;
-	} else {	
+	} else {
 	  status_ = switching_protocols;
 	  addHeader("Connection", "Upgrade");
 	  addHeader("Upgrade", "WebSocket");
-	  addHeader("Sec-WebSocket-Origin", origin);
+	  if (!origin.empty())
+	    addHeader("Sec-WebSocket-Origin", origin);
 
 	  std::string location
 	    = request().urlScheme + "://" + host + request().request_path
@@ -144,16 +174,20 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	  fetchMoreDataCallback_
 	    = boost::bind(&WtReply::readRestWebSocketHandshake, this);
 
+	  DEBUG_WS(std::cerr << "WebSocket: Sending 101" << std::endl);
+
 	  Reply::send();
 	  return;
 	}
-      } else {
+      } else { // status_ == switching_protocols
 	/*
 	 * We got the nonce and the expected challenge response is
 	 * available in in(). This should be copied to out() by the
 	 * web session.
 	 */
 	if (state == Request::Complete) {
+	  DEBUG_WS(std::cerr << "WebSocket: creating HTTPRequest" << std::endl);
+
 	  httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
 					 (shared_from_this()), &entryPoint_);
 	  httpRequest_->setWebSocketRequest(true);
@@ -161,8 +195,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	  connection->server()->controller()->server_
 	    ->handleRequest(httpRequest_);
 	} else {
-	  setCloseConnection();
-	  Reply::send();
+	  std::cerr << "Unreachable code?" << std::endl;
 	}
 
 	return;
@@ -175,8 +208,6 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
       return;
     }
 
-    assert(state == Request::Complete);
-
     cin_->seekg(0); // rewind
     responseSent_ = false;
 
@@ -186,6 +217,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 void WtReply::readRestWebSocketHandshake()
 {
+  DEBUG_WS(std::cerr << "WebSocket: reading handshake" << std::endl);
   ConnectionPtr connection = getConnection();
 
   if (connection)
@@ -204,6 +236,8 @@ void WtReply::consumeWebSocketMessage(Buffer::const_iterator begin,
     else {
       cin_mem_.seekg(0);
     }
+
+    DEBUG_WS(std::cerr << "WebSocket: new message" << std::endl);
 
     CallbackFunction cb = readMessageCallback_;
     readMessageCallback_ = 0;
@@ -249,11 +283,14 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
   fetchMoreDataCallback_ = callBack;
 
   if (request().webSocketRequest && text.empty()) {
+    DEBUG_WS(std::cerr << "WebSocket: closed by app" << std::endl);
+
     connection->close();
     return;
   }
 
   if (request().webSocketRequest && sendingMessages_) {
+    DEBUG_WS(std::cerr << "WebSocket: sending message" << std::endl);
     nextCout_.clear();
     nextCout_ += (char)0;
     nextCout_ += text;
@@ -273,6 +310,8 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
 
 void WtReply::readWebSocketMessage(CallbackFunction callBack)
 {
+  DEBUG_WS(std::cerr << "WebSocket: reading message" << std::endl);
+
   ConnectionPtr connection = getConnection();
 
   assert(request().webSocketRequest);

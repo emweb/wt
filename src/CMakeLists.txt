@@ -226,7 +226,7 @@ web/Configuration.C
 web/DomElement.C
 web/EscapeOStream.C
 web/FileServe.C
-web/InternalPathEncoder.C
+web/RefEncoder.C
 web/SoundManager.C
 web/Utils.C
 web/WebController.C

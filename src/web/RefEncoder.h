@@ -1,0 +1,27 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef REF_ENCODER_H
+#define REF_ENCODER_H_
+
+#include <Wt/WFlags>
+
+namespace Wt {
+
+class WString;
+
+enum RefEncoderOption {
+  EncodeInternalPaths,
+  EncodeRedirectTrampoline
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(RefEncoderOption)
+
+extern void EncodeRefs(WString& text, WFlags<RefEncoderOption> options);
+
+}
+
+#endif // REF_ENCODER_H_

@@ -313,6 +313,9 @@ void WServer::stop()
     // Stop the Wt application server (cleaning up all sessions).
     impl_->webController_->shutdown();
 
+    impl_->serverConfiguration_
+      ->log("notice") << "Shutdown: stopping web server.";
+
     // Stop the server.
     impl_->server_->stop();
 

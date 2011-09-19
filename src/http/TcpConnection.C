@@ -55,7 +55,7 @@ typedef void (Connection::*HandleWrite)(const asio_error_code&);
 void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
   DEBUG_ASYNC(std::cerr << socket().native() << ": startAsyncReadRequest" << std::endl);
-  setTimeout(timeout);
+  setReadTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
       boost::bind(static_cast<HandleRead>(&Connection::handleReadRequest),
@@ -67,7 +67,7 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
 {
   DEBUG_ASYNC(std::cerr << socket().native() << ": startAsyncReadBody" << std::endl);
-  setTimeout(timeout);
+  setReadTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
        boost::bind(static_cast<HandleRead>(&Connection::handleReadBody),
@@ -81,7 +81,7 @@ void TcpConnection::startAsyncWriteResponse
      int timeout)
 {
   DEBUG_ASYNC(std::cerr << socket().native() << ": startAsyncWriteResponse" << std::endl);
-  setTimeout(timeout);
+  setWriteTimeout(timeout);
 
   asio::async_write(socket_, buffers,
        boost::bind(static_cast<HandleWrite>(&Connection::handleWriteResponse),

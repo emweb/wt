@@ -37,6 +37,7 @@ private:
   WWidget *chatExample();
   WWidget *composerExample();
   WWidget *widgetGalleryExample();
+  WWidget *hangmanExample();
 
   WWidget *wrapView(WWidget *(WtHome::*createFunction)());
 };

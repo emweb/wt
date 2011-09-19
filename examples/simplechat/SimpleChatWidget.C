@@ -106,7 +106,7 @@ void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
    * | message edit area                        |
    * --------------------------------------------
    * | WHBoxLayout                              |
-   * | send | logout |       stretch = 1        |
+   * | send | logout                            |
    * --------------------------------------------
    */
   WVBoxLayout *vLayout = new WVBoxLayout();
@@ -140,11 +140,8 @@ void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
   // Add button to horizontal layout with stretch = 0
   hLayout->addWidget(logoutButton);
 
-  // Add stretching spacer to horizontal layout
-  hLayout->addStretch(1);
-
   // Add nested layout to vertical layout with stretch = 0
-  vLayout->addLayout(hLayout);
+  vLayout->addLayout(hLayout, 0, AlignLeft | AlignTop);
 
   setLayout(vLayout);
 }

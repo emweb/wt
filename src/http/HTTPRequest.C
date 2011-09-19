@@ -26,12 +26,13 @@ bool HTTPRequest::done() const
 
 void HTTPRequest::flush(ResponseState state, CallbackFunction callback)
 {
-  std::string s = outstream_.str();
-  outstream_.str("");
-  reply_->send(s, callback, state == ResponseDone);
-
+  WtReplyPtr ptr = reply_;
   if (state == ResponseDone)
     reply_.reset();
+
+  std::string s = outstream_.str();
+  outstream_.str("");
+  ptr->send(s, callback, state == ResponseDone);
 }
 
 void HTTPRequest::readWebSocketMessage(CallbackFunction callback)

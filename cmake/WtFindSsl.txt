@@ -26,6 +26,7 @@ IF(WIN32)
       /usr/lib
       /usr/local/lib
       ${SSL_PREFIX}/lib
+      ${SSL_PREFIX}/lib/VC
       c:/openssl/lib/VC
   )
 
@@ -36,6 +37,7 @@ IF(WIN32)
       /usr/lib
       /usr/local/lib
       ${SSL_PREFIX}/lib
+      ${SSL_PREFIX}/lib/VC
       c:/openssl/lib/VC
   )
 
@@ -44,6 +46,7 @@ IF(WIN32)
       libeay32MD
     PATHS
       ${SSL_PREFIX}/lib
+      ${SSL_PREFIX}/lib/VC
       c:/openssl/lib/VC
   )
 
@@ -52,6 +55,7 @@ IF(WIN32)
       libeay32MDd
     PATHS
       ${SSL_PREFIX}/lib
+      ${SSL_PREFIX}/lib/VC
       c:/openssl/lib/VC
   )
 
@@ -85,6 +89,7 @@ ELSE (WIN32)
       /usr/lib
       /usr/local/lib
       ${SSL_PREFIX}/lib
+      ${SSL_PREFIX}/lib/VC
   )
 ENDIF (WIN32)
 

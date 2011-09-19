@@ -87,6 +87,7 @@ WApplication::WApplication(const WEnvironment& env
     localizedStrings_(0),
     internalPathChanged_(this),
     serverPush_(0),
+    serverPushChanged_(true),
 #ifndef WT_CNOR
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
 #endif
@@ -1136,8 +1137,7 @@ void WApplication::enableUpdates(bool enabled)
     --serverPush_;
 
   if ((enabled && serverPush_ == 1) || (!enabled && serverPush_ == 0))
-    doJavaScript(javaScriptClass_ + "._p_.setServerPush("
-		 + (enabled ? "true" : "false") + ");");
+    serverPushChanged_ = true;
 }
 
 void WApplication::triggerUpdate()

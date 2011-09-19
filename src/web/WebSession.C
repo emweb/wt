@@ -81,12 +81,14 @@ WebSession::WebSession(WebController *controller,
     state_(JustCreated),
     sessionId_(sessionId),
     sessionIdChanged_(false),
+    sessionIdInUrl_(false),
     controller_(controller),
     renderer_(*this),
     asyncResponse_(0),
     bootStyleResponse_(0),
     canWriteAsyncResponse_(false),
     noBootStyleResponse_(false),
+    progressiveBoot_(false),
 #ifdef WT_TARGET_JAVA
     recursiveEvent_(mutex_.newCondition()),
     newRecursiveEvent_(false),
@@ -1686,8 +1688,8 @@ void WebSession::notify(const WEvent& event)
 	  if (asyncResponse_ && !asyncResponse_->isWebSocketRequest()) {
 
 	    /* Not sure of this is still relevant? */
-	    if (*signalE == "poll")
-	      renderer_.letReloadJS(*asyncResponse_, true);
+	    //if (*signalE == "poll")
+	    //  renderer_.letReloadJS(*asyncResponse_, true);
 
 #ifndef WT_TARGET_JAVA
 	    asyncResponse_->flush();
@@ -1932,8 +1934,14 @@ void WebSession::serveError(Handler& handler, const std::string& e)
 
 void WebSession::serveResponse(Handler& handler)
 {
-  if (handler.response()->responseType() == WebResponse::Page)
+  if (handler.response()->responseType() == WebResponse::Page) {
     pagePathInfo_ = handler.request()->pathInfo();
+    const std::string *wtdE = handler.request()->getParameter("wtd");
+    if (wtdE && *wtdE == sessionId_)
+      sessionIdInUrl_ = true;
+    else
+      sessionIdInUrl_ = false;
+  }
 
   /*
    * If the request is a web socket message, then we should not actually

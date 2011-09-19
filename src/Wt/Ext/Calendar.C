@@ -78,7 +78,7 @@ std::string Calendar::createJS(DomElement *inContainer)
 
 void Calendar::createConfig(std::ostream& config)
 {
-  Widget::createConfig(config);
+  Component::createConfig(config);
 
   addWtSignalConfig("selectH", &extDateSelected_, extDateSelected_.name(),
 		    "dp,d", "d.format('d/m/Y')", config);

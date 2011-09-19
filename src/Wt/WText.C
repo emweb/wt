@@ -9,8 +9,9 @@
 #include "Wt/WApplication"
 #include "Wt/WText"
 #include "DomElement.h"
+#include "WebSession.h"
 #include "WtException.h"
-#include "InternalPathEncoder.h"
+#include "RefEncoder.h"
 
 namespace Wt {
 
@@ -203,9 +204,16 @@ std::string WText::formattedText() const
   if (textFormat_ == PlainText)
     return escapeText(text_, true).toUTF8();
   else {
-    if (flags_.test(BIT_ENCODE_INTERNAL_PATHS)) {
+    WApplication *app = WApplication::instance();
+    if (flags_.test(BIT_ENCODE_INTERNAL_PATHS)
+	|| app->session()->hasSessionIdInUrl()) {
+      WFlags<RefEncoderOption> options;
+      if (flags_.test(BIT_ENCODE_INTERNAL_PATHS))
+	options |= EncodeInternalPaths;
+      if (app->session()->hasSessionIdInUrl())
+	options |= EncodeRedirectTrampoline;
       WString result = text_;
-      EncodeInternalPathRefs(result);
+      EncodeRefs(result, options);
       return result.toUTF8();
     } else
       return text_.toUTF8();

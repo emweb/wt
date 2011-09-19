@@ -173,6 +173,9 @@ void WAnchor::setLink(const WLink& link)
   if (link_.type() != WLink::Resource && link_ == link)
     return;
 
+  if (link_.isNull())
+    flags_.set(BIT_CHANGE_TAG);
+
   link_ = link;
 
   flags_.set(BIT_LINK_CHANGED);
@@ -294,6 +297,13 @@ void WAnchor::updateDom(DomElement& element, bool all)
     return;
   }
 
+  if (flags_.test(BIT_CHANGE_TAG)) {
+    if (!all)
+      element.callJavaScript(WT_CLASS ".changeTag(" + jsRef() + ",'a');");
+
+    flags_.reset(BIT_CHANGE_TAG);
+  }
+
   bool needsUrlResolution = false;
 
   if (flags_.test(BIT_LINK_CHANGED) || all) {
@@ -313,9 +323,21 @@ void WAnchor::updateDom(DomElement& element, bool all)
       changeInternalPathJS_ = 0;
     }
 
-    element.setAttribute("href", resolveRelativeUrl(url));
+    /*
+     * If url is an absolute URL, then we jump through a redirect
+     * page, to strip the session ID from the referer URL, in case the
+     * current page has the session ID in the URL.
+     */
+    bool needRedirect = url.find("://") != std::string::npos
+      && app->session()->hasSessionIdInUrl();
+    if (needRedirect)
+      url = "?request=redirect&url=" + Utils::urlEncode(url);
 
-    needsUrlResolution = !app->environment().hashInternalPaths();
+    std::string href = resolveRelativeUrl(url);
+    element.setAttribute("href", href);
+
+    needsUrlResolution = !app->environment().hashInternalPaths()
+      && href.find("://") == std::string::npos && href[0] != '/';
 
     flags_.reset(BIT_LINK_CHANGED);
   }

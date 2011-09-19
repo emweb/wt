@@ -10,45 +10,39 @@ namespace Wt {
   namespace Ext {
 
 Component::Component(WContainerWidget *parent)
-  : Widget(parent),
-    enabled_(true)
+  : Widget(parent)
+{ }
+
+void Component::setEnabled(bool enabled)
 {
-  implementStateless(&Component::enable, &Component::undoEnable);
-  implementStateless(&Component::disable, &Component::undoEnable);
+  setDisabled(!enabled);
 }
 
 void Component::enable()
 {
-  wasEnabled_ = enabled_;
-  setEnabled(true);
+  setDisabled(false);
 }
 
 void Component::disable()
 {
-  wasEnabled_ = enabled_;
-  setEnabled(false);
+  setDisabled(true);
 }
 
-void Component::undoEnable()
+void Component::propagateSetEnabled(bool enabled)
 {
-  setEnabled(wasEnabled_);
-}
-
-void Component::setEnabled(bool how)
-{
-  enabled_ = how;
-
   if (isRendered())
-    addUpdateJS(elVar() + ".setDisabled(" + (how ? "false" : "true") + ");");
+    addUpdateJS(elVar()
+		+ ".setDisabled(" + (enabled ? "false" : "true") + ");");
+
+  Widget::propagateSetEnabled(enabled);
 }
 
 void Component::createConfig(std::ostream& config)
 { 
   Widget::createConfig(config);
 
-  if (!enabled_)
+  if (!isEnabled())
     config << ",disabled:true";
-
 }
 
   }

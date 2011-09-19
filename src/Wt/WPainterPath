@@ -140,7 +140,7 @@ public:
    * Moves the current position to a new point, implicitly closing the last
    * sub path.
    *
-   * \sa closeSubPath(), moveTo(double, double)
+   * \sa closeSubPath(), moveTo(const WPointF&)
    */
   void moveTo(double x, double y);
   
@@ -168,7 +168,7 @@ public:
    * \p endPoint, which becomes the new current position. The
    * bezier curve uses the two control points <i>c1</i> and \p c2.
    *
-   * \sa cubicTo(double c1x, double c1y, double c2x, double c2y, double endPointx, double endPointy)
+   * \sa cubicTo(double, double, double, double, double, double)
    */
   void cubicTo(const WPointF& c1, const WPointF& c2, const WPointF& endPoint);
   
@@ -192,10 +192,10 @@ public:
    * Implicitly draws a line from the current position to the start of
    * the arc, if the current position is different from the start.
    *
-   * \sa arcMoveTo(double cx, double cy, double radius, double angle)
+   * \sa arcMoveTo()
    */
   void arcTo(double cx, double cy, double radius,
-	     double startAngle, double sweepLength);
+	     double startAngle, double spanAngle);
 
   /*! \brief Moves to a point on an arc.
    *
@@ -204,7 +204,7 @@ public:
    * \p angle degrees measured counter-clockwise starting from the
    * 3 o'clock position.
    *
-   * \sa arcTo(double cx, double cy, double radius, double startAngle, double sweepLength)
+   * \sa arcTo()
    */
   void arcMoveTo(double cx, double cy, double radius, double angle);
 
@@ -226,7 +226,7 @@ public:
    * \p endPoint, which becomes the new current position. The
    * bezier curve uses the single control point \p c.
    *
-   * \sa quadTo(double cx, double cy, double endPointx, double endPointy)
+   * \sa quadTo(double, double, double, double)
    */
   void quadTo(const WPointF& c, const WPointF& endPoint);
 
@@ -245,7 +245,7 @@ public:
    *
    * \p Note: some renderers only support circles (width == height)
    *
-   * \sa addEllipse(double x, double y, double width, double height), arcTo()
+   * \sa addEllipse(double, double, double, double), arcTo()
    */
   void addEllipse(const WRectF& boundingRectangle);
 
@@ -266,7 +266,7 @@ public:
    * This method closes the current sub path, and adds a rectangle
    * that is defined by \p rectangle.
    *
-   * \sa addRect(double x, double y, double width, double height)
+   * \sa addRect(double, double, double, double)
    */
   void addRect(const WRectF& rectangle);
 

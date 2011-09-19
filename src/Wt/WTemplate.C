@@ -6,10 +6,12 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
+#include "Wt/WApplication"
 #include "Wt/WTemplate"
 
 #include "DomElement.h"
-#include "InternalPathEncoder.h"
+#include "RefEncoder.h"
+#include "WebSession.h"
 
 namespace Wt {
 
@@ -209,9 +211,16 @@ void WTemplate::renderTemplate(std::ostream& result)
 {
   std::string text;
 
-  if (encodeInternalPaths_) {
+  WApplication *app = WApplication::instance();
+
+  if (encodeInternalPaths_ || app->session()->hasSessionIdInUrl()) {
+    WFlags<RefEncoderOption> options;
+    if (encodeInternalPaths_)
+      options |= EncodeInternalPaths;
+    if (app->session()->hasSessionIdInUrl())
+      options |= EncodeRedirectTrampoline;
     WString t = text_;
-    EncodeInternalPathRefs(t);
+    EncodeRefs(t, options);
     text = t.toUTF8();
   } else
     text = text_.toUTF8();

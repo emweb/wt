@@ -116,6 +116,7 @@ private:
   int loadScriptLibraries(std::ostream& out, WApplication *app,
 			  int count = -1);
   void updateLoadIndicator(std::ostream& out, WApplication *app, bool all);
+  void renderSetServerPush(std::ostream& out);
   void setJSSynced(bool invisibleToo);
 
   std::string createFormObjectsList(WApplication *app);

@@ -32,6 +32,7 @@ namespace boost {
 
 namespace Wt {
 
+#ifndef WT_TARGET_JAVA
 #define WT_INCLUDED_VERSION Wt##WT_VERSION
 /*
  * Symbols used to check that included version matches library version
@@ -39,6 +40,7 @@ namespace Wt {
  */
 struct WtLibVersion { };
 extern WT_API const WtLibVersion WT_INCLUDED_VERSION;
+#endif
 
 class WApplication;
 class WCombinedLocalizedStrings;
@@ -1846,6 +1848,7 @@ private:
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;
   int                    serverPush_;
+  bool                   serverPushChanged_;
 #ifndef WT_TARGET_JAVA
   boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
 #endif // WT_TARGET_JAVA
