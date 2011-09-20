@@ -101,11 +101,12 @@ public:
 
   /*! \brief Sets the animation effects.
    *
-   * A motion effect (\link SlideInFromLeft SlideInFromLeft\endlink,
-   * \link SlideInFromRight SlideInFromRight\endlink, \link
-   * SlideInFromBottom SlideInFromBottom\endlink, \link SlideInFromTop
-   * SlideInFromTop\endlink or \link Pop Pop\endlink) can be combined
-   * with a fade effect (\link Fade Fade\endlink).
+   * A motion effect (\link WAnimation::SlideInFromLeft
+   * SlideInFromLeft\endlink, \link WAnimation::SlideInFromRight
+   * SlideInFromRight\endlink, \link WAnimation::SlideInFromBottom
+   * SlideInFromBottom\endlink, \link WAnimation::SlideInFromTop
+   * SlideInFromTop\endlink or \link WAnimation::Pop Pop\endlink) can be combined
+   * with a fade effect (\link WAnimation::Fade Fade\endlink).
    *
    * When effects are 0, the animation does not actually specify an
    * animation, but instead an instant transition.

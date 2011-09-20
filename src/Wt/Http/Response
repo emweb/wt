@@ -88,7 +88,7 @@ public:
    *   ResponseContinuation::waitForMoreData() and later call
    *   WResource::haveMoreData() when more data is available.
    *
-   * A new call to handleRequest() will be called to retrieve more
+   * A new call to handleRequest() will be made to retrieve more
    * data.
    *
    * \sa continuation()

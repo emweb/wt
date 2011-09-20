@@ -27,6 +27,23 @@
 //#define DEBUG_ASYNC(a) a
 #define DEBUG_ASYNC(a)
 
+/*
+ * We need a re-design:
+ *   Connection has a request parser and a read-callback
+ *   After each read operation:
+ *    - request parser is used to determine state
+ *    - read-callback is cleared, and called with state.
+ *      this may update read-callback and write callback
+ *    - when a read or write callback is set:
+ *      start write operation -> request parser -> write callback
+ *      start write operation -> write callback
+ *      these may update read-callback and write callback
+ *    - when not reading or writing: we may finish the request or wait for more
+ *      new events may be posted out of the blue by setting a callback (and data)
+ *   Most important change: callbacks are set to the Connection, and the
+ *   request parser is no longer in charge.
+ */
+
 namespace http {
 namespace server {
 
@@ -173,7 +190,8 @@ void Connection::sendStockReply(StockReply::status_type status)
 void Connection::handleReadRequest(const asio_error_code& e,
 				   std::size_t bytes_transferred)
 {
-  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadRequest(): " << e.message() << std::endl);
+  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadRequest(): "
+	      << e.message() << std::endl);
 
   cancelReadTimer();
 
@@ -209,7 +227,7 @@ void Connection::handleReadBody()
     bool result = request_parser_
       .parseBody(request_, reply_, remaining_, buffer_.data() + buffer_size_);
 
-    if (!result && socket().is_open())
+    if (!result)
       startAsyncReadBody(buffer_, CONNECTION_TIMEOUT);
   }
 }
@@ -226,7 +244,8 @@ bool Connection::readAvailable()
 void Connection::handleReadBody(const asio_error_code& e,
 				std::size_t bytes_transferred)
 {
-  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadBody(): " << e.message() << std::endl);
+  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadBody(): "
+	      << e.message() << std::endl);
 
   cancelReadTimer();
 

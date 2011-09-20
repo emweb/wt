@@ -166,7 +166,6 @@ void Server::schedule(int milliSeconds,
   if (milliSeconds == 0) {
     io_service_.post(function);
   } else {
-
     asio::deadline_timer *timer = new asio::deadline_timer(io_service_);
     timer->expires_from_now(boost::posix_time::milliseconds(milliSeconds));
     timer->async_wait(boost::bind(&Server::handleTimeout, this,

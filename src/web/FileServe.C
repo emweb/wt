@@ -43,6 +43,11 @@ void FileServe::setVar(const std::string& name, int value)
   setVar(name, boost::lexical_cast<std::string>(value));
 }
 
+void FileServe::setVar(const std::string& name, unsigned value)
+{
+  setVar(name, boost::lexical_cast<std::string>(value));
+}
+
 void FileServe::stream(std::ostream& out)
 {
   streamUntil(out, std::string());

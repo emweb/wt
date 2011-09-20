@@ -25,7 +25,7 @@ namespace Wt {
  *
  * \sa WAnchor, WImage, WMediaPlayer, WPopupMenuItem, WPushButton
  */
-class WLink
+class WT_API WLink
 {
 public:
   /*! \brief An enumeration for a link type.
@@ -125,7 +125,7 @@ public:
    *
    * This returns the resource previously set using setResource(), or \c 0.
    *
-   * \setResource()
+   * \sa setResource()
    */
   WResource *resource() const;
 

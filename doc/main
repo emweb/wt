@@ -860,6 +860,13 @@ wApp->log("error") << "Message";
       </p>
     </dd>
 
+    <dt><strong>secure</strong></dt>
+
+    <dd>Non-fatal security errors. These errors indicate that a request
+      showed signs of not being legimitate. These requests are discarded
+      without affecting the session.
+    </dd>
+
     <dt><strong>fatal</strong></dt>
 
     <dd>Fatal application errors. These errors terminate the current

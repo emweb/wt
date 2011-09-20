@@ -57,6 +57,7 @@ WebRenderer::WebRenderer(WebSession& session)
     twoPhaseThreshold_(5000),
     pageId_(0),
     expectedAckId_(0),
+    scriptId_(0),
     learning_(false)
 { }
 
@@ -129,7 +130,7 @@ void WebRenderer::discardChanges()
   collectJS(0);
 }
 
-void WebRenderer::ackUpdate(int updateId)
+bool WebRenderer::ackUpdate(unsigned updateId)
 {
   /*
    * If we are using an unreliable transport, then we remember
@@ -148,7 +149,11 @@ void WebRenderer::ackUpdate(int updateId)
   if (updateId == expectedAckId_) {
     setJSSynced(false);
     ++expectedAckId_;
-  }
+    return true;
+  } else if (updateId < expectedAckId_ && updateId > expectedAckId_ - 5) {
+    return true; // That's still acceptible but no longer plausible
+  } else
+    return false;
 }
 
 void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
@@ -267,8 +272,11 @@ void WebRenderer::streamBootContent(WebResponse& response,
 		(session_.bootstrapUrl(response, 
 				       WebSession::ClearInternalPath)));
   bootJs.setVar("SESSION_ID", session_.sessionId());
-  bootJs.setVar("RANDOMSEED",
-		boost::lexical_cast<std::string>(WRandom::get()));
+
+  expectedAckId_ = scriptId_ = WRandom::get();
+
+  bootJs.setVar("SCRIPT_ID", scriptId_);
+  bootJs.setVar("RANDOMSEED", WRandom::get());
   bootJs.setVar("RELOAD_IS_NEWSESSION", conf.reloadIsNewSession());
   bootJs.setVar("USE_COOKIES",
 		conf.sessionTracking() == Configuration::CookiesURL);
@@ -693,7 +701,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setCondition("STRICTLY_SERIALIZED_EVENTS", conf.serializedEvents());
     script.setCondition("WEB_SOCKETS", conf.webSockets());
     script.setVar("INNER_HTML", innerHtml);
-
+    script.setVar("ACK_UPDATE_ID", expectedAckId_);
     script.setVar("RELATIVE_URL", WWebWidget::jsStringLiteral
 		  (session_.bootstrapUrl(response,
 					 WebSession::ClearInternalPath)));

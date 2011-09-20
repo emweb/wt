@@ -20,6 +20,107 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.11 (September 23, 2011)</h2>
+
+<p>
+  This release
+  contains <a href="http://redmine.emweb.be/versions/show/12">many
+  bug fixes</a> and a few new features.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WLink.html">WLink</a>
+  </dt>
+  <dd>
+    This class unifies the different link types used in Wt, in a
+    single value class. Depending on the context, a link may refer to
+    a URL, a resource, or an internal path. We've updated the API
+    throughout to replace the function overloads for these different
+    cases with a single usage of WLink, simplifying the API (but don't
+    worry, we left the old methods, albeit depricated).
+  </dd>
+  <dt>
+    <a href="classWt_1_1WMediaPlayer.html">WMediaPlayer</a>
+  </dt>
+  <dd>
+    A media player has been added which provides a unified framework
+    for playing audio and video, and which deals with cross-browser
+    issues (chosing a suitable implementation per browser). We've also
+    renamed WHTML5Audio, WHTML5Video, and WHTML5Media to WAudio,
+    WVideo and WAbstractMedia respectively (since well, everything
+    will eventually be HTML5, no ?).
+  </dd>
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+  <dt>
+    <a href="classWt_1_1WResource.html">WResource</a>,
+    <a href="classWt_1_1Http_1_1ResponseContinuation.html">Http::ResponseContinuation</a>
+  </dt>
+  <dd>
+    Currently, you can already stream the output of a big resource in
+    little chunks, using a continuation to resume sending the next
+    part. We've now added API methods
+    (WResourceContinuation::waitForMoreData() and
+    WResource::haveMoreData()) to allow a resource to suspend its
+    response because it is currently lacking more data, to continue
+    later when new data is available (and without tying up a thread).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WDialog.html">WDialog</a>
+  </dt>
+  <dd>
+    Added an option setResizable() which puts a resize handle in the
+    bottom right corner.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WPopupMenu.html">WPopupMenu</a>,
+    <a href="classWt_1_1WPopupMenuItem.html">WPopupMenuItem</a>
+  </dt>
+  <dd>
+    Added a triggered() signal, and an option to automatically cancel
+    the popup menu when the mouse leaves the menu (after a
+    delay). We've also added the possibility to link a popup menu item
+    with a WLink, and the option to make the item which has a submenu
+    item also itself selectable.
+  </dd>
+
+  <dt>
+    Dbo::Session
+  </dt>
+  <dd>
+    The load() method has an additional, optional parameter, to force
+    rereading the copy from the database.
+  </dd>
+
+  <dt>
+    Dbo::collection&lt;C&gt;
+  </dt>
+  <dd>
+    Added a count() method which uses a query to determine whether the
+    collection contains an element.
+  </dd>
+
+  <dt>
+    Test::WTestEnvironment
+  </dt>
+  <dd>
+    Added dialogExecuted() and popupExecuted() methods which allow to
+    interact with a reentrant eventloop from a test plan.
+  </dd>
+
+<h3>C) Non-backwards compatible changes</h3>
+
+None.
+
+<hr>
+
 <h2>Release 3.1.10 (July 8, 2011)</h2>
 
 <p>

@@ -255,9 +255,8 @@ private:
   std::string    favicon_;
   State          state_;
 
-  std::string   sessionId_;
-  bool          sessionIdChanged_;
-  bool          sessionIdInUrl_;
+  std::string   sessionId_, sessionIdCookie_;
+  bool          sessionIdChanged_, sessionIdCookieChanged_, sessionIdInUrl_;
 
   WebController *controller_;
   WebRenderer   renderer_;

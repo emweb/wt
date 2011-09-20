@@ -91,7 +91,11 @@ void StyleLayout::load(Wt::WMouseEvent) {
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 #else
-  sleep(2);
+#ifdef WIN32
+        Sleep(2000);
+#else
+        sleep(2);
+#endif //WIN32
 #endif // WT_THREADED
 }
 

@@ -57,7 +57,8 @@ public:
   void letReloadHTML(WebResponse& request, bool newSession);
 
   bool isDirty() const;
-  int  pageId() const { return pageId_; }
+  unsigned scriptId() const { return scriptId_; }
+  unsigned pageId() const { return pageId_; }
 
   void serveResponse(WebResponse& request);
   void serveError(WebResponse& request, const std::exception& error);
@@ -71,7 +72,7 @@ public:
   bool preLearning() const { return learning_; }
   void learningIncomplete();
 
-  void ackUpdate(int updateId);
+  bool ackUpdate(unsigned updateId);
 
   void streamRedirectJS(std::ostream& out, const std::string& redirect);
 
@@ -88,9 +89,9 @@ private:
   };
 
   WebSession& session_;
-  bool        visibleOnly_, rendered_;
-  int         twoPhaseThreshold_;
-  int         pageId_, expectedAckId_;
+  bool visibleOnly_, rendered_;
+  int twoPhaseThreshold_;
+  unsigned  pageId_, expectedAckId_, scriptId_;
 
   std::vector<Cookie> cookiesToSet_;
 

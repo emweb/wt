@@ -53,7 +53,7 @@ void LoginWidget::checkCredentials()
   std::string passWord = passWord_->text().toUTF8();
   Dictionary dictionary = (Dictionary) language_->currentIndex();
 
-  if (session_->login(userName, passWord)) {
+  if (!session_->login(userName, passWord)) {
     impl_->bindString("login-error", tr("login.error"));
     
     userName_->setText("");

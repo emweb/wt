@@ -186,12 +186,6 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	 * web session.
 	 */
 	if (state == Request::Complete) {
-	  DEBUG_WS(std::cerr << "WebSocket: creating HTTPRequest" << std::endl);
-
-	  httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-					 (shared_from_this()), &entryPoint_);
-	  httpRequest_->setWebSocketRequest(true);
-
 	  connection->server()->controller()->server_
 	    ->handleRequest(httpRequest_);
 	} else {
@@ -217,11 +211,18 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 void WtReply::readRestWebSocketHandshake()
 {
-  DEBUG_WS(std::cerr << "WebSocket: reading handshake" << std::endl);
   ConnectionPtr connection = getConnection();
 
-  if (connection)
+  if (connection) {
+    DEBUG_WS(std::cerr << "WebSocket: creating HTTPRequest" << std::endl);
+
+    httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
+				   (shared_from_this()), &entryPoint_);
+    httpRequest_->setWebSocketRequest(true);
+
+    DEBUG_WS(std::cerr << "WebSocket: reading handshake" << std::endl);
     connection->handleReadBody();
+  }
 }
 
 void WtReply::consumeWebSocketMessage(Buffer::const_iterator begin,

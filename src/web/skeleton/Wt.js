@@ -2472,7 +2472,7 @@ _$_$endif_$_();
   }
 }
 
-var ackUpdateId = 0;
+var ackUpdateId = _$_ACK_UPDATE_ID_$_;
 
 function responseReceived(updateId) {
   ackUpdateId = updateId;

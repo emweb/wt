@@ -14,8 +14,8 @@ namespace Wt {
 class WString;
 
 enum RefEncoderOption {
-  EncodeInternalPaths,
-  EncodeRedirectTrampoline
+  EncodeInternalPaths = 0x1,
+  EncodeRedirectTrampoline = 0x2
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RefEncoderOption)

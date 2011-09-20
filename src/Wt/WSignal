@@ -664,7 +664,7 @@ public:
    *
    * This will provide a client-side connection between the event and
    * a JavaScript function. The argument must be a JavaScript function
-   * which optionally accepts two arguments (the object and the event):
+   * which optionally accepts two arguments (object and the event):
    *
    * \code
    * function(object, event) {

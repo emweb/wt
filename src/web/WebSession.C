@@ -80,7 +80,9 @@ WebSession::WebSession(WebController *controller,
     favicon_(favicon),
     state_(JustCreated),
     sessionId_(sessionId),
+    sessionIdCookie_(WRandom::generateId()),
     sessionIdChanged_(false),
+    sessionIdCookieChanged_(true),
     sessionIdInUrl_(false),
     controller_(controller),
     renderer_(*this),
@@ -138,6 +140,8 @@ WebSession::WebSession(WebController *controller,
 #else  // WT_TARGET_JAVA
   log("notice") << "Session created";
 #endif // WT_TARGET_JAVA
+
+  renderer().setCookie("Wt" + sessionId_, sessionIdCookie_, -1, "", "");
 }
 
 void WebSession::setApplication(WApplication *app)
@@ -263,9 +267,6 @@ void WebSession::setState(State state, int timeout)
 
 std::string WebSession::sessionQuery() const
 {
-  // the session query is used for all requests (except for reload if the
-  // session is not in the main url), to prevent CSRF.
-
   return "?wtd=" + sessionId_;
 }
 
@@ -869,6 +870,11 @@ void WebSession::doRecursiveEventLoop()
   if (handler->response())
     handler->session()->render(*handler);
 
+  if (state_ == Dead) {
+    recursiveEventLoop_ = 0;
+    throw WtException("doRecursiveEventLoop(): session was killed");
+  }
+
   /*
    * Register that we are doing a recursive event loop, this is used in
    * handleRequest() to let the recursive event loop do the actual
@@ -892,11 +898,6 @@ void WebSession::doRecursiveEventLoop()
   while (!newRecursiveEvent_)
     recursiveEvent_.wait();
 #endif
-
-  if (state_ == Dead) {
-    recursiveEventLoop_ = 0;
-    throw WtException("doRecursiveEventLoop(): session was killed");
-  }
 
   /*
    * We use recursiveEventLoop_ != null to postpone rendering: we only want
@@ -1013,21 +1014,18 @@ void WebSession::handleRequest(Handler& handler)
 
   /*
    * Under what circumstances do we allow a request which does not have
-   * a the session ID (i.e. who as it only through a cookie?)
-   *
+   * a session ID (i.e. who as it only through a cookie?)
    *  - when a new session is created
-   *  - when reloading the page (we document in the API that you should not
-   *    run business logic when doing that)
+   *  - when reloading the page
    *
-   * in other cases: silenty discard the request
+   * in other cases: discard the request
    */
   if ((!wtdE || (*wtdE != sessionId_))
 	   && state_ != JustCreated
 	   && (requestE && (*requestE == "jsupdate" ||
 			    *requestE == "resource"))) {
-    handler.response()->setContentType("text/html");
-    handler.response()->out()
-      << "<html><head></head><body>CSRF prevention</body></html>";
+    log("secure") << "CSRF prevention kicked in.";
+    serveError(handler, "CSRF prevention");
   } else
     try {
       /*
@@ -1591,7 +1589,66 @@ void WebSession::notify(const WEvent& event)
 
     break;
   case WebSession::Loaded:
+    if (handler.response()->responseType() == WebResponse::Page) {
+      /*
+       * Prevent a session fixation attack and a session stealing attack:
+       * - user agent has changed: close the session
+       * - remote IP address changes: only allowed if the session cookie
+       *   is not empty and matches (TODO).
+       * - prevent attack on ajax sessions:
+       *   - use random initial ackUpdateId to prevent attacks on ajax sessions
+       *     (in the case somehow the session Id got stolen): this ackUpdateId
+       *     is not exposed in a referer
+       *   - tie script with unique id to page to prevent attack on a ajax
+       *     session: this scriptId is not exposed in a referer
+       *
+       * Note: this may interfere with the use-case for the undocumented
+       *       persistent session configuration option
+       */
+      if (handler.request()->headerValue("User-Agent") != env_->userAgent()) {
+	log("secure") << "Change of user-agent not allowed.";
+	serveError(handler, "Change of user-agent not allowed.");
+	return;
+      }
+
+      std::string ca = WEnvironment::getClientAddress
+	(*handler.request(), controller_->configuration());
+
+      if (true || ca != env_->clientAddress()) {
+	bool isInvalid = sessionIdCookie_.empty();
+
+	if (!isInvalid) {
+	  std::string cookie = request.headerValue("Cookie");
+	  if (cookie.find(sessionIdCookie_) == std::string::npos)
+	    isInvalid = true;
+	}
+
+	if (isInvalid) {
+	  log("secure") << "Change of IP address (" << env_->clientAddress()
+			<< " -> " << ca << ") not allowed.";
+	  serveError(handler, "Change of IP address not allowed.");
+	  return;
+	}
+      }
+    }
+
+    if (sessionIdCookieChanged_) {
+      std::string cookie = request.headerValue("Cookie");
+      if (cookie.find(sessionIdCookie_) == std::string::npos) {
+	sessionIdCookie_.clear();
+	log("info") << "Session id cookie not working";
+      }
+
+      sessionIdCookieChanged_ = false;
+    }
+
     if (handler.response()->responseType() == WebResponse::Script) {
+      const std::string *sidE = request.getParameter("sid");
+      if (!sidE
+	  || *sidE != boost::lexical_cast<std::string>(renderer_.scriptId())) {
+	throw WtException("Script id mismatch");
+      }
+
       if (!request.getParameter("skeleton")) {
 	if (!env_->ajax()) {
 	  env_->enableAjax(request);
@@ -1671,12 +1728,23 @@ void WebSession::notify(const WEvent& event)
 	env_->urlScheme_ = request.urlScheme();
 
 	if (signalE) {
+	  /*
+	   * Check the ackIdE. This is required for a request carrying a signal.
+	   */
 	  const std::string *ackIdE = request.getParameter("ackId");
-	  try {
-	    if (ackIdE)
-	      renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE));
-	  } catch (const boost::bad_lexical_cast& e) {
-	    log("error") << "Could not parse ackId: " << *ackIdE;
+	  bool invalidAckId = env_->ajax() && !request.isWebSocketMessage(); 
+	  if (ackIdE) {
+	    try {
+	      if (renderer_.ackUpdate(boost::lexical_cast<unsigned>(*ackIdE)))
+		invalidAckId = false;
+	    } catch (const boost::bad_lexical_cast& e) {
+	    }
+	  }
+
+	  if (invalidAckId) {
+	    log("secure") << "Missing or invalid ackId";
+	    serveError(handler, "Invalid ackId");
+	    return;
 	  }
 
 	  /*
@@ -2179,6 +2247,10 @@ void WebSession::generateNewSessionId()
     std::string cookieName = env_->deploymentPath();
     renderer().setCookie(cookieName, sessionId_, -1, "", "");
   }
+
+  sessionIdCookie_ = WRandom::generateId();
+  sessionIdCookieChanged_ = true;
+  renderer().setCookie("Wt" + sessionId_, sessionIdCookie_, -1, "", "");
 }
 #endif // WT_TARGET_JAVA
 

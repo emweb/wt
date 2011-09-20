@@ -86,7 +86,7 @@ if (screen.deviceXDPI != screen.logicalXDPI)
   scaleInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
 
 // determine url
-var selfUrl=_$_SELF_URL_$_;
+var selfUrl=_$_SELF_URL_$_ + '&sid=' + _$_SCRIPT_ID_$_;
 
 // determine html history support
 var isMobileWebKit

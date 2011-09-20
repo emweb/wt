@@ -109,6 +109,29 @@ void WEnvironment::init(const WebRequest& request)
       host_ += ":" + request.serverPort();
   }
 
+  clientAddress_ = getClientAddress(request, conf);
+
+  std::string cookie = request.headerValue("Cookie");
+  doesCookies_ = !cookie.empty();
+
+  if (doesCookies_)
+    parseCookies(cookie);
+
+  locale_ = request.parseLocale();
+
+  /*
+   * checked=\"checked\" seems not to work with IE9 XHTML mode
+   */
+  if (conf.sendXHTMLMimeType()
+      && (accept_.find("application/xhtml+xml") != std::string::npos)
+      && !agentIsIE())
+    contentType_ = XHTML1;
+}
+
+std::string WEnvironment::getClientAddress(const WebRequest& request,
+					   const Configuration& conf)
+{
+  std::string result;
 
   /*
    * Determine client address, taking into account proxies
@@ -129,37 +152,23 @@ void WEnvironment::init(const WebRequest& request)
     Utils::insert(ips, forwardedIps);
 
     for (unsigned i = 0; i < ips.size(); ++i) {
-      clientAddress_ = ips[i];
+      result = ips[i];
 
-      boost::trim(clientAddress_);
+      boost::trim(result);
 
-      if (!clientAddress_.empty()
-	  && !boost::starts_with(clientAddress_, "10.")
-	  && !boost::starts_with(clientAddress_, "172.16.")
-	  && !boost::starts_with(clientAddress_, "192.168.")) {
+      if (!result.empty()
+	  && !boost::starts_with(result, "10.")
+	  && !boost::starts_with(result, "172.16.")
+	  && !boost::starts_with(result, "192.168.")) {
 	break;
       }
     }
   }
 
-  if (clientAddress_.empty())
-    clientAddress_ = request.envValue("REMOTE_ADDR");
+  if (result.empty())
+    result = request.envValue("REMOTE_ADDR");
 
-  std::string cookie = request.headerValue("Cookie");
-  doesCookies_ = !cookie.empty();
-
-  if (doesCookies_)
-    parseCookies(cookie);
-
-  locale_ = request.parseLocale();
-
-  /*
-   * checked=\"checked\" seems not to work with IE9 XHTML mode
-   */
-  if (session_->controller()->configuration().sendXHTMLMimeType()
-      && (accept_.find("application/xhtml+xml") != std::string::npos)
-      && !agentIsIE())
-    contentType_ = XHTML1;
+  return result;
 }
 
 void WEnvironment::enableAjax(const WebRequest& request)

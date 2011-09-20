@@ -36,6 +36,7 @@ public:
   void setVar(const std::string& name, const char *value);
   void setVar(const std::string& name, bool value);
   void setVar(const std::string& name, int value);
+  void setVar(const std::string& name, unsigned value);
   void setCondition(const std::string& name, bool value);
   void stream(std::ostream& out);
   void streamUntil(std::ostream& out, const std::string& until);

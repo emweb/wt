@@ -754,28 +754,39 @@ target="_blank">item model</a>.</p>
 </p>
 
 <p>
-  This example implements a classic hangman game, including a user ranking system, backed by a small database. The example shows among other things how hidden widgets can be used to improve the application's performance.
+  This example implements a simple well-known game, including a user
+  ranking system, which is persisted to a database using Wt::Dbo.
+</p>
+<p>
+  Some of the things illustrated in this example:
 </p>
 <ul>
   <li>
-    A HTML template in combination with the <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
-    target="_blank">WTemplate class</a> is used to define the layout in <b>LoginWidget</b>.
+    Different approaches to layout:
+    using an <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
+    target="_blank">HTML template</a>,
+    a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
+    target="_blank">layout manager</a>, or by compositing basic
+    widgets and CSS.
   </li>
   <li>
-    The use of layout managers is demonstrated in <b>HangmanGame</b>.
+    Using hidden content to optimize the user experience by preloading
+    contents, used in this game to preload the various images used to
+    show the hanging man.
   </li>
   <li>
-    The hangman images demonstrate how <b>hidden widgets</b> may improve the 
-    application's performance.
+    Navigation is implemented
+    using <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
+    target="_blank">WAnchor</a> which reference an internal path. Action is taken by
+    reacting to internal path changes.
   </li>
   <li>
-    The highscores widget and game widget are installed on different
-    <b>internal paths</b>.
+    A database which contains user information is accessed and updated
+    using <a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>.
   </li>
 </ul>
 
-<p>For a thorough explanation of the hangman example, see also the ARTICLE</p>
+<!--<p>For a thorough explanation of the hangman example, see also the ARTICLE</p>-->
 </div>
   </message>
 

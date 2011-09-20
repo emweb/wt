@@ -75,7 +75,7 @@ void HangmanWidget::registerGuess(char c)
   if (!correct)
     images_->badGuess();
 
-  if(images_->gameOver()) {
+  if (images_->gameOver()) {
     WString status("You hang... <br />The correct answer was: {1} ");
     statusText_->setText(status.arg(word_->word()));
 

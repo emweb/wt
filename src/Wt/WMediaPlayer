@@ -8,6 +8,7 @@
 #define WMEDIA_PLAYER_H_
 
 #include <Wt/WCompositeWidget>
+#include <Wt/WJavaScript>
 #include <Wt/WLink>
 
 namespace Wt {

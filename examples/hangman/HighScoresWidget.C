@@ -72,7 +72,10 @@ void HighScoresWidget::update()
 	      table->elementAt(row, 2));
     new WText(boost::lexical_cast<std::string>(u.score),
 	      table->elementAt(row, 3));
-    new WText(u.lastLogin.toString(), table->elementAt(row, 4));
+    if (!u.lastLogin.isNull())
+      new WText(u.lastLogin.toString(), table->elementAt(row, 4));
+    else
+      new WText("---", table->elementAt(row, 4));
     
     if (session_->user() && u.name == session_->user()->name)
       table->rowAt(row)->setId("self");

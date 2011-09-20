@@ -93,16 +93,16 @@ public:
    */
   Cursor cursor() const { return cursor_; }
 
-  /*! \brief Sets a custom cursor image URI, with optionally a fallback cursor.
+  /*! \brief Sets a custom cursor image Url.
    * 
-   * The URI should point to a .cur file (this shoul be a real .cur file, 
+   * The Url should point to a .cur file (this shoul be a real .cur file, 
    * renaming an .ico is not enough for Internet Explorer).
    */
   void setCursor(std::string cursorImage, Cursor fallback = ArrowCursor);
 
   /*! \brief Returns the cursor image.
    *
-   * \setCursor()
+   * \sa setCursor()
    */
   std::string cursorImage() const { return cursorImage_; }
 

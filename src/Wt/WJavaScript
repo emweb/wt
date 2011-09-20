@@ -291,10 +291,10 @@ public:
    *
    * This will provide a client-side connection between the event and
    * a JavaScript function. The argument must be a JavaScript function
-   * which optionally accepts one arguments (the object):
+   * which optionally accepts up to two arguments (object and event):
    *
    * \code
-   * function(object) {
+   * function(object, event) {
    *   ...
    * }
    * \endcode

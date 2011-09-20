@@ -22,7 +22,7 @@ Session::Session()
   Dbo::Transaction transaction(session_);
   try {
     session_.createTables();
-    session_.add(new User("guest", "guest"));
+    session_.add(new User("guest", "guest"));    
     WApplication::instance()->log("info") << "Database created";
   } catch (...) {
     WApplication::instance()->log("info") << "Using existing database";
@@ -38,9 +38,7 @@ bool Session::login(std::string name, std::string password)
   if (!user_)
     user_ = session_.add(new User(name, password));
 
-  bool ok = user_->password != password;
-  if (ok)
-    user_.modify()->lastLogin = WDateTime::currentDateTime();
+  bool ok = user_->password == password;
   
   transaction.commit();
   
@@ -50,6 +48,8 @@ bool Session::login(std::string name, std::string password)
 void Session::addToScore(int s)
 {
   user_.modify()->score += s;
+  ++user_.modify()->gamesPlayed;
+  user_.modify()->lastLogin = WDateTime::currentDateTime();
 }
 
 std::vector<User> Session::topUsers(int limit)
@@ -57,13 +57,13 @@ std::vector<User> Session::topUsers(int limit)
   Dbo::Transaction transaction(session_);
   Users top = session_.find<User>().orderBy("score desc").limit(20);
 
-  std::vector<User> toReturn;
+  std::vector<User> result;
   for (Users::const_iterator i = top.begin(); i != top.end(); ++i)
-    toReturn.push_back(**i);
+    result.push_back(**i);
 
   transaction.commit();
 
-  return toReturn;
+  return result;
 }
 
 int Session::findRanking(const User *user)

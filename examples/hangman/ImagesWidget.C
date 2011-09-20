@@ -14,7 +14,7 @@ const int ImagesWidget::maxGuesses_ = 9;
 
 ImagesWidget::ImagesWidget(WContainerWidget *parent)
 {
-  for(unsigned int i = 0; i <= maxGuesses_; ++i) {
+  for (unsigned int i = 0; i <= maxGuesses_; ++i) {
     std::string fname = "icons/hangman";
     fname += boost::lexical_cast<std::string>(i) + ".png";
     WImage *theImage = new WImage(fname, this);
@@ -40,14 +40,15 @@ void ImagesWidget::init()
 
 void ImagesWidget::badGuess()
 {
-  hangmanImages_[badGuesses_]->hide();
-  if (badGuesses_ < hangmanImages_.size() - 1)
+  if (badGuesses_ < hangmanImages_.size() - 1) {
+    hangmanImages_[badGuesses_]->hide();
     hangmanImages_[++badGuesses_]->show();
+  }
 }
 
 bool ImagesWidget::gameOver()
 {
-  return badGuesses_ == (maxGuesses_ - 1);
+  return badGuesses_ == maxGuesses_;
 }
 
 void ImagesWidget::hurray() 
