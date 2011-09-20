@@ -303,7 +303,7 @@ private:
 				       const std::string& name);
 
   void render(Handler& handler);
-  void serveError(Handler& handler, const std::string& exception);
+  void serveError(int status, Handler& handler, const std::string& exception);
   void serveResponse(Handler& handler);
 
   enum SignalKind { LearnedStateless = 0, AutoLearnStateless = 1,

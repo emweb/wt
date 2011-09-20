@@ -61,8 +61,8 @@ public:
   unsigned pageId() const { return pageId_; }
 
   void serveResponse(WebResponse& request);
-  void serveError(WebResponse& request, const std::exception& error);
-  void serveError(WebResponse& request, const std::string& message);
+  void serveError(int status, WebResponse& request, 
+		  const std::string& message);
   void serveLinkedCss(WebResponse& request);
 
   void setCookie(const std::string name, const std::string value,

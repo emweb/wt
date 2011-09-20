@@ -264,7 +264,8 @@ public:
    * content allows).
    *
    * This also sets the minimum width and height to WLength::Auto
-   * to use the initial width and height as minimum sizes.
+   * to use the initial width and height as minimum sizes. You may want
+   * to provide other values for minimum width and height.
    *
    * \sa setMinimumSize(), setMaximumSize()
    */

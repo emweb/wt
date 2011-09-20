@@ -899,6 +899,11 @@ void WebSession::doRecursiveEventLoop()
     recursiveEvent_.wait();
 #endif
 
+  if (state_ == Dead) {
+    recursiveEventLoop_ = 0;
+    throw WtException("doRecursiveEventLoop(): session was killed");
+  }
+
   /*
    * We use recursiveEventLoop_ != null to postpone rendering: we only want
    * the event handling part.
@@ -1025,7 +1030,7 @@ void WebSession::handleRequest(Handler& handler)
 	   && (requestE && (*requestE == "jsupdate" ||
 			    *requestE == "resource"))) {
     log("secure") << "CSRF prevention kicked in.";
-    serveError(handler, "CSRF prevention");
+    serveError(403, handler, "Forbidden");
   } else
     try {
       /*
@@ -1290,7 +1295,7 @@ void WebSession::handleRequest(Handler& handler)
       kill();
 
       if (handler.response())
-	serveError(handler, e.what());
+	serveError(500, handler, e.what());
 
     } catch (std::exception& e) {
       log("fatal") << e.what();
@@ -1302,14 +1307,14 @@ void WebSession::handleRequest(Handler& handler)
       kill();
 
       if (handler.response())
-	serveError(handler, e.what());
+	serveError(500, handler, e.what());
     } catch (...) {
       log("fatal") << "Unknown exception.";
 
       kill();
 
       if (handler.response())
-	serveError(handler, "Unknown exception");
+	serveError(500, handler, "Unknown exception");
     }
 
   if (handler.response())
@@ -1607,14 +1612,14 @@ void WebSession::notify(const WEvent& event)
        */
       if (handler.request()->headerValue("User-Agent") != env_->userAgent()) {
 	log("secure") << "Change of user-agent not allowed.";
-	serveError(handler, "Change of user-agent not allowed.");
+	serveError(403, handler, "Forbidden");
 	return;
       }
 
       std::string ca = WEnvironment::getClientAddress
 	(*handler.request(), controller_->configuration());
 
-      if (true || ca != env_->clientAddress()) {
+      if (ca != env_->clientAddress()) {
 	bool isInvalid = sessionIdCookie_.empty();
 
 	if (!isInvalid) {
@@ -1626,7 +1631,7 @@ void WebSession::notify(const WEvent& event)
 	if (isInvalid) {
 	  log("secure") << "Change of IP address (" << env_->clientAddress()
 			<< " -> " << ca << ") not allowed.";
-	  serveError(handler, "Change of IP address not allowed.");
+	  serveError(403, handler, "Forbidden");
 	  return;
 	}
       }
@@ -1743,7 +1748,7 @@ void WebSession::notify(const WEvent& event)
 
 	  if (invalidAckId) {
 	    log("secure") << "Missing or invalid ackId";
-	    serveError(handler, "Invalid ackId");
+	    serveError(403, handler, "Forbidden");
 	    return;
 	  }
 
@@ -1993,9 +1998,9 @@ void WebSession::render(Handler& handler)
   updatesPending_ = false;
 }
 
-void WebSession::serveError(Handler& handler, const std::string& e)
+void WebSession::serveError(int status, Handler& handler, const std::string& e)
 {
-  renderer_.serveError(*handler.response(), e);
+  renderer_.serveError(status, *handler.response(), e);
   handler.response()->flush();
   handler.setRequest(0, 0);
 }

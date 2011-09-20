@@ -384,12 +384,14 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   rendered_ = false;
 }
 
-void WebRenderer::serveError(WebResponse& response, const std::string& message)
+void WebRenderer::serveError(int status, WebResponse& response,
+			     const std::string& message)
 {
   bool js = response.responseType() != WebResponse::Page;
 
   WApplication *app = session_.app();
   if (!js || !app) {
+    response.setStatus(status);
     response.setContentType("text/html");
     response.out()
       << "<title>Error occurred.</title>"
