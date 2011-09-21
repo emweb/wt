@@ -25,7 +25,7 @@
 namespace Wt {
 
 /*! \class WGenericMatrix Wt/WGenericMatrix Wt/WGenericMatrix
- * \brief A generalized matrix class
+ * \brief A value class that describes a matrix
  *
  * This class represents a fixed-size dense (!= sparse) matrix. It
  * can be templatized to the number of rows and columns, and to the

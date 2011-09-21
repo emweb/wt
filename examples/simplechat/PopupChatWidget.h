@@ -20,7 +20,7 @@
 class PopupChatWidget : public SimpleChatWidget
 {
 public:
-  PopupChatWidget(SimpleChatServer& server);
+  PopupChatWidget(SimpleChatServer& server, const std::string& id);
 
   void setName(const Wt::WString& name);
 
@@ -30,15 +30,18 @@ protected:
 			    Wt::WWidget *sendButton, Wt::WWidget *logoutButton);
 
   virtual void updateUsers();
+  virtual void newMessage();
 
 private:
   Wt::WString name_;
   Wt::WText *title_;
-  bool online_;
+  Wt::WWidget *bar_;
+  bool online_, minimized_;
+  int missedMessages_;
 
   void toggleSize();
-  void minimize();
-  void maximize();
+  void goOnline();
+  bool minimized() const;
 
   Wt::WContainerWidget *createBar();
 };

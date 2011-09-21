@@ -13,7 +13,7 @@ namespace Wt {
 class SoundManager;
 
 /*! \class WSound Wt/WSound Wt/WSound
- * \brief Utility class to play a sound.
+ * \brief A value class to play a sound effect.
  *
  * This class provides a way to play an MP3 sound asynchonously (if
  * the browser supports this). It is intended as a simple way to play

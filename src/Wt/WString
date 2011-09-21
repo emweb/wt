@@ -20,7 +20,7 @@
 namespace Wt {
 
 /*! \class WString Wt/WString Wt/WString
- *  \brief A unicode string class, with support for localization.
+ *  \brief A value class which describes a locale-aware unicode string.
  *
  * %Wt offers this string to facilitate handling of unicode text
  * through the user interface, and to offer support for localized text

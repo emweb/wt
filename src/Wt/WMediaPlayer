@@ -44,7 +44,7 @@ namespace Wt {
  * directly to the video player component (client-side).
  *
  * This widget relies on a third-party JavaScript component <a
- * href="http://www.jplayer.org/">jPlayer</a>), which is
+ * href="http://www.jplayer.org/">jPlayer</a>, which is
  * distributed together with %Wt.
  *
  * The default user-interface can be themed using jPlayer themes. The
@@ -204,7 +204,7 @@ public:
 
   /*! \brief Returns the video height.
    *
-   * \sa setVideoHeight()
+   * \sa setVideoSize()
    */
   int videoHeight() const { return videoHeight_; }
 
@@ -419,7 +419,7 @@ public:
   double playbackRate() const { return status_.playbackRate; }
 
   // This even seems kind of useless ?
-  JSignal<>& loadStarted();
+  // JSignal<>& loadStarted();
 
   /*! \brief Event that indicates a time update.
    *

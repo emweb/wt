@@ -13,7 +13,7 @@
 namespace Wt {
 
 /*! \class WLength Wt/WLength Wt/WLength
- *  \brief A class that specifies a CSS length.
+ *  \brief A value class that describes a CSS length.
  *
  * The class combines a value with a unit. There is a special value
  * <i>auto</i> which has a different meaning depending on the context.

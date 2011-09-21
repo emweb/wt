@@ -13,7 +13,7 @@
 namespace Wt {
 
 /*! \class WPen Wt/WPen Wt/WPen
- *  \brief Class that defines the style for pen strokes
+ *  \brief A value class that defines the style for pen strokes
  *
  * A pen defines the properties of how lines (that may surround
  * shapes) are rendered.

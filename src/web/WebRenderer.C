@@ -150,7 +150,8 @@ bool WebRenderer::ackUpdate(unsigned updateId)
     setJSSynced(false);
     ++expectedAckId_;
     return true;
-  } else if (updateId < expectedAckId_ && updateId > expectedAckId_ - 5) {
+  } else if ((updateId < expectedAckId_ && expectedAckId_ - updateId < 5)
+	     || (expectedAckId_ - 5 < updateId)) {
     return true; // That's still acceptible but no longer plausible
   } else
     return false;
@@ -638,6 +639,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
       streamRedirectJS(response.out(), redirect);
       return;
     }
+  } else {
+    expectedAckId_ = scriptId_ = WRandom::get();
   }
 
   WApplication *app = session_.app();

@@ -14,7 +14,7 @@ namespace Wt {
 class WPointF;
 
 /*! \class WRectF Wt/WRectF Wt/WRectF
- *  \brief Utility class that defines a rectangle.
+ *  \brief A value class that defines a rectangle.
  *
  * The rectangle is defined by a top-left point and a width and height.
  *

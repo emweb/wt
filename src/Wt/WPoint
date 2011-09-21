@@ -12,7 +12,7 @@
 namespace Wt {
 
 /*! \class WPoint Wt/WPoint Wt/WPoint
- *  \brief Utility class that defines a 2D point with integer coordinates.
+ *  \brief A value class that defines a 2D point with integer coordinates.
  *
  * \sa WPolygonArea
  */

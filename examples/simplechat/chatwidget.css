@@ -9,7 +9,7 @@
 }
 
 .chat-minimized {
-    width: 170px;
+    width: 185px;
     height: 20px;
 }
 
@@ -25,10 +25,23 @@
     color: white;
 }
 
+.chat-bar.alert {
+    background-color: #D05D2A;
+}
+
 .chat-bar .chat-minmax {
     float: right;
     width: 16px;
     height: 16px;
+}
+
+.chat-bar .self {
+    font-size: 110%;
+    font-weight: bold;
+}
+
+.chat-bar .online {
+    color: #DDDDDD;
 }
 
 .chat-maximized .chat-bar .chat-minmax {

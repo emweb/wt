@@ -175,7 +175,7 @@ enum DropAction {
 };
 
 /*! \class WModelIndex Wt/WModelIndex Wt/WModelIndex
- *  \brief An index to an item in a item data model.
+ *  \brief A value class that describes an index to an item in a data model.
  *
  * Indexes are used to indicate a particular item in a
  * WAbstractItemModel. An index points to the item by identifying its

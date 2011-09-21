@@ -48,17 +48,37 @@ SimpleChatServer::SimpleChatServer(WServer& server)
   : server_(server)
 { }
 
-bool SimpleChatServer::login(const WString& user,
-			     const ChatEventCallback& handleEvent)
+bool SimpleChatServer::connect(Client *client,
+			       const ChatEventCallback& handleEvent)
+{
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+
+  if (clients_.count(client) == 0) {
+    ClientInfo clientInfo;
+  
+    clientInfo.sessionId = WApplication::instance()->sessionId();
+    clientInfo.eventCallback = handleEvent;
+
+    clients_[client] = clientInfo;
+
+    return true;
+  } else
+    return false;
+}
+
+bool SimpleChatServer::disconnect(Client *client)
+{
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+
+  return clients_.erase(client) == 1;
+}
+
+bool SimpleChatServer::login(const WString& user)
 {
   boost::recursive_mutex::scoped_lock lock(mutex_);
   
   if (users_.find(user) == users_.end()) {
-    UserInfo userInfo;
-    userInfo.sessionId = WApplication::instance()->sessionId();
-    userInfo.eventCallback = handleEvent;
-
-    users_[user] = userInfo;
+    users_.insert(user);
 
     postChatEvent(ChatEvent(ChatEvent::Login, user));
 
@@ -71,7 +91,7 @@ void SimpleChatServer::logout(const WString& user)
 {
   boost::recursive_mutex::scoped_lock lock(mutex_);
 
-  UserMap::iterator i = users_.find(user);
+  UserSet::iterator i = users_.find(user);
 
   if (i != users_.end()) {
     users_.erase(i);
@@ -87,13 +107,12 @@ bool SimpleChatServer::changeName(const WString& user, const WString& newUser)
 
   boost::recursive_mutex::scoped_lock lock(mutex_);
   
-  UserMap::iterator i = users_.find(user);
+  UserSet::iterator i = users_.find(user);
 
   if (i != users_.end()) {
-    if (users_.find(newUser) == users_.end()) {
-      UserInfo info = i->second;
+    if (users_.count(newUser) == 0) {
       users_.erase(i);
-      users_[newUser] = info;
+      users_.insert(newUser);
 
       postChatEvent(ChatEvent(ChatEvent::Rename, user, newUser));
 
@@ -128,7 +147,8 @@ void SimpleChatServer::postChatEvent(const ChatEvent& event)
 
   WApplication *app = WApplication::instance();
 
-  for (UserMap::const_iterator i = users_.begin(); i != users_.end(); ++i) {
+  for (ClientMap::const_iterator i = clients_.begin(); i != clients_.end();
+       ++i) {
     /*
      * If the user corresponds to the current application, we directly
      * call the call back method. This avoids an unnecessary delay for
@@ -151,9 +171,7 @@ SimpleChatServer::UserSet SimpleChatServer::users()
 {
   boost::recursive_mutex::scoped_lock lock(mutex_);
 
-  UserSet result;
-  for (UserMap::const_iterator i = users_.begin(); i != users_.end(); ++i)
-    result.insert(i->first);
+  UserSet result = users_;
 
   return result;
 }

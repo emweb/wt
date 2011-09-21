@@ -92,7 +92,7 @@ ChatWidget::ChatWidget(const WEnvironment& env, SimpleChatServer& server)
 
   if (div) {
     setJavaScriptClass(*div);
-    PopupChatWidget *chatWidget = new PopupChatWidget(server);
+    PopupChatWidget *chatWidget = new PopupChatWidget(server, *div);
     bindWidget(chatWidget, *div);
 
     login_.connect(chatWidget, &PopupChatWidget::setName);

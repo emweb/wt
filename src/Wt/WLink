@@ -17,11 +17,11 @@
 
 namespace Wt {
 
-/*! \brief A utility class that defines a hyperlink target.
+/*! \brief A value class that defines a hyperlink target.
  *
- * This class abstracts a link target, which may be a plain static
- * URL, a dynamic \link WResource resource\endlink, or (for certain
- * usages) an internal path.
+ * This class abstracts a link target. Depending on the context, it
+ * may reference a URL, a dynamic \link WResource resource\endlink, or
+ * (for certain usages) an internal path.
  *
  * \sa WAnchor, WImage, WMediaPlayer, WPopupMenuItem, WPushButton
  */

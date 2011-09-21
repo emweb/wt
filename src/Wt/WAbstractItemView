@@ -813,7 +813,6 @@ protected:
 
   mutable std::vector<ColumnInfo> columns_;
   int currentSortColumn_;
-  int rowHeaderCount_;
 
   bool dragEnabled_, dropsEnabled_;
   WWidget *dragWidget_;
@@ -873,15 +872,16 @@ private:
     bool valid;
   };
 
-  WAbstractItemModel    *model_, *headerModel_;
-  WModelIndex            rootIndex_;
+  WAbstractItemModel *model_, *headerModel_;
+  WModelIndex rootIndex_;
   WAbstractItemDelegate *itemDelegate_;
   WAbstractItemDelegate *headerItemDelegate_;
-  WItemSelectionModel   *selectionModel_;
-  WLength                rowHeight_, headerLineHeight_;
-  SelectionMode          selectionMode_;
-  bool                   sorting_, columnResize_;
-  bool                   multiLineHeader_;
+  WItemSelectionModel *selectionModel_;
+  WLength rowHeight_, headerLineHeight_;
+  SelectionMode selectionMode_;
+  bool sorting_, columnResize_;
+  bool multiLineHeader_;
+  int rowHeaderCount_;
 
   JSignal<int, int>    columnWidthChanged_;
   Signal<int, WLength> columnResized_;

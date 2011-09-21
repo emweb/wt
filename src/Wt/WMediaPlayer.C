@@ -597,10 +597,12 @@ void WMediaPlayer::setFormData(const FormData& formData)
   }
 }
 
+/*
 JSignal<>& WMediaPlayer::loadStarted()
 { 
   return signal(LOAD_STARTED_SIGNAL);
 }
+*/
 
 JSignal<>& WMediaPlayer::timeUpdated()
 {

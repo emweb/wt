@@ -139,12 +139,17 @@ public:
    */
   WResource *resource() const { return link_.resource(); }
 
+  /*! \brief Sets the link target.
+   *
+   * This sets the target where the linked contents should be displayed.
+   * The default target is TargetSelf.
+   */
   void setLinkTarget(AnchorTarget target);
 
   /*! \brief Returns the location where the linked content should be
    *         displayed.
    *
-   * \sa setTarget()
+   * \sa setLinkTarget()
    */
   AnchorTarget linkTarget() const { return linkTarget_; }
 

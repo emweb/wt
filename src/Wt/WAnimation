@@ -12,9 +12,9 @@
 namespace Wt {
 
 /*! \class WAnimation Wt/WAnimation Wt/WAnimation
- *  \brief Class that defines a transition effect.
+ *  \brief A value class that defines a transition effect.
  *
- * A class which defines an animation used as a transition to show or
+ * This class defines an animation used as a transition to show or
  * hide a widget.
  *
  * The animation can be defined as a motion effect (e.g. sliding in or
@@ -145,7 +145,16 @@ public:
    */
   int duration() const { return duration_; }
 
+  /*! \brief Sets a timing function.
+   *
+   * The default timinig function is WAnimation::Linear.
+   */
   void setTimingFunction(TimingFunction function);
+
+  /*! \brief Returns the timing function.
+   *
+   * \sa setTimingFunction()
+   */
   TimingFunction timingFunction() const { return timing_; }
 
   /*

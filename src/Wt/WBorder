@@ -13,7 +13,7 @@
 namespace Wt {
 
 /*! \class WBorder Wt/WBorder Wt/WBorder
- *  \brief A style class for the border of a widget.
+ *  \brief A value class that defines the CSS border style of a widget.
  *
  * \ingroup style
  */

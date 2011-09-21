@@ -16,7 +16,7 @@
 namespace Wt {
 
 /*! \class WColor Wt/WColor Wt/WColor
- *  \brief A class that specifies a color.
+ *  \brief A value class that defines a color.
  *
  * A color corresponds to a CSS color. You can specify a color either using
  * its red/green/blue components, or from a valid CSS name.

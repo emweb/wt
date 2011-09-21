@@ -248,6 +248,12 @@ public:
    */
   Signal<int>& tabClosed() { return tabClosed_; }
 
+  /*! \brief Returns the contents stack.
+   *
+   * The tab widget is implemented as a WMenu + WStackedWidget which
+   * displays the contents. This method returns a reference to this
+   * contents stack.
+   */
   WStackedWidget *contentsStack() const;
 
 private:

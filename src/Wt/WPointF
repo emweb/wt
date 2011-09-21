@@ -13,7 +13,7 @@
 namespace Wt {
 
 /*! \class WPointF Wt/WPointF Wt/WPointF
- *  \brief Utility class that defines a 2D point.
+ *  \brief A value class that defines a 2D point.
  *
  * \ingroup painting
  */

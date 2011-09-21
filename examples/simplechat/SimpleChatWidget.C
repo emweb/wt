@@ -27,6 +27,7 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
 				   Wt::WContainerWidget *parent)
   : WContainerWidget(parent),
     server_(server),
+    userList_(0),
     messageReceived_(0)
 {
   user_ = server_.suggestGuest();
@@ -37,10 +38,27 @@ SimpleChatWidget::~SimpleChatWidget()
 {
   delete messageReceived_;
   logout();
+  disconnect();
+}
+
+void SimpleChatWidget::connect()
+{
+  if (server_.connect(this,
+		      boost::bind(&SimpleChatWidget::processChatEvent,
+				  this, _1)))
+    Wt::WApplication::instance()->enableUpdates(true);
+}
+
+void SimpleChatWidget::disconnect()
+{
+  if (server_.disconnect(this))
+    Wt::WApplication::instance()->enableUpdates(false);
 }
 
 void SimpleChatWidget::letLogin()
 {
+  disconnect();
+
   clear();
 
   WVBoxLayout *vLayout = new WVBoxLayout();
@@ -80,8 +98,6 @@ void SimpleChatWidget::logout()
 {
   if (loggedIn()) {
     server_.logout(user_);
-
-    WApplication::instance()->enableUpdates(false);
 
     letLogin();
   }
@@ -172,9 +188,8 @@ bool SimpleChatWidget::startChat(const WString& user)
    * When logging in, we pass our processChatEvent method as the function that
    * is used to indicate a new chat event for this user.
    */
-  if (server_.login(user,
-		    boost::bind(&SimpleChatWidget::processChatEvent, this, _1))) {
-    WApplication::instance()->enableUpdates(true);
+  if (server_.login(user)) {
+    connect();
 
     user_ = user;    
 
@@ -288,6 +303,9 @@ void SimpleChatWidget::updateUsers()
   }
 }
 
+void SimpleChatWidget::newMessage()
+{ }
+
 void SimpleChatWidget::updateUser()
 {
   WCheckBox *b = dynamic_cast<WCheckBox *>(sender());
@@ -296,11 +314,6 @@ void SimpleChatWidget::updateUser()
 
 void SimpleChatWidget::processChatEvent(const ChatEvent& event)
 {
-  // While in principle we are not receiving chat events when not logged in,
-  // We do get the notification that we are logging in, while we are logging in
-  if (!loggedIn())
-    return;
-
   WApplication *app = WApplication::instance();
 
   /*
@@ -316,15 +329,25 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
    * - if another user did not provide valid XHTML, the text is automatically
    *   interpreted as PlainText
    */
+
   /*
    * If it is not a plain message, also update the user list.
    */
   if (event.type() != ChatEvent::Message) {
-    if (event.type() == ChatEvent::Rename
-	&& event.user() == user_)
+    if (event.type() == ChatEvent::Rename && event.user() == user_)
       user_ = event.data();
 
     updateUsers();
+  }
+
+  newMessage();
+
+  /*
+   * Anything else doesn't matter if we are not logged in.
+   */
+  if (!loggedIn()) {
+    app->triggerUpdate();
+    return;
   }
 
   bool display = event.type() != ChatEvent::Message

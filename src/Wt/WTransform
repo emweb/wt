@@ -14,7 +14,7 @@ namespace Wt {
 class WPointF;
 
 /*! \class WTransform Wt/WTransform Wt/WTransform
- *  \brief A 2D affine transformation matrix.
+ *  \brief A value class that defines a 2D affine transformation matrix.
  *
  * The matrix is encoded using 6 parameters:
  * \code

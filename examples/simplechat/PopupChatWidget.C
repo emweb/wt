@@ -14,22 +14,40 @@
 #include "SimpleChatServer.h"
 
 // TODO:
-//  - oher color for jwt ?
 //  - i18n
 
-PopupChatWidget::PopupChatWidget(SimpleChatServer& server)
-  : SimpleChatWidget(server)
+PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
+				 const std::string& id)
+  : SimpleChatWidget(server),
+    missedMessages_(0)
 {
+  setId(id);
+
   if (Wt::WApplication::instance()->environment().agentIsIE()) {
-    if (Wt::WApplication::instance()->environment().agent() == Wt::WEnvironment::IE6)
+    if (Wt::WApplication::instance()->environment().agent()
+	== Wt::WEnvironment::IE6)
       setPositionScheme(Wt::Absolute);
     else
       setPositionScheme(Wt::Fixed);
   }
 
-  online_ = false;
+  implementJavaScript
+    (&PopupChatWidget::toggleSize,
+     "{"
+     """var s = $('#" + id + "');"
+     """s.toggleClass('chat-maximized chat-minimized');"
+     "}");
 
-  minimize();
+  online_ = false;
+  minimized_ = true;
+  setStyleClass("chat-widget chat-minimized");
+
+  clear();
+  addWidget(createBar());
+  updateUsers();
+
+  connect();
+
 }
 
 void PopupChatWidget::setName(const Wt::WString& name)
@@ -48,17 +66,6 @@ void PopupChatWidget::setName(const Wt::WString& name)
     name_ = name;
 }
 
-void PopupChatWidget::minimize()
-{
-  if (!online_) {
-    clear();
-    addWidget(createBar());
-    title_->setText("Thoughts? Ventilate.");
-  }
-
-  setStyleClass("chat-widget chat-minimized");
-}
-
 Wt::WContainerWidget *PopupChatWidget::createBar() 
 {
   Wt::WContainerWidget *bar = new Wt::WContainerWidget();
@@ -68,20 +75,44 @@ Wt::WContainerWidget *PopupChatWidget::createBar()
   toggleButton->setInline(false);
   toggleButton->setStyleClass("chat-minmax");
   bar->clicked().connect(this, &PopupChatWidget::toggleSize);
+  bar->clicked().connect(this, &PopupChatWidget::goOnline);
 
   bar->addWidget(toggleButton);
 
   title_ = new Wt::WText(bar);
+
+  bar_ = bar;
 
   return bar;
 }
 
 void PopupChatWidget::toggleSize()
 {
-  if (styleClass() == "chat-widget chat-minimized")
-    maximize();
-  else
-    minimize();
+  minimized_ = !minimized_;
+}
+
+void PopupChatWidget::goOnline()
+{
+  if (!online_) {
+    online_ = true;
+
+    int tries = 1;
+    Wt::WString name = name_;
+    if (name.empty())
+      name = server().suggestGuest();
+
+    while (!startChat(name)) {
+      if (name_.empty())
+	name = server().suggestGuest();
+      else
+	name = name_ + boost::lexical_cast<std::string>(++tries);
+    }
+
+    name_ = name;
+  }
+
+  missedMessages_ = 0;
+  bar_->removeStyleClass("alert");
 }
 
 void PopupChatWidget::createLayout(Wt::WWidget *messages,
@@ -109,32 +140,31 @@ void PopupChatWidget::updateUsers()
 
   int count = server().users().size();
 
-  if (count == 1)
-    title_->setText("Chat: 1 user online");
-  else
-    title_->setText("Chat: "
-		    + boost::lexical_cast<std::string>(count) + " users online");
+  if (!loggedIn()) {
+    if (count == 0)
+      title_->setText("Thoughts? Ventilate.");
+    else if (count == 1)
+      title_->setText("Chat: 1 user online");
+    else
+      title_->setText(Wt::WString("Chat: {1} users online").arg(count));
+  } else {
+    title_->setText(Wt::WString("Chat: <span class=\"self\">{1}</span>"
+				" <span class=\"online\">({2} user{3})</span>")
+		    .arg(userName()).arg(count).arg(count == 1 ? "" : "s"));
+  }
 }
 
-void PopupChatWidget::maximize()
+void PopupChatWidget::newMessage()
 {
-  if (!online_) {
-    online_ = true;
-
-    int tries = 1;
-    Wt::WString name = name_;
-    if (name.empty())
-      name = server().suggestGuest();
-
-    while (!startChat(name)) {
-      if (name_.empty())
-	name = server().suggestGuest();
-      else
-	name = name_ + boost::lexical_cast<std::string>(++tries);
+  if (loggedIn() && minimized()) {
+    ++missedMessages_;
+    if (missedMessages_ == 1) {
+      bar_->addStyleClass("alert");
     }
-
-    name_ = name;
   }
+}
 
-  setStyleClass("chat-widget chat-maximized");
+bool PopupChatWidget::minimized() const
+{
+  return minimized_;
 }

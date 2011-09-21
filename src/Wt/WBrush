@@ -12,7 +12,7 @@
 namespace Wt {
 
 /*! \class WBrush Wt/WBrush Wt/WBrush
- *  \brief Class that defines the style for filling areas
+ *  \brief A value class that defines the style for filling a path
  *
  * A brush defines the properties of how areas (the interior of
  * shapes) are filled. A brush is defined using a color and a fill

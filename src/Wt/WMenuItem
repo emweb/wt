@@ -258,7 +258,6 @@ public:
    */
   WWidget *contents() const;
   WWidget *takeContents();
-  void purgeContents();
 
   /*! \brief Returns the widget that represents the item.
    *
@@ -362,6 +361,7 @@ private:
   bool              disabled_;
   bool              hidden_;
 
+  void purgeContents();
   bool contentsLoaded() const;
   void loadContents();
   void setMenu(WMenu *menu);

@@ -1747,7 +1747,10 @@ void WebSession::notify(const WEvent& event)
 	  }
 
 	  if (invalidAckId) {
-	    log("secure") << "Missing or invalid ackId";
+	    if (!ackIdE)
+	      log("secure") << "Missing ackId";
+	    else
+	      log("secure") << "Invalid ackId";
 	    serveError(403, handler, "Forbidden");
 	    return;
 	  }

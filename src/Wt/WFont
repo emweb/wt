@@ -16,7 +16,7 @@ class DomElement;
 class WWebWidget;
 
 /*! \class WFont Wt/WFont Wt/WFont
- *  \brief A style class describing a font.
+ *  \brief A value class that describes a font.
  *
  * \ingroup style painting
  */

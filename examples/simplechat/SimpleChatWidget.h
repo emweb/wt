@@ -12,6 +12,8 @@
 #include <Wt/WJavaScript>
 #include <Wt/WSound>
 
+#include "SimpleChatServer.h"
+
 namespace Wt {
   class WApplication;
   class WPushButton;
@@ -20,7 +22,6 @@ namespace Wt {
   class WTextArea;
 }
 
-class SimpleChatServer;
 class ChatEvent;
 
 /**
@@ -30,7 +31,8 @@ class ChatEvent;
 
 /*! \brief A self-contained chat widget.
  */
-class SimpleChatWidget : public Wt::WContainerWidget
+class SimpleChatWidget : public Wt::WContainerWidget,
+			 public SimpleChatServer::Client
 {
 public:
   /*! \brief Create a chat widget that will connect to the given server.
@@ -40,6 +42,10 @@ public:
   /*! \brief Delete a chat widget.
    */
   ~SimpleChatWidget();
+
+  void connect();
+  void disconnect();
+
 
   /*! \brief Show a simple login screen.
    */
@@ -57,14 +63,20 @@ public:
 
   int userCount() { return users_.size(); }
 
+  const Wt::WString& userName() const { return user_; }
+
 protected:
   virtual void createLayout(Wt::WWidget *messages, Wt::WWidget *userList,
 			    Wt::WWidget *messageEdit,
 			    Wt::WWidget *sendButton, Wt::WWidget *logoutButton);
 
   virtual void updateUsers();
+  virtual void newMessage();
 
   virtual void render(Wt::WFlags<Wt::RenderFlag> flags);
+
+protected:
+  bool loggedIn() const;
 
 private:
   typedef std::map<Wt::WString, bool> UserMap;
@@ -90,7 +102,6 @@ private:
   void login();
   void send();
   void updateUser();
-  bool loggedIn() const;
 
   /* called from another session */
   void processChatEvent(const ChatEvent& event);

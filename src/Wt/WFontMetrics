@@ -16,8 +16,9 @@ namespace Wt {
  *
  * height = leading + ascent + descent
  */
+
 /*! \class WFontMetrics Wt/WFontMetrics Wt/WFontMetrics
- *  \brief Font metrics class.
+ *  \brief A value class that describes font metrics for a font.
  *
  * This class provides font metrics for a given font. It is returned
  * by an implementation of WPaintDevice::fontMetrics(), and may differ

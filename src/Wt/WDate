@@ -36,7 +36,7 @@ public:
 };
 
 /*! \class WDate Wt/WDate Wt/WDate
- *  \brief A gregorian calendar date.
+ *  \brief A value class that represents a date on the Gregorian calendar.
  *
  * Class which holds a date on the gregorian calendar, specified as
  * day/month/year.

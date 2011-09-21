@@ -280,7 +280,7 @@ public:
    */
   const std::string& url() const;
 
-  /*! \brief Signal emitted when the data presented in this resource
+  /*! \brief %Signal emitted when the data presented in this resource
    *         has changed.
    *
    * Widgets that reference the resource (such as anchors and images) will
@@ -309,7 +309,7 @@ public:
    */
   void setUploadProgress(bool enabled);
 
-  /*! \brief Signal emitted when data has been received for this resource.
+  /*! \brief %Signal emitted when data has been received for this resource.
    *
    * When this signal is emitted, you have the update lock to modify
    * the application. Because there is however no corresponding

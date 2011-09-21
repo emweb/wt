@@ -82,16 +82,39 @@ typedef boost::function<void (const ChatEvent&)> ChatEventCallback;
 class SimpleChatServer : boost::noncopyable
 {
 public:
+  /*
+   * A reference to a client.
+   */
+  class Client
+  {
+  };
+
   /*! \brief Create a new chat server.
    */
   SimpleChatServer(Wt::WServer& server);
 
+  /*! \brief Connects to the chat server.
+   *
+   * The passed callback method is posted to when a new chat event is
+   * received.
+   *
+   * Returns whether the client has been connected (or false if the client
+   * was already connected).
+   */
+  bool connect(Client *client, const ChatEventCallback& handleEvent);
+
+  /*! \brief Disconnect from the chat server.
+   *
+   * Returns whether the client has been disconnected (or false if the client
+   * was not connected).
+   */  
+  bool disconnect(Client *client);
+
   /*! \brief Try to login with given user name.
    *
-   * Returns false if the login was not successfull. The passed callback method
-   * is posted to when a new chat event is received.
+   * Returns false if the login was not successful.
    */
-  bool login(const Wt::WString& user, const ChatEventCallback& handleEvent);
+  bool login(const Wt::WString& user);
 
   /*! \brief Logout from the server.
    */
@@ -118,16 +141,17 @@ public:
   UserSet users();
 
 private:
-  struct UserInfo {
+  struct ClientInfo {
     std::string sessionId;
     ChatEventCallback eventCallback;
   };
 
-  typedef std::map<Wt::WString, UserInfo> UserMap;
+  typedef std::map<Client *, ClientInfo> ClientMap;
 
   Wt::WServer& server_;
   boost::recursive_mutex mutex_;
-  UserMap users_;
+  ClientMap clients_;
+  UserSet users_;
 
   void postChatEvent(const ChatEvent& event);
 };
