@@ -1367,6 +1367,10 @@ this.hasFocus = function(el) {
   return el == document.activeElement;
 };
 
+var deployUrl = window.location.pathname;
+deployUrl = deployUrl.substr(0, deployUrl.length - _$_PATH_INFO_$_.length);
+this.deployUrl = deployUrl;
+
 var html5History = !WT.isMobileWebKit
     && !!(window.history && window.history.pushState);
 
@@ -1437,20 +1441,18 @@ if (html5History) {
       window.addEventListener("hashchange", onHashChange, false);
     },
 
-    initialize: function (stateField, histFrame, deployUrl) {
+    initialize: function (stateField, histFrame) {
       WT.resolveRelativeAnchors();
 
-      if (deployUrl && deployUrl[deployUrl.length - 1] == '/') {
+      baseUrl = WT.deployUrl;
+      if (baseUrl.length >= 1 && baseUrl[baseUrl.length - 1] == '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
-	baseUrl = deployUrl + "?_=";
+	baseUrl += "?_=";
 _$_$endif_$_();
 _$_$ifnot_UGLY_INTERNAL_PATHS_$_();
-	baseUrl = deployUrl.substr(0, deployUrl.length - 1);
+	baseUrl = baseUrl.substr(0, baseUrl.length - 1);
 _$_$endif_$_();
-      } else if (deployUrl)
-	baseUrl = deployUrl;
-      else
-	baseUrl = window.location.pathname;
+      }
     },
 
     navigate: function (state, generateEvent) {
@@ -1460,9 +1462,9 @@ _$_$endif_$_();
 
       var url = baseUrl + gentleURIEncode(state);
 
-      if (baseUrl.length < 3 || baseUrl.substr(baseUrl.length - 3) != "?_=")
+      if (baseUrl.length < 3 || baseUrl.substr(baseUrl.length - 3) != "?_=") {
 	url += window.location.search;
-      else {
+      } else {
 	function stripHashParameter(q) {
 	  if (q.length > 1)
 	    q = q.substr(1);
@@ -1478,8 +1480,8 @@ _$_$endif_$_();
 	}
 
 	var q = stripHashParameter(window.location.search);
-	if (q.length > 0)
-	  url += q.substr(1);
+	if (q.length > 1)
+	  url += '&' + q.substr(1);
       }
 
       try {
@@ -2175,8 +2177,7 @@ function load(fullapp) {
     if (!window._$_APP_CLASS_$_LoadWidgetTree)
       return; // That's too soon baby.
 
-    WT.history.initialize("Wt-history-field", "Wt-history-iframe",
-			  _$_DEPLOY_PATH_$_);
+    WT.history.initialize("Wt-history-field", "Wt-history-iframe");
   }
 
   if (!("activeElement" in document)) {

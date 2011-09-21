@@ -52,7 +52,10 @@ WEnvironment::WEnvironment(WebSession *session)
 
 void WEnvironment::setInternalPath(const std::string& path)
 {
-  internalPath_ = Utils::prepend(path, '/');
+  if (path.empty())
+    internalPath_ = path;
+  else
+    internalPath_ = Utils::prepend(path, '/');
 }
 
 const std::string& WEnvironment::deploymentPath() const

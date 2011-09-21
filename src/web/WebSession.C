@@ -2240,7 +2240,8 @@ void WebSession::processSignal(EventSignalBase *s, const std::string& se,
 
 void WebSession::setPagePathInfo(const std::string& path)
 {
-  pagePathInfo_ = path;
+  if (!useUglyInternalPaths())
+    pagePathInfo_ = path;
 }
 
 #ifndef WT_TARGET_JAVA

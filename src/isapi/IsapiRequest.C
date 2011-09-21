@@ -405,7 +405,7 @@ void IsapiRequest::setContentLength(boost::intmax_t length)
 
 void IsapiRequest::setContentType(const std::string& value)
 {
-  header_ << "Content-Type: " << value << "\r\n";
+  addHeader("Content-Type: ", value);
 }
 
 void IsapiRequest::addHeader(const std::string& name, const std::string& value)

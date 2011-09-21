@@ -38,7 +38,8 @@ private:
   Wt::WAnchor          *scoresAnchor_;
 
   Session               session_;
-  
+
+  void onLogin();
   void showLogin();
   void showGame();
   void showHighScores();

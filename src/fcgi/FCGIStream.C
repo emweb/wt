@@ -27,7 +27,8 @@ namespace {
   {
   public:
     FCGIRequest(FCGX_Request *request)
-      : request_(request)
+      : request_(request),
+	headersCommitted_(false)
     { 
       in_streambuf_ = new fcgi_streambuf(request_->in);
       out_streambuf_ = new fcgi_streambuf(request_->out);
@@ -52,7 +53,7 @@ namespace {
     }
 
     virtual void flush(ResponseState state, CallbackFunction callback) {
-      out_->flush();
+      out().flush();
 
       if (state == ResponseFlush) {
         setAsyncCallback(callback);
@@ -63,22 +64,32 @@ namespace {
     }
 
     virtual std::istream& in() { return *in_; }
-    virtual std::ostream& out() { return *out_; }
+    virtual std::ostream& out() {
+      if (!headersCommitted_) {
+	headersCommitted_ = true;
+	*out_ << "\r\n";
+      }
+      return *out_; 
+    }
     virtual std::ostream& err() { return *err_; }
 
     virtual void setStatus(int status)
     {
-      out() << "Status: " << status << "\r\n";
+      *out_ << "Status: " << status << "\r\n";
     }
 
     virtual void setContentType(const std::string& value)
     {
-      out() << "Content-Type: " << value << "\r\n\r\n";
+      addHeader("Content-Type", value);
     }
 
     virtual void addHeader(const std::string& name, const std::string& value)
     {
-      out() << name << ": " << value << "\r\n";
+      if (!headersCommitted_)
+	*out_ << name << ": " << value << "\r\n";
+      else
+	std::cerr << "Warning: addHeader(): " << name << ": " << value
+		  << " ignored because headers already committed." << std::endl;
     }
 
     virtual void setContentLength(::int64_t length)
@@ -88,7 +99,7 @@ namespace {
 
     virtual void setRedirect(const std::string& url)
     {
-      out() << "Location: " << url << "\r\n\r\n";
+      *out_ << "Location: " << url << "\r\n\r\n";
     }
 
     virtual std::string headerValue(const std::string& name) const {
@@ -172,6 +183,7 @@ namespace {
     fcgi_streambuf *in_streambuf_, *out_streambuf_, *err_streambuf_;
     std::istream *in_;
     std::ostream *out_, *err_;
+    bool headersCommitted_;
   };
 }
 

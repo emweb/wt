@@ -442,9 +442,12 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
       cookies += " Domain=" + cookiesToSet_[i].domain + ";";
     if (!cookiesToSet_[i].path.empty())
       cookies += " Path=" + cookiesToSet_[i].path + ";";
+    else
+      cookies += " Path=" + session_.deploymentPath() + ";";
 
-    if (!cookies.empty())
-      response.addHeader("Set-Cookie", cookies);
+    cookies += " httponly;";
+
+    response.addHeader("Set-Cookie", cookies);
   }
   cookiesToSet_.clear();
 
@@ -712,6 +715,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
 					 WebSession::ClearInternalPath)));
     script.setVar("DEPLOY_PATH", WWebWidget::jsStringLiteral
 		  (session_.deploymentPath()));
+    script.setVar("PATH_INFO", WWebWidget::jsStringLiteral
+		  (session_.env().pathInfo()));
   
     int keepAlive;
     if (conf.sessionTimeout() == -1)

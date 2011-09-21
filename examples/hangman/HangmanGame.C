@@ -35,7 +35,7 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
   layout->addWidget(mainStack_, 1, AlignCenter | AlignMiddle);
   
   mainStack_->addWidget(login_ = new LoginWidget(&session_));
-  login_->loggedIn().connect(this, &HangmanGame::showGame);
+  login_->loggedIn().connect(this, &HangmanGame::onLogin);
 
   WHBoxLayout *linksLayout = new WHBoxLayout();
   linksLayout->setContentsMargins(0, 0, 0, 0);
@@ -87,6 +87,17 @@ void HangmanGame::showHighScores()
   
   backToGameAnchor_->removeStyleClass("selected-link");
   scoresAnchor_->addStyleClass("selected-link");
+}
+
+void HangmanGame::onLogin()
+{
+  WApplication *app = WApplication::instance();
+
+  std::string path = app->internalPath();
+  if (path != "/highscores" && path != "/play")
+    app->setInternalPath("/play", true);
+  else
+    handleInternalPath(path);
 }
 
 void HangmanGame::showGame()
