@@ -26,7 +26,7 @@ private:
   std::vector<Wt::WText *>       wordLetters_;
   std::wstring                   word_;
 
-  int                            displayedLetters_;
+  unsigned                       displayedLetters_;
 };
 
 #endif //WORD_WIDGET_H_

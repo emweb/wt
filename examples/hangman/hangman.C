@@ -19,7 +19,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
   app->useStyleSheet("style/hangman.css");
 
-  HangmanGame *game = new HangmanGame(app->root());
+  new HangmanGame(app->root());
 
   return app;
 }

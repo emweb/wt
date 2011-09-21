@@ -16,17 +16,16 @@
 
 class User : public Wt::Dbo::ptr<User> {
 public:
-  std::string     name;
-  std::string     password;
-  int             gamesPlayed;
-  long long       score;
-  Wt::WDateTime   lastLogin;
+  std::string   name;
+  int           gamesPlayed;
+  long long     score;
+  Wt::WDateTime lastLogin;
 
   template<class Action>
   void persist(Action& a)
   {
     Wt::Dbo::field(a, name,        "name");
-    Wt::Dbo::field(a, password,    "password");
+    Wt::Dbo::field(a, password_,   "password");
     Wt::Dbo::field(a, gamesPlayed, "gamesPlayed");
     Wt::Dbo::field(a, score,       "score");
     Wt::Dbo::field(a, lastLogin,   "lastLogin");
@@ -34,7 +33,13 @@ public:
   
   User() {}
 
+  void setPassword(const std::string& password);
+  bool authenticate(const std::string& password) const;
+
   User(const std::string &name, const std::string &password);
+
+private:
+  std::string password_;
 };
 
 typedef Wt::Dbo::collection< Wt::Dbo::ptr<User> > Users;

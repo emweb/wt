@@ -12,7 +12,7 @@
 using namespace Wt;
 
 Session::Session()
-  :  sqlite3_(WApplication::instance()->appRoot() + "hangman.db")
+  : sqlite3_(WApplication::instance()->appRoot() + "hangman.db")
 {
   session_.setConnection(sqlite3_);
   sqlite3_.setProperty("show-queries", "true");
@@ -38,7 +38,7 @@ bool Session::login(std::string name, std::string password)
   if (!user_)
     user_ = session_.add(new User(name, password));
 
-  bool ok = user_->password == password;
+  bool ok = user_->authenticate(password);
   
   transaction.commit();
   

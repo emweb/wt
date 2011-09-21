@@ -27,7 +27,7 @@ void HighScoresWidget::update()
 {
   clear();
   
-  WText *title = new WText("<h2>Hall of fame</h2>", this);
+  new WText("<h2>Hall of fame</h2>", this);
   
   int ranking = session_->findRanking(session_->user());
   

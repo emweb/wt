@@ -81,7 +81,19 @@ void MvcWidgets::changeRegexp()
 {
   WString regexp = regexpFilter->text();
 
-  if (WRegExp(regexp).isValid()) {
+  bool valid;
+#ifndef WT_TARGET_JAVA
+  valid = WRegExp(regexp).isValid();
+#else
+  try {
+    WRegExp r(regexp.toUTF8());
+    valid = true;
+  } catch (std::exception& e) {
+    valid = false;
+  }
+#endif
+
+  if (valid) {
     filteredCocktails->setFilterRegExp(regexp);
     filteredSortedCocktails->setFilterRegExp(regexp);
     regexpFilter->removeStyleClass("Wt-invalid");

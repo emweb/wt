@@ -904,6 +904,8 @@ void WebSession::doRecursiveEventLoop()
     throw WtException("doRecursiveEventLoop(): session was killed");
   }
 
+  setLoaded();
+
   /*
    * We use recursiveEventLoop_ != null to postpone rendering: we only want
    * the event handling part.
