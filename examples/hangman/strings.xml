@@ -2,10 +2,11 @@
 <messages>
   <message id="login.intro">
     <p>
-      Hangman keeps track of the best players. To recognise you, we
-      ask you to log in. If you never logged in before, choose any
-      name and password. If you don't want to be in our database for
-      some reason, use the 'guest/guest' account.
+      Hangman keeps track of the best players, and since that could be
+      you, you might want to login under you own name. If you never
+      logged in before, choose any name and password. If you would
+      rather not register for some reason, use the <b>guest/guest</b>
+      account.
     </p>
     <p>
       Warning: hangman contains some words and pictures that may
@@ -13,9 +14,9 @@
     </p>
   </message>
   <message id="login.error">
-    You entered the wrong password, or the username combination is
-    already in use. If you are a returning user, please try again. If
-    you are a new user, please try a different name.
+    You entered the wrong password, or the username is already in
+    use. If you are a returning user, please try again. If you are a
+    new user, please try registring with a different name.
   </message>
 
   <message id="highscore.info">

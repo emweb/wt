@@ -2273,6 +2273,7 @@ function handleResponse(status, msg, timer) {
     return;
 
   if (status == 0) {
+    WT.resolveRelativeAnchors();
 _$_$if_CATCH_ERROR_$_();
     try {
 _$_$endif_$_();

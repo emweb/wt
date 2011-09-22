@@ -112,7 +112,7 @@ WText *ControlsWidget::addText(const WString& s, WContainerWidget *parent)
 #else
   literal = WString(s).literal();
 #endif
-  if(literal)
+  if (!literal)
     text->setInternalPathEncoding(true);
   return text;
 }

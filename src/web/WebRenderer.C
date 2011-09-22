@@ -716,7 +716,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setVar("DEPLOY_PATH", WWebWidget::jsStringLiteral
 		  (session_.deploymentPath()));
     script.setVar("PATH_INFO", WWebWidget::jsStringLiteral
-		  (session_.env().pathInfo()));
+		  (session_.env().pathInfo_));
   
     int keepAlive;
     if (conf.sessionTimeout() == -1)

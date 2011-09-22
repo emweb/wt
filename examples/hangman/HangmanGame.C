@@ -31,25 +31,23 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
   layout->addWidget(title);
 
   mainStack_ = new WStackedWidget(this);
-  mainStack_->setPadding(20);
-  layout->addWidget(mainStack_, 1, AlignCenter | AlignMiddle);
+  mainStack_->setStyleClass("gamestack");
+  layout->addWidget(mainStack_, 1, AlignJustify | AlignMiddle);
   
   mainStack_->addWidget(login_ = new LoginWidget(&session_));
   login_->loggedIn().connect(this, &HangmanGame::onLogin);
 
-  WHBoxLayout *linksLayout = new WHBoxLayout();
-  linksLayout->setContentsMargins(0, 0, 0, 0);
-  layout->addLayout(linksLayout, 0, AlignCenter | AlignMiddle);
+  WContainerWidget *links = new WContainerWidget();
+  links->setStyleClass("links");
+  layout->addWidget(links);
 
-  backToGameAnchor_ = new WAnchor("/play", "Gaming Grounds");
-  linksLayout->addWidget(backToGameAnchor_, 0, AlignCenter | AlignMiddle);
+  backToGameAnchor_ = new WAnchor("/play", "Gaming Grounds", links);
   backToGameAnchor_->setRefInternalPath("/play");
-  backToGameAnchor_->addStyleClass("link");
+  backToGameAnchor_->setStyleClass("link");
 
-  scoresAnchor_ = new WAnchor("/highscores", "Highscores");
-  linksLayout->addWidget(scoresAnchor_, 0, AlignCenter | AlignMiddle);
+  scoresAnchor_ = new WAnchor("/highscores", "Highscores", links);
   scoresAnchor_->setRefInternalPath("/highscores");
-  scoresAnchor_->addStyleClass("link");
+  scoresAnchor_->setStyleClass("link");
 
   WApplication::instance()->internalPathChanged()
     .connect(this, &HangmanGame::handleInternalPath);

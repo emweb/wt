@@ -1,21 +1,40 @@
+body {
+    font-family: arial;
+}
+
 h1 {
     text-align: center;
 }
 
+.login td {
+    padding: 3px;
+}
+
+.gamestack {
+    margin: 20px 40px;
+}
+
+.links {
+    margin: 10px;
+    text-align: center;
+}
+
 .highscores table {
-    height: auto;
     width: 60ex;
     margin-top: 20px;
     margin-bottom: 20px;
 
     border-style: solid;
+    border-color: #555;
     border-width: 2px;
+    color: #333;
 }
 
 .highscores td, th {
     border-style: solid;
     border-width: 1px;
-    border-color: LightGray;
+    border-color: #999;
+    padding: 3px;
 }
 
 .highscores th {

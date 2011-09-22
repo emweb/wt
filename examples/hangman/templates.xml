@@ -3,7 +3,7 @@
   <message id="login.form">
     <h2>Login</h2>
     ${intro}
-    <table>
+    <table class="login">
       <tr>
 	<td><label for="username">User name:</label></td>
 	<td>${username}</td>
