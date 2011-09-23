@@ -133,6 +133,7 @@ private:
 
   std::string headDeclarations() const;
   std::string bodyClassRtl() const;
+  std::string sessionUrl() const;
 
   typedef std::set<WWidget *> UpdateMap;
   UpdateMap updateMap_;

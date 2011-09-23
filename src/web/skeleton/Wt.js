@@ -2132,7 +2132,7 @@ function encodePendingEvents() {
   return { feedback: feedback, result: result };
 }
 
-var sessionUrl = _$_RELATIVE_URL_$_,
+var sessionUrl,
   quited = false,
   norestart = false,
   loaded = false,
@@ -2323,12 +2323,19 @@ _$_$endif_$_();
   }
 };
 
-var comm = WT.initAjaxComm(sessionUrl, handleResponse);
-
 function setSessionUrl(url) {
-  sessionUrl = url;
-  comm.setUrl(url);
+  if (url.indexOf("://") != -1 || url[0] == '/')
+    sessionUrl = url;
+  else
+    sessionUrl = WT.deployUrl + url;
+
+  if (comm)
+    comm.setUrl(url);
 }
+
+setSessionUrl(_$_SESSION_URL_$_);
+
+var comm = WT.initAjaxComm(sessionUrl, handleResponse);
 
 function doPollTimeout() {
   responsePending.abort();

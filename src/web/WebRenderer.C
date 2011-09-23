@@ -34,6 +34,12 @@
 //#define DEBUG_JS
 //#define DEBUG_RENDER
 
+namespace {
+  bool isAbsoluteUrl(const std::string& url) {
+    return url.find("://") != std::string::npos;
+  }
+}
+
 namespace skeletons {
   extern const char *Boot_html1;
   extern const char *Plain_html1;
@@ -466,6 +472,17 @@ void WebRenderer::renderSetServerPush(std::ostream& out)
   }
 }
 
+std::string WebRenderer::sessionUrl() const
+{
+  std::string result = session_.applicationUrl();
+  if (isAbsoluteUrl(result))
+    return result;
+  else {
+    // Wt.js will prepand the correct deployment path
+    return session_.appendSessionQuery(".").substr(1);
+  }
+}
+
 void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
   setCaching(response, false);
@@ -474,8 +491,7 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
   if (session_.sessionIdChanged_) {
     collectedJS1_ << session_.app()->javaScriptClass()
 		  << "._p_.setSessionUrl("
-		  << WWebWidget::jsStringLiteral
-      (session_.bootstrapUrl(response, WebSession::ClearInternalPath))
+		  << WWebWidget::jsStringLiteral(sessionUrl())
 		  << ");";
     session_.sessionIdChanged_ = false;
   }
@@ -710,9 +726,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setCondition("WEB_SOCKETS", conf.webSockets());
     script.setVar("INNER_HTML", innerHtml);
     script.setVar("ACK_UPDATE_ID", expectedAckId_);
-    script.setVar("RELATIVE_URL", WWebWidget::jsStringLiteral
-		  (session_.bootstrapUrl(response,
-					 WebSession::ClearInternalPath)));
+    script.setVar("SESSION_URL", WWebWidget::jsStringLiteral(sessionUrl()));
     script.setVar("DEPLOY_PATH", WWebWidget::jsStringLiteral
 		  (session_.deploymentPath()));
     script.setVar("PATH_INFO", WWebWidget::jsStringLiteral
