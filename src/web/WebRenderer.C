@@ -970,7 +970,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
     if (historyE) {
       response.out() << WT_CLASS << ".history.initialize('"
 		     << (*historyE)[0] << "-field', '"
-		     << (*historyE)[0] << "-iframe');\n";
+		     << (*historyE)[0] << "-iframe', '');\n";
     }
   }
 

@@ -141,7 +141,7 @@ WebSession::WebSession(WebController *controller,
   log("notice") << "Session created";
 #endif // WT_TARGET_JAVA
 
-  renderer().setCookie("Wt" + sessionId_, sessionIdCookie_, -1, "", "");
+  renderer().setCookie("Wt" + sessionIdCookie_, "1", -1, "", "");
 }
 
 void WebSession::setApplication(WApplication *app)
@@ -1626,7 +1626,7 @@ void WebSession::notify(const WEvent& event)
 
 	if (!isInvalid) {
 	  std::string cookie = request.headerValue("Cookie");
-	  if (cookie.find(sessionIdCookie_) == std::string::npos)
+	  if (cookie.find("Wt" + sessionIdCookie_) == std::string::npos)
 	    isInvalid = true;
 	}
 
@@ -1641,7 +1641,7 @@ void WebSession::notify(const WEvent& event)
 
     if (sessionIdCookieChanged_) {
       std::string cookie = request.headerValue("Cookie");
-      if (cookie.find(sessionIdCookie_) == std::string::npos) {
+      if (cookie.find("Wt" + sessionIdCookie_) == std::string::npos) {
 	sessionIdCookie_.clear();
 	log("info") << "Session id cookie not working";
       }
@@ -2261,7 +2261,7 @@ void WebSession::generateNewSessionId()
 
   sessionIdCookie_ = WRandom::generateId();
   sessionIdCookieChanged_ = true;
-  renderer().setCookie("Wt" + sessionId_, sessionIdCookie_, -1, "", "");
+  renderer().setCookie("Wt" + sessionIdCookie_, "1", -1, "", "");
 }
 #endif // WT_TARGET_JAVA
 

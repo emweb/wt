@@ -1367,10 +1367,6 @@ this.hasFocus = function(el) {
   return el == document.activeElement;
 };
 
-var deployUrl = window.location.pathname;
-deployUrl = deployUrl.substr(0, deployUrl.length - _$_PATH_INFO_$_.length);
-this.deployUrl = deployUrl;
-
 var html5History = !WT.isMobileWebKit
     && !!(window.history && window.history.pushState);
 
@@ -1441,10 +1437,10 @@ if (html5History) {
       window.addEventListener("hashchange", onHashChange, false);
     },
 
-    initialize: function (stateField, histFrame) {
+    initialize: function (stateField, histFrame, deployUrl) {
       WT.resolveRelativeAnchors();
 
-      baseUrl = WT.deployUrl;
+      baseUrl = deployUrl;
       if (baseUrl.length >= 1 && baseUrl[baseUrl.length - 1] == '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
 	baseUrl += "?_=";
@@ -1755,6 +1751,9 @@ var WT = _$_WT_CLASS_$_;
 
 var downX = 0;
 var downY = 0;
+
+var deployUrl = window.location.pathname;
+deployUrl = deployUrl.substr(0, deployUrl.length - _$_PATH_INFO_$_.length);
 
 function saveDownPos(e) {
   var coords = WT.pageCoordinates(e);
@@ -2177,7 +2176,7 @@ function load(fullapp) {
     if (!window._$_APP_CLASS_$_LoadWidgetTree)
       return; // That's too soon baby.
 
-    WT.history.initialize("Wt-history-field", "Wt-history-iframe");
+    WT.history.initialize("Wt-history-field", "Wt-history-iframe", deployUrl);
   }
 
   if (!("activeElement" in document)) {
@@ -2327,7 +2326,7 @@ function setSessionUrl(url) {
   if (url.indexOf("://") != -1 || url[0] == '/')
     sessionUrl = url;
   else
-    sessionUrl = WT.deployUrl + url;
+    sessionUrl = deployUrl + url;
 
   if (comm)
     comm.setUrl(url);
