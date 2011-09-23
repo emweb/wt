@@ -195,17 +195,26 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     std::stringstream config;
     config << "{";
 
+    bool first = true;
+
     for (SettingsMapType::const_iterator it = configurationSettings_.begin();
 	 it != configurationSettings_.end(); ++it) {
       if (it->first == "plugins")
 	continue;
 
-      if (it != configurationSettings_.begin())
-	config << "," ;
+      if (!first)
+	config << ',';
+
+      first = false;
+
       config << it->first << ": "
 	     << Impl::asJSLiteral(it->second, XHTMLUnsafeText);
     }
-    config << ",plugins: '" << plugins() << "'";
+
+    if (!first)
+      config << ',';
+
+    config << "plugins: '" << plugins() << "'";
 
     config <<
       ",init_instance_callback: " << jsRef() << ".init" << ""
