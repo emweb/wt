@@ -57,6 +57,7 @@ behaviour.
 
 <h3>B) Main improvements:</h3>
 
+<dl>
   <dt>
     <a href="classWt_1_1WResource.html">WResource</a>,
     <a href="classWt_1_1Http_1_1ResponseContinuation.html">Http::ResponseContinuation</a>
@@ -114,10 +115,87 @@ behaviour.
     Added dialogExecuted() and popupExecuted() methods which allow to
     interact with a reentrant eventloop from a test plan.
   </dd>
+</dl>
 
 <h3>C) Non-backwards compatible changes</h3>
 
-None.
+The item data roles InternalPathRole and UrlRole have been removed,
+and replaced by a LinkRole (which contains a WLink value instead).
+
+<h3>D) Deprecated API</h3>
+
+With the introduction of WLink, the following API is being deprecated
+(although it can be argued that some of these may be kept for
+convenience):
+
+<ul>
+  <li>
+    WAbstractArea::setRef(): use WAbstractArea::setLink() instead.
+  </li>
+  <li>
+    WAbstractArea::ref(): use WAbstractArea::link() instead.
+  </li>
+  <li>
+    WAbstractArea::setResource(): use WAbstractArea::setLink() instead.
+  </li>
+  <li>
+    WAbstractArea::resource(): use WAbstractArea::link() instead.
+  </li>
+  <li>
+    WAnchor::setRef(): use WAnchor::setLink() instead.
+  </li>
+  <li>
+    WAnchor::ref(): use WAnchor::link() instead.
+  </li>
+  <li>
+    WAnchor::setResource(): use WAnchor::setLink() instead.
+  </li>
+  <li>
+    WAnchor::resource(): use WAnchor::link() instead.
+  </li>
+  <li>
+    WAnchor::setRefInternalPath(): use WAnchor::setLink() instead.
+  </li>
+  <li>
+    WImage::setImageRef(): use WImage::setImageLink() instead.
+  </li>
+  <li>
+    WImage::imageRef(): use WImage::imageLink() instead.
+  </li>
+  <li>
+    WImage::setResource(): use WImage::setLink() instead.
+  </li>
+  <li>
+    WImage::resource(): use WImage::link() instead.
+  </li>
+  <li>
+    WStandardItem::setInternalPath(): use WStandardItem::setLink() instead.
+  </li>
+  <li>
+    WStandardItem::internalPath(): use WStandardItem::link() instead.
+  </li>
+  <li>
+    WStandardItem::setUrl(): use WStandardItem::setLink() instead.
+  </li>
+  <li>
+    WStandardItem::url(): use WStandardItem::link() instead.
+  </li>
+</ul>
+
+The following classes have been renamed, and the old name is being
+deprecated:
+
+<ul>
+  <li>
+    WHTMLMedia is now WAbstractMedia.
+  </li>
+  <li>
+    WHTMLVideo is now WVideo
+  </li>
+  <li>
+    WHTMLAudio is now WAudio
+  </li>
+</ul>    
 
 <hr>
 

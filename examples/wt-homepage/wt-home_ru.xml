@@ -51,7 +51,7 @@
 	</div>
 
 	<div id="chat"></div>
-        <script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
+	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
 
 	<div class="clearall"></div>
       </div>
@@ -86,6 +86,7 @@
   <message id="git">Обозреватель Git</message>
   <message id="chat">Чат</message>
   <message id="mail-composer">Редактор писем</message>
+  <message id="hangman">Виселица</message>
   <message id="widget-gallery">Галерея виджетов</message>
 
   <message id="home.news">
@@ -111,7 +112,7 @@
 
 <h3><span>Wt: Введение</span></h3>
 
-<p>Wt (произносится "<i>витти</i>) - это библиотека C++ для разработки
+<p>Wt (произносится "<i>витти</i>") - это библиотека C++ для разработки
 web-приложений.</p>
 
 <p>API, центральное место в котором занимают <b>виджеты</b>, использует хорошо
@@ -522,7 +523,7 @@ target="_blank">прекрасное введение в Wt</a>, написан�
   slots) C++, и, следовательно, в результате этого код обработки событий
   выполняется на <b>стороне клиента</b>. По желанию, с помощью CSS3 можно
   украсить смену содержимого виджета <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTabWidget.html"
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStackedWidget.html"
   target="_blank">WStackedWidget</a> анимацией.
 </p>
 
@@ -779,6 +780,54 @@ target="_blank">модели элементов</a>.</p>
 </p>
 </div>
   </message>
+
+  <message id="home.examples.hangman">
+<div>
+<h4 class="example">Виселица</h4>
+
+<p>
+  <a href="http://www.webtoolkit.eu/wt/examples/hangman/hangman.wt" class="run" target="_blank">
+    <img src="/icons/green-play.png" style="vertical-align: top"/> Запуск
+  </a>
+</p>
+
+<p>
+  В данном примере реализована простая и хорошо известная игра, и система
+  рейтингов к ней, которая работает с базой данных посредством Wt::Dbo.
+</p>
+<p>
+  Вот некоторое из того, что иллюстрирует данный пример:
+</p>
+<ul>
+  <li>
+    Различные подходы к компоновке:
+    с помощью <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
+    target="_blank">шаблона HTML</a>,
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
+    target="_blank">менеджера компоновки</a>, или совмещая простые
+    виджеты и CSS.
+  </li>
+  <li>
+    Повышенное удобство работы за счёт предварительно загружаемого скрытого
+    содержимого, такого как различные картинки для изображения виселицы и
+    повешенного.
+  </li>
+  <li>
+    Навигация реализована
+    с помощью <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
+    target="_blank">WAnchor</a> который ссылается на внутренний путь. Дейстие выполняется
+    по реакции на смену внутреннего пути.
+  </li>
+  <li>
+    Работа с базой данных, содержащей информацию о пользователе, осуществляется
+    посредством <a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>.
+  </li>
+</ul>
+
+<!--<p>Объяснение примера "виселица" приводится также в СТАТЬЕ</p>-->
+</div>
+  </message>
+
   <message id="home.examples.widgetgallery">
 <div>
 <h4 class="example">Галерея виджетов</h4>
@@ -1332,6 +1381,19 @@ target="_blank">здесь (в новом окне)</a>.</p>
   </message>
 
   <message id="srcview.title.hello">Пример: Здравствуй, мир!</message>
+
+  <message id="srcview.title.CPP.hangman">
+    <div class="srcviewtitle">
+      <h2>Исходный код примера <i>Виселица</i></h2>
+
+      <p>
+    Смотрите ниже исходный код примера Wt
+	<a href="#/examples/">Виселица</a>.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.hangman">Пример: Виселица</message>
 
   <message id="srcview.title.CPP.charts">
     <div class="srcviewtitle">

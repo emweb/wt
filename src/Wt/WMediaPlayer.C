@@ -418,6 +418,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     "m4v", "ogv", "webmv", "flv"
   };
 
+  WApplication *app = WApplication::instance();
+
   if (mediaUpdated_) {
     SStream ss;
 
@@ -430,8 +432,11 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
       if (!first)
 	ss << ",";
+
+      std::string url = app->resolveRelativeUrl(media_[i].link.url());
+
       ss << mediaNames[media_[i].encoding] << ": "
-	 << WWebWidget::jsStringLiteral(media_[i].link.url());
+	 << WWebWidget::jsStringLiteral(url);
 
       first = false;
     }
@@ -450,8 +455,6 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
   if (flags & RenderFull) {
     if (gui_ == this)
       createDefaultGui();
-
-    WApplication *app = WApplication::instance();
 
     SStream ss;
 
