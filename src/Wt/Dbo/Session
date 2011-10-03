@@ -433,12 +433,13 @@ private:
   typedef std::map<const_typeinfo_ptr, MappingInfo *, typecomp> ClassRegistry;
   typedef std::map<std::string, MappingInfo *> TableRegistry;
 
-  ClassRegistry      classRegistry_;
-  TableRegistry      tableRegistry_;
-  bool               schemaInitialized_;
+  ClassRegistry classRegistry_;
+  TableRegistry tableRegistry_;
+  bool schemaInitialized_;
+  bool useRowsFromTo_;
 
-  MetaDboBaseSet     dirtyObjects_;
-  SqlConnection     *connection_;
+  MetaDboBaseSet dirtyObjects_;
+  SqlConnection  *connection_;
   SqlConnectionPool *connectionPool_;
   Transaction::Impl *transaction_;
 

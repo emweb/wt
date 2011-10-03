@@ -25,8 +25,8 @@ WT_DECLARE_WT_MEMBER
      if (wxy.x > 0 && wxy.x < wsize.x && wxy.y > 0 && wxy.y < wsize.y) {
        centerX = centerY = false;
 
-       el.style.left = (el.offsetLeft + nowxy.x - dsx) + 'px';
-       el.style.top = (el.offsetTop + nowxy.y - dsy) + 'px';
+       el.style.left = (WT.px(el, 'left') + nowxy.x - dsx) + 'px';
+       el.style.top = (WT.px(el, 'top') + nowxy.y - dsy) + 'px';
        el.style.right = '';
        el.style.bottom = '';
        dsx = nowxy.x;

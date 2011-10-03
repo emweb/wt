@@ -77,7 +77,8 @@ std::string completeQuerySelectSql(const std::string& sql,
 				   const std::string& groupBy,
 				   const std::string& orderBy,
 				   int limit, int offset,
-				   const std::vector<FieldInfo>& fields)
+				   const std::vector<FieldInfo>& fields,
+				   bool useRowsFromTo)
 {
   std::string result = sql;
 
@@ -90,11 +91,14 @@ std::string completeQuerySelectSql(const std::string& sql,
   if (!orderBy.empty())
     result += " order by " + orderBy;
 
-  if (limit != -1)
-    result += " limit ?";
+  if (!useRowsFromTo) {
+    if (limit != -1)
+      result += " limit ?";
 
-  if (offset != -1)
-    result += " offset ?";
+    if (offset != -1)
+      result += " offset ?";
+  } else if (limit != -1 || offset != -1)
+    result += " rows ? to ?";
 
   return result;
 }
@@ -104,7 +108,8 @@ std::string createQuerySelectSql(const std::string& from,
 				 const std::string& groupBy,
 				 const std::string& orderBy,
 				 int limit, int offset,
-				 const std::vector<FieldInfo>& fields)
+				 const std::vector<FieldInfo>& fields,
+				 bool useRowsFromTo)
 {
   std::string result = "select " + selectColumns(fields) + ' ' + from;
 
@@ -117,11 +122,14 @@ std::string createQuerySelectSql(const std::string& from,
   if (!orderBy.empty())
     result += " order by " + orderBy;
 
-  if (limit != -1)
-    result += " limit ?";
+  if (!useRowsFromTo) {
+    if (limit != -1)
+      result += " limit ?";
 
-  if (offset != -1)
-    result += " offset ?";
+    if (offset != -1)
+      result += " offset ?";
+  } else if (limit != -1 || offset != -1)
+    result += " rows ? to ?";
 
   return result;
 }
@@ -136,7 +144,8 @@ std::string createQueryCountSql(const std::string& query,
 				const std::string& where,
 				const std::string& groupBy,
 				const std::string& orderBy,
-				int limit, int offset)
+				int limit, int offset,
+				bool useRowsFromTo)
 {
   /*
    * If there is a " group by ", then we cannot simply substitute
@@ -164,11 +173,14 @@ std::string createQueryCountSql(const std::string& query,
     if (!where.empty())
       result += " where " + where;
 
-    if (limit != -1)
-      result += " limit ?";
+    if (!useRowsFromTo) {
+      if (limit != -1)
+	result += " limit ?";
 
-    if (offset != -1)
-      result += " offset ?";
+      if (offset != -1)
+	result += " offset ?";
+    } else if (limit != -1 || offset != -1)
+      result += " rows ? to ?";
 
     return result;
   }

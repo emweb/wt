@@ -1,3 +1,9 @@
+03-10-2011
+	* Dbo: added dialect option for 'rows ? to ?' (Firebird database).
+
+23-09-2011
+	* Wt 3.1.11 released
+
 19-09-2011
 	* WAnchor, RefEncoder: added indirection to strip session ID from the
 	referrer before navigating to an external URL (#607)

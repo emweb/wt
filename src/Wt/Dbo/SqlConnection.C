@@ -81,6 +81,11 @@ void SqlConnection::setProperty(const std::string& name,
   properties_[name] = value;
 }
 
+bool SqlConnection::usesRowsFromTo() const
+{
+  return false;
+}
+
 bool SqlConnection::showQueries() const
 {
   return property("show-queries") == "true";

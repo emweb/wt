@@ -71,8 +71,13 @@ std::string WValidator::javaScriptValidate() const
       """message: " + invalidBlankText().jsStringLiteral() + "}"
       "};"
       "})();";
-  } else
-    return std::string();
+  } else {
+    return "new (function() {"
+      "this.validate = function(text) {"
+      """return { valid: true }"
+      "};"
+      "})();";
+  }
 }
 
 std::string WValidator::inputFilter() const

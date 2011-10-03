@@ -152,6 +152,16 @@ public:
    * \sa SqlStatement::bind(int, const std::vector<unsigned char>&)
    */
   virtual const char *blobType() const = 0;
+
+  /*! \brief Returns whether the SQL dialect uses 'ROWS ? TO ?' for partial
+   *         select results.
+   *
+   * This is an alternative SQL dialect option to the (non-standard) 'OFFSET ?
+   * LIMIT ?' syntax.
+   *
+   * The default implementation returns \c false.
+   */
+  virtual bool usesRowsFromTo() const;
   //@}
 
   bool showQueries() const;

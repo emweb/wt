@@ -1461,7 +1461,7 @@ void WebRenderer::collectJS(std::ostream* js)
     if (app->internalPathIsChanged_) {
       *js << app->javaScriptClass()
 	  << "._p_.setHash('" << app->newInternalPath_ << "');\n";
-      if (!app->environment().hashInternalPaths())
+      if (!preLearning() && !app->environment().hashInternalPaths())
 	session_.setPagePathInfo(app->newInternalPath_);
     }
 

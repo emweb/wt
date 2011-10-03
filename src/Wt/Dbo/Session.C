@@ -106,6 +106,7 @@ std::string Session::MappingInfo::primaryKeys() const
 
 Session::Session()
   : schemaInitialized_(false),
+    useRowsFromTo_(false),
     connection_(0),
     connectionPool_(0),
     transaction_(0)
@@ -249,21 +250,24 @@ void Session::prepareStatements(MappingInfo *mapping)
 
   sql << ")";
 
-  if (mapping->surrogateIdFieldName) {
-    SqlConnection *conn;
-    if (transaction_)
-      conn = transaction_->connection_;
-    else
-      conn = useConnection();
-    std::string autoIncrementSuffix = conn->autoincrementInsertSuffix();
+  SqlConnection *conn;
+  if (transaction_)
+    conn = transaction_->connection_;
+  else
+    conn = useConnection();
 
-    if (!transaction_)
-      returnConnection(conn);
+  if (mapping->surrogateIdFieldName) {
+    std::string autoIncrementSuffix = conn->autoincrementInsertSuffix();
 
     if (!autoIncrementSuffix.empty())
       sql << conn->autoincrementInsertSuffix()
 	  << mapping->surrogateIdFieldName;
   }
+
+  useRowsFromTo_ = conn->usesRowsFromTo();
+
+  if (!transaction_)
+    returnConnection(conn);
 
   mapping->statements.push_back(sql.str()); // SqlInsert
 
