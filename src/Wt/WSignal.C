@@ -139,6 +139,9 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
 				     const std::string& arg5,
 				     const std::string& arg6) const
 {
+  if (!this->isExposedSignal())
+    const_cast<EventSignalBase*>(this)->exposeSignal();
+
   std::stringstream result;
 
   result << javaScript();

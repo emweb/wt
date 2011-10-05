@@ -1,3 +1,7 @@
+05-10-2011
+	* WMediaPlayer: make sure that relative URLs resolve against deployment
+	path (#1007)
+
 03-10-2011
 	* Dbo: added dialect option for 'rows ? to ?' (Firebird database).
 

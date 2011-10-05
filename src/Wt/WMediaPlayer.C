@@ -24,6 +24,11 @@
 #include <boost/lexical_cast.hpp>
 
 namespace {
+  bool isRelativeUrl(const std::string& url) {
+    return url.find("://") == std::string::npos
+      && url[0] != '/';
+  }
+
   Wt::WMediaPlayer::ReadyState intToReadyState(int i) 
   {
     switch (i) {
@@ -435,8 +440,12 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
       std::string url = app->resolveRelativeUrl(media_[i].link.url());
 
-      ss << mediaNames[media_[i].encoding] << ": "
-	 << WWebWidget::jsStringLiteral(url);
+      ss << mediaNames[media_[i].encoding] << ": ";
+
+      if (isRelativeUrl(url))
+      	ss << app->javaScriptClass() + "._p_.deployPath + ";
+      
+      ss << WWebWidget::jsStringLiteral(url);
 
       first = false;
     }

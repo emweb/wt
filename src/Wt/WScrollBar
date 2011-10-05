@@ -45,7 +45,7 @@ public:
    */
   static void unTie(WScrollBar *one, WScrollBar *two);
 
-  /*! \brief Sets the scrollbar value.
+  /*! \brief Sets the scrollbar value (in pixels).
    *
    * This will move the scrollbar to the given value.
    */

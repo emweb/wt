@@ -1754,6 +1754,7 @@ var downY = 0;
 
 var deployUrl = window.location.pathname;
 deployUrl = deployUrl.substr(0, deployUrl.length - _$_PATH_INFO_$_.length);
+var deployPath = '/' + deployUrl.substr(1, deployUrl.lastIndexOf('/'));
 
 function saveDownPos(e) {
   var coords = WT.pageCoordinates(e);
@@ -2764,6 +2765,8 @@ this._p_ = {
   update : update,
   quit : quit,
   setSessionUrl : setSessionUrl,
+  deployUrl : deployUrl,
+  deployPath : deployPath,
   setFormObjects : function(o) { formObjects = o; },
   saveDownPos : saveDownPos,
   addTimerEvent : addTimerEvent,

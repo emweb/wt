@@ -56,6 +56,15 @@ void WScrollBar::unTie(WScrollBar *one, WScrollBar *two)
 
 void WScrollBar::updateDom(DomElement& element, bool all)
 {
+  if (valueSet_) {
+    std::string side = (orientation_ == Horizontal ? "Left" : "Top");
+    
+    element.callMethod("scroll" + side + " = " +
+		       boost::lexical_cast<std::string>(value_) + ";"); 
+
+    valueSet_ = false;
+  }
+
   if (tiesChanged_ || all) {
     std::string jsCode;
     for (unsigned i = 0; i < ties_.size(); ++i) {
