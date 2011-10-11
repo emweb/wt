@@ -206,7 +206,7 @@ void WDialog::setTitleBarEnabled(bool enable)
 
 void WDialog::setClosable(bool closable)
 {
-  if (closeable) {
+  if (closeble) {
     if (!closeIcon_) {
       closeIcon_ = new WText(titleBar_);
       closeIcon_->setStyleClass("closeicon");
