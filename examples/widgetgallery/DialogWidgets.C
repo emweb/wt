@@ -24,6 +24,7 @@ NonModalDialog::NonModalDialog(const WString& title, EventDisplayer *ed)
   : WDialog(title)
 {  
   setModal(false);
+  setClosable(true);
 
   new WText("You can freely format the contents of a WDialog by "
 	    "adding any widget you want to it.<br/>Here, we added WText, "
@@ -206,6 +207,7 @@ void DialogWidgets::customNonModal()
 void DialogWidgets::customModal()
 {
   WDialog dialog("Personalia (modal)");
+  dialog.setClosable(true);
 
   addText("You can freely format the contents of a WDialog by "
 	  "adding any widget you want to it.<br/>Here, we added WText, "

@@ -1219,14 +1219,9 @@ void WTreeView::setColumnBorder(const WColor& color)
   WApplication::instance()->styleSheet().addRule(borderColorRule_);
 }
 
-void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
+void WTreeView::setHeaderHeight(const WLength& height)
 {
-  WAbstractItemView::setHeaderHeight(height, multiLine);
-
-  if (headerContainer_)
-    headerContainer_->setStyleClass(std::string("Wt-header Wt-")
-				    + (multiLine ? "multiline" : "singleline")
-				    + " headerrh cwidth");
+  WAbstractItemView::setHeaderHeight(height);
 }
 
 void WTreeView::setRootIsDecorated(bool show)

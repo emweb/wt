@@ -116,7 +116,10 @@ public:
   virtual void setColumnWidth(int column, const WLength& width);
   virtual void setAlternatingRowColors(bool enable);
   virtual void setRowHeight(const WLength& rowHeight);
-  virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
+  virtual void setHeaderHeight(const WLength& height);
+#ifndef WT_CNOR
+  using WAbstractItemView::setHeaderHeight;
+#endif
   virtual void setColumnBorder(const WColor& color);
   virtual void resize(const WLength& width, const WLength& height);
   virtual void setColumnHidden(int column, bool hidden);

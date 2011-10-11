@@ -225,9 +225,9 @@ void WPopupMenu::prepareRender(WApplication *app)
   // FIXME: we should really also prepareRender() of submenus when shown...
 
   if (autoHideDelay_ >= 0) {
-    LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
-
     if (!cancel_.isConnected()) {
+      LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
+
       doJavaScript("new " WT_CLASS ".WPopupMenu("
 		   + app->javaScriptClass() + "," + jsRef() + ","
 		   + boost::lexical_cast<std::string>(autoHideDelay_)

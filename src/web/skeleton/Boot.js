@@ -52,6 +52,10 @@ function hideForm() {
 if (win.opera)
   win.opera.setOverrideHistoryNavigationMode("compatible");
 
+var pathInfo = _$_PATH_INFO_$_, deployPath = win.location.pathname;
+deployPath = deployPath.substr(0, deployPath.length - pathInfo.length);
+var deployPathInfo = '&deployPath=' + encodeURIComponent(deployPath);
+
 // ajax support
 var ajax = (win.XMLHttpRequest || win.ActiveXObject);
 
@@ -86,7 +90,7 @@ if (screen.deviceXDPI != screen.logicalXDPI)
   scaleInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
 
 // determine url
-var selfUrl=_$_SELF_URL_$_ + '&sid=' + _$_SCRIPT_ID_$_;
+var selfUrl = _$_SELF_URL_$_ + '&sid=' + _$_SCRIPT_ID_$_;
 
 // determine html history support
 var isMobileWebKit
@@ -147,7 +151,7 @@ _$_$if_HYBRID_$_();
 _$_$endif_$_();
     }
 
-    var allInfo = hashInfo + scaleInfo + htmlHistoryInfo;
+    var allInfo = hashInfo + scaleInfo + htmlHistoryInfo + deployPathInfo;
 _$_$ifnot_SPLIT_SCRIPT_$_();
     loadScript(selfUrl + allInfo + '&request=script&rand=' + rand(),
                null);

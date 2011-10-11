@@ -341,9 +341,14 @@ WWidget *BasicControls::wTabWidget()
   tw->addTab(addText("This is yet another pre-loaded tab. "
 		       "Look how good this works."),
 	     "Victoria", WTabWidget::PreLoading);
-  tw->addTab(addText("The colors of the tab widget can be changed by "
-		       "modifying some images."),
-	     "Tottenham");
+
+  WMenuItem * tab 
+    = tw->addTab(addText("The colors of the tab widget can be changed by "
+			 "modifying some images."
+			 "You can close this tab by clicking on the close "
+			 "icon"),
+		 "Tottenham");
+  tab->setCloseable(true);
 
   tw->setStyleClass("tabwidget");
 

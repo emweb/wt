@@ -1752,9 +1752,7 @@ var WT = _$_WT_CLASS_$_;
 var downX = 0;
 var downY = 0;
 
-var deployUrl = window.location.pathname;
-deployUrl = deployUrl.substr(0, deployUrl.length - _$_PATH_INFO_$_.length);
-var deployPath = '/' + deployUrl.substr(1, deployUrl.lastIndexOf('/'));
+var deployUrl = _$_DEPLOY_PATH_$_;
 
 function saveDownPos(e) {
   var coords = WT.pageCoordinates(e);
@@ -2411,9 +2409,10 @@ _$_$if_WEB_SOCKETS_$_();
 	    wsurl = "ws" + sessionUrl.substr(4);
 	  } else {
 	    var query = sessionUrl.substr(sessionUrl.indexOf('?'));
+
 	    wsurl = "ws" + location.protocol.substr(4)
 	      + "//" + location.hostname + ":"
-	     + location.port + _$_DEPLOY_PATH_$_ + query;
+	     + location.port + deployUrl + query;
 	  }
 
 	  websocket.socket = ws = new WebSocket(wsurl);
@@ -2765,8 +2764,6 @@ this._p_ = {
   update : update,
   quit : quit,
   setSessionUrl : setSessionUrl,
-  deployUrl : deployUrl,
-  deployPath : deployPath,
   setFormObjects : function(o) { formObjects = o; },
   saveDownPos : saveDownPos,
   addTimerEvent : addTimerEvent,

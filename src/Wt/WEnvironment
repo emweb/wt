@@ -601,6 +601,7 @@ protected:
   std::string clientAddress_;
   std::string pathInfo_;
   std::string internalPath_;
+  std::string publicDeploymentPath_;
 
   WEnvironment();
   void setUserAgent(const std::string& agent);

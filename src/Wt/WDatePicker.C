@@ -109,7 +109,10 @@ void WDatePicker::setPopupVisible(bool visible)
 
 void WDatePicker::setGlobalPopup(bool global)
 {
-  positionJS_.setJavaScript("function() { " WT_CLASS ".positionAtWidget('"
+  positionJS_.setJavaScript("function() { " 
+			    WT_CLASS ".getElement('" + popup_->id() + "')"
+			    ".style.display = '';"
+			    WT_CLASS ".positionAtWidget('"
 			    + popup_->id()  + "','" + displayWidget_->id()
 			    + "', " WT_CLASS ".Horizontal, "
 			    + (global ? "true" : "false") + ");}");

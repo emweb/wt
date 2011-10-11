@@ -29,6 +29,7 @@ WPopupMenuItem::WPopupMenuItem(bool)
     data_(0),
     separator_(true),
     selectable_(false),
+    rendered_(false),
     triggered_(this)
 {
   setImplementation(impl_ = new WAnchor());
@@ -44,6 +45,7 @@ WPopupMenuItem::WPopupMenuItem(const WString& text)
     data_(0),
     separator_(false),
     selectable_(true),
+    rendered_(false),
     triggered_(this)
 {
   create();
@@ -58,6 +60,7 @@ WPopupMenuItem::WPopupMenuItem(const std::string& iconPath, const WString& text)
     data_(0),
     separator_(false),
     selectable_(true),
+    rendered_(false),
     triggered_(this)
 {
   create();
@@ -94,10 +97,12 @@ void WPopupMenuItem::load()
 
 void WPopupMenuItem::render(WFlags<RenderFlag> flags)
 {
-  WCompositeWidget::render(flags);
-
-  if ((flags & RenderFull) && selectable_)
+  if ((flags & RenderFull) && selectable_ && !rendered_) {
+    rendered_ = true;
     impl_->mouseWentUp().connect(topLevelMenu(), &WPopupMenu::hide);
+  }
+
+  WCompositeWidget::render(flags);
 }
 
 void WPopupMenuItem::setDisabled(bool disabled)

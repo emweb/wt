@@ -24,7 +24,8 @@
 namespace Wt {
 
 WDialog::WDialog(const WString& windowTitle)
-  : modal_(true),
+  : closeIcon_(false),
+    modal_(true),
     resizable_(false),
     finished_(this),
     recursiveEventLoop_(false),
@@ -103,8 +104,9 @@ WDialog::WDialog(const WString& windowTitle)
 
   titleBar_ = new WContainerWidget();
   titleBar_->setStyleClass("titlebar");
-  caption_ = new WText(windowTitle, titleBar_);
 
+  caption_ = new WText(windowTitle, titleBar_);
+  
   impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   impl_->bindWidget("titlebar", titleBar_);
 
@@ -200,6 +202,20 @@ const WString& WDialog::windowTitle() const
 void WDialog::setTitleBarEnabled(bool enable)
 {
   titleBar_->setHidden(!enable);
+}
+
+void WDialog::setClosable(bool closable)
+{
+  if (closeable) {
+    if (!closeIcon_) {
+      closeIcon_ = new WText(titleBar_);
+      closeIcon_->setStyleClass("closeicon");
+      closeIcon_->clicked().connect(this, &WDialog::reject);
+    }
+  } else {
+    delete closeIcon_;
+    closeIcon_ = 0;
+  }
 }
 
 WDialog::DialogCode WDialog::exec(const WAnimation& animation)

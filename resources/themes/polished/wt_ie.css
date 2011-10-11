@@ -115,3 +115,17 @@ body.Wt-rtl .Wt-treeview .Wt-collapse {
 .Wt-hrh {
     line-height: 0px;
 }
+
+.Wt-tabs .Wt-closeicon, .Wt-tabs span.citemselected .Wt-closeicon {
+    background: transparent url(closeicons-tab.png) no-repeat scroll right top;
+    background-position: right 3px;
+    border-width: 3px 0px 0px 0px;
+    padding: 0px 6px 0px 7px;
+    cursor: default;
+    margin-left: 3px;
+    vertical-align: top;
+}
+
+.Wt-tabs .Wt-closeicon:hover, .Wt-tabs span.citemselected .Wt-closeicon:hover {
+    background-position: right -10px;
+}

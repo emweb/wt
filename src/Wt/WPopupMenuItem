@@ -201,7 +201,7 @@ private:
   WCheckBox   *checkBox_;
   WPopupMenu  *subMenu_;
   void        *data_;
-  bool         separator_, selectable_;
+  bool         separator_, selectable_, rendered_;
 
   Signal<WPopupMenuItem *> triggered_;
 

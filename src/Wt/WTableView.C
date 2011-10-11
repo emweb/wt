@@ -107,6 +107,8 @@ WTableView::WTableView(WContainerWidget *parent)
     scrolled_.connect(this, &WTableView::onViewportChange);
 
     headerColumnsHeaderContainer_ = new WContainerWidget();
+    headerColumnsHeaderContainer_->setStyleClass("Wt-header headerrh cwidth "
+						 "Wt-headerdiv");
 
     headerColumnsTable_ = new WContainerWidget();
     headerColumnsTable_->setStyleClass("Wt-tv-contents");
@@ -1011,18 +1013,9 @@ void WTableView::setRowHeight(const WLength& rowHeight)
   scheduleRerender(NeedRerenderData);
 }
 
-void WTableView::setHeaderHeight(const WLength& height, bool multiLine)
+void WTableView::setHeaderHeight(const WLength& height)
 {
-  WAbstractItemView::setHeaderHeight(height, multiLine);
-
-  if (headerContainer_) {
-    std::string headerClass = std::string("Wt-header Wt-")
-      + (multiLine ? "multiline" : "singleline")
-      + " headerrh cwidth";
-
-    headerContainer_->setStyleClass(headerClass);
-    headerColumnsHeaderContainer_->setStyleClass(headerClass + " Wt-headerdiv");
-  }
+  WAbstractItemView::setHeaderHeight(height);
 
   if (!ajaxMode())
     resize(this->width(), this->height());

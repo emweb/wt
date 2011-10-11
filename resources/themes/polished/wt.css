@@ -220,6 +220,22 @@
     padding: 3px 6px;
 }
 
+.Wt-dialog .closeicon {
+    background: transparent url(closeicons-dialog.png) no-repeat scroll right top;
+    width: 13px;
+    height: 13px;
+    background-position: right 0px;
+    cursor: default;
+    vertical-align: center;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.Wt-dialog .closeicon:hover {
+    background-position: right -13px;
+}
+
 .Wt-dialog .body {
     padding: 4px 6px;
 }
@@ -538,6 +554,7 @@
     border-bottom: none;
     background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
     color: #FFFFFF;
+    height: 16px;
 }
 
 .Wt-tabs li a, .Wt-tabs li button {
@@ -568,7 +585,9 @@
 }
 
 .Wt-tabs .Wt-closeicon, .Wt-tabs span.citemselected .Wt-closeicon {
-    background: transparent url(../../closeicons-tab.png) no-repeat scroll right top;
+    background: transparent url(closeicons-tab.png) no-repeat scroll right top;
+    height: 16px;
+    display: inline-block;
     background-position: right 3px;
     border-width: 3px 0px 0px 0px;
     padding: 0px 6px 0px 7px;
@@ -731,15 +750,13 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
 .Wt-itemview .Wt-header .Wt-label {
     font-weight: bold;
     text-overflow: ellipsis;
-}
-
-.Wt-itemview .Wt-multiline div.Wt-label {
-    white-space: normal;
-}
-
-.Wt-itemview .Wt-singleline div.Wt-label {
+    overflow: hidden; /* needed for IE only */
     white-space: nowrap;
-    overflow: hidden;
+}
+
+.Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
+    overflow: visible;
+    white-space: normal;
 }
 
 .Wt-itemview .Wt-tv-rh:hover {

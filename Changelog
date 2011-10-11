@@ -1,3 +1,11 @@
+11-10-2011:
+	* WPopupMenuItem: fix crash with re-showing hidden popup
+
+	* WDialog: add setClosable() which adds a close icon to the title bar
+
+	* WAbstractItemView: more flexible API for header height and vertical
+	alignment
+
 05-10-2011
 	* WMediaPlayer: make sure that relative URLs resolve against deployment
 	path (#1007)

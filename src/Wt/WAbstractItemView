@@ -187,19 +187,11 @@ public:
 
   /*! \brief Sets the content alignment for a column.
    *
-   * The default value is \link Wt::AlignLeft AlignLeft\endlink.
+   * The default value is Wt::AlignLeft.
    *
    * \sa setHeaderAlignment()
    */
   virtual void setColumnAlignment(int column, AlignmentFlag alignment);
-
-  /*! \brief Sets the header alignment for a column.
-   *
-   * The default value is \link Wt::AlignLeft AlignLeft\endlink.
-   *
-   * \sa setColumnAlignment()
-   */
-  virtual void setHeaderAlignment(int column, AlignmentFlag alignment);
 
   /*! \brief Returns the content alignment for a column.
    *
@@ -207,11 +199,53 @@ public:
    */
   virtual AlignmentFlag columnAlignment(int column) const;
 
-  /*! \brief Returns the header alignment for a column.
+  /*! \brief Sets the header alignment for a column.
+   *
+   * The default alignemnt is horizontally left, and vertically centered.
+   * (Wt::AlignLeft | Wt::AlignMiddle).
+   *
+   * Valid options for horizontal alignment are Wt::AlignLeft,
+   * Wt::AlignCenter or Wt::AlignRight.
+   *
+   * Valid options for vertical alignment are Wt::AlignMiddle or
+   * Wt::AlignTop. In the latter case, other contents may be added
+   * below the label in createExtraHeaderWidget().
+   *
+   * \sa setColumnAlignment()
+   */
+  virtual void setHeaderAlignment(int column, WFlags<AlignmentFlag> alignment);
+
+  /*! \brief Returns the horizontal header alignment for a column
+   *         (<b>deprecated</b>).
+   *
+   * \sa setHeaderAlignment()
+   *
+   * \deprecated use horizontalHeaderAlignment() instead.
+   */
+  AlignmentFlag headerAlignment(int column) const;
+
+  /*! \brief Returns the horizontal header alignment for a column.
    *
    * \sa setHeaderAlignment()
    */
-  virtual AlignmentFlag headerAlignment(int column) const;
+  AlignmentFlag horizontalHeaderAlignment(int column) const;
+
+  /*! \brief Returns the vertical header alignment for a column.
+   *
+   * \sa setHeaderAlignment()
+   */
+  AlignmentFlag verticalHeaderAlignment(int column) const;
+
+  /*! \brief Configures header text wrapping.
+   *
+   * This setting only affects a multiline header, and the default
+   * value is \c true. When set to \c false, the header itself will not
+   * wrap (as with a vertically centered header), and thus extra widgets
+   * will not shift down when there is a long header label.
+   */
+  void setHeaderWordWrap(int column, bool enabled);
+
+  bool headerWordWrap(int column) const;
 
   /*! \brief Sets if alternating row colors are to be used.
    *
@@ -479,16 +513,27 @@ public:
 
   /*! \brief Sets the header height.
    *
-   * Use this method to change the header height. By default, the
-   * header text is a single line that is centered vertically.
-   *
-   * By enabling multi-line headers, the header text will be aligned to
-   * the top and wrap as needed. In that case, additional contents may be
-   * displayed in the header, provided by createExtraHeaderWidget().
-   *
-   * The default value is a single line of 20 pixels.
+   * The default value is 20 pixels.
    */
-  virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
+  virtual void setHeaderHeight(const WLength& height);
+
+  /*! \brief Sets the header height, and vertical alignment (<b>deprecated</b>). 
+   * By default, the header text is a single line that is centered vertically.
+   *
+   * Along with setting the header height, this also configures vertical
+   * aligment and header label word wrapping. This has been deprecated in
+   * favour of the more fine grained control using setHeaderAlignment() and
+   * setHeaderWordWrap().
+   *
+   * When \p multiLine is \c false, the header alignment is set to
+   * Wt::AlignMiddle. When \p multiLine is \c true, the header
+   * alignment is set to Wt::AlignTop and header word wrap is set to
+   * \c true.
+   *
+   * \deprecated use setHeaderHeight(), setHeaderAlignment()
+   *             and setHeaderWordWrap() instead.
+   */
+  void setHeaderHeight(const WLength& height, bool multiLine);
 
   /*! \brief Returns the header height.
    *
@@ -786,7 +831,8 @@ protected:
     int id;
     SortOrder sortOrder;
     AlignmentFlag alignment;
-    AlignmentFlag headerAlignment;
+    AlignmentFlag headerHAlignment, headerVAlignment;
+    bool headerWordWrap;
     WLength width;
     WWidget *extraHeaderWidget;
     bool sorting, hidden;
@@ -880,7 +926,8 @@ private:
   WLength rowHeight_, headerLineHeight_;
   SelectionMode selectionMode_;
   bool sorting_, columnResize_;
-  bool multiLineHeader_;
+  AlignmentFlag defaultHeaderVAlignment_;
+  bool defaultHeaderWordWrap_;
   int rowHeaderCount_;
 
   JSignal<int, int>    columnWidthChanged_;

@@ -290,6 +290,8 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bootJs.setVar("AJAX_CANONICAL_URL",
 		safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
   bootJs.setVar("APP_CLASS", "Wt");
+  bootJs.setVar("PATH_INFO", WWebWidget::jsStringLiteral
+		(session_.env().pathInfo_));
 
   bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
   bootJs.setCondition("HYBRID", hybrid);
@@ -727,11 +729,13 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setVar("INNER_HTML", innerHtml);
     script.setVar("ACK_UPDATE_ID", expectedAckId_);
     script.setVar("SESSION_URL", WWebWidget::jsStringLiteral(sessionUrl()));
-    script.setVar("DEPLOY_PATH", WWebWidget::jsStringLiteral
-		  (session_.deploymentPath()));
-    script.setVar("PATH_INFO", WWebWidget::jsStringLiteral
-		  (session_.env().pathInfo_));
-  
+
+    std::string deployPath = session_.env().publicDeploymentPath_;
+    if (deployPath.empty())
+      deployPath = session_.deploymentPath();
+
+    script.setVar("DEPLOY_PATH", WWebWidget::jsStringLiteral(deployPath));
+
     int keepAlive;
     if (conf.sessionTimeout() == -1)
       keepAlive = 1000000;

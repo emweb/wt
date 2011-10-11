@@ -405,18 +405,34 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
   if (!isAbsoluteUrl(applicationUrl_)) {
     if (url.empty() || url[0] == '/')
       return url;
-    else if (env_->hashInternalPaths())
-      return url;
-    else {
-      std::string rel = "";
-      std::string pi = pagePathInfo_;
-
-      for (unsigned i = 0; i < pi.length(); ++i) {
-	if (pi[i] == '/')
-	  rel += "../";
+    else if (!env_->publicDeploymentPath_.empty()) {
+      std::string dp = env_->publicDeploymentPath_;
+      if (url[0] != '?') {
+	std::size_t s = dp.rfind('/');
+	dp = dp.substr(0, s + 1);
       }
+      return dp + url;
+    } else {
+      /*
+       * The public deployment path may lack if:
+       *  - we are a widget set script, but then we should have absolute
+       *    applicationUrl and internal paths are not really going to work
+       *  - we are a plain HTML session. but then we are not hashing internal
+       *    paths, so first condition should never be met
+       */
+      if (env_->hashInternalPaths())
+	return url;
+      else {
+	std::string rel = "";
+	std::string pi = pagePathInfo_;
 
-      return rel + url;
+	for (unsigned i = 0; i < pi.length(); ++i) {
+	  if (pi[i] == '/')
+	    rel += "../";
+	}
+
+	return rel + url;
+      }
     }
   } else
     return makeAbsoluteUrl(url);
@@ -1431,7 +1447,7 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
   if (!pagePathInfo_.empty() || (hashE && hashE->length() > 1)) {
     std::string url;
     if (applicationName_.empty()) {
-      url = fixRelativeUrl(".");
+      url = fixRelativeUrl("?");
       url = url.substr(0, url.length() - 1);
     } else
       url = fixRelativeUrl(applicationName_);

@@ -149,7 +149,9 @@ WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view,
   : id(anId),
     sortOrder(AscendingOrder),
     alignment(AlignLeft),
-    headerAlignment(AlignLeft),
+    headerHAlignment(AlignLeft),
+    headerVAlignment(view->defaultHeaderVAlignment_),
+    headerWordWrap(view->defaultHeaderWordWrap_),
     extraHeaderWidget(0),
     sorting(view->sorting_),
     hidden(false),
@@ -223,7 +225,8 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     selectionMode_(NoSelection),
     sorting_(true),
     columnResize_(true),
-    multiLineHeader_(false),
+    defaultHeaderVAlignment_(AlignMiddle),
+    defaultHeaderWordWrap_(true),
     rowHeaderCount_(0),
     columnWidthChanged_(impl_, "columnResized"),
     columnResized_(this),
@@ -310,7 +313,7 @@ void WAbstractItemView::setModel(WAbstractItemModel *model)
 
   setRootIndex(WModelIndex());
 
-  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+  setHeaderHeight(headerLineHeight_);
 }
 
 void WAbstractItemView::setRootIndex(const WModelIndex& rootIndex)
@@ -436,9 +439,13 @@ AlignmentFlag WAbstractItemView::columnAlignment(int column) const
   return columnInfo(column).alignment;
 }
 
-void WAbstractItemView::setHeaderAlignment(int column, AlignmentFlag alignment)
+void WAbstractItemView::setHeaderAlignment(int column,
+					   WFlags<AlignmentFlag> alignment)
 {
-  columnInfo(column).headerAlignment = alignment;
+  columnInfo(column).headerHAlignment = alignment & AlignHorizontalMask;
+
+  if (alignment & AlignVerticalMask)
+    columnInfo(column).headerVAlignment = alignment & AlignVerticalMask;
 
   if (columnInfo(column).hidden || renderState_ >= NeedRerenderHeader)
     return;
@@ -446,11 +453,40 @@ void WAbstractItemView::setHeaderAlignment(int column, AlignmentFlag alignment)
   WContainerWidget *wc = dynamic_cast<WContainerWidget *>(headerWidget(column));
   
   wc->setContentAlignment(alignment);
+
+  if (columnInfo(column).headerVAlignment == AlignMiddle)
+    wc->setLineHeight(headerLineHeight_);
+  else
+    wc->setLineHeight(WLength::Auto);
+}
+
+void WAbstractItemView::setHeaderWordWrap(int column, bool enabled)
+{
+  columnInfo(column).headerWordWrap = enabled;
+
+  if (columnInfo(column).hidden || renderState_ >= NeedRerenderHeader)
+    return;
+
+  if (columnInfo(column).headerVAlignment == AlignTop) {
+    WContainerWidget *wc
+      = dynamic_cast<WContainerWidget *>(headerWidget(column));
+    wc->toggleStyleClass("Wt-wwrap", enabled);
+  }
 }
 
 AlignmentFlag WAbstractItemView::headerAlignment(int column) const 
 {
-  return columnInfo(column).headerAlignment;
+  return horizontalHeaderAlignment(column);
+}
+
+AlignmentFlag WAbstractItemView::horizontalHeaderAlignment(int column) const
+{
+  return columnInfo(column).headerHAlignment;
+}
+
+AlignmentFlag WAbstractItemView::verticalHeaderAlignment(int column) const
+{
+  return columnInfo(column).headerVAlignment;
 }
 
 void WAbstractItemView::setAlternatingRowColors(bool enable)
@@ -1018,7 +1054,15 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
 
   result->addWidget(w);
   result->setStyleClass(info.styleClass() + " Wt-tv-c headerrh");
-  result->setContentAlignment(info.headerAlignment);
+  result->setContentAlignment(info.headerHAlignment);
+
+  if (info.headerVAlignment == AlignMiddle)
+    result->setLineHeight(headerLineHeight_);
+  else {
+    result->setLineHeight(WLength::Auto);
+    if (info.headerWordWrap)
+      result->addStyleClass("Wt-wwrap");
+  }
 
   WWidget *extraW = columnInfo(column).extraHeaderWidget;
   if (extraW) {
@@ -1081,10 +1125,9 @@ int WAbstractItemView::headerLevelCount() const
   return result + 1;
 }
 
-void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
+void WAbstractItemView::setHeaderHeight(const WLength& height)
 {
-  headerLineHeight_ = height;
-  multiLineHeader_ = multiLine;
+  headerLineHeight_ = height;  
 
   int lineCount = headerLevelCount();
   WLength headerHeight = headerLineHeight_ * lineCount;
@@ -1096,11 +1139,25 @@ void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
   }
 
   headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);
+}
 
-  if (!multiLineHeader_)
-    headerHeightRule_->templateWidget()->setLineHeight(headerLineHeight_);
-  else
-    headerHeightRule_->templateWidget()->setLineHeight(WLength::Auto);
+void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
+{
+  setHeaderHeight(height);
+
+  if (multiLine) {
+    defaultHeaderVAlignment_ = AlignTop;
+    defaultHeaderWordWrap_ = true;
+  } else {
+    defaultHeaderVAlignment_ = AlignMiddle;
+    defaultHeaderWordWrap_ = false;
+  }
+
+  for (unsigned i = 0; i < columns_.size(); ++i) {
+    setHeaderAlignment(i,
+		       columns_[i].headerHAlignment | defaultHeaderVAlignment_);
+    setHeaderWordWrap(i, defaultHeaderWordWrap_);
+  }
 }
 
 void WAbstractItemView::bindObjJS(JSlot& slot, const std::string& jsMethod)
@@ -1158,14 +1215,14 @@ void WAbstractItemView::collapseColumn(int columnid)
 {
   model_->collapseColumn(columnById(columnid));
   scheduleRerender(NeedRerenderHeader);
-  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+  setHeaderHeight(headerLineHeight_);
 }
 
 void WAbstractItemView::expandColumn(int columnid)
 {
   model_->expandColumn(columnById(columnid));
   scheduleRerender(NeedRerenderHeader);
-  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+  setHeaderHeight(headerLineHeight_);
 }
 
 void WAbstractItemView::handleClick(const WModelIndex& index,

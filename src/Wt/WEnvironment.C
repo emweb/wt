@@ -196,6 +196,14 @@ void WEnvironment::enableAjax(const WebRequest& request)
   // conveyed in the second request
   if (hashE)
     setInternalPath(*hashE);
+
+  const std::string *deployPathE = request.getParameter("deployPath");
+  if (deployPathE) {
+    publicDeploymentPath_ = *deployPathE;
+    std::size_t s = publicDeploymentPath_.find('/');
+    if (s != 0)
+      publicDeploymentPath_.clear(); // looks invalid
+  }
 }
 
 void WEnvironment::setUserAgent(const std::string& userAgent)

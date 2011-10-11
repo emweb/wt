@@ -230,7 +230,7 @@ public:
    * \sa reject()
    */
   void rejectWhenEscapePressed();
-
+  
   /*! \brief %Signal emitted when the dialog is closed.
    *
    * \sa done(DialogCode r), accept(), reject()
@@ -263,9 +263,10 @@ public:
    * and allows the user to resize the dialog (but not smaller than the
    * content allows).
    *
-   * This also sets the minimum width and height to WLength::Auto
-   * to use the initial width and height as minimum sizes. You may want
-   * to provide other values for minimum width and height.
+   * This also sets the minimum width and height to WLength::Auto to
+   * use the initial width and height as minimum sizes. You may want
+   * to provide other values for minimum width and height to allow the
+   * dialog to be reduced in size.
    *
    * \sa setMinimumSize(), setMaximumSize()
    */
@@ -277,6 +278,17 @@ public:
    */
   bool resizable() const { return resizable_; }
 
+  /*! \brief Adds a close button to the titlebar.
+   *
+   * The close button is shown in the title bar. Clicking the close button
+   * will reject the dialog.
+   */
+  void setClosable(bool closable);
+
+  /*! \brief Returns whether the dialog can be closed.
+   */
+  bool closable() const { return closeIcon_ != 0; }
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
@@ -286,6 +298,7 @@ protected:
 private:
   WTemplate        *impl_;
   WText            *caption_;
+  WText            *closeIcon_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
   bool              modal_, resizable_;
