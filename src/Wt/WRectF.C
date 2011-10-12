@@ -40,8 +40,11 @@ WRectF& WRectF::operator=(const WRectF& rhs)
 
 bool WRectF::operator==(const WRectF& rhs) const
 {
-  return (x_ == rhs.x_ && y_ == rhs.y_
-	  && width_ == rhs.width_ && height_ == rhs.height_);
+  return 
+       x_ == rhs.x_
+    && y_ == rhs.y_
+    && width_ == rhs.width_
+    && height_ == rhs.height_;
 }
 
 bool WRectF::operator!=(const WRectF& rhs) const
@@ -58,7 +61,7 @@ bool WRectF::isNull() const
 
 bool WRectF::isEmpty() const
 {
-  return width_ <= 0 || height_ <= 0;
+  return width_ == 0 && height_ == 0;
 }
 
 void WRectF::setX(double x)

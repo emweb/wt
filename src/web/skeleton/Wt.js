@@ -2208,8 +2208,8 @@ function load(fullapp) {
 
 var currentHideLoadingIndicator = null;
 
-function cancelFeedback(t) {
-  clearTimeout(t);
+function cancelFeedback(timer) {
+  clearTimeout(timer);
   document.body.style.cursor = 'auto';
 
   if (currentHideLoadingIndicator != null) {

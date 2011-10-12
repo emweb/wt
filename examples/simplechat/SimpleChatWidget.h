@@ -83,6 +83,7 @@ private:
   UserMap users_;
 
   SimpleChatServer&     server_;
+  bool                  loggedIn_;
 
   Wt::JSlot             clearInput_;
 

@@ -1,3 +1,7 @@
+12-10-2011:
+	* WRectF: fix isEmpty() to be more restrictive: only a rect with
+	width = 0 and height = 0 is now empty
+
 11-10-2011:
 	* WPopupMenuItem: fix crash with re-showing hidden popup
 

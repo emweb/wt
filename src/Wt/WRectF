@@ -30,16 +30,15 @@ public:
    * 
    * \sa isNull()
    * \elseif java
-   * Constructs a rectangle from top left point (<i>x=0</i>, \p y=0)
-   * and size <i>width=0</i> x \p height=0.
+   * Constructs an empty rectangle at point (0, 0).
    * \endif
    */
   WRectF();
 
   /*! \brief Creates a rectangle.
    *
-   * Constructs a rectangle with top left point (<i>x</i>, \p y)
-   * and size <i>width</i> x \p height.
+   * Constructs a rectangle with top left point (\p x, \p y)
+   * and size \p width x \p height.
    */
   WRectF(double x, double y, double width, double height);
 
@@ -48,9 +47,9 @@ public:
    * Constructs a rectangle from the two points \p topLeft and
    * \p bottomRight.
    *
-   * If you want to create a rectangle from two arbitrary corner points,
-   * you can use this constructor too, but should call normalized()
-   * afterwords.
+   * If you want to create a rectangle from two arbitrary corner
+   * points, you can use this constructor too, but should call
+   * normalized() afterwords.
    */
   WRectF(const WPointF& topLeft, const WPointF& bottomRight);
 
@@ -73,8 +72,7 @@ public:
 
   /*! \brief Determines whether or not this rectangle is empty. 
    *
-   * A rectangle is empty if its width or its height is less than 
-   * or equal to zero.
+   * A rectangle is empty if its width and height are zero.
    */
   bool isEmpty() const;
 
@@ -94,19 +92,19 @@ public:
 
   /*! \brief Sets the width.
    *
-   * The right side of the rectangle may move, but does not change the X
-   * position of the left side.
+   * The right side of the rectangle may move, but this does not
+   * affect the left side.
    */
   void setWidth(double width) { width_ = width; }
 
   /*! \brief Sets the Y-position of the top side.
    *
-   * The bottom side of the rectangle may move, but does not change
-   * the Y position of the top side.
+   * The bottom side of the rectangle may move, but this does not
+   * affect the Y position of the top side.
    */
   void setHeight(double height) { height_ = height; }
 
-  /*! \brief Returns the X-position of the left side.
+  /*! \brief Returns the X-position (left side offset).
    *
    * This is equivalent to left().
    *
@@ -114,7 +112,7 @@ public:
    */
   double x() const { return x_; }
 
-  /*! \brief Returns the Y-position of the top side.
+  /*! \brief Returns the Y-position (top side offset).
    *
    * This is equivalent to top().
    *
@@ -134,25 +132,25 @@ public:
    */
   double height() const { return height_; }
 
-  /*! \brief Returns the X position of the left side.
+  /*! \brief Returns the X position (left side offset).
    *
    * \sa x(), right()
    */
   double left() const { return x_; }
 
-  /*! \brief Returns the Y position of the top side.
+  /*! \brief Returns the Y position (top side offset).
    *
    * \sa y(), bottom()
    */
   double top() const { return y_; }
 
-  /*! \brief Returns the X position of the right side.
+  /*! \brief Returns the the right side offset.
    *
    * \sa left()
    */
   double right() const { return x_ + width_; }
 
-  /*! \brief Returns the Y position of the bottom side.
+  /*! \brief Returns the bottom side offset.
    *
    * \sa top()
    */

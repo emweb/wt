@@ -27,6 +27,7 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
 				   Wt::WContainerWidget *parent)
   : WContainerWidget(parent),
     server_(server),
+    loggedIn_(false),
     userList_(0),
     messageReceived_(0)
 {
@@ -43,9 +44,8 @@ SimpleChatWidget::~SimpleChatWidget()
 
 void SimpleChatWidget::connect()
 {
-  if (server_.connect(this,
-		      boost::bind(&SimpleChatWidget::processChatEvent,
-				  this, _1)))
+  if (server_.connect
+      (this, boost::bind(&SimpleChatWidget::processChatEvent, this, _1)))
     Wt::WApplication::instance()->enableUpdates(true);
 }
 
@@ -97,6 +97,7 @@ void SimpleChatWidget::login()
 void SimpleChatWidget::logout()
 {
   if (loggedIn()) {
+    loggedIn_ = false;
     server_.logout(user_);
 
     letLogin();
@@ -164,7 +165,7 @@ void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
 
 bool SimpleChatWidget::loggedIn() const
 {
-  return !userNameEdit_;
+  return loggedIn_;
 }
 
 void SimpleChatWidget::render(WFlags<RenderFlag> flags)
@@ -189,6 +190,7 @@ bool SimpleChatWidget::startChat(const WString& user)
    * is used to indicate a new chat event for this user.
    */
   if (server_.login(user)) {
+    loggedIn_ = true;
     connect();
 
     user_ = user;    
