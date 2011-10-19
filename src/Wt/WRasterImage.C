@@ -97,6 +97,9 @@ WRasterImage::WRasterImage(const std::string& type,
   w_ = static_cast<unsigned long>(width.toPixels());
   h_ = static_cast<unsigned long>(height.toPixels());
 
+  context_ = 0;
+  fontSupport_ = 0;
+
   if (!w_ || !h_) {
     pixels_ = 0;
     image_ = 0;
@@ -121,9 +124,6 @@ WRasterImage::WRasterImage(const std::string& type,
   std::string magick = type;
   std::transform(magick.begin(), magick.end(), magick.begin(), toupper);
   strcpy(image_->magick, type.c_str());
-
-  context_ = 0;
-  fontSupport_ = 0;
 }
 
 void WRasterImage::clear()
@@ -148,7 +148,7 @@ WRasterImage::~WRasterImage()
 
   delete fontSupport_;
 
-  DestroyMagick();
+  // DestroyMagick(); apparently should be called only once ?
 }
 
 void WRasterImage::addFontCollection(const std::string& directory,

@@ -1082,9 +1082,6 @@ void WTreeView::setRowHeaderCount(int count)
     contents_->setPositionScheme(Relative);
     rootWrap->setPositionScheme(Absolute);
 
-    // needed for IE, otherwise row expands automatically to content width
-    rowWidthRule_->templateWidget()->resize(0, WLength::Auto);
-
     bool useStyleLeft
       = app->environment().agentIsWebKit()
       || app->environment().agentIsOpera();
@@ -1119,7 +1116,10 @@ void WTreeView::setRowHeaderCount(int count)
 
     if (app->environment().agentIsIE()) {
       scrollBarContainer->setPositionScheme(Relative);
-      scrollBarC_->setAttributeValue("style", "right: 0px");
+      bool rtl = app->layoutDirection() == RightToLeft;
+      scrollBarC_->setAttributeValue("style",
+				     std::string(rtl ? "left:" : "right:")
+				     + "0px");
       // and still it doesn't work properly...
     }
 
@@ -1421,14 +1421,7 @@ void WTreeView::rerenderHeader()
 {
   WApplication *app = WApplication::instance();
 
-  for (int i = 0; i < columnCount(); ++i) {
-    WWidget *w = columnInfo(i).extraHeaderWidget;
-    if (!w)
-      columnInfo(i).extraHeaderWidget = createExtraHeaderWidget(i);
-    else
-      dynamic_cast<WContainerWidget *>(w->parent())->removeWidget(w);
-  }
-
+  saveExtraHeaderWidgets();
   headers_->clear();
 
   WContainerWidget *row = new WContainerWidget(headers_);
@@ -1457,6 +1450,8 @@ void WTreeView::rerenderHeader()
 
 void WTreeView::enableAjax()
 {
+  saveExtraHeaderWidgets();
+
   setup();
   defineJavaScript();
 

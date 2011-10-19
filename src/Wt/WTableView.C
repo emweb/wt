@@ -783,13 +783,7 @@ void WTableView::rerenderData()
 
 void WTableView::rerenderHeader()
 {
-  for (int i = 0; i < columnCount(); ++i) {
-    WWidget *w = columnInfo(i).extraHeaderWidget;
-    if (!w)
-      columnInfo(i).extraHeaderWidget = createExtraHeaderWidget(i);
-    else
-      dynamic_cast<WContainerWidget *>(w->parent())->removeWidget(w);
-  }
+  saveExtraHeaderWidgets();
 
   WApplication *app = WApplication::instance();
 

@@ -111,8 +111,6 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   setLayoutSizeAware(true);
   setJavaScriptMember(WT_RESIZE_JS,
 		      "function(self,w,h) {"
-		      "var lsaJs = " + javaScriptMember(WT_RESIZE_JS)
-		      + "lsaJs(self,w,h);"
 		      "$(self).find('canvas, img').width(w).height(h);"
 		      "}");
   setInline(false);
@@ -158,7 +156,7 @@ void WPaintedWidget::resizeCanvas(int width, int height)
 
 void WPaintedWidget::layoutSizeChanged(int width, int height)
 {
-  resize(WLength::Auto, WLength::Auto);
+  // WInteractWidget::resize(width, height);
 
   resizeCanvas(width, height);
 }

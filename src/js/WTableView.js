@@ -138,7 +138,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.resizeHandleMDown = function(obj, event) {
-     var header = obj.parentNode.parentNode,
+     var header = obj.parentNode,
          cw = WT.pxself(header, 'width') - 1,
          minDelta = -cw,
          maxDelta = 10000;

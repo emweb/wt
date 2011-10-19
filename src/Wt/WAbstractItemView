@@ -882,6 +882,7 @@ protected:
 
   virtual ColumnInfo createColumnInfo(int column) const;
 
+  void saveExtraHeaderWidgets();
   WWidget *createHeaderWidget(WApplication *app, int column);
   WText *headerTextWidget(int column);
 

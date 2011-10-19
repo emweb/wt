@@ -11,8 +11,8 @@
 #include "Wt/WCompositeWidget"
 #include "Wt/WContainerWidget"
 #include "Wt/WLogger"
-#include "Wt/WWebWidget"
 #include "Wt/WJavaScript"
+#include "Wt/WWebWidget"
 
 #include "DomElement.h"
 #include "WebRenderer.h"
@@ -102,6 +102,7 @@ WWebWidget::OtherImpl::OtherImpl(WWebWidget *self)
     jsMembers_(0),
     jsMembersSet_(0),
     jsMemberCalls_(0),
+    resized_(0),
     dropSignal_(0),
     acceptedDropMimeTypes_(0),
     delayedDoJavaScript_(0),
@@ -119,6 +120,7 @@ WWebWidget::OtherImpl::~OtherImpl()
   delete dropSignal_;
   delete acceptedDropMimeTypes_;
   delete delayedDoJavaScript_;
+  delete resized_;
 }
 
 WWebWidget::WWebWidget(WContainerWidget *parent)
@@ -862,7 +864,7 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
   std::vector<OtherImpl::Member>& members = *otherImpl_->jsMembers_;
   int index = indexOfJavaScriptMember(name);
   
-  if (index != -1 && members[index].value == value)
+  if (index != -1 && (members[index].value == value))
     return;
 
   if (value.empty()) {
@@ -1095,6 +1097,51 @@ void WWebWidget::setHideWithOffsets(bool how)
 	parent()->setHideWithOffsets(true);
     }
   }
+}
+
+void WWebWidget::setImplementLayoutSizeAware(bool aware)
+{
+  if (!aware) {
+    if (otherImpl_) {
+      if (otherImpl_->resized_) {
+	delete otherImpl_->resized_;
+	otherImpl_->resized_ = 0;
+
+	std::string v = javaScriptMember(WT_RESIZE_JS);
+	if (v.length() == 1)
+	  setJavaScriptMember(WT_RESIZE_JS, std::string());
+	else {
+	  if (!otherImpl_->jsMembersSet_)
+	    otherImpl_->jsMembersSet_ = new std::vector<std::string>;
+
+	  otherImpl_->jsMembersSet_->push_back(WT_RESIZE_JS);
+	}
+      }
+    }
+  }
+}
+
+JSignal<int, int>& WWebWidget::resized()
+{
+  if (!otherImpl_)
+    otherImpl_ = new OtherImpl(this);
+
+  if (!otherImpl_->resized_) {
+    otherImpl_->resized_ = new JSignal<int, int>(this, "resized");
+    otherImpl_->resized_->connect(this, &WWidget::layoutSizeChanged);
+
+    std::string v = javaScriptMember(WT_RESIZE_JS);
+    if (v.empty())
+      setJavaScriptMember(WT_RESIZE_JS, "0");
+    else {
+      if (!otherImpl_->jsMembersSet_)
+	otherImpl_->jsMembersSet_ = new std::vector<std::string>;
+
+      otherImpl_->jsMembersSet_->push_back(WT_RESIZE_JS);
+    }
+  }
+
+  return *otherImpl_->resized_;
 }
 
 void WWebWidget::updateDom(DomElement& element, bool all)
@@ -1453,7 +1500,26 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       if (all) {
 	for (unsigned i = 0; i < otherImpl_->jsMembers_->size(); i++) {
 	  OtherImpl::Member member = (*otherImpl_->jsMembers_)[i];
-	  element.callMethod(member.name + "=" + member.value);
+
+	  if (member.name == WT_RESIZE_JS && otherImpl_->resized_) {
+	    SStream combined;
+	    combined << member.name << "=function(s,w,h) {"
+		     << "if (!s.wtWidth||s.wtWidth!=w"
+		     << ""   "||!s.wtHeight||s.wtHeight!=h) {"
+		     << "s.wtWidth=w;s.wtHeight=h;"
+		     << "s.style.height=h+'px';"
+		     << otherImpl_->resized_->createCall("Math.round(w)",
+							 "Math.round(h)")
+		     << '}';
+
+	    if (member.value.length() > 1)
+	      combined << '(' << member.value << ")(s,w,h);";
+
+	    combined << '}';
+
+	    element.callMethod(combined.str());
+	  } else
+	    element.callMethod(member.name + "=" + member.value);
 	}
       } else if (otherImpl_->jsMembersSet_) {
 	for (unsigned i = 0; i < otherImpl_->jsMembersSet_->size(); ++i) {
@@ -1461,10 +1527,28 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
 	  std::string value = javaScriptMember(m);
 
-	  if (!value.empty())
-	    element.callMethod(m + "=" + value);
-	  else
-	    element.callMethod(m + "= null");
+	  if (m == WT_RESIZE_JS && otherImpl_->resized_) {
+	    SStream combined;
+	    combined << m << "=function(s,w,h) {"
+		     << "if (!s.wtWidth||s.wtWidth!=w"
+		     << ""   "||!s.wtHeight||s.wtHeight!=h) {"
+		     << "s.wtWidth=w;s.wtHeight=h;"
+		     << "s.style.height=h+'px';"
+		     << otherImpl_->resized_->createCall("Math.round(w)",
+							 "Math.round(h)")
+		     << '}';
+
+	    if (value.length() > 1)
+	      combined << '(' << value << ")(s,w,h);";
+
+	    combined << '}';
+
+	    element.callMethod(combined.str());
+	  } else
+	    if (value.length() > 1)
+	      element.callMethod(m + "=" + value);
+	    else
+	      element.callMethod(m + "= null");
 	}
       }
 

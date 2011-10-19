@@ -143,7 +143,7 @@ void DialogExample::messageBoxDone(StandardButton result)
 void DialogExample::custom()
 {
   WDialog dialog("Personalia");
-  dialog.showCloseIcon();
+  dialog.setClosable(true);
 
   new WText("Enter your name: ", dialog.contents());
   WLineEdit edit(dialog.contents());

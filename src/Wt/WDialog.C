@@ -24,7 +24,7 @@
 namespace Wt {
 
 WDialog::WDialog(const WString& windowTitle)
-  : closeIcon_(false),
+  : closeIcon_(0),
     modal_(true),
     resizable_(false),
     finished_(this),
@@ -159,7 +159,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
 			+ "," + (centerX ? "1" : "0")
 			+ "," + (centerY ? "1" : "0") + ");");
     // so that WWidget::resize() calls it; it is set by js: WDialog()
-    setJavaScriptMember(WT_RESIZE_JS, "0");
+    setJavaScriptMember(WT_RESIZE_JS, "\"dummy\"");
 
     app->addAutoJavaScript
       ("{var obj = $('#" + id() + "').data('obj');"

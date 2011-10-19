@@ -105,7 +105,7 @@ void WContainerWidget::setLayout(WLayout *layout,
        * parent size should not be affected). Luckily, IE does not show the
        * scrollbars unless really needed
        */
-      if (WApplication::instance()->environment().agentIsIElt(7)) {
+      if (WApplication::instance()->environment().agentIsIElt(9)) {
 	AlignmentFlag vAlign = alignment & AlignVerticalMask;
 	if (vAlign == 0)
 	  setOverflow(WContainerWidget::OverflowHidden);
@@ -760,12 +760,14 @@ void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
     }
   }
 
+#ifndef WT_NO_LAYOUT
   if (flags_.test(BIT_LAYOUT_NEEDS_UPDATE)) {
     if (layout_)
       layoutImpl()->updateDom();
 
     flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
   }
+#endif // WT_NO_LAYOUT
 }
 
 void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,

@@ -36,15 +36,18 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass,
   if (!backgroundStyleClass.empty())
     cover_->setStyleClass(backgroundStyleClass);
 
-  if (app->environment().agentIsIE())
+  if (app->environment().agent() == WEnvironment::IE6)
     app->styleSheet().addRule("body", "height: 100%; margin: 0;");
+
+  std::string position
+    = app->environment().agent() == WEnvironment::IE6 ? "absolute" : "fixed";
 
   if (backgroundStyleClass.empty())
     app->styleSheet().addRule("div#" + cover_->id(), std::string() +
 			      "background: #DDDDDD;"
 			      "height: 100%; width: 100%;"
 			      "top: 0px; left: 0px;"
-			      "position: absolute;"
+			      "position: " + position + ";"
 			      "z-index: 10000;" +
 			      (app->environment().agentIsIE() ?
 			       "filter: alpha(opacity=50);"
@@ -57,7 +60,7 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass,
 			      "background: white;"
 			      "border: 3px solid #333333;"
 			      "z-index: 10001; visibility: visible;"
-			      "position: absolute; left: 50%; top: 50%;"
+			      "position: " + position + "; left: 50%; top: 50%;"
 			      "margin-left: -50px; margin-top: -40px;"
 			      "width: 100px; height: 80px;"
 			      "font-family: arial,sans-serif;"

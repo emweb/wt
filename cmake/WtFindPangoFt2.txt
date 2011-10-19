@@ -1,10 +1,3 @@
-# We set:
-# - PANGO_FT2_INCLUDE_DIRS
-# - PANGO_FT2_LIBRARIES
-# - PANGO_FT2_FOUND
-# Taking into account:
-# - PANGO_FT2_PREFIX
-
 FIND_PACKAGE(PkgConfig)
 
 PKG_CHECK_MODULES(PC_PANGO_FT2 pangoft2)

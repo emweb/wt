@@ -384,6 +384,7 @@ private:
     std::vector<Member>                 *jsMembers_;
     std::vector<std::string>            *jsMembersSet_;
     std::vector<std::string>            *jsMemberCalls_;
+    JSignal<int, int>                   *resized_;
 
     // drag source id, drag mime type
     JSignal<std::string, std::string, WMouseEvent,
@@ -424,6 +425,8 @@ private:
   void setIgnoreChildRemoves(bool how);
   bool ignoreChildRemoves() const;
   void beingDeleted();
+  void setImplementLayoutSizeAware(bool aware);
+  JSignal<int, int>& resized();
 
   int indexOfJavaScriptMember(const std::string& name) const;
 

@@ -22,8 +22,7 @@ namespace Wt {
 const char *WWidget::WT_RESIZE_JS = "wtResize";
 
 WWidget::WWidget(WContainerWidget* parent)
-  : WObject(0),
-    resized_(0)
+  : WObject(0)
 { 
   flags_.set(BIT_NEED_RERENDER);
 }
@@ -43,9 +42,6 @@ WWidget::~WWidget()
     s->~EventSignalBase();
 #endif
   }
-
-  delete resized_;
-  resized_ = 0;
 
   renderOk();
 }
@@ -411,34 +407,31 @@ void WWidget::positionAt(const WWidget *widget, Orientation orientation)
 
 void WWidget::setLayoutSizeAware(bool aware)
 {
-  if (aware == (resized_ != 0))
+  if (aware == flags_.test(BIT_RESIZE_AWARE))
     return;
 
-  if (aware && WApplication::instance()) {
-    resized_ = new JSignal<int, int>(this, "resized");
-    resized_->connect(this, &WContainerWidget::layoutSizeChanged);
+  flags_.set(BIT_RESIZE_AWARE, aware);
 
-    setJavaScriptMember
-      (WT_RESIZE_JS,
-       "function(self, w, h) {"
-       ""  "if (!self.wtWidth || self.wtWidth!=w "
-       ""      "|| !self.wtHeight || self.wtHeight!=h) {"
-       ""    "self.wtWidth=w; self.wtHeight=h;"
-       ""    "self.style.height=h + 'px';"
-       + resized_->createCall("Math.round(w)", "Math.round(h)") +
-       ""  "}"
-       "};");
-  } else {
-    if (!javaScriptMember(WT_RESIZE_JS).empty())
-      setJavaScriptMember(WT_RESIZE_JS, "");
-    delete resized_;
-    resized_ = 0;
-  }
+  if (aware) {
+    /*
+     * Signals are created in a memory pool maintained by the application.
+     * WPaintedWidget can be used offline.
+     */
+    if (!WApplication::instance())
+      return;
+
+    WWebWidget *w = webWidget();
+    if (w == this)
+      webWidget()->resized();
+    else
+      webWidget()->resized().connect(this, &WWidget::layoutSizeChanged);
+  } else
+    webWidget()->setImplementLayoutSizeAware(false);
 }
 
 bool WWidget::layoutSizeAware() const
 {
-  return resized_ != 0;
+  return flags_.test(BIT_RESIZE_AWARE);
 }
 
 void WWidget::layoutSizeChanged(int width, int height)

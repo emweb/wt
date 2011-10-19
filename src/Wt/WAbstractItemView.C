@@ -946,11 +946,85 @@ int WAbstractItemView::headerLevel(int column) const
     (asNumber(model_->headerData(column, Horizontal, LevelRole)));
 }
 
+void WAbstractItemView::saveExtraHeaderWidgets()
+{
+  for (int i = 0; i < columnCount(); ++i) {
+    WWidget *w = columnInfo(i).extraHeaderWidget;
+    if (w && w->parent())
+      dynamic_cast<WContainerWidget *>(w->parent())->removeWidget(w);
+  }
+}
+
 WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
 {
-  static const char *OneLine = "<div>&nbsp;</div>";
+  /****
+   * result:
+   * +------------------------------+
+   * | +----------------------+     +
+   * | | +------------------+ |     |
+   * | | | contents         | |     |
+   * | | +------------------+ | +-+ |
+   * | | +------------------+ | | | |
+   * | | | extra widget     | | | <------ resize handle with border right and
+   * | | | ....             | | | | |     margin-top for right-border-level
+   * | | +------------------+ | | | |
+   * | +----------------------+ +-+ |
+   * +------------------------------+    
+   */
+
+  ColumnInfo& info = columnInfo(column);
+
+  /* Contents */
+
+  WContainerWidget *contents = new WContainerWidget();
+  contents->setObjectName("contents");
+
+  if (info.sorting) {
+    WText *sortIcon = new WText(contents);
+    sortIcon->setObjectName("sort");
+    sortIcon->setInline(false);
+    sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
+    clickedForSortMapper_->mapConnect(sortIcon->clicked(), info.id);
+
+    if (currentSortColumn_ == column)
+      sortIcon->setStyleClass(info.sortOrder == AscendingOrder
+			      ? "Wt-tv-sh Wt-tv-sh-up"
+			      : "Wt-tv-sh Wt-tv-sh-down");
+  }
+
+  if (model_->headerFlags(column)
+      & (ColumnIsExpandedLeft | ColumnIsExpandedRight)) {
+    WImage *collapseIcon = new WImage(contents);
+    collapseIcon->setFloatSide(Left);
+    collapseIcon
+      ->setImageLink(WLink(WApplication::resourcesUrl() + "minus.gif"));
+    clickedForCollapseMapper_->mapConnect(collapseIcon->clicked(), info.id);
+  } else if (model_->headerFlags(column) & ColumnIsCollapsed) {
+    WImage *expandIcon = new WImage(contents);
+    expandIcon->setFloatSide(Left);
+    expandIcon
+      ->setImageLink(WLink(WApplication::resourcesUrl() + "plus.gif"));
+    clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
+  }    
+
+  WWidget *i = headerItemDelegate_->update(0, headerModel_->index(0, column),
+					   0);
+  i->setInline(false);
+  i->addStyleClass("Wt-label");
+  contents->addWidget(i);
+
+  // FIXME: we probably want this as an API option ?
+  if (info.sorting) {
+    WInteractWidget *ww = dynamic_cast<WInteractWidget *>(i);
+    if (ww)
+      clickedForSortMapper_->mapConnect(ww->clicked(), info.id);
+  }
 
   int headerLevel = model_ ? this->headerLevel(column) : 0;
+
+  contents->setMargin(headerLevel * headerLineHeight_.toPixels(), Top);
+
+  /* Resize handle (or border-right 1 stub) */
 
   int rightBorderLevel = headerLevel;
   if (model_) {
@@ -970,126 +1044,51 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     }
   }
 
-  ColumnInfo& info = columnInfo(column);
-  WContainerWidget *w = new WContainerWidget();
-  w->setObjectName("contents");
+  bool activeRH = columnResize_;
 
-  if (info.sorting) {
-    WText *sortIcon = new WText(w);
-    sortIcon->setObjectName("sort");
-    sortIcon->setInline(false);
-    if (!columnResize_)
-      sortIcon->setMargin(4, Right);
-    sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
-    clickedForSortMapper_->mapConnect(sortIcon->clicked(), info.id);
+  WContainerWidget *resizeHandle = new WContainerWidget();
+  resizeHandle->setStyleClass(std::string("Wt-tv-rh")
+			      + (activeRH ? "" : " Wt-tv-no-rh" )
+			      + " Wt-tv-br headerrh");
 
-    if (currentSortColumn_ == column)
-      sortIcon->setStyleClass(info.sortOrder == AscendingOrder
-			      ? "Wt-tv-sh Wt-tv-sh-up"
-			      : "Wt-tv-sh Wt-tv-sh-down");
-  }
-
-  if (model_->headerFlags(column)
-      & (ColumnIsExpandedLeft | ColumnIsExpandedRight)) {
-    WImage *collapseIcon = new WImage(w);
-    collapseIcon->setFloatSide(Left);
-    collapseIcon
-      ->setImageLink(WLink(WApplication::resourcesUrl() + "minus.gif"));
-    clickedForCollapseMapper_->mapConnect(collapseIcon->clicked(), info.id);
-  } else if (model_->headerFlags(column) & ColumnIsCollapsed) {
-    WImage *expandIcon = new WImage(w);
-    expandIcon->setFloatSide(Left);
-    expandIcon
-      ->setImageLink(WLink(WApplication::resourcesUrl() + "plus.gif"));
-    clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
-  }    
-
-  WWidget *i = headerItemDelegate_->update(0, headerModel_->index(0, column),
-					   0);
-  i->setInline(false);
-  i->addStyleClass("Wt-label");
-  w->addWidget(i);
-
-  /*
-  WText *t = new WText("&nbsp;", w);
-  t->setObjectName("text");
-  t->setStyleClass("Wt-label");
-  t->setInline(false);
-  if (multiLineHeader_ || app->environment().agentIsIE())
-    t->setWordWrap(true);
-  else
-    t->setWordWrap(false);
-  */
-
-  // FIXME: we probably want this as an API option ?
-  if (info.sorting) {
-    WInteractWidget *ww = dynamic_cast<WInteractWidget *>(i);
-    if (ww)
-      clickedForSortMapper_->mapConnect(ww->clicked(), info.id);
-  }
-
-  WContainerWidget *result = new WContainerWidget();
-
-  if (headerLevel) {
-    WContainerWidget *spacer = new WContainerWidget(result);
-    WText *t = new WText(spacer);
-    t->setInline(false);
-
-    if (rightBorderLevel < headerLevel) {
-      if (rightBorderLevel) {
-	t->setText(repeat(OneLine, rightBorderLevel));
-	spacer = new WContainerWidget(result);
-	t = new WText(spacer);
-	t->setInline(false);
-      }
-      t->setText(repeat(OneLine, headerLevel - rightBorderLevel));
-      spacer->setStyleClass("Wt-tv-br");
-    } else {
-      t->setText(repeat(OneLine, headerLevel));
-    }
-  }
-
-  if (rightBorderLevel <= headerLevel)
-    w->addStyleClass("Wt-tv-br");
-
-  result->addWidget(w);
-  result->setStyleClass(info.styleClass() + " Wt-tv-c headerrh");
-  result->setContentAlignment(info.headerHAlignment);
-
-  if (info.headerVAlignment == AlignMiddle)
-    result->setLineHeight(headerLineHeight_);
-  else {
-    result->setLineHeight(WLength::Auto);
-    if (info.headerWordWrap)
-      result->addStyleClass("Wt-wwrap");
-  }
-
-  WWidget *extraW = columnInfo(column).extraHeaderWidget;
-  if (extraW) {
-    result->addWidget(extraW);
-    extraW->addStyleClass("Wt-tv-br");
-  }
-
-  if (columnResize_ && app->environment().ajax()) {
-    WContainerWidget *resizeHandle = new WContainerWidget();
-    resizeHandle->setStyleClass("Wt-tv-rh headerrh");
+  if (activeRH)
     resizeHandle->mouseWentDown().connect(resizeHandleMDownJS_);
 
-    bool ie = wApp->environment().agentIsIE();
-    WContainerWidget *parent
-      = ie ? w : dynamic_cast<WContainerWidget *>(result->widget(0));
-    parent->insertWidget(0, resizeHandle);
+  resizeHandle->setMargin(rightBorderLevel * headerLineHeight_.toPixels(), Top);
 
-    if (ie) {
-      parent->setAttributeValue("style", "zoom: 1");
-      parent->resize(WLength::Auto, headerLineHeight_);
-    }
+  /*
+   * Extra widget
+   */
+
+  if (!columnInfo(column).extraHeaderWidget)
+    columnInfo(column).extraHeaderWidget = createExtraHeaderWidget(column);
+
+  WWidget *extraW = columnInfo(column).extraHeaderWidget;
+
+  /*
+   * Assemble into result
+   */
+  WContainerWidget *result = new WContainerWidget();
+  result->setStyleClass(info.styleClass() + " Wt-tv-c headerrh");
+  result->addWidget(resizeHandle);
+
+  WContainerWidget *main = new WContainerWidget();
+  main->setOverflow(WContainerWidget::OverflowHidden);
+  main->setContentAlignment(info.headerHAlignment);
+  result->addWidget(main);
+
+  main->addWidget(contents);
+
+  if (info.headerVAlignment == AlignMiddle)
+    main->setLineHeight(headerLineHeight_);
+  else {
+    main->setLineHeight(WLength::Auto);
+    if (info.headerWordWrap)
+      main->addStyleClass("Wt-wwrap");
   }
 
-  WText *spacer = new WText();
-  spacer->setInline(false);
-  spacer->setStyleClass("Wt-tv-br headerrh");
-  result->addWidget(spacer);
+  if (extraW)
+    main->addWidget(extraW);
 
   return result;
 }

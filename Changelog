@@ -1,3 +1,8 @@
+19-10-2011:
+	* WAbstractItemView: reimplemented and simplified header item rendering
+
+	* Wt.js: workaround browser bugs in scrollLeft reading in RTL mode,		fixing WAbstractItemView column resizing in RTL layouts.
+	
 12-10-2011:
 	* WRectF: fix isEmpty() to be more restrictive: only a rect with
 	width = 0 and height = 0 is now empty

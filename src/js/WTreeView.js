@@ -91,7 +91,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.resizeHandleMDown = function(obj, event) {
-     var parent = obj.parentNode.parentNode,
+     var parent = obj.parentNode,
          c = parent.className.split(' ')[0];
 
      if (c) {
@@ -149,7 +149,7 @@ WT_DECLARE_WT_MEMBER
      if (rowHeaderCount)
        hc = hc.firstChild; // Wt-tv-rowc
 
-     if (WT.isHidden(el) || (headers.offsetWidth - hc.offsetWidth < 8))
+     if (WT.isHidden(el))
        return;
 
      for (var i=0, length=hc.childNodes.length; i < length; ++i) {
@@ -165,12 +165,26 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     if (!rowHeaderCount)
-       if (!c0r.style.width)  // first resize and c0 width not set
-	 c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
-       else
-	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
+     if (!rowHeaderCount) {
+       /*
+	* A floating container does not relate to size of contained
+	* children. It needs an explicit width (as to the letter of the
+	* @!@#$%! CSS spec, btw.). Only IE in RTL mode (when float: left)
+	* seems to implement this correctly and thus needs the following:
+	*/
+       if (WT.isIE && $(document.body).hasClass('Wt-rtl')) {
+	 var rrow = WT.getCssRule('#' + el.id + ' .Wt-tv-row');
+	 if (rrow)
+	   rrow.style.width = allw_1 + 'px';
+       }
 
+       if (!c0r.style.width) {  // first resize and c0 width not set
+	 var c0rw = headers.offsetWidth - hc.offsetWidth - 8;
+	 if (c0rw > 0)
+	   c0r.style.width = c0rw + 'px';
+       } else
+	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
+     }
      /*
       * IE6 is still not entirely right. It seems to be caused by a padding
       * of 7 pixels in the first column which gets added to the width.

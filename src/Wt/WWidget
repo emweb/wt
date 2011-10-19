@@ -1080,9 +1080,9 @@ private:
   static const int BIT_WAS_DISABLED = 1;
   static const int BIT_NEED_RERENDER = 2;
   static const int BIT_HAS_PARENT = 3;
-  std::bitset<4> flags_;
+  static const int BIT_RESIZE_AWARE = 4;
+  std::bitset<5> flags_;
 
-  JSignal<int, int> *resized_;
   EventSignalList eventSignals_;
 
   void setHasParent(bool hasParent);

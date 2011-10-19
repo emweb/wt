@@ -810,7 +810,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 
     double days = daysRange / numLabels;
 
-    enum { Days, Months, Years, Hours, Minutes } unit;
+    enum { Minutes, Hours, Days, Months, Years } unit;
     int interval;
 
     if (days > 200) {

@@ -123,13 +123,13 @@ this.isIE = ie !== undefined;
 this.isIE6 = ie === 6;
 this.isIElt9 = ie < 9;
 this.isIEMobile = agent.indexOf("msie 4")!=-1 || agent.indexOf("msie 5")!=-1;
-this.isGecko = agent.indexOf("gecko") != -1;
 this.isOpera = typeof window.opera !== 'undefined';
 this.isAndroid = (agent.indexOf("safari") != -1)
 		  && (agent.indexOf("android") != -1);
 this.isMobileWebKit = (agent.indexOf("applewebkit") != -1)
 		       && (agent.indexOf("mobile") != -1);
 this.isWebKit = (agent.indexOf("applewebkit") != -1);
+this.isGecko = agent.indexOf("gecko") != -1 && !this.isWebKit;
 
 this.updateDelay = this.isIE ? 10 : 51;
 
@@ -651,7 +651,17 @@ this.widgetPageCoordinates = function(obj) {
       do {
 	obj = obj.parentNode;
 	if (WT.hasTag(obj, "DIV")) {
-	  if (!rtl) /* Somebody explain me why, but that seems to work +/- */
+	  if (rtl && !WT.isGecko) {
+	    if (obj.scrollWidth > obj.parentNode.scrollWidth) {
+	      /*
+	       * This seems to be a bug in every browser out there,
+	       * except for Gecko ?
+	       */
+	      var sl = obj.scrollLeft
+		+ obj.parentNode.scrollWidth - obj.scrollWidth;
+	      objX -= sl;
+	    }
+	  } else
 	    objX -= obj.scrollLeft;
 	  objY -= obj.scrollTop;
 	}
