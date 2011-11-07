@@ -139,6 +139,8 @@ public:
    */
   void use(const std::string& path, bool loadInMemory = true);
 
+  void useBuiltin(const char *xmlbundle);
+
   /*! \brief Returns a set of all keys in this bundle.
    *
    * Returns a set of all keys connected with this WMessageResources,
@@ -161,10 +163,7 @@ public:
 #endif // WT_TARGET_JAVA
 
 private:
-  void useBuiltin(const char *xmlbundle);
   std::vector<WMessageResources *> messageResources_;
-  
-  friend class WApplication;
 };
 
 }

@@ -19,7 +19,6 @@ namespace Wt {
   class WAbstractMedia;
   class WAbstractListModel;
   class WAbstractProxyModel;
-  class WAbstractServer;
   class WAbstractTableModel;
   class WAbstractToggleButton;
   class WAggregateProxyModel;
@@ -41,6 +40,7 @@ namespace Wt {
   class WCombinedLocalizedStrings;
   class WComboBox;
   class WCompositeWidget;
+  class WCoreServer;
   class WContainerWidget;
   class WCssDecorationStyle;
   class WCssStyleSheet;
@@ -274,9 +274,7 @@ static const WFlags<Side> All = Top | Bottom | Left | Right;
  * The vertical alignment flags are AlignBaseline, AlignSub, AlignSuper,
  * AlignTop, AlignTextTop, AlignMiddle, AlignBottom and AlignTextBottom.
  * The horizontal alignment flags are AlignLeft, AlignRight, AlignCenter
- * and AlignJustify. Functions expecting either horizontal or vertical
- * alignment flags throw an exception when they are called with the wrong
- * alignment flag.
+ * and AlignJustify.
  *
  * When used with setVerticalAlignment(), this applies only
  * to inline widgets and determines how to position itself on the

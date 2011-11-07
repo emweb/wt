@@ -6,6 +6,7 @@
 
 #include "Tag.h"
 #include "Post.h"
+#include "Token.h"
 #include "User.h"
 #include "Comment.h"
 

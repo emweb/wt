@@ -164,7 +164,11 @@ public:
   int findText(const WString& text,
 	       WFlags<MatchFlag> flags = MatchExactly | MatchCaseSensitive);
 
-  WValidator::State validate();
+  /*! \brief Returns the current value.
+   *
+   * Returns currentText().
+   */
+  virtual WT_USTRING valueText() const;
 
   virtual void refresh();
 

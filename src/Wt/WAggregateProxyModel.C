@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "Wt/WAggregateProxyModel"
-#include "WtException.h"
+#include "Wt/WException"
 
 namespace {
   bool contains2(int a1, int a2, int b1, int b2) {
@@ -50,8 +50,8 @@ WAggregateProxyModel::Aggregate::Aggregate(int parentColumn,
     collapsed_(false)
 {
   if (parentSrc_ != firstChildSrc_ - 1 && parentSrc_ != lastChildSrc_ + 1)
-    throw WtException("WAggregateProxyModel::addAggregate: parent column "
-		      "must border children range");
+    throw WException("WAggregateProxyModel::addAggregate: parent column "
+		     "must border children range");
 }
 
 bool WAggregateProxyModel::Aggregate::contains(const Aggregate& other) const
@@ -61,12 +61,12 @@ bool WAggregateProxyModel::Aggregate::contains(const Aggregate& other) const
 
   if (pb >= a1 && pb <= a2) {
     if (!::contains2(a1, a2, b1, b2))
-      throw WtException(nestingError(pa, a1, a2, pb, b1, b2));
+      throw WException(nestingError(pa, a1, a2, pb, b1, b2));
 
     return true;
   } else {
     if (::overlaps(a1, a2, b1, b2))
-      throw WtException(nestingError(pa, a1, a2, pb, b1, b2));
+      throw WException(nestingError(pa, a1, a2, pb, b1, b2));
 
     return false;
   }
@@ -530,29 +530,29 @@ WFlags<HeaderFlag> WAggregateProxyModel::headerFlags(int section,
 void WAggregateProxyModel::sourceColumnsAboutToBeInserted
   (const WModelIndex& parent, int start, int end)
 {
-  throw WtException("WAggregateProxyModel does not support "
-		    "source model column insertion");
+  throw WException("WAggregateProxyModel does not support "
+		   "source model column insertion");
 }
 
 void WAggregateProxyModel::sourceColumnsInserted(const WModelIndex& parent,
 						 int start, int end)
 {
-  throw WtException("WAggregateProxyModel does not support "
-		    "source model column insertion");
+  throw WException("WAggregateProxyModel does not support "
+		   "source model column insertion");
 }
 
 void WAggregateProxyModel::sourceColumnsAboutToBeRemoved
   (const WModelIndex& parent, int start, int end)
 {
-  throw WtException("WAggregateProxyModel does not support "
-		    "source model column removal");
+  throw WException("WAggregateProxyModel does not support "
+		   "source model column removal");
 }
 
 void WAggregateProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
 						int start, int end)
 {
-  throw WtException("WAggregateProxyModel does not support "
-		    "source model column removal");
+  throw WException("WAggregateProxyModel does not support "
+		   "source model column removal");
 }
 
 void WAggregateProxyModel::sourceRowsAboutToBeInserted

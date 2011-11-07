@@ -27,20 +27,21 @@ FILE_TO_STRING(web/skeleton/Hybrid.html   Hybrid_html.C     Hybrid_html)
 FILE_TO_STRING(web/skeleton/Boot.html     Boot_html.C       Boot_html)
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  FILE_TO_STRING(web/skeleton/Wt.js     Wt_js.C         Wt_js)
+  FILE_TO_STRING(web/skeleton/Wt.js     Wt_js.C Wt_js)
 ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  FILE_TO_STRING(web/skeleton/Wt.min.js     Wt_js.C         Wt_js)
+  FILE_TO_STRING(web/skeleton/Wt.min.js Wt_js.C Wt_js)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  FILE_TO_STRING(web/skeleton/Boot.js     Boot_js.C         Boot_js)
+  FILE_TO_STRING(web/skeleton/Boot.js     Boot_js.C Boot_js)
 ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  FILE_TO_STRING(web/skeleton/Boot.min.js     Boot_js.C         Boot_js)
+  FILE_TO_STRING(web/skeleton/Boot.min.js Boot_js.C Boot_js)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C     JQuery_js)
+FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C JQuery_js)
 
-FILE_TO_STRING(xml/wt.xml                 WtMessages_xml.C  WtMessages_xml)
+FILE_TO_STRING(xml/wt.xml Wt_xml.C Wt_xml)
+FILE_TO_STRING(xml/auth.xml Auth_xml.C Auth_xml)
 
 SET(libsources
 Wt/Resizable.C
@@ -56,7 +57,6 @@ Wt/WAbstractItemView.C
 Wt/WAbstractListModel.C
 Wt/WAbstractMedia.C
 Wt/WAbstractProxyModel.C
-Wt/WAbstractServer.C
 Wt/WAbstractSpinBox.C
 Wt/WAbstractTableModel.C
 Wt/WAbstractToggleButton.C
@@ -96,6 +96,7 @@ Wt/WDoubleSpinBox.C
 Wt/WDoubleValidator.C
 Wt/WEnvironment.C
 Wt/WEvent.C
+Wt/WException.C
 Wt/WFileResource.C
 Wt/WFileUpload.C
 Wt/WFitLayout.C
@@ -113,6 +114,7 @@ Wt/WImage.C
 Wt/WInPlaceEdit.C
 Wt/WIntValidator.C
 Wt/WInteractWidget.C
+Wt/WIOService.C
 Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C
@@ -164,6 +166,7 @@ Wt/WResource.C
 Wt/WScrollArea.C
 Wt/WScrollBar.C
 Wt/WSelectionBox.C
+Wt/WServer.C
 Wt/WShadow.C
 Wt/WSignal.C
 Wt/WSlider.C
@@ -178,6 +181,7 @@ Wt/WStatelessSlot.C
 Wt/WString.C
 Wt/WStreamResource.C
 Wt/WStringListModel.C
+Wt/WStringStream.C
 Wt/WStringUtil.C
 Wt/WSubMenuItem.C
 Wt/WSuggestionPopup.C
@@ -212,15 +216,55 @@ Wt/WVirtualImage.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
+Wt/Auth/md5.c
+Wt/Auth/AbstractPasswordAuth.C
+Wt/Auth/AbstractUserDatabase.C
+Wt/Auth/AuthWidget.C
+Wt/Auth/BaseAuth.C
+Wt/Auth/ChoosePasswordFields.C
+Wt/Auth/EnterPasswordFields.C
+Wt/Auth/FacebookAuth.C
+Wt/Auth/GoogleAuth.C
+Wt/Auth/HashFunction.C
+Wt/Auth/Identity.C
+Wt/Auth/Login.C
+Wt/Auth/LostPasswordWidget.C
+Wt/Auth/OAuth.C
+Wt/Auth/PasswordStrengthChecker.C
+Wt/Auth/passwdqc_check.c
+Wt/Auth/PasswordAuth.C
+Wt/Auth/PasswordHash.C
+Wt/Auth/PasswordVerifier.C
+Wt/Auth/PasswordPromptDialog.C
+Wt/Auth/RegistrationWidget.C
+Wt/Auth/Token.C
+Wt/Auth/UpdatePasswordWidget.C
+Wt/Auth/User.C
+Wt/Auth/Utils.C
+Wt/Chart/WAbstractChart.C
+Wt/Chart/WAxis.C
+Wt/Chart/WDataSeries.C
+Wt/Chart/WPieChart.C
+Wt/Chart/WCartesianChart.C
+Wt/Chart/WChart2DRenderer.C
+Wt/Chart/WChartPalette.C
+Wt/Chart/WStandardPalette.C
+Wt/Json/Object.C
+Wt/Json/Parser.C
+Wt/Json/Value.C
 Wt/Http/Client.C
+Wt/Http/Message.C
 Wt/Http/Request.C
 Wt/Http/Response.C
 Wt/Http/ResponseContinuation.C
+Wt/Http/WtClient.C
+Wt/Mail/Client.C
+Wt/Mail/Mailbox.C
+Wt/Mail/Message.C
 Wt/Render/Block.C
 Wt/Render/Line.C
 Wt/Render/LayoutBox.C
 Wt/Render/WTextRenderer.C
-Wt/Test/WTestEnvironment.C
 web/CgiParser.C
 web/Configuration.C
 web/DomElement.C
@@ -236,7 +280,6 @@ web/WebStream.C
 web/WebSession.C
 web/WebSocketMessage.C
 web/WebRenderer.C
-web/WtException.C
 web/TimeUtil.C
 web/XSSFilter.C
 web/XSSUtils.C
@@ -247,17 +290,12 @@ Boot_html.C
 Hybrid_html.C
 Boot_js.C
 Wt_js.C
-WtMessages_xml.C
+Wt_xml.C
+Auth_xml.C
 JQuery_js.C
-Wt/Chart/WAbstractChart.C
-Wt/Chart/WAxis.C
-Wt/Chart/WDataSeries.C
-Wt/Chart/WPieChart.C
-Wt/Chart/WCartesianChart.C
-Wt/Chart/WChart2DRenderer.C
-Wt/Chart/WChartPalette.C
-Wt/Chart/WStandardPalette.C
 )
+
+ADD_DEFINITIONS(-DWT_BUILDING)
 
 IF (MULTI_THREADED_BUILD)
   SET(libsources ${libsources} web/SocketNotifier.C)
@@ -288,6 +326,16 @@ TARGET_LINK_LIBRARIES(wt
     ${WT_SOCKET_LIBRARY}
     ${WT_MATH_LIBRARY}
     )
+
+IF(HAVE_SSL)
+  TARGET_LINK_LIBRARIES(wt ${SSL_LIBRARIES})
+  INCLUDE_DIRECTORIES(${SSL_INCLUDE_DIRS})
+ELSE(HAVE_SSL)
+  MESSAGE("** Disabling crypto support (Auth::SHA1HashFunction): requires OpenSSL.")
+  IF(ENABLE_SSL)
+    MESSAGE("   Indicate the location of your OpenSSL library using -DSSL_PREFIX=...")
+  ENDIF(ENABLE_SSL)
+ENDIF(HAVE_SSL)
 
 IF(HAVE_HARU)
   TARGET_LINK_LIBRARIES(wt ${HARU_LIBRARIES})

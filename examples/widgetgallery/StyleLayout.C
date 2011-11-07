@@ -25,6 +25,10 @@
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 #include <boost/thread.hpp>
+#else
+#if defined(WIN32)
+#include <windows.h>
+#endif
 #endif
 
 using namespace Wt;

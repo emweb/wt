@@ -10,16 +10,19 @@ SET(SRC
 	FileItem.C
 	SourceView.C
 	ExampleSourceViewer.C
-	../blog/BlogSession.C
 	../blog/BlogRSSFeed.C
+	../blog/view/BlogLoginWidget.C
         ../blog/view/BlogView.C
 	../blog/view/CommentView.C
 	../blog/view/PostView.C
   	../blog/view/EditUsers.C
+	../blog/model/BlogSession.C
+	../blog/model/BlogUserDatabase.C
 	../blog/model/Comment.C
 	../blog/model/Post.C
-	../blog/model/Tag.C
 	../blog/model/User.C
+	../blog/model/Tag.C
+	../blog/model/Token.C
 	../blog/asciidoc/asciidoc.C
 )
 

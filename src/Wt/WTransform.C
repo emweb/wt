@@ -10,7 +10,6 @@
 
 #include <cmath>
 
-#include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WPointF"
 #include "Wt/WTransform"
@@ -167,7 +166,7 @@ WTransform WTransform::inverted() const
 		      adj.m21() / det, adj.m22() / det,
 		      adj.m31() / det, adj.m32() / det);
   } else {
-    wApp->log("error") << "WTransform::inverted(): determinant == 0";
+    Wt::log("error") << "WTransform::inverted(): determinant == 0";
 
     return *this;
   }

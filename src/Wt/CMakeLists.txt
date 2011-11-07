@@ -1,6 +1,4 @@
-SUBDIRS(Chart Http Render Test)
-
-SUBDIRS(Dbo)
+SUBDIRS(Chart Dbo Http Render Test)
 
 IF(ENABLE_EXT)
   SUBDIRS(Ext)

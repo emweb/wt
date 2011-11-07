@@ -224,7 +224,8 @@ void Line::finish(AlignmentFlag textAlign,
     }
     break;
   default:
-    throw std::runtime_error("Unsupported text-align attribute");
+    Wt::log("error") << "Wt::Render: Unsupported text-align attribute: "
+		     << (int)textAlign;
   }
 
   double x = startX;

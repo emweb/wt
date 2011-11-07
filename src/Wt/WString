@@ -148,6 +148,8 @@ public:
    */
   ~WString();
 
+  WString trim() const;
+
   /*! \brief Assignment operator
    *
    * Copy another string into this string.

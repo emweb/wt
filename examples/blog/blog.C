@@ -7,10 +7,16 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WServer>
 
+#include "model/BlogSession.h"
+#include "model/Token.h"
+#include "model/User.h"
 #include "view/BlogView.h"
 #include "BlogRSSFeed.h"
 
 using namespace Wt;
+
+//static const char *FeedUrl = "/Test/blog/feed/";
+//static const char *BlogUrl = "/Test/blog";
 
 static const char *FeedUrl = "/blog/feed/";
 static const char *BlogUrl = "/blog";
@@ -43,7 +49,9 @@ int main(int argc, char **argv)
       "", "It's just an example.");
 
     server.addResource(&rssFeed, FeedUrl);
-    server.addEntryPoint(Application, createApplication, BlogUrl);
+    server.addEntryPoint(Application, createApplication, BlogUrl);    
+
+    BlogSession::initAuth();
 
     std::cerr << "\n\n -- Warning: Example is deployed at '"
       << BlogUrl << "'\n\n";

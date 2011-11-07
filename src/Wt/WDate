@@ -8,6 +8,7 @@
 #define WDATE_H_
 
 #include <Wt/WDateTime>
+#include <Wt/WException>
 #include <Wt/WString>
 #include <exception>
 
@@ -24,15 +25,10 @@ namespace Wt {
  *
  * \sa WDate
  */
-class WT_API InvalidDateException : public std::exception
+class WT_API InvalidDateException : public WException
 {
 public:
   InvalidDateException();
-  ~InvalidDateException() throw();
-
-  /*! \brief Returns a message describing the error.
-   */
-  const char *what() const throw();
 };
 
 /*! \class WDate Wt/WDate Wt/WDate

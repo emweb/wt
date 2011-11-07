@@ -1,7 +1,17 @@
 /*
+ * Validators
+ */
+.Wt-invalid {
+    background-color: #f79a9a;
+}
+
+.Wt-valid {
+    background-color: #9af79a
+}
+
+/*
  * Effects
  */
-
 .Wt-animated {
     -webkit-backface-visibility: hidden; /* avoids flicker on Chrome */
 }

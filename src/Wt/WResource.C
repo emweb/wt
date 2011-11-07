@@ -15,7 +15,6 @@
 #include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
-#include "WtException.h"
 #include "Utils.h"
 
 #ifdef WT_THREADED

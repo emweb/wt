@@ -26,11 +26,15 @@ class WebSession;
   namespace Http {
 
 /*! \class UploadedFile Wt/Http/Request Wt/Http/Request
- *  \brief Details about a file uploaded with a (POST) request.
+ *  \brief Details about a file uploaded with a request to a resource.
  * 
  * \if cpp
  * \sa Request::uploadedFiles()
  * \endif
+ *
+ * \sa WResource::handleRequest()
+ *
+ * \ingroup http
  */
 class WT_API UploadedFile {
 public:
@@ -96,6 +100,9 @@ typedef std::string ParameterValues[];
  */
 typedef std::map<std::string, ParameterValues> ParameterMap;
 
+extern const std::string *get(const ParameterMap& map,
+			      const std::string& name);
+
 /*! \brief A file parameter map.
  *
  * This is the type used aggregate file parameter values in a request.
@@ -105,12 +112,14 @@ typedef std::multimap<std::string, UploadedFile> UploadedFileMap;
 class ResponseContinuation;
 
 /*! \class Request Wt/Http/Request Wt/Http/Request
- *  \brief An HTTP request.
+ *  \brief A resource request.
  *
  * The request provides information of parameters, including uploaded
- * files, that were present in a GET or POST request.
+ * files, that were present in a request to a WResource.
  *
  * \sa WResource::handleRequest()
+ *
+ * \ingroup http
  */
 class WT_API Request
 {
@@ -170,6 +179,14 @@ public:
   private:
     bool satisfiable_;
   };
+
+  /*! \brief Cookie map type.
+   *
+   * A map which associates a cookie name with a cookie value.
+   *
+   * \sa cookies()
+   */
+  typedef std::map<std::string, std::string> CookieMap;
 
   /*! \brief Returns the query parameters.
    *
@@ -279,7 +296,7 @@ public:
    * input stream will already have been consumed by Wt's CGI parser,
    * and made available as parameters in the request.
    */
-  std::istream &in() const;
+  std::istream& in() const;
 
   /*! \brief Returns the "Content Type" of the request body.
    *
@@ -311,6 +328,24 @@ public:
    */
   std::string clientAddress() const;
 
+  /*! \brief Returns the cookies.
+   *
+   * This returns all cookies set for this request.
+   *
+   * Not all clients may support cookies or have cookies enabled.
+   *
+   * \sa getCookieValue()
+   */
+  const CookieMap& cookies() const { return cookies_; }
+
+  /*! \brief Returns a cookie value.
+   *
+   * Returns 0 if no value was set for the given cookie.
+   *
+   * \sa getCookie()
+   */
+  const std::string *getCookieValue(const std::string& cookieName) const;
+
   /*! \brief Returns a header value.
    *
    * Returns a header value, or an empty string if the header was 
@@ -340,11 +375,18 @@ public:
    static ByteRangeSpecifier getRanges(const std::string &header,
     ::int64_t filesize);
 
+   static void parseFormUrlEncoded(const std::string& s,
+				   ParameterMap& parameters);
+
+   static void parseCookies(const std::string& cookie,
+			    std::map<std::string, std::string>& result);
+
 private:
-  const WebRequest       *request_;
-  const ParameterMap&     parameters_;
-  const UploadedFileMap&  files_;
-  ResponseContinuation   *continuation_;
+  const WebRequest *request_;
+  const ParameterMap& parameters_;
+  const UploadedFileMap& files_;
+  ResponseContinuation *continuation_;
+  std::map<std::string, std::string> cookies_;
 
   Request(const WebRequest& request, ResponseContinuation *continuation);
   Request(const ParameterMap& parameters, const UploadedFileMap& files);

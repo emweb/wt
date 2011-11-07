@@ -11,10 +11,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "WtException.h"
-
 #include "Wt/WAbstractItemModel"
 #include "Wt/WDate"
+#include "Wt/WException"
 
 #include "Wt/Chart/WAxis"
 #include "Wt/Chart/WCartesianChart"
@@ -794,7 +793,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
       if (!dt.isValid()) {
 	std::string exception = "Invalid julian day: ";
 	exception += boost::lexical_cast<std::string>(s.renderMinimum);
-	throw WtException(exception);
+	throw WException(exception);
       }
       break;
     case DateTimeScale:

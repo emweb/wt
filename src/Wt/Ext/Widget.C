@@ -380,7 +380,7 @@ void Widget::bindEventHandler(const std::string& eventName,
      << elVar() << "." << handler << ");";
 }
 
-/*! \defgroup ext Ext widgets
+/*! \defgroup ext Ext widgets (Wt::Ext)
  *  \brief %Wt %Ext library with JavaScript-only widgets.
  *
  * \section bla 1. Introduction

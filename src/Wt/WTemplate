@@ -7,6 +7,8 @@
 #ifndef WTEMPLATE_H_
 #define WTEMPLATE_H_
 
+#include <boost/function.hpp>
+
 #include <Wt/WInteractWidget>
 #include <Wt/WString>
 
@@ -22,28 +24,66 @@ namespace Wt {
  * conveniently store the string in a message resource bundle, and
  * make it localized by using WString::tr().
  *
- * Variable references use a <tt>${<i>varName</i>}</tt> syntax to
- * reference the variable <tt>"varName"</tt>. To use a literal
- * <tt>"${"</tt>, use <tt>"$${"</tt>.
+ * Placeholders (for variables and functions) are delimited by:
+ * <tt>${...}</tt>. To use a literal <tt>"${"</tt>, use
+ * <tt>"$${"</tt>.
  *
- * \note The use of XML comments (<tt>&lt;!-- ... --&gt;</tt>)
- *       around variables that are bound to widgets will result in bad
- *       behaviour since the template parser is ignorant about these
- *       comments and the corresponding widgets will believe that they
- *       are rendered but aren't actually.
+ * There are currently two syntactic constructs defined.
+ *
+ * <h3>A. Variable placeholders</h3>
+ *
+ * <tt>${var}</tt> defines a placeholder for the variable "var", and
+ * gets replaced with whatever is bound to that variable:
+ * - a widget, using bindWidget()
+ * - a string value, using bindString() or bindInt()
+ * - or in general, the result of resolveString() and resolveWidget()
+ *   methods.
+ *
+ * Optionally, additional arguments can be specified using the following
+ * syntax:
+ *
+ * <tt>${var arg1=value1 arg2="A second value" arg3='A third value'}</tt>
+ *
+ * The arguments can thus be simple simple strings or quoted strings
+ * (single or double quoted). These arguments are applied to a
+ * resolved widget in applyArguments() and currently supports only
+ * style classes.
  *
  * You can bind widgets and values to variables using bindWidget(),
  * bindString() or bindInt() or by reimplementing the resolveString()
  * and resolveWidget() methods.
  *
- * Usage example:
+ * \note The use of XML comments (<tt>&lt;!-- ... --&gt;</tt>)
+ *       around variables that are bound to widgets will result in bad
+ *       behaviour since the template parser is ignorant about these
+ *       comments and the corresponding widgets will believe that they
+ *       are rendered but aren't actually. We are planning to add a syntax
+ *       for conditional sections
+ *
+ * <h3>B. Functions</h3>
+ *
+ * <tt>${fun:arg}</tt> defines a placeholder for applying a function
+ * "fun" to an argument "arg".
+ *
+ * Optionally, additional arguments can be specified as with a
+ * variable placeholder.
+ *
+ * Functions are resolved by resolveFunction(), and the default implementation
+ * considers functions bound with bindFunction(). There are currently two
+ * functions that are generally useful:
+ * - Functions::tr() resolves a localized strings. This is convenient to
+ *   create a language neutral template, which contains translated strings
+ * - Functions::id() resolves the id of a bound widget. This is convenient
+ *   to bind &lt;label&gt; elements to a form widget using its for attribute.
+ *
+ * <h3>Usage example</h3>
  * \code
  * WString userName = ...;
  *
  * WTemplate *t = new WTemplate();
  * t->setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
  *
- * t->bindString("friend", userName);
+ * t->bindString("friend", userName, PlainText);
  * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
  * \endcode
  *
@@ -60,6 +100,57 @@ namespace Wt {
 class WT_API WTemplate : public WInteractWidget
 {
 public:
+  /*! \brief A collection of predefined functions
+   *
+   * \sa bindFunction()
+   */
+  struct Functions
+  {
+    /*! \brief A function that resolves to a localized string.
+     *
+     * For example, when bound to the function <tt>"tr"</tt>, a
+     * place-holder
+     * <pre>
+     *   ${tr:name}
+     * </pre>
+     * will be resolved to the value of:
+     * \code
+     *   WString::tr("name")
+     * \endcode
+     *
+     * \sa bindFunction()
+     */
+    static bool tr(WTemplate *t, const std::vector<WString>& args,
+		   std::ostream& result);
+
+    /*! \brief A function that resolves the id of a bound widget
+     *
+     * For example, when bound to the function <tt>"id"</tt>, a
+     * place-holder
+     * <pre>
+     *   ${id:name}
+     * </pre>
+     * will be resolved to the value of:
+     * \code
+     *   t->resolveWidget("name")->id()
+     * \endcode
+     *
+     * This is useful for binding labels to input elements.
+     *
+     * \sa bindFunction()
+     */
+    static bool id(WTemplate *t, const std::vector<WString>& args,
+		   std::ostream& result);
+  };
+
+  /*! \brief A function type
+   *
+   * \sa bindFunction()
+   * \sa Functions::tr(), Functions::id()
+   */
+  typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
+			       std::ostream& result)> Function;
+
   /*! \brief Creates a template widget.
    */
   WTemplate(WContainerWidget *parent = 0);
@@ -93,7 +184,27 @@ public:
    */
   void setTemplateText(const WString& text, TextFormat textFormat = XHTMLText);
 
-  /*! \brief Binds a widget to a variable name.
+  /*! \brief Binds a string value to a variable.
+   *
+   * Each occurrence of the variable within the template will be
+   * substituted by its value.
+   *
+   * Depending on the \p textFormat, the \p value is validated according
+   * as for a WText.
+   *
+   * \sa bindWidget(), bindInt()
+   * \sa resolveString()
+   */
+  void bindString(const std::string& varName, const WString& value,
+		  TextFormat textFormat = XHTMLText);
+
+  /*! \brief Binds an integer value to a variable.
+   *
+   * \sa bindString()
+   */
+  void bindInt(const std::string& varName, int value);
+
+  /*! \brief Binds a widget to a variable.
    *
    * The corresponding variable reference within the template will be
    * replaced with the widget (rendered as XHTML). Since a single
@@ -112,25 +223,29 @@ public:
    */
   void bindWidget(const std::string& varName, WWidget *widget);
 
-  /*! \brief Binds a string value to a variable name.
-   *
-   * Each occurrence of the variable within the template will be
-   * substituted by its value.
-   *
-   * Depending on the \p textFormat, the \p value is validated according
-   * as for a WText.
-   *
-   * \sa bindWidget(), bindInt()
-   * \sa resolveString()
-   */
-  void bindString(const std::string& varName, const WString& value,
-		  TextFormat textFormat = XHTMLText);
-
-  /*! \brief Binds an integer value to a variable name.
+  /*! \brief Binds an empty string to a variable.
    *
    * \sa bindString()
    */
-  void bindInt(const std::string& varName, int value);
+  void bindEmpty(const std::string& varName);
+
+  /*! \brief Binds a function.
+   *
+   * Functions are useful to automatically resolve placeholders.
+   *
+   * The syntax for a function 'fun' applied to a single argument
+   * 'bla' is:
+   *
+   * <tt>${fun:bla}</tt>
+   *
+   * There are two predefined functions, which can be bound using:
+   * \code
+   * WTemplate *t = ...;
+   * t->bindFunction("id", &WTemplate::Functions::id);
+   * t->bindFunction("tr", &WTemplate::Functions::tr);
+   * \endcode
+   */
+  void bindFunction(const std::string& name, const Function& function);
 
   /*! \brief Resolves the string value for a variable name.
    *
@@ -207,6 +322,21 @@ public:
    */
   virtual WWidget *resolveWidget(const std::string& varName);
 
+  /*! \brief Resolves a function call.
+   *
+   * This resolves a function with name \p name, and one or more arguments
+   * \p args, and writes the result into the stream \p result. The method
+   * returns whether a function was matched and applied.
+   *
+   * The default implementation considers functions that were bound
+   * using bindFunction().
+   *
+   * \sa bindFunction()
+   */
+  virtual bool resolveFunction(const std::string& name,
+			       const std::vector<WString>& args,
+			       std::ostream& result);
+
   /*! \brief Returns a widget for a variable name.
    *
    * This is a convience method, which calls resolveWidget() and casts
@@ -263,6 +393,14 @@ protected:
    */
   virtual void renderTemplate(std::ostream& result);
 
+  /*! \brief Applies arguments to a resolved widget.
+   *
+   * Currently only a <tt>class</tt> argument is handled, which adds
+   * one or more style classes to the widget \p w, using
+   * WWidget::addStyleClass().
+   */
+  virtual void applyArguments(WWidget *w, const std::vector<WString>& args);
+
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);
@@ -288,17 +426,24 @@ protected:
   virtual void enableAjax();
 
 private:
-  typedef std::map<std::string, WWidget *> WidgetMap;
+  typedef std::map<std::string, Function> FunctionMap;
   typedef std::map<std::string, std::string> StringMap;
+  typedef std::map<std::string, WWidget *> WidgetMap;
 
   std::set<WWidget *> *previouslyRendered_;
   std::vector<WWidget *> *newlyRendered_;
 
-  WidgetMap widgets_;
+  FunctionMap functions_;
   StringMap strings_;
-  WString   text_;
+  WidgetMap widgets_;
 
-  bool      encodeInternalPaths_, changed_;
+  WString text_;
+
+  bool encodeInternalPaths_, changed_;
+
+  static std::size_t parseArgs(const std::string& text,
+			       std::size_t pos,
+			       std::vector<WString>& result);
 };
 
 template <typename T> T WTemplate::resolve(const std::string& varName)

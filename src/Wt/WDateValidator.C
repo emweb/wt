@@ -4,14 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <sstream>
-
 #include "Wt/WApplication"
 #include "Wt/WDateValidator"
 #include "Wt/WLogger"
+#include "Wt/WStringStream"
 #include "Wt/WWebWidget"
-
-#include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDateValidator.min.js"
@@ -173,7 +170,7 @@ WValidator::State WDateValidator::validate(WT_USTRING& input) const
 	return Valid;
       }
     } catch (std::exception& e) {
-      wApp->log("warn") << "WDateValidator::validate(): " << e.what();
+      Wt::log("warn") << "WDateValidator::validate(): " << e.what();
     }
   }
 
@@ -190,7 +187,7 @@ std::string WDateValidator::javaScriptValidate() const
 {
   loadJavaScript(WApplication::instance());
 
-  SStream js;
+  WStringStream js;
 
   js << "new " WT_CLASS ".WDateValidator("
      << (isMandatory() ? "true" : "false") << ",[";
@@ -250,7 +247,7 @@ void WDateValidator::createExtConfig(std::ostream& config) const
       config << ",maxValue:"
 	     << WWebWidget::jsStringLiteral(top_.toString(formats_[0]));
   } catch (std::exception& e) {
-    wApp->log("error") << "WDateValidator: " << e.what();
+    Wt::log("error") << "WDateValidator: " << e.what();
   }
 
   if (!tooEarlyText_.empty())

@@ -9,7 +9,6 @@
 #include "Wt/Ext/DataStore"
 
 #include "Wt/WAbstractItemModel"
-#include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WWebWidget"
 #include "Wt/Http/Request"
@@ -312,7 +311,7 @@ void DataStore::handleRequest(const Http::Request& request,
     try {
       start = std::max(0, std::min(limit, boost::lexical_cast<int>(*s)));
     } catch (boost::bad_lexical_cast& e) {
-      wApp->log("error") << "DataStore: start '" << s << "' is not-a-number.";
+      Wt::log("error") << "DataStore: start '" << s << "' is not-a-number.";
     }
 
   s = request.getParameter("limit");
@@ -321,7 +320,7 @@ void DataStore::handleRequest(const Http::Request& request,
       limit = std::max(0, std::min(limit - start,
 				   boost::lexical_cast<int>(*s)));
     } catch (boost::bad_lexical_cast& e) {
-      wApp->log("error") << "DataStore: limit '" << s << "' is not-a-number.";
+      Wt::log("error") << "DataStore: limit '" << s << "' is not-a-number.";
     }
 
   std::ostream& o = response.out();

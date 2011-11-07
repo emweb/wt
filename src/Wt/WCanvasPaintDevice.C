@@ -371,8 +371,8 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 				  const WString& text)
 {
   if (textFlag == TextWordWrap)
-    throw std::logic_error("WCanvasPaintDevice::drawText() " 
-			   "TextWordWrap is not supported");
+    throw WException("WCanvasPaintDevice::drawText() "
+		     "TextWordWrap is not supported");
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
@@ -548,12 +548,12 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 WTextItem WCanvasPaintDevice::measureText(const WString& text, double maxWidth,
 					  bool wordWrap)
 {
-  throw std::logic_error("WCanvasPaintDevice::measureText() not supported");
+  throw WException("WCanvasPaintDevice::measureText() not supported");
 }
 
 WFontMetrics WCanvasPaintDevice::fontMetrics()
 {
-  throw std::logic_error("WCanvasPaintDevice::fontMetrics() not (yet?) supported");
+  throw WException("WCanvasPaintDevice::fontMetrics() not (yet?) supported");
 }
 
 void WCanvasPaintDevice::setChanged(WFlags<ChangeFlag> flags)

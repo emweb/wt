@@ -5,9 +5,8 @@
  */
 
 #include "Wt/WFitLayout"
+#include "Wt/WLogger"
 #include "Wt/WWidgetItem"
-
-#include "WtException.h"
 
 namespace Wt {
 
@@ -26,8 +25,10 @@ WFitLayout::~WFitLayout()
 
 void WFitLayout::addItem(WLayoutItem *item)
 {
-  if (item_)
-    throw WtException("WFitLayout supports only one widget");
+  if (item_) {
+    Wt::log("error") << "WFitLayout::addItem(): already have a widget";
+    return;
+  }
 
   item_ = item;
   updateAddItem(item);

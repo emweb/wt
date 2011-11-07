@@ -3,31 +3,32 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <csignal>
 #include <errno.h>
+#include <signal.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <sys/wait.h>
+
+#include <csignal>
 #include <fstream>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <sys/wait.h>
-#include <signal.h>
 #include <exception>
 #include <vector>
-#include <stdlib.h>
 
 #include "fcgiapp.h"
+#include "Configuration.h"
 #include "FCGIRecord.h"
-#include "FCGIStream.h"
 #include "Server.h"
 #include "SessionInfo.h"
-#include "WebMain.h"
+#include "WebController.h"
 
-#include "Wt/WResource"
+#include "Wt/WIOService"
 #include "Wt/WServer"
 #include "Wt/WLogger"
 
@@ -36,13 +37,23 @@ using std::strcpy;
 using std::strlen;
 using std::memset;
 
-namespace {
+namespace Wt {
+ 
+/*
+ * From the FCGI Specifaction
+ */
+const int FCGI_BEGIN_REQUEST = 1;
+const int FCGI_ABORT_REQUEST = 2;
+const int FCGI_END_REQUEST   = 3;
+const int FCGI_PARAMS        = 4;
 
-bool bindUDStoStdin(const std::string& socketPath, Wt::Configuration& conf)
+Server *Server::instance = 0;
+
+bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
 {
   int s = socket(AF_UNIX, SOCK_STREAM, 0);
   if (s == -1) {
-    conf.log("fatal") << "socket(): " << strerror(errno);
+    server.log("fatal") << "socket(): " << strerror(errno);
     return false;
   }
 
@@ -56,56 +67,27 @@ bool bindUDStoStdin(const std::string& socketPath, Wt::Configuration& conf)
     + strlen(local.sun_path) + 1;
 
   if (bind(s, (struct sockaddr *)& local, len) == -1) {
-    conf.log("fatal") << "bind(): " << strerror(errno);
+    server.log("fatal") << "bind(): " << strerror(errno);
     return false;
   }
 
   if (listen(s, 5) == -1) {
-    conf.log("fatal") << "listen(): " << strerror(errno);
+    server.log("fatal") << "listen(): " << strerror(errno);
     return false;
   }
 
   if (dup2(s, STDIN_FILENO) == -1) {
-    conf.log("fatal") << "dup2(): " << strerror(errno);
+    server.log("fatal") << "dup2(): " << strerror(errno);
     return false;
   }
 
   return true;
 }
 
-}
-
-namespace Wt {
- 
-/*
- * From the FCGI Specifaction
- */
-const int FCGI_BEGIN_REQUEST = 1;
-const int FCGI_ABORT_REQUEST = 2;
-const int FCGI_END_REQUEST   = 3;
-const int FCGI_PARAMS        = 4;
-
-/*
- * New server implementation: 2 modes.
- *
- * 1) one-session-per-process (current implementation)
- *     session file = socket
- *
- * 2) spread sessions over X processes
- *     session file points to socket file
- *     session is allocated and session file is created within the session
- */
-
-Server *Server::instance = 0;
-
-Server::Server(int argc, char *argv[])
-  : argc_(argc),
-    argv_(argv),
-    conf_(argv[0], "", "", Configuration::FcgiServer,
-	  "Wt: initializing FastCGI session process manager")
-#ifdef WT_THREADED
-  , threadPool_(conf_.numThreads())
-#endif // WT_THREADED
+Server::Server(WServer& wt, int argc, char *argv[])
+  : wt_(wt),
+    argc_(argc),
+    argv_(argv)
 {
   instance = this;
 
@@ -114,11 +96,11 @@ Server::Server(int argc, char *argv[])
   /*
    * Spawn the session processes for shared process policy
    */
-  if (conf_.sessionPolicy() == Configuration::SharedProcess) {
-    for (int i = 0; i < conf_.numProcesses(); ++i) {
+  Configuration& conf = wt_.configuration();
+
+  if (conf.sessionPolicy() == Configuration::SharedProcess)
+    for (int i = 0; i < conf.numProcesses(); ++i)
       spawnSharedProcess();
-    }
-  }
 }
 
 void Server::execChild(bool debug, const std::string& extraArg)
@@ -141,9 +123,11 @@ void Server::execChild(bool debug, const std::string& extraArg)
   const char *const envp[] = { NULL };
 #endif // _GNU_SOURCE
 
+  Configuration& conf = wt_.configuration();
+
   std::string prepend;
-  if (debug && conf_.debug())
-    prepend = conf_.valgrindPath();
+  if (debug && conf.debug())
+    prepend = conf.valgrindPath();
 
   std::vector<std::string > prependArgv;
   if (!prepend.empty())
@@ -172,23 +156,25 @@ void Server::spawnSharedProcess()
 {
   pid_t pid = fork();
   if (pid == -1) {
-    conf_.log("fatal") << "fork(): " << strerror(errno);
+    wt_.log("fatal") << "fork(): " << strerror(errno);
     exit(1);
   } else if (pid == 0) {
     /* the child process */
     execChild(true, std::string());
     exit(1);
   } else {
-    conf_.log("notice") << "Spawned session process: pid = " << pid;
+    wt_.log("notice") << "Spawned session process: pid = " << pid;
     sessionProcessPids_.push_back(pid);
   }
 }
 
 const std::string Server::socketPath(const std::string& sessionId)
 {
-  std::string sessionPath = conf_.runDirectory() + "/" + sessionId;
+  Configuration& conf = wt_.configuration();
 
-  if (conf_.sessionPolicy() == Configuration::SharedProcess) {
+  std::string sessionPath = conf.runDirectory() + "/" + sessionId;
+
+  if (conf.sessionPolicy() == Configuration::SharedProcess) {
     std::ifstream f(sessionPath.c_str());
 
     if (f) {
@@ -196,7 +182,7 @@ const std::string Server::socketPath(const std::string& sessionId)
       f >> pid;
 
       if (!pid.empty())
-	return conf_.runDirectory() + "/server-" + pid;
+	return conf.runDirectory() + "/server-" + pid;
       else
 	return std::string();
     } else
@@ -228,7 +214,7 @@ void handleServerSigHup(int)
 
 void Server::handleSignal(const char *signal)
 {
-  conf_.log("notice") << "Shutdown (caught " << signal << ")";
+  wt_.log("notice") << "Shutdown (caught " << signal << ")";
 
   /* We need to kill all children */
   for (unsigned i = 0; i < sessionProcessPids_.size(); ++i)
@@ -243,14 +229,15 @@ void Server::handleSigChld()
   int stat;
 
   while ((cpid = waitpid(0, &stat, WNOHANG)) > 0) {
-    conf_.log("notice") << "Caught SIGCHLD: pid=" << cpid
-			<< ", stat=" << stat;
+    wt_.log("notice") << "Caught SIGCHLD: pid=" << cpid << ", stat=" << stat;
 
-    if (conf_.sessionPolicy() == Configuration::DedicatedProcess) {
-      for (Server::SessionMap::iterator i = sessions_.begin();
-	   i != sessions_.end(); ++i)
+    Configuration& conf = wt_.configuration();
+
+    if (conf.sessionPolicy() == Configuration::DedicatedProcess) {
+      for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
+	   ++i)
 	if (i->second->childPId() == cpid) {
-	  conf_.log("notice") << "Deleting session: " << i->second->sessionId();
+	  wt_.log("notice") << "Deleting session: " << i->second->sessionId();
 
 	  unlink(socketPath(i->second->sessionId()).c_str());
 	  delete i->second;
@@ -274,7 +261,7 @@ void Server::handleSigChld()
 	  if (childrenDied < 5)
 	    spawnSharedProcess();
 	  else
-	    conf_.log("error") << "Sessions process restart limit (5) reached";
+	    wt_.log("error") << "Sessions process restart limit (5) reached";
 
 	  break;
 	}
@@ -286,9 +273,11 @@ void Server::handleSigChld()
 bool Server::getSessionFromQueryString(const std::string& queryString,
 				       std::string& sessionId)
 {
+  Configuration& conf = wt_.configuration();
+
   static const boost::regex
     session_e(".*wtd=([a-zA-Z0-9]{"
-	      + boost::lexical_cast<std::string>(conf_.sessionIdLength())
+	      + boost::lexical_cast<std::string>(conf.sessionIdLength())
 	      + "}).*");
 
   boost::smatch what;
@@ -305,7 +294,7 @@ int Server::connectToSession(const std::string& sessionId,
 {
   int s = socket(AF_UNIX, SOCK_STREAM, 0);
   if (s == -1) {
-    conf_.log("fatal") << "socket(): " << strerror(errno);
+    wt_.log("fatal") << "socket(): " << strerror(errno);
     exit(1);
   }
 
@@ -324,9 +313,9 @@ int Server::connectToSession(const std::string& sessionId,
   }
 
   if (tries == maxTries) {
-    conf_.log("error") << "connect(): " << strerror(errno);
-    conf_.log("notice") << "Giving up on session: " << sessionId
-			<< " (" << socketPath << ")";
+    wt_.log("error") << "connect(): " << strerror(errno);
+    wt_.log("notice") << "Giving up on session: " << sessionId
+		      << " (" << socketPath << ")";
     close(s);
     unlink(socketPath.c_str());
 
@@ -341,19 +330,21 @@ void Server::checkConfig()
   /*
    * Create the run directory if it does not yet exist.
    */
-  FILE *test = fopen((conf_.runDirectory() + "/test").c_str(), "w+");
+  Configuration& conf = wt_.configuration();
+
+  FILE *test = fopen((conf.runDirectory() + "/test").c_str(), "w+");
 
   if (test == NULL) {
-    if (mkdir(conf_.runDirectory().c_str(), 777) != 0) {
-      conf_.log("fatal") << "Cannot create run directory '"
-			 << conf_.runDirectory() << "'";
+    if (mkdir(conf.runDirectory().c_str(), 777) != 0) {
+      wt_.log("fatal") << "Cannot create run directory '"
+		       << conf.runDirectory() << "'";
       exit(1);
     }
   } else
-    unlink((conf_.runDirectory() + "/test").c_str());
+    unlink((conf.runDirectory() + "/test").c_str());
 }
 
-int Server::main()
+int Server::run()
 {
   checkConfig();
 
@@ -367,38 +358,32 @@ int Server::main()
   socklen_t socklen = sizeof(clientname);
 
   if (signal(SIGCHLD, Wt::handleSigChld) == SIG_ERR) 
-    conf_.log("error") << "Cannot catch SIGCHLD: signal(): "
-		       << strerror(errno);
+    wt_.log("error") << "Cannot catch SIGCHLD: signal(): " << strerror(errno);
   if (signal(SIGTERM, Wt::handleServerSigTerm) == SIG_ERR)
-    conf_.log("error") << "Cannot catch SIGTERM: signal(): "
-		       << strerror(errno);
+    wt_.log("error") << "Cannot catch SIGTERM: signal(): " << strerror(errno);
   if (signal(SIGUSR1, Wt::handleServerSigUsr1) == SIG_ERR) 
-    conf_.log("error") << "Cannot catch SIGUSR1: signal(): "
-		       << strerror(errno);
+    wt_.log("error") << "Cannot catch SIGUSR1: signal(): " << strerror(errno);
   if (signal(SIGHUP, Wt::handleServerSigHup) == SIG_ERR) 
-    conf_.log("error") << "Cannot catch SIGHUP: signal(): "
-		       << strerror(errno);
+    wt_.log("error") << "Cannot catch SIGHUP: signal(): " << strerror(errno);
 
   if (argc_ == 2 && boost::starts_with(argv_[1], "--socket=")) {
     std::string socketName = std::string(argv_[1]).substr(9);
     boost::trim(socketName);
-    if (!bindUDStoStdin(socketName, conf_))
+    if (!bindUDStoStdin(socketName, wt_))
       return -1;
-    conf_.log("notice") << "Reading FastCGI stream from socket '"
-			<< socketName << '\'';
+    wt_.log("notice") << "Reading FastCGI stream from socket '"
+		      << socketName << '\'';
   } else
-    conf_.log("notice") << "Reading FastCGI stream from stdin";
+    wt_.log("notice") << "Reading FastCGI stream from stdin";
+
+  wt_.ioService().start();
 
   for (;;) {
-    //std::cerr << "accepting()" << std::endl;
-
     int serverSocket = accept(STDIN_FILENO, (sockaddr *) &clientname,
 			      &socklen);
 
-    //std::cerr << "accept()" << std::endl;
-
     if (serverSocket < 0) {
-      conf_.log("fatal") << "accept(): " << strerror(errno);
+      wt_.log("fatal") << "accept(): " << strerror(errno);
       exit (1);
     }
 
@@ -411,7 +396,7 @@ int Server::main()
 void Server::handleRequestThreaded(int serverSocket)
 {
 #ifdef WT_THREADED
-  threadPool_.schedule(boost::bind(&Server::handleRequest, this, serverSocket));
+  wt_.ioService().post(boost::bind(&Server::handleRequest, this, serverSocket));
 #else
   handleRequest(serverSocket);
 #endif // WT_THREADED
@@ -490,12 +475,14 @@ void Server::handleRequest(int serverSocket)
      * But not when we want to get a new session when reloading, in that
      * case we ignore the set cookie.
      */
-    if ((conf_.sessionTracking() == Configuration::CookiesURL)
+    Configuration& conf = wt_.configuration();
+
+    if ((conf.sessionTracking() == Configuration::CookiesURL)
 	&& !cookies.empty() && !scriptName.empty()
-	&& !conf_.reloadIsNewSession()) {
+	&& !conf.reloadIsNewSession()) {
       std::string cookieSessionId
 	= WebController::sessionFromCookie(cookies, scriptName,
-					   conf_.sessionIdLength());
+					   conf.sessionIdLength());
       if (!cookieSessionId.empty()) {
 	sessionId = cookieSessionId;
 	haveSessionId = true;
@@ -523,12 +510,17 @@ void Server::handleRequest(int serverSocket)
       /*
        * New session
        */
-      if (conf_.sessionPolicy() == Configuration::DedicatedProcess) {
+      if (conf.sessionPolicy() == Configuration::DedicatedProcess) {
 	/*
 	 * For dedicated process, create session at server, so that we
 	 * can keep track of process id for the session
 	 */
-	sessionId = conf_.generateSessionId();
+	do {
+	  sessionId = conf.generateSessionId();
+	  if (!conf.registerSessionId(std::string(), sessionId))
+	    sessionId.clear();
+	} while (sessionId.empty());
+
 	std::string path = socketPath(sessionId);
 
 	/*
@@ -536,23 +528,23 @@ void Server::handleRequest(int serverSocket)
 	 *
 	 * But not if we have already too many sessions running...
 	 */
-	if ((int)sessions_.size() > conf_.maxNumSessions()) {
-	  conf_.log("error") << "Session limit reached ("
-			     << conf_.maxNumSessions() << ')';
+	if ((int)sessions_.size() > conf.maxNumSessions()) {
+	  wt_.log("error") << "Session limit reached ("
+			   << conf.maxNumSessions() << ')';
 	  break;
 	}
 
 	pid_t pid = fork();
 	if (pid == -1) {
-	  conf_.log("fatal") << "fork(): " << strerror(errno);
+	  wt_.log("fatal") << "fork(): " << strerror(errno);
 	  exit(1);
 	} else if (pid == 0) {
 	  /* the child process */
 	  execChild(debug, sessionId);
 	  exit(1);
 	} else {
-	  conf_.log("notice") << "Spawned dedicated process for "
-			      << sessionId << ": pid=" << pid;
+	  wt_.log("notice") << "Spawned dedicated process for "
+			    << sessionId << ": pid=" << pid;
 	  {
 #ifdef WT_THREADED
 	    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
@@ -586,14 +578,14 @@ void Server::handleRequest(int serverSocket)
 	      // still occur between checking the size and getting the
 	      // element.
 	      int pid = sessionProcessPids_[i];
-	      std::string path = conf_.runDirectory() + "/server-"
+	      std::string path = conf.runDirectory() + "/server-"
 		+ boost::lexical_cast<std::string>(pid);
 
 	      clientSocket = connectToSession("", path, 100);
 
 	      if (clientSocket == -1)
-		conf_.log("error") << "Session process " << pid
-				   << " not responding ?";
+		wt_.log("error") << "Session process " << pid
+				  << " not responding ?";
 
 	      break;
 	    }
@@ -613,7 +605,7 @@ void Server::handleRequest(int serverSocket)
     for (unsigned i = 0; i < consumedRecords_.size(); ++i) {
       if (!writeToSocket(clientSocket, consumedRecords_[i]->plainText(),
 			 consumedRecords_[i]->plainTextLength())) {
-	conf_.log("error") << "Error writing to client";
+	wt_.log("error") << "Error writing to client";
 	return;
       }
 
@@ -634,7 +626,7 @@ void Server::handleRequest(int serverSocket)
       //std::cerr << "select()" << std::endl;
       if (select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0) {
 	if (errno != EINTR)
-	  conf_.log("fatal") << "select(): " << strerror(errno);
+	  wt_.log("fatal") << "select(): " << strerror(errno);
 
 	break;
       }
@@ -646,15 +638,15 @@ void Server::handleRequest(int serverSocket)
 	d.read(serverSocket);
 
 	if (d.good()) {
-	  //std::cerr << "Got record from server: " << d << std::endl;
+	  // std::cerr << "Got record from server: " << d << std::endl;
 	  if (!writeToSocket(clientSocket, d.plainText(),
 			     d.plainTextLength())) {
-	    conf_.log("error") << "Error writing to application";
+	    wt_.log("error") << "Error writing to application";
 
 	    break;
 	  }
 	} else {
-	  conf_.log("error") << "Error reading from web server";
+	  wt_.log("error") << "Error reading from web server";
 
 	  break;
 	}
@@ -666,10 +658,10 @@ void Server::handleRequest(int serverSocket)
 	d.read(clientSocket);
 
 	if (d.good()) {
-	  //std::cerr << "Got record from client: " << d << std::endl;
+	  // std::cerr << "Got record from client: " << d << std::endl;
 	  if (!writeToSocket(serverSocket, d.plainText(),
 			     d.plainTextLength())) {
-	    conf_.log("error") << "Error writing to web server";
+	    wt_.log("error") << "Error writing to web server";
 
 	    break;
 	  }
@@ -677,14 +669,14 @@ void Server::handleRequest(int serverSocket)
 	  if (d.type() == FCGI_END_REQUEST)
 	    break;
 	} else {
-	  conf_.log("error") << "Error reading from application";
+	  wt_.log("error") << "Error reading from application";
 
 	  break;
 	}
       }
     }
 
-    //std::cerr << "Request done." << std::endl;
+    // std::cerr << "Request done." << std::endl;
 
     shutdown(serverSocket, SHUT_RDWR);
     close(serverSocket);
@@ -693,324 +685,6 @@ void Server::handleRequest(int serverSocket)
     close(serverSocket);
     if (clientSocket != -1)
       close(clientSocket);
-  }
-}
-
-/*
- ******************
- * Client routines
- ******************
- */
-
-static std::string socketPath;
-static WebMain *webMain = 0;
-
-static void doShutdown(const char *signal)
-{
-  unlink(socketPath.c_str());
-  if (webMain) {
-    webMain->controller().configuration().log("notice") << "Caught " << signal;
-    webMain->shutdown();
-  }
-}
-
-static void handleSigTerm(int)
-{
-  doShutdown("SIGTERM");
-}
-
-static void handleSigUsr1(int)
-{
-  doShutdown("SIGUSR1");
-}
-
-static void handleSigHup(int)
-{
-  doShutdown("SIGHUP");
-}
-
-void runSession(Configuration& conf, WServer *server, std::string sessionId)
-{
-  if (!bindUDStoStdin(conf.runDirectory() + "/" + sessionId, conf))
-    exit(1);
-
-  try {
-    FCGIStream fcgiStream;
-    WebMain requestServer(conf, server, &fcgiStream, sessionId);
-    webMain = &requestServer;
-
-    requestServer.run();
-
-    sleep(1);
-
-    webMain = 0;
-
-    unlink(socketPath.c_str());
-  } catch (std::exception& e) {
-    conf.log("fatal") << "Dedicated session process for " << sessionId 
-		      << ": caught unhandled exception: " << e.what();
-
-    unlink(socketPath.c_str());
-
-    throw;
-  } catch (...) {
-    conf.log("fatal") << "Dedicated session process for " << sessionId 
-		      << ": caught unkown, unhandled exception.";
-
-    unlink(socketPath.c_str());
-
-    throw;
-  }
-}
-
-void startSharedProcess(Configuration& conf, WServer *server)
-{
-  if (!bindUDStoStdin(conf.runDirectory() + "/server-"
-		      + boost::lexical_cast<std::string>(getpid()),
-		      conf))
-    exit(1);
-
-  try {
-    FCGIStream fcgiStream;
-    WebMain requestServer(conf, server, &fcgiStream);
-    webMain = &requestServer;
-
-    requestServer.run();
-
-    webMain = 0;
-
-    unlink(socketPath.c_str());
-  } catch (std::exception& e) {
-    conf.log("fatal") << "Shared session server: caught unhandled exception: "
-		      << e.what();
-
-    unlink(socketPath.c_str());
-
-    throw;
-  } catch (...) {
-    conf.log("fatal") << "Shared session server: caught unknown, unhandled "
-      "exception.";
-
-    unlink(socketPath.c_str());
-
-    throw;
-  }
-}
-
-struct WServerImpl {
-  WServerImpl(const std::string& applicationPath,
-	      const std::string& configurationFile)
-    : applicationPath_(applicationPath),
-      configurationFile_(configurationFile),
-      configuration_(0),
-      relayServer_(0),
-      running_(false)
-  { }
-
-  ~WServerImpl() {
-    delete configuration_;
-  }
-
-  std::string applicationPath_;
-  std::string configurationFile_;
-
-  Configuration *configuration_;
-  Server        *relayServer_;
-  bool          running_;
-  std::string   sessionId_;
-};
-
-WServer::WServer(const std::string& applicationPath,
-		 const std::string& configurationFile)
-  : impl_(new WServerImpl(applicationPath, configurationFile))
-{ 
-  instance_ = this;
-}
-
-WServer::~WServer()
-{
-  delete impl_;
-}
-
-void WServer::setServerConfiguration(int argc, char *argv[],
-				     const std::string& serverConfigurationFile)
-{
-  bool isServer = argc < 2 || strcmp(argv[1], "client") != 0; 
-
-  if (isServer) {
-    Server webServer(argc, argv);
-    exit(webServer.main());
-  } else {
-    /*
-     * FastCGI configures the working directory to the location of the
-     * binary, which is a convenient default, but not really ideal.
-     */
-    std::string appRoot;
-    impl_->configuration_
-      = new Configuration(impl_->applicationPath_,
-			  appRoot,
-			  impl_->configurationFile_,
-			  Configuration::FcgiServer,
-			  "Wt: initializing session process");
-
-    if (argc >= 3)
-      impl_->sessionId_ = argv[2];
-  }
-}
-
-void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
-			    const std::string& path, const std::string& favicon)
-{
-  if (!impl_->configuration_)
-    throw Exception("WServer::addEntryPoint(): "
-		    "call setServerConfiguration() first");
-
-  impl_->configuration_
-    ->addEntryPoint(EntryPoint(type, callback, path, favicon));
-}
-
-bool WServer::start()
-{
-  if (!impl_->configuration_)
-    throw Exception("WServer::start(): call setServerConfiguration() first");
-
-  if (isRunning()) {
-    std::cerr << "WServer::start() error: server already started!" << std::endl;
-    return false;
-  }
-
-  if (signal(SIGTERM, Wt::handleSigTerm) == SIG_ERR)
-    impl_->configuration_->log("error") << "Cannot catch SIGTERM: signal(): "
-					<< strerror(errno);
-  if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR) 
-    impl_->configuration_->log("error") << "Cannot catch SIGUSR1: signal(): "
-					<< strerror(errno);
-  if (signal(SIGHUP, Wt::handleSigHup) == SIG_ERR) 
-    impl_->configuration_->log("error") << "Cannot catch SIGHUP: signal(): "
-					<< strerror(errno);
-
-  impl_->running_ = true;
-
-  if (impl_->sessionId_.empty())
-    startSharedProcess(*impl_->configuration_, this);
-  else
-    runSession(*impl_->configuration_, this, impl_->sessionId_);
-
-  return false;
-}
-
-bool WServer::isRunning() const
-{
-  return impl_ && impl_->running_;
-}
-
-int WServer::httpPort() const
-{
-  return -1;
-}
-
-void WServer::stop()
-{
-  if (!isRunning()) {
-    std::cerr << "WServer::stop() error: server not yet started!" << std::endl;
-    return;
-  }
-}
-
-void WServer::resume()
-{
-  if (!isRunning()) {
-    std::cerr << "WServer::resume() error: server not yet started!" << std::endl;
-    return;
-  }
-}
-
-int WServer::waitForShutdown(const char *restartWatchFile)
-{
-  for (;;)
-    sleep(10000);
-
-  return 0;
-}
-
-void WServer::addResource(WResource *resource, const std::string& path)
-{
-  if (!boost::starts_with(path, "/")) 
-    throw WServer::Exception("WServer::addResource() error: "
-                             "static resource path should start with \'/\'");
-
-  resource->setInternalPath(path);
-  impl_->configuration_->addEntryPoint(EntryPoint(resource, path));
-
-}
-
-void WServer::handleRequest(WebRequest *request)
-{
-  webMain->controller().handleRequest(request);
-}
-
-void WServer::schedule(int milliSeconds,
-		       const boost::function<void ()>& function)
-{
-  webMain->schedule(milliSeconds, function);
-}
-
-void WServer::post(const std::string& sessionId,
-		   const boost::function<void ()>& function,
-                   const boost::function<void ()>& fallbackFunction)
-{
-  schedule(0, sessionId, function, fallbackFunction);
-}
-
-void WServer::schedule(int milliSeconds,
-		       const std::string& sessionId,
-		       const boost::function<void ()>& function,
-		       const boost::function<void ()>& fallbackFunction)
-{
-  ApplicationEvent event(sessionId, function, fallbackFunction);
-
-  schedule(milliSeconds, boost::bind(&WebController::handleApplicationEvent,
-				     &webMain->controller(), event));
-}
-
-std::string WServer::appRoot() const
-{
-  return impl_->configuration_->appRoot();
-}
-
-void WServer::initializeThread()
-{ }
-
-bool WServer::usesSlashExceptionForInternalPaths() const
-{
-  // Is not relevent, one cannot even deploy at a path ending with '/' ?
-  return false;
-}
-
-int WRun(int argc, char *argv[], ApplicationCreator createApplication)
-{
-  try {
-    WServer server(argv[0], "");
-
-    try {
-      server.setServerConfiguration(argc, argv);
-      server.addEntryPoint(Application, createApplication);
-      server.start();
-
-      return 0;
-    } catch (std::exception& e) {
-      if (server.impl()->configuration_)
-	server.impl()->configuration_->log("fatal") << e.what();
-      else
-	std::cerr << e.what() << std::endl;
-      return 1;
-    }
-  } catch (Wt::WServer::Exception& e) {
-    std::cerr << e.what() << std::endl;
-    return 1;
-  } catch (std::exception& e) {
-    std::cerr << "exception: " << e.what() << std::endl;
-    return 1;
   }
 }
 

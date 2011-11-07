@@ -4,16 +4,17 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WMediaPlayer"
 #include "Wt/WAnchor"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WPushButton"
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
-#include "Wt/WMediaPlayer"
 #include "Wt/WProgressBar"
+#include "Wt/WStringStream"
 #include "Wt/WTemplate"
 #include "Wt/WText"
-#include "EscapeOStream.h"
 #include "Utils.h"
 
 #ifndef WT_DEBUG_JS
@@ -38,7 +39,7 @@ namespace {
     case 4:
       return Wt::WMediaPlayer::HaveEnoughData;
     default:
-      throw std::runtime_error("Invalid readystate");
+      throw Wt::WException("Invalid readystate");
     }
   }
 }
@@ -357,7 +358,7 @@ void WMediaPlayer::setVideoSize(int width, int height)
     setWidth(videoWidth_);
 
     if (isRendered()) {
-      SStream ss;
+      WStringStream ss;
 
       ss << "'size', {"
 	 <<   "width: \"" << videoWidth_ << "px\","
@@ -378,7 +379,7 @@ void WMediaPlayer::playerDoData(const std::string& method,
 
 void WMediaPlayer::playerDo(const std::string& method, const std::string& args)
 {
-  SStream ss;
+  WStringStream ss;
 
   ss << ".jPlayer('" << method << '\'';
 
@@ -393,7 +394,7 @@ void WMediaPlayer::playerDo(const std::string& method, const std::string& args)
 
 void WMediaPlayer::playerDoRaw(const std::string& jqueryMethod)
 {
-  SStream ss;
+  WStringStream ss;
 
   if (isRendered())
     ss << jsPlayerRef();
@@ -421,7 +422,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
   WApplication *app = WApplication::instance();
 
   if (mediaUpdated_) {
-    SStream ss;
+    WStringStream ss;
 
     ss << "{";
 
@@ -456,7 +457,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     if (gui_ == this)
       createDefaultGui();
 
-    SStream ss;
+    WStringStream ss;
 
     ss << jsPlayerRef() << ".jPlayer({"
        << "ready: function () {";
@@ -557,7 +558,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
   }
 
   if (boundSignals_ < signals_.size()) {
-    SStream ss;
+    WStringStream ss;
     ss << jsPlayerRef();
     for (unsigned i = boundSignals_; i < signals_.size(); ++i)
       ss << ".bind('" << signals_[i]->name() << "', function(o, e) { "
@@ -592,13 +593,11 @@ void WMediaPlayer::setFormData(const FormData& formData)
 	updateProgressBarState(Volume);
 
       } catch (const std::exception& e) {
-	throw std::runtime_error("WMediaPlayer: error parsing: "
-				 + formData.values[0] + ": " + e.what());
+	throw WException("WMediaPlayer: error parsing: "
+			 + formData.values[0] + ": " + e.what());
       }
-    } else {
-      throw std::runtime_error("WMediaPlayer: error parsing: "
-			       + formData.values[0]);
-    }
+    } else
+      throw WException("WMediaPlayer: error parsing: " + formData.values[0]);
   }
 }
 

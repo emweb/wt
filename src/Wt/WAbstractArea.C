@@ -8,10 +8,10 @@
 #include "Wt/WApplication"
 #include "Wt/WResource"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WImage"
 
 #include "DomElement.h"
-#include "WtException.h"
 
 namespace Wt {
 
@@ -212,6 +212,14 @@ void WAbstractArea::setLink(const WLink& link)
   repaint();
 }
 
+WLink WAbstractArea::link() const
+{
+  if (!anchor_)
+    return WLink();
+  else
+    return anchor_->link_;
+}
+
 void WAbstractArea::setResource(WResource *resource)
 {
   setLink(WLink(resource));
@@ -362,7 +370,7 @@ WAbstractArea *WAbstractArea::areaForImpl(WWidget *w)
   Impl::AreaWidget *aw = dynamic_cast<Impl::AreaWidget *>(w);
 
   if (!aw)
-    throw WtException("WAbstractArea::areaForImpl could not dynamic_cast?");
+    throw WException("WAbstractArea::areaForImpl could not dynamic_cast?");
 
   return aw->facade();
 }

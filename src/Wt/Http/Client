@@ -4,53 +4,279 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef HTTP_CLIENT_H_
-#define HTTP_CLIENT_H_
+#ifndef WT_HTTP_CLIENT_H_
+#define WT_HTTP_CLIENT_H_
 
-#include <Wt/WDllDefs.h>
 #include <Wt/WFlags>
+#include <Wt/WObject>
+#include <Wt/WSignal>
+
+#include <Wt/Http/Message>
+#include <Wt/Http/Method>
+
+#include <boost/system/error_code.hpp>
 #include <string>
 
 namespace Wt {
 
+class WIOService;
+
+  /*! \brief Namespace for \ref http handling
+   */
   namespace Http {
 
-/*! \class Client Wt/Http/Client Wt/Http/Client
- *  \brief Collection of methods for dealing with a %Wt application from a
- *         client perspective.
+/*! \defgroup http HTTP protocol (Wt::Http)
+ *  \brief Classes that handle the HTTP protocol.
+ *
+ * The %Wt::%Http namespace contains classes that deal with the HTTP
+ * protocol. This can be split in two groups:
+ * - classes involved which deal with the server-side aspects of %Wt through WResource:
+ *   - Request: a resource request
+ *   - Response: a resource response
+ *   - ResponseContinuation: an asynchronous response continuation object
+ *   - UploadedFile: a file uploaded in the Request
+ *
+ * - classes that implement an HTTP client:
+ *   - Client: an HTTP client
+ *   - Message: a message to be sent with the client, or received from the client.
  */
-class WT_API Client {
+
+/*! \class Client Wt/Http/Client Wt/Http/Client
+ *  \brief An HTTP client.
+ *
+ * This class implements an HTTP client. It can be used to interact with
+ * web services using the HTTP protocol.
+ *
+ * The client uses asynchronous I/O and only provides an asynchronous
+ * interface: you cannot actively wait for an operation to complete,
+ * instead the client will notify you of the result using the done()
+ * signal.
+ *
+ * Because the client uses asynchronous I/O, it does its work within
+ * the scope of an event-driven thread pool implementation. By
+ * default, this is the same thread pool that is used by the %Wt
+ * server, available through WServer::ioService(), but you may also
+ * use the client by providing it an explicit I/O service to be used.
+ *
+ * The client supports the HTTP and HTTPS (if %Wt was built with
+ * OpenSSL support) protocols, and can be used for GET and POST
+ * methods. One client can do only one operation at a time.
+ *
+ * Usage example:
+ * \code
+ *    ...
+ *    Http::Client *client = new Http::Client(this);
+ *    client->setTimeout(15);
+ *    client->setMaximumResponseSize(10 * 1024);
+ *    client->done().connect(boost::bind(&MyWidget::handleHttpResponse, this, _1, _2));
+ *    if (client->get("http://www.webtoolkit.eu/wt/blog/feed/"))
+ *      WApplication::instance()->deferRendering();
+ *    } else {
+ *      // in case of an error in the URL
+ *    }
+ * }
+ *
+ * void handleHttpResponse(boost::system::error_code err, const Http::Message& response)
+ * {
+ *    WApplication::instance()->resumeRendering();
+ *
+ *    if (!err && response.status() == 200) {
+ *       ... parse response.body()
+ *    }
+ * }
+ * \endcode
+ *
+ * The function connected to the done() signal will be run within the
+ * context of the application that created the client. WServer::post()
+ * is used for this.
+ *
+ * \ingroup http
+ */
+class WT_API Client : public WObject
+{
 public:
-  /*! \brief Enumeration for client user-agent options.
+  /*! \brief Default constructor.
+   *
+   * The client uses the I/O service and thread-pool from the current
+   * WApplication::instance().
    */
-  enum ClientOption {
-    SupportsAjax = 0x1 //!< Flag that indicates supports for AJAX
-  };
+  Client(WObject *parent = 0);
 
-  /*! \brief Starts a %Wt session.
+  /*! \brief Constructor.
    *
-   * A %Wt application uses a bootstrap procedure during which it
-   * collects information on user agent capabilities (unless the
-   * progressive bootstrap method is enabled). Therefore a session is
-   * not spawned after the first request, but only after these
-   * capabilities have been collected by a second request.
-   *
-   * This function starts a session on the specific \p host, \p port,
-   * \p path, and optional \p query. These correspond to the different
-   * parts of a url:
-   * 
-   * <tt>http://</tt><i>host</i><tt>:</tt><i>port</i>/<i>path</i><tt>?</tt>\p query.
+   * The client uses the given I/O service and thread-pool, and is
+   * useful to use the client outside the context of a web
+   * application.
    */
-  static void startWtSession(const std::string& host,
-			     const std::string& port,
-			     const std::string& path,
-			     const std::string& query = std::string(),
-			     WFlags<ClientOption> flags = SupportsAjax);
+  Client(WIOService& ioService, WObject *parent = 0);
+
+  /*! \brief Destructor.
+   *
+   * If the client is still busy, the current request is aborted.
+   *
+   * \sa abort()
+   */
+  virtual ~Client();
+
+  /*! \brief Sets an I/O timeout.
+   *
+   * This sets a timeout wiating for I/O operations. The timeout does
+   * not bound the total timeout, since the timer is reset on each I/O
+   * progress.
+   *
+   * The default timeout is 10 seconds.
+   */
+  void setTimeout(int seconds);
+
+  /*! \brief Returns the I/O timeout.
+   *
+   * \sa setTimeout()
+   */
+  int timeout() const { return timeout_; }
+
+  /*! \brief Sets a maximum response size.
+   *
+   * The response is stored in-memory. To avoid a DoS by a malicious
+   * downstream HTTP server, the response size is bounded by an upper limit.
+   *
+   * The limit includes status line, headers and response body.
+   *
+   * The default value is 64 kilo bytes.
+   */
+  void setMaximumResponseSize(std::size_t bytes);
+
+  /*! \brief Returns the maximum response size.
+   *
+   * \sa setMaximumResponseSize()
+   */
+  std::size_t maximumResponseSize() const { return maximumResponseSize_; }
+
+  /*! \brief Sets a SSL certificate used for server identity verification.
+   *
+   * This setting only affects a https request: it configures a certificate
+   * file to be used to verify the identity of the server.
+   *
+   * \note Certificate verification does not work reliably yet.
+   */
+  void setSslVerifyFile(const std::string& verifyFile);
+
+  /*! \brief Sets a path with SSL certificates for server identity verification.
+   *
+   * This setting only affects a https request: it configures a
+   * directory containing certificates to be used to verify the
+   * identity of the server.
+   *
+   * \note Certificate verification does not work reliably yet.
+   */
+  void setSslVerifyPath(const std::string& verifyPath);
+
+  /*! \brief Starts a GET request.
+   *
+   * The function starts an asynchronous GET request, and returns
+   * immediately.
+   *
+   * The function returns \c true when the GET request has been
+   * scheduled, and thus done() will be emitted eventually.
+   *
+   * The function returns \p false if the client could not schedule
+   * the request, for example if the \p url is invalid or if the URL
+   * scheme is not supported.
+   *
+   * \sa request(), done()
+   */
+  bool get(const std::string& url);
+
+  /*! \brief Starts a POST request.
+   *
+   * The function starts an asynchronous POST request, and returns
+   * immediately.
+   *
+   * The function returns \c true when the POST request has been
+   * scheduled, and thus done() will be emitted eventually.
+   *
+   * The function returns \p false if the client could not schedule
+   * the request, for example if the \p url is invalid or if the URL
+   * scheme is not supported.
+   *
+   * \sa request(), done()
+   */
+  bool post(const std::string& url, const Message& message);
+
+  /*! \brief Starts a request.
+   *
+   * The function starts an asynchronous HTTP request, and returns
+   * immediately.
+   *
+   * The function returns \c true when the request has been scheduled,
+   * and thus done() will be emitted eventually.
+   *
+   * The function returns \p false if the client could not schedule
+   * the request, for example if the \p url is invalid or if the URL
+   * scheme is not supported.
+   *
+   * \sa request(), done()
+   */
+  bool request(Http::Method method, const std::string& url,
+	       const Message& message);
+
+  /*! \brief Aborts the curent request.
+   *
+   * If the client is currently busy, this cancels the pending request.
+   * done() will be emitted with an error_code. (FIXME: which one ?)
+   */
+  void abort();
+
+  /*! \brief %Signal that is emitted when the current request is done.
+   *
+   * The \p error is 0 if the HTTP request was successful. Then, the
+   * \p message contains the result.
+   *
+   * If the \p error is not 0, then an error message is given by
+   * <tt>error.message()</tt>.
+   *
+   * Typical code to process the result is:
+   * \code
+   * void handle(boost::system::error_code err, const Http::Message& response)
+   * {
+   *   if (!err) {
+   *     if (response.status() == 200) {
+   *       ... success
+   *     }
+   *   } else {
+   *     Wt::log("error") << "Http::Client error: " << err.message();
+   *   }
+   * }
+   * \endcode
+   */
+  Signal<boost::system::error_code, Message>& done() { return done_; }
+
+  /*! \brief Utility method to parse a URL.
+   *
+   * This parses a URL into the \p protocol, \p server, \p port, and \p path
+   * components.
+   *
+   * The method returns true if the URL could be parsed successfully.
+   */
+  static bool parseUrl(const std::string &url,
+		       std::string& protocol, std::string& server, int& port,
+		       std::string& path);
+
+private:
+  WIOService *ioService_;
+  class Impl;
+  boost::shared_ptr<Impl> impl_;
+  int timeout_;
+  std::size_t maximumResponseSize_;
+  std::string verifyFile_, verifyPath_;
+  Signal<boost::system::error_code, Message> done_;
+
+  class TcpImpl;
+  class SslImpl;
+
+  void emitDone(boost::system::error_code err, const Message& response);
 };
-
-W_DECLARE_OPERATORS_FOR_FLAGS(Client::ClientOption)
 
   }
 }
 
-#endif // HTTP_CLIENT_H_
+#endif // WT_HTTP_CLIENT_H_

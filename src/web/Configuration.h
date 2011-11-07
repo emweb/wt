@@ -13,7 +13,6 @@
 #include <string>
 
 #include "Wt/WApplication"
-#include "Wt/WLogger"
 
 #include "WebSession.h"
 #include "Wt/WRandom"
@@ -30,10 +29,13 @@ namespace boost {
 
 namespace Wt {
 
+  class WLogger;
+  class WServer;
+
 #ifndef WT_TARGET_JAVA
 
 class WT_API EntryPoint {
- public:
+public:
   EntryPoint(EntryPointType type, ApplicationCreator appCallback,
 	     const std::string& path, 
              const std::string& favicon);
@@ -42,18 +44,18 @@ class WT_API EntryPoint {
 
   void setPath(const std::string& path);
 
-  EntryPointType     type() const { return type_; }
-  WResource         *resource() const { return resource_; }
+  EntryPointType type() const { return type_; }
+  WResource *resource() const { return resource_; }
   ApplicationCreator appCallback() const { return appCallback_; }
   const std::string& path() const { return path_; }
   const std::string& favicon() const { return favicon_; }
 
- private:
-  EntryPointType     type_;
-  WResource         *resource_;
+private:
+  EntryPointType type_;
+  WResource *resource_;
   ApplicationCreator appCallback_;
-  std::string        path_;
-  std::string        favicon_;
+  std::string path_;
+  std::string favicon_;
 };
 
 typedef std::vector<EntryPoint> EntryPointList;
@@ -73,12 +75,6 @@ public:
     URL
   };
 
-  enum ServerType {
-    WtHttpdServer,
-    FcgiServer,
-    IsapiServer
-  };
-
   enum ErrorReporting {
     NoErrors,
     ErrorMessage,
@@ -89,15 +85,21 @@ public:
   typedef std::vector<std::string> AgentList;
 
   Configuration(const std::string& applicationPath,
-                const std::string& approot,
+		const std::string& appRoot,
 		const std::string& configurationFile,
-		ServerType serverType,
-		const std::string& startupMessage);
+		WServer *server);
+
+  // finds an approot from the environment
+  static std::string locateAppRoot();
+
+  // finds a config file from the environment, in the approot, or the default
+  // location
+  static std::string locateConfigFile(const std::string& appRoot);
 
   /*
    * Override the sessionIdPrefix setting in the config file
    */
-  void               setSessionIdPrefix(const std::string& prefix);
+  void setSessionIdPrefix(const std::string& prefix);
 
 #ifndef WT_TARGET_JAVA
   void               addEntryPoint(const EntryPoint& entryPoint);
@@ -110,11 +112,13 @@ public:
   int                numThreads() const { return numThreads_; }
   int                maxNumSessions() const { return maxNumSessions_; }
   ::int64_t          maxRequestSize() const { return maxRequestSize_; }
-  ::int64_t          isapiMaxMemoryRequestSize() const { return isapiMaxMemoryRequestSize_; }
+  ::int64_t          isapiMaxMemoryRequestSize() const
+     { return isapiMaxMemoryRequestSize_; }
   SessionTracking    sessionTracking() const { return sessionTracking_; }
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
   void               setSessionTimeout(int sessionTimeout);
+  int                bootstrapTimeout() const { return bootstrapTimeout_; }
   int		     indicatorTimeout() const { return indicatorTimeout_; }
   int                serverPushTimeout() const { return serverPushTimeout_; }
   std::string        valgrindPath() const { return valgrindPath_; }
@@ -122,7 +126,6 @@ public:
   bool               debug() const { return errorReporting_ != ErrorMessage; }
   bool               logTime() const { return logTime_; }
   std::string        runDirectory() const { return runDirectory_; }
-  ServerType         serverType() const { return serverType_; }
   int                sessionIdLength() const { return sessionIdLength_; }
   std::string        sessionIdPrefix() const { return sessionIdPrefix_; }
   const PropertyMap& properties() const { return properties_; }
@@ -142,30 +145,35 @@ public:
   bool               persistentSessions() const { return persistentSessions_; }
   bool               progressiveBoot() const { return progressiveBoot_; }
   bool               splitScript() const { return splitScript_; }
+  float              maxPlainSessionsRatio() const
+                       { return maxPlainSessionsRatio_; }
+  bool               ajaxPuzzle() const { return ajaxPuzzle_; }
+  bool               useSlashExceptionForInternalPaths() const
+                       { return slashException_; }
+  bool               needReadBodyBeforeResponse() const
+                       { return needReadBody_; }
+  bool               sessionIdCookie() const { return sessionIdCookie_; }
 
-  WLogger&           logger() { return logger_; }
-  WLogEntry          log(const std::string& type) const;
-
-  int                pid() const { return pid_; }
-
-  /*
-   * For a FastCGI server, this also creates a session file.
-   */
-  static std::string generateRandomId(int length);
+  // Things which are overridden by the connector
+  void setWebSockets(bool enabled);
+  void setRunDirectory(const std::string& path);
+  void setUseSlashExceptionForInternalPaths(bool enabled);
+  void setNeedReadBodyBeforeResponse(bool needed);
 
   std::string generateSessionId();
+  bool registerSessionId(const std::string& oldId, const std::string& newId);
 
   std::string sessionSocketPath(const std::string& sessionId);
 
 private:
-  std::string     applicationPath_;
-  std::string     approot_;
+  WServer *server_;
+  std::string applicationPath_;
+  std::string approot_;
 
 #ifndef WT_TARGET_JAVA
-  EntryPointList     entryPoints_;
+  EntryPointList entryPoints_;
 #endif // WT_TARGET_JAVA
 
-  ServerType      serverType_;
   SessionPolicy   sessionPolicy_;
   int             numProcesses_;
   int             numThreads_;
@@ -175,6 +183,7 @@ private:
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
   int             sessionTimeout_;
+  int             bootstrapTimeout_;
   int		  indicatorTimeout_;
   int             serverPushTimeout_;
   std::string     valgrindPath_;
@@ -195,14 +204,15 @@ private:
   bool            persistentSessions_;
   bool            progressiveBoot_;
   bool            splitScript_;
-
-  int		  pid_;
-  WLogger         logger_;
+  float           maxPlainSessionsRatio_;
+  bool            ajaxPuzzle_;
+  bool            slashException_;
+  bool            needReadBody_;
+  bool            sessionIdCookie_;
 
   void readApplicationSettings(rapidxml::xml_node<char> *app);
-  void readConfiguration(const std::string& configurationFile,
-			 const std::string& startupMessage);
-  void setupLogger(const std::string& logFile);
+  void readConfiguration(const std::string& configurationFile);
+  WLogEntry log(const std::string& type) const;
 };
 
 }

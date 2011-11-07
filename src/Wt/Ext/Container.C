@@ -60,7 +60,7 @@ Ext::LayoutImpl *Container::layoutImpl() const
 void Container::setLayout(WLayout *layout)
 {
   if (layout_) {
-    wApp->log("error") << "Container::setLayout: already have a layout.";
+    Wt::log("error") << "Container::setLayout: already have a layout.";
     return;
   }
 

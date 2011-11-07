@@ -4,14 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WMessageResources>
 #include <boost/test/unit_test.hpp>
-
-#include "web/Utils.h"
 
 namespace {
   int eval(std::string expression, ::uint64_t n) 
   {
-    return Wt::Utils::calculatePluralCase(expression, n);
+    return Wt::WMessageResources::evalPluralCase(expression, n);
   }
 }
 

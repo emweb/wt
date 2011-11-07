@@ -29,21 +29,13 @@
 
 #cmakedefine WT_HAS_WRASTERIMAGE
 #cmakedefine WT_HAS_WPDFIMAGE
+#cmakedefine WT_WITH_SSL
 
 #cmakedefine WT_NO_BOOST_INTRUSIVE
 #cmakedefine WT_NO_BOOST_RANDOM
 #cmakedefine WT_NO_STD_LOCALE
 #cmakedefine WT_NO_STD_WSTRING
-
-#if ${WT_DEBUG_ENABLED}
-#ifndef WT_TARGET_JAVA
-  #define WT_DEBUG(statement) do { if (Wt::WApplication::instance()->debug()) statement; } while(0)
-#else
-  #define WT_DEBUG(statement)
-#endif
-#else
-  #define WT_DEBUG(statement)
-#endif
+#cmakedefine WT_DEBUG_ENABLED
 
 #endif
 

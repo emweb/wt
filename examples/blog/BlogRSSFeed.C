@@ -8,11 +8,12 @@
 
 #include "BlogRSSFeed.h"
 
-#include "BlogSession.h"
+#include "model/BlogSession.h"
 #include "model/User.h"
 #include "model/Post.h"
 #include "model/Comment.h"
 #include "model/Tag.h"
+#include "model/Token.h"
 
 namespace dbo = Wt::Dbo;
 

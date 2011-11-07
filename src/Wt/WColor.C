@@ -5,13 +5,12 @@
  */
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <sstream>
 #include <stdlib.h>
 
 #include "Wt/WColor"
+#include "Wt/WLogger"
+#include "Wt/WStringStream"
 #include "Utils.h"
-#include "EscapeOStream.h"
-#include "WtException.h"
 
 namespace Wt {
 
@@ -41,19 +40,23 @@ int parseRgbArgument(const std::string& argument)
     else 
       return boost::lexical_cast<int>(arg);
   } catch (boost::bad_lexical_cast &e) {
-    throw WtException(std::string("WColor: Illegal rgb argument: ") + arg); 
+    Wt::log("error") << "WColor: invalid color component: " << arg;
+    return 0;
   }
 }
 
 WColor::WColor(const WString& name)
   : default_(false),
+    red_(-1),
+    green_(-1),
+    blue_(-1),
+    alpha_(255),
     name_(name)
 { 
   std::string n = name.toUTF8();
   boost::trim(n);
   
   if (boost::starts_with(n, "#")) {
-    alpha_ = 255;
     if (n.size() - 1 == 3) {
       red_ = strtol(n.substr(1,1).c_str(), 0, 16);
       red_ = red_ * 16 + red_;
@@ -66,20 +69,23 @@ WColor::WColor(const WString& name)
       green_ = strtol(n.substr(3,2).c_str(), 0, 16);
       blue_ = strtol(n.substr(5,2).c_str(), 0, 16);
     } else {
-      throw WtException(std::string("WColor: Could not parse rgb format: ") 
-			+ n);
+      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      red_ = green_ = blue_ = -1;
+      return;
     }
   } else if (boost::starts_with(n, "rgb")) {
-    if (n.size() < 5)
-      throw WtException(std::string("WColor: Could not parse rgb format: ") 
-			+ n);
+    if (n.size() < 5) {
+      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      return;
+    }
 
     bool alpha = (n[3] == 'a');
     int start_bracket = 3 + alpha;
 
-    if (n[start_bracket] != '(' || n[n.size() - 1] != ')')
-      throw WtException(std::string("WColor: Missing brackets in rgb format: ") 
-			+ n);
+    if (n[start_bracket] != '(' || n[n.size() - 1] != ')') {
+      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      return;
+    }
 
     std::string argumentsStr = n.substr(start_bracket + 1, 
 					n.size() - 1 - (start_bracket + 1));
@@ -89,30 +95,29 @@ WColor::WColor(const WString& name)
 		 argumentsStr,
 		 boost::is_any_of(","));
 
-    if (!alpha && arguments.size() != 3)
-      throw WtException(std::string("WColor: Invalid argument count: ") + n);
-
-    if (alpha && arguments.size() != 4)
-      throw WtException(std::string("WColor: Invalid argument count: ") + n);
+    if (!alpha && arguments.size() != 3) {
+      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      return;
+    }
+    
+    if (alpha && arguments.size() != 4) {
+      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      return;
+    }
 
     red_ = parseRgbArgument(arguments[0]);
     green_ = parseRgbArgument(arguments[1]);
     blue_ = parseRgbArgument(arguments[2]);
 
-    if (alpha) 
+    if (alpha) {
       try {
 	alpha_ = boost::lexical_cast<int>(boost::trim_copy(arguments[3]));
       } catch (boost::bad_lexical_cast &e) {
-	throw WtException(std::string("WColor: Illegal alpha value: ") + 
-			  arguments[3]); 
-      } 
-    else
-      alpha_ = 255;
-  } else {
-    red_ = -1;
-    green_ = -1;
-    blue_ = -1;
-    alpha_ = 255;
+	Wt::log("error") << "WColor: could not parse rgb format: " << n;
+	alpha_ = 255;
+	return;
+      }
+    }
   }
 }
 
@@ -157,22 +162,31 @@ bool WColor::operator!=(const WColor& other) const
 
 int WColor::red() const
 {
-  if (red_ == -1)
-    throw WtException("WColor: No rgb values are available");
+  if (red_ == -1) {
+    Wt::log("error") << "WColor::red(): color component not available.";
+    return 0;
+  }
+
   return red_;
 }
 
 int WColor::green() const
 {
-  if (green_ == -1)
-    throw WtException("WColor: No rgb values are available");
+  if (green_ == -1) {
+    Wt::log("error") << "WColor::green(): color component not available.";
+    return 0;
+  }
+
   return green_;
 }
 
 int WColor::blue() const
 {
-  if (blue_ == -1)
-    throw WtException("WColor: No rgb values are available");
+  if (blue_ == -1) {
+    Wt::log("error") << "WColor::blue(): color component not available.";
+    return 0;
+  }
+
   return blue_;
 }
 
@@ -202,22 +216,21 @@ const std::string WColor::cssText(bool withAlpha) const
     if (!name_.empty())
       return name_.toUTF8();
     else {
-      EscapeOStream s;
+      WStringStream s;
+
 #ifndef WT_TARGET_JAVA
       char buf[30];
 #else
       char *buf;
 #endif
+
       if (alpha_ != 255 && withAlpha) {
-	s << "rgba(" << Utils::itoa(red_, buf);
-	s << ',' << Utils::itoa(green_, buf);
-	s << ',' << Utils::itoa(blue_, buf);
-	s << ',' << Utils::round_str(alpha_ / 255., 2, buf) << ')';
-      }	else {
-	s << "rgb(" << Utils::itoa(red_, buf);
-	s << ',' << Utils::itoa(green_, buf);
-	s << ',' << Utils::itoa(blue_, buf) << ')';
-      }
+	s << "rgba(" << red_
+	  << ',' << green_
+	  << ',' << blue_
+	  << ',' << Utils::round_str(alpha_ / 255., 2, buf) << ')';
+      }	else
+	s << "rgb(" << red_ << ',' << green_ << ',' << blue_ << ')';
 
       return s.c_str();
     }

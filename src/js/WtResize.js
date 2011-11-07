@@ -28,16 +28,34 @@ WT_DECLARE_WT_MEMBER
         w -= WT.px(self, 'paddingRight');
       }
 
-      var cheight = h + 'px';
+      function marginV(el) {
+	var result = WT.px(el, 'marginTop');
+	result += WT.px(el, 'marginBottom');
+
+	if (!WT.boxSizing(el)) {
+	   result += WT.px(el, 'borderTopWidth');
+	   result += WT.px(el, 'borderBottomWidth');
+	   result += WT.px(el, 'paddingTop');
+	   result += WT.px(el, 'paddingBottom');
+	}
+
+	return result;
+      }
 
       for (j=0, jl=self.childNodes.length; j < jl; ++j) {
 	c=self.childNodes[j];
 	if (c.nodeType == 1) {
-	  if (c.wtResize)
-	    c.wtResize(c, w, h);
-          else
-            if (c.style.height != cheight)
-              c.style.height = cheight;
+	  var ch = h - marginV(c);
+
+	  if (ch > 0) {
+	    if (c.wtResize)
+	      c.wtResize(c, w, ch);
+            else {
+	      var cheight = ch + 'px';
+              if (c.style.height != cheight)
+		c.style.height = cheight;
+	    }
+	  }
 	}
       }
     }

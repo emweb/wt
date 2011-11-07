@@ -46,6 +46,21 @@
   #define WT_API
 #endif
 
+#ifdef WIN32
+  #ifdef WTHTTP_STATIC
+    #define WTCONNECTOR_API
+  #else
+    #if defined(wthttp_EXPORTS) || defined(wttest_EXPORTS)
+      #define WTCONNECTOR_API __declspec(dllexport)
+    #else
+      #define WTCONNECTOR_API __declspec(dllimport)
+    #endif
+  #endif
+#else
+  #define WTCONNECTOR_API
+#endif
+
+
 #ifndef WT_TARGET_JAVA
 #define WT_ARRAY
 #define W_JAVA_COMPARATOR(type)

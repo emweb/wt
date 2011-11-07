@@ -8,6 +8,7 @@
 #include "Post.h"
 #include "User.h"
 #include "Tag.h"
+#include "Token.h"
 
 #include <Wt/Dbo/Impl>
 #include <Wt/WWebWidget>

@@ -8,17 +8,15 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WResource"
 #include "Wt/WLogger"
 #include "DomElement.h"
 #include "Utils.h"
-#include "WtException.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WAbstractMedia.min.js"
 #endif
-
-#include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -38,7 +36,7 @@ namespace {
     case 4:
       return Wt::WAbstractMedia::HaveEnoughData;
     default:
-      throw std::runtime_error("Invalid readystate");
+      throw Wt::WException("Invalid readystate");
     }
   }
 }
@@ -126,13 +124,11 @@ void WAbstractMedia::setFormData(const FormData& formData)
         ended_ = (attributes[4] == "1");
         readyState_ = intToReadyState(boost::lexical_cast<int>(attributes[5]));
       } catch (const std::exception& e) {
-	throw std::runtime_error("WAbstractMedia: error parsing: "
-				 + formData.values[0] + ": " + e.what());
+	throw WException("WAbstractMedia: error parsing: " + formData.values[0]
+			 + ": " + e.what());
       }
-    } else {
-      throw std::runtime_error("WAbstractMedia: error parsing: "
-			       + formData.values[0]);
-    }
+    } else
+      throw WException("WAbstractMedia: error parsing: " + formData.values[0]);
   }
 }
 

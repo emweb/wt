@@ -40,9 +40,9 @@ void InitSchema::actId(V& value, const std::string& name, int size)
   mapping_.naturalIdFieldSize = size;
 
   if (mapping_.surrogateIdFieldName)
-    throw std::logic_error("Error: Wt::Dbo::id() called for class C "
-			   "with surrogate key: "
-			   "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
+    throw Exception("Error: Wt::Dbo::id() called for class C "
+		    "with surrogate key: "
+		    "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
 
   idField_ = true;
   field(*this, value, name, size);
@@ -57,9 +57,9 @@ void InitSchema::actId(ptr<C>& value, const std::string& name, int size,
   mapping_.naturalIdFieldSize = size;
 
   if (mapping_.surrogateIdFieldName)
-    throw std::logic_error("Error: Wt::Dbo::id() called for class C "
-			   "with surrogate key: "
-			   "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
+    throw Exception("Error: Wt::Dbo::id() called for class C "
+		    "with surrogate key: "
+		    "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
 
   idField_ = true;
   actPtr(PtrRef<C>(value, name, size, fkConstraints));
@@ -678,15 +678,14 @@ void FromAnyAction::visit(const ptr<C>& obj)
 {
   if (dbo_traits<C>::surrogateIdField()) {
     if (index_ == 0)
-      throw std::logic_error("dbo_result_traits::setValues(): "
-			     "cannot set surrogate id.");
+      throw Exception("dbo_result_traits::setValues(): cannot set surrogate id.");
     --index_;
   }
 
   if (dbo_traits<C>::versionField()) {
     if (index_ == 0)
-      throw std::logic_error("dbo_result_traits::setValues(): "
-			     "cannot set version field.");
+      throw Exception("dbo_result_traits::setValues(): "
+		      "cannot set version field.");
     --index_;
   }
 

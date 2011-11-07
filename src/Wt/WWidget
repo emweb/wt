@@ -863,7 +863,7 @@ public:
    */
   void animateHide(const WAnimation& animation);
 
-  /*! \brief Hides the widget.
+  /*! \brief Shows the widget.
    *
    * \sa setHidden()
    */

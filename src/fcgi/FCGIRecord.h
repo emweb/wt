@@ -33,20 +33,6 @@ public:
 
   bool getParam(const std::string name, std::string& value) const;
 
-  class Exception : public std::exception
-  {
-  public:
-    const char *what() const throw() { return what_.c_str(); }
-
-  private:
-    Exception(const std::string what);
-    ~Exception() throw();
-
-    std::string what_;
-
-    friend class FCGIRecord;
-  };
-
 private:
   bool good_;
 

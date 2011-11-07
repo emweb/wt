@@ -35,7 +35,6 @@
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebStream.h"
-#include "WtException.h"
 #include "TimeUtil.h"
 #include "Utils.h"
 
@@ -45,14 +44,15 @@
 
 namespace Wt {
 
-WebController::WebController(Configuration& configuration,
-			     WAbstractServer *server,
+WebController::WebController(WServer& server,
 			     const std::string& singleSessionId,
 			     bool autoExpire)
   : server_(server),
-    conf_(configuration),
+    conf_(server.configuration()),
     singleSessionId_(singleSessionId),
-    autoExpire_(autoExpire)
+    autoExpire_(autoExpire),
+    plainHtmlSessions_(0),
+    ajaxSessions_(0)
 #ifdef WT_THREADED
   , socketNotifier_(this)
 #endif // WT_THREADED
@@ -79,7 +79,7 @@ void WebController::shutdown()
   boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
-  conf_.log("notice") << "Shutdown: stopping sessions.";
+  server_.log("notice") << "Shutdown: stopping sessions.";
 
   for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
     boost::shared_ptr<WebSession> session = i->second;
@@ -89,6 +89,9 @@ void WebController::shutdown()
   }
 
   sessions_.clear();
+
+  ajaxSessions_ = 0;
+  plainHtmlSessions_ = 0;
 }
 
 Configuration& WebController::configuration()
@@ -130,6 +133,12 @@ bool WebController::expireSessions()
 	  WebSession::Handler handler(session, true);
 	  session->expire();
 	  toKill.push_back(session);
+
+	  if (session->env().ajax())
+	    --ajaxSessions_;
+	  else
+	    --plainHtmlSessions_;
+
 	  sessions_.erase(i++);
 	}
       } else
@@ -144,6 +153,15 @@ bool WebController::expireSessions()
   return result;
 }
 
+void WebController::addSession(boost::shared_ptr<WebSession> session)
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+
+  sessions_[session->sessionId()] = session;
+}
+
 void WebController::removeSession(const std::string& sessionId)
 {
 #ifdef WT_THREADED
@@ -151,8 +169,13 @@ void WebController::removeSession(const std::string& sessionId)
 #endif // WT_THREADED
 
   SessionMap::iterator i = sessions_.find(sessionId);
-  if (i != sessions_.end())
+  if (i != sessions_.end()) {
+    if (i->second->env().ajax())
+      --ajaxSessions_;
+    else
+      --plainHtmlSessions_;
     sessions_.erase(i);
+  }
 }
 
 std::string WebController::appSessionCookie(std::string url)
@@ -227,7 +250,8 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
     SocketNotifierMap::iterator k = notifiers.find(descriptor);
 
     if (k == notifiers.end()) {
-      conf_.log("error") << "WebController::socketSelected(): socket notifier"
+      server_.log("error")
+	<< "WebController::socketSelected(): socket notifier"
 	" should have been cancelled?";
 
       return;
@@ -236,8 +260,8 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
     }
   }
 
-  server_->post(sessionId, boost::bind(&WebController::socketNotify,
-				       this, descriptor, type));
+  server_.post(sessionId, boost::bind(&WebController::socketNotify,
+				      this, descriptor, type));
 #endif // WT_THREADED
 }
 
@@ -325,7 +349,7 @@ bool WebController::requestDataReceived(WebRequest *request,
     try {
       cgi.parse(*request, CgiParser::ReadHeadersOnly);
     } catch (std::exception& e) {
-      conf_.log("error") << "Could not parse request: " << e.what();
+      server_.log("error") << "Could not parse request: " << e.what();
       return false;
     }
 
@@ -403,9 +427,9 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
 
     if (!session->dead()) {
       if (session->app())
-	session->app()->notify(WEvent(WEvent::Impl(event.function)));
+	session->app()->notify(WEvent(WEvent::Impl(&handler, event.function)));
       else
-	session->notify(WEvent(WEvent::Impl(event.function)));
+	session->notify(WEvent(WEvent::Impl(&handler, event.function)));
       return true;
     } else {
       if (!event.fallbackFunction.empty())
@@ -444,10 +468,11 @@ void WebController::handleRequest(WebRequest *request)
   CgiParser cgi(conf_.maxRequestSize());
 
   try {
-    cgi.parse(*request, conf_.serverType() == Configuration::FcgiServer 
-	      ? CgiParser::ReadBodyAnyway : CgiParser::ReadDefault);
+    cgi.parse(*request, conf_.needReadBodyBeforeResponse()
+	      ? CgiParser::ReadBodyAnyway
+	      : CgiParser::ReadDefault);
   } catch (std::exception& e) {
-    conf_.log("error") << "Could not parse request: " << e.what();
+    server_.log("error") << "Could not parse request: " << e.what();
 
     request->setContentType("text/html");
     request->out()
@@ -516,7 +541,7 @@ void WebController::handleRequest(WebRequest *request)
 	// If it is another request to take over the persistent session,
 	// it should be handled by the persistent session. We can distinguish
 	// using the type of the request
-	conf_.log("info") 
+	server_.log("info") 
 	  << "Persistent session requested Id: " << sessionId << ", "
 	  << "persistent Id: " << singleSessionId_;
 	if (sessions_.empty() || request->requestMethod() == "GET")
@@ -530,15 +555,11 @@ void WebController::handleRequest(WebRequest *request)
     if (i == sessions_.end() || i->second->dead()) {
       try {
 	if (singleSessionId_.empty()) {
-	  sessionId = conf_.generateSessionId();
-
-	  if (conf_.serverType() == Configuration::FcgiServer
-	      && conf_.sessionPolicy() == Configuration::SharedProcess) {
-	    std::string socketPath = conf_.sessionSocketPath(sessionId);
-	    std::ofstream f(socketPath.c_str());
-	    f << conf_.pid() << std::endl;
-	    f.flush();
-	  }
+	  do {
+	    sessionId = conf_.generateSessionId();
+	    if (!conf_.registerSessionId(std::string(), sessionId))
+	      sessionId.clear();
+	  } while (sessionId.empty());
 	}
 
 	std::string favicon = request->entryPoint_->favicon();
@@ -558,9 +579,9 @@ void WebController::handleRequest(WebRequest *request)
 			     + "=" + sessionId + "; Version=1;");
 
 	sessions_[sessionId] = session;
+	++plainHtmlSessions_;
       } catch (std::exception& e) {
-	configuration().log("error")
-	  << "Could not create new session: " << e.what();
+	server_.log("error") << "Could not create new session: " << e.what();
 	request->flush(WebResponse::ResponseDone);
 	return;
       }
@@ -634,10 +655,10 @@ WebController::getEntryPoint(WebRequest *request)
     }
   }
 
-  conf_.log("error") << "No entry point configured for: '" << scriptName
-		     << "', using first entry point ('"
-		     << conf_.entryPoints()[0].path() << "'):";
-
+  server_.log("error") << "No entry point configured for: '" << scriptName
+		       << "', using first entry point ('"
+		       << conf_.entryPoints()[0].path() << "'):";
+  
   return &conf_.entryPoints()[0];
 }
 
@@ -648,14 +669,12 @@ WebController::generateNewSessionId(boost::shared_ptr<WebSession> session)
   boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED  
 
-  std::string newSessionId = conf_.generateSessionId();
-
-  if (conf_.serverType() == Configuration::FcgiServer) {
-    std::string oldSocketPath = conf_.sessionSocketPath(session->sessionId());
-    std::string newSocketPath = conf_.sessionSocketPath(newSessionId);
-
-    rename(oldSocketPath.c_str(), newSocketPath.c_str());
-  }
+  std::string newSessionId;
+  do {
+    newSessionId = conf_.generateSessionId();
+    if (!conf_.registerSessionId(session->sessionId(), newSessionId))
+      newSessionId.clear();
+  } while (newSessionId.empty());
 
   sessions_[newSessionId] = session;
 
@@ -666,6 +685,32 @@ WebController::generateNewSessionId(boost::shared_ptr<WebSession> session)
     singleSessionId_ = newSessionId;
 
   return newSessionId;
+}
+
+void WebController::newAjaxSession()
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED  
+
+  --plainHtmlSessions_;
+  ++ajaxSessions_;
+}
+
+bool WebController::limitPlainHtmlSessions()
+{
+  if (conf_.maxPlainSessionsRatio() > 0) {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+
+    if (plainHtmlSessions_ + ajaxSessions_ > 20)
+      return plainHtmlSessions_ > conf_.maxPlainSessionsRatio()
+	* ajaxSessions_;
+    else
+      return false;
+  } else
+    return false;
 }
 
 }

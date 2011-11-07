@@ -6,8 +6,6 @@
 
 #include "Wt/WJavaScript"
 
-#include "WtException.h"
-
 namespace Wt {
 #ifndef WT_CNOR
 JSignal<void>::JSignal(WObject *object, const std::string& name,
@@ -15,10 +13,5 @@ JSignal<void>::JSignal(WObject *object, const std::string& name,
   : JSignal<>(object, name, collectSlotJavaScript)
 { }
 #endif
-
-void throwWtException(const std::string& msg)
-{
-  throw WtException(msg);
-}
 
 }

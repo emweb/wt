@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( performance_test )
 
   dbo::Transaction t(session);
 
-  const int total_objects = 10000;
+  const unsigned total_objects = 10000;
   const std::string text = "some text?";
 
   std::cerr << "Loading " << total_objects << " objects in databse."

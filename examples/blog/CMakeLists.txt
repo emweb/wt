@@ -6,16 +6,19 @@ IF(ASCIIDOC_EXECUTABLE)
 ENDIF(ASCIIDOC_EXECUTABLE)
 
 WT_ADD_EXAMPLE(blog.wt
+  model/BlogSession.C
+  model/BlogUserDatabase.C
   model/Post.C
   model/Comment.C
   model/User.C
-  model/Tag.C
+ model/Tag.C
+  model/Token.C
   view/PostView.C
   view/CommentView.C
+  view/BlogLoginWidget.C
   view/BlogView.C
   view/EditUsers.C
   asciidoc/asciidoc.C
-  BlogSession.C
   BlogRSSFeed.C
   blog.C
 )

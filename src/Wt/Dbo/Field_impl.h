@@ -110,8 +110,7 @@ void PtrRef<C>::visit(A& action, Session *session) const
       if (session)
 	value_ = session->loadLazy<C>(id);
       else
-	throw std::logic_error("Could not load referenced Dbo::ptr, "
-			       "no session?");
+	throw Exception("Could not load referenced Dbo::ptr, no session?");
     }
   }
 }

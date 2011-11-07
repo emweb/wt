@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WApplication"
+#include "Wt/WException"
 #include "Wt/WWidget"
 #include "Wt/WWebWidget"
 #include "Wt/WCompositeWidget"
@@ -15,7 +16,6 @@
 #include "EscapeOStream.h"
 #include "WebRenderer.h"
 #include "WebSession.h"
-#include "WtException.h"
 
 namespace Wt {
 
@@ -355,8 +355,8 @@ WLayout *WWidget::layout()
 
 WLayoutItemImpl *WWidget::createLayoutItemImpl(WLayoutItem *item)
 {
-  throw WtException("WWidget::setLayout(): widget does not support "
-		    "layout managers");
+  throw WException("WWidget::setLayout(): widget does not support "
+		   "layout managers");
 }
 
 void WWidget::addEventSignal(EventSignalBase& s)

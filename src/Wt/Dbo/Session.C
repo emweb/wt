@@ -70,18 +70,18 @@ Session::MappingInfo::~MappingInfo()
 
 void Session::MappingInfo::init(Session& session)
 { 
-  throw std::logic_error("Not to be done.");
+  throw Exception("Not to be done.");
 }
 
 void Session::MappingInfo::dropTable(Session& session,
 				     std::set<std::string>& tablesDropped)
 {
-  throw std::logic_error("Not to be done.");
+  throw Exception("Not to be done.");
 }
 
 void Session::MappingInfo::rereadAll()
 { 
-  throw std::logic_error("Not to be done.");
+  throw Exception("Not to be done.");
 }
 
 std::string Session::MappingInfo::primaryKeys() const
@@ -143,7 +143,7 @@ void Session::setConnectionPool(SqlConnectionPool& pool)
 SqlConnection *Session::connection(bool openTransaction)
 {
   if (!transaction_)
-    throw std::logic_error("Operation requires an active transaction");
+    throw Exception("Operation requires an active transaction");
 
   if (openTransaction)
     transaction_->open();
@@ -176,7 +176,7 @@ Call Session::execute(const std::string& sql)
   initSchema();
 
   if (!transaction_)
-    throw std::logic_error("Dbo execute(): no active transaction");
+    throw Exception("Dbo execute(): no active transaction");
 
   return Call(*this, sql);
 }
@@ -961,8 +961,7 @@ void Session::getFields(const char *tableName,
 
   MappingInfo *mapping = getMapping(tableName);
   if (!mapping)
-    throw std::logic_error(std::string("Table ") + tableName
-			   + " was not mapped.");
+    throw Exception(std::string("Table ") + tableName + " was not mapped.");
 
   if (mapping->surrogateIdFieldName)
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,

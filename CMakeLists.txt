@@ -23,6 +23,7 @@ SET(WTISAPI_SOVERSION 7)
 SET(WTDBO_SOVERSION 30)
 SET(WTDBOSQLITE3_SOVERSION 30)
 SET(WTDBOPOSTGRES_SOVERSION 30)
+SET(WTTEST_SOVERSION 1)
 
 IF(NOT SHARED_LIBS)
   IF(WIN32)
@@ -86,6 +87,7 @@ ENDIF(GCC_COMPILER_VERSION MATCHES ".*4\\.4\\.4\\-14ubuntu5.*")
 OPTION(BUILD_EXAMPLES "Build examples" ON)
 OPTION(INSTALL_EXAMPLES "Install examples (binaries and source)" OFF)
 OPTION(INSTALL_RESOURCES "Install resources directory" ON)
+OPTION(ENABLE_SSL "Enable cryptography functions, using OpenSSL" ON)
 OPTION(ENABLE_GM "Enable GraphicsMagick, for supporting painting to raster images (PNG, GIF, ...) (WRasterImage)" ON)
 OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide support for painting to PDF (WPdfImage)" ON)
 OPTION(ENABLE_PANGO "Enable Pango Library, which is used for improved font support (WPdfImage and WRasterImage)" ON)
@@ -105,6 +107,9 @@ IF(NOT EXAMPLES_DESTINATION)
 ENDIF(NOT EXAMPLES_DESTINATION)
 
 IF(WIN32)
+  # required for all that uses boost.asio
+  ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)
+
   IF(SHARED_LIBS)
     # See http://svn.boost.org/trac/boost/ticket/3465
     SET(WT_NO_BOOST_INTRUSIVE true)
@@ -227,7 +232,7 @@ SET(SSL_PREFIX ${USERLIB_PREFIX} CACHE PATH
 SET(ZLIB_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of zlib library (overrides USERLIB_PREFIX)")
 SET(GM_PREFIX ${USERLIB_PREFIX} CACHE PATH
-  "Installation prefix of GraphicsMgick library (overrides GM_PREFIX)")
+  "Installation prefix of GraphicsMagick library (overrides USERLIB_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 IF(CYGWIN)
@@ -336,6 +341,8 @@ ELSE(BOOST_WT_MT_FOUND)
   ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
 ENDIF(BOOST_WT_MT_FOUND)
 
+
+
 FIND_PACKAGE(Doxygen)
 
 # Boost is used nearly everywhere, so we can put these here
@@ -435,6 +442,11 @@ IF(ENABLE_HARU AND HARU_FOUND)
   SET(HAVE_HARU ON)
   SET(WT_HAS_WPDFIMAGE true)
 ENDIF(ENABLE_HARU AND HARU_FOUND)
+
+IF(ENABLE_SSL AND SSL_FOUND)
+  SET(HAVE_SSL ON)
+  SET(WT_WITH_SSL true)  
+ENDIF(ENABLE_SSL AND SSL_FOUND)
 
 IF(ENABLE_GM AND GM_FOUND)
   SET(HAVE_GM ON)

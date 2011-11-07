@@ -58,12 +58,9 @@ protected:
     std::ostream o(response.out());
 #endif // WT_TARGET_JAVA
 
-    o << "<!DOCTYPE html PUBLIC "
-      "\"-//W3C//DTD HTML 4.01 Transitional//EN\" "
-      "\"http://www.w3.org/TR/html4/loose.dtd\">"
-      "<html lang=\"en\" dir=\"ltr\">\n"
-      "<head><title></title>\n"
-      "<script type=\"text/javascript\">\n"
+    o << "<!DOCTYPE html>"
+      "<html>\n"
+      "<head><script type=\"text/javascript\">\n"
       "function load() { ";
 
     if (triggerUpdate || request.tooLarge()) {
@@ -85,10 +82,7 @@ protected:
 
     o << "}\n"
       "</script></head>"
-      "<body onload=\"load();\""
-      "style=\"margin:0;padding:0;\">";
-
-    o << "</body></html>";
+      "<body onload=\"load();\"></body></html>";
 
     if (request.tooLarge())
       fileUpload_->tooLargeSize_ = request.tooLarge();

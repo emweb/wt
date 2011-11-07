@@ -11,11 +11,11 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
+#include "Wt/WStringStream"
 
 #include "DomElement.h"
-#include "EscapeOStream.h"
 #include "WebSession.h"
-#include "WtException.h"
 #include "Utils.h"
 
 namespace {
@@ -136,7 +136,7 @@ DomElement *DomElement::getForUpdate(const std::string& id,
 				     DomElementType type)
 {
   if (id.empty())
-    throw WtException("Cannot update widget without id");
+    throw WException("Cannot update widget without id");
 
   DomElement *e = new DomElement(ModeUpdate, type);
   e->id_ = id;
@@ -311,7 +311,7 @@ void DomElement::setEvent(const char *eventName,
   bool anchorClick = type() == DomElement_A
     && eventName == WInteractWidget::CLICK_SIGNAL;
 
-  SStream js;
+  WStringStream js;
   if (isExposed || anchorClick || !jsCode.empty()) {
     if (app->environment().agentIsIEMobile())
       js << "var e=window.event,";
@@ -369,7 +369,7 @@ DomElement::EventAction::EventAction(const std::string& aJsCondition,
 void DomElement::setEvent(const char *eventName,
 			  const std::vector<EventAction>& actions)
 {
-  SStream code;
+  WStringStream code;
 
   for (unsigned i = 0; i < actions.size(); ++i) {
     if (!actions[i].jsCondition.empty())
@@ -405,7 +405,7 @@ void DomElement::processProperties(WApplication *app) const
 
     if (minw != self->properties_.end() || maxw != self->properties_.end()) {
       if (w == self->properties_.end()) {
-	SStream expr;
+	WStringStream expr;
 	expr << WT_CLASS ".IEwidth(this,";
 	if (minw != self->properties_.end()) {
 	  expr << '\'' << minw->second << '\'';
@@ -700,7 +700,7 @@ void DomElement::asHTML(EscapeOStream& out,
 			bool openingTagOnly) const
 {
   if (mode_ != ModeCreate)
-    throw WtException("DomElement::asHTML() called with ModeUpdate");
+    throw WException("DomElement::asHTML() called with ModeUpdate");
 
   WApplication *app = WApplication::instance();
   processEvents(app);
@@ -1189,7 +1189,7 @@ std::string DomElement::addToParent(EscapeOStream& out,
     asJavaScript(out, Create);
     asJavaScript(out, Update);
   } else {
-    SStream insertJS;
+    WStringStream insertJS;
     if (pos != -1)
       insertJS << WT_CLASS ".insertAt(" << parentVar << "," << var_
 	       << "," << pos << ");";
@@ -1272,7 +1272,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       declare(out);
 
       std::string varr = replaced_->createVar();
-      SStream insertJs;
+      WStringStream insertJs;
       insertJs << var_ << ".parentNode.replaceChild("
 	       << varr << ',' << var_ << ");\n";
       replaced_->createElement(out, app, insertJs.str());
@@ -1285,7 +1285,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       declare(out);
 
       std::string varr = insertBefore_->createVar();
-      SStream insertJs;
+      WStringStream insertJs;
       insertJs << var_ << ".parentNode.insertBefore(" << varr << ","
 	       << var_ + ");\n";
       insertBefore_->createElement(out, app, insertJs.str());

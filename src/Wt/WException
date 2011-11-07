@@ -1,0 +1,32 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_WEXCEPTION_H_
+#define WT_WEXCEPTION_H_
+
+#include <string>
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+
+class WT_API WException : public std::exception
+{
+public:
+  explicit WException(const std::string& what);
+  WException(const std::string& what, const std::exception& wrapped);
+
+  virtual ~WException() throw();
+  virtual const char *what() const throw();
+
+  void setMessage(const std::string& msg);
+
+private:
+  std::string what_;
+};
+
+}
+
+#endif // WT_WEXCEPTION_H_

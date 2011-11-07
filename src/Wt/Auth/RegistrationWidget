@@ -1,0 +1,181 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_AUTH_REGISTRATION_WIDGET_H_
+#define WT_AUTH_REGISTRATION_WIDGET_H_
+
+#include <Wt/WTemplate>
+#include <Wt/Auth/OAuth>
+
+namespace Wt {
+  namespace Auth {
+
+class AbstractPasswordAuth;
+class AbstractUserDatabase;
+class AuthWidget;
+class ChoosePasswordFields;
+class Login;
+
+/*! \class RegistrationWidget Wt/Auth/RegistrationWidget
+ *  \brief A registration widget.
+ *
+ * This implements a widget which allows a new user to register.
+ * Typically, you may want to specialize this widget to ask for other
+ * information.
+ *
+ * \ingroup auth
+ */
+class WT_API RegistrationWidget : public WTemplate
+{
+public:
+  /*! \brief Enumeration for an identity policy.
+   *
+   * This enumeration lists two possible choices for dealing with the
+   * user identity when registring using a 3rd party provider,
+   * e.g. using OAuth: whether a user should still choose a unique
+   * identity (i.e. user name), or whether there is no use for a user
+   * name other than facilitate password authentication. In the latter
+   * case, the third-party provided identity (such as
+   * OAuth::Identity::id()) is used as user identity.
+   */
+  enum IdentityPolicy {
+    UserChosen,     //!< A user chooses his own identity (user name).
+    ServiceProvided //!< The identity is taken from the 3rd party service.
+  };
+
+  /*! \brief Constructor
+   *
+   * Creates a new authentication widget which uses the authentication
+   * service in \p baseAuth, and the user database \p users.
+   *
+   * Successful registration also results in a login, which is
+   * indicated to the rest of the application using a \p login object.
+   *
+   * Authentication methods should be configured using
+   * addPasswordAuth() and addOAuth().
+   */
+  RegistrationWidget(const BaseAuth& baseAuth, AbstractUserDatabase& users,
+		     Login& login, AuthWidget *authWidget = 0);
+
+
+  /*! \brief Returns the authentication base service.
+   *
+   * This returns the service passed through the constructor.
+   */
+  const BaseAuth *baseAuth() const { return &baseAuth_; }
+
+  /*! \brief Adds a password authentication service.
+   *
+   * This enables password-based registration, including choosing a proper
+   * password.
+   *
+   * Only one password authentication service can be configured.
+   *
+   * \sa addOAuth()
+   * \sa AbstractPasswordAuth::validatePassword()
+   */
+  void addPasswordAuth(const AbstractPasswordAuth *auth);
+
+  /*! \brief Returns the password authentication service.
+   *
+   * \sa addPasswordAuth()
+   */
+  const AbstractPasswordAuth *passwordAuth() const { return passwordAuth_; }
+
+  /*! \brief Adds an OAuth authentication service provider.
+   *
+   * This enables OAuth-based registration. More than one OAuth
+   * authentication service can be configured: one for each supported
+   * third-party OAuth identity provider.
+   *
+   * \sa addPasswordAuth()
+   */
+  void addOAuth(const OAuth *auth);
+
+  /*! \brief Adds a list of OAuth authentication service providers.
+   *
+   * \sa addOAuth()
+   */
+  void addOAuth(const std::vector<const OAuth *>& auth);
+
+  /*! \brief Returns the list of OAuth authentication service providers.
+   *
+   * \sa addOAuth()
+   */
+  std::vector<const OAuth *> oAuth() const { return oAuth_; }
+
+  /*! \brief Configures the identity policy.
+   */
+  void setIdentityPolicy(IdentityPolicy policy);
+
+  /*! \brief Register an already authenticated user.
+   *
+   * Using a 3rd party authentication service such as %OAuth, a user
+   * may be identified which is not yet registered with the web
+   * application.
+   *
+   * Then, you may still need to allow the user to complete
+   * registration, but because the user already is identified and
+   * authenticated, this simplifies the registration form, since fiels
+   * related to authentication can be dropped.
+   *
+   * \sa setIdentityPolicy()
+   */
+  virtual void registerIdentified(const Identity& identity);
+
+protected:
+  /*! \brief Creates the user-interface.
+   *
+   * This method is called just before an initial rendering, and creates
+   * the initial view.
+   *
+   * The default implementation binds the fields in the template based on
+   * the need for %OAuth or password authentication.
+   */
+  virtual void create();
+
+private:
+  // we may want to make some more of these virtual and documented
+  virtual void createOAuthRegistration();
+  virtual void createPasswordRegistration();
+
+  virtual void doRegister();
+  virtual void close();
+  virtual bool validate();
+  virtual bool checkIdentity();
+  virtual bool checkIdentityExists();
+  virtual void confirmIsYou();
+  virtual void handleOAuthIdentified();
+  virtual void suggestIdentity();
+
+  virtual void registerUserDetails(User& user);
+
+  virtual void render(WFlags<RenderFlag> flags);
+
+private:
+  const BaseAuth& baseAuth_;
+  AbstractUserDatabase& users_;
+  Login& login_;
+  AuthWidget *authWidget_;
+  IdentityPolicy identityPolicy_;
+
+  const AbstractPasswordAuth *passwordAuth_;
+  std::vector<const OAuth *> oAuth_;
+  Identity oAuthIdentity_;
+
+  bool created_;
+  ChoosePasswordFields *passwordFields_;
+  Login *confirmPasswordLogin_;
+
+  void addIdentityField();
+  void oAuthDone(OAuth::Process *process, const Identity& identity);
+  void confirmedIsYou();
+};
+
+  }
+}
+
+#endif // WT_AUTH_REGISTRATION_WIDGET_H_

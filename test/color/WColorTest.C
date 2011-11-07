@@ -6,8 +6,7 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include "web/WtException.h"
-
+#include <Wt/WException>
 #include <Wt/WColor>
 
 BOOST_AUTO_TEST_CASE( color_test_constructors )
@@ -87,112 +86,52 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
 
   //try to mess things up
   {
-    std::string exception;
-    try {
-      Wt::WColor c("#f8 0");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Could not parse rgb format: #f8 0");
+    Wt::WColor c("#f8 0");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
   }
   
   {
-    std::string exception;
-    try {
-      Wt::WColor c("#ff80");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Could not parse rgb format: #ff80");
+    Wt::WColor c("#ff80");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
   }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("rgb(30%,20%)");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Invalid argument count: rgb(30%,20%)");
-   }
+  {
+    Wt::WColor c("rgb(30%,20%)");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+  }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("rgb(30%,20%,50%,50)");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Invalid argument count: rgb(30%,20%,50%,50)");
-   }
+  {
+    Wt::WColor c("rgb(30%,20%,50%,50)");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+  }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("rgb30%,20%,50%)");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Missing brackets in rgb format: rgb30%,20%,50%)");
-   }
+  {
+    Wt::WColor c("rgb30%,20%,50%)");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+  }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("rgb(30%,20%,50%");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Missing brackets in rgb format: rgb(30%,20%,50%");
-   }
+  {
+    Wt::WColor c("rgb(30%,20%,50%");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+  }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("rgba(30%,20%,50%,a)");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Illegal alpha value: a");
-   }
+  {
+    Wt::WColor c("rgba(30%,20%,50%,a)");
+    BOOST_REQUIRE(c.alpha() == 255);
+  }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("rgba(30%,20%,50%)");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Invalid argument count: rgba(30%,20%,50%)");
-   }
+  {
+    Wt::WColor c("rgba(30%,20%,50%)");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+  }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("rgba(30%,20%,50%,50,x)");
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == 
-		  "WColor: Invalid argument count: rgba(30%,20%,50%,50,x)");
-   }
+  {
+    Wt::WColor c("rgba(30%,20%,50%,50,x)");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+  }
 
-   {
-    std::string exception;
-    try {
-      Wt::WColor c("gold");
-      c.blue();
-    } catch (Wt::WtException &e) {
-      exception = e.what();
-    }
-    BOOST_REQUIRE(exception == "WColor: No rgb values are available");
-   }
+  {
+    Wt::WColor c("gold");
+    BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+  }
 }

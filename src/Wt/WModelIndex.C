@@ -9,7 +9,8 @@
 
 #include "Wt/WModelIndex"
 #include "Wt/WAbstractItemModel"
-#include "WtException.h"
+#include "Wt/WException"
+#include "Wt/WLogger"
 
 namespace Wt {
 
@@ -169,9 +170,11 @@ std::size_t hash_value(const Wt::WModelIndex& index) {
 void WModelIndex::encodeAsRawIndex()
 {
   if (model_) {
-    if (isRawIndex())
-      throw WtException("WModelIndex::encodeAsRawIndex(): "
-			"cannot encode a raw index to raw again");
+    if (isRawIndex()) {
+      Wt::log("error") << "WModelIndex::encodeAsRawIndex(): "
+		       << "cannot encode a raw index to raw again";
+      return;
+    }
 
     internalId_ = reinterpret_cast< ::uint64_t >(model_->toRawIndex(*this));
     row_ = column_ = -42;
@@ -181,9 +184,11 @@ void WModelIndex::encodeAsRawIndex()
 WModelIndex WModelIndex::decodeFromRawIndex() const
 {
   if (model_) {
-    if (!isRawIndex())
-      throw WtException("WModelIndex::decodeFromRawIndex(): "
-			"can only decode an encoded raw index");
+    if (!isRawIndex()) {
+      Wt::log("error") << "WModelIndex::decodeFromRawIndex(): "
+		       << "can only decode an encoded raw index";
+      return WModelIndex();
+    }
 
     return model_->fromRawIndex(internalPointer());
   } else

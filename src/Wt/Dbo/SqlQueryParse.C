@@ -44,8 +44,8 @@ void parseSql(const std::string& sql, SelectFieldLists& fieldLists,
 
   std::size_t selectPos = ifind(sql, "select ");
   if (selectPos != 0)
-    throw std::logic_error("Session::query(): query should start with 'select '"
-			   " (sql='" + sql + "')");
+    throw Exception("Session::query(): query should start with 'select '"
+		    " (sql='" + sql + "')");
 
   i += 7;
 
@@ -261,11 +261,10 @@ void parseSql(const std::string& sql, SelectFieldLists& fieldLists,
 
   if (success) {
     if (iter != end)
-      throw std::logic_error("Error parsing SQL query: Expected end here:\""
-			     + std::string(iter, end) + "\"");
+      throw Exception("Error parsing SQL query: Expected end here:\""
+		      + std::string(iter, end) + "\"");
   } else
-    throw std::logic_error("Error parsing SQL query: \""
-			   + sql + "\"");
+    throw Exception("Error parsing SQL query: \"" + sql + "\"");
 }
 
 #endif // SPIRIT_QUERY_PARSE

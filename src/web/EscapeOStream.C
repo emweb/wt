@@ -4,195 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <cstring>
-#include <stdio.h>
 #include "EscapeOStream.h"
 #include "Utils.h"
-#include "WtException.h"
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
 
 namespace Wt {
-
-SStream::SStream()
-  : sink_(0),
-    buf_(static_buf_),
-    buf_i_(0)
-{ }
-
-SStream::SStream(std::ostream& sink)
-  : sink_(&sink),
-    buf_(static_buf_),
-    buf_i_(0)
-{ }
-
-SStream::~SStream()
-{
-  flushSink();
-
-  for (unsigned int i = 1; i < bufs_.size(); ++i)
-    delete[] bufs_[i].first;
-
-  if (buf_ != static_buf_)
-    delete[] buf_;
-}
-
-void SStream::clear()
-{
-  buf_i_ = 0;
-}
-
-bool SStream::empty() const
-{
-  return !sink_ && buf_ == static_buf_ && buf_i_ == 0;
-}
-
-void SStream::flushSink()
-{
-  if (sink_) {
-    sink_->write(buf_, buf_i_);
-    buf_i_ = 0;
-  }
-}
-
-void SStream::pushBuf()
-{
-  if (sink_) {
-    sink_->write(buf_, buf_i_);
-    buf_i_ = 0;
-  } else {
-    bufs_.push_back(std::make_pair(buf_, buf_i_));
-    buf_ = new char[D_LEN];
-    buf_i_ = 0;
-  }
-}
-
-SStream& SStream::operator<< (char c)
-{
-  if (buf_i_ == buf_len())
-    pushBuf();
-
-  buf_[buf_i_++] = c;
-
-  return *this;
-}
-
-SStream& SStream::operator<< (const char *s)
-{
-  append(s, std::strlen(s));
-
-  return *this;
-}
-
-SStream& SStream::operator<< (const std::string& s)
-{
-  append(s.data(), s.length());
-
-  return *this;
-}
-
-SStream& SStream::operator<< (int v)
-{
-  char buf[20];
-  Utils::itoa(v, buf);
-  return *this << buf;
-}
-
-SStream& SStream::operator<< (double d)
-{
-  char buf[50];
-  snprintf(buf, 50, "%g", d);
-  return *this << buf;
-}
-
-void SStream::append(const char *s, int length)
-{
-  if (buf_i_ + length > buf_len()) {
-    pushBuf();
-
-    if (length > buf_len()) {
-      if (sink_) {
-	sink_->write(s, length);
-	return;
-      } else {
-	char *buf = new char[length];
-	std::memcpy(buf, s, length);
-	bufs_.push_back(std::make_pair(buf, length));
-	return;
-      }
-    }
-  }
-
-  std::memcpy(buf_ + buf_i_, s, length);
-  buf_i_ += length;
-}
-
-const char *SStream::c_str()
-{
-  if (bufs_.empty()) {
-    buf_[buf_i_] = 0;
-    return buf_;
-  } else
-    return 0;
-}
-
-std::string SStream::str() const
-{
-  int length = buf_i_;
-  for (unsigned int i = 0; i < bufs_.size(); ++i)
-    length += bufs_[i].second;
-
-  std::string result;
-  result.reserve(length);
-
-  for (unsigned int i = 0; i < bufs_.size(); ++i)
-    result.append(bufs_[i].first, bufs_[i].second);
-
-  result.append(buf_, buf_i_);
-
-  return result;
-}
-
-SStream::iterator SStream::back_inserter()
-{
-  return iterator(*this);
-}
-
-SStream::iterator::iterator()
-  : stream_(0)
-{ }
-
-SStream::iterator::char_proxy SStream::iterator::operator * ()
-{
-  return char_proxy(*stream_);
-}
-
-SStream::iterator& SStream::iterator::operator ++ ()
-{
-  return *this;
-}
-
-SStream::iterator SStream::iterator::operator ++ (int)
-{
-  return *this;
-}
-
-SStream::iterator::char_proxy&
-SStream::iterator::char_proxy::operator= (char c)
-{
-  stream_ << c;
-  return *this;
-}
-
-SStream::iterator::char_proxy::char_proxy(SStream& stream)
-  : stream_(stream)
-{ }
-
-SStream::iterator::iterator(SStream& stream)
-  : stream_(&stream)
-{ }
 
 const EscapeOStream::Entry EscapeOStream::htmlAttributeEntries_[] = {
   { '&', "&amp;" },
@@ -287,7 +102,7 @@ void EscapeOStream::mixRules()
 
 	for (unsigned j = 0; j < mixed_.size(); ++j)
 	  for (unsigned k = 0; k < toMix.size(); ++k)
-	    Wt::Utils::replace(mixed_[j].s, toMix[k].c, toMix[k].s);
+	    Utils::replace(mixed_[j].s, toMix[k].c, toMix[k].s);
 
 	mixed_.insert(mixed_.end(), toMix.begin(), toMix.end());
 
@@ -414,6 +229,5 @@ bool EscapeOStream::empty() const
 {
   return stream_.empty();
 }
-
 
 }

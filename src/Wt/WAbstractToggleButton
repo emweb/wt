@@ -85,6 +85,13 @@ public:
    */
   virtual void setUnChecked();
 
+  /*! \brief Returns the current value.
+   *
+   * Returns "yes" when checked, "maybe" when partially checked, and 
+   * "no" when unchecked.
+   */
+  virtual WT_USTRING valueText() const;
+
   /*! \brief %Signal emitted when the button gets checked.
    *
    * This signal is emitted when the user checks the button.

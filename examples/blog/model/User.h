@@ -12,47 +12,57 @@
 #include "Post.h"
 
 class Comment;
+class Token;
 
 namespace dbo = Wt::Dbo;
 
 typedef dbo::collection< dbo::ptr<Comment> > Comments;
 typedef dbo::collection< dbo::ptr<Post> > Posts;
+typedef dbo::collection< dbo::ptr<Token> > Tokens;
 
 class User {
 public:
+  User();
+
   enum Role {
     Visitor = 0,
     Admin = 1
   };
 
   Wt::WString name;
-  Role        role;
+  Role role;
 
-  Comments    comments;
-  Posts       posts;
+  std::string password;
+  std::string passwordMethod;
+  std::string passwordSalt;
+  int failedLoginAttempts;
+  Wt::WDateTime lastLoginAttempt;
+
+  std::string oAuthId;
+
+  Tokens authTokens;
+  Comments comments;
+  Posts posts;
 
   Posts latestPosts(int count = 10) const;
   Posts allPosts(Post::State state) const;
 
-  void setPassword(const std::string& password);
-  bool authenticate(const std::string& password) const;
-  std::string generateToken();
-
   template<class Action>
   void persist(Action& a)
   {
-    dbo::field(a, name,      "name");
-    dbo::field(a, password_, "password");
-    dbo::field(a, role,      "role");
-    dbo::field(a, token_,    "token");
+    dbo::field(a, name,                "name");
+    dbo::field(a, password,            "password");
+    dbo::field(a, passwordMethod,      "password_method");
+    dbo::field(a, passwordSalt,        "password_salt");
+    dbo::field(a, role,                "role");
+    dbo::field(a, failedLoginAttempts, "failed_login_attempts");
+    dbo::field(a, lastLoginAttempt,    "last_login_attempt");
+    dbo::field(a, oAuthId,             "oauth_id");
 
-    dbo::hasMany(a, comments, dbo::ManyToOne, "author");
-    dbo::hasMany(a, posts,    dbo::ManyToOne, "author");
+    dbo::hasMany(a, comments,   dbo::ManyToOne, "author");
+    dbo::hasMany(a, posts,      dbo::ManyToOne, "author");
+    dbo::hasMany(a, authTokens, dbo::ManyToOne, "user");
   }
-
-private:
-  std::string password_;
-  std::string token_;
 };
 
 DBO_EXTERN_TEMPLATES(User);

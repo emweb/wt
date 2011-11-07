@@ -7,6 +7,9 @@
 #include <Wt/WServer>
 
 #include "BlogRSSFeed.h"
+#include "model/BlogSession.h"
+#include "model/Token.h"
+#include "model/User.h"
 #include "WtHome.h"
 #include "JWtHome.h"
 
@@ -27,6 +30,8 @@ int main(int argc, char **argv)
       "/jwt", "/css/jwt/favicon.ico");
     server.addEntryPoint(Application, createWtHomeApplication,
       "", "/css/wt/favicon.ico");
+
+    BlogSession::initAuth();
 
     if (server.start()) {
       WServer::waitForShutdown();

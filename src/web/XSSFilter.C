@@ -6,10 +6,10 @@
 #include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WString"
+#include "Wt/WStringStream"
 
 #include "DomElement.h"
 #include "XSSUtils.h"
-#include "EscapeOStream.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -77,7 +77,7 @@ bool XSSFilterRemoveScript(WString& text)
 
     XSSSanitize(doc.first_node());
 
-    SStream out;
+    WStringStream out;
     print(out.back_inserter(), *doc.first_node(), print_no_indenting);
     result = out.str();
   } catch (parse_error& e) {

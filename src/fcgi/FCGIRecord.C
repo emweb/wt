@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <Wt/WException>
 #include "FCGIRecord.h"
 
 #include <unistd.h>
@@ -72,7 +73,7 @@ int FCGIRecord::getChar(int fd, bool waitForIt)
     if (result == -1) {
       if (errno != EINTR) {
 	perror("read");
-	throw Exception("Error reading (1)");
+	throw Wt::WException("Error reading (1)");
       }
     } else
       break;
@@ -86,7 +87,7 @@ int FCGIRecord::getChar(int fd, bool waitForIt)
 	if (result == -1) {
 	  if (errno != EINTR) {
 	    perror("read");
-	    throw Exception("Error reading (2)");
+	    throw Wt::WException("Error reading (2)");
 	  } else
 	    result = 0; // try again
 	}
@@ -128,7 +129,7 @@ bool FCGIRecord::getBuffer(int fd, unsigned char *buf,
     if (result == -1) {
       if (errno != EINTR) {
 	perror("read");
-	throw Exception("Error reading (3)");
+	throw Wt::WException("Error reading (3)");
       } // else try again
     } else {
       count += result;
@@ -253,10 +254,3 @@ bool FCGIRecord::getParam(const std::string name, std::string& value) const
 
   return false;
 }
-
-FCGIRecord::Exception::Exception(const std::string what)
-  : what_(what)
-{ }
-
-FCGIRecord::Exception::~Exception() throw()
-{ }

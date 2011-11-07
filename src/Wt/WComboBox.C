@@ -5,7 +5,6 @@
  */
 #include <boost/lexical_cast.hpp>
 
-#include "Wt/WApplication"
 #include "Wt/WComboBox"
 #include "Wt/WLogger"
 #include "Wt/WStringListModel"
@@ -248,8 +247,8 @@ void WComboBox::setFormData(const FormData& formData)
       try {
 	currentIndex_ = boost::lexical_cast<int>(value);
       } catch (boost::bad_lexical_cast& e) {
-	wApp->log("error") << "WComboBox received illegal form value: '"
-			   << value << "'";
+	Wt::log("error") << "WComboBox received illegal form value: '"
+			 << value << "'";
       }
     } else
       currentIndex_ = -1;
@@ -263,14 +262,9 @@ void WComboBox::refresh()
   WFormWidget::refresh();
 }
 
-WValidator::State WComboBox::validate()
+WT_USTRING WComboBox::valueText() const
 {
-  if (validator()) {
-    WT_USTRING text = currentText();
-
-    return validator()->validate(text);
-  } else
-    return WValidator::Valid;
+  return currentText();
 }
 
 void WComboBox::itemsChanged()

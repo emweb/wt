@@ -18,7 +18,7 @@
 namespace Wt {
 
 class Configuration;
-class WAbstractServer;
+class WServer;
 class WebRequest;
 class WebSession;
 
@@ -168,18 +168,21 @@ public:
    */
   const std::string *getParameter(const std::string& name) const;
 
-  /*! \brief Cookies set in the initial call to the application.
+  /*! \brief Returns the cookies from the environment.
    *
-   * Note that cookies set with WApplication::setCookie() are not made
-   * available in the environment.
+   * This returns all cookies that were present in initial request for
+   * the application. Cookies set with WApplication::setCookie() are
+   * not taken into considerations.
+   *
+   * Cookies allow you to persist information across sessions.
    *
    * Not all clients may support cookies or have cookies enabled.
    *
-   * \sa supportsCookies(), getCookie()
+   * \sa supportsCookies(), getCookie(), getCookieValue()
    */
   const CookieMap& cookies() const { return cookies_; }
 
-  /*! \brief Checks for existence and returns specified argument.
+  /*! \brief Returns a cookie value.
    *
    * \if cpp
    * Throws a <tt>std::runtime_error("Missing cookie: ...")</tt> when
@@ -188,8 +191,18 @@ public:
    * Throws a <tt>RuntimeException("Missing cookie: ...")</tt> when
    * the cookie is missing, or returns cookie value otherwise.
    * \endif
+   *
+   * \sa getCookieValue()
    */
   const std::string getCookie(const std::string& cookieNname) const;
+
+  /*! \brief Returns a cookie value.
+   *
+   * Returns 0 if no value was set for the given cookie.
+   *
+   * \sa getCookie()
+   */
+  const std::string *getCookieValue(const std::string& cookieName) const;
 
   /*! \brief Returns a header value.
    *
@@ -565,7 +578,7 @@ public:
 #ifndef WT_TARGET_JAVA
   /** \brief Returns the server.
    */
-  WAbstractServer *server() const;
+  WServer *server() const;
 #endif // WT_TARGET_JAVA
 
   bool hashInternalPaths() const { return hashInternalPaths_; }

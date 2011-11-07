@@ -69,8 +69,6 @@ public:
 
   ::int64_t maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
 
-  Wt::WLogEntry log(const std::string& type) const;
-
 private:
   Wt::WLogger& logger_;
   bool silent_;
@@ -113,6 +111,8 @@ private:
   enum PathOptions { RegularFile = 0x1,
 		     Directory = 0x2,
 		     Private = 0x4 };
+
+  Wt::WLogEntry log(const std::string& type) const;
 };
 
 } // namespace server

@@ -3,9 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WException"
 #include "Wt/WLength"
+#include "Wt/WLogger"
 
-#include "WtException.h"
 #include "Utils.h"
 
 #include <boost/lexical_cast.hpp>
@@ -23,15 +24,21 @@ WLength::WLength()
 { }
 
 WLength::WLength(const char *s)
+  : auto_(false),
+    unit_(Pixel),
+    value_(-1)
 { 
-  auto_ = false;
-
   char *end = 0;
+#ifndef WT_TARGET_JAVA
+  value_ = strtod(s, &end);
+#else
   Utils::stringToDouble(s, &end, value_);
+#endif
+
   if (s == end) {
-    throw WtException(std::string("WLength: "
-				  "Missing value in the css length string '") 
-		      + s + "'.");
+    Wt::log("error") << "WLength: can not parse CSS length: '" << s << "'";
+    auto_ = true;
+    return;
   }
   
   std::string unit(end);
@@ -56,9 +63,10 @@ WLength::WLength(const char *s)
   else if (unit == "%")
     unit_ = Percentage;
   else {
-    throw WtException(std::string("WLength: Illegal unit '")
-		      + unit +
-		      "' in the css length string."); 
+    Wt::log("error") << "WLength: unrecognized unit in '" << s << "'";
+    auto_ = true;
+    value_ = -1;
+    unit_ = Pixel;
   }
 }
 
@@ -86,7 +94,7 @@ WLength::WLength(long value, Unit unit)
 WLength::WLength(unsigned int value, Unit unit)
   : auto_(false),
     value_((double)value)
-{ 
+{
   setUnit(unit);
 }
 
@@ -103,7 +111,7 @@ void WLength::setUnit(Unit unit)
 
 #ifndef WT_TARGET_JAVA
   if (unit_ < FontEm || unit_ > Percentage)
-    throw WtException("WLength: illegal unit value.");
+    throw WException("WLength: improper unit value.");
 #endif // WT_TARGET_JAVA
 }
 

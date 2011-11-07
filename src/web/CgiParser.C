@@ -38,12 +38,12 @@
 #include <boost/regex.hpp>
 #endif // WT_HAVE_GNU_REGEX
 
-#include <boost/tokenizer.hpp>
-
 #include "CgiParser.h"
 #include "WebRequest.h"
-#include "WtException.h"
 #include "Utils.h"
+
+#include "Wt/WException"
+#include "Wt/Http/Request"
 
 using std::memmove;
 using std::strcpy;
@@ -205,7 +205,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
     request.in().read(buf, len);
     if (request.in().gcount() != (int)len) {
       delete[] buf;
-      throw WtException("Unexpected short read.");
+      throw WException("Unexpected short read.");
     }
     buf[len] = 0;
 
@@ -221,46 +221,12 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
   // std::cerr << "queryString (len=" << len << "): "
   //           << queryString << std::endl;
 
-  if (!queryString.empty()) {
-    typedef boost::tokenizer<boost::char_separator<char> > amp_tok;
-    amp_tok tok(queryString, boost::char_separator<char>("&"));
-
-#ifdef DEBUG
-    std::cerr << queryString << std::endl;
-#endif // DEBUG
-
-    for (amp_tok::iterator i = tok.begin(); i != tok.end(); ++i) {
-      std::string pair = *i;
-
-#ifdef DEBUG
-      std::cerr << pair << std::endl;
-#endif // DEBUG
-
-      // convert plus to space
-      Wt::Utils::replace(pair, '+', " ");
-
-      // split into key and value
-      std::string::size_type equalPos = pair.find('=');
-      std::string key = pair.substr(0, equalPos);
-      std::string value;
-      value = (equalPos != std::string::npos && pair.size() > equalPos + 1)
-	? pair.substr(equalPos + 1) : "";
-
-      // convert %XX from hex numbers to alphanumeric
-      Wt::Utils::unescapeHexTokens(key);
-      Wt::Utils::unescapeHexTokens(value);
-
-#ifdef DEBUG
-      std::cerr << key << ": \"" << value << "\"" << std::endl;
-#endif // DEBUG
-
-      request_->parameters_[key].push_back(value);
-    }
-  }
+  if (!queryString.empty())
+    Http::Request::parseFormUrlEncoded(queryString, request_->parameters_);
 
   if (readOption != ReadHeadersOnly && type.find("multipart/form-data") == 0) {
     if (meth != "POST") {
-      throw WtException("Invalid method for multipart/form-data: " + meth);
+      throw WException("Invalid method for multipart/form-data: " + meth);
     }
 
     if (!request.postDataExceeded_)
@@ -270,7 +236,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
 	::int64_t toRead = std::min(::int64_t(BUFSIZE), len);
 	request.in().read(buf_, toRead);
 	if (request.in().gcount() != (::int64_t)toRead)
-	  throw WtException("CgiParser: short read");
+	  throw WException("CgiParser: short read");
 	len -= toRead;
       }
     }
@@ -283,7 +249,7 @@ void CgiParser::readMultipartData(WebRequest& request,
   std::string boundary;
     
   if (!fishValue(type, boundary_e, boundary))
-    throw WtException("Could not find a boundary for multipart data.");
+    throw WException("Could not find a boundary for multipart data.");
     
   boundary = "--" + boundary;
 
@@ -322,8 +288,8 @@ void CgiParser::readUntilBoundary(WebRequest& request,
      * not including the boundary length.
      */
     if (left_ == 0)
-      throw WtException("CgiParser: reached end of input while seeking end of "
-			"headers or content. Format of CGI input is wrong");
+      throw WException("CgiParser: reached end of input while seeking end of "
+		       "headers or content. Format of CGI input is wrong");
 
     /* save (up to) BUFSIZE from buffer to file or value string, but
      * mind the boundary length */
@@ -345,7 +311,7 @@ void CgiParser::readUntilBoundary(WebRequest& request,
 
     request.in().read(buf_ + buflen_, amt);    
     if (request.in().gcount() != (int)amt)
-      throw WtException("CgiParser: short read");
+      throw WException("CgiParser: short read");
 
     left_ -= amt;
     buflen_ += amt;
@@ -423,7 +389,7 @@ bool CgiParser::parseHead(WebRequest& request)
        * It is not easy to create a std::ostream pointing to a
        * temporary file name.
        */
-      std::string spool = Wt::Utils::createTempFileName();
+      std::string spool = Utils::createTempFileName();
 
       spoolStream_ = new std::ofstream(spool.c_str(),
         std::ios::out | std::ios::binary);

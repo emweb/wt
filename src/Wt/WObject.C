@@ -3,12 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WException"
 #include "Wt/WObject"
 #include "Wt/WStatelessSlot"
 #include "Wt/WSignal"
 #include "Utils.h"
 
-#include "WtException.h"
 
 #include <stdio.h>
 
@@ -64,7 +64,7 @@ void WObject::addChild(WObject *child)
 void WObject::removeChild(WObject *child)
 {
   if (child->parent_ != this)
-    throw WtException("WObject::removeChild() called with non-child");
+    throw WException("WObject::removeChild() called with non-child");
 
   assert(children_);
   Utils::erase(*children_, child);

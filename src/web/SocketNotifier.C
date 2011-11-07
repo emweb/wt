@@ -5,8 +5,9 @@
  */
 
 #include "SocketNotifier.h"
-#include "Configuration.h"
 #include "WebController.h"
+#include "Wt/WLogger"
+#include "Wt/WServer"
 #include "Wt/WSocketNotifier"
 #include <set>
 
@@ -52,7 +53,7 @@ public:
 
   void reportError(const char *msg)
   {
-    controller_->configuration().log("error")
+    controller_->server()->log("error")
       << "SocketNotifier: " << msg << ". Error code "
 #ifdef WIN32
       << GetLastError();
@@ -364,7 +365,7 @@ void SocketNotifier::threadEntry()
       lock.lock();
     } else {
       // TODO: log
-      impl_->controller_->configuration().log("error")
+      impl_->controller_->server()->log("error")
         << "SocketNotifier: select returned -1";
     }
   }

@@ -6,17 +6,17 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WRegExp"
+#include "Wt/Http/Request"
 
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebController.h"
 #include "Configuration.h"
 #include "Utils.h"
-#include "WtException.h"
 
-#include <stdexcept>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <assert.h>
@@ -118,7 +118,7 @@ void WEnvironment::init(const WebRequest& request)
   doesCookies_ = !cookie.empty();
 
   if (doesCookies_)
-    parseCookies(cookie);
+    Http::Request::parseCookies(cookie, cookies_);
 
   locale_ = request.parseLocale();
 
@@ -177,6 +177,8 @@ std::string WEnvironment::getClientAddress(const WebRequest& request,
 void WEnvironment::enableAjax(const WebRequest& request)
 {
   doesAjax_ = true;
+  session_->controller()->newAjaxSession();
+
   doesCookies_ = !request.headerValue("Cookie").empty();
 
   if (!request.getParameter("htmlHistory"))
@@ -396,42 +398,11 @@ std::string WEnvironment::getCgiValue(const std::string& varName) const
 }
 
 #ifndef WT_TARGET_JAVA
-WAbstractServer *WEnvironment::server() const
+WServer *WEnvironment::server() const
 {
-  return session_->controller()->server_;
+  return session_->controller()->server();
 }
 #endif // WT_TARGET_JAVA
-
-void WEnvironment::parseCookies(const std::string& str)
-{
-  // Cookie parsing strategy:
-  // - First, split the string on cookie separators (-> name-value pair).
-  //   ';' is cookie separator. ',' is not a cookie separator (as in PHP)
-  // - Then, split the name-value pairs on the first '='
-  // - URL decoding/encoding
-  // - Trim the name, trim the value
-  // - If a name-value pair does not contain an '=', the name-value pair
-  //   was the name of the cookie and the value is empty
-
-  std::vector<std::string> cookies;
-  boost::split(cookies, str, boost::is_any_of(";"));
-  for (unsigned int i = 0; i < cookies.size(); ++i) {
-    std::string::size_type e = cookies[i].find('=');
-    std::string cookieName = cookies[i].substr(0, e);
-    std::string cookieValue =
-      (e != std::string::npos && cookies[i].size() > e + 1) ?
-        cookies[i].substr(e + 1) : "";
-
-    boost::trim(cookieName);
-    boost::trim(cookieValue);
-
-    Wt::Utils::urlDecode(cookieName);
-    Wt::Utils::urlDecode(cookieValue);
-    if (cookieName != "") {
-      cookies_[cookieName] = cookieValue;
-    }
-  }
-}
 
 bool WEnvironment::isTest() const
 {
@@ -440,12 +411,12 @@ bool WEnvironment::isTest() const
 
 Signal<WDialog *>& WEnvironment::dialogExecuted() const
 {
-  throw WtException("Internal error");
+  throw WException("Internal error");
 }
 
 Signal<WPopupMenu *>& WEnvironment::popupExecuted() const
 {
-  throw WtException("Internal error");
+  throw WException("Internal error");
 }
 
 }

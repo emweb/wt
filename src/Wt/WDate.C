@@ -8,9 +8,9 @@
 
 #include "Wt/WApplication"
 #include "Wt/WDate"
+#include "Wt/WException"
 #include "Wt/WLogger"
 
-#include "WtException.h"
 #include "Utils.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -23,15 +23,8 @@ namespace {
 namespace Wt {
 
 InvalidDateException::InvalidDateException()
+  : WException("Error: Attempted operation on an invalid WDate")
 { }
-
-InvalidDateException::~InvalidDateException() throw()
-{ }
-
-const char *InvalidDateException::what() const throw()
-{ 
-  return "Error: Attempted operation on an invalid WDate";
-}
 
 WDate::WDate()
   : valid_(false),
@@ -89,9 +82,7 @@ void WDate::setDate(int year, int month, int day)
     date d(year, month, day);
     valid_ = true;
   } catch (std::out_of_range& e) {
-    WApplication *app = wApp;
-    if (app)
-      app->log("warn") << "Invalid date: " << e.what();
+    Wt::log("warn") << "Invalid date: " << e.what();
   }
 }
 
@@ -432,7 +423,7 @@ static void fatalFormatError(const WString& format, int c, const char* cs)
   s << "WDate format syntax error (for \"" << format.toUTF8()
     << "\"): Cannot handle " << c << " consecutive " << cs;
 
-  throw WtException(s.str());
+  throw WException(s.str());
 }
 
 bool WDate::parseLast(const std::string& v, unsigned& vi,
@@ -805,7 +796,7 @@ namespace {
     std::stringstream s;
     s << "WDate to regexp: (for \"" << format.toUTF8()
       << "\"): cannot handle " << c << " consecutive " << cs;
-    throw WtException(s.str());
+    throw WException(s.str());
   }
 
   void writeRegExpLast(WDate::RegExpInfo& result, int& d, int& M, int& y,

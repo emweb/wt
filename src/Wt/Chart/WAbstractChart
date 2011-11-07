@@ -25,7 +25,7 @@ namespace Wt {
 
     class WChartPalette;
 
-/*! \defgroup charts Charts
+/*! \defgroup charts Charts (Wt::Chart)
  *  \brief A charting library implemented using the %Wt \ref painting
  *
  * The charting library contains two main chart widget classes,

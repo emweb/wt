@@ -7,7 +7,6 @@
 
 #include "Wt/Ext/Calendar"
 
-#include "Wt/WApplication"
 #include "Wt/WLogger"
 
 #include "DomElement.h"
@@ -44,8 +43,8 @@ void Calendar::onSelect(std::string date)
     selectionChanged_.emit();
     selected_.emit();
   } else
-    wApp->log("error") << "Calendar internal error: could not parse date: '"
-		       << date << "'";
+    Wt::log("error") << "Calendar internal error: could not parse date: '"
+		     << date << "'";
 }
 
 void Calendar::updateExt()

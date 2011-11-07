@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( I18n_findCaseException1 )
   std::string error;
   try {
     Wt::WString::trn("file", 1).toUTF8();
-  } catch(std::logic_error &e) {
+  } catch (std::exception& e) {
     error = e.what();
   }
 
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( I18n_findCaseException2 )
   std::string error;
   try {
     Wt::WString::trn("file", 1).toUTF8();
-  } catch(std::logic_error &e) {
+  } catch (std::exception& e) {
     error = e.what();
   }
 

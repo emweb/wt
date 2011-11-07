@@ -8,8 +8,9 @@
 #include <cstring>
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WException"
+
 #include "FileServe.h"
-#include "WtException.h"
 
 namespace Wt {
 
@@ -82,8 +83,8 @@ void FileServe::streamUntil(std::ostream& out, const std::string& until)
 	      i = conditions_.find(farg);
 
 	    if (i == conditions_.end())
-	      throw WtException("Internal error: could not find condition: "
-				+ farg);
+	      throw WException("Internal error: could not find condition: "
+			       + farg);
 	    bool c = i->second;
 
 	    if (fname == "if")
@@ -104,8 +105,8 @@ void FileServe::streamUntil(std::ostream& out, const std::string& until)
 	    = vars_.find(currentVar);
 
 	  if (i == vars_.end())
-	    throw WtException("Internal error: could not find variable: "
-			      + currentVar);
+	    throw WException("Internal error: could not find variable: "
+			     + currentVar);
 
 	  if (!noMatchConditions)
 	    out << i->second;

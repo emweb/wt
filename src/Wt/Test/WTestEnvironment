@@ -17,9 +17,10 @@
 namespace Wt {
 
 class WebController;
-class Configuration;
 
 namespace Test {
+
+class TestServer;
 
 /*! \class WTestEnvironment Wt/Test/WTestEnvironment Wt/Test/WTestEnvironment
  *  \brief An environment for testing purposes.
@@ -49,11 +50,22 @@ namespace Test {
  *
  * \sa WEnvironment, WApplication::WApplication(const WEnvironment&)
  */
-class WT_API WTestEnvironment : public WEnvironment
+class WTCONNECTOR_API WTestEnvironment : public WEnvironment
 {
 public:
 #ifndef WT_TARGET_JAVA
   /*! \brief Default constructor.
+   *
+   * Constructs a test environment that resembles FireFox 3.0 with default
+   * settings.
+   *
+   * After construction, but before passing it to the constructor of a
+   * WApplication, you can change any of the environment properties using
+   * the setter methods.
+   */
+  WTestEnvironment(EntryPointType type = Application);
+
+  /*! \brief Constructor with custom configuration
    *
    * Constructs a test environment that resembles FireFox 3.0 with default
    * settings.
@@ -66,9 +78,10 @@ public:
    * WApplication, you can change any of the environment properties using
    * the setter methods.
    */
-  WTestEnvironment(const std::string& applicationPath = "/",
-		   const std::string& configurationFile = "",
+  WTestEnvironment(const std::string& applicationPath,
+		   const std::string& configurationFile,
 		   EntryPointType type = Application);
+
 #else
   /*! \brief Default constructor.
    *
@@ -257,9 +270,17 @@ public:
    */
   virtual Signal<WPopupMenu *>& popupExecuted() const;
 
+  void endRequest();
+  void startRequest();
+
 private:
-  Configuration *configuration_;
   boost::shared_ptr<WebSession> theSession_;
+
+#ifndef WT_TARGET_JAVA
+  WServer *server_;
+#endif
+
+  Configuration *configuration_;
   WebController *controller_;
 
   mutable Signal<WDialog *> dialogExecuted_;
@@ -268,6 +289,8 @@ private:
   virtual bool isTest() const;
 
   void init(EntryPointType type);
+
+  friend class TestServer;
 };
 
 }

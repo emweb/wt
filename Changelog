@@ -1,8 +1,47 @@
+07-11-2011:
+	* WException: new, public exception class (was previously an internal
+	one)
+
+	* WIOService: new, public service class for async I/O, and its
+	thread pool
+
+	* WStringStream: new, public fast stringstream implementation (was
+	previously an internal class)
+
+	* Wt/Auth: new, authentication module
+
+	* Wt/Json: new, JSON library
+
+	* Wt/Mail: new, mail client
+
+	* Wt/Http/Client: new, http client (former Client renamed to WtClient)
+
+	* Wt/Test/WTestEnvironment: has moved to a "wttest" pseudo-connector
+	library
+
+	* WFormWidget: added a valueText() that returns the textual
+	representation of the current value
+
+	* WApplication: added deferRendering() and resumeRendering() API,
+	useful for asynchronous client operations
+
+	* Wt::log(): global logging method, similar to but more useful
+	than WApplication::log()
+
+	* WTemplate: added support for functions, and two standard functions
+	id() and tr()
+
+	* WTemplate: implemented arguments parsing and use ("class")
+
+	* WebSession: added DoS meausures: ajax puzzle and plain session
+	rate limitation
+
 19-10-2011:
 	* WAbstractItemView: reimplemented and simplified header item rendering
 
-	* Wt.js: workaround browser bugs in scrollLeft reading in RTL mode,		fixing WAbstractItemView column resizing in RTL layouts.
-	
+	* Wt.js: workaround browser bugs in scrollLeft reading in RTL mode,
+	fixing WAbstractItemView column resizing in RTL layouts.
+
 12-10-2011:
 	* WRectF: fix isEmpty() to be more restrictive: only a rect with
 	width = 0 and height = 0 is now empty

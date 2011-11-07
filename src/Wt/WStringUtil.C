@@ -4,11 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WStringUtil"
 
-#include "WtException.h"
 #include "rapidxml/rapidxml.hpp"
 
 #ifndef WT_NO_STD_LOCALE
@@ -49,14 +47,8 @@ std::wstring widen(const std::string& s, const std::locale &loc)
       break;
   }
 
-  if (error) {
-    if (WApplication::instance())
-      WApplication::instance()->log("error")
-	<< "WString::widen(): could not widen string: " << s;
-    else
-      std::cerr << "WString::widen(): could not widen string: "
-		<< s << std::endl;
-  }
+  if (error)
+    Wt::log("error") << "WString::widen(): could not widen string: " << s;
 
   std::wstring result = std::wstring(pwstr, pwc - pwstr);
   delete[] pwstr;
@@ -125,11 +117,7 @@ std::string narrow(const std::wstring& s, const std::locale &loc)
   std::string result(pstr, pc - pstr);
 
   if (error) {
-    if (WApplication::instance())
-      WApplication::instance()->log("warning")
-	<< "WString::narrow(): loss of detail: " << result;
-    else
-      std::cerr << "WString::narrow(): loss of detail: " << result << std::endl;
+    Wt::log("warn") << "WString::narrow(): loss of detail: " << result;
   }
 
   delete[] pstr;
@@ -165,10 +153,7 @@ std::string toUTF8(const std::wstring& s)
       for (char *b = buf; b != end; ++b)
 	result += *b;
     } catch (rapidxml::parse_error& e) {
-      if (WApplication::instance())
-	WApplication::instance()->log("error") << e.what();
-      else
-	std::cerr << "WString::toUTF8(): " << e.what() << std::endl;
+      Wt::log("error") << "WString::toUTF8(): " << e.what();
     }
   }
 

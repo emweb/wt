@@ -164,7 +164,6 @@ private:
 					const std::string& value);
   static void unsupportedCssValue(Property property,
 				  const std::string& value);
-  static void unsupportedElement(const std::string& tag);
 
   friend class Line;
 };

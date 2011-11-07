@@ -9,20 +9,19 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 using namespace boost::gregorian;
 
-#include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WComboBox"
 #include "Wt/WContainerWidget"
 #include "Wt/WInPlaceEdit"
 #include "Wt/WLineEdit"
+#include "Wt/WLogger"
 #include "Wt/WSignalMapper"
+#include "Wt/WStringStream"
 #include "Wt/WTable"
 #include "Wt/WTemplate"
 #include "Wt/WText"
-#include "WtException.h"
 
 #include "Utils.h"
-#include "EscapeOStream.h"
 
 namespace Wt {
 
@@ -80,7 +79,7 @@ void WCalendar::create()
   currentYear_ = currentDay.year();
   currentMonth_ = currentDay.month();
 
-  SStream text;
+  WStringStream text;
 
   text <<
     "<table class=\"${table-class}\" cellspacing=\"0\" cellpadding=\"0\">"
@@ -183,7 +182,10 @@ void WCalendar::setHorizontalHeaderFormat(HorizontalHeaderFormat format)
   case LongDayNames:
     d = "dlong"; break;
   default:
-    throw WtException("WCalendar: Invalid horizontal header format.");
+    Wt::log("error") << "WCalendar::setHorizontalHeaderFormat(): "
+		     << "improper horizontal header format.";
+    format = SingleLetterDayNames;
+    d = "d1";
   }
 
   horizontalHeaderFormat_ = format;

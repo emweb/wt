@@ -11,6 +11,7 @@ IF(CONNECTOR_ISAPI)
 
       SET(libsapisources
         Server.C
+		WServer.C
         Isapi.C
         IsapiRequest.C
         IsapiStream.C

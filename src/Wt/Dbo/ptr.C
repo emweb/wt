@@ -6,9 +6,9 @@
  */
 
 #include <Wt/Dbo/ptr>
+#include <Wt/Dbo/Exception>
 #include <Wt/Dbo/Session>
 #include <iostream>
-#include <stdexcept>
 
 namespace Wt {
   namespace Dbo {
@@ -81,7 +81,7 @@ void MetaDboBase::resetTransactionState()
 void MetaDboBase::checkNotOrphaned()
 {
   if (isOrphaned()) {
-    throw std::logic_error("using orphaned dbo ptr");
+    throw Exception("using orphaned dbo ptr");
   }
 }
 

@@ -11,7 +11,6 @@
 #include "Wt/WStandardItem"
 #include "Wt/WStandardItemModel"
 
-#include "WtException.h"
 #include "Utils.h"
 
 #define UNSPECIFIED_RESULT -1

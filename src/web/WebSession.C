@@ -8,12 +8,13 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "Wt/WAbstractServer"
 #include "Wt/WApplication"
 #include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
+#include "Wt/WException"
 #include "Wt/WFormWidget"
 #include "Wt/WResource"
+#include "Wt/WServer"
 #include "Wt/WTimerWidget"
 #include "Wt/WTimer"
 #include "Wt/Http/Request"
@@ -27,11 +28,14 @@
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebSocketMessage.h"
-#include "WtException.h"
 
 #include <boost/algorithm/string.hpp>
 #ifndef _MSC_VER
 #include <unistd.h>
+#endif
+
+#ifdef WIN32
+#include <process.h>
 #endif
 
 #ifdef WT_TARGET_JAVA
@@ -80,9 +84,8 @@ WebSession::WebSession(WebController *controller,
     favicon_(favicon),
     state_(JustCreated),
     sessionId_(sessionId),
-    sessionIdCookie_(WRandom::generateId()),
     sessionIdChanged_(false),
-    sessionIdCookieChanged_(true),
+    sessionIdCookieChanged_(false),
     sessionIdInUrl_(false),
     controller_(controller),
     renderer_(*this),
@@ -91,6 +94,9 @@ WebSession::WebSession(WebController *controller,
     canWriteAsyncResponse_(false),
     noBootStyleResponse_(false),
     progressiveBoot_(false),
+    deferredRequest_(0),
+    deferredResponse_(0),
+    deferCount_(0),
 #ifdef WT_TARGET_JAVA
     recursiveEvent_(mutex_.newCondition()),
     newRecursiveEvent_(false),
@@ -141,7 +147,12 @@ WebSession::WebSession(WebController *controller,
   log("notice") << "Session created";
 #endif // WT_TARGET_JAVA
 
-  renderer().setCookie("Wt" + sessionIdCookie_, "1", -1, "", "");
+  if (controller_->configuration().sessionIdCookie()) {
+    sessionIdCookie_ = WRandom::generateId();
+    sessionIdCookieChanged_ = true;
+    renderer().setCookie("Wt" + sessionIdCookie_, "1", Wt::WDateTime(), "", "",
+			 false /* FIXME: or true ? */);
+  }
 }
 
 void WebSession::setApplication(WApplication *app)
@@ -149,14 +160,34 @@ void WebSession::setApplication(WApplication *app)
   app_ = app;
 }
 
+void WebSession::deferRendering()
+{
+  if (!deferredRequest_) {
+    Handler *handler = WebSession::Handler::instance();
+    deferredRequest_ = handler->request();
+    deferredResponse_ = handler->response();
+    handler->setRequest(0, 0);
+  }
+
+  ++deferCount_;
+}
+
+void WebSession::resumeRendering()
+{
+  if (--deferCount_ == 0) {
+    Handler *handler = WebSession::Handler::instance();
+    handler->setRequest(deferredRequest_, deferredResponse_);
+    deferredRequest_ = 0;
+    deferredResponse_ = 0;
+  }
+}
+
 WLogEntry WebSession::log(const std::string& type) const
 {
-  Configuration& conf = controller_->configuration();
-  WLogEntry e = conf.logger().entry();
+  WLogEntry e = controller_->server()->logger().entry();
 
 #ifndef WT_TARGET_JAVA
-  e << WLogger::timestamp << WLogger::sep
-    << conf.pid() << WLogger::sep
+  e << WLogger::timestamp << WLogger::sep << getpid() << WLogger::sep
     << '[' << deploymentPath_ << ' ' << sessionId()
     << ']' << WLogger::sep
     << '[' << type << ']' << WLogger::sep;
@@ -179,7 +210,8 @@ WebSession::~WebSession()
 
   if (app_)
     app_->notify
-      (WEvent(WEvent::Impl(boost::bind(&WApplication::finalize, app_))));
+      (WEvent(WEvent::Impl(&handler,
+			   boost::bind(&WApplication::finalize, app_))));
 
   delete app_;
 #endif // WT_TARGET_JAVA
@@ -189,6 +221,11 @@ WebSession::~WebSession()
     asyncResponse_ = 0;
   }
 
+  if (deferredResponse_) {
+    deferredResponse_->flush();
+    deferredResponse_ = 0;
+  }    
+
 #ifdef WT_BOOST_THREADS
   updatesPendingEvent_.notify_one();
 #endif // WT_BOOST_THREADS
@@ -196,8 +233,6 @@ WebSession::~WebSession()
   flushBootStyleResponse();
 
 #ifndef WT_TARGET_JAVA
-  unlink(controller_->configuration().sessionSocketPath(sessionId_).c_str());
-
   log("notice") << "Session destroyed (#sessions = "
 		<< controller_->sessionCount() << ")";
 #else // WT_TARGET_JAVA
@@ -267,7 +302,7 @@ void WebSession::setState(State state, int timeout)
 
 std::string WebSession::sessionQuery() const
 {
-  return "?wtd=" + sessionId_;
+  return "?wtd=" + DomElement::urlEncodeS(sessionId_);
 }
 
 void WebSession::init(const WebRequest& request)
@@ -325,9 +360,10 @@ bool WebSession::useUglyInternalPaths() const
    * We need ugly ?_= internal paths if the server does not route
    * /app/foo to an application deployed as /app/
    */
-  if (applicationName_.empty() && controller_->server_)
-    return controller_->server_->usesSlashExceptionForInternalPaths();
-  else
+  if (applicationName_.empty() && controller_->server()) {
+    Configuration& conf = controller_->configuration();
+    return conf.useSlashExceptionForInternalPaths();
+  } else
     return false;
 #else
   return false;
@@ -607,7 +643,8 @@ WebSession::Handler::Handler()
     prevHandler_(0),
     session_(0),
     request_(0),
-    response_(0)
+    response_(0),
+    killed_(false)
 {
   init();
 }
@@ -624,7 +661,8 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
     sessionPtr_(session),
 #endif // WT_TARGET_JAVA
     request_(0),
-    response_(0)
+    response_(0),
+    killed_(false)
 {
   if (takeLock) {
 #ifdef WT_THREADED
@@ -643,7 +681,8 @@ WebSession::Handler::Handler(WebSession *session)
     prevHandler_(0),
     session_(session),
     request_(0),
-    response_(0)
+    response_(0),
+    killed_(false)
 {
   init();
 }
@@ -660,7 +699,8 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
     sessionPtr_(session),
 #endif // WT_TARGET_JAVA
     request_(&request),
-    response_(&response)
+    response_(&response),
+    killed_(false)
 {
 #ifdef WT_TARGET_JAVA
   session->mutex().lock();
@@ -686,7 +726,7 @@ bool WebSession::Handler::haveLock() const
 #  ifdef WT_TARGET_JAVA
   return session_->mutex().owns_lock();
 #  else
-  return false;
+  return true;
 #  endif
 #endif
 }
@@ -863,9 +903,9 @@ void WebSession::doRecursiveEventLoop()
 
 #ifdef WT_TARGET_JAVA
   if (handler->request() && !WebController::isAsyncSupported())
-    throw WtException("Recursive eventloop requires a Servlet 3.0 "
-		      "enabled servlet container and an application "
-		      "with async-supported enabled.");
+    throw WException("Recursive eventloop requires a Servlet 3.0 "
+		     "enabled servlet container and an application "
+		     "with async-supported enabled.");
 #endif
 
   /*
@@ -888,7 +928,7 @@ void WebSession::doRecursiveEventLoop()
 
   if (state_ == Dead) {
     recursiveEventLoop_ = 0;
-    throw WtException("doRecursiveEventLoop(): session was killed");
+    throw WException("doRecursiveEventLoop(): session was killed");
   }
 
   /*
@@ -917,7 +957,7 @@ void WebSession::doRecursiveEventLoop()
 
   if (state_ == Dead) {
     recursiveEventLoop_ = 0;
-    throw WtException("doRecursiveEventLoop(): session was killed");
+    throw WException("doRecursiveEventLoop(): session was killed");
   }
 
   setLoaded();
@@ -1116,19 +1156,27 @@ void WebSession::handleRequest(Handler& handler)
 	    }
 
 	    if (!start())
-	      throw WtException("Could not start application.");
+	      throw WException("Could not start application.");
 
 	    app_->notify(WEvent(WEvent::Impl(&handler)));
-	    setLoaded();
 
 	    if (env_->agentIsSpiderBot())
 	      kill();
+	    else if (controller_->limitPlainHtmlSessions()) {
+	      log("notice") << "DoS: plain HTML sessions being limited";
+
+	      if (forcePlain)
+		kill();
+	      else // progressiveBoot_
+		setState(Loaded, conf.bootstrapTimeout());
+	    } else
+	      setLoaded();
 	  } else {
 	    /*
 	     * Delay application start
 	     */
 	    serveResponse(handler);
-	    setState(Loaded, 10);
+	    setState(Loaded, conf.bootstrapTimeout());
 	  }
 	  break; }
 	case WidgetSet:
@@ -1154,11 +1202,11 @@ void WebSession::handleRequest(Handler& handler)
 	    env_->enableAjax(request);
 
 	    if (!start())
-	      throw WtException("Could not start application.");
+	      throw WException("Could not start application.");
 
 	    app_->notify(WEvent(WEvent::Impl(&handler)));
 
-	    setLoaded();
+	    setState(ExpectLoad, conf.bootstrapTimeout()); // expect 'load'
 	  }
 
 	  break;
@@ -1168,13 +1216,16 @@ void WebSession::handleRequest(Handler& handler)
 
 	break;
       }
+      case ExpectLoad:
       case Loaded: {
 	if (requestE) {
 	  if (*requestE == "jsupdate")
 	    handler.response()->setResponseType(WebResponse::Update);
-	  else if (*requestE == "script")
+	  else if (*requestE == "script") {
 	    handler.response()->setResponseType(WebResponse::Script);
-	  else if (*requestE == "style") {
+	    if (state_ == Loaded)
+	      setState(ExpectLoad, conf.bootstrapTimeout()); // expect 'load'
+	  } else if (*requestE == "style") {
 	    flushBootStyleResponse();
 
 	    const std::string *jsE = request.getParameter("js");
@@ -1193,7 +1244,7 @@ void WebSession::handleRequest(Handler& handler)
 		bootStyleResponse_ = handler.response();
 		handler.setRequest(0, 0);
 
-		controller_->server_
+		controller_->server()
 		  ->schedule(2000, sessionId_,
 			     boost::bind(&WebSession::flushBootStyleResponse,
 					 this));
@@ -1243,7 +1294,7 @@ void WebSession::handleRequest(Handler& handler)
 	      env_->enableAjax(request);
 
 	      if (!start())
-		throw WtException("Could not start application.");
+		throw WException("Could not start application.");
 	    } else {
 	      serveResponse(handler);
 	      return;
@@ -1260,13 +1311,18 @@ void WebSession::handleRequest(Handler& handler)
 
 	    if (jsE && *jsE == "no") {
 	      if (!start())
-		throw WtException("Could not start application.");
+		throw WException("Could not start application.");
+
+	      if (controller_->limitPlainHtmlSessions()) {
+		log("notice") << "DoS: plain HTML sessions being limited";
+		kill();
+	      }
 	    } else {
 	      // This could be because the session Id was not as
 	      // expected. At least, it should be correct now.
 	      if (!conf.reloadIsNewSession() && wtdE && *wtdE == sessionId_) {
 		serveResponse(handler);
-		setState(Loaded, 10);
+		setState(Loaded, conf.bootstrapTimeout());
 	      } else {
 		handler.response()->setContentType("text/html");
 		handler.response()->out() <<
@@ -1285,7 +1341,13 @@ void WebSession::handleRequest(Handler& handler)
 	bool isPoll = signalE && *signalE == "poll";
 
 	if (requestForResource || isPoll || !unlockRecursiveEventLoop()) {
-	  setLoaded();
+	  if (env_->ajax()) {
+	    if (state_ != ExpectLoad
+		&& handler.response()->responseType() == WebResponse::Update)
+	      setLoaded();
+	  } else if (state_ != ExpectLoad
+		     && !controller_->limitPlainHtmlSessions())
+	    setLoaded();	    
 
 	  app_->notify(WEvent(WEvent::Impl(&handler)));
 	  if (handler.response() && !requestForResource) {
@@ -1300,10 +1362,10 @@ void WebSession::handleRequest(Handler& handler)
 	break;
       }
       case Dead:
-	throw WtException("Internal error: WebSession is dead?");
+	throw WException("Internal error: WebSession is dead?");
       }
 
-    } catch (WtException& e) {
+    } catch (WException& e) {
       log("fatal") << e.what();
 
 #ifdef WT_TARGET_JAVA
@@ -1567,16 +1629,19 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 
 void WebSession::notify(const WEvent& event)
 {
+  Handler& handler = *event.impl_.handler;
+
 #ifndef WT_TARGET_JAVA
-  if (!event.impl_.handler) {
-    if (event.impl_.function)
-      event.impl_.function();
+  if (event.impl_.function) {
+    event.impl_.function();
+
+    if (event.impl_.handler->request())
+      render(*event.impl_.handler);
 
     return;
   }
 #endif // WT_TARGET_JAVA
 
-  Handler& handler = *event.impl_.handler;
   WebRequest& request = *handler.request();
   WebResponse& response = *handler.response();
 
@@ -1611,13 +1676,14 @@ void WebSession::notify(const WEvent& event)
     render(handler);
 
     break;
+  case WebSession::ExpectLoad:
   case WebSession::Loaded:
     if (handler.response()->responseType() == WebResponse::Page) {
       /*
        * Prevent a session fixation attack and a session stealing attack:
        * - user agent has changed: close the session
        * - remote IP address changes: only allowed if the session cookie
-       *   is not empty and matches (TODO).
+       *   is not empty and matches.
        * - prevent attack on ajax sessions:
        *   - use random initial ackUpdateId to prevent attacks on ajax sessions
        *     (in the case somehow the session Id got stolen): this ackUpdateId
@@ -1669,7 +1735,7 @@ void WebSession::notify(const WEvent& event)
       const std::string *sidE = request.getParameter("sid");
       if (!sidE
 	  || *sidE != boost::lexical_cast<std::string>(renderer_.scriptId())) {
-	throw WtException("Script id mismatch");
+	throw WException("Script id mismatch");
       }
 
       if (!request.getParameter("skeleton")) {
@@ -1926,6 +1992,7 @@ EventType WebSession::getEventType(const WEvent& event) const
     return OtherEvent;
 
   switch (state_) {
+  case WebSession::ExpectLoad:
   case WebSession::Loaded:
     if (handler.response()->responseType() == WebResponse::Script)
       return OtherEvent;
@@ -2180,8 +2247,15 @@ void WebSession::notifySignal(const WEvent& e)
     renderer_.setRendered(true);
 
     if (*signalE == "none" || *signalE == "load") {
-      if (*signalE == "load" && type() == WidgetSet)
-	renderer_.setRendered(false);
+      if (*signalE == "load") {
+	if (type() == WidgetSet)
+	  renderer_.setRendered(false);
+
+	if (!renderer_.checkResponsePuzzle(request))
+	  app_->quit();
+	else
+	  setLoaded();
+      }
 
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);
@@ -2272,12 +2346,16 @@ void WebSession::generateNewSessionId()
   if (controller_->configuration().sessionTracking()
       == Configuration::CookiesURL) {
     std::string cookieName = env_->deploymentPath();
-    renderer().setCookie(cookieName, sessionId_, -1, "", "");
+    // FIXME secure ?
+    renderer().setCookie(cookieName, sessionId_, WDateTime(), "", "", true);
   }
 
-  sessionIdCookie_ = WRandom::generateId();
-  sessionIdCookieChanged_ = true;
-  renderer().setCookie("Wt" + sessionIdCookie_, "1", -1, "", "");
+  if (controller_->configuration().sessionIdCookie()) {
+    sessionIdCookie_ = WRandom::generateId();
+    sessionIdCookieChanged_ = true;
+    renderer().setCookie("Wt" + sessionIdCookie_, "1", WDateTime(), "", "",
+			 false /* FIXME or true ? */);
+  }
 }
 #endif // WT_TARGET_JAVA
 

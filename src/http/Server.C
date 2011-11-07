@@ -13,6 +13,9 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include <Wt/WIOService>
+#include <Wt/WServer>
+
 #include "Server.h"
 #include "Configuration.h"
 #include "WebController.h"
@@ -30,27 +33,23 @@
 namespace http {
 namespace server {
 
-Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
-               Wt::WebController& controller)
+Server::Server(const Configuration& config, Wt::WServer& wtServer)
   : config_(config),
-    io_service_(),
-    accept_strand_(io_service_),
-    // post_strand_(io_service_),
-    tcp_acceptor_(io_service_),
+    wt_(wtServer),
+    accept_strand_(wt_.ioService()),
+    // post_strand_(ioService_),
+    tcp_acceptor_(wt_.ioService()),
 #ifdef HTTP_WITH_SSL
-    ssl_context_(io_service_, asio::ssl::context::sslv23),
-    ssl_acceptor_(io_service_),
+    ssl_context_(wt_.ioService(), asio::ssl::context::sslv23),
+    ssl_acceptor_(wt_.ioService()),
 #endif // HTTP_WITH_SSL
     connection_manager_(),
-    request_handler_(config, wtConfig.entryPoints(),
-		     accessLogger_),
-    controller_(&controller)
+    request_handler_(config, wt_.configuration().entryPoints(), accessLogger_)
 {
   if (config.accessLog().empty())
     accessLogger_.setStream(std::cout);
-  else {
+  else
     accessLogger_.setFile(config.accessLog());
-  }
 
   accessLogger_.addField("remotehost", false);
   accessLogger_.addField("rfc931", false);
@@ -63,9 +62,19 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
   start();
 }
 
+asio::io_service& Server::service()
+{
+  return wt_.ioService();
+}
+
+Wt::WebController *Server::controller()
+{
+  return wt_.controller();
+}
+
 void Server::start()
 {
-  asio::ip::tcp::resolver resolver(io_service_);
+  asio::ip::tcp::resolver resolver(wt_.ioService());
 
   // HTTP
   if (!config_.httpAddress().empty()) {
@@ -93,19 +102,19 @@ void Server::start()
     tcp_acceptor_.bind(tcp_endpoint);
     tcp_acceptor_.listen();
 
-    config_.log("notice") << "Started server: http://"
-			  << config_.httpAddress() << ":"
-			  << this->httpPort();
+    wt_.log("notice") << "Started server: http://"
+		      << config_.httpAddress() << ":"
+		      << this->httpPort();
 
     new_tcpconnection_.reset
-      (new TcpConnection(io_service_, this, connection_manager_,
+      (new TcpConnection(wt_.ioService(), this, connection_manager_,
 			 request_handler_));
   }
 
   // HTTPS
   if (!config_.httpsAddress().empty()) {
 #ifdef HTTP_WITH_SSL
-    config_.log("notice")
+    wt_.log("notice")
       << "Starting server: https://" << config_.httpsAddress() << ":"
       << config_.httpsPort();
 
@@ -133,12 +142,12 @@ void Server::start()
     ssl_acceptor_.listen();
 
     new_sslconnection_.reset
-      (new SslConnection(io_service_, this, ssl_context_, connection_manager_,
+      (new SslConnection(wt_.ioService(), this, ssl_context_, connection_manager_,
 			 request_handler_));
 
 #else // HTTP_WITH_SSL
-    config_.log("error")
-      << "Wthttpd was built without support for SSL: cannot start https server.";
+    wt_.log("error") << "Wthttpd was built without support for SSL: "
+		     << "cannot start https server.";
 #endif // HTTP_WITH_SSL
   }
 
@@ -146,41 +155,12 @@ void Server::start()
   // accept exits. To avoid that this happens when called within the
   // WServer context, we post the action of calling accept to one of
   // the threads in the threadpool.
-  io_service_.post(boost::bind(&Server::startAccept, this));
+  wt_.ioService().post(boost::bind(&Server::startAccept, this));
 }
 
 int Server::httpPort() const
 {
   return tcp_acceptor_.local_endpoint().port();
-}
-
-void Server::schedule(int milliSeconds,
-		      const boost::function<void ()>& function)
-{
-  /*
-   * We would need to serialize events for a single session and thus maintain
-   * a queue per sessionId ?
-   */
-  // io_service_.post(post_strand_.wrap(function));
-
-  if (milliSeconds == 0) {
-    io_service_.post(function);
-  } else {
-    asio::deadline_timer *timer = new asio::deadline_timer(io_service_);
-    timer->expires_from_now(boost::posix_time::milliseconds(milliSeconds));
-    timer->async_wait(boost::bind(&Server::handleTimeout, this,
-				  timer, function, asio::placeholders::error));
-  }
-}
-
-void Server::handleTimeout(asio::deadline_timer *timer,
-			   const boost::function<void ()>& function,
-			   const asio_error_code& e)
-{
-  if (!e)
-    function();
-
-  delete timer;
 }
 
 void Server::startAccept()
@@ -214,27 +194,18 @@ void Server::startAccept()
 Server::~Server()
 { }
 
-void Server::run()
-{
-  // The io_service::run() call will block until all asynchronous operations
-  // have finished. While the server is running, there is always at least one
-  // asynchronous operation outstanding: the asynchronous accept call waiting
-  // for new incoming connections.
-  io_service_.run();
-}
-
 void Server::stop()
 {
   // Post a call to the stop function so that server::stop() is safe
   // to call from any thread, and not simultaneously with waiting for
   // a new async_accept() call.
-  io_service_.post(accept_strand_.wrap
+  wt_.ioService().post(accept_strand_.wrap
 		   (boost::bind(&Server::handleStop, this)));
 }
 
 void Server::resume()
 {
-  io_service_.post(boost::bind(&Server::handleResume, this));
+  wt_.ioService().post(boost::bind(&Server::handleResume, this));
 }
 
 void Server::handleResume()
@@ -252,7 +223,7 @@ void Server::handleTcpAccept(const asio_error_code& e)
 {
   if (!e) {
     connection_manager_.start(new_tcpconnection_);
-    new_tcpconnection_.reset(new TcpConnection(io_service_, this,
+    new_tcpconnection_.reset(new TcpConnection(wt_.ioService(), this,
           connection_manager_, request_handler_));
     tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
 	                accept_strand_.wrap(
@@ -267,7 +238,7 @@ void Server::handleSslAccept(const asio_error_code& e)
   if (!e)
   {
     connection_manager_.start(new_sslconnection_);
-    new_sslconnection_.reset(new SslConnection(io_service_, this,
+    new_sslconnection_.reset(new SslConnection(wt_.ioService(), this,
           ssl_context_, connection_manager_, request_handler_));
     ssl_acceptor_.async_accept(new_sslconnection_->socket(),
 	                accept_strand_.wrap(

@@ -4,151 +4,660 @@
  * See the LICENSE file for terms of use.
  */
 
-//
-// based on:
-//
-// sync_client.cpp
-// ~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
+// bugfix for https://svn.boost.org/trac/boost/ticket/5722
+#include <boost/asio.hpp>
 
 #include "Wt/Http/Client"
-#include "WtException.h"
+#include "Wt/WApplication"
+#include "Wt/WIOService"
+#include "Wt/WEnvironment"
+#include "Wt/WException"
+#include "Wt/WLogger"
+#include "Wt/WServer"
 
 #include <sstream>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/asio.hpp>
+#include <boost/system/error_code.hpp>
+#include <boost/algorithm/string.hpp>
+
+#ifdef WT_WITH_SSL
+#include <boost/asio/ssl.hpp>
+
+// This seems to not work very well (or at all)
+
+//#if BOOST_VERSION >= 104700
+//#define VERIFY_CERTIFICATE
+//#endif
+
+#endif // WT_WITH_SSL
 
 using boost::asio::ip::tcp;
 
 namespace Wt {
   namespace Http {
 
-    namespace {
-
-unsigned int doGet(const std::string& host, const std::string& port,
-		   const std::string& path, std::string *result)
+class Client::Impl : public boost::enable_shared_from_this<Client::Impl>
 {
-  boost::asio::io_service io_service;
+public:
+  Impl(WIOService& ioService, WServer *server, const std::string& sessionId)
+    : ioService_(ioService),
+      resolver_(ioService_),
+      timer_(ioService_),
+      server_(server),
+      sessionId_(sessionId),
+      timeout_(0),
+      maximumResponseSize_(0),
+      responseSize_(0)
+  { }
 
-  // Get a list of endpoints corresponding to the server name.
-  tcp::resolver resolver(io_service);
+  virtual ~Impl() { }
 
-  tcp::resolver::query query(host, port);
-  tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-  tcp::resolver::iterator end;
-
-  // Try each endpoint until we successfully establish a connection.
-  tcp::socket socket(io_service);
-  boost::system::error_code error = boost::asio::error::host_not_found;
-  while (error && endpoint_iterator != end) {
-    socket.close();
-    socket.connect(*endpoint_iterator++, error);
+  void setTimeout(int timeout) { 
+    timeout_ = timeout; 
   }
 
-  if (error)
-    throw WtException("Could not connect to: " + host + ":" + port);
-
-  // Form the request. We specify the "Connection: close" header so that the
-  // server will close the socket after transmitting the response. This will
-  // allow us to treat all data up until the EOF as the content.
-  boost::asio::streambuf request;
-  std::ostream request_stream(&request);
-  request_stream << "GET " << path << " HTTP/1.0\r\n";
-  request_stream << "Host: " << host << "\r\n";
-  request_stream << "Accept: */*\r\n";
-  request_stream << "Connection: close\r\n\r\n";
-
-  // Send the request.
-  boost::asio::write(socket, request);
-
-  // Read the response status line.
-  boost::asio::streambuf response;
-  boost::asio::read_until(socket, response, "\r\n");
-
-  // Check that response is OK.
-  std::istream response_stream(&response);
-  std::string http_version;
-  response_stream >> http_version;
-  unsigned int status_code;
-  response_stream >> status_code;
-  std::string status_message;
-  std::getline(response_stream, status_message);
-
-  if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-    throw WtException("Invalid response");
-
-  if (status_code == 200) { 
-    std::stringstream content;
-
-    // Read the response headers, which are terminated by a blank line.
-    boost::asio::read_until(socket, response, "\r\n\r\n");
-
-    // Write whatever content we already have to output.
-    if (result && response.size() > 0)
-      content << &response;
-
-    // Read until EOF, writing data to output as we go.
-    while (boost::asio::read(socket, response,
-			     boost::asio::transfer_at_least(1), error))
-      if (result)
-	content << &response;
-
-    if (error != boost::asio::error::eof)
-      throw boost::system::system_error(error);
-
-    if (result)
-      *result = content.str();
+  void setMaximumResponseSize(std::size_t bytes) {
+    maximumResponseSize_ = bytes;
   }
 
-  return status_code;
-}
-
+  void request(const std::string& method, const std::string& server, int port,
+	       const std::string& path, const Message& message)
+  {
+    std::ostream request_stream(&requestBuf_);
+    request_stream << method << " " << path << " HTTP/1.0\r\n";
+    request_stream << "Host: " << server << "\r\n";
+    for (unsigned i = 0; i < message.headers().size(); ++i) {
+      const Message::Header& h = message.headers()[i];
+      request_stream << h.name() << ": " << h.value() << "\r\n";
     }
 
-void Client::startWtSession(const std::string& host,
-			    const std::string& port,
-			    const std::string& path,
-			    const std::string& query,
-			    WFlags<ClientOption> flags)
+    if (method == "POST")
+      request_stream << "Content-Length: " << message.body().length() 
+		     << "\r\n";
+
+    request_stream << "Connection: close\r\n\r\n";
+
+    if (method == "POST")
+      request_stream << message.body();
+
+    tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
+
+    startTimer();
+    resolver_.async_resolve(query,
+			    boost::bind(&Impl::handleResolve, this,
+					boost::asio::placeholders::error,
+					boost::asio::placeholders::iterator));
+  }
+
+  void stop()
+  {
+    if (socket().is_open()) {
+      boost::system::error_code ignored_ec;
+      socket().shutdown(tcp::socket::shutdown_both, ignored_ec);
+      socket().close();
+    }
+  }
+
+  Signal<boost::system::error_code, Message>& done() { return done_; }
+
+protected:
+  typedef boost::function<void(const boost::system::error_code&)>
+    ConnectHandler;
+  typedef boost::function<void(const boost::system::error_code&,
+			       const std::size_t&)> IOHandler;
+
+  virtual tcp::socket& socket() = 0;
+  virtual void asyncConnect(tcp::endpoint& endpoint,
+			    const ConnectHandler& handler) = 0;
+  virtual void asyncHandshake(const ConnectHandler& handler) = 0;
+  virtual void asyncWriteRequest(const IOHandler& handler) = 0;
+  virtual void asyncReadUntil(const std::string& s,
+			      const IOHandler& handler) = 0;
+  virtual void asyncRead(const IOHandler& handler) = 0;
+
+private:
+  void startTimer()
+  {
+    timer_.expires_from_now(boost::posix_time::seconds(timeout_));
+    timer_.async_wait(boost::bind(&Impl::timeout, shared_from_this(),
+				  boost::asio::placeholders::error));
+  }
+
+  void cancelTimer()
+  {
+    timer_.cancel();
+  }
+
+  void timeout(const boost::system::error_code& e)
+  {
+    if (e != boost::asio::error::operation_aborted) {
+      boost::system::error_code ignored_ec;
+      socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both,
+			ignored_ec);
+
+      err_ = boost::asio::error::timed_out;
+    }
+  }
+
+  void handleResolve(const boost::system::error_code& err,
+		     tcp::resolver::iterator endpoint_iterator)
+  {
+    cancelTimer();
+
+    if (!err) {
+      // Attempt a connection to the first endpoint in the list.
+      // Each endpoint will be tried until we successfully establish
+      // a connection.
+      tcp::endpoint endpoint = *endpoint_iterator;
+
+      startTimer();
+      asyncConnect(endpoint,
+		   boost::bind(&Impl::handleConnect,
+			       shared_from_this(),
+			       boost::asio::placeholders::error,
+			       ++endpoint_iterator));
+    } else {
+      err_ = err;
+      complete();
+    }
+  }
+ 
+  void handleConnect(const boost::system::error_code& err,
+		     tcp::resolver::iterator endpoint_iterator)
+  {
+    cancelTimer();
+
+    if (!err) {
+      // The connection was successful. Do the handshake (SSL only)
+      startTimer();
+      asyncHandshake(boost::bind(&Impl::handleHandshake,
+				 shared_from_this(),
+				 boost::asio::placeholders::error));
+    } else if (endpoint_iterator != tcp::resolver::iterator()) {
+      // The connection failed. Try the next endpoint in the list.
+      socket().close();
+
+      handleResolve(boost::system::error_code(), endpoint_iterator);
+    } else {
+      err_ = err;
+      complete();
+    }
+  }
+
+  void handleHandshake(const boost::system::error_code& err)
+  {
+    cancelTimer();
+
+    if (!err) {
+      // The handshake was successful. Send the request.
+      startTimer();
+      asyncWriteRequest
+	(boost::bind(&Impl::handleWriteRequest,
+		     shared_from_this(),
+		     boost::asio::placeholders::error,
+		     boost::asio::placeholders::bytes_transferred));
+    } else {
+      err_ = err;
+      complete();
+    }
+  }
+
+  void handleWriteRequest(const boost::system::error_code& err,
+			  const std::size_t&)
+  {
+    cancelTimer();
+
+    if (!err) {
+      // Read the response status line.
+      startTimer();
+      asyncReadUntil("\r\n",
+		     boost::bind(&Impl::handleReadStatusLine,
+				 shared_from_this(),
+				 boost::asio::placeholders::error,
+				 boost::asio::placeholders::bytes_transferred));
+    } else {
+      err_ = err;
+      complete();
+    }
+  }
+
+  bool addResponseSize(std::size_t s)
+  {
+    responseSize_ += s;
+
+    if (maximumResponseSize_ && responseSize_ > maximumResponseSize_) {
+      err_ = boost::asio::error::message_size;
+      complete();
+      return false;
+    }
+
+    return true;
+  }
+
+  void handleReadStatusLine(const boost::system::error_code& err,
+			    const std::size_t& s)
+  {
+    cancelTimer();
+
+    if (!err) {
+      if (!addResponseSize(s))
+	return;
+
+      // Check that response is OK.
+      std::istream response_stream(&responseBuf_);
+      std::string http_version;
+      response_stream >> http_version;
+      unsigned int status_code;
+      response_stream >> status_code;
+      std::string status_message;
+      std::getline(response_stream, status_message);
+      if (!response_stream || http_version.substr(0, 5) != "HTTP/")
+      {
+	err_ = boost::system::errc::make_error_code
+	  (boost::system::errc::protocol_error);
+	complete();
+      }
+
+      // std::cerr << status_code << " " << status_message << std::endl;
+
+      response_.setStatus(status_code);
+
+      // Read the response headers, which are terminated by a blank line.
+      startTimer();
+      asyncReadUntil("\r\n\r\n",
+		     boost::bind(&Impl::handleReadHeaders,
+				 shared_from_this(),
+				 boost::asio::placeholders::error,
+				 boost::asio::placeholders::bytes_transferred));
+    } else {
+      err_ = err;
+      complete();
+    }
+  }
+
+  void handleReadHeaders(const boost::system::error_code& err,
+			 const std::size_t& s)
+  {
+    cancelTimer();
+
+    if (!err) {
+      if (!addResponseSize(s))
+	return;
+
+      // Process the response headers.
+      std::istream response_stream(&responseBuf_);
+      std::string header;
+      while (std::getline(response_stream, header) && header != "\r") {
+	std::size_t i = header.find(':');
+	if (i != std::string::npos) {
+	  std::string name = boost::trim_copy(header.substr(0, i));
+	  std::string value = boost::trim_copy(header.substr(i+1));
+	  response_.setHeader(name, value);
+	}
+      }
+
+      // Write whatever content we already have to output.
+      if (responseBuf_.size() > 0) {
+	std::stringstream ss;
+	ss << &responseBuf_;
+	response_.addBodyText(ss.str());
+      }
+
+      // Start reading remaining data until EOF.
+      startTimer();
+      asyncRead(boost::bind(&Impl::handleReadContent,
+			    shared_from_this(),
+			    boost::asio::placeholders::error,
+			    boost::asio::placeholders::bytes_transferred));
+    } else {
+      err_ = err;
+      complete();
+    }
+  }
+
+  void handleReadContent(const boost::system::error_code& err,
+			 const std::size_t& s)
+  {
+    cancelTimer();
+
+    if (!err) {
+      if (!addResponseSize(s))
+	return;
+
+      std::stringstream ss;
+      ss << &responseBuf_;
+
+      // std::cerr << ss.str();
+
+      response_.addBodyText(ss.str());
+
+      // Continue reading remaining data until EOF.
+      startTimer();
+      asyncRead(boost::bind(&Impl::handleReadContent,
+			    shared_from_this(),
+			    boost::asio::placeholders::error,
+			    boost::asio::placeholders::bytes_transferred));
+    } else if (err != boost::asio::error::eof
+	       && err.value() != 335544539) {
+      err_ = err;
+      complete();
+    } else {
+      complete();
+    }
+  }
+
+  void complete()
+  {
+    if (server_)
+      server_->post(sessionId_,
+		    boost::bind(&Impl::emitDone, shared_from_this()));
+    else
+      emitDone();
+  }
+
+  void emitDone()
+  {
+    done_.emit(err_, response_);
+  }
+
+protected:
+  WIOService& ioService_;
+  tcp::resolver resolver_;
+  boost::asio::streambuf requestBuf_;
+  boost::asio::streambuf responseBuf_;
+
+private:
+  boost::asio::deadline_timer timer_;
+  WServer *server_;
+  std::string sessionId_;
+  int timeout_;
+  std::size_t maximumResponseSize_, responseSize_;
+  boost::system::error_code err_;
+  Message response_;
+  Signal<boost::system::error_code, Message> done_;
+};
+
+class Client::TcpImpl : public Client::Impl
 {
-  std::string url = path;
-  if (!query.empty())
-    url += "?" + query;
+public:
+  TcpImpl(WIOService& ioService, WServer *server, const std::string& sessionId)
+    : Impl(ioService, server, sessionId),
+      socket_(ioService_)
+  { }
 
-  std::string result;
-  int status = doGet(host, port, url, &result);
+protected:
+  virtual tcp::socket& socket()
+  {
+    return socket_;
+  }
 
-  if (status != 200)
-    throw WtException("Http status != 200: "
-		      + boost::lexical_cast<std::string>(status));    
+  virtual void asyncConnect(tcp::endpoint& endpoint,
+			    const ConnectHandler& handler)
+  {
+    socket_.async_connect(endpoint, handler);
+  }
 
-  static const boost::regex session_e(".*\\?wtd=([a-zA-Z0-9]+)&amp;.*");
+  virtual void asyncHandshake(const ConnectHandler& handler)
+  {
+    handler(boost::system::error_code());
+  }
 
+  virtual void asyncWriteRequest(const IOHandler& handler)
+  {
+    boost::asio::async_write(socket_, requestBuf_, handler);
+  }
+
+  virtual void asyncReadUntil(const std::string& s,
+			      const IOHandler& handler)
+  {
+    boost::asio::async_read_until(socket_, responseBuf_, s, handler);
+  }
+
+  virtual void asyncRead(const IOHandler& handler)
+  {
+    boost::asio::async_read(socket_, responseBuf_,
+			    boost::asio::transfer_at_least(1), handler);
+  }
+
+private:
+  tcp::socket socket_;
+};
+
+#ifdef WT_WITH_SSL
+
+class Client::SslImpl : public Client::Impl
+{
+public:
+  SslImpl(WIOService& ioService, WServer *server,
+	  boost::asio::ssl::context& context, const std::string& sessionId,
+	  const std::string& hostName)
+    : Impl(ioService, server, sessionId),
+      socket_(ioService_, context),
+      hostName_(hostName)
+  { }
+
+protected:
+  virtual tcp::socket& socket()
+  {
+    return socket_.next_layer();
+  }
+
+  virtual void asyncConnect(tcp::endpoint& endpoint,
+			    const ConnectHandler& handler)
+  {
+    socket_.lowest_layer().async_connect(endpoint, handler);
+  }
+
+  virtual void asyncHandshake(const ConnectHandler& handler)
+  {
+#if VERIFY_CERTIFICATE
+    socket_.set_verify_mode(boost::asio::ssl::verify_peer);
+    std::cerr << "Verifying that peer is " << hostName_ << std::endl;
+    socket_.set_verify_callback
+      (boost::asio::ssl::rfc2818_verification(hostName_));
+#endif
+
+    socket_.async_handshake(boost::asio::ssl::stream_base::client, handler);
+  }
+
+  virtual void asyncWriteRequest(const IOHandler& handler)
+  {
+    boost::asio::async_write(socket_, requestBuf_, handler);
+  }
+
+  virtual void asyncReadUntil(const std::string& s,
+			      const IOHandler& handler)
+  {
+    boost::asio::async_read_until(socket_, responseBuf_, s, handler);
+  }
+
+  virtual void asyncRead(const IOHandler& handler)
+  {
+    boost::asio::async_read(socket_, responseBuf_,
+			    boost::asio::transfer_at_least(1), handler);
+  }
+
+private:
+  typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+
+  ssl_socket socket_;
+  std::string hostName_;
+};
+#endif // WT_WITH_SSL
+
+Client::Client(WObject *parent)
+  : WObject(parent),
+    ioService_(0),
+    timeout_(10),
+    maximumResponseSize_(64*1024)
+{ }
+
+Client::Client(WIOService& ioService, WObject *parent)
+  : WObject(parent),
+    ioService_(&ioService),
+    timeout_(10),
+    maximumResponseSize_(64*1024)
+{ }
+
+Client::~Client()
+{
+  abort();
+}
+
+void Client::abort()
+{
+  if (impl_)
+    impl_->stop();
+
+  impl_.reset();
+}
+
+void Client::setTimeout(int seconds)
+{
+  timeout_ = seconds;
+}
+
+void Client::setMaximumResponseSize(std::size_t bytes)
+{
+  maximumResponseSize_ = bytes;
+}
+
+void Client::setSslVerifyFile(const std::string& file)
+{
+  verifyFile_ = file;
+}
+
+bool Client::get(const std::string& url)
+{
+  return request(Get, url, Message());
+}
+
+bool Client::post(const std::string& url, const Message& message)
+{
+  return request(Post, url, message);
+}
+
+bool Client::request(Http::Method method, const std::string& url,
+		     const Message& message)
+{
   std::string sessionId;
-  boost::smatch what;
-  if (boost::regex_match(result, what, session_e))
-    sessionId = what[1];
-  else
-    throw WtException("Unexpected response");
 
-  url = path + "?wtd=" + sessionId;
-  if (flags & SupportsAjax)
-    url += "&request=script";
-  else
-    url += "&js=no";
+  WIOService *ioService = ioService_;
+  WServer *server = 0;
 
-  status = doGet(host, port, url, 0);
+  WApplication *app = WApplication::instance();
 
-  if (status != 200)
-    throw WtException("Http status != 200: "
-		      + boost::lexical_cast<std::string>(status));
+  if (app) {
+    sessionId = app->sessionId();
+    server = app->environment().server();
+    ioService = &server->ioService();
+  } else if (!ioService) {
+    server = WServer::instance();
+
+    if (server)
+      ioService = &server->ioService();
+    else {
+      Wt::log("error") << "Http::Client requires a WIOService for async I/O";
+      return false;
+    }
+
+    server = 0;
+  }
+
+  std::string protocol;
+  std::string host;
+  int port;
+  std::string path;
+
+  if (!parseUrl(url, protocol, host, port, path))
+    return false;
+
+  if (protocol == "http") {
+    impl_.reset(new TcpImpl(*ioService, server, sessionId));
+
+#ifdef WT_WITH_SSL
+  } else if (protocol == "https") {
+    boost::asio::ssl::context context
+      (*ioService, boost::asio::ssl::context::sslv23);
+
+#if VERIFY_CERTIFICATE
+    context.set_default_verify_paths();
+#endif
+
+    if (!verifyFile_.empty() || !verifyPath_.empty()) {
+      if (!verifyFile_.empty())
+	context.load_verify_file(verifyFile_);
+      if (!verifyPath_.empty())
+	context.add_verify_path(verifyPath_);
+    }
+
+    impl_.reset(new SslImpl(*ioService, server, context, sessionId, host));
+#endif // WT_WITH_SSL
+
+  } else {
+    Wt::log("error") << "Http::Client: unsupported protocol: " << protocol;
+    return false;
+  }
+
+  impl_->done().connect(this, &Client::emitDone);
+  impl_->setTimeout(timeout_);
+  impl_->setMaximumResponseSize(maximumResponseSize_);
+
+  const char *methodNames_[] = { "GET", "POST", "PUT" };
+
+  // std::cerr << methodNames_[method] << " " << url << std::endl;
+
+  impl_->request(methodNames_[method], host, port, path, message);
+
+  return true;
+}
+
+void Client::emitDone(boost::system::error_code err, const Message& response)
+{
+  done_.emit(err, response);
+}
+
+bool Client::parseUrl(const std::string &url,
+		      std::string& protocol, std::string& server, int& port,
+		      std::string& path)
+{
+  std::size_t i = url.find("://");
+  if (i == std::string::npos) {
+    Wt::log("error") << "Ill-formed URL: " << url;
+    return false;
+  }
+
+  protocol = url.substr(0, i);
+  std::string rest = url.substr(i + 3);
+  std::size_t j = rest.find('/');
+
+  if (j == std::string::npos)
+    server = rest;
+  else {
+    server = rest.substr(0, j);
+    path = rest.substr(j);
+  }
+
+  std::size_t k = server.find(':');
+  if (k != std::string::npos) {
+    try {
+      port = boost::lexical_cast<int>(server.substr(k + 1));
+    } catch (boost::bad_lexical_cast& e) {
+      Wt::log("error") << "Invalid port: " << server.substr(k + 1);
+      return false;
+    }
+    server = server.substr(0, k);
+  } else {
+    if (protocol == "http")
+      port = 80;
+    else if (protocol == "https")
+      port = 443;
+    else
+      port = 80; // protocol will not be handled anyway
+  }
+
+  return true;
 }
 
   }

@@ -67,6 +67,7 @@ namespace Wt {
  * \code
  * ...
  * \endcode
+ * \endif
  *
  * Alternatively, a custom widget may be set which implements the
  * controls, using setControlsWidget(). In this case, you should add
@@ -83,7 +84,7 @@ namespace Wt {
  * mode should not be used since there is no way to restore the
  * original size.
  */
-class WMediaPlayer : public WCompositeWidget
+class WT_API WMediaPlayer : public WCompositeWidget
 {
 public:
   /*! \brief An enumeration for a media encoding.

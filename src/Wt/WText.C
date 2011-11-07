@@ -7,10 +7,10 @@
 #include <iostream>
 
 #include "Wt/WApplication"
+#include "Wt/WLogger"
 #include "Wt/WText"
 #include "DomElement.h"
 #include "WebSession.h"
-#include "WtException.h"
 #include "RefEncoder.h"
 
 namespace Wt {
@@ -166,15 +166,16 @@ void WText::setPadding(const WLength& length, WFlags<Side> sides)
 #endif // WT_TARGET_JAVA
   }
 
-  if (sides.testFlag(Right))
+  if (sides & Right)
     padding_[0] = length;
-  if (sides.testFlag(Left))
+  if (sides & Left)
     padding_[1] = length;
 
-  if (sides.testFlag(Top))
-    throw WtException("WText::padding on Top is not supported.");
-  if (sides.testFlag(Bottom))
-    throw WtException("WText::padding on Bottom is not supported.");
+  if (sides & Top)
+    Wt::log("error") << "WText::setPadding(..., Top) is not supported.";
+
+  if (sides & Bottom)
+    Wt::log("error") << "WText::setPadding(..., Bottom) is not supported.";
 
   flags_.set(BIT_PADDINGS_CHANGED);
   repaint(RepaintPropertyAttribute);
@@ -187,15 +188,18 @@ WLength WText::padding(Side side) const
 
   switch (side) {
   case Top:
-    throw WtException("WText::padding on Top is not supported.");
+    Wt::log("error") << "WText::padding(Top) is not supported.";
+    return WLength();
   case Right:
     return padding_[1];
   case Bottom:
-    throw WtException("WText::padding on Bottom is not supported.");
+    Wt::log("error") << "WText::padding(Bottom) is not supported.";
   case Left:
     return padding_[3];
   default:
-    throw WtException("WText::padding(Side) with invalid side.");
+    Wt::log("error") << "WText::padding(Side) with invalid side: "
+			<< (int)side;
+    return WLength();
   }
 }
 

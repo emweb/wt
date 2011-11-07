@@ -9,7 +9,9 @@
 
 #include <Wt/WSignal>
 #include <Wt/WEvent>
+#include <Wt/WException>
 #include <Wt/WJavaScriptSlot>
+#include <Wt/WLogger>
 #include <Wt/WString>
 #include <boost/lexical_cast.hpp>
 
@@ -545,15 +547,16 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
     return connect(boost::bind(method, target));
 }
 
-extern void WT_API throwWtException(const std::string& msg);
-
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(const std::string& function)
 {
-  if (!collectSlotJavaScript_)
-    throwWtException("JSignal::connect(const std::string&) only makes sense "
-		     "for a JSignal which collects JavaScript from slots");
+  if (!collectSlotJavaScript_) {
+    Wt::log("error")
+      << "JSignal::connect(const std::string&): signal does not collect "
+      << "JavaScript from slots";
+    return;
+  }
 
   EventSignalBase::connect(function);
 }
@@ -562,9 +565,12 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(const char *function)
 {
-  if (!collectSlotJavaScript_)
-    throwWtException("JSignal::connect(const std::string&) only makes sense "
-		     "for a JSignal which collects JavaScript from slots");
+  if (!collectSlotJavaScript_) {
+    Wt::log("error")
+      << "JSignal::connect(const std::string&): signal does not collect "
+      << "JavaScript from slots";
+    return;
+  }
 
   EventSignalBase::connect(function);
 }
@@ -573,9 +579,11 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(JSlot& slot)
 {
-  if (!collectSlotJavaScript_)
-    throwWtException("JSignal::connect(JSlot) only makes sense for a JSignal "
-		     "which collects JavaScript from slots");
+  if (!collectSlotJavaScript_) {
+    Wt::log("error")
+      << "JSignal::connect(JSlot): signal does not collect JavaScript from slots";
+    return;
+  }
 
   EventSignalBase::connect(slot);
 }
@@ -624,18 +632,19 @@ template <typename T>
 struct SignalArgTraits
 {
   static T unMarshal(const JavaScriptEvent& jse, int argi) {
-    if ((unsigned)argi >= jse.userEventArgs.size())
-      throwWtException("Missing JavaScript argument: "
-		       + boost::lexical_cast<std::string>(argi));
+    if ((unsigned)argi >= jse.userEventArgs.size()) {
+      Wt::log("error") << "Missing JavaScript argument:" << argi;
+      return T();
+    }
 
     try {
       std::string v = jse.userEventArgs[argi];
       WString::checkUTF8Encoding(v);
       return boost::lexical_cast<T>(v);
     } catch (boost::bad_lexical_cast) {
-      throwWtException("Bad argument format: '"
-		       + jse.userEventArgs[argi] + "' for C++ type '"
-		       + typeid(T).name() + "'");
+      Wt::log("error") << "Bad argument format: '"
+		       << jse.userEventArgs[argi] << "' for C++ type '"
+		       << typeid(T).name() << "'";
       return T();
     }
   }
@@ -645,9 +654,10 @@ template<>
 struct SignalArgTraits<WString>
 {
   static WString unMarshal(const JavaScriptEvent& jse, int argi) {
-    if ((unsigned)argi >= jse.userEventArgs.size())
-      throwWtException("Missing JavaScript argument: "
-		       + boost::lexical_cast<std::string>(argi));
+    if ((unsigned)argi >= jse.userEventArgs.size()) {
+      Wt::log("error") << "Missing JavaScript argument:" << argi;
+      return WString::Empty;
+    }
 
     std::string v = jse.userEventArgs[argi];
     return WString::fromUTF8(v);
@@ -658,9 +668,11 @@ template<>
 struct SignalArgTraits<NoClass>
 {
   static NoClass unMarshal(const JavaScriptEvent& jse, int argi) {
-    if ((unsigned)argi < jse.userEventArgs.size())
-      throwWtException("Redundant JavaScript argument: '"
-		       + jse.userEventArgs[argi] + "'");
+    if ((unsigned)argi < jse.userEventArgs.size()) {
+      Wt::log("error") << "Redundant JavaScript argument: '"
+		       << jse.userEventArgs[argi] << "'";
+    }
+
     return NoClass::none;
   }
 };

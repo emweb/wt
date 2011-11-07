@@ -5,9 +5,8 @@
  */
 
 #include "Wt/WBorderLayout"
+#include "Wt/WLogger"
 #include "Wt/WWidgetItem"
-
-#include "WtException.h"
 
 namespace Wt {
 
@@ -87,7 +86,9 @@ Impl::Grid::Item& WBorderLayout::itemAtPosition(Position position)
   case West: return grid_.items_[1][0];
   case Center: return grid_.items_[1][1];
   default:
-    throw WtException("WBorderLayout::itemAtPosition(): invalid position");
+    Wt::log("error") << "WBorderLayout::itemAtPosition(): invalid position:"
+		     << (int)position;
+    return grid_.items_[1][1];
   }
 }
 
@@ -100,7 +101,9 @@ const Impl::Grid::Item& WBorderLayout::itemAtPosition(Position position) const
   case West: return grid_.items_[1][0];
   case Center: return grid_.items_[1][1];
   default:
-    throw WtException("WBorderLayout::itemAtPosition(): invalid position");
+    Wt::log("error") << "WBorderLayout::itemAtPosition(): invalid position:"
+			<< (int)position;
+    return grid_.items_[1][1];
   }
 }
 
@@ -121,8 +124,10 @@ WWidget *WBorderLayout::widgetAt(Position position) const
 
 void WBorderLayout::add(WLayoutItem *item, Position position)
 {
-  if (itemAtPosition(position).item_)
-    throw WtException("WBorderLayout supports only one widget per position");
+  if (itemAtPosition(position).item_) {
+    Wt::log("error") << "WBorderLayout supports only one widget per position";
+    return;
+  }
 
   itemAtPosition(position).item_ = item;
   updateAddItem(item);
@@ -157,7 +162,8 @@ WBorderLayout::Position WBorderLayout::position(WLayoutItem *item) const
     }
   }
 
-  throw WtException("WBorderLayout::position(): invalid item");
+  Wt::log("error") << "WBorderLayout::position(): item not found";
+  return Center;
 }
 
 }

@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <stdexcept>
 #include <sstream>
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -15,6 +14,7 @@
 #include "WebRequest.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 
 namespace {
   std::stringstream emptyStream;
@@ -80,6 +80,16 @@ Request::ByteRange::ByteRange(::uint64_t first, ::uint64_t last)
 Request::ByteRangeSpecifier::ByteRangeSpecifier()
   : satisfiable_(true)
 { }
+
+const std::string *get(const ParameterMap& map, const std::string& name)
+{
+  ParameterMap::const_iterator i = map.find(name);  
+
+  if (i != map.end())
+    return &i->second[0];
+  else
+    return 0;
+}
 
 const ParameterValues& Request::getParameterValues(const std::string& name)
   const
@@ -310,7 +320,74 @@ Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
     parameters_(parameters),
     files_(files),
     continuation_(0)
-{ }
+{
+  std::string cookie = headerValue("Cookie");
+  if (!cookie.empty())
+    parseCookies(cookie, cookies_);
+}
+
+void Request::parseFormUrlEncoded(const std::string& s,
+				  ParameterMap& parameters)
+{
+  typedef boost::tokenizer<boost::char_separator<char> > amp_tok;
+
+  amp_tok tok(s, boost::char_separator<char>("&"));
+
+  for (amp_tok::iterator i = tok.begin(); i != tok.end(); ++i) {
+    std::string pair = *i;
+
+#ifdef DEBUG
+    std::cerr << pair << std::endl;
+#endif // DEBUG
+
+    // convert plus to space
+    Wt::Utils::replace(pair, '+', " ");
+
+    // split into key and value
+    std::string::size_type equalPos = pair.find('=');
+    std::string key = pair.substr(0, equalPos);
+    std::string value;
+    value = (equalPos != std::string::npos && pair.size() > equalPos + 1)
+      ? pair.substr(equalPos + 1) : "";
+
+    // convert %XX from hex numbers to alphanumeric
+    Wt::Utils::unescapeHexTokens(key);
+    Wt::Utils::unescapeHexTokens(value);
+
+    parameters[key].push_back(value);
+  }
+}
+
+void Request::parseCookies(const std::string& cookie,
+			   std::map<std::string, std::string>& result)
+{
+  // Cookie parsing strategy:
+  // - First, split the string on cookie separators (-> name-value pair).
+  //   ';' is cookie separator. ',' is not a cookie separator (as in PHP)
+  // - Then, split the name-value pairs on the first '='
+  // - URL decoding/encoding
+  // - Trim the name, trim the value
+  // - If a name-value pair does not contain an '=', the name-value pair
+  //   was the name of the cookie and the value is empty
+
+  std::vector<std::string> list;
+  boost::split(list, cookie, boost::is_any_of(";"));
+  for (unsigned int i = 0; i < list.size(); ++i) {
+    std::string::size_type e = list[i].find('=');
+    std::string cookieName = list[i].substr(0, e);
+    std::string cookieValue =
+      (e != std::string::npos && list[i].size() > e + 1) ?
+      list[i].substr(e + 1) : "";
+
+    boost::trim(cookieName);
+    boost::trim(cookieValue);
+
+    Wt::Utils::urlDecode(cookieName);
+    Wt::Utils::urlDecode(cookieValue);
+    if (cookieName != "")
+      result[cookieName] = cookieValue;
+  }
+}
 
   }
 }

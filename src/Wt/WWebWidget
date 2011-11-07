@@ -20,7 +20,7 @@
 
 namespace Wt {
 
-class SStream;
+class WStringStream;
 class WApplication;
 
 enum DomElementType {
@@ -393,7 +393,7 @@ private:
     typedef std::map<std::string, DropMimeType>   MimeTypesMap;
     MimeTypesMap                                 *acceptedDropMimeTypes_;
 
-    SStream *delayedDoJavaScript_;
+    WStringStream *delayedDoJavaScript_;
 
     Signal<> childrenChanged_;
 

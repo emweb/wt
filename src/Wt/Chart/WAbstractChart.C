@@ -4,10 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WAbstractItemModel"
+#include "Wt/WLogger"
 #include "Wt/Chart/WAbstractChart"
 #include "Wt/Chart/WChartPalette"
-
-#include "WtException.h"
 
 namespace Wt {
   namespace Chart {
@@ -62,8 +61,8 @@ int WAbstractChart::plotAreaPadding(Side side) const
   case Left:
     return padding_[3];
   default:
-    throw WtException("WAbstractChart::plotAreaPadding(Side) with "
-		      "invalid side.");
+    Wt::log("error") << "WAbstractChart::plotAreaPadding(): improper side.";
+    return 0;
   }
 }
 

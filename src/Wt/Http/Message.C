@@ -1,0 +1,76 @@
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "Wt/Http/Message"
+
+namespace Wt {
+  namespace Http {
+
+Message::Header::Header()
+{ }
+
+Message::Header::Header(const std::string& name, const std::string& value)
+  : name_(name),
+    value_(value)
+{ }
+
+Message::Header::Header(const Header& other)
+  : name_(other.name_),
+    value_(other.value_)
+{ }
+
+void Message::Header::setName(const std::string& name)
+{
+  name_ = name;
+}
+
+void Message::Header::setValue(const std::string& value)
+{
+  value_ = value;
+}
+
+Message::Message()
+  : status_(-1)
+{ }
+
+void Message::setStatus(int status)
+{
+  status_ = status;
+}
+
+void Message::setHeader(const std::string& name, const std::string& value)
+{
+  for (unsigned i = 0; i < headers_.size(); ++i) {
+    if (headers_[i].name() == name) {
+      headers_[i].setValue(value);
+      return;
+    }
+  }
+
+  headers_.push_back(Header(name, value));
+}
+
+const std::string *Message::getHeader(const std::string& name) const
+{
+  for (unsigned i = 0; i < headers_.size(); ++i)
+    if (headers_[i].name() == name)
+      return &headers_[i].value();
+
+  return 0;
+}
+
+void Message::addBodyText(const std::string& text)
+{
+  body_ << text;
+}
+
+std::string Message::body() const
+{
+  return body_.str();
+}
+
+  }
+}

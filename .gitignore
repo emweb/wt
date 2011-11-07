@@ -1,7 +1,9 @@
 *~
+.DS_Store
+*.db
 build*/*
 doc/reference
 doc/examples
-CVS
-.DS_Store
 examples/*/resources
+resources/tiny_mce
+test/interactive

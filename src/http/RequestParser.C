@@ -15,7 +15,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "md5.h"
+#include "../Wt/Auth/Utils.h"
 
 #include "RequestParser.h"
 #include "Request.h"
@@ -168,10 +168,8 @@ bool RequestParser::doWebSocketHandShake(const Request& req)
 
       memcpy(buf_ + 8, key3, 8);
 
-      md5_state_t c;
-      md5_init(&c);
-      md5_append(&c, (unsigned char *)buf_, 16);
-      md5_finish(&c, (unsigned char *)buf_);
+      std::string md5 = Wt::Auth::Utils::md5(std::string(buf_, 16));
+      memcpy(buf_, md5.c_str(), 16);
 
       return true;
     } else

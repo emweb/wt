@@ -5,6 +5,7 @@
  */
 
 #include <Wt/WServer>
+#include <Wt/WLogger>
 #include <Wt/WResource>
 
 #include "Configuration.h"
@@ -98,6 +99,20 @@ void setBoolean(xml_node<> *element, const char *tagName, bool& result)
   }
 }
 
+void setInt(xml_node<> *element, const char *tagName, int& result)
+{
+  std::string v = singleChildElementValue(element, tagName, "");
+
+  if (!v.empty()) {
+    try {
+      result = boost::lexical_cast<int>(v);
+    } catch (boost::bad_lexical_cast& e) {
+      throw WServer::Exception("<" + std::string(tagName)
+			       + ">: expecting integer value");
+    }
+  }
+}
+
 std::vector<xml_node<> *> childElements(xml_node<> *element,
 					const char *tagName)
 {
@@ -140,22 +155,22 @@ void EntryPoint::setPath(const std::string& path)
 }
 
 Configuration::Configuration(const std::string& applicationPath,
-                             const std::string& approot,
+			     const std::string& appRoot,
 			     const std::string& configurationFile,
-			     ServerType serverType,
-			     const std::string& startupMessage)
-  : applicationPath_(applicationPath),
-    approot_(approot),
-    serverType_(serverType),
+			     WServer *server)
+  : server_(server),
+    applicationPath_(applicationPath),
+    approot_(appRoot),
     sessionPolicy_(SharedProcess),
     numProcesses_(1),
-    numThreads_(serverType == WtHttpdServer ? 0 : 10),
+    numThreads_(10),
     maxNumSessions_(100),
     maxRequestSize_(128 * 1024),
     isapiMaxMemoryRequestSize_(128 * 1024),
     sessionTracking_(URL),
     reloadIsNewSession_(true),
     sessionTimeout_(600),
+    bootstrapTimeout_(10),
     indicatorTimeout_(500),
     serverPushTimeout_(50),
     valgrindPath_(""),
@@ -173,43 +188,45 @@ Configuration::Configuration(const std::string& applicationPath,
     persistentSessions_(false),
     progressiveBoot_(false),
     splitScript_(false),
-    pid_(getpid())
+    maxPlainSessionsRatio_(1),
+    ajaxPuzzle_(false),
+    slashException_(false), // need to use ?_= 
+    needReadBody_(false),
+    sessionIdCookie_(false)
 {
-  char *value = 0;
-
-  if ((value = ::getenv("WT_APP_ROOT"))) {
-    // Configuration file could be $WT_APP_ROOT/wt_config.xml
-    approot_ = value;
-  }
-
-  if (approot_ != "")
+  if (!approot_.empty())
     properties_["appRoot"] = approot_;
 
-  logger_.addField("datetime", false);
-  logger_.addField("app", false);
-  logger_.addField("session", false);
-  logger_.addField("type", false);
-  logger_.addField("message", true);
+  readConfiguration(configurationFile);
+}
 
-  setupLogger(std::string());
+std::string Configuration::locateAppRoot()
+{
+  char *value;
 
-  std::string configFile;
+  if ((value = ::getenv("WT_APP_ROOT")))
+    return value;
+  else
+    return std::string();
+}
 
-  if (!configurationFile.empty())
-    configFile = configurationFile;
-  else if ((value = ::getenv("WT_CONFIG_XML")))
-    configFile = value;
-  else if (!approot_.empty()) {
-    std::ifstream s((approot_ + "/wt_config.xml").c_str(),
-		    std::ios::in | std::ios::binary);
-    if (s)
-      configFile = approot_ + "/wt_config.xml";
+std::string Configuration::locateConfigFile(const std::string& appRoot)
+{
+  char *value;
+
+  if ((value = ::getenv("WT_CONFIG_XML")))
+    return value;
+  else {
+    // Configuration file could be $WT_APP_ROOT/wt_config.xml
+    if (!appRoot.empty()) {
+      std::string result = appRoot + "/wt_config.xml";
+      std::ifstream s(result.c_str(), std::ios::in | std::ios::binary);
+      if (s)
+	return result;
+    }
+
+    return WT_CONFIG_XML;
   }
-
-  if (configFile.empty())
-    configFile = WT_CONFIG_XML;
-
-  readConfiguration(configFile, startupMessage);
 }
 
 void Configuration::setSessionIdPrefix(const std::string& prefix)
@@ -229,6 +246,26 @@ void Configuration::setSessionTimeout(int sessionTimeout)
   sessionTimeout_ = sessionTimeout;
 }
 
+void Configuration::setWebSockets(bool enabled)
+{
+  webSockets_ = enabled;
+}
+
+void Configuration::setNeedReadBodyBeforeResponse(bool needed)
+{
+  needReadBody_ = needed;
+}
+
+void Configuration::setUseSlashExceptionForInternalPaths(bool needed)
+{
+  slashException_ = needed;
+}
+
+void Configuration::setRunDirectory(const std::string& path)
+{
+  runDirectory_ = path;
+}
+
 void Configuration::readApplicationSettings(xml_node<> *app)
 {
   xml_node<> *sess = singleChildElement(app, "session-management");
@@ -237,9 +274,6 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     xml_node<> *dedicated = singleChildElement(sess, "dedicated-process");
     xml_node<> *shared = singleChildElement(sess, "shared-process");
     std::string tracking = singleChildElementValue(sess, "tracking", "");
-    std::string timeoutStr = singleChildElementValue(sess, "timeout", "");
-    std::string serverPushTimeoutStr
-      = singleChildElementValue(sess, "server-push-timeout", "");
 
     if (dedicated && shared)
       throw WServer::Exception("<application-settings> requires either "
@@ -248,22 +282,13 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
     if (dedicated) {
       sessionPolicy_ = DedicatedProcess;
-
-      std::string maxnumStr
-	= singleChildElementValue(dedicated, "max-num-sessions", "");
-
-      if (!maxnumStr.empty())
-	maxNumSessions_ = boost::lexical_cast<int>(maxnumStr);
+      setInt(dedicated, "max-num-sessions", maxNumSessions_);
     }
 
     if (shared) {
       sessionPolicy_ = SharedProcess;
 
-      std::string numProcessesStr
-	= singleChildElementValue(shared, "num-processes", "");
-
-      if (!numProcessesStr.empty())
-	numProcesses_ = boost::lexical_cast<int>(numProcessesStr);
+      setInt(shared, "num-processes", numProcesses_);
     }
 
     if (!tracking.empty()) {
@@ -276,18 +301,14 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 				 "or 'URL'");
     }
 
-    if (!timeoutStr.empty())
-      sessionTimeout_ = boost::lexical_cast<int>(timeoutStr);
-
-    if (!serverPushTimeoutStr.empty())
-      serverPushTimeout_ = boost::lexical_cast<int>(serverPushTimeoutStr);
-
+    setInt(sess, "timeout", sessionTimeout_);
+    setInt(sess, "bootstrap-timeout", bootstrapTimeout_);
+    setInt(sess, "server-push-timeout", serverPushTimeout_);
     setBoolean(sess, "reload-is-new-session", reloadIsNewSession_);
   }
 
   std::string maxRequestStr
     = singleChildElementValue(app, "max-request-size", "");
-
   if (!maxRequestStr.empty())
     maxRequestSize_ = boost::lexical_cast< ::int64_t >(maxRequestStr) * 1024;
 
@@ -307,44 +328,33 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
   setBoolean(app, "log-response-time", logTime_);
 
-  if (serverType_ == FcgiServer) {
-    xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");
-    if (!fcgi)
-      fcgi = app; // backward compatibility
+  setInt(app, "num-threads", numThreads_);
 
-    valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path",
-					    valgrindPath_);
-    runDirectory_ = singleChildElementValue(fcgi, "run-directory",
-					    runDirectory_);
+  xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");
+  if (!fcgi)
+    fcgi = app; // backward compatibility
 
-    std::string numThreadsStr = singleChildElementValue(fcgi,
-							"num-threads", "");
-    if (!numThreadsStr.empty())
-      numThreads_ = boost::lexical_cast<int>(numThreadsStr);
+  valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path",
+					  valgrindPath_);
+  runDirectory_ = singleChildElementValue(fcgi, "run-directory",
+					  runDirectory_);
+
+  setInt(fcgi, "num-threads", numThreads_); // backward compatibility < 3.1.12
+
+  xml_node<> *isapi = singleChildElement(app, "connector-isapi");
+  if (!isapi)
+    isapi = app; // backward compatibility
+
+  setInt(isapi, "num-threads", numThreads_); // backward compatibility <3.1.12
+
+  std::string maxMemoryRequestSizeStr =
+    singleChildElementValue(isapi, "max-memory-request-size", "");
+  if (!maxMemoryRequestSizeStr.empty()) {
+    isapiMaxMemoryRequestSize_ = boost::lexical_cast< ::int64_t >
+      (maxMemoryRequestSizeStr) * 1024;
   }
 
-  if (serverType_ == IsapiServer) {
-    xml_node<> *isapi = singleChildElement(app, "connector-isapi");
-    if (!isapi)
-      isapi = app; // backward compatibility
-
-    std::string numThreadsStr = singleChildElementValue(isapi,
-							"num-threads", "");
-    if (!numThreadsStr.empty())
-      numThreads_ = boost::lexical_cast<int>(numThreadsStr);
-
-    std::string maxMemoryRequestSizeStr =
-      singleChildElementValue(isapi, "max-memory-request-size", "");
-    if (!maxMemoryRequestSizeStr.empty()) {
-      isapiMaxMemoryRequestSize_ = boost::lexical_cast< ::int64_t >
-	(maxMemoryRequestSizeStr) * 1024;
-    }
-  }
-
-  std::string sessionIdLength
-    = singleChildElementValue(app, "session-id-length", "");
-  if (!sessionIdLength.empty())
-    sessionIdLength_ = boost::lexical_cast<int>(sessionIdLength);
+  setInt(app, "session-id-length", sessionIdLength_);
 
   sessionIdPrefix_
     = singleChildElementValue(app,"session-id-prefix", sessionIdPrefix_);
@@ -356,21 +366,25 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   setBoolean(app, "strict-event-serialization", serializedEvents_);
   setBoolean(app, "web-sockets", webSockets_);
 
-  if (webSockets_ && serverType_ != WtHttpdServer)
-    throw WServer::Exception("<web-sockets> only supported by built-in "
-			     "httpd connector.");
-
   setBoolean(app, "inline-css", inlineCss_);
   setBoolean(app, "persistent-sessions", persistentSessions_);
   setBoolean(app, "progressive-bootstrap", progressiveBoot_);
   if (progressiveBoot_)
     setBoolean(app, "split-script", splitScript_);
+  setBoolean(app, "session-id-cookie", sessionIdCookie_);
+
+  std::string plainAjaxSessionsRatioLimit
+    = singleChildElementValue(app, "plain-ajax-sessions-ratio-limit", "");
 
   std::string indicatorTimeoutStr
     = singleChildElementValue(app, "indicator-timeout", "");
 
-  if (!indicatorTimeoutStr.empty())
-    indicatorTimeout_ = boost::lexical_cast<int>(indicatorTimeoutStr);
+  if (!plainAjaxSessionsRatioLimit.empty())
+    maxPlainSessionsRatio_
+      = boost::lexical_cast<float>(plainAjaxSessionsRatioLimit);
+
+  setBoolean(app, "ajax-puzzle", ajaxPuzzle_);
+  setInt(app, "indicator-timeout", indicatorTimeout_);
 
   std::vector<xml_node<> *> userAgents = childElements(app, "user-agents");
 
@@ -426,9 +440,10 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       if (name == "approot")
 	name = "appRoot";
 
-      if (name == "appRoot" && approot_ != "") {
-        log("warning") << "Ignoring configuration property 'appRoot' (" << value
-          << ") because the connector has set it to " << approot_;
+      if (name == "appRoot" && !approot_.empty()) {
+	log("warning") << "Ignoring configuration property 'appRoot' ("
+		       << value
+		       << ") because was already set to " << approot_;
       } else {
         properties_[name] = value;
       }
@@ -436,10 +451,10 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   }
 }
 
-void Configuration::readConfiguration(const std::string& configurationFile,
-				      const std::string& startupMessage)
+void Configuration::readConfiguration(const std::string& configurationFile)
 {
   std::ifstream s(configurationFile.c_str(), std::ios::in | std::ios::binary);
+
   if (!s) {
     if (configurationFile != WT_CONFIG_XML)
       throw WServer::Exception("Error reading '"
@@ -488,12 +503,11 @@ void Configuration::readConfiguration(const std::string& configurationFile,
 	logFile = singleChildElementValue(app, "log-file", logFile);
     }
 
-    setupLogger(logFile);
+    if (server_)
+      server_->initLogger(logFile);
 
-    if (!startupMessage.empty())
-      log("notice") << startupMessage;
     log("notice") << "Reading Wt config file: " << configurationFile
-		  << " (location = '" << applicationPath_ << "')";
+		 << " (location = '" << applicationPath_ << "')";
 
     /*
      * Now read application settings.
@@ -515,26 +529,6 @@ void Configuration::readConfiguration(const std::string& configurationFile,
   }
 }
 
-void Configuration::setupLogger(const std::string& logFile)
-{
-  if (logFile.empty())
-    logger_.setStream(std::cerr);
-  else
-    logger_.setFile(logFile);
-}
-
-WLogEntry Configuration::log(const std::string& type) const
-{
-  WLogEntry e = logger_.entry();
-
-  e << WLogger::timestamp << WLogger::sep
-    << pid_ << WLogger::sep
-    << /* sessionId << */ WLogger::sep
-    << '[' << type << ']' << WLogger::sep;
-
-  return e;
-}
-
 void Configuration::addEntryPoint(const EntryPoint& ep)
 {
   if (ep.type() == StaticResource)
@@ -543,20 +537,43 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
   entryPoints_.push_back(ep);
 }
 
+bool Configuration::registerSessionId(const std::string& oldId,
+				      const std::string& newId)
+{
+  if (!runDirectory_.empty()) {
+
+    if (!newId.empty()) {
+      std::string socketPath = sessionSocketPath(newId);
+
+      struct stat finfo;
+      if (stat(socketPath.c_str(), &finfo) != -1)
+	return false;
+
+      if (oldId.empty()) {
+	if (sessionPolicy_ == SharedProcess) {
+	  std::ofstream f(socketPath.c_str());
+	  f << getpid() << std::endl;
+	  f.flush();
+	}
+      }
+    }
+
+    if (!oldId.empty()) {
+      if (newId.empty())
+	unlink(sessionSocketPath(oldId).c_str());
+      else
+	rename(sessionSocketPath(oldId).c_str(),
+	       sessionSocketPath(newId).c_str());
+    }
+  }
+
+  return true;
+}
+
 std::string Configuration::generateSessionId()
 {
   std::string sessionId = sessionIdPrefix();
   sessionId += WRandom::generateId(sessionIdLength() - sessionId.length());
-
-  if (serverType_ == FcgiServer) {
-    std::string socketPath = sessionSocketPath(sessionId);
-
-    struct stat finfo;
-    if (stat(socketPath.c_str(), &finfo) != -1)
-      // exists already -- try another one
-      return generateSessionId();
-  }
-
   return sessionId;
 }
 
@@ -604,6 +621,14 @@ std::string Configuration::appRoot() const
   }
 
   return approot;
+}
+
+WLogEntry Configuration::log(const std::string& type) const
+{
+  if (server_)
+    return server_->log(type);
+  else
+    return Wt::log(type);
 }
 
 }

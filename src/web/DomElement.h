@@ -18,9 +18,6 @@
 namespace Wt {
 
 class WApplication;
-class EscapeOStream;
-class EventSignalBase;
-class WObject;
 
 enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyValue, PropertyDisabled,

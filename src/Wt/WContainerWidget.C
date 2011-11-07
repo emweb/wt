@@ -7,18 +7,17 @@
 
 #include "StdWidgetItemImpl.h"
 #include "StdGridLayoutImpl.h"
-#include "WtException.h"
 
 #include "Wt/WApplication"
 #include "Wt/WBorderLayout"
 #include "Wt/WBoxLayout"
 #include "Wt/WContainerWidget"
+#include "Wt/WException"
 #include "Wt/WGridLayout"
 #include "Wt/WWidgetItem"
 #include "Utils.h"
 
 #include "DomElement.h"
-#include "EscapeOStream.h"
 #include "WebSession.h"
 
 namespace Wt {
@@ -176,8 +175,7 @@ void WContainerWidget::addWidget(WWidget *widget)
 {
   if (widget->parent()) {
     if (widget->parent() != this) {
-      wApp->log("warn")
-	<< "WContainerWidget::addWidget(): reparenting widget";
+      Wt::log("warn") << "WContainerWidget::addWidget(): reparenting widget";
       widget->setParentWidget(0);
     } else
       return;
@@ -186,9 +184,9 @@ void WContainerWidget::addWidget(WWidget *widget)
   if (!transientImpl_) {
     transientImpl_ = new TransientImpl();
 
-    // IE cannot replace a TD node using DOM API
+    // A TD/TH node cannot be stubbed
     if (domElementType() != DomElement_TD
-	|| !WApplication::instance()->environment().agentIsIE())
+	&& domElementType() != DomElement_TH)
       setLoadLaterWhenInvisible(true);
   }
 
@@ -210,15 +208,14 @@ void WContainerWidget::insertWidget(int index, WWidget *widget)
 void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
 {
   if (before->parent() != this) {
-    wApp->log("error") << "WContainerWidget::insertBefore(): 'before' not "
-      "in this container";
+    Wt::log("error") << "WContainerWidget::insertBefore(): 'before' not "
+		     << "in this container";
     return;
   }
 
   if (widget->parent()) {
     if (widget->parent() != this) {
-      wApp->log("warn")
-	<< "WContainerWidget::insertWidget(): reparenting widget";
+      Wt::log("warn") << "WContainerWidget::insertWidget(): reparenting widget";
       widget->setParentWidget(0);
     } else
       return;
@@ -412,7 +409,8 @@ WLength WContainerWidget::padding(Side side) const
   case Left:
     return padding_[3];
   default:
-    throw WtException("WContainerWidget::padding(Side) with invalid side.");
+    Wt::log("error") << "WContainerWidget::padding(): improper side.";
+    return WLength();
   }
 }
 

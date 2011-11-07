@@ -124,6 +124,10 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
     for (unsigned i = 0; i < entryPoints_.size(); ++i) {
       const Wt::EntryPoint& ep = entryPoints_[i];
 
+      /*
+       * FIXME: this should implement a best match, in case we deploy
+       * a static resource at an internal path within an application
+       */
       std::string pathInfo;
 
       // Check if path matches with the entry point's path (e.g. app.wt)

@@ -19,17 +19,16 @@ IF(CONNECTOR_HTTP)
     TcpConnection.C
     WServer.C
     WtReply.C
-    md5.c
   )
-    
+
   OPTION(HTTP_WITH_SSL "Support for SSL (https)" ${SSL_FOUND})
   OPTION(HTTP_WITH_ZLIB "Support for zlib (http compression)" ${ZLIB_FOUND})
 
   IF (HTTP_WITH_SSL)
     IF (NOT SSL_FOUND)
       MESSAGE("** HTTP_WITH_SSL enabled but could not find OpenSSL")
-      MESSAGE(FATAL "   Indicate location of OpenSSL using -DUSERLIB_PREFIX=...")
-    ENDIF (NOT SSL_FOUND)
+      MESSAGE(FATAL "   Indicate location of OpenSSL using -DSSL_PREFIX=...")
+   ENDIF (NOT SSL_FOUND)
     ADD_DEFINITIONS(-DHTTP_WITH_SSL)
     SET(MY_SSL_LIBS ${SSL_LIBRARIES})
     INCLUDE_DIRECTORIES(${SSL_INCLUDE_DIRS})
@@ -56,10 +55,6 @@ IF(CONNECTOR_HTTP)
     ${CMAKE_CURRENT_SOURCE_DIR}/../wt
     ${CMAKE_CURRENT_BINARY_DIR}/
   )
-
-  IF(WIN32)
-    ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)
-  ENDIF(WIN32)
 
   ADD_DEFINITIONS(${ZLIB_DEFINITIONS})
   ADD_LIBRARY(wthttp ${libhttpsources})

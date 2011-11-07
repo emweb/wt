@@ -16,13 +16,12 @@ namespace Wt {
   class WebResponse;
   class WebSession;
 
-  /*! \brief Namespace for objects directly related to HTTP */
   namespace Http {
 
     class Response;
 
 /*! \class ResponseContinuation Wt/Http/ResponseContinuation Wt/Http/ResponseContinuation
- *  \brief A response continuation object.
+ *  \brief A resource response continuation object.
  *
  * A response continuation object is used to keep track of a response
  * which is to be continued.
@@ -40,6 +39,8 @@ namespace Wt {
  *   WResource::haveMoreData() when more data is available.
  *
  * \sa Response::createContinuation(), Request::continuation()
+ *
+ * \ingroup http
  */
 class WT_API ResponseContinuation
 {
@@ -81,16 +82,16 @@ public:
   void doContinue();
 
 private:
-  WResource   *resource_;
+  WResource *resource_;
   WebResponse *response_;
-  boost::any   data_;
-  bool         waiting_;
+  boost::any data_;
+  bool waiting_;
 
   ResponseContinuation(WResource *resource, WebResponse *response);
   ResponseContinuation(const ResponseContinuation&);
   ~ResponseContinuation();
 
-  void         stop();
+  void stop();
   WebResponse *response() { return response_; }
 
   friend class Wt::WResource;

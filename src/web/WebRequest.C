@@ -4,8 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WException"
+
 #include "WebRequest.h"
-#include "WtException.h"
 
 #include <cstdlib>
 
@@ -55,12 +56,12 @@ WebRequest::~WebRequest()
 
 void WebRequest::readWebSocketMessage(CallbackFunction callback)
 { 
-  throw WtException("should not get here");
+  throw WException("should not get here");
 }
 
 bool WebRequest::webSocketMessagePending() const
 {
-  throw WtException("should not get here");
+  throw WException("should not get here");
 }
 
 std::string WebRequest::userAgent() const

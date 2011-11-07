@@ -4,13 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 
 #include "Wt/WApplication"
+#include "Wt/WLogger"
 #include "Wt/WTemplate"
 
 #include "DomElement.h"
 #include "RefEncoder.h"
+#include "Utils.h"
 #include "WebSession.h"
 
 namespace Wt {
@@ -22,6 +25,39 @@ const char *WTemplate::DropShadow_x1_x2
   "<span class=\"Wt-x2\">"
   """<span class=\"Wt-x2a\"></span>"
   "</span>";
+
+bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
+			      std::ostream& result)
+{
+  if (args.size() >= 1) {
+    WString s = WString::tr(args[0].toUTF8());
+    for (unsigned j = 1; j < args.size(); ++j)
+      s.arg(args[j]);
+    result << s; // FIXME formatting / escaping ?
+    return true;
+  } else {
+    Wt::log("error") << "WTemplate::Functions::tr(): expects at least one "
+      "argument";
+    return false;
+  }
+}
+
+bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
+			      std::ostream& result)
+{
+  if (args.size() == 1) {
+    WWidget *w = t->resolveWidget(args[0].toUTF8());
+    if (w) {
+      result << w->id();
+      return true;
+    } else
+      return false;
+  } else {
+    Wt::log("error") << "WTemplate::Functions::tr(): expects exactly one "
+      "argument";
+    return false;
+  }
+}
 
 WTemplate::WTemplate(WContainerWidget *parent)
   : WInteractWidget(parent),
@@ -54,14 +90,21 @@ void WTemplate::clear()
   repaint(RepaintInnerHtml);  
 }
 
+void WTemplate::bindFunction(const std::string& name, const Function& function)
+{
+  functions_[name] = function;
+}
+
 void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
 {
   WidgetMap::iterator i = widgets_.find(varName);
   if (i != widgets_.end()) {
     if (i->second == widget)
       return;
-    else
+    else {
       delete i->second;
+      widgets_.erase(i);
+    }
   }
 
   if (widget) {
@@ -73,6 +116,11 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
 
   changed_ = true;
   repaint(RepaintInnerHtml);  
+}
+
+void WTemplate::bindEmpty(const std::string& varName)
+{
+  bindWidget(varName, 0);
 }
 
 void WTemplate::bindString(const std::string& varName, const WString& value,
@@ -101,6 +149,24 @@ void WTemplate::bindInt(const std::string& varName, int value)
   bindString(varName, boost::lexical_cast<std::string>(value), XHTMLUnsafeText);
 }
 
+bool WTemplate::resolveFunction(const std::string& name,
+				const std::vector<WString>& args,
+				std::ostream& result)
+{
+  FunctionMap::const_iterator i = functions_.find(name);
+
+  if (i != functions_.end()) {
+    bool ok = i->second(this, args, result);
+
+    if (!ok)
+      result << "??" << name << ":??";
+
+    return true;
+  }
+
+  return false;
+}
+
 void WTemplate::resolveString(const std::string& varName,
 			      const std::vector<WString>& args,
 			      std::ostream& result)
@@ -108,7 +174,7 @@ void WTemplate::resolveString(const std::string& varName,
   /*
    * FIXME: have an extra result parameter which indicates whether the
    * widget is view-only. Better to do that in resolveValue() and
-   * provide a utility method that converst a widget to XHTML ?
+   * provide a utility method that converts a widget to XHTML ?
    */
 
   StringMap::const_iterator i = strings_.find(varName);
@@ -122,12 +188,23 @@ void WTemplate::resolveString(const std::string& varName,
       if (previouslyRendered_
 	  && previouslyRendered_->find(w) != previouslyRendered_->end()) {
 	result << "<span id=\"" << w->id() << "\"> </span>";
-      } else
+      } else {
+	applyArguments(w, args);
 	w->htmlText(result);
+      }
 
       newlyRendered_->push_back(w);
     } else
       handleUnresolvedVariable(varName, args, result);
+  }
+}
+
+void WTemplate::applyArguments(WWidget *w, const std::vector<WString>& args)
+{
+  for (unsigned i = 0; i < args.size(); ++i) {
+    std::string s = args[i].toUTF8();
+    if (boost::starts_with(s, "class="))
+      w->addStyleClass(WString::fromUTF8(s.substr(6)));
   }
 }
 
@@ -226,6 +303,8 @@ void WTemplate::renderTemplate(std::ostream& result)
     text = text_.toUTF8();
 
   std::size_t lastPos = 0;
+  std::vector<WString> args;
+
   for (std::size_t pos = text.find('$'); pos != std::string::npos;
        pos = text.find('$', pos)) {
 
@@ -239,14 +318,33 @@ void WTemplate::renderTemplate(std::ostream& result)
       } else if (text[pos + 1] == '{') {
 	std::size_t startName = pos + 2;
 	std::size_t endName = text.find_first_of(" \r\n\t}", startName);
-	std::size_t endVar = text.find('}', endName);
-	if (endName == std::string::npos || endVar == std::string::npos)
-	  throw std::runtime_error("WTemplate syntax error at pos "
-				   + boost::lexical_cast<std::string>(pos));
+
+	args.clear();
+	std::size_t endVar = parseArgs(text, endName, args);
+
+	if (endVar == std::string::npos) {
+	  Wt::log("error") << "WTemplate variable syntax error near \""
+			   << text.substr(pos) << "\"";
+	  return;
+	}
 
 	std::string name = text.substr(startName, endName - startName);
-	std::vector<WString> args;
-	resolveString(name, args, result);
+
+	std::size_t colonPos = name.find(':');
+
+	bool handled = false;
+	if (colonPos != std::string::npos) {
+	  std::string fname = name.substr(0, colonPos);
+	  std::string arg0 = name.substr(colonPos + 1);
+	  args.insert(args.begin(), WString::fromUTF8(arg0));
+	  if (resolveFunction(fname, args, result))
+	    handled = true;
+	  else
+	    args.erase(args.begin());
+	}
+
+	if (!handled)
+	  resolveString(name, args, result);
 
 	lastPos = endVar + 1;
       } else {
@@ -262,6 +360,97 @@ void WTemplate::renderTemplate(std::ostream& result)
   }
 
   result << text.substr(lastPos);
+}
+
+std::size_t WTemplate::parseArgs(const std::string& text,
+				 std::size_t pos,
+				 std::vector<WString>& result)
+{
+  std::size_t Error = std::string::npos;
+
+  if (pos == std::string::npos)
+    return Error;
+
+  enum { Next, Name, Value, SValue, DValue } state = Next;
+
+  WStringStream v;
+
+  for (; pos < text.length(); ++pos) {
+    char c = text[pos];
+    switch (state) {
+    case Next:
+      if (!isspace(c)) {
+	if (c == '}')
+	  return pos;
+	else if (isalpha(c) || c == '_') {
+	  state = Name;
+	  v.clear();
+	  v << c;
+	} else if (c == '\'') {
+	  state = SValue;
+	  v.clear();
+	} else if (c == '"') {
+	  state = DValue;
+	  v.clear();
+	} else
+	  return Error;
+      }
+      break;
+
+    case Name:
+      if (c == '=') {
+	state = Value;
+	v << '=';
+      } else if (isspace(c)) {
+	result.push_back(WString::fromUTF8(v.str()));
+	state = Next;
+      } else if (c == '}') {
+	result.push_back(WString::fromUTF8(v.str()));
+	return pos;
+      } else if (isalnum(c) || c == '_' || c == '-')
+	v << c;
+      else
+	return Error;
+      break;
+
+    case Value:
+      if (c == '\'')
+	state = SValue;
+      else if (c == '"')
+	state = DValue;
+      else {
+	std::size_t end = text.find_first_of(" \r\n\t} ", pos);
+	if (end == std::string::npos)
+	  return Error;
+	else {
+	  v << text.substr(pos, end - pos);
+	result.push_back(WString::fromUTF8(v.str()));
+	  --pos;
+	  state = Next;
+	}
+      }
+      break;
+
+    case SValue:
+    case DValue:
+      char quote = state == SValue ? '\'' : '"';
+
+      std::size_t end = text.find(quote, pos);
+      if (end == std::string::npos)
+	return Error;
+      if (text[end - 1] == '\\')
+	v << text.substr(pos, end - pos - 1) << quote;
+      else {
+	v << text.substr(pos, end - pos);
+	result.push_back(WString::fromUTF8(v.str()));
+	state = Next;
+      }
+
+      pos = end;
+    }
+  }
+
+  return pos == text.length() ? std::string::npos : pos;
 }
 
 void WTemplate::format(std::ostream& result, const std::string& s,

@@ -8,8 +8,8 @@
 #include <iostream>
 
 #include "Wt/WBatchEditProxyModel"
+#include "Wt/WException"
 
-#include "WtException.h"
 #include "Utils.h"
 
 namespace {
@@ -358,8 +358,8 @@ WBatchEditProxyModel::itemFromIndex(const WModelIndex& index,
 	return itemFromInsertedRow(parentItem, index, autoCreate);
       else
 	if (autoCreate)
-	  throw WtException("WBatchEditProxyModel does not support children in "
-			    "column > 0");
+	  throw WException("WBatchEditProxyModel does not support children in "
+			   "column > 0");
 	else
 	  return 0;
     }

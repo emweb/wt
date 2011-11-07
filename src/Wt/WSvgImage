@@ -13,14 +13,11 @@
 #include <Wt/WPointF>
 #include <Wt/WResource>
 #include <Wt/WShadow>
+#include <Wt/WStringStream>
 #include <Wt/WTransform>
 #include <Wt/WVectorImage>
 
-#include <sstream>
-
 namespace Wt {
-
-  class SStream;
 
 /*! \class WSvgImage Wt/WSvgImage Wt/WSvgImage
  *  \brief A paint device for rendering using Scalable Vector Graphics (SVG).
@@ -113,7 +110,7 @@ private:
 
   WPointF     pathTranslation_;
 
-  std::stringstream shapes_;
+  WStringStream shapes_;
 
   void finishPath();
   void makeNewGroup();
@@ -121,14 +118,14 @@ private:
   std::string strokeStyle() const;
   std::string fontStyle() const;
   std::string clipPath() const;
-  int createShadowFilter(SStream& out);
+  int createShadowFilter(WStringStream& out);
 
   std::string fillStyle_, strokeStyle_, fontStyle_;
 
   static std::string quote(double s);
   static std::string quote(const std::string& s);
 
-  void drawPlainPath(std::stringstream& s, const WPainterPath& path);
+  void drawPlainPath(WStringStream& s, const WPainterPath& path);
 
   void streamResourceData(std::ostream& stream);
 };

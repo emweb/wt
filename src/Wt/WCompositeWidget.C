@@ -10,10 +10,8 @@
 
 #include "Wt/WCompositeWidget"
 #include "Wt/WContainerWidget"
-#include "Wt/WApplication"
+#include "Wt/WException"
 #include "Wt/WLogger"
-
-#include "WtException.h"
 
 namespace Wt {
 
@@ -297,8 +295,8 @@ void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {
   if (AlignHorizontalMask & alignment) {
-    wApp->log("warning") << "WCompositeWidget::setVerticalAlignment: "
-      "alignment " << alignment << "is horizontal, expected vertical";
+    Wt::log("error") << "WCompositeWidget::setVerticalAlignment(): alignment "
+		     << alignment << "is not vertical";
   }
   impl_->setVerticalAlignment(alignment, length);
 }
@@ -426,7 +424,7 @@ int WCompositeWidget::tabIndex() const
 void WCompositeWidget::setImplementation(WWidget *widget)
 {
   if (widget->parent())
-    throw WtException("WCompositeWidget implementation widget "
+    throw WException("WCompositeWidget implementation widget "
 		      "cannot have a parent");
 
   delete impl_;

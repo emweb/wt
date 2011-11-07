@@ -7,6 +7,8 @@
 #include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WString"
 
+#include "Utils.h"
+
 namespace Wt {
 
 WCombinedLocalizedStrings::WCombinedLocalizedStrings()
@@ -18,9 +20,14 @@ WCombinedLocalizedStrings::~WCombinedLocalizedStrings()
     delete localizedStrings_[i];
 }
 
-void WCombinedLocalizedStrings::add(WLocalizedStrings* localizedStrings)
+void WCombinedLocalizedStrings::add(WLocalizedStrings* resolver)
 {
-  localizedStrings_.push_back(localizedStrings);
+  localizedStrings_.push_back(resolver);
+}
+
+void WCombinedLocalizedStrings::remove(WLocalizedStrings *resolver)
+{
+  Utils::erase(localizedStrings_, resolver);
 }
 
 const std::vector<WLocalizedStrings *> &

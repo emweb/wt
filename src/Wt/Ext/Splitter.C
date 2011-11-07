@@ -5,11 +5,10 @@
  */
 #include "Wt/Ext/Splitter"
 #include "Wt/Ext/SplitterHandle"
-#include "Wt/WApplication"
+#include "Wt/WException"
 #include "Wt/WTable"
 
 #include "DomElement.h"
-#include "WtException.h"
 
 namespace Wt {
   namespace Ext {
@@ -161,8 +160,8 @@ DomElement *Splitter::createDomElement(WApplication *app)
       : children_[i]->height();
 
     if (l.isAuto())
-      throw WtException("Splitter requires all widgets to have their "
-			"width or height set using WWidget::resize().");
+      throw WException("Splitter requires all widgets to have their "
+		       "width or height set using WWidget::resize().");
 
     x += (int)l.value();
   }

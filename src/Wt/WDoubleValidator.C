@@ -8,10 +8,8 @@
 
 #include "Wt/WDoubleValidator"
 #include "Wt/WString"
-
+#include "Wt/WStringStream"
 #include "Wt/WApplication"
-
-#include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDoubleValidator.min.js"
@@ -147,7 +145,7 @@ std::string WDoubleValidator::javaScriptValidate() const
 {
   loadJavaScript(WApplication::instance());
 
-  SStream js;
+  WStringStream js;
 
   js << "new " WT_CLASS ".WDoubleValidator("
      << (isMandatory() ? "true" : "false") << ",";

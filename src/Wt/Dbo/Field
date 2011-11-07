@@ -300,7 +300,7 @@ void field(Action& action, V& value, const std::string& name, int size = -1);
  */
 template <class Action, class C>
 void field(Action& action, ptr<C>& value, const std::string& name,
-          int size = -1);
+	   int size = -1);
 
 /*! \brief Maps the "One"-side of a ManyToOne relation.
  *

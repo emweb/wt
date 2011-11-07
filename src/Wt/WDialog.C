@@ -5,17 +5,17 @@
  */
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WDialog"
+#include "Wt/WException"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
 #include "Wt/WTemplate"
 #include "Wt/WText"
-#include "Wt/WDialog"
 #include "Wt/WVBoxLayout"
 
-#include "WebSession.h"
-#include "WtException.h"
-#include "WebController.h"
 #include "Resizable.h"
+#include "WebSession.h"
+#include "WebController.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDialog.min.js"
@@ -221,13 +221,13 @@ void WDialog::setClosable(bool closable)
 WDialog::DialogCode WDialog::exec(const WAnimation& animation)
 {
   if (recursiveEventLoop_)
-    throw WtException("WDialog::exec(): already in recursive event loop.");
+    throw WException("WDialog::exec(): already being executed.");
 
   animateShow(animation);
 
 #ifdef WT_TARGET_JAVA
   if (!WebController::isAsyncSupported())
-     throw WtException("Server push requires a Servlet 3.0 enabled servlet " 
+     throw WException("Server push requires a Servlet 3.0 enabled servlet " 
 		      "container and an application with async-supported "
 		      "enabled.");
 #endif
@@ -238,7 +238,7 @@ WDialog::DialogCode WDialog::exec(const WAnimation& animation)
   if (app->environment().isTest()) {
     app->environment().dialogExecuted().emit(this);
     if (recursiveEventLoop_)
-      throw WtException("Test case must close dialog");
+      throw WException("Test case must close dialog");
   } else {
     do {
       app->session()->doRecursiveEventLoop();

@@ -317,3 +317,25 @@ div#footer_menu  {
       line-height: 1.8;
       margin-top: 15px;
 }
+
+.home .Wt-tabs ul {
+    background: transparent url(tab_b.gif) repeat-x scroll center bottom;
+}
+
+.home .Wt-tabs span {
+    background: transparent url(tab_r.gif) no-repeat scroll right top;
+    border-bottom:1px solid #accf8a;
+}
+
+.home .Wt-tabs span span {
+    background: transparent url(tab_l.gif) no-repeat scroll left top;
+}
+
+.home .Wt-tabs span:hover {
+    color: #70BD1A;
+}
+
+body .chat-bar {
+    background-color: #70bd1A;
+}
+

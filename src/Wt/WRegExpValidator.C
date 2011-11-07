@@ -10,9 +10,9 @@
 #include "Wt/WRegExpValidator"
 #include "Wt/WRegExp"
 #include "Wt/WString"
+#include "Wt/WStringStream"
 
 #include "Utils.h"
-#include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WRegExpValidator.min.js"
@@ -110,7 +110,7 @@ std::string WRegExpValidator::javaScriptValidate() const
 {
   loadJavaScript(WApplication::instance());
 
-  SStream js;
+  WStringStream js;
 
   js << "new " WT_CLASS ".WRegExpValidator("
      << (isMandatory() ? "true" : "false") << ",";

@@ -7,6 +7,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
 #include "Wt/WString"
+#include "Wt/WStringStream"
 
 #include "DomElement.h"
 #include "EscapeOStream.h"
@@ -73,6 +74,11 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
 	x_href->value
 	  (doc->allocate_string(app->resolveRelativeUrl(url).c_str()));
       } else if (options & EncodeRedirectTrampoline) {
+	/*
+	 * FIXME: also apply this to other occurences of URLs:
+	 * - images
+	 * - in CSS
+	 */
 	if (path.find("://") != std::string::npos) {
 	  path = "?request=redirect&url=" + Utils::urlEncode(path);
 	  x_href->value(doc->allocate_string(path.c_str()));
@@ -115,7 +121,7 @@ void EncodeRefs(WString& text, WFlags<RefEncoderOption> options)
 
     EncodeRefs(doc.first_node(), app, options);
 
-    SStream out;
+    WStringStream out;
     print(out.back_inserter(), *doc.first_node(), print_no_indenting);
 
     result = out.str();

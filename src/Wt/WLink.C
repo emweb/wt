@@ -3,10 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <stdexcept>
-
 #include <Wt/WApplication>
 #include <Wt/WEnvironment>
+#include <Wt/WException>
 #include <Wt/WInteractWidget>
 #include <Wt/WLink>
 #include <Wt/WResource>
@@ -40,7 +39,7 @@ WLink::WLink(Type type, const std::string& value)
   case Url: setUrl(value); break;
   case InternalPath: setInternalPath(WString::fromUTF8(value)); break;
   default:
-    throw std::runtime_error("WLink::WLink(type) cannot be used for a Resource");
+    throw WException("WLink::WLink(type) cannot be used for a Resource");
   }
 }
 

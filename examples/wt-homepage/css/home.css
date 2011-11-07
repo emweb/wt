@@ -11,10 +11,6 @@
     margin-bottom: 0px;
 }
 
-.home .Wt-tabs span {
-    border-bottom:1px solid #accf8a;
-}
-
 .home .Wt-tabs span span {
     color:#777777;
 }
@@ -30,7 +26,6 @@
 
 .home .Wt-tabs span:hover {
     text-decoration: none;
-    color: #70BD1A;
 }
 
 ol, ul {

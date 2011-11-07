@@ -2490,15 +2490,14 @@ _$_$endif_$_();
   }
 }
 
-var ackUpdateId = _$_ACK_UPDATE_ID_$_;
-
-function responseReceived(updateId) {
+var ackUpdateId = _$_ACK_UPDATE_ID_$_, ackPuzzle = null;
+function responseReceived(updateId, puzzle) {
+  ackPuzzle = puzzle;
   ackUpdateId = updateId;
   comm.responseReceived(updateId);
 }
 
 var pageId = 0;
-
 function setPage(id)
 {
   pageId = id;
@@ -2545,6 +2544,24 @@ function sendUpdate() {
   }
 
   data.result += '&ackId=' + ackUpdateId + '&pageId=' + pageId;
+
+  if (ackPuzzle) {
+    var solution = '';
+    var d = $('#' + ackPuzzle).get(0);
+    if (d) {
+      d = d.parentNode;
+
+      for (; !WT.hasTag(d, 'BODY'); d = d.parentNode) {
+	if (d.id) {
+	  if (solution != '') solution += ',';
+	  solution += d.id;
+	}
+      }
+    }
+
+    data.result += '&ackPuzzle=' + encodeURIComponent(solution);
+  }
+
   var params = "_$_PARAMS_$_";
   if (params.length > 0)
     data.result += '&' + params;

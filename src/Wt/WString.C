@@ -5,7 +5,9 @@
  */
 
 #include "rapidxml/rapidxml.hpp"
+
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include "Wt/WApplication"
 #include "Wt/WString"
@@ -13,7 +15,6 @@
 #include "Wt/WWebWidget"
 #include "Wt/WCombinedLocalizedStrings"
 
-#include "WtException.h"
 #include "Utils.h"
 
 #ifndef WT_CNOR
@@ -171,6 +172,15 @@ bool WString::empty() const
     return utf8_.empty();
   else
     return toUTF8().empty();
+}
+
+WString WString::trim() const
+{
+  std::string u8 = toUTF8();
+
+  boost::trim(u8);
+
+  return WString::fromUTF8(u8, false);
 }
 
 WString WString::fromUTF8(const std::string& value, bool checkValid)

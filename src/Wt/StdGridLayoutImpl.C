@@ -186,12 +186,10 @@ void StdGridLayoutImpl::setHint(const std::string& name,
     else if (value == "auto")
       useFixedLayout_ = false;
     else
-      WApplication::instance()->log("error")
-	<< "WGridLayout: unrecognized hint value '" << value
-	<< "' for '" << name << "'";
+      Wt::log("error") << "WGridLayout: unrecognized hint value '" << value
+		       << "' for '" << name << "'";
   else
-     WApplication::instance()->log("error")
-       << "WGridLayout: unrecognized hint '" << name << "'";
+    Wt::log("error") << "WGridLayout: unrecognized hint '" << name << "'";
 }
 
 int StdGridLayoutImpl::nextRowWithItem(int row, int c) const

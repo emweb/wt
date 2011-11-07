@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <!-- BaseAuth, PasswordAuth and OAuth models -->
+
+  <message id="Wt.Auth.error-invalid-token">The operation could not be completed: invalid token.</message>
+  <message id="Wt.Auth.error-token-expired">The operation could not be completed: the token has expired.</message>
+  <message id="Wt.Auth.mail-sent">An email has been sent. Follow the instructions to set a new password.</message>
+  <message id="Wt.Auth.info-email-confirmed">Your email address is now confirmed.</message>
+
+  <!-- LoginWidget -->
+
+  <message id="Wt.Auth.remember-me">Remember me</message>
+  <message id="Wt.Auth.lost-password">Lost password</message>
+  <message id="Wt.Auth.login">Login</message>
+  <message id="Wt.Auth.logout">Logout</message>
+
+  <!-- RegistrationWidget -->
+
+  <message id="Wt.Auth.registration-form-title">Registration</message>
+  <message id="Wt.Auth.registration-form-info">Please complete the following information to register.</message>
+  <message id="Wt.Auth.password-or-oauth-registration"><h3>Register using a user name and password:</h3></message>
+  <message id="Wt.Auth.oauth-registration"><h3>Register through a third party:</h3></message>
+  <message id="Wt.Auth.or-oauth-registration"><h3>Or, register through a third party:</h3></message>
+  <message id="Wt.Auth.identity">User name</message>
+  <message id="Wt.Auth.identity-valid">Valid</message>
+  <message id="Wt.Auth.password">Password</message>
+  <message id="Wt.Auth.password-valid">Valid</message>
+  <message id="Wt.Auth.password2">Repeat password</message>
+  <message id="Wt.Auth.password2-info">Re-enter your password</message>
+  <message id="Wt.Auth.password2-valid">Valid</message>
+  <message id="Wt.Auth.oauth">Provider</message>
+  <message id="Wt.Auth.oauth-info">Choose one of your accounts</message>
+  <message id="Wt.Auth.identity-exists">User already exists</message>
+  <message id="Wt.Auth.confirm-is-you">User exists, is this you?</message>
+  <message id="Wt.Auth.identity-tooshort">Min. size {1} characters</message>
+  <message id="Wt.Auth.password-tooshort">Min. size {1} characters</message>
+  <message id="Wt.Auth.enter-password">Enter your password</message>
+  <message id="Wt.Auth.passwords-dont-match">Passwords don't match</message>
+  <message id="Wt.Auth.registration">Registration</message>
+  <message id="Wt.Auth.register">Register</message>
+  <message id="Wt.Auth.error-user-invalid">Registration failed.</message>
+
+  <!-- PasswordPromptDialog -->
+
+  <message id="Wt.Auth.password-prompt-form-title">Enter your password</message>
+  <message id="Wt.Auth.password-prompt-form-info"></message>
+  <message id="Wt.Auth.password-info">Enter your password</message>
+  <message id="Wt.Auth.password-invalid">Invalid password</message>
+
+  <!-- UpdatePasswordWidget -->
+
+  <message id="Wt.Auth.updatepassword">Update password</message>
+  <message id="Wt.Auth.update-password-form-title">Update password</message>
+  <message id="Wt.Auth.update-password-form-info">Enter a new password below</message>
+  <message id="Wt.Auth.old-password">Current password</message>
+  <message id="Wt.Auth.old-password-info">Enter your current password</message>
+  <message id="Wt.Auth.new-password">New password</message>
+  <message id="Wt.Auth.new-password2">Repeat new password</message>
+  <message id="Wt.Auth.new-password2-info">Re-enter your new password</message>
+
+  <!-- templates -->
+
+  <message id="Wt.Auth.template.passwords-login">
+    <div class="Wt-form">
+      <h2>${tr:Wt.Auth.login-form-title}</h2>
+      <p>${tr:Wt.Auth.login-form-info}</p>
+
+      <label for="${id:identity}">${tr:Wt.Auth.identity}
+	<span class="Wt-info">${tr:Wt.Auth.identity-info}</span>
+      </label>
+      ${identity}
+
+      <label for="${id:password}">${tr:Wt.Auth.password}
+	<span class="Wt-info">${tr:Wt.Auth.password-info}</span>
+      </label>
+      ${password}
+
+      <label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
+	<span class="Wt-info">${tr:Wt.Auth.remember-me-info}</span>
+      </label>
+      ${remember-me}
+
+      <div class="Wt-buttons">
+	${lost-password} | ${register}
+      </div>
+
+      <div class="Wt-buttons">
+	${login}
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.oauth-login">
+    or using ${icons}
+  </message>
+
+  <message id="Wt.Auth.template.registration">
+    <div class="Wt-form">
+      <h2>${tr:Wt.Auth.registration-form-title}</h2>
+      <p>${tr:Wt.Auth.registration-form-info}</p>
+
+      ${password-description}
+
+      <div style="display: ${identity-display}">
+	<label for="${id:identity}">${tr:Wt.Auth.identity}
+	  ${identity-info class=Wt-info}
+	  ${confirm-is-you class="Wt-info"}
+	</label>
+	${identity}
+      </div>
+
+      <div style="display: ${password-display}">
+	<label for="${id:password}">${tr:Wt.Auth.password}
+	  ${password-info class="Wt-info"}
+	</label>
+	${password}
+
+	<label for="${id:password2}">${tr:Wt.Auth.password2}
+	${password2-info class="Wt-info"}
+	</label>
+	${password2}
+      </div>
+
+      <div style="display: ${email-display}">
+	<label for="${id:email}">${tr:Wt.Auth.email}
+	${email-info class="Wt-info"}
+	</label>
+	${email}
+      </div>
+
+      <div style="display: ${oauth-display}">
+	${oauth-description}
+	<label>${tr:Wt.Auth.oauth}
+	<span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
+	</label>
+	${icons}
+      </div>
+
+      <div class="Wt-buttons">
+	${ok-button} ${cancel-button}
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.update-password">
+    <div class="Wt-form">
+      <h2>${tr:Wt.Auth.update-password-form-title}</h2>
+      <p>${tr:Wt.Auth.update-password-form-info}</p>
+
+      <label for="${id:identity}">${tr:Wt.Auth.identity}
+      </label>
+      ${identity}
+
+      <div style="display: ${old-password-display}">
+	<label for="${id:old-password}">${tr:Wt.Auth.old-password}
+	  ${old-password-info class="Wt-info"}
+	</label>
+	${old-password}
+      </div>
+
+      <label for="${id:password}">${tr:Wt.Auth.new-password}
+	${password-info class="Wt-info"}
+      </label>
+      ${password}
+
+      <label for="${id:password2}">${tr:Wt.Auth.new-password2}
+	${password2-info class="Wt-info"}
+      </label>
+      ${password2}
+
+      <div class="Wt-buttons">
+	${ok-button} ${cancel-button}
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.lost-password">
+    <div class="Wt-form">
+      <h2>${tr:Wt.Auth.lost-password-form-title}</h2>
+      <p>${tr:Wt.Auth.lost-password-form-info}</p>
+
+      <label for="${id:email}">${tr:Wt.Auth.email}
+	<span class="Wt-info">${tr:Wt.Auth.email-info}</span>
+      </label>
+      ${email}
+
+      <div class="Wt-buttons">
+	${send-button} ${cancel-button}
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.password-prompt">
+    <div class="Wt-form">
+      <h2>${tr:Wt.Auth.password-prompt-form-title}</h2>
+      <p>${tr:Wt.Auth.password-prompt-form-info}</p>
+
+      <label for="${id:identity}">${tr:Wt.Auth.identity}
+      </label>
+      ${identity}
+
+      <label for="${id:password}">${tr:Wt.Auth.password}
+	${password-info class="Wt-info"}
+      </label>
+      ${password}
+
+      <div class="Wt-buttons">
+	${ok-button} ${cancel-button}
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.logged-in">
+    <b>${identity}</b> ${logout}
+  </message>
+
+</messages>

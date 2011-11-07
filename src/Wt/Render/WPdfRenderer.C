@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WException"
+#include "Wt/WLogger"
 #include "Wt/WPainter"
 #include "Wt/WPdfImage"
 #include "Wt/Render/WPdfRenderer"
-
-#include "WtException.h"
 
 #include <hpdf.h>
 
@@ -79,7 +79,9 @@ double WPdfRenderer::margin(Side side) const
   case Left:
     return margin_[3] / CmPerInch * dpi_;
   default:
-    throw WtException("WPdfRenderer::margin(Side) with invalid side");
+    Wt::log("error") << "WPdfRenderer::margin(Side) with invalid side"
+		     << (int)side;
+    return 0;
   }
 }
 

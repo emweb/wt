@@ -4,12 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WException"
 #include "Wt/WLayout"
 #include "Wt/WLayoutItemImpl"
 #include "Wt/WWidget"
 #include "Wt/WWidgetItem"
-
-#include "WtException.h"
 
 #include <set>
 
@@ -112,7 +111,7 @@ bool WLayout::removeWidget(WWidget *w)
 void WLayout::updateAddItem(WLayoutItem *item)
 {
   if (item->parentLayout())
-    throw WtException("Cannot add item to two Layouts");
+    throw WException("Cannot add item to two Layouts");
 
   item->setParentLayout(this);
 

@@ -1,0 +1,89 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_JSON_PARSER_H_
+#define WT_JSON_PARSER_H_
+
+#include <string>
+#include <Wt/WException>
+
+namespace Wt {
+  namespace Json {
+
+class Object;
+class Value;
+
+/*! \brief A parse error.
+ *
+ * Exception thrown or returned by a JSON parsing function.
+ *
+ * \ingroup json
+ */
+class ParseError : public WException
+{
+public:
+  ParseError();
+  ParseError(const std::string& message);
+
+  void setError(const std::string& message);
+};
+
+/*! \brief Parse function
+ *
+ * This function parses the input string (which represents a
+ * JSON-encoded data structure) into the \p result value. On success,
+ * the result value contains either an Array or Object.
+ *
+ * \throws ParseError when the input is not a correct JSON structure.
+ *
+ * \ingroup json
+ */
+WT_API extern void parse(const std::string& input, Value& result);
+
+/*! \brief Parse function
+ *
+ * This function parses the input string (which represents a
+ * JSON-encoded data structure) into the \p result value. On success,
+ * the result value contains either an Array or Object.
+ *
+ * This method returns \c true if the parse was succesful, or reports an
+ * error in into the \p error value otherwise.
+ *
+ * \ingroup json
+ */
+WT_API extern bool parse(const std::string& input, Value& result,
+                         ParseError& error);
+
+/*! \brief Parse function
+ *
+ * This function parses the input string (which represents a
+ * JSON-encoded data structure) into the \p result object.
+ *
+ * \throws ParseError when the input is not a correct JSON structure.
+ * \throws TypeException when the JSON structure does not represent an Object.
+ *
+ * \ingroup json
+ */
+WT_API extern void parse(const std::string& input, Object& result);
+
+/*! \brief Parse function
+ *
+ * This function parses the input string (which represents a
+ * JSON-encoded data structure) into the \p result value. On success,
+ * the result value contains either an Array or Object.
+ *
+ * This method returns \c true if the parse was succesful, or reports an
+ * error in into the \p error value otherwise.
+ *
+ * \ingroup json
+ */
+WT_API extern bool parse(const std::string& input, Object& result,
+                         ParseError& error);
+
+  }
+}
+
+#endif // WT_JSON_PARSER_H_

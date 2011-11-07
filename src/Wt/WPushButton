@@ -63,13 +63,13 @@ public:
    *
    * The icon is placed to the left of the text.
    */
-  void setIcon(const std::string& url);
+  void setIcon(const WLink& link);
 
   /*! \brief Returns the icon.
    *
    * \sa setIcon()
    */
-  const std::string& icon() const { return icon_; }
+  WLink icon() const { return icon_; }
 
   /*! \brief Sets a destination link.
    *
@@ -139,6 +139,12 @@ public:
    */
   WResource *resource() const { return link_.resource(); }
 
+  /*! \brief Returns the current value.
+   *
+   * Returns an empty string, since a button has no value.
+   */
+  virtual WT_USTRING valueText() const;
+
   /*! \brief Sets the link target.
    *
    * This sets the target where the linked contents should be displayed.
@@ -162,7 +168,7 @@ private:
   static const int BIT_LINK_CHANGED = 3;
 
   WString        text_;
-  std::string    icon_;
+  WLink          icon_;
   WLink          link_;
   AnchorTarget   linkTarget_;
   std::bitset<4> flags_;

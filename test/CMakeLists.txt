@@ -1,6 +1,9 @@
 SET(TEST_SOURCES
   test.C
   chart/WChartTest.C
+  json/JsonParserTest.C
+  http/HttpClientTest.C
+  mail/MailClientTest.C
   models/WBatchEditProxyModelTest.C
   models/WStandardItemModelTest.C
   private/HttpTest.C
@@ -45,7 +48,7 @@ ADD_EXECUTABLE(test
   ${TEST_SOURCES}
 )
 
-TARGET_LINK_LIBRARIES(test wt ${TEST_LIBS} ${BOOST_FS_LIB})
+TARGET_LINK_LIBRARIES(test wt wttest ${TEST_LIBS} ${BOOST_FS_LIB})
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 

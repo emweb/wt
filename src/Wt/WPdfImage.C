@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WBrush"
+#include "Wt/WException"
 #include "Wt/WFontMetrics"
 #include "Wt/WPainter"
 #include "Wt/WPen"
@@ -14,7 +15,6 @@
 
 #include "Wt/FontSupport.h"
 #include "web/Utils.h"
-#include "web/WtException.h"
 
 #include <stdio.h>
 #include <hpdf.h>
@@ -53,7 +53,7 @@ WPdfImage::WPdfImage(const WLength& width, const WLength& height,
 
   pdf_ = HPDF_New(error_handler, this);
   if (!pdf_)
-    throw WtException("Could not create PDF object.");
+    throw WException("Could not create libharu document.");
 
   HPDF_SetCompressionMode(pdf_, HPDF_COMP_ALL);
 
@@ -423,7 +423,7 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
   }
 
   if (!img)
-    throw WtException("WPdfImage::drawImage(): cannot load image: " + imgUrl);
+    throw WException("WPdfImage::drawImage(): cannot load image: " + imgUrl);
 
   double x = rect.x();
   double y = rect.y();
@@ -696,7 +696,7 @@ void WPdfImage::errorHandler(HPDF_STATUS error_no,
   snprintf(buf, 200, "WPdfImage error: error_no=%04X, detail_no=%d",
     (unsigned int) error_no, (int) detail_no);
 
-  throw WtException(buf);
+  throw WException(buf);
 }
 
 }

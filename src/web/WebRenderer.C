@@ -5,6 +5,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <map>
 #include <stdexcept>
 
@@ -13,9 +14,11 @@
 #include "Wt/WLoadingIndicator"
 #include "Wt/WRandom"
 #include "Wt/WWebWidget"
+#include "Wt/WStringStream"
 #include "Wt/WStringUtil"
 
 #include "DomElement.h"
+#include "EscapeOStream.h"
 #include "WebController.h"
 #include "Configuration.h"
 #include "WebRenderer.h"
@@ -23,7 +26,6 @@
 #include "WebSession.h"
 #include "FileServe.h"
 #include "Utils.h"
-#include "EscapeOStream.h"
 #ifdef WIN32
 #include <process.h> // for getpid()
 #ifdef min
@@ -54,7 +56,21 @@ namespace skeletons {
 
 namespace Wt {
 
-const int MESSAGE_COUNTER_SIZE = 5;
+WebRenderer::CookieValue::CookieValue()
+  : secure(false)
+{ }
+
+WebRenderer::CookieValue::CookieValue(const std::string& v,
+				      const std::string& p,
+				      const std::string& d,
+				      const WDateTime& e,
+				      bool s)
+  : value(v),
+    path(p),
+    domain(d),
+    expires(e),
+    secure(s)
+{ }
 
 WebRenderer::WebRenderer(WebSession& session)
   : session_(session),
@@ -418,10 +434,11 @@ void WebRenderer::serveError(int status, WebResponse& response,
 }
 
 void WebRenderer::setCookie(const std::string name, const std::string value,
-			    int maxAge, const std::string domain,
-			    const std::string path)
+			    const WDateTime& expires,
+			    const std::string domain, const std::string path,
+			    bool secure)
 {
-  cookiesToSet_.push_back(Cookie(name, value, path, domain, maxAge));
+  cookiesToSet_[name] = CookieValue(value, path, domain, expires, secure);
 }
 
 void WebRenderer::setCaching(WebResponse& response, bool allowCache)
@@ -437,25 +454,40 @@ void WebRenderer::setCaching(WebResponse& response, bool allowCache)
 
 void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 {
-  for (unsigned i = 0; i < cookiesToSet_.size(); ++i) {
-    std::string cookies;
-    std::string value = cookiesToSet_[i].value;
+  for (std::map<std::string, CookieValue>::const_iterator
+	 i = cookiesToSet_.begin(); i != cookiesToSet_.end(); ++i) {
+    const CookieValue& cookie = i->second;
 
-    cookies += Utils::urlEncode(cookiesToSet_[i].name)
-      + "=" + Utils::urlEncode(value) + "; Version=1;";
-    if (cookiesToSet_[i].maxAge != -1)
-      cookies += " Max-Age="
-	+ boost::lexical_cast<std::string>(cookiesToSet_[i].maxAge) + ";";
-    if (!cookiesToSet_[i].domain.empty())
-      cookies += " Domain=" + cookiesToSet_[i].domain + ";";
-    if (!cookiesToSet_[i].path.empty())
-      cookies += " Path=" + cookiesToSet_[i].path + ";";
+    WStringStream header;
+
+    std::string value = cookie.value;
+    if (value.empty())
+      value = "deleted";
+
+    header << Utils::urlEncode(i->first) << '=' << Utils::urlEncode(value)
+	   << "; Version=1;";
+
+    if (!cookie.expires.isNull()) {
+      std::string d 
+	= cookie.expires.toString(WString::fromUTF8
+				  ("ddd, dd MMM yyyy hh:mm:ss 'GMT'")).toUTF8();
+      header << " Expires=" << d << ';';
+    }
+
+    if (!cookie.domain.empty())
+      header << " Domain=" << cookie.domain << ';';
+
+    if (cookie.path.empty())
+      header << " Path=" << session_.deploymentPath() << ';';
     else
-      cookies += " Path=" + session_.deploymentPath() + ";";
+      header << " Path=" << cookie.path << ';';
 
-    cookies += " httponly;";
+    header << " httponly;";
 
-    response.addHeader("Set-Cookie", cookies);
+    if (cookie.secure)
+      header << " secure;";
+
+    response.addHeader("Set-Cookie", header.str());
   }
   cookiesToSet_.clear();
 
@@ -507,34 +539,139 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
     std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
 #endif // DEBUG_JS
 
-    /*
-     * Passing the expectedAckId_ within the collectedJS1_ +
-     * collectedJS2_ risks of inflating responses when a script loading
-     * is blocked. The purpose of the ackId is to detect what has been
-     * succesfully transmitted (mostly in the presence of server push
-     * which can cancel ajax requests. Therefore we chose here to use
-     * the ackIds_ only to signal proper ajax transfers, and thus at the
-     * end of the request transfer.
-     *
-     * It does present us with another probem: what if e.g. an ExtJS
-     * library is still loading and we already update one of its widgets
-     * assuming it has been rendered ? This should be handled
-     * client-side: only when libraries have been loaded, the application can
-     * continue. TO BE DONE.
-     */
-    response.out()
-      << session_.app()->javaScriptClass()
-      << "._p_.response(" << expectedAckId_ << ");";
-
+    addResponseAckPuzzle(response.out());
     renderSetServerPush(response.out());
 
-    response.out()
-      << collectedJS1_.str()
-      << collectedJS2_.str();
+    response.out() << collectedJS1_.str() << collectedJS2_.str();
 
     if (response.isWebSocketRequest() || response.isWebSocketMessage())
       setJSSynced(false);
   }
+}
+
+void WebRenderer::addContainerWidgets(WWebWidget *w,
+				      std::vector<WContainerWidget *>& result)
+{
+  for (unsigned i = 0; i < w->children().size(); ++i) {
+    WWidget *c = w->children()[i];
+    if (!c->isHidden())
+      addContainerWidgets(c->webWidget(), result);
+
+    WContainerWidget *wc = dynamic_cast<WContainerWidget *>(c);
+    if (wc)
+      result.push_back(wc);
+  }
+}
+
+void WebRenderer::addResponseAckPuzzle(std::ostream& out)
+{
+  std::string puzzle;
+
+  Configuration& conf = session_.controller()->configuration();
+  if (conf.ajaxPuzzle() && expectedAckId_ == scriptId_ + 1) {
+    /*
+     * We need to pick a random WContainerWidget. Let's be dumb for now.
+     */
+    std::vector<WContainerWidget *> widgets;
+
+    WApplication *app = session_.app();
+    addContainerWidgets(app->domRoot_, widgets);
+    if (app->domRoot2_)
+      addContainerWidgets(app->domRoot2_, widgets);
+    
+    unsigned r = WRandom::get() % widgets.size();
+
+    WContainerWidget *wc = widgets[r];
+
+    puzzle = '"' + wc->id() + '"';
+
+    std::string l;
+    for (WWidget *w = wc->parent(); w; w = w->parent()) {
+      if (w->id().empty())
+	continue;
+      if (w->id() == l)
+	continue;
+
+      l = w->id();
+
+      if (!solution_.empty())
+	solution_ += ',';
+
+      solution_ += l;
+    }
+  }
+
+  /*
+   * Passing the expectedAckId_ within the collectedJS1_ +
+   * collectedJS2_ risks of inflating responses when a script loading
+   * is blocked. The purpose of the ackId is to detect what has been
+   * succesfully transmitted (mostly in the presence of server push
+   * which can cancel ajax requests. Therefore we chose here to use
+   * the ackIds_ only to signal proper ajax transfers, and thus at the
+   * end of the request transfer.
+   *
+   * It does present us with another probem: what if e.g. an ExtJS
+   * library is still loading and we already update one of its widgets
+   * assuming it has been rendered ? This should be handled
+   * client-side: only when libraries have been loaded, the application can
+   * continue. TO BE DONE.
+   */
+  out << session_.app()->javaScriptClass()
+      << "._p_.response(" << expectedAckId_;
+  if (!puzzle.empty())
+    out << "," << puzzle;
+  out << ");";
+}
+
+bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
+{
+  if (!solution_.empty()) {
+    const std::string *ackPuzzleE = request.getParameter("ackPuzzle");
+
+    if (!ackPuzzleE)
+      return false;
+
+    std::string ackPuzzle = *ackPuzzleE;
+
+    typedef std::vector< boost::iterator_range<std::string::iterator> >
+      FindType;
+
+    FindType answer, solution;
+
+    boost::split(solution, solution_, boost::is_any_of(","));
+    boost::split(answer, ackPuzzle, boost::is_any_of(","));
+
+    unsigned j = 0;
+    bool fail = false;
+
+    for (unsigned i = 0; i < solution.size(); ++i) {
+      for (; j < answer.size(); ++j) {
+	if (solution[i] == answer[j])
+	  break;
+	else {
+	  /* Verify that answer[j] is not a valid widget id */
+	}
+      }
+
+      if (j == answer.size()) {
+	fail = true;
+	break;
+      }
+    }
+
+    solution_.clear();
+
+    if (j < answer.size() - 1)
+      fail = true;
+   
+    if (fail) {
+      session_.log("error") << "Ajax puzzle fail: " << ackPuzzle << " vs "
+			    << solution_;
+      return false;
+    } else
+      return true;
+  } else
+    return true;
 }
 
 void WebRenderer::collectJavaScript()
@@ -644,7 +781,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
 
-  bool serveSkeletons = !conf.splitScript() || response.getParameter("skeleton");
+  bool serveSkeletons = !conf.splitScript() 
+    || response.getParameter("skeleton");
   bool serveRest = !conf.splitScript() || !serveSkeletons;
 
   session_.sessionIdChanged_ = false;
@@ -747,13 +885,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
 
     /*
-     * FIXME: is this still required?
-     * Mozilla Bugzilla #246651
+     * Was in honor of Mozilla Bugzilla #246651
      */
-    script.setVar("CLOSE_CONNECTION",
-		  (conf.serverType() == Configuration::WtHttpdServer)
-		  && session_.env().agentIsGecko()
-		  && session_.env().agent() < WEnvironment::Firefox3_0);
+    script.setVar("CLOSE_CONNECTION", false);
 
     /*
      * Set the original script params for a widgetset session, so that any
@@ -837,10 +971,11 @@ void WebRenderer::serveMainscript(WebResponse& response)
     std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
 #endif // DEBUG_JS
 
-    response.out()
-      << collectedJS1_.str()
-      << app->javaScriptClass()
-      << "._p_.response(" << expectedAckId_ << ");"
+    response.out() << collectedJS1_.str();
+
+    addResponseAckPuzzle(response.out());
+
+    response.out() 
       << app->javaScriptClass()
       << "._p_.setHash('" << app->newInternalPath_ << "');\n";
 
@@ -848,7 +983,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
       session_.setPagePathInfo(app->newInternalPath_);
 
     response.out()
-	<< app->javaScriptClass()
+        << app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
 	<< collectedJS2_.str()
 	<< "};"; // LoadWidgetTree = function() { ... }
@@ -944,6 +1079,8 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
   mainElement->addToParent(s, "document.body", widgetset ? 0 : -1, app);
   delete mainElement;
+
+  addResponseAckPuzzle(s);
 
   if (app->isQuited())
     s << app->javaScriptClass() << "._p_.quit();";

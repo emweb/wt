@@ -4,10 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WException"
 #include "Wt/WLocalizedStrings"
 #include "Wt/WString"
-
-#include <stdexcept>
 
 namespace Wt {
 
@@ -25,8 +24,7 @@ bool WLocalizedStrings::resolvePluralKey(const std::string& key,
 					 std::string& result, 
 					 ::uint64_t amount)
 {
-  throw 
-    std::logic_error("WLocalizedStrings::resolvePluralKey is not supported");
+  throw WException("WLocalizedStrings::resolvePluralKey is not supported");
 }
 #else
   //TODO

@@ -10,6 +10,7 @@
 #include "Wt/WCanvasPaintDevice"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WImage"
 #include "Wt/WPainter"
 #include "Wt/WPaintedWidget"
@@ -21,7 +22,6 @@
 #include "Wt/WRasterImage"
 #endif // HAVE_RASTER_IMAGE
 
-#include "WtException.h"
 #include "DomElement.h"
 
 namespace Wt {
@@ -592,7 +592,7 @@ WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
     device_
       = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
 #else
-    throw WtException("Wt was built without WRasterImage (graphicsmagick)");
+    throw WException("Wt was built without WRasterImage (graphicsmagick)");
 #endif
   }
 

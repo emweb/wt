@@ -8,16 +8,19 @@
 #define WSERVER_H_
 
 #include <Wt/WApplication>
-#include <Wt/WAbstractServer>
+#include <Wt/WException>
+#include <Wt/WLogger>
 
 #ifndef WT_TARGET_JAVA
 
 namespace Wt {
 
-struct WServerImpl;
+class Configuration;
+class WebController;
+class WIOService;
 
 /*! \class WServer Wt/WServer Wt/WServer
- *  \brief A class encapsulating an application server.
+ *  \brief A class encapsulating a web application server.
  *
  * This server class represents an instance of an application server.
  *
@@ -68,24 +71,16 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 }
  * \endcode
  */
-class WTCONNECTOR_API WServer : public WAbstractServer
+class WServer
 {
 public:
   /*! \class Exception
    *  \brief Server %Exception class.
    */
-  class WT_API Exception : public std::exception
+  class WT_API Exception : public WException
   {
   public:
-    Exception(const std::string what);
-    ~Exception() throw();
-
-    /*! \brief Returns the error message.
-     */
-    const char *what() const throw() { return what_.c_str(); }
-
-  private:
-    std::string what_;
+    Exception(const std::string& what);
   };
 
   /*! \brief Creates a new server instance.
@@ -106,8 +101,9 @@ public:
    *
    * \sa setServerConfiguration()
    */
-  WServer(const std::string& wtApplicationPath = std::string(),
-	  const std::string& wtConfigurationFile = std::string());
+  WTCONNECTOR_API
+    WServer(const std::string& wtApplicationPath = std::string(),
+	    const std::string& wtConfigurationFile = std::string());
 
   /*! \brief Destructor.
    *
@@ -117,7 +113,23 @@ public:
    *
    * \sa isRunning(), stop()
    */
-  virtual ~WServer();
+  WTCONNECTOR_API virtual ~WServer();
+
+  WT_API void setIOService(WIOService& ioService);
+
+  WT_API WIOService& ioService();
+
+  /*! \brief Returns the server instance.
+   *
+   * Returns the single server instance. This may be useful when using
+   * WRun(), which does not provide direct access to the instantiated
+   * server, but still you want to use functions like
+   * post().
+   *
+   * \note When instantiating multiple servers, this will simply return the
+   *       last instance. You probably want to avoid this function then.
+   */
+  WT_API static WServer *instance() { return instance_; }
 
   /*! \brief Configures the HTTP(S) server or FastCGI process.
    *
@@ -138,10 +150,11 @@ public:
    * the correct session, rather than a Wt application server.
    *
    * \throws Exception : indicates a configuration problem.
-   */  
-  void setServerConfiguration(int argc, char *argv[],
-			      const std::string& serverConfigurationFile
-			      = std::string());
+   */
+  WTCONNECTOR_API
+    void setServerConfiguration(int argc, char *argv[],
+				const std::string& serverConfigurationFile
+				= std::string());
 
   /*! \brief Binds an entry-point to a callback function to create
    *         a new application.
@@ -161,9 +174,9 @@ public:
    * configuration file (see als \ref config_general "Application
    * settings (wt_config.xml)").
    */
-  void addEntryPoint(EntryPointType type, ApplicationCreator callback,
-		     const std::string& path = std::string(),
-                     const std::string& favicon = std::string());
+  WT_API void addEntryPoint(EntryPointType type, ApplicationCreator callback,
+		            const std::string& path = std::string(),
+                            const std::string& favicon = std::string());
 
   /*! \brief Binds a resource to a fixed path.
    *
@@ -171,7 +184,7 @@ public:
    * public. Use this method to add a public resource with a fixed
    * path.
    */
-  void addResource(WResource *resource, const std::string& path);
+  WT_API void addResource(WResource *resource, const std::string& path);
 
   /*! \brief Starts the server in the background.
    *
@@ -181,7 +194,7 @@ public:
    *
    * \sa isRunning(), stop()
    */
-  bool start();
+  WTCONNECTOR_API bool start();
 
   /*! \brief Stops the server.
    *
@@ -192,7 +205,13 @@ public:
    *
    * \sa isRunning(), start()
    */
-  void stop();
+  WTCONNECTOR_API void stop();
+
+  /*! \brief Returns whether the server is running.
+   *
+   * \sa start(), stop()
+   */
+  WTCONNECTOR_API bool isRunning() const;
 
   /*! \brief Resumes the server.
    *
@@ -201,7 +220,7 @@ public:
    * IPhoneOS) has closed the sockets while suspending the
    * application.
    */
-  void resume();
+  WTCONNECTOR_API void resume();
 
   /*! \brief Waits for a shutdown signal.
    *
@@ -221,51 +240,29 @@ public:
    * be convenient to start the new binary after cleanly shutting down,
    * using restart(). <i>(Experimental, UNIX only)</i>
    */
-  static int waitForShutdown(const char *restartWatchFile = 0);
+  WT_API static int waitForShutdown(const char *restartWatchFile = 0);
 
   /*! \brief A utility method to restart.
    *
    * This will result the application with the new image (argv[0]), effectively
    * loading a newly deployed version. <i>(Experimental, UNIX only)</i>
    */
-  static void restart(int argc, char **argv, char **envp);
+  WT_API static void restart(int argc, char **argv, char **envp);
 
-  /*! \brief Returns whether the server is running.
-   *
-   * \sa start(), stop()
-   */
-  bool isRunning() const;
-
-  /*! \brief Returns the server http port number.
+  /*! \brief Returns the server HTTP port number.
    *
    * Returns -1 if the port is not known (i.e. because the connector is
    * not aware of how the http server is configured).
    */
-  int httpPort() const;
+  WTCONNECTOR_API int httpPort() const;
+
+  WT_API void setAppRoot(const std::string& path);
 
   /*! \brief Returns the approot special property
    *
    * \sa WApplication::appRoot()
    */
-  std::string appRoot() const;
-
-  /*! \brief Reads a configuration property.
-   *
-   * As properties are unique to an executable location, they are defined
-   * from the moment that setServerConfiguration() is invoked. Use this
-   * method to access configuration properties outside of an active
-   * session, e.g. from within the main() function.
-   *
-   * \sa WApplication::readConfigurationProperty()
-   */
-  bool readConfigurationProperty(const std::string& name,
-				 std::string& value) const;
-
-  void expireSessions();
-
-  WServerImpl *impl() { return impl_; }
-
-  virtual void handleRequest(WebRequest *request);
+  WT_API std::string appRoot() const;
 
   /*! \brief Posts a function to a session.
    *
@@ -291,46 +288,67 @@ public:
    * an application to directly push changes to a session out of its
    * event loop.
    */
-  virtual void post(const std::string& sessionId,
-		    const boost::function<void ()>& function,
-                    const boost::function<void ()>& fallbackFunction
-		      = boost::function<void ()>());
+  WT_API void post(const std::string& sessionId,
+	           const boost::function<void ()>& function,
+	           const boost::function<void ()>& fallBackFunction
+	             = boost::function<void ()>());
 
-  virtual void schedule(int milliSeconds,
-			const std::string& sessionId,
-			const boost::function<void ()>& function,
-			const boost::function<void ()>& fallbackFunction
-			= boost::function<void ()>());
+  WT_API void schedule(int milliSeconds,
+		       const std::string& sessionId,
+		       const boost::function<void ()>& function,
+		       const boost::function<void ()>& fallBackFunction
+		         = boost::function<void ()>());
 
-  /*! \brief Returns the server instance.
+  /*! \brief Reads a configuration property.
    *
-   * Returns the single server instance. This may be useful when using
-   * WRun(), which does not provide direct access to the instantiated
-   * server, but still you want to use functions like
-   * post().
+   * As properties are unique to an executable location, they are defined
+   * from the moment that setServerConfiguration() is invoked. Use this
+   * method to access configuration properties outside of an active
+   * session, e.g. from within the main() function.
    *
-   * \note When instantiating multiple servers, this will simply return the
-   *       last instance. You probably want to avoid this function then.
+   * \sa WApplication::readConfigurationProperty()
    */
-  static WServer *instance() { return instance_; }
+  WT_API bool readConfigurationProperty(const std::string& name,
+    std::string& value) const;
 
-  /*! \brief Initializes a thread.
-   *
-   * This method is called within each newly created server thread,
-   * and may be specialized to customize scheduling properties.
-   *
-   * The default implementation does nothing.
-   *
-   * \note This currently only works for the built-in httpd connector.
-   */
-  virtual void initializeThread();
+  WT_API WLogger& logger() { return logger_; }
+  WT_API WLogEntry log(const std::string& type) const;
 
-  virtual bool usesSlashExceptionForInternalPaths() const;
+  WT_API void initLogger(const std::string& logFile);
+
+  WT_API void expireSessions();
+
+  WT_API Configuration& configuration();
+
+  WT_API WebController *controller() { return webController_; }
 
 private:
-  WServerImpl *impl_;
+  WebController *webController_;
 
-  void schedule(int milliSeconds, const boost::function<void ()>& function);
+  WLogger logger_;
+  std::string application_, configurationFile_, appRoot_, description_;
+  Configuration *configuration_;
+
+  bool ownsIOService_;
+  WIOService *ioService_;
+
+  struct Impl;
+  Impl *impl_;
+
+  WT_API void setConfiguration(const std::string& file,
+			       const std::string& application);
+
+  WT_API void setConfiguration(const std::string& file);
+  WT_API const std::string& configurationFile() const {
+    return configurationFile_;
+  }
+
+  WT_API void init(const std::string& wtApplicationPath,
+	           const std::string& configurationFile);
+  WT_API void destroy();
+  WT_API void setCatchSignals(bool catchSignals);
+
+  WT_API static WServer *instance_;
 };
 
 }

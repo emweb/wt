@@ -1,0 +1,229 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include <cstring>
+#include <stdio.h>
+#include "Wt/WStringStream"
+
+#include "Utils.h"
+
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
+/*
+ * Perhaps we should also implement reading from the stringstream,
+ * this would be useful for Http::Client::Message::body()
+ */
+
+namespace Wt {
+
+WStringStream::WStringStream()
+  : sink_(0),
+    buf_(static_buf_),
+    buf_i_(0)
+{ }
+
+WStringStream::WStringStream(const WStringStream& other)
+  : sink_(0),
+    buf_(static_buf_),
+    buf_i_(0)
+{ 
+  *this << other.str();
+}
+
+WStringStream::WStringStream(std::ostream& sink)
+  : sink_(&sink),
+    buf_(static_buf_),
+    buf_i_(0)
+{ }
+
+WStringStream& WStringStream::operator= (const WStringStream& other)
+{
+  clear();
+  *this << other.str();
+  return *this;
+}
+
+WStringStream::~WStringStream()
+{
+  flushSink();
+
+  clear();
+}
+
+void WStringStream::clear()
+{
+  buf_i_ = 0;
+
+  for (unsigned int i = 1; i < bufs_.size(); ++i)
+    delete[] bufs_[i].first;
+
+  bufs_.clear();
+
+  if (buf_ != static_buf_)
+    delete[] buf_;
+
+  buf_ = static_buf_;
+}
+
+bool WStringStream::empty() const
+{
+  return !sink_ && buf_ == static_buf_ && buf_i_ == 0;
+}
+
+std::size_t WStringStream::length() const
+{
+  std::size_t result = buf_i_;
+
+  for (unsigned int i = 0; i < bufs_.size(); ++i)
+    result += bufs_[i].second;
+
+  return result;
+}
+
+void WStringStream::flushSink()
+{
+  if (sink_) {
+    sink_->write(buf_, buf_i_);
+    buf_i_ = 0;
+  }
+}
+
+void WStringStream::pushBuf()
+{
+  if (sink_) {
+    sink_->write(buf_, buf_i_);
+    buf_i_ = 0;
+  } else {
+    bufs_.push_back(std::make_pair(buf_, buf_i_));
+    buf_ = new char[D_LEN];
+    buf_i_ = 0;
+  }
+}
+
+WStringStream& WStringStream::operator<< (char c)
+{
+  if (buf_i_ == buf_len())
+    pushBuf();
+
+  buf_[buf_i_++] = c;
+
+  return *this;
+}
+
+WStringStream& WStringStream::operator<< (const char *s)
+{
+  append(s, std::strlen(s));
+
+  return *this;
+}
+
+WStringStream& WStringStream::operator<< (const std::string& s)
+{
+  append(s.data(), s.length());
+
+  return *this;
+}
+
+WStringStream& WStringStream::operator<< (int v)
+{
+  char buf[20];
+  Utils::itoa(v, buf);
+  return *this << buf;
+}
+
+WStringStream& WStringStream::operator<< (double d)
+{
+  char buf[50];
+  snprintf(buf, 50, "%g", d);
+  return *this << buf;
+}
+
+void WStringStream::append(const char *s, int length)
+{
+  if (buf_i_ + length > buf_len()) {
+    pushBuf();
+
+    if (length > buf_len()) {
+      if (sink_) {
+	sink_->write(s, length);
+	return;
+      } else {
+	char *buf = new char[length];
+	std::memcpy(buf, s, length);
+	bufs_.push_back(std::make_pair(buf, length));
+	return;
+      }
+    }
+  }
+
+  std::memcpy(buf_ + buf_i_, s, length);
+  buf_i_ += length;
+}
+
+const char *WStringStream::c_str()
+{
+  if (bufs_.empty()) {
+    buf_[buf_i_] = 0;
+    return buf_;
+  } else
+    return 0;
+}
+
+std::string WStringStream::str() const
+{
+  std::string result;
+  result.reserve(length());
+
+  for (unsigned int i = 0; i < bufs_.size(); ++i)
+    result.append(bufs_[i].first, bufs_[i].second);
+
+  result.append(buf_, buf_i_);
+
+  return result;
+}
+
+WStringStream::iterator WStringStream::back_inserter()
+{
+  return iterator(*this);
+}
+
+WStringStream::iterator::iterator()
+  : stream_(0)
+{ }
+
+WStringStream::iterator::char_proxy WStringStream::iterator::operator * ()
+{
+  return char_proxy(*stream_);
+}
+
+WStringStream::iterator& WStringStream::iterator::operator ++ ()
+{
+  return *this;
+}
+
+WStringStream::iterator WStringStream::iterator::operator ++ (int)
+{
+  return *this;
+}
+
+WStringStream::iterator::char_proxy&
+WStringStream::iterator::char_proxy::operator= (char c)
+{
+  stream_ << c;
+  return *this;
+}
+
+WStringStream::iterator::char_proxy::char_proxy(WStringStream& stream)
+  : stream_(stream)
+{ }
+
+WStringStream::iterator::iterator(WStringStream& stream)
+  : stream_(&stream)
+{ }
+
+}

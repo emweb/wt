@@ -50,43 +50,42 @@ public:
 
   /*! \brief Creates a length by parsing the argument as a css length string.
    *
-   * Only a combination of a value and a unit is supported.
-   * If the string is an illegal css length an exception is thrown.
+   * This supports all CSS length formats that have an API counterpart.
    */
   WLength(const char* c);
 
   /*! \brief Creates a length with value and unit.
    *
-   * This constructor will also provide the implicit conversion between
-   * a double and WLength, using a pixel unit.
+   * This constructor is also used for the implicit conversion of a
+   * double to a WLength, assuming a pixel unit.
    */
   WLength(double value, Unit unit = Pixel);
 
   /*! \brief Creates a length with value and unit.
    *
-   * This constructor will also provide the implicit conversion between
-   * an int and WLength, using a pixel unit.
+   * This constructor is also used for the implicit conversion of a
+   * int to a WLength, assuming a pixel unit.
    */
   WLength(int value, Unit unit = Pixel);
   
   /*! \brief Creates a length with value and unit.
    *
-   * This constructor will also provide the implicit conversion between
-   * a long and WLength, using a pixel unit.
+   * This constructor is also used for the implicit conversion of a
+   * long to a WLength, assuming a pixel unit.
    */
   WLength(long value, Unit unit = Pixel);
   
   /*! \brief Creates a length with value and unit.
    *
-   * This constructor will also provide the implicit conversion between
-   * an unsigned int and WLength, using a pixel unit.
+   * This constructor is also used for the implicit conversion of an
+   * unsigned to a WLength, assuming a pixel unit.
    */
-  WLength(unsigned int value, Unit unit = Pixel);
+  WLength(unsigned value, Unit unit = Pixel);
 
   /*! \brief Creates a length with value and unit.
    *
-   * This constructor will also provide the implicit conversion between
-   * an unsigned long and WLength, using a pixel unit.
+   * This constructor is also used for the implicit conversion of an
+   * unsigned long to a WLength, assuming a pixel unit.
    */
   WLength(unsigned long value, Unit unit = Pixel);
 

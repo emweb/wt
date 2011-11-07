@@ -6,9 +6,10 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WException"
+
 #include "WebSession.h"
 #include "WebSocketMessage.h"
-#include "WtException.h"
 #include "Utils.h"
 
 namespace Wt {
@@ -142,7 +143,7 @@ std::string WebSocketMessage::headerValue(const std::string& name) const
 
 void WebSocketMessage::error(const std::string& msg) const
 {
-  throw WtException("WebSocketMessage error: " + msg);
+  throw WException("WebSocketMessage error: " + msg);
 }
 
 WebRequest *WebSocketMessage::webSocket() const

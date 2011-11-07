@@ -335,4 +335,13 @@ std::string WAbstractToggleButton::formName() const
     return WFormWidget::formName();
 }
 
+WT_USTRING WAbstractToggleButton::valueText() const
+{
+  switch (state_) {
+  case Unchecked: return "no";
+  case PartiallyChecked: return "maybe";
+  default: return "yes";
+  }
+}
+
 }

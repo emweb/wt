@@ -162,14 +162,15 @@ public:
 
 #ifdef WT_TARGET_JAVA
   /*
-   * In J2E, the servlet determines how session tracking is encoded in
+   * In JavaEE, the servlet determines how session tracking is encoded in
    * the URL.
    */
   std::string encodeURL(const std::string& url) const;
 #endif // WT_TARGET_JAVA
 
   const std::string *getParameter(const std::string& name) const;
-  const Http::ParameterValues& getParameterValues(const std::string& name) const;
+  const Http::ParameterValues& getParameterValues(const std::string& name)
+    const;
   const Http::ParameterMap& getParameterMap() const { return parameters_; }
   const Http::UploadedFileMap& uploadedFiles() const { return files_; }
   ::int64_t postDataExceeded() const { return postDataExceeded_; }
@@ -195,11 +196,11 @@ protected:
 private:
   std::string parsePreferredAcceptValue(const std::string& value) const;
 
-  ::int64_t             postDataExceeded_;
-  Http::ParameterMap    parameters_;
+  ::int64_t postDataExceeded_;
+  Http::ParameterMap parameters_;
   Http::UploadedFileMap files_;
-  ResponseType          responseType_;
-  bool                  webSocketRequest_;
+  ResponseType responseType_;
+  bool webSocketRequest_;
   boost::posix_time::ptime start_;
 
   static Http::ParameterValues emptyValues_;

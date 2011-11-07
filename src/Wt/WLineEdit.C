@@ -144,20 +144,10 @@ void WLineEdit::setFormData(const FormData& formData)
   }
 }
 
-WValidator::State WLineEdit::validate()
+WT_USTRING WLineEdit::valueText() const
 {
-  if (validator()) {
-    WValidator::State result = validator()->validate(content_);
-    if (result == WValidator::Valid)
-      removeStyleClass("Wt-invalid", true);
-    else
-      addStyleClass("Wt-invalid", true);
-
-    return result;
-  } else
-    return WValidator::Valid;
+  return content_;
 }
-
 
 int WLineEdit::boxPadding(Orientation orientation) const
 {

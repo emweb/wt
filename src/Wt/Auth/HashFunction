@@ -1,0 +1,81 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_AUTH_HASH_FUNCTION
+#define WT_AUTH_HASH_FUNCTION
+
+#include <string>
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+  namespace Auth {
+
+/*! \class HashFunction Wt/Auth/HashFunction
+ *  \brief An abstract cryptographic hash function interface.
+ *
+ * A cryptographic hash function computes a hash value from a message,
+ * for which it is hard to guess another message that generates the same
+ * hash.
+ *
+ * This hash function is intended for short messages, typically
+ * passwords or random tokens, and thus not suitable for computing the
+ * hash value of a large document.
+ *
+ * To avoid dictionary attacks on passwords, the hash functions always
+ * accept also a random salt which needs to be hashed together with
+ * the message (i.e. the password).
+ *
+ * \ingroup auth
+ */
+class WT_API HashFunction
+{
+public:
+  /*! \brief Destructor.
+   */
+  virtual ~HashFunction();
+
+  /*! \brief Computes the hash of a message + salt.
+   *
+   * The message is usually an ASCII or UTF-8 encoded string.
+   *
+   * The \p salt and the computed are ASCII-encoded ([a-zA-Z0-9./]) strings.
+   */
+  virtual std::string compute(const std::string& msg, const std::string& salt)
+    const = 0;
+
+  /*! \brief Returns the name for this hash function.
+   *
+   * This should return a (short) name that uniquely identifies this
+   * hash function.
+   */
+  virtual std::string name() const = 0;
+};
+
+/*! \class SHA1HashFunction Wt/Auth/HashFunction
+ *  \brief An cryptographic hash function that imlements SHA1.
+ *
+ * This hash function is only available if %Wt was compiled with
+ * OpenSSL support.
+ *
+ * \ingroup auth
+ */
+class WT_API SHA1HashFunction : public HashFunction
+{
+public:
+  virtual std::string compute(const std::string& msg,
+			      const std::string& salt) const;
+
+  /*! \brief Returns the name for this hash function.
+   *
+   * Returns <tt>"SHA1"</tt>.
+   */
+  virtual std::string name() const;
+};
+
+  } 
+}
+
+#endif // WT_AUTH_HASH_FUNCTION

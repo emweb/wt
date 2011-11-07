@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef UTILS_H_
-#define UTILS_H_
+#ifndef WT_UTILS_H_
+#define WT_UTILS_H_
 
 #include <algorithm>
 #include <cstring>
@@ -209,6 +209,7 @@ extern std::string dataUrlDecode(const std::string& url,
 
 extern std::string EncodeHttpHeaderField(const std::string &fieldname,
                                          const Wt::WString &fieldValue);
+
 inline bool isNaN(double d) {
 #ifdef _MSC_VER
   // received bug reports that on 64 bit windows, MSVC2005
@@ -221,7 +222,8 @@ inline bool isNaN(double d) {
 
 /*
  * These are workarounds for typ mismatches between Java and C++ port:
- * in C++ vector<string>, in Java string[]
+ * in C++ vector<string>, in Java string[], with respect to FormData
+ * parameters
  */
 template<typename T> inline bool isEmpty(const T& vector) {
 #ifndef WT_TARGET_JAVA
@@ -242,24 +244,24 @@ template<typename T> inline int size(const T& vector) {
 template<typename Map, typename K, typename V> 
 inline void find(const Map& map, const K& key, V& result)
 {
-  #ifndef WT_TARGET_JAVA
+#ifndef WT_TARGET_JAVA
   std::pair<typename Map::const_iterator, typename Map::const_iterator> range 
     = map.equal_range(key);
   
   for (typename Map::const_iterator i = range.first; i != range.second; ++i)
     result.push_back(i->second);
-  #endif
+#endif
 }
 
-void stringToDouble(const char *str, char **end, double &value);
+#ifdef WT_TARGET_JAVA
+extern void stringToDouble(const char *str, char **end, double &value);
+#endif
 
-std::string readJavaScriptFile(const std::string& fname);
+extern std::string readFile(const std::string& fname);
 
-extern int calculatePluralCase(const std::string &expression, ::uint64_t amount);
-
-WString formatFloat(const WString &format, double value);
+extern WString formatFloat(const WString &format, double value);
 
   }
 }
 
-#endif // UTILS_H_
+#endif // WT_UTILS_H_

@@ -6,10 +6,10 @@
 
 #include "Wt/WFont"
 #include "Wt/WFontMetrics"
+#include "Wt/WLogger"
 #include "Wt/FontSupport.h"
 
 #include "Utils.h"
-#include "WtException.h"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
@@ -135,8 +135,11 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
   boost::filesystem::path path(directory);
 
   if (!boost::filesystem::exists(path)
-      || !boost::filesystem::is_directory(path))
-    throw WtException("FontSupport: cannot read directory '" + directory + "'");
+      || !boost::filesystem::is_directory(path)) {
+    Wt::log("error") << "FontSupport: cannot read directory '"
+		     << directory << "'";
+    return FontMatch();
+  }
 
   std::vector<std::string> fontNames;
   std::string families = font.specificFamilies().toUTF8();

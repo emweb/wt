@@ -16,7 +16,6 @@
 #include "Wt/WTableCell"
 #include "Wt/WText"
 
-#include "WtException.h"
 #include "Utils.h"
 
 namespace {
@@ -466,7 +465,7 @@ void WMenu::internalPathChanged(const std::string& path)
       items_[bestI]->setFromInternalPath(path);
     else {
       if (!subPath.empty())
-	wApp->log("warn") << "WMenu: unknown path: '"<< subPath << "'";
+	Wt::log("warn") << "WMenu: unknown path: '"<< subPath << "'";
       else
 	select(-1, false);
     }

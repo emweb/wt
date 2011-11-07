@@ -11,6 +11,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include "Wt/WDateTime"
 #include "Wt/WEnvironment"
 #include "Wt/WStatelessSlot"
 
@@ -66,8 +67,8 @@ public:
   void serveLinkedCss(WebResponse& request);
 
   void setCookie(const std::string name, const std::string value,
-		 int maxAge, const std::string domain,
-		 const std::string path);
+		 const WDateTime& expires, const std::string domain,
+		 const std::string path, bool secure);
 
   bool preLearning() const { return learning_; }
   void learningIncomplete();
@@ -76,24 +77,29 @@ public:
 
   void streamRedirectJS(std::ostream& out, const std::string& redirect);
 
+  bool checkResponsePuzzle(const WebRequest& request);
+
 private:
-  struct Cookie {
-    std::string name;
+  struct CookieValue {
     std::string value;
     std::string path;
     std::string domain;
-    int maxAge;
+    WDateTime expires;
+    bool secure;
 
-    Cookie(std::string n, std::string v, std::string p, std::string d, int m)
-      : name(n), value(v), path(p), domain(d), maxAge(m) { }
+    CookieValue();
+    CookieValue(const std::string& v, const std::string& p,
+		const std::string& d, const WDateTime& e, bool secure);
   };
 
   WebSession& session_;
+
   bool visibleOnly_, rendered_;
   int twoPhaseThreshold_;
-  unsigned  pageId_, expectedAckId_, scriptId_;
+  unsigned pageId_, expectedAckId_, scriptId_;
+  std::string solution_;
 
-  std::vector<Cookie> cookiesToSet_;
+  std::map<std::string, CookieValue> cookiesToSet_;
 
   FormObjectsMap currentFormObjects_;
   std::string	 currentFormObjectsList_;
@@ -122,14 +128,17 @@ private:
 
   std::string createFormObjectsList(WApplication *app);
 
-  void              preLearnStateless(WApplication *app, std::ostream& out);
+  void preLearnStateless(WApplication *app, std::ostream& out);
   std::stringstream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_,
-                    beforeLoadJS_;
-  void              collectJS(std::ostream *js);
+    beforeLoadJS_;
+  void collectJS(std::ostream *js);
 
   void setPageVars(FileServe& page);
   void streamBootContent(WebResponse& response, 
 			 FileServe& boot, bool hybrid);
+  void addResponseAckPuzzle(std::ostream& out);
+  void addContainerWidgets(WWebWidget *w,
+			   std::vector<WContainerWidget *>& v);
 
   std::string headDeclarations() const;
   std::string bodyClassRtl() const;
@@ -137,8 +146,7 @@ private:
 
   typedef std::set<WWidget *> UpdateMap;
   UpdateMap updateMap_;
-  bool      learning_, learningIncomplete_;
-  bool      moreUpdates_;
+  bool learning_, learningIncomplete_, moreUpdates_;
 
   std::string safeJsStringLiteral(const std::string& value);
 

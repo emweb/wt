@@ -17,6 +17,8 @@ namespace Wt {
 class BlogSession;
 class Comment;
 
+namespace dbo = Wt::Dbo;
+
 class CommentView : public Wt::WTemplate
 {
 public:

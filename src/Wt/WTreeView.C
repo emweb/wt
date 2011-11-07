@@ -16,6 +16,7 @@
 #include "Wt/WItemSelectionModel"
 #include "Wt/WImage"
 #include "Wt/WPushButton"
+#include "Wt/WStringStream"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
 #include "Wt/WText"
@@ -23,7 +24,6 @@
 #include "Wt/WVBoxLayout"
 #include "Wt/WWebWidget"
 
-#include "EscapeOStream.h"
 #include "Utils.h"
 
 #ifndef WT_DEBUG_JS
@@ -490,7 +490,7 @@ WModelIndex WTreeViewNode::childIndex(int column)
 
 void WTreeViewNode::addColumnStyleClass(int column, WWidget *w)
 {
-  SStream s;
+  WStringStream s;
 
   s << view_->columnStyleClass(column) << " Wt-tv-c rh "
     << w->styleClass().toUTF8();
@@ -1068,8 +1068,7 @@ void WTreeView::setRowHeaderCount(int count)
   int oldCount = rowHeaderCount();
 
   if (count != 0 && count != 1)
-    throw std::logic_error("WTreeView::setRowHeaderCount: "
-			   "count must be 0 or 1");
+    throw WException("WTreeView::setRowHeaderCount: count must be 0 or 1");
 
   WAbstractItemView::setRowHeaderCount(count);
 
@@ -2716,7 +2715,7 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
       }
     }
 
-    SStream s;
+    WStringStream s;
 
     s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
       << row << "," << static_cast<int>(rowHeight().toPixels())

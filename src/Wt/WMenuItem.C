@@ -8,6 +8,7 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WLabel"
 #include "Wt/WMenuItem"
 #include "Wt/WMenu"
@@ -18,7 +19,6 @@
 #include "StdGridLayoutImpl.h"
 #include "WebSession.h"
 
-#include "WtException.h"
 
 #include <cctype>
 
@@ -272,9 +272,9 @@ SignalBase& WMenuItem::activateSignal()
   if (wi)
     return wi->clicked();
   else
-    throw WtException("WMenuItem::activateSignal(): "
-                      "could not dynamic_cast itemWidget() or "
-                      "itemWidget()->children()[0] to a WInteractWidget");
+    throw WException("WMenuItem::activateSignal(): "
+		     "could not dynamic_cast itemWidget() or "
+		     "itemWidget()->children()[0] to a WInteractWidget");
 }
 
 SignalBase& WMenuItem::closeSignal()
@@ -285,9 +285,9 @@ SignalBase& WMenuItem::closeSignal()
   if (ci)
     return ci->clicked();
   else
-    throw WtException("WMenuItem::closeSignal(): "
-                      "could not dynamic_cast itemWidget()->children()[1] "
-                      "to a WInteractWidget");
+    throw WException("WMenuItem::closeSignal(): "
+		     "could not dynamic_cast itemWidget()->children()[1] "
+		     "to a WInteractWidget");
 }
 
 void WMenuItem::renderSelected(bool selected)

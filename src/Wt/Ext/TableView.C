@@ -6,7 +6,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WAbstractItemModel"
-#include "Wt/WApplication"
 #include "Wt/WDate"
 #include "Wt/WLogger"
 
@@ -248,11 +247,13 @@ void TableView::setColumnWidth(int column, int pixels)
 void TableView::setColumnAlignment(int column, AlignmentFlag alignment)
 {
   if (alignment & AlignVerticalMask) {
-    wApp->log("warning") << "TableView::setColumnAlignment(): alignment "
-      "(" << alignment << ") is vertical, expected horizontal "
-      "(column " << column << ")";
+    Wt::log("error")
+      << "TableView::setColumnAlignment(): alignment ("
+      << alignment << ") is vertical, expected horizontal (column "
+      << column << ")";
     alignment = AlignmentFlag(alignment & AlignHorizontalMask);
   }
+
   columnInfo_[column].alignment_ = alignment;
 }
 
@@ -322,14 +323,14 @@ void TableView::modelColumnsInserted(const WModelIndex& parent,
 				     int start, int end)
 {
   if (dataStore_)
-    wApp->log("warn") << "TableView: cannot deal with column inserts";
+    Wt::log("error") << "TableView: cannot deal with column inserts";
 }
 
 void TableView::modelColumnsRemoved(const WModelIndex& parent,
 				    int start, int end)
 {
   if (dataStore_)
-    wApp->log("warn") << "TableView: cannot deal with column inserts";
+    Wt::log("error") << "TableView: cannot deal with column inserts";
 }
 
 void TableView::modelRowsInserted(const WModelIndex& parent,
@@ -400,7 +401,7 @@ void TableView::onEdit(std::string field, int rowId, std::string value)
     model_->setData(row, col,
 		    Wt::Impl::updateFromJS(model_->data(row, col), value));
   } catch (boost::bad_lexical_cast& e) {
-    wApp->log("error") << "Internal error reading field name '" << field << "'";
+    Wt::log("error") << "Internal error reading field name '" << field << "'";
   }
 }
 

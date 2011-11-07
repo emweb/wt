@@ -41,15 +41,8 @@ namespace Wt {
   }
 
 InvalidDateTimeException::InvalidDateTimeException()
+  : WException("Error: Attempted operation on an invalid WDateTime")
 { }
-
-InvalidDateTimeException::~InvalidDateTimeException() throw()
-{ }
-
-const char *InvalidDateTimeException::what() const throw()
-{ 
-  return "Error: Attempted operation on an invalid WDateTime";
-}
 
 WDateTime::WDateTime()
 { }

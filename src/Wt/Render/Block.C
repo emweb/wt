@@ -7,6 +7,7 @@
 // #define DEBUG_LAYOUT
 
 #include "Wt/WFontMetrics"
+#include "Wt/WLogger"
 #include "Wt/WPaintDevice"
 #include "Wt/WPainter"
 #include "Wt/Render/WTextRenderer"
@@ -15,7 +16,6 @@
 #include "Line.h"
 #include "Utils.h"
 #include "DomElement.h"
-#include "WtException.h"
 
 #include <iostream>
 #include <math.h>
@@ -35,7 +35,7 @@ int sideToIndex(Wt::Side side)
   case Wt::Bottom: return 2;
   case Wt::Left: return 3;
   default:
-    throw std::runtime_error("Unexpected side: " + side);
+    throw WException("Unexpected side: " + side);
   }
 }
 
@@ -60,8 +60,10 @@ Block::Block(xml_node<> *node, Block *parent)
     switch (node->type()) {
     case node_element:
       type_ = DomElement::parseTagName(node->name());
-      if (type_ == DomElement_UNKNOWN)
-	unsupportedElement(node->name());
+      if (type_ == DomElement_UNKNOWN) {
+	Wt::log("error") << "Wt::Render: Unsupported element: " << node->name();
+	type_ = DomElement_DIV;
+      }
       break;
     default:
       ;
@@ -106,8 +108,9 @@ void Block::determineDisplay()
       float_ = Left;
     else if (fl == "right")
       float_ = Right;
-    else
+    else {
       unsupportedCssValue(PropertyStyleFloat, fl);
+    }
   } else if (type_ == DomElement_IMG || type_ == DomElement_TABLE) {
     std::string align = attributeValue("align");
     if (!align.empty()) {
@@ -180,13 +183,17 @@ void Block::determineDisplay()
 	  inline_ = true;
 	else if (display == "block")
 	  inline_ = false;
-	else
-	  throw std::logic_error("Display '" + display + "' is not supported.");
+	else {
+	  Wt::log("error") << "Wt::Render: Display '" << display
+			      << "' is not supported.";
+	  inline_ = false;
+	}
       else
 	inline_ = DomElement::isDefaultInline(type_);
 
       if (inline_ && !allChildrenInline)
-	throw std::logic_error("Inline element cannot contain block elements");
+	Wt::log("error") << "Wt::Render: Inline element cannot contain "
+			 << "block elements";
     } else
       inline_ = false;
   }
@@ -736,8 +743,15 @@ void Block::layoutInline(Line& line, BlockList& floats,
 	w = cssWidth(renderer.fontScale());
 	h = cssHeight(renderer.fontScale());
 
-	if (w <= 0 || h <= 0)
-	  throw std::runtime_error("Image with unknown width/height");
+	if (w <= 0) {
+	  Wt::log("error") << "Wt::Render: Image with unknown width";
+	  w = 10;
+	}
+
+	if (h <= 0) {
+	  Wt::log("error") << "Wt::Render: Image with unknown height";
+	  h = 10;
+	}
 
 	w += cssBoxMargin(Left, renderer.fontScale())
 	  + cssBoxMargin(Right, renderer.fontScale());
@@ -1658,8 +1672,10 @@ AlignmentFlag Block::cssTextAlign() const
 	return AlignRight;
       else if (s == "justify")
 	return AlignJustify;
-      else
-	throw std::runtime_error("Unsupported value for text-align");
+      else {
+	unsupportedCssValue(PropertyStyleTextAlign, s);
+	return AlignLeft;
+      }
     }
   } else
     return parent_->cssTextAlign();
@@ -2066,19 +2082,15 @@ std::string Block::attributeValue(const char *attribute) const
 void Block::unsupportedAttributeValue(const char *attribute,
 				      const std::string& value)
 {
-  throw std::runtime_error("Unsupported value '" + value + "' for attribute "
-			   + attribute);
+  Wt::log("error") << "Wt::Render: Unsupported value '"
+		   << value << "' for attribute " << attribute;
 }
 
 void Block::unsupportedCssValue(Property property, const std::string& value)
 {
-  throw std::runtime_error("Unsupported value '" + value + "' for CSS style "
-			   "property " + DomElement::cssName(property));
-}
-
-void Block::unsupportedElement(const std::string& tag)
-{
-  throw std::runtime_error("Unsupported element '" + tag + "'");
+  Wt::log("error") << "Wt::Render: Unsupported value '"
+		   << value << "' for CSS style property "
+		   << DomElement::cssName(property);
 }
 
   }

@@ -7,15 +7,12 @@
 #ifndef WT_WEB_MAIN_H_
 #define WT_WEB_MAIN_H_
 
-#if defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
-#include <boost/thread.hpp>
-#include "threadpool/threadpool.hpp"
-#endif
-
-#include "WebController.h"
+#include "Wt/WServer"
+#include "boost/signal.hpp"
 
 namespace Wt {
 
+class WebStream;
 /*
  * This controls a main loop for connectors which are not
  * event-driven. It reads incoming requests from a webstream, and
@@ -26,41 +23,21 @@ namespace Wt {
 class WT_API WebMain
 {
 public:
-  WebMain(Configuration& configuration, WAbstractServer *server,
-	  WebStream *stream, std::string singleSessionId = std::string());
+  WebMain(WServer *server, WebStream *stream,
+	  std::string singleSessionId = std::string());
   ~WebMain();
 
-  WebController& controller() { return controller_; }
+  WebController& controller() { return *server_->controller(); }
 
   void run();
   void shutdown();
 
-  void schedule(int milliSeconds, const boost::function<void()>& function);
-
 private:
-  WebController  controller_;
-  WebStream     *stream_;
-  std::string    singleSessionId_;
-
-#ifdef WT_THREADED
-  boost::mutex scheduledEventsMutex_;
-  boost::condition newScheduledEvent_;
-  boost::thread schedulerThread_;
-  void schedulerThread();
-#endif // WT_THREADED
-
-  typedef std::vector<boost::function<void()> > FunctionList;
-  std::map<Wt::WDateTime, FunctionList> scheduledEvents_;
+  WServer *server_;
+  WebStream *stream_;
+  std::string singleSessionId_;
 
   bool shutdown_;
-
-#ifdef WT_THREADED
-  boost::threadpool::pool threadPool_;
-#else
-  bool handlingRequest_;
-#endif
-
-  void scheduleInThreadPool(WebRequest *request);
 };
 
 }

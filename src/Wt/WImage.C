@@ -10,6 +10,8 @@
 #include "Wt/WResource"
 
 #include "DomElement.h"
+#include "Utils.h"
+#include "WebSession.h"
 
 namespace Wt {
 
@@ -197,7 +199,7 @@ const std::vector<WAbstractArea *> WImage::areas() const
 void WImage::removeArea(WAbstractArea *area)
 {
   if (!map_) {
-    wApp->log("error") << "WImage::removeArea(): no such area";
+    Wt::log("error") << "WImage::removeArea(): no such area";
     return;
   }
 
@@ -217,8 +219,20 @@ void WImage::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_IMAGE_LINK_CHANGED) || all) {
     if (!imageLink_.isNull()) {
-      // FIXME, censor session ID
-      img->setProperty(Wt::PropertySrc, resolveRelativeUrl(imageLink_.url()));
+      std::string url = resolveRelativeUrl(imageLink_.url());
+      /*
+       * If url is an absolute URL, then we jump through a redirect
+       * page, to strip the session ID from the referer URL, in case the
+       * current page has the session ID in the URL.
+       */
+      WApplication *app = WApplication::instance();
+
+      bool needRedirect = url.find("://") != std::string::npos
+	&& app->session()->hasSessionIdInUrl();
+      if (needRedirect)
+	url = "?request=redirect&url=" + Utils::urlEncode(url);
+
+      img->setProperty(Wt::PropertySrc, url);
     } else
       img->setProperty(Wt::PropertySrc, "#");
 

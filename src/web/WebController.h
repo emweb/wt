@@ -13,14 +13,12 @@
 #include <map>
 
 #include <Wt/WDllDefs.h>
-#include <Wt/WDateTime>
 #include <Wt/WSocketNotifier>
 
 #include "SocketNotifier.h"
 
 #if defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
 #include <boost/thread.hpp>
-#include "threadpool/threadpool.hpp"
 #endif
 
 namespace Wt {
@@ -30,10 +28,9 @@ class EntryPoint;
 
 class WebRequest;
 class WebSession;
-class WebStream;
 
 class WApplication;
-class WAbstractServer;
+class WServer;
 
 #ifndef WT_CNOR
 /*
@@ -76,14 +73,11 @@ public:
   WApplication *doCreateApplication(WebSession *session);
   Configuration& configuration();
 
+  void addSession(boost::shared_ptr<WebSession> session);
   void removeSession(const std::string& sessionId);
 
 #ifndef WT_TARGET_JAVA
-  /*
-   * Construct the WebController and let it read requests from the given
-   * streams.
-   */
-  WebController(Configuration& configuration, WAbstractServer *server,
+  WebController(WServer& server,
 		const std::string& singleSessionId = std::string(),
 		bool autoExpire = true);
   ~WebController();
@@ -121,13 +115,17 @@ public:
   std::string switchSession(WebSession *session,
 			    const std::string& newSessionId);
   std::string generateNewSessionId(boost::shared_ptr<WebSession> session);
+  void newAjaxSession();
+  bool limitPlainHtmlSessions();
 
-  WAbstractServer *server_;
+  WServer *server() { return &server_; }
 
 private:
+  WServer& server_;
   Configuration& conf_;
   std::string singleSessionId_;
   bool autoExpire_;
+  int plainHtmlSessions_, ajaxSessions_;
 
 #ifdef WT_THREADED
   boost::mutex uploadProgressUrlsMutex_;
@@ -138,6 +136,10 @@ private:
   SessionMap sessions_;
 
 #ifdef WT_THREADED
+  // mutex to protect access to the sessions map and plain/ajax session
+  // counts
+  boost::recursive_mutex mutex_;
+
   SocketNotifier socketNotifier_;
   // mutex to protect access to notifier maps. This cannot be protected
   // by mutex_ as this lock is grabbed while the application lock is
@@ -149,14 +151,10 @@ private:
   // assumes that you did grab the notifierMutex_
   SocketNotifierMap& socketNotifiers(WSocketNotifier::Type type);
   void socketNotify(int descriptor, WSocketNotifier::Type type);
-
-  // mutex to protect access to the sessions map.
-  boost::recursive_mutex mutex_;
 #endif
 
   void updateResourceProgress(WebRequest *request,
-			      boost::uintmax_t current,
-			      boost::uintmax_t total);
+			      boost::uintmax_t current, boost::uintmax_t total);
 
   const EntryPoint *getEntryPoint(WebRequest *request);
 

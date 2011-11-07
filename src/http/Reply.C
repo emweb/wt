@@ -358,7 +358,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 			  contentBuffers.begin(), contentBuffers.end());
 	    result.push_back(asio::buffer(misc_strings::crlf));
 
-	    if (!originalSize) {
+	    if (lastData) {
 	      result.push_back(buf("0"));
 	      result.push_back(asio::buffer(misc_strings::crlf));
 	      result.push_back(asio::buffer(misc_strings::crlf));
@@ -379,6 +379,14 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
   assert(false);
 
   return false;
+}
+
+bool Reply::closeConnection() const
+{
+  if (relay_.get())
+    return relay_->closeConnection();
+  else
+    return closeConnection_;
 }
 
 void Reply::setConnection(ConnectionPtr connection)
@@ -494,25 +502,22 @@ void Reply::encodeNextContentBuffer(
   asio::const_buffer b = nextContentBuffer();
   originalSize = buffer_size(b);
 
+  bool lastData = (originalSize == 0 && !waitMoreData());
+
 #ifdef WTHTTP_WITH_ZLIB
   if (gzipEncoding_) {
     encodedSize = 0;
 
     gzipStrm_.avail_in = originalSize;
-    gzipStrm_.next_in
-      = (unsigned char *)asio::detail::buffer_cast_helper(b);
+    gzipStrm_.next_in = (unsigned char *)asio::detail::buffer_cast_helper(b);
 
     unsigned char out[16*1024];
     do {
       gzipStrm_.next_out = out;
       gzipStrm_.avail_out = sizeof(out);
 
-      // do not attempt to flush gzip deflate when we are still expecting data
-      if (gzipStrm_.avail_in == 0 && originalSize != 0)
-	return;
-
       int r = 0;
-      r = deflate(&gzipStrm_, gzipStrm_.avail_in == 0 ? Z_FINISH : Z_NO_FLUSH);
+      r = deflate(&gzipStrm_, lastData ? Z_FINISH : Z_NO_FLUSH);
 
       assert(r != Z_STREAM_ERROR);
     
@@ -524,11 +529,10 @@ void Reply::encodeNextContentBuffer(
       }
     } while (gzipStrm_.avail_out == 0);
 
-    if (originalSize == 0) {
+    if (lastData) {
       deflateEnd(&gzipStrm_);
       gzipBusy_ = false;
     }
-
   } else {
 #endif
     encodedSize = originalSize;

@@ -6,10 +6,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "Wt/WLengthValidator"
 #include "Wt/WApplication"
-
-#include "EscapeOStream.h"
+#include "Wt/WLengthValidator"
+#include "Wt/WStringStream"
 
 #ifndef WT_DEBUG_JS
 #include "js/WLengthValidator.min.js"
@@ -128,7 +127,7 @@ std::string WLengthValidator::javaScriptValidate() const
 {
   loadJavaScript(WApplication::instance());
 
-  SStream js;
+  WStringStream js;
 
   js << "new " WT_CLASS ".WLengthValidator("
      << (isMandatory() ? "true" : "false") << ",";

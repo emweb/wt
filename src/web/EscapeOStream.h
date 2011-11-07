@@ -4,85 +4,12 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef ESCAPE_OSTREAM_H_
-#define ESCAPE_OSTREAM_H_
+#ifndef WT_ESCAPE_OSTREAM_H_
+#define WT_ESCAPE_OSTREAM_H_
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <Wt/WDllDefs.h>
+#include <Wt/WStringStream>
 
 namespace Wt {
-
-/*
- * A faster stringstream than the standard library, probably because
- * of no overhead w.r.t. localization
- */
-class WT_API SStream {
-public:
-  struct iterator {
-    struct char_proxy {
-      char_proxy& operator= (char c);
-
-    private:
-      char_proxy(SStream& stream);
-      SStream& stream_;
-
-      friend struct iterator;
-    };
-
-    iterator();
-
-    char_proxy operator * ();
-
-    iterator& operator ++ ();
-    iterator  operator ++ (int);
-
-  private:
-    SStream *stream_;
-    iterator(SStream& stream);
-
-    friend class SStream;
-  };
-
-  SStream();
-  SStream(std::ostream& sink);
-  ~SStream();
-
-  void append(const char *s, int length);
-
-  SStream& operator<< (char);
-  SStream& operator<< (const char *s);
-  SStream& operator<< (const std::string& s);
-  SStream& operator<< (int);
-  SStream& operator<< (double);
-
-  iterator back_inserter();
-
-  const char *c_str();
-  std::string str() const;
-
-  bool empty() const;
-  void clear();
-
-private:
-  enum {S_LEN = 1024};
-  enum {D_LEN = 2048};
-
-  std::ostream *sink_;
-  char static_buf_[S_LEN + 1];
-
-  char *buf_;
-  int buf_i_;
-
-  int buf_len() const { return buf_ == static_buf_
-      ? static_cast<int>(S_LEN) : static_cast<int>(D_LEN); }
-
-  std::vector<std::pair<char *, int> > bufs_;
-
-  void flushSink();
-  void pushBuf();
-};
 
 class WT_API EscapeOStream
 {
@@ -117,7 +44,7 @@ public:
   void clear();
 
 private:
-  SStream stream_;
+  WStringStream stream_;
 
   struct Entry {
     char c;

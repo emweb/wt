@@ -8,23 +8,22 @@
 #include <cmath>
 #include <cstring>
 #include <fstream>
-#include <stdexcept>
 #include <string.h>
 
 #ifndef WT_TARGET_JAVA
 #include "Wt/Render/WTextRenderer"
 #endif
 
+#include "Wt/WException"
 #include "Wt/WLineF"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
 #include "Wt/WPaintDevice"
 #include "Wt/WRectF"
+#include "Wt/WStringStream" 
 #include "Wt/WTransform"
 #include "Wt/WWebWidget"
 
-#include "WtException.h"
-#include "EscapeOStream.h" 
 
 namespace Wt {
 
@@ -144,10 +143,10 @@ WPainter::Image::Image(const std::string& uri, const std::string& fileName)
       width_ = int(header[7]) << 8 | int(header[6]);
       height_ = int(header[9]) << 8 | int(header[8]);
     } else {
-      throw Wt::WtException("'" + fileName + "': unsupported file format");
+      throw Wt::WException("'" + fileName + "': unsupported file format");
     }
   } else
-    throw Wt::WtException("'" + fileName + "': could not read");
+    throw Wt::WException("'" + fileName + "': could not read");
 }
 
 #endif // WT_TARGET_JAVA
@@ -542,7 +541,7 @@ void WPainter::drawText(const WRectF& rectangle,
        * same silly workarounds to render the text with all possible
        * alignment options
        */
-      SStream s;
+      WStringStream s;
       s << "<table style=\"width:" << (int)rectangle.width() << "px;\""
 	          "cellspacing=\"0\"><tr>"
 	     "<td style=\"padding:0px;height:" << (int)rectangle.height() <<
@@ -585,8 +584,8 @@ void WPainter::drawText(const WRectF& rectangle,
       restore();
 #endif // WT_TARGET_JAVA
     } else
-      throw std::logic_error("WPainter::drawText(): device does not support "
-			     "TextWordWrap or FontMetrics");
+      throw WException("WPainter::drawText(): device does not support "
+		       "TextWordWrap or FontMetrics");
   }
 }
 

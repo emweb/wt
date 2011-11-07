@@ -25,22 +25,23 @@
  *
  */
 
-#include "DomElement.h"
-#include "EscapeOStream.h"
-#include "Utils.h"
-
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WFontMetrics"
 #include "Wt/WLogger"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
+#include "Wt/WStringStream"
 #include "Wt/WVmlImage"
 #include "Wt/WWebWidget"
 
+#include "DomElement.h"
+#include "EscapeOStream.h"
+#include "Utils.h"
+
 #include <cmath>
-#include <sstream>
 #include <boost/lexical_cast.hpp>
 
 namespace {
@@ -215,7 +216,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
     penBrushShadowChanged_ = false;
   }
 
-  SStream tmp;
+  WStringStream tmp;
 
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
@@ -351,7 +352,9 @@ void WVmlImage::drawPath(const WPainterPath& path)
 std::string WVmlImage::createShadowFilter() const
 {
   char buf[30];
-  SStream filter;
+
+  WStringStream filter;
+
   double r = std::sqrt(2 * currentShadow_.blur());
   filter << "left: " << myzround(currentShadow_.offsetX() - r/2 - 1) << "px;";
   filter << "top: " << myzround(currentShadow_.offsetY() - r/2 - 1) 
@@ -362,6 +365,7 @@ std::string WVmlImage::createShadowFilter() const
   filter << ",shadowOpacity="
 	 << Utils::round_str(currentShadow_.color().alpha()/255., 2, buf)
 	 << ");";
+
   return filter.str();
 }
 
@@ -413,8 +417,7 @@ void WVmlImage::drawText(const WRectF& rect,
 			 const WString& text)
 {
   if (textFlag == TextWordWrap)
-    throw std::logic_error("WVmlImage::drawText() " 
-			   "TextWordWrap is not supported");
+    throw WException("WVmlImage::drawText(): TextWordWrap is not supported");
 
   finishPaths();
 
@@ -556,12 +559,12 @@ void WVmlImage::drawText(const WRectF& rect,
 WTextItem WVmlImage::measureText(const WString& text, double maxWidth,
 				 bool wordWrap)
 {
-  throw std::logic_error("WVmlImage::measureText() not supported");
+  throw WException("WVmlImage::measureText() not supported");
 }
 
 WFontMetrics WVmlImage::fontMetrics()
 {
-  throw std::logic_error("WVmlImage::fontMetrics() not (yet?) supported");
+  throw WException("WVmlImage::fontMetrics() not supported");
 }
 
 std::string WVmlImage::quote(const std::string& s)
@@ -589,7 +592,7 @@ std::string WVmlImage::skewElement(const WTransform& t) const
 {
   if (!t.isIdentity()) {
     char buf[30];
-    SStream s;
+    WStringStream s;
 
     s << "<v:skew on=\"true\" matrix=\""
       << Utils::round_str(t.m11(), 5, buf) << ',';
@@ -624,7 +627,7 @@ std::string WVmlImage::shadowElement(const WShadow& shadow) const
   char buf[30];
 
   if (!shadow.none()) {
-    SStream result;
+    WStringStream result;
 
     result << "<v:shadow on=\"true\" offset=\""
 	   << Utils::round_str(shadow.offsetX(), 3, buf) << "px,";
@@ -739,10 +742,10 @@ void WVmlImage::processClipping()
 	  stopClip();
 	  startClip(WRectF(tlx, tly, brx - tlx, bry - tly));
 	} else
-	  wApp->log("warn") << "VML only supports rectangle clipping "
-	    "with rectangles aligned to the window";
+	  Wt::log("warn") << "VML only supports rectangle clipping "
+			  << "with rectangles aligned to the window";
       } else
-	wApp->log("warn") << "VML only supports rectangle clipping";
+	Wt::log("warn") << "VML only supports rectangle clipping";
     } else {
       stopClip();
       startClip(WRectF(0, 0, width().value(), height().value()));
@@ -758,7 +761,7 @@ std::string WVmlImage::rendered()
   if (paintUpdate_)
     return rendered_.str();
   else {
-    SStream s;
+    WStringStream s;
     s << "<div style=\"position:relative;width:"
       << width().cssText() << ";height:" << height().cssText()
       << ";overflow:hidden;\">"

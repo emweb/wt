@@ -32,6 +32,10 @@ void WMessageResourceBundle::use(const std::string& path, bool loadInMemory)
 
 void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
 {
+  for (unsigned i = 0; i < messageResources_.size(); ++i)
+    if (messageResources_[i]->isBuiltin(xmlbundle))
+      return;
+
   messageResources_.push_back(new WMessageResources(xmlbundle));
 }
 

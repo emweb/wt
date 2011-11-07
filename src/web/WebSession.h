@@ -52,6 +52,7 @@ class WT_API WebSession
 public:
   enum State {
     JustCreated,
+    ExpectLoad,
     Loaded,
     Dead
   };
@@ -88,6 +89,9 @@ public:
 
   void doRecursiveEventLoop();
   bool bootStyleResponse() const { return !noBootStyleResponse_; }
+
+  void deferRendering();
+  void resumeRendering();
 
   void expire();
   bool unlockRecursiveEventLoop();
@@ -156,7 +160,7 @@ public:
   EventType getEventType(const WEvent& event) const;
   void setState(State state, int timeout);
 
-  class Handler {
+  class WT_API Handler {
   public:
     Handler();
     Handler(boost::shared_ptr<WebSession> session,
@@ -204,9 +208,9 @@ public:
     boost::shared_ptr<WebSession> sessionPtr_;
 #endif
 
-    WebRequest  *request_;
+    WebRequest *request_;
     WebResponse *response_;
-    bool         killed_;
+    bool killed_;
 
     friend class WApplication;
     friend class WResource;
@@ -252,22 +256,26 @@ private:
 #endif
 
   EntryPointType type_;
-  std::string    favicon_;
-  State          state_;
+  std::string favicon_;
+  State state_;
 
   std::string   sessionId_, sessionIdCookie_;
   bool          sessionIdChanged_, sessionIdCookieChanged_, sessionIdInUrl_;
 
   WebController *controller_;
-  WebRenderer   renderer_;
-  std::string   applicationName_;
-  std::string   bookmarkUrl_, basePath_, absoluteBaseUrl_;
-  std::string   applicationUrl_, deploymentPath_;
-  std::string   redirect_;
-  std::string   pagePathInfo_;
-  WebResponse  *asyncResponse_, *bootStyleResponse_;
-  bool          canWriteAsyncResponse_, noBootStyleResponse_;
-  bool          progressiveBoot_;
+  WebRenderer renderer_;
+  std::string applicationName_;
+  std::string bookmarkUrl_, basePath_, absoluteBaseUrl_;
+  std::string applicationUrl_, deploymentPath_;
+  std::string redirect_;
+  std::string pagePathInfo_;
+  WebResponse *asyncResponse_, *bootStyleResponse_;
+  bool canWriteAsyncResponse_, noBootStyleResponse_;
+  bool progressiveBoot_;
+
+  WebRequest *deferredRequest_;
+  WebResponse *deferredResponse_;
+  int deferCount_;
 
 #ifndef WT_TARGET_JAVA
   Time             expire_;
@@ -341,8 +349,8 @@ struct WEvent::Impl {
   { }
 
 #ifndef WT_CNOR
-  Impl(const boost::function<void ()>& aFunction)
-    : handler(0),
+  Impl(WebSession::Handler *aHandler, const boost::function<void ()>& aFunction)
+    : handler(aHandler),
       function(aFunction),
       renderOnly(false)
   { }

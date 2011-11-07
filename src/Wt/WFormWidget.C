@@ -379,7 +379,18 @@ void WFormWidget::setValidator(WValidator *validator)
 
 WValidator::State WFormWidget::validate()
 {
-  return WValidator::Valid;
+  if (validator()) {
+    WT_USTRING v = valueText();
+
+    WValidator::State result = validator()->validate(v);
+    if (result == WValidator::Valid)
+      removeStyleClass("Wt-invalid", true);
+    else
+      addStyleClass("Wt-invalid", true);
+
+    return result;
+  } else
+    return WValidator::Valid;
 }
 
 std::string WFormWidget::formName() const

@@ -1,0 +1,76 @@
+.Wt-form {
+    margin: 0 auto;
+    width: 40em;
+    padding: 0.7em;
+}
+
+.Wt-form h2 {
+    font-size: 130%;
+    font-weight: bold;
+    padding: 0px;
+    margin: 8px 0px;
+    letter-spacing: inherit;
+    line-height: inherit;
+    color: inherit;
+    background: inherit;
+    height: auto;
+}
+
+.Wt-form h3 {
+    font-style: italic;
+    font-size: 100%;
+    font-weight: normal;
+    margin: 8px 0px;
+    clear: both;
+}
+
+.Wt-form p {
+    font-size: 85%;
+    color: #666666;
+    margin-bottom: 1.5em;
+    border-bottom: solid 1px #b7ddf2;
+    padding-bottom: 0.5em;
+}
+
+.Wt-form label {
+    display: block;
+    font-weight: bold;
+    text-align: right;
+    width: 14em;
+    float: left;
+    clear: left;
+    line-height: 130%;
+}
+
+.Wt-form .Wt-info {
+    color: #666666;
+    display: block;
+    font-size: 85%;
+    width: 16.47em;
+    font-weight: normal;
+    text-align: right;
+}
+
+.Wt-form input {
+    float: left;
+    padding: 5px 2px;
+    border: solid 1px #aacfe4;
+    width: 15em;
+    margin: 3px 0.5em 1.4em 0.7em;
+}
+
+.Wt-form .Wt-field {
+    float: left;
+    padding: 5px 2px;
+    width: 15em;
+    margin: 0 0.5em 1.4em 0.7em;
+}
+
+.Wt-form .Wt-buttons {
+    clear: both;
+    text-align: center;
+}
+
+.Wt-form .Wt-error {
+    color: black;
+}

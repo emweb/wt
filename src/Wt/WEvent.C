@@ -7,7 +7,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WEvent"
 
@@ -34,8 +33,8 @@ namespace {
       try {
 	return asInt(*p);
       } catch (const boost::bad_lexical_cast& ee) {
-	wApp->log("error") << "Could not cast event property '" << name 
-			   << ": " << *p << "' to int";
+	Wt::log("error") << "Could not cast event property '" << name 
+			 << ": " << *p << "' to int";
 	return ifMissing;
       }
     } else
@@ -60,7 +59,7 @@ namespace {
     boost::split(s, str, boost::is_any_of(";"));
     
     if (s.size() % 9) {
-      wApp->log("error") << "Could not parse touches array '" << str << "'";
+      Wt::log("error") << "Could not parse touches array '" << str << "'";
       return;
     }
 
@@ -73,7 +72,7 @@ namespace {
 			       asInt(s[i + 7]), asInt(s[i + 8])));
       }
     } catch (const boost::bad_lexical_cast& ee) {
-      wApp->log("error") << "Could not parse touches array '" << str << "'";
+      Wt::log("error") << "Could not parse touches array '" << str << "'";
       return;
     }
   }
@@ -253,9 +252,7 @@ WString WKeyEvent::text() const
     try {
       rapidxml::xml_document<>::insert_coded_character<0>(ptr, charCode());
     } catch (rapidxml::parse_error& e) {
-      if (WApplication::instance())
-        WApplication::instance()->log("error")
-          << "WKeyEvent charcode: " << e.what();
+      Wt::log("error") << "WKeyEvent charcode: " << e.what();
       return WString();
     }
     return WString::fromUTF8(std::string(buf, ptr));

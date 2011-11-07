@@ -10,24 +10,26 @@
 #include <string>
 #include <map>
 
-#ifndef WT_TARGET_JAVA
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
-#include "threadpool/threadpool.hpp"
-#endif
-#endif // WT_TARGET_JAVA
-
-#include "Configuration.h"
+#endif // WT_THREADED
 
 namespace Wt {
 
 class SessionInfo;
+class WServer;
 
+/*
+ * A FastCGI relay server
+ */
 class Server
 {
 public:
-  Server(int argc, char *argv[]);
-  int main();
+  static bool bindUDStoStdin(const std::string& socketPath,
+			     Wt::WServer& server);
+
+  Server(WServer& wt, int argc, char *argv[]);
+  int run();
 
   static Server *instance;
 
@@ -35,15 +37,13 @@ public:
   void handleSignal(const char *signal);
 
 private:
+  WServer& wt_;
   int argc_;
   char **argv_;
-  Configuration conf_;
 
 #ifdef WT_THREADED
   // mutex to protect access to the sessions map
   boost::recursive_mutex mutex_;
-
-  boost::threadpool::pool threadPool_;
 #endif
 
   void spawnSharedProcess();

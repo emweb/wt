@@ -15,7 +15,6 @@
 
 #include "Utils.h"
 #include "WebSession.h"
-#include "WtException.h"
 
 namespace Wt {
 

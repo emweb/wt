@@ -186,8 +186,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	 * web session.
 	 */
 	if (state == Request::Complete) {
-	  connection->server()->controller()->server_
-	    ->handleRequest(httpRequest_);
+	  connection->server()->controller()->handleRequest(httpRequest_);
 	} else {
 	  std::cerr << "Unreachable code?" << std::endl;
 	}
@@ -205,7 +204,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
     cin_->seekg(0); // rewind
     responseSent_ = false;
 
-    connection->server()->controller()->server_->handleRequest(httpRequest_);
+    connection->server()->controller()->handleRequest(httpRequest_);
   }
 }
 

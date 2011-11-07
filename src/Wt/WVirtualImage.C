@@ -5,14 +5,13 @@
  */
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WContainerWidget"
 #include "Wt/WCssDecorationStyle"
 #include "Wt/WImage"
 #include "Wt/WResource"
 #include "Wt/WScrollArea"
 #include "Wt/WVirtualImage"
-
-#include "WtException.h"
 #include "Utils.h"
 
 namespace Wt {
@@ -158,7 +157,7 @@ WImage *WVirtualImage::createImage(::int64_t x, ::int64_t y,
 WResource *WVirtualImage::render(::int64_t x, ::int64_t y,
 				 int width, int height)
 {
-  throw WtException("You should reimplement WVirtualImage::render()");
+  throw WException("You should reimplement WVirtualImage::render()");
 }
 
 void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)

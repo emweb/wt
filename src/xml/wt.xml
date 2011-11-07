@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages>
-  <!-- i18n strings -->
-
   <message id="Wt.WAbstractItemView.PageIOfN"><b>{1}</b> of <b>{2}</b></message>
   <message id="Wt.WAbstractItemView.PageBar.First">&#x00ab; First</message>
   <message id="Wt.WAbstractItemView.PageBar.Previous">&#x2039; Previous</message>
@@ -197,5 +195,4 @@
       </ul>
     </div>
   </message>
-
 </messages>

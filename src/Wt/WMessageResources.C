@@ -5,25 +5,231 @@
  */
 #ifndef WT_CNOR
 #include <fstream>
-#include <stdexcept>
 #include <cstring>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/scoped_array.hpp>
 
-#include "DomElement.h"
-#include "EscapeOStream.h"
-#include "Utils.h"
+#include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WMessageResources"
 #include "Wt/WString"
-#include "Wt/WApplication"
+#include "Wt/WStringStream"
+
+#include "DomElement.h"
+#include "Utils.h"
 
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_print.hpp"
 
 using namespace Wt;
 using namespace rapidxml;
+
+#ifndef WT_NO_SPIRIT
+
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 103600
+#include <boost/spirit.hpp>
+#include <boost/spirit/phoenix/binders.hpp>
+#else
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/phoenix1_binders.hpp>
+#endif
+
+#include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+
+namespace {
+
+#if BOOST_VERSION < 103600
+  using namespace boost::spirit;
+#else
+  using namespace boost::spirit::classic;
+#endif
+  using namespace boost;
+
+struct CExpressionParser : grammar<CExpressionParser>
+{
+  struct ParseState
+  {
+    bool condition_;
+  };
+
+  CExpressionParser(::int64_t n, int &result, ParseState &state) : 
+    n_(n),
+    result_(result),
+    state_(state)
+  {}
+
+  struct value_closure : closure<value_closure, ::int64_t, ::int64_t>
+  {
+    member1 value;
+    member2 condition;
+  };
+
+  template <typename ScannerT>
+  struct definition
+  {
+    definition(CExpressionParser const& self)
+    {
+      using namespace boost::spirit;
+      using namespace phoenix;
+
+      group
+        = '('
+          >> expression[group.value = arg1]
+          >> ')'
+        ;
+
+       // A statement can end at the end of the line, or with a semicolon.
+      statement
+        =   ( expression[bind(&CExpressionParser::set_result)(self, arg1)]
+          )
+        >> (end_p | ';')
+        ;
+
+      literal
+        = uint_p[literal.value = arg1]
+        ;
+
+      factor
+        = literal[factor.value = arg1]
+        | group[factor.value = arg1]
+        | ch_p('n')[factor.value = bind(&CExpressionParser::get_n)(self)]
+        ;
+
+      term
+        = factor[term.value = arg1]
+          >> *( ('*' >> factor[term.value *= arg1])
+              | ('/' >> factor[term.value /= arg1])
+	      | ('%' >> factor[term.value %= arg1])
+            )
+        ;
+
+      additive_expression
+        = term[additive_expression.value = arg1]
+          >> *( ('+' >> term[additive_expression.value += arg1])
+              | ('-' >> term[additive_expression.value -= arg1])
+            )
+        ;
+
+      expression
+	= or_expression[expression.value = arg1]
+	               [expression.condition = arg1] 
+	>> !( '?' 
+	      >> expression[bind(&CExpressionParser::set_cond)
+			    (self, expression.condition)]
+	                   [bind(&CExpressionParser::ternary_op)
+			    (self, expression.value, arg1)] 
+	      >> ':' 
+	      >> expression[bind(&CExpressionParser::set_not_cond)
+			    (self, expression.condition)]
+	                   [bind(&CExpressionParser::ternary_op)
+			    (self, expression.value, arg1)]
+			    )
+	;
+
+      or_expression
+        = and_expression[or_expression.value = arg1]
+	  >> *( "||" >> and_expression[bind(&CExpressionParser::or_op)
+				       (self, or_expression.value, arg1)] )
+        ;
+      
+      and_expression
+        = eq_expression[and_expression.value = arg1]
+          >> *( "&&" >> eq_expression[bind(&CExpressionParser::and_op)
+				       (self, and_expression.value, arg1)] )
+        ;
+
+      eq_expression
+        = relational_expression[eq_expression.value = arg1]
+          >> *( ("==" >> relational_expression[bind(&CExpressionParser::eq_op)
+					       (self, 
+						eq_expression.value, 
+						arg1)])
+	      | ("!=" >> relational_expression[bind(&CExpressionParser::neq_op)
+					       (self, 
+						eq_expression.value, 
+						arg1)])
+            )
+        ;
+	
+      relational_expression
+        = additive_expression[relational_expression.value = arg1]
+          >> *( (">" >> additive_expression[bind(&CExpressionParser::gt_op)
+					    (self, 
+					     relational_expression.value, 
+					     arg1)])
+	      | (">=" >> additive_expression[bind(&CExpressionParser::gte_op)
+					     (self, 
+					      relational_expression.value, 
+					      arg1)])
+	      | ("<" >> additive_expression[bind(&CExpressionParser::lt_op)
+					    (self, 
+					     relational_expression.value, 
+					     arg1)])
+	      | ("<=" >> additive_expression[bind(&CExpressionParser::lte_op)
+					     (self, 
+					      relational_expression.value, 
+					      arg1)])
+            )
+        ;
+    }
+
+    rule<ScannerT> const&
+    start() const { return statement; }
+
+    rule<ScannerT> statement;
+    rule<ScannerT, value_closure::context_t> expression, factor,
+      group, literal, term, additive_expression, or_expression, and_expression,
+      eq_expression, relational_expression;
+  };
+
+private: 
+  ::int64_t get_n() const { return n_; }
+  
+  void eq_op(::int64_t &x, ::int64_t y) const { x = x == y; }
+  void neq_op(::int64_t &x, ::int64_t y) const { x = x != y; }
+  
+  void lt_op(::int64_t &x, ::int64_t y) const { x = x < y;}
+  void gt_op(::int64_t &x, ::int64_t y) const { x = x > y;}
+  void lte_op(::int64_t &x, ::int64_t y) const { x = x <= y;}
+  void gte_op(::int64_t &x, ::int64_t y) const { x = x >= y;}
+
+  void ternary_op(::int64_t &result, ::int64_t y) const 
+  { 
+    if (state_.condition_) 
+      result = y; 
+  } 
+
+  void set_cond(::int64_t condition) const 
+  { 
+    state_.condition_ = condition;
+  } 
+
+  void set_not_cond(::int64_t condition) const 
+  { 
+    state_.condition_ = !condition;
+  } 
+  
+  void or_op(::int64_t &x, ::int64_t y) const { x = x || y; }
+  void and_op(::int64_t &x, ::int64_t y) const { x = x && y; }
+
+  void set_result(int result) const { result_ = result; }
+private :
+  ::int64_t n_;
+  int &result_;
+  ParseState &state_;
+
+public :
+  int result() { return result_; }
+};
+
+} // anonymous namespace
+
+#endif //WT_NO_SPIRIT
 
 namespace {
   void fixSelfClosingTags(xml_node<> *x_node)
@@ -70,15 +276,17 @@ WMessageResources::WMessageResources(const std::string& path,
 				     bool loadInMemory)
   : loadInMemory_(loadInMemory),
     loaded_(false),
-    path_(path)
-{}
+    path_(path),
+    builtin_(0)
+{ }
 
-WMessageResources::WMessageResources(const char *data)
+WMessageResources::WMessageResources(const char *builtin)
   : loadInMemory_(true),
     loaded_(false),
-    path_("")
+    path_(""),
+    builtin_(builtin)
 {
-  std::istringstream s(data,  std::ios::in | std::ios::binary);
+  std::istringstream s(builtin,  std::ios::in | std::ios::binary);
   readResourceStream(s, defaults_, "<internal resource bundle>");
 }
 
@@ -166,10 +374,13 @@ std::string WMessageResources::findCase(const std::vector<std::string> &cases,
 					std::string pluralExpression,
 					::uint64_t amount)
 {
-  int c = Utils::calculatePluralCase(pluralExpression, amount);
+#ifdef WT_NO_SPIRIT
+  throw WException("WString::trn() requires the spirit library.");
+#else
+  int c = evalPluralCase(pluralExpression, amount);
 
   if (c > (int)cases.size() - 1 || c < 0) {
-    SStream error;
+    WStringStream error;
     error << "Expression '" << pluralExpression << "' evaluates to '" 
 	  << c << "' for n=" << boost::lexical_cast<std::string>(amount);
     
@@ -179,10 +390,11 @@ std::string WMessageResources::findCase(const std::vector<std::string> &cases,
       error << " which is greater than the list of cases (size=" 
 	    << (int)cases.size() << ").";
     
-    throw std::logic_error(error.c_str());
+    throw WException(error.c_str());
   }
 
   return cases[c];
+#endif // WT_NO_SPIRIT
 }
 
 bool WMessageResources::resolvePluralKey(const std::string& key, 
@@ -399,13 +611,24 @@ bool WMessageResources::readResourceStream(std::istream &s,
       }
     }
   } catch (parse_error& e) {
-    WApplication::instance()->log("error")
-      << "Error reading " << fileName
-      << ": at character " << e.where<char>() - text.get()
-      << ": " << e.what();
+    Wt::log("error") << "Error reading " << fileName
+		     << ": at character " << e.where<char>() - text.get()
+		     << ": " << e.what();
   }
 
   return true;
+}
+
+int WMessageResources::evalPluralCase(const std::string &expression, ::uint64_t n)
+{
+  int result;
+  CExpressionParser::ParseState state;
+  CExpressionParser p(n, result, state);
+  std::string tmp = expression;
+  parse_info<std::string::iterator> info 
+    = parse(tmp.begin(), tmp.end(), p, space_p);
+
+  return result;
 }
 
 }

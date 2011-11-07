@@ -53,6 +53,7 @@ namespace {
     }
 
     virtual void flush(ResponseState state, CallbackFunction callback) {
+
       out().flush();
 
       if (state == ResponseFlush) {

@@ -6,11 +6,10 @@
 
 #include <stdlib.h>
 
-#include "Wt/WApplication"
+#include "Wt/WException"
 #include "Wt/WTime"
 #include "Wt/WLogger"
 
-#include "WtException.h"
 #include "Utils.h"
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
@@ -52,10 +51,7 @@ bool WTime::setHMS(int h, int m, int s, int ms)
     valid_ = true;
     time_ = ((h * 60 + m) * 60 + s) * 1000 + ms;
   } else {
-    WApplication *app = wApp;
-    if (app)
-      app->log("warn") << "Invalid time: "
-		       << h << ":" << m << ":" << s << "." << ms;
+    Wt::log("warn") << "Invalid time: " << h << ":" << m << ":" << s << "." << ms;
     valid_ = false;
     time_ = 0; // !null
   }
@@ -273,7 +269,7 @@ static void fatalFormatError(const WString& format, int c, const char* cs)
   s << "WTime format syntax error (for \"" << format.toUTF8()
     << "\"): Cannot handle " << c << " consecutive " << cs;
 
-  throw WtException(s.str());
+  throw WException(s.str());
 }
 
 bool WTime::parseLast(const std::string& v, unsigned& vi,

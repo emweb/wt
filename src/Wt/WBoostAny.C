@@ -13,13 +13,14 @@
 #include <boost/shared_ptr.hpp>
 #endif // WT_THREADED
 
-#include "WtException.h"
-
 #include "Wt/WBoostAny"
 #include "Wt/WDate"
 #include "Wt/WDateTime"
+#include "Wt/WException"
 #include "Wt/WTime"
 #include "Wt/WWebWidget"
+
+#include "Utils.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -109,9 +110,9 @@ bool matchValue(const boost::any& value, const boost::any& query,
       return boost::ends_with(value_str, query_str);
 
     default:
-      throw WtException("Not yet implemented: WAbstractItemModel::match with "
-			"MatchFlags = "
-			+ boost::lexical_cast<std::string>(flags));
+      throw WException("Not yet implemented: WAbstractItemModel::match with "
+		       "MatchFlags = "
+		       + boost::lexical_cast<std::string>(flags));
     }
   }
 }
@@ -198,9 +199,11 @@ std::string asJSLiteral(const boost::any& v, TextFormat textFormat)
     AbstractTypeHandler *handler = getRegisteredType(&v.type(), true);
     if (handler)
       return handler->asString(v, WString::Empty).jsStringLiteral();
-    else
-      throw WtException(std::string("WAbstractItemModel: unsupported type ")
-			+ v.type().name());
+    else {
+      Wt::log("error") << "WAbstractItemModel: unsupported type: '"
+		       << v.type().name() << "'";
+      return "''";
+    }
   }
 }
 
@@ -241,9 +244,11 @@ boost::any updateFromJS(const boost::any& v, std::string s)
 
 #undef ELSE_LEXICAL_ANY
 
-  else
-    throw WtException(std::string("WAbstractItemModel: unsupported type ")
-		      + v.type().name());
+  else {
+    Wt::log("error") << "WAbstractItemModel: unsupported type '"
+		     << v.type().name() << "'";
+    return boost::any();
+  }
 }
 
 int compare(const boost::any& d1, const boost::any& d2)
@@ -291,10 +296,11 @@ int compare(const boost::any& d1, const boost::any& d2)
 	  AbstractTypeHandler *handler = getRegisteredType(&d1.type(), true);
 	  if (handler)
 	    return handler->compare(d1, d2);
-	  else	  
-	    throw WtException(std::string
-			      ("WAbstractItemModel: unsupported type ")
-			      + d1.type().name());
+	  else {
+	    Wt::log("error") << "WAbstractItemModel: unsupported type '"
+			     << d1.type().name() << "'";
+	    return 0;
+	  }
 	}
       } else {
 	WString s1 = asString(d1);
@@ -367,9 +373,11 @@ WString asString(const boost::any& v, const WT_USTRING& format)
 								 true);
     if (handler)
       return handler->asString(v, format);
-    else	  
-      throw WtException(std::string("WAbstractItemModel: unsupported type ")
-			+ v.type().name());
+    else {
+      Wt::log("error") << "WAbstractItemModel: unsupported type '"
+		       << v.type().name() << "'";
+      return WString::Empty;
+    }
   }
 }
 
@@ -430,9 +438,11 @@ double asNumber(const boost::any& v)
 								 true);
     if (handler)
       return handler->asNumber(v);
-    else	  
-      throw WtException(std::string("WAbstractItemModel: unsupported type ")
-			+ v.type().name());
+    else {
+      Wt::log("error") << "WAbstractItemModel: unsupported type '"
+		       << v.type().name() << "'";
+      return 0;
+    }
   }
 }
 
@@ -485,8 +495,9 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
 
   else {
     // FIXME, add this to the traits.
-    throw WtException(std::string("WAbstractItemModel: unsupported type ")
-		      + type.name());
+    Wt::log("error") << "WAbstractItemModel: unsupported type '"
+		     << v.type().name() << "'";
+    return boost::any();
   }
 }
 

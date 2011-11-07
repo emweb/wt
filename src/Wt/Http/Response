@@ -20,10 +20,9 @@ namespace Wt {
   namespace Http {
 
 /*! \class Response Wt/Http/Response Wt/Http/Response
- *  \brief An HTTP response.
+ *  \brief A resource response.
  *
- * Use the HTTP response to format a response to an HTTP request (see
- * Request).
+ * This class defines the HTTP response for a WResource request.
  *
  * More specifically you can:
  * - set the content mime type using setMimeType()
@@ -35,7 +34,9 @@ namespace Wt {
  * can annotate information for the next request to process the
  * response further.
  *
- * \sa WResource::handleRequest()
+ * \sa WResource::handleRequest(), Request
+ *
+ * \ingroup http
  */
 class WT_API Response
 {

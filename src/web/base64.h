@@ -63,7 +63,6 @@ namespace base64
 
   extern const char* from_table;
 
-
   template <class InputIterator, class OutputIterator>
   void encode(const InputIterator& begin, 
               const InputIterator& end, 

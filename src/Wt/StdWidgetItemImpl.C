@@ -149,8 +149,7 @@ void StdWidgetItemImpl::update(WLayoutItem *)
 void StdWidgetItemImpl::setHint(const std::string& name,
 				const std::string& value)
 {
-  WApplication::instance()->log("error")
-    << "WWidgetItem: unrecognized hint '" << name << "'";
+  Wt::log("error") << "WWidgetItem: unrecognized hint '" << name << "'";
 }
 
 }

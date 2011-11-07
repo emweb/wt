@@ -42,12 +42,12 @@ void WPushButton::setText(const WString& text)
   repaint(RepaintInnerHtml);
 }
 
-void WPushButton::setIcon(const std::string& url)
+void WPushButton::setIcon(const WLink& link)
 {
-  if (canOptimizeUpdates() && (url == icon_))
+  if (canOptimizeUpdates() && (link == icon_))
     return;
 
-  icon_ = url;
+  icon_ = link;
   flags_.set(BIT_ICON_CHANGED);
 
   repaint(RepaintInnerHtml);
@@ -112,9 +112,9 @@ void WPushButton::updateDom(DomElement& element, bool all)
     element.setProperty(PropertyClass, "Wt-btn");
   }
 
-  if (flags_.test(BIT_ICON_CHANGED) || (all && !icon_.empty())) {
+  if (flags_.test(BIT_ICON_CHANGED) || (all && !icon_.isNull())) {
     DomElement *image = DomElement::createNew(DomElement_IMG);
-    image->setProperty(PropertySrc, icon_);
+    image->setProperty(PropertySrc, icon_.url());
     image->setId("im" + formName());
     element.insertChildAt(image, 0);
     flags_.set(BIT_ICON_RENDERED);
@@ -171,13 +171,13 @@ void WPushButton::getDomChanges(std::vector<DomElement *>& result,
 				WApplication *app)
 {
   if (flags_.test(BIT_ICON_CHANGED) && flags_.test(BIT_ICON_RENDERED)) {
-    DomElement *image = DomElement::getForUpdate("im" + formName(),
-						 DomElement_IMG);
-    if (icon_.empty()) {
+    DomElement *image
+      = DomElement::getForUpdate("im" + formName(), DomElement_IMG);
+    if (icon_.isNull()) {
       image->removeFromParent();
       flags_.reset(BIT_ICON_RENDERED);
     } else
-      image->setProperty(PropertySrc, icon_);
+      image->setProperty(PropertySrc, icon_.url());
 
     result.push_back(image);
 
@@ -192,6 +192,11 @@ void WPushButton::propagateRenderOk(bool deep)
   flags_.reset();
 
   WFormWidget::propagateRenderOk(deep);
+}
+
+WT_USTRING WPushButton::valueText() const
+{
+  return WT_USTRING();
 }
 
 void WPushButton::refresh()

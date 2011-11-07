@@ -5,13 +5,12 @@
  */
 #include <boost/lexical_cast.hpp>
 
-#include "Wt/WApplication"
+#include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WSelectionBox"
 
 #include "DomElement.h"
 #include "Utils.h"
-#include "WtException.h"
 
 namespace Wt {
 
@@ -53,8 +52,8 @@ void WSelectionBox::setSelectionMode(SelectionMode mode)
 void WSelectionBox::setSelectedIndexes(const std::set<int>& selection)
 {
   if (selectionMode_ != ExtendedSelection)
-    throw WtException("WSelectionBox::setSelectedIndexes() can only be used "
-		      "for an ExtendedSelection mode");
+    throw WException("WSelectionBox::setSelectedIndexes() can only be used "
+		     "for an ExtendedSelection mode");
 
   selection_ = selection;
   selectionChanged_ = true;
@@ -131,8 +130,8 @@ void WSelectionBox::setFormData(const FormData& formData)
 	  int i = boost::lexical_cast<int>(v);
 	  selection_.insert(i);
 	} catch (boost::bad_lexical_cast& error) {
-	  wApp->log("error") << "WSelectionBox received illegal form value: '"
-			     << v << "'";
+	  Wt::log("error") << "WSelectionBox received illegal form value: '"
+			   << v << "'";
 	}
       }
     }

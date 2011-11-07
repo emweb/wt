@@ -7,7 +7,6 @@
 #include "Wt/Ext/LayoutItemImpl.h"
 #include "Wt/Ext/LayoutImpl.h"
 #include "Wt/Ext/Container"
-#include "Wt/WApplication"
 #include "Wt/WLayoutItem"
 #include "Wt/WLayout"
 #include "Wt/WLogger"
@@ -63,8 +62,7 @@ void LayoutItemImpl::getLayoutChanges(const std::string& parentId,
 
 void LayoutItemImpl::setHint(const std::string& name, const std::string& value)
 {
-  WApplication::instance()->log("error")
-    << "WWidgetItem: unrecognized hint '" << name << "'";
+  Wt::log("error") << "WWidgetItem: unrecognized hint '" << name << "'";
 }
 
   }

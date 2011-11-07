@@ -7,9 +7,8 @@
 #ifndef WT_DBO_COLLECTION_IMPL_H_
 #define WT_DBO_COLLECTION_IMPL_H_
 
-#include <stdexcept>
-
 #include <Wt/Dbo/collection>
+#include <Wt/Dbo/Exception>
 #include <Wt/Dbo/SqlStatement>
 
 namespace Wt {
@@ -67,7 +66,7 @@ collection<C>::iterator::operator* ()
   if (impl_ && !impl_->ended_)
     return impl_->current_;
   else
-    throw std::runtime_error("set< ptr<C> >::operator* : read beyond end.");
+    throw Exception("set< ptr<C> >::operator* : read beyond end.");
 }
 
 template <class C>
@@ -138,7 +137,7 @@ template <class C>
 void collection<C>::iterator::shared_impl::fetchNextRow()
 {
   if (ended_)
-    throw std::runtime_error("set< ptr<C> >::operator++ : beyond end.");
+    throw Exception("set< ptr<C> >::operator++ : beyond end.");
 
   if (!statement_ || !statement_->nextRow()) {
     ended_ = true;
@@ -372,14 +371,14 @@ typename collection<C>::size_type collection<C>::size() const
     countStatement->execute();
 
     if (!countStatement->nextRow())
-      throw std::runtime_error("collection<C>::size(): no result?");
+      throw Exception("collection<C>::size(): no result?");
 
     int result;
     if (!countStatement->getResult(0, &result))
-      throw std::runtime_error("collection<C>::size(): null?");
+      throw Exception("collection<C>::size(): null?");
     
     if (countStatement->nextRow())
-      throw std::runtime_error("collection<C>::size(): multiple results?");
+      throw Exception("collection<C>::size(): multiple results?");
 
     if (type_ == QueryCollection) {
       data_.query.size = result;
@@ -395,8 +394,8 @@ template <class C>
 Query<C, DynamicBinding> collection<C>::find() const
 {
   if (type_ != RelationCollection)
-    throw std::runtime_error("collection<C>::find() "
-			     "only for a many-side relation collection.");
+    throw Exception("collection<C>::find() "
+		    "only for a many-side relation collection.");
 
   if (session_ && data_.relation.sql) {
     const std::string *sql = data_.relation.sql;
@@ -418,13 +417,15 @@ template <class C>
 void collection<C>::insert(C c)
 {
   if (type_ != RelationCollection)
-    throw std::runtime_error("collection<C>::insert() only for a "
-			     "relational collection.");
+    throw Exception("collection<C>::insert() only for a relational collection.");
 
   RelationData& relation = data_.relation;
 
-  if (relation.dbo)
+  if (relation.dbo) {
     relation.dbo->setDirty();
+    if (relation.dbo->session())
+      relation.dbo->session()->add(c);
+  }
 
   if (relation.setInfo->type == ManyToMany) {
     if (!relation.activity)
@@ -445,8 +446,8 @@ template <class C>
 void collection<C>::erase(C c)
 {
   if (type_ != RelationCollection)
-    throw std::runtime_error("collection<C>::erase() only for a relational "
-			     "relation.");
+    throw Exception("collection<C>::erase() only for a relational relation.");
+
   RelationData& relation = data_.relation;
 
   if (relation.dbo)
@@ -471,13 +472,13 @@ template <class C>
 int collection<C>::count(C c) const
 {
   if (!session_)
-    throw std::runtime_error("collection<C>::count() only for a collection "
-			     "that is bound to a session.");
+    throw Exception("collection<C>::count() only for a collection "
+		    "that is bound to a session.");
 
   session_->flush();
 
   if (type_ != RelationCollection)
-    throw std::runtime_error("collection<C>::count() only for a relational "
+    throw Exception("collection<C>::count() only for a relational "
 			     "relation.");
 
   const RelationData& relation = data_.relation;

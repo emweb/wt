@@ -51,14 +51,9 @@ class Server
 public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
-  explicit Server(const Configuration& config,
-		  const Wt::Configuration& wtConfig,
-                  Wt::WebController& controller);
+  explicit Server(const Configuration& config, Wt::WServer& wtServer);
 
   ~Server();
-
-  /// Run the server's io_service loop.
-  void run();
 
   /// Start the server (called from constructor)
   void start();
@@ -69,17 +64,14 @@ public:
   /// Assumes accept sockets have been closed and reopens them.
   void resume();
 
-  /// Schedules or posts an event to the thread pool
-  void schedule(int milliSeconds, const boost::function<void ()>& function);
-
   /// Returns the http port number.
   int httpPort() const;
 
-  Wt::WebController *controller() { return controller_; }
+  Wt::WebController *controller();
 
   const Configuration &configuration() { return config_; }
 
-  asio::io_service &service() { return io_service_; }
+  asio::io_service &service();
 
 private:
   /// Starts accepting http/https connections
@@ -97,11 +89,11 @@ private:
   /// The server's configuration
   Configuration config_;
 
-  /// The logger
-  Wt::WLogger   accessLogger_;
+  /// The Wt app server
+  Wt::WServer& wt_;
 
-  /// The io_service used to perform asynchronous operations.
-  asio::io_service io_service_;
+  /// The logger
+  Wt::WLogger accessLogger_;
 
   /// The strand for handleTcpAccept(), handleSslAccept() and handleStop()
   asio::strand accept_strand_;
@@ -138,8 +130,6 @@ void handleTimeout(asio::deadline_timer *timer,
 
   /// The handler for all incoming requests.
   RequestHandler request_handler_;
-
-  Wt::WebController *controller_;
 };
 
 } // namespace server

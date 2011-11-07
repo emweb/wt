@@ -6,11 +6,10 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WApplication"
 #include "Wt/WIntValidator"
 #include "Wt/WString"
-#include "Wt/WApplication"
-
-#include "EscapeOStream.h"
+#include "Wt/WStringStream"
 
 #ifndef WT_DEBUG_JS
 #include "js/WIntValidator.min.js"
@@ -143,7 +142,7 @@ std::string WIntValidator::javaScriptValidate() const
 {
   loadJavaScript(WApplication::instance());
 
-  SStream js;
+  WStringStream js;
 
   js << "new " WT_CLASS ".WIntValidator("
      << (isMandatory() ? "true" : "false") << ",";

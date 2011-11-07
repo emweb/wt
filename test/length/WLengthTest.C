@@ -5,8 +5,6 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include "web/WtException.h"
-
 #include <Wt/WLength>
 
 BOOST_AUTO_TEST_CASE( length_test_constructors )
@@ -137,24 +135,12 @@ BOOST_AUTO_TEST_CASE( length_test_constructors )
 
   //try to mess things up
   {
-  std::string exception;
-  try {
     Wt::WLength s("px");
-  } catch (Wt::WtException &e) {
-    exception = e.what();
-  }
-  BOOST_REQUIRE(exception == 
-		"WLength: Missing value in the css length string 'px'.");
+    BOOST_REQUIRE(s.isAuto());
   }
 
   {
-  std::string exception;
-  try {
     Wt::WLength s("100pn");
-  } catch (Wt::WtException &e) {
-    exception = e.what();
-  }
-  BOOST_REQUIRE(exception == 
-		"WLength: Illegal unit 'pn' in the css length string.");
+    BOOST_REQUIRE(s.isAuto());
   }
 }

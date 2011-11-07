@@ -7,7 +7,6 @@
 #ifndef WT_DBO_QUERY_IMPL_H_
 #define WT_DBO_QUERY_IMPL_H_
 
-#include <stdexcept>
 #include <boost/tuple/tuple.hpp>
 
 #include <Wt/Dbo/Exception>
@@ -192,7 +191,7 @@ void QueryBase<Result>::fieldsForSelect(const SelectFieldList& list,
 
   query_result_traits<Result>::getFields(*session_, &aliases, result);
   if (!aliases.empty())
-    throw std::logic_error("Session::query(): too many aliases for result");
+    throw Exception("Session::query(): too many aliases for result");
 }
 
 template <class Result>

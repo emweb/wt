@@ -5,19 +5,18 @@
  */
 
 #include "Wt/WFontMetrics"
-#include "Wt/WSvgImage"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
+#include "Wt/WSvgImage"
+#include "Wt/WStringStream"
 #include "Wt/WWebWidget"
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
 #include "Utils.h"
-#include "EscapeOStream.h"
 
 #include <cmath>
-#include <sstream>
 #include <boost/lexical_cast.hpp>
 
 #ifndef M_PI
@@ -206,37 +205,35 @@ void WSvgImage::makeNewGroup()
   finishPath();
 
   char buf[30];
-  SStream tmp;
 
-  tmp << "</"SVG"g>";
+  shapes_ << "</"SVG"g>";
 
   currentTransform_ = painter()->combinedTransform();
 
   if (newClipPath_) {
-    tmp << "</"SVG"g>";
+    shapes_ << "</"SVG"g>";
     if (painter()->hasClipping()) {
       currentClipId_ = nextClipId_++;
-      tmp << "<"SVG"defs><"SVG"clipPath id=\"clip" << currentClipId_ << "\">";
-      shapes_ << tmp.c_str();
-      tmp.clear();
+      shapes_ << "<"SVG"defs><"SVG"clipPath id=\"clip"
+	      << currentClipId_ << "\">";
 
       drawPlainPath(shapes_, painter()->clipPath());
 
-      tmp << '"';
+      shapes_ << '"';
       busyWithPath_ = false;
 
       const WTransform& t = painter()->clipPathTransform();
       if (!t.isIdentity()) {
-	tmp << " transform=\"matrix("
-	    <<        Utils::round_str(t.m11(), 3, buf);
-	tmp << ' ' << Utils::round_str(t.m12(), 3, buf);
-	tmp << ' ' << Utils::round_str(t.m21(), 3, buf);
-	tmp << ' ' << Utils::round_str(t.m22(), 3, buf);
-	tmp << ' ' << Utils::round_str(t.m31(), 3, buf);
-	tmp << ' ' << Utils::round_str(t.m32(), 3, buf)
-	    << ")\"";
+	shapes_ << " transform=\"matrix("
+		<<        Utils::round_str(t.m11(), 3, buf);
+	shapes_ << ' ' << Utils::round_str(t.m12(), 3, buf);
+	shapes_ << ' ' << Utils::round_str(t.m21(), 3, buf);
+	shapes_ << ' ' << Utils::round_str(t.m22(), 3, buf);
+	shapes_ << ' ' << Utils::round_str(t.m31(), 3, buf);
+	shapes_ << ' ' << Utils::round_str(t.m32(), 3, buf)
+		<< ")\"";
       }
-      tmp << "/></"SVG"clipPath></"SVG"defs>";
+      shapes_ << "/></"SVG"clipPath></"SVG"defs>";
     }
 
     newClipPath_ = false;
@@ -245,21 +242,21 @@ void WSvgImage::makeNewGroup()
       if (!painter()->shadow().none()) {
 	if (painter()->shadow() != currentShadow_) {
 	  currentShadow_ = painter()->shadow();
-	  currentShadowId_ = createShadowFilter(tmp);
+	  currentShadowId_ = createShadowFilter(shapes_);
 	} else
 	  currentShadowId_ = nextShadowId_;
       } else
 	currentShadowId_ = -1;
     }
 
-    tmp << "<"SVG"g";
+    shapes_ << "<"SVG"g";
     if (painter()->hasClipping())
-      tmp << clipPath();
+      shapes_ << clipPath();
 
     if (currentShadowId_ != -1)
-      tmp << " filter=\"url(#f" << currentShadowId_ << ")\"";
+      shapes_ << " filter=\"url(#f" << currentShadowId_ << ")\"";
 
-    tmp << '>';
+    shapes_ << '>';
   }
 
   if (penChanged) {
@@ -277,37 +274,38 @@ void WSvgImage::makeNewGroup()
     fontStyle_ = fontStyle();
   }
 
-  tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
+  shapes_ << "<"SVG"g style=\""
+	  << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
 
   if (!currentTransform_.isIdentity()) {
-    tmp << " transform=\"matrix("
-	<< Utils::round_str(currentTransform_.m11(), 3, buf);
-    tmp << ' ' << Utils::round_str(currentTransform_.m12(), 3, buf);
-    tmp << ' ' << Utils::round_str(currentTransform_.m21(), 3, buf);
-    tmp << ' ' << Utils::round_str(currentTransform_.m22(), 3, buf);
-    tmp << ' ' << Utils::round_str(currentTransform_.m31(), 3, buf);
-    tmp << ' ' << Utils::round_str(currentTransform_.m32(), 3, buf)
-	<< ")\"";
+    shapes_ << " transform=\"matrix("
+	    << Utils::round_str(currentTransform_.m11(), 3, buf);
+    shapes_ << ' ' << Utils::round_str(currentTransform_.m12(), 3, buf);
+    shapes_ << ' ' << Utils::round_str(currentTransform_.m21(), 3, buf);
+    shapes_ << ' ' << Utils::round_str(currentTransform_.m22(), 3, buf);
+    shapes_ << ' ' << Utils::round_str(currentTransform_.m31(), 3, buf);
+    shapes_ << ' ' << Utils::round_str(currentTransform_.m32(), 3, buf)
+	    << ")\"";
   }
 
-  tmp << '>';
+  shapes_ << '>';
   
-  shapes_ << tmp.c_str();
-
   changeFlags_ = 0;
 }
 
-int WSvgImage::createShadowFilter(SStream& out)
+int WSvgImage::createShadowFilter(WStringStream& out)
 {
   char buf[30];
   int result = ++nextShadowId_;
 
-  out << "<filter id=\"f" << result << "\" width=\"150%\" height=\"150%\">"
-    "<feOffset result=\"offOut\" in=\"SourceAlpha\" dx=\""
+  out << "<filter id=\"f" << result
+      << "\" width=\"150%\" height=\"150%\">"
+      << "<feOffset result=\"offOut\" in=\"SourceAlpha\" dx=\""
       << Utils::round_str(currentShadow_.offsetX(), 3, buf) << "\" dy=\"";
   out << Utils::round_str(currentShadow_.offsetY(), 3, buf) << "\" />";
 
-  out << "<feColorMatrix result=\"colorOut\" in=\"offOut\" type=\"matrix\" values=\"";
+  out << "<feColorMatrix result=\"colorOut\" in=\"offOut\" "
+      << "type=\"matrix\" values=\"";
   double r = currentShadow_.color().red() / 255.;
   double g = currentShadow_.color().green() / 255.;
   double b = currentShadow_.color().blue() / 255.;
@@ -321,10 +319,11 @@ int WSvgImage::createShadowFilter(SStream& out)
       << Utils::round_str(std::sqrt(currentShadow_.blur()), 3, buf) << "\" />"
     "<feBlend in=\"SourceGraphic\" in2=\"blurOut\" mode=\"normal\" />"
     "</filter>";
+
   return result;
 }
 
-void WSvgImage::drawPlainPath(std::stringstream& out, const WPainterPath& path)
+void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
 {
   char buf[30];
 
@@ -509,7 +508,8 @@ void WSvgImage::drawText(const WRectF& rect,
   makeNewGroup();
 
   char buf[30];
-  SStream style;
+  WStringStream style;
+
   // SVG uses fill color to fill text, but we want pen color.
   style << "style=\"stroke:none;";
   if (painter()->pen().color() != painter()->brush().color()
@@ -631,12 +631,12 @@ void WSvgImage::drawText(const WRectF& rect,
 WTextItem WSvgImage::measureText(const WString& text, double maxWidth,
 				 bool wordWrap)
 {
-  throw std::logic_error("WSvgImage::measureText() not supported");
+  throw WException("WSvgImage::measureText() not supported");
 }
 
 WFontMetrics WSvgImage::fontMetrics()
 {
-  throw std::logic_error("WSvgImage::fontMetrics() not (yet?) supported");
+  throw WException("WSvgImage::fontMetrics() not supported");
 }
 
 std::string WSvgImage::quote(const std::string& s)
@@ -685,7 +685,8 @@ std::string WSvgImage::clipPath() const
 
 std::string WSvgImage::strokeStyle() const
 {
-  SStream result;
+  WStringStream result;
+
 #ifndef WT_TARGET_JAVA
   char buf[30];
 #else

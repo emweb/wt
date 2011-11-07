@@ -7,8 +7,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
-
-#include "WtException.h"
+#include "Wt/WException"
 
 namespace Wt {
   namespace Ext {
@@ -205,7 +204,7 @@ void MessageBox::createConfig(std::ostream& config)
 
 std::string MessageBox::renderRemoveJs()
 {
-  throw WtException("MessageBox::renderRemoveJs(): really?");
+  throw WException("MessageBox::renderRemoveJs(): really?");
 }
 
 std::string MessageBox::buttonText(int buttonIndex) const
@@ -258,8 +257,8 @@ void MessageBox::onClick(std::string buttonId, std::string value)
   else if (buttonId == "yes")    b = Yes;
   else if (buttonId == "no")     b = No;
   else
-    throw WtException("MessageBox: internal error, unknown buttonId '"
-		      + buttonId + "';");
+    throw WException("MessageBox: internal error, unknown buttonId '"
+		     + buttonId + "';");
 
   bool accepted = b == Ok || b == Yes;
 

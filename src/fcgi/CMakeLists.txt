@@ -12,6 +12,7 @@ IF(CONNECTOR_FCGI)
       FCGIStream.C
       Server.C
       SessionInfo.C
+      WServer.C
     )
 
     INCLUDE_DIRECTORIES(${FCGI_INCLUDE_DIRS})

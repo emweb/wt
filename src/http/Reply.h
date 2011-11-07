@@ -94,7 +94,7 @@ public:
 
   void setConnection(ConnectionPtr connection);
   bool nextBuffers(std::vector<asio::const_buffer>& result);
-  bool closeConnection() const { return closeConnection_; }
+  bool closeConnection() const;
   void setCloseConnection() { closeConnection_ = true; }
 
   void addHeader(const std::string name, const std::string value);
@@ -153,8 +153,7 @@ private:
   asio::const_buffer buf(const std::string s);
 
   void encodeNextContentBuffer(std::vector<asio::const_buffer>& result,
-			       int& originalSize,
-			       int& encodedSize);
+			       int& originalSize, int& encodedSize);
 #ifdef WTHTTP_WITH_ZLIB
   void initGzip();
   bool gzipBusy_;

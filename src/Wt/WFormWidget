@@ -57,7 +57,14 @@ public:
    * If the widget has a label, it is hidden and shown together with
    * this widget.
    */
-  virtual void setHidden(bool hidden, const WAnimation& animation);
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
+
+  /*! \brief Returns the current value.
+   *
+   * This returns the current value as a string.
+   */
+  virtual WT_USTRING valueText() const = 0;
 
   /*! \brief Sets a validator for this field.
    *

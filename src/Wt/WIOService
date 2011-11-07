@@ -1,0 +1,70 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCORE_SERVER_H_
+#define WCORE_SERVER_H_
+
+#include <boost/asio.hpp>
+#include <boost/function.hpp>
+
+namespace boost {
+  class thread;
+}
+
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+
+/**! \class WIOService Wt/WIOService Wt/WIOService
+ *
+ */
+class WT_API WIOService : public boost::asio::io_service
+{
+public:
+  /*! \brief Creates a new IO service.
+   *
+   * \sa setServerConfiguration()
+   */
+  WIOService();
+  virtual ~WIOService();
+
+  void setThreadCount(int number);
+  int threadCount() const;
+
+  /*! \brief Starts the I/O service.
+   *
+   * This will start the internal thread pool to process work for
+   * the I/O service, if not already started.
+   */
+  void start();
+
+  /*! \brief Stops the I/O service.
+   *
+   * This will stop the internal thread pool. The method will block until
+   * all work has been completed.
+   */
+  void stop();
+
+  void post(const boost::function<void ()>& function);
+  void schedule(int milliSeconds, const boost::function<void()>& function);
+
+  virtual void initializeThread();
+
+private:
+  int threadCount_;
+  boost::asio::io_service::work *work_;
+
+  std::vector<boost::thread *> threads_;
+
+  void handleTimeout(boost::asio::deadline_timer *timer,
+		     const boost::function<void ()>& function,
+		     const boost::system::error_code& e);
+  void run();
+};
+
+}
+
+#endif // WCORE_SERVER_H_ 

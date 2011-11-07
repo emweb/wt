@@ -476,6 +476,8 @@ public:
    */
   WLocalizedStrings *localizedStrings();
 
+  WMessageResourceBundle& builtinLocalizedStrings();
+
   /*! \brief Sets the resource object that provides localized strings.
    *
    * The \p translator resolves localized strings within the current
@@ -502,7 +504,7 @@ public:
    *
    * \sa WString::tr(const char *key)
    */
-  WMessageResourceBundle& messageResourceBundle() const;
+  WMessageResourceBundle& messageResourceBundle();
 #endif // WT_TARGET_JAVA
 
   /*! \brief Changes the locale.
@@ -583,7 +585,7 @@ public:
    * URL.
    *
    * For example, for an application deployed at \code
-   * http://www.mydomain.com/stuff/app.wt \endcode this method would
+   * http://www.mydomain.com/stuff/app.wt \endcode this method might
    * return <tt>"/stuff/app.wt?wtd=AbCdEf"</tt>. Additional query
    * parameters can be appended in the form of
    * <tt>"&param1=value&param2=value"</tt>.
@@ -605,8 +607,15 @@ public:
    * If \p url is "", then the absolute base URL is returned. This is
    * the absolute URL at which the application is deployed, up to the
    * last '/'.
+   *
+   * This is not used in the library, except when a public URL is
+   * needed, e.g. for inclusion in an email.
+   *
+   * You may want to reimplement this method when the application is
+   * hosted behind a reverse proxy or when in general the returned URL
+   * is wrong.
    */
-  std::string makeAbsoluteUrl(const std::string& url) const;
+  virtual std::string makeAbsoluteUrl(const std::string& url) const;
 
   /*! \brief "Resolves" a relative URL taking into account internal paths.
    *
@@ -1053,7 +1062,7 @@ public:
    * \if java
    * This works only if your servlet container supports the Servlet 3.0
    * API. If you try to invoke this function on a servlet container with 
-   * no such support, and exception will be thrown.
+   * no such support, an exception will be thrown.
    * \endif
    *
    * \note This works only if JavaScript is available on the client.
@@ -1438,20 +1447,29 @@ public:
    * anything. Specify the maximum age (in seconds) after which the
    * client must discard the cookie. To delete a cookie, use a value of '0'.
    *
-   * By default the cookie only applies to the current path on the
-   * current domain. To set a proper value for domain, see also RFC2109.
+   * By default the cookie only applies to the application deployment
+   * path (WEnvironment::deploymentPath()) in the current domain. To
+   * set a proper value for domain, see also RFC2109.
    *
    * \if cpp
    * \note %Wt provides session tracking automatically, and may be configured
    *       to use a cookie for this. You only need to use cookies yourself
-   *       if you want to remember information <i>across sessions</i>.
+   *       if you want to remember some information (like a logged in identity)
+   *       <i>across sessions</i>.
    * \endif
    *
    * \sa WEnvironment::supportsCookies(), WEnvironment::getCookie()
    */
   void setCookie(const std::string& name, const std::string& value,
 		 int maxAge, const std::string& domain = "",
-		 const std::string& path = "");
+		 const std::string& path = "", bool secure = false);
+
+  void setCookie(const std::string& name, const std::string& value,
+		 const WDateTime& expires, const std::string& domain = "",
+		 const std::string& path = "", bool secure = false);
+
+  void removeCookie(const std::string& name, const std::string& domain = "",
+		    const std::string& path = "");
 
   /*! \brief Adds an HTML meta header.
    *
@@ -1692,10 +1710,51 @@ public:
    */
   void setConfirmCloseMessage(const WString& message);
 
-  void storeObject(const char *key, const boost::any& value);
-  boost::any getObject(const char *key) const;
-
   void enableInternalPaths();
+
+  // should we move this into an InternalPaths utility class / namespace ?
+  static bool pathMatches(const std::string& path, const std::string& query);
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief Defers rendering of the current event response.
+   *
+   * This method defers the rendering of the current event response
+   * until resumeRendering() is called. This may be used if you do not
+   * want to actively block the current thread while waiting for an
+   * event which is needed to complete the current event
+   * response. Note that this effectively freezes the user interface,
+   * and thus you should only do this if you know that the event you
+   * are waiting for will arrive shortly, or there is really nothing more
+   * useful for the user to do than wait for the action to complete.
+   *
+   * A typical use case is in conjunction with the Http::Client, to
+   * defer the rendering while waiting for the Http::Client to
+   * complete.
+   *
+   * The function may be called multiple times and the number of deferral
+   * requests is counted. The current response is deferred until as
+   * many calls to resumeRendering() have been performed.
+   *
+   * \sa resumeRendering()
+   */
+  void deferRendering();
+
+  /*! \brief Resumes rendering of a deferred event response.
+   *
+   * \sa deferRendering()
+   */
+  void resumeRendering();
+#endif
+
+#ifndef WT_CNOR
+  // f is a boost::bind() which binds to a function without parameter.
+  //  -> we create a new boost::signal and return a function that emits
+  //     the signal so that we check for the destination object existence
+  //  we regularly check this list for signals without any connections and
+  //  recycle these
+  template <typename F>
+  boost::function<void()> bind(const F& f);
+#endif // WT_CNOR
 
 protected:
   /*! \brief Notifies an event to the application.
@@ -1957,8 +2016,6 @@ private:
   void constrainExposed(WWidget *w);
   WWidget *exposeConstraint() const { return exposedOnly_; }
 
-  static bool pathMatches(const std::string& path, const std::string& query);
-
 #ifndef WT_TARGET_JAVA
   int startWaitingAtLock();
   void endWaitingAtLock(int id);
@@ -1995,7 +2052,6 @@ private:
   friend class WLineEdit;
   friend class WMenu;
   friend class WResource;
-  friend class WServerPushResource;
   friend class WSound;
   friend class WString;
   friend class WTextArea;
@@ -2007,20 +2063,6 @@ private:
 
   template <class Lock> friend class SyncLock;
 };
-
-#ifdef WIN32
-  #ifdef WTHTTP_STATIC
-    #define WTCONNECTOR_API
-  #else
-    #ifdef wthttp_EXPORTS
-      #define WTCONNECTOR_API __declspec(dllexport)
-    #else
-      #define WTCONNECTOR_API __declspec(dllimport)
-    #endif
-  #endif
-#else
-  #define WTCONNECTOR_API
-#endif
 
 #ifndef WT_TARGET_JAVA
 #ifdef DOXYGEN_ONLY

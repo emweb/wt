@@ -15,7 +15,7 @@ namespace Wt {
    */
   namespace Render {
 
-/*! \defgroup render XHTML Rendering
+/*! \defgroup render XHTML Rendering (Wt::Render)
  *  \brief An XHTML rendering library implemented using the %Wt \ref painting
  *
  * The rendering library contains a (limited) XHTML layout engine.

@@ -44,9 +44,9 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   bytesToRead_ = ecb->cbTotalBytes;
 
   bool spooltofile = false;
-  if (server_->configuration()) {
+  if (server_->hasConfiguration()) {
     spooltofile =
-      bytesToRead_ >(unsigned)server_->configuration()->isapiMaxMemoryRequestSize();
+      bytesToRead_ >(unsigned)server_->configuration().isapiMaxMemoryRequestSize();
   } else {
     spooltofile = bytesToRead_ > 128*1024;
   }
@@ -100,7 +100,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
         }
       } else {
         int err = GetLastError();
-        if (server_->configuration())
+        if (server_->hasConfiguration())
           server_->log("error")
           << "ISAPI Synchronous Read failed with error " << err;
         good_ = false; // TODO: retry on timeout?
@@ -159,7 +159,7 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
           HSE_REQ_ASYNC_READ_CLIENT, (LPVOID)buffer_, &bufferSize_,
           (LPDWORD)&dwFlags)) {
       int err = GetLastError();
-      if (server_->configuration())
+      if (server_->hasConfiguration())
         server_->log("error")
           << "ISAPI Asynchronous Read scheduling failed with error " << err;
       good_ = false;
@@ -172,9 +172,8 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
   } else {
     // Nothing more to read, or error
     if (dwError) {
-      if (server_->configuration())
-        server_->log("error")
-          << "ISAPI Asynchronous Read failed with error " << dwError;
+      server_->log("error")
+        << "ISAPI Asynchronous Read failed with error " << dwError;
       good_ = false;
     }
     in_->seekg(0);
@@ -405,12 +404,12 @@ void IsapiRequest::setContentLength(boost::intmax_t length)
 
 void IsapiRequest::setContentType(const std::string& value)
 {
-  addHeader("Content-Type: ", value);
+  addHeader("Content-Type", value);
 }
 
 void IsapiRequest::addHeader(const std::string& name, const std::string& value)
 {
-  header_ << name << ": " << value << "\r\n";
+  header_ << name << " : " << value << "\r\n";
 }
 
 void IsapiRequest::setRedirect(const std::string& url)

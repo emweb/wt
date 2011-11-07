@@ -9,6 +9,8 @@
 
 #include <Wt/WTextArea>
 
+#include <boost/any.hpp>
+
 namespace Wt {
 
 /*! \class WTextEdit Wt/WTextEdit Wt/WTextEdit

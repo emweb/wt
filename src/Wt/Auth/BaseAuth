@@ -1,0 +1,495 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_AUTH_BASE_AUTH_H_
+#define WT_AUTH_BASE_AUTH_H_
+
+#include <Wt/WString>
+
+#include <Wt/Auth/User>
+
+namespace Wt {
+  namespace Mail {
+    class Message;
+  }
+
+  /*! \brief Namespace for the \ref auth
+   */
+  namespace Auth {
+
+class HashFunction;
+class User;
+class AbstractUserDatabase;
+
+/*! \class EmailTokenResult Wt/Auth/BaseAuth Wt/Auth/BaseAuth
+ *  \brief The result of processing an email-sent token.
+ *
+ * An email token can be used for two purposes:
+ *
+ * - the user needs to verify his email address by returning a token sent
+ *   to his supplied email address.
+ * - the user indicates that he lost his email and wants to prove his identity
+ *   by acknowledging an email to a previously verified email account.
+ *
+ * \sa BaseAuth::processEmailToken()
+ * \sa BaseAuth::verifyEmailAddress(), BaseAuth::lostPassword()
+ *
+ * \ingroup auth
+ */
+class WT_API EmailTokenResult
+{
+public:
+  /*! \brief Enumeration that describes the result.
+   */
+  enum Result {
+    Invalid,        //!< The token was invalid
+    Expired,        //!< The token has expired
+
+    /*! \brief A token was presented which requires the user to enter a new
+     *         password.
+     *
+     * The presented token was a token sent by the
+     * BaseAuth::lostPassword() function.  When this is returned as
+     * result of BaseAuth::processEmailToken(), you should present the
+     * user with a dialog where he can enter a new password.
+     */
+    UpdatePassword,
+
+    /*! \brief A The token was presented which verifies the email address.
+     *
+     * The presented token was a token sent by the
+     * BaseAuth::verifyEmailAddress() function. When this is returned
+     * as result of processEmailToken(), you can indicate to the user
+     * that his email address is now confirmed.
+     */
+    EmailConfirmed
+  };
+
+  /*! \brief Constructor
+   *
+   * Creates an email token result.
+   */
+  EmailTokenResult(Result result, const User& user = User());
+
+  /*! \brief Returns the result.
+   */
+  Result result() const { return result_; }
+
+  /*! \brief Returns the user, if any.
+   *
+   * The identified user is only valid when the token result is
+   * UpdatePassword or EmailConfirmed. In that case, you may login the
+   * user as strongly authenticated since he presented a random token
+   * that was sent to his own email address.
+   */
+  const User& user() const;
+
+private:
+  Result result_;
+  User user_;
+};
+
+/*! \class AuthTokenResult Wt/Auth/BaseAuth Wt/Auth/BaseAuth
+ *  \brief The result of processing an authentication token.
+ *
+ * An authentication token is usually taken from a browser cookie, and
+ * used to identify (and possibly authenticate) a user across
+ * sessions.
+ *
+ * \sa BaseAuth::processAuthToken()
+ * \sa BaseAuth::createAuthToken()
+ *
+ * \ingroup auth
+ */
+class WT_API AuthTokenResult
+{
+public:
+  /*! \brief Enumeration that describes the result.
+   */
+  enum Result { 
+    Invalid, //!< The presented auth token could be used to identify a user.
+    Valid    //!< The presented auth token was invalid
+  };
+
+  /*! \brief Constructor
+   *
+   * Creates an authentication token result.
+   */
+  AuthTokenResult(Result result, const User& user = User(),
+		  const std::string& newToken = std::string());
+
+  /*! \brief Returns the result.
+   */
+  Result result() const { return result_; }
+
+  /*! \brief Returns the identified user.
+   *
+   * The user is valid only if the the result() == Valid.
+   */
+  const User& user() const;
+
+  /*! \brief Returns a new token for this user.
+   *
+   * An authentication token can be used only once, and needs to be
+   * replaced by a new token.
+   *
+   * The returned token is valid only if the result() == Valid.
+   */
+  std::string newToken() const;
+
+private:
+  Result result_;
+  User user_;
+  std::string newToken_;
+};
+
+/*! \class BaseAuth Wt/Auth/BaseAuth Wt/Auth/BaseAuth
+ *  \brief Basic authentication service
+ *
+ * This class presents an basic authentication service, which offers
+ * authentication functionality that is not specific to an
+ * authentication mechanism (such as password authentication or %OAuth
+ * authentication).
+ *
+ * Like all <b>service classes</b>, this class holds only
+ * configuration state. Thus, once configured, it can be safely shared
+ * between multiple sessions since its state (the configuration) is
+ * read-only. A "const BaseAuth" object is thus thread-safe.
+ *
+ * The class provides the following services (and relevant configuration):
+ *
+ *  - settings for generating random tokens:
+ *    - setRandomTokenLength()
+ *  - identity (e.g. "user name") validation
+ *    - setMinimumIdentityLength()
+ *    - validateIdentity()
+ *  - authentication tokens, used by e.g. remember-me functionality:
+ *    - setAuthTokensEnabled()
+ *    - processAuthToken()
+ *  - email tokens, for email verification and lost password functions:
+ *    - setEmailVerificationEnabled()
+ *    - lostPassword()
+ *    - verifyEmailAddress()
+ *    - processEmailToken()
+ *
+ * \ingroup auth
+ */
+class WT_API BaseAuth
+{
+public:
+  /*! \brief Constructor
+   */
+  BaseAuth();
+
+  /*! \brief Destructor
+   */
+  virtual ~BaseAuth();
+
+  /*! \brief Sets the token length.
+   *
+   * Configures the length used for random tokens. Random tokens are
+   * generated for authentication tokens, and email tokens.
+   *
+   * The default length is 32 characters.
+   *
+   * \sa WRandom::generateId()
+   */
+  void setRandomTokenLength(int length);
+
+  /*! \brief Returns the token length.
+   *
+   * \sa setRandomTokenLength()
+   */
+  int randomTokenLength() const { return tokenLength_; }
+
+  /*! \brief Sets the minimum identity length.
+   *
+   * \sa validateIdentity()
+   */
+  void setMinimumIdentityLength(int length);
+
+  /*! \brief Returns the minimum identity length.
+   *
+   * \sa setMinimumIdentityLength()
+   */
+  int minimumIdentityLength() const { return minimumIdentityLength_; }
+
+  /*! \brief Validates the identity.
+   *
+   * When a user is allowed to chose his own identity (typically presented
+   * as a "login" or "username"), this method will verify that the identity
+   * is valid.
+   *
+   * The result is an error message. When empty, the \p identity is
+   * valid, otherwise the error message should be helpful enough for
+   * the user to understand what's wrong with his cool login name.
+   *
+   * The default implementation checks that the \p identity has a
+   * minimum length (UTF-8 wise).
+   *
+   * Btw, you could also use email addresses to identify a user, or when
+   * using OAuth, an identity is even less relevant.
+   *
+   * \sa setMinimumIdentityLength()
+   */
+  virtual WString validateIdentity(const WT_USTRING& identity) const;
+
+  /** @name Authentication token support
+   */
+  //@{
+  /*! \brief Configures authentication token support.
+   *
+   * This method allows you to configure whether authentication tokens
+   * are in use. Authentication tokens are used for the user to bypass
+   * a more elaborate authentication method, and are a secret shared with
+   * the user's user agent, usually in a cookie. They are typically presented
+   * in the user interfaces as a "remember me" option.
+   *
+   * Whenever a valid authentication token is presented in
+   * processToken(), it is invalidated a new token is generated and
+   * stored for the user.
+   *
+   * The tokens are generated and subsequently hashed using the token
+   * hash function. Only the hash values are stored in the user
+   * database so that a compromised user database does not compromise
+   * these tokens.
+   *
+   * Authentication tokens are disabled by default.
+   *
+   * \sa setTokenHashFunction(), setAuthTokenValidity()
+   */
+  void setAuthTokensEnabled(bool enabled,
+			    const std::string& cookieName = "wtauth");
+
+  /*! \brief Returns whether authentication tokens are enabled.
+   *
+   * \sa setAuthTokensEnabled()
+   */
+  bool authTokensEnabled() const { return authTokens_; }
+
+  /*! \brief Returns the authentication token cookie name.
+   *
+   * This is the default cookie name used for storing the authentication
+   * token in the user's browser.
+   *
+   * \sa setAuthTokensEnabled()
+   */
+  std::string authTokenCookieName() const { return authTokenCookieName_; }
+
+  /*! \brief Sets the token hash function.
+   *
+   * Sets the hash function used to safely store authentication tokens
+   * in the database. Ownership of the hash function is transferred.
+   *
+   * There is no default token hash function.
+   */
+  void setTokenHashFunction(const HashFunction *function);
+
+  /*! \brief Returns the token hash function.
+   *
+   * \sa setTokenHashFunction()
+   */
+  const HashFunction *tokenHashFunction() const;
+
+  /*! \brief Creates and stores an authentication token for the user.
+   *
+   * This creates and stores a new authentication token for the given
+   * user.
+   *
+   * The returned value is the token that may be used to re-identify
+   * the user in processAuthToken().
+   */
+  std::string createAuthToken(const User& user) const;
+
+  /*! \brief Processes an authentication token.
+   *
+   * This verifies an authentication token, and considers whether it matches
+   * with a token hash value stored in database. If it matches, the token
+   * is removed and a new token is created for the identified user.
+   */
+  virtual AuthTokenResult processAuthToken(const std::string& token,
+					   AbstractUserDatabase& users) const;
+
+  /*! \brief Configures the duration for an authenticaton to remain valid.
+   *
+   * The default duration is two weeks (14 * 24 * 60 minutes).
+   */
+  void setAuthTokenValidity(int minutes);
+
+  /*! \brief Returns the authentication token validity.
+   *
+   * \sa setAuthTokenValidity()
+   */
+  int authTokenValidity() const { return authTokenValidity_; }
+  //@}
+
+  /** @name Email verification
+   */
+  //@{
+
+  /*! \brief Configures email verification.
+   *
+   * Email verification is useful for a user to recover a lost
+   * password, or to be able to confidently confirm other events with
+   * this user (such as order processing).
+   */
+  void setEmailVerificationEnabled(bool enabled);
+
+  /*! \brief Returns wheter email verification is configured.
+   *
+   * \sa setEmailVerificationEnabled()
+   */
+  bool emailVerificationEnabled() const { return emailVerification_; }
+
+  /*! \brief Sets the internal path used to present tokens in emails.
+   *
+   * The default path is FIXME.
+   */
+  void setEmailRedirectInternalPath(const std::string& internalPath);
+
+  /*! \brief Returns the internal path used for email tokens.
+   *
+   * \sa setEmailRedirectInternalPath()
+   */
+  std::string emailRedirectInternalPath() const;
+
+  /*! \brief Parses the emailtoken from an internal path.
+   *
+   * This method parses an internal path and if it matches the email
+   * redirection path, it returns the token contained.
+   *
+   * It returns an empty string if the internal path does not contain
+   * an email token.
+   */
+  virtual std::string parseEmailToken(const std::string& internalPath) const;
+
+  /*! \brief Verifies an email address.
+   *
+   * This registers a new email token with the user.
+   *
+   * Then it sends an email to the user's unverified email address
+   * with instructions that redirect him to this site, using
+   * sendConfirmEmail().
+   *
+   * \sa processEmailToken()
+   */
+  virtual void verifyEmailAddress(const User& user,
+				  const std::string& emailAddress) const;
+
+
+  /*! \brief Implements lost password functionality.
+   *
+   * If email address verification is enabled, then a user may recover
+   * his password (or rather, chose a new password) using a procedure
+   * which involves sending an email to a verified email address.
+   *
+   * This method triggers this process, starting from an email
+   * address, if this email address corresponds to a verified email
+   * address in the database. The current password is not invalidated.
+   *
+   * \sa processEmailToken()
+   */
+  virtual void lostPassword(const std::string& emailAddress,
+			    AbstractUserDatabase& users) const;
+
+  /*! \brief Processes an email token.
+   *
+   * This processes a token received through an email. If successful, the
+   * token is removed from the database.
+   *
+   * This may return two successful results:
+   * - EmailTokenResult::EmailConfirmed: a token was presented which proves
+   *   that the user is tied to the email address.
+   * - EmailTokenResult::UpdatePassword: a token was presented which requires
+   *   the user to enter a new password.
+   *
+   * \sa verifyEmailAddress()
+   * \sa lostPassword()
+   */
+  virtual EmailTokenResult processEmailToken(const std::string& token,
+					     AbstractUserDatabase& users) const;
+
+  /*! \brief Configures the duration for an email token to remain valid.
+   *
+   * The default duration is three days (3 * 24 * 60 minutes). Three is a divine
+   * number.
+   */
+  void setEmailTokenValidity(int minutes);
+
+  /*! \brief Returns the duration for an email token to remain valid.
+   *
+   * \sa setEmailTokenValidity()
+   */
+  int emailTokenValidity() const { return emailTokenValidity_; }
+
+  /*! \brief Sends an email
+   *
+   * Sends an email to the given address with subject and body.
+   *
+   * The default implementation will consult configuration properties
+   * to add a sender address if it hasn't already been set.
+   *
+   * Then it uses Mail::Client to send the message, using default the
+   * default client settings.
+   */
+  virtual void sendMail(const Mail::Message& message) const;
+  //@}
+
+protected:
+  /*! \brief Sends a confirmation email to the user to verify his email address.
+   *
+   * Sends a confirmation email to the given address.
+   * 
+   * The email content is provided by the following string keys:
+   *  - subject: tr("Wt.auth.verification-mail.subject")
+   *  - body: tr("Wt.auth.verification-mail.body") with {1} a place holder for
+   *    the identity, and {2} a placeholder for the internal path that contains
+   *    the token.
+   *  - HTML body: tr("Wt.auth.verification-mail.htmlbody") with the same place
+   *    holders.
+   */
+  virtual void sendConfirmMail(const std::string& address,
+			       const User& user,
+			       const std::string& token) const;
+
+  /*! \brief Sends an email to the user to enter a new password.
+   *
+   * This sends a lost password email to the given \p address, with
+   * a given \p token.
+   *
+   * The default implementation will call sendMail() with the following
+   * message:
+   *  - tr("Wt.Auth.lost-password-mail.subject") as subject,
+   *  - tr("Wt.Auth.lost-password-mail.body") as body to which it passes
+   *    user.identity() and token as arguments.
+   *  - tr("Wt.Auth.lost-password-mail.htmlbody") as HTML body to which
+   *    it passes user.identity() and token as arguments.
+   */
+  virtual void sendLostPasswordMail(const std::string& address,
+				    const User& user,
+				    const std::string& token) const;
+
+private:
+  BaseAuth(const BaseAuth&);
+
+  int minimumIdentityLength_;
+
+  const HashFunction *tokenHashFunction_;
+  int tokenLength_;
+
+  bool emailVerification_;
+  int emailTokenValidity_; // minutes
+  std::string redirectInternalPath_;
+
+  bool authTokens_;
+  int authTokenValidity_;  // minutes
+  std::string authTokenCookieName_;
+};
+
+  }
+}
+
+#endif // WT_AUTH_BASE_AUTH

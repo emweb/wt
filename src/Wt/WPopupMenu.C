@@ -8,13 +8,13 @@
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WException"
 #include "Wt/WPoint"
 #include "Wt/WPopupMenu"
 #include "Wt/WPopupMenuItem"
 #include "Wt/WTemplate"
 
 #include "WebSession.h"
-#include "WtException.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WPopupMenu.min.js"
@@ -240,7 +240,7 @@ void WPopupMenu::prepareRender(WApplication *app)
 WPopupMenuItem *WPopupMenu::exec(const WPoint& p)
 {
   if (recursiveEventLoop_)
-    throw WtException("WPopupMenu::exec(): already in recursive event loop.");
+    throw WException("WPopupMenu::exec(): already being executed.");
 
   WApplication *app = WApplication::instance();
   recursiveEventLoop_ = true;
@@ -250,7 +250,7 @@ WPopupMenuItem *WPopupMenu::exec(const WPoint& p)
   if (app->environment().isTest()) {
     app->environment().popupExecuted().emit(this);
     if (recursiveEventLoop_)
-      throw WtException("Test case must close popup menu.");
+      throw WException("Test case must close popup menu.");
   } else {
     do {
       app->session()->doRecursiveEventLoop();
@@ -268,7 +268,7 @@ WPopupMenuItem *WPopupMenu::exec(const WMouseEvent& e)
 WPopupMenuItem *WPopupMenu::exec(WWidget *location, Orientation orientation)
 {
   if (recursiveEventLoop_)
-    throw WtException("WPopupMenu::exec(): already in recursive event loop.");
+    throw WException("WPopupMenu::exec(): already being executed.");
 
   WebSession *session = WApplication::instance()->session();
   recursiveEventLoop_ = true;

@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WBrush"
+#include "Wt/WException"
 #include "Wt/WFontMetrics"
 #include "Wt/WPainter"
 #include "Wt/WPen"
@@ -13,7 +14,6 @@
 #include "Wt/Http/Response"
 
 #include "Wt/FontSupport.h"
-#include "web/WtException.h"
 #include "web/Utils.h"
 
 #include <cstdio>
@@ -168,7 +168,7 @@ WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 void WRasterImage::init()
 {
   if (!w_ || !h_)
-    throw WtException("Raster image should have non-0 width and height");
+    throw WException("Raster image should have non-0 width and height");
 
   fontSupport_ = new FontSupport(this);
 
@@ -577,8 +577,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 
     if (!validMimeType || !boost::ends_with(mimeTypeEncoding, "base64") 
 	|| data.size() == 0)
-      throw std::logic_error(std::string("The data URI is not in the expected "
-					 "format: ") + imgUri);
+      throw WException("Ill formed data URI: " + imgUri);
     else {
       std::string content = imgUri.substr(commaPos);
       cImage = ReadInlineImage(&info, content.c_str(), &exception);
@@ -646,7 +645,8 @@ void WRasterImage::drawPath(const WPainterPath& path)
 void WRasterImage::setPixel(int x, int y, const WColor& c)
 {
   if (painter_)
-    throw WtException("renderPixel: cannot be used while a painter is active");
+    throw WException("WRasterImage::setPixel(): cannot be used while a "
+		     "painter is active");
 
   PixelPacket *pixel = SetImagePixels(image_, x, y, 1, 1);
   WColorToPixelPacket(c, pixel);
@@ -753,8 +753,7 @@ void WRasterImage::drawText(const WRectF& rect,
 			    const WString& text)
 {
   if (textFlag == TextWordWrap)
-    throw std::logic_error("WRasterImage::drawText() " 
-			   "TextWordWrap is not supported");
+    throw WException("WRasterImage::drawText() TextWordWrap is not supported");
 
   if (renderText_) {
     internalInit();
@@ -930,7 +929,7 @@ WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
 				    bool wordWrap)
 {
   if (renderText_)
-    throw std::logic_error("WRasterImage::measureText() not supported");
+    throw WException("WRasterImage::measureText() not supported");
   else
     return fontSupport_->measureText(painter_->font(), text, maxWidth,
 				     wordWrap);
@@ -939,7 +938,7 @@ WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
 WFontMetrics WRasterImage::fontMetrics()
 {
   if (renderText_)
-    throw std::logic_error("WRasterImage::fontMetrics() not supported");
+    throw WException("WRasterImage::fontMetrics() not supported");
   else
     return fontSupport_->fontMetrics(painter_->font());
 }

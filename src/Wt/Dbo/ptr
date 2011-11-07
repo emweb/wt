@@ -462,7 +462,7 @@ public:
 template <class C>
 std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr);
 
-/*! \defgroup dbo Database Objects (Dbo)
+/*! \defgroup dbo Database Objects (Wt::Dbo)
  *  \brief An implemenation of an Object Relational Mapping layer.
  *
  * For an introduction, see the <a

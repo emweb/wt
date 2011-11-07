@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
 #include "Wt/WFont"
 #include "Wt/WFontMetrics"
 #include "Wt/WPointF"

@@ -1007,8 +1007,8 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
   }    
 
-  WWidget *i = headerItemDelegate_->update(0, headerModel_->index(0, column),
-					   0);
+  WModelIndex index = headerModel_->index(0, column);
+  WWidget *i = headerItemDelegate_->update(0, index, 0);
   i->setInline(false);
   i->addStyleClass("Wt-label");
   contents->addWidget(i);
@@ -1089,6 +1089,10 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
 
   if (extraW)
     main->addWidget(extraW);
+
+  WT_USTRING sc = asString(index.data(StyleClassRole));
+  if (!sc.empty())
+    result->addStyleClass(sc);
 
   return result;
 }

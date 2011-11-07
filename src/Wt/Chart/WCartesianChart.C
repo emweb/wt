@@ -13,27 +13,9 @@
 
 #include "Wt/WAbstractArea"
 #include "Wt/WAbstractItemModel"
+#include "Wt/WException"
 #include "Wt/WPainter"
 #include "Wt/WText"
-
-#include "WtException.h"
-
-namespace {
-  
-class PlotException : public std::exception
-{
-public:
-  PlotException(const std::string what)
-    : what_(what) { }
-  ~PlotException() throw() { }
-
-  const char *what() const throw() { return what_.c_str(); }
-  
-private:
-  std::string what_;
-};
-
-}
 
 namespace Wt {
   namespace Chart {
@@ -153,8 +135,8 @@ WDataSeries& WCartesianChart::series(int modelColumn)
   if (index != -1)
     return series_[index];
 
-  throw PlotException("Column " + boost::lexical_cast<std::string>(modelColumn)
-		      + " not in plot");
+  throw WException("Column " + boost::lexical_cast<std::string>(modelColumn)
+		   + " not in plot");
 }
 
 const WDataSeries& WCartesianChart::series(int modelColumn) const
@@ -164,8 +146,8 @@ const WDataSeries& WCartesianChart::series(int modelColumn) const
   if (index != -1)
     return series_[index];
 
-  throw PlotException("Column " + boost::lexical_cast<std::string>(modelColumn)
-		      + " not in plot");
+  throw WException("Column " + boost::lexical_cast<std::string>(modelColumn)
+		   + " not in plot");
 }
 
 void WCartesianChart::setSeries(const std::vector<WDataSeries>& series)
@@ -238,7 +220,7 @@ void WCartesianChart::setLegendStyle(const WFont& font,
 void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 {
   if (!painter.isActive())
-    throw WtException("WCartesianChart::paint(): painter is not active.");
+    throw WException("WCartesianChart::paint(): painter is not active.");
 
   WRectF rect = rectangle;
 

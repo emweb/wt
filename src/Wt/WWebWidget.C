@@ -10,15 +10,16 @@
 #include "Wt/WApplication"
 #include "Wt/WCompositeWidget"
 #include "Wt/WContainerWidget"
+#include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WJavaScript"
 #include "Wt/WWebWidget"
 
 #include "DomElement.h"
+#include "EscapeOStream.h"
 #include "WebRenderer.h"
 #include "WebSession.h"
 #include "WebSession.h"
-#include "WtException.h"
 #include "Utils.h"
 #include "XSSFilter.h"
 
@@ -526,10 +527,10 @@ WFlags<Side> WWebWidget::clearSides() const
 void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 				      const WLength& length)
 {
-  if (AlignHorizontalMask & alignment) {
-    wApp->log("warning") << "WWebWidget::setVerticalAlignment(): alignment "
-      "(" << alignment << ") is horizontal, expected vertical";
-  }
+  if (AlignHorizontalMask & alignment)
+    Wt::log("error") << "WWebWidget::setVerticalAlignment(): alignment "
+		     << alignment << " is not vertical";
+
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
 
@@ -585,7 +586,8 @@ WLength WWebWidget::offset(Side s) const
   case Left:
     return layoutImpl_->offsets_[3];
   default:
-    throw WtException("WWebWidget::offset(Side) with invalid side.");
+    Wt::log("error") << "WWebWidget::offset(Side) with invalid side: " << (int)s;
+    return WLength();
   }
 }
 
@@ -712,7 +714,9 @@ WLength WWebWidget::margin(Side side) const
   case Left:
     return layoutImpl_->margin_[3];
   default:
-    throw WtException("WWebWidget::margin(Side) with invalid side");
+    Wt::log("error") << "WWebWidget::margin(Side) with invalid side: "
+		     << (int)side;
+    return WLength();
   }
 }
 
@@ -1049,7 +1053,7 @@ void WWebWidget::addChild(WWidget *child)
 
   if (child->parent() != 0) {
     child->setParentWidget(0);
-    wApp->log("warn") << "WWebWidget::addChild(): reparenting child";
+    Wt::log("warn") << "WWebWidget::addChild(): reparenting child";
   }
 
   if (!children_)
@@ -1502,7 +1506,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  OtherImpl::Member member = (*otherImpl_->jsMembers_)[i];
 
 	  if (member.name == WT_RESIZE_JS && otherImpl_->resized_) {
-	    SStream combined;
+	    WStringStream combined;
 	    combined << member.name << "=function(s,w,h) {"
 		     << "if (!s.wtWidth||s.wtWidth!=w"
 		     << ""   "||!s.wtHeight||s.wtHeight!=h) {"
@@ -1528,7 +1532,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  std::string value = javaScriptMember(m);
 
 	  if (m == WT_RESIZE_JS && otherImpl_->resized_) {
-	    SStream combined;
+	    WStringStream combined;
 	    combined << m << "=function(s,w,h) {"
 		     << "if (!s.wtWidth||s.wtWidth!=w"
 		     << ""   "||!s.wtHeight||s.wtHeight!=h) {"
@@ -1628,7 +1632,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	/*
 	 * Not using visibility: delay changing the display property
 	 */
-	SStream ss;
+	WStringStream ss;
 	ss << WT_CLASS << ".animateDisplay('" << id()
 	   << "'," << transientImpl_->animation_.effects().value()
 	   << "," << transientImpl_->animation_.timingFunction()
@@ -1645,7 +1649,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	/*
 	 * Using visibility: remember how to show/hide the widget
 	 */
-	SStream ss;
+	WStringStream ss;
 	ss << WT_CLASS << ".animateVisible('" << id()
 	   << "'," << transientImpl_->animation_.effects().value()
 	   << "," << transientImpl_->animation_.timingFunction()
@@ -2053,7 +2057,7 @@ void WWebWidget::doJavaScript(const std::string& javascript)
   if (!otherImpl_)
     otherImpl_ = new OtherImpl(this);
   if (!otherImpl_->delayedDoJavaScript_)
-    otherImpl_->delayedDoJavaScript_ = new SStream;
+    otherImpl_->delayedDoJavaScript_ = new WStringStream;
   (*otherImpl_->delayedDoJavaScript_) << javascript;
 
   repaint(RepaintAll);

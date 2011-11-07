@@ -22,6 +22,8 @@
 #include "Wt/WServer"
 #include "Wt/WLogger"
 
+#include <fstream>
+
 using std::exit;
 using std::strcpy;
 using std::strlen;
@@ -49,15 +51,14 @@ IsapiServer *IsapiServer::instance_;
 
 IsapiServer::IsapiServer():
   server_(0),
-  terminated_(false),
-  configuration_(0)
+  terminated_(false)
 {
   serverThread_ = boost::thread(boost::bind(&IsapiServer::serverEntry, this));
 }
 
 IsapiServer::~IsapiServer()
 {
-  delete configuration_;
+  //delete configuration_;
 }
 
 namespace {
@@ -81,15 +82,15 @@ void IsapiServer::serverEntry() {
   try {
     main(1, &pDllPath);
     terminationMsg = mainReturnedReply;
-    if (configuration())
+    if (hasConfiguration())
       log("fatal") << "ISAPI: main() returned";
   } catch (std::exception &e) {
     terminationMsg = uncaughtExceptionReply;
-    if (configuration())
+    if (hasConfiguration())
       log("fatal") << "ISAPI: uncaught main() exception: " << e.what();
   } catch(...) {
     terminationMsg = uncaughtExceptionReply;
-    if (configuration())
+    if (hasConfiguration())
       log("fatal") << "ISAPI: unknown uncaught main() exception";
   }
   setTerminated();
@@ -147,14 +148,14 @@ void IsapiServer::setTerminated()
 
 void IsapiServer::shutdown()
 {
-  if (configuration())
+  if (hasConfiguration())
     log("notice") << "ISAPI: shutdown requested...";
   {
     boost::mutex::scoped_lock l(queueMutex_);
     server_->stop();
   }
   serverThread_.join();
-  if (configuration())
+  if (hasConfiguration())
     log("notice") << "ISAPI: shutdown completed...";
 }
 
@@ -178,7 +179,7 @@ void IsapiServer::removeServer(WServer *server)
 {
   boost::mutex::scoped_lock l(queueMutex_);
   if (server_ != server) {
-    if (configuration()) {
+    if (hasConfiguration()) {
       log("error") << "ISAPI internal error: removeServer() inconsistent";
     }
   }
@@ -187,223 +188,14 @@ void IsapiServer::removeServer(WServer *server)
 
 WLogEntry IsapiServer::log(const std::string& type)
 {
-  return configuration()->log(type);
+  return server_->log(type);
 }
 
-}
-
-static WebMain *webMain = 0;
-
-struct WServerImpl {
-  WServerImpl()
-    : running_(false)
-  { }
-
-  Configuration *configuration() {
-    return isapi::IsapiServer::instance()->configuration();
-  }
-  bool running_;
-};
-
-WServer::WServer(const std::string& applicationPath,
-		 const std::string& configurationFile)
-  : impl_(new WServerImpl())
+Configuration &IsapiServer::configuration() const
 {
-  if (!isapi::IsapiServer::instance()->addServer(this))
-    throw Exception("WServer::WServer(): "
-		    "Only one simultaneous WServer supported");
-
-  instance_ = this;
-
-  std::stringstream approotLog;
-  std::string approot;
-  {
-    std::string inifile = applicationPath + ".ini";
-    char buffer[1024];
-    GetPrivateProfileString("isapi", "approot", "",
-      buffer, sizeof(buffer), inifile.c_str());
-    approot = buffer;
-    if (approot != "") {
-      approotLog << "ISAPI: read approot (" << approot
-        << ") from ini file " << inifile;
-    }
-  }
-
-  isapi::IsapiServer::instance()->setConfiguration(
-    new Configuration(applicationPath, approot, configurationFile,
-      Configuration::IsapiServer, "Wt: initializing session process"));
-
-  if (approotLog.str() != "") {
-    impl_->configuration()->log("notice") << approotLog.str();
-  }
+  return server_->configuration();
 }
 
-WServer::~WServer()
-{
-  isapi::IsapiServer::instance()->removeServer(this);
-  delete impl_;
-}
-
-void WServer::setServerConfiguration(int argc, char *argv[],
-				     const std::string& serverConfigurationFile)
-{
-
-}
-
-void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
-			    const std::string& path, const std::string& favicon)
-{
-  if (!impl_->configuration())
-    throw Exception("WServer::addEntryPoint(): "
-		    "call setServerConfiguration() first");
-
-  impl_->configuration()
-    ->addEntryPoint(EntryPoint(type, callback, path, favicon));
-}
-
-bool WServer::start()
-{
-  if (!impl_->configuration())
-    throw Exception("WServer::start(): call setServerConfiguration() first");
-
-  if (isRunning()) {
-    impl_->configuration()->log("error")
-      << "WServer::start() error: server already started!";
-    return false;
-  }
-
-  impl_->running_ = true;
-
-  try {
-    isapi::IsapiStream isapiStream(isapi::IsapiServer::instance());
-    WebMain requestServer(*impl_->configuration(), this, &isapiStream);
-    webMain = &requestServer;
-
-    requestServer.run();
-
-    webMain = 0;
-
-  } catch (std::exception& e) {
-    impl_->configuration()->log("fatal")
-      << "ISAPI server: caught unhandled exception: " << e.what();
-
-    throw;
-  } catch (...) {
-    impl_->configuration()->log("fatal")
-      << "ISAPI server: caught unknown, unhandled exception.";
-    throw;
-  }
-  return true;
-}
-
-bool WServer::isRunning() const
-{
-  return impl_ && impl_->running_;
-}
-
-int WServer::httpPort() const
-{
-  return -1;
-}
-
-void WServer::stop()
-{
-  if (!isRunning()) {
-    std::cerr << "WServer::stop() error: server not yet started!" << std::endl;
-    return;
-  }
-  webMain->shutdown();
-}
-
-int WServer::waitForShutdown(const char *restartWatchFile)
-{
-  for (;;)
-    Sleep(10000 * 1000);
-
-  return 0;
-}
-
-void WServer::addResource(WResource *resource, const std::string& path)
-{
-  if (!boost::starts_with(path, "/")) 
-    throw WServer::Exception("WServer::addResource() error: "
-			     "static resource path should start with \'/\'");
-
-  resource->setInternalPath(path);
-  impl_->configuration()->addEntryPoint(EntryPoint(resource, path));
-}
-
-void WServer::handleRequest(WebRequest *request)
-{
-  webMain->controller().handleRequest(request);
-}
-
-void WServer::schedule(int milliSeconds,
-		       const boost::function<void ()>& function)
-{
-  webMain->schedule(milliSeconds, function);
-}
-
-void WServer::post(const std::string& sessionId,
-		   const boost::function<void ()>& function,
-		   const boost::function<void ()>& fallbackFunction)
-{
-  schedule(0, sessionId, function, fallbackFunction);
-}
-
-void WServer::schedule(int milliSeconds,
-		       const std::string& sessionId,
-		       const boost::function<void ()>& function,
-		       const boost::function<void ()>& fallbackFunction)
-{
-  ApplicationEvent event(sessionId, function, fallbackFunction);
-
-  schedule(milliSeconds, boost::bind(&WebController::handleApplicationEvent,
-				     &webMain->controller(), event));
-}
-
-std::string WServer::appRoot() const
-{
-  return impl_->configuration()->appRoot();
-}
-
-void WServer::initializeThread()
-{ }
-
-bool WServer::usesSlashExceptionForInternalPaths() const
-{
-  // Is not relevent, one cannot even deploy at a path ending with '/' ?
-  return false;
-}
-
-bool WServer::readConfigurationProperty(const std::string& name,
-                                        std::string& value) const
-{
-  return impl_->configuration()->readConfigurationProperty(name, value);
-}
-
-int WRun(int argc, char *argv[], ApplicationCreator createApplication)
-{
-  try {
-    WServer server(argv[0], "");
-
-    try {
-      server.setServerConfiguration(argc, argv);
-      server.addEntryPoint(Application, createApplication);
-      server.start();
-
-      return 0;
-    } catch (std::exception& e) {
-      server.impl()->configuration()->log("fatal") << e.what();
-      return 1;
-    }
-  } catch (Wt::WServer::Exception& e) {
-    std::cerr << e.what() << std::endl;
-    return 1;
-  } catch (std::exception& e) {
-    std::cerr << "exception: " << e.what() << std::endl;
-    return 1;
-  }
 }
 
 }

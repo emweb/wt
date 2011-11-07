@@ -7,12 +7,18 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 using namespace boost::posix_time;
 
+#include "Wt/WException"
 #include "Wt/WLogger"
+#include "Wt/WServer"
 
-#include "WtException.h"
 #include "Utils.h"
+#include "WebSession.h"
 
 namespace Wt {
+
+  namespace {
+    WLogger defaultLogger;
+  }
 
 WLogEntry::WLogEntry(const WLogEntry& other)
   : impl_(other.impl_)
@@ -79,7 +85,7 @@ WLogEntry::WLogEntry(const WLogger& logger)
 void WLogEntry::checkImpl()
 {
   if (!impl_)
-    throw WtException("WLogger: cannot use copied WLogEntry");
+    throw WException("WLogger: cannot use copied WLogEntry");
 }
 
 void WLogEntry::startField()
@@ -132,7 +138,10 @@ void WLogEntry::Impl::finish()
 
 bool WLogEntry::Impl::quote() const
 {
-  return logger_.fields()[currentField_].isString();
+  if (currentField_ < (int)logger_.fields().size())
+    return logger_.fields()[currentField_].isString();
+  else
+    return false;
 }
 
 const WLogger::Sep WLogger::sep = WLogger::Sep();
@@ -144,7 +153,7 @@ WLogger::Field::Field(const std::string& name, bool isString)
 { }
 
 WLogger::WLogger()
-  : o_(0),
+  : o_(&std::cerr),
     ownStream_(false)
 { }
 
@@ -195,6 +204,22 @@ void WLogger::addLine(const std::string& s) const
 {
   if (o_)
     *o_ << s << std::endl;
+}
+
+WLogEntry log(const std::string& type)
+{
+  WebSession *session = WebSession::instance();
+
+  if (session)
+    return session->log(type);
+  else {
+    WServer *server = WServer::instance();
+
+    if (server)
+      return server->log(type);
+    else
+      return defaultLogger.entry() << type << ": ";
+  }
 }
 
 }

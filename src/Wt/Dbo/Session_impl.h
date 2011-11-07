@@ -8,7 +8,6 @@
 #define WT_DBO_SESSION_IMPL_H_
 
 #include <iostream>
-#include <stdexcept>
 
 #include <Wt/Dbo/SqlConnection>
 #include <Wt/Dbo/Query>
@@ -41,7 +40,7 @@ template <class C>
 void Session::mapClass(const char *tableName)
 {
   if (schemaInitialized_)
-    throw std::logic_error("Cannot map tables after schema was initialized.");
+    throw Exception("Cannot map tables after schema was initialized.");
 
   if (classRegistry_.find(&typeid(C)) != classRegistry_.end())
     return;
@@ -78,8 +77,7 @@ const char *Session::tableName() const
   if (i != classRegistry_.end())
     return dynamic_cast< Mapping<C> *>(i->second)->tableName;
   else
-    throw std::logic_error(std::string("Class ")
-			   + typeid(C).name() + " was not mapped.");
+    throw Exception(std::string("Class ") + typeid(C).name() + " was not mapped.");
 }
 
 template <class C>
@@ -95,8 +93,7 @@ Session::Mapping<C> *Session::getMapping() const
       mapping->init(*const_cast<Session *>(this));
     return mapping;
   } else
-    throw std::logic_error(std::string("Class ")
-			   + typeid(C).name() + " was not mapped.");
+    throw Exception(std::string("Class ") + typeid(C).name() + " was not mapped.");
 }
 
 template <class C>
@@ -253,7 +250,7 @@ template<class C>
 void Session::implSave(MetaDbo<C>& dbo)
 {
   if (!transaction_)
-    throw std::logic_error("Dbo save(): no active transaction");
+    throw Exception("Dbo save(): no active transaction");
 
   if (!dbo.savedInTransaction())
     transaction_->objects_.push_back(new ptr<C>(&dbo));
@@ -270,7 +267,7 @@ template<class C>
 void Session::implDelete(MetaDbo<C>& dbo)
 {
   if (!transaction_)
-    throw std::logic_error("Dbo save(): no active transaction");
+    throw Exception("Dbo save(): no active transaction");
 
   // when saved in transaction, we are already in this list
   if (!dbo.savedInTransaction())
@@ -316,7 +313,7 @@ template <class C>
 void Session::implLoad(MetaDbo<C>& dbo, SqlStatement *statement, int& column)
 {
   if (!transaction_)
-    throw std::logic_error("Dbo load(): no active transaction");
+    throw Exception("Dbo load(): no active transaction");
 
   LoadDbAction<C> action(dbo, *getMapping<C>(), statement, column);
 

@@ -116,7 +116,11 @@ public:
    */
   int cursorPosition() const;
 
-  WValidator::State validate();
+  /*! \brief Returns the current value.
+   *
+   * Returns text().
+   */
+  virtual WT_USTRING valueText() const;
 
 private:
   WT_USTRING content_;

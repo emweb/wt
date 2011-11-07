@@ -264,7 +264,6 @@ public:
                                 std::string("icons/file.gif"),
 			        Wt::DecorationRole);
     */
-
     fileFilterModel_ = new WSortFilterProxyModel(this);
     fileFilterModel_->setSourceModel(fileModel_);
     fileFilterModel_->setDynamicSortFilter(true);

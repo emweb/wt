@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <stdexcept>
+
 #include "Wt/WRandom"
 
 #ifdef WT_NO_BOOST_RANDOM

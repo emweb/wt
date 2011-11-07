@@ -23,16 +23,19 @@ class WT_API WMessageResources
 {
 public:
   WMessageResources(const std::string& path, bool loadInMemory = true);
-  WMessageResources(const char *data);
+  WMessageResources(const char *builtin);
 
   void hibernate();
 
+  bool isBuiltin(const char *data) const { return builtin_ == data; }
   const std::string& path() const { return path_; }
 
   bool resolveKey(const std::string& key, std::string& result);
   bool resolvePluralKey(const std::string& key, 
 			std::string& result, 
 			::uint64_t amount);
+
+  static int evalPluralCase(const std::string &expression, ::uint64_t n);
  
   void refresh();
 
@@ -44,6 +47,7 @@ private:
   const bool loadInMemory_;
   bool loaded_;
   const std::string path_;
+  const char *builtin_;
 
   struct Resource {
     KeyValuesMap map_;
@@ -62,6 +66,8 @@ private:
 		       std::string pluralExpression,
 		       ::uint64_t amount);
 };
+
+
 
 }
 

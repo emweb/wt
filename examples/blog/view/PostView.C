@@ -4,13 +4,14 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "../BlogSession.h"
 #include "CommentView.h"
 #include "PostView.h"
 #include "../asciidoc/asciidoc.h"
 
+#include "../model/BlogSession.h"
 #include "../model/Comment.h"
 #include "../model/Tag.h"
+#include "../model/Token.h"
 #include "../model/User.h"
 
 #include <Wt/WAnchor>

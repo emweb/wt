@@ -115,7 +115,8 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
      """self.style.height= h + 'px';"
      """var c = self.firstChild;"
      """var t = self.lastChild;"
-     """h -= c.offsetHeight;"
+     """h -= " WT_CLASS ".px(c, 'height') + " WT_CLASS ".px(c, 'marginTop') "
+     ""   "+ " WT_CLASS ".px(c, 'marginBottom');"
      """if (h > 0)"
      ""  "t." + WT_RESIZE_JS + "(t, w, h);"
      "};");

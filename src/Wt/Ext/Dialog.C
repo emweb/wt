@@ -8,11 +8,11 @@
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WException"
 #include "Wt/WFitLayout"
 
 #include "DomElement.h"
 #include "WebSession.h"
-#include "WtException.h"
 
 namespace Wt {
   namespace Ext {
@@ -93,7 +93,7 @@ void Dialog::setSizeGripEnabled(bool enabled)
 Dialog::DialogCode Dialog::exec()
 {
   if (recursiveEventLoop_)
-    throw WtException("Dialog::exec(): already in recursive event loop.");
+    throw WException("Dialog::exec(): already in recursive event loop.");
 
   show();
 

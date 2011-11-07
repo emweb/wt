@@ -10,13 +10,6 @@
 #include <string>
 #include <map>
 
-#ifndef WT_TARGET_JAVA
-#ifdef WT_THREADED
-#include <boost/thread.hpp>
-#include "threadpool/threadpool.hpp"
-#endif
-#endif // WT_TARGET_JAVA
-
 #include "Configuration.h"
 
 namespace Wt {
@@ -47,11 +40,12 @@ public:
   // invoking this log()!! So if (configuration()) log("notice") << "ok";
   WLogEntry log(const std::string& type);
 
-  Configuration *configuration() const { return configuration_; }
+  bool hasConfiguration() const { return server_ != 0; }
+  Configuration &configuration() const;
 
   // IsapiServer takes ownership of the Configuration object and
   // will delete it on destruction. Once set, it must not be changed.
-  void setConfiguration(Configuration *c) { configuration_ = c; }
+  //void setConfiguration(Configuration *c) { configuration_ = c; }
 
 private:
   static IsapiServer *instance_;

@@ -12,17 +12,17 @@
 #include "Wt/WApplication"
 #include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
+#include "Wt/WDate"
 #include "Wt/WDefaultLoadingIndicator"
+#include "Wt/WException"
 #include "Wt/WMemoryResource"
 #include "Wt/WServer"
 #include "Wt/WText"
 
-#include "WtException.h"
 #include "WebSession.h"
 #include "DomElement.h"
 #include "Configuration.h"
 #include "SoundManager.h"
-#include "WebController.h"
 #include "WebRequest.h"
 #include "Utils.h"
 
@@ -33,7 +33,7 @@
 #endif
 
 namespace skeletons {
-  extern const char * WtMessages_xml1;
+  extern const char * Wt_xml1;
 }
 
 //#define WTDEBUG
@@ -220,7 +220,6 @@ WApplication::WApplication(const WEnvironment& env
     styleSheet_.addRule(".Wt-wrap",
 			"margin: -1px 0px -3px;");
   //styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
-  styleSheet_.addRule(".Wt-invalid", "background-color: #f79a9a;");
   styleSheet_.addRule("span.Wt-disabled", "color: gray;");
   styleSheet_.addRule("fieldset.Wt-disabled legend", "color: gray;");
   styleSheet_.addRule(".unselectable",
@@ -320,9 +319,9 @@ void WApplication::finalize()
 #endif // !WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
-WMessageResourceBundle& WApplication::messageResourceBundle() const
+WMessageResourceBundle& WApplication::messageResourceBundle()
 {
-  return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings_->items()[0]));
+  return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings()));
 }
 #endif // !WT_TARGET_JAVA
 
@@ -423,7 +422,7 @@ std::string WApplication::resourcesUrl()
 #ifndef WT_TARGET_JAVA
 std::string WApplication::appRoot()
 {
-  return WebSession::instance()->controller()->configuration().appRoot();
+  return WebSession::instance()->env().server()->appRoot();
 }
 
 std::string WApplication::docRoot() const
@@ -436,8 +435,8 @@ std::string WApplication::docRoot() const
 void WApplication::bindWidget(WWidget *widget, const std::string& domId)
 {
   if (session_->type() != WidgetSet)
-    throw WtException("WApplication::bind() can be used only "
-		      "in WidgetSet mode.");
+    throw WException("WApplication::bindWidget() can be used only "
+		     "in WidgetSet mode.");
 
   widget->setId(domId);
   domRoot2_->addWidget(widget);
@@ -560,7 +559,7 @@ void WApplication::useStyleSheet(const std::string& uri,
 	    if (invert)
 	      display = !display;
 	  } catch (std::exception& e) {
-	    log("error") << "Could not parse condition: '" << condition << "'";
+	    LOG_ERROR("Could not parse condition: '" << condition << "'");
 	  }
 	  r.clear();
 	}
@@ -631,7 +630,7 @@ WWidget *WApplication::findWidget(const std::string& name)
 
 void WApplication::doUnload()
 {
-  const Configuration& conf = session_->controller()->configuration();
+  const Configuration& conf = environment().server()->configuration();
 
   if (conf.reloadIsNewSession())
     unload();
@@ -843,18 +842,35 @@ EventSignal<>& WApplication::globalEscapePressed()
 
 WLocalizedStrings *WApplication::localizedStrings()
 {
-  return localizedStrings_->items()[0];
+  if (localizedStrings_->items().size() > 1)
+    return localizedStrings_->items()[0];
+  else
+    return 0;
+}
+
+WMessageResourceBundle& WApplication::builtinLocalizedStrings()
+{
+  return *(dynamic_cast<WMessageResourceBundle *>
+	   (localizedStrings_->items().back()));
 }
 
 void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
 {
-  delete localizedStrings_;
-  localizedStrings_ = new WCombinedLocalizedStrings();
-  if (translator)
-    localizedStrings_->add(translator);
-  WMessageResourceBundle *defaultMessages = new WMessageResourceBundle();
-  defaultMessages->useBuiltin(skeletons::WtMessages_xml1);
-  localizedStrings_->add(defaultMessages);
+  if (!localizedStrings_) {
+    localizedStrings_ = new WCombinedLocalizedStrings();
+
+    WMessageResourceBundle *defaultMessages = new WMessageResourceBundle();
+    defaultMessages->useBuiltin(skeletons::Wt_xml1);
+    localizedStrings_->add(defaultMessages);
+  }
+
+  if (localizedStrings_->items().size() > 1) {
+    WLocalizedStrings *previous = localizedStrings_->items()[0];
+    localizedStrings_->remove(previous);
+    delete previous;
+  }
+
+  localizedStrings_->add(translator);
 }
 
 void WApplication::refresh()
@@ -905,7 +921,7 @@ void WApplication::redirect(const std::string& url)
 
 void WApplication::redirectToSession(const std::string& newSessionId)
 {
-  const Configuration& conf = session_->controller()->configuration();
+  const Configuration& conf = environment().server()->configuration();
 
   std::string redirectUrl = bookmarkUrl();
   if (conf.sessionTracking() == Configuration::CookiesURL
@@ -913,7 +929,7 @@ void WApplication::redirectToSession(const std::string& newSessionId)
     std::string cookieName = environment().deploymentPath();
     setCookie(cookieName, newSessionId, -1);
   } else
-    redirectUrl += "?wtd=" + newSessionId;
+    redirectUrl += "?wtd=" + DomElement::urlEncodeS(newSessionId);
 
   redirect(redirectUrl);
 }
@@ -923,11 +939,34 @@ void WApplication::setTwoPhaseRenderingThreshold(int bytes)
   session_->renderer().setTwoPhaseThreshold(bytes);
 }
 
-void WApplication::setCookie(const std::string& name, const std::string& value,
-			     int maxAge, const std::string& domain,
-			     const std::string& path)
+void WApplication::setCookie(const std::string& name,
+			     const std::string& value, int maxAge,
+			     const std::string& domain,
+			     const std::string& path,
+			     bool secure)
 {
-  session_->renderer().setCookie(name, value, maxAge, domain, path);
+  WDateTime expires = WDateTime::currentDateTime();
+  expires = expires.addSecs(maxAge);
+  session_->renderer().setCookie(name, value, expires, domain, path, secure);
+}
+
+void WApplication::setCookie(const std::string& name,
+			     const std::string& value,
+			     const WDateTime& expires,
+			     const std::string& domain,
+			     const std::string& path,
+			     bool secure)
+{
+  session_->renderer().setCookie(name, value, expires, domain, path, secure);
+}
+
+void WApplication::removeCookie(const std::string& name,
+				const std::string& domain,
+				const std::string& path)
+{
+  session_->renderer().setCookie(name, std::string(),
+				 WDateTime(WDate(1970,1,1)),
+				 domain, path, false);
 }
 
 void WApplication::addMetaHeader(const std::string& name,
@@ -993,7 +1032,7 @@ WApplication *WApplication::instance()
 
 ::int64_t WApplication::maximumRequestSize() const
 {
-  return session_->controller()->configuration().maxRequestSize();
+  return environment().server()->configuration().maxRequestSize();
 }
 
 std::string WApplication::docType() const
@@ -1197,9 +1236,7 @@ public:
   UpdateLockImpl(WApplication *app)
     : handler_(0)
   {
-#ifndef WT_THREADED
-    throw WtException("UpdateLock needs Wt with thread support");
-#else
+#ifdef WT_THREADED
     WApplication *selfApp = 0;
 
     prevHandler_ = WebSession::Handler::instance();
@@ -1270,6 +1307,10 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
   : impl_(0),
     ok_(true)
 {
+#ifndef WT_THREADED
+  return;
+#endif // WT_THREADED
+
   /*
    * If we are already handling this application, then we already have
    * exclusive access, unless we are not having the lock (e.g. from a
@@ -1410,8 +1451,11 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
 bool WApplication::readConfigurationProperty(const std::string& name,
 					     std::string& value)
 {
-  return WebSession::instance()->controller()
-    ->configuration().readConfigurationProperty(name, value);
+  WebSession *session = WebSession::instance();
+  if (session)
+    return session->env().server()->readConfigurationProperty(name, value);
+  else
+    return false;
 }
 #else
 std::string *WApplication::readConfigurationProperty(const std::string& name,
@@ -1473,7 +1517,7 @@ void WApplication::loadJavaScriptFile(std::ostream& out, const char *jsFile)
 #define xstr(s) str(s)
 #define str(s) #s
   std::string fname = std::string( xstr(WT_DEBUG_JS) "/") + jsFile;
-  out << Utils::readJavaScriptFile(fname);
+  out << Utils::readFile(fname);
 }
 
 #else
@@ -1528,28 +1572,14 @@ void WApplication::setFocus(const std::string& id,
   selectionEnd_ = selectionEnd;
 }
 
-void WApplication::storeObject(const char *key, const boost::any& value)
+void WApplication::deferRendering()
 {
-  objectStore_[key] = value;
+  session_->deferRendering();
 }
 
-boost::any WApplication::getObject(const char *key) const
+void WApplication::resumeRendering()
 {
-  std::map<const char *, boost::any>::const_iterator i = objectStore_.find(key);
-
-  if (i != objectStore_.end())
-    return i->second;
-  else
-    return boost::any();
+  session_->resumeRendering();
 }
-
-#ifndef WT_TARGET_JAVA
-WServer::Exception::Exception(const std::string what)
-  : what_(what)
-{ }
-
-WServer::Exception::~Exception() throw()
-{ }
-#endif // WT_TARGET_JAVA
 
 }

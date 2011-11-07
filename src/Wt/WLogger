@@ -110,7 +110,9 @@ public:
     friend class WLogger;
   };
 
-  /*! \brief Create a new logger.
+  /*! \brief Creates a new logger.
+   *
+   * This creates a new logger, which defaults to logging to stderr.
    */
   WLogger();
 
@@ -118,21 +120,24 @@ public:
    */
   ~WLogger();
 
-  /*! \brief Set the output stream.
+  /*! \brief Sets the output stream.
+   *
+   * The default logger outputs to stderr.
    *
    * \sa setFile()
    */
   void setStream(std::ostream& o);
 
-  /*! \brief Set the output file.
+  /*! \brief Sets the output file.
    *
    * Opens a file output stream for \p path.
+   * The default logger outputs to stderr.
    *
    * \sa setStream()
    */
   void setFile(const std::string& path);
 
-  /*! \brief Add a field.
+  /*! \brief Adds a field.
    *
    * Add a field to the logger. When \p isString is \p true, values
    * will be quoted.
@@ -237,6 +242,44 @@ private:
 
   friend class WLogger;
 };
+
+WT_API extern WLogEntry log(const std::string& type);
+
+#ifdef WT_BUILDING
+# ifndef LOG4CPLUS
+#  ifdef WT_DEBUG_ENABLED
+#   define LOG_DEBUG(a) Wt::log("debug") << a
+#  else
+#   define LOG_DEBUG(a)
+#  endif
+
+#  define LOG_NOTICE(a) Wt::log("notice") << a
+#  define LOG_WARN(a) Wt::log("warning") << a
+#  define LOG_AUTH(a) Wt::log("auth") << a
+#  define LOG_ERROR(a) Wt::log("error") << a
+
+# else // !LOG4CPLUS
+
+#  define LOG_DEBUG(a) LOG4CPLUS_DEBUG(logger, a)
+#  define LOG_NOTICE(a) LOG4CPLUS_INFO(logger, a)
+#  define LOG_WARN(a) LOG4CPLUS_WARN(logger, a)
+#  define LOG_AUTH(a) LOG4CPLUS_ERROR(logger, "auth: " << a)
+#  define LOG_ERROR(a) LOG4CPLUS_ERROR(logger, a)
+
+# endif // LOG4CPLUS
+
+# ifdef WT_DEBUG_ENABLED
+#  ifndef WT_TARGET_JAVA
+#   define WT_DEBUG(statement) do { \
+      if (Wt::WApplication::instance()->debug()) statement; } \
+    while(0)
+#  else
+#   define WT_DEBUG(statement)
+#  endif
+# else
+#  define WT_DEBUG(statement)
+# endif
+#endif  // WT_BUILDING
 
 }
 

@@ -36,15 +36,29 @@ public:
 
   /*! \brief Adds a string resolver.
    *
-   * resolveKey() will consult each string resolver in the order they have
-   * been added.
-   */
-  void add(WLocalizedStrings* stringResolver);
-
-  /*! \brief Returns all string resolver
+   * The order in which string resolvers are added is significant:
+   * resolveKey() will consult each string resolver in the order they
+   * have been added, until a match is found.
    *
-   * Returns the list of all string resolvers that were added by
-   * a call to add().
+   * \if cpp
+   * Ownership of the resolver is transferred.
+   * \endif
+   */
+  void add(WLocalizedStrings* resolver);
+
+  /*! \brief Removes a string resolver.
+   *
+   * \if cpp
+   * This returns ownership of the resolver.
+   * \endif
+   *
+   * \sa add()
+   */
+  void remove(WLocalizedStrings *resolver);
+
+  /*! \brief Returns the list of resolvers.
+   *
+   * \sa add(), remove()
    */
   const std::vector<WLocalizedStrings *> &items() const;
 

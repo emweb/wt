@@ -22,8 +22,8 @@
 #include "Wt/WPolygonArea"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 
-#include "WtException.h"
 #include "Utils.h"
 
 #ifndef M_PI
@@ -32,23 +32,6 @@
 #ifdef WIN32
 #define snprintf _snprintf
 #endif
-
-namespace {
-
-class PlotException : public std::exception
-{
-public:
-  PlotException(const std::string what)
-    : what_(what) { }
-  ~PlotException() throw() { }
-
-  const char *what() const throw() { return what_.c_str(); }
-
-private:
-  std::string what_;
-};
-
-}
 
 namespace Wt {
   namespace Chart {
@@ -193,7 +176,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
     }
 
   if (!painter.isActive())
-    throw WtException("WPieChart::paint(): painter is not active.");
+    throw WException("WPieChart::paint(): painter is not active.");
 
   WRectF rect = rectangle;
 

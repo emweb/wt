@@ -3,6 +3,7 @@
 
 #include "../model/User.h"
 #include "../model/Tag.h"
+#include "../model/Token.h"
 #include "../model/Comment.h"
 
 #include <Wt/Dbo/ptr>

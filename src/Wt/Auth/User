@@ -1,0 +1,222 @@
+
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_AUTH_USER_H_
+#define WT_AUTH_USER_H_
+
+#include <Wt/WDateTime>
+#include <Wt/WString>
+#include <Wt/Auth/Token>
+#include <Wt/Auth/PasswordHash>
+
+namespace Wt {
+  namespace Auth {
+
+class AbstractUserDatabase;
+
+/*! \class User Wt/Auth/User
+ *  \brief A user
+ *
+ * This class represents a user. It is a value class that stores only
+ * the user identity and a reference to an AbstractUserDatabase to
+ * access its properties.
+ *
+ * An object can point to a valid user, or be invalid. Invalid users
+ * are typically used as return value for database queries which did
+ * not match with an existing user.
+ *
+ * Not all methods are valid or applicable to your authentication
+ * system. See AbstractUserDatabase for a discussion.
+ *
+ * \sa AbstractUserDatabase
+ */
+class WT_API User
+{
+public:
+  /*! \brief Enumeration for a user's account status.
+   *
+   * \sa status()
+   */
+  enum Status {
+    Disabled, //!< Successfully identified but not allowed to log in.
+    Normal    //!< Normal status
+  };
+
+  /*! \brief Enumeration for an email token stored for the user.
+   */
+  enum EmailTokenRole {
+    VerifyEmail, //!< Token is used to verify his email address
+    LostPassword //!< Token is used to allow the user to enter a new password
+  };
+
+  /*! \brief Default constructor.
+   *
+   * Creates an invalid user.
+   *
+   * \sa isValid()
+   */
+  User();
+
+  /*! \brief Constructor.
+   *
+   * Creates a user identified as \p identity, and whose information
+   * is stored in the \p database.
+   */
+  User(const WT_USTRING& identity, const AbstractUserDatabase& database);
+
+  /*! \brief Returns the user database.
+   *
+   * This returns the user database passed in the constructor, or 0 if the
+   * user is invalid, and was constructed using the default constructor.
+   */
+  AbstractUserDatabase *database() const { return db_; }
+
+  /*! \brief Comparison operator.
+   *
+   * Two users are equal if they have the same identity and the same database.
+   */
+  bool operator==(const User& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * \sa operator==
+   */
+  bool operator!=(const User& other) const;
+
+  /*! \brief Returns whether the user is valid.
+   *
+   * A invalid user is a sentinel value returned by methods that query
+   * the database but could not identify a matching user.
+   */
+  bool isValid() const { return db_ != 0; }
+
+  /*! \brief Returns the user identity.
+   *
+   * This returns the identity that uniquely identifies the user, and
+   * acts as a "primary key" to obtain other information for the user
+   * in the database.
+   *
+   * \sa AbstractUserDatabase
+   */
+  WT_USTRING identity() const { return identity_; }
+
+  /*! \brief Sets a password.
+   *
+   * \sa AbstractUserDatabase::setPassword()
+   */
+  void setPassword(const PasswordHash& password) const;
+
+  /*! \brief Returns the password.
+   *
+   * \sa AbstractUserDatabase::password()
+   */
+  PasswordHash password() const;
+
+  /*! \brief Sets the email address.
+   *
+   * \sa AbstractUserDatabase::setEmail()
+   */
+  void setEmail(const std::string& address) const;
+
+  /*! \brief Returns the email address.
+   *
+   * \sa AbstractUserDatabase::email()
+   */
+  std::string email() const;
+
+  /*! \brief Sets the unverified email address.
+   *
+   * \sa AbstractUserDatabase::setUnverifiedEmail()
+   */
+  void setUnverifiedEmail(const std::string& address) const;
+
+  /*! \brief Returns the unverified email address.
+   *
+   * \sa AbstractUserDatabase::unverifiedEmail()
+   */
+  std::string unverifiedEmail() const;
+
+  /*! \brief Returns the account status.
+   *
+   * \sa AbstractUserDatabase::status()
+   */
+  Status status() const;
+
+  /*! \brief Adds an oauth ID.
+   *
+   * \sa AbstractUserDatabase::addOAuthId()
+   */
+  void addOAuthId(const std::string& id) const;
+
+  /*! \brief Returns the email token.
+   *
+   * \sa AbstractUserDatabase::emailToken()
+   */
+  Token emailToken() const;
+
+  /*! \brief Returns the email token role.
+   *
+   * \sa AbstractUserDatabase::emailTokenRole()
+   */
+  EmailTokenRole emailTokenRole() const;
+
+  /*! \brief Sets an email token.
+   *
+   * \sa AbstractUserDatabase::setEmailToken()
+   */
+  void setEmailToken(const Token& token, EmailTokenRole role) const;
+
+  /*! \brief Clears the email token.
+   *
+   * \sa setEmailToken()
+   */
+  void clearEmailToken() const;
+
+  /*! \brief Adds an authentication token.
+   *
+   * \sa AbstractUserDatabase::addAuthToken()
+   */
+  void addAuthToken(const Token& token) const;
+
+  /*! \brief Removes an authentication token.
+   *
+   * \sa AbstractUserDatabase::removeAuthToken()
+   */
+  void removeAuthToken(const std::string& hash) const;
+
+  /*! \brief Logs the result of an authentication attempt.
+   *
+   * This changes the number of failed login attempts, and stores the
+   * current date as the last login attempt time.
+   *
+   * \sa failedLoginAttempts(), lastLoginAttempt()
+   */
+  void setAuthenticated(bool success) const;
+
+  /*! \brief Returns the number of last consecutive unsuccessful login attempts.
+   *
+   * \sa setAuthenticated()
+   */
+  int failedLoginAttempts() const;
+
+  /*! \brief Returns the last login attempt.
+   *
+   * \sa setAuthenticated()
+   */
+  WDateTime lastLoginAttempt() const;
+
+private:
+  WT_USTRING identity_;
+  AbstractUserDatabase *db_;
+
+  void checkValid() const;
+};
+
+  }
+}
+
+#endif // WT_AUTH_USER

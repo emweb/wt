@@ -4,25 +4,56 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "WebController.h"
+// bugfix for https://svn.boost.org/trac/boost/ticket/5722
+#include <boost/asio.hpp>
+
 #include "Configuration.h"
+#include "WebController.h"
 #include "WebSession.h"
+
+#include "Wt/WIOService"
+#include "Wt/WServer"
 #include "Wt/Test/WTestEnvironment"
 
 namespace Wt {
 
+WServer::WServer(const std::string& wtApplicationPath,
+		 const std::string& wtConfigurationFile)
+{
+  init(wtApplicationPath, wtConfigurationFile);
+
+#ifdef WT_THREADED
+  ioService().start();
+#endif // WT_THREADED
+
+  webController_ = new WebController(*this);
+}
+
+WServer::~WServer()
+{
+  destroy();
+}
+
+// Not implemented: start(), stop(), isRunning(), resume(), httpPort()
+
   namespace Test {
 
 #ifndef WT_TARGET_JAVA
+
+WTestEnvironment::WTestEnvironment(EntryPointType type)
+{
+  server_ = new WServer(std::string(), std::string());
+  controller_ = server_->controller();
+
+  init(type);
+}
+
 WTestEnvironment::WTestEnvironment(const std::string& applicationPath,
 				   const std::string& configurationFile,
 				   EntryPointType type)
 {
-  configuration_ = new Configuration(applicationPath, "", configurationFile,
-				     Configuration::WtHttpdServer,
-				     "Wt: initializing test environment");
-
-  controller_ = new WebController(*configuration_, 0);
+  server_ = new WServer(applicationPath, configurationFile);
+  controller_ = server_->controller();
 
   init(type);
 }
@@ -51,6 +82,10 @@ void WTestEnvironment::init(EntryPointType type)
   session_ = new WebSession(controller_, "testwtd", type, "", 0, this);
   theSession_.reset(session_);
 
+#ifndef WT_TARGET_JAVA
+  controller_->addSession(theSession_);
+#endif // WT_TARGET_JAVA
+
   new WebSession::Handler(theSession_, true);
 
   doesAjax_ = true;
@@ -74,13 +109,29 @@ void WTestEnvironment::init(EntryPointType type)
   locale_ = WT_LOCALE("en");
 }
 
-WTestEnvironment::~WTestEnvironment()
+void WTestEnvironment::endRequest()
 {
   delete WebSession::Handler::instance();
+}
+
+void WTestEnvironment::startRequest()
+{
+  new WebSession::Handler(theSession_, true);
+}
+
+WTestEnvironment::~WTestEnvironment()
+{
+  endRequest();
+
+#ifndef WT_TARGET_JAVA
+  controller_->removeSession(theSession_->sessionId());
+#endif // WT_TARGET_JAVA
+
   theSession_.reset();
 
-  delete controller_;
-  delete configuration_;
+#ifndef WT_TARGET_JAVA
+  delete server_;
+#endif // WT_TARGET_JAVA
 }
 
 void WTestEnvironment::setParameterMap(const Http::ParameterMap& parameters)

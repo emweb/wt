@@ -1,4 +1,22 @@
 /*
+ * Validators
+ */
+.Wt-invalid {
+    background-color: #f7dada;
+}
+
+.Wt-valid {
+    background-color: #daf7da
+}
+
+/*
+ * Effects
+ */
+.Wt-animated {
+    -webkit-backface-visibility: hidden; /* avoids flicker on Chrome */
+}
+
+/*
  * Outset
  */
 .Wt-outset {
@@ -21,10 +39,6 @@
     height: 100%; width: 100%;
     top: 0px; left: 0px;
     position: fixed;
-}
-
-.Wt-animated {
-    -webkit-backface-visibility: hidden; /* avoids flicker on Chrome */
 }
 
 /*

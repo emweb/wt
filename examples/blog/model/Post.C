@@ -10,6 +10,7 @@
 #include "Comment.h"
 #include "User.h"
 #include "Tag.h"
+#include "Token.h"
 
 #include <Wt/Dbo/Impl>
 #include <ctype.h>

@@ -6,21 +6,20 @@
 
 #include "Wt/WTableView"
 
-#include "Wt/WTable"
-#include "Wt/WContainerWidget"
-#include "Wt/WAbstractItemModel"
-#include "Wt/WModelIndex"
 #include "Wt/WAbstractItemDelegate"
 #include "Wt/WApplication"
-#include "Wt/WText"
-#include "Wt/WItemDelegate"
+#include "Wt/WContainerWidget"
+#include "Wt/WAbstractItemModel"
 #include "Wt/WEnvironment"
+#include "Wt/WItemDelegate"
+#include "Wt/WModelIndex"
+#include "Wt/WStringStream"
+#include "Wt/WTable"
+#include "Wt/WText"
 #include "Wt/WVBoxLayout"
 #include "Wt/WVBoxLayout"
 
 #include "Utils.h"
-#include "EscapeOStream.h"
-#include "WtException.h"
 
 #ifndef WT_DEBUG_JS
 
@@ -165,8 +164,10 @@ WTableView::WTableView(WContainerWidget *parent)
 void WTableView::resize(const WLength& width, const WLength& height)
 {
   if (ajaxMode()) {
-    if (height.unit() == WLength::Percentage)
-      throw WtException("WTableView::resize(): height cannot be a Percentage");
+    if (height.unit() == WLength::Percentage) {
+      Wt::log("error") << "WTableView::resize(): height cannot be a Percentage";
+      return;
+    }
 
     if (!height.isAuto()) {
       viewportHeight_
@@ -631,7 +632,7 @@ void WTableView::renderTable(const int fr, const int lr,
   int scrollY1 = std::max(0, viewportTop_ - viewportHeight_ / 2);
   int scrollY2 = viewportTop_ + viewportHeight_ / 2;
 
-  SStream s;
+  WStringStream s;
 
   s << "jQuery.data(" << jsRef() << ", 'obj').scrolled("
     << scrollX1 << ", " << scrollX2 << ", " << scrollY1 << ", " << scrollY2
@@ -768,6 +769,9 @@ void WTableView::rerenderData()
 	WWidget *w = renderWidget(0, index);
 	WTableCell *cell = plainTable_->elementAt(renderedRow + 1,
 						  renderedCol);
+	if (columnInfo(j).hidden)
+	  cell->hide();
+
 	cell->addWidget(w);
 
 	WInteractWidget *wi = dynamic_cast<WInteractWidget *>(w);
@@ -805,6 +809,7 @@ void WTableView::rerenderHeader()
     for (int i = 0; i < columnCount(); ++i) {
       WWidget *w = createHeaderWidget(app, i);
       WTableCell *cell = plainTable_->elementAt(0, i);
+      cell->clear();
       cell->setStyleClass("headerrh");
       cell->addWidget(w);
       w->setWidth(columnInfo(i).width.toPixels() + 1);
@@ -824,24 +829,27 @@ void WTableView::setColumnHidden(int column, bool hidden)
     if (hidden)
       delta = -delta;
 
-    headers_->setWidth(headers_->width().toPixels() + delta);
-    canvas_->setWidth(canvas_->width().toPixels() + delta);
+    if (ajaxMode()) {
+      headers_->setWidth(headers_->width().toPixels() + delta);
+      canvas_->setWidth(canvas_->width().toPixels() + delta);
 
-    if (isColumnRendered(column))
-      updateColumnOffsets();
-    else
-      if (column < firstColumn())
-	setSpannerCount(Left, spannerCount(Left));
+      if (isColumnRendered(column))
+	updateColumnOffsets();
+      else
+	if (column < firstColumn())
+	  setSpannerCount(Left, spannerCount(Left));
 
-    if (renderState_ >= NeedRerenderHeader)
-      return;
+      if (renderState_ >= NeedRerenderHeader)
+	return;
 
-    WWidget *hc = headerWidget(column, false);
-
-    if (!ajaxMode())
-      hc->parent()->setHidden(hidden);
-    else
+      WWidget *hc = headerWidget(column, false);
       hc->setHidden(hidden);
+    } else {
+      if (renderState_ < NeedRerenderData) {
+	for (int i = 0; i < plainTable_->rowCount(); ++i)
+	  plainTable_->elementAt(i, column)->setHidden(hidden);
+      }
+    }
   }
 }
 
@@ -1595,7 +1603,7 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 	}
       }
 
-      SStream s;
+      WStringStream s;
 
       s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
 	<< rowY << "," << hint << ");";

@@ -4,10 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 #include "SoundManager.h"
-#include "EscapeOStream.h"
 
 #include "Wt/WApplication"
 #include "Wt/WSound"
+#include "Wt/WStringStream"
 
 namespace Wt {
 
@@ -16,7 +16,7 @@ SoundManager::SoundManager(WContainerWidget *parent)
 {
   setControlsWidget(0);
 
-  SStream ss;
+  WStringStream ss;
   ss <<
     "function() { "
     """var s = " << jsRef() << ", l = s.getAttribute('loops');"

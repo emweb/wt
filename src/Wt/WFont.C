@@ -5,11 +5,11 @@
  */
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WFont"
+#include "Wt/WStringStream"
 #include "Wt/WWidget"
 #include "Wt/WWebWidget"
-#include "Wt/WFont"
 
-#include "EscapeOStream.h"
 #include "DomElement.h"
 
 namespace Wt {
@@ -352,7 +352,7 @@ std::string WFont::cssFamily(bool all) const
 
 const std::string WFont::cssText(bool combined) const
 {
-  SStream result;
+  WStringStream result;
 
   if (combined) {
     std::string s;

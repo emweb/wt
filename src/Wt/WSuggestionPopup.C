@@ -6,18 +6,17 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WFormWidget"
+#include "Wt/WLogger"
+#include "Wt/WSuggestionPopup"
+#include "Wt/WStringStream" 
+#include "Wt/WStringListModel"
 #include "Wt/WTemplate"
 #include "Wt/WText"
-#include "Wt/WFormWidget"
-#include "Wt/WApplication"
-#include "Wt/WLogger"
-
-#include "Wt/WSuggestionPopup"
-#include "Wt/WStringListModel"
 
 #include "Utils.h"
-#include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WSuggestionPopup.min.js"
@@ -26,8 +25,8 @@
 namespace {
   std::string instantiateStdMatcher(const Wt::WSuggestionPopup::Options&
 				    options) {
-    Wt::SStream s;
-
+    Wt::WStringStream s;
+    
     s << "new " WT_CLASS ".WSuggestionPopupStdMatcher("
       << Wt::WWebWidget::jsStringLiteral(options.highlightBeginTag) << ", "
       << Wt::WWebWidget::jsStringLiteral(options.highlightEndTag) << ", ";
@@ -350,7 +349,7 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
     }
 
   if (edit == 0)
-    wApp->log("error") << "WSuggestionPopup activate from bogus editor";
+    Wt::log("error") << "WSuggestionPopup activate from bogus editor";
 
   for (int i = 0; i < content_->count(); ++i)
     if (content_->widget(i)->id() == itemId) {
@@ -358,7 +357,7 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
       return;
     }
 
-  wApp->log("error") << "WSuggestionPopup activate for bogus item";
+  Wt::log("error") << "WSuggestionPopup activate for bogus item";
 }
 
 std::string WSuggestionPopup::generateMatcherJS(const Options& options)

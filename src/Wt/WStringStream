@@ -1,0 +1,174 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_WSTRING_STREAM_H_
+#define WT_WSTRING_STREAM_H_
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+
+/*! \class WStringStream Wt/WStringStream Wt/WStringStream
+ *
+ * This is an efficient std::stringstream replacement. It is in
+ * particular more efficient when a relatively short string is being
+ * composed from many different pieces (avoiding any memory allocation
+ * all-together).
+ *
+ * It also avoids overhead because of localization issues which seem
+ * to hamper std::stringstream performance.
+ */
+class WT_API WStringStream
+{
+public:
+  struct iterator {
+    struct char_proxy {
+      char_proxy& operator= (char c);
+
+    private:
+      char_proxy(WStringStream& stream);
+      WStringStream& stream_;
+
+      friend struct iterator;
+    };
+
+    iterator();
+
+    char_proxy operator * ();
+
+    iterator& operator ++ ();
+    iterator  operator ++ (int);
+
+  private:
+    WStringStream *stream_;
+    iterator(WStringStream& stream);
+
+    friend class WStringStream;
+  };
+
+  /*! \brief Default constructor.
+   *
+   * Creates a string stream with internal buffering.
+   */
+  WStringStream();
+
+  /*! \brief Copy constructor.
+   *
+   * This creates a deep copy of the contents. It is not applicable
+   * to a stringstream which has already a sink set.
+   */
+  WStringStream(const WStringStream& other);
+
+  /*! \brief Assignment operator.
+   */
+  WStringStream& operator=(const WStringStream& other);
+
+  /*! \brief Constructor with std::ostream sink.
+   *
+   * Creates a string stream which flushes contents to an ostream.
+   * The output is still internally buffered, and you need to delete
+   * the stringstream to flush its final contents.
+   */
+  WStringStream(std::ostream& sink);
+
+  /*! \brief Destructor.
+   */
+  ~WStringStream();
+
+  /*! \brief Appends a string.
+   *
+   * Appends \p length bytes from the given string.
+   */
+  void append(const char *s, int length);
+
+  /*! \brief Appends a character.
+   */
+  WStringStream& operator<< (char);
+
+  /*! \brief Appends a C string.
+   */
+  WStringStream& operator<< (const char *s);
+
+  /*! \brief Appends a C++ string.
+   */
+  WStringStream& operator<< (const std::string& s);
+
+  /*! \brief Appends an integer number.
+   */
+  WStringStream& operator<< (int);
+
+  /*! \brief Appends a double.
+   */
+  WStringStream& operator<< (double);
+
+  /*! \brief Iterator for appending.
+   */
+  iterator back_inserter();
+
+  /*! \brief Returns the contents as a null-terminated C string.
+   *
+   * The behaviour is only defined for a string stream with internal
+   * buffering.
+   *
+   * \note This is only supported when the length of the total string
+   *       is less than 1024 bytes. Returns 0 if the operation could not
+   *       be completed.
+   */
+  const char *c_str();
+
+  /*! \brief Returns the contents as a C++ string.
+   *
+   * The behaviour is only defined for a string stream with internal
+   * buffering.
+   */
+  std::string str() const;
+
+  /*! \brief Returns whether the contents is empty.
+   *
+   * The behaviour is only defined for a string stream with internal
+   * buffering.
+   */
+  bool empty() const;
+
+  /*! \brief Returns the total length.
+   *
+   * The behaviour is only defined for a string stream with internal
+   * buffering.
+   */
+  std::size_t length() const;
+
+  /*! \brief Clears the contents.
+   *
+   * The behaviour is only defined for a string stream with internal
+   * buffering.
+   */
+  void clear();
+
+private:
+  enum {S_LEN = 1024};
+  enum {D_LEN = 2048};
+
+  std::ostream *sink_;
+  char static_buf_[S_LEN + 1];
+
+  char *buf_;
+  int buf_i_;
+
+  int buf_len() const { return buf_ == static_buf_
+      ? static_cast<int>(S_LEN) : static_cast<int>(D_LEN); }
+
+  std::vector<std::pair<char *, int> > bufs_;
+
+  void flushSink();
+  void pushBuf();
+};
+
+}
+
+#endif // WT_WSTRING_STREAM_H_

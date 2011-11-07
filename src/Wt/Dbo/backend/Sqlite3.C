@@ -124,6 +124,8 @@ public:
     long long msec = value.total_milliseconds();   
 
     int err = sqlite3_bind_int64(st_, column + 1, msec);
+
+    handleErr(err);
   }
 
   virtual void bind(int column, const boost::posix_time::ptime& value,
@@ -347,11 +349,16 @@ public:
       if (!getResult(column, &v, -1))
 	return false;
 
-      if (type == SqlDate)
-	*value = boost::posix_time::ptime(boost::gregorian::from_string(v),
-					  boost::posix_time::hours(0));
-      else
-	*value = boost::posix_time::time_from_string(v);
+      try {
+	if (type == SqlDate)
+	  *value = boost::posix_time::ptime(boost::gregorian::from_string(v),
+					    boost::posix_time::hours(0));
+	else
+	  *value = boost::posix_time::time_from_string(v);
+      } catch (std::exception& e) {
+	std::cerr << "Sqlite3::getResult(ptime): " << e.what() << std::endl;
+	return false;
+      }
 
       return true;
     }

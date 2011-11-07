@@ -8,6 +8,7 @@
 #include "Wt/WVBoxLayout"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
+#include "Wt/WException"
 #include "Wt/WString"
 #include "Wt/WTree"
 #include "Wt/WTreeTable"
@@ -17,8 +18,6 @@
 #ifndef WT_DEBUG_JS
 #include "js/WTreeTable.min.js"
 #endif
-
-#include "WtException.h"
 
 namespace Wt {
 
@@ -127,8 +126,8 @@ void WTreeTable::setTree(WTree *root, const WString& h)
 void WTreeTable::addColumn(const WString& header, const WLength& width)
 {
   if (treeRoot())
-    throw WtException("WTreeTable::addColumn(): must be called before "
-		      "setTreeRoot()");
+    throw WException("WTreeTable::addColumn(): must be called before "
+		     "setTreeRoot()");
 
   WText *t = new WText(header);
   t->resize(width, WLength::Auto);
