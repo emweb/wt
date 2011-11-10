@@ -216,15 +216,17 @@ void WString::checkUTF8Encoding(std::string& value)
 
 void WString::resolveKey(const std::string& key, std::string& result) const
 {
-  bool resolved = wApp;
-  if (impl_->n_ == -1)
-    resolved = resolved && wApp->localizedStrings_->resolveKey(impl_->key_, 
-							       result);
-  else
-    resolved 
-      = resolved && wApp->localizedStrings_->resolvePluralKey(impl_->key_, 
-							      result,
-							      impl_->n_);
+  bool resolved = false;
+
+  WApplication *app = WApplication::instance();
+  if (app) {
+    if (impl_->n_ == -1)
+      resolved = app->localizedStrings_->resolveKey(impl_->key_, result);
+    else
+      resolved = app->localizedStrings_->resolvePluralKey(impl_->key_, result,
+							  impl_->n_);
+  }
+
   if (!resolved)
     result = "??" + key + "??";
 }

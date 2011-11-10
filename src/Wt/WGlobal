@@ -54,6 +54,7 @@ namespace Wt {
   class WDoubleSpinBox;
   class WDoubleValidator;
   class WEnvironment;
+  class WException;
   class WFileResource;
   class WFileUpload;
   class WFitLayout;
@@ -162,6 +163,79 @@ namespace Wt {
   class WWebWidget;
   class WWidget;
   class WWidgetItem;
+
+  namespace Auth {
+    class AbstractPasswordService;
+    class AbstractUserDatabase;
+    class AuthService;
+    class AuthWidget;
+    class FacebookService;
+    class GoogleService;
+    class HashFunction;
+    class Identity;
+    class Login;
+    class LostPasswordWidget;
+    class OAuthService;
+    class PasswordHash;
+    class PasswordPromptDialog;
+    class PasswordService;
+    class PasswordStrengthChecker;
+    class PasswordVerifier;
+    class RegistrationModel;
+    class RegistrationWidget;
+    class Token;
+    class UpdatePasswordWidget;
+    class User;
+
+    namespace Dbo {
+      template <class UserType> class AuthInfo;
+      template <class DboType> class UserDatabase;
+    }
+  }
+
+  namespace Dbo {
+    struct dbo_default_traits;
+
+    class Call;
+    class Exception;
+    class FixedSqlConnectionPool;
+    class ObjectNotFoundException;
+    class SaveBaseAction;
+    class Session;
+    class SqlConnection;
+    class SqlConnectionPool;
+    class SqlStatement;
+    class StaleObjectException;
+    class Transaction;
+
+    template <class C> class collection;
+    template <class C> struct dbo_traits;
+    template <class C> class ptr;
+    template <class Result, typename BindStrategy> class Query;
+    template <class Result> class QueryModel;
+  }
+
+  namespace Http {
+    class Client;
+    class Message;
+    class Request;
+    class Response;
+    class ResponseContinuation;
+    class WtClient;
+  }
+
+  namespace Json {
+    class Array;
+    class Object;
+    class TypeException;
+    class Value;
+  }
+
+  namespace Mail {
+    class Client;
+    class Mailbox;
+    class Message;
+  }
 
 /*! \brief Enumeration that indicates a direction.
  */

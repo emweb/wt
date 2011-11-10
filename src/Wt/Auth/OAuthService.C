@@ -41,9 +41,7 @@ class OAuthRedirectEndpoint : public WResource
 public:
   OAuthRedirectEndpoint(OAuthProcess *process)
     : WResource(process),
-      process_(process),
-      handling_(false),
-      haveResponse_(false)
+      process_(process)
   {
     setInternalPath(process_->service().redirectInternalPath());
   }
@@ -66,13 +64,6 @@ public:
   {
     if (!request.continuation()) {
       response.setMimeType("text/html; charset=UTF-8");
-
-      if (handling_) {
-	sendError(response);
-	return;
-      }
-
-      handling_ = true;
 
       const std::string *stateE = request.getParameter("state");
       if (!stateE || *stateE != process_->oAuthState_) {
@@ -128,10 +119,8 @@ public:
 	client->post(url, post);
       }
 
-      if (!haveResponse_) {
-	Http::ResponseContinuation *cont = response.createContinuation();
-	cont->waitForMoreData();
-      }
+      Http::ResponseContinuation *cont = response.createContinuation();
+      cont->waitForMoreData();
     } else
       sendResponse(response);
   }
@@ -164,7 +153,6 @@ public:
 
 private:
   OAuthProcess *process_;
-  bool handling_, haveResponse_;
 
   void handleToken(boost::system::error_code err, const Http::Message& response)
   {
@@ -173,7 +161,6 @@ private:
     else
       process_->setError(WString::fromUTF8(err.message()));
 
-    haveResponse_ = true;
     haveMoreData();
   }
 };
@@ -215,7 +202,7 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
       << "&redirect_uri=" << Wt::Utils::urlEncode(service_.getRedirectEndpoint())
       << "&scope=" << Wt::Utils::urlEncode(scope)
       << "&response_type=code"
-      << "&state=" << oAuthState_;
+      << "&state=" << Wt::Utils::urlEncode(oAuthState_);
 
   WStringStream js;
   js << WT_CLASS ".authPopupWindow(" WT_CLASS

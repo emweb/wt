@@ -4,10 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 #include <Wt/WApplication>
+#include <Wt/WContainerWidget>
 #include <Wt/WServer>
 
 #include <Wt/Auth/AuthWidget>
-#include <Wt/Auth/Login>
 #include <Wt/Auth/PasswordService>
 
 #include "model/Session.h"
@@ -17,24 +17,35 @@ class AuthApplication : public Wt::WApplication
 public:
   AuthApplication(const Wt::WEnvironment& env)
     : Wt::WApplication(env),
-      session_("auth.db")
+      session_(appRoot() + "auth.db")
   {
+    session_.login().changed().connect(this, &AuthApplication::authEvent);
+
     useStyleSheet("css/style.css");
 
-    authWidget_ = new Wt::Auth::AuthWidget(Session::auth(), session_.users(),
-					   login_, root());
+    Wt::Auth::AuthWidget *authWidget
+      = new Wt::Auth::AuthWidget(Session::auth(), session_.users(),
+				 session_.login());
 
-    authWidget_->addPasswordAuth(&Session::passwordAuth());
-    authWidget_->addOAuth(Session::oAuth());
-    authWidget_->setRegistrationEnabled(true);
+    authWidget->addPasswordAuth(&Session::passwordAuth());
+    authWidget->addOAuth(Session::oAuth());
+    authWidget->setRegistrationEnabled(true);
 
-    authWidget_->processEnvironment();
+    authWidget->processEnvironment();
+
+    root()->addWidget(authWidget);
+  }
+
+  void authEvent() {
+    if (session_.login().loggedIn())
+      Wt::log("notice") << "User " << session_.login().user().id()
+			<< " logged in.";
+    else
+      Wt::log("notice") << "User logged out.";
   }
 
 private:
   Session session_;
-  Wt::Auth::Login login_;
-  Wt::Auth::AuthWidget *authWidget_;
 };
 
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)

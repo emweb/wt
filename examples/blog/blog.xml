@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <messages xmlns:if="Wt.WTemplate.conditions">
+
   <message id="blog-login">
     ${user-name} ${password} ${remember-me} Remember me
     ${login}${<if:oauth>}, or use ${icons}${</if:oauth>}
@@ -10,7 +11,7 @@
       <div class="login-menu">
 	${login} ${login-link} | ${register-link}
 	<a href="${feed-url}">
-	  <img src="css/rss.png" alt="Rss Feed"
+	  <img src="/css/rss.png" alt="Rss Feed"
 	       style="margin-left: 6px; vertical-align: top;"/>
 	</a>
       </div>

@@ -8,21 +8,31 @@
   <message id="Wt.Auth.mail-sent">An email has been sent. Follow the instructions to set a new password.</message>
   <message id="Wt.Auth.info-email-confirmed">Your email address is now confirmed.</message>
 
+  <message id="Wt.Auth.GoogleService.badresponse">
+    <p>Sorry, could not login using your Google account.</p>
+    <small>
+      <p>Google's identification server generated an unexpected
+	response.</p>
+    </small>
+  </message>
+
   <!-- LoginWidget -->
 
   <message id="Wt.Auth.login-form-title">Login</message>
   <message id="Wt.Auth.login-form-info"></message>
   <message id="Wt.Auth.user-name">User name</message>
   <message id="Wt.Auth.user-name-info">Enter your user name</message>
+  <message id="Wt.Auth.user-name-invalid">Invalid</message>
   <message id="Wt.Auth.email">Email address</message>
   <message id="Wt.Auth.email-info">Enter your email address</message>
   <message id="Wt.Auth.password">Password</message>
   <message id="Wt.Auth.enter-password">Enter your password</message>
   <message id="Wt.Auth.remember-me">Remember me</message>
-  <message id="Wt.Auth.remember-me-info">Keeps you logged in for {1}</message>
+  <message id="Wt.Auth.remember-me-info">Keeps login for {1}</message>
   <message id="Wt.Auth.lost-password">Lost password</message>
   <message id="Wt.Auth.login">Login</message>
   <message id="Wt.Auth.logout">Logout</message>
+  <message id="Wt.Auth.throttle-retry">Retry in {1}s</message>
 
   <!-- RegistrationWidget -->
 
@@ -89,19 +99,19 @@
       ${<if:passwords>}
       
         <label for="${id:user-name}">${user-name-label}
-          <span class="Wt-info">${user-name-info}</span>
+          ${user-name-info class="Wt-info"}
 	</label>
 	${user-name}
 
 	<label for="${id:password}">${tr:Wt.Auth.password}
-	  <span class="Wt-info">${tr:Wt.Auth.password-info}</span>
+          ${password-info class="Wt-info"}
 	</label>
 	${password}
 
 	${<if:remember-me>}
 
 	  <label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
-	    <span class="Wt-info">${tr:Wt.Auth.remember-me-info}</span>
+	    <span class="Wt-info">${remember-me-info}</span>
 	  </label>
 	  ${remember-me}
 

@@ -26,7 +26,7 @@ WT_DECLARE_WT_MEMBER
      if (counter == 0) {
        restore();
      } else {
-       WT.setHtml(button, "Retry in " + counter + " seconds");
+       WT.setHtml(button, text.replace("{1}", counter));
        --counter;
      }
    }

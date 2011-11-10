@@ -8,43 +8,23 @@
 #define USER_H_
 
 #include <Wt/Dbo/Types>
+#include <Wt/WGlobal>
 
 namespace dbo = Wt::Dbo;
-
-namespace Wt {
-  namespace Auth {
-    namespace Dbo {
-      template<class UserType> class AuthInfo;
-    }
-  }
-}
 
 class User;
 typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
 
 class User {
 public:
-  User();
-
-  enum Role {
-    Visitor = 0,
-    Admin = 1
-  };
-
-  Role role;
-  std::string colorPreference;
-
-  dbo::collection< dbo::ptr<AuthInfo> > authInfo;
+  /* You probably want to add other user information here */
 
   template<class Action>
   void persist(Action& a)
   {
-    dbo::field(a, role, "role");
-    dbo::field(a, colorPreference, "color_preference");
-
-    dbo::hasMany(a, authInfo, dbo::ManyToOne, "user");
   }
 };
+
 
 DBO_EXTERN_TEMPLATES(User);
 

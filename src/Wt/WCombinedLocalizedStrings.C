@@ -25,6 +25,11 @@ void WCombinedLocalizedStrings::add(WLocalizedStrings* resolver)
   localizedStrings_.push_back(resolver);
 }
 
+void WCombinedLocalizedStrings::insert(int index, WLocalizedStrings* resolver)
+{
+  localizedStrings_.insert(localizedStrings_.begin() + index, resolver);
+}
+
 void WCombinedLocalizedStrings::remove(WLocalizedStrings *resolver)
 {
   Utils::erase(localizedStrings_, resolver);

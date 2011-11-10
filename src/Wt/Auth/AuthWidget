@@ -362,7 +362,7 @@ private:
   bool registrationEnabled_;
 
   bool created_;
-  WDialog *dialog_;
+  WDialog *dialog_, *messageBox_;
   EnterPasswordFields *enterPasswordFields_;
 
   void logout();

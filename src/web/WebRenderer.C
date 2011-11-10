@@ -568,7 +568,7 @@ void WebRenderer::addResponseAckPuzzle(std::ostream& out)
   std::string puzzle;
 
   Configuration& conf = session_.controller()->configuration();
-  if (conf.ajaxPuzzle() && expectedAckId_ == scriptId_ + 1) {
+  if (conf.ajaxPuzzle() && expectedAckId_ == scriptId_) {
     /*
      * We need to pick a random WContainerWidget. Let's be dumb for now.
      */
@@ -628,8 +628,10 @@ bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
   if (!solution_.empty()) {
     const std::string *ackPuzzleE = request.getParameter("ackPuzzle");
 
-    if (!ackPuzzleE)
+    if (!ackPuzzleE) {
+      session_.log("secure") << "Ajax puzzle fail: solution missing";
       return false;
+    }
 
     std::string ackPuzzle = *ackPuzzleE;
 
@@ -665,8 +667,8 @@ bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
       fail = true;
    
     if (fail) {
-      session_.log("error") << "Ajax puzzle fail: " << ackPuzzle << " vs "
-			    << solution_;
+      session_.log("secyre") << "Ajax puzzle fail: " << ackPuzzle << " vs "
+			     << solution_;
       return false;
     } else
       return true;

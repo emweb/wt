@@ -1282,7 +1282,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    else if (i == 3) property = properties[1];
 	  }
 
-	  if (!app->environment().agentIsIE()
+	  if ((app->environment().ajax() && !app->environment().agentIsIE())
 	      || !layoutImpl_->offsets_[i].isAuto())
 	    element.setProperty(property, layoutImpl_->offsets_[i].cssText());
 	}

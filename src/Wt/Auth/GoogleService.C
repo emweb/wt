@@ -53,7 +53,7 @@ private:
     if (!err && response.status() == 200) {
       Json::ParseError e;
 
-      std::cerr << response.body() << std::endl;
+      Wt::log("notice") << "User info: " << response.body();
 
       Json::Object userInfo;
       bool ok = Json::parse(response.body(), userInfo, e);
@@ -72,6 +72,10 @@ private:
       }
     } else {
       setError(ERROR_MSG("badresponse"));
+      if (!err) {
+	Wt::log("error") << "user info request returned: " << response.status();
+	Wt::log("error") << "with: " << response.body();
+      }
       authenticated().emit(Identity::Invalid);
     }
   }

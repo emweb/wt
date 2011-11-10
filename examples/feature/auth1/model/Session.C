@@ -21,11 +21,9 @@ namespace {
   class MyBaseAuth : public Auth::AuthService
   {
   public:
-    MyBaseAuth()
-    {
+    MyBaseAuth() {
       setAuthTokensEnabled(true, "logincookie");
       setEmailVerificationEnabled(true);
-      setIdentityPolicy(Auth::EmailAddressIdentity);
     }
   };
 
@@ -33,8 +31,7 @@ namespace {
   {
   public:
     MyPasswords(const Auth::AuthService& baseAuth)
-      : Auth::PasswordService(baseAuth)
-    {
+      : Auth::PasswordService(baseAuth) {
       Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
 
       verifier->addHashFunction(new Auth::BCryptHashFunction(7));
@@ -62,8 +59,6 @@ namespace {
   MyPasswords myPasswords(myBaseAuth);
   MyOAuth myOAuth;
 }
-
-namespace dbo = Wt::Dbo;
 
 void Session::initAuth()
 {

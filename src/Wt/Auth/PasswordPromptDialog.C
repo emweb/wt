@@ -9,6 +9,8 @@
 #include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/PasswordPromptDialog"
 
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
 #include "Wt/WTemplate"
@@ -49,6 +51,15 @@ PasswordPromptDialog::PasswordPromptDialog(Login& login,
   cancelButton->clicked().connect(this, &PasswordPromptDialog::reject);
 
   contents()->addWidget(impl_);
+
+  if (!WApplication::instance()->environment().ajax()) {
+    /*
+     * try to center it better, we need to set the half width and
+     * height as negative margins.
+     */
+     setMargin("-21em", Left); // .Wt-form width
+     setMargin("-200px", Top); // ???
+  }
 }
 
 void PasswordPromptDialog::check()

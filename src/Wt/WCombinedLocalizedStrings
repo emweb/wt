@@ -44,7 +44,9 @@ public:
    * Ownership of the resolver is transferred.
    * \endif
    */
-  void add(WLocalizedStrings* resolver);
+  void add(WLocalizedStrings *resolver);
+
+  void insert(int index, WLocalizedStrings *resolver);
 
   /*! \brief Removes a string resolver.
    *

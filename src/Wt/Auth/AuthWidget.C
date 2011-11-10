@@ -54,6 +54,7 @@ AuthWidget::AuthWidget(const AuthService& baseAuth,
     registrationEnabled_(false),
     created_(false),
     dialog_(0),
+    messageBox_(0),
     enterPasswordFields_(0)
 {
   addFunction("id", &WTemplate::Functions::id);
@@ -133,6 +134,16 @@ WDialog *AuthWidget::showDialog(const WString& title, WWidget *contents)
     dialog_->contents()->addWidget(contents);
     dialog_->contents()->childrenChanged()
       .connect(this, &AuthWidget::closeDialog);
+
+    if (!WApplication::instance()->environment().ajax()) {
+      /*
+       * try to center it better, we need to set the half width and
+       * height as negative margins.
+       */
+      dialog_->setMargin("-21em", Left); // .Wt-form width
+      dialog_->setMargin("-200px", Top); // ???
+    }
+
     dialog_->show();
   }
 
@@ -141,8 +152,13 @@ WDialog *AuthWidget::showDialog(const WString& title, WWidget *contents)
 
 void AuthWidget::closeDialog()
 {
-  delete dialog_;
-  dialog_ = 0;
+  if (messageBox_) {
+    delete messageBox_;
+    messageBox_ = 0;
+  } else {
+    delete dialog_;
+    dialog_ = 0;
+  }
 }
 
 WWidget *AuthWidget::createRegistrationView(const Identity& id)
@@ -195,24 +211,24 @@ void AuthWidget::logout()
 
 void AuthWidget::displayError(const WString& m)
 {
-  delete dialog_;
+  delete messageBox_;
 
   WMessageBox *box = new WMessageBox(tr("Wt.Auth.error"), m, NoIcon, Ok);
   box->buttonClicked().connect(this, &AuthWidget::closeDialog);
   box->show();
 
-  dialog_ = box;
+  messageBox_ = box;
 }
 
 void AuthWidget::displayInfo(const WString& m)
 {
-  delete dialog_;
+  delete messageBox_;
 
   WMessageBox *box = new WMessageBox(tr("Wt.Auth.notice"), m, NoIcon, Ok);
   box->buttonClicked().connect(this, &AuthWidget::closeDialog);
   box->show();
 
-  dialog_ = box;
+  messageBox_ = box;
 }
 
 void AuthWidget::render(WFlags<RenderFlag> flags)
@@ -267,16 +283,18 @@ void AuthWidget::createPasswordLogin()
     setCondition("if:passwords", true);
     WLineEdit *userName = new WLineEdit();
     bindWidget("user-name", userName);
+    WText *userNameInfo = new WText();
+    bindWidget("user-name-info", userNameInfo);
 
     switch (baseAuth_.identityPolicy()) {
     case UserNameIdentity:
     case OptionalIdentity:
       bindString("user-name-label", tr("Wt.Auth.user-name"));
-      bindString("user-name-info", tr("Wt.Auth.user-name-info"));
+      userNameInfo->setText(tr("Wt.Auth.user-name-info"));
       break;
     case EmailAddressIdentity:
       bindString("user-name-label", tr("Wt.Auth.email"));
-      bindString("user-name-info", tr("Wt.Auth.email-info"));
+      userNameInfo->setText(tr("Wt.Auth.email-info"));
       break;
     default:
       break;
@@ -284,11 +302,21 @@ void AuthWidget::createPasswordLogin()
 
     WLineEdit *password = new WLineEdit();
     bindWidget("password", password);
+    WText *passwordInfo = new WText();
+    bindWidget("password-info", passwordInfo);
 
     if (baseAuth_.authTokensEnabled()) {
       setCondition("if:remember-me", true);
       WCheckBox *rememberme = new WCheckBox();
       bindWidget("remember-me", rememberme);
+
+      int days = baseAuth_.authTokenValidity() / 24 / 60;
+      WString info = tr("Wt.Auth.remember-me-info"); 
+      if (days % 7 != 0)
+	info.arg(boost::lexical_cast<std::string>(days) + " days");
+      else
+	info.arg(boost::lexical_cast<std::string>(days/7) + " weeks");
+      bindString("remember-me-info", info);
     }
 
     if (baseAuth_.emailVerificationEnabled()) {
@@ -320,7 +348,8 @@ void AuthWidget::createPasswordLogin()
 
     WPushButton *login = resolve<WPushButton *>("login");
     enterPasswordFields_
-      = new EnterPasswordFields(*passwordAuth_, password, 0, login, this);
+      = new EnterPasswordFields(*passwordAuth_, password, passwordInfo,
+				login, this);
 
     if (baseAuth_.authTokensEnabled()) {
       WApplication::instance()->setCookie
@@ -377,8 +406,10 @@ void AuthWidget::oAuthDone(OAuthProcess *oauth, const Identity& identity)
 
     if (t.get())
       t->commit();
-  } else
+  } else {
     Wt::log("auth") << oauth->service().name() << ": error: " << oauth->error();
+    displayError(oauth->error());
+  }
 }
 
 void AuthWidget::createLoggedInView()
@@ -397,16 +428,23 @@ void AuthWidget::attemptLogin()
 {
   if (passwordAuth_) {
     WFormWidget *userName = resolve<WFormWidget *>("user-name");
+    WText *userNameInfo = resolve<WText *>("user-name-info");
+
     WFormWidget *rememberme = resolve<WFormWidget *>("remember-me");
 
     bool remember = rememberme ? rememberme->valueText() == "yes" : 0;
 
-    std::auto_ptr<AbstractUserDatabase::Transaction> tr
+    std::auto_ptr<AbstractUserDatabase::Transaction> t
       (users_.startTransaction());
 
     User user = users_.findWithIdentity("username", userName->valueText());
     bool valid = user.isValid();
     userName->toggleStyleClass("Wt-invalid", !valid);
+    if (userNameInfo) {
+      userNameInfo->toggleStyleClass("Wt-error", !valid);
+      userNameInfo->setText(valid ? tr("Wt.Auth.valid")
+			    : tr("Wt.Auth.user-name-invalid"));
+    }
 
     if (!enterPasswordFields_->validate(user))
       valid = false;
@@ -418,8 +456,8 @@ void AuthWidget::attemptLogin()
       login_.login(user);
     }
 
-    if (tr.get())
-      tr->commit();
+    if (t.get())
+      t->commit();
   }
 }
 

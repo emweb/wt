@@ -15,18 +15,6 @@
 
 #include "User.h"
 
-namespace Wt {
-  namespace Auth {
-    class AuthService;
-    class OAuthService;
-    class PasswordService;
-
-    namespace Dbo {
-      template <class DboType> class UserDatabase;
-    }
-  }
-}
-
 namespace dbo = Wt::Dbo;
 
 typedef Wt::Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;

@@ -873,7 +873,7 @@ void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
     delete previous;
   }
 
-  localizedStrings_->add(translator);
+  localizedStrings_->insert(0, translator);
 }
 
 void WApplication::refresh()

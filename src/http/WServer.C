@@ -95,6 +95,9 @@ void WServer::setServerConfiguration(int argc, char *argv[],
   parseArgsPartially(argc, argv, serverConfigurationFile,
 		     wtConfigFile, appRoot);
 
+  if (!appRoot.empty())
+    setAppRoot(appRoot);
+
   if (configurationFile().empty())
     setConfiguration(wtConfigFile);
 

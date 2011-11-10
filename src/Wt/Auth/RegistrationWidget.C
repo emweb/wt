@@ -246,6 +246,8 @@ void RegistrationWidget::oAuthDone(OAuthProcess *oauth,
     if (!model_->registerIdentified(identity))
       update();
   } else {
+    if (authWidget_)
+      authWidget_->displayError(oauth->error());
     Wt::log("auth") << oauth->service().name() << ": error: " << oauth->error();
   }
 }
@@ -362,7 +364,6 @@ void RegistrationWidget::confirmedIsYou()
 {
   if (confirmPasswordLogin_->state() == StrongLogin) {
     model_->existingUserConfirmed();
-    close();
   } else {
     delete confirmPasswordLogin_;
     confirmPasswordLogin_ = 0;

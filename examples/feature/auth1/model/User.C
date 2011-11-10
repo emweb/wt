@@ -10,7 +10,3 @@
 
 DBO_INSTANTIATE_TEMPLATES(User);
 
-User::User()
-  : role(Visitor)
-{ }
-
