@@ -19,12 +19,25 @@ class BlogUserDatabase : public Wt::Auth::AbstractUserDatabase
 public:
   BlogUserDatabase(dbo::Session& session);
 
-  Transaction *startTransaction();
+  virtual Transaction *startTransaction();
 
   dbo::ptr<User> find(const Wt::Auth::User& user) const;
   Wt::Auth::User find(dbo::ptr<User> user) const;
 
-  virtual Wt::Auth::User findIdentity(const Wt::WString& userName) const;
+  virtual Wt::Auth::User findWithId(const std::string& id) const;
+
+  virtual Wt::Auth::User findWithIdentity(const std::string& provider,
+					  const Wt::WString& identity) const;
+
+  virtual void addIdentity(const Wt::Auth::User& user,
+			   const std::string& provider,
+			   const Wt::WString& identity);
+
+  virtual Wt::WString identity(const Wt::Auth::User& user,
+			       const std::string& provider) const;
+
+  virtual void removeIdentity(const Wt::Auth::User& user,
+			      const std::string& provider);
 
   virtual Wt::Auth::PasswordHash password(const Wt::Auth::User& user) const;
   virtual void setPassword(const Wt::Auth::User& user,
@@ -34,10 +47,7 @@ public:
   virtual void setStatus(const Wt::Auth::User& user,
 			 Wt::Auth::User::Status status);
 
-  virtual void addOAuthId(const Wt::Auth::User& user, const std::string& id);
-  virtual Wt::Auth::User findOAuthId(const std::string& identity) const;
-
-  virtual Wt::Auth::User registerNew(const Wt::WString& identity);
+  virtual Wt::Auth::User registerNew();
 
   virtual void addAuthToken(const Wt::Auth::User& user,
 			    const Wt::Auth::Token& token);
@@ -64,7 +74,7 @@ private:
     dbo::Transaction transaction;
   };
 
-  void getUser(const Wt::WString& userName) const;
+  void getUser(const std::string& id) const;
 };
 
 #endif // USER_H_

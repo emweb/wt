@@ -5,7 +5,7 @@
  */
 
 #include "Wt/Auth/LostPasswordWidget"
-#include "Wt/Auth/BaseAuth"
+#include "Wt/Auth/AuthService"
 
 #include "Wt/WLineEdit"
 #include "Wt/WMessageBox"
@@ -16,22 +16,25 @@ namespace Wt {
   namespace Auth {
 
 LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
-				       const BaseAuth& auth,
+				       const AuthService& auth,
 				       WContainerWidget *parent)
   : WTemplate(tr("Wt.Auth.template.lost-password"), parent),
     users_(users),
     baseAuth_(auth)
 {
+  addFunction("id", &WTemplate::Functions::id);
+  addFunction("tr", &WTemplate::Functions::tr);
+
   WLineEdit *email = new WLineEdit();
 
   WPushButton *okButton = new WPushButton(tr("Wt.Auth.send"));
-  WPushButton *cancelButton = new WPushButton(tr("Wt.Auth.cancel"));
+  WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
 
   okButton->clicked().connect(this, &LostPasswordWidget::send);
   cancelButton->clicked().connect(this, &LostPasswordWidget::cancel);
 
   bindWidget("email", email);
-  bindWidget("ok-button", okButton);
+  bindWidget("send-button", okButton);
   bindWidget("cancel-button", cancelButton);
 }
 

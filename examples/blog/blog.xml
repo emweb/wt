@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<messages>
+<messages xmlns:if="Wt.WTemplate.conditions">
   <message id="blog-login">
-    ${name} ${password} ${remember-me} ${login},
+    ${user-name} ${password} ${remember-me} Remember me
+    ${login}${<if:oauth>}, or use ${icons}${</if:oauth>}
   </message>
 
   <message id="blog-login-status">

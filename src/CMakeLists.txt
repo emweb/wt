@@ -217,25 +217,25 @@ Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
 Wt/Auth/md5.c
-Wt/Auth/AbstractPasswordAuth.C
+Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.C
+Wt/Auth/AuthService.C
 Wt/Auth/AuthWidget.C
-Wt/Auth/BaseAuth.C
-Wt/Auth/ChoosePasswordFields.C
 Wt/Auth/EnterPasswordFields.C
-Wt/Auth/FacebookAuth.C
-Wt/Auth/GoogleAuth.C
+Wt/Auth/FacebookService.C
+Wt/Auth/GoogleService.C
 Wt/Auth/HashFunction.C
 Wt/Auth/Identity.C
 Wt/Auth/Login.C
 Wt/Auth/LostPasswordWidget.C
-Wt/Auth/OAuth.C
+Wt/Auth/OAuthService.C
 Wt/Auth/PasswordStrengthChecker.C
 Wt/Auth/passwdqc_check.c
-Wt/Auth/PasswordAuth.C
+Wt/Auth/PasswordService.C
 Wt/Auth/PasswordHash.C
 Wt/Auth/PasswordVerifier.C
 Wt/Auth/PasswordPromptDialog.C
+Wt/Auth/RegistrationModel.C
 Wt/Auth/RegistrationWidget.C
 Wt/Auth/Token.C
 Wt/Auth/UpdatePasswordWidget.C
@@ -301,6 +301,12 @@ IF (MULTI_THREADED_BUILD)
   SET(libsources ${libsources} web/SocketNotifier.C)
 ENDIF(MULTI_THREADED_BUILD)
 
+# How to include x86.S ?
+SET(libsources ${libsources}
+      Wt/Auth/bcrypt/crypt_blowfish.c
+      Wt/Auth/bcrypt/crypt_gensalt.c
+      Wt/Auth/bcrypt/wrapper.c)
+
 IF(HAVE_HARU)
   SET(libsources ${libsources} Wt/WPdfImage.C Wt/Render/WPdfRenderer.C)
   SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} ${BOOST_FS_LIB})
@@ -331,7 +337,7 @@ IF(HAVE_SSL)
   TARGET_LINK_LIBRARIES(wt ${SSL_LIBRARIES})
   INCLUDE_DIRECTORIES(${SSL_INCLUDE_DIRS})
 ELSE(HAVE_SSL)
-  MESSAGE("** Disabling crypto support (Auth::SHA1HashFunction): requires OpenSSL.")
+  MESSAGE("** Disabling crypto support (Auth::SHA1HashFunction, HTTPS support): requires OpenSSL.")
   IF(ENABLE_SSL)
     MESSAGE("   Indicate the location of your OpenSSL library using -DSSL_PREFIX=...")
   ENDIF(ENABLE_SSL)

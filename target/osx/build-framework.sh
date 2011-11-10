@@ -14,7 +14,7 @@
 
 : ${BUILD_DIR:=`pwd`}
 : ${WT_DIR:=`pwd`/..}
-: ${WT_VERSION:=3_1_8}
+: ${WT_VERSION:=3_1_11}
 : ${FRAMEWORKDIR:=`pwd`}
 
 BUILD_ARMV6_DIR=$BUILD_DIR/build-armv6
@@ -34,7 +34,7 @@ TMP_DIR=$BUILD_DIR/tmp
        -DENABLE_GM=OFF \
        -DENABLE_HARU=OFF \
        -DENABLE_QT4=OFF \
-       -DHTTP_WITH_SSL=OFF \
+       -DENABLE_SSL=OFF \
        -DHTTP_WITH_ZLIB=OFF}
 
 abort()
@@ -174,8 +174,8 @@ EOF
 }
 
 #clean
-build-armv6
-build-armv7
+#build-armv6
+#build-armv7
 build-i386
 combineLibs $BUILD_ARMV6_DIR
 combineLibs $BUILD_ARMV7_DIR

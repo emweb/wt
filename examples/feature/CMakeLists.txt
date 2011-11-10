@@ -1,4 +1,5 @@
 SUBDIRS(
+  auth1
   broadcast
   dbo
   mediaplayer

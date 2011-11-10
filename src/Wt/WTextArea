@@ -122,6 +122,12 @@ public:
    */
   virtual WT_USTRING valueText() const;
 
+  /*! \brief Sets the current value.
+   *
+   * Calls setText().
+   */
+  virtual void setValueText(const WT_USTRING& text);
+
 private:
   WT_USTRING content_;
   int      cols_, rows_;

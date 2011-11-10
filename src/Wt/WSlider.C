@@ -530,4 +530,11 @@ WT_USTRING WSlider::valueText() const
   return WT_USTRING::fromUTF8(boost::lexical_cast<std::string>(value_));
 }
 
+void WSlider::setValueText(const WT_USTRING& value)
+{
+  try {
+    value_ = boost::lexical_cast<int>(value);
+  } catch (boost::bad_lexical_cast& e) { }
+}
+
 }

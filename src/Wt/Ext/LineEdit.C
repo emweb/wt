@@ -107,8 +107,7 @@ void LineEdit::setGrowToContent(bool grow, int minWidth, int maxWidth)
 WValidator::State LineEdit::validate()
 {
   if (validator()) {
-    WT_USTRING text = lineEdit_->text();
-    return validator()->validate(text);
+    return validator()->validate(lineEdit_->text()).state();
   } else
     return WValidator::Valid;
 }

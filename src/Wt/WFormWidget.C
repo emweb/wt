@@ -249,6 +249,7 @@ void WFormWidget::validatorChanged()
   }
 
   std::string inputFilter = validator_->inputFilter();
+
   if (!inputFilter.empty()) {
     if (!filterInput_) {
       filterInput_ = new JSlot();
@@ -265,6 +266,7 @@ void WFormWidget::validatorChanged()
     delete filterInput_;
     filterInput_ = 0;
   }
+
   validate();
 }
 
@@ -374,21 +376,19 @@ void WFormWidget::setValidator(WValidator *validator)
     delete filterInput_;
     filterInput_ = 0;
   }
-
 }
 
 WValidator::State WFormWidget::validate()
 {
   if (validator()) {
-    WT_USTRING v = valueText();
+    WValidator::Result result = validator()->validate(valueText());
 
-    WValidator::State result = validator()->validate(v);
-    if (result == WValidator::Valid)
-      removeStyleClass("Wt-invalid", true);
-    else
-      addStyleClass("Wt-invalid", true);
+    toggleStyleClass("Wt-invalid", result.state() != WValidator::Valid, true);
+    setToolTip(result.message());
 
-    return result;
+    validated_.emit(result);
+
+    return result.state();
   } else
     return WValidator::Valid;
 }

@@ -7,17 +7,17 @@
 #ifndef WT_AUTH_AUTH_WIDGET_H_
 #define WT_AUTH_AUTH_WIDGET_H_
 
-#include <Wt/WCompositeWidget>
-#include <Wt/Auth/OAuth>
+#include <Wt/WTemplate>
+#include <Wt/Auth/OAuthService>
 
 namespace Wt {
   namespace Auth {
 
-class AbstractPasswordAuth;
+class AbstractPasswordService;
 class AbstractUserDatabase;
 class EnterPasswordFields;
 class Login;
-class OAuth;
+class OAuthService;
 class User;
 
 /*! \class AuthWidget Wt/Auth/AuthWidget
@@ -56,12 +56,9 @@ class User;
  *
  * \ingroup auth
  */
-class WT_API AuthWidget : public WCompositeWidget
+class WT_API AuthWidget : public WTemplate
 {
 public:
-  static const char *PasswordLoginWidget;
-  static const char *OAuthLoginWidget;
-
   /*! \brief Constructor
    *
    * Creates a new authentication widget which uses the authentication
@@ -74,7 +71,7 @@ public:
    * Authentication methods should be configured using
    * addPasswordAuth() and addOAuth().
    */
-  AuthWidget(const BaseAuth& baseAuth, AbstractUserDatabase& users,
+  AuthWidget(const AuthService& baseAuth, AbstractUserDatabase& users,
 	     Login& login, WContainerWidget *parent = 0);
 
   /*! \brief Sets an internal path for authentication services.
@@ -83,8 +80,8 @@ public:
    * internal path (so that one can redirect a user to the
    * registration page). Other internal paths involved in
    * authentication are configured in the service classes:
-   * - BaseAuth::setEmailRedirectInternalPath(): email tokens
-   * - OAuth::redirectInternalPath(): an internal path used during the oauth
+   * - AuthService::setEmailRedirectInternalPath(): email tokens
+   * - OAuthService::redirectInternalPath(): an internal path used during the oauth
    *   process.
    */
   void setInternalBasePath(const std::string& path);
@@ -106,7 +103,7 @@ public:
    *
    * This returns the service passed through the constructor.
    */
-  const BaseAuth *baseAuth() const { return &baseAuth_; }
+  const AuthService *baseAuth() const { return &baseAuth_; }
 
   /*! \brief Adds a password authentication service.
    *
@@ -120,13 +117,13 @@ public:
    *
    * \sa addOAuth()
    */
-  void addPasswordAuth(const AbstractPasswordAuth *auth);
+  void addPasswordAuth(const AbstractPasswordService *auth);
 
   /*! \brief Returns the password authentication service.
    *
    * \sa addPasswordAuth()
    */
-  const AbstractPasswordAuth *passwordAuth() const { return passwordAuth_; }
+  const AbstractPasswordService *passwordAuth() const { return passwordAuth_; }
 
   /*! \brief Adds an OAuth authentication service provider.
    *
@@ -136,19 +133,19 @@ public:
    *
    * \sa addPasswordAuth()
    */
-  void addOAuth(const OAuth *auth);
+  void addOAuth(const OAuthService *auth);
 
   /*! \brief Adds a list of OAuth authentication service providers.
    *
    * \sa addOAuth()
    */
-  void addOAuth(const std::vector<const OAuth *>& auth);
+  void addOAuth(const std::vector<const OAuthService *>& auth);
 
   /*! \brief Returns the list of OAuth authentication service providers.
    *
    * \sa addOAuth()
    */
-  std::vector<const OAuth *> oAuth() const { return oAuth_; }
+  std::vector<const OAuthService *> oAuth() const { return oAuth_; }
 
   /*! \brief Configures registration capabilities.
    *
@@ -156,7 +153,7 @@ public:
    * view, it may offer a button/link to do so, and calls
    * registerNewUser() when a user wishes to register.
    *
-   * Even if registration is not enabled, the result of an OAuth login
+   * Even if registration is not enabled, the result of an OAuthService login
    * process may be that a new user is identified. Then the
    * createRegistrationView() is also used to present this new user with
    * a registration view, passing the information obtained through OAuth.
@@ -172,7 +169,7 @@ public:
   /*! \brief Starts a new registration process.
    *
    * This starts a new registration process, and may be called in response to
-   * a user action, an internal path change, or an OAuth login procedure which
+   * a user action, an internal path change, or an OAuthService login procedure which
    * identified a new user. In the latter case, the OAuth-provided information
    * is passed as parameter \p oauth.
    *
@@ -236,7 +233,7 @@ public:
    * \sa Login::loggedIn()
    * \sa createLoggedInView()
    */
-  virtual WWidget *createLoginView();
+  virtual void createLoginView();
 
   /*! \brief Creates the view shown when the user is logged in.
    *
@@ -246,7 +243,7 @@ public:
    * \sa Login::loggedIn()
    * \sa createLoginView()
    */
-  virtual WWidget *createLoggedInView();
+  virtual void createLoggedInView();
 
   /*! \brief Creates a password login view.
    *
@@ -259,7 +256,7 @@ public:
    *
    * \sa createLoginView()
    */
-  virtual WWidget *createPasswordLogin();
+  virtual void createPasswordLogin();
 
   /*! \brief Creates a lost password view.
    *
@@ -315,7 +312,7 @@ public:
    *
    * \sa createLoginView();
    */
-  virtual WWidget *createOAuthLogin();
+  virtual void createOAuthLogin();
 
   /*! \brief Creates a password prompt dialog.
    *
@@ -328,6 +325,9 @@ public:
   virtual WDialog *createPasswordPromptDialog(Login& login);
 
   void attemptLogin();
+
+  virtual void displayError(const WString& error);
+  virtual void displayInfo(const WString& message);
 
 protected:
   /*! \brief Creates the user-interface.
@@ -350,22 +350,18 @@ protected:
    */
   virtual WDialog *showDialog(const WString& title, WWidget *contents);
 
-  virtual void displayError(const WString& error);
-  virtual void displayInfo(const WString& message);
-
   virtual void render(WFlags<RenderFlag> flags);
 
 private:
-  const BaseAuth& baseAuth_;
+  const AuthService& baseAuth_;
   AbstractUserDatabase& users_;
   Login& login_;
   std::string basePath_;
-  const AbstractPasswordAuth *passwordAuth_;
-  std::vector<const OAuth *> oAuth_;
+  const AbstractPasswordService *passwordAuth_;
+  std::vector<const OAuthService *> oAuth_;
   bool registrationEnabled_;
 
   bool created_;
-  WContainerWidget *impl_;
   WDialog *dialog_;
   EnterPasswordFields *enterPasswordFields_;
 
@@ -376,8 +372,8 @@ private:
   void onPathChange(const std::string& path);
   bool handleRegistrationPath(const std::string& path);
 
-  void oAuthStateChange(OAuth::Process *process);
-  void oAuthDone(OAuth::Process *process, const Identity& identity);
+  void oAuthStateChange(OAuthProcess *process);
+  void oAuthDone(OAuthProcess *process, const Identity& identity);
   void setAuthToken(const User& user);
 };
 

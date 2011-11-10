@@ -1766,9 +1766,15 @@ void WebSession::notify(const WEvent& event)
 	throw;
       }
 
+      const std::string *hashE = request.getParameter("_");
+
       WResource *resource = 0;
-      if (!requestE && !request.pathInfo().empty())
-	resource = app_->decodeExposedResource("/path/" + request.pathInfo());
+      if (!requestE) {
+	if (!request.pathInfo().empty())
+	  resource = app_->decodeExposedResource("/path/" + request.pathInfo());
+	if (!resource && hashE)
+	  resource = app_->decodeExposedResource("/path/" + *hashE);
+      } 
 
       const std::string *resourceE = request.getParameter("resource");
       const std::string *signalE = getSignal(request, "");
@@ -1916,7 +1922,6 @@ void WebSession::notify(const WEvent& event)
 	if (handler.response()
 	    && handler.response()->responseType() == WebResponse::Page
 	    && !env_->ajax()) {
-	  const std::string *hashE = request.getParameter("_");
 	  if (hashE)
 	    app_->changedInternalPath(*hashE);
 	  else if (!request.pathInfo().empty())

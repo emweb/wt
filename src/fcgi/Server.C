@@ -463,6 +463,9 @@ void Server::handleRequest(int serverSocket)
 	      scriptName = value;
 	  }
 	}
+      } else {
+	delete d;
+	break;
       }
     }
 

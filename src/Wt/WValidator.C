@@ -11,6 +11,15 @@
 
 namespace Wt {
 
+WValidator::Result::Result()
+  : state_(Invalid)
+{ }
+
+WValidator::Result::Result(State state, const WString& message)
+  : state_(state),
+    message_(message)
+{ }
+
 WValidator::WValidator(WObject *parent)
   : WObject(parent),
     mandatory_(false)
@@ -52,14 +61,14 @@ WString WValidator::invalidBlankText() const
 void WValidator::fixup(WString& input) const
 { }
 
-WValidator::State WValidator::validate(WT_USTRING& input) const
+WValidator::Result WValidator::validate(const WT_USTRING& input) const
 {
   if (isMandatory()) {
     if (input.empty())
-      return InvalidEmpty;
+      return Result(InvalidEmpty, invalidBlankText());
   }
 
-  return Valid;
+  return Result(Valid);  
 }
 
 std::string WValidator::javaScriptValidate() const

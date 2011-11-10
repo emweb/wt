@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<messages>
+<messages xmlns:if="Wt.WTemplate.conditions">
+
   <!-- BaseAuth, PasswordAuth and OAuth models -->
 
   <message id="Wt.Auth.error-invalid-token">The operation could not be completed: invalid token.</message>
@@ -9,7 +10,16 @@
 
   <!-- LoginWidget -->
 
+  <message id="Wt.Auth.login-form-title">Login</message>
+  <message id="Wt.Auth.login-form-info"></message>
+  <message id="Wt.Auth.user-name">User name</message>
+  <message id="Wt.Auth.user-name-info">Enter your user name</message>
+  <message id="Wt.Auth.email">Email address</message>
+  <message id="Wt.Auth.email-info">Enter your email address</message>
+  <message id="Wt.Auth.password">Password</message>
+  <message id="Wt.Auth.enter-password">Enter your password</message>
   <message id="Wt.Auth.remember-me">Remember me</message>
+  <message id="Wt.Auth.remember-me-info">Keeps you logged in for {1}</message>
   <message id="Wt.Auth.lost-password">Lost password</message>
   <message id="Wt.Auth.login">Login</message>
   <message id="Wt.Auth.logout">Logout</message>
@@ -19,22 +29,19 @@
   <message id="Wt.Auth.registration-form-title">Registration</message>
   <message id="Wt.Auth.registration-form-info">Please complete the following information to register.</message>
   <message id="Wt.Auth.password-or-oauth-registration"><h3>Register using a user name and password:</h3></message>
-  <message id="Wt.Auth.oauth-registration"><h3>Register through a third party:</h3></message>
-  <message id="Wt.Auth.or-oauth-registration"><h3>Or, register through a third party:</h3></message>
-  <message id="Wt.Auth.identity">User name</message>
-  <message id="Wt.Auth.identity-valid">Valid</message>
-  <message id="Wt.Auth.password">Password</message>
-  <message id="Wt.Auth.password-valid">Valid</message>
+  <message id="Wt.Auth.oauth-registration"><h3>Register with an identity provider:</h3></message>
+  <message id="Wt.Auth.or-oauth-registration"><h3>Or, register with an identity provider:</h3></message>
+  <message id="Wt.Auth.valid">Valid</message>
   <message id="Wt.Auth.password2">Repeat password</message>
   <message id="Wt.Auth.password2-info">Re-enter your password</message>
-  <message id="Wt.Auth.password2-valid">Valid</message>
-  <message id="Wt.Auth.oauth">Provider</message>
+  <message id="Wt.Auth.email-invalid">Invalid email address</message>
+  <message id="Wt.Auth.email-exists">Email already registered</message>
+  <message id="Wt.Auth.oauth">Your account</message>
   <message id="Wt.Auth.oauth-info">Choose one of your accounts</message>
-  <message id="Wt.Auth.identity-exists">User already exists</message>
+  <message id="Wt.Auth.user-name-exists">User already exists</message>
   <message id="Wt.Auth.confirm-is-you">User exists, is this you?</message>
-  <message id="Wt.Auth.identity-tooshort">Min. size {1} characters</message>
+  <message id="Wt.Auth.user-name-tooshort">Min. size {1} characters</message>
   <message id="Wt.Auth.password-tooshort">Min. size {1} characters</message>
-  <message id="Wt.Auth.enter-password">Enter your password</message>
   <message id="Wt.Auth.passwords-dont-match">Passwords don't match</message>
   <message id="Wt.Auth.registration">Registration</message>
   <message id="Wt.Auth.register">Register</message>
@@ -58,83 +65,111 @@
   <message id="Wt.Auth.new-password2">Repeat new password</message>
   <message id="Wt.Auth.new-password2-info">Re-enter your new password</message>
 
+  <!-- LostPasswordDialog -->
+
+  <message id="Wt.Auth.lostpassword">Password forgotten? No sweat!</message>
+  <message id="Wt.Auth.lost-password-form-title">Recover your password</message>
+  <message id="Wt.Auth.lost-password-form-info">Please enter below the
+  email address which you used during registration. A mail will be
+  sent with instructions to enter a new password.</message>
+  <message id="Wt.Auth.send">Send</message>
+
+  <!-- Message boxes -->
+
+  <message id="Wt.Auth.error">Error</message>
+  <message id="Wt.Auth.notice">Notice</message>
+
   <!-- templates -->
 
-  <message id="Wt.Auth.template.passwords-login">
-    <div class="Wt-form">
+  <message id="Wt.Auth.template.login">
+    <div class="Wt-form Wt-auth-login">
       <h2>${tr:Wt.Auth.login-form-title}</h2>
       <p>${tr:Wt.Auth.login-form-info}</p>
 
-      <label for="${id:identity}">${tr:Wt.Auth.identity}
-	<span class="Wt-info">${tr:Wt.Auth.identity-info}</span>
-      </label>
-      ${identity}
+      ${<if:passwords>}
+      
+        <label for="${id:user-name}">${user-name-label}
+          <span class="Wt-info">${user-name-info}</span>
+	</label>
+	${user-name}
 
-      <label for="${id:password}">${tr:Wt.Auth.password}
-	<span class="Wt-info">${tr:Wt.Auth.password-info}</span>
-      </label>
-      ${password}
+	<label for="${id:password}">${tr:Wt.Auth.password}
+	  <span class="Wt-info">${tr:Wt.Auth.password-info}</span>
+	</label>
+	${password}
 
-      <label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
-	<span class="Wt-info">${tr:Wt.Auth.remember-me-info}</span>
-      </label>
-      ${remember-me}
+	${<if:remember-me>}
 
-      <div class="Wt-buttons">
-	${lost-password} | ${register}
-      </div>
+	  <label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
+	    <span class="Wt-info">${tr:Wt.Auth.remember-me-info}</span>
+	  </label>
+	  ${remember-me}
+
+	${</if:remember-me>}
+
+      ${</if:passwords>}
+
+      ${<if:oauth>}
+
+        <div class="Wt-col-right">
+	  <h3>Or use:</h3>
+	  ${icons}
+	</div>
+
+      ${</if:oauth>}
 
       <div class="Wt-buttons">
 	${login}
       </div>
+
+      <div class="Wt-buttons">
+	${lost-password} ${sep} ${register}
+      </div>
     </div>
   </message>
 
-  <message id="Wt.Auth.template.oauth-login">
-    or using ${icons}
-  </message>
-
   <message id="Wt.Auth.template.registration">
-    <div class="Wt-form">
+    <div class="Wt-form Wt-auth-registration">
       <h2>${tr:Wt.Auth.registration-form-title}</h2>
       <p>${tr:Wt.Auth.registration-form-info}</p>
 
       ${password-description}
 
-      <div style="display: ${identity-display}">
-	<label for="${id:identity}">${tr:Wt.Auth.identity}
-	  ${identity-info class=Wt-info}
+      ${<if:user-name>}
+	<label for="${id:user-name}">${user-name-label}
+	  ${user-name-info class=Wt-info}
 	  ${confirm-is-you class="Wt-info"}
 	</label>
-	${identity}
-      </div>
+	${user-name}
+      ${</if:user-name>}
 
-      <div style="display: ${password-display}">
+      ${<if:password>}
 	<label for="${id:password}">${tr:Wt.Auth.password}
-	  ${password-info class="Wt-info"}
+	${password-info class="Wt-info"}
 	</label>
 	${password}
 
 	<label for="${id:password2}">${tr:Wt.Auth.password2}
-	${password2-info class="Wt-info"}
+	  ${password2-info class="Wt-info"}
 	</label>
 	${password2}
-      </div>
+      ${</if:password>}
 
-      <div style="display: ${email-display}">
+      ${<if:email>}
 	<label for="${id:email}">${tr:Wt.Auth.email}
-	${email-info class="Wt-info"}
+	  ${email-info class="Wt-info"}
 	</label>
 	${email}
-      </div>
+      ${</if:email>}
 
-      <div style="display: ${oauth-display}">
+      ${<if:oauth>}
+        <br clear="both" />
 	${oauth-description}
 	<label>${tr:Wt.Auth.oauth}
 	<span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
 	</label>
 	${icons}
-      </div>
+      ${</if:oauth>}
 
       <div class="Wt-buttons">
 	${ok-button} ${cancel-button}
@@ -143,20 +178,20 @@
   </message>
 
   <message id="Wt.Auth.template.update-password">
-    <div class="Wt-form">
+    <div class="Wt-form Wt-auth-update-password">
       <h2>${tr:Wt.Auth.update-password-form-title}</h2>
       <p>${tr:Wt.Auth.update-password-form-info}</p>
 
-      <label for="${id:identity}">${tr:Wt.Auth.identity}
+      <label for="${id:user-name}">${tr:Wt.Auth.user-name}
       </label>
-      ${identity}
+      ${user-name}
 
-      <div style="display: ${old-password-display}">
+      ${<if:old-password>}
 	<label for="${id:old-password}">${tr:Wt.Auth.old-password}
 	  ${old-password-info class="Wt-info"}
 	</label>
 	${old-password}
-      </div>
+      ${</if:old-password>}
 
       <label for="${id:password}">${tr:Wt.Auth.new-password}
 	${password-info class="Wt-info"}
@@ -175,7 +210,7 @@
   </message>
 
   <message id="Wt.Auth.template.lost-password">
-    <div class="Wt-form">
+    <div class="Wt-form Wt-auth-lost-password">
       <h2>${tr:Wt.Auth.lost-password-form-title}</h2>
       <p>${tr:Wt.Auth.lost-password-form-info}</p>
 
@@ -191,13 +226,13 @@
   </message>
 
   <message id="Wt.Auth.template.password-prompt">
-    <div class="Wt-form">
+    <div class="Wt-form Wt-auth-password-prompt">
       <h2>${tr:Wt.Auth.password-prompt-form-title}</h2>
       <p>${tr:Wt.Auth.password-prompt-form-info}</p>
 
-      <label for="${id:identity}">${tr:Wt.Auth.identity}
+      <label for="${id:user-name}">${tr:Wt.Auth.user-name}
       </label>
-      ${identity}
+      ${user-name}
 
       <label for="${id:password}">${tr:Wt.Auth.password}
 	${password-info class="Wt-info"}
@@ -211,7 +246,128 @@
   </message>
 
   <message id="Wt.Auth.template.logged-in">
-    <b>${identity}</b> ${logout}
+    <div class="Wt-auth-logged-in">
+      <b>${user-name}</b> ${logout}
+    </div>
+  </message>
+
+  <!-- Emails -->
+
+  <message id="Wt.Auth.confirmmail.subject">User account activation Link</message>
+
+  <message id="Wt.Auth.confirmmail.body">
+Hello {1},
+
+Thank you for joining!
+
+To complete your registration, please finally confirm your account by
+clicking on the following link or copying the URL into your browser.
+ 
+Please click here to confirm your registration or copy and paste the
+following URL into your browser: (Note: be sure to copy the entire
+URL, including any part of it which goes onto a second line.)
+
+{3}
+
+This text is resolved from the "Wt.Auth.confirmmail.subject",
+"Wt.Auth.confirmmail.body", and "Wt.Auth.confirmmail.htmlbody"
+resource keys.
+
+Good luck with your Wt application,
+
+The Wt team.
+  </message>
+
+  <message id="Wt.Auth.confirmmail.htmlbody">
+    <h3>Hello {1},</h3>
+
+    <p>Thank you for joining!</p>
+
+    <p>To complete your registration, please finally confirm your
+    account by clicking on the following link or copying the URL into
+    your browser.</p>
+ 
+    <p>Please <a href="{3}">click here to confirm</a> your
+    registration or copy and paste the following URL into your
+    browser: <i>(Note: be sure to copy the entire URL, including any
+    part of it which goes onto a second line.)</i></p>
+    
+    <b>{3}</b>
+
+    <p>
+      <i>Note to developer:</i>
+    </p>
+    <p>
+      This text is resolved from the "Wt.Auth.confirmmail.subject",
+      "Wt.Auth.confirmmail.body", and "Wt.Auth.confirmmail.htmlbody"
+      resource keys.
+    </p>
+
+    <p>Good luck with your Wt application,</p>
+
+    <p>The Wt team.</p>
+  </message>
+
+  <message id="Wt.Auth.lostpasswordmail.subject">Lost password instructions</message>
+
+  <message id="Wt.Auth.lostpasswordmail.body">
+Hello {1},
+
+This mail has been sent to you, because someone (presumably you?)
+indicated that he wishes to choose a new password, because the current
+password escapes his mind.
+
+If you requested this, then choose a new password by clicking on the
+following link or copying the URL into your browser. If you didn't
+request this, you can safely ignore and discard this email.
+ 
+Please copy and paste the following URL into your browser: (Note: be
+sure to copy the entire URL, including any part of it which goes onto
+a second line.)
+ 
+{3} 
+
+This text is resolved from the "Wt.Auth.lostpasswordmail.subject",
+"Wt.Auth.lostpasswordmail.body", and "Wt.Auth.lostpasswordmail.htmlbody"
+resource keys.
+
+Good luck with your Wt application,
+
+The Wt team.
+  </message>
+
+  <message id="Wt.Auth.lostpasswordmail.htmlbody">
+    <h3>Hello {1},</h3>
+
+    <p>This mail has been sent to you, because someone (presumably
+    you?)  indicated that he wishes to choose a new password, because
+    the current password escapes his mind.</p>
+
+    <p>If you requested this, then choose a new password by clicking
+    on the following link or copying the URL into your browser. If you
+    didn't request this, you can safely ignore and discard this
+    email.</p>
+ 
+    <p>Please <a href="{3}">click here to choose a new password</a> or
+    copy and paste the following URL into your browser: <i>(Note: be
+    sure to copy the entire URL, including any part of it which goes
+    onto a second line.)</i></p>
+    
+    <b>{3}</b>
+
+    <p>
+      <i>Note to developer:</i>
+    </p>
+    <p>
+      This text is resolved from the
+      "Wt.Auth.lostpasswordmail.subject",
+      "Wt.Auth.lostpasswordmail.body", and
+      "Wt.Auth.lostpasswordmail.htmlbody" resource keys.
+    </p>
+
+    <p>Good luck with your Wt application,</p>
+
+    <p>The Wt team.</p>
   </message>
 
 </messages>

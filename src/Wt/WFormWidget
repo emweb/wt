@@ -66,6 +66,12 @@ public:
    */
   virtual WT_USTRING valueText() const = 0;
 
+  /*! \brief Sets the value text.
+   *
+   * This sets the current value from a string value.
+   */
+  virtual void setValueText(const WT_USTRING& value) = 0;
+
   /*! \brief Sets a validator for this field.
    *
    * The validator is used to validate the current input.
@@ -85,6 +91,8 @@ public:
   WValidator *validator() const { return validator_; }
 
   /*! \brief Validates the field.
+   *
+   * \sa validated()
    */
   virtual WValidator::State validate();
 
@@ -162,6 +170,8 @@ public:
    */
   EventSignal<>& focussed();
 
+  Signal<WValidator::Result>& validated() { return validated_; }
+
   virtual void refresh();
 
 protected:
@@ -190,8 +200,9 @@ private:
   static const int BIT_TABINDEX_CHANGED = 5;
   static const int BIT_JS_OBJECT        = 6;
 
-  std::bitset<7> flags_;
-  int            tabIndex_;
+  std::bitset<7>             flags_;
+  int                        tabIndex_;
+  Signal<WValidator::Result> validated_;
 
   void undoSetFocus();
 

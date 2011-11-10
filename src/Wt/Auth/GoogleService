@@ -7,7 +7,7 @@
 #ifndef WT_AUTH_GOOGLE_AUTH_H_
 #define WT_AUTH_GOOGLE_AUTH_H_
 
-#include <Wt/Auth/OAuth>
+#include <Wt/Auth/OAuthService>
 
 namespace Wt {
   namespace Auth {
@@ -23,21 +23,36 @@ namespace Wt {
  * - <tt>google-oauth2-client-id</tt>: The client ID
  * - <tt>google-oauth2-client-secret</tt>: The client secret.
  *
+ * For example:
+ * \code
+ * <properties>
+ *   <property name="google-oauth2-redirect-endpoint">
+ *     http://localhost:8080/oauth2callback
+ *   </property>
+ *   <property name="google-oauth2-client-id">
+ *     123456789012.apps.googleusercontent.com
+ *   </property>
+ *   <property name="google-oauth2-client-secret">
+ *     abcdefghijk-12312312312
+ *   </property>
+ * </properties>
+ * \endcode
+ *
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. A "const GoogleAuth" object is thus thread-safe.
+ * read-only. A "const GoogleService" object is thus thread-safe.
  *
  * \sa http://code.google.com/apis/accounts/docs/OAuth2.html
  *
  * \ingroup auth
  */
-class WT_API GoogleAuth : public OAuth
+class WT_API GoogleService : public OAuthService
 {
 public:
   /*! \brief Constructor.
    */
-  GoogleAuth(const BaseAuth& baseAuth);
+  GoogleService(const AuthService& baseAuth);
 
   /*! \brief Checks whether a GoogleAuth service is properly configured.
    *
@@ -48,7 +63,6 @@ public:
 
   virtual std::string name() const;
   virtual WString description() const;
-  virtual WLink icon() const;
   virtual int popupWidth() const;
   virtual int popupHeight() const;
 
@@ -59,7 +73,7 @@ public:
   virtual std::string clientId() const;
   virtual std::string clientSecret() const;
 
-  virtual Process *createProcess(const std::string& scope) const;
+  virtual OAuthProcess *createProcess(const std::string& scope) const;
 };
 
   }

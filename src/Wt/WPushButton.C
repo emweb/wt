@@ -199,6 +199,9 @@ WT_USTRING WPushButton::valueText() const
   return WT_USTRING();
 }
 
+void WPushButton::setValueText(const WT_USTRING& value)
+{ }
+
 void WPushButton::refresh()
 {
   if (text_.refresh()) {

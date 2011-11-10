@@ -1,10 +1,10 @@
 #include "Wt/WApplication"
-#include "Wt/Auth/GoogleAuth"
+#include "Wt/Auth/GoogleService"
 #include "Wt/Json/Object"
 #include "Wt/Json/Parser"
 #include "Wt/Http/Client"
 
-#define ERROR_MSG(e) WString::tr("Wt.Auth.GoogleAuth." e)
+#define ERROR_MSG(e) WString::tr("Wt.Auth.GoogleService." e)
 
 namespace {
   const char *RedirectEndpointProperty = "google-oauth2-redirect-endpoint";
@@ -22,14 +22,14 @@ namespace {
 namespace Wt {
   namespace Auth {
 
-class GoogleProcess : public OAuth::Process
+class GoogleProcess : public OAuthProcess
 {
 public:
-  GoogleProcess(const GoogleAuth& auth, const std::string& scope)
-    : OAuth::Process(auth, scope)
+  GoogleProcess(const GoogleService& service, const std::string& scope)
+    : OAuthProcess(service, scope)
   { }
 
-  virtual void getIdentity(const OAuth::AccessToken& token)
+  virtual void getIdentity(const OAuthAccessToken& token)
   {
     Http::Client *client = new Http::Client(this);
     client->setTimeout(15);
@@ -63,11 +63,12 @@ private:
 	setError(ERROR_MSG("badjson"));
 	authenticated().emit(Identity::Invalid);
       } else {
-	std::string id = "google:" + (std::string)userInfo.get("id");
+	std::string id = userInfo.get("id");
 	WT_USTRING userName = userInfo.get("name");
 	std::string email = userInfo.get("email").orIfNull("");
 	bool emailVerified = userInfo.get("verified_email").orIfNull(false);
-	authenticated().emit(Identity(id, userName, email, emailVerified));
+	authenticated().emit(Identity(service().name(), id, userName,
+				      email, emailVerified));
       }
     } else {
       setError(ERROR_MSG("badresponse"));
@@ -76,11 +77,11 @@ private:
   }
 };
 
-GoogleAuth::GoogleAuth(const BaseAuth& baseAuth)
-  : OAuth(baseAuth)
+GoogleService::GoogleService(const AuthService& baseAuth)
+  : OAuthService(baseAuth)
 { }
 
-bool GoogleAuth::configured()
+bool GoogleService::configured()
 {
   try {
     configurationProperty(RedirectEndpointProperty);
@@ -89,68 +90,63 @@ bool GoogleAuth::configured()
 
     return true;
   } catch (const std::exception& e) {
-    Wt::log("notice") << "GoogleAuth not configured: " << e.what();
+    Wt::log("notice") << "GoogleService not configured: " << e.what();
 
     return false;
   }
 }
 
-std::string GoogleAuth::name() const
+std::string GoogleService::name() const
 {
   return "google";
 }
 
-WString GoogleAuth::description() const
+WString GoogleService::description() const
 {
   return "Google Account";
 }
 
-int GoogleAuth::popupWidth() const
+int GoogleService::popupWidth() const
 {
   return 550;
 }
 
-int GoogleAuth::popupHeight() const
+int GoogleService::popupHeight() const
 {
   return 350;
 }
 
-std::string GoogleAuth::authenticationScope() const
+std::string GoogleService::authenticationScope() const
 {
   return std::string(ProfileScope) + " " + EmailScope;
 }
 
-std::string GoogleAuth::redirectEndpoint() const
+std::string GoogleService::redirectEndpoint() const
 {
   return configurationProperty(RedirectEndpointProperty);
 }
 
-std::string GoogleAuth::authorizationEndpoint() const
+std::string GoogleService::authorizationEndpoint() const
 {
  return AuthUrl;
 }
 
-std::string GoogleAuth::tokenEndpoint() const
+std::string GoogleService::tokenEndpoint() const
 {
   return TokenUrl;
 }
 
-std::string GoogleAuth::clientId() const
+std::string GoogleService::clientId() const
 {
   return configurationProperty(ClientIdProperty);
 }
 
-std::string GoogleAuth::clientSecret() const
+std::string GoogleService::clientSecret() const
 {
   return configurationProperty(ClientSecretProperty);
 }
 
-WLink GoogleAuth::icon() const
-{
-  return WLink("google.png");
-}
-
-OAuth::Process *GoogleAuth::createProcess(const std::string& scope) const
+OAuthProcess *GoogleService::createProcess(const std::string& scope) const
 {
   return new GoogleProcess(*this, scope);
 }

@@ -12,7 +12,7 @@
 #include <Wt/WTabWidget>
 #include <Wt/WText>
 #include <Wt/WTextArea>
-
+#include <Wt/WServer>
 
 #include "readObj.h"
 #include "PaintWidget.h"
@@ -134,8 +134,24 @@ WApplication *createApplication(const WEnvironment& env)
 
 int main(int argc, char **argv)
 {
-  readObj("teapot.obj", data);
+  try {
+    WServer server(argv[0]);
+    readObj(WApplication::appRoot() + "teapot.obj", data);
 
-  return WRun(argc, argv, &createApplication);
+    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+
+    server.addEntryPoint(Wt::Application, createApplication);
+    if (server.start()) {
+      int sig = WServer::waitForShutdown();
+
+      server.stop();
+    }
+  } catch (WServer::Exception& e) {
+    std::cerr << e.what() << "\n";
+    return 1;
+  } catch (std::exception& e) {
+    std::cerr << "exception: " << e.what() << "\n";
+    return 1;
+  }
 }
 

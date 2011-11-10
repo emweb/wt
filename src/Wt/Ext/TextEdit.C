@@ -114,8 +114,7 @@ const WT_USTRING& TextEdit::text() const
 WValidator::State TextEdit::validate()
 {
   if (validator()) {
-    WT_USTRING text = textArea_->text();
-    return validator()->validate(text);
+    return validator()->validate(textArea_->text()).state();
   } else
     return WValidator::Valid;
 }

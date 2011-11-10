@@ -344,4 +344,14 @@ WT_USTRING WAbstractToggleButton::valueText() const
   }
 }
 
+void WAbstractToggleButton::setValueText(const WT_USTRING& text)
+{
+  if (text == "yes")
+    setCheckState(Checked);
+  else if (text == "no")
+    setCheckState(Unchecked);
+  else if (text == "maybe")
+    setCheckState(PartiallyChecked);
+}
+
 }

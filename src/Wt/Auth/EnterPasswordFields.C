@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractPasswordAuth"
+#include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/EnterPasswordFields"
 
 #include "Wt/WApplication"
@@ -20,7 +20,7 @@
 namespace Wt {
   namespace Auth {
 
-EnterPasswordFields::EnterPasswordFields(const AbstractPasswordAuth& auth,
+EnterPasswordFields::EnterPasswordFields(const AbstractPasswordService& auth,
 					 WLineEdit *password,
 					 WText *passwordInfo,
 					 WPushButton *okButton,
@@ -79,16 +79,20 @@ bool EnterPasswordFields::validate(const User& user)
 	passwordInfo_->setText(WString::tr("Wt.Auth.password-invalid"));
 	passwordInfo_->addStyleClass("Wt-error");
       }
+      password_->removeStyleClass("Wt-valid", true);
       password_->addStyleClass("Wt-invalid", true);
       if (auth_.attemptThrottlingEnabled())
 	throttlingDelay = auth_.delayForNextAttempt(user);
       break;
     case LoginThrottling:
+      password_->removeStyleClass("Wt-invalid", true);
       throttlingDelay = auth_.delayForNextAttempt(user);
       Wt::log("auth") << "Throttling: " << throttlingDelay
-		      << " seconds for " << user.identity();
+		      << " seconds for " << user.identity("username");
       break;
     case PasswordValid:
+      password_->removeStyleClass("Wt-invalid", true);
+      password_->addStyleClass("Wt-valid", true);
       result = true;
     }
   }

@@ -6,8 +6,8 @@
 
 #include "Wt/Auth/AbstractUserDatabase"
 #include "Wt/Auth/HashFunction"
-#include "Wt/Auth/BaseAuth"
-#include "Wt/Auth/PasswordAuth"
+#include "Wt/Auth/AuthService"
+#include "Wt/Auth/PasswordService"
 #include "Wt/Auth/User"
 #include "Wt/Mail/Message"
 #include "Wt/WRandom"
@@ -19,36 +19,36 @@
 namespace Wt {
   namespace Auth {
 
-PasswordAuth::AbstractVerifier::~AbstractVerifier()
+PasswordService::AbstractVerifier::~AbstractVerifier()
 { }
 
-PasswordAuth::AbstractStrengthChecker::~AbstractStrengthChecker()
+PasswordService::AbstractStrengthChecker::~AbstractStrengthChecker()
 { }
 
-PasswordAuth::PasswordAuth(const BaseAuth& baseAuth)
+PasswordService::PasswordService(const AuthService& baseAuth)
   : baseAuth_(baseAuth),
     verifier_(0),
     checker_(0),
     attemptThrottling_(false)
 { }
 
-PasswordAuth::~PasswordAuth()
+PasswordService::~PasswordService()
 {
   delete verifier_;
 }
 
-void PasswordAuth::setVerifier(AbstractVerifier *verifier)
+void PasswordService::setVerifier(AbstractVerifier *verifier)
 {
   delete verifier_;
   verifier_ = verifier;
 }
 
-void PasswordAuth::setAttemptThrottlingEnabled(bool enabled)
+void PasswordService::setAttemptThrottlingEnabled(bool enabled)
 {
   attemptThrottling_ = enabled;
 }
 
-WString PasswordAuth::validatePassword(const WT_USTRING& pwd) const
+WString PasswordService::validatePassword(const WT_USTRING& pwd) const
 {
   // FIXME
   if (pwd.toUTF8().length() < 8)
@@ -57,7 +57,7 @@ WString PasswordAuth::validatePassword(const WT_USTRING& pwd) const
     return WString::Empty;
 }
 
-int PasswordAuth::delayForNextAttempt(const User& user) const
+int PasswordService::delayForNextAttempt(const User& user) const
 {
   if (attemptThrottling_) {
     int throttlingNeeded = getPasswordThrottle(user.failedLoginAttempts());
@@ -76,7 +76,7 @@ int PasswordAuth::delayForNextAttempt(const User& user) const
     return 0;
 }
 
-int PasswordAuth::getPasswordThrottle(int failedAttempts) const
+int PasswordService::getPasswordThrottle(int failedAttempts) const
 {
   switch (failedAttempts) {
   case 0:
@@ -92,7 +92,7 @@ int PasswordAuth::getPasswordThrottle(int failedAttempts) const
   }
 }
 
-PasswordResult PasswordAuth::verifyPassword(const User& user,
+PasswordResult PasswordService::verifyPassword(const User& user,
 					    const WT_USTRING& password) const
 {
   std::auto_ptr<AbstractUserDatabase::Transaction> t
@@ -125,7 +125,7 @@ PasswordResult PasswordAuth::verifyPassword(const User& user,
   }
 }
 
-void PasswordAuth::updatePassword(const User& user, const WT_USTRING& password)
+void PasswordService::updatePassword(const User& user, const WT_USTRING& password)
   const
 {
   PasswordHash pwd = verifier_->hashPassword(password);

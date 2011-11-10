@@ -15,8 +15,8 @@
 
 namespace Wt {
   namespace Auth {
-    class OAuth;
-    class PasswordAuth;
+    class OAuthService;
+    class PasswordService;
   }
 }
 
@@ -43,8 +43,8 @@ public:
   BlogUserDatabase& users() { return users_; }
   Wt::Auth::Login& login() { return login_; }
 
-  Wt::Auth::PasswordAuth *passwordAuth() const;
-  const std::vector<const Wt::Auth::OAuth *>& oAuth() const;
+  Wt::Auth::PasswordService *passwordAuth() const;
+  const std::vector<const Wt::Auth::OAuthService *>& oAuth() const;
 
 private:
   dbo::backend::Sqlite3 connection_;

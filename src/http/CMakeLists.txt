@@ -21,22 +21,16 @@ IF(CONNECTOR_HTTP)
     WtReply.C
   )
 
-  OPTION(HTTP_WITH_SSL "Support for SSL (https)" ${SSL_FOUND})
-  OPTION(HTTP_WITH_ZLIB "Support for zlib (http compression)" ${ZLIB_FOUND})
+ OPTION(HTTP_WITH_ZLIB "Support for zlib (http compression)" ${ZLIB_FOUND})
 
-  IF (HTTP_WITH_SSL)
-    IF (NOT SSL_FOUND)
-      MESSAGE("** HTTP_WITH_SSL enabled but could not find OpenSSL")
-      MESSAGE(FATAL "   Indicate location of OpenSSL using -DSSL_PREFIX=...")
-   ENDIF (NOT SSL_FOUND)
-    ADD_DEFINITIONS(-DHTTP_WITH_SSL)
+ IF (HAVE_SSL)
     SET(MY_SSL_LIBS ${SSL_LIBRARIES})
-    INCLUDE_DIRECTORIES(${SSL_INCLUDE_DIRS})
-  ELSE (HTTP_WITH_SSL)
+    ADD_DEFINITIONS(-DHTTP_WITH_SSL)
+ ELSE (HAVE_SSL)
     SET(MY_SSL_LIBS "")
-  ENDIF (HTTP_WITH_SSL)
+ ENDIF (HAVE_SSL)
 
-  IF(NOT BOOST_WTHTTP_FOUND)
+ IF(NOT BOOST_WTHTTP_FOUND)
 
     MESSAGE(FATAL "** Could not find all boost libraries required to build the httpe connector (thread, filesystem, programoptions, datetime)")
 

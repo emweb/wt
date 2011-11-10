@@ -6,7 +6,7 @@
 
 #include "Wt/Auth/EnterPasswordFields"
 #include "Wt/Auth/Login"
-#include "Wt/Auth/AbstractPasswordAuth"
+#include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/PasswordPromptDialog"
 
 #include "Wt/WLineEdit"
@@ -18,16 +18,16 @@ namespace Wt {
   namespace Auth {
 
 PasswordPromptDialog::PasswordPromptDialog(Login& login,
-					   const AbstractPasswordAuth& auth)
+					   const AbstractPasswordService& auth)
   : WDialog(tr("Wt.Auth.enter-password")),
     login_(login),
     auth_(auth)
 {
   impl_ = new WTemplate(tr("Wt.Auth.template.password-prompt"));
-  impl_->bindFunction("id", &WTemplate::Functions::id);
-  impl_->bindFunction("tr", &WTemplate::Functions::tr);
+  impl_->addFunction("id", &WTemplate::Functions::id);
+  impl_->addFunction("tr", &WTemplate::Functions::tr);
 
-  WLineEdit *nameEdit = new WLineEdit(login.user().identity());
+  WLineEdit *nameEdit = new WLineEdit(login.user().identity("username"));
   nameEdit->disable();
   nameEdit->addStyleClass("Wt-disabled");
 
@@ -39,7 +39,7 @@ PasswordPromptDialog::PasswordPromptDialog(Login& login,
   enterPasswordFields_ = new EnterPasswordFields(auth, passwordEdit_,
 						 passwdInfo, okButton, this);
 
-  impl_->bindWidget("identity", nameEdit);
+  impl_->bindWidget("user-name", nameEdit);
   impl_->bindWidget("password", passwordEdit_);
   impl_->bindWidget("password-info", passwdInfo);
   impl_->bindWidget("ok-button", okButton);

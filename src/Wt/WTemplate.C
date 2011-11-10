@@ -85,14 +85,33 @@ void WTemplate::clear()
 
   widgets_.clear();
   strings_.clear();
+  conditions_.clear();
 
   changed_ = true;
   repaint(RepaintInnerHtml);  
 }
 
-void WTemplate::bindFunction(const std::string& name, const Function& function)
+void WTemplate::addFunction(const std::string& name, const Function& function)
 {
   functions_[name] = function;
+}
+
+void WTemplate::setCondition(const std::string& name, bool value)
+{
+  if (conditionValue(name) != value) {
+    if (value)
+      conditions_.insert(name);
+    else
+      conditions_.erase(name);
+
+    changed_ = true;
+    repaint(RepaintInnerHtml);
+  }
+}
+
+bool WTemplate::conditionValue(const std::string& name) const
+{
+  return conditions_.find(name) != conditions_.end();
 }
 
 void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
@@ -111,8 +130,12 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
     widget->setParentWidget(this);
     widgets_[varName] = widget;
     strings_.erase(varName);
-  } else
+  } else {
+    StringMap::const_iterator i = strings_.find(varName);
+    if (i != strings_.end() && i->second.empty())
+      return;
     strings_[varName] = std::string();
+  }
 
   changed_ = true;
   repaint(RepaintInnerHtml);  
@@ -304,16 +327,22 @@ void WTemplate::renderTemplate(std::ostream& result)
 
   std::size_t lastPos = 0;
   std::vector<WString> args;
+  std::vector<std::string> conditions;
+  int suppressing = 0;
 
   for (std::size_t pos = text.find('$'); pos != std::string::npos;
        pos = text.find('$', pos)) {
 
-    result << text.substr(lastPos, pos - lastPos);
+    if (!suppressing)
+      result << text.substr(lastPos, pos - lastPos);
+
     lastPos = pos;
 
     if (pos + 1 < text.length()) {
       if (text[pos + 1] == '$') { // $$ -> $
-	result << '$';
+	if (!suppressing)
+	  result << '$';
+
 	lastPos += 2;
       } else if (text[pos + 1] == '{') {
 	std::size_t startName = pos + 2;
@@ -329,30 +358,55 @@ void WTemplate::renderTemplate(std::ostream& result)
 	}
 
 	std::string name = text.substr(startName, endName - startName);
+	std::size_t nl = name.length();
 
-	std::size_t colonPos = name.find(':');
+	if (nl > 2 && name[0] == '<' && name[nl - 1] == '>') {
+	  if (name[1] != '/') {
+	    std::string cond = name.substr(1, nl - 2);
+	    conditions.push_back(cond);
+	    if (suppressing || !conditionValue(cond))
+	      ++suppressing;
+	  } else {
+	    std::string cond = name.substr(2, nl - 3);
+	    if (conditions.back() != cond) {
+	      Wt::log("error") << "WTemplate: mismatching condition block end: "
+			       << cond;
+	      return;
+	    }
+	    conditions.pop_back();
 
-	bool handled = false;
-	if (colonPos != std::string::npos) {
-	  std::string fname = name.substr(0, colonPos);
-	  std::string arg0 = name.substr(colonPos + 1);
-	  args.insert(args.begin(), WString::fromUTF8(arg0));
-	  if (resolveFunction(fname, args, result))
-	    handled = true;
-	  else
-	    args.erase(args.begin());
+	    if (suppressing)
+	      --suppressing;
+	  }
+	} else {
+	  if (!suppressing) {
+	    std::size_t colonPos = name.find(':');
+
+	    bool handled = false;
+	    if (colonPos != std::string::npos) {
+	      std::string fname = name.substr(0, colonPos);
+	      std::string arg0 = name.substr(colonPos + 1);
+	      args.insert(args.begin(), WString::fromUTF8(arg0));
+	      if (resolveFunction(fname, args, result))
+		handled = true;
+	      else
+		args.erase(args.begin());
+	    }
+
+	    if (!handled)
+	      resolveString(name, args, result);
+	  }
 	}
-
-	if (!handled)
-	  resolveString(name, args, result);
 
 	lastPos = endVar + 1;
       } else {
-	result << '$'; // $. -> $.
+	if (!suppressing)
+	  result << '$'; // $. -> $.
 	lastPos += 1;
       }
     } else {
-      result << '$'; // $ at end of template -> $
+      if (!suppressing)
+	result << '$'; // $ at end of template -> $
       lastPos += 1;
     }
 

@@ -17,7 +17,7 @@ namespace Wt {
  *
  * This class defines the interface for managing user data related to
  * authentication. You need to implement this interface to allow the
- * authentication service classes (BaseAuth, PasswordAuth, and OAuth)
+ * authentication service classes (AuthService, PasswordService, and OAuthService)
  * to locate and update user credentials. Except for functions which
  * do work on a single user, it is more convenient to use the User
  * API. Obviously, you may have more data associated with a user,
@@ -27,10 +27,13 @@ namespace Wt {
  * own User class, which is then als the basis of this user database
  * implementation.
  *
- * The only assumption made by the authentication system is that an
- * identity uniquely defines the user. This identity will typically
- * correspond to a login name, an email address, or an internal
- * database ID.
+ * The only assumption made by the authentication system is that an id
+ * uniquely defines the user. This is usually an internal identifier,
+ * for example an auto-incrementing primary key.
+ *
+ * With a user, one or more other identities may be associated. These
+ * could be a login name (for password-based authentication), or id's
+ * used by third party providers (such as OAuth or LDAP).
  *
  * The database implements a simple data store and does not contain
  * any logic. The database can store data for different aspects of
@@ -95,16 +98,51 @@ public:
    */
   virtual Transaction *startTransaction();
 
+  /*! \brief Finds a user with a given id.
+   *
+   * The id uniquely identifies a user.
+   *
+   * This should find the user with the given \p id, or return
+   * an invalid user if no user with that id exists.
+   */
+  virtual User findWithId(const std::string& id) const = 0;
+
   /*! \brief Finds a user with a given identity.
    *
-   * The user identity is considered unique per user. It can be an
-   * identity known to the user (e.g. his user name or email address),
-   * or it can be an internal ID.
+   * The \p identity uniquely identifies the user by the \p provider.
    *
    * This should find the user with the given \p identity, or return
    * an invalid user if no user with that identity exists.
    */
-  virtual User findIdentity(const WT_USTRING& identity) const = 0;
+  virtual User findWithIdentity(const std::string& provider,
+				const WT_USTRING& identity) const = 0;
+
+  /*! \brief Sets an identifier for the user.
+   *
+   * This associates an identifier with the user.
+   *
+   * You are free to support only one identity per user, e.g. if you
+   * only use password-based authentication. But you may also want to
+   * support more than one if you allow the user to login using
+   * multiple methods (e.g. name/password, OAuth from one or more
+   * providers, LDAP, ...).
+   */
+  virtual void addIdentity(const User& user, const std::string& provider,
+			   const WT_USTRING& id) = 0;
+
+  /*! \brief Returns a user identity.
+   *
+   * Returns a user identity for the given provider, or an empty string
+   * if the user has no identitfy set for this provider.
+   *
+   * \sa addIdentity()
+   */
+  virtual WT_USTRING identity(const User& user, const std::string& provider)
+    const = 0;
+
+  virtual void removeIdentity(const User& user, const std::string& provider)
+    = 0;
+  //@}
 
   /*! \brief Registers a new user.
    *
@@ -113,7 +151,7 @@ public:
    * This method is only used by view classes involved with
    * registration (RegistrationWidget).
    */
-  virtual User registerNew(const WT_USTRING& identity); 
+  virtual User registerNew(); 
 
   /*! \brief Returns the status for a user.
    *
@@ -133,7 +171,7 @@ public:
    *
    * This updates the password for a user.
    *
-   * This is used only by PasswordAuth.
+   * This is used only by PasswordService.
    */
   virtual void setPassword(const User& user,
 			   const PasswordHash& password);
@@ -144,54 +182,27 @@ public:
    * constructed password hash if the user does not yet have password
    * credentials.
    *
-   * This is used only by PasswordAuth.
+   * This is used only by PasswordService.
    */
   virtual PasswordHash password(const User& user) const;
   //@}
   
-  /** @name OAuth authentication
-   */
-  //@{
-  /*! \brief Adds an oauth ID for the user.
-   *
-   * This associated an oauth ID with a user. You are free to support
-   * only one oauth ID per user, or more than one. The default view
-   * classes however do not support the process for registring more
-   * than one oauth ID per user.
-   *
-   * Oauth IDs are globally unique, and are only added to a user when
-   * no (other) user was yet associated with that id (using
-   * findOAuthId()).
-   *
-   * This is used only by OAuth.
-   */
-  virtual void addOAuthId(const User& user, const std::string& id);
-
-  /*! \brief Finds a user associated with an oauth ID.
-   *
-   * This should find the user associated with the given oauth ID, or
-   * return an invalid user if no user exists that is associated with
-   * the oauth ID.
-   *
-   * This is used only by OAuth.
-   */
-  virtual User findOAuthId(const std::string& id) const;
-  //@}
-
   /** @name Email addresses (for verification and lost passwords)
    */
   //@{
   /*! \brief Sets a user's email address.
    *
-   * This may be a verified or unverified email address, depending on
-   * whether email address verification is enabled in the model
-   * classes.
-   *
    * This is used only when email verification is enabled, or as a
-   * result of oauth registration, if the oauth provider also provides
-   * email address information.
+   * result of a 3rd party Identity Provider based registration
+   * process, if the provider also provides email address information
+   * with the identiy.
+   *
+   * Returns whether the user's email address could be set. This may
+   * fail when there is already a user registered that email address.
+   *
+   * \sa findWithEmail()
    */
-  virtual void setEmail(const User& user, const std::string& address);
+  virtual bool setEmail(const User& user, const std::string& address);
 
   /*! \brief Returns a user's email address.
    *
@@ -222,8 +233,8 @@ public:
 
   /*! \brief Finds a user with a given email address.
    *
-   * This is used only to implement lost password functionality, and
-   * usually in conjunction with email address verification.
+   * This is used to verify that a email addresses are unique, and to
+   * implement lost password functionality.
    */
   virtual User findWithEmail(const std::string& address) const;
 

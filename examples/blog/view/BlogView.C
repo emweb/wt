@@ -27,7 +27,7 @@
 #include <Wt/WTemplate>
 #include <Wt/WText>
 
-#include <Wt/Auth/PasswordAuth>
+#include <Wt/Auth/PasswordService>
 #include <Wt/Auth/PasswordVerifier>
 
 #include <Wt/Dbo/backend/Sqlite3>

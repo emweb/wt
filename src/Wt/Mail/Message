@@ -127,7 +127,8 @@ private:
   WString subject_, body_, htmlBody_;
 
   static void encodeChar(WStringStream& s, unsigned char c);
-  static void encodeWord(const WString& text, std::ostream& out);
+  static void encodeWord(const WString& text, std::ostream& out,
+			 bool quoteIfNeeded);
   static void encodeQuotedPrintable(const WString& text, std::ostream& out);
 
   friend class Mailbox;

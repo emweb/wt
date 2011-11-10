@@ -4,12 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractPasswordAuth"
+#include "Wt/Auth/AbstractPasswordService"
 
 namespace Wt {
   namespace Auth {
 
-AbstractPasswordAuth::~AbstractPasswordAuth()
+AbstractPasswordService::~AbstractPasswordService()
 {
 }
 

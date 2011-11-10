@@ -54,7 +54,9 @@ WT_DECLARE_WT_MEMBER
 
       for (i in style) {
 	var k = i;
-	if (k == "transform" || k == "transition")
+	if (k == "transform"
+	    || k == "transition"
+	    || k == "animationDuration")
 	  k = prefix + k.substring(0, 1).toUpperCase() + k.substring(1);
 
 	if (savedStyle && typeof(savedStyle[k]) === "undefined")

@@ -15,8 +15,8 @@ using namespace Wt;
 class InvalidUser : public std::runtime_error
 {
 public:
-  InvalidUser(const WT_USTRING& identity)
-    : std::runtime_error("Invalid user: " + identity.toUTF8())
+  InvalidUser(const std::string& id)
+    : std::runtime_error("Invalid user: " + id)
   { }
 };
 
@@ -53,7 +53,7 @@ Auth::AbstractUserDatabase::Transaction *BlogUserDatabase::startTransaction()
 
 dbo::ptr<User> BlogUserDatabase::find(const Auth::User& user) const
 {
-  getUser(user.identity());
+  getUser(user.id());
 
   return user_;
 }
@@ -62,15 +62,15 @@ Auth::User BlogUserDatabase::find(const dbo::ptr<User> user) const
 {
   user_ = user;
 
-  return Auth::User(user_->name, *this);
+  return Auth::User(boost::lexical_cast<std::string>(user_.id()), *this);
 }
 
-Auth::User BlogUserDatabase::findIdentity(const WString& userName) const
+Auth::User BlogUserDatabase::findWithId(const std::string& id) const
 {
-  getUser(userName);
+  getUser(id);
 
   if (user_)
-    return Auth::User(userName, *this);
+    return Auth::User(id, *this);
   else
     return Auth::User();
 }
@@ -79,11 +79,8 @@ Auth::PasswordHash BlogUserDatabase::password(const Auth::User& user) const
 {
   WithUser find(*this, user);
 
-  std::string salt = user_->passwordSalt;
-  if (salt.empty() && user_->password.length() > 3)
-    salt = user_->password.substr(3);
-
-  return Auth::PasswordHash(user_->passwordMethod, salt, user_->password);
+  return Auth::PasswordHash(user_->passwordMethod, user_->passwordSalt,
+			    user_->password);
 }
 
 void BlogUserDatabase::setPassword(const Auth::User& user,
@@ -107,36 +104,71 @@ void BlogUserDatabase::setStatus(const Auth::User& user,
   throw std::runtime_error("Changing status is not supported.");
 }
 
-void BlogUserDatabase::addOAuthId(const Auth::User& user, const std::string& id)
+void BlogUserDatabase::addIdentity(const Auth::User& user,
+				   const std::string& provider,
+				   const Wt::WString& identity)
 {
   WithUser find(*this, user);
 
-  user_.modify()->oAuthId = id;
+  if (provider == "username")
+    user_.modify()->name = identity;
+  else {
+    user_.modify()->oAuthProvider = provider;
+    user_.modify()->oAuthId = identity.toUTF8();
+  }
 }
 
-Auth::User BlogUserDatabase::findOAuthId(const std::string& id) const
+Wt::WString BlogUserDatabase::identity(const Auth::User& user,
+				       const std::string& provider) const
+{
+  WithUser find(*this, user);
+
+  if (provider == "username")
+    return user_->name;
+  else if (provider == user_->oAuthProvider)
+    return Wt::WString::fromUTF8(user_->oAuthId);
+  else
+    return WString::Empty;
+}
+
+void BlogUserDatabase::removeIdentity(const Auth::User& user,
+				      const std::string& provider)
+{
+  WithUser find(*this, user);
+
+  if (provider == "username")
+    user_.modify()->name = "";
+  else if (provider == user_->oAuthProvider) {
+    user_.modify()->oAuthProvider = std::string();
+    user_.modify()->oAuthId = std::string();
+  }
+}
+
+Auth::User BlogUserDatabase::findWithIdentity(const std::string& provider,
+					      const WString& identity) const
 {
   dbo::Transaction t(session_);
-  user_ = session_.find<User>().where("oauth_id = ?").bind(id);
+  if (provider == "username") {
+    if (!user_ || user_->name != identity)
+      user_ = session_.find<User>().where("name = ?").bind(identity);
+  } else
+    user_ = session_.find<User>()
+      .where("oauth_id = ?").bind(identity.toUTF8())
+      .where("oauth_provider = ?").bind(provider);
   t.commit();
 
   if (user_)
-    return Auth::User(user_->name, *this);
+    return Auth::User(boost::lexical_cast<std::string>(user_.id()), *this);
   else
     return Auth::User();
 }
 
-Auth::User BlogUserDatabase::registerNew(const Wt::WString& identity)
+Auth::User BlogUserDatabase::registerNew()
 {
-  dbo::ptr<User> user = session_.find<User>().where("name = ?").bind(identity);
-  if (user)
-    return Auth::User();
-  else {
-    User *user = new User();
-    user->name = identity;
-    user_ = session_.add(user);
-    return Auth::User(identity, *this);
-  }
+  User *user = new User();
+  user_ = session_.add(user);
+  user_.flush();
+  return Auth::User(boost::lexical_cast<std::string>(user_.id()), *this);
 }
 
 void BlogUserDatabase::addAuthToken(const Auth::User& user,
@@ -187,7 +219,7 @@ Auth::User BlogUserDatabase::findWithAuthToken(const std::string& hash) const
   t.commit();
 
   if (user_)
-    return Auth::User(user_->name, *this);
+    return Auth::User(boost::lexical_cast<std::string>(user_.id()), *this);
   else
     return Auth::User();
 }
@@ -222,11 +254,12 @@ void BlogUserDatabase::setLastLoginAttempt(const Auth::User& user,
   user_.modify()->lastLoginAttempt = t;
 }
 
-void BlogUserDatabase::getUser(const WString& userName) const
+void BlogUserDatabase::getUser(const std::string& id) const
 {
-  if (!user_ || user_->name != userName) {
+  if (!user_ || boost::lexical_cast<std::string>(user_.id()) != id) {
     dbo::Transaction t(session_);
-    user_ = session_.find<User>().where("name = ?").bind(userName);
+    user_ = session_.find<User>()
+      .where("id = ?").bind(boost::lexical_cast<long long>(id));
     t.commit();
   }
 }
@@ -235,10 +268,10 @@ BlogUserDatabase::WithUser::WithUser(const BlogUserDatabase& self,
 				     const Auth::User& user)
   : transaction(self.session_)
 {
-  self.getUser(user.identity());
+  self.getUser(user.id());
 
   if (!self.user_)
-    throw InvalidUser(user.identity());
+    throw InvalidUser(user.id());
 }
 
 BlogUserDatabase::WithUser::~WithUser()

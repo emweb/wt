@@ -123,6 +123,8 @@ private:
 
   bool configChanged_;
 
+  virtual bool supportsNoSelection() const;
+
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual void setFormData(const FormData& formData);

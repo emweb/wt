@@ -109,27 +109,24 @@ WString WIntValidator::invalidTooLargeText() const
 	return WString::tr("Wt.WIntValidator.BadRange").arg(bottom_).arg(top_);
 }
 
-WValidator::State WIntValidator::validate(WT_USTRING& input) const
+WValidator::Result WIntValidator::validate(const WT_USTRING& input) const
 {
-  std::string text = input.toUTF8();
+  if (input.empty())
+    return WValidator::validate(input);
 
-  if (isMandatory()) {
-    if (text.empty())
-      return InvalidEmpty;
-  } else {
-    if (text.empty())
-      return Valid;
-  }
+  std::string text = input.toUTF8();
 
   try {
     int i = boost::lexical_cast<int>(text);
 
-    if ((i >= bottom_) && (i <= top_))
-      return Valid;
+    if (i < bottom_)
+      return Result(Invalid, invalidTooSmallText());
+    else if (i > top_)
+      return Result(Invalid, invalidTooLargeText());
     else
-      return Invalid;
+      return Result(Valid);
   } catch (boost::bad_lexical_cast& e) {
-    return Invalid;
+    return Result(Invalid, invalidNotANumberText());
   }
 }
 

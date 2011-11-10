@@ -1,0 +1,357 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_AUTH_DBO_USER_DATABASE_H_
+#define WT_AUTH_DBO_USER_DATABASE_H_
+
+#include <Wt/Auth/AbstractUserDatabase>
+#include <Wt/Auth/Dbo/AuthInfo>
+
+namespace Wt {
+  namespace Auth {
+    namespace Dbo {
+
+/*! \class UserDatabase Wt/Auth/Dbo/UserDatabase
+ *  \brief A default implementation for a authentication data in %Wt::%Dbo.
+ * 
+ * This is a template class, and needs as parameter the Dbo type which
+ * models holds the authentication information. A suitable
+ * implementation, which stores authentication information outside the
+ * "user" class, is provided by AuthInfo.
+ *
+ * \sa UserDatabase
+ *
+ * \ingroup auth
+ */
+template <class DboType>
+class WT_API UserDatabase : public AbstractUserDatabase
+{
+  typedef typename DboType::AuthTokenType AuthTokenType;
+  typedef Wt::Dbo::collection< Wt::Dbo::ptr<AuthTokenType> > AuthTokens;
+
+  typedef typename DboType::AuthIdentityType AuthIdentityType;
+  typedef Wt::Dbo::collection< Wt::Dbo::ptr<AuthIdentityType> > AuthIdentities;
+
+public:
+  /*! \brief Constructor
+   */
+  UserDatabase(Wt::Dbo::Session& session)
+    : session_(session),
+      maxAuthTokensPerUser_(50)
+  { }
+
+  virtual Transaction *startTransaction() {
+    return new TransactionImpl(session_);
+  }
+
+  /*! \brief Returns the %Dbo user type corresponding to an Auth::User.
+   */
+  Wt::Dbo::ptr<DboType> find(const User& user) const {
+    getUser(user.id());
+    return user_;
+  }
+
+  /*! \brief Returns the Auth::User corresponding to a %Dbo user.
+   */
+  User find(const dbo::ptr<DboType> user) const {
+    user_ = user;
+    return User(boost::lexical_cast<std::string>(user_->id()), *this);
+  }
+
+  virtual User findWithId(const std::string& id) const {
+    getUser(id);
+
+    if (user_)
+      return User(id, *this);
+    else
+      return User();
+  }
+
+  virtual User findWithIdentity(const std::string& provider,
+				const WString& identity) const {
+    Wt::Dbo::Transaction t(session_);
+    user_ = session_.query< Wt::Dbo::ptr<DboType> >
+      (std::string() +
+       "select u from " + session_.tableName<DboType>() + " u "
+       "join " + session_.tableName<AuthIdentityType>() + " i "
+       "on u.id = i." + session_.tableName<DboType>() + "_id")
+      .where("i.provider = ?").bind(provider)
+      .where("i.identity = ?").bind(identity);
+    t.commit();
+
+    if (user_)
+      return User(boost::lexical_cast<std::string>(user_.id()), *this);
+    else
+      return User();
+  }
+
+  virtual WString identity(const User& user,
+			   const std::string& provider) const {
+    WithUser find(*this, user);
+
+    AuthIdentities c
+      = user_->authIdentities().find().where("provider = ?").bind(provider);
+
+    typename AuthIdentities::const_iterator i = c.begin();
+
+    if (i != c.end())
+      return (*i)->identity();
+    else
+      return WString::Empty;
+  }
+
+  virtual void removeIdentity(const User& user,
+			      const std::string& provider) {
+    Wt::Dbo::Transaction t(session_);
+
+    session_.execute
+      (std::string() +
+       "delete from " + session_.tableName<AuthIdentityType>() +
+       " where " + session_.tableName<DboType>() + "_id = ?"
+       " and provider = ?").bind(user.id()).bind(provider);
+
+    t.commit();
+  }
+
+  virtual User registerNew() {
+    DboType *user = new DboType();
+    user_ = session_.add(user);
+    user_.flush();
+    return User(boost::lexical_cast<std::string>(user_.id()), *this);
+  }
+
+  virtual User::Status status(const User& user) const {
+    WithUser find(*this, user);
+    return user_->status();
+  }
+
+  virtual void setPassword(const User& user, const PasswordHash& password) {
+    WithUser find(*this, user);
+    user_.modify()->setPassword(password.value(),
+				password.function(),
+				password.salt());
+  }
+
+  virtual PasswordHash password(const User& user) const {
+    WithUser find(*this, user);
+    return PasswordHash(user_->passwordMethod(), user_->passwordSalt(),
+			user_->passwordHash());
+  }
+
+  virtual void addIdentity(const User& user, const std::string& provider,
+			   const WT_USTRING& identity) {
+    WithUser find(*this, user);
+
+    if (session_.find<AuthIdentityType>()
+	.where("identity = ?").bind(identity)
+	.where("provider = ?").bind(provider).resultList().size() != 0) {
+      Wt::log("error") << "Cannot add identity " << provider
+		       << ":'" << identity << "': already exists";
+    }
+
+    /*
+     * It's okay to have more than one identity from that provider
+     */
+    user_.modify()->authIdentities().insert
+      (dbo::ptr<AuthIdentityType>(new AuthIdentityType(provider, identity)));
+  }
+
+  virtual bool setEmail(const User& user, const std::string& address) {
+    WithUser find(*this, user);
+
+    if (session_.find<DboType>().where("email = ?")
+	.bind(address).resultList().size() != 0)
+      return false;
+
+    user_.modify()->setEmail(address);
+
+    return true;
+  }
+
+  virtual std::string email(const User& user) const {
+    WithUser find(*this, user);
+    return user_->email();
+  }
+
+  virtual void setUnverifiedEmail(const User& user,
+				  const std::string& address) {
+    WithUser find(*this, user);
+    user_.modify()->setUnverifiedEmail(address);
+  }
+
+  virtual std::string unverifiedEmail(const User& user) const {
+    WithUser find(*this, user);
+    return user_->unverifiedEmail();
+  }
+
+  virtual User findWithEmail(const std::string& address) const {
+    Wt::Dbo::Transaction t(session_);
+    user_ = session_.find<DboType>().where("email = ?").bind(address);
+    t.commit();
+
+    if (user_)
+      return User(boost::lexical_cast<std::string>(user_.id()), *this);
+    else
+      return User();
+  }
+
+  virtual void setEmailToken(const User& user, const Token& token,
+			     User::EmailTokenRole role) {
+    WithUser find(*this, user);
+    user_.modify()->setEmailToken(token.hash(), token.expirationTime(), role);
+  }
+
+  virtual Token emailToken(const User& user) const {
+    WithUser find(*this, user);
+    return Token(user_->emailToken(), user_->emailTokenExpires());
+  }
+
+  virtual User::EmailTokenRole emailTokenRole(const User& user) const {
+    WithUser find(*this, user);
+    return user_->emailTokenRole();
+  }
+
+  virtual User findWithEmailToken(const std::string& hash) const {
+    Wt::Dbo::Transaction t(session_);
+    user_ = session_.find<DboType>()
+      .where("email_token = ?").bind(hash);
+    t.commit();
+
+    if (user_)
+      return User(boost::lexical_cast<std::string>(user_.id()), *this);
+    else
+      return User();
+  }
+ 
+  virtual void addAuthToken(const User& user, const Token& token) {
+    WithUser find(*this, user);
+
+    /*
+     * This should be statistically very unlikely but also a big
+     * security problem if we do not detect it ...
+     */
+    if (session_.find<AuthTokenType>().where("value = ?")
+	.bind(token.hash())
+	.resultList().size() > 0)
+      throw std::runtime_error("Token hash collision");
+
+    /*
+     * Prevent a user from piling up the database with tokens
+     */
+    if (user_->authTokens().size() > maxAuthTokensPerUser_)
+      return;
+
+    user_.modify()->authTokens().insert
+      (dbo::ptr<AuthTokenType>
+       (new AuthTokenType(token.hash(), token.expirationTime())));
+  }
+
+  virtual void removeAuthToken(const User& user, const std::string& hash) {
+    WithUser find(*this, user);
+
+    for (typename AuthTokens::const_iterator i = user_->authTokens().begin();
+	 i != user_->authTokens().end(); ++i) {
+      dbo::ptr<AuthTokenType> t = *i;
+      if (t->value() == hash) {
+	t.remove();
+	break;
+      }
+    }
+  }
+
+  virtual User findWithAuthToken(const std::string& hash) const {
+    Wt::Dbo::Transaction t(session_);
+    user_ = session_.query< Wt::Dbo::ptr<DboType> >
+      (std::string() +
+       "select u from " + session_.tableName<DboType>() + " u "
+       "join " + session_.tableName<AuthTokenType>() + " t "
+       "on u.id = t." + session_.tableName<DboType>() + "_id")
+      .where("t.value = ?").bind(hash)
+      .where("t.expires > ?").bind(WDateTime::currentDateTime());
+    t.commit();
+
+    if (user_)
+      return User(boost::lexical_cast<std::string>(user_.id()), *this);
+    else
+      return User();
+  }
+
+  virtual void setFailedLoginAttempts(const User& user, int count) {
+    WithUser find(*this, user);
+    return user_.modify()->setFailedLoginAttempts(count);
+  }
+
+  virtual int failedLoginAttempts(const User& user) const {
+    WithUser find(*this, user);
+    return user_->failedLoginAttempts();    
+  }
+
+  virtual void setLastLoginAttempt(const User& user, const WDateTime& t) {
+    WithUser find(*this, user);
+    return user_.modify()->setLastLoginAttempt(t);
+  }
+
+  virtual WDateTime lastLoginAttempt(const User& user) const {
+    WithUser find(*this, user);
+    return user_->lastLoginAttempt();    
+  }
+
+private:
+  Wt::Dbo::Session& session_;
+  mutable Wt::Dbo::ptr<DboType> user_;
+  unsigned maxAuthTokensPerUser_;
+
+  struct WithUser {
+    WithUser(const UserDatabase<DboType>& self, const User& user)
+      : transaction(self.session_)
+    {
+      self.getUser(user.id());
+      if (!self.user_)
+	throw WException("Invalid user");
+    }
+    
+    ~WithUser() {
+      transaction.commit();
+    }
+
+    Wt::Dbo::Transaction transaction;
+  };
+
+  void getUser(const std::string& id) const {
+    if (!user_ || boost::lexical_cast<std::string>(user_.id()) != id) {
+      dbo::Transaction t(session_);
+      user_ = session_.load<DboType>(boost::lexical_cast<long long>(id));
+      t.commit();
+    }
+  }
+
+  struct TransactionImpl : public Transaction, public Wt::Dbo::Transaction
+  {
+    TransactionImpl(Wt::Dbo::Session& session)
+      : Wt::Dbo::Transaction(session)
+    { }
+
+    virtual ~TransactionImpl()
+    { }
+
+    virtual void commit()
+    {
+      Wt::Dbo::Transaction::commit();
+    }
+
+    virtual void rollback()
+    {
+      Wt::Dbo::Transaction::rollback();
+    }
+  };
+};
+
+};
+
+  }
+}
+
+#endif // WT_AUTH_DBO_USER_DATABASE

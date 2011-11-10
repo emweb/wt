@@ -7,19 +7,18 @@
 #ifndef WT_AUTH_FACEBOOK_AUTH_H_
 #define WT_AUTH_FACEBOOK_AUTH_H_
 
-#include <Wt/Auth/OAuth>
+#include <Wt/Auth/OAuthService>
 
 namespace Wt {
   namespace Auth {
 
-class WT_API FacebookAuth : public OAuth
+class WT_API FacebookService : public OAuthService
 {
 public:
-  FacebookAuth(const BaseAuth& baseAuth);
+  FacebookService(const AuthService& baseAuthService);
 
   virtual std::string name() const;
   virtual WString description() const;
-  virtual WLink icon() const;
   virtual int popupWidth() const;
   virtual int popupHeight() const;
 
@@ -31,7 +30,7 @@ public:
   virtual std::string clientSecret() const;
 
   virtual Http::Method tokenRequestMethod() const;
-  virtual Process *createProcess(const std::string& scope) const;
+  virtual OAuthProcess *createProcess(const std::string& scope) const;
 };
 
   }

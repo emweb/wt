@@ -56,9 +56,25 @@ class WT_API WValidator : public WObject
 public:
   /*! \brief The state in which validated input can exist.
    */
-  enum State { Invalid,	     //!< The input is invalid.
-	       InvalidEmpty, //!< The input is invalid (emtpy and mandatory).
-	       Valid	     //!< The input is valid.
+  enum State {
+    Invalid,	  //!< The input is invalid.
+    InvalidEmpty, //!< The input is invalid (empty and mandatory).
+    Valid	  //!< The input is valid.
+  };
+
+  class Result
+  {
+  public:
+    Result();
+    Result(State state, const WString& message = WString::Empty);
+
+    State state() const { return state_; }
+
+    const WString& message() const { return message_; }
+
+  private:
+    State state_;
+    WString message_;
   };
 
   /*! \brief Creates a new validator.
@@ -114,11 +130,9 @@ public:
 
   /*! \brief Validates the given input.
    *
-   * This function returns the current validation state of the
-   * input. The default implementation only checks whether a mandatory
-   * field is not left blank.
+   * \note The signature for this method changed in %Wt 3.2.0.
    */
-  virtual State validate(WT_USTRING& input) const;
+  virtual Result validate(const WT_USTRING& input) const;
 
   /*! \brief Provides Ext-compatible config options for client-side validation.
    */
@@ -132,8 +146,8 @@ public:
    *  - fields: a boolean <i>valid</i>,
    *  - a \p message that indicates the problem if not valid.
    *
-   * Return an empty string if you are not provide the client-side
-   * validation.
+   * Returns an empty string if the validator does not provide a
+   * client-side validation implementationq.
    *
    * \note The signature and contract changed changed in %Wt 3.1.9.
    *

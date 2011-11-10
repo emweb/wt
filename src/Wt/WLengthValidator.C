@@ -91,8 +91,11 @@ WString WLengthValidator::invalidTooLongText() const
           .arg(minLength_).arg(maxLength_);
 }
 
-WValidator::State WLengthValidator::validate(WT_USTRING& input) const
+WValidator::Result WLengthValidator::validate(const WT_USTRING& input) const
 {
+  if (input.empty())
+    return WValidator::validate(input);
+
 #ifndef WT_TARGET_JAVA
 #ifndef WT_NO_STD_WSTRING
   std::wstring text = input.value();
@@ -103,19 +106,12 @@ WValidator::State WLengthValidator::validate(WT_USTRING& input) const
   std::string text = input;
 #endif
 
-  if (isMandatory()) {
-    if (text.empty())
-      return InvalidEmpty;
-  } else {
-    if (text.empty())
-      return Valid;
-  }
-
-  if ((int)text.length() >= minLength_
-      && (int)text.length() <= maxLength_)
-    return Valid;
+  if ((int)text.length() < minLength_)
+    return Result(Invalid, invalidTooShortText());
+  else if ((int)text.length() > maxLength_)
+    return Result(Invalid, invalidTooLongText());
   else
-    return Invalid;
+    return Result(Valid);
 }
 
 void WLengthValidator::loadJavaScript(WApplication *app)

@@ -25,8 +25,11 @@ Mailbox::Mailbox(const std::string& address, const WString& displayName)
 void Mailbox::write(const std::string& header, std::ostream& out) const
 {
   out << header << ": ";
-  Message::encodeWord(displayName_, out);
-  out << " <" << address_ << ">\r\n";
+  if (!displayName_.empty()) {
+    Message::encodeWord(displayName_, out, true);
+    out << " ";
+  }
+  out << "<" << address_ << ">\r\n";
 }
 
   }

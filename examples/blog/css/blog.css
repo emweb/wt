@@ -11,6 +11,10 @@
     white-space: nowrap;
 }
 
+.Wt-auth-logged-in {
+    display: inline;
+}
+
 .link {
     text-decoration: underline;
     cursor: pointer; cursor: hand;

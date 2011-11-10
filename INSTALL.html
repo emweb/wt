@@ -185,6 +185,9 @@ the most relevant ones are:
 recommended, you may want to disable this for example if you suspect
 threading problems. Note that recursive event loops (most notably when
 using Dialog::exec()) are not possible without thread support.</dd>
+<dt><strong>ENABLE_SSL</strong></dt>
+<dd>Compile with support for SSL, enabling secure HTTP (HTTPS), and cryptographic functions
+for Wt::Auth. This requires an OpenSSL library.</dd>
 </dl>
 
 The following variables apply to the FastCGI connector:
@@ -203,8 +206,6 @@ The following variables apply to the wthttpd connector:
 <dl>
 <dt><strong>WTHTTP_CONFIGURATION</strong></dt>
 <dd>Location of the wthttpd configuration file (default is /etc/wt/wthttpd)</dd>
-<dt><strong>HTTP_WITH_SSL</strong></dt>
-<dd>Compile with support for SSL, for secure HTTP (HTTPS). This requires an OpenSSL library.</dd>
 <dt><strong>HTTP_WITH_ZLIB</strong></dt>
 <dd>Compile with support for compression over HTTP. This requires the
 libz library.</dd>

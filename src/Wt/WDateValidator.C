@@ -149,10 +149,10 @@ WDate WDateValidator::parse(const WString& input)
 }
 #endif // WT_DEPRECATED_3_0_0
 
-WValidator::State WDateValidator::validate(WT_USTRING& input) const
+WValidator::Result WDateValidator::validate(const WT_USTRING& input) const
 {
   if (input.empty())
-    return isMandatory() ? InvalidEmpty : Valid;
+    return WValidator::validate(input);
 
   for (unsigned i = 0; i < formats_.size(); ++i) {
     try {
@@ -161,27 +161,26 @@ WValidator::State WDateValidator::validate(WT_USTRING& input) const
       if (d.isValid()) {
 	if (!bottom_.isNull())
 	  if (d < bottom_)
-	    return Invalid;
+	    return Result(Invalid, invalidTooEarlyText());
 
 	if (!top_.isNull())
 	  if (d > top_)
-	    return Invalid;
+	    return Result(Invalid, invalidTooLateText());
     
-	return Valid;
+	return Result(Valid);
       }
     } catch (std::exception& e) {
       Wt::log("warn") << "WDateValidator::validate(): " << e.what();
     }
   }
 
-  return Invalid;
+  return Result(Invalid, invalidNotADateText());
 }
 
 void WDateValidator::loadJavaScript(WApplication *app)
 {
   LOAD_JAVASCRIPT(app, "js/WDateValidator.js", "WDateValidator", wtjs1);
 }
-
 
 std::string WDateValidator::javaScriptValidate() const
 {

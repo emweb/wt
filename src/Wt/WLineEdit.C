@@ -146,7 +146,12 @@ void WLineEdit::setFormData(const FormData& formData)
 
 WT_USTRING WLineEdit::valueText() const
 {
-  return content_;
+  return text();
+}
+
+void WLineEdit::setValueText(const WT_USTRING& value)
+{
+  setText(value);
 }
 
 int WLineEdit::boxPadding(Orientation orientation) const

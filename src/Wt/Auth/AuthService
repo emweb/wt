@@ -21,10 +21,57 @@ namespace Wt {
   namespace Auth {
 
 class HashFunction;
+class Identity;
 class User;
 class AbstractUserDatabase;
 
-/*! \class EmailTokenResult Wt/Auth/BaseAuth Wt/Auth/BaseAuth
+/*! \brief Enumeration for an identity policy.
+ *
+ * This enumeration lists possible choices for the user identity
+ * (login name).
+ *
+ * When using password authentication, it is clear that the user has
+ * to provide an identity to login. The only choice is whether you
+ * will use the user's email address or another login name.
+ *
+ * When using a 3rd party authenticator, e.g. using OAuth, a login
+ * name is no longer needed, but you may still want to give the user
+ * the opportunity to choose one.
+ */
+enum IdentityPolicy {
+  /*! \brief A unique username chosen by the user.
+   *
+   * Even if not really required for authentication, a user still
+   * chooses a unique user name. If possible, a third party
+   * autheticator may suggest a user name.
+   *
+   * This may be useful for sites which have a social aspect.
+   */
+  UserNameIdentity,
+
+  /*! \brief The email address serves as the identity.
+   *
+   * This may be useful for sites which do not have any social
+   * character, but instead render a service to individual users.
+   * When the site has a social character, you will likely not want to
+   * display the email address of other users, but instead a username.
+   */
+  EmailAddressIdentity,
+
+  /*! \brief An identity is optional, and only asked if needed for
+   *         authentication.
+   *
+   * Unless the authentication procedure requires a user name, no
+   * particular identity is asked for. In this case, the identity is a
+   * unique internal identifier.
+   *
+   * This may be useful for sites which do not have any social
+   * character, but instead render a service to individual users.
+   */ 
+  OptionalIdentity
+};
+
+/*! \class EmailTokenResult Wt/Auth/AuthService Wt/Auth/AuthService
  *  \brief The result of processing an email-sent token.
  *
  * An email token can be used for two purposes:
@@ -34,8 +81,8 @@ class AbstractUserDatabase;
  * - the user indicates that he lost his email and wants to prove his identity
  *   by acknowledging an email to a previously verified email account.
  *
- * \sa BaseAuth::processEmailToken()
- * \sa BaseAuth::verifyEmailAddress(), BaseAuth::lostPassword()
+ * \sa AuthService::processEmailToken()
+ * \sa AuthService::verifyEmailAddress(), AuthService::lostPassword()
  *
  * \ingroup auth
  */
@@ -52,8 +99,8 @@ public:
      *         password.
      *
      * The presented token was a token sent by the
-     * BaseAuth::lostPassword() function.  When this is returned as
-     * result of BaseAuth::processEmailToken(), you should present the
+     * AuthService::lostPassword() function.  When this is returned as
+     * result of AuthService::processEmailToken(), you should present the
      * user with a dialog where he can enter a new password.
      */
     UpdatePassword,
@@ -61,7 +108,7 @@ public:
     /*! \brief A The token was presented which verifies the email address.
      *
      * The presented token was a token sent by the
-     * BaseAuth::verifyEmailAddress() function. When this is returned
+     * AuthService::verifyEmailAddress() function. When this is returned
      * as result of processEmailToken(), you can indicate to the user
      * that his email address is now confirmed.
      */
@@ -92,15 +139,15 @@ private:
   User user_;
 };
 
-/*! \class AuthTokenResult Wt/Auth/BaseAuth Wt/Auth/BaseAuth
+/*! \class AuthTokenResult Wt/Auth/AuthService Wt/Auth/AuthService
  *  \brief The result of processing an authentication token.
  *
  * An authentication token is usually taken from a browser cookie, and
  * used to identify (and possibly authenticate) a user across
  * sessions.
  *
- * \sa BaseAuth::processAuthToken()
- * \sa BaseAuth::createAuthToken()
+ * \sa AuthService::processAuthToken()
+ * \sa AuthService::createAuthToken()
  *
  * \ingroup auth
  */
@@ -146,7 +193,7 @@ private:
   std::string newToken_;
 };
 
-/*! \class BaseAuth Wt/Auth/BaseAuth Wt/Auth/BaseAuth
+/*! \class AuthService Wt/Auth/AuthService Wt/Auth/AuthService
  *  \brief Basic authentication service
  *
  * This class presents an basic authentication service, which offers
@@ -157,15 +204,12 @@ private:
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. A "const BaseAuth" object is thus thread-safe.
+ * read-only. A "const AuthService" object is thus thread-safe.
  *
  * The class provides the following services (and relevant configuration):
  *
  *  - settings for generating random tokens:
  *    - setRandomTokenLength()
- *  - identity (e.g. "user name") validation
- *    - setMinimumIdentityLength()
- *    - validateIdentity()
  *  - authentication tokens, used by e.g. remember-me functionality:
  *    - setAuthTokensEnabled()
  *    - processAuthToken()
@@ -177,16 +221,16 @@ private:
  *
  * \ingroup auth
  */
-class WT_API BaseAuth
+class WT_API AuthService
 {
 public:
   /*! \brief Constructor
    */
-  BaseAuth();
+  AuthService();
 
   /*! \brief Destructor
    */
-  virtual ~BaseAuth();
+  virtual ~AuthService();
 
   /*! \brief Sets the token length.
    *
@@ -205,37 +249,29 @@ public:
    */
   int randomTokenLength() const { return tokenLength_; }
 
-  /*! \brief Sets the minimum identity length.
+  /*! \brief Configures the identity policy.
    *
-   * \sa validateIdentity()
+   * The identity policy has an impact on the login and registration
+   * procedure.
    */
-  void setMinimumIdentityLength(int length);
+  void setIdentityPolicy(IdentityPolicy policy);
 
-  /*! \brief Returns the minimum identity length.
+  /*! \brief Returns the identity policy.
    *
-   * \sa setMinimumIdentityLength()
+   * \sa setIdentityPolicy()
    */
-  int minimumIdentityLength() const { return minimumIdentityLength_; }
+  IdentityPolicy identityPolicy() const { return identityPolicy_; }
 
-  /*! \brief Validates the identity.
+  /*! \brief Tries to match the identity to an existing user.
    *
-   * When a user is allowed to chose his own identity (typically presented
-   * as a "login" or "username"), this method will verify that the identity
-   * is valid.
-   *
-   * The result is an error message. When empty, the \p identity is
-   * valid, otherwise the error message should be helpful enough for
-   * the user to understand what's wrong with his cool login name.
-   *
-   * The default implementation checks that the \p identity has a
-   * minimum length (UTF-8 wise).
-   *
-   * Btw, you could also use email addresses to identify a user, or when
-   * using OAuth, an identity is even less relevant.
-   *
-   * \sa setMinimumIdentityLength()
+   * When authenticating using a 3rd party Identity Provider, the
+   * identity is matched against the existing users, based on the id
+   * (with AbstractUserDatabase::findOtherId()), or if not matched,
+   * based on whether there is a user with the same verified email
+   * address as the one indicated by the identity.
    */
-  virtual WString validateIdentity(const WT_USTRING& identity) const;
+  virtual User identifyUser(const Identity& identity,
+			    AbstractUserDatabase& users) const;
 
   /** @name Authentication token support
    */
@@ -284,15 +320,15 @@ public:
    * Sets the hash function used to safely store authentication tokens
    * in the database. Ownership of the hash function is transferred.
    *
-   * There is no default token hash function.
+   * The default token hash function is an MD5HashFunction.
    */
-  void setTokenHashFunction(const HashFunction *function);
+  void setTokenHashFunction(HashFunction *function);
 
   /*! \brief Returns the token hash function.
    *
    * \sa setTokenHashFunction()
    */
-  const HashFunction *tokenHashFunction() const;
+  HashFunction *tokenHashFunction() const;
 
   /*! \brief Creates and stores an authentication token for the user.
    *
@@ -473,11 +509,12 @@ protected:
 				    const std::string& token) const;
 
 private:
-  BaseAuth(const BaseAuth&);
+  AuthService(const AuthService&);
 
-  int minimumIdentityLength_;
+  IdentityPolicy identityPolicy_;
+  int minimumUserNameLength_;
 
-  const HashFunction *tokenHashFunction_;
+  HashFunction *tokenHashFunction_;
   int tokenLength_;
 
   bool emailVerification_;

@@ -12,11 +12,11 @@
 #include "User.h"
 #include "../asciidoc/asciidoc.h"
 
-#include "Wt/Auth/BaseAuth"
+#include "Wt/Auth/AuthService"
 #include "Wt/Auth/HashFunction"
-#include "Wt/Auth/PasswordAuth"
+#include "Wt/Auth/PasswordService"
 #include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/GoogleAuth"
+#include "Wt/Auth/GoogleService"
 
 #ifndef WIN32
 #include <unistd.h>
@@ -36,12 +36,18 @@ namespace {
   class UnixCryptHashFunction : public Auth::HashFunction
   {
   public:
-    virtual std::string compute(const std::string& msg,
-				const std::string& salt)
-      const
+    virtual std::string compute(const std::string& msg, 
+				const std::string& salt) const
     {
       std::string md5Salt = "$1$" + salt;
       return crypt(msg.c_str(), md5Salt.c_str());
+    }
+
+    virtual bool verify(const std::string& msg,
+			const std::string& salt,
+			const std::string& hash) const
+    {
+      return crypt(msg.c_str(), hash.c_str()) == hash;
     }
 
     virtual std::string name () const {
@@ -50,30 +56,24 @@ namespace {
   };
 #endif // HAVE_CRYPT
 
-  class BlogBaseAuth : public Auth::BaseAuth
+  class BlogBaseAuth : public Auth::AuthService
   {
   public:
     BlogBaseAuth()
     {
       setAuthTokensEnabled(true, "bloglogin");
-
-#ifdef WT_WITH_SSL
-      setTokenHashFunction(new Auth::SHA1HashFunction());
-#else
-# ifdef HAVE_CRYPT
-      setTokenHashFunction(new UnixCryptHashFunction());
-# endif
-#endif
     }
   };
 
-  class BlogPasswords : public Auth::PasswordAuth
+  class BlogPasswords : public Auth::PasswordService
   {
   public:
-    BlogPasswords(const Auth::BaseAuth& baseAuth)
-      : Auth::PasswordAuth(baseAuth)
+    BlogPasswords(const Auth::AuthService& baseAuth)
+      : Auth::PasswordService(baseAuth)
     {
       Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
+
+      verifier->addHashFunction(new Auth::BCryptHashFunction(7));
 
 #ifdef WT_WITH_SSL
       verifier->addHashFunction(new Auth::SHA1HashFunction());
@@ -88,7 +88,7 @@ namespace {
     }
   };
 
-  class BlogOAuth : public std::vector<const Auth::OAuth *>
+  class BlogOAuth : public std::vector<const Auth::OAuthService *>
   {
   public:
     ~BlogOAuth()
@@ -107,8 +107,8 @@ namespace dbo = Wt::Dbo;
 
 void BlogSession::initAuth()
 {
-  if (Auth::GoogleAuth::configured())
-    blogOAuth.push_back(new Auth::GoogleAuth(blogBaseAuth));
+  if (Auth::GoogleService::configured())
+    blogOAuth.push_back(new Auth::GoogleService(blogBaseAuth));
 }
 
 BlogSession::BlogSession(const std::string& sqliteDb)
@@ -134,7 +134,7 @@ BlogSession::BlogSession(const std::string& sqliteDb)
     a->name = ADMIN_USERNAME;
     a->role = User::Admin;
 
-    Auth::User authAdmin = users_.findIdentity(a->name);
+    Auth::User authAdmin = users_.findWithIdentity("username", a->name);
     blogPasswords.updatePassword(authAdmin, ADMIN_PASSWORD);
 
     dbo::ptr<Post> post = add(new Post());
@@ -171,12 +171,12 @@ dbo::ptr<User> BlogSession::user() const
     return dbo::ptr<User>();
 }
 
-Auth::PasswordAuth *BlogSession::passwordAuth() const
+Auth::PasswordService *BlogSession::passwordAuth() const
 {
   return &blogPasswords;
 }
 
-const std::vector<const Auth::OAuth *>& BlogSession::oAuth() const
+const std::vector<const Auth::OAuthService *>& BlogSession::oAuth() const
 {
   return blogOAuth;
 }

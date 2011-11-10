@@ -145,6 +145,12 @@ public:
    */
   virtual WT_USTRING valueText() const;
 
+  /*! \brief Sets the current value.
+   *
+   * Has no effect, since a button has not value.
+   */
+  virtual void setValueText(const WT_USTRING& value);
+
   /*! \brief Sets the link target.
    *
    * This sets the target where the linked contents should be displayed.

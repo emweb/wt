@@ -39,6 +39,7 @@ public:
   Wt::WDateTime lastLoginAttempt;
 
   std::string oAuthId;
+  std::string oAuthProvider;
 
   Tokens authTokens;
   Comments comments;
@@ -58,6 +59,7 @@ public:
     dbo::field(a, failedLoginAttempts, "failed_login_attempts");
     dbo::field(a, lastLoginAttempt,    "last_login_attempt");
     dbo::field(a, oAuthId,             "oauth_id");
+    dbo::field(a, oAuthProvider,       "oauth_provider");
 
     dbo::hasMany(a, comments,   dbo::ManyToOne, "author");
     dbo::hasMany(a, posts,      dbo::ManyToOne, "author");

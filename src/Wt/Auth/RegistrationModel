@@ -1,0 +1,285 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_AUTH_REGISTRATION_MODEL_H_
+#define WT_AUTH_REGISTRATION_MODEL_H_
+
+#include <Wt/WObject>
+#include <Wt/WValidator>
+
+#include <Wt/Auth/Identity>
+#include <Wt/Auth/User>
+
+namespace Wt {
+  namespace Auth {
+
+class AbstractPasswordService;
+class AbstractUserDatabase;
+class ChoosePasswordFields;
+class Login;
+class OAuthService;
+
+/*! \class RegistrationModel Wt/Auth/RegistrationModel
+ *  \brief Model for implementing a registration view.
+ *
+ * This model implements the logic for the registration of a new user.
+ * It can deal with traditional username/password registration, or
+ * registration of pre-identified users using federated login.
+ *
+ * \sa RegistrationWidget
+ *
+ * \ingroup auth
+ */
+class WT_API RegistrationModel : public WObject
+{
+public:
+  /*! \brief Enumeration for a field
+   */
+  enum Field {
+    UserName,       //!< User name field
+    Password,       //!< Password field
+    Password2,      //!< Repeat password field
+    Email           //!< Email field (if user name is not email)
+  };
+
+  /*! \brief Method for confirming to be an existing user.
+   */
+  enum IdentityConfirmationMethod {
+    ConfirmWithPassword,    //!< Confirm using a password prompt
+    ConfirmWithEmail,       //!< Confirm by using an email procedure
+    ConfirmationNotPossible //!< Confirmation is not possible
+  };
+
+  /*! \brief Constructor.
+   *
+   * Creates a new registration model, using a basic authentication
+   * service and user database.
+   *
+   * The \p login object is used to indicate that an existing user was
+   * re-identified, and thus the registration process may be aborted.
+   */
+  RegistrationModel(const AuthService& baseAuth, AbstractUserDatabase& users,
+		    Login& login, WObject *parent = 0);
+
+  /*! \brief Returns the authentication base service.
+   *
+   * This returns the service passed through the constructor.
+   */
+  const AuthService *baseAuth() const { return &baseAuth_; }
+
+  /*! \brief Returns the login object.
+   */
+  Login& login() { return login_; }
+
+  /*! \brief Returns the user database.
+   */
+  AbstractUserDatabase& users() { return users_; }
+
+  /*! \brief Adds a password authentication service.
+   *
+   * This enables password-based registration, including choosing a proper
+   * password.
+   *
+   * Only one password authentication service can be configured.
+   *
+   * \sa addOAuth()
+   * \sa AbstractPasswordService::validatePassword()
+   */
+  void addPasswordAuth(const AbstractPasswordService *auth);
+
+  /*! \brief Returns the password authentication service.
+   *
+   * \sa addPasswordAuth()
+   */
+  const AbstractPasswordService *passwordAuth() const { return passwordAuth_; }
+
+  /*! \brief Adds an OAuth authentication service provider.
+   *
+   * This enables OAuth-based registration. More than one OAuth
+   * authentication service can be configured: one for each supported
+   * third-party OAuth identity provider.
+   *
+   * \sa addPasswordAuth()
+   */
+  void addOAuth(const OAuthService *auth);
+
+  /*! \brief Adds a list of OAuth authentication service providers.
+   *
+   * \sa addOAuth()
+   */
+  void addOAuth(const std::vector<const OAuthService *>& auth);
+
+  /*! \brief Returns the list of OAuth authentication service providers.
+   *
+   * \sa addOAuth()
+   */
+  std::vector<const OAuthService *> oAuth() const { return oAuth_; }
+
+  /*! \brief Configures a minimum length for a user name.
+   *
+   * The default value is 4. 
+   */
+  void setMinUserNameLength(int chars);
+
+  /*! \brief Returns the minimum length for a user name.
+   *
+   * \sa setMinUserNameLength()
+   */
+  int minUserNameLength() const { return minUserNameLength_; }
+
+  /*! \brief Register a user authenticated by an identity provider.
+   *
+   * Using a 3rd party authentication service such as %OAuth, a user
+   * may be identified which is not yet registered with the web
+   * application.
+   *
+   * Then, you may still need to allow the user to complete
+   * registration, but because the user already is identified and
+   * authenticated, this simplifies the registration form, since
+   * fields related to authentication can be dropped.
+   *
+   * Returns \c true if the given identity was already registered, and
+   * has been logged in.
+   */
+  virtual bool registerIdentified(const Identity& identity);
+
+  /*! \brief Returns the existing user that needs to be confirmed.
+   *
+   * When a user wishes to register with an identity that corresponds
+   * to an existing user, he ma be allowd to confirm that he is in
+   * fact this existing user.
+   *
+   * \sa confirmIsExistingUser()
+   */
+  User existingUser() const { return existingUser_; }
+
+  /*! \brief Returns the method to be used to confirm to be an existing user.
+   *
+   * When the ConfirmExisting field is visible, this returns an
+   * appropriate method to use to let the user confirm that he is
+   * indeed the identified existing user.
+   *
+   * The outcome of this method (if it is an online method, like a
+   * password prompt), if successful should be indicated using
+   * existingUserConfirmed().
+   *
+   * \sa existingUserConfirmed()
+   */
+  virtual IdentityConfirmationMethod confirmIsExistingUser() const;
+
+  /*! \brief Confirms that the user is indeed an existing user.
+   *
+   * The new identity is added to this existing user (if applicable),
+   * and the user is logged in.
+   */
+  virtual void existingUserConfirmed();
+
+  /*! \brief Validates the user name.
+   *
+   * This verifies that the user name is adequate (see also
+   * setMinUserNameLength()).
+   */
+  virtual WString validateUserName(const WT_USTRING& userName) const;
+
+  /*! \brief Verifies that a user with that name does not yet exist.
+   *
+   * If a user with that name already exists, it may in fact be the
+   * same user that is trying to register again (perhaps using a
+   * different identification method). If possible, we allow the user
+   * to confirm his identity.
+   */
+  virtual void checkUserExists(const WT_USTRING& userName);
+
+  /*! \brief Validates the current input.
+   *
+   * If validation is successful, then a new user can be registered using
+   * doRegister()
+   */
+  virtual bool validate();
+
+  /*! \brief Returns the result of the last validation.
+   *
+   * \sa validate()
+   */
+  bool valid() const;
+
+  /*! \brief Performs the registration process.
+   */
+  virtual User doRegister();
+
+  /*! \brief Returns whether a field should be shown.
+   */
+  virtual bool isVisible(Field field) const;
+
+  /*! \brief Returns whether a field is read only.
+   */
+  virtual bool isReadOnly(Field field) const;
+
+  /*! \brief Returns a field label.
+   */
+  virtual WString label(Field field) const;
+
+  /*! \brief Sets the field value.
+   */
+  virtual void setValue(Field field, const WT_USTRING& value);
+
+  /*! \brief Returns the field value.
+   */
+  virtual const WT_USTRING& value(Field field) const;
+
+  /*! \brief Validates a field.
+   *
+   * \sa validate(), validationResult()
+   */
+  virtual bool validate(Field field);
+
+  /*! \brief Returns the result of a validation.
+   *
+   * \sa validate()
+   */
+  const WValidator::Result& validationResult(Field field) const;
+
+  /*! \brief Returns whether an existing user may be confirmed.
+   *
+   * This returns whether the user is being identified as an existing
+   * user and he can confirm that he is in fact the same user.
+   */
+  virtual bool isConfirmUserButtonVisible() const;
+
+  /*! \brief Returns whether federated login options can be shown.
+   *
+   * This returns whether fields for federated login (such as OAuth)
+   * should be shown. These are typically buttons corresponding to
+   * identity providers.
+   *
+   * The result of a federated authentication procedure should be
+   * indicated to registerIdentified().
+   */
+  virtual bool isFederatedLoginVisible() const;
+
+  static void validatePasswordsMatchJS(WLineEdit *password,
+				       WLineEdit *password2,
+				       WText *info2);
+
+private:
+  const AuthService& baseAuth_;
+  AbstractUserDatabase& users_;
+  Login& login_;
+  int minUserNameLength_;
+
+  const AbstractPasswordService *passwordAuth_;
+  std::vector<const OAuthService *> oAuth_;
+  Identity idpIdentity_;
+  User existingUser_;
+
+  WT_USTRING values_[4];
+  WValidator::Result validation_[4];
+};
+
+  }
+}
+
+#endif // WT_AUTH_REGISTRATION_MODEL_H_

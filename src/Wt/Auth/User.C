@@ -15,14 +15,14 @@ User::User()
   : db_(0)
 { }
 
-User::User(const WT_USTRING& identity, const AbstractUserDatabase& userDatabase)
-  : identity_(identity),
+User::User(const std::string& id, const AbstractUserDatabase& userDatabase)
+  : id_(id),
     db_(const_cast<AbstractUserDatabase *>(&userDatabase))
 { }
 
 bool User::operator==(const User& other) const
 {
-  return identity_ == other.identity_ && db_ == other.db_;
+  return id_ == other.id_ && db_ == other.db_;
 }
 
 bool User::operator!=(const User& other) const
@@ -77,11 +77,18 @@ User::Status User::status() const
   return db_->status(*this);
 }
 
-void User::addOAuthId(const std::string& id) const
+void User::addIdentity(const std::string& provider, const WT_USTRING& identity)
 {
   checkValid();
 
-  db_->addOAuthId(*this, id);
+  db_->addIdentity(*this, provider, identity);
+}
+
+WT_USTRING User::identity(const std::string& provider) const
+{
+  checkValid();
+
+  return db_->identity(*this, provider);
 }
 
 Token User::emailToken() const

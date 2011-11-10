@@ -85,20 +85,15 @@ WString WRegExpValidator::invalidNoMatchText() const
     return WString::tr("Wt.WRegExpValidator.Invalid");
 }
 
-WValidator::State WRegExpValidator::validate(WT_USTRING& input) const
+WValidator::Result WRegExpValidator::validate(const WT_USTRING& input) const
 {
-  if (isMandatory()) {
-    if (input.empty())
-      return InvalidEmpty;
-  } else {
-    if (input.empty())
-      return Valid;
-  }
+  if (input.empty())
+    return WValidator::validate(input);
 
   if (!regexp_ || regexp_->exactMatch(input))
-    return Valid;
+    return Result(Valid);
   else
-    return Invalid;
+    return Result(Invalid, invalidNoMatchText());
 }
 
 void WRegExpValidator::loadJavaScript(WApplication *app)

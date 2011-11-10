@@ -79,7 +79,7 @@ public:
    * The input is considered valid only when it is blank for a non-mandatory
    * field, or represents an integer within the valid range.
    */
-  virtual State validate(WT_USTRING& input) const;
+  virtual Result validate(const WT_USTRING& input) const;
 
   virtual void createExtConfig(std::ostream& config) const;
 

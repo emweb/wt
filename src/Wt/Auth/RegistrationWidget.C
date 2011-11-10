@@ -6,10 +6,9 @@
 
 #include "Wt/Auth/AbstractUserDatabase"
 #include "Wt/Auth/AuthWidget"
-#include "Wt/Auth/BaseAuth"
-#include "Wt/Auth/ChoosePasswordFields"
+#include "Wt/Auth/AuthService"
 #include "Wt/Auth/Login"
-#include "Wt/Auth/AbstractPasswordAuth"
+#include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/RegistrationWidget"
 
 #include "Wt/WAnchor"
@@ -19,9 +18,8 @@
 #include "Wt/WImage"
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
+// #include "Wt/WRegExpValidator"
 #include "Wt/WText"
-
-#include "web/Utils.h"
 
 namespace skeletons {
   extern const char *Auth_xml1;
@@ -30,440 +28,289 @@ namespace skeletons {
 namespace Wt {
   namespace Auth {
 
-RegistrationWidget::RegistrationWidget(const BaseAuth& baseAuth,
+RegistrationWidget::RegistrationWidget(const AuthService& baseAuth,
 				       AbstractUserDatabase& users,
 				       Login& login,
 				       AuthWidget *authWidget)
   : WTemplate(tr("Wt.Auth.template.registration")),
-    baseAuth_(baseAuth),
-    users_(users),
-    login_(login),
+    validated_(false),
     authWidget_(authWidget),
-    identityPolicy_(ServiceProvided),
-    passwordAuth_(0),
     created_(false),
-    passwordFields_(0),
     confirmPasswordLogin_(0)
 {
-  bindFunction("id", &WTemplate::Functions::id);
-  bindFunction("tr", &WTemplate::Functions::tr);
+  addFunction("id", &WTemplate::Functions::id);
+  addFunction("tr", &WTemplate::Functions::tr);
 
   WApplication *app = WApplication::instance();
   app->builtinLocalizedStrings().useBuiltin(skeletons::Auth_xml1);
-}
 
-void RegistrationWidget::addPasswordAuth(const AbstractPasswordAuth *auth)
-{
-  passwordAuth_ = auth;
-}
+  model_ = new RegistrationModel(baseAuth, users, login, this);
 
-void RegistrationWidget::addOAuth(const OAuth *auth)
-{
-  oAuth_.push_back(auth);
-}
-
-void RegistrationWidget::addOAuth(const std::vector<const OAuth *>& auth)
-{
-  Utils::insert(oAuth_, auth);
-}
-
-void RegistrationWidget::setIdentityPolicy(IdentityPolicy policy)
-{
-  identityPolicy_ = policy;
-}
-
-void RegistrationWidget::registerIdentified(const Identity& identity)
-{
-  oAuthIdentity_ = identity;
+  login.changed().connect(this, &RegistrationWidget::close);
 }
 
 void RegistrationWidget::render(WFlags<RenderFlag> flags)
 {
   if (!created_) {
-    create();
+    update();
     created_ = true;
   }
 
   WTemplate::render(flags);
 }
 
-void RegistrationWidget::create()
+WFormWidget *RegistrationWidget::createField(RegistrationModel::Field field)
 {
-  if (created_)
-    return;
+  WFormWidget *result;
 
-  created_ = true;
+  switch (field) {
+  case RegistrationModel::UserName:
+    result = new WLineEdit();
+    result->changed().connect
+      (boost::bind(&RegistrationWidget::checkUserName, this));
 
-  createPasswordRegistration();
-  createOAuthRegistration();
+    break;
+  case RegistrationModel::Email:
+    result = new WLineEdit();
 
-  WPushButton *okButton = new WPushButton(tr("Wt.Auth.register"));
-  WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
+    break;
+  case RegistrationModel::Password:
+    {
+      WLineEdit *p = new WLineEdit();
+      p->setEchoMode(WLineEdit::Password);
+      p->changed().connect
+	(boost::bind(&RegistrationWidget::checkPassword, this));
+      result = p;
+    }
 
-  bindWidget("ok-button", okButton);
-  bindWidget("cancel-button", cancelButton);
+    break;
+  case RegistrationModel::Password2:
+    {
+      WLineEdit *p = new WLineEdit();
+      p->setEchoMode(WLineEdit::Password);
+      p->changed().connect
+	(boost::bind(&RegistrationWidget::checkPassword2, this));
+      result = p;
+    }
 
-  okButton->clicked().connect(this, &RegistrationWidget::doRegister);
-  cancelButton->clicked().connect(this, &RegistrationWidget::close);
+    break;
+  default:
+    result = 0;
+  }
 
-  if (oAuthIdentity_.isValid())
-    handleOAuthIdentified();
+  return result;
 }
 
-void RegistrationWidget::createPasswordRegistration()
+void RegistrationWidget::updateField(const std::string& var,
+				     RegistrationModel::Field field)
 {
-  if (passwordAuth_ && !oAuth_.empty())
+  if (model_->isVisible(field)) {
+    setCondition("if:" + var, true);
+    WFormWidget *edit = resolve<WFormWidget *>(var);
+    if (!edit) {
+      edit = createField(field);
+      bindWidget(var, edit);
+    }
+
+    edit->setValueText(model_->value(field));
+
+    WText *info = resolve<WText *>(var + "-info");
+    if (!info) {
+      info = new WText();
+      bindWidget(var + "-info", info);
+    }
+
+    bindString(var + "-label", model_->label(field));
+
+    const WValidator::Result& v = model_->validationResult(field);
+    info->setText(v.message());
+
+    switch (v.state()) {
+    case WValidator::InvalidEmpty:
+    case WValidator::Invalid:
+      edit->removeStyleClass("Wt-valid");
+      if (validated_)
+	edit->addStyleClass("Wt-invalid");
+      info->addStyleClass("Wt-error");
+
+      break;
+    case WValidator::Valid:
+      edit->removeStyleClass("Wt-invalid");
+      if (validated_)
+	edit->addStyleClass("Wt-valid");
+      info->removeStyleClass("Wt-error");
+    }
+
+    edit->setDisabled(model_->isReadOnly(field));
+    edit->toggleStyleClass("Wt-disabled", edit->isDisabled());
+  } else {
+    setCondition("if:" + var, false);
+    bindEmpty(var);
+    bindEmpty(var + "-info");    
+  }
+}
+
+void RegistrationWidget::update()
+{
+  if (model_->passwordAuth() && !model_->oAuth().empty())
     bindString("password-description",
 	       tr("Wt.Auth.password-or-oauth-registration"));
   else
     bindEmpty("password-description");
-    
-  if (passwordAuth_) {
-    addIdentityField();
 
-    WLineEdit *passwd = new WLineEdit();
-    WText *passwdInfo = new WText();
-    WLineEdit *passwd2 = new WLineEdit();
-    WText *passwd2Info = new WText();
+  updateField("user-name", RegistrationModel::UserName);
+  updateField("password", RegistrationModel::Password);
+  updateField("password2", RegistrationModel::Password2);
+  updateField("email", RegistrationModel::Email);
 
-    passwordFields_ 
-      = new ChoosePasswordFields(*passwordAuth_,
-				 passwd, passwdInfo, passwd2, passwd2Info,
-				 this);
+  if (!created_) {
+    WLineEdit *password = resolve<WLineEdit *>("password");
+    WLineEdit *password2 = resolve<WLineEdit *>("password2");
+    WText *password2Info = resolve<WText *>("password2-info");
 
-    bindString("password-display", "");
-    bindWidget("password", passwd);
-    bindWidget("password-info", passwdInfo);
-
-    bindWidget("password2", passwd2);
-    bindWidget("password2-info", passwd2Info);
+    if (password && password2 && password2Info)
+      model_->validatePasswordsMatchJS(password, password2, password2Info);
   }
 
-  if (baseAuth_.emailVerificationEnabled()) {
-    WLineEdit *email = new WLineEdit();
-    bindWidget("email", email);
-    bindString("email-display", "");
+  WAnchor *isYou = resolve<WAnchor *>("confirm-is-you");
+  if (!isYou) {
+    isYou = new WAnchor("#", tr("Wt.Auth.confirm-is-you"));
+    isYou->hide();
+    bindWidget("confirm-is-you", isYou);
+  }
+
+  if (model_->isConfirmUserButtonVisible()) {
+    if (!isYou->clicked().isConnected())
+      isYou->clicked().connect(this, &RegistrationWidget::confirmIsYou);
+    isYou->show();
   } else
-    bindString("email-display", "none");
-}
+    isYou->hide();
 
-void RegistrationWidget::addIdentityField()
-{
-  if (!resolveWidget("identity")) {
-    WLineEdit *identity = new WLineEdit();
-    WText *identityInfo = new WText();
-    identityInfo->setText(baseAuth_.validateIdentity(WString::Empty));
+  if (model_->isFederatedLoginVisible()) {
+    if (!conditionValue("if:oauth")) {
+      setCondition("if:oauth", true);
+      if (model_->passwordAuth())
+	bindString("oauth-description", tr("Wt.Auth.or-oauth-registration"));
+      else
+	bindString("oauth-description", tr("Wt.Auth.oauth-registration"));
 
-    identity->changed().connect
-      (boost::bind(&RegistrationWidget::checkIdentity, this));
+      WContainerWidget *icons = new WContainerWidget();
+      icons->addStyleClass("Wt-field");
 
-    bindString("identity-display", "");
-    bindWidget("identity", identity);
-    bindWidget("identity-info", identityInfo);
+      for (unsigned i = 0; i < model_->oAuth().size(); ++i) {
+	const OAuthService *service = model_->oAuth()[i];
+
+	WImage *w = new WImage("css/oauth-" + service->name() + ".png", icons);
+	w->setToolTip(service->description());
+	w->setStyleClass("Wt-auth-icon");
+	w->setVerticalAlignment(AlignMiddle);
+	OAuthProcess *process
+	  = service->createProcess(service->authenticationScope());
+	w->clicked().connect(process, &OAuthProcess::startAuthenticate);
+
+	process->authenticated().connect
+	  (boost::bind(&RegistrationWidget::oAuthDone, this, process, _1));
+
+	WObject::addChild(process);
+      }
+
+      bindWidget("icons", icons);
+    }
+  } else {
+    setCondition("if:oauth", false);
+    bindEmpty("icons");
+  }
+
+  if (!created_) {
+    WPushButton *okButton = new WPushButton(tr("Wt.Auth.register"));
+    WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
+
+    bindWidget("ok-button", okButton);
+    bindWidget("cancel-button", cancelButton);
+
+    okButton->clicked().connect(this, &RegistrationWidget::doRegister);
+    cancelButton->clicked().connect(this, &RegistrationWidget::close);
+
+    created_ = true;
   }
 }
 
-void RegistrationWidget::createOAuthRegistration()
-{
-  if (identityPolicy_ == UserChosen)
-    addIdentityField();
-
-  if (!oAuth_.empty()) {
-    bindString("oauth-display", "");
-    if (passwordAuth_)
-      bindString("oauth-description", tr("Wt.Auth.or-oauth-registration"));
-    else
-      bindString("oauth-description", tr("Wt.Auth.oauth-registration"));
-  } else
-    bindString("oauth-display", "none");
-
-  WContainerWidget *icons = new WContainerWidget();
-  icons->addStyleClass("Wt-field");
-
-  for (unsigned i = 0; i < oAuth_.size(); ++i) {
-    const OAuth *auth = oAuth_[i];
-
-    WImage *w = new WImage(auth->icon(), icons);
-    w->setToolTip(auth->description());
-    w->setVerticalAlignment(AlignMiddle);
-    OAuth::Process *process = auth->createProcess(auth->authenticationScope());
-    w->clicked().connect(process, &OAuth::Process::startAuthenticate);
-
-    process->authenticated().connect
-      (boost::bind(&RegistrationWidget::oAuthDone, this, process, _1));
-
-    WObject::addChild(process);
-  }
-
-  bindWidget("icons", icons);
-
-  bindEmpty("confirm-is-you");
-}
-
-void RegistrationWidget::oAuthDone(OAuth::Process *oauth,
+void RegistrationWidget::oAuthDone(OAuthProcess *oauth,
 				   const Identity& identity)
 {
   if (identity.isValid()) {
     Wt::log("auth")
-      << oauth->auth().name() << ": identified: as "
+      << oauth->service().name() << ": identified: as "
       << identity.id() << ", " << identity.name() << ", " << identity.email();
 
-    oAuthIdentity_ = identity;
-    handleOAuthIdentified();
+    if (!model_->registerIdentified(identity))
+      update();
   } else {
-    Wt::log("auth") << oauth->auth().name() << ": error: " << oauth->error();
+    Wt::log("auth") << oauth->service().name() << ": error: " << oauth->error();
   }
 }
 
-void RegistrationWidget::handleOAuthIdentified()
+void RegistrationWidget::updateModel(const std::string& var,
+				     RegistrationModel::Field field)
 {
-  User user = users_.findOAuthId(oAuthIdentity_.id());
-
-  if (user.isValid()) {
-    login_.login(user);
-    close();
-    return;
-  }
-
-  WLineEdit *identity = resolve<WLineEdit *>("identity");
-
-  if (identityPolicy_ == UserChosen) {
-    WAnchor *isYou = new WAnchor("#", tr("Wt.Auth.confirm-is-you"));
-    isYou->hide();
-    isYou->clicked().connect(this, &RegistrationWidget::confirmIsYou);
-    bindWidget("confirm-is-you", isYou);
-
-    if (identity->text().empty())
-      suggestIdentity();
-  } else {
-    bindString("identity-display", "none");
-  }
-
-  delete passwordFields_;
-  passwordFields_ = 0;
-
-  bindEmpty("password-description");
-  bindString("password-display", "none");
-  bindWidget("password", 0);
-  bindWidget("password2", 0);
-
-  if (!oAuthIdentity_.email().empty()) {
-    WLineEdit *email = resolve<WLineEdit *>("email");
-
-    if (email) {
-      email->setText(oAuthIdentity_.email());
-      email->disable();
-      email->addStyleClass("Wt-disabled");
-    }
-  }
-
-  WContainerWidget *icons = resolve<WContainerWidget *>("icons");
-  icons->clear();
-
-  bindString("oauth-display", "none");
+  WFormWidget *edit = resolve<WFormWidget *>(var);
+  if (edit)
+    model_->setValue(field, edit->valueText());
 }
 
-void RegistrationWidget::suggestIdentity()
+void RegistrationWidget::updateModel()
 {
-  WLineEdit *identity = resolve<WLineEdit *>("identity");
-
-  if (!oAuthIdentity_.email().empty()) {
-    std::string suggested = oAuthIdentity_.email();
-    std::size_t i = suggested.find('@');
-    if (i != std::string::npos)
-      suggested = suggested.substr(0, i);
-
-    identity->setText(WString::fromUTF8(suggested));
-  } else if (!oAuthIdentity_.name().empty())
-    identity->setText(oAuthIdentity_.name());
-
-  if (!identity->text().empty())
-    checkIdentity();
+  updateModel("user-name", RegistrationModel::UserName);
+  updateModel("password", RegistrationModel::Password);
+  updateModel("password2", RegistrationModel::Password2);
+  updateModel("email", RegistrationModel::Email);
 }
 
-bool RegistrationWidget::checkIdentity()
+void RegistrationWidget::checkUserName()
 {
-  WFormWidget *identity = resolve<WFormWidget *>("identity");
-  WText *error = resolve<WText *>("identity-info");
-
-  bool valid = true;
-
-  if (identity && error) {
-    WString id = identity->valueText();
-
-    WString e = baseAuth_.validateIdentity(id);
-    valid = e.empty();
-
-    if (valid)
-      error->setText(tr("Wt.Auth.identity-valid"));
-    else
-      error->setText(e);
-
-    error->toggleStyleClass("Wt-error", !valid);
-
-    if (!valid)
-      identity->removeStyleClass("Wt-valid");
-    identity->toggleStyleClass("Wt-invalid", !valid);
-
-    if (valid)
-      valid = checkIdentityExists();
-  }
-
-  return valid;
+  updateModel("user-name", RegistrationModel::UserName);
+  model_->validate(RegistrationModel::UserName);
+  update();
 }
 
-bool RegistrationWidget::checkIdentityExists()
+void RegistrationWidget::checkPassword()
 {
-  WFormWidget *identity = resolve<WFormWidget *>("identity");
-  WAnchor *isYou = resolve<WAnchor *>("confirm-is-you");
-  WText *error = resolve<WText *>("identity-info");
-
-  WString id = identity->valueText();
-  User u = users_.findIdentity(id);
-  bool exists = u.isValid();
-
-  if (exists) {
-    if (isYou)
-      isYou->show();
-    else {
-      error->setText(tr("Wt.Auth.identity-exists"));
-      error->addStyleClass("Wt-error");
-    }
-  } else {
-    if (isYou)
-      isYou->hide();
-  }
-
-  identity->toggleStyleClass("Wt-invalid", exists);
-  identity->toggleStyleClass("Wt-valid", !exists);
-
-  return !exists;
+  updateModel("password", RegistrationModel::Password);
+  model_->validate(RegistrationModel::Password);
+  update();
 }
 
-void RegistrationWidget::confirmIsYou()
+void RegistrationWidget::checkPassword2()
 {
-  WFormWidget *identity = resolve<WFormWidget *>("identity");
-
-  WString id = identity->valueText();
-  User user = users_.findIdentity(id);
-  bool exists = user.isValid();
-
-  if (exists) {
-    delete confirmPasswordLogin_;
-    confirmPasswordLogin_ = new Login();
-    confirmPasswordLogin_->login(user, WeakLogin);
-    confirmPasswordLogin_
-      ->changed().connect(this, &RegistrationWidget::confirmedIsYou);
-
-    WDialog *dialog =
-      authWidget_->createPasswordPromptDialog(*confirmPasswordLogin_);
-    dialog->show();
-  }
-}
-
-void RegistrationWidget::confirmedIsYou()
-{
-  if (confirmPasswordLogin_->state() == StrongLogin) {
-    User user = confirmPasswordLogin_->user();
-    delete confirmPasswordLogin_;
-    confirmPasswordLogin_ = 0;
-
-    user.addOAuthId(oAuthIdentity_.id());
-
-    login_.login(user);
-
-    close();
-  } else {
-    delete confirmPasswordLogin_;
-    confirmPasswordLogin_ = 0;
-  }
+  updateModel("password", RegistrationModel::Password);
+  updateModel("password2", RegistrationModel::Password2);
+  model_->validate(RegistrationModel::Password2);
+  update();
 }
 
 bool RegistrationWidget::validate()
 {
-  bool valid = true;
-
-  if (!checkIdentity())
-    valid = false;
-
-  if (passwordFields_ && !passwordFields_->validate())
-    valid = false;
-
-  return valid;
+  bool result = model_->validate();
+  validated_ = true;
+  return result;
 }
 
 void RegistrationWidget::doRegister()
 {
-  std::auto_ptr<AbstractUserDatabase::Transaction> t(users_.startTransaction());
+  std::auto_ptr<AbstractUserDatabase::Transaction>
+    t(model_->users().startTransaction());
+
+  updateModel();
 
   if (validate()) {
-    if (!passwordAuth_ && !oAuthIdentity_.isValid()) {
-      // FIXME: Set message that you need to identify using oauth.
-      return;
-    } else {
-      WFormWidget *identity = resolve<WFormWidget *>("identity");
-      User user;
-
-      if (oAuthIdentity_.isValid()) {
-	if (identityPolicy_ == UserChosen)
-	  user = users_.registerNew(identity->valueText());
-	else
-	  user = users_.registerNew(oAuthIdentity_.id());
-
-	if (user.isValid()) {
-	  user.addOAuthId(oAuthIdentity_.id());
-
-	  std::string email;
-	  bool emailVerified = false;
-	  if (!oAuthIdentity_.email().empty()) {
-	    email = oAuthIdentity_.email();
-	    emailVerified = oAuthIdentity_.emailVerified();
-	  } else {
-	    WLineEdit *e = resolve<WLineEdit *>("email");
-	    if (e)
-	      email = e->text().toUTF8();
-	  }
-
-	  if (!email.empty()) {
-	    if (emailVerified || !baseAuth_.emailVerificationEnabled())
-	      user.setEmail(email);
-	    else
-	      baseAuth_.verifyEmailAddress(user, email);
-	  }
-	}
-      } else {
-	WFormWidget *password = resolve<WFormWidget *>("password");
-
-	user = users_.registerNew(identity->valueText());
-
-	if (user.isValid()) {
-	  passwordAuth_->updatePassword(user, password->valueText());
-
-	  if (baseAuth_.emailVerificationEnabled()) {
-	    WFormWidget *email = resolve<WFormWidget *>("email");
-	    baseAuth_.verifyEmailAddress(user, email->valueText().toUTF8());
-	  }
-	}
-      }
-
-      if (user.isValid()) {
-	registerUserDetails(user);
-	login_.login(user);
-	close();
-      } else {
-	if (identity) {
-	  identity->removeStyleClass("Wt-valid");
-	  identity->addStyleClass("Wt-invalid");
-
-	  WText *error = resolve<WText *>("identity-info");
-	  if (error) {
-	    error->setText(tr("Wt.Auth.error-user-invalid"));
-	    error->addStyleClass("Wt-error");
-	  }
-	}
-      }
-    }
-  }
+    User user = model_->doRegister();
+    if (user.isValid()) {
+      registerUserDetails(user);
+      model_->login().login(user);
+    } else
+      update();
+  } else
+    update();
 
   if (t.get())
     t->commit();
@@ -475,6 +322,51 @@ void RegistrationWidget::registerUserDetails(User& user)
 void RegistrationWidget::close()
 {
   delete this;
+}
+
+void RegistrationWidget::confirmIsYou()
+{
+  updateModel();
+
+  switch (model_->confirmIsExistingUser()) {
+  case RegistrationModel::ConfirmWithPassword:
+    {
+      delete confirmPasswordLogin_;
+      confirmPasswordLogin_ = new Login();
+      confirmPasswordLogin_->login(model_->existingUser(), WeakLogin);
+      confirmPasswordLogin_
+	->changed().connect(this, &RegistrationWidget::confirmedIsYou);
+
+      WDialog *dialog =
+	authWidget_->createPasswordPromptDialog(*confirmPasswordLogin_);
+      dialog->show();
+    }
+
+    break;
+  case RegistrationModel::ConfirmWithEmail:
+    // FIXME send a confirmation email to merge the new identity
+    // with the existing one. We need to include the provisional
+    // id in the token -- no problem there, integrity is verified by a
+    // hash in the database
+
+    Wt::log("notice") << "Confirming a new identity to existing user not "
+      "yet implemented";
+
+    break;
+  default:
+    Wt::log("error") << "That's gone haywire.";
+  }
+}
+
+void RegistrationWidget::confirmedIsYou()
+{
+  if (confirmPasswordLogin_->state() == StrongLogin) {
+    model_->existingUserConfirmed();
+    close();
+  } else {
+    delete confirmPasswordLogin_;
+    confirmPasswordLogin_ = 0;
+  }
 }
 
   }

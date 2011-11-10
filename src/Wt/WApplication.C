@@ -422,7 +422,7 @@ std::string WApplication::resourcesUrl()
 #ifndef WT_TARGET_JAVA
 std::string WApplication::appRoot()
 {
-  return WebSession::instance()->env().server()->appRoot();
+  return WServer::instance()->appRoot();
 }
 
 std::string WApplication::docRoot() const
@@ -751,7 +751,10 @@ std::string WApplication::addExposedResource(WResource *resource,
 
 void WApplication::removeExposedResource(WResource *resource)
 {
-  exposedResources_.erase(resourceMapKey(resource));
+  ResourceMap::iterator i = exposedResources_.find(resourceMapKey(resource));
+
+  if (i != exposedResources_.end() && i->second == resource)
+    exposedResources_.erase(i);
 }
 
 WResource *WApplication::decodeExposedResource(const std::string& resourceKey) 

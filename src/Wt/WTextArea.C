@@ -124,7 +124,12 @@ void WTextArea::setFormData(const FormData& formData)
 
 WT_USTRING WTextArea::valueText() const
 {
-  return content_;
+  return text();
+}
+
+void WTextArea::setValueText(const WT_USTRING& value)
+{
+  setText(value);
 }
 
 int WTextArea::boxPadding(Orientation orientation) const

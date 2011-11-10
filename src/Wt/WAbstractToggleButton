@@ -92,6 +92,12 @@ public:
    */
   virtual WT_USTRING valueText() const;
 
+  /*! \brief Sets the current value.
+   *
+   * This interprets text values of "yes", "maybe" or "no".
+   */
+  virtual void setValueText(const WT_USTRING& text);
+
   /*! \brief %Signal emitted when the button gets checked.
    *
    * This signal is emitted when the user checks the button.

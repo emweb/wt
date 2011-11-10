@@ -17,6 +17,13 @@
 #include <process.h>
 #endif
 
+/*
+ * References:
+ *  - RFC2045 -- MIME
+ *  - RFC2821 -- SMTP
+ *  - ...
+ */
+
 namespace Wt {
   namespace Mail {
 
@@ -96,7 +103,7 @@ void Message::write(std::ostream& out) const
 
   if (!subject_.empty()) {
     out << "Subject: ";
-    encodeWord(subject_, out);
+    encodeWord(subject_, out, false);
     out << "\r\n";
   }
 
@@ -192,7 +199,8 @@ void Message::encodeChar(WStringStream& s, unsigned char c)
   s << hex[c & 0x0F];
 }
 
-void Message::encodeWord(const WString& text, std::ostream& out)
+void Message::encodeWord(const WString& text, std::ostream& out,
+			 bool quoteIfNeeded)
 {
   std::string msg = text.toUTF8();
 
@@ -205,7 +213,7 @@ void Message::encodeWord(const WString& text, std::ostream& out)
     if (c > 127)
       needQEncode = true;
 
-    if (!needQuote) {
+    if (quoteIfNeeded && !needQuote) {
       /*
        * Note: not using std::isalnum becaues we need to be sure this
        * uses the C locale
@@ -250,7 +258,7 @@ void Message::encodeWord(const WString& text, std::ostream& out)
 
     if (!line.empty())
       out << line.c_str() << "?=";
-  } else if (needQuote) {
+  } else if (quoteIfNeeded && needQuote) {
     out << '"' << msg << '"';
   } else {
     out << msg;

@@ -1,22 +1,22 @@
 #include "Wt/WApplication"
-#include "Wt/Auth/FacebookAuth"
+#include "Wt/Auth/FacebookService"
 #include "Wt/Json/Object"
 #include "Wt/Json/Parser"
 #include "Wt/Http/Client"
 
-#define ERROR_MSG(e) WString::tr("Wt.Auth.FacebookAuth." e)
+#define ERROR_MSG(e) WString::tr("Wt.Auth.FacebookService." e)
 
 namespace Wt {
   namespace Auth {
 
-class FacebookProcess : public OAuth::Process
+class FacebookProcess : public OAuthProcess
 {
 public:
-  FacebookProcess(const FacebookAuth& auth, const std::string& scope)
-    : Process(auth, scope)
+  FacebookProcess(const FacebookService& auth, const std::string& scope)
+    : OAuthProcess(auth, scope)
   { }
 
-  virtual void getIdentity(const OAuth::AccessToken& token)
+  virtual void getIdentity(const OAuthAccessToken& token)
   {
     Http::Client *client = new Http::Client(this);
     client->setTimeout(15);
@@ -44,12 +44,13 @@ private:
 	setError(ERROR_MSG("badjson"));
 	authenticated().emit(Identity::Invalid);
       } else {
-	std::string id = "facebook:" + (std::string)me.get("id");
+	std::string id = me.get("id");
 	WT_USTRING userName = me.get("name");
 	std::string email = me.get("email");
 	bool emailVerified = me.get("verified").orIfNull(false);
 
-	authenticated().emit(Identity(id, userName, email, emailVerified));
+	authenticated().emit(Identity(service().name(), id, userName,
+				      email, emailVerified));
       }
     } else {
       setError(ERROR_MSG("badresponse"));
@@ -58,71 +59,66 @@ private:
   }
 };
 
-FacebookAuth::FacebookAuth(const BaseAuth& baseAuth)
-  : OAuth(baseAuth)
+FacebookService::FacebookService(const AuthService& baseAuth)
+  : OAuthService(baseAuth)
 { }
 
-std::string FacebookAuth::name() const
+std::string FacebookService::name() const
 {
   return "facebook";
 }
 
-WString FacebookAuth::description() const
+WString FacebookService::description() const
 {
   return "Facebook Account";
 }
 
-std::string FacebookAuth::authenticationScope() const
+std::string FacebookService::authenticationScope() const
 {
   return "email";
 }
 
-int FacebookAuth::popupWidth() const
+int FacebookService::popupWidth() const
 {
   return 550;
 }
 
-int FacebookAuth::popupHeight() const
+int FacebookService::popupHeight() const
 {
   return 350;
 }
 
-std::string FacebookAuth::redirectEndpoint() const
+std::string FacebookService::redirectEndpoint() const
 {
   return configurationProperty("facebook-oauth2-redirect-endpoint");
 }
 
-std::string FacebookAuth::authorizationEndpoint() const
+std::string FacebookService::authorizationEndpoint() const
 {
   return "https://www.facebook.com/dialog/oauth";
 }
 
-std::string FacebookAuth::tokenEndpoint() const
+std::string FacebookService::tokenEndpoint() const
 {
   return "https://graph.facebook.com/oauth/access_token";
 }
 
-std::string FacebookAuth::clientId() const
+std::string FacebookService::clientId() const
 {
   return configurationProperty("facebook-oauth2-app-id");
 }
 
-std::string FacebookAuth::clientSecret() const
+std::string FacebookService::clientSecret() const
 {
   return configurationProperty("facebook-oauth2-app-secret");
 }
 
-Http::Method FacebookAuth::tokenRequestMethod() const
+Http::Method FacebookService::tokenRequestMethod() const
 {
   return Http::Get;
 }
 
-WLink FacebookAuth::icon() const
-{
-  return WLink("facebook.png");
-}
-
-OAuth::Process *FacebookAuth::createProcess(const std::string& scope) const
+OAuthProcess *FacebookService::createProcess(const std::string& scope) const
 {
   return new FacebookProcess(*this, scope);
 }

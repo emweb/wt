@@ -5,8 +5,9 @@
  */
 
 #include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/BaseAuth"
+#include "Wt/Auth/AuthService"
 #include "Wt/Auth/HashFunction"
+#include "Wt/Auth/Identity"
 #include "Wt/Auth/User"
 #include "Wt/Mail/Client"
 #include "Wt/Mail/Message"
@@ -36,33 +37,37 @@ namespace Wt {
  * which implement the authentication state for each session.
  *
  * The <b>service classes</b> are:
- * - BaseAuth
- * - PasswordAuth
- * - OAuth (with its provider-specific implementations)
+ * - AuthService: implements generic authentication services
+ * - PasswordService: implements password-based authentication
+ * - OAuthService: implements federated login using OAuth 2 (and later
+ *   OpenIDConnect), and has a number of indentity provider
+ *   implementations
  *
- * These classes use a number of utility model classes:
- * - User
- * - Token
- * - PasswordHash
- * - PasswordStrengthChecker
- * - PasswordVerifier
+ * There are a number of utility classes too:
+ * - User: a user value class
+ * - Token: an authentication token
+ * - PasswordHash: a hashed password
+ * - PasswordStrengthChecker: validates the strenght of a password
+ * - PasswordVerifier: verifies a password
  *
  * The <b>session classes</b> are:
- * - AbstractUserDatabase, for which you will need to define a concrete
- *   implementation
- * - Login
- * - OAuth::Process
+ * - AbstractUserDatabase: abstract interface for storage needed for
+ *   authentication
+ * - Login: keeps track of the user currently logged in
+ * - OAuthProcess: implements an OAuth 2 authorization (and authentication)
+ *   process
+ * - RegistrationModel: implements the registration logic
  *
  * <h3>Views</h3>
  *
- * The view classes use abstract service classes.
+ * The view classes typically use service classes and session classes.
  *
  * The included views are:
- * - AuthWidget
- * - LostPasswordWidget
- * - PasswordPromptDialog
- * - RegistrationWidget
- * - UpdatePasswordWidget
+ * - AuthWidget: a (traditional) login/logout widget
+ * - LostPasswordWidget: a widget that implements a "lost password" form
+ * - PasswordPromptDialog: a dialog to prompt for a password
+ * - RegistrationWidget: a widget to register a new user
+ * - UpdatePasswordWidget: a widget to update a password
  */
 
 EmailTokenResult::EmailTokenResult(Result result, const User& user)
@@ -101,56 +106,98 @@ std::string AuthTokenResult::newToken() const
     throw WException("AuthTokenResult::newToken() invalid");
 }
 
-BaseAuth::BaseAuth()
-  : minimumIdentityLength_(8),
-    tokenHashFunction_(0),
+AuthService::AuthService()
+  : identityPolicy_(UserNameIdentity),
+    minimumUserNameLength_(4),
+    tokenHashFunction_(new MD5HashFunction()),
     tokenLength_(32),
     emailVerification_(false),
     emailTokenValidity_(3 * 24 * 60),  // three days
     authTokens_(false),
     authTokenValidity_(14 * 24 * 60)   // two weeks
-{ }
+{
+  redirectInternalPath_ = "/auth/mail/";
+}
 
-BaseAuth::~BaseAuth()
+AuthService::~AuthService()
 {
   delete tokenHashFunction_;
 }
 
-void BaseAuth::setEmailVerificationEnabled(bool enabled)
+void AuthService::setEmailVerificationEnabled(bool enabled)
 {
   emailVerification_ = enabled;
 }
 
-void BaseAuth::setAuthTokensEnabled(bool enabled, const std::string& cookieName)
+void AuthService::setIdentityPolicy(IdentityPolicy identityPolicy)
+{
+  identityPolicy_ = identityPolicy;
+}
+
+void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieName)
 {
   authTokens_ = enabled;
   authTokenCookieName_ = cookieName;
 }
 
-WString BaseAuth::validateIdentity(const WT_USTRING& identity) const
+User AuthService::identifyUser(const Identity& identity,
+			    AbstractUserDatabase& users) const
 {
-  if (static_cast<int>(identity.toUTF8().length()) < minimumIdentityLength_)
-    return WString::tr("Wt.Auth.identity-tooshort")
-      .arg(minimumIdentityLength_);
-  else
-    return WString::Empty;
+  std::auto_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
+
+  User user = users.findWithIdentity(identity.provider(),
+				     WString::fromUTF8(identity.id()));
+
+  if (user.isValid()) {
+    if (t.get())
+      t->commit();
+    return user;
+  }
+
+  /*
+   * Scenarios to handle with respect to the email address.
+   *
+   * - in case we are doing email address verification
+   *   - existing user has same email address
+   *     - new email address is verified -> merge new identity and
+   *       simply login as that user [X]
+   *     - new email address is not verified -> send email to confirm
+   *       to merge the accounts when registring -> TODO
+   * - in case we are not doing email address verification
+   *   - we'll simply error on a duplicate email address [X]
+   */
+  if (!identity.email().empty()) {
+    if (emailVerification_ && identity.emailVerified()) {
+      user = users.findWithEmail(identity.email());
+      if (user.isValid()) {
+	user.addIdentity(identity.provider(), identity.id());
+
+	if (t.get())
+	  t->commit();
+
+	return user;
+      }
+    }
+  }
+
+  if (t.get())
+    t->commit();
+
+  return User();
 }
 
-void BaseAuth::setTokenHashFunction(const HashFunction *function)
+void AuthService::setTokenHashFunction(HashFunction *function)
 {
   delete tokenHashFunction_;
   tokenHashFunction_ = function;
 }
 
-const HashFunction *BaseAuth::tokenHashFunction() const
+HashFunction *AuthService::tokenHashFunction() const
 {
-  if (tokenHashFunction_)
-    return tokenHashFunction_;
-  else
-    throw WException("Auth: don't have a token hash function");
+  return tokenHashFunction_;
 }
 
-std::string BaseAuth::createAuthToken(const User& user) const
+std::string AuthService::createAuthToken(const User& user) const
 {
   if (!user.isValid())
     throw WException("Auth: createAuthToken(): user invalid");
@@ -170,7 +217,7 @@ std::string BaseAuth::createAuthToken(const User& user) const
   return random;
 }
 
-AuthTokenResult BaseAuth::processAuthToken(const std::string& token,
+AuthTokenResult AuthService::processAuthToken(const std::string& token,
 					   AbstractUserDatabase& users) const
 {
   std::auto_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
@@ -191,7 +238,7 @@ AuthTokenResult BaseAuth::processAuthToken(const std::string& token,
     return AuthTokenResult(AuthTokenResult::Invalid);
 }
 
-void BaseAuth::verifyEmailAddress(const User& user, const std::string& address)
+void AuthService::verifyEmailAddress(const User& user, const std::string& address)
   const
 {
   user.setUnverifiedEmail(address);
@@ -205,8 +252,8 @@ void BaseAuth::verifyEmailAddress(const User& user, const std::string& address)
   sendConfirmMail(address, user, random);
 }
 
-void BaseAuth::lostPassword(const std::string& emailAddress,
-			    AbstractUserDatabase& users) const
+void AuthService::lostPassword(const std::string& emailAddress,
+				   AbstractUserDatabase& users) const
 {
   /*
    * This will check that a user exists in the database, and if so,
@@ -227,22 +274,22 @@ void BaseAuth::lostPassword(const std::string& emailAddress,
   }
 }
 
-std::string BaseAuth::parseEmailToken(const std::string& internalPath) const
+std::string AuthService::parseEmailToken(const std::string& internalPath) const
 {
-  std::string ip = Utils::append(internalPath, '/');
-
-  if (WApplication::pathMatches(ip, redirectInternalPath_)) {
-    return ip.substr(redirectInternalPath_.length());
+  if (WApplication::pathMatches(internalPath, redirectInternalPath_)) {
+    return internalPath.substr(redirectInternalPath_.length());
   } else
     return std::string();
 }
 
-EmailTokenResult BaseAuth::processEmailToken(const std::string& token,
+EmailTokenResult AuthService::processEmailToken(const std::string& token,
 					     AbstractUserDatabase& users) const
 {
   std::auto_ptr<AbstractUserDatabase::Transaction> tr(users.startTransaction());
 
-  User user = users.findWithEmailToken(token);
+  std::string hash = tokenHashFunction()->compute(token, std::string());
+
+  User user = users.findWithEmailToken(hash);
 
   if (user.isValid()) {
     Token t = user.emailToken();
@@ -289,45 +336,51 @@ EmailTokenResult BaseAuth::processEmailToken(const std::string& token,
   }
 }
 
-
-void BaseAuth::sendConfirmMail(const std::string& address,
+void AuthService::sendConfirmMail(const std::string& address,
 			       const User& user, const std::string& token) const
 {
   Mail::Message message;
 
+  WApplication *app = WApplication::instance();
+  std::string url
+    = app->makeAbsoluteUrl(app->bookmarkUrl(redirectInternalPath_)) + token ;
+
   message.addRecipient(Mail::To, Mail::Mailbox(address));
-  message.setSubject(WString::tr("Wt.auth.confirmmail.subject"));
-  message.setBody(WString::tr("Wt.auth.confirmmail.body")
-		  .arg(user.identity()).arg(token));
-  message.addHtmlBody(WString::tr("Wt.auth.confirmmail.htmlbody")
-		      .arg(user.identity()).arg(token));
+  message.setSubject(WString::tr("Wt.Auth.confirmmail.subject"));
+  message.setBody(WString::tr("Wt.Auth.confirmmail.body")
+		  .arg(user.identity("username")).arg(token).arg(url));
+  message.addHtmlBody(WString::tr("Wt.Auth.confirmmail.htmlbody")
+		      .arg(user.identity("username")).arg(token).arg(url));
 
   sendMail(message);
 }
 
-
-void BaseAuth::sendLostPasswordMail(const std::string& address,
+void AuthService::sendLostPasswordMail(const std::string& address,
 				    const User& user,
 				    const std::string& token) const
 {
   Mail::Message message;
 
+  WApplication *app = WApplication::instance();
+  std::string url
+    = app->makeAbsoluteUrl(app->bookmarkUrl(redirectInternalPath_)) + token ;
+
   message.addRecipient(Mail::To, Mail::Mailbox(address));
-  message.setSubject(WString::tr("Wt.auth.lostpasswordmail.subject"));
-  message.setBody(WString::tr("Wt.auth.lostpasswordmail.body")
-		  .arg(user.identity()).arg(token));
-  message.addHtmlBody(WString::tr("Wt.auth.lostpasswordmail.htmlbody")
-		      .arg(user.identity()).arg(token));
+  message.setSubject(WString::tr("Wt.Auth.lostpasswordmail.subject"));
+  message.setBody(WString::tr("Wt.Auth.lostpasswordmail.body")
+		  .arg(user.identity("username")).arg(token).arg(url));
+  message.addHtmlBody(WString::tr("Wt.Auth.lostpasswordmail.htmlbody")
+		      .arg(user.identity("username")).arg(token).arg(url));
 
   sendMail(message);
 }
 
-void BaseAuth::sendMail(const Mail::Message& message) const
+void AuthService::sendMail(const Mail::Message& message) const
 {
   Mail::Message m = message;
 
   if (m.from().empty()) {
-    std::string senderName = "Wt::Auth";
+    std::string senderName = "Wt Auth module";
     std::string senderAddress = "noreply-auth@www.webtoolkit.eu";
 
     WApplication::readConfigurationProperty("auth-mail-sender-name",
@@ -338,9 +391,11 @@ void BaseAuth::sendMail(const Mail::Message& message) const
     m.setFrom(Mail::Mailbox(senderAddress, WString::fromUTF8(senderName)));
   }
 
+  m.write(std::cout);
+
   Mail::Client client;
   client.connect();
-  client.send(message);
+  client.send(m);
 }
 
   }

@@ -7,7 +7,7 @@
 #include <Wt/WLineEdit>
 #include <Wt/WTemplate>
 #include <Wt/WText>
-#include <Wt/Auth/PasswordAuth>
+#include <Wt/Auth/PasswordService>
 #include <Wt/Auth/RegistrationWidget>
 #include "BlogLoginWidget.h"
 #include "../model/BlogSession.h"
@@ -30,47 +30,28 @@ BlogLoginWidget::BlogLoginWidget(BlogSession& session,
   setInternalBasePath(basePath + "login");
 }
 
-WWidget *BlogLoginWidget::createLoginView()
+void BlogLoginWidget::createLoginView()
 {
-  WWidget *result = AuthWidget::createLoginView();
+  AuthWidget::createLoginView();
 
-  WTemplate *t = dynamic_cast<WTemplate *>(result->find(PasswordLoginWidget));
-  t->setTemplateText(tr("blog-login"));
+  setTemplateText(tr("blog-login"));
 
-  WLineEdit *name = t->resolve<WLineEdit *>("name");
-  name->setEmptyText("login");
-  name->setToolTip("login");
+  WLineEdit *userName = resolve<WLineEdit *>("user-name");
+  userName->setEmptyText("login");
+  userName->setToolTip("login");
 
-  WLineEdit *password = t->resolve<WLineEdit *>("password");
+  WLineEdit *password = resolve<WLineEdit *>("password");
   password->setEmptyText("password");
   password->setToolTip("password");
   password->enterPressed().connect(this, &BlogLoginWidget::attemptLogin);
-
-  return result;
 }
 
-WWidget *BlogLoginWidget::createLoggedInView()
+void BlogLoginWidget::createLoggedInView()
 {
-  WWidget *result = AuthWidget::createLoggedInView();
-
-  WTemplate *t = dynamic_cast<WTemplate *>(result);
+  AuthWidget::createLoggedInView();
 
   WText *logout = new WText(tr("logout"));
   logout->setStyleClass("link");
   logout->clicked().connect(&login(), &Auth::Login::logout);
-  t->bindWidget("logout", logout);
-
-  return result;
+  bindWidget("logout", logout);
 }
-  
-WWidget *BlogLoginWidget::createRegistrationView(const Auth::Identity& identity)
-{
-  WWidget *r = Auth::AuthWidget::createRegistrationView(identity);
-  Auth::RegistrationWidget *rr = dynamic_cast<Auth::RegistrationWidget *>(r);
-
-  if (rr)
-    rr->setIdentityPolicy(Auth::RegistrationWidget::UserChosen);
-
-  return rr;
-}
-

@@ -172,7 +172,9 @@ void hasMany(A& action, collection< ptr<C> >& value,
 	     RelationType type, const std::string& joinName,
 	     const std::string& joinId, ForeignKeyConstraint constraint)
 {
-  assert(type == ManyToMany);
+  if (type != ManyToMany)
+    throw Exception("hasMany() with named joinId only for a ManyToMany relation");
+
   action.actCollection(CollectionRef<C>(value, type, joinName, joinId,
 					constraint.value()));
 }

@@ -22,8 +22,8 @@ class AbstractUserDatabase;
  *  \brief A user
  *
  * This class represents a user. It is a value class that stores only
- * the user identity and a reference to an AbstractUserDatabase to
- * access its properties.
+ * the user id and a reference to an AbstractUserDatabase to access
+ * its properties.
  *
  * An object can point to a valid user, or be invalid. Invalid users
  * are typically used as return value for database queries which did
@@ -63,10 +63,10 @@ public:
 
   /*! \brief Constructor.
    *
-   * Creates a user identified as \p identity, and whose information
-   * is stored in the \p database.
+   * Creates a user with id \p id, and whose information is stored in
+   * the \p database.
    */
-  User(const WT_USTRING& identity, const AbstractUserDatabase& database);
+  User(const std::string& id, const AbstractUserDatabase& database);
 
   /*! \brief Returns the user database.
    *
@@ -94,15 +94,23 @@ public:
    */
   bool isValid() const { return db_ != 0; }
 
-  /*! \brief Returns the user identity.
+  /*! \brief Returns the user id.
    *
-   * This returns the identity that uniquely identifies the user, and
-   * acts as a "primary key" to obtain other information for the user
-   * in the database.
+   * This returns the id that uniquely identifies the user, and acts
+   * as a "primary key" to obtain other information for the user in
+   * the database.
    *
    * \sa AbstractUserDatabase
    */
-  WT_USTRING identity() const { return identity_; }
+  const std::string& id() const { return id_; }
+
+  /*! \brief Returns the user's identity.
+   */
+  WT_USTRING identity(const std::string& provider) const;
+
+  /*! \brief Adds (or modifies) a user's identity.
+   */
+  void addIdentity(const std::string& provider, const WT_USTRING& identity);
 
   /*! \brief Sets a password.
    *
@@ -145,12 +153,6 @@ public:
    * \sa AbstractUserDatabase::status()
    */
   Status status() const;
-
-  /*! \brief Adds an oauth ID.
-   *
-   * \sa AbstractUserDatabase::addOAuthId()
-   */
-  void addOAuthId(const std::string& id) const;
 
   /*! \brief Returns the email token.
    *
@@ -210,7 +212,7 @@ public:
   WDateTime lastLoginAttempt() const;
 
 private:
-  WT_USTRING identity_;
+  std::string id_;
   AbstractUserDatabase *db_;
 
   void checkValid() const;

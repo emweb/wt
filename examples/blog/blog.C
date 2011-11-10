@@ -60,7 +60,7 @@ int main(int argc, char **argv)
       WServer::waitForShutdown();
       server.stop();
     }
-  } catch (Wt::WServer::Exception& e) {
+  } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;

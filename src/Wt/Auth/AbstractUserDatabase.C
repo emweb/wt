@@ -17,7 +17,6 @@ const char *AUTH_TOKEN = "authentication tokens";
 const char *PASSWORDS = "password handling";
 const char *THROTTLING = "password attempt throttling";
 const char *REGISTRATION = "user registration";
-const char *OAUTH = "OAuth handling";
 
 class Require : public WException
 {
@@ -64,19 +63,7 @@ void AbstractUserDatabase::setPassword(const User& user,
   Wt::log("error") << Require("setPassword()", PASSWORDS).what();
 }
 
-void AbstractUserDatabase::addOAuthId(const User& user, const std::string& id)
-{
-  Wt::log("error") << Require("addOAuthId()", OAUTH).what();
-}
-
-User AbstractUserDatabase::findOAuthId(const std::string& identity) const
-{
-  Wt::log("error") << Require("findOAuthId()", OAUTH).what();
-
-  return User();
-}
-
-User AbstractUserDatabase::registerNew(const WT_USTRING& identity)
+User AbstractUserDatabase::registerNew()
 {
   Wt::log("error") << Require("registerNew()", REGISTRATION).what();
 
@@ -90,10 +77,11 @@ std::string AbstractUserDatabase::email(const User& user) const
   return std::string();
 }
 
-void AbstractUserDatabase::setEmail(const User& user,
+bool AbstractUserDatabase::setEmail(const User& user,
 				    const std::string& address)
 {
   Wt::log("error") << Require("setEmail()", EMAIL_VERIFICATION).what();
+  return false;
 }
 
 User AbstractUserDatabase::findWithEmail(const std::string& address) const

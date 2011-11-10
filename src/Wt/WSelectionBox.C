@@ -77,6 +77,11 @@ bool WSelectionBox::isSelected(int index) const
     return WComboBox::isSelected(index);
 }
 
+bool WSelectionBox::supportsNoSelection() const
+{
+  return true;
+}
+
 void WSelectionBox::updateDom(DomElement& element, bool all)
 {
   if (configChanged_ || all) {

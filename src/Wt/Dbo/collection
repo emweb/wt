@@ -139,7 +139,7 @@ namespace Wt {
       /*! \brief Comparison operator.
        *
        * Returns true if two iterators point to the same value in the
-       * same %collection.
+       * same %collection, or point both to the end of a collection.
        */
       bool operator== (const iterator& other) const;
 

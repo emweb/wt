@@ -124,7 +124,7 @@ public:
    * non-mandatory field, or represents a date in the given format,
    * and within the valid range.
    */
-  virtual State validate(WT_USTRING& input) const;
+  virtual Result validate(const WT_USTRING& input) const;
 
   virtual void createExtConfig(std::ostream& config) const;
 

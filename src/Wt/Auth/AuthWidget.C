@@ -4,16 +4,16 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractPasswordAuth"
+#include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/BaseAuth"
+#include "Wt/Auth/AuthService"
 #include "Wt/Auth/EnterPasswordFields"
 #include "Wt/Auth/LostPasswordWidget"
 #include "Wt/Auth/PasswordPromptDialog"
 #include "Wt/Auth/RegistrationWidget"
 #include "Wt/Auth/UpdatePasswordWidget"
 
-#include "Wt/Auth/OAuth"
+#include "Wt/Auth/OAuthService"
 
 #include "Wt/WApplication"
 #include "Wt/WAnchor"
@@ -23,6 +23,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
 #include "Wt/WLineEdit"
+#include "Wt/WMessageBox"
 #include "Wt/WPushButton"
 #include "Wt/WTemplate"
 #include "Wt/WText"
@@ -42,13 +43,10 @@ namespace skeletons {
 namespace Wt {
   namespace Auth {
 
-const char *AuthWidget::PasswordLoginWidget = "passwords";
-const char *AuthWidget::OAuthLoginWidget = "oauth";
-
-AuthWidget::AuthWidget(const BaseAuth& baseAuth,
+AuthWidget::AuthWidget(const AuthService& baseAuth,
 		       AbstractUserDatabase& users, Login& login,
 		       WContainerWidget *parent)
-  : WCompositeWidget(parent),
+  : WTemplate(parent),
     baseAuth_(baseAuth),
     users_(users),
     login_(login),
@@ -58,7 +56,8 @@ AuthWidget::AuthWidget(const BaseAuth& baseAuth,
     dialog_(0),
     enterPasswordFields_(0)
 {
-  setImplementation(impl_ = new WContainerWidget());
+  addFunction("id", &WTemplate::Functions::id);
+  addFunction("tr", &WTemplate::Functions::tr);
 
   WApplication *app = WApplication::instance();
   app->useStyleSheet(WApplication::resourcesUrl() + "form.css");
@@ -66,19 +65,24 @@ AuthWidget::AuthWidget(const BaseAuth& baseAuth,
   app->builtinLocalizedStrings().useBuiltin(skeletons::Auth_xml1);
 }
 
-void AuthWidget::addPasswordAuth(const AbstractPasswordAuth *auth)
+void AuthWidget::addPasswordAuth(const AbstractPasswordService *auth)
 {
   passwordAuth_ = auth;
 }
 
-void AuthWidget::addOAuth(const OAuth *auth)
+void AuthWidget::addOAuth(const OAuthService *auth)
 {
   oAuth_.push_back(auth);
 }
 
-void AuthWidget::addOAuth(const std::vector<const OAuth *>& auth)
+void AuthWidget::addOAuth(const std::vector<const OAuthService *>& auth)
 {
   Utils::insert(oAuth_, auth);
+}
+
+void AuthWidget::setRegistrationEnabled(bool enabled)
+{
+  registrationEnabled_ = enabled;
 }
 
 void AuthWidget::setInternalBasePath(const std::string& basePath)
@@ -147,12 +151,12 @@ WWidget *AuthWidget::createRegistrationView(const Identity& id)
     = new RegistrationWidget(baseAuth_, users_, login_, this);
 
   if (passwordAuth_)
-    w->addPasswordAuth(passwordAuth_);
+    w->model()->addPasswordAuth(passwordAuth_);
 
-  w->addOAuth(oAuth_);
+  w->model()->addOAuth(oAuth_);
 
   if (id.isValid())
-    w->registerIdentified(id);
+    w->model()->registerIdentified(id);
 
   return w;
 }
@@ -176,7 +180,7 @@ void AuthWidget::letUpdatePassword(const User& user, bool promptPassword)
 WWidget *AuthWidget::createUpdatePasswordView(const User& user,
 					      bool promptPassword)
 {
-  return new UpdatePasswordWidget(user, *passwordAuth_, promptPassword);
+  return new UpdatePasswordWidget(user, *passwordAuth_, login_, promptPassword);
 }
 
 WDialog *AuthWidget::createPasswordPromptDialog(Login& login)
@@ -191,12 +195,24 @@ void AuthWidget::logout()
 
 void AuthWidget::displayError(const WString& m)
 {
-  // FIXME
+  delete dialog_;
+
+  WMessageBox *box = new WMessageBox(tr("Wt.Auth.error"), m, NoIcon, Ok);
+  box->buttonClicked().connect(this, &AuthWidget::closeDialog);
+  box->show();
+
+  dialog_ = box;
 }
 
 void AuthWidget::displayInfo(const WString& m)
 {
-  // FIXME
+  delete dialog_;
+
+  WMessageBox *box = new WMessageBox(tr("Wt.Auth.notice"), m, NoIcon, Ok);
+  box->buttonClicked().connect(this, &AuthWidget::closeDialog);
+  box->show();
+
+  dialog_ = box;
 }
 
 void AuthWidget::render(WFlags<RenderFlag> flags)
@@ -206,7 +222,7 @@ void AuthWidget::render(WFlags<RenderFlag> flags)
     created_ = true;
   }
 
-  WCompositeWidget::render(flags);
+  WTemplate::render(flags);
 }
 
 void AuthWidget::create()
@@ -222,111 +238,114 @@ void AuthWidget::create()
 
 void AuthWidget::onLoginChange()
 {
-  impl_->clear();
   delete enterPasswordFields_;
   enterPasswordFields_ = 0;
 
   if (login_.loggedIn()) {
-    impl_->addWidget(createLoggedInView());
+    createLoggedInView();
   } else {
-    impl_->addWidget(createLoginView());
+    createLoginView();
   }
 }
 
-WWidget *AuthWidget::createLoginView()
+void AuthWidget::createLoginView()
 {
-  WContainerWidget *result = new WContainerWidget();
-  result->setInline(isInline());
-
-  if (passwordAuth_)
-    result->addWidget(createPasswordLogin());
-
-  if (!oAuth_.empty())
-    result->addWidget(createOAuthLogin());
-
-  return result;
-}
-
-WWidget *AuthWidget::createPasswordLogin()
-{
-  WTemplate *t = new WTemplate(tr("Wt.Auth.template.passwords-login"));
-  t->bindFunction("id", &WTemplate::Functions::id);
-  t->bindFunction("tr", &WTemplate::Functions::tr);
-  t->setInline(isInline());
-  t->setObjectName(PasswordLoginWidget);
-
-  WLineEdit *name = new WLineEdit();
-  t->bindWidget("name", name);
-
-  WLineEdit *password = new WLineEdit();
-  t->bindWidget("password", password);
-
-  if (baseAuth_.authTokensEnabled()) {
-    WCheckBox *rememberme = new WCheckBox(tr("Wt.Auth.remember-me"));
-    t->bindWidget("remember-me", rememberme);
-  } else
-    t->bindEmpty("remember-me");
-
-  if (baseAuth_.emailVerificationEnabled()) {
-    WText *text = new WText(tr("Wt.Auth.lost-password"));
-    text->clicked().connect(this, &AuthWidget::handleLostPassword);
-    t->bindWidget("lost-password", text);
-  } else
-    t->bindEmpty("lost-password");
-
-  if (registrationEnabled_) {
-    WInteractWidget *w;
-    if (!basePath_.empty()) {
-      w = new WAnchor
-	(WLink(WLink::InternalPath, basePath_ + "register"),
-	 tr("Wt.Auth.register"));
-    } else {
-      w = new WText(tr("Wt.Auth.register"));
-      w->clicked().connect(this, &AuthWidget::registerNewUser);
-    }
-
-    t->bindWidget("register", w);
-  } else
-    t->bindEmpty("register");
+  clear();
+  setTemplateText(tr("Wt.Auth.template.login"));
 
   WPushButton *login = new WPushButton(tr("Wt.Auth.login"));
   login->clicked().connect(this, &AuthWidget::attemptLogin);
-  t->bindWidget("login", login);
+  bindWidget("login", login);
 
-  enterPasswordFields_
-    = new EnterPasswordFields(*passwordAuth_, password, 0, login, this);
-
-  if (baseAuth_.authTokensEnabled()) {
-    WApplication::instance()->setCookie
-      (baseAuth_.authTokenCookieName(), std::string(), 0);
-  }
-
-  return t;
+  createPasswordLogin();
+  createOAuthLogin();
 }
 
-WWidget *AuthWidget::createOAuthLogin()
+void AuthWidget::createPasswordLogin()
+{
+  if (passwordAuth_) {
+    setCondition("if:passwords", true);
+    WLineEdit *userName = new WLineEdit();
+    bindWidget("user-name", userName);
+
+    switch (baseAuth_.identityPolicy()) {
+    case UserNameIdentity:
+    case OptionalIdentity:
+      bindString("user-name-label", tr("Wt.Auth.user-name"));
+      bindString("user-name-info", tr("Wt.Auth.user-name-info"));
+      break;
+    case EmailAddressIdentity:
+      bindString("user-name-label", tr("Wt.Auth.email"));
+      bindString("user-name-info", tr("Wt.Auth.email-info"));
+      break;
+    default:
+      break;
+    }
+
+    WLineEdit *password = new WLineEdit();
+    bindWidget("password", password);
+
+    if (baseAuth_.authTokensEnabled()) {
+      setCondition("if:remember-me", true);
+      WCheckBox *rememberme = new WCheckBox();
+      bindWidget("remember-me", rememberme);
+    }
+
+    if (baseAuth_.emailVerificationEnabled()) {
+      WText *text = new WText(tr("Wt.Auth.lost-password"));
+      text->clicked().connect(this, &AuthWidget::handleLostPassword);
+      bindWidget("lost-password", text);
+    } else
+      bindEmpty("lost-password");
+
+    if (registrationEnabled_) {
+      WInteractWidget *w;
+      if (!basePath_.empty()) {
+	w = new WAnchor
+	  (WLink(WLink::InternalPath, basePath_ + "register"),
+	   tr("Wt.Auth.register"));
+      } else {
+	w = new WText(tr("Wt.Auth.register"));
+	w->clicked().connect(this, &AuthWidget::registerNewUser);
+      }
+
+      bindWidget("register", w);
+    } else
+      bindEmpty("register");
+
+    if (baseAuth_.emailVerificationEnabled() && registrationEnabled_)
+      bindString("sep", " | ");
+    else
+      bindEmpty("sep");
+
+    WPushButton *login = resolve<WPushButton *>("login");
+    enterPasswordFields_
+      = new EnterPasswordFields(*passwordAuth_, password, 0, login, this);
+
+    if (baseAuth_.authTokensEnabled()) {
+      WApplication::instance()->setCookie
+	(baseAuth_.authTokenCookieName(), std::string(), 0);
+    }
+  }
+}
+
+void AuthWidget::createOAuthLogin()
 {
   WApplication *app = WApplication::instance();
   LOAD_JAVASCRIPT(app, "js/AuthWidget.js", "authPopupWindow", wtjs1);
-
-  WTemplate *t = new WTemplate(tr("Wt.Auth.template.oauth-login"));
-  t->bindFunction("id", &WTemplate::Functions::id);
-  t->bindFunction("tr", &WTemplate::Functions::tr);
-
-  t->setInline(isInline());
-  t->setObjectName(OAuthLoginWidget);
 
   WContainerWidget *icons = new WContainerWidget();
   icons->setInline(isInline());
 
   for (unsigned i = 0; i < oAuth_.size(); ++i) {
-    const OAuth *auth = oAuth_[i];
+    const OAuthService *auth = oAuth_[i];
 
-    WImage *w = new WImage(auth->icon(), icons);
+    WImage *w = new WImage("css/oauth-" + auth->name() + ".png", icons);
     w->setToolTip(auth->description());
+    w->setStyleClass("Wt-auth-icon");
     w->setVerticalAlignment(AlignMiddle);
-    OAuth::Process *process = auth->createProcess(auth->authenticationScope());
-    w->clicked().connect(process, &OAuth::Process::startAuthenticate);
+    OAuthProcess *process = auth->createProcess(auth->authenticationScope());
+    w->clicked().connect(process, &OAuthProcess::startAuthenticate);
 
     process->authenticated().connect
       (boost::bind(&AuthWidget::oAuthDone, this, process, _1));
@@ -334,59 +353,60 @@ WWidget *AuthWidget::createOAuthLogin()
     WObject::addChild(process);
   }
 
-  t->bindWidget("icons", icons);
+  if (icons->count() > 0)
+    setCondition("if:oauth", true);
 
-  return t;
+  bindWidget("icons", icons);
 }
 
-void AuthWidget::oAuthDone(OAuth::Process *oauth, const Identity& identity)
+void AuthWidget::oAuthDone(OAuthProcess *oauth, const Identity& identity)
 {
   if (identity.isValid()) {
     Wt::log("auth")
-      << oauth->auth().name() << ": identified: as "
+      << oauth->service().name() << ": identified: as "
       << identity.id() << ", " << identity.name() << ", " << identity.email();
 
-    User user = users_.findOAuthId(identity.id());
-    if (user.isValid()) {
+    std::auto_ptr<AbstractUserDatabase::Transaction>
+      t(users_.startTransaction());
+
+    User user = baseAuth_.identifyUser(identity, users_);
+    if (user.isValid())
       login_.login(user);
-    } else
+    else
       registerNewUser(identity);
+
+    if (t.get())
+      t->commit();
   } else
-    Wt::log("auth") << oauth->auth().name() << ": error: " << oauth->error();
+    Wt::log("auth") << oauth->service().name() << ": error: " << oauth->error();
 }
 
-WWidget *AuthWidget::createLoggedInView()
+void AuthWidget::createLoggedInView()
 {
-  WTemplate *t = new WTemplate(tr("Wt.Auth.template.logged-in"), impl_);
-  //t->setIdPrefix("id:"); t->setTrPrefix("tr:");
-  t->setInline(isInline());
+  setTemplateText(tr("Wt.Auth.template.logged-in"));
 
-  t->bindString("identity", login_.user().identity());  
+  bindString("user-name", login_.user().identity("username"));  
 
   WPushButton *logout = new WPushButton(tr("Wt.Auth.logout"));
   logout->clicked().connect(this, &AuthWidget::logout);
 
-  t->bindWidget("logout", logout);
-
-  return t;
+  bindWidget("logout", logout);
 }
 
 void AuthWidget::attemptLogin()
 {
   if (passwordAuth_) {
-    WTemplate *t = dynamic_cast<WTemplate *>(find("passwords"));
-
-    WFormWidget *name = t->resolve<WFormWidget *>("name");
-    WFormWidget *rememberme = t->resolve<WFormWidget *>("remember-me");
+    WFormWidget *userName = resolve<WFormWidget *>("user-name");
+    WFormWidget *rememberme = resolve<WFormWidget *>("remember-me");
 
     bool remember = rememberme ? rememberme->valueText() == "yes" : 0;
 
     std::auto_ptr<AbstractUserDatabase::Transaction> tr
       (users_.startTransaction());
 
-    User user = users_.findIdentity(name->valueText());
+    User user = users_.findWithIdentity("username", userName->valueText());
     bool valid = user.isValid();
-    name->toggleStyleClass("Wt-invalid", !valid);
+    userName->toggleStyleClass("Wt-invalid", !valid);
 
     if (!enterPasswordFields_->validate(user))
       valid = false;
@@ -440,7 +460,7 @@ void AuthWidget::processEnvironment()
 	login_.login(result.user());
       }
 
-      // Change the internal path to get rid of the token ?
+      WApplication::instance()->setInternalPath("/");
 
       return;
     }

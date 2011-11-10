@@ -1,5 +1,6 @@
 SET(TEST_SOURCES
   test.C
+  auth/BCryptTest.C
   chart/WChartTest.C
   json/JsonParserTest.C
   http/HttpClientTest.C

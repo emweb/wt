@@ -170,6 +170,12 @@ public:
    */
   virtual WT_USTRING valueText() const;
 
+  /*! \brief Sets the current value.
+   *
+   * Sets the current index to the item corresponding to \p value.
+   */
+  virtual void setValueText(const WT_USTRING& value);
+
   virtual void refresh();
 
   /*! \brief Clears all items.
@@ -211,6 +217,7 @@ private:
 
   void itemsChanged();
   void propagateChange();
+  virtual bool supportsNoSelection() const;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);

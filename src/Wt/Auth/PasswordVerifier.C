@@ -17,7 +17,7 @@ namespace Wt {
   namespace Auth {
 
 PasswordVerifier::PasswordVerifier()
-  : saltLength_(3)
+  : saltLength_(12)
 { }
 
 PasswordVerifier::~PasswordVerifier()
@@ -60,7 +60,7 @@ bool PasswordVerifier::verify(const WString& password,
     const HashFunction& f = *hashFunctions_[i];
 
     if (f.name() == hash.function())
-      return f.compute(password.toUTF8(), hash.salt()) == hash.value();
+      return f.verify(password.toUTF8(), hash.salt(), hash.value());
   }
 
   Wt::log("error") << "PasswordVerifier::verify() no hash configured for "

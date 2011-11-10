@@ -76,6 +76,14 @@ namespace Wt {
  * - Functions::id() resolves the id of a bound widget. This is convenient
  *   to bind &lt;label&gt; elements to a form widget using its for attribute.
  *
+ *
+ * <h3>C. Conditional blocks</h3>
+ *
+ * <tt>${<cond>}</tt> starts a conditional block with a condition name
+ * "cond", and must be closed by a balanced <tt>${</cond>}</tt>.
+ *
+ * Conditions are set using setCondition().
+ *
  * <h3>Usage example</h3>
  * \code
  * WString userName = ...;
@@ -245,7 +253,21 @@ public:
    * t->bindFunction("tr", &WTemplate::Functions::tr);
    * \endcode
    */
-  void bindFunction(const std::string& name, const Function& function);
+  void addFunction(const std::string& name, const Function& function);
+
+  /*! \brief Sets a condition.
+   *
+   * This enables or disables the inclusion of a conditional block.
+   *
+   * The default value of all conditions is \c false.
+   */
+  void setCondition(const std::string& name, bool value);
+
+  /*! \brief Returns a condition value.
+   *
+   * \sa setCondition()
+   */
+  bool conditionValue(const std::string& name) const;
 
   /*! \brief Resolves the string value for a variable name.
    *
@@ -349,6 +371,9 @@ public:
    *
    * Removes all strings and deletes all widgets that were previously
    * bound using bindString() and bindWidget().
+   *
+   * This also resets all conditions set using setCondition(), but
+   * does not remove functions added with addFunction()
    */
   void clear();
 
@@ -429,6 +454,7 @@ private:
   typedef std::map<std::string, Function> FunctionMap;
   typedef std::map<std::string, std::string> StringMap;
   typedef std::map<std::string, WWidget *> WidgetMap;
+  typedef std::set<std::string> ConditionSet;
 
   std::set<WWidget *> *previouslyRendered_;
   std::vector<WWidget *> *newlyRendered_;
@@ -436,6 +462,7 @@ private:
   FunctionMap functions_;
   StringMap strings_;
   WidgetMap widgets_;
+  ConditionSet conditions_;
 
   WString text_;
 

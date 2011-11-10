@@ -17,11 +17,9 @@
 }
 
 .Wt-form h3 {
-    font-style: italic;
     font-size: 100%;
-    font-weight: normal;
+    font-weight: bold;
     margin: 8px 0px;
-    clear: both;
 }
 
 .Wt-form p {
@@ -39,7 +37,7 @@
     width: 14em;
     float: left;
     clear: left;
-    line-height: 130%;
+    line-height: 110%;
 }
 
 .Wt-form .Wt-info {
@@ -55,8 +53,14 @@
     float: left;
     padding: 5px 2px;
     border: solid 1px #aacfe4;
-    width: 15em;
-    margin: 3px 0.5em 1.4em 0.7em;
+    font-size: 80%;
+    width: 14em;
+    margin: 0.5em 0.5em 1.4em 0.7em;
+}
+
+.Wt-form input[type="checkbox"] {
+    margin-top: 1em;
+    width: auto;
 }
 
 .Wt-form .Wt-field {
@@ -69,8 +73,20 @@
 .Wt-form .Wt-buttons {
     clear: both;
     text-align: center;
+    margin: 0.5em 0;
+}
+
+.Wt-form .Wt-buttons span {
+    text-decoration: underline;
+    cursor: pointer; cursor: hand;
 }
 
 .Wt-form .Wt-error {
     color: black;
+}
+
+.Wt-form .Wt-col-right {
+    margin-left: 28em;
+    padding-left: 2em;
+    border-left: solid 1px #b7ddf2;
 }

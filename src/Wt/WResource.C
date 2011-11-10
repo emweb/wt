@@ -158,14 +158,14 @@ void WResource::suggestFileName(const WString& name,
   suggestedFileName_ = name;
   dispositionType_ = dispositionType;
 
-  generateUrl();
+  currentUrl_.clear();
 }
 
 void WResource::setInternalPath(const std::string& path)
 {
   internalPath_ = path;
 
-  generateUrl();
+  currentUrl_.clear();
 }
 
 void WResource::setDispositionType(DispositionType dispositionType)

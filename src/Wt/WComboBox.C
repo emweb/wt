@@ -179,10 +179,15 @@ bool WComboBox::isSelected(int index) const
   return index == currentIndex_;
 }
 
+bool WComboBox::supportsNoSelection() const
+{
+  return false;
+}
+
 void WComboBox::updateDom(DomElement& element, bool all)
 {
   if (itemsChanged_ || all) {
-    if (all && count() > 0 && currentIndex_ == -1)
+    if (all && count() > 0 && currentIndex_ == -1 && !supportsNoSelection())
       currentIndex_ = 0;
 
     if (!all)
@@ -265,6 +270,12 @@ void WComboBox::refresh()
 WT_USTRING WComboBox::valueText() const
 {
   return currentText();
+}
+
+void WComboBox::setValueText(const WT_USTRING& value)
+{
+  int i = findText(value, MatchExactly);
+  setCurrentIndex(i);
 }
 
 void WComboBox::itemsChanged()

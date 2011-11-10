@@ -20,10 +20,8 @@ public:
   BlogLoginWidget(BlogSession& session, const std::string& basePath,
 		  Wt::WContainerWidget *parent = 0);
 
-  virtual Wt::WWidget *createLoginView();
-  virtual Wt::WWidget *createLoggedInView();
-  virtual Wt::WWidget *
-  createRegistrationView(const Wt::Auth::Identity& identity);
+  virtual void createLoginView();
+  virtual void createLoggedInView();
 };
 
 #endif // BLOG_LOGIN_WIDGET_H_
