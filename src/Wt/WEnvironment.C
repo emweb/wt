@@ -60,7 +60,10 @@ void WEnvironment::setInternalPath(const std::string& path)
 
 const std::string& WEnvironment::deploymentPath() const
 {
-  return session_->deploymentPath();
+  if (!publicDeploymentPath_.empty())
+    return publicDeploymentPath_;
+  else
+    return session_->deploymentPath();
 }
 
 void WEnvironment::init(const WebRequest& request)

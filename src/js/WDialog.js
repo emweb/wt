@@ -62,13 +62,17 @@ WT_DECLARE_WT_MEMBER
        var ws = WT.windowSize();
        var w = el.offsetWidth, h = el.offsetHeight;
 
-       if (centerX)
+       if (centerX) {
 	 el.style.left = Math.round((ws.x - w)/2
 	     + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
+	 el.style.marginLeft = '0px';
+       }
 
-       if (centerY)
+       if (centerY) {
 	 el.style.top = Math.round((ws.y - h)/2
 	     + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
+	 el.style.marginTop = '0px';
+       }
 
        if (el.style.height != '')
 	 wtResize(el, -1, h);

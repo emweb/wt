@@ -1,0 +1,29 @@
+<server>
+    <application-settings location="*">
+	<properties>
+
+	    <!-- You need to register at google for this to work, and enter
+                 there the same values as you do here. -->
+            <!--
+	    <property name="google-oauth2-redirect-endpoint">
+		http://localhost:8080/oauth2callback
+	    </property>
+	    <property name="google-oauth2-client-id">
+		00000000000.apps.googleusercontent.com
+	    </property>
+	    <property name="google-oauth2-client-secret">
+		abcdefghijk-123456789xyz
+	    </property>
+            -->
+
+	    <!-- These configure the email address used to send emails
+	      -->
+	    <property name="auth-mail-sender-name">
+	      Wt Hangman Example
+	    </property>
+	    <property name="auth-mail-sender-address">
+	      noreply-hangman@www.webtoolkit.eu
+	    </property>
+	</properties>
+    </application-settings>
+</server>

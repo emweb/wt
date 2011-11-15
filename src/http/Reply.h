@@ -129,6 +129,7 @@ protected:
   static std::string httpDate(time_t t);
 
   ConnectionPtr getConnection() { return connection_.lock(); }
+  bool transmitting() const { return transmitting_; }
 
 private:
   std::vector<std::pair<std::string, std::string> > headers_;

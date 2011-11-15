@@ -49,7 +49,7 @@
     text-align: right;
 }
 
-.Wt-form input {
+.Wt-form .Wt-fields input {
     float: left;
     padding: 5px 2px;
     border: solid 1px #aacfe4;
@@ -58,7 +58,7 @@
     margin: 0.5em 0.5em 1.4em 0.7em;
 }
 
-.Wt-form input[type="checkbox"] {
+.Wt-form .Wt-fields input[type="checkbox"] {
     margin-top: 1em;
     width: auto;
 }

@@ -22,13 +22,30 @@ namespace Wt {
 PasswordService::AbstractVerifier::~AbstractVerifier()
 { }
 
-PasswordService::AbstractStrengthChecker::~AbstractStrengthChecker()
-{ }
+WValidator::Result PasswordService::AbstractStrengthValidator
+::validate(const WT_USTRING& password, const WT_USTRING& loginName,
+	   const std::string& email) const
+{
+  int result = evaluateStrength(password, loginName, email);
+  return WValidator::Result(isValid(result) ? Valid : Invalid,
+			    message(result));
+}
+
+WValidator::Result PasswordService::AbstractStrengthValidator
+::validate(const WT_USTRING& password) const
+{
+  return validate(password, WT_USTRING::Empty, "");
+}
+
+int PasswordService::AbstractStrengthValidator::strength(int result) const
+{
+  return isValid(result) ? 5 : 0;
+}
 
 PasswordService::PasswordService(const AuthService& baseAuth)
   : baseAuth_(baseAuth),
     verifier_(0),
-    checker_(0),
+    validator_(0),
     attemptThrottling_(false)
 { }
 
@@ -43,18 +60,15 @@ void PasswordService::setVerifier(AbstractVerifier *verifier)
   verifier_ = verifier;
 }
 
+void PasswordService::setStrengthValidator(AbstractStrengthValidator *validator)
+{
+  delete validator_;
+  validator_ = validator;
+}
+
 void PasswordService::setAttemptThrottlingEnabled(bool enabled)
 {
   attemptThrottling_ = enabled;
-}
-
-WString PasswordService::validatePassword(const WT_USTRING& pwd) const
-{
-  // FIXME
-  if (pwd.toUTF8().length() < 8)
-    return WString::tr("Wt.Auth.password-tooshort").arg(8);
-  else
-    return WString::Empty;
 }
 
 int PasswordService::delayForNextAttempt(const User& user) const
@@ -125,8 +139,8 @@ PasswordResult PasswordService::verifyPassword(const User& user,
   }
 }
 
-void PasswordService::updatePassword(const User& user, const WT_USTRING& password)
-  const
+void PasswordService::updatePassword(const User& user,
+				     const WT_USTRING& password) const
 {
   PasswordHash pwd = verifier_->hashPassword(password);
   user.setPassword(pwd);

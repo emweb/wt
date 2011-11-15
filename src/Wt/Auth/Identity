@@ -95,6 +95,8 @@ public:
    */
   static const Identity Invalid;
 
+  static const std::string LoginName;
+
 private:
   std::string provider_, id_, email_;
   WT_USTRING name_;

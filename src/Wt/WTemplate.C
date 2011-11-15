@@ -472,17 +472,8 @@ std::size_t WTemplate::parseArgs(const std::string& text,
 	state = SValue;
       else if (c == '"')
 	state = DValue;
-      else {
-	std::size_t end = text.find_first_of(" \r\n\t} ", pos);
-	if (end == std::string::npos)
-	  return Error;
-	else {
-	  v << text.substr(pos, end - pos);
-	result.push_back(WString::fromUTF8(v.str()));
-	  --pos;
-	  state = Next;
-	}
-      }
+      else
+	return Error;
       break;
 
     case SValue:

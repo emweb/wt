@@ -29,7 +29,7 @@ void HighScoresWidget::update()
   
   new WText("<h2>Hall of fame</h2>", this);
   
-  int ranking = session_->findRanking(session_->user());
+  int ranking = session_->findRanking();
   
   std::string yourScore;
   if (ranking == 1)
@@ -72,12 +72,13 @@ void HighScoresWidget::update()
 	      table->elementAt(row, 2));
     new WText(boost::lexical_cast<std::string>(u.score),
 	      table->elementAt(row, 3));
-    if (!u.lastLogin.isNull())
-      new WText(u.lastLogin.toString(), table->elementAt(row, 4));
+    if (!u.lastGame.isNull())
+      new WText(u.lastGame.timeTo(WDateTime::currentDateTime())
+		+ " ago", table->elementAt(row, 4));
     else
       new WText("---", table->elementAt(row, 4));
     
-    if (session_->user() && u.name == session_->user()->name)
+    if (session_->login().loggedIn() && session_->userName() == u.name)
       table->rowAt(row)->setId("self");
   }
 

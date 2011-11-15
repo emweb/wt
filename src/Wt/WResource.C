@@ -129,13 +129,14 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
   handleRequest(request, response);
 
-  response.out(); // trigger committing the headers if still necessary
-
   if (!response.continuation_ || !response.continuation_->resource_) {
     if (response.continuation_) {
       Utils::erase(continuations_, response.continuation_);
       delete response.continuation_;
     }
+
+    response.out(); // trigger committing the headers if still necessary
+
     webResponse->flush(WebResponse::ResponseDone);
   } else {
     if (response.continuation_->waiting_) {

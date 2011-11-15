@@ -26,34 +26,39 @@ RegistrationModel::RegistrationModel(const AuthService& baseAuth,
     baseAuth_(baseAuth),
     users_(users),
     login_(login),
-    minUserNameLength_(4),
+    minLoginNameLength_(4),
+    emailPolicy_(EmailDisabled),
     passwordAuth_(0)
 {
   if (baseAuth_.identityPolicy() == EmailAddressIdentity)
-    validation_[UserName]
+    validation_[LoginName]
       = WValidator::Result(WValidator::Valid,
 			   WString::tr("Wt.Auth.email-info"));
-  else
-    validation_[UserName]
+  else {
+    if (baseAuth_.emailVerificationEnabled())
+      emailPolicy_ = EmailOptional;
+    else
+      emailPolicy_ = EmailDisabled;
+
+    validation_[LoginName]
       = WValidator::Result(WValidator::Valid,
 			   WString::tr("Wt.Auth.user-name-info"));
+  }
+
+  validation_[Password]
+    = WValidator::Result(WValidator::Valid,
+			 WString::tr("Wt.Auth.choose-password-info"));;
 
   validation_[Password2]
     = WValidator::Result(WValidator::Valid,
-			 WString::tr("Wt.Auth.password2-info"));
+			 WString::tr("Wt.Auth.repeat-password-info"));
 
-  validation_[Email]
-    = WValidator::Result(WValidator::Valid,
-			 WString::tr("Wt.Auth.email-info"));
+  setEmailPolicy(emailPolicy_);
 }
 
 void RegistrationModel::addPasswordAuth(const AbstractPasswordService *auth)
 {
   passwordAuth_ = auth;
-
-  validation_[Password]
-    = WValidator::Result(WValidator::Valid,
-			 auth->validatePassword(WString::Empty));
 }
 
 void RegistrationModel::addOAuth(const OAuthService *auth)
@@ -64,6 +69,25 @@ void RegistrationModel::addOAuth(const OAuthService *auth)
 void RegistrationModel::addOAuth(const std::vector<const OAuthService *>& auth)
 {
   Utils::insert(oAuth_, auth);
+}
+
+void RegistrationModel::setEmailPolicy(EmailPolicy policy)
+{
+  emailPolicy_ = policy;
+  switch (emailPolicy_) {
+  case EmailMandatory:
+    validation_[Email]
+      = WValidator::Result(WValidator::Valid,
+			   WString::tr("Wt.Auth.email-info"));
+    break;
+  case EmailOptional:
+    validation_[Email]
+      = WValidator::Result(WValidator::Valid,
+			   WString::tr("Wt.Auth.optional-email-info"));
+    break;
+  default:
+    break;
+  }
 }
 
 bool RegistrationModel::registerIdentified(const Identity& identity)
@@ -78,22 +102,22 @@ bool RegistrationModel::registerIdentified(const Identity& identity)
       return true;
     } else {
       switch (baseAuth_.identityPolicy()) {
-      case UserNameIdentity:
+      case LoginNameIdentity:
 	if (!idpIdentity_.name().empty())
-	  values_[UserName] = idpIdentity_.name();
+	  values_[LoginName] = idpIdentity_.name();
 	else if (!idpIdentity_.email().empty()) {
 	  std::string suggested = idpIdentity_.email();
 	  std::size_t i = suggested.find('@');
 	  if (i != std::string::npos)
 	    suggested = suggested.substr(0, i);
 
-	  values_[UserName] = WString::fromUTF8(suggested);
+	  values_[LoginName] = WString::fromUTF8(suggested);
 	}
 
 	break;
       case EmailAddressIdentity:
 	if (!idpIdentity_.email().empty())
-	  values_[UserName] = WString::fromUTF8(idpIdentity_.email());
+	  values_[LoginName] = WString::fromUTF8(idpIdentity_.email());
 	break;
 
       default:
@@ -112,7 +136,7 @@ bool RegistrationModel::registerIdentified(const Identity& identity)
 bool RegistrationModel::isVisible(Field field) const
 {
   switch (field) {
-  case UserName:
+  case LoginName:
     if (baseAuth_.identityPolicy() == OptionalIdentity)
       return passwordAuth_ && !idpIdentity_.isValid();
     else
@@ -124,7 +148,10 @@ bool RegistrationModel::isVisible(Field field) const
     if (baseAuth_.identityPolicy() == EmailAddressIdentity)
       return false;
     else
-      return baseAuth_.emailVerificationEnabled();
+      if (emailPolicy_ == EmailDisabled)
+	return false;
+      else
+	return true;
   default:
     return false;
   }
@@ -143,7 +170,7 @@ bool RegistrationModel::isConfirmUserButtonVisible() const
 bool RegistrationModel::isReadOnly(Field field) const
 {
   switch (field) {
-  case UserName:
+  case LoginName:
     return baseAuth_.identityPolicy() == EmailAddressIdentity
       && idpIdentity_.isValid() && idpIdentity_.emailVerified();
   case Email:
@@ -153,13 +180,13 @@ bool RegistrationModel::isReadOnly(Field field) const
   }
 }
 
-WString RegistrationModel::validateUserName(const WT_USTRING& userName) const
+WString RegistrationModel::validateLoginName(const WT_USTRING& userName) const
 {
   switch (baseAuth_.identityPolicy()) {
-  case UserNameIdentity:
-    if (static_cast<int>(userName.toUTF8().length()) < minUserNameLength_)
+  case LoginNameIdentity:
+    if (static_cast<int>(userName.toUTF8().length()) < minLoginNameLength_)
       return WString::tr("Wt.Auth.user-name-tooshort")
-	.arg(minUserNameLength_);
+	.arg(minLoginNameLength_);
     else
       return WString::Empty;
 
@@ -179,21 +206,21 @@ WString RegistrationModel::validateUserName(const WT_USTRING& userName) const
 
 void RegistrationModel::checkUserExists(const WT_USTRING& userName)
 {
-  existingUser_ = users_.findWithIdentity("username", userName);
+  existingUser_ = users_.findWithIdentity(Identity::LoginName, userName);
 }
 
 WString RegistrationModel::label(Field field) const
 {
   switch (field) {
-  case UserName:
+  case LoginName:
     if (baseAuth_.identityPolicy() == EmailAddressIdentity)
       return WString::tr("Wt.Auth.email");
     else
       return WString::tr("Wt.Auth.user-name");
   case Password:
-    return WString::tr("Wt.Auth.password");
+    return WString::tr("Wt.Auth.choose-password");
   case Password2:
-    return WString::tr("Wt.Auth.password2");
+    return WString::tr("Wt.Auth.repeat-password");
   case Email:
     return WString::tr("Wt.Auth.email");
   default:
@@ -220,8 +247,8 @@ bool RegistrationModel::validate(Field field)
   WString error;
 
   switch (field) {
-  case UserName:
-    error = validateUserName(values_[field]);
+  case LoginName:
+    error = validateLoginName(values_[field]);
 
     if (error.empty()) {
       checkUserExists(values_[field]);
@@ -235,8 +262,18 @@ bool RegistrationModel::validate(Field field)
 
     break;
   case Password:
-    error = passwordAuth_->validatePassword(values_[field]);
-    valid = error.empty();
+    {
+      AbstractPasswordService::AbstractStrengthValidator *v
+	= passwordAuth_->strengthValidator();
+      if (v) {
+	WValidator::Result r
+	  = v->validate(values_[Password], values_[LoginName],
+			values_[Email].toUTF8());
+	valid = r.state() == WValidator::Valid;
+	error = r.message();
+      } else
+	valid = true;
+    }
 
     break;
   case Password2:
@@ -249,15 +286,21 @@ bool RegistrationModel::validate(Field field)
     {
       std::string email = values_[Email].toUTF8();
 
-      if (static_cast<int>(email.length()) < 3
-	  || email.find('@') == std::string::npos)
-	error = WString::tr("Wt.Auth.email-invalid");
+      if (!email.empty()) {
+	if (static_cast<int>(email.length()) < 3
+	    || email.find('@') == std::string::npos)
+	  error = WString::tr("Wt.Auth.email-invalid");
 
-      if (error.empty()) {
-	User user = users_.findWithEmail(email);
-	if (user.isValid())
-	  error = WString::tr("Wt.Auth.email-exists");
+	if (error.empty()) {
+	  User user = users_.findWithEmail(email);
+	  if (user.isValid())
+	    error = WString::tr("Wt.Auth.email-exists");
+	}
+      } else {
+	if (emailPolicy_ != EmailOptional)
+	  error = WString::tr("Wt.Auth.email-invalid");
       }
+
       valid = error.empty();
 
       break;
@@ -309,7 +352,7 @@ bool RegistrationModel::validate()
 {
   bool valid = true;
 
-  if (!validate(UserName))
+  if (!validate(LoginName))
     valid = false;
 
   if (!validate(Password))
@@ -349,8 +392,9 @@ void RegistrationModel::validatePasswordsMatchJS(WLineEdit *password,
      .jsStringLiteral() + ");"
      ""  "} else {"
      ""     "$(o).removeClass('Wt-valid');"
-     ""      WT_CLASS ".setHtml(i," + WString::tr("Wt.Auth.password2-info")
-     .jsStringLiteral() + ");"
+     ""      WT_CLASS ".setHtml(i,"
+     ""        + WString::tr("Wt.Auth.repeat-password-info").jsStringLiteral()
+     +                         ");"
      ""  "}"
      """}"
      "}");
@@ -372,7 +416,7 @@ User RegistrationModel::doRegister()
 		       WT_USTRING::fromUTF8(idpIdentity_.id()));
 
       if (baseAuth_.identityPolicy() != OptionalIdentity)
-	user.addIdentity("username", values_[UserName]);
+	user.addIdentity(Identity::LoginName, values_[LoginName]);
 
       std::string email;
       bool emailVerified = false;
@@ -381,7 +425,7 @@ User RegistrationModel::doRegister()
 	emailVerified = idpIdentity_.emailVerified();
       } else {
 	if (baseAuth_.identityPolicy() == EmailAddressIdentity)
-	  email = values_[UserName].toUTF8();
+	  email = values_[LoginName].toUTF8();
 	else
 	  email = values_[Email].toUTF8();
       }
@@ -393,18 +437,19 @@ User RegistrationModel::doRegister()
 	  baseAuth_.verifyEmailAddress(user, email);
       }
     } else {
-      user.addIdentity("username", values_[UserName]);
+      user.addIdentity(Identity::LoginName, values_[LoginName]);
 
       passwordAuth_->updatePassword(user, values_[Password]);
 
       if (baseAuth_.emailVerificationEnabled()) {
 	std::string email;
 	if (baseAuth_.identityPolicy() == EmailAddressIdentity)
-	  email = values_[UserName].toUTF8();
+	  email = values_[LoginName].toUTF8();
 	else
 	  email = values_[Email].toUTF8();
 
-	baseAuth_.verifyEmailAddress(user, email);
+	if (!email.empty())
+	  baseAuth_.verifyEmailAddress(user, email);
       }
     }
 

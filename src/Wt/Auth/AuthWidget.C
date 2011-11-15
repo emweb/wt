@@ -282,12 +282,13 @@ void AuthWidget::createPasswordLogin()
   if (passwordAuth_) {
     setCondition("if:passwords", true);
     WLineEdit *userName = new WLineEdit();
+    userName->setFocus();
     bindWidget("user-name", userName);
     WText *userNameInfo = new WText();
     bindWidget("user-name-info", userNameInfo);
 
     switch (baseAuth_.identityPolicy()) {
-    case UserNameIdentity:
+    case LoginNameIdentity:
     case OptionalIdentity:
       bindString("user-name-label", tr("Wt.Auth.user-name"));
       userNameInfo->setText(tr("Wt.Auth.user-name-info"));
@@ -416,7 +417,7 @@ void AuthWidget::createLoggedInView()
 {
   setTemplateText(tr("Wt.Auth.template.logged-in"));
 
-  bindString("user-name", login_.user().identity("username"));  
+  bindString("user-name", login_.user().identity(Identity::LoginName));  
 
   WPushButton *logout = new WPushButton(tr("Wt.Auth.logout"));
   logout->clicked().connect(this, &AuthWidget::logout);
@@ -437,7 +438,8 @@ void AuthWidget::attemptLogin()
     std::auto_ptr<AbstractUserDatabase::Transaction> t
       (users_.startTransaction());
 
-    User user = users_.findWithIdentity("username", userName->valueText());
+    User user = users_.findWithIdentity(Identity::LoginName,
+					userName->valueText());
     bool valid = user.isValid();
     userName->toggleStyleClass("Wt-invalid", !valid);
     if (userNameInfo) {

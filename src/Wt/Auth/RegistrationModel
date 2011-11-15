@@ -39,10 +39,18 @@ public:
   /*! \brief Enumeration for a field
    */
   enum Field {
-    UserName,       //!< User name field
-    Password,       //!< Password field
-    Password2,      //!< Repeat password field
-    Email           //!< Email field (if user name is not email)
+    LoginName, //!< Login name field
+    Password,  //!< Password field
+    Password2, //!< Repeat password field
+    Email      //!< Email field (if login name is not email)
+  };
+
+  /*! \brief Enumeration for an email policy
+   */
+  enum EmailPolicy {
+    EmailDisabled,  //!< The email address is not asked for
+    EmailOptional,  //!< A user may provide an email address, but it is optional
+    EmailMandatory  //!< A user must provide an email address
   };
 
   /*! \brief Method for confirming to be an existing user.
@@ -118,17 +126,37 @@ public:
    */
   std::vector<const OAuthService *> oAuth() const { return oAuth_; }
 
-  /*! \brief Configures a minimum length for a user name.
+  /*! \brief Configures a minimum length for a login name.
    *
    * The default value is 4. 
    */
-  void setMinUserNameLength(int chars);
+  void setMinLoginNameLength(int chars);
 
-  /*! \brief Returns the minimum length for a user name.
+  /*! \brief Returns the minimum length for a login name.
    *
-   * \sa setMinUserNameLength()
+   * \sa setMinLoginNameLength()
    */
-  int minUserNameLength() const { return minUserNameLength_; }
+  int minLoginNameLength() const { return minLoginNameLength_; }
+
+  /*! \brief Configures whether an email address needs to be entered.
+   *
+   * You may specify whether you want the user to enter an email
+   * address.
+   *
+   * This has no effect when the IdentityPolicy is
+   * EmailAddressIdentity.
+   *
+   * The default policy is:
+   * - Optional when email address verification is enabled
+   * - Invisible otherwise
+   */
+  void setEmailPolicy(EmailPolicy policy);
+
+  /*! \brief Returns the email policy.
+   *
+   * \sa setEmailPolicy()
+   */
+  EmailPolicy emailPolicy() const { return emailPolicy_; }
 
   /*! \brief Register a user authenticated by an identity provider.
    *
@@ -177,12 +205,12 @@ public:
    */
   virtual void existingUserConfirmed();
 
-  /*! \brief Validates the user name.
+  /*! \brief Validates the login name.
    *
-   * This verifies that the user name is adequate (see also
-   * setMinUserNameLength()).
+   * This verifies that the login name is adequate (see also
+   * setMinLoginNameLength()).
    */
-  virtual WString validateUserName(const WT_USTRING& userName) const;
+  virtual WString validateLoginName(const WT_USTRING& userName) const;
 
   /*! \brief Verifies that a user with that name does not yet exist.
    *
@@ -268,7 +296,8 @@ private:
   const AuthService& baseAuth_;
   AbstractUserDatabase& users_;
   Login& login_;
-  int minUserNameLength_;
+  int minLoginNameLength_;
+  EmailPolicy emailPolicy_;
 
   const AbstractPasswordService *passwordAuth_;
   std::vector<const OAuthService *> oAuth_;

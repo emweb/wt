@@ -478,7 +478,7 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
       header << " Domain=" << cookie.domain << ';';
 
     if (cookie.path.empty())
-      header << " Path=" << session_.deploymentPath() << ';';
+      header << " Path=" << session_.env().deploymentPath() << ';';
     else
       header << " Path=" << cookie.path << ';';
 
@@ -554,6 +554,10 @@ void WebRenderer::addContainerWidgets(WWebWidget *w,
 {
   for (unsigned i = 0; i < w->children().size(); ++i) {
     WWidget *c = w->children()[i];
+
+    if (!c->isRendered())
+      return;
+
     if (!c->isHidden())
       addContainerWidgets(c->webWidget(), result);
 
@@ -661,17 +665,20 @@ bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
       }
     }
 
-    solution_.clear();
-
     if (j < answer.size() - 1)
       fail = true;
    
     if (fail) {
-      session_.log("secyre") << "Ajax puzzle fail: " << ackPuzzle << " vs "
-			     << solution_;
+      session_.log("secure") << "Ajax puzzle fail: '" << ackPuzzle << "' vs '"
+			     << solution_ << '\'';
+
+      solution_.clear();
+
       return false;
-    } else
+    } else {
+      solution_.clear();
       return true;
+    }
   } else
     return true;
 }

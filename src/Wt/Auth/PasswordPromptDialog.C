@@ -5,6 +5,7 @@
  */
 
 #include "Wt/Auth/EnterPasswordFields"
+#include "Wt/Auth/Identity"
 #include "Wt/Auth/Login"
 #include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/PasswordPromptDialog"
@@ -29,7 +30,8 @@ PasswordPromptDialog::PasswordPromptDialog(Login& login,
   impl_->addFunction("id", &WTemplate::Functions::id);
   impl_->addFunction("tr", &WTemplate::Functions::tr);
 
-  WLineEdit *nameEdit = new WLineEdit(login.user().identity("username"));
+  WLineEdit *nameEdit
+    = new WLineEdit(login.user().identity(Identity::LoginName));
   nameEdit->disable();
   nameEdit->addStyleClass("Wt-disabled");
 

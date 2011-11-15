@@ -16,6 +16,8 @@
 #include <Wt/Http/Message>
 #include <Wt/Http/Method>
 
+#include <boost/system/error_code.hpp>
+
 namespace Wt {
   namespace Auth {
 
@@ -131,10 +133,10 @@ public:
    * The authorization process ends with the authorized() signal which
    * signals the obtained token.
    *
-   * \note Currently, this works only when directly connected to an
-   *       EventSignal, as it uses a popup window, and popup windows
-   *       are blocked in most web browsers unless they are the
-   *       direct consequence of an event.
+   * \note To be able to use a popup (instead of a page redirect), you
+   *       should connect this method directly to an, since popup
+   *       windows are blocked in most web browsers unless they are
+   *       the direct consequence of an event.
    */
   virtual void startAuthorize();
 
@@ -149,10 +151,10 @@ public:
    * The authentication process ends with the authenticated() signal which
    * signals the obtained identity.
    *
-   * \note Currently, this works only when directly connected to an
-   *       EventSignal, as it uses a popup window, and popup windows
-   *       are blocked in most web browsers unless they are the
-   *       direct consequence of an event.
+   * \note To be able to use a popup (instead of a page redirect), you
+   *       should connect this method directly to an, since popup
+   *       windows are blocked in most web browsers unless they are
+   *       the direct consequence of an event.
    */
   virtual void startAuthenticate();
 
@@ -274,12 +276,18 @@ private:
   std::string oAuthState_;
   OAuthAccessToken token_;
   WString error_;
+  std::string startInternalPath_;
 
   OAuthRedirectEndpoint *redirectEndpoint_;
 
+  void requestToken(const std::string& authorizationCode);
+  void handleToken(boost::system::error_code err,
+		   const Http::Message& response);
   OAuthAccessToken parseUrlEncodedToken(const Http::Message& response);
   OAuthAccessToken parseJsonToken(const Http::Message& response);
 
+  std::string authorizeUrl() const;
+  void handleRedirectPath(const std::string& internalPath);
   void doParseTokenResponse(const Http::Message& response);
   void onOAuthDone();
 
@@ -339,8 +347,6 @@ private:
  * // And capture the result in a method.
  * process_->authenticated().connect(this, &MyWidget::oauthDone);
  * \endcode
- *
- * \note %OAuthService currently does not work in a plain Html session.
  *
  * \ingroup auth
  */

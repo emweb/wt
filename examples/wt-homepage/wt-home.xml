@@ -748,7 +748,7 @@ target="_blank">item model</a>.</p>
 <h4 class="example">Hangman</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/hangman/hangman.wt" class="run" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/hangman-game/hangman.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
@@ -886,11 +886,11 @@ version released during one year.
     </th>
     <td class="multiline">
       <div><span class="price">&euro;175</span> <span class="cart" /></div>
-      <div><a href="http://www.webtoolkit.eu/wt/license/Wt%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
+      <div><a href="http://www.webtoolkit.eu/wt/license/WtDbo%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
     </td>
     <td class="multiline">
       <div><span class="price">&euro;599</span> <span class="cart" /></div>
-      <div><a href="http://www.webtoolkit.eu/wt/license/WtDbo%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
+      <div><a href="http://www.webtoolkit.eu/wt/license/Wt%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
     </td>
   </tr>
 </table>

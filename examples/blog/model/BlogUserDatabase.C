@@ -5,6 +5,7 @@
  */
 
 #include <Wt/Dbo/Impl>
+#include <Wt/Auth/Identity>
 
 #include "BlogUserDatabase.h"
 #include "User.h"
@@ -110,7 +111,7 @@ void BlogUserDatabase::addIdentity(const Auth::User& user,
 {
   WithUser find(*this, user);
 
-  if (provider == "username")
+  if (provider == Auth::Identity::LoginName)
     user_.modify()->name = identity;
   else {
     user_.modify()->oAuthProvider = provider;
@@ -123,7 +124,7 @@ Wt::WString BlogUserDatabase::identity(const Auth::User& user,
 {
   WithUser find(*this, user);
 
-  if (provider == "username")
+  if (provider == Auth::Identity::LoginName)
     return user_->name;
   else if (provider == user_->oAuthProvider)
     return Wt::WString::fromUTF8(user_->oAuthId);
@@ -136,7 +137,7 @@ void BlogUserDatabase::removeIdentity(const Auth::User& user,
 {
   WithUser find(*this, user);
 
-  if (provider == "username")
+  if (provider == Auth::Identity::LoginName)
     user_.modify()->name = "";
   else if (provider == user_->oAuthProvider) {
     user_.modify()->oAuthProvider = std::string();
@@ -148,7 +149,7 @@ Auth::User BlogUserDatabase::findWithIdentity(const std::string& provider,
 					      const WString& identity) const
 {
   dbo::Transaction t(session_);
-  if (provider == "username") {
+  if (provider == Auth::Identity::LoginName) {
     if (!user_ || user_->name != identity)
       user_ = session_.find<User>().where("name = ?").bind(identity);
   } else

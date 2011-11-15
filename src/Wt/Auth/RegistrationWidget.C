@@ -64,10 +64,10 @@ WFormWidget *RegistrationWidget::createField(RegistrationModel::Field field)
   WFormWidget *result;
 
   switch (field) {
-  case RegistrationModel::UserName:
+  case RegistrationModel::LoginName:
     result = new WLineEdit();
     result->changed().connect
-      (boost::bind(&RegistrationWidget::checkUserName, this));
+      (boost::bind(&RegistrationWidget::checkLoginName, this));
 
     break;
   case RegistrationModel::Email:
@@ -78,6 +78,8 @@ WFormWidget *RegistrationWidget::createField(RegistrationModel::Field field)
     {
       WLineEdit *p = new WLineEdit();
       p->setEchoMode(WLineEdit::Password);
+      p->keyWentUp().connect
+	(boost::bind(&RegistrationWidget::checkPassword, this));
       p->changed().connect
 	(boost::bind(&RegistrationWidget::checkPassword, this));
       result = p;
@@ -158,15 +160,15 @@ void RegistrationWidget::update()
   else
     bindEmpty("password-description");
 
-  updateField("user-name", RegistrationModel::UserName);
-  updateField("password", RegistrationModel::Password);
-  updateField("password2", RegistrationModel::Password2);
+  updateField("user-name", RegistrationModel::LoginName);
+  updateField("choose-password", RegistrationModel::Password);
+  updateField("repeat-password", RegistrationModel::Password2);
   updateField("email", RegistrationModel::Email);
 
   if (!created_) {
-    WLineEdit *password = resolve<WLineEdit *>("password");
-    WLineEdit *password2 = resolve<WLineEdit *>("password2");
-    WText *password2Info = resolve<WText *>("password2-info");
+    WLineEdit *password = resolve<WLineEdit *>("choose-password");
+    WLineEdit *password2 = resolve<WLineEdit *>("repeat-password");
+    WText *password2Info = resolve<WText *>("repeat-password-info");
 
     if (password && password2 && password2Info)
       model_->validatePasswordsMatchJS(password, password2, password2Info);
@@ -262,30 +264,32 @@ void RegistrationWidget::updateModel(const std::string& var,
 
 void RegistrationWidget::updateModel()
 {
-  updateModel("user-name", RegistrationModel::UserName);
-  updateModel("password", RegistrationModel::Password);
-  updateModel("password2", RegistrationModel::Password2);
+  updateModel("user-name", RegistrationModel::LoginName);
+  updateModel("choose-password", RegistrationModel::Password);
+  updateModel("repeat-password", RegistrationModel::Password2);
   updateModel("email", RegistrationModel::Email);
 }
 
-void RegistrationWidget::checkUserName()
+void RegistrationWidget::checkLoginName()
 {
-  updateModel("user-name", RegistrationModel::UserName);
-  model_->validate(RegistrationModel::UserName);
+  updateModel("user-name", RegistrationModel::LoginName);
+  model_->validate(RegistrationModel::LoginName);
   update();
 }
 
 void RegistrationWidget::checkPassword()
 {
-  updateModel("password", RegistrationModel::Password);
+  updateModel("user-name", RegistrationModel::LoginName);
+  updateModel("choose-password", RegistrationModel::Password);
+  updateModel("email", RegistrationModel::Email);
   model_->validate(RegistrationModel::Password);
   update();
 }
 
 void RegistrationWidget::checkPassword2()
 {
-  updateModel("password", RegistrationModel::Password);
-  updateModel("password2", RegistrationModel::Password2);
+  updateModel("choose-password", RegistrationModel::Password);
+  updateModel("repeat-password", RegistrationModel::Password2);
   model_->validate(RegistrationModel::Password2);
   update();
 }

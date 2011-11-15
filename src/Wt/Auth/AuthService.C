@@ -47,8 +47,9 @@ namespace Wt {
  * - User: a user value class
  * - Token: an authentication token
  * - PasswordHash: a hashed password
- * - PasswordStrengthChecker: validates the strenght of a password
- * - PasswordVerifier: verifies a password
+ * - PasswordStrengthValidator: validates the strength of a password
+ * - PasswordVerifier: verifies a password (against a hash stored in the
+ *   database)
  *
  * The <b>session classes</b> are:
  * - AbstractUserDatabase: abstract interface for storage needed for
@@ -107,8 +108,8 @@ std::string AuthTokenResult::newToken() const
 }
 
 AuthService::AuthService()
-  : identityPolicy_(UserNameIdentity),
-    minimumUserNameLength_(4),
+  : identityPolicy_(LoginNameIdentity),
+    minimumLoginNameLength_(4),
     tokenHashFunction_(new MD5HashFunction()),
     tokenLength_(32),
     emailVerification_(false),
@@ -348,9 +349,11 @@ void AuthService::sendConfirmMail(const std::string& address,
   message.addRecipient(Mail::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.confirmmail.subject"));
   message.setBody(WString::tr("Wt.Auth.confirmmail.body")
-		  .arg(user.identity("username")).arg(token).arg(url));
+		  .arg(user.identity(Identity::LoginName))
+		  .arg(token).arg(url));
   message.addHtmlBody(WString::tr("Wt.Auth.confirmmail.htmlbody")
-		      .arg(user.identity("username")).arg(token).arg(url));
+		      .arg(user.identity(Identity::LoginName))
+		      .arg(token).arg(url));
 
   sendMail(message);
 }
@@ -368,9 +371,11 @@ void AuthService::sendLostPasswordMail(const std::string& address,
   message.addRecipient(Mail::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.lostpasswordmail.subject"));
   message.setBody(WString::tr("Wt.Auth.lostpasswordmail.body")
-		  .arg(user.identity("username")).arg(token).arg(url));
+		  .arg(user.identity(Identity::LoginName))
+		  .arg(token).arg(url));
   message.addHtmlBody(WString::tr("Wt.Auth.lostpasswordmail.htmlbody")
-		      .arg(user.identity("username")).arg(token).arg(url));
+		      .arg(user.identity(Identity::LoginName))
+		      .arg(token).arg(url));
 
   sendMail(message);
 }

@@ -23,7 +23,7 @@ public:
 
   int badGuesses() const { return badGuesses_; }
 
-  void init();
+  void reset();
   void badGuess();
   void hurray();
   bool gameOver();

@@ -56,7 +56,7 @@ public:
 
   /*! \brief Returns the Auth::User corresponding to a %Dbo user.
    */
-  User find(const dbo::ptr<DboType> user) const {
+  User find(const Wt::Dbo::ptr<DboType> user) const {
     user_ = user;
     return User(boost::lexical_cast<std::string>(user_->id()), *this);
   }
@@ -156,7 +156,8 @@ public:
      * It's okay to have more than one identity from that provider
      */
     user_.modify()->authIdentities().insert
-      (dbo::ptr<AuthIdentityType>(new AuthIdentityType(provider, identity)));
+      (Wt::Dbo::ptr<AuthIdentityType>(new AuthIdentityType(provider,
+							   identity)));
   }
 
   virtual bool setEmail(const User& user, const std::string& address) {
@@ -245,7 +246,7 @@ public:
       return;
 
     user_.modify()->authTokens().insert
-      (dbo::ptr<AuthTokenType>
+      (Wt::Dbo::ptr<AuthTokenType>
        (new AuthTokenType(token.hash(), token.expirationTime())));
   }
 
@@ -254,7 +255,7 @@ public:
 
     for (typename AuthTokens::const_iterator i = user_->authTokens().begin();
 	 i != user_->authTokens().end(); ++i) {
-      dbo::ptr<AuthTokenType> t = *i;
+      Wt::Dbo::ptr<AuthTokenType> t = *i;
       if (t->value() == hash) {
 	t.remove();
 	break;
@@ -322,7 +323,7 @@ private:
 
   void getUser(const std::string& id) const {
     if (!user_ || boost::lexical_cast<std::string>(user_.id()) != id) {
-      dbo::Transaction t(session_);
+      Wt::Dbo::Transaction t(session_);
       user_ = session_.load<DboType>(boost::lexical_cast<long long>(id));
       t.commit();
     }

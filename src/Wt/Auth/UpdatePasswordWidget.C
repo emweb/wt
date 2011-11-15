@@ -31,7 +31,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
   addFunction("id", &WTemplate::Functions::id);
   addFunction("tr", &WTemplate::Functions::tr);
 
-  WLineEdit *nameEdit = new WLineEdit(user.identity("username"));
+  WLineEdit *nameEdit = new WLineEdit(user.identity(Identity::LoginName));
   nameEdit->disable();
   nameEdit->addStyleClass("Wt-disabled");
   bindWidget("user-name", nameEdit);
@@ -39,7 +39,6 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
   WPushButton *okButton = new WPushButton(tr("Wt.WMessageBox.Ok"));
   WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
 
-  // FIXME use a template condition
   if (promptPassword_) {
     setCondition("if:old-password", true);
     WLineEdit *oldPasswd = new WLineEdit();
@@ -49,12 +48,16 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 						   oldPasswd, oldPasswdInfo,
 						   okButton, this);
 
+    oldPasswd->setFocus();
+
     bindWidget("old-password", oldPasswd);
     bindWidget("old-password-info", oldPasswdInfo);
   }
 
   WLineEdit *password = new WLineEdit();
   password->setEchoMode(WLineEdit::Password);
+  password->keyWentUp().connect
+    (boost::bind(&UpdatePasswordWidget::checkPassword, this));
   password->changed().connect
     (boost::bind(&UpdatePasswordWidget::checkPassword, this));
 
@@ -67,16 +70,22 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 
   WText *password2Info = new WText();
 
-  bindWidget("password", password);
-  bindWidget("password-info", passwordInfo);
+  bindWidget("choose-password", password);
+  bindWidget("choose-password-info", passwordInfo);
 
-  bindWidget("password2", password2);
-  bindWidget("password2-info", password2Info);
+  bindWidget("repeat-password", password2);
+  bindWidget("repeat-password-info", password2Info);
 
   model_ = new RegistrationModel(auth.baseAuth(), *user.database(),
 				 login, this);
 
   model_->addPasswordAuth(&auth);
+
+  model_->setValue(RegistrationModel::LoginName,
+		   user.identity(Identity::LoginName));
+  model_->setValue(RegistrationModel::Email,
+		   WT_USTRING::fromUTF8(user.email() + " "
+					+ user.unverifiedEmail()));
 
   model_->validatePasswordsMatchJS(password, password2, password2Info);
 
@@ -90,6 +99,9 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 
   bindWidget("ok-button", okButton);
   bindWidget("cancel-button", cancelButton);
+
+  if (!promptPassword_)
+    password->setFocus();
 }
 
 void UpdatePasswordWidget::updateModel(const std::string& var,
@@ -127,16 +139,16 @@ void UpdatePasswordWidget::updateView(const std::string& var,
 
 void UpdatePasswordWidget::checkPassword()
 {
-  updateModel("password", RegistrationModel::Password);
+  updateModel("choose-password", RegistrationModel::Password);
   model_->validate(RegistrationModel::Password);
-  updateView("password", RegistrationModel::Password);
+  updateView("choose-password", RegistrationModel::Password);
 }
 
 void UpdatePasswordWidget::checkPassword2()
 {
-  updateModel("password2", RegistrationModel::Password2);
+  updateModel("repeat-password", RegistrationModel::Password2);
   model_->validate(RegistrationModel::Password2);
-  updateView("password2", RegistrationModel::Password2);
+  updateView("repeat-password", RegistrationModel::Password2);
 }
 
 bool UpdatePasswordWidget::validate()

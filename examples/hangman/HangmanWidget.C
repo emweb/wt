@@ -6,8 +6,9 @@
 
 #include "HangmanWidget.h"
 
-#include <Wt/WText>
+#include <Wt/WComboBox>
 #include <Wt/WPushButton>
+#include <Wt/WText>
 #include <Wt/WVBoxLayout>
 #include <boost/lexical_cast.hpp>
 
@@ -19,17 +20,15 @@
 using namespace Wt;
 
 HangmanWidget::HangmanWidget(const std::string &name, 
-			     Dictionary dictionary,
 			     WContainerWidget *parent):
   WContainerWidget(parent),
-  name_(name),
-  dictionary_(dictionary)
+  name_(name)
 {
   WVBoxLayout *layout = new WVBoxLayout();
   layout->setContentsMargins(0, 0, 0, 0);
   this->setLayout(layout);
   
-  title_ = new WText("<h2>Guess the word!</h2>");
+  title_ = new WText("<h2>Ready to play ?</h2>");
   layout->addWidget(title_, 0, AlignCenter | AlignMiddle);
 
   word_ = new WordWidget();
@@ -45,12 +44,16 @@ HangmanWidget::HangmanWidget(const std::string &name,
   layout->addWidget(letters_, 0, AlignCenter | AlignMiddle);
   letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
+  language_ = new WComboBox();
+  language_->addItem("English words (18957 words)");
+  language_->addItem("Nederlandse woordjes (1688 woorden)");
+  layout->addWidget(language_, 0, AlignCenter | AlignMiddle);
+
   newGameButton_ = new WPushButton("New Game", this);
   newGameButton_->clicked().connect(this, &HangmanWidget::newGame);
   layout->addWidget(newGameButton_, 0, AlignCenter | AlignMiddle);
 
-  // prepare for first game
-  newGame();
+  letters_->hide();
 }
 
 void HangmanWidget::newGame()
@@ -58,11 +61,13 @@ void HangmanWidget::newGame()
   WString title("<h2>Guess the word, {1}!</h2>");
   title_->setText(title.arg(name_));
 
-  newGameButton_->hide(); // don't let the player chicken out
+  language_->hide();
+  newGameButton_->hide();
 
   // Bring widget to initial state
-  word_->init(RandomWord(dictionary_));
-  images_->init();
+  Dictionary dictionary = (Dictionary) language_->currentIndex();
+  word_->init(RandomWord(dictionary));
+  images_->reset();
   letters_->init();
 
   statusText_->setText("");
@@ -80,6 +85,7 @@ void HangmanWidget::registerGuess(char c)
     statusText_->setText(status.arg(word_->word()));
 
     letters_->hide();
+    language_->show();
     newGameButton_->show();
 
     updateScore_.emit(-10);
@@ -88,6 +94,7 @@ void HangmanWidget::registerGuess(char c)
     images_->hurray();
 
     letters_->hide();
+    language_->show();
     newGameButton_->show();
 
     updateScore_.emit(20 - images_->badGuesses());

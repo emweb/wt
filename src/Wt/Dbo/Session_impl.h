@@ -77,7 +77,8 @@ const char *Session::tableName() const
   if (i != classRegistry_.end())
     return dynamic_cast< Mapping<C> *>(i->second)->tableName;
   else
-    throw Exception(std::string("Class ") + typeid(C).name() + " was not mapped.");
+    throw Exception(std::string("Class ") + typeid(C).name()
+		    + " was not mapped.");
 }
 
 template <class C>
@@ -93,7 +94,8 @@ Session::Mapping<C> *Session::getMapping() const
       mapping->init(*const_cast<Session *>(this));
     return mapping;
   } else
-    throw Exception(std::string("Class ") + typeid(C).name() + " was not mapped.");
+    throw Exception(std::string("Class ") + typeid(C).name()
+		    + " was not mapped.");
 }
 
 template <class C>

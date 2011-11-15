@@ -23,6 +23,7 @@
 #include "Wt/WServer"
 
 #include "Utils.h"
+#include "WebSession.h"
 #include "../../web/Utils.h"
 
 #ifdef WT_THREADED
@@ -86,41 +87,10 @@ public:
 	return;
       }
 
-      const OAuthService& service = process_->service();
-
-      /*
-       * OAuth 2.0 draft says this should be a POST using
-       * application/x-www-form-urlencoded but that's not what Facebook
-       * does
-       */
-      std::string url = service.tokenEndpoint();
-
-      WStringStream data;
-      data << "grant_type=authorization_code"
-	   << "&client_id=" << Wt::Utils::urlEncode(service.clientId())
-	   << "&client_secret=" << Wt::Utils::urlEncode(service.clientSecret())
-	   << "&redirect_uri="
-	   << Wt::Utils::urlEncode(service.getRedirectEndpoint())
-	   << "&code=" << *codeE;
-
-      Http::Client *client = new Http::Client(this);
-      client->done().connect
-	(boost::bind(&OAuthRedirectEndpoint::handleToken, this, _1, _2));
-
-      Http::Method m = service.tokenRequestMethod();
-      if (m == Http::Get) {
-	bool hasQuery = url.find('?') != std::string::npos;
-	url += (hasQuery ? '&' : '?') + data.str();
-	client->get(url);
-      } else {
-	Http::Message post;
-	post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-	post.addBodyText(data.str());
-	client->post(url, post);
-      }
-
       Http::ResponseContinuation *cont = response.createContinuation();
       cont->waitForMoreData();
+
+      process_->requestToken(*codeE);
     } else
       sendResponse(response);
   }
@@ -133,7 +103,8 @@ public:
     std::ostream o(response.out());
 #endif // WT_TARGET_JAVA
 
-    std::string app = WApplication::instance()->javaScriptClass();
+    WApplication *app = WApplication::instance();
+    std::string appJs = app->javaScriptClass();
 
     o <<
       "<!DOCTYPE html>"
@@ -141,8 +112,8 @@ public:
       "<head><title></title>\n"
       "<script type=\"text/javascript\">\n"
       "function load() { "
-      """if (window.opener." << app << ") {"
-      ""  "var " << app << "= window.opener." << app << ";"
+      """if (window.opener." << appJs << ") {"
+      ""  "var " << appJs << "= window.opener." << appJs << ";"
       <<  process_->redirected_.createCall() << ";"
       ""  "window.close();"
       "}\n"
@@ -153,16 +124,6 @@ public:
 
 private:
   OAuthProcess *process_;
-
-  void handleToken(boost::system::error_code err, const Http::Message& response)
-  {
-    if (!err)
-      process_->doParseTokenResponse(response);
-    else
-      process_->setError(WString::fromUTF8(err.message()));
-
-    haveMoreData();
-  }
 };
 
 OAuthAccessToken::OAuthAccessToken()
@@ -193,20 +154,9 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
 
   oAuthState_ = service_.encodeState(app->sessionId());
 
-  WStringStream url;
-  url << service_.authorizationEndpoint();
-  bool hasQuery = url.str().find('?') != std::string::npos;
-
-  url << (hasQuery ? '&' : '?')
-      << "client_id=" << Wt::Utils::urlEncode(service_.clientId())
-      << "&redirect_uri=" << Wt::Utils::urlEncode(service_.getRedirectEndpoint())
-      << "&scope=" << Wt::Utils::urlEncode(scope)
-      << "&response_type=code"
-      << "&state=" << Wt::Utils::urlEncode(oAuthState_);
-
   WStringStream js;
   js << WT_CLASS ".authPopupWindow(" WT_CLASS
-     << "," << WWebWidget::jsStringLiteral(url.str()) 
+     << "," << WWebWidget::jsStringLiteral(authorizeUrl()) 
      << ", " << service.popupWidth()
      << ", " << service.popupHeight() << ");"; 
 
@@ -214,24 +164,75 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
 
   implementJavaScript(&OAuthProcess::startAuthorize, js.str());
   implementJavaScript(&OAuthProcess::startAuthenticate, js.str());
+
+  if (!app->environment().javaScript())
+    app->internalPathChanged().connect(this, &OAuthProcess::handleRedirectPath);
+}
+
+std::string OAuthProcess::authorizeUrl() const
+{
+  WStringStream url;
+  url << service_.authorizationEndpoint();
+  bool hasQuery = url.str().find('?') != std::string::npos;
+
+  url << (hasQuery ? '&' : '?')
+      << "client_id=" << Wt::Utils::urlEncode(service_.clientId())
+      << "&redirect_uri="
+      << Wt::Utils::urlEncode(service_.getRedirectEndpoint())
+      << "&scope=" << Wt::Utils::urlEncode(scope_)
+      << "&response_type=code"
+      << "&state=" << Wt::Utils::urlEncode(oAuthState_);
+
+  return url.str();
 }
 
 void OAuthProcess::startAuthorize()
 {
-  redirectEndpoint_->url(); // Make sure it is exposed
-
-  if (!WApplication::instance()->environment().javaScript())
-    throw WException("Not yet implemented");
+  WApplication *app = WApplication::instance();
+  if (!app->environment().javaScript()) {
+    startInternalPath_ = app->internalPath();
+    app->redirect(authorizeUrl());
+  } else {
+    redirectEndpoint_->url(); // Make sure it is exposed
+  }
 }
 
 void OAuthProcess::startAuthenticate()
 {
-  redirectEndpoint_->url(); // Make sure it is exposed
-
-  if (!WApplication::instance()->environment().javaScript())
-    throw WException("Not yet implemented");
-
   authenticate_ = true;
+  startAuthorize();
+}
+
+void OAuthProcess::handleRedirectPath(const std::string& internalPath)
+{
+  if (internalPath == service_.redirectInternalPath()) {
+    WApplication *app = WApplication::instance();
+
+    const WEnvironment& env = app->environment();
+
+    if (!env.ajax()) {
+      const std::string *stateE = env.getParameter("state");
+      if (!stateE || *stateE != oAuthState_)
+	setError(ERROR_MSG("invalid-state"));
+      else {
+	const std::string *errorE = env.getParameter("error");
+	if (errorE)
+	  setError(ERROR_MSG(+ *errorE));
+	else {
+	  const std::string *codeE = env.getParameter("code");
+	  if (!codeE)
+	    setError(ERROR_MSG("missing-code"));
+	  else {
+	    requestToken(*codeE);
+	    app->deferRendering();
+	  }
+	}
+      }
+
+      if (!error_.empty())
+	onOAuthDone();
+    }
+  }
 }
 
 void OAuthProcess::getIdentity(const OAuthAccessToken& token)
@@ -256,6 +257,57 @@ void OAuthProcess::onOAuthDone()
   }
 }
 
+void OAuthProcess::requestToken(const std::string& authorizationCode)
+{
+  /*
+   * OAuth 2.0 draft says this should be a POST using
+   * application/x-www-form-urlencoded but that's not what Facebook
+   * does
+   */
+  std::string url = service_.tokenEndpoint();
+
+  WStringStream ss;
+  ss << "grant_type=authorization_code"
+     << "&client_id=" << Wt::Utils::urlEncode(service_.clientId())
+     << "&client_secret=" << Wt::Utils::urlEncode(service_.clientSecret())
+     << "&redirect_uri=" << Wt::Utils::urlEncode(service_.getRedirectEndpoint())
+     << "&code=" << authorizationCode;
+
+  Http::Client *client = new Http::Client(this);
+  client->done().connect(boost::bind(&OAuthProcess::handleToken, this, _1, _2));
+
+  Http::Method m = service_.tokenRequestMethod();
+  if (m == Http::Get) {
+    bool hasQuery = url.find('?') != std::string::npos;
+    url += (hasQuery ? '&' : '?') + ss.str();
+    client->get(url);
+  } else {
+    Http::Message post;
+    post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+    post.addBodyText(ss.str());
+    client->post(url, post);
+  }
+}
+
+void OAuthProcess::handleToken(boost::system::error_code err,
+			       const Http::Message& response)
+{
+  if (!err)
+    doParseTokenResponse(response);
+  else
+    setError(WString::fromUTF8(err.message()));
+
+  WApplication *app = WApplication::instance();
+
+  if (app->environment().ajax())
+    redirectEndpoint_->haveMoreData();
+  else {
+    app->resumeRendering();
+    onOAuthDone();
+    app->redirect(app->url(startInternalPath_));
+  }
+}
+
 void OAuthProcess::doParseTokenResponse(const Http::Message& response)
 {
   try {
@@ -265,8 +317,7 @@ void OAuthProcess::doParseTokenResponse(const Http::Message& response)
   }
 }
 
-OAuthAccessToken
-OAuthProcess::parseTokenResponse(const Http::Message& response)
+OAuthAccessToken OAuthProcess::parseTokenResponse(const Http::Message& response)
 {
   if (response.status() == 200 || response.status() == 400) {
     /*
@@ -288,8 +339,7 @@ OAuthProcess::parseTokenResponse(const Http::Message& response)
     throw TokenError(ERROR_MSG("badresponse"));
 }
 
-OAuthAccessToken
-OAuthProcess::parseUrlEncodedToken(const Http::Message& response)
+OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& response)
 {
   /* Facebook style */
   Http::ParameterMap params;
@@ -321,8 +371,7 @@ OAuthProcess::parseUrlEncodedToken(const Http::Message& response)
   }
 }
 
-OAuthAccessToken
-OAuthProcess::parseJsonToken(const Http::Message& response)
+OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 {
   /* OAuth 2.0 style */
   Json::Object root;
@@ -400,7 +449,7 @@ struct OAuthService::Impl
 	  if (codeE)
 	    redirectUrl += "&code=" + Wt::Utils::urlEncode(*codeE);
 
-	  response.setStatus(301);
+	  response.setStatus(302);
 	  response.addHeader("Location", redirectUrl);
 	  return;
 	}
@@ -476,8 +525,8 @@ void OAuthService::configureRedirectEndpoint(const std::string& endpoint) const
       WApplication *app = WApplication::instance();
       WServer *server = app->environment().server();
 
-      std::string url = app->makeAbsoluteUrl(app->bookmarkUrl
-					     (redirectInternalPath()));
+      std::string url =
+	app->makeAbsoluteUrl(app->bookmarkUrl(redirectInternalPath()));
 
       Impl::RedirectEndpoint *r = new Impl::RedirectEndpoint(*this, url);
 
@@ -486,6 +535,20 @@ void OAuthService::configureRedirectEndpoint(const std::string& endpoint) const
       int port;
 
       Http::Client::parseUrl(endpoint, protocol, host, port, path);
+
+      // We need to equalize path with our deployment configuration, in
+      // case we are deployed using a reverse proxy
+      std::string publicDeployPath = app->environment().deploymentPath();
+      std::string deployPath = app->session()->deploymentPath();
+
+      if (deployPath != publicDeployPath) {
+	int diff = (int)publicDeployPath.length() - deployPath.length();
+	if (diff > 0) {
+	  std::string prefix = publicDeployPath.substr(0, diff);
+	  if (boost::starts_with(path, prefix))
+	    path = path.substr(prefix.length());
+	}
+      }
 
       Wt::log("notice") << "OAuth: deploying endpoint at " << path;
       server->addResource(r, path);

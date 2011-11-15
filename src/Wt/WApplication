@@ -597,7 +597,7 @@ public:
    * \sa redirect(), WEnvironment::hostName(), WEnvironment::urlScheme()
    * \sa bookmarkUrl()
    */
-  std::string url() const;
+  std::string url(const std::string& internalPath = std::string()) const;
 
   /*! \brief Makes an absolute URL.
    *

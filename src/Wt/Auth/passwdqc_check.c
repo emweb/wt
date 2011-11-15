@@ -28,32 +28,16 @@ $Owl: Owl/packages/passwdqc/passwdqc/LICENSE,v 1.7 2009/10/21 19:38:39 solar Exp
 
 #include "passwdqc.h"
 
-#define REASON_ERROR \
-	"check failed"
-
-#define REASON_SAME \
-	"is the same as the old one"
-#define REASON_SIMILAR \
-	"is based on the old one"
-
-#define REASON_SHORT \
-	"too short"
-#define REASON_LONG \
-	"too long"
-
-#define REASON_SIMPLESHORT \
-	"not enough different characters or classes for this length"
-#define REASON_SIMPLE \
-	"not enough different characters or classes"
-
-#define REASON_PERSONAL \
-	"based on personal login information"
-
-#define REASON_WORD \
-	"based on a dictionary word and not a passphrase"
-
-#define REASON_SEQ \
-	"based on a common sequence of characters and not a passphrase"
+#define REASON_ERROR        1
+#define REASON_SAME         2
+#define REASON_SIMILAR      3
+#define REASON_SHORT        4
+#define REASON_LONG         5
+#define REASON_SIMPLESHORT  6
+#define REASON_SIMPLE       7
+#define REASON_PERSONAL     8
+#define REASON_WORD         9
+#define REASON_SEQ          10
 
 #define FIXED_BITS			15
 
@@ -378,19 +362,73 @@ const char *seq[] = {
 	"qazwsxedcrfvtgbyhnujmikolp"
 };
 
-const char *passwdqc_check(const passwdqc_params_qc_t *params,
-    const char *newpass, const char *oldpass/*, const struct passwd *pw*/)
+static int is_word_based(const passwdqc_params_qc_t *params,
+    const char *needle, const char *original, int is_reversed)
+{
+        char word[7];
+        char *unified;
+        unsigned int i;
+        int length;
+        int mode;
+
+        if (!params->match_length)      /* disabled */
+                return 0;
+
+        mode = is_reversed | 2;
+        for (i = 0; i < sizeof(seq) / sizeof(seq[0]); i++) {
+                unified = unify(NULL, seq[i]);
+                if (!unified)
+                        return REASON_ERROR;
+                if (is_based(params, unified, needle, original, mode)) {
+                        free(unified);
+                        return REASON_SEQ;
+                }
+                free(unified);
+        }
+
+	/*
+        mode = is_reversed | 1;
+        word[6] = '\0';
+
+        for (i = 0; i < 0x1000; i++) {
+                memcpy(word, _passwdqc_wordset_4k[i], 6);
+                length = strlen(word);
+                if (length < params->match_length)
+                        continue;
+                if (i < 0xfff &&
+                    !memcmp(word, _passwdqc_wordset_4k[i + 1], length))
+                        continue;
+                unify(word, word);
+                if (is_based(params, word, needle, original, mode))
+                        return REASON_WORD;
+        }
+	*/
+
+        mode = is_reversed | 2;
+        if (params->match_length <= 4)
+        for (i = 1900; i <= 2039; i++) {
+                sprintf(word, "%u", i);
+                if (is_based(params, word, needle, original, mode))
+                        return REASON_SEQ;
+        }
+
+        return 0;
+}
+
+int passwdqc_check(const passwdqc_params_qc_t *params,
+		   const char *newpass, const char *oldpass,
+		   const passwdqc_user_t *pw)
 {
 	char truncated[9];
 	char *u_newpass, *u_reversed;
 	char *u_oldpass;
-	char *u_name, *u_gecos, *u_dir;
-	const char *reason;
+	char *u_name, *u_email;
+	int reason;
 	int length;
 
 	u_newpass = u_reversed = NULL;
 	u_oldpass = NULL;
-	u_name = u_gecos = u_dir = NULL;
+	u_name = u_email = NULL;
 
 	reason = REASON_ERROR;
 
@@ -434,42 +472,32 @@ const char *passwdqc_check(const passwdqc_params_qc_t *params,
 		goto out;
 	if (oldpass && !(u_oldpass = unify(NULL, oldpass)))
 		goto out;
-        /*
 	if (pw) {
 		if (!(u_name = unify(NULL, pw->pw_name)) ||
-		    !(u_gecos = unify(NULL, pw->pw_gecos)) ||
-		    !(u_dir = unify(NULL, pw->pw_dir)))
+		    !(u_email = unify(NULL, pw->pw_email)))
 			goto out;
 	}
-        */
 
-	if (oldpass && params->similar_deny &&
-	    (is_based(params, u_oldpass, u_newpass, newpass, 0) ||
-	     is_based(params, u_oldpass, u_reversed, newpass, 0x100))) {
-		reason = REASON_SIMILAR;
-		goto out;
-	}
-
-        /*
 	if (pw &&
 	    (is_based(params, u_name, u_newpass, newpass, 0) ||
 	     is_based(params, u_name, u_reversed, newpass, 0x100) ||
-	     is_based(params, u_gecos, u_newpass, newpass, 0) ||
-	     is_based(params, u_gecos, u_reversed, newpass, 0x100) ||
-	     is_based(params, u_dir, u_newpass, newpass, 0) ||
-	     is_based(params, u_dir, u_reversed, newpass, 0x100))) {
+	     is_based(params, u_email, u_newpass, newpass, 0) ||
+	     is_based(params, u_email, u_reversed, newpass, 0x100))) {
 		reason = REASON_PERSONAL;
 		goto out;
 	}
-        */
+
+	reason = is_word_based(params, u_newpass, newpass, 0);
+        if (!reason)
+	  reason = is_word_based(params, u_reversed, newpass, 0x100);
+
 out:
 	memset(truncated, 0, sizeof(truncated));
 	clean(u_newpass);
 	clean(u_reversed);
 	clean(u_oldpass);
 	clean(u_name);
-	clean(u_gecos);
-	clean(u_dir);
+	clean(u_email);
 
 	return reason;
 }

@@ -120,31 +120,38 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
     }
   }
 
-  if (!isStaticFile)
+  if (!isStaticFile) {
+    int bestMatch = -1;
+    std::string bestPathInfo = req.request_path;
+
     for (unsigned i = 0; i < entryPoints_.size(); ++i) {
       const Wt::EntryPoint& ep = entryPoints_[i];
 
-      /*
-       * FIXME: this should implement a best match, in case we deploy
-       * a static resource at an internal path within an application
-       */
       std::string pathInfo;
 
-      // Check if path matches with the entry point's path (e.g. app.wt)
-      // we should also match /app.wt/foobar.csv?bla=bo
       bool matchesApp = matchesPath(req.request_path,
 				    ep.path(),
 				    !config_.defaultStatic(),
 				    pathInfo);
 
       if (matchesApp) {
-	req.request_extra_path = pathInfo;
-	if (!pathInfo.empty())
-	  req.request_path = ep.path();
-
-	return ReplyPtr(new WtReply(req, ep, config_));
+	if (pathInfo.length() < bestPathInfo.length()) {
+	  bestPathInfo = pathInfo;
+	  bestMatch = i;
+	}
       }
     }
+
+    if (bestMatch != -1) {
+      const Wt::EntryPoint& ep = entryPoints_[bestMatch];
+
+      req.request_extra_path = bestPathInfo;
+      if (!bestPathInfo.empty())
+	req.request_path = ep.path();
+
+      return ReplyPtr(new WtReply(req, ep, config_));
+    }
+  }
 
   // If path ends in slash (i.e. is a directory) then add "index.html".
   if (req.request_path[req.request_path.size() - 1] == '/') {

@@ -10,9 +10,9 @@
 #include <Wt/WVBoxLayout>
 #include <Wt/WHBoxLayout>
 #include <Wt/WApplication>
+#include <Wt/Auth/AuthWidget>
 
 #include "HangmanGame.h"
-#include "LoginWidget.h"
 #include "HangmanWidget.h"
 #include "HighScoresWidget.h"
 
@@ -23,53 +23,64 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
   game_(0),
   scores_(0)
 {
-  WVBoxLayout *layout = new WVBoxLayout();
-  layout->setContentsMargins(0, 0, 0, 0);
-  this->setLayout(layout);
-  
+  session_.login().changed().connect(this, &HangmanGame::onAuthEvent);
+
+  Auth::AuthWidget *authWidget 
+    = new Auth::AuthWidget(Session::auth(), session_.users(), session_.login());
+
   WText *title = new WText("<h1>A Witty game: Hangman</h1>");
-  layout->addWidget(title);
+  addWidget(title);
 
-  mainStack_ = new WStackedWidget(this);
+  authWidget->addPasswordAuth(&Session::passwordAuth());
+  authWidget->addOAuth(Session::oAuth());
+  authWidget->setRegistrationEnabled(true);
+
+  addWidget(authWidget);
+
+  mainStack_ = new WStackedWidget();
   mainStack_->setStyleClass("gamestack");
-  layout->addWidget(mainStack_, 1, AlignJustify | AlignMiddle);
-  
-  mainStack_->addWidget(login_ = new LoginWidget(&session_));
-  login_->loggedIn().connect(this, &HangmanGame::onLogin);
+  addWidget(mainStack_);
 
-  WContainerWidget *links = new WContainerWidget();
-  links->setStyleClass("links");
-  layout->addWidget(links);
+  links_ = new WContainerWidget();
+  links_->setStyleClass("links");
+  links_->hide();
+  addWidget(links_);
 
-  backToGameAnchor_ = new WAnchor("/play", "Gaming Grounds", links);
+  backToGameAnchor_ = new WAnchor("/play", "Gaming Grounds", links_);
   backToGameAnchor_->setRefInternalPath("/play");
-  backToGameAnchor_->setStyleClass("link");
 
-  scoresAnchor_ = new WAnchor("/highscores", "Highscores", links);
+  scoresAnchor_ = new WAnchor("/highscores", "Highscores", links_);
   scoresAnchor_->setRefInternalPath("/highscores");
-  scoresAnchor_->setStyleClass("link");
 
   WApplication::instance()->internalPathChanged()
     .connect(this, &HangmanGame::handleInternalPath);
 
-  showLogin();
+  authWidget->processEnvironment();
+}
+
+void HangmanGame::onAuthEvent()
+{
+  if (session_.login().loggedIn()) {  
+    links_->show();
+    handleInternalPath(WApplication::instance()->internalPath());
+  } else {
+    mainStack_->clear();
+    game_ = 0;
+    scores_ = 0;
+    links_->hide();
+  }
 }
 
 void HangmanGame::handleInternalPath(const std::string &internalPath)
 {
-  if (internalPath == "/play" && session_.user())
-    showGame();
-  else if (internalPath == "/highscores")
-    showHighScores();
-  else
-    showLogin();
-}
-
-void HangmanGame::showLogin()
-{
-  mainStack_->setCurrentWidget(login_);
-  backToGameAnchor_->hide();
-  scoresAnchor_->hide();
+  if (session_.login().loggedIn()) {
+    if (internalPath == "/play")
+      showGame();
+    else if (internalPath == "/highscores")
+      showHighScores();
+    else
+      WApplication::instance()->setInternalPath("/play",  true);
+  }
 }
 
 void HangmanGame::showHighScores()
@@ -80,38 +91,19 @@ void HangmanGame::showHighScores()
   mainStack_->setCurrentWidget(scores_);
   scores_->update();
 
-  backToGameAnchor_->show();
-  scoresAnchor_->show();
-  
   backToGameAnchor_->removeStyleClass("selected-link");
   scoresAnchor_->addStyleClass("selected-link");
-}
-
-void HangmanGame::onLogin()
-{
-  WApplication *app = WApplication::instance();
-
-  std::string path = app->internalPath();
-  if (path != "/highscores" && path != "/play")
-    app->setInternalPath("/play", true);
-  else
-    handleInternalPath(path);
 }
 
 void HangmanGame::showGame()
 {
   if (!game_) {
-    game_ = new HangmanWidget(session_.user()->name, 
-			      session_.dictionary(),
-			      mainStack_);
+    game_ = new HangmanWidget(session_.userName(), mainStack_);
     game_->updateScore().connect(&session_, &Session::addToScore);
   }
 
   mainStack_->setCurrentWidget(game_);
 
-  backToGameAnchor_->show();
-  scoresAnchor_->show();
-    
   backToGameAnchor_->addStyleClass("selected-link");
   scoresAnchor_->removeStyleClass("selected-link");
 }

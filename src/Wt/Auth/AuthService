@@ -37,9 +37,13 @@ class AbstractUserDatabase;
  * When using a 3rd party authenticator, e.g. using OAuth, a login
  * name is no longer needed, but you may still want to give the user
  * the opportunity to choose one.
+ *
+ * \sa AuthService::setIdentityPolicy()
+ *
+ * \ingroup auth
  */
 enum IdentityPolicy {
-  /*! \brief A unique username chosen by the user.
+  /*! \brief A unique login name chosen by the user.
    *
    * Even if not really required for authentication, a user still
    * chooses a unique user name. If possible, a third party
@@ -47,14 +51,15 @@ enum IdentityPolicy {
    *
    * This may be useful for sites which have a social aspect.
    */
-  UserNameIdentity,
+  LoginNameIdentity,
 
   /*! \brief The email address serves as the identity.
    *
    * This may be useful for sites which do not have any social
    * character, but instead render a service to individual users.
    * When the site has a social character, you will likely not want to
-   * display the email address of other users, but instead a username.
+   * display the email address of other users, but instead a
+   * user-chosen login name.
    */
   EmailAddressIdentity,
 
@@ -466,7 +471,11 @@ public:
    * Sends an email to the given address with subject and body.
    *
    * The default implementation will consult configuration properties
-   * to add a sender address if it hasn't already been set.
+   * to add a sender address if it hasn't already been set:
+   * - "auth-mail-sender-name": the sender name, with default value
+   *   "Wt Auth module"
+   * - "auth-mail-sender-address": the sender email address, with default value
+   *   "noreply-auth@www.webtoolkit.eu"
    *
    * Then it uses Mail::Client to send the message, using default the
    * default client settings.
@@ -512,7 +521,7 @@ private:
   AuthService(const AuthService&);
 
   IdentityPolicy identityPolicy_;
-  int minimumUserNameLength_;
+  int minimumLoginNameLength_;
 
   HashFunction *tokenHashFunction_;
   int tokenLength_;

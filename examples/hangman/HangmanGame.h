@@ -19,7 +19,6 @@ namespace Wt {
 
 class HangmanWidget;
 class HighScoresWidget;
-class LoginWidget;
 class Session;
 
 class HangmanGame : public Wt::WContainerWidget
@@ -30,17 +29,16 @@ public:
   void handleInternalPath(const std::string &internalPath);
 
 private:
-  Wt::WStackedWidget   *mainStack_;
-  LoginWidget          *login_;
-  HangmanWidget        *game_;
-  HighScoresWidget     *scores_;
-  Wt::WAnchor          *backToGameAnchor_;
-  Wt::WAnchor          *scoresAnchor_;
+  Wt::WStackedWidget *mainStack_;
+  HangmanWidget *game_;
+  HighScoresWidget *scores_;
+  Wt::WContainerWidget *links_;
+  Wt::WAnchor *backToGameAnchor_;
+  Wt::WAnchor *scoresAnchor_;
 
-  Session               session_;
+  Session session_;
 
-  void onLogin();
-  void showLogin();
+  void onAuthEvent();
   void showGame();
   void showHighScores();
 };

@@ -10,38 +10,47 @@
 
 #include <vector>
 
-#include <Wt/Dbo/Dbo>
+#include <Wt/Auth/Login>
+
+#include <Wt/Dbo/Session>
+#include <Wt/Dbo/ptr>
 #include <Wt/Dbo/backend/Sqlite3>
 
 #include "User.h"
-#include "Dictionary.h"
+
+typedef Wt::Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;
 
 class Session
 {
 public:
+  static void configureAuth();
+
   Session();
+  ~Session();
 
-  const User* user() { 
-    if (user_)
-      return &(*user_);
-    else 
-      return 0;
-  } 
+  Wt::Auth::AbstractUserDatabase& users();
+  Wt::Auth::Login& login() { return login_; }
 
-  Dictionary& dictionary() { return dictionary_; } 
-  void setDictionary(const Dictionary& d) { dictionary_ = d;} 
-
-  bool login(std::string name, std::string password);
   std::vector<User> topUsers(int limit);
-  int findRanking(const User* user);
+
+  /*
+   * These methods deal with the currently logged in user
+   */
+  std::string userName() const;
+  int findRanking();
   void addToScore(int s);
+
+  static const Wt::Auth::AuthService& auth();
+  static const Wt::Auth::AbstractPasswordService& passwordAuth();
+  static const std::vector<const Wt::Auth::OAuthService *>& oAuth();
 
 private:
   Wt::Dbo::backend::Sqlite3 sqlite3_;
+  mutable Wt::Dbo::Session session_;
+  UserDatabase *users_;
+  Wt::Auth::Login login_;
 
-  Wt::Dbo::Session   session_;
-  Wt::Dbo::ptr<User> user_;
-  Dictionary         dictionary_;
+  Wt::Dbo::ptr<User> user() const;
 };
 
 #endif //SESSION_H_

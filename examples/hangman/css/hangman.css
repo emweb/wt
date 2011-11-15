@@ -6,10 +6,6 @@ h1 {
     text-align: center;
 }
 
-.login td {
-    padding: 3px;
-}
-
 .gamestack {
     margin: 20px 40px;
 }
@@ -17,6 +13,11 @@ h1 {
 .links {
     margin: 10px;
     text-align: center;
+}
+
+.links a {
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .highscores table {
@@ -64,15 +65,13 @@ h1 {
     font-size: xx-large;
 }
 
-.login-error {
-    color: red;
-}
-
-.link {
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
 .selected-link {
     font-weight: bold;
+}
+
+.Wt-auth-logged-in {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    font-size: 90%;
 }

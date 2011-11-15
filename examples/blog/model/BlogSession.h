@@ -31,7 +31,7 @@ class User;
 class BlogSession : public dbo::Session
 {
 public:
-  static void initAuth();
+  static void configureAuth();
 
   BlogSession(const std::string& sqliteDb);
 

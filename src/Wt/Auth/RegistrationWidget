@@ -114,7 +114,7 @@ private:
   void updateField(const std::string& var, RegistrationModel::Field field);
   void updateModel(const std::string& var, RegistrationModel::Field field);
   void updateModel();
-  void checkUserName();
+  void checkLoginName();
   void checkPassword();
   void checkPassword2();
   void confirmIsYou();

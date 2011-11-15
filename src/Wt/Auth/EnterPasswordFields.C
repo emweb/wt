@@ -6,6 +6,7 @@
 
 #include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/EnterPasswordFields"
+#include "Wt/Auth/Identity"
 
 #include "Wt/WApplication"
 #include "Wt/WLineEdit"
@@ -88,7 +89,7 @@ bool EnterPasswordFields::validate(const User& user)
       password_->removeStyleClass("Wt-invalid", true);
       throttlingDelay = auth_.delayForNextAttempt(user);
       Wt::log("auth") << "Throttling: " << throttlingDelay
-		      << " seconds for " << user.identity("username");
+		      << " seconds for " << user.identity(Identity::LoginName);
       break;
     case PasswordValid:
       password_->removeStyleClass("Wt-invalid", true);

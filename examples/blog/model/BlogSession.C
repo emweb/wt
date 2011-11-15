@@ -14,7 +14,9 @@
 
 #include "Wt/Auth/AuthService"
 #include "Wt/Auth/HashFunction"
+#include "Wt/Auth/Identity"
 #include "Wt/Auth/PasswordService"
+#include "Wt/Auth/PasswordStrengthValidator"
 #include "Wt/Auth/PasswordVerifier"
 #include "Wt/Auth/GoogleService"
 
@@ -56,38 +58,6 @@ namespace {
   };
 #endif // HAVE_CRYPT
 
-  class BlogBaseAuth : public Auth::AuthService
-  {
-  public:
-    BlogBaseAuth()
-    {
-      setAuthTokensEnabled(true, "bloglogin");
-    }
-  };
-
-  class BlogPasswords : public Auth::PasswordService
-  {
-  public:
-    BlogPasswords(const Auth::AuthService& baseAuth)
-      : Auth::PasswordService(baseAuth)
-    {
-      Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
-
-      verifier->addHashFunction(new Auth::BCryptHashFunction(7));
-
-#ifdef WT_WITH_SSL
-      verifier->addHashFunction(new Auth::SHA1HashFunction());
-#endif
-
-#ifdef HAVE_CRYPT
-      verifier->addHashFunction(new UnixCryptHashFunction());
-#endif
-
-      setVerifier(verifier);
-      setAttemptThrottlingEnabled(true);
-    }
-  };
-
   class BlogOAuth : public std::vector<const Auth::OAuthService *>
   {
   public:
@@ -98,17 +68,32 @@ namespace {
     }
   };
 
-  BlogBaseAuth blogBaseAuth;
-  BlogPasswords blogPasswords(blogBaseAuth);
+  Auth::AuthService blogAuth;
+  Auth::PasswordService blogPasswords(blogAuth);
   BlogOAuth blogOAuth;
 }
 
 namespace dbo = Wt::Dbo;
 
-void BlogSession::initAuth()
+void BlogSession::configureAuth()
 {
+  blogAuth.setAuthTokensEnabled(true, "bloglogin");
+
+  Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
+  verifier->addHashFunction(new Auth::BCryptHashFunction(7));
+#ifdef WT_WITH_SSL
+  verifier->addHashFunction(new Auth::SHA1HashFunction());
+#endif
+#ifdef HAVE_CRYPT
+  verifier->addHashFunction(new UnixCryptHashFunction());
+#endif
+  blogPasswords.setVerifier(verifier);
+  blogPasswords.setAttemptThrottlingEnabled(true);
+  blogPasswords.setStrengthValidator
+    (new Auth::PasswordStrengthValidator());
+
   if (Auth::GoogleService::configured())
-    blogOAuth.push_back(new Auth::GoogleService(blogBaseAuth));
+    blogOAuth.push_back(new Auth::GoogleService(blogAuth));
 }
 
 BlogSession::BlogSession(const std::string& sqliteDb)
@@ -134,7 +119,8 @@ BlogSession::BlogSession(const std::string& sqliteDb)
     a->name = ADMIN_USERNAME;
     a->role = User::Admin;
 
-    Auth::User authAdmin = users_.findWithIdentity("username", a->name);
+    Auth::User authAdmin
+      = users_.findWithIdentity(Auth::Identity::LoginName, a->name);
     blogPasswords.updatePassword(authAdmin, ADMIN_PASSWORD);
 
     dbo::ptr<Post> post = add(new Post());

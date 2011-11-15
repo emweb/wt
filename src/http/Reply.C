@@ -227,8 +227,10 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
       std::string ct;
       if (responseStatus() >= 300 && responseStatus() < 400) {
-	result.push_back(buf(std::string("Location: ") + location()));
-	result.push_back(asio::buffer(misc_strings::crlf));
+	if (!location().empty()) {
+	  result.push_back(buf(std::string("Location: ") + location()));
+	  result.push_back(asio::buffer(misc_strings::crlf));
+	}
       } else if (responseStatus() != not_modified
 		 && responseStatus() != switching_protocols) {
 	ct = contentType();

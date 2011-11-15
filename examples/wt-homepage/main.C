@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     server.addEntryPoint(Application, createWtHomeApplication,
       "", "/css/wt/favicon.ico");
 
-    BlogSession::initAuth();
+    BlogSession::configureAuth();
 
     if (server.start()) {
       WServer::waitForShutdown();

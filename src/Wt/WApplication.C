@@ -206,8 +206,8 @@ WApplication::WApplication(const WEnvironment& env
 		      "border: 0px;"
 		      "margin: 0px;"
 		      "padding: 0px;"
-		      "font-size: inherit; "
-		      "pointer: hand; cursor: pointer; cursor: hand;"
+		      "font: inherit; "
+		      "cursor: pointer; cursor: hand;"
 		      "background: transparent;"
 		      "text-decoration: none;"
 		      "color: inherit;");
@@ -599,9 +599,9 @@ void WApplication::setConfirmCloseMessage(const WString& message)
   }
 }
 
-std::string WApplication::url() const
+std::string WApplication::url(const std::string& internalPath) const
 {
-  return resolveRelativeUrl(session_->applicationName());
+  return resolveRelativeUrl(session_->mostRelativeUrl(internalPath));
 }
 
 std::string WApplication::makeAbsoluteUrl(const std::string& url) const

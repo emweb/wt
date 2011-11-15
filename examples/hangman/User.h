@@ -9,39 +9,38 @@
 #define USER_H_
 
 #include <Wt/WDateTime>
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Types>
 #include <Wt/Dbo/WtSqlTraits>
+#include <Wt/Auth/Dbo/AuthInfo>
 
 #include <string>
 
-class User : public Wt::Dbo::ptr<User> {
+class User;
+typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
+typedef Wt::Dbo::collection< Wt::Dbo::ptr<User> > Users;
+
+class User : public Wt::Dbo::Dbo<User>
+{
 public:
-  std::string   name;
-  int           gamesPlayed;
-  long long     score;
-  Wt::WDateTime lastLogin;
+  User();
+
+  std::string name; /* a copy of auth info's user name */
+  int gamesPlayed;
+  long long score;
+  Wt::WDateTime lastGame;
+  Wt::Dbo::collection< Wt::Dbo::ptr<AuthInfo> > authInfos;
 
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::field(a, name,        "name");
-    Wt::Dbo::field(a, password_,   "password");
     Wt::Dbo::field(a, gamesPlayed, "gamesPlayed");
-    Wt::Dbo::field(a, score,       "score");
-    Wt::Dbo::field(a, lastLogin,   "lastLogin");
+    Wt::Dbo::field(a, score, "score");
+    Wt::Dbo::field(a, lastGame, "lastGame");
+
+    Wt::Dbo::hasMany(a, authInfos, Wt::Dbo::ManyToOne, "user");
   }
-  
-  User() {}
-
-  void setPassword(const std::string& password);
-  bool authenticate(const std::string& password) const;
-
-  User(const std::string &name, const std::string &password);
-
-private:
-  std::string password_;
 };
 
-typedef Wt::Dbo::collection< Wt::Dbo::ptr<User> > Users;
+DBO_EXTERN_TEMPLATES(User);
 
-#endif //USER_H_
+#endif // USER_H_

@@ -14,11 +14,6 @@
 
 #include "Dictionary.h"
 
-namespace Wt {
-  class WText;
-  class WPushButton;
-}
-
 class Session;
 class WordWidget;
 class ImagesWidget;
@@ -28,7 +23,6 @@ class HangmanWidget: public Wt::WContainerWidget
 {
 public:
   HangmanWidget(const std::string &name, 
-		Dictionary dictionary, 
 		Wt::WContainerWidget *parent = 0);
 
   Wt::Signal<int>& updateScore() { return updateScore_; }
@@ -41,6 +35,7 @@ private:
   LettersWidget                 *letters_;
 
   Wt::WText                     *statusText_;
+  Wt::WComboBox                 *language_;
   Wt::WPushButton               *newGameButton_;
   
   Wt::Signal<int>                updateScore_;

@@ -1,7 +1,22 @@
 /*
  * Copyright (c) 2000-2002 by Solar Designer
  * Copyright (c) 2008,2009 by Dmitry V. Levin
- * See LICENSE
+Redistribution and use in source and binary forms, with or without
+modification, are permitted.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+ * 
+ * Modified by koen@emweb.be for inclusion in Wt
  */
 
 #ifndef PASSWDQC_H__
@@ -16,36 +31,13 @@ typedef struct {
 } passwdqc_params_qc_t;
 
 typedef struct {
-	int flags;
-	int retry;
-} passwdqc_params_pam_t;
+        const char *pw_name;
+        const char *pw_email;
+} passwdqc_user_t;
 
-typedef struct {
-	passwdqc_params_qc_t qc;
-	passwdqc_params_pam_t pam;
-} passwdqc_params_t;
-
-extern const char *passwdqc_check(const passwdqc_params_qc_t *params,
-    const char *newpass, const char *oldpass /*, const struct passwd *pw*/);
-extern char *passwdqc_random(const passwdqc_params_qc_t *params);
-
-extern int passwdqc_params_parse(passwdqc_params_t *params,
-    char **reason, int argc, const char *const *argv);
-extern int passwdqc_params_load(passwdqc_params_t *params,
-    char **reason, const char *pathname);
-extern void passwdqc_params_reset(passwdqc_params_t *params);
-
-#define F_ENFORCE_MASK			0x00000003
-#define F_ENFORCE_USERS			0x00000001
-#define F_ENFORCE_ROOT			0x00000002
-#define F_ENFORCE_EVERYONE		F_ENFORCE_MASK
-#define F_NON_UNIX			0x00000004
-#define F_ASK_OLDAUTHTOK_MASK		0x00000030
-#define F_ASK_OLDAUTHTOK_PRELIM		0x00000010
-#define F_ASK_OLDAUTHTOK_UPDATE		0x00000020
-#define F_CHECK_OLDAUTHTOK		0x00000040
-#define F_USE_FIRST_PASS		0x00000100
-#define F_USE_AUTHTOK			0x00000200
+extern int passwdqc_check(const passwdqc_params_qc_t *params,
+			  const char *newpass, const char *oldpass,
+			  const passwdqc_user_t *pw);
 
 #define PASSWDQC_VERSION		"1.2.2"
 

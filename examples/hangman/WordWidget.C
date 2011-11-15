@@ -27,8 +27,6 @@ void WordWidget::init(const std::wstring &word)
     WText *c = new WText("-", this);
     wordLetters_.push_back(c);
   }
-
-  resize(WLength(word_.size() * 1.5, WLength::FontEx), WLength::Auto);
 }
 
 bool WordWidget::guess(wchar_t c)

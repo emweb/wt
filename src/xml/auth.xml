@@ -8,6 +8,37 @@
   <message id="Wt.Auth.mail-sent">An email has been sent. Follow the instructions to set a new password.</message>
   <message id="Wt.Auth.info-email-confirmed">Your email address is now confirmed.</message>
 
+  <message id="Wt.Auth.passwdqc.reason-error">
+    Check failed
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-same">
+    The same as the old one
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-similar">
+    Based on the old one
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-short">
+    Too short
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-long">
+    Too long
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-simpleshort">
+    Not enough different characters or classes for this length
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-simple">
+    Not enough different characters or classes
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-personal">
+    Based on personal information
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-word">
+    Based on a dictionary word and not a passphrase
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-seq">
+    Based on a common sequence of characters
+  </message>
+
   <message id="Wt.Auth.GoogleService.badresponse">
     <p>Sorry, could not login using your Google account.</p>
     <small>
@@ -25,8 +56,9 @@
   <message id="Wt.Auth.user-name-invalid">Invalid</message>
   <message id="Wt.Auth.email">Email address</message>
   <message id="Wt.Auth.email-info">Enter your email address</message>
+  <message id="Wt.Auth.optional-email-info">Optional</message>
   <message id="Wt.Auth.password">Password</message>
-  <message id="Wt.Auth.enter-password">Enter your password</message>
+  <message id="Wt.Auth.password-info">Enter your password</message>
   <message id="Wt.Auth.remember-me">Remember me</message>
   <message id="Wt.Auth.remember-me-info">Keeps login for {1}</message>
   <message id="Wt.Auth.lost-password">Lost password</message>
@@ -42,8 +74,10 @@
   <message id="Wt.Auth.oauth-registration"><h3>Register with an identity provider:</h3></message>
   <message id="Wt.Auth.or-oauth-registration"><h3>Or, register with an identity provider:</h3></message>
   <message id="Wt.Auth.valid">Valid</message>
-  <message id="Wt.Auth.password2">Repeat password</message>
-  <message id="Wt.Auth.password2-info">Re-enter your password</message>
+  <message id="Wt.Auth.choose-password">Password</message>
+  <message id="Wt.Auth.choose-password-info">Choose a password</message>
+  <message id="Wt.Auth.repeat-password">Repeat password</message>
+  <message id="Wt.Auth.repeat-password-info">Re-enter your password</message>
   <message id="Wt.Auth.email-invalid">Invalid email address</message>
   <message id="Wt.Auth.email-exists">Email already registered</message>
   <message id="Wt.Auth.oauth">Your account</message>
@@ -59,9 +93,9 @@
 
   <!-- PasswordPromptDialog -->
 
+  <message id="Wt.Auth.enter-password">Enter your password</message>
   <message id="Wt.Auth.password-prompt-form-title">Enter your password</message>
   <message id="Wt.Auth.password-prompt-form-info"></message>
-  <message id="Wt.Auth.password-info">Enter your password</message>
   <message id="Wt.Auth.password-invalid">Invalid password</message>
 
   <!-- UpdatePasswordWidget -->
@@ -72,8 +106,8 @@
   <message id="Wt.Auth.old-password">Current password</message>
   <message id="Wt.Auth.old-password-info">Enter your current password</message>
   <message id="Wt.Auth.new-password">New password</message>
-  <message id="Wt.Auth.new-password2">Repeat new password</message>
-  <message id="Wt.Auth.new-password2-info">Re-enter your new password</message>
+  <message id="Wt.Auth.repeat-new-password">Repeat new password</message>
+  <message id="Wt.Auth.repeat-new-password-info">Re-enter your new password</message>
 
   <!-- LostPasswordDialog -->
 
@@ -96,28 +130,30 @@
       <h2>${tr:Wt.Auth.login-form-title}</h2>
       <p>${tr:Wt.Auth.login-form-info}</p>
 
-      ${<if:passwords>}
+      <div class="Wt-fields">
+	${<if:passwords>}
       
-        <label for="${id:user-name}">${user-name-label}
-          ${user-name-info class="Wt-info"}
-	</label>
-	${user-name}
-
-	<label for="${id:password}">${tr:Wt.Auth.password}
-          ${password-info class="Wt-info"}
-	</label>
-	${password}
-
-	${<if:remember-me>}
-
-	  <label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
-	    <span class="Wt-info">${remember-me-info}</span>
+          <label for="${id:user-name}">${user-name-label}
+            ${user-name-info class="Wt-info"}
 	  </label>
-	  ${remember-me}
+	  ${user-name}
 
-	${</if:remember-me>}
+	  <label for="${id:password}">${tr:Wt.Auth.password}
+            ${password-info class="Wt-info"}
+	  </label>
+	  ${password}
 
-      ${</if:passwords>}
+	  ${<if:remember-me>}
+
+	    <label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
+	      <span class="Wt-info">${remember-me-info}</span>
+	    </label>
+	    ${remember-me}
+
+	  ${</if:remember-me>}
+
+	 ${</if:passwords>}
+      </div>
 
       ${<if:oauth>}
 
@@ -145,38 +181,40 @@
 
       ${password-description}
 
-      ${<if:user-name>}
-	<label for="${id:user-name}">${user-name-label}
-	  ${user-name-info class=Wt-info}
-	  ${confirm-is-you class="Wt-info"}
-	</label>
-	${user-name}
-      ${</if:user-name>}
+      <div class="Wt-fields">
+        ${<if:user-name>}
+	  <label for="${id:user-name}">${user-name-label}
+	    ${user-name-info class="Wt-info"}
+	    ${confirm-is-you class="Wt-info"}
+	  </label>
+	  ${user-name}
+	${</if:user-name>}
 
-      ${<if:password>}
-	<label for="${id:password}">${tr:Wt.Auth.password}
-	${password-info class="Wt-info"}
-	</label>
-	${password}
+        ${<if:choose-password>}
+	  <label for="${id:choose-password}">${tr:Wt.Auth.choose-password}
+	    ${choose-password-info class="Wt-info"}
+	  </label>
+	  ${choose-password}
 
-	<label for="${id:password2}">${tr:Wt.Auth.password2}
-	  ${password2-info class="Wt-info"}
-	</label>
-	${password2}
-      ${</if:password>}
+	  <label for="${id:repeat-password}">${tr:Wt.Auth.repeat-password}
+	    ${repeat-password-info class="Wt-info"}
+	  </label>
+	  ${repeat-password}
+	${</if:choose-password>}
 
-      ${<if:email>}
-	<label for="${id:email}">${tr:Wt.Auth.email}
-	  ${email-info class="Wt-info"}
-	</label>
-	${email}
-      ${</if:email>}
+        ${<if:email>}
+	  <label for="${id:email}">${tr:Wt.Auth.email}
+	    ${email-info class="Wt-info"}
+	  </label>
+	  ${email}
+        ${</if:email>}
+      </div>
 
       ${<if:oauth>}
         <br clear="both" />
 	${oauth-description}
 	<label>${tr:Wt.Auth.oauth}
-	<span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
+	  <span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
 	</label>
 	${icons}
       ${</if:oauth>}
@@ -192,26 +230,28 @@
       <h2>${tr:Wt.Auth.update-password-form-title}</h2>
       <p>${tr:Wt.Auth.update-password-form-info}</p>
 
-      <label for="${id:user-name}">${tr:Wt.Auth.user-name}
-      </label>
-      ${user-name}
-
-      ${<if:old-password>}
-	<label for="${id:old-password}">${tr:Wt.Auth.old-password}
-	  ${old-password-info class="Wt-info"}
+      <div class="Wt-fields">
+	<label for="${id:user-name}">${tr:Wt.Auth.user-name}
 	</label>
-	${old-password}
-      ${</if:old-password>}
+	${user-name}
 
-      <label for="${id:password}">${tr:Wt.Auth.new-password}
-	${password-info class="Wt-info"}
-      </label>
-      ${password}
+	${<if:old-password>}
+	  <label for="${id:old-password}">${tr:Wt.Auth.old-password}
+	    ${old-password-info class="Wt-info"}
+	  </label>
+	  ${old-password}
+	${</if:old-password>}
 
-      <label for="${id:password2}">${tr:Wt.Auth.new-password2}
-	${password2-info class="Wt-info"}
-      </label>
-      ${password2}
+        <label for="${id:choose-password}">${tr:Wt.Auth.new-password}
+	  ${choose-password-info class="Wt-info"}
+        </label>
+        ${choose-password}
+
+        <label for="${id:repeat-password}">${tr:Wt.Auth.repeat-new-password}
+	  ${repeat-password-info class="Wt-info"}
+        </label>
+        ${repeat-password}
+      </div>
 
       <div class="Wt-buttons">
 	${ok-button} ${cancel-button}
@@ -224,10 +264,12 @@
       <h2>${tr:Wt.Auth.lost-password-form-title}</h2>
       <p>${tr:Wt.Auth.lost-password-form-info}</p>
 
-      <label for="${id:email}">${tr:Wt.Auth.email}
-	<span class="Wt-info">${tr:Wt.Auth.email-info}</span>
-      </label>
-      ${email}
+      <div class="Wt-fields">
+	<label for="${id:email}">${tr:Wt.Auth.email}
+	  <span class="Wt-info">${tr:Wt.Auth.email-info}</span>
+	</label>
+	${email}
+      </div>
 
       <div class="Wt-buttons">
 	${send-button} ${cancel-button}
@@ -240,14 +282,16 @@
       <h2>${tr:Wt.Auth.password-prompt-form-title}</h2>
       <p>${tr:Wt.Auth.password-prompt-form-info}</p>
 
-      <label for="${id:user-name}">${tr:Wt.Auth.user-name}
-      </label>
-      ${user-name}
+      <div class="Wt-fields">
+	<label for="${id:user-name}">${tr:Wt.Auth.user-name}
+	</label>
+	${user-name}
 
-      <label for="${id:password}">${tr:Wt.Auth.password}
-	${password-info class="Wt-info"}
-      </label>
-      ${password}
+	<label for="${id:password}">${tr:Wt.Auth.password}
+	  ${password-info class="Wt-info"}
+	</label>
+	${password}
+      </div>
 
       <div class="Wt-buttons">
 	${ok-button} ${cancel-button}

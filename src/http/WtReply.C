@@ -38,7 +38,7 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
 {
   urlScheme_ = request.urlScheme;
 
-  status_ = ok;
+  status_ = (status_type)0;
 
   if (request.contentLength > config.maxMemoryRequestSize()) {
     requestFileName_ = Wt::Utils::createTempFileName();
@@ -303,6 +303,27 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
   responseSent_ = false;
 
   if (!sending_) {
+    if (!status_) {
+      if (!transmitting() && fetchMoreDataCallback_) {
+	/*
+	 * We haven't got a response status, so we can't send anything really.
+	 * Instead, we immediately invoke the fetchMoreDataCallback_
+	 *
+	 * This is used in a resource continuation which indicates to wait
+	 * for more data before sending anything at all.
+	 */
+	CallbackFunction f = fetchMoreDataCallback_;
+	fetchMoreDataCallback_ = 0;
+	f();
+	return;
+      } else {
+	/*
+	 * The old behaviour was to assume 200 ok by default.
+	 */
+	status_ = ok;
+      }
+    }
+
     sending_ = true;
     Reply::send();
   }

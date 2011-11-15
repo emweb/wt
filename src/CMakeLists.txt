@@ -229,12 +229,12 @@ Wt/Auth/Identity.C
 Wt/Auth/Login.C
 Wt/Auth/LostPasswordWidget.C
 Wt/Auth/OAuthService.C
-Wt/Auth/PasswordStrengthChecker.C
 Wt/Auth/passwdqc_check.c
-Wt/Auth/PasswordService.C
 Wt/Auth/PasswordHash.C
-Wt/Auth/PasswordVerifier.C
 Wt/Auth/PasswordPromptDialog.C
+Wt/Auth/PasswordService.C
+Wt/Auth/PasswordStrengthValidator.C
+Wt/Auth/PasswordVerifier.C
 Wt/Auth/RegistrationModel.C
 Wt/Auth/RegistrationWidget.C
 Wt/Auth/Token.C

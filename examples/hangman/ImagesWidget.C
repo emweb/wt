@@ -16,7 +16,7 @@ ImagesWidget::ImagesWidget(WContainerWidget *parent)
 {
   for (int i = 0; i <= maxGuesses_; ++i) {
     std::string fname = "icons/hangman";
-    fname += boost::lexical_cast<std::string>(i) + ".png";
+    fname += boost::lexical_cast<std::string>(i) + ".jpg";
     WImage *theImage = new WImage(fname, this);
     hangmanImages_.push_back(theImage);
     
@@ -25,10 +25,15 @@ ImagesWidget::ImagesWidget(WContainerWidget *parent)
     theImage->resize(256, 256);
   }
 
-  hurrayImage_ = new WImage("icons/hangmanhurray.png", parent);
+  hurrayImage_ = new WImage("icons/hangmanhurray.jpg", this);
+
+  reset();
+
+  hangmanImages_[0]->hide();
+  hangmanImages_.back()->show();
 }
 
-void ImagesWidget::init()
+void ImagesWidget::reset()
 {
   badGuesses_ = 0;
 

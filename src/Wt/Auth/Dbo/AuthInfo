@@ -32,7 +32,7 @@ template <class AuthIdentityType> class AuthIdentity;
  *  - authTokens() references a collection of authentication tokens, see
  *    AuthService::setAuthTokensEnabled()
  *  - authIdentities() references a collection of identities, which represent
- *    all the authentication identities this user has (e.g. a username, but
+ *    all the authentication identities this user has (e.g. a login name, but
  *    also an OAuth identity, etc...)
  *
  * To use these classes, you need to map three classes to tables of your
@@ -215,6 +215,24 @@ public:
    */
   AuthIdentities& authIdentities() { return authIdentities_; }
 
+  /*! \brief Finds an identity of a particular provider.
+   *
+   * Note, a user could in theory have multiple identites from a
+   * single provider. If there are multiple, only one of them is
+   * returned.
+   */
+  WString identity(const std::string& provider) const {
+    AuthIdentities c
+      = authIdentities_.find().where("provider = ?").bind(provider);
+
+    typename AuthIdentities::const_iterator i = c.begin();
+
+    if (i != c.end())
+      return (*i)->identity();
+    else
+      return WString::Empty;
+  }
+
   /*! \brief %Wt::%Dbo persist implementation.
    */
   template<class Action>
@@ -238,8 +256,8 @@ public:
     Wt::Dbo::field(a, emailTokenRole_, "email_token_role");
 
 
-    Wt::Dbo::hasMany(a, authTokens_, dbo::ManyToOne, "auth_info");
-    Wt::Dbo::hasMany(a, authIdentities_, dbo::ManyToOne, "auth_info");
+    Wt::Dbo::hasMany(a, authTokens_, Wt::Dbo::ManyToOne, "auth_info");
+    Wt::Dbo::hasMany(a, authIdentities_, Wt::Dbo::ManyToOne, "auth_info");
   }
 
 private:

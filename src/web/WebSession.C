@@ -435,8 +435,14 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
   if (isAbsoluteUrl(url))
     return url;
 
-  if (url.length() > 0 && url[0] == '#')
-    return url;
+  if (url.length() > 0 && url[0] == '#') {
+    if (!isAbsoluteUrl(applicationUrl_))
+      return url;
+    else
+      // we have <href base=...> which requires us to put the application
+      // name before a named anchor
+      return applicationName_ + url;
+  }
 
   if (!isAbsoluteUrl(applicationUrl_)) {
     if (url.empty() || url[0] == '/')
@@ -1771,9 +1777,12 @@ void WebSession::notify(const WEvent& event)
       WResource *resource = 0;
       if (!requestE) {
 	if (!request.pathInfo().empty())
-	  resource = app_->decodeExposedResource("/path/" + request.pathInfo());
+	  resource = app_->decodeExposedResource
+	    ("/path/" + Utils::prepend(request.pathInfo(), '/'));
+
 	if (!resource && hashE)
-	  resource = app_->decodeExposedResource("/path/" + *hashE);
+	  resource = app_->decodeExposedResource
+	    ("/path/" + *hashE);
       } 
 
       const std::string *resourceE = request.getParameter("resource");
@@ -1922,6 +1931,9 @@ void WebSession::notify(const WEvent& event)
 	if (handler.response()
 	    && handler.response()->responseType() == WebResponse::Page
 	    && !env_->ajax()) {
+
+	  env_->parameters_ = handler.request()->getParameterMap();
+
 	  if (hashE)
 	    app_->changedInternalPath(*hashE);
 	  else if (!request.pathInfo().empty())
@@ -1962,7 +1974,8 @@ void WebSession::notify(const WEvent& event)
 	    }
 	  } else {
 #endif // WT_TARGET_JAVA
-	    env_->parameters_ = handler.request()->getParameterMap();
+	    if (handler.request())
+	      env_->parameters_ = handler.request()->getParameterMap();
 	    app_->refresh();
 #ifndef WT_TARGET_JAVA
 	  }

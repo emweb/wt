@@ -5,11 +5,11 @@
  */
 
 #include "Session.h"
-#include "User.h"
 
 #include "Wt/Auth/AuthService"
 #include "Wt/Auth/HashFunction"
 #include "Wt/Auth/PasswordService"
+#include "Wt/Auth/PasswordStrengthValidator"
 #include "Wt/Auth/PasswordVerifier"
 #include "Wt/Auth/GoogleService"
 #include "Wt/Auth/Dbo/AuthInfo"
@@ -18,32 +18,6 @@
 using namespace Wt;
 
 namespace {
-  class MyBaseAuth : public Auth::AuthService
-  {
-  public:
-    MyBaseAuth() {
-      setAuthTokensEnabled(true, "logincookie");
-      setEmailVerificationEnabled(true);
-    }
-  };
-
-  class MyPasswords : public Auth::PasswordService
-  {
-  public:
-    MyPasswords(const Auth::AuthService& baseAuth)
-      : Auth::PasswordService(baseAuth) {
-      Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
-
-      verifier->addHashFunction(new Auth::BCryptHashFunction(7));
-
-#ifdef WT_WITH_SSL
-      verifier->addHashFunction(new Auth::SHA1HashFunction());
-#endif
-
-      setVerifier(verifier);
-      setAttemptThrottlingEnabled(true);
-    }
-  };
 
   class MyOAuth : public std::vector<const Auth::OAuthService *>
   {
@@ -55,21 +29,30 @@ namespace {
     }
   };
 
-  MyBaseAuth myBaseAuth;
-  MyPasswords myPasswords(myBaseAuth);
-  MyOAuth myOAuth;
+  Auth::AuthService myAuthService;
+  Auth::PasswordService myPasswordService(myAuthService);
+  MyOAuth myOAuthServices;
+
 }
 
-void Session::initAuth()
+void Session::configureAuth()
 {
+  myAuthService.setAuthTokensEnabled(true, "logincookie");
+  myAuthService.setEmailVerificationEnabled(true);
+
+  Auth::PasswordVerifier *verifier = new Auth::PasswordVerifier();
+  verifier->addHashFunction(new Auth::BCryptHashFunction(7));
+  myPasswordService.setVerifier(verifier);
+  myPasswordService.setAttemptThrottlingEnabled(true);
+  myPasswordService.setStrengthValidator(new Auth::PasswordStrengthValidator());
+
   if (Auth::GoogleService::configured())
-    myOAuth.push_back(new Auth::GoogleService(myBaseAuth));
+    myOAuthServices.push_back(new Auth::GoogleService(myAuthService));
 }
 
 Session::Session(const std::string& sqliteDb)
   : connection_(sqliteDb)
 {
-  users_ = new UserDatabase(*this);
   connection_.setProperty("show-queries", "true");
 
   setConnection(connection_);
@@ -86,6 +69,13 @@ Session::Session(const std::string& sqliteDb)
     std::cerr << e.what() << std::endl;
     std::cerr << "Using existing database";
   }
+
+  users_ = new UserDatabase(*this);
+}
+
+Session::~Session()
+{
+  delete users_;
 }
 
 Auth::AbstractUserDatabase& Session::users()
@@ -104,15 +94,15 @@ dbo::ptr<User> Session::user() const
 
 const Auth::AuthService& Session::auth()
 {
-  return myBaseAuth;
+  return myAuthService;
 }
 
 const Auth::PasswordService& Session::passwordAuth()
 {
-  return myPasswords;
+  return myPasswordService;
 }
 
 const std::vector<const Auth::OAuthService *>& Session::oAuth()
 {
-  return myOAuth;
+  return myOAuthServices;
 }

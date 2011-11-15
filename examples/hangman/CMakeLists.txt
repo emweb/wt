@@ -8,7 +8,6 @@ WT_ADD_EXAMPLE(hangman.wt
   LettersWidget.C
   ImagesWidget.C
   HighScoresWidget.C
-  LoginWidget.C
   Dictionary.C
 )
 TARGET_LINK_LIBRARIES(hangman.wt wtdbo wtdbosqlite3)

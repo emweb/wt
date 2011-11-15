@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     server.addResource(&rssFeed, FeedUrl);
     server.addEntryPoint(Application, createApplication, BlogUrl);    
 
-    BlogSession::initAuth();
+    BlogSession::configureAuth();
 
     std::cerr << "\n\n -- Warning: Example is deployed at '"
       << BlogUrl << "'\n\n";
