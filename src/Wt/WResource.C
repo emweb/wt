@@ -23,6 +23,8 @@
 
 namespace Wt {
 
+LOGGER("WResource");
+
 WResource::WResource(WObject* parent)
   : WObject(parent),
     dataChanged_(this),
@@ -94,10 +96,9 @@ void WResource::doContinue(Http::ResponseContinuation *continuation)
   try {
     handle(webRequest, webResponse, continuation);
   } catch (std::exception& e) {
-    std::cerr << "Exception while handling resource continuation: "
-	      << e.what() << std::endl;
+    LOG_ERROR("exception while handling resource continuation: " << e.what());
   } catch (...) {
-    std::cerr << "Exception while handling resource continuation." << std::endl;
+    LOG_ERROR("exception while handling resource continuation");
   }
 }
 

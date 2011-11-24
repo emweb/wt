@@ -41,11 +41,12 @@
 #ifndef DOXYGEN_ONLY
 
 // Widest scrollbar found ? My Gnome Firefox has this
-#define SCROLLBAR_WIDTH_TEXT   "22"
 #define SCROLLBAR_WIDTH         22
 #define UNKNOWN_VIEWPORT_HEIGHT 30
 
 namespace Wt {
+
+LOGGER("WTreeView");
 
 class ToggleButtonConfig
 {
@@ -1526,8 +1527,7 @@ void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,
   }
 
   if (!c0index.isValid()) {
-    std::cerr << "Warning (error?): illegal id in WTreeView::onItemEvent()"
-	      << std::endl;
+    LOG_ERROR("illegal id in WTreeView::onItemEvent()");
     return; // illegal node Id
   }
 

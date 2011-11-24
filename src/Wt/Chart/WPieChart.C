@@ -5,8 +5,8 @@
  */
 
 #include <cmath>
-#include <stdio.h>
-#include <float.h>
+#include <cstdio>
+#include <cfloat>
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/Chart/WPieChart"
@@ -29,8 +29,16 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+/*
+ * So, snprintf is not a std in c++03. It's a c++11 feature.
+ */
 #ifdef WIN32
 #define snprintf _snprintf
+#else
+#ifdef WT_CNOR
+#define snprintf std::snprintf
+#endif
 #endif
 
 namespace Wt {

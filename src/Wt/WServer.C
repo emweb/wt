@@ -23,6 +23,8 @@
 
 namespace Wt {
 
+LOGGER("WServer");
+
   namespace {
     bool CatchSignals = true;
   }
@@ -69,7 +71,7 @@ void WServer::destroy()
 void WServer::setIOService(WIOService& ioService)
 {
   if (ioService_) {
-    Wt::log("error") << "WServer::setIOService(): already have an IO service";
+    LOG_ERROR("setIOService(): already have an IO service");
     return;
   }
 
@@ -90,7 +92,7 @@ WIOService& WServer::ioService()
 void WServer::setAppRoot(const std::string& path)
 {
   if (configuration_)
-    log("error") << "WServer::setAppRoot(): too late, already configured";
+    LOG_ERROR("setAppRoot(): too late, already configured");
 
   appRoot_ = path;
 }
@@ -110,8 +112,7 @@ void WServer::setConfiguration(const std::string& file,
 			       const std::string& application)
 {
   if (configuration_)
-    log("error") << "WServer::setConfigurationFile(): too late, "
-		 << "already configured";
+    LOG_ERROR("setConfigurationFile(): too late, already configured");
 
   configurationFile_ = file;
   application_ = application;
@@ -119,7 +120,7 @@ void WServer::setConfiguration(const std::string& file,
 
 WLogEntry WServer::log(const std::string& type) const
 {
-  WLogEntry e = logger_.entry();
+  WLogEntry e = logger_.entry(type);
 
   e << WLogger::timestamp << WLogger::sep
     << getpid() << WLogger::sep
@@ -129,13 +130,17 @@ WLogEntry WServer::log(const std::string& type) const
   return e;
 }
 
-void WServer::initLogger(const std::string& logFile)
+void WServer::initLogger(const std::string& logFile,
+			 const std::string& logConfig)
 {
   if (!logFile.empty())
     logger_.setFile(logFile);
-  
+
+  if (!logConfig.empty())
+    logger_.configure(logConfig);
+
   if (!description_.empty())
-    log("notice") << "Wt: initializing " << description_;
+    LOG_INFO("initializing " << description_);
 }
 
 Configuration& WServer::configuration()
@@ -269,38 +274,17 @@ int WServer::waitForShutdown(const char *restartWatchFile)
   sigaddset(&wait_mask, SIGTERM);
   pthread_sigmask(SIG_BLOCK, &wait_mask, 0);
 
-#ifdef RESTART_WATCH_FILE
-  struct stat st;
-  time_t mtime = 0;
-  if (restartWatchFile && (stat(restartWatchFile, &st) == 0))
-    mtime = st.st_mtime;
-#endif // RESTART_WATCH_FILE
-
   for (;;) {
     int sig;
-#ifdef RESTART_WATCH_FILE
-    if (mtime) {
-      struct timespec ts;
-      ts.tv_sec = 0;
-      ts.tv_nsec = 100*1000;
-      sig = sigtimedwait(&wait_mask, 0, &ts);
-    } else
-#endif // RESTART_WATCH_FILE
-      sigwait(&wait_mask, &sig);
+    sigwait(&wait_mask, &sig);
 
-    if (sig != -1)
-      return sig;
-#ifdef RESTART_WATCH_FILE
-    else
-      if (errno != EAGAIN && errno != EINTR) {
-	perror("sigtimedwait");
-	return -1;
-      } else if (errno == EAGAIN && mtime) {
-	if (stat(restartWatchFile, &st) == 0)
-	  if (st.st_mtime != mtime)
-	    return SIGHUP;
-      }
-#endif // RESTART_WATCH_FILE
+    if (sig != -1) {
+      if (sig == SIGHUP) {
+	if (instance())
+	  instance()->configuration().rereadConfiguration();
+      } else
+	return sig;
+    }
   }
 
 #else  // WIN32

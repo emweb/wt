@@ -6,8 +6,8 @@
 
 #include <cmath>
 #include <limits>
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include <boost/lexical_cast.hpp>
 
@@ -681,7 +681,7 @@ WString WAxis::label(double u) const
 #ifdef WT_TARGET_JAVA
       buf =
 #endif // WT_TARGET_JAVA
-	sprintf(buf, "%.4g", u+1);
+	std::sprintf(buf, "%.4g", u+1);
       text = WString::fromUTF8(buf);
     }
   } else if (scale_ == DateScale) {
@@ -701,7 +701,7 @@ WString WAxis::label(double u) const
 #ifdef WT_TARGET_JAVA
     buf =
 #endif // WT_TARGET_JAVA
-      sprintf(buf, format.c_str(), u);
+      std::sprintf(buf, format.c_str(), u);
 
     text = WString::fromUTF8(buf);
   }
@@ -799,7 +799,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
     case DateTimeScale:
       daysRange = static_cast<double>((s.renderMaximum - s.renderMinimum) 
 				    / (60.0 * 60.0 * 24));
-      dt = WDateTime::fromTime_t((time_t)s.renderMinimum);
+      dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
       break;
     default:
       assert(false); // CategoryScale, LinearScale

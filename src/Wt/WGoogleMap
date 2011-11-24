@@ -285,7 +285,7 @@ public:
 
   /*! \brief This event is fired when the user moves the mouse inside the map.
    */
-  JSignal<Coordinate>& mouseMoved() { return mouseMoved_; }
+  JSignal<Coordinate>& mouseMoved();
 
   /*! \brief Return the used Google Maps API version.
    */
@@ -294,15 +294,21 @@ public:
 private:
   JSignal<Coordinate> clicked_;
   JSignal<Coordinate> doubleClicked_;
-  JSignal<Coordinate> mouseMoved_;
+  JSignal<Coordinate> *mouseMoved_;
 
 protected:
   virtual void render(WFlags<RenderFlag> flags);
 
+  /*! \brief Execute a piece of JavaScript that manipulates the map.
+   *
+   * This is like doJavaScript() but delays the javascript until the map
+   * has been loaded.
+   */
+  virtual void doGmJavaScript(const std::string& jscode);
+
 private:
   std::vector<std::string> additions_;
 
-  virtual void doGmJavaScript(const std::string& jscode, bool sepScope);
   void streamJSListener(const JSignal<Coordinate> &signal, 
 			std::string signalName,
 			std::ostream &strm);

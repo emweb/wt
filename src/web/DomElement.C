@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 
 #include "Wt/WObject"

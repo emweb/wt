@@ -15,6 +15,9 @@
 #include <boost/lexical_cast.hpp>
 
 namespace Wt {
+
+LOGGER("Mail::Client");
+		
   namespace Mail {
 
 using boost::asio::ip::tcp;
@@ -48,7 +51,7 @@ public:
 
     if (error) {
       socket_.close();
-      Wt::log("error") << "Could not connect to: " << host << ":" << port;
+      LOG_ERROR("could not connect to: " << host << ":" << port);
       return;
     }
 
@@ -60,7 +63,7 @@ public:
       failIfReplyCodeNot(Ok);
     } catch (std::exception& e) {
       socket_.close();
-      Wt::log("error") << "SMTP error: " << e.what();
+      LOG_ERROR(e.what());
       return;
     }
   }
@@ -76,7 +79,7 @@ public:
       failIfReplyCodeNot(Bye);
     } catch (std::exception& e) {
       socket_.close();
-      Wt::log("error") << "SMTP error: " << e.what();
+      LOG_ERROR(e.what());
       return;
     }
   }
@@ -106,7 +109,7 @@ public:
       failIfReplyCodeNot(Ok);
     } catch (std::exception& e) {
       socket_.close();
-      Wt::log("error") << "SMTP error: " << e.what();
+      LOG_ERROR(e.what());
       return;
     }
   }
@@ -114,7 +117,7 @@ public:
 private:
   void send(const std::string& s)
   {
-    std::cerr << "C " << s;
+    LOG_DEBUG("C " << s);
     // boost::asio::const_buffer request = boost::asio::buffer(s);
     boost::asio::write(socket_, boost::asio::buffer(s));
 
@@ -147,7 +150,7 @@ private:
       std::string msg;
       std::getline(in, msg);
 
-      std::cerr << "S " << code << msg << std::endl;
+      LOG_DEBUG("S " << code << msg);
 
       if (replyCode == -1)
 	replyCode = code;

@@ -15,6 +15,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <vector>
 #include <boost/lexical_cast.hpp>
 
 namespace Wt {
@@ -261,7 +262,7 @@ void Session::prepareStatements(MappingInfo *mapping)
 
     if (!autoIncrementSuffix.empty())
       sql << conn->autoincrementInsertSuffix()
-	  << mapping->surrogateIdFieldName;
+	  << "\"" << mapping->surrogateIdFieldName << "\"";
   }
 
   useRowsFromTo_ = conn->usesRowsFromTo();
@@ -718,6 +719,18 @@ void Session::createTable(MappingInfo *mapping)
   sql << "\n)\n";
 
   connection(true)->executeSql(sql.str());
+
+  if (mapping->surrogateIdFieldName) {
+    std::string tableName = Impl::quoteSchemaDot(mapping->tableName);
+    std::string idFieldName = mapping->surrogateIdFieldName;
+
+    std::vector<std::string> sql = 
+      connection(false)->autoincrementCreateSequenceSql(tableName,
+							idFieldName);
+
+    for (unsigned i = 0; i < sql.size(); i++)
+      connection(true)->executeSql(sql[i]);
+  }
 }
 
 void Session::createRelations(MappingInfo *mapping,
@@ -858,6 +871,11 @@ void Session::dropTables()
 {
   initSchema();
 
+  if (connectionPool_)
+    connectionPool_->prepareForDropTables();
+  else
+    connection_->prepareForDropTables();
+
   Transaction t(*this);
 
   flush();
@@ -967,12 +985,13 @@ void Session::getFields(const char *tableName,
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,
 			       &typeid(long long),
 			       sql_value_traits<long long>::type(0, 0),
-			       FieldInfo::SurrogateId));
+			       FieldInfo::SurrogateId |
+			       FieldInfo::NeedsQuotes));
 
   if (mapping->versionFieldName)
     result.push_back(FieldInfo(mapping->versionFieldName, &typeid(int),
 			       sql_value_traits<int>::type(0, 0),
-			       FieldInfo::Version));
+			       FieldInfo::Version | FieldInfo::NeedsQuotes));
 
   result.insert(result.end(), mapping->fields.begin(), mapping->fields.end());
 }

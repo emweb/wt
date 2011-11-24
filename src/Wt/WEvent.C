@@ -14,6 +14,10 @@
 #include "WebSession.h"
 #include "rapidxml/rapidxml.hpp"
 
+namespace Wt {
+  LOGGER("WEvent");
+}
+
 namespace {
   using namespace Wt;
 
@@ -33,8 +37,8 @@ namespace {
       try {
 	return asInt(*p);
       } catch (const boost::bad_lexical_cast& ee) {
-	Wt::log("error") << "Could not cast event property '" << name 
-			 << ": " << *p << "' to int";
+	LOG_ERROR("Could not cast event property '" << name 
+		  << ": " << *p << "' to int");
 	return ifMissing;
       }
     } else
@@ -59,7 +63,7 @@ namespace {
     boost::split(s, str, boost::is_any_of(";"));
     
     if (s.size() % 9) {
-      Wt::log("error") << "Could not parse touches array '" << str << "'";
+      LOG_ERROR("Could not parse touches array '" << str << "'");
       return;
     }
 
@@ -72,7 +76,7 @@ namespace {
 			       asInt(s[i + 7]), asInt(s[i + 8])));
       }
     } catch (const boost::bad_lexical_cast& ee) {
-      Wt::log("error") << "Could not parse touches array '" << str << "'";
+      LOG_ERROR("Could not parse touches array '" << str << "'");
       return;
     }
   }
@@ -252,7 +256,7 @@ WString WKeyEvent::text() const
     try {
       rapidxml::xml_document<>::insert_coded_character<0>(ptr, charCode());
     } catch (rapidxml::parse_error& e) {
-      Wt::log("error") << "WKeyEvent charcode: " << e.what();
+      LOG_ERROR("charcode: " << e.what());
       return WString();
     }
     return WString::fromUTF8(std::string(buf, ptr));

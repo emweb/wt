@@ -23,10 +23,6 @@
 #include "Server.h"
 #include "WebController.h"
 
-//#define DEBUG
-//#define DEBUG_ASYNC(a) a
-#define DEBUG_ASYNC(a)
-
 /*
  * We need a re-design:
  *   Connection has a request parser and a read-callback
@@ -43,6 +39,10 @@
  *   Most important change: callbacks are set to the Connection, and the
  *   request parser is no longer in charge.
  */
+
+namespace Wt {
+  LOGGER("wthttp/async");
+}
 
 namespace http {
 namespace server {
@@ -62,28 +62,26 @@ Connection::Connection(asio::io_service& io_service, Server *server,
 
 Connection::~Connection()
 {
-  DEBUG_ASYNC(std::cerr << "~Connection" << std::endl);
+  LOG_DEBUG("~Connection");
 }
 
 void Connection::finishReply()
 { 
-  if (!request_.uri.empty()) {
-    DEBUG_ASYNC(std::cerr << "Last request: "
-		<< request_.method << " " << request_.uri << " (ws:"
-		<< request_.webSocketRequest << ")" << std::endl);
-  }
+  if (!request_.uri.empty())
+    LOG_DEBUG("last request: " << request_.method << " " << request_.uri
+	      << " (ws:" << request_.webSocketVersion << ")");
 }
 
 void Connection::start()
 {
-  DEBUG_ASYNC(std::cerr << socket().native() << ": start()" << std::endl);
+  LOG_DEBUG(socket().native() << ": start()");
 
   request_parser_.reset();
   request_.reset();
   try {
     request_.remoteIP = socket().remote_endpoint().address().to_string();
   } catch (std::exception& e) {
-    std::cerr << "remote_endpoint() threw: " << e.what() << std::endl;
+    LOG_ERROR("remote_endpoint() threw: " << e.what());
   }
 
   socket().set_option(asio::ip::tcp::no_delay(true));
@@ -129,12 +127,12 @@ void Connection::handleReadRequest0()
 {
 #ifdef DEBUG
   try {
-    std::cerr << "Incoming request: "
-	    << socket().remote_endpoint().port() << ": "
+    LOG_DEBUG("incoming request: "
+	      << socket().remote_endpoint().port() << ": "
 	      << std::string(remaining_,
 			     std::min(buffer_.data()
 				      - remaining_ + buffer_size_,
-				      (long unsigned)1000)) << std::endl;
+				      (long unsigned)1000)));
   } catch (...) {
   }
 #endif // DEBUG
@@ -154,7 +152,7 @@ void Connection::handleReadRequest0()
     if (status >= 300)
       sendStockReply(status);
     else {
-      if (request_.webSocketRequest)
+      if (request_.webSocketVersion >= 0)
 	request_.urlScheme = "ws" + urlScheme().substr(4);
       else
 	request_.urlScheme = urlScheme();
@@ -190,8 +188,7 @@ void Connection::sendStockReply(StockReply::status_type status)
 void Connection::handleReadRequest(const asio_error_code& e,
 				   std::size_t bytes_transferred)
 {
-  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadRequest(): "
-	      << e.message() << std::endl);
+  LOG_DEBUG(socket().native() << ": handleReadRequest(): " << e.message());
 
   cancelReadTimer();
 
@@ -210,14 +207,15 @@ void Connection::close()
   cancelReadTimer();
   cancelWriteTimer();
 
-  DEBUG_ASYNC(std::cerr << socket().native() << ": close()" << std::endl);
+  LOG_DEBUG(socket().native() << ": close()");
 
   ConnectionManager_.stop(shared_from_this());
 }
 
 void Connection::handleError(const asio_error_code& e)
 {
-  // std::cerr << "asio error: " << socket().native() << " " << e.message() << std::endl;
+  LOG_DEBUG(socket().native() << ": erro: " << e.message());
+
   close();
 }
 
@@ -244,8 +242,7 @@ bool Connection::readAvailable()
 void Connection::handleReadBody(const asio_error_code& e,
 				std::size_t bytes_transferred)
 {
-  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadBody(): "
-	      << e.message() << std::endl);
+  LOG_DEBUG(socket().native() << ": handleReadBody(): " << e.message());
 
   cancelReadTimer();
 
@@ -268,8 +265,8 @@ void Connection::startWriteResponse()
   moreDataToSendNow_ = !reply_->nextBuffers(buffers);
 
 #ifdef DEBUG
-  std::cerr << "Sending" << std::endl;
-  /*
+  LOG_DEBUG("sending: ");
+
   for (unsigned i = 0; i < buffers.size(); ++i) {
     char *data = (char *)asio::detail::buffer_cast_helper(buffers[i]);
     int size = asio::buffer_size(buffers[i]);
@@ -277,7 +274,6 @@ void Connection::startWriteResponse()
     for (int j = 0; j < size; ++j)
       std::cerr << data[j];
   }
-  */
 #endif
 
   if (!buffers.empty()) {
@@ -317,7 +313,7 @@ void Connection::handleWriteResponse()
 
 void Connection::handleWriteResponse(const asio_error_code& e)
 {
-  DEBUG_ASYNC(std::cerr << socket().native() << ": handleWriteResponse(): " << e.message() << std::endl);
+  LOG_DEBUG(socket().native() << ": handleWriteResponse(): " << e.message());
 
   cancelWriteTimer();
 

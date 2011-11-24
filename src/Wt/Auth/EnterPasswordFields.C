@@ -19,6 +19,9 @@
 #endif
 
 namespace Wt {
+
+LOGGER("Auth::EnterPasswordFields");
+
   namespace Auth {
 
 EnterPasswordFields::EnterPasswordFields(const AbstractPasswordService& auth,
@@ -88,8 +91,8 @@ bool EnterPasswordFields::validate(const User& user)
     case LoginThrottling:
       password_->removeStyleClass("Wt-invalid", true);
       throttlingDelay = auth_.delayForNextAttempt(user);
-      Wt::log("auth") << "Throttling: " << throttlingDelay
-		      << " seconds for " << user.identity(Identity::LoginName);
+      LOG_SECURE("throttling: " << throttlingDelay
+		 << " seconds for " << user.identity(Identity::LoginName));
       break;
     case PasswordValid:
       password_->removeStyleClass("Wt-invalid", true);

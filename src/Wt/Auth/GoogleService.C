@@ -20,6 +20,9 @@ namespace {
 }
 
 namespace Wt {
+
+LOGGER("Auth::GoogleService");
+
   namespace Auth {
 
 class GoogleProcess : public OAuthProcess
@@ -53,13 +56,13 @@ private:
     if (!err && response.status() == 200) {
       Json::ParseError e;
 
-      Wt::log("notice") << "User info: " << response.body();
+      LOG_INFO("user info: " << response.body());
 
       Json::Object userInfo;
       bool ok = Json::parse(response.body(), userInfo, e);
 
       if (!ok) {
-	Wt::log("error") << "Could not parse Json: '" << response.body() << "'";
+	LOG_ERROR("could not parse Json: '" << response.body() << "'");
 	setError(ERROR_MSG("badjson"));
 	authenticated().emit(Identity::Invalid);
       } else {
@@ -72,10 +75,12 @@ private:
       }
     } else {
       setError(ERROR_MSG("badresponse"));
+
       if (!err) {
-	Wt::log("error") << "user info request returned: " << response.status();
-	Wt::log("error") << "with: " << response.body();
+	LOG_ERROR("user info request returned: " << response.status());
+	LOG_ERROR("with: " << response.body());
       }
+
       authenticated().emit(Identity::Invalid);
     }
   }
@@ -94,7 +99,7 @@ bool GoogleService::configured()
 
     return true;
   } catch (const std::exception& e) {
-    Wt::log("notice") << "GoogleService not configured: " << e.what();
+    LOG_INFO("not configured: " << e.what());
 
     return false;
   }
@@ -117,7 +122,7 @@ int GoogleService::popupWidth() const
 
 int GoogleService::popupHeight() const
 {
-  return 350;
+  return 400;
 }
 
 std::string GoogleService::authenticationScope() const

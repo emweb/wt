@@ -43,10 +43,6 @@ WT_DECLARE_WT_MEMBER
      return el.style.display != 'none';
    }
 
-   function hidePopup() {
-     el.style.display = 'none';
-   }
-
    function positionPopup(edit) {
      WT.positionAtWidget(el.id, edit.id, WT.Vertical, global, true);
    }
@@ -80,11 +76,27 @@ WT_DECLARE_WT_MEMBER
      editId = null;
    };
 
-   this.showPopup = function() {
+   var keyDownFun = null;
+
+   this.showPopup = function(edit) {
      el.style.display = '';
      selId = null;
      lastFilterValue = null;
+     keyDownFun = edit.onkeydown;
+     edit.onkeydown = function(event) {
+       var e=event||window.event,o=this;
+       self.editKeyDown(o, e);
+     };
    };
+
+   function hidePopup() {
+     el.style.display = 'none';
+     if (editId != null && keyDownFun != null) {
+       var edit = WT.getElement(editId);
+       edit.onkeydown = keyDownFun;
+       keyDownFun = null;
+     }
+   }
 
    this.editMouseMove = function(edit, event) {
      if (!checkEdit(edit))
@@ -97,6 +109,13 @@ WT_DECLARE_WT_MEMBER
        edit.style.cursor = '';
    };
 
+   this.showAt = function(edit) {
+     hidePopup();
+     editId = edit.id;
+     droppedDown = true;
+     self.refilter();
+   };
+
    this.editClick = function(edit, event) {
      if (!checkEdit(edit))
        return;
@@ -104,13 +123,10 @@ WT_DECLARE_WT_MEMBER
      var xy = WT.widgetCoordinates(edit, event);
      if (xy.x > edit.offsetWidth - 16) {
        if (editId != edit.id || !visible()) {
-	 hidePopup();
-	 editId = edit.id;
-	 droppedDown = true;
-	 self.refilter();
+	 self.showAt(edit);
        } else {
-	 editId = null;
 	 hidePopup();
+	 editId = null;
        }
      }
    };
@@ -286,7 +302,7 @@ WT_DECLARE_WT_MEMBER
      } else {
        if (!visible()) {
 	 positionPopup(edit);
-	 self.showPopup();
+	 self.showPopup(edit);
 	 sel = null;
        }
 
@@ -308,21 +324,16 @@ WT_DECLARE_WT_MEMBER
      if (!checkEdit(edit))
        return;
 
-     if ((event.keyCode == key_enter || event.keyCode == key_tab)
-       && el.style.display == 'none')
+     if (!visible()
+	 && (event.keyCode == key_enter
+	     || event.keyCode == key_tab)) {
        return;
+     }
 
      if (event.keyCode == key_escape
          || event.keyCode == key_left
          || event.keyCode == key_right) {
-       el.style.display = 'none';
-       if (event.keyCode == key_escape) {
-	 editId = null;
-	 if ($(edit).hasClass("Wt-suggest-dropdown"))
-	   hidePopup();
-	 else
-	   edit.blur();
-       }
+       hidePopup();
      } else {
        if (edit.value != lastFilterValue)
 	 self.refilter();

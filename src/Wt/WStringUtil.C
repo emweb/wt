@@ -15,6 +15,8 @@
 
 namespace Wt {
 
+LOGGER("WString");
+
 #ifndef WT_NO_STD_WSTRING
 #ifndef WT_NO_STD_LOCALE
 std::wstring widen(const std::string& s, const std::locale &loc)
@@ -48,7 +50,7 @@ std::wstring widen(const std::string& s, const std::locale &loc)
   }
 
   if (error)
-    Wt::log("error") << "WString::widen(): could not widen string: " << s;
+    LOG_ERROR("widen(): could not widen string: " << s);
 
   std::wstring result = std::wstring(pwstr, pwc - pwstr);
   delete[] pwstr;
@@ -116,9 +118,8 @@ std::string narrow(const std::wstring& s, const std::locale &loc)
 
   std::string result(pstr, pc - pstr);
 
-  if (error) {
-    Wt::log("warn") << "WString::narrow(): loss of detail: " << result;
-  }
+  if (error)
+    LOG_WARN("narrow(): loss of detail: " << result);
 
   delete[] pstr;
 
@@ -153,7 +154,7 @@ std::string toUTF8(const std::wstring& s)
       for (char *b = buf; b != end; ++b)
 	result += *b;
     } catch (rapidxml::parse_error& e) {
-      Wt::log("error") << "WString::toUTF8(): " << e.what();
+      LOG_ERROR("toUTF8(): " << e.what());
     }
   }
 

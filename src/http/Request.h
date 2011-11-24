@@ -62,11 +62,11 @@ public:
   HeaderMap headerMap;
   std::vector<HeaderMap::iterator> headerOrder;
   ::int64_t contentLength;
+  int webSocketVersion;
 
   std::string request_path;
   std::string request_query;
   std::string request_extra_path;
-  bool webSocketRequest;
 
   void reset();
 

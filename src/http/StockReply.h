@@ -43,14 +43,12 @@ public:
 			   Request::State state);
 
 protected:
-  virtual status_type responseStatus();
   virtual std::string contentType();
   virtual ::int64_t contentLength();
 
   virtual asio::const_buffer nextContentBuffer();  
 
 private:
-  status_type status_;
   std::string content_;
   bool transmitted_;
 };

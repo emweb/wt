@@ -9,6 +9,7 @@
 #include "Wt/WServer"
 
 #include "Configuration.h"
+#include "Utils.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,11 +23,13 @@
 #include <iostream>
 #include <fstream>
 
-#include <boost/algorithm/string.hpp>
-
 #ifdef __CYGWIN__
 #include <Winsock2.h> // for gethostname()
 #endif
+
+namespace Wt {
+  LOGGER("wthttp");
+}
 
 namespace http {
 namespace server {
@@ -181,8 +184,8 @@ void Configuration::setOptions(int argc, char **argv,
 	std::ios::in | std::ios::binary);
       if (cfgFile) {
 	if (!silent_)
-	  log("notice") << "Reading wthttpd configuration from: "
-			<< configurationFile;
+	  LOG_INFO_S(this, "reading wthttpd configuration from: "
+		     << configurationFile);
 	po::store(po::parse_config_file(cfgFile, all_options), vm);
       }
     }
@@ -236,7 +239,7 @@ void Configuration::readOptions(const po::variables_map& vm)
   if (vm.count("docroot")) {
     docRoot_ = vm["docroot"].as<std::string>();
 
-    std::vector<std::string> parts;
+    Wt::Utils::SplitVector parts;
     boost::split(parts, docRoot_, boost::is_any_of(";"));
 
     if (parts.size() > 1) {
@@ -248,7 +251,7 @@ void Configuration::readOptions(const po::variables_map& vm)
     }
 
     if (parts.size() > 0)
-      docRoot_ = parts[0];
+      docRoot_ = std::string(parts[0].begin(), parts[0].end());
 
     checkPath(docRoot_, "Document root", Directory);
   } else
@@ -294,7 +297,7 @@ void Configuration::readOptions(const po::variables_map& vm)
 
 Wt::WLogEntry Configuration::log(const std::string& type) const
 {
-  Wt::WLogEntry e = logger_.entry();
+  Wt::WLogEntry e = logger_.entry(type);
 
   e << Wt::WLogger::timestamp << Wt::WLogger::sep
     << getpid() << Wt::WLogger::sep

@@ -133,6 +133,9 @@ public:
   virtual void scrollTo(const WModelIndex& index,
 			ScrollHint hint = EnsureVisible);
 
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
+
 private:
   class ColumnWidget : public WContainerWidget
   {

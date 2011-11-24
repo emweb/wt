@@ -18,8 +18,8 @@
 
 #include "Utils.h"
 
+#include <cfloat>
 #include <limits>
-#include <float.h>
 
 namespace {
   const int TICK_LENGTH = 5;

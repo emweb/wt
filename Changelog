@@ -1,3 +1,27 @@
+21-11-2011:
+	* Wt/Dbo/backend/Firebird: merged Firebird backend contributed by
+	Lukasz Matuszewski.
+
+	* Wt/WLogger: the library now uses macros that wrap around
+	Wt::log() by default for internal logging, but this could be
+	adapted to use another logging system of your choice. We also
+	abide the third law of logging libraries: that they will expand
+	their features until they become unusable: we added configurations
+	options to enable or disable specific logging.
+
+	* WServer: support catching SIGHUP (on unix-like) systems to
+	reread the configuration file.
+
+	* httpd: implement newer (and newest) WebSocket drafts (protocol
+	versions 7, 8 and 13)
+
+	* all: closed several bugs and feature requests (#956, #1015,
+	#1018, #1064)
+
+18-11-2011:
+	* WString: we now store arguments as WString so they are also
+	properly i18n-ed (#1059).
+
 07-11-2011:
 	* WException: new, public exception class (was previously an internal
 	one)

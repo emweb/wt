@@ -16,6 +16,8 @@
 
 namespace Wt {
 
+LOGGER("WDateValidator");
+
 WDateValidator::WDateValidator(WObject *parent)
   : WValidator(parent)
 {
@@ -170,7 +172,7 @@ WValidator::Result WDateValidator::validate(const WT_USTRING& input) const
 	return Result(Valid);
       }
     } catch (std::exception& e) {
-      Wt::log("warn") << "WDateValidator::validate(): " << e.what();
+      LOG_WARN("validate(): " << e.what());
     }
   }
 
@@ -246,7 +248,7 @@ void WDateValidator::createExtConfig(std::ostream& config) const
       config << ",maxValue:"
 	     << WWebWidget::jsStringLiteral(top_.toString(formats_[0]));
   } catch (std::exception& e) {
-    Wt::log("error") << "WDateValidator: " << e.what();
+    LOG_ERROR(e.what());
   }
 
   if (!tooEarlyText_.empty())

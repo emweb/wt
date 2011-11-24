@@ -286,6 +286,13 @@ void WFormWidget::updateDom(DomElement& element, bool all)
     if (!all || !isEnabled())
       element.setProperty(Wt::PropertyDisabled,
 			  isEnabled() ? "false" : "true");
+
+    if (!all && isEnabled() && env.agentIsIE()) {
+      /*
+       * FIXME: implement a workaround for IE, reenabling a checkbox makes
+       * the input box loose interactivity.
+       */
+    }
     flags_.reset(BIT_ENABLED_CHANGED);
   }
 

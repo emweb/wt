@@ -10,6 +10,9 @@
 #include "AbstractUserDatabase"
 
 namespace Wt {
+
+LOGGER("Auth::AbstractUserDatabase");
+
   namespace Auth {
 
 const char *EMAIL_VERIFICATION = "email verification";
@@ -22,11 +25,11 @@ class Require : public WException
 {
 public:
   Require(const std::string& method)
-    : WException("You need to specialize AbstractUserDatabase::" + method)
+    : WException("You need to specialize " + method)
   { }
 
   Require(const std::string& method, const std::string function)
-    : WException("You need to specialize AbstractUserDatabase::"
+    : WException("You need to specialize "
 		 + method + " for " + function)
   { }
 };
@@ -52,7 +55,7 @@ User::Status AbstractUserDatabase::status(const User& user) const
 
 PasswordHash AbstractUserDatabase::password(const User& user) const
 {
-  Wt::log("error") << Require("password()", PASSWORDS).what();
+  LOG_ERROR(Require("password()", PASSWORDS).what());
 
   return PasswordHash();
 }
@@ -60,19 +63,19 @@ PasswordHash AbstractUserDatabase::password(const User& user) const
 void AbstractUserDatabase::setPassword(const User& user,
 				       const PasswordHash& password)
 {
-  Wt::log("error") << Require("setPassword()", PASSWORDS).what();
+  LOG_ERROR(Require("setPassword()", PASSWORDS).what());
 }
 
 User AbstractUserDatabase::registerNew()
 {
-  Wt::log("error") << Require("registerNew()", REGISTRATION).what();
+  LOG_ERROR(Require("registerNew()", REGISTRATION).what());
 
   return User();
 }
 
 std::string AbstractUserDatabase::email(const User& user) const
 {
-  Wt::log("error") << Require("email()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("email()", EMAIL_VERIFICATION).what());
 
   return std::string();
 }
@@ -80,20 +83,20 @@ std::string AbstractUserDatabase::email(const User& user) const
 bool AbstractUserDatabase::setEmail(const User& user,
 				    const std::string& address)
 {
-  Wt::log("error") << Require("setEmail()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("setEmail()", EMAIL_VERIFICATION).what());
   return false;
 }
 
 User AbstractUserDatabase::findWithEmail(const std::string& address) const
 {
-  Wt::log("error") << Require("findWithEmail()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("findWithEmail()", EMAIL_VERIFICATION).what());
 
   return User();
 }
 
 std::string AbstractUserDatabase::unverifiedEmail(const User& user) const
 {
-  Wt::log("error") << Require("unverifiedEmail()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("unverifiedEmail()", EMAIL_VERIFICATION).what());
 
   return std::string();
 }
@@ -101,12 +104,12 @@ std::string AbstractUserDatabase::unverifiedEmail(const User& user) const
 void AbstractUserDatabase::setUnverifiedEmail(const User& user,
 					      const std::string& address)
 {
-  Wt::log("error")<< Require("setUnverifiedEmail()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("setUnverifiedEmail()", EMAIL_VERIFICATION).what());
 }
 
 Token AbstractUserDatabase::emailToken(const User& user) const
 {
-  Wt::log("error") << Require("emailToken()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("emailToken()", EMAIL_VERIFICATION).what());
 
   return Token();
 }
@@ -114,7 +117,7 @@ Token AbstractUserDatabase::emailToken(const User& user) const
 User::EmailTokenRole AbstractUserDatabase::emailTokenRole(const User& user)
   const
 {
-  Wt::log("error") << Require("emailTokenRole()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("emailTokenRole()", EMAIL_VERIFICATION).what());
 
   return User::VerifyEmail;
 }
@@ -122,58 +125,57 @@ User::EmailTokenRole AbstractUserDatabase::emailTokenRole(const User& user)
 void AbstractUserDatabase::setEmailToken(const User& user, const Token& token,
 					 User::EmailTokenRole role)
 {
-  Wt::log("error") << Require("setEmailToken()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("setEmailToken()", EMAIL_VERIFICATION).what());
 }
 
 User AbstractUserDatabase::findWithEmailToken(const std::string& hash) const
 {
-  Wt::log("error")
-    << Require("findWithEmailToken()", EMAIL_VERIFICATION).what();
+  LOG_ERROR(Require("findWithEmailToken()", EMAIL_VERIFICATION).what());
 
   return User();
 }
 
 void AbstractUserDatabase::addAuthToken(const User& user, const Token& token)
 {
-  Wt::log("error") << Require("addAuthToken()", AUTH_TOKEN).what();
+  LOG_ERROR(Require("addAuthToken()", AUTH_TOKEN).what());
 }
 
 void AbstractUserDatabase::removeAuthToken(const User& user,
 					   const std::string& hash)
 {
-  Wt::log("error") << Require("removeAuthToken()", AUTH_TOKEN).what();
+  LOG_ERROR(Require("removeAuthToken()", AUTH_TOKEN).what());
 }
 
 User AbstractUserDatabase::findWithAuthToken(const std::string& hash) const
 {
-  Wt::log("error") << Require("findWithAuthToken()", AUTH_TOKEN).what();
+  LOG_ERROR(Require("findWithAuthToken()", AUTH_TOKEN).what());
 
   return User();
 }
 
 int AbstractUserDatabase::failedLoginAttempts(const User& user) const
 {
-  Wt::log("error") << Require("failedLoginAttempts()", THROTTLING).what();
+  LOG_ERROR(Require("failedLoginAttempts()", THROTTLING).what());
 
   return 0;
 }
 
 void AbstractUserDatabase::setFailedLoginAttempts(const User& user, int count)
 { 
-  Wt::log("error") << Require("setFailedLoginAttempts()", THROTTLING).what();
+  LOG_ERROR(Require("setFailedLoginAttempts()", THROTTLING).what());
 }
 
 WDateTime AbstractUserDatabase::lastLoginAttempt(const User& user) const
 {
-  Wt::log("error") << Require("lastLoginAttempt()", THROTTLING).what();
+  LOG_ERROR(Require("lastLoginAttempt()", THROTTLING).what());
 
   return WDateTime(WDate(1970, 1, 1));
 }
 
 void AbstractUserDatabase::setLastLoginAttempt(const User& user,
 					       const WDateTime& t)
-{ 
-  Wt::log("error") << Require("setLastLoginAttempt()", THROTTLING).what();
+{
+  LOG_ERROR(Require("setLastLoginAttempt()", THROTTLING).what());
 }
 
   }

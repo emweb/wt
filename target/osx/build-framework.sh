@@ -173,9 +173,9 @@ createFramework()
 EOF
 }
 
-#clean
-#build-armv6
-#build-armv7
+clean
+build-armv6
+build-armv7
 build-i386
 combineLibs $BUILD_ARMV6_DIR
 combineLibs $BUILD_ARMV7_DIR

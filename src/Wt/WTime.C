@@ -17,6 +17,8 @@
 
 namespace Wt {
 
+LOGGER("WTime");
+
   namespace {
     const int MSECS_PER_DAY = 24 * 60 * 60 * 1000;
   }
@@ -51,7 +53,7 @@ bool WTime::setHMS(int h, int m, int s, int ms)
     valid_ = true;
     time_ = ((h * 60 + m) * 60 + s) * 1000 + ms;
   } else {
-    Wt::log("warn") << "Invalid time: " << h << ":" << m << ":" << s << "." << ms;
+    LOG_WARN("Invalid time: " << h << ":" << m << ":" << s << "." << ms);
     valid_ = false;
     time_ = 0; // !null
   }

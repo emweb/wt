@@ -5,14 +5,17 @@
  */
 #include <fstream>
 #include <boost/date_time/posix_time/posix_time.hpp>
-using namespace boost::posix_time;
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WServer"
+#include "Wt/WString"
 
 #include "Utils.h"
 #include "WebSession.h"
+
+using namespace boost::posix_time;
 
 namespace Wt {
 
@@ -30,7 +33,7 @@ WLogEntry::~WLogEntry()
 {
   if (impl_) {
     impl_->finish();
-    impl_->logger_.addLine(impl_->currentLine_.str());
+    impl_->logger_.addLine(impl_->type_, impl_->scope_, impl_->line_);
   }
 
   delete impl_;
@@ -38,9 +41,8 @@ WLogEntry::~WLogEntry()
 
 WLogEntry& WLogEntry::operator<< (const WLogger::Sep&)
 {
-  checkImpl();
-
-  impl_->nextField();
+  if (impl_)
+    impl_->nextField();
 
   return *this;
 }
@@ -57,47 +59,85 @@ WLogEntry& WLogEntry::operator<< (const char *s)
   return *this << std::string(s);
 }
 
+WLogEntry& WLogEntry::operator<< (const WString& s)
+{
+  return *this << s.toUTF8();
+}
+
 WLogEntry& WLogEntry::operator<< (const std::string& s)
 {
-  checkImpl();
-
-  if (impl_->quote()) {
-    startField();
-
-    std::string ss(s);
-    Wt::Utils::replace(ss, '"', "\"\"");
-
-    impl_->currentLine_ << ss;
-  } else
-    if (!s.empty()) {
+  if (impl_) {
+    if (impl_->quote()) {
       startField();
-      impl_->currentLine_ << s;
+
+      std::string ss(s);
+      Wt::Utils::replace(ss, '"', "\"\"");
+
+      impl_->line_ << ss;
+    } else {
+      if (!s.empty()) {
+	startField();
+	impl_->line_ << s;
+      }
     }
+
+    if (impl_->field_ == (int)impl_->logger_.fields().size() - 1
+	&& impl_->scope_.empty())
+      impl_->scope_ = s;
+  }
 
   return *this;
 }
 
-WLogEntry::WLogEntry(const WLogger& logger)
-{ 
-  impl_ = new Impl(logger);
+WLogEntry& WLogEntry::operator<< (int v)
+{
+  startField();
+
+  if (impl_)
+    impl_->line_ << v;
+
+  return *this;
 }
 
-void WLogEntry::checkImpl()
+WLogEntry& WLogEntry::operator<< (long long v)
 {
-  if (!impl_)
-    throw WException("WLogger: cannot use copied WLogEntry");
+  startField();
+
+  if (impl_)
+    impl_->line_ << v;
+
+  return *this;
+}
+
+WLogEntry& WLogEntry::operator<< (double v)
+{
+  startField();
+
+  if (impl_)
+    impl_->line_ << v;
+
+  return *this;
+}
+
+WLogEntry::WLogEntry(const WLogger& logger, const std::string& type,
+		     bool mute)
+{
+  if (mute)
+    impl_ = 0;
+  else
+    impl_ = new Impl(logger, type);
 }
 
 void WLogEntry::startField()
 {
-  checkImpl();
-
-  impl_->startField();
+  if (impl_)
+    impl_->startField();
 }
 
-WLogEntry::Impl::Impl(const WLogger& logger)
+WLogEntry::Impl::Impl(const WLogger& logger, const std::string& type)
   : logger_(logger),
-    currentField_(0),
+    type_(type),
+    field_(0),
     fieldStarted_(false)
 { }
 
@@ -105,7 +145,7 @@ void WLogEntry::Impl::startField()
 {
   if (!fieldStarted_) {
     if (quote())
-      currentLine_ << '"';
+      line_ << '"';
     fieldStarted_ = true;
   }
 }
@@ -114,23 +154,23 @@ void WLogEntry::Impl::finishField()
 {
   if (fieldStarted_) {
     if (quote())
-      currentLine_ << '"';
+      line_ << '"';
   } else
-    currentLine_ << '-';
+    line_ << '-';
 }
 
 void WLogEntry::Impl::nextField()
 {
   finishField();
 
-  currentLine_ << ' ';
+  line_ << ' ';
   fieldStarted_ = false;
-  ++currentField_;
+  ++field_;
 }
 
 void WLogEntry::Impl::finish()
 {
-  while (currentField_ < (int)logger_.fields().size() - 1)
+  while (field_ < (int)logger_.fields().size() - 1)
     nextField();
 
   finishField();
@@ -138,8 +178,8 @@ void WLogEntry::Impl::finish()
 
 bool WLogEntry::Impl::quote() const
 {
-  if (currentField_ < (int)logger_.fields().size())
-    return logger_.fields()[currentField_].isString();
+  if (field_ < (int)logger_.fields().size())
+    return logger_.fields()[field_].isString();
   else
     return false;
 }
@@ -155,7 +195,16 @@ WLogger::Field::Field(const std::string& name, bool isString)
 WLogger::WLogger()
   : o_(&std::cerr),
     ownStream_(false)
-{ }
+{
+  Rule r;
+  r.type = "*";
+  r.scope = "*";
+  r.include = true;
+  rules_.push_back(r);
+  r.type = "debug";
+  r.include = false;
+  rules_.push_back(r);
+}
 
 WLogger::~WLogger()
 { 
@@ -195,15 +244,72 @@ void WLogger::addField(const std::string& name, bool isString)
   fields_.push_back(Field(name, isString));
 }
 
-WLogEntry WLogger::entry() const
+WLogEntry WLogger::entry(const std::string& type) const
 {
-  return WLogEntry(*this);
+  return WLogEntry(*this, type, !logging(type));
 }
 
-void WLogger::addLine(const std::string& s) const
+void WLogger::addLine(const std::string& type,
+		      const std::string& scope, const WStringStream& s) const
 {
-  if (o_)
-    *o_ << s << std::endl;
+  if (logging(type, scope))
+    if (o_)
+      *o_ << s.str() << std::endl;
+}
+
+void WLogger::configure(const std::string& config)
+{
+  rules_.clear();
+
+  Utils::SplitVector rules;
+  boost::split(rules, config, boost::algorithm::is_space(),
+	       boost::algorithm::token_compress_on);
+
+  for (unsigned i = 0; i < rules.size(); ++i) {
+    Utils::SplitVector type_scope;
+    boost::split(type_scope, rules[i], boost::is_any_of(":"));
+
+    Rule r;
+    r.type = std::string(type_scope[0].begin(), type_scope[0].end());
+
+    if (type_scope.size() == 1)
+      r.scope = "*";
+    else
+      r.scope = std::string(type_scope[1].begin(), type_scope[1].end());
+
+    r.include = true;
+
+    if (r.type[0] == '-') {
+      r.include = false;
+      r.type = r.type.substr(1);
+    } else if (r.type[0] == '+')
+      r.type = r.type.substr(1);
+
+    rules_.push_back(r);
+  }
+}
+
+bool WLogger::logging(const std::string& type) const
+{
+  bool result = false;
+
+  for (unsigned i = 0; i < rules_.size(); ++i)
+    if (rules_[i].type == "*" || rules_[i].type == type)
+      result = rules_[i].include;
+
+  return result;
+}
+
+bool WLogger::logging(const std::string& type, const std::string& scope) const
+{
+  bool result = false;
+
+  for (unsigned i = 0; i < rules_.size(); ++i)
+    if (rules_[i].type == "*" || rules_[i].type == type)
+      if (rules_[i].scope == "*" || rules_[i].scope == scope)
+	result = rules_[i].include;
+
+  return result;
 }
 
 WLogEntry log(const std::string& type)
@@ -218,7 +324,7 @@ WLogEntry log(const std::string& type)
     if (server)
       return server->log(type);
     else
-      return defaultLogger.entry() << type << ": ";
+      return defaultLogger.entry(type);
   }
 }
 

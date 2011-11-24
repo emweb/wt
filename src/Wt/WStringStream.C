@@ -136,6 +136,13 @@ WStringStream& WStringStream::operator<< (int v)
   return *this << buf;
 }
 
+WStringStream& WStringStream::operator<< (long long v)
+{
+  char buf[40];
+  Utils::lltoa(v, buf);
+  return *this << buf;
+}
+
 WStringStream& WStringStream::operator<< (double d)
 {
   char buf[50];

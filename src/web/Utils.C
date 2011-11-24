@@ -168,15 +168,44 @@ char *itoa(int value, char *result, int base) {
   char* out = result;
   int quotient = value;
 
+  if (quotient < 0)
+    quotient = -quotient;
+
   do {
-    *out = "0123456789abcdefghijklmnopqrstuvwxyz"[ std::abs( quotient % base ) ];
+    *out =
+      "0123456789abcdefghijklmnopqrstuvwxyz"[quotient % base];
     ++out;
     quotient /= base;
   } while (quotient);
 
-  if (value < 0 && base == 10) *out++ = '-';
+  if (value < 0 && base == 10)
+    *out++ = '-';
+
   std::reverse(result, out);
   *out = 0;
+
+  return result;
+}
+
+char *lltoa(long long value, char *result, int base) {
+  char* out = result;
+  long long quotient = value;
+
+  if (quotient < 0)
+    quotient = -quotient;
+
+  do {
+    *out =
+      "0123456789abcdefghijklmnopqrstuvwxyz"[ quotient % base ];
+    ++out;
+    quotient /= base;
+  } while (quotient);
+
+  if (value < 0 && base == 10)
+    *out++ = '-';
+  std::reverse(result, out);
+  *out = 0;
+
   return result;
 }
 
@@ -263,8 +292,7 @@ std::string dataUrlDecode(const std::string& url,
   return std::string();
 }
 
-void split(std::set<std::string>& tokens,
-	   const std::string &in, const char *sep,
+void split(SplitSet& tokens, const std::string &in, const char *sep,
 	   bool compress_adjacent_tokens)
 {
     boost::split(tokens, in, boost::is_any_of(sep),

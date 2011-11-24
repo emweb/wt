@@ -9,6 +9,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <Wt/Dbo/WDboDllDefs.h>
 
 namespace Wt {
@@ -127,6 +128,27 @@ public:
    */
   virtual std::string autoincrementSql() const = 0;
 
+  /*! \brief Returns the SQL statement(s) required to create an id sequence.
+   *
+   * This is used by Session::createTables() to create the id
+   * sequence for a table.
+   * The table's name and primary key are passed as arguments to this function
+   * and can be used to construct an SQL sequence that is unique for the table.
+   */
+  virtual std::vector<std::string> 
+    autoincrementCreateSequenceSql(const std::string &table,
+				   const std::string &id) const = 0;
+
+  /*! \brief Returns the SQL statement(s) required to drop an id sequence.
+   *
+   * This is used by Session::dropTables() to drop the id sequence for a table.
+   * The table's name and primary key are passed as arguments to this function
+   * and can be used to construct an SQL sequence that is unique for the table.
+   */
+  virtual std::vector<std::string> 
+    autoincrementDropSequenceSql(const std::string &table,
+				 const std::string &id) const = 0;
+
   /*! \brief Returns the 'autoincrement' SQL type.
    *
    * This is used by Session::createTables() to create the <i>id</i>
@@ -140,6 +162,13 @@ public:
    * need to be indicated that they should return the autoincrement id.
    */
   virtual std::string autoincrementInsertSuffix() const = 0;
+
+  /*! \brief Execute code before dropping the tables.
+   *
+   * This method is called before calling Session::dropTables().
+   * The default implementation is empty.
+   */
+  virtual void prepareForDropTables();
   
   /*! \brief Returns the date/time type.
    *
@@ -152,6 +181,20 @@ public:
    * \sa SqlStatement::bind(int, const std::vector<unsigned char>&)
    */
   virtual const char *blobType() const = 0;
+
+  /*! \brief Returns the text type.
+   *
+   * This method will return "text" by default.
+   *
+   * \sa SqlStatement::bind(int column, const std::string& value)
+   */
+  virtual const char *textType() const;
+
+  /*! \brief Returns the boolean type.
+   *
+   * This method will return "boolean" by default.
+   */
+  virtual const char *booleanType() const;
 
   /*! \brief Returns whether the SQL dialect uses 'ROWS ? TO ?' for partial
    *         select results.

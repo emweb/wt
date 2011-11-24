@@ -29,9 +29,11 @@
 #define UNKNOWN_VIEWPORT_HEIGHT 600
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 namespace Wt {
+
+LOGGER("WTableView");
 
 WTableView::WTableView(WContainerWidget *parent)
   : WAbstractItemView(parent),
@@ -165,14 +167,14 @@ void WTableView::resize(const WLength& width, const WLength& height)
 {
   if (ajaxMode()) {
     if (height.unit() == WLength::Percentage) {
-      Wt::log("error") << "WTableView::resize(): height cannot be a Percentage";
+      LOG_ERROR("resize(): height cannot be a Percentage");
       return;
     }
 
     if (!height.isAuto()) {
       viewportHeight_
-	= static_cast<int>(ceil((height.toPixels()
-				 - headerHeight().toPixels())));
+	= static_cast<int>(std::ceil((height.toPixels()
+				      - headerHeight().toPixels())));
     }
   } else { // Plain HTML mode
     if (!plainTable_) // Not yet rendered
@@ -639,6 +641,28 @@ void WTableView::renderTable(const int fr, const int lr,
     << ");";
 
   WApplication::instance()->doJavaScript(s.str());			
+}
+
+void WTableView::setHidden(bool hidden, const WAnimation& animation)
+{
+  bool change = isHidden() != hidden;
+
+  WAbstractItemView::setHidden(hidden, animation);
+
+  if (change && !hidden) {
+    /*
+     * IE9 reset the scroll position to (0, 0) when display changes from
+     * 'none' to ''
+     */
+    WApplication *app = WApplication::instance();
+    if (app->environment().ajax()
+	&& app->environment().agentIsIE()
+	&& !app->environment().agentIsIElt(9)) {
+      WStringStream s;
+      s << "jQuery.data(" << jsRef() << ", 'obj').resetScroll();";
+      doJavaScript(s.str());
+    }
+  }
 }
 
 void WTableView::resetGeometry()

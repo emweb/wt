@@ -228,14 +228,38 @@
          -->
 	<log-file></log-file>
 
-	<!-- Log response times
+	<!-- Logger configuration
 
-	   Log the response time for each HTTP request or websocket
-	   message (to stderr). This includes the time to parse the
-	   request parameters and body, generate the result, but
-	   excludes time spent in HTTP I/O.
+	   This configures the logger. With the default configuration,
+	   everything except for debugging messages are logged.
+
+	   The configuration is a string that defines rules for
+	   enabling or disabling certain logging. It is a white-space
+	   delimited list of rules, and each rule is of the form:
+
+	     [-]level : enables (or disables) logging of messages of
+	     the given level; '*' is a wild-card that matches all
+	     levels
+
+	     [-]level:scope : enables (or disables) logging of
+	     messages of the given level and scope; '*' is a wild-card
+	     that matches all levels or scopes.  The default
+	     configuration is "* -debug", i.e. by default everything
+	     is logged, except for "debug" messages.
+
+	   Some other examples:
+
+	     "* -debug debug:wthttp": logs everything, including
+	     debugging messages of scope "wthttp", but no other
+	     debugging messages.
+
+	     "* -info -debug": disables logging of info messages
+	     in addition to debugging messages.
+
+	   Note debugging messages are only emitted when debugging
+	   has been enabled while building Wt.
 	  -->
-	<log-response-time>false</log-response-time>
+	<log-config>* -debug</log-config>
 
 	<!-- Maximum HTTP request size (Kb)
 
@@ -494,7 +518,7 @@
 
             <!-- resourcesURL property
 
-	       The URL at which the resources/ folder is deploeyd that
+	       The URL at which the resources/ folder is deployed that
 	       comes distributed with Wt and contains auxiliary files
 	       used to primarily for styles and themes.
 

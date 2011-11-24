@@ -9,6 +9,7 @@
 
 #include <Wt/WPointF>
 #include <Wt/WRectF>
+#include <Wt/WTransform>
 #include <vector>
 
 namespace Wt {
@@ -340,8 +341,11 @@ public:
    *
    * Returns the bounding box of all control points. This is guaranteed to
    * be a superset of the actual bounding box.
+   *
+   * The \p transform is applied to the path first.
    */
-  WRectF controlPointRect() const;
+  WRectF controlPointRect(const WTransform& transform = WTransform::Identity)
+    const;
 
 private:
   bool isRect_;
@@ -355,8 +359,6 @@ private:
 
   /* Draws an arc (<b>deprecated</b>).
    *
-   * Deprecated: use arcTo(double cx, double cy, double radius, double startAngle, double sweepLength) instead since not all renderers support elliptical segments (width != height).
-   *
    * Draws an arc which is a segment of an ellipse, which fits in the
    * rectangle defined by top left position (\p x,
    * <i>y</i>), and size <i>width</i> x \p height. The segment starts at
@@ -365,7 +367,6 @@ private:
    * measured counter-clockwise starting from the 3 o'clock position.
    *
    * \sa arcMoveTo(double cx, double cy, double radius, double startAngle, double sweepLength)
-   *
    */
   void arcTo(double x, double y, double width, double height,
 	     double startAngle, double sweepLength);

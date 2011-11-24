@@ -9,6 +9,9 @@
 #include "Utils.h"
 
 namespace Wt {
+
+LOGGER("Render::Line");
+
   namespace Render {
 
 const double Line::LEFT_MARGIN_X = -1;
@@ -224,8 +227,7 @@ void Line::finish(AlignmentFlag textAlign,
     }
     break;
   default:
-    Wt::log("error") << "Wt::Render: Unsupported text-align attribute: "
-		     << (int)textAlign;
+    LOG_ERROR("unsupported text-align attribute: " << (int)textAlign);
   }
 
   double x = startX;

@@ -28,9 +28,6 @@ WT_DECLARE_WT_MEMBER
      var parentSize = WT.windowSize();
      var parentPos = getScreenPos();
 
-     console.log("Parent size: " + parentSize.x + "x" + parentSize.y);
-     console.log("Parent pos: " + parentPos.x + "," + parentPos.y);
-
      var xPos = parentPos.x +
        Math.max(0, Math.floor((parentSize.x - width) / 2));
      var yPos = parentPos.y +
@@ -42,7 +39,7 @@ WT_DECLARE_WT_MEMBER
    var coordinates = computePopupPos(width, height);
    var w = window.open(url, "",
 	       "width=" + width + ",height=" + height +
-	       ",\"status=yes,location=yes,resizable=yes" +
-	       ",left=" + coordinates.x + ",top=" + coordinates.y + "\"");
+	       ",status=yes,location=yes,resizable=yes" +
+	       ",left=" + coordinates.x + ",top=" + coordinates.y);
    w.opener = window;
  });

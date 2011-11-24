@@ -14,6 +14,8 @@
 
 namespace Wt {
 
+LOGGER("WColor");
+
 WColor::WColor()
   : default_(true),
     red_(0),
@@ -40,7 +42,7 @@ int parseRgbArgument(const std::string& argument)
     else 
       return boost::lexical_cast<int>(arg);
   } catch (boost::bad_lexical_cast &e) {
-    Wt::log("error") << "WColor: invalid color component: " << arg;
+    LOG_ERROR("invalid color component: " << arg);
     return 0;
   }
 }
@@ -69,13 +71,13 @@ WColor::WColor(const WString& name)
       green_ = strtol(n.substr(3,2).c_str(), 0, 16);
       blue_ = strtol(n.substr(5,2).c_str(), 0, 16);
     } else {
-      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      LOG_ERROR("could not parse rgb format: " << n);
       red_ = green_ = blue_ = -1;
       return;
     }
   } else if (boost::starts_with(n, "rgb")) {
     if (n.size() < 5) {
-      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      LOG_ERROR("could not parse rgb format: " << n);
       return;
     }
 
@@ -83,7 +85,7 @@ WColor::WColor(const WString& name)
     int start_bracket = 3 + alpha;
 
     if (n[start_bracket] != '(' || n[n.size() - 1] != ')') {
-      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      LOG_ERROR("could not parse rgb format: " << n);
       return;
     }
 
@@ -96,12 +98,12 @@ WColor::WColor(const WString& name)
 		 boost::is_any_of(","));
 
     if (!alpha && arguments.size() != 3) {
-      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      LOG_ERROR("could not parse rgb format: " << n);
       return;
     }
     
     if (alpha && arguments.size() != 4) {
-      Wt::log("error") << "WColor: could not parse rgb format: " << n;
+      LOG_ERROR("could not parse rgb format: " << n);
       return;
     }
 
@@ -113,7 +115,7 @@ WColor::WColor(const WString& name)
       try {
 	alpha_ = boost::lexical_cast<int>(boost::trim_copy(arguments[3]));
       } catch (boost::bad_lexical_cast &e) {
-	Wt::log("error") << "WColor: could not parse rgb format: " << n;
+	LOG_ERROR("could not parse rgb format: " << n);
 	alpha_ = 255;
 	return;
       }
@@ -163,7 +165,7 @@ bool WColor::operator!=(const WColor& other) const
 int WColor::red() const
 {
   if (red_ == -1) {
-    Wt::log("error") << "WColor::red(): color component not available.";
+    LOG_ERROR("red(): color component not available.");
     return 0;
   }
 
@@ -173,7 +175,7 @@ int WColor::red() const
 int WColor::green() const
 {
   if (green_ == -1) {
-    Wt::log("error") << "WColor::green(): color component not available.";
+    LOG_ERROR("green(): color component not available.");
     return 0;
   }
 
@@ -183,7 +185,7 @@ int WColor::green() const
 int WColor::blue() const
 {
   if (blue_ == -1) {
-    Wt::log("error") << "WColor::blue(): color component not available.";
+    LOG_ERROR("blue(): color component not available.");
     return 0;
   }
 

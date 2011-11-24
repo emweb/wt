@@ -32,7 +32,9 @@
 #undef max
 #endif
 
-using namespace Wt;
+namespace Wt {
+
+LOGGER("WWebWidget");
 
 namespace {
 
@@ -528,8 +530,8 @@ void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 				      const WLength& length)
 {
   if (AlignHorizontalMask & alignment)
-    Wt::log("error") << "WWebWidget::setVerticalAlignment(): alignment "
-		     << alignment << " is not vertical";
+    LOG_ERROR("setVerticalAlignment(): alignment " << alignment
+	      << " is not vertical");
 
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
@@ -586,7 +588,7 @@ WLength WWebWidget::offset(Side s) const
   case Left:
     return layoutImpl_->offsets_[3];
   default:
-    Wt::log("error") << "WWebWidget::offset(Side) with invalid side: " << (int)s;
+    LOG_ERROR("offset(Side) with invalid side: " << (int)s);
     return WLength();
   }
 }
@@ -714,8 +716,7 @@ WLength WWebWidget::margin(Side side) const
   case Left:
     return layoutImpl_->margin_[3];
   default:
-    Wt::log("error") << "WWebWidget::margin(Side) with invalid side: "
-		     << (int)side;
+    LOG_ERROR("margin(Side) with invalid side: " << (int)side);
     return WLength();
   }
 }
@@ -726,7 +727,7 @@ void WWebWidget::addStyleClass(const WT_USTRING& styleClass, bool force)
     lookImpl_ = new LookImpl();
 
   std::string currentClass = lookImpl_->styleClass_.toUTF8();
-  std::set<std::string> classes;
+  Utils::SplitSet classes;
   Utils::split(classes, currentClass, " ", true);
   
   if (classes.find(styleClass.toUTF8()) == classes.end()) {
@@ -757,7 +758,7 @@ void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
     lookImpl_ = new LookImpl();
 
   std::string currentClass = lookImpl_->styleClass_.toUTF8();
-  std::set<std::string> classes;
+  Utils::SplitSet classes;
   Utils::split(classes, currentClass, " ", true);
 
   if (classes.find(styleClass.toUTF8()) != classes.end()) {
@@ -1053,7 +1054,7 @@ void WWebWidget::addChild(WWidget *child)
 
   if (child->parent() != 0) {
     child->setParentWidget(0);
-    Wt::log("warn") << "WWebWidget::addChild(): reparenting child";
+    LOG_WARN("addChild(): reparenting child");
   }
 
   if (!children_)
@@ -2037,8 +2038,7 @@ void WWebWidget::doLoad(WWidget *w)
 {
   w->load();
   if (!w->loaded())
-    std::cerr << "Improper load() implementation: base implementation not "
-      "called?" << std::endl;
+    LOG_ERROR("improper load() implementation: base implementation not called");
 }
 
 void WWebWidget::render(WFlags<RenderFlag> flags)
@@ -2297,4 +2297,6 @@ bool WWebWidget::removeScript(WString& text)
 #else
   return true;
 #endif
+}
+
 }

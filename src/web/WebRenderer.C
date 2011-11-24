@@ -33,8 +33,11 @@
 #endif
 #endif
 
-//#define DEBUG_JS
-//#define DEBUG_RENDER
+#ifndef WT_TARGET_JAVA
+#define DESCRIBE(w) typeid(*(w)).name()
+#else
+#define DESCRIBE(w) "(fixme)"
+#endif
 
 namespace {
   bool isAbsoluteUrl(const std::string& url) {
@@ -55,6 +58,8 @@ namespace skeletons {
 }
 
 namespace Wt {
+
+LOGGER("WebRenderer");
 
 WebRenderer::CookieValue::CookieValue()
   : secure(false)
@@ -90,10 +95,8 @@ void WebRenderer::setTwoPhaseThreshold(int bytes)
 
 void WebRenderer::needUpdate(WWidget *w, bool laterOnly)
 {
-#ifdef DEBUG_RENDER
-  std::cerr << "needUpdate: " << w->id() << " (" << typeid(*w).name()
-	    << ")" << std::endl;
-#endif //DEBUG_RENDER
+  LOG_DEBUG("needUpdate: " << w->id() << " (" << DESCRIBE(w) << ")");
+
   updateMap_.insert(w);
 
   if (!laterOnly)
@@ -102,10 +105,8 @@ void WebRenderer::needUpdate(WWidget *w, bool laterOnly)
 
 void WebRenderer::doneUpdate(WWidget *w)
 {
-#ifdef DEBUG_RENDER
-  std::cerr << "doneUpdate: " << w->id() << " (" << typeid(*w).name()
-	    << ")" << std::endl;
-#endif //DEBUG_RENDER
+  LOG_DEBUG("doneUpdate: " << w->id() << " (" << DESCRIBE(w) << ")");
+
   updateMap_.erase(w);
 }
 
@@ -535,9 +536,7 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
   } else {
     collectJavaScript();
 
-#ifdef DEBUG_JS
-    std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
-#endif // DEBUG_JS
+    LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
     addResponseAckPuzzle(response.out());
     renderSetServerPush(response.out());
@@ -633,16 +632,13 @@ bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
     const std::string *ackPuzzleE = request.getParameter("ackPuzzle");
 
     if (!ackPuzzleE) {
-      session_.log("secure") << "Ajax puzzle fail: solution missing";
+      LOG_SECURE("Ajax puzzle fail: solution missing");
       return false;
     }
 
     std::string ackPuzzle = *ackPuzzleE;
 
-    typedef std::vector< boost::iterator_range<std::string::iterator> >
-      FindType;
-
-    FindType answer, solution;
+    Utils::SplitVector answer, solution;
 
     boost::split(solution, solution_, boost::is_any_of(","));
     boost::split(answer, ackPuzzle, boost::is_any_of(","));
@@ -653,6 +649,7 @@ bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
     for (unsigned i = 0; i < solution.size(); ++i) {
       for (; j < answer.size(); ++j) {
 	if (solution[i] == answer[j])
+
 	  break;
 	else {
 	  /* Verify that answer[j] is not a valid widget id */
@@ -669,8 +666,8 @@ bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
       fail = true;
    
     if (fail) {
-      session_.log("secure") << "Ajax puzzle fail: '" << ackPuzzle << "' vs '"
-			     << solution_ << '\'';
+      LOG_SECURE("Ajax puzzle fail: '" << ackPuzzle << "' vs '"
+		 << solution_ << '\'');
 
       solution_.clear();
 
@@ -786,7 +783,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
    * (possible if !rendered_), or we need to save the response in
    * collectedJS variables.
    */
-
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
 
@@ -976,9 +972,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     collectJavaScript();
     updateLoadIndicator(collectedJS1_, app, true);
 
-#ifdef DEBUG_JS
-    std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
-#endif // DEBUG_JS
+    LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
     response.out() << collectedJS1_.str();
 
@@ -1080,11 +1074,11 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		       ? "LTR" : "RTL") << "');";
   }
 
-#ifdef DEBUG_JS
+#ifdef WT_DEBUG_ENABLED
   std::stringstream s;
 #else
   std::ostream& s = response.out();
-#endif // DEBUG_JS
+#endif // WT_DEBUG_ENABLED
 
   mainElement->addToParent(s, "document.body", widgetset ? 0 : -1, app);
   delete mainElement;
@@ -1097,18 +1091,16 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   if (widgetset)
     app->domRoot2_->rootAsJavaScript(app, s, true);
 
-#ifdef DEBUG_JS
-  std::cerr << s.str();
+#ifdef WT_DEBUG_ENABLED
+  LOG_DEBUG("js: " << s.str());
   response.out() << s.str();
-#endif // DEBUG_JS
+#endif // WT_DEBUG_ENABLED
 
   setJSSynced(true);
 
   preLearnStateless(app, collectedJS1_);
 
-#ifdef DEBUG_JS
-  std::cerr << collectedJS1_.str();
-#endif // DEBUG_JS
+  LOG_DEBUG("js: " << collectedJS1_.str());
 
   response.out() << collectedJS1_.str();
   collectedJS1_.str("");  
@@ -1295,9 +1287,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   page.setVar("SESSION_ID", session_.sessionId());
 
   std::string url
-    = (app->environment().agentIsSpiderBot()
-       || (conf.sessionTracking() == Configuration::CookiesURL
-	   && session_.env().supportsCookies()))
+    = (app->environment().agentIsSpiderBot() || !session_.useUrlRewriting())
     ? session_.bookmarkUrl(app->newInternalPath_)
     : session_.mostRelativeUrl(app->newInternalPath_);
 
@@ -1428,13 +1418,9 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 	w = w->parent();
 
       if (w != app->domRoot_ && w != app->domRoot2_) {
-#ifdef DEBUG_RENDER
-	std::cerr << "ignoring: " << (*i)->id()
-		  << " (" << typeid(**i).name()
-		  << ") " << w->id()
-		  << " (" << typeid(*w).name()
-		  << ")" << std::endl;
-#endif // DEBUG_RENDER
+	LOG_DEBUG("ignoring: " << ww->id() << " (" << DESCRIBE(ww) << ") " <<
+		  w->id() << " (" << DESCRIBE(w) << ")");
+
 	// not in displayed widgets: will be removed from the update list
 	depth = 0;
       }
@@ -1458,13 +1444,7 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 	  continue;
 	}
 
-	//std::cerr << learning_ << " " << loading_ 
-	//          << " updating: " << w->id() << std::endl;
-
-#ifdef DEBUG_RENDER
-	std::cerr << "updating: " << w->id()
-		  << " (" << typeid(*w).name() << ")" << std::endl;
-#endif
+	LOG_DEBUG("updating: " << w->id() << " (" << DESCRIBE(w) << ")");
 
 	if (!learning_ && visibleOnly_) {
 	  if (w->isRendered()) {
@@ -1478,11 +1458,7 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 	    } else
 	      w->getSDomChanges(changes, app); */
 	  } else
-#ifdef DEBUG_RENDER
-	    std::cerr << "Ignoring: " << w->id() << std::endl;
-#else
-	  ;
-#endif // DEBUG_RENDER
+	    LOG_DEBUG("Ignoring: " << w->id());
 	} else {
 	  w->getSDomChanges(changes, app);
 	}

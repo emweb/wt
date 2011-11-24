@@ -43,15 +43,14 @@ public:
   /// has been parsed, false if the data is invalid, indeterminate when more
   /// data is required. The iterator return value indicates how much
   /// of the input has been consumed.
-  boost::tuple<boost::tribool, Buffer::const_iterator>
-    parse(Request& req, Buffer::const_iterator begin,
-	  Buffer::const_iterator end);
+  boost::tuple<boost::tribool, Buffer::iterator>
+    parse(Request& req, Buffer::iterator begin, Buffer::iterator end);
 
   /// Validate
   Reply::status_type validate(Request& req);
 
   bool parseBody(Request& req, ReplyPtr reply,
-		 Buffer::const_iterator& begin, Buffer::const_iterator end);
+		 Buffer::iterator& begin, Buffer::iterator end);
 
   bool initialState() const;
 
@@ -77,10 +76,11 @@ private:
   void consumeComplete();
 
   Request::State parseWebSocketMessage(Request& req, ReplyPtr reply,
-				       Buffer::const_iterator& begin,
-				       Buffer::const_iterator end);
+				       Buffer::iterator& begin,
+				       Buffer::iterator end);
 
-  bool doWebSocketHandShake(const Request& req);
+  bool doWebSocketHandshake00(const Request& req);
+  std::string doWebSocketHandshake13(const Request& req);
   bool parseCrazyWebSocketKey(const std::string& key, ::uint32_t& number);
 
   Server *server_;
@@ -114,21 +114,29 @@ private:
 
   enum ws_state {
     ws_start,
-    ws_hand_shake,
-    frame_start,
-    text_data,
-    binary_length,
-    binary_data
+    ws00_hand_shake,
+    ws00_frame_start,
+    ws00_text_data,
+    ws00_binary_length,
+    ws00_binary_data,
+    ws13_frame_start,
+    ws13_payload_length,
+    ws13_extended_payload_length,
+    ws13_mask,
+    ws13_payload
   } wsState_;
 
-  unsigned char frameType_;
+  // used for ws00 frameType or ws13 opcode byte
+  unsigned char wsFrameType_;
+  unsigned char wsCount_;
+  unsigned wsMask_;
 
   std::string  headerName_;
   std::string  headerValue_;
 
   ::uint64_t   requestSize_;
 
-  // used for HTTP POST body, WS hand-shake, and WS binary frame length
+  // used for HTTP POST body and ws frame/payload length
   ::int64_t    remainder_;
 
   char         buf_[4096];

@@ -7,10 +7,10 @@
 #ifndef WT_WSTRING_STREAM_H_
 #define WT_WSTRING_STREAM_H_
 
+#include <Wt/WDllDefs.h>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <Wt/WDllDefs.h>
 
 namespace Wt {
 
@@ -102,6 +102,10 @@ public:
   /*! \brief Appends an integer number.
    */
   WStringStream& operator<< (int);
+
+  /*! \brief Appends an integer number.
+   */
+  WStringStream& operator<< (long long);
 
   /*! \brief Appends a double.
    */

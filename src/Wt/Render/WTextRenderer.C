@@ -12,6 +12,9 @@
 #include <string.h>
 
 namespace Wt {
+
+LOGGER("Render::WTextRenderer");
+
   namespace Render {
 
 WTextRenderer::WTextRenderer()
@@ -85,7 +88,7 @@ double WTextRenderer::render(const WString& text, double y)
 	break;
       } catch (PleaseWiden& w) {
 	if (!tooWide) {
-	  std::cerr << "Warning: contents too wide for page." << std::endl;
+	  LOG_WARN("contents too wide for page.");
 	  tooWide = true;
 	}
 

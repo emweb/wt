@@ -12,6 +12,9 @@
 #include "DomElement.h"
 
 namespace Wt {
+
+LOGGER("Ext::Calendar");
+
   namespace Ext {
 
 Calendar::Calendar(bool i18n, WContainerWidget *parent)
@@ -43,8 +46,7 @@ void Calendar::onSelect(std::string date)
     selectionChanged_.emit();
     selected_.emit();
   } else
-    Wt::log("error") << "Calendar internal error: could not parse date: '"
-		     << date << "'";
+    LOG_ERROR("could not parse date: '" << date << "'");
 }
 
 void Calendar::updateExt()

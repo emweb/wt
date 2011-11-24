@@ -12,6 +12,7 @@
 #include <Wt/Http/Request>
 
 #include <boost/signals/trackable.hpp>
+#include <cassert>
 #include <vector>
 #include <map>
 

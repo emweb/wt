@@ -615,10 +615,11 @@ href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html#getting-s
 <h4>Git repository</h4>
 
 <p>If you want to keep track of the latest changes, or participate in
-Wt development, you may want to use the git repository.</p>
+Wt development, you may want to use
+the <a href="https://github.com/kdeforche/jwt">git repository (github)</a>.</p>
 
 <p>
-To obtain a clone of JWt:
+Alternatively checkout the repository from:
 <div class="fragment">
   <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/jwt.git</pre>
 </div>

@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <cassert>
 #include <algorithm>
 #include <iostream>
 

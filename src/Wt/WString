@@ -427,10 +427,8 @@ public:
   WString& arg(double value);
 
   /*! \brief Returns the list of arguments
-   *
-   * Each argument is UTF8 encoded.
    */
-  const std::vector<std::string>& args() const;
+  const std::vector<WString>& args() const;
 
   /*! \brief Refreshes the string.
    *
@@ -477,14 +475,14 @@ private:
   void makeLiteral();
 
   struct Impl {
-    std::string              key_;
-    std::vector<std::string> arguments_;
+    std::string                key_;
+    std::vector<WString> arguments_;
     ::int64_t n_;
 
     Impl();
   };
 
-  static std::vector<std::string> stArguments_;
+  static std::vector<WString> stArguments_;
 
   void createImpl();
 

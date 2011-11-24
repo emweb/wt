@@ -6,8 +6,13 @@
 
 #include <iostream>
 #include "Wt/WRegExp"
+#include "Wt/WLogger"
 
 namespace Wt {
+
+#ifndef WT_HAVE_GNU_REGEX
+LOGGER("WRegExp");
+#endif
 
 WRegExp::WRegExp()
 {
@@ -44,8 +49,7 @@ void WRegExp::setPattern(const WT_USTRING& pattern, WFlags<RegExpFlag> flags)
   try {
     rx_.assign(pattern.toUTF8(), opt);
   } catch(const std::exception& e) {
-    std::cerr << "Error parsing regular expression '" << pattern
-	      << "': " << e.what() << std::endl;
+    LOG_ERROR("error parsing pattern '" << pattern << "': " << e.what());
   }
 #else
   if (valid_)

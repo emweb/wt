@@ -9,6 +9,9 @@
 #include "Wt/Chart/WChartPalette"
 
 namespace Wt {
+
+LOGGER("Chart::WAbstractChart");
+
   namespace Chart {
 
 WAbstractChart::WAbstractChart(WContainerWidget *parent)
@@ -61,7 +64,7 @@ int WAbstractChart::plotAreaPadding(Side side) const
   case Left:
     return padding_[3];
   default:
-    Wt::log("error") << "WAbstractChart::plotAreaPadding(): improper side.";
+    LOG_ERROR("plotAreaPadding(): improper side.");
     return 0;
   }
 }

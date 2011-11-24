@@ -227,7 +227,7 @@ WDialog::DialogCode WDialog::exec(const WAnimation& animation)
 
 #ifdef WT_TARGET_JAVA
   if (!WebController::isAsyncSupported())
-     throw WException("Server push requires a Servlet 3.0 enabled servlet " 
+     throw WException("WDialog#exec() requires a Servlet 3.0 enabled servlet " 
 		      "container and an application with async-supported "
 		      "enabled.");
 #endif

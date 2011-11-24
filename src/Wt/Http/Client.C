@@ -35,6 +35,9 @@
 using boost::asio::ip::tcp;
 
 namespace Wt {
+
+LOGGER("Http::Client");
+
   namespace Http {
 
 class Client::Impl : public boost::enable_shared_from_this<Client::Impl>
@@ -259,7 +262,7 @@ private:
 	complete();
       }
 
-      // std::cerr << status_code << " " << status_message << std::endl;
+      LOG_DEBUG(status_code << " " << status_message);
 
       response_.setStatus(status_code);
 
@@ -328,7 +331,7 @@ private:
       std::stringstream ss;
       ss << &responseBuf_;
 
-      // std::cerr << ss.str();
+      LOG_DEBUG(ss.str());
 
       response_.addBodyText(ss.str());
 
@@ -453,7 +456,7 @@ protected:
   {
 #if VERIFY_CERTIFICATE
     socket_.set_verify_mode(boost::asio::ssl::verify_peer);
-    std::cerr << "Verifying that peer is " << hostName_ << std::endl;
+    LOG_DEBUG("verifying that peer is " << hostName_);
     socket_.set_verify_callback
       (boost::asio::ssl::rfc2818_verification(hostName_));
 #endif
@@ -558,7 +561,7 @@ bool Client::request(Http::Method method, const std::string& url,
     if (server)
       ioService = &server->ioService();
     else {
-      Wt::log("error") << "Http::Client requires a WIOService for async I/O";
+      LOG_ERROR("requires a WIOService for async I/O");
       return false;
     }
 
@@ -596,7 +599,7 @@ bool Client::request(Http::Method method, const std::string& url,
 #endif // WT_WITH_SSL
 
   } else {
-    Wt::log("error") << "Http::Client: unsupported protocol: " << protocol;
+    LOG_ERROR("unsupported protocol: " << protocol);
     return false;
   }
 
@@ -606,7 +609,7 @@ bool Client::request(Http::Method method, const std::string& url,
 
   const char *methodNames_[] = { "GET", "POST", "PUT" };
 
-  // std::cerr << methodNames_[method] << " " << url << std::endl;
+  LOG_DEBUG(methodNames_[method] << " " << url);
 
   impl_->request(methodNames_[method], host, port, path, message);
 
@@ -624,7 +627,7 @@ bool Client::parseUrl(const std::string &url,
 {
   std::size_t i = url.find("://");
   if (i == std::string::npos) {
-    Wt::log("error") << "Ill-formed URL: " << url;
+    LOG_ERROR("ill-formed URL: " << url);
     return false;
   }
 
@@ -644,7 +647,7 @@ bool Client::parseUrl(const std::string &url,
     try {
       port = boost::lexical_cast<int>(server.substr(k + 1));
     } catch (boost::bad_lexical_cast& e) {
-      Wt::log("error") << "Invalid port: " << server.substr(k + 1);
+      LOG_ERROR("invalid port: " << server.substr(k + 1));
       return false;
     }
     server = server.substr(0, k);

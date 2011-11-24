@@ -167,10 +167,11 @@ public:
     
     map_->setCenter(road[road.size()-1]);
     
-    map_->openInfoWindow(road[0], 
-			 "<img src=\"http://emweb.be/img/emweb_small.jpg\" />"
-			 "<br/>"
-			 "<b>Emweb office</b>");
+    map_->openInfoWindow
+      (road[0], 
+       "<img src=\"http://www.emweb.be/css/emweb_small.jpg\" />"
+       "<br/>"
+       "<b>Emweb office</b>");
     
     map_->clicked()
       .connect(this, &GoogleMapExample::googleMapClicked);

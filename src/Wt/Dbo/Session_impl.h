@@ -296,7 +296,6 @@ void Session::implDelete(MetaDbo<C>& dbo)
   statement->execute();
 
   if (versioned) {
-    statement->nextRow();
     int modifiedCount = statement->affectedRowCount();
     if (modifiedCount != 1)
       throw StaleObjectException(boost::lexical_cast<std::string>(dbo.id()),
@@ -343,7 +342,7 @@ void Session::Mapping<C>
 ::dropTable(Session& session, std::set<std::string>& tablesDropped)
 {
   if (tablesDropped.count(tableName) == 0) {
-    DropSchema action(session, tableName, tablesDropped);
+    DropSchema action(session, *this, tablesDropped);
     C dummy;
     action.visit(dummy);
   }

@@ -91,5 +91,18 @@ bool SqlConnection::showQueries() const
   return property("show-queries") == "true";
 }
 
+const char *SqlConnection::textType() const
+{
+  return "text";
+}
+
+const char *SqlConnection::booleanType() const
+{
+  return "boolean";
+}
+
+void SqlConnection::prepareForDropTables()
+{ }
+
   }
 }

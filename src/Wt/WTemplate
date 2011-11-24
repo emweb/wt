@@ -108,6 +108,7 @@ namespace Wt {
 class WT_API WTemplate : public WInteractWidget
 {
 public:
+#ifndef WT_TARGET_JAVA
   /*! \brief A collection of predefined functions
    *
    * \sa bindFunction()
@@ -158,6 +159,17 @@ public:
    */
   typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
 			       std::ostream& result)> Function;
+
+#else
+  class FunctionImpl {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+			  std::ostream& result) = 0;
+
+  };
+
+  typedef FunctionImpl *Function;
+#endif
 
   /*! \brief Creates a template widget.
    */

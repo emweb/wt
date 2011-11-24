@@ -240,7 +240,7 @@ Wt/Auth/RegistrationWidget.C
 Wt/Auth/Token.C
 Wt/Auth/UpdatePasswordWidget.C
 Wt/Auth/User.C
-Wt/Auth/Utils.C
+Wt/Auth/AuthUtils.C
 Wt/Chart/WAbstractChart.C
 Wt/Chart/WAxis.C
 Wt/Chart/WDataSeries.C

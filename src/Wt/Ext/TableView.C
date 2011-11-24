@@ -35,6 +35,9 @@ namespace {
 }
 
 namespace Wt {
+
+LOGGER("Ext::TableView");
+
   namespace Ext {
 
 TableView::TableView(WContainerWidget *parent)
@@ -247,10 +250,9 @@ void TableView::setColumnWidth(int column, int pixels)
 void TableView::setColumnAlignment(int column, AlignmentFlag alignment)
 {
   if (alignment & AlignVerticalMask) {
-    Wt::log("error")
-      << "TableView::setColumnAlignment(): alignment ("
-      << alignment << ") is vertical, expected horizontal (column "
-      << column << ")";
+    LOG_ERROR("setColumnAlignment(): alignment (" << alignment
+	      << ") is vertical, expected horizontal (column "
+	      << column << ")");
     alignment = AlignmentFlag(alignment & AlignHorizontalMask);
   }
 
@@ -323,14 +325,14 @@ void TableView::modelColumnsInserted(const WModelIndex& parent,
 				     int start, int end)
 {
   if (dataStore_)
-    Wt::log("error") << "TableView: cannot deal with column inserts";
+    LOG_ERROR("cannot deal with column inserts");
 }
 
 void TableView::modelColumnsRemoved(const WModelIndex& parent,
 				    int start, int end)
 {
   if (dataStore_)
-    Wt::log("error") << "TableView: cannot deal with column inserts";
+    LOG_ERROR("cannot deal with column inserts");
 }
 
 void TableView::modelRowsInserted(const WModelIndex& parent,
@@ -401,7 +403,7 @@ void TableView::onEdit(std::string field, int rowId, std::string value)
     model_->setData(row, col,
 		    Wt::Impl::updateFromJS(model_->data(row, col), value));
   } catch (boost::bad_lexical_cast& e) {
-    Wt::log("error") << "Internal error reading field name '" << field << "'";
+    LOG_ERROR("internal error reading field name '" << field << "'");
   }
 }
 

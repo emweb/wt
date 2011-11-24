@@ -49,6 +49,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("WMenu");
+
 WMenu::WMenu(Orientation orientation, WContainerWidget *parent)
   : WCompositeWidget(parent),
     contentsStack_(0),
@@ -465,7 +467,7 @@ void WMenu::internalPathChanged(const std::string& path)
       items_[bestI]->setFromInternalPath(path);
     else {
       if (!subPath.empty())
-	Wt::log("warn") << "WMenu: unknown path: '"<< subPath << "'";
+	LOG_WARN("unknown path: '"<< subPath << "'");
       else
 	select(-1, false);
     }

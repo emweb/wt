@@ -193,7 +193,7 @@ inline std::string sql_value_traits<WString, void>::type(SqlConnection *conn,
 							 int size)
 {
   if (size == -1)
-    return "text not null";
+    return std::string(conn->textType()) + " not null";
   else
     return "varchar(" + boost::lexical_cast<std::string>(size) + ") not null";
 }

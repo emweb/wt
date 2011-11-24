@@ -8,7 +8,12 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "Wt/WLogger"
 #include "Request.h"
+
+namespace Wt {
+  LOGGER("wthttp");
+}
 
 namespace http {
 namespace server {
@@ -24,7 +29,7 @@ void Request::reset()
   request_query.clear();
 
   contentLength = -1;
-  webSocketRequest = false;
+  webSocketVersion = -1;
 }
 
 void Request::transmitHeaders(std::ostream& out) const
@@ -43,13 +48,23 @@ void Request::transmitHeaders(std::ostream& out) const
 
 void Request::enableWebSocket()
 {
-  webSocketRequest = false;
+  webSocketVersion = -1;
 
   HeaderMap::const_iterator i = headerMap.find("Connection");
-  if (i != headerMap.end() && boost::iequals(i->second, "Upgrade")) {
+  if (i != headerMap.end() && boost::icontains(i->second, "Upgrade")) {
     HeaderMap::const_iterator j = headerMap.find("Upgrade");
-    if (j != headerMap.end() && boost::iequals(j->second, "WebSocket"))
-      webSocketRequest = true;
+    if (j != headerMap.end() && boost::iequals(j->second, "WebSocket")) {
+      webSocketVersion = 0;
+
+      HeaderMap::const_iterator k = headerMap.find("Sec-WebSocket-Version");
+      if (k != headerMap.end()) {
+	try {
+	  webSocketVersion = boost::lexical_cast<int>(k->second);
+	} catch (std::exception& e) {
+	  LOG_ERROR("could not parse Sec-WebSocket-Version: " << k->second);
+	}
+      }
+    }
   }
 }
 

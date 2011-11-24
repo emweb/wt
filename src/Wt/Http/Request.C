@@ -10,8 +10,10 @@
 #endif
 
 #include "Wt/Http/Request"
+#include "Wt/WEnvironment"
 #include "Utils.h"
 #include "WebRequest.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
@@ -326,6 +328,7 @@ Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
     parseCookies(cookie, cookies_);
 }
 
+#ifndef WT_TARGET_JAVA
 void Request::parseFormUrlEncoded(const std::string& s,
 				  ParameterMap& parameters)
 {
@@ -335,10 +338,6 @@ void Request::parseFormUrlEncoded(const std::string& s,
 
   for (amp_tok::iterator i = tok.begin(); i != tok.end(); ++i) {
     std::string pair = *i;
-
-#ifdef DEBUG
-    std::cerr << pair << std::endl;
-#endif // DEBUG
 
     // convert plus to space
     Wt::Utils::replace(pair, '+', " ");
@@ -357,36 +356,13 @@ void Request::parseFormUrlEncoded(const std::string& s,
     parameters[key].push_back(value);
   }
 }
+#endif // WT_TARGET_JAVA
 
 void Request::parseCookies(const std::string& cookie,
 			   std::map<std::string, std::string>& result)
 {
-  // Cookie parsing strategy:
-  // - First, split the string on cookie separators (-> name-value pair).
-  //   ';' is cookie separator. ',' is not a cookie separator (as in PHP)
-  // - Then, split the name-value pairs on the first '='
-  // - URL decoding/encoding
-  // - Trim the name, trim the value
-  // - If a name-value pair does not contain an '=', the name-value pair
-  //   was the name of the cookie and the value is empty
-
-  std::vector<std::string> list;
-  boost::split(list, cookie, boost::is_any_of(";"));
-  for (unsigned int i = 0; i < list.size(); ++i) {
-    std::string::size_type e = list[i].find('=');
-    std::string cookieName = list[i].substr(0, e);
-    std::string cookieValue =
-      (e != std::string::npos && list[i].size() > e + 1) ?
-      list[i].substr(e + 1) : "";
-
-    boost::trim(cookieName);
-    boost::trim(cookieValue);
-
-    Wt::Utils::urlDecode(cookieName);
-    Wt::Utils::urlDecode(cookieValue);
-    if (cookieName != "")
-      result[cookieName] = cookieValue;
-  }
+  // in WEnvironment for oink
+  WEnvironment::parseCookies(cookie, result);
 }
 
   }

@@ -29,8 +29,6 @@ class WT_API WebRequest
 public:
   WebRequest();
 
-  void trackTime();
-
   enum ResponseState {
     ResponseDone,
     ResponseFlush

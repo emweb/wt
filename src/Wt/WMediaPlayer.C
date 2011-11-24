@@ -343,8 +343,6 @@ void WMediaPlayer::seek(double time)
     double pct = time / (status_.seekPercent * status_.duration / 100);
     pct = std::min(1.0, pct);
 
-    std::cerr << pct << std::endl;
-
     playerDo("playHead", boost::lexical_cast<std::string>(pct * 100));
   }
 }

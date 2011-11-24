@@ -44,18 +44,20 @@
 
 namespace Wt {
 
+LOGGER("WebController");
+
 WebController::WebController(WServer& server,
 			     const std::string& singleSessionId,
 			     bool autoExpire)
-  : server_(server),
-    conf_(server.configuration()),
+  : conf_(server.configuration()),
     singleSessionId_(singleSessionId),
     autoExpire_(autoExpire),
     plainHtmlSessions_(0),
-    ajaxSessions_(0)
+    ajaxSessions_(0),
 #ifdef WT_THREADED
-  , socketNotifier_(this)
+    socketNotifier_(this),
 #endif // WT_THREADED
+    server_(server)
 {
   CgiParser::init();
 
@@ -79,7 +81,7 @@ void WebController::shutdown()
   boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
-  server_.log("notice") << "Shutdown: stopping sessions.";
+  LOG_INFO_S(&server_, "shutdown: stopping sessions.");
 
   for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
     boost::shared_ptr<WebSession> session = i->second;
@@ -125,11 +127,11 @@ bool WebController::expireSessions()
 	if (session->shouldDisconnect()) {
 	  if (session->app()->connected_) {
 	    session->app()->connected_ = false;
-	    session->log("notice") << "Timeout: disconnected";
+	    LOG_INFO_S(session, "timeout: disconnected");
 	  }
 	  ++i;
 	} else {
-	  i->second->log("notice") << "Timeout: expiring";
+	  LOG_INFO_S(session, "timeout: expiring");
 	  WebSession::Handler handler(session, true);
 	  session->expire();
 	  toKill.push_back(session);
@@ -250,9 +252,8 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
     SocketNotifierMap::iterator k = notifiers.find(descriptor);
 
     if (k == notifiers.end()) {
-      server_.log("error")
-	<< "WebController::socketSelected(): socket notifier"
-	" should have been cancelled?";
+      LOG_ERROR_S(&server_, "socketSelected(): socket notifier should have been "
+		  "cancelled?");
 
       return;
     } else {
@@ -349,7 +350,7 @@ bool WebController::requestDataReceived(WebRequest *request,
     try {
       cgi.parse(*request, CgiParser::ReadHeadersOnly);
     } catch (std::exception& e) {
-      server_.log("error") << "Could not parse request: " << e.what();
+      LOG_ERROR_S(&server_, "could not parse request: " << e.what());
       return false;
     }
 
@@ -459,11 +460,14 @@ void WebController::removeUploadProgressUrl(const std::string& url)
 
 void WebController::handleRequest(WebRequest *request)
 {
-  if (conf_.logTime())
-    request->trackTime();
-
-  if (!request->entryPoint_)
+  if (!request->entryPoint_) {
     request->entryPoint_ = getEntryPoint(request);
+    if (!request->entryPoint_) {
+      request->setStatus(404);
+      request->flush();
+      return;
+    }
+  }
 
   CgiParser cgi(conf_.maxRequestSize());
 
@@ -472,7 +476,7 @@ void WebController::handleRequest(WebRequest *request)
 	      ? CgiParser::ReadBodyAnyway
 	      : CgiParser::ReadDefault);
   } catch (std::exception& e) {
-    server_.log("error") << "Could not parse request: " << e.what();
+    LOG_ERROR_S(&server_, "could not parse request: " << e.what());
 
     request->setContentType("text/html");
     request->out()
@@ -541,9 +545,10 @@ void WebController::handleRequest(WebRequest *request)
 	// If it is another request to take over the persistent session,
 	// it should be handled by the persistent session. We can distinguish
 	// using the type of the request
-	server_.log("info") 
-	  << "Persistent session requested Id: " << sessionId << ", "
-	  << "persistent Id: " << singleSessionId_;
+	LOG_INFO_S(&server_, 
+		   "persistent session requested Id: " << sessionId << ", "
+		   << "persistent Id: " << singleSessionId_);
+
 	if (sessions_.empty() || request->requestMethod() == "GET")
 	  sessionId = singleSessionId_;
       } else
@@ -563,11 +568,8 @@ void WebController::handleRequest(WebRequest *request)
 	}
 
 	std::string favicon = request->entryPoint_->favicon();
-	if (favicon.empty()) {
-	  const std::string *confFavicon = conf_.property("favicon");
-	  if (confFavicon)
-	    favicon = *confFavicon;
-	}
+	if (favicon.empty())
+	  conf_.readConfigurationProperty("favicon", favicon);
 
 	session.reset(new WebSession(this, sessionId,
 				     request->entryPoint_->type(),
@@ -581,7 +583,7 @@ void WebController::handleRequest(WebRequest *request)
 	sessions_[sessionId] = session;
 	++plainHtmlSessions_;
       } catch (std::exception& e) {
-	server_.log("error") << "Could not create new session: " << e.what();
+	LOG_ERROR_S(&server_, "could not create new session: " << e.what());
 	request->flush(WebResponse::ResponseDone);
 	return;
       }
@@ -654,12 +656,8 @@ WebController::getEntryPoint(WebRequest *request)
       }
     }
   }
-
-  server_.log("error") << "No entry point configured for: '" << scriptName
-		       << "', using first entry point ('"
-		       << conf_.entryPoints()[0].path() << "'):";
   
-  return &conf_.entryPoints()[0];
+  return 0;
 }
 
 std::string

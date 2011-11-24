@@ -11,7 +11,8 @@
 #include <Wt/WText>
 #include <Wt/WContainerWidget>
 
-#include <stdio.h>
+#include <cstdio>
+
 #include "DomElement.h"
 #include "Utils.h"
 

@@ -12,6 +12,14 @@
 #include <iostream>
 #include <string>
 
+#if defined(WT_THREADED) && !defined(WT_CONF_NO_SHARED_LOCK)
+#define WT_CONF_LOCK
+#endif
+
+#ifdef WT_CONF_LOCK
+#include <boost/thread.hpp>
+#endif // WT_CONF_LOCK
+
 #include "Wt/WApplication"
 
 #include "WebSession.h"
@@ -28,7 +36,6 @@ namespace boost {
 }
 
 namespace Wt {
-
   class WLogger;
   class WServer;
 
@@ -89,6 +96,8 @@ public:
 		const std::string& configurationFile,
 		WServer *server);
 
+  void rereadConfiguration();
+
   // finds an approot from the environment
   static std::string locateAppRoot();
 
@@ -102,59 +111,58 @@ public:
   void setSessionIdPrefix(const std::string& prefix);
 
 #ifndef WT_TARGET_JAVA
-  void               addEntryPoint(const EntryPoint& entryPoint);
-  void               setDefaultEntryPoint(const std::string& path);
+  void addEntryPoint(const EntryPoint& entryPoint);
+  void setDefaultEntryPoint(const std::string& path);
   const EntryPointList& entryPoints() const { return entryPoints_; }
 #endif // WT_TARGET_JAVA
 
-  SessionPolicy      sessionPolicy() const { return sessionPolicy_; }
-  int                numProcesses() const { return numProcesses_; }
-  int                numThreads() const { return numThreads_; }
-  int                maxNumSessions() const { return maxNumSessions_; }
-  ::int64_t          maxRequestSize() const { return maxRequestSize_; }
-  ::int64_t          isapiMaxMemoryRequestSize() const
-     { return isapiMaxMemoryRequestSize_; }
-  SessionTracking    sessionTracking() const { return sessionTracking_; }
-  bool               reloadIsNewSession() const { return reloadIsNewSession_; }
-  int                sessionTimeout() const { return sessionTimeout_; }
-  void               setSessionTimeout(int sessionTimeout);
-  int                bootstrapTimeout() const { return bootstrapTimeout_; }
-  int		     indicatorTimeout() const { return indicatorTimeout_; }
-  int                serverPushTimeout() const { return serverPushTimeout_; }
-  std::string        valgrindPath() const { return valgrindPath_; }
-  ErrorReporting     errorReporting() const { return errorReporting_; }
-  bool               debug() const { return errorReporting_ != ErrorMessage; }
-  bool               logTime() const { return logTime_; }
-  std::string        runDirectory() const { return runDirectory_; }
-  int                sessionIdLength() const { return sessionIdLength_; }
-  std::string        sessionIdPrefix() const { return sessionIdPrefix_; }
-  const PropertyMap& properties() const { return properties_; }
-  const std::string* property(const std::string& name) const;
-  bool               readConfigurationProperty(const std::string& name,
-					       std::string& value) const;
-  std::string        appRoot() const;
-  bool               sendXHTMLMimeType() const { return xhtmlMimeType_; }
-  bool               behindReverseProxy() const { return behindReverseProxy_; }
-  std::string        redirectMessage() const { return redirectMsg_; }
-  bool               serializedEvents() const { return serializedEvents_; }
-  bool               webSockets() const { return webSockets_; }
-  bool               inlineCss() const { return inlineCss_; }
-  bool               ajaxAgentWhiteList() const { return ajaxAgentWhiteList_; }
-  const AgentList&   ajaxAgentList() const { return ajaxAgentList_; }
-  const AgentList&   botList() const { return botList_; }
-  bool               persistentSessions() const { return persistentSessions_; }
-  bool               progressiveBoot() const { return progressiveBoot_; }
-  bool               splitScript() const { return splitScript_; }
-  float              maxPlainSessionsRatio() const
-                       { return maxPlainSessionsRatio_; }
-  bool               ajaxPuzzle() const { return ajaxPuzzle_; }
-  bool               useSlashExceptionForInternalPaths() const
-                       { return slashException_; }
-  bool               needReadBodyBeforeResponse() const
-                       { return needReadBody_; }
-  bool               sessionIdCookie() const { return sessionIdCookie_; }
+  SessionPolicy sessionPolicy() const;
+  int numProcesses() const;
+  int numThreads() const;
+  int maxNumSessions() const;
+  ::int64_t maxRequestSize() const;
+  ::int64_t isapiMaxMemoryRequestSize() const;
+  SessionTracking sessionTracking() const;
+  bool reloadIsNewSession() const;
+  int sessionTimeout() const;
+  int bootstrapTimeout() const;
+  int indicatorTimeout() const;
+  int serverPushTimeout() const;
+  std::string valgrindPath() const;
+  ErrorReporting errorReporting() const;
+  bool debug() const;
+  std::string runDirectory() const;
+  int sessionIdLength() const;
+  std::string sessionIdPrefix() const;
+
+#ifndef WT_TARGET_JAVA
+  bool readConfigurationProperty(const std::string& name, std::string& value)
+    const;
+#else
+  const std::string *property(const std::string& name) const;
+#endif
+
+  std::string appRoot() const;
+  bool sendXHTMLMimeType() const;
+  bool behindReverseProxy() const;
+  std::string redirectMessage() const;
+  bool serializedEvents() const;
+  bool webSockets() const;
+  bool inlineCss() const;
+  bool persistentSessions() const;
+  bool progressiveBoot() const;
+  bool splitScript() const;
+  float maxPlainSessionsRatio() const;
+  bool ajaxPuzzle() const;
+  bool sessionIdCookie() const;
+  bool useSlashExceptionForInternalPaths() const;
+  bool needReadBodyBeforeResponse() const;
+
+  bool agentIsBot(const std::string& agent) const;
+  bool agentSupportsAjax(const std::string& agent) const;
 
   // Things which are overridden by the connector
+  void setSessionTimeout(int sessionTimeout);
   void setWebSockets(bool enabled);
   void setRunDirectory(const std::string& path);
   void setUseSlashExceptionForInternalPaths(bool enabled);
@@ -166,9 +174,14 @@ public:
   std::string sessionSocketPath(const std::string& sessionId);
 
 private:
+#ifdef WT_CONF_LOCK
+  mutable boost::shared_mutex mutex_;
+#endif // WT_CONF_LOCK
+
   WServer *server_;
   std::string applicationPath_;
-  std::string approot_;
+  std::string appRoot_;
+  std::string configurationFile_;
 
 #ifndef WT_TARGET_JAVA
   EntryPointList entryPoints_;
@@ -188,10 +201,8 @@ private:
   int             serverPushTimeout_;
   std::string     valgrindPath_;
   ErrorReporting  errorReporting_;
-  bool            logTime_;
   std::string     runDirectory_;
   int             sessionIdLength_;
-  std::string     sessionIdPrefix_;
   PropertyMap     properties_;
   bool            xhtmlMimeType_;
   bool            behindReverseProxy_;
@@ -206,12 +217,16 @@ private:
   bool            splitScript_;
   float           maxPlainSessionsRatio_;
   bool            ajaxPuzzle_;
-  bool            slashException_;
-  bool            needReadBody_;
   bool            sessionIdCookie_;
 
+  bool connectorSlashException_;
+  bool connectorNeedReadBody_;
+  bool connectorWebSockets_;
+  std::string connectorSessionIdPrefix_;
+
+  void reset();
   void readApplicationSettings(rapidxml::xml_node<char> *app);
-  void readConfiguration(const std::string& configurationFile);
+  void readConfiguration(bool silent);
   WLogEntry log(const std::string& type) const;
 };
 

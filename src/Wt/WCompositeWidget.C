@@ -15,6 +15,8 @@
 
 namespace Wt {
 
+LOGGER("WCompositeWidget");
+
 WCompositeWidget::WCompositeWidget(WContainerWidget *parent)
   : WWidget(parent),
     impl_(0)
@@ -295,8 +297,8 @@ void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {
   if (AlignHorizontalMask & alignment) {
-    Wt::log("error") << "WCompositeWidget::setVerticalAlignment(): alignment "
-		     << alignment << "is not vertical";
+    LOG_ERROR("setVerticalAlignment(): alignment "
+	      << alignment << "is not vertical");
   }
   impl_->setVerticalAlignment(alignment, length);
 }

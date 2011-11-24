@@ -23,6 +23,7 @@ SET(WTISAPI_SOVERSION 7)
 SET(WTDBO_SOVERSION 30)
 SET(WTDBOSQLITE3_SOVERSION 30)
 SET(WTDBOPOSTGRES_SOVERSION 30)
+SET(WTDBOFIREBIRD_SOVERSION 30)
 SET(WTTEST_SOVERSION 1)
 
 IF(NOT SHARED_LIBS)
@@ -94,6 +95,7 @@ OPTION(ENABLE_PANGO "Enable Pango Library, which is used for improved font suppo
 OPTION(ENABLE_EXT "Build Wt Ext library with JavaScript-only widgets (http://extjs.com/)" ON)
 OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
 OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
+OPTION(ENABLE_FIREBIRD "Build FirebirdSQL backend for Wt::Dbo (requires both Firebird and IBPP)" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
@@ -124,6 +126,7 @@ IF(NOT SHARED_LIBS)
   SET(WTDBO_STATIC true)
   SET(WTDBOSQLITE3_STATIC true)
   SET(WTDBOPOSTGRES_STATIC true)
+  SET(WTDBOFIREBIRD_STATIC true)
 ENDIF(NOT SHARED_LIBS)
 
 IF(NOT MULTI_THREADED)
@@ -220,6 +223,10 @@ SET(FCGI_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of fcgi library (overrides USERLIB_PREFIX)")
 SET(POSTGRES_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of postgresql library (overrides USERLIB_PREFIX)")
+SET(FIREBIRD_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of FirebirdSql library. See also IBPP_SRC_DIRECTORY. (overrides USERLIB_PREFIX)")
+SET(IBPP_SRC_DIRECTORY CACHE PATH
+  "Path to the SOURCE directory of IBPP (req for FireBird) library. See www.ibpp.org.")
 SET(MYSQL_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of mysql and mysql++ libraries "
   "(overrides USERLIB_PREFIX)")
@@ -273,6 +280,7 @@ INCLUDE(cmake/WtFindZlib.txt)
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysqlpp.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
+INCLUDE(cmake/WtFindFirebirdSql.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)

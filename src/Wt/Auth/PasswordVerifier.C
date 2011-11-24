@@ -14,6 +14,9 @@
 #include "Utils.h"
 
 namespace Wt {
+
+LOGGER("Auth::PasswordVerifier");
+
   namespace Auth {
 
 PasswordVerifier::PasswordVerifier()
@@ -63,8 +66,7 @@ bool PasswordVerifier::verify(const WString& password,
       return f.verify(password.toUTF8(), hash.salt(), hash.value());
   }
 
-  Wt::log("error") << "PasswordVerifier::verify() no hash configured for "
-		   << hash.function();
+  LOG_ERROR("verify() no hash configured for " << hash.function());
 
   return false;
 }

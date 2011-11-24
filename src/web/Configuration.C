@@ -4,9 +4,10 @@
  * All rights reserved.
  */
 
-#include <Wt/WServer>
-#include <Wt/WLogger>
-#include <Wt/WResource>
+#include "Wt/WServer"
+#include "Wt/WLogger"
+#include "Wt/WRegExp"
+#include "Wt/WResource"
 
 #include "Configuration.h"
 
@@ -27,11 +28,32 @@
 #include <process.h>
 #endif
 
+#ifdef WT_CONF_LOCK
+#define READ_LOCK boost::shared_lock<boost::shared_mutex> lock(mutex_)
+#define WRITE_LOCK boost::lock_guard<boost::shared_mutex> lock(mutex_)
+#else
+#define READ_LOCK
+#define WRITE_LOCK
+#endif // WT_CONF_LOCK
+
 using namespace rapidxml;
 
 namespace {
 
 using namespace Wt;
+
+bool regexMatchAny(const std::string& agent,
+		   const std::vector<std::string>& regexList) {
+  WT_USTRING s = WT_USTRING::fromUTF8(agent);
+  for (unsigned i = 0; i < regexList.size(); ++i) {
+    WRegExp expr(WT_USTRING::fromUTF8(regexList[i]));
+
+    if (expr.exactMatch(s))
+      return true;
+  }
+
+  return false;
+}
 
 xml_node<> *singleChildElement(xml_node<> *element, const char* tagName)
 {
@@ -129,6 +151,8 @@ std::vector<xml_node<> *> childElements(xml_node<> *element,
 
 namespace Wt {
 
+LOGGER("config");
+
 EntryPoint::EntryPoint(EntryPointType type, ApplicationCreator appCallback,
 		       const std::string& path, const std::string& favicon)
   : type_(type),
@@ -160,44 +184,283 @@ Configuration::Configuration(const std::string& applicationPath,
 			     WServer *server)
   : server_(server),
     applicationPath_(applicationPath),
-    approot_(appRoot),
-    sessionPolicy_(SharedProcess),
-    numProcesses_(1),
-    numThreads_(10),
-    maxNumSessions_(100),
-    maxRequestSize_(128 * 1024),
-    isapiMaxMemoryRequestSize_(128 * 1024),
-    sessionTracking_(URL),
-    reloadIsNewSession_(true),
-    sessionTimeout_(600),
-    bootstrapTimeout_(10),
-    indicatorTimeout_(500),
-    serverPushTimeout_(50),
-    valgrindPath_(""),
-    errorReporting_(ErrorMessage),
-    logTime_(false),
+    appRoot_(appRoot),
+    configurationFile_(configurationFile),
     runDirectory_(RUNDIR),
-    sessionIdLength_(16),
-    xhtmlMimeType_(false),
-    behindReverseProxy_(false),
-    redirectMsg_("Load basic HTML"),
-    serializedEvents_(false),
-    webSockets_(false),
-    inlineCss_(true),
-    ajaxAgentWhiteList_(false),
-    persistentSessions_(false),
-    progressiveBoot_(false),
-    splitScript_(false),
-    maxPlainSessionsRatio_(1),
-    ajaxPuzzle_(false),
-    slashException_(false), // need to use ?_= 
-    needReadBody_(false),
-    sessionIdCookie_(false)
+    connectorSlashException_(false), // need to use ?_=
+    connectorNeedReadBody_(false),
+    connectorWebSockets_(true)
 {
-  if (!approot_.empty())
-    properties_["appRoot"] = approot_;
+  reset();
+  readConfiguration(false);
+}
 
-  readConfiguration(configurationFile);
+void Configuration::reset()
+{
+  sessionPolicy_ = SharedProcess;
+  numProcesses_ = 1;
+  numThreads_ = 10;
+  maxNumSessions_ = 100;
+  maxRequestSize_ = 128 * 1024;
+  isapiMaxMemoryRequestSize_ = 128 * 1024;
+  sessionTracking_ = URL;
+  reloadIsNewSession_ = true;
+  sessionTimeout_ = 600;
+  bootstrapTimeout_ = 10;
+  indicatorTimeout_ = 500;
+  serverPushTimeout_ = 50;
+  valgrindPath_ = "";
+  errorReporting_ = ErrorMessage;
+  if (!runDirectory_.empty()) // disabled by connector
+    runDirectory_ = RUNDIR;
+  sessionIdLength_ = 16;
+  properties_.clear();
+  xhtmlMimeType_ = false;
+  behindReverseProxy_ = false;
+  redirectMsg_ = "Load basic HTML";
+  serializedEvents_ = false;
+  webSockets_ = false;
+  inlineCss_ = true;
+  ajaxAgentList_.clear();
+  botList_.clear();
+  ajaxAgentWhiteList_ = false;
+  persistentSessions_ = false;
+  progressiveBoot_ = false;
+  splitScript_ = false;
+  maxPlainSessionsRatio_ = 1;
+  ajaxPuzzle_ = false;
+  sessionIdCookie_ = false;
+
+  if (!appRoot_.empty())
+    properties_["appRoot"] = appRoot_;
+}
+
+Configuration::SessionPolicy Configuration::sessionPolicy() const
+{
+  READ_LOCK;
+  return sessionPolicy_;
+}
+
+int Configuration::numProcesses() const
+{
+  READ_LOCK;
+  return numProcesses_;
+}
+
+int Configuration::numThreads() const
+{
+  READ_LOCK;
+  return numThreads_;
+}
+
+int Configuration::maxNumSessions() const
+{
+  READ_LOCK;
+  return maxNumSessions_;
+}
+
+::int64_t Configuration::maxRequestSize() const
+{
+  READ_LOCK;
+  return maxRequestSize_;
+}
+
+::int64_t Configuration::isapiMaxMemoryRequestSize() const
+{
+  READ_LOCK;
+  return isapiMaxMemoryRequestSize_;
+}
+
+Configuration::SessionTracking Configuration::sessionTracking() const
+{
+  READ_LOCK;
+  return sessionTracking_;
+}
+
+bool Configuration::reloadIsNewSession() const
+{
+  READ_LOCK;
+  return reloadIsNewSession_;
+}
+
+int Configuration::sessionTimeout() const
+{
+  READ_LOCK;
+  return sessionTimeout_;
+}
+
+int Configuration::bootstrapTimeout() const
+{
+  READ_LOCK;
+  return bootstrapTimeout_;
+}
+
+int Configuration::indicatorTimeout() const
+{
+  READ_LOCK;
+  return indicatorTimeout_;
+}
+
+int Configuration::serverPushTimeout() const
+{
+  READ_LOCK;
+  return serverPushTimeout_;
+}
+
+std::string Configuration::valgrindPath() const
+{
+  READ_LOCK;
+  return valgrindPath_;
+}
+
+Configuration::ErrorReporting Configuration::errorReporting() const
+{
+  READ_LOCK;
+  return errorReporting_;
+}
+
+bool Configuration::debug() const
+{
+  READ_LOCK;
+  return errorReporting_ != ErrorMessage;
+}
+
+std::string Configuration::runDirectory() const
+{
+  READ_LOCK;
+  return runDirectory_;
+}
+
+int Configuration::sessionIdLength() const
+{
+  READ_LOCK;
+  return sessionIdLength_;
+}
+
+std::string Configuration::sessionIdPrefix() const
+{
+  READ_LOCK;
+  return connectorSessionIdPrefix_;
+}
+
+bool Configuration::sendXHTMLMimeType() const
+{
+  READ_LOCK;
+  return xhtmlMimeType_;
+}
+
+bool Configuration::behindReverseProxy() const
+{
+  READ_LOCK;
+  return behindReverseProxy_;
+}
+
+std::string Configuration::redirectMessage() const
+{
+  READ_LOCK;
+  return redirectMsg_;
+}
+
+bool Configuration::serializedEvents() const
+{
+  READ_LOCK;
+  return serializedEvents_;
+}
+
+bool Configuration::webSockets() const
+{
+  READ_LOCK;
+  return webSockets_;
+}
+
+bool Configuration::inlineCss() const
+{
+  READ_LOCK;
+  return inlineCss_;
+}
+
+bool Configuration::persistentSessions() const
+{
+  READ_LOCK;
+  return persistentSessions_;
+}
+
+bool Configuration::progressiveBoot() const
+{
+  READ_LOCK;
+  return progressiveBoot_;
+}
+
+bool Configuration::splitScript() const
+{
+  READ_LOCK;
+  return splitScript_;
+}
+
+float Configuration::maxPlainSessionsRatio() const
+{
+  READ_LOCK;
+  return maxPlainSessionsRatio_;
+}
+
+bool Configuration::ajaxPuzzle() const
+{
+  READ_LOCK;
+  return ajaxPuzzle_;
+}
+
+bool Configuration::sessionIdCookie() const
+{
+  return sessionIdCookie_;
+}
+
+bool Configuration::useSlashExceptionForInternalPaths() const
+{
+  return connectorSlashException_;
+}
+
+bool Configuration::needReadBodyBeforeResponse() const
+{
+  return connectorNeedReadBody_;
+}
+
+bool Configuration::agentIsBot(const std::string& agent) const
+{
+  READ_LOCK;
+
+  return regexMatchAny(agent, botList_);
+}
+
+bool Configuration::agentSupportsAjax(const std::string& agent) const
+{
+  READ_LOCK;
+
+  bool matches = regexMatchAny(agent, ajaxAgentList_);
+  if (ajaxAgentWhiteList_)
+    return matches;
+  else
+    return !matches;
+}
+
+std::string Configuration::appRoot() const
+{
+  READ_LOCK;
+
+  std::string approot;
+
+  if (!readConfigurationProperty("appRoot", approot)) {
+    return "";
+  }
+
+  if (!approot.empty() && approot[approot.length() - 1] != '/'
+#ifdef WIN32
+      && approot[approot.length() - 1] != '\\'
+#endif
+     ) {
+    approot += "/";
+  }
+
+  return approot;
 }
 
 std::string Configuration::locateAppRoot()
@@ -229,9 +492,12 @@ std::string Configuration::locateConfigFile(const std::string& appRoot)
   }
 }
 
-void Configuration::setSessionIdPrefix(const std::string& prefix)
+void Configuration::addEntryPoint(const EntryPoint& ep)
 {
-  sessionIdPrefix_ = prefix;
+  if (ep.type() == StaticResource)
+    ep.resource()->currentUrl_ = ep.path();
+
+  entryPoints_.push_back(ep);
 }
 
 void Configuration::setDefaultEntryPoint(const std::string& path)
@@ -246,19 +512,26 @@ void Configuration::setSessionTimeout(int sessionTimeout)
   sessionTimeout_ = sessionTimeout;
 }
 
+void Configuration::setSessionIdPrefix(const std::string& prefix)
+{
+  connectorSessionIdPrefix_ = prefix;
+}
+
 void Configuration::setWebSockets(bool enabled)
 {
-  webSockets_ = enabled;
+  connectorWebSockets_ = enabled;
+  if (!enabled)
+    webSockets_ = false;
 }
 
 void Configuration::setNeedReadBodyBeforeResponse(bool needed)
 {
-  needReadBody_ = needed;
+  connectorNeedReadBody_ = needed;
 }
 
-void Configuration::setUseSlashExceptionForInternalPaths(bool needed)
+void Configuration::setUseSlashExceptionForInternalPaths(bool use)
 {
-  slashException_ = needed;
+  connectorSlashException_ = use;
 }
 
 void Configuration::setRunDirectory(const std::string& path)
@@ -326,8 +599,6 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 			       "or 'stack'");
   }
 
-  setBoolean(app, "log-response-time", logTime_);
-
   setInt(app, "num-threads", numThreads_);
 
   xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");
@@ -356,8 +627,13 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
   setInt(app, "session-id-length", sessionIdLength_);
 
-  sessionIdPrefix_
-    = singleChildElementValue(app,"session-id-prefix", sessionIdPrefix_);
+  /*
+   * If a session-id-prefix is defined in the configuration file, then
+   * we loose the prefix defined by the connector (e.g. wthttpd), but who
+   * would do such a thing ? */
+  connectorSessionIdPrefix_
+    = singleChildElementValue(app,"session-id-prefix",
+			      connectorSessionIdPrefix_);
 
   setBoolean(app, "send-xhtml-mime-type", xhtmlMimeType_);
   redirectMsg_ = singleChildElementValue(app, "redirect-message", redirectMsg_);
@@ -440,25 +716,39 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       if (name == "approot")
 	name = "appRoot";
 
-      if (name == "appRoot" && !approot_.empty()) {
-	log("warning") << "Ignoring configuration property 'appRoot' ("
-		       << value
-		       << ") because was already set to " << approot_;
-      } else {
+      if (name == "appRoot" && !appRoot_.empty())
+	LOG_WARN("ignoring configuration property 'appRoot' ("
+		 << value
+		 << ") because was already set to " << appRoot_);
+      else
         properties_[name] = value;
-      }
     }
   }
 }
 
-void Configuration::readConfiguration(const std::string& configurationFile)
+void Configuration::rereadConfiguration()
 {
-  std::ifstream s(configurationFile.c_str(), std::ios::in | std::ios::binary);
+  WRITE_LOCK;
+
+  try {
+    LOG_INFO("Rereading configuration...");
+    Configuration conf(applicationPath_, appRoot_, configurationFile_, 0);
+    reset();
+    readConfiguration(true);
+    LOG_INFO("New configuration read.");
+  } catch (WException& e) {
+    LOG_ERROR("Error reading configuration: " << e.what());
+  }
+}
+
+void Configuration::readConfiguration(bool silent)
+{
+  std::ifstream s(configurationFile_.c_str(), std::ios::in | std::ios::binary);
 
   if (!s) {
-    if (configurationFile != WT_CONFIG_XML)
-      throw WServer::Exception("Error reading '"
-			       + configurationFile + "': could not open file.");
+    if (configurationFile_ != WT_CONFIG_XML)
+      throw WServer::Exception
+	("Error reading '" + configurationFile_ + "': could not open file.");
     else
       return;
   }
@@ -491,6 +781,7 @@ void Configuration::readConfiguration(const std::string& configurationFile)
      * to setup logging before parsing the other settings.
      */
     std::string logFile;
+    std::string logConfig;
     for (unsigned i = 0; i < applications.size(); ++i) {
       xml_node<> *app = applications[i];
 
@@ -499,15 +790,18 @@ void Configuration::readConfiguration(const std::string& configurationFile)
 	throw WServer::Exception("<application-settings> requires attribute "
 				 "'location'");
 
-      if (appLocation == "*" || appLocation == applicationPath_)
+      if (appLocation == "*" || appLocation == applicationPath_) {
 	logFile = singleChildElementValue(app, "log-file", logFile);
+	logConfig = singleChildElementValue(app, "log-config", logConfig);
+      }
     }
 
     if (server_)
-      server_->initLogger(logFile);
+      server_->initLogger(logFile, logConfig);
 
-    log("notice") << "Reading Wt config file: " << configurationFile
-		 << " (location = '" << applicationPath_ << "')";
+    if (!silent)
+      LOG_INFO("reading Wt config file: " << configurationFile_
+	       << " (location = '" << applicationPath_ << "')");
 
     /*
      * Now read application settings.
@@ -522,19 +816,11 @@ void Configuration::readConfiguration(const std::string& configurationFile)
 	readApplicationSettings(app);
     }
   } catch (std::exception& e) {
-    throw WServer::Exception("Error reading: " + configurationFile + ": "
+    throw WServer::Exception("Error reading: " + configurationFile_ + ": "
 			     + e.what());
   } catch (...) {
     throw WServer::Exception("Exception of unknown type!\n");
   }
-}
-
-void Configuration::addEntryPoint(const EntryPoint& ep)
-{
-  if (ep.type() == StaticResource)
-    ep.resource()->currentUrl_ = ep.path();
-
-  entryPoints_.push_back(ep);
 }
 
 bool Configuration::registerSessionId(const std::string& oldId,
@@ -582,45 +868,16 @@ std::string Configuration::sessionSocketPath(const std::string& sessionId)
   return runDirectory_ + "/" + sessionId;
 }
 
-const std::string* Configuration::property(const std::string& name) const 
-{
-  PropertyMap::const_iterator i = properties_.find(name);
-
-  if (i != properties_.end()) 
-    return &i->second;
-  else
-    return 0;
-}
-
 bool Configuration::readConfigurationProperty(const std::string& name,
                                               std::string& value) const
 {
-  const std::string* prop = property(name);
+  PropertyMap::const_iterator i = properties_.find(name);
 
-  if (prop) {
-    value = *prop;
+  if (i != properties_.end()) {
+    value = i->second;
     return true;
   } else
     return false;
-}
-
-std::string Configuration::appRoot() const
-{
-  std::string approot;
-
-  if (!readConfigurationProperty("appRoot", approot)) {
-    return "";
-  }
-
-  if (!approot.empty() && approot[approot.length() - 1] != '/'
-#ifdef WIN32
-      && approot[approot.length() - 1] != '\\'
-#endif
-     ) {
-    approot += "/";
-  }
-
-  return approot;
 }
 
 WLogEntry Configuration::log(const std::string& type) const

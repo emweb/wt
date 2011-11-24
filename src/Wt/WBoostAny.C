@@ -27,6 +27,9 @@
 #endif
 
 namespace Wt {
+
+LOGGER("WAbstractItemModel");
+
   namespace Impl {
 
 #ifdef WT_THREADED
@@ -200,8 +203,7 @@ std::string asJSLiteral(const boost::any& v, TextFormat textFormat)
     if (handler)
       return handler->asString(v, WString::Empty).jsStringLiteral();
     else {
-      Wt::log("error") << "WAbstractItemModel: unsupported type: '"
-		       << v.type().name() << "'";
+      LOG_ERROR("unsupported type: '"<< v.type().name() << "'");
       return "''";
     }
   }
@@ -245,8 +247,7 @@ boost::any updateFromJS(const boost::any& v, std::string s)
 #undef ELSE_LEXICAL_ANY
 
   else {
-    Wt::log("error") << "WAbstractItemModel: unsupported type '"
-		     << v.type().name() << "'";
+    LOG_ERROR("unsupported type '" << v.type().name() << "'");
     return boost::any();
   }
 }
@@ -297,8 +298,7 @@ int compare(const boost::any& d1, const boost::any& d2)
 	  if (handler)
 	    return handler->compare(d1, d2);
 	  else {
-	    Wt::log("error") << "WAbstractItemModel: unsupported type '"
-			     << d1.type().name() << "'";
+	    LOG_ERROR("unsupported type '" << d1.type().name() << "'");
 	    return 0;
 	  }
 	}
@@ -374,8 +374,7 @@ WString asString(const boost::any& v, const WT_USTRING& format)
     if (handler)
       return handler->asString(v, format);
     else {
-      Wt::log("error") << "WAbstractItemModel: unsupported type '"
-		       << v.type().name() << "'";
+      LOG_ERROR("unsupported type '" << v.type().name() << "'");
       return WString::Empty;
     }
   }
@@ -439,8 +438,7 @@ double asNumber(const boost::any& v)
     if (handler)
       return handler->asNumber(v);
     else {
-      Wt::log("error") << "WAbstractItemModel: unsupported type '"
-		       << v.type().name() << "'";
+      LOG_ERROR("unsupported type '" << v.type().name() << "'");
       return 0;
     }
   }
@@ -495,8 +493,7 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
 
   else {
     // FIXME, add this to the traits.
-    Wt::log("error") << "WAbstractItemModel: unsupported type '"
-		     << v.type().name() << "'";
+    LOG_ERROR("unsupported type '" << v.type().name() << "'");
     return boost::any();
   }
 }

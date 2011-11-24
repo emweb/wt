@@ -27,6 +27,7 @@ typedef int socklen_t;
 
 namespace Wt {
 
+LOGGER("SocketNotifier");
 
 class SocketNotifierImpl
 {
@@ -53,13 +54,12 @@ public:
 
   void reportError(const char *msg)
   {
-    controller_->server()->log("error")
-      << "SocketNotifier: " << msg << ". Error code "
 #ifdef WIN32
-      << GetLastError();
+    int error = GetLastError();
 #else
-      << errno;
+    int error = errno;
 #endif
+    LOG_ERROR(msg << ". Error code " << error);
   }
 };
 
@@ -364,9 +364,7 @@ void SocketNotifier::threadEntry()
 
       lock.lock();
     } else {
-      // TODO: log
-      impl_->controller_->server()->log("error")
-        << "SocketNotifier: select returned -1";
+      LOG_ERROR("select() returned -1");
     }
   }
 }

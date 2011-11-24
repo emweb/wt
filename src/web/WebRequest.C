@@ -5,7 +5,7 @@
  */
 
 #include "Wt/WException"
-
+#include "Wt/WLogger"
 #include "WebRequest.h"
 
 #include <cstdlib>
@@ -28,30 +28,26 @@ using std::atoi;
 
 namespace Wt {
 
+LOGGER("WebRequest");
+
 Http::ParameterValues WebRequest::emptyValues_;
 
 WebRequest::WebRequest()
   : entryPoint_(0),
     doingAsyncCallbacks_(false),
     webSocketRequest_(false)
-{ }
-
-void WebRequest::trackTime()
 {
   start_ = boost::posix_time::microsec_clock::local_time();
 }
 
 WebRequest::~WebRequest()
 {
-  if (!isWebSocketRequest() && !start_.is_not_a_date_time()) {
-    boost::posix_time::ptime
-      end = boost::posix_time::microsec_clock::local_time();
+  boost::posix_time::ptime
+    end = boost::posix_time::microsec_clock::local_time();
 
-    boost::posix_time::time_duration d = end - start_;
+  boost::posix_time::time_duration d = end - start_;
 
-    std::cerr << "Took: " << (double)d.total_microseconds() / 1000
-	      << "ms" << std::endl;
-  }
+  LOG_INFO("took " << (double)d.total_microseconds() / 1000  << "ms");
 }
 
 void WebRequest::readWebSocketMessage(CallbackFunction callback)
@@ -210,10 +206,8 @@ WT_LOCALE WebRequest::parsePreferredAcceptValue(const std::string& str) const
     else
       return "";
   } else {
-    // wApp is not yet initialized here
-    std::cerr << "Could not parse 'Accept-Language: "
-	      << str << "', stopped at: '" << info.stop 
-	      << '\'' << std::endl;
+    LOG_ERROR("Could not parse 'Accept-Language: " << str
+	      << "', stopped at: '" << info.stop << '\'');
     return "";
   }
 }

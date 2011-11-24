@@ -22,6 +22,8 @@ using namespace rapidxml;
 
 namespace Wt {
 
+LOGGER("RefEncoder");
+
 void EncodeRefs(xml_node<> *x_node, WApplication *app,
 		WFlags<RefEncoderOption> options)
 {
@@ -126,7 +128,7 @@ void EncodeRefs(WString& text, WFlags<RefEncoderOption> options)
 
     result = out.str();
   } catch (parse_error& e) {
-    app->log("error") << "Error reading XHTML string: " << e.what();
+    LOG_ERROR("Error reading XHTML string: " << e.what());
     return;
   }
 

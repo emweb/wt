@@ -121,7 +121,7 @@ void DropSchema::visit(C& obj)
 {
   persist<C>::apply(obj, *this);
 
-  drop(tableName_);
+  drop(mapping_.tableName);
 }
 
 template<typename V>
@@ -150,7 +150,9 @@ void DropSchema::actCollection(const CollectionRef<C>& field)
   } else {
     const char *tableName = session_.tableName<C>();
     if (tablesDropped_.count(tableName) == 0) {
-      DropSchema action(session_, tableName, tablesDropped_);
+      DropSchema action(session_, 
+			*session_.getMapping(tableName), 
+			tablesDropped_);
       C dummy;
       action.visit(dummy);
     }

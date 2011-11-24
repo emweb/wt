@@ -15,6 +15,8 @@
 
 namespace Wt {
 
+LOGGER("WImage");
+
   namespace Impl {
 
     class MapWidget : public WContainerWidget
@@ -199,7 +201,7 @@ const std::vector<WAbstractArea *> WImage::areas() const
 void WImage::removeArea(WAbstractArea *area)
 {
   if (!map_) {
-    Wt::log("error") << "WImage::removeArea(): no such area";
+    LOG_ERROR("removeArea(): no such area");
     return;
   }
 

@@ -15,6 +15,8 @@
 
 namespace Wt {
 
+LOGGER("WLength");
+
 WLength WLength::Auto;
 
 WLength::WLength()
@@ -36,7 +38,7 @@ WLength::WLength(const char *s)
 #endif
 
   if (s == end) {
-    Wt::log("error") << "WLength: can not parse CSS length: '" << s << "'";
+    LOG_ERROR("cannot parse CSS length: '" << s << "'");
     auto_ = true;
     return;
   }
@@ -63,7 +65,7 @@ WLength::WLength(const char *s)
   else if (unit == "%")
     unit_ = Percentage;
   else {
-    Wt::log("error") << "WLength: unrecognized unit in '" << s << "'";
+    LOG_ERROR("unrecognized unit in '" << s << "'");
     auto_ = true;
     value_ = -1;
     unit_ = Pixel;

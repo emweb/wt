@@ -4,6 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <boost/asio.hpp>
+
 #include "Wt/WIOService"
 #include "Wt/WServer"
 
@@ -45,6 +47,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("WServer/wthttp");
+
 struct WServer::Impl
 {
   Impl()
@@ -78,7 +82,7 @@ WServer::~WServer()
     try {
       stop();
     } catch (...) {
-      Wt::log("error") << "~WServer: oops, stop() threw exception!";
+      LOG_ERROR("~WServer: oops, stop() threw exception!");
     }
   }
 
@@ -115,11 +119,11 @@ bool WServer::start()
   setCatchSignals(!impl_->serverConfiguration_->gdb());
 
   if (isRunning()) {
-    log("error") << "WServer::start(): server already started!";
+    LOG_ERROR("start(): server already started!");
     return false;
   }
 
-  log("notice") << "Wt: initializing built-in wthttpd";
+  LOG_INFO("initializing built-in wthttpd");
 
 #ifndef WIN32
   srand48(getpid());
@@ -143,7 +147,7 @@ bool WServer::start()
 					      *this);
 
 #ifndef WT_THREADED
-    log("warn") << "No boost thread support, running in main thread.";
+    LOG_WARN("No boost thread support, running in main thread.");
 #endif // WT_THREADED
 
     ioService().start();
@@ -174,7 +178,7 @@ bool WServer::isRunning() const
 void WServer::resume()
 {
   if (!isRunning()) {
-    log("error") << "WServer::resume(): server not yet started!";
+    LOG_ERROR("resume(): server not yet started!");
     return;
   } else {
     impl_->server_->resume();    
@@ -184,7 +188,7 @@ void WServer::resume()
 void WServer::stop()
 {
   if (!isRunning()) {
-    log("error") << "WServer::stop(): server not yet started!";
+    LOG_ERROR("stop(): server not yet started!");
     return;
   }
 
@@ -193,7 +197,7 @@ void WServer::stop()
     // Stop the Wt application server (cleaning up all sessions).
     webController_->shutdown();
 
-    log("notice") << "Shutdown: stopping web server.";
+    LOG_INFO("Shutdown: stopping web server.");
 
     // Stop the server.
     impl_->server_->stop();
@@ -229,7 +233,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
       if (server.start()) {
 #ifdef WT_THREADED
 	int sig = WServer::waitForShutdown(argv[0]);
-	server.log("notice") << "Shutdown (signal = " << sig << ")";
+	LOG_INFO_S(&server, "shutdown (signal = " << sig << ")");
 #endif
 	server.stop();
 
@@ -244,14 +248,14 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
       return 0;
     } catch (std::exception& e) {
-      server.log("fatal") << e.what();
+      LOG_INFO_S(&server, "fatal: " << e.what());
       return 1;
     }
   } catch (Wt::WServer::Exception& e) {
-    std::cerr << e.what() << std::endl;
+    LOG_ERROR("fatal: " << e.what());
     return 1;
   } catch (std::exception& e) {
-    std::cerr << "exception: " << e.what() << std::endl;
+    LOG_ERROR("fatal exception: " << e.what());
     return 1;
   }
 }

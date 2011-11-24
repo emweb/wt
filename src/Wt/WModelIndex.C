@@ -14,6 +14,8 @@
 
 namespace Wt {
 
+LOGGER("WModelIndex");
+
 WModelIndex::WModelIndex()
   : model_(0),
     row_(0),
@@ -81,8 +83,7 @@ bool WModelIndex::operator< (const WModelIndex& i2) const
   else if (i1 == i2)
     return false;
   else if (i1.model() != i2.model()) {
-    std::cerr << "Comparing indexes from different models are you?"
-	      << std::endl;
+    LOG_ERROR("comparing indexes from different models are you?");
     return false;
   }
 
@@ -128,8 +129,7 @@ bool WModelIndex::UnorderedLess::operator() (const WModelIndex& i1,
   else if (i1 == i2)
     return false;
   else if (i1.model() != i2.model()) {
-    std::cerr << "Comparing indexes from different models are you?"
-	      << std::endl;
+    LOG_ERROR("comparing indexes from different models are you?");
     return false;
   } else if (i1.row() < i2.row())
     return true;
@@ -171,8 +171,7 @@ void WModelIndex::encodeAsRawIndex()
 {
   if (model_) {
     if (isRawIndex()) {
-      Wt::log("error") << "WModelIndex::encodeAsRawIndex(): "
-		       << "cannot encode a raw index to raw again";
+      LOG_ERROR("encodeAsRawIndex(): cannot encode a raw index to raw again");
       return;
     }
 
@@ -185,8 +184,7 @@ WModelIndex WModelIndex::decodeFromRawIndex() const
 {
   if (model_) {
     if (!isRawIndex()) {
-      Wt::log("error") << "WModelIndex::decodeFromRawIndex(): "
-		       << "can only decode an encoded raw index";
+      LOG_ERROR("decodeFromRawIndex(): can only decode an encoded raw index");
       return WModelIndex();
     }
 

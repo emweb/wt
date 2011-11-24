@@ -14,6 +14,8 @@
 
 namespace Wt {
 
+LOGGER("WComboBox");
+
 WComboBox::WComboBox(WContainerWidget *parent)
   : WFormWidget(parent),
     model_(0),
@@ -252,8 +254,7 @@ void WComboBox::setFormData(const FormData& formData)
       try {
 	currentIndex_ = boost::lexical_cast<int>(value);
       } catch (boost::bad_lexical_cast& e) {
-	Wt::log("error") << "WComboBox received illegal form value: '"
-			 << value << "'";
+	LOG_ERROR("received illegal form value: '" << value << "'");
       }
     } else
       currentIndex_ = -1;
@@ -274,8 +275,12 @@ WT_USTRING WComboBox::valueText() const
 
 void WComboBox::setValueText(const WT_USTRING& value)
 {
+// FIXME make cnor understand this
+
+#ifndef WT_TARGET_JAVA
   int i = findText(value, MatchExactly);
   setCurrentIndex(i);
+#endif
 }
 
 void WComboBox::itemsChanged()

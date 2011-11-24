@@ -289,6 +289,12 @@ public:
    */
   static double degreesToRadians(double angle);
 
+  /*! \brief A constant that represents the identity transform.
+   *
+   * \sa isIdentity()
+   */
+  static const WTransform Identity;
+
 private:
   // we use row,column indices; prepend transformations to the left,
   // and transform column point vectors: X' = M.X

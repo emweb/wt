@@ -7,7 +7,8 @@
 #ifndef WCORE_SERVER_H_
 #define WCORE_SERVER_H_
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/deadline_timer.hpp>
 #include <boost/function.hpp>
 
 namespace boost {

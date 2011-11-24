@@ -26,8 +26,8 @@ public:
     : spinBox_(spinBox)
   { }
 
-  virtual State validate(WT_USTRING& input) const {
-    return spinBox_->parseValue(input) ? Valid : Invalid;
+  virtual Result validate(WT_USTRING& input) const {
+    return spinBox_->parseValue(input) ? Result(Valid) : Result(Invalid);
   }
 
   virtual std::string javaScriptValidate() const {

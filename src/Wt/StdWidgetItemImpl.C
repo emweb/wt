@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <cassert>
 
 #include "DomElement.h"
 #include "StdWidgetItemImpl.h"
@@ -15,6 +16,8 @@
 #include "Wt/WWidgetItem"
 
 namespace Wt {
+
+LOGGER("WWidgetItem");
 
 StdWidgetItemImpl::StdWidgetItemImpl(WWidgetItem *item)
   : item_(item)
@@ -149,7 +152,7 @@ void StdWidgetItemImpl::update(WLayoutItem *)
 void StdWidgetItemImpl::setHint(const std::string& name,
 				const std::string& value)
 {
-  Wt::log("error") << "WWidgetItem: unrecognized hint '" << name << "'";
+  LOG_ERROR("unrecognized hint '" << name << "'");
 }
 
 }

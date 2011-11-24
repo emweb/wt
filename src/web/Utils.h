@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <boost/algorithm/string.hpp>
 
 #include <Wt/WDllDefs.h>
 
@@ -52,6 +53,7 @@ extern std::string addWord(const std::string& s, const std::string& w);
 
 // Fast integer to string in given buffer
 extern char *itoa(int value, char *result, int base = 10);
+extern char *lltoa(long long value, char *result, int base = 10);
 
 // Fast integer to string in given buffer, zero padded to length
 extern char *pad_itoa(int value, int length, char *result);
@@ -189,8 +191,17 @@ extern char *round_str(double d, int digits, char *buf);
 // Only for Java target
 extern std::string toHexString(int i);
 
+#ifndef WT_TARGET_JAVA
+typedef boost::iterator_range<std::string::const_iterator> SplitEntry;
+#else
+typedef std::string SplitEntry;
+#endif
+
+typedef std::vector<SplitEntry> SplitVector;
+typedef std::set<SplitEntry> SplitSet;
+
 // Splits a string in a set of strings, on every given token
-extern void split(std::set<std::string>& tokens,
+extern void split(SplitSet& tokens,
 		  const std::string &in, const char *sep,
 		  bool compress_adjacent_tokens);
 
@@ -199,11 +210,10 @@ extern void replaceAll(std::string& v, char from, char to);
 
 extern void unescapeHexTokens(std::string& v);
 
-extern void urlDecode(std::string &s);
-
-extern std::string urlEncode(const std::string& url);
-extern std::string urlEncode(const std::string& url,
-                             const std::string& allowed);
+extern WT_API void urlDecode(std::string &s);
+extern WT_API std::string urlEncode(const std::string& url);
+extern WT_API std::string urlEncode(const std::string& url,
+				    const std::string& allowed);
 extern std::string dataUrlDecode(const std::string& url,
 				 std::vector<unsigned char> &data);
 

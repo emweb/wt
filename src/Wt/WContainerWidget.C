@@ -22,6 +22,8 @@
 
 namespace Wt {
 
+LOGGER("WContainerWidget");
+
 const char *WContainerWidget::SCROLL_SIGNAL = "scroll";
 
 /*
@@ -175,7 +177,7 @@ void WContainerWidget::addWidget(WWidget *widget)
 {
   if (widget->parent()) {
     if (widget->parent() != this) {
-      Wt::log("warn") << "WContainerWidget::addWidget(): reparenting widget";
+      LOG_WARN("addWidget(): reparenting widget");
       widget->setParentWidget(0);
     } else
       return;
@@ -208,14 +210,13 @@ void WContainerWidget::insertWidget(int index, WWidget *widget)
 void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
 {
   if (before->parent() != this) {
-    Wt::log("error") << "WContainerWidget::insertBefore(): 'before' not "
-		     << "in this container";
+    LOG_ERROR("insertBefore(): 'before' not in this container");
     return;
   }
 
   if (widget->parent()) {
     if (widget->parent() != this) {
-      Wt::log("warn") << "WContainerWidget::insertWidget(): reparenting widget";
+      LOG_WARN("insertWidget(): reparenting widget");
       widget->setParentWidget(0);
     } else
       return;
@@ -409,7 +410,7 @@ WLength WContainerWidget::padding(Side side) const
   case Left:
     return padding_[3];
   default:
-    Wt::log("error") << "WContainerWidget::padding(): improper side.";
+    LOG_ERROR("padding(): improper side.");
     return WLength();
   }
 }

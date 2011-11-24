@@ -7,6 +7,7 @@
 #include "Wt/WBrush"
 #include "Wt/WException"
 #include "Wt/WFontMetrics"
+#include "Wt/WLogger"
 #include "Wt/WPainter"
 #include "Wt/WPen"
 #include "Wt/WRasterImage"
@@ -80,6 +81,8 @@ namespace {
 }
 
 namespace Wt {
+
+LOGGER("WRasterImage");
 
 WRasterImage::WRasterImage(const std::string& type,
 			   const WLength& width, const WLength& height,
@@ -588,9 +591,8 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   }
 
   if (cImage == 0) {
-    std::cerr << "WRasterImage::drawImage failed: "
-	      << exception.reason << ", "
-	      << exception.description << std::endl;
+    LOG_ERROR("drawImage failed: " << exception.reason << ", "
+	      << exception.description);
     return;
   }
 

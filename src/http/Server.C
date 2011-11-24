@@ -13,14 +13,14 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include <boost/asio.hpp>
+
 #include <Wt/WIOService>
 #include <Wt/WServer>
 
 #include "Server.h"
 #include "Configuration.h"
 #include "WebController.h"
-
-#include <boost/asio/buffer.hpp>
 
 #include <boost/bind.hpp>
 
@@ -29,6 +29,10 @@
 #include <boost/asio/ssl.hpp>
 
 #endif // HTTP_WITH_SSL
+
+namespace Wt {
+  LOGGER("wthttp");
+}
 
 namespace http {
 namespace server {
@@ -102,9 +106,8 @@ void Server::start()
     tcp_acceptor_.bind(tcp_endpoint);
     tcp_acceptor_.listen();
 
-    wt_.log("notice") << "Started server: http://"
-		      << config_.httpAddress() << ":"
-		      << this->httpPort();
+    LOG_INFO_S(&wt_, "started server: http://" << 
+	       config_.httpAddress() << ":" << this->httpPort());
 
     new_tcpconnection_.reset
       (new TcpConnection(wt_.ioService(), this, connection_manager_,
@@ -114,9 +117,8 @@ void Server::start()
   // HTTPS
   if (!config_.httpsAddress().empty()) {
 #ifdef HTTP_WITH_SSL
-    wt_.log("notice")
-      << "Starting server: https://" << config_.httpsAddress() << ":"
-      << config_.httpsPort();
+    LOG_INFO_S(&wt_, "starting server: https://" <<
+	       config_.httpsAddress() << ":" << config_.httpsPort());
 
     ssl_context_.set_options(asio::ssl::context::default_workarounds
 			     | asio::ssl::context::no_sslv2
@@ -146,8 +148,8 @@ void Server::start()
 			 request_handler_));
 
 #else // HTTP_WITH_SSL
-    wt_.log("error") << "Wthttpd was built without support for SSL: "
-		     << "cannot start https server.";
+    LOG_ERROR_S(&wt_, "built without support for SSL: "
+		"cannot start https server.");
 #endif // HTTP_WITH_SSL
   }
 

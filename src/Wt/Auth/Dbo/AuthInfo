@@ -54,7 +54,7 @@ template <class AuthIdentityType> class AuthIdentity;
  * \ingroup auth
  */
 template <class UserType>
-class WT_API AuthInfo : public Wt::Dbo::Dbo< AuthInfo<UserType> >
+class AuthInfo : public Wt::Dbo::Dbo< AuthInfo<UserType> >
 {
 public:
   /*! \brief Type for an auth token.
@@ -290,7 +290,7 @@ private:
  * \ingroup auth
  */
 template <class AuthInfoType>
-class WT_API AuthToken : public Wt::Dbo::Dbo< AuthToken<AuthInfoType> >
+class AuthToken : public Wt::Dbo::Dbo< AuthToken<AuthInfoType> >
 {
 public:
   /*! \brief Default constructor.
@@ -340,7 +340,7 @@ private:
  * \ingroup auth
  */
 template <class AuthInfoType>
-class WT_API AuthIdentity : public Wt::Dbo::Dbo< AuthIdentity<AuthInfoType> >
+class AuthIdentity : public Wt::Dbo::Dbo< AuthIdentity<AuthInfoType> >
 {
 public:
   /*! \brief Default constructor.

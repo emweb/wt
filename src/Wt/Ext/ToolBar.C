@@ -5,11 +5,15 @@
  */
 
 #include "Wt/Ext/ToolBar"
+#include "Wt/WLogger"
 #include "Utils.h"
 
 #include <iostream>
 
 namespace Wt {
+
+LOGGER("Ext::ToolBar");
+
   namespace Ext {
 
 class ToolBarSeparator : public Widget
@@ -88,9 +92,8 @@ void ToolBar::add(WWidget *item)
 void ToolBar::insert(int index, WWidget *item)
 {
   if (isRendered())
-    std::cerr
-      << "ToolBar::insert(): can only support plain widgets before "
-      "initial rendering" << std::endl;
+    LOG_ERROR("insert(): can only insert plain widgets before initial "
+	      "rendering");
 
   items_.insert(items_.begin() + index, item);
   addOrphan(item);

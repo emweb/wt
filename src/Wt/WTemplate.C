@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
+#include <cctype>
 
 #include "Wt/WApplication"
 #include "Wt/WLogger"
@@ -18,6 +19,8 @@
 
 namespace Wt {
 
+LOGGER("WTemplate");
+
 const char *WTemplate::DropShadow_x1_x2
   ="<span class=\"Wt-x1\">"
   """<span class=\"Wt-x1a\"></span>"
@@ -26,6 +29,7 @@ const char *WTemplate::DropShadow_x1_x2
   """<span class=\"Wt-x2a\"></span>"
   "</span>";
 
+#ifndef WT_TARGET_JAVA
 bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
 			      std::ostream& result)
 {
@@ -36,8 +40,7 @@ bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
     result << s; // FIXME formatting / escaping ?
     return true;
   } else {
-    Wt::log("error") << "WTemplate::Functions::tr(): expects at least one "
-      "argument";
+    LOG_ERROR("Functions::tr(): expects at least one argument");
     return false;
   }
 }
@@ -53,11 +56,11 @@ bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
     } else
       return false;
   } else {
-    Wt::log("error") << "WTemplate::Functions::tr(): expects exactly one "
-      "argument";
+    LOG_ERROR("Functions::tr(): expects exactly one argument");
     return false;
   }
 }
+#endif
 
 WTemplate::WTemplate(WContainerWidget *parent)
   : WInteractWidget(parent),
@@ -122,7 +125,11 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
       return;
     else {
       delete i->second;
+#ifndef WT_TARGET_JAVA
       widgets_.erase(i);
+#else
+      widgets_.erase(varName);
+#endif
     }
   }
 
@@ -131,8 +138,8 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
     widgets_[varName] = widget;
     strings_.erase(varName);
   } else {
-    StringMap::const_iterator i = strings_.find(varName);
-    if (i != strings_.end() && i->second.empty())
+    StringMap::const_iterator j = strings_.find(varName);
+    if (j != strings_.end() && j->second.empty())
       return;
     strings_[varName] = std::string();
   }
@@ -179,7 +186,11 @@ bool WTemplate::resolveFunction(const std::string& name,
   FunctionMap::const_iterator i = functions_.find(name);
 
   if (i != functions_.end()) {
+#ifndef WT_TARGET_JAVA
     bool ok = i->second(this, args, result);
+#else
+    bool ok = i->second->evaluate(this, args, result);
+#endif // WT_TARGET_JAVA
 
     if (!ok)
       result << "??" << name << ":??";
@@ -352,8 +363,8 @@ void WTemplate::renderTemplate(std::ostream& result)
 	std::size_t endVar = parseArgs(text, endName, args);
 
 	if (endVar == std::string::npos) {
-	  Wt::log("error") << "WTemplate variable syntax error near \""
-			   << text.substr(pos) << "\"";
+	  LOG_ERROR("variable syntax error near \"" << text.substr(pos)
+		    << "\"");
 	  return;
 	}
 
@@ -369,8 +380,7 @@ void WTemplate::renderTemplate(std::ostream& result)
 	  } else {
 	    std::string cond = name.substr(2, nl - 3);
 	    if (conditions.back() != cond) {
-	      Wt::log("error") << "WTemplate: mismatching condition block end: "
-			       << cond;
+	      LOG_ERROR("mismatching condition block end: " << cond);
 	      return;
 	    }
 	    conditions.pop_back();
@@ -433,10 +443,10 @@ std::size_t WTemplate::parseArgs(const std::string& text,
     char c = text[pos];
     switch (state) {
     case Next:
-      if (!isspace(c)) {
+      if (!std::isspace(c)) {
 	if (c == '}')
 	  return pos;
-	else if (isalpha(c) || c == '_') {
+	else if (std::isalpha(c) || c == '_') {
 	  state = Name;
 	  v.clear();
 	  v << c;
@@ -455,13 +465,13 @@ std::size_t WTemplate::parseArgs(const std::string& text,
       if (c == '=') {
 	state = Value;
 	v << '=';
-      } else if (isspace(c)) {
+      } else if (std::isspace(c)) {
 	result.push_back(WString::fromUTF8(v.str()));
 	state = Next;
       } else if (c == '}') {
 	result.push_back(WString::fromUTF8(v.str()));
 	return pos;
-      } else if (isalnum(c) || c == '_' || c == '-')
+      } else if (std::isalnum(c) || c == '_' || c == '-')
 	v << c;
       else
 	return Error;

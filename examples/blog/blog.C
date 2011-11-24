@@ -49,6 +49,8 @@ int main(int argc, char **argv)
       "", "It's just an example.");
 
     server.addResource(&rssFeed, FeedUrl);
+    //When the blog application is deployed in ISAPI on the path "/blog"
+    //the resources (css+images) are not fetched correctly
     server.addEntryPoint(Application, createApplication, BlogUrl);    
 
     BlogSession::configureAuth();

@@ -20,6 +20,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include "Request.h"
+#include "Utils.h"
 
 namespace http {
 namespace server {
@@ -257,47 +258,27 @@ void buildOriginalURL(const Request &req, std::string &url)
   }
 }
 
-void escapeOriginalUrl(const std::string &original, std::string &escaped)
-{
-  static const char bin2hex[] = "0123456789abcdef";
-  std::string::const_iterator iter(original.begin());
-
-  for (;iter != original.end(); iter++) {
-    char act = *iter;
-    if ((act >= '0' && act <= '9') ||
-	(act >= 'a' && act <= 'z') ||
-	(act >= 'Z' && act <= 'Z') ||
-	(act == '-' || act == '_'))
-      escaped += act;
-    else {
-      escaped += '%';
-      escaped += bin2hex[(((unsigned char)act) >> 4) & 0x0F];
-      escaped += bin2hex[(((unsigned char)act)     ) & 0x0F];
-    }
-  }
-  std::cerr << "ORIGINAL URL: " << original
-	    << " ESCAPED: " << escaped << std::endl;
-}
-
 } // namespace stock_replies
 
 StockReply::StockReply(const Request& request,
 		       status_type status,
 		       const Configuration& configuration)
   : Reply(request, configuration),
-    status_(status),
     transmitted_(false)
-{ }
+{ 
+  setStatus(status);
+}
 
 StockReply::StockReply(const Request& request,
 		       status_type status,
 		       std::string extraContent,
 		       const Configuration& configuration)
   : Reply(request, configuration),
-    status_(status),
     content_(extraContent),
     transmitted_(false)
-{ }
+{
+  setStatus(status);
+}
 
 void StockReply::consumeData(Buffer::const_iterator begin,
 			     Buffer::const_iterator end,
@@ -305,11 +286,6 @@ void StockReply::consumeData(Buffer::const_iterator begin,
 {
   if (state != Request::Partial)
     send();
-}
-
-Reply::status_type StockReply::responseStatus()
-{
-  return status_;
 }
 
 std::string StockReply::contentType()
@@ -320,7 +296,7 @@ std::string StockReply::contentType()
 ::int64_t StockReply::contentLength()
 {
   std::string full_path(configuration().errRoot()
-			+ stock_replies::toName(status_));
+			+ stock_replies::toName(status()));
   std::string original_url;
   std::string content = "";
   std::string line;
@@ -355,8 +331,7 @@ std::string StockReply::contentType()
       if (original_url.empty())
 	stock_replies::buildOriginalURL(request_, original_url);
 
-      std::string escapedUrl;
-      stock_replies::escapeOriginalUrl(original_url, escapedUrl);
+      std::string escapedUrl = Wt::Utils::urlEncode(original_url);
       clen = escapedUrl.length();
 
       do {
@@ -371,7 +346,7 @@ std::string StockReply::contentType()
   ifstr.close();
 
   if (content.empty())
-    content_ = stock_replies::toText(status_) + content_;
+    content_ = stock_replies::toText(status()) + content_;
   else
     content_ = content;
 
@@ -384,7 +359,7 @@ asio::const_buffer StockReply::nextContentBuffer()
     transmitted_ = true;
     return asio::buffer(content_);
   } else
-    return emptyBuffer;
+    return emptyBuffer_;
 }
 
 

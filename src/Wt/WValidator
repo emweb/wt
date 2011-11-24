@@ -62,6 +62,8 @@ public:
     Valid	  //!< The input is valid.
   };
 
+  /*! \brief A class that holds a validation result.
+   */
   class Result
   {
   public:

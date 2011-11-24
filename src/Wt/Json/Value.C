@@ -11,6 +11,9 @@
 #include "Wt/WLogger"
 
 namespace Wt {
+
+LOGGER("Json::Value");
+
   namespace Json {
 
     namespace {
@@ -350,8 +353,7 @@ Value Value::toNumber() const
     try {
       return boost::lexical_cast<double>(s);
     } catch (boost::bad_lexical_cast& e) {
-      Wt::log("warning") << "Json::Value::toNumber() could not cast '"
-			 << s << "'";
+      LOG_WARN("toNumber() could not cast '" << s << "'");
       return Null;
     }
   } else

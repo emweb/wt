@@ -25,6 +25,9 @@
 using namespace rapidxml;
 
 namespace Wt {
+
+LOGGER("Render::Block");
+
   namespace Render {
 
 int sideToIndex(Wt::Side side)
@@ -61,7 +64,7 @@ Block::Block(xml_node<> *node, Block *parent)
     case node_element:
       type_ = DomElement::parseTagName(node->name());
       if (type_ == DomElement_UNKNOWN) {
-	Wt::log("error") << "Wt::Render: Unsupported element: " << node->name();
+	LOG_ERROR("unsupported element: " << node->name());
 	type_ = DomElement_DIV;
       }
       break;
@@ -184,16 +187,14 @@ void Block::determineDisplay()
 	else if (display == "block")
 	  inline_ = false;
 	else {
-	  Wt::log("error") << "Wt::Render: Display '" << display
-			      << "' is not supported.";
+	  LOG_ERROR("display '" << display << "' is not supported.");
 	  inline_ = false;
 	}
       else
 	inline_ = DomElement::isDefaultInline(type_);
 
       if (inline_ && !allChildrenInline)
-	Wt::log("error") << "Wt::Render: Inline element cannot contain "
-			 << "block elements";
+	LOG_ERROR("inline element cannot contain block elements");
     } else
       inline_ = false;
   }
@@ -744,12 +745,12 @@ void Block::layoutInline(Line& line, BlockList& floats,
 	h = cssHeight(renderer.fontScale());
 
 	if (w <= 0) {
-	  Wt::log("error") << "Wt::Render: Image with unknown width";
+	  LOG_ERROR("image with unknown width");
 	  w = 10;
 	}
 
 	if (h <= 0) {
-	  Wt::log("error") << "Wt::Render: Image with unknown height";
+	  LOG_ERROR("image with unknown height");
 	  h = 10;
 	}
 
@@ -2082,15 +2083,13 @@ std::string Block::attributeValue(const char *attribute) const
 void Block::unsupportedAttributeValue(const char *attribute,
 				      const std::string& value)
 {
-  Wt::log("error") << "Wt::Render: Unsupported value '"
-		   << value << "' for attribute " << attribute;
+  LOG_ERROR("unsupported value '" << value << "' for attribute " << attribute);
 }
 
 void Block::unsupportedCssValue(Property property, const std::string& value)
 {
-  Wt::log("error") << "Wt::Render: Unsupported value '"
-		   << value << "' for CSS style property "
-		   << DomElement::cssName(property);
+  LOG_ERROR("unsupported value '" << value
+	    << "'for CSS style property " << DomElement::cssName(property));
 }
 
   }

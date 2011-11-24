@@ -7,6 +7,7 @@
 #include "Wt/WBrush"
 #include "Wt/WException"
 #include "Wt/WFontMetrics"
+#include "Wt/WLogger"
 #include "Wt/WPainter"
 #include "Wt/WPen"
 #include "Wt/WPdfImage"
@@ -41,6 +42,8 @@ namespace {
 }
 
 namespace Wt {
+
+LOGGER("WPdfImage");
 
 WPdfImage::WPdfImage(const WLength& width, const WLength& height,
 		     WObject *parent)
@@ -262,7 +265,7 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 	ttfFont = match.fileName();
     }
 
-    // std::cerr << "Font: " << ttfFont << std::endl;
+    LOG_DEBUG("font: " << ttfFont);
 
     if (!ttfFont.empty()) {
       bool fontOk = false;
@@ -289,8 +292,8 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
       }
 
       if (!fontOk)
-	std::cerr << "WPdfImage: cannot read font: '" << ttfFont << "': "
-	  "expecting a true type font (.ttf, .ttc)" << std::endl;
+	LOG_ERROR("cannot read font: '" << ttfFont << "': "
+		  "expecting a true type font (.ttf, .ttc)");
     }
 
     if (!font_ && font_name) {

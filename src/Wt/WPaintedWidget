@@ -223,6 +223,15 @@ public:
 protected:
   virtual void layoutSizeChanged(int width, int height);
 
+  /*! \brief Returns the actual method used for rendering.
+   *
+   * The default method considers browser capabilites and the preferred
+   * method to make an actual choice for the implementation.
+   *
+   * You may want to reimplement this method to override this choice.
+   */
+  virtual Method getMethod() const;
+
   /*! \brief Paints the widget.
    *
    * You should reimplement this method to paint the contents of the widget,

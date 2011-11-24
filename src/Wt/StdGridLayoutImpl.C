@@ -5,8 +5,8 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <cstdio>
 #include <sstream>
-#include <stdio.h>
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
@@ -28,6 +28,8 @@
 #endif
 
 namespace Wt {
+
+LOGGER("WGridLayout");
 
 StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
@@ -180,16 +182,16 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
 void StdGridLayoutImpl::setHint(const std::string& name,
 				const std::string& value)
 {
-  if (name == "table-layout")
+  if (name == "table-layout") {
     if (value == "fixed")
       useFixedLayout_ = true;
     else if (value == "auto")
       useFixedLayout_ = false;
     else
-      Wt::log("error") << "WGridLayout: unrecognized hint value '" << value
-		       << "' for '" << name << "'";
-  else
-    Wt::log("error") << "WGridLayout: unrecognized hint '" << name << "'";
+      LOG_ERROR("unrecognized hint value '" << value << "' for '"
+		<< name << "'");
+  } else
+    LOG_ERROR("unrecognized hint '" << name << "'");
 }
 
 int StdGridLayoutImpl::nextRowWithItem(int row, int c) const

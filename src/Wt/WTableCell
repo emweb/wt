@@ -45,7 +45,7 @@ public:
    * The row span indicates how many table rows this WTableCell
    * overspans. By default, a WTableCell has a row span of 1, only
    * occupying its own grid cell. A row span greater than 1 indicates
-   * that table cells to the right of this one are overspanned.
+   * that table cells below this one are overspanned.
    */
   void setRowSpan(int rowSpan);
   
@@ -60,7 +60,7 @@ public:
    * The column span indicates how many table columns this WTableCell
    * overspans. By default, a WTableCell has a column span of 1, only
    * occupying its own grid cell. A column span greater than 1 indicates
-   * that table cells below this one are overspanned.
+   * that table cells to the right of this one are overspanned.
    */
   void setColumnSpan(int colSpan);
 

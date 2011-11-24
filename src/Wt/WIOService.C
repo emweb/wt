@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
 #ifdef WT_THREADED

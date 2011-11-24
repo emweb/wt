@@ -16,7 +16,6 @@
 #include <boost/lexical_cast.hpp>
 
 namespace Wt {
-
 /*! \class JSignal Wt/WJavaScript Wt/WJavaScript
  *  \brief A signal to relay JavaScript to C++ calls.
  *
@@ -552,9 +551,8 @@ template <typename A1, typename A2, typename A3,
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(const std::string& function)
 {
   if (!collectSlotJavaScript_) {
-    Wt::log("error")
-      << "JSignal::connect(const std::string&): signal does not collect "
-      << "JavaScript from slots";
+    Wt::log("error") << "JSignal: connect(const std::string&): signal does "
+      "not collect JavaScript from slots";
     return;
   }
 
@@ -566,9 +564,8 @@ template <typename A1, typename A2, typename A3,
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(const char *function)
 {
   if (!collectSlotJavaScript_) {
-    Wt::log("error")
-      << "JSignal::connect(const std::string&): signal does not collect "
-      << "JavaScript from slots";
+    Wt::log("error") << "JSignal: connect(const std::string&): signal does "
+      "not collect JavaScript from slots";
     return;
   }
 
@@ -580,8 +577,8 @@ template <typename A1, typename A2, typename A3,
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(JSlot& slot)
 {
   if (!collectSlotJavaScript_) {
-    Wt::log("error")
-      << "JSignal::connect(JSlot): signal does not collect JavaScript from slots";
+    Wt::log("error") << "JSignal: connect(JSlot): signal does not collect "
+      "JavaScript from slots";
     return;
   }
 
@@ -633,7 +630,7 @@ struct SignalArgTraits
 {
   static T unMarshal(const JavaScriptEvent& jse, int argi) {
     if ((unsigned)argi >= jse.userEventArgs.size()) {
-      Wt::log("error") << "Missing JavaScript argument:" << argi;
+      Wt::log("error") << "JSignal: missing JavaScript argument:" << argi;
       return T();
     }
 
@@ -642,9 +639,9 @@ struct SignalArgTraits
       WString::checkUTF8Encoding(v);
       return boost::lexical_cast<T>(v);
     } catch (boost::bad_lexical_cast) {
-      Wt::log("error") << "Bad argument format: '"
-		       << jse.userEventArgs[argi] << "' for C++ type '"
-		       << typeid(T).name() << "'";
+      Wt::log("error") << "JSignal: bad argument format: '"
+		<< jse.userEventArgs[argi] << "' for C++ type '"
+		<< typeid(T).name() << "'";
       return T();
     }
   }
@@ -655,7 +652,7 @@ struct SignalArgTraits<WString>
 {
   static WString unMarshal(const JavaScriptEvent& jse, int argi) {
     if ((unsigned)argi >= jse.userEventArgs.size()) {
-      Wt::log("error") << "Missing JavaScript argument:" << argi;
+      Wt::log("error") << "JSignal: missing JavaScript argument:" << argi;
       return WString::Empty;
     }
 
@@ -669,7 +666,7 @@ struct SignalArgTraits<NoClass>
 {
   static NoClass unMarshal(const JavaScriptEvent& jse, int argi) {
     if ((unsigned)argi < jse.userEventArgs.size()) {
-      Wt::log("error") << "Redundant JavaScript argument: '"
+      Wt::log("error") << "JSignal: redundant JavaScript argument: '"
 		       << jse.userEventArgs[argi] << "'";
     }
 

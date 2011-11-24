@@ -20,7 +20,7 @@
 #ifndef WT_CNOR
 namespace Wt {
 
-std::vector<std::string> WString::stArguments_;
+std::vector<WString> WString::stArguments_;
 const WString WString::Empty;
 
 WString::WString()
@@ -241,7 +241,7 @@ std::string WString::toUTF8() const
 
     for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
       std::string key = '{' + boost::lexical_cast<std::string>(i+1) + '}';
-      Wt::Utils::replace(result, key, impl_->arguments_[i]);
+      Wt::Utils::replace(result, key, impl_->arguments_[i].toUTF8());
     }
 
     return result;
@@ -320,11 +320,13 @@ WString& WString::arg(const std::string& value, CharEncoding encoding)
 {
   createImpl();
 
-  if (encoding == UTF8) {
-    impl_->arguments_.push_back(value);
-    checkUTF8Encoding(impl_->arguments_.back());
-  } else
-    impl_->arguments_.push_back(Wt::toUTF8(value));
+  if (encoding == UTF8)
+    impl_->arguments_.push_back(WString::fromUTF8(value, true));
+  else {
+    WString s;
+    s.utf8_ = Wt::toUTF8(value);
+    impl_->arguments_.push_back(s);
+  }
 
   return *this;
 }
@@ -339,7 +341,9 @@ WString& WString::arg(const std::wstring& value)
 {
   createImpl();
 
-  impl_->arguments_.push_back(Wt::toUTF8(value));
+  WString s;
+  s.utf8_ = Wt::toUTF8(value);
+  impl_->arguments_.push_back(s);
 
   return *this;
 }
@@ -349,7 +353,7 @@ WString& WString::arg(const WString& value)
 {
   createImpl();
 
-  impl_->arguments_.push_back(value.toUTF8());
+  impl_->arguments_.push_back(value);
 
   return *this;
 }
@@ -358,7 +362,8 @@ WString& WString::arg(int value)
 {
   createImpl();
 
-  impl_->arguments_.push_back(boost::lexical_cast<std::string>(value));
+  impl_->arguments_
+    .push_back(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
 
   return *this;
 }
@@ -367,7 +372,8 @@ WString& WString::arg(::int64_t value)
 {
   createImpl();
 
-  impl_->arguments_.push_back(boost::lexical_cast<std::string>(value));
+  impl_->arguments_
+    .push_back(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
 
   return *this;
 }
@@ -376,7 +382,8 @@ WString& WString::arg(double value)
 {
   createImpl();
 
-  impl_->arguments_.push_back(boost::lexical_cast<std::string>(value));
+  impl_->arguments_
+    .push_back(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
 
   return *this;
 }
@@ -389,7 +396,7 @@ bool WString::refresh()
     return true;
 }
 
-const std::vector<std::string>& WString::args() const
+const std::vector<WString>& WString::args() const
 {
   if (impl_)
     return impl_->arguments_;

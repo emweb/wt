@@ -133,7 +133,7 @@ persistent chat widget open throughout, that even works in legacy
 browsers like Microsoft Internet Explorer 6.</p>
 
 <p>The library comes with an application server that acts as a
-stand-alone Http(s)/WebSockets server or integrates through FastCGI
+stand-alone Http(s)/WebSocket server or integrates through FastCGI
 with other web servers.</p>
 
 <h4>Interactive, secure and accessible</h4>
@@ -241,7 +241,7 @@ default.</p>
     as far as possible, by using graceful degradation or progressive
     enhancement.</li>
   <li>Integrated Unicode support and pervasive localization.</li>
-  <li>Efficient rendering and low latency.</li>
+  <li>Efficient rendering and (very) low latency.</li>
   <li>Support for browser history navigation (back/forward buttons and
     bookmarks), pretty URLs with HTML5 History if available, and
     search engine optimization with a unified behavior for plain HTML
@@ -313,6 +313,11 @@ gallery</a> for an interactive overview of built-in functionality.
   <li>Not vulnerable to breaking the application logic by skipping to
     a particular URL, since only those events exposed in the interface
     can be triggered.</li>
+  <li>Session hijacking mitigation and risk prevention</li>
+  <li>DoS mitigation</li>
+  <li>A built-in authentication module implements best practices for
+   authentication, and supports third party identity providers using
+   OAuth 2.0, and (later) OpenID Connect</li>
 </ul>
 
 <h4>Object Relational Mapping library</h4>
@@ -322,10 +327,10 @@ Object-Relational mapping, and thus a convenient way to interact with
 SQL databases from C++. Although features like optimistic concurrency
 control make this an ideal technology for a database driven web
 application (and it provides good integration with Wt's MVC classes),
-the library can also be used for off-line or other applications (and
-does not depend on Wt).
+the library can also be used for other applications, and does not
+depend on Wt.
 
-The ORM library (which diserves an introduction by it own in <a
+The ORM library (see also <a
 href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">this
 tutorial</a>) has the following features:
 
@@ -352,7 +357,7 @@ tutorial</a>) has the following features:
   <li>Use a single connection or share connection pools between
     multiple sessions from which connections are used only during an
     active transaction.</li>
-  <li>Comes with Sqlite3 and PostgreSQL backends, and a <a
+  <li>Comes with Sqlite3, Firebird, and PostgreSQL backends, and a <a
     href="http://wtdbomysql.sourceforge.net/">MySQL backend (GPL
     only)</a> is maintained by the community (Paul Harisson).</li>
 </ul>
@@ -379,8 +384,8 @@ option is a matter of (re)linking to one of these connector libraries!
 <ul>
   <li>Simple, high-performance web application server (multi-threaded,
     asynchronous I/O) based on the C++ asio library.</li>
-  <li>Supports both HTTP and HTTPS using the OpenSSL library.</li>
-  <li>Supports response chunking and compression</li>
+  <li>Supports the HTTP(S) and WebSocket(S) protocols.</li>
+  <li>Supports response chunking and compression.</li>
   <li>Single process (convenient for development and debugging), and
     embeddable in an existing application.</li>
   <li>Supports deployment behind a ProxyPass'ing (and if needed,
@@ -762,24 +767,34 @@ target="_blank">item model</a>.</p>
 </p>
 <ul>
   <li>
-    Different approaches to layout:
-    using an <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
-    target="_blank">HTML template</a>,
-    a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
+    Different approaches to layout: using an <a
+    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
+    target="_blank">HTML template</a>, a <a
+    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
     target="_blank">layout manager</a>, or by compositing basic
     widgets and CSS.
   </li>
+
   <li>
     Using hidden content to optimize the user experience by preloading
     contents, used in this game to preload the various images used to
     show the hanging man.
   </li>
+
   <li>
-    Navigation is implemented
-    using <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
-    target="_blank">WAnchor</a> which reference an internal path. Action is taken by
-    reacting to internal path changes.
+    Navigation is implemented using <a
+    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
+    target="_blank">WAnchor</a> which reference an internal path.
+    Action is taken by reacting to internal path changes.
   </li>
+
+  <li>
+    The example uses <a
+    href="http://www.webtoolkit.eu/wt/doc/reference/html/group__auth.html">the
+    authentication module (Wt::Auth)</a> to authenticate users using a
+    username/password, or using Google's beta OAuth 2.0 service.
+  </li>
+
   <li>
     A database which contains user information is accessed and updated
     using <a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>.
@@ -868,19 +883,24 @@ version released during one year.
     <td>+</td>
     <td>+</td>
   </tr>
-  <tr class="separate r0">
+  <tr class="r0">
+    <th>Firebird driver</th>
+    <td>+</td>
+    <td>+</td>
+  </tr>
+  <tr class="separate r1">
     <th>License</th>
     <td></td>
     <td></td>
   </tr>
-  <tr class="r1">
+  <tr class="r0">
     <th class="indent">
       GNU General Public License
     </th>
     <td>free</td>
     <td>free</td>
   </tr>
-  <tr class="r0">
+  <tr class="r1">
     <th class="indent multiline">
       Commercial License
     </th>
@@ -964,27 +984,31 @@ least the following two packages:
     2.4 still works).
   </li>
   <li>
-    The indispensable <a href="http://www.boost.org/">
-    boost C++ library</a>: boost-1.36 or later. <br />
+    The indispensable <a href="http://www.boost.org/"> boost C++
+    library</a>: boost-1.41 or later. Older boost versions (up to
+    1.36) may also be used, but some functionality will be missing
+    (JSON parsing and a better SQL query parsing for Wt::Dbo).<br />
 
     The following boost libraries (which are not headers only) are
-      needed: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
-      <tt>boost_program_options</tt>, <tt>boost_signals</tt>,
-      <tt>boost_system</tt>, and optionally (but highly recommended)
-      <tt>boost_thread</tt>.
+    needed: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
+    <tt>boost_program_options</tt>, <tt>boost_signals</tt>,
+    <tt>boost_system</tt>, and optionally (but highly recommended)
+    <tt>boost_thread</tt>.
   </li>
 </ul>
 
 The following packages are optional, and availability enables additional
 features in Wt:
 <ul>
-  <li><a href="http://www.postgresql.org/">PostgreSQL</a>: if
-    available, then also a
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
-    connector</a> for the ORM library
-    (<a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>) will be
-    included.
-   </li>
+
+  <li><a href="http://www.openssl.org/">OpenSSL</a>: if available,
+    then the HTTPS protocol will be supported by the web client
+    (<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Http_1_1Client.html">Http::Client</a>)
+    and web server (wthttp connector), an additional cryptographic
+    hash function added to the Auth library
+    (<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Auth_1_1SHA1HashFunction.html">Auth::SHA1HashFunction</a>),
+    and WebSockets (fully) supported by web server.
+  </li>
   <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>: if
     available, a
     <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
@@ -1000,6 +1024,12 @@ features in Wt:
     text rendering for WPdfImage and WRasterImage will be assisted by
     this library for TrueType font selection, taking into
     consideration both the font face and unicode coverage.</li>
+  <li><a href="http://www.postgresql.org/">PostgreSQL</a>: if
+    available, a
+    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
+    connector</a> for the ORM library
+    (<a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>) will be built.
+   </li>
 </ul>
 
 <p>The other requirements depend on the connector support you would
@@ -1028,9 +1058,6 @@ the browser:</p>
 <h5>For the built-in http deamon, wthttpd:</h5>
 
 <ul>
-  <li>The built-in httpd requires the boost asio C++ library, which is a
-    header-only library included in boost.
-  </li>
   <li>Optionally, libz (for compression-over-HTTP) and openssl (for
     HTTPS support).
   </li>
@@ -1053,10 +1080,12 @@ installation instructions</a>.
 <h4>Git repository</h4>
 
 <p>If you want to keep track of the latest changes, or participate in
-Wt development, you may want to use the git repository.</p>
+Wt development, you may want to use
+the <a href="https://github.com/kdeforche/wt">git repository
+(github)</a>.</p>
 
 <p>
-To checkout wt:
+Alternatively checkout the repository using:
 <div class="fragment">
   <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/wt.git</pre>
 </div>
@@ -1106,13 +1135,21 @@ maintained by <a href="http://www.emweb.be/">Emweb bvba</a>.</p>
 href="http://asio.sourceforge.net/">asio C++
 library</a>, developed by Christopher M. Kohlhoff. <a
 href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a></li>
-<li><a href="http://threadpool.sourceforge.net/">Thread pool</a>
-implementation from Philipp Henkel.  <a
-href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a></li>
-<li>The <a href='http://rapidxml.sourceforge.net/'>RapidXML</a>
+<li>The <a href="http://rapidxml.sourceforge.net/">RapidXML</a>
 library by Marcin Kalicinski.  <a
 href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a></li>
+<li>The authentication module
+contains <a href="http://www.openwall.com/crypt/">bcrypt</a>
+and <a href="http://www.openwall.com/passwdqc/">passwdqc</a> by Solar
+Designer. <a href="http://www.openwall.com/crypt/">Public
+domain.</a></li>
 </ul>
+
+<p>
+Other independent contributors include: Richard Ulrich, Gaetano
+Mendola, Thomas Suckow, Hilary Cheng, Dmitriy Igrishin, Daniel Derr,
+Omer Katz, and Lukasz Matuszewski.
+</p>
 
 <h4>Wiki</h4>
 

@@ -1325,6 +1325,7 @@ public:
    */
   void processEvents();
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Reads a configuration property.
    *
    * Tries to read a configured value for the property
@@ -1335,7 +1336,7 @@ public:
    */
   static bool readConfigurationProperty(const std::string& name,
 					std::string& value);
-#ifdef WT_TARGET_JAVA
+#else
   /*! \brief Reads a configuration property.
    *
    * Tries to read a configured value for the property
@@ -1393,6 +1394,7 @@ public:
    */
   WObject *decodeObject(const std::string& objectId) const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Initializes the application, post-construction.
    *
    * This method is invoked by the %Wt library after construction of a
@@ -1402,7 +1404,6 @@ public:
    */
   virtual void initialize();
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Finalizes the application, pre-destruction.
    *
    * This method is invoked by the %Wt library before destruction of a
@@ -1411,6 +1412,16 @@ public:
    * uses virtual methods).
    */
   virtual void finalize();
+#else
+  /*! \brief Destroys the application session.
+   *
+   * The application is destroyed when the session is invalidated. You
+   * should put here any logic which is needed to cleanup the
+   * application session.
+   *
+   * The default implementation does nothing.
+   */
+  virtual void destroy();
 #endif //WT_TARGET_JAVA
 
   /*! \brief Changes the threshold for two-phase rendering.
@@ -1515,6 +1526,7 @@ public:
    */
   void removeMetaHeader(MetaHeaderType type, const std::string& name = "");
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Adds an entry to the application log.
    *
    * Starts a new log entry of the given \p type in the %Wt
@@ -1537,6 +1549,7 @@ public:
    * \endif
    */
   WLogEntry log(const std::string& type) const;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Sets the loading indicator.
    *
@@ -1923,7 +1936,10 @@ private:
   bool                   connected_;
   std::string            htmlClass_, bodyClass_;
   bool                   bodyHtmlClassChanged_;
-  bool                   enableAjax_, initialized_;
+  bool                   enableAjax_;
+#ifndef WT_TARGET_JAVA
+  bool                   initialized_;
+#endif // WT_TARGET_JAVA
   std::string            focusId_;
   int                    selectionStart_, selectionEnd_;
   LayoutDirection        layoutDirection_;

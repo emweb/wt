@@ -6,12 +6,14 @@
 <body>
 <h1>Wt Installation instructions on Unix-like systems</h1>
 
-This page lists the instructions for building and installing Wt 3.0.0.
-It is organized in 3 sections:
+This page lists the instructions for building and installing Wt. It is
+organized in 3 sections:
+
 <ul>
-<li>Requirements</li>
-<li>Building and installing the library</li>
-<li>Trying the examples (or your own Wt application)</li>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#build">Building and installing</a> the library</li>
+<li><a href="#examples">Trying the examples</a> (or your own Wt
+  application)</li>
 </ul>
 
 <a name="requirements"></a><h2>Requirements</h2>
@@ -56,15 +58,33 @@ system</a>:
     Wt's own boost find script.
   </div>
 </li>
-<li><a href="http://www.boost.org/">C++ boost library</a> (version
-  1.36 or higher), preferably with thread support enabled. You can
+<li><a href="http://www.boost.org/">C++ boost library</a> (preferably
+  version 1.41 or higher), with or without thread support. You can
   verify you have a thread-enabled boost installation by locating the
   libboost_thread library. Thread support is not essential: Wt
   functionality is not affected except for exotic things like server
   push and reentrant event loops. Most importantly, even without
-  thread support Wt can handle multiple concurrent sessions.</li>
-<li>Optionally, <a href="http://libharu.org/">Haru Free PDF Library</a>, which is used to provide support for painting to PDF (WPdfImage).</li>
-<li>Optionally, <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>, for supporting painting to raster images (PNG, GIF, ...) (WRasterImage).</li>
+  thread support Wt can handle multiple concurrent sessions. <br/>
+  Older versions of boost, up until 1.36 are also supported, but some
+  features will be disabled that depend on the revised versions of
+  spirit, namely JSON parsing and improved SQL parsing (for Wt::Dbo).
+</li>
+<li>Optionally, <a href="http://www.openssl.org">OpenSSL</a>, which is
+used to support the HTTPS protocol in the web client, the HTTPS
+protocol in the built-in wthttpd connector, additional cryptographic
+hash functions in the Auth library, and WebSockets (which requires a
+SHA-1 hash implementation).</li>
+<li>Optionally, <a href="http://libharu.org/">Haru Free PDF Library</a>,
+which is used to provide support for painting to PDF (WPdfImage).</li>
+<li>Optionally, <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>,
+for supporting painting to raster images (PNG, GIF, ...) (WRasterImage).</li>
+<li>Optionally, <a href="http://www.posgresql.org/">PostgreSQL</a>,
+for the PostgreSQL backend for Wt::Dbo (Dbo::backend::Postgres).</li>
+<li>Optionally, <a href="http://www.firebirdsql.org/">Firebird</a>,
+for the Firebird backend for Wt::Dbo (Dbo::backend::Firebird).</li>
+<li>Optionally, <a href="http://www.pango.org/">Pango</a>, for
+improved font support in the WPdfImage and WRasterImage paint
+devices.</li>
 </ul>
 
 <h4>1a Using FastCGI</h4>
@@ -77,8 +97,9 @@ the requirements for apache, for other web servers the list is
 similar:</p>
 
 <ul>
-<li>FCGI library, including C++ bindings (libfcgi++)</li>
-<li>Fastcgi or mod_fcgi plugin for Apache.</li>
+<li><a href="http://www.fastcgi.com/">FCGI library</a>, including C++
+bindings (libfcgi++)</li>
+<li>A suitable plugin for your web server.</li>
 </ul>
 
 <h4>1b Using wthttpd</h4>
@@ -88,13 +109,14 @@ to enable optional features (you can also build without them), but
 otherwise no extra dependencies are required.
 
 <ul>
-<li>Optionally, libz, for compression over HTTP.</li>
-<li>Optionally, openssl, for supporting HTTPS.</li>
+<li>Optionally, zlib (libz), for compression over HTTP.</li>
+<li>Optionally, OpenSSL (libopenssl), for HTTPS and WebSockets (which
+requires a SHA-1 hash implementation).</li>
 </ul>
 
 <h3>2 Additional and optional requirements for some of the examples</h3>
 <ul>
-<li>libmysql++-2.x (hangman)</li>
+<li>Qt, for the libwtwithqt interopability layer</li>
 </ul>
 
 <hr />
@@ -185,9 +207,6 @@ the most relevant ones are:
 recommended, you may want to disable this for example if you suspect
 threading problems. Note that recursive event loops (most notably when
 using Dialog::exec()) are not possible without thread support.</dd>
-<dt><strong>ENABLE_SSL</strong></dt>
-<dd>Compile with support for SSL, enabling secure HTTP (HTTPS), and cryptographic functions
-for Wt::Auth. This requires an OpenSSL library.</dd>
 </dl>
 
 The following variables apply to the FastCGI connector:
@@ -206,9 +225,6 @@ The following variables apply to the wthttpd connector:
 <dl>
 <dt><strong>WTHTTP_CONFIGURATION</strong></dt>
 <dd>Location of the wthttpd configuration file (default is /etc/wt/wthttpd)</dd>
-<dt><strong>HTTP_WITH_ZLIB</strong></dt>
-<dd>Compile with support for compression over HTTP. This requires the
-libz library.</dd>
 </dl>
 
 To change any entry, use [Enter]. To save and quit, do [c] followed by [g].

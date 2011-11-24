@@ -39,7 +39,11 @@ public:
 			   Buffer::const_iterator end,
 			   Request::State state);
 
-  void setStatus(int status);
+  virtual void consumeWebSocketMessage(ws_opcode opcode,
+				       Buffer::const_iterator begin,
+				       Buffer::const_iterator end,
+				       Request::State state);
+
   void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
@@ -64,14 +68,12 @@ protected:
   std::string       location_;
   std::string       urlScheme_;
   bool              responseSent_;
-  status_type       status_;
   ::int64_t         contentLength_, bodyReceived_;
   bool              sendingMessages_;
   CallbackFunction  fetchMoreDataCallback_, readMessageCallback_;
   HTTPRequest      *httpRequest_;
   bool              sending_;
 
-  virtual status_type     responseStatus();
   virtual std::string     contentType();
   virtual std::string     location();
   virtual ::int64_t       contentLength();
@@ -84,10 +86,6 @@ private:
   void consumeRequestBody(Buffer::const_iterator begin,
 			  Buffer::const_iterator end,
 			  Request::State state);
-
-  void consumeWebSocketMessage(Buffer::const_iterator begin,
-			       Buffer::const_iterator end,
-			       Request::State state);
 };
 
 } // namespace server

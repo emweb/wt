@@ -22,6 +22,8 @@ using namespace rapidxml;
 
 namespace Wt {
 
+LOGGER("XSS");
+
 void XSSSanitize(xml_node<> *x_node)
 {
   for (xml_attribute<> *x_attr = x_node->first_attribute(); x_attr;) {
@@ -29,8 +31,8 @@ void XSSSanitize(xml_node<> *x_node)
     xml_attribute<> *x_next_attr = x_attr->next_attribute();
     if (Wt::XSS::isBadAttribute(x_attr->name())
 	|| Wt::XSS::isBadAttributeValue(x_attr->name(), x_attr->value())) {
-      wApp->log("warn") << "(XSS) discarding invalid attribute: "
-			<< x_attr->name() << ": " << x_attr->value();
+      LOG_SECURE("discarding invalid attribute: "
+		 << x_attr->name() << ": " << x_attr->value());
       x_node->remove_attribute(x_attr);
     }
 
@@ -41,7 +43,7 @@ void XSSSanitize(xml_node<> *x_node)
     xml_node<> *x_next_child = x_child->next_sibling();
 
     if (Wt::XSS::isBadTag(x_child->name())) {
-      wApp->log("warn") << "(XSS) discarding invalid tag: " << x_child->name();
+      LOG_SECURE("discarding invalid tag: " << x_child->name());
       x_node->remove_node(x_child);
     } else
       XSSSanitize(x_child);
@@ -81,7 +83,7 @@ bool XSSFilterRemoveScript(WString& text)
     print(out.back_inserter(), *doc.first_node(), print_no_indenting);
     result = out.str();
   } catch (parse_error& e) {
-    wApp->log("error") << "Error reading XHTML string: " << e.what();
+    LOG_ERROR("Error reading XHTML string: " << e.what());
     return false;
   }
 

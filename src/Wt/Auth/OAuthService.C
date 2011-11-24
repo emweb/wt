@@ -35,6 +35,9 @@
 #define ERROR_MSG(e) WString::tr("Wt.Auth.OAuthService." e)
 
 namespace Wt {
+
+LOGGER("Auth::OAuthService");
+
   namespace Auth {
 
 class OAuthRedirectEndpoint : public WResource
@@ -379,7 +382,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
   bool ok = Json::parse(response.body(), root, e);
 
   if (!ok) {
-    Wt::log("error") << e.what();
+    LOG_ERROR(e.what());
     throw TokenError(ERROR_MSG("badjson"));
   } else {
     if (response.status() == 200) {
@@ -394,7 +397,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 
 	return OAuthAccessToken(accessToken, expires, refreshToken);
       } catch (std::exception& e) {
-	std::cerr << e.what() << std::endl;
+	LOG_ERROR("token response error: " << e.what());
 	throw TokenError(ERROR_MSG("badresponse"));
       }
     } else {
@@ -550,7 +553,7 @@ void OAuthService::configureRedirectEndpoint(const std::string& endpoint) const
 	}
       }
 
-      Wt::log("notice") << "OAuth: deploying endpoint at " << path;
+      LOG_INFO("deploying endpoint at " << path);
       server->addResource(r, path);
 
       impl_->redirectResource_ = r;

@@ -4,10 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#ifdef DEBUG_SVD
-#include <iostream>
-#endif // DEBUG_SVD
-
 #include <cmath>
 
 #include "Wt/WLogger"
@@ -15,6 +11,10 @@
 #include "Wt/WTransform"
 
 namespace Wt {
+
+LOGGER("WTransform");
+
+const WTransform WTransform::Identity;
 
 WTransform::WTransform()
 {
@@ -166,7 +166,7 @@ WTransform WTransform::inverted() const
 		      adj.m21() / det, adj.m22() / det,
 		      adj.m31() / det, adj.m32() / det);
   } else {
-    Wt::log("error") << "WTransform::inverted(): determinant == 0";
+    LOG_ERROR("inverted(): oops, determinant == 0");
 
     return *this;
   }
@@ -272,10 +272,8 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
 
   double mtm[4];
 
-#ifdef DEBUG_SVD
-  std::cerr << "M: " << m_[M11] << " " << m_[M12] << std::endl
-	    << "   " << m_[M21] << " " << m_[M22] << std::endl;
-#endif
+  LOG_DEBUG("M: \n" << m_[M11] << " " << m_[M12] <<
+	    "\n   " << m_[M21] << " " << m_[M22]);
 
   matrixMultiply(m_[M11], m_[M21], m_[M12], m_[M22],
 		 m_[M11], m_[M12], m_[M21], m_[M22],
@@ -289,10 +287,8 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   result.sx = std::sqrt(e[0]);
   result.sy = std::sqrt(e[1]);
 
-#ifdef DEBUG_SVD
-  std::cerr << "V: " << V[M11] << " " << V[M12] << std::endl
-	    << "   " << V[M21] << " " << V[M22] << std::endl;
-#endif
+  LOG_DEBUG("V: \n" << V[M11] << " " << V[M12] <<
+	    "\n   " << V[M21] << " " << V[M22]);
 
   /*
    * if V is no rotation matrix, it contains a reflexion. A rotation
@@ -315,10 +311,8 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   U[1] /= result.sy;
   U[3] /= result.sy;
 
-#ifdef DEBUG_SVD
-  std::cerr << "U: " << U[M11] << " " << U[M12] << std::endl
-	    << "   " << U[M21] << " " << U[M22] << std::endl;
-#endif
+  LOG_DEBUG("U: \n" << U[M11] << " " << U[M12] <<
+	    "\n   " << U[M21] << " " << U[M22]);
 
   if (U[0]*U[3] - U[1]*U[2] < 0) {
     result.sx = -result.sx;
@@ -329,10 +323,8 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   result.alpha1 = std::atan2(U[2], U[0]);
   result.alpha2 = std::atan2(V[1], V[0]);
 
-#ifdef DEBUG_SVD
-  std::cerr << "alpha1: " << result.alpha1 << ", alpha2: " << result.alpha2
-	    << ", sx: " << result.sx << ", sy: " << result.sy << std::endl;
-#endif
+  LOG_DEBUG("alpha1: " << result.alpha1 << ", alpha2: " << result.alpha2
+	    << ", sx: " << result.sx << ", sy: " << result.sy);
 
   /*
   // check our SVD: m_ = U S VT
@@ -344,9 +336,9 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
 		 V[0], V[2], V[1], V[3],
 		 tmp2);
 
-  std::cerr << "check: " << std::endl
-	    << tmp2[0] << " " << tmp2[1] << std::endl
-	    << tmp2[2] << " " << tmp2[3] << std::endl;
+  LOG_DEBUG("check: \n" << 
+	    tmp2[0] << " " << tmp2[1] << "\n"
+	    tmp2[2] << " " << tmp2[3]);
   */
 
   result.dx = m_[DX];

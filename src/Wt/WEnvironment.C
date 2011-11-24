@@ -8,7 +8,6 @@
 #include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WLogger"
-#include "Wt/WRegExp"
 #include "Wt/Http/Request"
 
 #include "WebRequest.h"
@@ -19,24 +18,11 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <assert.h>
+#include <cassert>
 
 namespace Wt {
 
-  namespace {
-    bool regexMatchAny(const std::string& agent,
-		       const std::vector<std::string>& regexList) {
-      WT_USTRING s = WT_USTRING::fromUTF8(agent);
-      for (unsigned i = 0; i < regexList.size(); ++i) {
-	WRegExp expr(WT_USTRING::fromUTF8(regexList[i]));
-
-	if (expr.exactMatch(s))
-	  return true;
-      }
-
-      return false;
-    }
-  }
+LOGGER("WEnvironment");
 
 WEnvironment::WEnvironment()
 { }
@@ -83,7 +69,7 @@ void WEnvironment::init(const WebRequest& request)
 
   setUserAgent(request.headerValue("User-Agent"));
 
-  session_->log("notice") << "UserAgent: " << userAgent_;
+  LOG_INFO("UserAgent: " << userAgent_);
 
   /*
    * Determine server host name
@@ -121,7 +107,7 @@ void WEnvironment::init(const WebRequest& request)
   doesCookies_ = !cookie.empty();
 
   if (doesCookies_)
-    Http::Request::parseCookies(cookie, cookies_);
+    parseCookies(cookie, cookies_);
 
   locale_ = request.parseLocale();
 
@@ -143,15 +129,17 @@ std::string WEnvironment::getClientAddress(const WebRequest& request,
    * Determine client address, taking into account proxies
    */
   if (conf.behindReverseProxy()) {
-    std::vector<std::string> ips;
     std::string clientIp = request.headerValue("Client-IP");
     boost::trim(clientIp);
+
+    std::vector<std::string> ips;
     if (!clientIp.empty())
       boost::split(ips, clientIp, boost::is_any_of(","));
 
-    std::vector<std::string> forwardedIps;
     std::string forwardedFor = request.headerValue("X-Forwarded-For"); 
     boost::trim(forwardedFor);
+
+    std::vector<std::string> forwardedIps;
     if (!forwardedFor.empty())
       boost::split(forwardedIps, forwardedFor, boost::is_any_of(","));
 
@@ -318,7 +306,7 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     }
   }
 
-  if (regexMatchAny(userAgent_, conf.botList()))
+  if (conf.agentIsBot(userAgent_))
     agent_ = BotAgent;
 }
 
@@ -326,11 +314,7 @@ bool WEnvironment::agentSupportsAjax() const
 {
   Configuration& conf = session_->controller()->configuration();
 
-  bool matches = regexMatchAny(userAgent_, conf.ajaxAgentList());
-  if (conf.ajaxAgentWhiteList())
-    return matches;
-  else
-    return !matches;
+  return conf.agentSupportsAjax(userAgent_);
 }
 
 bool WEnvironment::supportsCss3Animations() const
@@ -400,18 +384,50 @@ std::string WEnvironment::getCgiValue(const std::string& varName) const
     return session_->getCgiValue(varName);
 }
 
-#ifndef WT_TARGET_JAVA
 WServer *WEnvironment::server() const
 {
+#ifndef WT_TARGET_JAVA
   return session_->controller()->server();
-}
+#else
+  return session_->controller();
 #endif // WT_TARGET_JAVA
+}
 
 bool WEnvironment::isTest() const
 {
   return false;
 }
 
+void WEnvironment::parseCookies(const std::string& cookie,
+				std::map<std::string, std::string>& result)
+{
+  // Cookie parsing strategy:
+  // - First, split the string on cookie separators (-> name-value pair).
+  //   ';' is cookie separator. ',' is not a cookie separator (as in PHP)
+  // - Then, split the name-value pairs on the first '='
+  // - URL decoding/encoding
+  // - Trim the name, trim the value
+  // - If a name-value pair does not contain an '=', the name-value pair
+  //   was the name of the cookie and the value is empty
+
+  std::vector<std::string> list;
+  boost::split(list, cookie, boost::is_any_of(";"));
+  for (unsigned int i = 0; i < list.size(); ++i) {
+    std::string::size_type e = list[i].find('=');
+    std::string cookieName = list[i].substr(0, e);
+    std::string cookieValue =
+      (e != std::string::npos && list[i].size() > e + 1) ?
+      list[i].substr(e + 1) : "";
+
+    boost::trim(cookieName);
+    boost::trim(cookieValue);
+
+    Wt::Utils::urlDecode(cookieName);
+    Wt::Utils::urlDecode(cookieValue);
+    if (cookieName != "")
+      result[cookieName] = cookieValue;
+  }
+}
 Signal<WDialog *>& WEnvironment::dialogExecuted() const
 {
   throw WException("Internal error");

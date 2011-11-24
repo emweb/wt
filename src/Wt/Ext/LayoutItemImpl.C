@@ -12,6 +12,9 @@
 #include "Wt/WLogger"
 
 namespace Wt {
+
+LOGGER("Ext::LayoutItemImpl");
+
   namespace Ext {
 
 LayoutItemImpl::LayoutItemImpl()
@@ -62,7 +65,7 @@ void LayoutItemImpl::getLayoutChanges(const std::string& parentId,
 
 void LayoutItemImpl::setHint(const std::string& name, const std::string& value)
 {
-  Wt::log("error") << "WWidgetItem: unrecognized hint '" << name << "'";
+  LOG_ERROR("unrecognized hint '" << name << "'");
 }
 
   }

@@ -27,18 +27,29 @@ bool InitSchema::getsValue() const { return false; }
 bool InitSchema::setsValue() const { return false; }
 bool InitSchema::isSchema() const { return true; }
 
-DropSchema::DropSchema(Session& session, const char *tableName,
+DropSchema::DropSchema(Session& session, 
+		       Session::MappingInfo& mapping,
 		       std::set<std::string>& tablesDropped)
   : session_(session),
-    tableName_(tableName),
+    mapping_(mapping),
     tablesDropped_(tablesDropped)
 {
-  tablesDropped_.insert(tableName);
+  tablesDropped_.insert(mapping.tableName);
 }
 
 void DropSchema::drop(const std::string& table)
 {
   tablesDropped_.insert(table);
+
+  if (table == mapping_.tableName && mapping_.surrogateIdFieldName) {
+      std::vector<std::string> sql = session_.connection(false)
+	->autoincrementDropSequenceSql(Impl::quoteSchemaDot(table),
+				       mapping_.surrogateIdFieldName);
+      
+      for (unsigned i = 0; i < sql.size(); i++)
+	session_.connection(true)->executeSql(sql[i]);
+  }
+
   session_.connection(true)
     ->executeSql("drop table \"" + Impl::quoteSchemaDot(table) + "\"");
 }

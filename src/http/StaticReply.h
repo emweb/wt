@@ -42,7 +42,6 @@ public:
 			   Request::State state);
 
 protected:
-  virtual status_type responseStatus();
   virtual std::string contentType();
   virtual ::int64_t contentLength();
 

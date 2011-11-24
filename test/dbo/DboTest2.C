@@ -10,6 +10,7 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Postgres>
 #include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/backend/Firebird>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
 #include <Wt/WTime>
@@ -95,8 +96,22 @@ struct Dbo2Fixture
 
 #ifdef POSTGRES
     connection_ = new dbo::backend::Postgres
-      ("user=test password=test port=5432 dbname=test");
+      ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
 #endif // POSTGRES
+
+#ifdef FIREBIRD
+    std::string file;
+#ifdef WIN32
+    file = "C:\\opt\\db\\firebird\\wt_test.fdb";
+#else
+    file = "/opt/db/firebird/wt_test.fdb";
+#endif
+
+    connection_ = new dbo::backend::Firebird ("localhost", 
+					      file, 
+					      "test_user", "test_pwd", 
+					      "", "", "");
+#endif // FIREBIRD
 
     connection_->setProperty("show-queries", "true");
 
@@ -147,19 +162,19 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
   session.add(user2);
 
   // simple queries: session.find()
-  dbo::ptr<User> joe = session.find<User>("where name = ?").bind("Joe");
+  dbo::ptr<User> joe = session.find<User>("where \"name\" = ?").bind("Joe");
   std::cerr << "Joe has karma: " << joe->karma << std::endl;
 
   // any queries: session.query()
   dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >
-    ("select u from \"user\" u where name = ?").bind("Joe");
+    ("select u from \"user\" u where \"name\" = ?").bind("Joe");
   std::cerr << "Indeed, Joe has karma: " << joe2->karma << std::endl;
 
   std::cerr << "Joe == Joe: " << (joe == joe2) << std::endl;
 
   // session.query() can return anything
   int count = session.query<int>
-    ("select count(*) from \"user\" where name = ?").bind("Joe");
+    ("select count(*) from \"user\" where \"name\" = ?").bind("Joe");
   std::cerr << "There is only " << count << " Joe." << std::endl;
 
   BOOST_REQUIRE(count == 1);
@@ -173,7 +188,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
     std::cerr << " user " << (*i)->name
 	      << " with karma of " << (*i)->karma << std::endl;
 
-  joe = session.find<User>("where name = ?").bind("Joe");    
+  joe = session.find<User>("where \"name\" = ?").bind("Joe");    
   joe.modify()->karma++;
   joe.modify()->password = "public";
 

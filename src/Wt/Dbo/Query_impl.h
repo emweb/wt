@@ -518,7 +518,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
       int from = offset_ == -1 ? 1 : offset_ + 1;
       field(binder, from, "from");
 
-      int to = (limit_ == -1) ? (1 << 30) : (from + limit_);
+      int to = (limit_ == -1) ? (1 << 30) : (from + limit_ - 1);
       field(binder, to, "to");
     }
   }

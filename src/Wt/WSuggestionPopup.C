@@ -47,6 +47,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("WSuggestionPopup");
+
 #define TEMPLATE "${shadow-x1-x2}${contents}"
 
 WSuggestionPopup::WSuggestionPopup(const Options& options,
@@ -130,12 +132,12 @@ void WSuggestionPopup::defineJavaScript()
   LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopup", wtjs1);
   LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopupStdMatcher", wtjs2);
 
-  app->doJavaScript("new " WT_CLASS ".WSuggestionPopup("
-		    + app->javaScriptClass() + "," + jsRef() + ","
-		    + replacerJS_ + "," + matcherJS_ + ","
-		    + boost::lexical_cast<std::string>(filterLength_) + ","
-		    + boost::lexical_cast<std::string>(defaultValue_) + ","
-		    + (global_ ? "true" : "false") + ");");
+  doJavaScript("new " WT_CLASS ".WSuggestionPopup("
+	       + app->javaScriptClass() + "," + jsRef() + ","
+	       + replacerJS_ + "," + matcherJS_ + ","
+	       + boost::lexical_cast<std::string>(filterLength_) + ","
+	       + boost::lexical_cast<std::string>(defaultValue_) + ","
+	       + (global_ ? "true" : "false") + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
@@ -196,12 +198,10 @@ void WSuggestionPopup::setDefaultIndex(int row)
   if (defaultValue_ != row) {
     defaultValue_ = row;
 
-    if (isRendered()) {
-      WApplication *app = WApplication::instance();
-      app->doJavaScript("jQuery.data(" + jsRef() + ", 'obj').defaultValue = "
-			+ boost::lexical_cast<std::string>(defaultValue_)
-			+ ';');      
-    }
+    if (isRendered())
+      doJavaScript("jQuery.data(" + jsRef() + ", 'obj').defaultValue = "
+		   + boost::lexical_cast<std::string>(defaultValue_)
+		   + ';');      
   }
 }
 
@@ -298,6 +298,12 @@ void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
   edits_.push_back(edit);
 }
 
+void WSuggestionPopup::showAt(WFormWidget *edit)
+{
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').showAt("
+	       + edit->jsRef() + ")");
+}
+
 void WSuggestionPopup::removeEdit(WFormWidget *edit)
 {
   if (Utils::erase(edits_, edit)) {
@@ -333,9 +339,8 @@ void WSuggestionPopup::doFilter(std::string input)
   filterModel_.emit(WT_USTRING::fromUTF8(input));
   filtering_ = false;
 
-  WApplication *app = WApplication::instance();
-  app->doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
-		    + WWebWidget::jsStringLiteral(input) + ")");
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
+	       + WWebWidget::jsStringLiteral(input) + ")");
 }
 
 void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
@@ -349,7 +354,7 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
     }
 
   if (edit == 0)
-    Wt::log("error") << "WSuggestionPopup activate from bogus editor";
+    LOG_ERROR("activate from bogus editor");
 
   for (int i = 0; i < content_->count(); ++i)
     if (content_->widget(i)->id() == itemId) {
@@ -357,7 +362,7 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
       return;
     }
 
-  Wt::log("error") << "WSuggestionPopup activate for bogus item";
+  LOG_ERROR("activate for bogus item");
 }
 
 std::string WSuggestionPopup::generateMatcherJS(const Options& options)

@@ -52,16 +52,16 @@
 
 #include <algorithm>
 
+#include "Wt/WDllDefs.h"
 
 namespace base64
 {
   typedef unsigned uint32;
   typedef unsigned char uint8;
 
-  extern const char* to_table;
-  extern const char* to_table_end;
-
-  extern const char* from_table;
+  extern WT_API const char* to_table;
+  extern WT_API const char* to_table_end;
+  extern WT_API const char* from_table;
 
   template <class InputIterator, class OutputIterator>
   void encode(const InputIterator& begin, 

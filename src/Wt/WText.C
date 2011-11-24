@@ -15,6 +15,8 @@
 
 namespace Wt {
 
+LOGGER("WText");
+
 WText::WText(WContainerWidget *parent)
   : WInteractWidget(parent),
     textFormat_(XHTMLText),
@@ -172,10 +174,10 @@ void WText::setPadding(const WLength& length, WFlags<Side> sides)
     padding_[1] = length;
 
   if (sides & Top)
-    Wt::log("error") << "WText::setPadding(..., Top) is not supported.";
+    LOG_ERROR("setPadding(..., Top) is not supported.");
 
   if (sides & Bottom)
-    Wt::log("error") << "WText::setPadding(..., Bottom) is not supported.";
+    LOG_ERROR("setPadding(..., Bottom) is not supported.");
 
   flags_.set(BIT_PADDINGS_CHANGED);
   repaint(RepaintPropertyAttribute);
@@ -188,17 +190,16 @@ WLength WText::padding(Side side) const
 
   switch (side) {
   case Top:
-    Wt::log("error") << "WText::padding(Top) is not supported.";
+    LOG_ERROR("padding(Top) is not supported.");
     return WLength();
   case Right:
     return padding_[1];
   case Bottom:
-    Wt::log("error") << "WText::padding(Bottom) is not supported.";
+    LOG_ERROR("padding(Bottom) is not supported.");
   case Left:
     return padding_[3];
   default:
-    Wt::log("error") << "WText::padding(Side) with invalid side: "
-			<< (int)side;
+    LOG_ERROR("padding(Side) with invalid side: " << (int)side);
     return WLength();
   }
 }

@@ -7,15 +7,18 @@
 #ifndef WLOGGER_H_
 #define WLOGGER_H_
 
-#include <Wt/WDllDefs.h>
+#include <Wt/WStringStream>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
+
+#ifndef WT_TARGET_JAVA
 
 namespace Wt {
 
 class WLogEntry;
+class WString;
 
 /*! \class WLogger Wt/WLogger Wt/WLogger
  *  \brief A simple logging class.
@@ -137,6 +140,36 @@ public:
    */
   void setFile(const std::string& path);
 
+  /*! \brief Configures what things are logged.
+   *
+   * The configuration is a string that defines rules for enabling or
+   * disabling certain logging. It is a white-space delimited list of
+   * rules, and each rule is of the form:
+   *
+   * - <tt>[-]level</tt> : enables (or disables) logging of messages of
+   *   the given level; '*' is a wild-card that matches all levels
+   *
+   * - <tt>[-]level:scope</tt> : enables (or disables) logging of
+   *   messages of the given level and scope; '*' is a wild-card that
+   *   matches all levels or scopes.
+   *
+   * The default configuration is <tt>"* -debug"</tt>, i.e. by default
+   * everything is logged, except for "debug" messages.
+   *
+   * Some other examples:
+   *
+   * - <tt>"* -debug debug:wthttp"</tt>: logs everything, including
+   *   debugging messages of scope "wthttp", but no other debugging
+   *   messages.
+   *
+   * - <tt>"* -info -debug"</tt>: disables logging of info messages in
+   *   addition to debugging messages.
+   *
+   * \note The standard logging is typically configured in the configuration
+   *       file, in the &lt;log-config&gt; block.
+   */
+  void configure(const std::string& config);
+
   /*! \brief Adds a field.
    *
    * Add a field to the logger. When \p isString is \p true, values
@@ -148,19 +181,52 @@ public:
    */
   const std::vector<Field>& fields() const { return fields_; }
 
-  /*! \brief Start a new log entry.
+  /*! \brief Starts a new log entry.
    *
    * Returns a new entry. The entry is logged in the destructor of
    * the entry (i.e. when the entry goes out of scope).
+   *
+   * The \p type reflects a logging level. You can freely choose a type,
+   * but these are commonly used inside the library:
+   * - "debug": debugging info (suppressed by default)
+   * - "info": informational notices
+   * - "warning": warnings (potentially wrong API use)
+   * - "secure": security-related events
+   * - "error": errors (wrong API use, unexpected protocol messages)
+   * - "fatal": fatal errors (terminate the session)
    */
-  WLogEntry entry() const;
+  WLogEntry entry(const std::string& type) const;
+
+  /*! \brief Returns whether messages of a given type are logged.
+   *
+   * Returns \c true if messages of the given type are logged. It may be
+   * that not messages of all scopes are logged.
+   *
+   * \sa configure()
+   */
+  bool logging(const std::string& type) const;
+
+  /*! \brief Returns whether messages of a given type and scope are logged.
+   *
+   * \sa configure()
+   */
+  bool logging(const std::string& type, const std::string& scope) const;
 
 private:
-  std::ostream*      o_;
-  bool               ownStream_;
+  std::ostream* o_;
+  bool ownStream_;
   std::vector<Field> fields_;
 
-  void addLine(const std::string& s) const;
+  struct Rule {
+    bool include;
+    std::string type;
+    std::string scope;
+  };
+
+  std::vector<Rule> rules_;
+
+  void addLine(const std::string& type, const std::string& scope,
+	       const WStringStream& s) const;
 
   friend class WLogEntry;
 };
@@ -206,24 +272,41 @@ public:
    */
   WLogEntry& operator<< (const std::string&);
 
+  /*! \brief Writes a string in the current field.
+   */
+  WLogEntry& operator<< (const WString&);
+
   /*! \brief Writes a number value in the current field.
+   */
+  WLogEntry& operator<< (int);
+
+  /*! \brief Writes a number value in the current field.
+   */
+  WLogEntry& operator<< (long long);
+
+  /*! \brief Writes a number value in the current field.
+   */
+  WLogEntry& operator<< (double);
+
+  /*! \brief Writes a value in the current field.
    */
   template <typename T>
   WLogEntry& operator<< (T t) {
     startField();
-    impl_->currentLine_ << t;
-
+    if (impl_)
+      impl_->line_ << boost::lexical_cast<std::string>(t);
     return *this;
   }
 
 private:
   struct Impl {
-    const WLogger&    logger_;
-    std::stringstream currentLine_;
-    int               currentField_;
-    bool              fieldStarted_;
+    const WLogger& logger_;
+    WStringStream line_;
+    std::string type_, scope_;
+    int field_;
+    bool fieldStarted_;
 
-    Impl(const WLogger& logger);
+    Impl(const WLogger& logger, const std::string& type);
 
     bool quote() const;
 
@@ -235,9 +318,8 @@ private:
 
   mutable Impl *impl_;
 
-  WLogEntry(const WLogger& logger);
+  WLogEntry(const WLogger& logger, const std::string& type, bool mute);
 
-  void checkImpl();
   void startField();
 
   friend class WLogger;
@@ -245,28 +327,68 @@ private:
 
 WT_API extern WLogEntry log(const std::string& type);
 
+}
+
+#endif // WT_TARGET_JAVA
+
 #ifdef WT_BUILDING
-# ifndef LOG4CPLUS
-#  ifdef WT_DEBUG_ENABLED
-#   define LOG_DEBUG(a) Wt::log("debug") << a
-#  else
-#   define LOG_DEBUG(a)
-#  endif
+# ifndef WT_TARGET_JAVA
+#  ifndef LOG4CPLUS
+#   define LOGGER(s) static const char *logger = s
 
-#  define LOG_NOTICE(a) Wt::log("notice") << a
-#  define LOG_WARN(a) Wt::log("warning") << a
-#  define LOG_AUTH(a) Wt::log("auth") << a
-#  define LOG_ERROR(a) Wt::log("error") << a
+#   ifdef WT_DEBUG_ENABLED
+#    define LOG_DEBUG_S(s,m) (s)->log("debug") << Wt::logger << ": " << m
+#    define LOG_DEBUG(m) Wt::log("debug") << Wt::logger << ": " << m
+#   else
+#    define LOG_DEBUG_S(s,m)
+#    define LOG_DEBUG(m)
+#   endif
 
-# else // !LOG4CPLUS
+#   define LOG_INFO_S(s,m) (s)->log("info") << Wt::logger << ": " << m
+#   define LOG_INFO(m) Wt::log("info") << Wt::logger << ": " << m
+#   define LOG_WARN_S(s,m) (s)->log("warning") << Wt::logger << ": " << m
+#   define LOG_WARN(m) Wt::log("warning") << Wt::logger << ": " << m
+#   define LOG_SECURE_S(s,m) (s)->log("secure") << Wt::logger << ": " << m
+#   define LOG_SECURE(m) Wt::log("secure") << Wt::logger << ": " << m
+#   define LOG_ERROR_S(s,m) (s)->log("error") << Wt::logger << ": " << m
+#   define LOG_ERROR(m) Wt::log("error") << Wt::logger << ": " << m
 
-#  define LOG_DEBUG(a) LOG4CPLUS_DEBUG(logger, a)
-#  define LOG_NOTICE(a) LOG4CPLUS_INFO(logger, a)
-#  define LOG_WARN(a) LOG4CPLUS_WARN(logger, a)
-#  define LOG_AUTH(a) LOG4CPLUS_ERROR(logger, "auth: " << a)
-#  define LOG_ERROR(a) LOG4CPLUS_ERROR(logger, a)
+#  else // !LOG4CPLUS
 
-# endif // LOG4CPLUS
+#   define LOGGER(s) \
+      static log4cplus::Logger logger = log4cplus::Logger::getInstance(s)
+
+#   define LOG_DEBUG(m) LOG4CPLUS_DEBUG(logger, m)
+#   define LOG_NOTICE(m) LOG4CPLUS_INFO(logger, m)
+#   define LOG_WARN(m) LOG4CPLUS_WARN(logger, m)
+#   define LOG_AUTH(m) LOG4CPLUS_ERROR(logger, "auth: " << m)
+#   define LOG_ERROR(m) LOG4CPLUS_ERROR(logger, m)
+
+#  endif // LOG4CPLUS
+# else // WT_TARGET_JAVA
+
+class Logger {
+public:
+  void debug(const std::ostream& s);
+  void info(const std::ostream& s);
+  void warn(const std::ostream& s);
+  void error(const std::ostream& s);
+};
+
+# define LOGGER(s) Logger logger;
+
+# define LOG_DEBUG_S(s,m) logger.debug(std::stringstream() << m)
+# define LOG_DEBUG(m) logger.debug(std::stringstream() << m)
+# define LOG_INFO_S(s,m) logger.info(std::stringstream() << m)
+# define LOG_INFO(m) logger.info(std::stringstream() << m)
+# define LOG_WARN_S(s,m) logger.warn(std::stringstream() << m)
+# define LOG_WARN(m) logger.warn(std::stringstream() << m)
+# define LOG_SECURE_S(s,m) logger.warn(std::stringstream() << "secure:" << m)
+# define LOG_SECURE(m) logger.warn(std::stringstream() << "secure:" << m)
+# define LOG_ERROR_S(s,m) logger.error(std::stringstream() << m)
+# define LOG_ERROR(m) logger.error(std::stringstream() << m)
+
+# endif // WT_TARGET_JAVA
 
 # ifdef WT_DEBUG_ENABLED
 #  ifndef WT_TARGET_JAVA
@@ -279,8 +401,7 @@ WT_API extern WLogEntry log(const std::string& type);
 # else
 #  define WT_DEBUG(statement)
 # endif
-#endif  // WT_BUILDING
 
-}
+#endif  // WT_BUILDING
 
 #endif // WLOGGER_H_

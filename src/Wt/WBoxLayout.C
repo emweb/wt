@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <cassert>
+
 #include "DomElement.h"
 
 #include "Wt/WBoxLayout"

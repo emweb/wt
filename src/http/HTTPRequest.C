@@ -47,7 +47,7 @@ bool HTTPRequest::webSocketMessagePending() const
 
 void HTTPRequest::setStatus(int status)
 {
-  reply_->setStatus(status);
+  reply_->setStatus((Reply::status_type) status);
 }
 
 void HTTPRequest::setContentLength(::int64_t length)

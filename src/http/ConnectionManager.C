@@ -14,12 +14,13 @@
 //
 
 #include "ConnectionManager.h"
+#include "Wt/WLogger"
 
-#include <algorithm>
 #include <boost/bind.hpp>
 
-//#define DEBUG_ASYNC(a) a  
-#define DEBUG_ASYNC(a)
+namespace Wt {
+  LOGGER("wthttp/async");
+}
 
 namespace http {
 namespace server {
@@ -32,8 +33,7 @@ void ConnectionManager::start(ConnectionPtr c)
 
   connections_.insert(c);
 
-  DEBUG_ASYNC(std::cerr << "New connection (#" << connections_.size() << ")"
-	      << std::endl);
+  LOG_DEBUG("new connection (#" << connections_.size() << ")");
 
 #ifdef WT_THREADED
   lock.unlock();
@@ -60,16 +60,13 @@ void ConnectionManager::stop(ConnectionPtr c)
      * the connection.
      */
     /*
-      std::cerr << "ConnectionManager::stop(): oops - stopping again?"
-                << std::endl;
+      LOG_DEBUG("ConnectionManager::stop(): oops - stopping again?");
     */
     return;
 #endif // WIN32
   }
 
-  DEBUG_ASYNC(std::cerr << "Removed connection (#"
-	      << connections_.size() << ")"
-	      << std::endl);
+  LOG_DEBUG("removed connection (#" << connections_.size() << ")");
 
 #ifdef WT_THREADED
   lock.unlock();

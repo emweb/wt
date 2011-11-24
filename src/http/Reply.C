@@ -38,6 +38,10 @@ static struct tm* gmtime_r(const time_t* t, struct tm* r)
 extern struct tm* gmtime_r(const time_t* t, struct tm* r);
 #endif
 
+namespace Wt {
+  LOGGER("wthttp");
+}
+
 namespace http {
 namespace server {
 
@@ -92,6 +96,8 @@ const std::string& toText(Reply::status_type status)
 {
   switch (status)
   {
+  case Reply::no_status:
+    return internal_server_error;
   case Reply::switching_protocols:
     return switching_protocols;
   case Reply::ok:
@@ -153,7 +159,8 @@ const char crlf[] = { '\r', '\n' };
 Reply::Reply(const Request& request, const Configuration& config)
   : request_(request),
     configuration_(config),
-    emptyBuffer((void *)0, 0),
+    emptyBuffer_((void *)0, 0),
+    status_(no_status),
     transmitting_(false),
     closeConnection_(false),
     chunkedEncoding_(false),
@@ -163,11 +170,7 @@ Reply::Reply(const Request& request, const Configuration& config)
 #ifdef WTHTTP_WITH_ZLIB
     , gzipBusy_(false)
 #endif // WTHTTP_WITH_ZLIB
-{
-#ifndef WIN32
-  gettimeofday(&startTime_, 0);
-#endif
-}
+{ }
 
 Reply::~Reply()
 { 
@@ -175,6 +178,19 @@ Reply::~Reply()
   if (gzipBusy_)
     deflateEnd(&gzipStrm_);
 #endif // WTHTTP_WITH_ZLIB
+}
+
+void Reply::setStatus(status_type status)
+{
+  status_ = status;
+}
+
+void Reply::consumeWebSocketMessage(ws_opcode opcode,
+				    Buffer::const_iterator begin,
+				    Buffer::const_iterator end,
+				    Request::State state)
+{
+  LOG_ERROR("Reply::consumeWebSocketMessage() is pure virtual");
 }
 
 std::string Reply::location()
@@ -211,9 +227,9 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	     + boost::lexical_cast<std::string>(request_.http_version_minor)
 	     + " "));
 
-      result.push_back(buf(status_strings::toText(responseStatus())));
+      result.push_back(buf(status_strings::toText(status_)));
 
-      if (!http10 && responseStatus() != switching_protocols) {
+      if (!http10 && status_ != switching_protocols) {
 	/*
 	 * Date header (current time)
 	 */
@@ -226,13 +242,12 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
        */
 
       std::string ct;
-      if (responseStatus() >= 300 && responseStatus() < 400) {
+      if (status_ >= 300 && status_ < 400) {
 	if (!location().empty()) {
 	  result.push_back(buf(std::string("Location: ") + location()));
 	  result.push_back(asio::buffer(misc_strings::crlf));
 	}
-      } else if (responseStatus() != not_modified
-		 && responseStatus() != switching_protocols) {
+      } else if (status_ != not_modified && status_ != switching_protocols) {
 	ct = contentType();
 	result.push_back(buf("Content-Type: " + ct));
 	result.push_back(asio::buffer(misc_strings::crlf));
@@ -253,7 +268,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
       ::int64_t cl = -1;
 
-      if (responseStatus() != not_modified)
+      if (status_ != not_modified)
 	cl = contentLength();
       else
 	cl = 0;
@@ -280,7 +295,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	}
       }
 
-      if (responseStatus() != not_modified) {
+      if (status_ != not_modified) {
 #ifdef WTHTTP_WITH_ZLIB
 	/*
 	 * Content-Encoding: gzip ?
@@ -320,7 +335,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	  if (closeConnection_)
 	    chunkedEncoding_ = false; // should be false
 	  else
-	    if (!http10 && responseStatus() != switching_protocols)
+	    if (!http10 && status_ != switching_protocols)
 	      chunkedEncoding_ = true;
 
 	if (chunkedEncoding_) {
@@ -331,7 +346,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	result.push_back(asio::buffer(misc_strings::crlf));
 
 	return false;
-      } else { // responseStatus() == not-modified
+      } else { // status_ == not-modified
 	result.push_back(asio::buffer(misc_strings::crlf));
 
 	return true;
@@ -402,7 +417,7 @@ void Reply::setConnection(ConnectionPtr connection)
     remoteAddress_
       = connection->socket().remote_endpoint().address().to_string();
   } catch (std::exception& e) {
-    std::cerr << "remote_endpoint() threw: " << e.what() << std::endl;
+    LOG_ERROR("remote_endpoint() threw: " << e.what());
   }
 
   requestMethod_ = request_.method;
@@ -437,7 +452,7 @@ void Reply::logReply(Wt::WLogger& logger)
   if (relay_.get())
     return relay_->logReply(logger);
 
-  Wt::WLogEntry e = logger.entry();
+  Wt::WLogEntry e = logger.entry("");
 
   e << remoteAddress_ << Wt::WLogger::sep
     << /* rfc931 << */ Wt::WLogger::sep
@@ -445,25 +460,13 @@ void Reply::logReply(Wt::WLogger& logger)
     << Wt::WLogger::timestamp << Wt::WLogger::sep
     << requestMethod_ << ' ' << requestUri_ << " HTTP/"
     << requestMajor_ << '.' << requestMinor_ << Wt::WLogger::sep
-    << responseStatus() << Wt::WLogger::sep
+    << status_ << Wt::WLogger::sep
     << contentSent_;
 
   /*
   if (gzipEncoding_)
       std::cerr << " <" << contentOriginalSize_ << ">";
   */
-
-#if 0
-#ifndef WIN32
-    struct timeval endTime;
-    gettimeofday(&endTime, 0);
-    
-    std::cerr << " (" 
-	      << (endTime.tv_sec - startTime_.tv_sec)*1000
-                 + (endTime.tv_usec - startTime_.tv_usec)/1000
-	      << "ms)";
-#endif
-#endif
 }
 
 asio::const_buffer Reply::buf(const std::string s)

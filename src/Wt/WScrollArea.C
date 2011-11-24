@@ -91,6 +91,7 @@ void WScrollArea::updateDom(DomElement& element, bool all)
     if (isInLayout() && WApplication::instance()->environment().ajax()) {
       setJavaScriptMember("wtResize",
 			  "function(s, w, h) {"
+			  "s.style.position='absolute';"
 			  "s.style.width=w+'px';"
 			  "s.style.height=h+'px';"
 			  "}");

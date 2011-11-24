@@ -21,8 +21,9 @@
 
 #include <fstream>
 
-#define DEBUG_WS(a)
-//#define DEBUG_WS(a) a
+namespace Wt {
+  LOGGER("wthttp");
+}
 
 namespace http {
   namespace server {
@@ -37,8 +38,6 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
     sending_(false)
 {
   urlScheme_ = request.urlScheme;
-
-  status_ = (status_type)0;
 
   if (request.contentLength > config.maxMemoryRequestSize()) {
     requestFileName_ = Wt::Utils::createTempFileName();
@@ -78,10 +77,7 @@ void WtReply::consumeData(Buffer::const_iterator begin,
 			  Buffer::const_iterator end,
 			  Request::State state)
 {
-  if (readMessageCallback_)
-    consumeWebSocketMessage(begin, end, state);
-  else
-    consumeRequestBody(begin, end, state);
+  consumeRequestBody(begin, end, state);
 }
 
 void WtReply::consumeRequestBody(Buffer::const_iterator begin,
@@ -93,16 +89,18 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
   if (!connection)
     return;
 
-  if (state != Request::Error) {
-    if (status_ != request_entity_too_large)
-      cin_->write(begin, static_cast<std::streamsize>(end - begin));
-
+  if (request().webSocketVersion < 0) {
     /*
-     * For non-WebSocket requests, we create the HTTPRequest immediately
-     * since it may be that the web application is interested in knowing
-     * upload progress
+     * A normal HTTP request
      */
-    if (!request().webSocketRequest) {
+    if (state != Request::Error) {
+      if (status() != request_entity_too_large)
+	cin_->write(begin, static_cast<std::streamsize>(end - begin));
+
+      /*
+       * We create the HTTPRequest immediately since it may be that
+       * the web application is interested in knowing upload progress
+       */
       if (!httpRequest_)
 	httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
 				       (shared_from_this()), &entryPoint_);
@@ -112,99 +110,89 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 	if (!connection->server()->controller()->requestDataReceived
 	    (httpRequest_, bodyReceived_, request().contentLength)) {
-	  status_ = request_entity_too_large;
+	  setStatus(request_entity_too_large);
 	  setCloseConnection();
 	  state = Request::Error;
 	}
       }
     }
-  }
 
-  /*
-   * If the state == Request::Partial, we need to wait for more data.
-   * Request::Partial is only for purposes above (notifying of upload
-   * progress)
-   */
-  if (state != Request::Partial) {
     if (state == Request::Error) {
-      if (status_ < 300) {
-	if (status_ == switching_protocols) {
-	  /*
-	   * We already committed the reply -- all we can (and should)
-	   * do now is close the connection.
-	   */
-	  connection->close();
-	  return;
-	} else
-	  status_ = bad_request;
+      if (status() < 300)
+	setStatus(bad_request); // or internal error ?
+
+      setCloseConnection();
+    }
+
+    if (state != Request::Partial) {
+      if (status() >= 300) {
+	setRelay(ReplyPtr(new StockReply(request(),
+					 status(), configuration())));
+	Reply::send();
+      } else {
+	cin_->seekg(0); // rewind
+	responseSent_ = false;
+
+	connection->server()->controller()->handleRequest(httpRequest_);
       }
+    }
+  } else {
+    /*
+     * WebSocket connection request
+     */
+    setCloseConnection();
 
-      setCloseConnection();
-    } else if (request().webSocketRequest) {
-      DEBUG_WS(std::cerr << "WebSocket request: " << status_ << std::endl);
-      setCloseConnection();
-
-      if (status_ == ok) {
-	std::string origin = request().getHeader("Origin");
-	std::string host = request().getHeader("Host");
-
-	if (host.empty()) {
-	  DEBUG_WS(std::cerr << "WebSocket: missing Host " << std::endl);
-	  status_ = bad_request;
-	} else {
-	  status_ = switching_protocols;
-	  addHeader("Connection", "Upgrade");
-	  addHeader("Upgrade", "WebSocket");
-	  if (!origin.empty())
-	    addHeader("Sec-WebSocket-Origin", origin);
-
-	  std::string location
-	    = request().urlScheme + "://" + host + request().request_path
-	    + "?" + request().request_query;
-	  addHeader("Sec-WebSocket-Location", location);
-
-	  /*
-	   * We defer reading the rest of the handshake until after we
-	   * have sent the 101: some intermediaries may be holding back this
-	   * data because they are still in HTTP mode
-	   */
-	  responseSent_ = true;
-	  sending_ = true;
-
-	  fetchMoreDataCallback_
-	    = boost::bind(&WtReply::readRestWebSocketHandshake, this);
-
-	  DEBUG_WS(std::cerr << "WebSocket: Sending 101" << std::endl);
-
-	  Reply::send();
-	  return;
-	}
-      } else { // status_ == switching_protocols
+    switch (state) {
+    case Request::Error:
+      if (status() == Reply::switching_protocols) {
 	/*
-	 * We got the nonce and the expected challenge response is
-	 * available in in(). This should be copied to out() by the
-	 * web session.
+	 * We already committed the reply -- all we can (and should)
+	 * do now is close the connection.
 	 */
-	if (state == Request::Complete) {
-	  connection->server()->controller()->handleRequest(httpRequest_);
-	} else {
-	  std::cerr << "Unreachable code?" << std::endl;
-	}
+	connection->close();
+      } else {
+	if (status() < 300)
+	  setStatus(bad_request);
 
-	return;
+	setRelay(ReplyPtr(new StockReply(request(), status(),
+					 configuration())));
+
+	Reply::send();
       }
-    }
 
-    if (status_ >= 300) {
-      setRelay(ReplyPtr(new StockReply(request(), status_, configuration())));
+      break;
+    case Request::Partial:
+      /*
+       * We defer reading the rest of the handshake until after we
+       * have sent the 101: some intermediaries may be holding back
+       * this data because they are still in HTTP mode
+       */
+      responseSent_ = true;
+      sending_ = true;
+      
+      fetchMoreDataCallback_
+	= boost::bind(&WtReply::readRestWebSocketHandshake, this);
+
+      LOG_DEBUG("ws: sending 101, deferring handshake");
+
       Reply::send();
-      return;
+
+      break;
+    case Request::Complete:
+      /*
+       * The client handshake has been parsed and is ready.
+       */
+      cin_mem_.write(begin, static_cast<std::streamsize>(end - begin));
+
+      if (!httpRequest_) {
+	httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
+				       (shared_from_this()), &entryPoint_);
+	httpRequest_->setWebSocketRequest(true);
+      }
+
+      LOG_DEBUG("ws: accepting connection");
+      connection->server()->controller()->handleRequest(httpRequest_);
     }
-
-    cin_->seekg(0); // rewind
-    responseSent_ = false;
-
-    connection->server()->controller()->handleRequest(httpRequest_);
   }
 }
 
@@ -212,19 +200,12 @@ void WtReply::readRestWebSocketHandshake()
 {
   ConnectionPtr connection = getConnection();
 
-  if (connection) {
-    DEBUG_WS(std::cerr << "WebSocket: creating HTTPRequest" << std::endl);
-
-    httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-				   (shared_from_this()), &entryPoint_);
-    httpRequest_->setWebSocketRequest(true);
-
-    DEBUG_WS(std::cerr << "WebSocket: reading handshake" << std::endl);
+  if (connection)
     connection->handleReadBody();
-  }
 }
 
-void WtReply::consumeWebSocketMessage(Buffer::const_iterator begin,
+void WtReply::consumeWebSocketMessage(ws_opcode opcode,
+				      Buffer::const_iterator begin,
 				      Buffer::const_iterator end,
 				      Request::State state)
 {
@@ -233,21 +214,32 @@ void WtReply::consumeWebSocketMessage(Buffer::const_iterator begin,
   if (state != Request::Partial) {
     if (state == Request::Error)
       cin_mem_.str("");
-    else {
+    else
       cin_mem_.seekg(0);
+
+    switch (opcode) {
+    case connection_close:
+      cin_mem_.str("");
+
+      /* fall through */
+    case text_frame:
+      {
+	CallbackFunction cb = readMessageCallback_;
+	readMessageCallback_ = 0;
+	cb();
+
+	break;
+      }
+    case ping:
+      /* trouble */
+
+      break;
+    case continuation:
+    case pong:
+    case binary_frame:
+      break;
     }
-
-    DEBUG_WS(std::cerr << "WebSocket: new message" << std::endl);
-
-    CallbackFunction cb = readMessageCallback_;
-    readMessageCallback_ = 0;
-    cb();
   }
-}
-
-void WtReply::setStatus(int status)
-{
-  status_ = (status_type)status;
 }
 
 void WtReply::setContentLength(::int64_t length)
@@ -263,8 +255,8 @@ void WtReply::setContentType(const std::string& type)
 void WtReply::setLocation(const std::string& location)
 {
   location_ = location;
-  if (status_ < 300)
-    status_ = found;
+  if (status() < 300)
+    setStatus(found);
 }
 
 bool WtReply::waitMoreData() const
@@ -282,28 +274,80 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
 
   fetchMoreDataCallback_ = callBack;
 
-  if (request().webSocketRequest && text.empty()) {
-    DEBUG_WS(std::cerr << "WebSocket: closed by app" << std::endl);
+  bool webSocket = request().webSocketVersion >= 0;
 
-    connection->close();
-    return;
-  }
+  if (webSocket) {
+    if (!sendingMessages_) {
+      /*
+       * This finishes the server handshake. For 00-protocol, we copy
+       * the computed handshake nonce in the output.
+       */
+      nextCout_.assign(cin_mem_.str());
 
-  if (request().webSocketRequest && sendingMessages_) {
-    DEBUG_WS(std::cerr << "WebSocket: sending message" << std::endl);
-    nextCout_.clear();
-    nextCout_ += (char)0;
-    nextCout_ += text;
-    nextCout_ += (char)0xFF;
+      sendingMessages_ = true;
+    } else {
+      /*
+       * This should be sent as a websocket message.
+       */
+      if (text.empty()) {
+	LOG_DEBUG("ws: closed by app");
+
+	/*
+	 * FIXME: send a close frame
+	 */
+	connection->close();
+	return;
+      }
+
+      LOG_DEBUG("ws: sending a message, length = " << (long long)text.length());
+
+      nextCout_.clear();
+
+      switch (request().webSocketVersion) {
+      case 0:
+	nextCout_ += (char)0;
+	nextCout_ += text;
+	nextCout_ += (char)0xFF;
+
+	break;
+      case 7:
+      case 8:
+      case 13:
+	{
+	  nextCout_ += (char)0x81;
+
+	  std::size_t payloadLength = text.length();
+
+	  if (payloadLength < 126)
+	    nextCout_ += (char)payloadLength;
+	  else if (payloadLength < (1 << 16)) {
+	    nextCout_ += (char)126;
+	    nextCout_ += (char)(payloadLength >> 8);
+	    nextCout_ += (char)(payloadLength);
+	  } else {
+	    nextCout_ += (char)127;
+	    for (unsigned i = 0; i < 8; ++i)
+	      nextCout_ += (char)(payloadLength >> ((7-i) * 8));
+	  }
+
+	  nextCout_ += text;
+	}
+	break;
+      default:
+	LOG_ERROR("ws: encoding for version " <<
+		  request().webSocketVersion << " is not implemented");
+	connection->close();
+	return;
+      }
+    }
   } else {
     nextCout_.assign(text);
-    sendingMessages_ = true;
   }
 
   responseSent_ = false;
 
   if (!sending_) {
-    if (!status_) {
+    if (status() == no_status) {
       if (!transmitting() && fetchMoreDataCallback_) {
 	/*
 	 * We haven't got a response status, so we can't send anything really.
@@ -315,12 +359,13 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
 	CallbackFunction f = fetchMoreDataCallback_;
 	fetchMoreDataCallback_ = 0;
 	f();
+
 	return;
       } else {
 	/*
 	 * The old behaviour was to assume 200 ok by default.
 	 */
-	status_ = ok;
+	setStatus(ok);
       }
     }
 
@@ -331,11 +376,9 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
 
 void WtReply::readWebSocketMessage(CallbackFunction callBack)
 {
-  DEBUG_WS(std::cerr << "WebSocket: reading message" << std::endl);
-
   ConnectionPtr connection = getConnection();
 
-  assert(request().webSocketRequest);
+  assert(request().webSocketVersion >= 0);
 
   if (readMessageCallback_)
     return;
@@ -343,8 +386,12 @@ void WtReply::readWebSocketMessage(CallbackFunction callBack)
   readMessageCallback_ = callBack;
 
   if (!connection) {
+    /*
+     * Simulate a connection_close to the application
+     */
     Buffer b;
-    consumeWebSocketMessage(b.begin(), b.begin(), Request::Error);
+    consumeWebSocketMessage(connection_close, b.begin(), b.begin(),
+			    Request::Complete);
   } else {
     if (&cin_mem_ != cin_) {
       dynamic_cast<std::fstream *>(cin_)->close();
@@ -369,11 +416,6 @@ bool WtReply::readAvailable()
     return false;
 }
 
-Reply::status_type WtReply::responseStatus()
-{
-  return status_;
-}
-
 std::string WtReply::contentType()
 {
   return contentType_;
@@ -391,9 +433,9 @@ std::string WtReply::location()
 
 asio::const_buffer WtReply::nextContentBuffer()
 {
-  // std::cerr << this << "(sending: " << sending_
-  // 	       << ", reponseSent_: " << responseSent_
-  //	       << ") nextContentBuffer: " << nextCout_.length() << std::endl;
+  LOG_DEBUG("(sending: " << sending_ << ", reponseSent_: " << responseSent_
+	    << ") nextContentBuffer: " << nextCout_.length());
+
   cout_.clear();
   cout_.swap(nextCout_);
 

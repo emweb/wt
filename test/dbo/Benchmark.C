@@ -10,6 +10,7 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Postgres>
 #include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/backend/Firebird>
 #include <Wt/WDateTime>
 #include <Wt/Dbo/WtSqlTraits>
 
@@ -86,8 +87,22 @@ BOOST_AUTO_TEST_CASE( performance_test )
 
 #ifdef POSTGRES
   dbo::backend::Postgres connection
-    ("user=test password=test port=5432 dbname=test");
+    ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
 #endif // POSTGRES
+
+#ifdef FIREBIRD
+    std::string file;
+#ifdef WIN32
+    file = "C:\\opt\\db\\firebird\\wt_test.fdb";
+#else
+    file = "/opt/db/firebird/wt_test.fdb";
+#endif
+
+  dbo::backend::Firebird connection("localhost", 
+				    file, 
+				    "test_user", "test_pwd", 
+				    "", "", "");
+#endif // FIREBIRD
 
   // connection.setProperty("show-queries", "true");
 
@@ -108,7 +123,7 @@ BOOST_AUTO_TEST_CASE( performance_test )
   const unsigned total_objects = 10000;
   const std::string text = "some text?";
 
-  std::cerr << "Loading " << total_objects << " objects in databse."
+  std::cerr << "Loading " << total_objects << " objects in database."
 	    << std::endl;
   for (unsigned i = 0; i < total_objects; ++i) {
     Perf::Post *p = new Perf::Post();

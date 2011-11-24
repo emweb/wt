@@ -26,6 +26,9 @@ namespace skeletons {
 }
 
 namespace Wt {
+
+LOGGER("Auth::RegistrationWidget");	     
+
   namespace Auth {
 
 RegistrationWidget::RegistrationWidget(const AuthService& baseAuth,
@@ -241,16 +244,16 @@ void RegistrationWidget::oAuthDone(OAuthProcess *oauth,
 				   const Identity& identity)
 {
   if (identity.isValid()) {
-    Wt::log("auth")
-      << oauth->service().name() << ": identified: as "
-      << identity.id() << ", " << identity.name() << ", " << identity.email();
+    LOG_SECURE(oauth->service().name() << ": identified: as "
+	       << identity.id() << ", " << identity.name() << ", "
+	       << identity.email());
 
     if (!model_->registerIdentified(identity))
       update();
   } else {
     if (authWidget_)
       authWidget_->displayError(oauth->error());
-    Wt::log("auth") << oauth->service().name() << ": error: " << oauth->error();
+    LOG_SECURE(oauth->service().name() << ": error: " << oauth->error());
   }
 }
 
@@ -355,12 +358,11 @@ void RegistrationWidget::confirmIsYou()
     // id in the token -- no problem there, integrity is verified by a
     // hash in the database
 
-    Wt::log("notice") << "Confirming a new identity to existing user not "
-      "yet implemented";
+    LOG_INFO("confirming a new identity to existing user not yet implemented");
 
     break;
   default:
-    Wt::log("error") << "That's gone haywire.";
+    LOG_ERROR("that's gone haywire.");
   }
 }
 

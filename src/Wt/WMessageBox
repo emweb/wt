@@ -151,6 +151,10 @@ public:
    *
    * Show a message box, blocking the current thread until the message box
    * is closed, and return the result.
+   * \if java 
+   * <i>This functionality is only available on Servlet 3.0 compatible 
+   * servlet containers.</i>
+   * \endif
    */
   static StandardButton show(const WString& caption,
 			     const WString& text,

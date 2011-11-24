@@ -64,6 +64,7 @@ public:
 
   enum status_type
   {
+    no_status = 0,
     switching_protocols = 101,
     ok = 200,
     created = 201,
@@ -88,9 +89,23 @@ public:
     service_unavailable = 503
   };
 
+  enum ws_opcode {
+    continuation = 0x0,
+    text_frame = 0x1,
+    binary_frame = 0x2,
+    connection_close = 0x8,
+    ping = 0x9,
+    pong = 0xA,
+  };
+
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
 			   Request::State state) = 0;
+
+  virtual void consumeWebSocketMessage(ws_opcode opcode,
+				       Buffer::const_iterator begin,
+				       Buffer::const_iterator end,
+				       Request::State state);
 
   void setConnection(ConnectionPtr connection);
   bool nextBuffers(std::vector<asio::const_buffer>& result);
@@ -105,8 +120,8 @@ public:
   const Configuration& configuration() { return configuration_; }
 
   void logReply(Wt::WLogger& logger);
-
-  virtual status_type responseStatus() = 0;
+  void setStatus(status_type status);
+  status_type status() const { return status_; }
 
 protected:
   const Request& request_;
@@ -124,7 +139,7 @@ protected:
 
   void setRelay(ReplyPtr reply);
 
-  asio::const_buffer emptyBuffer;
+  asio::const_buffer emptyBuffer_;
 
   static std::string httpDate(time_t t);
 
@@ -136,10 +151,7 @@ private:
 
   ConnectionWeakPtr connection_;
 
-#ifndef WIN32
-  struct timeval startTime_;
-#endif
-
+  status_type status_;
   bool transmitting_;
   bool closeConnection_;
   bool chunkedEncoding_;

@@ -11,8 +11,6 @@
 #include <Wt/WException>
 #include <Wt/WLogger>
 
-#ifndef WT_TARGET_JAVA
-
 namespace Wt {
 
 class Configuration;
@@ -115,6 +113,7 @@ public:
    */
   WTCONNECTOR_API virtual ~WServer();
 
+#ifndef WT_TARGET_JAVA
   WT_API void setIOService(WIOService& ioService);
 
   WT_API WIOService& ioService();
@@ -226,19 +225,17 @@ public:
    *
    * This static method blocks the current thread, waiting for a
    * shutdown signal. The implementation and details are platform
-   * dependent, but this is usually Ctrl-C (SIGINT), SIGKILL, or
-   * SIGHUP.
+   * dependent, but this is usually Ctrl-C (SIGINT) or SIGKILL.
    *
    * This method is convenient if you want to customize how the server
    * is started (by instantiating a WServer object yourself, instead
    * of using Wt::Wrun()), but still want to use %Wt as a standalone
    * server that cleanly terminates on interruption.
    *
-   * The optional \p restartWatchFile parameter can be used to let the
-   * server watch for changes to a particular file (usually the binary
-   * itself, argv[0]) which it will also interpret as SIGHUP. This may
-   * be convenient to start the new binary after cleanly shutting down,
-   * using restart(). <i>(Experimental, UNIX only)</i>
+   * This will also catch SIGHUP, to reread the configuration file.
+   *
+   * The optional \p restartWatchFile parameter is deprecated and no
+   * longer used.
    */
   WT_API static int waitForShutdown(const char *restartWatchFile = 0);
 
@@ -299,6 +296,9 @@ public:
 		       const boost::function<void ()>& fallBackFunction
 		         = boost::function<void ()>());
 
+#endif // WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
   /*! \brief Reads a configuration property.
    *
    * As properties are unique to an executable location, they are defined
@@ -309,12 +309,27 @@ public:
    * \sa WApplication::readConfigurationProperty()
    */
   WT_API bool readConfigurationProperty(const std::string& name,
-    std::string& value) const;
+					std::string& value) const;
 
+#else
+  /*! \brief Reads a configuration property.
+   *
+   * Tries to read a configured value for the property \p name. If no
+   * value was configured, the default \p value is returned.
+   *
+   * \sa WApplication::readConfigurationProperty()
+   */
+  static std::string *readConfigurationProperty(const std::string& name,
+						const std::string& value);
+#endif // WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
   WT_API WLogger& logger() { return logger_; }
   WT_API WLogEntry log(const std::string& type) const;
 
-  WT_API void initLogger(const std::string& logFile);
+  WT_API void initLogger(const std::string& logFile,
+			 const std::string& logConfig);
+#endif // WT_TARGET_JAVA
 
   WT_API void expireSessions();
 
@@ -325,7 +340,10 @@ public:
 private:
   WebController *webController_;
 
+#ifndef WT_TARGET_JAVA
   WLogger logger_;
+#endif // WT_TARGET_JAVA
+
   std::string application_, configurationFile_, appRoot_, description_;
   Configuration *configuration_;
 
@@ -352,7 +370,5 @@ private:
 };
 
 }
-
-#endif // WT_TARGET_JAVA
 
 #endif // WSERVER_H_ 

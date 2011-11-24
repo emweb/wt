@@ -4,19 +4,25 @@
  * See the LICENSE file for terms of use.
  */
 
+#ifndef WT_TARGET_JAVA
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
 #include <boost/asio.hpp>
+#endif // WT_TARGET_JAVA
 
 #include "Configuration.h"
 #include "WebController.h"
 #include "WebSession.h"
 
+#ifndef WT_TARGET_JAVA
 #include "Wt/WIOService"
+#endif // WT_TARGET_JAVA
+
 #include "Wt/WServer"
 #include "Wt/Test/WTestEnvironment"
 
 namespace Wt {
 
+#ifndef WT_TARGET_JAVA
 WServer::WServer(const std::string& wtApplicationPath,
 		 const std::string& wtConfigurationFile)
 {
@@ -33,6 +39,7 @@ WServer::~WServer()
 {
   destroy();
 }
+#endif // WT_TARGET_JAVA
 
 // Not implemented: start(), stop(), isRunning(), resume(), httpPort()
 

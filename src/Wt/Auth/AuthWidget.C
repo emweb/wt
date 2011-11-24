@@ -41,6 +41,9 @@ namespace skeletons {
 }
 
 namespace Wt {
+
+LOGGER("Auth::AuthWidget");
+
   namespace Auth {
 
 AuthWidget::AuthWidget(const AuthService& baseAuth,
@@ -392,9 +395,9 @@ void AuthWidget::createOAuthLogin()
 void AuthWidget::oAuthDone(OAuthProcess *oauth, const Identity& identity)
 {
   if (identity.isValid()) {
-    Wt::log("auth")
-      << oauth->service().name() << ": identified: as "
-      << identity.id() << ", " << identity.name() << ", " << identity.email();
+    LOG_SECURE(oauth->service().name() << ": identified: as "
+	       << identity.id() << ", "
+	       << identity.name() << ", " << identity.email());
 
     std::auto_ptr<AbstractUserDatabase::Transaction>
       t(users_.startTransaction());
@@ -408,7 +411,7 @@ void AuthWidget::oAuthDone(OAuthProcess *oauth, const Identity& identity)
     if (t.get())
       t->commit();
   } else {
-    Wt::log("auth") << oauth->service().name() << ": error: " << oauth->error();
+    LOG_SECURE(oauth->service().name() << ": error: " << oauth->error());
     displayError(oauth->error());
   }
 }

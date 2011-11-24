@@ -62,7 +62,8 @@ private:
 class WTDBO_API DropSchema
 {
 public:
-  DropSchema(Session& session, const char *tableName,
+  DropSchema(Session& session, 
+	     Session::MappingInfo& mapping,
 	     std::set<std::string>& tablesCreated);
 
   template<class C> void visit(C& obj);
@@ -80,7 +81,7 @@ public:
 
 private:
   Session& session_;
-  const char *tableName_;
+  Session::MappingInfo& mapping_;
   std::set<std::string>& tablesDropped_;
 
   void drop(const std::string& tableName);

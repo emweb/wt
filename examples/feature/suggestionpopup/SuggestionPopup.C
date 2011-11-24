@@ -113,6 +113,14 @@ private:
     edit = new Wt::WLineEdit(parent);
     edit->resize(150, Wt::WLength::Auto);
     popup->forEdit(edit, Wt::WSuggestionPopup::DropDownIcon);
+
+    /*
+      showAt() shows the suggestion popup
+
+      Wt::WPushButton *show = new Wt::WPushButton("show", parent);
+      show->clicked().connect(boost::bind(&Wt::WSuggestionPopup::showAt,
+					  popup, edit));
+    */
   }
 
   void serverSideFilteringPopups(Wt::WContainerWidget *parent)

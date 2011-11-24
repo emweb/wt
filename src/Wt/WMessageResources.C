@@ -272,6 +272,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("WMessageResources");
+
 WMessageResources::WMessageResources(const std::string& path,
 				     bool loadInMemory)
   : loadInMemory_(loadInMemory),
@@ -611,9 +613,9 @@ bool WMessageResources::readResourceStream(std::istream &s,
       }
     }
   } catch (parse_error& e) {
-    Wt::log("error") << "Error reading " << fileName
-		     << ": at character " << e.where<char>() - text.get()
-		     << ": " << e.what();
+    LOG_ERROR("Error reading " << fileName
+	      << ": at character " << (int)(e.where<char>() - text.get())
+	      << ": " << e.what());
   }
 
   return true;

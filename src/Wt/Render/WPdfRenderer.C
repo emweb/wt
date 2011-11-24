@@ -13,6 +13,9 @@
 #include <hpdf.h>
 
 namespace Wt {
+
+LOGGER("Render::WPdfRendererer");
+
   namespace Render {
 
 WPdfRenderer::WPdfRenderer(HPDF_Doc pdf, HPDF_Page page)
@@ -79,8 +82,7 @@ double WPdfRenderer::margin(Side side) const
   case Left:
     return margin_[3] / CmPerInch * dpi_;
   default:
-    Wt::log("error") << "WPdfRenderer::margin(Side) with invalid side"
-		     << (int)side;
+    LOG_ERROR("margin(Side) with invalid side" << (int)side);
     return 0;
   }
 }

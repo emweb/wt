@@ -13,7 +13,13 @@
 #include "StockReply.h"
 #include "MimeTypes.h"
 
+#include "Wt/WLogger"
+
 using namespace BOOST_SPIRIT_CLASSIC_NS;
+
+namespace Wt {
+  LOGGER("wthttp");
+}
 
 namespace http {
 namespace server {
@@ -101,7 +107,7 @@ StaticReply::StaticReply(const std::string &full_path,
         contentRange << fileSize_;
       }
 
-      std::cerr << "Sending: " << contentRange.str() << std::endl;
+      LOG_INFO("sending: " << contentRange.str());
 
       addHeader("Content-Range", contentRange.str());
     }
@@ -123,6 +129,7 @@ StaticReply::StaticReply(const std::string &full_path,
 				       config)));
     }
   }
+
   if (!stockReply) {
     /*
      * Add headers for caching, but not for IE since it in fact makes it
@@ -130,7 +137,7 @@ StaticReply::StaticReply(const std::string &full_path,
      */
     Request::HeaderMap::const_iterator ua=request.headerMap.find("User-Agent");
 
-    if (   ua == request.headerMap.end()
+    if (ua == request.headerMap.end()
 	|| ua->second.find("MSIE") == std::string::npos) {
       addHeader("Cache-Control", "max-age=3600");
       if (!etag.empty())
@@ -149,8 +156,15 @@ StaticReply::StaticReply(const std::string &full_path,
       addHeader("Last-Modified", modifiedDate);
   }
  
-  if ((!stockReply) && gzipReply)
-    addHeader("Content-Encoding", "gzip");
+  if (!stockReply) {
+    if (gzipReply)
+      addHeader("Content-Encoding", "gzip");
+
+    if (hasRange_)
+      setStatus(partial_content);
+    else
+      setStatus(ok);
+  }
 }
 
 std::string StaticReply::computeModifiedDate() const
@@ -177,15 +191,6 @@ void StaticReply::consumeData(Buffer::const_iterator begin,
 {
   if (state != Request::Partial)
     send();
-}
-
-Reply::status_type StaticReply::responseStatus()
-{
-  if (hasRange_) {
-    return partial_content;
-  } else {
-    return ok;
-  }
 }
 
 std::string StaticReply::contentType()
@@ -215,7 +220,7 @@ std::string StaticReply::contentType()
 asio::const_buffer StaticReply::nextContentBuffer()
 {
   if (request_.method == "HEAD")
-    return emptyBuffer;
+    return emptyBuffer_;
   else {
     boost::uintmax_t rangeRemainder
       = (std::numeric_limits< ::int64_t>::max)();
@@ -228,7 +233,7 @@ asio::const_buffer StaticReply::nextContentBuffer()
     if (stream_.gcount() > 0) {
       return asio::buffer(buf_, stream_.gcount());
     } else
-      return emptyBuffer;
+      return emptyBuffer_;
   }
 }
 

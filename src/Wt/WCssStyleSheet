@@ -137,12 +137,6 @@ private:
   WCssTemplateWidget *widget_;
 };
 
-#ifndef WT_TARGET_JAVA
-#define WT_USTRING WString
-#else
-#define WT_USTRING std::string
-#endif // WT_TARGET_JAVA
-
 /*! \class WCssTextRule Wt/WCssStyleSheet Wt/WCssStyleSheet
  *  \brief A CSS rule specified directly using CSS declarations
  *

@@ -164,6 +164,13 @@ WT_DECLARE_WT_MEMBER
      scrollY2 = Y2;
    };
 
+   this.resetScroll = function() {
+     headerContainer.scrollLeft = scrollLeft;
+     contentsContainer.scrollLeft = scrollLeft;
+     contentsContainer.scrollTop = scrollTop;
+     headerColumnsContainer.scrollTop = scrollTop;
+   };
+
    this.scrollTo = function(x, y, hint) {
      if (y != -1) {
        var top = contentsContainer.scrollTop,

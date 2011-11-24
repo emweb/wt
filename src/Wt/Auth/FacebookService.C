@@ -7,6 +7,9 @@
 #define ERROR_MSG(e) WString::tr("Wt.Auth.FacebookService." e)
 
 namespace Wt {
+
+LOGGER("Auth::FacebookService");
+
   namespace Auth {
 
 class FacebookProcess : public OAuthProcess
@@ -40,7 +43,7 @@ private:
       bool ok = Json::parse(response.body(), me, e);
 
       if (!ok) {
-	Wt::log("error") << "Could not parse Json: '" << response.body() << "'";
+	LOG_ERROR("could not parse Json: '" << response.body() << "'");
 	setError(ERROR_MSG("badjson"));
 	authenticated().emit(Identity::Invalid);
       } else {

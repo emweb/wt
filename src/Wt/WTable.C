@@ -16,6 +16,8 @@
 
 namespace Wt {
 
+LOGGER("WTable");
+
 WTable::WTable(WContainerWidget *parent)
   : WInteractWidget(parent),
     rowsChanged_(0),
@@ -409,8 +411,7 @@ WTableRow::TableData& WTable::itemAt(int row, int column)
 void WTable::moveRow(int from, int to)
 {
   if (from < 0 || from >= (int)rows_.size()) {
-    Wt::log("error") << "WTable::moveRow: the from index is not within "
-		     << "the current table dimensions.";
+    LOG_ERROR("moveRow: the from index is not a valid row index.");
     return;
   }
 
@@ -428,8 +429,7 @@ void WTable::moveRow(int from, int to)
 void WTable::moveColumn(int from, int to)
 {
   if (from < 0 || from >= (int)columns_.size()) {
-    Wt::log("error") << "WTable::moveColumn: the from index is not within "
-		     << "the current table dimensions.";
+    LOG_ERROR("moveColumn: the from index is not a valid column index.");
     return;
   }
 

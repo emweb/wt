@@ -43,6 +43,7 @@
 #include "Utils.h"
 
 #include "Wt/WException"
+#include "Wt/WLogger"
 #include "Wt/Http/Request"
 
 using std::memmove;
@@ -166,6 +167,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("CgiParser");
+
 void CgiParser::init()
 {
 #ifdef WT_HAVE_GNU_REGEX
@@ -218,8 +221,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
     delete[] buf;
   }
 
-  // std::cerr << "queryString (len=" << len << "): "
-  //           << queryString << std::endl;
+  LOG_DEBUG("queryString (len=" << len << "): " << queryString);
 
   if (!queryString.empty())
     Http::Request::parseFormUrlEncoded(queryString, request_->parameters_);
@@ -375,11 +377,7 @@ bool CgiParser::parseHead(WebRequest& request)
     current = i + 2;
   }
 
-#ifdef DEBUG
-  std::cerr << "name: " << name 
-	    << " ct: " << ctype 
-	    << " fn: " << fn << std::endl;
-#endif
+  LOG_DEBUG("name: " << name << " ct: " << ctype  << " fn: " << fn);
 
   currentKey_ = name;
 
@@ -420,13 +418,12 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
   if (spoolStream_) {
     delete spoolStream_;
     spoolStream_ = 0;
-  } else
+  } else {
     if (!currentKey_.empty()) {
-#ifdef DEBUG
-      std::cerr << "value: \"" << value << "\"" << std::endl;
-#endif
+      LOG_DEBUG("value: \"" << value << "\"");
       request_->parameters_[currentKey_].push_back(value);
     }
+  }
 
   currentKey_.clear();
 

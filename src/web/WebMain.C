@@ -18,6 +18,8 @@
 
 namespace Wt {
 
+LOGGER("WebMain");
+
 WebMain::WebMain(WServer *server, WebStream *stream,
 		 std::string singleSessionId)
   : server_(server),
@@ -45,24 +47,20 @@ void WebMain::run()
     controller().handleRequest(request);
   else
     if (!singleSessionId_.empty()) {
-      server_->log("error") << "No initial request ?";
+      LOG_ERROR("no initial request ?");
       return;
     }
 
   for (;;) {
     bool haveMoreSessions = controller().expireSessions();
 
-    if (!haveMoreSessions && !singleSessionId_.empty()) {
-      server_->log("notice") << "Dedicated session process exiting cleanly.";
+    if (!haveMoreSessions && !singleSessionId_.empty())
       break;
-    }
 
     WebRequest *request = stream_->getNextRequest(5);
 
-    if (shutdown_) {
-      server_->log("notice") << "Shared session server exiting cleanly.";
+    if (shutdown_)
       break;
-    }
 
     if (request)
       server_->ioService().post(boost::bind(&WebController::handleRequest,

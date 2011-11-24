@@ -10,6 +10,7 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Postgres>
 #include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/backend/Firebird>
 #include <Wt/Dbo/FixedSqlConnectionPool>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
@@ -255,9 +256,15 @@ struct DboFixture
 {
   DboFixture()
   {
+    static bool logged = false;
     dbo::SqlConnection *connection;
 
 #ifdef SQLITE3
+    if (!logged) {
+      std::cerr << "DboTest.C created a Sqlite3 connector" << std::endl;
+      logged = true;
+    }
+
     dbo::backend::Sqlite3 *sqlite3 = new dbo::backend::Sqlite3(":memory:");
     sqlite3->setDateTimeStorage(dbo::SqlDate,
 				dbo::backend::Sqlite3::JulianDaysAsReal);
@@ -265,9 +272,33 @@ struct DboFixture
 #endif // SQLITE3
 
 #ifdef POSTGRES
+    if (!logged) {
+      std::cerr << "DboTest.C created a Postgres connector" << std::endl;
+      logged = true;
+    }
+
     connection = new dbo::backend::Postgres
-      ("user=test password=test port=5432 dbname=test");
+      ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
 #endif // POSTGRES
+
+#ifdef FIREBIRD
+    std::string file;
+#ifdef WIN32
+    file = "C:\\opt\\db\\firebird\\wt_test.fdb";
+#else
+    file = "/opt/db/firebird/wt_test.fdb";
+#endif
+
+    if (!logged) {
+      std::cerr << "DboTest.C created a Firebird connector" << std::endl;
+      logged = true;
+    }
+
+    connection = new dbo::backend::Firebird ("localhost", 
+					     file, 
+					     "test_user", "test_pwd", 
+					     "", "", "");
+#endif // FIREBIRD
 
     connection->setProperty("show-queries", "true");
 
@@ -496,7 +527,7 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
      * implemented this so that this kind of things simply work !
      */
     dbo::collection<std::string> names
-      = session_->query<std::string>("select name from table_b");
+      = session_->query<std::string>("select \"name\" from \"table_b\"");
 
     for (dbo::collection<std::string>::const_iterator i = names.begin();
 	 i != names.end(); ++i)
@@ -509,22 +540,28 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     dbo::Transaction t(*session_);
 
     dbo::ptr<B> b1 = session_->query< dbo::ptr<B> >
-      ("select distinct B from table_b B ").where("B.name = ?").bind("b1");
+      ("select distinct B from \"table_b\" B ").where("B.\"name\" = ?").bind("b1");
 
     std::size_t count = session_->query< dbo::ptr<B> >
-      ("select distinct B from table_b B ").where("B.name = ?").bind("b1")
+      ("select distinct B from \"table_b\" B ").where("B.\"name\" = ?").bind("b1")
       .resultList().size();
 
-    dbo::ptr<C> c1 = session_->find<C>().where("name = ?").bind("c1");
+    dbo::ptr<C> c1 = session_->find<C>().where("\"name\" = ?").bind("c1");
 
     BOOST_REQUIRE(count == 1);
     BOOST_REQUIRE(b1->csManyToMany.size() == 1);
     BOOST_REQUIRE(c1->bsManyToMany.size() == 1);
 
+    //this test case does not work in firebird,
+    //the name field is of the 'blob subtype text' datatype,
+    //and according to the firebird documentation,
+    //order by is not supported on columns of this datatype 
+    //http://www.firebirdsql.org/refdocs/langrefupd21-blob.html
+#ifndef FIREBIRD
     typedef dbo::collection<dbo::ptr<C> > Cs;
 
-    Cs c2 = session_->find<C>().orderBy("name desc");
-    Cs c3 = session_->find<C>().orderBy("name desc").limit(2);
+    Cs c2 = session_->find<C>().orderBy("\"name\" desc");
+    Cs c3 = session_->find<C>().orderBy("\"name\" desc").limit(2);
 
     std::vector<std::string> c2_compare;
     c2_compare.push_back("c3");
@@ -544,6 +581,7 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     BOOST_REQUIRE(c3.size() == c3_compare.size());
     for (Cs::const_iterator i = c3.begin(); i != c3.end(); ++i)
       BOOST_REQUIRE((*i)->name == c3_compare[c++]);
+#endif
 
     t.commit();
   }
@@ -591,9 +629,21 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     typedef dbo::ptr_tuple<B, A>::type BA;
     typedef dbo::collection<BA> BAs;
 
+//The query below is extended to 
+//select count(1) from ( select B."id", B."name", A."id", A."date", A."b_id" 
+//from "table_b" B join "table_a" A on A."b_id" = B."id"); 
+//by Dbo when it is used to return the size of the collection.
+//This is not valid SQL by the SQL standard definition,
+//because 2 id fields are mentioned in the select clause.
+//A valid alternative would be:
+//select count(1) from ( select B."id", B."name", A."id" as id2, A."date", 
+//A."b_id" from "table_b" B join "table_a" A on A."b_id" = B."id");
+//Firebird is not able to execute this query.
+#ifndef FIREBIRD
     BAs bas = session_->query<BA>
-      ("select B, A from table_b B join table_a A on A.b_id = B.id")
-      .orderBy("A.i");
+      ("select B, A "
+       "from \"table_b\" B join \"table_a\" A on A.\"b_id\" = B.\"id\"")
+      .orderBy("A.\"i\"");
 
     BOOST_REQUIRE(bas.size() == 2);
 
@@ -615,6 +665,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     }
 
     BOOST_REQUIRE(ii == 2);
+#endif //FIREBIRD
 
     t.commit();
   }
@@ -725,6 +776,7 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
 
   dbo::Session *session_ = f.session_;
 
+#ifndef FIREBIRD
   {
     dbo::Transaction t(*session_);
 
@@ -733,6 +785,7 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
 
     t.commit();
   }
+#endif //FIREBIRD
 
   int aId = -1;
   {
@@ -763,7 +816,7 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
     int id1, id2;
 
     boost::tie(id1, id2) = session_->query<boost::tuple<int, int> >
-      ("select id, id from table_a").resultValue();
+      ("select \"id\", \"id\" from \"table_a\"").resultValue();
 
     BOOST_REQUIRE(id1 == aId);
     BOOST_REQUIRE(id2 == aId);
@@ -772,7 +825,7 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
     dbo::ptr<A> a;
     int id;
     boost::tie(a, id) = session_->query<boost::tuple<dbo::ptr<A>, int> >
-      ("select (a), a.id from table_a a").resultValue();
+      ("select (a), a.\"id\" from \"table_a\" a").resultValue();
 
     BOOST_REQUIRE(id == aId);
     BOOST_REQUIRE(a.id() == aId);
@@ -791,7 +844,7 @@ BOOST_AUTO_TEST_CASE( dbo_test8 )
   {
     dbo::Transaction t(*session_);
 
-    session_->execute("delete from table_a");
+    session_->execute("delete from \"table_a\"");
 
     t.commit();
   }
@@ -1050,17 +1103,18 @@ BOOST_AUTO_TEST_CASE( dbo_test13 )
 
     {
       dbo::collection<dbo::ptr<B> > c = session_->query< dbo::ptr<B> >
-	("select B from table_b B ")
-	.where("B.state = ?").orderBy("B.name")
+	("select B from \"table_b\" B ")
+	.where("B.\"state\" = ?").orderBy("B.\"name\"")
 	.limit(1).bind(0);
 
       BOOST_REQUIRE(c.size() == 1);
     }
 
     dbo::ptr<B> d = session_->query< dbo::ptr<B> >
-      ("select B from table_b B ")
-      .where("B.state = ?").orderBy("B.name")
+      ("select B from \"table_b\" B ")
+      .where("B.\"state\" = ?").orderBy("B.\"name\"")
       .limit(1).bind(0);
+
 
     BOOST_REQUIRE(d == b1 || d == b3);
 

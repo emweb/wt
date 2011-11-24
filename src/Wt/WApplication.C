@@ -36,9 +36,9 @@ namespace skeletons {
   extern const char * Wt_xml1;
 }
 
-//#define WTDEBUG
-
 namespace Wt {
+
+LOGGER("WApplication");
 
 #if !(defined(DOXYGEN_ONLY) || defined(WT_TARGET_JAVA))
 const WtLibVersion WT_INCLUDED_VERSION = WtLibVersion();
@@ -90,7 +90,7 @@ WApplication::WApplication(const WEnvironment& env
     serverPushChanged_(true),
 #ifndef WT_CNOR
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
-#endif
+#endif // WT_CNOR
     javaScriptClass_("Wt"),
     dialogCover_(0),
     quited_(false),
@@ -100,7 +100,9 @@ WApplication::WApplication(const WEnvironment& env
     connected_(true),
     bodyHtmlClassChanged_(true),
     enableAjax_(false),
+#ifndef WT_TARGET_JAVA
     initialized_(false),
+#endif // WT_TARGET_JAVA
     selectionStart_(-1),
     selectionEnd_(-1),
     layoutDirection_(LeftToRight),
@@ -310,12 +312,19 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
   }
 }
 
+#ifndef WT_TARGET_JAVA
+
 void WApplication::initialize()
 { }
 
-#ifndef WT_TARGET_JAVA
 void WApplication::finalize()
 { }
+
+#else
+
+void WApplication::destroy()
+{ }
+
 #endif // !WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
@@ -401,15 +410,15 @@ std::string WApplication::resourcesUrl()
 
   return WApplication::instance()->resolveRelativeUrl(result);
 #else
-  const std::string* path = WebSession::instance()->controller()
-    ->configuration().property(WApplication::RESOURCES_URL);
+  WApplication *app = WApplication::instance(); 
+  const Configuration& conf = app->environment().server()->configuration(); 
+  const std::string* path = conf.property(WApplication::RESOURCES_URL);
   /*
    * Arghll... we should in fact know when we need the absolute URL: only
    * when we are having a request.pathInfo().
    */
   if (path == "/wt-resources/") {
-    std::string result = 
-      WApplication::instance()->environment().deploymentPath();
+    std::string result = app->environment().deploymentPath();
     if (!result.empty() && result[result.length() - 1] == '/')
       return result + path->substr(1);
     else
@@ -460,6 +469,9 @@ void WApplication::constrainExposed(WWidget *w)
 
 bool WApplication::isExposed(WWidget *w) const
 {
+  if (!w->isVisible())
+    return false;
+
   if (w != domRoot_ && exposedOnly_) {
     for (WWidget *p = w; p; p = p->parent())
       if (p == exposedOnly_ || p == timerRoot_)
@@ -644,7 +656,7 @@ void WApplication::unload()
   if (session_->shouldDisconnect()) {
     if (connected_) {
       connected_ = false;
-      log("notice") << "Session disconnected on unload()";
+      LOG_INFO("Session disconnected on unload()");
     }
 
     return;
@@ -663,23 +675,17 @@ void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
   Utils::insert(exposedSignals_, s, signal);
 #endif
 
-#ifdef WTDEBUG
-  std::cerr << "WApplication::addExposedSignal: " << s << std::endl;
-#endif
+  LOG_DEBUG("addExposedSignal: " << s);
 }
 
 void WApplication::removeExposedSignal(Wt::EventSignalBase *signal)
 {
   std::string s = signal->encodeCmd();
 
-  if (exposedSignals_.erase(s)) {
-#ifdef WTDEBUG
-    std::cerr << " WApplication::removeExposedSignal: " << s << std::endl;    
-#endif
-  } else {
-    std::cerr << " WApplication::removeExposedSignal of non-exposed "
-	      << s << "??" << std::endl;    
-  }
+  if (exposedSignals_.erase(s))
+    LOG_DEBUG("removeExposedSignal: " << s);
+  else
+    LOG_DEBUG("removeExposedSignal of non-exposed " << s << "??");    
 }
 
 EventSignalBase *
@@ -751,10 +757,16 @@ std::string WApplication::addExposedResource(WResource *resource,
 
 void WApplication::removeExposedResource(WResource *resource)
 {
-  ResourceMap::iterator i = exposedResources_.find(resourceMapKey(resource));
+  std::string key = resourceMapKey(resource);
+  ResourceMap::iterator i = exposedResources_.find(key);
 
-  if (i != exposedResources_.end() && i->second == resource)
+  if (i != exposedResources_.end() && i->second == resource) {
+#ifndef WT_TARGET_JAVA
     exposedResources_.erase(i);
+#else
+    exposedResources_.erase(key);
+#endif
+  }
 }
 
 WResource *WApplication::decodeExposedResource(const std::string& resourceKey) 
@@ -873,7 +885,8 @@ void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
     delete previous;
   }
 
-  localizedStrings_->insert(0, translator);
+  if (translator)
+    localizedStrings_->insert(0, translator);
 }
 
 void WApplication::refresh()
@@ -924,11 +937,8 @@ void WApplication::redirect(const std::string& url)
 
 void WApplication::redirectToSession(const std::string& newSessionId)
 {
-  const Configuration& conf = environment().server()->configuration();
-
   std::string redirectUrl = bookmarkUrl();
-  if (conf.sessionTracking() == Configuration::CookiesURL
-      && environment().supportsCookies()) {
+  if (!session_->useUrlRewriting()) {
     std::string cookieName = environment().deploymentPath();
     setCookie(cookieName, newSessionId, -1);
   } else
@@ -985,7 +995,7 @@ void WApplication::addMetaHeader(MetaHeaderType type,
 				 const std::string& lang)
 {
   if (environment().javaScript())
-    log("warn") << "WApplication::addMetaHeader() with no effect";
+    LOG_WARN("WApplication::addMetaHeader() with no effect");
 
   /*
    * Replace or remove existing value
@@ -1010,7 +1020,7 @@ void WApplication::removeMetaHeader(MetaHeaderType type,
 				    const std::string& name)
 {
   if (environment().javaScript())
-    log("warn") << "WApplication::removeMetaHeader() with no effect";
+    LOG_WARN("removeMetaHeader() with no effect");
 
   for (unsigned i = 0; i < metaHeaders_.size(); ++i) {
     MetaHeader& m = metaHeaders_[i];
@@ -1054,8 +1064,7 @@ void WApplication::enableInternalPaths()
        + ");" , false);
 
     if (session_->useUglyInternalPaths())
-      log("warn") << "Deploy-path ends with '/', using /?_= for "
-	"internal paths";
+      LOG_WARN("Deploy-path ends with '/', using /?_= for internal paths");
   }
 }
 
@@ -1104,9 +1113,9 @@ std::string WApplication::internalSubPath(const std::string& path) const
   std::string current = Utils::append(newInternalPath_, '/');
 
   if (!pathMatches(current, path)) {
-    log("warn") << "WApplication::internalPath(): path '"
-		<< path << "' not within current path '" << newInternalPath_
-		<< "'";
+    LOG_WARN("internalPath(): path '"
+	     << path << "' not within current path '" << newInternalPath_
+	     << "'");
     return std::string();
   }
 
@@ -1166,10 +1175,12 @@ std::string WApplication::bookmarkUrl(const std::string& internalPath) const
   return session_->bookmarkUrl(internalPath);
 }
 
+#ifndef WT_TARGET_JAVA
 WLogEntry WApplication::log(const std::string& type) const
 {
   return session_->log(type);
 }
+#endif // WT_TARGET_JAVA
 
 void WApplication::enableUpdates(bool enabled)
 {
@@ -1257,7 +1268,7 @@ public:
 
       // See if the current application thread is being held in a sync lock
       if (syncLocks.lastId_ > syncLocks.lockedId_) {
-	// std::cerr << "Using a sync lock." << std::endl;
+	LOG_DEBUG("using a sync lock");
 	delete handler_;
 	handler_ = 0;
 
@@ -1464,11 +1475,9 @@ bool WApplication::readConfigurationProperty(const std::string& name,
 std::string *WApplication::readConfigurationProperty(const std::string& name,
 						     const std::string& value)
 {
-  std::string* property
-    = WebSession::instance()->controller()->configuration().property(name);
-
-  if (property)
-    return property;
+  WebSession *session = WebSession::instance();
+  if (session)
+    return session->env().server()->readConfigurationProperty(name, value);
   else
     return &value;
 }
@@ -1575,6 +1584,7 @@ void WApplication::setFocus(const std::string& id,
   selectionEnd_ = selectionEnd;
 }
 
+#ifndef WT_TARGET_JAVA
 void WApplication::deferRendering()
 {
   session_->deferRendering();
@@ -1584,5 +1594,6 @@ void WApplication::resumeRendering()
 {
   session_->resumeRendering();
 }
+#endif // WT_TARGET_JAVA
 
 }

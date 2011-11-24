@@ -25,6 +25,8 @@ using namespace boost::gregorian;
 
 namespace Wt {
 
+LOGGER("WCalendar");
+
 // Because WDate returns days and weeks as WT_USTRING, we need this:
 #ifndef WT_TARGET_JAVA
 #define DATE_NAME_STR(e) e
@@ -182,8 +184,8 @@ void WCalendar::setHorizontalHeaderFormat(HorizontalHeaderFormat format)
   case LongDayNames:
     d = "dlong"; break;
   default:
-    Wt::log("error") << "WCalendar::setHorizontalHeaderFormat(): "
-		     << "improper horizontal header format.";
+    LOG_ERROR("setHorizontalHeaderFormat(): "
+	      "improper horizontal header format.");
     format = SingleLetterDayNames;
     d = "d1";
   }

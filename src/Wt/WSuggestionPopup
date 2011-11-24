@@ -270,7 +270,7 @@ public:
   WSuggestionPopup(const std::string& matcherJS, const std::string& replacerJS,
 		   WContainerWidget *parent = 0);
 
-  /*! \brief Lets this suggestion popup assist in editing the given edit field.
+  /*! \brief Lets this suggestion popup assist in editing an edit field.
    *
    * A single suggestion popup may assist in several edits by repeated calls
    * of this method.
@@ -290,6 +290,13 @@ public:
    * \sa forEdit().
    */
   void removeEdit(WFormWidget *edit);
+
+  /*! \brief Shows the suggestion popup at an edit field.
+   *
+   * This is equivalent to the user triggering the suggestion popup to
+   * be shown.
+   */
+  void showAt(WFormWidget *edit);
 
   /*! \brief Clears the list of suggestions.
    *

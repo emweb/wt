@@ -587,6 +587,20 @@ std::string Postgres::autoincrementSql() const
   return std::string();
 }
 
+std::vector<std::string> 
+Postgres::autoincrementCreateSequenceSql(const std::string &table,
+					 const std::string &id) const
+{
+  return std::vector<std::string>();
+}
+
+std::vector<std::string> 
+Postgres::autoincrementDropSequenceSql(const std::string &table,
+				       const std::string &id) const
+{
+  return std::vector<std::string>();
+}
+
 std::string Postgres::autoincrementInsertSuffix() const
 {
   return " returning ";

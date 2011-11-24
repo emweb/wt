@@ -71,6 +71,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("WVmlImage");
+
 WVmlImage::WVmlImage(const WLength& width, const WLength& height,
 		     bool paintUpdate)
   : width_(width),
@@ -742,10 +744,10 @@ void WVmlImage::processClipping()
 	  stopClip();
 	  startClip(WRectF(tlx, tly, brx - tlx, bry - tly));
 	} else
-	  Wt::log("warn") << "VML only supports rectangle clipping "
-			  << "with rectangles aligned to the window";
+	  LOG_WARN("VML only supports rectangle clipping "
+		   << "with rectangles aligned to the window");
       } else
-	Wt::log("warn") << "VML only supports rectangle clipping";
+	LOG_WARN("VML only supports rectangle clipping");
     } else {
       stopClip();
       startClip(WRectF(0, 0, width().value(), height().value()));

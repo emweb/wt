@@ -74,6 +74,7 @@ public:
   WEnvironment&  env() { return *env_; }
   WApplication  *app() { return app_; }
   WebRenderer&   renderer() { return renderer_; }
+  bool useUrlRewriting() { return useUrlRewriting_; }
 
   bool debug() const { return debug_; }
 
@@ -82,7 +83,9 @@ public:
 
   void setApplication(WApplication *app);
 
+#ifndef WT_TARGET_JAVA
   WLogEntry log(const std::string& type) const;
+#endif // WT_TARGET_JAVA
 
   void notify(const WEvent& e);
   void pushUpdates();
@@ -259,8 +262,9 @@ private:
   std::string favicon_;
   State state_;
 
-  std::string   sessionId_, sessionIdCookie_;
-  bool          sessionIdChanged_, sessionIdCookieChanged_, sessionIdInUrl_;
+  bool useUrlRewriting_;
+  std::string sessionId_, sessionIdCookie_;
+  bool sessionIdChanged_, sessionIdCookieChanged_, sessionIdInUrl_;
 
   WebController *controller_;
   WebRenderer renderer_;

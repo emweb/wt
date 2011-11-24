@@ -17,12 +17,12 @@
 #include "WebMain.h"
 
 namespace {
-
   Wt::WebMain *webMainInstance = 0;
-
 }
 
 namespace Wt {
+
+LOGGER("WServer/wtfcgi");
 
 struct WServer::Impl
 {
@@ -62,15 +62,15 @@ struct WServer::Impl
       webMainInstance = webMain_ = 0;
 
     } catch (std::exception& e) {
-      server_.log("fatal") << "wtfcgi dedicated session process for "
-			   << sessionId_
-			   << ": caught unhandled exception: " << e.what();
+      LOG_ERROR_S(&server_,
+		  "fatal: dedicated session process for " << sessionId_ <<
+		  ": caught unhandled exception: " << e.what());
 
       throw;
     } catch (...) {
-      server_.log("fatal") << "wtfcgi dedicated session process for "
-			   << sessionId_
-			   << ": caught unkown, unhandled exception.";
+      LOG_ERROR_S(&server_,
+		  "fatal: dedicated session process for " << sessionId_ <<
+		  ": caught unkown, unhandled exception.");
 
       throw;
     }
@@ -93,13 +93,15 @@ struct WServer::Impl
       delete webMain_;
       webMainInstance = webMain_ = 0;
     } catch (std::exception& e) {
-      server_.log("fatal") << "wtfcgi shared session process: "
-			   << "caught unhandled exception: " << e.what();
+      LOG_ERROR_S(&server_,
+		  "fatal: shared session process: caught unhandled exception: "
+		  << e.what());
 
       throw;
     } catch (...) {
-      server_.log("fatal") << "wtfcgi shared session process: "
-			   << "caught unknown, unhandled exception.";
+      LOG_ERROR_S(&server_,
+		  "fatal: shared session process: caught unknown, unhandled "
+		  "exception.");
 
       throw;
     }
@@ -116,8 +118,7 @@ namespace {
 void doShutdown(const char *signal)
 {
   if (webMainInstance) {
-    webMainInstance->controller().server()->log("notice")
-      << "Caught " << signal;
+    LOG_INFO_S(webMainInstance->controller().server(), "Caught " << signal);
     webMainInstance->shutdown();
   }
 }
@@ -159,7 +160,7 @@ void WServer::setServerConfiguration(int argc, char *argv[],
   bool isRelayServer = argc < 2 || strcmp(argv[1], "client") != 0; 
 
   if (isRelayServer) {
-    log("notice") << "Wt: initializing wtfcgi relay server";
+    LOG_INFO_S(this, "initializing relay server");
     Server relayServer(*this, argc, argv);
     exit(relayServer.run());
   } else {
@@ -171,27 +172,27 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 bool WServer::start()
 {
   if (isRunning()) {
-    log("error") << "WServer::start(): server already started!";
+    LOG_ERROR_S(this, "start(): server already started!");
     return false;
   }
 
-  log("notice") << "Wt: initializing "
-		<< (impl_->sessionId_.empty() ? "shared" : "dedicated")
-		<< " wtfcgi session process";
+  LOG_INFO_S(this, "initializing " <<
+	     (impl_->sessionId_.empty() ? "shared" : "dedicated") <<
+	     " wtfcgi session process");
 
   if (configuration().webSockets()) {
-    log("error") << "FastCGI does not support web-sockets, disabling";
+    LOG_ERROR_S(this, "FastCGI does not support web-sockets, disabling");
     configuration().setWebSockets(false);
   }
 
   configuration().setNeedReadBodyBeforeResponse(true);
 
   if (signal(SIGTERM, Wt::handleSigTerm) == SIG_ERR)
-    log("error") << "Cannot catch SIGTERM: signal(): " << strerror(errno);
+    LOG_ERROR_S(this, "cannot catch SIGTERM: signal(): " << strerror(errno));
   if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR) 
-    log("error") << "Cannot catch SIGUSR1: signal(): " << strerror(errno);
+    LOG_ERROR_S(this, "cannot catch SIGUSR1: signal(): " << strerror(errno));
   if (signal(SIGHUP, Wt::handleSigHup) == SIG_ERR) 
-    log("error") << "Cannot catch SIGHUP: signal(): " << strerror(errno);
+    LOG_ERROR_S(this, "cannot catch SIGHUP: signal(): " << strerror(errno));
 
   webController_ = new Wt::WebController(*this, impl_->sessionId_, false);
 
@@ -214,7 +215,7 @@ int WServer::httpPort() const
 void WServer::stop()
 {
   if (!isRunning()) {
-    log("error") << "WServer::stop(): server not yet started!";
+    LOG_ERROR_S(this, "stop(): server not yet started!");
     return;
   }
 }
@@ -222,7 +223,7 @@ void WServer::stop()
 void WServer::resume()
 {
   if (!isRunning()) {
-    log("error") << "WServer::resume(): server not yet started!";
+    LOG_ERROR_S(this, "resume(): server not yet started!");
     return;
   }
 }
@@ -239,14 +240,14 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
       return 0;
     } catch (std::exception& e) {
-      server.log("fatal") << e.what();
+      LOG_ERROR_S(&server, "fatal: " << e.what());
       return 1;
     }
   } catch (Wt::WServer::Exception& e) {
-    std::cerr << e.what() << std::endl;
+    LOG_ERROR("fatal: " << e.what());
     return 1;
   } catch (std::exception& e) {
-    std::cerr << "exception: " << e.what() << std::endl;
+    LOG_ERROR("fatal exception: " << e.what());
     return 1;
   }
 }

@@ -26,6 +26,9 @@
 #include "DomElement.h"
 
 namespace Wt {
+
+LOGGER("Ext::Container");
+
   namespace Ext {
 
 Container::Container(WContainerWidget *parent)
@@ -60,7 +63,7 @@ Ext::LayoutImpl *Container::layoutImpl() const
 void Container::setLayout(WLayout *layout)
 {
   if (layout_) {
-    Wt::log("error") << "Container::setLayout: already have a layout.";
+    LOG_ERROR("setLayout(): already have a layout.");
     return;
   }
 

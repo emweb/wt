@@ -312,11 +312,13 @@ bool WPainterPath::asRect(WRectF& result) const
     return false;
 }
 
-WRectF WPainterPath::controlPointRect() const
+WRectF WPainterPath::controlPointRect(const WTransform& transform) const
 {
   if (isEmpty())
     return WRectF();
   else {
+    bool identity = transform.isIdentity();
+
     double minX, minY, maxX, maxY;
     minX = minY = std::numeric_limits<double>::max();
     maxX = maxY = std::numeric_limits<double>::min();
@@ -332,22 +334,43 @@ WRectF WPainterPath::controlPointRect() const
       case Segment::CubicEnd:
       case Segment::QuadC:
       case Segment::QuadEnd: {
-	minX = std::min(s.x(), minX);
-	minY = std::min(s.y(), minY);
-	maxX = std::max(s.x(), maxX);
-	maxY = std::max(s.y(), maxY);
+	if (identity) {
+	  minX = std::min(s.x(), minX);
+ 	  minY = std::min(s.y(), minY);
+	  maxX = std::max(s.x(), maxX);
+	  maxY = std::max(s.y(), maxY);
+	} else {
+	  WPointF p = transform.map(WPointF(s.x(), s.y()));
+	  minX = std::min(p.x(), minX);
+ 	  minY = std::min(p.y(), minY);
+	  maxX = std::max(p.x(), maxX);
+	  maxY = std::max(p.y(), maxY);
+	}
 	break;
       }
       case Segment::ArcC: {
 	const Segment& s2 = segments_[i+1];
 
-	WPointF tl(s.x() - s2.x(), s.y() - s2.y());
-	minX = std::min(tl.x(), minX);
-	minY = std::min(tl.y(), minY);
+	if (identity) {
+	  WPointF tl(s.x() - s2.x(), s.y() - s2.y());
+	  minX = std::min(tl.x(), minX);
+	  minY = std::min(tl.y(), minY);
 
-	WPointF br(s.x() + s2.x(), s.y() + s2.y());
-	maxX = std::max(br.x(), maxX);
-	maxY = std::max(br.y(), maxY);
+	  WPointF br(s.x() + s2.x(), s.y() + s2.y());
+	  maxX = std::max(br.x(), maxX);
+	  maxY = std::max(br.y(), maxY);
+	} else {
+	  WPointF p1 = transform.map(WPointF(s.x(), s.y()));
+	  WPointF p2 = transform.map(WPointF(s2.x(), s2.y()));
+
+	  WPointF tl(p1.x() - p2.x(), p1.y() - p2.y());
+	  minX = std::min(tl.x(), minX);
+	  minY = std::min(tl.y(), minY);
+
+	  WPointF br(p1.x() + p2.x(), p1.y() + p2.y());
+	  maxX = std::max(br.x(), maxX);
+	  maxY = std::max(br.y(), maxY);
+	}
 
 	i += 2;
 	break;

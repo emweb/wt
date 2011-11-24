@@ -80,5 +80,11 @@ void FixedSqlConnectionPool::returnConnection(SqlConnection *connection)
 #endif // WT_THREADED
 }
 
+void FixedSqlConnectionPool::prepareForDropTables() const
+{
+  for (unsigned i = 0; i < impl_->freeList.size(); ++i)
+    impl_->freeList[i]->prepareForDropTables();
+}
+
   }
 }

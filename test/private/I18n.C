@@ -174,3 +174,24 @@ BOOST_AUTO_TEST_CASE( I18n_findCaseException2 )
 		"Expression '2' evaluates to '2' for n=1 which is greater "
 		"than the list of cases (size=1).");
 }
+
+BOOST_AUTO_TEST_CASE( I18n_internalArgument1 )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  
+  app.messageResourceBundle().use(app.appRoot() + 
+				  "private/i18n/international_argument_1");
+  
+  Wt::WString text = Wt::WString::tr("text").arg(Wt::WString::tr("hello"));
+
+  BOOST_REQUIRE(text.toUTF8() == 
+		"Internationalized text containing an "
+		"internationalized argument: hello");
+
+  app.setLocale("nl");
+
+  BOOST_REQUIRE(text.toUTF8() == 
+		"Geïnternationaliseerde tekst met een geïnternationaliseerd "
+		"argument: hallo");
+}

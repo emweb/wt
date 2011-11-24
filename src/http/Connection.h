@@ -123,7 +123,7 @@ private:
   /// Current buffer data, from last operation.
   Buffer buffer_;
   std::size_t buffer_size_;
-  Buffer::const_iterator remaining_;
+  Buffer::iterator remaining_;
 
   /// The incoming request.
   Request request_;

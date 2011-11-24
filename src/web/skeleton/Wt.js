@@ -1090,7 +1090,7 @@ this.capture = function(obj) {
   captureElement = obj;
 
   var db = document.body;
-  if (db.setCapture)
+  if (!document.body.addEventListener)
     if (obj != null)
       db.setCapture();
     else
@@ -2211,8 +2211,9 @@ function load(fullapp) {
     window._$_APP_CLASS_$_LoadWidgetTree();
 
   if (!quited) {
-    doKeepAlive();
-    keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
+    if (!keepAliveTimer) {
+      keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
+    }
   }
 }
 
@@ -2399,7 +2400,8 @@ function scheduleUpdate() {
 
 _$_$if_WEB_SOCKETS_$_();
   if (websocket.state != WebSocketsUnavailable) {
-    if (typeof window.WebSocket === 'undefined')
+    if (typeof window.WebSocket === 'undefined'
+        && typeof window.MozWebSocket === 'undefined')
       websocket.state = WebSocketsUnavailable;
     else {
       var ws = websocket.socket;
@@ -2425,7 +2427,11 @@ _$_$if_WEB_SOCKETS_$_();
 	     + location.port + deployUrl + query;
 	  }
 
-	  websocket.socket = ws = new WebSocket(wsurl);
+	  if (typeof window.WebSocket !== 'undefined')
+	    websocket.socket = ws = new WebSocket(wsurl);
+	  else
+	    websocket.socket = ws = new MozWebSocket(wsurl);
+
 	  if (websocket.keepAlive)
 	    clearInterval(websocket.keepAlive);
 	  websocket.keepAlive = null;
@@ -2446,6 +2452,11 @@ _$_$if_WEB_SOCKETS_$_();
 
 	  ws.onopen = function(event) {
 	    websocket.state = WebSocketsWorking;
+
+	    /*
+	     * WebSockets are suppossedly reliable, but there is nothing
+	     * in the protocol that makes them so ?
+	     */
 	    websocket.keepAlive = setInterval
 	    (function() {
 	       if (ws.readyState == 1)
@@ -2454,7 +2465,7 @@ _$_$if_WEB_SOCKETS_$_();
 		 clearInterval(websocket.keepAlive);
 		 websocket.keepAlive = null;
 	       }
-	     }, _$_SERVER_PUSH_TIMEOUT_$_);
+	     }, 3 * _$_SERVER_PUSH_TIMEOUT_$_);
 	  };
 	}
       }

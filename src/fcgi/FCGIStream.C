@@ -13,12 +13,17 @@
 #include "FCGIStream.h"
 #include "WebController.h"
 #include "Configuration.h"
+#include "Wt/WLogger"
 
 #include "fcgio.h"
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
 
 using std::memset;
 using std::exit;
+
+namespace Wt {
+  LOGGER("wtfcgi");
+}
 
 namespace {
   using namespace Wt;
@@ -89,8 +94,8 @@ namespace {
       if (!headersCommitted_)
 	*out_ << name << ": " << value << "\r\n";
       else
-	std::cerr << "Warning: addHeader(): " << name << ": " << value
-		  << " ignored because headers already committed." << std::endl;
+	LOG_WARN("addHeader(): " << name << ": " << value
+		 << " ignored because headers already committed.");
     }
 
     virtual void setContentLength(::int64_t length)
@@ -228,7 +233,7 @@ WebRequest *FCGIStream::getNextRequest(int timeoutsec)
   if (FCGX_Accept_r(request) == 0) {
     return new FCGIRequest(request);
   } else {
-    std::cerr << "Could not FCGX_Accept ?" << std::endl;
+    LOG_ERROR("could not FCGX_Accept ?");
     delete request;
 
     exit(1); // FIXME: throw exception

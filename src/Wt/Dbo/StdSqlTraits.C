@@ -20,7 +20,7 @@ namespace Wt {
 std::string sql_value_traits<std::string>::type(SqlConnection *conn, int size)
 {
   if (size == -1)
-    return "text not null";
+    return std::string(conn->textType()) + " not null";
   else
     return "varchar(" + boost::lexical_cast<std::string>(size) + ") not null";
 }
@@ -153,9 +153,9 @@ bool sql_value_traits<short>::read(short& v, SqlStatement *statement,
    * bool
    */
 
-const char *sql_value_traits<bool>::type(SqlConnection *conn, int size)
+std::string sql_value_traits<bool>::type(SqlConnection *conn, int size)
 {
-  return "boolean not null";
+  return std::string(conn->booleanType()) + " not null";
 }
 
 void sql_value_traits<bool>::bind(bool v, SqlStatement *statement, int column,

@@ -13,6 +13,7 @@
 #include <map>
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WServer>
 #include <Wt/WSocketNotifier>
 
 #include "SocketNotifier.h"
@@ -66,6 +67,9 @@ struct ApplicationEvent {
  *  - handles web requests and application events
  */
 class WT_API WebController
+#ifdef WT_TARGET_JAVA
+  : public WServer
+#endif // WT_TARGET_JAVA
 {
 public:
   static bool isAsyncSupported() { return true; }
@@ -75,6 +79,10 @@ public:
 
   void addSession(boost::shared_ptr<WebSession> session);
   void removeSession(const std::string& sessionId);
+
+  void newAjaxSession();
+  bool limitPlainHtmlSessions();
+  WServer *server() { return &server_; }
 
 #ifndef WT_TARGET_JAVA
   WebController(WServer& server,
@@ -115,13 +123,8 @@ public:
   std::string switchSession(WebSession *session,
 			    const std::string& newSessionId);
   std::string generateNewSessionId(boost::shared_ptr<WebSession> session);
-  void newAjaxSession();
-  bool limitPlainHtmlSessions();
-
-  WServer *server() { return &server_; }
 
 private:
-  WServer& server_;
   Configuration& conf_;
   std::string singleSessionId_;
   bool autoExpire_;
@@ -161,6 +164,8 @@ private:
   static std::string appSessionCookie(std::string url);
 
 #endif // WT_TARGET_JAVA
+
+  WServer& server_;
 };
 
 }

@@ -19,7 +19,6 @@
 #include "StdGridLayoutImpl.h"
 #include "WebSession.h"
 
-
 #include <cctype>
 
 namespace Wt {

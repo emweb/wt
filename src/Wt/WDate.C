@@ -22,6 +22,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("WDate");
+
 InvalidDateException::InvalidDateException()
   : WException("Error: Attempted operation on an invalid WDate")
 { }
@@ -82,7 +84,7 @@ void WDate::setDate(int year, int month, int day)
     date d(year, month, day);
     valid_ = true;
   } catch (std::out_of_range& e) {
-    Wt::log("warn") << "Invalid date: " << e.what();
+    LOG_WARN("Invalid date: " << e.what());
   }
 }
 

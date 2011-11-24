@@ -178,28 +178,11 @@ void WPaintedWidget::enableAjax()
   WInteractWidget::enableAjax();
 }
 
-bool WPaintedWidget::createPainter()
+WPaintedWidget::Method WPaintedWidget::getMethod() const
 {
-  if (painter_)
-    return false;
-
-  if (preferredMethod_ == PngImage) {
-    painter_ = new WWidgetRasterPainter(this);
-    return true;
-  }
+  Method method;
 
   const WEnvironment& env = WApplication::instance()->environment();
-
-  /*
-   * For IE < 9: no choice. Use VML
-   */
-  if (env.agentIsIElt(9)) {
-    painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineVml);
-    return true;
-  }
-
-  /* Otherwise, combined preferred method with actual capabilities */
-  Method method;
 
   if (env.contentType() != WEnvironment::XHTML1 &&
       !((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
@@ -241,6 +224,32 @@ bool WPaintedWidget::createPainter()
       else
 	method = preferredMethod_;
     }
+
+  return method;
+}
+
+bool WPaintedWidget::createPainter()
+{
+  if (painter_)
+    return false;
+
+  if (preferredMethod_ == PngImage) {
+    painter_ = new WWidgetRasterPainter(this);
+    return true;
+  }
+
+  const WEnvironment& env = WApplication::instance()->environment();
+
+  /*
+   * For IE < 9: no choice. Use VML
+   */
+  if (env.agentIsIElt(9)) {
+    painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineVml);
+    return true;
+  }
+
+  /* Otherwise, combined preferred method with actual capabilities */
+  Method method = getMethod();
 
   if (method == InlineSvgVml)
     painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineSvg);

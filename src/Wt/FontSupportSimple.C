@@ -30,6 +30,8 @@ namespace {
 
 namespace Wt {
 
+LOGGER("FontSupportSimple");
+	      
 FontSupport::Bitmap::Bitmap(int width, int height)
 { }
 
@@ -136,8 +138,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
 
   if (!boost::filesystem::exists(path)
       || !boost::filesystem::is_directory(path)) {
-    Wt::log("error") << "FontSupport: cannot read directory '"
-		     << directory << "'";
+    LOG_ERROR("cannot read directory '" << directory << "'");
     return FontMatch();
   }
 

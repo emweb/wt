@@ -14,6 +14,8 @@
 
 namespace Wt {
 
+LOGGER("WSelectionBox");
+
 WSelectionBox::WSelectionBox(WContainerWidget *parent)
   : WComboBox(parent),
     verticalSize_(5),
@@ -135,8 +137,7 @@ void WSelectionBox::setFormData(const FormData& formData)
 	  int i = boost::lexical_cast<int>(v);
 	  selection_.insert(i);
 	} catch (boost::bad_lexical_cast& error) {
-	  Wt::log("error") << "WSelectionBox received illegal form value: '"
-			   << v << "'";
+	  LOG_ERROR("received illegal form value: '" << v << "'");
 	}
       }
     }

@@ -551,6 +551,20 @@ std::string Sqlite3::autoincrementSql() const
   return "autoincrement";
 }
 
+std::vector<std::string> 
+Sqlite3::autoincrementCreateSequenceSql(const std::string &table,
+					const std::string &id) const
+{
+  return std::vector<std::string>();
+}
+
+std::vector<std::string> 
+Sqlite3::autoincrementDropSequenceSql(const std::string &table,
+				      const std::string &id) const
+{
+  return std::vector<std::string>();
+}
+
 std::string Sqlite3::autoincrementInsertSuffix() const
 {
   return std::string();

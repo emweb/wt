@@ -47,6 +47,7 @@ public:
   virtual ~FixedSqlConnectionPool();
   virtual SqlConnection *getConnection();
   virtual void returnConnection(SqlConnection *);
+  virtual void prepareForDropTables() const;
 
 private:
   Impl::FixedSqlConnectionPoolImpl *impl_;

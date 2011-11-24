@@ -10,6 +10,8 @@
 
 namespace Wt {
 
+LOGGER("WFitLayout");
+
 WFitLayout::WFitLayout(WWidget *parent)
   : WLayout(),
     item_(0)
@@ -26,7 +28,7 @@ WFitLayout::~WFitLayout()
 void WFitLayout::addItem(WLayoutItem *item)
 {
   if (item_) {
-    Wt::log("error") << "WFitLayout::addItem(): already have a widget";
+    LOG_ERROR("addItem(): already have a widget");
     return;
   }
 
