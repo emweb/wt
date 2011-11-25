@@ -281,14 +281,13 @@ void WDialog::saveCoverState(WApplication *app, WContainerWidget *cover)
 {
   coverWasHidden_ = cover->isHidden();
   coverPreviousZIndex_ = cover->zIndex();
-  previousExposeConstraint_ = app->exposeConstraint();
 }
 
 void WDialog::restoreCoverState(WApplication *app, WContainerWidget *cover)
 {
   cover->setHidden(coverWasHidden_);
   cover->setZIndex(coverPreviousZIndex_);
-  app->constrainExposed(previousExposeConstraint_);
+  app->popExposedConstraint(this);
 }
 
 void WDialog::setHidden(bool hidden, const WAnimation& animation)
@@ -313,7 +312,7 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 	}
 
 	cover->setZIndex(impl_->zIndex() - 1);
-	app->constrainExposed(this);
+	app->pushExposedConstraint(this);
 
 	// FIXME: this should only blur if the active element is outside
 	// of the dialog

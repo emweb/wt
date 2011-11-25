@@ -294,8 +294,12 @@ bool WLogger::logging(const std::string& type) const
   bool result = false;
 
   for (unsigned i = 0; i < rules_.size(); ++i)
-    if (rules_[i].type == "*" || rules_[i].type == type)
-      result = rules_[i].include;
+    if (rules_[i].type == "*" || rules_[i].type == type) {
+      if (rules_[i].scope == "*")
+	result = rules_[i].include;
+      else if (rules_[i].include)
+	result = true;
+    }
 
   return result;
 }

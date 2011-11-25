@@ -231,9 +231,6 @@ protected:
   void restoreExposeMask(WApplication *app);
 
   bool hidden_;
-
-private:
-  WWidget *previousExposeConstraint_;
 };
 
   }

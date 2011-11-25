@@ -275,6 +275,24 @@ namespace Wt {
      */
     const_iterator end() const;
 
+    /*! \brief Returns a reference to the first object.
+     *
+     * This is equivalent to:
+     * \code
+     * *(collection.begin())
+     * \endcode
+     */
+    const C& front() const;
+
+    /*! \brief Returns a reference to the first object.
+     *
+     * This is equivalent to:
+     * \code
+     * *(collection.begin())
+     * \endcode
+     */
+    C& front();
+
     /*! \brief Returns the size.
      *
      * This will execute an SQL <tt>count(*)</tt> statement to fetch the

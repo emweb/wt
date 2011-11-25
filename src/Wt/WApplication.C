@@ -95,7 +95,6 @@ WApplication::WApplication(const WEnvironment& env
     dialogCover_(0),
     quited_(false),
     internalPathsEnabled_(false),
-    exposedOnly_(0),
     loadingIndicator_(0),
     connected_(true),
     bodyHtmlClassChanged_(true),
@@ -462,9 +461,21 @@ WContainerWidget *WApplication::dialogCover(bool create)
   return dialogCover_;
 }
 
-void WApplication::constrainExposed(WWidget *w)
+void WApplication::pushExposedConstraint(WWidget *w)
 {
-  exposedOnly_ = w;
+  exposedOnly_.push_back(w);
+}
+
+void WApplication::popExposedConstraint(WWidget *w)
+{
+  for (unsigned i = exposedOnly_.size(); i > 0; --i) {
+    unsigned j = i - 1;
+    if (exposedOnly_[j] == w) {
+      while (exposedOnly_.size() > j)
+	exposedOnly_.pop_back();
+      break;
+    }
+  }
 }
 
 bool WApplication::isExposed(WWidget *w) const
@@ -472,12 +483,17 @@ bool WApplication::isExposed(WWidget *w) const
   if (!w->isVisible())
     return false;
 
-  if (w != domRoot_ && exposedOnly_) {
-    for (WWidget *p = w; p; p = p->parent())
-      if (p == exposedOnly_ || p == timerRoot_)
-	return true;
-    return false;
-  } else {
+  if (w == domRoot_)
+    return true;
+
+  if (w->parent() == timerRoot_)
+    return true;
+
+  WWidget *exposedOnly = exposedOnly_.empty() ? 0 : exposedOnly_.back();
+
+  if (exposedOnly)
+    return exposedOnly->containsExposed(w);
+  else {
     WWidget *p = w->adam();
     return (p == domRoot_ || p == domRoot2_);
   }
@@ -695,23 +711,10 @@ WApplication::decodeExposedSignal(const std::string& signalName) const
 
   if (i != exposedSignals_.end()) {
 #ifndef WT_TARGET_JAVA
-    WWidget *w = dynamic_cast<WWidget *>(i->second->sender());
+    return i->second;
 #else
-    Wt::EventSignalBase* esb = i->second.get();
-    if (!esb)
-      return 0;
-
-    WWidget *w = dynamic_cast<WWidget *>(i->second.get()->sender());
+    return i->second.get();
 #endif //WT_TARGET_JAVA
-    if (!w || isExposed(w) || boost::ends_with(signalName, ".resized")) {
-#ifndef WT_TARGET_JAVA
-      return i->second;
-#else
-      return i->second.get();
-#endif //WT_TARGET_JAVA
-    }
-    else
-      return 0;
   } else
     return 0;
 }
@@ -720,8 +723,7 @@ EventSignalBase *
 WApplication::decodeExposedSignal(const std::string& objectId,
 				  const std::string& name)
 {
-  std::string signalName
-    = (objectId == "app" ? id() : objectId) + '.' + name;
+  std::string signalName = (objectId == "app" ? id() : objectId) + '.' + name;
 
   return decodeExposedSignal(signalName);
 }

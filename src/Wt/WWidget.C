@@ -470,6 +470,18 @@ bool WWidget::hasParent() const
     return WObject::hasParent();
 }
 
+bool WWidget::containsExposed(WWidget *w) const
+{
+  if (w == this)
+    return true;
+
+  for (WWidget *p = w; p; p = p->parent())
+    if (p == this)
+      return true;
+
+  return false;
+}
+
 WCssTextRule *WWidget::addCssRule(const std::string& selector,
 				  const std::string& declarations,
 				  const std::string& ruleName)

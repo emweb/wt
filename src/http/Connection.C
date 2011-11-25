@@ -214,7 +214,7 @@ void Connection::close()
 
 void Connection::handleError(const asio_error_code& e)
 {
-  LOG_DEBUG(socket().native() << ": erro: " << e.message());
+  LOG_DEBUG(socket().native() << ": error: " << e.message());
 
   close();
 }

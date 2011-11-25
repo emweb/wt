@@ -1930,7 +1930,7 @@ private:
   bool                   quited_;
   std::string            onePixelGifUrl_;
   bool                   internalPathsEnabled_;
-  WWidget               *exposedOnly_;
+  std::vector<WWidget *> exposedOnly_;
   WLoadingIndicator     *loadingIndicator_;
   WWidget               *loadingIndicatorWidget_;
   bool                   connected_;
@@ -2023,14 +2023,14 @@ private:
 #endif // WT_DEBUG_JS
 
   /*
-   * Methods for accessing exposeSignals_
+   * Methods that control exposing of signals
    */
   void setExposeSignals(bool how) { exposeSignals_ = how; }
   bool exposeSignals() const { return exposeSignals_; }
   void doUnload();
 
-  void constrainExposed(WWidget *w);
-  WWidget *exposeConstraint() const { return exposedOnly_; }
+  void pushExposedConstraint(WWidget *w);
+  void popExposedConstraint(WWidget *w);
 
 #ifndef WT_TARGET_JAVA
   int startWaitingAtLock();
@@ -2067,6 +2067,7 @@ private:
   friend class WInteractWidget;
   friend class WLineEdit;
   friend class WMenu;
+  friend class WPopupMenu;
   friend class WResource;
   friend class WSound;
   friend class WString;

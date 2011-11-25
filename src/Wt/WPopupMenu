@@ -309,6 +309,9 @@ public:
    */
   void setAutoHide(bool enabled, int autoHideDelay = 0);
 
+protected:
+  virtual bool containsExposed(WWidget *child) const;
+
 private:
   WTemplate      *impl_;
   WPopupMenuItem *parentItem_, *result_;
@@ -321,7 +324,7 @@ private:
   bool                       recursiveEventLoop_;
   int                        autoHideDelay_;
 
-  WContainerWidget *contents();
+  WContainerWidget *contents() const;
   WPopupMenu *topLevelMenu();
   void        done();
   void        done(WPopupMenuItem *result);

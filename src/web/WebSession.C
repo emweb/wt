@@ -855,30 +855,40 @@ void WebSession::hibernate()
     app_->localizedStrings_->hibernate();
 }
 
-EventSignalBase *WebSession::decodeSignal(const std::string& signalId) const
+EventSignalBase *WebSession::decodeSignal(const std::string& signalId,
+					  bool checkExposed) const
 {
   EventSignalBase *result = app_->decodeExposedSignal(signalId);
 
-  if (result)
-    return result;
-  else {
-    LOG_ERROR("decodeSignal(): signal '" << signalId << "' not exposed");
-    return 0;
+  if (result && checkExposed) {
+    WWidget *w = dynamic_cast<WWidget *>(result->sender());
+    if (w && !app_->isExposed(w))
+      result = 0;
   }
+
+  if (!result && checkExposed)
+    LOG_ERROR("decodeSignal(): signal '" << signalId << "' not exposed");
+
+  return result;
 }
 
 EventSignalBase *WebSession::decodeSignal(const std::string& objectId,
-					  const std::string& name) const
+					  const std::string& name,
+					  bool checkExposed) const
 {
   EventSignalBase *result = app_->decodeExposedSignal(objectId, name);
 
-  if (result)
-    return result;
-  else {
+  if (result && checkExposed) {
+    WWidget *w = dynamic_cast<WWidget *>(result->sender());
+    if (w && !app_->isExposed(w) && name != "resized")
+      result = 0;
+  }
+
+  if (!result && checkExposed)
     LOG_ERROR("decodeSignal(): signal '" << objectId << '.' << name
 	      << "' not exposed");
-    return 0;
-  }
+
+  return result;
 }
 
 WebSession *WebSession::instance()
@@ -1478,6 +1488,22 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
       }
     }
 
+    const std::string *signalE = message->getParameter("signal");
+
+    if (signalE && *signalE == "ping") {
+      if (lock->canWriteAsyncResponse_) {
+	lock->canWriteAsyncResponse_ = false;
+	lock->asyncResponse_->out() << "{}";
+	lock->asyncResponse_->flush
+	  (WebRequest::ResponseFlush,
+	   boost::bind(&WebSession::webSocketReady, session));
+	lock->asyncResponse_->readWebSocketMessage
+	  (boost::bind(&WebSession::handleWebSocketMessage, session));
+      }
+
+      return;
+    }
+
     const std::string *pageIdE = message->getParameter("pageId");
     if (pageIdE	&& *pageIdE
 	!= boost::lexical_cast<std::string>(lock->renderer_.pageId()))
@@ -2050,7 +2076,7 @@ EventType WebSession::getEventType(const WEvent& event) const
 	    else if (*signalE == "user")
 	      return UserEvent;
 	    else {
-	      EventSignalBase* esb = decodeSignal(*s);
+	      EventSignalBase* esb = decodeSignal(*s, false);
 	      WTimerWidget* t = dynamic_cast<WTimerWidget*>(esb->sender());
 	      if (t)
 		++timerSignals;
@@ -2224,7 +2250,7 @@ WebSession::getSignalProcessingOrder(const WEvent& e) const
         *signalE != "none" &&
         *signalE != "poll" &&
         *signalE != "load") {
-      EventSignalBase *signal = decodeSignal(*signalE);
+      EventSignalBase *signal = decodeSignal(*signalE, true);
       if (!signal) {
         // Signal was not exposed, do nothing
       } else if (signal->name() == WFormWidget::CHANGE_SIGNAL) {
@@ -2307,6 +2333,7 @@ void WebSession::notifySignal(const WEvent& e)
 	  if (kind == AutoLearnStateless && request.postDataExceeded())
 	    break;
 
+	  EventSignalBase *s;
 	  if (*signalE == "user") {
 	    const std::string *idE = request.getParameter(se + "id");
 	    const std::string *nameE = request.getParameter(se + "name");
@@ -2314,9 +2341,11 @@ void WebSession::notifySignal(const WEvent& e)
 	    if (!idE || !nameE)
 	      break;
 
-	    processSignal(decodeSignal(*idE, *nameE), se, request, kind);
+	    s = decodeSignal(*idE, *nameE, k == 0);
 	  } else
-	    processSignal(decodeSignal(*signalE), se, request, kind);
+	    s = decodeSignal(*signalE, k == 0);
+
+	  processSignal(s, se, request, kind);
 
 	  if (kind == LearnedStateless && i == 0)
 	    renderer_.discardChanges();

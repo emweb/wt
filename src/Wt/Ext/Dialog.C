@@ -133,7 +133,7 @@ void Dialog::wasHidden()
   // hidden through the 'close' button in the right upper corner
   hidden_ = true;
 
-  WApplication::instance()->constrainExposed(previousExposeConstraint_);
+  WApplication::instance()->popExposedConstraint(this);
 
   reject();
 }
@@ -159,13 +159,12 @@ void Dialog::setHidden(bool hidden, const WAnimation& animation)
 
 void Dialog::setExposeMask(WApplication *app)
 {
-  previousExposeConstraint_ = app->exposeConstraint();
-  app->constrainExposed(this);
+  app->pushExposedConstraint(this);
 }
 
 void Dialog::restoreExposeMask(WApplication *app)
 {
-  app->constrainExposed(previousExposeConstraint_);
+  app->popExposedConstraint(this);
 }
 
 std::string Dialog::extClassName() const

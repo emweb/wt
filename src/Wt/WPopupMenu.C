@@ -60,7 +60,7 @@ WPopupMenu::WPopupMenu()
   hide();
 }
 
-WContainerWidget *WPopupMenu::contents()
+WContainerWidget *WPopupMenu::contents() const
 {
   return dynamic_cast<WContainerWidget *>(impl_->resolveWidget("contents"));
 }
@@ -143,10 +143,11 @@ void WPopupMenu::done(WPopupMenuItem *result)
 
   hide();
 
-  WApplication::instance()->root()->clicked()
-    .disconnect(globalClickConnection_);
-  WApplication::instance()->globalEscapePressed()
-    .disconnect(globalEscapeConnection_);
+  WApplication *app = WApplication::instance();
+
+  app->root()->clicked().disconnect(globalClickConnection_);
+  app->globalEscapePressed().disconnect(globalEscapeConnection_);
+  app->popExposedConstraint(this);
 
   recursiveEventLoop_ = false;
 
@@ -195,6 +196,8 @@ void WPopupMenu::popupImpl()
     = app->root()->clicked().connect(this, &WPopupMenu::done);
   globalEscapeConnection_
     = app->globalEscapePressed().connect(this, &WPopupMenu::done);
+
+  app->pushExposedConstraint(this);
 
   prepareRender(app);
 
@@ -287,6 +290,25 @@ void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
     autoHideDelay_ = autoHideDelay;
   else
     autoHideDelay_ = -1;
+}
+
+bool WPopupMenu::containsExposed(WWidget *w) const
+{
+  if (WCompositeWidget::containsExposed(w))
+    return true;
+
+  if (w == WApplication::instance()->root())
+    return true;
+
+  WContainerWidget *c = contents();
+  for (int i = 0; i < c->count(); ++i) {
+    WPopupMenuItem *item = dynamic_cast<WPopupMenuItem *>(c->widget(i));
+    if (item->popupMenu())
+      if (item->popupMenu()->containsExposed(w))
+	return true;
+  }
+
+  return false;
 }
 
 }

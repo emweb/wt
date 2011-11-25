@@ -307,9 +307,11 @@ private:
   Handler *recursiveEventLoop_;
 
   WResource *decodeResource(const std::string& resourceId);
-  EventSignalBase *decodeSignal(const std::string& signalId) const;
+  EventSignalBase *decodeSignal(const std::string& signalId,
+				bool checkExposed) const;
   EventSignalBase *decodeSignal(const std::string& objectId,
-				const std::string& signalName) const;
+				const std::string& signalName,
+				bool checkExposed) const;
 
   static WObject::FormData getFormData(const WebRequest& request,
 				       const std::string& name);

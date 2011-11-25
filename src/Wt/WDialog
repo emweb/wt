@@ -303,7 +303,6 @@ private:
   WContainerWidget *contents_;
   bool              modal_, resizable_;
 
-  WWidget          *previousExposeConstraint_;
   int               coverPreviousZIndex_;
   bool              coverWasHidden_;
 

@@ -341,6 +341,18 @@ typename collection<C>::const_iterator collection<C>::end() const
 }
 
 template <class C>
+const C& collection<C>::front() const
+{
+  return *(const_iterator(*this, executeStatement()));
+}
+
+template <class C>
+C& collection<C>::front()
+{
+  return *(iterator(*this, executeStatement()));
+}
+
+template <class C>
 typename collection<C>::size_type collection<C>::size() const
 {
   if (type_ == QueryCollection && data_.query.size != -1)
