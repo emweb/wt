@@ -2028,6 +2028,12 @@ EventType WebSession::getEventType(const WEvent& event) const
     return OtherEvent;
     
   Handler& handler = *event.impl_.handler;
+
+#ifndef WT_TARGET_JAVA
+  if (event.impl_.function)
+    return OtherEvent;
+#endif // WT_TARGET_JAVA
+
   WebRequest& request = *handler.request();
 
   if (event.impl_.renderOnly)

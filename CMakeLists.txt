@@ -271,6 +271,7 @@ ELSE(WIN32)
 ENDIF(WIN32)
 OPTION(CONNECTOR_HTTP "Compile in stand-alone httpd connector (libwthttp) ?" ON)
 SET(EXAMPLES_CONNECTOR wthttp CACHE STRING "Connector used for examples")
+SET(TEST_DBO_BACKEND sqlite CACHE STRING "Dbo backed used for running the test suite")
 
 include (CheckSymbolExists)
 

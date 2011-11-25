@@ -7,7 +7,9 @@
 <style type="text/css">
   dt { font-weight: bold; }
   h3 { text-decoration: underline; }
+  dd { margin-top: 10px; margin-bottom: 10px; }
   dd p { margin-top: 0px; }
+  dd div { margin: 10px 0px; }
 </style>
 <title>Wt Release notes</title>
 </head>
@@ -19,6 +21,328 @@ This file lists important notes on migrating existing applications to
 newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
+
+<h2>Release 3.2.0 (November ??, 2011)</h2>
+
+<p>
+  This release contains a number of new modules, as well as the usual
+  batch of <a href="http://redmine.emweb.be/versions/show/13">bug
+  fixes</a> and small feature improvements.
+</p>
+
+<p>
+  In this release we also change the WValidator API in a way that it
+  is likely to break existing applications.
+</p>
+
+<h3>A) New namespaces:</h3>
+
+<dl>
+  <dt>
+    <a href="group__json.html">Wt::Json (JSON handling)</a>
+  </dt>
+  <dd>
+    This namespace contains classes (Object, Value, Array) which map
+    the JSON types in C++. It also contains a parser to deserialize
+    JSON. A writer to serialize to JSON hasn't been added yet.
+  </dd>
+
+  <dt>
+    <a href="group__mail.html">Wt::Mail (SMTP protocol)</a>
+  </dt>
+  <dd>
+    This namespace contains a Client to send mail messages. It is
+    currently offering only limited functionality w.r.t. SMTP protocol
+    handling, but contains enough functionality to send standards
+    compliant plain-text/HTML mails, with full support for unicode.
+  </dd>
+
+  <dt>
+    <a href="group__auth.html">Wt::Auth (Authentication)</a>
+  </dt>
+  <dd>
+    <div>This namespace contains model and view classes for
+      authentication. It implements password authentication using best
+      practices, email verifiation, remember-me tokens, and provisions
+      support for federated login with an implementation of OAuth 2.0
+      for authentication using third party identity providers.</div>
+
+    <div>We expect that the API may still evolve, especially with
+      respect to OAuth 2.0 (which is a draft protocol), and its use
+      for OpenID Connect, which is the main use case for OAuth within
+      the authentication module.</div>
+  </dd>
+</dl>
+
+<h3>B) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WException.html">WException</a>
+  </dt>
+  <dd>
+    We have cleaned up the use of exceptions within Wt. We have
+    converted numerous cases where an exception used to be thrown to
+    error logging, if the exception was thrown to indicate an API
+    problem. When the API problem is not resulting in a corrupt state,
+    we now log the error instead of terminating the session. All other
+    cases now use an exception that implements WException. This does
+    not affect situations where a std::exception was advertised in the
+    API.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WIOService.html">WIOService</a>
+  </dt>
+  <dd>
+    <div>
+      Previously, boost::asio was used only in the built-in httpd as a
+      portable asynchronous I/O reactor implementation. We have now
+      moved this into the Wt library itself, where it is now used
+      instead of a dedicated thread pool for dispatching requests (and
+      other server events), and where it is also used for asynchronous
+      I/O by e.g. the Http::Client.
+    </div>
+    <div>
+      The WIOService specializes a boost::asio::service, and integrates
+      the thread pool that runs the service.
+    </div>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WStringStream.html">WStringStream</a>
+  </dt>
+  <dd>
+    This is a utility class that we have used since long in Wt. It is
+    a more efficient replacement for std::stringstream, with mostly a
+    compatible API (at least for our purposes). For our purposes it is
+    typically a factor of two or more faster.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Http_1_1Client.html">Http::Client</a>, 
+    <a href="classWt_1_1Http_1_1Message.html">Http::Message</a>
+  </dt>
+  <dd>
+    <div>We have added an implementation of a Http(s) client. The client
+    is intended for consuming web services in Wt, and handles GET or
+    POST requests. It is not suitable (yet) for large responses, since
+    it buffers the entire response internally.</div>
+    <div>The client uses asynchronous I/O, using the WIOService that is
+    found in the current WServer instance.</div>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1backend_1_1Firebird.html">Dbo::Firebird</a>
+  </dt>
+  <dd>
+    <div>Lukasz Matuszewski contributed a Firebird backend
+    implementation, thanks !</div>
+  </dd>
+</dl>
+
+<h3>C) Main improvements:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a>
+  </dt>
+  <dd>
+    Added a setHeaderWordWrap() method which configures header text
+    word wrapping, and changed setHeaderAlignemnt() so that it now
+    allows to change both the horizontal and vertical alignment. This
+    replaces the previously interwoven API for both features using the
+    multiLine parameter in setHeaderHeight(), which has been
+    deprecated. The rendering of the header items has been
+    reimplemented, simplified, and cleaned up in the process, avoiding
+    rendering problems on IE browsers.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WApplication.html">WApplication</a>
+  </dt>
+  <dd>
+    Two new methods, deferRendering() and resumeRendering() can be
+    used to defer the rendering phase in response to the current
+    event-loop request. This is useful for situations where you are
+    waiting for an asynchronous operation to complete, but want to
+    handle this synchronously in the user-interface (i.e. blocking the
+    interface until the operation completes). While this is not a good
+    idea in general, it may be useful if you can guarantee that the
+    event will arrive within an acceptible time (e.g. 1 second). This
+    effectively stalls the response to the current request, but avoids
+    blocking threads in the process.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WDialog.html">WDialog</a>
+  </dt>
+  <dd>
+    Added setClosable(), which adds a close icon into the title bar.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WFormWidget.html">WFormWidget</a>
+  </dt>
+  <dd>
+    We have cleaned up the use of exceptions within Wt. We have
+    converted numerous cases where an exception used to be thrown to
+    error logging, if the exception was thrown to indicate an API
+    problem. When the API problem is not resulting in a corrupt state,
+    we now log the error instead of terminating the session. All other
+    cases now use an exception that implements WException. This does
+    not affect situations where a std::exception was advertised in the
+    API.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WLogger.html">WLogger</a>
+  </dt>
+  <dd>
+    <div>
+      We have reorganized the logging within Wt. Internally, a number
+      of macros are now used for logging, with as default
+      implementation our own (simple) logger, but which can be
+      redefined to use instead another logging framework of your
+      choice, as some have rightfully requested.
+    </div>
+    <div>
+      But we've also improved our logger so that it now can be
+      configured to filter only certain information, based on type and
+      scope. This is mostly useful for debuggin and development of Wt
+      itself, since it allows us to switch on debugging output, in a
+      fine-grained way, in a debug build.
+    </div>
+    <div>Finally, a new global function has been added (Wt::log()) which
+      selects an appropriate logger for logging and is more convenient
+      than WApplication::log() which required an application instance.
+    </div>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WTemplate.html">WTemplate</a>
+  </dt>
+  <dd>
+    <div>Arguments to bound functions are now parsed and passed to
+      the resolveString() methods.</div>
+
+    <div>Two new constructs have been added: conditions and
+      functions. Conditions allow certain parts of a template to be
+      skipped or included based on a bound condition. Functions are
+      useful to automatically resolve certain variables, two built-in
+      functions are implemented: one to resolve strings in a message
+      resource bundle ("tr"), and another to resolve the id of a bound
+      widget ("id").
+    </div>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1collection.html">Dbo::collection&lt;T&gt;</a>
+  </dt>
+  <dd>
+    We've added front() methods that return the first element.
+  </dd>
+
+  <dt>
+    Built-in httpd connector
+  </dt>
+  <dd>
+    We have expanded the WebSockets implementation to cover newer
+    versions of the WebSockets protocol (draft): next to 00, we now
+    also support 07, 08 and 13 protocols (with draft-17 semantics).
+  </dd>
+
+  <dt>
+    Configuration
+  </dt>
+  <dd>
+    On UNIX-like platforms, and using the built-in httpd connector,
+    SIGHUP is caught in the WServer::waitForShutdown() utility function,
+    and the configuration file (wt_config.xml) is reread.
+  </dd>
+
+  <dt>
+    Several security improvements
+  </dt>
+  <dd>
+    <dl>
+      <dt>DoS mitigation</dt>
+      <dd>We have added two measures to prevent DoS attacks that try
+	to exhaust the server by spawning sessions. This is in
+	particular a risk when deploying using the progressive bootstrap
+	method, since then a plain HTML session can be spawned with a
+	single request.
+	<ul>
+	  <li>Plain sessions may be limited to constitute only a
+	  fraction of the total number of sessions. This is configured
+	  using the &lt;plain-ajax-sessions-ratio-limit&gt;
+	  configuration option.</li>
+	  <li>Ajax sessions need to confirm their "intelligence" by
+	  solving a puzzle which requires them to properly parse the
+	  (ever-changing) JavaScript and HTML.</li>
+	</ul>
+      </dd>
+      <dt>Compromised session ID risk reduction</dt>
+      <dd>
+	A compromised session ID no longer can be used to hijack that
+	session.
+	<ul>
+	  <li>A full page refresh (using the session ID to rerender
+	    the current application state) is no longer allowed unless
+	    both client IP address and user-agent are unchanged. To
+	    still enable page refresh in this situation, you may
+	    configure the use of a cookie which can be used to confirm
+	    the original browser (although that cookie will not be
+	    used for session tracking), using the
+	    &lt;session-id-cookie&gt; setting.</li>
+	  <li>
+	    The session ID cannot be used to POST events to an Ajax
+	    session, since these require proof of other ever-changing
+	    context specific information, notably a pageId and ackId.
+	  </li>
+	</ul>
+      </dd>
+    </dl>
+  </dd>
+
+</dl>
+
+<h3>D) Non-backwards compatible changes</h3>
+
+<dl>
+  <dt>
+    Build options
+  </dt>
+  <dd>The HTTP_WITH_SSL option has been removed, and is now replaced
+    by WT_WITH_SSL -- OpenSSL is now a dependency of Wt inherited by
+    the httpd.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WValidator.html">WValidator</a>
+  </dt>
+  <dd>
+    We broke the validate() method, to return a new WValidator::Result
+    instead of WValidator::State. The main improvement is that the
+    validation may also return a text which contains information on
+    why validation failed. This makes the API consistent with the
+    client-side API, and obviously much more useful. It will break
+    existing application that call validate() or have reimplemented
+    validate() in a custom validation class.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Test_1_1WTestEnvironment.html">WTestEnvironment</a>
+  </dt>
+  <dd>
+    This class has moved to a pseudo-connector library
+    (libwttest). This was needed to be able to use asynchronous I/O
+    (such as Http::Client) in test cases, which rely on a WIOService
+    fournished by a WServer instance.
+  </dd>
+</dl>
+
+<hr>
 
 <h2>Release 3.1.11 (September 23, 2011)</h2>
 

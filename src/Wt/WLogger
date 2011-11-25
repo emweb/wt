@@ -358,11 +358,21 @@ WT_API extern WLogEntry log(const std::string& type);
 #   define LOGGER(s) \
       static log4cplus::Logger logger = log4cplus::Logger::getInstance(s)
 
-#   define LOG_DEBUG(m) LOG4CPLUS_DEBUG(logger, m)
-#   define LOG_NOTICE(m) LOG4CPLUS_INFO(logger, m)
-#   define LOG_WARN(m) LOG4CPLUS_WARN(logger, m)
-#   define LOG_AUTH(m) LOG4CPLUS_ERROR(logger, "auth: " << m)
-#   define LOG_ERROR(m) LOG4CPLUS_ERROR(logger, m)
+#   ifdef WT_DEBUG_ENABLED
+#    define LOG_DEBUG(m) LOG4CPLUS_DEBUG(Wt::logger, m)
+#    define LOG_DEBUG_S(s,m) LOG_DEBUG(m)
+#   else
+#    define LOG_DEBUG(m)
+#    define LOG_DEBUG_S(s,m)
+#   endif
+#   define LOG_INFO(m) LOG4CPLUS_INFO(Wt::logger, m)
+#   define LOG_INFO_S(s,m) LOG_NOTICE(m)
+#   define LOG_WARN(m) LOG4CPLUS_WARN(Wt::logger, m)
+#   define LOG_WARN_S(s,m) LOG_WARN(m)
+#   define LOG_SECURE(m) LOG4CPLUS_ERROR(Wt::logger, "auth: " << m)
+#   define LOG_SECURE_S(s,m) LOG_SECURE(m)
+#   define LOG_ERROR(m) LOG4CPLUS_ERROR(Wt::logger, m)
+#   define LOG_ERROR_S(s,m) LOG_ERROR(m)
 
 #  endif // LOG4CPLUS
 # else // WT_TARGET_JAVA

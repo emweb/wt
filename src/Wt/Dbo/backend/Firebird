@@ -11,6 +11,7 @@
 
 #include <Wt/Dbo/SqlConnection>
 #include <Wt/Dbo/SqlStatement>
+#include <Wt/Dbo/backend/WDboFirebirdDllDefs.h>
 
 namespace IBPP {
   struct IDatabase;
@@ -24,25 +25,26 @@ namespace Wt {
     namespace backend {
       class Firebird_impl;
 
-      /*! \class Firebird 
-       *  \brief A Firebird Dbo backend sql connection
+      /*! \class Firebird Wt/Dbo/backend/Firebird
+       *  \brief A %Firebird connection
        *
-       * This class provides the Dbo backend implementation for 
-       * FirebirdSQL databases version 2.1 or higher.
+       * This class provides the backend implementation for %Firebird
+       * databases. It supports %Firebird databases with version 2.1
+       * or higher.
        *
        * \ingroup dbo
        */
-      class Firebird : public SqlConnection
+      class WTDBOFIREBIRD_API Firebird : public SqlConnection
       {
       public:
-        /*! \brief Creates new Firebird Dbo backend connection.
+        /*! \brief Creates a %Firebird backend connection.
          *
          * The connection is not yet open, and requires a connect() before it
          * can be used.
          */
         Firebird();
 
-        /*! \brief Opens a new Firebird Dbo backend connection.
+        /*! \brief Creates and opens a %Firebird backend connection.
          */
         Firebird(const std::string& ServerName,
 		 const std::string& DatabaseName, 
@@ -52,18 +54,27 @@ namespace Wt {
 		 const std::string& CharSet = std::string(), 
 		 const std::string& CreateParams = std::string());
 
-	/*! \brief Copies a Firebird Dbo backed connection.
-         */
+	/*! \brief Creates and opens a %Firebird backend connection.
+	 */
         Firebird(IBPP::Database db);
 
-        /*! \brief Construct a Firebird Dbo backed connection based on 
-	 *   a connected IBPP::Database instance.
+        /*! \brief Copy constructor.
+	 *
+	 * This creates a new backend connection with the same settings
+	 * as another connection.
          */
         Firebird(const Firebird& other);
 	
+        /*! \brief Destructor.
+         *
+         * Closes the connection.
+         */
+        virtual ~Firebird();
+
 	/*! \brief Tries to connect.
          *
-         * Throws an exception if there was a problem, otherwise true.
+         * Throws an exception if there was a problem, otherwise
+         * returns \c true.
          */
 	bool connect(const std::string& ServerName,
 		     const std::string& DatabaseName, 
@@ -73,15 +84,9 @@ namespace Wt {
 		     const std::string& CharSet = std::string(), 
 		     const std::string& CreateParams = std::string());
 
-        /*! \brief Destructor.
-         *
-         * Closes the connection.
-         */
-        virtual ~Firebird();
-
         virtual Firebird *clone() const;
 
-        /*! \brief Returns the underlying connection.
+        /*! \brief Returns the underlying connection handle.
          */
         IBPP::Database connection();
 
@@ -96,21 +101,20 @@ namespace Wt {
         //@{
         virtual std::string autoincrementSql() const;
         virtual std::vector<std::string> 
-	autoincrementCreateSequenceSql(const std::string &table,
-				       const std::string &id) const;
+	  autoincrementCreateSequenceSql(const std::string &table,
+					 const std::string &id) const;
 	virtual std::vector<std::string> 
-	autoincrementDropSequenceSql(const std::string &table,
-				     const std::string &id) const;
+	  autoincrementDropSequenceSql(const std::string &table,
+				       const std::string &id) const;
         virtual std::string autoincrementType() const;
         virtual std::string autoincrementInsertSuffix() const;
         virtual const char *dateTimeType(SqlDateTimeType type) const;
         virtual const char *blobType() const;
         virtual const char *textType() const;
 	virtual const char *booleanType() const;
-        //@}
-
         virtual bool usesRowsFromTo() const;
-
+	//@}
+ 
 	virtual void prepareForDropTables();
 	
       private:

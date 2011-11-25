@@ -21,12 +21,18 @@ namespace Wt {
  * composed from many different pieces (avoiding any memory allocation
  * all-together).
  *
- * It also avoids overhead because of localization issues which seem
- * to hamper std::stringstream performance.
+ * Compared to std::stringstream, it also avoids overhead by not
+ * supporting the formatting options of the latter, and by not making
+ * use of the std::locale, which apparently hampers std::ostream
+ * performance (%Wt internally uses UTF-8 encoding throughout).
  */
 class WT_API WStringStream
 {
 public:
+  /*! \brief An implementation of an output generator for appending data.
+   *
+   * \sa back_inserter()
+   */
   struct iterator {
     struct char_proxy {
       char_proxy& operator= (char c);
@@ -54,7 +60,7 @@ public:
 
   /*! \brief Default constructor.
    *
-   * Creates a string stream with internal buffering.
+   * Creates a string stream.
    */
   WStringStream();
 
@@ -71,9 +77,11 @@ public:
 
   /*! \brief Constructor with std::ostream sink.
    *
-   * Creates a string stream which flushes contents to an ostream.
-   * The output is still internally buffered, and you need to delete
-   * the stringstream to flush its final contents.
+   * Creates a string stream which flushes contents to an
+   * std::ostream, instead of relying on internal buffering. The
+   * output may still be internally buffered (for performance
+   * reasons), and this buffer is only flushed to the underlying ostream
+   * when you delete the string stream.
    */
   WStringStream(std::ostream& sink);
 

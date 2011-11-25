@@ -96,11 +96,11 @@ public:
 		   EntryPointType type = Application);
 #endif // WT_TARGET_JAVA
 
-  /**! \brief Destructor.
+  /*! \brief Destructor.
    */
   ~WTestEnvironment();
 
-  /** \brief Sets parameters to the application.
+  /*! \brief Sets parameters to the application.
    *
    * The default value is an empty map.
    *
@@ -108,7 +108,7 @@ public:
    */
   void setParameterMap(const Http::ParameterMap& parameters);
 
-  /** \brief Sets HTTP cookies.
+  /*! \brief Sets HTTP cookies.
    *
    * The default value is an empty map.
    *
@@ -116,7 +116,7 @@ public:
    */
   void setCookies(const CookieMap& cookies);
 
-  /** \brief Sets a HTTP header value.
+  /*! \brief Sets a HTTP header value.
    *
    * The default value is no headers.
    *
@@ -124,7 +124,7 @@ public:
    */
   void setHeaderValue(const std::string& value);
 
-  /** \brief Sets whether cookies are supported.
+  /*! \brief Sets whether cookies are supported.
    *
    * The default value is <i>true</i>.
    *
@@ -132,7 +132,7 @@ public:
    */
   void setSupportsCookies(bool enabled);
 
-  /** \brief Sets whether AJAX is supported.
+  /*! \brief Sets whether AJAX is supported.
    *
    * The default value is <i>true</i>.
    *
@@ -140,7 +140,7 @@ public:
    */
   void setAjax(bool enabled);
 
-  /** \brief Sets the display's DPI scale.
+  /*! \brief Sets the display's DPI scale.
    *
    * The default value is 1.
    *
@@ -148,7 +148,7 @@ public:
    */
   void setDpiScale(double dpiScale);
 
-  /** \brief Sets the locale.
+  /*! \brief Sets the locale.
    *
    * The default value is "en".
    *
@@ -156,7 +156,7 @@ public:
    */
   void setLocale(const WT_LOCALE& locale);
 
-  /** \brief Sets the host name.
+  /*! \brief Sets the host name.
    *
    * The default value is "localhost".
    *
@@ -164,7 +164,7 @@ public:
    */
   void setHostName(const std::string& hostName);
 
-  /** \brief Sets the URL scheme.
+  /*! \brief Sets the URL scheme.
    *
    * The default value is "http".
    *
@@ -172,7 +172,7 @@ public:
    */
   void setUrlScheme(const std::string& scheme);
 
-  /** \brief Sets the user agent.
+  /*! \brief Sets the user agent.
    *
    * The default value is no "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.11) Gecko/2009060309 Ubuntu/9.04 (jaunty) Firefox/3.0.11".
    *
@@ -180,7 +180,7 @@ public:
    */
   void setUserAgent(const std::string& userAgent);
 
-  /** \brief Sets the referer.
+  /*! \brief Sets the referer.
    *
    * The default value is "".
    *
@@ -188,7 +188,7 @@ public:
    */
   void setReferer(const std::string& referer);
 
-  /** \brief Sets the accept header.
+  /*! \brief Sets the accept header.
    *
    * \htmlonly
    * The default value is
@@ -199,7 +199,7 @@ public:
    */
   void setAccept(const std::string& accept);
 
-  /** \brief Sets the server signature.
+  /*! \brief Sets the server signature.
    *
    * The default value is "None (WTestEnvironment)".
    *
@@ -207,7 +207,7 @@ public:
    */
   void setServerSignature(const std::string& signature);
 
-  /** \brief Sets the server software.
+  /*! \brief Sets the server software.
    *
    * The default value is "None (WTestEnvironment)".
    *
@@ -215,7 +215,7 @@ public:
    */
   void setServerSoftware(const std::string& software);
 
-  /** \brief Sets the server admin.
+  /*! \brief Sets the server admin.
    *
    * The default value is "your@onyourown.here".
    *
@@ -223,7 +223,7 @@ public:
    */
   void setServerAdmin(const std::string& serverAdmin);
 
-  /** \brief Sets the client address.
+  /*! \brief Sets the client address.
    *
    * The default value is "127.0.0.1".
    *
@@ -231,7 +231,7 @@ public:
    */
   void setClientAddress(const std::string& clientAddress);
 
-  /** \brief Sets the initial internal path.
+  /*! \brief Sets the initial internal path.
    *
    * The default value is "".
    *
@@ -239,7 +239,7 @@ public:
    */
   void setInternalPath(const std::string& internalPath);
 
-  /** \brief Sets the content type.
+  /*! \brief Sets the content type.
    *
    * The default value is XHTML1.
    *
@@ -247,7 +247,7 @@ public:
    */
   void setContentType(ContentType contentType);
 
-  /** \brief Signal used to test a dialog/messagebox reentrant event
+  /*! \brief %Signal used to test a dialog/messagebox reentrant event
    *         loop.
    *
    * This signal is emitted when a dialog or message box is being
@@ -260,7 +260,7 @@ public:
    */
   virtual Signal<WDialog *>& dialogExecuted() const;
 
-  /** \brief Signal used to test a popup menu reentrant event loop.
+  /*! \brief %Signal used to test a popup menu reentrant event loop.
    *
    * This signal is emitted when a popup menu is being executed using
    * WPopupMenu::exec(), and allows you to interact with the popup
@@ -270,7 +270,21 @@ public:
    */
   virtual Signal<WPopupMenu *>& popupExecuted() const;
 
+  /*! \brief Simulates the end of a request by the main event loop.
+   *
+   * The environemnt (and application is) started from within the main
+   * event loop. To simulate the delivery of events posted to the
+   * application-under-test, by WServer::post(), you need to simulate
+   * the release of the session lock.
+   * 
+   * \sa startRequest()
+   */
   void endRequest();
+
+  /*! \brief Simulates the start of a new request by the main event loop.
+   *
+   * \sa endRequest()
+   */
   void startRequest();
 
 private:

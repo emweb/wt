@@ -525,9 +525,6 @@ namespace Wt
 	return new FirebirdStatement(*this, sql);
       }
 
-      /**
-       * Auto increment in Firebird is done thru Before Insert Trigger...
-       */
       std::string Firebird::autoincrementType() const
       {
 	return "bigint";

@@ -44,6 +44,11 @@ public:
   Postgres(const std::string& db);
 
   /*! \brief Copies a PostgreSQL connection.
+   *
+   * This creates a new connection with the same settings as another
+   * connection.
+   *
+   * \sa clone()
    */
   Postgres(const Postgres& other);
 
