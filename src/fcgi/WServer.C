@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <signal.h>
 
 #include "Configuration.h"
 #include "FCGIStream.h"

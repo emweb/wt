@@ -325,7 +325,22 @@ private:
   friend class WLogger;
 };
 
+#ifdef DOXYGEN_ONLY
+/*! \file */
+/*! \brief Logging function
+ *
+ * This creates a new log entry, e.g.:
+ *
+ * \code
+ * Wt::log("info") << "Doing something interesting now with " << appleCount() << " apples.";
+ * \endcode
+ *
+ * \relates WLogger
+ */
+extern WLogEntry log(const std::string& type);
+#else
 WT_API extern WLogEntry log(const std::string& type);
+#endif
 
 }
 

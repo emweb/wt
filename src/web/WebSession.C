@@ -1567,8 +1567,10 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
 
 void WebSession::pushUpdates()
 {
-  if (!renderer_.isDirty() || state_ == Dead)
+  if (!renderer_.isDirty() || state_ == Dead) {
+    LOG_DEBUG("pushUpdates(): nothing to do");
     return;
+  }
 
   updatesPending_ = true;
 
@@ -1868,7 +1870,8 @@ void WebSession::notify(const WEvent& event)
 	   */
 	  const std::string *ackIdE = request.getParameter("ackId");
 	  bool invalidAckId = env_->ajax() && !request.isWebSocketMessage(); 
-	  if (ackIdE) {
+
+	  if (invalidAckId && ackIdE) {
 	    try {
 	      if (renderer_.ackUpdate(boost::lexical_cast<unsigned>(*ackIdE)))
 		invalidAckId = false;

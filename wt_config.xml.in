@@ -337,7 +337,7 @@
 
 	<!-- Enables web socket.
 
-	   By default AJAX and long polling are used to communicate
+	   By default Ajax and long polling are used to communicate
 	   between server and browser.
 
            By enabling web socket support, if the browser supports
@@ -351,9 +351,8 @@
            for this protocol.
 
            This feature is still experimental: the Web Sockets RFC is
-           still a draft with ongoing changes to the framing protocol,
-	   and the current implementation is based on
-	   http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-00
+           still a draft. Wt implements up to version 17 of the draft
+	   (latest as of November 2011).
 	  -->
 	<web-sockets>false</web-sockets>
 
@@ -400,21 +399,21 @@
 	<!-- Ajax user agent list
 
            Wt considers three types of sessions:
-	   - AJAX sessions: use AJAX and JavaScript
+	   - Ajax sessions: use Ajax and JavaScript
 	   - plain HTML sessions: use plain old server GETs and POSTs
 	   - bots: have clean internal paths and no persistent sessions
 
            By default, Wt does a browser detection to distinguish between
 	   the first two: if a browser supports JavaScript (and has it
-	   enabled), and has an AJAX DOM API, then AJAX sessions are chosen,
+	   enabled), and has an Ajax DOM API, then Ajax sessions are chosen,
 	   otherwise plain HTML sessions.
 
            Here, you may indicate which user agents should or should
-           not receive an AJAX session regardless of what they report as
+           not receive an Ajax session regardless of what they report as
 	   capabilities.
 
            Possible values for 'mode' or "white-list" or "black-list". A
-	   white-list will only treat the listed agents as supporting AJAX,
+	   white-list will only treat the listed agents as supporting Ajax,
 	   all other agents will be served plain HTML sessions. A black-list
 	   will always server plain HTML sessions to listed agents and
 	   otherwise rely on browser capability detection.
@@ -444,11 +443,11 @@
 
 	<!-- Whether the progressive bootstrap is used.
 
-	   The default bootstrap method first senses whether there is AJAX
+	   The default bootstrap method first senses whether there is Ajax
 	   support, and only then creates the application.
 
 	   The progressive bootstrap method first renders a plain HTML
-	   version and later upgrades to an AJAX version.
+	   version and later upgrades to an Ajax version.
 	  -->
 	<progressive-bootstrap>false</progressive-bootstrap>
 
