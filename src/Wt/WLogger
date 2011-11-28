@@ -365,6 +365,7 @@ WT_API extern WLogEntry log(const std::string& type);
 #    define LOG_DEBUG(m)
 #    define LOG_DEBUG_S(s,m)
 #   endif
+
 #   define LOG_INFO(m) LOG4CPLUS_INFO(Wt::logger, m)
 #   define LOG_INFO_S(s,m) LOG_NOTICE(m)
 #   define LOG_WARN(m) LOG4CPLUS_WARN(Wt::logger, m)

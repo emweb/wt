@@ -1386,9 +1386,9 @@ void WebSession::handleRequest(Handler& handler)
 	break;
       }
       case Dead:
-	throw WException("Internal error: WebSession is dead?");
+	LOG_INFO("Request to dead session, ignoring");
+	break;
       }
-
     } catch (WException& e) {
       LOG_ERROR("Fatal error: " << e.what());
 

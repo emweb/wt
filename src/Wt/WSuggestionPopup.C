@@ -99,10 +99,12 @@ void WSuggestionPopup::init()
   impl_->bindWidget("contents", content_ = new WContainerWidget());
   content_->setStyleClass("content");
 
-  setAttributeValue("style", "z-index: 10000");
+  /*
+   * We use display: none because logically, the popup is visible and
+   * propagates signals
+   */
+  setAttributeValue("style", "z-index: 10000; display: none");
   setPositionScheme(Absolute);
-
-  hide();
 
   setModel(new WStringListModel(this));
 
@@ -301,7 +303,7 @@ void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 void WSuggestionPopup::showAt(WFormWidget *edit)
 {
   doJavaScript("jQuery.data(" + jsRef() + ", 'obj').showAt("
-	       + edit->jsRef() + ")");
+	       + edit->jsRef() + ");");
 }
 
 void WSuggestionPopup::removeEdit(WFormWidget *edit)
@@ -340,7 +342,7 @@ void WSuggestionPopup::doFilter(std::string input)
   filtering_ = false;
 
   doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
-	       + WWebWidget::jsStringLiteral(input) + ")");
+	       + WWebWidget::jsStringLiteral(input) + ");");
 }
 
 void WSuggestionPopup::doActivate(std::string itemId, std::string editId)

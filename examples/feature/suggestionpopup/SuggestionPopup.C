@@ -125,7 +125,7 @@ private:
 
   void serverSideFilteringPopups(Wt::WContainerWidget *parent)
   {
-    fourCharModel_ = new Wt::WStandardItemModel(0, 1);
+    fourCharModel_ = new Wt::WStandardItemModel(0, 1, this);
 
     Wt::WSuggestionPopup *popup = createAliasesMatchingPopup(parent);
     popup->setModel(fourCharModel_);

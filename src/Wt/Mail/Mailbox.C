@@ -7,6 +7,8 @@
 #include "Mailbox"
 #include "Message"
 
+#include <iostream>
+
 namespace Wt {
   namespace Mail {
 
