@@ -1139,7 +1139,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
 void WebRenderer::setJSSynced(bool invisibleToo)
 {
-  LOG_DEBUG("setJSSynced: " << invisibleToo);
+  //LOG_DEBUG("setJSSynced: " << invisibleToo);
   collectedJS1_.str("");
   collectedJS2_.str("");
 

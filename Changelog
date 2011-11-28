@@ -1,3 +1,6 @@
+29-11-2011:
+	* Released: 3.2.0
+
 21-11-2011:
 	* Wt/Dbo/backend/Firebird: merged Firebird backend contributed by
 	Lukasz Matuszewski.
