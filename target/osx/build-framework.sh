@@ -14,7 +14,7 @@
 
 : ${BUILD_DIR:=`pwd`}
 : ${WT_DIR:=`pwd`/..}
-: ${WT_VERSION:=3_1_11}
+: ${WT_VERSION:=3_2_0}
 : ${FRAMEWORKDIR:=`pwd`}
 
 BUILD_ARMV6_DIR=$BUILD_DIR/build-armv6

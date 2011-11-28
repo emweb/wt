@@ -7,15 +7,12 @@
 #ifndef WT_TARGET_JAVA
 // bugfix for https://svn.boost.org/trac/boost/ticket/5722
 #include <boost/asio.hpp>
+#include "Wt/WIOService"
 #endif // WT_TARGET_JAVA
 
 #include "Configuration.h"
 #include "WebController.h"
 #include "WebSession.h"
-
-#ifndef WT_TARGET_JAVA
-#include "Wt/WIOService"
-#endif // WT_TARGET_JAVA
 
 #include "Wt/WServer"
 #include "Wt/Test/WTestEnvironment"

@@ -45,6 +45,8 @@ int main(int argc, char **argv)
 
     server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
+    BlogSession::configureAuth();
+
     BlogRSSFeed rssFeed(server.appRoot() + "blog.db", "Wt blog example",
       "", "It's just an example.");
 
@@ -52,8 +54,6 @@ int main(int argc, char **argv)
     //When the blog application is deployed in ISAPI on the path "/blog"
     //the resources (css+images) are not fetched correctly
     server.addEntryPoint(Application, createApplication, BlogUrl);    
-
-    BlogSession::configureAuth();
 
     std::cerr << "\n\n -- Warning: Example is deployed at '"
       << BlogUrl << "'\n\n";

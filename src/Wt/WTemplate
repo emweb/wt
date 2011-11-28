@@ -60,7 +60,7 @@ namespace Wt {
  *       are rendered but aren't actually. We are planning to add a syntax
  *       for conditional sections
  *
- * <h3>B. Functions</h3>
+ * <h3>B. %Functions</h3>
  *
  * <tt>${fun:arg}</tt> defines a placeholder for applying a function
  * "fun" to an argument "arg".
@@ -69,7 +69,7 @@ namespace Wt {
  * variable placeholder.
  *
  * Functions are resolved by resolveFunction(), and the default implementation
- * considers functions bound with bindFunction(). There are currently two
+ * considers functions bound with addFunction(). There are currently two
  * functions that are generally useful:
  * - Functions::tr() resolves a localized strings. This is convenient to
  *   create a language neutral template, which contains translated strings
@@ -111,7 +111,7 @@ public:
 #ifndef WT_TARGET_JAVA
   /*! \brief A collection of predefined functions
    *
-   * \sa bindFunction()
+   * \sa addFunction()
    */
   struct Functions
   {
@@ -127,7 +127,7 @@ public:
      *   WString::tr("name")
      * \endcode
      *
-     * \sa bindFunction()
+     * \sa addFunction()
      */
     static bool tr(WTemplate *t, const std::vector<WString>& args,
 		   std::ostream& result);
@@ -146,7 +146,7 @@ public:
      *
      * This is useful for binding labels to input elements.
      *
-     * \sa bindFunction()
+     * \sa addFunction()
      */
     static bool id(WTemplate *t, const std::vector<WString>& args,
 		   std::ostream& result);
@@ -154,7 +154,7 @@ public:
 
   /*! \brief A function type
    *
-   * \sa bindFunction()
+   * \sa addFunction()
    * \sa Functions::tr(), Functions::id()
    */
   typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
@@ -186,7 +186,7 @@ public:
 
   /*! \brief Returns the template.
    *
-   * \sa setTemplateText(const WString&)
+   * \sa setTemplateText()
    */
   const WString& templateText() const { return text_; }
 
@@ -261,8 +261,8 @@ public:
    * There are two predefined functions, which can be bound using:
    * \code
    * WTemplate *t = ...;
-   * t->bindFunction("id", &WTemplate::Functions::id);
-   * t->bindFunction("tr", &WTemplate::Functions::tr);
+   * t->addFunction("id", &WTemplate::Functions::id);
+   * t->addFunction("tr", &WTemplate::Functions::tr);
    * \endcode
    */
   void addFunction(const std::string& name, const Function& function);
@@ -363,9 +363,9 @@ public:
    * returns whether a function was matched and applied.
    *
    * The default implementation considers functions that were bound
-   * using bindFunction().
+   * using addFunction().
    *
-   * \sa bindFunction()
+   * \sa addFunction()
    */
   virtual bool resolveFunction(const std::string& name,
 			       const std::vector<WString>& args,

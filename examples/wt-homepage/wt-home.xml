@@ -1079,10 +1079,11 @@ installation instructions</a>.
 
 <h4>Git repository</h4>
 
+<a href="https://github.com/kdeforche/wt"><img style="display: block; width: 80px; float: right" src="https://github.com/github/media/blob/master/octocats/octocat.png?raw=true"></img></a>
 <p>If you want to keep track of the latest changes, or participate in
-Wt development, you may want to use
-the <a href="https://github.com/kdeforche/wt">git repository
-(github)</a>.</p>
+Wt development, you may want to work from
+the <a href="https://github.com/kdeforche/wt">github
+repository</a>.</p>
 
 <p>
 Alternatively checkout the repository using:

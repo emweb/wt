@@ -606,6 +606,15 @@ during one year, and costs &euro;599.
   </message>
 
   <message id="home.download.other">
+
+<p>As of JWt 3.1.11, JWt is also available in Maven and can be added
+to a project using:
+  <pre class="fragment">&lt;dependency&gt;
+  &lt;groupId&gt;eu.webtoolkit&lt;/groupId&gt;
+  &lt;artifactId&gt;jwt&lt;/artifactId&gt;
+  &lt;version&gt;3.1.11&lt;/version&gt;
+&lt;/dependency&gt;</pre></p>
+
 <h4>System requirements</h4>
 
 For building and using the latest version of JWt, you should follow the  <a
@@ -614,9 +623,11 @@ href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html#getting-s
 
 <h4>Git repository</h4>
 
+<a href="https://github.com/kdeforche/jwt"><img style="display: block; width: 80px; float: right" src="https://github.com/github/media/blob/master/octocats/octocat.png?raw=true"></img></a>
 <p>If you want to keep track of the latest changes, or participate in
-Wt development, you may want to use
-the <a href="https://github.com/kdeforche/jwt">git repository (github)</a>.</p>
+JWt development, you may want to work from
+the <a href="https://github.com/kdeforche/jwt">github
+repository</a>.</p>
 
 <p>
 Alternatively checkout the repository from:

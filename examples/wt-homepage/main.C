@@ -20,6 +20,8 @@ int main(int argc, char **argv)
 
     server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
+    BlogSession::configureAuth();
+
     BlogRSSFeed rssFeed(server.appRoot() + "blog.db", "Wt and JWt blog",
       "http://www.webtoolkit.eu/wt/blog",
       "We care about our webtoolkits.");
@@ -30,8 +32,6 @@ int main(int argc, char **argv)
       "/jwt", "/css/jwt/favicon.ico");
     server.addEntryPoint(Application, createWtHomeApplication,
       "", "/css/wt/favicon.ico");
-
-    BlogSession::configureAuth();
 
     if (server.start()) {
       WServer::waitForShutdown();
