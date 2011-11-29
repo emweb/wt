@@ -1204,7 +1204,9 @@ void WebRenderer::serveMainpage(WebResponse& response)
 	  || */(app->internalPathIsChanged_
 		&& app->oldInternalPath_ != app->newInternalPath_))) {
     app->oldInternalPath_ = app->newInternalPath_;
-    session_.redirect(session_.mostRelativeUrl(app->newInternalPath_));
+    session_.redirect
+      (session_.fixRelativeUrl
+       (session_.mostRelativeUrl(app->newInternalPath_)));
   }
 
   std::string redirect = session_.getRedirect();

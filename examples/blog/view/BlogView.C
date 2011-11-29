@@ -135,9 +135,6 @@ private:
   }
 
   void loggedOut() {
-    if (boost::starts_with(wApp->internalPath(), basePath_ + "author/"))
-      wApp->setInternalPath(basePath_, true);
-
     loginStatus_->bindEmpty("profile-link");
     loginStatus_->bindEmpty("author-panel-link");
     loginStatus_->bindEmpty("userlist-link");

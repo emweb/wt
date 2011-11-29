@@ -1111,6 +1111,8 @@ void WebSession::handleRequest(Handler& handler)
 	   && state_ != JustCreated
 	   && (requestE && (*requestE == "jsupdate" ||
 			    *requestE == "resource"))) {
+    LOG_DEBUG("CSRF: " << (wtdE ? *wtdE : "no wtd") << " != " << sessionId_ <<
+	      ", requestE: " << (requestE ? *requestE : "none"));
     LOG_SECURE("CSRF prevention kicked in.");
     serveError(403, handler, "Forbidden");
   } else
@@ -1932,6 +1934,7 @@ void WebSession::notify(const WEvent& event)
 	    }
 #endif // WT_BOOST_THREADS
 
+	    // LOG_DEBUG("poll: " << updatesPending_ << ", " << (asyncResponse_ ? "async" : "no async"));
 	    if (!updatesPending_ && !asyncResponse_) {
 	      asyncResponse_ = handler.response();
 	      canWriteAsyncResponse_ = true;

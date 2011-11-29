@@ -97,7 +97,7 @@ void Home::setup()
 
       root()->clear();
 
-      homePage_ = initHome();
+      createHome();
       root()->addWidget(homePage_);
 
       setLanguageFromPath();
@@ -105,9 +105,10 @@ void Home::setup()
   }
 }
 
-WWidget *Home::initHome()
+void Home::createHome()
 {
   WTemplate *result = new WTemplate(tr("template"), root());
+  homePage_ = result;
 
   WContainerWidget *languagesDiv = new WContainerWidget();
   languagesDiv->setId("top_languages");
@@ -171,8 +172,6 @@ WWidget *Home::initHome()
   result->bindWidget("menu", mainMenu_);
   result->bindWidget("contents", contents);
   result->bindWidget("sidebar", sideBarContent_);
-
-  return result;
 }
 
 void Home::setLanguage(int index)

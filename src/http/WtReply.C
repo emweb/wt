@@ -169,6 +169,14 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
        */
       responseSent_ = true;
       sending_ = true;
+
+      /*
+       * We already create the HTTP request because waitMoreData() depends
+       * on it.
+       */
+      httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
+                                     (shared_from_this()), &entryPoint_);
+      httpRequest_->setWebSocketRequest(true);
       
       fetchMoreDataCallback_
 	= boost::bind(&WtReply::readRestWebSocketHandshake, this);

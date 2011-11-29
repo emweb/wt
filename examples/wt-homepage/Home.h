@@ -100,7 +100,7 @@ private:
 
   WStackedWidget *contents_;
 
-  WWidget *initHome();
+  void createHome();
 
   WWidget *introduction();
   WWidget *blog();

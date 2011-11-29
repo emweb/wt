@@ -7,12 +7,15 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WException"
+#include "Wt/WLogger"
 
 #include "WebSession.h"
 #include "WebSocketMessage.h"
 #include "Utils.h"
 
 namespace Wt {
+
+LOGGER("WebSocketMessage");
 
 WebSocketMessage::WebSocketMessage(WebSession *session)
   : session_(session)
@@ -118,7 +121,7 @@ std::string WebSocketMessage::requestMethod() const
 
 std::string WebSocketMessage::queryString() const
 {
-  return webSocket()->queryString() + "&request=jsupdate";
+  return "wtd=" + session_->sessionId() + "&request=jsupdate";
 }
 
 std::string WebSocketMessage::pathInfo() const
@@ -143,7 +146,7 @@ std::string WebSocketMessage::headerValue(const std::string& name) const
 
 void WebSocketMessage::error(const std::string& msg) const
 {
-  throw WException("WebSocketMessage error: " + msg);
+  LOG_ERROR("WebSocketMessage error: " + msg);
 }
 
 WebRequest *WebSocketMessage::webSocket() const

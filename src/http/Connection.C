@@ -286,6 +286,8 @@ void Connection::startWriteResponse()
 
 void Connection::handleWriteResponse()
 {
+  LOG_DEBUG(socket().native() << ": handleWriteResponse() " <<
+	    moreDataToSendNow_ << " " << reply_->waitMoreData());
   if (moreDataToSendNow_) {
     startWriteResponse();
   } else {
