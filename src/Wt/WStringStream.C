@@ -133,21 +133,21 @@ WStringStream& WStringStream::operator<< (int v)
 {
   char buf[20];
   Utils::itoa(v, buf);
-  return *this << buf;
+  return *this << (char *)buf;
 }
 
 WStringStream& WStringStream::operator<< (long long v)
 {
   char buf[40];
   Utils::lltoa(v, buf);
-  return *this << buf;
+  return *this << (char *)buf;
 }
 
 WStringStream& WStringStream::operator<< (double d)
 {
   char buf[50];
   snprintf(buf, 50, "%g", d);
-  return *this << buf;
+  return *this << (char *)buf;
 }
 
 void WStringStream::append(const char *s, int length)

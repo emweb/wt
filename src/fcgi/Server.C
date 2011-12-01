@@ -131,7 +131,7 @@ void Server::execChild(bool debug, const std::string& extraArg)
   if (debug && conf.debug())
     prepend = conf.valgrindPath();
 
-  Utils::SplitVector prependArgv;
+  std::vector<std::string> prependArgv;
   if (!prepend.empty())
     boost::split(prependArgv, prepend, boost::is_any_of(" "));
 
@@ -140,14 +140,19 @@ void Server::execChild(bool debug, const std::string& extraArg)
 
   unsigned i = 0;
   for (; i < prependArgv.size(); ++i)
-    argv[i] = (std::string(prependArgv[i].begin(),
-			   prependArgv[i].end())).c_str();
+    argv[i] = prependArgv[i].c_str();
 
   argv[i++] = argv_[0];
   argv[i++] = "client";
   if (!extraArg.empty())
     argv[i++] = extraArg.c_str();
   argv[i++] = 0;
+
+  for (unsigned i = 0; ; ++i) {
+    if (argv[i] == 0)
+      break;
+    LOG_DEBUG("argv[" << i << "]: " << argv[i]);
+  }
 
   execve(argv[0], const_cast<char *const *>(argv),
 	 const_cast<char *const *>(envp));
@@ -448,7 +453,7 @@ void Server::handleRequest(int serverSocket)
       LOG_DEBUG_S(&wt_, "server read");
 
       if (d->good()) {
-	LOG_DEBUG_S(&wt_, *d);
+	// LOG_DEBUG_S(&wt_, *d); BROKEN !
 	consumedRecords_.push_back(d);
 
 	if (d->type() == FCGI_PARAMS) {
@@ -643,7 +648,7 @@ void Server::handleRequest(int serverSocket)
 	d.read(serverSocket);
 
 	if (d.good()) {
-	  LOG_DEBUG_S(&wt_, "record from server: " << d);
+	  // LOG_DEBUG_S(&wt_, "record from server: " << d); BROKEN !
 	  if (!writeToSocket(clientSocket, d.plainText(),
 			     d.plainTextLength())) {
 	    LOG_ERROR_S(&wt_, "error writing to application");
@@ -663,7 +668,7 @@ void Server::handleRequest(int serverSocket)
 	d.read(clientSocket);
 
 	if (d.good()) {
-	  LOG_DEBUG_S(&wt_, "record from client: " << d);
+	  // LOG_DEBUG_S(&wt_, "record from client: " << d); BROKEN !
 	  if (!writeToSocket(serverSocket, d.plainText(),
 			     d.plainTextLength())) {
 	    LOG_ERROR_S(&wt_, "error writing to web server");

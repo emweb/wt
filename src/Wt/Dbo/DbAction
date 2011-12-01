@@ -50,6 +50,8 @@ public:
   bool setsValue() const;
   bool isSchema() const;
 
+  Session *session() { return &session_; }
+
 private:
   Session& session_;
   Session::MappingInfo& mapping_;
@@ -79,6 +81,8 @@ public:
   bool setsValue() const;
   bool isSchema() const;
 
+  Session *session() { return &session_; }
+
 private:
   Session& session_;
   Session::MappingInfo& mapping_;
@@ -98,6 +102,8 @@ public:
   bool getsValue() const;
   bool setsValue() const;
   bool isSchema() const;
+
+  Session *session() { return dbo_->session(); }
 
 protected:
   MetaDboBase& dbo() { return *dbo_; }
@@ -201,22 +207,24 @@ private:
 class WTDBO_API TransactionDoneAction : public DboAction
 {
 public:
-  TransactionDoneAction(MetaDboBase& dbo, Session::MappingInfo& mapping,
-			bool success);
+  TransactionDoneAction(MetaDboBase& dbo, Session& session,
+			Session::MappingInfo& mapping, bool success);
 
   template<class C> void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
 			       int fkConstraints);
-template<typename V> void act(const FieldRef<V>& field);
+  template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
 
+  Session *session() { return &session_; }
+
 private:
-  Session *session_;
+  Session& session_;
   bool success_;
   int dummy_;
 };
@@ -243,7 +251,8 @@ public:
 class WTDBO_API SetReciproceAction
 {
 public:
-  SetReciproceAction(const std::string& joinName, MetaDboBase *value);
+  SetReciproceAction(Session *session,
+		     const std::string& joinName, MetaDboBase *value);
 
   template<class C> void visit(C& obj);
 
@@ -258,7 +267,10 @@ public:
   bool setsValue() const;
   bool isSchema() const;
 
+  Session *session() { return session_; }
+
 private:
+  Session *session_;
   const std::string& joinName_;
   MetaDboBase *value_;
 };
@@ -280,6 +292,8 @@ public:
   bool getsValue() const;
   bool setsValue() const;
   bool isSchema() const;
+
+  Session *session() { return session_; }
 
 private:
   Session *session_;
@@ -304,6 +318,8 @@ public:
   bool getsValue() const;
   bool setsValue() const;
   bool isSchema() const;
+
+  Session *session() { return session_; }
 
 private:
   Session *session_;

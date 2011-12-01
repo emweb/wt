@@ -158,6 +158,7 @@ Wt/WProgressBar.C
 Wt/WPushButton.C
 Wt/WRadioButton.C
 Wt/WRandom.C
+Wt/WReadOnlyProxyModel.C
 Wt/WRectArea.C
 Wt/WRectF.C
 Wt/WRegExp.C

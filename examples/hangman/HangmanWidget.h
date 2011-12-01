@@ -22,10 +22,9 @@ class LettersWidget;
 class HangmanWidget: public Wt::WContainerWidget
 {
 public:
-  HangmanWidget(const std::string &name, 
-		Wt::WContainerWidget *parent = 0);
+  HangmanWidget(const std::string &name, Wt::WContainerWidget *parent = 0);
 
-  Wt::Signal<int>& updateScore() { return updateScore_; }
+  Wt::Signal<int>& scoreUpdated() { return scoreUpdated_; }
   
 private:
   Wt::WText                     *title_;
@@ -38,10 +37,12 @@ private:
   Wt::WComboBox                 *language_;
   Wt::WPushButton               *newGameButton_;
   
-  Wt::Signal<int>                updateScore_;
+  Wt::Signal<int>                scoreUpdated_;
 
   std::string                    name_;
   Dictionary                     dictionary_;
+
+  int                            badGuesses_;
   
   void registerGuess(char c);
 

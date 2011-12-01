@@ -149,7 +149,11 @@ void field(A& action, ptr<C>& value, const std::string& name, int size)
 template <class A, class C>
 void belongsTo(A& action, ptr<C>& value, const std::string& name, int size)
 {
-  action.actPtr(PtrRef<C>(value, name, size, 0));
+  if (name.empty() && action.session())
+    action.actPtr(PtrRef<C>(value, action.session()->template tableName<C>(),
+			    size, 0));
+  else
+    action.actPtr(PtrRef<C>(value, name, size, 0));
 }
 
 template <class A, class C>

@@ -305,7 +305,9 @@ void field(Action& action, ptr<C>& value, const std::string& name,
 /*! \brief Maps the "One"-side of a ManyToOne relation.
  *
  * This function binds the pointer field \p value to the database
- * field \p name <tt>+ "_id"</tt>.
+ * field(s) \p name <tt>+ "_" +</tt> (C's primary key(s)).
+ *
+ * If the name is omitted (or empty), then C's mapped table name is used.
  *
  * A belongsTo() will usually have a counter-part hasMany() declaration
  * in the referenced class \p C.
@@ -315,8 +317,8 @@ void field(Action& action, ptr<C>& value, const std::string& name,
  * \ingroup dbo
  */
 template <class Action, class C>
-void belongsTo(Action& action, ptr<C>& value, const std::string& name,
-	       int size = -1);
+void belongsTo(Action& action, ptr<C>& value,
+	       const std::string& name = std::string(), int size = -1);
 
 /*! \brief Maps the "One"-side of a ManyToOne relation.
  *
@@ -337,18 +339,19 @@ void belongsTo(Action& action, ptr<C>& value, const std::string& name,
  * (of type \p C).
  *
  * For a \link Wt::Dbo::ManyToOne ManyToOne\endlink relation, the
- * query is defined by the database field \p joinName <tt>+ "_id"</tt>
- * in the table that matches \p C. This should be the same name as
- * passed to the matching belongsTo() method for the other side of the
- * relation.
+ * query is defined by the database field(s) \p joinName <tt>+ "_" +
+ * </tt> (C's primary key(s))</tt>, in the mapped table for C. This
+ * should be the same <i>name</i> as passed to the matching
+ * belongsTo() method for the other side of the relation. If the
+ * joinName is omitted (or empty), then C's mapped table name is used.
  *
  * For a \link Wt::Dbo::ManyToMany ManyToMany\endlink relation, the \p
  * joinName is the name of a linker table (this linker table may be
  * schema qualified, e.g. <tt>"myschema.posts_tags"</tt>. Thus, also
  * for a ManyToMany relation, both sides of the relationship will have
  * the same joinName passed to them. In the join table, this side of the
- * the relation will be referenced using the table name + "_id" of the
- * current class.
+ * the relation will be referenced using the table name <tt>+ "_" + </tt>
+ * (primary key(s)) of the current class.
  *
  * A hasMany() must have a counter-part belongsTo() or hasMany()
  * declaration in the referenced class \p C.
@@ -359,7 +362,7 @@ void belongsTo(Action& action, ptr<C>& value, const std::string& name,
  */
 template <class Action, class C>
 void hasMany(Action& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& joinName);
+	     RelationType type, const std::string& joinName = std::string());
 
 /*! \brief Maps the "Many"-side of a ManyToMany relation.
  *
@@ -372,8 +375,8 @@ void hasMany(Action& action, collection< ptr<C> >& value,
  * Wt::Dbo::ManyToMany ManyToMany\endlink.
  *
  * The \p joinId is used to reference this side of the relationship in
- * the join table. If \p joinId is left blank, the value will be
- * table name of the current class + "_id".
+ * the join table. If \p joinId is left blank, the value will be table
+ * name <tt>+ "_" +</tt> (primary key(s)) of the current class.
  *
  * A hasMany() must have a counter-part belongsTo() or hasMany()
  * declaration in the referenced class \p C.

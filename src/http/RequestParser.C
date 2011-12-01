@@ -217,16 +217,15 @@ std::string RequestParser::doWebSocketHandshake13(const Request& req)
     static const std::string guid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 #ifdef WT_WITH_SSL
-    EVP_MD_CTX mdctx;
-    EVP_MD_CTX_init(&mdctx);
-    EVP_DigestInit_ex(&mdctx, EVP_sha1(), 0);
-    EVP_DigestUpdate(&mdctx, key.c_str(), key.length());
-    EVP_DigestUpdate(&mdctx, guid.c_str(), guid.length());
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_create();
+    EVP_DigestInit_ex(mdctx, EVP_sha1(), 0);
+    EVP_DigestUpdate(mdctx, key.c_str(), key.length());
+    EVP_DigestUpdate(mdctx, guid.c_str(), guid.length());
 
     unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned length = EVP_MAX_MD_SIZE;
-    EVP_DigestFinal_ex(&mdctx, hash, &length);
-    EVP_MD_CTX_cleanup(&mdctx);
+    EVP_DigestFinal_ex(mdctx, hash, &length);
+    EVP_MD_CTX_destroy(mdctx);
 
     std::vector<char> v;
     base64::encode((const unsigned char *)hash,

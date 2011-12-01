@@ -47,10 +47,10 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
   addWidget(links_);
 
   backToGameAnchor_ = new WAnchor("/play", "Gaming Grounds", links_);
-  backToGameAnchor_->setRefInternalPath("/play");
+  backToGameAnchor_->setLink(WLink(WLink::InternalPath, "/play"));
 
   scoresAnchor_ = new WAnchor("/highscores", "Highscores", links_);
-  scoresAnchor_->setRefInternalPath("/highscores");
+  scoresAnchor_->setLink(WLink(WLink::InternalPath, "/highscores"));
 
   WApplication::instance()->internalPathChanged()
     .connect(this, &HangmanGame::handleInternalPath);
@@ -99,7 +99,7 @@ void HangmanGame::showGame()
 {
   if (!game_) {
     game_ = new HangmanWidget(session_.userName(), mainStack_);
-    game_->updateScore().connect(&session_, &Session::addToScore);
+    game_->scoreUpdated().connect(&session_, &Session::addToScore);
   }
 
   mainStack_->setCurrentWidget(game_);

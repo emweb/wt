@@ -10,54 +10,36 @@
 
 using namespace Wt;
 
-const int ImagesWidget::maxGuesses_ = 9;
+const int ImagesWidget::HURRAY = -1;
 
-ImagesWidget::ImagesWidget(WContainerWidget *parent)
+ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
 {
-  for (int i = 0; i <= maxGuesses_; ++i) {
+  for (unsigned i = 0; i <= maxGuesses; ++i) {
     std::string fname = "icons/hangman";
     fname += boost::lexical_cast<std::string>(i) + ".jpg";
     WImage *theImage = new WImage(fname, this);
-    hangmanImages_.push_back(theImage);
-    
+    images_.push_back(theImage);
+
     // Although not necessary, we can avoid flicker (on konqueror)
     // by presetting the image size.
     theImage->resize(256, 256);
+    theImage->hide();
   }
 
-  hurrayImage_ = new WImage("icons/hangmanhurray.jpg", this);
+  images_.push_back(new WImage("icons/hangmanhurray.jpg", this));
+  image_ = 0;
 
-  reset();
-
-  hangmanImages_[0]->hide();
-  hangmanImages_.back()->show();
+  showImage(HURRAY);
 }
 
-void ImagesWidget::reset()
+void ImagesWidget::showImage(int index)
 {
-  badGuesses_ = 0;
-
-  hurrayImage_->hide();
-  for(unsigned int i = 0; i < hangmanImages_.size(); ++i)
-    hangmanImages_[i]->hide();
-  hangmanImages_[0]->show();
+  image(image_)->hide();
+  image_ = index;
+  image(image_)->show();
 }
 
-void ImagesWidget::badGuess()
+WImage *ImagesWidget::image(int index) const
 {
-  if (badGuesses_ < (int)hangmanImages_.size() - 1) {
-    hangmanImages_[badGuesses_]->hide();
-    hangmanImages_[++badGuesses_]->show();
-  }
-}
-
-bool ImagesWidget::gameOver()
-{
-  return badGuesses_ == maxGuesses_;
-}
-
-void ImagesWidget::hurray() 
-{
-  hangmanImages_[badGuesses_]->hide();
-  hurrayImage_->show();
+  return index == HURRAY ? images_.back() : images_[index];
 }

@@ -699,6 +699,12 @@ public:
    */
   int version() const;
 
+  /*! \brief Returns the session with which this pointer is associated.
+   *
+   * This may return 0 if the pointer is null or not added to a session.
+   */
+  Session *session() const;
+
 protected:
   MetaDbo<C> *obj() const { return obj_; }
 

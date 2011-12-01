@@ -96,6 +96,7 @@ WebSession::WebSession(WebController *controller,
     bootStyleResponse_(0),
     canWriteAsyncResponse_(false),
     noBootStyleResponse_(false),
+    pollRequestsIgnored_(0),
     progressiveBoot_(false),
     deferredRequest_(0),
     deferredResponse_(0),
@@ -140,12 +141,10 @@ WebSession::WebSession(WebController *controller,
   }
 
 #ifndef WT_TARGET_JAVA
-  LOG_INFO("Session created (#sessions = " << (controller_->sessionCount() + 1)
-	   << ")");
+  LOG_INFO("session created (#sessions = " <<
+	   (controller_->sessionCount() + 1) << ")");
 
   expire_ = Time() + 60*1000;
-#else  // WT_TARGET_JAVA
-  LOG_INFO("Session created");
 #endif // WT_TARGET_JAVA
 
   if (controller_->configuration().sessionIdCookie()) {
@@ -236,10 +235,8 @@ WebSession::~WebSession()
   flushBootStyleResponse();
 
 #ifndef WT_TARGET_JAVA
-  LOG_INFO("Session destroyed (#sessions = " << controller_->sessionCount()
+  LOG_INFO("session destroyed (#sessions = " << controller_->sessionCount()
 	   << ")");
-#else // WT_TARGET_JAVA
-  LOG_INFO("Session destroyed");
 #endif // WT_TARGET_JAVA
 
 }
@@ -785,7 +782,7 @@ void WebSession
    * destroyed ?
    */
   if (session->state_ == Dead) {
-    LOG_WARN_S(session,"Attaching to dead session?");
+    LOG_WARN_S(session, "attaching to dead session?");
     attachThreadToHandler(new Handler(session, false));
     return;
   }
@@ -816,7 +813,7 @@ void WebSession
 #endif 
 
 #else
-  LOG_ERROR_S(session,"attachThread(): needs Wt built with threading enabled");
+  LOG_ERROR_S(session, "attachThread(): needs Wt built with threading enabled");
 #endif
 }
 
@@ -920,7 +917,7 @@ void WebSession::doRecursiveEventLoop()
   Handler *handler = WebSession::Handler::instance();
 
 #ifndef WT_BOOST_THREADS
-  LOG_ERROR("Cannot do recursive event loop without threads");
+  LOG_ERROR("cannot do recursive event loop without threads");
 #else
 
 #ifdef WT_TARGET_JAVA
@@ -1070,6 +1067,20 @@ void WebSession::handleRequest(Handler& handler)
       }
   }
 
+  const std::string *requestE = request.getParameter("request");
+
+  if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
+    LOG_ERROR("invalid WebSocket request, ignoring");
+
+    LOG_INFO("Connection: " << request.headerValue("Connection"));
+    LOG_INFO("Upgrade: " << request.headerValue("Upgrade"));
+    LOG_INFO("Sec-WebSocket-Version: "
+	     << request.headerValue("Sec-WebSocket-Version"));
+
+    handler.response()->flush();
+    return;
+  }
+
   if (request.isWebSocketRequest()) {
     if (state_ != JustCreated) {
       handleWebSocketRequest(handler);
@@ -1082,8 +1093,6 @@ void WebSession::handleRequest(Handler& handler)
   }
 
   Configuration& conf = controller_->configuration();
-
-  const std::string *requestE = request.getParameter("request");
 
   handler.response()->setResponseType(WebResponse::Page);
 
@@ -1147,13 +1156,13 @@ void WebSession::handleRequest(Handler& handler)
 	  if (requestE) {
 	    if (*requestE == "jsupdate" || *requestE == "script") {
 	      handler.response()->setResponseType(WebResponse::Update);
-	      LOG_INFO("Signal from dead session, sending reload.");
+	      LOG_INFO("signal from dead session, sending reload.");
 	      renderer_.letReloadJS(*handler.response(), true);
 
 	      kill();
 	      break;
 	    } else if (*requestE != "page") {
-	      LOG_INFO("Not serving this.");
+	      LOG_INFO("not serving this.");
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
@@ -1214,7 +1223,7 @@ void WebSession::handleRequest(Handler& handler)
 		"<html><head><title>bhm</title></head>"
 		"<body>&#160;</body></html>";
 	    } else {
-	      LOG_INFO("Not starting session for resource.");
+	      LOG_INFO("not starting session for resource.");
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
@@ -1388,11 +1397,11 @@ void WebSession::handleRequest(Handler& handler)
 	break;
       }
       case Dead:
-	LOG_INFO("Request to dead session, ignoring");
+	LOG_INFO("request to dead session, ignoring");
 	break;
       }
     } catch (WException& e) {
-      LOG_ERROR("Fatal error: " << e.what());
+      LOG_ERROR("fatal error: " << e.what());
 
 #ifdef WT_TARGET_JAVA
       e.printStackTrace();
@@ -1404,7 +1413,7 @@ void WebSession::handleRequest(Handler& handler)
 	serveError(500, handler, e.what());
 
     } catch (std::exception& e) {
-      LOG_ERROR("Fatal error: " << e.what());
+      LOG_ERROR("fatal error: " << e.what());
 
 #ifdef WT_TARGET_JAVA
       e.printStackTrace();
@@ -1415,7 +1424,7 @@ void WebSession::handleRequest(Handler& handler)
       if (handler.response())
 	serveError(500, handler, e.what());
     } catch (...) {
-      LOG_ERROR("Fatal error: caught unknown exception.");
+      LOG_ERROR("fatal error: caught unknown exception.");
 
       kill();
 
@@ -1734,9 +1743,9 @@ void WebSession::notify(const WEvent& event)
        */
       if (!env_->agentIsIE())
 	if (handler.request()->headerValue("User-Agent") != env_->userAgent()) {
-	  LOG_SECURE("Change of user-agent not allowed.");
-	  LOG_INFO("Old user agent: " << env_->userAgent());
-	  LOG_INFO("New user agent: "
+	  LOG_SECURE("change of user-agent not allowed.");
+	  LOG_INFO("old user agent: " << env_->userAgent());
+	  LOG_INFO("new user agent: "
 		   << handler.request()->headerValue("User-Agent"));
 	  serveError(403, handler, "Forbidden");
 	  return;
@@ -1755,7 +1764,7 @@ void WebSession::notify(const WEvent& event)
 	}
 
 	if (isInvalid) {
-	  LOG_SECURE("Change of IP address (" << env_->clientAddress()
+	  LOG_SECURE("change of IP address (" << env_->clientAddress()
 		     << " -> " << ca << ") not allowed.");
 	  serveError(403, handler, "Forbidden");
 	  return;
@@ -1767,7 +1776,7 @@ void WebSession::notify(const WEvent& event)
       std::string cookie = request.headerValue("Cookie");
       if (cookie.find("Wt" + sessionIdCookie_) == std::string::npos) {
 	sessionIdCookie_.clear();
-	LOG_INFO("Session id cookie not working");
+	LOG_INFO("session id cookie not working");
       }
 
       sessionIdCookieChanged_ = false;
@@ -1883,9 +1892,9 @@ void WebSession::notify(const WEvent& event)
 
 	  if (invalidAckId) {
 	    if (!ackIdE)
-	      LOG_SECURE("Missing ackId");
+	      LOG_SECURE("missing ackId");
 	    else
-	      LOG_SECURE("Invalid ackId");
+	      LOG_SECURE("invalid ackId");
 	    serveError(403, handler, "Forbidden");
 	    return;
 	  }
@@ -1895,6 +1904,9 @@ void WebSession::notify(const WEvent& event)
 	   * aborts the previous poll request to indicate a client-side event.
 	   *
 	   * So we also discard the previous asyncResponse_ server-side.
+	   * We don't do this if we have a websocket request -- it might be
+	   * a race between the websocket being established and a poll
+	   * request.
 	   */
 	  if (asyncResponse_ && !asyncResponse_->isWebSocketRequest()) {
 
@@ -1935,11 +1947,31 @@ void WebSession::notify(const WEvent& event)
 #endif // WT_BOOST_THREADS
 
 	    // LOG_DEBUG("poll: " << updatesPending_ << ", " << (asyncResponse_ ? "async" : "no async"));
-	    if (!updatesPending_ && !asyncResponse_) {
-	      asyncResponse_ = handler.response();
-	      canWriteAsyncResponse_ = true;
-	      handler.setRequest(0, 0);
-            }
+	    if (!updatesPending_) {
+	      /*
+	       * If we are ignoring many poll requests (because we are
+	       * assuming to have a websocket), we will need to assume
+	       * the web socket isn't working properly.
+	       */
+	      if (!asyncResponse_ || (pollRequestsIgnored_ == 5)) {
+		if (asyncResponse_) {
+		  LOG_INFO("discarding broken asyncResponse, (ws: " <<
+			   asyncResponse_->isWebSocketRequest());
+		  asyncResponse_->flush();
+		  asyncResponse_ = 0;
+		}
+
+		pollRequestsIgnored_ = 0;
+		asyncResponse_ = handler.response();
+		canWriteAsyncResponse_ = true;
+		handler.setRequest(0, 0);
+	      } else {
+		++pollRequestsIgnored_;
+		LOG_DEBUG("ignored poll request (#" << pollRequestsIgnored_
+			  << ")");
+	      }
+	    } else
+	      pollRequestsIgnored_ = 0;
 	  }
 
 	  if (handler.request()) {
@@ -1956,10 +1988,10 @@ void WebSession::notify(const WEvent& event)
 	      handler.nextSignal = -1;
 	      notifySignal(event);
 	    } catch (std::exception& e) {
-	      LOG_ERROR("Error during event handling: " << e.what());
+	      LOG_ERROR("error during event handling: " << e.what());
 	      RETHROW(e);
 	    } catch (...) {
-	      LOG_ERROR("Error during event handling");
+	      LOG_ERROR("error during event handling");
 	      throw;
 	    }
 	  }
@@ -1980,7 +2012,14 @@ void WebSession::notify(const WEvent& event)
 	}
 
 	if (!signalE) {
-	  LOG_INFO("Refreshing session");
+	  if (type() == WidgetSet) {
+	    LOG_ERROR("bogus request: missing signal, discarding");
+	    handler.response()->flush();
+	    handler.setRequest(0, 0);
+	    return;
+	  }
+
+	  LOG_INFO("refreshing session");
 
 	  flushBootStyleResponse();
 
@@ -1989,7 +2028,7 @@ void WebSession::notify(const WEvent& event)
 	  // are listening to only one browser at a time: do this by
 	  // generating a new session id when a new browser connects
 	  if (controller_->configuration().persistentSessions()) {
-	    LOG_INFO("Refresh for persistent session");
+	    LOG_INFO("refresh for persistent session");
 	    WEnvironment oldEnv = *env_;
 	    env_->init(request);
 	    env_->parameters_ = handler.request()->getParameterMap();
@@ -2001,7 +2040,7 @@ void WebSession::notify(const WEvent& event)
 	    } catch (std::exception& e) {
 	      *env_ = oldEnv;
 
-	      LOG_INFO("Bad refresh attempt: " << e.what());
+	      LOG_INFO("bad refresh attempt: " << e.what());
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out() <<
 		"<html><body><h1>Are you trying some shenanigans?"
@@ -2405,7 +2444,7 @@ void WebSession::generateNewSessionId()
   sessionId_ = controller_->generateNewSessionId(shared_from_this());
   sessionIdChanged_ = true;
 
-  LOG_INFO("New session id for " << oldId);
+  LOG_INFO("new session id for " << oldId);
 
   if (!useUrlRewriting_) {
     std::string cookieName = env_->deploymentPath();

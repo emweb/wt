@@ -388,6 +388,15 @@ int ptr<C>::version() const
 }
 
 template <class C>
+Session *ptr<C>::session() const
+{
+  if (obj_)
+    return obj_->session();
+  else
+    return 0;
+}
+
+template <class C>
 ptr<C>::ptr(MetaDbo<C> *obj)
   : obj_(obj)
 {

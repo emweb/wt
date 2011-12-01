@@ -148,9 +148,11 @@ void SaveBaseAction::startSetsPass()
 bool SaveBaseAction::getsValue() const { return true; }
 
 TransactionDoneAction::TransactionDoneAction(MetaDboBase& dbo,
+					     Session& session,
 					     Session::MappingInfo& mapping,
 					     bool success)
   : DboAction(dbo, mapping),
+    session_(session),
     success_(success)
 { }
 
@@ -165,9 +167,11 @@ bool SessionAddAction::getsValue() const { return true; }
 bool SessionAddAction::setsValue() const { return false; }
 bool SessionAddAction::isSchema() const { return false; }
 
-SetReciproceAction::SetReciproceAction(const std::string& joinName,
+SetReciproceAction::SetReciproceAction(Session *session,
+				       const std::string& joinName,
 				       MetaDboBase *value)
-  : joinName_(joinName),
+  : session_(session),
+    joinName_(joinName),
     value_(value)
 { }
 
@@ -176,7 +180,8 @@ bool SetReciproceAction::setsValue() const { return true; }
 bool SetReciproceAction::isSchema() const { return false; }
 
 ToAnysAction::ToAnysAction(std::vector<boost::any>& result)
-  : result_(result)
+  : session_(0),
+    result_(result)
 { }
 
 bool ToAnysAction::getsValue() const { return true; }

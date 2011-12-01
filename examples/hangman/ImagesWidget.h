@@ -12,28 +12,25 @@
 
 #include <Wt/WContainerWidget>
 
-namespace Wt {
-  class WImage;
-}
-
 class ImagesWidget : public Wt::WContainerWidget
 {
 public:
-  ImagesWidget(Wt::WContainerWidget *parent = 0);
+  static const int HURRAY;
 
-  int badGuesses() const { return badGuesses_; }
+  ImagesWidget(int maxGuesses, Wt::WContainerWidget *parent = 0);
 
-  void reset();
-  void badGuess();
-  void hurray();
-  bool gameOver();
+  /*
+   * 0 - maxGuesses: corresponds to 0 up to maxGuesses guesses
+   *         HURRAY: when won
+   */
+  void showImage(int index);
+  int currentImage() const { return image_; }
 
 private:
-  std::vector<Wt::WImage *>      hangmanImages_;
-  Wt::WImage                    *hurrayImage_;
+  std::vector<Wt::WImage *> images_;
+  int image_;
 
-  int                            badGuesses_;
-  const static int               maxGuesses_;
+  Wt::WImage *image(int index) const;
 };
 
-#endif //IMAGES_WIDGET_H_
+#endif // IMAGES_WIDGET_H_

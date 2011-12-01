@@ -314,7 +314,8 @@ public:
    *
    * \note This only works if JavaScript is available.
    */
-  void positionAt(const WWidget *widget, Orientation orientation = Vertical);
+  virtual void positionAt(const WWidget *widget,
+			  Orientation orientation = Vertical);
 
   /*! \brief Sets the CSS line height for contained text.
    */

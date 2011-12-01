@@ -306,7 +306,7 @@ void Session::implDelete(MetaDbo<C>& dbo)
 template<class C>
 void Session::implTransactionDone(MetaDbo<C>& dbo, bool success)
 {
-  TransactionDoneAction action(dbo, *getMapping<C>(), success);
+  TransactionDoneAction action(dbo, *this, *getMapping<C>(), success);
   action.visit(*dbo.obj());
 }
 

@@ -449,7 +449,8 @@ void collection<C>::insert(C c)
     if (!wasJustErased && !relation.activity->transactionInserted.count(c))
       relation.activity->inserted.insert(c);
   } else {
-    SetReciproceAction setPtr(relation.setInfo->joinName, relation.dbo);
+    SetReciproceAction setPtr(session_, relation.setInfo->joinName,
+			      relation.dbo);
     setPtr.visit(*c.modify());
   }
 }
@@ -475,7 +476,7 @@ void collection<C>::erase(C c)
     if (!wasJustInserted && !relation.activity->transactionErased.count(c))
       relation.activity->erased.insert(c);
   } else {
-    SetReciproceAction setPtr(relation.setInfo->joinName, 0);
+    SetReciproceAction setPtr(session_, relation.setInfo->joinName, 0);
     setPtr.visit(*c.modify());
   }
 }

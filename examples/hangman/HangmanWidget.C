@@ -19,16 +19,20 @@
 
 using namespace Wt;
 
-HangmanWidget::HangmanWidget(const std::string &name, 
-			     WContainerWidget *parent):
-  WContainerWidget(parent),
-  name_(name)
+namespace {
+  const int MaxGuesses = 9;
+}
+
+HangmanWidget::HangmanWidget(const std::string &name, WContainerWidget *parent)
+  : WContainerWidget(parent),
+    name_(name),
+    badGuesses_(0)
 {
   WVBoxLayout *layout = new WVBoxLayout();
   layout->setContentsMargins(0, 0, 0, 0);
   this->setLayout(layout);
   
-  title_ = new WText("<h2>Ready to play ?</h2>");
+  title_ = new WText(tr("hangman.readyToPlay"));
   layout->addWidget(title_, 0, AlignCenter | AlignMiddle);
 
   word_ = new WordWidget();
@@ -37,7 +41,7 @@ HangmanWidget::HangmanWidget(const std::string &name,
   statusText_ = new WText();
   layout->addWidget(statusText_, 0, AlignCenter | AlignMiddle);
 
-  images_ = new ImagesWidget();
+  images_ = new ImagesWidget(MaxGuesses);
   layout->addWidget(images_, 1, AlignCenter | AlignMiddle);
 
   letters_ = new LettersWidget();
@@ -45,11 +49,11 @@ HangmanWidget::HangmanWidget(const std::string &name,
   letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
   language_ = new WComboBox();
-  language_->addItem("English words (18957 words)");
-  language_->addItem("Nederlandse woordjes (1688 woorden)");
+  language_->addItem(tr("hangman.englishWords").arg(18957));
+  language_->addItem(tr("hangman.dutchWords").arg(1688));
   layout->addWidget(language_, 0, AlignCenter | AlignMiddle);
 
-  newGameButton_ = new WPushButton("New Game", this);
+  newGameButton_ = new WPushButton(tr("hangman.newGame"), this);
   newGameButton_->clicked().connect(this, &HangmanWidget::newGame);
   layout->addWidget(newGameButton_, 0, AlignCenter | AlignMiddle);
 
@@ -58,18 +62,21 @@ HangmanWidget::HangmanWidget(const std::string &name,
 
 void HangmanWidget::newGame()
 {
-  WString title("<h2>Guess the word, {1}!</h2>");
+  WString title(tr("hangman.guessTheWord"));
   title_->setText(title.arg(name_));
 
   language_->hide();
   newGameButton_->hide();
 
-  // Bring widget to initial state
+  /*
+   * Choose a new secret word and reset the game
+   */
   Dictionary dictionary = (Dictionary) language_->currentIndex();
   word_->init(RandomWord(dictionary));
-  images_->reset();
-  letters_->init();
+  letters_->reset();
+  badGuesses_ = 0;
 
+  images_->showImage(badGuesses_);
   statusText_->setText("");
 }
 
@@ -77,26 +84,28 @@ void HangmanWidget::registerGuess(char c)
 {
   bool correct = word_->guess(c);
 
-  if (!correct)
-    images_->badGuess();
+  if (!correct) {
+    ++badGuesses_;
+    images_->showImage(badGuesses_);
+  }
 
-  if (images_->gameOver()) {
-    WString status("You hang... <br />The correct answer was: {1} ");
+  if (badGuesses_ == MaxGuesses) {
+    WString status(tr("hangman.youHang"));
     statusText_->setText(status.arg(word_->word()));
 
     letters_->hide();
     language_->show();
     newGameButton_->show();
 
-    updateScore_.emit(-10);
+    scoreUpdated_.emit(-10);
   } else if (word_->won()) {
-    statusText_->setText("You win!");
-    images_->hurray();
+    statusText_->setText(tr("hangman.youWin"));
+    images_->showImage(ImagesWidget::HURRAY);
 
     letters_->hide();
     language_->show();
     newGameButton_->show();
 
-    updateScore_.emit(20 - images_->badGuesses());
+    scoreUpdated_.emit(20 - badGuesses_);
   }
 }

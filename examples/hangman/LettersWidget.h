@@ -21,7 +21,7 @@ class LettersWidget : public Wt::WCompositeWidget
 public:
   LettersWidget(Wt::WContainerWidget *parent = 0);
 
-  void init();
+  void reset();
 
   Wt::Signal<char>& letterPushed() { return letterPushed_; } 
 

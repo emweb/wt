@@ -256,8 +256,8 @@ public:
     Wt::Dbo::field(a, emailTokenRole_, "email_token_role");
 
 
-    Wt::Dbo::hasMany(a, authTokens_, Wt::Dbo::ManyToOne, "auth_info");
-    Wt::Dbo::hasMany(a, authIdentities_, Wt::Dbo::ManyToOne, "auth_info");
+    Wt::Dbo::hasMany(a, authTokens_, Wt::Dbo::ManyToOne);
+    Wt::Dbo::hasMany(a, authIdentities_, Wt::Dbo::ManyToOne);
   }
 
 private:
@@ -319,7 +319,7 @@ public:
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::belongsTo(a, authInfo_, "auth_info");
+    Wt::Dbo::belongsTo(a, authInfo_);
     Wt::Dbo::field(a, value_, "value", 64);
     Wt::Dbo::field(a, expires_, "expires");
   }
@@ -366,7 +366,7 @@ public:
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::belongsTo(a, authInfo_, "auth_info");
+    Wt::Dbo::belongsTo(a, authInfo_);
     Wt::Dbo::field(a, provider_, "provider", 64);
     Wt::Dbo::field(a, identity_, "identity", 512);
   }

@@ -401,10 +401,12 @@ template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::where(const std::string& where)
 {
-  if (!where_.empty())
-    where_ += " and ";
+  if (!where.empty()) {
+    if (!where_.empty())
+      where_ += " and ";
 
-  where_ += "(" + where + ")";
+    where_ += "(" + where + ")";
+  }
 
   return *this;
 }

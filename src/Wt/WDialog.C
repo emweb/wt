@@ -329,4 +329,11 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
   WCompositeWidget::setHidden(hidden, animation);
 }
 
+void WDialog::positionAt(const WWidget *widget, Orientation orientation)
+{
+  setPositionScheme(Absolute);
+  setOffsets(0, Left | Top);
+  WCompositeWidget::positionAt(widget, orientation);
+}
+
 }

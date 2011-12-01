@@ -275,6 +275,7 @@ private:
   std::string pagePathInfo_;
   WebResponse *asyncResponse_, *bootStyleResponse_;
   bool canWriteAsyncResponse_, noBootStyleResponse_;
+  int pollRequestsIgnored_;
   bool progressiveBoot_;
 
   WebRequest *deferredRequest_;

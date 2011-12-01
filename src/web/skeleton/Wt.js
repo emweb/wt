@@ -2421,11 +2421,12 @@ _$_$if_WEB_SOCKETS_$_();
 	    wsurl = "ws" + sessionUrl.substr(4);
 	  } else {
 	    var query = sessionUrl.substr(sessionUrl.indexOf('?'));
-
 	    wsurl = "ws" + location.protocol.substr(4)
 	      + "//" + location.hostname + ":"
 	     + location.port + deployUrl + query;
 	  }
+
+	  wsurl += "&request=ws";
 
 	  if (typeof window.WebSocket !== 'undefined')
 	    websocket.socket = ws = new WebSocket(wsurl);
@@ -2443,16 +2444,24 @@ _$_$if_WEB_SOCKETS_$_();
 	  };
 
 	  ws.onerror = function(event) {
+	    /*
+	     * Sometimes, we can connect but cannot send data
+	     */
+	    if (reconnectTries == 3 && websocket.state == WebSocketsUnknown)
+	      websocket.state = WebSocketsUnavailable;
 	    reconnect();
 	  };
 
 	  ws.onclose = function(event) {
+	    /*
+	     * Sometimes, we can connect but cannot send data
+	     */
+	    if (reconnectTries == 3 && websocket.state == WebSocketsUnknown)
+	      websocket.state = WebSocketsUnavailable;
 	    reconnect();
 	  };
 
 	  ws.onopen = function(event) {
-	    websocket.state = WebSocketsWorking;
-
 	    /*
 	     * WebSockets are suppossedly reliable, but there is nothing
 	     * in the protocol that makes them so...

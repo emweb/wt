@@ -292,6 +292,9 @@ public:
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
+  virtual void positionAt(const WWidget *widget,
+			  Orientation orientation = Vertical);
+
 protected:
   void render(WFlags<RenderFlag> flags);
 

@@ -152,10 +152,16 @@ public:
     dbo::field(a, d, "d");
 
     dbo::belongsTo(a, b, "b", dbo::OnUpdateCascade | dbo::OnDeleteCascade);
-    dbo::belongsTo(a, dthing, "d");
 
-    dbo::belongsTo(a, parent, "a_parent");
-    dbo::hasMany(a, asManyToOne, dbo::ManyToOne, "a_parent");
+    if (a.session()) {
+      dbo::belongsTo(a, dthing, a.session()->template tableName<D>());
+
+      dbo::belongsTo(a, parent, a.session()->template tableName<A>()
+		     + std::string("_parent"));
+      dbo::hasMany(a, asManyToOne, dbo::ManyToOne,
+		   a.session()->template tableName<A>()
+		   + std::string("_parent"));
+    }
   }
 };
 

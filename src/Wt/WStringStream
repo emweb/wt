@@ -103,6 +103,13 @@ public:
    */
   WStringStream& operator<< (const char *s);
 
+#ifndef WT_TARGET_JAVA
+  template <std::size_t N>
+    WStringStream& operator<< (const char s[N]) {
+    append(s, N-1); return *this; 
+  }
+#endif // WT_TARGET_JAVA
+
   /*! \brief Appends a C++ string.
    */
   WStringStream& operator<< (const std::string& s);

@@ -1,3 +1,23 @@
+01-12-2011:
+	* Wt.js, WtReply: more robust handling of flaky WebSocket connections
+
+	* hangman example: misc editorial changes
+
+	* WReadOnlyProxyModel: a simple proxy model that allows sharing of
+	source model between different sessions (but read-only)
+
+	* Dbo: added belongsTo() and hasMany() overloads which infers the
+	foreign key names from the foreign table
+
+	* Dbo: added session() method to actions
+
+	* WStringStream: optimization for string literals which avoids
+	strlen()
+
+	* WDialog: fix positionAt()
+
+	* wtfcgi: fix regression (data corruption) when built with DEBUG=ON
+
 29-11-2011:
 	* Released: 3.2.0
 

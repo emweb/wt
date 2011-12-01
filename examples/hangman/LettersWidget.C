@@ -11,25 +11,22 @@
 
 using namespace Wt;
 
-LettersWidget::LettersWidget(WContainerWidget *parent) :
-  WCompositeWidget(parent)
+LettersWidget::LettersWidget(WContainerWidget *parent)
+  : WCompositeWidget(parent)
 {
   setImplementation(impl_ = new WTable());
 
-  // The default width of a table is 100%...
   impl_->resize(13*30, WLength::Auto);
 
-  for(unsigned int i = 0; i < 26; ++i) {
+  for (unsigned int i = 0; i < 26; ++i) {
     std::string c(1, 'A' + i);
-    WPushButton *character =
-      new WPushButton(c, impl_->elementAt(i / 13, i % 13));
+    WPushButton *character = new WPushButton(c,
+					     impl_->elementAt(i / 13, i % 13));
     letterButtons_.push_back(character);
     character->resize(WLength(30), WLength::Auto);
 
-    character
-      ->clicked().connect(boost::bind(&LettersWidget::processButton, 
-				      this, 
-				      character));
+    character->clicked().connect
+      (boost::bind(&LettersWidget::processButton, this, character));
   }
 }
 
@@ -39,9 +36,10 @@ void LettersWidget::processButton(WPushButton *b)
   letterPushed_.emit(b->text().toUTF8()[0]);
 }
 
-void LettersWidget::init()
+void LettersWidget::reset()
 {
-  for(unsigned int i = 0; i < letterButtons_.size(); ++i)
+  for (unsigned int i = 0; i < letterButtons_.size(); ++i)
     letterButtons_[i]->enable();
+
   show();
 }

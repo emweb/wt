@@ -106,10 +106,13 @@ template<class C>
 void InitSchema::actCollection(const CollectionRef<C>& field)
 {
   const char *joinTableName = session_.tableName<C>();
+  std::string joinName = field.joinName();
+  if (joinName.empty())
+    joinName = mapping_.tableName;
 
   mapping_.sets.push_back
-    (Session::SetInfo(joinTableName, field.type(), field.joinName(),
-		      field.joinId(), field.fkConstraints()));
+    (Session::SetInfo(joinTableName, field.type(), joinName, field.joinId(),
+		      field.fkConstraints()));
 }
 
     /*
@@ -601,6 +604,9 @@ void SetReciproceAction::actCollection(const CollectionRef<C>& field)
 template<class C>
 void ToAnysAction::visit(const ptr<C>& obj)
 {
+  if (!session_ && obj.session())
+    session_ = obj.session();
+
   if (dbo_traits<C>::surrogateIdField())
     result_.push_back(obj.id());
 

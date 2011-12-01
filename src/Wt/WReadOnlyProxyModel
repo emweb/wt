@@ -1,0 +1,43 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WREADONLY_PROXY_MODEL_H_
+#define WREADONLY_PROXY_MODEL_H_
+
+#include <Wt/WAbstractProxyModel>
+
+namespace Wt {
+
+/*! \class WReadOnlyProxyModel Wt/WReadOnlyProxyModel
+ *  \brief A read-only wrapper for a source model
+ *
+ * This is a simple proxy model which provides a read-only view on a
+ * source model. This is convenient for situations where you want to
+ * share a common read-only source model between different sessions.
+ *
+ * \ingroup modelview
+ */
+class WT_API WReadOnlyProxyModel : public WAbstractProxyModel
+{
+public:
+  /*! \brief Constructor.
+   */
+  WReadOnlyProxyModel(WObject *parent = 0);
+
+  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
+  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
+
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+
+  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex index(int row, int column,
+			    const WModelIndex& parent = WModelIndex()) const;
+};
+
+}
+
+#endif // WREADONLY_PROXY_MODEL_H_
