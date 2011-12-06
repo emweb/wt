@@ -1,10 +1,11 @@
-Wt::Dbo Tutorial
-================
+A hands-on introduction to Wt::Dbo
+==================================
 
-Koen Deforche <koen@emweb.be>
-3.1.10, July 14 2011
+Koen Deforche <koen@emweb.be> +
 
-:doc:           link:../../reference/html/
+For Wt 3.2.0 (July 14 2011)
+
+:doc:           link:../reference/html/
 :cpp:		pass:[C++]
 
 == Introduction
@@ -64,25 +65,25 @@ namespace dbo = Wt::Dbo;
 
 class User {
 public:
-  enum Role {
-    Visitor = 0,
-    Admin = 1,
-    Alien = 42
-  };
+    enum Role {
+        Visitor = 0,
+        Admin = 1,
+        Alien = 42
+    };
 
-  std::string name;
-  std::string password;
-  Role        role;
-  int         karma;
+    std::string name;
+    std::string password;
+    Role        role;
+    int         karma;
 
-  template<class Action>
-  void persist(Action& a)
-  {
-    dbo::field(a, name,     "name");
-    dbo::field(a, password, "password");
-    dbo::field(a, role,     "role");
-    dbo::field(a, karma,    "karma");
-  }
+    template<class Action>
+    void persist(Action& a)
+    {
+        dbo::field(a, name,     "name");
+        dbo::field(a, password, "password");
+        dbo::field(a, role,     "role");
+        dbo::field(a, karma,    "karma");
+    }
 };
 ----
 
@@ -95,11 +96,11 @@ is used to map the field to a table column name.
 
 As you may see, standard {cpp} types such as +int+, +std::string+ and
 +enum+ types are readily supported by the library (a full list of supported 
-types can be found in the documentation of +{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<_T_>]+). Support for other
+types can be found in the documentation of +{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<T>]+). Support for other
 types can be added by specializing
-+{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<_T_>]+.
++{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<T>]+.
 There is also support for built-in Wt types such as WDate, WDateTime, WTime and 
-WString which can be enabled by including <Wt/Dbo/WtSqlTraits>.
+WString which can be enabled by including +<Wt/Dbo/WtSqlTraits>+.
 
 The library defines a number of actions which will be applied to a
 database object using its +persist()+ method, which applies it in turn
@@ -128,14 +129,14 @@ Let us walk through the code for doing this.
 ----
 void run()
 {
-  /*
-   * Setup a session, would typically be done once at application startup.
-   */
-  dbo::backend::Sqlite3 sqlite3("blog.db");
-  dbo::Session session;
-  session.setConnection(sqlite3);
+    /*
+     * Setup a session, would typically be done once at application startup.
+     */
+    dbo::backend::Sqlite3 sqlite3("blog.db");
+    dbo::Session session;
+    session.setConnection(sqlite3);
 
-  ...
+    ...
 ----
 
 The +{doc}classWt_1_1Dbo_1_1Session.html[Session]+ object is a long
@@ -171,16 +172,16 @@ backends.
 .(tutorial1.C continued)
 [source,cpp]
 ----
-  ...
+    ...
 
-  session.mapClass<User>("user");
+    session.mapClass<User>("user");
 
-  /*
-   * Try to create the schema (will fail if already exists).
-   */
-  session.createTables();
+    /*
+     * Try to create the schema (will fail if already exists).
+     */
+    session.createTables();
 
-  ...
+    ...
 ----
 
 Next, we use
@@ -197,12 +198,12 @@ This generates the following SQL:
 ----
 begin transaction
 create table "user" (
-  "id" integer primary key autoincrement,
-  "version" integer not null,
-  "name" text not null,
-  "password" text not null,
-  "role" integer not null,
-  "karma" integer not null
+    "id" integer primary key autoincrement,
+    "version" integer not null,
+    "name" text not null,
+    "password" text not null,
+    "role" integer not null,
+    "karma" integer not null
 )
 commit transaction
 ----
@@ -220,28 +221,28 @@ happen within a transaction.
 .(tutorial1.C continued)
 [source,cpp]
 ----
-  ...
-  /*
-   * A unit of work happens always within a transaction.
-   */
-  dbo::Transaction transaction(session);
+    ...
+    /*
+     * A unit of work happens always within a transaction.
+     */
+    dbo::Transaction transaction(session);
 
-  User *user = new User();
-  user->name = "Joe";
-  user->password = "Secret";
-  user->role = User::Visitor;
-  user->karma = 13;
+    User *user = new User();
+    user->name = "Joe";
+    user->password = "Secret";
+    user->role = User::Visitor;
+    user->karma = 13;
 
-  dbo::ptr<User> userPtr = session.add(user);
+    dbo::ptr<User> userPtr = session.add(user);
 
-  transaction.commit();
+    transaction.commit();
 }
 ----
 
 A call to
 {doc}classWt_1_1Dbo_1_1Session.html#a1ffa672cd86ff1ce6d59837b05081946[Session::add()]
 adds an object to the database. This call returns a
-+{doc}classWt_1_1Dbo_1_1ptr.html[ptr<_Dbo_>]+ to reference a database
++{doc}classWt_1_1Dbo_1_1ptr.html[ptr<Dbo>]+ to reference a database
 object of type +_Dbo_+. This is a shared pointer which also keeps
 track of the persistence state of the referenced object. Within each
 session, a database object will be loaded at most once: the session
@@ -263,7 +264,8 @@ This generates the following SQL:
 [source,sql]
 ----
 begin transaction
-insert into "user" ("version", "name", "password", "role", "karma") values (?, ?, ?, ?, ?)
+insert into "user" ("version", "name", "password", "role", "karma")
+    values (?, ?, ?, ?, ?)
 commit transaction
 ----
 
@@ -304,7 +306,7 @@ different query implementations.
 The default strategy is _DynamicBinding_ and allows the query to be a
 long lived object associated with the session which may be run
 multiple times. It also allows you to modify the query by changing
-only the order order the limit/offsets.
+only the order or the limit/offsets.
 
 An alternative strategy is _DirectBinding_ which passes bound
 parameters directly on to an underlying prepared statement. This
@@ -320,8 +322,8 @@ The query formulated to the database is:
 [source,sql]
 ----
 select id, version, "name", "password", "role", "karma"
-   from "user"
-   where (name = ?)
+    from "user"
+    where (name = ?)
 ----
 
 The more general way for querying uses
@@ -332,7 +334,8 @@ above is equivalent to:
 .(tutorial1.C continued)
 [source,cpp]
 ----
-dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >("select u from user u").where("name = ?").bind("Joe");
+dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >("select u from user u")
+    .where("name = ?").bind("Joe");
 ----
 
 And this generates similar SQL:
@@ -356,20 +359,21 @@ returned.
 .(tutorial1.C continued)
 [source,cpp]
 ----
-int count = session.query<int>("select count(1) from user").where("name = ?").bind("Joe");
+int count = session.query<int>("select count(1) from user")
+    .where("name = ?").bind("Joe");
 ----
 
 The queries above were expecting unique results, but queries can also
-have multiple results. A +Session::query<_Result_>()+ may therefore in
+have multiple results. A +Session::query<Result>()+ may therefore in
 general return a +dbo::collection< _Result_ >+ (for multiple results)
 and in the examples above they were coerced to a single unique
-+_Result_+ for convenience. Similarly, +Session::find<_Dbo_>()+ may
-return a +collection< ptr<_Dbo_> >+ or a unique +_ptr<_Dbo_>+. If a
++_Result_+ for convenience. Similarly, +Session::find<Dbo>()+ may
+return a +collection< ptr<Dbo> >+ or a unique +_ptr<Dbo>+. If a
 unique result is asked, but the query found multiple results, a
 +{doc}classWt_1_1Dbo_1_1NoUniqueResultException.html[NoUniqueResultException]+
 will be thrown.
 
-+{doc}classWt_1_1Dbo_1_1collection.html[collection<_T_>]+ is an
++{doc}classWt_1_1Dbo_1_1collection.html[collection<T>]+ is an
 STL-compatible collection which has iterators that implement the
 +InputIterator+ requirements. Thus, you can only iterate through the
 results of a collection once. After the results have been iterated the
@@ -415,7 +419,8 @@ results into a standard container (such as +std::vector+) before
 iterating them. Since Wt 3.1.3, concurrent use will be detected and
 an exception will be thrown saying:
 
- A collection for '...' is already in use. Reentrant statement use is not yet implemented.
+ A collection for '...' is already in use. Reentrant statement use is
+ not yet implemented.
 
 We plan to remove this restriction in later versions, cloning
 prepared statements as necessary.
@@ -423,7 +428,7 @@ prepared statements as necessary.
 
 == Updating objects
 
-Unlike most other smart pointers, +ptr<_Dbo_>+ is read-only by
+Unlike most other smart pointers, +ptr<Dbo>+ is read-only by
 default: it returns a +const _Dbo_*+. To modify a database object, you
 need to call the +{doc}classWt_1_1Dbo_1_1ptr.html#a8f9f4ec6ed2bd8febe8b62525c9576da[ptr::modify()]+ method, which returns a non-const
 object. This mark the object as dirty and the modifications will later
@@ -440,7 +445,7 @@ joe.modify()->password = "public";
 
 Database synchronization does not happen instantaneously, instead,
 they are delayed until explicitly asked, using
-+{doc}classWt_1_1Dbo_1_1ptr.html#aaf91f5ef8bcdabfafcd9abb4182625bd[ptr<_Dbo_>::flush()]+
++{doc}classWt_1_1Dbo_1_1ptr.html#aaf91f5ef8bcdabfafcd9abb4182625bd[ptr<Dbo>::flush()]+
 or
 +{doc}classWt_1_1Dbo_1_1Session.html#ab896d119f1e0fb79adffe2282b92ef17[Session::flush()]+,
 until a query is executed whose results may be affected by the changes
@@ -453,13 +458,14 @@ The previous code will generate the following SQL:
 select id, version, "name", "password", "role", "karma"
     from "user"
     where (name = ?)
-update "user" set "version" = ?, "name" = ?, "password" = ?, "role" = ?, "karma" = ?
+update "user"
+    set "version" = ?, "name" = ?, "password" = ?, "role" = ?, "karma" = ?
     where "id" = ? and "version" = ?
 ----
 
-We already saw how using +Session::add(ptr<_Dbo_>)+, we added a new
+We already saw how using +Session::add(ptr<Dbo>)+, we added a new
 object to the database. The opposite operation is
-+{doc}classWt_1_1Dbo_1_1ptr.html#af4b26afebd56abc42005ef9f954d8fee[ptr<_Dbo_>::remove()]+: it deletes the object in the database.
++{doc}classWt_1_1Dbo_1_1ptr.html#af4b26afebd56abc42005ef9f954d8fee[ptr<Dbo>::remove()]+: it deletes the object in the database.
 
 .(tutorial1.C continued)
 [source,cpp]
@@ -508,32 +514,32 @@ class User;
 
 class Post {
 public:
-  ...
+    ...
 
-  dbo::ptr<User> user;
+    dbo::ptr<User> user;
 
-  template<class Action>
-  void persist(Action& a)
-  {
-    ... 
+    template<class Action>
+    void persist(Action& a)
+    {
+        ... 
 
-    dbo::belongsTo(a, user, "user");
-  }
+        dbo::belongsTo(a, user, "user");
+    }
 };
 
 class User {
 public:
-  ...
-
-  dbo::collection< dbo::ptr<Post> > posts;
-
-  template<class Action>
-  void persist(Action& a)
-  {
     ...
 
-    dbo::hasMany(a, posts, dbo::ManyToOne, "user");
-  }
+    dbo::collection< dbo::ptr<Post> > posts;
+
+    template<class Action>
+    void persist(Action& a)
+    {
+        ...
+
+        dbo::hasMany(a, posts, dbo::ManyToOne, "user");
+    }
 };
 ----
 
@@ -557,16 +563,16 @@ generated:
 [source,sql]
 ----
 create table "user" (
-  ...
+    ...
 
-  -- table user is unaffected by the relationship
+    -- table user is unaffected by the relationship
 );
 
 create table "post" (
-  ...
+    ...
 
-  "user_id" bigint,
-  constraint "fk_post_user" foreign key ("user_id") references "user" ("id")
+    "user_id" bigint,
+    constraint "fk_post_user" foreign key ("user_id") references "user" ("id")
 )
 ----
 
@@ -628,32 +634,32 @@ class Tag;
 
 class Post {
 public:
-  ...
-
-  dbo::collection< dbo::ptr<Tag> > tags;
-
-  template<class Action>
-  void persist(Action& a)
-  {
     ...
 
-    dbo::hasMany(a, tags, dbo::ManyToMany, "post_tags");
-  }
+    dbo::collection< dbo::ptr<Tag> > tags;
+
+    template<class Action>
+    void persist(Action& a)
+    {
+        ...
+
+        dbo::hasMany(a, tags, dbo::ManyToMany, "post_tags");
+    }
 };
 
 class Tag {
 public:
-  ...
-
-  dbo::collection< dbo::ptr<Post> > posts;
-
-  template<class Action>
-  void persist(Action& a)
-  {
     ...
 
-    dbo::hasMany(a, posts, dbo::ManyToMany, "post_tags");
-  }
+    dbo::collection< dbo::ptr<Post> > posts;
+
+    template<class Action>
+    void persist(Action& a)
+    {
+        ...
+
+        dbo::hasMany(a, posts, dbo::ManyToMany, "post_tags");
+    }
 };
 ----
 
@@ -669,23 +675,25 @@ now get the following SQL for creating the schema:
 [source,sql]
 ----
 create table "post" (
-  ...
+    ...
 
-  -- table post is unaffected by the relationship
+    -- table post is unaffected by the relationship
 )
 
 create table "tag" (
-  ...
+    ...
 
-  -- table tag is unaffected by the relationship
+    -- table tag is unaffected by the relationship
 )
 
 create table "post_tags" (
-  "post_id" bigint not null,
-  "tag_id" bigint not null,
-  primary key ("post_id", "tag_id"),
-  constraint "fk_post_tags_key1" foreign key ("post_id") references "post" ("id"),
-  constraint "fk_post_tags_key2" foreign key ("tag_id") references "tag" ("id")
+    "post_id" bigint not null,
+    "tag_id" bigint not null,
+    primary key ("post_id", "tag_id"),
+    constraint "fk_post_tags_key1" foreign key ("post_id")
+        references "post" ("id"),
+    constraint "fk_post_tags_key2" foreign key ("tag_id")
+        references "tag" ("id")
 )
 
 create index "post_tags_post" on "post_tags" ("post_id")
@@ -718,7 +726,8 @@ cooking.modify()->name = "Cooking";
 post.modify()->tags.insert(cooking);
 
 // will print '1 post(s) tagged with Cooking.'
-std::cerr << cooking->posts.size() << " post(s) tagged with Cooking." << std::endl;
+std::cerr << cooking->posts.size() << " post(s) tagged with Cooking."
+          << std::endl;
 ----
 
 [WARNING]
@@ -763,16 +772,16 @@ public:
 };
 
 namespace Wt {
-  namespace Dbo {
+    namespace Dbo {
 
-    template<>
-    struct dbo_traits<Post> : public dbo_default_traits {
-      static const char *surrogateIdField() {
-        return "post_id";
-      }
-    };
+        template<>
+        struct dbo_traits<Post> : public dbo_default_traits {
+            static const char *surrogateIdField() {
+                return "post_id";
+            }
+        };
 
-  }
+    }
 }
 ----
 
@@ -795,20 +804,20 @@ namespace dbo = Wt::Dbo;
 
 class Post {
 public:
-  ...
+    ...
 };
 
 namespace Wt {
-  namespace Dbo {
+    namespace Dbo {
 
-    template<>
-    struct dbo_traits<Post> : public dbo_default_traits {
-      static const char *versionField() {
-        return 0;
-      }
-    };
+        template<>
+        struct dbo_traits<Post> : public dbo_default_traits {
+            static const char *versionField() {
+                return 0;
+            }
+        };
 
-  }
+    }
 }
 ----
 
@@ -830,30 +839,30 @@ namespace dbo = Wt::Dbo;
 
 class User {
 public:
-  std::string userId;
+    std::string userId;
 
-  template<class Action>
-  void persist(Action& a)
-  {
-    dbo::id(a, userId, "user_id", 20);
-  }
+    template<class Action>
+    void persist(Action& a)
+    {
+        dbo::id(a, userId, "user_id", 20);
+    }
 };
 
 namespace Wt {
-  namespace Dbo {
+    namespace Dbo {
 
-    template<>
-    struct dbo_traits<User> : public dbo_default_traits {
-      typedef std::string IdType;
+        template<>
+        struct dbo_traits<User> : public dbo_default_traits {
+            typedef std::string IdType;
 
-      static IdType invalidId() {
-        return std::string();
-      }
+            static IdType invalidId() {
+                return std::string();
+            }
 
-      static const char *surrogateIdField() { return 0; }
-    };
+            static const char *surrogateIdField() { return 0; }
+        };
 
-  }
+    }
 }
 ----
 
@@ -875,31 +884,31 @@ constructor, comparison operators (== and <), and a streaming operator.
 [source,cpp]
 ----
 struct Coordinate {
-  int x, y;
+    int x, y;
 
-  Coordinate()
-    : x(-1), y(-1) { }
+    Coordinate()
+        : x(-1), y(-1) { }
 
-  Coordinate(int an_x, int an_y)
-    : x(an_x), y(an_y) { }
+    Coordinate(int an_x, int an_y)
+        : x(an_x), y(an_y) { }
 
-  bool operator== (const Coordinate& other) const {
-    return x == other.x && y == other.y;
-  }
+    bool operator== (const Coordinate& other) const {
+        return x == other.x && y == other.y;
+    }
 
-  bool operator< (const Coordinate& other) const {
-    if (x < other.x)
-      return true;
-    else if (x == other.x)
-      return y < other.y;
-    else
-      return false;
-  }
+    bool operator< (const Coordinate& other) const {
+        if (x < other.x)
+            return true;
+        else if (x == other.x)
+            return y < other.y;
+        else
+            return false;
+    }
 };
 
 std::ostream& operator<< (std::ostream& o, const Coordinate& c)
 {
-  return o << "(" << c.x << ", " << c.y << ")";
+    return o << "(" << c.x << ", " << c.y << ")";
 }
 ----
 
@@ -910,16 +919,16 @@ Next, you must indicate how the type is persisted, by overloading Dbo's
 [source,cpp]
 ----
 namespace Wt {
-  namespace Dbo {
+    namespace Dbo {
 
-    template <class Action>
-    void field(Action& action, Coordinate& coordinate, const std::string& name,
-	       int size = -1)
-    {
-      field(action, coordinate.x, name + "_x");
-      field(action, coordinate.y, name + "_y");
+        template <class Action>
+        void field(Action& action, Coordinate& coordinate,
+                   const std::string& name, int size = -1)
+        {
+            field(action, coordinate.x, name + "_x");
+            field(action, coordinate.y, name + "_y");
+        }
     }
-  }
 }
 ----
 
@@ -932,29 +941,29 @@ key type:
 class GeoTag;
 
 namespace Wt {
-  namespace Dbo {
+    namespace Dbo {
 
-    template<>
-    struct dbo_traits<GeoTag> : public dbo_default_traits
-    {
-      typedef Coordinate IdType;
-      static IdType invalidId() { return Coordinate(); }
-      static const char *surrogateIdField() { return 0; }
-    };
-  }
+         template<>
+         struct dbo_traits<GeoTag> : public dbo_default_traits
+         {
+             typedef Coordinate IdType;
+             static IdType invalidId() { return Coordinate(); }
+             static const char *surrogateIdField() { return 0; }
+         };
+    }
 }
 
 class GeoTag {
 public:
-  Coordinate  position;
-  std::string name;
+     Coordinate  position;
+     std::string name;
 
-  template <class Action>
-  void persist(Action& a)
-  {
-    dbo::id(a, position, "position");
-    dbo::field(a, name, "name");
-  }
+     template <class Action>
+     void persist(Action& a)
+     {
+          dbo::id(a, position, "position");
+          dbo::field(a, name, "name");
+     }
 };
 ----
 
@@ -999,100 +1008,102 @@ class UserInfo;
 class User;
 
 namespace Wt {
-  namespace Dbo {
+    namespace Dbo {
 
-    template<>
-    struct dbo_traits<UserInfo> : public dbo_default_traits {
-      typedef ptr<User> IdType;
+        template<>
+        struct dbo_traits<UserInfo> : public dbo_default_traits {
+            typedef ptr<User> IdType;
 
-      static IdType invalidId() {
-        return ptr<User>();
-      }
+            static IdType invalidId() {
+                return ptr<User>();
+            }
 
-      static const char *surrogateIdField() { return 0; }
-    };
+            static const char *surrogateIdField() { return 0; }
+        };
 
-  }
+    }
 }
 
-class User {
+class User
+{
 public:
-  std::string name;
+    std::string name;
 
-  dbo::collection< dbo::ptr<UserInfo> > infos;
+    dbo::collection< dbo::ptr<UserInfo> > infos;
 
-  template<class Action>
-  void persist(Action& a)
-  {
-    dbo::field(a, name,     "name");
+    template<class Action>
+    void persist(Action& a)
+    {
+         dbo::field(a, name,     "name");
 
-    // In fact, this is really constrained to hasOne() ...
-    dbo::hasMany(a, infos, dbo::ManyToOne, "user");
-  }
+         // In fact, this is really constrained to hasOne() ...
+         dbo::hasMany(a, infos, dbo::ManyToOne, "user");
+    }
 };
 
-class UserInfo {
+class UserInfo
+{
 public:
-  dbo::ptr<User> user;
-  std::string info;
+    dbo::ptr<User> user;
+    std::string info;
 
-  template<class Action>
-  void persist(Action& a)
-  {
-    dbo::id(a, user, "user", dbo::OnDeleteCascade);
-    dbo::field(a, info, "info");
-  }
+    template<class Action>
+    void persist(Action& a)
+    {
+        dbo::id(a, user, "user", dbo::OnDeleteCascade);
+        dbo::field(a, info, "info");
+    }
 };
 
 void run()
 {
-  /*
-   * Setup a session, would typically be done once at application startup.
-   */
-  dbo::backend::Sqlite3 sqlite3(":memory:");
-  sqlite3.setProperty("show-queries", "true");
-  dbo::Session session;
-  session.setConnection(sqlite3);
+    /*
+     * Setup a session, would typically be done once at application startup.
+     */
+    dbo::backend::Sqlite3 sqlite3(":memory:");
+    sqlite3.setProperty("show-queries", "true");
+    dbo::Session session;
+    session.setConnection(sqlite3);
 
-  session.mapClass<User>("user");
-  session.mapClass<UserInfo>("user_info");
+    session.mapClass<User>("user");
+    session.mapClass<UserInfo>("user_info");
 
-  /*
-   * Try to create the schema (will fail if already exists).
-   */
-  session.createTables();
+    /*
+     * Try to create the schema (will fail if already exists).
+     */
+    session.createTables();
 
-  dbo::Transaction transaction(session);
-
-  {
-    User *user = new User();
-    user->name = "Joe";
-
-    dbo::ptr<User> userPtr = session.add(user);
-
-    UserInfo *userInfo = new UserInfo();
-    userInfo->user = userPtr;
-    userInfo->info = "great guy";
-
-    session.add(userInfo);
-
-    transaction.commit();
-  }
-
-  {
     dbo::Transaction transaction(session);
 
-    dbo::ptr<UserInfo> info = session.find<UserInfo>();
-    
-    std::cerr << info->user->name << " is a " << info->info << std::endl;
+    {
+        User *user = new User();
+        user->name = "Joe";
 
-    transaction.commit();
-  }
+        dbo::ptr<User> userPtr = session.add(user);
+
+        UserInfo *userInfo = new UserInfo();
+        userInfo->user = userPtr;
+        userInfo->info = "great guy";
+
+        session.add(userInfo);
+
+        transaction.commit();
+    }
+
+    {
+        dbo::Transaction transaction(session);
+
+        dbo::ptr<UserInfo> info = session.find<UserInfo>();
+    
+        std::cerr << info->user->name << " is a " << info->info << std::endl;
+
+        transaction.commit();
+    }
 }
 
 int main(int argc, char **argv)
 {
-  run();
+    run();
 }
 ----
 
@@ -1107,17 +1118,18 @@ When run, this should output:
 ----
 begin transaction
 create table "user" (
-  "id" integer primary key autoincrement,
-  "version" integer not null,
-  "name" text not null
+    "id" integer primary key autoincrement,
+    "version" integer not null,
+    "name" text not null
 )
 
 create table "user_info" (
-  "version" integer not null,
-  "user_id" bigint,
-  "info" text not null,
-  primary key ("user_id"),
-  constraint "fk_user_info_user" foreign key ("user_id") references "user" ("id") on delete cascade
+    "version" integer not null,
+    "user_id" bigint,
+    "info" text not null,
+    primary key ("user_id"),
+    constraint "fk_user_info_user" foreign key ("user_id")
+        references "user" ("id") on delete cascade
 )
 
 commit transaction
@@ -1192,7 +1204,7 @@ least need to
 the stale database object(s) before being able to commit changes made
 in a new transaction.
 
-== Installing +Wt::Dbo+
+== Installation
 
 +Wt::Dbo+ is included in Wt, and can thus be installed as part of this
 library for which there may be standard packages availabe for your
@@ -1209,7 +1221,7 @@ following to build and install only +Wt::Dbo+:
 $ cd wt-xxx
 $ mkdir build
 $ cd build
-$ cmake ../ # extra options may be needed for locating boost, postgres, install directory, ...
+$ cmake ../ # extra options may be needed, see instructions
 $ cd src/Wt/Dbo
 $ make
 $ sudo make install

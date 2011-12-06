@@ -55,9 +55,15 @@ void StdLayoutImpl::updateRemoveItem(WLayoutItem *item)
 
 void StdLayoutImpl::setContainer(WContainerWidget *c)
 {
-  if (c->count()) {
-    while (c->count())
-      c->removeWidget(c->widget(0));
+  for (int i = c->count(); i > 0; --i) {
+    /*
+     * See original remark: 94337b3e062f925ba8e7afc74059a41f8488bb75
+     * But, this should only be done if the widget is not part
+     * of the layout
+     */
+    WWidget *w = c->widget(i - 1);
+    if (!layout_->findWidgetItem(w))
+	c->removeWidget(w);
   }
 
   container_ = c;

@@ -465,8 +465,7 @@ std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr);
 /*! \defgroup dbo Database Objects (Wt::Dbo)
  *  \brief An implemenation of an Object Relational Mapping layer.
  *
- * For an introduction, see the <a
- * href="../../tutorial/dbo/tutorial.html">tutorial</a>.
+ * For an introduction, see the <a href="../../tutorial/dbo.html">tutorial</a>.
  */
 
 /*! \class ptr Wt/Dbo/ptr Wt/Dbo/ptr

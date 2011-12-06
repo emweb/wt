@@ -389,7 +389,7 @@ ADD_CUSTOM_TARGET(doc)
 IF (ASCIIDOC_FOUND)
   MACRO (ASCIIDOC_FILE target infile outfile)
     ADD_CUSTOM_TARGET(${target}
-       ${ASCIIDOC_EXECUTABLE} -a toc -a numbered -o ${outfile} ${infile}
+       ${ASCIIDOC_EXECUTABLE} -a toc -a numbered -a icons -a  theme=emweb -a pygments -a linkcss -o ${outfile} ${infile}
        COMMENT "Asciidoc ${infile}")
     ADD_DEPENDENCIES(doc ${target})
   ENDMACRO (ASCIIDOC_FILE)

@@ -280,21 +280,22 @@ bool WFileUpload::empty() const
 
 void WFileUpload::updateDom(DomElement& element, bool all)
 {
+  bool containsProgress = progressBar_ && progressBar_->parent() == this;
+
   if (fileUploadTarget_ && doUpload_) {
     element.callMethod("submit()");
     doUpload_ = false;
 
-    if (progressBar_)
-      if (progressBar_->parent() == this) {
-	DomElement *inputE = DomElement::getForUpdate("in" + id(),
-						      DomElement_INPUT);
-	inputE->setProperty(PropertyStyleDisplay, "none");
-	element.addChild(inputE);
-      }
+    if (containsProgress) {
+      DomElement *inputE = DomElement::getForUpdate("in" + id(),
+						    DomElement_INPUT);
+      inputE->setProperty(PropertyStyleDisplay, "none");
+      element.addChild(inputE);
+    }
   }
 
   if (element.type() != DomElement_INPUT
-      && progressBar_ && !progressBar_->isRendered())
+      && containsProgress && !progressBar_->isRendered())
     element.addChild(progressBar_->createSDomElement(WApplication::instance()));
 
   WWebWidget::updateDom(element, all);

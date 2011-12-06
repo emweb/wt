@@ -54,7 +54,7 @@ IF (ASCIIDOC_FOUND)
     ADD_CUSTOM_TARGET(doc)
   ENDIF(NOT WIN32)
   ASCIIDOC_FILE(dbo-tutorial
-    ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo/tutorial.doc
-    ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo/tutorial.html)
+    ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo.doc
+    ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo.html)
 ENDIF (ASCIIDOC_FOUND)
 

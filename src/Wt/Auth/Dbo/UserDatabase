@@ -9,6 +9,7 @@
 
 #include <Wt/Auth/AbstractUserDatabase>
 #include <Wt/Auth/Dbo/AuthInfo>
+#include <Wt/WLogger>
 
 namespace Wt {
   namespace Auth {

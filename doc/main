@@ -12,8 +12,9 @@ namespace Wt {
    the source code.
 
    For learning web application programming with %Wt, we recommend
-   reading the <a href="../../tutorial/wt-sdj.xhtml"> introduction to
-   %Wt</a> which includes a complete tutorial.
+   reading the <a href="../../tutorial/wt.html"> hands-on introduction
+   to %Wt</a>, which includes a complete tutorial (reworked in
+   December 2011).
   
    In addition, there is also:
    - \ref overview - Overview of the main %Wt components (recommended!).
@@ -22,7 +23,7 @@ namespace Wt {
    - \ref Releasenotes - Release notes.
    - \ref ext - Using %Ext widgets, widgets based on ExtJS.
    - \ref example - A line-by-line explanation, mainly shows how to achieve client-side event handling in C++.
-   - <a href="../../tutorial/dbo/tutorial.html">Tutorial for Dbo</a> - %Wt's C++ ORM library.
+   - <a href="../../tutorial/dbo.html">Tutorial for Dbo</a> - %Wt's C++ ORM library.
    - <a href="../../examples/html/modules.html">Examples documentation</a>.
   \page overview Library overview
   

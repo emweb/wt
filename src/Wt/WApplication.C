@@ -480,8 +480,14 @@ void WApplication::popExposedConstraint(WWidget *w)
 
 bool WApplication::isExposed(WWidget *w) const
 {
+  /*
+   * This not right: for example a file upload is usually hidden while
+   * uploading, but then could not receive the upload event
+   */
+  /*
   if (!w->isVisible())
     return false;
+  */
 
   if (w == domRoot_)
     return true;

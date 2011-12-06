@@ -13,8 +13,9 @@ using namespace Wt;
 const int ImagesWidget::HURRAY = -1;
 
 ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
+  : WContainerWidget(parent)
 {
-  for (unsigned i = 0; i <= maxGuesses; ++i) {
+  for (int i = 0; i <= maxGuesses; ++i) {
     std::string fname = "icons/hangman";
     fname += boost::lexical_cast<std::string>(i) + ".jpg";
     WImage *theImage = new WImage(fname, this);
@@ -26,10 +27,12 @@ ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
     theImage->hide();
   }
 
-  images_.push_back(new WImage("icons/hangmanhurray.jpg", this));
-  image_ = 0;
+  WImage *hurray = new WImage("icons/hangmanhurray.jpg", this);
+  hurray->hide();
+  images_.push_back(hurray);
 
-  showImage(HURRAY);
+  image_ = 0;
+  showImage(maxGuesses);
 }
 
 void ImagesWidget::showImage(int index)

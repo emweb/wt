@@ -12,6 +12,7 @@
 #include <Wt/Dbo/Exception>
 #include <Wt/Dbo/Field>
 #include <Wt/Dbo/SqlStatement>
+#include <Wt/Dbo/DbAction>
 
 #include <Wt/Dbo/Field_impl.h>
 

@@ -6,10 +6,10 @@
 
 #include "HangmanWidget.h"
 
+#include <Wt/WBreak>
 #include <Wt/WComboBox>
 #include <Wt/WPushButton>
 #include <Wt/WText>
-#include <Wt/WVBoxLayout>
 #include <boost/lexical_cast.hpp>
 
 #include "Session.h"
@@ -28,34 +28,25 @@ HangmanWidget::HangmanWidget(const std::string &name, WContainerWidget *parent)
     name_(name),
     badGuesses_(0)
 {
-  WVBoxLayout *layout = new WVBoxLayout();
-  layout->setContentsMargins(0, 0, 0, 0);
-  this->setLayout(layout);
+  setContentAlignment(AlignCenter);
   
-  title_ = new WText(tr("hangman.readyToPlay"));
-  layout->addWidget(title_, 0, AlignCenter | AlignMiddle);
+  title_ = new WText(tr("hangman.readyToPlay"), this);
 
-  word_ = new WordWidget();
-  layout->addWidget(word_, 0, AlignCenter | AlignMiddle);
+  word_ = new WordWidget(this);
+  statusText_ = new WText(this);
+  images_ = new ImagesWidget(MaxGuesses, this);
 
-  statusText_ = new WText();
-  layout->addWidget(statusText_, 0, AlignCenter | AlignMiddle);
-
-  images_ = new ImagesWidget(MaxGuesses);
-  layout->addWidget(images_, 1, AlignCenter | AlignMiddle);
-
-  letters_ = new LettersWidget();
-  layout->addWidget(letters_, 0, AlignCenter | AlignMiddle);
+  letters_ = new LettersWidget(this);
   letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
-  language_ = new WComboBox();
+  language_ = new WComboBox(this);
   language_->addItem(tr("hangman.englishWords").arg(18957));
   language_->addItem(tr("hangman.dutchWords").arg(1688));
-  layout->addWidget(language_, 0, AlignCenter | AlignMiddle);
+
+  new WBreak(this);
 
   newGameButton_ = new WPushButton(tr("hangman.newGame"), this);
   newGameButton_->clicked().connect(this, &HangmanWidget::newGame);
-  layout->addWidget(newGameButton_, 0, AlignCenter | AlignMiddle);
 
   letters_->hide();
 }
@@ -75,7 +66,6 @@ void HangmanWidget::newGame()
   word_->init(RandomWord(dictionary));
   letters_->reset();
   badGuesses_ = 0;
-
   images_->showImage(badGuesses_);
   statusText_->setText("");
 }

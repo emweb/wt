@@ -1299,38 +1299,44 @@ specific installation notes</a>.
 <h4>Introduction and tutorials</h4>
 
 <ul>
-<li>Learn about the benefits of using Wt compared to traditional web
+<li>Learn about the benefits of Wt compared to traditional web
 application frameworks using our <a
-href="http://www.webtoolkit.eu/doc/Wt-WhitePaper.pdf">white paper</a>.</li>
+href="http://www.webtoolkit.eu/doc/Wt-WhitePaper.pdf">white
+paper</a>.</li>
+
+<li>The <a
+href="http://www.webtoolkit.eu/wt/doc/tutorial/wt.html">online
+tutorial</a> (<a
+href="http://www.webtoolkit.eu/wt/doc/tutorial/wt.pdf">download
+PDF</a>) brings you up to speed on developing web applications using
+Wt (Revised December 2011).</li>
+
+<li>The ORM framework (Wt::Dbo) has covered in a separate <a
+href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo.html">online
+tutorial</a> (<a
+href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo.pdf">download
+PDF</a>) (Revised July 2011).</li>
 
 <li>Dr Dobbs Journal has a good <a href="http://www.ddj.com/cpp/206401952">
 introductary article on Wt</a> (February 2008).</li>
 
-<li>The reference manual contains
-a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html">library
-overview</a> which is a good starting point.</li>
-
-<li>Software Developers Journal has a (slighly outdated) tutorial
-(April 2006). The tutorial uses the Hangman example code (see also in
-the examples section!). You can view a copy of the article <a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.xhtml">on-line</a> or grab a
-<a href="http://www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.pdf">PDF copy</a>.</li>
+<li>The reference manual contains a <a
+href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html">library
+overview</a> which is recommended reading with information on
+configuration and deployment options.</li>
 
 <li>Victor Venkman wrote a
-<a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">nice introduction to Wt</a>, with a close examination of
+<a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">nice introduction to Wt</a>, with a closer examination of
 the <a href="#/examples/">hello world example</a>.</li>
 
 </ul>
 
 <h4>Reference manual</h4>
 
-<p>There is a a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/index.html"
-target="_blank"> reference manual (in a new window)</a>, generated
-from the source code using doxygen. This also contains a small
-tutorial on the tree list example, focusing in particular on the
-stateless slot implementation mechanism, which is a more advanced
-feature of Wt to allow optimisation of event handling to client side
-code.</p>
+<p>The <a
+href="http://www.webtoolkit.eu/wt/doc/reference/html/index.html"
+target="_blank"> reference manual</a> has been generated from the
+source code using doxygen.</p>
 
 <h4>Annotated examples</h4>
 

@@ -1,0 +1,211 @@
+/* ---------------------------------------------------------------------------
+   Bare AsciiDoc styles
+   Ryan Tomayko <r@tomayko.com>
+   Modified: Koen Deforche <koen@emweb.be>
+--------------------------------------------------------------------------- */
+
+body {
+	font-family:verdana,helvetica,arial,sans-serif;
+	font-size:90%;
+	line-height:1.538;
+	margin:40px 50px;
+	color:#222;
+}
+
+body div {
+        max-width: 850px;
+	margin: 0px auto;
+}
+
+#toc {
+    margin-top: 5ex;
+    text-align: left;
+}
+
+#toctitle {
+    font-weight: bold;
+}
+
+.toclevel2 {
+    margin-left: 3ex;
+}
+
+a:visited {
+	color:inherit;
+}
+
+em {
+	font-style:italic;
+}
+
+strong {
+	font-weight:bold;
+	color:#000;
+}
+
+tt {
+	font-size: 13px;
+	color:#000;
+}
+
+.monospaced {
+	color: #932;
+}
+
+.sidebarblock {
+    margin: 1em;
+    background-color: #F5F5B0;
+    padding: 1em 1em 0.5em 1em;
+}
+
+p, ul, ol, dl {
+	margin:10px 0
+}
+
+dl {
+	margin-left:40px
+}
+
+dt {
+	font-weight:normal;
+	color:#000;
+}
+
+h1, h2, h3, h4, h5 {
+	font-family:'lucida grande',georgia,verdana,helvetica,arial,sans-serif;
+	font-weight:normal;
+	color:#000;
+}
+
+h1 {
+	font-size:30px;
+	line-height:1.428;
+	margin:20px 0;
+}
+
+h2 {
+	font-size:23px;
+	line-height:1.36363636; /* repeating, of course */
+	margin:20px 0;
+}
+
+h2 + .sectionbody {}
+
+h3 {
+	font-size:18px;
+	line-height:1.1;
+	margin:30px 0 10px 0;
+}
+
+h4 {
+	font-size:13px;
+	font-weight:bold;
+	line-height:1.538;
+}
+
+h5 {
+	font-size:13px;
+	font-style:italic;
+	line-height:1.538;
+}
+
+pre {
+	font-size:larger;
+}
+
+#header { 
+	text-align:center;
+	margin-bottom:30px;
+}
+
+#header h1 { margin-bottom:0 }
+
+
+.title, .sidebar-title {
+	font-weight:bold;
+	color:#000;
+	margin-bottom:0;
+}
+
+.admonitionblock .title {
+	font-weight:bold;
+}
+
+.admonitionblock {
+	margin:30px 0px;
+	color:#555;
+}
+
+.admonitionblock td.icon {
+	width:30px;
+	padding-right:20px;
+	padding-left:20px;
+	text-transform:uppercase;
+	font-weight:bold;
+	color:#888;
+}
+
+.listingblock .content {
+	border:1px solid silver;
+	background:#eee;
+	padding:5px;
+}
+
+.listingblock .content pre {
+	margin:0;
+}
+
+.literalblock .content {
+	margin-left:40px;
+}
+
+.verseblock .content {
+	white-space:pre
+}
+
+.sidebarblock .sidebar-content {
+	border:1px solid silver;
+	background:#FFFFEE;
+	padding:0 10px;
+	color:#222;
+	font-size:smaller;
+	line-height:1.5;
+}
+
+.sidebar-title {
+	margin:10px 0;
+	font-weight:bold;
+	color:#442;
+}
+
+.quoteblock-content {
+	font-style:italic;
+	color:#444;
+	margin-left:40px;
+}
+
+.quoteblock-content .attribution {
+	font-style:normal;
+	text-align:right;
+	color:#000;
+}
+
+.exampleblock-content *:first-child { margin-top:0 }
+.exampleblock-content {
+	border-left:2px solid silver;
+	padding-left:8px;
+}
+
+#footer {
+	font-size:11px;
+	margin-top:40px;
+	border-top:1px solid silver;
+	color:#555;
+}
+
+#author {
+	color:#000;
+	text-transform:uppercase
+}
+
+/* vim: set ft=css ts=4 sw=4 noexpandtab: */

@@ -74,5 +74,20 @@ WString PasswordStrengthValidator::message(int result) const
   return WString::tr(std::string("Wt.Auth.passwdqc.reason-") + reasons[result]);
 }
 
+void PasswordStrengthValidator::setMinimimumLength(PasswordType type, int length)
+{
+  minLength_[type] = length;
+}
+
+void PasswordStrengthValidator::setMinimumPassPhraseWords(int words)
+{
+  passPhraseWords_ = words;
+}
+
+void PasswordStrengthValidator::setMinimumMatchLength(int length)
+{
+  minMatchLength_ = length;
+}
+
   }
 }

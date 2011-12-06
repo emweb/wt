@@ -151,9 +151,9 @@ boost::any GitModel::data(const WModelIndex& index, int role) const
 	return object.name;
     } else if (role == DecorationRole) {
       if (object.type == Git::Blob)
-	return "icons/git-blob.png";
+	return static_cast<const char*>("icons/git-blob.png");
       else if (object.type == Git::Tree)
-	return "icons/git-tree.png";
+	return static_cast<const char*>("icons/git-tree.png");
     } else if (role == ContentsRole) {
       if (object.type == Git::Blob)
 	return git_.catFile(object.id);
@@ -169,7 +169,7 @@ boost::any GitModel::headerData(int section, Orientation orientation,
 				int role) const
 {
   if (orientation == Horizontal && role == DisplayRole)
-    return "File";
+    return static_cast<const char*>("File");
   else
     return boost::any();
 }

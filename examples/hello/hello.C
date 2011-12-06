@@ -47,8 +47,9 @@ HelloApplication::HelloApplication(const WEnvironment& env)
   nameEdit_ = new WLineEdit(root());                     // allow text input
   nameEdit_->setFocus();                                 // give focus
 
-  WPushButton *b = new WPushButton("Greet me.", root()); // create a button
-  b->setMargin(5, Left);                                 // add 5 pixels margin
+  WPushButton *button
+    = new WPushButton("Greet me.", root());              // create a button
+  button->setMargin(5, Left);                            // add 5 pixels margin
 
   root()->addWidget(new WBreak());                       // insert a line break
 
@@ -59,7 +60,7 @@ HelloApplication::HelloApplication(const WEnvironment& env)
    *
    * - simple Wt-way
    */
-  b->clicked().connect(this, &HelloApplication::greet);
+  button->clicked().connect(this, &HelloApplication::greet);
 
   /*
    * - using an arbitrary function object (binding values with boost::bind())
