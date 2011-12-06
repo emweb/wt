@@ -111,7 +111,9 @@ PaintedSlider::PaintedSlider(WSlider *slider)
 
   slider_->setStyleClass(std::string("Wt-slider-")
 			 + (slider_->orientation() == Horizontal ? "h" : "v"));
-  slider_->setPositionScheme(Relative);
+
+  if (slider_->positionScheme() == Static)
+    slider_->setPositionScheme(Relative);
 
   addChild(handle_ = new WContainerWidget());
   handle_->setPopup(true);
