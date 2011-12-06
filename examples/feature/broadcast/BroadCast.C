@@ -132,7 +132,7 @@ void Server::run()
    * thread.
    */
   for (;;) {
-    boost::this_thread::sleep(boost::posix_time::seconds(10));
+    boost::this_thread::sleep(boost::posix_time::seconds(1));
 
     if (stop_)
       return;

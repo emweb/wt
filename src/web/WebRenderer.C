@@ -991,6 +991,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< collectedJS2_.str()
 	<< "};"; // LoadWidgetTree = function() { ... }
 
+    session_.app()->serverPushChanged_ = true;
     renderSetServerPush(response.out());
 
     response.out()
