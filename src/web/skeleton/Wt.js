@@ -2735,8 +2735,9 @@ function loadScript(uri, symbol, tries)
     };
     var h = document.getElementsByTagName('head')[0];
     h.appendChild(s);
-  } else
+  } else {
     jsLoaded(uri);
+  }
 };
 
 function ImagePreloader(uris, callback) {

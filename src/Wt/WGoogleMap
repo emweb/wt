@@ -311,7 +311,7 @@ private:
 
   void streamJSListener(const JSignal<Coordinate> &signal, 
 			std::string signalName,
-			std::ostream &strm);
+			WStringStream &strm);
 
   void setMapOption(const std::string &option, 
 		    const std::string &state);

@@ -1,3 +1,7 @@
+07-12-2011:
+	* WGoogleMap: unify loading for v2 and v3, fixes bugs in loading
+	a second v3 google map
+
 01-12-2011:
 	* Wt.js, WtReply: more robust handling of flaky WebSocket connections
 

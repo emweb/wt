@@ -135,7 +135,7 @@ WGoogleMap::~WGoogleMap()
 
 void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal, 
 				  std::string signalName,
-				  std::ostream &strm) 
+				  Wt::WStringStream &strm) 
 {
   if (apiVersion_ == Version2) {
     strm <<
@@ -167,70 +167,60 @@ JSignal<WGoogleMap::Coordinate>& WGoogleMap::mouseMoved()
 
 void WGoogleMap::render(WFlags<RenderFlag> flags)
 {
-  //
-
   if (flags & RenderFull) {
     WApplication *app = WApplication::instance();
 
-    if (apiVersion_ == Version2) {
-      std::string googlekey = localhost_key;
-      Wt::WApplication::readConfigurationProperty("google_api_key", googlekey);
+    std::string googlekey = localhost_key;
+    Wt::WApplication::readConfigurationProperty("google_api_key", googlekey);
       
-      // init the google javascript api
-      const std::string gmuri = "http://www.google.com/jsapi?key=" + googlekey;
-      app->require(gmuri, "google");
-    }
+    // init the google javascript api
+    const std::string gmuri = "http://www.google.com/jsapi?key=" + googlekey;
+    app->require(gmuri, "google");
 
     std::string initFunction = 
       app->javaScriptClass() + ".init_google_maps_" + id();
 
     // initialize the map
-    std::stringstream strm;
+    WStringStream strm;
     strm <<
-      "{ " << initFunction
-	       << " = function() {"
+      "{ " << initFunction << " = function() {"
       """var self = " << jsRef() << ";"
       """if (!self) { "
       ""   "setTimeout(" << initFunction << ", 0);"
       ""   "return;"
-      """}";
+      "}";
 
     if (apiVersion_ == Version2) {
-      //TODO 
-      //calling this function more than once in the same request seems to
-      //be impossible
       strm << 
-	"""var map = new google.maps.Map(self);"
-	"""map.setCenter(new google.maps.LatLng(47.01887777, 8.651888), 13);";
+	"var map = new google.maps.Map(self);"
+	"map.setCenter(new google.maps.LatLng(47.01887777, 8.651888), 13);";
       setJavaScriptMember("wtResize",
-                          """function(self, w, h) {"
+                          "function(self, w, h) {"
 			  """self.style.width=w + 'px';"
 			  """self.style.height=h + 'px';"
-                          """if (self.map)"
-			  """  self.map.checkResize();"
-                          """}");
+                          """if (self.map) "
+			  ""  "self.map.checkResize();"
+                          "}");
     } else {
       strm << 
-	"""var latlng = new google.maps.LatLng(47.01887777, 8.651888);"
-	"""var myOptions = {"
-	""   "zoom: 13,"
-	""   "center: latlng,"
-	""   "mapTypeId: google.maps.MapTypeId.ROADMAP"
-	"""};"
-	"""var map = new google.maps.Map(self, myOptions);"
-	"""map.overlays = [];"
-	"""map.infowindows = [];";
-
+	"var latlng = new google.maps.LatLng(47.01887777, 8.651888);"
+	"var myOptions = {"
+	"" "zoom: 13,"
+	"" "center: latlng,"
+	"" "mapTypeId: google.maps.MapTypeId.ROADMAP"
+	"};"
+	"var map = new google.maps.Map(self, myOptions);"
+	"map.overlays = [];"
+	"map.infowindows = [];";
       setJavaScriptMember("wtResize",
-                          """function(self, w, h) {"
+                          "function(self, w, h) {"
 			  """self.style.width=w + 'px';"
 			  """self.style.height=h + 'px';"
                           """if (self.map)"
 			  """ google.maps.event.trigger(self.map, 'resize');"
-                          """}");
+                          "}");
     }
-    strm << """self.map = map;";
-
+    strm << "self.map = map;";
 
     // eventhandling
     streamJSListener(clicked_, "click", strm);
@@ -242,33 +232,15 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
     for (unsigned int i = 0; i < additions_.size(); i++)
       strm << additions_[i];
 
-    strm 
-      << "setTimeout(function(){ delete " << initFunction << ";}, 0)"
-      << "};"; // function initialize()
-
-    if (apiVersion_ == Version2) {
-      strm << "google.load(\"maps\", \"2\", "
-	""          "{other_params:\"sensor=false\", callback: "
-	   << app->javaScriptClass() + ".init_google_maps_" + id()
-	   << "});";
-    }
-    strm << "}"; // private scope
+    strm << "setTimeout(function(){ delete " << initFunction << ";}, 0)};"
+	 << "google.load(\"maps\", \"" << (apiVersion_ == Version2 ? "2" : "3")
+	 << "\", {other_params:\"sensor=false\", callback: "
+	 << initFunction << "});"
+	 << "}"; // private scope
 
     additions_.clear();
 
-    app->doJavaScript(strm.str(), apiVersion_ == Version2);
-
-    if (apiVersion_ == Version3) {
-      std::string uri;
-      if (app->environment().ajax()) {
-	uri = "http://maps.google.com/maps/api/js?sensor=false&callback=";
-	uri += app->javaScriptClass() + ".init_google_maps_" + id();
-      } else {
-	uri = "http://maps.google.com/maps/api/js?sensor=false";
-      }
-    
-      app->require(uri);
-    }
+    app->doJavaScript(strm.str(), true);
   }
 
   WCompositeWidget::render(flags);
@@ -281,19 +253,20 @@ void WGoogleMap::clearOverlays()
   } else {
     std::stringstream strm;
     strm 
-      << """var mapLocal = " << jsRef() + ".map, i;\n"
-      << """if (mapLocal.overlays) {\n"
-      << """  for (i in mapLocal.overlays) {\n"
-      << """    mapLocal.overlays[i].setMap(null);\n"
-      << """  }\n"
-      << """  mapLocal.overlays.length = 0;\n"
-      << """}\n"
-      << """if (mapLocal.infowindows) {\n"
-      << """  for (i in mapLocal.infowindows) {\n"
-      << """    mapLocal.infowindows[i].close();\n"
-      << """  }\n"
-      << """  mapLocal.infowindows.length = 0;\n"
-      << """}\n";
+      << "var mapLocal = " << jsRef() + ".map, i;\n"
+      << "if (mapLocal.overlays) {\n"
+      << """for (i in mapLocal.overlays) {\n"
+      << """mapLocal.overlays[i].setMap(null);\n"
+      << "}\n"
+      << "mapLocal.overlays.length = 0;\n"
+      << "}\n"
+      << "if (mapLocal.infowindows) {\n"
+      << """for (i in mapLocal.infowindows) {\n"
+      << ""  "mapLocal.infowindows[i].close();\n"
+      << ""  "}\n"
+      << """mapLocal.infowindows.length = 0;\n"
+      << "}\n";
+
     doGmJavaScript(strm.str());
   }
 }
@@ -301,7 +274,7 @@ void WGoogleMap::clearOverlays()
 void WGoogleMap::doGmJavaScript(const std::string& jscode)
 {
   if (isRendered())
-    WApplication::instance()->doJavaScript(jscode);
+    doJavaScript(jscode);
   else
     additions_.push_back(jscode);
 }
@@ -674,14 +647,16 @@ void WGoogleMap::setMapTypeControl(MapTypeControl type)
     }
 
     strm 
-      << """var options = {"
-      << "disableDefaultUI: " << (control == "" ? "true" : "false") << ","
-      << """  mapTypeControlOptions: {";
+      << "var options = {"
+      << """disableDefaultUI: " << (control == "" ? "true" : "false") << ","
+      << ""  "mapTypeControlOptions: {";
+
     if (control != "")
       strm << "style: google.maps.MapTypeControlStyle." << control;
+
     strm 
-      << """  }"
-      << """};"
+      << """}"
+      << "};"
       << jsRef() << ".map.setOptions(options);";
   }
   
