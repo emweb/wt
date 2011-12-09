@@ -76,10 +76,10 @@ void Message::write(std::ostream& out) const
 
   if (mimeMultiPartAlternative) {
     boundary.reserve(32);
-    boundary = "=_"; // recommended as per RFC 2045
+    boundary = "--=_"; // recommended as per RFC 2045
     srand(getpid() + rand());
     for (unsigned j = 0; j < 50; ++j) {
-      unsigned i = rand() % 74;
+      unsigned i = rand() % 67;
       char c;
       if (i < 26)
 	c = 'a' + i;
@@ -88,7 +88,11 @@ void Message::write(std::ostream& out) const
       else if (i < 62)
 	c = '0' + (i - 52);
       else {
-	const char *specials = "'()+_,-./:=?";
+	/*
+	 * We had to trim this down from what is allowed by the RFC because
+	 * of Outlook ...
+	 */
+	const char *specials = "()+-.";
 	c = specials[i - 62];
       }
 
@@ -118,8 +122,8 @@ void Message::write(std::ostream& out) const
   }
 
   if (mimeMultiPartAlternative) {
-    out << "Content-Type: multipart/alternative; boundary="
-	<< boundary << "\r\n"
+    out << "Content-Type: multipart/alternative; boundary=\""
+	<< boundary << "\"\r\n"
 	<< "--" << boundary << "\r\n";
   }
   out << "Content-Type: text/plain; charset=UTF-8\r\n"

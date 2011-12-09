@@ -533,10 +533,6 @@
 /*
  * WTabWidget
  */
-.Wt-tabs-clear {
-    clear: both;
-}
-
 .Wt-tabs {
     border-bottom: 1px solid gray;
 }
@@ -614,6 +610,9 @@ body.Wt-rtl .Wt-tabs .citem, body.Wt-rtl .Wt-tabs .citemselected {
 .Wt-tabs .Wt-closeicon:hover, .Wt-tabs span.citemselected .Wt-closeicon:hover {
     background-position: right -10px;
 }
+
+.Wt-tabs:after { content: ""; display: block; height: 0; clear: both; }
+.Wt-tabs { clear-after: both; }
 
 /*
  * XHTML Tooltips

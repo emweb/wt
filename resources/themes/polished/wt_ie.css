@@ -129,3 +129,7 @@ body.Wt-rtl .Wt-treeview .Wt-collapse {
 .Wt-tabs .Wt-closeicon:hover, .Wt-tabs span.citemselected .Wt-closeicon:hover {
     background-position: right -10px;
 }
+
+.Wt-tabs {
+    zoom: 1;
+}

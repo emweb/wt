@@ -98,13 +98,9 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
   menu_ = new WMenu(new WStackedWidget(), Horizontal);
   menu_->setRenderAsList(true);
 
-  WBreak *clear = new WBreak();
-  clear->setStyleClass("Wt-tabs-clear");
-
   WContainerWidget *menuDiv = new WContainerWidget();
   menuDiv->setStyleClass("Wt-tabs");
   menuDiv->addWidget(menu_);
-  menuDiv->addWidget(clear);
 
   layout_->addWidget(menuDiv);
   layout_->addWidget(menu_->contentsStack());
@@ -115,7 +111,7 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
      """self.style.height= h + 'px';"
      """var c = self.firstChild;"
      """var t = self.lastChild;"
-     """h -= " WT_CLASS ".px(c, 'height') + " WT_CLASS ".px(c, 'marginTop') "
+     """h -= c.offsetHeight + " WT_CLASS ".px(c, 'marginTop') "
      ""   "+ " WT_CLASS ".px(c, 'marginBottom');"
      """if (h > 0)"
      ""  "t." + WT_RESIZE_JS + "(t, w, h);"

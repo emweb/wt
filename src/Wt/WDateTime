@@ -205,13 +205,17 @@ public:
    */
   boost::posix_time::ptime toPosixTime() const;
 
-  /*! \brief Returns the difference between to datetime values (in seconds).
+  /*! \brief Returns the difference between two datetime values (in seconds).
+   *
+   * The result is negative if other is earlier than this.
    *
    * \sa daysTo()
    */
   int secsTo(const WDateTime& other) const;
 
   /*! \brief Returns the difference between two datetime values (in days).
+   *
+   * The result is negative if other is earlier than this.
    *
    * \sa secsTo()
    */
