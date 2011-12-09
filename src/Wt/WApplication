@@ -1769,6 +1769,8 @@ public:
   boost::function<void()> bind(const F& f);
 #endif // WT_CNOR
 
+  std::string encodeUntrustedUrl(const std::string& url) const;
+
 protected:
   /*! \brief Notifies an event to the application.
    *

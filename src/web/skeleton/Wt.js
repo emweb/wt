@@ -1239,14 +1239,14 @@ this.addStyleSheet = function(uri, media) {
     setTimeout(function() { document.createStyleSheet(uri); }, 15);
   } else {
     var s = document.createElement('link');
-    s.setAttribute('type', 'text/css');
     s.setAttribute('href', uri);
     s.setAttribute('type','text/css');
     s.setAttribute('rel','stylesheet');
     if (media != '' && media != 'all')
       s.setAttribute('media', media);
-    var h = document.getElementsByTagName('head')[0];
-    h.appendChild(s);
+    var ll = document.getElementsByTagName('link');
+    var l = ll[ll.length - 1];
+    l.parentNode.insertBefore(s, l.nextSibling);
   }
 };
 
@@ -1395,7 +1395,12 @@ function gentleURIEncode(s) {
 if (html5History) {
   this.history = (function()
 {
-  var currentState = null, baseUrl = null, cb = null;
+  var currentState = null, baseUrl = null, cb = null, stateMap = { },
+      w = window;
+
+  function saveState(state) {
+    stateMap[w.location.pathname + w.location.search] = state;
+  }
 
   return {
     _initialize: function() { },
@@ -1405,24 +1410,18 @@ if (html5History) {
     register: function (initialState, onStateChange) {
       currentState = initialState;
       cb = onStateChange;
-      var expectNullState = WT.isWebKit;
+      saveState(initialState);
 
       function onPopState(event) {
 	var newState = event.state;
 
-	/*
-	 * A null state event is given onload, but we may already have
-	 * pushed another state... this is simply silly.
-	 *
-	 * see http://html5.org/tools/web-apps-tracker?from=5345&to=5346
-	 */
+	if (newState == null)
+	  newState = stateMap[w.location.pathname + w.location.search];
 
-	if (!newState)
-	  if (expectNullState) {
-	    expectNullState = false;
-	    return;
-	  } else
-	    newState = initialState;
+	if (!newState) {
+	  saveState(currentState);
+	  return;
+	}
 
 	if (newState != currentState) {
 	  currentState = newState;
@@ -1430,21 +1429,7 @@ if (html5History) {
 	}
       }
 
-      function onHashChange() {
-	var p = window.location.hash;
-	var newState = null;
-	if (p == '')
-	  newState = p;
-	else if (p.substr(0, 2) == '#/')
-	  newState = p.substr(2);
-	if (newState !== currentState) {
-	  currentState = newState;
-	  onStateChange(currentState);
-	}
-      }
-
       window.addEventListener("popstate", onPopState, false);
-      window.addEventListener("hashchange", onHashChange, false);
     },
 
     initialize: function (stateField, histFrame, deployUrl) {
@@ -1774,12 +1759,15 @@ var currentHash = null;
 
 function onHashChange() {
   var newLocation = _$_WT_CLASS_$_.history.getCurrentState();
-  if (currentHash == newLocation) {
+
+  if (newLocation.length > 0 && newLocation[0] != '/')
     return;
-  } else {
-    currentHash = newLocation;
-    setTimeout(function() { update(null, 'hash', null, true); }, 1);
-  }
+
+  if (currentHash == newLocation)
+    return;
+
+  currentHash = newLocation;
+  setTimeout(function() { update(null, 'hash', null, true); }, 1);
 };
 
 function setHash(newLocation) {

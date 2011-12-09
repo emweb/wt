@@ -84,6 +84,8 @@ public:
   bool limitPlainHtmlSessions();
   WServer *server() { return &server_; }
 
+  std::string computeRedirectHash(const std::string& url);
+
 #ifndef WT_TARGET_JAVA
   WebController(WServer& server,
 		const std::string& singleSessionId = std::string(),
@@ -129,6 +131,7 @@ private:
   std::string singleSessionId_;
   bool autoExpire_;
   int plainHtmlSessions_, ajaxSessions_;
+  std::string redirectSecret_;
 
 #ifdef WT_THREADED
   boost::mutex uploadProgressUrlsMutex_;

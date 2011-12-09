@@ -82,7 +82,7 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
 	 * - in CSS
 	 */
 	if (path.find("://") != std::string::npos) {
-	  path = "?request=redirect&url=" + Utils::urlEncode(path);
+	  path = app->encodeUntrustedUrl(path);
 	  x_href->value(doc->allocate_string(path.c_str()));
 	}
       }

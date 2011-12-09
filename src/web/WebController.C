@@ -29,6 +29,8 @@
 #include "Wt/WSocketNotifier"
 #include "Wt/WStringUtil"
 
+#include "Wt/Auth/Utils.h"
+
 #include "Configuration.h"
 #include "CgiParser.h"
 #include "WebController.h"
@@ -62,6 +64,8 @@ WebController::WebController(WServer& server,
   CgiParser::init();
 
   WObject::seedId(WRandom::get());
+
+  redirectSecret_ = WRandom::generateId(32);
 
 #ifdef HAVE_RASTER_IMAGE
   InitializeMagick(0);
@@ -458,6 +462,11 @@ void WebController::removeUploadProgressUrl(const std::string& url)
   uploadProgressUrls_.erase(url.substr(url.find("?") + 1));
 }
 
+std::string WebController::computeRedirectHash(const std::string& url)
+{
+  return Auth::Utils::encodeAscii(Auth::Utils::md5(redirectSecret_ + url));
+}
+
 void WebController::handleRequest(WebRequest *request)
 {
   if (!request->entryPoint_) {
@@ -496,7 +505,14 @@ void WebController::handleRequest(WebRequest *request)
   const std::string *requestE = request->getParameter("request");
   if (requestE && *requestE == "redirect") {
     const std::string *urlE = request->getParameter("url");
-    if (urlE) {
+    const std::string *hashE = request->getParameter("hash");
+
+    if (urlE && hashE) {
+      if (*hashE != computeRedirectHash(*urlE))
+	hashE = 0;
+    }
+
+    if (urlE && hashE) {
       request->setRedirect(*urlE);
     } else {
       request->setContentType("text/html");

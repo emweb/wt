@@ -116,6 +116,7 @@ bool WebRenderer::isDirty() const
     || formObjectsChanged_
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
+    || session_.app()->styleSheetsAdded_
     || Utils::length(collectedJS1_) > 0
     || Utils::length(collectedJS2_) > 0
     || Utils::length(invisibleJS_) > 0;

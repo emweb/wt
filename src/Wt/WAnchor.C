@@ -323,15 +323,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
       changeInternalPathJS_ = 0;
     }
 
-    /*
-     * If url is an absolute URL, then we jump through a redirect
-     * page, to strip the session ID from the referer URL, in case the
-     * current page has the session ID in the URL.
-     */
-    bool needRedirect = url.find("://") != std::string::npos
-      && app->session()->hasSessionIdInUrl();
-    if (needRedirect)
-      url = "?request=redirect&url=" + Utils::urlEncode(url);
+    url = app->encodeUntrustedUrl(url);
 
     std::string href = resolveRelativeUrl(url);
     element.setAttribute("href", href);

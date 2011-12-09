@@ -23,6 +23,7 @@
 #include "DomElement.h"
 #include "Configuration.h"
 #include "SoundManager.h"
+#include "WebController.h"
 #include "WebRequest.h"
 #include "Utils.h"
 
@@ -953,6 +954,26 @@ void WApplication::redirectToSession(const std::string& newSessionId)
     redirectUrl += "?wtd=" + DomElement::urlEncodeS(newSessionId);
 
   redirect(redirectUrl);
+}
+
+std::string WApplication::encodeUntrustedUrl(const std::string& url) const
+{
+  /*
+   * If url is an absolute URL, then we jump through a redirect
+   * page, to strip the session ID from the referer URL, in case the
+   * current page has the session ID in the URL.
+   */
+
+  bool needRedirect = url.find("://") != std::string::npos
+    && session_->hasSessionIdInUrl();
+
+  if (needRedirect) {
+    WebController *c = session_->controller();
+    return "?request=redirect&url=" + Utils::urlEncode(url)
+      + "&hash="
+      + Utils::urlEncode(c->computeRedirectHash(url));
+  } else
+    return url;
 }
 
 void WApplication::setTwoPhaseRenderingThreshold(int bytes)

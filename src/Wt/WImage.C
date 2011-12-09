@@ -222,17 +222,9 @@ void WImage::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_IMAGE_LINK_CHANGED) || all) {
     if (!imageLink_.isNull()) {
       std::string url = resolveRelativeUrl(imageLink_.url());
-      /*
-       * If url is an absolute URL, then we jump through a redirect
-       * page, to strip the session ID from the referer URL, in case the
-       * current page has the session ID in the URL.
-       */
-      WApplication *app = WApplication::instance();
 
-      bool needRedirect = url.find("://") != std::string::npos
-	&& app->session()->hasSessionIdInUrl();
-      if (needRedirect)
-	url = "?request=redirect&url=" + Utils::urlEncode(url);
+      WApplication *app = WApplication::instance();
+      url = app->encodeUntrustedUrl(url);
 
       img->setProperty(Wt::PropertySrc, url);
     } else
