@@ -119,4 +119,11 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   BOOST_REQUIRE(Wt::WDateTime::fromString(d.toString()) == d);
+
+  BOOST_REQUIRE(d.toString("ddd, MMM dd, yyyy; hh:mm:ss ap")
+		== "Wed, Jun 14, 2000; 01:05:12 pm");
+  BOOST_REQUIRE(d.toString("ddd, MMM dd, yyyy; hh:mm:ss 'a'")
+		== "Wed, Jun 14, 2000; 13:05:12 a");
+  BOOST_REQUIRE(d.toString("ddd, MMM dd, yyyy; hh:mm:ss")
+		== "Wed, Jun 14, 2000; 13:05:12");
 }

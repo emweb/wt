@@ -380,11 +380,9 @@ int WTime::pmhour() const
 }
 
 bool WTime::writeSpecial(const std::string& f, unsigned& i,
-			 std::stringstream& result) const
+			 std::stringstream& result, bool useAMPM) const
 {
   char buf[30];
-
-  bool useAMPM = false; // FIXME
 
   switch (f[i]) {
   case 'h':

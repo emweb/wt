@@ -281,8 +281,8 @@ private:
 					    unsigned& vi, ParseState& parse,
 					    const WString& format);
 
-  bool writeSpecial(const std::string& f, unsigned& i, std::stringstream& result)
-    const;
+  bool writeSpecial(const std::string& f, unsigned& i, std::stringstream& result,
+		    bool useAMPM) const;
 
   int pmhour() const;
 
