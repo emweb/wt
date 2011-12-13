@@ -51,8 +51,11 @@ public:
   const Wt::WString& data() const { return data_; }
 
   /*! \brief Get the message formatted as HTML, rendered for the given user.
+   *
+   * The \p format indicates how the message should be formatted.
    */
-  const Wt::WString formattedHTML(const Wt::WString& user) const;
+  const Wt::WString formattedHTML(const Wt::WString& user,
+				  Wt::TextFormat format) const;
 
 private:
   Type type_;

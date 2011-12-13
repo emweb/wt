@@ -84,13 +84,14 @@ void SimpleChatWidget::letLogin()
 void SimpleChatWidget::login()
 {
   if (!loggedIn()) {
-    WString name = WWebWidget::escapeText(userNameEdit_->text());
+    WString name = userNameEdit_->text();
 
     if (!messageReceived_)
       messageReceived_ = new WSound("sounds/message_received.mp3");
 
     if (!startChat(name))
-      statusMsg_->setText("Sorry, name '" + name + "' is already taken.");
+      statusMsg_->setText("Sorry, name '" + escapeText(name) +
+			  "' is already taken.");
   }
 }
 
@@ -246,7 +247,8 @@ bool SimpleChatWidget::startChat(const WString& user)
 
     WText *msg = new WText
       ("<div><span class='chat-info'>You are joining as "
-       + user_ + ".</span></div>", messages_);
+       + escapeText(user_) + ".</span></div>",
+       messages_);
     msg->setStyleClass("chat-msg");
 
     if (!userList_->parent()) {
@@ -287,7 +289,7 @@ void SimpleChatWidget::updateUsers()
 
     for (SimpleChatServer::UserSet::iterator i = users.begin();
 	 i != users.end(); ++i) {
-      WCheckBox *w = new WCheckBox(*i, userList_);
+      WCheckBox *w = new WCheckBox(escapeText(*i), userList_);
       w->setInline(false);
 
       UserMap::const_iterator j = oldUsers.find(*i);
@@ -357,7 +359,16 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
     || (users_.find(event.user()) != users_.end() && users_[event.user()]);
 
   if (display) {
-    WText *w = new WText(event.formattedHTML(user_), messages_);
+    WText *w = new WText(messages_);
+
+    /*
+     * If it fails, it is because the content wasn't valid XHTML
+     */
+    if (!w->setText(event.formattedHTML(user_, XHTMLText))) {
+      w->setText(event.formattedHTML(user_, PlainText));
+      w->setTextFormat(XHTMLText);
+    }
+
     w->setInline(false);
     w->setStyleClass("chat-msg");
 

@@ -34,7 +34,7 @@ public:
    */
   Mailbox(const std::string& address);
 
-  /*! \brief Cosntructs a mailbox using an address and display name.
+  /*! \brief Constructs a mailbox using an address and display name.
    */
   Mailbox(const std::string& address, const WString& displayName);
 

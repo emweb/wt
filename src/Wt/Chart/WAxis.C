@@ -514,23 +514,27 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
           segment.renderMaximum = std::pow(10, std::ceil(minLog10 + d));
         }
       }
-    } else if (scale_ == LinearScale) {
+    } else {
       double resolution = resolution_;
 
       /*
        * Old behaviour, we ignore a resolution set.
        */
-      if (resolution == 0)
-	resolution = std::numeric_limits<double>::epsilon();
+      if (resolution == 0) {
+	if (scale_ == LinearScale)
+	  resolution = std::numeric_limits<double>::epsilon();
+	else if (scale_ == DateScale)
+	  resolution = 1;
+	else if (scale_ == DateTimeScale)
+	  resolution = 120;
+      }
 
       if (std::fabs(diff) < resolution) {
 	double average = (segment.renderMaximum + segment.renderMinimum) / 2.0;
 
-	double d = resolution_;
+	double d = resolution;
 
-	if (scale_ == LogScale)
-	  d = 0.2;
-	else if (d == 0)
+	if (d == 0)
 	  d = 2E-4;
 
         if (findMinimum && findMaximum) {
@@ -545,10 +549,10 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	diff = segment.renderMaximum - segment.renderMinimum;
       }
 
-    /*
-     * Heuristic to extend range to include 0 or to span at least one
-     * log
-     */
+      /*
+       * Heuristic to extend range to include 0 or to span at least one
+       * log
+       */
       if (findMinimum && segment.renderMinimum >= 0
 	  && (segment.renderMinimum - 0.50 * diff <= 0))
 	segment.renderMinimum = 0;

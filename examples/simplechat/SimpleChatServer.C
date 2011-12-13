@@ -12,31 +12,41 @@
 
 using namespace Wt;
 
-const WString ChatEvent::formattedHTML(const WString& user) const
+const WString ChatEvent::formattedHTML(const WString& user,
+				       TextFormat format) const
 {
   switch (type_) {
   case Login:
-    return "<span class='chat-info'>" + user_ + " joined.</span>";
+    return WString::fromUTF8("<span class='chat-info'>")
+      + WWebWidget::escapeText(user_) + " joined.</span>";
   case Logout:
-    return "<span class='chat-info'>"
-      + ((user == user_) ? "You" : user_)
+    return WString::fromUTF8("<span class='chat-info'>")
+      + ((user == user_) ?
+	 WString::fromUTF8("You") :
+	 WWebWidget::escapeText(user_))
       + " logged out.</span>";
   case Rename:
     return "<span class='chat-info'>"
       + ((user == data_ || user == user_) ?
-	 "You are" : (user_ + " is")) + " now known as "
-      + data_ + ".</span>";
+	 "You are" :
+	 (WWebWidget::escapeText(user_) + " is")) 
+      + " now known as " + WWebWidget::escapeText(data_) + ".</span>";
   case Message:{
     WString result;
 
     result = WString("<span class='")
-      + ((user == user_) ? "chat-self" : "chat-user")
-      + "'>" + user_ + ":</span>";
+      + ((user == user_) ?
+	 "chat-self" :
+	 "chat-user")
+      + "'>" + WWebWidget::escapeText(user_) + ":</span>";
+
+    WString msg
+      = (format == XHTMLText ? message_ : WWebWidget::escapeText(message_));
 
     if (message_.toUTF8().find(user.toUTF8()) != std::string::npos)
-      return result + "<span class='chat-highlight'>" + message_ + "</span>";
+      return result + "<span class='chat-highlight'>" + msg + "</span>";
     else
-      return result + message_;
+      return result + msg;
   }
   default:
     return "";
