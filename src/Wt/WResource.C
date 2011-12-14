@@ -128,6 +128,9 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   Http::Request request(*webRequest, continuation);
   Http::Response response(this, webResponse, continuation);
 
+  if (!continuation)
+    response.setStatus(200);
+
   handleRequest(request, response);
 
   if (!response.continuation_ || !response.continuation_->resource_) {

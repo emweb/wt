@@ -10,7 +10,13 @@
 #include "Wt/WConfig.h"
 #include "Wt/WException"
 
-#include <arpa/inet.h> // for htonl()
+// for htonl():
+#ifndef WIN32
+#include <arpa/inet.h>
+#else
+#include <Winsock2.h>
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <iostream>

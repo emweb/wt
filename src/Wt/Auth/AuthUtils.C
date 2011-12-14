@@ -6,8 +6,15 @@
 
 #include <vector>
 #include <iterator>
-#include <arpa/inet.h> // for htonl()
+
 #include <string.h>
+
+// for htonl():
+#ifndef WIN32
+#include <arpa/inet.h>
+#else
+#include <Winsock2.h>
+#endif
 
 #include "Wt/WLogger"
 #include "AuthUtils.h"
