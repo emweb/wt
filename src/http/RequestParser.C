@@ -15,8 +15,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../Wt/Auth/Utils.h"
-#include "Wt/WLogger"
+#include "../Wt/Auth/AuthUtils.h"
+#include "../Wt/WLogger"
+
 #include "../web/base64.h"
 
 #include "RequestParser.h"
@@ -212,34 +213,23 @@ std::string RequestParser::doWebSocketHandshake13(const Request& req)
   Request::HeaderMap::const_iterator k;
 
   k = req.headerMap.find("Sec-WebSocket-Key");
+
   if (k != req.headerMap.end()) {
     const std::string& key = k->second;
     static const std::string guid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-#ifdef WT_WITH_SSL
-    EVP_MD_CTX *mdctx = EVP_MD_CTX_create();
-    EVP_DigestInit_ex(mdctx, EVP_sha1(), 0);
-    EVP_DigestUpdate(mdctx, key.c_str(), key.length());
-    EVP_DigestUpdate(mdctx, guid.c_str(), guid.length());
-
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned length = EVP_MAX_MD_SIZE;
-    EVP_DigestFinal_ex(mdctx, hash, &length);
-    EVP_MD_CTX_destroy(mdctx);
+    std::string hash = Wt::Auth::Utils::sha1(key + guid);
 
     std::vector<char> v;
-    base64::encode((const unsigned char *)hash,
-		   (const unsigned char *)(hash + length),
-		   std::back_inserter(v));
+    base64::encode(hash.begin(), hash.end(), std::back_inserter(v));
+
     return std::string(v.begin(), v.end());
-#endif
   } else
     return std::string();
 }
 
 Request::State
-RequestParser::parseWebSocketMessage(Request& req,
-				     ReplyPtr reply,
+RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 				     Buffer::iterator& begin,
 				     Buffer::iterator end)
 {
@@ -287,7 +277,6 @@ RequestParser::parseWebSocketMessage(Request& req,
 
 	return Request::Complete;
       } else {
-#ifdef WT_WITH_SSL
 	LOG_INFO("ws: connect with protocol version " << req.webSocketVersion);
 	std::string accept = doWebSocketHandshake13(req);
 
@@ -304,11 +293,6 @@ RequestParser::parseWebSocketMessage(Request& req,
 
 	  return Request::Complete;
 	}
-#else
-	LOG_ERROR("ws: unsupported protocol version "
-		  << req.webSocketVersion << " (requires OpenSSL)");
-	return Request::Error;
-#endif // WT_WITH_SSL
       }
 
       break;

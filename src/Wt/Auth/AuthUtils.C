@@ -6,12 +6,22 @@
 
 #include <vector>
 #include <iterator>
+#include <arpa/inet.h> // for htonl()
+#include <string.h>
 
-#include "Utils.h"
+#include "Wt/WLogger"
+#include "AuthUtils.h"
 #include "md5.h"
 #include "base64.h"
 
+extern "C" {
+  #include "sha1.h"
+}
+
 namespace Wt {
+
+LOGGER("Auth::Utils");
+
   namespace Auth {
     namespace Utils {
 
@@ -59,6 +69,29 @@ std::string md5(const std::string& a)
   md5_finish(&c, buf);
 
   return std::string((const char *)buf, 16);
+}
+
+std::string sha1(const std::string& a)
+{
+  SHA1Context sha;
+
+  SHA1Reset(&sha);
+  SHA1Input(&sha, (unsigned char *)a.c_str(), a.length());
+
+  if (!SHA1Result(&sha)) {
+    LOG_ERROR("Error computing sha1 hash");
+    return std::string();
+  } else {
+    const unsigned SHA1_LENGTH = 20;
+    unsigned char hash[SHA1_LENGTH];
+
+    for (unsigned i = 0; i < 5; ++i) {
+      unsigned v = htonl(sha.Message_Digest[i]);
+      memcpy(hash + (i*4), &v, 4);
+    }
+
+    return std::string(hash, hash + SHA1_LENGTH);
+  }
 }
 
     }

@@ -29,7 +29,7 @@
 #include "Wt/WSocketNotifier"
 #include "Wt/WStringUtil"
 
-#include "Wt/Auth/Utils.h"
+#include "Wt/Auth/AuthUtils.h"
 
 #include "Configuration.h"
 #include "CgiParser.h"

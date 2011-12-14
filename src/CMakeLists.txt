@@ -218,6 +218,7 @@ Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
 Wt/Auth/md5.c
+Wt/Auth/sha1.c
 Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthService.C

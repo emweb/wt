@@ -73,8 +73,7 @@ WPdfImage::WPdfImage(const WLength& width, const WLength& height,
   trueTypeFonts_ = new FontSupport(this);
 
 #if HPDF_VERSION_ID>=20300
-  if (trueTypeFonts_)
-    HPDF_UseUTFEncodings(pdf_);
+  HPDF_UseUTFEncodings(pdf_);
 #endif
 }
 

@@ -5,21 +5,20 @@
  */
 
 #include "HashFunction"
-#include "Utils.h"
+#include "AuthUtils.h"
 
 #include "Wt/WConfig.h"
+#include "Wt/WException"
 
-#include <string.h> 
+#include <arpa/inet.h> // for htonl()
+#include <string.h>
 #include <stdio.h>
 #include <iostream>
 #include <stdexcept>
 
-#ifdef WT_WITH_SSL
-#include <openssl/evp.h>
-#endif // WT_WITH_SSL
-
 extern "C" {
 #include "bcrypt/ow-crypt.h"
+#include "sha1.h"
 }
 
 namespace Wt {
@@ -46,31 +45,34 @@ std::string MD5HashFunction::name() const
   return "MD5"; 
 }
 
-#ifdef WT_WITH_SSL
-
 std::string SHA1HashFunction::compute(const std::string& msg,
 				      const std::string& salt) const
 {
-  EVP_MD_CTX mdctx;
-  EVP_MD_CTX_init(&mdctx);
-  EVP_DigestInit_ex(&mdctx, EVP_sha1(), 0);
-  EVP_DigestUpdate(&mdctx, salt.c_str(), salt.length());
-  EVP_DigestUpdate(&mdctx, msg.c_str(), msg.length());
+  SHA1Context sha;
 
-  unsigned char hash[EVP_MAX_MD_SIZE];
-  unsigned length = EVP_MAX_MD_SIZE;
-  EVP_DigestFinal_ex(&mdctx, hash, &length);
-  EVP_MD_CTX_cleanup(&mdctx);
+  SHA1Reset(&sha);
+  SHA1Input(&sha, (unsigned char *)salt.c_str(), salt.length());
+  SHA1Input(&sha, (unsigned char *)msg.c_str(), msg.length());
 
-  return Utils::encodeAscii(std::string(hash, hash + length));
+  if (!SHA1Result(&sha)) {
+    throw WException("Could not compute SHA1 hash");
+  } else {
+    unsigned SHA1_LENGTH = 20;
+    unsigned char hash[SHA1_LENGTH];
+
+    for (unsigned i = 0; i < 5; ++i) {
+      unsigned v = htonl(sha.Message_Digest[i]);
+      memcpy(hash + (i*4), &v, 4);
+    }
+
+    return Utils::encodeAscii(std::string(hash, hash + SHA1_LENGTH));
+  }
 }
 
 std::string SHA1HashFunction::name() const
 {
   return "SHA1"; 
 }
-
-#endif // WT_WITH_SSL
 
 BCryptHashFunction::BCryptHashFunction(int count)
   : count_(count)

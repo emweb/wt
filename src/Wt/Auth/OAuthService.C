@@ -22,7 +22,7 @@
 #include "Wt/WStringStream"
 #include "Wt/WServer"
 
-#include "Utils.h"
+#include "AuthUtils.h"
 #include "WebSession.h"
 #include "../../web/Utils.h"
 

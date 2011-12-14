@@ -193,6 +193,10 @@ public:
   WString toolTip() const;
 
   /*! \brief Defines a style class.
+   *
+   * \note Only few CSS declarations are known to affect the look of a
+   *       image area, the most notable one being the 'cursor'. Other things
+   *       will simply be ignored.
    */
   void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
@@ -204,6 +208,10 @@ public:
   WT_USTRING styleClass() const;
 
   /*! \brief Adds a style class.
+   *
+   * \note Only few CSS declarations are known to affect the look of a
+   *       image area, the most notable one being the 'cursor'. Other things
+   *       will simply be ignored.
    */
   void addStyleClass(const WT_USTRING& styleClass, bool force = false);
 

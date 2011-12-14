@@ -8,10 +8,10 @@
 
 #include "Wt/WLogger"
 #include "Wt/WRandom"
+#include "AuthUtils.h"
 #include "HashFunction"
 #include "PasswordHash"
 #include "PasswordVerifier"
-#include "Utils.h"
 
 namespace Wt {
 
