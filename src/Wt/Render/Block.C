@@ -1308,8 +1308,22 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
 	+ cssPadding(Right, renderer.fontScale())
 	+ cssBorderWidth(Right, renderer.fontScale());
 
+      if (type_ == DomElement_TD || type_ == DomElement_TH) {
+	if (width < (maxX - minX))
+	  width = maxX - minX;
+	/*
+	 * A width set on a td or th should be considered as a desired
+	 * width -- this cell should not try to consume excess width
+	 */
+	canIncreaseWidth = false;
+      }
+
+      if (width > (maxX - minX))
+	throw PleaseWiden(width - (maxX - minX));
+
       AlignmentFlag hAlign = horizontalAlignment();
       switch (hAlign) {
+      case AlignJustify:
       case AlignLeft:
 	maxX = minX + width;
 	break;

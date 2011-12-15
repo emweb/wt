@@ -63,7 +63,7 @@ std::string SHA1HashFunction::compute(const std::string& msg,
   if (!SHA1Result(&sha)) {
     throw WException("Could not compute SHA1 hash");
   } else {
-    unsigned SHA1_LENGTH = 20;
+    const unsigned SHA1_LENGTH = 20;
     unsigned char hash[SHA1_LENGTH];
 
     for (unsigned i = 0; i < 5; ++i) {

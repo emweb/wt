@@ -216,7 +216,7 @@ void HelloApplication::greet()
     greeting_->setText("Hello there, " + nameEdit_->text());
 }
 
-WApplication *createApplication(const Wt::WEnvironment& env)
+Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
     return new HelloApplication(env);
 }
