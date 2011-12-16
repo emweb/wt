@@ -908,12 +908,12 @@ void WTableView::setColumnWidth(int column, const WLength& width)
     hc->parent()->resize(width.toPixels() + 1, hc->height());
 }
 
-bool WTableView::isRowRendered(const int row)
+bool WTableView::isRowRendered(const int row) const
 {
   return row >= firstRow() && row <= lastRow();
 }
 
-bool WTableView::isColumnRendered(const int column)
+bool WTableView::isColumnRendered(const int column) const
 {
   return column >= firstColumn() && column <= lastColumn();
 }
@@ -1490,6 +1490,22 @@ int WTableView::renderedColumnsCount() const
   return headerColumnsTable_->count() + table_->count();
 }
 
+WWidget *WTableView::itemWidget(const WModelIndex& index) const
+{
+  if (isRowRendered(index.row()) && isColumnRendered(index.column())) {
+    int renderedRow = index.row() - firstRow();
+    int renderedCol = index.column() - firstColumn();
+
+    if (ajaxMode()) {
+      ColumnWidget *column = columnContainer(renderedCol);
+      return column->widget(renderedRow);
+    } else {
+      return plainTable_->elementAt(renderedRow + 1, renderedCol);
+    }
+  } else
+    return 0;
+}
+
 void WTableView::renderSelected(bool selected, const WModelIndex& index)
 {
   if (selectionBehavior() == SelectRows) {
@@ -1511,18 +1527,8 @@ void WTableView::renderSelected(bool selected, const WModelIndex& index)
       }
     }
   } else {
-    if (isRowRendered(index.row()) && isColumnRendered(index.column())) {
-      int renderedRow = index.row() - firstRow();
-      int renderedCol = index.column() - firstColumn();
-
-      WWidget *w = 0;
-      if (ajaxMode()) {
-	ColumnWidget *column = columnContainer(renderedCol);
-	w = column->widget(renderedRow);
-      } else {
-	w = plainTable_->elementAt(renderedRow + 1, renderedCol);
-      }
-
+    WWidget *w = itemWidget(index);
+    if (w) {
       if (selected)
 	w->addStyleClass("Wt-selected");
       else

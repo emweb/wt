@@ -255,6 +255,7 @@ public:
    */
   Signal<WModelIndex>& expanded() { return expanded_; }
 
+  virtual WWidget *itemWidget(const WModelIndex& index) const;
   virtual void setModel(WAbstractItemModel *model);
 
   /*! \brief Sets the column width.

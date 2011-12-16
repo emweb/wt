@@ -1681,6 +1681,18 @@ void WTreeView::expandChildrenToDepth(const WModelIndex& index, int depth)
   }
 }
 
+WWidget *WTreeView::itemWidget(const WModelIndex& index) const
+{
+  if (!index.isValid())
+    return 0;
+
+  WTreeViewNode *n = nodeForIndex(index);
+  if (n)
+    return n->widget(index.column());
+  else
+    return 0;
+}
+
 /*
  * Returns the widget that renders the node indicated by index.
  *

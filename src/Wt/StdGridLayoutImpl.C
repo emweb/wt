@@ -17,6 +17,7 @@
 #include "StdGridLayoutImpl.h"
 #include "SizeHandle.h"
 #include "DomElement.h"
+#include "Utils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/StdGridLayoutImpl.min.js"
@@ -331,11 +332,14 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       int stretch = std::max(0, grid_.columns_[col].stretch_);
 
       if (stretch || (fitWidth && totalColStretch == 0)) {
-	int pct = totalColStretch == 0 ? 100 / colCount
-	  : 100 * stretch / totalColStretch;
-	c->setProperty
-	  (PropertyStyle,
-	   "width:" + boost::lexical_cast<std::string>(pct) + "%;");
+	char buf[30];
+
+	double pct = totalColStretch == 0 ? 100.0 / colCount
+	  : (100.0 * stretch / totalColStretch);
+
+	WStringStream ss;
+	ss << "width:" << Utils::round_str(pct, 2, buf) << "%;";
+	c->setProperty(PropertyStyle, ss.str());
       }
 
       table->addChild(c);
@@ -618,55 +622,38 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	}
 
 	{
-	  std::string style;
+	  WStringStream style;
 
-	  if (vAlign == 0) style += heightPct;
+	  if (vAlign == 0)
+	    style << heightPct;
 
 	  if (app->layoutDirection() == RightToLeft)
 	    std::swap(padding[1], padding[3]);
 
 	  if (padding[0] == padding[1] && padding[0] == padding[2]
 	      && padding[0] == padding[3]) {
-	    if (padding[0] != 0) {
-#ifndef WT_TARGET_JAVA
-	      char buf[100];
-	      snprintf(buf, 100, "padding:%dpx;", padding[0]);
-	      style += buf;
-#else
-	      style += "padding:"
-		+ boost::lexical_cast<std::string>(padding[0]) + "px;";
-#endif
-	    }
-	  } else {
-#ifndef WT_TARGET_JAVA
-	    char buf[100];
-	    snprintf(buf, 100, "padding:%dpx %dpx %dpx %dpx;",
-		     padding[0], padding[1], padding[2], padding[3]);
-	    style += buf;
-#else
-	    style += "padding:"
-	      + boost::lexical_cast<std::string>(padding[0]) + "px "
-	      + boost::lexical_cast<std::string>(padding[1]) + "px "
-	      + boost::lexical_cast<std::string>(padding[2]) + "px "
-	      + boost::lexical_cast<std::string>(padding[3]) + "px;";
-#endif
-	  }
+	    if (padding[0] != 0)
+	      style << "padding:" << padding[0] << "px;";
+	  } else
+	    style << "padding:"
+		  << padding[0] << "px " << padding[1] << "px "
+		  << padding[2] << "px " << padding[3] << "px;";
 
 	  if (vAlign != 0) switch (vAlign) {
 	    case AlignTop:
-	      style += "vertical-align:top;";
+	      style << "vertical-align:top;";
 	      break;
 	    case AlignMiddle:
-	      style += "vertical-align:middle;";
+	      style << "vertical-align:middle;";
 	      break;
 	    case AlignBottom:
-	      style += "vertical-align:bottom;";
+	      style << "vertical-align:bottom;";
 	    default:
 	      break;
 	    }
 
 	  if (!style.empty())
-	    td->setProperty(PropertyStyle, style);
+	    td->setProperty(PropertyStyle, style.str());
 	}
 
 	if (item.rowSpan_ != 1)
@@ -682,16 +669,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  td = DomElement::createNew(DomElement_TD);
 	  td->setProperty(PropertyClass, "Wt-vrh");
 
-#ifndef WT_TARGET_JAVA
-	  char style[100];
-	  snprintf(style, 100, "padding:%dpx 0px %dpx;", padding[0],
-		   padding[2]);
-#else
-	  std::string style = "padding:"
-	    + boost::lexical_cast<std::string>(padding[0]) + "px 0px"
-	    + boost::lexical_cast<std::string>(padding[2]) + "px;";
-#endif
-	  td->setProperty(PropertyStyle, style);
+	  WStringStream style;
+	  style << "padding:" << padding[0] << "px 0px " << padding[2] << "px;";
+	  td->setProperty(PropertyStyle, style.str());
 
 	  DomElement *div2 = DomElement::createNew(DomElement_DIV);
 	  div2->setProperty(PropertyStyleWidth,
@@ -720,16 +700,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	DomElement *td = DomElement::createNew(DomElement_TD);
 	td->setProperty(PropertyColSpan,
 			boost::lexical_cast<std::string>(colCount));
-#ifndef WT_TARGET_JAVA
-	char style2[100];
-	snprintf(style2, 100, "padding:0px %dpx 0px %dpx;",
-		 margin[1], margin[3]);
-#else
-	std::string style2 = "padding: 0px"
-	  + boost::lexical_cast<std::string>(margin[1]) + "px 0px"
-	  + boost::lexical_cast<std::string>(margin[3]) + "px;";
-#endif
-	td->setProperty(PropertyStyleHeight, style2);
+	WStringStream style2;
+	style2 << "padding: 0px" << margin[1] << "px 0px" << margin[3] << "px;";
+	td->setProperty(PropertyStyleHeight, style2.str());
       
 	DomElement *div2 = DomElement::createNew(DomElement_DIV);
 	div2->setProperty(PropertyStyleHeight, height);

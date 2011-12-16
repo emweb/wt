@@ -153,6 +153,7 @@ private:
   PangoFont *currentFont_;
 
   mutable PangoFont *matchFont_;
+  mutable WFont wtFont_;
 
   PangoFontDescription *createFontDescription(const WFont& f) const;
   static std::string fontPath(PangoFont *font);

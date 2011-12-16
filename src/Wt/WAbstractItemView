@@ -168,6 +168,16 @@ public:
    */
   WAbstractItemDelegate *itemDelegate(int column) const;
 
+  /*! \brief Returns the widget that renders an item.
+   *
+   * This returns the widget that renders the given item. This may return 0
+   * if the item is currently not rendered.
+   *
+   * This widget has been created by an item delegate, and usually an item
+   * delegate is involved when updating it.
+   */
+  virtual WWidget *itemWidget(const WModelIndex& index) const = 0;
+
   /*! \brief Sets the header item delegate.
    *
    * This item delegate is used for rendering items in the header.

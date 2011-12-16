@@ -43,6 +43,14 @@ namespace Wt {
  * WWidget::decorationStyle()), the result will be wrong behaviour
  * like widgets that keep growing in size.
  *
+ * Another caveat with a layout manager is that the size of contained
+ * images may change when the image is being loaded (which happens in
+ * the background by the browser). This may result in a wrong layout
+ * since the layout manager should relayout. Therefore, you should
+ * avoid images inside a layout, or make sure that the image size does
+ * not change when the image is being loaded (this will also improve
+ * the user experience), by setting its size.
+ *
  * A layout manager may provide resize handles between items which
  * allow the user to change the automatic layout provided by the
  * layout manager (see setResizable()). Resize handles between rows

@@ -267,8 +267,8 @@ bool Block::inlineChildren() const
 AlignmentFlag Block::horizontalAlignment() const
 {
   /* Based on CSS margins */
-  std::string marginLeft = cssProperty(PropertyStyleMarginLeft, "margin", 3);
-  std::string marginRight = cssProperty(PropertyStyleMarginRight, "margin", 1);
+  std::string marginLeft = cssProperty(PropertyStyleMarginLeft);
+  std::string marginRight = cssProperty(PropertyStyleMarginRight);
 
   if (marginLeft == "auto") {
     if (marginRight == "auto")
@@ -297,7 +297,7 @@ AlignmentFlag Block::verticalAlignment() const
     return AlignTop;
 }
 
-double Block::cssLength(Property top, const char *aggregate, Side side,
+double Block::cssLength(Property top, Side side,
 			double fontScale, bool& defined) const
 {
   if (!node_) {
@@ -308,7 +308,7 @@ double Block::cssLength(Property top, const char *aggregate, Side side,
   int index = sideToIndex(side);
   Property property = (Property)(top + index);
 
-  std::string value = cssProperty(property, aggregate, index);
+  std::string value = cssProperty(property);
 
   if (!value.empty()) {
     WLength l(value.c_str());
@@ -323,8 +323,7 @@ double Block::cssLength(Property top, const char *aggregate, Side side,
  double Block::cssPadding(Side side, double fontScale) const
 {
   bool defined;
-  double result = cssLength(PropertyStylePaddingTop, "padding", side,
-			    fontScale, defined);
+  double result = cssLength(PropertyStylePaddingTop, side, fontScale, defined);
 
   if (!defined) {
     if (type_ == DomElement_TD || type_ == DomElement_TH)
@@ -342,8 +341,7 @@ double Block::cssMargin(Side side, double fontScale) const
   double result = 0;
 
   try {
-    result = cssLength(PropertyStyleMarginTop, "margin", side, fontScale,
-		       defined);
+    result = cssLength(PropertyStyleMarginTop, side, fontScale, defined);
   } catch (std::exception& e) {
     /* catches 'auto' margin length */
   }
@@ -396,7 +394,7 @@ double Block::cssBorderWidth(Side side, double fontScale) const
   int index = sideToIndex(side);
   Property property = (Property)(PropertyStyleBorderTop + index);
 
-  std::string borderStr = cssProperty(property, "border");
+  std::string borderStr = cssProperty(property);
 
   double result = 0;
   if (!borderStr.empty()) {
@@ -431,7 +429,7 @@ WColor Block::cssBorderColor(Side side) const
   int index = sideToIndex(side);
   Property property = (Property)(PropertyStyleBorderTop + index);
 
-  std::string borderStr = cssProperty(property, "border");
+  std::string borderStr = cssProperty(property);
 
   if (!borderStr.empty()) {
     std::vector<std::string> values;
@@ -621,7 +619,7 @@ double Block::cssLineHeight(double fontLineHeight, double fontScale) const
 }
 
 void Block::layoutInline(Line& line, BlockList& floats,
-			 double minX, double maxX, bool canIncreaseWidth,
+			 double minX, double& maxX, bool canIncreaseWidth,
 			 const WTextRenderer& renderer)
 {
   inlineLayout.clear();
@@ -674,10 +672,6 @@ void Block::layoutInline(Line& line, BlockList& floats,
 
 	  WString text = WString::fromUTF8(s.substr(utf8Pos));
 
-	  /*
-	   * TODO: if canIncreaseWidth, we should immediately measure the whole
-	   * line.
-	   */
 	  WTextItem item
 	    = renderer.painter()->device()->measureText(text, maxWidth, true);
 
@@ -696,8 +690,10 @@ void Block::layoutInline(Line& line, BlockList& floats,
 	    endX += whitespaceWidth; // to avoid an artificial overflow
 	  }
 
-	  if (canIncreaseWidth && item.width() > endX - line.x())
-	    throw PleaseWiden(w - (endX - line.x()));
+	  if (canIncreaseWidth && item.width() > endX - line.x()) {
+	    maxX += w - (endX - line.x());
+	    endX += w - (endX - line.x());
+	  }
 
 	  if (w == 0) {
 	    /*
@@ -777,8 +773,11 @@ void Block::layoutInline(Line& line, BlockList& floats,
 	line.finish(cssTextAlign(), floats, minX, maxX, renderer);
 
 	if (w == 0 || line.x() > startX) {
-	  if (w > 0 && canIncreaseWidth)
-	    throw PleaseWiden(w - (maxX - line.x()));
+	  if (w > 0 && canIncreaseWidth) {
+	    maxX += w - (maxX - line.x());
+	    endX += w - (maxX - line.x());
+	  }
+
 	  /*
 	   * Desired width is 0 or the thing didn't fit on a started line:
 	   * we should simply break the line.
@@ -789,7 +788,8 @@ void Block::layoutInline(Line& line, BlockList& floats,
 	  /*
 	   * Wider than the box width without floats
 	   */
-	  throw PleaseWiden(w - (maxX - minX));
+	  maxX += w - (maxX - minX);
+	  endX += w - (maxX - minX);
 	} else {
 	  /*
 	   * Not wider than the box width without floats:
@@ -909,16 +909,20 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
      * If we can increase the available width without clearing floats
      * to fit the table at its widest, then try so
      */
-    if (canIncreaseWidth && availableWidth < totalMaxWidth)
-      throw PleaseWiden(totalMaxWidth - availableWidth);
+    if (canIncreaseWidth && availableWidth < totalMaxWidth) {
+      maxX += totalMaxWidth - availableWidth;
+      availableWidth = totalMaxWidth;
+    }
 
     if (availableWidth >= width)
       break;
     else {
       if (width < maxX - minX)
 	clearFloats(y, page, floats, minX, maxX, width);
-      else
-	throw PleaseWiden(width - availableWidth);
+      else {
+	maxX += width - availableWidth;
+	availableWidth = width;
+      }
     }
   }
 
@@ -931,38 +935,21 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
     maximumColumnWidths = minimumColumnWidths;
   }
 
+  std::vector<double> widths = minimumColumnWidths;
+
   if (width > totalMinWidth) {
-    double ww = width;
+    double totalStretch = 0;
+    for (unsigned i = 0; i < widths.size(); ++i)
+      totalStretch += maximumColumnWidths[i] - minimumColumnWidths[i];
 
-    int resizableColumns = maximumColumnWidths.size();
+    double room = width - totalMinWidth;
+    double factor = room / totalStretch;
 
-    double remainWidth = totalMaxWidth - totalSpacing;
-    for (;;) {
-      double factor = (ww - totalSpacing) / remainWidth;
-
-      int columnsResized = 0;
-
-      remainWidth = 0;
-      for (unsigned i = 0; i < maximumColumnWidths.size(); ++i) {
-	double w = factor * maximumColumnWidths[i];
-
-	if (w > minimumColumnWidths[i]) {
-	  ++columnsResized;
-	  maximumColumnWidths[i] = w;
-	  remainWidth += w;
-	} else {
-	  maximumColumnWidths[i] = minimumColumnWidths[i];
-	  ww -= minimumColumnWidths[i];
-	}
-      }
-
-      if (columnsResized == resizableColumns || fabs(remainWidth) < 1E-2)
-	break;
-      else
-	resizableColumns = columnsResized;
+    for (unsigned i = 0; i < widths.size(); ++i) {
+      double stretch = maximumColumnWidths[i] - minimumColumnWidths[i];
+      widths[i] += factor * stretch;
     }
-  } else
-    maximumColumnWidths = minimumColumnWidths;
+  }
 
   width += cssBoxMargin(Left, renderer.fontScale())
     + cssBoxMargin(Right, renderer.fontScale());
@@ -988,7 +975,7 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
   minX += cssBoxMargin(Left, renderer.fontScale());
   maxX -= cssBoxMargin(Right, renderer.fontScale());
 
-  tableDoLayout(minX, y, page, cellSpacing, maximumColumnWidths, renderer);
+  tableDoLayout(minX, y, page, cellSpacing, widths, renderer);
 
   minX -= cssBorderWidth(Left, renderer.fontScale());
   maxX += cssBorderWidth(Right, renderer.fontScale());
@@ -1059,9 +1046,11 @@ void Block::tableRowDoLayout(double x, double& y, int& page,
 
       double collapseMarginBottom = 0;
       double collapseMarginTop = std::numeric_limits<double>::max();
-      c->layoutBlock(cellY, cellPage, floats, x, x + width, false,
-		     renderer, collapseMarginTop,
-		     collapseMarginBottom, rowHeight);
+
+      double x2 = x + width;
+      c->layoutBlock(cellY, cellPage, floats, x, x2, false, renderer,
+		     collapseMarginTop, collapseMarginBottom, rowHeight);
+
       if (collapseMarginBottom < collapseMarginTop)
 	cellY -= collapseMarginBottom;
 
@@ -1140,21 +1129,13 @@ int Block::cellComputeColumnWidths(int col, bool maximum,
 
   double width = currentWidth;
 
-  for (;;) {
-    try {
-      BlockList innerFloats;
+  BlockList innerFloats;
 
-      double y = 0, collapseMarginBottom = 0;
-      int page = 0;
+  double y = 0, collapseMarginBottom = 0;
+  int page = 0;
     
-      layoutBlock(y, page, innerFloats, 0, width, maximum, renderer,
-		  0, collapseMarginBottom);
-
-      break;
-    } catch (PleaseWiden& pw) {
-      width += pw.width;
-    }
-  }
+  layoutBlock(y, page, innerFloats, 0, width, maximum, renderer,
+	      0, collapseMarginBottom);
 
   if (width > currentWidth) {
     double extraPerColumn = (width - currentWidth) / colSpan;
@@ -1168,11 +1149,15 @@ int Block::cellComputeColumnWidths(int col, bool maximum,
 }
 
 double Block::cssDecodeLength(const std::string& length,
-			      double fontScale, double defaultValue) const
+			      double fontScale, double defaultValue,
+			      bool interpretPercentage) const
 {
   if (!length.empty()) {
     WLength l(length.c_str());
-    return l.toPixels(cssFontSize(fontScale));
+    if (interpretPercentage || l.unit() != WLength::Percentage)
+      return l.toPixels(cssFontSize(fontScale));
+    else
+      return defaultValue;
   } else
     return defaultValue;
 }
@@ -1183,10 +1168,11 @@ double Block::cssWidth(double fontScale) const
 
   if (node_) {
     result = cssDecodeLength(cssProperty(PropertyStyleWidth),
-			     fontScale, result);
+			     fontScale, result, false);
 
     if (type_ == DomElement_IMG)
-      result = cssDecodeLength(attributeValue("width"), fontScale, result);
+      result = cssDecodeLength(attributeValue("width"), fontScale, result,
+			       false);
   }
 
   return result;
@@ -1198,10 +1184,11 @@ double Block::cssHeight(double fontScale) const
 
   if (node_) {
     result = cssDecodeLength(cssProperty(PropertyStyleHeight),
-			     fontScale, result);
+			     fontScale, result, false);
 
     if (type_ == DomElement_IMG)
-      result = cssDecodeLength(attributeValue("height"), fontScale, result);
+      result = cssDecodeLength(attributeValue("height"), fontScale, result,
+			       false);
   }
 
   return result;
@@ -1243,7 +1230,7 @@ void Block::advance(double& y, int& page, double height,
 }
 
 void Block::layoutBlock(double& y, int& page, BlockList& floats,
-			double minX, double maxX, bool canIncreaseWidth,
+			double minX, double& maxX, bool canIncreaseWidth,
 			const WTextRenderer& renderer,
 			double collapseMarginTop,
 			double& collapseMarginBottom,
@@ -1319,7 +1306,7 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
       }
 
       if (width > (maxX - minX))
-	throw PleaseWiden(width - (maxX - minX));
+	maxX = minX + width;
 
       AlignmentFlag hAlign = horizontalAlignment();
       switch (hAlign) {
@@ -1386,10 +1373,11 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
 	if (type_ == DomElement_LI) {
 	  Line line(0, y, page);
 
-	  layoutInline(line, floats, cMinX, 1000, false, renderer);
+	  double x2 = 1000;
+	  layoutInline(line, floats, cMinX, x2, false, renderer);
 
 	  line.setLineBreak(true);
-	  line.finish(AlignLeft, floats, cMinX, 1000, renderer);
+	  line.finish(AlignLeft, floats, cMinX, x2, renderer);
 
 	  inlineLayout[0].x -= inlineLayout[0].width;
 	  minY = line.bottom();
@@ -1415,6 +1403,9 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
 	if (y < minY && page == minPage)
 	  y = minY;
       }
+
+      maxX = cMaxX + cssPadding(Right, renderer.fontScale())
+	+ cssBorderWidth(Right, renderer.fontScale());
 
       advance(y, page, spacerBottom, renderer);
 
@@ -1501,7 +1492,7 @@ WString Block::generateItem() const
 
 void Block::layoutFloat(double y, int page, BlockList& floats,
 			double lineX, double lineHeight,
-			double minX, double maxX, bool canIncreaseWidth,
+			double minX, double& maxX, bool canIncreaseWidth,
 			const WTextRenderer& renderer)
 {
   if (Utils::indexOf(floats, this) != -1)
@@ -1517,9 +1508,15 @@ void Block::layoutFloat(double y, int page, BlockList& floats,
     int floatPage = page;
     double floatX = lineX, floatY = y;
 
+    double x2 = maxX;
     positionFloat(floatX, floatY, floatPage, lineHeight, currentWidth,
-		  floats, minX, maxX, canIncreaseWidth,
+		  floats, minX, x2, canIncreaseWidth,
 		  renderer, floatSide());
+
+    if (x2 > maxX) {
+      maxX = x2;
+      return;
+    }
 
     /*
      * We need to determine the block width to be able to position
@@ -1529,26 +1526,32 @@ void Block::layoutFloat(double y, int page, BlockList& floats,
      * What if the line moves to a next page later? We will then relayout
      * the float.
      */
-    try {
-      BlockList innerFloats;
+    BlockList innerFloats;
 
-      bool unknownWidth = blockCssWidth < 0 && currentWidth < (maxX - minX);
+    bool unknownWidth = blockCssWidth < 0 && currentWidth < (maxX - minX);
 
-      double collapseMarginBottom; // does not apply to a float
-      layoutBlock(floatY, floatPage, innerFloats, floatX, floatX + currentWidth,
-		  unknownWidth || canIncreaseWidth, renderer, 0,
-		  collapseMarginBottom);
-      floats.push_back(this);
+    double collapseMarginBottom; // does not apply to a float
 
-      return;
-    } catch (PleaseWiden& pw) {
+    double floatX2 = floatX + currentWidth;
+    layoutBlock(floatY, floatPage, innerFloats, floatX, floatX2,
+		unknownWidth || canIncreaseWidth, renderer, 0,
+		collapseMarginBottom);
+
+    double pw = floatX2 - (floatX + currentWidth);
+    if (pw > 0) {
       if (blockCssWidth < 0) {
-	currentWidth = std::min(maxX - minX, currentWidth + pw.width);
+	currentWidth = std::min(maxX - minX, currentWidth + pw);
+	continue;
       } else {
 	assert(canIncreaseWidth);
-	throw;
+	maxX += pw;
+	return;
       }
     }
+
+    floats.push_back(this);
+
+    return;
   }
 }
 
@@ -1600,7 +1603,7 @@ void Block::clearFloats(double& y, int& page, BlockList& floats,
 void Block::positionFloat(double& x, double& y, int& page,
 			  double lineHeight, double width,
 			  const BlockList& floats,
-			  double minX, double maxX, bool canIncreaseWidth,
+			  double minX, double& maxX, bool canIncreaseWidth,
 			  const WTextRenderer& renderer,
 			  Side floatSide)
 {
@@ -1629,9 +1632,10 @@ void Block::positionFloat(double& x, double& y, int& page,
     if (availableWidth >= width)
       break;
     else {
-      if (canIncreaseWidth)
-	throw PleaseWiden(width - availableWidth);
-      if (x > startX) {
+      if (canIncreaseWidth) {
+	maxX += width - availableWidth;
+	break;
+      } else if (x > startX) {
 	y += lineHeight;
 	x = minX;
       } else {
@@ -2012,11 +2016,6 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
   }
 }
 
-std::string Block::cssProperty(Property property) const
-{
-  return cssProperty(property, 0, 0);
-}
-
 std::string Block::inheritedCssProperty(Property property) const
 {
   if (node_) {
@@ -2032,56 +2031,81 @@ std::string Block::inheritedCssProperty(Property property) const
     return std::string();
 }
 
-std::string Block::cssProperty(Property property, const char *aggregate,
-			       int aggregateIndex) const
+bool Block::isAggregate(const std::string& cssProperty)
+{
+  return cssProperty == "margin"
+    || cssProperty == "border"
+    || cssProperty == "padding";
+}
+
+std::string Block::cssProperty(Property property) const
 {
   if (!node_)
     return std::string();
 
-  assert (aggregateIndex < 4);
+  if (css_.empty()) {
+    std::string style = attributeValue("style");
 
-  std::string style = attributeValue("style");
+    if (!style.empty()) {
+      Utils::SplitVector values;
+      boost::split(values, style, boost::is_any_of(";"));
 
-  std::vector<std::string> values;
-  boost::split(values, style, boost::is_any_of(";"));
+      for (unsigned i = 0; i < values.size(); ++i) {
+	Utils::SplitVector namevalue;
 
-  std::string needle = DomElement::cssName(property);
+	boost::split(namevalue, values[i], boost::is_any_of(":"));
+	if (namevalue.size() == 2) {
+	  std::string n(namevalue[0].begin(), namevalue[0].end());
+	  std::string v(namevalue[1].begin(), namevalue[1].end());
 
-  std::string result;
+	  boost::trim(n);
+	  boost::trim(v);
 
-  for (unsigned i = 0; i < values.size(); ++i) {
-    std::vector<std::string> namevalue;
+	  css_[n] = v;
+	  
+	  if (isAggregate(n)) {
+	    Utils::SplitVector allvalues;
+	    boost::split(allvalues, n, boost::is_any_of(" \t\n"));
 
-    boost::split(namevalue, values[i], boost::is_any_of(":"));
-    if (namevalue.size() == 2) {
-      boost::trim(namevalue[0]);
-      boost::trim(namevalue[1]);
-
-      if (namevalue[0] == needle)
-	result = namevalue[1];
-      else if (aggregate && namevalue[0] == aggregate) {
-	if (aggregateIndex == -1)
-	  result = namevalue[1];
-	else {
-	  std::vector<std::string> allvalues;
-	  boost::split(allvalues, namevalue[1], boost::is_any_of(" \t\n"));
-
-	  if (aggregateIndex < (int)allvalues.size())
-	    result = allvalues[aggregateIndex];
-	  else {
-	    if (allvalues.size() == 1)
-	      result = allvalues[0];
-	    else if (allvalues.size() == 2)
-	      result = allvalues[aggregateIndex - 2];
-	    else /* allvalues.size() == 3 */
-	    result = allvalues[1];
+	    if (allvalues.size() == 1) {
+	      css_[n + "-top"] = css_[n + "-right"] = css_[n + "-bottom"]
+		= css_[n + "-left"]
+		= std::string(allvalues[0].begin(), allvalues[0].end());
+	    } else if (allvalues.size() == 2) {
+	      css_[n + "-top"] = css_[n + "-bottom"]
+		= std::string(allvalues[0].begin(), allvalues[0].end());
+	      css_[n + "-right"] = css_[n + "-left"]
+		= std::string(allvalues[1].begin(), allvalues[1].end());
+	    } else if (allvalues.size() == 3) {
+	      css_[n + "-top"]
+		= std::string(allvalues[0].begin(), allvalues[0].end());
+	      css_[n + "-right"] = css_[n + "-left"]
+		= std::string(allvalues[1].begin(), allvalues[1].end());
+	      css_[n + "-bottom"]
+		= std::string(allvalues[2].begin(), allvalues[2].end());
+	    } else {
+	      css_[n + "-top"]
+		= std::string(allvalues[0].begin(), allvalues[0].end());
+	      css_[n + "-right"]
+		= std::string(allvalues[1].begin(), allvalues[1].end());
+	      css_[n + "-bottom"]
+		= std::string(allvalues[2].begin(), allvalues[2].end());;
+	      css_[n + "-left"]
+		= std::string(allvalues[3].begin(), allvalues[3].end());
+	    }
 	  }
 	}
       }
     }
   }
 
-  return result;
+  std::map<std::string, std::string>::const_iterator i
+    = css_.find(DomElement::cssName(property));
+
+  if (i != css_.end())
+    return i->second;
+  else
+    return std::string();
 }
 
 std::string Block::attributeValue(const char *attribute) const

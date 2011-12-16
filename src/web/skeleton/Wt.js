@@ -1415,10 +1415,10 @@ if (html5History) {
       function onPopState(event) {
 	var newState = event.state;
 
-	if (newState == null)
+	if (newState === null)
 	  newState = stateMap[w.location.pathname + w.location.search];
 
-	if (!newState) {
+	if (newState === null) {
 	  saveState(currentState);
 	  return;
 	}

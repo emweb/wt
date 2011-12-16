@@ -111,6 +111,7 @@ public:
 
   virtual ~WTableView();
 
+  virtual WWidget *itemWidget(const WModelIndex& index) const;
   virtual void setModel(WAbstractItemModel* model);
 
   virtual void setColumnWidth(int column, const WLength& width);
@@ -237,8 +238,8 @@ private:
 
   void defineJavaScript();
 
-  bool isRowRendered(const int row);
-  bool isColumnRendered(const int column);
+  bool isRowRendered(const int row) const;
+  bool isColumnRendered(const int column) const;
   void updateColumnOffsets();
 
   void onDropEvent(int renderedRow, int columnId,

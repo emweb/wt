@@ -18,14 +18,6 @@
 namespace Wt {
   namespace Render {
 
-struct PleaseWiden {
-  PleaseWiden(double w)
-    : width(w)
-  { }
-
-  double width;
-};
-
 class WTextRenderer;
 class Block;
 class Line;
@@ -52,7 +44,7 @@ public:
   Side floatSide() const { return float_; }
 
   void layoutBlock(double& y, int& page, BlockList& floats,
-		   double minX, double maxX, bool canIncreaseWidth,
+		   double minX, double& maxX, bool canIncreaseWidth,
 		   const WTextRenderer& renderer,
 		   double collapseMarginTop,
 		   double& collapseMarginBottom,
@@ -81,18 +73,17 @@ private:
   Side float_;
   BlockList children_;
   double contentsHeight_;
+  mutable std::map<std::string, std::string> css_;
 
   std::string attributeValue(const char *attribute) const;
   int attributeValue(const char *attribute, int defaultValue) const;
 
   std::string cssProperty(Property property) const;
-  std::string cssProperty(Property property, const char *aggregate,
-			  int aggregateIndex = -1) const;
   std::string inheritedCssProperty(Property property) const;
   double cssWidth(double fontScale) const;
   double cssHeight(double fontScale) const;
-  double cssLength(Property top, const char *aggregate, Side side,
-		   double fontScale, bool& defined) const;
+  double cssLength(Property top, Side side, double fontScale, bool& defined)
+    const;
   double cssMargin(Side side, double fontScale) const;
   double cssPadding(Side side, double fontScale) const;
   double cssBorderWidth(Side side, double fontScale) const;
@@ -107,19 +98,20 @@ private:
   WFont cssFont(double fontScale) const;
   std::string cssTextDecoration() const;
   double cssDecodeLength(const std::string& length, double fontScale,
-			 double defaultValue) const;
+			 double defaultValue,
+			 bool interpretPercentage = true) const;
 
   bool isInside(DomElementType type) const;
 
   void layoutInline(Line& line, BlockList& floats,
-		    double minX, double maxX, bool canIncreaseWidth,
+		    double minX, double& maxX, bool canIncreaseWidth,
 		    const WTextRenderer& renderer);
   void layoutTable(double& y, int& page, BlockList& floats,
 		   double& minX, double& maxX, bool canIncreaseWidth,
 		   const WTextRenderer& renderer);
   void layoutFloat(double y, int page, BlockList& floats,
 		   double lineX, double lineHeight,
-		   double minX, double maxX,
+		   double minX, double& maxX,
 		   bool canIncreaseWidth,
 		   const WTextRenderer& renderer);
 
@@ -156,7 +148,7 @@ private:
   static void positionFloat(double& x, double& y, int& page,
 			    double lineHeight, double width,
 			    const BlockList& floats,
-			    double minX, double maxX, bool canIncreaseWidth,
+			    double minX, double& maxX, bool canIncreaseWidth,
 			    const WTextRenderer& renderer,
 			    Side floatSide);
 
@@ -164,6 +156,8 @@ private:
 					const std::string& value);
   static void unsupportedCssValue(Property property,
 				  const std::string& value);
+
+  static bool isAggregate(const std::string& cssProperty);
 
   friend class Line;
 };

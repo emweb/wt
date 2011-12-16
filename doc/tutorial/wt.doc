@@ -237,6 +237,19 @@ $ g++ -o hello hello.cc -lwthttp -lwt
 $ ./hello --docroot . --http-address 0.0.0.0 --http-port 9090
 ----
 
+.NOTE
+****
+If you get linking errors during the first step, it might be you need to
+add more libraries:
+
+----
+$ g++ -o hello hello.cc -I/usr/local/include -L/usr/local/lib
+  -lwthttp -lwt -lboost_random -lboost_regex 
+  -lboost_signals -lboost_system -lboost_thread -lboost_filesystem 
+  -lboost_program_options -lboost_date_time
+----
+****
+
 Let's start with the last part of the application, the +main()+
 function.
 

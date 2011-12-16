@@ -268,25 +268,31 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 
     if (!ttfFont.empty()) {
       bool fontOk = false;
-      if (ttfFont.length() > 4) {
+
+      std::map<std::string, const char *>::const_iterator i
+	= ttfFonts_.find(ttfFont);
+
+      if (i != ttfFonts_.end()) {
+	font_name = i->second;
+	fontOk = true;
+      } else if (ttfFont.length() > 4) {
 	std::string suffix
 	  = Utils::lowerCase(ttfFont.substr(ttfFont.length() - 4));
 
 	if (suffix == ".ttf") {
 	  font_name = HPDF_LoadTTFontFromFile (pdf_, ttfFont.c_str(),
 					       HPDF_TRUE);
-	  if (!font_name)
-	    HPDF_ResetError (pdf_);
-	  else
-	    fontOk = true;
 	} else if (suffix == ".ttc") {
 	  /* Oops, pango didn't tell us which font to load ... */
 	  font_name = HPDF_LoadTTFontFromFile2(pdf_, ttfFont.c_str(),
 					       0, HPDF_TRUE);
-	  if (!font_name)
-	    HPDF_ResetError (pdf_);
-	  else
-	    fontOk = true;
+	}
+
+	if (!font_name)
+	  HPDF_ResetError (pdf_);
+	else {
+	  ttfFonts_[ttfFont] = font_name;
+	  fontOk = true;
 	}
       }
 

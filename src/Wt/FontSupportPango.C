@@ -169,6 +169,11 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 {
+  if (wtFont_ == f)
+    return FontMatch(matchFont_);
+
+  wtFont_ = f;
+
   PANGO_LOCK;
 
   PangoFontDescription *desc = createFontDescription(f);

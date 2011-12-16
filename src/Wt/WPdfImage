@@ -180,6 +180,7 @@ private:
   HPDF_Page page_;
   HPDF_Font font_;
   bool trueTypeFont_;
+  std::map<std::string, const char *> ttfFonts_;
 
   bool myPdf_;
   double x_, y_;

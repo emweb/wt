@@ -77,22 +77,23 @@ double WTextRenderer::render(const WString& text, double y)
     bool tooWide = false;
 
     for (;;) {
-      try {
-	docBlock.layoutBlock(currentY, currentPage, floats, minX, maxX,
-			     false, *this, std::numeric_limits<double>::max(),
-			     collapseMarginBottom);
+      double x2 = maxX;
+      docBlock.layoutBlock(currentY, currentPage, floats, minX, x2,
+			   false, *this, std::numeric_limits<double>::max(),
+			   collapseMarginBottom);
 
-	Block::clearFloats(currentY, currentPage, floats, minX, maxX,
-			   maxX - minX);
-
-	break;
-      } catch (PleaseWiden& w) {
+      if (x2 > maxX) {
 	if (!tooWide) {
 	  LOG_WARN("contents too wide for page.");
 	  tooWide = true;
 	}
 
-	maxX += w.width;
+	maxX = x2;
+      } else {
+	Block::clearFloats(currentY, currentPage, floats, minX, maxX,
+			   maxX - minX);
+
+	break;
       }
     }
 
