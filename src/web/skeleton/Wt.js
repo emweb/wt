@@ -604,7 +604,7 @@ this.getElement = function(id) {
 this.validate = function(edit) {
   var v;
   if (edit.options)
-    v = edit.options.item(edit.value).text;
+    v = edit.options.item(edit.selectedIndex).text;
   else
     v = edit.value;
 
