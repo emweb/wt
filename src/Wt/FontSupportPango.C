@@ -180,8 +180,9 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 
   if (matchFont_)
     g_object_unref(matchFont_);
-  matchFont_ = pango_font_map_load_font(pangoFontMap, context_, desc);
 
+  matchFont_ = pango_font_map_load_font(pangoFontMap, context_, desc);
+  pango_context_set_font_description(context_, desc); // for layoutText()
   pango_font_description_free(desc);
 
   return FontMatch(matchFont_);
@@ -225,10 +226,7 @@ GList *FontSupport::layoutText(const WFont& font,
 {
   PANGO_LOCK;
 
-  PangoFontDescription *desc = createFontDescription(font);
-  pango_context_set_font_description(context_, desc);
-  pango_font_description_free(desc);
-
+  matchFont(font);
   PangoAttrList *attrs = pango_attr_list_new();
 
   GList *items

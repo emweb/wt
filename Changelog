@@ -27,7 +27,7 @@
 
 21-11-2011:
 	* Wt/Dbo/backend/Firebird: merged Firebird backend contributed by
-	Lukasz Matuszewski.
+	Lukasz Matuszewski from Technical University of Gdansk.
 
 	* Wt/WLogger: the library now uses macros that wrap around
 	Wt::log() by default for internal logging, but this could be

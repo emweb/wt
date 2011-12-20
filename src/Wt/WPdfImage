@@ -7,6 +7,7 @@
 #ifndef WPDF_IMAGE_H_
 #define WPDF_IMAGE_H_
 
+#include <Wt/WFont>
 #include <Wt/WPaintDevice>
 #include <Wt/WResource>
 
@@ -181,6 +182,7 @@ private:
   HPDF_Font font_;
   bool trueTypeFont_;
   std::map<std::string, const char *> ttfFonts_;
+  WFont currentFont_;
 
   bool myPdf_;
   double x_, y_;

@@ -117,6 +117,8 @@ void WComboBox::setCurrentIndex(int index)
   if (currentIndex_ != newIndex) {
     currentIndex_ = newIndex;
 
+    validate();
+
     selectionChanged_ = true;
     repaint(RepaintPropertyIEMobile);
 

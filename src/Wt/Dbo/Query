@@ -84,8 +84,8 @@ class SqlConnection;
  * Simple queries can be done using Session::find(), while more elaborate
  * queries (with arbitrary result types) using Session::query().
  *
- * You may insert positional holders for parameters (in the conditional where
- * part) using '?', and bind these to actual values using bind().
+ * You may insert positional holders anywhere in the query for
+ * parameters using '?', and bind these to actual values using bind().
  *
  * The query result may be fetched using resultValue() or resultList().
  *
@@ -111,7 +111,10 @@ class SqlConnection;
  * groupBy()), possibly intermixing this with parameter binding, and
  * you can keep the query around and run the query multiple times,
  * perhaps with different parameter values or to scroll through the
- * query results.
+ * query results. The where(), orderBy() and groupBy() are merely
+ * convenience methods which you may use to compose the query
+ * incrementally, but you may just as well specify the entire SQL as a
+ * single string.
  *
  * When using DirectBinding, parameters are directly bound to an
  * underlying sql statement. Therefore, the query must be specified
@@ -198,15 +201,18 @@ public:
   //@{
   /*! \brief Adds a query condition.
    *
+   * This is a convenience method for creating a SQL query, and
+   * concatenates a new <i>where</i> condition expression to the
+   * current query.
+   *
    * The condition must be a valid SQL condition expression.
    *
-   * Multiple conditions may be provided, which must each be fulfilled,
-   * and are concatenated together using 'and').
+   * Multiple conditions may be provided by successive calls to
+   * where(), which must each be fulfilled, and are concatenated
+   * together using 'and'.
    *
-   * A condition may contain positional markers '?' to which values may
-   * be bound using bind().
-   *
-   * This provides the <i>where</i> part of an SQL query.
+   * As with any part of the SQL query, a condition may contain
+   * positional markers '?' to which values may be bound using bind().
    *
    * \note This method is not available when using a DirectBinding binding
    *       strategy.
@@ -215,10 +221,11 @@ public:
 
   /*! \brief Sets the result order.
    *
+   * This is a convenience method for creating a SQL query, and sets an
+   * <i>order by</i> field expression for the current query.
+   *
    * Orders the results based on the given field name (or multiple
    * names, comma-separated).
-   *
-   * This provides the <i>order by</i> part of an SQL query.
    *
    * \note This method is not available when using a DirectBinding binding
    *       strategy.
@@ -227,6 +234,9 @@ public:
 
   /*! \brief Sets the grouping field(s).
    *
+   * This is a convenience method for creating a SQL query, and sets a
+   * <i>group by</i> field expression for the current query.
+   *
    * Groups results based on unique values of the indicated field(s),
    * which is a comma separated list of fields. Only fields on which
    * you group and aggregate functions can be selected by a query.
@@ -234,8 +244,6 @@ public:
    * A field that refers to a database object that is selected by the
    * query is expanded to all the corresponding fields of that
    * database object (as in the select statement).
-   *
-   * This provides the <i>group by</i> part of an SQL query.
    *
    * \note This method is not available when using a DirectBinding binding
    *       strategy.

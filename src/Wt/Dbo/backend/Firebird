@@ -14,10 +14,10 @@
 #include <Wt/Dbo/backend/WDboFirebirdDllDefs.h>
 
 namespace IBPP {
-  struct IDatabase;
+  class IDatabase;
   template<class T>
   class Ptr;
-  typedef struct Ptr<IDatabase> Database;
+  typedef Ptr<IDatabase> Database;
 }
 
 namespace Wt {

@@ -602,7 +602,13 @@ this.getElement = function(id) {
 };
 
 this.validate = function(edit) {
-  var v = edit.wtValidate.validate(edit.value);
+  var v;
+  if (edit.options)
+    v = edit.options.item(edit.value).text;
+  else
+    v = edit.value;
+
+  v = edit.wtValidate.validate(v);
   if (v.valid) {
     edit.removeAttribute('title');
     $(edit).removeClass('Wt-invalid');

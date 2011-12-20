@@ -244,6 +244,11 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
   if (flags & Font) {
     const WFont& font = painter()->font();
 
+    if (font == currentFont_)
+      return;
+
+    currentFont_ = font;
+
     const char *font_name = 0;
 
     font_ = 0;

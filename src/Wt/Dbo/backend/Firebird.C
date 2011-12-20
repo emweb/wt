@@ -42,7 +42,8 @@ namespace Wt
 	{ }
       };
 
-      struct Firebird_impl {
+      class Firebird_impl {
+      public:
 	IBPP::Database        m_db;
 	IBPP::Transaction     m_tra;
 	

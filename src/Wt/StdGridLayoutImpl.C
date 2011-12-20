@@ -652,8 +652,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	      break;
 	    }
 
-	  if (!style.empty())
-	    td->setProperty(PropertyStyle, style.str());
+	  td->setProperty(PropertyStyle, style.str());
 	}
 
 	if (item.rowSpan_ != 1)
