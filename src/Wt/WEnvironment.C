@@ -361,14 +361,25 @@ const std::string *WEnvironment::getParameter(const std::string& name) const
     return 0;
 }
 
-const std::string WEnvironment::getCookie(const std::string& cookieNname) const
+const std::string WEnvironment::getCookie(const std::string& cookieName) const
 {
-  CookieMap::const_iterator i = cookies_.find(cookieNname);
+  CookieMap::const_iterator i = cookies_.find(cookieName);
 
   if (i == cookies_.end())
-    throw std::runtime_error("Missing cookie: " + cookieNname);
+    throw std::runtime_error("Missing cookie: " + cookieName);
   else
     return i->second;
+}
+
+const std::string *WEnvironment::getCookieValue(const std::string& cookieName)
+  const
+{
+  CookieMap::const_iterator i = cookies_.find(cookieName);
+
+  if (i == cookies_.end())
+    return 0;
+  else
+    return &i->second;
 }
 
 const std::string WEnvironment::headerValue(const std::string& name) const

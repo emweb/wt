@@ -992,8 +992,8 @@ least the following two packages:
     The following boost libraries (which are not headers only) are
     needed: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
     <tt>boost_program_options</tt>, <tt>boost_signals</tt>,
-    <tt>boost_system</tt>, and optionally (but highly recommended)
-    <tt>boost_thread</tt>.
+    <tt>boost_random</tt>, <tt>boost_system</tt>, and optionally (but
+    highly recommended) <tt>boost_thread</tt>.
   </li>
 </ul>
 

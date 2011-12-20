@@ -31,12 +31,14 @@ namespace Wt {
  * high-quality rendering of text-like contents.
  *
  * The following are the main features:
- * - rendering of inline content, floats, tables, images, ordered lists,
- *   unordered lists
- * - limited support for fonts, font styles, font sizes and text decorations
+ * - compliant rendering of inline (text) contents, floats,
+ *   tables, images, ordered lists, unordered lists, in any arbitrary
+ *   combination
+ * - support for fonts, font styles, font sizes and text decorations
  * - support for text alignment options, padding, margins, borders, background
  *   color (only on block elements) and text colors
- * - supports automatic page breaks and font scaling
+ * - supports automatic page breaks
+ * - supports font scaling (rendering text at another DPI than the rest)
  * - can be used in conjunction with other drawing instructions to the same
  *   paint device.
  *
@@ -49,6 +51,10 @@ namespace Wt {
  *   positioning is not supported <i>yet</i>).
  * - only colors defined in terms of RGB values are supported: CSS named colors
  *   (e.g. 'blue') are not allowed.
+ *
+ * The basics are solid though and the hardest part has been implemented
+ * (notably handling floats and (nested) tables). Anything else could be
+ * easily improved, let us known in the bug tracker.
  *
  * This class is an abstract class. A concrete class implements the
  * pure virtual methods to create an appropriate WPaintDevice for each

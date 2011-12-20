@@ -342,7 +342,7 @@ public:
    *
    * Returns 0 if no value was set for the given cookie.
    *
-   * \sa getCookie()
+   * \sa cookies()
    */
   const std::string *getCookieValue(const std::string& cookieName) const;
 

@@ -365,5 +365,15 @@ void Request::parseCookies(const std::string& cookie,
   WEnvironment::parseCookies(cookie, result);
 }
 
+const std::string *Request::getCookieValue(const std::string& cookieName) const
+{
+  CookieMap::const_iterator i = cookies_.find(cookieName);
+
+  if (i == cookies_.end())
+    return 0;
+  else
+    return &i->second;
+}
+
   }
 }
