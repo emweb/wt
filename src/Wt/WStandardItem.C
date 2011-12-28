@@ -4,9 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <iostream>
-
-#include "Wt/WDate"
 #include "Wt/WLink"
 #include "Wt/WStandardItem"
 #include "Wt/WStandardItemModel"

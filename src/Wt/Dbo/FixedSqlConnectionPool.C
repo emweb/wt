@@ -6,7 +6,6 @@
 
 #include "Wt/Dbo/FixedSqlConnectionPool"
 #include "Wt/Dbo/SqlConnection"
-#include "Wt/Dbo/Exception"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>

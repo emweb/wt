@@ -7,15 +7,11 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WDialog"
 #include "Wt/WException"
-#include "Wt/WTable"
-#include "Wt/WTableCell"
 #include "Wt/WTemplate"
 #include "Wt/WText"
-#include "Wt/WVBoxLayout"
 
 #include "Resizable.h"
 #include "WebSession.h"
-#include "WebController.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDialog.min.js"

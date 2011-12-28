@@ -9,14 +9,12 @@
 
 #include <Wt/WGoogleMap>
 #include <Wt/WApplication>
-#include <Wt/WEnvironment>
 #include <Wt/WContainerWidget>
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <string>
-#include <sstream>
 #include <utility>
 #include <iostream>
 #include <cmath>

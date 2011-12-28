@@ -7,17 +7,13 @@
 #include "Wt/WAnchor"
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
 #include "Wt/WException"
-#include "Wt/WLabel"
 #include "Wt/WMenuItem"
 #include "Wt/WMenu"
 #include "Wt/WStackedWidget"
-#include "Wt/WTableCell"
 #include "Wt/WText"
 
 #include "StdGridLayoutImpl.h"
-#include "WebSession.h"
 
 #include <cctype>
 

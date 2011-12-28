@@ -3,8 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <iostream>
-
 #include "Wt/WAnchor"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
@@ -14,7 +12,6 @@
 
 #include "DomElement.h"
 #include "Utils.h"
-#include "WebSession.h"
 
 namespace Wt {
 

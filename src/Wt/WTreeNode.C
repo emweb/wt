@@ -8,10 +8,8 @@
 #include "Utils.h"
 
 #include "Wt/WApplication"
-#include "Wt/WCssDecorationStyle"
 #include "Wt/WEnvironment"
 #include "Wt/WIconPair"
-#include "Wt/WImage"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
 #include "Wt/WText"

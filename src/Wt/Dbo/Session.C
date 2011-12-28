@@ -13,7 +13,6 @@
 #include "Wt/Dbo/SqlStatement"
 #include "Wt/Dbo/StdSqlTraits"
 
-#include <cassert>
 #include <iostream>
 #include <vector>
 #include <boost/lexical_cast.hpp>

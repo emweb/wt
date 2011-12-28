@@ -9,7 +9,6 @@
 #include "Wt/WJavaScriptSlot"
 #include "Wt/WStatelessSlot"
 #include "Wt/WWidget"
-#include "Wt/WWebWidget"
 
 namespace Wt {
 

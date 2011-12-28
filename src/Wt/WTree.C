@@ -4,10 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WApplication"
-#include "Wt/WCheckBox"
-#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
-#include "Wt/WImage"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
 #include "Wt/WText"

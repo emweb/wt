@@ -11,7 +11,6 @@
 #include "Wt/WSvgImage"
 #include "Wt/WStringStream"
 #include "Wt/WWebWidget"
-#include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
 #include "Utils.h"

@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <algorithm>
-
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WApplication"
@@ -16,9 +14,7 @@
 #include "Wt/WResource"
 #include "Wt/WServer"
 #include "Wt/WTimerWidget"
-#include "Wt/WTimer"
 #include "Wt/Http/Request"
-#include "Wt/Http/Response"
 
 #include "CgiParser.h"
 #include "Configuration.h"

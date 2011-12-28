@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <algorithm>
-
 #include "Wt/WDefaultLayout"
 #include "Utils.h"
 

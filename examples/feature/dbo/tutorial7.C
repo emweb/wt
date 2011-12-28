@@ -99,8 +99,6 @@ void run()
     userInfo->info = "great guy";
 
     session.add(userInfo);
-
-    transaction.commit();
   }
 
   {
@@ -109,8 +107,6 @@ void run()
     dbo::ptr<UserInfo> info = session.find<UserInfo>();
     
     std::cerr << info->user->name << " is a " << info->info << std::endl;
-
-    transaction.commit();
   }
 }
 

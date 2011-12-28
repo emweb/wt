@@ -127,8 +127,6 @@ void run()
     user->karma = 13;
 
     dbo::ptr<User> userPtr = session.add(user);
-
-    transaction.commit();
   }
 
   dbo::ptr<Post> post;
@@ -142,8 +140,6 @@ void run()
 
     // will print 'Joe has 1 post(s).'
     std::cerr << "Joe has " << joe->posts.size() << " post(s)." << std::endl;
-
-    transaction.commit();
   }
 
   {
@@ -156,8 +152,6 @@ void run()
 
     // will print '1 post(s) tagged with Cooking.'
     std::cerr << cooking->posts.size() << " post(s) tagged with Cooking." << std::endl;
-
-    transaction.commit();
   }
 }
 

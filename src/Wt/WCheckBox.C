@@ -8,7 +8,6 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
-#include "Wt/WJavaScript"
 
 #include "DomElement.h"
 

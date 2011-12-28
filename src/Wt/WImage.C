@@ -10,8 +10,6 @@
 #include "Wt/WResource"
 
 #include "DomElement.h"
-#include "Utils.h"
-#include "WebSession.h"
 
 namespace Wt {
 

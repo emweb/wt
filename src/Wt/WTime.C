@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <stdlib.h>
-
 #include "Wt/WException"
 #include "Wt/WTime"
 #include "Wt/WLogger"

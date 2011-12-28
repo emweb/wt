@@ -170,8 +170,6 @@ void run()
       std::cerr << " " << ms.id.organisation->name
 		<< " (karma: " << ms.karma << ")" << std::endl;
     }
-
-    transaction.commit();
   }
 }
 

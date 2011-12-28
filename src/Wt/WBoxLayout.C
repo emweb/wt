@@ -6,8 +6,6 @@
 
 #include <cassert>
 
-#include "DomElement.h"
-
 #include "Wt/WBoxLayout"
 #include "Wt/WWebWidget"
 #include "Wt/WWidgetItem"

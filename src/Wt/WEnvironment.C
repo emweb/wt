@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WLogger"
@@ -17,8 +16,6 @@
 #include "Utils.h"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <cassert>
 
 namespace Wt {
 

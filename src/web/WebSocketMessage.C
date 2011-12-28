@@ -6,12 +6,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "Wt/WException"
 #include "Wt/WLogger"
 
 #include "WebSession.h"
 #include "WebSocketMessage.h"
-#include "Utils.h"
 
 namespace Wt {
 

@@ -3,11 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <iostream>
 #include <fstream>
-#include <algorithm>
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include "Wt/WApplication"
 #include "Wt/WCombinedLocalizedStrings"
@@ -17,14 +14,12 @@
 #include "Wt/WException"
 #include "Wt/WMemoryResource"
 #include "Wt/WServer"
-#include "Wt/WText"
 
 #include "WebSession.h"
 #include "DomElement.h"
 #include "Configuration.h"
 #include "SoundManager.h"
 #include "WebController.h"
-#include "WebRequest.h"
 #include "Utils.h"
 
 #include <boost/pool/pool.hpp>

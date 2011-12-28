@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
 #include <cstdio>
 #include <sstream>
 
@@ -15,7 +14,6 @@
 #include "Wt/WStringStream"
 
 #include "DomElement.h"
-#include "WebSession.h"
 #include "Utils.h"
 
 namespace {

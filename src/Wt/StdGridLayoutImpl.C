@@ -5,7 +5,6 @@
  */
 
 #include <boost/lexical_cast.hpp>
-#include <cstdio>
 #include <sstream>
 
 #include "Wt/WApplication"

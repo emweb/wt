@@ -4,9 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
 #include <boost/pool/pool.hpp>
-#include <stdio.h>
 
 #include "Wt/WSignal"
 #include "Wt/WApplication"

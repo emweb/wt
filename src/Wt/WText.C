@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/algorithm/string.hpp>
-#include <iostream>
 
 #include "Wt/WApplication"
 #include "Wt/WLogger"

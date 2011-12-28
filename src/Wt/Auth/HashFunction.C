@@ -7,7 +7,6 @@
 #include "HashFunction"
 #include "AuthUtils.h"
 
-#include "Wt/WConfig.h"
 #include "Wt/WException"
 
 // for htonl():
@@ -19,7 +18,6 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <iostream>
 #include <stdexcept>
 
 extern "C" {

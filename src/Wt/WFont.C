@@ -7,7 +7,6 @@
 
 #include "Wt/WFont"
 #include "Wt/WStringStream"
-#include "Wt/WWidget"
 #include "Wt/WWebWidget"
 
 #include "DomElement.h"

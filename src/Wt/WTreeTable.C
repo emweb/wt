@@ -5,7 +5,6 @@
  */
 
 #include "Wt/WApplication"
-#include "Wt/WVBoxLayout"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WException"

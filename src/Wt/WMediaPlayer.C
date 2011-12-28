@@ -6,11 +6,9 @@
  */
 #include "Wt/WMediaPlayer"
 #include "Wt/WAnchor"
+#include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WException"
-#include "Wt/WPushButton"
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
 #include "Wt/WProgressBar"
 #include "Wt/WStringStream"
 #include "Wt/WTemplate"

@@ -8,9 +8,6 @@
 
 #include "Wt/WFileResource"
 
-#include "Wt/Http/Request"
-#include "Wt/Http/Response"
-
 namespace Wt {
 
 WFileResource::WFileResource(WObject *parent)

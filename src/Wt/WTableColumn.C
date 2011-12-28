@@ -3,13 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
-
 #include "DomElement.h"
-#include "Utils.h"
 
 #include "Wt/WTable"
-#include "Wt/WTableCell"
 #include "Wt/WTableColumn"
 
 namespace Wt {

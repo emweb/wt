@@ -3,8 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <algorithm>
-
 #include "StdWidgetItemImpl.h"
 #include "StdGridLayoutImpl.h"
 
@@ -12,7 +10,6 @@
 #include "Wt/WBorderLayout"
 #include "Wt/WBoxLayout"
 #include "Wt/WContainerWidget"
-#include "Wt/WException"
 #include "Wt/WGridLayout"
 #include "Wt/WWidgetItem"
 #include "Utils.h"

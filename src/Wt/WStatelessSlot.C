@@ -1,4 +1,3 @@
-#include "Wt/WObject"
 #include "Wt/WStatelessSlot"
 #include "Wt/WSignal"
 

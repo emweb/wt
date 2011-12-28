@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/regex.hpp>
-
 #include "Wt/WApplication"
 #include "Wt/WRegExpValidator"
 #include "Wt/WRegExp"

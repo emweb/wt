@@ -13,11 +13,9 @@
 #include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WMessageResources"
-#include "Wt/WString"
 #include "Wt/WStringStream"
 
 #include "DomElement.h"
-#include "Utils.h"
 
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_print.hpp"

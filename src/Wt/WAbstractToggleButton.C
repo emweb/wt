@@ -5,7 +5,6 @@
  */
 #include "Wt/WAbstractToggleButton"
 #include "Wt/WApplication"
-#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WLabel"
 

@@ -234,8 +234,6 @@ happen within a transaction.
     user->karma = 13;
 
     dbo::ptr<User> userPtr = session.add(user);
-
-    transaction.commit();
 }
 ----
 
@@ -258,6 +256,11 @@ which need to be flushed (using SQL statements) to the
 database. Flushing happens automatically when committing the
 transaction, or whenever needed to maintain consistency between the
 transient objects and the database copy (e.g. before doing a query).
+
+The transaction commits automatically if the transaction object goes
+out of scope. If however an exception is thrown, which unwinds the
+stack and causes the transaction to go out of scope, then the
+transaction will roll back instead.
 
 This generates the following SQL:
 
@@ -1086,8 +1089,6 @@ void run()
         userInfo->info = "great guy";
 
         session.add(userInfo);
-
-        transaction.commit();
     }
 
     {
@@ -1096,8 +1097,6 @@ void run()
         dbo::ptr<UserInfo> info = session.find<UserInfo>();
     
         std::cerr << info->user->name << " is a " << info->info << std::endl;
-
-        transaction.commit();
     }
 }
 
@@ -1182,7 +1181,11 @@ wider transaction if that is available. A transaction will in fact
 defer opening a real transaction in the database until needed, and
 thus there is no penalty for instantiating a transaction to make sure
 a unit of work is atomic, even if you are not yet sure that there will
-be actual work done.
+be actual work done. Note that there is no need (sinds Wt 3.2.1) to
+explicitly commit a transaction: a transaction will automatically
+commited when it goes out of scope, unless the transaction goes out of
+scope (and thus its destructor is called) while an exception is being
+thrown.
 
 Transactions may fail and dealing with failing transactions is an
 integral aspect of their usage. When the library detects a concurrent

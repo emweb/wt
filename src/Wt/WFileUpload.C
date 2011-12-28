@@ -5,10 +5,8 @@
  */
 #include <boost/lexical_cast.hpp>
 
-#include "Wt/WText"
 #include "Wt/WFileUpload"
 #include "Wt/WApplication"
-#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WProgressBar"
 #include "Wt/WResource"

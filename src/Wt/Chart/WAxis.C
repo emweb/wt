@@ -7,7 +7,6 @@
 #include <cmath>
 #include <limits>
 #include <cstdio>
-#include <cmath>
 
 #include <boost/lexical_cast.hpp>
 

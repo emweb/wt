@@ -5,7 +5,6 @@
  */
 
 #include "Wt/WLayoutItem"
-#include "Wt/WLayout"
 
 namespace Wt {
 

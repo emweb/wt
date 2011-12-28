@@ -3,13 +3,11 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <iostream>
 #include <cstring>
 #include <boost/functional/hash.hpp>
 
 #include "Wt/WModelIndex"
 #include "Wt/WAbstractItemModel"
-#include "Wt/WException"
 #include "Wt/WLogger"
 
 namespace Wt {

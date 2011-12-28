@@ -4,10 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <boost/lexical_cast.hpp>
-
 #include "Wt/WApplication"
-#include "Wt/WBreak"
 #include "Wt/WLogger"
 #include "Wt/WMenu"
 #include "Wt/WMenuItem"

@@ -5,7 +5,6 @@
  */
 #include "SoundManager.h"
 
-#include "Wt/WApplication"
 #include "Wt/WSound"
 #include "Wt/WStringStream"
 

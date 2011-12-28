@@ -17,8 +17,6 @@
 #include "Wt/WHBoxLayout"
 #include "Wt/WText"
 
-#include "Utils.h"
-
 namespace Wt {
 
 template <class Widget>

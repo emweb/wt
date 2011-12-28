@@ -5,7 +5,6 @@
  */
 
 #include "Wt/WAbstractItemDelegate"
-#include "Wt/WModelIndex"
 
 namespace Wt {
 

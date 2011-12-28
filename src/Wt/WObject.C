@@ -9,9 +9,6 @@
 #include "Wt/WSignal"
 #include "Utils.h"
 
-
-#include <stdio.h>
-
 namespace Wt {
 
 unsigned WObject::nextObjId_ = 0;

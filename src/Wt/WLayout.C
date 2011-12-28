@@ -10,8 +10,6 @@
 #include "Wt/WWidget"
 #include "Wt/WWidgetItem"
 
-#include <set>
-
 namespace Wt {
 
 WLayout::WLayout()

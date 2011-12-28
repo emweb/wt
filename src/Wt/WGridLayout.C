@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WContainerWidget"
 #include "Wt/WGridLayout"
 #include "Wt/WWidgetItem"
 

@@ -11,7 +11,6 @@
 
 #include "Wt/WAbstractItemModel"
 #include "Wt/WCircleArea"
-#include "Wt/WDate"
 #include "Wt/WPainter"
 #include "Wt/WPolygonArea"
 #include "Wt/WRectArea"
@@ -19,7 +18,6 @@
 #include "Utils.h"
 
 #include <cfloat>
-#include <limits>
 
 namespace {
   const int TICK_LENGTH = 5;

@@ -7,15 +7,12 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <map>
-#include <stdexcept>
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
-#include "Wt/WLoadingIndicator"
 #include "Wt/WRandom"
 #include "Wt/WWebWidget"
 #include "Wt/WStringStream"
-#include "Wt/WStringUtil"
 
 #include "DomElement.h"
 #include "EscapeOStream.h"

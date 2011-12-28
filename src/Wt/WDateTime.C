@@ -11,10 +11,6 @@
 #include "Wt/WDate"
 #include "Wt/WTime"
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/local_time_adjustor.hpp>
-#include <boost/date_time/c_local_time_adjustor.hpp>
-
 #ifndef DOXYGEN_ONLY
 
 namespace posix = boost::posix_time;

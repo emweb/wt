@@ -419,14 +419,6 @@ private:
   bool isRawIndex() const;
 };
 
-#ifndef WT_TARGET_JAVA
-typedef std::set<WModelIndex> WModelIndexSet;
-
-extern std::size_t hash_value(const Wt::WModelIndex& index);
-#else
-typedef std::treeset<WModelIndex> WModelIndexSet;
-#endif
-
 typedef std::vector<WModelIndex> WModelIndexList;
 
 }

@@ -4,11 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 #include "Wt/WResource"
 #include "Wt/WApplication"
-#include "Wt/WEnvironment"
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
 

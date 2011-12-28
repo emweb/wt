@@ -3,9 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <iostream>
-#include <boost/lexical_cast.hpp>
-
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WTable"

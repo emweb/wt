@@ -7,7 +7,6 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WFormWidget"
-#include "Wt/WJavaScript"
 #include "Wt/WLabel"
 
 #include "DomElement.h"

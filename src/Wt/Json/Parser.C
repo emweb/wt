@@ -7,8 +7,6 @@
 #include "Wt/Json/Parser"
 #include "Wt/Json/Value"
 #include "Wt/Json/Object"
-#include "Wt/Json/Array"
-#include "Wt/WStringStream"
 
 #include <boost/version.hpp>
 
@@ -28,8 +26,6 @@
 #include <boost/bind.hpp>
 
 #endif // JSON_PARSER
-
-#include <list>
 
 namespace Wt {
   namespace Json {

@@ -4,10 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <iostream>
-
-#include "Wt/WApplication"
-#include "Wt/WLogger"
 #include "Wt/WStandardItem"
 #include "Wt/WStandardItemModel"
 

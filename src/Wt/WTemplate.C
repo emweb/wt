@@ -14,7 +14,6 @@
 
 #include "DomElement.h"
 #include "RefEncoder.h"
-#include "Utils.h"
 #include "WebSession.h"
 
 namespace Wt {

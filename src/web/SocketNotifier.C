@@ -7,7 +7,6 @@
 #include "SocketNotifier.h"
 #include "WebController.h"
 #include "Wt/WLogger"
-#include "Wt/WServer"
 #include "Wt/WSocketNotifier"
 #include <set>
 

@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <stdlib.h>
-
 #include "Wt/WApplication"
 #include "Wt/WDate"
 #include "Wt/WException"
@@ -13,7 +11,6 @@
 
 #include "Utils.h"
 
-#include <boost/date_time/gregorian/gregorian.hpp>
 using namespace boost::gregorian;
 
 namespace {

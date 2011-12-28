@@ -35,14 +35,11 @@
 #include "Wt/WRectF"
 #include "Wt/WStringStream"
 #include "Wt/WVmlImage"
-#include "Wt/WWebWidget"
 
-#include "DomElement.h"
 #include "EscapeOStream.h"
 #include "Utils.h"
 
 #include <cmath>
-#include <boost/lexical_cast.hpp>
 
 namespace {
   const int Z = 10;

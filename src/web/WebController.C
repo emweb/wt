@@ -5,8 +5,6 @@
  */
 
 #include <fstream>
-#include <sstream>
-#include <stdio.h>
 
 #ifdef WT_HAVE_GNU_REGEX
 #include <regex.h>
@@ -27,7 +25,6 @@
 #include "Wt/WResource"
 #include "Wt/WServer"
 #include "Wt/WSocketNotifier"
-#include "Wt/WStringUtil"
 
 #include "Wt/Auth/AuthUtils.h"
 
@@ -36,7 +33,6 @@
 #include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
-#include "WebStream.h"
 #include "TimeUtil.h"
 #include "Utils.h"
 

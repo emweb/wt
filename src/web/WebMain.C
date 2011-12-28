@@ -3,8 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/asio.hpp>
-
 #include "WebMain.h"
 
 #include <boost/bind.hpp>
@@ -12,7 +10,6 @@
 #include <Wt/WIOService>
 #include <Wt/WServer>
 
-#include "Configuration.h"
 #include "WebController.h"
 #include "WebStream.h"
 

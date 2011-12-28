@@ -3,8 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
-#include "Wt/WEnvironment"
 #include "Wt/WImage"
 #include "Wt/WContainerWidget"
 #include "Wt/WCssDecorationStyle"

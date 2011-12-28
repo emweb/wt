@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <iostream>
-
 #include <Wt/WContainerWidget>
 #include <Wt/WMenu>
 #include <Wt/WSubMenuItem>

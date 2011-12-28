@@ -6,8 +6,6 @@
 
 #include <cmath>
 #include <cstdio>
-#include <cfloat>
-#include <boost/lexical_cast.hpp>
 
 #include "Wt/Chart/WPieChart"
 #include "Wt/Chart/WStandardPalette"
@@ -16,8 +14,6 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WCssDecorationStyle"
 #include "Wt/WText"
-#include "Wt/WSvgImage"
-#include "Wt/WPaintDevice"
 #include "Wt/WPainter"
 #include "Wt/WPolygonArea"
 #include "Wt/WApplication"

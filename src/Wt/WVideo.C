@@ -5,12 +5,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WVideo"
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WEnvironment"
-#include "Wt/WTemplate"
 #include "DomElement.h"
-#include "Utils.h"
 
 using namespace Wt;
 

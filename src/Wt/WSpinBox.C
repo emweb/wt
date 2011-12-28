@@ -3,12 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WApplication>
 #include <Wt/WSpinBox>
 #include <Wt/WIntValidator>
 
 #include "DomElement.h"
-#include "Utils.h"
 
 namespace Wt {
 

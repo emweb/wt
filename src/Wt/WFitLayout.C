@@ -6,7 +6,6 @@
 
 #include "Wt/WFitLayout"
 #include "Wt/WLogger"
-#include "Wt/WWidgetItem"
 
 namespace Wt {
 

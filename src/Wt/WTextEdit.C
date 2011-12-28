@@ -1,16 +1,15 @@
-
 /*
  * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
+
 #include "Wt/WApplication"
-#include "Wt/WContainerWidget"
+#include "Wt/WEnvironment"
 #include "Wt/WTextEdit"
 #include "Wt/WBoostAny"
 
 #include "DomElement.h"
-#include "WebSession.h"
 
 namespace Wt {
 

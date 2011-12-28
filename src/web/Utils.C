@@ -7,18 +7,13 @@
 #include "Utils.h"
 #include "DomElement.h"
 #include "rapidxml/rapidxml.hpp"
-#include "Wt/WApplication"
 #include "Wt/WException"
-#include "Wt/WLogger"
 #include "Wt/WString"
 
 #include <boost/algorithm/string.hpp>
 
-#include <cstdlib>
 #include <ctype.h>
-#include <sstream>
 #include <stdio.h>
-#include <iostream>
 #include <fstream>
 
 #ifdef WIN32

@@ -6,9 +6,7 @@
 
 #include "Wt/Auth/AbstractUserDatabase"
 #include "Wt/Auth/AuthWidget"
-#include "Wt/Auth/AuthService"
 #include "Wt/Auth/Login"
-#include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/RegistrationWidget"
 
 #include "Wt/WAnchor"

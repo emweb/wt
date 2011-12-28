@@ -5,7 +5,6 @@
  */
 
 #include "Wt/WContainerWidget"
-#include "Wt/WIconPair"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
 #include "Wt/WText"

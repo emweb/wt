@@ -13,8 +13,6 @@
 #include "Wt/WLineEdit"
 #include "Wt/WText"
 
-#include "web/Utils.h"
-
 namespace Wt {
   namespace Auth {
 

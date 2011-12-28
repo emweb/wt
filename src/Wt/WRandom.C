@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <memory>
 #include <stdexcept>
 
 #include "Wt/WRandom"

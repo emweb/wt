@@ -8,7 +8,6 @@
 #include <Wt/Dbo/ptr>
 #include <Wt/Dbo/Exception>
 #include <Wt/Dbo/Session>
-#include <iostream>
 
 namespace Wt {
   namespace Dbo {

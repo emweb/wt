@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 #include "Query"
-#include "Query_impl.h"
-#include "DbAction"
+#include "Exception"
+#include "ptr"
 
 #include <boost/version.hpp>
 

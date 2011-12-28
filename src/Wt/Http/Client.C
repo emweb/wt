@@ -11,7 +11,6 @@
 #include "Wt/WApplication"
 #include "Wt/WIOService"
 #include "Wt/WEnvironment"
-#include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WServer"
 

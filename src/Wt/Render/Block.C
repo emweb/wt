@@ -17,9 +17,6 @@
 #include "Utils.h"
 #include "DomElement.h"
 
-#include <iostream>
-#include <math.h>
-#include <boost/tuple/tuple.hpp>
 #include <boost/algorithm/string.hpp>
 
 using namespace rapidxml;

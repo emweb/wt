@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 #include <stdlib.h>
 
 #include "Wt/WColor"

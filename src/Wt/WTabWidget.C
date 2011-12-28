@@ -6,14 +6,12 @@
  */
 
 #include "Wt/WAnchor"
-#include "Wt/WBreak"
-#include "Wt/WText"
 #include "Wt/WApplication"
+#include "Wt/WText"
 #include "Wt/WTabWidget"
 #include "Wt/WMenu"
 #include "Wt/WMenuItem"
 #include "Wt/WStackedWidget"
-#include "Wt/WVBoxLayout"
 
 #include "Utils.h"
 

@@ -6,7 +6,6 @@
 #include "Wt/WGroupBox"
 
 #include "DomElement.h"
-#include "Utils.h"
 
 namespace Wt {
 

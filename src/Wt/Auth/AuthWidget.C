@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/AbstractPasswordService"
 #include "Wt/Auth/AbstractUserDatabase"
 #include "Wt/Auth/AuthModel"
 #include "Wt/Auth/AuthService"

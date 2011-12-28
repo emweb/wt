@@ -5,7 +5,6 @@
  */
 
 #include "Wt/WCombinedLocalizedStrings"
-#include "Wt/WString"
 
 #include "Utils.h"
 

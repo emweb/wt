@@ -20,8 +20,6 @@
 #include "SizeHandle.h"
 #include "Utils.h"
 
-#include <iostream>
-
 namespace Wt {
 
 class DefaultPagingBar : public WContainerWidget

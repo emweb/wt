@@ -6,7 +6,6 @@
 
 #include "Wt/WException"
 #include "Wt/WLocalizedStrings"
-#include "Wt/WString"
 
 namespace Wt {
 

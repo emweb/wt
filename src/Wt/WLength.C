@@ -9,8 +9,6 @@
 
 #include "Utils.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 #include <cstring>
 
 namespace Wt {

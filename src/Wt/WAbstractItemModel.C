@@ -3,10 +3,10 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WEvent"
 #include "Wt/WModelIndex"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WItemSelectionModel"
-#include "Wt/WWebWidget"
 
 #include "Utils.h"
 

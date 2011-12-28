@@ -4,10 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 #include "Query"
-#include "Query_impl.h"
-#include "DbAction"
+#include "SqlTraits"
+#include "ptr"
 
-#include <iostream>
 #include <string>
 #include <boost/algorithm/string.hpp>
 

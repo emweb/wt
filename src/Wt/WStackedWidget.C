@@ -13,8 +13,6 @@
 #include "js/WStackedWidget.min.js"
 #endif
 
-#include <iostream>
-
 namespace Wt {
 
 WStackedWidget::WStackedWidget(WContainerWidget *parent)

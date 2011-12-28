@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <iostream>
-
 #include "Wt/Http/ResponseContinuation"
 #include "Wt/WResource"
 

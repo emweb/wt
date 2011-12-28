@@ -10,7 +10,6 @@
 #include "Wt/WLineEdit"
 #include "Wt/WMessageBox"
 #include "Wt/WPushButton"
-#include "Wt/WText"
 
 namespace Wt {
   namespace Auth {

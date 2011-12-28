@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WPainter"
 #include "Wt/WPdfImage"

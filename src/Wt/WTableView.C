@@ -8,18 +8,13 @@
 
 #include "Wt/WAbstractItemDelegate"
 #include "Wt/WApplication"
-#include "Wt/WContainerWidget"
 #include "Wt/WAbstractItemModel"
+#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
-#include "Wt/WItemDelegate"
+#include "Wt/WGridLayout"
 #include "Wt/WModelIndex"
 #include "Wt/WStringStream"
 #include "Wt/WTable"
-#include "Wt/WText"
-#include "Wt/WVBoxLayout"
-#include "Wt/WVBoxLayout"
-
-#include "Utils.h"
 
 #ifndef WT_DEBUG_JS
 
@@ -28,7 +23,6 @@
 
 #define UNKNOWN_VIEWPORT_HEIGHT 600
 
-#include <iostream>
 #include <cmath>
 
 namespace Wt {

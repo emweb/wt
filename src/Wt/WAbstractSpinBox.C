@@ -11,11 +11,11 @@
 
 #include "DomElement.h"
 
+#include <boost/algorithm/string.hpp>
+
 #ifndef WT_DEBUG_JS
 #include "js/WSpinBox.min.js"
 #endif
-
-#include <boost/algorithm/string.hpp>
 
 namespace Wt {
 

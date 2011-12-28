@@ -76,8 +76,6 @@ void run()
     user->karma = 13;
 
     dbo::ptr<User> userPtr = session.add(user);
-
-    transaction.commit();
   }
 
   /*****
@@ -93,8 +91,6 @@ void run()
 
     dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >
       ("select u from user u").where("name = ?").bind("Joe");
-
-    transaction.commit();
   }
 
   {
@@ -109,8 +105,6 @@ void run()
     for (Users::const_iterator i = users.begin(); i != users.end(); ++i)
       std::cerr << " user " << (*i)->name
 		<< " with karma of " << (*i)->karma << std::endl;
-
-    transaction.commit();
   }
 
   /*****
@@ -124,8 +118,6 @@ void run()
 
     joe.modify()->karma++;
     joe.modify()->password = "public";
-
-    transaction.commit();
   }
 
   {
@@ -133,7 +125,6 @@ void run()
     dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
     if (joe)
       joe.remove();
-    transaction.commit();
   }
 
   {
@@ -142,8 +133,6 @@ void run()
     dbo::ptr<User> silly = session.add(new User());
     silly.modify()->name = "Silly";
     silly.remove();
-
-    transaction.commit();
   }
 
 }

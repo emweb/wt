@@ -4,14 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "DomElement.h"
 #include "StdLayoutImpl.h"
 
 #include "Wt/WContainerWidget"
 #include "Wt/WLayout"
 #include "Wt/WLayoutItem"
-#include "Wt/WApplication"
-#include "Wt/WLogger"
 
 namespace Wt {
 

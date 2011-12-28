@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <iostream>
 #include "Wt/WRegExp"
 #include "Wt/WLogger"
 

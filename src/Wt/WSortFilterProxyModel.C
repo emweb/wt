@@ -4,9 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <algorithm>
-#include <iostream>
-
 #include "Wt/WSortFilterProxyModel"
 #include "Wt/WRegExp"
 

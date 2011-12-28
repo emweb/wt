@@ -5,7 +5,6 @@
  */
 
 #include "Wt/WMemoryResource"
-#include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
 namespace Wt {

@@ -7,7 +7,6 @@
 
 #include "DomElement.h"
 #include "StdWidgetItemImpl.h"
-#include "StdGridLayoutImpl.h"
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"

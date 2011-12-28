@@ -5,7 +5,6 @@
  */
 
 #include "Wt/Json/Object"
-#include "Wt/Json/Array"
 
 namespace Wt {
   namespace Json {

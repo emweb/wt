@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WString"
 #include "Wt/WStringStream"
@@ -11,10 +10,6 @@
 #include "DomElement.h"
 #include "XSSUtils.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <iomanip>
-#include "Wt/WStringUtil"
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_print.hpp"
 

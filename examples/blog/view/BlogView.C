@@ -369,73 +369,54 @@ private:
     boost::split(parts, path, boost::is_any_of("/"));
 
     WDate lower, upper;
-    int year = boost::lexical_cast<int>(parts[0]);
+    try {
+      int year = boost::lexical_cast<int>(parts[0]);
 
-    if (parts.size() > 1) {
-      int month = boost::lexical_cast<int>(parts[1]);
+      if (parts.size() > 1) {
+	int month = boost::lexical_cast<int>(parts[1]);
 
-      if (parts.size() > 2) {
-	int day = boost::lexical_cast<int>(parts[2]);
+	if (parts.size() > 2) {
+	  int day = boost::lexical_cast<int>(parts[2]);
 
-	lower.setDate(year, month, day);
-	upper = lower.addDays(1);
-      } else {
-	lower.setDate(year, month, 1);
-	upper = lower.addMonths(1);
-      }
-    } else {
-      lower.setDate(year, 1, 1);
-      upper = lower.addYears(1);
-    }
-
-    Posts posts = session_.find<Post>
-      ("where date >= ? "
-       "and date < ? "
-       "and (state = ? or author_id = ?)")
-      .bind(WDateTime(lower))
-      .bind(WDateTime(upper))
-      .bind(Post::Published)
-      .bind(session_.user().id());
-
-    if (parts.size() > 3) {
-      std::string title = parts[3];
-
-      for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i)
-	if ((*i)->titleToUrl() == title) {
-	  showPost(*i, PostView::Detail, parent);
-	  return;
+	  lower.setDate(year, month, day);
+	  upper = lower.addDays(1);
+	} else {
+	  lower.setDate(year, month, 1);
+	  upper = lower.addMonths(1);
 	}
+      } else {
+	lower.setDate(year, 1, 1);
+	upper = lower.addYears(1);
+      }
 
+      Posts posts = session_.find<Post>
+	("where date >= ? "
+	 "and date < ? "
+	 "and (state = ? or author_id = ?)")
+	.bind(WDateTime(lower))
+	.bind(WDateTime(upper))
+	.bind(Post::Published)
+	.bind(session_.user().id());
+
+      if (parts.size() > 3) {
+	std::string title = parts[3];
+
+	for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i)
+	  if ((*i)->titleToUrl() == title) {
+	    showPost(*i, PostView::Detail, parent);
+	    return;
+	  }
+
+	showError(tr("blog-no-post"));
+      } else {
+	showPosts(posts, parent);
+      }
+    } catch (std::exception& e) {
       showError(tr("blog-no-post"));
-    } else {
-      showPosts(posts, parent);
     }
   }
 
   void showPosts(dbo::ptr<User> user) {
-    /*
-<<<<<<< HEAD:examples/blog/view/BlogView.C
-    if (user == session_.user() && user->role == User::Admin) {
-      WTemplate *authorPanel = new WTemplate(tr("blog-author-panel"), items_);
-
-      WPushButton *newPost = new WPushButton(tr("new-post"));
-      newPost->clicked().connect(this, &BlogImpl::newPost);
-
-      WContainerWidget *unpublishedPosts = new WContainerWidget();
-      showPosts(user->allPosts(Post::Unpublished), unpublishedPosts);
-
-      authorPanel->bindString("user", user->name);
-      authorPanel->bindInt("unpublished-count",
-			   user->allPosts(Post::Unpublished).size());
-      authorPanel->bindInt("published-count",
-			   user->allPosts(Post::Published).size());
-      authorPanel->bindWidget("new-post", newPost);
-      authorPanel->bindWidget("unpublished-posts", unpublishedPosts);
-    }
-
-=======
->>>>>>> bvh_blog:examples/blog/view/BlogView.C
-    */
     showPosts(user->latestPosts(), items_);
   }
 

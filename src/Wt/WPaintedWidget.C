@@ -8,11 +8,8 @@
 
 #include "Wt/WApplication"
 #include "Wt/WCanvasPaintDevice"
-#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
-#include "Wt/WException"
 #include "Wt/WImage"
-#include "Wt/WPainter"
 #include "Wt/WPaintedWidget"
 #include "Wt/WResource"
 #include "Wt/WSvgImage"

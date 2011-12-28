@@ -10,7 +10,6 @@
 #include "Wt/WException"
 #include "Wt/WStringStream"
 #ifndef WIN32
-#include <sys/types.h>
 #include <unistd.h>
 #endif
 #ifdef WIN32

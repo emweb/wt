@@ -17,7 +17,6 @@
 #include <boost/thread.hpp>
 #endif // WT_THREADED
 
-#include <iostream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <pango/pango.h>

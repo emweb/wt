@@ -5,12 +5,8 @@
  */
 
 #include "Wt/Auth/AbstractUserDatabase"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/AuthService"
 #include "Wt/Auth/PasswordService"
 #include "Wt/Auth/User"
-#include "Wt/Mail/Message"
-#include "Wt/WRandom"
 
 /*
  * Global throttling:

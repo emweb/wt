@@ -6,11 +6,9 @@
  */
 #include "Wt/WAbstractMedia"
 #include "Wt/WApplication"
-#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WResource"
-#include "Wt/WLogger"
 #include "DomElement.h"
 #include "Utils.h"
 
@@ -18,7 +16,6 @@
 #include "js/WAbstractMedia.min.js"
 #endif
 
-#include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace {

@@ -6,7 +6,6 @@
 #include "Wt/WCssDecorationStyle"
 
 #include "Wt/WApplication"
-#include "Wt/WWidget"
 #include "Wt/WWebWidget"
 #include "Wt/WResource"
 

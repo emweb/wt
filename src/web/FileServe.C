@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <cassert>
 #include <cstring>
 #include <boost/lexical_cast.hpp>
 

@@ -14,8 +14,6 @@
 #include "Wt/WApplication"
 #include "Wt/WRandom"
 
-#include "web/Utils.h"
-
 namespace Wt {
   namespace Auth {
 

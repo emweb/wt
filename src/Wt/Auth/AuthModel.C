@@ -12,19 +12,16 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
-#include "Wt/WLineEdit"
+#include "Wt/WInteractWidget"
 #include "Wt/WLogger"
-#include "Wt/WText"
 
 #ifndef WT_DEBUG_JS
 #include "js/AuthModel.min.js"
 #endif
 
-#include "web/Utils.h"
-
 namespace Wt {
 
-  LOGGER("Auth::AuthModel");
+LOGGER("Auth::AuthModel");
 
   namespace Auth {
 

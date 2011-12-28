@@ -3,8 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-
-#include <algorithm>
 #include <iostream>
 
 #include "Wt/WAggregateProxyModel"

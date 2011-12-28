@@ -6,7 +6,6 @@
 
 #include "Wt/WMessageResourceBundle"
 #include "Wt/WMessageResources"
-#include "Wt/WString"
 
 namespace Wt {
 

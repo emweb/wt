@@ -10,7 +10,6 @@
 #include "Wt/WStringStream"
 
 #include "DomElement.h"
-#include "EscapeOStream.h"
 #include "RefEncoder.h"
 #include "WebSession.h"
 #include "Utils.h"

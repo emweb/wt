@@ -11,11 +11,8 @@
 #include "Wt/WAbstractItemModel"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
-#include "Wt/WIconPair"
 #include "Wt/WItemDelegate"
 #include "Wt/WItemSelectionModel"
-#include "Wt/WImage"
-#include "Wt/WPushButton"
 #include "Wt/WStringStream"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
@@ -23,8 +20,6 @@
 #include "Wt/WTreeView"
 #include "Wt/WVBoxLayout"
 #include "Wt/WWebWidget"
-
-#include "Utils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WTreeView.min.js"

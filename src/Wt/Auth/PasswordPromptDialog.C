@@ -13,7 +13,6 @@
 #include "Wt/WEnvironment"
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
-#include "Wt/WText"
 #include "Wt/WTemplateFormView"
 
 namespace Wt {

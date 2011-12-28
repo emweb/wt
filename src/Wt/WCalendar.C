@@ -6,18 +6,14 @@
 
 #include "Wt/WCalendar"
 
-#include <boost/date_time/gregorian/gregorian.hpp>
 using namespace boost::gregorian;
 
-#include "Wt/WEnvironment"
 #include "Wt/WComboBox"
-#include "Wt/WContainerWidget"
 #include "Wt/WInPlaceEdit"
 #include "Wt/WLineEdit"
 #include "Wt/WLogger"
 #include "Wt/WSignalMapper"
 #include "Wt/WStringStream"
-#include "Wt/WTable"
 #include "Wt/WTemplate"
 #include "Wt/WText"
 

@@ -371,8 +371,6 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
     BOOST_REQUIRE(*a2 == a1);
 
     BOOST_REQUIRE(a2->self() == ptrA);
-
-    t.commit();
   }
 
   /* Check that A is found during other transaction */
@@ -383,8 +381,6 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
     BOOST_REQUIRE(allAs.size() == 1);
     dbo::ptr<A> a2 = *allAs.begin();
     BOOST_REQUIRE(*a2 == a1);
-
-    t.commit();
   }
 
   /* Remove the A, check it is no longer found during the same transaction */
@@ -413,8 +409,6 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
 
     As allAs = session_->find<A>();
     BOOST_REQUIRE(allAs.size() == 0);
-
-    t.commit();
   }
 }
 
@@ -451,8 +445,6 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
     BOOST_REQUIRE(allAs.size() == 1);
     dbo::ptr<A> a2 = *allAs.begin();
     BOOST_REQUIRE(*a2 == a1);
-    
-    t.commit();
   }
 
   /* Check that A + B are found in other transaction */
@@ -464,8 +456,6 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
     dbo::ptr<A> a2 = *allAs.begin();
     BOOST_REQUIRE(*a2 == a1);
     BOOST_REQUIRE(*a2->b == b1);
-
-    t.commit();
   }
 }
 
@@ -538,8 +528,6 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     for (dbo::collection<std::string>::const_iterator i = names.begin();
 	 i != names.end(); ++i)
       std::cerr << *i << std::endl;
-
-    t.commit();
   }
 
   {
@@ -588,8 +576,6 @@ BOOST_AUTO_TEST_CASE( dbo_test3 )
     for (Cs::const_iterator i = c3.begin(); i != c3.end(); ++i)
       BOOST_REQUIRE((*i)->name == c3_compare[c++]);
 #endif
-
-    t.commit();
   }
 }
 
@@ -672,8 +658,6 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
 
     BOOST_REQUIRE(ii == 2);
 #endif //FIREBIRD
-
-    t.commit();
   }
 }
 
@@ -724,8 +708,6 @@ BOOST_AUTO_TEST_CASE( dbo_test5 )
 
   {
     dbo::Transaction t(*session_);
-
-    t.commit();
   }
 }
 
@@ -751,8 +733,6 @@ BOOST_AUTO_TEST_CASE( dbo_test6 )
     a1.modify()->d = 42.424242;
 
     session_->add(a1);
-
-    t.commit();
   }
 
   {
@@ -788,8 +768,6 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
 
     std::string result = session_->query<std::string>("select 'dima '' ? '");
     BOOST_REQUIRE(result == "dima ' ? ");
-
-    t.commit();
   }
 #endif //FIREBIRD
 
@@ -813,8 +791,6 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
     a1.flush();
 
     aId = (int)a1.id();
-
-    t.commit();
   }
 
   {
@@ -836,8 +812,6 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
     BOOST_REQUIRE(id == aId);
     BOOST_REQUIRE(a.id() == aId);
 #endif
-
-    t.commit();
   }
 }
 
@@ -851,8 +825,6 @@ BOOST_AUTO_TEST_CASE( dbo_test8 )
     dbo::Transaction t(*session_);
 
     session_->execute("delete from \"table_a\"");
-
-    t.commit();
   }
 }
 
@@ -873,8 +845,6 @@ BOOST_AUTO_TEST_CASE( dbo_test9 )
     A_traits::getValues(a, values);
 
     std::cerr << values.size() << std::endl;
-
-    t.commit();
   }
 }
 
@@ -951,8 +921,6 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
     BOOST_REQUIRE(c1->dsManyToMany.size() == 1);
     BOOST_REQUIRE(c2->dsManyToMany.size() == 0);
     BOOST_REQUIRE(c3->dsManyToMany.size() == 0);
-
-    t2.commit();
   }
 }
 
@@ -998,7 +966,6 @@ BOOST_AUTO_TEST_CASE( dbo_test11 )
       dbo::Transaction t2(*session_);
       dbo::ptr<C> c = session_->find<C>();
       BOOST_REQUIRE(c->name == "changed");
-      t2.commit();
     }
 
     model->insertRow(1);
@@ -1007,7 +974,6 @@ BOOST_AUTO_TEST_CASE( dbo_test11 )
     {
       dbo::Transaction t2(*session_);
       BOOST_REQUIRE(session_->find<C>().resultList().size() == 2);
-      t2.commit();
     }
 
     model->removeRows(0, 2);
@@ -1015,7 +981,6 @@ BOOST_AUTO_TEST_CASE( dbo_test11 )
     {
       dbo::Transaction t2(*session_);
       BOOST_REQUIRE(session_->find<C>().resultList().size() == 0);
-      t2.commit();
     }
 
     delete model;
@@ -1124,7 +1089,6 @@ BOOST_AUTO_TEST_CASE( dbo_test13 )
 
     BOOST_REQUIRE(d == b1 || d == b3);
 
-    t.commit();
   }
 }
 
@@ -1169,8 +1133,6 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
     BOOST_REQUIRE(!a->b);
 
     b.modify()->asManyToOne.insert(a);
-
-    t.commit();
   }
 
   /* Check that A + B are found in other transaction */
@@ -1181,8 +1143,6 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
     BOOST_REQUIRE(allAs.size() == 1);
     dbo::ptr<A> a2 = *allAs.begin();
     BOOST_REQUIRE(*a2->b == b1);
-
-    t.commit();
   }
 }
 

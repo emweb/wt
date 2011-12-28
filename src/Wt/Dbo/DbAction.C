@@ -4,12 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <iostream>
-#include <sstream>
-#include <boost/lexical_cast.hpp>
-
 #include "Wt/Dbo/DbAction"
-#include "Wt/Dbo/Exception"
 #include "Wt/Dbo/Session"
 #include "Wt/Dbo/SqlConnection"
 #include "Wt/Dbo/SqlStatement"
