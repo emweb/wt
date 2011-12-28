@@ -25,15 +25,17 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
 {
   session_.login().changed().connect(this, &HangmanGame::onAuthEvent);
 
-  Auth::AuthWidget *authWidget 
-    = new Auth::AuthWidget(Session::auth(), session_.users(), session_.login());
+  Auth::AuthModel *authModel = new Auth::AuthModel(Session::auth(),
+						   session_.users(), this);
+  authModel->addPasswordAuth(&Session::passwordAuth());
+  authModel->addOAuth(Session::oAuth());
+
+  Auth::AuthWidget *authWidget = new Auth::AuthWidget(session_.login());
+  authWidget->setModel(authModel);
+  authWidget->setRegistrationEnabled(true);
 
   WText *title = new WText("<h1>A Witty game: Hangman</h1>");
   addWidget(title);
-
-  authWidget->addPasswordAuth(&Session::passwordAuth());
-  authWidget->addOAuth(Session::oAuth());
-  authWidget->setRegistrationEnabled(true);
 
   addWidget(authWidget);
 

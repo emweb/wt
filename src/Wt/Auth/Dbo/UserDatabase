@@ -58,7 +58,7 @@ public:
   /*! \brief Returns the Auth::User corresponding to a %Dbo user.
    */
   User find(const Wt::Dbo::ptr<DboType> user) const {
-    user_ = user;
+    setUser(user);
     return User(boost::lexical_cast<std::string>(user_->id()), *this);
   }
 
@@ -73,19 +73,23 @@ public:
 
   virtual User findWithIdentity(const std::string& provider,
 				const WString& identity) const {
-    Wt::Dbo::Transaction t(session_);
-    user_ = session_.query< Wt::Dbo::ptr<DboType> >
-      (std::string() +
-       "select u from " + session_.tableName<DboType>() + " u "
-       "join " + session_.tableName<AuthIdentityType>() + " i "
-       "on u.id = i." + session_.tableName<DboType>() + "_id")
-      .where("i.provider = ?").bind(provider)
-      .where("i.identity = ?").bind(identity);
-    t.commit();
+    if (userProvider_ != provider || userIdentity_ != identity) {
+      Wt::Dbo::Transaction t(session_);
+      setUser(session_.query< Wt::Dbo::ptr<DboType> >
+	      (std::string() +
+	       "select u from " + session_.tableName<DboType>() + " u "
+	       "join " + session_.tableName<AuthIdentityType>() + " i "
+	       "on u.id = i." + session_.tableName<DboType>() + "_id")
+	      .where("i.provider = ?").bind(provider)
+	      .where("i.identity = ?").bind(identity));
+      t.commit();
+    }
 
-    if (user_)
+    if (user_) {
+      userProvider_ = provider;
+      userIdentity_ = identity;
       return User(boost::lexical_cast<std::string>(user_.id()), *this);
-    else
+    } else
       return User();
   }
 
@@ -119,7 +123,7 @@ public:
 
   virtual User registerNew() {
     DboType *user = new DboType();
-    user_ = session_.add(user);
+    setUser(session_.add(user));
     user_.flush();
     return User(boost::lexical_cast<std::string>(user_.id()), *this);
   }
@@ -191,7 +195,7 @@ public:
 
   virtual User findWithEmail(const std::string& address) const {
     Wt::Dbo::Transaction t(session_);
-    user_ = session_.find<DboType>().where("email = ?").bind(address);
+    setUser(session_.find<DboType>().where("email = ?").bind(address));
     t.commit();
 
     if (user_)
@@ -218,8 +222,8 @@ public:
 
   virtual User findWithEmailToken(const std::string& hash) const {
     Wt::Dbo::Transaction t(session_);
-    user_ = session_.find<DboType>()
-      .where("email_token = ?").bind(hash);
+    setUser(session_.find<DboType>()
+	    .where("email_token = ?").bind(hash));
     t.commit();
 
     if (user_)
@@ -266,13 +270,13 @@ public:
 
   virtual User findWithAuthToken(const std::string& hash) const {
     Wt::Dbo::Transaction t(session_);
-    user_ = session_.query< Wt::Dbo::ptr<DboType> >
-      (std::string() +
-       "select u from " + session_.tableName<DboType>() + " u "
-       "join " + session_.tableName<AuthTokenType>() + " t "
-       "on u.id = t." + session_.tableName<DboType>() + "_id")
-      .where("t.value = ?").bind(hash)
-      .where("t.expires > ?").bind(WDateTime::currentDateTime());
+    setUser(session_.query< Wt::Dbo::ptr<DboType> >
+	    (std::string() +
+	     "select u from " + session_.tableName<DboType>() + " u "
+	     "join " + session_.tableName<AuthTokenType>() + " t "
+	     "on u.id = t." + session_.tableName<DboType>() + "_id")
+	    .where("t.value = ?").bind(hash)
+	    .where("t.expires > ?").bind(WDateTime::currentDateTime()));
     t.commit();
 
     if (user_)
@@ -304,6 +308,8 @@ public:
 private:
   Wt::Dbo::Session& session_;
   mutable Wt::Dbo::ptr<DboType> user_;
+  mutable std::string userProvider_;
+  mutable Wt::WString userIdentity_;
   unsigned maxAuthTokensPerUser_;
 
   struct WithUser {
@@ -325,9 +331,15 @@ private:
   void getUser(const std::string& id) const {
     if (!user_ || boost::lexical_cast<std::string>(user_.id()) != id) {
       Wt::Dbo::Transaction t(session_);
-      user_ = session_.load<DboType>(boost::lexical_cast<long long>(id));
+      setUser(session_.load<DboType>(boost::lexical_cast<long long>(id)));
       t.commit();
     }
+  }
+
+  void setUser(Wt::Dbo::ptr<DboType> user) const {
+    user_ = user;
+    userProvider_.clear();
+    userIdentity_ = WString::Empty;
   }
 
   struct TransactionImpl : public Transaction, public Wt::Dbo::Transaction

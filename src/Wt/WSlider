@@ -236,6 +236,7 @@ public:
    */
   JSignal<int>& sliderMoved() { return sliderMoved_; }
 
+  virtual void setDisabled(bool disabled);
   virtual void resize(const WLength& width, const WLength& height);
   virtual WT_USTRING valueText() const;
   virtual void setValueText(const WT_USTRING& value);

@@ -482,6 +482,63 @@
     background: url(slider-thumb.png) no-repeat scroll center;
 }
 
+/*
+ * WSlider - disabled
+ */
+.Wt-slider-h.Wt-disabled .Wt-slider-bg {
+    background: url(sliderbg-h-disabled.png) repeat-x scroll left center;
+    margin: 0px 5px;
+}
+
+.Wt-slider-v.Wt-disabled .Wt-slider-bg {
+    background: url(sliderbg-v-disabled.png) repeat-y scroll center top;
+    margin: 5px 0px;
+}
+
+.Wt-slider-h.Wt-disabled .Wt-w {
+    position: absolute;
+    left: 0px;
+    width: 5px;
+    top: 0px;
+    bottom: 0px;
+    background: url(sliderbg-hw-disabled.png) no-repeat scroll left center;
+}
+
+.Wt-slider-h.Wt-disabled .Wt-e {
+    position: absolute;
+    right: 0px;
+    width: 5px;
+    top: 0px;
+    bottom: 0px;
+    background: url(sliderbg-he-disabled.png) no-repeat scroll left center;
+}
+
+.Wt-slider-v.Wt-disabled .Wt-w {
+    position: absolute;
+    left: 0px;
+    height: 5px;
+    top: 0px;
+    right: 0px;
+    background: url(sliderbg-vw-disabled.png) no-repeat scroll center top;
+}
+
+.Wt-slider-v.Wt-disabled .Wt-e {
+    position: absolute;
+    left: 0px;
+    height: 5px;
+    right: 0px;
+    bottom: 0px;
+    background: url(sliderbg-ve-disabled.png) no-repeat scroll center top;
+}
+
+.Wt-slider-h.Wt-disabled .handle {
+    background: url(slider-thumb-disabled.png) no-repeat scroll center;
+}
+
+.Wt-slider-v.Wt-disabled .handle {
+    background: url(slider-thumb-disabled.png) no-repeat scroll center;
+}
+
 /* 
  * WSuggestionPopup
  */

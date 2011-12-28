@@ -199,7 +199,7 @@ public:
    */
   void setAuthenticated(bool success) const;
 
-  /*! \brief Returns the number of last consecutive unsuccessful login attempts.
+  /*! \brief Returns the number of consecutive unsuccessful login attempts.
    *
    * \sa setAuthenticated()
    */

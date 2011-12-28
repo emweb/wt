@@ -412,6 +412,29 @@
 }
 
 /*
+ * WSlider - disabled
+ */
+.Wt-slider-v.Wt-disabled .handle {
+    background: url(slider-thumb-v-disabled.gif) no-repeat scroll right center;
+}
+
+.Wt-slider-h.Wt-disabled {
+    background: url(sliderbg-h-disabled.png) repeat-x scroll left center;
+}
+
+.Wt-slider-v.Wt-disabled {
+    background: url(sliderbg-v-disabled.png) repeat-y scroll center top;
+}
+
+.Wt-slider-h.Wt-disabled .handle {
+    background: url(slider-thumb-h-disabled.gif) no-repeat scroll center bottom;
+}
+
+.Wt-slider-v.Wt-disabled .handle {
+    background: url(slider-thumb-v-disabled.gif) no-repeat scroll right center;
+}
+
+/*
  * WSpinBox
  */
 .Wt-spinbox {

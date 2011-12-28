@@ -681,7 +681,7 @@ void WMediaPlayer::createDefaultGui()
 
   ui->bindString("title-display", title_.empty() ? "none" : "");
 
-  setStyleClass(mediaType_ == Video ? "jp-video" : "jp-audio");
+  addStyleClass(mediaType_ == Video ? "jp-video" : "jp-audio");
 
   setControlsWidget(ui);
 }

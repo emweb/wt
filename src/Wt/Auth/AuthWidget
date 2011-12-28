@@ -7,17 +7,16 @@
 #ifndef WT_AUTH_AUTH_WIDGET_H_
 #define WT_AUTH_AUTH_WIDGET_H_
 
-#include <Wt/WTemplate>
+#include <Wt/WTemplateFormView>
+#include <Wt/Auth/AuthModel>
 #include <Wt/Auth/OAuthService>
 
 namespace Wt {
   namespace Auth {
 
-class AbstractPasswordService;
 class AbstractUserDatabase;
-class EnterPasswordFields;
+class AuthModel;
 class Login;
-class OAuthService;
 class User;
 
 /*! \class AuthWidget Wt/Auth/AuthWidget
@@ -41,38 +40,72 @@ class User;
  * The processEnvironment() method initiates this process, and should
  * typically be called only at application startup time.
  *
- * The authentication widget can be configured for password-based
- * authentication (addPasswordAuth()) and/or OAuth-based
- * authentication (addOAuth()).
+ * The authentication widget is implemented as a View for an
+ * AuthModel, which can be set using setModel(). The login logic (at
+ * this moment only for password-based authentication) is handled by
+ * this model.
  *
- * It is very likely that the off-the shelf authentication widget not
- * entirely to your taste or functional requirements. The widget uses
- * two methods to allow customization:
+ * It is very likely that the off-the shelf authentication widget does
+ * not satisfy entirely to your taste or functional requirements. The
+ * widget uses three methods to allow customization:
  *
- * - all forms are rendered using a WTemplate, and thus you may change the
- *   layout and styling of the forms to your liking.
- * - all views are created using virtual methods, which may be specialized
+ * - as a WTemplateFormView, you may change the layout and styling of
+ *   to your liking.
+ * - the authentication logic is delegated to an AuthModel and can
+ *   can be specialized or can be used with a custom view altogether.
+ * - the views are created using virtual methods, which may be specialized
  *   to create a customized view or to apply changes to the default view.
  *
  * \ingroup auth
  */
-class WT_API AuthWidget : public WTemplate
+class WT_API AuthWidget : public WTemplateFormView
 {
 public:
   /*! \brief Constructor
    *
-   * Creates a new authentication widget which uses the authentication
-   * service in \p baseAuth, and the user database \p
-   * users.
+   * Creates a new authentication widget. This creates an AuthModel
+   * using the given authentication service \p baseAuth and user
+   * database \p users.
    *
    * The result of authentication changes is propagated to the rest of
    * the application using a \p login object.
    *
-   * Authentication methods should be configured using
-   * addPasswordAuth() and addOAuth().
+   * Authentication services need to be configured in the model().
    */
   AuthWidget(const AuthService& baseAuth, AbstractUserDatabase& users,
 	     Login& login, WContainerWidget *parent = 0);
+
+  /*! \brief Constructor.
+   *
+   * Creates a new authentication widget.
+   *
+   * The result of authentication changes is propagated to the rest of
+   * the application using a \p login object.
+   *
+   * You need to call setModel() to configure a model for this view.
+   */
+  AuthWidget(Login& login, WContainerWidget *parent = 0);
+
+  /*! \brief Sets a model.
+   *
+   * This sets a model to be used for authentication.
+   */
+  void setModel(AuthModel *model);
+
+  /*! \brief Returns the model.
+   *
+   * The model is used only for the login function.
+   *
+   * \sa setModel()
+   */
+  AuthModel *model() const { return model_; }
+
+  /*! \brief Returns the login object.
+   *
+   * This login object is used to keep track of the user currently
+   * authenticated.
+   */
+  Login& login() { return login_; }
 
   /*! \brief Sets an internal path for authentication services.
    *
@@ -81,8 +114,8 @@ public:
    * registration page). Other internal paths involved in
    * authentication are configured in the service classes:
    * - AuthService::setEmailRedirectInternalPath(): email tokens
-   * - OAuthService::redirectInternalPath(): an internal path used during the oauth
-   *   process.
+   * - OAuthService::redirectInternalPath(): an internal path used during
+   *   the oauth process.
    */
   void setInternalBasePath(const std::string& path);
 
@@ -92,71 +125,17 @@ public:
    */
   std::string internalBasePath() const { return basePath_; }
 
-  /*! \brief Returns the login object.
-   *
-   * This returns the login object on which this authentication widget
-   * acts.
-   */
-  Login& login() { return login_; }
-
-  /*! \brief Returns the authentication base service.
-   *
-   * This returns the service passed through the constructor.
-   */
-  const AuthService *baseAuth() const { return &baseAuth_; }
-
-  /*! \brief Adds a password authentication service.
-   *
-   * This enables password-based authentication capabilities in the widget:
-   *
-   * - login using an identity (username) and password
-   * - a view to update the password when an email token is received
-   *   with that intent
-   *
-   * Only one password authentication service can be configured.
-   *
-   * \sa addOAuth()
-   */
-  void addPasswordAuth(const AbstractPasswordService *auth);
-
-  /*! \brief Returns the password authentication service.
-   *
-   * \sa addPasswordAuth()
-   */
-  const AbstractPasswordService *passwordAuth() const { return passwordAuth_; }
-
-  /*! \brief Adds an OAuth authentication service provider.
-   *
-   * This enables OAuth-based authentication. More than one OAuth
-   * authentication service can be configured: one for each supported
-   * third-party OAuth identity provider.
-   *
-   * \sa addPasswordAuth()
-   */
-  void addOAuth(const OAuthService *auth);
-
-  /*! \brief Adds a list of OAuth authentication service providers.
-   *
-   * \sa addOAuth()
-   */
-  void addOAuth(const std::vector<const OAuthService *>& auth);
-
-  /*! \brief Returns the list of OAuth authentication service providers.
-   *
-   * \sa addOAuth()
-   */
-  std::vector<const OAuthService *> oAuth() const { return oAuth_; }
-
   /*! \brief Configures registration capabilities.
    *
    * Although the AuthWidget itself does not implement a registration
    * view, it may offer a button/link to do so, and calls
    * registerNewUser() when a user wishes to register.
    *
-   * Even if registration is not enabled, the result of an OAuthService login
-   * process may be that a new user is identified. Then the
-   * createRegistrationView() is also used to present this new user with
-   * a registration view, passing the information obtained through OAuth.
+   * Even if registration is not enabled, the result of an
+   * OAuthService login process may be that a new user is
+   * identified. Then the createRegistrationView() is also used to
+   * present this new user with a registration view, passing the
+   * information obtained through OAuth.
    */
   void setRegistrationEnabled(bool enabled);
 
@@ -168,10 +147,11 @@ public:
 
   /*! \brief Starts a new registration process.
    *
-   * This starts a new registration process, and may be called in response to
-   * a user action, an internal path change, or an OAuthService login procedure which
-   * identified a new user. In the latter case, the OAuth-provided information
-   * is passed as parameter \p oauth.
+   * This starts a new registration process, and may be called in
+   * response to a user action, an internal path change, or an
+   * OAuthService login procedure which identified a new user. In the
+   * latter case, the OAuth-provided information is passed as
+   * parameter \p oauth.
    *
    * The default implementation creates a view using
    * createRegistrationView(), and shows it in a dialog using
@@ -179,10 +159,10 @@ public:
    */
   virtual void registerNewUser(const Identity& oauth);
 
-  /*! \brief Process the (initial) environment.
+  /*! \brief Processes the (initial) environment.
    *
-   * This method process environmental information that may be relevant to
-   * authentication:
+   * This method process environmental information that may be
+   * relevant to authentication:
    *
    * - email tokens, which are indicated through an internal path. The
    *   widget uses dialogs (by default) to interact with the user to
@@ -210,53 +190,16 @@ public:
    */
   virtual void letUpdatePassword(const User& user, bool promptPassword);
 
-  /*! \brief Lets the user update his password.
+  /*! \brief Lets the user "recover" a lost password.
    *
    * This creates a view to let the user enter his email address, used
    * to send an email containing instructions to enter a new password.
    *
    * The default implementation creates a new view using
-   * createLostPasswordView and shows it in a dialog using
+   * createLostPasswordView() and shows it in a dialog using
    * showDialog().
    */
   virtual void handleLostPassword();
-
-  /*! \brief Creates the login view.
-   *
-   * This creates a view that allows the user to login, and is shown when
-   * no user is current logged in.
-   *
-   * The default implementation combines the result of
-   * createPasswordLogin() and/or createOAuthLogin() in a container
-   * widget.
-   *
-   * \sa Login::loggedIn()
-   * \sa createLoggedInView()
-   */
-  virtual void createLoginView();
-
-  /*! \brief Creates the view shown when the user is logged in.
-   *
-   * The default implementation renders the
-   * <tt>"Wt.Auth.template.logged-in"</tt> template.
-   *
-   * \sa Login::loggedIn()
-   * \sa createLoginView()
-   */
-  virtual void createLoggedInView();
-
-  /*! \brief Creates a password login view.
-   *
-   * This is used by the default implementation of createLoginView()
-   * to prompt for the information needed for logging in using a
-   * username and password.
-   *
-   * The default implementation renders the
-   * <tt>"Wt.Auth.template.passwords-login"</tt> template.
-   *
-   * \sa createLoginView()
-   */
-  virtual void createPasswordLogin();
 
   /*! \brief Creates a lost password view.
    *
@@ -276,11 +219,11 @@ public:
   /*! \brief Creates a registration view.
    * 
    * This creates a registration view, optionally using information
-   * already obtained through OAuth.
+   * already obtained from a third party identification service (such as
+   * an OAuth provider).
    *
-   * The default implementation creates a new RegistrationWidget, and
-   * adds the same authentication mechanisms as used for logging in
-   * in this widget.
+   * The default implementation creates a new RegistrationWidget
+   * with a model created using createRegistrationModel().
    *
    * \sa registerNewUser()
    */
@@ -292,7 +235,7 @@ public:
    * password in addition to a new password.
    *
    * This creates the widget used to let the user chose a new
-   * password. The default implementation creates a new
+   * password. The default implementation instantiates an
    * UpdatePasswordWidget.
    *
    * \sa letUpdatePassword()
@@ -300,31 +243,17 @@ public:
   virtual WWidget *createUpdatePasswordView(const User& user,
 					    bool promptPassword);
 
-  /*! \brief Creates a widget to login using OAuth.
-   *
-   * The default implementation renders the
-   * <tt>"Wt.Auth.template.oauth-login"</tt> template, and adds an
-   * icon for each OAuth service provider available.
-   *
-   * There's alot to say about making a usable login mechanism for
-   * OAuth (and federated login services in general). See FIXME link
-   * to google.
-   *
-   * \sa createLoginView();
-   */
-  virtual void createOAuthLogin();
-
   /*! \brief Creates a password prompt dialog.
    *
    * This creates a dialog which prompts the user for his
-   * password. The user is taken from \p login object, which also
+   * password. The user is taken from the \p login object, which also
    * signals an eventual success using its Login::changed() signal.
    *
-   * The default implementation creates a new PasswordPromptDialog.
+   * The default implementation instantiates a PasswordPromptDialog.
    */
   virtual WDialog *createPasswordPromptDialog(Login& login);
 
-  void attemptLogin();
+  void attemptPasswordLogin();
 
   virtual void displayError(const WString& error);
   virtual void displayInfo(const WString& message);
@@ -341,6 +270,48 @@ protected:
    */
   virtual void create();
 
+  /*! \brief Creates the login view.
+   *
+   * This creates a view that allows the user to login, and is shown when
+   * no user is current logged in.
+   *
+   * The default implementation renders the
+   * <tt>"Wt.Auth.template.login"</tt> template, and binds fields
+   * using createPasswordLoginView() and createOAuthLoginView().
+   */
+  virtual void createLoginView();
+
+  /*! \brief Creates the view shown when the user is logged in.
+   *
+   * The default implementation renders the
+   * <tt>"Wt.Auth.template.logged-in"</tt> template.
+   */
+  virtual void createLoggedInView();
+
+  /*! \brief Creates a password login view.
+   *
+   * This is used by the default implementation of createLoginView()
+   * to prompt for the information needed for logging in using a
+   * username and password. The default implementation implements a view
+   * guided by the model().
+   *
+   * \sa createLoginView()
+   */
+  virtual void createPasswordLoginView();
+
+  /*! \brief Creates a widget to login using OAuth.
+   *
+   * The default implementation adds an icon for each OAuth service
+   * provider available.
+   *
+   * There's alot to say about making a usable login mechanism for
+   * OAuth (and federated login services in general), see
+   * https://sites.google.com/site/oauthgoog/UXFedLogin.
+   *
+   * \sa createLoginView()
+   */
+  virtual void createOAuthLoginView();
+
   /*! \brief Shows a dialog.
    *
    * This shows a dialog. The default method creates a standard WDialog,
@@ -350,21 +321,29 @@ protected:
    */
   virtual WDialog *showDialog(const WString& title, WWidget *contents);
 
+  /*! \brief Creates a registration model.
+   *
+   * This method creates a registration model.
+   *
+   * \sa registerNewUser()
+   */
+  virtual RegistrationModel *createRegistrationModel();
+
+  virtual WFormWidget *createFormWidget(AuthModel::Field field);
+
   virtual void render(WFlags<RenderFlag> flags);
 
 private:
-  const AuthService& baseAuth_;
-  AbstractUserDatabase& users_;
+  AuthModel *model_;
+  RegistrationModel *registrationModel_;
   Login& login_;
   std::string basePath_;
-  const AbstractPasswordService *passwordAuth_;
-  std::vector<const OAuthService *> oAuth_;
   bool registrationEnabled_;
 
   bool created_;
   WDialog *dialog_, *messageBox_;
-  EnterPasswordFields *enterPasswordFields_;
 
+  void init();
   void logout();
   void loginThrottle(int delay);
   void closeDialog();
@@ -374,7 +353,7 @@ private:
 
   void oAuthStateChange(OAuthProcess *process);
   void oAuthDone(OAuthProcess *process, const Identity& identity);
-  void setAuthToken(const User& user);
+  void updatePasswordLoginView();
 };
 
   }

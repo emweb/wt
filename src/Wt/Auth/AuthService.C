@@ -277,9 +277,10 @@ void AuthService::lostPassword(const std::string& emailAddress,
 
 std::string AuthService::parseEmailToken(const std::string& internalPath) const
 {
-  if (WApplication::pathMatches(internalPath, redirectInternalPath_)) {
+  if (emailVerification_ && 
+      WApplication::pathMatches(internalPath, redirectInternalPath_))
     return internalPath.substr(redirectInternalPath_.length());
-  } else
+  else
     return std::string();
 }
 

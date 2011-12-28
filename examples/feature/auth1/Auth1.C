@@ -7,6 +7,7 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WServer>
 
+#include <Wt/Auth/AuthModel>
 #include <Wt/Auth/AuthWidget>
 #include <Wt/Auth/PasswordService>
 
@@ -27,8 +28,8 @@ public:
       = new Wt::Auth::AuthWidget(Session::auth(), session_.users(),
 				 session_.login());
 
-    authWidget->addPasswordAuth(&Session::passwordAuth());
-    authWidget->addOAuth(Session::oAuth());
+    authWidget->model()->addPasswordAuth(&Session::passwordAuth());
+    authWidget->model()->addOAuth(Session::oAuth());
     authWidget->setRegistrationEnabled(true);
 
     authWidget->processEnvironment();

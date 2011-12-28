@@ -7,20 +7,14 @@
 #ifndef WT_AUTH_REGISTRATION_MODEL_H_
 #define WT_AUTH_REGISTRATION_MODEL_H_
 
-#include <Wt/WObject>
-#include <Wt/WValidator>
-
 #include <Wt/Auth/Identity>
+#include <Wt/Auth/FormBaseModel>
 #include <Wt/Auth/User>
 
 namespace Wt {
   namespace Auth {
 
-class AbstractPasswordService;
-class AbstractUserDatabase;
-class ChoosePasswordFields;
 class Login;
-class OAuthService;
 
 /*! \class RegistrationModel Wt/Auth/RegistrationModel
  *  \brief Model for implementing a registration view.
@@ -29,27 +23,47 @@ class OAuthService;
  * It can deal with traditional username/password registration, or
  * registration of pre-identified users using federated login.
  *
+ * The model exposes four fields:
+ * - LoginNameField: the login name (used as an identity for the
+ *   Identity::LoginName provider) -- this can be an email if the
+ *   AuthService is configured to use email addresses as identity
+ * - ChoosePasswordField: the password
+ * - RepeatPasswordField: the password (repeated)
+ * - EmailField: if an email address is to be asked (and is not used
+ *   as identity).
+ *
+ * The largest complexity is in the handling of third party identity
+ * providers, which is initiated with a call to registerIdentified().
+ *
+ * When a user is re-identified with the same identity, then the model
+ * may require that the (original) user confirms this new
+ * identity. The model indicates that this button should be made
+ * visible with isConfirmUserButtonVisible(), the action to take is
+ * determined by confirmIsExistingUser(), and existingUserConfirmed()
+ * ends this process by merging the new identity into the existing
+ * user.
+ *
  * \sa RegistrationWidget
  *
  * \ingroup auth
  */
-class WT_API RegistrationModel : public WObject
+class WT_API RegistrationModel : public FormBaseModel
 {
 public:
-  /*! \brief Enumeration for a field
-   */
-  enum Field {
-    LoginName, //!< Login name field
-    Password,  //!< Password field
-    Password2, //!< Repeat password field
-    Email      //!< Email field (if login name is not email)
-  };
+  //! \brief Choose Password field
+  static const Field ChoosePasswordField;
+
+  //! \brief Repeat password field
+  static const Field RepeatPasswordField;
+
+  //! \brief Email field (if login name is not email)
+  static const Field EmailField;
 
   /*! \brief Enumeration for an email policy
    */
   enum EmailPolicy {
     EmailDisabled,  //!< The email address is not asked for
-    EmailOptional,  //!< A user may provide an email address, but it is optional
+    EmailOptional,  //!< A user may optionally provide an email address
     EmailMandatory  //!< A user must provide an email address
   };
 
@@ -72,59 +86,16 @@ public:
   RegistrationModel(const AuthService& baseAuth, AbstractUserDatabase& users,
 		    Login& login, WObject *parent = 0);
 
-  /*! \brief Returns the authentication base service.
+  /*! \brief Resets the model.
    *
-   * This returns the service passed through the constructor.
+   * This resets the model to initial values, clearing any entered information
+   * (login name, password, pre-identified identity).
    */
-  const AuthService *baseAuth() const { return &baseAuth_; }
+  virtual void reset();
 
   /*! \brief Returns the login object.
    */
   Login& login() { return login_; }
-
-  /*! \brief Returns the user database.
-   */
-  AbstractUserDatabase& users() { return users_; }
-
-  /*! \brief Adds a password authentication service.
-   *
-   * This enables password-based registration, including choosing a proper
-   * password.
-   *
-   * Only one password authentication service can be configured.
-   *
-   * \sa addOAuth()
-   * \sa AbstractPasswordService::validatePassword()
-   */
-  void addPasswordAuth(const AbstractPasswordService *auth);
-
-  /*! \brief Returns the password authentication service.
-   *
-   * \sa addPasswordAuth()
-   */
-  const AbstractPasswordService *passwordAuth() const { return passwordAuth_; }
-
-  /*! \brief Adds an OAuth authentication service provider.
-   *
-   * This enables OAuth-based registration. More than one OAuth
-   * authentication service can be configured: one for each supported
-   * third-party OAuth identity provider.
-   *
-   * \sa addPasswordAuth()
-   */
-  void addOAuth(const OAuthService *auth);
-
-  /*! \brief Adds a list of OAuth authentication service providers.
-   *
-   * \sa addOAuth()
-   */
-  void addOAuth(const std::vector<const OAuthService *>& auth);
-
-  /*! \brief Returns the list of OAuth authentication service providers.
-   *
-   * \sa addOAuth()
-   */
-  std::vector<const OAuthService *> oAuth() const { return oAuth_; }
 
   /*! \brief Configures a minimum length for a login name.
    *
@@ -147,8 +118,8 @@ public:
    * EmailAddressIdentity.
    *
    * The default policy is:
-   * - Optional when email address verification is enabled
-   * - Invisible otherwise
+   * - EmailOptional when email address verification is enabled
+   * - EmailDisabled otherwise
    */
   void setEmailPolicy(EmailPolicy policy);
 
@@ -177,7 +148,7 @@ public:
   /*! \brief Returns the existing user that needs to be confirmed.
    *
    * When a user wishes to register with an identity that corresponds
-   * to an existing user, he ma be allowd to confirm that he is in
+   * to an existing user, he may be allowd to confirm that he is in
    * fact this existing user.
    *
    * \sa confirmIsExistingUser()
@@ -191,7 +162,7 @@ public:
    * indeed the identified existing user.
    *
    * The outcome of this method (if it is an online method, like a
-   * password prompt), if successful should be indicated using
+   * password prompt), if successful, should be indicated using
    * existingUserConfirmed().
    *
    * \sa existingUserConfirmed()
@@ -221,56 +192,15 @@ public:
    */
   virtual void checkUserExists(const WT_USTRING& userName);
 
-  /*! \brief Validates the current input.
-   *
-   * If validation is successful, then a new user can be registered using
-   * doRegister()
-   */
-  virtual bool validate();
-
-  /*! \brief Returns the result of the last validation.
-   *
-   * \sa validate()
-   */
-  bool valid() const;
-
   /*! \brief Performs the registration process.
    */
   virtual User doRegister();
 
-  /*! \brief Returns whether a field should be shown.
-   */
   virtual bool isVisible(Field field) const;
-
-  /*! \brief Returns whether a field is read only.
-   */
   virtual bool isReadOnly(Field field) const;
+  virtual bool validateField(Field field);
 
-  /*! \brief Returns a field label.
-   */
-  virtual WString label(Field field) const;
-
-  /*! \brief Sets the field value.
-   */
-  virtual void setValue(Field field, const WT_USTRING& value);
-
-  /*! \brief Returns the field value.
-   */
-  virtual const WT_USTRING& value(Field field) const;
-
-  /*! \brief Validates a field.
-   *
-   * \sa validate(), validationResult()
-   */
-  virtual bool validate(Field field);
-
-  /*! \brief Returns the result of a validation.
-   *
-   * \sa validate()
-   */
-  const WValidator::Result& validationResult(Field field) const;
-
-  /*! \brief Returns whether an existing user may be confirmed.
+  /*! \brief Returns whether an existing user needs to be confirmed.
    *
    * This returns whether the user is being identified as an existing
    * user and he can confirm that he is in fact the same user.
@@ -293,19 +223,12 @@ public:
 				       WText *info2);
 
 private:
-  const AuthService& baseAuth_;
-  AbstractUserDatabase& users_;
   Login& login_;
   int minLoginNameLength_;
   EmailPolicy emailPolicy_;
 
-  const AbstractPasswordService *passwordAuth_;
-  std::vector<const OAuthService *> oAuth_;
   Identity idpIdentity_;
   User existingUser_;
-
-  WT_USTRING values_[4];
-  WValidator::Result validation_[4];
 };
 
   }

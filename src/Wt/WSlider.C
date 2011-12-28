@@ -29,6 +29,7 @@ public:
   void doUpdateDom(DomElement& element, bool all);
 
   void sliderResized(const WLength& width, const WLength& height);
+  virtual void setDisabled(bool disabled);
 
 protected:
   void paintEvent(WPaintDevice *paintDevice);
@@ -109,7 +110,7 @@ PaintedSlider::PaintedSlider(WSlider *slider)
 {
   setStyleClass("Wt-slider-bg");
 
-  slider_->setStyleClass(std::string("Wt-slider-")
+  slider_->addStyleClass(std::string("Wt-slider-")
 			 + (slider_->orientation() == Horizontal ? "h" : "v"));
 
   if (slider_->positionScheme() == Static)
@@ -125,6 +126,19 @@ PaintedSlider::PaintedSlider(WSlider *slider)
 
   slider->clicked().connect(this, &PaintedSlider::onSliderClick);
   sliderReleased_.connect(this, &PaintedSlider::onSliderReleased);
+}
+
+void PaintedSlider::setDisabled(bool disabled)
+{
+  if (disabled) {
+    addStyleClass("Wt-disabled");
+    slider_->addStyleClass("Wt-disabled");
+  } else {
+    removeStyleClass("Wt-disabled");
+    slider_->removeStyleClass("Wt-disabled");
+  }
+
+  WPaintedWidget::setDisabled(disabled);
 }
 
 double PaintedSlider::w() const
@@ -167,12 +181,10 @@ void PaintedSlider::updateState()
   /*
    * Note: cancelling the mouseDown event prevents the selection behaviour
    */
-  mouseDownJS_.setJavaScript
-    ("function(obj, event) {"
-     """obj.setAttribute('down', " WT_CLASS ".widgetCoordinates(obj, event)."
-     + u + "); "
-        WT_CLASS ".cancelEvent(event);"
-     "}");
+  std::string mouseDownJS = 
+    """obj.setAttribute('down', " WT_CLASS ".widgetCoordinates(obj, event)."
+    + u + "); "
+    WT_CLASS ".cancelEvent(event);";
 
   // = 'u' position relative to background, corrected for slider
   std::string computeD =
@@ -182,34 +194,42 @@ void PaintedSlider::updateState()
     ""      "w = WT.widgetPageCoordinates(objb)." + u + ","
     ""      "d = u-w;";
 
-  mouseMovedJS_.setJavaScript
-    ("function(obj, event) {"
-     """var down = obj.getAttribute('down');"
-     """var WT = " WT_CLASS ";"
-     """if (down != null && down != '') {"
-     + computeD +
-     ""  "d = Math.max(0, Math.min(d, " + maxS + "));"
-     ""  "var v = Math.round(d/" + ppU + ");"
-     ""  "var intd = v*" + ppU + ";"
-     ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - intd) > 1) {"
-     ""    "objh.style." + dir + " = intd + 'px';" +
-     slider_->sliderMoved().createCall(o == Horizontal ? "v + " + minimumS
-				       : maximumS + " - v") + 
-     ""  "}"
-     """}"
-     "}");
+  std::string mouseMovedJS = 
+    """var down = obj.getAttribute('down');"
+    """var WT = " WT_CLASS ";"
+    """if (down != null && down != '') {"
+    + computeD +
+    ""  "d = Math.max(0, Math.min(d, " + maxS + "));"
+    ""  "var v = Math.round(d/" + ppU + ");"
+    ""  "var intd = v*" + ppU + ";"
+    ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - intd) > 1) {"
+    ""    "objh.style." + dir + " = intd + 'px';" +
+    slider_->sliderMoved().createCall(o == Horizontal ? "v + " + minimumS
+				      : maximumS + " - v") + 
+    ""  "}"
+    """}";
 
-  mouseUpJS_.setJavaScript
-    ("function(obj, event) {"
-     """var down = obj.getAttribute('down');"
-     """var WT = " WT_CLASS ";"
-     """if (down != null && down != '') {"
-     + computeD +
-     """d += " + boost::lexical_cast<std::string>(HANDLE_WIDTH / 2) + ";" +
-     sliderReleased_.createCall("d") + 
-     ""  "obj.removeAttribute('down');"
-     """}"
-     "}");
+  std::string mouseUpJS = 
+    """var down = obj.getAttribute('down');"
+    """var WT = " WT_CLASS ";"
+    """if (down != null && down != '') {"
+    + computeD +
+    """d += " + boost::lexical_cast<std::string>(HANDLE_WIDTH / 2) + ";" +
+    sliderReleased_.createCall("d") + 
+    ""  "obj.removeAttribute('down');"
+    """}";
+
+  bool enabled = !slider_->isDisabled();
+  
+  mouseDownJS_.setJavaScript(std::string("function(obj, event) {") 
+			     + (enabled ? mouseDownJS : "") 
+			     + "}");
+  mouseMovedJS_.setJavaScript(std::string("function(obj, event) {") 
+			      + (enabled ? mouseMovedJS : "") 
+			      + "}");
+  mouseUpJS_.setJavaScript(std::string("function(obj, event) {") 
+			   + (enabled ? mouseUpJS : "") 
+			   + "}");
 
   update();
   updateSliderPosition();
@@ -537,6 +557,14 @@ void WSlider::setValueText(const WT_USTRING& value)
   try {
     value_ = boost::lexical_cast<int>(value);
   } catch (boost::bad_lexical_cast& e) { }
+}
+
+void WSlider::setDisabled(bool disabled)
+{
+  if (paintedSlider_)
+    paintedSlider_->setDisabled(disabled);
+
+  WFormWidget::setDisabled(disabled);
 }
 
 }

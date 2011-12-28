@@ -4,48 +4,47 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/Auth/EnterPasswordFields"
 #include "Wt/Auth/Identity"
 #include "Wt/Auth/Login"
-#include "Wt/Auth/AbstractPasswordService"
+#include "Wt/Auth/AuthModel"
 #include "Wt/Auth/PasswordPromptDialog"
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
-#include "Wt/WTemplate"
 #include "Wt/WText"
+#include "Wt/WTemplateFormView"
 
 namespace Wt {
   namespace Auth {
 
-PasswordPromptDialog::PasswordPromptDialog(Login& login,
-					   const AbstractPasswordService& auth)
+PasswordPromptDialog::PasswordPromptDialog(Login& login, AuthModel *model)
   : WDialog(tr("Wt.Auth.enter-password")),
     login_(login),
-    auth_(auth)
+    model_(model)
 {
-  impl_ = new WTemplate(tr("Wt.Auth.template.password-prompt"));
-  impl_->addFunction("id", &WTemplate::Functions::id);
-  impl_->addFunction("tr", &WTemplate::Functions::tr);
+  impl_ = new WTemplateFormView(tr("Wt.Auth.template.password-prompt"));
 
-  WLineEdit *nameEdit
-    = new WLineEdit(login.user().identity(Identity::LoginName));
-  nameEdit->disable();
-  nameEdit->addStyleClass("Wt-disabled");
+  model_->setValue(AuthModel::LoginNameField,
+		   login_.user().identity(Identity::LoginName));
+  model_->setReadOnly(AuthModel::LoginNameField, true);
 
-  passwordEdit_ = new WLineEdit();
-  WText *passwdInfo = new WText();
+  WLineEdit *nameEdit = new WLineEdit();
+  impl_->bindWidget(AuthModel::LoginNameField, nameEdit);
+  impl_->updateViewField(model_, AuthModel::LoginNameField);
+
+  WLineEdit *passwordEdit = new WLineEdit();
+  passwordEdit->setEchoMode(WLineEdit::Password);
+  passwordEdit->setFocus();
+  impl_->bindWidget(AuthModel::PasswordField, passwordEdit);
+  impl_->updateViewField(model_, AuthModel::PasswordField);
+
   WPushButton *okButton = new WPushButton(tr("Wt.WMessageBox.Ok"));
   WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
 
-  enterPasswordFields_ = new EnterPasswordFields(auth, passwordEdit_,
-						 passwdInfo, okButton, this);
+  model_->configureThrottling(okButton);
 
-  impl_->bindWidget("user-name", nameEdit);
-  impl_->bindWidget("password", passwordEdit_);
-  impl_->bindWidget("password-info", passwdInfo);
   impl_->bindWidget("ok-button", okButton);
   impl_->bindWidget("cancel-button", cancelButton);
 
@@ -66,12 +65,16 @@ PasswordPromptDialog::PasswordPromptDialog(Login& login,
 
 void PasswordPromptDialog::check()
 {
-  bool valid = enterPasswordFields_->validate(login_.user());
+  impl_->updateModelField(model_, AuthModel::PasswordField);
 
-  if (valid) {
+  if (model_->validate()) {
     Login *login = &login_;
     accept();
-    login->login(login->user(), StrongLogin);
+    login->login(login->user(), StrongLogin);    
+  } else {
+    impl_->updateViewField(model_, AuthModel::PasswordField);
+    WPushButton *okButton = impl_->resolve<WPushButton *>("ok-button");
+    model_->updateThrottling(okButton);
   }
 }
 

@@ -1,0 +1,130 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_WTEMPLATE_FORM_VIEW_H_
+#define WT_WTEMPLATE_FORM_VIEW_H_
+
+#include <Wt/WTemplate>
+#include <Wt/WFormModel>
+
+namespace Wt {
+
+/*! \class WTemplateFormView Wt/WTemplateFormView
+ *  \brief A template-based View class form form models.
+ *
+ * This implements a View to be used in conjunction with WFormModel
+ * models to implement forms.
+ *
+ * For a model field, it uses a number of conventional variable names
+ * to represent the label, editor, and validation messages in the
+ * template:
+ * - 'field': the form widget which contains the value
+ * - 'field-label': the label
+ * - 'field-info': a text that contains the validation message
+ * - 'if:field': condition for the visibility of the field
+ *
+ * For a field with name 'field', a typical template uses blocks of
+ * the following-format:
+ *
+ * \verbatim
+ *   ${<if:field>}
+ *     <label for="${id:field}">${field-label}</label>
+ *     ${field} ${field-info}
+ *   ${</if:field>}
+ * \endverbatim
+ *
+ * The View may render fields of more than one model, and does not
+ * necessarily need to render all information of each model: you can
+ * call the updateViewField() and updateModelField() for individual
+ * model fields.
+ *
+ * The updateView() method updates the view based on a model (e.g. to
+ * propagate changed values or validation), while the updateModel() method
+ * updates a model with values entered in the View.
+ *
+ * The view is passive: it will not perform any updates by itself of either
+ * the View or Model. You will typically bind a method to the Ok button
+ * and do:
+ * \code
+ * void MyView::okClicked()
+ * {
+ *   updateModel(model_);
+ *   if (model_->validate()) {
+ *     ...
+ *   } else {
+ *     updateView(model_);
+ *   }
+ * }
+ * \endcode
+ */
+class WT_API WTemplateFormView : public WTemplate
+{
+public:
+  /*! \brief Constructor.
+   */
+  WTemplateFormView(WContainerWidget *parent = 0);
+
+  /*! \brief Constructor.
+   */
+  WTemplateFormView(const WString& text, WContainerWidget *parent = 0);
+
+  /*! \brief Creates or updates a field in the View.
+   *
+   * This will update or create and bind widgets in the template to represent
+   * the field. To create the form widget that implements the editing, it
+   * calls createFormWidget().
+   */
+  virtual void updateViewField(WFormModel *model, WFormModel::Field field);
+
+  /*! \brief Updates a field value in the Model.
+   *
+   * This propagates data entered in the form widget to the model with
+   * WFormModel::setValue()
+   */
+  virtual void updateModelField(WFormModel *model, WFormModel::Field field);
+
+  /*! \brief Updates the View.
+   *
+   * This creates or updates all fields in the view.
+   *
+   * \sa updateViewField(), WFormModel::fields()
+   */
+  virtual void updateView(WFormModel *model);
+
+  /* \brief Updates the Model.
+   *
+   * This creates or updates all field values in the model.
+   *
+   * \sa updateModelField(), WFormModel::fields()
+   */
+  virtual void updateModel(WFormModel *model);
+
+protected:
+  /*! \brief Creates a form widget.
+   *
+   * This method is called by updateViewField() when it needs to
+   * create a form widget for a field. You either need to make sure
+   * these widgets have been created and bound before calling
+   * updateView(), or you need to specialize this method to do it
+   * on-demand.
+   */
+  virtual WFormWidget *createFormWidget(WFormModel::Field field);
+
+  /*! \brief Indicates the validation result.
+   *
+   * The default implementation will set "Wt-valid" or "Wt-invalid" on the
+   * form widget, and "Wt-error" on the info text.
+   */
+  virtual void indicateValidation(WFormModel::Field field,
+				  bool validated,
+				  WText *info,
+				  WFormWidget *edit,
+				  const WValidator::Result& validation);
+};
+
+}
+
+#endif // WT_AUTH_REGISTRATION_WIDGET_H_

@@ -28,21 +28,35 @@ Transaction::Transaction(Session& session)
 
 Transaction::~Transaction()
 {
+  // Either this Transaction shell was not committed (first condition)
+  // or the commit failed (we are still active)
+  if (!committed_ || (impl_->transactionCount_ == 1 && isActive())) {
+    if (std::uncaught_exception()) {
+      try {
+	rollback();
+      } catch (std::exception& e) {
+	release();
+	throw e;
+      }
+    } else {
+      try {
+	commit();
+      } catch (std::exception& e) {
+	release();
+	throw e;
+      }
+    }
+  }
+
+  release();
+}
+
+void Transaction::release()
+{
   --impl_->transactionCount_;
 
-  // Either this Transaction shell was not committed, or the commit failed.
-  if (!committed_ || (impl_->transactionCount_ == 0 && isActive())) {
-    try {
-      rollback();
-      if (impl_->transactionCount_ == 0)
-	delete impl_;
-    } catch (std::exception& e) {
-      if (impl_->transactionCount_ == 0)
-	delete impl_;
-      throw e;
-    }
-  } else if (impl_->transactionCount_ == 0)
-    delete impl_;
+  if (impl_->transactionCount_ == 0)
+    delete impl_;  
 }
 
 bool Transaction::isActive() const

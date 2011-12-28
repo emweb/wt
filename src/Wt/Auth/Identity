@@ -95,6 +95,11 @@ public:
    */
   static const Identity Invalid;
 
+  /*! \brief The login name identity.
+   *
+   * This is a provider name for the (usually user-controlled) identity,
+   * used for example for password-based authentication.
+   */
   static const std::string LoginName;
 
 private:

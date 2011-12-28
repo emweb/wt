@@ -5,7 +5,7 @@
  */
 
 #include "Wt/Auth/AbstractPasswordService"
-#include "Wt/Auth/EnterPasswordFields"
+#include "Wt/Auth/AuthModel"
 #include "Wt/Auth/Login"
 #include "Wt/Auth/UpdatePasswordWidget"
 #include "Wt/Auth/User"
@@ -18,81 +18,57 @@ namespace Wt {
   namespace Auth {
 
 UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
-					   const AbstractPasswordService& auth,
-					   Login& login,
-					   bool promptPassword,
+					   RegistrationModel *registrationModel,
+					   AuthModel *authModel,
 					   WContainerWidget *parent)
-  : WTemplate(tr("Wt.Auth.template.update-password"), parent),
+  : WTemplateFormView(tr("Wt.Auth.template.update-password"), parent),
     user_(user),
-    promptPassword_(promptPassword),
-    validated_(false),
-    enterPasswordFields_(0)
+    registrationModel_(registrationModel),
+    authModel_(authModel)
 {
-  addFunction("id", &WTemplate::Functions::id);
-  addFunction("tr", &WTemplate::Functions::tr);
+  registrationModel_->setValue(RegistrationModel::LoginNameField,
+			       user.identity(Identity::LoginName));
+  registrationModel_->setReadOnly(RegistrationModel::LoginNameField, true);
 
-  WLineEdit *nameEdit = new WLineEdit(user.identity(Identity::LoginName));
-  nameEdit->disable();
-  nameEdit->addStyleClass("Wt-disabled");
-  bindWidget("user-name", nameEdit);
+  /*
+   * This is set in the model so that the password checker can take
+   * into account whether the password is derived from the email
+   * address.
+   */
+  registrationModel_->setValue(RegistrationModel::EmailField,
+			       WT_USTRING::fromUTF8(user.email() + " "
+						    + user.unverifiedEmail()));
+  registrationModel_->setVisible(RegistrationModel::EmailField, false);
 
   WPushButton *okButton = new WPushButton(tr("Wt.WMessageBox.Ok"));
   WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
 
-  if (promptPassword_) {
-    setCondition("if:old-password", true);
-    WLineEdit *oldPasswd = new WLineEdit();
-    WText *oldPasswdInfo = new WText();
+  if (authModel_) {
+    authModel_->setValue(AuthModel::LoginNameField,
+			 user.identity(Identity::LoginName));
 
-    enterPasswordFields_ = new EnterPasswordFields(auth,
-						   oldPasswd, oldPasswdInfo,
-						   okButton, this);
+    updateViewField(authModel_, AuthModel::PasswordField);
 
-    oldPasswd->setFocus();
+    authModel_->configureThrottling(okButton);
 
-    bindWidget("old-password", oldPasswd);
-    bindWidget("old-password-info", oldPasswdInfo);
+    WLineEdit *password = resolve<WLineEdit *>(AuthModel::PasswordField);
+    password->setFocus();
   }
 
-  WLineEdit *password = new WLineEdit();
-  password->setEchoMode(WLineEdit::Password);
-  password->keyWentUp().connect
-    (boost::bind(&UpdatePasswordWidget::checkPassword, this));
-  password->changed().connect
-    (boost::bind(&UpdatePasswordWidget::checkPassword, this));
+  updateView(registrationModel_);
 
-  WText *passwordInfo = new WText();
+  WLineEdit *password = resolve<WLineEdit *>
+    (RegistrationModel::ChoosePasswordField);
+  WLineEdit *password2 = resolve<WLineEdit *>
+    (RegistrationModel::RepeatPasswordField);
+  WText *password2Info = resolve<WText *>
+    (RegistrationModel::RepeatPasswordField + std::string("-info"));
 
-  WLineEdit *password2 = new WLineEdit();
-  password2->setEchoMode(WLineEdit::Password);
-  password2->changed().connect
-    (boost::bind(&UpdatePasswordWidget::checkPassword2, this));
+  registrationModel_->validatePasswordsMatchJS(password,
+					       password2, password2Info);
 
-  WText *password2Info = new WText();
-
-  bindWidget("choose-password", password);
-  bindWidget("choose-password-info", passwordInfo);
-
-  bindWidget("repeat-password", password2);
-  bindWidget("repeat-password-info", password2Info);
-
-  model_ = new RegistrationModel(auth.baseAuth(), *user.database(),
-				 login, this);
-
-  model_->addPasswordAuth(&auth);
-
-  model_->setValue(RegistrationModel::LoginName,
-		   user.identity(Identity::LoginName));
-  model_->setValue(RegistrationModel::Email,
-		   WT_USTRING::fromUTF8(user.email() + " "
-					+ user.unverifiedEmail()));
-
-  model_->validatePasswordsMatchJS(password, password2, password2Info);
-
-  passwordInfo->setText(model_->validationResult
-			(RegistrationModel::Password).message());
-  password2Info->setText(model_->validationResult
-			 (RegistrationModel::Password2).message());
+  if (!authModel_)
+    password->setFocus();
 
   okButton->clicked().connect(this, &UpdatePasswordWidget::doUpdate);
   cancelButton->clicked().connect(this, &UpdatePasswordWidget::close);
@@ -100,71 +76,67 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
   bindWidget("ok-button", okButton);
   bindWidget("cancel-button", cancelButton);
 
-  if (!promptPassword_)
-    password->setFocus();
 }
 
-void UpdatePasswordWidget::updateModel(const std::string& var,
-				       RegistrationModel::Field field)
+WFormWidget *UpdatePasswordWidget::createField(WFormModel::Field field)
 {
-  WFormWidget *edit = resolve<WFormWidget *>(var);
-  model_->setValue(field, edit->valueText());
-}
+  WFormWidget *result = 0;
 
-void UpdatePasswordWidget::updateView(const std::string& var,
-				      RegistrationModel::Field field)
-{
-  WFormWidget *edit = resolve<WFormWidget *>(var);
-  WText *info = resolve<WText *>(var + "-info");
-  
-  const WValidator::Result& v = model_->validationResult(field);
-  info->setText(v.message());
-
-  switch (v.state()) {
-  case WValidator::InvalidEmpty:
-  case WValidator::Invalid:
-    edit->removeStyleClass("Wt-valid");
-    if (validated_)
-      edit->addStyleClass("Wt-invalid");
-    info->addStyleClass("Wt-error");
-
-    break;
-  case WValidator::Valid:
-    edit->removeStyleClass("Wt-invalid");
-    if (validated_)
-      edit->addStyleClass("Wt-valid");
-    info->removeStyleClass("Wt-error");
+  if (field == RegistrationModel::LoginNameField) {
+    result = new WLineEdit();
+  } else if (field == AuthModel::PasswordField) {
+    WLineEdit *p = new WLineEdit();
+    p->setEchoMode(WLineEdit::Password);
+  } else if (field == RegistrationModel::ChoosePasswordField) {
+    WLineEdit *p = new WLineEdit();
+    p->setEchoMode(WLineEdit::Password);
+    p->keyWentUp().connect
+      (boost::bind(&UpdatePasswordWidget::checkPassword, this));
+    p->changed().connect
+      (boost::bind(&UpdatePasswordWidget::checkPassword, this));
+    result = p;
+  } else if (field == RegistrationModel::RepeatPasswordField) {
+    WLineEdit *p = new WLineEdit();
+    p->setEchoMode(WLineEdit::Password);
+    p->changed().connect
+      (boost::bind(&UpdatePasswordWidget::checkPassword2, this));
+    result = p;
   }
+
+  return result;
 }
 
 void UpdatePasswordWidget::checkPassword()
 {
-  updateModel("choose-password", RegistrationModel::Password);
-  model_->validate(RegistrationModel::Password);
-  updateView("choose-password", RegistrationModel::Password);
+  updateModelField(registrationModel_, RegistrationModel::ChoosePasswordField);
+  registrationModel_->validateField(RegistrationModel::ChoosePasswordField);
+  updateViewField(registrationModel_, RegistrationModel::ChoosePasswordField);
 }
 
 void UpdatePasswordWidget::checkPassword2()
 {
-  updateModel("repeat-password", RegistrationModel::Password2);
-  model_->validate(RegistrationModel::Password2);
-  updateView("repeat-password", RegistrationModel::Password2);
+  updateModelField(registrationModel_, RegistrationModel::RepeatPasswordField);
+  registrationModel_->validateField(RegistrationModel::RepeatPasswordField);
+  updateViewField(registrationModel_, RegistrationModel::RepeatPasswordField);
 }
 
 bool UpdatePasswordWidget::validate()
 {
-  validated_ = true;
-
   bool valid = true;
 
-  if (enterPasswordFields_)
-    if (!enterPasswordFields_->validate(user_))
+  if (authModel_) {
+    updateModelField(authModel_, AuthModel::PasswordField);
+
+    if (!authModel_->validate()) {
+      updateViewField(authModel_, AuthModel::PasswordField);
       valid = false;
+    }
+  }
 
   checkPassword();
   checkPassword2();
 
-  if (!model_->valid()) 
+  if (!registrationModel_->valid()) 
     valid = false;
 
   return valid;
@@ -173,10 +145,10 @@ bool UpdatePasswordWidget::validate()
 void UpdatePasswordWidget::doUpdate()
 {
   if (validate()) {
-    const WT_USTRING& password = model_->value(RegistrationModel::Password);
-    model_->passwordAuth()->updatePassword(user_, password);
-
-    model_->login().login(user_);
+    WT_USTRING password
+      = registrationModel_->valueText(RegistrationModel::ChoosePasswordField);
+    registrationModel_->passwordAuth()->updatePassword(user_, password);
+    registrationModel_->login().login(user_);
 
     close();
   }

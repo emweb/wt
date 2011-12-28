@@ -7,14 +7,12 @@
 #ifndef WT_AUTH_REGISTRATION_WIDGET_H_
 #define WT_AUTH_REGISTRATION_WIDGET_H_
 
-#include <Wt/WTemplate>
+#include <Wt/WTemplateFormView>
 #include <Wt/Auth/RegistrationModel>
 
 namespace Wt {
   namespace Auth {
 
-class AbstractPasswordService;
-class AbstractUserDatabase;
 class AuthWidget;
 class Login;
 class OAuthProcess;
@@ -32,22 +30,16 @@ class OAuthProcess;
  *
  * \ingroup auth
  */
-class WT_API RegistrationWidget : public WTemplate
+class WT_API RegistrationWidget : public WTemplateFormView
 {
 public:
   /*! \brief Constructor
    *
-   * Creates a new authentication widget which uses the authentication
-   * service in \p baseAuth, and the user database \p users.
-   *
-   * Successful registration also results in a login, which is
-   * indicated to the rest of the application using a \p login object.
-   *
-   * Authentication methods should be configured using
-   * addPasswordAuth() and addOAuth().
+   * Creates a new authentication.
    */
-  RegistrationWidget(const AuthService& baseAuth, AbstractUserDatabase& users,
-		     Login& login, AuthWidget *authWidget = 0);
+  RegistrationWidget(AuthWidget *authWidget = 0);
+
+  void setModel(RegistrationModel *model);
 
   /*! \brief Returns the registration model.
    *
@@ -102,18 +94,16 @@ protected:
 
   virtual void render(WFlags<RenderFlag> flags);
 
+protected:
+  virtual WFormWidget *createFormWidget(RegistrationModel::Field field);
+
 private:
-  bool validated_;
   AuthWidget *authWidget_;
   RegistrationModel *model_;
 
   bool created_;
   Login *confirmPasswordLogin_;
 
-  WFormWidget *createField(RegistrationModel::Field field);
-  void updateField(const std::string& var, RegistrationModel::Field field);
-  void updateModel(const std::string& var, RegistrationModel::Field field);
-  void updateModel();
   void checkLoginName();
   void checkPassword();
   void checkPassword2();

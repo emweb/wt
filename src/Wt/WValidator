@@ -63,15 +63,30 @@ public:
   };
 
   /*! \brief A class that holds a validation result.
+   *
+   * This structure is returned as the result of validation.
    */
   class Result
   {
   public:
+    /*! \brief Default constructor.
+     *
+     * Creates an invalid result.
+     */
     Result();
+
+    /*! \brief Constructor.
+     *
+     * Creates a result with given \p state and \p message.
+     */
     Result(State state, const WString& message = WString::Empty);
 
+    /*! \brief Returns the validation state.
+     */
     State state() const { return state_; }
 
+    /*! \brief Returns the validation message.
+     */
     const WString& message() const { return message_; }
 
   private:

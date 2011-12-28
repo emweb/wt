@@ -103,6 +103,7 @@ Wt/WFitLayout.C
 Wt/WFlashObject.C
 Wt/WFont.C
 Wt/WFontMetrics.C
+Wt/WFormModel.C
 Wt/WFormWidget.C
 Wt/WGLWidget.C
 Wt/WGoogleMap.C
@@ -193,6 +194,7 @@ Wt/WTableCell.C
 Wt/WTableColumn.C
 Wt/WTableRow.C
 Wt/WTemplate.C
+Wt/WTemplateFormView.C
 Wt/WTableView.C
 Wt/WText.C
 Wt/WTextArea.C
@@ -221,10 +223,11 @@ Wt/Auth/md5.c
 Wt/Auth/sha1.c
 Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.C
+Wt/Auth/AuthModel.C
 Wt/Auth/AuthService.C
 Wt/Auth/AuthWidget.C
-Wt/Auth/EnterPasswordFields.C
 Wt/Auth/FacebookService.C
+Wt/Auth/FormBaseModel.C
 Wt/Auth/GoogleService.C
 Wt/Auth/HashFunction.C
 Wt/Auth/Identity.C

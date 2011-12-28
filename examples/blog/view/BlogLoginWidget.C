@@ -19,13 +19,17 @@ using namespace Wt;
 BlogLoginWidget::BlogLoginWidget(BlogSession& session,
 				 const std::string& basePath,
 				 WContainerWidget *parent)
-  : AuthWidget(session.passwordAuth()->baseAuth(),
-	       session.users(), session.login(), parent)
+  : AuthWidget(session.login(), parent)
 {
   setInline(true);
 
-  addPasswordAuth(session.passwordAuth());
-  addOAuth(session.oAuth());
+  Auth::AuthModel *model
+    = new Auth::AuthModel(session.passwordAuth()->baseAuth(),
+			  session.users(), this);
+  model->addPasswordAuth(session.passwordAuth());
+  model->addOAuth(session.oAuth());
+
+  setModel(model);
 
   setInternalBasePath(basePath + "login");
 }
@@ -43,7 +47,8 @@ void BlogLoginWidget::createLoginView()
   WLineEdit *password = resolve<WLineEdit *>("password");
   password->setEmptyText("password");
   password->setToolTip("password");
-  password->enterPressed().connect(this, &BlogLoginWidget::attemptLogin);
+  password->enterPressed().connect(this,
+				   &BlogLoginWidget::attemptPasswordLogin);
 }
 
 void BlogLoginWidget::createLoggedInView()

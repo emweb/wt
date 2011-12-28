@@ -1,0 +1,230 @@
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "Wt/Auth/AbstractPasswordService"
+#include "Wt/Auth/AbstractUserDatabase"
+#include "Wt/Auth/AuthService"
+#include "Wt/Auth/Login"
+#include "Wt/Auth/AuthModel"
+
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
+#include "Wt/WLineEdit"
+#include "Wt/WLogger"
+#include "Wt/WText"
+
+#ifndef WT_DEBUG_JS
+#include "js/AuthModel.min.js"
+#endif
+
+#include "web/Utils.h"
+
+namespace Wt {
+
+  LOGGER("Auth::AuthModel");
+
+  namespace Auth {
+
+const WFormModel::Field AuthModel::PasswordField = "password";
+const WFormModel::Field AuthModel::RememberMeField = "remember-me";
+
+AuthModel::AuthModel(const AuthService& baseAuth, AbstractUserDatabase& users,
+		     WObject *parent)
+  : FormBaseModel(baseAuth, users, parent),
+    throttlingDelay_(0)
+{
+  reset();
+}
+
+void AuthModel::reset()
+{
+  if (baseAuth()->identityPolicy() == EmailAddressIdentity)
+    addField(LoginNameField, WString::tr("Wt.Auth.email-info"));
+  else
+    addField(LoginNameField, WString::tr("Wt.Auth.user-name-info"));
+
+  addField(PasswordField, WString::tr("Wt.Auth.password-info"));
+
+  int days = baseAuth()->authTokenValidity() / 24 / 60;
+  WString info = WString::tr("Wt.Auth.remember-me-info"); 
+  if (days % 7 != 0)
+    info.arg(boost::lexical_cast<std::string>(days) + " days");
+  else
+    info.arg(boost::lexical_cast<std::string>(days/7) + " weeks");
+
+  addField(RememberMeField, info);
+  setValidation(RememberMeField, WValidator::Result(WValidator::Valid, info));
+}
+
+bool AuthModel::isVisible(Field field) const
+{
+  if (field == RememberMeField)
+    return baseAuth()->authTokensEnabled();
+  else
+    return true;
+}
+
+void AuthModel::configureThrottling(WInteractWidget *button)
+{
+  if (passwordAuth() && passwordAuth()->attemptThrottlingEnabled()) {
+    WApplication *app = WApplication::instance();
+    LOAD_JAVASCRIPT(app, "js/AuthModel.js", "AuthThrottle", wtjs1);
+
+    button->doJavaScript("new " WT_CLASS ".AuthThrottle(" WT_CLASS ","
+			 + button->jsRef() + ","
+			 + WString::tr("Wt.Auth.throttle-retry")
+			 .jsStringLiteral()
+			 + ");");
+  }
+}
+
+void AuthModel::updateThrottling(WInteractWidget *button)
+{
+  if (passwordAuth() && passwordAuth()->attemptThrottlingEnabled()) {
+    WStringStream s;
+    s << "jQuery.data(" << button->jsRef() << ", 'throttle').reset("
+      << throttlingDelay_ << ");";
+
+    button->doJavaScript(s.str());
+  }
+}
+
+bool AuthModel::validateField(Field field)
+{
+  if (field == RememberMeField)
+    return true;
+
+  User user = users().findWithIdentity(Identity::LoginName,
+				       valueText(LoginNameField));
+  if (field == LoginNameField) {
+    if (user.isValid())
+      setValid(LoginNameField);
+    else {
+      setValidation
+	(LoginNameField,
+	 WValidator::Result(WValidator::Invalid,
+			    WString::tr("Wt.Auth.user-name-invalid")));
+
+      throttlingDelay_ = 0;
+    }
+
+    return user.isValid();
+  } else if (field == PasswordField) {
+    if (user.isValid()) {
+      PasswordResult r
+	= passwordAuth()->verifyPassword(user, valueText(PasswordField));
+
+      switch (r) {
+      case PasswordInvalid:
+	setValidation
+	  (PasswordField,
+	   WValidator::Result(WValidator::Invalid,
+			      WString::tr("Wt.Auth.password-invalid")));
+
+	if (passwordAuth()->attemptThrottlingEnabled())
+	  throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
+
+	return false;
+      case LoginThrottling:
+	setValidation
+	  (PasswordField,
+	   WValidator::Result(WValidator::Invalid,
+			      WString::tr("Wt.Auth.password-info")));
+	setValidated(PasswordField, false);
+
+	throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
+	LOG_SECURE("throttling: " << throttlingDelay_
+		   << " seconds for " << user.identity(Identity::LoginName));
+
+	return false;
+      case PasswordValid:
+	setValid(PasswordField);
+
+	return true;
+      }
+
+      /* unreachable */
+      return false;
+    } else
+      return false;
+  } else
+    return false;
+}
+
+bool AuthModel::validate()
+{
+  std::auto_ptr<AbstractUserDatabase::Transaction>
+    t(users().startTransaction());
+
+  bool result = WFormModel::validate();
+
+  if (t.get())
+    t->commit();
+
+  return result;
+}
+
+bool AuthModel::login(Login& login)
+{
+  if (valid()) {
+    User user = users().findWithIdentity(Identity::LoginName,
+					 valueText(LoginNameField));
+    if (user.isValid()) {
+      boost::any v = value(RememberMeField);
+      if (!v.empty() && boost::any_cast<bool>(v) == true) {
+	WApplication *app = WApplication::instance();
+	app->setCookie(baseAuth()->authTokenCookieName(),
+		       baseAuth()->createAuthToken(user),
+		       baseAuth()->authTokenValidity() * 60);
+      }
+
+      login.login(user);
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+EmailTokenResult AuthModel::processEmailToken(const std::string& token)
+{
+  return baseAuth()->processEmailToken(token, users());
+}
+
+User AuthModel::processAuthToken()
+{
+  WApplication *app = WApplication::instance();
+  const WEnvironment& env = app->environment();
+
+  if (baseAuth()->authTokensEnabled()) {
+    const std::string *token =
+      env.getCookieValue(baseAuth()->authTokenCookieName());
+
+    if (token) {
+      AuthTokenResult result = baseAuth()->processAuthToken(*token, users());
+
+      WApplication *app = WApplication::instance(); // env.application() ?
+
+      switch(result.result()) {
+      case AuthTokenResult::Valid:
+	app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
+		       baseAuth()->authTokenValidity() * 60);
+
+	return result.user();
+      case AuthTokenResult::Invalid:
+	app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0);
+
+	return User();
+      }
+    }
+  }
+
+  return User();
+}
+
+  }
+}

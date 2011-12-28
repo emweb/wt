@@ -24,26 +24,31 @@ class ptr_base;
  * This class implements a RAII transaction. Most dbo manipulations
  * require that a transaction is active, and database changes will not
  * be committed to the database until the active transaction is
- * committed using commit().
+ * committed. A transaction can be committed using commit(), but also
+ * commits automatically when it is deleted while no exception is
+ * being thrown (using std::uncaught_exception()). This means that it
+ * is possible that the transaction destructor throws an exception in
+ * case the transaction still needs to be committed, and the commit
+ * fails. If the transaction is deleted because of stack unwinding while
+ * an exception is thrown, then the transaction rolls back.
  *
  * A transaction is active until it is either committed or rolled
  * back. When a transaction is rolled back or fails, the modified
  * database objects are not successfully synchronized with the
- * database. The in memory database objects remain unchanged so
- * they may possibly be synchronized later in a new transaction.
+ * database. A roll-back does not affect the value of the in memory
+ * database objects, so they may possibly be synchronized later in a
+ * new transaction or discarded using Session::rereadAll().
  *
- * In most occasions you will want to guard a single method with a
- * transaction object on the stack. Unless the object is committed
- * before returning from the method, the transaction will be rolled
- * back.
+ * In most occasions you will want to guard any method that touches
+ * the database using a transaction object on the stack.
  *
- * You may create multiple (nested) transaction objects at the same
- * time: in this way you can guard a method with a transaction object
- * even if it is called from another method which also defines a
- * transaction with a wider scope. Nested transactions act in concert
- * and reference the same logical transaction: the logical transaction
- * will fail if at least one transaction fails, and will be committed only
- * if all transactions are committed.
+ * But you may create multiple (nested) transaction objects at the
+ * same time: in this way you can guard a method with a transaction
+ * object even if it is called from another method which also defines
+ * a transaction at a wider scope. Nested transactions act in
+ * concert and reference the same logical transaction: the logical
+ * transaction will fail if at least one transaction fails, and will
+ * be committed only if all transactions are committed.
  *
  * Usage example:
  * \code
@@ -54,7 +59,8 @@ class ptr_base;
  *   Wt::Dbo::ptr<Account> a = session.load<Account>(42);
  *   ...
  *
- *   transaction.commit();
+ *   // the transaction will roll back if an exception is thrown, or
+ *   // commit otherwise
  * }
  * \endcode
  *
@@ -102,7 +108,10 @@ public:
 
   /*! \brief Rolls back the transaction.
    *
-   * \sa commit(), ~Transaction()
+   * The transaction is rolled back (if it was still active), and is no
+   * longer active.
+   *
+   * \sa commit()
    */
   void rollback();
 
@@ -129,6 +138,8 @@ private:
   Impl *impl_;
 
   friend class Session;
+
+  void release();
 };
 
   }
