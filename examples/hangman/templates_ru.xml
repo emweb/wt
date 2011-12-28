@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="Wt.Auth.template.logged-in">
+    <div class="Wt-auth-logged-in">
+      Вы вошли как <b>${user-name}</b> | ${logout}
+    </div>
+  </message>
+</messages>
