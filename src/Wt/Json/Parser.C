@@ -4,9 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/Json/Array"
+#include "Wt/Json/Object"
 #include "Wt/Json/Parser"
 #include "Wt/Json/Value"
-#include "Wt/Json/Object"
+#include "Wt/WStringStream"
 
 #include <boost/version.hpp>
 
