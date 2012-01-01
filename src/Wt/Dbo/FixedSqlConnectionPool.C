@@ -10,6 +10,8 @@
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
+#else
+#include "Wt/Dbo/Exception"
 #endif // WT_THREADED
 
 namespace Wt {

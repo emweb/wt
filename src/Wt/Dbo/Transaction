@@ -119,6 +119,7 @@ private:
   struct Impl {
     Session& session_;
     bool active_;
+    bool needsRollback_;
     bool open_;
 
     int transactionCount_;

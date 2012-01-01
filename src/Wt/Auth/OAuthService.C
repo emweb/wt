@@ -72,21 +72,21 @@ public:
       const std::string *stateE = request.getParameter("state");
       if (!stateE || *stateE != process_->oAuthState_) {
 	process_->setError(ERROR_MSG("invalid-state"));
-	sendResponse(response);
+	sendError(response);
 	return;
       }
 
       const std::string *errorE = request.getParameter("error");
       if (errorE) {
 	process_->setError(ERROR_MSG(+ *errorE));
-	sendResponse(response);
+	sendError(response);
 	return;
       }
 
       const std::string *codeE = request.getParameter("code");
       if (!codeE) {
 	process_->setError(ERROR_MSG("missing-code"));
-	sendResponse(response);
+	sendError(response);
 	return;
       }
 

@@ -29,21 +29,31 @@ Transaction::Transaction(Session& session)
 Transaction::~Transaction()
 {
   // Either this Transaction shell was not committed (first condition)
-  // or the commit failed (we are still active)
-  if (!committed_ || (impl_->transactionCount_ == 1 && isActive())) {
-    if (std::uncaught_exception()) {
+  // or the commit failed (we are still active and need to rollback)
+  if (!committed_ || impl_->needsRollback_) {
+    // A commit attempt failed (and thus we need to rollback) or we
+    // are unwinding a stack while an exception is thrown
+    if (impl_->needsRollback_ || std::uncaught_exception()) {
       try {
 	rollback();
       } catch (std::exception& e) {
 	release();
-	throw e;
+	throw;
       }
     } else {
       try {
 	commit();
       } catch (std::exception& e) {
+	try {
+	  if (impl_->transactionCount_ == 1)
+	    rollback();
+	} catch (std::exception& e) {
+	  std::cerr << "Unexpected transaction during Transaction::rollback()"
+		    << std::endl;
+	}
+
 	release();
-	throw e;
+	throw;
       }
     }
   }
@@ -88,6 +98,7 @@ void Transaction::rollback()
 Transaction::Impl::Impl(Session& session)
   : session_(session),
     active_(true),
+    needsRollback_(false),
     open_(false),
     transactionCount_(0)
 { 
@@ -104,6 +115,7 @@ void Transaction::Impl::open()
 
 void Transaction::Impl::commit()
 {
+  needsRollback_ = true;
   session_.flush();
 
   if (open_)
@@ -119,10 +131,13 @@ void Transaction::Impl::commit()
   session_.returnConnection(connection_);
   session_.transaction_ = 0;
   active_ = false;
+  needsRollback_ = false;
 }
 
 void Transaction::Impl::rollback()
 {
+  needsRollback_ = false;
+
   try {
     if (open_)
       connection_->rollbackTransaction();

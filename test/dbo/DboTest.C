@@ -922,6 +922,59 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
     BOOST_REQUIRE(c2->dsManyToMany.size() == 0);
     BOOST_REQUIRE(c3->dsManyToMany.size() == 0);
   }
+
+  {
+    /*
+     * Check that we fail gracefully when inserting an object with a
+     * duplicate ID
+     */
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<D> d(new D());
+
+    d.modify()->id = Coordinate(42, 43);
+    d.modify()->name = "Object2 @ (42, 43)";
+
+    session_->add(d);
+
+    bool caught = false;
+    try {
+      t.commit();
+    } catch (std::exception& e) {
+      std::cerr << "Catching exception: " << e.what() << std::endl;
+      caught = true;
+    }
+
+    BOOST_REQUIRE(caught);
+  }
+
+  bool caught = false;
+
+  try {
+    dbo::Transaction outer(*session_);
+
+    {
+      /*
+       * Check that we fail gracefully when inserting an object with a
+       * duplicate ID
+       */
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<D> d(new D());
+
+      d.modify()->id = Coordinate(42, 43);
+      d.modify()->name = "Object2 @ (42, 43)";
+
+      session_->add(d);
+
+      BOOST_REQUIRE(t.commit() == false); // Doesn't actaully commit
+    }
+  } catch (std::exception& e) {
+    std::cerr << "Catching exception: " << e.what() << std::endl;
+    caught = true;
+  }
+
+  BOOST_REQUIRE(caught);
 }
 
 BOOST_AUTO_TEST_CASE( dbo_test11 )
