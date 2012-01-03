@@ -15,6 +15,9 @@
 26-12-2011:
 	* WSlider: implement disabled rendering
 
+22-12-2011:
+	* hangman example: add Russian translation
+
 19-12-2011:
 	* Render/: optimize table rendering
 
