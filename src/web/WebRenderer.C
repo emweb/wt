@@ -13,16 +13,18 @@
 #include "Wt/WRandom"
 #include "Wt/WWebWidget"
 #include "Wt/WStringStream"
+#include "Wt/Utils"
 
+#include "Configuration.h"
 #include "DomElement.h"
 #include "EscapeOStream.h"
+#include "FileServe.h"
 #include "WebController.h"
-#include "Configuration.h"
 #include "WebRenderer.h"
 #include "WebRequest.h"
 #include "WebSession.h"
-#include "FileServe.h"
-#include "Utils.h"
+#include "WebUtils.h"
+
 #ifdef WIN32
 #include <process.h> // for getpid()
 #ifdef min
@@ -469,7 +471,7 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
     if (!cookie.expires.isNull()) {
       std::string d 
 	= cookie.expires.toString(WString::fromUTF8
-				  ("ddd, dd MMM yyyy hh:mm:ss 'GMT'")).toUTF8();
+				  ("ddd, dd-MMM-yyyy hh:mm:ss 'GMT'")).toUTF8();
       header << " Expires=" << d << ';';
     }
 

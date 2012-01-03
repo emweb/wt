@@ -14,7 +14,7 @@
 #include "Wt/Ext/FormField"
 #include "Wt/Ext/PagingToolBar"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace {
   void parseNumberList(const std::string& s, std::vector<int>& numbers)

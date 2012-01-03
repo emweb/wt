@@ -10,8 +10,8 @@
 #include "Wt/WImage"
 #include "Wt/WLength"
 #include "Wt/WLink"
+#include "Wt/Utils"
 #include "DomElement.h"
-#include "Utils.h"
 
 #include <boost/lexical_cast.hpp>
 #include <sstream>

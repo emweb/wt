@@ -6,6 +6,7 @@
 #include <fstream>
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/Utils"
 #include "Wt/WApplication"
 #include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
@@ -20,7 +21,7 @@
 #include "Configuration.h"
 #include "SoundManager.h"
 #include "WebController.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <boost/pool/pool.hpp>
 

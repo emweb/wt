@@ -7,7 +7,7 @@
 #include "Wt/WRadioButton"
 #include "Wt/WButtonGroup"
 
-#include "Utils.h"
+#include "WebUtils.h"
 #include "DomElement.h"
 
 namespace Wt {

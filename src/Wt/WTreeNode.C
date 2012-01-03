@@ -5,7 +5,7 @@
  */
 #include <boost/lexical_cast.hpp>
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"

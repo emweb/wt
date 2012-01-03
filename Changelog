@@ -1,3 +1,23 @@
+03-01-2012:
+	* Wt/Utils: new header with utility functions that implement
+	commonly used hash functions and encoding/decoding
+
+	* WAxis: fix Date and DateTime scale rendering, to take into acount
+	labelInterval() and better choice of label values
+
+28-12-2011:
+	* Dbo/Transaction: do not require a commit() to commit a transaction
+	(but preserve behaviour to rollback in case of an exception)
+
+27-12-2011:
+	* Auth/: reorganisation, more model/widget separation
+
+26-12-2011:
+	* WSlider: implement disabled rendering
+
+19-12-2011:
+	* Render/: optimize table rendering
+
 07-12-2011:
 	* WGoogleMap: unify loading for v2 and v3, fixes bugs in loading
 	a second v3 google map

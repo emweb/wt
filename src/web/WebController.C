@@ -19,6 +19,7 @@
 #include <boost/bind.hpp>
 #endif // WT_THREADED
 
+#include "Wt/Utils"
 #include "Wt/WApplication"
 #include "Wt/WEvent"
 #include "Wt/WRandom"
@@ -26,15 +27,13 @@
 #include "Wt/WServer"
 #include "Wt/WSocketNotifier"
 
-#include "Wt/Auth/AuthUtils.h"
-
 #include "Configuration.h"
 #include "CgiParser.h"
 #include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "TimeUtil.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifdef HAVE_RASTER_IMAGE
 #include <magick/api.h>
@@ -460,7 +459,7 @@ void WebController::removeUploadProgressUrl(const std::string& url)
 
 std::string WebController::computeRedirectHash(const std::string& url)
 {
-  return Auth::Utils::encodeAscii(Auth::Utils::md5(redirectSecret_ + url));
+  return Utils::base64Encode(Utils::md5(redirectSecret_ + url));
 }
 
 void WebController::handleRequest(WebRequest *request)

@@ -15,7 +15,7 @@
 #include "Wt/WPolygonArea"
 #include "Wt/WRectArea"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <cfloat>
 

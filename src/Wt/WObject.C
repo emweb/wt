@@ -7,7 +7,7 @@
 #include "Wt/WObject"
 #include "Wt/WStatelessSlot"
 #include "Wt/WSignal"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

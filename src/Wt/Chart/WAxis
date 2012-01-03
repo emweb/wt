@@ -512,6 +512,8 @@ public:
   int segmentCount() const { return (int)segments_.size(); }
 
 private:
+  enum DateTimeUnit { Minutes, Hours, Days, Months, Years };
+
   WCartesianChart *chart_;
   Axis             axis_;
   bool             visible_;
@@ -529,8 +531,9 @@ private:
 
   struct Segment {
     double minimum, maximum;
-
     mutable double renderMinimum, renderMaximum, renderLength, renderStart;
+    mutable DateTimeUnit dateTimeRenderUnit;
+    mutable int dateTimeRenderInterval;
 
     Segment();
   };

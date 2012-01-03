@@ -10,7 +10,7 @@
 #include "Wt/WString"
 #include "Wt/WStringStream"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WRegExpValidator.min.js"

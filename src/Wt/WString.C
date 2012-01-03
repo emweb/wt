@@ -15,7 +15,7 @@
 #include "Wt/WWebWidget"
 #include "Wt/WCombinedLocalizedStrings"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifndef WT_CNOR
 namespace Wt {

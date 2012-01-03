@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include "Wt/WTable"
 #include "Wt/WTableCell"

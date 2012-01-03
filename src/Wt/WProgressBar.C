@@ -10,7 +10,7 @@
 #include <Wt/WProgressBar>
 
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 using namespace Wt;
 

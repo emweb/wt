@@ -13,7 +13,7 @@
 #include "Wt/WTableCell"
 #include "Wt/WText"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace {
 

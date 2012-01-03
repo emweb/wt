@@ -6,7 +6,7 @@
 
 #include "Wt/Ext/ToolBar"
 #include "Wt/WLogger"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <iostream>
 

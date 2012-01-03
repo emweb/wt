@@ -7,7 +7,7 @@
 #include "Wt/WSortFilterProxyModel"
 #include "Wt/WRegExp"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

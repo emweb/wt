@@ -12,7 +12,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WGridLayout"
 #include "Wt/WWidgetItem"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include "DomElement.h"
 #include "WebSession.h"

@@ -6,7 +6,7 @@
 
 #include "Wt/Auth/AuthService"
 #include "Wt/Auth/FormBaseModel"
-#include "web/Utils.h"
+#include "web/WebUtils.h"
 
 namespace Wt {
   namespace Auth {

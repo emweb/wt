@@ -15,8 +15,8 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../Wt/Auth/AuthUtils.h"
 #include "../Wt/WLogger"
+#include "../Wt/Utils"
 
 #include "../web/base64.h"
 
@@ -174,7 +174,7 @@ bool RequestParser::doWebSocketHandshake00(const Request& req)
 
       memcpy(buf_ + 8, key3, 8);
 
-      std::string md5 = Wt::Auth::Utils::md5(std::string(buf_, 16));
+      std::string md5 = Wt::Utils::md5(std::string(buf_, 16));
       memcpy(buf_, md5.c_str(), 16);
 
       return true;
@@ -218,7 +218,7 @@ std::string RequestParser::doWebSocketHandshake13(const Request& req)
     const std::string& key = k->second;
     static const std::string guid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    std::string hash = Wt::Auth::Utils::sha1(key + guid);
+    std::string hash = Wt::Utils::sha1(key + guid);
 
     std::vector<char> v;
     base64::encode(hash.begin(), hash.end(), std::back_inserter(v));

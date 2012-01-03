@@ -18,7 +18,7 @@
 #include "Wt/WText"
 
 #include "SizeHandle.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

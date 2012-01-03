@@ -187,15 +187,19 @@ public:
    */
   void setLoadLaterWhenInvisible(bool);
 
-  /*! \brief Escape HTML control characters in the text, to display literally.
+  /*! \brief Escape HTML control characters in the text, to display literally (<b>deprecated</b>).
+   *
+   * \deprecated use Wt::Utils::htmlEncode() instead.
    */
   static WString escapeText(const WString& text, bool newlinesToo = false);
 
-  /*! \brief Escape HTML control characters in the text, to display literally.
+  /*! \brief Escape HTML control characters in the text, to display literally (<b>deprecated</b>).
+   *
+   * \deprecated use Wt::Utils::htmlEncode() instead.
    */
   static std::string& escapeText(std::string& text, bool newlinestoo = false);
 
-  /*! \brief Remove tags/attributes from text that are not passive.
+  /*! \brief Remove tags/attributes from text that are not passive (<b>deprecated</b>).
    *
    * This removes tags and attributes from XHTML-formatted text that
    * do not simply display something but may trigger scripting, and
@@ -208,6 +212,8 @@ public:
    *
    * Modifies the \p text if needed. When the text is not proper
    * XML, returns \c false.
+   *
+   * \deprecated use Wt::Utils::removeScript() instead.
    */
   static bool removeScript(WString& text);
 

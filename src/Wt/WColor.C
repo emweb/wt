@@ -9,7 +9,7 @@
 #include "Wt/WColor"
 #include "Wt/WLogger"
 #include "Wt/WStringStream"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_UTILS_H_
-#define WT_UTILS_H_
+#ifndef WT_WEB_UTILS_H_
+#define WT_WEB_UTILS_H_
 
 #include <algorithm>
 #include <cstring>
@@ -208,12 +208,9 @@ extern void split(SplitSet& tokens,
 // Replace all occurences of the 'from' char to the 'to' char in 'v'
 extern void replaceAll(std::string& v, char from, char to);
 
-extern void unescapeHexTokens(std::string& v);
-
-extern WT_API void urlDecode(std::string &s);
-extern WT_API std::string urlEncode(const std::string& url);
 extern WT_API std::string urlEncode(const std::string& url,
 				    const std::string& allowed);
+
 extern std::string dataUrlDecode(const std::string& url,
 				 std::vector<unsigned char> &data);
 
@@ -274,4 +271,4 @@ extern WString formatFloat(const WString &format, double value);
   }
 }
 
-#endif // WT_UTILS_H_
+#endif // WT_WEB_UTILS_H_

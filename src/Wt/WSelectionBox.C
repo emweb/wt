@@ -10,7 +10,7 @@
 #include "Wt/WSelectionBox"
 
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

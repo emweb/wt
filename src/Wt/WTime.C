@@ -8,7 +8,7 @@
 #include "Wt/WTime"
 #include "Wt/WLogger"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/lexical_cast.hpp>

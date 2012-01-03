@@ -29,7 +29,7 @@
 
 #include "Login"
 #include "AuthWidget"
-#include "web/Utils.h"
+#include "web/WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/AuthWidget.min.js"

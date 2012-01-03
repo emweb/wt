@@ -19,7 +19,7 @@
 #include "Wt/WTime"
 #include "Wt/WWebWidget"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifdef WIN32
 #define snprintf _snprintf

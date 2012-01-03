@@ -13,12 +13,13 @@
 #include "Wt/WAbstractItemModel"
 #include "Wt/WDate"
 #include "Wt/WException"
+#include "Wt/WTime"
 
 #include "Wt/Chart/WAxis"
 #include "Wt/Chart/WCartesianChart"
 #include "Wt/Chart/WChart2DRenderer"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace {
   const int AXIS_MARGIN = 4;
@@ -52,6 +53,10 @@ namespace {
 
   double roundDown125(double v, double t) {
     return t * std::floor((v + std::numeric_limits<double>::epsilon()) / t);
+  }
+
+  int roundDown(int v, int factor) {
+    return (v / factor) * factor;
   }
 }
 
@@ -371,8 +376,8 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  if (scale_ == CategoryScale) {
 	    double numLabels = calcAutoNumLabels(s) / 1.5;
 
-	    renderInterval_  = std::max(1.0, std::floor(rc / numLabels));
-	  } else if (scale_ == LinearScale) {
+	    renderInterval_ = std::max(1.0, std::floor(rc / numLabels));
+	  } else if (scale_ != LogScale) {
 	    double numLabels = calcAutoNumLabels(s);
 
 	    renderInterval_ = round125(diff / numLabels);
@@ -389,6 +394,157 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  if (s.maximum == AUTO_MAXIMUM)
 	    s.renderMaximum
 	      = roundUp125(s.renderMaximum, renderInterval_);
+	}
+      } else if (scale_ == DateScale || scale_ == DateTimeScale) {
+	double daysRange, daysInterval;
+
+	WDateTime min, max;
+	int interval;
+
+	if (scale_ == DateScale) {
+	  daysRange = diff;
+	  daysInterval = renderInterval_;
+	  min = WDateTime(WDate::fromJulianDay
+			  (static_cast<int>(s.renderMinimum)));
+	  max = WDateTime(WDate::fromJulianDay
+			  (static_cast<int>(s.renderMaximum)));
+	} else if (scale_ == DateTimeScale) {
+	  daysRange = diff / (60.0 * 60.0 * 24);
+	  daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
+	  min = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
+	  max = WDateTime::fromTime_t((std::time_t)s.renderMaximum);
+	}
+
+	if (daysInterval > 200) {
+	  s.dateTimeRenderUnit = Years;
+	  interval = std::max(1, static_cast<int>(round125(daysInterval / 365)));
+
+	  if (min.date().day() != 1 && min.date().month() != 1)
+	    min = WDateTime(WDate(min.date().year(), 1, 1));
+
+	  if (max.date().day() != 1 && max.date().day() != 1)
+	    max = WDateTime(WDate(max.date().year() + 1, 1, 1));
+	} else if (daysInterval > 20) {
+	  s.dateTimeRenderUnit = Months;
+
+	  double i = daysInterval / 30;
+	  if (i < 1.3)
+	    interval = 1;
+	  else if (i < 2.3)
+	    interval = 2;
+	  else if (i < 3.3)
+	    interval = 3;
+	  else if (i < 4.3)
+	    interval = 4;
+	  else
+	    interval = 6;
+	
+	    /* push min and max to a round month (at interval boundary) */
+
+	  if ((min.date().month() - 1) % interval != 0) {
+	    int m = roundDown(min.date().month() - 1, interval) + 1;
+	    min = WDateTime(WDate(min.date().year(), m, 1));
+	  } else if (min.date().day() != 1)
+	    min = WDateTime(WDate(min.date().year(), min.date().month(), 1));
+
+	  if (max.date().day() != 1)
+	    max = WDateTime
+	      (WDate(max.date().year(), max.date().month(), 1).addMonths(1));
+
+	  if ((max.date().month() - 1) % interval != 0) {
+	    int m = roundDown(max.date().month() - 1, interval) + 1;
+	    max = WDateTime(WDate(max.date().year(), m, 1).addMonths(interval));
+	  }
+	} else if (daysInterval > 0.6) {
+	  s.dateTimeRenderUnit = Days;
+
+	  if (daysInterval < 1.3)
+	    interval = 1;
+	  else
+	    interval = 7 * std::max(1, static_cast<int>((daysInterval + 5) / 7));
+	} else {
+	  double minutes = daysInterval * 24 * 60;
+
+	  if (minutes > 40) {
+	    s.dateTimeRenderUnit = Hours;
+
+	    double i = minutes / 60;
+	    if (i < 1.3)
+	      interval = 1;
+	    else if (i < 2.3)
+	      interval = 2;
+	    else if (i < 3.3)
+	      interval = 3;
+	    else if (i < 4.3)
+	      interval = 4;
+	    else if (i < 6.3)
+	      interval = 6;
+	    else
+	      interval = 12;
+
+	    /* push min and max to a round hour (at interval boundary) */
+	    if (min.time().hour() % interval != 0) {
+	      int h = roundDown(min.time().hour(), interval);
+	      min.setTime(WTime(h, 0));
+	    } else if (min.time().minute() != 0)
+	      min.setTime(WTime(min.time().hour(), 0));
+
+	    if (max.time().minute() != 0) {
+	      max.setTime(WTime(max.time().hour(), 0));
+	      max = max.addSecs(60 * 60);
+	    }
+
+	    if (max.time().hour() % interval != 0) {
+	      int h = roundDown(max.time().hour(), interval);
+	      max.setTime(WTime(h, 0));
+	      max = max.addSecs(interval * 60 * 60);
+	    }
+	  } else {
+	    s.dateTimeRenderUnit = Minutes;
+
+	    if (minutes < 1.3)
+	      interval = 1;
+	    else if (minutes < 2.3)
+	      interval = 2;
+	    else if (minutes < 5.3)
+	      interval = 5;
+	    else if (minutes < 10.3)
+	      interval = 10;
+	    else if (minutes < 15.3)
+	      interval = 15;
+	    else if (minutes < 20.3)
+	      interval = 20;
+	    else
+	      interval = 30;
+
+	    /* push min and max to a round minute (at interval boundary) */
+	    if (min.time().minute() % interval != 0) {
+	      int m = roundDown(min.time().minute(), interval);
+	      min.setTime(WTime(min.time().hour(), m));
+	    } else if (min.time().second() != 0)
+	      min.setTime(WTime(min.time().hour(), min.time().minute()));
+
+	    if (max.time().second() != 0) {
+	      max.setTime(WTime(max.time().hour(), max.time().minute()));
+	      max = max.addSecs(60);
+	    }
+
+	    if (max.time().minute() % interval != 0) {
+	      int m = roundDown(max.time().minute(), interval);
+	      max.setTime(WTime(max.time().hour(), m));
+	      max = max.addSecs(interval * 60);
+	    }
+	  }
+	}
+
+	s.dateTimeRenderInterval = interval;
+
+	if (scale_ == DateScale) {
+	  s.renderMinimum = min.date().toJulianDay();
+	  s.renderMaximum = max.date().toJulianDay();
+	} else if (scale_ == DateTimeScale) {
+	  s.renderMinimum = min.toTime_t();
+	  s.renderMaximum = max.toTime_t();
 	}
       }
 
@@ -586,7 +742,7 @@ double WAxis::getValue(const boost::any& v) const
     else if (v.type() == typeid(WDateTime)) {
       WDateTime dt = boost::any_cast<WDateTime>(v);
       return static_cast<double>(dt.date().toJulianDay());
-    } 
+    }
 #endif
 
     else {
@@ -787,109 +943,26 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
   }
   case DateTimeScale:
   case DateScale: {
-    double daysRange = 0.0;
     WDateTime dt;
-    switch (scale_) {
-    case DateScale:
-      daysRange = static_cast<double>(s.renderMaximum - s.renderMinimum);
+
+    if (scale_ == DateScale) {
       dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
       if (!dt.isValid()) {
-	std::string exception = "Invalid julian day: ";
-	exception += boost::lexical_cast<std::string>(s.renderMinimum);
+	std::string exception = "Invalid julian day: "
+	  + boost::lexical_cast<std::string>(s.renderMinimum);
 	throw WException(exception);
       }
-      break;
-    case DateTimeScale:
-      daysRange = static_cast<double>((s.renderMaximum - s.renderMinimum) 
-				    / (60.0 * 60.0 * 24));
+    } else
       dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
-      break;
-    default:
-      assert(false); // CategoryScale, LinearScale
-    }
 
-    double numLabels = calcAutoNumLabels(s);
-
-    double days = daysRange / numLabels;
-
-    enum { Minutes, Hours, Days, Months, Years } unit;
-    int interval;
-
-    if (days > 200) {
-      unit = Years;
-      interval = std::max(1, static_cast<int>(round125(days / 365)));
-	
-      if (dt.date().day() != 1 && dt.date().month() != 1)
-	dt.date().setDate(dt.date().year(), 1, 1);
-    } else if (days > 20) {
-      unit = Months;
-      double i = days / 30;
-      if (i < 1.3)
-	interval = 1;
-      else if (i < 2.3)
-	interval = 2;
-      else if (i < 3.3)
-	interval = 3;
-      else if (i < 4.3)
-	interval = 4;
-      else
-	interval = 6;
-	
-      if (dt.date().day() != 1) {
-	dt.date().setDate(dt.date().year(), dt.date().month(), 1);
-      }
-	
-      if ((dt.date().month() - 1) % interval != 0) {
-	int m = (((dt.date().month() - 1) / interval) * interval) + 1;
-	dt.date().setDate(dt.date().year(), m, 1);
-      }
-    } else if (days > 0.6) {
-      unit = Days;
-      if (days < 1.3)
-	interval = 1;
-      else
-	interval = 7 * std::max(1, static_cast<int>((days + 5) / 7));
-    } else {
-      double minutes = days * 24 * 60;
-      if (minutes > 40) {
-	unit = Hours;
-	double i = minutes / 60;
-	if (i < 1.3)
-	  interval = 1;
-	else if (i < 2.3)
-	  interval = 2;
-	else if (i < 3.3)
-	  interval = 3;
-	else if (i < 4.3)
-	  interval = 4;
-	else if (i < 6.3)
-	  interval = 6;
-	else
-	  interval = 12;
-      } else {
-	unit = Minutes;
-	  if (minutes < 1.3)
-	    interval = 1;
-	  else if (minutes < 2.3)
-	    interval = 2;
-	  else if (minutes < 5.3)
-	    interval = 5;
-	  else if (minutes < 10.3)
-	    interval = 10;
-	  else if (minutes < 15.3)
-	    interval = 15;
-	  else if (minutes < 20.3)
-	    interval = 20;
-	  else
-	    interval = 30;
-      }
-    }
+    int interval = s.dateTimeRenderInterval;
+    DateTimeUnit unit = s.dateTimeRenderUnit;
 
     bool atTick = (interval > 1) || (unit <= Days);
 
     for (;;) {
       long dl = getDateNumber(dt);
-      
+
       if (dl > s.renderMaximum)
 	break;
 

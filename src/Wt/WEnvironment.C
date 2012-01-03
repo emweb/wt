@@ -4,16 +4,17 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/Utils"
 #include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/Http/Request"
 
+#include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
-#include "WebController.h"
+#include "WebUtils.h"
 #include "Configuration.h"
-#include "Utils.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -430,8 +431,8 @@ void WEnvironment::parseCookies(const std::string& cookie,
     boost::trim(cookieName);
     boost::trim(cookieValue);
 
-    Wt::Utils::urlDecode(cookieName);
-    Wt::Utils::urlDecode(cookieValue);
+    cookieName = Wt::Utils::urlDecode(cookieName);
+    cookieValue = Wt::Utils::urlDecode(cookieValue);
     if (cookieName != "")
       result[cookieName] = cookieValue;
   }

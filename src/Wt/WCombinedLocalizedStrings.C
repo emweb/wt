@@ -6,7 +6,7 @@
 
 #include "Wt/WCombinedLocalizedStrings"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

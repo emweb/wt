@@ -72,8 +72,8 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMinutes )
   WStandardItemModel model;
 
   WDate d(2009, 10, 1);
-  WDateTime start(d, WTime(1, 0, 0));
-  WDateTime end(d, WTime(2, 0, 0));
+  WDateTime start(d, WTime(1, 24, 0));
+  WDateTime end(d, WTime(2, 36, 0));
 
   WDateTime dt = start;
   int row = 0;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartHours )
   WStandardItemModel model;
 
   WDate d(2009, 10, 1);
-  WDateTime start(d, WTime(0, 0, 0));
+  WDateTime start(d, WTime(1, 20, 0));
   WDateTime end(d, WTime(23, 30, 0));
 
   WDateTime dt = start;
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartHours )
     model.insertRow(model.rowCount());
     model.setData(row, 0, boost::any(dt));
     model.setData(row, 1, boost::any(row * 10));
-    dt = dt.addSecs(60 * 60);
+    dt = dt.addSecs(60);
     row++;
   }
 
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartDays )
   WStandardItemModel model;
   
   WDate start(2009, 10, 1);
-  WDate end(2009, 11, 1);
+  WDate end(2009, 11, 10);
 
   WDate d = start;
   int row = 0;
@@ -131,6 +131,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartDays )
 
   plotTimeSeriesChart(&model, "days.svg", DateScale);
 }
+
   
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartWeeks )
 {
@@ -146,7 +147,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartWeeks )
     model.insertRow(model.rowCount());
     model.setData(row, 0, boost::any(d));
     model.setData(row, 1, boost::any(row * 10));
-    d = d.addDays(7);
+    d = d.addDays(1);
     row++;
   }
 
@@ -158,7 +159,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMonths )
   WStandardItemModel model;
 
   WDate start(2008, 4, 1);
-  WDate end(2008, 8, 1);
+  WDate end(2008, 12, 1);
   
   WDate d = start;
   int row = 0;
@@ -167,7 +168,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMonths )
     model.insertRow(model.rowCount());
     model.setData(row, 0, boost::any(d));
     model.setData(row, 1, boost::any(row * 10));
-    d = d.addMonths(1);
+    d = d.addDays(5);
     row++;
   }
 

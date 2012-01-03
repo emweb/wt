@@ -10,7 +10,7 @@
 #include "Wt/WLabel"
 
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WFormWidget.min.js"

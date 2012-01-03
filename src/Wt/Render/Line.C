@@ -6,7 +6,7 @@
 
 #include "Block.h"
 #include "Line.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

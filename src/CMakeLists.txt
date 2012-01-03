@@ -50,6 +50,7 @@ Wt/StdGridLayoutImpl.C
 Wt/StdLayoutImpl.C
 Wt/StdLayoutItemImpl.C
 Wt/StdWidgetItemImpl.C
+Wt/Utils.C
 Wt/WAbstractArea.C
 Wt/WAbstractItemDelegate.C
 Wt/WAbstractItemModel.C
@@ -219,8 +220,6 @@ Wt/WVirtualImage.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
-Wt/Auth/md5.c
-Wt/Auth/sha1.c
 Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthModel.C
@@ -270,6 +269,8 @@ Wt/Render/Block.C
 Wt/Render/Line.C
 Wt/Render/LayoutBox.C
 Wt/Render/WTextRenderer.C
+web/md5.c
+web/sha1.c
 web/CgiParser.C
 web/Configuration.C
 web/DomElement.C
@@ -277,7 +278,6 @@ web/EscapeOStream.C
 web/FileServe.C
 web/RefEncoder.C
 web/SoundManager.C
-web/Utils.C
 web/WebController.C
 web/WebMain.C
 web/WebRequest.C
@@ -285,6 +285,7 @@ web/WebStream.C
 web/WebSession.C
 web/WebSocketMessage.C
 web/WebRenderer.C
+web/WebUtils.C
 web/TimeUtil.C
 web/XSSFilter.C
 web/XSSUtils.C

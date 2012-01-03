@@ -9,7 +9,7 @@
 #include "Wt/WServer"
 
 #include "Configuration.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

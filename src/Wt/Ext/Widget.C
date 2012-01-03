@@ -12,7 +12,7 @@
 #include "Wt/WEnvironment"
 #include "EscapeOStream.h"
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <iostream>
 #include <sstream>

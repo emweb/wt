@@ -11,7 +11,7 @@
 #include "Wt/WSlider"
 
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -29,7 +29,7 @@ public:
   void doUpdateDom(DomElement& element, bool all);
 
   void sliderResized(const WLength& width, const WLength& height);
-  virtual void setDisabled(bool disabled);
+  virtual void propagateSetEnabled(bool enabled);
 
 protected:
   void paintEvent(WPaintDevice *paintDevice);
@@ -128,17 +128,17 @@ PaintedSlider::PaintedSlider(WSlider *slider)
   sliderReleased_.connect(this, &PaintedSlider::onSliderReleased);
 }
 
-void PaintedSlider::setDisabled(bool disabled)
+void PaintedSlider::propagateSetEnabled(bool enabled)
 {
-  if (disabled) {
-    addStyleClass("Wt-disabled");
-    slider_->addStyleClass("Wt-disabled");
-  } else {
+  if (enabled) {
     removeStyleClass("Wt-disabled");
     slider_->removeStyleClass("Wt-disabled");
+  } else {
+    addStyleClass("Wt-disabled");
+    slider_->addStyleClass("Wt-disabled");
   }
 
-  WPaintedWidget::setDisabled(disabled);
+  WPaintedWidget::propagateSetEnabled(enabled);
 }
 
 double PaintedSlider::w() const

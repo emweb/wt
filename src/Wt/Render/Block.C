@@ -14,7 +14,7 @@
 
 #include "Block.h"
 #include "Line.h"
-#include "Utils.h"
+#include "WebUtils.h"
 #include "DomElement.h"
 
 #include <boost/algorithm/string.hpp>

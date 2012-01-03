@@ -37,7 +37,7 @@
 #include "Wt/WVmlImage"
 
 #include "EscapeOStream.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <cmath>
 

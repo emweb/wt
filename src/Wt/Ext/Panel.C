@@ -9,7 +9,7 @@
 #include "DomElement.h"
 #include "Wt/Ext/Panel"
 #include "Wt/Ext/ToolBar"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
   namespace Ext {

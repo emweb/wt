@@ -7,7 +7,7 @@
 #include "Wt/WLength"
 #include "Wt/WLogger"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <cstring>
 

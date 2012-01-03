@@ -16,7 +16,7 @@
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

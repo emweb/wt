@@ -17,7 +17,7 @@ using namespace boost::gregorian;
 #include "Wt/WTemplate"
 #include "Wt/WText"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

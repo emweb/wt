@@ -15,7 +15,7 @@
 #include "Wt/Http/Response"
 
 #include "Wt/FontSupport.h"
-#include "web/Utils.h"
+#include "WebUtils.h"
 
 #include <stdio.h>
 #include <hpdf.h>

@@ -6,6 +6,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/Utils"
 #include "Wt/WApplication"
 #include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
@@ -19,11 +20,11 @@
 #include "CgiParser.h"
 #include "Configuration.h"
 #include "DomElement.h"
-#include "Utils.h"
 #include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebSocketMessage.h"
+#include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
 #ifndef _MSC_VER

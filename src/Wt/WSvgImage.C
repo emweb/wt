@@ -13,7 +13,7 @@
 #include "Wt/WWebWidget"
 #include "Wt/Http/Response"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <cmath>
 #include <boost/lexical_cast.hpp>

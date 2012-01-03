@@ -14,7 +14,7 @@
 #include "Wt/WLayoutItem"
 
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
   namespace Ext {

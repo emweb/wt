@@ -10,7 +10,7 @@
 #include "Wt/WException"
 #include "Wt/WResource"
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WAbstractMedia.min.js"

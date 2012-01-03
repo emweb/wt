@@ -10,8 +10,9 @@
 #endif
 
 #include "Wt/Http/Request"
+#include "Wt/Utils"
 #include "Wt/WEnvironment"
-#include "Utils.h"
+#include "WebUtils.h"
 #include "WebRequest.h"
 
 #include <boost/algorithm/string.hpp>
@@ -339,23 +340,20 @@ void Request::parseFormUrlEncoded(const std::string& s,
   for (amp_tok::iterator i = tok.begin(); i != tok.end(); ++i) {
     std::string pair = *i;
 
-    // convert plus to space
-    Wt::Utils::replace(pair, '+', " ");
-
     // split into key and value
     std::string::size_type equalPos = pair.find('=');
     std::string key = pair.substr(0, equalPos);
     std::string value;
-    value = (equalPos != std::string::npos && pair.size() > equalPos + 1)
-      ? pair.substr(equalPos + 1) : "";
+    if (equalPos != std::string::npos && pair.size() > equalPos + 1)
+      value = pair.substr(equalPos + 1);
 
-    // convert %XX from hex numbers to alphanumeric
-    Wt::Utils::unescapeHexTokens(key);
-    Wt::Utils::unescapeHexTokens(value);
+    key = Wt::Utils::urlDecode(key);
+    value = Wt::Utils::urlDecode(value);
 
     parameters[key].push_back(value);
   }
 }
+
 #endif // WT_TARGET_JAVA
 
 void Request::parseCookies(const std::string& cookie,

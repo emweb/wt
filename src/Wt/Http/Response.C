@@ -8,7 +8,7 @@
 #include "Wt/Http/ResponseContinuation"
 #include "Wt/WResource"
 #include "WebRequest.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
   namespace Http {

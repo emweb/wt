@@ -3,7 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include "Wt/WFormWidget"
 #include "Wt/WValidator"

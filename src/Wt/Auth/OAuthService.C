@@ -13,6 +13,7 @@
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
+#include "Wt/Utils"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WException"
@@ -22,9 +23,7 @@
 #include "Wt/WStringStream"
 #include "Wt/WServer"
 
-#include "AuthUtils.h"
 #include "WebSession.h"
-#include "../../web/Utils.h"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
@@ -498,7 +497,7 @@ std::string OAuthService::getRedirectEndpoint() const
 std::string OAuthService::encodeState(const std::string& sessionId) const
 {
   std::string msg = impl_->secret_ + sessionId;
-  std::string hash = Auth::Utils::encodeAscii(Auth::Utils::md5(msg));
+  std::string hash = Wt::Utils::base64Encode(Wt::Utils::md5(msg));
   return hash + "|" + sessionId;
 }
 

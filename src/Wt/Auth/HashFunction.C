@@ -7,6 +7,7 @@
 #include "HashFunction"
 #include "AuthUtils.h"
 
+#include "Wt/Utils"
 #include "Wt/WException"
 
 // for htonl():
@@ -41,7 +42,7 @@ bool HashFunction::verify(const std::string& msg,
 std::string MD5HashFunction::compute(const std::string& msg,
 				     const std::string& salt) const
 {
-  return Utils::encodeAscii(Utils::md5(salt + msg));
+  return Utils::encodeAscii(Wt::Utils::md5(salt + msg));
 }
 
 std::string MD5HashFunction::name() const

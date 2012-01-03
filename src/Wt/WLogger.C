@@ -11,7 +11,7 @@
 #include "Wt/WServer"
 #include "Wt/WString"
 
-#include "Utils.h"
+#include "WebUtils.h"
 #include "WebSession.h"
 
 using namespace boost::posix_time;

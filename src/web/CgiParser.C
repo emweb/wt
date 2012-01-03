@@ -37,7 +37,7 @@
 
 #include "CgiParser.h"
 #include "WebRequest.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include "Wt/WException"
 #include "Wt/WLogger"

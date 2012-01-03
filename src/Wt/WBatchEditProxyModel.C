@@ -9,7 +9,7 @@
 #include "Wt/WBatchEditProxyModel"
 #include "Wt/WException"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace {
   bool isAncestor(const Wt::WModelIndex& i1, const Wt::WModelIndex& i2) {

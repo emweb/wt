@@ -12,7 +12,7 @@
 #include "Wt/WResource"
 #include "Wt/WScrollArea"
 #include "Wt/WVirtualImage"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

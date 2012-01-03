@@ -10,7 +10,7 @@
 #include "Wt/WText"
 #include "Wt/WTree"
 #include "Wt/WTreeNode"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace {
   using namespace Wt;

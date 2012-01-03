@@ -16,7 +16,7 @@
 #include "StdGridLayoutImpl.h"
 #include "SizeHandle.h"
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/StdGridLayoutImpl.min.js"

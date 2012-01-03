@@ -14,7 +14,7 @@
 #include "Wt/WStringStream"
 
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace {
 

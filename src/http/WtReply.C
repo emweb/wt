@@ -17,7 +17,7 @@
 #include "HTTPRequest.h"
 #include "WebController.h"
 #include "Server.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include <fstream>
 

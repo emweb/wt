@@ -12,7 +12,7 @@
 #include "DomElement.h"
 #include "RefEncoder.h"
 #include "WebSession.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_print.hpp"

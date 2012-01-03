@@ -89,7 +89,7 @@ void WDateTime::setDate(const WDate& date)
   }
 }
 
-WDate WDateTime::date() const
+const WDate WDateTime::date() const
 {
   if (isValid()) {
     gregorian::date d = datetime_.date();
@@ -107,7 +107,7 @@ void WDateTime::setTime(const WTime& time)
   }
 }
 
-WTime WDateTime::time() const
+const WTime WDateTime::time() const
 {
   if (isValid()) {
     posix::time_duration d = datetime_.time_of_day();

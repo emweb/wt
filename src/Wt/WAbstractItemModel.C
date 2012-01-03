@@ -8,7 +8,7 @@
 #include "Wt/WAbstractItemModel"
 #include "Wt/WItemSelectionModel"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifdef WIN32
 #define snprintf _snprintf

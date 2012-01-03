@@ -176,7 +176,7 @@ public:
    *
    * \sa time()
    */
-  WDate date() const;
+  const WDate date() const;
 
   /*! \brief Sets the time part.
    *
@@ -190,7 +190,7 @@ public:
    *
    * \sa setTime()
    */
-  WTime time() const;
+  const WTime time() const;
 
   /*! \brief Returns the number of seconds since the Epoch.
    *

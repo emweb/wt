@@ -9,7 +9,7 @@
 #include "Wt/WLogger"
 #include "Wt/FontSupport.h"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>

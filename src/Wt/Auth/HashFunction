@@ -49,8 +49,9 @@ public:
    *
    * The message is usually an ASCII or UTF-8 string.
    *
-   * The \p salt and the computed hash are ASCII-encoded
-   * ([a-zA-Z0-9./]) strings.
+   * The \p salt and the computed hash are encoded in printable
+   * characters. This is usually ASCII-encoded (as for the UNIX crypt()
+   * functions) or could be Base64-encoded.
    */
   virtual std::string compute(const std::string& msg, const std::string& salt)
     const = 0;
@@ -61,8 +62,8 @@ public:
    * the given salt, and compare it to the \p hash.
    *
    * Some methods however store the salt and additional settings in
-   * the \p hash, and then these should be used to verify the hash
-   * instead of the separately stored salt.
+   * the \p hash, and this information is thus needed to verify the message
+   * hash.
    */
   virtual bool verify(const std::string& msg,
 		      const std::string& salt,

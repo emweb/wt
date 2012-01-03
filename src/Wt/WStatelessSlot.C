@@ -2,7 +2,7 @@
 #include "Wt/WSignal"
 
 #include <string>
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

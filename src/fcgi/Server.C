@@ -25,7 +25,7 @@
 #include "FCGIRecord.h"
 #include "Server.h"
 #include "SessionInfo.h"
-#include "Utils.h"
+#include "WebUtils.h"
 #include "WebController.h"
 
 #include "Wt/WIOService"

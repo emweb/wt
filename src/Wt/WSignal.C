@@ -11,7 +11,7 @@
 #include "Wt/WStatelessSlot"
 #include "Wt/WJavaScriptSlot"
 
-#include "Utils.h"
+#include "WebUtils.h"
 #include "WebSession.h"
 
 namespace Wt {

@@ -20,7 +20,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include "Request.h"
-#include "Utils.h"
+#include "../Wt/Utils"
 
 namespace http {
 namespace server {

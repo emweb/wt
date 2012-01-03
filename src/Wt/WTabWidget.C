@@ -13,7 +13,7 @@
 #include "Wt/WMenuItem"
 #include "Wt/WStackedWidget"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

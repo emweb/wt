@@ -8,7 +8,7 @@
 #include "Wt/WStandardItem"
 #include "Wt/WStandardItemModel"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 #define UNSPECIFIED_RESULT -1
 

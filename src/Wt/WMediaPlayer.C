@@ -13,7 +13,7 @@
 #include "Wt/WStringStream"
 #include "Wt/WTemplate"
 #include "Wt/WText"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WMediaPlayer.min.js"

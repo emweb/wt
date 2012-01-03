@@ -4,11 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Utils.h"
+#include "WebUtils.h"
 #include "DomElement.h"
 #include "rapidxml/rapidxml.hpp"
 #include "Wt/WException"
 #include "Wt/WString"
+#include "Wt/Utils"
 
 #include <boost/algorithm/string.hpp>
 
@@ -247,33 +248,6 @@ char *round_str(double d, int digits, char *buf) {
   num[dotPos] = '.';
 
   return buf;
-}
-
-void unescapeHexTokens(std::string& v)
-{
-  for (unsigned i = 0; i < (unsigned)(std::max)(0, (int)v.length() - 2); ++i) {
-    if (v[i] == '%') {
-      std::string h = v.substr(i + 1, 2);
-      char *e = 0;
-      int hval = std::strtol(h.c_str(), &e, 16);
-
-      if (*e != 0)
-        continue; // not a proper %XX with XX hexadecimal format
-
-      v.replace(i, 3, 1, (char)hval);
-    }
-  }
-}
-
-void urlDecode(std::string &s)
-{
-  replace(s, '+', " ");
-  unescapeHexTokens(s);
-}
-
-std::string urlEncode(const std::string& url)
-{
-  return DomElement::urlEncodeS(url);
 }
 
 std::string urlEncode(const std::string& url, const std::string& allowed)

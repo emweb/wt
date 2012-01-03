@@ -18,7 +18,7 @@
 #include "EscapeOStream.h"
 #include "WebRenderer.h"
 #include "WebSession.h"
-#include "Utils.h"
+#include "WebUtils.h"
 #include "XSSFilter.h"
 
 #ifndef WT_DEBUG_JS

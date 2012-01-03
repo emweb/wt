@@ -5,7 +5,7 @@
  */
 
 #include "Wt/Ext/Menu"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
   namespace Ext {

@@ -19,10 +19,6 @@ namespace Wt {
       // its length multiple of 3 bytes
       WT_API extern std::string encodeAscii(const std::string& a);
       WT_API extern std::string decodeAscii(const std::string& a);
-
-      // binary in, binary out
-      WT_API extern std::string md5(const std::string& a);
-      WT_API extern std::string sha1(const std::string& a);
     }
   }
 }

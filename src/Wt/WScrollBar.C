@@ -7,7 +7,7 @@
 #include "Wt/WScrollArea"
 
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

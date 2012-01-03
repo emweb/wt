@@ -10,7 +10,7 @@
 
 #include "DomElement.h"
 #include "EscapeOStream.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 namespace Wt {
 

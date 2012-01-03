@@ -16,7 +16,7 @@
 #include "DomElement.h"
 #include "WebSession.h"
 #include "WebRequest.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifndef _MSC_VER
 #include <unistd.h>

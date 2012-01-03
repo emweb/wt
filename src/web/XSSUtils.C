@@ -90,7 +90,12 @@ namespace Wt {
 		|| boost::istarts_with(value, "vnd.ms.radio:")
 		|| boost::istarts_with(value, "wysiwyg:"));
       else
-	if (boost::iequals(name, "style"))
+	if (boost::iequals(name, "style")) {
+	  /*
+	   * FIXME: implement CSS 2.1 backslash decoding before doing
+	   * the following checks
+	   * http://www.w3.org/TR/CSS21/syndata.html#characters
+	   */
 	  return boost::icontains(value, "absolute")
 	    || boost::icontains(value, "behaviour")
 	    || boost::icontains(value, "behavior")
@@ -100,7 +105,7 @@ namespace Wt {
 	    || boost::icontains(value, "include-source")
 	    || boost::icontains(value, "moz-binding")
 	    || boost::icontains(value, "javascript");
-	else
+	} else
 	  return false;
     } 
   }

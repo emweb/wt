@@ -13,7 +13,7 @@
 #include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
-#include "Utils.h"
+#include "WebUtils.h"
 
 #ifdef WT_THREADED
 #include <boost/thread/recursive_mutex.hpp>

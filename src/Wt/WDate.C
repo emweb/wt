@@ -9,7 +9,7 @@
 #include "Wt/WException"
 #include "Wt/WLogger"
 
-#include "Utils.h"
+#include "WebUtils.h"
 
 using namespace boost::gregorian;
 

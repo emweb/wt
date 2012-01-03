@@ -11,7 +11,7 @@
 #include "Wt/WText"
 #include "Wt/WWebWidget"
 #include "DomElement.h"
-#include "Utils.h"
+#include "WebUtils.h"
 #include "Wt/WApplication"
 
 #ifndef WT_DEBUG_JS
