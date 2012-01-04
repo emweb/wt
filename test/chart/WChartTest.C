@@ -23,9 +23,9 @@ using namespace Wt::Chart;
 
 namespace {
 
-void plotTimeSeriesChart(WStandardItemModel* model, 
-			 std::string fileName,
-			 AxisScale xScale)
+double plotTimeSeriesChart(WStandardItemModel* model, 
+			   std::string fileName,
+			   AxisScale xScale)
 {
   WCartesianChart chart;
   chart.setModel(model);
@@ -34,6 +34,7 @@ void plotTimeSeriesChart(WStandardItemModel* model,
 
   chart.setType(ScatterPlot);
   chart.axis(XAxis).setScale(xScale);
+  chart.axis(YAxis).setScale(LogScale);
 
   chart.setPlotAreaPadding(100, Left);
   chart.setPlotAreaPadding(50, Top | Bottom);
@@ -46,23 +47,23 @@ void plotTimeSeriesChart(WStandardItemModel* model,
   chart.setMargin(10, Top | Bottom);
   chart.setMargin(WLength::Auto, Left | Right);
 
-  /*
-  chart.resize(400, 300);
-  chart.initLayout();
-  std::cerr << chart.axis(YAxis).minimum()
-            << "-" << chart.axis(YAxis).maximum() << std::endl;
-  */
+  double result;
+
   {
     WSvgImage image(400, 300);
     WPainter painter(&image);
 
     chart.paint(painter);
 
+    result = chart.axis(YAxis).maximum() - chart.axis(YAxis).minimum();
+
     painter.end();
     std::ofstream f(fileName.c_str(), std::ios::out | std::ios::binary);
     image.write(f);
     f.close();
   }
+
+  return result;
 }
 
 } // end anonymous namespace
@@ -81,7 +82,10 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMinutes )
   while (dt < end) {
     model.insertRow(model.rowCount());
     model.setData(row, 0, boost::any(dt));
-    model.setData(row, 1, boost::any(row * 10));
+    if (row % 10 == 0)
+      model.setData(row, 1, boost::any());
+    else
+      model.setData(row, 1, boost::any(row * 10));
     dt = dt.addSecs(60);
     row++;
   }
@@ -175,4 +179,26 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMonths )
   plotTimeSeriesChart(&model, "months.svg", DateScale);
 }
 
+BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChart0Range )
+{
+  WStandardItemModel model;
+
+  WDate start(2008, 4, 1);
+  WDate end(2008, 12, 1);
+  
+  WDate d = start;
+  int row = 0;
+  model.insertColumns(0, 2);
+  while (d < end) {
+    model.insertRow(model.rowCount());
+    model.setData(row, 0, boost::any(d));
+    model.setData(row, 1, boost::any(20));
+    d = d.addDays(5);
+    row++;
+  }
+
+  double range = plotTimeSeriesChart(&model, "0range.svg", DateScale);
+
+  BOOST_REQUIRE(range == 90);
+}
 

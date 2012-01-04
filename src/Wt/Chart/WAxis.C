@@ -644,30 +644,26 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 
     if (scale_ == LogScale) {
       /*
-       * For LogScale, resolution is ignored.
-       * To ensure safe and fair padding, log values are used here,
-       * so values are padded with appropriate magnitude.
-       * (i.e. very small values with very small padding values,
-       * large values with large padding values)
+       * For LogScale, resolution is ignored, and we always
+       * show at least one log range (if it's up to us).
        */
 
       double minLog10 = std::log10(segment.renderMinimum);
       double maxLog10 = std::log10(segment.renderMaximum);
-      double d = 1.0;
 
-      diff = maxLog10 -minLog10;
-      
-      if (diff < d) {
-        double average = minLog10 + diff / 2.0;
-
-        if (findMinimum && findMaximum) {
-          segment.renderMaximum = std::pow(10, std::ceil(average + d / 2.0));
-          segment.renderMinimum = std::pow(10, std::floor(average - d / 2.0));
-        } else if (findMinimum) {
-          segment.renderMinimum = std::pow(10, std::floor(maxLog10 - d));
-        } else if (findMaximum) {
-          segment.renderMaximum = std::pow(10, std::ceil(minLog10 + d));
-        }
+      if (findMinimum && findMaximum) {
+	segment.renderMinimum = std::pow(10, std::floor(minLog10));
+	segment.renderMaximum = std::pow(10, std::ceil(maxLog10));
+	if (segment.renderMinimum == segment.renderMaximum)
+	  segment.renderMaximum = std::pow(10, std::ceil(maxLog10) + 1);
+      } else if (findMinimum) {
+	segment.renderMinimum = std::pow(10, std::floor(minLog10));
+	if (segment.renderMinimum == segment.renderMaximum)
+	  segment.renderMinimum = std::pow(10, std::floor(minLog10) - 1);
+      } else if (findMaximum) {
+	segment.renderMaximum = std::pow(10, std::ceil(maxLog10));
+	if (segment.renderMinimum == segment.renderMaximum)
+	  segment.renderMaximum = std::pow(10, std::ceil(maxLog10) + 1);
       }
     } else {
       double resolution = resolution_;
@@ -677,7 +673,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
        */
       if (resolution == 0) {
 	if (scale_ == LinearScale)
-	  resolution = std::numeric_limits<double>::epsilon();
+	  resolution = 1E3 * std::numeric_limits<double>::epsilon();
 	else if (scale_ == DateScale)
 	  resolution = 1;
 	else if (scale_ == DateTimeScale)
@@ -688,9 +684,6 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	double average = (segment.renderMaximum + segment.renderMinimum) / 2.0;
 
 	double d = resolution;
-
-	if (d == 0)
-	  d = 2E-4;
 
         if (findMinimum && findMaximum) {
           segment.renderMaximum = average + d / 2.0;
