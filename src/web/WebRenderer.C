@@ -483,7 +483,9 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
     else
       header << " Path=" << cookie.path << ';';
 
-    header << " httponly;";
+    // a httponly cookie cannot be set using JavaScript
+    if (!response.isWebSocketMessage())
+      header << " httponly;";
 
     if (cookie.secure)
       header << " secure;";

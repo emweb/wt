@@ -223,10 +223,14 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
     WContainerWidget *line = new WContainerWidget();
     content_->insertWidget(i, line);
 
-    boost::any d = model_->data(i, modelColumn_);
-    WText *value = new WText(asString(d), PlainText);
+    WModelIndex index = model_->index(i, modelColumn_);
 
-    boost::any d2 = model_->data(i, modelColumn_, UserRole);
+    boost::any d = index.data();
+
+    TextFormat format = index.flags() & ItemIsXHTMLText ? XHTMLText : PlainText;
+    WText *value = new WText(asString(d), format);
+
+    boost::any d2 = index.data(UserRole);
     if (d2.empty())
       d2 = d;
 

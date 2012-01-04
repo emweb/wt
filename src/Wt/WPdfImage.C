@@ -141,6 +141,9 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 {
   if (flags & (Transform | Clipping)) {
     HPDF_Page_GRestore(page_);
+
+    currentFont_ = WFont();
+
     HPDF_Page_GSave(page_);
 
     if (painter()->hasClipping()) {

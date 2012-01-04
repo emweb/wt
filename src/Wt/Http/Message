@@ -95,8 +95,20 @@ public:
    *
    * If a header with that value was already defined, it is replaced with
    * the new value. Otherwise, the header is added.
+   *
+   * \sa addHeader()
    */
   void setHeader(const std::string& name, const std::string& value);
+
+  /*! \brief Adds a header value.
+   *
+   * A header is added, even if a header with the same name already
+   * was present. This is allowed by HTTP only for certain headers
+   * (e.g. Set-Cookie).
+   *
+   * \sa setHeader()
+   */
+  void addHeader(const std::string& name, const std::string& value);
 
   /*! \brief Returns the headers.
    */

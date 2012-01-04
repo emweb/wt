@@ -172,11 +172,11 @@ public:
    *
    * This returns all cookies that were present in initial request for
    * the application. Cookies set with WApplication::setCookie() are
-   * not taken into considerations.
+   * not taken into consideration.
    *
-   * Cookies allow you to persist information across sessions.
-   *
-   * Not all clients may support cookies or have cookies enabled.
+   * Cookies allow you to persist information across sessions, but
+   * note that not all clients may support cookies or may some clients
+   * may be configured to block cookies.
    *
    * \sa supportsCookies(), getCookie(), getCookieValue()
    */

@@ -50,6 +50,11 @@ void Message::setHeader(const std::string& name, const std::string& value)
     }
   }
 
+  addHeader(name, value);
+}
+
+void Message::addHeader(const std::string& name, const std::string& value)
+{
   headers_.push_back(Header(name, value));
 }
 

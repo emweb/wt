@@ -295,7 +295,7 @@ private:
 	if (i != std::string::npos) {
 	  std::string name = boost::trim_copy(header.substr(0, i));
 	  std::string value = boost::trim_copy(header.substr(i+1));
-	  response_.setHeader(name, value);
+	  response_.addHeader(name, value);
 	}
       }
 

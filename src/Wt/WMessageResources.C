@@ -562,10 +562,6 @@ bool WMessageResources::readResourceStream(std::istream &s,
 
     for (xml_node<> *x_message = x_root->first_node("message");
 	 x_message; x_message = x_message->next_sibling("message")) {
-      if (std::strncmp(x_message->name(), "message", x_message->name_size())
-	  != 0)
-	throw parse_error("Expected <message>", x_message->value());
-
       xml_attribute<> *x_id = x_message->first_attribute("id");
       if (!x_id)
 	throw parse_error("Missing message id", x_message->value());

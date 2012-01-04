@@ -47,7 +47,7 @@ namespace {
   #endif
 
   bool isAbsoluteUrl(const std::string& url) {
-    return url.find("://") != std::string::npos;
+    return url.find(":") != std::string::npos;
   }
 
   std::string host(const std::string& url) {
@@ -65,7 +65,7 @@ namespace {
 
 namespace Wt {
 
-  LOGGER("Wt");
+LOGGER("Wt");
 
 #ifdef WT_BOOST_THREADS
 boost::thread_specific_ptr<WebSession::Handler> WebSession::threadHandler_;
@@ -187,8 +187,7 @@ WLogEntry WebSession::log(const std::string& type) const
 #ifndef WT_TARGET_JAVA
   e << WLogger::timestamp << WLogger::sep << getpid() << WLogger::sep
     << '[' << deploymentPath_ << ' ' << sessionId()
-    << ']' << WLogger::sep
-    << '[' << type << ']' << WLogger::sep;
+    << ']' << WLogger::sep << '[' << type << ']' << WLogger::sep;
 #endif // WT_TARGET_JAVA
 
   return e;
