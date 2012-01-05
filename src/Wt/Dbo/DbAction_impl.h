@@ -171,7 +171,7 @@ void DboAction::actCollection(const CollectionRef<C>& field)
 {
   Session::SetInfo *setInfo = &mapping_->sets[setIdx_++];
 
-  if (dbo_->isPersisted()) {
+  if (dbo_->session()) {
     int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
 
     const std::string& sql

@@ -185,7 +185,7 @@ collection<C>::const_iterator::operator= (const const_iterator& other)
 }
 
 template <class C>
-const C&
+C
 collection<C>::const_iterator::operator* ()
 {
   return impl_.operator*();
@@ -341,15 +341,9 @@ typename collection<C>::const_iterator collection<C>::end() const
 }
 
 template <class C>
-const C& collection<C>::front() const
+C collection<C>::front() const
 {
   return *(const_iterator(*this, executeStatement()));
-}
-
-template <class C>
-C& collection<C>::front()
-{
-  return *(iterator(*this, executeStatement()));
 }
 
 template <class C>
@@ -418,6 +412,8 @@ Query<C, DynamicBinding> collection<C>::find() const
     Query<C, DynamicBinding> result = Query<C, DynamicBinding>
       (*session_, tableName, "").where(sql->substr(w + 7));
 
+    if (!data_.relation.dbo->isPersisted())
+      data_.relation.dbo->flush();
     data_.relation.dbo->bindId(result.parameters_);
 
     return result;

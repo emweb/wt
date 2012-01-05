@@ -327,6 +327,7 @@ std::string WFont::cssSize(bool all) const
 std::string WFont::cssFamily(bool all) const
 {
   std::string family = specificFamilies_.toUTF8();
+
   if ((!family.empty()) &&
       genericFamily_ != Default)
     family += ',';
@@ -369,17 +370,13 @@ const std::string WFont::cssText(bool combined) const
 
     result << cssSize(true) << ' ';
 
-	s = cssFamily(true);
+    s = cssFamily(true);
     if (!s.empty())
       result << s << ' ';
     else
       result << s << " inherit";
   } else {
     std::string s;
-    s = cssFamily(false);
-    if (!s.empty())
-      result << "font-family: " << s << ";";
-
     s = cssSize(false);
     if (!s.empty())
       result << "font-size: " << s << ";";
@@ -395,6 +392,12 @@ const std::string WFont::cssText(bool combined) const
     s = cssWeight(false);
     if (!s.empty())
       result << "font-weight: " << s << ";";
+
+    // Last because of workaround in WVmlImage that searches for a ','
+    s = cssFamily(false);
+    if (!s.empty())
+      result << "font-family: " << s << ";";
+
   }
 
   return result.str();

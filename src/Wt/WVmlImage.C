@@ -540,7 +540,14 @@ void WVmlImage::drawText(const WRectF& rect,
   textFont.setSize(WFont::FixedSize,
 		   textFont.sizeLength() * app->environment().dpiScale());
 
-  render << ";font:" << textFont.cssText() << "\"/></v:shape>";
+  std::string cssFont = textFont.cssText(false);
+  std::size_t i = cssFont.find(',');
+  if (i != std::string::npos) {
+    cssFont = cssFont.substr(0, i);
+    std::cerr << cssFont << std::endl;
+  }
+
+  render << ";" << cssFont << "\"/></v:shape>";
 
   if (!(painter()->renderHints() & WPainter::LowQualityShadows)
       && !currentShadow_.none()) {

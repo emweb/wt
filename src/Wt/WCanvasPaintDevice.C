@@ -426,15 +426,17 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       }
 
       if (currentBrush_.color() != currentPen_.color())
-	js_ << "ctx.fillStyle=\""
-	    << currentPen_.color().cssText(true) << "\";";
+	js_ << "ctx.fillStyle="
+	    << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
+	    << ";";
 
       js_ << "ctx.fillText(" << text.jsStringLiteral()
 	  << ',' << x << ',' << y << ");";
 
       if (currentBrush_.color() != currentPen_.color())
-	js_ << "ctx.fillStyle=\""
-	    << currentBrush_.color().cssText(true) << "\";";
+	js_ << "ctx.fillStyle="
+	    << WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
+	    << ";";
     }
     break;
   case MozText:
@@ -481,8 +483,9 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       js_ << "ctx.save();";
       js_ << "ctx.translate(" << x << ", " << y << ");";
       if (currentBrush_.color() != currentPen_.color())
-	js_ << "ctx.fillStyle=\""
-	    << currentPen_.color().cssText(true) << "\";";
+	js_ << "ctx.fillStyle="
+	    << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
+	    << ";";
       js_ << "ctx.mozDrawText(" << text.jsStringLiteral() << ");";
       js_ << "ctx.restore();";
     }
@@ -716,8 +719,9 @@ void WCanvasPaintDevice::renderStateChanges()
 
   if (penChanged) {
     if (penColorChanged)
-      js_ << "ctx.strokeStyle=\"" << painter()->pen().color().cssText(true)
-	  << "\";";
+      js_ << "ctx.strokeStyle="
+	  << WWebWidget::jsStringLiteral(painter()->pen().color().cssText(true))
+	  << ";";
 
     js_ << "ctx.lineWidth="
 	<< painter()->normalizedPenWidth(painter()->pen().width(), true).value()
@@ -752,8 +756,9 @@ void WCanvasPaintDevice::renderStateChanges()
 
   if (brushChanged) {
     currentBrush_ = painter_->brush();
-    js_ << "ctx.fillStyle=\"" 
-	<< currentBrush_.color().cssText(true) << "\";";
+    js_ << "ctx.fillStyle=" 
+	<< WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
+	<< ";";
   }
 
   if (shadowChanged) {
@@ -762,8 +767,9 @@ void WCanvasPaintDevice::renderStateChanges()
     js_ << "ctx.shadowOffsetX=" << currentShadow_.offsetX() << ';'
 	<< "ctx.shadowOffsetY=" << currentShadow_.offsetY() << ';'
 	<< "ctx.shadowBlur=" << currentShadow_.blur() << ';'
-	<< "ctx.shadowColor=\"" << currentShadow_.color().cssText(true)
-	<< "\";";
+	<< "ctx.shadowColor=" 
+	<< WWebWidget::jsStringLiteral(currentShadow_.color().cssText(true))
+	<< ";";
   }
 
   if (fontChanged) {
@@ -771,10 +777,12 @@ void WCanvasPaintDevice::renderStateChanges()
 
     switch (textMethod_) {
     case Html5Text: 
-      js_ << "ctx.font='" << painter()->font().cssText() << "';";
+      js_ << "ctx.font="
+	  << WWebWidget::jsStringLiteral(painter()->font().cssText()) << ";";
       break;
     case MozText:
-      js_ << "ctx.mozTextStyle = '" << painter()->font().cssText() << "';";
+      js_ << "ctx.mozTextStyle = "
+	  << WWebWidget::jsStringLiteral(painter()->font().cssText()) << ";";
       break;
     case DomText:
       break;

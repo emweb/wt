@@ -204,7 +204,7 @@ namespace Wt {
 
       /*! \brief Dereference operator.
        */
-      const C& operator*();
+      C operator*();
 
       /*! \brief Dereference operator.
        */
@@ -282,16 +282,7 @@ namespace Wt {
      * *(collection.begin())
      * \endcode
      */
-    const C& front() const;
-
-    /*! \brief Returns a reference to the first object.
-     *
-     * This is equivalent to:
-     * \code
-     * *(collection.begin())
-     * \endcode
-     */
-    C& front();
+    C front() const;
 
     /*! \brief Returns the size.
      *

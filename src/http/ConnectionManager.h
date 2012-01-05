@@ -20,7 +20,7 @@
 #include <set>
 #include <boost/noncopyable.hpp>
 #include "Connection.h" // On WIN32, must be before thread stuff
-#ifdef THREADED
+#ifdef WT_THREADED
 #include <boost/thread/mutex.hpp>
 #endif // WT_THREADED
 
