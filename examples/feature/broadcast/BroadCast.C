@@ -104,9 +104,11 @@ public:
   ClientWidget(Wt::WContainerWidget *parent = 0)
     : Wt::WText(parent)
   {
-    server.connect(this, boost::bind(&ClientWidget::updateData, this));
+    Wt::WApplication *app = Wt::WApplication::instance();
 
-    Wt::WApplication::instance()->enableUpdates(true);
+    server.connect(this,
+		   app->bind(boost::bind(&ClientWidget::updateData, this)));
+    app->enableUpdates(true);
 
     updateData();
   }

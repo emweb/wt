@@ -75,14 +75,20 @@ std::string WebRequest::contentType() const
   return envValue("CONTENT_TYPE");
 }
 
-int WebRequest::contentLength() const
+::int64_t WebRequest::contentLength() const
 {
   std::string lenstr = envValue("CONTENT_LENGTH");
 
   if (lenstr.empty())
     return 0;
-  else
-    return atoi(lenstr.c_str());
+  else {
+    try {
+      return boost::lexical_cast< ::int64_t >(lenstr);
+    } catch (boost::bad_lexical_cast& e) {
+      LOG_ERROR("Bad content-length: " << lenstr);
+      throw WException("Bad content-length");
+    }
+  }
 }
 
 const std::string *WebRequest::getParameter(const std::string& name) const

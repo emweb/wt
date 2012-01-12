@@ -156,7 +156,7 @@ public:
    * (calls envValue())
    */
   std::string contentType() const;
-  int         contentLength() const;
+  ::int64_t contentLength() const;
 
 #ifdef WT_TARGET_JAVA
   /*

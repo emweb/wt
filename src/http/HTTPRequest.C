@@ -72,9 +72,12 @@ void HTTPRequest::setRedirect(const std::string& url)
 
 std::string HTTPRequest::headerValue(const std::string& name) const
 {
-  Request::HeaderMap::const_iterator
-    i = reply_->request().headerMap.find(name);
-  if (i != reply_->request().headerMap.end())
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  Request::HeaderMap::const_iterator i = p->request().headerMap.find(name);
+  if (i != p->request().headerMap.end())
     return i->second;
   else
     return std::string();
@@ -107,42 +110,74 @@ std::string HTTPRequest::envValue(const std::string& name) const
 
 std::string HTTPRequest::serverName() const
 {
-  return reply_->configuration().serverName();
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return p->configuration().serverName();
 }
 
 std::string HTTPRequest::serverPort() const
 {
-  return boost::lexical_cast<std::string>(reply_->request().port);
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return boost::lexical_cast<std::string>(p->request().port);
 }
 
 std::string HTTPRequest::scriptName() const
 {
-  return reply_->request().request_path;
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return p->request().request_path;
 }
 
 std::string HTTPRequest::requestMethod() const
 {
-  return reply_->request().method;
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return p->request().method;
 }
 
 std::string HTTPRequest::queryString() const
 {
-  return reply_->request().request_query;
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return p->request().request_query;
 }
 
 std::string HTTPRequest::pathInfo() const
 {
-  return reply_->request().request_extra_path;
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return p->request().request_extra_path;
 }
 
 std::string HTTPRequest::remoteAddr() const
 {
-  return reply_->request().remoteIP;
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return p->request().remoteIP;
 }
 
 std::string HTTPRequest::urlScheme() const
 {
-  return reply_->urlScheme();
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return std::string();
+
+  return p->urlScheme();
 }
 
 bool HTTPRequest::isSynchronous() const

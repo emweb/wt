@@ -22,20 +22,17 @@ WValidator::Result PasswordService::AbstractStrengthValidator
 ::validate(const WT_USTRING& password, const WT_USTRING& loginName,
 	   const std::string& email) const
 {
-  int result = evaluateStrength(password, loginName, email);
-  return WValidator::Result(isValid(result) ? Valid : Invalid,
-			    message(result));
+  AbstractPasswordService::StrengthValidatorResult result 
+    = evaluateStrength(password, loginName, email);
+
+  return WValidator::Result(result.isValid() ? Valid : Invalid, 
+			    result.message());
 }
 
 WValidator::Result PasswordService::AbstractStrengthValidator
 ::validate(const WT_USTRING& password) const
 {
   return validate(password, WT_USTRING::Empty, "");
-}
-
-int PasswordService::AbstractStrengthValidator::strength(int result) const
-{
-  return isValid(result) ? 5 : 0;
 }
 
 PasswordService::PasswordService(const AuthService& baseAuth)
@@ -48,6 +45,7 @@ PasswordService::PasswordService(const AuthService& baseAuth)
 PasswordService::~PasswordService()
 {
   delete verifier_;
+  delete validator_;
 }
 
 void PasswordService::setVerifier(AbstractVerifier *verifier)

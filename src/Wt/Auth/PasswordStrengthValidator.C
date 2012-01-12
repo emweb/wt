@@ -44,9 +44,10 @@ PasswordStrengthValidator::PasswordStrengthValidator()
   minMatchLength_ = 4;
 }
 
-int PasswordStrengthValidator::evaluateStrength(const WT_USTRING& password,
-						const WT_USTRING& loginName,
-						const std::string& email) const
+AbstractPasswordService::StrengthValidatorResult 
+PasswordStrengthValidator::evaluateStrength(const WT_USTRING& password,
+					    const WT_USTRING& loginName,
+					    const std::string& email) const
 {
   passwdqc_params_qc_t params;
   for (unsigned i = 0; i < 5; ++i)
@@ -61,17 +62,15 @@ int PasswordStrengthValidator::evaluateStrength(const WT_USTRING& password,
   user.pw_name = loginName.toUTF8().c_str();
   user.pw_email = email.c_str();
   
-  return passwdqc_check(&params, password.toUTF8().c_str(), 0, &user);
-}
+  int index = passwdqc_check(&params, password.toUTF8().c_str(), 0, &user);
 
-bool PasswordStrengthValidator::isValid(int result) const
-{
-  return result == 0;
-}
-
-WString PasswordStrengthValidator::message(int result) const
-{
-  return WString::tr(std::string("Wt.Auth.passwdqc.reason-") + reasons[result]);
+  WString message 
+    = WString::tr(std::string("Wt.Auth.passwdqc.reason-") + reasons[index]);
+  bool valid = index == 0;
+  AbstractPasswordService::StrengthValidatorResult result(valid, 
+							  message, 
+							  valid ? 5 : 0);
+  return result;
 }
 
 void PasswordStrengthValidator::setMinimimumLength(PasswordType type, int length)

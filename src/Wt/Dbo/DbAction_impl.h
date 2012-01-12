@@ -194,13 +194,13 @@ void DboAction::actCollection(const CollectionRef<C>& field)
 template<typename V>
 void LoadBaseAction::act(const FieldRef<V>& field)
 {
-  field.setValue(*dbo().session(), statement_, column_++);
+  field.setValue(*session(), statement_, column_++);
 }
 
 template<class C>
 void LoadBaseAction::actPtr(const PtrRef<C>& field)
 {
-  field.visit(*this, dbo().session());
+  field.visit(*this, session());
 }
 
 template <class C>
@@ -278,7 +278,7 @@ void SaveBaseAction::actPtr(const PtrRef<C>& field)
     break;
   case Self:
     bindNull_ = !field.value();
-    field.visit(*this, dbo().session());
+    field.visit(*this, session());
     bindNull_ = false;
 
     break;
@@ -313,8 +313,7 @@ void SaveBaseAction::actCollection(const CollectionRef<C>& field)
 
 	SqlStatement *statement;
 
-	statement = dbo().session()->getStatement(mapping().tableName,
-						  statementIdx);
+	statement = session()->getStatement(mapping().tableName, statementIdx);
 	{
 	  ScopedStatementUse use(statement);
 
@@ -338,8 +337,7 @@ void SaveBaseAction::actCollection(const CollectionRef<C>& field)
 	// Sql delete
 	++statementIdx;
 
-	statement = dbo().session()->getStatement(mapping().tableName,
-						  statementIdx);
+	statement = session()->getStatement(mapping().tableName, statementIdx);
 
 	{
 	  ScopedStatementUse use(statement);

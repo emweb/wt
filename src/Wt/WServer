@@ -284,6 +284,12 @@ public:
    * This provides a good alternative to grabbing the update lock of
    * an application to directly push changes to a session out of its
    * event loop.
+   *
+   * Note that if you post an event to a method of a widget (or other
+   * object), it may still be that the targeted object has been
+   * deleted, if the life-time of that object is not the same as the
+   * life-time of the application. It may be useful to protect
+   * yourself from this by using WApplication::bind().
    */
   WT_API void post(const std::string& sessionId,
 	           const boost::function<void ()>& function,

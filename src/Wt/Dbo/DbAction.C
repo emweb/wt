@@ -53,15 +53,17 @@ bool DropSchema::getsValue() const { return false; }
 bool DropSchema::setsValue() const { return false; }
 bool DropSchema::isSchema() const { return true; }
 
-DboAction::DboAction()
-  : dbo_(0),
+DboAction::DboAction(Session *session)
+  : session_(session),
+    dbo_(0),
     mapping_(0),
     setStatementIdx_(0),
     setIdx_(0)
 { }
 
 DboAction::DboAction(MetaDboBase& dbo, Session::MappingInfo& mapping)
-  : dbo_(&dbo),
+  : session_(0),
+    dbo_(&dbo),
     mapping_(&mapping),
     setStatementIdx_(0),
     setIdx_(0)
@@ -89,8 +91,9 @@ void LoadBaseAction::start()
 
 bool LoadBaseAction::setsValue() const { return true; }
 
-SaveBaseAction::SaveBaseAction(SqlStatement *statement, int column)
-  : DboAction(),
+SaveBaseAction::SaveBaseAction(Session *session, SqlStatement *statement,
+			       int column)
+  : DboAction(session),
     statement_(statement),
     column_(column),
     bindNull_(false)

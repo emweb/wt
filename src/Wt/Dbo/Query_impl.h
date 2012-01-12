@@ -501,7 +501,7 @@ template <class Result>
 void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
   const
 {
-  SaveBaseAction binder(statement, 0);
+  SaveBaseAction binder(this->session_, statement, 0);
 
   for (unsigned i = 0; i < parameters_.size(); ++i)
     parameters_[i]->bind(binder);

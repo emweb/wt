@@ -200,13 +200,23 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
       && (type.find("application/x-www-form-urlencoded") == 0
 	  || queryString.find("&contentType=x-www-form-urlencoded")
 	  != std::string::npos)) {
+    /*
+     * TODO: parse this stream-based to avoid the malloc here. For now
+     * we protect the maximum that can be POST'ed as form data.
+     */
+    if (len > 5*1024*1024)
+      throw WException("Oversized application/x-www-form-urlencoded ("
+		       + boost::lexical_cast<std::string>(len) + ")");
+
     char *buf = new char[len + 1];
 
     request.in().read(buf, len);
+
     if (request.in().gcount() != (int)len) {
       delete[] buf;
       throw WException("Unexpected short read.");
     }
+
     buf[len] = 0;
 
     // This is a special Wt feature, I do not think it standard.

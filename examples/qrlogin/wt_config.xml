@@ -1,8 +1,8 @@
 <server>
     <application-settings location="*">
+	<web-sockets>true</web-sockets>
+	<progressive-bootstrap>true</progressive-bootstrap>
 	<properties>
-	    <web-sockets>true</web-sockets>
-	    <progressive-bootstrap>true</progressive-bootstrap>
 
 	    <!-- You need to register at google for this to work, and enter
                  there the same values as you do here. -->

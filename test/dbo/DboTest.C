@@ -1199,4 +1199,26 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test15 )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a = session_->add(new A());
+    dbo::ptr<B> b = session_->add(new B("b", B::State1));
+    a.modify()->b = b;
+
+    {
+      dbo::collection<dbo::ptr<A> > c = session_->query< dbo::ptr<A> >
+	("select A from \"table_a\" A ").where("b_id = ?").bind(b);
+
+      BOOST_REQUIRE(c.size() == 1);
+    }
+  }
+}
+
 #endif

@@ -1625,7 +1625,7 @@ public:
    *
    * The integer parameter is the request size that was received in bytes.
    */
-  Signal<int>& requestTooLarge() { return requestTooLarge_; }
+  Signal< ::int64_t >& requestTooLarge() { return requestTooLarge_; }
 
   /*
    * For persistent sessions only: redirect to another session.
@@ -1762,6 +1762,22 @@ public:
 #endif
 
 #ifndef WT_CNOR
+  /*! \brief Protects a function against deletion of the target object.
+   *
+   * When posting an event using WServer::post(), it is convenient to
+   * bind an object method to be called. However, while
+   * WServer::post() guarantees that the application to which an event
+   * is posted is still alive, it may be that the targeted widget (or
+   * WObject in general) has been deleted.
+   *
+   * This function wraps such an object method with a protection layer
+   * which guarantees that the method is only called when the targeted
+   * object is alive, in the same way as how a signal automatically
+   * disconnects slots from objects that are being deleted.
+   *
+   * As with the signal/slot connection tracking mechanism, this
+   * requires that the object is a WObject.
+   */
   template <typename F> boost::function<void()> bind(const F& f);
 #endif // WT_CNOR
 
@@ -1870,7 +1886,7 @@ protected:
   virtual void unload();
 
 private:
-  Signal<int> requestTooLarge_;
+  Signal< ::int64_t > requestTooLarge_;
 
   struct ScriptLibrary {
     ScriptLibrary(const std::string& uri, const std::string& symbol);

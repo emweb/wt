@@ -13,5 +13,13 @@ AbstractPasswordService::~AbstractPasswordService()
 {
 }
 
+AbstractPasswordService::StrengthValidatorResult
+::StrengthValidatorResult(
+			  bool valid, 
+			  const WString &message,
+			  int strength) 
+  : valid_(valid), message_(message), strength_(strength)
+{}
+    
   }
 }

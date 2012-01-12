@@ -94,7 +94,7 @@ private:
 class WTDBO_API DboAction
 {
 public:
-  DboAction();
+  DboAction(Session *session);
   DboAction(MetaDboBase& dbo, Session::MappingInfo& mapping);
 
   template<class C> void actCollection(const CollectionRef<C>& field);
@@ -103,7 +103,7 @@ public:
   bool setsValue() const;
   bool isSchema() const;
 
-  Session *session() { return dbo_->session(); }
+  Session *session() { return dbo_ ? dbo_->session() : session_; }
 
 protected:
   MetaDboBase& dbo() { return *dbo_; }
@@ -111,6 +111,7 @@ protected:
   int setStatementIdx() const { return setStatementIdx_; }
   
 private:
+  Session *session_;
   MetaDboBase *dbo_;
   Session::MappingInfo *mapping_;
 
@@ -159,7 +160,7 @@ public:
    * Provide a statement and column if you want to abuse this action
    * to simply bind values to a statement using field().
    */
-  SaveBaseAction(SqlStatement *statement, int column);
+  SaveBaseAction(Session *session, SqlStatement *statement, int column);
 
   SaveBaseAction(MetaDboBase& dbo, Session::MappingInfo& mapping,
 		 SqlStatement *statement = 0, int column = 0);
