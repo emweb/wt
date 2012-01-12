@@ -128,6 +128,11 @@ void AuthService::setEmailVerificationEnabled(bool enabled)
   emailVerification_ = enabled;
 }
 
+void AuthService::setEmailRedirectInternalPath(const std::string& internalPath)
+{
+  redirectInternalPath_ = internalPath;
+}
+
 void AuthService::setIdentityPolicy(IdentityPolicy identityPolicy)
 {
   identityPolicy_ = identityPolicy;
@@ -336,14 +341,19 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
   }
 }
 
+std::string AuthService::createRedirectUrl(const std::string& token) const
+{
+  WApplication *app = WApplication::instance();
+  return app->makeAbsoluteUrl(app->bookmarkUrl(redirectInternalPath_)) + token;
+}
+
 void AuthService::sendConfirmMail(const std::string& address,
-			       const User& user, const std::string& token) const
+				  const User& user, const std::string& token)
+  const
 {
   Mail::Message message;
 
-  WApplication *app = WApplication::instance();
-  std::string url
-    = app->makeAbsoluteUrl(app->bookmarkUrl(redirectInternalPath_)) + token ;
+  std::string url = createRedirectUrl(token);
 
   message.addRecipient(Mail::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.confirmmail.subject"));
@@ -363,9 +373,7 @@ void AuthService::sendLostPasswordMail(const std::string& address,
 {
   Mail::Message message;
 
-  WApplication *app = WApplication::instance();
-  std::string url
-    = app->makeAbsoluteUrl(app->bookmarkUrl(redirectInternalPath_)) + token ;
+  std::string url = createRedirectUrl(token);
 
   message.addRecipient(Mail::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.lostpasswordmail.subject"));

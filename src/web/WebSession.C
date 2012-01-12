@@ -1721,7 +1721,11 @@ void WebSession::notify(const WEvent& event)
     break;
   case WebSession::ExpectLoad:
   case WebSession::Loaded:
-    if (handler.response()->responseType() == WebResponse::Page) {
+    /*
+     * Excluding resources here ?
+     */
+    if ((!requestE || (*requestE != "resource"))
+	&& handler.response()->responseType() == WebResponse::Page) {
       /*
        * Prevent a session fixation attack and a session stealing attack:
        * - user agent has changed: close the session

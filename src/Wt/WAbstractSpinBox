@@ -33,7 +33,7 @@ public:
    * (usually in sync with the OS) rather than through the theme
    * chosen.
    *
-   * The default is \p false (as native support is now well implemented).
+   * The default is \p false (as native support is not well implemented).
    */
   void setNativeControl(bool nativeControl);
 

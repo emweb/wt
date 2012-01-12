@@ -3,11 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <Wt/WLink>
+
 #include <Wt/WApplication>
 #include <Wt/WEnvironment>
 #include <Wt/WException>
 #include <Wt/WInteractWidget>
-#include <Wt/WLink>
 #include <Wt/WResource>
 #include <Wt/WString>
 

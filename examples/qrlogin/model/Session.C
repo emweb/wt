@@ -5,6 +5,8 @@
  */
 
 #include "Session.h"
+#include "QRAuthService.h"
+#include "QRTokenDatabase.h"
 
 #include "Wt/Auth/AuthService"
 #include "Wt/Auth/HashFunction"
@@ -29,8 +31,8 @@ namespace {
 
   Wt::Auth::AuthService myAuthService;
   Wt::Auth::PasswordService myPasswordService(myAuthService);
+  QRAuthService myQRService(myAuthService);
   MyOAuth myOAuthServices;
-
 }
 
 void Session::configureAuth()
@@ -61,6 +63,8 @@ Session::Session(const std::string& sqliteDb)
   mapClass<AuthInfo::AuthIdentityType>("auth_identity");
   mapClass<AuthInfo::AuthTokenType>("auth_token");
 
+  qrTokens_ = new QRTokenDatabase(*this);
+
   try {
     createTables();
     std::cerr << "Created database." << std::endl;
@@ -82,6 +86,11 @@ Wt::Auth::AbstractUserDatabase& Session::users()
   return *users_;
 }
 
+QRTokenDatabase& Session::qrTokenDatabase()
+{
+  return *qrTokens_;
+}
+
 dbo::ptr<User> Session::user() const
 {
   if (login_.loggedIn()) {
@@ -99,6 +108,11 @@ const Wt::Auth::AuthService& Session::auth()
 const Wt::Auth::PasswordService& Session::passwordAuth()
 {
   return myPasswordService;
+}
+
+const QRAuthService& Session::qrAuth()
+{
+  return myQRService;
 }
 
 const std::vector<const Wt::Auth::OAuthService *>& Session::oAuth()

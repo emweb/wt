@@ -323,7 +323,7 @@ void WTemplate::renderTemplate(std::ostream& result)
 
   WApplication *app = WApplication::instance();
 
-  if (encodeInternalPaths_ || app->session()->hasSessionIdInUrl()) {
+  if (app && (encodeInternalPaths_ || app->session()->hasSessionIdInUrl())) {
     WFlags<RefEncoderOption> options;
     if (encodeInternalPaths_)
       options |= EncodeInternalPaths;

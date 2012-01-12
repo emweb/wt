@@ -348,6 +348,8 @@ WGLWidget::WGLWidget(WContainerWidget *parent):
   attributes_(0),
   uniforms_(0),
   buffers_(0),
+  framebuffers_(0),
+  renderbuffers_(0),
   textures_(0),
   matrices_(0),
   webglNotAvailable_(this, "webglNotAvailable"),
@@ -687,6 +689,18 @@ void WGLWidget::bindBuffer(GLenum target, Buffer buffer)
   GLDEBUG;
 }
 
+void WGLWidget::bindFramebuffer(GLenum target, Framebuffer buffer)
+{
+  js_ << "ctx.bindFramebuffer(" << toString(target) << "," << buffer << ");";
+  GLDEBUG;
+}
+
+void WGLWidget::bindRenderbuffer(GLenum target, Renderbuffer buffer)
+{
+  js_ << "ctx.bindRenderbuffer(" << toString(target) << "," << buffer << ");";
+  GLDEBUG;
+}
+
 void WGLWidget::bindTexture(GLenum target, Texture texture)
 {
   js_ << "ctx.bindTexture(" << toString(target) << "," << texture << ");";
@@ -817,10 +831,28 @@ WGLWidget::Buffer WGLWidget::createBuffer()
   return retval;
 }
 
+WGLWidget::Framebuffer WGLWidget::createFramebuffer()
+{
+  Buffer retval = "ctx.WtFramebuffer" +
+    boost::lexical_cast<std::string>(framebuffers_++);
+  js_ << retval << "=ctx.createFramebuffer();";
+  GLDEBUG;
+  return retval;
+}
+
 WGLWidget::Program WGLWidget::createProgram()
 {
   Program retval = "ctx.WtProgram" + boost::lexical_cast<std::string>(programs_++);
   js_ << retval << "=ctx.createProgram();";
+  GLDEBUG;
+  return retval;
+}
+
+WGLWidget::Renderbuffer WGLWidget::createRenderbuffer()
+{
+  Buffer retval = "ctx.WtRenderbuffer" +
+    boost::lexical_cast<std::string>(renderbuffers_++);
+  js_ << retval << "=ctx.createRenderbuffer();";
   GLDEBUG;
   return retval;
 }
@@ -862,9 +894,21 @@ void WGLWidget::deleteBuffer(Buffer buffer)
   GLDEBUG;
 }
 
+void WGLWidget::deleteFramebuffer(Framebuffer buffer)
+{
+  js_ << "ctx.deleteFramebuffer(" << buffer << ");";
+  GLDEBUG;
+}
+
 void WGLWidget::deleteProgram(Program program)
 {
   js_ << "ctx.deleteProgram(" << program << ");";
+  GLDEBUG;
+}
+
+void WGLWidget::deleteRenderbuffer(Renderbuffer buffer)
+{
+  js_ << "ctx.deleteRenderbuffer(" << buffer << ");";
   GLDEBUG;
 }
 
@@ -945,6 +989,24 @@ void WGLWidget::finish()
 void WGLWidget::flush()
 {
   js_ << "ctx.flush();";
+  GLDEBUG;
+}
+
+void WGLWidget::framebufferRenderbuffer(GLenum target, GLenum attachment,
+    GLenum renderbuffertarget, Renderbuffer renderbuffer)
+{
+  js_ << "ctx.framebufferRenderbuffer(" << toString(target) << ","
+    << toString(attachment) << "," << toString(renderbuffertarget)
+    << renderbuffer << ");";
+  GLDEBUG;
+}
+
+void WGLWidget::framebufferTexture2D(GLenum target, GLenum attachment,
+    GLenum textarget, Texture texture, int level)
+{
+  js_ << "ctx.framebufferTexture2D(" << toString(target) << ","
+    << toString(attachment) << "," << toString(textarget)
+    << texture << "," << level << ");";
   GLDEBUG;
 }
 

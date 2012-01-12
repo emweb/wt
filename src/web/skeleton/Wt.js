@@ -1356,6 +1356,11 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot,
   if (parentInRoot) {
     w.parentNode.removeChild(w);
     $('.Wt-domRoot').get(0).appendChild(w);
+  } else {
+    if (w.parentNode == $('.Wt-domRoot').get(0)) {
+      w.parentNode.removeChild(w);
+      atw.parentNode.insertBefore(w, atw.nextSibling);
+    }
   }
 
   w.style.position = 'absolute';

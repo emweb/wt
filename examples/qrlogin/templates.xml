@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="Wt.Auth.template.login">
+    <div class="Wt-form Wt-auth-login">
+      <h2>${tr:Wt.Auth.login-form-title}</h2>
+      <p>${tr:Wt.Auth.login-form-info}</p>
+
+      <div class="Wt-fields">
+        <label for="${id:user-name}">${user-name-label}
+          ${user-name-info class="Wt-info"}
+	</label>
+	${user-name}
+
+	<label for="${id:password}">${tr:Wt.Auth.password}
+          ${password-info class="Wt-info"}
+	</label>
+	${password}
+
+	<label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
+	  <span class="Wt-info">${remember-me-info}</span>
+	</label>
+	${remember-me}
+      </div>
+
+      ${<if:oauth>}
+
+        <div class="Wt-col-right">
+	  <h3>Or use:</h3>
+	  ${icons}
+	</div>
+
+      ${</if:oauth>}
+
+      <div class="Wt-buttons">
+	${login}
+      </div>
+
+      <div class="Wt-buttons">
+	${lost-password} ${sep} ${register} | ${qrauth}
+      </div>
+    </div>
+  </message>
+</messages>

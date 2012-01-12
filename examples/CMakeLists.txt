@@ -153,6 +153,7 @@ SUBDIRS(
   mission
   painting
   planner
+  qrlogin
   simplechat
   style
   treelist

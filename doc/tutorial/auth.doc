@@ -1,0 +1,575 @@
+Introduction to Wt::Auth
+========================
+
+Koen Deforche <koen@emweb.be> +
+
+For Wt 3.2.1 (January ?? 2012)
+
+:doc: link:http://www.webtoolkit.eu/wt/doc/reference/html/
+:tutorials: link:http://www.webtoolkit.eu/wt/doc/tutorial/
+:cpp: pass:[C++]
+
+== Prerequisites
+
+In Wt 3.2.0, an authentication module was added to Wt. In this
+tutorial, we use an authentication feature example as a hands-on
+introduction to this module. This example is included in the Wt
+distribution, in
+https://github.com/kdeforche/wt/tree/master/examples/feature/auth1[examples/feature/auth1].
+
+This introduction assumes that you have a reasonable understanding of
+Wt itself, in particular it's stateful session model and the widget
+concept. If you haven't done so yet, you may want to go through the
+{tutorials}wt.html[Wt tutorial] first.
+
+== Introduction
+
+The authentication module implements the logic and widgets involved in
+getting users registered on your application, and letting them sign
+in. Note that this module is entirely optional, and simply implemented
+on top of http://www.webtoolkit.eu/wt[Wt].
+
+The module implements
+http://en.wikipedia.org/wiki/Authentication[authentication]. Its main
+purpose is to securely authenticate a user to sign in to your
+application. From your application, you will interact with the
+authentication module using a
+{doc}classWt_1_1Auth_1_1Login.html[Wt::Auth::Login] object, which you
+typically hold in your application object. It indicates the user
+currently signed in (if any), and propagates authentication events.
+
+How you use this information for
+http://en.wikipedia.org/wiki/Authorization[authorization] or to
+customize the user experience is out of the scope of the
+module. Because of Wt's built-in security features, with strong
+session hijacking mitigation, this is as straight forward as one can
+conceive it.
+
+Currently, the module provides the following features, which can be
+separately enabled, configured or customized:
+
+* *Password authentication*, using
+http://stackoverflow.com/questions/549/the-definitive-guide-to-forms-based-website-authentication[best
+practices] including http://en.wikipedia.org/wiki/Salted_hash[salted
+hashing] with strong cryptographic hash functions (such as
+http://en.wikipedia.org/wiki/Bcrypt[bcrypt]) and password strength
+checking.
+
+* *Remember-me* functionality, again using best practices, by
+associating authentication tokens stored in cookies to a user.
+
+* *Verified email addresses* using the typical confirmation email
+process.
+
+* *Lost password functionality* that uses the verified email address
+to prompt a user to enter a new password.
+
+* Authentication using *3rd party Identity Providers*, currently using
+http://oauth.net/2/[OAuth 2], with support for multiple identities per
+user. We've added an implementation using Google, but others will be
+added, and in the future we may expect standardization using
+OpenIDConnect.
+
+* *Registration* logic, which includes also the logic needed to merge
+new (federated login) identities into existing user profiles. For
+example, if a user previously registered using a user name and
+password, he may later also authenticate using for example his Google
+Account and this new identity is added to his existing account.
+
+The logic for these features is implemented separately from the
+user-interface components, which can be customized or completely
+replaced with your own widgets.
+
+Next to traditional password-based authentication, we've been careful
+to have a design that accommodates 3rd party identity providers
+(http://en.wikipedia.org/wiki/Federated_identity[federated login])
+such as Google, Twitter, Facebook, etc... and other authentication
+mechanisms in general (authenticating
+http://en.wikipedia.org/wiki/Reverse_proxy[reverse proxies], client
+SSL certificates, LDAP, token devices ...).
+
+Federated login is a compelling proposition, but has currently not had
+widespread success, because of usability issues and other problems,
+including privacy concerns. There are a number of exciting
+developments however which promise to resolve this:
+
+* http://openid.net/connect/[OpenIDConnect] is the much plagued
+http://openid.net/[OpenID] protocol redone, but this time on top of
+http://oauth.net/2/[OAuth2.0], and aims to be the "open and
+distributed" alternative to
+http://developers.facebook.com/docs/guides/web/[Facebook Connect]. In
+particular it solves the confusion of using URLs as identity, and
+instead has moved on to email addresses. There is an auto-discovery
+protocol that queries your email provider, and this should eliminate
+most privacy concerns (because you do trust your email provider, don't
+you ?).
+
+* http://accountchooser.com/[AccountChooser] aims to provide a
+consistent and universal method for users to sign in to
+websites. Together with the use of the email address-as-identity this
+might just work.
+
+* Implementing a usable federated login system is complex, and
+increasingly so. Not only is the logic daunting
+(http://sites.google.com/site/oauthgoog/UXFedLogin/loginlogic[account
+linking] is one example), it also requires a good mix of Ajax-y
+user-interface components, server-side logic and state with a protocol
+that involves receiving and sending HTTP requests, and integration
+into a traditional password-based authentication module. Well, we are
+solving that ;-)
+
+[NOTE]
+OAuth2.0, OpenIDConnect, and AccountChooser are currently draft
+specifications. We plan to expand our support as these drafts turn
+into endorsed specifications. In particular, it would be _a plan
+coming together_ when we add an +AccountChooserWidget+ that
+complements the current
+{doc}classWt_1_1Auth_1_1AuthWidget.html[Wt::Auth::AuthWidget]
+and
+{doc}classWt_1_1Auth_1_1RegistrationWidget.html[Wt::Auth::RegistrationWidget]
+classes and which allows users to authenticate with any email provider
+using the OpenIDConnect discovery protocol.
+
+Obviously, the authentication logic needs to talk to a storage system,
+and it is designed to hook into a storage system using an abstract
+interface. A default implementation that leverages
+http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html[Wt::Dbo],
+Wt's ORM, is provided.
+
+== Module organization
+
+The following picture illustrates the main classes of the module.
+
+ifdef::basebackend-docbook[]
+image::img/auth.svg["Hello World",height=250,align="center"]
+endif::basebackend-docbook[]
+
+ifndef::basebackend-docbook[]
+image::img/auth.png[align="center"]
+endif::basebackend-docbook[]
+
+It uses a classical separation between Model classes and View classes
+(which are the widgets).
+
+There are three types of model classes:
+
+* *Service classes* are designed to be shared across all sessions
+(they do not have any state besides configuration). They contain logic
+which does not require transient state in a session.
+
+* *Session bound* model classes are usually kept in a session for the
+entire lifetime of a session (but don't need to be).
+
+* *Transient* model classes play an active role in the user-interface,
+and are instantiated in the context of certain view components. They
+implement logic which involves state while the user is progressing
+through the login and registration process.
+
+== Example
+
+We'll walk through a small example which is a basic application that
+uses the authentication module (included in the Wt distribution in
+https://github.com/kdeforche/wt/tree/master/examples/feature/auth1[examples/feature/auth1]). It
+is about 200 lines of C++ (which we'll discuss below), and has the
+following features:
+
+* Password-based authentication and registration
+* OAuth-2 login and registration, for Google Accounts
+* Password attempt throttling
+* Email verification and a lost password procedure
+* Remember-me tokens
+* And by virtue of Wt itself, falls back to plain HTML behavior if the
+browser does not support Ajax, strong security, spam resilience,
+etc...
+
+This example should help you to understand how to add authentication
+support to a new or existing Wt project.
+
+=== Setting up a user database
+
+We will be using the default implementation for an authentication
+database using +Wt::Dbo+, with the default persistence classes for
+authentication. This database implementation is found in
+{doc}classWt_1_1Auth_1_1Dbo_1_1UserDatabase.html[Wt::Auth::Dbo::UserDatabase],
+and it uses
+{doc}classWt_1_1Auth_1_1Dbo_1_1AuthInfo.html[Wt::Auth::Dbo::AuthInfo]
+as the persistence class for authentication information, which itself
+references two other persistence classes:
+
+* A user's *"identities"* are stored in a separate table. An identity
+uniquely identifies a user. Traditionally, a user would have only a
+single identity which is his login name (which could be his email
+address). But a user may accumulate more identities, corresponding to
+accounts with 3rd party identity providers. By allowing multiple
+identities, the user may identify using a choice of methods.
+* *Authentication tokens* are stored in a separate table. An
+authentication token usually corresponds to a "remember-me" cookie,
+and a user may have multiple "remember-me" cookies when using
+different computers.
+
+In addition, we define a +User+ type to which we can add the
+application data for a particular user (this could be address
+information, birth date, preferences, user role, etc...), and which we
+want to link up with the authentication system.
+
+The definition and persistence mapping for (a currently empty) User
+type is as given below:
+
+.User.h
+[source,cpp]
+----
+#include <Wt/Dbo>
+#include <Wt/WGlobal>
+
+namespace dbo = Wt::Dbo;
+
+class User;
+typedef Wt::Auth::Dbo::AuthInfo<User> AuthInfo;
+
+class User {
+public:
+  template<class Action>
+  void persist(Action& a)
+  {
+  }
+};
+----
+
+We declare a typedef for +AuthInfo+, which links the authentication
+information persistence class to our custom +User+ information
+persistence class.
+
+Next, we define a session class, which encapsulates the connection to
+the database to store authentication information, and which also
+tracks the user currently logged in, in a web session. We choose to
+use the
+{doc}classWt_1_1Dbo_1_1Session.html[Wt::Dbo::Session]
+class as a base class (which could just as well be an embedded
+member).
+
+Later on, we'll see how each web session will instantiate its own
+persistence/authentication +Session+ object.
+
+.Session.h
+[source,cpp]
+----
+#include <Wt/Dbo/Session>
+#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/backend/Sqlite3>
+
+#include "User.h"
+
+namespace dbo = Wt::Dbo;
+
+typedef Wt::Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;
+
+class Session : public dbo::Session
+{
+public:
+  Session(const std::string& sqliteDb);
+
+  Wt::Auth::AbstractUserDatabase& users();
+  Wt::Auth::Login& login() { return login_; }
+
+  ...
+
+private:
+  dbo::backend::Sqlite3 connection_;
+  UserDatabase *users_;
+  Wt::Auth::Login login_;
+
+  ...
+};
+----
+
+Notice the typedef for +UserDatabase+, which states that we will be
+using the
+{doc}classWt_1_1Auth_1_1Dbo_1_1UserDatabase.html[Wt::Auth::Dbo::UserDatabase]
+implementation using +AuthInfo+, for which we declared a typedef
+earlier on. You are of course free to provide another implementation
+for
+{doc}classWt_1_1Auth_1_1AbstractUserDatabase.html[Wt::Auth::AbstractUserDatabase]
+which is not based on +Wt::Dbo+.
+
+We also embed a
+{doc}classWt_1_1Auth_1_1Login.html[Wt::Auth::Login]
+member here, which is a small model class that holds the current login
+information. The login/logout widgets will manipulate this login
+object, while the rest of our application will listen to login changes
+from this object to adapt to the user currently logged in.
+
+The +Session+ constructor sets up the database session.
+
+.Session.C (constructor)
+[source,cpp]
+----
+#include "Session.h"
+#include "User.h"
+
+#include "Wt/Auth/Dbo/AuthInfo"
+#include "Wt/Auth/Dbo/UserDatabase"
+
+using namespace Wt;
+
+Session::Session(const std::string& sqliteDb)
+  : connection_(sqliteDb)
+{
+  setConnection(connection_);
+
+  mapClass<User>("user");
+  mapClass<AuthInfo>("auth_info");
+  mapClass<AuthInfo::AuthIdentityType>("auth_identity");
+  mapClass<AuthInfo::AuthTokenType>("auth_token");
+
+  try {
+    createTables();
+    std::cerr << "Created database." << std::endl;
+  } catch (std::exception& e) {
+    std::cerr << e.what() << std::endl;
+    std::cerr << "Using existing database";
+  }
+
+  users_ = new UserDatabase(*this);
+}
+----
+
+The example uses a SQLite3 database (a cuddly database convenient for
+development), and we map four persistence classes to tables.
+
+We then create the data schema if needed, which will automatically
+issue the following SQL:
+
+[source,sql]
+----
+create table "user" (
+  "id" integer primary key autoincrement,
+  "version" integer not null
+)
+
+create table "auth_info" (
+  "id" integer primary key autoincrement,
+  "version" integer not null,
+  "user_id" bigint,
+  "password_hash" varchar(100) not null,
+  "password_method" varchar(20) not null,
+  "password_salt" varchar(20) not null,
+  "status" integer not null,
+  "failed_login_attempts" integer not null,
+  "last_login_attempt" text,
+  "email" varchar(256) not null,
+  "unverified_email" varchar(256) not null,
+  "email_token" varchar(64) not null,
+  "email_token_expires" text,
+  "email_token_role" integer not null,
+  constraint "fk_auth_info_user" foreign key
+   ("user_id") references "user" ("id")
+)
+
+create table "auth_token" (
+  "id" integer primary key autoincrement,
+  "version" integer not null,
+  "auth_info_id" bigint,
+  "value" varchar(64) not null,
+  "expires" text,
+  constraint "fk_auth_token_auth_info" foreign key
+   ("auth_info_id") references "auth_info" ("id")
+)
+
+create table "auth_identity" (
+  "id" integer primary key autoincrement,
+  "version" integer not null,
+  "auth_info_id" bigint,
+  "provider" varchar(64) not null,
+  "identity" varchar(512) not null,
+  constraint "fk_auth_identity_auth_info" foreign key
+   ("auth_info_id") references "auth_info" ("id")
+)
+----
+
+Notice the +auth_info+, +auth_token+ and +auth_identity+ tables that
+define the storage for our authentication system.
+
+=== Configuring authentication
+
+The service classes
+({doc}classWt_1_1Auth_1_1AuthService.html[Wt::Auth::AuthService],
+{doc}classWt_1_1Auth_1_1PasswordService.html[Wt::Auth::PasswordService],
+and
+{doc}classWt_1_1Auth_1_1OAuthService.html[Wt::Auth::OAuthService]),
+can be shared between sessions and contain the configuration and logic
+which does not require transient session state.
+
+A good location to add these service classes are inside a specialized
+{doc}classWt_1_1WServer.html[Wt::WServer]
+instance, of which you usually also have only one in a Wt process. You
+could also create a singleton for them. To keep the example simple, we
+will declare them simply as global variables (but within file scope):
++myAuthService+, +myPasswordService+, and +myOAuth+.
+
+.Session.C (authentication services)
+[source,cpp]
+----
+
+#include "Wt/Auth/AuthService"
+#include "Wt/Auth/HashFunction"
+#include "Wt/Auth/PasswordService"
+#include "Wt/Auth/PasswordStrengthValidator"
+#include "Wt/Auth/PasswordVerifier"
+#include "Wt/Auth/GoogleService"
+
+namespace {
+  Wt::Auth::AuthService myAuthService;
+  Wt::Auth::PasswordService myPasswordService(myAuthService);
+  std::vector<const Wt::Auth::OAuthService *> myOAuth;
+}
+
+void Session::configureAuth()
+{
+  myAuthService.setAuthTokensEnabled(true, "logincookie");
+  myAuthService.setEmailVerificationEnabled(true);
+
+  Wt::Auth::PasswordVerifier *verifier = new Wt::Auth::PasswordVerifier();
+  verifier->addHashFunction(new Wt::Auth::BCryptHashFunction(7));
+  myPasswordService.setVerifier(verifier);
+  myPasswordService.setAttemptThrottlingEnabled(true);
+  myPasswordService.setStrengthValidator(new Wt::Auth::PasswordStrengthValidator());
+
+  if (Wt::Auth::GoogleService::configured())
+    myOAuthServices.push_back(new Wt::Auth::GoogleService(myAuthService));
+}
+
+const Wt::Auth::AuthService& Session::auth()
+{
+  return myBaseAuth;
+}
+
+const Wt::Auth::PasswordService& Session::passwordAuth()
+{
+  return myPasswords;
+}
+
+const std::vector<const Wt::Auth::OAuthService *>& Session::oAuth()
+{
+  return myOAuth;
+}
+----
+
+The {doc}classWt_1_1Auth_1_1AuthService.html[Wt::Auth::AuthService]
+is configured to support "remember-me" functionality, and email
+verification.
+
+The
+{doc}classWt_1_1Auth_1_1PasswordService.html[Wt::Auth::PasswordService]
+needs a hash function to safely store passwords. You can actually
+define more than one hash function, which is useful only if you want
+to migrate to a new hash function while still supporting existing
+passwords. When a user logs in, and he is not using the "preferred"
+hash function, his password will be rehashed with the preferred
+one. In this example, we will use
+http://en.wikipedia.org/wiki/Bcrypt[bcrypt] which is included as a
+{doc}classWt_1_1Auth_1_1HashFunction.html[hash
+function] in Wt::Auth.
+
+We also enable password attempt throttling: this mitigates brute force
+password guessing attempts.
+
+Finally, we also use one (but later, perhaps more)
+{doc}classWt_1_1Auth_1_1OAuthService.html[Wt::Auth::OAuthService]
+classes. You need one service per identity provider. Until
+OpenIDConnect is supported by most providers, each provider requires a
+proprietary method to access identity information using the authorized
+OAuth2.0 token. In this case, we only add Google as an identity
+provider.
+
+=== The user interface
+
+We create a specialized
+{doc}classWt_1_1WApplication.html[Wt::WApplication]
+which contains our authentication session, and instantiates a
+{doc}classWt_1_1Auth_1_1AuthWidget.html[Wt::Auth::AuthWidget]. This
+widget shows a login or logout form (depending on the login status),
+and also hooks into default forms for registration, lost passwords,
+and handling of email-sent tokens in URLs).
+
+.User interface
+[source,cpp]
+----
+#include <Wt/WApplication>
+#include <Wt/WContainerWidget>
+#include <Wt/WServer>
+
+#include <Wt/Auth/AuthWidget>
+#include <Wt/Auth/PasswordService>
+
+#include "model/Session.h"
+
+class AuthApplication : public Wt::WApplication
+{
+public:
+  AuthApplication(const Wt::WEnvironment& env)
+    : Wt::WApplication(env),
+      session_(appRoot() + "auth.db")
+  {
+    session_.login().changed().connect(this, &AuthApplication::authEvent);
+
+    useStyleSheet("css/style.css");
+
+    Wt::Auth::AuthWidget *authWidget
+      = new Wt::Auth::AuthWidget(Session::auth(), session_.users(),
+				 session_.login());
+
+    authWidget->model()->addPasswordAuth(&Session::passwordAuth());
+    authWidget->model()->addOAuth(Session::oAuth());
+    authWidget->setRegistrationEnabled(true);
+
+    authWidget->processEnvironment();
+
+    root()->addWidget(authWidget);
+  }
+
+  void authEvent() {
+    if (session_.login().loggedIn())
+      Wt::log("notice") << "User " << session_.login().user().id()
+			<< " logged in.";
+    else
+      Wt::log("notice") << "User logged out.";
+  }
+
+private:
+  Session session_;
+};
+----
+
+The last part is our main function where setup the application server:
+
+.Application server setup
+[source,cpp]
+----
+Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+{
+  return new AuthApplication(env);
+}
+
+int main(int argc, char **argv)
+{
+  try {
+    Wt::WServer server(argv[0]);
+
+    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+    server.addEntryPoint(Wt::Application, createApplication);
+
+    Session::configureAuth();
+
+    if (server.start()) {
+      Wt::WServer::waitForShutdown();
+      server.stop();
+    }
+  } catch (Wt::WServer::Exception& e) {
+    std::cerr << e.what() << std::endl;
+  } catch (std::exception &e) {
+    std::cerr << "exception: " << e.what() << std::endl;
+  }
+}
+----
+
+

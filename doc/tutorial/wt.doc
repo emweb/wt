@@ -8,6 +8,7 @@ Wim Dumon <wim@emweb.be>
 For Wt 3.2.0 (December 5 2011)
 
 :doc: link:http://www.webtoolkit.eu/wt/doc/reference/html/
+:tutorials: link:http://www.webtoolkit.eu/wt/doc/tutorial/
 :cpp: pass:[C++]
 
 == Introduction
@@ -714,12 +715,9 @@ from directly going to a certain “page” within your application.
 We did not discuss other parts of the hangman game example
 application: namely how user scores are stored, and the authentication
 system. Database access is implemented using a +Wt::Dbo+, which is a
-{cpp} ORM that comes with
-Wt. http://www.webtoolkit.eu/wt/doc/tutorial/dbo.html[This
-tutorial] introduces the database layer. The authentication module,
-+Wt::Auth+, as used in this example, is
-http://www.webtoolkit.eu/wt/blog/2011/11/14/an_introduction_to_wt__auth[introduced
-here].
+{cpp} ORM that comes with Wt. {tutorials}dbo.html[This tutorial]
+introduces the database layer. The authentication module, +Wt::Auth+,
+as used in this example, is {tutorials}auth.html[[introduced here].
 
 == Summary
 
@@ -740,3 +738,10 @@ dynamic resources, painting, tree and table views and their models, a
 charting library, animation effects, WebSockets, built-in security
 measures, authentication, etc... For more information, please see the
 http://www.webtoolkit.eu/wt/documentation[online documentation].
+
+== Next steps
+
+You may want to continue learning about Wt using:
+
+* {tutorials}auth.html[Introduction to authentication in Wt]
+* {tutorials}dbo.html[Introduction to database persistence using Wt::Dbo]

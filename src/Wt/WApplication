@@ -20,6 +20,8 @@ namespace boost {
 }
 
 #include <boost/any.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signal.hpp>
 
 #include <Wt/WObject>
 #include <Wt/WCssStyleSheet>
@@ -612,8 +614,8 @@ public:
    * needed, e.g. for inclusion in an email.
    *
    * You may want to reimplement this method when the application is
-   * hosted behind a reverse proxy or when in general the returned URL
-   * is wrong.
+   * hosted behind a reverse proxy or in general the public URL of the
+   * application cannot be guessed correctly by the application.
    */
   virtual std::string makeAbsoluteUrl(const std::string& url) const;
 
@@ -1760,13 +1762,7 @@ public:
 #endif
 
 #ifndef WT_CNOR
-  // f is a boost::bind() which binds to a function without parameter.
-  //  -> we create a new boost::signal and return a function that emits
-  //     the signal so that we check for the destination object existence
-  //  we regularly check this list for signals without any connections and
-  //  recycle these
-  template <typename F>
-  boost::function<void()> bind(const F& f);
+  template <typename F> boost::function<void()> bind(const F& f);
 #endif // WT_CNOR
 
   std::string encodeUntrustedUrl(const std::string& url) const;
@@ -2129,6 +2125,21 @@ extern int WTCONNECTOR_API WRun(int argc, char** argv,
  * \relates WApplication
  */
 #define wApp Wt::WApplication::instance()
+
+extern void WtEmitBindSignal(const boost::shared_ptr< boost::signal0<void> >& s);
+
+#ifndef WT_CNOR
+template <typename F>
+boost::function<void()> Wt::WApplication::bind(const F& f)
+{
+  typedef boost::shared_ptr< boost::signal0<void> > SignalPtr;
+
+  SignalPtr s(new boost::signal0<void>());
+  s->connect(f);
+
+  return boost::bind(&WtEmitBindSignal, s);
+}
+#endif // WT_CNOR
 
 }
 

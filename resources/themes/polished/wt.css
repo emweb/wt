@@ -215,6 +215,14 @@
     background-color: white;
 }
 
+.Wt-datepicker-edit {
+    background-image: url('../../calendar_edit.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+    padding-right: 16px;
+    width: 7em;
+}
+
 /*
  * WDialog
  */

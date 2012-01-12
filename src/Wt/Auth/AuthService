@@ -387,7 +387,7 @@ public:
 
   /*! \brief Sets the internal path used to present tokens in emails.
    *
-   * The default path is FIXME.
+   * The default path is "/auth/mail/".
    */
   void setEmailRedirectInternalPath(const std::string& internalPath);
 
@@ -395,7 +395,8 @@ public:
    *
    * \sa setEmailRedirectInternalPath()
    */
-  std::string emailRedirectInternalPath() const;
+  std::string emailRedirectInternalPath() const
+    { return redirectInternalPath_; }
 
   /*! \brief Parses the emailtoken from an internal path.
    *
@@ -491,8 +492,7 @@ protected:
    * The email content is provided by the following string keys:
    *  - subject: tr("Wt.auth.verification-mail.subject")
    *  - body: tr("Wt.auth.verification-mail.body") with {1} a place holder for
-   *    the identity, and {2} a placeholder for the internal path that contains
-   *    the token.
+   *    the identity, and {2} a placeholder for the redirection URL.
    *  - HTML body: tr("Wt.auth.verification-mail.htmlbody") with the same place
    *    holders.
    */
@@ -516,6 +516,8 @@ protected:
   virtual void sendLostPasswordMail(const std::string& address,
 				    const User& user,
 				    const std::string& token) const;
+
+  virtual std::string createRedirectUrl(const std::string& token) const;
 
 private:
   AuthService(const AuthService&);

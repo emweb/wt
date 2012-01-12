@@ -1,0 +1,13 @@
+body {
+    font-family: arial, sans-serif;
+    font-size: 95%;
+}
+
+.Wt-auth-logged-in {
+    text-align: right;
+}
+
+.Wt-auth-icon {
+    cursor: pointer;
+    cursor: hand;
+}

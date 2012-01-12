@@ -151,6 +151,8 @@ public:
   typedef std::string Program;
   typedef std::string AttribLocation;
   typedef std::string Buffer;
+  typedef std::string Framebuffer;
+  typedef std::string Renderbuffer;
   typedef std::string UniformLocation;
   typedef std::string Texture;
 
@@ -758,8 +760,19 @@ public:
    */
   void bindBuffer(GLenum target, Buffer buffer);
 
-  //void bindFramebuffer(GLenum target, WebGLFramebuffer framebuffer);
-  //void bindRenderbuffer(GLenum target, WebGLRenderbuffer renderbuffer);
+  /*! \brief GL function to bind a frame buffer to a target
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBindFramebuffer.xml">
+   * glBindFramebuffer() OpenGL ES manpage</a>
+   */
+  void bindFramebuffer(GLenum target, Framebuffer framebuffer);
+
+  /*! \brief GL function to bind a render buffer to a target
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBindRenderbuffer.xml">
+   * glBindRenderbuffer() OpenGL ES manpage</a>
+   */
+  void bindRenderbuffer(GLenum target, Renderbuffer renderbuffer);
 
   /*! \brief GL function to bind a texture to a target
    *
@@ -942,7 +955,12 @@ public:
    */
   Buffer createBuffer();
 
-  //WebGLFramebuffer createFramebuffer();
+  /*! \brief GL function that creates a frame buffer object
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGenFramebuffers.xml">
+   * glGenFramebuffers() OpenGL ES manpage</a>
+   */
+  Framebuffer createFramebuffer();
 
   /*! \brief GL function that creates an empty program
    *
@@ -951,7 +969,12 @@ public:
    */
   Program createProgram();
 
-  //WebGLRenderbuffer createRenderbuffer();
+  /*! \brief GL function that creates a render buffer object
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGenRenderbuffers.xml">
+   * glGenRenderbuffers() OpenGL ES manpage</a>
+   */
+  Renderbuffer createRenderbuffer();
 
   /*! \brief GL function that creates an empty shader
    *
@@ -988,7 +1011,12 @@ public:
    */
   void deleteBuffer(Buffer buffer);
 
-  //void deleteFramebuffer(WebGLFramebuffer framebuffer);
+  /*! \brief GL function that deletes a frame buffer
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDeleteFramebuffers.xml">
+   * glDeleteFramebuffers() OpenGL ES manpage</a>
+   */
+  void deleteFramebuffer(Framebuffer framebuffer);
 
   /*! \brief GL function that deletes a program
    *
@@ -997,7 +1025,12 @@ public:
    */
   void deleteProgram(Program program);
 
-  //void deleteRenderbuffer(WebGLRenderbuffer renderbuffer);
+  /*! \brief GL function that deletes a render buffer
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDeleteRenderbuffers.xml">
+   * glDeleteRenderbuffers() OpenGL ES manpage</a>
+   */
+  void deleteRenderbuffer(Renderbuffer renderbuffer);
 
   /*! \brief GL function that depetes a shader
    *
@@ -1094,12 +1127,23 @@ public:
    */
   void flush();
 
-  //void framebufferRenderbuffer(GLenum target, GLenum attachment, 
-  //                             GLenum renderbuffertarget, 
-  //                             WebGLRenderbuffer renderbuffer);
+  /*! \brief GL function to attach the given renderbuffer to the currently
+   *         bound frame buffer.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glFramebufferRenderbuffer.xml">
+   * glFramebufferRenderbuffer() OpenGL ES manpage</a>
+   */
+  void framebufferRenderbuffer(GLenum target, GLenum attachment, 
+                               GLenum renderbuffertarget, 
+                               Renderbuffer renderbuffer);
 
-  //void framebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, 
-  //                          WebGLTexture texture, GLint level);
+  /*! \brief GL function to render directly into a texture image.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glFramebufferTexture2D.xml">
+   * glFramebufferTexture2D() OpenGL ES manpage</a>
+   */
+  void framebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, 
+                            Texture texture, int level);
 
   /*! \brief GL function that specifies which side of a triangle is the
    * front side
@@ -1977,6 +2021,8 @@ private:
   unsigned attributes_;
   unsigned uniforms_;
   unsigned buffers_;
+  unsigned framebuffers_;
+  unsigned renderbuffers_;
   unsigned textures_;
   unsigned matrices_;
   std::vector<std::pair<std::string, std::string> > preloadImages_;
