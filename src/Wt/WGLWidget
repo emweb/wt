@@ -1248,8 +1248,14 @@ public:
   //void readPixels(GLint x, GLint y, GLsizei width, GLsizei height, 
   //                GLenum format, GLenum type, ArrayBufferView pixels);
 
-  //void renderbufferStorage(GLenum target, GLenum internalformat, 
-  //                         GLsizei width, GLsizei height);
+  /*! \brief GL function to allocate the appropriate amount of memory for
+   *         a render buffer
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glRenderbufferStorage.xml">
+   * glSampleCoverage() OpenGL ES manpage</a>
+   */
+  void renderbufferStorage(GLenum target, GLenum internalformat, 
+                           unsigned width, unsigned height);
 
   /*! \brief GL function to set multisample parameters
    *
@@ -1321,6 +1327,20 @@ public:
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat, 
   //                GLsizei width, GLsizei height, GLint border, PixelFormatEnum format, 
   //                GLenum type, ArrayBufferView pixels);
+  /*! \brief GL function to reserve space for a 2D texture, without specifying its
+   *         contents.
+   *
+   * This corresponds to calling the WebGL function
+   * void texImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width,
+   * GLsizei height, GLint border, GLenum format, GLenum type, ArrayBufferView pixels)
+   * with null as last parameters. The value of 'type' is then of no importance and is
+   * therefore omitted from this function.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glTexImage2D.xml">
+   * glTexImage2D() OpenGL ES manpage</a>
+   */
+  void texImage2D(GLenum target, int level, GLenum internalformat, 
+                  unsigned width, unsigned height, int border, GLenum format);
 
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
   //                PixelFormatEnum format, GLenum type, ImageData pixels);

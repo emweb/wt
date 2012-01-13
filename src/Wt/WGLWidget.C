@@ -1072,6 +1072,15 @@ void WGLWidget::polygonOffset(double factor, double units)
   js_ << makeFloat(units, buf) << ");";
   GLDEBUG;
 }
+
+void WGLWidget::renderbufferStorage(GLenum target, GLenum internalformat, 
+  unsigned width, unsigned height)
+{
+  js_ << "ctx.renderbufferStorage(" << toString(target) << ","
+    << toString(internalformat) << "," << width << "," << height << ");";
+  GLDEBUG;
+}
+
 void WGLWidget::sampleCoverage(double value, bool invert)
 {
   char buf[30];
@@ -1129,6 +1138,16 @@ void WGLWidget::stencilOpSeparate(GLenum face, GLenum fail,
   js_ << "ctx.stencilOpSeparate(" << toString(face) << ","
     << toString(fail) << "," << toString(zfail) << ","
     << toString(zpass) << ");";
+  GLDEBUG;
+}
+
+void WGLWidget::texImage2D(GLenum target, int level, GLenum internalformat, 
+                  unsigned width, unsigned height, int border, GLenum format)
+{
+  js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
+    << toString(internalformat) << "," << width << "," << height << ","
+    << border << "," << toString(format) << "," << toString(UNSIGNED_BYTE)
+    << ",null);";
   GLDEBUG;
 }
 

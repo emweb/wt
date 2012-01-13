@@ -47,6 +47,11 @@ WServer::~WServer()
 WTestEnvironment::WTestEnvironment(EntryPointType type)
 {
   server_ = new WServer(std::string(), std::string());
+  if (!server_->controller())
+    throw WException("Error: WTestEnvironment() could not instantiate WServer,"
+		     " make sure to link only against libwttest and no other"
+		     " connector library.");
+
   controller_ = server_->controller();
 
   init(type);
