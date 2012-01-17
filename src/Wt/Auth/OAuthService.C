@@ -118,7 +118,7 @@ public:
       ""  "var " << appJs << "= window.opener." << appJs << ";"
       <<  process_->redirected_.createCall() << ";"
       ""  "window.close();"
-      """}\n"
+      "}\n"
       "}\n"
       "</script></head>"
       "<body onload=\"load();\"></body></html>";

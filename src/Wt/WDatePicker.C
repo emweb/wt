@@ -10,211 +10,119 @@
 #include "Wt/WCalendar"
 #include "Wt/WContainerWidget"
 #include "Wt/WDateValidator"
-#include "Wt/WEnvironment"
-#include "Wt/WPushButton"
+#include "Wt/WImage"
+#include "Wt/WInteractWidget"
 #include "Wt/WTemplate"
+#include "Wt/WLineEdit"
+#include "Wt/WPushButton"
 
-#include "DomElement.h"
 #include "WebUtils.h"
-
-#ifndef WT_DEBUG_JS
-#include "js/WDatePicker.min.js"
-#endif
 
 namespace Wt {
 
 WDatePicker::WDatePicker(WContainerWidget *parent)
-  : WLineEdit(parent),
-    preferNative_(false),
-    popup_(0),
-    calendar_(0),
-    global_(false),
-    jsPopup_(this, "popup")   
+  : WCompositeWidget(parent)
 {
-  setJavaScriptMember("_a", "0");
+  createDefault();
+}
 
-  WDateValidator *v = new WDateValidator("dd/MM/yyyy");
-  setValidator(v);
+WDatePicker::WDatePicker(WInteractWidget *displayWidget,
+			 WLineEdit *forEdit, WContainerWidget *parent)
+  : WCompositeWidget(parent)
+{
+  create(displayWidget, forEdit);
 }
 
 WDatePicker::~WDatePicker()
 {
-  delete popup_;
+  WApplication::instance()->doJavaScript
+    (WT_CLASS ".remove('" + popup_->id() + "');");
 }
 
-void WDatePicker::setNativeControl(bool nativeControl)
+void WDatePicker::createDefault()
 {
-  preferNative_ = nativeControl;
+  WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
+  icon->setVerticalAlignment(AlignMiddle);
+  WLineEdit *lineEdit = new WLineEdit();
+
+  create(icon, lineEdit);
+
+  layout_->insertWidget(0, lineEdit);
+
+  lineEdit->setValidator(new WDateValidator(format_, this));
 }
 
-bool WDatePicker::nativeControl() const
+void WDatePicker::create(WInteractWidget *displayWidget,
+			 WLineEdit *forEdit)
 {
-  if (preferNative_) {
-    const WEnvironment& env = WApplication::instance()->environment();
-    if (env.agentIsOpera() && env.agent() >= WEnvironment::Opera10)
-      return true;
-  }
+  setImplementation(layout_ = new WContainerWidget());
 
-  return false;
-}
+  displayWidget_ = displayWidget;
+  forEdit_ = forEdit;
+  forEdit_->setVerticalAlignment(AlignMiddle);
+  forEdit_->changed().connect(this, &WDatePicker::setFromLineEdit);
+  format_ = "dd/MM/yyyy";
 
-void WDatePicker::render(WFlags<RenderFlag> flags)
-{
-  if (flags & RenderFull) {
-    bool useNative = nativeControl();
+  layout_->setInline(true);
+  layout_->addWidget(displayWidget);
 
-    setup(useNative);
-  }
+  const char *TEMPLATE =
+    "${shadow-x1-x2}"
+    "${calendar}"
+    "<div style=\"text-align:center; margin-top:3px\">${close}</div>";
 
-  WLineEdit::render(flags);
-}
+  layout_->addWidget(popup_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
 
-void WDatePicker::setText(const WT_USTRING& text)
-{
-  WLineEdit::setText(text);
+  calendar_ = new WCalendar();
+  calendar_->activated().connect(popup_, &WWidget::hide);
+  calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
-  setFromLineEdit();
-}
+  WPushButton *closeButton = new WPushButton(tr("Wt.WDatePicker.Close"));
+  closeButton->clicked().connect(popup_, &WWidget::hide);
 
-void WDatePicker::setFormData(const FormData& formData)
-{
-  WLineEdit::setFormData(formData);
-}
+  popup_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
+  popup_->bindWidget("calendar", calendar_);
+  popup_->bindWidget("close", closeButton);
 
-void WDatePicker::updateDom(DomElement& element, bool all)
-{
-  WLineEdit::updateDom(element, all);
+  popup_->hide();
+  popup_->setPopup(true);
+  popup_->setPositionScheme(Absolute);
+  popup_->setStyleClass("Wt-outset Wt-datepicker");
 
-  if (all) {
-    if (nativeControl())
-      element.setAttribute("type", "date");
-  }
-}
+  // This confuses the close button hide ? XXX
+  //WApplication::instance()->globalEscapePressed()
+  //  .connect(popup_, &WWidget::hide);
+  popup_->escapePressed().connect(popup_, &WWidget::hide);
+  displayWidget->clicked().connect(popup_, &WWidget::show);
+  displayWidget->clicked().connect(positionJS_);
+  displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
 
-void WDatePicker::defineJavaScript()
-{
-  WApplication *app = WApplication::instance();
-
-  LOAD_JAVASCRIPT(app, "js/WDatePicker.js", "WDatePicker", wtjs1);
-
-  std::string jsObj = "new " WT_CLASS ".WDatePicker("
-    + app->javaScriptClass() + "," + jsRef() + ",'"
-    + popup_->id() + "'," + (global_ ? "true" : "false") + ");";
-
-  setJavaScriptMember("_a", "0;" + jsObj);
-}
-
-void WDatePicker::connectJavaScript(Wt::EventSignalBase& s,
-				    const std::string& methodName)
-{
-  std::string jsFunction = 
-    "function(obj, event) {"
-    """var o = jQuery.data(" + jsRef() + ", 'obj');"
-    """if (o) o." + methodName + "(obj, event);"
-    "}";
-
-  s.connect(jsFunction);
-}
-
-void WDatePicker::setup(bool useNative)
-{
-  if (useNative) {
-  } else {
-    addStyleClass("Wt-datepicker-edit");
-
-    const char *TEMPLATE =
-      "${shadow-x1-x2}"
-      "${calendar}"
-      "<div style=\"text-align:center; margin-top:3px\">${close}</div>";
-
-    popup_ = new WTemplate(WString::fromUTF8(TEMPLATE),
-			   WApplication::instance()->domRoot());
-
-    calendar_ = new WCalendar();
-    calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
-
-    WPushButton *closeButton = new WPushButton(tr("Wt.WDatePicker.Close"));
-
-    popup_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
-    popup_->bindWidget("calendar", calendar_);
-    popup_->bindWidget("close", closeButton);
-
-    popup_->hide();
-    popup_->setPopup(true);
-    popup_->setPositionScheme(Absolute);
-    popup_->setStyleClass("Wt-outset Wt-datepicker");
-
-    escapePressed().connect(popup_, &WWidget::hide);
-    escapePressed().connect(this, &WDatePicker::done);
-
-    calendar_->activated().connect(popup_, &WWidget::hide);
-    calendar_->activated().connect(this, &WDatePicker::done);
-
-    closeButton->clicked().connect(popup_, &WWidget::hide);
-    closeButton->clicked().connect(this, &WDatePicker::done);
-
-    defineJavaScript();
-
-#ifdef WT_CNOR
-    EventSignalBase& b = mouseMoved();
-#endif
-
-    connectJavaScript(mouseMoved(), "mouseMove");
-    connectJavaScript(clicked(), "mouseClick");
-
-    changed().connect(this, &WDatePicker::setFromLineEdit);
-    jsPopup_.connect(this, &WDatePicker::onPopup);
-  }
+  setGlobalPopup(false);
 }
 
 void WDatePicker::setPopupVisible(bool visible)
 {
-  if (visible) {
-    setFromLineEdit();
-    doJavaScript("jQuery.data(" + jsRef() + ", 'obj').showPopup()");
-  } else {
-    WApplication *app = WApplication::instance();
-    app->root()->clicked().disconnect(globalClickConnection_);
-    popup_->hide();
-  }
-}
-
-void WDatePicker::onPopup()
-{
-  popup_->show();
-  setFromLineEdit();
-
-  if (!globalClickConnection_.connected()) {
-    WApplication *app = WApplication::instance();
-    globalClickConnection_
-      = app->root()->clicked().connect(this, &WDatePicker::done);
-  }
-}
-
-void WDatePicker::done()
-{
-  setPopupVisible(false);
+  popup_->setHidden(!visible);
 }
 
 void WDatePicker::setGlobalPopup(bool global)
 {
-  global_ = global;
+  positionJS_.setJavaScript("function() { " 
+			    WT_CLASS ".getElement('" + popup_->id() + "')"
+			    ".style.display = '';"
+			    WT_CLASS ".positionAtWidget('"
+			    + popup_->id()  + "','" + displayWidget_->id()
+			    + "', " WT_CLASS ".Horizontal, "
+			    + (global ? "true" : "false") + ");}");
 }
 
 void WDatePicker::setFormat(const WT_USTRING& format)
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(validator());
+  format_ = format;
+
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
   if (dv)
     dv->setFormat(format);
-}
-
-const WT_USTRING& WDatePicker::format() const
-{
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(validator());
-  if (dv)
-    return dv->format();
-  else
-    return WT_USTRING::Empty;
 }
 
 void WDatePicker::setFromCalendar()
@@ -222,23 +130,20 @@ void WDatePicker::setFromCalendar()
   if (!calendar_->selection().empty()) {
     const WDate& calDate = *calendar_->selection().begin();
 
-    WT_USTRING s = calDate.toString(format());
-    if (s != text()) {
-      setText(calDate.toString(format()));
-      changed().emit();
-    }
+    forEdit_->setText(calDate.toString(format_));
+    forEdit_->changed().emit();
   }
 }
 
 WDate WDatePicker::date() const
 {
-  return WDate::fromString(text(), format());
+  return WDate::fromString(forEdit_->text(), format_);
 }
 
 void WDatePicker::setDate(const WDate& date)
 {
   if (!date.isNull()) {
-    setText(date.toString(format()));
+    forEdit_->setText(date.toString(format_));
     calendar_->select(date);
     calendar_->browseTo(date);
   }
@@ -246,7 +151,7 @@ void WDatePicker::setDate(const WDate& date)
 
 void WDatePicker::setFromLineEdit()
 {
-  WDate d = WDate::fromString(text(), format());
+  WDate d = WDate::fromString(forEdit_->text(), format_);
 
   if (d.isValid()) {
     if (calendar_->selection().empty()) {
@@ -264,12 +169,9 @@ void WDatePicker::setFromLineEdit()
   }
 }
 
-int WDatePicker::boxPadding(Orientation orientation) const
+Signal<>& WDatePicker::changed()
 {
-  if (!nativeControl() && orientation == Horizontal)
-    return WLineEdit::boxPadding(orientation) + 8; // Half since for one side
-  else
-    return WLineEdit::boxPadding(orientation);
+  return calendar_->selectionChanged();
 }
 
 void WDatePicker::setEnabled(bool enabled)
@@ -277,24 +179,22 @@ void WDatePicker::setEnabled(bool enabled)
   setDisabled(!enabled);
 }
 
-void WDatePicker::propagateSetEnabled(bool enabled)
+void WDatePicker::setDisabled(bool disabled)
 {
-  setPopupVisible(false);
-
-  WLineEdit::propagateSetEnabled(enabled);
+  forEdit_->setDisabled(disabled);
+  displayWidget_->setHidden(disabled);
 }
 
 void WDatePicker::setHidden(bool hidden, const WAnimation& animation)
 {
-  WLineEdit::setHidden(hidden, animation);
-
-  if (hidden)
-    setPopupVisible(false);
+  WCompositeWidget::setHidden(hidden, animation);
+  forEdit_->setHidden(hidden, animation);
+  displayWidget_->setHidden(hidden, animation);
 }
 
 void WDatePicker::setBottom(const WDate& bottom)
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(validator());
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
   if (dv) {
     dv->setBottom(bottom);
     calendar_->setBottom(bottom);
@@ -303,7 +203,7 @@ void WDatePicker::setBottom(const WDate& bottom)
 
 WDate WDatePicker::bottom() const
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(validator());
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
   if (dv)
     return dv->bottom();
   else 
@@ -312,7 +212,7 @@ WDate WDatePicker::bottom() const
   
 void WDatePicker::setTop(const WDate& top) 
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(validator());
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
   if (dv) {
     dv->setTop(top);
     calendar_->setTop(top);
@@ -321,7 +221,7 @@ void WDatePicker::setTop(const WDate& top)
 
 WDate WDatePicker::top() const
 {
-  WDateValidator *dv = dynamic_cast<WDateValidator *>(validator());
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
   if (dv)
     return dv->top();
   else 

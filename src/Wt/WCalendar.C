@@ -104,7 +104,6 @@ void WCalendar::create()
   setImplementation(impl_ = new WTemplate());
   impl_->setTemplateText(WString::fromUTF8(text.str()), XHTMLUnsafeText);
   impl_->setStyleClass("Wt-cal");
-  impl_->clicked().preventPropagation();
 
   setSelectable(false);
 

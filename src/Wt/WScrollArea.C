@@ -47,8 +47,14 @@ void WScrollArea::setWidget(WWidget *widget)
   widgetChanged_ = true;
   repaint(RepaintInnerHtml);
 
-  if (widget)
+  if (widget) {
     widget->setParentWidget(this);
+
+    if (WApplication::instance()->environment().agentIsIElt(9)) {
+      setPositionScheme(Relative);
+      widget->setPositionScheme(Relative);
+    }
+  }
 }
 
 WWidget *WScrollArea::takeWidget()

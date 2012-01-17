@@ -1775,6 +1775,13 @@ public:
    * object is alive, in the same way as how a signal automatically
    * disconnects slots from objects that are being deleted.
    *
+   * You typically will bind the function immediately within the event
+   * loop where you register the "callback", and pass this bound
+   * function to (typically an external thread) which calls post()
+   * later on. What you cannot do is bind the function only later on,
+   * since at that time the target object may already have been
+   * destroyed.
+   *
    * As with the signal/slot connection tracking mechanism, this
    * requires that the object is a WObject.
    */

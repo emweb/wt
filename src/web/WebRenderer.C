@@ -933,6 +933,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
   } else if (!rendered_) {
     serveMainAjax(response);
   } else {
+    bool enabledAjax = app->enableAjax_;
+
     if (app->enableAjax_) {
       // Before-load JavaScript of libraries that were loaded directly
       // in HTML
@@ -996,9 +998,20 @@ void WebRenderer::serveMainscript(WebResponse& response)
     session_.app()->serverPushChanged_ = true;
     renderSetServerPush(response.out());
 
-    response.out()
-	<< "$(document).ready(function() { "
-	<< app->javaScriptClass() << "._p_.load(true);});\n";
+    if (enabledAjax)
+      response.out()
+	/*
+	 * Firefox < 3.5 doesn't have this and in that case it could be
+	 * that we are already ready and jqeury doesn't fire the callback.
+	 */
+	<< "\nif (typeof document.readyState === 'undefined')"
+	<< " setTimeout(function() { "
+	<<              app->javaScriptClass() << "._p_.load(true);"
+	<<   "}, 400);"
+	<< "else ";
+
+    response.out() <<  "$(document).ready(function() { "
+		   << app->javaScriptClass() << "._p_.load(true);});\n";
   }
 }
 

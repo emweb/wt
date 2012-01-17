@@ -717,53 +717,52 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   table->addChild(tbody);
 
-  if (fitHeight) {
-    std::stringstream layoutAdd;
+  std::stringstream layoutAdd;
 
-    layoutAdd << app->javaScriptClass()
-	      << ".layouts.add(new " WT_CLASS ".StdLayout( " WT_CLASS ", '"
-	      << div->id() << "', { stretch: [";
-    for (unsigned i = 0; i < rowCount; ++i) {
-      if (i != 0)
-	layoutAdd << ",";
+  layoutAdd << app->javaScriptClass()
+	    << ".layouts.add(new " WT_CLASS ".StdLayout( " WT_CLASS ", '"
+	    << div->id() << "', "
+	    << (fitHeight ? 1 : 0) << ", { stretch: [";
+  for (unsigned i = 0; i < rowCount; ++i) {
+    if (i != 0)
+      layoutAdd << ",";
 
-      int stretch = 0;
-      if (totalRowStretch == 0 && fitHeight)
-	stretch = 1;
-      else
-	stretch = grid_.rows_[i].stretch_;
+    int stretch = 0;
+    if (totalRowStretch == 0 && fitHeight)
+      stretch = 1;
+    else
+      stretch = grid_.rows_[i].stretch_;
 
-      layoutAdd << stretch;
-    }
-
-    layoutAdd << "], minheight: [";
-
-    for (unsigned i = 0; i < rowCount; ++i) {
-      if (i != 0)
-	layoutAdd << ",";
-
-      int minHeight = 0;
-
-      for (unsigned j = 0; j < colCount; ++j) {
-	WLayoutItem *item = grid_.items_[i][j].item_;
-	if (item)
-	  minHeight = std::max(minHeight, getImpl(item)->minimumHeight());
-      }
-
-      if (i == 0)
-	minHeight += margin[0];
-      else
-	minHeight += grid_.verticalSpacing_;
-
-      if (i == rowCount - 1)
-	minHeight += margin[2];
-
-      layoutAdd	<< minHeight;
-    }
-    layoutAdd << "]}));";
-
-    table->callJavaScript(layoutAdd.str());
+    layoutAdd << stretch;
   }
+
+  layoutAdd << "], minheight: [";
+
+  for (unsigned i = 0; i < rowCount; ++i) {
+    if (i != 0)
+      layoutAdd << ",";
+
+    int minHeight = 0;
+
+    for (unsigned j = 0; j < colCount; ++j) {
+      WLayoutItem *item = grid_.items_[i][j].item_;
+      if (item)
+	minHeight = std::max(minHeight, getImpl(item)->minimumHeight());
+    }
+
+    if (i == 0)
+      minHeight += margin[0];
+    else
+      minHeight += grid_.verticalSpacing_;
+
+    if (i == rowCount - 1)
+      minHeight += margin[2];
+
+    layoutAdd	<< minHeight;
+  }
+  layoutAdd << "]}));";
+
+  table->callJavaScript(layoutAdd.str());
 
   div->addChild(table);
 

@@ -8,15 +8,15 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "StdLayout",
- function(WT, id, config) {
+ function(WT, id, fitHeight, config) {
    var self = this;
    var initialized = false;
+
+   this.WT = WT;
 
    this.getId = function() {
      return id;
    };
-
-   this.WT = WT;
 
    this.marginH = function(el) {
        var p = el.parentNode;
@@ -188,11 +188,16 @@ WT_DECLARE_WT_MEMBER
      if (t.style.height !== '')
        t.style.height = '';
 
-     var pHeight = WT.pxself(p, 'height'), usingClientHeight = false;
+     var pHeight, usingClientHeight = false;
+     if (fitHeight) {
+       pHeight = WT.pxself(p, 'height');
 
-     if (pHeight === 0) {
-       usingClientHeight = true;
-       pHeight = p.clientHeight;
+       if (pHeight === 0) {
+	 usingClientHeight = true;
+	 pHeight = p.clientHeight;
+       }
+     } else {
+       pHeight = t.clientHeight;
      }
 
      var pWidth = p.clientWidth;
@@ -216,59 +221,61 @@ WT_DECLARE_WT_MEMBER
       * remove padding of the parent, and margin of myself.
       */
      var r = pHeight;
-     if (usingClientHeight) {
-       r -= WT.px(p, 'paddingTop');
-       r -= WT.px(p, 'paddingBottom');
-     } else if (WT.boxSizing(p)) {
-       r -= WT.px(p, 'borderTopWidth');
-       r -= WT.px(p, 'borderBottomWidth');
-       r -= WT.px(p, 'paddingTop');
-       r -= WT.px(p, 'paddingBottom');
-     }
 
-     r -= WT.px(widget, 'marginTop');
-     r -= WT.px(widget, 'marginBottom');
+     var i, il = t.rows.length,
+         ri, row, rowi; // iterator variables
 
-     var i, il;
+     if (fitHeight) {
+       if (usingClientHeight) {
+	 r -= WT.px(p, 'paddingTop');
+	 r -= WT.px(p, 'paddingBottom');
+       } else if (WT.boxSizing(p)) {
+	 r -= WT.px(p, 'borderTopWidth');
+	 r -= WT.px(p, 'borderBottomWidth');
+	 r -= WT.px(p, 'paddingTop');
+	 r -= WT.px(p, 'paddingBottom');
+       }
 
-     /*
-      * Sometimes, there may be other elements; e.g. in FIELDSET.
-      * Remove the height of these too
-      */
-     if (p.children && p.children.length !== 1) {
-       for (i = 0, il = p.children.length; i < il; ++i) {
-	 var w = p.children[i];
+       r -= WT.px(widget, 'marginTop');
+       r -= WT.px(widget, 'marginBottom');
+
+       /*
+	* Sometimes, there may be other elements; e.g. in FIELDSET.
+	* Remove the height of these too
+	*/
+       if (p.children && p.children.length !== 1) {
+	 for (i = 0, il = p.children.length; i < il; ++i) {
+	   var w = p.children[i];
 	   if (w !== widget)
 	     r -= $(w).outerHeight();
-       }
-     }
-
-     /*
-      * Reduce 'r' with the total height of rows with stretch=0.
-      */
-     var ts = 0,              // Sum of stretch factors
-         tmh = 0,             // Min heights
-         ri, j, jl, row, tds; // Iterator variables
-
-     il = t.rows.length;
-
-     for (i = 0, ri = 0; i < il; i++) {
-       row = t.rows[i];
-
-       if (row.className) {     // Skip special rows
-	 r -= row.offsetHeight; // Reduce r
-	 continue;
+	 }
        }
 
-       tmh += config.minheight[ri];
-       if (config.stretch[ri] <= 0)
-	 r -= row.offsetHeight;          // Reduce r
-       else
-	 ts += config.stretch[ri];
-       ++ri;
-     }
+       /*
+	* Reduce 'r' with the total height of rows with stretch=0.
+	*/
+       var ts = 0,              // Sum of stretch factors
+           tmh = 0,             // Min heights
+	   j, jl, tds;          // Iterator variables
 
-     r = r > tmh ? r : tmh;
+       for (i = 0, ri = 0; i < il; i++) {
+	 row = t.rows[i];
+
+	 if (row.className) {     // Skip special rows
+	   r -= row.offsetHeight; // Reduce r
+	   continue;
+	 }
+
+	 tmh += config.minheight[ri];
+	 if (config.stretch[ri] <= 0)
+	   r -= row.offsetHeight;          // Reduce r
+	 else
+	   ts += config.stretch[ri];
+	 ++ri;
+       }
+
+       r = r > tmh ? r : tmh;
+     }
 
      var rowspan_tds = [];
 
@@ -277,39 +284,37 @@ WT_DECLARE_WT_MEMBER
       *  for every row (which has a stretch) and for every cell. Apply the
       *  same height to each cell's contents as well
       */
-     if (ts !== 0 && r > 0) {
-       var left = r, // remaining space to be divided
-           stretch, mh, h;
+     var left = r, // remaining space to be divided
+         stretch, mh, h;
 
-       for (i = 0, ri = 0; i < il; i++) {
-	 row = t.rows[i];
+     for (i = 0, ri = 0; i < il; i++) {
+       row = t.rows[i];
 
-	 if (row.className)
-	   continue;
+       if (row.className)
+	 continue;
 
-	 stretch = config.stretch[ri];
-	 if (stretch !== 0) {
-	   /*
-	    * The target height 'h', cannot be more than what is still
-	    * left to distribute, and cannot be less than the minimum height
-	    */
+       stretch = config.stretch[ri];
+       if (stretch == -1 || (fitHeight && stretch > 0)) {
+	 /*
+	  * The target height 'h', cannot be more than what is still
+	  * left to distribute, and cannot be less than the minimum height
+	  */
 
-	   if (stretch !== -1) {
-	     mh = config.minheight[ri];
+	 if (stretch !== -1) {
+	   mh = config.minheight[ri];
 
-	     h = r * stretch / ts;
-	     h = left > h ? h : left;
-	     h = Math.round(mh > h ? mh : h);
-	     left -= h;
-	   } else {
-	     h = row.offsetHeight;
-	   }
-
-	   WT.addAll(rowspan_tds, this.adjustRow(row, h));
+	   h = r * stretch / ts;
+	   h = left > h ? h : left;
+	   h = Math.round(mh > h ? mh : h);
+	   left -= h;
+	 } else {
+	   h = row.offsetHeight;
 	 }
 
-	 ++ri;
+	 WT.addAll(rowspan_tds, this.adjustRow(row, h));
        }
+
+       ++ri;
      }
 
      for (i = 0, il = rowspan_tds.length; i < il; ++i) {

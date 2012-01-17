@@ -182,14 +182,6 @@
     background-color: #EEEEEE;
 }
 
-.Wt-datepicker-edit {
-    background-image: url('../../calendar_edit.png');
-    background-repeat: no-repeat;
-    background-position: right center;
-    padding-right: 16px;
-    width: 7em;
-}
-
 /*
  * WDialog
  */
@@ -412,10 +404,12 @@
 }
 
 .Wt-slider-h .handle {
+    cursor: pointer; cursor: hand;
     background: url(slider-thumb-h.gif) no-repeat scroll center bottom;
 }
 
 .Wt-slider-v .handle {
+    cursor: pointer; cursor: hand;
     background: url(slider-thumb-v.gif) no-repeat scroll right center;
 }
 
@@ -435,10 +429,12 @@
 }
 
 .Wt-slider-h.Wt-disabled .handle {
+    cursor: auto;
     background: url(slider-thumb-h-disabled.gif) no-repeat scroll center bottom;
 }
 
 .Wt-slider-v.Wt-disabled .handle {
+    cursor: auto;
     background: url(slider-thumb-v-disabled.gif) no-repeat scroll right center;
 }
 

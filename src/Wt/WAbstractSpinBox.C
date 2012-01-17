@@ -77,6 +77,10 @@ void WAbstractSpinBox::setSuffix(const WString& suffix)
 
 void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
 {
+  /*
+   * In theory we are a bit late here to decide what we want to become:
+   * somebody could already have asked the domElementType()
+   */
   if (flags & RenderFull) {
     bool useNative = nativeControl();
 
@@ -133,9 +137,10 @@ void WAbstractSpinBox::updateDom(DomElement& element, bool all)
   if (all || changed_) {
     if (!all) {
       if (!nativeControl())
-	doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
-		     ".update(" + jsMinMaxStep() + ","
-		     + boost::lexical_cast<std::string>(decimals()) + ");");
+	WApplication::instance()->doJavaScript
+	  ("jQuery.data(" + jsRef() + ", 'obj')"
+	   ".update(" + jsMinMaxStep() + ","
+	   + boost::lexical_cast<std::string>(decimals()) + ");");
       else
 	setValidator(createValidator());
     }
