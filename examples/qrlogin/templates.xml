@@ -5,6 +5,13 @@
       <h2>${tr:Wt.Auth.login-form-title}</h2>
       <p>${tr:Wt.Auth.login-form-info}</p>
 
+      <div style="margin: 10px 10px 30px">
+	This Wt example shows how the authentication system can be
+	extended to support other authentication methods, like for
+	example delegating the authentication to a mobile phone using
+	a QR code.
+      </div>
+
       <div class="Wt-fields">
         <label for="${id:user-name}">${user-name-label}
           ${user-name-info class="Wt-info"}

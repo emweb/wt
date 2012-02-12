@@ -189,6 +189,18 @@ public:
    */
   double startAngle() const { return startAngle_; }
 
+  /*! \brief Sets the percentage value to avoid rendering of label texts.
+   *
+   * The default value is 0 percent.
+   */
+  void setAvoidLabelRendering(double percent);
+
+  /*! \brief Returns the percentage to avoid label rendering.
+   *
+   * \sa setAvoidLabelRendering(double)
+   */
+  double avoidLabelRendering() const { return avoidLabelRendering_; }
+
   /*! \brief Configures if and how labels should be displayed
    *
    * The <i>options</i> must be the logical OR of a placement option
@@ -236,6 +248,7 @@ private:
   int                  dataColumn_;
   double               height_;
   double               startAngle_;
+  double               avoidLabelRendering_;
   WFlags<LabelOption> labelOptions_;
   bool                 shadow_;
 

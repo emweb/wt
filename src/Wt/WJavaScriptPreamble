@@ -12,6 +12,8 @@
 #define WT_JS(...) #__VA_ARGS__
 
 namespace Wt {
+/*! \brief Enum for internal use.
+ */
   enum JavaScriptObjectType {
     JavaScriptFunction,     // called with this == WT
     JavaScriptConstructor,
@@ -19,11 +21,15 @@ namespace Wt {
     JavaScriptPrototype
   };
 
+/*! \brief Enum for internal use.
+ */
   enum JavaScriptScope {
     ApplicationScope,
     WtClassScope
   };
 
+/*! \brief Class for internal use.
+ */
   class WT_API WJavaScriptPreamble {
   public:
     WJavaScriptPreamble(JavaScriptScope scope, JavaScriptObjectType type,

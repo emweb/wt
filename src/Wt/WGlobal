@@ -816,11 +816,18 @@ enum EntryPointType {
    * A static resource binds a WResource to a public URL, and is not bound
    * to a specific session.
    *
+   * \if cpp
    * \sa WServer::addResource()
+   * \elseif java
+   * @see WtServlet#addResource(WResource r, String path)
+   * \endif
    */
   StaticResource
 };
 
+
+/*! \brief Enum for internal use.
+ */
 enum RenderFlag {
   RenderFull    = 0x1,
   RenderUpdate  = 0x2

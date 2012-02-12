@@ -20,7 +20,13 @@ WFormModel::FieldData::FieldData()
     visible(true),
     readOnly(false),
     validated(false)
-{ }
+{ 
+  //TODO
+  //this is a workaround for cnor, 
+  //because cnor seems to be unable to map initalizer ctors
+  //fix this in cnor
+  value = boost::any();
+}
 
 WFormModel::WFormModel(WObject *parent)
   : WObject(parent)
@@ -155,10 +161,16 @@ void WFormModel::reset()
 
 bool WFormModel::valid() const
 {
-  for (FieldMap::const_iterator i = fields_.begin(); i != fields_.end(); ++i)
-    if (!i->second.validated
-	|| i->second.validation.state() != WValidator::Valid)
+  for (FieldMap::const_iterator i = fields_.begin(); i != fields_.end(); ++i) {
+    const FieldData& fd = i->second;
+    
+    if (!fd.visible)
+      continue;
+
+    if (!fd.validated
+	|| fd.validation.state() != WValidator::Valid)
       return false;
+  }
 
   return true;
 }

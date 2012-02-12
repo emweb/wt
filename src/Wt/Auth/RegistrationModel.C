@@ -13,6 +13,8 @@
 #include "Wt/WLineEdit"
 #include "Wt/WText"
 
+#include <memory>
+
 namespace Wt {
   namespace Auth {
 
@@ -108,8 +110,11 @@ bool RegistrationModel::registerIdentified(const Identity& identity)
 	break;
       }
 
-      if (!idpIdentity_.email().empty())
+      if (!idpIdentity_.email().empty()) {
 	setValue(EmailField, idpIdentity_.email());
+	setValidation(EmailField, 
+		      WValidator::Result(WValidator::Valid, WString::Empty));
+      }
 
       return false;
     }
@@ -150,6 +155,9 @@ bool RegistrationModel::isConfirmUserButtonVisible() const
 
 bool RegistrationModel::isReadOnly(Field field) const
 {
+  if (FormBaseModel::isReadOnly(field))
+    return true;
+
   if (field == LoginNameField)
     return baseAuth()->identityPolicy() == EmailAddressIdentity
       && idpIdentity_.isValid() && idpIdentity_.emailVerified();
@@ -179,8 +187,6 @@ WString RegistrationModel::validateLoginName(const WT_USTRING& userName) const
   default:
     return WString::Empty;
   }
-
-  return WString::Empty;
 }
 
 void RegistrationModel::checkUserExists(const WT_USTRING& userName)
@@ -208,6 +214,9 @@ bool RegistrationModel::validateField(Field field)
 	error = WString::tr("Wt.Auth.user-name-exists");
     } else
       valid = false;
+
+    if (isReadOnly(field))
+      valid = true;
   } else if (field == ChoosePasswordField) {
     AbstractPasswordService::AbstractStrengthValidator *v
       = passwordAuth()->strengthValidator();
@@ -312,9 +321,6 @@ User RegistrationModel::doRegister()
     // FIXME: Set message that you need to identify using oauth.
     return User();
   } else {
-    std::auto_ptr<AbstractUserDatabase::Transaction>
-      t(users().startTransaction());
-
     User user = users().registerNew();
 
     if (idpIdentity_.isValid()) {
@@ -358,9 +364,6 @@ User RegistrationModel::doRegister()
 	  baseAuth()->verifyEmailAddress(user, email);
       }
     }
-
-    if (t.get())
-      t->commit();
 
     return user;
   }

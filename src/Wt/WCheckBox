@@ -107,7 +107,7 @@ public:
    *
    * \sa setCheckState(), isChecked()
    */
-  CheckState checkState() { return state_; }
+  CheckState checkState() const { return state_; }
 
 protected:
   virtual void updateInput(DomElement& input, bool all);

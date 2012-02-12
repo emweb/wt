@@ -51,6 +51,7 @@ WPieChart::WPieChart(WContainerWidget *parent)
     dataColumn_(-1),
     height_(0.0),
     startAngle_(45),
+    avoidLabelRendering_(0.0),
     labelOptions_(0),
     shadow_(false)
 {
@@ -121,6 +122,14 @@ void WPieChart::setStartAngle(double startAngle)
 {
   if (startAngle_ != startAngle) {
     startAngle_ = startAngle;
+    update();
+  }
+}
+
+void WPieChart::setAvoidLabelRendering(double avoidLabelRendering)
+{
+  if (avoidLabelRendering_ != avoidLabelRendering) {
+    avoidLabelRendering_ = avoidLabelRendering;
     update();
   }
 }
@@ -277,9 +286,11 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	  c = palette()->fontColor(i);
 	}
 
-	painter.setPen(WPen(c));
-	painter.drawText(WRectF(left, top, width, height),
-			 alignment, labelText(i, v, total, labelOptions_));
+	if ((v / total * 100) >= avoidLabelRendering_) {
+	  painter.setPen(WPen(c));
+	  painter.drawText(WRectF(left, top, width, height),
+			   alignment, labelText(i, v, total, labelOptions_));
+	}
 
 	currentAngle = endAngle;
       }

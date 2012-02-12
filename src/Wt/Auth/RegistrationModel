@@ -101,7 +101,7 @@ public:
    *
    * The default value is 4. 
    */
-  void setMinLoginNameLength(int chars);
+  void setMinLoginNameLength(int chars) { minLoginNameLength_ = chars; }
 
   /*! \brief Returns the minimum length for a login name.
    *

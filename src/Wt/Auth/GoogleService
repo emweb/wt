@@ -41,9 +41,16 @@ namespace Wt {
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. A "const GoogleService" object is thus thread-safe.
+ * read-only. 
+ * \if cpp
+ * A "const GoogleService" object is thus thread-safe.
+ * \endif
  *
+ * \if cpp
  * \sa http://code.google.com/apis/accounts/docs/OAuth2.html
+ * \elseif java
+ * See also: http://code.google.com/apis/accounts/docs/OAuth2.html
+ * \endif
  *
  * \ingroup auth
  */

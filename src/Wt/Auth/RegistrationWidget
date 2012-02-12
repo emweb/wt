@@ -39,6 +39,8 @@ public:
    */
   RegistrationWidget(AuthWidget *authWidget = 0);
 
+  /*! \brief Sets the registration model.
+   */
   void setModel(RegistrationModel *model);
 
   /*! \brief Returns the registration model.

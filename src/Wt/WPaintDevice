@@ -138,8 +138,8 @@ public:
 
   /*! \brief Draws an arc.
    *
-   * The arc is defined as in WPainter::drawArc(const WRectF&,
-   * startAngle, spanAngle), but the angle is expressed in degrees.
+   * The arc is defined as in 
+   * WPainter::drawArc(const WRectF& rectangle, int startAngle, int spanAngle)
    *
    * The arc must be stroked, filled, and transformed using the
    * current painter settings.

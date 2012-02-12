@@ -4,10 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <string.h>
+#include <string>
 
 #include "Wt/WLogger"
-#include "Wt/WRandom"
 #include "AuthUtils.h"
 #include "HashFunction"
 #include "PasswordHash"
@@ -41,15 +40,9 @@ bool PasswordVerifier::needsUpdate(const PasswordHash& hash) const
 
 PasswordHash PasswordVerifier::hashPassword(const WString& password) const
 {
-  unsigned char *saltBuf = new unsigned char[saltLength_];
-  for (int i = 0; i < saltLength_; i += 3) {
-    unsigned r = WRandom::get();
-    memcpy(saltBuf + i, &r, 3);
-  }
-
   std::string msg = password.toUTF8();
-  std::string salt
-    = Utils::encodeAscii(std::string(saltBuf, saltBuf + saltLength_));
+  std::string salt = Utils::createSalt(saltLength_);
+  salt = Utils::encodeAscii(salt);
 
   const HashFunction& f = *hashFunctions_[0];
   std::string hash = f.compute(msg, salt);

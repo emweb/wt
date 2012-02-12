@@ -583,7 +583,7 @@ private:
 
   void itemPathChanged(WMenuItem *item);
   void selectVisual(WMenuItem *item);
-  void selectVisual(int item, bool changePath);
+  void selectVisual(int item, bool changePath, bool showContents);
   void undoSelectVisual();
 
   friend class WMenuItem;

@@ -11,6 +11,7 @@
 #include <boost/thread/condition.hpp>
 
 #include <Wt/WApplication>
+#include <Wt/WIOService>
 #include <Wt/Http/Client>
 #include <Wt/Test/WTestEnvironment>
 
@@ -33,6 +34,11 @@ namespace {
 
       while (!done_)
 	doneCondition_.wait(guard);
+    }
+
+    void reset() 
+    {
+      done_ = false;
     }
 
     void onDone(boost::system::error_code err, const Message& m)
@@ -124,4 +130,33 @@ BOOST_AUTO_TEST_CASE( http_client_test3 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( http_client_test4 )
+{
+  Wt::Test::WTestEnvironment environment;
+  TestFixture app(environment);
+
+  environment.server()->ioService().start();
+  
+  Client *c = new Client(&app);
+  c->done().connect(boost::bind(&TestFixture::onDone, &app, _1, _2));
+
+  std::string ok = "www.google.com/";
+
+  if (c->get("https://" + ok)) {
+    environment.endRequest();
+    app.waitDone();
+    environment.startRequest();
+  }
+
+  environment.server()->ioService().stop();
+  environment.server()->ioService().start();
+  
+  app.reset();
+
+  if (c->get("https://" + ok)) {
+    environment.endRequest();
+    app.waitDone();
+    environment.startRequest();
+  }
+}
 #endif // WT_THREADED

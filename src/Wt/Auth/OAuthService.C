@@ -23,7 +23,10 @@
 #include "Wt/WStringStream"
 #include "Wt/WServer"
 
+#include "Wt/Auth/AuthUtils.h"
+
 #include "WebSession.h"
+#include "WebRequest.h"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
@@ -46,7 +49,6 @@ public:
     : WResource(process),
       process_(process)
   {
-    setInternalPath(process_->service().redirectInternalPath());
   }
 
   void sendError(Http::Response& response)
@@ -65,7 +67,9 @@ public:
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response)
   {
+#ifndef WT_TARGET_JAVA
     if (!request.continuation()) {
+#endif
       response.setMimeType("text/html; charset=UTF-8");
 
       const std::string *stateE = request.getParameter("state");
@@ -89,11 +93,15 @@ public:
 	return;
       }
 
+#ifndef WT_TARGET_JAVA
       Http::ResponseContinuation *cont = response.createContinuation();
       cont->waitForMoreData();
+#endif
 
       process_->requestToken(*codeE);
+#ifndef WT_TARGET_JAVA
     } else
+#endif
       sendResponse(response);
   }
 
@@ -151,11 +159,14 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
     redirected_(this, "redirected")
 {
   redirectEndpoint_ = new OAuthRedirectEndpoint(this);
-
   WApplication *app = WApplication::instance();
 
-  oAuthState_ = service_.encodeState(app->sessionId());
+  std::string url = app->makeAbsoluteUrl(redirectEndpoint_->url());
+  oAuthState_ = service_.encodeState(url);
 
+  redirected_.connect(this, &OAuthProcess::onOAuthDone);
+
+#ifndef WT_TARGET_JAVA
   WStringStream js;
   js << WT_CLASS ".authPopupWindow(" WT_CLASS
      << "," << WWebWidget::jsStringLiteral(authorizeUrl()) 
@@ -166,6 +177,7 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
 
   implementJavaScript(&OAuthProcess::startAuthorize, js.str());
   implementJavaScript(&OAuthProcess::startAuthenticate, js.str());
+#endif
 
   if (!app->environment().javaScript())
     app->internalPathChanged().connect(this, &OAuthProcess::handleRedirectPath);
@@ -180,7 +192,7 @@ std::string OAuthProcess::authorizeUrl() const
   url << (hasQuery ? '&' : '?')
       << "client_id=" << Wt::Utils::urlEncode(service_.clientId())
       << "&redirect_uri="
-      << Wt::Utils::urlEncode(service_.getRedirectEndpoint())
+      << Wt::Utils::urlEncode(service_.generateRedirectEndpoint())
       << "&scope=" << Wt::Utils::urlEncode(scope_)
       << "&response_type=code"
       << "&state=" << Wt::Utils::urlEncode(oAuthState_);
@@ -205,6 +217,24 @@ void OAuthProcess::startAuthenticate()
   startAuthorize();
 }
 
+#ifdef WT_TARGET_JAVA
+void OAuthProcess::connectStartAuthenticate(EventSignalBase &s)
+{
+  if (WApplication::instance()->environment().javaScript()) {
+      WStringStream js;
+      js << "function(object, event) {"
+	 << WT_CLASS ".authPopupWindow(" WT_CLASS
+	 << "," << WWebWidget::jsStringLiteral(authorizeUrl()) 
+	 << ", " << service_.popupWidth()
+	 << ", " << service_.popupHeight() << ");"
+	 << "}";
+
+      s.connect(js.str());
+  } 
+  s.connect(this, &OAuthProcess::startAuthenticate);
+}
+#endif
+
 void OAuthProcess::handleRedirectPath(const std::string& internalPath)
 {
   if (internalPath == service_.redirectInternalPath()) {
@@ -226,7 +256,9 @@ void OAuthProcess::handleRedirectPath(const std::string& internalPath)
 	    setError(ERROR_MSG("missing-code"));
 	  else {
 	    requestToken(*codeE);
+#ifndef WT_TARGET_JAVA
 	    app->deferRendering();
+#endif
 	  }
 	}
       }
@@ -272,7 +304,8 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
   ss << "grant_type=authorization_code"
      << "&client_id=" << Wt::Utils::urlEncode(service_.clientId())
      << "&client_secret=" << Wt::Utils::urlEncode(service_.clientSecret())
-     << "&redirect_uri=" << Wt::Utils::urlEncode(service_.getRedirectEndpoint())
+     << "&redirect_uri=" 
+     << Wt::Utils::urlEncode(service_.generateRedirectEndpoint())
      << "&code=" << authorizationCode;
 
   Http::Client *client = new Http::Client(this);
@@ -301,10 +334,14 @@ void OAuthProcess::handleToken(boost::system::error_code err,
 
   WApplication *app = WApplication::instance();
 
-  if (app->environment().ajax())
+  if (app->environment().ajax()) {
+#ifndef WT_TARGET_JAVA
     redirectEndpoint_->haveMoreData();
-  else {
+#endif
+  } else {
+#ifndef WT_TARGET_JAVA
     app->resumeRendering();
+#endif
     onOAuthDone();
     app->redirect(app->url(startInternalPath_));
   }
@@ -324,12 +361,12 @@ OAuthAccessToken OAuthProcess::parseTokenResponse(const Http::Message& response)
   if (response.status() == 200 || response.status() == 400) {
     /*
      * OAuth 2.0 states this should be application/json
-     * but Facebook uses application/x-www-form-urlencoded body
+     * but Facebook uses text/plain; charset=UTF-8 body
      */
     const std::string *type = response.getHeader("Content-Type");
 
     if (type) {
-      if (boost::starts_with(*type, "application/x-www-form-urlencoded"))
+      if (boost::starts_with(*type, "text/plain; charset=UTF-8"))
 	return parseUrlEncodedToken(response);
       else if (boost::starts_with(*type, "application/json"))
 	return parseJsonToken(response);
@@ -345,15 +382,16 @@ OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& respons
 {
   /* Facebook style */
   Http::ParameterMap params;
-  Http::Request::parseFormUrlEncoded(response.body(), params);
+  Utils::parseFormUrlEncoded(response, params);
 
   if (response.status() == 200) {
-    const std::string *accessTokenE = Http::get(params, "access_token");
+    const std::string *accessTokenE 
+      = Utils::getParamValue(params, "access_token");
     if (accessTokenE) {
       std::string accessToken = *accessTokenE;
 
       WDateTime expires;
-      const std::string *expiresE = Http::get(params, "expires");
+      const std::string *expiresE = Utils::getParamValue(params, "expires");
       if (expiresE)
 	expires = WDateTime::currentDateTime()
 	  .addSecs(boost::lexical_cast<int>(*expiresE));
@@ -364,7 +402,7 @@ OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& respons
     } else
       throw TokenError(ERROR_MSG("badresponse"));
   } else {
-    const std::string *errorE = Http::get(params, "error");
+    const std::string *errorE = Utils::getParamValue(params, "error");
     
     if (errorE)
       throw TokenError(ERROR_MSG(+ *errorE));
@@ -377,16 +415,26 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 {
   /* OAuth 2.0 style */
   Json::Object root;
-  Json::ParseError e;
-  bool ok = Json::parse(response.body(), root, e);
+  Json::ParseError pe;
+
+#ifndef WT_TARGET_JAVA
+  bool ok = Json::parse(response.body(), root, pe);
+#else
+  try {
+    root = (Json::Object)Json::Parser().parse(response.body());
+  } catch (Json::ParseError error) {
+    pe = error;
+  }
+  bool ok = root.isNull();
+#endif
 
   if (!ok) {
-    LOG_ERROR(e.what());
+    LOG_ERROR(pe.what());
     throw TokenError(ERROR_MSG("badjson"));
   } else {
     if (response.status() == 200) {
       try {
-	std::string accessToken = (std::string)root.get("access_token");
+	std::string accessToken = root.get("access_token");
 	int secs = root.get("expires_in").orIfNull(-1);
 	WDateTime expires;
 	if (secs > 0)
@@ -421,10 +469,8 @@ struct OAuthService::Impl
   class RedirectEndpoint : public WResource
   {
   public:
-    RedirectEndpoint(const OAuthService& service,
-		     const std::string& redirectUrl)
-      : service_(service),
-	redirectUrl_(redirectUrl)
+    RedirectEndpoint(const OAuthService& service)
+      : service_(service)
     { }
 
     virtual void handleRequest(const Http::Request& request,
@@ -433,15 +479,12 @@ struct OAuthService::Impl
       const std::string *stateE = request.getParameter("state");
 
       if (stateE) {
-	std::string sessionId = service_.decodeState(*stateE);
+	std::string redirectUrl = service_.decodeState(*stateE);
 
-	if (!sessionId.empty()) {
-	  std::string redirectUrl = redirectUrl_;
-	  
+	if (!redirectUrl.empty()) {
 	  bool hasQuery = redirectUrl.find('?') != std::string::npos;
 	  redirectUrl += (hasQuery ? '&' : '?');
-	  redirectUrl += "wtd=" + Wt::Utils::urlEncode(sessionId)
-	    + "&state=" + Wt::Utils::urlEncode(*stateE);
+	  redirectUrl += "&state=" + Wt::Utils::urlEncode(*stateE);
 
 	  const std::string *errorE = request.getParameter("error");
 	  if (errorE)
@@ -464,7 +507,6 @@ struct OAuthService::Impl
 
   private:
     const OAuthService& service_;
-    std::string redirectUrl_;
   };
 
   RedirectEndpoint *redirectResource_;
@@ -487,29 +529,29 @@ std::string OAuthService::redirectInternalPath() const
   return "/auth/oauth/" + name() + "/redirect";
 }
 
-std::string OAuthService::getRedirectEndpoint() const
+std::string OAuthService::generateRedirectEndpoint() const
 {
   std::string result = redirectEndpoint();
   configureRedirectEndpoint(result);
   return result;
 }
 
-std::string OAuthService::encodeState(const std::string& sessionId) const
+std::string OAuthService::encodeState(const std::string& url) const
 {
-  std::string msg = impl_->secret_ + sessionId;
+  std::string msg = impl_->secret_ + url;
   std::string hash = Wt::Utils::base64Encode(Wt::Utils::md5(msg));
-  return hash + "|" + sessionId;
+  return hash + "|" + url;
 }
 
 std::string OAuthService::decodeState(const std::string& state) const
 {
   std::size_t i = state.find('|');
   if (i != std::string::npos) {
-    std::string sessionId = state.substr(i + 1);
+    std::string url = state.substr(i + 1);
 
-    std::string check = encodeState(sessionId);
+    std::string check = encodeState(url);
     if (check == state)
-      return sessionId;
+      return url;
     else
       return std::string();
   } else
@@ -527,17 +569,13 @@ void OAuthService::configureRedirectEndpoint(const std::string& endpoint) const
       WApplication *app = WApplication::instance();
       WServer *server = app->environment().server();
 
-      std::string url =
-	app->makeAbsoluteUrl(app->bookmarkUrl(redirectInternalPath()));
-
-      Impl::RedirectEndpoint *r = new Impl::RedirectEndpoint(*this, url);
+      Impl::RedirectEndpoint *r = new Impl::RedirectEndpoint(*this);
 
       /* Compute deployment path for static resource */
-      std::string protocol, host, path;
-      int port;
+      Http::Client::URL parsedUrl;
+      Http::Client::parseUrl(endpoint, parsedUrl);
 
-      Http::Client::parseUrl(endpoint, protocol, host, port, path);
-
+#ifndef WT_TARGET_JAVA
       // We need to equalize path with our deployment configuration, in
       // case we are deployed using a reverse proxy
       std::string publicDeployPath = app->environment().deploymentPath();
@@ -547,13 +585,14 @@ void OAuthService::configureRedirectEndpoint(const std::string& endpoint) const
 	int diff = (int)publicDeployPath.length() - deployPath.length();
 	if (diff > 0) {
 	  std::string prefix = publicDeployPath.substr(0, diff);
-	  if (boost::starts_with(path, prefix))
-	    path = path.substr(prefix.length());
+	  if (boost::starts_with(parsedUrl.path, prefix))
+	    parsedUrl.path = parsedUrl.path.substr(prefix.length());
 	}
       }
+#endif
 
-      LOG_INFO("deploying endpoint at " << path);
-      server->addResource(r, path);
+      LOG_INFO("deploying endpoint at " << parsedUrl.path);
+      server->addResource(r, parsedUrl.path);
 
       impl_->redirectResource_ = r;
     }
@@ -567,7 +606,20 @@ std::string OAuthService::configurationProperty(const std::string& property)
   if (instance) {
     std::string result;
 
-    if (!instance->readConfigurationProperty(property, result))
+      bool error;
+#ifndef WT_TARGET_JAVA
+      error = !instance->readConfigurationProperty(property, result);
+#else
+      std::string* v = instance->readConfigurationProperty(property, result);
+      if (v != &result) {
+	error = false;
+	result = *v;
+      } else {
+	error = true;
+      }
+#endif
+
+    if (error)
       throw WException("OAuth: no '" + property + "' property configured");
 
     return result;

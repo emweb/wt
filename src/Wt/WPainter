@@ -673,6 +673,19 @@ public:
    * WFont::FixedSize) will render correctly in all devices (SVG, VML,
    * and HtmlCanvas).
    *
+   * The list of fonts that will render correctly with VML (on IE<9) are
+   * limited to the following:
+   * http://www.ampsoft.net/webdesign-l/WindowsMacFonts.html
+   *
+   * Careful, for a font family that contains a space, you need to add
+   * quotes, to WFont::setFamily() e.g.
+   *
+   * \code
+   * WFont mono;
+   * mono.setFamily(WFont::Monospace, "'Courier New'");
+   * mono.setSize(18);
+   * \endcode
+   *
    * \sa font(), drawText()
    */
   void setFont(const WFont& font);

@@ -87,6 +87,8 @@ void WIOService::stop()
 
   threads_.clear();
 #endif // WT_THREADED
+
+  reset();
 }
 
 void WIOService::post(const boost::function<void ()>& function)

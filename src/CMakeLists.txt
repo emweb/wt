@@ -245,6 +245,7 @@ Wt/Auth/Token.C
 Wt/Auth/UpdatePasswordWidget.C
 Wt/Auth/User.C
 Wt/Auth/AuthUtils.C
+Wt/Auth/MailUtils.C
 Wt/Chart/WAbstractChart.C
 Wt/Chart/WAxis.C
 Wt/Chart/WDataSeries.C

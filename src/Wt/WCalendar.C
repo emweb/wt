@@ -19,6 +19,8 @@ using namespace boost::gregorian;
 
 #include "WebUtils.h"
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 namespace Wt {
 
 LOGGER("WCalendar");

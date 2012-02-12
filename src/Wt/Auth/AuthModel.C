@@ -19,6 +19,8 @@
 #include "js/AuthModel.min.js"
 #endif
 
+#include <memory>
+
 namespace Wt {
 
 LOGGER("Auth::AuthModel");
@@ -46,11 +48,12 @@ void AuthModel::reset()
   addField(PasswordField, WString::tr("Wt.Auth.password-info"));
 
   int days = baseAuth()->authTokenValidity() / 24 / 60;
-  WString info = WString::tr("Wt.Auth.remember-me-info"); 
+
+  WString info;
   if (days % 7 != 0)
-    info.arg(boost::lexical_cast<std::string>(days) + " days");
+    info = WString::tr("Wt.Auth.remember-me-info.days").arg(days);
   else
-    info.arg(boost::lexical_cast<std::string>(days/7) + " weeks");
+    info = WString::tr("Wt.Auth.remember-me-info.weeks").arg(days/7);
 
   addField(RememberMeField, info);
   setValidation(RememberMeField, WValidator::Result(WValidator::Valid, info));
@@ -203,8 +206,6 @@ User AuthModel::processAuthToken()
 
     if (token) {
       AuthTokenResult result = baseAuth()->processAuthToken(*token, users());
-
-      WApplication *app = WApplication::instance(); // env.application() ?
 
       switch(result.result()) {
       case AuthTokenResult::Valid:

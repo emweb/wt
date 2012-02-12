@@ -35,6 +35,8 @@
 #include "js/AuthWidget.min.js"
 #endif
 
+#include <memory>
+
 namespace skeletons {
   extern const char * Auth_xml1;
 }
@@ -71,8 +73,8 @@ void AuthWidget::init()
   dialog_ = 0;
   messageBox_ = 0;
 
-  addFunction("id", &WTemplate::Functions::id);
-  addFunction("tr", &WTemplate::Functions::tr);
+  addFunction("id", WT_TEMPLATE_FUNCTION(id));
+  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
 
   WApplication *app = WApplication::instance();
   app->useStyleSheet(WApplication::resourcesUrl() + "form.css");
@@ -280,8 +282,8 @@ void AuthWidget::onLoginChange()
     createLoggedInView();
   } else {
     if (model_->baseAuth()->authTokensEnabled()) {
-      WApplication::instance()->setCookie
-	(model_->baseAuth()->authTokenCookieName(), std::string(), 0);
+      WApplication::instance()->removeCookie
+	(model_->baseAuth()->authTokenCookieName());
     }
 
     model_->reset();
@@ -388,8 +390,13 @@ void AuthWidget::createOAuthLoginView()
       w->setStyleClass("Wt-auth-icon");
       w->setVerticalAlignment(AlignMiddle);
 
-      OAuthProcess *process = auth->createProcess(auth->authenticationScope());
+      OAuthProcess *const process 
+	= auth->createProcess(auth->authenticationScope());
+#ifndef WT_TARGET_JAVA
       w->clicked().connect(process, &OAuthProcess::startAuthenticate);
+#else
+      process->connectStartAuthenticate(w->clicked());
+#endif
 
       process->authenticated().connect
 	(boost::bind(&AuthWidget::oAuthDone, this, process, _1));

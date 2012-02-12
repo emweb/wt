@@ -32,6 +32,11 @@ void Message::Header::setValue(const std::string& value)
   value_ = value;
 }
 
+Message::Message(std::vector<Header> headers)
+  : headers_(headers),
+    status_(-1)
+{ } 
+
 Message::Message()
   : status_(-1)
 { }

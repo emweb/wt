@@ -12,6 +12,7 @@
 #include "Wt/Auth/PasswordStrengthValidator"
 #include "Wt/Auth/PasswordVerifier"
 #include "Wt/Auth/GoogleService"
+#include "Wt/Auth/FacebookService"
 #include "Wt/Auth/Dbo/AuthInfo"
 #include "Wt/Auth/Dbo/UserDatabase"
 
@@ -47,6 +48,9 @@ void Session::configureAuth()
 
   if (Wt::Auth::GoogleService::configured())
     myOAuthServices.push_back(new Wt::Auth::GoogleService(myAuthService));
+
+  if (Wt::Auth::FacebookService::configured())
+    myOAuthServices.push_back(new Wt::Auth::FacebookService(myAuthService));
 }
 
 Session::Session(const std::string& sqliteDb)

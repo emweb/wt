@@ -48,10 +48,17 @@ public:
    *
    * The model indexes are returned as a set, topologically ordered (in
    * the order they appear in the view).
+   *
+   * When selection operates on rows (\link Wt::SelectRows SelectRows\endlink),
+   * this method only returns the model index of first column's element of the 
+   * selected rows.
    */
   WModelIndexSet selectedIndexes() const { return selection_; }
 
   /*! \brief Returns wheter an item is selected.
+   *
+   * When selection operates on rows (\link Wt::SelectRows SelectRows\endlink),
+   * this method returns true for each element in a selected row.
    *
    * \sa selectedIndexes()
    */

@@ -1082,6 +1082,13 @@ public:
    */
   void disable(GLenum cap);
 
+  /*! \brief GL function to disable the vertex attribute array
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDisableVertexAttribArray.xml">
+   * glDisableVertexAttribArray() OpenGL ES manpage</a>
+   */
+  void disableVertexAttribArray(AttribLocation index);
+
   /*! \brief GL function to draw a VBO
    *
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDrawArrays.xml">

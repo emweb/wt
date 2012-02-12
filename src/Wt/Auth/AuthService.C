@@ -9,10 +9,13 @@
 #include "Wt/Auth/HashFunction"
 #include "Wt/Auth/Identity"
 #include "Wt/Auth/User"
+#include "Wt/Auth/MailUtils.h"
 #include "Wt/Mail/Client"
 #include "Wt/Mail/Message"
 #include "Wt/WApplication"
 #include "Wt/WRandom"
+
+#include <memory>
 
 namespace Wt {
   namespace Auth {
@@ -238,8 +241,11 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
     if (t.get()) t->commit();
 
     return AuthTokenResult(AuthTokenResult::Valid, user, newToken);
-  } else
+  } else {
+    if (t.get()) t->commit();
+    
     return AuthTokenResult(AuthTokenResult::Invalid);
+  }
 }
 
 void AuthService::verifyEmailAddress(const User& user, const std::string& address)
@@ -305,7 +311,7 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
       if (tr.get())
 	tr->commit();
 
-      return EmailTokenResult::Expired;
+      return EmailTokenResult(EmailTokenResult::Expired);
     }
 
     switch (user.emailTokenRole()) {
@@ -331,13 +337,13 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
       if (tr.get())
 	tr->commit();
 
-      return EmailTokenResult::Invalid; // Unreachable
+      return EmailTokenResult(EmailTokenResult::Invalid); // Unreachable
     }
   } else {
     if (tr.get())
       tr->commit();
 
-    return EmailTokenResult::Invalid;
+    return EmailTokenResult(EmailTokenResult::Invalid);
   }
 }
 
@@ -399,15 +405,16 @@ void AuthService::sendMail(const Mail::Message& message) const
 					    senderName);
     WApplication::readConfigurationProperty("auth-mail-sender-address",
 					    senderAddress);
-
+#ifndef WT_TARGET_JAVA
     m.setFrom(Mail::Mailbox(senderAddress, WString::fromUTF8(senderName)));
+#else
+    m.setFrom(Mail::Mailbox(senderAddress, senderName));
+#endif
   }
 
   m.write(std::cout);
 
-  Mail::Client client;
-  client.connect();
-  client.send(m);
+  MailUtils::sendMail(m);
 }
 
   }

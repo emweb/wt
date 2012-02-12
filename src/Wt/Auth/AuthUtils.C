@@ -10,9 +10,33 @@
 #include "AuthUtils.h"
 #include "base64.h"
 
+#include "Wt/WRandom"
+
 namespace Wt {
   namespace Auth {
     namespace Utils {
+
+void parseFormUrlEncoded(const Http::Message& response, 
+			 Http::ParameterMap &params)
+{
+  Http::Request::parseFormUrlEncoded(response.body(), params);
+}
+
+const std::string *getParamValue(Http::ParameterMap &params, 
+				 const std::string &name)
+{
+  return Http::get(params, name);
+}
+
+std::string createSalt(unsigned int length)
+{
+  unsigned char *saltBuf = new unsigned char[length];
+  for (unsigned i = 0; i < length; i += 3) {
+    unsigned r = WRandom::get();
+    memcpy(saltBuf + i, &r, 3);
+  }
+  return std::string(saltBuf, saltBuf + length);
+}
 
 /*
  * This is like base64 encoding except that we use [a-zA-Z0-9./]

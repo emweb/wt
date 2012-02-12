@@ -36,7 +36,7 @@ public:
 
   /*! \brief Constructs a mailbox using an address and display name.
    */
-  Mailbox(const std::string& address, const WString& displayName);
+  Mailbox(const std::string& address, const WT_USTRING& displayName);
 
   /*! \brief Returns whether the mailbox is empty.
    */
@@ -52,11 +52,11 @@ public:
 
   /*! \brief Returns the display name.
    */
-  const WString& displayName() const { return displayName_; }
+  const WT_USTRING& displayName() const { return displayName_; }
 
 private:
   std::string address_;
-  WString displayName_;
+  WT_USTRING displayName_;
 };
 
   }

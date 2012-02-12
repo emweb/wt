@@ -321,9 +321,9 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
   bootJs.setCondition("DEFER_SCRIPT", !xhtml);
 
-  std::string internalPath 
-    = hybrid ? safeJsStringLiteral(session_.app()->internalPath()) : "";
-  bootJs.setVar("INTERNAL_PATH", internalPath);
+  std::string internalPath
+    = hybrid ? session_.app()->internalPath() : session_.env().internalPath();
+  bootJs.setVar("INTERNAL_PATH", safeJsStringLiteral(internalPath));
 
   boot.streamUntil(response.out(), "BOOT_JS");
   bootJs.stream(response.out());

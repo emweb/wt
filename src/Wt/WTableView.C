@@ -256,9 +256,7 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
   WFlags<ViewItemRenderFlag> renderFlags = 0;
 
   if (ajaxMode()) {
-    if (   (selectionBehavior() == SelectItems && isSelected(index))
-	   || (selectionBehavior() == SelectRows
-	       && isSelected(model()->index(index.row(), 0, rootIndex()))))
+    if (isSelected(index))
       renderFlags |= RenderSelected;
   }
 

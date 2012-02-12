@@ -482,9 +482,9 @@ namespace Wt {
 
   - command-line parameter <tt>--config</tt> or <tt>-c</tt>
   - value of environment variable <tt>$WT_CONFIG_XML</tt>
-  - within the app root, as configured by command line paramater
+  - within the appRoot, as configured by command line paramater
     <tt>--approot</tt>, or the environment variable <tt>$WT_APP_ROOT</tt>:
-    approot<tt>/wt_config.xml</tt>
+    appRoot<tt>/wt_config.xml</tt>
   - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>)
 
   Use the <tt>--deploy-path</tt> parameter to deploy the application at

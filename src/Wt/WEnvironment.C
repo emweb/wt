@@ -23,6 +23,12 @@ namespace Wt {
 LOGGER("WEnvironment");
 
 WEnvironment::WEnvironment()
+  : session_(0),
+    doesAjax_(false),
+    doesCookies_(false),
+    hashInternalPaths_(false),
+    dpiScale_(1),
+    contentType_(HTML4)
 { }
 
 WEnvironment::WEnvironment(WebSession *session)

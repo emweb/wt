@@ -265,8 +265,13 @@ void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
     WContainerWidget *w = dynamic_cast<WContainerWidget *>(content_->widget(i));
     WText *value = dynamic_cast<WText *>(w->widget(0));
 
-    boost::any d = model_->data(i, modelColumn_);
+    WModelIndex index = model_->index(i, modelColumn_);
+
+    boost::any d = index.data();
     value->setText(asString(d));
+
+    TextFormat format = index.flags() & ItemIsXHTMLText ? XHTMLText : PlainText;
+    value->setTextFormat(format);
 
     boost::any d2 = model_->data(i, modelColumn_, UserRole);
     if (d2.empty())

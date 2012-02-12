@@ -11,7 +11,6 @@ namespace {
   const char *ClientIdProperty = "google-oauth2-client-id";
   const char *ClientSecretProperty = "google-oauth2-client-secret";
 
-  const char *UserInfoUrl = "https://www.googleapis.com/oauth2/v1/userinfo";
   const char *AuthUrl = "https://accounts.google.com/o/oauth2/auth";
   const char *TokenUrl = "https://accounts.google.com/o/oauth2/token";
 
@@ -40,26 +39,40 @@ public:
 
     client->done().connect(boost::bind(&GoogleProcess::handleMe, this, _1, _2));
 
-    Http::Message m;
-    m.setHeader("Authorization", "OAuth " + token.value());
+    std::vector<Http::Message::Header> headers;
+    headers.push_back(Http::Message::Header("Authorization", 
+					    "OAuth " + token.value()));
 
-    client->request(Http::Get, UserInfoUrl, m);
+    const char *UserInfoUrl = "https://www.googleapis.com/oauth2/v1/userinfo";
+    client->get(UserInfoUrl, headers);
 
+#ifndef WT_TARGET_JAVA
     WApplication::instance()->deferRendering();
+#endif
   }
 
 private:
   void handleMe(boost::system::error_code err, const Http::Message& response)
   {
+#ifndef WT_TARGET_JAVA
     WApplication::instance()->resumeRendering();
+#endif
 
     if (!err && response.status() == 200) {
-      Json::ParseError e;
-
       LOG_INFO("user info: " << response.body());
 
       Json::Object userInfo;
+
+#ifndef WT_TARGET_JAVA
+      Json::ParseError e;
       bool ok = Json::parse(response.body(), userInfo, e);
+#else
+      try {
+	userInfo = (Json::Object)Json::Parser().parse(response.body());
+      } catch (Json::ParseError pe) {
+      }
+      bool ok = userInfo.isNull();
+#endif
 
       if (!ok) {
 	LOG_ERROR("could not parse Json: '" << response.body() << "'");

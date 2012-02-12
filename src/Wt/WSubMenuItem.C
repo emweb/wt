@@ -20,6 +20,12 @@ void WSubMenuItem::setSubMenu(WMenu *subMenu)
 {
   subMenu_ = subMenu;
   subMenu_->setSubMenu(true);
+  subMenu_->itemSelectRendered().connect(this, &WSubMenuItem::coSelect);
+}
+
+void WSubMenuItem::coSelect()
+{
+  menu()->selectVisual(menu()->indexOf(this), false, false);
 }
 
 WWidget *WSubMenuItem::createItemWidget()

@@ -17,20 +17,10 @@
 #include "WebSession.h"
 
 namespace Wt {
-
 LOGGER("WTemplate");
 
-const char *WTemplate::DropShadow_x1_x2
-  ="<span class=\"Wt-x1\">"
-  """<span class=\"Wt-x1a\"></span>"
-  "</span>"
-  "<span class=\"Wt-x2\">"
-  """<span class=\"Wt-x2a\"></span>"
-  "</span>";
-
-#ifndef WT_TARGET_JAVA
-bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
-			      std::ostream& result)
+bool WTemplate::_tr(const std::vector<WString>& args,
+		    std::ostream& result)
 {
   if (args.size() >= 1) {
     WString s = WString::tr(args[0].toUTF8());
@@ -44,11 +34,11 @@ bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
   }
 }
 
-bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
-			      std::ostream& result)
+bool WTemplate::_id(const std::vector<WString>& args,
+		    std::ostream& result)
 {
   if (args.size() == 1) {
-    WWidget *w = t->resolveWidget(args[0].toUTF8());
+    WWidget *w = this->resolveWidget(args[0].toUTF8());
     if (w) {
       result << w->id();
       return true;
@@ -58,6 +48,59 @@ bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
     LOG_ERROR("Functions::tr(): expects exactly one argument");
     return false;
   }
+}
+
+const char *WTemplate::DropShadow_x1_x2
+  ="<span class=\"Wt-x1\">"
+  """<span class=\"Wt-x1a\"></span>"
+  "</span>"
+  "<span class=\"Wt-x2\">"
+  """<span class=\"Wt-x2a\"></span>"
+  "</span>";
+
+#ifdef WT_TARGET_JAVA
+WTemplate::FunctionsList WTemplate::Functions = WTemplate::FunctionsList();
+#endif //WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
+bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
+			      std::ostream& result)
+{
+  return t->_tr(args, result);
+}
+
+bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
+			      std::ostream& result)
+{
+  return t->_id(args, result);
+}
+#else
+bool WTemplate::TrFunctionImpl::evaluate(WTemplate *t, 
+					 const std::vector<WString>& args,
+					 std::ostream& result)
+{
+  try {
+    return t->_tr(args, result);
+  } catch (std::io_exception ioe) {
+    return false;
+  } 
+}
+
+bool WTemplate::IdFunctionImpl::evaluate(WTemplate *t, 
+					 const std::vector<WString>& args,
+					 std::ostream& result)
+{
+  try {
+  return t->_id(args, result);
+  } catch (std::io_exception ioe) {
+    return false;
+  }
+}
+
+WTemplate::FunctionsList::FunctionsList()
+{
+  tr = new TrFunctionImpl();
+  id = new IdFunctionImpl();
 }
 #endif
 

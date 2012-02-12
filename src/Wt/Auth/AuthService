@@ -209,7 +209,10 @@ private:
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. A "const AuthService" object is thus thread-safe.
+ * read-only. 
+ * \if cpp 
+ * A "const AuthService" object is thus thread-safe.
+ * \endif
  *
  * The class provides the following services (and relevant configuration):
  *
@@ -246,7 +249,7 @@ public:
    *
    * \sa WRandom::generateId()
    */
-  void setRandomTokenLength(int length);
+  void setRandomTokenLength(int length) { tokenLength_ = length; }
 
   /*! \brief Returns the token length.
    *
@@ -271,7 +274,7 @@ public:
    *
    * When authenticating using a 3rd party Identity Provider, the
    * identity is matched against the existing users, based on the id
-   * (with AbstractUserDatabase::findOtherId()), or if not matched,
+   * (with AbstractUserDatabase::findWithIdentity()), or if not matched,
    * based on whether there is a user with the same verified email
    * address as the one indicated by the identity.
    */
@@ -358,7 +361,7 @@ public:
    *
    * The default duration is two weeks (14 * 24 * 60 minutes).
    */
-  void setAuthTokenValidity(int minutes);
+  void setAuthTokenValidity(int minutes) { authTokenValidity_ = minutes; }
 
   /*! \brief Returns the authentication token validity.
    *
@@ -459,7 +462,7 @@ public:
    * The default duration is three days (3 * 24 * 60 minutes). Three is a divine
    * number.
    */
-  void setEmailTokenValidity(int minutes);
+  void setEmailTokenValidity(int minutes) { emailTokenValidity_ = minutes; }
 
   /*! \brief Returns the duration for an email token to remain valid.
    *
@@ -478,8 +481,14 @@ public:
    * - "auth-mail-sender-address": the sender email address, with default value
    *   "noreply-auth@www.webtoolkit.eu"
    *
+   * \if cpp
    * Then it uses Mail::Client to send the message, using default the
    * default client settings.
+   * \elseif java
+   * Then it uses the JavaMail API to send the message, the SMTP settings
+   * are configured using the smtp.host and smpt.port JWt configuration 
+   * variables (see {@link Configuration#setProperties(HashMap properties)}).
+   * \endif
    */
   virtual void sendMail(const Mail::Message& message) const;
   //@}

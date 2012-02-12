@@ -68,12 +68,12 @@ void toHex(unsigned char b, char& msb, char& lsb)
 std::string md5(const std::string& text)
 {
   md5_state_t c;
-  md5_init(&c);
+  wt_md5_init(&c);
 
-  md5_append(&c, (const md5_byte_t *)text.c_str(), text.length());
+  wt_md5_append(&c, (const md5_byte_t *)text.c_str(), text.length());
 
   unsigned char buf[16];
-  md5_finish(&c, buf);
+  wt_md5_finish(&c, buf);
 
   return std::string((const char *)buf, 16);
 }
@@ -82,10 +82,10 @@ std::string sha1(const std::string& text)
 {
   SHA1Context sha;
 
-  SHA1Reset(&sha);
-  SHA1Input(&sha, (unsigned char *)text.c_str(), text.length());
+  wt_SHA1Reset(&sha);
+  wt_SHA1Input(&sha, (unsigned char *)text.c_str(), text.length());
 
-  if (!SHA1Result(&sha)) {
+  if (!wt_SHA1Result(&sha)) {
     LOG_ERROR("Error computing sha1 hash");
     return std::string();
   } else {
@@ -181,6 +181,11 @@ std::string urlDecode(const std::string &text)
   }
 
   return result.str();
+}
+
+bool removeScript(WString& text)
+{
+  return WWebWidget::removeScript(text);
 }
   
   }

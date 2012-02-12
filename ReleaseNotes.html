@@ -22,6 +22,156 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.2.1 (February ??, 2012)</h2>
+
+<p>
+  This release contains mostly bug and feature improvements.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WFormModel.html">WFormModel</a>
+  </dt>
+  <dd>
+    A model class for forms. These models are used in Wt::Auth as the
+    basis for RegistrationModel and AuthModel, and allow a more
+    straight-forward customization of the underlying behavior of these
+    forms.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WReadOnlyProxyModel.html">WReadOnlyProxyModel</a>
+  </dt>
+  <dd>
+    A proxy model class which allows to share a source model between
+    read-only between multiple sessions.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WTemplateFormView.html">WTemplateFormView</a>
+  </dt>
+  <dd>
+    A WTemplate-based standard view implementation that works in conjunction
+    with WFormModel.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Auth_1_1AuthModel.html">Auth::AuthModel</a>
+  </dt>
+  <dd>
+    A model that implements authentication logic.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Auth_1_1FacebookAuth.html">Auth::FacebookService</a>
+  </dt>
+  <dd>
+    An OAuth-2.0 based authentication service implementation for
+    Facebook.
+  </dd>
+
+  <dt>
+    <a href="namespaceWt_1_1Utils.html">Wt::Utils</a>
+  </dt>
+  <dd>
+    This namespace contains a number of utility functions that we
+    found useful in projects using Wt. They relate mostly to
+    lower-level encoding and decoding functions: base64-, hex-, html-,
+    and url-encoding/decoding.
+  </dd>
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WApplication.html">WApplication</a>
+  </dt>
+  <dd>
+    A new method, WApplication::bind(), is useful in combination with
+    WServer::post() to avoid posting to a method of a deleted object,
+    leveraging the same life-time tracking as with signal connections.
+  </dd>
+
+  <dt>
+    <a href="namespaceWt_1_1Render.html">Render library</a>
+  </dt>
+  <dd>
+    A large number of performance improvements, especially for table
+    layout and rendering.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WAxis.html">Chart::WAxis</a>
+  </dt>
+  <dd>
+    DateScale and DateTimeScale axes have improved auto-configuration of
+    limits and timesteps, now taking into account the resolution.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1Transaction.html">Dbo::Transaction</a>
+  </dt>
+  <dd>
+    We've modified the default transaction outcome: a transaction will
+    now automatically commit(), unless the transaction is being
+    destroyed (goes out of scope) because an exception is being
+    thrown, in which case the transaction will rollback(). Previously,
+    an uncomitted transaction would always rollback() on destruction.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1ptr.html">Dbo::ptr</a>
+  </dt>
+  <dd>
+    Added a session() method, returning the session with which the
+    session has been associated.
+  </dd>
+
+  <dt>
+    Shipped SHA-1 implementation.
+  </dt>
+  <dd>
+    We now ship a SHA-1 implementation with Wt and this thus relaxes
+    the need for OpenSSL to implement WebSockets and
+    Auth::SHA1HashFunction.
+  </dd>
+</dl>
+
+<h3>C) Non-backwards compatible changes</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1Auth_1_1AuthWidget.html">Auth::AuthWidget</a>
+  </dt>
+  <dd>
+    A number of API methods that configure and access the configuration
+    were moved to the new Auth::AuthModel class which can be accessed from
+    the widget using model().
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Auth_1_1AbstractPasswordService_1_1AbstractStrengthValidator.html">Auth::AbstractPasswordService::AbstractStrengthValidator</a>
+  </dt>
+  <dd>
+    The API was simplified to be less unorthodox: validate() now
+    returns a Result that contains all the information for it.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Http_1_1Client.html">Http::Client</a>
+  </dt>
+  <dd>
+    We've changed the signature of the parseUrl() utility function to
+    parse the URL into a URL structure instead of a collection of
+    string parameters.
+  </dd>
+</dl>
+
+<hr>
+
 <h2>Release 3.2.0 (November 29, 2011)</h2>
 
 <p>

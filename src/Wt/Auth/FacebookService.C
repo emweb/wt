@@ -6,6 +6,17 @@
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.FacebookService." e)
 
+namespace {
+  const char *RedirectEndpointProperty = "facebook-oauth2-redirect-endpoint";
+  const char *ClientIdProperty = "facebook-oauth2-app-id";
+  const char *ClientSecretProperty = "facebook-oauth2-app-secret";
+
+  const char *AuthUrl = "https://www.facebook.com/dialog/oauth";
+  const char *TokenUrl = "https://graph.facebook.com/oauth/access_token";
+
+  const char *EmailScope = "email";
+}
+
 namespace Wt {
 
 LOGGER("Auth::FacebookService");
@@ -29,18 +40,31 @@ public:
       (boost::bind(&FacebookProcess::handleMe, this, _1, _2));
     client->get("https://graph.facebook.com/me?access_token=" + token.value());
 
+#ifndef WT_TARGET_JAVA
     WApplication::instance()->deferRendering();
+#endif
   }
 
 private:
   void handleMe(boost::system::error_code err, const Http::Message& response)
   {
+#ifndef WT_TARGET_JAVA
     WApplication::instance()->resumeRendering();
+#endif
 
     if (!err && response.status() == 200) {
+#ifndef WT_TARGET_JAVA
       Json::ParseError e;
       Json::Object me;
       bool ok = Json::parse(response.body(), me, e);
+#else
+      Json::Object me;
+      try {
+	me = (Json::Object)Json::Parser().parse(response.body());
+      } catch (Json::ParseError pe) {
+      }
+      bool ok = me.isNull();
+#endif
 
       if (!ok) {
 	LOG_ERROR("could not parse Json: '" << response.body() << "'");
@@ -57,6 +81,12 @@ private:
       }
     } else {
       setError(ERROR_MSG("badresponse"));
+      
+      if (!err) {
+	LOG_ERROR("user info request returned: " << response.status());
+	LOG_ERROR("with: " << response.body());
+      }
+
       authenticated().emit(Identity::Invalid);
     }
   }
@@ -65,6 +95,21 @@ private:
 FacebookService::FacebookService(const AuthService& baseAuth)
   : OAuthService(baseAuth)
 { }
+
+bool FacebookService::configured()
+{
+  try {
+    configurationProperty(RedirectEndpointProperty);
+    configurationProperty(ClientIdProperty);
+    configurationProperty(ClientSecretProperty);
+
+    return true;
+  } catch (const std::exception& e) {
+    LOG_INFO("not configured: " << e.what());
+
+    return false;
+  }
+}    
 
 std::string FacebookService::name() const
 {
@@ -78,42 +123,42 @@ WString FacebookService::description() const
 
 std::string FacebookService::authenticationScope() const
 {
-  return "email";
+  return EmailScope;
 }
 
 int FacebookService::popupWidth() const
 {
-  return 550;
+  return 1000;
 }
 
 int FacebookService::popupHeight() const
 {
-  return 350;
+  return 600;
 }
 
 std::string FacebookService::redirectEndpoint() const
 {
-  return configurationProperty("facebook-oauth2-redirect-endpoint");
+  return configurationProperty(RedirectEndpointProperty);
 }
 
 std::string FacebookService::authorizationEndpoint() const
 {
-  return "https://www.facebook.com/dialog/oauth";
+  return AuthUrl;
 }
 
 std::string FacebookService::tokenEndpoint() const
 {
-  return "https://graph.facebook.com/oauth/access_token";
+  return TokenUrl;
 }
 
 std::string FacebookService::clientId() const
 {
-  return configurationProperty("facebook-oauth2-app-id");
+  return configurationProperty(ClientIdProperty);
 }
 
 std::string FacebookService::clientSecret() const
 {
-  return configurationProperty("facebook-oauth2-app-secret");
+  return configurationProperty(ClientSecretProperty);
 }
 
 Http::Method FacebookService::tokenRequestMethod() const

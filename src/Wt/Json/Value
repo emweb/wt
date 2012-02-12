@@ -505,6 +505,7 @@ public:
    */
   std::string orIfNull(const char *v) const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Extracts the UTF-8 encoded string value, using a fallback when null.
    *
    * This is similar to the string cast operator, but this method
@@ -516,6 +517,7 @@ public:
    *                       Json::StringType\endlink
    */
   std::string orIfNull(const std::string& v) const;
+#endif
 
   /*! \brief Extracts the boolean value, using a fallback when null.
    *

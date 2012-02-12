@@ -302,7 +302,7 @@ void WMenu::select(int index)
 
 void WMenu::select(int index, bool changePath)
 {
-  selectVisual(index, changePath);
+  selectVisual(index, changePath, true);
 
   if (index != -1) {
     if (isItemHidden(index))
@@ -319,7 +319,7 @@ void WMenu::select(int index, bool changePath)
   }
 }
 
-void WMenu::selectVisual(int index, bool changePath)
+void WMenu::selectVisual(int index, bool changePath, bool showContents)
 {
   previousCurrent_ = current_;
 
@@ -346,7 +346,7 @@ void WMenu::selectVisual(int index, bool changePath)
   if (index == -1)
     return;
 
-  if (contentsStack_) {
+  if (showContents && contentsStack_) {
     WWidget *contents = items_[current_]->contents();
     if (contents)
       contentsStack_->setCurrentWidget(contents);
@@ -478,7 +478,7 @@ void WMenu::select(WMenuItem *item)
 
 void WMenu::selectVisual(WMenuItem *item)
 {
-  selectVisual(indexOf(item), true);
+  selectVisual(indexOf(item), true, true);
 }
 
 int WMenu::indexOf(WMenuItem *item) const
@@ -491,7 +491,7 @@ void WMenu::undoSelectVisual()
   std::string prevPath = previousInternalPath_;
   int prevStackIndex = previousStackIndex_;
 
-  selectVisual(previousCurrent_, true);
+  selectVisual(previousCurrent_, true, true);
 
   if (internalPathEnabled_) {
     WApplication *app = wApp;

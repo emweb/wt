@@ -77,6 +77,13 @@ public:
    */
   Message();
 
+  /*! \brief Constructor.
+   *
+   * This creates an empty message, with an invalid status (-1), an empty body
+   * and the given headers.
+   */
+  Message(std::vector<Header> headers);
+
   /*! \brief Sets the status code.
    *
    * \note This method is probably not useful to you, since for a request

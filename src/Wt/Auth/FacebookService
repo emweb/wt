@@ -12,10 +12,61 @@
 namespace Wt {
   namespace Auth {
 
+/*! \brief %OAuth service for Facebook as third-party authenticator.
+ *
+ * The configuration of the service is done using properties, whose
+ * values need to match the values configured at Facebook.
+ *
+ * - <tt>facebook-oauth2-redirect-endpoint</tt>: the URL of the local
+ *   redirect endpoint, to which the Facebook OAuth service redirects the user
+ *   after authentication. See also redirectEndpoint()
+ * - <tt>facebook-oauth2-app-id</tt>: The application ID
+ * - <tt>facebook-oauth2-app-secret</tt>: The application secret.
+ *
+ * For example:
+ * \code
+ * <properties>
+ *   <property name="facebook-oauth2-redirect-endpoint">
+ *     http://localhost:8080/oauth2callback
+ *   </property>
+ *   <property name="facebook-oauth2-app-id">
+ *     1234567890123456
+ *   </property>
+ *   <property name="facebook-oauth2-app-secret">
+ *     a3cf1630b1ae415c7260d849efdf444d
+ *   </property>
+ * </properties>
+ * \endcode
+ *
+ * Like all <b>service classes</b>, this class holds only
+ * configuration state. Thus, once configured, it can be safely shared
+ * between multiple sessions since its state (the configuration) is
+ * read-only. 
+ * \if cpp
+ * A "const FacebookService" object is thus thread-safe.
+ * \endif
+ *
+ * \if cpp
+ * \sa http://developers.facebook.com/docs/authentication/
+ * \elseif java
+ * See also: http://developers.facebook.com/docs/authentication/
+ * \endif
+ *
+ * \ingroup auth
+ */
 class WT_API FacebookService : public OAuthService
 {
 public:
+  /*! \brief Constructor.
+   */
   FacebookService(const AuthService& baseAuthService);
+
+  /*! \brief Checks whether a FacebookAuth service is properly configured.
+   *
+   * This returns \c true if a value is found for the three
+   * configuration properties.
+   */
+  static bool configured();
 
   virtual std::string name() const;
   virtual WString description() const;

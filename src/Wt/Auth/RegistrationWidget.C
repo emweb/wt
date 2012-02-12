@@ -18,6 +18,8 @@
 #include "Wt/WPushButton"
 #include "Wt/WText"
 
+#include <memory>
+
 namespace skeletons {
   extern const char *Auth_xml1;
 }
@@ -89,7 +91,7 @@ WFormWidget *RegistrationWidget::createFormWidget(WFormModel::Field field)
 
 void RegistrationWidget::update()
 {
-  if (model_->passwordAuth() && !model_->oAuth().empty())
+  if (!model_->passwordAuth() && !model_->oAuth().empty())
     bindString("password-description",
 	       tr("Wt.Auth.password-or-oauth-registration"));
   else
@@ -111,7 +113,7 @@ void RegistrationWidget::update()
 
   WAnchor *isYou = resolve<WAnchor *>("confirm-is-you");
   if (!isYou) {
-    isYou = new WAnchor("#", tr("Wt.Auth.confirm-is-you"));
+    isYou = new WAnchor(std::string("#"), tr("Wt.Auth.confirm-is-you"));
     isYou->hide();
     bindWidget("confirm-is-you", isYou);
   }
@@ -141,7 +143,7 @@ void RegistrationWidget::update()
 	w->setToolTip(service->description());
 	w->setStyleClass("Wt-auth-icon");
 	w->setVerticalAlignment(AlignMiddle);
-	OAuthProcess *process
+	OAuthProcess *const process
 	  = service->createProcess(service->authenticationScope());
 	w->clicked().connect(process, &OAuthProcess::startAuthenticate);
 
@@ -230,6 +232,9 @@ void RegistrationWidget::doRegister()
 
   if (validate()) {
     User user = model_->doRegister();
+#ifdef WT_TARGET_JAVA
+    user = model_->users().addUser(user);
+#endif
     if (user.isValid()) {
       registerUserDetails(user);
       model_->login().login(user);

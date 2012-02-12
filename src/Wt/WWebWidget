@@ -189,13 +189,21 @@ public:
 
   /*! \brief Escape HTML control characters in the text, to display literally (<b>deprecated</b>).
    *
+   * \if cpp
    * \deprecated use Wt::Utils::htmlEncode() instead.
+   * \elseif java
+   * \deprecated use {@link Utils#htmlEncode(WString text, EnumSet flags)} instead.
+   * \endif
    */
   static WString escapeText(const WString& text, bool newlinesToo = false);
 
   /*! \brief Escape HTML control characters in the text, to display literally (<b>deprecated</b>).
    *
+   * \if cpp
    * \deprecated use Wt::Utils::htmlEncode() instead.
+   * \elseif java
+   * \deprecated use {@link Utils#htmlEncode(String text, EnumSet flags)} instead.
+   * \endif
    */
   static std::string& escapeText(std::string& text, bool newlinestoo = false);
 
@@ -213,7 +221,11 @@ public:
    * Modifies the \p text if needed. When the text is not proper
    * XML, returns \c false.
    *
+   * \if cpp
    * \deprecated use Wt::Utils::removeScript() instead.
+   * \elseif java
+   * \deprecated use {@link Utils#removeScript(CharSequence text)} instead.
+   * \endif
    */
   static bool removeScript(WString& text);
 

@@ -91,6 +91,15 @@ public:
    *
    * The first specific font that can be matched will be used, otherwise
    * a generic font will be used.
+   *
+   * Careful, for a font family name that contains a space, you need
+   * to add quotes, to WFont::setFamily(), e.g.
+   *
+   * \code
+   * WFont mono;
+   * mono.setFamily(WFont::Monospace, "'Courier New'");
+   * mono.setSize(18);
+   * \endcode
    */
   void setFamily(GenericFamily genericFamily,
 		 const WString& specificFamilies = WString());

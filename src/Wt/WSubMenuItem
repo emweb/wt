@@ -89,7 +89,7 @@ protected:
 private:
   WMenu *subMenu_;
 
-  void subItemSelected();
+  void coSelect();
 };
 
 }

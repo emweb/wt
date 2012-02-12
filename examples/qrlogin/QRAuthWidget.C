@@ -38,7 +38,7 @@ void QRAuthWidget::processEnvironment()
 
   const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
 
-  qrToken_ = qrService_->parseQRToken(env.internalPath());
+  qrToken_ = qrService_->parseQRToken(env);
 
   if (!qrToken_.empty()) {
     if (login().loggedIn())
@@ -53,12 +53,14 @@ void QRAuthWidget::confirmRemoteLogin()
   if (!qrToken_.empty() && login().loggedIn()) {
     Wt::WMessageBox *mb
       = new Wt::WMessageBox("Remote login",
-			    "<p>Do you want to login the desktop user ?</p>"
+			    "<p>Do you want to login the desktop user too ?</p>"
 			    "<p><b>WARNING !</b><br/>"
 			    "You should only do this if you arrived here "
 			    "by scanning a QR code.</p>",
 			    Wt::NoIcon, Wt::Yes | Wt::No);
-    mb->show();
+    mb->animateShow
+      (Wt::WAnimation(Wt::WAnimation::Pop | Wt::WAnimation::Fade,
+		      Wt::WAnimation::Linear, 300));
     mb->setWidth("70%");
     mb->buttonClicked().connect(this, &QRAuthWidget::doRemoteLogin);
     dialog_ = mb;
@@ -92,7 +94,9 @@ void QRAuthWidget::showQRDialog()
 {
   delete dialog_;
   dialog_ = new Wt::WDialog("Sign in with your mobile phone.");
-  dialog_->show();
+  dialog_->animateShow
+    (Wt::WAnimation(Wt::WAnimation::Pop | Wt::WAnimation::Fade,
+		    Wt::WAnimation::Linear, 300));
   dialog_->contents()->setContentAlignment(Wt::AlignCenter);
 
   Wt::WResource *resource
@@ -102,8 +106,16 @@ void QRAuthWidget::showQRDialog()
 
   Wt::WApplication *app = Wt::WApplication::instance();
 
-  std::string qrUrl = app->makeAbsoluteUrl
-    (app->bookmarkUrl(qrService_->redirectInternalPath())) + qrToken;
+  std::string qrUrl = app->bookmarkUrl("/");
+  if (qrUrl.find("?") != std::string::npos)
+    qrUrl += "&";
+  else
+    qrUrl += "?";
+
+  qrUrl += qrService_->redirectParameter()
+    + "=" + Wt::Utils::urlEncode(qrToken);
+
+  qrUrl = app->makeAbsoluteUrl(qrUrl);
 
   new Wt::WText("Use the barcode scanner to scan the QR code below.",
 		dialog_->contents());
@@ -126,10 +138,11 @@ void QRAuthWidget::showQRDialog()
 
 void QRAuthWidget::dialogDone()
 {
-  delete dialog_;
-  dialog_ = 0;
+  if (dialog_) {
+    delete dialog_;
+    dialog_ = 0;
 
-  Wt::WApplication *app = Wt::WApplication::instance();
-
-  qrDatabase_->removeToken(app->sessionId());
+    Wt::WApplication *app = Wt::WApplication::instance();
+    qrDatabase_->removeToken(app->sessionId());
+  }
 }

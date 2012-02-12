@@ -21,8 +21,8 @@ LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
     users_(users),
     baseAuth_(auth)
 {
-  addFunction("id", &WTemplate::Functions::id);
-  addFunction("tr", &WTemplate::Functions::tr);
+  addFunction("id", WT_TEMPLATE_FUNCTION(id));
+  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
 
   WLineEdit *email = new WLineEdit();
   email->setFocus();
@@ -46,11 +46,16 @@ void LostPasswordWidget::send()
 
   cancel();
 
-  WMessageBox *box = new WMessageBox(tr("Wt.Auth.lost-password"),
+  WMessageBox *const box = new WMessageBox(tr("Wt.Auth.lost-password"),
 				     tr("Wt.Auth.mail-sent"),
 				     NoIcon, Ok);
+#ifndef WT_TARGET_JAVA
   box->buttonClicked().connect
     (boost::bind(&LostPasswordWidget::deleteBox, box));
+#else
+  box->buttonClicked().connect
+    (boost::bind(&LostPasswordWidget::deleteBox, this, box));
+#endif
   box->show();
 }
 

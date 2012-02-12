@@ -113,8 +113,10 @@ PaintedSlider::PaintedSlider(WSlider *slider)
   slider_->addStyleClass(std::string("Wt-slider-")
 			 + (slider_->orientation() == Horizontal ? "h" : "v"));
 
-  if (slider_->positionScheme() == Static)
+  if (slider_->positionScheme() == Static) {
     slider_->setPositionScheme(Relative);
+    slider_->setOffsets(0, Left | Top);
+  }
 
   addChild(handle_ = new WContainerWidget());
   handle_->setPopup(true);
@@ -153,6 +155,8 @@ double PaintedSlider::h() const
 
 void PaintedSlider::updateState()
 {
+  bool rtl = WApplication::instance()->layoutDirection() == RightToLeft;
+
   std::string resourcesURL = WApplication::resourcesUrl();
 
   Orientation o = slider_->orientation();
@@ -170,13 +174,20 @@ void PaintedSlider::updateState()
   double l = o == Horizontal ? w() : h();
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
-  std::string dir = (o == Horizontal ? "left" : "top");
+  std::string dir;
+  if (o == Horizontal)
+    dir = rtl ? "right" : "left";
+  else
+    dir = "top";
   std::string u = (o == Horizontal ? "x" : "y");
   std::string U = (o == Horizontal ? "X" : "Y");
   std::string maxS = boost::lexical_cast<std::string>(l - HANDLE_WIDTH);
   std::string ppU = boost::lexical_cast<std::string>(pixelsPerUnit);
   std::string minimumS = boost::lexical_cast<std::string>(slider_->minimum());
   std::string maximumS = boost::lexical_cast<std::string>(slider_->maximum());
+
+  std::string width = boost::lexical_cast<std::string>(w());
+  std::string horizontal = boost::lexical_cast<std::string>(o == Horizontal);
 
   /*
    * Note: cancelling the mouseDown event prevents the selection behaviour
@@ -190,9 +201,15 @@ void PaintedSlider::updateState()
   std::string computeD =
     ""  "var objh = " + handle_->jsRef() + ","
     ""      "objb = " + jsRef() + ","
-    ""      "u = WT.pageCoordinates(event)." + u + " - down,"
-    ""      "w = WT.widgetPageCoordinates(objb)." + u + ","
-    ""      "d = u-w;";
+    ""      "page_u = WT.pageCoordinates(event)." + u + ","
+    ""      "widget_page_u = WT.widgetPageCoordinates(objb)." + u + ","
+    ""      "pos = page_u - widget_page_u,"
+    ""      "rtl = " + boost::lexical_cast<std::string>(rtl) + ","
+    ""      "horizontal = " + horizontal + ";"
+    ""  "if (rtl && horizontal)"
+    ""  "  pos = " + width + " - pos;"
+    ""  "var d = pos - down;";
+  
 
   std::string mouseMovedJS = 
     """var down = obj.getAttribute('down');"
@@ -274,8 +291,13 @@ void PaintedSlider::sliderResized(const WLength& width, const WLength& height)
  
 void PaintedSlider::onSliderClick(const WMouseEvent& event)
 {
-  onSliderReleased(slider_->orientation() == Horizontal
-		   ? event.widget().x : event.widget().y);
+  int x = event.widget().x;
+  int y = event.widget().y;
+
+  if (WApplication::instance()->layoutDirection() == RightToLeft)
+    x = (int)(w() - x);
+
+  onSliderReleased(slider_->orientation() == Horizontal ? x : y);
 }
 
 void PaintedSlider::onSliderReleased(int u)
@@ -388,8 +410,12 @@ void WSlider::layoutSizeChanged(int width, int height)
 {
   WFormWidget::resize(WLength::Auto, WLength::Auto);
 
-  if (paintedSlider_)
+  if (paintedSlider_) {
+    const WEnvironment& env = WApplication::instance()->environment();
+    if (env.agentIsChrome() && orientation_ == Vertical)
+      height -= 5; // bug in Chrome: table adds internal margin to td height
     paintedSlider_->sliderResized(width, height);
+  }
 }
 
 void WSlider::setOrientation(Orientation orientation)

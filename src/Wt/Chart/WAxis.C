@@ -396,7 +396,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	      = roundUp125(s.renderMaximum, renderInterval_);
 	}
       } else if (scale_ == DateScale || scale_ == DateTimeScale) {
-	double daysRange, daysInterval;
+	double daysRange, daysInterval = 0.0;
 
 	WDateTime min, max;
 	int interval;
@@ -427,14 +427,14 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	} else if (daysInterval > 20) {
 	  s.dateTimeRenderUnit = Months;
 
-	  double i = daysInterval / 30;
-	  if (i < 1.3)
+	  double d = daysInterval / 30;
+	  if (d < 1.3)
 	    interval = 1;
-	  else if (i < 2.3)
+	  else if (d < 2.3)
 	    interval = 2;
-	  else if (i < 3.3)
+	  else if (d < 3.3)
 	    interval = 3;
-	  else if (i < 4.3)
+	  else if (d < 4.3)
 	    interval = 4;
 	  else
 	    interval = 6;
@@ -468,16 +468,16 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  if (minutes > 40) {
 	    s.dateTimeRenderUnit = Hours;
 
-	    double i = minutes / 60;
-	    if (i < 1.3)
+	    double d = minutes / 60;
+	    if (d < 1.3)
 	      interval = 1;
-	    else if (i < 2.3)
+	    else if (d < 2.3)
 	      interval = 2;
-	    else if (i < 3.3)
+	    else if (d < 3.3)
 	      interval = 3;
-	    else if (i < 4.3)
+	    else if (d < 4.3)
 	      interval = 4;
-	    else if (i < 6.3)
+	    else if (d < 6.3)
 	      interval = 6;
 	    else
 	      interval = 12;

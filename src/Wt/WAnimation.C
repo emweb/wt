@@ -66,6 +66,11 @@ void WAnimation::setDuration(int msecs)
   duration_ = msecs;
 }
 
+void WAnimation::setTimingFunction(TimingFunction tf)
+{
+  timing_ = tf;
+}
+
 bool WAnimation::empty() const
 {
   return duration_ == 0 || !effects_;

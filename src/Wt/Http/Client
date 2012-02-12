@@ -186,6 +186,24 @@ public:
    */
   bool get(const std::string& url);
 
+  /*! \brief Starts a GET request.
+   *
+   * The function starts an asynchronous GET request, and returns
+   * immediately.
+   *
+   * The function returns \c true when the GET request has been
+   * scheduled, and thus done() will be emitted eventually.
+   *
+   * The function returns \p false if the client could not schedule
+   * the request, for example if the \p url is invalid or if the URL
+   * scheme is not supported.
+   *
+   * This function accepts one or more headers.
+   *
+   * \sa request(), done()
+   */
+  bool get(const std::string& url, const std::vector<Message::Header> headers);
+
   /*! \brief Starts a POST request.
    *
    * The function starts an asynchronous POST request, and returns
@@ -250,16 +268,22 @@ public:
    */
   Signal<boost::system::error_code, Message>& done() { return done_; }
 
+  /*! \brief This struct implements an URL data structure.
+   */
+  struct URL {
+    std::string protocol;
+    std::string host;
+    int port;
+    std::string path;
+  };
+
   /*! \brief Utility method to parse a URL.
    *
-   * This parses a URL into the \p protocol, \p server, \p port, and \p path
-   * components.
+   * This parses a URL into the \p parsedUrl object.
    *
    * The method returns true if the URL could be parsed successfully.
    */
-  static bool parseUrl(const std::string &url,
-		       std::string& protocol, std::string& server, int& port,
-		       std::string& path);
+  static bool parseUrl(const std::string &url, URL &parsedUrl);
 
 private:
   WIOService *ioService_;

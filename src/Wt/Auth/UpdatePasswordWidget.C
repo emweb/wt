@@ -78,7 +78,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 
 }
 
-WFormWidget *UpdatePasswordWidget::createField(WFormModel::Field field)
+WFormWidget *UpdatePasswordWidget::createFormWidget(WFormModel::Field field)
 {
   WFormWidget *result = 0;
 
@@ -133,6 +133,7 @@ bool UpdatePasswordWidget::validate()
     }
   }
 
+  registrationModel_->validateField(RegistrationModel::LoginNameField);
   checkPassword();
   checkPassword2();
 

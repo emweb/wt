@@ -7,6 +7,8 @@
 #ifndef WT_WFORM_MODEL_H_
 #define WT_WFORM_MODEL_H_
 
+#include <boost/any.hpp>
+
 #include <Wt/WObject>
 #include <Wt/WValidator>
 
@@ -34,13 +36,14 @@ namespace Wt {
  * status.
  *
  * Example (a bit contrived since you will usually not use the model directly):
+ * \if cpp
  * \code
  * const char *NameField = "name";
  * const char *TelField = "telephone";
  *
  * Wt::WFormModel *model = new Wt::WFormModel();
  * model->addField(NameField, "Enter your name");
- * model->addField(TelephoneField, "Phone number");
+ * model->addField(TelField, "Phone number");
  *
  * model->setValue(NameField, Wt::WString::fromUTF8("John Doe"));
  *
@@ -54,6 +57,28 @@ namespace Wt {
  *   ...
  * }
  * \endcode
+ * \elseif java
+ * \code
+ * String NameField = "name";
+ * String TelField = "telephone";
+ *
+ * WFormModel model = new WFormModel();
+ * model.addField(NameField, "Enter your name");
+ * model.addField(TelField, "Phone number");
+ *
+ * model.setValue(NameField, "John Doe");
+ *
+ * if (model.validate()) {
+ *   ...
+ * } else {
+ *   WValidator.Result rname = model.getValidation(NameField);
+ *   if (rname.getState() != WValidator.State.Valid) {
+ *     System.err.println("Invalid name: " + rname.getMessage());
+ *   }
+ *   ...
+ * }
+ * \endcode
+ * \endif
  */
 class WT_API WFormModel : public WObject
 {
@@ -173,7 +198,9 @@ public:
 
   /*! \brief Returns the field value text.
    *
+   * \if cpp
    * This uses Wt::asString() to interpret the current value as text.
+   * \endif
    *
    * \sa value()
    */

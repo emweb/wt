@@ -89,12 +89,12 @@ public:
   /*! \brief Creates a new database transaction.
    *
    * If the underlying database does not support transactions, you can
-   * return 0.
+   * return \c 0.
    *
    * Ownership of the transaction is transferred, and the transaction must
    * be deleted after it has been committed or rolled back.
    *
-   * The default implementation returns 0 (no transaction support).
+   * The default implementation returns \c 0 (no transaction support).
    */
   virtual Transaction *startTransaction();
 
@@ -329,6 +329,10 @@ public:
    */
   virtual WDateTime lastLoginAttempt(const User& user) const;
   //@}
+
+#ifdef WT_TARGET_JAVA
+  virtual User addUser(const User& user);
+#endif
 
 protected:
   AbstractUserDatabase();

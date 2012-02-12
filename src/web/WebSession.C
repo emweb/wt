@@ -334,6 +334,15 @@ void WebSession::init(const WebRequest& request)
     if (slashpos != std::string::npos
 	&& slashpos != absoluteBaseUrl_.length() - 1)
       absoluteBaseUrl_ = absoluteBaseUrl_.substr(0, slashpos + 1);
+
+    slashpos = absoluteBaseUrl_.find("://");
+
+    if (slashpos != std::string::npos) {
+      slashpos = absoluteBaseUrl_.find("/", slashpos + 3);
+      if (slashpos != std::string::npos) {
+	deploymentPath_ = absoluteBaseUrl_.substr(slashpos) + applicationName_;
+      }
+    }
   }
 
   bookmarkUrl_ = applicationName_;
@@ -1217,7 +1226,7 @@ void WebSession::handleRequest(Handler& handler)
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out() <<
 		"<html><head><title>bhm</title></head>"
-		"<body>&#160;</body></html>";
+		"<body> </body></html>";
 	    } else {
 	      LOG_INFO("not starting session for resource.");
 	      handler.response()->setContentType("text/html");
@@ -1334,7 +1343,7 @@ void WebSession::handleRequest(Handler& handler)
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() <<
 	      "<html><head><title>bhm</title></head>"
-	      "<body>&#160;</body></html>";
+	      "<body> </body></html>";
 
 	    break;
 	  } else {
@@ -1840,7 +1849,7 @@ void WebSession::notify(const WEvent& event)
 	  handler.response()->setContentType("text/html");
 	  handler.response()->out() <<
 	    "<html><head><title>bhm</title></head>"
-	    "<body>&#160;</body></html>";
+	    "<body> </body></html>";
 	  handler.response()->flush();
 	  handler.setRequest(0, 0);
 	} else {
@@ -2128,6 +2137,10 @@ EventType WebSession::getEventType(const WEvent& event) const
 	      return UserEvent;
 	    else {
 	      EventSignalBase* esb = decodeSignal(*s, false);
+
+	      if (!esb)
+		continue;
+
 	      WTimerWidget* t = dynamic_cast<WTimerWidget*>(esb->sender());
 	      if (t)
 		++timerSignals;

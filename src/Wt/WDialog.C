@@ -11,7 +11,9 @@
 #include "Wt/WText"
 
 #include "Resizable.h"
+#include "WebController.h"
 #include "WebSession.h"
+#include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDialog.min.js"
@@ -26,13 +28,8 @@ WDialog::WDialog(const WString& windowTitle)
     finished_(this),
     recursiveEventLoop_(false),
     initialized_(false)
-{ 
-  const char *TEMPLATE =
-      "${shadow-x1-x2}"
-      "${titlebar}"
-      "${contents}";
-
-  setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+{
+  setImplementation(impl_ = new WTemplate(tr("Wt.WDialog.template")));
 
   const char *CSS_RULES_NAME = "Wt::WDialog";
 
@@ -90,12 +87,11 @@ WDialog::WDialog(const WString& windowTitle)
 
   impl_->setStyleClass("Wt-dialog Wt-outset");
 
-  WContainerWidget *parent = app->domRoot();
-
   setPopup(true);
 
   LOAD_JAVASCRIPT(app, "js/WDialog.js", "WDialog", wtjs1);
 
+  WContainerWidget *parent = app->domRoot();
   parent->addWidget(this);
 
   titleBar_ = new WContainerWidget();
@@ -160,6 +156,22 @@ void WDialog::render(WFlags<RenderFlag> flags)
     app->addAutoJavaScript
       ("{var obj = $('#" + id() + "').data('obj');"
        "if (obj) obj.centerDialog();}");
+
+    /*
+     * When a dialog is shown immediately for a new session, the recentering
+     * logic comes too late and causes a glitch. Thus we include directly in
+     * the HTML a JavaScript block to mitigate that
+     */
+    if (!app->environment().agentIsIElt(9)) {
+      std::string js = WString::tr("Wt.WDialog.CenterJS").toUTF8();
+      Utils::replace(js, "$el", "'" + id() + "'");
+      Utils::replace(js, "$centerX", centerX ? "1" : "0");
+      Utils::replace(js, "$centerY", centerY ? "1" : "0");
+
+      impl_->bindString
+	("center-script", "<script>" + js + "</script>", XHTMLUnsafeText);
+    } else
+      impl_->bindEmpty("center-script");
   }
 
   WCompositeWidget::render(flags);

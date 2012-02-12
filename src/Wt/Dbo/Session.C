@@ -310,6 +310,10 @@ void Session::prepareStatements(MappingInfo *mapping)
 	firstField = false;
       }
     }
+
+    if (firstField)
+      throw Exception("Table " + std::string(mapping->tableName) + " is missing a natural "
+		      "id defined with Wt::Dbo::id()");
   } else
     idCondition
       += std::string() + "\"" + mapping->surrogateIdFieldName + "\" = ?";
@@ -572,11 +576,6 @@ void Session::resolveJoinIds(MappingInfo *mapping)
 	  }
 	}
       }
-
-      if (!found)
-	throw Exception("Could not find corresponding Many-To-Many collection: "
-			"for " + std::string(mapping->tableName) + "."
-			+ set.joinName);
     }
   }
 }

@@ -83,6 +83,12 @@ WT_API extern void parse(const std::string& input, Object& result);
 WT_API extern bool parse(const std::string& input, Object& result,
                          ParseError& error);
 
+#ifdef WT_TARGET_JAVA
+    class Parser {
+      Object parse(const std::string& input);
+    };
+#endif
+
   }
 }
 

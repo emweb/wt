@@ -80,7 +80,7 @@ void SHA1PadMessage(SHA1Context *);
  *  Comments:
  *
  */
-void SHA1Reset(SHA1Context *context)
+void wt_SHA1Reset(SHA1Context *context)
 {
     context->Length_Low             = 0;
     context->Length_High            = 0;
@@ -113,7 +113,7 @@ void SHA1Reset(SHA1Context *context)
  *  Comments:
  *
  */
-int SHA1Result(SHA1Context *context)
+int wt_SHA1Result(SHA1Context *context)
 {
 
     if (context->Corrupted)
@@ -152,7 +152,7 @@ int SHA1Result(SHA1Context *context)
  *  Comments:
  *
  */
-void SHA1Input(     SHA1Context         *context,
+void wt_SHA1Input(     SHA1Context         *context,
                     const unsigned char *message_array,
                     unsigned            length)
 {

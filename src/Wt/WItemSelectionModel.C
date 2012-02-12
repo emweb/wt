@@ -30,7 +30,17 @@ void WItemSelectionModel::setSelectionBehavior(SelectionBehavior behavior)
 
 bool WItemSelectionModel::isSelected(const WModelIndex& index) const
 {
-  return selection_.find(index) != selection_.end();
+  if (selectionBehavior_ == SelectRows) {
+    for (std::set<WModelIndex>::const_iterator it = selection_.begin() ; 
+         it != selection_.end(); ++it ) {
+      WModelIndex mi = *it;
+      if (mi.row() == index.row())
+	return true;
+    }
+    return false;
+  } else {
+    return selection_.find(index) != selection_.end();
+  }
 }
 
 void WItemSelectionModel::modelLayoutAboutToBeChanged()

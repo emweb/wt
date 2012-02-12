@@ -117,6 +117,7 @@ public:
   WT_API void setIOService(WIOService& ioService);
 
   WT_API WIOService& ioService();
+#endif
 
   /*! \brief Returns the server instance.
    *
@@ -130,6 +131,7 @@ public:
    */
   WT_API static WServer *instance() { return instance_; }
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Configures the HTTP(S) server or FastCGI process.
    *
    * Configures the HTTP(S) server using command-line arguments, a
@@ -176,6 +178,7 @@ public:
   WT_API void addEntryPoint(EntryPointType type, ApplicationCreator callback,
 		            const std::string& path = std::string(),
                             const std::string& favicon = std::string());
+#endif
 
   /*! \brief Binds a resource to a fixed path.
    *
@@ -185,6 +188,7 @@ public:
    */
   WT_API void addResource(WResource *resource, const std::string& path);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Starts the server in the background.
    *
    * Returns whether the server could be successfully started.
@@ -325,8 +329,8 @@ public:
    *
    * \sa WApplication::readConfigurationProperty()
    */
-  static std::string *readConfigurationProperty(const std::string& name,
-						const std::string& value);
+  std::string *readConfigurationProperty(const std::string& name,
+					 const std::string& value);
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA

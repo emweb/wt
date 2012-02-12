@@ -535,6 +535,13 @@ bool Client::get(const std::string& url)
   return request(Get, url, Message());
 }
 
+bool Client::get(const std::string& url, 
+		 const std::vector<Message::Header> headers)
+{
+  Message m(headers);
+  return request(Get, url, m);
+}
+
 bool Client::post(const std::string& url, const Message& message)
 {
   return request(Post, url, message);
@@ -567,19 +574,16 @@ bool Client::request(Http::Method method, const std::string& url,
     server = 0;
   }
 
-  std::string protocol;
-  std::string host;
-  int port;
-  std::string path;
+  URL parsedUrl;
 
-  if (!parseUrl(url, protocol, host, port, path))
+  if (!parseUrl(url, parsedUrl))
     return false;
 
-  if (protocol == "http") {
+  if (parsedUrl.protocol == "http") {
     impl_.reset(new TcpImpl(*ioService, server, sessionId));
 
 #ifdef WT_WITH_SSL
-  } else if (protocol == "https") {
+  } else if (parsedUrl.protocol == "https") {
     boost::asio::ssl::context context
       (*ioService, boost::asio::ssl::context::sslv23);
 
@@ -594,11 +598,15 @@ bool Client::request(Http::Method method, const std::string& url,
 	context.add_verify_path(verifyPath_);
     }
 
-    impl_.reset(new SslImpl(*ioService, server, context, sessionId, host));
+    impl_.reset(new SslImpl(*ioService, 
+			    server, 
+			    context, 
+			    sessionId, 
+			    parsedUrl.host));
 #endif // WT_WITH_SSL
 
   } else {
-    LOG_ERROR("unsupported protocol: " << protocol);
+    LOG_ERROR("unsupported protocol: " << parsedUrl.protocol);
     return false;
   }
 
@@ -610,7 +618,11 @@ bool Client::request(Http::Method method, const std::string& url,
 
   LOG_DEBUG(methodNames_[method] << " " << url);
 
-  impl_->request(methodNames_[method], host, port, path, message);
+  impl_->request(methodNames_[method], 
+		 parsedUrl.host, 
+		 parsedUrl.port, 
+		 parsedUrl.path, 
+		 message);
 
   return true;
 }
@@ -620,9 +632,7 @@ void Client::emitDone(boost::system::error_code err, const Message& response)
   done_.emit(err, response);
 }
 
-bool Client::parseUrl(const std::string &url,
-		      std::string& protocol, std::string& server, int& port,
-		      std::string& path)
+bool Client::parseUrl(const std::string &url, URL &parsedUrl)
 {
   std::size_t i = url.find("://");
   if (i == std::string::npos) {
@@ -630,33 +640,33 @@ bool Client::parseUrl(const std::string &url,
     return false;
   }
 
-  protocol = url.substr(0, i);
+  parsedUrl.protocol = url.substr(0, i);
   std::string rest = url.substr(i + 3);
   std::size_t j = rest.find('/');
 
   if (j == std::string::npos)
-    server = rest;
+    parsedUrl.host = rest;
   else {
-    server = rest.substr(0, j);
-    path = rest.substr(j);
+    parsedUrl.host = rest.substr(0, j);
+    parsedUrl.path = rest.substr(j);
   }
 
-  std::size_t k = server.find(':');
+  std::size_t k = parsedUrl.host.find(':');
   if (k != std::string::npos) {
     try {
-      port = boost::lexical_cast<int>(server.substr(k + 1));
+      parsedUrl.port = boost::lexical_cast<int>(parsedUrl.host.substr(k + 1));
     } catch (boost::bad_lexical_cast& e) {
-      LOG_ERROR("invalid port: " << server.substr(k + 1));
+      LOG_ERROR("invalid port: " << parsedUrl.host.substr(k + 1));
       return false;
     }
-    server = server.substr(0, k);
+    parsedUrl.host = parsedUrl.host.substr(0, k);
   } else {
-    if (protocol == "http")
-      port = 80;
-    else if (protocol == "https")
-      port = 443;
+    if (parsedUrl.protocol == "http")
+      parsedUrl.port = 80;
+    else if (parsedUrl.protocol == "https")
+      parsedUrl.port = 443;
     else
-      port = 80; // protocol will not be handled anyway
+      parsedUrl.port = 80; // protocol will not be handled anyway
   }
 
   return true;

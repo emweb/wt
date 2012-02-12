@@ -9,17 +9,19 @@
 
 #include "AbstractUserDatabase"
 
+namespace {
+  const char *EMAIL_VERIFICATION = "email verification";
+  const char *AUTH_TOKEN = "authentication tokens";
+  const char *PASSWORDS = "password handling";
+  const char *THROTTLING = "password attempt throttling";
+  const char *REGISTRATION = "user registration";
+}
+
 namespace Wt {
 
 LOGGER("Auth::AbstractUserDatabase");
 
   namespace Auth {
-
-const char *EMAIL_VERIFICATION = "email verification";
-const char *AUTH_TOKEN = "authentication tokens";
-const char *PASSWORDS = "password handling";
-const char *THROTTLING = "password attempt throttling";
-const char *REGISTRATION = "user registration";
 
 class Require : public WException
 {
@@ -177,6 +179,14 @@ void AbstractUserDatabase::setLastLoginAttempt(const User& user,
 {
   LOG_ERROR(Require("setLastLoginAttempt()", THROTTLING).what());
 }
+
+#ifdef WT_TARGET_JAVA
+User AbstractUserDatabase::addUser(const User& user)
+{
+  LOG_ERROR(Require("registerNew()", REGISTRATION).what());
+  return User();
+}
+#endif
 
   }
 }

@@ -95,10 +95,23 @@ public:
   virtual bool resolvePluralKey(const std::string& key, 
 				std::string& result,
 				::uint64_t amount);
+
+  /*! \brief Utility method to evaluate a plural expression.
+   *
+   * This evaluates C expressions such as used by ngettext for a particular
+   * value, which can be useful to implement plural key resolution.
+   *
+   * \sa resolvePluralKey() 
+   */
+  static int evaluatePluralExpression(const std::string &expression,
+				      ::uint64_t n);
+
 #else // WT_TARGET_JAVA
   //TODO make this work for java
   //virtual std::string *resolveKey(const std::string& key) = 0;
 #endif // WT_TARGET_JAVA
+
+
 };
 
 }

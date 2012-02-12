@@ -7,7 +7,7 @@
 #include <cassert>
 #include <cmath>
 #include <fstream>
-#include <string.h>
+#include <string>
 
 #ifndef WT_TARGET_JAVA
 #include "Wt/Render/WTextRenderer"

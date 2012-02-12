@@ -73,7 +73,7 @@ PasswordStrengthValidator::evaluateStrength(const WT_USTRING& password,
   return result;
 }
 
-void PasswordStrengthValidator::setMinimimumLength(PasswordType type, int length)
+void PasswordStrengthValidator::setMinimumLength(PasswordType type, int length)
 {
   minLength_[type] = length;
 }

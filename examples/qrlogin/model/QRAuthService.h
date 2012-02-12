@@ -20,10 +20,10 @@ public:
 
   const Wt::Auth::AuthService& baseAuth() const { return baseAuth_; }
 
-  void setRedirectInternalPath(const std::string& s);
-  std::string redirectInternalPath() const { return redirectInternalPath_; }
+  void setRedirectParameter(const std::string& parameter);
+  std::string redirectParameter() const { return redirectParameter_; }
 
-  std::string parseQRToken(const std::string& internalPath) const;
+  std::string parseQRToken(const Wt::WEnvironment& env) const;
 
   Wt::WResource *createLoginResource(QRTokenDatabase& database,
 				     Wt::Auth::AbstractUserDatabase& users,
@@ -38,7 +38,7 @@ public:
 
 private:
   const Wt::Auth::AuthService& baseAuth_;
-  std::string redirectInternalPath_;
+  std::string redirectParameter_;
 
   void handleHttpResponse(Wt::Http::Client *client,
 			  boost::system::error_code err,

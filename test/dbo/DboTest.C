@@ -1214,7 +1214,7 @@ BOOST_AUTO_TEST_CASE( dbo_test15 )
 
     {
       dbo::collection<dbo::ptr<A> > c = session_->query< dbo::ptr<A> >
-	("select A from \"table_a\" A ").where("b_id = ?").bind(b);
+	("select A from \"table_a\" A ").where("\"b_id\" = ?").bind(b);
 
       BOOST_REQUIRE(c.size() == 1);
     }

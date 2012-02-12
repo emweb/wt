@@ -48,6 +48,7 @@ namespace Wt {
  * The view is passive: it will not perform any updates by itself of either
  * the View or Model. You will typically bind a method to the Ok button
  * and do:
+ * \if cpp
  * \code
  * void MyView::okClicked()
  * {
@@ -59,6 +60,19 @@ namespace Wt {
  *   }
  * }
  * \endcode
+ * \elseif java
+ * \code
+ * void okClicked()
+ * {
+ *   updateModel(this.model);
+ *   if (this.model.validate()) {
+ *     ...
+ *   } else {
+ *     updateView(this.model);
+ *   }
+ * }
+ * \endcode
+ * \endif
  */
 class WT_API WTemplateFormView : public WTemplate
 {

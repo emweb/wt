@@ -69,13 +69,26 @@ namespace Wt {
  * variable placeholder.
  *
  * Functions are resolved by resolveFunction(), and the default implementation
- * considers functions bound with addFunction(). There are currently two
- * functions that are generally useful:
- * - Functions::tr() resolves a localized strings. This is convenient to
- *   create a language neutral template, which contains translated strings
- * - Functions::id() resolves the id of a bound widget. This is convenient
- *   to bind &lt;label&gt; elements to a form widget using its for attribute.
- *
+ * considers functions bound with addFunction(). 
+ * There are currently two functions that are generally useful:
+ * \if cpp
+ * - \link Functions::tr()\endlink : resolves a localized strings, this is 
+ *   convenient to create a language neutral template, which contains 
+ *   translated strings
+ * \elseif java
+ * - WTemplate#TrFunctionImpl : resolves a localized strings, this is 
+ *   convenient to create a language neutral template, which contains 
+ *   translated strings
+ * \endif
+ * \if cpp
+ * - \link Functions::id()\endlink : resolves the id of a bound widget, this 
+ *   is convenient to bind &lt;label&gt; elements to a form widget using its 
+ *   for attribute.
+ * \elseif java
+ * - WTemplate#IdFunctionImpl : resolves the id of a bound widget, this 
+ *   is convenient to bind &lt;label&gt; elements to a form widget using its 
+ *   for attribute.
+ * \endif
  *
  * <h3>C. Conditional blocks</h3>
  *
@@ -85,6 +98,7 @@ namespace Wt {
  * Conditions are set using setCondition().
  *
  * <h3>Usage example</h3>
+ * \if cpp
  * \code
  * WString userName = ...;
  *
@@ -94,6 +108,17 @@ namespace Wt {
  * t->bindString("friend", userName, PlainText);
  * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
  * \endcode
+ * \elseif java
+ * \code
+ * WString userName = ...;
+ *
+ * WTemplate t = new WTemplate();
+ * t.setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
+ *
+ * t.bindString("friend", userName, PlainText);
+ * t.bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * \endcode
+ * \endif
  *
  * \if cpp
  * The template can return a bound widget using resolve(), which already
@@ -107,6 +132,12 @@ namespace Wt {
  */
 class WT_API WTemplate : public WInteractWidget
 {
+ private:
+  bool _tr(const std::vector<WString>& args, 
+	   std::ostream& result);
+  bool _id(const std::vector<WString>& args, 
+	   std::ostream& result);
+
 public:
 #ifndef WT_TARGET_JAVA
   /*! \brief A collection of predefined functions
@@ -160,6 +191,7 @@ public:
   typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
 			       std::ostream& result)> Function;
 
+#define WT_TEMPLATE_FUNCTION(a) &WTemplate::Functions::a
 #else
   class FunctionImpl {
   public:
@@ -167,8 +199,63 @@ public:
 			  std::ostream& result) = 0;
 
   };
+  
+  /*! \brief A function that resolves to a localized string.
+   *
+   * For example, when bound to the function <tt>"tr"</tt>, a place-holder
+   * <pre>
+   *   ${tr:name}
+   * </pre>
+   * will be resolved to the value of:
+   * \code
+   *   WString#tr("name")
+   * \endcode
+   *
+   * \sa addFunction()
+   */
+  class TrFunctionImpl : public FunctionImpl {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+			  std::ostream& result);
+  };
+
+  /*! \brief A function that resolves the id of a bound widget
+   *
+   * For example, when bound to the function <tt>"id"</tt>, a place-holder
+   * <pre>
+   *   ${id:name}
+   * </pre>
+   * will be resolved to the value of:
+   * \code
+   *   t.resolveWidget("name").id()
+   * \endcode
+   *
+   * This is useful for binding labels to input elements.
+   *
+   * \sa addFunction()
+   */
+  class IdFunctionImpl : public FunctionImpl {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+			  std::ostream& result);
+  };
 
   typedef FunctionImpl *Function;
+
+  /*! \brief A collection of predefined functions
+   *
+   * \sa addFunction()
+   */
+  struct FunctionsList
+  {
+    FunctionsList();
+    Function tr;
+    Function id;
+  };
+
+  static FunctionsList Functions;
+
+#define WT_TEMPLATE_FUNCTION(a) WTemplate::Functions.a
 #endif
 
   /*! \brief Creates a template widget.

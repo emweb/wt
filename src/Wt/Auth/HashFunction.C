@@ -10,21 +10,25 @@
 #include "Wt/Utils"
 #include "Wt/WException"
 
+#ifndef WT_TARGET_JAVA
 // for htonl():
 #ifndef WIN32
 #include <arpa/inet.h>
 #else
 #include <Winsock2.h>
 #endif
+#endif
 
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #include <stdexcept>
 
+#ifndef WT_TARGET_JAVA
 extern "C" {
 #include "bcrypt/ow-crypt.h"
 #include "sha1.h"
 }
+#endif
 
 namespace Wt {
   namespace Auth {
@@ -39,6 +43,7 @@ bool HashFunction::verify(const std::string& msg,
   return compute(msg, salt) == hash;
 }
 
+#ifndef WT_TARGET_JAVA
 std::string MD5HashFunction::compute(const std::string& msg,
 				     const std::string& salt) const
 {
@@ -55,11 +60,11 @@ std::string SHA1HashFunction::compute(const std::string& msg,
 {
   SHA1Context sha;
 
-  SHA1Reset(&sha);
-  SHA1Input(&sha, (unsigned char *)salt.c_str(), salt.length());
-  SHA1Input(&sha, (unsigned char *)msg.c_str(), msg.length());
+  wt_SHA1Reset(&sha);
+  wt_SHA1Input(&sha, (unsigned char *)salt.c_str(), salt.length());
+  wt_SHA1Input(&sha, (unsigned char *)msg.c_str(), msg.length());
 
-  if (!SHA1Result(&sha)) {
+  if (!wt_SHA1Result(&sha)) {
     throw WException("Could not compute SHA1 hash");
   } else {
     const unsigned SHA1_LENGTH = 20;
@@ -124,6 +129,6 @@ std::string BCryptHashFunction::name() const
 {
   return "bcrypt"; 
 }
-
+#endif
   }
 }

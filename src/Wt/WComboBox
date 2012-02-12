@@ -20,8 +20,9 @@ namespace Wt {
  * option may be selected.
  *
  * %WComboBox is an MVC view class, using a simple string list model
- * by default. The model may be populated using addItem(const
- * WString&) or insertItem(int, const WString&) and the contents can
+ * by default. The model may be populated using 
+ * addItem(const WString&) or 
+ * insertItem(int, const WString&) and the contents can
  * be cleared through clear(). These methods manipulate the underlying
  * model().
  *

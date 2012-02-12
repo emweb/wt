@@ -66,7 +66,11 @@ public:
 
   /*! \brief Returns the token expires time (if available).
    *
+   * \if cpp
    * Returns a Null date-time if not available.
+   * \elseif java
+   * Returns null if not available.
+   * \endif
    */
   WDateTime expires() const { return expires_; }
 
@@ -158,6 +162,15 @@ public:
    */
   virtual void startAuthenticate();
 
+#ifdef WT_TARGET_JAVA
+  /*! \brief Connects an implementation to start an authentication process to a signal 
+   *
+   * If JavaScript is available, this method connects a JavaScript function to
+   * the \p signal, otherwise startAuthenticate() is connected to \p signal. 
+   */
+  void connectStartAuthenticate(EventSignalBase &signal);
+#endif
+
   /*! \brief Obtains an authenticated identity.
    *
    * The authentication process uses an access token to issue one or
@@ -233,6 +246,9 @@ protected:
    * \sa parseTokenResponse()
    */
   class TokenError
+#ifdef WT_TARGET_JAVA
+    : public std::exception
+#endif
   {
   public:
     /*! \brief Constructor.
@@ -323,7 +339,10 @@ private:
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. A "const OAuthService" object is thus thread-safe.
+ * read-only. 
+ * \if cpp
+ * A "const OAuthService" object is thus thread-safe.
+ * \endif
  *
  * The %OAuth authorization protocol, including the subsequent use for
  * authentication, consists of a number of consecutive steps, some of
@@ -333,20 +352,41 @@ private:
  * such a process and listen for state changes.
  *
  * Usage example:
+ * \if cpp
  * \code
  * const OAuthService *oauth = ...;
  *
- * // Creates an icon which prompts for authentication using this %OAuth service.
- * WImage *icon = new WImage(oauth->icon());
- * icon->setToolTip(oauth->description());
+ * // Creates an icon which prompts for authentication using this OAuth service.
+ * WImage *icon = new WImage("css/oauth-" + auth->name() + ".png", icons);
+ * icon->setToolTip(auth->description());
  *
  * // Creates a new process for authentication, which is started by a click on the icon
- * process_ = oauth->createProcess(oauth->authenticationScope());
+ * process = oauth->createProcess(oauth->authenticationScope());
  * icon->clicked().connect(process_, &OAuthProcess::startAuthenticate);
  *
  * // And capture the result in a method.
  * process_->authenticated().connect(this, &MyWidget::oauthDone);
  * \endcode
+ * \elseif java
+ * \code
+ * OAuthService oauth = ...;
+ *
+ * // Creates an icon which prompts for authentication using this %OAuth service.
+ * WImage icon = new WImage("css/oauth-" + auth.getName() + ".png", icons);
+ * icon.setToolTip(auth.getDescription());
+ *
+ * // Creates a new process for authentication, which is started by a click on the icon
+ * process = oauth.createProcess(oauth.getAuthenticationScope());
+ * process.connectStartAuthenticate(icon.clicked());
+ *
+ * // And capture the result in a method.
+ * process.authenticated().addListener(this, new Signal1.Listener<Identity>() {
+ *  public void trigger(Identity id) {
+ *    MyWidget.this.oAuthDone(id);
+ *  }
+ * });
+ * \endcode
+ * \endif
  *
  * \ingroup auth
  */
@@ -424,7 +464,11 @@ public:
    *
    * A static resource will be deployed at this URL.
    *
+   * \if cpp
    * \sa WServer::addResource()
+   * \elseif java 
+   * @see WtServlet#addResource(WResource r, String path)
+   * \endif
    */
   virtual std::string redirectEndpoint() const = 0;
 
@@ -488,7 +532,7 @@ public:
    */
   virtual Http::Method tokenRequestMethod() const;
 
-  std::string getRedirectEndpoint() const;
+  std::string generateRedirectEndpoint() const;
 
   // FIXME document later
   virtual std::string redirectInternalPath() const;

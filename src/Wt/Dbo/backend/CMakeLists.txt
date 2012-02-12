@@ -1,12 +1,18 @@
 IF(ENABLE_SQLITE)
 
   OPTION(USE_SYSTEM_SQLITE3 "Use system-wide Sqlite3 instead of Wt's version" OFF)
+  OPTION(USE_SYSTEM_IBPP "Use a custom IBPP library instead of Wt's version" OFF)
 
   IF(USE_SYSTEM_SQLITE3)
     FIND_PACKAGE( Sqlite3 REQUIRED)
   ELSE(USE_SYSTEM_SQLITE3)
     SET(Sqlite3_SRCS amalgamation/sqlite3.c)
   ENDIF(USE_SYSTEM_SQLITE3)
+
+  IF(NOT USE_SYSTEM_IBPP)
+    SET(IBPP_SRC_DIRECTORY ibpp/)
+  ENDIF(NOT USE_SYSTEM_IBPP)
+  INCLUDE(../../../../cmake/WtFindFirebirdSql.txt)
 
   FIND_PACKAGE(Threads)
 

@@ -10,6 +10,9 @@
 #include <Wt/WGlobal>
 #include <string>
 
+/*! \file Utils
+ */
+
 namespace Wt {
 
   /*! \brief Namespace with utility functions.
@@ -133,7 +136,7 @@ WT_API extern std::string urlDecode(const std::string& text);
  *
  * This method is used by the library to sanitize XHTML-formatted text
  * set in WText, but it may also be useful outside the library to
- * sanitize user content when direcly using JavaScript.
+ * sanitize user content when directly using JavaScript.
  *
  * Modifies the \p text if needed. When the text is not proper XML,
  * returns \c false.

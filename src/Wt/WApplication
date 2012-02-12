@@ -877,12 +877,12 @@ public:
   static std::string resourcesUrl();
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Returns the approot special property
+  /*! \brief Returns the appRoot special property
    *
-   * This returns the "approot" property, with a trailing slash added to
-   * the end if it was not yet present.
+   * This returns the "appRoot" property, with a trailing slash added
+   * to the end if it was not yet present.
    *
-   * The property "approot" was introduced as a generalization of the
+   * The property "appRoot" was introduced as a generalization of the
    * working directory for the location of files that do not need to
    * be served over http to the client, but are required by the
    * program to run properly. Typically, these are message resource
@@ -894,12 +894,12 @@ public:
    * referring to files assuming a sensible CWD, it is therefore
    * better to refer to them relative to the application root.
    *
-   * The approot property is special in the sense that it can be set
+   * The appRoot property is special in the sense that it can be set
    * implicitly by the connector (see the connector documentation for
    * more info). If it was not set by the connector, it can be set as
    * a normal property in the configuration file (the default
    * wt_config.xml describes how to set properties). If the property
-   * is not set at all, it is assumed that the approot is CWD and this
+   * is not set at all, it is assumed that the appRoot is CWD and this
    * function will return an empty string.
    *
    * \if cpp
@@ -908,7 +908,7 @@ public:
    * messageResourceBundle().use(appRoot() + "text");
    * messageResourceBundle().use(appRoot() + "charts");
    *
-   * Wt::Dbo::backend::Sqlite3 sqlite3_(approot() + "planner.db");
+   * Wt::Dbo::backend::Sqlite3 sqlite3_(appRoot() + "planner.db");
    * \endcode
    * \endif
    *

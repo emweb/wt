@@ -92,6 +92,10 @@ public:
   /*! \brief Empty object constant.
    */
   static Object Empty;
+
+#ifdef WT_TARGET_JAVA
+  bool isNull() const;
+#endif
 };
 
   }

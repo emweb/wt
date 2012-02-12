@@ -8,6 +8,8 @@
 #include "Wt/Auth/PasswordService"
 #include "Wt/Auth/User"
 
+#include <memory>
+
 /*
  * Global throttling:
  *  - per process
@@ -17,23 +19,6 @@ namespace Wt {
 
 PasswordService::AbstractVerifier::~AbstractVerifier()
 { }
-
-WValidator::Result PasswordService::AbstractStrengthValidator
-::validate(const WT_USTRING& password, const WT_USTRING& loginName,
-	   const std::string& email) const
-{
-  AbstractPasswordService::StrengthValidatorResult result 
-    = evaluateStrength(password, loginName, email);
-
-  return WValidator::Result(result.isValid() ? Valid : Invalid, 
-			    result.message());
-}
-
-WValidator::Result PasswordService::AbstractStrengthValidator
-::validate(const WT_USTRING& password) const
-{
-  return validate(password, WT_USTRING::Empty, "");
-}
 
 PasswordService::PasswordService(const AuthService& baseAuth)
   : baseAuth_(baseAuth),

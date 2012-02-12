@@ -38,14 +38,18 @@ namespace {
 void Session::configureAuth()
 {
   myAuthService.setAuthTokensEnabled(true, "logincookie");
-  myAuthService.setEmailVerificationEnabled(true);
 
   Wt::Auth::PasswordVerifier *verifier = new Wt::Auth::PasswordVerifier();
   verifier->addHashFunction(new Wt::Auth::BCryptHashFunction(7));
   myPasswordService.setVerifier(verifier);
   myPasswordService.setAttemptThrottlingEnabled(true);
-  myPasswordService.setStrengthValidator
-    (new Wt::Auth::PasswordStrengthValidator());
+
+  Wt::Auth::PasswordStrengthValidator *v 
+    = new Wt::Auth::PasswordStrengthValidator();
+  /* Relax these a bit -- it's not the main point of this example */
+  v->setMinimumLength(Wt::Auth::PasswordStrengthValidator::TwoCharClass, 8);
+  v->setMinimumLength(Wt::Auth::PasswordStrengthValidator::ThreeCharClass, 8);
+  myPasswordService.setStrengthValidator(v);
 
   if (Wt::Auth::GoogleService::configured())
     myOAuthServices.push_back(new Wt::Auth::GoogleService(myAuthService));

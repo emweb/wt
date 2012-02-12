@@ -956,6 +956,12 @@ void WGLWidget::disable(GLenum cap)
   GLDEBUG;
 }
 
+void WGLWidget::disableVertexAttribArray(AttribLocation index)
+{
+  js_ << "ctx.disableVertexAttribArray(" << index << ");";
+  GLDEBUG;
+}
+
 void WGLWidget::drawArrays(GLenum mode, int first, unsigned count)
 {
   js_ << "ctx.drawArrays(" << toString(mode) << "," << first << "," << count << ");";
@@ -996,7 +1002,7 @@ void WGLWidget::framebufferRenderbuffer(GLenum target, GLenum attachment,
     GLenum renderbuffertarget, Renderbuffer renderbuffer)
 {
   js_ << "ctx.framebufferRenderbuffer(" << toString(target) << ","
-    << toString(attachment) << "," << toString(renderbuffertarget)
+    << toString(attachment) << "," << toString(renderbuffertarget) << ","
     << renderbuffer << ");";
   GLDEBUG;
 }
@@ -1005,7 +1011,7 @@ void WGLWidget::framebufferTexture2D(GLenum target, GLenum attachment,
     GLenum textarget, Texture texture, int level)
 {
   js_ << "ctx.framebufferTexture2D(" << toString(target) << ","
-    << toString(attachment) << "," << toString(textarget)
+    << toString(attachment) << "," << toString(textarget) << ","
     << texture << "," << level << ");";
   GLDEBUG;
 }

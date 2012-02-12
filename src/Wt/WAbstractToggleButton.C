@@ -204,7 +204,9 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   std::vector<DomElement::EventAction> changeActions;
 
-  if (needUpdateChangeSignal || all) {
+  if (needUpdateChangeSignal
+      || (piggyBackChangeOnClick && needUpdateClickedSignal)
+      || all) {
     std::string dom = "o";
 
     if (check) {
@@ -237,20 +239,20 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
       change->updateOk();
     }
 
-    if (!piggyBackChangeOnClick)
+    if (!piggyBackChangeOnClick) {
       if (!(all && changeActions.empty()))
 	input->setEvent("change", changeActions);
+    }
   }
 
   if (needUpdateClickedSignal || all) {
     if (piggyBackChangeOnClick) {
       if (click) {
-	if (click->needsUpdate(all))
-	  changeActions.push_back
-	    (DomElement::EventAction(std::string(),
-				     click->javaScript(),
-				     click->encodeCmd(),
-				     click->isExposedSignal()));
+	changeActions.push_back
+	  (DomElement::EventAction(std::string(),
+				   click->javaScript(),
+				   click->encodeCmd(),
+				   click->isExposedSignal()));
 	click->updateOk();
       }
 

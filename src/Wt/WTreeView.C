@@ -1284,8 +1284,9 @@ void WTreeView::resize(const WLength& width, const WLength& height)
       double navigationBarHeight = 25;
       double headerHeight = this->headerHeight().toPixels();
 
-      contentsContainer_->resize(width, height.toPixels()
-				 - navigationBarHeight - headerHeight);
+      int h = (int)(height.toPixels() - navigationBarHeight - headerHeight);
+      contentsContainer_->resize(width, std::max(h, (int)rowHeight().value()));
+
       viewportHeight_
 	= static_cast<int>(contentsContainer_->height().toPixels()
 			   / rowHeight().toPixels());

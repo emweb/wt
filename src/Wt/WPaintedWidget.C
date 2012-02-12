@@ -11,6 +11,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
 #include "Wt/WPaintedWidget"
+#include "Wt/WPainter"
 #include "Wt/WResource"
 #include "Wt/WSvgImage"
 #include "Wt/WVmlImage"

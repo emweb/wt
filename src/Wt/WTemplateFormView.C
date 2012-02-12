@@ -18,8 +18,15 @@ WTemplateFormView::WTemplateFormView(const WString& text,
 				     WContainerWidget *parent)
   : WTemplate(text, parent)
 {
-  addFunction("id", &WTemplate::Functions::id);
-  addFunction("tr", &WTemplate::Functions::tr);
+  addFunction("id", WT_TEMPLATE_FUNCTION(id));
+  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
+}
+
+WTemplateFormView::WTemplateFormView(WContainerWidget *parent)
+  : WTemplate(parent)
+{
+  addFunction("id", WT_TEMPLATE_FUNCTION(id));
+  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
 }
 
 WFormWidget *WTemplateFormView::createFormWidget(WFormModel::Field field)

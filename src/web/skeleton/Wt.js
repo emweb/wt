@@ -126,8 +126,6 @@ this.isIEMobile = agent.indexOf("msie 4")!=-1 || agent.indexOf("msie 5")!=-1;
 this.isOpera = typeof window.opera !== 'undefined';
 this.isAndroid = (agent.indexOf("safari") != -1)
 		  && (agent.indexOf("android") != -1);
-this.isMobileWebKit = (agent.indexOf("applewebkit") != -1)
-		       && (agent.indexOf("mobile") != -1);
 this.isWebKit = (agent.indexOf("applewebkit") != -1);
 this.isGecko = agent.indexOf("gecko") != -1 && !this.isWebKit;
 
@@ -1383,8 +1381,7 @@ this.hasFocus = function(el) {
   return el == document.activeElement;
 };
 
-var html5History = !WT.isMobileWebKit
-    && !!(window.history && window.history.pushState);
+var html5History = !!(window.history && window.history.pushState);
 
 /*
  * A less aggressive URL encoding than encodeURIComponent which does

@@ -47,6 +47,14 @@
     </small>
   </message>
 
+  <message id="Wt.Auth.FacebookService.badresponse">
+    <p>Sorry, could not login using your Facebook account.</p>
+    <small>
+      <p>Facebook's identification server generated an unexpected
+	response.</p>
+    </small>
+  </message>
+  
   <!-- LoginWidget -->
 
   <message id="Wt.Auth.login-form-title">Login</message>
@@ -56,11 +64,18 @@
   <message id="Wt.Auth.user-name-invalid">Invalid</message>
   <message id="Wt.Auth.email">Email address</message>
   <message id="Wt.Auth.email-info">Enter your email address</message>
-  <message id="Wt.Auth.optional-email-info">Optional</message>
+  <message id="Wt.Auth.optional-email-info">
+    Enter your email address (optional)
+  </message>
   <message id="Wt.Auth.password">Password</message>
   <message id="Wt.Auth.password-info">Enter your password</message>
   <message id="Wt.Auth.remember-me">Remember me</message>
-  <message id="Wt.Auth.remember-me-info">Keeps login for {1}</message>
+  <message id="Wt.Auth.remember-me-info.days">
+    Keeps login for {1} days
+  </message>
+  <message id="Wt.Auth.remember-me-info.weeks">
+    Keeps login for {1} weeks
+  </message>
   <message id="Wt.Auth.lost-password">Lost password</message>
   <message id="Wt.Auth.login">Login</message>
   <message id="Wt.Auth.logout">Logout</message>

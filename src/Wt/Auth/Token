@@ -16,8 +16,11 @@ namespace Wt {
  *  \brief An authentication token hash.
  *
  * An authentication token is a surrogate for identification or
- * authentication. When a random authentication token is generated
- * e.g. using WRandom::generateId(), it is a good practice to hash it
+ * authentication. When a random authentication token is generated,
+ * \if cpp
+ * e.g. using WRandom::generateId()
+ * \endif
+ * it is a good practice to hash it
  * using a cryptographic hash function, and only save this hash in the
  * session or database for later verification. This avoids that a
  * compromised database would leak all the authentication tokens.

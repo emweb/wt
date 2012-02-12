@@ -217,7 +217,7 @@ public:
 
   /*! \brief Finds an identity of a particular provider.
    *
-   * Note, a user could in theory have multiple identites from a
+   * Note, a user could in theory have multiple identities from a
    * single provider. If there are multiple, only one of them is
    * returned.
    */

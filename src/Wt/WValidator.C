@@ -20,6 +20,11 @@ WValidator::Result::Result(State state, const WString& message)
     message_(message)
 { }
 
+WValidator::Result::Result(State state)
+  : state_(state),
+    message_(WString::Empty)
+{ }
+
 WValidator::WValidator(WObject *parent)
   : WObject(parent),
     mandatory_(false)
