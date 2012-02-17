@@ -3,7 +3,8 @@ QRLogin example
 
 This is an example that illustrates how `Wt::Auth` can be extended
 with additional authentication mechanisms. The example is introduced
-in [this post](http://www.webtoolkit.eu/wt/blog/2012/01/22/qr_code_login)
+in [this post]
+(http://www.webtoolkit.eu/wt/blog/2012/02/17/qr_code_login_example)
 
 The example adds the ability to login by authenticating on a mobile
 phone after scanning a QR code. This means that if on the phone you

@@ -306,7 +306,6 @@ void SocketNotifier::threadEntry()
     lock.unlock();
     int result = ::select(maxFd + 1, &read_fds, &write_fds, &except_fds, 0);
     lock.lock();
-    std::cerr << result << std::endl;
     if (result > 0) {
       if (FD_ISSET(impl_->socket2_, &read_fds)) {
         // interruption of select() was requested. Read all data from
