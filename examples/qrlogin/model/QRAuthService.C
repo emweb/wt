@@ -63,9 +63,6 @@ private:
     Wt::Auth::User user = database_.findUser(app->sessionId(), users_);
     if (user.isValid())
       login_.login(user);
-
-    app->triggerUpdate();
-    app->enableUpdates(false);
   }
 };
 

@@ -48,7 +48,7 @@ public:
       cx = -0.5;
 
     painter.setBrush(img->foreground());
-    painter.drawEllipse(cx - img->radius(), cy - img->radius(),
+    painter.drawEllipse(cx - img->radius() - 0.5, cy - img->radius() - 0.5,
 			2 * img->radius(), 2 * img->radius());    
   }
 };

@@ -23,12 +23,12 @@ WModelIndex::WModelIndex()
 
 boost::any WModelIndex::data(int role) const
 {
-  return model_->data(*this, role);
+  return model_ ? model_->data(*this, role) : WModelIndex();
 }
 
 WFlags<ItemFlag> WModelIndex::flags() const
 {
-  return model_->flags(*this);
+  return model_ ? model_->flags(*this) : WFlags<ItemFlag>();
 }
 
 WModelIndex WModelIndex::child(int row, int column) const

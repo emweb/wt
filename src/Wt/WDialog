@@ -25,33 +25,31 @@ class WText;
  * other part of the user interface until the dialog is closed (this
  * is enforced at the server side, so you may rely on this behavior).
  *
- * There are two distinct ways for using a %WDialog window.
+ * A modal dialog can be instantiated synchronously or
+ * asynchronously. A non-modal dialog can only be instantiated
+ * asynchronously.
  * 
- * A %WDialog can be used as any other widget. In this case, the
- * %WDialog is simply instantiated as another widget. The dialog may
- * be closed by calling accept(), reject() or done() (or connecting a
- * signal to one of these methods). This will hide the dialog and emit
- * the finished() signal, which you then can listen for to process the
- * dialog result and delete the dialog. Unlike other widgets, a dialog
- * does not need to be added to a parent widget, but is hidden by
- * default. You must use the method show() or setHidden(true) to show
- * the dialog.
+ * When using a dialog asynchronously, there is no API call that waits
+ * for the dialog to be closed. Then, the usage is similar to
+ * instantiating any other widget. The dialog may be closed by calling
+ * accept(), reject() or done() (or connecting a signal to one of
+ * these methods). This will hide the dialog and emit the finished()
+ * signal, which you then can listen for to process the dialog result
+ * and delete the dialog. Unlike other widgets, a dialog does not need
+ * to be added to a parent widget, but is hidden by default. You must
+ * use the method show() or setHidden(true) to show the dialog.
  *
- * The easiest way to display a modal dialog is using exec(): after
- * creating a %WDialog window, a call to exec() will block (suspend
- * the thread) until the dialog window is closed, and return the
- * dialog result. Typically, an OK button will be connected to
- * accept(), and in some cases a Cancel button to reject(). This
- * solution has the drawback that it is not scalable to many
- * concurrent sessions, since for every session with a recursive event
- * loop (which is running durring the exec() method), a thread is
- * locked. In practical terms, this means it is only suitable for
- * software with restricted access or deployed on an intranet or
- * extranet.
- * \if java
- * This functionality is only available on Servlet 3.0 compatible 
- * servlet containers.
- * \endif
+ * The synchronous use of a dialog involves a call to exec() which
+ * will block (suspend the thread) until the dialog window is closed,
+ * and return the dialog result. Events within dialog are handled
+ * using a so-called recursive event loop. Typically, an OK button
+ * will be connected to accept(), and in some cases a Cancel button to
+ * reject(). This solution has the drawback that it is not scalable to
+ * many concurrent sessions, since for every session with a recursive
+ * event loop, a thread is locked. In practical terms, this means it
+ * is only suitable for software with restricted access or deployed on
+ * an intranet or extranet.  \if java This functionality is only
+ * available on Servlet 3.0 compatible servlet containers.  \endif
  *
  * Use setModal(false) to create a non-modal dialog. A non-modal
  * dialog does not block the underlying user interface: the user must
@@ -181,8 +179,9 @@ public:
 
   /*! \brief Executes the dialog in a recursive event loop.
    *
-   * Executes the dialog. This blocks the current thread of execution
-   * until one of done(DialogCode), accept() or reject() is called.
+   * Executes the dialog synchronously. This blocks the current thread
+   * of execution until one of done(DialogCode), accept() or reject()
+   * is called.
    *
    * <i>Warning: using exec() does not scale to many concurrent
    * sessions, since the thread is locked.</i>
@@ -245,7 +244,9 @@ public:
 
   /*! \brief Sets whether the dialog is modal.
    *
-   * A modal dialog will block the underlying user interface.
+   * A modal dialog will block the underlying user interface. A modal dialog
+   * can be shown synchronously or asynchronously. A non-modal dialog can only
+   * be shown asynchronously.
    *
    * By default a dialog is modal.
    */

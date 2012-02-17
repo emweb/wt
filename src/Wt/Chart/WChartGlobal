@@ -44,6 +44,11 @@ enum MarkerType {
  * Data series of type LineSeries or CurveSerie may be filled under or
  * above the line or curve. This enumeration specifies the other limit
  * of this fill.
+ * Data series of type BarSeries may use MinimumValueFill to configure the
+ * plot to render the bars from the data point to the bottom of the chart or
+ * MaximumValueFill to render the bars from the data point to the top of the 
+ * chart. The NoFill and ZeroValueFill will be ignored for data series of the
+ * BarSeries type.
  *
  * \sa WDataSeries::setFillRange(FillRangeType range)
  * \sa WCartesianChart

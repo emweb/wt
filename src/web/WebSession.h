@@ -95,6 +95,7 @@ public:
 
   void deferRendering();
   void resumeRendering();
+  void setTriggerUpdate(bool needTrigger);
 
   void expire();
   bool unlockRecursiveEventLoop();
@@ -295,7 +296,7 @@ private:
 #ifdef WT_BOOST_THREADS
   boost::condition updatesPendingEvent_;
 #endif
-  bool             updatesPending_;
+  bool             updatesPending_, triggerUpdate_;
 
   WEnvironment  embeddedEnv_;
   WEnvironment *env_;

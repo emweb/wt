@@ -136,7 +136,7 @@ void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
   hLayout->addWidget(messages, 1);
   messages->setStyleClass("chat-msgs");
 
-    // Add another widget to hirozontal layout with stretch = 0
+    // Add another widget to horizontal layout with stretch = 0
   hLayout->addWidget(userList);
   userList->setStyleClass("chat-users");
 

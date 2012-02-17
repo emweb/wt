@@ -20,7 +20,9 @@ namespace boost {
 namespace Wt {
 
 /**! \class WIOService Wt/WIOService Wt/WIOService
+ *   \brief An I/O service.
  *
+ * An I/O service combines a boost::asio::io_service with a thread pool.
  */
 class WT_API WIOService : public boost::asio::io_service
 {
@@ -32,7 +34,17 @@ public:
   WIOService();
   virtual ~WIOService();
 
+  /*! \brief Configures the number of threads.
+   *
+   * This must be configured before the server is started using start().
+   *
+   * The default thread count is 10 (or is configured by WServer from
+   * information in the configuration file).
+   */
   void setThreadCount(int number);
+
+  /*! \brief Returns the thread count.
+   */
   int threadCount() const;
 
   /*! \brief Starts the I/O service.
@@ -49,9 +61,26 @@ public:
    */
   void stop();
 
+  /*! \brief Posts a function into the thread-pool.
+   *
+   * The function will be executed within a thread of the thread-pool.
+   *
+   * This method returns immediately.
+   */
   void post(const boost::function<void ()>& function);
+
+  /*! \brief Schedules a function on the thread-pool.
+   *
+   * The function will be executed after a time out, specified in
+   * milli-seconds, on the thread pool.
+   */
   void schedule(int milliSeconds, const boost::function<void()>& function);
 
+  /*! \brief Initializes a thread.
+   *
+   * This function is called for every new thread created, and can be used
+   * to configure the thread, e.g. with respect to scheduling priorities.
+   */
   virtual void initializeThread();
 
 private:

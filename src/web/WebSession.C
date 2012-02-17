@@ -102,11 +102,11 @@ WebSession::WebSession(WebController *controller,
     recursiveEvent_(mutex_.newCondition()),
     newRecursiveEvent_(false),
     updatesPendingEvent_(mutex_.newCondition()),
-    updatesPending_(false),
 #else
     newRecursiveEvent_(false),
-    updatesPending_(false),
 #endif
+    updatesPending_(false),
+    triggerUpdate_(false),
     embeddedEnv_(this),
     app_(0),
     debug_(controller_->configuration().debug()),
@@ -177,6 +177,11 @@ void WebSession::resumeRendering()
     deferredRequest_ = 0;
     deferredResponse_ = 0;
   }
+}
+
+void WebSession::setTriggerUpdate(bool update)
+{
+  triggerUpdate_ = update;
 }
 
 #ifndef WT_TARGET_JAVA
@@ -825,8 +830,11 @@ void WebSession
 #ifdef WT_TARGET_JAVA
 void WebSession::Handler::release()
 {
-  if (session_->mutex().owns_lock())
+  if (session_->mutex().owns_lock()) {
+    if (session_->triggerUpdate_)
+      session_->pushUpdates();
     session_->mutex().unlock();
+  }
 
   attachThreadToHandler(prevHandler_);
 }
@@ -835,6 +843,10 @@ void WebSession::Handler::release()
 WebSession::Handler::~Handler()
 {
 #ifndef WT_TARGET_JAVA
+  if (haveLock())
+    if (session_->triggerUpdate_)
+      session_->pushUpdates();
+
   Utils::erase(session_->handlers_, this);
 
   if (session_->handlers_.empty())
@@ -1583,6 +1595,8 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
 
 void WebSession::pushUpdates()
 {
+  triggerUpdate_ = false;
+
   if (!renderer_.isDirty() || state_ == Dead) {
     LOG_DEBUG("pushUpdates(): nothing to do");
     return;

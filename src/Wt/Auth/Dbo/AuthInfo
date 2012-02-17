@@ -238,7 +238,7 @@ public:
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::belongsTo(a, user_, "user");
+    Wt::Dbo::belongsTo(a, user_, "user", Wt::Dbo::OnDeleteCascade);
 
     Wt::Dbo::field(a, passwordHash_, "password_hash", 100);
     Wt::Dbo::field(a, passwordMethod_, "password_method", 20);
@@ -319,7 +319,7 @@ public:
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::belongsTo(a, authInfo_);
+    Wt::Dbo::belongsTo(a, authInfo_, Wt::Dbo::OnDeleteCascade);
     Wt::Dbo::field(a, value_, "value", 64);
     Wt::Dbo::field(a, expires_, "expires");
   }
@@ -366,7 +366,7 @@ public:
   template<class Action>
   void persist(Action& a)
   {
-    Wt::Dbo::belongsTo(a, authInfo_);
+    Wt::Dbo::belongsTo(a, authInfo_, Wt::Dbo::OnDeleteCascade);
     Wt::Dbo::field(a, provider_, "provider", 64);
     Wt::Dbo::field(a, identity_, "identity", 512);
   }

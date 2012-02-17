@@ -1081,11 +1081,18 @@ public:
 
   /*! \brief Propagates server-initiated updates.
    *
-   * This propagate changes made to the user interface outside of the
-   * main event loop, e.g. from another thread or from within
-   * WServer::post(). This call only has an effect after updates have
-   * been enabled (from within the normal event loop), using
-   * enableUpdates().
+   * When the lock to the application is released, changes will
+   * propagate to the user interface. This call only has an effect
+   * after updates have been enabled from within the normal event loop
+   * using enableUpdates().
+   *
+   * This is typically used only outside of the main event loop,
+   * e.g. from another thread or from within a method posted to an
+   * application using WServer::post(), since changes always propagate
+   * within the event loop at the end of the event.
+   *
+   * The update is not immediate, and thus changes that happen after this
+   * call will equally be pushed to the client.
    *
    * \sa enableUpdates()
    */
@@ -1268,7 +1275,18 @@ public:
 
   /*! \brief Declares an application-wide JavaScript function.
    *
-   * This is an internal method.
+   * The function is stored in WApplication::javaScriptClass().
+   * 
+   * The next code snippet declares and invokes function foo:
+   * \if cpp
+   * \code
+   * app->declareJavaScriptFunction("foo",
+   *                                "function(id) { ... }");
+   * ...
+   * std::string id("myId");
+   * app->doJavaScript(app->javaScriptClass() + ".foo('" + id + "');");
+   * \endcode
+   * \endif
    */
   void declareJavaScriptFunction(const std::string& name,
 				 const std::string& function);
@@ -1483,6 +1501,29 @@ public:
 
   void removeCookie(const std::string& name, const std::string& domain = "",
 		    const std::string& path = "");
+  
+  /*! \brief Adds an HTML meta link.
+   * 
+   * When a link was previously set for the same \p href, its contents
+   * are replaced.
+   * When an empty string is used for the arguments \p media, \p hreflang, 
+   * \p type or \p sizes, they will be ignored.
+   *
+   * \sa removeMetaLink()
+   */
+  void addMetaLink(const std::string &href,
+		   const std::string &rel,
+		   const std::string &media,
+		   const std::string &hreflang,
+		   const std::string &type,
+		   const std::string &sizes,
+		   bool disabled);
+
+  /*! \brief Removes the HTML meta link.
+   *
+   * \sa addMetaLink()
+   */
+  void removeMetaLink(const std::string &href);
 
   /*! \brief Adds an HTML meta header.
    *
@@ -1912,6 +1953,24 @@ private:
     WString content;
   };
 
+  struct MetaLink {
+    MetaLink(const std::string &href,
+	     const std::string &rel,
+	     const std::string &media,
+	     const std::string &hreflang,
+	     const std::string &type,
+	     const std::string &sizes,
+	     bool disabled);
+
+    std::string href;
+    std::string rel;
+    std::string media;
+    std::string hreflang;
+    std::string type;
+    std::string sizes;
+    bool disabled;
+  };
+
 #ifndef WT_TARGET_JAVA
   typedef std::map<std::string, EventSignalBase *> SignalMap;
 #else
@@ -1979,6 +2038,7 @@ private:
   int                     styleSheetsAdded_;
 
   std::vector<MetaHeader> metaHeaders_;
+  std::vector<MetaLink>   metaLinks_;
 
   SignalMap   exposedSignals_;   // signals that may be accessed
   ResourceMap exposedResources_; // resources that may be accessed

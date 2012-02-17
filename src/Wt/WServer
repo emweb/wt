@@ -114,8 +114,21 @@ public:
   WTCONNECTOR_API virtual ~WServer();
 
 #ifndef WT_TARGET_JAVA
+  /*! \brief Sets the I/O service.
+   *
+   * The server will use an I/O service for scheduling functions into a
+   * thread-pool, and to implement asynchronous networking, whose call-back
+   * funtions are scheduled in the same thread pool.
+   *
+   * By default, a server will create its own I/O service, but you may
+   * configure it to reuse another I/O service.
+   */
   WT_API void setIOService(WIOService& ioService);
 
+  /*! \brief Returns the I/O service.
+   *
+   * \sa setIOService()
+   */
   WT_API WIOService& ioService();
 #endif
 

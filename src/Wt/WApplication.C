@@ -60,6 +60,17 @@ WApplication::MetaHeader::MetaHeader(MetaHeaderType aType,
   : type(aType), name(aName), lang(aLang), content(aContent)
 { }
 
+WApplication::MetaLink::MetaLink(const std::string &aHref,
+				 const std::string &aRel,
+				 const std::string &aMedia,
+				 const std::string &aHreflang,
+				 const std::string &aType,
+				 const std::string &aSizes,
+				 bool aDisabled)
+  : href(aHref), rel(aRel), media(aMedia), hreflang(aHreflang), type(aType), 
+    sizes(aSizes), disabled(aDisabled)
+{ }
+
 bool WApplication::ScriptLibrary::operator< (const ScriptLibrary& other) const
 {
   return uri < other.uri;
@@ -1007,6 +1018,50 @@ void WApplication::removeCookie(const std::string& name,
 				 domain, path, false);
 }
 
+void WApplication::addMetaLink(const std::string &href,
+			       const std::string &rel,
+			       const std::string &media,
+			       const std::string &hreflang,
+			       const std::string &type,
+			       const std::string &sizes,
+			       bool disabled)
+{
+  if (environment().javaScript())
+    LOG_WARN("WApplication::addMetaLink() with no effect");
+
+  if (href.empty()) 
+    throw WException("WApplication::addMetaLink() href cannot be empty!");
+  if (rel.empty()) 
+    throw WException("WApplication::addMetaLink() rel cannot be empty!");
+
+  for (unsigned i = 0; i < metaLinks_.size(); ++i) {
+    MetaLink& ml = metaLinks_[i];
+    if (ml.href == href) {
+      ml.rel = rel;
+      ml.media = media;
+      ml.hreflang = hreflang;
+      ml.type = type;
+      ml.sizes = sizes;
+      ml.disabled = disabled;
+      return;
+    }
+  }
+
+  MetaLink ml(href, rel, media, hreflang, type, sizes, disabled);
+  metaLinks_.push_back(ml);
+}
+
+void WApplication::removeMetaLink(const std::string &href)
+{
+    for (unsigned i = 0; i < metaLinks_.size(); ++i) {
+      MetaLink& ml = metaLinks_[i];
+      if (ml.href == href) {
+	metaLinks_.erase(metaLinks_.begin() + i);
+	return;
+      }
+    }
+}
+
 void WApplication::addMetaHeader(const std::string& name,
 				 const WString& content,
 				 const std::string& lang)
@@ -1223,8 +1278,7 @@ void WApplication::triggerUpdate()
   if (WebSession::Handler::instance()->request())
     return;
 
-  if (serverPush_ > 0)
-    session_->pushUpdates();
+  session_->setTriggerUpdate(true);
 }
 
 WApplication::UpdateLock WApplication::getUpdateLock()
@@ -1348,8 +1402,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
 {
 #ifndef WT_THREADED
   return;
-#endif // WT_THREADED
-
+#else
   /*
    * If we are already handling this application, then we already have
    * exclusive access, unless we are not having the lock (e.g. from a
@@ -1365,6 +1418,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
     impl_ = new UpdateLockImpl(app);
   else
     ok_ = false;
+#endif // WT_THREADED
 }
 
 WApplication::UpdateLock::UpdateLock(const UpdateLock& other)

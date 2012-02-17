@@ -315,6 +315,22 @@ public:
 				      it_.currentXSegment(),
 				      it_.currentYSegment());
 
+    FillRangeType fr = series_.fillRange();
+    switch (fr) {
+    case MinimumValueFill:
+      bottomMid = WPointF(renderer_.map(x, stacky, yAxis.id(),
+					it_.currentXSegment(),
+					it_.currentYSegment()).x(),
+			  renderer_.chartArea().bottom());
+      break;
+    case MaximumValueFill:
+      bottomMid = WPointF(renderer_.map(x, stacky, yAxis.id(),
+					it_.currentXSegment(),
+					it_.currentYSegment()).x(),
+			  renderer_.chartArea().top());
+      break;
+    }
+
     double g = numGroups_ + (numGroups_ - 1) * renderer_.chart()->barMargin();
 
     double width = groupWidth_ / g;

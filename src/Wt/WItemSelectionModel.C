@@ -34,7 +34,7 @@ bool WItemSelectionModel::isSelected(const WModelIndex& index) const
     for (std::set<WModelIndex>::const_iterator it = selection_.begin() ; 
          it != selection_.end(); ++it ) {
       WModelIndex mi = *it;
-      if (mi.row() == index.row())
+      if (mi.row() == index.row() && mi.parent() == index.parent())
 	return true;
     }
     return false;

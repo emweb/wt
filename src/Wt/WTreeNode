@@ -407,6 +407,10 @@ protected:
    */
   virtual void undoDoCollapse();
 
+  /*! \brief Accesses the icon pair that allows expansion of the tree node.
+   */
+  WIconPair *expandIcon() { return expandIcon_; }
+
   WTable *impl() { return layout_; }
 
 private:

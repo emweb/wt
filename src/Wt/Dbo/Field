@@ -333,6 +333,20 @@ template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value, const std::string& name,
 	       ForeignKeyConstraint constraints, int size = -1);
 
+
+/*! \brief Maps the "One"-side of a ManyToOne relation.
+ *
+ * This overloaded method allows to specify constraints for the
+ * foreign key.
+ *
+ * \sa hasMany()
+ *
+ * \ingroup dbo
+ */
+template <class Action, class C>
+void belongsTo(Action& action, ptr<C>& value,
+	       ForeignKeyConstraint constraints, int size = -1);
+
 /*! \brief Maps the "Many"-side of a ManyToOne or ManyToMany relation.
  *
  * This function binds the collection field \p value to contain objects

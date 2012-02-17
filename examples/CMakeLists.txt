@@ -135,7 +135,6 @@ ENDMACRO(WT_ADD_EXAMPLE)
 
 SUBDIRS(
   blog
-  bobsmith
   charts
   codeview
   composer

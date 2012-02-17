@@ -83,7 +83,13 @@ std::string WebRequest::contentType() const
     return 0;
   else {
     try {
-      return boost::lexical_cast< ::int64_t >(lenstr);
+      ::int64_t len = boost::lexical_cast< ::int64_t >(lenstr);
+      if (len < 0) {
+	LOG_ERROR("Bad content-length: " << lenstr);
+	throw WException("Bad content-length");
+      } else {
+	return len;
+      }
     } catch (boost::bad_lexical_cast& e) {
       LOG_ERROR("Bad content-length: " << lenstr);
       throw WException("Bad content-length");

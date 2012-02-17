@@ -144,5 +144,8 @@ void QRAuthWidget::dialogDone()
 
     Wt::WApplication *app = Wt::WApplication::instance();
     qrDatabase_->removeToken(app->sessionId());
+
+    app->triggerUpdate();
+    app->enableUpdates(false);
   }
 }

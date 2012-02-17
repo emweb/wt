@@ -42,6 +42,16 @@ namespace {
   bool isAbsoluteUrl(const std::string& url) {
     return url.find("://") != std::string::npos;
   }
+
+  void appendAttribute(Wt::EscapeOStream &eos,
+		       const std::string &name, 
+		       const std::string &value) {
+    eos << " " << name << "=\"";
+    eos.pushEscape(Wt::EscapeOStream::HtmlAttribute);
+    eos << value;
+    eos.popEscape();
+    eos << '"';
+  }
 }
 
 namespace skeletons {
@@ -219,6 +229,8 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
 
 void WebRenderer::serveResponse(WebResponse& response)
 {
+  session_.setTriggerUpdate(false);
+
   switch (response.responseType()) {
   case WebResponse::Update:
     serveJavaScriptUpdate(response);
@@ -1709,29 +1721,41 @@ std::string WebRenderer::headDeclarations() const
       result << "<meta";
 
       if (!m.name.empty()) {
-	if (m.type == MetaName)
-	  result << " name=\"";
-	else
-	  result << " http-equiv=\"";
-	result.pushEscape(EscapeOStream::HtmlAttribute);
-	result << m.name;
-	result.popEscape();
-	result << '"';
+	appendAttribute(result, 
+			m.type == MetaName ? "name" : "http-equiv",
+			m.name);
       }
 
-      if (!m.lang.empty()) {
-	result << " lang=\"";
-	result.pushEscape(EscapeOStream::HtmlAttribute);
-	result << m.lang;
-	result.popEscape();
-	result << '"';
-      }
+      if (!m.lang.empty())
+	appendAttribute(result, "lang", m.lang);
 
-      result << " content=\"";
-      result.pushEscape(EscapeOStream::HtmlAttribute);
-      result << m.content.toUTF8();
-      result.popEscape();
-      result << (xhtml ? "\"/>" : "\">");
+      appendAttribute(result, "content", m.content.toUTF8());
+
+      result << (xhtml ? "/>" : ">");
+    }
+    
+    for (unsigned i = 0; i < session_.app()->metaLinks_.size(); ++i) {
+      const WApplication::MetaLink& ml = session_.app()->metaLinks_[i];
+
+      EscapeOStream link;
+      link << "<link";
+
+      appendAttribute(link, "href", ml.href); 
+      appendAttribute(link, "rel", ml.rel);
+      if (!ml.media.empty())
+	appendAttribute(link, "media", ml.media);
+      if (!ml.hreflang.empty())
+	appendAttribute(link, "hreflang", ml.hreflang);
+      if (!ml.type.empty())
+	appendAttribute(link, "type", ml.type);
+      if (!ml.sizes.empty())
+	appendAttribute(link, "sizes", ml.sizes);
+      if (ml.disabled)
+	appendAttribute(link, "disabled", "");
+
+      link << (xhtml ? "/>" : ">");
+      
+      result << link.c_str();
     }
   } else
     if (session_.env().agentIsIElt(9))

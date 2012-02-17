@@ -147,20 +147,34 @@ void field(A& action, ptr<C>& value, const std::string& name, int size)
 }
 
 template <class A, class C>
-void belongsTo(A& action, ptr<C>& value, const std::string& name, int size)
+void belongsToImpl(A& action, ptr<C>& value, const std::string& name,
+		   int fkConstraints, int size)
 {
   if (name.empty() && action.session())
     action.actPtr(PtrRef<C>(value, action.session()->template tableName<C>(),
-			    size, 0));
+			    size, fkConstraints));
   else
-    action.actPtr(PtrRef<C>(value, name, size, 0));
+    action.actPtr(PtrRef<C>(value, name, size, fkConstraints));
+}
+
+template <class A, class C>
+void belongsTo(A& action, ptr<C>& value, const std::string& name, int size)
+{
+  belongsToImpl(action, value, name, 0, size);
 }
 
 template <class A, class C>
 void belongsTo(A& action, ptr<C>& value, const std::string& name,
 	       ForeignKeyConstraint constraint, int size)
 {
-  action.actPtr(PtrRef<C>(value, name, size, constraint.value()));
+  belongsToImpl(action, value, name, constraint.value(), size);
+}
+
+template <class A, class C>
+void belongsTo(A& action, ptr<C>& value,
+	       ForeignKeyConstraint constraint, int size)
+{
+  belongsToImpl(action, value, std::string(), constraint.value(), size);
 }
 
 template <class A, class C>

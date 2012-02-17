@@ -895,6 +895,8 @@ Reply::status_type RequestParser::validate(Request& req)
   if (i != req.headerMap.end()) {
     try {
       req.contentLength = boost::lexical_cast< ::int64_t >(i->second);
+      if (req.contentLength < 0)
+	return Reply::bad_request;
     } catch (boost::bad_lexical_cast&) {
       return Reply::bad_request;
     }

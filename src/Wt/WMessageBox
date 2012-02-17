@@ -20,22 +20,22 @@ class WText;
 /*! \class WMessageBox Wt/WMessageBox Wt/WMessageBox
  *  \brief A standard dialog for confirmation or to get simple user input
  *
- * The message box shows a message in a dialog window, with a number
+ * The messagebox shows a message in a dialog window, with a number
  * of buttons. These buttons may be standard buttons, or customized.
  *
- * There are two distinct ways for using a %WMessageBox, which reflect
- * the two ways of dealing with a WDialog box.
- * 
- * \if cpp
- * The easiest way is using the static show() method, which shows a
- * message box, blocks the current thread, and returns the button that
- * was pressed by the user. Since this uses the WDialog::exec(), it suffers
- * from the same scalability issues.
- * \endif
+ * A messagebox is (usually) modal, and can be instantiated
+ * synchronously or asynchronously.
  *
- * The more elaborate way is by creating a WMessageBox, and connecting
- * the buttonClicked signal to a method. This method then interpretes
+ * When using a messagebox asynchronously, there is no API call that
+ * waits for the messagebox to be processed. Then, the usage is similar
+ * to instantiating a WDialog (or any other widget). You need to connect
+ * to the buttonClicked signal with a method that interpretes
  * the result and deletes the message box.
+ *
+ * The synchronous use of a messagebox involves the use of the static
+ * show() method, which blocks the current thread until the user has
+ * processed the messabebox. Since this uses the WDialog::exec(), it
+ * suffers from the same scalability issues.
  * 
  * \if cpp
  * Example code (using the exec() method):

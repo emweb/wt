@@ -1,5 +1,21 @@
 Wt/Qt interopability example
-============================
+----------------------------
+
+This is an example that illustrates some aspects of using Qt code in a
+Wt application.
+
+The lib/ folder contains a number of utility classes that facilitate
+the integration, dealing with Qt's twisted threading architecture.
+
+How to run
+----------
+
+See the README in the parent directory.
+
+What it illustrates
+-------------------
+
+- the use of the wtwithqt interopability layer
 
 IMPORTANT! The Wt/Qt interopability example and library are licensed
 under the MIT License. This license is different from the license that
@@ -7,7 +23,7 @@ covers the Wt libraries and other examples, AND ONLY APPLIES TO FILES
 IN THIS DIRECTORY. See below for the complete license terms.
 
 LICENSE
-=======
+-------
 
 Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
 
