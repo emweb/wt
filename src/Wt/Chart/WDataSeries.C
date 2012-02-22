@@ -28,7 +28,10 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     yLabel_(false),
     barWidth_(0.8),
     hidden_(false)
-{ }
+{ 
+  if (type_ == BarSeries)
+    fillRange_ = ZeroValueFill;
+}
 
 void WDataSeries::setBarWidth(const double width) 
 {

@@ -269,6 +269,11 @@ public:
    *
    * Line or curve series may be filled under or above the curve, using the
    * brush(). This setting specifies the range that is filled.
+   * Bar series may use MinimumValueFill to configure the chart to render its 
+   * bars from the data point to the bottom of the chart or MaximumValueFill to
+   * render the bars from the data point to the top of the chart. The default 
+   * value is ZeroValueFill, this value configures the chart to render the bars
+   * from the data point to zero.
    */
   void setFillRange(FillRangeType fillRange);
 

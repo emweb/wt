@@ -153,6 +153,10 @@ public:
    *
    * The default object name is empty.
    *
+   * \note Only letters ([A-Za-z]), digits ([0-9]), hyphens ("-"),
+   * underscores ("_"), colons (":"), and periods (".") are allowed in
+   * the id.
+   *
    * \sa id()
    */
   void setObjectName(const std::string& name);

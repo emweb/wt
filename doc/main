@@ -3,29 +3,37 @@ namespace Wt {
 
 /*!
 
-  \mainpage Wt documentation.
+  \mainpage %Wt documentation.
 
-   <a href="http://www.webtoolkit.eu/wt/">%Wt</a> is a C++ library for
+   <a href="http://www.webtoolkit.eu/wt">%Wt</a> is a C++ library for
    developing web applications.
   
-   This is a reference manual which has been generated from
-   the source code.
-
    For learning web application programming with %Wt, we recommend
    reading the <a href="../../tutorial/wt.html"> hands-on introduction
    to %Wt</a>, which includes a complete tutorial (reworked in
    December 2011).
-  
+
+   This is a reference manual which has been generated from the source code,
+   which we aim to be thorough and complete. There are a number of starting
+   points we recommend for specific information:
+
    In addition, there is also:
    - \ref overview - Overview of the main %Wt components (recommended!).
-   - \ref InstallationUnix - How to build %Wt and your applications on Unix-like systems.
-   - \ref InstallationWindows - How to build %Wt and your applications on Microsoft Windows systems.
+   - \ref InstallationUnix - How to build %Wt and your applications
+     on Unix-like systems.
+   - \ref InstallationWindows - How to build %Wt and your applications on
+     Microsoft Windows systems.
    - \ref Releasenotes - Release notes.
    - \ref ext - Using %Ext widgets, widgets based on ExtJS.
-   - \ref example - A line-by-line explanation, mainly shows how to achieve client-side event handling in C++.
-   - <a href="../../tutorial/dbo.html">Tutorial for Dbo</a> - %Wt's C++ ORM library.
+   - \ref example - A line-by-line explanation, mainly shows how to implement
+      client-side event handling in C++ (a parodox!).
+   - <a href="../../tutorial/dbo.html">Tutorial for Dbo</a> - %Wt's C++ ORM
+     library.
+   - <a href="../../tutorial/auth.html">Tutorial for Auth</a> - %Wt's
+     Authentication module.
    - <a href="../../examples/html/modules.html">Examples documentation</a>.
-  \page overview Library overview
+
+   \page overview Library overview
   
    \section contents Contents
   
@@ -656,10 +664,11 @@ appRoot=C:\Program Files\MyApplications\AppRoot
 
     <dd>Whether the application presents rendered content as XHTML or
       HTML. %Wt always renders XHTML1 compatible HTML, but by default
-      indicates to the browser that it is in fact HTML. However, to
-      use inline SVG (see WSvgImage), it is necessary to present an
-      XHTML mime type. Setting this option will do so only for
-      browsers that indicate support for XHTML.  </dd>
+      indicates to the browser that it is in fact HTML. Before the adoption
+      of HTML5, use inline SVG (see WSvgImage), it was necessary to present
+      an XHTML mime type. Setting this option will do so only for
+      browsers that indicate support for XHTML. Nowadays, this option
+      is rarely useful.</dd>
 
     <dt><strong>web-sockets</strong></dt>
 
@@ -673,9 +682,8 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       acts as both an HTTP and WebSocket server, multiplexed on the
       same port(s).
 
-      This feature is still experimental: the Web Sockets RFC is still
-      a draft. %Wt implements up to version 17 of the draft (latest as of
-      November 2011).</dd>
+      %Wt implements the final Web Sockets RFC candidate, as well as
+      all prior drafts.</dd>
 
     <dt><strong>redirect-message</strong></dt>
 

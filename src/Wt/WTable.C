@@ -118,7 +118,7 @@ int WTable::columnCount() const
 
 WTableRow* WTable::insertRow(int row)
 {
-  if (row == rowCount())
+  if (row >= rowCount())
     return rowAt(row); // trigger a simple expand()
   else {
     WTableRow* tableRow = new WTableRow(this, columnCount());

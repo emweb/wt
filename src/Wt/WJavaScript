@@ -61,10 +61,10 @@ namespace Wt {
  * Wt.emit(element, 'dosome', 'foo', 42);
  * \endcode
  *
- * The <i>element</i> can be a \link WWidget::jsRef() DOM
- * element\endlink, or the \link WObject::id() object ID\endlink of a
- * WObject, or the constant 'Wt' which is an alias for
- * 'Wt::WApplication::instance()->id()'. The conversion between the
+ * The <i>element</i> can be a \link Wt::WWidget::jsRef() DOM
+ * element\endlink, or the \link Wt::WObject::id() object ID\endlink of a
+ * WObject, or the constant <tt>"Wt"</tt> which is an alias for
+ * Wt::WApplication::instance()->id(). The conversion between the
  * JavaScript arguments (ax) and the C++ type Ax uses
  * <tt>boost::lexical_cast<Ax>(ax)</tt>.
  *
@@ -152,7 +152,12 @@ public:
    *
    * When the signal was constructed with \p collectSlotJavaScript ==
    * \c true, the inline JavaScript from slots defined as JavaScript
-   * or from learned stateless slots is included as well.
+   * or from learned stateless slots, or directly connected to the
+   * signal, is included as well.
+   *
+   * \note The method only takes into account JavaScript from slot
+   *       connections that have been connected so far, and any
+   *       subsequent connections are ignored.
    *
    * \sa createEventCall()
    */
@@ -177,6 +182,11 @@ public:
    * JavaScript event is transferred. In this way, you can propagate the
    * corresponding event class (WMouseEvent or WKeyEvent) as an additional
    * last argument in the slot.
+   *
+   * \note The method only takes into account JavaScript from slot
+   *       connections that have been connected so far, and any
+   *       subsequent connections are ignored.
+   *
    */
   const std::string createEventCall(const std::string& jsObject,
 				    const std::string& jsEvent,

@@ -247,7 +247,8 @@ private:
     c.setY(p.y() + 0.3 * (p1.y() - p.y()));
   }
 
-  static void computeC(const WPointF& p_1, const WPointF& p0, const WPointF& p1,
+  static void computeC(const WPointF& p_1, const WPointF& p0,
+		       const WPointF& p1,
 		       WPointF& c1, WPointF& c2) {
     double m1x = (p_1.x() + p0.x())/2.0;
     double m1y = (p_1.y() + p0.y())/2.0;

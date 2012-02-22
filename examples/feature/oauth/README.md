@@ -1,11 +1,10 @@
 Auth1 feature example
 ---------------------
 
-This is an example that illustrates the use of the `Wt::Auth` API for
-adding authentication to a Wt application.
-
-See also [the blog
-post](http://www.webtoolkit.eu/wt/blog/2011/11/14/an_introduction_to_wt__auth)
+This is an example that illustrates the use of the
+`Wt::Auth::OAuthService` API for OAuth-2.0-based authentication (aka
+OpenID Connect), which can also be used directly without the rest of
+the Wt::Auth framework.
 
 How to run
 ----------
@@ -21,4 +20,5 @@ work).
 What it illustrates
 -------------------
 
-- the use of many aspects of the `Wt::Auth` API
+- the use of many aspects of the `Wt::Auth::OAuthService` (outside the
+  authentication framework).

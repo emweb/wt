@@ -790,6 +790,10 @@ public:
    *
    * By default, auto-generated id's are used.
    *
+   * \note An id must start with a letter ([A-Za-z]), followed by one or more
+   * letters, digits ([0-9]), hyphens ("-"), underscores ("_"), colons (":"),
+   * and periods (".").
+   *
    * \sa WObject::id()
    */
   virtual void setId(const std::string& id) = 0;

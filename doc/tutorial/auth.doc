@@ -3,7 +3,7 @@ Introduction to Wt::Auth
 
 Koen Deforche <koen@emweb.be> +
 
-For Wt 3.2.1 (January ?? 2012)
+For Wt 3.2.1 (February ?? 2012)
 
 :doc: link:http://www.webtoolkit.eu/wt/doc/reference/html/
 :tutorials: link:http://www.webtoolkit.eu/wt/doc/tutorial/
@@ -12,9 +12,8 @@ For Wt 3.2.1 (January ?? 2012)
 == Prerequisites
 
 In Wt 3.2.0, an authentication module was added to Wt. In this
-tutorial, we use an authentication feature example as a hands-on
-introduction to this module. This example is included in the Wt
-distribution, in
+tutorial, we use an example as a hands-on introduction to this
+module. This example is included in the Wt distribution, in
 https://github.com/kdeforche/wt/tree/master/examples/feature/auth1[examples/feature/auth1].
 
 This introduction assumes that you have a reasonable understanding of

@@ -31,10 +31,6 @@
 #include "AuthWidget"
 #include "web/WebUtils.h"
 
-#ifndef WT_DEBUG_JS
-#include "js/AuthWidget.min.js"
-#endif
-
 #include <memory>
 
 namespace skeletons {
@@ -378,9 +374,6 @@ void AuthWidget::createOAuthLoginView()
 
     WContainerWidget *icons = new WContainerWidget();
     icons->setInline(isInline());
-
-    WApplication *app = WApplication::instance();
-    LOAD_JAVASCRIPT(app, "js/AuthWidget.js", "authPopupWindow", wtjs1);
 
     for (unsigned i = 0; i < model_->oAuth().size(); ++i) {
       const OAuthService *auth = model_->oAuth()[i];

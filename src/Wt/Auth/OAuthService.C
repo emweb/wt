@@ -36,6 +36,10 @@
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.OAuthService." e)
 
+#ifndef WT_DEBUG_JS
+#include "js/AuthWidget.min.js"
+#endif
+
 namespace Wt {
 
 LOGGER("Auth::OAuthService");
@@ -48,8 +52,7 @@ public:
   OAuthRedirectEndpoint(OAuthProcess *process)
     : WResource(process),
       process_(process)
-  {
-  }
+  { }
 
   void sendError(Http::Response& response)
   {
@@ -160,6 +163,8 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
 {
   redirectEndpoint_ = new OAuthRedirectEndpoint(this);
   WApplication *app = WApplication::instance();
+
+  LOAD_JAVASCRIPT(app, "js/AuthWidget.js", "authPopupWindow", wtjs1);
 
   std::string url = app->makeAbsoluteUrl(redirectEndpoint_->url());
   oAuthState_ = service_.encodeState(url);

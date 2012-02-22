@@ -141,7 +141,7 @@
 
   <message id="Wt.WMediaPlayer.template">
     <div class="jp-type-single">
-      <div class="jp-jplayer"></div>
+      <div class="jp-jplayer"> </div>
       ${gui}
     </div>
   </message>

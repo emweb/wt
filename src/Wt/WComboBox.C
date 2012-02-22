@@ -94,8 +94,11 @@ const WString WComboBox::currentText() const
 
 void WComboBox::insertItem(int index, const WString& text)
 {
-  if (model_->insertRow(index))
+  if (model_->insertRow(index)) {
     setItemText(index, text);
+    if (currentIndex_ == -1 && !supportsNoSelection())
+      setCurrentIndex(0);
+  }
 }
 
 const WString WComboBox::itemText(int index) const
@@ -191,9 +194,6 @@ bool WComboBox::supportsNoSelection() const
 void WComboBox::updateDom(DomElement& element, bool all)
 {
   if (itemsChanged_ || all) {
-    if (all && count() > 0 && currentIndex_ == -1 && !supportsNoSelection())
-      currentIndex_ = 0;
-
     if (!all)
       element.removeAllChildren();
 

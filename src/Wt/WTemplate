@@ -42,7 +42,7 @@ namespace Wt {
  * Optionally, additional arguments can be specified using the following
  * syntax:
  *
- * <tt>${var arg1=value1 arg2="A second value" arg3='A third value'}</tt>
+ * <tt>${var arg1="A value" arg2='A second value'}</tt>
  *
  * The arguments can thus be simple simple strings or quoted strings
  * (single or double quoted). These arguments are applied to a
@@ -57,8 +57,7 @@ namespace Wt {
  *       around variables that are bound to widgets will result in bad
  *       behaviour since the template parser is ignorant about these
  *       comments and the corresponding widgets will believe that they
- *       are rendered but aren't actually. We are planning to add a syntax
- *       for conditional sections
+ *       are rendered but aren't actually.
  *
  * <h3>B. %Functions</h3>
  *
@@ -92,8 +91,8 @@ namespace Wt {
  *
  * <h3>C. Conditional blocks</h3>
  *
- * <tt>${<cond>}</tt> starts a conditional block with a condition name
- * "cond", and must be closed by a balanced <tt>${</cond>}</tt>.
+ * <tt>${&lt;cond&gt;}</tt> starts a conditional block with a condition name
+ * "cond", and must be closed by a balanced <tt>${&gt;/cond&gt;}</tt>.
  *
  * Conditions are set using setCondition().
  *

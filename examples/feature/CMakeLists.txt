@@ -5,6 +5,7 @@ SUBDIRS(
   mediaplayer
   miniwebgl
   multiple_servers
+  oauth
   serverpush
   socketnotifier
   suggestionpopup

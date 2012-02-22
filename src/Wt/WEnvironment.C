@@ -211,19 +211,19 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
 
   agent_ = Unknown;
 
-  if (userAgent_.find("MSIE 2") != std::string::npos
-      || userAgent_.find("MSIE 3") != std::string::npos
-      || userAgent_.find("MSIE 4") != std::string::npos
-      || userAgent_.find("MSIE 5") != std::string::npos
+  if (userAgent_.find("MSIE 2.") != std::string::npos
+      || userAgent_.find("MSIE 3.") != std::string::npos
+      || userAgent_.find("MSIE 4.") != std::string::npos
+      || userAgent_.find("MSIE 5.") != std::string::npos
       || userAgent_.find("IEMobile") != std::string::npos)
     agent_ = IEMobile;
-  else if (userAgent_.find("MSIE 6") != std::string::npos)
+  else if (userAgent_.find("MSIE 6.") != std::string::npos)
     agent_ = IE6;
   else if (userAgent_.find("Trident/5.0") != std::string::npos)
     agent_ = IE9;
-  else if (userAgent_.find("MSIE 7") != std::string::npos)
+  else if (userAgent_.find("MSIE 7.") != std::string::npos)
     agent_ = IE7;
-  else if (userAgent_.find("MSIE 8") != std::string::npos)
+  else if (userAgent_.find("MSIE 8.") != std::string::npos)
     agent_ = IE8;
   else if (userAgent_.find("MSIE") != std::string::npos)
     agent_ = IE9;
@@ -286,11 +286,11 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = Gecko;
 
   if (userAgent_.find("Firefox") != std::string::npos) {
-    if (userAgent_.find("Firefox/0") != std::string::npos)
+    if (userAgent_.find("Firefox/0.") != std::string::npos)
       agent_ = Firefox;
-    else if (userAgent_.find("Firefox/1") != std::string::npos)
+    else if (userAgent_.find("Firefox/1.") != std::string::npos)
       agent_ = Firefox;
-    else if (userAgent_.find("Firefox/2") != std::string::npos)
+    else if (userAgent_.find("Firefox/2.") != std::string::npos)
       agent_ = Firefox;
     else {
       if (userAgent_.find("Firefox/3.0") != std::string::npos)

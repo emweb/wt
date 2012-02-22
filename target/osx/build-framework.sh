@@ -8,7 +8,7 @@
 : ${BOOST_FRAMEWORK_PATH:=/Users/koen/project/wt/ipad/boostoniphone/framework}
 : ${IOS_SDK:=/Developer/Platforms/iPhoneOS.platform/Developer}
 : ${ISIM_SDK:=/Developer/Platforms/iPhoneSimulator.platform/Developer}
-: ${SDK_VER:=4.3}
+: ${SDK_VER:=5.0}
 
 : ${CMAKE:=cmake}
 
@@ -35,6 +35,8 @@ TMP_DIR=$BUILD_DIR/tmp
        -DENABLE_HARU=OFF \
        -DENABLE_QT4=OFF \
        -DENABLE_SSL=OFF \
+       -DENABLE_POSTGRES=OFF \
+       -DENABLE_FIREBIRD=OFF \
        -DHTTP_WITH_ZLIB=OFF}
 
 abort()
@@ -57,8 +59,8 @@ build-armv6()
    [ -d $BUILD_ARMV6_DIR ] || mkdir -p $BUILD_ARMV6_DIR
    ( cd $BUILD_ARMV6_DIR; ${CMAKE} \
        $COMMON_CMAKE_FLAGS \
-       -DCMAKE_C_COMPILER:FILEPATH=$IOS_SDK/usr/bin/gcc-4.2 \
-       -DCMAKE_CXX_COMPILER:FILEPATH=$IOS_SDK/usr/bin/g++-4.2 \
+       -DCMAKE_C_COMPILER:FILEPATH=$IOS_SDK/usr/bin/gcc \
+       -DCMAKE_CXX_COMPILER:FILEPATH=$IOS_SDK/usr/bin/g++ \
        -DCMAKE_C_FLAGS:STRING="-mthumb -fvisibility=hidden -isysroot $IOS_SDK/SDKs/iPhoneOS${SDK_VER}.sdk -arch armv6 -pipe" \
        -DCMAKE_CXX_FLAGS:STRING="-mthumb -fvisibility=hidden -fvisibility-inlines-hidden -isysroot $IOS_SDK/SDKs/iPhoneOS${SDK_VER}.sdk -arch armv6 -pipe -DWT_NO_SPIRIT" \
        ../../ && make ) || abort "Failed building for arm6 architecture"
@@ -69,8 +71,8 @@ build-armv7()
    [ -d $BUILD_ARMV7_DIR ] || mkdir -p $BUILD_ARMV7_DIR
    ( cd $BUILD_ARMV7_DIR; ${CMAKE} \
        $COMMON_CMAKE_FLAGS \
-       -DCMAKE_C_COMPILER:FILEPATH=$IOS_SDK/usr/bin/gcc-4.2 \
-       -DCMAKE_CXX_COMPILER:FILEPATH=$IOS_SDK/usr/bin/g++-4.2 \
+       -DCMAKE_C_COMPILER:FILEPATH=$IOS_SDK/usr/bin/gcc \
+       -DCMAKE_CXX_COMPILER:FILEPATH=$IOS_SDK/usr/bin/g++ \
        -DCMAKE_C_FLAGS:STRING="-mthumb -fvisibility=hidden -isysroot $IOS_SDK/SDKs/iPhoneOS${SDK_VER}.sdk -arch armv7 -pipe" \
        -DCMAKE_CXX_FLAGS:STRING="-mthumb -fvisibility=hidden -fvisibility-inlines-hidden -isysroot $IOS_SDK/SDKs/iPhoneOS${SDK_VER}.sdk -arch armv7 -pipe -DWT_NO_SPIRIT" \
        ../../ && make ) || abort "Failed building for arm7 architecture"
@@ -81,8 +83,8 @@ build-i386()
    [ -d $BUILD_I386_DIR ] || mkdir -p $BUILD_I386_DIR
    ( cd $BUILD_I386_DIR; ${CMAKE} \
        $COMMON_CMAKE_FLAGS \
-       -DCMAKE_CXX_COMPILER:FILEPATH=$ISIM_SDK/usr/bin/gcc-4.2 \
-       -DCMAKE_C_COMPILER:FILEPATH=$ISIM_SDK/usr/bin/gcc-4.2 \
+       -DCMAKE_C_COMPILER:FILEPATH=$ISIM_SDK/usr/bin/gcc \
+       -DCMAKE_CXX_COMPILER:FILEPATH=$ISIM_SDK/usr/bin/g++ \
        -DCMAKE_C_FLAGS:STRING="-arch i386 -fvisibility=hidden -isysroot $ISIM_SDK/SDKs/iPhoneSimulator${SDK_VER}.sdk" \
        -DCMAKE_CXX_FLAGS:STRING="-arch i386 -fvisibility=hidden -fvisibility-inlines-hidden -isysroot $ISIM_SDK/SDKs/iPhoneSimulator${SDK_VER}.sdk -DWT_NO_SPIRIT" \
        ../../ && make && make install) || abort "Failed building for simulator"

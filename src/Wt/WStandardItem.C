@@ -640,8 +640,18 @@ WStandardItem *WStandardItem::takeChild(int row, int column)
 {
   WStandardItem *result = child(row, column);
   if (result) {
+    WModelIndex idx = result->index();
+    
+    if (result->hasChildren())
+      model_->beginRemoveRows(result->index(), 0, result->rowCount() - 1);
+    
     orphanChild(result);
     (*columns_)[column][row] = 0;
+    
+    if (result->hasChildren())
+      model_->endRemoveRows();
+
+    model_->dataChanged().emit(idx, idx);
   }
 
   return result;
