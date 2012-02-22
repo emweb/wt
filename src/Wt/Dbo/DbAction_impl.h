@@ -91,15 +91,21 @@ void InitSchema::actPtr(const PtrRef<C>& field)
 {
   Session::Mapping<C> *mapping = session_.getMapping<C>();
 
-  foreignKeyName_ = field.name();
-  foreignKeyTable_ = mapping->tableName;
-  fkConstraints_ = field.fkConstraints();
+  bool setName = foreignKeyName_.empty();
+
+  if (setName) {
+    foreignKeyName_ = field.name();
+    foreignKeyTable_ = mapping->tableName;
+    fkConstraints_ = field.fkConstraints();
+  }
 
   field.visit(*this, &session_);
 
-  foreignKeyName_.clear();
-  foreignKeyTable_.clear();
-  fkConstraints_ = 0;
+  if (setName) {
+    foreignKeyName_.clear();
+    foreignKeyTable_.clear();
+    fkConstraints_ = 0;
+  }
 }
 
 template<class C>
