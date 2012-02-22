@@ -167,7 +167,9 @@ void Session::returnConnection(SqlConnection *connection)
 
 void Session::discardChanges(MetaDboBase *obj)
 {
-  if (dirtyObjects_.erase(obj) > 0)
+  MetaDboBaseSet::nth_index<1>::type& setIndex = dirtyObjects_.get<1>();
+
+  if (setIndex.erase(obj) > 0)
     obj->decRef();
 }
 
@@ -898,8 +900,23 @@ Session::MappingInfo *Session::getMapping(const char *tableName) const
 
 void Session::needsFlush(MetaDboBase *obj)
 {
-  if (dirtyObjects_.insert(obj).second)
+  typedef MetaDboBaseSet::nth_index<1>::type Set;
+  Set& setIndex = dirtyObjects_.get<1>();
+
+  std::pair<Set::iterator, bool> inserted = setIndex.insert(obj);
+
+  if (inserted.second) {
+    // was a new entry
     obj->incRef();
+  } else {
+    // was an existing entry, move to back
+    typedef MetaDboBaseSet::nth_index<0>::type List;
+    List& listIndex = dirtyObjects_.get<0>();
+
+    List::iterator i = dirtyObjects_.project<0>(inserted.first);
+
+    listIndex.splice(listIndex.end(), listIndex, i);
+  }
 }
 
 void Session::flush()

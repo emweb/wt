@@ -11,6 +11,10 @@
 #include <set>
 #include <string>
 #include <typeinfo>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index/member.hpp>
 
 #include <Wt/Dbo/ptr>
 #include <Wt/Dbo/Field>
@@ -351,14 +355,21 @@ public:
 private:
   Session(const Session& s);
 
-  typedef std::set<MetaDboBase *> MetaDboBaseSet;
+  typedef boost::multi_index::multi_index_container<
+    MetaDboBase *,
+    boost::multi_index::indexed_by<
+      boost::multi_index::sequenced<>,
+      boost::multi_index::hashed_unique
+      <boost::multi_index::identity<MetaDboBase *> >
+    >
+  > MetaDboBaseSet;
 
-  enum {SqlInsert = 0,
-	SqlUpdate = 1,
-	SqlDelete = 2,
-	SqlDeleteVersioned = 3,
-	SqlSelectById = 4,
-	FirstSqlSelectSet = 5};
+  enum { SqlInsert = 0,
+	 SqlUpdate = 1,
+	 SqlDelete = 2,
+	 SqlDeleteVersioned = 3,
+	 SqlSelectById = 4,
+	 FirstSqlSelectSet = 5 };
 
   struct JoinId {
     std::string joinIdName;
@@ -505,32 +516,32 @@ private:
   void returnConnection(SqlConnection *connection);
   SqlConnection *connection(bool openTransaction);
 
-  friend class MetaDboBase;
   template <class C> friend class MetaDbo;
-
   template <class C> friend class collection;
   template <class C, typename S> friend class Query;
   template <class C> friend class Impl::QueryBase;
+  template <class C, typename T> friend struct Impl::LoadHelper;
   template <typename V> friend class FieldRef;
   template <class C> friend struct query_result_traits;
-  friend class Call;
-  friend class Transaction;
-  friend struct Transaction::Impl;
-
-  friend class CollectionHelper;
-  friend class InitSchema;
-  friend class DboAction;
-  friend class SaveBaseAction;
   template <class C> friend class SaveDbAction;
-  friend class LoadBaseAction;
   template <class C> friend class LoadDbAction;
   template <class C> friend class PtrRef;
-  friend class SessionAddAction;
-  friend class TransactionDoneAction;
+
+  friend class Call;
+  friend class CollectionHelper;
+  friend class DboAction;
   friend class DropSchema;
-  friend class ToAnysAction;
   friend class FromAnyAction;
-  template <class C, typename T> friend struct Impl::LoadHelper;
+  friend class InitSchema;
+  friend class LoadBaseAction;
+  friend class MetaDboBase;
+  friend class SaveBaseAction;
+  friend class SessionAddAction;
+  friend class ToAnysAction;
+  friend class Transaction;
+  friend class TransactionDoneAction;
+
+  friend struct Transaction::Impl;
 };
 
   }
