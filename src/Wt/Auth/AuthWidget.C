@@ -309,6 +309,7 @@ WFormWidget *AuthWidget::createFormWidget(WFormModel::Field field)
     result->setFocus();
   } else if (field == AuthModel::PasswordField) {
     WLineEdit *p = new WLineEdit();
+    p->enterPressed().connect(this, &AuthWidget::attemptPasswordLogin);
     p->setEchoMode(WLineEdit::Password);
     result = p;
   } else if (field == AuthModel::RememberMeField) {
