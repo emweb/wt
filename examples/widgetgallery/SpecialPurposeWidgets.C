@@ -33,6 +33,8 @@ namespace {
     "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
   std::string mp3Audio =
     "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3";
+  std::string oggAudio =
+    "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.ogg";
 
   std::string poster = "pics/sintel_trailer.jpg";
 }
@@ -354,6 +356,7 @@ WWidget *SpecialPurposeWidgets::wMediaPlayer()
   player = new WMediaPlayer(WMediaPlayer::Audio, result);
 
   player->addSource(WMediaPlayer::MP3, WLink(mp3Audio));
+  player->addSource(WMediaPlayer::OGA, WLink(oggAudio));
   player->setTitle("La Sera - Never Come Around");
 
   ed_->showEvent(player->playbackStarted(), "Song playing");
@@ -396,6 +399,7 @@ WWidget *SpecialPurposeWidgets::wAudio()
 
   WAudio *a1 = new WAudio(result);
   a1->addSource(WLink(mp3Audio));
+  a1->addSource(WLink(oggAudio));
   a1->setOptions(WAudio::Controls);
 
   ed_->showEvent(a1->playbackStarted(), "Audio playing");

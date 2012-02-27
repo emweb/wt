@@ -104,6 +104,7 @@ WTableView::WTableView(WContainerWidget *parent)
     headerColumnsHeaderContainer_ = new WContainerWidget();
     headerColumnsHeaderContainer_->setStyleClass("Wt-header headerrh cwidth "
 						 "Wt-headerdiv");
+    headerColumnsHeaderContainer_->hide();
 
     headerColumnsTable_ = new WContainerWidget();
     headerColumnsTable_->setStyleClass("Wt-tv-contents");
@@ -126,6 +127,7 @@ WTableView::WTableView(WContainerWidget *parent)
     headerColumnsContainer_->setPositionScheme(Absolute);
     headerColumnsContainer_->setOverflow(WContainerWidget::OverflowHidden);
     headerColumnsContainer_->addWidget(headerColumnsCanvas_);
+    headerColumnsContainer_->hide();
 
     layout->addWidget(headerColumnsHeaderContainer_, 0, 0);
     layout->addWidget(headerContainer_, 0, 1);
@@ -971,6 +973,9 @@ void WTableView::updateColumnOffsets()
   headerColumnsTable_->setWidth(totalRendered);
   headerColumnsHeaderContainer_->setWidth(totalRendered);
 
+  headerColumnsContainer_->setHidden(totalRendered == 0);
+  headerColumnsHeaderContainer_->setHidden(totalRendered == 0);
+
   int fc = firstColumn();
   int lc = lastColumn();
 
@@ -1647,6 +1652,8 @@ void WTableView::setRowHeaderCount(int count)
 	total += (int)columnInfo(i).width.toPixels() + 7;
 
     headerColumnsContainer_->setWidth(total);
+    headerColumnsContainer_->setHidden(count == 0);
+    headerColumnsHeaderContainer_->setHidden(count == 0);
   }
 }
 

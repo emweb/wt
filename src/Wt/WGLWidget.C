@@ -455,7 +455,7 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
       """o.initializeGL=function(){\n"
       //"""debugger;\n"
       """var obj=" << glObjJsRef() << ";\n"
-      """var ctx=obj.ctx;\n" <<
+      """var ctx=obj.ctx; if(!ctx) return;\n" <<
       "" << js_.str() <<
       """obj.initialized = true;\n"
       // updates are queued until initialization is complete
@@ -511,7 +511,7 @@ void WGLWidget::updateDom(DomElement &element, bool all)
       updateGL();
       tmp << "var update =function(){\n"
         "var obj=" << glObjJsRef() << ";\n"
-        "var ctx=obj.ctx;\n"
+        "var ctx=obj.ctx;if (!ctx) return;\n"
         << js_.str() << "\n};\n"
         // cannot execute updates before initializeGL is executed
         "o.updates.push(update);";
@@ -521,7 +521,7 @@ void WGLWidget::updateDom(DomElement &element, bool all)
       resizeGL(renderWidth_, renderHeight_);
       tmp << "o.resizeGL=function(){\n"
         "var obj=" << glObjJsRef() << ";\n"
-        "var ctx=obj.ctx;\n"
+        "var ctx=obj.ctx;if (!ctx) return;\n"
         << js_.str() << "};";
     }
     if (updatePaintGL_) {
@@ -529,7 +529,7 @@ void WGLWidget::updateDom(DomElement &element, bool all)
       paintGL();
       tmp << "o.paintGL=function(){\n"
         "var obj=" << glObjJsRef() << ";\n"
-        "var ctx=obj.ctx;\n"
+        "var ctx=obj.ctx;if (!ctx) return;\n"
         << js_.str() << "};";
     }
     js_.str("");

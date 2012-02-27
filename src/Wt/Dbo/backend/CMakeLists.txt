@@ -56,6 +56,15 @@ IF(ENABLE_SQLITE)
     DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
     )
 
+  IF(MSVC)
+    SET_TARGET_PROPERTIES(
+      wtdbosqlite3
+    PROPERTIES
+      COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
+    )
+
+  ENDIF(MSVC)
+
   INSTALL_FILES(/include/Wt/Dbo/backend "^Sqlite3$")
   INSTALL_FILES(/include/Wt/Dbo/backend "^.*Sqlite3.*h$")
 
@@ -127,8 +136,19 @@ IF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
     Firebird.C
     ${IBPP_ALL_IN_ONE_FILE}
   )
-  TARGET_LINK_LIBRARIES(wtdbofirebird wtdbo ${FIREBIRD_LIBRARIES} ${BOOST_DT_LIB})
+  TARGET_LINK_LIBRARIES(wtdbofirebird
+    wtdbo
+    ${FIREBIRD_LIBRARIES}
+    ${BOOST_DT_LIB}
+  )
 
+  IF(MSVC)
+    SET_TARGET_PROPERTIES(
+      wtdbofirebird
+    PROPERTIES
+      COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4267"
+    )
+  ENDIF(MSVC)
 
   INSTALL(TARGETS wtdbofirebird
     RUNTIME DESTINATION bin

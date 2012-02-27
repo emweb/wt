@@ -275,6 +275,10 @@
     background-color: #EEEEEE;
 }
 
+.Wt-chwrap {
+    position: relative;
+}
+
 /*
  * WItemDelegate, when editable
  */

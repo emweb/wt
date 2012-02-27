@@ -51,7 +51,8 @@ WT_DECLARE_WT_MEMBER
        if (this.ctx == null) {
          var alternative = canvas.firstChild;
          var parentNode = canvas.parentNode;
-         parentNode.replaceChild(alternative, canvas);
+         parentNode.insertBefore(alternative, canvas);
+         canvas.style.display = 'none';
          noGLHandler();
        }
      }

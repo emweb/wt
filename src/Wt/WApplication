@@ -2209,7 +2209,7 @@ extern int WTCONNECTOR_API WRun(int argc, char** argv,
  */
 #define wApp Wt::WApplication::instance()
 
-extern void WtEmitBindSignal(const boost::shared_ptr< boost::signal0<void> >& s);
+extern void WT_API WtEmitBindSignal(const boost::shared_ptr< boost::signal0<void> >& s);
 
 #ifndef WT_CNOR
 template <typename F>

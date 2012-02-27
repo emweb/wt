@@ -595,6 +595,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
 	  if (colStretch && itemFitWidth && itemFitHeight) {
 	    td->setProperty(PropertyClass, "Wt-chwrap");
+	    c->setProperty(PropertyStylePosition, "absolute");
 	    if (!app->environment().agentIsIE()) {
 	      DomElement *chwrap = DomElement::createNew(DomElement_DIV);
 	      chwrap->setProperty(PropertyClass, "Wt-chwrap");

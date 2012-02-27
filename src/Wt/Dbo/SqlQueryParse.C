@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "Query"
+#include "Query_impl.h"
 #include "Exception"
 #include "ptr"
 

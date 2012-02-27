@@ -375,11 +375,13 @@ WT_DECLARE_WT_MEMBER
      var scrollheight = contentsContainer.offsetHeight
        - contentsContainer.clientHeight;
 
-     var pns = headerColumnsContainer.parentNode.style;
-     if (pns.paddingBottom !== scrollheight + 'px') {
-       pns.paddingBottom = scrollheight + 'px';
-       APP.layouts.adjust(el.children[0].id);
-       APP.layouts.adjust();
+     if (headerColumnsContainer.parentNode) {
+       var pns = headerColumnsContainer.parentNode.style;
+       if (pns && (pns.paddingBottom !== scrollheight + 'px')) {
+	 pns.paddingBottom = scrollheight + 'px';
+	 APP.layouts.adjust(el.children[0].id);
+	 APP.layouts.adjust();
+       }
      }
    };
  });

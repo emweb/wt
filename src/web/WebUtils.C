@@ -224,8 +224,8 @@ char *pad_itoa(int value, int length, char *result) {
 char *round_str(double d, int digits, char *buf) {
   static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
 
-  int i = static_cast<int>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
-  itoa(i, buf);
+  long long i = static_cast<long long>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
+  lltoa(i, buf);
   char *num = buf;
 
   if (num[0] == '-')

@@ -208,7 +208,8 @@ WT_DECLARE_WT_MEMBER
       $el.addClass(cl);
       $el.one(animationEventEnd, function() {
 	  $el.removeClass(cl);
-	  el.style.display = display;
+	  if (hide)
+	    el.style.display = display;
 	  restore(el, elStyle);
 	});
     }
