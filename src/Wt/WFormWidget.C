@@ -239,7 +239,8 @@ void WFormWidget::validatorChanged()
 
       keyWentUp().connect(*validateJs_);
       changed().connect(*validateJs_);
-      clicked().connect(*validateJs_);
+      if (domElementType() != DomElement_SELECT)
+	clicked().connect(*validateJs_);
     } else if (isRendered())
       validateJs_->exec(jsRef());
   } else {

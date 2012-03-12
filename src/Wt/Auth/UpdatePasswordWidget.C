@@ -30,15 +30,17 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 			       user.identity(Identity::LoginName));
   registrationModel_->setReadOnly(RegistrationModel::LoginNameField, true);
 
-  /*
-   * This is set in the model so that the password checker can take
-   * into account whether the password is derived from the email
-   * address.
-   */
-  registrationModel_->setValue(RegistrationModel::EmailField,
-			       WT_USTRING::fromUTF8(user.email() + " "
-						    + user.unverifiedEmail()));
-  registrationModel_->setVisible(RegistrationModel::EmailField, false);
+  if (authModel_->baseAuth()->emailVerificationEnabled()) {
+    /*
+     * This is set in the model so that the password checker can take
+     * into account whether the password is derived from the email
+     * address.
+     */
+    registrationModel_->setValue(RegistrationModel::EmailField,
+			 WT_USTRING::fromUTF8(user.email() + " "
+					      + user.unverifiedEmail()));
+    registrationModel_->setVisible(RegistrationModel::EmailField, false);
+  }
 
   WPushButton *okButton = new WPushButton(tr("Wt.WMessageBox.Ok"));
   WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));
@@ -87,6 +89,7 @@ WFormWidget *UpdatePasswordWidget::createFormWidget(WFormModel::Field field)
   } else if (field == AuthModel::PasswordField) {
     WLineEdit *p = new WLineEdit();
     p->setEchoMode(WLineEdit::Password);
+    result = p;
   } else if (field == RegistrationModel::ChoosePasswordField) {
     WLineEdit *p = new WLineEdit();
     p->setEchoMode(WLineEdit::Password);

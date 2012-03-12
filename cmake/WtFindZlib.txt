@@ -14,7 +14,7 @@ FIND_PATH(ZLIB_INCLUDE zlib.h
 IF(WIN32)
   FIND_LIBRARY(ZLIB_LIB_RELEASE
     NAMES
-      zlibstat 
+      zlibstat zlib 
     PATHS
       /usr/lib
       ${ZLIB_PREFIX}/lib

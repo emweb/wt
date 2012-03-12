@@ -30,6 +30,20 @@
 
 #endif // HTTP_WITH_SSL
 
+namespace {
+  std::string bindError(asio::ip::tcp::endpoint ep, 
+			boost::system::system_error e) {
+    std::stringstream ss;
+    ss << "Error occurred when binding to " 
+       << ep.address().to_string() 
+       << ":"
+       << ep.port() 
+       << std::endl
+       << e.what();
+    return ss.str();
+  }
+}
+
 namespace Wt {
   LOGGER("wthttp");
 }
@@ -103,7 +117,11 @@ void Server::start()
 
     tcp_acceptor_.open(tcp_endpoint.protocol());
     tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-    tcp_acceptor_.bind(tcp_endpoint);
+    try {
+      tcp_acceptor_.bind(tcp_endpoint);
+    } catch (boost::system::system_error e) {
+      LOG_ERROR_S(&wt_, bindError(tcp_endpoint, e));
+    }
     tcp_acceptor_.listen();
 
     LOG_INFO_S(&wt_, "started server: http://" << 
@@ -140,7 +158,11 @@ void Server::start()
 
     ssl_acceptor_.open(ssl_endpoint.protocol());
     ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-    ssl_acceptor_.bind(ssl_endpoint);
+    try {
+      ssl_acceptor_.bind(ssl_endpoint);
+    } catch (boost::system::system_error e) {
+      LOG_ERROR_S(&wt_, bindError(ssl_endpoint, e);)
+    }
     ssl_acceptor_.listen();
 
     new_sslconnection_.reset

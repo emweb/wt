@@ -259,7 +259,6 @@ public:
 
   bool isRendered() const;
 
-
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
 

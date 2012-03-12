@@ -23,6 +23,7 @@
 #cmakedefine WTDBO_STATIC
 #cmakedefine WTDBOPOSTGRES_STATIC
 #cmakedefine WTDBOSQLITE3_STATIC
+#cmakedefine WTDBOFIREBIRD_STATIC
 #cmakedefine WTHTTP_STATIC
 #cmakedefine WT_EXT_STATIC
 #cmakedefine WT_EXT_STATIC

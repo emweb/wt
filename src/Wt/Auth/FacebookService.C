@@ -8,6 +8,8 @@
 
 namespace {
   const char *RedirectEndpointProperty = "facebook-oauth2-redirect-endpoint";
+  const char *RedirectEndpointPathProperty = "facebook-oauth2-redirect"
+    "-endpoint-path";
   const char *ClientIdProperty = "facebook-oauth2-app-id";
   const char *ClientSecretProperty = "facebook-oauth2-app-secret";
 
@@ -139,6 +141,15 @@ int FacebookService::popupHeight() const
 std::string FacebookService::redirectEndpoint() const
 {
   return configurationProperty(RedirectEndpointProperty);
+}
+
+std::string FacebookService::redirectEndpointPath() const
+{
+  try {
+    return configurationProperty(RedirectEndpointPathProperty);
+  } catch (const std::exception& e) {
+    return OAuthService::redirectEndpointPath();
+  }
 }
 
 std::string FacebookService::authorizationEndpoint() const

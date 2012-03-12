@@ -107,10 +107,6 @@ const char *WFileUpload::FILETOOLARGE_SIGNAL = "M_filetoolarge";
 WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
     textSize_(20),
-    doUpload_(false),
-    enableAjax_(false),
-    uploading_(false),
-    multiple_(false),
     fileTooLarge_(this),
     dataReceived_(this),
     progressBar_(0),
@@ -141,15 +137,15 @@ void WFileUpload::create()
 
 WFileUpload::~WFileUpload()
 {
-  if (uploading_)
+  if (flags_.test(BIT_UPLOADING))
     WApplication::instance()->enableUpdates(false);
 }
 
 void WFileUpload::onUploaded()
 {
-  if (uploading_) {
+  if (flags_.test(BIT_UPLOADING)) {
     WApplication::instance()->enableUpdates(false);
-    uploading_ = false;
+    flags_.reset(BIT_UPLOADING);
   }
 }
 
@@ -163,8 +159,8 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
   h->setRequest(0, 0); // so that triggerUpdate() will work
 
   if (dataExceeded) {
-    if (uploading_) {
-      uploading_ = false;
+    if (flags_.test(BIT_UPLOADING)) {
+      flags_.reset(BIT_UPLOADING);
       tooLargeSize_ = dataExceeded;
       handleFileTooLargeImpl();
 
@@ -176,7 +172,7 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
     return;
   }
 
-  if (progressBar_ && uploading_) {
+  if (progressBar_ && flags_.test(BIT_UPLOADING)) {
     progressBar_->setRange(0, (double)total);
     progressBar_->setValue((double)current);
 
@@ -188,7 +184,7 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
 void WFileUpload::enableAjax()
 {
   create();
-  enableAjax_ = true;
+  flags_.set(BIT_ENABLE_AJAX);
   repaint();
   WWebWidget::enableAjax();
 }
@@ -233,7 +229,7 @@ void WFileUpload::setFileTextSize(int chars)
 
 void WFileUpload::setMultiple(bool multiple)
 {
-  multiple_ = multiple;
+  flags_.set(BIT_MULTIPLE, multiple);
 }
 
 std::string WFileUpload::spoolFileName() const
@@ -279,22 +275,42 @@ bool WFileUpload::empty() const
 void WFileUpload::updateDom(DomElement& element, bool all)
 {
   bool containsProgress = progressBar_ && progressBar_->parent() == this;
+  DomElement *inputE = 0;
 
-  if (fileUploadTarget_ && doUpload_) {
+  if (element.type() != DomElement_INPUT
+      && flags_.test(BIT_DO_UPLOAD)
+      && containsProgress && !progressBar_->isRendered())
+    element.addChild(progressBar_->createSDomElement(WApplication::instance()));
+
+  if (fileUploadTarget_ && flags_.test(BIT_DO_UPLOAD)) {
     element.callMethod("submit()");
-    doUpload_ = false;
+    flags_.reset(BIT_DO_UPLOAD);
 
     if (containsProgress) {
-      DomElement *inputE = DomElement::getForUpdate("in" + id(),
-						    DomElement_INPUT);
+      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
       inputE->setProperty(PropertyStyleDisplay, "none");
-      element.addChild(inputE);
     }
   }
 
-  if (element.type() != DomElement_INPUT
-      && containsProgress && !progressBar_->isRendered())
-    element.addChild(progressBar_->createSDomElement(WApplication::instance()));
+  if (flags_.test(BIT_ENABLED_CHANGED)) {
+    if (!inputE)
+      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+
+    inputE->callMethod("disabled=true");
+
+    flags_.reset(BIT_ENABLED_CHANGED);
+  }
+
+  EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
+  if (change && change->needsUpdate(all)) {
+    if (!inputE)
+      inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+
+    updateSignalConnection(*inputE, *change, "change", all);
+  }
+
+  if (inputE)
+    element.addChild(inputE);
 
   WWebWidget::updateDom(element, all);
 }
@@ -313,7 +329,7 @@ DomElementType WFileUpload::domElementType() const
 void WFileUpload::getDomChanges(std::vector<DomElement *>& result,
 				WApplication *app)
 {
-  if (enableAjax_) {
+  if (flags_.test(BIT_ENABLE_AJAX)) {
     DomElement *plainE = DomElement::getForUpdate(this, DomElement_INPUT);
     DomElement *ajaxE = createDomElement(app);
     plainE->replaceWith(ajaxE);
@@ -341,7 +357,7 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     DomElement *form = result;
 
     form->setAttribute("method", "post");
-    form->setAttribute("action", fileUploadTarget_->generateUrl());
+    form->setAttribute("action", fileUploadTarget_->url());
     form->setAttribute("enctype", "multipart/form-data");
     form->setProperty(PropertyStyle, "margin:0;padding:0;display:inline");
     form->setProperty(PropertyTarget, "if" + id());
@@ -357,11 +373,14 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
     DomElement *input = DomElement::createNew(DomElement_INPUT);
     input->setAttribute("type", "file");
-    if (multiple_)
+    if (flags_.test(BIT_MULTIPLE))
       input->setAttribute("multiple", "multiple");
     input->setAttribute("name", "data");
     input->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
     input->setId("in" + id());
+
+    if (!isEnabled())
+      input->setProperty(Wt::PropertyDisabled, "true");
 
     if (change)
       updateSignalConnection(*input, *change, "change", true);
@@ -370,9 +389,12 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
   } else {
     result->setAttribute("type", "file");
-    if (multiple_)
+    if (flags_.test(BIT_MULTIPLE))
       result->setAttribute("multiple", "multiple");
     result->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
+
+    if (!isEnabled())
+      result->setProperty(Wt::PropertyDisabled, "true");
 
     if (change)
       updateSignalConnection(*result, *change, "change", true);
@@ -380,7 +402,7 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
   updateDom(*result, true);
 
-  enableAjax_ = false;
+  flags_.reset(BIT_ENABLE_AJAX);
 
   return result;
 }
@@ -409,8 +431,8 @@ void WFileUpload::setRequestTooLarge(::int64_t size)
 
 void WFileUpload::upload()
 {
-  if (fileUploadTarget_ && !uploading_) {
-    doUpload_ = true;
+  if (fileUploadTarget_ && !flags_.test(BIT_UPLOADING)) {
+    flags_.set(BIT_DO_UPLOAD);
     repaint(RepaintPropertyIEMobile);
 
     if (progressBar_) {
@@ -422,8 +444,16 @@ void WFileUpload::upload()
 
     WApplication::instance()->enableUpdates();
 
-    uploading_ = true;
+    flags_.set(BIT_UPLOADING);
   }
+}
+
+void WFileUpload::propagateSetEnabled(bool enabled)
+{
+  flags_.set(BIT_ENABLED_CHANGED);
+  repaint(RepaintPropertyAttribute);
+
+  WWebWidget::propagateSetEnabled(enabled);
 }
 
 }

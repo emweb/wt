@@ -8,6 +8,8 @@
 
 namespace {
   const char *RedirectEndpointProperty = "google-oauth2-redirect-endpoint";
+  const char *RedirectEndpointPathProperty = "google-oauth2-redirect-endpoint-"
+    "path";
   const char *ClientIdProperty = "google-oauth2-client-id";
   const char *ClientSecretProperty = "google-oauth2-client-secret";
 
@@ -146,6 +148,15 @@ std::string GoogleService::authenticationScope() const
 std::string GoogleService::redirectEndpoint() const
 {
   return configurationProperty(RedirectEndpointProperty);
+}
+
+std::string GoogleService::redirectEndpointPath() const
+{
+  try {
+    return configurationProperty(RedirectEndpointPathProperty);
+  } catch (const std::exception& e) {
+    return OAuthService::redirectEndpointPath();
+  }
 }
 
 std::string GoogleService::authorizationEndpoint() const

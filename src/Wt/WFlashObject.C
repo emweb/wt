@@ -194,8 +194,8 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
     ss << 
       ""  "var v=" << jsFlashRef() << ";"
       ""  "if(v){"
-      ""    "v.setAttribute('width', " << toString(width()) << ");"
-      ""    "v.setAttribute('height', " << toString(height()) << ");"
+      ""    "v.setAttribute('width', '" << toString(width()) << "');"
+      ""    "v.setAttribute('height', '" << toString(height()) << "');"
       ""  "}";
     WApplication::instance()->doJavaScript(ss.str());
 

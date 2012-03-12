@@ -6,6 +6,7 @@
 #include "SoundManager.h"
 
 #include "Wt/WSound"
+#include "Wt/WCssDecorationStyle"
 #include "Wt/WStringStream"
 
 namespace Wt {
@@ -13,7 +14,8 @@ namespace Wt {
 SoundManager::SoundManager(WContainerWidget *parent)
   : WMediaPlayer(WMediaPlayer::Audio, parent)
 {
-  setControlsWidget(0);
+  controlsWidget()->hide();
+  decorationStyle().setBorder(WBorder());
 
   WStringStream ss;
   ss <<

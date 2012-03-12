@@ -536,8 +536,9 @@ std::string OAuthService::redirectInternalPath() const
 
 std::string OAuthService::generateRedirectEndpoint() const
 {
+  configureRedirectEndpoint();
+
   std::string result = redirectEndpoint();
-  configureRedirectEndpoint(result);
   return result;
 }
 
@@ -563,41 +564,50 @@ std::string OAuthService::decodeState(const std::string& state) const
     return std::string();
 }
 
-void OAuthService::configureRedirectEndpoint(const std::string& endpoint) const
+std::string OAuthService::redirectEndpointPath() const
+{
+  /* Compute absolute URL for dynamic resource */
+  WApplication *app = WApplication::instance();
+
+  /* Compute deployment path for static resource */
+  Http::Client::URL parsedUrl;
+  Http::Client::parseUrl(redirectEndpoint(), parsedUrl);
+
+  std::string path = parsedUrl.path;
+
+#ifndef WT_TARGET_JAVA
+  // Attempt to equalize the path with our deployment configuration,
+  // in case we are deployed using a reverse proxy
+  std::string publicDeployPath = app->environment().deploymentPath();
+  std::string deployPath = app->session()->deploymentPath();
+
+  if (deployPath != publicDeployPath) {
+    int diff = (int)publicDeployPath.length() - deployPath.length();
+    if (diff > 0) {
+      std::string prefix = publicDeployPath.substr(0, diff);
+      if (boost::starts_with(path, prefix))
+	path = path.substr(prefix.length());
+    }
+  }
+#endif
+
+  return path; 
+}
+
+void OAuthService::configureRedirectEndpoint() const
 {
   if (!impl_->redirectResource_) {
 #ifdef WT_THREADED
     boost::mutex::scoped_lock guard(impl_->mutex_);
 #endif
     if (!impl_->redirectResource_) {
-      /* Compute absolute URL for dynamic resource */
+      Impl::RedirectEndpoint *r = new Impl::RedirectEndpoint(*this);
+      std::string path = redirectEndpointPath();
+
+      LOG_INFO("deploying endpoint at " << path);
       WApplication *app = WApplication::instance();
       WServer *server = app->environment().server();
-
-      Impl::RedirectEndpoint *r = new Impl::RedirectEndpoint(*this);
-
-      /* Compute deployment path for static resource */
-      Http::Client::URL parsedUrl;
-      Http::Client::parseUrl(endpoint, parsedUrl);
-
-#ifndef WT_TARGET_JAVA
-      // We need to equalize path with our deployment configuration, in
-      // case we are deployed using a reverse proxy
-      std::string publicDeployPath = app->environment().deploymentPath();
-      std::string deployPath = app->session()->deploymentPath();
-
-      if (deployPath != publicDeployPath) {
-	int diff = (int)publicDeployPath.length() - deployPath.length();
-	if (diff > 0) {
-	  std::string prefix = publicDeployPath.substr(0, diff);
-	  if (boost::starts_with(parsedUrl.path, prefix))
-	    parsedUrl.path = parsedUrl.path.substr(prefix.length());
-	}
-      }
-#endif
-
-      LOG_INFO("deploying endpoint at " << parsedUrl.path);
-      server->addResource(r, parsedUrl.path);
+      server->addResource(r, path);
 
       impl_->redirectResource_ = r;
     }

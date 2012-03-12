@@ -109,12 +109,11 @@ void WCalendar::create()
 
   setSelectable(false);
 
-  WText *prevMonth = new WText(tr("Wt.WCalendar.PrevMonth"),
-    PlainText);
+  WText *prevMonth = new WText(tr("Wt.WCalendar.PrevMonth"));
   prevMonth->setStyleClass("Wt-cal-navbutton");
   prevMonth->clicked().connect(this, &WCalendar::browseToPreviousMonth);
 
-  WText *nextMonth = new WText(tr("Wt.WCalendar.NextMonth"), PlainText);
+  WText *nextMonth = new WText(tr("Wt.WCalendar.NextMonth"));
   nextMonth->setStyleClass("Wt-cal-navbutton");
   nextMonth->clicked().connect(this, &WCalendar::browseToNextMonth);
 

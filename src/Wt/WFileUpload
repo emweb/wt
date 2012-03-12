@@ -124,7 +124,7 @@ public:
    *
    * \sa setMultiple()
    */
-  bool multiple() const { return multiple_; }
+  bool multiple() const { return flags_.test(BIT_MULTIPLE); }
 
   /*! \brief Sets the size of the file input.
    */
@@ -304,14 +304,17 @@ private:
   static const char *UPLOADED_SIGNAL;
   static const char *FILETOOLARGE_SIGNAL;
 
+  static const int BIT_DO_UPLOAD        = 0;
+  static const int BIT_ENABLE_AJAX      = 1;
+  static const int BIT_UPLOADING        = 2;
+  static const int BIT_MULTIPLE         = 3;
+  static const int BIT_ENABLED_CHANGED  = 4;
+
+  std::bitset<5> flags_;
+
   int textSize_;
 
   std::vector<Http::UploadedFile> uploadedFiles_;
-
-  bool doUpload_;
-  bool enableAjax_;
-  bool uploading_;
-  bool multiple_;
 
   Signal< ::int64_t > fileTooLarge_;
 
@@ -333,12 +336,13 @@ protected:
   virtual void           propagateRenderOk(bool deep);
   virtual void           getDomChanges(std::vector<DomElement *>& result,
 				       WApplication *app);
+  virtual void propagateSetEnabled(bool enabled);
 
 private:
   EventSignal<>& fileTooLargeImpl();
   void handleFileTooLargeImpl();
   void onUploaded();
-  ::int64_t                    tooLargeSize_;
+  ::int64_t tooLargeSize_;
 
   virtual void setFormData(const FormData& formData);
   void setFiles(const std::vector<Http::UploadedFile>& files);

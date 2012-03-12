@@ -86,9 +86,10 @@ WT_DECLARE_WT_MEMBER
      self.style.height = Math.max(0, h) + 'px';
      if (w > 0)
        self.style.width = Math.max(0, w) + 'px';
-     var c = self.lastChild;
-     var t = c.previousSibling;
-     h -= t.offsetHeight + 8; // 8 = body padding
+     var c = $(self).children('.body').get(0);
+     var t = $(self).children('.titlebar').get(0);
+     if (t)
+       h -= t.offsetHeight + 8; // 8 = body padding
      if (h > 0) {
        c.style.height = h + 'px';
        if (APP.layouts)

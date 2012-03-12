@@ -6,6 +6,7 @@ This is the [Wt homepage](http://www.webtoolkit.eu/wt).
 How to run
 ----------
 
+Copy the blog.xml file and css directory from the blog example to this directory
 See the README in the parent directory.
 
 What it illustrates

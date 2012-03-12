@@ -525,7 +525,7 @@ std::string WebRenderer::sessionUrl() const
 {
   std::string result = session_.applicationUrl();
   if (isAbsoluteUrl(result))
-    return result;
+    return session_.appendSessionQuery(result);
   else {
     // Wt.js will prepand the correct deployment path
     return session_.appendSessionQuery(".").substr(1);
@@ -1685,6 +1685,8 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
   collectJS(&js);
 
   std::string result = js.str();
+
+  LOG_DEBUG("learned: " << result);
 
   if (slot->type() == WStatelessSlot::PreLearnStateless) {
     slot->undoTrigger();

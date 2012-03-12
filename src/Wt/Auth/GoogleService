@@ -20,6 +20,9 @@ namespace Wt {
  * - <tt>google-oauth2-redirect-endpoint</tt>: the URL of the local
  *   redirect endpoint, to which the google OAuth service redirects the user
  *   after authentication. See also redirectEndpoint()
+ * - <tt>google-oauth2-redirect-endpoint-path</tt>: optionally, the deployment
+ *   path that corresponds to the redirect endpoint. See also
+ *   redirectEndpointPath()
  * - <tt>google-oauth2-client-id</tt>: The client ID
  * - <tt>google-oauth2-client-secret</tt>: The client secret.
  *
@@ -75,6 +78,7 @@ public:
 
   virtual std::string authenticationScope() const;
   virtual std::string redirectEndpoint() const;
+  virtual std::string redirectEndpointPath() const;
   virtual std::string authorizationEndpoint() const;
   virtual std::string tokenEndpoint() const;
   virtual std::string clientId() const;

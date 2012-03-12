@@ -472,6 +472,16 @@ public:
    */
   virtual std::string redirectEndpoint() const = 0;
 
+  /*! \brief Returns the deployment path of the redirection endpoint.
+   *
+   * This returns the path at which the static resource is deployed
+   * that corresponds to the redirectEndpoint().
+   *
+   * The default implementation will derive this path from the
+   * redirectEndpoint() URL.
+   */
+  virtual std::string redirectEndpointPath() const;
+
   /*! \brief Returns the authorization endpoint URL.
    *
    * This is a remote URL which hosts the %OAuth authorization user
@@ -540,7 +550,7 @@ public:
 protected:
   static std::string configurationProperty(const std::string& property);
 
-  void configureRedirectEndpoint(const std::string& redirectEndPoint) const;
+  void configureRedirectEndpoint() const;
 
 private:
   OAuthService(const OAuthService&);

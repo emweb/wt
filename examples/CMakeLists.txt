@@ -140,7 +140,6 @@ SUBDIRS(
   composer
   dialog
   dragdrop
-  extkitchen
   feature
   filetreetable
   form

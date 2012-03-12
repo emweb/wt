@@ -1249,8 +1249,12 @@ this.addStyleSheet = function(uri, media) {
     if (media != '' && media != 'all')
       s.setAttribute('media', media);
     var ll = document.getElementsByTagName('link');
-    var l = ll[ll.length - 1];
-    l.parentNode.insertBefore(s, l.nextSibling);
+    if (ll.length > 0) {
+      var l = ll[ll.length - 1];
+      l.parentNode.insertBefore(s, l.nextSibling);
+    } else {
+      document.body.appendChild(s);
+    }
   }
 };
 
