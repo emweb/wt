@@ -40,7 +40,9 @@ WT_DECLARE_WT_MEMBER
        var result = WT.px(el, 'marginTop');
        result += WT.px(el, 'marginBottom');
 
-       if (!WT.boxSizing(el)) {
+       /* Second condition: IE9 applys boxsizing to 'BUTTON' objects ? */
+       if (!WT.boxSizing(el)
+	   && !(WT.isIE && !WT.isIElt9 && WT.hasTag(el, 'BUTTON'))) {
 	   result += WT.px(el, 'borderTopWidth');
 	   result += WT.px(el, 'borderBottomWidth');
 	   result += WT.px(el, 'paddingTop');
@@ -93,8 +95,6 @@ WT_DECLARE_WT_MEMBER
        return;
 
      var ch = td.childNodes[0]; // 'ch' is cell contents
-     if (height <= 0)
-       height = 0;
 
      if (ch.className == 'Wt-hcenter') {
        ch.style.height = height+'px';

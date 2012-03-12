@@ -26,7 +26,7 @@ bool WTemplate::_tr(const std::vector<WString>& args,
     WString s = WString::tr(args[0].toUTF8());
     for (unsigned j = 1; j < args.size(); ++j)
       s.arg(args[j]);
-    result << s; // FIXME formatting / escaping ?
+    result << s.toUTF8(); // FIXME formatting / escaping ?
     return true;
   } else {
     LOG_ERROR("Functions::tr(): expects at least one argument");

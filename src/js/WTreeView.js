@@ -138,6 +138,9 @@ WT_DECLARE_WT_MEMBER
      if (!adjustScheduled)
        return;
 
+     if (el.offsetWidth == 0)
+       return;
+
      adjustScheduled = false;
 
      var wrapRoot = contents.firstChild, // table parent
@@ -269,7 +272,7 @@ WT_DECLARE_WT_MEMBER
 	return;
       }
 
-      if (WT.isHidden(el))
+      if (WT.isHidden(el) || el.offsetWidth == 0)
 	return;
 
       doAdjustColumns();
