@@ -49,6 +49,14 @@ void WLineEdit::setText(const WT_USTRING& text)
   }
 }
 
+void WLineEdit::setPlaceholderText( const WT_USTRING& text ) {
+  if (placeholder_ != text) {
+    placeholder_ = text;
+    flags_.set(BIT_PLACEHOLDER_CHANGED);
+    repaint(RepaintPropertyIEMobile);
+  }
+}
+
 void WLineEdit::setTextSize(int chars)
 {
   if (textSize_ != chars) {
@@ -93,6 +101,10 @@ void WLineEdit::updateDom(DomElement& element, bool all)
     element.setAttribute("size",
 			 boost::lexical_cast<std::string>(textSize_));
     flags_.reset(BIT_TEXT_SIZE_CHANGED);
+  }
+  if (all || flags_.test(BIT_PLACEHOLDER_CHANGED)) {
+    element.setAttribute("placeholder", placeholder_.toUTF8() );
+    flags_.reset(BIT_PLACEHOLDER_CHANGED);
   }
 
   if (all || flags_.test(BIT_MAX_LENGTH_CHANGED)) {

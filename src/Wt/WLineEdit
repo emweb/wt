@@ -83,6 +83,10 @@ public:
    */
   void setTextSize(int chars);
 
+  /*! \brief Specifies the placeholder attribute
+  */
+  void setPlaceholderText( const WT_USTRING& text );
+
   /*! \brief Returns the current width of the line edit in number of characters.
    *
    * \sa setTextSize(int)
@@ -171,16 +175,18 @@ public:
 
 private:
   WT_USTRING content_;
+  WT_USTRING placeholder_;
   int        textSize_;
   int        maxLength_;
   EchoMode   echoMode_;
 
-  static const int BIT_CONTENT_CHANGED    = 0;
-  static const int BIT_TEXT_SIZE_CHANGED  = 1;
-  static const int BIT_MAX_LENGTH_CHANGED = 2;
-  static const int BIT_ECHO_MODE_CHANGED  = 3;
+  static const int BIT_CONTENT_CHANGED      = 0;
+  static const int BIT_TEXT_SIZE_CHANGED    = 1;
+  static const int BIT_MAX_LENGTH_CHANGED   = 2;
+  static const int BIT_ECHO_MODE_CHANGED    = 3;
+  static const int BIT_PLACEHOLDER_CHANGED  = 4;
 
-  std::bitset<4> flags_;
+  std::bitset<5> flags_;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);
