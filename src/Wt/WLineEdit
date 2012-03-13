@@ -86,6 +86,8 @@ public:
   /*! \brief Specifies the placeholder attribute
   */
   void setPlaceholderText( const WT_USTRING& text );
+  const WT_USTRING placeholderText()const { return placeholder_; }
+
 
   /*! \brief Returns the current width of the line edit in number of characters.
    *
