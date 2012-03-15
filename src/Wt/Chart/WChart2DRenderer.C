@@ -330,6 +330,8 @@ public:
 					it_.currentYSegment()).x(),
 			  renderer_.chartArea().top());
       break;
+    default:
+      break;
     }
 
     double g = numGroups_ + (numGroups_ - 1) * renderer_.chart()->barMargin();

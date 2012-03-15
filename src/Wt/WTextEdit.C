@@ -131,10 +131,10 @@ void WTextEdit::initTinyMCE()
     /*
       we should not use display:none for hiding?
     */
-    if (app->environment().ajax())
-      app->doJavaScript("tinymce.dom.Event._pageInit();", false);
 
-    app->doJavaScript("tinyMCE.init();", false);
+    app->doJavaScript("if (!tinymce.dom.Event.domLoaded)"
+		      "  tinymce.dom.Event.domLoaded = true;"
+		      "tinyMCE.init();", false);
     app->styleSheet().addRule(".mceEditor", "height: 100%;");
 
     // Adjust the height: this can only be done by adjusting the iframe height.

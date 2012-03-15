@@ -79,6 +79,15 @@ int WBorderLayout::count() const
   return j;
 }
 
+void WBorderLayout::clear()
+{
+  for (int i = 0; i < 5; ++i) {
+    Impl::Grid::Item &item = itemAtPosition((Position)i);
+    clearLayoutItem(item.item_);
+    item.item_ = 0;
+  }
+}
+
 Impl::Grid::Item& WBorderLayout::itemAtPosition(Position position)
 {
   switch (position) {

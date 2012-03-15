@@ -10,13 +10,12 @@
 #include "Wt/FontSupport.h"
 
 #include "WebUtils.h"
+#include "FileUtils.h"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
 #endif // WT_THREADED
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/exception.hpp>
 #include <boost/algorithm/string.hpp>
 
 namespace {
@@ -134,10 +133,8 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
 					      const std::string& directory,
 					      bool recursive) const
 {
-  boost::filesystem::path path(directory);
-
-  if (!boost::filesystem::exists(path)
-      || !boost::filesystem::is_directory(path)) {
+  if (!FileUtils::exists(directory)
+      || !FileUtils::isDirectory(directory)) {
     LOG_ERROR("cannot read directory '" << directory << "'");
     return FontMatch();
   }
@@ -179,28 +176,30 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
   }
 
   FontMatch match;
-  matchFont(font, fontNames, path, recursive, match);
+  matchFont(font, fontNames, directory, recursive, match);
 
   return match;
 }
 
 void FontSupport::matchFont(const WFont& font,
 			    const std::vector<std::string>& fontNames,
-			    const boost::filesystem::path& path,
+			    const std::string& path,
 			    bool recursive,
 			    FontMatch& match) const
 {
-  boost::filesystem::directory_iterator end_itr;
-
-  for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
-    if (boost::filesystem::is_directory(*i)) {
+  std::vector<std::string> files;
+  FileUtils::listFiles(path, files);
+  
+  for (unsigned i = 0; i < files.size(); ++i) {
+    std::string f = files[i];
+    if (FileUtils::isDirectory(f)) {
       if (recursive) {
-	matchFont(font, fontNames, *i, recursive, match);
+	matchFont(font, fontNames, f, recursive, match);
 	if (match.quality() == 1.0)
 	  return;
       }
     } else {
-      matchFont(font, fontNames, *i, match);
+      matchFont(font, fontNames, f, match);
       if (match.quality() == 1.0)
 	return;
     }
@@ -209,18 +208,12 @@ void FontSupport::matchFont(const WFont& font,
 
 void FontSupport::matchFont(const WFont& font,
 			    const std::vector<std::string>& fontNames,
-			    const boost::filesystem::path& path,
+			    const std::string& path,
 			    FontMatch& match) const
 {
-#if BOOST_FILESYSTEM_VERSION < 3
-  std::string f = Utils::lowerCase(path.leaf());
-#else
-  std::string f = Utils::lowerCase(path.leaf().string());
-#endif
-
-  if (boost::ends_with(f, ".ttf")
-      || boost::ends_with(f, ".ttc")) {
-    std::string name = f.substr(0, f.length() - 4);
+  if (boost::ends_with(path, ".ttf")
+      || boost::ends_with(path, ".ttc")) {
+    std::string name = path.substr(0, path.length() - 4);
     Utils::replace(name, ' ', std::string());
 
     char const *const boldVariants[] = { "bold", "bf", 0 };
@@ -252,7 +245,7 @@ void FontSupport::matchFont(const WFont& font,
       for (char const *const *w = weightVariants; *w; ++w)
 	for (char const *const *s = styleVariants; *s; ++s)
 	  if (fontNames[i] + *w + *s == name) {
-	    match = FontMatch(path.string(), q);
+	    match = FontMatch(path, q);
 	    return;
 	  }
     }

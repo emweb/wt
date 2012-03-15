@@ -562,19 +562,16 @@ void WGoogleMap::zoomWindow(const std::pair<Coordinate, Coordinate>& bbox)
 void WGoogleMap::zoomWindow(const Coordinate& topLeft, 
 			    const Coordinate& rightBottom)
 {
-  Coordinate topLeftC = topLeft;
-  Coordinate rightBottomC = rightBottom;
-
   const Coordinate center
-    ((topLeftC.latitude() + rightBottomC.latitude()) / 2.0,
-     (topLeftC.longitude() + rightBottomC.longitude()) / 2.0);
+    ((topLeft.latitude() + rightBottom.latitude()) / 2.0,
+     (topLeft.longitude() + rightBottom.longitude()) / 2.0);
 
-  topLeftC = 
-    Coordinate(std::min(topLeftC.latitude(), rightBottomC.latitude()),
-	       std::min(topLeftC.longitude(), rightBottomC.longitude()));
-  rightBottomC = 
-    Coordinate(std::max(topLeftC.latitude(), rightBottomC.latitude()),
-	       std::max(topLeftC.longitude(), rightBottomC.longitude()));
+  Coordinate topLeftC = 
+    Coordinate(std::min(topLeft.latitude(), rightBottom.latitude()),
+	       std::min(topLeft.longitude(), rightBottom.longitude()));
+  Coordinate rightBottomC = 
+    Coordinate(std::max(topLeft.latitude(), rightBottom.latitude()),
+	       std::max(topLeft.longitude(), rightBottom.longitude()));
   std::stringstream strm;
   strm << "var bbox = new google.maps.LatLngBounds(new google.maps.LatLng("
        << topLeftC.latitude()  << ", " << topLeftC.longitude() << "), "

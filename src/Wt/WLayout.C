@@ -203,24 +203,23 @@ void WLayout::setLayoutHint(const std::string& name, const std::string& value)
   }
 }
 
-void WLayout::clear()
-{
-  while (count()) {
-    WLayoutItem *item = itemAt(count() - 1);
-
-    if (item) {
-      WWidget* widget = 0;
-
-      if (item->layout())
-	item->layout()->clear();
-      else
-	widget = item->widget();
-
-      removeItem(item);
-      delete item;
-
-      delete widget;
+void WLayout::clearLayoutItem(WLayoutItem *item)
+{    
+  if (item) {
+    WWidget* widget = 0;
+    
+    if (item->layout()) {
+      //clear removes all widgets and sublayouts of this layout,
+      //which is not executed by the dtor
+      item->layout()->clear();
+    } else {
+      widget = item->widget();
     }
+    
+    removeItem(item);
+    delete item;
+    
+    delete widget;
   }
 }
 

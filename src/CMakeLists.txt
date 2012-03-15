@@ -287,6 +287,7 @@ web/WebSession.C
 web/WebSocketMessage.C
 web/WebRenderer.C
 web/WebUtils.C
+web/FileUtils.C
 web/TimeUtil.C
 web/XSSFilter.C
 web/XSSUtils.C

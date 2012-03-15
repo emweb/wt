@@ -32,7 +32,7 @@ IF(CONNECTOR_HTTP)
 
  IF(NOT BOOST_WTHTTP_FOUND)
 
-    MESSAGE(FATAL "** Could not find all boost libraries required to build the httpe connector (thread, filesystem, programoptions, datetime)")
+    MESSAGE(FATAL "** Could not find all boost libraries required to build the httpd connector (thread, filesystem, programoptions, datetime)")
 
   ENDIF(NOT BOOST_WTHTTP_FOUND)
   IF(HTTP_WITH_ZLIB)

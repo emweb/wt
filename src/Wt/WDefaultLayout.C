@@ -53,4 +53,11 @@ int WDefaultLayout::count() const
   return items_.size();
 }
 
+void WDefaultLayout::clear()
+{
+  for (unsigned i = 0; i < items_.size(); ++i)
+    clearLayoutItem(items_[i]);
+  items_.clear();
+}
+
 }

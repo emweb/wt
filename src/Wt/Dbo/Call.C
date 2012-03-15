@@ -22,8 +22,14 @@ Call::Call(const Call& other)
 
 void Call::run()
 {
-  statement_->execute();
-  statement_->done();
+  try {
+    run_ = true;
+    statement_->execute();
+    statement_->done();
+  } catch (...) {
+    statement_->done();
+    throw;
+  }
 }
 
 Call::Call(Session& session, const std::string& sql)

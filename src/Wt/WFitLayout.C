@@ -48,6 +48,12 @@ WLayoutItem *WFitLayout::itemAt(int index) const
   return item_;
 }
 
+void WFitLayout::clear()
+{
+  clearLayoutItem(item_);
+  item_ = 0;
+}
+
 int WFitLayout::indexOf(WLayoutItem *item) const
 {
   if (item_ == item)

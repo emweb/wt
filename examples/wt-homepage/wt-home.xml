@@ -490,7 +490,7 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
   set. For Ajax sessions, they support <b>pre-loading</b> and <b>lazy
   loading</b> of the contents associated with each item. Pre-loaded
   contents does not increase the load time because the Wt rendering
-  engine oalways ptimizes the response time by only transmitting
+  engine always optimizes the response time by only transmitting
   visual widgets or changes first. Everything invisible (such as the
   contents for other pre-loaded menu items) is transmitted in the
   background, after rendering the visible contents.

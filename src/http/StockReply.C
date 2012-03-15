@@ -17,8 +17,8 @@
 #include "Configuration.h"
 
 #include <string>
+#include <fstream>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include "Request.h"
 #include "../Wt/Utils"
 

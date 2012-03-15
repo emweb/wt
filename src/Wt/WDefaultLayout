@@ -47,6 +47,7 @@ public:
   virtual WLayoutItem *itemAt(int index) const;
   virtual int indexOf(WLayoutItem *item) const;
   virtual int count() const;
+  virtual void clear();
 
 private:
   std::vector<WLayoutItem *> items_;

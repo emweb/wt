@@ -43,6 +43,13 @@ Grid::~Grid()
     }
 }
 
+void Grid::clear()
+{
+  rows_.clear();
+  columns_.clear();
+  items_.clear();
+}
+
   }
 
 WGridLayout::WGridLayout(WWidget *parent)
@@ -157,6 +164,16 @@ int WGridLayout::columnCount() const
 int WGridLayout::rowCount() const
 {
   return grid_.rows_.size();
+}
+
+void WGridLayout::clear()
+{
+  unsigned c = count();
+  for (unsigned i = 0; i < c; ++i) {
+    WLayoutItem *item = itemAt(i);
+    clearLayoutItem(item);
+  }
+  grid_.clear();
 }
 
 void WGridLayout::setColumnStretch(int column, int stretch)

@@ -13,6 +13,7 @@
 #include <Wt/Dbo/SqlStatement>
 
 #include <boost/optional.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_enum.hpp>
 
@@ -99,6 +100,30 @@ struct WTDBO_API sql_value_traits<double, void>
   static const char *type(SqlConnection *conn, int size);
   static void bind(double v, SqlStatement *statement, int column, int size);
   static bool read(double& v, SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct WTDBO_API sql_value_traits<boost::posix_time::ptime, void>
+{
+  static const bool specialized = true;
+
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(const boost::posix_time::ptime& v, SqlStatement *statement,
+		   int column, int size);
+  static bool read(boost::posix_time::ptime& v, SqlStatement *statement,
+		   int column, int size);
+};
+
+template<>
+struct WTDBO_API sql_value_traits<boost::posix_time::time_duration, void>
+{
+  static const bool specialized = true;
+
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(const boost::posix_time::time_duration& v,
+		   SqlStatement *statement, int column, int size);
+  static bool read(boost::posix_time::time_duration& v,
+		   SqlStatement *statement, int column, int size);
 };
 
 template <typename Enum>

@@ -8,7 +8,7 @@
 #define FONT_SUPPORT_H_
 
 #ifndef HAVE_PANGO
-#include <boost/filesystem/path.hpp>
+#include <string>
 #else
 #include <pango/pango.h>
 #endif // HAVE_PANGO
@@ -177,12 +177,12 @@ private:
 		      bool recursive) const;
   void matchFont(const WFont& font,
 		 const std::vector<std::string>& fontNames,
-		 const boost::filesystem::path& path,
+		 const std::string& path,
 		 bool recursive,
 		 FontMatch& match) const;
   void matchFont(const WFont& font,
 		 const std::vector<std::string>& fontNames,
-		 const boost::filesystem::path& path,
+		 const std::string& path,
 		 FontMatch& match) const;
 
 #endif // HAVE_PANGO

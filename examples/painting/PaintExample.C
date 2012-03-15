@@ -73,7 +73,7 @@ PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
   shapes_ = new ShapesWidget();
   shapes_->setAngle(0.0);
   shapes_->setRelativeSize(0.5);
-  shapes_->setPreferredMethod(WPaintedWidget::InlineSvgVml);
+  shapes_->setPreferredMethod(WPaintedWidget::HtmlCanvas);
 
   layout->addWidget(shapes_, 1, 1, AlignCenter | AlignMiddle);
 }

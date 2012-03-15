@@ -18,6 +18,7 @@
 #include "WebController.h"
 #include "Server.h"
 #include "WebUtils.h"
+#include "FileUtils.h"
 
 #include <fstream>
 
@@ -40,7 +41,7 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
   urlScheme_ = request.urlScheme;
 
   if (request.contentLength > config.maxMemoryRequestSize()) {
-    requestFileName_ = Wt::Utils::createTempFileName();
+    requestFileName_ = Wt::FileUtils::createTempFileName();
     // First, create the file
     std::ofstream o(requestFileName_.c_str());
     o.close();

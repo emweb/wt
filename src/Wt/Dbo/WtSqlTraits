@@ -53,7 +53,8 @@ struct sql_value_traits<WTime, void>
   static const char *format;
 
   static const char *type(SqlConnection *conn, int size);
-  static void bind(const WTime& v, SqlStatement *statement, int column, int size);
+  static void bind(const WTime& v, SqlStatement *statement, int column,
+		   int size);
   static bool read(WTime& v, SqlStatement *statement, int column, int size);
 };
 

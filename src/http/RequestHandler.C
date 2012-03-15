@@ -19,8 +19,6 @@
 #include <sstream>
 #include <string>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/exception.hpp>
 
 #include "Request.h"
 #include "StaticReply.h"

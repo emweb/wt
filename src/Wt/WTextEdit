@@ -28,7 +28,7 @@ namespace Wt {
  * TinyMCE component.
  * 
  * \if cpp
- * To use this widget, you need to download TinyMCE (version 3.0.7 or
+ * To use this widget, you need to download TinyMCE (version 3.5b1 or
  * later) and deploy the <tt>tinymce/jscripts/tiny_mce</tt> folder to
  * <i>tinyMCEBaseURL</i>. The default value for <i>tinyMCEBaseURL</i> is
  * <i>resourcesURL</i><tt>/tiny_mce</tt>, where <i>resourcesURL</i> is

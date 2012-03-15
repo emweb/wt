@@ -1,6 +1,7 @@
 #include "IsapiRequest.h"
 #include "Server.h"
 #include "WebUtils.h"
+#include "FileUtils.h"
 #include <boost/algorithm/string/case_conv.hpp>
 #include <fstream>
 
@@ -51,7 +52,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
     spooltofile = bytesToRead_ > 128*1024;
   }
   if (spooltofile) {
-    requestFileName_ = Wt::Utils::createTempFileName();
+    requestFileName_ = Wt::FileUtils::createTempFileName();
     // First, create the file
     std::ofstream o(requestFileName_.c_str());
     o.close();

@@ -285,7 +285,12 @@ ptr<C>& ptr<C>::operator= (const ptr<C>& other)
 template <class C>
 const C *ptr<C>::operator->() const
 {
-  return get();
+  const C *v = get();
+
+  if (!v)
+    throw Exception("Wt::Dbo::ptr: null dereference");
+
+  return v;
 }
 
 template <class C>
@@ -303,7 +308,7 @@ const C& ptr<C>::operator*() const
   if (obj_)
     return *obj_->obj();
   else
-    throw Exception("ptr: null dereference");
+    throw Exception("Wt::Dbo::ptr: null dereference");
 }
 
 template <class C>
@@ -312,7 +317,7 @@ typename ptr<C>::mutator ptr<C>::modify() const
   if (obj_)
     return mutator(obj_);
   else
-    throw Exception("ptr: null dereference");
+    throw Exception("Wt::Dbo::ptr: null dereference");
 }
 
 template <class C>

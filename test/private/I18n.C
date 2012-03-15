@@ -5,11 +5,11 @@
  */
 #include <boost/test/unit_test.hpp>
 
-#include <boost/filesystem/operations.hpp>
-
 #include "Wt/Test/WTestEnvironment"
 #include "Wt/WApplication"
 #include "Wt/WString"
+
+#include "web/FileUtils.h"
 
 #include <iostream>
 
@@ -21,7 +21,7 @@ void pluralResourceBundleException(const std::string &resourceName)
   Wt::WApplication app(environment);
 
   std::string file = app.appRoot() + resourceName;
-  BOOST_REQUIRE(boost::filesystem::exists(file + ".xml"));
+  BOOST_REQUIRE(Wt::FileUtils::exists(file + ".xml"));
   
   app.messageResourceBundle().use(file);
 

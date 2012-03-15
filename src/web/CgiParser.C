@@ -38,6 +38,7 @@
 #include "CgiParser.h"
 #include "WebRequest.h"
 #include "WebUtils.h"
+#include "FileUtils.h"
 
 #include "Wt/WException"
 #include "Wt/WLogger"
@@ -397,7 +398,7 @@ bool CgiParser::parseHead(WebRequest& request)
        * It is not easy to create a std::ostream pointing to a
        * temporary file name.
        */
-      std::string spool = Utils::createTempFileName();
+      std::string spool = FileUtils::createTempFileName();
 
       spoolStream_ = new std::ofstream(spool.c_str(),
         std::ios::out | std::ios::binary);

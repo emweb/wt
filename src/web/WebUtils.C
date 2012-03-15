@@ -27,50 +27,6 @@
 namespace Wt {
   namespace Utils {
 
-std::string getTempDir()
-{
-  std::string tempDir;
-
-  char *wtTmpDir = getenv("WT_TMP_DIR");
-  if (wtTmpDir)
-    tempDir = wtTmpDir;
-  else {
-#ifdef WIN32
-    char winTmpDir[MAX_PATH];
-    if(GetTempPathA(sizeof(winTmpDir), winTmpDir) != 0)
-      tempDir = winTmpDir;
-#else
-    tempDir = "/tmp";
-#endif
-  }
-
-  return tempDir;
-}
-
-extern std::string createTempFileName()
-{
-  std::string tempDir = getTempDir();
-
-#ifdef WIN32
-  char tmpName[MAX_PATH];
-
-  if(tempDir == "" || GetTempFileNameA(tempDir.c_str(), "wt-", 0, tmpName) == 0)
-    return "";
-
-  return tmpName;
-#else
-  char* spool = new char[20 + tempDir.size()];
-  strcpy(spool, (tempDir + "/wtXXXXXX").c_str());
-
-  int i = mkstemp(spool);
-  close(i);
-
-  std::string returnSpool = spool;
-  delete [] spool;
-  return returnSpool;
-#endif
-}
-
 std::string append(const std::string& s, char c)
 {
   if (s.empty() || s[s.length() - 1] != c)

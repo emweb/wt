@@ -18,6 +18,8 @@
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/Dbo/ptr_tuple>
 #include <Wt/Dbo/QueryModel>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 //#define SCHEMA "test."
 #define SCHEMA ""
@@ -102,6 +104,8 @@ public:
   Wt::WDateTime datetime;
   Wt::WString wstring;
   std::string string;
+  boost::posix_time::ptime ptime;
+  boost::posix_time::time_duration pduration;
   bool checked;
   int i;
   ::int64_t i64;
@@ -122,6 +126,8 @@ public:
       && datetime == other.datetime
       && wstring == other.wstring
       && string == other.string
+      && ptime == other.ptime
+      && pduration == pduration
       && i == other.i
       && i64 == other.i64
       && ll == other.ll
@@ -144,6 +150,8 @@ public:
     dbo::field(a, datetime, "datetime");
     dbo::field(a, wstring, "wstring");
     dbo::field(a, string, "string", 50);
+    dbo::field(a, ptime, "ptime");
+    dbo::field(a, pduration, "pduration");
     dbo::field(a, i, "i");
     dbo::field(a, i64, "i64");
     dbo::field(a, ll, "ll");
@@ -349,6 +357,11 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
   a1.time = Wt::WTime(13, 14, 15, 102);
   a1.wstring = "Hello";
   a1.string = "There";
+  a1.ptime = boost::posix_time::ptime
+    (boost::gregorian::date(2005,boost::gregorian::Jan,1),
+     boost::posix_time::time_duration(1,2,3));
+  a1.pduration = boost::posix_time::hours(1) + 
+    boost::posix_time::seconds(10);
   a1.checked = true;
   a1.i = 42;
   a1.i64 = 9223372036854775805LL;

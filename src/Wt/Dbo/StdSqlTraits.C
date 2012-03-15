@@ -218,8 +218,72 @@ bool sql_value_traits<double>::read(double& v, SqlStatement *statement,
 }
 
   /*
-   * std::vector<unsigned char>
+   * boost::posix_time::ptime
    */
+
+const char *sql_value_traits<boost::posix_time::ptime>
+::type(SqlConnection *conn, int size)
+{
+  return conn->dateTimeType(SqlDateTime);
+}
+
+void sql_value_traits<boost::posix_time::ptime>
+::bind(const boost::posix_time::ptime& v, SqlStatement *statement,
+       int column, int size)
+{
+  if (v.is_special())
+    statement->bindNull(column);
+  else
+    statement->bind(column, v, SqlDateTime);
+}
+
+bool sql_value_traits<boost::posix_time::ptime>
+::read(boost::posix_time::ptime& v, SqlStatement *statement, int column,
+       int size)
+{
+  if (statement->getResult(column, &v, SqlDateTime))
+    return true;
+  else {
+    v = boost::posix_time::ptime();
+    return false;
+  }
+}
+
+  /*
+   * boost::posix_time::time_duration
+   */
+
+const char *sql_value_traits<boost::posix_time::time_duration>
+::type(SqlConnection *conn, int size)
+{
+  return conn->dateTimeType(SqlTime);
+}
+
+void sql_value_traits<boost::posix_time::time_duration>
+::bind(const boost::posix_time::time_duration& v, SqlStatement *statement,
+       int column, int size)
+{
+  if (v.is_special())
+    statement->bindNull(column);
+  else
+    statement->bind(column, v);
+}
+
+bool sql_value_traits<boost::posix_time::time_duration>
+::read(boost::posix_time::time_duration& v, SqlStatement *statement,
+       int column, int size)
+{
+  if (statement->getResult(column, &v))
+    return true;
+  else {
+    v = boost::posix_time::time_duration(boost::posix_time::not_a_date_time);
+    return false;
+  }
+}
+
+   /*
+    * std::vector<unsigned char>
+    */
 
 const char *sql_value_traits<std::vector<unsigned char> >
 ::type(SqlConnection *conn, int size)

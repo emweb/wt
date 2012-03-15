@@ -56,7 +56,7 @@ public:
 
   /*! \brief Sets the maximum value.
    *
-   * The maximum value is the value that corresponds to 0%.
+   * The maximum value is the value that corresponds to 100%.
    *
    * The default value is 100.
    */

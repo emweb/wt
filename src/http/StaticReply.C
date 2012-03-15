@@ -5,13 +5,14 @@
  */
 
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem/operations.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "Request.h"
 #include "StaticReply.h"
 #include "StockReply.h"
 #include "MimeTypes.h"
+
+#include "FileUtils.h"
 
 #include "Wt/WLogger"
 
@@ -60,7 +61,7 @@ StaticReply::StaticReply(const std::string &full_path,
 				     "", config)));
   } else {
     try {
-      fileSize_ = boost::filesystem::file_size(path_);
+      fileSize_ = Wt::FileUtils::size(path_);
       modifiedDate = computeModifiedDate();
       etag = computeETag();
     } catch (...) {
@@ -169,7 +170,7 @@ StaticReply::StaticReply(const std::string &full_path,
 
 std::string StaticReply::computeModifiedDate() const
 {
-  return httpDate(boost::filesystem::last_write_time(path_));
+  return httpDate(Wt::FileUtils::lastWriteTime(path_));
 }
 
 std::string StaticReply::computeETag() const

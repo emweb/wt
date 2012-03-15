@@ -118,6 +118,7 @@ public:
   virtual void removeItem(WLayoutItem *item);
   virtual WLayoutItem *itemAt(int index) const;
   virtual int count() const;
+  virtual void clear();
 
   /*! \brief Adds a widget to the given position.
    *

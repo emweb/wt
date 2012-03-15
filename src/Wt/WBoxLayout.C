@@ -78,6 +78,14 @@ WLayoutItem *WBoxLayout::itemAt(int index) const
   return 0;
 }
 
+void WBoxLayout::clear()
+{
+  while (count()) {
+    WLayoutItem *item = itemAt(count() - 1);
+    clearLayoutItem(item);
+  }
+}
+
 int WBoxLayout::count() const
 {
   return grid_.rows_.size() * grid_.columns_.size();

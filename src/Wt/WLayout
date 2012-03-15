@@ -170,7 +170,7 @@ public:
    * This is similar to WContainerWidget::clear(), with the exception that
    * the layout itself is not deleted.
    */
-  virtual void clear();
+  virtual void clear() = 0;
 
 protected:
   /*! \brief Create a layout.
@@ -201,6 +201,8 @@ protected:
    * created (since it will call virtual methods count() and itemAt()).
    */
   void setLayoutInParent(WWidget *parent);
+
+  void clearLayoutItem(WLayoutItem *item);
 
 private:
   struct Hint {
