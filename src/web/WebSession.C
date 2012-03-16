@@ -757,7 +757,7 @@ void WebSession::Handler::init()
   prevHandler_ = attachThreadToHandler(this);
 
 #ifndef WT_TARGET_JAVA
-  if (request_)
+  if (haveLock())
     session_->handlers_.push_back(this);
 #endif
 }
@@ -778,6 +778,26 @@ WebSession::Handler::attachThreadToHandler(Handler *handler)
   return result;
 }
 
+bool WebSession::attachThreadToLockedHandler()
+{
+#if !defined(WT_TARGET_JAVA)
+  /*
+   * We assume that another handler has already locked this session for us.
+   * We just need to find it.
+   */
+  for (unsigned i = 0; i < handlers_.size(); ++i)
+    if (handlers_[i]->haveLock()) {
+      WebSession::Handler::attachThreadToHandler(handlers_[i]);
+      return true;
+    }
+
+  return false;
+#else
+  attachThreadToHandler(new Handler(this, false));
+  return true;
+#endif
+}
+
 void WebSession
 ::Handler::attachThreadToSession(boost::shared_ptr<WebSession> session)
 {
@@ -789,39 +809,24 @@ void WebSession
 
   /*
    * It may be that we still need to attach to a session while it is being
-   * destroyed ?
+   * destroyed ? I'm not sure why this is useful, but cannot see anything
+   * wrong about it either ?
    */
-  if (session->state_ == Dead) {
+  if (session->state_ == Dead)
     LOG_WARN_S(session, "attaching to dead session?");
-    attachThreadToHandler(new Handler(session, false));
-    return;
+
+  if (!session.get()->attachThreadToLockedHandler()) {
+    /*
+     * We actually have two scenarios:
+     * - attachThread() once to have WApplication::instance() work. This will
+     *   give the warning, and will not work reliably !
+     * - attachThread() in the wtwithqt case should execute what we have above
+     */
+    LOG_WARN_S(session,
+	       "attachThread(): no thread is holding this application's "
+	       "lock ?");
+    WebSession::Handler::attachThreadToHandler(new Handler(session, false));
   }
-
-#if !defined(WT_TARGET_JAVA)
-  /*
-   * We assume that another handler has already locked this session for us.
-   * We just need to find it.
-   */
-  for (unsigned i = 0; i < session->handlers_.size(); ++i)
-    if (session->handlers_[i]->haveLock()) {
-      attachThreadToHandler(session->handlers_[i]);
-      return;
-    }
-
-  /*
-   * We actually have two scenarios:
-   * - attachThread() once to have WApplication::instance() work, nothing else
-   *   should execute what we have below. That will not work reliably !
-   * - attachThread() in the wtwithqt case
-   *   should execute what we have supra
-   */
-  LOG_WARN_S(session,
-	    "attachThread(): no thread is holding this application's lock ?");
-  attachThreadToHandler(new Handler(session, false));
-#else
-  attachThreadToHandler(new Handler(session, false));
-#endif 
-
 #else
   LOG_ERROR_S(session, "attachThread(): needs Wt built with threading enabled");
 #endif

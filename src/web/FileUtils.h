@@ -17,7 +17,7 @@ namespace Wt {
 
     extern unsigned long long size(const std::string &file);
     extern time_t lastWriteTime(const std::string &file);
-    extern bool exists(const std::string &file);
+    extern WT_API bool exists(const std::string &file);
     extern bool isDirectory(const std::string &file);
     extern void listFiles(const std::string &directory, 
 			  std::vector<std::string> &files);

@@ -64,6 +64,8 @@ public:
 
   static WebSession *instance();
 
+  bool attachThreadToLockedHandler();
+
   EntryPointType type() const { return type_; }
   std::string favicon() const { return favicon_; }
   std::string docType() const;

@@ -388,9 +388,9 @@ void WApplication::attachThread(bool attach)
   if (attach) {
     boost::shared_ptr<WebSession> session = weakSession_.lock();
     if (session)
-      WebSession::Handler::attachThreadToSession(weakSession_.lock());
+      WebSession::Handler::attachThreadToSession(session);
     else
-      new WebSession::Handler(session_);
+      session_->attachThreadToLockedHandler();
   } else
     WebSession::Handler::attachThreadToSession(boost::shared_ptr<WebSession>());
 #else
