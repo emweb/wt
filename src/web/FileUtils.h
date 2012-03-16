@@ -15,8 +15,8 @@
 namespace Wt {
   namespace FileUtils {
 
-    extern unsigned long long size(const std::string &file);
-    extern time_t lastWriteTime(const std::string &file);
+    extern WT_API unsigned long long size(const std::string &file);
+    extern WT_API time_t lastWriteTime(const std::string &file);
     extern WT_API bool exists(const std::string &file);
     extern bool isDirectory(const std::string &file);
     extern void listFiles(const std::string &directory, 
