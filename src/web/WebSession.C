@@ -793,7 +793,7 @@ bool WebSession::attachThreadToLockedHandler()
 
   return false;
 #else
-  attachThreadToHandler(new Handler(this, false));
+  Handler::attachThreadToHandler(new Handler(this, false));
   return true;
 #endif
 }
