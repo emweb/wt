@@ -699,12 +699,19 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 
 WebSession::Handler::Handler(WebSession *session)
   : nextSignal(-1),
+#ifdef WT_THREADED
+    lock_(session->mutex_),
+#endif // WT_THREADED
     prevHandler_(0),
     session_(session),
     request_(0),
     response_(0),
     killed_(false)
 {
+#ifdef WT_TARGET_JAVA
+  session->mutex().lock();
+#endif // WT_TARGET_JAVA
+
   init();
 }
 
