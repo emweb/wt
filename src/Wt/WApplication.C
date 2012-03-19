@@ -1264,9 +1264,12 @@ WLogEntry WApplication::log(const std::string& type) const
 
 void WApplication::enableUpdates(bool enabled)
 {
-  if (enabled)
+  if (enabled) {
+    if (!WebSession::Handler::instance()->request())
+      LOG_WARN("WApplication::enableUpdates(true): "
+	       "should be called from within event loop");
     ++serverPush_;
-  else
+  } else
     --serverPush_;
 
   if ((enabled && serverPush_ == 1) || (!enabled && serverPush_ == 0))
@@ -1277,6 +1280,9 @@ void WApplication::triggerUpdate()
 {
   if (WebSession::Handler::instance()->request())
     return;
+
+  if (!serverPush_)
+    LOG_WARN("WApplication::triggerUpdate(): updates not enabled?");
 
   session_->setTriggerUpdate(true);
 }

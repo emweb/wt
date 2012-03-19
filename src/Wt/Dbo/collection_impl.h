@@ -248,6 +248,7 @@ collection<C>::collection()
 {
   data_.relation.sql = 0;
   data_.relation.dbo = 0;
+  data_.relation.setInfo = 0;
   data_.relation.activity = 0;
 }
 
@@ -424,10 +425,11 @@ Query<C, DynamicBinding> collection<C>::find() const
 template <class C>
 void collection<C>::insert(C c)
 {
-  if (type_ != RelationCollection)
-    throw Exception("collection<C>::insert() only for a relational collection.");
-
   RelationData& relation = data_.relation;
+
+  if (type_ != RelationCollection || relation.setInfo == 0)
+    throw Exception("collection<C>::insert() only for a relational "
+		    "collection.");
 
   if (relation.dbo) {
     relation.dbo->setDirty();
@@ -454,10 +456,10 @@ void collection<C>::insert(C c)
 template <class C>
 void collection<C>::erase(C c)
 {
-  if (type_ != RelationCollection)
-    throw Exception("collection<C>::erase() only for a relational relation.");
-
   RelationData& relation = data_.relation;
+
+  if (type_ != RelationCollection || relation.setInfo == 0)
+    throw Exception("collection<C>::erase() only for a relational relation.");
 
   if (relation.dbo)
     relation.dbo->setDirty();
