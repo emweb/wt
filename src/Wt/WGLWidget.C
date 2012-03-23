@@ -26,6 +26,10 @@ using namespace Wt;
 //       an extra array.
 // TODO: allow VBO's to be served from a file
 
+#ifdef WT_WGLWIDGET_DEBUG
+bool WGLWidget::debugging_ = false;
+#endif
+
 const char *WGLWidget::toString(GLenum e)
 {
   switch(e) {
@@ -973,6 +977,7 @@ void WGLWidget::drawElements(GLenum mode, unsigned count,
 {
   js_ << "ctx.drawElements(" << toString(mode) << "," << count << ","
     << toString(type) << "," << offset << ");";
+  GLDEBUG;
 }
 
 void WGLWidget::enable(GLenum cap)

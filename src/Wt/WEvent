@@ -188,7 +188,7 @@ public:
    * mouse dragged event, then the one with the smallest numerical value
    * is returned.
    */
-  Button button() const { return (Button)jsEvent_.button; }
+  Button button() const;
 
   /*! \brief Returns keyboard modifiers.
    *
@@ -320,7 +320,7 @@ public:
   /*! \brief Returns the unicode character code.
    *
    * This is only defined for a \link WInteractWidget::keyPressed
-   * keyPressed \endlink event, and returns the unicode character code
+   * keyPressed \endlink event, and returns the unicode character code point
    * of a character that is entered.
    *
    * For the \link WInteractWidget::keyWentDown keyWentDown \endlink

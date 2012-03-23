@@ -12,8 +12,11 @@
 
 namespace Wt {
 
-#if 0
-#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";} while(false)
+// define to enable WebGL debug code
+//#define WT_WGLWIDGET_DEBUG
+
+#ifdef WT_WGLWIDGET_DEBUG
+#define GLDEBUG do {if (debugging_) {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";}} while(false)
 //#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {debugger;}}\n";} while(false)
 #else
 #define GLDEBUG
@@ -2021,6 +2024,23 @@ public:
    */
   JSlot &repaintSlot() { return repaintSlot_; }
 
+  /*! \brief enable client-side error messages (read detailed doc!)
+   *
+   * This option will add client-side code to check the result of every
+   * WebGL call, and will popup an error dialog if a WebGL call returned
+   * an error. The JavaScript then invokes the client-side debugger. This
+   * code is intended to test your application, and should not be used in
+   * production.
+   *
+   * Note that this option will not have any effect unless both Wt and your
+   * application is built with WT_WGLWIDGET_DEBUG defined.
+   */
+  static void enableClientErrorChecks(bool enable = true) {
+#ifdef WT_WGLWIDGET_DEBUG
+    debugging_ = enable;
+#endif
+  }
+
 protected:
   DomElementType domElementType() const;
   DomElement *createDomElement(WApplication *app);
@@ -2122,6 +2142,9 @@ private:
   void connectJavaScript(EventSignalBase &s,
                          const std::string &methodName);
 
+#ifdef WT_WGLWIDGET_DEBUG
+  static bool debugging_;
+#endif
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::GLenum)

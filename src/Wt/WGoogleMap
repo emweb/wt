@@ -150,6 +150,10 @@ public:
 		 const WColor& strokeColor, int strokeWidth, 
 		 const WColor& fillColor = WColor());
 
+  /*! \brief Adds a icon marker overlay to the map.
+   */
+  void addIconMarker(const Coordinate &pos, const std::string& iconURL);
+
   /*! \brief Removes all overlays from the map.
    */
   void clearOverlays();

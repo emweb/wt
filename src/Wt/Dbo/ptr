@@ -372,7 +372,7 @@ template <class C> class ptr;
  * which has access to its own id and session information:
  *
  * \code
- * class Cat : public Wt::Dbo::Dbo {
+ * class Cat : public Wt::Dbo::Dbo<Cat> {
  * public:
  *   template <class Action>
  *   void persist(Action& a) { }

@@ -13,6 +13,7 @@
 #include <boost/lexical_cast.hpp>
 #include <Wt/WLineEdit>
 #include <Wt/WHBoxLayout>
+#include <Wt/Utils>
 #include "DragExample.h"
 
 using namespace Wt;
@@ -92,6 +93,14 @@ WWidget *EventsDemo::wMouseEvent()
   r->mouseWentDown().connect(this, &EventsDemo::showMouseWentDown);
   r->mouseWheel().connect(this, &EventsDemo::showMouseWheel);
   r->mouseWheel().preventDefaultAction(true);
+
+  l->setAttributeValue
+    ("oncontextmenu",
+     "event.cancelBubble = true; event.returnValue = false; return false;");
+  r->setAttributeValue
+    ("oncontextmenu",
+     "event.cancelBubble = true; event.returnValue = false; return false;");
+
   new WBreak(result);
   new WText("Last event: ", result);
   mouseEventType_ = new WText(result);
@@ -116,12 +125,14 @@ namespace {
   std::ostream &operator<<(std::ostream &o, Wt::WMouseEvent::Button b)
   {
     switch (b) {
+    case WMouseEvent::NoButton:
+      return o << "No button";
     case WMouseEvent::LeftButton:
       return o << "LeftButton";
     case WMouseEvent::RightButton:
-      return o << "LeftButton";
+      return o << "RightButton";
     case WMouseEvent::MiddleButton:
-      return o << "LeftButton";
+      return o << "MiddleButton";
     default:
       return o << "Unknown Button";
     }
@@ -257,7 +268,7 @@ void EventsDemo::describe(const Wt::WKeyEvent &e)
   ss << "Key: " << e.key() << "<br/>"
      << "Modifiers: " << modifiersToString(e.modifiers()) << "<br/>"
      << "Char code: " << (int)e.charCode() << "<br/>"
-     << "text: " << e.text() << "<br/>";
+     << "text: " << Utils::htmlEncode(e.text()) << "<br/>";
   keyEventDescription_->setText(ss.str());
 }
 

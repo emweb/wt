@@ -198,6 +198,16 @@ WMouseEvent::WMouseEvent(const JavaScriptEvent& jsEvent)
   : jsEvent_(jsEvent)
 { }
 
+WMouseEvent::Button WMouseEvent::button() const
+{
+  switch (jsEvent_.button) {
+  case 1: return LeftButton;
+  case 2: return MiddleButton;
+  case 4: return RightButton;
+  default: return NoButton;
+  }
+}
+
 #ifdef WT_TARGET_JAVA
 WMouseEvent WMouseEvent::templateEvent;
 #endif // WT_TARGET_JAVA;

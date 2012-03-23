@@ -298,6 +298,30 @@ void WGoogleMap::addMarker(const Coordinate& pos)
   doGmJavaScript(strm.str());
 }
 
+void WGoogleMap::addIconMarker(const Coordinate &pos,
+                               const std::string& iconURL)
+{
+  std::stringstream strm;
+  
+  if (apiVersion_ == Version2) {
+    throw std::logic_error("WGoogleMap::addIconMarker is not supported "
+                           "in the Google Maps API v2.");
+  } else {
+    strm << "var position = new google.maps.LatLng("
+         << pos.latitude() << ", " << pos.longitude() << ");"
+      
+         << "var marker = new google.maps.Marker({"
+	 << "position: position,"
+	 << "icon: \"" <<  iconURL << "\","
+         << "map: " << jsRef() << ".map"
+	 << "});"
+      
+         << jsRef() << ".map.overlays.push(marker);";
+  }
+ 
+  doGmJavaScript(strm.str());
+}
+
 void WGoogleMap::addCircle(const Coordinate& center, double radius, 
 			   const WColor& strokeColor, int strokeWidth,
 			   const WColor& fillColor)

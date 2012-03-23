@@ -51,24 +51,43 @@ this.condCall = function(o, f, a) {
 // buttons currently down
 this.buttons = 0;
 
+// button last released (for reporting in IE's click event)
+var lastButtonUp = 0;
+
 // returns the button associated with the event (0 if none)
 this.button = function(e)
 {
-  if (e.which) {
+  try {
+    var t = e.type;
+
+    if (WT.isIE && (t == "click" || t == "dblclick"))
+      return lastButtonUp; // IE does not provide button information then
+
+    if (t != "mouseup" && t != "mousedown" && t != "click" && t != "dblclick")
+      return 0;
+  } catch (e) {
+    return 0;
+  }
+
+  if (!WT.isGecko && typeof e.which !== 'undefined') {
     if (e.which == 3)
       return 4;
     else if (e.which == 2)
       return 2;
-    else
+    else if (e.which == 1)
       return 1;
-  } else if (WT.isIE && typeof e.button != 'undefined') {
+    else
+      return 0;
+  } else if (WT.isIE && typeof e.button !== 'undefined') {
     if (e.button == 2)
       return 4;
     else if (e.button == 4)
       return 2;
-    else
+    else if (e.button == 1)
       return 1;
-  } else if (typeof e.button != 'undefined') {
+    else
+      return 0;
+  } else if (typeof e.button !== 'undefined') {
     if (e.button == 2)
       return 4;
     else if (e.button == 1)
@@ -86,7 +105,8 @@ this.mouseDown = function(e) {
 };
 
 this.mouseUp = function(e) {
-  WT.buttons &= ~WT.button(e);
+  lastButtonUp = WT.button(e);
+  WT.buttons &= ~lastButtonUp;
 };
 
 /**
@@ -229,15 +249,17 @@ this.initAjaxComm = function(url, handler) {
 	  else
 	    handler(1, null, userData);
 
-	  request.onreadystatechange = new Function;
-	  try {
-	    request.onload = request.onreadystatechange;
-	  } catch (e) {
-	    /*
-	     * See comment below.
-	     */
+	  if (request) {
+	    request.onreadystatechange = new Function;
+	    try {
+	      request.onload = request.onreadystatechange;
+	    } catch (e) {
+	      /*
+	       * See comment below.
+	       */
+	    }
+	    request = null;
 	  }
-	  request = null;
 
 	  handled = true;
 	}
@@ -2198,6 +2220,8 @@ function load(fullapp) {
     document.addEventListener("focus", trackActiveElement, true);
     document.addEventListener("blur", trackActiveElementLost, true);
   }
+
+  $(document).mousedown(WT.mouseDown).mouseup(WT.mouseUp);
 
   WT.history._initialize();
   initDragDrop();

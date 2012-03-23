@@ -1800,9 +1800,12 @@ namespace rapidxml
 			}
 
                         // Something else
-			if (Flags & parse_xhtml_entity_translation)
+			if (Flags & parse_xhtml_entity_translation) {
 			  if (translate_xhtml_entity(src, dest))
 			    continue;
+			  else 
+			    RAPIDXML_PARSE_ERROR("could not parse xhtml entity", src);
+			}
                     }
                 }
                 
