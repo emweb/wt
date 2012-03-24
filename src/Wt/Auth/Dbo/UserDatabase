@@ -77,8 +77,8 @@ public:
       Wt::Dbo::Transaction t(session_);
       setUser(session_.query< Wt::Dbo::ptr<DboType> >
 	      (std::string() +
-	       "select u from " + session_.tableName<DboType>() + " u "
-	       "join " + session_.tableName<AuthIdentityType>() + " i "
+	       "select u from \"" + session_.tableName<DboType>() + "\" u "
+	       "join \"" + session_.tableName<AuthIdentityType>() + "\" i "
 	       "on u.id = i." + session_.tableName<DboType>() + "_id")
 	      .where("i.provider = ?").bind(provider)
 	      .where("i.identity = ?").bind(identity));
@@ -114,8 +114,8 @@ public:
 
     session_.execute
       (std::string() +
-       "delete from " + session_.tableName<AuthIdentityType>() +
-       " where " + session_.tableName<DboType>() + "_id = ?"
+       "delete from \"" + session_.tableName<AuthIdentityType>() +
+       "\" where " + session_.tableName<DboType>() + "_id = ?"
        " and provider = ?").bind(user.id()).bind(provider);
 
     t.commit();
@@ -272,8 +272,8 @@ public:
     Wt::Dbo::Transaction t(session_);
     setUser(session_.query< Wt::Dbo::ptr<DboType> >
 	    (std::string() +
-	     "select u from " + session_.tableName<DboType>() + " u "
-	     "join " + session_.tableName<AuthTokenType>() + " t "
+	     "select u from \"" + session_.tableName<DboType>() + "\" u "
+	     "join \"" + session_.tableName<AuthTokenType>() + "\" t "
 	     "on u.id = t." + session_.tableName<DboType>() + "_id")
 	    .where("t.value = ?").bind(hash)
 	    .where("t.expires > ?").bind(WDateTime::currentDateTime()));

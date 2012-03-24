@@ -1623,6 +1623,8 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 	  break;
 	}
 
+	viewportTop_ = std::max(0, viewportTop_);
+
 	if (hint != EnsureVisible) {
 	  computeRenderedArea();
 
