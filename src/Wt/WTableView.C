@@ -21,7 +21,7 @@
 #include "js/WTableView.min.js"
 #endif
 
-#define UNKNOWN_VIEWPORT_HEIGHT 600
+#define UNKNOWN_VIEWPORT_HEIGHT 800
 
 #include <cmath>
 
@@ -171,7 +171,8 @@ void WTableView::resize(const WLength& width, const WLength& height)
       viewportHeight_
 	= static_cast<int>(std::ceil((height.toPixels()
 				      - headerHeight().toPixels())));
-    }
+    } else
+      viewportHeight_ = UNKNOWN_VIEWPORT_HEIGHT;
   } else { // Plain HTML mode
     if (!plainTable_) // Not yet rendered
       return;
