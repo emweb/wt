@@ -5,6 +5,7 @@
  */
 
 #include <Wt/Http/Response>
+#include <Wt/Utils>
 
 #include "BlogRSSFeed.h"
 
@@ -35,7 +36,7 @@ BlogRSSFeed::~BlogRSSFeed()
 void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
 				Wt::Http::Response &response)
 {
-  response.setMimeType("text/xml");
+  response.setMimeType("application/rss+xml");
 
   std::string url = url_;
 
@@ -53,9 +54,10 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
     "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
     "<rss version=\"2.0\">\n"
     "  <channel>\n"
-    "    <title>" << title_ << "</title>\n"
-    "    <link>" << url << "</link>\n"
-    "    <description>" << description_ << "</description>\n";
+    "    <title>" << Wt::Utils::htmlEncode(title_) << "</title>\n"
+    "    <link>" << Wt::Utils::htmlEncode(url) << "</link>\n"
+    "    <description>" << Wt::Utils::htmlEncode(description_)
+		 << "</description>\n";
 
   dbo::Transaction t(*session_);
 
@@ -71,10 +73,11 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
 
     response.out() <<
       "    <item>\n"
-      "      <title>" << post->title.toUTF8() << "</title>\n"
+      "      <title>" << Wt::Utils::htmlEncode(post->title.toUTF8()) << "</title>\n"
       "      <pubDate>" << post->date.toString("ddd, d MMM yyyy hh:mm:ss UTC")
 		   << "</pubDate>\n"
-      "      <guid isPermaLink=\"true\">" << permaLink << "</guid>\n";
+      "      <guid isPermaLink=\"true\">" << Wt::Utils::htmlEncode(permaLink)
+		   << "</guid>\n";
 
     std::string description = post->briefHtml.toUTF8();
     if (!post->bodySrc.empty())
