@@ -588,6 +588,8 @@ void Session::createTables()
 
   Transaction t(*this);
 
+  connection(false)->beforeCreateTable();
+
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
     i->second->initialized_ = false; // to do ordered table creation
@@ -600,6 +602,8 @@ void Session::createTables()
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
     createRelations(i->second, joinTablesCreated);
+
+  connection(false)->afterCreateTable();
 
   t.commit();
 }

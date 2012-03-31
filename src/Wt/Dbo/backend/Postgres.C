@@ -645,6 +645,12 @@ void Postgres::rollbackTransaction()
   PQclear(result);
 }
 
+void Postgres::beforeCreateTable()
+{ }
+
+void Postgres::afterCreateTable()
+{ }
+
     }
   }
 }
