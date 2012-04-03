@@ -138,7 +138,7 @@ WT_DECLARE_WT_MEMBER
      if (!adjustScheduled)
        return;
 
-     if (el.offsetWidth == 0)
+     if (el.offsetWidth < 20)
        return;
 
      adjustScheduled = false;
@@ -272,7 +272,7 @@ WT_DECLARE_WT_MEMBER
 	return;
       }
 
-      if (WT.isHidden(el) || el.offsetWidth == 0)
+      if (WT.isHidden(el) || el.offsetWidth < 20)
 	return;
 
       doAdjustColumns();

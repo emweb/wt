@@ -205,11 +205,11 @@ public:
 
   /*! \brief Returns the FieldInfo structure for a column
    */
-  const FieldInfo &fieldInfo(int column);
+  const FieldInfo &fieldInfo(int column) const;
 
   /*! \brief Returns the field name for the a column
    */
-  const std::string &fieldName(int column);
+  const std::string &fieldName(int column) const;
 
   /*! \brief Returns the number of columns.
    *
@@ -241,6 +241,11 @@ public:
    * Returns data of type Wt::DisplayRole or Wt::EditRole based on the
    * field value corresponding to the index. If necessary, this
    * fetches a batch of results from the underlying database.
+   *
+   * The default implementation of data() converts %Query results to
+   * model data using query_result_traits<Result>::getValues(). You may
+   * define your own data presentation using the underlying \p Result by
+   * specializing data() and accessing data from resultRow().
    */
   virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
     const;

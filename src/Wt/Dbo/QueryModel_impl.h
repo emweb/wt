@@ -285,13 +285,13 @@ const std::vector<FieldInfo>& QueryModel<Result>::fields() const
 }
 
 template <class Result>
-const FieldInfo &QueryModel<Result>::fieldInfo(int column)
+const FieldInfo &QueryModel<Result>::fieldInfo(int column) const
 {
   return fields_[columns_[column].fieldIdx_];
 }
 
 template <class Result>
-const std::string &QueryModel<Result>::fieldName(int column)
+const std::string &QueryModel<Result>::fieldName(int column) const
 {
   return columns_[column].field_;
 }
