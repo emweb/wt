@@ -222,8 +222,7 @@ WT_DECLARE_WT_MEMBER
       */
      var r = pHeight;
 
-     var i, il = t.rows.length,
-         ri, row, rowi; // iterator variables
+     var i, il, ri, row, rowi; // iterator variables
 
      if (fitHeight) {
        if (usingClientHeight) {
@@ -258,7 +257,7 @@ WT_DECLARE_WT_MEMBER
            tmh = 0,             // Min heights
 	   j, jl, tds;          // Iterator variables
 
-       for (i = 0, ri = 0; i < il; i++) {
+       for (i = 0, ri = 0, il = t.rows.length; i < il; i++) {
 	 row = t.rows[i];
 
 	 if (row.className) {     // Skip special rows

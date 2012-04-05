@@ -296,7 +296,10 @@ void WFileUpload::updateDom(DomElement& element, bool all)
     if (!inputE)
       inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
 
-    inputE->callMethod("disabled=true");
+    if (isDisabled())
+      inputE->callMethod("disabled=true");
+    else
+      inputE->callMethod("disabled=false");
 
     flags_.reset(BIT_ENABLED_CHANGED);
   }

@@ -279,9 +279,6 @@ void SocketNotifier::threadEntry()
     std::set<int> write_in = impl_->writeFds_;
     std::set<int> except_in = impl_->exceptFds_;
 
-    std::cerr << read_in.size() << " " << write_in.size() << " "
-	      << except_in.size() << std::endl;
-
     FD_SET(impl_->socket2_, &read_fds);
     maxFd = (std::max)(maxFd, impl_->socket2_);
 

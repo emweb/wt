@@ -395,6 +395,9 @@ boost::any QueryModel<Result>::headerData(int section, Orientation orientation,
 					  int role) const
 {
   if (orientation == Horizontal) {
+    if (role == LevelRole)
+      return WAbstractTableModel::headerData(section, orientation, role);
+
     QueryColumn::HeaderData::const_iterator i
       = columns_[section].headerData_.find(role);
 
