@@ -53,7 +53,7 @@ namespace Wt {
  *
  * \ingroup render
  */
-class WPdfRenderer : public WTextRenderer
+class WT_API WPdfRenderer : public WTextRenderer
 {
 public:
   /*! \brief Creates a new PDF renderer.

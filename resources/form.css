@@ -63,6 +63,11 @@
     width: auto;
 }
 
+.Wt-form .Wt-fields select {
+    margin-top: 1em;
+    width: auto;
+}
+
 .Wt-form .Wt-field {
     float: left;
     padding: 5px 2px;

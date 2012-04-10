@@ -1,3 +1,18 @@
+05-04-2012:
+	* StdGridLayoutImpl.js: unbreak layout in WGroupBox behaviour
+
+	* Dbo/QueryModel: fix Firefox not showing header problem (LevelRole error)
+
+03-04-2012:
+	* WGlobal: add more forwards
+
+	* WTreeView: relax fix for behaviour in layout manager
+
+	* Dbo::QueryModel: make const methods const
+
+30-03-2012:
+	* Wt 3.2.1 (final) released
+
 03-01-2012:
 	* Wt/Utils: new header with utility functions that implement
 	commonly used hash functions and encoding/decoding

@@ -10,6 +10,7 @@
 #include <Wt/WFlags>
 
 namespace Wt {
+  class EventSignalBase;
   class JSlot;
   class WAbstractArea;
   class WAbstractSpinBox;
@@ -22,6 +23,7 @@ namespace Wt {
   class WAbstractTableModel;
   class WAbstractToggleButton;
   class WAggregateProxyModel;
+  class WAccordionLayout;
   class WAnimation;
   class WAnchor;
   class WApplication;
@@ -29,6 +31,7 @@ namespace Wt {
   class WBatchEditProxyModel;
   class WBorder;
   class WBorderLayout;
+  class WBoxLayout;
   class WBreak;
   class WBrush;
   class WButtonGroup;
@@ -43,7 +46,10 @@ namespace Wt {
   class WCoreServer;
   class WContainerWidget;
   class WCssDecorationStyle;
+  class WCssRule;
   class WCssStyleSheet;
+  class WCssTemplateRule;
+  class WCssTextRule;
   class WDate;
   class WDatePicker;
   class WDateTime;
@@ -53,24 +59,30 @@ namespace Wt {
   class WDialog;
   class WDoubleSpinBox;
   class WDoubleValidator;
+  class WDropEvent;
   class WEnvironment;
+  class WEvent;
   class WException;
   class WFileResource;
   class WFileUpload;
   class WFitLayout;
   class WFlashObject;
   class WFont;
+  class WFormModel;
   class WFormWidget;
+  class WGestureEvent;
+  class WGLWidget;
   class WGoogleMap;
   class WGridLayout;
   class WGroupBox;
-  class WHboxLayout;
+  class WHBoxLayout;
   class WMouseEvent;
   class WIconPair;
   class WImage;
   class WInPlaceEdit;
   class WIntValidator;
   class WInteractWidget;
+  class WIOService;
   class WItemDelegate;
   class WItemSelectionModel;
   class WKeyEvent;
@@ -84,7 +96,9 @@ namespace Wt {
   class WLink;
   class WLoadingIndicator;
   class WLocalizedStrings;
+  class WLogEntry;
   class WLogger;
+  class WMatrix4x4;
   class WMediaPlayer;
   class WMemoryResource;
   class WMenu;
@@ -111,6 +125,8 @@ namespace Wt {
   class WProgressBar;
   class WPushButton;
   class WRadioButton;
+  class WRandom;
+  class WReadOnlyProxyModel;
   class WRasterImage;
   class WRectArea;
   class WRectF;
@@ -119,6 +135,7 @@ namespace Wt {
   class WResource;
   class WScrollArea;
   class WScrollBar;
+  class WScrollEvent;
   class WSelectionBox;
   class WServer;
   class WShadow;
@@ -130,6 +147,7 @@ namespace Wt {
   class WStackedWidget;
   class WStandardItem;
   class WStandardItemModel;
+  class WStreamResource;
   class WString;
   class WStringListModel;
   class WSubMenuItem;
@@ -147,6 +165,7 @@ namespace Wt {
   class WTextEdit;
   class WTime;
   class WTimer;
+  class WTouchEvent;
   class WTransform;
   class WTree;
   class WTreeNode;
@@ -156,6 +175,7 @@ namespace Wt {
   class WVBoxLayout;
   class WValidationStatus;
   class WValidator;
+  class WVectorImage;
   class WVideo;
   class WViewWidget;
   class WVirtualImage;
@@ -167,9 +187,11 @@ namespace Wt {
   namespace Auth {
     class AbstractPasswordService;
     class AbstractUserDatabase;
+    class AuthModel;
     class AuthService;
     class AuthWidget;
     class FacebookService;
+    class FormBaseModel;
     class GoogleService;
     class HashFunction;
     class Identity;
@@ -193,11 +215,24 @@ namespace Wt {
     }
   }
 
+  namespace Chart {
+    class SeriesIterator;
+    class WAbstractChart;
+    class WAxis;
+    class WCartesianChart;
+    class WChart2DRenderer;
+    class WChartPalette;
+    class WDataSeries;
+    class WPieChart;
+    class WStandardPalette;
+  }
+
   namespace Dbo {
     struct dbo_default_traits;
 
     class Call;
     class Exception;
+    class FieldInfo;
     class FixedSqlConnectionPool;
     class ObjectNotFoundException;
     class SaveBaseAction;
@@ -214,6 +249,12 @@ namespace Wt {
     template <class C> class ptr;
     template <class Result, typename BindStrategy> class Query;
     template <class Result> class QueryModel;
+
+    namespace backend {
+      class Firebird;
+      class Postgres;
+      class Sqlite3;
+    }
   }
 
   namespace Http {
@@ -222,6 +263,7 @@ namespace Wt {
     class Request;
     class Response;
     class ResponseContinuation;
+    class UploadedFile;
     class WtClient;
   }
 
@@ -236,6 +278,10 @@ namespace Wt {
     class Client;
     class Mailbox;
     class Message;
+  }
+
+  namespace Render {
+    class WPdfRenderer;
   }
 
 /*! \brief Enumeration that indicates a direction.
