@@ -1829,6 +1829,22 @@ function initDragDrop() {
 }
 
 function dragStart(obj, e) {
+  var t = WT.target(e);
+  if (t) {
+    /*
+     * Ignore drags that start on a scrollbar (#1231)
+     */
+    if (t.offsetWidth > t.clientWidth
+	|| t.offsetHeight > t.clientHeight) {
+      var wc = WT.widgetPageCoordinates(t);
+      var pc = WT.pageCoordinates(e);
+      var x = pc.x - wc.x;
+      var y = pc.y - wc.y;
+      if (x > t.clientWidth || y > t.clientHeight)
+	return true;
+    }
+  }
+
   // drag element attributes:
   //   dwid = dragWidgetId
   //   dsid = dragSourceId
