@@ -15,7 +15,6 @@
 #include "Wt/WServer"
 
 #include <sstream>
-#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/algorithm/string.hpp>

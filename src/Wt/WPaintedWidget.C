@@ -142,6 +142,9 @@ void WPaintedWidget::resize(const WLength& width, const WLength& height)
 
 void WPaintedWidget::resizeCanvas(int width, int height)
 {
+  if (renderWidth_ == width && renderHeight_ == height)
+    return;
+
   renderWidth_ = width;
   renderHeight_ = height;
 

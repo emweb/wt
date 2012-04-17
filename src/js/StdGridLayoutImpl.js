@@ -89,7 +89,8 @@ WT_DECLARE_WT_MEMBER
      if (height <= 0)
        height = 0;
 
-     td.style.height = height+'px';
+     if (fitHeight)
+       td.style.height = height+'px';
 
      if (td.style['verticalAlign'] || td.childNodes.length == 0)
        return;
@@ -150,7 +151,7 @@ WT_DECLARE_WT_MEMBER
    this.adjustRow = function(row, height) {
      var rowspan_tds = [];
 
-     if (row.style.height != height + 'px')
+     if (fitHeight && (row.style.height != height + 'px'))
        row.style.height = height + 'px';
 
      var tds = row.childNodes, j, jl, td, col;
@@ -286,13 +287,14 @@ WT_DECLARE_WT_MEMBER
      var left = r, // remaining space to be divided
          stretch, mh, h;
 
-     for (i = 0, ri = 0; i < il; i++) {
+     for (i = 0, ri = 0, il = t.rows.length; i < il; i++) {
        row = t.rows[i];
 
        if (row.className)
 	 continue;
 
        stretch = config.stretch[ri];
+
        if (stretch == -1 || (fitHeight && stretch > 0)) {
 	 /*
 	  * The target height 'h', cannot be more than what is still
