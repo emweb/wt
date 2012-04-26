@@ -588,18 +588,30 @@ void Session::createTables()
 
   Transaction t(*this);
 
-  for (ClassRegistry::iterator i = classRegistry_.begin();
+  connection(false)->beforeCreateTable();
+
+  try
+  {
+    for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
     i->second->initialized_ = false; // to do ordered table creation
   
-  for (ClassRegistry::iterator i = classRegistry_.begin();
+    for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
     createTable(i->second);
 
-  std::set<std::string> joinTablesCreated;
-  for (ClassRegistry::iterator i = classRegistry_.begin();
+    std::set<std::string> joinTablesCreated;
+    for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
     createRelations(i->second, joinTablesCreated);
+
+    connection(false)->afterCreateTable();
+  }
+  catch(...)
+  {
+    connection(false)->afterCreateTable();
+    throw;
+  }
 
   t.commit();
 }

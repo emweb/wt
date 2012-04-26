@@ -639,6 +639,11 @@ namespace Wt
 
 	impl_->m_tra->Rollback();
       }
+      void Firebird::beforeCreateTable()
+      { }
+
+      void Firebird::afterCreateTable()
+      { }
       
       const char *Firebird::textType() const
       {

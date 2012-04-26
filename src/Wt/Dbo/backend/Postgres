@@ -76,6 +76,9 @@ public:
   virtual void commitTransaction();
   virtual void rollbackTransaction();
 
+  virtual void beforeCreateTable();
+  virtual void afterCreateTable();
+
   virtual SqlStatement *prepareStatement(const std::string& sql);
 
   /** @name Methods that return dialect information

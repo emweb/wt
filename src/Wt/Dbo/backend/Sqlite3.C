@@ -617,6 +617,12 @@ void Sqlite3::rollbackTransaction()
 {
   executeSql("rollback transaction");
 }
+
+void Sqlite3::beforeCreateTable()
+{ }
+
+void Sqlite3::afterCreateTable()
+{ }
     }
   }
 }

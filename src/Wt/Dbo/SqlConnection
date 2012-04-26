@@ -76,6 +76,22 @@ public:
    * This function rolls back a transaction.
    */
   virtual void rollbackTransaction() = 0;
+
+  /*! \brief Runs commands to ensure safe creation of tables before creation of table
+   *
+   * This function runs commands on the backend for example on
+   * MySQL it will disable foreign key checks before creating tables.
+   * This function should have a strong exception safety.
+   */
+  virtual void beforeCreateTable() = 0;
+
+  /*! \brief Runs commands to ensure safe creation of tables after creation of table
+   *
+   * This function runs commands on the backend for example on
+   * MySQL it will enable foreign key checks again before creating
+   * tables. This function should have a strong exception safety.
+   */
+  virtual void afterCreateTable() = 0;
   
   /*! \brief Returns the statement with the given id.
    *

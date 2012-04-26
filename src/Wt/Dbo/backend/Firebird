@@ -93,6 +93,9 @@ namespace Wt {
         virtual void startTransaction();
         virtual void commitTransaction();
         virtual void rollbackTransaction();
+
+        virtual void beforeCreateTable();
+        virtual void afterCreateTable();
 	
         virtual SqlStatement *prepareStatement(const std::string& sql);
 
