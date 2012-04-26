@@ -47,6 +47,17 @@ namespace Wt {
  * In that case, you must connect the original signal to the map1()
  * slot, or use mapConnect1().
  *
+ * The mapper uses signal.sender() to attribute ownership of a signal to
+ * a sender.
+ *
+ * You may want to consider to boost::bind() (or std::bind()) instead,
+ * which is simpler and achieves the same in a more direct way:
+ * \code
+ *  text1->clicked().connect(boost::bind(&Test::onClick, this, text1));
+ *  text2->clicked().connect(boost::bind(&Test::onClick, this, text2));
+ *  text3->clicked().connect(boost::bind(&Test::onClick, this, text3));
+ * \endcode
+ *
  * \ingroup signalslot
  */
 template <typename T, typename A1 = NoClass>
@@ -185,6 +196,9 @@ void WSignalMapper<T, A1>::setMapping(WObject *sender, const T& data)
 template <typename T, typename A1>
 boost::signals::connection WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
 {
+  if (signal.sender() == 0)
+    throw WException("WSignalMapper::mapConnect(): signal does not "
+		     "have sender");
   mappings_[signal.sender()] = data;
   return signal.connect
     (this, static_cast<void (WObject::*)()>(&WSignalMapper<T, A1>::map));
@@ -194,6 +208,9 @@ template <typename T, typename A1>
 template <typename S>
 boost::signals::connection WSignalMapper<T, A1>::mapConnect1(S& signal, const T& data)
 {
+  if (signal.sender() == 0)
+    throw WException("WSignalMapper::mapConnect1(): signal does not "
+		     "have sender");
   mappings_[signal.sender()] = data;
   return signal.connect(this, &WSignalMapper<T, A1>::map1);
 }

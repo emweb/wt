@@ -1404,7 +1404,11 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot,
 };
 
 this.hasFocus = function(el) {
-  return el == document.activeElement;
+  try {
+    return el == document.activeElement;
+  } catch(e) {
+    return false;
+  }
 };
 
 var html5History = !!(window.history && window.history.pushState);
