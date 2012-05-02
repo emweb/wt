@@ -104,6 +104,9 @@ std::string sha1(const std::string& text)
 std::string base64Encode(const std::string& data)
 {
   std::vector<char> v;
+  
+  // base64 encoded value will be 4/3 larger than original value
+  v.reserve(data.size() * 1.35); 
 
   base64::encode(data.begin(), data.end(), std::back_inserter(v));
 
@@ -113,6 +116,9 @@ std::string base64Encode(const std::string& data)
 std::string base64Decode(const std::string& data)
 {
   std::vector<char> v;
+  
+  // decoded value will be 3/4 smaller than encoded value
+  v.reserve(data.size() * 0.8);
 
   base64::decode(data.begin(), data.end(), std::back_inserter(v));
 
