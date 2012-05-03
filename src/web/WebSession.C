@@ -2387,6 +2387,8 @@ void WebSession::notifySignal(const WEvent& e)
 
     renderer_.setRendered(true);
 
+    LOG_INFO("signal: " << *signalE);
+
     if (*signalE == "none" || *signalE == "load") {
       if (*signalE == "load") {
 	if (type() == WidgetSet)
