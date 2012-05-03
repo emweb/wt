@@ -294,6 +294,8 @@ void WebSession::setState(State state, int timeout)
   if (state_ != Dead) {
     state_ = state;
 
+    LOG_INFO("Setting to expire in " << timeout << "s");
+
 #ifndef WT_TARGET_JAVA
     if (controller_->configuration().sessionTimeout() != -1)
       expire_ = Time() + timeout*1000;

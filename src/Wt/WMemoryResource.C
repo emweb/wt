@@ -52,6 +52,11 @@ void WMemoryResource::setData(const unsigned char *data, int count)
   setChanged();
 }
 
+const std::vector<unsigned char>& WMemoryResource::data() const
+{
+  return data_;
+}
+
 void WMemoryResource::handleRequest(const Http::Request& request,
 				    Http::Response& response)
 {

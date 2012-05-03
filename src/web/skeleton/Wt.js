@@ -649,6 +649,9 @@ this.filter = function(edit, event, tokens) {
 this.widgetPageCoordinates = function(obj) {
   var objX = 0, objY = 0, op;
 
+  if (!obj.parentNode)
+    return { x: 0, y: 0 };
+
   // bug in safari, according to W3C, offsetParent for an area element should
   // be the map element, but safari returns null.
   if (WT.hasTag(obj, "AREA"))

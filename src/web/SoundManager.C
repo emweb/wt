@@ -14,6 +14,8 @@ namespace Wt {
 SoundManager::SoundManager(WContainerWidget *parent)
   : WMediaPlayer(WMediaPlayer::Audio, parent)
 {
+  resize(0, 0);
+
   controlsWidget()->hide();
   decorationStyle().setBorder(WBorder());
 
