@@ -214,7 +214,7 @@ Auth::User BlogUserDatabase::findWithAuthToken(const std::string& hash) const
 {
   dbo::Transaction t(session_);
   user_ = session_.query< dbo::ptr<User> >
-    ("select u from user u join token t on u.id = t.user_id")
+    ("select u from \"user\" u join token t on u.id = t.user_id")
     .where("t.value = ?").bind(hash)
     .where("t.expires > ?").bind(WDateTime::currentDateTime());
   t.commit();

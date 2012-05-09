@@ -349,17 +349,17 @@ void WebRenderer::serveLinkedCss(WebResponse& response)
 
   if (!app->cssTheme().empty()) {
     response.out() << "@import url(\""
-		   << WApplication::resourcesUrl() << "/themes/"
+		   << WApplication::resourcesUrl() << "themes/"
 		   << app->cssTheme() << "/wt.css\");\n";
 
     if (app->environment().agentIsIE())
       response.out() << "@import url(\""
-		     << WApplication::resourcesUrl() << "/themes/"
+		     << WApplication::resourcesUrl() << "themes/"
 		     << app->cssTheme() << "/wt_ie.css\");\n";
 
     if (app->environment().agent() == WEnvironment::IE6)
       response.out() << "@import url(\""
-		     << WApplication::resourcesUrl() << "/themes/"
+		     << WApplication::resourcesUrl() << "themes/"
 		     << app->cssTheme() << "/wt_ie6.css\");\n";
   }
 
@@ -1070,15 +1070,15 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   if (widgetset || !session_.bootStyleResponse()) {
     if (!app->cssTheme().empty()) {
       response.out() << WT_CLASS << ".addStyleSheet('"
-		     << WApplication::resourcesUrl() << "/themes/"
+		     << WApplication::resourcesUrl() << "themes/"
 		     << app->cssTheme() << "/wt.css', 'all');";
       if (app->environment().agentIsIE())
 	response.out() << WT_CLASS << ".addStyleSheet('"
-		       << WApplication::resourcesUrl() << "/themes/"
+		       << WApplication::resourcesUrl() << "themes/"
 		       << app->cssTheme() << "/wt_ie.css', 'all');";
       if (app->environment().agent() == WEnvironment::IE6)
 	response.out() << WT_CLASS << ".addStyleSheet('"
-		       << WApplication::resourcesUrl() << "/themes/"
+		       << WApplication::resourcesUrl() << "themes/"
 		       << app->cssTheme() << "/wt_ie6.css', 'all');";
     }
 
@@ -1265,19 +1265,19 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   if (!app->cssTheme().empty()) {
     styleSheets += "<link href=\""
-      + WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
+      + WApplication::resourcesUrl() + "themes/" + app->cssTheme()
       + "/wt.css\" rel=\"stylesheet\" type=\"text/css\""
       + (xhtml ? "/>" : ">") + "\n";
 
     if (app->environment().agentIsIE())
       styleSheets += "<link href=\""
-	+ WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
+	+ WApplication::resourcesUrl() + "themes/" + app->cssTheme()
 	+ "/wt_ie.css\" rel=\"stylesheet\" type=\"text/css\""
 	+ (xhtml ? "/>" : ">") + "\n";
 
     if (app->environment().agent() == WEnvironment::IE6)
       styleSheets += "<link href=\""
-	+ WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
+	+ WApplication::resourcesUrl() + "themes/" + app->cssTheme()
 	+ "/wt_ie6.css\" rel=\"stylesheet\" type=\"text/css\""
 	+ (xhtml ? "/>" : ">") + "\n";
   }

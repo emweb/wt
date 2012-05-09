@@ -14,6 +14,10 @@
 #include "Wt/WLogger"
 #include "Wt/WWidgetItem"
 
+#ifndef WT_DEBUG_JS
+#include "js/WtResize.min.js"
+#endif
+
 namespace Wt {
 
 LOGGER("WWidgetItem");
@@ -27,14 +31,33 @@ StdWidgetItemImpl::~StdWidgetItemImpl()
   containerAddWidgets(0);
 }
 
+const char *StdWidgetItemImpl::childrenResizeJS()
+{
+  WApplication *app = WApplication::instance();
+  LOAD_JAVASCRIPT(app, "js/WtResize.js", "ChildrenResize", wtjs10);
+
+  return WT_CLASS ".ChildrenResize";
+}
+
 WLayoutItem *StdWidgetItemImpl::layoutItem() const
 {
   return item_;
 }
 
+int StdWidgetItemImpl::minimumWidth() const
+{
+  if (item_->widget()->isHidden())
+    return 0;
+  else
+    return static_cast<int>(item_->widget()->minimumWidth().toPixels());
+}
+
 int StdWidgetItemImpl::minimumHeight() const
 {
-  return static_cast<int>(item_->widget()->minimumHeight().toPixels());
+  if (item_->widget()->isHidden())
+    return 0;
+  else
+    return static_cast<int>(item_->widget()->minimumHeight().toPixels());
 }
 
 void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
@@ -50,14 +73,22 @@ void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
   }
 }
 
+const std::string StdWidgetItemImpl::id() const
+{
+  return item_->widget()->id();
+}
+
 DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 						WApplication *app)
 {
   WWidget *w = item_->widget();
 
+  w->setInline(false);
+
   DomElement *d = w->createSDomElement(app);
   DomElement *result = d;
 
+#ifdef OLD_LAYOUT
   int marginRight = 0, marginBottom = 0;
 
   // Note to self: we should support actual IE8 since this version has
@@ -129,6 +160,13 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   if (result != d)
     result->addChild(d);
+#else
+  if (app->environment().agentIsIElt(9) &&
+      (d->type() == DomElement_TEXTAREA || d->type() == DomElement_SELECT
+       || d->type() == DomElement_INPUT || d->type() == DomElement_BUTTON)) {
+    d->removeProperty(PropertyStyleDisplay);
+  }
+#endif
 
   return result;
 }

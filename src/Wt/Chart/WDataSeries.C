@@ -28,10 +28,7 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     yLabel_(false),
     barWidth_(0.8),
     hidden_(false)
-{ 
-  if (type_ == BarSeries)
-    fillRange_ = ZeroValueFill;
-}
+{ }
 
 void WDataSeries::setBarWidth(const double width) 
 {
@@ -140,6 +137,14 @@ void WDataSeries::setLabelColor(const WColor& color)
 void WDataSeries::setFillRange(FillRangeType fillRange)
 {
   set(fillRange_, fillRange);
+}
+
+FillRangeType WDataSeries::fillRange() const
+{
+  if (type_ == BarSeries && fillRange_ == NoFill)
+    return ZeroValueFill;
+  else
+    return fillRange_;
 }
 
 void WDataSeries::setMarker(MarkerType marker)

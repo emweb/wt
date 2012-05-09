@@ -367,7 +367,7 @@ private:
   static const int BIT_ADJUST_CHILDREN_ALIGN = 3;
   static const int BIT_LIST = 4;
   static const int BIT_ORDERED_LIST = 5;
-  static const int BIT_LAYOUT_CHANGED = 6;
+  static const int BIT_LAYOUT_NEEDS_RERENDER = 6;
   static const int BIT_LAYOUT_NEEDS_UPDATE = 7;
 
   /*
@@ -405,7 +405,9 @@ protected:
   StdLayoutImpl *layoutImpl() const;
 
   friend class StdLayoutImpl;
-  void layoutChanged(bool deleted = false);
+  friend class StdGridLayoutImpl;
+  friend class StdGridLayoutImpl2;
+  void layoutChanged(bool rerender, bool deleted);
 
 private:
   void propagateLayoutItemsOk(WLayoutItem *item);

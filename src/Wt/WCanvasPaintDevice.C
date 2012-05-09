@@ -141,7 +141,7 @@ void WCanvasPaintDevice::init()
   currentPen_ = WPen();
   currentShadow_ = WShadow();
   currentFont_ = WFont();
-  currentTextVAlign_ = currentTextHAlign_ = AlignLength;
+  currentTextVAlign_ = currentTextHAlign_ = AlignSuper;
 
   changeFlags_ = Transform | Pen | Brush | Shadow | Font;
 }
@@ -710,7 +710,7 @@ void WCanvasPaintDevice::renderStateChanges()
       brushChanged = true;
       shadowChanged = true;
       fontChanged = true;
-      currentTextHAlign_ = currentTextVAlign_ = AlignLength;
+      currentTextHAlign_ = currentTextVAlign_ = AlignSuper;
     }
   }
 

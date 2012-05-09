@@ -105,7 +105,7 @@ double WPieChart::explode(int modelRow) const
 void WPieChart::setPerspectiveEnabled(bool enabled, double height)
 {
   if ((!enabled && height_ != 0.0) || height_ != height) {
-    height_ = height;
+    height_ = enabled ? height : 0.0;
     update();
   }
 }

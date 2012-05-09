@@ -634,22 +634,31 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     typedef dbo::ptr_tuple<B, A>::type BA;
     typedef dbo::collection<BA> BAs;
 
-//The query below is extended to 
-//select count(1) from ( select B."id", B."name", A."id", A."date", A."b_id" 
-//from "table_b" B join "table_a" A on A."b_id" = B."id"); 
-//by Dbo when it is used to return the size of the collection.
-//This is not valid SQL by the SQL standard definition,
-//because 2 id fields are mentioned in the select clause.
-//A valid alternative would be:
-//select count(1) from ( select B."id", B."name", A."id" as id2, A."date", 
-//A."b_id" from "table_b" B join "table_a" A on A."b_id" = B."id");
-//Firebird is not able to execute this query.
+    // The query below becomes:
+    //    select count(1) from ( select B."id", B."name", A."id", A."date", A."b_id" 
+    //    from "table_b" B join "table_a" A on A."b_id" = B."id"); 
+    // when it is used to return the size of the collection.
+    // This is not valid SQL by the SQL standard definition,
+    // because 2 id fields are mentioned in the select clause.
+    //
+    // A valid alternative would be:
+    //   select count(1) from ( select B."id", B."name", A."id" as id2, A."date", 
+    //   A."b_id" from "table_b" B join "table_a" A on A."b_id" = B."id");
+    //
+    // Firebird is not able to execute this query.
+
 #ifndef FIREBIRD
-    BAs bas = session_->query<BA>
+    dbo::Query<BA> q = session_->query<BA>
       ("select B, A "
        "from \"table_b\" B join \"table_a\" A on A.\"b_id\" = B.\"id\"")
       .orderBy("A.\"i\"");
 
+    std::vector<dbo::FieldInfo> fields = q.fields();
+    std::vector<dbo::FieldInfo> fields2 = q.fields();
+
+    BOOST_REQUIRE(fields.size() == fields2.size());
+
+    BAs bas = q.resultList();
     BOOST_REQUIRE(bas.size() == 2);
 
     int ii = 0;

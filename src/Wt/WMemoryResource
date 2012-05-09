@@ -87,12 +87,12 @@ public:
    */
   void setMimeType(const std::string& mimeType);
 
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
+
 private:
   std::string mimeType_;
   std::vector<unsigned char> data_;
-
-  virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response);
 };
 
 }

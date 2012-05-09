@@ -21,8 +21,8 @@ public:
 
   virtual void updateAddItem(WLayoutItem *);
   virtual void updateRemoveItem(WLayoutItem *);
-  virtual void update(WLayoutItem *);
-  virtual void updateDom() = 0;
+  virtual void update(WLayoutItem *) = 0;
+  virtual void updateDom(DomElement& parent) = 0;
 
   // Returns whether updateDom() is needed
   virtual bool itemResized(WLayoutItem *item) = 0;

@@ -71,6 +71,7 @@ public:
     // flags
     NeedsDelete = 0x010,
     NeedsSave = 0x020,
+    Saving = 0x040,
 
     DeletedInTransaction = 0x100,
     SavedInTransaction = 0x200,

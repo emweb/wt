@@ -230,6 +230,7 @@ public:
   boost::mutex& mutex() { return mutex_; }
 #endif
 
+  void setExpectLoad();
   void setLoaded();
 
   void generateNewSessionId();

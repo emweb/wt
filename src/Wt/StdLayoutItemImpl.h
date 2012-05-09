@@ -27,6 +27,7 @@ public:
   virtual WLayoutItem      *layoutItem() const = 0;
   virtual WWidget          *parentWidget() const;
 
+  virtual int minimumWidth() const = 0;
   virtual int minimumHeight() const = 0;
 
   StdLayoutImpl *parentLayoutImpl() const;

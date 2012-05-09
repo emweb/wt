@@ -405,6 +405,9 @@ bool CgiParser::parseHead(WebRequest& request)
 
       request_->files_.insert
 	(std::make_pair(name, Http::UploadedFile(spool, fn, ctype)));
+
+      LOG_DEBUG("spooling file to " << spool.c_str());
+
     } else {
       spoolStream_ = 0;
       // Clear currentKey so that file we don't do harm by reading this
@@ -427,6 +430,7 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 		    spoolStream_);
 
   if (spoolStream_) {
+    LOG_DEBUG("completed spooling");
     delete spoolStream_;
     spoolStream_ = 0;
   } else {
@@ -438,8 +442,10 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 
   currentKey_.clear();
 
-  if (std::string(buf_ + boundary.length(), 2) == "--")
+  if (std::string(buf_ + boundary.length(), 2) == "--") {
+    LOG_INFO("end of multi-part data");
     return false;
+  }
 
   windBuffer(boundary.length() + 2);
 

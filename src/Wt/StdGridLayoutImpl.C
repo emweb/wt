@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#ifdef OLD_LAYOUT
+
 #include <boost/lexical_cast.hpp>
 #include <sstream>
 
@@ -20,7 +22,6 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/StdGridLayoutImpl.min.js"
-#include "js/WtResize.min.js"
 #endif
 
 #ifdef WIN32
@@ -83,7 +84,7 @@ bool StdGridLayoutImpl::itemResized(WLayoutItem *item)
   return false;
 }
 
-void StdGridLayoutImpl::updateDom()
+void StdGridLayoutImpl::updateDom(DomElement& parent)
 {
   if (forceUpdate_) {
     forceUpdate_ = false;
@@ -101,18 +102,10 @@ void StdGridLayoutImpl::updateDom()
       if (item) {
 	WLayout *nested = item->layout();
 	if (nested)
-	  (dynamic_cast<StdLayoutImpl *>(nested->impl()))->updateDom();
+	  (dynamic_cast<StdLayoutImpl *>(nested->impl()))->updateDom(parent);
       }
     }
   }
-}
-
-const char *StdGridLayoutImpl::childrenResizeJS()
-{
-  WApplication *app = WApplication::instance();
-  LOAD_JAVASCRIPT(app, "js/WtResize.js", "ChildrenResize", wtjs10);
-
-  return WT_CLASS ".ChildrenResize";
 }
 
 StdGridLayoutImpl::~StdGridLayoutImpl()
@@ -177,6 +170,14 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
       app->setHtmlClass(app->htmlClass() + " Wt-layout");
     }
   }
+}
+
+void StdGridLayoutImpl::update(WLayoutItem *item)
+{
+  WContainerWidget *c = container();
+
+  if (c)
+    c->layoutChanged(true, false);
 }
 
 void StdGridLayoutImpl::setHint(const std::string& name,
@@ -771,3 +772,5 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 }
 
 }
+
+#endif // OLD_LAYOUT

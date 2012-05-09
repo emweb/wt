@@ -282,6 +282,14 @@ void WebSession::setLoaded()
   setState(Loaded, controller_->configuration().sessionTimeout());
 }
 
+void WebSession::setExpectLoad()
+{
+  if (controller_->configuration().ajaxPuzzle())
+    setState(ExpectLoad, controller_->configuration().bootstrapTimeout());
+  else
+    setLoaded();
+}
+
 void WebSession::setState(State state, int timeout)
 {
 #ifdef WT_THREADED
@@ -1272,7 +1280,7 @@ void WebSession::handleRequest(Handler& handler)
 
 	    app_->notify(WEvent(WEvent::Impl(&handler)));
 
-	    setState(ExpectLoad, conf.bootstrapTimeout()); // expect 'load'
+	    setExpectLoad();
 	  }
 
 	  break;
@@ -1290,7 +1298,7 @@ void WebSession::handleRequest(Handler& handler)
 	  else if (*requestE == "script") {
 	    handler.response()->setResponseType(WebResponse::Script);
 	    if (state_ == Loaded)
-	      setState(ExpectLoad, conf.bootstrapTimeout()); // expect 'load'
+	      setExpectLoad();
 	  } else if (*requestE == "style") {
 	    flushBootStyleResponse();
 

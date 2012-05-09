@@ -450,8 +450,7 @@ enum AlignmentFlag {
   AlignBottom=0x400,
   /*! \brief Align bottom of widget to the bottom of parent widget's font.
    */
-  AlignTextBottom=0x800,
-  AlignLength=0x1000  // ?
+  AlignTextBottom=0x800
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(AlignmentFlag)
@@ -463,7 +462,7 @@ static const WFlags<AlignmentFlag> AlignHorizontalMask
 /*! \brief Combination of all vertical alignment flags */
 static const WFlags<AlignmentFlag> AlignVerticalMask
   = AlignBaseline | AlignSub | AlignSuper | AlignTop | AlignTextTop
-  | AlignMiddle | AlignBottom | AlignTextBottom | AlignLength;
+  | AlignMiddle | AlignBottom | AlignTextBottom;
 
 /*! \brief Enumeration that specifies the way text should be printed.
  *

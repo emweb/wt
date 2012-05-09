@@ -13,7 +13,7 @@
 #include "Wt/WStackedWidget"
 #include "Wt/WText"
 
-#include "StdGridLayoutImpl.h"
+#include "StdWidgetItemImpl.h"
 
 #include <cctype>
 
@@ -38,7 +38,7 @@ WMenuItem::WMenuItem(const WString& text, WWidget *contents,
   else if (contents_) {
     contentsContainer_ = new WContainerWidget();
     contentsContainer_
-      ->setJavaScriptMember("wtResize", StdGridLayoutImpl::childrenResizeJS());
+      ->setJavaScriptMember("wtResize", StdWidgetItemImpl::childrenResizeJS());
 
     addChild(contents_);
 

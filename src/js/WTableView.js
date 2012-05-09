@@ -382,8 +382,10 @@ WT_DECLARE_WT_MEMBER
        var pns = headerColumnsContainer.parentNode.style;
        if (pns && (pns.paddingBottom !== scrollheight + 'px')) {
 	 pns.paddingBottom = scrollheight + 'px';
-	 APP.layouts.adjust(el.children[0].id);
-	 APP.layouts.adjust();
+	 if (APP.layouts) {
+	   APP.layouts.adjust(el.children[0].id);
+	   APP.layouts.adjust();
+	 }
        }
      }
    };

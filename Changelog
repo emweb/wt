@@ -1,3 +1,13 @@
+09-05-2012:
+	* WGridLayout, WBoxLayout: new implementation, which should get rid
+	of misfeatures and annoyances
+
+	* WebRenderer: do not generate double '//' when loading theme CSS
+
+	* WebSession: do not wait for 'load' signal if not using ajax puzzle
+
+	* WFileUpload: fix behaviour in MS HTA mode
+
 05-04-2012:
 	* StdGridLayoutImpl.js: unbreak layout in WGroupBox behaviour
 

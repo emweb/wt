@@ -8,6 +8,7 @@
 #include "Wt/WFileUpload"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WLogger"
 #include "Wt/WProgressBar"
 #include "Wt/WResource"
 #include "Wt/Http/Request"
@@ -23,6 +24,8 @@
 #endif
 
 namespace Wt {
+
+LOGGER("WFileUpload");
 
 class WFileUploadResource : public WResource {
 public:
@@ -66,16 +69,22 @@ protected:
 	<< WApplication::instance()->javaScriptClass() << ") ";
 
       if (triggerUpdate) {
+	LOG_DEBUG("Resource handleRequest(): signaling uploaded");
+
 	o << "window.parent."
 	  << WApplication::instance()->javaScriptClass()
 	  << "._p_.update(null, '"
 	  << fileUpload_->uploaded().encodeCmd() << "', null, true);";
       } else if (request.tooLarge()) {
+	LOG_DEBUG("Resource handleRequest(): signaling file-too-large");
+
 	o << "window.parent."
 	  << WApplication::instance()->javaScriptClass()
 	  << "._p_.update(null, '"
 	  << fileUpload_->fileTooLargeImpl().encodeCmd() << "', null, true);";
       }
+    } else {
+      LOG_DEBUG("Resource handleRequest(): no signal");
     }
 
     o << "}\n"
@@ -356,6 +365,15 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     i->setProperty(PropertyClass, "Wt-resource");
     i->setProperty(PropertySrc, fileUploadTarget_->url());
     i->setName("if" + id());
+    if (app->environment().agentIsIE()) {
+      // http://msdn.microsoft.com/en-us/library/ms536474%28v=vs.85%29.aspx
+      // HTA's (started by mshta.exe) have a different security model than
+      // a normal web app, and therefore a HTA browser does not allow
+      // interaction from iframes to the parent window unless this
+      // attribute is set. If omitted, this causes the 'uploaded()'
+      // signal to be blocked when a Wt app is executed as a HTA.
+      i->setAttribute("APPLICATION", "yes");
+    }
 
     DomElement *form = result;
 
@@ -413,6 +431,8 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 void WFileUpload::setFormData(const FormData& formData)
 {
   setFiles(formData.files);
+
+  LOG_DEBUG("setFormData() : " << formData.files.size() << " file(s)");
 
   if (!formData.files.empty())
     uploaded().emit();

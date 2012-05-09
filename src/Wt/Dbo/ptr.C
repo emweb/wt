@@ -69,6 +69,7 @@ void MetaDboBase::remove()
 
 void MetaDboBase::setTransactionState(State state)
 {
+  state_ &= ~Saving;
   state_ |= state;
 }
 

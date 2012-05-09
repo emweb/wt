@@ -151,7 +151,11 @@ WT_DECLARE_WT_MEMBER
    this.adjustRow = function(row, height) {
      var rowspan_tds = [];
 
-     if (fitHeight && (row.style.height != height + 'px'))
+     /*
+      * We really need this, otherwise a row that contains only chwrap
+      * children gets 0 height...
+      */
+     if (row.style.height != height + 'px')
        row.style.height = height + 'px';
 
      var tds = row.childNodes, j, jl, td, col;
@@ -175,6 +179,7 @@ WT_DECLARE_WT_MEMBER
 
    this.adjust = function() {
      var widget = WT.getElement(id);
+
      if (!widget)
        return false;
 
@@ -189,29 +194,40 @@ WT_DECLARE_WT_MEMBER
      if (t.style.height !== '')
        t.style.height = '';
 
-     var pHeight, usingClientHeight = false;
-     if (fitHeight) {
-       pHeight = WT.pxself(p, 'height');
+     var height, heightIsParentHeight = false, thisFitHeight = fitHeight;
 
-       if (pHeight === 0) {
-	 usingClientHeight = true;
-	 pHeight = p.clientHeight;
+     if (WT.css(widget, 'position') === 'absolute')
+       height = WT.pxself(widget, 'height');
+     else {
+       height = WT.pxself(p, 'height');
+       heightIsParentHeight = true;
+     }
+
+     if (height === 0) {
+       heightIsParentHeight = false;
+       height = p.clientHeight;
+     }
+
+     if (!fitHeight) {
+       if (t.clientHeight > height) {
+	 thisFitHeight = true;
+       } else {
+	 height = t.clientHeight;
+	 heightIsParentHeight = false;
        }
-     } else {
-       pHeight = t.clientHeight;
      }
 
      var pWidth = p.clientWidth;
 
      var doit = widget.dirty
-       || t.w !== pWidth
-       || t.h !== pHeight;
+	   || ((t.w !== pWidth || t.h !== height)
+	       && (!thisFitHeight || (t.clientHeight != height)));
 
      if (!doit)
        return true;
 
      t.w = pWidth;
-     t.h = pHeight;
+     t.h = height;
 
      widget.dirty = null;
 
@@ -221,12 +237,12 @@ WT_DECLARE_WT_MEMBER
       * otherwise we use the computed height. Note that we need to
       * remove padding of the parent, and margin of myself.
       */
-     var r = pHeight;
+     var r = height;
 
      var i, il, ri, row, rowi; // iterator variables
 
-     if (fitHeight) {
-       if (usingClientHeight) {
+     if (thisFitHeight) {
+       if (!heightIsParentHeight) {
 	 r -= WT.px(p, 'paddingTop');
 	 r -= WT.px(p, 'paddingBottom');
        } else if (WT.boxSizing(p)) {

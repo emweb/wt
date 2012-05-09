@@ -20,7 +20,7 @@ StdLayoutImpl::StdLayoutImpl(WLayout *layout)
 StdLayoutImpl::~StdLayoutImpl()
 {
   if (container_)
-    container_->layoutChanged(true);
+    container_->layoutChanged(true, true);
 }
 
 StdLayoutItemImpl *StdLayoutImpl::getImpl(WLayoutItem *item)
@@ -89,14 +89,6 @@ void StdLayoutImpl::containerAddWidgets(WContainerWidget *container)
     if (item)
       getImpl(item)->containerAddWidgets(container);
   }
-}
-
-void StdLayoutImpl::update(WLayoutItem *item)
-{
-  WContainerWidget *c = container();
-
-  if (c)
-    c->layoutChanged();
 }
 
 }

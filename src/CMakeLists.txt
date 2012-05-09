@@ -47,6 +47,7 @@ SET(libsources
 Wt/Resizable.C
 Wt/SizeHandle.C
 Wt/StdGridLayoutImpl.C
+Wt/StdGridLayoutImpl2.C
 Wt/StdLayoutImpl.C
 Wt/StdLayoutItemImpl.C
 Wt/StdWidgetItemImpl.C

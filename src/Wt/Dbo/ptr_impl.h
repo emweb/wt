@@ -38,6 +38,7 @@ template <class C>
 void MetaDbo<C>::flush()
 {
   checkNotOrphaned();
+
   if (state_ & NeedsDelete) {
     state_ &= ~NeedsDelete;
 
@@ -48,9 +49,9 @@ void MetaDbo<C>::flush()
       setTransactionState(DeletedInTransaction);
       throw;
     }
-
   } else if (state_ & NeedsSave) {
     state_ &= ~NeedsSave;
+    state_ |= Saving;
 
     try {
       session()->implSave(*this);
@@ -59,6 +60,13 @@ void MetaDbo<C>::flush()
       setTransactionState(SavedInTransaction);
       throw;
     }
+  } else if (state_ & Saving) {
+    /*
+     * This must be because of a circular relational dependency:
+     *  A belongsTo(B)
+     *  B belongsTo(A)
+     */
+    throw Exception("Wt::Dbo::ptr::flush(): circular dependency detected!");
   }
 }
 

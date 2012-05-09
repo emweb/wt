@@ -25,6 +25,7 @@ Grid::Item::Item(WLayoutItem *item, WFlags<AlignmentFlag> alignment)
   : item_(item),
     rowSpan_(1),
     colSpan_(1),
+    update_(false),
     alignment_(alignment)
 { }
 

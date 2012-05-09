@@ -19,7 +19,11 @@ public:
   StdWidgetItemImpl(WWidgetItem *item);
   virtual ~StdWidgetItemImpl();
 
+  static const char* childrenResizeJS();
+
+  virtual const std::string id() const;
   virtual int minimumHeight() const;
+  virtual int minimumWidth() const;
 
   virtual void updateAddItem(WLayoutItem *);
   virtual void updateRemoveItem(WLayoutItem *);

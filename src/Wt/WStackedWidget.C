@@ -7,7 +7,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WStackedWidget"
 
-#include "StdGridLayoutImpl.h"
+#include "StdWidgetItemImpl.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WStackedWidget.min.js"
@@ -20,7 +20,7 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
     currentIndex_(-1)
 {
   WT_DEBUG( setObjectName("WStackedWidget") );
-  setJavaScriptMember(WT_RESIZE_JS, StdGridLayoutImpl::childrenResizeJS());
+  setJavaScriptMember(WT_RESIZE_JS, StdWidgetItemImpl::childrenResizeJS());
 
   addStyleClass("Wt-stack");
 }
