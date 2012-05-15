@@ -508,6 +508,17 @@ public:
   virtual void addDataPointArea(const WDataSeries& series,
 				const WModelIndex& xIndex,
 				WAbstractArea *area);
+  /*! \brief Sets the padding between the chart area and the axes.
+   *
+   * \sa axisPadding()
+   */
+  void setAxisPadding(int axisPadding);
+
+  /*! \brief Returns the padding between the chart area and the axes.
+   *
+   * \sa setAxisPadding()
+   */
+  int axisPadding() const { return axisPadding_; }
 
 protected:
   void paintEvent(WPaintDevice *paintDevice);
@@ -545,6 +556,7 @@ private:
   WFont                     legendFont_;
   WPen                      legendBorder_;
   WBrush                    legendBackground_;
+  int                       axisPadding_;
 
   void init();
   virtual void modelColumnsInserted(const WModelIndex& parent,

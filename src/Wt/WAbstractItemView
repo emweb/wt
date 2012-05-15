@@ -951,6 +951,7 @@ private:
   AlignmentFlag defaultHeaderVAlignment_;
   bool defaultHeaderWordWrap_;
   int rowHeaderCount_;
+  WString computedDragMimeType_;
 
   JSignal<int, int>    columnWidthChanged_;
   Signal<int, WLength> columnResized_;

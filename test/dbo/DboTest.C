@@ -1243,4 +1243,111 @@ BOOST_AUTO_TEST_CASE( dbo_test15 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test16 )
+{
+  DboFixture f;
+
+  dbo::Session *session = f.session_;
+
+  {
+    dbo::Transaction t(*session);
+
+    A a1;
+    a1.date = Wt::WDate(1976, 6, 14);
+    a1.time = Wt::WTime(13, 14, 15, 102);
+    for (unsigned i = 0; i < 255; ++i)
+      a1.binary.push_back(i);
+    a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+    a1.wstring = "Hello";
+    a1.string = "There";
+    a1.ptime = boost::posix_time::ptime
+      (boost::gregorian::date(2005,boost::gregorian::Jan,1),
+       boost::posix_time::time_duration(1,2,3));
+    a1.pduration = boost::posix_time::hours(1) + boost::posix_time::seconds(10);
+    a1.i = 42;
+    a1.i64 = 9223372036854775805LL;
+    a1.ll = 6066005651767221LL;
+    a1.checked = true;
+    a1.f = (float)42.42;
+    a1.d = 42.424242;
+
+    dbo::ptr<A> a = session->add(new A());
+
+    t.commit();
+
+    {
+      dbo::Query< dbo::ptr<A> > query = session->find<A>();
+      dbo::QueryModel< dbo::ptr<A> > *model
+	= new dbo::QueryModel< dbo::ptr<A> >();
+      model->setQuery(query);
+      model->addColumn ("date");
+      model->addColumn ("time");
+      model->addColumn ("binary");
+      model->addColumn ("datetime");
+      model->addColumn ("wstring");
+      model->addColumn ("string");
+      model->addColumn ("ptime");
+      model->addColumn ("pduration");
+      model->addColumn ("i");
+      model->addColumn ("i64");
+      model->addColumn ("ll");
+      model->addColumn ("checked");
+      model->addColumn ("f");
+      model->addColumn ("d");
+      
+      Wt::WDate date(1982, 12, 2);
+      Wt::WTime time(14, 15, 16, 103);
+      std::vector<unsigned char> bin;
+      for (unsigned i = 0; i < 255; ++i)
+	bin.push_back(255 - i);
+      Wt::WString ws("Hey");
+      std::string s("Test");
+      boost::posix_time::ptime p_time 
+	(boost::gregorian::date(2010,boost::gregorian::Sep,9),
+	 boost::posix_time::time_duration(3,2,1));
+      boost::posix_time::time_duration p_duration 
+	= boost::posix_time::hours(1) + boost::posix_time::seconds(10);
+      int i = 50;
+      ::int64_t i64 = 8223372036854775805LL;;
+      long long ll = 7066005651767221LL;
+      float f = (float)53.53;
+      double d = 53.5353;
+      bool checked = false;
+      
+      model->setData(0, 0, boost::any(date));
+      model->setData(0, 1, boost::any(time));
+      model->setData(0, 2, boost::any(bin));
+      model->setData(0, 3, boost::any(Wt::WDateTime(date, time)));
+      model->setData(0, 4, boost::any(ws));
+      model->setData(0, 5, boost::any(s));
+      model->setData(0, 6, boost::any(p_time));
+      model->setData(0, 7, boost::any(p_duration));
+      model->setData(0, 8, boost::any(i));
+      model->setData(0, 9, boost::any(i64));
+      model->setData(0, 10, boost::any(ll));
+      model->setData(0, 11, boost::any(checked));
+      model->setData(0, 12, boost::any(f));
+      model->setData(0, 13, boost::any(d));
+
+      //TODO, also set data using strings to test string to any value conversion
+
+      dbo::ptr<A> aa = session->find<A>().resultValue();
+      BOOST_REQUIRE(aa->date == date);
+      BOOST_REQUIRE(aa->time == time);
+      BOOST_REQUIRE(aa->binary == bin);
+      BOOST_REQUIRE(aa->datetime == Wt::WDateTime(date, time));
+      BOOST_REQUIRE(aa->wstring == ws);
+      BOOST_REQUIRE(aa->string == s);
+      BOOST_REQUIRE(aa->ptime == p_time);
+      BOOST_REQUIRE(aa->pduration == p_duration);
+      BOOST_REQUIRE(aa->i == i);
+      BOOST_REQUIRE(aa->i64 == i64);
+      BOOST_REQUIRE(aa->ll == ll);
+      BOOST_REQUIRE(aa->checked == checked);
+      BOOST_REQUIRE(aa->f == f);
+      BOOST_REQUIRE(aa->d == d);
+    }
+  }
+}
+
 #endif

@@ -7,6 +7,11 @@
 #include "Wt/WItemSelectionModel"
 #include "Wt/WAbstractItemModel"
 
+#include <boost/lexical_cast.hpp>
+#include "boost/any.hpp"
+
+#include <string>
+
 namespace Wt {
 
 WItemSelectionModel::WItemSelectionModel(WAbstractItemModel *model,
@@ -41,6 +46,36 @@ bool WItemSelectionModel::isSelected(const WModelIndex& index) const
   } else {
     return selection_.find(index) != selection_.end();
   }
+}
+
+std::string WItemSelectionModel::mimeType()
+{
+  std::string retval;
+
+   //Check that all selected mime types are the same
+    for (WModelIndexSet::const_iterator i = selection_.begin();
+         i != selection_.end(); ++i) {
+
+      if (!((*i).flags() & ItemIsDragEnabled))
+        return std::string();
+
+      boost::any mimeTypeData = i->data(MimeTypeRole);
+      if (!mimeTypeData.empty()) {
+        std::string currentMimeType = asString(mimeTypeData).toUTF8();
+
+        if (!currentMimeType.empty()) {
+          if (retval.empty())
+            retval = currentMimeType;
+          else if (currentMimeType != retval)
+            return model_->mimeType();
+       }
+    }
+  }
+
+  if (retval.empty())
+    return selection_.empty() ? std::string() : model_->mimeType();
+  else
+    return retval;
 }
 
 void WItemSelectionModel::modelLayoutAboutToBeChanged()

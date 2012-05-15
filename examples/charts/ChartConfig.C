@@ -23,6 +23,7 @@
 #include <Wt/WStandardItemModel>
 #include <Wt/WTable>
 #include <Wt/WText>
+#include <Wt/WPainterPath>
 
 #include <Wt/Chart/WCartesianChart>
 
@@ -187,6 +188,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   addEntry(markers, "Cross");
   addEntry(markers, "X cross");
   addEntry(markers, "Triangle");
+  addEntry(markers, "Diamond");
 
   WStandardItemModel *axes = new WStandardItemModel(0, 1, this);
   addEntry(axes, "1st Y axis");
@@ -443,6 +445,17 @@ void ChartConfig::update()
 	s.setFillRange(fill_);
 	s.setStacked(true);
 	sc.markerEdit->setCurrentIndex(0);
+      }
+
+      //set WPainterPath to draw a diamond
+      if(sc.markerEdit->currentIndex() == CustomMarker){
+	WPainterPath pp = WPainterPath();
+	pp.moveTo(-6, 0);
+	pp.lineTo(0, 6);
+	pp.lineTo(6, 0);
+	pp.lineTo(0, -6);
+	pp.lineTo(-6, 0);
+	s.setCustomMarker(pp);
       }
 
       s.setMarker(static_cast<MarkerType>(sc.markerEdit->currentIndex()));

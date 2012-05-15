@@ -181,7 +181,7 @@ public:
    * the axes so that they provide a suitable mapping from logical
    * coordinates to device coordinates.
    */
-  void initLayout();
+  bool initLayout();
 
   /*! \brief Renders the chart.
    *
@@ -293,7 +293,7 @@ protected:
    * want to change that later to allow for reentrant rendering by
    * multiple renderers ?).
    */
-  virtual void prepareAxes();
+  virtual bool prepareAxes();
 
   /*! \brief Renders the background.
    */

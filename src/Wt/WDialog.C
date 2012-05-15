@@ -7,6 +7,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WDialog"
 #include "Wt/WException"
+#include "Wt/WVBoxLayout"
 #include "Wt/WTemplate"
 #include "Wt/WText"
 
@@ -94,20 +95,31 @@ WDialog::WDialog(const WString& windowTitle)
   WContainerWidget *parent = app->domRoot();
   parent->addWidget(this);
 
+  WContainerWidget *layoutContainer = new WContainerWidget();
+  layoutContainer->setStyleClass("dialog-layout");
+  WVBoxLayout *layout = new WVBoxLayout(layoutContainer);
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+
   titleBar_ = new WContainerWidget();
   titleBar_->setStyleClass("titlebar");
 
   caption_ = new WText(windowTitle, titleBar_);
   
   impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
-  impl_->bindWidget("titlebar", titleBar_);
+  impl_->bindWidget("layout", layoutContainer);
+
+  layout->addWidget(titleBar_);
 
   contents_ = new WContainerWidget();
   contents_->setStyleClass("body");
 
-  impl_->bindWidget("contents", contents_);
+  layout->addWidget(contents_, 1);
 
   saveCoverState(app, app->dialogCover());
+
+  // so that WWidget::resize() calls it; it is set by js: WDialog()
+  setJavaScriptMember(WT_RESIZE_JS, "\"dummy\"");
 
   hide();
 }
@@ -150,8 +162,6 @@ void WDialog::render(WFlags<RenderFlag> flags)
 			+ app->javaScriptClass() + "," + jsRef()
 			+ "," + (centerX ? "1" : "0")
 			+ "," + (centerY ? "1" : "0") + ");");
-    // so that WWidget::resize() calls it; it is set by js: WDialog()
-    setJavaScriptMember(WT_RESIZE_JS, "\"dummy\"");
 
     app->addAutoJavaScript
       ("{var obj = $('#" + id() + "').data('obj');"

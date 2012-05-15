@@ -13,7 +13,6 @@
 /*
  * FIXME: provide a cross-browser mechanism to "cancel" the default
  * action for a keyboard event (and other events!).
- *
  * Note that for key-up/key-down events, you will need to do something with
  * the key-press event, as per http://unixpapa.com/js/key.html
  */
@@ -25,12 +24,12 @@ const char *WInteractWidget::KEYPRESS_SIGNAL = "keypress";
 const char *WInteractWidget::KEYUP_SIGNAL = "keyup";
 const char *WInteractWidget::ENTER_PRESS_SIGNAL = "M_enterpress";
 const char *WInteractWidget::ESCAPE_PRESS_SIGNAL = "M_escapepress";
-const char *WInteractWidget::CLICK_SIGNAL = "click";
-const char *WInteractWidget::DBL_CLICK_SIGNAL = "dblclick";
+const char *WInteractWidget::CLICK_SIGNAL = "M_click";
+const char *WInteractWidget::DBL_CLICK_SIGNAL = "M_dblclick";
 const char *WInteractWidget::MOUSE_DOWN_SIGNAL = "M_mousedown";
 const char *WInteractWidget::MOUSE_UP_SIGNAL = "M_mouseup";
-const char *WInteractWidget::MOUSE_OUT_SIGNAL = "mouseout";
-const char *WInteractWidget::MOUSE_OVER_SIGNAL = "mouseover";
+const char *WInteractWidget::MOUSE_OUT_SIGNAL = "M_mouseout";
+const char *WInteractWidget::MOUSE_OVER_SIGNAL = "M_mouseover";
 const char *WInteractWidget::MOUSE_MOVE_SIGNAL = "M_mousemove";
 const char *WInteractWidget::MOUSE_DRAG_SIGNAL = "M_mousedrag";
 const char *WInteractWidget::MOUSE_WHEEL_SIGNAL = "mousewheel";
@@ -43,7 +42,8 @@ const char *WInteractWidget::GESTURE_END_SIGNAL = "gestureend";
 
 WInteractWidget::WInteractWidget(WContainerWidget *parent)
   : WWebWidget(parent),
-    dragSlot_(0)
+    dragSlot_(0),
+    mouseOverDelay_(0)
 { }
 
 WInteractWidget::~WInteractWidget()
@@ -155,6 +155,11 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 {
   bool updateKeyDown = false;
 
+  WApplication *app = 0;
+
+  /*
+   * -- combine enterPress, escapePress and keyDown signals
+   */
   EventSignal<> *enterPress = voidEventSignal(ENTER_PRESS_SIGNAL, false);
   EventSignal<> *escapePress = voidEventSignal(ESCAPE_PRESS_SIGNAL, false);
   EventSignal<WKeyEvent> *keyDown = keyEventSignal(KEYDOWN_SIGNAL, false);
@@ -173,7 +178,10 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	 * browsers except for Opera and IE
 	 */
 	std::string extraJS;
-	const WEnvironment& env = WApplication::instance()->environment();
+	if (!app)
+	  app = WApplication::instance();
+
+	const WEnvironment& env = app->environment();
 
 	if (dynamic_cast<WFormWidget *>(this)
 	    && !env.agentIsOpera() && !env.agentIsIE())
@@ -217,6 +225,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       element.setEvent("keydown", std::string(), std::string());
   }
 
+  /*
+   * -- allow computation of dragged mouse distance
+   */
   EventSignal<WMouseEvent> *mouseDown
     = mouseEventSignal(MOUSE_DOWN_SIGNAL, false);
   EventSignal<WMouseEvent> *mouseUp
@@ -250,9 +261,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * down button if we have a mouseMove or mouseDrag
      */
     std::string js;
-    if (mouseUp && mouseUp->isConnected())
-      js += WApplication::instance()->javaScriptClass()
-	+ "._p_.saveDownPos(event);";
+    if (mouseUp && mouseUp->isConnected()) {
+      if (!app)
+	app = WApplication::instance();
+
+      js += app->javaScriptClass() + "._p_.saveDownPos(event);";
+    }
 
     if ((mouseDrag && mouseDrag->isConnected())
 	|| (mouseDown && mouseDown->isConnected()
@@ -319,9 +333,144 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     element.setEvent("mousemove", actions);
   }
 
+  /*
+   * -- mix mouseClick and mouseDblClick events in mouseclick since we
+   *    only want to fire one of both
+   */
+  EventSignal<WMouseEvent> *mouseClick
+    = mouseEventSignal(CLICK_SIGNAL, false);
+  EventSignal<WMouseEvent> *mouseDblClick
+    = mouseEventSignal(DBL_CLICK_SIGNAL, false);  
+
+  bool updateMouseClick
+    = (mouseClick && mouseClick->needsUpdate(all))
+    || (mouseDblClick && mouseDblClick->needsUpdate(all));
+
+  if (updateMouseClick) {
+    if (flags_.test(BIT_ENABLED)) { 
+      if (mouseDblClick) {
+	WStringStream combined;
+
+	/*
+	 * Click: if timer is running:
+	 *  - clear timer, dblClick()
+	 *  - start timer, clear timer and click()
+	 */
+
+	combined << "if(window.wtClickTimeout) {"
+		 << "clearTimeout(window.wtClickTimeout);"
+		 << "window.wtClickTimeout = null;";
+
+	combined << mouseDblClick->javaScript();
+
+	if (mouseDblClick->isExposedSignal()) {
+	  if (!app)
+	    app = WApplication::instance();
+  
+	  combined << app->javaScriptClass()
+		   << "._p_.update(o,'" << mouseDblClick->encodeCmd()
+		   << "',e,true);";
+	}
+
+	mouseDblClick->updateOk();
+
+	combined << "}else{"
+		 << "window.wtClickTimeout = setTimeout(function() {"
+		 << "window.wtClickTimeout = null;";
+
+	if (mouseClick) {
+	  combined << mouseClick->javaScript();
+
+	  if (mouseClick->isExposedSignal()) {
+	    if (!app)
+	      app = WApplication::instance();
+
+	    combined << app->javaScriptClass()
+		     << "._p_.update(o,'" << mouseClick->encodeCmd()
+		     << "',e,true);";
+	  }
+
+	  mouseClick->updateOk();
+	}
+
+	combined << "},200);}";
+
+	element.setEvent("click", combined.str(), "");
+      } else {
+	updateSignalConnection(element, *mouseClick, "click", all);
+      }
+    } else {
+      element.setEvent("click", WT_CLASS ".cancelEvent(event||window.event);");
+    }
+  }
+
+  /*
+   * -- mouseOver with delay
+   */
+  EventSignal<WMouseEvent> *mouseOver
+    = mouseEventSignal(MOUSE_OVER_SIGNAL, false);
+  EventSignal<WMouseEvent> *mouseOut
+    = mouseEventSignal(MOUSE_OUT_SIGNAL, false); 
+
+  bool updateMouseOver = mouseOver && mouseOver->needsUpdate(all);
+
+  if (mouseOverDelay_) {
+    if (updateMouseOver) {
+      WStringStream js;
+      js << "o.over=setTimeout(function() {"
+	 << "o.over = null;"
+	 << mouseOver->javaScript();
+
+      if (mouseOver->isExposedSignal()) {
+	if (!app)
+	  app = WApplication::instance();
+
+	js << app->javaScriptClass()
+	   << "._p_.update(o,'" << mouseOver->encodeCmd() << "',e,true);";
+      }
+
+      js << "}," << mouseOverDelay_ << ");";
+
+      element.setEvent("mouseover", js.str(), "");
+
+      mouseOver->updateOk();
+
+      if (!mouseOut)
+	mouseOut = mouseEventSignal(MOUSE_OUT_SIGNAL, true);
+
+      element.setEvent("mouseout",
+		       "clearTimeout(o.over); o.over=null;"
+		       + mouseOut->javaScript(),
+		       mouseOut->encodeCmd(), mouseOut->isExposedSignal());
+      mouseOut->updateOk();
+    }
+  } else {
+    if (updateMouseOver) {
+      element.setEventSignal("mouseover", *mouseOver);
+      mouseOver->updateOk();
+    }
+
+    bool updateMouseOut = mouseOut && mouseOut->needsUpdate(all);
+
+    if (updateMouseOut) {
+      element.setEventSignal("mouseout", *mouseOut);
+      mouseOut->updateOk();
+    }
+  }
+
   updateEventSignals(element, all);
 
   WWebWidget::updateDom(element, all);
+}
+
+void WInteractWidget::setMouseOverDelay(int delay)
+{
+  mouseOverDelay_ = delay;
+
+  EventSignal<WMouseEvent> *mouseOver
+    = mouseEventSignal(MOUSE_OVER_SIGNAL, false);
+  if (mouseOver)
+    mouseOver->senderRepaint();
 }
 
 void WInteractWidget::updateEventSignals(DomElement& element, bool all)
@@ -339,12 +488,7 @@ void WInteractWidget::updateEventSignals(DomElement& element, bool all)
 	&& flags_.test(BIT_REPAINT_TO_AJAX))
       element.unwrap();
 
-    if ((s.name() != WInteractWidget::CLICK_SIGNAL
-	 && s.name() != WInteractWidget::DBL_CLICK_SIGNAL)
-	|| flags_.test(BIT_ENABLED))
-      updateSignalConnection(element, s, s.name(), all);
-    else
-      element.setEvent(s.name(), WT_CLASS ".cancelEvent(event||window.event);");
+    updateSignalConnection(element, s, s.name(), all);
   }
 }
 

@@ -12,6 +12,7 @@
 #include <Wt/WPen>
 #include <Wt/WShadow>
 #include <Wt/Chart/WChartGlobal>
+#include <Wt/WPainterPath>
 
 namespace Wt {
 
@@ -301,6 +302,18 @@ public:
    */
   void setMarker(MarkerType marker);
 
+  /*! \brief Sets the  customMarker.
+   *
+   * \sa customMarker()
+   */
+  void setCustomMarker(const WPainterPath& path);
+
+  /*! \brief Returns the custom marker.
+   *
+   * \sa setCustomMarker()
+   */
+  WPainterPath customMarker() const { return customMarker_; };
+
   /*! \brief Returns the data point marker.
    *
    * \sa setMarker()
@@ -468,6 +481,7 @@ private:
   bool               yLabel_;
   double             barWidth_;
   bool               hidden_;
+  WPainterPath       customMarker_;
 
   template <typename T>
   bool set(T& m, const T& v);

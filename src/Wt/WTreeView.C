@@ -945,14 +945,15 @@ WTreeView::WTreeView(WContainerWidget *parent)
     = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc", this);
   app->styleSheet().addRule(rowContentsWidthRule_);
 
-  app->addAutoJavaScript
-    ("{var obj = $('#" + id() + "').data('obj');"
-     "if (obj) obj.autoJavaScript();}");
-
   if (parent)
     parent->addWidget(this);
 
   setup();
+
+  setJavaScriptMember(WT_RESIZE_JS,
+		      "function(self,w,h) {"
+		      "$(self).data('obj').wtResize();"
+		      "}");
 }
 
 void WTreeView::setup()

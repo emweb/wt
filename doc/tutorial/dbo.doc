@@ -94,11 +94,12 @@ a call to
 +{doc}group__dbo.html#ga8a2b653ff57f1459dfa2e556badd71d6[Wt::Dbo::field()]+
 is used to map the field to a table column name.
 
+
 As you may see, standard {cpp} types such as +int+, +std::string+ and
 +enum+ types are readily supported by the library (a full list of supported 
 types can be found in the documentation of +{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<T>]+). Support for other
 types can be added by specializing
-+{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<T>]+.
++{doc}structWt_1_1Dbo_1_1sql\__value__traits.html[Wt::Dbo::sql_value_traits<T>]+.
 There is also support for built-in Wt types such as WDate, WDateTime, WTime and 
 WString which can be enabled by including +<Wt/Dbo/WtSqlTraits>+.
 

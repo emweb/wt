@@ -11,6 +11,8 @@
 #include <Wt/WModelIndex>
 #include <Wt/WGlobal>
 
+#include <string>
+
 namespace Wt {
 
 class WAbstractItemModel;
@@ -80,6 +82,20 @@ public:
    * \sa setSelectionBehavior()
    */
   SelectionBehavior selectionBehavior() const { return selectionBehavior_; }
+
+  /*! \brief Returns the selection mime type.
+   *
+   * This should return the mime type for the current selection, or an emtpy
+   * string if the selection cannot be dragged.
+   *
+   * The default implementation returns the mime type based on MimeTypeRole data
+   * if all selected items indicate the same mime type, or the model mimeType()
+   * otherwise.
+   *
+   * If one or more items indicate that they cannot be dragged, then an empty
+   * string is returned.
+   */
+  virtual std::string mimeType();
 
 private:
   WModelIndexSet      selection_;

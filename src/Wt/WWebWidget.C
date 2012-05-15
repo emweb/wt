@@ -1307,7 +1307,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyStyleVerticalAlign, "bottom"); break;
       case AlignTextBottom:
 	element.setProperty(PropertyStyleVerticalAlign, "text-bottom"); break;
-	break;
       default:
 	break;
       }

@@ -13,6 +13,7 @@ WT_DECLARE_WT_MEMBER
 
    var self = this;
    var titlebar = $(el).find(".titlebar").first().get(0);
+   var layoutContainer = $(el).find(".dialog-layout").get(0);
    var WT = APP.WT;
    var dsx, dsy;
 
@@ -74,27 +75,25 @@ WT_DECLARE_WT_MEMBER
 	 el.style.marginTop = '0px';
        }
 
-       if (el.style.height != '')
-	 wtResize(el, -1, h);
-
        el.style.visibility = 'visible';
      }
    };
 
-   function wtResize(self, w, h) {
-     h -= 2; w -= 2; // 2 = dialog border
-     self.style.height = Math.max(0, h) + 'px';
+   function layoutResize(ignored, w, h) {
+     el.style.height = Math.max(0, h) + 'px';
      if (w > 0)
-       self.style.width = Math.max(0, w) + 'px';
-     var c = $(self).children('.body').get(0);
-     var t = $(self).children('.titlebar').get(0);
-     if (t)
-       h -= t.offsetHeight + 8; // 8 = body padding
-     if (h > 0) {
-       c.style.height = h + 'px';
-       if (APP.layouts)
-	 APP.layouts.adjust();
-     }
+       el.style.width = Math.max(0, w) + 'px';
+
+     self.centerDialog();
+   }
+
+   function wtResize(ignored, w, h) {
+     if (w > 0)
+       layoutContainer.style.width = w + 'px';
+     if (h > 0)
+       layoutContainer.style.height = h + 'px';
+
+     self.centerDialog();
    };
 
    this.onresize = function(w, h) {
@@ -103,5 +102,6 @@ WT_DECLARE_WT_MEMBER
    };
 
    el.wtResize = wtResize;
+   layoutContainer.wtResize = layoutResize;
    el.wtPosition = this.centerDialog;
  });

@@ -602,7 +602,6 @@ void WAbstractItemView::configureModelDragDrop()
     return;
 
   if (dragEnabled_) {
-    setAttributeValue("dmt", model_->mimeType());
     setAttributeValue("dsid",
 		      WApplication::instance()->encodeObject(selectionModel_));
 
@@ -633,25 +632,14 @@ void WAbstractItemView::checkDragSelection()
   /*
    * Check whether the current selection can be drag and dropped
    */
-  std::string dragMimeType = model_->mimeType();
+  computedDragMimeType_ = selectionModel_->mimeType();
 
-  if (!dragMimeType.empty()) {
-    const WModelIndexSet& selection = selectionModel_->selectedIndexes();
+  setAttributeValue("dmt", computedDragMimeType_);
 
-    bool dragOk = !selection.empty();
-
-    for (WModelIndexSet::const_iterator i = selection.begin();
-	 i != selection.end(); ++i)
-      if (!((*i).flags() & ItemIsDragEnabled)) {
-	dragOk = false;
-	break;
-      }
-
-    if (dragOk)
-      setAttributeValue("drag", "true");
-    else
-      setAttributeValue("drag", "false");
-  }
+  if (!computedDragMimeType_.empty())
+    setAttributeValue("drag", "true");
+  else
+    setAttributeValue("drag", "false");
 }
 
 WText *WAbstractItemView::headerSortIconWidget(int column)

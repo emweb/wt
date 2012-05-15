@@ -4,6 +4,10 @@ SET(tutorial_libs wtdbo wtdbosqlite3)
 #  SET(tutorial_libs ${tutorial_libs} ${BOOST_THREAD_LIB})
 #ENDIF (MULTI_THREADED)
 
+SUBDIRS(
+    tutorial9
+)
+
 ADD_EXECUTABLE(dbo-tutorial1  tutorial1.C)
 TARGET_LINK_LIBRARIES(dbo-tutorial1 ${tutorial_libs})
 

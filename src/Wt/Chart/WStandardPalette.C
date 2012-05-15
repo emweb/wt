@@ -68,7 +68,9 @@ WBrush WStandardPalette::brush(int index) const
 
 WPen WStandardPalette::borderPen(int index) const
 {
-  return WPen(WColor(0x44, 0x44, 0x44));
+  WPen p(WColor(0x44, 0x44, 0x44));
+  p.setCapStyle(SquareCap);
+  return p;
 }
 
 WPen WStandardPalette::strokePen(int index) const
@@ -76,7 +78,7 @@ WPen WStandardPalette::strokePen(int index) const
   WPen p(color(index));
   p.setWidth(2);
   p.setJoinStyle(BevelJoin);
-  p.setCapStyle(FlatCap);
+  p.setCapStyle(SquareCap);
   return p;
 }
 

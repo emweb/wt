@@ -94,8 +94,11 @@ WPen WDataSeries::pen() const
       else
 	return chart_->palette()
 	  ->strokePen(chart_->seriesIndexOf(modelColumn_));
-    else
-      return WPen();
+    else {
+      WPen defaultPen;
+      defaultPen.setCapStyle(SquareCap);
+      return defaultPen;
+    }
 }
 
 void WDataSeries::setBrush(const WBrush& brush)
@@ -150,6 +153,11 @@ FillRangeType WDataSeries::fillRange() const
 void WDataSeries::setMarker(MarkerType marker)
 {
   set(marker_, marker);
+}
+
+void WDataSeries::setCustomMarker(const WPainterPath& path)
+{
+  customMarker_ = path;
 }
 
 void WDataSeries::setMarkerSize(double size)

@@ -210,10 +210,6 @@ WT_DECLARE_WT_MEMBER
        }
 
        el.changed = true;
-
-       /*
-	* self.autoJavaScript();
-        */
      }
    }
 
@@ -264,16 +260,7 @@ WT_DECLARE_WT_MEMBER
    *    * table parent width
    */
 
-  this.autoJavaScript = function() {
-      if (el.parentNode == null) {
-	el = contentsContainer = headerContainer = contents = headers = null;
-	this.autoJavaScript = function() { };
-	return;
-      }
-
-      if (WT.isHidden(el) || el.offsetWidth < 20)
-	return;
-
+  this.wtResize = function() {
       doAdjustColumns();
 
       var $el=$(el),

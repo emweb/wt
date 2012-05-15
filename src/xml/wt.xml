@@ -77,8 +77,7 @@
   <message id="Wt.WDialog.template">
     ${shadow-x1-x2}
     ${center-script}
-    ${titlebar}
-    ${contents}
+    ${layout}
   </message>
 
   <!-- From WDialog-center.js: -->

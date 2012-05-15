@@ -25,7 +25,7 @@ public:
    */
   enum Width { Thin,    //!< Browser-dependent 'thin' border.
 	       Medium,  //!< Browser-dependent 'medium' border, default.
-	       Thick,   //!< Browser-dependent 'thin' border.
+	       Thick,   //!< Browser-dependent 'thick' border.
 	       Explicit //!< Explicit width. See also explicitWidth()
   };
 

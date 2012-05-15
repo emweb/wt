@@ -1,3 +1,20 @@
+15-05-2012:
+	* feature/dbo/tutorial9 example added: splits the classes over several
+	files
+
+	* WCartesianChart: add support for custom markers, and custom axis
+	padding
+
+	* WGridLayout, WBoxLayout: several bug fixes
+
+14-05-2012:
+	* WInteractWidget::setMouseOverDelay() configures a delay before
+	the mouse over signal is fired
+
+	* WInteractWidget::doubleClicked() has been reimplemented using
+	mouseClicked() so that not both will fire in case both have events
+	attached
+
 09-05-2012:
 	* WGridLayout, WBoxLayout: new implementation, which should get rid
 	of misfeatures and annoyances

@@ -14,6 +14,7 @@
 #include "Wt/WPainter"
 #include "Wt/WPolygonArea"
 #include "Wt/WRectArea"
+#include "Wt/WLogger"
 
 #include "WebUtils.h"
 
@@ -24,6 +25,9 @@ namespace {
 }
 
 namespace Wt {
+
+  LOGGER("Chart::WChart2DRenderer");
+
   namespace Chart {
 
 SeriesIterator::~SeriesIterator()
@@ -638,14 +642,17 @@ public:
       renderer_.chart()->drawMarker(series, marker_);
       renderer_.painter().save();
       renderer_.painter().setShadow(series.shadow());
-    }
+      needRestore_ = true;
+    } else
+      needRestore_ = false;
 
     return true;
   }
 
   virtual void endSeries()
   {
-    renderer_.painter().restore();
+    if (needRestore_)
+      renderer_.painter().restore();
   }
 
   virtual void newValue(const WDataSeries& series, double x, double y,
@@ -664,11 +671,14 @@ public:
 
 	WPen pen = WPen(series.markerPen());
 	setPenColor(pen, xIndex, yIndex, MarkerPenColorRole);
+
 	painter.setPen(pen);
 
 	WBrush brush = WBrush(series.markerBrush());
 	setBrushColor(brush, xIndex, yIndex, MarkerBrushColorRole);
 	painter.setBrush(brush);
+
+	setMarkerSize(painter, xIndex, yIndex, series.markerSize());
 
 	painter.drawPath(marker_);
 	painter.restore();
@@ -702,6 +712,29 @@ public:
 private:
   WChart2DRenderer& renderer_;
   WPainterPath      marker_;
+  bool needRestore_;
+
+  void setMarkerSize(WPainter& painter,
+	  	     const WModelIndex& xIndex,
+		     const WModelIndex& yIndex,
+		     double markerSize)
+{
+  boost::any scale;
+  double dScale = 1;
+  if (yIndex.isValid())
+    scale = yIndex.data(MarkerScaleFactorRole);
+
+  if (scale.empty() && xIndex.isValid())
+    scale = xIndex.data(MarkerScaleFactorRole);
+
+  if(!scale.empty())
+    dScale =  boost::any_cast<double>(scale);
+
+  dScale = markerSize / 6 * dScale +3;
+
+  painter.scale(dScale, dScale);
+}
+
 };
 
 WChart2DRenderer::WChart2DRenderer(WCartesianChart *chart,
@@ -734,11 +767,14 @@ WChart2DRenderer::~WChart2DRenderer()
   painter_.restore();
 }
 
-void WChart2DRenderer::initLayout()
+bool WChart2DRenderer::initLayout()
 {
   calcChartArea();           // sets chartArea_
 
-  prepareAxes();             // provides logical dimensions to the axes
+  if(!prepareAxes())             // provides logical dimensions to the axes
+    return false;
+
+  return true;
 }
 
 void WChart2DRenderer::render()
@@ -755,7 +791,16 @@ void WChart2DRenderer::render()
   tildeEndMarker_.moveTo(-15, -(segmentMargin_ - 20));
   tildeEndMarker_.lineTo(15, -(segmentMargin_ - 10));
 
-  initLayout();
+  if(!initLayout()){
+    LOG_ERROR("init layout failed Maybe padding is too large");
+    return;
+  }
+
+  std::cerr << chartArea_.width() << " " << chartArea_.height() << std::endl;
+  if (chartArea_.width() < 5 || chartArea_.height() < 5) {
+    LOG_ERROR("Chart area is to small. Maybe padding is too large");
+    return;
+  }
 
   renderBackground();        // render the background
   renderAxes(Grid);          // render the grid
@@ -769,11 +814,14 @@ void WChart2DRenderer::render()
   painter_.save();
 }
 
-void WChart2DRenderer::prepareAxes()
+bool WChart2DRenderer::prepareAxes()
 {
-  chart_->axis(XAxis).prepareRender(*this);
-  chart_->axis(Y1Axis).prepareRender(*this);
-  chart_->axis(Y2Axis).prepareRender(*this);
+  if(!chart_->axis(XAxis).prepareRender(*this))
+    return false;
+  if(!chart_->axis(Y1Axis).prepareRender(*this))
+    return false;
+  if(!chart_->axis(Y2Axis).prepareRender(*this))
+    return false;
 
   const WAxis& xAxis = chart_->axis(XAxis);
   const WAxis& yAxis = chart_->axis(YAxis);
@@ -824,6 +872,8 @@ void WChart2DRenderer::prepareAxes()
   xAxis.setOtherAxisLocation(location_[YAxis]);
   yAxis.setOtherAxisLocation(location_[XAxis]);
   y2Axis.setOtherAxisLocation(location_[XAxis]);
+
+  return true;
 }
 
 WPointF WChart2DRenderer::map(double xValue, double yValue,
@@ -865,24 +915,23 @@ WRectF WChart2DRenderer::chartSegmentArea(WAxis yAxis, int xSegment,
 
   // margin used when clipping, see also WAxis::prepareRender(),
   // when the renderMinimum/maximum is 0, clipping is done exact
-  const int CLIP_MARGIN = 5;
 
   double x1 = xs.renderStart
     + (xSegment == 0
-       ? (xs.renderMinimum == 0 ? 0 : -CLIP_MARGIN)
+       ? (xs.renderMinimum == 0 ? 0 : -chart_->axisPadding())
        : -segmentMargin_/2);
   double x2 = xs.renderStart + xs.renderLength
     + (xSegment == xAxis.segmentCount() - 1
-       ? (xs.renderMaximum == 0 ? 0 : CLIP_MARGIN)
+       ? (xs.renderMaximum == 0 ? 0 : chart_->axisPadding())
        : segmentMargin_/2);
 
   double y1 = ys.renderStart - ys.renderLength
     - (ySegment == yAxis.segmentCount() - 1
-       ? (ys.renderMaximum == 0 ? 0 : CLIP_MARGIN)
+       ? (ys.renderMaximum == 0 ? 0 : chart_->axisPadding())
        : segmentMargin_/2);
   double y2 = ys.renderStart
     + (ySegment == 0
-       ? (ys.renderMinimum == 0 ? 0 : CLIP_MARGIN)
+       ? (ys.renderMinimum == 0 ? 0 : chart_->axisPadding())
        : segmentMargin_/2);
 
   return WRectF(std::floor(x1 + 0.5), std::floor(y1 + 0.5),

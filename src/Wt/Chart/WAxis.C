@@ -315,7 +315,7 @@ void WAxis::update()
     chart_->update();
 }
 
-void WAxis::prepareRender(WChart2DRenderer& renderer) const
+bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 {
   double totalRenderRange = 0;
 
@@ -328,10 +328,8 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 
   bool vertical = axis_ != XAxis;
 
-  static const int CLIP_MARGIN = 5;
-
-  double clipMin = segments_.front().renderMinimum == 0 ? 0 : CLIP_MARGIN;
-  double clipMax = segments_.back().renderMaximum == 0 ? 0 : CLIP_MARGIN;
+  double clipMin = segments_.front().renderMinimum == 0 ? 0 : chart_->axisPadding();
+  double clipMax = segments_.back().renderMaximum == 0 ? 0 : chart_->axisPadding();
 
   double totalRenderLength
     = vertical ? renderer.chartArea().height() : renderer.chartArea().width();
@@ -346,8 +344,10 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
   totalRenderLength
     -= SEGMENT_MARGIN * (segments_.size() - 1) + clipMin + clipMax;
 
-  if (totalRenderLength <= 0)
-    return;
+  if (totalRenderLength <= 0) {
+    renderInterval_ = 1.0;
+    return false;
+  }
 
   int rc = 0;
   if (chart_->model())
@@ -358,7 +358,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
    * and vice-versa
    */
   for (unsigned it = 0; it < 2; ++it) {
-    double rs = totalRenderStart;
+    double rs = totalRenderStart; 
     double TRR = totalRenderRange;
     totalRenderRange = 0;
 
@@ -366,7 +366,6 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
       const Segment& s = segments_[i];
 
       double diff = s.renderMaximum - s.renderMinimum;
-
       s.renderStart = rs;
       s.renderLength = diff / TRR * totalRenderLength;
 
@@ -376,7 +375,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  if (scale_ == CategoryScale) {
 	    double numLabels = calcAutoNumLabels(s) / 1.5;
 
-	    renderInterval_ = std::max(1.0, std::floor(rc / numLabels));
+	    renderInterval_ = std::floor(rc / numLabels);
 	  } else if (scale_ != LogScale) {
 	    double numLabels = calcAutoNumLabels(s);
 
@@ -384,6 +383,8 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  }
 	}
       }
+
+      renderInterval_ = std::max(1.0, renderInterval_);
 
       if (scale_ == LinearScale) {
 	if (it == 0) {
@@ -556,6 +557,8 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	rs -= s.renderLength + SEGMENT_MARGIN;
     }
   }
+  return true;
+
 }
 
 void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
@@ -566,13 +569,13 @@ void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
 
       int borderMin, borderMax;
 
-      if (scale_ == CategoryScale)
-	borderMin = borderMax = 5;
-      else {
+      if (scale_ == CategoryScale){
+	borderMax = borderMin = chart_->axisPadding();
+      }else {
 	borderMin = (s.renderMinimum == 0 && otherLocation == ZeroValue)
-	  ? 0 : 5;
+	  ? 0 : chart_->axisPadding();
 	borderMax = (s.renderMinimum == 0 && otherLocation == ZeroValue)
-	  ? 0 : 5;
+	  ? 0 : chart_->axisPadding();
       }
 
       s.renderLength -= (borderMin + borderMax);

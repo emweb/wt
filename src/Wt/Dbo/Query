@@ -72,7 +72,7 @@ struct DynamicBinding { };
 class Session;
 class SqlConnection;
 
-/*! \class Query Wt/Dbo/Query Wt/DboQuery
+/*! \class Query Wt/Dbo/Query Wt/Dbo/Query
  *  \brief A database query.
  *
  * The query fetches results of type \p Result from the database. This

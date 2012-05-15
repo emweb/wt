@@ -940,7 +940,9 @@ this.cssPrefix = function(prop) {
     if ((prefixes[i] + prop) in elem.style)
       return prefixes[i];
   }
-}
+
+  return null;
+};
 
 this.boxSizing = function(w) {
   return (w.style['boxSizing']
@@ -1953,7 +1955,8 @@ function dragDrag(e) {
 	ds.dropTarget.handleDragDrop('drag', ds.object, e, '', mimeType);
       else
 	ds.object.className = 'Wt-valid-drop';
-    }
+    } else
+      ds.object.className = '';
 
     return false;
   }
@@ -2137,8 +2140,15 @@ function encodeEvent(event, i) {
   if (typeof e.keyCode !== 'undefined')
     result += se + 'keyCode=' + e.keyCode;
 
-  if (typeof e.charCode !== 'undefined')
-    result += se + 'charCode=' + e.charCode;
+  var charCode = 0;
+  if (typeof e.charCode !== 'undefined') {
+    if (e.type == 'keypress')
+      charCode = e.charCode;
+  } else {
+    if (e.type == 'keypress')
+      charCode = e.keyCode;
+  }
+  result += se + 'charCode=' + charCode;
 
   if (e.altKey)
     result += se + 'altKey=1';

@@ -253,7 +253,7 @@ Key WKeyEvent::key() const
 
 int WKeyEvent::charCode() const
 {
-  return jsEvent_.charCode ? jsEvent_.charCode : jsEvent_.keyCode;
+  return jsEvent_.charCode;
 }
 
 #ifndef WT_TARGET_JAVA

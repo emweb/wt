@@ -382,7 +382,7 @@ void DomElement::setEvent(const char *eventName,
 
     if (actions[i].exposed)
       code << WApplication::instance()->javaScriptClass()
-	   << "._p_.update(this,'" << actions[i].updateCmd << "',e,true);";
+	   << "._p_.update(o,'" << actions[i].updateCmd << "',e,true);";
 
     if (!actions[i].jsCondition.empty())
       code << "}";

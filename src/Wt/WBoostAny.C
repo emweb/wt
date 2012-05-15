@@ -469,6 +469,15 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
   } else if (type == typeid(WTime)) {
     return WTime::fromString
       (s, format.empty() ? "HH:mm:ss" : format);
+  } else if (type == typeid(bool)) {
+    std::string b = s.toUTF8();
+    if (b == "true" || b == "1")
+      return true;
+    else if (b == "false" || b == "0")
+      return false;
+    else
+      throw std::runtime_error(std::string("Source string cannot be "
+					   "converted to a bool value!"));
   }
 
 #define ELSE_LEXICAL_ANY(TYPE)						\

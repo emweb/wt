@@ -549,7 +549,7 @@ private:
   template <typename T>
   bool set(T& m, const T& v);
 
-  void prepareRender(WChart2DRenderer& renderer) const;
+  bool prepareRender(WChart2DRenderer& renderer) const;
   void computeRange(WChart2DRenderer& renderer, const Segment& segment) const;
   void setOtherAxisLocation(AxisValue otherLocation) const;
 

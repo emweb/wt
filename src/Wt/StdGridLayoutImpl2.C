@@ -50,7 +50,8 @@ StdGridLayoutImpl2::StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid)
     LOAD_JAVASCRIPT(app, THIS_JS, "StdLayout2", wtjs1);
     LOAD_JAVASCRIPT(app, THIS_JS, "layouts2", appjs1);
 
-    app->addAutoJavaScript(app->javaScriptClass() + ".layouts2.scheduleAdjust();");
+    app->addAutoJavaScript(app->javaScriptClass()
+			   + ".layouts2.scheduleAdjust();");
     app->doJavaScript("$(window).load(function() { "
 		      + app->javaScriptClass() + ".layouts2.adjustAll();"
 		      + "});");
@@ -112,7 +113,8 @@ bool StdGridLayoutImpl2::hasItem(int row, int col) const
     return false;
 }
 
-DomElement *StdGridLayoutImpl2::createElement(WLayoutItem *item, WApplication *app)
+DomElement *StdGridLayoutImpl2::createElement(WLayoutItem *item,
+					      WApplication *app)
 {
   DomElement *c = getImpl(item)->createDomElement(true, true, app); 
   c->setProperty(PropertyStylePosition, "absolute");
@@ -143,7 +145,8 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
     addedItems_.clear();
 
     for (unsigned i = 0; i < removedItems_.size(); ++i)
-      parent.callJavaScript(WT_CLASS ".remove('" + removedItems_[i] + "');", true);
+      parent.callJavaScript(WT_CLASS ".remove('" + removedItems_[i] + "');",
+			    true);
 
     removedItems_.clear();
 
@@ -447,8 +450,8 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
     margin[2] = layout()->getContentsMargin(Bottom);
 #endif // WT_TARGET_JAVA
 
-    maxWidth = container()->maximumWidth().toPixels();
-    maxHeight = container()->maximumHeight().toPixels();
+    maxWidth = (int)container()->maximumWidth().toPixels();
+    maxHeight = (int)container()->maximumHeight().toPixels();
   }
 
   WStringStream js;

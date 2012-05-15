@@ -33,7 +33,8 @@ WCartesianChart::WCartesianChart(WContainerWidget *parent)
     legendColumns_(1),
     legendColumnWidth_(100),
     legendBorder_(NoPen),
-    legendBackground_(NoBrush)
+    legendBackground_(NoBrush),
+    axisPadding_(5)
 {
   init();
 }
@@ -253,7 +254,7 @@ void WCartesianChart::drawMarker(const WDataSeries& series,
 				 WPainterPath& result)
   const
 {
-  const double size = series.markerSize();
+  const double size = 6.0;
   const double hsize = size/2;
 
   switch (series.marker()) {
@@ -276,10 +277,14 @@ void WCartesianChart::drawMarker(const WDataSeries& series,
     result.lineTo(hsize, -hsize);
     break;
   case TriangleMarker:
-    result.moveTo(0, -hsize);
-    result.lineTo(hsize, 0.6 * hsize);
+    result.moveTo( 0, 0.6 * hsize);
     result.lineTo(-hsize, 0.6 * hsize);
+    result.lineTo(0, -hsize);
+    result.lineTo(hsize, 0.6 * hsize);
     result.closeSubPath();
+    break;
+  case CustomMarker:
+    result = series.customMarker();
     break;
   default:
     ;
@@ -502,6 +507,11 @@ void WCartesianChart::IconWidget::paintEvent(Wt::WPaintDevice *paintDevice)
   chart_->renderLegendIcon(painter, 
 			   WPointF(2.5, 10.0), 
 			   chart_->series(index_));
+}
+
+void WCartesianChart::setAxisPadding(int padding)
+{
+  axisPadding_ = padding;
 }
 
   }

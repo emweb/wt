@@ -266,9 +266,12 @@ void EventsDemo::describe(const Wt::WKeyEvent &e)
 {
   std::stringstream ss;
   ss << "Key: " << e.key() << "<br/>"
-     << "Modifiers: " << modifiersToString(e.modifiers()) << "<br/>"
-     << "Char code: " << (int)e.charCode() << "<br/>"
-     << "text: " << Utils::htmlEncode(e.text()) << "<br/>";
+     << "Modifiers: " << modifiersToString(e.modifiers()) << "<br/>";
+  int charCode = (int)e.charCode();
+  if (charCode) {
+    ss << "Char code: " << charCode << "<br/>"
+       << "text: " << Utils::htmlEncode(e.text()) << "<br/>";
+  }
   keyEventDescription_->setText(ss.str());
 }
 

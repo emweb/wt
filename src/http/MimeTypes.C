@@ -35,6 +35,7 @@ struct mapping
   { "oga", "audio/ogg" },
   { "ogg", "audio/ogg" },
   { "ogv", "video/ogg" },
+  { "swf", "application/x-shockwave-flash" },
   { "mp4", "video/mp4" },
   { "mv4", "video/mp4" },
   { "mp3", "audio/mp3" },

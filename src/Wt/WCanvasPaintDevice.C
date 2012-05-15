@@ -139,6 +139,7 @@ void WCanvasPaintDevice::init()
 {
   currentBrush_ = WBrush();
   currentPen_ = WPen();
+  currentPen_.setCapStyle(FlatCap);
   currentShadow_ = WShadow();
   currentFont_ = WFont();
   currentTextVAlign_ = currentTextHAlign_ = AlignSuper;
@@ -704,13 +705,13 @@ void WCanvasPaintDevice::renderStateChanges()
       renderTransform(js_, currentTransform_);
       pathTranslation_.setX(0);
       pathTranslation_.setY(0);
-
       penChanged = true;
       penColorChanged = true;
       brushChanged = true;
       shadowChanged = true;
       fontChanged = true;
       currentTextHAlign_ = currentTextVAlign_ = AlignSuper;
+      init();
     }
   }
 

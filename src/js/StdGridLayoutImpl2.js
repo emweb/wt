@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
    this.ancestor = null;
    this.descendants = [];
 
-   /** @const */ var debug = false;
+   /** @const */ var debug = true;
 
    /** @const */ var STRETCH = 0;
    /** @const */ var RESIZABLE = 1;
@@ -48,7 +48,7 @@ WT_DECLARE_WT_MEMBER
    var topLevel = false, parent = null, parentItemWidget = null,
      parentInitialized = false;
 
-   var DirConfig = 
+   var DirConfig =
      [ {
          initialized: false,
 	 config: config.cols,
@@ -130,7 +130,7 @@ WT_DECLARE_WT_MEMBER
        WT.px(element, 'margin' + DC.Right);
 
      if (!WT.boxSizing(element) && !WT.isIE)
-       scrollWidth += 
+       scrollWidth +=
 	 WT.px(element, 'padding' + DC.Left) +
 	 WT.px(element, 'padding' + DC.Right);
 
@@ -150,7 +150,7 @@ WT_DECLARE_WT_MEMBER
 	 var result = WT.px(element, 'min' + DC.Size);
 
 	 if (!WT.boxSizing(element))
-	   result += WT.px(element, 'padding' + DC.Left) + 
+	   result += WT.px(element, 'padding' + DC.Left) +
 	     WT.px(element, 'padding' + DC.Right);
 
 	 return result;
@@ -169,7 +169,7 @@ WT_DECLARE_WT_MEMBER
 	 && !(WT.isIE && !WT.isIElt9 && WT.hasTag(el, 'BUTTON'))) {
        result += WT.px(el, 'border' + DC.Left + 'Width') +
 	   WT.px(el, 'border' + DC.Right + 'Width') +
-	   WT.px(el, 'padding' + DC.Left) + 
+	   WT.px(el, 'padding' + DC.Left) +
 	   WT.px(el, 'padding' + DC.Right);
      }
 
@@ -253,9 +253,19 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.w) {
 	     var $w = $("#" + item.id);
 	     item.w = $w.get(0);
-	     var citem = item;
-	     $w.find("img").load(function() { setItemDirty(citem); });
+	     (function() { var citem = item;
+	       $w.find("img").load(function() { setItemDirty(citem); });
+	     })();
 	     item.w.style.left = item.w.style.top = NA_px;
+	   }
+
+	   if (item.w.style.position != 'absolute') {
+	     item.w.style.position = 'absolute';
+	     item.w.style.visibility = 'hidden';
+	     item.w.style.boxSizing = 'border-box';
+             var cssPrefix = WT.cssPrefix('BoxSizing');
+             if (cssPrefix)
+	       item.w.style[cssPrefix + 'BoxSizing'] = 'border-box';
 	   }
 
 	   if (!item.ps)
@@ -267,6 +277,9 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.size)
 	     item.size = [];
 
+	   if (!item.fs)
+	     item.fs = [0];
+
 	   if (!item.set)
 	     item.set = [false, false];
 
@@ -276,30 +289,41 @@ WT_DECLARE_WT_MEMBER
 
 	     if (debug)
 	       console.log("measure " + dir + " "
-			   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
+	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
+
 	     if (item.dirty || layoutDirty) {
+	       var wMinimum = calcMinimumSize(item.w, dir);
+	       if (wMinimum > dMinimum)
+		 dMinimum = wMinimum;
+	       item.ws[dir] = wMinimum;
+
+               if (typeof item.fs[dir] === "undefined") {
+	         var fw = WT.px(item.w, DC.size);
+	         if (fw > Math.max(sizePadding(item.w, dir), wMinimum)) {
+	           item.fs[dir] = fw + margin(item.w, dir);
+                 } else
+	           item.fs[dir] = 0;
+   	       }
+
 	       var alignment = (item.align >> DC.alignBits) & 0xF;
+	       var wPreferred = item.fs[dir];
 
 	       if (alignment
 		   || measurePreferredForStretching
 		   || (DC.config[di][STRETCH] <= 0)) {
-		 var wPreferred = calcPreferredSize(item.w, dir);
+		 wPreferred = Math.max(wPreferred,
+				       calcPreferredSize(item.w, dir));
 
 		 if (item.layout && (wPreferred < item.ps[dir]))
 		   wPreferred = item.ps[dir];
 	         else {
 		   item.ps[dir] = wPreferred;
 		 }
-
-		 if (!item.span || item.span[dir] == 1)
-		   if (wPreferred > dPreferred)
-		     dPreferred = wPreferred;
 	       }
 
-	       var wMinimum = calcMinimumSize(item.w, dir);
-	       if (wMinimum > dMinimum) 
-		 dMinimum = wMinimum;
-	       item.ws[dir] = wMinimum;
+	       if (!item.span || item.span[dir] == 1)
+		 if (wPreferred > dPreferred)
+		   dPreferred = wPreferred;
 
 	       if (dir == VERTICAL)
 		 item.dirty = false;
@@ -359,6 +383,9 @@ WT_DECLARE_WT_MEMBER
      totalPreferredSize += totalMargin;
      totalMinSize += totalMargin;
 
+     if (debug)
+       console.log("measured " + id + ': ' + dir + " ps " + preferredSize);
+
      DC.measures = [
 	     preferredSize,
 	     minimumSize,
@@ -374,9 +401,9 @@ WT_DECLARE_WT_MEMBER
      if (parent) {
        if (prevMeasures[TOTAL_PREFERRED_SIZE]
 	   != DC.measures[TOTAL_PREFERRED_SIZE]) {
-	 var margin = boxMargin(parentItemWidget, dir);
+	 var m = boxMargin(parentItemWidget, dir);
 	 parent.setChildSize(parentItemWidget, dir,
-			     DC.measures[TOTAL_PREFERRED_SIZE] + margin);
+			     DC.measures[TOTAL_PREFERRED_SIZE] + m);
        }
      }
 
@@ -394,6 +421,15 @@ WT_DECLARE_WT_MEMBER
 	 if (self.ancestor)
 	   self.ancestor.setContentsDirty(container);
        }
+     }
+
+     if (container) {
+     if (dir == HORIZONTAL && container && WT.hasTag(container, "TD")) {
+       /*
+	* A table will otherwise not provide any room for this 0-width cell
+	*/
+       container.style[DC.size] = DC.measures[TOTAL_PREFERRED_SIZE] + 'px';
+     }
      }
    }
 
@@ -494,6 +530,18 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
+     DC.cSize = cSize;
+     
+     if (dir == VERTICAL && (DC.maxSize || OC.maxSize)) {
+       var w = OC.cSize,
+	   h = DC.cSize;
+       // (2) use wtResize on container if necessary
+       if (h < DC.maxSize || w < OC.maxSize) {
+	 if (container.wtResize)
+	   container.wtResize(container, w, h);
+       }
+     }
+
      if (!cPaddedSize) {
        if (cClientSize)
 	 cSize -= padding(container, dir);
@@ -517,7 +565,7 @@ WT_DECLARE_WT_MEMBER
      var targetSize = measures[MINIMUM_SIZE].slice(),
        dirCount = DC.config.length,
        otherCount = OC.config.length;
-     
+
      if (debug)
        console.log("apply " + id + ': '
 		   + dir + " ps " + measures[PREFERRED_SIZE] + " cSize " + cSize);
@@ -525,10 +573,9 @@ WT_DECLARE_WT_MEMBER
      /*
       * Heuristic for nested layout with AlignLeft or AlignTop ?
       */
-     if (cSize == measures[TOTAL_PREFERRED_SIZE])
-       noStretch = true;
-
-     if (cSize > measures[TOTAL_MINIMUM_SIZE]) {
+     if (DC.fixedSize.length == 0 && cSize == measures[TOTAL_PREFERRED_SIZE])
+       targetSize = measures[PREFERRED_SIZE];
+     else if (cSize > measures[TOTAL_MINIMUM_SIZE]) {
        // non-stretchable colums/rows get up to their preferred size
        // excess space is distributed to stretchable column/rows
        // fixed size columns/rows get their fixed width
@@ -651,7 +698,7 @@ WT_DECLARE_WT_MEMBER
 	   left += DC.margins[SPACING];
 
 	 for (oi = 0; oi < otherCount; ++oi) {
-	   var item = DC.getItem(di, oi); 
+	   var item = DC.getItem(di, oi);
 	   if (item && item.w) {
 	     var w = item.w;
 
@@ -672,7 +719,7 @@ WT_DECLARE_WT_MEMBER
 	     var off;
 
 	     w.style.visibility = '';
-  
+
 	     var alignment = (item.align >> DC.alignBits) & 0xF;
 	     var ps = item.ps[dir];
 
@@ -733,7 +780,7 @@ WT_DECLARE_WT_MEMBER
 		 if (pc !== 'absolute')
 		   w.style.position = 'relative';
 	       } else
-		 w.style[DC.left] = '0px';		 
+		 w.style[DC.left] = '0px';
 
 	     if (dir == VERTICAL && w.wtResize) {
 	       w.wtResize(w, item.size[HORIZONTAL], item.size[VERTICAL]);
@@ -746,7 +793,7 @@ WT_DECLARE_WT_MEMBER
      }
    }
 
-   this.setConfig = function(conf) {     
+   this.setConfig = function(conf) {
      /*
       * Flush preferred size measurements
       */
@@ -911,7 +958,7 @@ WT_DECLARE_APP_MEMBER
 
       adjustScheduled = true;
 
-      setTimeout(function() { self.adjust(); }, 1);
+      setTimeout(function() { self.adjust(); }, 0);
     }
 
     this.adjust = function(id, items) {
