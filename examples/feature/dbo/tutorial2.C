@@ -49,6 +49,20 @@ public:
   }
 };
 
+class Settings {
+public:
+  std::string theme;
+
+  dbo::ptr<User> user;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    dbo::field(a, theme, "theme");
+    dbo::belongsTo(a, user);
+  }
+};
+
 class User {
 public:
   enum Role {
@@ -63,6 +77,7 @@ public:
   int         karma;
 
   dbo::collection< dbo::ptr<Post> > posts;
+  dbo::weak_ptr<Settings> settings;
 
   template<class Action>
   void persist(Action& a)
@@ -73,6 +88,7 @@ public:
     dbo::field(a, karma,    "karma");
 
     dbo::hasMany(a, posts, dbo::ManyToOne, "user");
+    dbo::hasOne(a, settings);
   }
 };
 
@@ -89,6 +105,7 @@ void run()
   session.mapClass<User>("user");
   session.mapClass<Post>("post");
   session.mapClass<Tag>("tag");
+  session.mapClass<Settings>("settings");
 
   /*
    * Try to create the schema (will fail if already exists).
@@ -129,9 +146,22 @@ void run()
     post.modify()->tags.insert(cooking);
 
     // will print '1 post(s) tagged with Cooking.'
-    std::cerr << cooking->posts.size() << " post(s) tagged with Cooking." << std::endl;
+    std::cerr << cooking->posts.size() << " post(s) tagged with Cooking."
+	      << std::endl;
   }
 
+  {
+    dbo::Transaction transaction(session);
+
+    dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
+
+    dbo::ptr<Settings> settings = session.add(new Settings());
+    settings.modify()->theme = "fancy-pink";
+    joe.modify()->settings = settings;
+
+    // will print 'Settings apply to Joe.'
+    std::cerr << "Settings apply to " << settings->user->name << std::endl;
+  }
 }
 
 int main(int argc, char **argv)

@@ -201,6 +201,7 @@ void DialogWidgets::messageBoxDone(StandardButton result)
 void DialogWidgets::customNonModal()
 {
    NonModalDialog *dialog = new NonModalDialog("Personalia (non-modal)", ed_);
+   // Note: dialog will be deleted when 'Ok' is pressed
    dialog->show();
 }
 

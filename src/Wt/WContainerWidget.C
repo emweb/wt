@@ -134,12 +134,12 @@ void WContainerWidget::childResized(WWidget *child,
 				    WFlags<Orientation> directions)
 {
 #ifndef WT_NO_LAYOUT
-  AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
-  if (layout_
-      && (directions & Vertical)
-      && (vAlign == 0)) {
+  if (layout_) {
 #ifdef OLD_LAYOUT
-    bool setUpdate = !flags_.test(BIT_LAYOUT_NEEDS_UPDATE);
+    AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
+    bool setUpdate
+      = (directions & Vertical) && (vAlign == 0)
+      && !flags_.test(BIT_LAYOUT_NEEDS_UPDATE);
 #else
     bool setUpdate = true;
 #endif

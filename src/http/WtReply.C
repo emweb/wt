@@ -111,6 +111,9 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 	if (!connection->server()->controller()->requestDataReceived
 	    (httpRequest_, bodyReceived_, request().contentLength)) {
+	  delete httpRequest_;
+	  httpRequest_ = 0;
+
 	  setStatus(request_entity_too_large);
 	  setCloseConnection();
 	  state = Request::Error;

@@ -57,6 +57,7 @@ private:
   Call(Session& session, const std::string& sql);
 
   friend class Session;
+  template <class C> friend class collection;
 };
 
   }

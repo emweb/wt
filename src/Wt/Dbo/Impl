@@ -11,6 +11,7 @@
 
 #include <Wt/Dbo/collection_impl.h>
 #include <Wt/Dbo/ptr_impl.h>
+#include <Wt/Dbo/weak_ptr_impl.h>
 #include <Wt/Dbo/Call_impl.h>
 #include <Wt/Dbo/DbAction_impl.h>
 #include <Wt/Dbo/Query_impl.h>

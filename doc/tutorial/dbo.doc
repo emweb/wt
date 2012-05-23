@@ -502,7 +502,7 @@ silly.remove();
 
 === _Many-to-One_ relations
 
-Let's add posts to our blogging example, and define a Man-to-One
+Let's add posts to our blogging example, and define a Many-to-One
 relation between posts and users. In the code below, we limit
 ourselves to the statements important for defining the relationship.
 
@@ -560,7 +560,7 @@ At the _One_-side, we add a collection of posts, and in the
 join field must be the same name as in reciproce belongsTo() method
 call.
 
-If we add the Post class too to our session using
+If we add the Post class to to our session using
 +Session::mapClass()+, and create the schema, the following SQL is
 generated:
 
@@ -741,9 +741,112 @@ The same warning as above applies here as well.
 
 === _One-to-One_ relations
 
-_One-to-One_ relations are currently not supported, but can be
-simulated using _Many-to-One_ relations as they have the same database
-schema structure.
+Let's add a Settings class to our blogging example, and define a
+One-to-One relation between settings and users. In the code below, we
+limit ourselves to the statements important for defining the
+relationship.
+
+.One-to-One relation (tutorial2.C)
+[source,cpp]
+----
+#include <Wt/Dbo/Dbo>
+#include <string>
+
+namespace dbo = Wt::Dbo;
+
+class User;
+
+class Settings {
+public:
+    ...
+
+    dbo::ptr<User> user;
+
+    template<class Action>
+    void persist(Action& a)
+    {
+        ... 
+
+        dbo::belongsTo(a, user);
+    }
+};
+
+class User {
+public:
+    ...
+
+    dbo::weak_ptr<Settings> settings;
+
+    template<class Action>
+    void persist(Action& a)
+    {
+        ...
+
+        dbo::hasOne(a, settings);
+    }
+};
+----
+
+Although a One-to-One relation sounds symmetric, it's implementation
+in a database and Wt::Dbo isn't symmetrical. In the database the
+relation is defined by a foreign key from one table to the other (in
+our example, from settings to user). We'll differentiate between both
+sides by stating that one side is _owning_, and the other side is _owned_.
+
+At the _owned_ side, we add a reference to a user, and in the
++persist()+ method we call
++{doc}group__dbo.html#gaf1a3f4231d2064b86eb3903003527ddd[belongsTo()]+. This
+allows us to reference the user to which these settings belong.
+
+At the _owning_ side, we add a weak reference to its settings, and in
+the +persist()+ method we call
++{doc}group__dbo.html#ga1a086b583fb150dbd4c5b4ba92bc177f[hasOne()]+.
+
+If we add the Settings class to our session using
++Session::mapClass()+, and create the schema, the following SQL is
+generated:
+
+[source,sql]
+----
+create table "user" (
+    ...
+
+    -- table user is unaffected by the relationship
+);
+
+create table "settings" (
+    ...
+
+    "user_id" bigint,
+    constraint "fk_settings_user" foreign key ("user_id") references "user" ("id")
+)
+----
+
+At the owning side, we a use +weak_ptr+ to avoid creating a cycle. The
+weak_ptr does not actually store the reference (nor does the
+underlying database record), but is defined instead in terms of a
+database query. This has as consequence that any operation on it will
+involve a query.
+
+At either side, you may change the value, and this will update the
+reciproce side of the relationship.
+Example:
+
+.(tutorial2.C continued)
+[source,cpp]
+----
+dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
+
+dbo::ptr<Settings> settings = session.add(new Settings());
+settings.modify()->theme = "fancy-pink";
+joe.modify()->settings = settings;
+
+// will print 'Settings apply to Joe.'
+std::cerr << "Settings apply to " << settings->user->name << std::endl;
+----
+
+As you can see, as soon as one side of the relation is modified, this
+is reflected in the other side as well.
 
 [[customizing]]
 == Customizing the mapping

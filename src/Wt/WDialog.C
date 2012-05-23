@@ -163,10 +163,6 @@ void WDialog::render(WFlags<RenderFlag> flags)
 			+ "," + (centerX ? "1" : "0")
 			+ "," + (centerY ? "1" : "0") + ");");
 
-    app->addAutoJavaScript
-      ("{var obj = $('#" + id() + "').data('obj');"
-       "if (obj) obj.centerDialog();}");
-
     /*
      * When a dialog is shown immediately for a new session, the recentering
      * logic comes too late and causes a glitch. Thus we include directly in

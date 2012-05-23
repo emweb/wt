@@ -75,9 +75,9 @@ bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
   return t->_id(args, result);
 }
 #else
-bool WTemplate::TrFunctionImpl::evaluate(WTemplate *t, 
-					 const std::vector<WString>& args,
-					 std::ostream& result)
+bool WTemplate::TrFunction::evaluate(WTemplate *t, 
+				     const std::vector<WString>& args,
+				     std::ostream& result) const
 {
   try {
     return t->_tr(args, result);
@@ -86,9 +86,9 @@ bool WTemplate::TrFunctionImpl::evaluate(WTemplate *t,
   } 
 }
 
-bool WTemplate::IdFunctionImpl::evaluate(WTemplate *t, 
-					 const std::vector<WString>& args,
-					 std::ostream& result)
+bool WTemplate::IdFunction::evaluate(WTemplate *t, 
+				     const std::vector<WString>& args,
+				     std::ostream& result) const
 {
   try {
   return t->_id(args, result);
@@ -99,8 +99,8 @@ bool WTemplate::IdFunctionImpl::evaluate(WTemplate *t,
 
 WTemplate::FunctionsList::FunctionsList()
 {
-  tr = new TrFunctionImpl();
-  id = new IdFunctionImpl();
+  tr = new TrFunction();
+  id = new IdFunction();
 }
 #endif
 
@@ -231,7 +231,7 @@ bool WTemplate::resolveFunction(const std::string& name,
 #ifndef WT_TARGET_JAVA
     bool ok = i->second(this, args, result);
 #else
-    bool ok = i->second->evaluate(this, args, result);
+    bool ok = i->second.evaluate(this, args, result);
 #endif // WT_TARGET_JAVA
 
     if (!ok)
@@ -323,8 +323,10 @@ void WTemplate::updateDom(DomElement& element, bool all)
     for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
 	 ++i) {
       WWidget *w = i->second;
-      if (w->isRendered() && w->webWidget()->domCanBeSaved())
+      if (w->isRendered() && w->webWidget()->domCanBeSaved()) {
 	previouslyRendered.insert(w);
+	w->webWidget()->setRendered(false);
+      }
     }
 
     bool saveWidgets = element.mode() == DomElement::ModeUpdate;
@@ -343,18 +345,13 @@ void WTemplate::updateDom(DomElement& element, bool all)
       if (previouslyRendered.find(w) != previouslyRendered.end()) {
 	if (saveWidgets)
 	  element.saveChild(w->id());
+	w->webWidget()->setRendered(true);
 	previouslyRendered.erase(w);
       }
     }
 
     element.setProperty(Wt::PropertyInnerHTML, html.str());
     changed_ = false;
-
-    for (std::set<WWidget *>::const_iterator i = previouslyRendered.begin();
-	 i != previouslyRendered.end(); ++i) {
-      WWidget *w = *i;
-      w->webWidget()->setRendered(false);
-    }
   }
 
   WInteractWidget::updateDom(element, all);

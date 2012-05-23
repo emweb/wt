@@ -109,6 +109,18 @@ void InitSchema::actPtr(const PtrRef<C>& field)
 }
 
 template<class C>
+void InitSchema::actWeakPtr(const WeakPtrRef<C>& field)
+{
+  const char *joinTableName = session_.tableName<C>();
+  std::string joinName = field.joinName();
+  if (joinName.empty())
+    joinName = mapping_.tableName;
+
+  mapping_.sets.push_back
+    (Session::SetInfo(joinTableName, ManyToOne, joinName, std::string(), 0));
+}
+
+template<class C>
 void InitSchema::actCollection(const CollectionRef<C>& field)
 {
   const char *joinTableName = session_.tableName<C>();
@@ -151,6 +163,19 @@ void DropSchema::actPtr(const PtrRef<C>& field)
 { }
 
 template<class C>
+void DropSchema::actWeakPtr(const WeakPtrRef<C>& field)
+{ 
+  const char *tableName = session_.tableName<C>();
+  if (tablesDropped_.count(tableName) == 0) {
+    DropSchema action(session_, 
+		      *session_.getMapping(tableName), 
+		      tablesDropped_);
+    C dummy;
+    action.visit(dummy);
+  }
+}
+
+template<class C>
 void DropSchema::actCollection(const CollectionRef<C>& field)
 {
   if (field.type() == ManyToMany) {
@@ -171,6 +196,24 @@ void DropSchema::actCollection(const CollectionRef<C>& field)
     /*
      * DboAction
      */
+
+template<class C>
+void DboAction::actWeakPtr(const WeakPtrRef<C>& field)
+{
+  Session::SetInfo *setInfo = &mapping_->sets[setIdx_++];
+
+  if (dbo_->session()) {
+    int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
+
+    const std::string& sql
+      = dbo_->session()->getStatementSql(mapping_->tableName, statementIdx);
+
+    field.value().setRelationData(dbo_, &sql, setInfo);
+  } else
+    field.value().setRelationData(dbo_, 0, setInfo);
+
+  setStatementIdx_ += 1;
+}
 
 template<class C>
 void DboAction::actCollection(const CollectionRef<C>& field)
@@ -290,6 +333,23 @@ void SaveBaseAction::actPtr(const PtrRef<C>& field)
     break;
   case Sets:
     break;
+  }
+}
+
+template<class C>
+void SaveBaseAction::actWeakPtr(const WeakPtrRef<C>& field)
+{
+  switch (pass_) {
+  case Dependencies:
+    break;
+
+  case Self:
+    if (isInsert_)
+      needSetsPass_ = true;
+
+    break;
+  case Sets:
+    DboAction::actWeakPtr(field);
   }
 }
 
@@ -501,6 +561,13 @@ void TransactionDoneAction::actPtr(const PtrRef<C>& field)
 { }
 
 template<class C>
+void TransactionDoneAction::actWeakPtr(const WeakPtrRef<C>& field)
+{
+  if (!success_)
+    DboAction::actWeakPtr(field);
+}
+
+template<class C>
 void TransactionDoneAction::actCollection(const CollectionRef<C>& field)
 {
   if (!success_)
@@ -562,6 +629,12 @@ void SessionAddAction::actCollection(const CollectionRef<C>& field)
   // FIXME: cascade add ?
 }
 
+template<class C>
+void SessionAddAction::actWeakPtr(const WeakPtrRef<C>& field)
+{
+  DboAction::actWeakPtr(field);
+}
+
     /*
      * SetReciproceAction
      */
@@ -594,6 +667,11 @@ void SetReciproceAction::actPtr(const PtrRef<C>& field)
 { 
   if (field.name() == joinName_)
     field.value().reset(value_);
+}
+
+template<class C>
+void SetReciproceAction::actWeakPtr(const WeakPtrRef<C>& field)
+{
 }
 
 template<class C>
@@ -677,9 +755,12 @@ void ToAnysAction::actPtr(const PtrRef<C>& field)
 }
 
 template<class C>
+void ToAnysAction::actWeakPtr(const WeakPtrRef<C>& field)
+{ }
+
+template<class C>
 void ToAnysAction::actCollection(const CollectionRef<C>& field)
-{
-}
+{ }
 
     /*
      * FromAnyAction
@@ -690,7 +771,8 @@ void FromAnyAction::visit(const ptr<C>& obj)
 {
   if (dbo_traits<C>::surrogateIdField()) {
     if (index_ == 0)
-      throw Exception("dbo_result_traits::setValues(): cannot set surrogate id.");
+      throw Exception("dbo_result_traits::setValues(): cannot set surrogate "
+		      "id.");
     --index_;
   }
 
@@ -754,9 +836,12 @@ void FromAnyAction::actPtr(const PtrRef<C>& field)
 }
 
 template<class C>
+void FromAnyAction::actWeakPtr(const WeakPtrRef<C>& field)
+{ }
+
+template<class C>
 void FromAnyAction::actCollection(const CollectionRef<C>& field)
-{
-}
+{ }
 
   }
 }

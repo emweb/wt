@@ -54,9 +54,13 @@ WT_API extern std::string sha1(const std::string& data);
  * This utility function implements a Base64 encoding (RFC 2045) of
  * the \p data.
  *
+ * When the crlf argument is true, a CRLF character will be added
+ * after each sequence of 76 characters.
+ *
  * \sa base64Decode()
  */
-WT_API extern std::string base64Encode(const std::string& data);
+WT_API extern std::string base64Encode(const std::string& data, 
+				       bool crlf = true);
 
 /*! \brief Performs Base64-decoding of data.
  *

@@ -28,7 +28,31 @@ namespace Wt {
  * <tt>${...}</tt>. To use a literal <tt>"${"</tt>, use
  * <tt>"$${"</tt>.
  *
- * There are currently two syntactic constructs defined.
+ * Usage example:
+ * \if cpp
+ * \code
+ * WString userName = ...;
+ *
+ * WTemplate *t = new WTemplate();
+ * t->setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
+ *
+ * t->bindString("friend", userName, PlainText);
+ * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * \endcode
+ * \elseif java
+ * \code
+ * WString userName = ...;
+ *
+ * WTemplate t = new WTemplate();
+ * t.setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
+ *
+ * t.bindString("friend", userName, PlainText);
+ * t.bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * \endcode
+ * \endif
+ *
+ * There are currently three syntactic constructs defined: variable
+ * place holders, functions and conditional blocks.
  *
  * <h3>A. Variable placeholders</h3>
  *
@@ -75,7 +99,7 @@ namespace Wt {
  *   convenient to create a language neutral template, which contains 
  *   translated strings
  * \elseif java
- * - WTemplate#TrFunctionImpl : resolves a localized strings, this is 
+ * - WTemplate#Functions#tr : resolves a localized strings, this is 
  *   convenient to create a language neutral template, which contains 
  *   translated strings
  * \endif
@@ -84,40 +108,51 @@ namespace Wt {
  *   is convenient to bind &lt;label&gt; elements to a form widget using its 
  *   for attribute.
  * \elseif java
- * - WTemplate#IdFunctionImpl : resolves the id of a bound widget, this 
+ * - WTemplate#Function#id : resolves the id of a bound widget, this 
  *   is convenient to bind &lt;label&gt; elements to a form widget using its 
  *   for attribute.
+ * \endif
+ *
+ * For example, the following template uses the "tr" function to translate
+ * the age-label using the "age-label" internationalized key.
+ *
+ * \if cpp
+ * \code
+ * WTemplate *t = new WTemplate();
+ * t->addFunction("tr", &WTemplate::Functions::tr);
+ * t->setTemplateText("<div> ${tr:age-label} ${age-input} </div>");
+ * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * \endcode
+ * \elseif java
+ * \code
+ * WTemplate t = new WTemplate();
+ * t.setTemplateText("<div> ${tr:age-label} ${age-input} </div>");
+ * t.addFunction("tr", Template.Functions.tr);
+ * t.bindWidget("age-input", ageEdit = new WLineEdit());
+ * \endcode
  * \endif
  *
  * <h3>C. Conditional blocks</h3>
  *
  * <tt>${&lt;cond&gt;}</tt> starts a conditional block with a condition name
- * "cond", and must be closed by a balanced <tt>${&gt;/cond&gt;}</tt>.
+ * "cond", and must be closed by a balanced <tt>${&lt;/cond&gt;}</tt>.
  *
- * Conditions are set using setCondition().
- *
- * <h3>Usage example</h3>
+ * For example:
  * \if cpp
  * \code
- * WString userName = ...;
- *
  * WTemplate *t = new WTemplate();
- * t->setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
- *
- * t->bindString("friend", userName, PlainText);
- * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * t->setTemplateText("<div> ${<if-register>} Register ... ${</if-register>}</div>");
+ * t->setCondition("if-register", true);
  * \endcode
  * \elseif java
  * \code
- * WString userName = ...;
- *
  * WTemplate t = new WTemplate();
- * t.setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
- *
- * t.bindString("friend", userName, PlainText);
- * t.bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * t.setTemplateText("<div> ${<if-register>} Register ... ${</if-register>}</div>");
+ * t.setCondition("if-register", true);
  * \endcode
  * \endif
+ *
+ * Conditions are set using setCondition().
  *
  * \if cpp
  * The template can return a bound widget using resolve(), which already
@@ -192,10 +227,10 @@ public:
 
 #define WT_TEMPLATE_FUNCTION(a) &WTemplate::Functions::a
 #else
-  class FunctionImpl {
+  class Function {
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) = 0;
+			  std::ostream& result) const = 0;
 
   };
   
@@ -212,10 +247,10 @@ public:
    *
    * \sa addFunction()
    */
-  class TrFunctionImpl : public FunctionImpl {
+  class TrFunction : public Function {
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result);
+			  std::ostream& result) const;
   };
 
   /*! \brief A function that resolves the id of a bound widget
@@ -233,13 +268,11 @@ public:
    *
    * \sa addFunction()
    */
-  class IdFunctionImpl : public FunctionImpl {
+  class IdFunction : public Function {
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result);
+			  std::ostream& result) const;
   };
-
-  typedef FunctionImpl *Function;
 
   /*! \brief A collection of predefined functions
    *
@@ -248,13 +281,13 @@ public:
   struct FunctionsList
   {
     FunctionsList();
-    Function tr;
-    Function id;
+    Function *tr;
+    Function *id;
   };
 
   static FunctionsList Functions;
 
-#define WT_TEMPLATE_FUNCTION(a) WTemplate::Functions.a
+#define WT_TEMPLATE_FUNCTION(a) *WTemplate::Functions.a
 #endif
 
   /*! \brief Creates a template widget.
@@ -345,11 +378,19 @@ public:
    * <tt>${fun:bla}</tt>
    *
    * There are two predefined functions, which can be bound using:
+   * \if cpp
    * \code
    * WTemplate *t = ...;
    * t->addFunction("id", &WTemplate::Functions::id);
    * t->addFunction("tr", &WTemplate::Functions::tr);
    * \endcode
+   * \else
+   * \code
+   * WTemplate t = ...;
+   * t.addFunction("id", WTemplate.Functions.id);
+   * t.addFunction("tr", WTemplate.Functions.tr);
+   * \endcode
+   * \endif
    */
   void addFunction(const std::string& name, const Function& function);
 

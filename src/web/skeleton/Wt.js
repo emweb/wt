@@ -1830,8 +1830,6 @@ var dragState = {
 };
 
 function initDragDrop() {
-  window.onresize = function() { doJavaScript(); };
-
   document.body.ondragstart=function() {
     return false;
   };

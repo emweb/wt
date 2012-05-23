@@ -66,7 +66,8 @@ namespace base64
   template <class InputIterator, class OutputIterator>
   void encode(const InputIterator& begin, 
               const InputIterator& end, 
-              OutputIterator out)
+              OutputIterator out,
+	      bool crlf = true)
   {
     InputIterator it = begin;
     int lineSize = 0;
@@ -97,10 +98,12 @@ namespace base64
 
       if (lineSize >= 76) // ensure proper line length 
       {
-        *out = 13;
-        ++out;
-        *out = 10;
-        ++out;
+	if (crlf) {
+	  *out = 13;
+	  ++out;
+	  *out = 10;
+	  ++out;
+	} 
         lineSize = 0;
       }
 

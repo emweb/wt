@@ -37,6 +37,9 @@ private:
   void welcome() {
     ed_->setStatus("Welcome, " + edit_->text());
     setHidden(true);
+    // We won't show this dialog again. If we don't delete it here, it will
+    // remain in memory until the session terminates.
+    delete this;
   }
 };
 

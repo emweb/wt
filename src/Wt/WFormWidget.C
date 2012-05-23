@@ -242,7 +242,7 @@ void WFormWidget::validatorChanged()
       if (domElementType() != DomElement_SELECT)
 	clicked().connect(*validateJs_);
     } else if (isRendered())
-      validateJs_->exec(jsRef());
+      doJavaScript(validateJs_->execJs(jsRef()));
   } else {
     delete validateJs_;
     validateJs_ = 0;

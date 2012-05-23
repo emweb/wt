@@ -480,6 +480,33 @@ void collection<C>::erase(C c)
 }
 
 template <class C>
+void collection<C>::clear()
+{
+  RelationData& relation = data_.relation;
+
+  if (type_ != RelationCollection || relation.setInfo == 0)
+    throw Exception("collection<C>::clear() only for a relational relation.");
+
+  if (relation.setInfo->type == ManyToMany) {
+    if (relation.activity) {
+      relation.activity->transactionInserted.clear();
+      relation.activity->transactionErased.clear();      
+    }
+  }
+
+  if (relation.dbo) {
+    const std::string *sql = relation.sql;
+    std::size_t f = Impl::ifind(*sql, " from ");
+    std::string deleteSql = "delete" + sql->substr(f);
+
+    Call call = session_->execute(deleteSql);
+    int column = 0;
+    relation.dbo->bindId(call.statement_, column);
+    call.run();
+  }
+}
+
+template <class C>
 int collection<C>::count(C c) const
 {
   if (!session_)

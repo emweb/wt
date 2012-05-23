@@ -55,11 +55,12 @@ std::string WItemSelectionModel::mimeType()
    //Check that all selected mime types are the same
     for (WModelIndexSet::const_iterator i = selection_.begin();
          i != selection_.end(); ++i) {
+      WModelIndex mi = *i;
 
-      if (!((*i).flags() & ItemIsDragEnabled))
+      if (!(mi.flags() & ItemIsDragEnabled))
         return std::string();
 
-      boost::any mimeTypeData = i->data(MimeTypeRole);
+      boost::any mimeTypeData = mi.data(MimeTypeRole);
       if (!mimeTypeData.empty()) {
         std::string currentMimeType = asString(mimeTypeData).toUTF8();
 

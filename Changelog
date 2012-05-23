@@ -1,3 +1,20 @@
+23-05-2012:
+	* dbo: add One-to-One relations, using Wt::Dbo::weak_ptr<>
+
+	* dbo: check relations are soundly defined instead of generating wrong
+	SQL
+
+	* dbo: collection::clear() method added
+
+	* Utils::base64Encode(): added option to omit CRLFs from generated
+	base64 stream
+
+	* WGridLayout, WBoxLayout: more fixes to be backwards compatible
+	with previous version
+
+	* http/WtReply: fix memory leak when too-large files are uploaded
+	leaving stale temporary files
+
 15-05-2012:
 	* feature/dbo/tutorial9 example added: splits the classes over several
 	files

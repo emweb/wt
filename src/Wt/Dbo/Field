@@ -217,6 +217,20 @@ private:
   int fkConstraints_;
 };
 
+template <class C>
+class WeakPtrRef
+{
+public:
+  WeakPtrRef(weak_ptr<C>& value, const std::string& joinName);
+
+  const std::string& joinName() const { return joinName_; }
+  weak_ptr<C>& value() const { return value_; }
+
+private:
+  weak_ptr<C>& value_;
+  std::string joinName_;
+};
+
 /*! \brief Maps a natural primary key (id) field.
  *
  * A natural primary key field is optional. If you define one and its
@@ -302,15 +316,15 @@ template <class Action, class C>
 void field(Action& action, ptr<C>& value, const std::string& name,
 	   int size = -1);
 
-/*! \brief Maps the "One"-side of a ManyToOne relation.
+/*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
  * This function binds the pointer field \p value to the database
- * field(s) \p name <tt>+ "_" +</tt> (C's primary key(s)).
+ * foreign key field(s) \p name <tt>+ "_" +</tt> (C's primary key(s)).
  *
- * If the name is omitted (or empty), then C's mapped table name is used.
+ * If the name is omitted or empty, then C's mapped table name is used.
  *
- * A belongsTo() will usually have a counter-part hasMany() declaration
- * in the referenced class \p C.
+ * A belongsTo() will usually have a counter-part hasMany() or
+ * hasOne() declaration in the referenced class \p C.
  *
  * \sa hasMany()
  *
@@ -320,7 +334,7 @@ template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value,
 	       const std::string& name = std::string(), int size = -1);
 
-/*! \brief Maps the "One"-side of a ManyToOne relation.
+/*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
  * This overloaded method allows to specify constraints for the
  * foreign key.
@@ -333,8 +347,7 @@ template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value, const std::string& name,
 	       ForeignKeyConstraint constraints, int size = -1);
 
-
-/*! \brief Maps the "One"-side of a ManyToOne relation.
+/*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
  * This overloaded method allows to specify constraints for the
  * foreign key.
@@ -347,25 +360,56 @@ template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value,
 	       ForeignKeyConstraint constraints, int size = -1);
 
-/*! \brief Maps the "Many"-side of a ManyToOne or ManyToMany relation.
+/*! \brief Maps the "One"-side of a OneToOne relation.
  *
- * This function binds the collection field \p value to contain objects
- * (of type \p C).
+ * This function binds the weak_ptr field \p value to the associated
+ * object (of type \p C).
  *
- * For a \link Wt::Dbo::ManyToOne ManyToOne\endlink relation, the
- * query is defined by the database field(s) \p joinName <tt>+ "_" +
+ * A weak_ptr is required here to break the cycle that would otherwise be
+ * created by the hasOne() and belongsTo() associations. The value is not
+ * actually stored but defined in terms of a SQL query (not that different
+ * from how a hasMany() call backs a collection by a SQL query).
+ *
+ * The query is defined by the database field(s) \p name <tt>+ "_" +
  * </tt> (C's primary key(s))</tt>, in the mapped table for C. This
  * should be the same <i>name</i> as passed to the matching
- * belongsTo() method for the other side of the relation. If the
- * joinName is omitted (or empty), then C's mapped table name is used.
+ * belongsTo() method for the other side of the relation. If the \p
+ * name is omitted or empty, then the mapped table name of the current
+ * class is used.
+ *
+ * A hasOne() must have a counter-part belongsTo() declaration in the
+ * referenced class \p C.
+ *
+ * \sa belongsTo()
+ *
+ * \ingroup dbo
+ */
+template <class Action, class C>
+void hasOne(Action& action, weak_ptr<C>& value,
+	    const std::string& name = std::string());
+
+/*! \brief Maps the "Many"-side of a ManyToOne or ManyToMany relation.
+ *
+ * This function binds the collection field \p value to contain
+ * objects (of type \p C) that holds the associated objects: reading
+ * from the collection and adding or removing objects from the
+ * collection results in SQL statements.
+ *
+ * For a \link Wt::Dbo::ManyToOne ManyToOne\endlink relation, the
+ * query is defined by the database field(s) \p name <tt>+ "_" + </tt>
+ * (C's primary key(s))</tt>, in the mapped table for C. This should
+ * be the same <i>name</i> as passed to the matching belongsTo()
+ * method for the other side of the relation. If the \p name is
+ * omitted or empty, then the mapped table name of the current class
+ * is used.
  *
  * For a \link Wt::Dbo::ManyToMany ManyToMany\endlink relation, the \p
- * joinName is the name of a linker table (this linker table may be
- * schema qualified, e.g. <tt>"myschema.posts_tags"</tt>. Thus, also
- * for a ManyToMany relation, both sides of the relationship will have
- * the same joinName passed to them. In the join table, this side of the
- * the relation will be referenced using the table name <tt>+ "_" + </tt>
- * (primary key(s)) of the current class.
+ * name is the name of a linker table (this linker table may be schema
+ * qualified, e.g. <tt>"myschema.posts_tags"</tt>. Thus, also for a
+ * ManyToMany relation, both sides of the relationship will have the
+ * same \p name passed to them. In the join table, this side of the
+ * the relation will be referenced using the table name <tt>+ "_" +
+ * </tt> (primary key(s)) of the current class.
  *
  * A hasMany() must have a counter-part belongsTo() or hasMany()
  * declaration in the referenced class \p C.
@@ -376,7 +420,7 @@ void belongsTo(Action& action, ptr<C>& value,
  */
 template <class Action, class C>
 void hasMany(Action& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& joinName = std::string());
+	     RelationType type, const std::string& name = std::string());
 
 /*! \brief Maps the "Many"-side of a ManyToMany relation.
  *
@@ -401,7 +445,7 @@ void hasMany(Action& action, collection< ptr<C> >& value,
  */
 template <class Action, class C>
 void hasMany(Action& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& joinName,
+	     RelationType type, const std::string& name,
 	     const std::string& joinId,
 	     ForeignKeyConstraint constraints = NotNull);
 

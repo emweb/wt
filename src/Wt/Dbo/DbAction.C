@@ -187,7 +187,8 @@ bool ToAnysAction::setsValue() const { return false; }
 bool ToAnysAction::isSchema() const { return false; }
 
 FromAnyAction::FromAnyAction(int& index, const boost::any& value)
-  : index_(index),
+  : session_(0),
+    index_(index),
     value_(value)
 { }
 

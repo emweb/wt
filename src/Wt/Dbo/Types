@@ -8,6 +8,7 @@
 #define WT_DBO_TYPES_H_
 
 #include <Wt/Dbo/ptr>
+#include <Wt/Dbo/weak_ptr>
 #include <Wt/Dbo/collection>
 #include <Wt/Dbo/Call>
 #include <Wt/Dbo/DbAction>

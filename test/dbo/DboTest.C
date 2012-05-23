@@ -97,6 +97,7 @@ public:
   dbo::ptr<B> b;
   dbo::ptr<D> dthing;
   dbo::ptr<A> parent;
+  dbo::ptr<C> c;
 
   std::vector<unsigned char> binary;
   Wt::WDate date;
@@ -159,10 +160,11 @@ public:
     dbo::field(a, f, "f");
     dbo::field(a, d, "d");
 
-    dbo::belongsTo(a, b, "b", dbo::OnUpdateCascade | dbo::OnDeleteCascade);
+    dbo::belongsTo(a, b, "b");
+    dbo::belongsTo(a, c);
 
     if (a.session()) {
-      dbo::belongsTo(a, dthing, a.session()->template tableName<D>());
+      dbo::belongsTo(a, dthing);
 
       dbo::belongsTo(a, parent, a.session()->template tableName<A>()
 		     + std::string("_parent"));
@@ -215,6 +217,8 @@ class C {
 public:
   std::string name;
   
+  dbo::weak_ptr<A> aOneToOne;
+
   Bs    bsManyToMany;
   Ds    dsManyToMany;
 
@@ -238,6 +242,7 @@ public:
 		 | dbo::OnDeleteCascade
 		 | dbo::OnUpdateCascade );
     dbo::hasMany(a, dsManyToMany, dbo::ManyToMany, SCHEMA "c_d");
+    dbo::hasOne(a, aOneToOne);
   }
 };
 
@@ -261,7 +266,7 @@ public:
     dbo::id(a, id, "id");
     dbo::field(a, name, "name");
 
-    dbo::hasMany(a, asManyToOne, dbo::ManyToOne, "d");
+    dbo::hasMany(a, asManyToOne, dbo::ManyToOne);
     dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "c_d");
   }
 };
@@ -1276,6 +1281,8 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
     t.commit();
 
     {
+      dbo::Transaction t(*session);
+
       dbo::Query< dbo::ptr<A> > query = session->find<A>();
       dbo::QueryModel< dbo::ptr<A> > *model
 	= new dbo::QueryModel< dbo::ptr<A> >();
@@ -1347,6 +1354,65 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
       BOOST_REQUIRE(aa->f == f);
       BOOST_REQUIRE(aa->d == d);
     }
+  }
+}
+
+#if 0 // doesn't work, no solution yet
+BOOST_AUTO_TEST_CASE( dbo_test17 )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a = session_->add(new A());
+    dbo::ptr<B> b = session_->add(new B("b", B::State1));
+    a.modify()->b = b;
+  }
+
+  {
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+
+    dbo::ptr<B> b = a->b;
+    a.modify()->b.reset(); // 1
+    b.remove(); // 2
+    a.remove(); // 3
+  }
+}
+#endif
+
+BOOST_AUTO_TEST_CASE( dbo_test18 )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a = session_->add(new A());
+    dbo::ptr<C> c = session_->add(new C());
+
+    BOOST_REQUIRE(!c->aOneToOne);
+
+    a.modify()->c = c;
+
+    BOOST_REQUIRE(c->aOneToOne == a);
+
+    a.modify()->c.reset();
+
+    BOOST_REQUIRE(!c->aOneToOne);
+
+    c.modify()->aOneToOne = a;
+
+    BOOST_REQUIRE(a->c == c);
+
+    BOOST_REQUIRE(c->aOneToOne->c == c);
+
+    dbo::ptr<A> a2 = c->aOneToOne;
   }
 }
 

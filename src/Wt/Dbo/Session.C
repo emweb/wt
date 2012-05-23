@@ -314,8 +314,8 @@ void Session::prepareStatements(MappingInfo *mapping)
     }
 
     if (firstField)
-      throw Exception("Table " + std::string(mapping->tableName) + " is missing a natural "
-		      "id defined with Wt::Dbo::id()");
+      throw Exception("Table " + std::string(mapping->tableName)
+		      + " is missing a natural id defined with Wt::Dbo::id()");
   } else
     idCondition
       += std::string() + "\"" + mapping->surrogateIdFieldName + "\" = ?";
@@ -400,6 +400,7 @@ void Session::prepareStatements(MappingInfo *mapping)
     }
 
     std::string fkConditions;
+    std::string other;
 
     for (unsigned i = 0; i < otherMapping->fields.size(); ++i) {
       if (!firstField)
@@ -410,11 +411,17 @@ void Session::prepareStatements(MappingInfo *mapping)
       sql << "\"" << field.name() << "\"";
 
       if (field.isForeignKey()
-	  && field.foreignKeyName() == info.joinName
 	  && field.foreignKeyTable() == mapping->tableName) {
-	if (!fkConditions.empty())
-	  fkConditions += " and ";
-	fkConditions += std::string("\"") + field.name() + "\" = ?";
+	if (field.foreignKeyName() == info.joinName) {
+	  if (!fkConditions.empty())
+	    fkConditions += " and ";
+	  fkConditions += std::string("\"") + field.name() + "\" = ?";
+	} else {
+	  if (!other.empty())
+	    other += " and ";
+
+	  other += "'" + field.foreignKeyName() + "'";
+	}
       }
     }
 
@@ -423,6 +430,19 @@ void Session::prepareStatements(MappingInfo *mapping)
     switch (info.type) {
     case ManyToOne:
       // where joinfield_id(s) = ?
+
+      if (fkConditions.empty()) {
+	std::string msg = std::string()
+	  + "Relation mismatch for table '" + mapping->tableName
+	  + "': no matching belongsTo() found in table '"
+	  + otherMapping->tableName + "' with name '" + info.joinName
+	  + "'";
+
+	if (!other.empty())
+	  msg += ", but did find with name " + other + "?";
+
+	throw Exception(msg);
+      }
 
       sql << "\" where " << fkConditions;
 
@@ -908,7 +928,17 @@ void Session::needsFlush(MetaDboBase *obj)
   if (inserted.second) {
     // was a new entry
     obj->incRef();
-  } else {
+  }
+
+  // If it's a delete, move it to the back
+  //
+  // In fact, this might be wrong: we need to consider dependencies
+  // (constraints) that depend on this object: foreign keys generated
+  // by 'belongsTo()' referencing this object: the objects that hold
+  // these foreign keys may need to be updated (or deleted!) before
+  // this object is deleted, one thus needs to take care of the order in which
+  // objects are being deleted
+  if (obj->isDeleted()) {
     // was an existing entry, move to back
     typedef MetaDboBaseSet::nth_index<0>::type List;
     List& listIndex = dirtyObjects_.get<0>();

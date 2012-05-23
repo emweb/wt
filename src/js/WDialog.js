@@ -99,6 +99,8 @@ WT_DECLARE_WT_MEMBER
    this.onresize = function(w, h) {
      centerX = centerY = false;
      wtResize(el, w, h);
+
+     APP.layouts2.scheduleAdjust();
    };
 
    el.wtResize = wtResize;

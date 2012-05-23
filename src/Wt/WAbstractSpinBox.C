@@ -42,7 +42,8 @@ WAbstractSpinBox::WAbstractSpinBox(WContainerWidget *parent)
   : WLineEdit(parent),
     changed_(false),
     valueChangedConnection_(false),
-    preferNative_(false)
+    preferNative_(false),
+    setup_(false)
 { 
   setJavaScriptMember("_a", "0");
 }
@@ -81,9 +82,9 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
    * In theory we are a bit late here to decide what we want to become:
    * somebody could already have asked the domElementType()
    */
-  if (flags & RenderFull) {
+  if (!setup_ && flags & RenderFull) {
+    setup_ = true;
     bool useNative = nativeControl();
-
     setup(useNative);
   }
 

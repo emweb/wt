@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
    this.ancestor = null;
    this.descendants = [];
 
-   /** @const */ var debug = true;
+   /** @const */ var debug = false;
 
    /** @const */ var STRETCH = 0;
    /** @const */ var RESIZABLE = 1;
@@ -238,9 +238,9 @@ WT_DECLARE_WT_MEMBER
      }
 
      var preferredSize = [], minimumSize = [],
-       totalPreferredSize = 0, totalMinSize = 0, di;
+       totalPreferredSize = 0, totalMinSize = 0, di, oi;
 
-     var measurePreferredForStretching = DC.maxSize > 0 || !DC.initialized[dir];
+     var measurePreferredForStretching = (DC.maxSize > 0) || !DC.initialized;
 
      for (di = 0; di < dirCount; ++di) {
        var dPreferred = 0;
@@ -259,7 +259,7 @@ WT_DECLARE_WT_MEMBER
 	     item.w.style.left = item.w.style.top = NA_px;
 	   }
 
-	   if (item.w.style.position != 'absolute') {
+	   if (!progressive && item.w.style.position != 'absolute') {
 	     item.w.style.position = 'absolute';
 	     item.w.style.visibility = 'hidden';
 	     item.w.style.boxSizing = 'border-box';
@@ -269,16 +269,16 @@ WT_DECLARE_WT_MEMBER
 	   }
 
 	   if (!item.ps)
-	     item.ps = [];
+	     item.ps = []; // preferred size
 
-	   if (!item.ws)
-	     item.ws = [];
+	   if (!item.ms)
+	     item.ms = []; // minimum size
 
 	   if (!item.size)
-	     item.size = [];
+	     item.size = []; // set size
 
 	   if (!item.fs)
-	     item.fs = [0];
+	     item.fs = []; // fixed size (size defined by inline size or CSS)
 
 	   if (!item.set)
 	     item.set = [false, false];
@@ -295,14 +295,28 @@ WT_DECLARE_WT_MEMBER
 	       var wMinimum = calcMinimumSize(item.w, dir);
 	       if (wMinimum > dMinimum)
 		 dMinimum = wMinimum;
-	       item.ws[dir] = wMinimum;
+	       item.ms[dir] = wMinimum;
 
-               if (typeof item.fs[dir] === "undefined") {
-	         var fw = WT.px(item.w, DC.size);
-	         if (fw > Math.max(sizePadding(item.w, dir), wMinimum)) {
-	           item.fs[dir] = fw + margin(item.w, dir);
-                 } else
-	           item.fs[dir] = 0;
+	       /*
+		* if we do not have an size set, we can and should take into
+		* account the size set for a widget by CSS. But we can't really
+		* read this -- computedStyle for width or height measures
+		* instead of interpreting the stylesheet ... !
+		*/
+               if (!item.set[dir]) {
+		 if (dir == HORIZONTAL) {
+		   var fw = WT.pxself(item.w, DC.size);
+		   if (fw)
+		     item.fs[dir] = fw + margin(item.w, dir);
+		   else
+		     item.fs[dir] = 0;
+		 } else {
+		   var fw = WT.px(item.w, DC.size);
+		   if (fw > Math.max(sizePadding(item.w, dir), wMinimum))
+		     item.fs[dir] = fw + margin(item.w, dir);
+		   else
+		     item.fs[dir] = 0;
+		 }
    	       }
 
 	       var alignment = (item.align >> DC.alignBits) & 0xF;
@@ -311,12 +325,23 @@ WT_DECLARE_WT_MEMBER
 	       if (alignment
 		   || measurePreferredForStretching
 		   || (DC.config[di][STRETCH] <= 0)) {
-		 wPreferred = Math.max(wPreferred,
-				       calcPreferredSize(item.w, dir));
 
-		 if (item.layout && (wPreferred < item.ps[dir]))
-		   wPreferred = item.ps[dir];
-	         else {
+		 if (!item.layout) {
+		   var calculated = calcPreferredSize(item.w, dir);
+
+		   /*
+		    * If we've set the size then we cannot trust the
+		    * calculated preferred size: we revert to a previous
+		    * measurement
+		    */
+		   if (!item.set[dir] || calculated != item.size[dir])
+		     wPreferred = Math.max(wPreferred, calculated);
+		   else
+		     wPreferred = Math.max(wPreferred, item.ps[dir]);
+
+		   item.ps[dir] = wPreferred;
+		 } else {
+		   wPreferred = Math.max(wPreferred, item.ps[dir]);
 		   item.ps[dir] = wPreferred;
 		 }
 	       }
@@ -328,15 +353,17 @@ WT_DECLARE_WT_MEMBER
 	       if (dir == VERTICAL)
 		 item.dirty = false;
 	     } else {
-	       if (!item.span || item.span[dir] == 1)
+	       if (!item.span || item.span[dir] == 1) {
 		 if (item.ps[dir] > dPreferred)
 		   dPreferred = item.ps[dir];
-	       if (item.ws[dir] > dMinimum)
-		 dMinimum = item.ps[dir];
+		 if (item.ms[dir] > dMinimum)
+		   dMinimum = item.ms[dir];
+	       }
 	     }
 
 	     if (debug)
-	       console.log(" ->" + item.id + ': ' + item.ps[0] + "," + item.ps[1]);
+	       console.log(" ->" + item.id + ': ' + item.ps[0] + ","
+			   + item.ps[1]);
 
 	     if (item.w.style.display !== 'none')
 	       allHidden = false;
@@ -485,7 +512,6 @@ WT_DECLARE_WT_MEMBER
 
 	 if (cSize === 0) {
 	   if (!DC.initialized) {
-	     DC.initialized = true;
 	     if (pc !== 'absolute') {
 	       cSize = dir ? container.clientHeight : container.clientWidth;
 
@@ -517,6 +543,8 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
+     DC.initialized = true;
+
      if (DC.maxSize) {
        // (2) adjust container width/height
        if (measures[TOTAL_PREFERRED_SIZE] < DC.maxSize) {
@@ -531,7 +559,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      DC.cSize = cSize;
-     
+
      if (dir == VERTICAL && (DC.maxSize || OC.maxSize)) {
        var w = OC.cSize,
 	   h = DC.cSize;
@@ -568,7 +596,8 @@ WT_DECLARE_WT_MEMBER
 
      if (debug)
        console.log("apply " + id + ': '
-		   + dir + " ps " + measures[PREFERRED_SIZE] + " cSize " + cSize);
+		   + dir + " ps " + measures[PREFERRED_SIZE]
+		   + " cSize " + cSize);
 
      /*
       * Heuristic for nested layout with AlignLeft or AlignTop ?
@@ -616,7 +645,7 @@ WT_DECLARE_WT_MEMBER
 
 	 var nsFactor = nsDistribute / totalNonStretch;
 
-	 for (var di = 0; di < dirCount; ++di) {
+	 for (di = 0; di < dirCount; ++di) {
 	   if (measures[MINIMUM_SIZE][di] > -1) {
 	     if (typeof DC.fixedSize[di] === "undefined"
 		 && DC.config[di][STRETCH] <= 0) {
@@ -637,7 +666,7 @@ WT_DECLARE_WT_MEMBER
 
 	 var factor = toDistribute / ts;
 
-	 for (var di = 0; di < dirCount; ++di) {
+	 for (di = 0; di < dirCount; ++di) {
 	   if (measures[MINIMUM_SIZE][di] > -1) {
 	     if (typeof DC.fixedSize[di] === "undefined") {
 	       var stretch;
@@ -660,7 +689,7 @@ WT_DECLARE_WT_MEMBER
        console.log(" -> targetSize: " + targetSize);
 
      // (4) set widths/heights of cells
-     var left = 0, first = true, resizeHandle = false;
+     var left = 0, first = true, resizeHandle = false, oi, di;
 
      for (di = 0; di < dirCount; ++di) {
        if (targetSize[di] > -1) {
@@ -681,7 +710,7 @@ WT_DECLARE_WT_MEMBER
 	     handle.onmousedown = handle.ontouchstart = function(event) {
 	       var e = event||window.event;
 	       startResize(dir, this, e);
-	     }
+	     };
 	   }
 
 	   left += RESIZE_HANDLE_MARGIN;
@@ -748,25 +777,32 @@ WT_DECLARE_WT_MEMBER
 	       if (WT.isIE && WT.hasTag(w, 'BUTTON'))
 		 setSize = true;
 
-	       if (setSize || ts != ps || w.style[DC.size] != '' || item.layout) {
+	       if (setSize || ts != ps || item.layout) {
 		 w.style[DC.size] = tsm + 'px';
 		 item.set[dir] = true;
 	       } else {
-		 w.style[DC.size] = '';
+		 if (!item.fs[dir] && w.style[DC.size] != '') {
+		   w.style[DC.size] = '';
+		   item.set[dir] = false;
+		 }
 	       }
 
 	       off = left;
 	       item.size[dir] = tsm;
 	     } else {
-	       var off;
 	       switch (alignment) {
 	       case ALIGN_LEFT: off = left; break;
 	       case ALIGN_CENTER: off = left + (ts - ps)/2; break;
 	       case ALIGN_RIGHT: off = left + (ts - ps); break;
 	       }
 
-	       if (item.layout)
+	       if (item.layout) {
 		 w.style[DC.size] = ps + 'px';
+		 item.set[dir] = true;
+	       } else if (ts >= ps && item.set[dir]) {
+		 w.style[DC.size] = '';
+		 item.set[dir] = false;
+	       }
 
 	       item.size[dir] = ps;
 	     }
@@ -821,7 +857,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      layoutDirty = true;
-   }
+   };
 
    this.getId = function() {
      return id;
@@ -840,7 +876,7 @@ WT_DECLARE_WT_MEMBER
 
    this.setDirty = function() {
      layoutDirty = true;
-   }
+   };
 
    this.setChildSize = function(widget, dir, preferredSize) {
      var i, il;
@@ -857,12 +893,12 @@ WT_DECLARE_WT_MEMBER
      }
 
      itemDirty = true;
-   }
+   };
 
    this.measure = function(dir) {
      var widget = WT.getElement(id);
      if (!widget)
-       return false;
+       return;
 
      if (!parentInitialized) {
        parentInitialized = true;
@@ -922,6 +958,7 @@ WT_DECLARE_APP_MEMBER
   new (function() {
     var topLevelLayouts = [], adjusting = false;
     var self = this;
+    var measureVertical = false;
 
     this.find = function(id) {
       return jQuery.data(document.getElementById(id), 'layout');
@@ -959,7 +996,7 @@ WT_DECLARE_APP_MEMBER
       adjustScheduled = true;
 
       setTimeout(function() { self.adjust(); }, 0);
-    }
+    };
 
     this.adjust = function(id, items) {
       if (id) {
@@ -984,6 +1021,10 @@ WT_DECLARE_APP_MEMBER
 	  var ll = layouts[i];
 
 	  measure(ll.descendants, dir);
+
+	  if (dir == VERTICAL && measureVertical) 
+	    ll.setDirty();
+
 	  ll.measure(dir);
 	}
       }
@@ -1011,6 +1052,7 @@ WT_DECLARE_APP_MEMBER
       apply(topLevelLayouts, VERTICAL);
 
       adjusting = false;
+      measureVertical = false;
     };
 
     this.updateConfig = function(id, config) {
@@ -1019,6 +1061,12 @@ WT_DECLARE_APP_MEMBER
 	layout.setConfig(config);
 
       return;
+    };
+
+    window.onresize = function() {
+      measureVertical = true;
+
+      self.scheduleAdjust();
     }
   }) ()
 );

@@ -115,10 +115,22 @@ void WAbstractMedia::setFormData(const FormData& formData)
     if (attributes.size() == 6) {
       try {
 	volume_ = boost::lexical_cast<double>(attributes[0]);
+      } catch (const std::exception& e) {
+        volume_ = -1;
+      }
+      try {
 	current_ = boost::lexical_cast<double>(attributes[1]);
+      } catch (const std::exception& e) {
+        current_ = -1;
+      }
+      try {
         duration_ = boost::lexical_cast<double>(attributes[2]);
-        playing_ = (attributes[3] == "0");
-        ended_ = (attributes[4] == "1");
+      } catch (const std::exception& e) {
+        duration_ = -1;
+      }
+      playing_ = (attributes[3] == "0");
+      ended_ = (attributes[4] == "1");
+      try {
         readyState_ = intToReadyState(boost::lexical_cast<int>(attributes[5]));
       } catch (const std::exception& e) {
 	throw WException("WAbstractMedia: error parsing: " + formData.values[0]

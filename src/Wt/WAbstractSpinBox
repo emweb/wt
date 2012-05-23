@@ -109,7 +109,7 @@ protected:
   bool valueChangedConnection_;
 
 private:
-  bool preferNative_;
+  bool preferNative_, setup_;
   WString prefix_, suffix_;
 
   void defineJavaScript();

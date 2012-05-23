@@ -27,7 +27,8 @@ template <class C> class collection;
 
 namespace Impl {
 
-  extern WTDBO_API std::size_t ifind(const std::string& s, const std::string& needle);
+  extern WTDBO_API std::size_t ifind(const std::string& s,
+				     const std::string& needle);
 
   struct WTDBO_API ParameterBase {
     virtual ~ParameterBase();
@@ -356,6 +357,7 @@ struct DboHelper
 };
 
 template <class C> class ptr;
+template <class C> class weak_ptr;
 
 /*! \class Dbo Wt/Dbo/Dbo Wt/Dbo/Dbo
  *  \brief A base class for database objects.
@@ -470,7 +472,7 @@ std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr);
  */
 
 /*! \class ptr Wt/Dbo/ptr Wt/Dbo/ptr
- *  \brief A smart pointer for database objects.
+ *  \brief A smart pointer for a database object.
  *
  * This smart pointer class implements a reference counted shared
  * pointer for database objects, which also keeps tracking of

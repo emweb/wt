@@ -44,6 +44,7 @@ public:
 			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -75,6 +76,7 @@ public:
 			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -97,6 +99,7 @@ public:
   DboAction(Session *session);
   DboAction(MetaDboBase& dbo, Session::MappingInfo& mapping);
 
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -167,6 +170,7 @@ public:
 
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -218,6 +222,7 @@ public:
 			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -242,6 +247,7 @@ public:
 			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -262,6 +268,7 @@ public:
 			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -288,6 +295,7 @@ public:
 			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;
@@ -314,6 +322,7 @@ public:
 			       int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
 
   bool getsValue() const;

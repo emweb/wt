@@ -116,6 +116,12 @@ void PtrRef<C>::visit(A& action, Session *session) const
 }
 
 template <class C>
+WeakPtrRef<C>::WeakPtrRef(weak_ptr<C>& value, const std::string& joinName)
+  : value_(value),
+    joinName_(joinName)
+{ }
+
+template <class C>
 const std::type_info *PtrRef<C>::type() const
 {
   return &typeid(typename dbo_traits<C>::IdType);
@@ -175,6 +181,12 @@ void belongsTo(A& action, ptr<C>& value,
 	       ForeignKeyConstraint constraint, int size)
 {
   belongsToImpl(action, value, std::string(), constraint.value(), size);
+}
+
+template <class A, class C>
+void hasOne(A& action, weak_ptr<C>& value, const std::string& joinName)
+{
+  action.actWeakPtr(WeakPtrRef<C>(value, joinName));
 }
 
 template <class A, class C>

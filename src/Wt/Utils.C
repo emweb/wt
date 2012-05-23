@@ -101,11 +101,11 @@ std::string sha1(const std::string& text)
   }
 }
 
-std::string base64Encode(const std::string& data)
+std::string base64Encode(const std::string& data, bool crlf)
 {
   std::vector<char> v;
 
-  base64::encode(data.begin(), data.end(), std::back_inserter(v));
+  base64::encode(data.begin(), data.end(), std::back_inserter(v), crlf);
 
   return std::string(v.begin(), v.end());
 }

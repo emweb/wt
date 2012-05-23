@@ -13,6 +13,7 @@ SET(TEST_SOURCES
   private/I18n.C
   utf8/Utf8Test.C
   utf8/XmlTest.C
+  utils/Base64Test.C
   wdatetime/WDateTimeTest.C
   length/WLengthTest.C
   color/WColorTest.C

@@ -315,6 +315,16 @@ namespace Wt {
      */
     void erase(C c);
 
+    /*! \brief Clears the collection.
+     *
+     * \note This is only implemented for %collections that are
+     *       involved in a ManyToOne or ManyToMany relation, and not for
+     *       collections that are used to iterated the result of a query.
+     *
+     * \sa erase()
+     */
+    void clear();
+
     /*! \brief Returns the whether the collection contains an object.
      *
      * This creates a suitable query that checks whether the collection
@@ -374,6 +384,7 @@ namespace Wt {
     friend class LoadBaseAction;
     friend class SaveBaseAction;
     friend class TransactionDoneAction;
+    template <class D> friend class weak_ptr;
     template <class Result, typename BindStrategy> friend class Query;
 
     collection(Session *session, SqlStatement *selectStatement,
