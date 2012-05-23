@@ -296,6 +296,8 @@ public:
   virtual void positionAt(const WWidget *widget,
 			  Orientation orientation = Vertical);
 
+  virtual void setMaximumSize(const WLength& width, const WLength& height);
+
 protected:
   void render(WFlags<RenderFlag> flags);
 

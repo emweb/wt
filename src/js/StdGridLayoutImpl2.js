@@ -240,7 +240,12 @@ WT_DECLARE_WT_MEMBER
      var preferredSize = [], minimumSize = [],
        totalPreferredSize = 0, totalMinSize = 0, di, oi;
 
-     var measurePreferredForStretching = (DC.maxSize > 0) || !DC.initialized;
+     /*
+      * Later we might attempt to avoid measuring preferred size
+      * if we are sure not to use it...
+      * // (DC.maxSize > 0) || !DC.initialized;
+      */
+     var measurePreferredForStretching = true;
 
      for (di = 0; di < dirCount; ++di) {
        var dPreferred = 0;
@@ -344,7 +349,8 @@ WT_DECLARE_WT_MEMBER
 		   wPreferred = Math.max(wPreferred, item.ps[dir]);
 		   item.ps[dir] = wPreferred;
 		 }
-	       }
+	       } else if (item.layout)
+		 wPreferred = Math.max(wPreferred, item.ps[dir]);
 
 	       if (!item.span || item.span[dir] == 1)
 		 if (wPreferred > dPreferred)
@@ -564,10 +570,8 @@ WT_DECLARE_WT_MEMBER
        var w = OC.cSize,
 	   h = DC.cSize;
        // (2) use wtResize on container if necessary
-       if (h < DC.maxSize || w < OC.maxSize) {
-	 if (container.wtResize)
-	   container.wtResize(container, w, h);
-       }
+       if (container.wtResize)
+	 container.wtResize(container, w, h);
      }
 
      if (!cPaddedSize) {
@@ -1022,7 +1026,7 @@ WT_DECLARE_APP_MEMBER
 
 	  measure(ll.descendants, dir);
 
-	  if (dir == VERTICAL && measureVertical) 
+	  if (dir == VERTICAL && measureVertical)
 	    ll.setDirty();
 
 	  ll.measure(dir);

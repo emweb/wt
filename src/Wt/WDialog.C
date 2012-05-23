@@ -148,6 +148,13 @@ void WDialog::setResizable(bool resizable)
   }
 }
 
+void WDialog::setMaximumSize(const WLength& width, const WLength& height)
+{
+  WCompositeWidget::setMaximumSize(width, height);
+
+  impl_->resolveWidget("layout")->setMaximumSize(width, height);
+}
+
 void WDialog::render(WFlags<RenderFlag> flags)
 {
   if (!initialized_) {
