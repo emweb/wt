@@ -121,6 +121,7 @@ void Server::start()
       tcp_acceptor_.bind(tcp_endpoint);
     } catch (boost::system::system_error e) {
       LOG_ERROR_S(&wt_, bindError(tcp_endpoint, e));
+      throw;
     }
     tcp_acceptor_.listen();
 
@@ -162,6 +163,7 @@ void Server::start()
       ssl_acceptor_.bind(ssl_endpoint);
     } catch (boost::system::system_error e) {
       LOG_ERROR_S(&wt_, bindError(ssl_endpoint, e);)
+      throw;
     }
     ssl_acceptor_.listen();
 

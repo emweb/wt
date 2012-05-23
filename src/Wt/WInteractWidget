@@ -345,6 +345,7 @@ protected:
 protected:
   // also used in WAbstractToggleButton
   static const char *CLICK_SIGNAL;
+  static const char *M_CLICK_SIGNAL;
 
 private:
   static const char *KEYDOWN_SIGNAL;

@@ -135,6 +135,11 @@ void WFileUpload::create()
     fileUploadTarget_ = new WFileUploadResource(this);
     fileUploadTarget_->setUploadProgress(true);
     fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
+
+    setJavaScriptMember(WT_RESIZE_JS,
+			"function(self,w,h) {"
+			"$(self).find('input').width(w);"
+			"}");
   } else
     fileUploadTarget_ = 0;
 

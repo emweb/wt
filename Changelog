@@ -15,6 +15,11 @@
 	* http/WtReply: fix memory leak when too-large files are uploaded
 	leaving stale temporary files
 
+	* WebSession: clean-up session-id file for FastCGI (regression)
+
+	* WApplication::setInternalPath(): make it work properly when used
+	without JavaScript
+
 15-05-2012:
 	* feature/dbo/tutorial9 example added: splits the classes over several
 	files

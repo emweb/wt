@@ -708,7 +708,7 @@ void DomElement::asHTML(EscapeOStream& out,
     = eventHandlers_.find(WInteractWidget::CLICK_SIGNAL);
 
   bool needButtonWrap
-    = (!(app->environment().ajax())
+    = (!app->environment().ajax()
        && (clickEvent != eventHandlers_.end())
        && (!clickEvent->second.jsCode.empty())
        && (!app->environment().agentIsSpiderBot()));
@@ -772,6 +772,10 @@ void DomElement::asHTML(EscapeOStream& out,
 	   && app->environment().agent() != WEnvironment::IE6)
 	  || href != "#")
 	needButtonWrap = false;
+    } else if (type_ == DomElement_AREA) {
+      DomElement *self = const_cast<DomElement *>(this);
+      self->setAttribute("href", app->url(app->internalPath())
+			 + "&signal=" + clickEvent->second.signalName);
     }
   }
 

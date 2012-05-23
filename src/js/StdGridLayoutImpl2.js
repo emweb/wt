@@ -46,7 +46,7 @@ WT_DECLARE_WT_MEMBER
 			      be remeasured */
    var layoutDirty = true; /* all items dirty need to be remeasured */
    var topLevel = false, parent = null, parentItemWidget = null,
-     parentInitialized = false;
+     parentInitialized = false, parentMargin = [];
 
    var DirConfig =
      [ {
@@ -434,9 +434,9 @@ WT_DECLARE_WT_MEMBER
      if (parent) {
        if (prevMeasures[TOTAL_PREFERRED_SIZE]
 	   != DC.measures[TOTAL_PREFERRED_SIZE]) {
-	 var m = boxMargin(parentItemWidget, dir);
 	 parent.setChildSize(parentItemWidget, dir,
-			     DC.measures[TOTAL_PREFERRED_SIZE] + m);
+			     DC.measures[TOTAL_PREFERRED_SIZE]
+			     + parentMargin[dir]);
        }
      }
 
@@ -457,12 +457,12 @@ WT_DECLARE_WT_MEMBER
      }
 
      if (container) {
-     if (dir == HORIZONTAL && container && WT.hasTag(container, "TD")) {
-       /*
-	* A table will otherwise not provide any room for this 0-width cell
-	*/
-       container.style[DC.size] = DC.measures[TOTAL_PREFERRED_SIZE] + 'px';
-     }
+       if (dir == HORIZONTAL && container && WT.hasTag(container, "TD")) {
+	 /*
+	  * A table will otherwise not provide any room for this 0-width cell
+	  */
+	 container.style[DC.size] = DC.measures[TOTAL_PREFERRED_SIZE] + 'px';
+       }
      }
    }
 
@@ -533,10 +533,8 @@ WT_DECLARE_WT_MEMBER
 		*/
 	       if ((WT.isIE6 && cSize == 0)
 		   || (cSize == measures[TOTAL_MINIMUM_SIZE]
-		       + padding(container, dir))) {
-		 debugger;
+		       + padding(container, dir)))
 		 DC.maxSize = 999999;
-	       }
 	     }
 	   }
 
@@ -913,10 +911,31 @@ WT_DECLARE_WT_MEMBER
        if (!topLevel) {
 	 parent = jQuery.data(document.getElementById(parentId), 'layout');
 	 parentItemWidget = widget;
+	 parentMargin[HORIZONTAL] = boxMargin(parentItemWidget, HORIZONTAL);
+	 parentMargin[VERTICAL] = boxMargin(parentItemWidget, VERTICAL);
        } else {
-	 parent = jQuery.data(widget.parentNode.parentNode, 'layout');
-	 if (parent)
-	   parentItemWidget = widget.parentNode;
+	 /*
+	  * While we are a single child in a parent, we can go further
+	  * up looking for an ancestor layout
+	  */
+	 var p = widget.parentNode;
+
+	 parentMargin = [0, 0];
+	 for (;;) {
+	   parentMargin[HORIZONTAL] += boxMargin(p, HORIZONTAL);
+	   parentMargin[VERTICAL] += boxMargin(p, VERTICAL);
+
+	   var l = jQuery.data(p.parentNode, 'layout');
+	   if (l) {
+	     parent = l;
+	     parentItemWidget = p;
+	     break;
+	   }
+
+	   p = p.parentNode;
+	   if (p.childNodes.length != 1)
+	     break;
+	 }
        }
      }
 

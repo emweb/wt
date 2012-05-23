@@ -24,7 +24,8 @@ const char *WInteractWidget::KEYPRESS_SIGNAL = "keypress";
 const char *WInteractWidget::KEYUP_SIGNAL = "keyup";
 const char *WInteractWidget::ENTER_PRESS_SIGNAL = "M_enterpress";
 const char *WInteractWidget::ESCAPE_PRESS_SIGNAL = "M_escapepress";
-const char *WInteractWidget::CLICK_SIGNAL = "M_click";
+const char *WInteractWidget::CLICK_SIGNAL = "click";
+const char *WInteractWidget::M_CLICK_SIGNAL = "M_click";
 const char *WInteractWidget::DBL_CLICK_SIGNAL = "M_dblclick";
 const char *WInteractWidget::MOUSE_DOWN_SIGNAL = "M_mousedown";
 const char *WInteractWidget::MOUSE_UP_SIGNAL = "M_mouseup";
@@ -78,7 +79,7 @@ EventSignal<>& WInteractWidget::escapePressed()
 
 EventSignal<WMouseEvent>& WInteractWidget::clicked()
 {
-  return *mouseEventSignal(CLICK_SIGNAL, true);
+  return *mouseEventSignal(M_CLICK_SIGNAL, true);
 }
 
 EventSignal<WMouseEvent>& WInteractWidget::doubleClicked()
@@ -338,7 +339,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
    *    only want to fire one of both
    */
   EventSignal<WMouseEvent> *mouseClick
-    = mouseEventSignal(CLICK_SIGNAL, false);
+    = mouseEventSignal(M_CLICK_SIGNAL, false);
   EventSignal<WMouseEvent> *mouseDblClick
     = mouseEventSignal(DBL_CLICK_SIGNAL, false);  
 
@@ -395,12 +396,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
 	combined << "},200);}";
 
-	element.setEvent("click", combined.str(), "");
+	element.setEvent(CLICK_SIGNAL, combined.str(), "");
       } else {
-	updateSignalConnection(element, *mouseClick, "click", all);
+	updateSignalConnection(element, *mouseClick, CLICK_SIGNAL, all);
       }
     } else {
-      element.setEvent("click", WT_CLASS ".cancelEvent(event||window.event);");
+      element.setEvent(CLICK_SIGNAL, WT_CLASS ".cancelEvent(event||window.event);");
     }
   }
 
@@ -484,7 +485,7 @@ void WInteractWidget::updateEventSignals(DomElement& element, bool all)
     EventSignalBase& s = **i;
 #endif
 
-    if (s.name() == WInteractWidget::CLICK_SIGNAL
+    if (s.name() == WInteractWidget::M_CLICK_SIGNAL
 	&& flags_.test(BIT_REPAINT_TO_AJAX))
       element.unwrap();
 
@@ -532,7 +533,7 @@ void WInteractWidget::propagateSetEnabled(bool enabled)
 
   EventSignal<WMouseEvent> *s;
 
-  s = mouseEventSignal(CLICK_SIGNAL, false);
+  s = mouseEventSignal(M_CLICK_SIGNAL, false);
   if (s)
     s->senderRepaint();
 

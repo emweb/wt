@@ -143,7 +143,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   EventSignal<> *check = voidEventSignal(CHECKED_SIGNAL, false);
   EventSignal<> *uncheck = voidEventSignal(UNCHECKED_SIGNAL, false);
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
-  EventSignal<WMouseEvent> *click = mouseEventSignal(CLICK_SIGNAL, false);
+  EventSignal<WMouseEvent> *click = mouseEventSignal(M_CLICK_SIGNAL, false);
 
   /*
    * We piggy-back the checked and uncheck signals on the change signal.

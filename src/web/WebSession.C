@@ -235,6 +235,8 @@ WebSession::~WebSession()
 
   flushBootStyleResponse();
 
+  controller_->configuration().registerSessionId(sessionId_, std::string());
+
 #ifndef WT_TARGET_JAVA
   LOG_INFO("session destroyed (#sessions = " << controller_->sessionCount()
 	   << ")");
@@ -2048,12 +2050,14 @@ void WebSession::notify(const WEvent& event)
 
 	  env_->parameters_ = handler.request()->getParameterMap();
 
-	  if (hashE)
-	    app_->changedInternalPath(*hashE);
-	  else if (!request.pathInfo().empty())
-	    app_->changedInternalPath(request.pathInfo());
-	  else
-	    app_->changedInternalPath("");
+	  if (!app_->internalPathIsChanged_) {
+	    if (hashE)
+	      app_->changedInternalPath(*hashE);
+	    else if (!request.pathInfo().empty())
+	      app_->changedInternalPath(request.pathInfo());
+	    else
+	      app_->changedInternalPath("");
+	  }
 	}
 
 	if (!signalE) {

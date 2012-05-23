@@ -51,7 +51,7 @@ namespace Wt {
 	if (!element.getProperty(PropertyStyleCursor).empty()
 	    && !wApp->environment().agentIsGecko()
 	    && element.getAttribute("href").empty())
-	  element.setAttribute("href", "#");
+	  element.setAttribute("href", "javascript:void(0);");
       }
 
       virtual DomElementType domElementType() const {

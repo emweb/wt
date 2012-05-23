@@ -341,13 +341,6 @@ this.initAjaxComm = function(url, handler) {
 	}
 
 	s.onerror = onerror;
-/*
-	s.onreadystatechange = function() {
-	  var rs = s.readyState;
-	  if (rs == 'loaded' && !WT.isOpera)
-	    onerror();
-	};
-*/
 
 	var h = document.getElementsByTagName('head')[0];
 	h.appendChild(s);
@@ -1915,6 +1908,7 @@ function dragDrag(e) {
     var amts = null;
 
     ds.dropTarget = null;
+
     while (t) {
       amts = t.getAttribute("amts");
       if ((amts != null) && (amts.indexOf(mimeType) != -1)) {
