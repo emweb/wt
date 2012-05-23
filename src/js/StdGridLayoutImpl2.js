@@ -533,8 +533,10 @@ WT_DECLARE_WT_MEMBER
 		*/
 	       if ((WT.isIE6 && cSize == 0)
 		   || (cSize == measures[TOTAL_MINIMUM_SIZE]
-		       + padding(container, dir)))
+		       + padding(container, dir))) {
+		 debugger;
 		 DC.maxSize = 999999;
+	       }
 	     }
 	   }
 

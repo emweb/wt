@@ -81,8 +81,7 @@ WT_DECLARE_WT_MEMBER
 
    function layoutResize(ignored, w, h) {
      el.style.height = Math.max(0, h) + 'px';
-     if (w > 0)
-       el.style.width = Math.max(0, w) + 'px';
+     el.style.width = Math.max(0, w) + 'px';
 
      self.centerDialog();
    }
@@ -103,7 +102,14 @@ WT_DECLARE_WT_MEMBER
      APP.layouts2.scheduleAdjust();
    };
 
-   el.wtResize = wtResize;
    layoutContainer.wtResize = layoutResize;
    el.wtPosition = this.centerDialog;
+
+   if (el.style.width != '')
+     layoutContainer.style.width = el.offsetWidth + 'px';
+
+   if (el.style.height != '')
+     layoutContainer.style.height = el.offsetHeight + 'px';
+
+   self.centerDialog();
  });

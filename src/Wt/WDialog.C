@@ -118,9 +118,6 @@ WDialog::WDialog(const WString& windowTitle)
 
   saveCoverState(app, app->dialogCover());
 
-  // so that WWidget::resize() calls it; it is set by js: WDialog()
-  setJavaScriptMember(WT_RESIZE_JS, "\"dummy\"");
-
   hide();
 }
 
@@ -165,10 +162,10 @@ void WDialog::render(WFlags<RenderFlag> flags)
     bool centerX = offset(Left).isAuto() && offset(Right).isAuto(),
       centerY = offset(Top).isAuto() && offset(Bottom).isAuto();
 
-    setJavaScriptMember("_a","0;new " WT_CLASS ".WDialog("
-			+ app->javaScriptClass() + "," + jsRef()
-			+ "," + (centerX ? "1" : "0")
-			+ "," + (centerY ? "1" : "0") + ");");
+    doJavaScript("new " WT_CLASS ".WDialog("
+		 + app->javaScriptClass() + "," + jsRef()
+		 + "," + (centerX ? "1" : "0")
+		 + "," + (centerY ? "1" : "0") + ");");
 
     /*
      * When a dialog is shown immediately for a new session, the recentering
