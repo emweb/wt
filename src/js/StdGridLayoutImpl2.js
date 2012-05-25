@@ -28,6 +28,7 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var MINIMUM_SIZE = 1;
    /** @const */ var TOTAL_PREFERRED_SIZE = 2;
    /** @const */ var TOTAL_MINIMUM_SIZE = 3;
+   /** @const */ var TOTAL_MARGIN = 4;
 
    /** @const */ var HORIZONTAL = 0;
    /** @const */ var VERTICAL = 1;
@@ -240,11 +241,6 @@ WT_DECLARE_WT_MEMBER
      var preferredSize = [], minimumSize = [],
        totalPreferredSize = 0, totalMinSize = 0, di, oi;
 
-     /*
-      * Later we might attempt to avoid measuring preferred size
-      * if we are sure not to use it...
-      * // (DC.maxSize > 0) || !DC.initialized;
-      */
      var measurePreferredForStretching = true;
 
      for (di = 0; di < dirCount; ++di) {
@@ -267,10 +263,13 @@ WT_DECLARE_WT_MEMBER
 	   if (!progressive && item.w.style.position != 'absolute') {
 	     item.w.style.position = 'absolute';
 	     item.w.style.visibility = 'hidden';
-	     item.w.style.boxSizing = 'border-box';
-             var cssPrefix = WT.cssPrefix('BoxSizing');
-             if (cssPrefix)
-	       item.w.style[cssPrefix + 'BoxSizing'] = 'border-box';
+
+	     if (!item.w.wtResize) {
+	       item.w.style.boxSizing = 'border-box';
+	       var cssPrefix = WT.cssPrefix('BoxSizing');
+	       if (cssPrefix)
+		 item.w.style[cssPrefix + 'BoxSizing'] = 'border-box';
+	     }
 	   }
 
 	   if (!item.ps)
@@ -281,6 +280,9 @@ WT_DECLARE_WT_MEMBER
 
 	   if (!item.size)
 	     item.size = []; // set size
+
+	   if (!item.psize)
+	     item.psize = []; // set size (incl. margins, like preferred size)
 
 	   if (!item.fs)
 	     item.fs = []; // fixed size (size defined by inline size or CSS)
@@ -335,11 +337,17 @@ WT_DECLARE_WT_MEMBER
 		   var calculated = calcPreferredSize(item.w, dir);
 
 		   /*
-		    * If we've set the size then we cannot trust the
-		    * calculated preferred size: we revert to a previous
-		    * measurement
+		    * If we've set the size then we should not take the
+		    * set size as the preferred size, instead we revert
+		    * to a previous preferred size.
+		    *
+		    * If this is an item that is stretching, then we should
+		    * not remeasure the preferred size since it might confuse
+		    * the user with constant resizing
 		    */
-		   if (!item.set[dir] || calculated != item.size[dir])
+		   if ((typeof item.ps[dir] === 'undefined'
+			|| DC.config[di][STRETCH] <= 0)
+		     && (!item.set[dir] || (calculated != item.psize[dir])))
 		     wPreferred = Math.max(wPreferred, calculated);
 		   else
 		     wPreferred = Math.max(wPreferred, item.ps[dir]);
@@ -423,7 +431,8 @@ WT_DECLARE_WT_MEMBER
 	     preferredSize,
 	     minimumSize,
 	     totalPreferredSize,
-	     totalMinSize
+	     totalMinSize,
+	     totalMargin
 	     ];
 
      /*
@@ -594,8 +603,7 @@ WT_DECLARE_WT_MEMBER
 	    + 'px');
 
      // (3) compute column/row widths
-     var targetSize = measures[MINIMUM_SIZE].slice(),
-       dirCount = DC.config.length,
+     var targetSize = [], dirCount = DC.config.length,
        otherCount = OC.config.length;
 
      if (debug)
@@ -603,89 +611,145 @@ WT_DECLARE_WT_MEMBER
 		   + dir + " ps " + measures[PREFERRED_SIZE]
 		   + " cSize " + cSize);
 
-     /*
-      * Heuristic for nested layout with AlignLeft or AlignTop ?
-      */
-     if (DC.fixedSize.length == 0 && cSize == measures[TOTAL_PREFERRED_SIZE])
-       targetSize = measures[PREFERRED_SIZE];
-     else if (cSize > measures[TOTAL_MINIMUM_SIZE]) {
-       // non-stretchable colums/rows get up to their preferred size
-       // excess space is distributed to stretchable column/rows
-       // fixed size columns/rows get their fixed width
+     if (cSize > measures[TOTAL_MINIMUM_SIZE]) {
+       // (1) fixed size columns/rows get their fixed width
+       // (2) other colums/rows:
+       //   if all columns are not stretchable: make them all stretchable
+       //
+       //   can non-stretchable ones get their preferred size ?
+       //      (assuming stretchables take minimum size)
+       //    -> yes: do so;
+       //       can stretchable ones get their preferred size ?
+       //       -> yes; do so and distribute excess
+       //       -> no: shrink according to their preferred size
+       //              - min size difference
+       //    -> no: shrink non-stretchable ones according to their preferred
+       //           size - min size difference
+       //       set stretchable ones to minimum size
 
-       var totalNonStretch = 0,
-	 totalStretch = 0,
-	 totalFixed = 0,
-	 notFixedCount = 0;
+       /** @const */ var FIXED_SIZE = -1;
+       /** @const */ var HIDDEN = -2;
+       /** @const */ var NON_STRETCHABLES = 0;
+       /** @const */ var STRETCHABLES = 1;
+
+       var toDistribute = cSize - measures[TOTAL_MARGIN];
+
+       var stretch = [];
+       var totalMinimum = [0, 0], totalPreferred = [0, 0],
+	 totalStretch = 0;
+
        for (var di = 0; di < dirCount; ++di) {
 	 if (measures[MINIMUM_SIZE][di] > -1) {
 	   if (typeof DC.fixedSize[di] !== "undefined") {
-	     totalFixed += DC.fixedSize[di];
+	     stretch[di] = FIXED_SIZE;
 	     targetSize[di] = DC.fixedSize[di];
+	     toDistribute -= targetSize[di];
 	   } else {
-	     ++notFixedCount;
-	     if (DC.config[di][STRETCH] <= 0)
-	       totalNonStretch += measures[PREFERRED_SIZE][di]
-		 - measures[MINIMUM_SIZE][di];
-	     else
-	       totalStretch += DC.config[di][STRETCH];
+	     var category;
+	     if (DC.config[di][STRETCH] > 0) {
+	       category = STRETCHABLES;
+	       stretch[di] = DC.config[di][STRETCH];
+	       totalStretch += stretch[di];
+	     } else {
+	       category = NON_STRETCHABLES;
+	       stretch[di] = 0;
+	     }
+
+	     totalMinimum[category] += measures[MINIMUM_SIZE][di];
+	     totalPreferred[category] += measures[PREFERRED_SIZE][di];
+
+	     targetSize[di] = measures[PREFERRED_SIZE][di];
 	   }
-	 }
+	 } else
+	   stretch[di] = HIDDEN;
        }
 
-       var toDistribute = cSize - measures[TOTAL_MINIMUM_SIZE] - totalFixed;
+       if (totalStretch == 0) {
+	 for (var di = 0; di < dirCount; ++di)
+	   if (stretch[di] == 0) {
+	     stretch[di] = 1;
+	     ++totalStretch;
+	   }
 
-       // if no column has stretch (and we aren't simply using preferred
-       // sizes throughout), make them all (but the fixed size ones) stretch
-       if (DC.fitSize && !noStretch && (totalStretch == 0))
-	 totalNonStretch = 0;
+	 totalPreferred[STRETCHABLES] = totalPreferred[NON_STRETCHABLES];
+	 totalMinimum[STRETCHABLES] = totalMinimum[NON_STRETCHABLES];
 
-       if (totalNonStretch) {
-	 var nsDistribute;
-	 if (toDistribute > totalNonStretch)
-	   nsDistribute = totalNonStretch;
-	 else
-	   nsDistribute = toDistribute;
+	 totalPreferred[NON_STRETCHABLES] = 0;
+	 totalMinimum[NON_STRETCHABLES] = 0;
+       }
 
-	 var nsFactor = nsDistribute / totalNonStretch;
+       if (toDistribute >
+	   totalPreferred[NON_STRETCHABLES] + totalMinimum[STRETCHABLES]) {
+	 toDistribute -= totalPreferred[NON_STRETCHABLES];
 
-	 for (di = 0; di < dirCount; ++di) {
-	   if (measures[MINIMUM_SIZE][di] > -1) {
-	     if (typeof DC.fixedSize[di] === "undefined"
-		 && DC.config[di][STRETCH] <= 0) {
+	 if (toDistribute > totalPreferred[STRETCHABLES]) {
+	   if (DC.fitSize) {
+	     // enlarge stretchables according to their stretch factor
+	     toDistribute -= totalPreferred[STRETCHABLES];
+
+	     var factor = toDistribute / totalStretch;
+
+	     for (di = 0; di < dirCount; ++di) {
+	       if (stretch[di] > 0)
+		 targetSize[di] += Math.round(stretch[di] * factor);
+	     }
+	   }
+	 } else {
+	   // shrink stretchables up to their minimum size
+
+	   var category = STRETCHABLES;
+
+	   if (toDistribute < totalMinimum[category])
+	     toDistribute = totalMinimum[category];
+
+	   var factor;
+
+	   if (totalPreferred[category] - totalMinimum[category] > 0)
+	     factor = (toDistribute - totalMinimum[category])
+	       / (totalPreferred[category] - totalMinimum[category]);
+	   else
+	     factor = 0;
+
+	   for (di = 0; di < dirCount; ++di) {
+	     if (stretch[di] > 0) {
 	       var s = measures[PREFERRED_SIZE][di]
 		 - measures[MINIMUM_SIZE][di];
-	       targetSize[di] += nsFactor * s;
+	       targetSize[di] = measures[MINIMUM_SIZE][di]
+		 + Math.round(s * factor);
 	     }
 	   }
 	 }
+       } else {
+	 for (var di = 0; di < dirCount; ++di)
+	   if (stretch[di] > 0)
+	     targetSize[di] = measures[MINIMUM_SIZE][di];
+	 toDistribute -= totalMinimum[STRETCHABLES];
 
-	 toDistribute -= nsDistribute;
-       }
+	 // shrink non-stretchables up to their minimum size
+	 var category = NON_STRETCHABLES;
 
-       if (DC.fitSize && toDistribute > 0) {
-	 var ts = totalStretch;
-	 if (totalStretch == 0)
-	   ts = notFixedCount;
+	 if (toDistribute < totalMinimum[category])
+	   toDistribute = totalMinimum[category];
 
-	 var factor = toDistribute / ts;
+	 var factor;
+
+	 if (totalPreferred[category] - totalMinimum[category] > 0)
+	   factor = (toDistribute - totalMinimum[category])
+	     / (totalPreferred[category] - totalMinimum[category]);
+	 else
+	   factor = 0;
 
 	 for (di = 0; di < dirCount; ++di) {
-	   if (measures[MINIMUM_SIZE][di] > -1) {
-	     if (typeof DC.fixedSize[di] === "undefined") {
-	       var stretch;
-	       if (totalStretch == 0)
-		 stretch = 1;
-	       else
-		 stretch = DC.config[di][STRETCH];
-
-	       if (stretch > 0)
-		 targetSize[di] += stretch * factor;
-	     }
+	   if (stretch[di] == 0) {
+	     var s = measures[PREFERRED_SIZE][di]
+	       - measures[MINIMUM_SIZE][di];
+	     targetSize[di] = measures[MINIMUM_SIZE][di]
+	       + Math.round(s * factor);
 	   }
 	 }
        }
-     }
+     } else
+       targetSize = measures[MINIMUM_SIZE];
 
      DC.sizes = targetSize;
 
@@ -793,6 +857,7 @@ WT_DECLARE_WT_MEMBER
 
 	       off = left;
 	       item.size[dir] = tsm;
+	       item.psize[dir] = ts;
 	     } else {
 	       switch (alignment) {
 	       case ALIGN_LEFT: off = left; break;
@@ -809,6 +874,7 @@ WT_DECLARE_WT_MEMBER
 	       }
 
 	       item.size[dir] = ps;
+	       item.psize[dir] = ps;
 	     }
 
 	     if (!progressive)

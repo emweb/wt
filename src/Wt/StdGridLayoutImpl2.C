@@ -118,11 +118,7 @@ DomElement *StdGridLayoutImpl2::createElement(WLayoutItem *item,
 {
   DomElement *c = getImpl(item)->createDomElement(true, true, app); 
   c->setProperty(PropertyStylePosition, "absolute");
-
-  // FIXME IE9 does border-box perhaps ?
   c->setProperty(PropertyStyleVisibility, "hidden");
-  if (!app->environment().agentIsIE())
-    c->setProperty(PropertyStyleBoxSizing, "border-box");
 
   return c;
 }

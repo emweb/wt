@@ -518,6 +518,7 @@ private:
 
   template <class C> friend class MetaDbo;
   template <class C> friend class collection;
+  template <class C> friend class weak_ptr;
   template <class C, typename S> friend class Query;
   template <class C> friend class Impl::QueryBase;
   template <class C, typename T> friend struct Impl::LoadHelper;

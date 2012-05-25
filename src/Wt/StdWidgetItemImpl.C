@@ -166,6 +166,11 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
        || d->type() == DomElement_INPUT || d->type() == DomElement_BUTTON)) {
     d->removeProperty(PropertyStyleDisplay);
   }
+
+  // FIXME IE9 does border-box perhaps ?
+  if (!app->environment().agentIsIE() && 
+      w->javaScriptMember(WWidget::WT_RESIZE_JS).empty())
+    d->setProperty(PropertyStyleBoxSizing, "border-box");
 #endif
 
   return result;
