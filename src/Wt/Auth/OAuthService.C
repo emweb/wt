@@ -178,8 +178,6 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
      << ", " << service.popupWidth()
      << ", " << service.popupHeight() << ");"; 
 
-  redirected_.connect(this, &OAuthProcess::onOAuthDone);
-
   implementJavaScript(&OAuthProcess::startAuthorize, js.str());
   implementJavaScript(&OAuthProcess::startAuthenticate, js.str());
 #endif
@@ -268,8 +266,7 @@ void OAuthProcess::handleRedirectPath(const std::string& internalPath)
 	}
       }
 
-      if (!error_.empty())
-	onOAuthDone();
+      onOAuthDone();
     }
   }
 }
@@ -290,7 +287,7 @@ void OAuthProcess::onOAuthDone()
 
   authorized().emit(success ? token_ : OAuthAccessToken::Invalid);
 
-  if (authenticate_) {
+  if (success && authenticate_) {
     authenticate_ = false;
     getIdentity(token_);
   }
@@ -334,8 +331,10 @@ void OAuthProcess::handleToken(boost::system::error_code err,
 {
   if (!err)
     doParseTokenResponse(response);
-  else
+  else {
+    LOG_ERROR("handleToken(): " << err.message());
     setError(WString::fromUTF8(err.message()));
+  }
 
   WApplication *app = WApplication::instance();
 
@@ -434,7 +433,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 #endif
 
   if (!ok) {
-    LOG_ERROR(pe.what());
+    LOG_ERROR("parseJsonToken(): " << pe.what());
     throw TokenError(ERROR_MSG("badjson"));
   } else {
     if (response.status() == 200) {

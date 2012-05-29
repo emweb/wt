@@ -82,12 +82,14 @@ private:
 				      email, emailVerified));
       }
     } else {
-      setError(ERROR_MSG("badresponse"));
-      
-      if (!err) {
+      if (err)
+	LOG_ERROR("handleMe(): " << err.message());
+      else {
 	LOG_ERROR("user info request returned: " << response.status());
 	LOG_ERROR("with: " << response.body());
       }
+
+      setError(ERROR_MSG("badresponse"));
 
       authenticated().emit(Identity::Invalid);
     }

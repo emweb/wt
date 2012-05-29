@@ -1194,7 +1194,7 @@ std::string WApplication::internalSubPath(const std::string& path) const
 
   if (!pathMatches(current, path)) {
     LOG_WARN("internalPath(): path '"
-	     << path << "' not within current path '" << newInternalPath_
+	     << path << "' not within current path '" << internalPath()
 	     << "'");
     return std::string();
   }
@@ -1204,7 +1204,7 @@ std::string WApplication::internalSubPath(const std::string& path) const
 
 std::string WApplication::internalPath() const
 {
-  return newInternalPath_;
+  return Utils::prepend(newInternalPath_, '/');
 }
 
 void WApplication::setInternalPath(const std::string& path, bool emitChange)
@@ -1226,12 +1226,9 @@ void WApplication::changeInternalPath(const std::string& aPath)
 {
   std::string path = Utils::prepend(aPath, '/');
 
-  // internal paths start with a '/'; other anchor changes are not reacted on
-  if (path.empty() || path[0] == '/') {
-    if (path != newInternalPath_) {
-      newInternalPath_ = path;
-      internalPathChanged_.emit(newInternalPath_);
-    }
+  if (path != internalPath()) {
+    newInternalPath_ = path;
+    internalPathChanged_.emit(newInternalPath_);
   }
 }
 

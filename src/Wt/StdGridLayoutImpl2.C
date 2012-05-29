@@ -391,15 +391,19 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
 	  js << "span: [" << item.colSpan_ << "," << item.rowSpan_ << "],";
 
 	if (item.alignment_) {
-	  unsigned align = hAlign;
+	  unsigned align = 0;
 
-	  if (align == AlignJustify)
-	    align = 0;
+	  if (hAlign != 0) switch (hAlign) {
+	    case AlignLeft: align |= 0x1; break;
+	    case AlignRight: align |= 0x2; break;
+	    case AlignCenter: align |= 0x4; break;
+	    default: break;
+	    }
 
 	  if (vAlign != 0) switch (vAlign) {
-	    case AlignTop: align |= (AlignLeft << 8); break;
-	    case AlignMiddle: align |= (AlignCenter << 8); break;
-	    case AlignBottom: align |= (AlignRight << 8); break;
+	    case AlignTop: align |= 0x10; break;
+	    case AlignMiddle: align |= 0x20; break;
+	    case AlignBottom: align |= 0x40; break;
 	    default: break;
 	    }
 
@@ -414,6 +418,14 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
   }
 
   js << "]}";
+}
+
+int StdGridLayoutImpl2::pixelSize(const WLength& size)
+{
+  if (size.unit() == WLength::Percentage)
+    return 0;
+  else
+    return (int)size.toPixels();
 }
 
 /*
@@ -446,8 +458,8 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
     margin[2] = layout()->getContentsMargin(Bottom);
 #endif // WT_TARGET_JAVA
 
-    maxWidth = (int)container()->maximumWidth().toPixels();
-    maxHeight = (int)container()->maximumHeight().toPixels();
+    maxWidth = pixelSize(container()->maximumWidth());
+    maxHeight = pixelSize(container()->maximumHeight());
   }
 
   WStringStream js;

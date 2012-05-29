@@ -58,6 +58,7 @@ private:
   bool hasItem(int row, int col) const;
   int minimumHeightForRow(int row) const;
   int minimumWidthForColumn(int column) const;
+  static int pixelSize(const WLength& size);
 
   void streamConfig(WStringStream& js, WApplication *app);
   DomElement *createElement(WLayoutItem *item, WApplication *app);

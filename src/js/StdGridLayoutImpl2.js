@@ -84,7 +84,7 @@ WT_DECLARE_WT_MEMBER
 	 Right: 'Bottom',
 	 Size: 'Height',
 	 size: 'height',
-	 alignBits: 8,
+	 alignBits: 4,
 	 getItem: function (ri, ci) {
 	   return config.items[ri * DirConfig[HORIZONTAL].config.length + ci];
 	 },
@@ -221,6 +221,14 @@ WT_DECLARE_WT_MEMBER
      APP.layouts2.scheduleAdjust();
    };
 
+   function setCss(widget, property, value) {
+     if (widget.style[property] !== value) {
+       widget.style[property] = value;
+       return true;
+     } else
+       return false;
+   }
+
    function measure(dir, widget, container)
    {
      var DC = DirConfig[dir],
@@ -257,6 +265,7 @@ WT_DECLARE_WT_MEMBER
 	     (function() { var citem = item;
 	       $w.find("img").load(function() { setItemDirty(citem); });
 	     })();
+
 	     item.w.style.left = item.w.style.top = NA_px;
 	   }
 
@@ -363,9 +372,6 @@ WT_DECLARE_WT_MEMBER
 	       if (!item.span || item.span[dir] == 1)
 		 if (wPreferred > dPreferred)
 		   dPreferred = wPreferred;
-
-	       if (dir == VERTICAL)
-		 item.dirty = false;
 	     } else {
 	       if (!item.span || item.span[dir] == 1) {
 		 if (item.ps[dir] > dPreferred)
@@ -458,11 +464,9 @@ WT_DECLARE_WT_MEMBER
 	*  -- FIXME IE6
 	*/
        var w = DC.measures[TOTAL_MINIMUM_SIZE] + 'px';
-       if (container.style['min' + DC.Size] != w) {
-	 container.style['min' + DC.Size] = w;
+       if (setCss(container, 'min' + DC.Size, w))
 	 if (self.ancestor)
 	   self.ancestor.setContentsDirty(container);
-       }
      }
 
      if (container) {
@@ -470,7 +474,7 @@ WT_DECLARE_WT_MEMBER
 	 /*
 	  * A table will otherwise not provide any room for this 0-width cell
 	  */
-	 container.style[DC.size] = DC.measures[TOTAL_PREFERRED_SIZE] + 'px';
+	 setCss(container, DC.size, DC.measures[TOTAL_PREFERRED_SIZE] + 'px');
        }
      }
    }
@@ -563,7 +567,9 @@ WT_DECLARE_WT_MEMBER
      if (DC.maxSize) {
        // (2) adjust container width/height
        if (measures[TOTAL_PREFERRED_SIZE] < DC.maxSize) {
-	 container.style[DC.size] = measures[TOTAL_PREFERRED_SIZE] + 'px';
+	 setCss(container, DC.size,
+		(measures[TOTAL_PREFERRED_SIZE] + sizePadding(container, dir))
+		+ 'px');
 	 cSize = measures[TOTAL_PREFERRED_SIZE];
 	 cPaddedSize = true;
 	 noStretch = true;
@@ -579,7 +585,7 @@ WT_DECLARE_WT_MEMBER
        var w = OC.cSize,
 	   h = DC.cSize;
        // (2) use wtResize on container if necessary
-       if (container.wtResize)
+       if (container && container.wtResize)
 	 container.wtResize(container, w, h);
      }
 
@@ -589,6 +595,11 @@ WT_DECLARE_WT_MEMBER
        else
 	 cSize -= sizePadding(container, dir);
      }
+
+     if (debug)
+       console.log("apply " + id + ': '
+		   + dir + " ps " + measures[PREFERRED_SIZE]
+		   + " cSize " + cSize);
 
      if (container && cSize <= 0)
        return;
@@ -605,11 +616,6 @@ WT_DECLARE_WT_MEMBER
      // (3) compute column/row widths
      var targetSize = [], dirCount = DC.config.length,
        otherCount = OC.config.length;
-
-     if (debug)
-       console.log("apply " + id + ': '
-		   + dir + " ps " + measures[PREFERRED_SIZE]
-		   + " cSize " + cSize);
 
      if (cSize > measures[TOTAL_MINIMUM_SIZE]) {
        // (1) fixed size columns/rows get their fixed width
@@ -782,7 +788,7 @@ WT_DECLARE_WT_MEMBER
 	   }
 
 	   left += RESIZE_HANDLE_MARGIN;
-	   handle.style[DC.left] = left + 'px';
+	   setCss(handle, DC.left, left + 'px');
 	   left += RESIZE_HANDLE_MARGIN;
 	 }
 
@@ -846,11 +852,13 @@ WT_DECLARE_WT_MEMBER
 		 setSize = true;
 
 	       if (setSize || ts != ps || item.layout) {
-		 w.style[DC.size] = tsm + 'px';
+		 if (setCss(w, DC.size, tsm + 'px'))
+		   item.dirty = true;
 		 item.set[dir] = true;
 	       } else {
-		 if (!item.fs[dir] && w.style[DC.size] != '') {
-		   w.style[DC.size] = '';
+		 if (!item.fs[dir]) {
+		   if (setCss(w, DC.size, ''))
+		     item.dirty = true;
 		   item.set[dir] = false;
 		 }
 	       }
@@ -866,10 +874,12 @@ WT_DECLARE_WT_MEMBER
 	       }
 
 	       if (item.layout) {
-		 w.style[DC.size] = ps + 'px';
+		 if (setCss(w, DC.size, ps + 'px'))
+		   item.dirty = true;
 		 item.set[dir] = true;
 	       } else if (ts >= ps && item.set[dir]) {
-		 w.style[DC.size] = '';
+		 if (setCss(w, DC.size, ps + ''))
+		   item.dirty = true;
 		 item.set[dir] = false;
 	       }
 
@@ -878,18 +888,21 @@ WT_DECLARE_WT_MEMBER
 	     }
 
 	     if (!progressive)
-	       w.style[DC.left] = off + 'px';
+	       setCss(w, DC.left, off + 'px');
 	     else
 	       if (thisResized) {
-		 w.style[DC.left] = (RESIZE_HANDLE_MARGIN * 2) + 'px';
+		 setCss(w, DC.left, (RESIZE_HANDLE_MARGIN * 2) + 'px');
 		 var pc = WT.css(w, 'position');
 		 if (pc !== 'absolute')
 		   w.style.position = 'relative';
 	       } else
-		 w.style[DC.left] = '0px';
+		 setCss(w, DC.left, '0px');
 
-	     if (dir == VERTICAL && w.wtResize) {
-	       w.wtResize(w, item.size[HORIZONTAL], item.size[VERTICAL]);
+	     if (dir == VERTICAL) {
+	       if (w.wtResize)
+		 w.wtResize(w, item.size[HORIZONTAL], item.size[VERTICAL]);
+
+	       item.dirty = false;
 	     }
 	   }
 	 }
@@ -915,9 +928,9 @@ WT_DECLARE_WT_MEMBER
 
        if (item) {
 	 if (item.set[HORIZONTAL])
-	   item.w.style[DirConfig[HORIZONTAL].size] = '';
+	   setCss(item.w, DirConfig[HORIZONTAL].size, '');
 	 if (item.set[VERTICAL])
-	   item.w.style[DirConfig[VERTICAL].size] = '';
+	   setCss(item.w, DirConfig[VERTICAL].size, '');
 
 	 if (item.layout) {
 	   self.setChildSize(item.w, HORIZONTAL, item.ps[HORIZONTAL]);

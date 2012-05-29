@@ -340,6 +340,7 @@ private:
 			    boost::asio::placeholders::error,
 			    boost::asio::placeholders::bytes_transferred));
     } else if (err != boost::asio::error::eof
+	       && err != boost::asio::error::shut_down
 	       && err.value() != 335544539) {
       err_ = err;
       complete();
