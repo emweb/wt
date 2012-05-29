@@ -310,7 +310,7 @@ public:
   void setAutoHide(bool enabled, int autoHideDelay = 0);
 
 protected:
-  virtual bool containsExposed(WWidget *child) const;
+  virtual bool isExposed(WWidget *widget);
 
 private:
   WTemplate      *impl_;

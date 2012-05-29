@@ -112,8 +112,10 @@ WT_DECLARE_WT_MEMBER
        = wt_tv_contents.style.width
        = cwidth;
 
-     if (headerColumn)
+     if (headerColumn) {
        headerColumnsContainer.style.width = cwidth;
+       APP.layouts2.setDirty(headerColumnsContainer.parentNode);
+     }
 
      header.style.width = (newWidth + 1) + 'px';
      column.style.width = (newWidth + 7) + 'px';

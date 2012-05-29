@@ -15,10 +15,10 @@ LOGGER("WBorderLayout");
 WBorderLayout::WBorderLayout(WWidget *parent)
   : WLayout()
 {
-  grid_.columns_.insert(grid_.columns_.begin(), 3, Impl::Grid::Column(0));
+  grid_.columns_.insert(grid_.columns_.begin(), 3, Impl::Grid::Section(0));
   grid_.columns_[1].stretch_ = 1;
 
-  grid_.rows_.insert(grid_.rows_.begin(), 3, Impl::Grid::Row(0));
+  grid_.rows_.insert(grid_.rows_.begin(), 3, Impl::Grid::Section(0));
   grid_.rows_[1].stretch_ = 1;
 
 #ifndef WT_TARGET_JAVA

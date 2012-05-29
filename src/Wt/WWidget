@@ -1033,7 +1033,7 @@ protected:
    */
   virtual void propagateSetEnabled(bool enabled) = 0;
 
-  virtual bool containsExposed(WWidget *child) const;
+  virtual bool isExposed(WWidget *widget);
 
   void getDrop(const std::string sourceId, const std::string mimeType,
 	       WMouseEvent event);

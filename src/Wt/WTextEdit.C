@@ -138,27 +138,52 @@ void WTextEdit::initTinyMCE()
     app->styleSheet().addRule(".mceEditor", "height: 100%;");
 
     // Adjust the height: this can only be done by adjusting the iframe height.
-    app->doJavaScript
-      (WT_CLASS ".tinyMCEResize=function(e,w,h){"
-       """e.style.height = (h - 2) + 'px';"
-       ""
-       """var iframe = " WT_CLASS ".getElement(e.id + '_ifr');"
-       """if (iframe) {"
-       ""  "var row=iframe.parentNode.parentNode,"
-       ""      "tbl=row.parentNode.parentNode,"
-       ""      "i, il;"
-       ""
-       // deduct height of toolbars
-       ""  "for (i=0, il=tbl.rows.length; i<il; i++) {"
-       ""    "if (tbl.rows[i] != row)"
-       ""      "h -= Math.max(28, tbl.rows[i].offsetHeight);"
-       ""  "}"
-       ""
-       ""  "h = (h - 2) + 'px';"
-       ""
-       ""  "if (iframe.style.height != h) iframe.style.height=h;"
-       """}"
-       "};", false);
+    WStringStream js;
+
+    js << WT_CLASS ".tinyMCEResize=function(e,w,h){"
+      """e.style.height = (h - 2) + 'px';"
+      ""
+      """var iframe = " WT_CLASS ".getElement(e.id + '_ifr');"
+      """if (iframe) {"
+      ""  "var row=iframe.parentNode.parentNode,"
+      ""      "tbl=row.parentNode.parentNode,"
+      ""      "i, il, WT = " WT_CLASS ";"
+      ""
+      ""   "var mx = 0, my = 0;"
+      ""   "if (WT.isIElt9) {"
+      ""     "mx = WT.px(e, 'marginLeft') + WT.px(e, 'marginRight');"
+      ""     "my = WT.px(e, 'marginTop') + WT.px(e, 'marginBottom');"
+      ""     "if (!WT.boxSizing(e)) {"
+      ""       "mx += WT.px(e, 'borderLeftWidth') +"
+      ""             "WT.px(e, 'borderRightWidth') +"
+      "" 	     "WT.px(e, 'paddingLeft') +"
+      ""	     "WT.px(e, 'paddingRight');"
+      ""       "my += WT.px(e, 'borderTopWidth') +"
+      ""             "WT.px(e, 'borderBottomWidth') +"
+      ""   	     "WT.px(e, 'paddingTop') +"
+      ""	     "WT.px(e, 'paddingBottom');"
+      ""    "}"
+      ""  "}"
+      ""
+      ""  "tbl.style.position = 'absolute';"
+      ""  "tbl.style.left = e.style.left;"
+      ""  "tbl.style.top = e.style.top;"
+      ""  "tbl.style.width = (w + mx) + 'px';"
+      ""  "tbl.style.height = (h + my) + 'px';"
+      ""
+      // deduct height of toolbars
+      ""  "for (i=0, il=tbl.rows.length; i<il; i++) {"
+      ""    "if (tbl.rows[i] != row)"
+      ""      "h -= Math.max(28, tbl.rows[i].offsetHeight);"
+      ""  "}"
+      ""
+      ""  "h = (h + my - 2) + 'px';"
+      ""
+      ""  "if (iframe.style.height != h) iframe.style.height=h;"
+      """}"
+      "};";
+
+    app->doJavaScript(js.str(), false);
   }
 }
 

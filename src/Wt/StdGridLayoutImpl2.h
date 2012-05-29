@@ -7,6 +7,7 @@
 #ifndef STD_GRID_LAYOUT_IMPL2_H_
 #define STD_GRID_LAYOUT_IMPL2_H_
 
+#include <Wt/WGridLayout>
 #include "StdLayoutImpl.h"
 
 namespace Wt {
@@ -14,10 +15,6 @@ namespace Wt {
   class WApplication;
   class WLayout;
   class WStringStream;
-
-  namespace Impl {
-    struct Grid;
-  }
 
 class StdGridLayoutImpl2 : public StdLayoutImpl
 {
@@ -59,8 +56,10 @@ private:
   int minimumHeightForRow(int row) const;
   int minimumWidthForColumn(int column) const;
   static int pixelSize(const WLength& size);
-  static std::string sizeConfig(const WLength& size);
 
+  void streamConfig(WStringStream& js,
+		    const std::vector<Impl::Grid::Section>& sections,
+		    bool rows, WApplication *app);
   void streamConfig(WStringStream& js, WApplication *app);
   DomElement *createElement(WLayoutItem *item, WApplication *app);
 };

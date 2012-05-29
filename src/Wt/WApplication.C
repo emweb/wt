@@ -506,7 +506,7 @@ bool WApplication::isExposed(WWidget *w) const
   WWidget *exposedOnly = exposedOnly_.empty() ? 0 : exposedOnly_.back();
 
   if (exposedOnly)
-    return exposedOnly->containsExposed(w);
+    return exposedOnly->isExposed(w);
   else {
     WWidget *p = w->adam();
     return (p == domRoot_ || p == domRoot2_);

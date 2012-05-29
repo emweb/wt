@@ -337,42 +337,63 @@ void StdGridLayoutImpl2::setHint(const std::string& name,
   LOG_ERROR("unrecognized hint '" << name << "'");
 }
 
+void StdGridLayoutImpl2
+::streamConfig(WStringStream& js,
+	       const std::vector<Impl::Grid::Section>& sections,
+	       bool rows, WApplication *app)
+{
+  js << "[";
+
+  for (unsigned i = 0; i < sections.size(); ++i) {
+    if (i != 0)
+      js << ",";
+
+    js << "[" << sections[i].stretch_ << ",";
+
+    if (sections[i].resizable_) {
+      SizeHandle::loadJavaScript(app);
+
+      js << "[";
+
+      const WLength& size = sections[i].initialSize_;
+
+      if (size.isAuto())
+	js << "-1";
+      else if (size.unit() == WLength::Percentage)
+	js << size.value() << ",1";
+      else
+	js << size.toPixels();
+
+      js << "],";
+    } else
+      js << "0,";
+
+    if (rows)
+      js << minimumHeightForRow(i);
+    else
+      js << minimumWidthForColumn(i);
+
+    js << "]";
+
+  }
+
+  js << "]";
+}
+
 void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
 {
+  js << "{ rows:";
+
+  streamConfig(js, grid_.rows_, true, app);
+
+  js << ", cols:";
+
+  streamConfig(js, grid_.columns_, false, app);
+
+  js << ", items: [";
+
   const unsigned colCount = grid_.columns_.size();
   const unsigned rowCount = grid_.rows_.size();
-
-  js << "{ rows: [";
-
-  for (unsigned i = 0; i < rowCount; ++i) {
-    if (i != 0)
-      js << ",";
-
-    js << "[" << grid_.rows_[i].stretch_ << ", ["
-       << (grid_.rows_[i].resizable_ ? 1 : 0)
-       << sizeConfig(grid_.rows_[i].initialSize_) << "],"
-       << minimumHeightForRow(i) << "]";
-
-    if (grid_.rows_[i].resizable_)
-      SizeHandle::loadJavaScript(app);
-  }
-
-  js << "], cols: [";
-
-  for (unsigned i = 0; i < colCount; ++i) {
-    if (i != 0)
-      js << ",";
-
-    js << "[" << grid_.columns_[i].stretch_ << ", ["
-       << (grid_.columns_[i].resizable_ ? 1 : 0)
-       << sizeConfig(grid_.columns_[i].initialSize_) << "],"
-       << minimumWidthForColumn(i) << "]";
-
-    if (grid_.columns_[i].resizable_)
-      SizeHandle::loadJavaScript(app);
-  }
-
-  js << "], items: [";
 
   for (unsigned row = 0; row < rowCount; ++row) {
     for (unsigned col = 0; col < colCount; ++col) {
@@ -428,20 +449,6 @@ int StdGridLayoutImpl2::pixelSize(const WLength& size)
     return 0;
   else
     return (int)size.toPixels();
-}
-
-std::string StdGridLayoutImpl2::sizeConfig(const WLength& size)
-{
-  WStringStream conf;
-
-  if (!size.isAuto()) {
-    if (size.unit() == WLength::Percentage)
-      conf << "," << size.value() << ",1";
-    else
-      conf << "," << size.toPixels();
-  }
-
-  return conf.str();
 }
 
 /*

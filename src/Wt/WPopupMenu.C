@@ -292,9 +292,9 @@ void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
     autoHideDelay_ = -1;
 }
 
-bool WPopupMenu::containsExposed(WWidget *w) const
+bool WPopupMenu::isExposed(WWidget *w)
 {
-  if (WCompositeWidget::containsExposed(w))
+  if (WCompositeWidget::isExposed(w))
     return true;
 
   if (w == WApplication::instance()->root())
@@ -304,11 +304,17 @@ bool WPopupMenu::containsExposed(WWidget *w) const
   for (int i = 0; i < c->count(); ++i) {
     WPopupMenuItem *item = dynamic_cast<WPopupMenuItem *>(c->widget(i));
     if (item->popupMenu())
-      if (item->popupMenu()->containsExposed(w))
+      if (item->popupMenu()->isExposed(w))
 	return true;
   }
 
-  return false;
+  // Signal outside of the menu: a top level menu will simply close
+  // and let it be handled.
+  if (!parentItem_) {
+    done();
+    return true;
+  } else
+    return false;
 }
 
 }

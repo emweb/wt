@@ -11,12 +11,7 @@ namespace Wt {
 
   namespace Impl {
 
-Grid::Row::Row(int stretch)
-  : stretch_(stretch),
-    resizable_(false)
-{ }
-
-Grid::Column::Column(int stretch)
+Grid::Section::Section(int stretch)
   : stretch_(stretch),
     resizable_(false)
 { }
@@ -203,10 +198,12 @@ int WGridLayout::rowStretch(int row) const
   return grid_.rows_[row].stretch_;
 }
 
-void WGridLayout::setRowResizable(int row, bool enabled)
+void WGridLayout::setRowResizable(int row, bool enabled,
+				  const WLength& initialSize)
 {
   expand(row, 0, 1, 0);
   grid_.rows_[row].resizable_ = enabled;
+  grid_.rows_[row].initialSize_ = initialSize;
 
   update();
 }
@@ -216,10 +213,12 @@ bool WGridLayout::rowIsResizable(int row) const
   return grid_.rows_[row].resizable_;
 }
 
-void WGridLayout::setColumnResizable(int column, bool enabled)
+void WGridLayout::setColumnResizable(int column, bool enabled,
+				     const WLength& initialSize)
 {
   expand(0, column, 0, 1);
   grid_.columns_[column].resizable_ = enabled;
+  grid_.columns_[column].initialSize_ = initialSize;
 
   update();
 }
@@ -242,7 +241,7 @@ void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)
       grid_.items_[a_row].insert(grid_.items_[a_row].end(), extraColumns,
 				 Impl::Grid::Item());
     grid_.columns_.insert(grid_.columns_.end(), extraColumns,
-			  Impl::Grid::Column());
+			  Impl::Grid::Section());
   }
 
   if (extraRows > 0) {
@@ -258,7 +257,7 @@ void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)
       items.insert(items.end(), newColumnCount, Impl::Grid::Item());
     }
 #endif // WT_TARGET_JAVA
-    grid_.rows_.insert(grid_.rows_.end(), extraRows, Impl::Grid::Row());
+    grid_.rows_.insert(grid_.rows_.end(), extraRows, Impl::Grid::Section());
   }
 }
 

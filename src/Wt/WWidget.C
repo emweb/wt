@@ -470,7 +470,7 @@ bool WWidget::hasParent() const
     return WObject::hasParent();
 }
 
-bool WWidget::containsExposed(WWidget *w) const
+bool WWidget::isExposed(WWidget *w)
 {
   if (w == this)
     return true;

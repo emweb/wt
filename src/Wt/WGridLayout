@@ -19,20 +19,12 @@ namespace Wt {
 struct Grid {
   int horizontalSpacing_, verticalSpacing_;
 
-  struct Row {
+  struct Section {
     int stretch_;
     bool resizable_;
     WLength initialSize_;
 
-    Row(int stretch = 0);
-  };
-
-  struct Column {
-    int stretch_;
-    bool resizable_;
-    WLength initialSize_;
-
-    Column(int stretch = 0);
+    Section(int stretch = 0);
   };
 
   struct Item {
@@ -45,8 +37,8 @@ struct Grid {
     Item(WLayoutItem *item = 0, WFlags<AlignmentFlag> alignment = 0);
   };
 
-  std::vector<Row>    rows_;
-  std::vector<Column> columns_;
+  std::vector<Section> rows_;
+  std::vector<Section> columns_;
   std::vector<std::vector<Item> > items_; // [row][column]
 
   Grid();
@@ -355,7 +347,8 @@ public:
    *
    * The default value is <i>false</i>.
    */
-  void setColumnResizable(int column, bool enabled = true);
+  void setColumnResizable(int column, bool enabled = true,
+			  const WLength& initialSize = WLength::Auto);
 
   /*! \brief Returns whether the user may drag a particular column border.
    *
@@ -374,7 +367,8 @@ public:
    *
    * The default value is <i>false</i>.
    */
-  void setRowResizable(int row, bool enabled = true);
+  void setRowResizable(int row, bool enabled = true,
+		       const WLength& initialSize = WLength::Auto);
 
   /*! \brief Returns whether the user may drag a particular row border.
    *

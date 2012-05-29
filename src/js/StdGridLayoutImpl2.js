@@ -20,6 +20,9 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var RESIZABLE = 1;
    /** @const */ var MIN_SIZE = 2;
 
+   /** @const */ var RS_INITIAL_SIZE = 0;
+   /** @const */ var RS_PCT = 1;
+
    /** @const */ var SPACING = 0;
    /** @const */ var MARGIN_LEFT = 1;
    /** @const */ var MARGIN_RIGHT = 2;
@@ -268,6 +271,9 @@ WT_DECLARE_WT_MEMBER
 	     })();
 
 	     item.w.style.left = item.w.style.top = NA_px;
+
+	     var mx = margin(item.w, HORIZONTAL), my = margin(item.w, VERTICAL);
+	     item.m = [mx, my];
 	   }
 
 	   if (!progressive && item.w.style.position != 'absolute') {
@@ -386,7 +392,9 @@ WT_DECLARE_WT_MEMBER
 	       console.log(" ->" + item.id + ': ' + item.ps[0] + ","
 			   + item.ps[1]);
 
-	     if (item.w.style.display !== 'none')
+	     // XXX second condition is a hack for WTextEdit
+	     if (item.w.style.display !== 'none'
+		 || (WT.hasTag(item.wt, 'TEXTAREA') && item.w.wtResize))
 	       allHidden = false;
 	   }
 	 }
@@ -421,7 +429,7 @@ WT_DECLARE_WT_MEMBER
 	     totalMargin += RESIZE_HANDLE_MARGIN * 2;
 	 }
 
-	 rh = DC.config[di][RESIZABLE][0];
+	 rh = DC.config[di][RESIZABLE] !== 0;
        }
      }
 
@@ -563,8 +571,6 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     DC.initialized = true;
-
      if (DC.maxSize) {
        // (2) adjust container width/height
        if (measures[TOTAL_PREFERRED_SIZE] < DC.maxSize) {
@@ -591,11 +597,22 @@ WT_DECLARE_WT_MEMBER
      }
 
      if (!cPaddedSize) {
-       if (cClientSize)
-	 cSize -= padding(container, dir);
-       else
-	 cSize -= sizePadding(container, dir);
+       var p = 0;
+
+       if (!DC.initialized) {
+	 if (cClientSize)
+	   p -= padding(container, dir);
+	 else
+	   p -= sizePadding(container, dir);
+
+	 DC.cPadding = p;
+       } else
+	 p = DC.cPadding;
+	 
+       cSize -= p;
      }
+
+     DC.initialized = true;
 
      if (debug)
        console.log("apply " + id + ': '
@@ -647,18 +664,20 @@ WT_DECLARE_WT_MEMBER
 
        for (var di = 0; di < dirCount; ++di) {
 	 if (measures[MINIMUM_SIZE][di] > -1) {
-	   // Apply initialSize
-	   if (typeof DC.config[di][RESIZABLE][1] !== "undefined") {
-	     // FIXME:
-	     //  - on update ? ignore initialSize -> server-side ?
-	     //  - process percentage
-	     DC.fixedSize[di] = DC.config[di][RESIZABLE][1];
-	     DC.config[di][RESIZABLE] = [ DC.config[di][RESIZABLE][0] ];
+
+	   var fs = -1;
+	   if (typeof DC.fixedSize[di] !== "undefined")
+	     fs = DC.fixedSize[di];
+	   else if ((DC.config[di][RESIZABLE] !== 0)
+		    && (DC.config[di][RESIZABLE][RS_INITIAL_SIZE] >= 0)) {
+	     fs = DC.config[di][RESIZABLE][RS_INITIAL_SIZE];
+	     if (DC.config[di][RESIZABLE][RS_PCT])
+	       fs = (cSize - measures[TOTAL_MARGIN]) * fs / 100;
 	   }
 
-	   if (typeof DC.fixedSize[di] !== "undefined") {
+	   if (fs >= 0) {
 	     stretch[di] = FIXED_SIZE;
-	     targetSize[di] = DC.fixedSize[di];
+	     targetSize[di] = fs;
 	     toDistribute -= targetSize[di];
 	   } else {
 	     var category;
@@ -802,7 +821,7 @@ WT_DECLARE_WT_MEMBER
 	   left += RESIZE_HANDLE_MARGIN;
 	 }
 
-	 resizeHandle = DC.config[di][RESIZABLE][0];
+	 resizeHandle = DC.config[di][RESIZABLE] !== 0;
 
 	 if (first) {
 	   left += DC.margins[MARGIN_LEFT];
@@ -823,7 +842,7 @@ WT_DECLARE_WT_MEMBER
 	       for (si = 1; si < item.span[dir]; ++si) {
 		 if (rs)
 		   ts += RESIZE_HANDLE_MARGIN * 2;
-		 rs = DC.config[di + rs][RESIZABLE][0];
+		 rs = DC.config[di + rs][RESIZABLE] !== 0;
 		 ts += DC.margins[SPACING];
 		 ts += targetSize[di + si];
 	       }
@@ -840,7 +859,7 @@ WT_DECLARE_WT_MEMBER
 	       alignment = 0;
 
 	     if (!alignment) {
-	       var m = margin(w, dir);
+	       var m = item.m[dir];
 
 	       /*
 		* Chrome:
@@ -851,7 +870,7 @@ WT_DECLARE_WT_MEMBER
 	       var tsm = ts;
 	       if (WT.isIElt9 ||
 		   (!WT.hasTag(w, 'BUTTON') && !WT.hasTag(w, 'INPUT') &&
-		    !WT.hasTag(w, 'SELECT')))
+		    !WT.hasTag(w, 'SELECT') && !WT.hasTag(w, 'TEXTAREA')))
 		 tsm = Math.max(0, tsm - m);
 
 	       /*
@@ -870,7 +889,8 @@ WT_DECLARE_WT_MEMBER
 		   if (setCss(w, DC.size, ''))
 		     setItemDirty(item);
 		   item.set[dir] = false;
-		 }
+		 } else if (dir == HORIZONTAL)
+		   setCss(w, DC.size, item.fs[dir] + 'px');
 	       }
 
 	       off = left;
@@ -1077,6 +1097,13 @@ WT_DECLARE_APP_MEMBER
     this.find = function(id) {
       return jQuery.data(document.getElementById(id), 'layout');
     };
+
+    this.setDirty = function(layoutEl) {
+      var layout = jQuery.data(layoutEl, 'layout');
+
+      if (layout)
+	layout.setDirty();
+    }
 
     this.add = function(layout) {
       function addIn(layouts, layout) {
