@@ -262,6 +262,8 @@ void WBoxLayout::setResizable(int index, bool enabled,
     grid_.rows_[index].resizable_ = enabled;
     grid_.rows_[index].initialSize_ = initialSize;
   }
+
+  update(0);
 }
 
 bool WBoxLayout::isResizable(int index) const

@@ -434,7 +434,7 @@ std::string StdGridLayoutImpl2::sizeConfig(const WLength& size)
 {
   WStringStream conf;
 
-  if (!size.isAuto()) {    
+  if (!size.isAuto()) {
     if (size.unit() == WLength::Percentage)
       conf << "," << size.value() << ",1";
     else

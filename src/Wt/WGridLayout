@@ -22,7 +22,7 @@ struct Grid {
   struct Row {
     int stretch_;
     bool resizable_;
-    WLength initialSize_; // if resizable_
+    WLength initialSize_;
 
     Row(int stretch = 0);
   };
@@ -30,7 +30,7 @@ struct Grid {
   struct Column {
     int stretch_;
     bool resizable_;
-    WLength initialSize_; // if resizable_
+    WLength initialSize_;
 
     Column(int stretch = 0);
   };

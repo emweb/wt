@@ -215,10 +215,11 @@ WT_DECLARE_WT_MEMBER
 	   WT.px(el, 'padding' + DC.Right);
    }
 
-   function setItemDirty(item) {
+   function setItemDirty(item, scheduleAdjust) {
      item.dirty = true;
      itemDirty = true;
-     APP.layouts2.scheduleAdjust();
+     if (scheduleAdjust)
+       APP.layouts2.scheduleAdjust();
    };
 
    function setCss(widget, property, value) {
@@ -652,7 +653,6 @@ WT_DECLARE_WT_MEMBER
 	     //  - on update ? ignore initialSize -> server-side ?
 	     //  - process percentage
 	     DC.fixedSize[di] = DC.config[di][RESIZABLE][1];
-	     DC.config[di][RESIZABLE][1];
 	     DC.config[di][RESIZABLE] = [ DC.config[di][RESIZABLE][0] ];
 	   }
 
@@ -863,12 +863,12 @@ WT_DECLARE_WT_MEMBER
 
 	       if (setSize || ts != ps || item.layout) {
 		 if (setCss(w, DC.size, tsm + 'px'))
-		   item.dirty = true;
+		   setItemDirty(item);
 		 item.set[dir] = true;
 	       } else {
 		 if (!item.fs[dir]) {
 		   if (setCss(w, DC.size, ''))
-		     item.dirty = true;
+		     setItemDirty(item);
 		   item.set[dir] = false;
 		 }
 	       }
@@ -885,11 +885,11 @@ WT_DECLARE_WT_MEMBER
 
 	       if (item.layout) {
 		 if (setCss(w, DC.size, ps + 'px'))
-		   item.dirty = true;
+		   setItemDirty(item);
 		 item.set[dir] = true;
 	       } else if (ts >= ps && item.set[dir]) {
-		 if (setCss(w, DC.size, ps + ''))
-		   item.dirty = true;
+		 if (setCss(w, DC.size, ps + 'px'))
+		   setItemDirty(item);
 		 item.set[dir] = false;
 	       }
 
