@@ -348,8 +348,9 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
     if (i != 0)
       js << ",";
 
-    js << "[" << grid_.rows_[i].stretch_ << ","
-       << (grid_.rows_[i].resizable_ ? 1 : 0) << ","
+    js << "[" << grid_.rows_[i].stretch_ << ", ["
+       << (grid_.rows_[i].resizable_ ? 1 : 0)
+       << sizeConfig(grid_.rows_[i].initialSize_) << "],"
        << minimumHeightForRow(i) << "]";
 
     if (grid_.rows_[i].resizable_)
@@ -362,8 +363,9 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
     if (i != 0)
       js << ",";
 
-    js << "[" << grid_.columns_[i].stretch_ << ","
-       << (grid_.columns_[i].resizable_ ? 1 : 0) << ","
+    js << "[" << grid_.columns_[i].stretch_ << ", ["
+       << (grid_.columns_[i].resizable_ ? 1 : 0)
+       << sizeConfig(grid_.columns_[i].initialSize_) << "],"
        << minimumWidthForColumn(i) << "]";
 
     if (grid_.columns_[i].resizable_)
@@ -426,6 +428,20 @@ int StdGridLayoutImpl2::pixelSize(const WLength& size)
     return 0;
   else
     return (int)size.toPixels();
+}
+
+std::string StdGridLayoutImpl2::sizeConfig(const WLength& size)
+{
+  WStringStream conf;
+
+  if (!size.isAuto()) {    
+    if (size.unit() == WLength::Percentage)
+      conf << "," << size.value() << ",1";
+    else
+      conf << "," << size.toPixels();
+  }
+
+  return conf.str();
 }
 
 /*

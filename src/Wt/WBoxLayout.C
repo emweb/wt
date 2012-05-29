@@ -246,18 +246,21 @@ WWidget *WBoxLayout::createSpacer(const WLength& size)
   return spacer;
 }
 
-void WBoxLayout::setResizable(int index, bool enabled)
+void WBoxLayout::setResizable(int index, bool enabled,
+			      const WLength& initialSize)
 {
   switch (direction_) {
   case RightToLeft:
     index = grid_.columns_.size() - 1 - index;
   case LeftToRight:
     grid_.columns_[index].resizable_ = enabled;
+    grid_.columns_[index].initialSize_ = initialSize;
     break;
   case BottomToTop:
     index = grid_.rows_.size() - 1 - index;
   case TopToBottom:
     grid_.rows_[index].resizable_ = enabled;
+    grid_.rows_[index].initialSize_ = initialSize;
   }
 }
 

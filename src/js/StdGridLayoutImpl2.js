@@ -104,9 +104,9 @@ WT_DECLARE_WT_MEMBER
      /*
       * Firefox adds the -NA offset to the reported width ??
       */
-     if (clientWidth > NA) {
+     if (clientWidth >= NA) {
        clientWidth -= NA;
-       if (scrollWidth > NA)
+       if (scrollWidth >= NA)
 	 scrollWidth -= NA;
      }
 
@@ -420,7 +420,7 @@ WT_DECLARE_WT_MEMBER
 	     totalMargin += RESIZE_HANDLE_MARGIN * 2;
 	 }
 
-	 rh = DC.config[di][RESIZABLE];
+	 rh = DC.config[di][RESIZABLE][0];
        }
      }
 
@@ -646,6 +646,16 @@ WT_DECLARE_WT_MEMBER
 
        for (var di = 0; di < dirCount; ++di) {
 	 if (measures[MINIMUM_SIZE][di] > -1) {
+	   // Apply initialSize
+	   if (typeof DC.config[di][RESIZABLE][1] !== "undefined") {
+	     // FIXME:
+	     //  - on update ? ignore initialSize -> server-side ?
+	     //  - process percentage
+	     DC.fixedSize[di] = DC.config[di][RESIZABLE][1];
+	     DC.config[di][RESIZABLE][1];
+	     DC.config[di][RESIZABLE] = [ DC.config[di][RESIZABLE][0] ];
+	   }
+
 	   if (typeof DC.fixedSize[di] !== "undefined") {
 	     stretch[di] = FIXED_SIZE;
 	     targetSize[di] = DC.fixedSize[di];
@@ -792,7 +802,7 @@ WT_DECLARE_WT_MEMBER
 	   left += RESIZE_HANDLE_MARGIN;
 	 }
 
-	 resizeHandle = DC.config[di][RESIZABLE];
+	 resizeHandle = DC.config[di][RESIZABLE][0];
 
 	 if (first) {
 	   left += DC.margins[MARGIN_LEFT];
@@ -813,7 +823,7 @@ WT_DECLARE_WT_MEMBER
 	       for (si = 1; si < item.span[dir]; ++si) {
 		 if (rs)
 		   ts += RESIZE_HANDLE_MARGIN * 2;
-		 rs = DC.config[di + rs][RESIZABLE];
+		 rs = DC.config[di + rs][RESIZABLE][0];
 		 ts += DC.margins[SPACING];
 		 ts += targetSize[di + si];
 	       }

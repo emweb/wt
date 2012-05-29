@@ -255,7 +255,8 @@ public:
    *
    * The default value is <i>false</i>.
    */
-  void setResizable(int index, bool enabled = true);
+  void setResizable(int index, bool enabled = true,
+		    const WLength& initialSize = WLength::Auto);
 
   /*! \brief Returns whether the user may drag a particular border.
    *
