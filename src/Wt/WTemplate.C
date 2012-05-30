@@ -325,7 +325,6 @@ void WTemplate::updateDom(DomElement& element, bool all)
       WWidget *w = i->second;
       if (w->isRendered() && w->webWidget()->domCanBeSaved()) {
 	previouslyRendered.insert(w);
-	w->webWidget()->setRendered(false);
       }
     }
 
@@ -345,13 +344,18 @@ void WTemplate::updateDom(DomElement& element, bool all)
       if (previouslyRendered.find(w) != previouslyRendered.end()) {
 	if (saveWidgets)
 	  element.saveChild(w->id());
-	w->webWidget()->setRendered(true);
 	previouslyRendered.erase(w);
       }
     }
 
     element.setProperty(Wt::PropertyInnerHTML, html.str());
     changed_ = false;
+
+    for (std::set<WWidget *>::const_iterator i = previouslyRendered.begin();
+	 i != previouslyRendered.end(); ++i) {
+      WWidget *w = *i;
+      w->webWidget()->setRendered(false);
+    }
   }
 
   WInteractWidget::updateDom(element, all);

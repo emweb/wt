@@ -205,8 +205,6 @@ void Session::initSchema() const
        i != classRegistry_.end(); ++i)
     self->prepareStatements(i->second);
 
-  self->schemaInitialized_ = true;
-
   t.commit();
 }
 
@@ -608,28 +606,26 @@ void Session::createTables()
 
   Transaction t(*this);
 
-  for (ClassRegistry::iterator i = classRegistry_.begin();
-       i != classRegistry_.end(); ++i)
-    i->second->initialized_ = false; // to do ordered table creation
-  
-  for (ClassRegistry::iterator i = classRegistry_.begin();
-       i != classRegistry_.end(); ++i)
-    createTable(i->second);
+  std::set<std::string> tablesCreated;
 
-  std::set<std::string> joinTablesCreated;
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createRelations(i->second, joinTablesCreated);
+    createTable(i->second, tablesCreated);
+
+  for (ClassRegistry::iterator i = classRegistry_.begin();
+       i != classRegistry_.end(); ++i)
+    createRelations(i->second, tablesCreated);
 
   t.commit();
 }
 
-void Session::createTable(MappingInfo *mapping)
+void Session::createTable(MappingInfo *mapping,
+			  std::set<std::string>& tablesCreated)
 {
-  if (mapping->initialized_)
+  if (tablesCreated.count(mapping->tableName) != 0)
     return;
 
-  mapping->initialized_ = true;
+  tablesCreated.insert(mapping->tableName);
 
   std::stringstream sql;
 
@@ -715,8 +711,7 @@ void Session::createTable(MappingInfo *mapping)
 
       MappingInfo *otherMapping = getMapping(field.foreignKeyTable().c_str());
 
-      if (!otherMapping->initialized_)
-	createTable(otherMapping);
+      createTable(otherMapping, tablesCreated);
 
       sql << ") references \"" << Impl::quoteSchemaDot(field.foreignKeyTable())
 	  << "\" (" << otherMapping->primaryKeys() << ")";
@@ -754,20 +749,19 @@ void Session::createTable(MappingInfo *mapping)
 }
 
 void Session::createRelations(MappingInfo *mapping,
-			      std::set<std::string>& joinTablesCreated)
+			      std::set<std::string>& tablesCreated)
 {
   for (unsigned i = 0; i < mapping->sets.size(); ++i) {
     const SetInfo& set = mapping->sets[i];
 
     if (set.type == ManyToMany) {
-      if (joinTablesCreated.count(set.joinName) == 0) {
-	joinTablesCreated.insert(set.joinName);
-
+      if (tablesCreated.count(set.joinName) == 0) {
 	MappingInfo *other = getMapping(set.tableName);
 
 	createJoinTable(set.joinName, mapping, other,
 			set.joinSelfId, set.joinOtherId,
-			set.fkConstraints, set.otherFkConstraints);
+			set.fkConstraints, set.otherFkConstraints,
+			tablesCreated);
       }
     }
   }
@@ -777,7 +771,8 @@ void Session::createJoinTable(const std::string& joinName,
 			      MappingInfo *mapping1, MappingInfo *mapping2,
 			      const std::string& joinId1,
 			      const std::string& joinId2,
-			      int fkConstraints1, int fkConstraints2)
+			      int fkConstraints1, int fkConstraints2,
+			      std::set<std::string>& tablesCreated)
 {
   MappingInfo joinTableMapping;
 
@@ -790,10 +785,7 @@ void Session::createJoinTable(const std::string& joinName,
   addJoinTableFields(joinTableMapping, mapping2, joinId2, "key2",
 		     fkConstraints2);
 
-  createTable(&joinTableMapping);
-
-  std::set<std::string> dummy;
-  createRelations(&joinTableMapping, dummy);
+  createTable(&joinTableMapping, tablesCreated);
 
   createJoinIndex(joinTableMapping, mapping1, joinId1, "key1");
   createJoinIndex(joinTableMapping, mapping2, joinId2, "key2");

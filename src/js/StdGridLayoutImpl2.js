@@ -601,9 +601,9 @@ WT_DECLARE_WT_MEMBER
 
        if (!DC.initialized) {
 	 if (cClientSize)
-	   p -= padding(container, dir);
+	   p = padding(container, dir);
 	 else
-	   p -= sizePadding(container, dir);
+	   p = sizePadding(container, dir);
 
 	 DC.cPadding = p;
        } else
@@ -1010,7 +1010,11 @@ WT_DECLARE_WT_MEMBER
 
    this.measure = function(dir) {
      var widget = WT.getElement(id);
+
      if (!widget)
+       return;
+
+     if (WT.isHidden(widget))
        return;
 
      if (!parentInitialized) {
@@ -1062,6 +1066,9 @@ WT_DECLARE_WT_MEMBER
 
      if (!widget)
        return false;
+
+     if (WT.isHidden(widget))
+       return true;
 
      apply(dir, widget);
 
