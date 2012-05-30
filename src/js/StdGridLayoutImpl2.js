@@ -394,7 +394,7 @@ WT_DECLARE_WT_MEMBER
 
 	     // XXX second condition is a hack for WTextEdit
 	     if (item.w.style.display !== 'none'
-		 || (WT.hasTag(item.wt, 'TEXTAREA') && item.w.wtResize))
+		 || (WT.hasTag(item.w, 'TEXTAREA') && item.w.wtResize))
 	       allHidden = false;
 	   }
 	 }
@@ -608,7 +608,7 @@ WT_DECLARE_WT_MEMBER
 	 DC.cPadding = p;
        } else
 	 p = DC.cPadding;
-	 
+
        cSize -= p;
      }
 

@@ -68,6 +68,7 @@ void WQApplication::notify(const WEvent& e)
   thread_->notify(e);
 
   if (finalized_) {
+    thread_->wait();
     delete thread_;
     thread_ = 0;
   }
