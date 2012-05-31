@@ -38,6 +38,7 @@ private:
   Wt::WWidget *wFileUpload();
 #ifndef WT_TARGET_JAVA
   Wt::WWidget *wPopupMenu();
+  void popupAction(Wt::WPopupMenu *menu);
 #endif
 
   void addColorElement(Wt::WStandardItemModel* model,

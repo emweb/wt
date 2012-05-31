@@ -409,6 +409,9 @@ WWidget *FormWidgets::wPopupMenu()
   subMenu->addItem("Add a chair");
   subMenu->addItem("Add a table");
   popup->addMenu("Add furniture", subMenu);
+
+  popup->aboutToHide().connect(boost::bind(&FormWidgets::popupAction,
+					   this, popup));
   
   WLabel* clickMe = new WLabel("Clicking here will show a popup menu.",
 			       result);
@@ -417,5 +420,12 @@ WWidget *FormWidgets::wPopupMenu()
   
   return result;
 }
+
+void FormWidgets::popupAction(WPopupMenu *menu)
+{
+  if (menu->result())
+    ed_->setStatus("PopupMenu '" + menu->result()->text() + "' selected");
+}
+
 #endif
 

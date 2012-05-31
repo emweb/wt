@@ -315,6 +315,7 @@ protected:
 private:
   WTemplate      *impl_;
   WPopupMenuItem *parentItem_, *result_;
+  WWidget        *location_;
 
   Signal<> aboutToHide_;
   Signal<WPopupMenuItem *> triggered_;

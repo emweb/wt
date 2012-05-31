@@ -26,6 +26,7 @@ WPopupMenu::WPopupMenu()
   : WCompositeWidget(),
     parentItem_(0),
     result_(0),
+    location_(0),
     aboutToHide_(this),
     triggered_(this),
     cancel_(this, "cancel"),
@@ -139,6 +140,7 @@ void WPopupMenu::renderOutAll()
 
 void WPopupMenu::done(WPopupMenuItem *result)
 {
+  location_ = 0;
   result_ = result;
 
   hide();
@@ -163,6 +165,8 @@ void WPopupMenu::done()
 
 void WPopupMenu::popup(WWidget *location, Orientation orientation)
 {
+  location_ = location;
+
   popupImpl();
   positionAt(location, orientation);
 }
@@ -299,6 +303,9 @@ bool WPopupMenu::isExposed(WWidget *w)
 
   if (w == WApplication::instance()->root())
     return true;
+
+  if (w == location_)
+    return false;
 
   WContainerWidget *c = contents();
   for (int i = 0; i < c->count(); ++i) {
