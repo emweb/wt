@@ -17,43 +17,45 @@ namespace Wt {
 
 LOGGER("WString");
 
+namespace {
+  static const std::size_t stack_buffer_size = 512;
+}
+
 #ifndef WT_NO_STD_WSTRING
 #ifndef WT_NO_STD_LOCALE
 std::wstring widen(const std::string& s, const std::locale &loc)
 {
   typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
-
+  
+  std::wstring result;
+  result.reserve(s.length());
+  
   const Cvt& myfacet = std::use_facet<Cvt>(loc);
-
   Cvt::result myresult;
-
-  std::size_t size = s.length();
-  wchar_t *pwstr = new wchar_t[size + 1];
-
-  const char* pc = s.c_str();
-  wchar_t* pwc = pwstr;
-
   std::mbstate_t mystate = std::mbstate_t();
+ 
+  wchar_t stack_buffer[stack_buffer_size + 1];
+  const char* next_to_convert = s.c_str();
+  const char* const to_convert_end = s.c_str() + s.length();
+  
   bool error = false;
 
-  for (;;) {
-    myresult = myfacet.in(mystate, pc, s.c_str() + size, pc,
-			  pwc, pwstr + size + 1, pwc);
+  while (next_to_convert != to_convert_end) {
+    wchar_t* converted_end = stack_buffer;
+    myresult = myfacet.in(mystate, next_to_convert, to_convert_end, next_to_convert,
+			  stack_buffer, stack_buffer + stack_buffer_size, converted_end);
 
-    if (myresult != Cvt::ok) {
-      *pwc++ = L'?';
-      pc++;
-
+    result.append(stack_buffer, converted_end);
+    
+    if (myresult == Cvt::error) {
+      result += L'?';
+      ++ next_to_convert;
       error = true;
-    } else
-      break;
+    }
   }
 
   if (error)
     LOG_ERROR("widen(): could not widen string: " << s);
-
-  std::wstring result = std::wstring(pwstr, pwc - pwstr);
-  delete[] pwstr;
 
   return result;
 }
@@ -62,6 +64,8 @@ std::wstring widen(const std::string& s, const std::locale &loc)
 std::wstring widen(const std::string& s)
 {
   std::wstring retval;
+  retval.reserve(s.size());
+  
   for(unsigned int i = 0; i < s.size(); ++i) {
     if (s[i] & 0x80)
       retval.push_back('?'); // invalid ASCII character
@@ -129,6 +133,8 @@ std::string narrow(const std::wstring& s, const std::locale &loc)
 std::string narrow(const std::wstring& s)
 {
   std::string retval;
+  retval.reserve(s.size());
+  
   for (unsigned int i = 0; i < s.size(); ++i) {
     if (retval[i] < 128)
       retval.push_back(s[i]);
