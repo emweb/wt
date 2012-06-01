@@ -71,6 +71,23 @@ void Widget::initExt()
 				   ""   "}"
 				   "" "}");
 
+    if (app->environment().agentIsIE())
+      app->doJavaScript
+	("if ((typeof Range !== 'undefined')"
+	 ""    "&& !Range.prototype.createContextualFragment) {"
+	 """Range.prototype.createContextualFragment = function(html) {"
+	 ""  "var startNode = this.startContainer;"
+	 ""  "var doc = startNode.nodeType = 9 ? startNode :"
+	 ""            "startNode.ownerDocument;"
+	 ""  "var container = doc.createElement('div');"
+	 ""  "container.innerHTML = html;"
+	 ""  "var frag = doc.createDocumentFragment(), n;"
+	 ""  "while ( (n = container.firstChild) ) {"
+	 ""    "frag.appendChild(n);"
+	 ""  "}"
+	 ""  "return frag;"
+	 """};"
+	 "}", false);
     /*
      * Normally, Ext does this in its onReady function, but this is not
      * fired when loading ExtJS on demand.

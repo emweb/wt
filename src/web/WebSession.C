@@ -1306,9 +1306,22 @@ void WebSession::handleRequest(Handler& handler)
 
 	    const std::string *jsE = request.getParameter("js");
 	    bool nojs = jsE && *jsE == "no";
+
+	    // See:
+	    // http://www.blaze.io/mobile/ios5-top10-performance-changes/
+	    // Mozilla/5.0 (iPad; CPU OS 5_1_1 like Mac OS X) 
+	    //  AppleWebKit/534.46 (KHTML, like Gecko)
+	    //  Version/5.1 Mobile/9B206 Safari/7534.48.3
+	    bool ios5 = env_->agentIsMobileWebKit()
+	      && (env_->userAgent().find("OS 5_") != std::string::npos
+		  || env_->userAgent().find("OS 6_") != std::string::npos
+		  || env_->userAgent().find("OS 7_") != std::string::npos
+		  || env_->userAgent().find("OS 8_") != std::string::npos);
+
 	    const bool xhtml = env_->contentType() == WEnvironment::XHTML1;
+
 	    noBootStyleResponse_
-	      = noBootStyleResponse_ || (!app_ && (xhtml || nojs));
+	      = noBootStyleResponse_ || (!app_ && (ios5 || xhtml || nojs));
 
 	    if (nojs || noBootStyleResponse_) {
 	      handler.response()->setContentType("text/css");
@@ -1482,6 +1495,7 @@ void WebSession::flushBootStyleResponse()
   if (bootStyleResponse_) {
     bootStyleResponse_->flush();
     bootStyleResponse_ = 0;
+    noBootStyleResponse_ = true;
   }
 }
 
