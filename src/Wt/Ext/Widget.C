@@ -77,7 +77,7 @@ void Widget::initExt()
 	 ""    "&& !Range.prototype.createContextualFragment) {"
 	 """Range.prototype.createContextualFragment = function(html) {"
 	 ""  "var startNode = this.startContainer;"
-	 ""  "var doc = startNode.nodeType = 9 ? startNode :"
+	 ""  "var doc = startNode.nodeType == 9 ? startNode :"
 	 ""            "startNode.ownerDocument;"
 	 ""  "var container = doc.createElement('div');"
 	 ""  "container.innerHTML = html;"
