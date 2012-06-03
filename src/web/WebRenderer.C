@@ -396,7 +396,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
     boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
   } else {
     boot.setVar("AUTO_REDIRECT",
-		"<noscript><meta http-equiv=\"refresh\" content=\"0;url="
+		"<noscript><meta http-equiv=\"refresh\" content=\"0; url="
 		+ noJsRedirectUrl.str() + "\"></noscript>");
     boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
   }
