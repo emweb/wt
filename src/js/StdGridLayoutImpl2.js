@@ -103,6 +103,7 @@ WT_DECLARE_WT_MEMBER
      var DC = DirConfig[dir];
      var scrollWidth = dir ? element.scrollHeight : element.scrollWidth;
      var clientWidth = dir ? element.clientHeight : element.clientWidth;
+     var offsetWidth = dir ? element.offsetHeight : element.offsetWidth;
 
      /*
       * Firefox adds the -NA offset to the reported width ??
@@ -113,7 +114,11 @@ WT_DECLARE_WT_MEMBER
 	 scrollWidth -= NA;
      }
 
-     if (scrollWidth == clientWidth) {
+     if (scrollWidth === 0) {
+       scrollWidth = WT.pxself(element, DC.size);
+     }
+
+     if (scrollWidth === clientWidth) {
        // might be too big, investigate children
        // TODO
      }
@@ -137,6 +142,10 @@ WT_DECLARE_WT_MEMBER
        scrollWidth +=
 	 WT.px(element, 'padding' + DC.Left) +
 	 WT.px(element, 'padding' + DC.Right);
+
+     /* Must be because of a scrollbar */
+     if (scrollWidth < offsetWidth)
+       scrollWidth = offsetWidth;
 
      return scrollWidth;
    }
@@ -540,12 +549,13 @@ WT_DECLARE_WT_MEMBER
 
 	 if (cSize === 0) {
 	   if (!DC.initialized) {
+
 	     if (pc !== 'absolute') {
 	       cSize = dir ? container.clientHeight : container.clientWidth;
 
 	       cClientSize = true;
 
-	       if (dir == 0 && cSize == 0 && WT.isIE6) {
+	       if (dir == 0 && cSize == 0 && WT.isIElt9) {
 		 cSize = container.offsetWidth;
 		 cClientSize = false;
 	       }
@@ -553,10 +563,14 @@ WT_DECLARE_WT_MEMBER
 	       /*
 		* heuristic to switch to layout-sizes-container mode
 		*/
-	       if ((WT.isIE6 && cSize == 0)
+	       if ((WT.isIElt9 && cSize == 0)
 		   || (cSize == measures[TOTAL_MINIMUM_SIZE]
-		       + padding(container, dir)))
+		       + padding(container, dir))) {
+		 if (debug)
+		   console.log('switching to managed container size '
+			       + dir + ' ' + id);
 		 DC.maxSize = 999999;
+	       }
 	     }
 	   }
 

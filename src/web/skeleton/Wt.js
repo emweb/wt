@@ -1008,7 +1008,11 @@ var captureElement = null;
 this.firedTarget = null;
 
 this.target = function(event) {
-  return WT.firedTarget || event.target || event.srcElement;
+  try {
+    return WT.firedTarget || event.target || event.srcElement;
+  } catch (err) {
+    return document.body; // IE8 error ?
+  }
 };
 
 function delegateCapture(e) {

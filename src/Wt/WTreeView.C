@@ -949,11 +949,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
     parent->addWidget(this);
 
   setup();
-
-  setJavaScriptMember(WT_RESIZE_JS,
-		      "function(self,w,h) {"
-		      "$(self).data('obj').wtResize();"
-		      "}");
 }
 
 void WTreeView::setup()
@@ -1017,6 +1012,8 @@ void WTreeView::setup()
     layout->addWidget(contentsContainer_, 1);
 
     impl_->setLayout(layout);
+
+    defineJavaScript();
   } else {
     contentsContainer_ = new WContainerWidget();
     contentsContainer_->addWidget(contents_);
@@ -1046,12 +1043,17 @@ void WTreeView::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WTreeView.js", "WTreeView", wtjs1);
 
-  app->doJavaScript("new " WT_CLASS ".WTreeView("
-		    + app->javaScriptClass() + "," + jsRef() + ","
-		    + contentsContainer_->jsRef() + ","
-		    + headerContainer_->jsRef() + ","
-		    + boost::lexical_cast<std::string>(rowHeaderCount())
-		    + ");");
+  setJavaScriptMember("_a", "=0;new " WT_CLASS ".WTreeView("
+	       + app->javaScriptClass() + "," + jsRef() + ","
+	       + contentsContainer_->jsRef() + ","
+	       + headerContainer_->jsRef() + ","
+	       + boost::lexical_cast<std::string>(rowHeaderCount())
+	       + ");");
+
+  setJavaScriptMember(WT_RESIZE_JS,
+		      "function(self,w,h) {"
+		      "$(self).data('obj').wtResize();"
+		      "}");
 }
 
 void WTreeView::setRowHeaderCount(int count)
@@ -1375,8 +1377,6 @@ void WTreeView::render(WFlags<RenderFlag> flags)
   if (flags & RenderFull) {
     if (!itemEvent_.isConnected())
       itemEvent_.connect(this, &WTreeView::onItemEvent);
-
-    defineJavaScript();
   }
 
   while (renderState_ != RenderOk) {

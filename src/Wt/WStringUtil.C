@@ -42,8 +42,10 @@ std::wstring widen(const std::string& s, const std::locale &loc)
 
   while (next_to_convert != to_convert_end) {
     wchar_t* converted_end = stack_buffer;
-    myresult = myfacet.in(mystate, next_to_convert, to_convert_end, next_to_convert,
-			  stack_buffer, stack_buffer + stack_buffer_size, converted_end);
+    myresult = myfacet.in(mystate, next_to_convert, to_convert_end,
+			  next_to_convert,
+			  stack_buffer, stack_buffer + stack_buffer_size,
+			  converted_end);
 
     result.append(stack_buffer, converted_end);
     
