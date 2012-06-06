@@ -351,8 +351,13 @@ void WSuggestionPopup::doFilter(std::string input)
   filterModel_.emit(WT_USTRING::fromUTF8(input));
   filtering_ = false;
 
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
-	       + WWebWidget::jsStringLiteral(input) + ");");
+  /*
+   * We do not use this->doJavaScript() because that would be rendered
+   * before the updated children (suggestions) are rendered.
+   */
+  WApplication::instance()->
+    doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
+		 + WWebWidget::jsStringLiteral(input) + ");");
 }
 
 void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
