@@ -375,10 +375,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
 	mouseDblClick->updateOk();
 
-	combined << "}else{"
-		 << "if (document.createEventObject) e = document.createEventObject(e);"
-		 << "window.wtClickTimeout = setTimeout(function() {"
-		 << "window.wtClickTimeout = null;";
+	combined <<
+	  "}else{"
+	  """if (" WT_CLASS ".isIElt9 && document.createEventObject) "
+	  ""  "e = document.createEventObject(e);"
+	  """window.wtClickTimeout = setTimeout(function() {"
+	  ""   "window.wtClickTimeout = null;";
 
 	if (mouseClick) {
 	  combined << mouseClick->javaScript();
