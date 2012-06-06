@@ -241,7 +241,7 @@ void WWidget::setOffsets(int pixels, WFlags<Side> sides)
 
 std::string WWidget::jsRef() const
 {
-  return "$('#" + id() + "').get(0)";
+  return WT_CLASS ".$('" + id() + "')";
 }
 
 void WWidget::htmlText(std::ostream& out)

@@ -635,7 +635,7 @@ void WTableView::renderTable(const int fr, const int lr,
     << scrollX1 << ", " << scrollX2 << ", " << scrollY1 << ", " << scrollY2
     << ");";
 
-  WApplication::instance()->doJavaScript(s.str());			
+  doJavaScript(s.str());			
 }
 
 void WTableView::setHidden(bool hidden, const WAnimation& animation)
@@ -717,11 +717,11 @@ void WTableView::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WTableView.js", "WTableView", wtjs1);
 
-  app->doJavaScript("new " WT_CLASS ".WTableView("
-		    + app->javaScriptClass() + "," + jsRef() + ","
-		    + contentsContainer_->jsRef() + ","
-		    + headerContainer_->jsRef() + ","
-		    + headerColumnsContainer_->jsRef() + ");");
+  setJavaScriptMember(" WTableView", "new " WT_CLASS ".WTableView("
+		      + app->javaScriptClass() + "," + jsRef() + ","
+		      + contentsContainer_->jsRef() + ","
+		      + headerContainer_->jsRef() + ","
+		      + headerColumnsContainer_->jsRef() + ");");
 }
 
 void WTableView::render(WFlags<RenderFlag> flags)

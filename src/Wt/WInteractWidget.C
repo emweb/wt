@@ -376,6 +376,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	mouseDblClick->updateOk();
 
 	combined << "}else{"
+		 << "if (document.createEventObject) e = document.createEventObject(e);"
 		 << "window.wtClickTimeout = setTimeout(function() {"
 		 << "window.wtClickTimeout = null;";
 
@@ -397,6 +398,11 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	combined << "},200);}";
 
 	element.setEvent(CLICK_SIGNAL, combined.str(), "");
+
+	if (!app)
+	  app = WApplication::instance();
+	if (app->environment().agentIsIElt(9))
+	  element.setEvent("dblclick", "this.onclick()");
       } else {
 	updateSignalConnection(element, *mouseClick, CLICK_SIGNAL, all);
       }

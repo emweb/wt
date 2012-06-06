@@ -257,12 +257,12 @@ private:
   DomElementType type_;
   std::string  id_;
   int          numManipulations_;
-  std::vector<std::string> methodCalls_;
   int          timeOut_;
   bool         timeOutJSRepeat_;
   EscapeOStream javaScript_;
   std::string  javaScriptEvenWhenDeleted_;
   mutable std::string var_;
+  mutable bool declared_;
 
   AttributeMap    attributes_;
   PropertyMap     properties_;

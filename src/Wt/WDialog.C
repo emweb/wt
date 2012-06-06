@@ -36,13 +36,6 @@ WDialog::WDialog(const WString& windowTitle)
 
   WApplication *app = WApplication::instance();
 
-  /*
-   * Cannot be done using the CSS stylesheet in case there are
-   * contained elements with setHideWithOffsets() set
-   */
-  setPositionScheme(app->environment().agent() == WEnvironment::IE6
-		    ? Absolute : Fixed);
-
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
     /* Needed for the dialog cover */
     if (app->environment().agentIsIElt(9))
@@ -56,7 +49,7 @@ WDialog::WDialog(const WString& windowTitle)
     app->styleSheet().addRule("div.Wt-dialog", std::string() +
 			      (app->environment().ajax() ?
 			       "visibility: hidden;" : "") +
-			      "position: " + position + ';'
+			      //"position: " + position + ';'
 			      + (!app->environment().ajax() ?
 				 "left: 50%; top: 50%;"
 				 "margin-left: -100px; margin-top: -50px;" :
@@ -118,6 +111,19 @@ WDialog::WDialog(const WString& windowTitle)
 
   saveCoverState(app, app->dialogCover());
 
+  /*
+   * Cannot be done using the CSS stylesheet in case there are
+   * contained elements with setHideWithOffsets() set
+   *
+   * For IE, we cannot set it yet since it will confuse width measurements to become
+   * minimum size instead of (unconstrained) preferred size
+   */
+  if (app->environment().ajax())
+    setAttributeValue("style", "visibility: hidden");
+  else
+    setPositionScheme(app->environment().agent() == WEnvironment::IE6
+		      ? Absolute : Fixed);
+
   hide();
 }
 
@@ -136,11 +142,12 @@ void WDialog::setResizable(bool resizable)
     if (resizable_) {
       setMinimumSize(WLength::Auto, WLength::Auto);
       Resizable::loadJavaScript(WApplication::instance());
-      doJavaScript("(new " WT_CLASS ".Resizable("
-		   WT_CLASS "," + jsRef() + ")).onresize(function(w, h) {"
-		   "var obj = $('#" + id() + "').data('obj');"
-		   "if (obj) obj.onresize(w, h);"
-		   " });");
+      setJavaScriptMember(" Resizable",
+			  "(new " WT_CLASS ".Resizable("
+			  WT_CLASS "," + jsRef() + ")).onresize(function(w, h) {"
+			  "var obj = $('#" + id() + "').data('obj');"
+			  "if (obj) obj.onresize(w, h);"
+			  " });");
     }
   }
 }
@@ -161,6 +168,14 @@ void WDialog::render(WFlags<RenderFlag> flags)
 
     bool centerX = offset(Left).isAuto() && offset(Right).isAuto(),
       centerY = offset(Top).isAuto() && offset(Bottom).isAuto();
+
+    /*
+     * Make sure layout adjusts too contents preferred width, especially important for
+     * IE workaround which uses static position scheme
+     */
+    if (app->environment().ajax())
+      if (width().isAuto() && maximumWidth().isAuto())
+	impl_->resolveWidget("layout")->setMaximumSize(999999, maximumHeight());
 
     doJavaScript("new " WT_CLASS ".WDialog("
 		 + app->javaScriptClass() + "," + jsRef()
@@ -334,7 +349,7 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 
 	// FIXME: this should only blur if the active element is outside
 	// of the dialog
-	app->doJavaScript
+	doJavaScript
 	  ("try {"
 	   """if (document.activeElement && document.activeElement.blur)"
 	   ""  "document.activeElement.blur();"

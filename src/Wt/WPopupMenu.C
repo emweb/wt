@@ -216,17 +216,16 @@ void WPopupMenu::popup(const WPoint& p)
   setOffsets(42, Left | Top);
   setOffsets(-10000, Left | Top);
 
-  WApplication::instance()->doJavaScript
-    (WT_CLASS ".positionXY('" + id() + "',"
-     + boost::lexical_cast<std::string>(p.x()) + ","
-     + boost::lexical_cast<std::string>(p.y()) + ");");
+  doJavaScript(WT_CLASS ".positionXY('" + id() + "',"
+	       + boost::lexical_cast<std::string>(p.x()) + ","
+	       + boost::lexical_cast<std::string>(p.y()) + ");");
 }
 
 void WPopupMenu::prepareRender(WApplication *app)
 {
   if (app->environment().agentIsIE()) {
-    app->doJavaScript(jsRef() + ".lastChild.style.width="
-		      + jsRef() + ".lastChild.offsetWidth+'px';");
+    doJavaScript(jsRef() + ".lastChild.style.width="
+		 + jsRef() + ".lastChild.offsetWidth + 'px';");
   }
 
   // FIXME: we should really also prepareRender() of submenus when shown...
@@ -235,10 +234,10 @@ void WPopupMenu::prepareRender(WApplication *app)
     if (!cancel_.isConnected()) {
       LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
 
-      doJavaScript("new " WT_CLASS ".WPopupMenu("
-		   + app->javaScriptClass() + "," + jsRef() + ","
-		   + boost::lexical_cast<std::string>(autoHideDelay_)
-		   + ");");
+      setJavaScriptMember(" WPopupMenu", "new " WT_CLASS ".WPopupMenu("
+			  + app->javaScriptClass() + "," + jsRef() + ","
+			  + boost::lexical_cast<std::string>(autoHideDelay_)
+			  + ");");
       cancel_.connect(this, &WPopupMenu::done);
     }
   }

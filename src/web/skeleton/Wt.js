@@ -614,6 +614,8 @@ this.getElement = function(id) {
   return el;
 };
 
+this.$ = this.getElement;
+
 this.validate = function(edit) {
   var v;
   if (edit.options)
@@ -1011,7 +1013,7 @@ this.target = function(event) {
   try {
     return WT.firedTarget || event.target || event.srcElement;
   } catch (err) {
-    return document.body; // IE8 error ?
+    return null;
   }
 };
 

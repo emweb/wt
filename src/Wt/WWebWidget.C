@@ -96,17 +96,21 @@ WWebWidget::LookImpl::~LookImpl()
   delete toolTip_;
 }
 
+WWebWidget::OtherImpl::JavaScriptStatement::JavaScriptStatement
+(JavaScriptStatementType aType, const std::string& aData)
+  : type(aType),
+    data(aData)
+{ }
+
 WWebWidget::OtherImpl::OtherImpl(WWebWidget *self)
   : id_(0),
     attributes_(0),
     attributesSet_(0),
     jsMembers_(0),
-    jsMembersSet_(0),
-    jsMemberCalls_(0),
+    jsStatements_(0),
     resized_(0),
     dropSignal_(0),
     acceptedDropMimeTypes_(0),
-    delayedDoJavaScript_(0),
     childrenChanged_(self)
 { }
 
@@ -116,11 +120,9 @@ WWebWidget::OtherImpl::~OtherImpl()
   delete attributes_;
   delete attributesSet_;
   delete jsMembers_;
-  delete jsMembersSet_;
-  delete jsMemberCalls_;
+  delete jsStatements_;
   delete dropSignal_;
   delete acceptedDropMimeTypes_;
-  delete delayedDoJavaScript_;
   delete resized_;
 }
 
@@ -886,10 +888,7 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
     }
   }
 
-  if (!otherImpl_->jsMembersSet_)
-    otherImpl_->jsMembersSet_ = new std::vector<std::string>;
-
-  otherImpl_->jsMembersSet_->push_back(name);
+  addJavaScriptStatement(SetMember, name);
 
   repaint(RepaintPropertyAttribute);
 }
@@ -916,15 +915,23 @@ int WWebWidget::indexOfJavaScriptMember(const std::string& name) const
 void WWebWidget::callJavaScriptMember(const std::string& name,
 				      const std::string& args)
 {
+  addJavaScriptStatement(CallMethod, name + "(" + args + ");");
+
+  repaint(RepaintPropertyAttribute);
+}
+
+void WWebWidget::addJavaScriptStatement(JavaScriptStatementType type,
+					const std::string& data)
+{
   if (!otherImpl_)
     otherImpl_ = new OtherImpl(this);
 
-  if (!otherImpl_->jsMemberCalls_)
-    otherImpl_->jsMemberCalls_ = new std::vector<std::string>;
+  if (!otherImpl_->jsStatements_)
+    otherImpl_->jsStatements_
+      = new std::vector<OtherImpl::JavaScriptStatement>();
 
-  otherImpl_->jsMemberCalls_->push_back(name + "(" + args + ");");
-
-  repaint(RepaintPropertyAttribute);
+  otherImpl_->jsStatements_->push_back
+    (OtherImpl::JavaScriptStatement(type, data));
 }
 
 void WWebWidget::setToolTip(const WString& text, TextFormat textFormat)
@@ -1113,12 +1120,8 @@ void WWebWidget::setImplementLayoutSizeAware(bool aware)
 	std::string v = javaScriptMember(WT_RESIZE_JS);
 	if (v.length() == 1)
 	  setJavaScriptMember(WT_RESIZE_JS, std::string());
-	else {
-	  if (!otherImpl_->jsMembersSet_)
-	    otherImpl_->jsMembersSet_ = new std::vector<std::string>;
-
-	  otherImpl_->jsMembersSet_->push_back(WT_RESIZE_JS);
-	}
+	else
+	  addJavaScriptStatement(SetMember, WT_RESIZE_JS);
       }
     }
   }
@@ -1136,12 +1139,8 @@ JSignal<int, int>& WWebWidget::resized()
     std::string v = javaScriptMember(WT_RESIZE_JS);
     if (v.empty())
       setJavaScriptMember(WT_RESIZE_JS, "0");
-    else {
-      if (!otherImpl_->jsMembersSet_)
-	otherImpl_->jsMembersSet_ = new std::vector<std::string>;
-
-      otherImpl_->jsMembersSet_->push_back(WT_RESIZE_JS);
-    }
+    else
+      addJavaScriptStatement(SetMember, WT_RESIZE_JS);
   }
 
   return *otherImpl_->resized_;
@@ -1495,74 +1494,50 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       otherImpl_->attributesSet_ = 0;
     }
 
-    if (otherImpl_->jsMembers_) {
-      if (all) {
-	for (unsigned i = 0; i < otherImpl_->jsMembers_->size(); i++) {
-	  OtherImpl::Member member = (*otherImpl_->jsMembers_)[i];
+    if (all && otherImpl_->jsMembers_) {
+      for (unsigned i = 0; i < otherImpl_->jsMembers_->size(); i++) {
+	OtherImpl::Member member = (*otherImpl_->jsMembers_)[i];
 
-	  if (member.name == WT_RESIZE_JS && otherImpl_->resized_) {
-	    WStringStream combined;
-	    combined << member.name << "=function(s,w,h) {"
-		     << "if (!s.wtWidth||s.wtWidth!=w"
-		     << ""   "||!s.wtHeight||s.wtHeight!=h) {"
-		     << "s.wtWidth=w;s.wtHeight=h;"
-		     << "s.style.height=h+'px';"
-		     << otherImpl_->resized_->createCall("Math.round(w)",
-							 "Math.round(h)")
-		     << '}';
+	bool notHere = false;
+	if (otherImpl_->jsStatements_) {
+	  for (unsigned j = 0; j < otherImpl_->jsStatements_->size(); ++j) {
+	    const OtherImpl::JavaScriptStatement& jss 
+	      = (*otherImpl_->jsStatements_)[j];
 
-	    if (member.value.length() > 1)
-	      combined << '(' << member.value << ")(s,w,h);";
-
-	    combined << '}';
-
-	    element.callMethod(combined.str());
-	  } else
-	    element.callMethod(member.name + "=" + member.value);
+	    if (jss.type == SetMember && jss.data == member.name) {
+	      notHere = true;
+	      break;
+	    } 
+	  }
 	}
-      } else if (otherImpl_->jsMembersSet_) {
-	for (unsigned i = 0; i < otherImpl_->jsMembersSet_->size(); ++i) {
-	  std::string m = (*otherImpl_->jsMembersSet_)[i];
 
-	  std::string value = javaScriptMember(m);
+	if (notHere)
+	  continue;
 
-	  if (m == WT_RESIZE_JS && otherImpl_->resized_) {
-	    WStringStream combined;
-	    combined << m << "=function(s,w,h) {"
-		     << "if (!s.wtWidth||s.wtWidth!=w"
-		     << ""   "||!s.wtHeight||s.wtHeight!=h) {"
-		     << "s.wtWidth=w;s.wtHeight=h;"
-		     << "s.style.height=h+'px';"
-		     << otherImpl_->resized_->createCall("Math.round(w)",
-							 "Math.round(h)")
-		     << '}';
-
-	    if (value.length() > 1)
-	      combined << '(' << value << ")(s,w,h);";
-
-	    combined << '}';
-
-	    element.callMethod(combined.str());
-	  } else
-	    if (value.length() > 1)
-	      element.callMethod(m + "=" + value);
-	    else
-	      element.callMethod(m + "= null");
-	}
+	declareJavaScriptMember(element, member.name, member.value);
       }
-
-      delete otherImpl_->jsMembersSet_;
-      otherImpl_->jsMembersSet_ = 0;
     }
 
-    if (otherImpl_->jsMemberCalls_) {
-      for (unsigned i = 0; i < otherImpl_->jsMemberCalls_->size(); ++i) {
-	std::string m = (*otherImpl_->jsMemberCalls_)[i];
-	element.callMethod(m);
+    if (otherImpl_->jsStatements_) {
+      for (unsigned i = 0; i < otherImpl_->jsStatements_->size(); ++i) {
+	const OtherImpl::JavaScriptStatement& jss 
+	  = (*otherImpl_->jsStatements_)[i];
+
+	switch (jss.type) {
+	case SetMember:
+	  declareJavaScriptMember(element, jss.data, javaScriptMember(jss.data));
+	  break;
+	case CallMethod:
+	  element.callMethod(jss.data);
+	  break;
+	case Statement:
+	  element.callJavaScript(jss.data);
+	  break;
+	}
       }
 
-      delete otherImpl_->jsMemberCalls_;
-      otherImpl_->jsMemberCalls_ = 0;
+      delete otherImpl_->jsStatements_;
+      otherImpl_->jsStatements_ = 0;
     }
   }
 
@@ -1676,6 +1651,38 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   delete transientImpl_;
   transientImpl_ = 0;
+}
+
+void WWebWidget::declareJavaScriptMember(DomElement& element,
+					 const std::string& name,
+					 const std::string& value)
+{
+  if (name[0] != ' ') {
+    if (name == WT_RESIZE_JS && otherImpl_->resized_) {
+      WStringStream combined;
+      combined << name << "=function(s,w,h) {"
+	       << "if (!s.wtWidth||s.wtWidth!=w"
+	       << ""   "||!s.wtHeight||s.wtHeight!=h) {"
+	       << "s.wtWidth=w;s.wtHeight=h;"
+	       << "s.style.height=h+'px';"
+	       << otherImpl_->resized_->createCall("Math.round(w)",
+						   "Math.round(h)")
+	       << '}';
+
+      if (value.length() > 1)
+	combined << '(' << value << ")(s,w,h);";
+
+      combined << '}';
+
+      element.callMethod(combined.str());
+    } else {
+      if (value.length() > 1)
+	element.callMethod(name + "=" + value);
+      else
+	element.callMethod(name + "=null");
+    }
+  } else
+    element.callJavaScript(value);
 }
 
 bool WWebWidget::isStubbed() const
@@ -2038,22 +2045,11 @@ void WWebWidget::doLoad(WWidget *w)
 void WWebWidget::render(WFlags<RenderFlag> flags)
 {
   WWidget::render(flags);
-
-  if (otherImpl_ && otherImpl_->delayedDoJavaScript_) {
-    wApp->doJavaScript(otherImpl_->delayedDoJavaScript_->str());
-    delete otherImpl_->delayedDoJavaScript_;
-    otherImpl_->delayedDoJavaScript_ = 0;
-  }
 }
 
 void WWebWidget::doJavaScript(const std::string& javascript)
 {
-  if (!otherImpl_)
-    otherImpl_ = new OtherImpl(this);
-  if (!otherImpl_->delayedDoJavaScript_)
-    otherImpl_->delayedDoJavaScript_ = new WStringStream;
-  (*otherImpl_->delayedDoJavaScript_) << javascript;
-
+  addJavaScriptStatement(Statement, javascript);
   repaint(RepaintAll);
 }
 

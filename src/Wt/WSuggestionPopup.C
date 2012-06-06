@@ -134,12 +134,13 @@ void WSuggestionPopup::defineJavaScript()
   LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopup", wtjs1);
   LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopupStdMatcher", wtjs2);
 
-  doJavaScript("new " WT_CLASS ".WSuggestionPopup("
-	       + app->javaScriptClass() + "," + jsRef() + ","
-	       + replacerJS_ + "," + matcherJS_ + ","
-	       + boost::lexical_cast<std::string>(filterLength_) + ","
-	       + boost::lexical_cast<std::string>(defaultValue_) + ","
-	       + (global_ ? "true" : "false") + ");");
+  setJavaScriptMember(" WSuggestionPopup",
+		      "new " WT_CLASS ".WSuggestionPopup("
+		      + app->javaScriptClass() + "," + jsRef() + ","
+		      + replacerJS_ + "," + matcherJS_ + ","
+		      + boost::lexical_cast<std::string>(filterLength_) + ","
+		      + boost::lexical_cast<std::string>(defaultValue_) + ","
+		      + (global_ ? "true" : "false") + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)

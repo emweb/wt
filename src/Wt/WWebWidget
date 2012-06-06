@@ -388,10 +388,24 @@ private:
     DropMimeType(const WT_USTRING& hoverStyleClass);
   };
 
+  enum JavaScriptStatementType { 
+    SetMember, 
+    CallMethod,
+    Statement
+  };
+
   struct OtherImpl {
     struct Member {
       std::string name;
       std::string value;
+    };
+
+    struct JavaScriptStatement {
+      JavaScriptStatement(JavaScriptStatementType type,
+			  const std::string& data);
+
+      JavaScriptStatementType type;
+      std::string data;
     };
 
     std::string                         *id_;
@@ -399,8 +413,7 @@ private:
     std::map<std::string, WT_USTRING>   *attributes_;
     std::vector<std::string>            *attributesSet_;
     std::vector<Member>                 *jsMembers_;
-    std::vector<std::string>            *jsMembersSet_;
-    std::vector<std::string>            *jsMemberCalls_;
+    std::vector<JavaScriptStatement>    *jsStatements_;
     JSignal<int, int>                   *resized_;
 
     // drag source id, drag mime type
@@ -409,8 +422,6 @@ private:
 
     typedef std::map<std::string, DropMimeType>   MimeTypesMap;
     MimeTypesMap                                 *acceptedDropMimeTypes_;
-
-    WStringStream *delayedDoJavaScript_;
 
     Signal<> childrenChanged_;
 
@@ -445,7 +456,12 @@ private:
   void setImplementLayoutSizeAware(bool aware);
   JSignal<int, int>& resized();
 
+  void addJavaScriptStatement(JavaScriptStatementType type,
+			      const std::string& data);
   int indexOfJavaScriptMember(const std::string& name) const;
+  void declareJavaScriptMember(DomElement& element,
+			       const std::string& name,
+			       const std::string& value);
 
 protected:
   void setRendered(bool rendered);

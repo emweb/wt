@@ -41,8 +41,8 @@ void WTextEdit::init()
 
   initTinyMCE();
 
-  doJavaScript("new " WT_CLASS ".WTextEdit("
-	       + app->javaScriptClass() + "," + jsRef() + ");");
+  setJavaScriptMember(" WTextEdit", "new " WT_CLASS ".WTextEdit("
+		      + app->javaScriptClass() + "," + jsRef() + ");");
 
   setJavaScriptMember
     (WT_RESIZE_JS,

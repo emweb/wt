@@ -558,8 +558,12 @@ void DomElement::unwrap()
 
 void DomElement::callMethod(const std::string& method)
 {
-  ++numManipulations_;
-  methodCalls_.push_back(method);
+  if (var_.empty())
+    javaScript_ << WT_CLASS << ".$('" << id_ << "').";
+  else
+    javaScript_ << var_ << '.';
+
+  javaScript_ << method << ';';
 }
 
 void DomElement::jsStringLiteral(std::ostream& out, const std::string& s,
@@ -939,7 +943,7 @@ void DomElement::asHTML(EscapeOStream& out,
     case PropertyIndeterminate:
       if (i->second == "true") {
 	DomElement *self = const_cast<DomElement *>(this);
-	self->methodCalls_.push_back("indeterminate=" + i->second);
+	self->callMethod("indeterminate=" + i->second);
       }
       break;
     case PropertyValue:
@@ -1022,9 +1026,6 @@ void DomElement::asHTML(EscapeOStream& out,
 
   javaScript << javaScriptEvenWhenDeleted_ << javaScript_;
 
-  for (unsigned i = 0; i < methodCalls_.size(); ++i)
-    javaScript << "$('#" << id_ << "').get(0)." << methodCalls_[i] << ";\n";
-
   if (timeOut_ != -1)
     timeouts.push_back(TimeoutEvent(timeOut_, id_, timeOutJSRepeat_));
 
@@ -1047,7 +1048,7 @@ std::string DomElement::createVar() const
 void DomElement::declare(EscapeOStream& out) const
 {
   if (var_.empty())
-    out << "var " << createVar() << "=$('#" << id_ << "').get(0);\n";
+    out << "var " << createVar() << "=" WT_CLASS ".$('" << id_ << "');\n";
 }
 
 bool DomElement::canWriteInnerHTML(WApplication *app) const
@@ -1377,11 +1378,6 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
       DomElement *child = childrenToAdd_[i].child;
       child->addToParent(out, var_, childrenToAdd_[i].pos, app);
     }
-  }
-
-  for (unsigned i = 0; i < methodCalls_.size(); ++i) {
-    declare(out);
-    out << var_ << "." << methodCalls_[i] << ';' << '\n';
   }
 
   if (!javaScript_.empty()) {

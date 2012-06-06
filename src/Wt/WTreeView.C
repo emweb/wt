@@ -1012,8 +1012,6 @@ void WTreeView::setup()
     layout->addWidget(contentsContainer_, 1);
 
     impl_->setLayout(layout);
-
-    defineJavaScript();
   } else {
     contentsContainer_ = new WContainerWidget();
     contentsContainer_->addWidget(contents_);
@@ -1043,12 +1041,12 @@ void WTreeView::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WTreeView.js", "WTreeView", wtjs1);
 
-  setJavaScriptMember("_a", "=0;new " WT_CLASS ".WTreeView("
-	       + app->javaScriptClass() + "," + jsRef() + ","
-	       + contentsContainer_->jsRef() + ","
-	       + headerContainer_->jsRef() + ","
-	       + boost::lexical_cast<std::string>(rowHeaderCount())
-	       + ");");
+  setJavaScriptMember(" WTreeView", "new " WT_CLASS ".WTreeView("
+		      + app->javaScriptClass() + "," + jsRef() + ","
+		      + contentsContainer_->jsRef() + ","
+		      + headerContainer_->jsRef() + ","
+		      + boost::lexical_cast<std::string>(rowHeaderCount())
+		      + ");");
 
   setJavaScriptMember(WT_RESIZE_JS,
 		      "function(self,w,h) {"
@@ -1179,7 +1177,7 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
   WApplication *app = WApplication::instance();
 
   if (app->environment().ajax() && renderState_ < NeedRerenderHeader)
-    app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+    doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
   if (!app->environment().ajax() && column == 0 && !width.isAuto()) {
     double total = 0;
@@ -1375,6 +1373,8 @@ void WTreeView::scheduleRerender(RenderState what)
 void WTreeView::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull) {
+    defineJavaScript();
+
     if (!itemEvent_.isConnected())
       itemEvent_.connect(this, &WTreeView::onItemEvent);
   }
@@ -1404,10 +1404,9 @@ void WTreeView::render(WFlags<RenderFlag> flags)
 
 
   if (rowHeaderCount() && renderedNodesAdded_) {
-    WApplication::instance()->doJavaScript
-      ("{var s=" + scrollBarC_->jsRef() + ";"
-       """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
-       "}");
+    doJavaScript("{var s=" + scrollBarC_->jsRef() + ";"
+		 """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
+		 "}");
     renderedNodesAdded_ = false;
   }
 
@@ -1442,7 +1441,7 @@ void WTreeView::rerenderHeader()
   }
 
   if (app->environment().ajax())
-    app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+    doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 }
 
 void WTreeView::enableAjax()
@@ -1733,7 +1732,7 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 	scheduleRerender(NeedRerenderHeader);
       else {
 	if (app->environment().ajax())
-	  app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+	  doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
 	WContainerWidget *row = headerRow();
 
@@ -1768,7 +1767,7 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
     if (renderState_ < NeedRerenderHeader) {
       WApplication *app = wApp;
       if (app->environment().ajax())
-	app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+	doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
     }
 
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);

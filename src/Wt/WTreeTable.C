@@ -65,12 +65,7 @@ void WTreeTable::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WTreeTable.js", "WTreeTable", wtjs1);
 
-  /*
-   * We should really resolve this: we use setJavaScriptMember()
-   * instead of doJavaScript(), because setJavaScriptMember() is streamed
-   * before doJavaScript()
-   */
-  setJavaScriptMember("_a", "0;new " WT_CLASS ".WTreeTable("
+  setJavaScriptMember(" WTreeTable", "new " WT_CLASS ".WTreeTable("
 		      + app->javaScriptClass() + "," + jsRef() + ");");
 }
 

@@ -56,6 +56,11 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   treeView_->setColumnAlignment(3, AlignCenter);
 
   /*
+  treeView_->setRowHeaderCount(1);
+  treeView_->setColumnWidth(0, 300);
+  */
+
+  /*
    * Expand the first (and single) top level node
    */
   treeView_->setExpanded(model->index(0, 0), true);

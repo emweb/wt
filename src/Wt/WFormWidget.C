@@ -181,10 +181,10 @@ void WFormWidget::defineJavaScript(bool force)
 
     LOAD_JAVASCRIPT(app, "js/WFormWidget.js", "WFormWidget", wtjs1);
 
-    doJavaScript("new " WT_CLASS ".WFormWidget("
-		 + app->javaScriptClass() + "," 
-		 + jsRef() + ","
-		 + emptyText_.jsStringLiteral() + ");");
+    setJavaScriptMember(" WFormWidget", "new " WT_CLASS ".WFormWidget("
+			+ app->javaScriptClass() + "," 
+			+ jsRef() + ","
+			+ emptyText_.jsStringLiteral() + ");");
   }
 }
 

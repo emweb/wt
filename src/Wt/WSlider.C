@@ -78,6 +78,9 @@ void PaintedSlider::paintEvent(WPaintDevice *paintDevice)
 
     double tickStep = ((double)w - (HANDLE_WIDTH - 10)) / (r / tickInterval);
 
+    if (tickStep <= 0)
+      return;
+
     WPen pen;
     pen.setColor(WColor(0xd7, 0xd7, 0xd7));
     pen.setCapStyle(FlatCap);
@@ -411,9 +414,6 @@ void WSlider::layoutSizeChanged(int width, int height)
   WFormWidget::resize(WLength::Auto, WLength::Auto);
 
   if (paintedSlider_) {
-    const WEnvironment& env = WApplication::instance()->environment();
-    if (env.agentIsChrome() && orientation_ == Vertical)
-      height -= 5; // bug in Chrome: table adds internal margin to td height
     paintedSlider_->sliderResized(width, height);
   }
 }

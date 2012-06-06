@@ -549,7 +549,6 @@ WT_DECLARE_WT_MEMBER
 
 	 if (cSize === 0) {
 	   if (!DC.initialized) {
-
 	     if (pc !== 'absolute') {
 	       cSize = dir ? container.clientHeight : container.clientWidth;
 
@@ -563,9 +562,18 @@ WT_DECLARE_WT_MEMBER
 	       /*
 		* heuristic to switch to layout-sizes-container mode
 		*/
-	       if ((WT.isIElt9 && cSize == 0)
-		   || (cSize == measures[TOTAL_MINIMUM_SIZE]
-		       + padding(container, dir))) {
+	       var minSize, ieCSize;
+
+	       if (WT.hasTag(container, "TD") || WT.hasTag(container, "TH")) {
+		 minSize = 0;
+		 ieCSize = 1;
+	       } else {
+		 minSize = measures[TOTAL_MINIMUM_SIZE];
+		 ieCSize = 0;
+	       }
+
+	       if ((WT.isIElt9 && cSize == ieCSize)
+		   || (cSize == minSize + padding(container, dir))) {
 		 if (debug)
 		   console.log('switching to managed container size '
 			       + dir + ' ' + id);
@@ -602,12 +610,10 @@ WT_DECLARE_WT_MEMBER
 
      DC.cSize = cSize;
 
-     if (dir == VERTICAL && (DC.maxSize || OC.maxSize)) {
+     if (dir == VERTICAL && container && container.wtResize) {
        var w = OC.cSize,
 	   h = DC.cSize;
-       // (2) use wtResize on container if necessary
-       if (container && container.wtResize)
-	 container.wtResize(container, w, h);
+       container.wtResize(container, w, h);
      }
 
      if (!cPaddedSize) {
@@ -714,7 +720,7 @@ WT_DECLARE_WT_MEMBER
        }
 
        if (totalStretch == 0) {
-	 for (var di = 0; di < dirCount; ++di)
+	 for (di = 0; di < dirCount; ++di)
 	   if (stretch[di] == 0) {
 	     stretch[di] = 1;
 	     ++totalStretch;
@@ -769,7 +775,7 @@ WT_DECLARE_WT_MEMBER
 	   }
 	 }
        } else {
-	 for (var di = 0; di < dirCount; ++di)
+	 for (di = 0; di < dirCount; ++di)
 	   if (stretch[di] > 0)
 	     targetSize[di] = measures[MINIMUM_SIZE][di];
 	 toDistribute -= totalMinimum[STRETCHABLES];
@@ -1124,7 +1130,7 @@ WT_DECLARE_APP_MEMBER
 
       if (layout)
 	layout.setDirty();
-    }
+    };
 
     this.add = function(layout) {
       function addIn(layouts, layout) {
@@ -1229,6 +1235,6 @@ WT_DECLARE_APP_MEMBER
       measureVertical = true;
 
       self.scheduleAdjust();
-    }
+    };
   }) ()
 );

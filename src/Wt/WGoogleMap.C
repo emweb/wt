@@ -192,7 +192,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
       strm << 
 	"var map = new google.maps.Map(self);"
 	"map.setCenter(new google.maps.LatLng(47.01887777, 8.651888), 13);";
-      setJavaScriptMember("wtResize",
+      setJavaScriptMember(WT_RESIZE_JS,
                           "function(self, w, h) {"
 			  """self.style.width=w + 'px';"
 			  """self.style.height=h + 'px';"
@@ -210,7 +210,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
 	"var map = new google.maps.Map(self, myOptions);"
 	"map.overlays = [];"
 	"map.infowindows = [];";
-      setJavaScriptMember("wtResize",
+      setJavaScriptMember(WT_RESIZE_JS,
                           "function(self, w, h) {"
 			  """self.style.width=w + 'px';"
 			  """self.style.height=h + 'px';"

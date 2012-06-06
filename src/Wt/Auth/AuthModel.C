@@ -73,11 +73,12 @@ void AuthModel::configureThrottling(WInteractWidget *button)
     WApplication *app = WApplication::instance();
     LOAD_JAVASCRIPT(app, "js/AuthModel.js", "AuthThrottle", wtjs1);
 
-    button->doJavaScript("new " WT_CLASS ".AuthThrottle(" WT_CLASS ","
-			 + button->jsRef() + ","
-			 + WString::tr("Wt.Auth.throttle-retry")
-			 .jsStringLiteral()
-			 + ");");
+    button->setJavaScriptMember(" AuthThrottle",
+				"new " WT_CLASS ".AuthThrottle(" WT_CLASS ","
+				+ button->jsRef() + ","
+				+ WString::tr("Wt.Auth.throttle-retry")
+				.jsStringLiteral()
+				+ ");");
   }
 }
 

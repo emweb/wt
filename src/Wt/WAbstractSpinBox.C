@@ -138,10 +138,9 @@ void WAbstractSpinBox::updateDom(DomElement& element, bool all)
   if (all || changed_) {
     if (!all) {
       if (!nativeControl())
-	WApplication::instance()->doJavaScript
-	  ("jQuery.data(" + jsRef() + ", 'obj')"
-	   ".update(" + jsMinMaxStep() + ","
-	   + boost::lexical_cast<std::string>(decimals()) + ");");
+	doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+		     ".update(" + jsMinMaxStep() + ","
+		     + boost::lexical_cast<std::string>(decimals()) + ");");
       else
 	setValidator(createValidator());
     }

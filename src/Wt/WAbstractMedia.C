@@ -67,8 +67,9 @@ WAbstractMedia::WAbstractMedia(WContainerWidget *parent)
   WApplication *app = wApp;
   LOAD_JAVASCRIPT(app, "js/WAbstractMedia.js", "WAbstractMedia", wtjs1);
 
-  doJavaScript("new " WT_CLASS ".WAbstractMedia("
-	       + app->javaScriptClass() + "," + jsRef() + ");");
+  setJavaScriptMember(" WAbstractMedia",
+		      "new " WT_CLASS ".WAbstractMedia("
+		      + app->javaScriptClass() + "," + jsRef() + ");");
 
 #ifndef WT_TARGET_JAVA
   implementStateless(&WAbstractMedia::play, &WAbstractMedia::play);
