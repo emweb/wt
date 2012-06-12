@@ -280,9 +280,6 @@ WT_DECLARE_WT_MEMBER
 	     })();
 
 	     item.w.style.left = item.w.style.top = NA_px;
-
-	     var mx = margin(item.w, HORIZONTAL), my = margin(item.w, VERTICAL);
-	     item.m = [mx, my];
 	   }
 
 	   if (!progressive && item.w.style.position != 'absolute') {
@@ -879,7 +876,7 @@ WT_DECLARE_WT_MEMBER
 	       alignment = 0;
 
 	     if (!alignment) {
-	       var m = item.m[dir];
+	       var m = margin(item.w, dir);
 
 	       /*
 		* Chrome:

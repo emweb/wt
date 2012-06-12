@@ -128,6 +128,13 @@ public:
     return User(boost::lexical_cast<std::string>(user_.id()), *this);
   }
 
+  virtual void deleteUser(const User& user) {
+    Wt::Dbo::Transaction t(session_);
+    Wt::Dbo::ptr<DboType> u = find(user);
+    u.remove();
+    t.commit();
+  }
+
   virtual User::Status status(const User& user) const {
     WithUser find(*this, user);
     return user_->status();

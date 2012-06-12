@@ -307,6 +307,11 @@ void WAbstractArea::setCursor(Cursor cursor)
   impl_->decorationStyle().setCursor(cursor);
 }
 
+void WAbstractArea::setCursor(std::string cursorImage, Cursor fallback)
+{
+  impl_->decorationStyle().setCursor(cursorImage, fallback);
+}
+
 Cursor WAbstractArea::cursor() const
 {
   return impl_->decorationStyle().cursor();

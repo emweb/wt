@@ -229,6 +229,14 @@ public:
    */
   void setCursor(Cursor cursor);
 
+  /*! \brief Sets a custom cursor image URL.
+   *
+   * The URL should point to a .cur file. For optimal portability, make
+   * sure that the .cur file is proparly constructed. A renamed .ico file
+   * will not work on Internet Explorer.
+   */
+  void setCursor(std::string cursorImage, Cursor fallback = ArrowCursor);
+
   /*! \brief Returns the cursor.
    *
    * \sa setCursor()

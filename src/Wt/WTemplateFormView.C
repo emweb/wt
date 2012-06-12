@@ -99,22 +99,22 @@ void WTemplateFormView::indicateValidation(WFormModel::Field field,
     switch (validation.state()) {
     case WValidator::InvalidEmpty:
     case WValidator::Invalid:
-      edit->removeStyleClass("Wt-valid");
-      edit->addStyleClass("Wt-invalid");
-      info->addStyleClass("Wt-error");
+      edit->removeStyleClass("Wt-valid", true);
+      edit->addStyleClass("Wt-invalid", true);
+      info->addStyleClass("Wt-error", true);
 
       break;
     case WValidator::Valid:
-      edit->removeStyleClass("Wt-invalid");
-      edit->addStyleClass("Wt-valid");
-      info->removeStyleClass("Wt-error");
+      edit->removeStyleClass("Wt-invalid", true);
+      edit->addStyleClass("Wt-valid", true);
+      info->removeStyleClass("Wt-error", true);
 
       break;
     }
   } else {
-    edit->removeStyleClass("Wt-valid");
-    edit->removeStyleClass("Wt-invalid");
-    info->removeStyleClass("Wt-error");
+    edit->removeStyleClass("Wt-valid", true);
+    edit->removeStyleClass("Wt-invalid", true);
+    info->removeStyleClass("Wt-error", true);
   }
 }
 

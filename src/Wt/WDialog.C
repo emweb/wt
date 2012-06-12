@@ -48,7 +48,7 @@ WDialog::WDialog(const WString& windowTitle)
     // see below for an IE workaround
     app->styleSheet().addRule("div.Wt-dialog", std::string() +
 			      (app->environment().ajax() ?
-			       "visibility: hidden;" : "") +
+			       "visibility: hidden;" : "") 
 			      //"position: " + position + ';'
 			      + (!app->environment().ajax() ?
 				 "left: 50%; top: 50%;"

@@ -314,8 +314,15 @@ bool WPopupMenu::isExposed(WWidget *w)
 	return true;
   }
 
-  // Signal outside of the menu: a top level menu will simply close
-  // and let it be handled.
+  // Signal outside of the menu:
+  //  - signal of a widget that is an ancestor of location_: ignore it
+  //  - otherwise: close the menu and let it be handled.
+  if (location_) {
+    for (WWidget *p = location_->parent(); p; p = p->parent())
+      if (w == p)
+	return false;
+  }
+
   if (!parentItem_) {
     done();
     return true;

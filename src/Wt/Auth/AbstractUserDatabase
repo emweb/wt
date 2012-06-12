@@ -153,6 +153,12 @@ public:
    */
   virtual User registerNew(); 
 
+  /*! \brief Delete a user.
+   *
+   * This deletes a user from the database.
+   */
+  virtual void deleteUser(const User& user);
+
   /*! \brief Returns the status for a user.
    *
    * If there is support for suspending accounts, then this method may

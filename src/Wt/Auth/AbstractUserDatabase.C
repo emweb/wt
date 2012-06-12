@@ -75,6 +75,11 @@ User AbstractUserDatabase::registerNew()
   return User();
 }
 
+void AbstractUserDatabase::deleteUser(const User& user)
+{
+  LOG_ERROR(Require("deleteUser()", REGISTRATION).what());
+}
+
 std::string AbstractUserDatabase::email(const User& user) const
 {
   LOG_ERROR(Require("email()", EMAIL_VERIFICATION).what());

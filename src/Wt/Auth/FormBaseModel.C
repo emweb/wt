@@ -16,7 +16,8 @@ const FormBaseModel::Field FormBaseModel::LoginNameField = "user-name";
 FormBaseModel::FormBaseModel(const AuthService& baseAuth,
 			     AbstractUserDatabase& users,
 			     WObject *parent)
-  : baseAuth_(baseAuth),
+  : WFormModel(parent), 
+    baseAuth_(baseAuth),
     users_(users),
     passwordAuth_(0)
 { }
