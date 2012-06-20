@@ -348,68 +348,81 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     || (mouseDblClick && mouseDblClick->needsUpdate(all));
 
   if (updateMouseClick) {
-    if (flags_.test(BIT_ENABLED)) { 
-      if (mouseDblClick) {
-	WStringStream combined;
+    WStringStream js;
 
-	/*
-	 * Click: if timer is running:
-	 *  - clear timer, dblClick()
-	 *  - start timer, clear timer and click()
-	 */
+    js << "if($(o).hasClass('Wt-disabled')){" WT_CLASS ".cancelEvent(e);return;}";
 
-	combined << "if(window.wtClickTimeout) {"
-		 << "clearTimeout(window.wtClickTimeout);"
-		 << "window.wtClickTimeout = null;";
+    if (mouseDblClick) {
+      /*
+       * Click: if timer is running:
+       *  - clear timer, dblClick()
+       *  - start timer, clear timer and click()
+       */
 
-	combined << mouseDblClick->javaScript();
+      js << "if(window.wtClickTimeout) {"
+	       << "clearTimeout(window.wtClickTimeout);"
+	       << "window.wtClickTimeout = null;";
 
-	if (mouseDblClick->isExposedSignal()) {
+      js << mouseDblClick->javaScript();
+
+      if (mouseDblClick->isExposedSignal()) {
+	if (!app)
+	  app = WApplication::instance();
+  
+	js << app->javaScriptClass()
+		 << "._p_.update(o,'" << mouseDblClick->encodeCmd()
+		 << "',e,true);";
+      }
+
+      mouseDblClick->updateOk();
+
+      js <<
+	"}else{"
+	"""if (" WT_CLASS ".isIElt9 && document.createEventObject) "
+	""  "e = document.createEventObject(e);"
+	"""window.wtClickTimeout = setTimeout(function() {"
+	""   "window.wtClickTimeout = null;";
+
+      if (mouseClick) {
+	js << mouseClick->javaScript();
+
+	if (mouseClick->isExposedSignal()) {
 	  if (!app)
 	    app = WApplication::instance();
-  
-	  combined << app->javaScriptClass()
-		   << "._p_.update(o,'" << mouseDblClick->encodeCmd()
+
+	  js << app->javaScriptClass()
+		   << "._p_.update(o,'" << mouseClick->encodeCmd()
 		   << "',e,true);";
 	}
 
-	mouseDblClick->updateOk();
+	mouseClick->updateOk();
+      }
 
-	combined <<
-	  "}else{"
-	  """if (" WT_CLASS ".isIElt9 && document.createEventObject) "
-	  ""  "e = document.createEventObject(e);"
-	  """window.wtClickTimeout = setTimeout(function() {"
-	  ""   "window.wtClickTimeout = null;";
+      js << "},200);}";
+    } else {
+      if (mouseClick) {
+	js << mouseClick->javaScript();
 
-	if (mouseClick) {
-	  combined << mouseClick->javaScript();
+	if (mouseClick->isExposedSignal()) {
+	  if (!app)
+	    app = WApplication::instance();
 
-	  if (mouseClick->isExposedSignal()) {
-	    if (!app)
-	      app = WApplication::instance();
-
-	    combined << app->javaScriptClass()
-		     << "._p_.update(o,'" << mouseClick->encodeCmd()
-		     << "',e,true);";
-	  }
-
-	  mouseClick->updateOk();
+	  js << app->javaScriptClass()
+		   << "._p_.update(o,'" << mouseClick->encodeCmd()
+		   << "',e,true);";
 	}
 
-	combined << "},200);}";
-
-	element.setEvent(CLICK_SIGNAL, combined.str(), "");
-
-	if (!app)
-	  app = WApplication::instance();
-	if (app->environment().agentIsIElt(9))
-	  element.setEvent("dblclick", "this.onclick()");
-      } else {
-	updateSignalConnection(element, *mouseClick, CLICK_SIGNAL, all);
+	mouseClick->updateOk();
       }
-    } else {
-      element.setEvent(CLICK_SIGNAL, WT_CLASS ".cancelEvent(event||window.event);");
+    }
+
+    element.setEvent(CLICK_SIGNAL, js.str(), "");
+
+    if (mouseDblClick) {
+      if (!app)
+	app = WApplication::instance();
+      if (app->environment().agentIsIElt(9))
+	element.setEvent("dblclick", "this.onclick()");
     }
   }
 
@@ -539,15 +552,7 @@ void WInteractWidget::propagateSetEnabled(bool enabled)
 {
   flags_.set(BIT_ENABLED, enabled);
 
-  EventSignal<WMouseEvent> *s;
-
-  s = mouseEventSignal(M_CLICK_SIGNAL, false);
-  if (s)
-    s->senderRepaint();
-
-  s = mouseEventSignal(DBL_CLICK_SIGNAL, false);
-  if (s)
-    s->senderRepaint();
+  toggleStyleClass("Wt-disabled", !enabled, true);
 
   WWebWidget::propagateSetEnabled(enabled);
 }

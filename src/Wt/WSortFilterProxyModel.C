@@ -555,9 +555,11 @@ void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 
     if (refilter || resort) {
       // Determine new insertion point: erase it temporarily for this
-      item->proxyRowMap_.erase(item->proxyRowMap_.begin() + oldMappedRow);
+      if (oldMappedRow != -1)
+	item->proxyRowMap_.erase(item->proxyRowMap_.begin() + oldMappedRow);
       int newMappedRow = mappedInsertionPoint(row, item);
-      item->proxyRowMap_.insert(item->proxyRowMap_.begin() + oldMappedRow, row);
+      if (oldMappedRow != -1)
+	item->proxyRowMap_.insert(item->proxyRowMap_.begin() + oldMappedRow, row);
 
       if (newMappedRow != oldMappedRow) {
 	if (oldMappedRow != -1) {
