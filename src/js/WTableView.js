@@ -64,6 +64,7 @@ WT_DECLARE_WT_MEMBER
 	 ele = t;
 	 t = t.parentNode;
 	 columnId = t.className.split(' ')[0].substring(7) * 1;
+	 rowIdx = $t.index();
 	 break;
        }
        t = t.parentNode;

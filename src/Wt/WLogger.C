@@ -225,17 +225,35 @@ void WLogger::setFile(const std::string& path)
   if (ownStream_)
     delete o_;
 
+  std::ofstream *ofs;
 #ifdef _MSC_VER
   FILE *file = _fsopen(path.c_str(), "at", _SH_DENYNO);
   if (file) {
-    o_ = new std::ofstream(file);
+    ofs = new std::ofstream(file);
   } else {
-    o_ = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate);
+    ofs = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate);
   }
 #else
-  o_ = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate);
+  ofs = new std::ofstream(path.c_str(), 
+			  std::ios_base::out | std::ios_base::ate);
 #endif
-  ownStream_ = true;
+  
+  if (ofs->is_open()) {
+    std::cerr 
+      << "INFO: Opened log file (" << path.c_str() << ")." 
+      << std::endl;
+    o_ = ofs;
+    ownStream_ = true;
+  } else {
+    delete ofs;
+
+    std::cerr 
+      << "ERROR: Could not open log file (" << path.c_str() << ")." 
+      << "We will be logging to std::cerr again."
+      << std::endl;
+    o_ = &std::cerr;
+    ownStream_ = false;
+  }
 }
 
 void WLogger::addField(const std::string& name, bool isString)

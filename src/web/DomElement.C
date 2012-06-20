@@ -558,6 +558,8 @@ void DomElement::unwrap()
 
 void DomElement::callMethod(const std::string& method)
 {
+  ++numManipulations_;
+
   if (var_.empty())
     javaScript_ << WT_CLASS << ".$('" << id_ << "').";
   else

@@ -8,6 +8,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WLogger"
+#include "Wt/WSslInfo"
 #include "Wt/Http/Request"
 
 #include "WebController.h"
@@ -29,6 +30,9 @@ WEnvironment::WEnvironment()
     hashInternalPaths_(false),
     dpiScale_(1),
     contentType_(HTML4)
+#ifndef WT_TARGET_JAVA
+  ,sslInfo_(0)
+#endif
 { }
 
 WEnvironment::WEnvironment(WebSession *session)
@@ -38,7 +42,17 @@ WEnvironment::WEnvironment(WebSession *session)
     hashInternalPaths_(false),
     dpiScale_(1),
     contentType_(HTML4)
+#ifndef WT_TARGET_JAVA
+  ,sslInfo_(0)
+#endif
 { }
+
+WEnvironment::~WEnvironment()
+{
+#ifndef WT_TARGET_JAVA
+  delete sslInfo_;
+#endif
+}
 
 void WEnvironment::setInternalPath(const std::string& path)
 {
@@ -70,6 +84,9 @@ void WEnvironment::init(const WebRequest& request)
   serverSoftware_  = request.envValue("SERVER_SOFTWARE");
   serverAdmin_     = request.envValue("SERVER_ADMIN");
   pathInfo_        = request.pathInfo();
+#ifndef WT_TARGET_JAVA
+  sslInfo_         = request.sslInfo();
+#endif
 
   setUserAgent(request.headerValue("User-Agent"));
 

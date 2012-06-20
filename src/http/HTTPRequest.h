@@ -48,6 +48,7 @@ public:
   virtual std::string remoteAddr() const;
   virtual std::string urlScheme() const;
   virtual bool isSynchronous() const;
+  virtual Wt::WSslInfo *sslInfo() const;
 
 private:
   WtReplyPtr reply_;

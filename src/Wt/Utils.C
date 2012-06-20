@@ -13,7 +13,7 @@
 #ifndef WIN32
 #include <arpa/inet.h>
 #else
-#include <Winsock2.h>
+#include <winsock2.h>
 #endif
 
 #include "Wt/WLogger"

@@ -125,6 +125,10 @@ void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 {
   WCompositeWidget::setHidden(hidden, animation);
 
+  if (autoHideDelay_ >= 0)
+    doJavaScript("jQuery.data(" + jsRef() + ", 'obj').setHidden("
+		 + (hidden ? "1" : "0") + ");");
+
   if (hidden)
     renderOutAll();
 }

@@ -52,19 +52,18 @@ void TcpConnection::stop()
   }
 }
 
-typedef void (Connection::*HandleRead)(const asio_error_code&, std::size_t);
-typedef void (Connection::*HandleWrite)(const asio_error_code&);
-
 void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
   LOG_DEBUG(socket().native() << ": startAsyncReadRequest");
   setReadTimeout(timeout);
 
+  boost::shared_ptr<TcpConnection> sft 
+    = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-      boost::bind(static_cast<HandleRead>(&Connection::handleReadRequest),
-		  shared_from_this(),
-		  asio::placeholders::error,
-		  asio::placeholders::bytes_transferred));
+			  boost::bind(&Connection::handleReadRequest,
+				      sft,
+				      asio::placeholders::error,
+				      asio::placeholders::bytes_transferred));
 }
 
 void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
@@ -72,11 +71,13 @@ void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
   LOG_DEBUG(socket().native() << ": startAsyncReadBody");
   setReadTimeout(timeout);
 
+  boost::shared_ptr<TcpConnection> sft 
+    = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-       boost::bind(static_cast<HandleRead>(&Connection::handleReadBody),
-		   shared_from_this(),
-		   asio::placeholders::error,
-		   asio::placeholders::bytes_transferred));
+			  boost::bind(&Connection::handleReadBody,
+				      sft,
+				      asio::placeholders::error,
+				      asio::placeholders::bytes_transferred));
 }
 
 void TcpConnection::startAsyncWriteResponse
@@ -86,10 +87,12 @@ void TcpConnection::startAsyncWriteResponse
   LOG_DEBUG(socket().native() << ": startAsyncWriteResponse");
   setWriteTimeout(timeout);
 
+  boost::shared_ptr<TcpConnection> sft 
+    = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
   asio::async_write(socket_, buffers,
-       boost::bind(static_cast<HandleWrite>(&Connection::handleWriteResponse),
-		   shared_from_this(),
-		   asio::placeholders::error));
+		    boost::bind(&Connection::handleWriteResponse,
+				sft,
+				asio::placeholders::error));
 }
 
 } // namespace server

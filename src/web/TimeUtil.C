@@ -1,7 +1,7 @@
 #include "TimeUtil.h"
 
 #ifdef _MSC_VER
-#include "Winsock2.h"
+#include "winsock2.h"
 #pragma comment (lib, "winmm.lib")
 namespace {
 #include <windows.h>

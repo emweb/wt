@@ -4,12 +4,21 @@
  * All rights reserved.
  */
 
+#include "Request.h"
+
 #include <ostream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "Wt/WLogger"
-#include "Request.h"
+#include "SslUtils.h"
+
+#include <Wt/WLogger>
+#include <Wt/WSslInfo>
+#include <Wt/WTime>
+
+#ifdef HTTP_WITH_SSL
+#include <openssl/ssl.h>
+#endif
 
 namespace Wt {
   LOGGER("wthttp");
@@ -29,6 +38,10 @@ void Request::reset()
   request_query.clear();
 
   contentLength = -1;
+
+#ifdef HTTP_WITH_SSL
+  ssl = 0;
+#endif
   webSocketVersion = -1;
 }
 
@@ -105,6 +118,48 @@ bool Request::acceptGzipEncoding() const
     return i->second.find("gzip") != std::string::npos;
   else
     return false;
+}
+
+Wt::WSslInfo *Request::sslInfo() const
+{
+#ifdef HTTP_WITH_SSL
+  if (!ssl)
+    return 0;
+
+  X509 *x509 = SSL_get_peer_certificate(ssl);
+  
+  if (x509) {
+    Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(x509);
+    
+    X509_free(x509);
+
+    std::vector<Wt::WSslCertificate> clientCertChain;
+    STACK_OF(X509) *certChain = SSL_get_peer_cert_chain(ssl);
+    if (certChain) {
+      for (int i = 0; i < sk_X509_num(certChain); ++i) {
+	X509 *x509_i = sk_X509_value(certChain, i);
+	clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(x509_i));
+      }
+    }
+    
+    Wt::WSslInfo::VerificationState state = Wt::WSslInfo::Invalid;
+    std::string info;
+
+    long SSL_state = SSL_get_verify_result(ssl);
+    if (SSL_state == X509_V_OK) {
+      state = Wt::WSslInfo::Valid;
+    } else {
+      state = Wt::WSslInfo::Invalid;
+      info = X509_verify_cert_error_string(SSL_state);
+    }
+    Wt::WSslInfo::VerificationResult clientVerificationResult(state, info);
+    
+    return new Wt::WSslInfo(clientCert, 
+			    clientCertChain, 
+			    clientVerificationResult);
+  }
+#endif
+  return 0;
 }
 
 std::string Request::getHeader(const std::string& name) const

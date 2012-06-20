@@ -111,7 +111,10 @@ void WPushButton::updateDom(DomElement& element, bool all)
     element.setProperty(PropertyClass, "Wt-btn");
   }
 
-  if (flags_.test(BIT_ICON_CHANGED) || (all && !icon_.isNull())) {
+  bool updateInnerHtml = !icon_.isNull() && flags_.test(BIT_TEXT_CHANGED);
+
+  if (updateInnerHtml || flags_.test(BIT_ICON_CHANGED)
+      || (all && !icon_.isNull())) {
     DomElement *image = DomElement::createNew(DomElement_IMG);
     image->setProperty(PropertySrc, icon_.url());
     image->setId("im" + formName());

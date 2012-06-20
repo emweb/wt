@@ -185,5 +185,10 @@ bool HTTPRequest::isSynchronous() const
   return false;
 }
 
+Wt::WSslInfo *HTTPRequest::sslInfo() const
+{
+  return reply_->request().sslInfo();
+}
+
 } // namespace server
 } // namespace http

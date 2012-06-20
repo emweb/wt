@@ -21,7 +21,6 @@ namespace boost {
 
 #include <boost/any.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
 
 #include <Wt/WObject>
 #include <Wt/WCssStyleSheet>

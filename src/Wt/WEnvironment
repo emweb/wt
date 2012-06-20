@@ -17,6 +17,8 @@
 
 namespace Wt {
 
+class WSslInfo;
+class WAbstractServer;
 class Configuration;
 class WServer;
 class WebRequest;
@@ -588,6 +590,32 @@ public:
 #endif // WT_TARGET_JAVA
   WServer *server() const;
 
+#ifndef WT_TARGET_JAVA
+  /*! \brief Returns information on the SSL client certificate or \c 0
+   *  if no authentication took place.
+   *
+   * This function will return \c 0 if no verification took place, %Wt
+   * was compiled without SSL support, or the web server was
+   * configured without client SSL certificates.
+   *
+   * This method may return a pointer to a WSslInfo object, while the
+   * authentication may have failed. This depends on the configuration
+   * of the web server. It is therefore important to always check the
+   * verification result with WSslInfo::clientVerificationResult().
+   *
+   * Remember that WEnvironment is 'const', thus the object returned
+   * by this function will represent the SSL information of the
+   * first request for this session. It will not be updated during
+   * the lifetime of the session.
+   *
+   * The object returned is owned by WEnvironment and will be deleted
+   * when WEnvironment is destroyed (= at the end of the session).
+   */
+  WSslInfo *sslInfo() const {
+    return sslInfo_;
+  }
+#endif
+
   bool hashInternalPaths() const { return hashInternalPaths_; }
 
   bool supportsCss3Animations() const;
@@ -623,7 +651,13 @@ protected:
   std::string internalPath_;
   std::string publicDeploymentPath_;
 
+#ifndef WT_TARGET_JAVA
+  WSslInfo *sslInfo_;
+#endif
+
   WEnvironment();
+  ~WEnvironment();
+
   void setUserAgent(const std::string& agent);
   void setInternalPath(const std::string& path);
  

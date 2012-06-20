@@ -19,6 +19,7 @@
 namespace Wt {
 
 class EntryPoint;
+class WSslInfo;
 
 /*
  * A single, raw, HTTP request/response, which conveys all of the http-related
@@ -177,6 +178,13 @@ public:
 
   void setResponseType(ResponseType responseType);
   ResponseType responseType() const { return responseType_; }
+
+  /* 
+   * Returns \c 0 if the request does not have SSL client certificate
+   * information. When sslInfo() does return a pointer, the ownership of the
+   * pointer is transferred to the caller, which must delete it.
+   */
+  virtual WSslInfo *sslInfo() const = 0;
 
 protected:
   const EntryPoint *entryPoint_;

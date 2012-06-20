@@ -1,9 +1,31 @@
 #include "IsapiRequest.h"
-#include "Server.h"
-#include "WebUtils.h"
 #include "FileUtils.h"
+#include "Server.h"
+#include "SslUtils.h"
+#include "WebUtils.h"
 #include <boost/algorithm/string/case_conv.hpp>
 #include <fstream>
+#include <stdexcept>
+
+#include <Wt/WSslInfo>
+
+#ifdef WT_WITH_SSL
+#include <openssl/ssl.h>
+#include <openssl/x509.h>
+#endif
+
+namespace {
+#ifdef WT_WITH_SSL
+X509 *convertCertContext(const CERT_CONTEXT &cc) {
+  X509 *x509 = NULL;
+  BIO *in = BIO_new_mem_buf(cc.pbCertEncoded, cc.cbCertEncoded);
+  x509 = d2i_X509_bio(in, NULL);
+  BIO_free_all(in);
+  
+  return x509;
+}
+#endif
+}
 
 namespace Wt {
   namespace isapi {
@@ -47,7 +69,8 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   bool spooltofile = false;
   if (server_->hasConfiguration()) {
     spooltofile =
-      bytesToRead_ >(unsigned)server_->configuration().isapiMaxMemoryRequestSize();
+      bytesToRead_ >(unsigned)server_
+      ->configuration().isapiMaxMemoryRequestSize();
   } else {
     spooltofile = bytesToRead_ > 128*1024;
   }
@@ -206,7 +229,8 @@ void IsapiRequest::sendHeader()
   hei.cchStatus = static_cast<DWORD>(status.size() + 1);
   hei.pszHeader = header.c_str();
   hei.cchHeader = static_cast<DWORD>(header.size() + 1);
-  hei.fKeepConn =  version_ == HTTP_1_1 && ((contentLength_ != -1) || chunking_);
+  hei.fKeepConn 
+    = version_ == HTTP_1_1 && ((contentLength_ != -1) || chunking_);
   ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_SEND_RESPONSE_HEADER_EX,
     &hei, 0, 0);
   headerSent_ = true;
@@ -288,7 +312,8 @@ void IsapiRequest::writeSync()
     DWORD offset = 0;
     while (more) {
       DWORD size = static_cast<DWORD>(writeData_[i].size() - offset);
-      if (ecb_->WriteClient(ecb_->ConnID, (LPVOID)(writeData_[i].data() + offset),
+      if (ecb_->WriteClient(ecb_->ConnID, 
+			    (LPVOID)(writeData_[i].data() + offset),
           &size, HSE_IO_SYNC)) {
         offset += size;
         if (offset >= writeData_[i].size()) {
@@ -325,15 +350,19 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
     writeOffset_ = 0;
   }
   writeOffset_ += cbIO;
-  if (writeIndex_ < writeData_.size() && writeOffset_ >= writeData_[writeIndex_].size()) {
+  if (writeIndex_ < writeData_.size() 
+      && writeOffset_ >= writeData_[writeIndex_].size()) {
     writeIndex_++;
     writeOffset_ = 0;
   }
   if (!error) {
     if (writeIndex_ < writeData_.size()) {
-      DWORD size = static_cast<DWORD>(writeData_[writeIndex_].size() - writeOffset_);
-      if (ecb_->WriteClient(ecb_->ConnID, (LPVOID)(writeData_[writeIndex_].data() + writeOffset_),
-        &size, HSE_IO_ASYNC)) {
+      DWORD size 
+	= static_cast<DWORD>(writeData_[writeIndex_].size() - writeOffset_);
+      if (ecb_
+	  ->WriteClient(ecb_->ConnID, 
+			(LPVOID)(writeData_[writeIndex_].data() + writeOffset_),
+			&size, HSE_IO_ASYNC)) {
         // Don't do anything anymore, the callback will take over
         return;
       } else {
@@ -437,7 +466,9 @@ std::string IsapiRequest::envValue(const std::string& hdr) const
   std::string name = boost::algorithm::to_upper_copy(hdr);
   char buffer[1024];
   DWORD size = sizeof(buffer);
-  if (!ecb_->GetServerVariable(ecb_->ConnID, (LPSTR)name.c_str(), buffer, &size)) {
+  if (!ecb_->GetServerVariable(ecb_->ConnID, 
+			       (LPSTR)name.c_str(), 
+			       buffer, &size)) {
     switch(GetLastError()) {
     case ERROR_INVALID_PARAMETER:
       return "";
@@ -449,7 +480,9 @@ std::string IsapiRequest::envValue(const std::string& hdr) const
       {
         char *buf = new char[size];
         std::string retval;
-        if (!ecb_->GetServerVariable(ecb_->ConnID, (LPSTR)name.c_str(), buf, &size)) {
+        if (!ecb_->GetServerVariable(ecb_->ConnID, 
+				     (LPSTR)name.c_str(), 
+				     buf, &size)) {
           // Give up
         } else {
           retval = std::string(buf, buf + size - 1);
@@ -516,6 +549,55 @@ std::string IsapiRequest::urlScheme() const {
     return "https";
   else
     return "http";
+}
+
+WSslInfo *IsapiRequest::sslInfo() const {
+#ifdef WT_WITH_SSL
+  CERT_CONTEXT_EX cce;
+  memset(&cce, 0, sizeof(CERT_CONTEXT_EX));
+  char certbuf[64*1024];
+  cce.cbAllocated = sizeof(certbuf);
+  cce.CertContext.pbCertEncoded = (BYTE *) &certbuf;
+  
+  if(ecb_->ServerSupportFunction(ecb_->ConnID, 
+				 HSE_REQ_GET_CERT_INFO_EX, 
+				 &cce, 0, 0)) {
+    bool present = (bool)(cce.dwCertificateFlags & 0x001);
+    bool invalid = (bool)(cce.dwCertificateFlags & 0x002);
+    if (present) {
+      X509 *x509 = convertCertContext(cce.CertContext);
+      
+      std::string clientCert;
+      if (x509) {
+        Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(x509);
+
+        X509_free(x509);
+	
+        // FIXME!!! Not implemented!!
+        std::vector<WSslCertificate> clientCertChain;
+	
+        Wt::WSslInfo::VerificationResult
+          clientVerificationResult(invalid ? Wt::WSslInfo::Invalid
+					  : Wt::WSslInfo::Valid, "");
+
+        return new Wt::WSslInfo(clientCert, 
+			        clientCertChain, 
+			        clientVerificationResult);
+      }
+    }
+  } else {
+    DWORD error = GetLastError();
+    if (error == ERROR_NO_DATA) {
+      //do nothing, no certificate was found
+    } else {
+      server_->log("error")
+        << "IsapiRequest::sslInfo(): Error " +
+        boost::lexical_cast<std::string>(error);
+    }
+  }
+#endif
+
+return 0;
 }
 
 }

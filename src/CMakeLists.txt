@@ -178,6 +178,8 @@ Wt/WSocketNotifier.C
 Wt/WSortFilterProxyModel.C
 Wt/WSpinBox.C
 Wt/WSound.C
+Wt/WSslCertificate.C
+Wt/WSslInfo.C
 Wt/WStackedWidget.C
 Wt/WStandardItem.C
 Wt/WStandardItemModel.C
@@ -292,6 +294,7 @@ web/FileUtils.C
 web/TimeUtil.C
 web/XSSFilter.C
 web/XSSUtils.C
+web/SslUtils.C
 web/random_device.cpp
 web/base64.cpp
 Plain_html.C

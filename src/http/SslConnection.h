@@ -64,6 +64,7 @@ private:
 
 private:
   void handleHandshake(const asio_error_code& error);
+  void stopNextLayer(const boost::system::error_code& ec);
 
   /// Socket for the connection.
   ssl_socket socket_;

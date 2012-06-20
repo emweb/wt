@@ -63,6 +63,12 @@ public:
     { return sslCertificateChainFile_; }
   const std::string& sslPrivateKeyFile() const { return sslPrivateKeyFile_; }
   const std::string& sslTmpDHFile() const { return sslTmpDHFile_; }
+  bool  sslEnableV3() const { return sslEnableV3_; }
+  const std::string& sslClientVerification() const
+  { return sslClientVerification_; }
+  int sslVerifyDepth() const { return sslVerifyDepth_; }
+  const std::string& sslCaCertificates() const { return sslCaCertificates_; }
+  const std::string& sslCipherList() const { return sslCipherList_; }
 
   const std::string& sessionIdPrefix() const { return sessionIdPrefix_; }
   const std::string& accessLog() const { return accessLog_; }
@@ -93,6 +99,11 @@ private:
   std::string sslCertificateChainFile_;
   std::string sslPrivateKeyFile_;
   std::string sslTmpDHFile_;
+  bool sslEnableV3_;
+  std::string sslClientVerification_;
+  int sslVerifyDepth_;
+  std::string sslCaCertificates_;
+  std::string sslCipherList_;
 
   std::string sessionIdPrefix_;
   std::string accessLog_;

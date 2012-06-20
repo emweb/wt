@@ -1660,19 +1660,16 @@ void WWebWidget::declareJavaScriptMember(DomElement& element,
   if (name[0] != ' ') {
     if (name == WT_RESIZE_JS && otherImpl_->resized_) {
       WStringStream combined;
-      combined << name << "=function(s,w,h) {"
-	       << "if (!s.wtWidth||s.wtWidth!=w"
-	       << ""   "||!s.wtHeight||s.wtHeight!=h) {"
-	       << "s.wtWidth=w;s.wtHeight=h;"
-	       << "s.style.height=h+'px';"
-	       << otherImpl_->resized_->createCall("Math.round(w)",
-						   "Math.round(h)")
-	       << '}';
-
-      if (value.length() > 1)
-	combined << '(' << value << ")(s,w,h);";
-
-      combined << '}';
+      if (value.length() > 1) {
+	combined << name << "=function(s,w,h) {"
+		 << WApplication::instance()->javaScriptClass()
+		 << "._p_.propagateSize(s,w,h);"
+		 << "(" << value << ")(s,w,h);"
+		 << "}";
+      } else
+	combined << name << "="
+		 << WApplication::instance()->javaScriptClass()
+		 << "._p_.propagateSize";
 
       element.callMethod(combined.str());
     } else {

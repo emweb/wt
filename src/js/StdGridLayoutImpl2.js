@@ -52,6 +52,7 @@ WT_DECLARE_WT_MEMBER
    var topLevel = false, parent = null, parentItemWidget = null,
      parentInitialized = false, parentMargin = [];
 
+   var rtl = $(document.body).hasClass('Wt-rtl');
    var DirConfig =
      [ {
          initialized: false,
@@ -61,9 +62,9 @@ WT_DECLARE_WT_MEMBER
 	 measures: [],
 	 sizes: [],
 	 fixedSize: [],
-	 Left: 'Left',
-	 left: 'left',
-	 Right: 'Right',
+	 Left: (rtl ? 'Right':'Left'),
+	 left: (rtl ? 'right':'left'),
+	 Right: (rtl ? 'Left':'Right'),
 	 Size: 'Width',
 	 size: 'width',
 	 alignBits: 0,
@@ -561,7 +562,8 @@ WT_DECLARE_WT_MEMBER
 		*/
 	       var minSize, ieCSize;
 
-	       if (WT.hasTag(container, "TD") || WT.hasTag(container, "TH")) {
+	       if ((WT.hasTag(container, "TD") || WT.hasTag(container, "TH"))
+		   && !(WT.isIE && !WT.isIElt9)) {
 		 minSize = 0;
 		 ieCSize = 1;
 	       } else {

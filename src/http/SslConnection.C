@@ -22,6 +22,13 @@
 #include "ConnectionManager.h"
 #include "Server.h"
 
+//#define DEBUG_ASYNC(a) a  
+#define DEBUG_ASYNC(a)
+
+namespace Wt {
+  LOGGER("SslConnection");
+}
+
 namespace http {
 namespace server {
 
@@ -46,34 +53,79 @@ void SslConnection::start()
 
 void SslConnection::handleHandshake(const asio_error_code& error)
 {
-  if (!error)
+  SSL* ssl = 0;
+#if BOOST_VERSION >= 104700
+  ssl = socket_.native_handle();
+#else //BOOST_VERSION < 104700
+  if(socket_.impl())
+    ssl = socket_.impl()->ssl;
+#endif //BOOST_VERSION >= 104700
+
+  if (!error) {
     Connection::start();
-  else
+    // ssl handle must be registered after calling start(), since start()
+    // resets the structs
+    registerSslHandle(ssl);
+  } else {
+    long sslState = SSL_get_verify_result(ssl);
+    if (sslState != X509_V_OK) {
+      LOG_INFO("OpenSSL error: " 
+	       << X509_verify_cert_error_string(sslState));
+    }
+
+    DEBUG_ASYNC(std::cerr << socket().native() << "handleHandshake error: "
+      << error.message() << "\n");
     ConnectionManager_.stop(shared_from_this());
+  }
 }
 
 void SslConnection::stop()
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": stop()" << std::endl);
   finishReply();
-  try {
-    socket().close();
-  } catch (asio_system_error&) {
-  }
+  DEBUG_ASYNC(std::cerr << socket().native() << ": SSL shutdown" << std::endl);
+  
+  boost::shared_ptr<SslConnection> sft 
+    = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
+  socket_.async_shutdown(boost::bind(&SslConnection::stopNextLayer,
+				     sft,
+				     asio::placeholders::error));
 }
 
-typedef void (Connection::*HandleRead)(const asio_error_code&, std::size_t);
-typedef void (Connection::*HandleWrite)(const asio_error_code&);
+void SslConnection::stopNextLayer(const boost::system::error_code& ec)
+{
+  if (ec) {
+    DEBUG_ASYNC(std::cerr << socket().native() << ": ssl_shutdown failed:"
+      << ec.message() << std::endl);
+  }
+  try {
+    boost::system::error_code ignored_ec;
+    DEBUG_ASYNC(std::cerr 
+		<< socket().native() << ": socket shutdown" 
+		<< std::endl);
+    socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    DEBUG_ASYNC(std::cerr 
+		<< socket().native() << "closing socket" 
+		<< std::endl);
+    socket().close();
+  } catch (asio_system_error& e) {
+    DEBUG_ASYNC(std::cerr 
+		<< socket().native() << ": error " << e.what() 
+		<< std::endl);
+  }
+}
 
 void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
   setReadTimeout(timeout);
 
+  boost::shared_ptr<SslConnection> sft 
+    = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-       boost::bind(static_cast<HandleRead>(
-         &SslConnection::handleReadRequestSsl),
-         shared_from_this(),
-         asio::placeholders::error,
-         asio::placeholders::bytes_transferred));
+			  boost::bind(&SslConnection::handleReadRequestSsl,
+				      sft,
+				      asio::placeholders::error,
+				      asio::placeholders::bytes_transferred));
 }
 
 void SslConnection::handleReadRequestSsl(const asio_error_code& e,
@@ -93,19 +145,23 @@ void SslConnection::startAsyncReadBody(Buffer& buffer, int timeout)
 {
   setReadTimeout(timeout);
 
+  boost::shared_ptr<SslConnection> sft
+    = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-       boost::bind(static_cast<HandleRead>(&SslConnection::handleReadBodySsl),
-		   shared_from_this(),
-		   asio::placeholders::error,
-		   asio::placeholders::bytes_transferred));
+			  boost::bind(&SslConnection::handleReadBodySsl,
+				      sft,
+				      asio::placeholders::error,
+				      asio::placeholders::bytes_transferred));
 }
 
 void SslConnection::handleReadBodySsl(const asio_error_code& e,
                                       std::size_t bytes_transferred)
 {
   // See handleReadRequestSsl for explanation
+  boost::shared_ptr<SslConnection> sft 
+    = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
   server()->service().post(boost::bind(&SslConnection::handleReadBody,
-                                       shared_from_this(),
+                                       sft,
                                        e, bytes_transferred));
 }
 
@@ -114,9 +170,11 @@ void SslConnection::startAsyncWriteResponse
 {
   setWriteTimeout(timeout);
 
+  boost::shared_ptr<SslConnection> sft 
+    = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
   asio::async_write(socket_, buffers,
-	boost::bind(static_cast<HandleWrite>(&Connection::handleWriteResponse),
-		    shared_from_this(),
+	boost::bind(&Connection::handleWriteResponse,
+		    sft,
 		    asio::placeholders::error));
 }
 

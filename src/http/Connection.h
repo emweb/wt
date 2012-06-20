@@ -67,6 +67,10 @@ public:
 
   Server *server() const { return server_; }
 
+#ifdef HTTP_WITH_SSL
+  void registerSslHandle(SSL *ssl) { request_.ssl = ssl; }
+#endif
+
 public: // huh?
   void handleWriteResponse(const asio_error_code& e);
   void handleWriteResponse();

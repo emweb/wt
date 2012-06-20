@@ -18,13 +18,13 @@
 #endif
 #ifdef WIN32
 #include <process.h> // for getpid()
-#include <Winsock2.h> // for gethostname()
+#include <winsock2.h> // for gethostname()
 #endif
 #include <iostream>
 #include <fstream>
 
 #ifdef __CYGWIN__
-#include <Winsock2.h> // for gethostname()
+#include <winsock2.h> // for gethostname()
 #endif
 
 namespace Wt {
@@ -52,6 +52,11 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     sslCertificateChainFile_(),
     sslPrivateKeyFile_(),
     sslTmpDHFile_(),
+    sslEnableV3_(false),
+    sslClientVerification_("none"),
+    sslVerifyDepth_(1),
+    sslCaCertificates_(),
+    sslCipherList_(),
     sessionIdPrefix_(),
     accessLog_(),
     maxMemoryRequestSize_(128*1024)
@@ -162,6 +167,33 @@ void Configuration::createOptions(po::options_description& options)
     ("ssl-tmp-dh", po::value<std::string>()->default_value(sslTmpDHFile_),
      "File for temporary Diffie-Hellman parameters\n"
      "e.g. \"/etc/ssl/dh512.pem\"")
+    ("ssl-enable-v3",
+     "Switch on SSLv3 support (not recommended; disabled by default)")
+    ("ssl-client-verification",
+     po::value<std::string>(&sslClientVerification_)
+       ->default_value(sslClientVerification_),
+     "The verification mode for client certificates.\n"
+     "This is either 'none', 'optional' or 'required'. When 'none', the server "
+     "will not request a client certificate. When 'optional', the server will "
+     "request a certificate, but the client does not have to supply one. With "
+     "'required', the connection will be terminated if the client does not "
+     "provide a valid certificate.")
+    ("ssl-verify-depth",
+     po::value<int>(&sslVerifyDepth_)->default_value(sslVerifyDepth_),
+     "Specifies the maximum length of the server certificate chain.\n")
+    ("ssl-ca-certificates",
+     po::value<std::string>(&sslCaCertificates_)
+       ->default_value(sslCaCertificates_),
+     "Path to a file containing the concatenated trusted CA certificates, "
+     "which can be used to authenticate the client. The file should contains a "
+     "a number of PEM-encoded certificates.\n")
+    ("ssl-cipherlist",
+     po::value<std::string>(&sslCipherList_)
+       ->default_value(sslCipherList_),
+     "List of acceptable ciphers for SSL. This list is passed as-is to the SSL "
+     "layer, so see openssl for the proper syntax. When empty, the default "
+     "acceptable cipher list will be used. Example cipher list string: "
+     "\"TLSv1+HIGH:!SSLv2\"\n")
     ;
 
   options.add(general).add(http).add(https);
@@ -277,6 +309,8 @@ void Configuration::readOptions(const po::variables_map& vm)
     if (deployPath_[0] != '/')
       throw Wt::WServer::Exception("Deployment root must start with '/'");
 
+  sslEnableV3_ = vm.count("ssl-enable-v3");
+
   if (vm.count("https-address")) {
     httpsAddress_ = vm["https-address"].as<std::string>();
 
@@ -286,6 +320,20 @@ void Configuration::readOptions(const po::variables_map& vm)
 	      sslPrivateKeyFile_, RegularFile | Private);
     checkPath(vm, "ssl-tmp-dh", "SSL Temporary Diffie-Hellman file",
 	      sslTmpDHFile_, RegularFile);
+  }
+
+  if (sslClientVerification_ != "none") {
+
+    checkPath(vm, "ssl-ca-certificates",
+	      "Client authentication SSL CA certificates file",
+	      sslCaCertificates_, RegularFile);
+
+    if (sslClientVerification_ != "optional" &&
+	sslClientVerification_ != "required") {
+      throw Wt::WServer::Exception(
+	      "ssl-client-verification must be \"none\", \"optional\" or "
+	      "\"required\"");
+    }
   }
 
   if (httpAddress_.empty() && httpsAddress_.empty()) {

@@ -7,16 +7,26 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <climits>
 #include <errno.h>
 #include <stdio.h>
 
 #include "FCGIStream.h"
 #include "WebController.h"
 #include "Configuration.h"
+#include "SslUtils.h"
+
+#include "Wt/WSslInfo"
 #include "Wt/WLogger"
 
 #include "fcgio.h"
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
+
+#ifdef WT_WITH_SSL
+#include <openssl/ssl.h>
+#endif
+
+#define SSL_CLIENT_CERT_CHAIN_PREFIX "SSL_CLIENT_CERT_CHAIN"
 
 using std::memset;
 using std::exit;
@@ -182,6 +192,57 @@ namespace {
 
     virtual bool isSynchronous() const {
       return true;
+    }
+
+    virtual WSslInfo *sslInfo() const {
+#ifdef WT_WITH_SSL
+      std::string clientCert = envValue("SSL_CLIENT_CERT");
+      if (!clientCert.empty()) {
+	X509 *x509 = Wt::Ssl::readFromPem(clientCert);
+	
+	if (x509) {
+          Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(x509);
+
+	  X509_free(x509);
+
+	  std::vector<Wt::WSslCertificate> clientCertChain;
+	  unsigned depth = UINT_MAX;
+	  for (unsigned i = 0; i < depth; i++) {
+	    std::string name = SSL_CLIENT_CERT_CHAIN_PREFIX; 
+	    name += boost::lexical_cast<std::string>(i);
+	    char *cc = FCGX_GetParam(name.c_str(), request_->envp);
+	    if (cc) {
+              X509 *x509_i = Wt::Ssl::readFromPem(cc);
+	      clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(x509_i));
+              X509_free(x509_i);
+            } else 
+	      break;
+	  }
+	  
+	  
+          Wt::WSslInfo::VerificationState state = Wt::WSslInfo::Invalid;
+	  std::string verify = envValue("SSL_CLIENT_VERIFY");
+          std::string verifyInfo;
+	  if (verify == "SUCCESS") {
+	    state = Wt::WSslInfo::Valid;
+	  } else if (verify.empty()) {
+	    state = Wt::WSslInfo::Invalid;
+	    verifyInfo = "SSL_CLIENT_VERIFY variable was empty";
+	  } else {
+	    state = Wt::WSslInfo::Invalid;
+	    verifyInfo = verify;
+	  }
+	  Wt::WSslInfo::VerificationResult
+            clientVerificationResult(state, verifyInfo);
+
+	  return new Wt::WSslInfo(clientCert, 
+                                  clientCertChain, 
+				  clientVerificationResult);
+	}
+      }
+#endif
+
+      return 0;
     }
 
   private:

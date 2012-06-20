@@ -26,6 +26,14 @@
 // For ::int64_ and ::uint64_t on Windows only
 #include "Wt/WDllDefs.h"
 
+#ifdef HTTP_WITH_SSL
+#include <openssl/ssl.h>
+#endif
+
+namespace Wt {
+  class WSslInfo;
+}
+
 namespace http {
 namespace server {
 
@@ -67,6 +75,11 @@ public:
   std::string request_path;
   std::string request_query;
   std::string request_extra_path;
+
+#ifdef HTTP_WITH_SSL
+  SSL *ssl;
+#endif
+  Wt::WSslInfo *sslInfo() const;
 
   void reset();
 

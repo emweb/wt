@@ -664,7 +664,8 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 	    div->addChild(c);
 	  }
 	} else
-	  c = getImpl(item.item_)->createDomElement(true, true, app);
+	  if (item.item_)
+	    c = getImpl(item.item_)->createDomElement(true, true, app);
 
 	if (table) {
 	  if (c) {

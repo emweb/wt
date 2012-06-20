@@ -42,6 +42,17 @@ namespace {
        << e.what();
     return ss.str();
   }
+
+#ifdef HTTP_WITH_SSL
+  SSL_CTX *nativeContext(asio::ssl::context& context)
+  {
+#if BOOST_VERSION >= 104700
+    return context.native_handle();
+#else //BOOST_VERSION < 104700
+    return context.impl();
+#endif //BOOST_VERSION >= 104700
+  }
+#endif //HTTP_WITH_SSL
 }
 
 namespace Wt {
@@ -139,14 +150,46 @@ void Server::start()
     LOG_INFO_S(&wt_, "starting server: https://" <<
 	       config_.httpsAddress() << ":" << config_.httpsPort());
 
-    ssl_context_.set_options(asio::ssl::context::default_workarounds
-			     | asio::ssl::context::no_sslv2
-			     | asio::ssl::context::single_dh_use);
+    int sslOptions = asio::ssl::context::default_workarounds
+      | asio::ssl::context::no_sslv2
+      | asio::ssl::context::single_dh_use;
+
+    if (!config_.sslEnableV3())
+      sslOptions |= asio::ssl::context::no_sslv3;
+
+    ssl_context_.set_options(sslOptions);
+
+    if (config_.sslClientVerification() == "none") {
+      ssl_context_.set_verify_mode(asio::ssl::context::verify_none);
+    } else if (config_.sslClientVerification() == "optional") {
+      ssl_context_.set_verify_mode(asio::ssl::context::verify_peer);
+      ssl_context_.load_verify_file(config_.sslCaCertificates());
+    } else {
+      // assume 'required'
+      ssl_context_.set_verify_mode(asio::ssl::context::verify_peer |
+        asio::ssl::context::verify_fail_if_no_peer_cert);
+      ssl_context_.load_verify_file(config_.sslCaCertificates());
+    }
+
     ssl_context_.use_certificate_chain_file(config_.sslCertificateChainFile());
     ssl_context_.use_private_key_file(config_.sslPrivateKeyFile(),
 				      asio::ssl::context::pem);
     ssl_context_.use_tmp_dh_file(config_.sslTmpDHFile());
     
+    SSL_CTX *native_ctx = nativeContext(ssl_context_);
+    
+    if (config_.sslCipherList().size()) {
+      if (!SSL_CTX_set_cipher_list(native_ctx, config_.sslCipherList().c_str())) {
+        throw Wt::WServer::Exception(
+          "failed to select ciphers for cipher list "
+          + config_.sslCipherList());
+      }
+    }
+
+    std::string sessionId = Wt::WRandom::generateId(SSL_MAX_SSL_SESSION_ID_LENGTH);
+    SSL_CTX_set_session_id_context(native_ctx,
+      reinterpret_cast<const unsigned char *>(sessionId.c_str()), sessionId.size());
+
     asio::ip::tcp::endpoint ssl_endpoint;
 #ifndef NO_RESOLVE_ACCEPT_ADDRESS
     asio::ip::tcp::resolver::query ssl_query(config_.httpsAddress(),

@@ -20,6 +20,12 @@ WT_DECLARE_WT_MEMBER
      APP.emit(el, 'cancel');
    }
 
+   this.setHidden = function(hidden) {
+     if (hideTimeout)
+       clearTimeout(hideTimeout);
+     hideTimeout = null;
+   }
+
    if (autoHideDelay >= 0) {
      $(document).find('.Wt-popupmenu')
        .mouseleave(function() {

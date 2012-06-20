@@ -7,8 +7,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
-#include "Request.h"
 #include "StaticReply.h"
+#include "Request.h"
 #include "StockReply.h"
 #include "MimeTypes.h"
 

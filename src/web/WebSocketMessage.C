@@ -137,6 +137,11 @@ std::string WebSocketMessage::urlScheme() const
   return "http";
 }
 
+Wt::WSslInfo *WebSocketMessage::sslInfo() const
+{
+  return webSocket()->sslInfo();
+}
+
 std::string WebSocketMessage::headerValue(const std::string& name) const
 {
   return webSocket()->headerValue(name);

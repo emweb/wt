@@ -1,6 +1,7 @@
 SUBDIRS(
   auth1
   broadcast
+  client-ssl-auth 
   dbo
   mediaplayer
   miniwebgl

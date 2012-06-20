@@ -832,9 +832,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
   if (serveSkeletons) {
     bool haveJQuery = false;
     for (unsigned i = 0;
-	 i < app->scriptLibraries_.size() - app->scriptLibrariesAdded_;
+	 i < app->scriptLibraries_.size();
 	 ++i) {
-      if (app->scriptLibraries_[i].uri.find("jquery-") != std::string::npos) {
+      if (app->scriptLibraries_[i].uri.find("jquery") != std::string::npos) {
 	haveJQuery = true;
 	break;
       }

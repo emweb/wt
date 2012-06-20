@@ -203,10 +203,10 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
       server.log("fatal") << e.what();
       return 1;
     }
-  } catch (Wt::WServer::Exception& e) {
+  } catch (Wt::WServer::Exception&) {
     //std::cerr << e.what() << std::endl;
     return 1;
-  } catch (std::exception& e) {
+  } catch (std::exception&) {
     //std::cerr << "exception: " << e.what() << std::endl;
     return 1;
   }

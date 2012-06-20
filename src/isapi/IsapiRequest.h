@@ -65,6 +65,8 @@ public:
 
   virtual std::string urlScheme() const;
 
+  virtual WSslInfo *sslInfo() const;
+
 private:
   LPEXTENSION_CONTROL_BLOCK ecb_;
   IsapiServer *server_;

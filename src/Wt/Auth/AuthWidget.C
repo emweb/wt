@@ -365,6 +365,11 @@ void AuthWidget::updatePasswordLoginView()
     }
 
     model_->updateThrottling(login);
+  } else {
+    bindEmpty("lost-password");
+    bindEmpty("sep");
+    bindEmpty("register");
+    bindEmpty("login");
   }
 }
 

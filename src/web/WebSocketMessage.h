@@ -45,6 +45,7 @@ public:
   virtual std::string pathInfo() const;
   virtual std::string remoteAddr() const;
   virtual std::string urlScheme() const;
+  virtual Wt::WSslInfo*sslInfo() const;
 
   virtual std::string headerValue(const std::string& name) const;
 
