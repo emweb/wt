@@ -1240,15 +1240,15 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
   {
     WApplication *app = WApplication::instance();
 
-    for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
-      DomElement *child = updatedChildren_[i];
-      child->asJavaScript(out, Update);
-    }
-
     /*
      * short-cut for frequent short manipulations
      */
     if (mode_ == ModeUpdate && numManipulations_ == 1) {
+      for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
+	DomElement *child = updatedChildren_[i];
+	child->asJavaScript(out, Update);
+      }
+
       if (properties_.find(PropertyStyleDisplay) != properties_.end()) {
 	std::string style = properties_.find(PropertyStyleDisplay)->second;
 	if (style == "none") {
@@ -1326,6 +1326,11 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     for (unsigned i = 0; i < childrenToSave_.size(); ++i)
       out << "$('#" << childrenToSave_[i] << "').replaceWith(c"
 	  << var_ << (int)i << ");";
+
+    for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
+      DomElement *child = updatedChildren_[i];
+      child->asJavaScript(out, Update);
+    }
 
     return var_;
   }

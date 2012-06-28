@@ -26,7 +26,7 @@ public:
     : spinBox_(spinBox)
   { }
 
-  virtual Result validate(WT_USTRING& input) const {
+  virtual Result validate(const WT_USTRING& input) const {
     return spinBox_->parseValue(input) ? Result(Valid) : Result(Invalid);
   }
 

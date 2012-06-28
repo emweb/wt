@@ -166,21 +166,16 @@ void CommentView::save()
 
   bool isNew = comment_.id() == -1;
 
-  if (isNew)
-    session_.add(comment_);
-
   Comment *comment = comment_.modify();
 
   comment->setText(editArea_->text());
 
-  if (comment->date.isNull())
+  if (isNew) {
+    session_.add(comment_);
     comment->date = WDateTime::currentDateTime();
-
-  if (!comment->author)
     comment->author = session_.user();
-
-  if (isNew)
     session_.commentsChanged().emit(comment_);
+  }
 
   renderView();
 

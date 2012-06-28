@@ -158,7 +158,7 @@ public:
 
   /*! \brief Comparison operator
    *
-   * Compares to strings and returns \c true if the strings are exactly
+   * Compares two strings and returns \c true if the strings are exactly
    * the same. This may require evaluating a localized string in the
    * current locale.
    */
@@ -453,7 +453,7 @@ public:
 
   /*! \brief Comparison operator
    *
-   * Compares to strings and returns \c true if the strings are exactly
+   * Compares two strings and returns \c true if the strings are not exactly
    * the same. This may require evaluating a localized string in the
    * current locale.
    */

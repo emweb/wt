@@ -313,7 +313,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
   if (index_ != view_->rootIndex()) {
     elementAt(0, 1)->setStyleClass("c1 rh");
 
-    updateGraphics(isLast, view_->model()->rowCount(index_) == 0);
+    updateGraphics(isLast, !view_->model()->hasChildren(index_));
     insertColumns(0, view_->columnCount());
 
     selfHeight = 1;
@@ -1913,8 +1913,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 	      (parentNode->widgetForModelRow(start - 1));
 
 	    if (n)
-	      n->updateGraphics(false,
-				model()->rowCount(n->modelIndex()) == 0);
+	      n->updateGraphics(false, !model()->hasChildren(n->modelIndex()));
 	  }
 	}
       } /* else:
@@ -1999,7 +1998,7 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 	      (parentNode->widgetForModelRow(start - 1));
 
 	    if (n)
-	      n->updateGraphics(true, model()->rowCount(n->modelIndex()) == 0);
+	      n->updateGraphics(true, !model()->hasChildren(n->modelIndex()));
 	  }
 	} /* else:
 	     children not loaded -- so we do not need to bother
@@ -2616,7 +2615,7 @@ void WTreeView::selectRange(const WModelIndex& first, const WModelIndex& last)
       = index.column() == 0 ? index
       : model()->index(index.row(), 0, index.parent());
 
-    if (isExpanded(indexc0) && model()->rowCount(indexc0) > 0)
+    if (isExpanded(indexc0) && model()->hasChildren(indexc0))
       index = model()->index(0, first.column(), indexc0);
     else {
       for (;;) {

@@ -472,8 +472,8 @@ WT_DECLARE_WT_MEMBER
      }
 
      if (container
-	 && prevMeasures[TOTAL_MINIMUM_SIZE]
-	 != DC.measures[TOTAL_MINIMUM_SIZE]) {
+	 && prevMeasures[TOTAL_MINIMUM_SIZE] != DC.measures[TOTAL_MINIMUM_SIZE]
+	 && container.parentNode.className != 'Wt-domRoot') {
        /*
 	* If our minimum layout requirements have changed, then we want
 	* to communicate this up using the minimum widths

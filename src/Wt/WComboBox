@@ -218,6 +218,7 @@ private:
 
   void itemsChanged();
   void propagateChange();
+  void rowsAboutToBeRemoved(const WModelIndex &index, int from, int to);
   virtual bool supportsNoSelection() const;
 
 protected:

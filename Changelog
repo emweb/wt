@@ -1,3 +1,12 @@
+28-06-2012:
+	* WAbstractSpinBox: fix (server-side) validate()
+
+	* WComboBox: handle current index when deleting rows
+
+	* WTreeView: use hasChildren() do determine need for expand icon
+
+	* layout: properly constrain minimum sizes in the application root
+
 23-05-2012:
 	* dbo: add One-to-One relations, using Wt::Dbo::weak_ptr<>
 

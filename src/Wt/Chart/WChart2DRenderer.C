@@ -728,9 +728,9 @@ private:
     scale = xIndex.data(MarkerScaleFactorRole);
 
   if(!scale.empty())
-    dScale =  boost::any_cast<double>(scale);
+    dScale = asNumber(scale);
 
-  dScale = markerSize / 6 * dScale +3;
+  dScale = markerSize / 6 * dScale;
 
   painter.scale(dScale, dScale);
 }
