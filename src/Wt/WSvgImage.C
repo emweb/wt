@@ -97,7 +97,7 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
     finishPath();
     makeNewGroup();
 
-    shapes_ << "<"SVG"ellipse "
+    shapes_ << "<" SVG "ellipse "
 	    << " cx=\""<< Utils::round_str(rect.center().x(), 3, buf);
     shapes_ << "\" cy=\"" << Utils::round_str(rect.center().y(), 3, buf);
     shapes_ << "\" rx=\"" << Utils::round_str(rect.width() / 2, 3, buf);
@@ -205,15 +205,15 @@ void WSvgImage::makeNewGroup()
 
   char buf[30];
 
-  shapes_ << "</"SVG"g>";
+  shapes_ << "</" SVG "g>";
 
   currentTransform_ = painter()->combinedTransform();
 
   if (newClipPath_) {
-    shapes_ << "</"SVG"g>";
+    shapes_ << "</" SVG "g>";
     if (painter()->hasClipping()) {
       currentClipId_ = nextClipId_++;
-      shapes_ << "<"SVG"defs><"SVG"clipPath id=\"clip"
+      shapes_ << "<" SVG "defs><" SVG "clipPath id=\"clip"
 	      << currentClipId_ << "\">";
 
       drawPlainPath(shapes_, painter()->clipPath());
@@ -232,7 +232,7 @@ void WSvgImage::makeNewGroup()
 	shapes_ << ' ' << Utils::round_str(t.m32(), 3, buf)
 		<< ")\"";
       }
-      shapes_ << "/></"SVG"clipPath></"SVG"defs>";
+      shapes_ << "/></" SVG "clipPath></" SVG "defs>";
     }
 
     newClipPath_ = false;
@@ -248,7 +248,7 @@ void WSvgImage::makeNewGroup()
 	currentShadowId_ = -1;
     }
 
-    shapes_ << "<"SVG"g";
+    shapes_ << "<" SVG "g";
     if (painter()->hasClipping())
       shapes_ << clipPath();
 
@@ -273,7 +273,7 @@ void WSvgImage::makeNewGroup()
     fontStyle_ = fontStyle();
   }
 
-  shapes_ << "<"SVG"g style=\""
+  shapes_ << "<" SVG "g style=\""
 	  << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
 
   if (!currentTransform_.isIdentity()) {
@@ -327,7 +327,7 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
   char buf[30];
 
   if (!busyWithPath_) {
-    out << "<"SVG"path d=\"";
+    out << "<" SVG "path d=\"";
     busyWithPath_ = true;
     pathTranslation_.setX(0);
     pathTranslation_.setY(0);
@@ -439,7 +439,7 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
 
   if (drect.width() != srect.width()
       || drect.height() != srect.height()) {
-    shapes_ << "<"SVG"g transform=\"matrix("
+    shapes_ << "<" SVG "g transform=\"matrix("
 	    << Utils::round_str(drect.width() / srect.width(), 3, buf);
     shapes_ << " 0 0 " 
 	    << Utils::round_str(drect.height() / srect.height(), 3, buf);
@@ -466,16 +466,16 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
   int imgClipId = nextClipId_++;
 
   if (WRectF(x, y, width, height) != drect) {
-    shapes_ << "<"SVG"clipPath id=\"imgClip" << imgClipId << "\">";
-    shapes_ << "<"SVG"rect x=\"" << Utils::round_str(drect.x(), 3, buf) << '"';
+    shapes_ << "<" SVG "clipPath id=\"imgClip" << imgClipId << "\">";
+    shapes_ << "<" SVG "rect x=\"" << Utils::round_str(drect.x(), 3, buf) << '"';
     shapes_ << " y=\"" << Utils::round_str(drect.y(), 3, buf) << '"';
     shapes_ << " width=\"" << Utils::round_str(drect.width(), 3, buf) << '"';
     shapes_ << " height=\"" << Utils::round_str(drect.height(), 3, buf) << '"';
-    shapes_ << " /></"SVG"clipPath>";
+    shapes_ << " /></" SVG "clipPath>";
     useClipPath = true;
   }
 
-  shapes_ << "<"SVG"image xlink:href=\"" << imageUri << "\"";
+  shapes_ << "<" SVG "image xlink:href=\"" << imageUri << "\"";
   shapes_ << " x=\"" << Utils::round_str(x, 3, buf) << '"';
   shapes_ << " y=\"" << Utils::round_str(y, 3, buf) << '"';
   shapes_ << " width=\"" << Utils::round_str(width, 3, buf) << '"';
@@ -487,7 +487,7 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
   shapes_ << "/>";
 
   if (transformed)
-    shapes_ << "</"SVG"g>";
+    shapes_ << "</" SVG "g>";
 }
 
 void WSvgImage::drawLine(double x1, double y1, double x2, double y2)
@@ -542,22 +542,22 @@ void WSvgImage::drawText(const WRectF& rect,
       break;
     }
 
-    shapes_ << "<"SVG"flowRoot " << style.str() << ">\n"
-	    << "  <"SVG"flowRegion>\n"
-	    << "    <"SVG"rect"
+    shapes_ << "<" SVG "flowRoot " << style.str() << ">\n"
+	    << "  <" SVG "flowRegion>\n"
+	    << "    <" SVG "rect"
 	    <<            " width=\"" << rect.width() << "\""
 	    <<            " height=\"" << rect.height() << "\""
 	    <<            " x=\"" << rect.x() << "\""
 	    <<            " y=\"" << rect.y() << "\""
 	    << "    />\n"
-	    << "  </"SVG"flowRegion>\n"
-	    << "  <"SVG"flowPara"
+	    << "  </" SVG "flowRegion>\n"
+	    << "  <" SVG "flowPara"
 	    <<              " text-align=\"" << hAlign << "\">\n"
 	    << " " << WWebWidget::escapeText(text, false).toUTF8() << "\n"
-	    << "  </"SVG"flowPara>\n"
-	    << "</"SVG"flowRoot>\n";
+	    << "  </" SVG "flowPara>\n"
+	    << "</" SVG "flowRoot>\n";
   } else {
-    shapes_ << "<"SVG"text " << style.str();
+    shapes_ << "<" SVG "text " << style.str();
 
     switch (horizontalAlign) {
     case AlignLeft:
@@ -597,7 +597,7 @@ void WSvgImage::drawText(const WRectF& rect,
     }
 
     shapes << ">" << WWebWidget::escapeText(text, false).toUTF8() 
-	   << "</"SVG"text>";
+	   << "</" SVG "text>";
 
 #else
 
@@ -622,7 +622,7 @@ void WSvgImage::drawText(const WRectF& rect,
   shapes_ << " y=" << quote(y);
 
   shapes_ << ">" << WWebWidget::escapeText(text, false).toUTF8() 
-	  << "</"SVG"text>";
+	  << "</" SVG "text>";
 #endif
   }
 }
@@ -783,18 +783,18 @@ void WSvgImage::streamResourceData(std::ostream& stream)
   finishPath();
 
   if (paintUpdate_)
-    stream << "<"SVG"g xmlns=\"http://www.w3.org/2000/svg\""
-      " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><"SVG"g><"SVG"g>"
+    stream << "<" SVG "g xmlns=\"http://www.w3.org/2000/svg\""
+      " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><" SVG "g><" SVG "g>"
 	   << shapes_.str()
-	   << "</"SVG"g></"SVG"g></"SVG"g>";
+	   << "</" SVG "g></" SVG "g></" SVG "g>";
   else
-    stream << "<"SVG"svg xmlns=\"http://www.w3.org/2000/svg\""
+    stream << "<" SVG "svg xmlns=\"http://www.w3.org/2000/svg\""
       " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
       " version=\"1.1\" baseProfile=\"full\""
       " width=\"" << width().cssText() << "\""
       " height=\"" << height().cssText() << "\">"
-	   << "<"SVG"g><"SVG"g>" << shapes_.str()
-	   << "</"SVG"g></"SVG"g></"SVG"svg>";
+	   << "<" SVG "g><" SVG "g>" << shapes_.str()
+	   << "</" SVG "g></" SVG "g></" SVG "svg>";
 }
 
 }

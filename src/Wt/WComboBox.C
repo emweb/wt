@@ -312,6 +312,8 @@ void WComboBox::setValueText(const WT_USTRING& value)
 void WComboBox::itemsChanged()
 {
   itemsChanged_ = true;
+  if (currentIndex_ > count() - 1)
+      currentIndex_ = count() - 1;
   repaint(RepaintInnerHtml);
 }
 
