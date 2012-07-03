@@ -162,17 +162,31 @@ public:
 
   /*! \brief Resizes the widget.
    *
-   * Specify a new size for this widget, by specifying width and height.
-   * By default a widget has automatic width and height, see WLength::isAuto().
+   * Specifies a fixed size for this widget, setting CSS
+   * <tt>width</tt> and <tt>height</tt> properties. By default a
+   * widget has automatic width and height, which sets a size for the
+   * widget following CSS rules.
    *
-   * This applies to CSS-based layout, and only \link setInline() block\endlink
-   * widgets can be given a size reliably.
+   * When the widget is not managed by a layout manager, the automatic
+   * (natural) size of a widget depends on whether they widget is a
+   * <i>block</i> or <i>inline</i> widget:
+   * - a <i>block</i> widget takes by default the width of the parent, and the height
+   *   that it needs based on its contents
+   * - an <i>inline</i> widget takes the width and height that it needs based on its
+   *   contents (possibly wrapping over multiple lines). The width and height of
+   *   an inline widget cannot be changed (by the letter of CSS, although most
+   *   browsers will react to it in varying ways).
    *
-   * When inserted in a layout manager, the widget may be informed
-   * about its current size using setLayoutSizeAware(). If you have
-   * defined a <tt>"wtResize()"</tt> JavaScript method for the widget, then
-   * this method will also be called.
-   * operation.
+   * When inserted in a layout manager, the size set will be used as a
+   * widget's preferred size, but the widget may be given a different
+   * size by the layout manager based on available space and stretch
+   * factors. The actual size given by a layout manager may be
+   * retrieved by making the widget "layout size aware", using
+   * setLayoutSizeAware(). If you have defined a <tt>"wtResize()"</tt>
+   * JavaScript method for the widget, then this method will also be
+   * called.
+   *
+   * The default width and height of a widget is WLength::Auto.
    *
    * \sa width(), height()
    */
@@ -240,14 +254,16 @@ public:
 
   /*! \brief Sets a minimum size.
    *
-   * Specify a minimum size for this widget.
+   * Specifies a minimum size for this widget, setting CSS <tt>min-width</tt>
+   * and <tt>min-height</tt> properties.
    *
    * The default minimum width and height is 0. The special value
    * WLength::Auto indicates that the initial width is used as minimum
-   * size.
+   * size. A WLength::Percentage size should not be used, as this is
+   * (in virtually all cases) undefined behaviour.
    *
-   * When the widget size is actively managed (using e.g. a layout manager),
-   * these sizes are taken into account.
+   * When the widget is inserted in a layout manager, then the minimum size
+   * will be taken into account.
    *
    * \sa resize(), minimumWidth(), minimumHeight()
    */
@@ -271,9 +287,18 @@ public:
 
   /*! \brief Sets a maximum size.
    *
-   * Specifies a maximum size for this widget.
+   * Specifies a maximum size for this widget, setting CSS <tt>max-width</tt>
+   * and <tt>max-height</tt> properties.
    *
-   * The default maximum width and height are WLength::Auto, indicating no
+   * The default the maximum width and height are WLength::Auto,
+   * indicating no maximum size. A WLength::Percentage size should not
+   * be used, as this is (in virtually all cases) undefined behaviour.
+   *
+   * When the widget is a container widget that contains a layout
+   * manager, then setting a maximum size will have the effect of
+   * letting the size of the container to reflect the preferred size
+   * of the contents (rather than constraining the size of the
+   * children based on the size of the container), up to the specified
    * maximum size.
    *
    * \sa resize(), setMinimumSize()

@@ -123,9 +123,13 @@ WPopupMenu *WPopupMenu::topLevelMenu()
 
 void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 {
+  if (!WApplication::instance()->session()->renderer().preLearning()
+      && (animation.empty() && hidden == isHidden()))
+    return;
+
   WCompositeWidget::setHidden(hidden, animation);
 
-  if (autoHideDelay_ >= 0)
+  if (autoHideDelay_ >= 0 && cancel_.isConnected())
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj').setHidden("
 		 + (hidden ? "1" : "0") + ");");
 

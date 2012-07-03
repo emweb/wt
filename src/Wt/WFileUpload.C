@@ -296,6 +296,9 @@ void WFileUpload::updateDom(DomElement& element, bool all)
       && containsProgress && !progressBar_->isRendered())
     element.addChild(progressBar_->createSDomElement(WApplication::instance()));
 
+  // upload() + disable() does not work. -- fix after this release,
+  // change order of javaScript_ and properties rendering in DomElement
+
   if (fileUploadTarget_ && flags_.test(BIT_DO_UPLOAD)) {
     element.callMethod("submit()");
     flags_.reset(BIT_DO_UPLOAD);

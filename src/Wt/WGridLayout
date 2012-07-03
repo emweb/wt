@@ -52,27 +52,42 @@ struct Grid {
 /*! \class WGridLayout Wt/WGridLayout Wt/WGridLayout
  *  \brief A layout manager which arranges widgets in a grid
  *
- * This is a layout class that arranges widgets in a grid, to span the
- * entire area of the parent container. Each grid location (row,
- * column) may contain one widget or nested layout. Horizontal and
- * vertical space are divided so that each non-stretchable column/row
- * is given its preferred size (if possible) and the remaining space
- * is divided according to stretch factors among the columns/rows.
+ * This layout manager arranges widgets in a grid.
  *
- * The preferred width/height of a column/row is based on the size
- * the widgets need in order to not require a scrollbar.
+ * Each grid cell (row, column) may contain one widget or nested
+ * layout. Horizontal and vertical space are divided so that each
+ * non-stretchable column/row is given its preferred size (if
+ * possible) and the remaining space is divided according to stretch
+ * factors among the columns/rows. If not all columns/rows can be
+ * given their preferred size (there is not enough room), then
+ * columns/rows are given a smaller size (down to a minimum size based
+ * on widget minimum sizes). If necessary, the container (or parent
+ * layout) of this layout is resized to meet minimum size
+ * requirements.
+ *
+ * The preferred width/height of a column/row is based on the natural
+ * size of the widgets, where they present their contents without
+ * overflowing. WWidget::resize() or (CSS <tt>width</tt>,
+ * <tt>height</tt> properties) can be used to adjust the preferred
+ * size of a widget.
  *
  * The minimum width/height of a column/row is based on the minimum
  * dimensions of contained widgets or nested layouts. The default
  * minimum height and width for a widget is 0. It can be specified
- * using WWidget::setMinimumSize() or using CSS min-width and
- * min-height properties.
+ * using WWidget::setMinimumSize() or using CSS <tt>min-width</tt> and
+ * <tt>min-height</tt> properties.
  *
  * You should use \link WContainerWidget::setOverflow()
  * WContainerWidget::setOverflow(OverflowAuto) \endlink or use a
  * WScrollArea to automatically show scrollbars for widgets inserted
- * in the layout to cope with sizes that are smaller than their
- * preferred size.
+ * in the layout to cope with a size set by the layout manager that is
+ * smaller than the preferred size.
+ *
+ * When the container of a layout manager has a maximum size set using
+ * WWidget::setMaximumSize(), then the size of the container will be
+ * based on the preferred size of the contents, up to this maximum
+ * size, instead of the default behaviour of constraining the size of
+ * the children based on the size of the container.
  *
  * A layout manager may provide resize handles between columns or rows
  * which allow the user to change the automatic layout provided by the
@@ -346,6 +361,10 @@ public:
    * depending on the value of <i>enabled</i>.
    *
    * The default value is <i>false</i>.
+   *
+   * If an \p initialSize is given (that is not WLength::Auto), then
+   * this size is used for the width of the column, overriding the width
+   * it would be given by the layout manager.
    */
   void setColumnResizable(int column, bool enabled = true,
 			  const WLength& initialSize = WLength::Auto);
@@ -366,6 +385,10 @@ public:
    * <i>enabled</i>.
    *
    * The default value is <i>false</i>.
+   *
+   * If an \p initialSize is given (that is not WLength::Auto), then
+   * this size is used for the height of the row, overriding the height
+   * it would be given by the layout manager.
    */
   void setRowResizable(int row, bool enabled = true,
 		       const WLength& initialSize = WLength::Auto);

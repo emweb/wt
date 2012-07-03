@@ -86,16 +86,18 @@ void FontSupport::setDevice(WPaintDevice *device)
 WFontMetrics FontSupport::fontMetrics(const WFont& font)
 {
   font_ = &font;
-  return device_->fontMetrics();
+  WFontMetrics fm = device_->fontMetrics();
   font_ = 0;
+  return fm;
 }
 
 WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 				   double maxWidth, bool wordWrap)
 {
   font_ = &font;
-  return device_->measureText(text, maxWidth, wordWrap);
+  WTextItem ti = device_->measureText(text, maxWidth, wordWrap);
   font_ = 0;
+  return ti;
 }
 
 void FontSupport::drawText(const WFont& font, const WRectF& rect,
@@ -213,7 +215,8 @@ void FontSupport::matchFont(const WFont& font,
 {
   if (boost::ends_with(path, ".ttf")
       || boost::ends_with(path, ".ttc")) {
-    std::string name = path.substr(0, path.length() - 4);
+    std::string name = FileUtils::leaf(path);
+    name = name.substr(0, name.length() - 4);
     Utils::replace(name, ' ', std::string());
 
     char const *const boldVariants[] = { "bold", "bf", 0 };

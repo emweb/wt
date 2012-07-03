@@ -21,6 +21,8 @@ namespace Wt {
     extern bool isDirectory(const std::string &file);
     extern void listFiles(const std::string &directory, 
 			  std::vector<std::string> &files);
+    extern std::string leaf(const std::string &file);
+    
 
     // Returns a filename that can be used as temporary file
     extern WT_API std::string createTempFileName();

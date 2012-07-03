@@ -72,7 +72,7 @@ class WIOService;
  *    if (client->get("http://www.webtoolkit.eu/wt/blog/feed/"))
  *      WApplication::instance()->deferRendering();
  *    } else {
- *      // in case of an error in the URL
+ *      // in case of an error in the %URL
  *    }
  * }
  *
@@ -179,7 +179,7 @@ public:
    * scheduled, and thus done() will be emitted eventually.
    *
    * The function returns \p false if the client could not schedule
-   * the request, for example if the \p url is invalid or if the URL
+   * the request, for example if the \p url is invalid or if the %URL
    * scheme is not supported.
    *
    * \sa request(), done()
@@ -195,7 +195,7 @@ public:
    * scheduled, and thus done() will be emitted eventually.
    *
    * The function returns \p false if the client could not schedule
-   * the request, for example if the \p url is invalid or if the URL
+   * the request, for example if the \p url is invalid or if the %URL
    * scheme is not supported.
    *
    * This function accepts one or more headers.
@@ -213,7 +213,7 @@ public:
    * scheduled, and thus done() will be emitted eventually.
    *
    * The function returns \p false if the client could not schedule
-   * the request, for example if the \p url is invalid or if the URL
+   * the request, for example if the \p url is invalid or if the %URL
    * scheme is not supported.
    *
    * \sa request(), done()
@@ -229,7 +229,7 @@ public:
    * and thus done() will be emitted eventually.
    *
    * The function returns \p false if the client could not schedule
-   * the request, for example if the \p url is invalid or if the URL
+   * the request, for example if the \p url is invalid or if the %URL
    * scheme is not supported.
    *
    * \sa request(), done()
@@ -268,20 +268,24 @@ public:
    */
   Signal<boost::system::error_code, Message>& done() { return done_; }
 
-  /*! \brief This struct implements an URL data structure.
+  /*! \brief Utility class representing an %URL.
    */
   struct URL {
+    //! The protocol (e.g. "http")
     std::string protocol;
+    //! The host (e.g. "www.webtoolkit.eu")
     std::string host;
+    //! The port number (e.g. 80)
     int port;
+    //! The path (e.g. "/wt")
     std::string path;
   };
 
-  /*! \brief Utility method to parse a URL.
+  /*! \brief Utility method to parse a %URL.
    *
-   * This parses a URL into the \p parsedUrl object.
+   * This parses a %URL into an URL object.
    *
-   * The method returns true if the URL could be parsed successfully.
+   * The method returns true if the %URL could be parsed successfully.
    */
   static bool parseUrl(const std::string &url, URL &parsedUrl);
 

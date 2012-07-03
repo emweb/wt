@@ -589,7 +589,9 @@ void WebController::handleRequest(WebRequest *request)
 	if (configuration().sessionTracking() == Configuration::CookiesURL)
 	  request->addHeader("Set-Cookie",
 			     appSessionCookie(request->scriptName())
-			     + "=" + sessionId + "; Version=1;");
+			     + "=" + sessionId + "; Version=1;"
+			     + " Path=" + session->env().deploymentPath()
+			     + "; httponly;");
 
 	sessions_[sessionId] = session;
 	++plainHtmlSessions_;
