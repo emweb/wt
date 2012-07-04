@@ -214,6 +214,7 @@ WT_DECLARE_WT_MEMBER
 	});
     }
 
+    setTimeout(function() { 
      var position = $el.css('position'),
        absolute = (position === 'absolute' || position === 'fixed');
 
@@ -237,7 +238,8 @@ WT_DECLARE_WT_MEMBER
        animateTransition();
        break;
      }
-   }
+   } , 0);
+  }
  }
 );
 

@@ -9,6 +9,7 @@
 
 #include <Wt/WDllDefs.h>
 #include <Wt/WSslCertificate>
+#include <Wt/WValidator>
 
 #include <string>
 #include <vector>
@@ -33,46 +34,25 @@ namespace Wt {
  *
  * The verification and the acceptance of the certificate has to be
  * configured in the web server (built-in httpd, Apache, IIS, ...).
- * When WEnvironment::sslInfo() returns an WSslInfo object, this
- * means that the client verification has already passed the
- * verification procedures in the webserver. This does not mean
- * that the certificate is valid; depending on the configuration
- * of your web server, this verification may be weak. Always
- * check the verification result with clientVerificationResult().
+ * When WEnvironment::sslInfo() returns a WSslInfo object, this means
+ * that the client verification has already passed the verification
+ * procedures in the webserver. This does not mean that the
+ * certificate is valid; depending on the configuration of your web
+ * server, this verification may be weak. Always check the
+ * verification result with clientVerificationResult().
  *
  * This class is only available when %Wt was compiled with SSL support.
  */
 class WT_API WSslInfo
 {
- public:
-  /*! \brief The verification validation state
-   */
-  enum VerificationState {
-    Valid,   //!< Valid
-    Invalid  //!< Invalid
-  };
-    
-  /*! \brief The cerificate's validation result
-   *
-   * This result contains the state of the validation process and if more 
-   * information on the state was provided this is stored in the info string.
-   */
-  class WT_API VerificationResult {
-  public:
-    VerificationResult(VerificationState state, const std::string &info);
-    VerificationState state() const { return state_; }
-    const std::string &info() const { return info_; }
-  private:
-    VerificationState state_;
-    std::string       info_;
-  };
-  
+public:
   /*
-   * The WSslInfo class will be created by Wt and is therefore not public API.
+   * The WSslInfo class will usually be created by the library itself
+   * and is therefore not public API.
    */
   WSslInfo(const WSslCertificate &clientCertificate,
 	   const std::vector<WSslCertificate> &clientCertificateChain,
-	   VerificationResult clientVerificationResult);
+	   WValidator::Result clientVerificationResult);
 
   /*! \brief Returns the certificate used by the client for authentication.
    */
@@ -91,25 +71,24 @@ class WT_API WSslInfo
 
   /*! \brief Returns the result of the client certificate verification.
    *
-   * WSslInfo does not perform any validation. This task is entirely up to
-   * the web server, and this class merely reports the validation
-   * status reported by the webserver.
+   * WSslInfo (and thus Wt) by itself does not perform any validation:
+   * this task is entirely up to the web server, and this class merely
+   * reports the validation status reported by the webserver.
    */
-  VerificationResult clientVerificationResult() const { 
+  WValidator::Result clientVerificationResult() const { 
     return clientVerificationResult_; 
   }
   
- private:
-  std::string gdb() const;
-  
- private:
-  WSslCertificate                 clientCertificate_;
-  std::vector<WSslCertificate>    clientCertificateChain_;
-  VerificationResult              clientVerificationResult_;
+private:
+  WSslCertificate              clientCertificate_;
+  std::vector<WSslCertificate> clientCertificateChain_;
+  WValidator::Result           clientVerificationResult_;
+
+  std::string gdb() const;  
 };
 
 }
 
 #endif
 
-#endif //WT_WSSL_INFO_H_
+#endif // WT_WSSL_INFO_H_

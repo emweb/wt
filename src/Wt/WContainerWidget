@@ -152,23 +152,16 @@ public:
    * widgets that were part of the previous layout to the new layout, or
    * delete them, to avoid memory leaks.
    *
-   * The layout manager arranges children in the entire width and
-   * height of the container. This is equivalent to
-   * \link setLayout(WLayout*, WFlags<AlignmentFlag>) setLayout(layout, AlignJustify)\endlink
-   *
-   * \sa layout(), setLayout(WLayout *, WFlags<AlignmentFlag>)
+   * \sa layout()
    */
   void setLayout(WLayout *layout);  
 
-  /*! \brief Sets a layout manager for the container.
+  /*! \brief Sets a layout manager for the container (<b>deprecated</b>).
    *
    * The \p alignment argument determines how the layout is
    * aligned inside the container. By default, the layout manager
    * arranges children over the entire width and height of the
-   * container, corresponding to a value of AlignJustify. This
-   * requires that the container has a specified height (either
-   * because it is managed by another layout manager, is the root
-   * container widget, or has a height set).
+   * container, corresponding to a value of AlignJustify.
    *
    * In general, \p alignment is the logical OR of a horizontal
    * and a vertical flag:
@@ -177,7 +170,7 @@ public:
    * - The vertical alignment option may be '0' (corresponding to vertical
    *   justification to the full height), or Wt::AlignTop.
    *
-   * When using a horizontal alingment different from
+   * When using a horizontal alignment different from
    * Wt::AlignJustify, and a vertical alignment different from '0',
    * the widget is sized in that direction to fit the contents,
    * instead of the contents being adjusted to the widget size. This
@@ -186,14 +179,12 @@ public:
    * widgets that wish to consume all remaining space in that
    * direction.
    *
-   * Only a single layout manager may be set. If you want to replace
-   * the current layout manager, you have to erase all contents first
-   * using clear(), which also deletes the layout manager.
-   *
-   * Note that you can nest layout managers inside each other, to
-   * create a complex layout hierarchy.
-   *
    * The widget will take ownership of \p layout.
+   *
+   * \deprecated using setLayout() instead, use spacers or a nested
+   * layout to control the overall alignment of the layout contents
+   * within the container, and use setMaximumSize() (if needed) to let
+   * the layout contents determine the size of the container.
    *
    * \sa layout()
    */

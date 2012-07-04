@@ -157,6 +157,8 @@ void WDataSeries::setMarker(MarkerType marker)
 
 void WDataSeries::setCustomMarker(const WPainterPath& path)
 {
+  set(marker_, CustomMarker);
+
   customMarker_ = path;
 }
 

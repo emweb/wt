@@ -36,8 +36,8 @@ enum MarkerType {
   CircleMarker,   //!< Mark points using a circle.
   CrossMarker,    //!< Mark points using a cross (+).
   XCrossMarker,   //!< Mark points using a cross (x).
-  TriangleMarker,  //!< Mark points using a triangle.
-  CustomMarker    //!< Mark points using a custume icon.
+  TriangleMarker, //!< Mark points using a triangle.
+  CustomMarker    //!< Mark points using a custom marker.
 };
 
 /*! \brief Enumeration that specifies how an area should be filled.

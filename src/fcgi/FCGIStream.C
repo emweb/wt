@@ -220,20 +220,19 @@ namespace {
 	  }
 	  
 	  
-          Wt::WSslInfo::VerificationState state = Wt::WSslInfo::Invalid;
+          Wt::WValidator::State state = Wt::WValidator::Invalid;
 	  std::string verify = envValue("SSL_CLIENT_VERIFY");
           std::string verifyInfo;
 	  if (verify == "SUCCESS") {
-	    state = Wt::WSslInfo::Valid;
+	    state = Wt::WValidator::Valid;
 	  } else if (verify.empty()) {
-	    state = Wt::WSslInfo::Invalid;
+	    state = Wt::WValidator::Invalid;
 	    verifyInfo = "SSL_CLIENT_VERIFY variable was empty";
 	  } else {
-	    state = Wt::WSslInfo::Invalid;
+	    state = Wt::WValidator::Invalid;
 	    verifyInfo = verify;
 	  }
-	  Wt::WSslInfo::VerificationResult
-            clientVerificationResult(state, verifyInfo);
+	  Wt::WValidator::Result clientVerificationResult(state, verifyInfo);
 
 	  return new Wt::WSslInfo(clientCert, 
                                   clientCertChain, 

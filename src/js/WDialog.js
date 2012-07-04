@@ -101,6 +101,10 @@ WT_DECLARE_WT_MEMBER
      self.centerDialog();
    };
 
+   function wtPosition() {
+     APP.layouts2.adjust();
+   }
+
    this.onresize = function(w, h) {
      centerX = centerY = false;
      wtResize(el, w, h);
@@ -109,7 +113,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    layoutContainer.wtResize = layoutResize;
-   el.wtPosition = this.centerDialog;
+   el.wtPosition = wtPosition;
 
    if (el.style.width != '')
      layoutContainer.style.width = el.offsetWidth + 'px';

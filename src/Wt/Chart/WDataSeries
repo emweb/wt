@@ -117,10 +117,6 @@ public:
    *
    * The series type specifies how the data is plotted, i.e. using
    * mere point markers, lines, curves, or bars.
-   *
-   * When changing the series type from BarSeries to another series
-   * type, and the fill range is ZeroValueFill (the default for bar
-   * series), then the fill type is changed to 
    */
   void setType(SeriesType t);
 
@@ -298,13 +294,15 @@ public:
    * The default value is a CircleMarker for a PointSeries, or NoMarker
    * otherwise.
    *
-   * \sa setMarkerPen(), setMarkerBrush().
+   * \sa setMarkerPen(), setMarkerBrush(), setCustomMarker()
    */
   void setMarker(MarkerType marker);
 
-  /*! \brief Sets the  customMarker.
+  /*! \brief Sets the custom marker.
    *
-   * \sa customMarker()
+   * This will also changes the marker type to CustomMarker.
+   *
+   * \sa setMarker()
    */
   void setCustomMarker(const WPainterPath& path);
 

@@ -791,14 +791,13 @@ void WChart2DRenderer::render()
   tildeEndMarker_.moveTo(-15, -(segmentMargin_ - 20));
   tildeEndMarker_.lineTo(15, -(segmentMargin_ - 10));
 
-  if(!initLayout()){
-    LOG_ERROR("init layout failed Maybe padding is too large");
+  if (!initLayout()){
+    LOG_ERROR("Chart layout failed: chart area is too small ?");
     return;
   }
 
-  std::cerr << chartArea_.width() << " " << chartArea_.height() << std::endl;
   if (chartArea_.width() < 5 || chartArea_.height() < 5) {
-    LOG_ERROR("Chart area is to small. Maybe padding is too large");
+    LOG_ERROR("Chart layout failed: chart area is too small ?");
     return;
   }
 

@@ -124,15 +124,16 @@ enum ItemDataRole {
   CheckStateRole = 4,   
   ToolTipRole = 5,       //!< Role for a tooltip
   LinkRole = 6,          //!< Role for a link
+  MimeTypeRole = 7,      //!< Role for mime type information
   LevelRole = 8,         //!< Level in aggregation, for header data.
-  MarkerScaleFactorRole = 15,   //!< Marker size (for Chart::WCartesianChart)
-  MarkerPenColorRole = 16,  //!< Marker pen color (for Chart::WCartesianChart)
-  MarkerBrushColorRole = 17,//!< Marker brush color (for Chart::WCartesianChart)
-  BarPenColorRole = 18,  //!< Bar pen color (for Chart::WCartesianChart)
-  BarBrushColorRole = 19,//!< Bar brush color (for Chart::WCartesianChart)
-  UserRole = 32,          //!< First role reserved for user purposes
-  MimeTypeRole = 33       //!< Role for mime type
 
+  MarkerPenColorRole = 16,    //!< Marker pen color (for Chart::WCartesianChart)
+  MarkerBrushColorRole = 17,  //!< Marker brush color (for Chart::WCartesianChart)
+  MarkerScaleFactorRole = 20, //!< Marker size (for Chart::WCartesianChart)
+  BarPenColorRole = 18,   //!< Bar pen color (for Chart::WCartesianChart)
+  BarBrushColorRole = 19, //!< Bar brush color (for Chart::WCartesianChart)
+
+  UserRole = 32           //!< First role reserved for user purposes
 };
 
 /*! \brief Flags that indicate data item options

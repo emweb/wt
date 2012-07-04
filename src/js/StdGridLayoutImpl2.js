@@ -246,9 +246,10 @@ WT_DECLARE_WT_MEMBER
    function measure(dir, widget, container)
    {
      var DC = DirConfig[dir],
+         OC = DirConfig[dir ^ 1],
          measures = DC.measures,
          dirCount = DC.config.length,
-         otherCount = DirConfig[dir ^ 1].config.length,
+         otherCount = OC.config.length,
          maxSize = DC.maxSize;
 
      if (!itemDirty && !layoutDirty)
@@ -280,7 +281,7 @@ WT_DECLARE_WT_MEMBER
 	       $w.find("img").load(function() { setItemDirty(citem); });
 	     })();
 
-	     item.w.style.left = item.w.style.top = NA_px;
+	     item.w.style[DC.left] = item.w.style[OC.left] = NA_px;
 	   }
 
 	   if (!progressive && item.w.style.position != 'absolute') {
@@ -500,9 +501,10 @@ WT_DECLARE_WT_MEMBER
       * fix size of di at current size + delta
       */
      var DC = DirConfig[dir];
-     DC.fixedSize[di] = DC.sizes[di] + delta;
 
-     // FIXME: RTL
+     if (rtl) delta = -delta;
+
+     DC.fixedSize[di] = DC.sizes[di] + delta;
 
      APP.layouts2.scheduleAdjust();
    }
@@ -521,6 +523,12 @@ WT_DECLARE_WT_MEMBER
      }
 
      maxDelta = DC.sizes[di] - DC.measures[MINIMUM_SIZE][di];
+
+     if (rtl) {
+       var t = minDelta;
+       minDelta = -maxDelta;
+       maxDelta = -t;
+     }
 
      new WT.SizeHandle(WT, DC.resizeDir, WT.pxself(handle, DC.size),
 		       WT.pxself(handle, OC.size), minDelta, maxDelta,

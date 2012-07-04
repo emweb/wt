@@ -18,22 +18,14 @@ namespace Wt {
 
 LOGGER("WSslInfo");
 
-WSslInfo::VerificationResult::VerificationResult(VerificationState state,
-                                                 const std::string &info):
-  state_(state),
-  info_(info)
-{
-}
-
 WSslInfo::WSslInfo(const WSslCertificate &clientCertificate,
-	   const std::vector<WSslCertificate> &clientCertificateChain,
-	   VerificationResult clientVerificationResult):
-  clientCertificate_(clientCertificate),
-  clientCertificateChain_(clientCertificateChain),
-  clientVerificationResult_(clientVerificationResult)
+		   const std::vector<WSslCertificate> &clientCertificateChain,
+		   WValidator::Result clientVerificationResult)
+  : clientCertificate_(clientCertificate),
+    clientCertificateChain_(clientCertificateChain),
+    clientVerificationResult_(clientVerificationResult)
 {
-  LOG_DEBUG("WSslInfo fields: " 
-	    <<  gdb());
+  LOG_DEBUG("WSslInfo fields: " <<  gdb());
 }
 
 std::string WSslInfo::gdb() const
@@ -48,8 +40,9 @@ std::string WSslInfo::gdb() const
   }
 
   ss
-    << "valid: " << (clientVerificationResult_.state() == Valid) << std::endl
-    << "validity info: " << clientVerificationResult_.info() << std::endl;
+    << "valid: " << (clientVerificationResult_.state() == WValidator::Valid)
+    << std::endl
+    << "validity info: " << clientVerificationResult_.message() << std::endl;
   
   return ss.str();
 }

@@ -22,6 +22,174 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.2.2-rc1 (July, 3 2012)</h2>
+
+<p>
+ This release contains mostly bug and feature improvements, but
+ also a rewrite of the layout managers in Wt (WBoxLayout and
+ WGridLayout), and this comes with some changes in (in most cases
+ previously undefined) behaviour.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WSslInfo.html">WSslInfo</a>
+  </dt>
+  <dd>
+    Class containing information on a client-side certificate that may
+    have been configured for a SSL connection, and which can be used
+    for authentication (accessible from
+    <a href="classWt_1_1WEnvironment.html">WEnvironment</a>).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1weak__ptr.html">Wt::Dbo::weak_ptr</a>
+  </dt>
+  <dd>
+    A weak variant of Wt::Dbo::ptr which is used to implement
+    One-to-One relations (see also
+    <a
+    href="group__dbo.html#ga00a060d5f4764f673948989f21837548">Wt::Dbo::hasOne()
+    </a>).
+  </dd>
+
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+<dl>
+  <dt>
+    Rewrite of <a href="classWt_1_1WLayout.html">WBoxLayout, WGridLayout</a>
+  </dt>
+  <dd>
+    <p>
+    The layout managers have been reimplement, to address various
+    issues with the old implementation, including API (in particular the wonked
+    side-effects of AlignTop | AlignJustify) inconsistencies and bugs.
+    </p>
+
+    <p>The new implementation no longer uses tables when JavaScript
+    is available, but instead using JavaScript-based layout with
+    absolute positioning. The table-based implementation is still kept
+    for plain HTML sessions (and progressive bootstrap). The code now
+    uses exactly the same layout logic for both horizontal and
+    vertical layout (but giving precedence to horizontal layout) and
+    should be much more consistent (and perhaps also more
+    performant). However, because of the many complexities and
+    problems with the old code (inconsistent behaviour), you may see
+    issues while upgrading. Please see the "Non-backwards compatible
+    changes" below for hints on how to deal with this.</p>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a>
+  </dt>
+  <dd>
+    <p>
+    A drag &amp; drop mime-type can now be specified on a per-item
+    basis using a new <a
+    href="group__modelview.html#ga0ae864e12320f9f89172735e075ed068">ItemDataRole</a>,
+    and the mime-type for the entire selection is computed
+    from these individual mime-types.
+    </p>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WInteractWidget.html">WInteractWidget</a>
+  </dt>
+  <dd>
+    A new method <a href="classWt_1_1WInteractWidget.html#a60423e777cffa89e6d1373fd25754099">setMouseOverDelay()</a> allows to specify a delay for
+    generating the mouseWentOver() event.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Auth_1_1AbstractUserDatabase.html">Auth::AbstractUserDatabase</a>
+  </dt>
+  <dd>
+    A new method <a href="classWt_1_1Auth_1_1AbstractUserDatabase.html#a5067e569748cfad8c3356735a33aa10f">deleteUser()</a> was added, which deletes a user and all
+    related authentication information.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html">Chart::WCartesianChart</a>
+  </dt>
+  <dd>
+    A new method <a href="classWt_1_1Chart_1_1WCartesianChart.html#aa6c394c4d9a801d088b7b02c3fd66b28">setAxisPadding()</a> was added, which configures the
+    amount of adding between the chart area and the axes.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WDataSeries.html">Chart::WDataSeries</a>
+  </dt>
+  <dd>
+    A new method <a href="classWt_1_1Chart_1_1WDataSeries.html#ab0dbcd9bcbc0f39a042eb36aa930def4">setCustomMarker()</a> was added which allows the use of a
+    user-defined path for the markers. A new role
+    MarkserScaleFactorRole was added which allows overriding the
+    marker size based on item model data.
+  </dd>
+
+</dl>
+
+<h3>C) Non-backwards compatible changes</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WLayout.html">WBoxLayout, WGridLayout</a>
+  </dt>
+  <dd>
+    While migrating old code to this version, here are some tips:
+    <ol>
+      <li><p>Alignment flags</p>
+      <p>Previously, specifying an alignment for a widget in a
+      layout, or for the layout when set to a container, had a double
+      meaning. Not only would it implement the given alignment but also
+      revert to passively letting HTML layout decide the layout of the
+      contents, and adjust the parent (layout respectively container)
+      accordingly. This had all kinds of side effects such as not
+      propagating the size of layout-size-aware widgets and quirks in
+      the vertical alignment.</p>
+      <p><a href="classWt_1_1WContainerWidget.html#aff9884c8efdf90974077e96bcb1701db">WContainerWidget::setLayout(layout, alignment)</a> has been
+      deprecated and will be removed from a future release. This call
+      was almost always used to let the parent container resize to fit
+      the size of the contained children, instead of fitting children
+      in the parent container. This behaviour is now
+      automatically deduced based on an (empty) size of the parent
+      container. In case this heuristic does not work, then setting a
+      non-0 maximum size on the container using <a href="classWt_1_1WWebWidget.html#a9b83805a5b8090d296ae4b5939fc9d11">setMaximumSize()</a> will
+      act as a trigger, with the added benefit that the parent will only
+      be allowed to resize up to a specified maximum size.</p>
+      <p>An alignment specified in
+      <a href="classWt_1_1WBoxLayout.html#a7c1ec58e25d0b7add93f5f4342844db6">W(Box/Grid)Layout::addWidget(widget, stretch, alignment)</a> now
+      purely affects the alignment but has no other side effects. The
+      perferred and minimum sizes of a child widget or layout is now
+      always taken into account.</p>
+      </li>
+      <li><p>Child item sizes</p>
+      <p>The layout algorithm is now implemented entirely in
+      JavaScript, and is more gentle when dealing with a combination
+      of cells (or columns/rows) that have a stretch factor and others
+      that don't. Previously, a minimum (or fixed) size would be used
+      to layout items that do not have a stretch factor. This had for
+      example as a consequence that a WText would be narrowed down to its
+      minimum width by using word wrapping throughout. Now, the
+      preferred size is used for a child item, and shrinking to a minimum
+      size only if necessary.</p>
+      <li><p>Progressive bootstrap</p>
+      A layout in the first page of an application rendered using
+      progressive bootstrap will no longer fully upgrade to a full
+      JavaScript version, but will result in a hybrid (between
+      table-based and JavaScript-based). If it doesn't work out as you'ld
+      expect, then you should reconsider the use of progressive bootstrap,
+      or the use of a layout manager in your first page.
+      </li>
+    </ol>
+  </dd>
+</dl>
+
+<hr>
+
 <h2>Release 3.2.1 (March 16, 2012)</h2>
 
 <p>

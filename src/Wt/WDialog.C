@@ -118,9 +118,16 @@ WDialog::WDialog(const WString& windowTitle)
    * For IE, we cannot set it yet since it will confuse width measurements to become
    * minimum size instead of (unconstrained) preferred size
    */
-  if (app->environment().ajax())
+  if (app->environment().ajax()) {
     setAttributeValue("style", "visibility: hidden");
-  else
+
+    /*
+     * This is needed for animations only, but setting absolute or
+     * fixed positioning confuses layout measurement in IE browsers
+     */
+    if (!app->environment().agentIsIElt(9))
+      setPositionScheme(Fixed);
+  } else
     setPositionScheme(app->environment().agent() == WEnvironment::IE6
 		      ? Absolute : Fixed);
 

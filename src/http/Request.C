@@ -142,17 +142,17 @@ Wt::WSslInfo *Request::sslInfo() const
       }
     }
     
-    Wt::WSslInfo::VerificationState state = Wt::WSslInfo::Invalid;
+    Wt::WValidator::State state = Wt::WValidator::Invalid;
     std::string info;
 
     long SSL_state = SSL_get_verify_result(ssl);
     if (SSL_state == X509_V_OK) {
-      state = Wt::WSslInfo::Valid;
+      state = Wt::WValidator::Valid;
     } else {
-      state = Wt::WSslInfo::Invalid;
+      state = Wt::WValidator::Invalid;
       info = X509_verify_cert_error_string(SSL_state);
     }
-    Wt::WSslInfo::VerificationResult clientVerificationResult(state, info);
+    Wt::WValidator::Result clientVerificationResult(state, info);
     
     return new Wt::WSslInfo(clientCert, 
 			    clientCertChain, 
