@@ -102,11 +102,7 @@ namespace Wt {
       }
       
       for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
-#if BOOST_FILESYSTEM_VERSION < 3
-	std::string f = Utils::lowerCase((*i).path());
-#else //BOOST_FILESYSTEM_VERSION < 3
 	std::string f = Utils::lowerCase((*i).path().string());
-#endif //BOOST_FILESYSTEM_VERSION < 3
 	files.push_back(f);
       }
 #else //WT_HAVE_POSIX_FILEIO
