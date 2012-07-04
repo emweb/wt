@@ -90,10 +90,9 @@ public:
        * always fit nicely in the window.
        */
       WVBoxLayout *topLayout = new WVBoxLayout();
-      topLayout->addLayout(grid, 0, AlignTop | AlignLeft);
+      topLayout->addLayout(grid, 0);
 
       WHBoxLayout *gitLayout = new WHBoxLayout();
-      gitLayout->setLayoutHint("table-layout", "fixed");
       gitLayout->addWidget(gitView_, 0);
       gitLayout->addWidget(sourceView_, 1);
       topLayout->addLayout(gitLayout, 1);
@@ -107,7 +106,7 @@ public:
        */
       root()->setStyleClass("maindiv");
       WContainerWidget *top = new WContainerWidget();
-      top->setLayout(grid, AlignTop | AlignLeft);
+      top->setLayout(grid);
       root()->addWidget(top);
       root()->addWidget(gitView_);
       gitView_->setFloatSide(Left);

@@ -46,7 +46,7 @@ PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
   emweb->setMargin(WLength::Auto, Left | Right);
 
   WGridLayout *layout = new WGridLayout();
-  emweb->setLayout(layout, AlignCenter | AlignTop);
+  emweb->setLayout(layout);
 
   WSlider *scaleSlider = new WSlider(Horizontal);
   scaleSlider->setMinimum(0);

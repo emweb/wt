@@ -62,10 +62,10 @@ void SimpleChatWidget::letLogin()
   clear();
 
   WVBoxLayout *vLayout = new WVBoxLayout();
-  setLayout(vLayout, AlignLeft | AlignTop);
+  setLayout(vLayout);
 
   WHBoxLayout *hLayout = new WHBoxLayout();
-  vLayout->addLayout(hLayout);
+  vLayout->addLayout(hLayout, 0, AlignTop | AlignLeft);
 
   hLayout->addWidget(new WLabel("User name:"), 0, AlignMiddle);
   hLayout->addWidget(userNameEdit_ = new WLineEdit(user_), 0, AlignMiddle);
@@ -159,7 +159,7 @@ void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
   hLayout->addWidget(logoutButton);
 
   // Add nested layout to vertical layout with stretch = 0
-  vLayout->addLayout(hLayout, 0, AlignLeft | AlignTop);
+  vLayout->addLayout(hLayout, 0, AlignLeft);
 
   setLayout(vLayout);
 }

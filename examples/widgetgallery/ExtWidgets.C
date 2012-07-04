@@ -65,7 +65,7 @@ WWidget *ExtWidgets::eButton()
 
   WContainerWidget *ex = new WContainerWidget(result);
   WVBoxLayout *vLayout = new WVBoxLayout();
-  ex->setLayout(vLayout, AlignTop);
+  ex->setLayout(vLayout);
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->setSpacing(3);
 

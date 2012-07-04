@@ -83,18 +83,18 @@ WWidget *DialogWidgets::wMessageBox()
   WContainerWidget *ex = new WContainerWidget(result);
   
   WVBoxLayout *vLayout = new WVBoxLayout();
-  ex->setLayout(vLayout, AlignTop | AlignLeft);
+  ex->setLayout(vLayout);
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->setSpacing(3);
 
   WPushButton *button;
-  vLayout->addWidget(button = new WPushButton("One liner"));
+  vLayout->addWidget(button = new WPushButton("One liner"), 0, AlignLeft);
   button->clicked().connect(this, &DialogWidgets::messageBox1);
-  vLayout->addWidget(button = new WPushButton("Show some buttons"));
+  vLayout->addWidget(button = new WPushButton("Show some buttons"), 0, AlignLeft);
   button->clicked().connect(this, &DialogWidgets::messageBox2);
-  vLayout->addWidget(button = new WPushButton("Need confirmation"));
+  vLayout->addWidget(button = new WPushButton("Need confirmation"), 0, AlignLeft);
   button->clicked().connect(this, &DialogWidgets::messageBox3);
-  vLayout->addWidget(button = new WPushButton("Discard"));
+  vLayout->addWidget(button = new WPushButton("Discard"), 0, AlignLeft);
   button->clicked().connect(this, &DialogWidgets::messageBox4);
 
   return result;
@@ -110,7 +110,7 @@ WWidget *DialogWidgets::eDialogs()
   WContainerWidget *ex = new WContainerWidget(result);
   
   WVBoxLayout *vLayout = new WVBoxLayout();
-  ex->setLayout(vLayout, AlignTop);
+  ex->setLayout(vLayout);
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->setSpacing(3);
   

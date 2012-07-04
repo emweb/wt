@@ -37,6 +37,8 @@ void PaintBrush::paintEvent(WPaintDevice *paintDevice)
   WPen pen;
   pen.setWidth(3);
   pen.setColor(color_);
+  pen.setCapStyle(FlatCap);
+  pen.setJoinStyle(MiterJoin);
   painter.setPen(pen);
   painter.drawPath(path_);
 

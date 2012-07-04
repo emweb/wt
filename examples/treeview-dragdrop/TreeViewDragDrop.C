@@ -133,7 +133,7 @@ public:
     ++row;
 
     layout->addWidget(l = new WLabel("Type:"), row, 0);
-    layout->addWidget(typeEdit_, row, 1, AlignTop);
+    layout->addWidget(typeEdit_, row, 1);
     l->setBuddy(typeEdit_);
     ++row;
 
@@ -181,7 +181,7 @@ public:
     layout->addWidget(buttons, row, 0, 0, 3, AlignCenter);
     layout->setColumnStretch(1, 1);
 
-    contents()->setLayout(layout, AlignTop | AlignJustify);
+    contents()->setLayout(layout);
 
     finished().connect(this, &FileEditDialog::handleFinish);
 
@@ -331,7 +331,7 @@ private:
 
     layout->addLayout(vbox, 1, 1);
 
-    layout->addWidget(aboutDisplay(), 2, 0, 1, 2, AlignTop);
+    layout->addWidget(aboutDisplay(), 2, 0, 1, 2);
 
     /*
      * Let row 1 and column 1 take the excess space.

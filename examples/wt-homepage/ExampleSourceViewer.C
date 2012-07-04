@@ -156,7 +156,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   } while (w);
 
   WVBoxLayout *topLayout = new WVBoxLayout();
-  topLayout->addWidget(title, 0, AlignTop | AlignJustify);
+  topLayout->addWidget(title);
 
   WHBoxLayout *gitLayout = new WHBoxLayout();
   gitLayout->addWidget(exampleView_, 0);

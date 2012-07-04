@@ -401,6 +401,7 @@ void WCalendar::cellClicked(Coordinate weekday)
 void WCalendar::cellDblClicked(Coordinate weekday)
 {
   date dt = dateForCell(weekday.i, weekday.j);
+  clicked().emit(WDate(dt.year(), dt.month(), dt.day()));
   activated().emit(WDate(dt.year(), dt.month(), dt.day()));
 }
 

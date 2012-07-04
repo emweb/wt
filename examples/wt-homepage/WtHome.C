@@ -102,7 +102,7 @@ WWidget *WtHome::examples()
   intro->setInternalPathEncoding(true);
   result->addWidget(intro);
 
-  examplesMenu_ = new WTabWidget(AlignTop | AlignJustify, result);
+  examplesMenu_ = new WTabWidget(result);
 
   WAnimation animation(WAnimation::SlideInFromRight, WAnimation::EaseIn);
   examplesMenu_->contentsStack()->setTransitionAnimation(animation, true);
