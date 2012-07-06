@@ -8,35 +8,49 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WPopupMenu",
- function(APP, el, autoHideDelay) {
+ function(APP, el, autoHideDelay, subMenus) {
    jQuery.data(el, 'obj', this);
 
    var self = this,
        WT = APP.WT,
        hideTimeout = null,
-       entered = false;
+       entered = 0;
 
    function doHide() {
-     APP.emit(el, 'cancel');
+     console.log(el.id + "doHide");
+     APP.emit(el.id, 'cancel');
+   }
+
+   function mouseLeave() {
+     --entered;
+     console.log(el.id + ": mouseleave " + entered);
+     if (entered == 0) {
+       clearTimeout(hideTimeout);
+       hideTimeout = setTimeout(doHide, autoHideDelay);
+     }
+   }
+
+   function mouseEnter() {
+     ++entered;
+     console.log(el.id + ": mouseenter " + entered);
+     clearTimeout(hideTimeout);
+   }
+   
+   function bindOverEvents(popup)
+   {
+     $(popup).mouseleave(mouseLeave).mouseenter(mouseEnter);
    }
 
    this.setHidden = function(hidden) {
      if (hideTimeout)
        clearTimeout(hideTimeout);
      hideTimeout = null;
+     entered = 0;
    };
-
+   
    if (autoHideDelay >= 0) {
-     $(el).parent().find('.Wt-popupmenu')
-       .mouseleave(function() {
-	   if (entered) {
-	     clearTimeout(hideTimeout);
-	     hideTimeout = setTimeout(doHide, autoHideDelay);
-	   }
-	 })
-       .mouseenter(function() {
-	   entered = true;
-	   clearTimeout(hideTimeout);
-	 });
+     bindOverEvents(el);
+     for (var i = 0, il = subMenus.length; i < il; ++i)
+       bindOverEvents(WT.$(subMenus[i]));
    }
  });

@@ -335,6 +335,10 @@ private:
   void        renderOutAll();
 
   friend class WPopupMenuItem;
+
+  int count() const;
+  WPopupMenuItem *itemAt(int index) const;
+  void getSubMenus(std::vector<WPopupMenu *>& result);
 };
 
 template<class T, class V>
