@@ -576,7 +576,7 @@ WSslInfo *IsapiRequest::sslInfo() const {
         // FIXME!!! Not implemented!!
         std::vector<WSslCertificate> clientCertChain;
 	
-        Wt::Validator::Result
+        Wt::WValidator::Result
           clientVerificationResult(invalid ? Wt::WValidator::Invalid
 				   : Wt::WValidator::Valid);
 

@@ -53,6 +53,7 @@ WT_DECLARE_WT_MEMBER
      parentInitialized = false, parentMargin = [];
 
    var rtl = $(document.body).hasClass('Wt-rtl');
+
    var DirConfig =
      [ {
          initialized: false,
@@ -154,8 +155,7 @@ WT_DECLARE_WT_MEMBER
    function calcMinimumSize(element, dir) {
      var DC = DirConfig[dir];
 
-     if (element.style.display == 'none'
-	 || element.style.visibility == 'hidden')
+     if (element.style.display == 'none')
        return 0;
      else {
        if (element['layoutMin' + DC.Size])
@@ -254,6 +254,12 @@ WT_DECLARE_WT_MEMBER
 
      if (!itemDirty && !layoutDirty)
        return;
+
+     if (container && typeof DC.minSize == 'undefined') {
+       DC.minSize = WT.px(container, 'min' + DC.Size);
+       if (DC.minSize > 0)
+	 DC.minSize -= sizePadding(container, dir);
+     }
 
      var prevMeasures = measures.slice();
      if (prevMeasures.length == 5) {
@@ -472,14 +478,15 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
+     /*
+      * If our minimum layout requirements have changed, then we want
+      * to communicate this up using the minimum widths
+      *  -- FIXME IE6
+      */
      if (container
+	 && DC.minSize != 0
 	 && prevMeasures[TOTAL_MINIMUM_SIZE] != DC.measures[TOTAL_MINIMUM_SIZE]
 	 && container.parentNode.className != 'Wt-domRoot') {
-       /*
-	* If our minimum layout requirements have changed, then we want
-	* to communicate this up using the minimum widths
-	*  -- FIXME IE6
-	*/
        var w = DC.measures[TOTAL_MINIMUM_SIZE] + 'px';
        if (setCss(container, 'min' + DC.Size, w))
 	 if (self.ancestor)
@@ -600,13 +607,23 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
+     var otherPadding = 0;
+     if (dir == VERTICAL
+	 && WT.hasTag(container, 'FIELDSET')
+	 && container.children.length == 2) {
+       otherPadding = container.firstChild.offsetHeight;
+     }
+
+     var totalPreferredSize = measures[TOTAL_PREFERRED_SIZE];
+     if (totalPreferredSize < DC.minSize)
+       totalPreferredSize = DC.minSize;
+
      if (DC.maxSize) {
        // (2) adjust container width/height
-       if (measures[TOTAL_PREFERRED_SIZE] < DC.maxSize) {
+       if (totalPreferredSize < DC.maxSize) {
 	 setCss(container, DC.size,
-		(measures[TOTAL_PREFERRED_SIZE] + sizePadding(container, dir))
-		+ 'px');
-	 cSize = measures[TOTAL_PREFERRED_SIZE];
+		(totalPreferredSize + sizePadding(container, dir)) + 'px');
+	 cSize = totalPreferredSize;
 	 cPaddedSize = true;
 	 noStretch = true;
        } else {
@@ -622,6 +639,8 @@ WT_DECLARE_WT_MEMBER
 	   h = DC.cSize;
        container.wtResize(container, w, h);
      }
+
+     cSize -= otherPadding;
 
      if (!cPaddedSize) {
        var p = 0;
@@ -650,8 +669,8 @@ WT_DECLARE_WT_MEMBER
        return;
 
      // (2a) if we can't satisfy minimum sizes, then overflow container
-     if (cSize < measures[TOTAL_MINIMUM_SIZE])
-       cSize = measures[TOTAL_MINIMUM_SIZE];
+     if (cSize < measures[TOTAL_MINIMUM_SIZE] - otherPadding)
+       cSize = measures[TOTAL_MINIMUM_SIZE] - otherPadding;
 
      $(widget).children("." + OC.handleClass)
        .css(DC.size,
@@ -662,7 +681,7 @@ WT_DECLARE_WT_MEMBER
      var targetSize = [], dirCount = DC.config.length,
        otherCount = OC.config.length;
 
-     if (cSize > measures[TOTAL_MINIMUM_SIZE]) {
+     if (cSize >= measures[TOTAL_MINIMUM_SIZE] - otherPadding) {
        // (1) fixed size columns/rows get their fixed width
        // (2) other colums/rows:
        //   if all columns are not stretchable: make them all stretchable

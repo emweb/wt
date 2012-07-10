@@ -245,7 +245,12 @@ void SocketNotifier::createSocketPair()
 
 void SocketNotifier::startThread()
 {
+#ifndef BOOST_THREAD_MAKE_RV_REF
   impl_->thread_ = boost::thread(&SocketNotifier::threadEntry, this).move();
+#else
+  // Use macro instead of thread.move()
+  impl_->thread_ = BOOST_THREAD_MAKE_RV_REF(boost::thread(&SocketNotifier::threadEntry, this));
+#endif
 }
 
 void SocketNotifier::interruptThread()
