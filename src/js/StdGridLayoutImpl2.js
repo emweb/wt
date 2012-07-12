@@ -608,7 +608,8 @@ WT_DECLARE_WT_MEMBER
      }
 
      var otherPadding = 0;
-     if (dir == VERTICAL
+     if (container
+	 && dir == VERTICAL
 	 && WT.hasTag(container, 'FIELDSET')
 	 && container.children.length == 2) {
        otherPadding = container.firstChild.offsetHeight;
