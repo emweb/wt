@@ -1,3 +1,16 @@
+16-07-2012:
+	* Wt: fix compile issues with boost 1.50
+
+	* WPieChart: support TooltipRole data
+
+	* WGridLayout, WBoxLayout: fix dynamic add/remove behaviour, fix
+	behaviour in WGroupBox, and honor minimum size settings on container
+
+	* Wt-3.2.2-rc2
+
+04-07-2012:
+	* Wt-3.2.2-rc1
+
 28-06-2012:
 	* WAbstractSpinBox: fix (server-side) validate()
 
