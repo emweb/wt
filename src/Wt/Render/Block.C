@@ -2062,18 +2062,34 @@ std::string Block::cssProperty(Property property) const
 	  
 	  if (isAggregate(n)) {
 	    Utils::SplitVector allvalues;
-	    boost::split(allvalues, n, boost::is_any_of(" \t\n"));
+	    boost::split(allvalues, v, boost::is_any_of(" \t\n"));
 
-	    if (allvalues.size() == 1) {
+	    /*
+	     * count up to first value that does not start with a digit,
+	     *  we want to interpret '1px solid rgb(...)' as '1px'
+	     */
+	    unsigned int count = 0;
+	    for (unsigned i = 0; i < allvalues.size(); ++i) {
+	      std::string vi = std::string(allvalues[i].begin(),
+					   allvalues[i].end());
+	      if (vi[0] < '0' || vi[0] > '9')
+		break;
+
+	      ++count;
+	    }
+
+	    if (count == 0) {
+	      LOG_ERROR("Strange aggregate CSS length property: '" << v << "'");
+	    } else if (count == 1) {
 	      css_[n + "-top"] = css_[n + "-right"] = css_[n + "-bottom"]
 		= css_[n + "-left"]
 		= std::string(allvalues[0].begin(), allvalues[0].end());
-	    } else if (allvalues.size() == 2) {
+	    } else if (count == 2) {
 	      css_[n + "-top"] = css_[n + "-bottom"]
 		= std::string(allvalues[0].begin(), allvalues[0].end());
 	      css_[n + "-right"] = css_[n + "-left"]
 		= std::string(allvalues[1].begin(), allvalues[1].end());
-	    } else if (allvalues.size() == 3) {
+	    } else if (count == 3) {
 	      css_[n + "-top"]
 		= std::string(allvalues[0].begin(), allvalues[0].end());
 	      css_[n + "-right"] = css_[n + "-left"]

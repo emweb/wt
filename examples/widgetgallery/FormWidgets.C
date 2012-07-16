@@ -412,12 +412,12 @@ WWidget *FormWidgets::wPopupMenu()
 
   popup->aboutToHide().connect(boost::bind(&FormWidgets::popupAction,
 					   this, popup));
-  
+
   WLabel* clickMe = new WLabel("Clicking here will show a popup menu.",
 			       result);
   clickMe->setStyleClass("popupmenuLabel");
   clickMe->clicked().connect(popup, &WPopupMenu::popup);
-  
+ 
   return result;
 }
 

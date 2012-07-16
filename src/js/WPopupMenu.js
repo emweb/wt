@@ -17,13 +17,11 @@ WT_DECLARE_WT_MEMBER
        entered = 0;
 
    function doHide() {
-     console.log(el.id + "doHide");
      APP.emit(el.id, 'cancel');
    }
 
    function mouseLeave() {
      --entered;
-     console.log(el.id + ": mouseleave " + entered);
      if (entered == 0) {
        clearTimeout(hideTimeout);
        hideTimeout = setTimeout(doHide, autoHideDelay);
@@ -32,22 +30,28 @@ WT_DECLARE_WT_MEMBER
 
    function mouseEnter() {
      ++entered;
-     console.log(el.id + ": mouseenter " + entered);
      clearTimeout(hideTimeout);
    }
-   
+
    function bindOverEvents(popup)
    {
      $(popup).mouseleave(mouseLeave).mouseenter(mouseEnter);
    }
 
    this.setHidden = function(hidden) {
-     if (hideTimeout)
+     if (hideTimeout) {
        clearTimeout(hideTimeout);
-     hideTimeout = null;
+       hideTimeout = null;
+     }
+
+     if (autoHideDelay > 0 && !hidden) {
+       entered = 1;
+       mouseLeave();
+     }
+
      entered = 0;
    };
-   
+
    if (autoHideDelay >= 0) {
      bindOverEvents(el);
      for (var i = 0, il = subMenus.length; i < il; ++i)

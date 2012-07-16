@@ -72,7 +72,11 @@ class WT_API DomElement
 {
 public:
   enum Mode { ModeCreate, ModeUpdate };
+#ifndef WT_TARGET_JAVA
   typedef std::map<Wt::Property, std::string> PropertyMap;
+#else
+  typedef std::treemap<Wt::Property, std::string> PropertyMap;
+#endif
 
   DomElement(Mode mode, DomElementType type);
   ~DomElement();

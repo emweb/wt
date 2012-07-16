@@ -336,10 +336,6 @@ public:
   virtual WDateTime lastLoginAttempt(const User& user) const;
   //@}
 
-#ifdef WT_TARGET_JAVA
-  virtual User addUser(const User& user);
-#endif
-
 protected:
   AbstractUserDatabase();
 

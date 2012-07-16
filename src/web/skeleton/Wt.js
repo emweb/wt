@@ -1508,8 +1508,12 @@ _$_$endif_$_();
 	}
 
 	var q = stripHashParameter(window.location.search);
-	if (q.length > 1)
+
+	if (q.length > 1) {
+	  if (q.length > 2 && q[0] == '?' && q[1] == '&')
+	    q = q.substr(1);
 	  url += '&' + q.substr(1);
+	}
       }
 
       try {

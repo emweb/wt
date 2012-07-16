@@ -49,21 +49,22 @@ void WTimer::setSingleShot(bool singleShot)
 
 void WTimer::start()
 {
-  if (!active_) {
-    WApplication *app = WApplication::instance();    
-    if (app && app->timerRoot())
-      app->timerRoot()->addWidget(timerWidget_);
-    active_ = true;
-    *timeout_ = Time() + interval_;
+  if (active_)
+    stop();
 
-    bool jsRepeat = !timeout().isExposedSignal() && !singleShot_;
+  WApplication *app = WApplication::instance();    
+  if (app && app->timerRoot())
+    app->timerRoot()->addWidget(timerWidget_);
+  active_ = true;
+  *timeout_ = Time() + interval_;
 
-    timerWidget_->timerStart(jsRepeat);
+  bool jsRepeat = !timeout().isExposedSignal() && !singleShot_;
 
-    if (!timeoutConnected_) {
-      timeout().connect(this, &WTimer::gotTimeout);
-      timeoutConnected_ = true;
-    }
+  timerWidget_->timerStart(jsRepeat);
+
+  if (!timeoutConnected_) {
+    timeout().connect(this, &WTimer::gotTimeout);
+    timeoutConnected_ = true;
   }
 }
 

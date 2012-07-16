@@ -185,13 +185,5 @@ void AbstractUserDatabase::setLastLoginAttempt(const User& user,
   LOG_ERROR(Require("setLastLoginAttempt()", THROTTLING).what());
 }
 
-#ifdef WT_TARGET_JAVA
-User AbstractUserDatabase::addUser(const User& user)
-{
-  LOG_ERROR(Require("registerNew()", REGISTRATION).what());
-  return User();
-}
-#endif
-
   }
 }

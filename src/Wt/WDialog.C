@@ -115,8 +115,8 @@ WDialog::WDialog(const WString& windowTitle)
    * Cannot be done using the CSS stylesheet in case there are
    * contained elements with setHideWithOffsets() set
    *
-   * For IE, we cannot set it yet since it will confuse width measurements to become
-   * minimum size instead of (unconstrained) preferred size
+   * For IE, we cannot set it yet since it will confuse width measurements
+   * to become minimum size instead of (unconstrained) preferred size
    */
   if (app->environment().ajax()) {
     setAttributeValue("style", "visibility: hidden");

@@ -170,6 +170,7 @@ WWidget* WPieChart::createLegendItemWidget(int index,
     if (!label.empty()) {
       WText* l = new WText(label);
       l->setPadding(5, Left);
+      l->setToolTip(asString(model()->data(index, dataColumn_, ToolTipRole)));
       legendItem->addWidget(l);
     }
   }

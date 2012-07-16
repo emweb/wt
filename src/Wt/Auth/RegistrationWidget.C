@@ -232,9 +232,6 @@ void RegistrationWidget::doRegister()
 
   if (validate()) {
     User user = model_->doRegister();
-#ifdef WT_TARGET_JAVA
-    user = model_->users().addUser(user);
-#endif
     if (user.isValid()) {
       registerUserDetails(user);
       model_->login().login(user);
