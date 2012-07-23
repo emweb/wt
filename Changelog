@@ -1,3 +1,8 @@
+23-07-2012:
+	* WebController: workaround filesystem runtime problem for boost 1.50
+
+	* Wt-3.2.2
+
 16-07-2012:
 	* Wt: fix compile issues with boost 1.50
 
