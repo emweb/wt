@@ -953,12 +953,12 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
   painter_.setFont(labelFont);
 
   double u = 0;
-  enum { Left = 0x1, Right = 0x2, Both = 0x3 } tickPos = Left;
+  enum { tLeft = 0x1, tRight = 0x2, tBoth = 0x3 } tickPos = tLeft;
   AlignmentFlag labelHFlag = AlignLeft;
 
   switch (location_[axis.id()]) {
   case MinimumValue:
-    tickPos = Left;
+    tickPos = tLeft;
 
     if (vertical) {
       labelHFlag = AlignRight;
@@ -970,7 +970,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 
     break;
   case MaximumValue:
-    tickPos = Right;
+    tickPos = tRight;
 
     if (vertical) {
       labelHFlag = AlignLeft;
@@ -981,7 +981,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
     }
     break;
   case ZeroValue:
-    tickPos = Both;
+    tickPos = tBoth;
 
     if (vertical) {
       labelHFlag = AlignRight;
@@ -1091,15 +1091,15 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 
       if (ticks[i].tickLength != WAxis::TickLabel::Zero) {
 	if (vertical) {
-	  ticksPath.moveTo(hv(u + (tickPos & Left ? -tickLength : 0), dd));
-	  ticksPath.lineTo(hv(u + (tickPos & Right ? +tickLength : 0), dd));
+      ticksPath.moveTo(hv(u + (tickPos & tLeft ? -tickLength : 0), dd));
+      ticksPath.lineTo(hv(u + (tickPos & tRight ? +tickLength : 0), dd));
 	  if (ticks[i].tickLength == WAxis::TickLabel::Long) {
 	    gridPath.moveTo(hv(s0.renderStart, dd));
 	    gridPath.lineTo(hv(sn.renderStart + sn.renderLength, dd));
 	  }
 	} else {
-	  ticksPath.moveTo(hv(dd, u + (tickPos & Right ? -tickLength : 0)));
-	  ticksPath.lineTo(hv(dd, u + (tickPos & Left ? +tickLength : 0)));
+      ticksPath.moveTo(hv(dd, u + (tickPos & tRight ? -tickLength : 0)));
+      ticksPath.lineTo(hv(dd, u + (tickPos & tLeft ? +tickLength : 0)));
 	  if (ticks[i].tickLength == WAxis::TickLabel::Long) {
 	    gridPath.moveTo(hv(dd, s0.renderStart));
 	    gridPath.lineTo(hv(dd, sn.renderStart - sn.renderLength));
@@ -1122,7 +1122,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 	  if (axis.labelAngle() == 0)
 	    labelFlags |= AlignCenter;
 	  else if (axis.labelAngle() > 0)
-	    labelFlags |= AlignRight;
+        labelFlags |= AlignRight;
 	  else
 	    labelFlags |= AlignLeft;
 
@@ -1457,9 +1457,9 @@ void WChart2DRenderer::renderLegend()
     switch (chart_->legendSide()) {
     case Left:
       if (chart_->legendLocation() == LegendInside)
-	x = chart_->plotAreaPadding(Left) + margin;
+    x = chart_->plotAreaPadding(Left) + margin;
       else
-	x = chart_->plotAreaPadding(Left) - margin - legendWidth;
+    x = chart_->plotAreaPadding(Left) - margin - legendWidth;
       break;
     case Right:
       x = w - chart_->plotAreaPadding(Right);
@@ -1470,9 +1470,9 @@ void WChart2DRenderer::renderLegend()
       break;
     case Top:
       if (chart_->legendLocation() == LegendInside)
-	y = chart_->plotAreaPadding(Top) + margin;
+    y = chart_->plotAreaPadding(Top) + margin;
       else
-	y = chart_->plotAreaPadding(Top) - margin - legendHeight;
+    y = chart_->plotAreaPadding(Top) - margin - legendHeight;
       break;
     case Bottom:
       y = h - chart_->plotAreaPadding(Bottom);
