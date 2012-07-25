@@ -1,3 +1,6 @@
+25-07-2012:
+	* Layouts: fix error in switching to contents determining layout size
+
 23-07-2012:
 	* WebController: workaround filesystem runtime problem for boost 1.50
 
