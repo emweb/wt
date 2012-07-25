@@ -484,7 +484,7 @@ WT_DECLARE_WT_MEMBER
       *  -- FIXME IE6
       */
      if (container
-	 && DC.minSize != 0
+	 && DC.minSize == 0
 	 && prevMeasures[TOTAL_MINIMUM_SIZE] != DC.measures[TOTAL_MINIMUM_SIZE]
 	 && container.parentNode.className != 'Wt-domRoot') {
        var w = DC.measures[TOTAL_MINIMUM_SIZE] + 'px';
@@ -582,7 +582,10 @@ WT_DECLARE_WT_MEMBER
 		 minSize = 0;
 		 ieCSize = 1;
 	       } else {
-		 minSize = measures[TOTAL_MINIMUM_SIZE];
+		 if (DC.minSize) // original minSize
+		   minSize = DC.minSize;
+		 else            // set minSize
+		   minSize = measures[TOTAL_MINIMUM_SIZE];
 		 ieCSize = 0;
 	       }
 
