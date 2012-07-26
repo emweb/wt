@@ -413,8 +413,8 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
 
 	  if (vAlign != 0) switch (vAlign) {
 	    case AlignTop: align |= 0x10; break;
-	    case AlignMiddle: align |= 0x20; break;
-	    case AlignBottom: align |= 0x40; break;
+	    case AlignBottom: align |= 0x20; break;
+	    case AlignMiddle: align |= 0x40; break;
 	    default: break;
 	    }
 
