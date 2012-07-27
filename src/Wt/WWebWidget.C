@@ -1270,19 +1270,25 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 					       PropertyStyleBottom,
 					       PropertyStyleLeft };
 
-	for (unsigned i = 0; i < 4; ++i) {
-	  Property property = properties[i];
+	if (!layoutImpl_->offsets_[0].isAuto()
+	    || !layoutImpl_->offsets_[1].isAuto()
+	    || !layoutImpl_->offsets_[2].isAuto()
+	    || !layoutImpl_->offsets_[3].isAuto()) {
+	  for (unsigned i = 0; i < 4; ++i) {
+	    Property property = properties[i];
 
-	  if (!app) app = WApplication::instance();
+	    if (!app) app = WApplication::instance();
 
-	  if (app->layoutDirection() == RightToLeft) {
-	    if (i == 1) property = properties[3];
-	    else if (i == 3) property = properties[1];
+	    if (app->layoutDirection() == RightToLeft) {
+	      if (i == 1) property = properties[3];
+	      else if (i == 3) property = properties[1];
+	    }
+
+	    if ((app->environment().ajax()
+		 && !app->environment().agentIsIElt(9))
+		|| !layoutImpl_->offsets_[i].isAuto())
+	      element.setProperty(property, layoutImpl_->offsets_[i].cssText());
 	  }
-
-	  if ((app->environment().ajax() && !app->environment().agentIsIElt(9))
-	      || !layoutImpl_->offsets_[i].isAuto())
-	    element.setProperty(property, layoutImpl_->offsets_[i].cssText());
 	}
       }
 

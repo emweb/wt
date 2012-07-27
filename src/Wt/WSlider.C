@@ -6,6 +6,7 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
+#include "Wt/WPaintDevice"
 #include "Wt/WPaintedWidget"
 #include "Wt/WPainter"
 #include "Wt/WSlider"
@@ -40,7 +41,7 @@ private:
   JSignal<int> sliderReleased_;
   JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
 
-  WContainerWidget *handle_;
+  WInteractWidget *handle_, *fill_;
 
   int range() const { return slider_->maximum() - slider_->minimum(); }
   double w() const;
@@ -48,60 +49,46 @@ private:
 
   void onSliderClick(const WMouseEvent& event);
   void onSliderReleased(int u);
-
-  static const int HANDLE_WIDTH = 20;
 };
 
 void PaintedSlider::paintEvent(WPaintDevice *paintDevice)
 {
-  if (slider_->tickPosition()) {
-    WPainter painter(paintDevice);
+  int tickInterval = slider_->tickInterval();
+  int r = range();
 
-    int w, h;
+  if (tickInterval == 0)
+    tickInterval = r / 2;
 
-    if (slider_->orientation() == Horizontal) {
-      w = (int)width().toPixels();
-      h = (int)height().toPixels();
-    } else {
-      w = (int)height().toPixels();
-      h = (int)width().toPixels();
+  int numTicks = r / tickInterval + 1;
+  if (numTicks < 1)
+    return;
 
-      painter.translate(0, w);
-      painter.rotate(-90);
-    }
+  int w = 0, h = 0;
 
-    int tickInterval = slider_->tickInterval();
-    int r = range();
+  switch (slider_->orientation()) {
+  case Horizontal:
+    w = (int)paintDevice->width().toPixels();
+    h = (int)paintDevice->height().toPixels();
+    break;
+  case Vertical:
+    w = (int)paintDevice->height().toPixels();
+    h = (int)paintDevice->width().toPixels();
+  }
 
-    if (tickInterval == 0)
-      tickInterval = r / 2;
+  double tickStep = ((double)w + 10 - slider_->handleWidth()) / (numTicks - 1);
 
-    double tickStep = ((double)w - (HANDLE_WIDTH - 10)) / (r / tickInterval);
+  WPainter painter(paintDevice);
 
-    if (tickStep <= 0)
-      return;
+  for (int i = 0; i < numTicks; ++i) {
+    int v = slider_->minimum() + i * tickInterval;
+    int x = -5 + slider_->handleWidth()/2 + (int) (i * tickStep);
 
-    WPen pen;
-    pen.setColor(WColor(0xd7, 0xd7, 0xd7));
-    pen.setCapStyle(FlatCap);
-    pen.setWidth(1);
-    painter.setPen(pen);
-
-    int y1 = h / 4;
-    int y2 = h / 2 - 4;
-    int y3 = h / 2 + 4;
-    int y4 = h - h/4;
-
-    for (unsigned i = 0; ; ++i) {
-      int x = (HANDLE_WIDTH - 10)/2 + (int) (i * tickStep);
-
-      if (x > w - (HANDLE_WIDTH - 10)/2)
-	break;
-
-      if (slider_->tickPosition() & WSlider::TicksAbove)
-	painter.drawLine(x + 0.5, y1, x + 0.5, y2);
-      if (slider_->tickPosition() & WSlider::TicksBelow)
-	painter.drawLine(x + 0.5, y3, x + 0.5, y4);
+    switch (slider_->orientation()) {
+    case Horizontal:
+      slider_->paintTick(painter, v, x, h/2);
+      break;
+    case Vertical:
+      slider_->paintTick(painter, v, h/2, w - x);
     }
   }
 }
@@ -121,9 +108,15 @@ PaintedSlider::PaintedSlider(WSlider *slider)
     slider_->setOffsets(0, Left | Top);
   }
 
-  addChild(handle_ = new WContainerWidget());
+  addChild(handle_ = slider_->createHandle());
+  addChild(fill_ = new WContainerWidget());
+
+  fill_->setPositionScheme(Absolute);
+  fill_->setStyleClass("fill");
+
   handle_->setPopup(true);
   handle_->setPositionScheme(Absolute);
+  handle_->setStyleClass("handle");
 
   handle_->mouseWentDown().connect(mouseDownJS_);
   handle_->mouseMoved().connect(mouseMovedJS_);
@@ -164,27 +157,30 @@ void PaintedSlider::updateState()
 
   Orientation o = slider_->orientation();
 
-  handle_->setStyleClass("handle");
-
   if (o == Horizontal) {
-    handle_->resize(HANDLE_WIDTH, h());
+    handle_->resize(slider_->handleWidth(), h());
     handle_->setOffsets(0, Top);
   } else {
-    handle_->resize(w(), HANDLE_WIDTH);
+    handle_->resize(w(), slider_->handleWidth());
     handle_->setOffsets(0, Left);
   }
 
   double l = o == Horizontal ? w() : h();
-  double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
+  double pixelsPerUnit = (l - slider_->handleWidth()) / range();
 
   std::string dir;
-  if (o == Horizontal)
+  std::string size;
+  if (o == Horizontal) {
     dir = rtl ? "right" : "left";
-  else
+    size = "width";
+  } else {
     dir = "top";
+    size = "height";
+  }
   std::string u = (o == Horizontal ? "x" : "y");
   std::string U = (o == Horizontal ? "X" : "Y");
-  std::string maxS = boost::lexical_cast<std::string>(l - HANDLE_WIDTH);
+  std::string maxS
+    = boost::lexical_cast<std::string>(l - slider_->handleWidth());
   std::string ppU = boost::lexical_cast<std::string>(pixelsPerUnit);
   std::string minimumS = boost::lexical_cast<std::string>(slider_->minimum());
   std::string maximumS = boost::lexical_cast<std::string>(slider_->maximum());
@@ -203,6 +199,7 @@ void PaintedSlider::updateState()
   // = 'u' position relative to background, corrected for slider
   std::string computeD =
     ""  "var objh = " + handle_->jsRef() + ","
+    ""      "objf = " + fill_->jsRef() + ","
     ""      "objb = " + jsRef() + ","
     ""      "page_u = WT.pageCoordinates(event)." + u + ","
     ""      "widget_page_u = WT.widgetPageCoordinates(objb)." + u + ","
@@ -223,9 +220,13 @@ void PaintedSlider::updateState()
     ""  "var v = Math.round(d/" + ppU + ");"
     ""  "var intd = v*" + ppU + ";"
     ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - intd) > 1) {"
+    ""    "objf.style." + size + " = intd + 'px';" + 
     ""    "objh.style." + dir + " = intd + 'px';" +
-    slider_->sliderMoved().createCall(o == Horizontal ? "v + " + minimumS
-				      : maximumS + " - v") + 
+    ""    "var vs = " + (o == Horizontal ? "v + " + minimumS
+			 : maximumS + " - v") + ";"
+    ""    "var f = objb.parentNode.onValueChange;" +
+    ""    "if (f) f(vs);"
+      + slider_->sliderMoved().createCall("vs") + 
     ""  "}"
     """}";
 
@@ -234,7 +235,8 @@ void PaintedSlider::updateState()
     """var WT = " WT_CLASS ";"
     """if (down != null && down != '') {"
     + computeD +
-    """d += " + boost::lexical_cast<std::string>(HANDLE_WIDTH / 2) + ";" +
+    """d += "
+    + boost::lexical_cast<std::string>(slider_->handleWidth() / 2) + ";" +
     sliderReleased_.createCall("d") + 
     ""  "obj.removeAttribute('down');"
     """}";
@@ -262,6 +264,7 @@ void PaintedSlider::doUpdateDom(DomElement& element, bool all)
 
     element.addChild(createSDomElement(app));
     element.addChild(((WWebWidget *)handle_)->createSDomElement(app));
+    element.addChild(((WWebWidget *)fill_)->createSDomElement(app));
 
     DomElement *west = DomElement::createNew(DomElement_DIV);
     west->setProperty(PropertyClass, "Wt-w");
@@ -306,13 +309,13 @@ void PaintedSlider::onSliderClick(const WMouseEvent& event)
 void PaintedSlider::onSliderReleased(int u)
 {
   if (slider_->orientation() == Horizontal)
-    u -= HANDLE_WIDTH / 2;
+    u -= slider_->handleWidth() / 2;
   else
-    u = (int)h() - (u + HANDLE_WIDTH / 2);
+    u = (int)h() - (u + slider_->handleWidth() / 2);
 
   double l = (slider_->orientation() == Horizontal) ? w() : h();
 
-  double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
+  double pixelsPerUnit = (l - slider_->handleWidth()) / range();
 
   double v = std::max(slider_->minimum(),
 		      std::min(slider_->maximum(),
@@ -331,14 +334,17 @@ void PaintedSlider::onSliderReleased(int u)
 void PaintedSlider::updateSliderPosition()
 {
   double l = (slider_->orientation() == Horizontal) ? w() : h();
-  double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
+  double pixelsPerUnit = (l - slider_->handleWidth()) / range();
 
   double u = ((double)slider_->value() - slider_->minimum()) * pixelsPerUnit;
 
-  if (slider_->orientation() == Horizontal)
+  if (slider_->orientation() == Horizontal) {
     handle_->setOffsets(u, Left);
-  else
-    handle_->setOffsets(h() - HANDLE_WIDTH - u, Top);
+    fill_->setWidth(u);
+  } else {
+    handle_->setOffsets(h() - slider_->handleWidth() - u, Top);
+    fill_->setHeight(u);
+  }
 }
 
 WSlider::WSlider(WContainerWidget *parent)
@@ -349,6 +355,7 @@ WSlider::WSlider(WContainerWidget *parent)
     preferNative_(false),
     changed_(false),
     changedConnected_(false),
+    handleWidth_(20),
     minimum_(0),
     maximum_(99),
     value_(0),
@@ -367,6 +374,7 @@ WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
     preferNative_(false),
     changed_(false),
     changedConnected_(false),
+    handleWidth_(20),
     minimum_(0),
     maximum_(99),
     value_(0),
@@ -442,6 +450,16 @@ void WSlider::setTickInterval(int tickInterval)
     paintedSlider_->updateState();
 }
 
+void WSlider::setHandleWidth(int handleWidth)
+{
+  handleWidth_ = handleWidth;
+}
+
+WInteractWidget *WSlider::createHandle()
+{
+  return new WContainerWidget();
+}
+
 void WSlider::update()
 {
   if (paintedSlider_)
@@ -483,7 +501,10 @@ void WSlider::setValue(int value)
 {
   value_ = std::min(maximum_, std::max(minimum_, value));
 
-  update();
+  if (paintedSlider_)
+    paintedSlider_->updateSliderPosition();
+  else
+    update();
 }
 
 void WSlider::signalConnectionsChanged()
@@ -591,6 +612,44 @@ void WSlider::setDisabled(bool disabled)
     paintedSlider_->setDisabled(disabled);
 
   WFormWidget::setDisabled(disabled);
+}
+
+void WSlider::paintTick(WPainter& painter, int value, int x, int y)
+{
+  if (tickPosition_) {
+    int h = 0;
+
+    if (orientation_ == Horizontal)
+      h = (int)painter.device()->height().toPixels();
+    else
+      h = (int)painter.device()->width().toPixels();
+
+    WPen pen;
+    pen.setColor(WColor(0xd7, 0xd7, 0xd7));
+    pen.setCapStyle(FlatCap);
+    pen.setWidth(1);
+    painter.setPen(pen);
+
+    int y1 = h / 4;
+    int y2 = h / 2 - 4;
+    int y3 = h / 2 + 4;
+    int y4 = h - h/4;
+
+    switch (orientation_) {
+    case Horizontal:
+      if (tickPosition_ & WSlider::TicksAbove)
+	painter.drawLine(x + 0.5, y1, x + 0.5, y2);
+      if (tickPosition_ & WSlider::TicksBelow)
+	painter.drawLine(x + 0.5, y3, x + 0.5, y4);
+
+      break;
+    case Vertical:
+      if (tickPosition_ & WSlider::TicksAbove)
+	painter.drawLine(y1, y + 0.5, y2, y + 0.5);
+      if (tickPosition_ & WSlider::TicksBelow)
+	painter.drawLine(y3, y + 0.5, y4, y + 0.5);
+    }
+  }
 }
 
 }

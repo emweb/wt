@@ -327,13 +327,12 @@ public:
 private:
   static const int BIT_LINK_CHANGED = 0;
   static const int BIT_TARGET_CHANGED = 1;
-  static const int BIT_CHANGE_TAG = 2;
 
   WLink link_;
   WText *text_;
   WImage *image_;
   AnchorTarget target_;
-  std::bitset<3> flags_;
+  std::bitset<2> flags_;
 
   JSlot *changeInternalPathJS_;
 

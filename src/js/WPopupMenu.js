@@ -14,6 +14,7 @@ WT_DECLARE_WT_MEMBER
    var self = this,
        WT = APP.WT,
        hideTimeout = null,
+       location = null,
        entered = 0;
 
    function doHide() {
@@ -44,17 +45,30 @@ WT_DECLARE_WT_MEMBER
        hideTimeout = null;
      }
 
+     entered = 0;
+
      if (autoHideDelay > 0 && !hidden) {
        entered = 1;
-       mouseLeave();
+       if (!location)   // assume we are currently over the location
+	 mouseLeave();
      }
+   };
 
-     entered = 0;
+   this.popupAt = function(widget) {
+     if (autoHideDelay >= 0) {
+       if (location != widget) {
+	 location = widget;
+	 bindOverEvents(location);
+	 mouseEnter(); // assume we are currently over the location
+       }
+     }
    };
 
    if (autoHideDelay >= 0) {
-     bindOverEvents(el);
-     for (var i = 0, il = subMenus.length; i < il; ++i)
-       bindOverEvents(WT.$(subMenus[i]));
+     setTimeout(function() {
+		  bindOverEvents(el);
+		  for (var i = 0, il = subMenus.length; i < il; ++i)
+		    bindOverEvents(WT.$(subMenus[i]));
+		}, 0);
    }
  });

@@ -1,3 +1,14 @@
+27-07-2012:
+	* Dbo/Exception: add support for SQLSTATE code information
+
+	* Mail/Client: log configuration that will be used on first use
+
+	* WAnchor: use <a> tag even if no link has been provided (#1348)
+
+	* WDoubleSpinBox: fix formatting (#1358)
+
+	* WSlider: add more hooks for custom styles
+
 25-07-2012:
 	* Layouts: fix error in switching to contents determining layout size
 

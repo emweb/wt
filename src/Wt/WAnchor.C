@@ -170,9 +170,6 @@ void WAnchor::setLink(const WLink& link)
   if (link_.type() != WLink::Resource && link_ == link)
     return;
 
-  if (link_.isNull())
-    flags_.set(BIT_CHANGE_TAG);
-
   link_ = link;
 
   flags_.set(BIT_LINK_CHANGED);
@@ -289,44 +286,35 @@ void WAnchor::enableAjax()
 
 void WAnchor::updateDom(DomElement& element, bool all)
 {
-  if (element.type() != DomElement_A) {
-    WContainerWidget::updateDom(element, all);
-    return;
-  }
-
-  if (flags_.test(BIT_CHANGE_TAG)) {
-    if (!all)
-      element.callJavaScript(WT_CLASS ".changeTag(" + jsRef() + ",'a');");
-
-    flags_.reset(BIT_CHANGE_TAG);
-  }
-
   bool needsUrlResolution = false;
 
   if (flags_.test(BIT_LINK_CHANGED) || all) {
     WApplication *app = WApplication::instance();
 
-    std::string url = link_.resolveUrl(app);
-
-    /*
-     * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
-     * does not work without the check below:
-     */
-    if (target_ == TargetSelf)
-      changeInternalPathJS_
-	= link_.manageInternalPathChange(app, this, changeInternalPathJS_);
+    if (link_.isNull())
+      element.removeAttribute("href");
     else {
-      delete changeInternalPathJS_;
-      changeInternalPathJS_ = 0;
+      std::string url = link_.resolveUrl(app);
+
+      /*
+       * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
+       * does not work without the check below:
+       */
+      if (target_ == TargetSelf)
+	changeInternalPathJS_
+	  = link_.manageInternalPathChange(app, this, changeInternalPathJS_);
+      else {
+	delete changeInternalPathJS_;
+	changeInternalPathJS_ = 0;
+      }
+
+      url = app->encodeUntrustedUrl(url);
+
+      std::string href = resolveRelativeUrl(url);
+      element.setAttribute("href", href);
+      needsUrlResolution = !app->environment().hashInternalPaths()
+	&& href.find("://") == std::string::npos && href[0] != '/';
     }
-
-    url = app->encodeUntrustedUrl(url);
-
-    std::string href = resolveRelativeUrl(url);
-    element.setAttribute("href", href);
-
-    needsUrlResolution = !app->environment().hashInternalPaths()
-      && href.find("://") == std::string::npos && href[0] != '/';
 
     flags_.reset(BIT_LINK_CHANGED);
   }
@@ -367,7 +355,7 @@ void WAnchor::propagateRenderOk(bool deep)
 
 DomElementType WAnchor::domElementType() const
 {
-  return link_.isNull() ? WContainerWidget::domElementType() : DomElement_A;
+  return DomElement_A;
 }
 
 }

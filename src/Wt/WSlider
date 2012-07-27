@@ -171,7 +171,7 @@ public:
    *
    * \sa value()
    */
-  void setValue(int value);
+  virtual void setValue(int value);
 
   /*! \brief Returns the current slider value.
    *
@@ -236,12 +236,46 @@ public:
    */
   JSignal<int>& sliderMoved() { return sliderMoved_; }
 
+  /*! \brief Sets the slider handle width.
+   *
+   * This sets the width for the handle, which is needed to accurately
+   * position the handle.
+   *
+   * The default value is 20 pixels.
+   */
+  void setHandleWidth(int width);
+
+  /*! \brief Returns the handle width.
+   *
+   * \sa setHandleWidth()
+   */
+  int handleWidth() const { return handleWidth_; }
+
   virtual void setDisabled(bool disabled);
   virtual void resize(const WLength& width, const WLength& height);
   virtual WT_USTRING valueText() const;
   virtual void setValueText(const WT_USTRING& value);
 
 protected:
+  /*! \brief Paints a slider ticks (for a non-native widget)
+   *
+   * The default implementation draws ticks taking into account the
+   * the tickPosition.
+   *
+   * The mid point for the tick should be at position (x, y). The \p
+   * value that corresponds to the tick is also passed.
+   */
+  virtual void paintTick(WPainter& painter, int value, int x, int y);
+
+  /*! \brief Creates the handle (for a non-native widget)
+   *
+   * The default implementation creates a container widget. You may
+   * want to specialize this function if you want to have more control
+   * on the handle appearance or if you want to associate with the
+   * handle a tooltip or other information (e.g. a popup balloon).
+   */
+  virtual WInteractWidget *createHandle();
+
   virtual void signalConnectionsChanged();
   virtual void layoutSizeChanged(int width, int height);
 
@@ -255,6 +289,7 @@ private:
   int                  tickInterval_;
   WFlags<TickPosition> tickPosition_;
   bool                 preferNative_, changed_, changedConnected_;
+  int                  handleWidth_;
 
   int                  minimum_, maximum_;
   int                  value_;
@@ -266,6 +301,8 @@ private:
 
   void update();
   void onChange();
+
+  friend class PaintedSlider;
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WSlider::TickPosition)

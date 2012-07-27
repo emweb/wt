@@ -17,6 +17,10 @@
 namespace Wt {
 
 LOGGER("Mail::Client");
+
+namespace {
+  bool logged = false;
+}
 		
   namespace Mail {
 
@@ -178,7 +182,13 @@ Client::Client(const std::string& selfHost)
   if (selfHost_.empty()) {
     selfHost_ = "localhost";
     WApplication::readConfigurationProperty("smtp-self-host", selfHost_);
-  }
+
+    if (!logged)
+      LOG_INFO("Smtp::Client: using '" << selfHost_ << "' (from smtp-self-host property) "
+	       "as self host");
+  } else
+    if (!logged)
+      LOG_INFO("Smtp::Client: using '" << selfHost_ << "' as self host");
 }
 
 Client::~Client()
@@ -196,11 +206,20 @@ bool Client::connect()
 
   int smtpPort = boost::lexical_cast<int>(smtpPortStr);
 
+  if (!logged)
+    LOG_INFO("Smtp::Client: using '" << smtpHost << ":" << smtpPortStr
+	     << "' (from smtp-host and smtp-port properties) as SMTP host");
+
   return connect(smtpHost, smtpPort);
 }
 
 bool Client::connect(const std::string& smtpHost, int smtpPort)
 {
+  if (!logged) {
+    LOG_INFO("Smtp::Client: connecting to '" << smtpHost << ":" << smtpPort);
+    logged = true;
+  }
+
   delete impl_;
   impl_ = new Impl(smtpHost, selfHost_, smtpPort);
 

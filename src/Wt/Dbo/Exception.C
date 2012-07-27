@@ -11,9 +11,12 @@
 namespace Wt {
   namespace Dbo {
 
-Exception::Exception(const std::string& error)
-  : std::runtime_error(error)
+Exception::Exception(const std::string& error, const std::string& code)
+  : std::runtime_error(error),
+    code_(code)
 { }
+
+Exception::~Exception() throw() { }
 
 StaleObjectException::StaleObjectException(const std::string& id, int version)
   : Exception("Stale object, id = " + id + ", version = "

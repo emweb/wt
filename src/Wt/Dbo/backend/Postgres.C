@@ -38,6 +38,10 @@ public:
   PostgresException(const std::string& msg)
     : Exception(msg)
   { }
+
+  PostgresException(const std::string& msg, const std::string& code)
+    : Exception(msg, code)
+  { }
 };
 
 class PostgresStatement : public SqlStatement
@@ -194,7 +198,7 @@ public:
 
       result_ = PQprepare(conn_.connection(), name_, sql_.c_str(),
 			  paramTypes_ ? params_.size() : 0, (Oid *)paramTypes_);
-      handleErr(PQresultStatus(result_));
+      handleErr(PQresultStatus(result_), result_);
     }
 
     for (unsigned i = 0; i < params_.size(); ++i) {
@@ -244,7 +248,7 @@ public:
       }
     }
 
-    handleErr(PQresultStatus(result_));
+    handleErr(PQresultStatus(result_), result_);
   }
 
   virtual long long insertedId()
@@ -452,10 +456,19 @@ private:
  
   int lastId_, row_, affectedRows_;
 
-  void handleErr(int err)
+  void handleErr(int err, PGresult *result)
   {
-    if (err != PGRES_COMMAND_OK && err != PGRES_TUPLES_OK)
-      throw PostgresException(PQerrorMessage(conn_.connection()));
+    if (err != PGRES_COMMAND_OK && err != PGRES_TUPLES_OK) {
+      std::string code;
+
+      if (result) {
+	char *v = PQresultErrorField(result, PG_DIAG_SQLSTATE);
+	if (v)
+	  code = v;
+      }
+
+      throw PostgresException(PQerrorMessage(conn_.connection()), code);
+    }
   }
 
   void setValue(int column, const std::string& value) {

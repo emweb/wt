@@ -173,6 +173,9 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
   location_ = location;
 
   popupImpl();
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').popupAt("
+	       + location->jsRef() + ");");
+
   positionAt(location, orientation);
 }
 

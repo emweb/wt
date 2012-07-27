@@ -24,6 +24,15 @@
 #include <stdlib.h>
 #endif // WIN32
 
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700
+#  define SPIRIT_FLOAT_FORMAT
+#endif
+
+#ifdef SPIRIT_FLOAT_FORMAT
+#include <boost/config/warning_disable.hpp>
+#include <boost/spirit/include/karma.hpp>
+#endif // SPIRIT_FLOAT_FORMAT
+
 namespace Wt {
   namespace Utils {
 
@@ -177,33 +186,92 @@ char *pad_itoa(int value, int length, char *result) {
   return result;
 }
 
-char *round_str(double d, int digits, char *buf) {
-  static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
+#ifdef SPIRIT_FLOAT_FORMAT
+namespace {
+  using namespace boost::spirit;
+  using namespace boost::spirit::karma;
 
-  long long i = static_cast<long long>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
-  lltoa(i, buf);
-  char *num = buf;
-
-  if (num[0] == '-')
-    ++num;
-  int len = std::strlen(num);
-
-  if (len <= digits) {
-    int shift = digits + 1 - len;
-    for (int i = digits + 1; i >= 0; --i) {
-      if (i >= shift)
-	num[i] = num[i - shift];
-      else
-	num[i] = '0';
+  // adjust rendering for JS flaots
+  template <typename T>
+  struct JavaScriptPolicy : karma::real_policies<T>
+  {
+    // not 'nan', but 'NaN'
+    template <typename CharEncoding, typename Tag, typename OutputIterator>
+    static bool nan (OutputIterator& sink, T n, bool force_sign)
+    {
+      return string_inserter<CharEncoding, Tag>::call(sink, "NaN");
     }
-    len = digits + 1;
-  }
-  int dotPos = (std::max)(len - digits, 0);
-  for (int i = digits + 1; i >= 0; --i)
-    num[dotPos + i + 1] = num[dotPos + i];
-  num[dotPos] = '.';
 
+    // not 'inf', but 'Infinity'
+    template <typename CharEncoding, typename Tag, typename OutputIterator>
+    static bool inf (OutputIterator& sink, T n, bool force_sign)
+    {
+      return sign_inserter::call(sink, false, (n<0), force_sign) &&
+        string_inserter<CharEncoding, Tag>::call(sink, "Infinity");
+    }
+
+    // 7 significant numbers; about float precision
+    static unsigned precision(T) { return 7; }
+  };
+
+  typedef real_generator<double, JavaScriptPolicy<double> >
+    KarmaJavaScriptDouble;
+}
+
+static inline char *generic_double_to_str(double d, char *buf)
+{
+  using namespace boost::spirit;
+  using namespace boost::spirit::karma;
+  char *p = buf;
+  generate(p, KarmaJavaScriptDouble(), d);
+  *p = '\0';
   return buf;
+}
+#else
+static inline char *generic_double_to_str(double d, char *buf)
+{
+  sprintf(buf, "%f", (float)d);
+  return buf;
+}
+#endif
+
+char *round_str(double d, int digits, char *buf) {
+#ifdef SPIRIT_FLOAT_FORMAT
+    return generic_double_to_str(d, buf);
+#else
+  if (((d > 1 && d < 1000000) || (d < -1 && d > -1000000)) && digits < 7) {
+    // range where a very fast float->string converter works
+    // mainly intended to render floats for 2D drawing canvas
+    static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
+
+    long long i = static_cast<long long>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
+    lltoa(i, buf);
+    char *num = buf;
+
+    if (num[0] == '-')
+      ++num;
+    int len = std::strlen(num);
+
+    if (len <= digits) {
+      int shift = digits + 1 - len;
+      for (int i = digits + 1; i >= 0; --i) {
+        if (i >= shift)
+          num[i] = num[i - shift];
+        else
+          num[i] = '0';
+      }
+      len = digits + 1;
+    }
+    int dotPos = (std::max)(len - digits, 0);
+    for (int i = digits + 1; i >= 0; --i)
+      num[dotPos + i + 1] = num[dotPos + i];
+    num[dotPos] = '.';
+    return buf;
+  } else {
+    // an implementation that covers everything
+    return generic_double_to_str(d, buf);
+  }
+#endif
 }
 
 std::string urlEncode(const std::string& url, const std::string& allowed)

@@ -25,6 +25,11 @@ namespace Wt {
  *
  * This class provides the backend implementation for PostgreSQL databases.
  *
+ * When applicable, exceptions from the backend will return the
+ * five-character SQLSTATE error codes, as in
+ * http://www.postgresql.org/docs/8.1/static/errcodes-appendix.html, in
+ * Exception::code().
+ *
  * \ingroup dbo
  */
 class WTDBOPOSTGRES_API Postgres : public SqlConnection

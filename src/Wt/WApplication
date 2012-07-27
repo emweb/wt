@@ -1655,11 +1655,19 @@ public:
    */
   void quit();
 
-  /*! \brief Returns whether the application is quited.
+  /*! \brief Returns whether the application has quit. (<b>deprecated</b>)
+   *
+   * \sa quit()
+   *
+   * \deprecated hasQuit() is proper English
+   */
+  bool isQuited() const { return quited_; }
+
+  /*! \brief Returns whether the application has quit.
    *
    * \sa quit()
    */
-  bool isQuited() const { return quited_; }
+  bool hasQuit() const { return quited_; }
 
   /*! \brief Returns the current maximum size of a request to the
    *         application.
