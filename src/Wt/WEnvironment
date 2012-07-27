@@ -618,10 +618,15 @@ public:
 
   bool hashInternalPaths() const { return hashInternalPaths_; }
 
+  /*! \brief Returns whether this agent supports CSS3 animations.
+   */
   bool supportsCss3Animations() const;
 
   virtual Signal<WDialog *>& dialogExecuted() const;
   virtual Signal<WPopupMenu *>& popupExecuted() const;
+
+  /*! \brief Returns whether this is a mocked test environment.
+   */
   virtual bool isTest() const;
 
 protected:

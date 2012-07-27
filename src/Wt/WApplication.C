@@ -1001,6 +1001,7 @@ void WApplication::setCookie(const std::string& name,
   session_->renderer().setCookie(name, value, expires, domain, path, secure);
 }
 
+#ifndef WT_TARGET_JAVA
 void WApplication::setCookie(const std::string& name,
 			     const std::string& value,
 			     const WDateTime& expires,
@@ -1010,6 +1011,7 @@ void WApplication::setCookie(const std::string& name,
 {
   session_->renderer().setCookie(name, value, expires, domain, path, secure);
 }
+#endif // WT_TARGET_JAVA
 
 void WApplication::removeCookie(const std::string& name,
 				const std::string& domain,

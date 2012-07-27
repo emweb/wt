@@ -619,8 +619,10 @@ public:
 
   void removeStyleClass(const char *styleClass, bool force = false);
 
-  void toggleStyleClass(const WT_USTRING& styleClass, bool add,
-			bool force = false);
+  /*! \brief Toggles a CSS style class.
+   */
+  virtual void toggleStyleClass(const WT_USTRING& styleClass, bool add,
+				bool force = false);
 
   void toggleStyleClass(const char *styleClass, bool add, bool force = false);
 

@@ -10,8 +10,15 @@
 namespace Wt {
   namespace Http {
 
+/*! \brief Enumeration for a HTTP method
+ *
+ * This enumeration is currently limited to only a few of the most
+ * used HTTP methods.
+ */
 enum Method {
-  Get, Post, Put
+  Get,  //!< a HTTP GET
+  Post, //!< a HTTP POST
+  Put   //!< a HTTP PUT
 };
 
   }

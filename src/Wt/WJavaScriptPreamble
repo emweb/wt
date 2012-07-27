@@ -12,33 +12,47 @@
 #define WT_JS(...) #__VA_ARGS__
 
 namespace Wt {
-/*! \brief Enum for internal use.
+#ifdef WT_TARGET_JAVA
+/*! \brief Enumeration for a JavaScript object type.
+ *
+ * This is an internal Wt type.
  */
-  enum JavaScriptObjectType {
-    JavaScriptFunction,     // called with this == WT
-    JavaScriptConstructor,
-    JavaScriptObject,
-    JavaScriptPrototype
-  };
+#endif
+enum JavaScriptObjectType {
+  JavaScriptFunction,     // called with this == WT
+  JavaScriptConstructor,
+  JavaScriptObject,
+  JavaScriptPrototype
+};
 
-/*! \brief Enum for internal use.
+#ifdef WT_TARGET_JAVA
+/*! \brief Enumeration for a JavaScript object scope.
+ *
+ * This is an internal Wt type.
  */
-  enum JavaScriptScope {
-    ApplicationScope,
-    WtClassScope
-  };
+#endif
+enum JavaScriptScope {
+  ApplicationScope,
+  WtClassScope
+};
 
-/*! \brief Class for internal use.
+#ifdef WT_TARGET_JAVA
+/*! \brief Javascript preamble.
+ *
+ * This is an internal Wt type.
  */
-  class WT_API WJavaScriptPreamble {
-  public:
-    WJavaScriptPreamble(JavaScriptScope scope, JavaScriptObjectType type,
-			const char *name, const char *src);
+#endif
+class WT_API WJavaScriptPreamble 
+{
+public:
+  WJavaScriptPreamble(JavaScriptScope scope, JavaScriptObjectType type,
+		      const char *name, const char *src);
 
-    JavaScriptScope scope;
-    JavaScriptObjectType type;
-    const char *name, *src;
-  };
+  JavaScriptScope scope;
+  JavaScriptObjectType type;
+  const char *name, *src;
+};
+
 }
 
 #ifndef WT_DEBUG_JS

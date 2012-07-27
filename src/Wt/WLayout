@@ -202,6 +202,12 @@ protected:
    */
   void setLayoutInParent(WWidget *parent);
 
+  /*! \brief Clears and deletes an item.
+   *
+   * This also deletes nested widgets and layouts.
+   *
+   * \sa clear()
+   */
   void clearLayoutItem(WLayoutItem *item);
 
 private:

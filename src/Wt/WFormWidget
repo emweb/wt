@@ -170,6 +170,12 @@ public:
    */
   EventSignal<>& focussed();
 
+  /*! \brief %Signal emitted when the widget is being validated.
+   *
+   * This signal may be useful to react to a changed validation state.
+   *
+   * \sa validate()
+   */
   Signal<WValidator::Result>& validated() { return validated_; }
 
   virtual void refresh();

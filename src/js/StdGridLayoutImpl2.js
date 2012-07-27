@@ -50,7 +50,7 @@ WT_DECLARE_WT_MEMBER
 			      be remeasured */
    var layoutDirty = true; /* all items dirty need to be remeasured */
    var topLevel = false, parent = null, parentItemWidget = null,
-     parentInitialized = false, parentMargin = [];
+     parentInitialized = false, parentMargin = [], parentMinPW = 0;
 
    var rtl = $(document.body).hasClass('Wt-rtl');
 
@@ -220,12 +220,12 @@ WT_DECLARE_WT_MEMBER
    function boxMargin(el, dir) {
      var DC = DirConfig[dir];
 
-       return WT.px(el, 'border' + DC.Left + 'Width') +
-	   WT.px(el, 'border' + DC.Right + 'Width') +
-	   WT.px(el, 'margin' + DC.Left) +
-	   WT.px(el, 'margin' + DC.Right) +
-	   WT.px(el, 'padding' + DC.Left) +
-	   WT.px(el, 'padding' + DC.Right);
+     return WT.px(el, 'border' + DC.Left + 'Width') +
+       WT.px(el, 'border' + DC.Right + 'Width') +
+       WT.px(el, 'margin' + DC.Left) +
+       WT.px(el, 'margin' + DC.Right) +
+       WT.px(el, 'padding' + DC.Left) +
+       WT.px(el, 'padding' + DC.Right);
    }
 
    function setItemDirty(item, scheduleAdjust) {
@@ -472,9 +472,14 @@ WT_DECLARE_WT_MEMBER
      if (parent) {
        if (prevMeasures[TOTAL_PREFERRED_SIZE]
 	   != DC.measures[TOTAL_PREFERRED_SIZE]) {
-	 parent.setChildSize(parentItemWidget, dir,
-			     DC.measures[TOTAL_PREFERRED_SIZE]
-			     + parentMargin[dir]);
+	 var totalPs = DC.measures[TOTAL_PREFERRED_SIZE];
+
+	 if (dir == HORIZONTAL)
+	   totalPs = Math.max(totalPs, parentMinPW);
+
+	 totalPs += parentMargin[dir];
+	   
+	 parent.setChildSize(parentItemWidget, dir, totalPs);
        }
      }
 
@@ -562,6 +567,7 @@ WT_DECLARE_WT_MEMBER
 
 	 if (cSize === 0) {
 	   if (!DC.initialized) {
+
 	     if (pc !== 'absolute') {
 	       cSize = dir ? container.clientHeight : container.clientWidth;
 
@@ -624,10 +630,11 @@ WT_DECLARE_WT_MEMBER
 
      if (DC.maxSize) {
        // (2) adjust container width/height
-       if (totalPreferredSize < DC.maxSize) {
+       if (totalPreferredSize + otherPadding < DC.maxSize) {
 	 setCss(container, DC.size,
-		(totalPreferredSize + sizePadding(container, dir)) + 'px');
-	 cSize = totalPreferredSize;
+		(totalPreferredSize
+		 + otherPadding + sizePadding(container, dir)) + 'px');
+	 cSize = totalPreferredSize + otherPadding;
 	 cPaddedSize = true;
 	 noStretch = true;
        } else {
@@ -1081,12 +1088,23 @@ WT_DECLARE_WT_MEMBER
 	  * While we are a single child in a parent, we can go further
 	  * up looking for an ancestor layout
 	  */
-	 var p = widget.parentNode;
+	 var c = widget, p = c.parentNode;
 
 	 parentMargin = [0, 0];
 	 for (;;) {
 	   parentMargin[HORIZONTAL] += boxMargin(p, HORIZONTAL);
 	   parentMargin[VERTICAL] += boxMargin(p, VERTICAL);
+
+	   if (p.childNodes.length > 1) {
+	     var i, il;
+	     for (i = 0, il = p.childNodes.length; i < il; ++i) {
+	       if (p.childNodes[i] != c) {
+		 parentMargin[VERTICAL] += p.childNodes[i].offsetHeight;
+		 parentMinPW
+		   = Math.max(p.childNodes[i].offsetWidth, parentMinPW);
+	       }
+	     }
+	   }
 
 	   var l = jQuery.data(p.parentNode, 'layout');
 	   if (l) {
@@ -1095,7 +1113,8 @@ WT_DECLARE_WT_MEMBER
 	     break;
 	   }
 
-	   p = p.parentNode;
+	   c = p;
+	   p = c.parentNode;
 	   if (p.childNodes.length != 1)
 	     break;
 	 }

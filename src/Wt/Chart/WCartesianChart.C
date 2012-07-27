@@ -52,7 +52,8 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
     legendColumns_(1),
     legendColumnWidth_(100),
     legendBorder_(NoPen),
-    legendBackground_(NoBrush)
+    legendBackground_(NoBrush),
+    axisPadding_(5)
 {
   init();
 }

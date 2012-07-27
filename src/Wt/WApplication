@@ -477,6 +477,14 @@ public:
    */
   WLocalizedStrings *localizedStrings();
 
+#ifdef WT_TARGET_JAVA
+  /*! \brief Accesses the built-in resource bundle.
+   *
+   * This is an internal function and should not be called directly.
+   *
+   * \sa localizedStrings()
+   */
+#endif // WT_TARGET_JAVA
   WMessageResourceBundle& builtinLocalizedStrings();
 
   /*! \brief Sets the resource object that provides localized strings.
@@ -1494,10 +1502,16 @@ public:
 		 int maxAge, const std::string& domain = "",
 		 const std::string& path = "", bool secure = false);
 
+#ifndef WT_TARGET_JAVA
   void setCookie(const std::string& name, const std::string& value,
 		 const WDateTime& expires, const std::string& domain = "",
 		 const std::string& path = "", bool secure = false);
+#endif // WT_TARGET_JAVA
 
+  /*! \brief Removes a cookie.
+   *
+   * \sa setCookie()
+   */
   void removeCookie(const std::string& name, const std::string& domain = "",
 		    const std::string& path = "");
   
@@ -1746,6 +1760,14 @@ public:
 #ifdef WT_DEBUG_JS
   void loadJavaScript(const char *jsFile);
 #else
+#ifdef WT_TARGET_JAVA
+  /*! \brief Loads an internal JavaScript file.
+   *
+   * This is an internal function and should not be called directly.
+   *
+   * \sa require(), doJavaScript()
+   */
+#endif
   void loadJavaScript(const char *jsFile, const WJavaScriptPreamble& preamble);
 #endif
 
@@ -1768,6 +1790,14 @@ public:
   void enableInternalPaths();
 
   // should we move this into an InternalPaths utility class / namespace ?
+#ifdef WT_TARGET_JAVA
+  /*! \brief Utility function to check if one path falls under another path.
+   *
+   * This returns whether the \p query path matches the given \p path,
+   * meaning that it is equal to that path or it specifies a more
+   * specific sub path of that path.
+   */
+#endif // WT_TARGET_JAVA
   static bool pathMatches(const std::string& path, const std::string& query);
 
 #ifndef WT_TARGET_JAVA
@@ -1828,6 +1858,16 @@ public:
   template <typename F> boost::function<void()> bind(const F& f);
 #endif // WT_CNOR
 
+  /*! \brief Encodes an untrusted URL to prevent referer leaks.
+   *
+   * This encodes an URL so that in case the session ID is present
+   * in the current URL, this session ID does not leak to the refenced
+   * URL.
+   *
+   * Wt will safely handle URLs in the API (in WImage and WAnchor) but
+   * you may want to use this function to encode URLs which you use in
+   * WTemplate texts.
+   */
   std::string encodeUntrustedUrl(const std::string& url) const;
 
 protected:

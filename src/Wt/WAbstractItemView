@@ -907,10 +907,40 @@ protected:
   WWidget *createHeaderWidget(WApplication *app, int column);
   WText *headerTextWidget(int column);
 
-  void handleClick(const WModelIndex& index, const WMouseEvent& event);
-  void handleDoubleClick(const WModelIndex& index, const WMouseEvent& event);
-  void handleMouseDown(const WModelIndex& index, const WMouseEvent& event);
-  void handleMouseUp(const WModelIndex& index, const WMouseEvent& event);
+  /*! \brief Handles a click event.
+   *
+   * This processes the event for internal purposes (such as
+   * selection or editing) and emits the clicked() signal.
+   *
+   * You may want to override this signal to override the built-in
+   * selection or editing behaviour.
+   */
+  virtual void handleClick(const WModelIndex& index, const WMouseEvent& event);
+
+  /*! \brief Handles a double click event.
+   *
+   * This processes the event for internal purposes (such as
+   * editing) and emits the doubleClicked() signal.
+   *
+   * You may want to override this signal to override the built-in
+   * editing behaviour.
+   */
+  virtual void handleDoubleClick(const WModelIndex& index,
+				 const WMouseEvent& event);
+
+  /*! \brief Handles a mouse down event.
+   *
+   * This emits the mouseWentDown() signal.
+   */
+  virtual void handleMouseDown(const WModelIndex& index,
+			       const WMouseEvent& event);
+
+  /*! \brief Handles a mouse up event.
+   *
+   * This emits the mouseWentUp() signal.
+   */
+  virtual void handleMouseUp(const WModelIndex& index,
+			     const WMouseEvent& event);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
 

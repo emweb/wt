@@ -46,6 +46,10 @@ public:
    */
   void add(WLocalizedStrings *resolver);
 
+  /*! \brief Inserts a string resolver.
+   *
+   * \sa add()
+   */
   void insert(int index, WLocalizedStrings *resolver);
 
   /*! \brief Removes a string resolver.

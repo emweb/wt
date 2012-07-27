@@ -108,7 +108,7 @@ public:
    */
   virtual void updateView(WFormModel *model);
 
-  /* \brief Updates the Model.
+  /*! \brief Updates the Model.
    *
    * This creates or updates all field values in the model.
    *

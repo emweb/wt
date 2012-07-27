@@ -398,11 +398,10 @@ protected:
   friend class StdLayoutImpl;
   friend class StdGridLayoutImpl;
   friend class StdGridLayoutImpl2;
-  void layoutChanged(bool rerender, bool deleted);
 
 private:
   void propagateLayoutItemsOk(WLayoutItem *item);
-
+  void layoutChanged(bool rerender, bool deleted);
   void removeFromLayout(WWidget *w);
 
   friend class StdWidgetItemImpl;

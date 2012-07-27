@@ -274,17 +274,28 @@ public:
 			  std::ostream& result) const;
   };
 
-  /*! \brief A collection of predefined functions
+  /*! \brief Type that holds predefined functions
    *
    * \sa addFunction()
    */
   struct FunctionsList
   {
+    /*! \brief A pre-defined tr() function
+     */
+    TrFunction *tr;
+
+    /*! \brief A pre-defined id() function
+     */
+    IdFunction *id;
+
+  private:
     FunctionsList();
-    Function *tr;
-    Function *id;
+
+    friend class WTemplate;
   };
 
+  /*! \brief A collection of predefined functions
+   */
   static FunctionsList Functions;
 
 #define WT_TEMPLATE_FUNCTION(a) *WTemplate::Functions.a
