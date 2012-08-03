@@ -182,11 +182,10 @@ const std::string WWebWidget::id() const
 void WWebWidget::repaint(WFlags<RepaintFlag> flags)
 {
   /*
-   * If the widget is currently within a stubbed widget (but not
-   * stubbed itself, since then it is considered to be painted), we need
-   * to redo the slot learning while unstubbing.
+   * If the widget is currently stubbed, we need to redo the slot
+   * learning while unstubbing.
    */
-  if (!flags_.test(BIT_STUBBED) && isStubbed()) {
+  if (isStubbed()) {
     WebRenderer& renderer = WApplication::instance()->session()->renderer();
     if (renderer.preLearning())
       renderer.learningIncomplete();

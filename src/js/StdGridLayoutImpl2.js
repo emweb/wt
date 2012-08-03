@@ -280,6 +280,9 @@ WT_DECLARE_WT_MEMBER
        for (oi = 0; oi < otherCount; ++oi) {
 	 var item = DC.getItem(di, oi);
 	 if (item) {
+	   if (dir == HORIZONTAL && item.dirty)
+	     item.w = null;
+
 	   if (!item.w) {
 	     var $w = $("#" + item.id);
 	     item.w = $w.get(0);
@@ -1035,6 +1038,7 @@ WT_DECLARE_WT_MEMBER
 
    this.setItemsDirty = function(items) {
      var i, il;
+
      var colCount = DirConfig[HORIZONTAL].config.length;
      for (i = 0, il = items.length; i < il; ++i) {
        var row = items[i][0], col = items[i][1];
@@ -1220,6 +1224,8 @@ WT_DECLARE_APP_MEMBER
 	var layout = this.find(id);
 	if (layout)
 	  layout.setItemsDirty(items);
+
+	self.scheduleAdjust();
 
 	return;
       }
