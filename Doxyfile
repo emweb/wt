@@ -1369,3 +1369,15 @@ DOT_CLEANUP            = YES
 # used. If set to NO the values of all tags below this one will be ignored.
 
 SEARCHENGINE           = YES
+
+#---------------------------------------------------------------------------
+# Configuration for the Qt help file output.
+#---------------------------------------------------------------------------
+
+GENERATE_QHP           = YES
+QHP_NAMESPACE          = "eu.webtoolkit.wt"
+QHP_VIRTUAL_FOLDER     = "doc"
+
+# relative to html output dir for somce reason.
+QCH_FILE               = "../wt.qch"
+QHG_LOCATION           = qhelpgenerator

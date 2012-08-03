@@ -748,6 +748,9 @@ struct query_result_traits< ptr<C> >
   static ptr<C> create();
   static void add(Session& session, ptr<C>& ptr);
   static void remove(ptr<C>& ptr);
+
+  static long long id(const ptr<C>& ptr);
+  static ptr<C> findById(Session& session, long long id);
 };
 
   }

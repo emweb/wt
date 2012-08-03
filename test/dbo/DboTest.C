@@ -1107,6 +1107,9 @@ BOOST_AUTO_TEST_CASE( dbo_test12 )
 
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed");
 
+    BOOST_REQUIRE(model->resultRow(0) == session_->find<C>());
+    BOOST_REQUIRE(model->stableResultRow(0) == session_->find<C>());
+
     {
       dbo::ptr<C> c = session_->find<C>();
       BOOST_REQUIRE(c->name == "changed");
