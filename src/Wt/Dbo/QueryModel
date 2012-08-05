@@ -149,6 +149,19 @@ public:
    */
   void addAllFieldsAsColumns();
 
+  /*! \brief Returns a stable result row.
+   *
+   * This return the same result row as was previously returned by
+   * resultRow(), even if there were database inserts going on.
+   *
+   * This requires suitable implementations for resultId() and
+   * resultById() functions.
+   *
+   * If the row wasn't fetched before (or since a reload()), then the
+   * result of resultRow() is returned instead.
+   */
+  Result stableResultRow(int row) const;
+
   /*! \brief Returns a result row.
    *
    * This returns the result corresponding to a particular row, and
@@ -169,7 +182,7 @@ public:
    *
    * \sa resultRow(int row) const
    */
-  Result& resultRow(int row);
+  virtual Result& resultRow(int row);
 
   /*! \brief Rereads the data from the database.
    *
@@ -328,11 +341,30 @@ protected:
    */
   virtual void deleteRow(Result& result);
 
+  /*! \brief Returns a unique id for a result.
+   *
+   * This should, if possible, identify the result using a unique long long
+   * id, and otherwise return -1.
+   *
+   * The default implementation uses query_result_traits<Result>::id().
+   *
+   * This is required for a working stableResultRow() implementation.
+   *
+   * \sa resultById()
+   */
+  virtual long long resultId(const Result& result) const;
+
+  /*! \brief Returns a result by id.
+   *
+   * This should be the inverse of the resultId() function.
+   *
+   * The default implementation uses query_result_traits<Result>::findById().
+   */
+  virtual Result resultById(long long id) const;
+
 private:
   typedef std::vector<boost::any> AnyList;
-  typedef std::map<unsigned, AnyList> AnyListMap;
-  typedef std::map<WModelIndex, boost::any> ValueMap;
-  typedef std::map<int, Result> ResultMap;
+  typedef std::map<int, long long> StableResultIdMap;
 
   std::vector<QueryColumn> columns_;
 
@@ -345,6 +377,8 @@ private:
 
   mutable int currentRow_;
   mutable AnyList rowValues_;
+
+  mutable StableResultIdMap stableIds_;
 
   std::vector<FieldInfo> fields_;
 

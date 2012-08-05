@@ -211,6 +211,9 @@ struct query_result_traits< boost::tuple<T0, T1, T2, T3, T4,
   static tuple_type create();
   static void add(Session& session, tuple_type& t);
   static void remove(tuple_type& t);
+
+  static long long id(const tuple_type& ptr);
+  static tuple_type findById(Session& session, long long id);
 };
 
 template <class T0, class T1, class T2, class T3, class T4,
@@ -284,6 +287,24 @@ query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 ::remove(tuple_type& t)
 {
   helper::remove(t);
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+long long 
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::id(const tuple_type& t)
+{
+  return -1;
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::findById(Session& session, long long id)
+{
+  return tuple_type();
 }
 
   }
