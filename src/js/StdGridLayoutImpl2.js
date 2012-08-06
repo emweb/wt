@@ -481,7 +481,7 @@ WT_DECLARE_WT_MEMBER
 	   totalPs = Math.max(totalPs, parentMinPW);
 
 	 totalPs += parentMargin[dir];
-	   
+
 	 parent.setChildSize(parentItemWidget, dir, totalPs);
        }
      }
@@ -651,7 +651,7 @@ WT_DECLARE_WT_MEMBER
      if (dir == VERTICAL && container && container.wtResize) {
        var w = OC.cSize,
 	   h = DC.cSize;
-       container.wtResize(container, w, h);
+       container.wtResize(container, Math.round(w), Math.round(h));
      }
 
      cSize -= otherPadding;
@@ -990,7 +990,9 @@ WT_DECLARE_WT_MEMBER
 
 	     if (dir == VERTICAL) {
 	       if (w.wtResize)
-		 w.wtResize(w, item.size[HORIZONTAL], item.size[VERTICAL]);
+		 w.wtResize(w,
+			    Math.round(item.size[HORIZONTAL]),
+			    Math.round(item.size[VERTICAL]));
 
 	       item.dirty = false;
 	     }
