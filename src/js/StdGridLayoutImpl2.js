@@ -145,6 +145,20 @@ WT_DECLARE_WT_MEMBER
 	 WT.px(element, 'padding' + DC.Left) +
 	 WT.px(element, 'padding' + DC.Right);
 
+     if (WT.isWebKit && scrollWidth > offsetWidth) {
+       var i, il;
+       for (i = 0, il = element.childNodes.length; i < il; ++i) {
+	 var c = element.childNodes[i];
+	 if (c.nodeType == 1) {
+	   var z = c.style['zIndex'];
+	   if (z > 0) {
+	     scrollWidth = 0;
+	     break;
+	   }
+	 }
+       }
+     }
+
      /* Must be because of a scrollbar */
      if (scrollWidth < offsetWidth)
        scrollWidth = offsetWidth;
@@ -280,17 +294,17 @@ WT_DECLARE_WT_MEMBER
        for (oi = 0; oi < otherCount; ++oi) {
 	 var item = DC.getItem(di, oi);
 	 if (item) {
-	   if (dir == HORIZONTAL && item.dirty)
-	     item.w = null;
-
-	   if (!item.w) {
+	   if (!item.w || (dir == HORIZONTAL && item.dirty)) {
 	     var $w = $("#" + item.id);
-	     item.w = $w.get(0);
-	     (function() { var citem = item;
-	       $w.find("img").load(function() { setItemDirty(citem); });
-	     })();
+	     var w2 = $w.get(0);
+	     if (w2 != item.w) {
+	       item.w = w2;
+	       (function() { var citem = item;
+		 $w.find("img").load(function() { setItemDirty(citem); });
+	       })();
 
-	     item.w.style[DC.left] = item.w.style[OC.left] = NA_px;
+	       item.w.style[DC.left] = item.w.style[OC.left] = NA_px;
+	     }
 	   }
 
 	   if (!progressive && item.w.style.position != 'absolute') {
@@ -373,17 +387,24 @@ WT_DECLARE_WT_MEMBER
 		    * If we've set the size then we should not take the
 		    * set size as the preferred size, instead we revert
 		    * to a previous preferred size.
-		    *
-		    * If this is an item that is stretching, then we should
-		    * not remeasure the preferred size since it might confuse
-		    * the user with constant resizing
 		    */
-		   if ((typeof item.ps[dir] === 'undefined'
-			|| DC.config[di][STRETCH] <= 0)
-		     && (!item.set[dir] || (calculated != item.psize[dir])))
-		     wPreferred = Math.max(wPreferred, calculated);
-		   else
+		   var sizeSet = item.set[dir] && 
+		     (calculated === item.psize[dir]);
+
+		   /*
+		    * If this is an item that is stretching and has
+		    * been stretched (item.set[dir]), then we should
+		    * not remeasure the preferred size since it might
+		    * confuse the user with constant resizing.
+		    */
+		   var stretching = (typeof item.ps[dir] !== 'undefined')
+		     && (DC.config[di][STRETCH] > 0)
+		     && item.set[dir];
+		   
+		   if (sizeSet || stretching)
 		     wPreferred = Math.max(wPreferred, item.ps[dir]);
+		   else
+		     wPreferred = Math.max(wPreferred, calculated);
 
 		   item.ps[dir] = wPreferred;
 		 } else {
@@ -512,12 +533,19 @@ WT_DECLARE_WT_MEMBER
    }
 
    function finishResize(dir, di, delta) {
-     /*
-      * fix size of di at current size + delta
-      */
      var DC = DirConfig[dir];
 
      if (rtl) delta = -delta;
+
+     /*
+      * If di is stretchable and di + 1 isn't, then fix the size of
+      * di+1 (this seems to match with user intuition after around
+      * midnight).
+      */
+     if (DC.config[di][STRETCH] > 0 && DC.config[di + 1][STRETCH] == 0) {
+       ++di;
+       delta = -delta;
+     }
 
      DC.fixedSize[di] = DC.sizes[di] + delta;
 
@@ -659,7 +687,7 @@ WT_DECLARE_WT_MEMBER
      if (!cPaddedSize) {
        var p = 0;
 
-       if (!DC.initialized) {
+       if (typeof DC.cPadding === 'undefined') {
 	 if (cClientSize)
 	   p = padding(container, dir);
 	 else
