@@ -20,7 +20,9 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
     currentIndex_(-1)
 {
   WT_DEBUG( setObjectName("WStackedWidget") );
+
   setJavaScriptMember(WT_RESIZE_JS, StdWidgetItemImpl::childrenResizeJS());
+  setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::childrenGetPSJS());
 
   addStyleClass("Wt-stack");
 }

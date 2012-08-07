@@ -104,7 +104,9 @@ public:
   Wt::WTime time;
   Wt::WDateTime datetime;
   Wt::WString wstring;
+  Wt::WString wstring2;
   std::string string;
+  std::string string2;
   boost::posix_time::ptime ptime;
   boost::posix_time::time_duration pduration;
   bool checked;
@@ -126,7 +128,9 @@ public:
       && time == other.time
       && datetime == other.datetime
       && wstring == other.wstring
+      && wstring2 == other.wstring2
       && string == other.string
+      && string2 == other.string2
       && ptime == other.ptime
       && pduration == pduration
       && i == other.i
@@ -150,7 +154,9 @@ public:
     dbo::field(a, binary, "binary");
     dbo::field(a, datetime, "datetime");
     dbo::field(a, wstring, "wstring");
-    dbo::field(a, string, "string", 50);
+    dbo::field(a, wstring2, "wstring2", 30);
+    dbo::field(a, string, "string");
+    dbo::field(a, string2, "string2", 50);
     dbo::field(a, ptime, "ptime");
     dbo::field(a, pduration, "pduration");
     dbo::field(a, i, "i");
@@ -361,7 +367,9 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
   a1.date = Wt::WDate(1976, 6, 14);
   a1.time = Wt::WTime(13, 14, 15, 102);
   a1.wstring = "Hello";
+  a1.wstring2 = "Kitty";
   a1.string = "There";
+  a1.string2 = "Big Owl";
   a1.ptime = boost::posix_time::ptime
     (boost::gregorian::date(2005,boost::gregorian::Jan,1),
      boost::posix_time::time_duration(1,2,3));

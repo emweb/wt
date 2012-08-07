@@ -14,6 +14,7 @@
 #include "Wt/WStackedWidget"
 
 #include "WebUtils.h"
+#include "StdWidgetItemImpl.h"
 
 namespace Wt {
 
@@ -103,17 +104,8 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
   layout_->addWidget(menuDiv);
   layout_->addWidget(menu_->contentsStack());
 
-  setJavaScriptMember
-    (WT_RESIZE_JS, std::string() +
-     "function(self, w, h) {"
-     """self.style.height= h + 'px';"
-     """var c = self.firstChild;"
-     """var t = self.lastChild;"
-     """h -= c.offsetHeight + " WT_CLASS ".px(c, 'marginTop') "
-     ""   "+ " WT_CLASS ".px(c, 'marginBottom');"
-     """if (h > 0)"
-     ""  "t." + WT_RESIZE_JS + "(t, w, h);"
-     "};");
+  setJavaScriptMember(WT_RESIZE_JS, StdWidgetItemImpl::secondResizeJS());
+  setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::secondGetPSJS());
 
   menu_->itemSelected().connect(this, &WTabWidget::onItemSelected);
   menu_->itemClosed().connect(this, &WTabWidget::onItemClosed);

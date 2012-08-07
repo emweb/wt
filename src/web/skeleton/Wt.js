@@ -16,7 +16,9 @@ window.WT_DECLARE_WT_MEMBER = function(i, type, name, fn)
     _$_WT_CLASS_$_[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
   } else if (type == JavaScriptFunction) {
-    _$_WT_CLASS_$_[name] = function() { fn.apply(_$_WT_CLASS_$_, arguments); };
+    _$_WT_CLASS_$_[name] = function() {
+	return fn.apply(_$_WT_CLASS_$_, arguments);
+    };
   } else {
     _$_WT_CLASS_$_[name] = fn;
   }
@@ -30,7 +32,7 @@ window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
     app[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
   } else if (type == JavaScriptFunction) {
-    app[name] = function() { fn.apply(app, arguments); };
+    app[name] = function() { return fn.apply(app, arguments); };
   } else {
     app[name] = fn;
   }

@@ -6,19 +6,29 @@
 #include "Wt/WGroupBox"
 
 #include "DomElement.h"
+#include "StdWidgetItemImpl.h"
 
 namespace Wt {
 
 WGroupBox::WGroupBox(WContainerWidget *parent)
   : WContainerWidget(parent),
     titleChanged_(false)
-{ }
+{ 
+  init();
+}
 
 WGroupBox::WGroupBox(const WString& title, WContainerWidget *parent)
   : WContainerWidget(parent),
     title_(title),
     titleChanged_(false)
-{ }
+{ 
+  init();
+}
+
+void WGroupBox::init()
+{
+  setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::secondGetPSJS());
+}
 
 void WGroupBox::setTitle(const WString& title)
 {

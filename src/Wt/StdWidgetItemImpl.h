@@ -19,7 +19,10 @@ public:
   StdWidgetItemImpl(WWidgetItem *item);
   virtual ~StdWidgetItemImpl();
 
-  static const char* childrenResizeJS();
+  static const char *childrenResizeJS();
+  static const char *childrenGetPSJS();
+  static const char *secondResizeJS();
+  static const char *secondGetPSJS();
 
   virtual const std::string id() const;
   virtual int minimumHeight() const;

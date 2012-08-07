@@ -50,7 +50,7 @@ WT_DECLARE_WT_MEMBER
 			      be remeasured */
    var layoutDirty = true; /* all items dirty need to be remeasured */
    var topLevel = false, parent = null, parentItemWidget = null,
-     parentInitialized = false, parentMargin = [], parentMinPW = 0;
+     parentInitialized = false, parentMargin = [], parentWithWtPS = false;
 
    var rtl = $(document.body).hasClass('Wt-rtl');
 
@@ -388,7 +388,7 @@ WT_DECLARE_WT_MEMBER
 		    * set size as the preferred size, instead we revert
 		    * to a previous preferred size.
 		    */
-		   var sizeSet = item.set[dir] && 
+		   var sizeSet = item.set[dir] &&
 		     (calculated === item.psize[dir]);
 
 		   /*
@@ -400,7 +400,7 @@ WT_DECLARE_WT_MEMBER
 		   var stretching = (typeof item.ps[dir] !== 'undefined')
 		     && (DC.config[di][STRETCH] > 0)
 		     && item.set[dir];
-		   
+
 		   if (sizeSet || stretching)
 		     wPreferred = Math.max(wPreferred, item.ps[dir]);
 		   else
@@ -498,10 +498,26 @@ WT_DECLARE_WT_MEMBER
 	   != DC.measures[TOTAL_PREFERRED_SIZE]) {
 	 var totalPs = DC.measures[TOTAL_PREFERRED_SIZE];
 
-	 if (dir == HORIZONTAL)
-	   totalPs = Math.max(totalPs, parentMinPW);
+	 if (parentWithWtPS) {
+	   /*
+	    * Go back up and apply wtGetPS() to totalPs
+	    */
+	   var c = widget, p = c.parentNode;
 
-	 totalPs += parentMargin[dir];
+	   for (;;) {
+	     if (p.wtGetPS)
+	       totalPs = p.wtGetPS(p, c, dir, totalPs);
+
+	     totalPs += boxMargin(p, dir);
+
+	     if (p == parentItemWidget)
+	       break;
+
+	     c = p;
+	     p = c.parentNode;
+	   }
+	 } else
+	   totalPs += parentMargin[dir];
 
 	 parent.setChildSize(parentItemWidget, dir, totalPs);
        }
@@ -648,11 +664,9 @@ WT_DECLARE_WT_MEMBER
      }
 
      var otherPadding = 0;
-     if (container
-	 && dir == VERTICAL
-	 && WT.hasTag(container, 'FIELDSET')
-	 && container.children.length == 2) {
-       otherPadding = container.firstChild.offsetHeight;
+
+     if (container && container.wtGetPS && dir == VERTICAL) {
+       otherPadding = container.wtGetPS(container, widget, dir, 0);
      }
 
      var totalPreferredSize = measures[TOTAL_PREFERRED_SIZE];
@@ -1119,8 +1133,9 @@ WT_DECLARE_WT_MEMBER
 	 parentMargin[VERTICAL] = boxMargin(parentItemWidget, VERTICAL);
        } else {
 	 /*
-	  * While we are a single child in a parent, we can go further
-	  * up looking for an ancestor layout
+	  * While we are a single child in a parent, or if we have a
+	  * wtGetPS() function on that parent, we can go further up
+	  * looking for an ancestor layout
 	  */
 	 var c = widget, p = c.parentNode;
 
@@ -1129,16 +1144,8 @@ WT_DECLARE_WT_MEMBER
 	   parentMargin[HORIZONTAL] += boxMargin(p, HORIZONTAL);
 	   parentMargin[VERTICAL] += boxMargin(p, VERTICAL);
 
-	   if (p.childNodes.length > 1) {
-	     var i, il;
-	     for (i = 0, il = p.childNodes.length; i < il; ++i) {
-	       if (p.childNodes[i] != c) {
-		 parentMargin[VERTICAL] += p.childNodes[i].offsetHeight;
-		 parentMinPW
-		   = Math.max(p.childNodes[i].offsetWidth, parentMinPW);
-	       }
-	     }
-	   }
+	   if (p.wtGetPS)
+	     parentWithWtPS = true;
 
 	   var l = jQuery.data(p.parentNode, 'layout');
 	   if (l) {
@@ -1149,7 +1156,8 @@ WT_DECLARE_WT_MEMBER
 
 	   c = p;
 	   p = c.parentNode;
-	   if (p.childNodes.length != 1)
+
+	   if (p.childNodes.length != 1 && !p.wtGetPS)
 	     break;
 	 }
        }

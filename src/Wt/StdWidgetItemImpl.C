@@ -39,6 +39,30 @@ const char *StdWidgetItemImpl::childrenResizeJS()
   return WT_CLASS ".ChildrenResize";
 }
 
+const char *StdWidgetItemImpl::childrenGetPSJS()
+{
+  WApplication *app = WApplication::instance();
+  LOAD_JAVASCRIPT(app, "js/WtResize.js", "ChildrenGetPS", wtjs11);
+
+  return WT_CLASS ".ChildrenGetPS";
+}
+
+const char *StdWidgetItemImpl::secondResizeJS()
+{
+  WApplication *app = WApplication::instance();
+  LOAD_JAVASCRIPT(app, "js/WtResize.js", "SecondResize", wtjs12);
+
+  return WT_CLASS ".SecondResize";
+}
+
+const char *StdWidgetItemImpl::secondGetPSJS()
+{
+  WApplication *app = WApplication::instance();
+  LOAD_JAVASCRIPT(app, "js/WtResize.js", "SecondGetPS", wtjs13);
+
+  return WT_CLASS ".SecondGetPS";
+}
+
 WLayoutItem *StdWidgetItemImpl::layoutItem() const
 {
   return item_;

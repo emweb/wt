@@ -1644,7 +1644,7 @@ void WApplication::streamJavaScriptPreamble(std::ostream& out, bool all)
       = preamble.scope == ApplicationScope ? javaScriptClass() : WT_CLASS;
 
     if (preamble.type == JavaScriptFunction) {
-      out << scope << '.' << preamble.name << " = function() { ("
+      out << scope << '.' << preamble.name << " = function() { return ("
 	  << preamble.src << ").apply(" << scope << ", arguments) };";
     } else {
       out << scope << '.' << preamble.name << " = " << preamble.src

@@ -20,6 +20,7 @@
 namespace Wt {
 
 const char *WWidget::WT_RESIZE_JS = "wtResize";
+const char *WWidget::WT_GETPS_JS = "wtGetPS";
 
 WWidget::WWidget(WContainerWidget* parent)
   : WObject(0)

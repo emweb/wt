@@ -930,7 +930,7 @@ public:
   static void setTabOrder(WWidget *first, WWidget *second);
 
 protected:
-  static const char *WT_RESIZE_JS;
+  static const char *WT_RESIZE_JS, *WT_GETPS_JS;
 
   /*! \brief Sets the widget to be aware of its size set by a layout manager.
    *

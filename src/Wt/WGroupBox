@@ -103,11 +103,6 @@ public:
 
   virtual void refresh();
 
-private:
-  WString title_;
-
-  bool titleChanged_;
-
 protected:
   virtual DomElementType domElementType() const;
 
@@ -115,6 +110,12 @@ protected:
   virtual void propagateSetEnabled(bool enabled);
   virtual void propagateRenderOk(bool deep);
   virtual int firstChildIndex() const;
+
+private:
+  WString title_;
+  bool titleChanged_;
+
+  void init();
 };
 
 }
