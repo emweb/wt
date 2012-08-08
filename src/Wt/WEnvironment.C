@@ -29,7 +29,9 @@ WEnvironment::WEnvironment()
     doesCookies_(false),
     hashInternalPaths_(false),
     dpiScale_(1),
-    contentType_(HTML4)
+    contentType_(HTML4),
+	timeOffsetMS_(0),
+	timeOffsetMins_(0)
 #ifndef WT_TARGET_JAVA
   ,sslInfo_(0)
 #endif
@@ -218,6 +220,31 @@ void WEnvironment::enableAjax(const WebRequest& request)
     if (s != 0)
       publicDeploymentPath_.clear(); // looks invalid
   }
+
+  // client side time utc offset
+  try
+  {
+    const std::string *timeOffsetString = request.getParameter("timeoffset");
+    timeOffsetMins_ = boost::lexical_cast<int>(*timeOffsetString);
+  }
+  catch(boost::bad_lexical_cast &)
+  {}
+
+  // client side time
+  try
+  {
+    const std::string *timestampString = request.getParameter("time");
+    long long cst = boost::lexical_cast<long long>(*timestampString) - (timeOffsetMins_ * 60 * 1000);
+
+	boost::posix_time::ptime ptimeEpoch(boost::gregorian::date(1970,1,1));
+	boost::posix_time::ptime ptimeNow = boost::posix_time::microsec_clock().local_time();
+    long long sst = (ptimeNow - ptimeEpoch).total_milliseconds();
+
+    timeOffsetMS_ = cst - sst; //since cst = sst + offset
+	boost::posix_time::time_duration testoffset = boost::posix_time::milliseconds(timeOffsetMS_);
+  }
+  catch(boost::bad_lexical_cast &)
+  {}
 }
 
 void WEnvironment::setUserAgent(const std::string& userAgent)
@@ -468,6 +495,19 @@ Signal<WDialog *>& WEnvironment::dialogExecuted() const
 Signal<WPopupMenu *>& WEnvironment::popupExecuted() const
 {
   throw WException("Internal error");
+}
+
+Wt::WDateTime WEnvironment::dateTime() const
+{
+  WDateTime datetime;
+  datetime.setPosixTime(boost::posix_time::microsec_clock().local_time());
+  return datetime.addMSecs(timeOffsetMS_);
+}
+
+Wt::WDateTime WEnvironment::offsetDateTime() const
+{
+  WDateTime datetime = WDateTime::currentDateTime();
+  return datetime.addSecs(-timeOffsetMins_ * 60);
 }
 
 }

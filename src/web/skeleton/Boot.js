@@ -126,6 +126,11 @@ var inOneSecond = new Date();
 inOneSecond.setTime(inOneSecond.getTime() + 1000);
 doc.cookie='WtTestCookie=ok;path=/;expires=' + inOneSecond.toGMTString();
 
+// client-side time
+var date = new Date();
+var timeoffset = '&timeoffset=' + date.getTimezoneOffset();
+var time = '&time=' + date.getTime();
+
 // hash to query
 var hash = win.location.hash;
 if (hash.length > 0)
@@ -194,7 +199,7 @@ _$_$if_HYBRID_$_();
 _$_$endif_$_();
     }
 
-    var allInfo = hashInfo + scaleInfo + htmlHistoryInfo + deployPathInfo;
+    var allInfo = hashInfo + scaleInfo + htmlHistoryInfo + deployPathInfo + time + timeoffset;
 _$_$ifnot_SPLIT_SCRIPT_$_();
     loadScript(selfUrl + allInfo + '&request=script&rand=' + rand(),
                null);
