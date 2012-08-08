@@ -31,7 +31,8 @@ WEnvironment::WEnvironment()
     dpiScale_(1),
     contentType_(HTML4),
 	timeOffsetMS_(0),
-	timeOffsetMins_(0)
+	timeOffsetMins_(0),
+	timeServerOffset_(0)
 #ifndef WT_TARGET_JAVA
   ,sslInfo_(0)
 #endif
@@ -43,7 +44,10 @@ WEnvironment::WEnvironment(WebSession *session)
     doesCookies_(false),
     hashInternalPaths_(false),
     dpiScale_(1),
-    contentType_(HTML4)
+    contentType_(HTML4),
+	timeOffsetMS_(0),
+	timeOffsetMins_(0),
+	timeServerOffset_(0)
 #ifndef WT_TARGET_JAVA
   ,sslInfo_(0)
 #endif
@@ -226,6 +230,11 @@ void WEnvironment::enableAjax(const WebRequest& request)
   {
     const std::string *timeOffsetString = request.getParameter("timeoffset");
     timeOffsetMins_ = boost::lexical_cast<int>(*timeOffsetString);
+
+	boost::posix_time::ptime utcTime = boost::posix_time::second_clock().universal_time();
+	boost::posix_time::ptime localTime = boost::posix_time::second_clock().local_time();
+	boost::posix_time::time_duration utcOffset = localTime - utcTime;
+	timeServerOffset_ = (-timeOffsetMins_ * 60) - utcOffset.total_seconds(); //cst - sst = offset; therefore sst + offset = cst
   }
   catch(boost::bad_lexical_cast &)
   {}
@@ -497,17 +506,22 @@ Signal<WPopupMenu *>& WEnvironment::popupExecuted() const
   throw WException("Internal error");
 }
 
-Wt::WDateTime WEnvironment::dateTime() const
+Wt::WDateTime WEnvironment::dateTimeClock() const
 {
   WDateTime datetime;
   datetime.setPosixTime(boost::posix_time::microsec_clock().local_time());
   return datetime.addMSecs(timeOffsetMS_);
 }
 
-Wt::WDateTime WEnvironment::offsetDateTime() const
+Wt::WDateTime WEnvironment::dateTime() const
 {
   WDateTime datetime = WDateTime::currentDateTime();
   return datetime.addSecs(-timeOffsetMins_ * 60);
+}
+
+int WEnvironment::timeOffsetToServer() const
+{
+	return timeServerOffset_;
 }
 
 }
