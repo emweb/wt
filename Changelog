@@ -1,3 +1,10 @@
+10-08-2012:
+	* layouts: fix various issues
+
+	* WTextEdit: fix behaviour inside a WPanel
+
+	* Render: code reorganizations for java port
+
 03-08-2012:
 	* QueryModel: added stableResultRow() method which has more guarantees
 	of consistently returning the same result regardless of database

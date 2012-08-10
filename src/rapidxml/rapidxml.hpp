@@ -78,9 +78,9 @@ namespace rapidxml
     public:
     
         //! Constructs parse error
-        parse_error(const char *what, void *where)
+        parse_error(const char *what, void *location)
             : m_what(what)
-            , m_where(where)
+            , m_where(location)
         {
         }
 
@@ -1651,9 +1651,12 @@ namespace rapidxml
 		    *dest++ = '?';
 		    src++;
 		  }
-	      else
+	      else {
+                const Ch *problem_src = src;
+                src += length;
 		RAPIDXML_PARSE_ERROR("Invalid UTF-8 sequence",
-				     const_cast<Ch *>(src));
+				     const_cast<Ch *>(problem_src));
+              }
 	    }
 	}
 

@@ -110,11 +110,12 @@ WT_DECLARE_WT_MEMBER
      /*
       * Firefox adds the -NA offset to the reported width ??
       */
-     if (clientWidth >= NA) {
+     if (clientWidth >= NA)
        clientWidth -= NA;
-       if (scrollWidth >= NA)
-	 scrollWidth -= NA;
-     }
+     if (scrollWidth >= NA)
+       scrollWidth -= NA;
+     if (offsetWidth >= NA)
+       offsetWidth -= NA;
 
      if (scrollWidth === 0) {
        scrollWidth = WT.pxself(element, DC.size);
@@ -163,7 +164,7 @@ WT_DECLARE_WT_MEMBER
      if (scrollWidth < offsetWidth)
        scrollWidth = offsetWidth;
 
-     return scrollWidth;
+     return Math.round(scrollWidth);
    }
 
    function calcMinimumSize(element, dir) {
@@ -299,9 +300,12 @@ WT_DECLARE_WT_MEMBER
 	     var w2 = $w.get(0);
 	     if (w2 != item.w) {
 	       item.w = w2;
-	       (function() { var citem = item;
-		 $w.find("img").load(function() { setItemDirty(citem); });
-	       })();
+	       $w.find("img").add($w.filter("img"))
+		 .bind('load',
+		       { item: item}, 
+		       function(event) {
+			 setItemDirty(event.data.item, true);
+		       });
 
 	       item.w.style[DC.left] = item.w.style[OC.left] = NA_px;
 	     }
@@ -365,7 +369,7 @@ WT_DECLARE_WT_MEMBER
 		   else
 		     item.fs[dir] = 0;
 		 } else {
-		   var fw = WT.px(item.w, DC.size);
+		   var fw = Math.round(WT.px(item.w, DC.size));
 		   if (fw > Math.max(sizePadding(item.w, dir), wMinimum))
 		     item.fs[dir] = fw + margin(item.w, dir);
 		   else

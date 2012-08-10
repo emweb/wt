@@ -21,6 +21,7 @@
 #include "DomElement.h"
 #include "md5.h"
 #include "base64.h"
+#include "ImageUtils.h"
 
 extern "C" {
   #include "sha1.h"
@@ -192,6 +193,15 @@ std::string urlDecode(const std::string &text)
 bool removeScript(WString& text)
 {
   return WWebWidget::removeScript(text);
+}
+
+std::string guessImageMimeTypeData(const std::vector<unsigned char>& header)
+{
+  return Wt::Image::identifyImageMimeType(header);
+}
+std::string guessImageMimeType(const std::string& file)
+{
+  return Wt::Image::identifyImageFileMimeType(file);
 }
   
   }

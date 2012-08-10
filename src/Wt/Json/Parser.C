@@ -48,7 +48,7 @@ void ParseError::setError(const std::string& message)
 #ifdef JSON_PARSER
 
 namespace qi = boost::spirit::qi;
-namespace ascii = boost::spirit::ascii;
+namespace ascii = boost::spirit::standard;
 namespace phoenix = boost::phoenix;
 
 template <typename Iterator>
@@ -271,11 +271,17 @@ private:
 };
 
 namespace {
-  template <typename Iter>
-  void parseJson(Iter begin, Iter end, Value& result)
+  void parseJson(const std::string &str, Value& result, bool validateUTF8)
   {
+    // security sanitization of input UTF-8
+    std::string validated_string = str;
+    if (validateUTF8)
+      WString::checkUTF8Encoding(validated_string);
+
     json_grammar<std::string::const_iterator> g(result);
-      
+
+    std::string::const_iterator begin = validated_string.begin();
+    std::string::const_iterator end = validated_string.end();
     bool success = qi::phrase_parse(begin, end, g, ascii::space);
 
     if (success) {
@@ -289,24 +295,22 @@ namespace {
 }
 
 #else
-
-  template <typename Iter>
-  void parseJson(Iter begin, Iter end, Value& result)
+  void parseJson(const std::string &str, Value& result, bool validateUTF8)
   {
     throw ParseError("Wt::Json::parse requires boost version 1.41 or later");
   }  
 
 #endif // JSON_PARSER
 
-void parse(const std::string& input, Value& result)
+void parse(const std::string& input, Value& result, bool validateUTF8)
 {
-  parseJson(input.begin(), input.end(), result);
+  parseJson(input, result, validateUTF8);
 }
 
-bool parse(const std::string& input, Value& result, ParseError& error)
+bool parse(const std::string& input, Value& result, ParseError& error, bool validateUTF8)
 {
   try {
-    parseJson(input.begin(), input.end(), result);
+    parseJson(input, result, validateUTF8);
     return true;
   } catch (ParseError& e) {
     error.setError(e.what());
@@ -314,21 +318,21 @@ bool parse(const std::string& input, Value& result, ParseError& error)
   }
 }
 
-void parse(const std::string& input, Object& result)
+void parse(const std::string& input, Object& result, bool validateUTF8)
 {
   Value value;
 
-  parse(input, value);
+  parse(input, value, validateUTF8);
 
   Object& parsedObject = value;
 
   parsedObject.swap(result);
 }
 
-bool parse(const std::string& input, Object& result, ParseError& error)
+bool parse(const std::string& input, Object& result, ParseError& error, bool validateUTF8)
 {
   try {
-    parse(input, result);
+    parse(input, result, validateUTF8);
     return true;
   } catch (std::exception& e) {
     error.setError(e.what());

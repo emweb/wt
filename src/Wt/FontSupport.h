@@ -27,6 +27,7 @@ namespace Wt {
 class FontSupport
 {
 public:
+#ifndef WT_TARGET_JAVA
   class Bitmap {
   public:
     Bitmap(int width, int height);
@@ -45,6 +46,7 @@ public:
 
     unsigned char *buffer_;
   };
+#endif
 
   class FontMatch {
   public:
@@ -64,7 +66,9 @@ public:
     bool matched() const { return quality_ > 0; }
 
     std::string fileName() const { return file_; }
+    void setFileName(const std::string &file) { file_ = file; }
     double quality() const { return quality_; }
+    void setQuality(double quality) { quality_ = quality; }
 
 #endif
 
@@ -128,6 +132,7 @@ public:
    */
   bool canRender() const;
 
+#ifndef WT_TARGET_JAVA
   /*
    * Draws the text, using pango and libfreetype to do the actual rendering
    *
@@ -138,6 +143,7 @@ public:
 		const WTransform& transform,
 		Bitmap& bitmap,
 		WFlags<AlignmentFlag> alignmentFlags, const WString& text);
+#endif
 
   /*
    * If libpango support is available, this is a no-op.

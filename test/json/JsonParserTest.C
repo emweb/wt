@@ -9,6 +9,9 @@
 #include <Wt/Json/Object>
 #include <Wt/Json/Array>
 
+#include <fstream>
+#include <streambuf>
+
 #if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104100
 #  define JSON_PARSER
 #endif
@@ -114,5 +117,57 @@ BOOST_AUTO_TEST_CASE( json_structure_test )
   BOOST_REQUIRE(t1 == "home");
   BOOST_REQUIRE(n1 == "212 555-1234");
 }
+
+BOOST_AUTO_TEST_CASE( json_utf8_test )
+{
+  std::ifstream t("json/UTF-8-test.json", std::ios::in | std::ios::binary);
+  BOOST_REQUIRE(t.good());
+  std::string str((std::istreambuf_iterator<char>(t)),
+                   std::istreambuf_iterator<char>());
+
+  Json::Object result;
+  Json::parse(str, result);
+  WString s1 = result.get("kosme");
+  WString s2 = result.get("2 bytes (U-00000080)");
+  WString s3 = result.get("3 bytes (U-00000800)");
+  WString s4 = result.get("4 bytes (U-00010000)");
+  WString s5 = result.get("1 byte  (U-0000007F)");
+  WString s6 = result.get("2 bytes (U-000007FF)");
+  WString s7 = result.get("3 bytes (U-0000FFFF)");
+  WString s8 = result.get("U-0000D7FF = ed 9f bf");
+  WString s9 = result.get("U-0000E000 = ee 80 80");
+  WString s10 = result.get("U-0000FFFD = ef bf bd");
+  WString s11 = result.get("U-0010FFFF = f4 8f bf bf");
+  std::wstring ws1 = s1.value();
+  std::wstring ws2 = s2.value();
+  std::wstring ws3 = s3.value();
+  std::wstring ws4 = s4.value();
+  std::wstring ws5 = s5.value();
+  std::wstring ws6 = s6.value();
+  std::wstring ws7 = s7.value();
+  std::wstring ws8 = s8.value();
+  std::wstring ws9 = s9.value();
+  std::wstring ws10 = s10.value();
+  std::wstring ws11 = s11.value();
+
+  BOOST_REQUIRE(ws1[0] == 954);
+  BOOST_REQUIRE(ws1[1] == 8057);
+  BOOST_REQUIRE(ws1[2] == 963);
+  BOOST_REQUIRE(ws1[3] == 956);
+  BOOST_REQUIRE(ws1[4] == 949);
+  BOOST_REQUIRE(ws2[0] == 128);
+  BOOST_REQUIRE(ws3[0] == 2048);
+  BOOST_REQUIRE(ws4[0] == 65533); // !!!
+  BOOST_REQUIRE(ws5[0] == 127);
+  BOOST_REQUIRE(ws6[0] == 2047);
+  BOOST_REQUIRE(ws7[0] == 65535);
+  BOOST_REQUIRE(ws8[0] == 55295);
+  BOOST_REQUIRE(ws9[0] == 57344);
+  BOOST_REQUIRE(ws10[0] == 65533);
+  BOOST_REQUIRE(ws11[0] == 65533); // should this really be rejected?
+
+  BOOST_REQUIRE(result.size() == 11);
+}
+
 
 #endif // JSON_PARSER

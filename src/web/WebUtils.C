@@ -336,6 +336,15 @@ WString formatFloat(const WString &format, double value)
   return result;
 
 }
+
+std::string splitEntryToString(SplitEntry se)
+{
+#ifndef WT_TARGET_JAVA
+  return std::string(se.begin(), se.end());
+#else
+  return se;
+#endif
+}
   
   }
 }

@@ -19,6 +19,10 @@ namespace Wt {
 
 class WApplication;
 
+/*! \brief Enumeration for a DOM property.
+ *
+ * For internal use only.
+ */
 enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyValue, PropertyDisabled,
 		PropertyChecked, PropertySelected, PropertySelectedIndex,
@@ -68,6 +72,11 @@ enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		/* CSS 3 */
 		PropertyStyleBoxSizing };
 
+/*! \class DomElement web/DomElement web/DomElement
+ *  \brief Class to represent a DOM element.
+ *
+ * This class is for internal use only.
+ */
 class WT_API DomElement
 {
 public:

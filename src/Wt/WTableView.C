@@ -85,8 +85,6 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->setPositionScheme(Relative);
     canvas_->clicked()
       .connect(boost::bind(&WTableView::handleSingleClick, this, false, _1));
-    canvas_->doubleClicked()
-      .connect(boost::bind(&WTableView::handleDoubleClick, this, false, _1));
     canvas_->mouseWentDown()
       .connect(boost::bind(&WTableView::handleMouseWentDown, this, false, _1)); 
     canvas_->mouseWentUp()
@@ -115,8 +113,6 @@ WTableView::WTableView(WContainerWidget *parent)
     headerColumnsCanvas_->setPositionScheme(Relative);
     headerColumnsCanvas_->clicked()
       .connect(boost::bind(&WTableView::handleSingleClick, this, true, _1));
-    headerColumnsCanvas_->doubleClicked()
-      .connect(boost::bind(&WTableView::handleDoubleClick, this, true, _1));
     headerColumnsCanvas_->mouseWentDown()
       .connect(boost::bind(&WTableView::handleMouseWentDown, this, true, _1)); 
     headerColumnsCanvas_->mouseWentUp()
@@ -726,8 +722,18 @@ void WTableView::defineJavaScript()
 
 void WTableView::render(WFlags<RenderFlag> flags)
 {
-  if (ajaxMode() && (flags & RenderFull))
-    defineJavaScript();
+  if (ajaxMode()) {
+    if (flags & RenderFull)
+      defineJavaScript();
+
+    if (!canvas_->doubleClicked().isConnected()
+	&& (editTriggers() & DoubleClicked || doubleClicked().isConnected())) {
+      canvas_->doubleClicked()
+	.connect(boost::bind(&WTableView::handleDoubleClick, this, false, _1));
+      headerColumnsCanvas_->doubleClicked()
+	.connect(boost::bind(&WTableView::handleDoubleClick, this, true, _1));
+    }
+  }
 
   if (model())
     while (renderState_ != RenderOk) {

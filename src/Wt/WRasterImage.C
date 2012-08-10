@@ -16,6 +16,7 @@
 
 #include "Wt/FontSupport.h"
 #include "WebUtils.h"
+#include "UriUtils.h"
 
 #include <cstdio>
 #include <cmath>
@@ -556,35 +557,21 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   GetExceptionInfo(&exception);
 
   Image *cImage;
-  if (boost::starts_with(imgUri, "data:")) {
-    size_t dataEndPos = imgUri.find("data:") + 5;
-    size_t commaPos = imgUri.find(",");
-    if (commaPos == std::string::npos)
-      commaPos = dataEndPos;
-    
-    std::string mimeTypeEncoding 
-      = imgUri.substr(dataEndPos, commaPos - dataEndPos);
-
-    std::string data = imgUri.substr(commaPos + 1);
+  if (Uri::isDataUri(imgUri)) {
+    Uri::Uri uri = Uri::parseDataUri(imgUri);
 
     bool validMimeType = true;
-    if (boost::istarts_with(mimeTypeEncoding, "image/png"))
+    if (boost::istarts_with(uri.mimeType, "image/png"))
       strcpy(info.magick, "PNG");
-    else if (boost::istarts_with(mimeTypeEncoding, "image/gif"))
+    else if (boost::istarts_with(uri.mimeType, "image/gif"))
       strcpy(info.magick, "GIF");
-    else if (boost::istarts_with(mimeTypeEncoding, "image/jpg")
-	     || boost::istarts_with(mimeTypeEncoding, "image/jpeg"))
+    else if (boost::istarts_with(uri.mimeType, "image/jpg")
+	     || boost::istarts_with(uri.mimeType, "image/jpeg"))
       strcpy(info.magick, "JPG");
     else 
-    validMimeType = false;
+      throw WException("Unsupported image mimetype: " + uri.mimeType);
 
-    if (!validMimeType || !boost::ends_with(mimeTypeEncoding, "base64") 
-	|| data.size() == 0)
-      throw WException("Ill formed data URI: " + imgUri);
-    else {
-      std::string content = imgUri.substr(commaPos);
-      cImage = ReadInlineImage(&info, content.c_str(), &exception);
-    }
+    cImage = ReadInlineImage(&info, uri.data.c_str(), &exception);
   } else {
     strncpy(info.filename, imgUri.c_str(), 2048);
     cImage = ReadImage(&info, &exception);

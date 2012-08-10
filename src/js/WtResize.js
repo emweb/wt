@@ -70,12 +70,12 @@ WT_DECLARE_WT_MEMBER
  );
 
 WT_DECLARE_WT_MEMBER
-(12, JavaScriptFunction, "SecondResize",
+(12, JavaScriptFunction, "LastResize",
  function(self, w, h) {
   var WT = this;
   self.style.height= h + 'px';
-  var c = self.firstChild;
   var t = self.lastChild;
+  var c = t.previousSibling;
   h -= c.offsetHeight + WT.px(c, 'marginTop') + WT.px(c, 'marginBottom');
   if (h > 0) {
     if (t.wtResize)
@@ -87,7 +87,7 @@ WT_DECLARE_WT_MEMBER
  );
 
 WT_DECLARE_WT_MEMBER
-(13, JavaScriptFunction, "SecondGetPS",
+(13, JavaScriptFunction, "LastGetPS",
  function(self, child, dir, size) {
   var WT = this, i, il;
   for (i = 0, il = self.childNodes.length; i < il; ++i) {

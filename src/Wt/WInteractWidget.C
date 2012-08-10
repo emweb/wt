@@ -352,7 +352,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
     js << "if($(o).hasClass('Wt-disabled')){" WT_CLASS ".cancelEvent(e);return;}";
 
-    if (mouseDblClick) {
+    if (mouseDblClick && mouseDblClick->isConnected()) {
       /*
        * Click: if timer is running:
        *  - clear timer, dblClick()
@@ -400,7 +400,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
       js << "},200);}";
     } else {
-      if (mouseClick) {
+      if (mouseClick && mouseClick->isConnected()) {
 	js << mouseClick->javaScript();
 
 	if (mouseClick->isExposedSignal()) {
@@ -416,7 +416,8 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       }
     }
 
-    element.setEvent(CLICK_SIGNAL, js.str(), "");
+    element.setEvent(CLICK_SIGNAL, js.str(),
+		     mouseClick ? mouseClick->encodeCmd() : "");
 
     if (mouseDblClick) {
       if (!app)

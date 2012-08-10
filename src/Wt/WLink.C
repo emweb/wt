@@ -12,6 +12,8 @@
 #include <Wt/WResource>
 #include <Wt/WString>
 
+#include <boost/algorithm/string.hpp>
+
 #include "WebSession.h"
 
 namespace Wt {
@@ -99,7 +101,12 @@ WResource *WLink::resource() const
 void WLink::setInternalPath(const WT_USTRING& internalPath)
 {
   type_ = InternalPath;
-  value_ = internalPath.toUTF8();
+  std::string path = internalPath.toUTF8();
+
+  if (boost::starts_with(path, "#/"))
+    path = path.substr(1);
+
+  value_ = path;
 }
 
 WT_USTRING WLink::internalPath() const

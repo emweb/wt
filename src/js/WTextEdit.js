@@ -68,11 +68,18 @@ WT_DECLARE_WT_MEMBER
 	 span = tbl.parentNode,
 	 i, il;
 
-       span.style.position = 'absolute';
-       span.style.left = e.style.left;
-       span.style.top = e.style.top;
-       span.style.width = tbl.style.width = (w) + 'px';
-       span.style.height = tbl.style.height = (h) + 'px';
+       var staticStyle = el.style.position !== 'absolute';
+
+       if (!staticStyle) {
+	 span.style.left = e.style.left;
+	 span.style.top = e.style.top;
+	 if (typeof w !== 'undefined')
+	   span.style.width = tbl.style.width = (w) + 'px';
+	 span.style.height = tbl.style.height = (h) + 'px';
+       } else {
+	 span.style.position = 'static';
+	 span.style.display = 'block';
+       }
 
        // deduct height of toolbars
        for (i=0, il=tbl.rows.length; i<il; i++) {
@@ -88,4 +95,6 @@ WT_DECLARE_WT_MEMBER
 	lastH = h;
       }
    };
+
+   lastH = el.offsetHeight;
  });

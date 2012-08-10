@@ -10,6 +10,9 @@
 #include <Wt/WFont>
 #include <Wt/WPaintDevice>
 #include <Wt/WResource>
+#ifdef WT_TARGET_JAVA
+#include <Wt/WTransform>
+#endif //WT_TARGET_JAVA
 
 /*
  * Forwards for libharu types
@@ -142,6 +145,10 @@ public:
    * which may result in loss of information.
    */
   void addFontCollection(const std::string& directory, bool recursive=true);
+
+#ifdef WT_TARGET_JAVA
+  void setDeviceTransform(const WTransform& deviceTransform);
+#endif //WT_TARGET_JAVA
 
   virtual WFlags<WPaintDevice::FeatureFlag> features() const;
   virtual void setChanged(WFlags<ChangeFlag> flags);

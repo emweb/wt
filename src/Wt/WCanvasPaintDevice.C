@@ -20,13 +20,13 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
+namespace {
+  static const double EPSILON=1E-5;
+}
 
 namespace Wt {
 
 namespace {
-
-  static const double EPSILON=1E-5;
-
   WPointF normalizedDegreesToRadians(double angle, double sweep) {
     angle = 360 - angle;
     int i = (int)angle / 360;

@@ -50,17 +50,17 @@ const char *StdWidgetItemImpl::childrenGetPSJS()
 const char *StdWidgetItemImpl::secondResizeJS()
 {
   WApplication *app = WApplication::instance();
-  LOAD_JAVASCRIPT(app, "js/WtResize.js", "SecondResize", wtjs12);
+  LOAD_JAVASCRIPT(app, "js/WtResize.js", "LastResize", wtjs12);
 
-  return WT_CLASS ".SecondResize";
+  return WT_CLASS ".LastResize";
 }
 
 const char *StdWidgetItemImpl::secondGetPSJS()
 {
   WApplication *app = WApplication::instance();
-  LOAD_JAVASCRIPT(app, "js/WtResize.js", "SecondGetPS", wtjs13);
+  LOAD_JAVASCRIPT(app, "js/WtResize.js", "LastGetPS", wtjs13);
 
-  return WT_CLASS ".SecondGetPS";
+  return WT_CLASS ".LastGetPS";
 }
 
 WLayoutItem *StdWidgetItemImpl::layoutItem() const

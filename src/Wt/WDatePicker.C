@@ -42,6 +42,7 @@ WDatePicker::~WDatePicker()
 void WDatePicker::createDefault()
 {
   WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
+  icon->resize(16, 16);
   icon->setVerticalAlignment(AlignMiddle);
   WLineEdit *lineEdit = new WLineEdit();
 
@@ -65,6 +66,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
 
   layout_->setInline(true);
   layout_->addWidget(displayWidget);
+  layout_->setAttributeValue("style", "white-space: nowrap");
 
   const char *TEMPLATE =
     "${shadow-x1-x2}"

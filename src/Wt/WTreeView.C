@@ -1472,7 +1472,9 @@ void WTreeView::rerenderTree()
 
   if (WApplication::instance()->environment().ajax()) {
     connectObjJS(rootNode_->clicked(), "click");
-    connectObjJS(rootNode_->doubleClicked(), "dblClick");
+
+    if (editTriggers() & DoubleClicked || doubleClicked().isConnected())
+      connectObjJS(rootNode_->doubleClicked(), "dblClick");
     if (mouseWentDown().isConnected() || dragEnabled_)
       connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
     if (mouseWentUp().isConnected())

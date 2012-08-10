@@ -15,8 +15,13 @@
 namespace Wt {
   namespace FileUtils {
 
+    extern WT_API 
+    std::vector<unsigned char> fileHeader(const std::string &fileName, 
+					  unsigned size);
     extern WT_API unsigned long long size(const std::string &file);
+#ifndef WT_TARGET_JAVA
     extern WT_API time_t lastWriteTime(const std::string &file);
+#endif
     extern WT_API bool exists(const std::string &file);
     extern bool isDirectory(const std::string &file);
     extern void listFiles(const std::string &directory, 

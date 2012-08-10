@@ -15,6 +15,7 @@
 #include <sstream>
 #include <vector>
 #include <boost/algorithm/string.hpp>
+#include <stdlib.h>
 
 #include <Wt/WDllDefs.h>
 
@@ -58,6 +59,10 @@ extern char *pad_itoa(int value, int length, char *result);
 // Fast (unsafe) comparison of first n characters
 inline bool startsWith(const char *a, const char *b, int n) {
   return std::memcmp(a, b, n) == 0;
+}
+
+inline int hexToInt(const char* str) {
+  return strtol(str, 0, 16);
 }
 
 inline int length(const std::stringstream& s) {
@@ -201,6 +206,8 @@ typedef std::set<SplitEntry> SplitSet;
 extern void split(SplitSet& tokens,
 		  const std::string &in, const char *sep,
 		  bool compress_adjacent_tokens);
+
+extern std::string splitEntryToString(SplitEntry se);
 
 // Replace all occurences of the 'from' char to the 'to' char in 'v'
 extern void replaceAll(std::string& v, char from, char to);

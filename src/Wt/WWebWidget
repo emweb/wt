@@ -23,6 +23,10 @@ namespace Wt {
 class WStringStream;
 class WApplication;
 
+/*! \brief Enumeration for a DOM element type.
+ *
+ * For internal use only.
+ */
 enum DomElementType {
   DomElement_A, DomElement_BR, DomElement_BUTTON, DomElement_COL,
   DomElement_DIV, DomElement_FIELDSET, DomElement_FORM,

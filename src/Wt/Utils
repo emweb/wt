@@ -9,6 +9,7 @@
 
 #include <Wt/WGlobal>
 #include <string>
+#include <vector>
 
 /*! \file Utils
  */
@@ -146,6 +147,33 @@ WT_API extern std::string urlDecode(const std::string& text);
  * returns \c false.
  */
 WT_API extern bool removeScript(WString& text);
+
+/*! \brief Guess the image mime type from an image.
+ *
+ * This function examines the header of an image and tries to identify
+ * the image type.
+ *
+ * At the moment, it recognizes and returns as mime type :
+ * - image/png
+ * - image/jpeg
+ * - image/gif
+ * - image/bmp
+ *
+ * The header should contain (at least) the 25 first bytes of the image data.
+ *
+ * If no mime-type could be derived, an empty string is returned.
+ *
+ * \sa guessImageMimeTypeData()
+ */
+WT_API extern std::string
+guessImageMimeTypeData(const std::vector<unsigned char>& header);
+
+/*! \brief Guess the image mime type from an image.
+ *
+ * This function opens the image \p file, reads the first 25 bytes and calls
+ * guessImageMimeTypeData() to infer the mime type.
+ */
+WT_API extern std::string guessImageMimeType(const std::string& file);
 
   }
 }

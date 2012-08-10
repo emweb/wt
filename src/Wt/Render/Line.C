@@ -60,7 +60,12 @@ void Line::moveToNextPage(BlockList& floats, double minX, double maxX,
       Utils::erase(floats, b);
   }
 
-  Block::clearFloats(floats, page_);
+  PageState ps;
+  ps.floats = floats;
+  ps.page = page_;
+  Block::clearFloats(ps);
+  page_ = ps.page;
+  floats = ps.floats;
 
   double oldY = y_;
   y_ = 0;
@@ -70,7 +75,10 @@ void Line::moveToNextPage(BlockList& floats, double minX, double maxX,
   BlockList blocks = blocks_;
   blocks_.clear();
 
-  Block::adjustAvailableWidth(y_, page_, x_, maxX, floats);
+  Range rangeX(x_, maxX);
+  Block::adjustAvailableWidth(y_, page_, floats, rangeX);
+  x_ = rangeX.start;
+  maxX = rangeX.end;
 
   for (unsigned i = 0; i < blocks.size(); ++i) {
     Block *b = blocks[i];
@@ -154,8 +162,8 @@ void Line::finish(AlignmentFlag textAlign,
     }
   }
 
-  double startX = minX, endX = maxX;
-  Block::adjustAvailableWidth(y_, page_, startX, endX, floats);
+  Range rangeX(minX, maxX);
+  Block::adjustAvailableWidth(y_, page_, floats, rangeX);
   
   /* Compute total width and total white space width */
   double whitespace = 0;
@@ -190,8 +198,8 @@ void Line::finish(AlignmentFlag textAlign,
 	    ib.whitespaceCount = 0;
 
 	    if (b->isText()) {
-	      for (int i = 0; i < ib.utf8Count; ++i) {
-		if (Block::isWhitespace(b->text()[ib.utf8Pos + i]))
+	      for (int k = 0; k < ib.utf8Count; ++k) {
+		if (Block::isWhitespace(b->text()[ib.utf8Pos + k]))
 		  ++ib.whitespaceCount;
 	      }
 
@@ -200,7 +208,7 @@ void Line::finish(AlignmentFlag textAlign,
 	    }
 	  } else {
 	    /* Positioned in the margin */
-	    ib.x = startX - ib.width;
+	    ib.x = rangeX.start - ib.width;
 	  }
 	}
       }
@@ -213,14 +221,14 @@ void Line::finish(AlignmentFlag textAlign,
   case AlignLeft:
     break;
   case AlignRight:
-    startX = endX - content - whitespace;
+    rangeX.start = rangeX.end - content - whitespace;
     break;
   case AlignCenter:
-    startX += (endX - startX - content - whitespace)/2;
+    rangeX.start += (rangeX.end - rangeX.start - content - whitespace)/2;
     break;
   case AlignJustify:
     if (!lineBreak_) {
-      double remaining = endX - startX - content;
+      double remaining = rangeX.end - rangeX.start - content;
 
       if (whitespace > 0)
 	spaceFactor = remaining / whitespace;
@@ -230,7 +238,7 @@ void Line::finish(AlignmentFlag textAlign,
     LOG_ERROR("unsupported text-align attribute: " << (int)textAlign);
   }
 
-  double x = startX;
+  double x = rangeX.start;
 
   for (unsigned i = 0; i < boxes.size(); ++i) {
     InlineBox& ib = *boxes[i];

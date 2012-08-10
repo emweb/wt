@@ -9,7 +9,7 @@
 
 #include "Block.h"
 
-#include <string.h>
+#include <string>
 
 namespace Wt {
 
@@ -43,61 +43,72 @@ double WTextRenderer::textHeight(int page) const
 double WTextRenderer::render(const WString& text, double y)
 {
   std::string xhtml = text.toUTF8();
-  unsigned l = xhtml.length();
 
+#ifndef WT_TARGET_JAVA
+  unsigned l = xhtml.length();
   boost::scoped_array<char> cxhtml(new char[l + 1]);
   memcpy(cxhtml.get(), xhtml.c_str(), l);
   cxhtml[l] = 0;
+#endif
 
   try {
+#ifndef WT_TARGET_JAVA
     rapidxml::xml_document<> doc;
     doc.parse<rapidxml::parse_xhtml_entity_translation>(cxhtml.get());
+#else
+    rapidxml::xml_document<> doc = rapidxml::parseXHTML(xhtml);
+#endif
 
-    Block docBlock(&doc, 0);
+    Block docBlock(&doc, (Block*)0);
 
     docBlock.determineDisplay();
     docBlock.normalizeWhitespace(false, doc);
 
-    double currentY = y;
-    int currentPage = 0;
+    PageState currentPs;
+    currentPs.y = y;
+    currentPs.page = 0;
+    currentPs.minX = 0;
+    currentPs.maxX = textWidth(currentPs.page);
 
-    BlockList floats;
-
-    device_ = startPage(currentPage);
+    device_ = startPage(currentPs.page);
     painter_ = getPainter(device_);
 
     WFont defaultFont;
     defaultFont.setFamily(WFont::SansSerif);
     painter_->setFont(defaultFont);
 
-    double collapseMarginBottom;
+    double collapseMarginBottom = 0;
 
     double minX = 0;
-    double maxX = textWidth(currentPage);
+    double maxX = textWidth(currentPs.page);
+
     bool tooWide = false;
 
     for (;;) {
-      double x2 = maxX;
-      docBlock.layoutBlock(currentY, currentPage, floats, minX, x2,
-			   false, *this, std::numeric_limits<double>::max(),
-			   collapseMarginBottom);
+      currentPs.minX = minX;
+      currentPs.maxX = maxX;
 
-      if (x2 > maxX) {
+      collapseMarginBottom 
+	= docBlock.layoutBlock(currentPs,
+			       false, *this, std::numeric_limits<double>::max(),
+			       collapseMarginBottom);
+
+      if (currentPs.maxX > maxX) {
 	if (!tooWide) {
 	  LOG_WARN("contents too wide for page.");
 	  tooWide = true;
 	}
 
-	maxX = x2;
+	maxX = currentPs.maxX;
       } else {
-	Block::clearFloats(currentY, currentPage, floats, minX, maxX,
+	Block::clearFloats(currentPs, 
 			   maxX - minX);
 
 	break;
       }
     }
 
-    for (int page = 0; page <= currentPage; ++page) {
+    for (int page = 0; page <= currentPs.page; ++page) {
       if (page != 0) {
 	device_ = startPage(page);
 	painter_ = getPainter(device_);
@@ -109,7 +120,7 @@ double WTextRenderer::render(const WString& text, double y)
       endPage(device_);
     }
 
-    return currentY;
+    return currentPs.y;
   } catch (rapidxml::parse_error& e) {
     throw e;
   }

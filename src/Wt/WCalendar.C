@@ -218,6 +218,8 @@ void WCalendar::render(WFlags<RenderFlag> flags)
 #endif // WT_TARGET_JAVA
 
     if (create) {
+      // FIXME catch events only on container, and use 'tid' to identify
+      // the cell -- in Ajax mode
       cellClickMapper_ = new WSignalMapper<Coordinate>(this);
       cellClickMapper_->mapped().connect(this, &WCalendar::cellClicked);
       cellDblClickMapper_ = new WSignalMapper<Coordinate>(this);

@@ -15,6 +15,9 @@
 #include "Wt/Http/Response"
 
 #include "Wt/FontSupport.h"
+#include "PdfUtils.h"
+#include "UriUtils.h"
+#include "ImageUtils.h"
 #include "WebUtils.h"
 
 #include <stdio.h>
@@ -321,62 +324,7 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
     if (!font_) {
       trueTypeFont_ = false;
 
-      /*
-       * Match with a Base14 font.
-       */
-      const char *base;
-      const char *italic = 0;
-      const char *bold = 0;
-
-      switch (font.genericFamily()) {
-      case WFont::Default:
-      case WFont::Serif:
-      case WFont::Fantasy: // Not really !
-      case WFont::Cursive: // Not really !
-	base = "Times";
-	italic = "Italic";
-	bold = "Bold";
-	break;
-      case WFont::SansSerif:
-	base = "Helvetica";
-	italic = "Oblique";
-	bold = "Bold";
-	break;
-      case WFont::Monospace:
-	base = "Courier";
-	italic = "Oblique";
-	bold = "Bold";
-	break;
-      }
-
-      if (font.specificFamilies() == "Symbol")
-	base = "Symbol";
-      else if (font.specificFamilies() == "ZapfDingbats")
-	base = "ZapfDingbats";
-
-      if (italic)
-	switch (font.style()) {
-	case WFont::NormalStyle:
-	  italic = 0;
-	  break;
-	default:
-	  break;
-	}
-
-      if (font.weightValue() <= 400)
-	bold = 0;
-
-      std::string name = base;
-      if (bold) {
-	name += std::string("-") + bold;
-	if (italic)
-	  name += italic;
-      } else if (italic)
-	name += std::string("-") + italic;
-
-      if (name == "Times")
-	name = "Times-Roman";
-
+      std::string name = Pdf::toBase14Font(font);
       font_ = HPDF_GetFont(pdf_, name.c_str(), 0);
     }
 
@@ -426,17 +374,23 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
 {
   HPDF_Image img = 0;
 
-  if (imgUrl.length() >= 4) {
-    if (toUpper(imgUrl.substr(imgUrl.length() - 4)) == ".PNG")
+  if (Uri::isDataUri(imgUrl)) {
+    Uri::Uri uri = Uri::parseDataUri(imgUrl);
+    if ("image/png" == uri.mimeType)
+      img = HPDF_LoadPngImageFromMem(pdf_, 
+				     (HPDF_BYTE*)uri.data.c_str(), 
+				     uri.data.size()); 
+    else if ("image/jpeg" == uri.mimeType)
+      img = HPDF_LoadJpegImageFromMem(pdf_, 
+				      (HPDF_BYTE*)uri.data.c_str(), 
+				      uri.data.size()); 
+  } else {
+    std::string mimeType = Image::identifyImageFileMimeType(imgUrl);
+    if ("image/png" == mimeType)
       img = HPDF_LoadPngImageFromFile2(pdf_, imgUrl.c_str());
-    else if (toUpper(imgUrl.substr(imgUrl.length() - 4)) == ".JPG"
-	     || (toUpper(imgUrl.substr(imgUrl.length() - 4)) == "JPEG"))
+    else if ("image/jpeg" == mimeType)
       img = HPDF_LoadJpegImageFromFile(pdf_, imgUrl.c_str());
-    else {
-      std::vector<unsigned char> data;
-      std::string mimeType = Utils::dataUrlDecode(imgUrl, data);
-    }
-  }
+  } 
 
   if (!img)
     throw WException("WPdfImage::drawImage(): cannot load image: " + imgUrl);

@@ -3,13 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/lexical_cast.hpp>
-#include <stdlib.h>
 
 #include "Wt/WColor"
 #include "Wt/WLogger"
 #include "Wt/WStringStream"
 #include "WebUtils.h"
+#include "ColorUtils.h"
 
 namespace Wt {
 
@@ -31,21 +30,6 @@ WColor::WColor(int r, int g, int b, int a)
     alpha_(a)
 { }
 
-int parseRgbArgument(const std::string& argument) 
-{
-  std::string arg = boost::trim_copy(argument);
-  try {
-    if (boost::ends_with(arg, "%"))
-      return (int) (boost::lexical_cast<double>(arg.substr(0, arg.size() - 1)) 
-		    * 255 / 100);
-    else 
-      return boost::lexical_cast<int>(arg);
-  } catch (boost::bad_lexical_cast &e) {
-    LOG_ERROR("invalid color component: " << arg);
-    return 0;
-  }
-}
-
 WColor::WColor(const WString& name)
   : default_(false),
     red_(-1),
@@ -54,72 +38,8 @@ WColor::WColor(const WString& name)
     alpha_(255),
     name_(name)
 { 
-  std::string n = name.toUTF8();
-  boost::trim(n);
-  
-  if (boost::starts_with(n, "#")) {
-    if (n.size() - 1 == 3) {
-      red_ = strtol(n.substr(1,1).c_str(), 0, 16);
-      red_ = red_ * 16 + red_;
-      green_ = strtol(n.substr(2,1).c_str(), 0, 16);
-      green_ = green_ * 16 + green_;
-      blue_ = strtol(n.substr(3,1).c_str(), 0, 16);
-      blue_ = blue_ * 16 + blue_;
-    } else if (n.size() - 1 == 6) {
-      red_ = strtol(n.substr(1,2).c_str(), 0, 16);
-      green_ = strtol(n.substr(3,2).c_str(), 0, 16);
-      blue_ = strtol(n.substr(5,2).c_str(), 0, 16);
-    } else {
-      LOG_ERROR("could not parse rgb format: " << n);
-      red_ = green_ = blue_ = -1;
-      return;
-    }
-  } else if (boost::starts_with(n, "rgb")) {
-    if (n.size() < 5) {
-      LOG_ERROR("could not parse rgb format: " << n);
-      return;
-    }
-
-    bool alpha = (n[3] == 'a');
-    int start_bracket = 3 + alpha;
-
-    if (n[start_bracket] != '(' || n[n.size() - 1] != ')') {
-      LOG_ERROR("could not parse rgb format: " << n);
-      return;
-    }
-
-    std::string argumentsStr = n.substr(start_bracket + 1, 
-					n.size() - 1 - (start_bracket + 1));
-
-    std::vector<std::string> arguments;
-    boost::split(arguments, 
-		 argumentsStr,
-		 boost::is_any_of(","));
-
-    if (!alpha && arguments.size() != 3) {
-      LOG_ERROR("could not parse rgb format: " << n);
-      return;
-    }
-    
-    if (alpha && arguments.size() != 4) {
-      LOG_ERROR("could not parse rgb format: " << n);
-      return;
-    }
-
-    red_ = parseRgbArgument(arguments[0]);
-    green_ = parseRgbArgument(arguments[1]);
-    blue_ = parseRgbArgument(arguments[2]);
-
-    if (alpha) {
-      try {
-	alpha_ = boost::lexical_cast<int>(boost::trim_copy(arguments[3]));
-      } catch (boost::bad_lexical_cast &e) {
-	LOG_ERROR("could not parse rgb format: " << n);
-	alpha_ = 255;
-	return;
-      }
-    }
-  }
+  WColor c = Wt::Color::parseCssColor(name.toUTF8());
+  this->setRgb(c.red(), c.green(), c.blue(), c.alpha());
 }
 
 WColor::WColor(Wt::GlobalColor name)

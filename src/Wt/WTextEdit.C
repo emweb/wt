@@ -206,11 +206,11 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     DomElement dummy(DomElement::ModeUpdate, DomElement_TABLE);
     updateDom(dummy, true);
 
-    doJavaScript("(function() { "
-		 """var obj = $('#" + id() + "').data('obj');"
-		 """obj.render(" + config.str() + ","
-		 + jsStringLiteral(dummy.cssStyle())
-		 + ");})();");
+    element.callJavaScript("(function() { "
+			   """var obj = $('#" + id() + "').data('obj');"
+			   """obj.render(" + config.str() + ","
+			   + jsStringLiteral(dummy.cssStyle())
+			   + ");})();");
 
     contentChanged_ = false;
   }

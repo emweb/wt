@@ -8,6 +8,7 @@
 #include "Wt/WPainter"
 #include "Wt/WPdfImage"
 #include "Wt/Render/WPdfRenderer"
+#include "Wt/Render/RenderUtils.h"
 
 #include <hpdf.h>
 
@@ -59,12 +60,18 @@ void WPdfRenderer::addFontCollection(const std::string& directory,
 
 HPDF_Page WPdfRenderer::createPage(int page)
 {
+#ifndef WT_TARGET_JAVA
   HPDF_Page result = HPDF_AddPage(pdf_);
 
   HPDF_Page_SetWidth(result, HPDF_Page_GetWidth(page_));
   HPDF_Page_SetHeight(result, HPDF_Page_GetHeight(page_));
 
   return result;
+#else
+  return Wt::Render::Utils::createPage(pdf_, 
+				       HPDF_Page_GetWidth(page_), 
+				       HPDF_Page_GetHeight(page_));
+#endif
 }
 
 double WPdfRenderer::margin(Side side) const
@@ -101,10 +108,17 @@ WPaintDevice *WPdfRenderer::startPage(int page)
   if (page > 0)
     page_ = createPage(page);
 
+#ifndef WT_TARGET_JAVA
   HPDF_Page_Concat (page_, 72.0f/dpi_, 0, 0, 72.0f/dpi_, 0, 0);
+#endif
 
   WPdfImage *device = new WPdfImage(pdf_, page_, 0, 0,
 				    pageWidth(page), pageHeight(page));
+#ifdef WT_TARGET_JAVA
+  WTransform deviceTransform;
+  deviceTransform.scale(72.0f/dpi_, 72.0f/dpi_);
+  device->setDeviceTransform(deviceTransform);
+#endif //WT_TARGET_JAVA
 
   for (unsigned i = 0; i < fontCollections_.size(); ++i)
     device->addFontCollection(fontCollections_[i].directory,
@@ -120,7 +134,9 @@ void WPdfRenderer::endPage(WPaintDevice *device)
 
   delete device;
 
+#ifndef WT_TARGET_JAVA
   HPDF_Page_Concat (page_, dpi_/72.0f, 0, 0, dpi_/72.0f, 0, 0);
+#endif
 }
 
 WPainter *WPdfRenderer::getPainter(WPaintDevice *device)

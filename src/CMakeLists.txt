@@ -272,6 +272,7 @@ Wt/Mail/Message.C
 Wt/Render/Block.C
 Wt/Render/Line.C
 Wt/Render/LayoutBox.C
+Wt/Render/RenderUtils.C
 Wt/Render/WTextRenderer.C
 web/md5.c
 web/sha1.c
@@ -280,6 +281,8 @@ web/Configuration.C
 web/DomElement.C
 web/EscapeOStream.C
 web/FileServe.C
+web/ColorUtils.C
+web/ImageUtils.C
 web/RefEncoder.C
 web/SoundManager.C
 web/WebController.C
@@ -291,10 +294,12 @@ web/WebSocketMessage.C
 web/WebRenderer.C
 web/WebUtils.C
 web/FileUtils.C
+web/PdfUtils.C
 web/TimeUtil.C
 web/XSSFilter.C
 web/XSSUtils.C
 web/SslUtils.C
+web/UriUtils.C
 web/random_device.cpp
 web/base64.cpp
 Plain_html.C
