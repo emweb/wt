@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( json_utf8_test )
   BOOST_REQUIRE(ws8[0] == 55295);
   BOOST_REQUIRE(ws9[0] == 57344);
   BOOST_REQUIRE(ws10[0] == 65533);
-  BOOST_REQUIRE(ws11[0] == 65533); // should this really be rejected?
+  BOOST_REQUIRE(ws11[0] == '?'); // should this really be rejected?
 
   BOOST_REQUIRE(result.size() == 11);
 }

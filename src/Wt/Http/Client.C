@@ -34,7 +34,7 @@ using boost::asio::ip::tcp;
 
 namespace Wt {
 
-LOGGER("Http::Client");
+LOGGER("Http.Client");
 
   namespace Http {
 

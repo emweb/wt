@@ -202,13 +202,17 @@ std::wstring fromUTF8(const std::string& s)
 	     )) {
 	  legal = true;
 
-	  wchar_t wc = ((unsigned char)s[i]) & 0x0F;
+	  uint32_t cp = ((unsigned char)s[i]) & 0x0F;
 	  for (unsigned j = 1; j < 4; ++j) {
-	    wc <<= 6;
-	    wc |= ((unsigned char)s[i+j]) & 0x3F;
+	    cp <<= 6;
+	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-	  result += wc;
+          wchar_t wc = cp;
+          if (wc == cp)
+            result += wc;
+          else
+            legal = false;
 	}
       }
       i += 3;
@@ -228,13 +232,17 @@ std::wstring fromUTF8(const std::string& s)
 	     )) {
 	  legal = true;
 
-	  wchar_t wc = ((unsigned char)s[i]) & 0x1F;
+	  wchar_t cp = ((unsigned char)s[i]) & 0x1F;
 	  for (unsigned j = 1; j < 3; ++j) {
-	    wc <<= 6;
-	    wc |= ((unsigned char)s[i+j]) & 0x3F;
+	    cp <<= 6;
+	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-	  result += wc;
+          wchar_t wc = cp;
+          if (wc == cp)
+            result += wc;
+          else
+            legal = false;
 	}
       }
       i += 2;
@@ -247,13 +255,17 @@ std::wstring fromUTF8(const std::string& s)
 	    ) {
 	  legal = true;
 
-	  wchar_t wc = ((unsigned char)s[i]) & 0x3F;
+	  wchar_t cp = ((unsigned char)s[i]) & 0x3F;
 	  for (unsigned j = 1; j < 2; ++j) {
-	    wc <<= 6;
-	    wc |= ((unsigned char)s[i+j]) & 0x3F;
+	    cp <<= 6;
+	    cp |= ((unsigned char)s[i+j]) & 0x3F;
 	  }
 
-	  result += wc;
+          wchar_t wc = cp;
+          if (wc == cp)
+            result += wc;
+          else
+            legal = false;
 	}
       }
       i += 1;

@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-LOGGER("Ext::LayoutItemImpl");
+LOGGER("Ext.LayoutItemImpl");
 
   namespace Ext {
 

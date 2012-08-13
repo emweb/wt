@@ -1,0 +1,53 @@
+.label {
+    display: inline-block;
+    width: 20ex;
+    font-weight: bold;
+    text-align: right;
+    padding-right: 1ex;
+}
+
+.item-info {
+    border: 0;
+    margin: 20px 0px;
+}
+
+.item-info th {
+    background-color: #eeeeff;
+    text-align: left;
+    font-weight: normal;
+}
+
+.item-info .descriptions {
+    width: 400px;
+}
+
+.item-info .amount {
+    text-align: right;
+    width: 50px;
+}
+
+.item-info .emph {
+    color: blue;
+}
+
+.item-info .label {
+    display: table-cell;
+    width: 400px;
+    padding-right: 0px;
+}
+
+.items .sep {
+    margin-left: 0px;
+    width: 450px;
+}
+
+.payment {
+    width: 450px;
+    height: 50px;
+    text-align: right;
+}
+
+.payment span {
+    font-size: 80%;
+    color: gray;
+}

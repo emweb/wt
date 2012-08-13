@@ -16,7 +16,7 @@
 
 namespace Wt {
 
-LOGGER("Mail::Client");
+LOGGER("Mail.Client");
 
 namespace {
   bool logged = false;

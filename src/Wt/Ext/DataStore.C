@@ -16,7 +16,7 @@
 
 namespace Wt {
 
-LOGGER("Ext::DataStore");
+LOGGER("Ext.DataStore");
 
   namespace Ext {
 

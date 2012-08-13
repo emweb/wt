@@ -1,0 +1,145 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ */
+#ifndef WT_PAYMENT_ADDRESS_H
+#define WT_PAYMENT_ADDRESS_H
+
+#include <string>
+
+#include <Wt/WString>
+
+namespace Wt {
+  namespace Payment {
+/*! \class Address Wt/Paiment/Address Wt/Paiment/Address
+ *  \brief Contains all address related information that can be used
+ * by payment systems.
+ *
+ * %All customer fields must have a format that is acceptable by the payment
+ * broker (example paypal)
+ *
+ * \code
+ *   Wt::Payment::Customer customer;
+ *
+ *   customer.setEmail("Waffle@emwab.be");
+ *   customer.setFirstName("Name");
+ *   customer.setLastName("LastName");
+ *
+ *   Wt::Payment::Address address;
+ *   address.setCity("Leuven");
+ *   address.setCountryCode("BE");
+ *   address.setPhoneNumber("123456789");
+ *   address.setStreet2("Brusselsstraat");
+ *
+ *   customer.setShippingAddress(address);
+ * \endcode
+ * \sa Customer, PayPalExpressCheckout, PayPalService
+ */
+class Address
+{
+public:
+  /*! \brief Changes name field.
+  *
+  * Person’s name associated with this shipping address.
+  */
+  void setName(const WString& name);
+
+  /*! \brief Returns name.
+  *
+  * Person’s name associated with this shipping address.
+  */
+  const WString& name() const { return name_; }
+
+  /*! \brief Changes Street1.
+  *
+  * First street address.
+  */
+  void setStreet1(const WString& street1);
+
+  /*! \brief Returns Street1.
+  *
+  * First street address.
+  */
+  const WString& street1() const { return street1_; }
+
+  /*! \brief Changes Street2.
+  *
+  * First street address.
+  */
+  void setStreet2(const WString& street2);
+
+  /*! \brief Returns Street2.
+  *
+  * Second street address.
+  */
+  const WString& street2() const { return street2_; }
+
+  /*! \brief Changes city.
+  *
+  * Name of city.
+  */
+  void setCity(const WString& city);
+
+  /*! \brief Returns city.
+  *
+  * Name of city.
+  */
+  const WString& city() const { return city_; }
+
+  /*! \brief Changes state.
+  *
+  * Name of state.
+  */
+  void setState(const WString& state);
+
+  /*! \brief Returns state.
+  *
+  * Name of state.
+  */
+  const WString& state() const { return state_; }
+
+  /*! \brief Changes country code.
+  *
+  * Country code.
+  */
+  void setCountryCode(const std::string& country);
+
+  /*! \brief Returns country code.
+  *
+  * Country code.
+  */
+  const std::string& countryCode() const { return countryCode_; }
+
+  /*! \brief Changes zip code.
+  *
+  * Zip code.
+  */
+  void setZip(const WString& zip);
+
+  /*! \brief Changes zip code.
+  *
+  * Zip code.
+  */
+  const WString& zip() const { return zip_; }
+
+  /*! \brief Changes phone number.
+  *
+  * Phone number.
+  */
+  void setPhoneNumber(const std::string& number);
+
+  /*! \brief Changes phione number.
+  *
+  * Phone number
+  */
+  const std::string& phoneNumber() const { return phoneNumber_; }
+
+private:
+  std::string countryCode_, phoneNumber_;
+  WString name_, street1_, street2_, city_, state_, zip_;
+};
+
+  }
+}
+
+#endif // WT_PAYMENT_ADDRESS_H_

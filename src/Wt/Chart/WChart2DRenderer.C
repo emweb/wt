@@ -26,7 +26,7 @@ namespace {
 
 namespace Wt {
 
-  LOGGER("Chart::WChart2DRenderer");
+LOGGER("Chart.WChart2DRenderer");
 
   namespace Chart {
 

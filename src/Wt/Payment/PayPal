@@ -1,0 +1,320 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ */
+#ifndef WT_PAYMENT_PAYPAL_H
+#define WT_PAYMENT_PAYPAL_H
+
+#include <Wt/WObject>
+#include <Wt/WSignal>
+#include <Wt/WJavaScript>
+#include <Wt/Payment/Result>
+
+#include <boost/system/error_code.hpp>
+
+#include <map>
+namespace Wt {
+  namespace Http{
+  }
+  /*! \brief Namespace for the \ref Payment
+    */
+  namespace Payment {
+
+class Customer;
+class Money;
+class Order;
+class PayPalService;
+/*! \brief A paypal broker class.
+ *
+ * Implementation of the payal api.
+ * For more information about the api see:
+ * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_ECGettingStarted
+ *
+ * Use flow:
+ * -# use PayPalService to create PayPalExpressCheckout instance.
+ * -# setup() - send SetExpressCheckout API call returns a result signal.
+ * -# startPayment() -  Redirects to PayPal. Use it after receiving the setup()
+ *    result signal.
+ * -# paymentApproved signal will be emitted with the result of
+ *    SetExpressCheckout API call.
+ * -# updateCustomerDetails() - GetExpressCheckoutDetails API call returns a
+ *    result signal.
+ * -# completePayment() - DoExpressCheckoutPayment API call returns a result
+ *    signal.
+ *
+ * For more information see: paypal example.
+ *
+ * \sa PayPalService
+ *
+ * \ingroup payment
+ */
+class PayPalExpressCheckout : public WObject
+{
+public:
+  enum PaymentAction {
+    SaleAction,
+    AuthorizationAction,
+    OrderAction
+  };
+
+  virtual ~PayPalExpressCheckout();
+
+  /*! \brief Changes payment action
+   *
+   * See paypal documentation for more information:
+   * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_SetExpressCheckout
+   *
+   * \sa PaymentAction
+   */
+  void setPaymentAction(PaymentAction action);
+
+  /*! \brief Returns payment action
+   *
+   * See paypal documentation for more information:
+   * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_SetExpressCheckout
+   *
+   * \sa PaymentAction
+   */
+  PaymentAction paymentAction() const;
+
+  /*! \brief Adds or modifies a PayPal request parameter.
+   *
+   * If value is empty, then this will remove a request parameter.
+   *
+   * Useful use examples:
+   * \code
+   *  //send to paypal - &REQCONFIRMSHIPPING=1
+   *  setParameter("REQCONFIRMSHIPPING", 1);
+   *
+   * //send to paypal - &NOSHIPPING=1
+   *  setParameter("NOSHIPPING", 1);
+   *
+   * //send to paypal - &LOGOIMG=https://www.../logo.gif
+   *  setParameter("LOGOIMG", "https://www.../logo.gif");
+   *
+   * //send to paypal - &CARTBORDERCOLOR=00CD
+   *  setParameter("CARTBORDERCOLOR", "00CD");
+   * \endcode
+   */
+  void setParameter(const std::string& name, const std::string& value);
+
+  /*! \brief Returns the current customer details
+   *
+   * \sa Customer
+   */
+  const Customer& customer() const;
+
+  /*! \brief Returns the order customer details
+   *
+   * \sa Order
+   */
+  const Order& order() const;
+
+  /*!
+   * SetExpressCheckout API call sets up things to call startPayment(),
+   * returns signal that indicates the result.
+   */
+  Signal<Result>& setup();
+
+  /*!
+   * Redirects to PayPal.
+   *
+   * Results is indicated in paymentApproved().
+   */
+  void startPayment();
+
+  /*!
+   * GetExpressCheckoutDetails API call:
+   * updates the customer information, returns signals that indicates the
+   * result.
+   */
+  Signal<Result>& updateCustomerDetails();
+
+  /*!
+   * DoExpressCheckoutPayment API call:
+   * indicate the exact amount (may be updated), returns signals that
+   * indicates the result.
+   */
+  Signal<Result>& completePayment(const Money& totalAmount);
+
+  /*!
+   * Results of SetExpressCheckout API call:
+   * Send to paypal all transaction information
+   */
+  Signal<Approval>& paymentApproved();
+
+private:
+  struct Impl;
+  Impl *impl_;
+
+  PayPalExpressCheckout(PayPalService& service,
+                        const Customer& customer, const Order& order);
+
+  std::string encodeMessage(const std::map<std::string, std::string> &map)
+    const;
+  void addUserFields(std::map<std::string, std::string> &map);
+  void addEditedParameters(std::map<std::string, std::string> &map);
+  void createSetupMessage(std::map<std::string, std::string> &map);
+  std::string toString(PaymentAction action);
+
+  std::map<std::string, std::string> parametersMapToMap
+  (Http::ParameterMap &map);
+
+  void handleSetup(boost::system::error_code err,
+                   const Http::Message& response);
+
+  void setToken(const std::string& url);
+  std::string cancelUrl() const;
+  std::string returnUrl() const;
+  std::string paymentUrl() const;
+
+  JSignal<int>& redirected();
+  void setPaymentAccepted(bool accepted, const std::string& payerId);
+  void onRedirect(int result);
+
+  void handleInternalPath(const std::string& internalPath);
+  void handleCustomerDetails(boost::system::error_code err,
+                   const Http::Message& response);
+  std::string prameterValue(const std::string &parameterName,
+                            Http::ParameterMap &params);
+  void saveCustomerDetails(Http::ParameterMap &params);
+
+  void handleCompletePayment(boost::system::error_code err,
+                             const Http::Message& response);
+
+  //test the msg and saves the token.
+  Result testMessage(boost::system::error_code err,
+                     const Http::Message& response);
+
+  void printMessage(Http::ParameterMap &params) const;
+  std::string messageToString(Http::ParameterMap &params) const;
+
+  friend class PayPalService;
+  friend class PayPalRedirectResource;
+};
+
+
+/*!
+ * \brief This is a service and can be shared between sessions.
+ *
+ * It only has configuration state.
+ */
+class PayPalService
+{
+public:
+  PayPalService();
+  ~PayPalService();
+
+  bool configureFromProperties();
+
+  /*! \brief Set configuration to test sandbox
+   *
+   * Test with sandbox - default configuration.
+   */
+  void configureTestSandbox();
+
+  /*! \brief Changes user
+   *
+   * Paypal api USER field
+   */
+  void setUser(const std::string& user);
+
+  /*! \brief Returns user
+   *
+   * Paypal api USER field
+   */
+  std::string user() const {return user_;}
+
+  /*! \brief Changes password
+   *
+   * Paypal api PWD field
+   */
+  void setPassword(const std::string& password);
+
+  /*! \brief Returns password
+   *
+   * Paypal api PWD field
+   */
+  std::string password() const {return password_;}
+
+  /*! \brief Changes signature
+   *
+   * Paypal api SIGNATURE field
+   */
+  void setSignature(const std::string& signature);
+
+  /*! \brief Returns signature
+   *
+   * Paypal api SIGNATURE field
+   */
+  std::string signature() const {return signature_;}
+
+  /*! \brief Changes version
+   *
+   * Paypal api VERSION field
+   *
+   * changeing the version may result in unexpected behaviour.
+   */
+  void setVersion(const std::string& version);
+
+  /*! \brief Returns version
+   *
+   * Paypal api VERSION field
+   */
+  std::string version() const {return version_;}
+
+  /*! \brief Changes api server url
+   *
+   * All paypal api calls will be sent to that server.
+   * For more information see paypal API Endpoints.
+   */
+  void setApiServerUrl(const std::string& url);
+
+  /*! \brief Returns api server url
+   *
+   * All paypal api calls will be sent to that server.
+   * For more information see paypal API Endpoints.
+   */
+  std::string apiServerUrl() const {return apiServerUrl_;}
+
+  /*! \brief Changes pay server url
+   *
+   * If api call SetExpressCheckout was successful the application will be
+   * redirected to pay Server Url.
+   */
+  void setPayServerUrl(const std::string& url);
+
+  /*! \brief Returns pay server url
+   *
+   * If api call SetExpressCheckout was successful the application will be
+   * redirected to pay Server Url.
+   */
+  std::string payServerUrl() const {return payServerUrl_;}  
+
+  int popupWidth() const;
+  int popupHeight() const;
+
+  /*!
+   * \brief Reruns new PayPalExpressCheckout.
+   *
+   * Create PayPalExpressCheckout instance.
+   * customer - Customer information that will be sent to paypal.
+   * order - Order information that will be sent to paypal
+   */
+  PayPalExpressCheckout *createExpressCheckout(
+    const Customer& customer, const Order& order);
+
+private:
+  std::string user_;
+  std::string password_;
+  std::string signature_;
+  std::string version_;
+  std::string apiServerUrl_, payServerUrl_;
+
+  std::string configurationProperty(const std::string& property);
+};
+
+  }
+}
+
+#endif // WT_PAYMENT_PAYPAL_H

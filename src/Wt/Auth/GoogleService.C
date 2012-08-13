@@ -22,7 +22,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("Auth::GoogleService");
+LOGGER("Auth.GoogleService");
 
   namespace Auth {
 

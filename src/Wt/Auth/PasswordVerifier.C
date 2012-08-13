@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-LOGGER("Auth::PasswordVerifier");
+LOGGER("Auth.PasswordVerifier");
 
   namespace Auth {
 

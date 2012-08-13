@@ -1,0 +1,58 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ */
+#ifndef WT_PAYMENT_RESULT_H
+#define WT_PAYMENT_RESULT_H
+
+#include <Wt/WString>
+#include <map>
+
+namespace Wt {
+  namespace Payment {
+
+class Result
+{
+public:
+  Result(){}
+  Result(const WString& errorMessage);
+
+  //Returns true if the result has errors.
+  bool error() const { return (!errorMessage_.empty()); }
+  WString errorMessage() const { return errorMessage_; }
+
+  void setResponseMessage(const std::map<std::string, std::string> &msg);
+  std::map<std::string, std::string> responseMessage() const;
+
+  void setRequestMessage(const std::map<std::string, std::string> & msg);
+  std::map<std::string, std::string> requestMessage() const;
+
+private:
+  WString errorMessage_;
+  std::map<std::string, std::string> responseMessage_;
+  std::map<std::string, std::string> requestMessage_;
+
+};
+
+class Approval : public Result
+{
+public:
+  enum Outcome {
+    Denied = 0,
+    Interrupted = 1,
+    Accepted = 2
+  };
+
+  Approval(Outcome outcome);
+  Approval(const WString& errorMessage);
+
+  Outcome outcome() const { return outcome_; }
+
+private:
+  Outcome outcome_;
+};
+
+  }
+}
+
+#endif // WT_PAYMENT_RESULT_H_

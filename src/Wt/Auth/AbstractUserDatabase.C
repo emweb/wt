@@ -19,7 +19,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("Auth::AbstractUserDatabase");
+LOGGER("Auth.AbstractUserDatabase");
 
   namespace Auth {
 

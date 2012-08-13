@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-LOGGER("Ext::ToolBar");
+LOGGER("Ext.ToolBar");
 
   namespace Ext {
 

@@ -1,0 +1,132 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ */
+#ifndef WT_PAYMENT_CUSTOMER_H
+#define WT_PAYMENT_CUSTOMER_H
+
+#include <Wt/Payment/Address>
+#include <string>
+
+namespace Wt {
+  class WString;
+  namespace Payment {
+
+/*! \class Customer Wt/Paiment/Customer Wt/Paiment/Customer
+ *  \brief Contains all customer related information that can be used
+ * by payment systems.
+ *
+ * %All customer fields must have a format that is acceptable by the payment
+ * broker (example paypal)
+ *
+ * \code
+ *   Wt::Payment::Customer customer;
+ *
+ *   customer.setEmail("Waffle@emwab.be");
+ *   customer.setFirstName("Name");
+ *   customer.setLastName("LastName");
+ *
+ *   Wt::Payment::Address address;
+ *   address.setCity("Leuven");
+ *   address.setCountryCode("BE");
+ *   address.setPhoneNumber("123456789");
+ *   address.setStreet2("Brusselsstraat");
+ *
+ *   customer.setShippingAddress(address);
+ * \endcode
+ *
+ * \sa PayPalExpressCheckout, PayPalService
+ */
+class Customer
+{
+public:
+  /*! \brief Creates an Empty customer.
+  *
+  */
+  Customer();
+
+  /*! \brief Changes the first name field
+  *
+  */
+  void setFirstName(const WString& firstName);
+
+  /*! \brief Returns first name
+  *
+  */
+  WString firstName() const { return firstName_; }
+
+  /*! \brief Changes the last name field
+  *
+  */
+  void setLastName(const WString& lastName);
+
+  /*! \brief Returns last name
+  *
+  */
+  WString lastName() const { return lastName_; }
+
+  /*! \brief Changes email field
+  *
+  * must have a format that is acceptable by the paying
+  * system.
+  */
+  void setEmail(const std::string& email);
+
+  /*! \brief Returns email
+  *
+  */
+  std::string email() const { return email_; }
+
+  /*! \brief Changes shipping address field
+  *
+  * \sa Address
+  */
+  void setShippingAddress(const Address& address);
+
+  /*! \brief Returns shipping address.
+  *
+  */
+  const Address& shippingAddress() const { return shippingAddress_; }
+
+  /*! \brief Changes the locale field
+  *
+  * must have a format that is acceptable by the paying
+  * system.
+  *
+  * The locale is used by the payment system to match its language to the
+  * language on your website.
+  */
+  void setLocale(const std::string& locale);
+
+  /*! \brief Returns locale
+  *
+  * The locale is used by the payment system to match its language to the
+  * language on your website.
+  */
+  std::string locale() const { return locale_; }
+
+  /*! \brief Changes the payerId field
+  *
+  */
+  void setPayerId(const std::string& payerId);
+
+  /*! \brief Returns payerId
+  *
+  * Some paying systems have a payer id for there customer.
+  * For example in paypl that id is returned in response messages and later
+  * used for requests.
+  */
+  std::string payerId() const { return payerId_; }
+
+private:
+  WString firstName_, lastName_;
+  std::string email_;
+  Address shippingAddress_;
+  std::string locale_;
+  std::string payerId_;
+};
+
+  }
+}
+
+#endif // WT_PAYMENT_CUSTOMER_H_

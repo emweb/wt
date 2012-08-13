@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-LOGGER("Ext::Calendar");
+LOGGER("Ext.Calendar");
 
   namespace Ext {
 

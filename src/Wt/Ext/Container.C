@@ -27,7 +27,7 @@
 
 namespace Wt {
 
-LOGGER("Ext::Container");
+LOGGER("Ext.Container");
 
   namespace Ext {
 

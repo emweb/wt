@@ -7,6 +7,7 @@ SUBDIRS(
   miniwebgl
   multiple_servers
   oauth
+  paypal
   serverpush
   socketnotifier
   suggestionpopup

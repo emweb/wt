@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-LOGGER("Json::Value");
+LOGGER("Json.Value");
 
   namespace Json {
 

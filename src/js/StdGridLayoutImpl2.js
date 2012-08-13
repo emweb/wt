@@ -302,7 +302,7 @@ WT_DECLARE_WT_MEMBER
 	       item.w = w2;
 	       $w.find("img").add($w.filter("img"))
 		 .bind('load',
-		       { item: item}, 
+		       { item: item},
 		       function(event) {
 			 setItemDirty(event.data.item, true);
 		       });

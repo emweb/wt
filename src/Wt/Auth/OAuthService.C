@@ -24,6 +24,7 @@
 #include "Wt/WServer"
 
 #include "Wt/Auth/AuthUtils.h"
+#include "Wt/PopupWindow.h"
 
 #include "WebSession.h"
 #include "WebRequest.h"
@@ -36,13 +37,9 @@
 
 #define ERROR_MSG(e) WString::tr("Wt.Auth.OAuthService." e)
 
-#ifndef WT_DEBUG_JS
-#include "js/AuthWidget.min.js"
-#endif
-
 namespace Wt {
 
-LOGGER("Auth::OAuthService");
+LOGGER("Auth.OAuthService");
 
   namespace Auth {
 
@@ -164,7 +161,7 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
   redirectEndpoint_ = new OAuthRedirectEndpoint(this);
   WApplication *app = WApplication::instance();
 
-  LOAD_JAVASCRIPT(app, "js/AuthWidget.js", "authPopupWindow", wtjs1);
+  PopupWindow::loadJavaScript(app);
 
   std::string url = app->makeAbsoluteUrl(redirectEndpoint_->url());
   oAuthState_ = service_.encodeState(url);
@@ -173,7 +170,7 @@ OAuthProcess::OAuthProcess(const OAuthService& service,
 
 #ifndef WT_TARGET_JAVA
   WStringStream js;
-  js << WT_CLASS ".authPopupWindow(" WT_CLASS
+  js << WT_CLASS ".PopupWindow(" WT_CLASS
      << "," << WWebWidget::jsStringLiteral(authorizeUrl()) 
      << ", " << service.popupWidth()
      << ", " << service.popupHeight() << ");"; 
@@ -224,16 +221,17 @@ void OAuthProcess::startAuthenticate()
 void OAuthProcess::connectStartAuthenticate(EventSignalBase &s)
 {
   if (WApplication::instance()->environment().javaScript()) {
-      WStringStream js;
-      js << "function(object, event) {"
-	 << WT_CLASS ".authPopupWindow(" WT_CLASS
-	 << "," << WWebWidget::jsStringLiteral(authorizeUrl()) 
-	 << ", " << service_.popupWidth()
-	 << ", " << service_.popupHeight() << ");"
-	 << "}";
+    WStringStream js;
+    js << "function(object, event) {"
+       << WT_CLASS ".PopupWindow(" WT_CLASS
+       << "," << WWebWidget::jsStringLiteral(authorizeUrl()) 
+       << ", " << service_.popupWidth()
+       << ", " << service_.popupHeight() << ");"
+       << "}";
 
-      s.connect(js.str());
-  } 
+    s.connect(js.str());
+  }
+
   s.connect(this, &OAuthProcess::startAuthenticate);
 }
 #endif
@@ -311,6 +309,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
      << "&code=" << authorizationCode;
 
   Http::Client *client = new Http::Client(this);
+  client->setTimeout(15);
   client->done().connect(boost::bind(&OAuthProcess::handleToken, this, _1, _2));
 
   Http::Method m = service_.tokenRequestMethod();
@@ -626,10 +625,10 @@ std::string OAuthService::configurationProperty(const std::string& property)
 #else
       std::string* v = instance->readConfigurationProperty(property, result);
       if (v != &result) {
-	error = false;
-	result = *v;
+        error = false;
+        result = *v;
       } else {
-	error = true;
+        error = true;
       }
 #endif
 

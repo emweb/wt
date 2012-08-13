@@ -26,7 +26,7 @@ namespace skeletons {
 
 namespace Wt {
 
-LOGGER("Auth::RegistrationWidget");	     
+LOGGER("Auth.RegistrationWidget");	     
 
   namespace Auth {
 

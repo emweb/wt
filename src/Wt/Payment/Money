@@ -1,0 +1,185 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ */
+#ifndef WT_PAYMENT_MONEY_H
+#define WT_PAYMENT_MONEY_H
+
+#include <string>
+#include <Wt/WStringStream>
+
+namespace Wt {
+  namespace Payment {
+/*! \class Money Wt/Paiment/Money Wt/Paiment/Money
+ *  \brief A value class which describes money.
+ *
+ * The money is stored in cents, hence dividing it can resulte in
+ * a rounding error.
+ *
+ * Math operations on two instances of money with different currency
+ * are not allowed and will result in exception. Unless one of them have
+ * empty currency and then the result will have the currency not empty currency.
+ */
+class Money
+{
+public:
+  /*! \brief Creates an empty money
+   *
+   * valueInCents = 0
+   * currency = ""
+   */
+  Money();
+  /*! \brief Creates money from value, cents and currency
+   *
+   * value - the int part of money (money with no cents).
+   * cents - the last 2 digits.
+   * currency - string that represent the currency does not have to be
+   * formatted in any way.
+   */
+  Money(long long value, int cents, const std::string& currency);
+  /*! \brief Creates money from valueInCents and currency
+   *
+   * valueInCents - the money conveted to cents.
+   * currency - string that represent the currency does not have to be
+   * formatted in any way.
+   */
+  Money(long long valueInCents, const std::string &currency);
+
+  /*! \brief Returns the money value in cents
+   *
+   */
+  long long valueInCents() const {return valueInCents_;}
+
+  /*! \brief Returns the int part of money.
+   *
+   * Returns the int part of money (money with no cents).
+   */
+  long long value() const {return valueInCents_ / 100;}
+
+  /*! \brief Returns the cents.
+   *
+   * Returns the cents - the last 2 digits of value in cents.
+   */
+  int cents() const {return valueInCents_ % 100;}
+
+  /*! \brief Returns the currency.
+   *
+   * Returns the currency of the money. Empty string - the money has no
+   * currency
+   */
+  std::string currency() const {return currency_;}
+  /*! \brief Changes the currency.
+   */
+  void setCurrency(std::string currency) {currency_ = currency;}
+
+  /*! \brief Returns the string representation of the money value.
+   *
+   * Format value.cents
+   *
+   * Does not contain the currency.
+   */
+  const std::string toString() const;
+
+  /*! \brief Assignment operator
+   *
+   * Copy another money into this money.
+   */
+  Money& operator= (const Money& money);
+
+  /*! \brief Self-add operator
+   *
+   * Add money valueInCents to current valueInCents.
+   *
+   * Adding money with differen currency is not allowed. Unless the current
+   * currency or money currency is empty then the current currency will become
+   * the not empty one, if exists.
+   */
+  Money& operator+= (const Money& money);
+
+  /*! \brief Self-substract operator
+   *
+   * Substract money valueInCents from current valueInCents.
+   *
+   * Subtracting money with differen currency is not allowed. Unless the
+   * current currency or money currency is empty then the current currency
+   * will become the not empty one, if exists.
+   */
+  Money& operator-= (const Money& money);
+
+  /*! \brief Self-multiply operator
+   *
+   * Multiply current valueInCents by value.
+   */
+  Money& operator*= (double value);
+
+  /*! \brief Self-divide operator
+   *
+   * Divide current valueInCents by value.
+   */
+  Money& operator/= (double value);
+
+  /*! \brief Self-multiply operator
+   *
+   * Multiply current valueInCents by value.
+   */
+  Money& operator*= (unsigned value);
+
+  /*! \brief Self-divide operator
+   *
+   * Divide current valueInCents by value.
+   */
+  Money& operator/= (unsigned value);
+
+private:
+  long long valueInCents_;
+  std::string currency_;
+
+  void checkCurrency(Money& ans, const Money& v1, const Money& v2);
+};
+
+/*! \brief Add v1 to v2
+ *
+ * Add v1 valueInCents to v2 valueInCents.
+ *
+ * Adding money with differen currency is not allowed. Unless
+ * v1 or v2 currency is empty then the return currency will be
+ * the not empty one, if exists.
+ */
+extern Money operator+ (const Money& v1, const Money& v2);
+
+/*! \brief Substact v2 from v1
+ *
+ * Substact v2 valueInCents from v1 valueInCents.
+ *
+ * Subtraction of money with differen currency is not allowed. Unless
+ * v1 or v2 currency is empty then the return currency will be
+ * the not empty one, if exists.
+ */
+extern Money operator- (const Money& v1, const Money& v2);
+
+/*! \brief Multiply v1 and v2
+ *
+ * Multiply v1 valueInCents and v2 valueInCents.
+ */
+extern Money operator* (const Money& v1, double v2);
+
+/*! \brief Multiply v1 and v2
+ *
+ * Multiply v1 valueInCents and v2 valueInCents.
+ */
+extern Money operator* (double v1, const Money& v2);
+
+/*! \brief Divide v1 and v2
+ *
+ * Divide v1 valueInCents and v2 valueInCents.
+ */
+extern Money operator/ (const Money& v1, double v2);
+
+//extern Wt::WStringStream operator<< (Wt::WStringStream &in,
+                                     //const Money &v);
+
+
+  }
+}
+
+#endif // WT_PAYMENT_MONEY_H_

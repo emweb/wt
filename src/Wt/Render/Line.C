@@ -10,7 +10,7 @@
 
 namespace Wt {
 
-LOGGER("Render::Line");
+LOGGER("Render.Line");
 
   namespace Render {
 

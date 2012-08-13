@@ -18,6 +18,7 @@ SET(TEST_SOURCES
   length/WLengthTest.C
   color/WColorTest.C
   paintdevice/WSvgTest.C
+  payment/MoneyTest.C
 )
 
 IF (WT_HAS_WRASTERIMAGE)

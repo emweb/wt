@@ -1,0 +1,32 @@
+<server>
+    <application-settings location="*">
+	<properties>
+
+	    <!-- You need to register at PayPal for this to work, and enter
+                 there the same values as you do here. -->
+
+	    <property name="paypal-user">
+	      sdk-three_api1.sdk.com
+	    </property>
+	    <property name="paypal-password">
+	      QFZCWN5HZM8VBG7Q
+	    </property>
+	    <property name="paypal-signature">
+	      A-IzJhZZjhg29XQ2qnhapuwxIDzyAZQ92FRP5dqBzVesOkzbdUONzmOU
+	    </property>
+	    <property name="paypal-pay-server-url">
+	      https://www.sandbox.paypal.com/webscr
+	    </property>
+	    <property name="paypal-api-server-url">
+	      https://api-3t.sandbox.paypal.com/nvp
+	    </property>
+	    <property name="paypal-version">
+	      92.0
+	    </property>
+
+	</properties>
+
+	<log-config>* -debug +debug:Payment.PayPal</log-config>
+    </application-settings>
+
+</server>

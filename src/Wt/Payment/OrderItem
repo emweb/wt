@@ -1,0 +1,124 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ */
+#ifndef WT_PAYMENT_ORDER_ITEM_H
+#define WT_PAYMENT_ORDER_ITEM_H
+
+#include <string>
+#include <Wt/WString>
+
+#include "Wt/Payment/Money"
+
+namespace Wt {
+  namespace Payment {
+/*! \class ItemOrder Wt/Paiment/ItemOrder Wt/Paiment/ItemOrder
+ *  \brief Contains all information about 1 type of items.
+ *
+ * %All customer fields must have a format that is acceptable by the payment
+ * broker (example paypal)
+ *
+ * Usage example:
+ * \code
+ *  Wt::Payment::OrderItem item1, item2;
+ *
+ * item1.setName("Waffle Maker");
+ * item1.setNumber("00001");
+ * item1.setDescription("Emweb FlipSide Belgian Waffle Maker");
+ * item1.setQuantity(1);
+ * item1.setUnitCost(Wt::Payment::Money(49, 99, "USD"));
+ *
+ * Wt::Payment::Order order;
+ *
+ * order.items().push_back(item1);
+ *
+ * order.setShipping(Wt::Payment::Money(7, 1, "USD"));
+ * order.setShippingDiscount(Wt::Payment::Money(-7, 0, "USD"));
+ * order.setShippingInsurance(Wt::Payment::Money(2, 23, "USD"));
+ * order.setTax(Wt::Payment::Money(500, 99, "USD"));
+ * \endcode
+ *
+ * \sa Order, Money
+ */
+class OrderItem
+{
+public:
+  /*! \brief Changes the item name field
+  *
+  */
+  void setName(const WString& name);
+
+  /*! \brief Returns item name
+  *
+  */
+  const WString& name() const { return name_; }
+
+  /*! \brief Changes the item number field
+  *
+  * In some paying systems every item has a number, that number can be save
+  * here.
+  */
+  void setNumber(const std::string& number);
+
+  /*! \brief Returns item number
+  *
+  * In some paying systems every item has a number, that number can be save
+  * here.
+  */
+  std::string number() const { return number_; }
+
+  /*! \brief Changes the item description field
+  *
+  */
+  void setDescription(const WString& description);
+
+  /*! \brief Returns item description
+  *
+  */
+  const WString& description() const { return description_; }
+
+  /*! \brief Changes the item quantity field
+  *
+  * quantity - The amount of items from the described type in the order.
+  */
+  void setQuantity(double quantity);
+
+  /*! \brief Returns item quantity
+  *
+  * quantity - The amount of items from the described type in the order.
+  */
+  double quantity() const { return quantity_; }
+
+  /*! \brief Changes the item unit cost field
+  *
+  * unit cost - the cost of 1 unit.
+  */
+  void setUnitCost(const Money& unitCost);
+
+  /*! \brief Returns item unit cost
+  *
+  * unit cost - the cost of 1 unit.
+  *
+  * \sa Money
+  */
+  Money unitCost() const { return unitCost_; }
+
+  /*! \brief Returns the total cost of all items of that tyoe.
+  *
+  * total cost = quantity * unit cost
+  *
+  * \sa Money
+  */
+  Money computeTotal() const;
+
+private:
+  WString name_, description_;
+  std::string number_;
+  double quantity_;
+  Money unitCost_;
+};
+
+  }
+}
+
+#endif // WT_PAYMENT_ORDERITEM_H_

@@ -44,6 +44,7 @@ FILE_TO_STRING(xml/wt.xml Wt_xml.C Wt_xml)
 FILE_TO_STRING(xml/auth.xml Auth_xml.C Auth_xml)
 
 SET(libsources
+Wt/PopupWindow.C
 Wt/Resizable.C
 Wt/SizeHandle.C
 Wt/StdGridLayoutImpl.C
@@ -269,6 +270,13 @@ Wt/Http/WtClient.C
 Wt/Mail/Client.C
 Wt/Mail/Mailbox.C
 Wt/Mail/Message.C
+Wt/Payment/Address.C
+Wt/Payment/PayPal.C
+Wt/Payment/Customer.C
+Wt/Payment/Money.C
+Wt/Payment/Order.C
+Wt/Payment/OrderItem.C
+Wt/Payment/Result.C
 Wt/Render/Block.C
 Wt/Render/Line.C
 Wt/Render/LayoutBox.C

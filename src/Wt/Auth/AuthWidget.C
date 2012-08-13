@@ -39,7 +39,7 @@ namespace skeletons {
 
 namespace Wt {
 
-LOGGER("Auth::AuthWidget");
+LOGGER("Auth.AuthWidget");
 
   namespace Auth {
 

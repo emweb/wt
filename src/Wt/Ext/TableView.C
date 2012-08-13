@@ -36,7 +36,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("Ext::TableView");
+LOGGER("Ext.TableView");
 
   namespace Ext {
 

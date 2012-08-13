@@ -10,7 +10,7 @@
 
 namespace Wt {
 
-LOGGER("Chart::WAbstractChart");
+LOGGER("Chart.WAbstractChart");
 
   namespace Chart {
 

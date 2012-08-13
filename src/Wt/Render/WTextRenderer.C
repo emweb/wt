@@ -13,7 +13,7 @@
 
 namespace Wt {
 
-LOGGER("Render::WTextRenderer");
+LOGGER("Render.WTextRenderer");
 
   namespace Render {
 

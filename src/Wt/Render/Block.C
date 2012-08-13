@@ -29,7 +29,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("Render::Block");
+LOGGER("Render.Block");
 
   namespace Render {
 

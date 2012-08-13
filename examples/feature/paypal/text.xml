@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<messages>
+  <message id="start">
+    <h2>Paypal payment example</h2>
+
+    <p>
+      This is an example of how to integrate payment (using the PayPal
+      Express Checkout service) from within a Wt application.
+    </p>
+
+    <p>
+      The example assumes that an order has already been prepared, and the
+      only thing that needs to be done is order review and payment.
+    </p>
+
+    <p>
+      ${checkout}
+    </p>
+  </message>
+
+  <message id="review.title">
+    <h2>Review your order and proceed to payment</h2>
+  </message>
+
+  <message id="confirm.title">
+    <h2>Confirm shipping and payment</h2>
+  </message>
+
+  <message id="customer.info">
+    <h3>Customer information</h3>
+
+    <div class="customer">
+      <div>
+	<span class="label">First name: </span> ${firstName}
+      </div>
+
+      <div>
+	<span class="label">Last name: </span> ${lastName}
+      </div>
+
+      <div>
+	<span class="label">Email: </span> ${email}
+      </div>
+
+      <div>
+	<span class="label">Locale: </span> ${locale}
+      </div>
+
+      <div>
+	<span class="label">Payer ID: </span> ${payerId}
+      </div>
+    </div>
+
+    <h3>Shipping information</h3>
+
+    <div>
+      ${street1}
+    </div>
+
+    <div>
+      ${street2}
+    </div>
+
+    <div>
+      ${zip} ${city}
+    </div>
+
+    <div>
+      ${state} ${countryCode}
+    </div>
+
+    <div>
+      Tel. ${phoneNumber}
+    </div>
+  </message>
+
+  <message id="items.header">
+    <table class="item-info">
+      <tr>
+	<th class="descriptions">Descriptions</th>
+	<th class="amount">Amount</th>
+      </tr>
+    </table>
+  </message>
+
+  <message id="item.info">
+    <table class="item-info">
+      <tr>
+	<td class="descriptions"><span class="emph">${name}</span></td>
+	<td class="amount">${totalCost}</td>
+      </tr>
+      <tr>
+	<td>Item description: <span class="emph">${description}</span></td>
+      </tr>
+      <tr>
+	<td>Item number: ${number}</td>
+      </tr>
+      <tr>
+	<td>Item price: ${unitCost}</td>
+      </tr>
+      <tr>
+	<td>Quantity: ${quantity}</td>
+      </tr>
+    </table>
+    <hr class="sep"/>
+  </message>
+
+  <message id="order.info">
+    ${items}
+
+    <h3>Payment info</h3>
+
+    <table class="item-info global">
+      <tr>
+	<td class="label">Item total:</td>
+	<td class="amount">${itemTotalCost}</td>
+      </tr>
+      <tr>
+	<td class="label">Tax:</td>
+	<td class="amount">${tax}</td>
+      </tr>
+      <tr>
+	<td class="label">Handling:</td>
+	<td class="amount">${handlingCost}</td>
+      </tr>
+      <tr>
+	<td class="label">Shipping:</td>
+	<td class="amount">${shippingCost}</td>
+      </tr>
+      <tr>
+	<td class="label">Shipping discount:</td>
+	<td class="amount">${shippingDiscount}</td>
+      </tr>
+      <tr>
+	<td class="label">Shipping insurance:</td>
+	<td class="amount">${shippingInsurance}</td>
+      </tr>
+      <tr>
+	<td class="label">Total cost:</td>
+	<td class="amount">${totalCost}</td>
+      </tr>
+    </table>
+  </message>
+
+  
+</messages>

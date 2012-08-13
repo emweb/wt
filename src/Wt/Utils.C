@@ -29,7 +29,7 @@ extern "C" {
 
 namespace Wt {
 
-LOGGER("Wt::Utils");
+LOGGER("Utils");
 
   namespace Utils {
 

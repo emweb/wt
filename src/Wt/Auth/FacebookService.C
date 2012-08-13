@@ -21,7 +21,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("Auth::FacebookService");
+LOGGER("Auth.FacebookService");
 
   namespace Auth {
 

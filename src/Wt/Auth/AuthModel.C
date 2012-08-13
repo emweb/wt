@@ -23,7 +23,7 @@
 
 namespace Wt {
 
-LOGGER("Auth::AuthModel");
+LOGGER("Auth.AuthModel");
 
   namespace Auth {
 

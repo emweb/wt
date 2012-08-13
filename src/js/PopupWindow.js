@@ -7,8 +7,8 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, JavaScriptFunction, "authPopupWindow",
- function(WT, url, width, height) {
+(1, JavaScriptFunction, "PopupWindow",
+ function(WT, url, width, height, onclose) {
    function getScreenPos() {
      var width = 0;
      var height = 0;
@@ -42,4 +42,13 @@ WT_DECLARE_WT_MEMBER
 	       ",status=yes,location=yes,resizable=yes" +
 	       ",left=" + coordinates.x + ",top=" + coordinates.y);
    w.opener = window;
+
+   if (onclose) {
+     var timer = setInterval(function() {
+	 if (w.closed) {
+	   clearInterval(timer);
+	   onclose(w);
+	 }
+       }, 500);
+   }
  });
