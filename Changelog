@@ -1,3 +1,7 @@
+13-08-2012:
+	* Payment: new API for payment processing, with an implementation
+	for PayPal
+
 10-08-2012:
 	* layouts: fix various issues
 
