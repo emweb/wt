@@ -12,12 +12,11 @@
 
 namespace Wt {
   namespace Payment {
-/*! \class ItemOrder Wt/Paiment/ItemOrder Wt/Paiment/ItemOrder
- *  \brief Contains all information about 1 type of items.
+
+/*! \class OrderItem Wt/Payment/OrderItem Wt/Payment/OrderItem
+ *  \brief Describes an item in an order
  *
- * %All customer fields must have a format that is acceptable by the payment
- * broker (example paypal)
- *
+ * \if cpp
  * Usage example:
  * \code
  *  Wt::Payment::OrderItem item1, item2;
@@ -37,78 +36,77 @@ namespace Wt {
  * order.setShippingInsurance(Wt::Payment::Money(2, 23, "USD"));
  * order.setTax(Wt::Payment::Money(500, 99, "USD"));
  * \endcode
+ * \endif
  *
- * \sa Order, Money
+ * \sa Order
+ *
+ * \ingroup payment
  */
 class OrderItem
 {
 public:
-  /*! \brief Changes the item name field
-  *
-  */
+  /*! \brief Sets the item name.
+   */
   void setName(const WString& name);
 
-  /*! \brief Returns item name
-  *
-  */
+  /*! \brief Returns item name.
+   *
+   * \sa setName()
+   */
   const WString& name() const { return name_; }
 
-  /*! \brief Changes the item number field
-  *
-  * In some paying systems every item has a number, that number can be save
-  * here.
-  */
+  /*! \brief Sets the item number.
+   */
   void setNumber(const std::string& number);
 
-  /*! \brief Returns item number
-  *
-  * In some paying systems every item has a number, that number can be save
-  * here.
-  */
+  /*! \brief Returns item number.
+   *
+   * \sa setNumber()
+   */
   std::string number() const { return number_; }
 
-  /*! \brief Changes the item description field
-  *
-  */
+  /*! \brief Sets the item description.
+   */
   void setDescription(const WString& description);
 
-  /*! \brief Returns item description
-  *
-  */
+  /*! \brief Returns the item description.
+   *
+   * \sa setDescription()
+   */
   const WString& description() const { return description_; }
 
-  /*! \brief Changes the item quantity field
-  *
-  * quantity - The amount of items from the described type in the order.
-  */
+  /*! \brief Sets the item quantity
+   *
+   * This is either an integer quantity (number of items) or a
+   * fractional quantity (e.g. 1.5 times 1 kilogram).
+   *
+   * The total price for this item in the order will be the quantity()
+   * times the unitCost().
+   */
   void setQuantity(double quantity);
 
-  /*! \brief Returns item quantity
-  *
-  * quantity - The amount of items from the described type in the order.
-  */
+  /*! \brief Returns the item quantity
+   *
+   * \sa setQuantity()
+   */
   double quantity() const { return quantity_; }
 
   /*! \brief Changes the item unit cost field
-  *
-  * unit cost - the cost of 1 unit.
-  */
+   *
+   * This is the unit cost.
+   */
   void setUnitCost(const Money& unitCost);
 
   /*! \brief Returns item unit cost
-  *
-  * unit cost - the cost of 1 unit.
-  *
-  * \sa Money
-  */
+   *
+   * \sa setUnitCost()
+   */
   Money unitCost() const { return unitCost_; }
 
-  /*! \brief Returns the total cost of all items of that tyoe.
-  *
-  * total cost = quantity * unit cost
-  *
-  * \sa Money
-  */
+  /*! \brief Returns the total cost for this order item.
+   *
+   * This returns quantity() * unitCost()
+   */
   Money computeTotal() const;
 
 private:

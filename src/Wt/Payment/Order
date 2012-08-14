@@ -11,10 +11,9 @@
 namespace Wt {
   namespace Payment {
 /*! \class Order Wt/Payment/Order Wt/Payment/Order
- *  \brief Contains all global information of the order.
+ *  \brief Contains information of a sales order.
  *
- * %All item order fields must have a format that is acceptable by the broker.
- *
+ * \if cpp
  * Usage example:
  * \code
  *  Wt::Payment::OrderItem item1, item2;
@@ -34,8 +33,9 @@ namespace Wt {
  * order.setShippingInsurance(Wt::Payment::Money(2, 23, "USD"));
  * order.setTax(Wt::Payment::Money(500, 99, "USD"));
  * \endcode
+ * \endif
  *
- * \sa ItemOrder, Money
+ * \ingroup payment
  */
 class Order
 {

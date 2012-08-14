@@ -167,7 +167,7 @@ public:
 
   /*! \brief Returns the current value.
    *
-   * Returns currentText().
+   * Returns currentText() converted from a WString to a string.
    */
   virtual WT_USTRING valueText() const;
 

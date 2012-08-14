@@ -10,45 +10,38 @@
 
 namespace Wt {
   namespace Payment {
-/*! \class Money Wt/Paiment/Money Wt/Paiment/Money
- *  \brief A value class which describes money.
+
+/*! \class Money Wt/Payment/Money Wt/Payment/Money
+ *  \brief A value class which describes a monetary value.
  *
- * The money is stored in cents, hence dividing it can resulte in
- * a rounding error.
+ * The money is stored in cents as a 64-bit number, which allows for
+ * accurate representation for values up to 2^61 - 1, but has as
+ * consequence that division will round to the nearest cent.
  *
- * Math operations on two instances of money with different currency
- * are not allowed and will result in exception. Unless one of them have
- * empty currency and then the result will have the currency not empty currency.
+ * Math operations on monetary values of different currencies are not
+ * allowed and will result in exception.
+ *
+ * \ingroup payment
  */
 class Money
 {
 public:
-  /*! \brief Creates an empty money
+  /*! \brief Default constructor.
    *
-   * valueInCents = 0
-   * currency = ""
+   * Creates money represent 0 value. This value can be added or
+   * substracted safely from any other monetary value (unlike Money(0,
+   * 0, "EUR") which would only be safely used in operations involving
+   * other money expressed in the Euro currency.
    */
   Money();
-  /*! \brief Creates money from value, cents and currency
+
+  /*! \brief Creates a monetary value.
    *
-   * value - the int part of money (money with no cents).
-   * cents - the last 2 digits.
-   * currency - string that represent the currency does not have to be
-   * formatted in any way.
+   * The \p value is the integer value, \p cents is the fractional
+   * value (up to 2 digits) expressed in cents (0 - 100)
+   * and the \p currency is a string which indicates the currency.
    */
   Money(long long value, int cents, const std::string& currency);
-  /*! \brief Creates money from valueInCents and currency
-   *
-   * valueInCents - the money conveted to cents.
-   * currency - string that represent the currency does not have to be
-   * formatted in any way.
-   */
-  Money(long long valueInCents, const std::string &currency);
-
-  /*! \brief Returns the money value in cents
-   *
-   */
-  long long valueInCents() const {return valueInCents_;}
 
   /*! \brief Returns the int part of money.
    *
@@ -62,71 +55,51 @@ public:
    */
   int cents() const {return valueInCents_ % 100;}
 
-  /*! \brief Returns the currency.
-   *
-   * Returns the currency of the money. Empty string - the money has no
-   * currency
-   */
-  std::string currency() const {return currency_;}
-  /*! \brief Changes the currency.
+  /*! \brief Sets the currency.
    */
   void setCurrency(std::string currency) {currency_ = currency;}
 
-  /*! \brief Returns the string representation of the money value.
+  /*! \brief Returns the currency.
    *
-   * Format value.cents
+   * \sa setCurrency()
+   */
+  std::string currency() const {return currency_;}
+
+  /*! \brief Returns a text representation.
    *
-   * Does not contain the currency.
+   * The format is "value.cents".
    */
   const std::string toString() const;
 
   /*! \brief Assignment operator
-   *
-   * Copy another money into this money.
    */
   Money& operator= (const Money& money);
 
-  /*! \brief Self-add operator
+  /*! \brief Addition operator
    *
-   * Add money valueInCents to current valueInCents.
-   *
-   * Adding money with differen currency is not allowed. Unless the current
-   * currency or money currency is empty then the current currency will become
-   * the not empty one, if exists.
+   * Adding money of different currencies is not allowed.
    */
   Money& operator+= (const Money& money);
 
-  /*! \brief Self-substract operator
+  /*! \brief Substraction operator
    *
-   * Substract money valueInCents from current valueInCents.
-   *
-   * Subtracting money with differen currency is not allowed. Unless the
-   * current currency or money currency is empty then the current currency
-   * will become the not empty one, if exists.
+   * Subtracting money of different currencies is not allowed.
    */
   Money& operator-= (const Money& money);
 
-  /*! \brief Self-multiply operator
-   *
-   * Multiply current valueInCents by value.
+  /*! \brief Multiplication operator
    */
   Money& operator*= (double value);
 
-  /*! \brief Self-divide operator
-   *
-   * Divide current valueInCents by value.
+  /*! \brief Division operator
    */
   Money& operator/= (double value);
 
-  /*! \brief Self-multiply operator
-   *
-   * Multiply current valueInCents by value.
+  /*! \brief Multiplication operator
    */
   Money& operator*= (unsigned value);
 
-  /*! \brief Self-divide operator
-   *
-   * Divide current valueInCents by value.
+  /*! \brief Division operator
    */
   Money& operator/= (unsigned value);
 
@@ -134,44 +107,44 @@ private:
   long long valueInCents_;
   std::string currency_;
 
+  Money(long long valueInCents, const std::string &currency);
+  long long valueInCents() const {return valueInCents_;}
   void checkCurrency(Money& ans, const Money& v1, const Money& v2);
 };
 
-/*! \brief Add v1 to v2
+/*! \brief Adds monetary values.
  *
- * Add v1 valueInCents to v2 valueInCents.
+ * Adding money of different currencies is not allowed.
  *
- * Adding money with differen currency is not allowed. Unless
- * v1 or v2 currency is empty then the return currency will be
- * the not empty one, if exists.
+ * \ingroup payment
  */
 extern Money operator+ (const Money& v1, const Money& v2);
 
-/*! \brief Substact v2 from v1
+/*! \brief Substact monetary values.
  *
- * Substact v2 valueInCents from v1 valueInCents.
+ * Subtraction of money of different currencies is not allowed.
  *
- * Subtraction of money with differen currency is not allowed. Unless
- * v1 or v2 currency is empty then the return currency will be
- * the not empty one, if exists.
+ * \ingroup payment
  */
 extern Money operator- (const Money& v1, const Money& v2);
 
-/*! \brief Multiply v1 and v2
+/*! \brief Multiplies money.
  *
- * Multiply v1 valueInCents and v2 valueInCents.
+ * \ingroup payment
  */
 extern Money operator* (const Money& v1, double v2);
 
-/*! \brief Multiply v1 and v2
+/*! \brief Multiplies money.
  *
- * Multiply v1 valueInCents and v2 valueInCents.
+ * You would wish you could just do that, wouldn't you ?
+ *
+ * \ingroup payment
  */
 extern Money operator* (double v1, const Money& v2);
 
-/*! \brief Divide v1 and v2
+/*! \brief Divides v1 and v2
  *
- * Divide v1 valueInCents and v2 valueInCents.
+ * \ingroup payment
  */
 extern Money operator/ (const Money& v1, double v2);
 

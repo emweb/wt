@@ -18,7 +18,9 @@ namespace Wt {
  * signal. This signal is emitted when the user changed the content,
  * and subsequently removes the focus from the line edit.
  *
- * To act upon editing, connect a slot to the keyWentUp() signal.
+ * To act upon editing, connect a slot to the keyWentUp() signal because the
+ * keyPressed() signal is fired before the line edit has interpreted the 
+ * keypress to change its text.
  *
  * At all times, the current content may be accessed with the text()
  * method.

@@ -11,8 +11,12 @@ namespace Wt {
 
   class WApplication;
 
+  /*! \brief Internal class that provides a JavaScript popup window managing function.
+   */
   class PopupWindow {
   public:
+    /*! \brief Loads the PopupWindow JavaScript support function.
+     */
     static void loadJavaScript(WApplication *app);
   };
 }

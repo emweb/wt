@@ -15,7 +15,7 @@
 #include <sstream>
 #include <vector>
 #include <boost/algorithm/string.hpp>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <Wt/WDllDefs.h>
 
@@ -62,7 +62,7 @@ inline bool startsWith(const char *a, const char *b, int n) {
 }
 
 inline int hexToInt(const char* str) {
-  return strtol(str, 0, 16);
+  return std::strtol(str, 0, 16);
 }
 
 inline int length(const std::stringstream& s) {

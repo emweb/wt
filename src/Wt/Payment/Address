@@ -11,127 +11,119 @@
 
 namespace Wt {
   namespace Payment {
-/*! \class Address Wt/Paiment/Address Wt/Paiment/Address
- *  \brief Contains all address related information that can be used
- * by payment systems.
+/*! \class Address Wt/Payment/Address Wt/Payment/Address
+ *  \brief Contains address information.
  *
- * %All customer fields must have a format that is acceptable by the payment
- * broker (example paypal)
- *
+ * \if cpp
  * \code
  *   Wt::Payment::Customer customer;
  *
- *   customer.setEmail("Waffle@emwab.be");
- *   customer.setFirstName("Name");
- *   customer.setLastName("LastName");
+ *   customer.setEmail("joe.birkenberg@emweb.be");
+ *   customer.setFirstName("Joe");
+ *   customer.setLastName("Birkenberg");
  *
  *   Wt::Payment::Address address;
  *   address.setCity("Leuven");
  *   address.setCountryCode("BE");
  *   address.setPhoneNumber("123456789");
- *   address.setStreet2("Brusselsstraat");
+ *   address.setStreet1("Brusselsestraat 14");
  *
  *   customer.setShippingAddress(address);
  * \endcode
- * \sa Customer, PayPalExpressCheckout, PayPalService
+ * \endif
+ *
+ * \sa Customer::setShippingAddress()
+ *
+ * \ingroup payment
  */
 class Address
 {
 public:
-  /*! \brief Changes name field.
-  *
-  * Person’s name associated with this shipping address.
-  */
+  /*! \brief Sets an address name.
+   *
+   * Sets a name for this address like "home" or "work".
+   * This can allow a user to maintain several addresses.
+   */
   void setName(const WString& name);
 
-  /*! \brief Returns name.
-  *
-  * Person’s name associated with this shipping address.
-  */
+  /*! \brief Returns the address name.
+   *
+   * \sa setName()
+   */
   const WString& name() const { return name_; }
 
-  /*! \brief Changes Street1.
-  *
-  * First street address.
-  */
+  /*! \brief Sets first street line.
+   *
+   * \sa setStreet2()
+   */
   void setStreet1(const WString& street1);
 
-  /*! \brief Returns Street1.
-  *
-  * First street address.
-  */
+  /*! \brief Returns the first street line.
+   *
+   * \sa setStreet1()
+   */
   const WString& street1() const { return street1_; }
 
-  /*! \brief Changes Street2.
-  *
-  * First street address.
-  */
+  /*! \brief Sets the second street line.
+   *
+   * \sa setStreet1()
+   */
   void setStreet2(const WString& street2);
 
-  /*! \brief Returns Street2.
-  *
-  * Second street address.
-  */
+  /*! \brief Returns the second street line.
+   *
+   * \sa setStreet2()
+   */
   const WString& street2() const { return street2_; }
 
-  /*! \brief Changes city.
-  *
-  * Name of city.
-  */
+  /*! \brief Sets the city.
+   */
   void setCity(const WString& city);
 
-  /*! \brief Returns city.
-  *
-  * Name of city.
-  */
+  /*! \brief Returns the city.
+   *
+   * \sa setCity()
+   */
   const WString& city() const { return city_; }
 
-  /*! \brief Changes state.
-  *
-  * Name of state.
-  */
+  /*! \brief Sets the state.
+   */
   void setState(const WString& state);
 
-  /*! \brief Returns state.
-  *
-  * Name of state.
-  */
+  /*! \brief Returns the state.
+   *
+   * \sa setState()
+   */
   const WString& state() const { return state_; }
 
-  /*! \brief Changes country code.
-  *
-  * Country code.
-  */
+  /*! \brief Sets the country code.
+   */
   void setCountryCode(const std::string& country);
 
-  /*! \brief Returns country code.
-  *
-  * Country code.
-  */
+  /*! \brief Returns the country code.
+   *
+   * \sa setCountryCode()
+   */
   const std::string& countryCode() const { return countryCode_; }
 
-  /*! \brief Changes zip code.
-  *
-  * Zip code.
-  */
+  /*! \brief Sets the zip code.
+   */
   void setZip(const WString& zip);
 
-  /*! \brief Changes zip code.
-  *
-  * Zip code.
-  */
+  /*! \brief Returns the zip code.
+   *
+   * \sa setZip()
+   */
   const WString& zip() const { return zip_; }
 
-  /*! \brief Changes phone number.
-  *
-  * Phone number.
-  */
+  /*! \brief Sets the phone number.
+   */
   void setPhoneNumber(const std::string& number);
 
-  /*! \brief Changes phione number.
-  *
-  * Phone number
-  */
+  /*! \brief Returns the phone number.
+   *
+   * \sa setPhoneNumber()
+   */
   const std::string& phoneNumber() const { return phoneNumber_; }
 
 private:

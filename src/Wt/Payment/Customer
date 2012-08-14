@@ -12,110 +12,106 @@ namespace Wt {
   class WString;
   namespace Payment {
 
-/*! \class Customer Wt/Paiment/Customer Wt/Paiment/Customer
- *  \brief Contains all customer related information that can be used
- * by payment systems.
+/*! \class Customer Wt/Payment/Customer Wt/Payment/Customer
+ *  \brief Contains customer information.
  *
- * %All customer fields must have a format that is acceptable by the payment
- * broker (example paypal)
- *
+ * \if cpp
  * \code
  *   Wt::Payment::Customer customer;
  *
- *   customer.setEmail("Waffle@emwab.be");
- *   customer.setFirstName("Name");
- *   customer.setLastName("LastName");
+ *   customer.setEmail("joe.birkenberg@emweb.be");
+ *   customer.setFirstName("Joe");
+ *   customer.setLastName("Birkenberg");
  *
  *   Wt::Payment::Address address;
  *   address.setCity("Leuven");
  *   address.setCountryCode("BE");
  *   address.setPhoneNumber("123456789");
- *   address.setStreet2("Brusselsstraat");
+ *   address.setStreet1("Brusselsestraat 14");
  *
  *   customer.setShippingAddress(address);
  * \endcode
+ * \endif
  *
- * \sa PayPalExpressCheckout, PayPalService
+ * \ingroup payment
  */
 class Customer
 {
 public:
-  /*! \brief Creates an Empty customer.
-  *
-  */
+  /*! \brief Default constructor.
+   *
+   * All information is blank.
+   */
   Customer();
 
-  /*! \brief Changes the first name field
-  *
-  */
+  /*! \brief Sets the first name.
+   */
   void setFirstName(const WString& firstName);
 
-  /*! \brief Returns first name
-  *
-  */
+  /*! \brief Returns the first name.
+   *
+   * \sa setFirstName()
+   */
   WString firstName() const { return firstName_; }
 
-  /*! \brief Changes the last name field
-  *
-  */
+  /*! \brief Sets the last name.
+   */
   void setLastName(const WString& lastName);
 
-  /*! \brief Returns last name
-  *
-  */
+  /*! \brief Returns the last name.
+   *
+   * \sa setLastName()
+   */
   WString lastName() const { return lastName_; }
 
-  /*! \brief Changes email field
-  *
-  * must have a format that is acceptable by the paying
-  * system.
-  */
+  /*! \brief Sets the email address.
+   */
   void setEmail(const std::string& email);
 
-  /*! \brief Returns email
-  *
-  */
+  /*! \brief Returns the email address.
+   *
+   * \sa setEmail()
+   */
   std::string email() const { return email_; }
 
-  /*! \brief Changes shipping address field
-  *
-  * \sa Address
-  */
+  /*! \brief Sets the shipping address.
+   */
   void setShippingAddress(const Address& address);
 
   /*! \brief Returns shipping address.
-  *
-  */
+   *
+   * \sa setShippingAddress()
+   */
   const Address& shippingAddress() const { return shippingAddress_; }
 
-  /*! \brief Changes the locale field
-  *
-  * must have a format that is acceptable by the paying
-  * system.
-  *
-  * The locale is used by the payment system to match its language to the
-  * language on your website.
-  */
+  /*! \brief Sets the customer locale.
+   *
+   * The customer locale must be specified according to the payment broker
+   * (usually to help the user being served in his native language), which
+   * is usually a language code like http://en.wikipedia.org/wiki/BCP_47
+   */
   void setLocale(const std::string& locale);
 
   /*! \brief Returns locale
-  *
-  * The locale is used by the payment system to match its language to the
-  * language on your website.
-  */
+   *
+   * \sa setLocale()
+   */
   std::string locale() const { return locale_; }
 
-  /*! \brief Changes the payerId field
-  *
-  */
+  /*! \brief Sets the payerId field
+   *
+   * This is the identification of the user with a payment broker which also
+   * keeps login information (and other information like shipping addresses)
+   * on the user.
+   *
+   * Not all payment brokers support (or need this).
+   */
   void setPayerId(const std::string& payerId);
 
   /*! \brief Returns payerId
-  *
-  * Some paying systems have a payer id for there customer.
-  * For example in paypl that id is returned in response messages and later
-  * used for requests.
-  */
+   *
+   * \sa setPayerId()
+   */
   std::string payerId() const { return payerId_; }
 
 private:

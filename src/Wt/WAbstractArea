@@ -30,7 +30,7 @@ class WT_API WAbstractArea : public WObject
 public:
   /*! \brief Destructor.
    *
-   * The are is automatically removed from the WImage or
+   * The area is automatically removed from the WImage or
    * WPaintedWidget to which it was added.
    *
    * \sa WImage::removeArea(), WPaintedWidget::removeArea()
