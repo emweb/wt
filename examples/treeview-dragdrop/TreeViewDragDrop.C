@@ -429,6 +429,7 @@ private:
     using namespace Chart;
 
     WPieChart *chart = new WPieChart();
+    // chart->setPreferredMethod(WPaintedWidget::PngImage);
     chart->setModel(fileFilterModel_);
     chart->setTitle("File sizes");
 
