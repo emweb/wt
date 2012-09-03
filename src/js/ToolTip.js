@@ -22,7 +22,7 @@ WT_DECLARE_WT_MEMBER
 	function showToolTip() {
 	  toolTipEl = document.createElement('div');
 	  toolTipEl.className = 'Wt-tooltip';
-	  toolTipEl.innerHTML = text;
+	  toolTipEl.innerHTML = el.toolTip;
 	  document.body.appendChild(toolTipEl);
 	  var x = coords.x, y = coords.y;
 	  WT.fitToWindow(toolTipEl, x + MouseDistance, y + MouseDistance,

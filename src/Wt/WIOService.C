@@ -40,6 +40,11 @@ void WIOService::setThreadCount(int count)
   threadCount_ = count;
 }
 
+int WIOService::threadCount() const
+{
+  return threadCount_;
+}
+
 void WIOService::start()
 {
   if (!work_) {

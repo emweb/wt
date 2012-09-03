@@ -109,7 +109,7 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
 
   if (input.good() && actualPieceSize < restSize) {
     continuation = response.createContinuation();
-    continuation->setData(startByte + ::uint64_t(bufferSize_));
+    continuation->setData(startByte + ::uint64_t(actualPieceSize));
   }
 }
 

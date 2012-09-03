@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <iterator>
+#include <cstring>
 
 #include "AuthUtils.h"
 #include "base64.h"
@@ -15,18 +16,6 @@
 namespace Wt {
   namespace Auth {
     namespace Utils {
-
-void parseFormUrlEncoded(const Http::Message& response, 
-			 Http::ParameterMap &params)
-{
-  Http::Request::parseFormUrlEncoded(response.body(), params);
-}
-
-const std::string *getParamValue(Http::ParameterMap &params, 
-				 const std::string &name)
-{
-  return Http::get(params, name);
-}
 
 std::string createSalt(unsigned int length)
 {

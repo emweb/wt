@@ -58,10 +58,10 @@ namespace Wt {
     if (items_.size() == 0)
       return Money();
 
-    OrderItem item = items_.at(0);
+    OrderItem item = items_[0];
     Money ans = item.computeTotal();
     for (unsigned i = 1; i < items().size(); ++i){
-      item = items_.at(i);
+      item = items_[i];
       ans+= item.computeTotal();
     }
 

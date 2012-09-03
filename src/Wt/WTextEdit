@@ -156,7 +156,7 @@ public:
   /*! \brief Configure a TinyMCE setting.
    *
    * A list of possible settings can be found at:
-   * http://tinymce.moxiecode.com/wiki.php/Configuration.
+   * http://tinymce.moxiecode.com/wiki.php/Configuration
    *
    * The widget itself will also define a number of configuration settings
    * and these may be overridden using this method.

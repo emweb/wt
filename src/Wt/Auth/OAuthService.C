@@ -12,6 +12,7 @@
 #include "Wt/Http/Client"
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
+#include "Wt/Http/HttpUtils.h"
 
 #include "Wt/Utils"
 #include "Wt/WApplication"
@@ -385,16 +386,17 @@ OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& respons
 {
   /* Facebook style */
   Http::ParameterMap params;
-  Utils::parseFormUrlEncoded(response, params);
+  Http::Utils::parseFormUrlEncoded(response, params);
 
   if (response.status() == 200) {
     const std::string *accessTokenE 
-      = Utils::getParamValue(params, "access_token");
+      = Http::Utils::getParamValue(params, "access_token");
     if (accessTokenE) {
       std::string accessToken = *accessTokenE;
 
       WDateTime expires;
-      const std::string *expiresE = Utils::getParamValue(params, "expires");
+      const std::string *expiresE 
+	= Http::Utils::getParamValue(params, "expires");
       if (expiresE)
 	expires = WDateTime::currentDateTime()
 	  .addSecs(boost::lexical_cast<int>(*expiresE));
@@ -405,7 +407,7 @@ OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& respons
     } else
       throw TokenError(ERROR_MSG("badresponse"));
   } else {
-    const std::string *errorE = Utils::getParamValue(params, "error");
+    const std::string *errorE = Http::Utils::getParamValue(params, "error");
     
     if (errorE)
       throw TokenError(ERROR_MSG(+ *errorE));

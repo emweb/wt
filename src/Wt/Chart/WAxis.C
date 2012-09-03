@@ -384,7 +384,10 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	}
       }
 
-      renderInterval_ = std::max(1.0, renderInterval_);
+      if (renderInterval_ == 0) {
+	renderInterval_ = 1;
+	return false;
+      }
 
       if (scale_ == LinearScale) {
 	if (it == 0) {

@@ -261,6 +261,7 @@ Wt/Chart/WStandardPalette.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
 Wt/Json/Value.C
+Wt/Http/HttpUtils.C
 Wt/Http/Client.C
 Wt/Http/Message.C
 Wt/Http/Request.C

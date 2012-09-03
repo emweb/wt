@@ -1,4 +1,4 @@
-SUBDIRS(Auth Chart Dbo Json Http Mail Render Test)
+SUBDIRS(Auth Chart Dbo Json Http Mail Payment Render Test)
 
 IF(ENABLE_EXT)
   SUBDIRS(Ext)

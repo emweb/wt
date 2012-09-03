@@ -18,6 +18,7 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
     BOOST_REQUIRE(c.green() == 136);
     BOOST_REQUIRE(c.blue() == 0);
     BOOST_REQUIRE(c.alpha() == 255); 
+    BOOST_REQUIRE(c.cssText() == "#f80");
   }
 
   {
@@ -133,5 +134,6 @@ BOOST_AUTO_TEST_CASE( color_test_constructors )
   {
     Wt::WColor c("gold");
     BOOST_REQUIRE(c.red() == 0 && c.green() == 0 && c.blue() == 0);
+    BOOST_REQUIRE(c.cssText() == "gold");
   }
 }

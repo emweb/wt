@@ -3,10 +3,6 @@
 #include "Wt/WException"
 #include "Wt/WStringStream"
 
-#include "assert.h"
-#include <stdio.h>
-#include <stdlib.h>
-
 namespace Wt {
   namespace Payment {
 
@@ -120,6 +116,7 @@ Money& Money::operator/= (unsigned value)
   return (*this);
 }
 
+#ifndef WT_TARGET_JAVA
 Money operator+ (const Money& v1, const Money& v2)
 {
   Money ans = v1;
@@ -154,6 +151,7 @@ Money operator/ (const Money& v1, double v2)
   ans /= v2;
   return ans;
 }
+#endif
 
 //todo
 Wt::WStringStream operator<< (Wt::WStringStream &in,

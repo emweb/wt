@@ -173,7 +173,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     std::vector<DomElement::EventAction> actions;
 
     if (enterPress) {
-      if (enterPress->isConnected()) {
+      if (enterPress->needsUpdate(all)) {
 	/*
 	 * prevent enterPressed from triggering a changed event on all
 	 * browsers except for Opera and IE
@@ -199,7 +199,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (escapePress) {
-      if (escapePress->isConnected()) {
+      if (escapePress->needsUpdate(all)) {
 	actions.push_back
 	  (DomElement::EventAction("(e.keyCode && e.keyCode == 27)",
 				   escapePress->javaScript(),
@@ -210,7 +210,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (keyDown) {
-      if (keyDown->isConnected()) {
+      if (keyDown->needsUpdate(all)) {
 	actions.push_back
 	  (DomElement::EventAction(std::string(),
 				   keyDown->javaScript(),
@@ -352,7 +352,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
     js << "if($(o).hasClass('Wt-disabled')){" WT_CLASS ".cancelEvent(e);return;}";
 
-    if (mouseDblClick && mouseDblClick->isConnected()) {
+    if (mouseDblClick && mouseDblClick->needsUpdate(all)) {
       /*
        * Click: if timer is running:
        *  - clear timer, dblClick()
@@ -400,7 +400,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
       js << "},200);}";
     } else {
-      if (mouseClick && mouseClick->isConnected()) {
+      if (mouseClick && mouseClick->needsUpdate(all)) {
 	js << mouseClick->javaScript();
 
 	if (mouseClick->isExposedSignal()) {

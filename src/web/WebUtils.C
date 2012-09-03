@@ -31,6 +31,9 @@
 #ifdef SPIRIT_FLOAT_FORMAT
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/karma.hpp>
+#else
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/math/special_functions/sign.hpp>
 #endif // SPIRIT_FLOAT_FORMAT
 
 namespace Wt {
@@ -230,7 +233,19 @@ static inline char *generic_double_to_str(double d, char *buf)
 #else
 static inline char *generic_double_to_str(double d, char *buf)
 {
-  sprintf(buf, "%f", (float)d);
+  if (!boost::math::isnan(d)) {
+    if (!boost::math::isinf(d)) {
+      sprintf(buf, "%f", (float)d);
+    } else {
+      if (d > 0) {
+        sprintf(buf, "Infinity");
+      } else {
+        sprintf(buf, "-Infinity");
+      }
+    }
+  } else {
+    sprintf(buf, "NaN");
+  }
   return buf;
 }
 #endif

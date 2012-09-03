@@ -15,6 +15,7 @@
 #include <Wt/WStringStream>
 #include <Wt/Http/Client>
 #include <Wt/Http/Response>
+#include <Wt/Http/HttpUtils.h>
 #include <Wt/Utils>
 
 #include <string>
@@ -197,7 +198,7 @@ Signal<Result>& PayPalExpressCheckout::setup()
   std::string messageText = encodeMessage(map);
 
   LOG_DEBUG("message: " << messageText);
-  LOG_DEBUG("message: " << Utils::urlDecode(messageText));
+  LOG_DEBUG("message: " << Wt::Utils::urlDecode(messageText));
 
   Http::Message message;
   message.addBodyText(messageText);
@@ -216,10 +217,9 @@ PayPalExpressCheckout::encodeMessage(const std::map<std::string, std::string>&
 {
   WStringStream ans;
 
-  std::map<std::string, std::string>::const_iterator it;
-  for (it = map.begin(); it != map.end(); ++it)
-    ans << "&" << it->first << "=" << Utils::urlEncode(it->second);
-
+  for (StringMap::const_iterator i = map.begin(); i != map.end(); ++i)
+    ans << "&" << i->first << "=" << Wt::Utils::urlEncode(i->second);
+  
   return ans.str();
 }
 
@@ -234,10 +234,9 @@ void PayPalExpressCheckout::addUserFields(std::map<std::string, std::string> &ma
 void PayPalExpressCheckout::addEditedParameters(
   std::map<std::string, std::string> &map)
 {
-  std::map<std::string, std::string>::iterator it;
-  for(it = impl_->editedParameters_.begin();
-      it != impl_->editedParameters_.end(); ++it){
-    map[(*it).first] = (*it).second;
+  for(StringMap::iterator i = impl_->editedParameters_.begin();
+      i != impl_->editedParameters_.end(); ++i) {
+    map[i->first] = i->second;
   }
 }
 
@@ -323,10 +322,9 @@ std::map<std::string, std::string>
 PayPalExpressCheckout::parametersMapToMap(Http::ParameterMap &map)
 {
   std::map<std::string, std::string> ans;
-  Http::ParameterMap::iterator it;
 
-  for (it = map.begin(); it != map.end(); ++it)
-    ans[(*it).first] = (*it).second.front();
+  for (Http::ParameterMap::iterator i  = map.begin(); i != map.end(); ++i)
+    ans[i->first] = i->second[0];
 
   return ans;
 }
@@ -376,7 +374,9 @@ void PayPalExpressCheckout::setToken(const std::string& token)
        << ""          <<  impl_->redirected_.createCall("2")
        << "} });";
 
+#ifndef WT_TARGET_JAVA
     implementJavaScript(&PayPalExpressCheckout::startPayment, js.str());
+#endif
   }
 }
 
@@ -386,7 +386,7 @@ std::string PayPalExpressCheckout::paymentUrl() const
 
   url << impl_->service_.payServerUrl()
       << "?cmd=_express-checkout&token="
-      << Utils::urlEncode(impl_->token_);
+      << Wt::Utils::urlEncode(impl_->token_);
 
   return url.str();
 }
@@ -437,7 +437,7 @@ Signal<Result>& PayPalExpressCheckout::updateCustomerDetails()
   std::string msg = encodeMessage(map);
 
   LOG_DEBUG("message: " << msg);
-  LOG_DEBUG("message: " << Utils::urlDecode(msg));
+  LOG_DEBUG("message: " << Wt::Utils::urlDecode(msg));
 
   Http::Message message;
   message.addBodyText(msg);
@@ -456,7 +456,7 @@ void PayPalExpressCheckout::handleCustomerDetails(
 {
   Result result;
   Http::ParameterMap params;
-  Http::Request::parseFormUrlEncoded(response.body(), params);
+  Http::Utils::parseFormUrlEncoded(response, params);
 
   LOG_DEBUG("handleCustomerDetails - Received response: "
             << Wt::Utils::urlDecode(response.body()));
@@ -475,7 +475,7 @@ std::string PayPalExpressCheckout::prameterValue(
   Http::ParameterMap::iterator it;
   it = params.find(parameterName);
   if(it != params.end())
-    return (*it).second.front();
+    return it->second[0];
 
   return "";
 }
@@ -528,7 +528,7 @@ Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
   addEditedParameters(map);
   std::string msg = encodeMessage(map);
   LOG_DEBUG("message: " << msg);
-  LOG_DEBUG("message: " << Utils::urlDecode(msg));
+  LOG_DEBUG("message: " << Wt::Utils::urlDecode(msg));
 
   Http::Message message;
   message.addBodyText(msg);
@@ -549,7 +549,7 @@ void PayPalExpressCheckout::handleCompletePayment(
             << Wt::Utils::urlDecode(response.body()));
 
   Http::ParameterMap params;
-  Http::Request::parseFormUrlEncoded(response.body(), params);
+  Http::Utils::parseFormUrlEncoded(response, params);
 
   std::cout<< messageToString(params);
 
@@ -585,16 +585,17 @@ Result PayPalExpressCheckout::testMessage(boost::system::error_code err,
 {
   Result result;
   Http::ParameterMap params;
-  Http::Request::parseFormUrlEncoded(response.body(), params);
+  Http::Utils::parseFormUrlEncoded(response, params);
 
   if (!err) {
     if (response.status() == 200) {
-      const std::string *ack = Http::get(params, "ACK");
+      const std::string *ack = Http::Utils::getParamValue(params, "ACK");
 
       if (ack) {
         LOG_DEBUG("ACK = " << *ack);
         if (*ack == "Success") {
-          const std::string *token = Http::get(params, "TOKEN");
+          const std::string *token 
+	    = Http::Utils::getParamValue(params, "TOKEN");
 
           if (token) {
             setToken(*token);
@@ -602,7 +603,8 @@ Result PayPalExpressCheckout::testMessage(boost::system::error_code err,
             result = Result(ERROR_MSG("missing-token"));
           }
         } else {
-          const std::string *errorCode = Http::get(params, "ERRORCODE0");
+          const std::string *errorCode 
+	    = Http::Utils::getParamValue(params, "ERRORCODE0");
 
           if (errorCode) {
             result = Result(ERROR_MSG("error").arg(*errorCode));
@@ -635,11 +637,10 @@ std::string PayPalExpressCheckout::messageToString(Http::ParameterMap &params)
 {
   WStringStream ans;
 
-  Http::ParameterMap::iterator it;
-
-  for(it = params.begin(); it != params.end(); it++){
-    Http::ParameterValues &val =  (*it).second;
-    ans << (*it).first << " : " << val.front() << " \n ";
+  for(Http::ParameterMap::const_iterator i = params.begin(); 
+      i != params.end(); ++i){
+    const Http::ParameterValues &val = i->second;
+    ans << i->first << " : " << val[0] << " \n ";
   }
 
   return ans.str();

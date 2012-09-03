@@ -218,6 +218,8 @@ private:
 
   friend class PayPalService;
   friend class PayPalRedirectResource;
+
+  typedef std::map<std::string, std::string> StringMap;
 };
 
 

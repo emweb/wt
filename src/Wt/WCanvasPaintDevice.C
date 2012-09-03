@@ -431,8 +431,11 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 	    << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
 	    << ";";
 
+      char buf[30];
+
       js_ << "ctx.fillText(" << text.jsStringLiteral()
-	  << ',' << x << ',' << y << ");";
+	  << ',' << Utils::round_str(x, 3, buf) << ',';
+      js_ << Utils::round_str(y, 3, buf) << ");";
 
       if (currentBrush_.color() != currentPen_.color())
 	js_ << "ctx.fillStyle="
