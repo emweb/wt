@@ -44,7 +44,7 @@ WPanel::WPanel(WContainerWidget *parent)
   setJavaScriptMember
     (WT_RESIZE_JS,
      "function(self, w, h) {"
-     """self.style.height= h + 'px';"
+     // """self.style.height= h + 'px';"
      """if (" WT_CLASS ".boxSizing(self)) {"
      ""  "h -= " WT_CLASS ".px(self, 'borderTopWidth') + "
      ""       WT_CLASS ".px(self, 'borderBottomWidth');"

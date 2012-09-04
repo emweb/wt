@@ -235,12 +235,12 @@ WT_DECLARE_WT_MEMBER
    function boxMargin(el, dir) {
      var DC = DirConfig[dir];
 
-     return WT.px(el, 'border' + DC.Left + 'Width') +
-       WT.px(el, 'border' + DC.Right + 'Width') +
-       WT.px(el, 'margin' + DC.Left) +
-       WT.px(el, 'margin' + DC.Right) +
-       WT.px(el, 'padding' + DC.Left) +
-       WT.px(el, 'padding' + DC.Right);
+     return Math.round(WT.px(el, 'border' + DC.Left + 'Width') +
+		       WT.px(el, 'border' + DC.Right + 'Width') +
+		       WT.px(el, 'margin' + DC.Left) +
+		       WT.px(el, 'margin' + DC.Right) +
+		       WT.px(el, 'padding' + DC.Left) +
+		       WT.px(el, 'padding' + DC.Right));
    }
 
    function setItemDirty(item, scheduleAdjust) {
@@ -415,6 +415,7 @@ WT_DECLARE_WT_MEMBER
 		   wPreferred = Math.max(wPreferred, item.ps[dir]);
 		   item.ps[dir] = wPreferred;
 		 }
+
 	       } else if (item.layout)
 		 wPreferred = Math.max(wPreferred, item.ps[dir]);
 
