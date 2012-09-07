@@ -249,31 +249,29 @@ void WPopupMenu::prepareRender(WApplication *app)
 
   // FIXME: we should really also prepareRender() of submenus when shown...
 
-  if (autoHideDelay_ >= 0) {
-    if (!cancel_.isConnected()) {
-      LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
+  if (!cancel_.isConnected()) {
+    LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
 
-      std::vector<WPopupMenu *> subMenus;
-      getSubMenus(subMenus);
+    std::vector<WPopupMenu *> subMenus;
+    getSubMenus(subMenus);
 
-      WStringStream s;
+    WStringStream s;
 
-      s << "new " WT_CLASS ".WPopupMenu("
-	<< app->javaScriptClass() << ',' << jsRef() << ','
-	<< autoHideDelay_ << ",[";
+    s << "new " WT_CLASS ".WPopupMenu("
+      << app->javaScriptClass() << ',' << jsRef() << ','
+      << autoHideDelay_ << ",[";
 
-      for (unsigned i = 0; i < subMenus.size(); ++i) {
-	if (i != 0)
-	  s << ',';
-	s << WWebWidget::jsStringLiteral(subMenus[i]->id());
-      }
-
-      s << "]);";
-
-      setJavaScriptMember(" WPopupMenu", s.str());
-
-      cancel_.connect(this, &WPopupMenu::done);
+    for (unsigned i = 0; i < subMenus.size(); ++i) {
+      if (i != 0)
+	s << ',';
+      s << WWebWidget::jsStringLiteral(subMenus[i]->id());
     }
+
+    s << "]);";
+
+    setJavaScriptMember(" WPopupMenu", s.str());
+
+    cancel_.connect(this, &WPopupMenu::done);
   }
 }
 

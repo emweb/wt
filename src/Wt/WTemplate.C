@@ -107,7 +107,9 @@ WTemplate::FunctionsList::FunctionsList()
 WTemplate::WTemplate(WContainerWidget *parent)
   : WInteractWidget(parent),
     encodeInternalPaths_(false),
-    changed_(false)
+    changed_(false),
+    previouslyRendered_(0),
+    newlyRendered_(0)
 {
   setInline(false);
 }
@@ -115,7 +117,9 @@ WTemplate::WTemplate(WContainerWidget *parent)
 WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
   : WInteractWidget(parent),
     encodeInternalPaths_(false),
-    changed_(false)
+    changed_(false),
+    previouslyRendered_(0),
+    newlyRendered_(0)
 {
   setInline(false);
   setTemplateText(text);
@@ -269,7 +273,8 @@ void WTemplate::resolveString(const std::string& varName,
 	w->htmlText(result);
       }
 
-      newlyRendered_->push_back(w);
+      if (newlyRendered_)
+        newlyRendered_->push_back(w);
     } else
       handleUnresolvedVariable(varName, args, result);
   }
