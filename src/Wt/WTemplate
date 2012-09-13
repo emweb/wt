@@ -348,6 +348,16 @@ public:
   void bindString(const std::string& varName, const WString& value,
 		  TextFormat textFormat = XHTMLText);
 
+  /*! \brief Binds a nested template text to a variable.
+   *
+   * The corresponding variable reference within the template will
+   * will be replaced by the nested template text (like bindString()),
+   * but this nested template text will also be recursively
+   * interpreted for place holder substitution.
+   */
+  void nestTemplate(const std::string& varName,
+		    const Wt::WString& templateText);
+
   /*! \brief Binds an integer value to a variable.
    *
    * \sa bindString()
@@ -603,6 +613,7 @@ protected:
 private:
   typedef std::map<std::string, Function> FunctionMap;
   typedef std::map<std::string, std::string> StringMap;
+  typedef std::map<std::string, WString> TemplateMap;
   typedef std::map<std::string, WWidget *> WidgetMap;
   typedef std::set<std::string> ConditionSet;
 
@@ -611,6 +622,7 @@ private:
 
   FunctionMap functions_;
   StringMap strings_;
+  TemplateMap nestedTemplates_;
   WidgetMap widgets_;
   ConditionSet conditions_;
 
@@ -621,6 +633,8 @@ private:
   static std::size_t parseArgs(const std::string& text,
 			       std::size_t pos,
 			       std::vector<WString>& result);
+
+  void renderTemplateText(std::ostream& result, const WString& templateText);
 };
 
 template <typename T> T WTemplate::resolve(const std::string& varName)

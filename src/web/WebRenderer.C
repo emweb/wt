@@ -830,15 +830,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
   const bool innerHtml = !xhtml || session_.env().agentIsGecko();
 
   if (serveSkeletons) {
-    bool haveJQuery = false;
-    for (unsigned i = 0;
-	 i < app->scriptLibraries_.size();
-	 ++i) {
-      if (app->scriptLibraries_[i].uri.find("jquery") != std::string::npos) {
-	haveJQuery = true;
-	break;
-      }
-    }
+    bool haveJQuery = app->customJQuery();
 
     if (!haveJQuery) {
       response.out() << "if (typeof window.$ === 'undefined') {";

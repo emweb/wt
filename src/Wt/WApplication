@@ -1314,9 +1314,31 @@ public:
    * JavaScript code is deferred until the library is loaded, except
    * for JavaScript that was defined to load before, passing \c false
    * as second parameter to doJavaScript().
+   *
+   * Although %Wt includes an off-the-shelf JQuery version (which can
+   * also be used by your own JavaScript code), you can override the
+   * one used by %Wt and load another JQuery version instead, but this
+   * needs to be done using requireJQuery().
    */
   bool require(const std::string& url,
 	       const std::string& symbol = std::string());
+
+  /*! \brief Loads a custom JQuery library.
+   *
+   * %Wt ships with a rather old version of JQuery (1.4.1) which is
+   * sufficient for its needs and is many times smaller than more recent
+   * JQuery releases (about 50% smaller).
+   *
+   * Using this function, you can replace Wt's JQuery version with another
+   * version of JQuery.
+   *
+   * \code
+   * requireJQuery("jquery/jquery-1.7.2.min.js");
+   * \endcode
+   */
+  bool requireJQuery(const std::string& url);
+
+  bool customJQuery() const { return customJQuery_; }
 
   /*! \brief Sets the name of the application JavaScript class.
    *
@@ -2107,6 +2129,7 @@ private:
   std::vector<const char *> newJavaScriptToLoad_;
 #endif // WT_DEBUG_JS
   std::set<const char *> javaScriptLoaded_;
+  bool customJQuery_;
 
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
   JSignal<> unloaded_;

@@ -70,7 +70,8 @@ public:
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     int err = sqlite3_bind_text(st_, column + 1, value.c_str(),
-				static_cast<int>(value.length()), SQLITE_TRANSIENT);
+				static_cast<int>(value.length()),
+				SQLITE_TRANSIENT);
 
     handleErr(err);
   }
@@ -138,7 +139,6 @@ public:
 	v = boost::gregorian::to_iso_extended_string(value.date());
       else {
 	v = boost::posix_time::to_iso_extended_string(value);
-	v[v.find('T')] = ' ';
       }
 
       bind(column, v);
@@ -353,8 +353,16 @@ public:
 	if (type == SqlDate)
 	  *value = boost::posix_time::ptime(boost::gregorian::from_string(v),
 					    boost::posix_time::hours(0));
-	else
+	else {
+	  std::size_t t = v.find('T');
+
+	  if (t != std::string::npos)
+	    v[t] = ' ';
+	  if (v.length() > 0 && v[v.length() - 1] == 'Z')
+	    v.erase(v.length() - 1);
+
 	  *value = boost::posix_time::time_from_string(v);
+	}
       } catch (std::exception& e) {
 	std::cerr << "Sqlite3::getResult(ptime): " << e.what() << std::endl;
 	return false;

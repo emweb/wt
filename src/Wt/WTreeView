@@ -364,6 +364,7 @@ private:
   virtual void modelLayoutChanged();
 
   void onViewportChange(WScrollEvent event);
+  void contentsSizeChanged(int width, int height);
   void onItemEvent(std::string nodeId, int columnId, std::string type,
 		   std::string extra1, std::string extra2, WMouseEvent event);
   void setRootNodeStyle();
@@ -420,6 +421,7 @@ private:
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) ;
 
   friend class WTreeViewNode;
+  friend class ContentsContainer;
 };
 
 }

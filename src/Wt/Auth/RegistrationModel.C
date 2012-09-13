@@ -140,7 +140,7 @@ bool RegistrationModel::isVisible(Field field) const
       else
 	return true;
   } else 
-    return false;
+    return true;
 }
 
 bool RegistrationModel::isFederatedLoginVisible() const

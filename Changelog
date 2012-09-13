@@ -1,3 +1,9 @@
+13-09-2012:
+	* Render: added support for explicit page breaks and % widths
+
+	* layouts: fix popup widgets confusing preferred size calculations
+	(tentatively)
+
 13-08-2012:
 	* Payment: new API for payment processing, with an implementation
 	for PayPal

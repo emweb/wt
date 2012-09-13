@@ -61,7 +61,9 @@ Block::Block(xml_node<> *node, Block *parent)
 #ifndef WT_TARGET_JAVA
     float_(None),
 #endif
-    inline_(false)
+    inline_(false),
+    currentWidth_(0),
+    contentsHeight_(0)
 {
   if (node) {
     if (Render::Utils::isXMLElement(node)) {
@@ -300,12 +302,12 @@ Block::CssLength Block::cssLength(Property top, Side side,
   }
 }
 
- double Block::cssPadding(Side side, double fontScale) const
+double Block::cssPadding(Side side, double fontScale) const
 {
   Block::CssLength result = cssLength(PropertyStylePaddingTop, side, fontScale);
 
   if (!result.defined) {
-    if (type_ == DomElement_TD || type_ == DomElement_TH)
+    if (isTableCell())
       return 4;
     else if ((type_ == DomElement_UL || type_ == DomElement_OL) && side == Left)
       return 40;
@@ -387,7 +389,7 @@ double Block::cssBorderWidth(Side side, double fontScale) const
   if (result == 0) {
     if (type_ == DomElement_TABLE) {
       result = attributeValue("border", 0);
-    } else if (type_ == DomElement_TD) {
+    } else if (isTableCell()) {
       /*
        * If the table has a border, then we have a default border of 1px
        */
@@ -473,6 +475,7 @@ int Block::cssFontWeight() const
   std::string v = cssProperty(PropertyStyleFontWeight);
 
   if (v.empty() && (type_ == DomElement_STRONG
+		    || type_ == DomElement_TH
 		    || (type_ >= DomElement_H1
 			&& type_ <= DomElement_H6)))
     v = "bolder";
@@ -700,7 +703,8 @@ double Block::layoutInline(Line& line, BlockList& floats,
 		w = item.nextWidth();
 	    }
 	  } else {
-	    assert(utf8Count > 0);
+	    if (utf8Count <= 0)
+	      throw WException("Internal error: utf8Count <= 0!");
 	    h = fontHeight;
 	  }
 	} else
@@ -778,7 +782,6 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	  PageState linePs;
 	  linePs.y = line.y();
 	  linePs.page = line.page();
-	  //TODO replace with top PageState for floats minX maxX
 	  linePs.minX = minX;
 	  linePs.maxX = maxX;
 	  linePs.floats = floats;
@@ -862,7 +865,20 @@ void Block::layoutTable(PageState &ps,
 			bool canIncreaseWidth,
 			const WTextRenderer& renderer)
 {
-  int cellSpacing = attributeValue("cellspacing", 2);
+  /*
+   * A table will apply the width to it's border box, unlike a block level
+   * element which applies the width to it's padding box !
+   */
+  double cssSetWidth = cssWidth(renderer.fontScale());
+  if (cssSetWidth > 0) {
+    cssSetWidth -= cssBorderWidth(Left, renderer.fontScale())
+      + cssBorderWidth(Right, renderer.fontScale());
+    cssSetWidth = std::max(0.0, cssSetWidth);
+  }
+  double origMaxX = ps.maxX;
+
+  // used to calculate minimumColumnWidths
+  currentWidth_ = cssSetWidth;
 
   std::vector<double> minimumColumnWidths;
   std::vector<double> maximumColumnWidths;
@@ -871,18 +887,19 @@ void Block::layoutTable(PageState &ps,
     Block *c = children_[i];
 
     c->tableComputeColumnWidths(minimumColumnWidths, maximumColumnWidths,
-				renderer);
+				renderer, this);
   }
+
+  currentWidth_ = 0;
 
   unsigned colCount = minimumColumnWidths.size();
 
+  int cellSpacing = attributeValue("cellspacing", 2);
   double totalSpacing = (colCount + 1) * cellSpacing;
   double totalMinWidth = sum(minimumColumnWidths) + totalSpacing;
   double totalMaxWidth = sum(maximumColumnWidths) + totalSpacing;
 
-  double width = cssWidth(renderer.fontScale());
-
-  width = std::max(totalMinWidth, width);
+  double width = std::max(totalMinWidth, cssSetWidth);
 
   double availableWidth;
   for (;;) {
@@ -908,8 +925,7 @@ void Block::layoutTable(PageState &ps,
     else {
       if (width < ps.maxX - ps.minX) {
 	clearFloats(ps, width);
-      }
-      else {
+      } else {
 	ps.maxX += width - availableWidth;
 	availableWidth = width;
       }
@@ -970,6 +986,22 @@ void Block::layoutTable(PageState &ps,
   ps.minX -= cssBorderWidth(Left, renderer.fontScale());
   ps.maxX += cssBorderWidth(Right, renderer.fontScale());
 
+  /*
+   * If we could honor the cssSetWidth for a %-based width, but it
+   * extends beyond the contents box of the parent, then we silently overflow
+   * the parent
+   */
+  if (width == cssSetWidth
+      && ps.maxX > origMaxX
+      && isPercentageLength(cssProperty(PropertyStyleWidth)))
+    ps.maxX = origMaxX;
+
+  /*
+   * A table will not reduce the parent's available width
+   */
+  if (ps.maxX < origMaxX)
+    ps.maxX = origMaxX;
+
   ps.y += cellSpacing;
 }
 
@@ -986,8 +1018,7 @@ void Block::tableDoLayout(double x, PageState &ps, int cellSpacing,
 
       c->tableDoLayout(x, ps, cellSpacing, widths, renderer);
     }
-  } else if (   type_ == DomElement_TR
-	     || type_ == DomElement_TH) {
+  } else if (type_ == DomElement_TR) {
     double startY = ps.y;
     int startPage = ps.page;
     tableRowDoLayout(x, ps, cellSpacing, widths, renderer, -1);
@@ -1022,7 +1053,7 @@ void Block::tableRowDoLayout(double x, PageState &ps,
     // cells that are overspanning, and then we need to adjust their
     // height once done.
 
-    if (c->type_ == DomElement_TD) {
+    if (c->isTableCell()) {
       int colSpan = c->attributeValue("colspan", 1);
 
       double width = 0;
@@ -1069,13 +1100,12 @@ void Block::tableRowDoLayout(double x, PageState &ps,
 
 void Block::tableComputeColumnWidths(std::vector<double>& minima,
 				     std::vector<double>& maxima,
-				     const WTextRenderer& renderer)
+				     const WTextRenderer& renderer,
+				     Block *table)
 {
   /*
    * Current limitations:
    * - we currently ignore column/column group widths
-   * - we treat a cell width as a hard constraint, not a minimum width
-   *   (this should be fixed in layoutBlock()).
    * - we do not interpret percentage values for cell/column widths
    */
   if (   type_ == DomElement_TBODY
@@ -1084,7 +1114,7 @@ void Block::tableComputeColumnWidths(std::vector<double>& minima,
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
-      c->tableComputeColumnWidths(minima, maxima, renderer);
+      c->tableComputeColumnWidths(minima, maxima, renderer, table);
     }
   } else if (type_ == DomElement_TR) {
     int col = 0;
@@ -1092,9 +1122,9 @@ void Block::tableComputeColumnWidths(std::vector<double>& minima,
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
-      if (c->type_ == DomElement_TD) {
-	c->cellComputeColumnWidths(col, false, minima, renderer);
-	col = c->cellComputeColumnWidths(col, true, maxima, renderer);
+      if (c->isTableCell()) {
+	c->cellComputeColumnWidths(col, false, minima, renderer, table);
+	col = c->cellComputeColumnWidths(col, true, maxima, renderer, table);
       }
     }
   }
@@ -1111,7 +1141,8 @@ int Block::attributeValue(const char *attribute, int defaultValue) const
 
 int Block::cellComputeColumnWidths(int col, bool maximum,
 				   std::vector<double>& values,
-				   const WTextRenderer& renderer)
+				   const WTextRenderer& renderer,
+				   Block *table)
 {
   double currentWidth = 0;
 
@@ -1131,7 +1162,13 @@ int Block::cellComputeColumnWidths(int col, bool maximum,
   ps.minX = 0;
   ps.maxX = width;
 
+  double origTableWidth = table->currentWidth_;
+  if (!maximum)
+    table->currentWidth_ = 0;
+
   layoutBlock(ps, maximum, renderer, 0, 0);
+
+  table->currentWidth_ = origTableWidth;
 
   width = ps.maxX;
 
@@ -1146,18 +1183,50 @@ int Block::cellComputeColumnWidths(int col, bool maximum,
   return col + colSpan;
 }
 
+bool Block::isPercentageLength(const std::string& length)
+{
+  return !length.empty()
+    && WLength(length.c_str()).unit() == WLength::Percentage;
+}
+
 double Block::cssDecodeLength(const std::string& length,
 			      double fontScale, double defaultValue,
-			      bool interpretPercentage) const
+			      PercentageRule percentage,
+			      double parentSize) const
 {
   if (!length.empty()) {
     WLength l(length.c_str());
-    if (interpretPercentage || l.unit() != WLength::Percentage)
-      return l.toPixels(cssFontSize(fontScale));
-    else
+    if (l.unit() == WLength::Percentage) {
+      switch (percentage) {
+      case PercentageOfFontSize:
+	return l.toPixels(cssFontSize(fontScale));
+      case PercentageOfParentSize:
+	return l.value() / 100.0 * parentSize;
+      case IgnorePercentage:
+	return defaultValue;
+      }
+
       return defaultValue;
+    } else
+      return l.toPixels(cssFontSize(fontScale));
   } else
     return defaultValue;
+}
+
+double Block::currentParentWidth() const
+{
+  if (parent_) {
+    switch (parent_->type_) {
+    case DomElement_TR:
+    case DomElement_TBODY:
+    case DomElement_THEAD:
+    case DomElement_TFOOT:
+      return parent_->currentParentWidth();
+    default:
+      return parent_->currentWidth_;
+    }
+  } else
+    return 0;
 }
 
 double Block::cssWidth(double fontScale) const
@@ -1166,11 +1235,13 @@ double Block::cssWidth(double fontScale) const
 
   if (node_) {
     result = cssDecodeLength(cssProperty(PropertyStyleWidth),
-			     fontScale, result, false);
+			     fontScale, result, PercentageOfParentSize,
+			     currentParentWidth());
 
     if (type_ == DomElement_IMG)
-      result = cssDecodeLength(attributeValue("width"), fontScale, result,
-			       false);
+      result = cssDecodeLength(attributeValue("width"),
+			       fontScale, result, PercentageOfParentSize,
+			       currentParentWidth());
   }
 
   return result;
@@ -1182,11 +1253,11 @@ double Block::cssHeight(double fontScale) const
 
   if (node_) {
     result = cssDecodeLength(cssProperty(PropertyStyleHeight),
-			     fontScale, result, false);
+			     fontScale, result, IgnorePercentage);
 
     if (type_ == DomElement_IMG)
-      result = cssDecodeLength(attributeValue("height"), fontScale, result,
-			       false);
+      result = cssDecodeLength(attributeValue("height"),
+			       fontScale, result, IgnorePercentage);
   }
 
   return result;
@@ -1227,6 +1298,14 @@ void Block::advance(PageState &ps, double height,
   ps.y += height;
 }
 
+void Block::pageBreak(PageState& ps)
+{
+  clearFloats(ps);
+
+  ++ps.page;
+  ps.y = 0;
+}
+
 double Block::layoutBlock(PageState &ps,
 			  bool canIncreaseWidth,
 			  const WTextRenderer& renderer,
@@ -1234,6 +1313,12 @@ double Block::layoutBlock(PageState &ps,
 			  double collapseMarginBottom,
 			  double cellHeight)
 {
+  std::string pageBreakBefore = cssProperty(PropertyStylePageBreakBefore);
+  if (pageBreakBefore == "always") {
+    pageBreak(ps);
+    collapseMarginTop = 0;
+  }
+
   double minX = ps.minX;
 
   double inCollapseMarginTop = collapseMarginTop;
@@ -1288,14 +1373,19 @@ double Block::layoutBlock(PageState &ps,
     layoutTable(ps, canIncreaseWidth, renderer);
   } else {
     double width = cssWidth(renderer.fontScale());
+    double origMaxX = ps.maxX;
+
+    bool paddingBorderWithinWidth
+      = isTableCell() && isPercentageLength(cssProperty(PropertyStyleWidth));
 
     if (width >= 0) {
-      width += cssPadding(Left, renderer.fontScale())
-	+ cssBorderWidth(Left, renderer.fontScale())
-	+ cssPadding(Right, renderer.fontScale())
-	+ cssBorderWidth(Right, renderer.fontScale());
+      if (!paddingBorderWithinWidth)
+	width += cssPadding(Left, renderer.fontScale())
+	  + cssBorderWidth(Left, renderer.fontScale())
+	  + cssPadding(Right, renderer.fontScale())
+	  + cssBorderWidth(Right, renderer.fontScale());
 
-      if (type_ == DomElement_TD || type_ == DomElement_TH) {
+      if (isTableCell()) {
 	if (width < (ps.maxX - ps.minX))
 	  width = ps.maxX - ps.minX;
 	/*
@@ -1327,17 +1417,15 @@ double Block::layoutBlock(PageState &ps,
     }
 
     if (type_ == DomElement_IMG) {
-      // FIXME deal with page break
       double height = cssHeight(renderer.fontScale());
 
       if (ps.y + height > renderer.textHeight(ps.page)) {
-	clearFloats(ps);
+	pageBreak(ps);
 
-	startY = 0;
-	++startPage;
+	startPage = ps.page;
+	startY = ps.y;
 
-	ps.y = startY + cssBorderWidth(Top, renderer.fontScale());
-	ps.page = startPage;
+	ps.y += cssBorderWidth(Top, renderer.fontScale());
       }
 
       ps.y += height;
@@ -1346,6 +1434,8 @@ double Block::layoutBlock(PageState &ps,
 	+ cssBorderWidth(Left, renderer.fontScale());
       double cMaxX = ps.maxX - cssPadding(Right, renderer.fontScale())
 	- cssBorderWidth(Right, renderer.fontScale());
+
+      currentWidth_ = cMaxX - cMinX;
 
       ps.y += cssPadding(Top, renderer.fontScale());
 
@@ -1418,8 +1508,16 @@ double Block::layoutBlock(PageState &ps,
 	  ps.y = minY;
       }
 
-      ps.maxX = cMaxX + cssPadding(Right, renderer.fontScale())
-	+ cssBorderWidth(Right, renderer.fontScale());
+      /*
+       * For a percentage length we will not try to overflow the parent,
+       * unless we are a table cell
+       */
+      if (!isPercentageLength(cssProperty(PropertyStyleWidth))
+	  || isTableCell())
+	  ps.maxX = cMaxX + cssPadding(Right, renderer.fontScale())
+	    + cssBorderWidth(Right, renderer.fontScale());
+      else
+	ps.maxX = origMaxX;
 
       advance(ps, spacerBottom, renderer);
 
@@ -1435,9 +1533,8 @@ double Block::layoutBlock(PageState &ps,
 
   double height = cssHeight(renderer.fontScale());
 
-  if (type_ == DomElement_TD || type_ == DomElement_TH) {
+  if (isTableCell())
     contentsHeight_ = diff(ps.y, ps.page, startY, startPage, renderer);
-  }
 
   if (height >= 0) {
     ps.page = startPage;
@@ -1483,7 +1580,12 @@ double Block::layoutBlock(PageState &ps,
 
   ps.minX = minX;
 
-  return collapseMarginBottom;
+  std::string pageBreakAfter = cssProperty(PropertyStylePageBreakAfter);
+  if (pageBreakAfter == "always") {
+    pageBreak(ps);
+    return 0;
+  } else
+    return collapseMarginBottom;
 }
 
 WString Block::generateItem() const
@@ -1523,15 +1625,23 @@ double Block::layoutFloat(double y, int page, BlockList& floats,
     + cssBoxMargin(Right, renderer.fontScale());
 
   PageState floatPs;
-  floatPs.minX = minX;
+  floatPs.floats = floats;
+
+  /*
+   * Here we iterate while trying to position the float horizontally,
+   * iterating over:
+   *  - finding a suitable X position that fits the current assumed width
+   *  - determining the actual width at that position
+   */
   for (;;) {
     floatPs.page = page;
     floatPs.y = y;
+    floatPs.minX = minX;
     floatPs.maxX = maxX;
 
-    lineX = positionFloat(lineX, floatPs, lineHeight, currentWidth,
-			  canIncreaseWidth,
-			  renderer, floatSide());
+    double floatX = positionFloat(lineX, floatPs, lineHeight, currentWidth,
+				  canIncreaseWidth,
+				  renderer, floatSide());
 
     if (floatPs.maxX > maxX)
       return floatPs.maxX;
@@ -1550,8 +1660,8 @@ double Block::layoutFloat(double y, int page, BlockList& floats,
 
     double collapseMarginBottom = 0; // does not apply to a float
 
-    floatPs.minX = lineX;
-    floatPs.maxX = lineX + currentWidth;
+    floatPs.minX = floatX;
+    floatPs.maxX = floatX + currentWidth;
     collapseMarginBottom = layoutBlock(floatPs,
 				       unknownWidth || canIncreaseWidth, 
 				       renderer, 
@@ -1563,7 +1673,8 @@ double Block::layoutFloat(double y, int page, BlockList& floats,
 	currentWidth = std::min(maxX - minX, currentWidth + pw);
 	continue;
       } else {
-	assert(canIncreaseWidth);
+	if (!canIncreaseWidth)
+	  throw WException("Internal error: !canIncreaseWidth");
 	return maxX + pw;
       }
     }
@@ -1698,7 +1809,9 @@ AlignmentFlag Block::cssTextAlign() const
       s = attributeValue("align");
 
     if (s.empty() || s == "inherit") {
-      if (parent_)
+      if (type_ == DomElement_TH)
+	return AlignCenter;
+      else if (parent_)
 	return parent_->cssTextAlign();
       else
 	return AlignLeft;

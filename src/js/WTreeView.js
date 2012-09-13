@@ -180,7 +180,8 @@ WT_DECLARE_WT_MEMBER
 
        if (!c0r.style.width) {
 	 // first resize and c0 width not set
-	 var c0rw = el.scrollWidth - hc.offsetWidth - 8;
+	 // 9 = 2px (widget border) - 7px column padding
+	 var c0rw = el.scrollWidth - hc.offsetWidth - 9;
 	 if (c0rw > 0)
 	   c0r.style.width = c0rw + 'px';
        } else

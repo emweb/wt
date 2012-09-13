@@ -43,6 +43,25 @@ namespace Wt {
 
 LOGGER("WTreeView");
 
+class ContentsContainer : public WContainerWidget
+{
+public:
+  ContentsContainer(WTreeView *treeView)
+    : treeView_(treeView)
+  { 
+    setLayoutSizeAware(true);
+  }
+
+protected:
+  virtual void layoutSizeChanged(int width, int height)
+  {
+    treeView_->contentsSizeChanged(width, height);
+  }
+
+private:
+  WTreeView *treeView_;
+};
+
 class ToggleButtonConfig
 {
 public:
@@ -986,7 +1005,7 @@ void WTreeView::setup()
     headerContainer_->setStyleClass("Wt-header headerrh cwidth");
     headerContainer_->addWidget(headers_);
 
-    contentsContainer_ = new WContainerWidget();
+    contentsContainer_ = new ContentsContainer(this);
     contentsContainer_->setStyleClass("cwidth");
     contentsContainer_->setOverflow(WContainerWidget::OverflowAuto);
     contentsContainer_->scrolled().connect(this, &WTreeView::onViewportChange);
@@ -1495,8 +1514,13 @@ void WTreeView::onViewportChange(WScrollEvent e)
   viewportTop_ = static_cast<int>
     (std::floor(e.scrollY() / rowHeight().toPixels()));
 
-  viewportHeight_ = static_cast<int>
-    (std::ceil(e.viewportHeight() / rowHeight().toPixels()));
+  contentsSizeChanged(0, e.viewportHeight());
+}
+
+void WTreeView::contentsSizeChanged(int width, int height)
+{
+  viewportHeight_
+    = static_cast<int>(std::ceil(height / rowHeight().toPixels()));
 
   scheduleRerender(NeedAdjustViewPort);
 }

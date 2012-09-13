@@ -106,20 +106,20 @@ WTemplate::FunctionsList::FunctionsList()
 
 WTemplate::WTemplate(WContainerWidget *parent)
   : WInteractWidget(parent),
-    encodeInternalPaths_(false),
-    changed_(false),
     previouslyRendered_(0),
-    newlyRendered_(0)
+    newlyRendered_(0),
+    encodeInternalPaths_(false),
+    changed_(false)
 {
   setInline(false);
 }
 
 WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
   : WInteractWidget(parent),
-    encodeInternalPaths_(false),
-    changed_(false),
     previouslyRendered_(0),
-    newlyRendered_(0)
+    newlyRendered_(0),
+    encodeInternalPaths_(false),
+    changed_(false)
 {
   setInline(false);
   setTemplateText(text);
@@ -218,6 +218,20 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
     changed_ = true;
     repaint(RepaintInnerHtml);  
   }
+}
+
+
+void WTemplate::nestTemplate(const std::string& varName,
+			     const Wt::WString& templateText)
+{
+#ifndef WT_TARGET_JAVA
+  nestedTemplates_[varName] = templateText;
+#else
+  Wt::WString t = templateText;
+  nestedTemplates_[varName] = t;
+#endif
+  changed_ = true;
+  repaint(RepaintInnerHtml);
 }
 
 void WTemplate::bindInt(const std::string& varName, int value)
@@ -368,6 +382,11 @@ void WTemplate::updateDom(DomElement& element, bool all)
 
 void WTemplate::renderTemplate(std::ostream& result)
 {
+  renderTemplateText(result, text_);
+}
+
+void WTemplate::renderTemplateText(std::ostream& result, const WString& templateText)
+{
   std::string text;
 
   WApplication *app = WApplication::instance();
@@ -378,11 +397,11 @@ void WTemplate::renderTemplate(std::ostream& result)
       options |= EncodeInternalPaths;
     if (app->session()->hasSessionIdInUrl())
       options |= EncodeRedirectTrampoline;
-    WString t = text_;
+    WString t = templateText;
     EncodeRefs(t, options);
     text = t.toUTF8();
   } else
-    text = text_.toUTF8();
+    text = templateText.toUTF8();
 
   std::size_t lastPos = 0;
   std::vector<WString> args;
@@ -451,8 +470,13 @@ void WTemplate::renderTemplate(std::ostream& result)
 		args.erase(args.begin());
 	    }
 
-	    if (!handled)
-	      resolveString(name, args, result);
+	    if (!handled) {
+	      TemplateMap::const_iterator i = nestedTemplates_.find(name);
+	      if (i != nestedTemplates_.end())
+		renderTemplateText(result, i->second);
+	      else
+		resolveString(name, args, result);
+	    }
 	  }
 	}
 

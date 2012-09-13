@@ -209,7 +209,7 @@ std::wstring fromUTF8(const std::string& s)
 	  }
 
           wchar_t wc = cp;
-          if (wc == cp)
+          if ((uint32_t)wc == cp)
             result += wc;
           else
             legal = false;

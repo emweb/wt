@@ -90,6 +90,12 @@ private:
     bool defined;
   };
 
+  enum PercentageRule {
+    PercentageOfFontSize,
+    PercentageOfParentSize,
+    IgnorePercentage
+  };
+
 private:
   rapidxml::xml_node<> *node_;
   Block *parent_;
@@ -97,6 +103,7 @@ private:
   Side float_;
   bool inline_;
   BlockList children_;
+  double currentWidth_;
   double contentsHeight_;
   mutable std::map<std::string, std::string> css_;
 
@@ -123,10 +130,16 @@ private:
   std::string cssTextDecoration() const;
   double cssDecodeLength(const std::string& length, double fontScale,
 			 double defaultValue,
-			 bool interpretPercentage = true) const;
+			 PercentageRule percentage = PercentageOfFontSize,
+			 double parentSize = 0)
+    const;
+  static bool isPercentageLength(const std::string& length);
+
+  double currentParentWidth() const;
 
   bool isInside(DomElementType type) const;
 
+  void pageBreak(PageState& ps);
   double layoutInline(Line& line, BlockList& floats,
 		      double minX, double maxX, bool canIncreaseWidth,
 		      const WTextRenderer& renderer);
@@ -149,10 +162,12 @@ private:
 			double rowHeight);
   void tableComputeColumnWidths(std::vector<double>& minima,
 				std::vector<double>& maxima,
-				const WTextRenderer& renderer);
+				const WTextRenderer& renderer,
+				Block *table);
   int cellComputeColumnWidths(int col, bool maximum,
 			      std::vector<double>& values,
-			      const WTextRenderer& renderer);
+			      const WTextRenderer& renderer,
+			      Block *table);
 
   LayoutBox toBorderBox(const LayoutBox& bb, double fontScale) const;
 
@@ -182,6 +197,9 @@ private:
 				  const std::string& value);
 
   static bool isAggregate(const std::string& cssProperty);
+
+  bool isTableCell() const
+    { return type_ == DomElement_TD || type_ == DomElement_TH; }
 
   friend class Line;
 };

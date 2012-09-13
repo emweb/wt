@@ -88,8 +88,11 @@ void MetaDbo<C>::flush()
      * This must be because of a circular relational dependency:
      *  A belongsTo(B)
      *  B belongsTo(A)
+     *
+     * Could also be because of A belongsTo(A) which could be perfectly
+     * if the ptr is assigned after the object itself has been saved first.
      */
-    throw Exception("Wt::Dbo::ptr::flush(): circular dependency detected!");
+    // throw Exception("Wt::Dbo::ptr::flush(): circular dependency detected!");
   }
 }
 

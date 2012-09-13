@@ -66,6 +66,7 @@ enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyStyleBackgroundPosition,
 		PropertyStyleTextDecoration, PropertyStyleWhiteSpace,
 		PropertyStyleTableLayout, PropertyStyleBorderSpacing,
+		PropertyStylePageBreakBefore, PropertyStylePageBreakAfter,
 		PropertyStyleZoom,
 		PropertyStyleVisibility, PropertyStyleDisplay,
 

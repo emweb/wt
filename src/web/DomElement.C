@@ -86,6 +86,7 @@ static std::string cssNames_[] =
     "background-color", "background-image", "background-repeat",
     "background-attachment", "background-position",
     "text-decoration", "white-space", "table-layout", "border-spacing",
+    "page-break-before", "page-break-after",
     "zoom", "visibility", "display",
     "box-sizing"};
 
@@ -112,6 +113,7 @@ static std::string cssCamelNames_[] =
     "backgroundColor", "backgroundImage", "backgroundRepeat",
     "backgroundAttachment", "backgroundPosition",
     "textDecoration", "whiteSpace", "tableLayout", "borderSpacing",
+    "pageBreakBefore", "pageBreakAfter",
     "zoom", "visibility", "display",
     "boxSizing" 
   };

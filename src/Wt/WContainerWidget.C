@@ -107,22 +107,6 @@ void WContainerWidget::setLayout(WLayout *layout,
     if (layout) {
       WWidget::setLayout(layout);
       layoutImpl()->setContainer(this);
-
-      /*
-       * Normally, scrollbars are not used automatically for a container,
-       * which applies to when a layout overflows.
-       *
-       * Only for IE 6 we really need to set this otherwise the parent
-       * increases its size automatically and then we cannot reduce in
-       * size (standard behaviour is overflow visible which says the
-       * parent size should not be affected). Luckily, IE does not show the
-       * scrollbars unless really needed
-       */
-      if (WApplication::instance()->environment().agentIsIElt(9)) {
-	AlignmentFlag vAlign = alignment & AlignVerticalMask;
-	if (vAlign == 0)
-	  setOverflow(WContainerWidget::OverflowHidden);
-      }
     }
   }
 #else

@@ -1207,6 +1207,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       if (layoutImpl_->zIndex_ > 0) {
 	element.setProperty(PropertyStyleZIndex,
 		    boost::lexical_cast<std::string>(layoutImpl_->zIndex_));
+	element.setProperty(PropertyClass,
+			    Utils::addWord(element.getProperty(PropertyClass),
+					   "Wt-popup"));
 	if (!app) app = WApplication::instance();
 	if (all && app->environment().agent() == WEnvironment::IE6
 	    && element.type() == DomElement_DIV) {
@@ -1530,7 +1533,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
 	switch (jss.type) {
 	case SetMember:
-	  declareJavaScriptMember(element, jss.data, javaScriptMember(jss.data));
+	  declareJavaScriptMember(element, jss.data,
+				  javaScriptMember(jss.data));
 	  break;
 	case CallMethod:
 	  element.callMethod(jss.data);

@@ -132,6 +132,29 @@ WT_DECLARE_WT_MEMBER
        scrollWidth = clientWidth;
      }
 
+     if (scrollWidth > offsetWidth) {
+       /*
+	* could be because of a nested absolutely positioned element
+	* with z-index > 0 ?, or could be because of genuine contents that is
+	* not fitting the parent.
+	*
+	* the latter case is only possible if a size is currently set on the
+	* element
+	*/
+       if (WT.pxself(element, DC.size) == 0)
+	 scrollWidth = 0;
+       else {
+	 var visiblePopup = false;
+	 $(element).find(".Wt-popup").each
+	   (function(index) {
+	     if (this.style.display != 'none')
+	       visiblePopup = true;
+	   });
+	 if (visiblePopup)
+	   scrollWidth = 0;
+       }
+     }
+
      if (!WT.isOpera && !WT.isGecko)
        scrollWidth +=
 	 WT.px(element, 'border' + DC.Left + 'Width') +
@@ -145,20 +168,6 @@ WT_DECLARE_WT_MEMBER
        scrollWidth +=
 	 WT.px(element, 'padding' + DC.Left) +
 	 WT.px(element, 'padding' + DC.Right);
-
-     if (WT.isWebKit && scrollWidth > offsetWidth) {
-       var i, il;
-       for (i = 0, il = element.childNodes.length; i < il; ++i) {
-	 var c = element.childNodes[i];
-	 if (c.nodeType == 1) {
-	   var z = c.style['zIndex'];
-	   if (z > 0) {
-	     scrollWidth = 0;
-	     break;
-	   }
-	 }
-       }
-     }
 
      /* Must be because of a scrollbar */
      if (scrollWidth < offsetWidth)
@@ -1249,6 +1258,8 @@ WT_DECLARE_APP_MEMBER
       }
 
       addIn(topLevelLayouts, layout);
+
+      self.scheduleAdjust();
     };
 
     var adjustScheduled = false;

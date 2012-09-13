@@ -718,6 +718,18 @@ void WTableView::defineJavaScript()
 		      + contentsContainer_->jsRef() + ","
 		      + headerContainer_->jsRef() + ","
 		      + headerColumnsContainer_->jsRef() + ");");
+
+  if (viewportTop_ != 0) {
+    WStringStream s;
+    s << "function(o, w, h) {"
+      <<   "if (!o.scrollTopSet) {"
+      <<     "o.scrollTop = " << viewportTop_ << ";"
+      <<     "o.onscroll();"
+      <<     "o.scrollTopSet = true;"
+      <<   "}"
+      << "}";
+    contentsContainer_->setJavaScriptMember(WT_RESIZE_JS, s.str());
+  }
 }
 
 void WTableView::render(WFlags<RenderFlag> flags)
@@ -1639,12 +1651,14 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 	}
       }
 
-      WStringStream s;
+      if (isRendered()) {
+	WStringStream s;
 
-      s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
-	<< rowY << "," << hint << ");";
+	s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
+	  << rowY << "," << hint << ");";
 
-      doJavaScript(s.str());
+	doJavaScript(s.str());
+      }
     } else
       setCurrentPage(index.row() / pageSize());
   }

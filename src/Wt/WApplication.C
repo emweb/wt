@@ -122,6 +122,7 @@ WApplication::WApplication(const WEnvironment& env
 #ifndef WT_DEBUG_JS
     newJavaScriptPreamble_(0),
 #endif // WT_DEBUG_JS
+    customJQuery_(false),
     showLoadingIndicator_("showload", this),
     hideLoadingIndicator_("hideload", this),
     unloaded_(this, "Wt-unload"),
@@ -1545,6 +1546,12 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
     return true;
   } else
     return false;
+}
+
+bool WApplication::requireJQuery(const std::string& uri)
+{
+  customJQuery_ = true;
+  return require(uri);
 }
 
 #ifndef WT_TARGET_JAVA

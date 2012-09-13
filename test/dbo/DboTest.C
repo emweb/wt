@@ -407,6 +407,8 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
     BOOST_REQUIRE(allAs.size() == 1);
     dbo::ptr<A> a2 = *allAs.begin();
     BOOST_REQUIRE(*a2 == a1);
+
+    a2.modify()->parent = a2;
   }
 
   /* Remove the A, check it is no longer found during the same transaction */
@@ -415,8 +417,11 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
 
     {
       As allAs = session_->find<A>();
+
       BOOST_REQUIRE(allAs.size() == 1);
       dbo::ptr<A> a2 = *allAs.begin();
+
+      BOOST_REQUIRE(a2->parent == a2);
 
       a2.remove();
     }
