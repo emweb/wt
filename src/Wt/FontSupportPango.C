@@ -395,7 +395,9 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 							    cend - measured)),
 			-1, false);
 
-	if (w + ti.width() > maxWidth) {
+	const double EPSILON = 1e-4;
+
+	if (w + ti.width() - maxWidth > EPSILON) {
 	  nextW = ti.width();
 	  maxWidthReached = true;
 	  break;

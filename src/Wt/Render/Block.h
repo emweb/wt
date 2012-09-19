@@ -145,7 +145,8 @@ private:
 		      const WTextRenderer& renderer);
   void layoutTable(PageState &ps,
 		   bool canIncreaseWidth,
-		   const WTextRenderer& renderer);
+		   const WTextRenderer& renderer,
+		   double cssSetWidth);
   double layoutFloat(double y, int page, BlockList& floats,
 		     double lineX, double lineHeight,
 		     double minX, double maxX,

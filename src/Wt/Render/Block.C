@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-// #define DEBUG_LAYOUT
+//#define DEBUG_LAYOUT
 
 #include "Wt/WFontMetrics"
 #include "Wt/WLogger"
@@ -863,22 +863,11 @@ double Block::layoutInline(Line& line, BlockList& floats,
 
 void Block::layoutTable(PageState &ps,
 			bool canIncreaseWidth,
-			const WTextRenderer& renderer)
+			const WTextRenderer& renderer,
+			double cssSetWidth)
 {
-  /*
-   * A table will apply the width to it's border box, unlike a block level
-   * element which applies the width to it's padding box !
-   */
-  double cssSetWidth = cssWidth(renderer.fontScale());
-  if (cssSetWidth > 0) {
-    cssSetWidth -= cssBorderWidth(Left, renderer.fontScale())
-      + cssBorderWidth(Right, renderer.fontScale());
-    cssSetWidth = std::max(0.0, cssSetWidth);
-  }
-  double origMaxX = ps.maxX;
-
   // used to calculate minimumColumnWidths
-  currentWidth_ = cssSetWidth;
+  currentWidth_ = std::max(0.0, cssSetWidth);
 
   std::vector<double> minimumColumnWidths;
   std::vector<double> maximumColumnWidths;
@@ -899,7 +888,11 @@ void Block::layoutTable(PageState &ps,
   double totalMinWidth = sum(minimumColumnWidths) + totalSpacing;
   double totalMaxWidth = sum(maximumColumnWidths) + totalSpacing;
 
-  double width = std::max(totalMinWidth, cssSetWidth);
+  double desiredMinWidth = std::max(totalMinWidth, cssSetWidth);
+
+  double desiredMaxWidth = totalMaxWidth;
+  if (cssSetWidth > 0 && cssSetWidth < totalMaxWidth)
+    desiredMaxWidth = std::max(desiredMinWidth, cssSetWidth);
 
   double availableWidth;
   for (;;) {
@@ -915,36 +908,45 @@ void Block::layoutTable(PageState &ps,
      * If we can increase the available width without clearing floats
      * to fit the table at its widest, then try so
      */
-    if (canIncreaseWidth && availableWidth < totalMaxWidth) {
-      ps.maxX += totalMaxWidth - availableWidth;
-      availableWidth = totalMaxWidth;
+    if (canIncreaseWidth && availableWidth < desiredMaxWidth) {
+      ps.maxX += desiredMaxWidth - availableWidth;
+      availableWidth = desiredMaxWidth;
     }
 
-    if (availableWidth >= width)
+    if (availableWidth >= desiredMinWidth)
       break;
     else {
-      if (width < ps.maxX - ps.minX) {
-	clearFloats(ps, width);
+      if (desiredMinWidth < ps.maxX - ps.minX) {
+	clearFloats(ps, desiredMinWidth);
       } else {
-	ps.maxX += width - availableWidth;
-	availableWidth = width;
+	ps.maxX += desiredMinWidth - availableWidth;
+	availableWidth = desiredMinWidth;
       }
     }
   }
 
+  double width = desiredMinWidth;
+
   if (width <= availableWidth) {
-    if (totalMaxWidth > availableWidth)
+    if (desiredMaxWidth > availableWidth)
       width = availableWidth;
     else
-      width = std::max(totalMaxWidth, width);
+      width = std::max(desiredMaxWidth, width);
   } else {
     maximumColumnWidths = minimumColumnWidths;
   }
 
   std::vector<double> widths = minimumColumnWidths;
 
-  if (width > totalMinWidth) {
+  if (width > totalMaxWidth) {
+    widths = maximumColumnWidths;
+    double factor = width / totalMaxWidth;
+
+    for (unsigned i = 0; i < widths.size(); ++i)
+      widths[i] *= factor;
+  } else if (width > totalMinWidth) {
     double totalStretch = 0;
+
     for (unsigned i = 0; i < widths.size(); ++i)
       totalStretch += maximumColumnWidths[i] - minimumColumnWidths[i];
 
@@ -985,22 +987,6 @@ void Block::layoutTable(PageState &ps,
 
   ps.minX -= cssBorderWidth(Left, renderer.fontScale());
   ps.maxX += cssBorderWidth(Right, renderer.fontScale());
-
-  /*
-   * If we could honor the cssSetWidth for a %-based width, but it
-   * extends beyond the contents box of the parent, then we silently overflow
-   * the parent
-   */
-  if (width == cssSetWidth
-      && ps.maxX > origMaxX
-      && isPercentageLength(cssProperty(PropertyStyleWidth)))
-    ps.maxX = origMaxX;
-
-  /*
-   * A table will not reduce the parent's available width
-   */
-  if (ps.maxX < origMaxX)
-    ps.maxX = origMaxX;
 
   ps.y += cellSpacing;
 }
@@ -1237,7 +1223,10 @@ double Block::cssWidth(double fontScale) const
 			     fontScale, result, PercentageOfParentSize,
 			     currentParentWidth());
 
-    if (type_ == DomElement_IMG)
+    if (type_ == DomElement_IMG ||
+	type_ == DomElement_TABLE ||
+	type_ == DomElement_TD ||
+	type_ == DomElement_TH)
       result = cssDecodeLength(attributeValue("width"),
 			       fontScale, result, PercentageOfParentSize,
 			       currentParentWidth());
@@ -1292,6 +1281,8 @@ void Block::advance(PageState &ps, double height,
     ++ps.page;
     ps.y = 0;
     height -= (renderer.textHeight(ps.page) - ps.y);
+    if (height < 0)
+      height = 0;
   }
 
   ps.y += height;
@@ -1318,7 +1309,8 @@ double Block::layoutBlock(PageState &ps,
     collapseMarginTop = 0;
   }
 
-  double minX = ps.minX;
+  double origMinX = ps.minX;
+  double origMaxX = ps.maxX;
 
   double inCollapseMarginTop = collapseMarginTop;
   double inY = ps.y;
@@ -1368,11 +1360,22 @@ double Block::layoutBlock(PageState &ps,
   ps.minX += cssMargin(Left, renderer.fontScale());
   ps.maxX -= cssMargin(Right, renderer.fontScale());
 
+  double cssSetWidth = cssWidth(renderer.fontScale());
+
   if (type_ == DomElement_TABLE) {
-    layoutTable(ps, canIncreaseWidth, renderer);
+    /*
+     * A table will apply the width to it's border box, unlike a block level
+     * element which applies the width to it's padding box !
+     */
+    if (cssSetWidth > 0) {
+      cssSetWidth -= cssBorderWidth(Left, renderer.fontScale())
+	+ cssBorderWidth(Right, renderer.fontScale());
+      cssSetWidth = std::max(0.0, cssSetWidth);
+    }
+
+    layoutTable(ps, canIncreaseWidth, renderer, cssSetWidth);
   } else {
-    double width = cssWidth(renderer.fontScale());
-    double origMaxX = ps.maxX;
+    double width = cssSetWidth;
 
     bool paddingBorderWithinWidth
       = isTableCell() && isPercentageLength(cssProperty(PropertyStyleWidth));
@@ -1507,16 +1510,8 @@ double Block::layoutBlock(PageState &ps,
 	  ps.y = minY;
       }
 
-      /*
-       * For a percentage length we will not try to overflow the parent,
-       * unless we are a table cell
-       */
-      if (!isPercentageLength(cssProperty(PropertyStyleWidth))
-	  || isTableCell())
-	  ps.maxX = cMaxX + cssPadding(Right, renderer.fontScale())
-	    + cssBorderWidth(Right, renderer.fontScale());
-      else
-	ps.maxX = origMaxX;
+      ps.maxX = cMaxX + cssPadding(Right, renderer.fontScale())
+	+ cssBorderWidth(Right, renderer.fontScale());
 
       advance(ps, spacerBottom, renderer);
 
@@ -1573,11 +1568,29 @@ double Block::layoutBlock(PageState &ps,
   ps.y += collapseMarginBottom;
 
   if (blockLayout.empty()) {
+    ps.page = startPage;
     ps.y = inY;
     collapseMarginBottom = inCollapseMarginTop;
   }
 
-  ps.minX = minX;
+  /*
+   * For a percentage length we will not try to overflow the parent,
+   * unless we are a table cell
+   */
+  if (!isTableCell()
+      && (ps.maxX - ps.minX == cssSetWidth)
+      && isPercentageLength(cssProperty(PropertyStyleWidth)))
+    ps.maxX = origMaxX;
+  else if (ps.maxX < origMaxX)
+    ps.maxX = origMaxX;
+  else {
+    if (!isFloat()) {
+      ps.minX -= cssMargin(Left, renderer.fontScale());
+      ps.maxX += cssMargin(Right, renderer.fontScale());
+    }
+  }
+
+  ps.minX = origMinX;
 
   std::string pageBreakAfter = cssProperty(PropertyStylePageBreakAfter);
   if (pageBreakAfter == "always") {
