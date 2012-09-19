@@ -1106,7 +1106,6 @@ void Block::tableComputeColumnWidths(std::vector<double>& minima,
   /*
    * Current limitations:
    * - we currently ignore column/column group widths
-   * - we do not interpret percentage values for cell/column widths
    */
   if (   type_ == DomElement_TBODY
       || type_ == DomElement_THEAD

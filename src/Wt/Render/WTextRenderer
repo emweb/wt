@@ -60,7 +60,7 @@ namespace Wt {
  * pure virtual methods to create an appropriate WPaintDevice for each
  * page and to provide page dimension information. The paint device
  * needs to support font metrics, which currently is only implemented
- * by WPdfImage.
+ * by WPdfImage or WRasterImage.
  *
  * All coordinates and dimensions used by this class are pixel coordinates.
  *

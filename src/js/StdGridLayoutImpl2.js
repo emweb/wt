@@ -324,7 +324,7 @@ WT_DECLARE_WT_MEMBER
 	     item.w.style.position = 'absolute';
 	     item.w.style.visibility = 'hidden';
 
-	     if (!item.w.wtResize) {
+	     if (!item.w.wtResize && !WT.isIElt9) {
 	       item.w.style.boxSizing = 'border-box';
 	       var cssPrefix = WT.cssPrefix('BoxSizing');
 	       if (cssPrefix)
@@ -421,12 +421,15 @@ WT_DECLARE_WT_MEMBER
 
 		   item.ps[dir] = wPreferred;
 		 } else {
-		   wPreferred = Math.max(wPreferred, item.ps[dir]);
+		   if (wPreferred == 0)
+		     wPreferred = item.ps[dir];
 		   item.ps[dir] = wPreferred;
 		 }
 
-	       } else if (item.layout)
-		 wPreferred = Math.max(wPreferred, item.ps[dir]);
+	       } else if (item.layout) {
+		 if (wPreferred == 0)
+		   wPreferred = item.ps[dir];
+	       }
 
 	       if (!item.span || item.span[dir] == 1)
 		 if (wPreferred > dPreferred)
@@ -1244,7 +1247,15 @@ WT_DECLARE_APP_MEMBER
 	for (i=0, il = layouts.length; i < il; ++i) {
 	  var ll = layouts[i];
 
-	  if (ll.contains(layout)) {
+	  if (ll.getId() == layout.getId()) {
+	    /*
+	     * Is being re-added (nested layout of item removed + added
+	     * in same event)
+	     */
+	    layouts[i] = layout;
+	    layout.descendants = ll.descendants;
+	    return;
+	  } else if (ll.contains(layout)) {
 	    addIn(ll.descendants, layout);
 	    return;
 	  } else if (layout.contains(ll)) {

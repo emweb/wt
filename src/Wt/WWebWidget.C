@@ -1210,6 +1210,13 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyClass,
 			    Utils::addWord(element.getProperty(PropertyClass),
 					   "Wt-popup"));
+	if (!all &&
+	    !flags_.test(BIT_STYLECLASS_CHANGED) &&
+	    lookImpl_ && !lookImpl_->styleClass_.empty())
+	  element.setProperty(PropertyClass,
+			      Utils::addWord(element.getProperty(PropertyClass),
+					     lookImpl_->styleClass_.toUTF8()));
+
 	if (!app) app = WApplication::instance();
 	if (all && app->environment().agent() == WEnvironment::IE6
 	    && element.type() == DomElement_DIV) {

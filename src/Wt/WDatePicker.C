@@ -77,10 +77,12 @@ void WDatePicker::create(WInteractWidget *displayWidget,
 
   calendar_ = new WCalendar();
   calendar_->activated().connect(popup_, &WWidget::hide);
+  calendar_->activated().connect(this, &WDatePicker::onPopupHidden);
   calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
   WPushButton *closeButton = new WPushButton(tr("Wt.WDatePicker.Close"));
   closeButton->clicked().connect(popup_, &WWidget::hide);
+  closeButton->clicked().connect(this, &WDatePicker::onPopupHidden);
 
   popup_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   popup_->bindWidget("calendar", calendar_);
@@ -105,6 +107,12 @@ void WDatePicker::create(WInteractWidget *displayWidget,
 void WDatePicker::setPopupVisible(bool visible)
 {
   popup_->setHidden(!visible);
+}
+
+void WDatePicker::onPopupHidden()
+{
+  forEdit_->setFocus();
+  popupClosed();
 }
 
 void WDatePicker::setGlobalPopup(bool global)

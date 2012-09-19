@@ -269,7 +269,7 @@ public:
    * account the current application locale. If the key cannot be
    * resolved, its value is set to '??key??'.
    *
-   * \sa WApplication::messageResourceBundle(), WApplication::locale(), WApplication::localizedStrings()
+   * \sa WApplication::locale(), WApplication::localizedStrings()
    */
   static WString tr(const char *key);
 
@@ -281,15 +281,32 @@ public:
 
   /*! \brief Creates a localized string from a key for a number \p n.
    *
-   * Whenever the value of the string is needed, the \p key is used for a
-   * lookup in the application message resource bundles taking into
-   * account the current application locale. This function fetches the
-   * appropriate plural case for the translation corresponding to the
-   * quantity \p n.
+   * Whenever the value of the string is needed, the \p key is used
+   * for a lookup in the application message resource bundles taking
+   * into account the current application locale. This function
+   * fetches the appropriate plural case for the translation
+   * corresponding to the quantity \p n. Note that usually, your
+   * string will have a place-holder for the value of \p n, and thus
+   * you will also need to bind \p as an argument.
+   *
+   * For example, consider a string "quantity.cars" with two plural cases:
+   * - n == 1: "{1} car"
+   * - n != 1: "{1} cars"
+   *
+   * You would use the following to use the string:
+   * \if cpp
+   * \code
+   * Wt::WString::trn("quantity.cars", cars).arg(cars);
+   * \endcode
+   * \else
+   * \code
+   * WString.trn("quantity.cars", cars).arg(cars);
+   * \endcode
+   * \endif
    *
    * If the \p key cannot be resolved, its value is set to '??key??'.
    *
-   * \sa WApplication::messageResourceBundle(), WApplication::locale(), WApplication::localizedStrings()
+   * \sa tr()
    */
   static WString trn(const char *key, ::uint64_t n);
 

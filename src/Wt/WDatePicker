@@ -206,6 +206,13 @@ public:
    */
   void setPopupVisible(bool visible);
 
+  /*! \brief A %signal which indicates that the popup has been closed.
+   *
+   * The signal is only fired when the popup has been closed by the
+   * user.
+   */
+  Signal<>& popupClosed() { return popupClosed_; }
+
 private:
   WT_USTRING        format_;
   WInteractWidget  *displayWidget_;
@@ -215,6 +222,7 @@ private:
   WTemplate        *popup_;
   WCalendar        *calendar_;
 
+  Signal<> popupClosed_;
   JSlot positionJS_;
 
   void createDefault();
@@ -222,6 +230,7 @@ private:
 
   void setFromCalendar();
   void setFromLineEdit();
+  void onPopupHidden();
 };
 
 }
