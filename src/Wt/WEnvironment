@@ -14,6 +14,7 @@
 #include <Wt/WDllDefs.h>
 #include <Wt/Http/Request>
 #include <Wt/WSignal>
+#include <Wt/WDateTime>
 
 namespace Wt {
 
@@ -490,6 +491,37 @@ public:
    */
   UserAgent agent() const { return agent_; }
 
+  /*! \brief Returns the client side clock's date time
+   *
+   * This returns the client side clock's date time by adding an offset
+   * to the server's local time.
+   * 
+   * Note that if JavaScript is not availible the local date time will be
+   * returned.
+   */
+  WDateTime dateTimeClock() const;
+
+  /*! \brief Returns the client side date time according to a UTC offset
+   *
+   * This returns the client side date time by adding the client's UTC
+   * offset to the UTC time.
+   * 
+   * Note that if JavaScript is not availible the local date time will be
+   * returned.
+   */
+  WDateTime dateTime() const;
+
+  /*! \brief Returns the time offset to the server time in seconds
+   *
+   * This returns the difference between the client's UTC offet and the
+   * server's UTC offset in seconds. This is useful to change a server's
+   * time period to client's time period simply by adding seconds from this
+   * function to the time.
+   * 
+   * Note that if JavaScript is not availible 0 will be returned.
+   */
+  int timeOffsetToServer() const;
+
   /*! \brief Returns whether the user agent is Microsoft Internet Explorer.
    *
    * \sa agent()
@@ -655,6 +687,9 @@ protected:
   std::string pathInfo_;
   std::string internalPath_;
   std::string publicDeploymentPath_;
+  long long timeOffsetMS_;
+  int timeOffsetMins_;
+  int timeServerOffset_;
 
 #ifndef WT_TARGET_JAVA
   WSslInfo *sslInfo_;
