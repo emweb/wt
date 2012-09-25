@@ -983,7 +983,16 @@ void Block::layoutTable(PageState &ps,
   ps.minX += cssBoxMargin(Left, renderer.fontScale());
   ps.maxX -= cssBoxMargin(Right, renderer.fontScale());
 
-  tableDoLayout(ps.minX, ps, cellSpacing, widths, renderer);
+  Block *repeatHead = 0;
+  if (!children_.empty() && children_[0]->type_ == DomElement_THEAD) {
+    // Note: should actually interpret CSS 'table-header-group' value for
+    // display
+    repeatHead = children_[0];
+  }
+  bool protectRows = repeatHead != 0;
+
+  tableDoLayout(ps.minX, ps, cellSpacing, widths,
+		protectRows, repeatHead, renderer);
 
   ps.minX -= cssBorderWidth(Left, renderer.fontScale());
   ps.maxX += cssBorderWidth(Right, renderer.fontScale());
@@ -993,6 +1002,7 @@ void Block::layoutTable(PageState &ps,
 
 void Block::tableDoLayout(double x, PageState &ps, int cellSpacing,
 			  const std::vector<double>& widths,
+			  bool protectRows, Block *repeatHead,
 			  const WTextRenderer& renderer)
 {
   if (   type_ == DomElement_TABLE
@@ -1002,20 +1012,63 @@ void Block::tableDoLayout(double x, PageState &ps, int cellSpacing,
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
-      c->tableDoLayout(x, ps, cellSpacing, widths, renderer);
+      c->tableDoLayout(x, ps, cellSpacing, widths, protectRows,
+		       (type_ != DomElement_THEAD ? repeatHead : 0),
+		       renderer);
+    }
+
+    if (repeatHead && type_ == DomElement_THEAD) {
+      blockLayout.clear();
+
+      BlockBox bb;
+      bb.page = ps.page;
+      bb.y = minChildrenLayoutY(ps.page);
+      bb.height = childrenLayoutHeight(ps.page);
+      bb.x = x;
+      bb.width = 0; // Not really used
+
+      blockLayout.push_back(bb);
     }
   } else if (type_ == DomElement_TR) {
     double startY = ps.y;
     int startPage = ps.page;
     tableRowDoLayout(x, ps, cellSpacing, widths, renderer, -1);
+
+    if (protectRows && ps.page != startPage) {
+      ps.y = startY;
+      ps.page = startPage;
+
+      pageBreak(ps);
+
+      if (repeatHead) {
+	/*
+	 * Add a blocklayout element to THEAD
+	 * These are handled during render() to repeat the head element
+	 */
+	BlockBox bb;
+	bb.page = ps.page;
+	bb.y = ps.y;
+	bb.height = repeatHead->blockLayout[0].height;
+	bb.x = x;
+	bb.width = 0; // not really used
+
+	repeatHead->blockLayout.push_back(bb);
+
+	ps.y += bb.height;
+      }
+
+      startY = ps.y;
+      startPage = ps.page;
+      tableRowDoLayout(x, ps, cellSpacing, widths, renderer, -1);
+    }
+
     double rowHeight = (ps.page - startPage) 
       * renderer.textHeight(ps.page) // XXX
       + (ps.y - startY) - cellSpacing;
 
     ps.y = startY;
     ps.page = startPage;
-    tableRowDoLayout(x, 
-		     ps, cellSpacing, widths, renderer, rowHeight);
+    tableRowDoLayout(x, ps, cellSpacing, widths, renderer, rowHeight);
   }
 }
 
@@ -1251,16 +1304,6 @@ double Block::cssHeight(double fontScale) const
   return result;
 }
 
-double Block::layoutHeight() const
-{
-  double h = 0;
-
-  for (unsigned i = 0; i < blockLayout.size(); ++i)
-    h += blockLayout[i].height;
-
-  return h;
-}
-
 double Block::diff(double y, int page, double startY, int startPage,
 		   const WTextRenderer& renderer)
 {
@@ -1294,6 +1337,91 @@ void Block::pageBreak(PageState& ps)
 
   ++ps.page;
   ps.y = 0;
+}
+
+double Block::maxChildrenLayoutY(int page) const
+{
+  double result = 0;
+
+  for (unsigned i = 0; i < children_.size(); ++i)
+    result = std::max(result, children_[i]->maxLayoutY(page));
+
+  return result;
+}
+
+double Block::minChildrenLayoutY(int page) const
+{
+  double result = 1E9;
+
+  for (unsigned i = 0; i < children_.size(); ++i)
+    result = std::min(result, children_[i]->minLayoutY(page));
+
+  return result;
+}
+
+double Block::maxLayoutY(int page) const
+{
+  double result = 0;
+
+  for (unsigned i = 0; i < inlineLayout.size(); ++i) {
+    const InlineBox& ib = inlineLayout[i];
+  
+    if (page == -1 || ib.page == page) {
+      /* to be accurate, we need font metrics, see renderText() ! */
+      result = std::max(result, ib.y + ib.height);
+    }
+  }
+
+  for (unsigned i = 0; i < blockLayout.size(); ++i) {
+    const BlockBox& lb = blockLayout[i];
+
+    if (page == -1 || lb.page == page) {
+      /* to be accurate, we need to call toBorderBox()) */
+      result = std::max(result, lb.y + lb.height);
+    }
+  }
+
+  if (inlineLayout.empty() && blockLayout.empty()) {
+    for (unsigned i = 0; i < children_.size(); ++i)
+      result = std::max(result, children_[i]->maxLayoutY(page));
+  }
+
+  return result;
+}
+
+double Block::minLayoutY(int page) const
+{
+  double result = 1E9;
+
+  for (unsigned i = 0; i < inlineLayout.size(); ++i) {
+    const InlineBox& ib = inlineLayout[i];
+  
+    if (page == -1 || ib.page == page) {
+      /* to be accurate, we need font metrics, see renderText() ! */
+      result = std::min(result, ib.y);
+    }
+  }
+
+  for (unsigned i = 0; i < blockLayout.size(); ++i) {
+    const BlockBox& lb = blockLayout[i];
+
+    if (page == -1 || lb.page == page) {
+      /* to be accurate, we need to call toBorderBox()) */
+      result = std::min(result, lb.y);
+    }
+  }
+
+  if (inlineLayout.empty() && blockLayout.empty()) {
+    for (unsigned i = 0; i < children_.size(); ++i)
+      result = std::min(result, children_[i]->minLayoutY(page));
+  }
+
+  return result;
+}
+
+double Block::childrenLayoutHeight(int page) const
+{
+  return maxChildrenLayoutY(page) - minChildrenLayoutY(page);
 }
 
 double Block::layoutBlock(PageState &ps,
@@ -1551,7 +1679,12 @@ double Block::layoutBlock(PageState &ps,
 
   for (int i = startPage; i <= ps.page; ++i) {
     double boxY =  (i == startPage) ? startY : 0;
-    double boxH = (i == ps.page ? ps.y : renderer.textHeight(i)) - boxY;
+    double boxH;
+    
+    if (i == ps.page)
+      boxH = ps.y - boxY;
+    else
+      boxH = std::max(0.0, maxChildrenLayoutY(i) - boxY);
 
     if (boxH > 0) {
       blockLayout.push_back(BlockBox());
@@ -1916,6 +2049,30 @@ std::string Block::cssTextDecoration() const
     return v;
 }
 
+void Block::reLayout(const BlockBox& from, const BlockBox& to)
+{
+  std::cerr << "Relayout: " << from.y << " -> " << to.y << std::endl;
+
+  for (unsigned i = 0; i < inlineLayout.size(); ++i) {
+    InlineBox& ib = inlineLayout[i];
+
+    ib.page = to.page;
+    ib.x += to.x - from.x;
+    ib.y += to.y - from.y;
+  }
+
+  for (unsigned i = 0; i < blockLayout.size(); ++i) {
+    BlockBox& bb = blockLayout[i];
+
+    bb.page = to.page;
+    bb.x += to.x - from.x;
+    bb.y += to.y - from.y;
+  }
+
+  for (unsigned i = 0; i < children_.size(); ++i)
+    children_[i]->reLayout(from, to);
+}
+
 void Block::render(WTextRenderer& renderer, int page)
 {
   if (isText())
@@ -1980,11 +2137,24 @@ void Block::render(WTextRenderer& renderer, int page)
       renderer.painter()->setPen(WPen(green));
       renderer.painter()->drawRect(rect);
 #endif // DEBUG_LAYOUT
+
+      if (type_ == DomElement_THEAD) {
+	/*
+	 * This is the first or a repeated THEAD element
+	 * (for a repeated:) move children here + render
+	 */
+	for (unsigned j = 0; j < children_.size(); ++j) {
+	  if (i > 0)
+	    children_[j]->reLayout(blockLayout[i-1], lb);
+	  children_[j]->render(renderer, page);
+	}
+      }
     }
   }
 
-  for (unsigned i = 0; i < children_.size(); ++i)
-    children_[i]->render(renderer, page);
+  if (type_ != DomElement_THEAD)
+    for (unsigned i = 0; i < children_.size(); ++i)
+      children_[i]->render(renderer, page);
 }
 
 void Block::renderText(const std::string& text, WTextRenderer& renderer,

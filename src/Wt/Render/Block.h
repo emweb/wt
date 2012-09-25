@@ -152,9 +152,9 @@ private:
 		     double minX, double maxX,
 		     bool canIncreaseWidth,
 		     const WTextRenderer& renderer);
-
   void tableDoLayout(double x, PageState &ps, int cellSpacing,
 		     const std::vector<double>& widths,
+		     bool protectRows, Block *repeatHead,
 		     const WTextRenderer& renderer);
   void tableRowDoLayout(double x, PageState &ps,
 			int cellSpacing,
@@ -171,14 +171,18 @@ private:
 			      Block *table);
 
   LayoutBox toBorderBox(const LayoutBox& bb, double fontScale) const;
+  double maxLayoutY(int page) const;
+  double minLayoutY(int page) const;
+  double maxChildrenLayoutY(int page) const;
+  double minChildrenLayoutY(int page) const;
+  double childrenLayoutHeight(int page) const;
+  void reLayout(const BlockBox& from, const BlockBox& to);
 
   void renderText(const std::string& text, WTextRenderer& renderer, int page);
   void renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
 		     WFlags<Side> verticals);
 
   WString generateItem() const;
-
-  double layoutHeight() const;
 
   static void advance(PageState &ps, double height,
 		      const WTextRenderer& renderer);

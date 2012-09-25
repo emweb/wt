@@ -320,7 +320,8 @@ void DomElement::setEvent(const char *eventName,
     js << "o=this;";
 
     if (anchorClick)
-      js << "if(e.ctrlKey||e.metaKey||(" WT_CLASS ".button(e) > 1))return true;else{";
+      js << "if(e.ctrlKey||e.metaKey||(" WT_CLASS ".button(e) > 1))"
+	"return true;else{";
 
     /*
      * This order, first JavaScript and then event propagation is important
