@@ -81,6 +81,7 @@ WT_DECLARE_WT_MEMBER
 	 if (c != child)
 	   c.style.display = 'none';
 	 else {
+	   c.style.display = '';
 	   if (child.childNodes.length > 0) {
 	     var layout = jQuery.data(child.lastChild, 'layout');
 
