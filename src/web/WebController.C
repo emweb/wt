@@ -63,7 +63,11 @@ WebController::WebController(WServer& server,
 {
   CgiParser::init();
 
+#ifndef WT_DEBUG_JS
   WObject::seedId(WRandom::get());
+#else
+  WObject::seedId(0);
+#endif
 
   redirectSecret_ = WRandom::generateId(32);
 

@@ -419,6 +419,12 @@ public:
    */
   WString& arg(int value);
 
+  /*! \brief Substitutes the next positional argument with an unsigned value.
+   *
+   * \sa arg()
+   */
+  WString& arg(unsigned value);
+
   /*! \brief Substitutes the next positional argument with an integer value.
    *
    * In the string, the \p n-th argument is reffered to as using
@@ -430,6 +436,12 @@ public:
    * the shop.</tt>"
    */
   WString& arg(::int64_t value);
+
+  /*! \brief Substitutes the next positional argument with an unsigned value.
+   *
+   * \sa arg()
+   */
+  WString& arg(::uint64_t value);
 
   /*! \brief Substitutes the next positional argument with a double value.
    *

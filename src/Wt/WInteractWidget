@@ -344,10 +344,10 @@ protected:
 
 protected:
   // also used in WAbstractToggleButton
-  static const char *CLICK_SIGNAL;
   static const char *M_CLICK_SIGNAL;
 
 private:
+  static const char *CLICK_SIGNAL;
   static const char *KEYDOWN_SIGNAL;
   static const char *KEYPRESS_SIGNAL;
   static const char *KEYUP_SIGNAL;
@@ -369,6 +369,7 @@ private:
   static const char *GESTURE_END_SIGNAL;
 
   friend class DomElement;
+  friend class WAbstractToggleButton;
   friend class WWebWidget;
 
   int mouseOverDelay_;

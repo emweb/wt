@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
    this.ancestor = null;
    this.descendants = [];
 
-   /** @const */ var debug = false;
+   /** @const */ var debug = true;
 
    /** @const */ var STRETCH = 0;
    /** @const */ var RESIZABLE = 1;
@@ -347,6 +347,8 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.fs)
 	     item.fs = []; // fixed size (size defined by inline size or CSS)
 
+	   var first = !item.set;
+
 	   if (!item.set)
 	     item.set = [false, false];
 
@@ -357,6 +359,7 @@ WT_DECLARE_WT_MEMBER
 	     if (debug)
 	       console.log("measure " + dir + " "
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
+
 
 	     if (item.dirty || layoutDirty) {
 	       var wMinimum = calcMinimumSize(item.w, dir);
@@ -369,9 +372,12 @@ WT_DECLARE_WT_MEMBER
 		* account the size set for a widget by CSS. But we can't really
 		* read this -- computedStyle for width or height measures
 		* instead of interpreting the stylesheet ... !
+		*
+		* we'll consider computedStyle only for vertical size, and only
+		* the first time
 		*/
                if (!item.set[dir]) {
-		 if (dir == HORIZONTAL) {
+		 if (dir == HORIZONTAL || !first) {
 		   var fw = WT.pxself(item.w, DC.size);
 		   if (fw)
 		     item.fs[dir] = fw + margin(item.w, dir);
@@ -505,43 +511,10 @@ WT_DECLARE_WT_MEMBER
 	     totalMargin
 	     ];
 
-     /*
-      * If we are directly in a parent layout, then we want to
-      * mark the corresponding cell as dirty if the TOTAL_PREFERRED_SIZE
-      * has changed.
-      */
-     if (parent) {
-       if (prevMeasures[TOTAL_PREFERRED_SIZE]
-	   != DC.measures[TOTAL_PREFERRED_SIZE]) {
-	 var totalPs = DC.measures[TOTAL_PREFERRED_SIZE];
+     if (prevMeasures[TOTAL_PREFERRED_SIZE] != DC.measures[TOTAL_PREFERRED_SIZE])
+       self.updateSizeInParent(dir);
 
-	 if (parentWithWtPS) {
-	   /*
-	    * Go back up and apply wtGetPS() to totalPs
-	    */
-	   var c = widget, p = c.parentNode;
-
-	   for (;;) {
-	     if (p.wtGetPS)
-	       totalPs = p.wtGetPS(p, c, dir, totalPs);
-
-	     totalPs += boxMargin(p, dir);
-
-	     if (p == parentItemWidget)
-	       break;
-
-	     c = p;
-	     p = c.parentNode;
-	   }
-	 } else
-	   totalPs += parentMargin[dir];
-
-	 parent.setChildSize(parentItemWidget, dir, totalPs);
-       }
-     }
-
-     /*
-      * If our minimum layout requirements have changed, then we want
+     /* If our minimum layout requirements have changed, then we want
       * to communicate this up using the minimum widths
       *  -- FIXME IE6
       */
@@ -564,6 +537,46 @@ WT_DECLARE_WT_MEMBER
        }
      }
    }
+
+   this.updateSizeInParent = function(dir) {
+     /*
+      * If we are directly in a parent layout, then we want to
+      * mark the corresponding cell as dirty if the TOTAL_PREFERRED_SIZE
+      * has changed (or force).
+      */
+     if (parent) {
+       var DC = DirConfig[dir],
+           totalPs = DC.measures[TOTAL_PREFERRED_SIZE];
+
+       if (parentWithWtPS) {
+	 var widget = WT.getElement(id);
+
+	 if (!widget)
+	   return;
+
+	 /*
+	  * Go back up and apply wtGetPS() to totalPs
+	  */
+	 var c = widget, p = c.parentNode;
+
+	 for (;;) {
+	   if (p.wtGetPS)
+	     totalPs = p.wtGetPS(p, c, dir, totalPs);
+
+	   totalPs += boxMargin(p, dir);
+
+	   if (p == parentItemWidget)
+	     break;
+
+	   c = p;
+	   p = c.parentNode;
+	 }
+       } else
+	 totalPs += parentMargin[dir];
+
+       parent.setChildSize(parentItemWidget, dir, totalPs);
+     }
+   };
 
    function finishResize(dir, di, delta) {
      var DC = DirConfig[dir];
@@ -1051,7 +1064,7 @@ WT_DECLARE_WT_MEMBER
 	       if (w.wtResize)
 		 w.wtResize(w,
 			    Math.round(item.size[HORIZONTAL]),
-			    Math.round(item.size[VERTICAL]));
+			    Math.round(item.size[VERTICAL]), item);
 
 	       item.dirty = false;
 	     }
@@ -1114,6 +1127,8 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setChildSize = function(widget, dir, preferredSize) {
+     console.log("setChildSize: " + dir + " " + preferredSize);
+
      var i, il;
      for (i = 0, il = config.items.length; i < il; ++i) {
        var item = config.items[i];
@@ -1123,11 +1138,11 @@ WT_DECLARE_WT_MEMBER
 
 	 item.ps[dir] = preferredSize;
 	 item.layout = true;
+
+	 setItemDirty(item);
 	 break;
        }
      }
-
-     itemDirty = true;
    };
 
    this.measure = function(dir) {

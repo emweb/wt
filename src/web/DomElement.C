@@ -460,7 +460,7 @@ void DomElement::callJavaScript(const std::string& jsCode,
 {
   ++numManipulations_;
   if (!evenWhenDeleted)
-    javaScript_ << jsCode;
+    javaScript_ << jsCode << '\n';
   else
     javaScriptEvenWhenDeleted_ += jsCode;
 }
@@ -568,7 +568,7 @@ void DomElement::callMethod(const std::string& method)
   else
     javaScript_ << var_ << '.';
 
-  javaScript_ << method << ';';
+  javaScript_ << method << ";\n";
 }
 
 void DomElement::jsStringLiteral(std::ostream& out, const std::string& s,
@@ -952,8 +952,11 @@ void DomElement::asHTML(EscapeOStream& out,
       }
       break;
     case PropertyValue:
-      out << " value=";
-      fastHtmlAttributeValue(out, attributeValues, i->second);
+      if (type_ != DomElement_TEXTAREA) {
+	out << " value=";
+	fastHtmlAttributeValue(out, attributeValues, i->second);
+      } else
+	innerHTML += i->second;
       break;
     case PropertySrc:
       out << " src=";
@@ -1148,12 +1151,16 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
   out << "var " << var_ << "=";
 
   if (app->environment().agentIsIE()
-      && app->environment().agent() <= WEnvironment::IE8) {
+      && app->environment().agent() <= WEnvironment::IE8
+      && type_ != DomElement_TEXTAREA) {
     /*
      * IE pre 9 can create the entire opening tag at once.
      * This rocks because it results in fewer JavaScript statements.
      * It also avoids problems with changing certain attributes not
      * working in IE.
+     *
+     * However, we cannot do it for TEXTAREA since there are inconsistencies
+     * with setting its value
      */
     out << "document.createElement('";
     out.pushEscape(EscapeOStream::JsStringLiteralSQuote);

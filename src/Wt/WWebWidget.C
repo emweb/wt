@@ -105,7 +105,6 @@ WWebWidget::OtherImpl::JavaScriptStatement::JavaScriptStatement
 WWebWidget::OtherImpl::OtherImpl(WWebWidget *self)
   : id_(0),
     attributes_(0),
-    attributesSet_(0),
     jsMembers_(0),
     jsStatements_(0),
     resized_(0),
@@ -118,7 +117,6 @@ WWebWidget::OtherImpl::~OtherImpl()
 {
   delete id_;
   delete attributes_;
-  delete attributesSet_;
   delete jsMembers_;
   delete jsStatements_;
   delete dropSignal_;
@@ -835,10 +833,10 @@ void WWebWidget::setAttributeValue(const std::string& name,
 
   (*otherImpl_->attributes_)[name] = value;
 
-  if (!otherImpl_->attributesSet_)
-    otherImpl_->attributesSet_ = new std::vector<std::string>;
+  if (!transientImpl_)
+    transientImpl_ = new TransientImpl();
 
-  otherImpl_->attributesSet_->push_back(name);
+  transientImpl_->attributesSet_.push_back(name);
 
   repaint(RepaintPropertyAttribute);
 }
@@ -1493,9 +1491,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    element.setProperty(PropertyStyle, i->second.toUTF8());
 	  else
 	    element.setAttribute(i->first, i->second.toUTF8());
-      } else if (otherImpl_->attributesSet_) {
-	for (unsigned i = 0; i < otherImpl_->attributesSet_->size(); ++i) {
-	  std::string attr = (*otherImpl_->attributesSet_)[i];
+      } else if (transientImpl_) {
+	for (unsigned i = 0; i < transientImpl_->attributesSet_.size(); ++i) {
+	  std::string attr = transientImpl_->attributesSet_[i];
 	  if (attr == "style")
 	    element.setProperty(PropertyStyle,
 				(*otherImpl_->attributes_)[attr].toUTF8());
@@ -1504,9 +1502,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 				 (*otherImpl_->attributes_)[attr].toUTF8());
 	}
       }
-
-      delete otherImpl_->attributesSet_;
-      otherImpl_->attributesSet_ = 0;
     }
 
     if (all && otherImpl_->jsMembers_) {
@@ -1661,6 +1656,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       }
     }
   }
+
   flags_.reset(BIT_HIDDEN_CHANGED);
 
   renderOk();
@@ -1976,7 +1972,7 @@ void WWebWidget::enableAjax()
 #else
       EventSignalBase& s = **i;
 #endif
-      if (s.name() == WInteractWidget::CLICK_SIGNAL)
+      if (s.name() == WInteractWidget::M_CLICK_SIGNAL)
 	repaint(RepaintToAjax);
 
       s.senderRepaint();

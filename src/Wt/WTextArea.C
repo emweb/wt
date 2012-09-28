@@ -72,11 +72,7 @@ void WTextArea::updateDom(DomElement& element, bool all)
 {
   if (element.type() == DomElement_TEXTAREA)
     if (contentChanged_ || all) {
-      if (all)
-	element.setProperty(Wt::PropertyInnerHTML,
-			    escapeText(content_).toUTF8());
-      else
-	element.setProperty(Wt::PropertyValue, content_.toUTF8());
+      element.setProperty(Wt::PropertyValue, content_.toUTF8());
       contentChanged_ = false;
     }
 

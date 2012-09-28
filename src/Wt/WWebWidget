@@ -343,6 +343,7 @@ private:
     std::vector<std::string> childRemoveChanges_;
     std::vector<WWidget *>   addedChildren_;
     std::vector<WT_USTRING>  addedStyleClasses_, removedStyleClasses_;
+    std::vector<std::string> attributesSet_;
 
     bool specialChildRemove_;
     WAnimation animation_;
@@ -415,7 +416,6 @@ private:
     std::string                         *id_;
 
     std::map<std::string, WT_USTRING>   *attributes_;
-    std::vector<std::string>            *attributesSet_;
     std::vector<Member>                 *jsMembers_;
     std::vector<JavaScriptStatement>    *jsStatements_;
     JSignal<int, int>                   *resized_;

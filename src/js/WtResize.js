@@ -8,9 +8,9 @@
 
 WT_DECLARE_WT_MEMBER
 (10, JavaScriptFunction, "ChildrenResize",
-
  function(self, w, h) {
-  var j, jl, c, WT = this;
+  var WT = this;
+
   self.style.height = h + 'px';
 
   if (WT.boxSizing(self)) {
@@ -43,8 +43,10 @@ WT_DECLARE_WT_MEMBER
     return result;
   }
 
-  for (j=0, jl=self.childNodes.length; j < jl; ++j) {
+  var j, jl, c;
+  for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
     c = self.childNodes[j];
+
     if (c.nodeType == 1) {
       var ch = h - marginV(c);
 
