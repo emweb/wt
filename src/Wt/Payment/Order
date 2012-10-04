@@ -37,7 +37,7 @@ namespace Wt {
  *
  * \ingroup payment
  */
-class Order
+class WT_API Order
 {
 public:
   /*! \brief Sets sales taxes.
