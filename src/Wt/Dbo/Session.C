@@ -600,6 +600,29 @@ void Session::resolveJoinIds(MappingInfo *mapping)
   }
 }
 
+std::string Session::tableCreationSql()
+{
+  initSchema();
+
+  std::stringstream sout;
+
+  Transaction t(*this);
+
+  std::set<std::string> tablesCreated;
+
+  for (ClassRegistry::iterator i = classRegistry_.begin();
+       i != classRegistry_.end(); ++i)
+    createTable(i->second, tablesCreated, &sout);
+
+  for (ClassRegistry::iterator i = classRegistry_.begin();
+       i != classRegistry_.end(); ++i)
+    createRelations(i->second, tablesCreated, &sout);
+
+  t.commit();  
+
+  return sout.str();
+}
+
 void Session::createTables()
 {
   initSchema();
@@ -610,17 +633,18 @@ void Session::createTables()
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createTable(i->second, tablesCreated);
+    createTable(i->second, tablesCreated, 0);
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createRelations(i->second, tablesCreated);
+    createRelations(i->second, tablesCreated, 0);
 
   t.commit();
 }
 
 void Session::createTable(MappingInfo *mapping,
-			  std::set<std::string>& tablesCreated)
+			  std::set<std::string>& tablesCreated,
+			  std::ostream *sout)
 {
   if (tablesCreated.count(mapping->tableName) != 0)
     return;
@@ -711,7 +735,7 @@ void Session::createTable(MappingInfo *mapping,
 
       MappingInfo *otherMapping = getMapping(field.foreignKeyTable().c_str());
 
-      createTable(otherMapping, tablesCreated);
+      createTable(otherMapping, tablesCreated, sout);
 
       sql << ") references \"" << Impl::quoteSchemaDot(field.foreignKeyTable())
 	  << "\" (" << otherMapping->primaryKeys() << ")";
@@ -733,7 +757,10 @@ void Session::createTable(MappingInfo *mapping,
 
   sql << "\n)\n";
 
-  connection(true)->executeSql(sql.str());
+  if (sout)
+    *sout << sql.str();
+  else
+    connection(true)->executeSql(sql.str());
 
   if (mapping->surrogateIdFieldName) {
     std::string tableName = Impl::quoteSchemaDot(mapping->tableName);
@@ -744,12 +771,16 @@ void Session::createTable(MappingInfo *mapping,
 							idFieldName);
 
     for (unsigned i = 0; i < sql.size(); i++)
-      connection(true)->executeSql(sql[i]);
+      if (sout)
+	*sout << sql[i];
+      else
+	connection(true)->executeSql(sql[i]);
   }
 }
 
 void Session::createRelations(MappingInfo *mapping,
-			      std::set<std::string>& tablesCreated)
+			      std::set<std::string>& tablesCreated,
+			      std::ostream *sout)
 {
   for (unsigned i = 0; i < mapping->sets.size(); ++i) {
     const SetInfo& set = mapping->sets[i];
@@ -761,7 +792,7 @@ void Session::createRelations(MappingInfo *mapping,
 	createJoinTable(set.joinName, mapping, other,
 			set.joinSelfId, set.joinOtherId,
 			set.fkConstraints, set.otherFkConstraints,
-			tablesCreated);
+			tablesCreated, sout);
       }
     }
   }
@@ -772,7 +803,8 @@ void Session::createJoinTable(const std::string& joinName,
 			      const std::string& joinId1,
 			      const std::string& joinId2,
 			      int fkConstraints1, int fkConstraints2,
-			      std::set<std::string>& tablesCreated)
+			      std::set<std::string>& tablesCreated,
+			      std::ostream *sout)
 {
   MappingInfo joinTableMapping;
 
@@ -785,16 +817,17 @@ void Session::createJoinTable(const std::string& joinName,
   addJoinTableFields(joinTableMapping, mapping2, joinId2, "key2",
 		     fkConstraints2);
 
-  createTable(&joinTableMapping, tablesCreated);
+  createTable(&joinTableMapping, tablesCreated, sout);
 
-  createJoinIndex(joinTableMapping, mapping1, joinId1, "key1");
-  createJoinIndex(joinTableMapping, mapping2, joinId2, "key2");
+  createJoinIndex(joinTableMapping, mapping1, joinId1, "key1", sout);
+  createJoinIndex(joinTableMapping, mapping2, joinId2, "key2", sout);
 }
 
 void Session::createJoinIndex(MappingInfo& joinTableMapping,
 			      MappingInfo *mapping,
 			      const std::string& joinId,
-			      const std::string& foreignKeyName)
+			      const std::string& foreignKeyName,
+			      std::ostream *sout)
 {
   std::stringstream sql;
 
@@ -821,7 +854,10 @@ void Session::createJoinIndex(MappingInfo& joinTableMapping,
 
   sql << ")";
 
-  connection(true)->executeSql(sql.str());
+  if (sout)
+    *sout << sql.str();
+  else
+    connection(true)->executeSql(sql.str());
 }
 
 std::vector<Session::JoinId> 
@@ -838,9 +874,8 @@ Session::getJoinIds(MappingInfo *mapping, const std::string& joinId)
     else
       idName = joinId;
 
-    result.push_back
-      (JoinId(idName, mapping->surrogateIdFieldName,
-	      sql_value_traits<long long>::type(0, 0)));
+    result.push_back(JoinId(idName, mapping->surrogateIdFieldName,
+			    sql_value_traits<long long>::type(0, 0)));
 
   } else {
     std::string foreignKeyName;

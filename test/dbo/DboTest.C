@@ -337,6 +337,8 @@ struct DboFixture
     session_->mapClass<C>(SCHEMA "table_c");
     session_->mapClass<D>(SCHEMA "table_d");
 
+    std::cerr << session_->tableCreationSql() << std::endl;
+
     session_->createTables();
 
     Wt::registerType<Coordinate>();

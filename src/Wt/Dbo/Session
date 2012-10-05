@@ -316,6 +316,10 @@ public:
    */
   void createTables();
 
+  /*! \brief Returns database creation SQL.
+   */
+  std::string tableCreationSql();
+
   /*! \brief Drops the database schema.
    *
    * This will drop the database schema. Dropping the schema will fail
@@ -461,22 +465,26 @@ private:
 				 const std::string& joinId);
 
   void createTable(MappingInfo *mapping,
-		   std::set<std::string>& tablesCreated);
+		   std::set<std::string>& tablesCreated,
+		   std::ostream *sout);
   void createRelations(MappingInfo *mapping,
-		       std::set<std::string>& tablesCreated);
+		       std::set<std::string>& tablesCreated,
+		       std::ostream *sout);
   void createJoinTable(const std::string& joinName,
 		       MappingInfo *mapping1, MappingInfo *mapping2,
 		       const std::string& joinId1,
 		       const std::string& joinId2,
 		       int fkConstraints1, int fkConstraints2,
-		       std::set<std::string>& tablesCreated);
+		       std::set<std::string>& tablesCreated,
+		       std::ostream *sout);
   void addJoinTableFields(MappingInfo& joinTableMapping,
 			  MappingInfo *mapping, const std::string& joinId,
 			  const std::string& foreignKeyName, int fkConstraints);
   void createJoinIndex(MappingInfo& joinTableMapping,
 		       MappingInfo *mapping,
 		       const std::string& joinId,
-		       const std::string& foreignKeyName);
+		       const std::string& foreignKeyName,
+		       std::ostream *sout);
 
   void needsFlush(MetaDboBase *dbo);
 

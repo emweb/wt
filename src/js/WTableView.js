@@ -115,7 +115,7 @@ WT_DECLARE_WT_MEMBER
 
      if (headerColumn) {
        headerColumnsContainer.style.width = cwidth;
-       APP.layouts2.setDirty(headerColumnsContainer.parentNode);
+       APP.layouts2.adjust(el.children[0].id, [[1,0]]);
      }
 
      header.style.width = (newWidth + 1) + 'px';
@@ -381,15 +381,10 @@ WT_DECLARE_WT_MEMBER
      var scrollheight = contentsContainer.offsetHeight
        - contentsContainer.clientHeight;
 
-     if (headerColumnsContainer.parentNode) {
-       var pns = headerColumnsContainer.parentNode.style;
-       if (pns && (pns.paddingBottom !== scrollheight + 'px')) {
-	 pns.paddingBottom = scrollheight + 'px';
-	 if (APP.layouts) {
-	   APP.layouts.adjust(el.children[0].id);
-	   APP.layouts.adjust();
-	 }
-       }
+     var pns = headerColumnsContainer.style;
+     if (pns && (pns.marginBottom !== scrollheight + 'px')) {
+       pns.marginBottom = scrollheight + 'px';
+       APP.layouts2.adjust(el.children[0].id, [[1,0]]);
      }
    };
  });
