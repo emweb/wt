@@ -13,6 +13,7 @@
 #include <Wt/WText>
 #include <Wt/WTextArea>
 #include <Wt/WServer>
+#include <Wt/WEnvironment>
 
 #include "readObj.h"
 #include "PaintWidget.h"
@@ -56,7 +57,7 @@ const char *vertexShaderSrc =
 "  vLightWeighting = uAmbientLightColor + uDirectionalColor * directionalLightWeighting;\n"
 "}\n";
 
-std::vector<double> data;
+std::vector<float> data;
 
 /*
  * A pretty basic WebGL demo application
@@ -113,7 +114,18 @@ WebGLDemo::WebGLDemo(const WEnvironment& env)
 void WebGLDemo::updateShaders()
 {
   delete paintWidget_;
-  paintWidget_ = new PaintWidget(glContainer_);
+  
+  // check if binary buffers are enabled
+  // i.e. if your application url is "webgl" on localhost:8080, use this to enable binary buffers:
+  // localhost:8080/webgl?binaryBuffers
+  // query given URL arguments...
+  Http::ParameterValues pv = environment().getParameterValues("binaryBuffers");
+  bool useBinaryBuffers = false;
+  if (!pv.empty())
+  {
+      useBinaryBuffers = true;
+  }
+  paintWidget_ = new PaintWidget(glContainer_, useBinaryBuffers);
   paintWidget_->resize(500, 500);
   paintWidget_->setShaders(vertexShaderText_->text().toUTF8(),
     fragmentShaderText_->text().toUTF8());

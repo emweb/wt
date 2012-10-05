@@ -2838,6 +2838,78 @@ ImagePreloader.prototype.onload = function() {
     preloader.callback(preloader.images);
 };
 
+/////////////////////////////////////////////////////////////////////
+// TG: A binary Buffer preloader
+
+// Constructor, preloads the given uris and stores them in bufferResources[]
+function BufferResourcePreloader(uris, callback) {
+  
+  // init members
+  // callback, when everything is loaded
+  this.callback = callback;
+  // number of open requests
+  this.work = uris.length;
+  // resulting buffers
+  this.bufferResources = [];
+  
+  // if no more urls are missing, call callback with the finished buffers
+  if (uris.length == 0)
+    callback(this.bufferResources);
+  else 
+  {
+	  // if uris are given, load them
+		for (var i = 0; i < uris.length; i++)
+		  this.preload(uris[i], i);
+  }
+};
+
+// preload function: downloads buffer at the given URI
+BufferResourcePreloader.prototype.preload = function(uri, index) {
+
+	var xhr = new XMLHttpRequest();
+	// open the resource, send asynchronously (without waiting for answer)
+	xhr.open("GET", uri, true);
+	xhr.responseType = "arraybuffer"; 
+	
+	// give xhr write access to array
+	xhr.bufferResources = this.bufferResources;
+	xhr.preloader = this;
+	xhr.index = index; // needed to maintain the mapping
+	xhr.uri = uri;
+	
+	// behaviour when it was loaded-> redirect to BufferResourcePreloader
+	xhr.onload = function(e) {
+		 
+		 console.log("XHR load buffer " + this.index + " from uri " + this.uri);
+		 
+		 //this.bufferResources[this.index] = new Uint8Array(this.response);
+		 this.bufferResources[this.index] = this.response;
+		 this.preloader.afterLoad();
+	};
+	
+	//debugger;
+	// actually start the query
+	xhr.send();
+	
+	// TG: dont know if this must be set, especially uri	
+	/*
+  
+  buffer.onerror = BufferPreloader.prototype.onload;
+  buffer.onabort = BufferPreloader.prototype.onload;
+  buffer.bufferPreloader = this;
+
+  buffer.src = uri;
+  */
+};
+
+BufferResourcePreloader.prototype.afterLoad = function() {
+  
+  if (--this.work == 0)
+    this.callback(this.bufferResources);
+};
+/////////////////////////////////////////////////////////////////////
+
+
 function enableInternalPaths(initialHash) {
   currentHash = initialHash;
   WT.history.register(initialHash, onHashChange);
@@ -2902,15 +2974,16 @@ this._p_ = {
   enableInternalPaths : enableInternalPaths,
   onHashChange : onHashChange,
   setHash : setHash,
-  ImagePreloader : ImagePreloader,
-
+  ImagePreloader : ImagePreloader,  
+  BufferResourcePreloader : BufferResourcePreloader,
+  
   doAutoJavaScript : doAutoJavaScript,
   autoJavaScript : function() { },
 
   response : responseReceived,
   setPage : setPage,
   setCloseMessage : setCloseMessage,
-
+  
   propagateSize : propagateSize
 };
 

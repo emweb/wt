@@ -159,6 +159,9 @@ public:
   typedef std::string UniformLocation;
   typedef std::string Texture;
 
+  // TG: might be a full or a partial buffer
+  typedef std::string BufferResource;
+
   /*! \brief A client-side JavaScript matrix
    *
    * A JavaScriptMatrix has methods that make it possible to do client-side
@@ -820,6 +823,26 @@ public:
   void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, 
                          GLenum srcAlpha, GLenum dstAlpha);
 
+   /*! \brief glBufferData - create and initialize a buffer object's data store
+   *
+   * Set the size of the currently bound WebGLBuffer object for the passed target.
+   * The buffer is initialized to 0.
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferData.xml">
+   * glBufferData() OpenGL ES manpage</a>
+   */
+  void bufferData(GLenum target, int size, GLenum usage) {
+    js_ << "ctx.bufferData(" << toString(target) << ",";
+    js_ << size << ",";
+    js_ << toString(usage) << ");";
+    GLDEBUG;
+  }
+
+  // TG: version that takes a binary buffer
+  void bufferData(GLenum target, BufferResource res, GLenum usage);
+
+  // TG: version that takes a binary buffer with an offset into it. Used for aggregated buffers
+    void bufferData(GLenum target, BufferResource res, unsigned bufferResourceOffset, unsigned bufferResourceSize, GLenum usage);
+
   /*! \brief GL function that loads float or double data in a VBO
    *
    * Unlike the C version, we can't accept a void * here. We must be able
@@ -884,6 +907,11 @@ public:
     GLDEBUG;
   }
 
+  // TG: version that takes a binary buffer
+  void bufferSubData(GLenum target, unsigned offset, BufferResource res);
+
+  // TG: version that takes a binary buffer with an offset into it. Used for aggregated buffers
+  void bufferSubData(GLenum target, unsigned offset, BufferResource res, unsigned bufferResourceOffset, unsigned size);
 
   //GLenum checkFramebufferStatus(GLenum target);
 
@@ -957,6 +985,15 @@ public:
    * glGenBuffers() OpenGL ES manpage</a>
    */
   Buffer createBuffer();
+
+    /*! \brief GL function that creates an BufferResource from a binary buffer using a 
+   *    given URL.
+   *    The BufferResource is loaded before executing initGL.
+   *    Use it to transmit binary data to bufferData() or bufferSubData().
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGenBuffers.xml">
+   * glGenBuffers() OpenGL ES manpage</a>
+   */
+  BufferResource createAndLoadBufferResource(const std::string &url);
 
   /*! \brief GL function that creates a frame buffer object
    *
@@ -1979,6 +2016,13 @@ public:
                                   double uX, double uY, double uZ,
                                   double pitchRate, double yawRate);
 
+  // TG
+    void setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
+                                  double fromX, double fromY, double fromZ,
+                                  double toX, double toY, double toZ,
+                                  double upX, double upY, double upZ);
+
+
   /*! \brief Add a mouse handler to the widget that allows 'walking' in
    * the scene
    *
@@ -2041,6 +2085,16 @@ public:
 #endif
   }
 
+    /*! \brief Inject JavaScript into the current js-stream.
+    *
+    * Careful: this method directly puts the given jsString into
+    * the JavaScript stream, whatever state it current has.
+    * For example, if called in initGL(), it will put the jsString
+    * into the client-side initGL() code.
+    */  
+    void injectJS(const std::string & jsString){js_ << jsString;}
+
+
 protected:
   DomElementType domElementType() const;
   DomElement *createDomElement(WApplication *app);
@@ -2049,6 +2103,9 @@ protected:
 
   void render(WFlags<RenderFlag> flags);
   std::string renderRemoveJs();
+
+  // TG: access in derived classes
+  std::stringstream js_;
 
 private:
   std::string glObjJsRef();
@@ -2068,11 +2125,18 @@ private:
   unsigned attributes_;
   unsigned uniforms_;
   unsigned buffers_;
+  
+  // TG: to keep track of BufferResources
+  unsigned bufferResources_;
+
   unsigned framebuffers_;
   unsigned renderbuffers_;
   unsigned textures_;
   unsigned matrices_;
   std::vector<std::pair<std::string, std::string> > preloadImages_;
+  
+  // TG: first: BufferResource string, second: url
+  std::vector<std::pair<std::string, std::string> > preloadBufferResources_;
 
   // If client detects that a WebGL context cannot be created, it fires this
   // signal, and the handler sets wegGlNotAvailable_ to true. If this happens,
@@ -2088,7 +2152,7 @@ private:
   JSlot repaintSlot_;
 
   std::stringstream delayedJavaScript_;
-  std::stringstream js_;
+  
 
 #ifndef WT_TARGET_JAVA
   template<typename Iterator>

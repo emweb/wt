@@ -8,7 +8,7 @@
 // Function to read a very limited subset of obj files. Only reads
 // files with triangles. Supports v, vn, t and f.
 void readObj(const std::string &fname,
-             std::vector<double> &data);
+             std::vector<float> &data);
 
 #endif
 
