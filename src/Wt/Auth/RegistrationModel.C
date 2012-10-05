@@ -36,6 +36,13 @@ RegistrationModel::RegistrationModel(const AuthService& baseAuth,
     minLoginNameLength_(4),
     emailPolicy_(EmailDisabled)
 {
+  if (baseAuth.identityPolicy() != EmailAddressIdentity) {
+    if (baseAuth.emailVerificationEnabled())
+      emailPolicy_ = EmailOptional;
+    else
+      emailPolicy_ = EmailDisabled;
+  }
+
   reset();
 }
 
@@ -46,14 +53,8 @@ void RegistrationModel::reset()
 
   if (baseAuth()->identityPolicy() == EmailAddressIdentity)
     addField(LoginNameField, WString::tr("Wt.Auth.email-info"));
-  else {
-    if (baseAuth()->emailVerificationEnabled())
-      emailPolicy_ = EmailOptional;
-    else
-      emailPolicy_ = EmailDisabled;
-
+  else
     addField(LoginNameField, WString::tr("Wt.Auth.user-name-info"));
-  }
 
   addField(ChoosePasswordField, WString::tr("Wt.Auth.choose-password-info"));
   addField(RepeatPasswordField, WString::tr("Wt.Auth.repeat-password-info"));

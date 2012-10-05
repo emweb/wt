@@ -109,6 +109,9 @@ WT_DECLARE_WT_MEMBER
      centerX = centerY = false;
      wtResize(el, w, h);
 
+     var layout = jQuery.data(layoutContainer.firstChild, 'layout');
+     layout.setMaxSize(0, 0);
+
      APP.layouts2.scheduleAdjust();
    };
 

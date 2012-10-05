@@ -188,7 +188,7 @@ public:
    * This signal is emitted when a new date has been entered (either
    * through the line edit, or through the calendar popup).
    */
-  Signal<>& changed();
+  Signal<>& changed() { return changed_; }
 
   /*! \brief Controls how the calendar popup is positioned.
    *
@@ -222,7 +222,7 @@ private:
   WTemplate        *popup_;
   WCalendar        *calendar_;
 
-  Signal<> popupClosed_;
+  Signal<> popupClosed_, changed_;
   JSlot positionJS_;
 
   void createDefault();

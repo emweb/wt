@@ -589,10 +589,13 @@ std::string WebSession::appendInternalPath(const std::string& baseUrl,
   }
 }
 
-bool WebSession::start()
+bool WebSession::start(WebResponse *response)
 {
   try {
     app_ = controller_->doCreateApplication(this);
+    if (!app_->internalPathValid_)
+      if (response->responseType() == WebResponse::Page)
+	response->setStatus(404);
   } catch (std::exception& e) {
     app_ = 0;
 
@@ -1231,7 +1234,7 @@ void WebSession::handleRequest(Handler& handler)
 	    } catch (std::exception& e) {
 	    }
 
-	    if (!start())
+	    if (!start(handler.response()))
 	      throw WException("Could not start application.");
 
 	    app_->notify(WEvent(WEvent::Impl(&handler)));
@@ -1277,7 +1280,7 @@ void WebSession::handleRequest(Handler& handler)
 	    init(request); // env, url/internalpath, initial query parameters
 	    env_->enableAjax(request);
 
-	    if (!start())
+	    if (!start(handler.response()))
 	      throw WException("Could not start application.");
 
 	    app_->notify(WEvent(WEvent::Impl(&handler)));
@@ -1382,7 +1385,7 @@ void WebSession::handleRequest(Handler& handler)
 	    if (!request.getParameter("skeleton")) {
 	      env_->enableAjax(request);
 
-	      if (!start())
+	      if (!start(handler.response()))
 		throw WException("Could not start application.");
 	    } else {
 	      serveResponse(handler);
@@ -1399,7 +1402,7 @@ void WebSession::handleRequest(Handler& handler)
 	    const std::string *jsE = request.getParameter("js");
 
 	    if (jsE && *jsE == "no") {
-	      if (!start())
+	      if (!start(handler.response()))
 		throw WException("Could not start application.");
 
 	      if (controller_->limitPlainHtmlSessions()) {
@@ -1855,11 +1858,11 @@ void WebSession::notify(const WEvent& event)
 	  env_->enableAjax(request);
 	  app_->enableAjax();
 	  if (env_->internalPath().length() > 1)
-	    app_->changedInternalPath(env_->internalPath());
+	    changeInternalPath(env_->internalPath(), handler.response());
 	} else {
 	  const std::string *hashE = request.getParameter("_");
 	  if (hashE)
-	    app_->changedInternalPath(*hashE);
+	    changeInternalPath(*hashE, handler.response());
 	}
       }
 
@@ -2066,11 +2069,11 @@ void WebSession::notify(const WEvent& event)
 
 	  if (!app_->internalPathIsChanged_) {
 	    if (hashE)
-	      app_->changedInternalPath(*hashE);
+	      changeInternalPath(*hashE, handler.response());
 	    else if (!request.pathInfo().empty())
-	      app_->changedInternalPath(request.pathInfo());
+	      changeInternalPath(request.pathInfo(), handler.response());
 	    else
-	      app_->changedInternalPath("");
+	      changeInternalPath("", handler.response());
 	  }
 	}
 
@@ -2128,6 +2131,14 @@ void WebSession::notify(const WEvent& event)
   case Dead:
     break;
   }
+}
+
+void WebSession::changeInternalPath(const std::string& path,
+				    WebResponse *response)
+{
+  if (!app_->changedInternalPath(path))
+    if (response->responseType() == WebResponse::Page)
+      response->setStatus(404);
 }
 
 EventType WebSession::getEventType(const WEvent& event) const
@@ -2440,11 +2451,11 @@ void WebSession::notifySignal(const WEvent& e)
       if (*signalE == "hash") {
 	const std::string *hashE = request.getParameter(se + "_");
 	if (hashE) {
-	  app_->changedInternalPath(*hashE);
+	  changeInternalPath(*hashE, handler.response());
 	  app_->doJavaScript(WT_CLASS ".scrollIntoView("
 			     + WWebWidget::jsStringLiteral(*hashE) + ");");
 	} else
-	  app_->changedInternalPath("");
+	  changeInternalPath("", handler.response());
 
       } else {
 	for (unsigned k = 0; k < 3; ++k) {

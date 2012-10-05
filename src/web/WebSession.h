@@ -338,10 +338,11 @@ private:
 			       const std::string& se) const;
 
   void init(const WebRequest& request);
-  bool start();
+  bool start(WebResponse *response);
 
   std::string sessionQuery() const;
   void flushBootStyleResponse();
+  void changeInternalPath(const std::string& path, WebResponse *response);
 
   friend class WebSocketMessage;
   friend class WebRenderer;

@@ -9,12 +9,16 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WStackedWidget",
  function (APP, widget) {
-   jQuery.data(widget, 'obj', this);
-   var WT = APP.WT;
+  jQuery.data(widget, 'obj', this);
 
-   this.wtResize = function(self, w, h, item) {
-     if (item && item.set[1])
-       self.style.height = h + 'px';
+  var WT = APP.WT, heightSet = false;
+
+  this.wtResize = function(self, w, h, item) {
+    if (item && item.set[1]) {
+      self.style.height = h + 'px';
+      heightSet = true;
+    } else
+      heightSet = false;
 
      if (WT.boxSizing(self)) {
        h -= WT.px(self, 'marginTop');
@@ -69,7 +73,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.wtGetPs = function(self, child, dir, size) {
-     return size;
+      return size;
    };
 
    this.setCurrent = function(child) {
@@ -82,17 +86,15 @@ WT_DECLARE_WT_MEMBER
 	   c.style.display = 'none';
 	 else {
 	   c.style.display = '';
-	   if (child.childNodes.length > 0) {
-	     var layout = jQuery.data(child.lastChild, 'layout');
 
-	     if (layout) {
-	       layout.updateSizeInParent(1);
-	     }
+	   if (heightSet) {
+	     heightSet = false;
+	     widget.style.height = '';
 	   }
 	 }
        }
      }
-   }
+   };
  });
 
 WT_DECLARE_WT_MEMBER
@@ -121,6 +123,8 @@ WT_DECLARE_WT_MEMBER
 	 if ((prefixes[i] + prop) in elem.style)
 	   return prefixes[i];
        }
+
+       return '';
      }
 
      var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ],

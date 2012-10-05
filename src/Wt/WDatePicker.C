@@ -143,6 +143,8 @@ void WDatePicker::setFromCalendar()
     forEdit_->setText(calDate.toString(format_));
     forEdit_->changed().emit();
   }
+
+  changed_.emit();
 }
 
 WDate WDatePicker::date() const
@@ -177,11 +179,6 @@ void WDatePicker::setFromLineEdit()
 
     calendar_->browseTo(d);
   }
-}
-
-Signal<>& WDatePicker::changed()
-{
-  return calendar_->selectionChanged();
 }
 
 void WDatePicker::setEnabled(bool enabled)

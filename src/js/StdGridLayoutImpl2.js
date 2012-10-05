@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
    this.ancestor = null;
    this.descendants = [];
 
-   /** @const */ var debug = true;
+   /** @const */ var debug = false;
 
    /** @const */ var STRETCH = 0;
    /** @const */ var RESIZABLE = 1;
@@ -360,7 +360,6 @@ WT_DECLARE_WT_MEMBER
 	       console.log("measure " + dir + " "
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
 
-
 	     if (item.dirty || layoutDirty) {
 	       var wMinimum = calcMinimumSize(item.w, dir);
 	       if (wMinimum > dMinimum)
@@ -400,21 +399,35 @@ WT_DECLARE_WT_MEMBER
 		   || (DC.config[di][STRETCH] <= 0)) {
 
 		 if (!item.layout) {
+		   if (item.wasLayout) {
+		     item.wasLayout = false;
+		     item.set = [false, false];
+		     setCss(item.w, DirConfig[0].size, '');
+		     setCss(item.w, DirConfig[1].size, '');
+		   }
+
 		   var calculated = calcPreferredSize(item.w, dir);
 
 		   /*
 		    * If we've set the size then we should not take the
 		    * set size as the preferred size, instead we revert
 		    * to a previous preferred size.
+		    *
+		    * We seem to be a few pixels off here, typically seen
+		    * on buttons ?
 		    */
 		   var sizeSet = item.set[dir] &&
-		     (calculated === item.psize[dir]);
+			 (calculated >= item.psize[dir] - 4) &&
+			 (calculated <= item.psize[dir] + 4);
 
 		   /*
 		    * If this is an item that is stretching and has
 		    * been stretched (item.set[dir]), then we should
 		    * not remeasure the preferred size since it might
 		    * confuse the user with constant resizing.
+		    *
+		    * -- FIXME: what if sum stretch=0, we are actually
+		    * also stretching ?
 		    */
 		   var stretching = (typeof item.ps[dir] !== 'undefined')
 		     && (DC.config[di][STRETCH] > 0)
@@ -511,7 +524,9 @@ WT_DECLARE_WT_MEMBER
 	     totalMargin
 	     ];
 
-     if (prevMeasures[TOTAL_PREFERRED_SIZE] != DC.measures[TOTAL_PREFERRED_SIZE])
+     if (layoutDirty ||
+	 (prevMeasures[TOTAL_PREFERRED_SIZE] !=
+	  DC.measures[TOTAL_PREFERRED_SIZE]))
        self.updateSizeInParent(dir);
 
      /* If our minimum layout requirements have changed, then we want
@@ -695,9 +710,8 @@ WT_DECLARE_WT_MEMBER
 
      var otherPadding = 0;
 
-     if (container && container.wtGetPS && dir == VERTICAL) {
+     if (container && container.wtGetPS && dir == VERTICAL)
        otherPadding = container.wtGetPS(container, widget, dir, 0);
-     }
 
      var totalPreferredSize = measures[TOTAL_PREFERRED_SIZE];
      if (totalPreferredSize < DC.minSize)
@@ -982,7 +996,7 @@ WT_DECLARE_WT_MEMBER
 
 	     var off;
 
-	     w.style.visibility = '';
+	     setCss(w, 'visibility', '');
 
 	     var alignment = (item.align >> DC.alignBits) & 0xF;
 	     var ps = item.ps[dir];
@@ -995,7 +1009,7 @@ WT_DECLARE_WT_MEMBER
 
 	       /*
 		* Chrome:
-		*  - some elements loose their margin as soon as you give
+		*  - some elements lose their margin as soon as you give
 		*    them a size, we thus need to correct for that, or
 		*    confirm their initial margin
 		*/
@@ -1116,7 +1130,24 @@ WT_DECLARE_WT_MEMBER
      var colCount = DirConfig[HORIZONTAL].config.length;
      for (i = 0, il = items.length; i < il; ++i) {
        var row = items[i][0], col = items[i][1];
-       config.items[row * colCount + col].dirty = true;
+
+       var item = config.items[row * colCount + col];
+
+       item.dirty = true;
+
+       /*
+	* When the item contains a layout, a change may also impact this:
+	* it could become a different layout (e.g. WStackedWidget) or
+	* a hidden layout (e.g. WPanel). Assume in general that it could
+	* be the case that we need to reset the layout-based size, but don't
+	* do it yet since it causes flicker when nothing drastic changed.
+	*/
+       if (item.layout) {
+	 item.layout = false;
+	 item.wasLayout = true;
+
+	 APP.layouts2.setChildLayoutsDirty(self, item.w);
+       }
      }
 
      itemDirty = true;
@@ -1127,8 +1158,6 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setChildSize = function(widget, dir, preferredSize) {
-     console.log("setChildSize: " + dir + " " + preferredSize);
-
      var i, il;
      for (i = 0, il = config.items.length; i < il; ++i) {
        var item = config.items[i];
@@ -1204,6 +1233,11 @@ WT_DECLARE_WT_MEMBER
        itemDirty = layoutDirty = false;
    };
 
+   this.setMaxSize = function(width, height) {
+     DirConfig[HORIZONTAL].maxSize = width;
+     DirConfig[VERTICAL].maxSize = height;
+   };
+
    this.apply = function(dir) {
      var widget = WT.getElement(id);
 
@@ -1227,6 +1261,8 @@ WT_DECLARE_WT_MEMBER
      else
        return false;
    };
+
+   this.WT = WT;
  });
 
 WT_DECLARE_WT_MEMBER
@@ -1253,6 +1289,22 @@ WT_DECLARE_APP_MEMBER
 
       if (layout)
 	layout.setDirty();
+    };
+
+    this.setChildLayoutsDirty = function(layout, itemWidget) {
+      var i, il;
+
+      for (i=0, il = layout.descendants.length; i < il; ++i) {
+	var ll = layout.descendants[i];
+
+	if (itemWidget) {
+	  var lw = layout.WT.getElement(ll.getId());
+	  if (!layout.WT.contains(itemWidget, lw))
+	    continue;
+	}
+
+	ll.setDirty();
+      }
     };
 
     this.add = function(layout) {

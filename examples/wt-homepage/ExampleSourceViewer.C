@@ -90,9 +90,10 @@ void ExampleSourceViewer::handlePathChange()
 
     if (example.find("..") != std::string::npos
 	|| example.find('/') != std::string::npos
-	|| example.find('\\') != std::string::npos)
+	|| example.find('\\') != std::string::npos) {
+      app->setInternalPathValid(false);
       setExample("INVALID_DIR", "INVALID");
-    else
+    } else
       setExample(examplesRoot_ + example, example);
   }
 }
@@ -109,6 +110,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   }
 
   if (!exists) {
+    WApplication::instance()->setInternalPathValid(false);
     addWidget(new WText("No such example: " + exampleDir));
     return;
   }

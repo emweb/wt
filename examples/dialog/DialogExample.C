@@ -144,6 +144,7 @@ void DialogExample::custom()
 {
   WDialog dialog("Personalia");
   dialog.setClosable(true);
+  dialog.setResizable(true);
 
   new WText("Enter your name: ", dialog.contents());
   WLineEdit edit(dialog.contents());

@@ -33,6 +33,10 @@ void query_result_traits<Result>::getFields(Session& session,
 
   std::string sqlType = "??"; // FIXME, get from session ?
 
+  std::size_t as = name.find(" as ");
+  if (as != std::string::npos)
+    name = name.substr(as + 4);
+
   result.push_back(FieldInfo(name, &typeid(Result), sqlType, 0));
 }
 

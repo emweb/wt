@@ -784,6 +784,12 @@ public:
    */
   void setInternalPath(const std::string& path, bool emitChange = false);
 
+  void setInternalPathDefaultValid(bool valid);
+  bool internalPathDefaultValid() const { return internalPathDefaultValid_; }
+
+  void setInternalPathValid(bool valid);
+  bool internalPathValid() const { return internalPathValid_; }
+
   /*! \brief Returns the current internal path.
    *
    * When the application is just created, this is equal to
@@ -860,6 +866,8 @@ public:
    * \endif
    */
   Signal<std::string>& internalPathChanged();
+
+  Signal<std::string>& internalPathInvalid() { return internalPathInvalid_; }
 
   /*! \brief Redirects the application to another location.
    *
@@ -2066,8 +2074,9 @@ private:
   WCombinedLocalizedStrings *localizedStrings_;
   WT_LOCALE              locale_;
   std::string            oldInternalPath_, newInternalPath_;
-  Signal<std::string>    internalPathChanged_;
+  Signal<std::string>    internalPathChanged_, internalPathInvalid_;
   bool                   internalPathIsChanged_;
+  bool                   internalPathDefaultValid_, internalPathValid_;
   int                    serverPush_;
   bool                   serverPushChanged_;
 #ifndef WT_TARGET_JAVA
@@ -2159,8 +2168,8 @@ private:
   /*
    * Methods for application state handling
    */
-  void changeInternalPath(const std::string& path);
-  void changedInternalPath(const std::string& path);
+  bool changeInternalPath(const std::string& path);
+  bool changedInternalPath(const std::string& path);
 
   /*
    * Methods for accessing javaScript, which may have erase-on-read

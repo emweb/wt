@@ -219,7 +219,9 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
   if (session_.app() && session_.app()->internalPathIsChanged_)
     out << "if (window." << session_.app()->javaScriptClass() << ") "
 	<< session_.app()->javaScriptClass()
-	<< "._p_.setHash('" << session_.app()->internalPath() << "');\n";
+	<< "._p_.setHash("
+	<< WWebWidget::jsStringLiteral(session_.app()->newInternalPath_)
+	<< ");\n";
   out <<
     "if (window.location.replace)"
     " window.location.replace('" << redirect << "');"
@@ -988,7 +990,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     response.out() 
       << app->javaScriptClass()
-      << "._p_.setHash('" << app->newInternalPath_ << "');\n";
+      << "._p_.setHash("
+      << WWebWidget::jsStringLiteral(app->newInternalPath_)
+      << ");\n";
 
     if (!app->environment().hashInternalPaths())
       session_.setPagePathInfo(app->newInternalPath_);
@@ -1609,7 +1613,9 @@ void WebRenderer::collectJS(std::ostream* js)
 
     if (app->internalPathIsChanged_) {
       *js << app->javaScriptClass()
-	  << "._p_.setHash('" << app->newInternalPath_ << "');\n";
+	  << "._p_.setHash("
+	  << WWebWidget::jsStringLiteral(app->newInternalPath_)
+	  << ");\n";
       if (!preLearning() && !app->environment().hashInternalPaths())
 	session_.setPagePathInfo(app->newInternalPath_);
     }

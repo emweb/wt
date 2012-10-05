@@ -11,6 +11,8 @@
 #include <Wt/WTemplate>
 #include <Wt/WText>
 
+#include "StdWidgetItemImpl.h"
+
 namespace Wt {
 
 WPanel::WPanel(WContainerWidget *parent)
@@ -65,6 +67,8 @@ WPanel::WPanel(WContainerWidget *parent)
      ""  "});"
      """}"
      "};");
+
+  setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::secondGetPSJS());
 }
 
 void WPanel::setTitle(const WString& title)

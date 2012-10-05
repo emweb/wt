@@ -1,3 +1,11 @@
+05-10-2012:
+	* Layouts: various bug fixes and improvements
+
+	* Render: added support for repeating table headers
+
+	* WApplication: added some tentative methods for 404 generation in
+	response to internal paths
+
 13-09-2012:
 	* Render: added support for explicit page breaks and % widths
 

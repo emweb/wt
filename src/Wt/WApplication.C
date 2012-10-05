@@ -134,6 +134,8 @@ WApplication::WApplication(const WEnvironment& env
   newInternalPath_ = environment().internalPath();
 
   internalPathIsChanged_ = false;
+  internalPathDefaultValid_ = true;
+  internalPathValid_ = true;
 
 #ifndef WT_TARGET_JAVA
   setLocalizedStrings(new WMessageResourceBundle());
@@ -1224,25 +1226,42 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
   else
     newInternalPath_ = path;
 
+  internalPathValid_ = true;
   internalPathIsChanged_ = true;
 }
 
-void WApplication::changeInternalPath(const std::string& aPath)
+void WApplication::setInternalPathValid(bool valid)
+{
+  internalPathValid_ = valid;
+}
+
+void WApplication::setInternalPathDefaultValid(bool valid)
+{
+  internalPathDefaultValid_ = valid;
+}
+
+bool WApplication::changeInternalPath(const std::string& aPath)
 {
   std::string path = Utils::prepend(aPath, '/');
 
   if (path != internalPath()) {
     newInternalPath_ = path;
+    internalPathValid_ = internalPathDefaultValid_;
     internalPathChanged_.emit(newInternalPath_);
+
+    if (!internalPathValid_)
+      internalPathInvalid_.emit(newInternalPath_);
   }
+
+  return internalPathValid_;
 }
 
-void WApplication::changedInternalPath(const std::string& path)
+bool WApplication::changedInternalPath(const std::string& path)
 {
   if (!environment().hashInternalPaths())
     session_->setPagePathInfo(path);
 
-  changeInternalPath(path);
+  return changeInternalPath(path);
 }
 
 std::string WApplication::bookmarkUrl() const
