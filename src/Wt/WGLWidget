@@ -2016,13 +2016,6 @@ public:
                                   double uX, double uY, double uZ,
                                   double pitchRate, double yawRate);
 
-  // TG
-    void setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
-                                  double fromX, double fromY, double fromZ,
-                                  double toX, double toY, double toZ,
-                                  double upX, double upY, double upZ);
-
-
   /*! \brief Add a mouse handler to the widget that allows 'walking' in
    * the scene
    *
