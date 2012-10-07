@@ -67,7 +67,7 @@ namespace Wt {
       //TODO also check the filename extension, if parsing the file did not work
 
       for (int i = 0; i < mimeTypeCount; ++i) {
-	if (std::memcmp(header.data(), 
+	if (std::memcmp(&header[0], 
 			imageHeaders[i], imageHeaderSize[i]) == 0)
 	  return std::string(imageMimeTypes[i]);
       }

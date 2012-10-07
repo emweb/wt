@@ -42,7 +42,7 @@ namespace Wt {
  *
  * \ingroup payment
  */
-class OrderItem
+class WT_API OrderItem
 {
 public:
   /*! \brief Sets the item name.
