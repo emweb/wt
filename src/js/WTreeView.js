@@ -17,6 +17,8 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var WT = APP.WT;
 
+   var sizeSet = false;
+
    /** @const */ var EnsureVisible = 0;
    /** @const */ var PositionAtTop = 1;
    /** @const */ var PositionAtBottom = 2;
@@ -135,10 +137,10 @@ WT_DECLARE_WT_MEMBER
    var adjustScheduled = false;
 
    function doAdjustColumns() {
-     if (!adjustScheduled)
+     if (!adjustScheduled || !sizeSet)
        return;
 
-     if (WT.isHidden(el) || el.offsetWidth < 20)
+     if (WT.isHidden(el))
        return;
 
      adjustScheduled = false;
@@ -262,6 +264,7 @@ WT_DECLARE_WT_MEMBER
    */
 
   this.wtResize = function() {
+    sizeSet = true;
       doAdjustColumns();
 
       var $el=$(el),

@@ -62,6 +62,7 @@ WT_DECLARE_WT_MEMBER
 	 maxSize: maxWidth,
 	 measures: [],
 	 sizes: [],
+	 stretched: [],
 	 fixedSize: [],
 	 Left: (rtl ? 'Right':'Left'),
 	 left: (rtl ? 'right':'left'),
@@ -83,6 +84,7 @@ WT_DECLARE_WT_MEMBER
 	 maxSize: maxHeight,
 	 measures: [],
 	 sizes: [],
+	 stretched: [],
 	 fixedSize: [],
 	 Left: 'Top',
 	 left: 'top',
@@ -359,6 +361,7 @@ WT_DECLARE_WT_MEMBER
 	     if (debug)
 	       console.log("measure " + dir + " "
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
+
 
 	     if (item.dirty || layoutDirty) {
 	       var wMinimum = calcMinimumSize(item.w, dir);
@@ -781,6 +784,9 @@ WT_DECLARE_WT_MEMBER
      var targetSize = [], dirCount = DC.config.length,
        otherCount = OC.config.length;
 
+     for (di = 0; di < dirCount; ++di)
+       DC.stretched[di] = false;
+
      if (cSize >= measures[TOTAL_MINIMUM_SIZE] - otherPadding) {
        // (1) fixed size columns/rows get their fixed width
        // (2) other colums/rows:
@@ -871,8 +877,10 @@ WT_DECLARE_WT_MEMBER
 	     var factor = toDistribute / totalStretch;
 
 	     for (di = 0; di < dirCount; ++di) {
-	       if (stretch[di] > 0)
+	       if (stretch[di] > 0) {
 		 targetSize[di] += Math.round(stretch[di] * factor);
+		 DC.stretched[di] = true;
+	       }
 	     }
 	   }
 	 } else {
@@ -1159,13 +1167,17 @@ WT_DECLARE_WT_MEMBER
 
    this.setChildSize = function(widget, dir, preferredSize) {
      var i, il;
+     var colCount = DirConfig[HORIZONTAL].config.length;
      for (i = 0, il = config.items.length; i < il; ++i) {
        var item = config.items[i];
        if (item && item.id == widget.id) {
-	 if (!item.ps)
-	   item.ps = [];
+	 var di = (dir === HORIZONTAL ? i % colCount : i / colCount);
+	 if (!DirConfig[dir].stretched[di]) {
+	   if (!item.ps)
+	     item.ps = [];
+	   item.ps[dir] = preferredSize;
+	 }
 
-	 item.ps[dir] = preferredSize;
 	 item.layout = true;
 
 	 setItemDirty(item);
