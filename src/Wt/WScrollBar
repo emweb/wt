@@ -19,7 +19,7 @@ class DomElement;
  *
  * A WScrollArea always has two scrollbars (even if they are not visible,
  * for example when the policy is WScrollArea::ScrollBarAlwaysOff). Using the
- * tie(WScrollBar *one, WScrollBar *two) functions, it is possible to tie to
+ * tie(WScrollBar *one, WScrollBar *two) functions, it is possible to tie two
  * scrollbars together, so that they will scroll together.
  *
  * \sa WScrollArea
