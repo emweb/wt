@@ -23,7 +23,7 @@ namespace Wt {
  *
  * \ingroup payment
  */
-class Money
+class WT_API Money
 {
 public:
   /*! \brief Default constructor.
@@ -132,7 +132,7 @@ extern Money operator- (const Money& v1, const Money& v2);
  *
  * \ingroup payment
  */
-extern Money operator* (const Money& v1, double v2);
+extern WT_API Money operator* (const Money& v1, double v2);
 
 /*! \brief Multiplies money.
  *
@@ -140,7 +140,7 @@ extern Money operator* (const Money& v1, double v2);
  *
  * \ingroup payment
  */
-extern Money operator* (double v1, const Money& v2);
+extern WT_API Money operator* (double v1, const Money& v2);
 
 /*! \brief Divides v1 and v2
  *

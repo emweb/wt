@@ -19,7 +19,7 @@ namespace Wt {
  *
  * \ingroup payment
  */
-class Result
+class WT_API Result
 {
 public:
   /*! \brief Default constructor.
