@@ -52,7 +52,7 @@ class PayPalService;
  *
  * \ingroup payment
  */
-class PayPalExpressCheckout : public WObject
+class WT_API PayPalExpressCheckout : public WObject
 {
 public:
   /*! \brief Enumeration for payment actions.
@@ -231,7 +231,7 @@ private:
  *
  * \ingroup payment
  */
-class PayPalService
+class WT_API PayPalService
 {
 public:
   /*! \brief Default constructor.

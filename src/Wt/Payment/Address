@@ -36,7 +36,7 @@ namespace Wt {
  *
  * \ingroup payment
  */
-class Address
+class WT_API Address
 {
 public:
   /*! \brief Sets an address name.
