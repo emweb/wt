@@ -2155,7 +2155,7 @@ EventType WebSession::getEventType(const WEvent& event) const
 
   WebRequest& request = *handler.request();
 
-  if (event.impl_.renderOnly)
+  if (event.impl_.renderOnly || !handler.request())
     return OtherEvent;
 
   const std::string *requestE = request.getParameter("request");

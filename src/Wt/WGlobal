@@ -956,7 +956,7 @@ enum MetaHeaderType {
 
 /*! \brief An enumeration describing an event's type.
  *
- * \sa WEvent::getEventType()
+ * \sa WEvent::eventType()
  */
 enum EventType {
   OtherEvent, //!< An event which is not user- or timer-initiated

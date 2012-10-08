@@ -571,6 +571,7 @@ body.Wt-rtl .Wt-tabs span {
     padding: 1px 2px;
     font-family: sans-serif;
     font-size: smaller;
+    z-index: 1000;
 }
 
 /*

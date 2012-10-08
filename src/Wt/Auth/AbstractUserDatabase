@@ -47,6 +47,8 @@ namespace Wt {
  * can thus be optionally provided by a database implementation.
  *
  * \sa User
+ *
+ * \ingroup auth
  */
 class WT_API AbstractUserDatabase
 {

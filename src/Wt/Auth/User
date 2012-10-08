@@ -33,6 +33,8 @@ class AbstractUserDatabase;
  * system. See AbstractUserDatabase for a discussion.
  *
  * \sa AbstractUserDatabase
+ *
+ * \ingroup auth
  */
 class WT_API User
 {

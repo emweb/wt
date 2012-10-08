@@ -6,6 +6,8 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <map>
 
 #include "Wt/WApplication"
@@ -483,10 +485,12 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 	   << "; Version=1;";
 
     if (!cookie.expires.isNull()) {
-      std::string d 
-	= cookie.expires.toString(WString::fromUTF8
-				  ("ddd, dd-MMM-yyyy hh:mm:ss 'GMT'")).toUTF8();
-      header << " Expires=" << d << ';';
+      boost::posix_time::time_facet* facet =
+          new boost::posix_time::time_facet("%a, %d-%b-%Y %H:%M:%S 'GMT'");
+      std::stringstream expires;
+      expires.imbue(std::locale(expires.getloc(), facet));
+      expires << cookie.expires.toPosixTime();
+      header << " Expires=" << expires.str() << ';';
     }
 
     if (!cookie.domain.empty())

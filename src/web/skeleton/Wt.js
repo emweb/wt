@@ -1334,7 +1334,7 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     hside = 0;
   }
 
-  if (ew > ws.y) { // taller than window
+  if (eh > ws.y) { // taller than window
     y = wy;
     vside = 0;
   } else if (y + eh > wy + ws.y) { // too far below, chose other side

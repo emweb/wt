@@ -697,6 +697,7 @@ body.Wt-rtl .Wt-tabs .citem, body.Wt-rtl .Wt-tabs .citemselected {
     padding: 1px 2px;
     font-family: sans-serif;
     font-size: smaller;
+    z-index: 1000;
 }
 
 /*

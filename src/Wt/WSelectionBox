@@ -66,13 +66,13 @@ public:
    */
   WSelectionBox(WContainerWidget *parent = 0);
 
-  /*! \brief Sets the number of items that are visible.
-   *
-   * If more items are available, a scroll-bar is provided.
+  /*! \brief Returns the number of items that are visible.
    */
   int verticalSize() const { return verticalSize_; }
 
-  /*! \brief Returns the number of items that are visible.
+  /*! \brief Sets the number of items that are visible.
+   *
+   * If more items are available, a scroll-bar is provided.
    */
   void setVerticalSize(int items);
 

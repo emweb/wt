@@ -48,6 +48,14 @@ WT_DECLARE_WT_MEMBER
 			   toolTipEl = null;
 			 }
 		       });
+
+	$el.mouseup(function() {
+			 clearTimeout(showTimer);
+			 if (toolTipEl) {
+			   $(toolTipEl).remove();
+			   toolTipEl = null;
+			 }
+		       });
       })());
    }
  }

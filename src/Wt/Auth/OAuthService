@@ -35,6 +35,8 @@ class OAuthRedirectEndpoint;
  * and a refresh token.
  *
  * \sa OAuthProcess::startAuthorize(), OAuthProcess::authorized()
+ *
+ * \ingroup auth
  */
 class OAuthAccessToken
 {
@@ -110,6 +112,8 @@ private:
  * authorize for your application to make with his protected data.
  *
  * \sa OAuthService::createProcess()
+ *
+ * \ingroup auth
  */
 class OAuthProcess : public WObject 
 {
