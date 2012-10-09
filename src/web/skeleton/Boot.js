@@ -97,7 +97,11 @@ function createUrl(name, value) {
 if (win.opera)
   win.opera.setOverrideHistoryNavigationMode("compatible");
 
-var pathInfo = _$_PATH_INFO_$_, deployPath = win.location.pathname;
+var pathInfo = _$_PATH_INFO_$_,
+    deployPath = win.location.pathname;
+
+if (!win.opera)
+  deployPath = decodeURIComponent(deployPath);
 
 /*
  * Java's weird session encoding could put the path not in the end, e.g.

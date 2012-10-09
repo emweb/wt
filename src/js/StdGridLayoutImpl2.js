@@ -1113,6 +1113,9 @@ WT_DECLARE_WT_MEMBER
      DirConfig[0].config = config.cols;
      DirConfig[1].config = config.rows;
 
+     DirConfig[0].stretched = [];
+     DirConfig[1].stretched = [];
+
      var i, il, childLayouts = {};
      for (i = 0, il = oldConfig.items.length; i < il; ++i) {
        var item = oldConfig.items[i];
@@ -1318,7 +1321,7 @@ WT_DECLARE_APP_MEMBER
 
 	if (itemWidget) {
 	  var lw = layout.WT.getElement(ll.getId());
-	  if (!layout.WT.contains(itemWidget, lw))
+	  if (lw && !layout.WT.contains(itemWidget, lw))
 	    continue;
 	}
 

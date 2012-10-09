@@ -20,7 +20,7 @@ WT_DECLARE_WT_MEMBER
    if (!tinymce.dom.Event.domLoaded)
      tinymce.dom.Event.domLoaded = true;
 
-   tinyMCE.init();
+   tinyMCE.init({mode:"none"});
 
    this.render = function(config, aCss) {
      css = aCss;
