@@ -45,8 +45,6 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
 
   WContainerWidget *content = new WContainerWidget(impl_);
   content->setStyleClass("Wt-content");
-  content->resize(WLength(100, WLength::Percentage),
-		  WLength(100, WLength::Percentage));
   if (!wApp->environment().agentIsIE())
     content->setOverflow(WContainerWidget::OverflowAuto);
   else

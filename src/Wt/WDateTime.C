@@ -435,16 +435,16 @@ WString WDateTime::toString() const
   return toString(defaultFormat());
 }
 
-WString WDateTime::toString(const WString& format) const
+WString WDateTime::toString(const WString& format, bool localized) const
 {
   WDate d = date();
   WTime t = time();
 
-  return toString(&d, &t, format);
+  return toString(&d, &t, format, localized);
 }
 
 WString WDateTime::toString(const WDate *date, const WTime *time,
-			    const WString& format)
+                            const WString& format, bool localized)
 {
   if ((date && !date->isValid()) || (time && !time->isValid())) {
     if (WApplication::instance()) {
@@ -514,9 +514,9 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
     if (!inQuote) {
       bool handled = false;
       if (date)
-	handled = date->writeSpecial(f, i, result);
+	handled = date->writeSpecial(f, i, result, localized);
       if (!handled && time)
-	handled = time->writeSpecial(f, i, result, useAMPM);
+        handled = time->writeSpecial(f, i, result, useAMPM);
 
       if (!handled) {
 	if (f[i] == '\'') {

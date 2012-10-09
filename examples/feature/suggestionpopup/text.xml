@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <messages>
-  <message id="simple-popup-editing">
+  <message id="simplest-popup">
     <h2>WSuggestionPopup example</h2>
 
     <p>
@@ -10,6 +10,26 @@
       JavaScript functions.
     </p>
 
+    <h3>Simplest usage</h3>
+
+    <p>
+      In its simplest form, the suggestion popup provides client-side
+      filtering only. The entire model, which provides the list of
+      suggestions, is preloaded in the browser and filtered based on
+      editing in the line edit.
+    </p>
+
+    <p>
+      The example below uses a standard matcher implementation, which
+      simply shows those suggestions that start with the entered text.
+    </p>
+
+    <p>
+      The model contains names of HIV anti-retrovirals.
+    </p>
+  </message>
+
+  <message id="simple-popup-editing">
     <h3>Client-side filtering</h3>
 
     <p>
@@ -27,13 +47,14 @@
     </p>
 
     <p>
-      The model below contains names of HIV anti-retrovirals, with
-      commercial, pre-clinical and abbreviations as synonyms. To see
-      the effect of the custom matching function, which matches also
-      by synonyms, try typing <tt>"tm"</tt>, and watch how this
-      selects <tt>"Darunavir"</tt> and <tt>"Etravirine"</tt> through
-      its synonyms <tt>"TMC114"</tt> and <tt>"TMC125"</tt>, and
-      compare this to typing <tt>"da"</tt>.
+      The model below expands our HIV anti-retroviral model with
+      commercial names and abbreviations as synonyms, allowing a user
+      to search using any of these names. To see the effect of the
+      custom matching function, which matches also by synonyms, try
+      typing <tt>"tm"</tt>, and watch how this selects
+      <tt>"Darunavir"</tt> and <tt>"Etravirine"</tt> through its
+      synonyms <tt>"TMC114"</tt> and <tt>"TMC125"</tt>, and compare
+      this to typing <tt>"da"</tt>.
     </p>
   </message>
 

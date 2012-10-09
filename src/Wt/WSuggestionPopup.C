@@ -12,7 +12,7 @@
 #include "Wt/WLogger"
 #include "Wt/WSuggestionPopup"
 #include "Wt/WStringStream" 
-#include "Wt/WStringListModel"
+#include "Wt/WStandardItemModel"
 #include "Wt/WTemplate"
 #include "Wt/WText"
 
@@ -106,7 +106,7 @@ void WSuggestionPopup::init()
   setAttributeValue("style", "z-index: 10000; display: none");
   setPositionScheme(Absolute);
 
-  setModel(new WStringListModel(this));
+  setModel(new WStandardItemModel(0, 1, this));
 
   filter_.connect(this, &WSuggestionPopup::doFilter);
   jactivated_.connect(this, &WSuggestionPopup::doActivate);

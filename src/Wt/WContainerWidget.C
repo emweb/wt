@@ -91,10 +91,13 @@ void WContainerWidget::setLayout(WLayout *layout,
     delete layout_;
 
 #ifndef OLD_LAYOUT
-  if (alignment != AlignJustify) {
-    LOG_WARN("setLayout(layout, alignment) is being deprecated (and does no longer "
-	     "have the special meaning it used to have). Use spacers or CSS "
-	     "instead to control alignment");
+  AlignmentFlag hAlign = alignment & AlignHorizontalMask;
+  AlignmentFlag vAlign = alignment & AlignVerticalMask;
+  
+  if (hAlign != AlignJustify || vAlign != 0) {
+    LOG_WARN("setLayout(layout, alignment) is being deprecated (and does no "
+	     "longer have the special meaning it used to have). Use spacers "
+	     "or CSS instead to control alignment");
   }
 #endif
 

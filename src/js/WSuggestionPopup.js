@@ -67,9 +67,9 @@ WT_DECLARE_WT_MEMBER
          sValue = suggestion.getAttribute('sug');
 
      edit.focus();
-     APP.emit(el, "select", line.id, edit.id);
-
      replacerJS(edit, sText, sValue);
+
+     APP.emit(el, "select", line.id, edit.id);
 
      hidePopup();
 
@@ -391,9 +391,11 @@ WT_DECLARE_WT_MEMBER
      var range = parseEdit(edit);
      var value = edit.value.substring(range.start, range.end);
 
-     var regexp = "^";
+     var regexp;
      if (wordSeparators.length != 0)
        regexp = "(^|(?:[" + wordSeparators + "]))";
+     else
+       regexp = "(^)";
 
      regexp += "(" + value.replace
        (new RegExp("([\\^\\\\\\][\\-.$*+?()|{}])","g"), "\\$1") + ")";

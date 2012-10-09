@@ -272,7 +272,7 @@ public:
    *
    * \sa WDate::toString(), WTime::toString()
    */
-  WT_USTRING toString(const WT_USTRING& format) const;
+  WT_USTRING toString(const WT_USTRING& format, bool localized = true) const;
 
   /*! \brief Parses a string to a time using a default format.
    *
@@ -320,7 +320,7 @@ private:
   static void fromString(WDate *date, WTime *time, const WString& s,
 			 const WString& format);
   static WString toString(const WDate *date, const WTime *time,
-			  const WString& format);
+                          const WString& format, bool localized = true);
 
   friend class WDate;
   friend class WTime;

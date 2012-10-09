@@ -12,6 +12,7 @@
 #include <Wt/WText>
 #include <Wt/WStandardItemModel>
 #include <Wt/WStandardItem>
+#include <Wt/WStringListModel>
 
 /*
  * See also: http://www.webtoolkit.eu/wt/blog/2010/03/02/javascript_that_is_c__
@@ -30,12 +31,48 @@ public:
 
     styleSheet().addRule(".Wt-suggest b", "color: black;");
 
+    mostSimplePopup(root());
     simplePopup(root());
     serverSideFilteringPopups(root());
   }
 
 private:
   Wt::WStandardItemModel *fourCharModel_;
+
+  Wt::WAbstractItemModel *createSimpleDrugsModel()
+  {
+    const char *hivDrugs[] = {
+      "Delavirdine",
+      "Efavirenz",
+      "Etravirine",
+      "Nevirapine",
+      "Abacavir",
+      "Didanosine",
+      "Emtricitabine",
+      "Lamivudine",
+      "Stavudine",
+      "Tenofovir DF",
+      "Zidovudine",
+      "Amprenavir",
+      "Atazanavir",
+      "Darunavir",
+      "Fosamprenavir",
+      "Indinavir",
+      "Lopinavir, Ritonavir",
+      "Nelfinavir",
+      "Ritonavir",
+      "Saquinavir",
+      "Tipranavir",
+      0
+    };
+
+    Wt::WStringListModel *model = new Wt::WStringListModel();
+
+    for (const char **i = hivDrugs; *i; ++i)
+      model->addString(Wt::WString::fromUTF8(*i));
+
+    return model;
+  }
 
   /*
    * Creates a one-column model with data on HIV drugs.
@@ -93,6 +130,24 @@ private:
     model->sort(0);
 
     return model;
+  }
+
+  void mostSimplePopup(Wt::WContainerWidget *parent)
+  {
+    Wt::WSuggestionPopup::Options simpleOptions;
+    simpleOptions.highlightBeginTag = "<b>";
+    simpleOptions.highlightEndTag = "</b>";
+    simpleOptions.listSeparator = 0;
+
+    Wt::WSuggestionPopup *popup = new Wt::WSuggestionPopup(simpleOptions,
+							   parent);
+    popup->setModel(createSimpleDrugsModel());
+
+    new Wt::WText(Wt::WString::tr("simplest-popup"), parent);
+
+    Wt::WLineEdit *edit = new Wt::WLineEdit(parent);
+    edit->resize(150, Wt::WLength::Auto);
+    popup->forEdit(edit);
   }
 
   void simplePopup(Wt::WContainerWidget *parent)

@@ -349,6 +349,11 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.fs)
 	     item.fs = []; // fixed size (size defined by inline size or CSS)
 
+	   if ($(item.w).hasClass('Wt-hidden')) {
+	     item.ps[dir] = item.ms[dir] = 0;
+	     continue;
+	   }
+
 	   var first = !item.set;
 
 	   if (!item.set)
@@ -775,11 +780,6 @@ WT_DECLARE_WT_MEMBER
      if (cSize < measures[TOTAL_MINIMUM_SIZE] - otherPadding)
        cSize = measures[TOTAL_MINIMUM_SIZE] - otherPadding;
 
-     $(widget).children("." + OC.handleClass)
-       .css(DC.size,
-	    (cSize - DC.margins[MARGIN_RIGHT] - DC.margins[MARGIN_LEFT])
-	    + 'px');
-
      // (3) compute column/row widths
      var targetSize = [], dirCount = DC.config.length,
        otherCount = OC.config.length;
@@ -1096,6 +1096,11 @@ WT_DECLARE_WT_MEMBER
 	 left += targetSize[di];
        }
      }
+
+     $(widget).children("." + OC.handleClass)
+       .css(DC.size,
+	    (cSize - DC.margins[MARGIN_RIGHT] - DC.margins[MARGIN_LEFT])
+	    + 'px');
    }
 
    this.setConfig = function(conf) {
@@ -1126,6 +1131,8 @@ WT_DECLARE_WT_MEMBER
      }
 
      layoutDirty = true;
+
+     APP.layouts2.scheduleAdjust();
    };
 
    this.getId = function() {

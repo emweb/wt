@@ -67,9 +67,15 @@ namespace Wt {
       //TODO also check the filename extension, if parsing the file did not work
 
       for (int i = 0; i < mimeTypeCount; ++i) {
+#ifndef WT_TARGET_JAVA
 	if (std::memcmp(&header[0], 
 			imageHeaders[i], imageHeaderSize[i]) == 0)
 	  return std::string(imageMimeTypes[i]);
+#else
+	if (std::memcmp(header.data(), 
+			imageHeaders[i], imageHeaderSize[i]) == 0)
+	  return std::string(imageMimeTypes[i]);
+#endif
       }
 
       return std::string();

@@ -1556,6 +1556,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     if (flags_.test(BIT_HIDDEN_CHANGED)
 	|| (all && flags_.test(BIT_HIDDEN))) {
       if (flags_.test(BIT_HIDDEN)) {
+	element.callJavaScript("$('#" + id() + "').addClass('Wt-hidden');");
 	element.setProperty(PropertyStyleVisibility, "hidden");
 	if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
 	  element.setProperty(PropertyStylePosition, "absolute");
@@ -1593,6 +1594,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    element.setProperty(PropertyStyleLeft, "");
 	  }
 	}
+	element.callJavaScript("$('#" + id() + "').removeClass('Wt-hidden');");
 	element.setProperty(PropertyStyleVisibility, "visible");
 	element.setProperty(PropertyStyleDisplay, ""); // XXX
       }

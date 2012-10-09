@@ -244,6 +244,27 @@ WebSession::~WebSession()
 
 }
 
+#ifdef WT_TARGET_JAVA
+void WebSession::destruct()
+{
+  if (asyncResponse_) {
+    asyncResponse_->flush();
+    asyncResponse_ = 0;
+  }
+
+  if (deferredResponse_) {
+    deferredResponse_->flush();
+    deferredResponse_ = 0;
+  }    
+
+  mutex_.lock();
+  updatesPendingEvent_.notify_one();
+  mutex_.unlock();
+
+  flushBootStyleResponse();
+}
+#endif // WT_TARGET_JAVA
+
 std::string WebSession::docType() const
 {
   const bool xhtml = env_->contentType() == WEnvironment::XHTML1;

@@ -62,6 +62,10 @@ public:
 	     const WebRequest *request, WEnvironment *env = 0);
   ~WebSession();
 
+#ifdef WT_TARGET_JAVA
+  void destruct();
+#endif // WT_TARGET_JAVA
+
   static WebSession *instance();
 
   bool attachThreadToLockedHandler();
