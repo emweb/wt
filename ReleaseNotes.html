@@ -22,6 +22,81 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.2.3 (October, 10 2012)</h2>
+
+<p>
+ This release contains mostly bug fixes and one new feature: a payment
+ processing API.
+</p>
+
+<h3>A) New namespaces:</h3>
+
+<dl>
+  <dt>
+    <a href="group__payment.html">Wt::Payment (payment handling)</a>
+  </dt>
+  <dd>
+    This namespace contains services and back-end classes for dealing
+    with online payment brokers. At the moment there is support for
+    PayPal's Express Checkout service.
+  </dd>
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+<dl>
+  <dt>
+    Layout improvements.
+  </dt>
+  <dd>
+    <p>
+      If you had massive trouble migrating to 3.2.2 because of the
+      layout rewrite, then you'll appreciate the efforts we've made to
+      make the layout algorithms in 3.2.3 much more robust and
+      consistent.
+    </p>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1QueryModel.html">Dbo::QueryModel</a>:
+    added a mechanism for stable row data.
+  </dt>
+  <dd>
+    <p>
+      A common nuisance when working with the QueryModel (which
+      retrieves data from the database as needed), is that concurrent
+      database modifications such as insertions of new data, may
+      interfere with the model's mapping of rows to objects (this is
+      in fact a common problem with most ORM's indeed). This mapping
+      may be important, especially when you want to process the user's
+      selection of one or more rows selected by the user, in e.g. a
+      table view. We've added a mechanism to assure that one can
+      request the model for data at a given row, which is guaranteed
+      to be the same row that has been previously retrieved, using the
+      stableResultRow() method. It works by default for simple queries
+      (returning data from one table), but can be easily customized
+      for more complex queries.
+    </p>
+  </dd>
+
+  <dt>
+    <a href="namespaceWt_1_1Render.html">Render library:</a>
+    improved support for %-based block sizes and table rendering
+  </dt>
+  <dd>
+    <p>
+      Support was added for %-based sizes for block widths and table
+      cell widths. In addition, table rendering in Wt::Render has been
+      improved to support repeating headers (&lt;thead&gt; sections)
+      for multi-page tables, and explicit page breaks (using the css
+      page-break-after/before properties).
+    </p>
+  </dd>
+
+</dl>
+
+<hr>
+
 <h2>Release 3.2.2 (July, 23 2012)</h2>
 
 <p>

@@ -79,7 +79,7 @@ namespace Wt {
    \ref error_sec
    </div>
   
-   \section wwidget_sec 1. Widgets
+   \section wwidget_sec &nbsp;1. Widgets
   
    The WWidget class represents a widget, which provides an
    abstraction of a visual entity. The entire user-interface is
@@ -162,7 +162,7 @@ namespace Wt {
    parent container as an argument to its constructor. You may also
    add a widget to a container using a layout manager.
 
-   \section urls_sec 2. Application URL(s)
+   \section urls_sec &nbsp;2. Application URL(s)
 
    A %Wt application, like any other CGI application, is deployed at a
    single location (URL) within your web server. In this mode, a %Wt
@@ -197,7 +197,7 @@ namespace Wt {
    WApplication::internalPathChanged() event to react to the user
    navigating through his history.
 
-   \section application_sec 3. Startup and session management
+   \section application_sec &nbsp;3. Startup and session management
   
    In your application, e.g. from within your main(), you should
    WRun() to start the %Wt application server. This method will return
@@ -245,7 +245,7 @@ namespace Wt {
    all sessions in a single process, and sessions are not isolated by
    any other mechanism but correct programming.
 
-   \section signal_slot 4. Signal/slot event handling
+   \section signal_slot &nbsp;4. Signal/slot event handling
   
    To respond to user-interactivity events, or in general to communicate
    events from one widget to any other, %Wt uses a signal/slot system.
@@ -281,7 +281,7 @@ namespace Wt {
    signals. To react to one of these events, the programmer connects a
    self-defined or already existing slot to such a signal.
   
-   \section eventhandling 5. Optimizing client-side event handling
+   \section eventhandling &nbsp;5. Optimizing client-side event handling
   
    By default, %Wt performs all event processing server-side. Every
    connected event signal will cause the web browser to communicate
@@ -325,7 +325,7 @@ namespace Wt {
    - Using WApplication::doJavaScript(), you can call JavaScript code
      directly as part of event handling.
 
-  \section bootstrap 6. Application bootstrap
+  \section bootstrap &nbsp;6. Application bootstrap
 
   A %Wt application may support both plain HTML and Ajax-enabled user
   agents. When a first request is made for a new session, there is no
@@ -396,7 +396,7 @@ namespace Wt {
   but has the drawback of requiring consistent enableAjax() implementations
   and requiring more server-side processing.
 
-  \section sec_painting 7. Painting
+  \section sec_painting &nbsp;7. Painting
 
   %Wt provides a vector graphics painting system which depending on
   the browser support uses one of three different methods to paint the
@@ -408,7 +408,7 @@ namespace Wt {
   WPainter to paint the contents of the widget inside its
   WPaintedWidget::paintEvent().
 
-  \section internationalization_sec 8. Internationalization
+  \section internationalization_sec &nbsp;8. Internationalization
 
   %Wt's WString class offers an interface to translate strings by
   using the static WString::tr("key") method to construct a WString.
@@ -432,7 +432,7 @@ namespace Wt {
   class documentation contains an example on how to format the xml resource 
   bundle to use this functionality. 
 
-  \section deployment 9. Deployment
+  \section deployment &nbsp;9. Deployment
 
   The library is designed so that, besides the application binary,
   only files from the <tt>resources/</tt> folder are needed to deploy
@@ -530,7 +530,7 @@ appRoot=C:\Program Files\MyApplications\AppRoot
 </pre> \endhtmlonly
   - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>)
  
-  \section configuration_sec 10. Configuration
+  \section configuration_sec &nbsp;10. Configuration
 
   %Wt has one main XML configuration file, which by default is located
   in <tt>/etc/wt/wt_config.xml</tt>, but whose location can be overridden
@@ -883,7 +883,7 @@ Settings may be set in the configuration file /etc/wt/wthttpd
   </dl>
 
 
-   \section error_sec 11. Error-handling and logging
+   \section error_sec &nbsp;11. Error-handling and logging
 
    %Wt provides logging of events to a log-file (see the \ref
    config_general "log-file configuration setting"). Every log entry
