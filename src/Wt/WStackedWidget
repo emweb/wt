@@ -117,10 +117,10 @@ private:
   WAnimation animation_;
   bool autoReverseAnimation_;
   int currentIndex_;
-  bool javaScriptDefined_;
+  bool javaScriptDefined_, loadAnimateJS_;
 
-  bool loadAnimateJS();
   void defineJavaScript();  
+  void loadAnimateJS();
 };
 
 }

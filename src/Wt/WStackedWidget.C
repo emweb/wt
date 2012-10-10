@@ -17,13 +17,13 @@ namespace Wt {
 
 WStackedWidget::WStackedWidget(WContainerWidget *parent)
   : WContainerWidget(parent),
-    currentIndex_(-1)
+    currentIndex_(-1),
+    javaScriptDefined_(false),
+    loadAnimateJS_(false)
 {
   WT_DEBUG( setObjectName("WStackedWidget") );
 
   addStyleClass("Wt-stack");
-
-  javaScriptDefined_ = false;
 }
 
 void WStackedWidget::addWidget(WWidget *widget)
@@ -73,19 +73,14 @@ void WStackedWidget::removeChild(WWidget *child)
 void WStackedWidget::setTransitionAnimation(const WAnimation& animation,
 					    bool autoReverse)
 {
-  if (loadAnimateJS()) {
+  if (WApplication::instance()->environment().supportsCss3Animations()) {
     if (!animation.empty())
       addStyleClass("Wt-animated");
 
+    loadAnimateJS();
+
     animation_ = animation;
     autoReverseAnimation_ = autoReverse;
-
-    if (isRendered()) {
-      setJavaScriptMember("wtAnimateChild",
-			  "$('#" + id() + "').data('obj').animateChild");
-      setJavaScriptMember("wtAutoReverse",
-			  autoReverseAnimation_ ? "true" : "false");
-    }
   }
 }
 
@@ -97,10 +92,13 @@ void WStackedWidget::setCurrentIndex(int index)
 void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
 				     bool autoReverse)
 {
-  if (!animation.empty() && loadAnimateJS()
-      && (isRendered() || !canOptimizeUpdates())) {
+  if (!animation.empty() && 
+      WApplication::instance()->environment().supportsCss3Animations() &&
+      ((isRendered() && javaScriptDefined_) || !canOptimizeUpdates())) {
     if (canOptimizeUpdates() && index == currentIndex_)
       return;
+
+    loadAnimateJS();
 
     WWidget *previous = currentWidget();
 
@@ -118,23 +116,25 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
       if (widget(i)->isHidden() != (currentIndex_ != i))
 	widget(i)->setHidden(currentIndex_ != i);
 
-    if (isRendered())
+    if (isRendered() && javaScriptDefined_)
       doJavaScript("$('#" + id() + "').data('obj').setCurrent("
 		   + widget(currentIndex_)->jsRef() + ");");
   }
 }
 
-bool WStackedWidget::loadAnimateJS()
+void WStackedWidget::loadAnimateJS()
 {
-  WApplication *app = WApplication::instance();
-
-  if (app->environment().supportsCss3Animations()) {
-    LOAD_JAVASCRIPT(app, "js/WStackedWidget.js",
-		    "WStackedWidget.prototype.animateChild", wtjs2);
-
-    return true;
-  } else
-    return false;
+  if (!loadAnimateJS_) {
+    loadAnimateJS_ = true;
+    if (javaScriptDefined_) {
+      LOAD_JAVASCRIPT(WApplication::instance(), "js/WStackedWidget.js",
+		      "WStackedWidget.prototype.animateChild", wtjs2);
+      setJavaScriptMember("wtAnimateChild",
+			  "$('#" + id() + "').data('obj').animateChild");
+      setJavaScriptMember("wtAutoReverse",
+			  autoReverseAnimation_ ? "true" : "false");
+    }
+  }
 }
 
 void WStackedWidget::defineJavaScript()
@@ -153,13 +153,9 @@ void WStackedWidget::defineJavaScript()
     setJavaScriptMember(WT_GETPS_JS,
 			"$('#" + id() + "').data('obj').wtGetPs");
 
-    if (!animation_.empty()) {
+    if (loadAnimateJS_) {
+      loadAnimateJS_ = false;
       loadAnimateJS();
-
-      setJavaScriptMember("wtAnimateChild",
-			  "$('#" + id() + "').data('obj').animateChild");
-      setJavaScriptMember("wtAutoReverse",
-			  autoReverseAnimation_ ? "true" : "false");
     }
   }
 }
