@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-
 #include "FormWidgets.h"
 #include "EventDisplayer.h"
 #include "DeferredWidget.h"
@@ -368,6 +367,7 @@ WWidget *FormWidgets::wTextEdit()
 	    "interface. The default, shown below, covers only a small "
 	    "portion of TinyMCE's capabilities.</p>", result);
   WTextEdit *te = new WTextEdit(result);
+  te->setHeight(200);
   ed_->showSignal(te->changed(), "Text edit changed");
 
   return result;

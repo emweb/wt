@@ -376,7 +376,9 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	    double numLabels = calcAutoNumLabels(s) / 1.5;
 
 	    renderInterval_ = std::max(1.0, std::floor(rc / numLabels));
-	  } else if (scale_ != LogScale) {
+	  } else if (scale_ == LogScale) {
+	    renderInterval_ = 1; // does not apply
+	  } else {
 	    double numLabels = calcAutoNumLabels(s);
 
 	    renderInterval_ = round125(diff / numLabels);
