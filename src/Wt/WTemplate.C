@@ -219,18 +219,16 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
     repaint(RepaintInnerHtml);  
   }
 
-  WidgetMap::iterator i = widgets_.find(varName);
-  if (i != widgets_.end()) {
-      delete i->second;
+  WidgetMap::iterator j = widgets_.find(varName);
+  if (j != widgets_.end()) {
+      delete j->second;
 #ifndef WT_TARGET_JAVA
-      widgets_.erase(i);
+      widgets_.erase(j);
 #else
       widgets_.erase(varName);
 #endif
-    }
   }
 }
-
 
 void WTemplate::nestTemplate(const std::string& varName,
 			     const Wt::WString& templateText)
