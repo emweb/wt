@@ -668,40 +668,48 @@ WT_DECLARE_WT_MEMBER
 	 if (cSize === 0) {
 	   if (!DC.initialized) {
 
-	     if (pc !== 'absolute') {
-	       cSize = dir ? container.clientHeight : container.clientWidth;
-
-	       cClientSize = true;
-
-	       if (dir == 0 && cSize == 0 && WT.isIElt9) {
-		 cSize = container.offsetWidth;
-		 cClientSize = false;
-	       }
-
+	     if (dir === HORIZONTAL && (pc === 'absolute' || pc === 'fixed')) {
 	       /*
-		* heuristic to switch to layout-sizes-container mode
+		* On Chrome, somehow clientWidth is not reliable until
+		* we do this little hocus pocus
 		*/
-	       var minSize, ieCSize;
+	       container.style.display = 'none';
+	       cSize = container.clientWidth;
+	       container.style.display = '';
+	     }
 
-	       if ((WT.hasTag(container, "TD") || WT.hasTag(container, "TH"))
-		   && !(WT.isIE && !WT.isIElt9)) {
-		 minSize = 0;
-		 ieCSize = 1;
-	       } else {
-		 if (DC.minSize) // original minSize
-		   minSize = DC.minSize;
-		 else            // set minSize
-		   minSize = measures[TOTAL_MINIMUM_SIZE];
-		 ieCSize = 0;
-	       }
+	     cSize = dir ? container.clientHeight : container.clientWidth;
 
-	       if ((WT.isIElt9 && cSize == ieCSize)
-		   || (cSize == minSize + padding(container, dir))) {
-		 if (debug)
-		   console.log('switching to managed container size '
-			       + dir + ' ' + id);
-		 DC.maxSize = 999999;
-	       }
+	     cClientSize = true;
+
+	     if (dir == 0 && cSize == 0 && WT.isIElt9) {
+	       cSize = container.offsetWidth;
+	       cClientSize = false;
+	     }
+
+	     /*
+	      * heuristic to switch to layout-sizes-container mode
+	      */
+	     var minSize, ieCSize;
+
+	     if ((WT.hasTag(container, "TD") || WT.hasTag(container, "TH"))
+		 && !(WT.isIE && !WT.isIElt9)) {
+	       minSize = 0;
+	       ieCSize = 1;
+	     } else {
+	       if (DC.minSize) // original minSize
+		 minSize = DC.minSize;
+	       else            // set minSize
+		 minSize = measures[TOTAL_MINIMUM_SIZE];
+	       ieCSize = 0;
+	     }
+
+	     if ((WT.isIElt9 && cSize == ieCSize)
+		 || (cSize == minSize + padding(container, dir))) {
+	       if (debug)
+		 console.log('switching to managed container size '
+			     + dir + ' ' + id);
+	       DC.maxSize = 999999;
 	     }
 	   }
 
@@ -728,9 +736,11 @@ WT_DECLARE_WT_MEMBER
      if (DC.maxSize) {
        // (2) adjust container width/height
        if (totalPreferredSize + otherPadding < DC.maxSize) {
-	 setCss(container, DC.size,
-		(totalPreferredSize
-		 + otherPadding + sizePadding(container, dir)) + 'px');
+	 if (setCss(container, DC.size,
+		    (totalPreferredSize
+		     + otherPadding + sizePadding(container, dir)) + 'px'))
+	   APP.layouts2.remeasure();
+
 	 cSize = totalPreferredSize + otherPadding;
 	 cPaddedSize = true;
 	 noStretch = true;
@@ -1362,7 +1372,7 @@ WT_DECLARE_APP_MEMBER
       self.scheduleAdjust();
     };
 
-    var adjustScheduled = false;
+    var adjustScheduled = false, needRemeasure = false;
 
     this.scheduleAdjust = function() {
       if (adjustScheduled)
@@ -1390,6 +1400,7 @@ WT_DECLARE_APP_MEMBER
 	return;
 
       adjusting = true;
+      needRemeasure = false;
 
       function measure(layouts, dir) {
 	var i, il;
@@ -1428,7 +1439,15 @@ WT_DECLARE_APP_MEMBER
       measure(topLevelLayouts, VERTICAL);
       apply(topLevelLayouts, VERTICAL);
 
+      if (needRemeasure) {
+	measure(topLevelLayouts, HORIZONTAL);
+	apply(topLevelLayouts, HORIZONTAL);
+	measure(topLevelLayouts, VERTICAL);
+	apply(topLevelLayouts, VERTICAL);
+      }
+
       adjusting = false;
+      needRemeasure = false;
       measureVertical = false;
     };
 
@@ -1440,10 +1459,20 @@ WT_DECLARE_APP_MEMBER
       return;
     };
 
+    this.remeasure = function() {
+      needRemeasure = true;
+    }
+
     window.onresize = function() {
       measureVertical = true;
 
       self.scheduleAdjust();
     };
+	 
+    window.onshow = function() {
+      measureVertical = true;
+      self.adjust();
+    }
+
   }) ()
 );

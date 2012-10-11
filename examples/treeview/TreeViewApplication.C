@@ -27,6 +27,8 @@ public:
     aboutDrink_ = new WText("", root());
     
     internalPathChanged().connect(this, &TreeViewApplication::handlePathChange);
+
+    this->handlePathChange();
   }
 private:
   WText *aboutDrink_;
