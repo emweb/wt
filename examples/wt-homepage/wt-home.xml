@@ -965,7 +965,7 @@ download software using <tt>wget</tt>.
 
 <p>
 Download the package
-(<a href="http://www.webtoolkit.eu/packages/winst-0.3.tar.gz">winst-0.3.tar.gz</a>)
+(<a href="http://www.webtoolkit.eu/packages/winst-0.4.tar.gz">winst-0.4.tar.gz</a>)
 or get the latest git version:
 <div class="fragment">
   <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/winst.git</pre>
@@ -1305,13 +1305,13 @@ href="http://www.webtoolkit.eu/wt/doc/tutorial/wt.html">online
 tutorial</a> (<a
 href="http://www.webtoolkit.eu/wt/doc/tutorial/wt.pdf">download
 PDF</a>) brings you up to speed on developing web applications using
-Wt (Revised December 2011).</li>
+Wt (revised December 2011).</li>
 
-<li>The ORM framework (Wt::Dbo) has covered in a separate <a
+<li>The ORM framework (Wt::Dbo) is covered in a separate <a
 href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo.html">online
 tutorial</a> (<a
 href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo.pdf">download
-PDF</a>) (Revised July 2011).</li>
+PDF</a>) (revised July 2011).</li>
 
 <li>Dr Dobbs Journal has a good <a href="http://www.ddj.com/cpp/206401952">
 introductary article on Wt</a> (February 2008).</li>

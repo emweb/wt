@@ -15,6 +15,7 @@ SoundManager::SoundManager(WContainerWidget *parent)
   : WMediaPlayer(WMediaPlayer::Audio, parent)
 {
   resize(0, 0);
+  setAttributeValue("style", "overflow: hidden");
 
   controlsWidget()->hide();
   decorationStyle().setBorder(WBorder());

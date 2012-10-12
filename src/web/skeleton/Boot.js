@@ -1,3 +1,5 @@
+window.onresize = function() { };
+
 function loadScript(url, callback) {
   var s = document.createElement('script');
 
