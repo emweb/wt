@@ -116,7 +116,7 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
       if (widget(i)->isHidden() != (currentIndex_ != i))
 	widget(i)->setHidden(currentIndex_ != i);
 
-    if (isRendered() && javaScriptDefined_)
+    if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_)
       doJavaScript("$('#" + id() + "').data('obj').setCurrent("
 		   + widget(currentIndex_)->jsRef() + ");");
   }
