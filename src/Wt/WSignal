@@ -167,6 +167,7 @@ private:
  * may find out the sender of a signal emission, using
  * WObject::sender().
  *
+ * \if cpp
  * \code
  * class MyWidget : public Wt::WContainerWidget
  * {
@@ -192,8 +193,10 @@ private:
  *   }
  * };
  * \endcode
+ * \endif
  *
  * This widget could then be used from another class:
+ * \if cpp
  * \code
  * class GUIClass : public Wt::WContainerWidget
  * {
@@ -210,6 +213,7 @@ private:
  *   }
  * };
  * \endcode
+ * \endif
  *
  * The WSignalMapper is a utility class that helps in situations where
  * you want to connect multiple signals to a single slot, and still be

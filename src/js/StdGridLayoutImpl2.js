@@ -1131,10 +1131,12 @@ WT_DECLARE_WT_MEMBER
        var item = oldConfig.items[i];
 
        if (item) {
-	 if (item.set[HORIZONTAL])
-	   setCss(item.w, DirConfig[HORIZONTAL].size, '');
-	 if (item.set[VERTICAL])
-	   setCss(item.w, DirConfig[VERTICAL].size, '');
+	 if (item.set) {
+	   if (item.set[HORIZONTAL])
+	     setCss(item.w, DirConfig[HORIZONTAL].size, '');
+	   if (item.set[VERTICAL])
+	     setCss(item.w, DirConfig[VERTICAL].size, '');
+	 }
 
 	 if (item.layout) {
 	   self.setChildSize(item.w, HORIZONTAL, item.ps[HORIZONTAL]);

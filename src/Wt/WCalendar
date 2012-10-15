@@ -387,6 +387,7 @@ private:
 
   void selectInCurrentMonth(const WDate& d);
 
+  bool isInvalid(const WDate& d);
   void cellClicked(Coordinate c);
   void cellDblClicked(Coordinate c);
 };

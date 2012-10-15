@@ -31,7 +31,7 @@ WEnvironment::WEnvironment()
     dpiScale_(1),
     contentType_(HTML4)
 #ifndef WT_TARGET_JAVA
-  ,sslInfo_(0)
+    , sslInfo_(0)
 #endif
 { }
 
@@ -43,14 +43,16 @@ WEnvironment::WEnvironment(WebSession *session)
     dpiScale_(1),
     contentType_(HTML4)
 #ifndef WT_TARGET_JAVA
-  ,sslInfo_(0)
+    , sslInfo_(0)
 #endif
 { }
 
 WEnvironment::~WEnvironment()
 {
 #ifndef WT_TARGET_JAVA
+#ifdef WT_WITH_SSL
   delete sslInfo_;
+#endif
 #endif
 }
 

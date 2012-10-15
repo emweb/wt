@@ -295,8 +295,7 @@ WWidget* WCalendar::renderCell(WWidget* widget, const WDate& date)
 
   std::string styleClass;
 
-  if ((!bottom_.isNull() && date < bottom_) || 
-       (!top_.isNull() && date > top_))
+  if (isInvalid(date))
     styleClass += " Wt-cal-oor";
   else if (date.month() != currentMonth())
     styleClass += " Wt-cal-oom";
@@ -391,20 +390,34 @@ void WCalendar::selectInCurrentMonth(const WDate& d)
   }
 }
 
+bool WCalendar::isInvalid(const WDate& dt)
+{
+  return ((!bottom_.isNull() && dt < bottom_) ||
+          (!top_.isNull() && dt > top_));
+}
+
 void WCalendar::cellClicked(Coordinate weekday)
 {
   date dt = dateForCell(weekday.i, weekday.j);
-  clicked().emit(WDate(dt.year(), dt.month(), dt.day()));
+  WDate d(dt.year(), dt.month(), dt.day());
+  if (isInvalid(d))
+    return;
+
+  clicked().emit(d);
   
-  if (selectionMode_ != ExtendedSelection && singleClickSelect_) 
-    activated().emit(WDate(dt.year(), dt.month(), dt.day()));
+  if (selectionMode_ != ExtendedSelection && singleClickSelect_)
+    activated().emit(d);
 }
 
 void WCalendar::cellDblClicked(Coordinate weekday)
 {
   date dt = dateForCell(weekday.i, weekday.j);
-  clicked().emit(WDate(dt.year(), dt.month(), dt.day()));
-  activated().emit(WDate(dt.year(), dt.month(), dt.day()));
+  WDate d(dt.year(), dt.month(), dt.day());
+  if (isInvalid(d))
+    return;
+
+  clicked().emit(d);
+  activated().emit(d);
 }
 
 date WCalendar::dateForCell(int week, int dayOfWeek)

@@ -9,12 +9,14 @@
 
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <boost/date_time/gregorian/greg_year.hpp>
 
 #include <Wt/WAbstractItemModel>
 #include <Wt/WApplication>
 #include <Wt/WCheckBox>
 #include <Wt/WComboBox>
 #include <Wt/WDoubleValidator>
+#include <Wt/WDate>
 #include <Wt/WEnvironment>
 #include <Wt/WIntValidator>
 #include <Wt/WLineEdit>
@@ -529,11 +531,31 @@ void ChartConfig::update()
 	getDouble(sc.minimumEdit, min);
 	getDouble(sc.maximumEdit, max);
 
-	if (axis.scale() == LogScale)
-	  if (min <= 0)
-	    min = 0.0001;
+    if (axis.scale() == LogScale)
+      if (min <= 0)
+        min = 0.0001;
 
-	axis.setRange(min, max);
+    if (axis.scale() == DateScale){
+        //the number of julian days until year 1986
+        WDate dMin = WDate(1986,1,1);
+        double gregDaysMin = (double)dMin.toJulianDay();
+        //the number of julian days until year 1988
+        WDate dMax = WDate(1988,1,1);
+        double gregDaysMax = (double)dMax.toJulianDay();
+
+        bool greg_year_validation =
+                (min > gregDaysMin &&
+                 min < gregDaysMax &&
+                 max > gregDaysMin &&
+                 max < gregDaysMax);
+
+        if(!greg_year_validation){
+            min = gregDaysMin;
+            max = gregDaysMax;
+        }
+    }
+
+      axis.setRange(min, max);
       }
 
     }
