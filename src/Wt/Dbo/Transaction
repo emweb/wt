@@ -115,6 +115,12 @@ public:
    */
   void rollback();
 
+  /*! \brief Returns the session associated with this transaction.
+     *
+     * This is the same session that was set in the constructor.
+     */
+  Session& session() const;
+
 private:
   struct Impl {
     Session& session_;

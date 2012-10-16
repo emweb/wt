@@ -237,6 +237,11 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 
     line->addWidget(value);
     value->setAttributeValue("sug", asString(d2));
+
+    boost::any styleclass = index.data(StyleClassRole);
+    if (!styleclass.empty()) {
+      value->setAttributeValue("class", asString(styleclass));
+    }
   }
 }
 

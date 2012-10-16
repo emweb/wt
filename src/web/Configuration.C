@@ -500,6 +500,17 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
   entryPoints_.push_back(ep);
 }
 
+void Configuration::removeEntryPoint(const std::string& path)
+{
+  for(int i = 0; i < entryPoints_.size(); ++i){
+    EntryPoint &ep = entryPoints_[i];
+    if(ep.path() == path){
+      entryPoints_.erase(entryPoints_.begin() + i);
+      break;//assume that there is no 2 entry points with the same path.
+    }
+  }
+}
+
 void Configuration::setDefaultEntryPoint(const std::string& path)
 {
   for (unsigned i = 0; i < entryPoints_.size(); ++i)

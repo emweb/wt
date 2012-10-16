@@ -187,6 +187,8 @@ public:
    * specify a favicon using the "favicon" property in the
    * configuration file (see als \ref config_general "Application
    * settings (wt_config.xml)").
+   *
+   * \sa removeEntryPoint()
    */
   WT_API void addEntryPoint(EntryPointType type, ApplicationCreator callback,
 		            const std::string& path = std::string(),
@@ -198,8 +200,24 @@ public:
    * Resources may either be private to a single session or
    * public. Use this method to add a public resource with a fixed
    * path.
+   *
+   * \sa removeEntryPoint()
    */
   WT_API void addResource(WResource *resource, const std::string& path);
+
+  /*! \brief Removes an entry point.
+   *
+   * Use this method to remove an entry point or static resource.
+   *
+   * In a multi-threaded environment, this may only be done when the
+   * server is not running.
+   *
+   * When a resource has been bound to the path, the resource will not
+   * be deleted.
+   *
+   * \sa addEntryPoint(), addResource()
+   */
+  WT_API void removeEntryPoint(const std::string& path);
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Starts the server in the background.

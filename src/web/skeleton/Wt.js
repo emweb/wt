@@ -564,7 +564,8 @@ this.ajaxInternalPaths = function(basePath) {
 };
 
 this.resolveRelativeAnchors = function() {
-  $('.Wt-rr').each(function() {
+  if (window.$)
+    $('.Wt-rr').each(function() {
       this.setAttribute('href', this.href);
       $(this).removeClass("Wt-rr");
     });

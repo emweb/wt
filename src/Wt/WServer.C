@@ -215,6 +215,10 @@ void WServer::addResource(WResource *resource, const std::string& path)
   configuration().addEntryPoint(EntryPoint(resource, path));
 }
 
+void WServer::removeEntryPoint(const std::string& path){
+  configuration().removeEntryPoint(path);
+}
+
 void WServer::restart(int argc, char **argv, char **envp)
 {
 #ifndef WIN32

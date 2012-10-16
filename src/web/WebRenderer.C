@@ -933,9 +933,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
   app->autoJavaScriptChanged_ = true;
 
   if (session_.type() == WidgetSet) {
-    response.out() << "$(document).ready(function() { "
-		   << app->javaScriptClass()
-		   << "._p_.update(null, 'load', null, false);});\n";
+    response.out() << app->javaScriptClass()
+		   << "._p_.update(null, 'load', null, false);";
   } else if (!rendered_) {
     serveMainAjax(response);
   } else {

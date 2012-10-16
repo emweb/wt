@@ -1,4 +1,4 @@
-A hands-on introduction to Wt::Dbo
+﻿A hands-on introduction to Wt::Dbo
 ==================================
 
 Koen Deforche <koen@emweb.be> +
@@ -384,8 +384,7 @@ results of a collection once. After the results have been iterated the
 +collection+ can no longer be used (but the +Query+ object can be
 reused unless a _DirectBinding_ bind strategy was used).
 
-The following code shows how you may multiple results of a query may
-be iterated:
+The following code shows how multiple results of a query may be iterated:
 
 .(tutorial1.C continued)
 [source,cpp]

@@ -95,6 +95,11 @@ void Transaction::rollback()
     impl_->rollback();
 }
 
+Session& Transaction::session() const
+{
+  return session_;
+}
+
 Transaction::Impl::Impl(Session& session)
   : session_(session),
     active_(true),

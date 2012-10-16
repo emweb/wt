@@ -164,7 +164,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   WPanel *p = list->addWidget("Chart properties", chartConfig);
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(750, WLength::Auto);
+  p->resize(880, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   if (chart_->isLegendEnabled())
@@ -278,7 +278,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   p = list->addWidget("Series properties", seriesConfig);
   p->expand();
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(750, WLength::Auto);
+  p->resize(880, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   // ---- Axis properties ----
@@ -371,7 +371,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   p = list->addWidget("Axis properties", axisConfig);
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(750, WLength::Auto);
+  p->resize(880, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   /*
@@ -527,35 +527,35 @@ void ChartConfig::update()
       axis.setAutoLimits(MinimumValue | MaximumValue);
     else {
       if (validate(sc.minimumEdit) && validate(sc.maximumEdit)) {
-	double min, max;
-	getDouble(sc.minimumEdit, min);
-	getDouble(sc.maximumEdit, max);
+          double min, max;
+          getDouble(sc.minimumEdit, min);
+          getDouble(sc.maximumEdit, max);
 
-    if (axis.scale() == LogScale)
-      if (min <= 0)
-        min = 0.0001;
+          if (axis.scale() == LogScale)
+              if (min <= 0)
+                  min = 0.0001;
 
-    if (axis.scale() == DateScale){
-        //the number of julian days until year 1986
-        WDate dMin = WDate(1986,1,1);
-        double gregDaysMin = (double)dMin.toJulianDay();
-        //the number of julian days until year 1988
-        WDate dMax = WDate(1988,1,1);
-        double gregDaysMax = (double)dMax.toJulianDay();
+          if (axis.scale() == DateScale){
+              //the number of julian days until year 1986
+              WDate dMin = WDate(1900,1,1);
+              double gregDaysMin = (double)dMin.toJulianDay();
+              //the number of julian days until year 1988
+              WDate dMax = WDate(3000,1,1);
+              double gregDaysMax = (double)dMax.toJulianDay();
 
-        bool greg_year_validation =
-                (min > gregDaysMin &&
-                 min < gregDaysMax &&
-                 max > gregDaysMin &&
-                 max < gregDaysMax);
+              bool greg_year_validation =
+                      (min > gregDaysMin &&
+                       min < gregDaysMax &&
+                       max > gregDaysMin &&
+                       max < gregDaysMax);
 
-        if(!greg_year_validation){
-            min = gregDaysMin;
-            max = gregDaysMax;
-        }
-    }
+              if(!greg_year_validation){
+                  min = gregDaysMin;
+                  max = gregDaysMax;
+              }
+          }
 
-      axis.setRange(min, max);
+          axis.setRange(min, max);
       }
 
     }

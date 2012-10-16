@@ -112,6 +112,7 @@ public:
 
 #ifndef WT_TARGET_JAVA
   void addEntryPoint(const EntryPoint& entryPoint);
+  void removeEntryPoint(const std::string& path);
   void setDefaultEntryPoint(const std::string& path);
   const EntryPointList& entryPoints() const { return entryPoints_; }
 #endif // WT_TARGET_JAVA
