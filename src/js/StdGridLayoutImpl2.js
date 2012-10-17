@@ -591,6 +591,13 @@ WT_DECLARE_WT_MEMBER
 	   if (p == parentItemWidget)
 	     break;
 
+	   /*
+	    * Take into account a size set on our direct parent,
+	    * if it is not the parentItemWidget
+	    */
+	   if (p == widget.parentNode && p.offsetHeight > totalPs)
+	     totalPs = p.offsetHeight;
+
 	   c = p;
 	   p = c.parentNode;
 	 }
@@ -1004,9 +1011,13 @@ WT_DECLARE_WT_MEMBER
 
 	       var rs = resizeHandle;
 	       for (si = 1; si < item.span[dir]; ++si) {
+		 if (di + si >= targetSize.length)
+		   break;
+
 		 if (rs)
 		   ts += RESIZE_HANDLE_MARGIN * 2;
-		 rs = DC.config[di + rs][RESIZABLE] !== 0;
+
+		 rs = DC.config[di + si][RESIZABLE] !== 0;
 		 ts += DC.margins[SPACING];
 		 ts += targetSize[di + si];
 	       }
@@ -1463,18 +1474,18 @@ WT_DECLARE_APP_MEMBER
 
     this.remeasure = function() {
       needRemeasure = true;
-    }
+    };
 
     window.onresize = function() {
       measureVertical = true;
 
       self.scheduleAdjust();
     };
-	 
+
     window.onshow = function() {
       measureVertical = true;
       self.adjust();
-    }
+    };
 
   }) ()
 );

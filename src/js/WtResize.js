@@ -67,7 +67,7 @@ WT_DECLARE_WT_MEMBER
 WT_DECLARE_WT_MEMBER
 (11, JavaScriptFunction, "ChildrenGetPS",
  function(self, child, dir, size) {
-  return size;
+   return size;
  }
  );
 
@@ -95,10 +95,10 @@ WT_DECLARE_WT_MEMBER
   for (i = 0, il = self.childNodes.length; i < il; ++i) {
     var c = self.childNodes[i];
     if (c != child) {
-      if (dir === 0) 
+      if (dir === 0)
 	size = Math.max(size, c.offsetWidth);
-      else 
-	size += c.offsetHeight + WT.px(c, 'marginTop') 
+      else
+	size += c.offsetHeight + WT.px(c, 'marginTop')
 	  + WT.px(c, 'marginBottom');
     }
   }
