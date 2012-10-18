@@ -196,6 +196,7 @@ public:
     std::vector<unsigned int> signalOrder;
 
 #ifdef WT_THREADED
+    boost::thread::id lockOwner() const { return lockOwner_; }
     boost::mutex::scoped_lock& lock() { return lock_; }
 #endif
 
@@ -207,6 +208,7 @@ public:
 
 #ifdef WT_THREADED
     boost::mutex::scoped_lock lock_;
+    boost::thread::id lockOwner_;
 
     Handler(const Handler&);
 #endif // WT_THREADED

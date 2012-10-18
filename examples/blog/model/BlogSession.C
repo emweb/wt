@@ -101,6 +101,8 @@ BlogSession::BlogSession(const std::string& sqliteDb)
     users_(*this)
 {
   connection_.setProperty("show-queries", "true");
+  connection_.setDateTimeStorage(Wt::Dbo::SqlDateTime,
+				 Wt::Dbo::backend::Sqlite3::PseudoISO8601AsText);
 
   setConnection(connection_);
 

@@ -132,13 +132,19 @@ public:
   virtual void bind(int column, const boost::posix_time::ptime& value,
 		    SqlDateTimeType type)
   {
-    switch (db_.dateTimeStorage(type)) {
-    case Sqlite3::ISO8601AsText: {
+    Sqlite3::DateTimeStorage storageType = db_.dateTimeStorage(type);
+
+    switch (storageType) {
+    case Sqlite3::ISO8601AsText:
+    case Sqlite3::PseudoISO8601AsText: {
       std::string v;
       if (type == SqlDate)
 	v = boost::gregorian::to_iso_extended_string(value.date());
       else {
 	v = boost::posix_time::to_iso_extended_string(value);
+
+	if (storageType == Sqlite3::PseudoISO8601AsText)
+	  v[v.find('T')] = ' ';
       }
 
       bind(column, v);
@@ -343,8 +349,11 @@ public:
   virtual bool getResult(int column, boost::posix_time::ptime *value,
 			 SqlDateTimeType type)
   {
-    switch (db_.dateTimeStorage(type)) {
-    case Sqlite3::ISO8601AsText: {
+    Sqlite3::DateTimeStorage storageType = db_.dateTimeStorage(type);
+
+    switch (storageType) {
+    case Sqlite3::ISO8601AsText:
+    case Sqlite3::PseudoISO8601AsText: {
       std::string v;
       if (!getResult(column, &v, -1))
 	return false;
@@ -582,14 +591,17 @@ const char *Sqlite3::dateTimeType(SqlDateTimeType type) const
 {
   if (type == SqlTime)
     return "integer";
-  else switch (dateTimeStorage(type)) {
-  case ISO8601AsText:
-    return "text";
-  case JulianDaysAsReal:
-    return "real";
-  case UnixTimeAsInteger:
-    return "integer";
-  }
+  else
+    switch (dateTimeStorage(type)) {
+    case ISO8601AsText:
+    case PseudoISO8601AsText:
+      return "text";
+    case JulianDaysAsReal:
+      return "real";
+    case UnixTimeAsInteger:
+      return "integer";
+    }
+
   std::stringstream ss;
   ss << __FILE__ << ":" << __LINE__ << ": implementation error";
   throw Sqlite3Exception(ss.str());

@@ -502,11 +502,11 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
 
 void Configuration::removeEntryPoint(const std::string& path)
 {
-  for(int i = 0; i < entryPoints_.size(); ++i){
+  for (unsigned i = 0; i < entryPoints_.size(); ++i) {
     EntryPoint &ep = entryPoints_[i];
-    if(ep.path() == path){
+    if (ep.path() == path) {
       entryPoints_.erase(entryPoints_.begin() + i);
-      break;//assume that there is no 2 entry points with the same path.
+      break;
     }
   }
 }

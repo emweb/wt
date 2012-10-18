@@ -95,6 +95,30 @@ behaviour.
 
 </dl>
 
+<h3>C) Non-backwards compatible changes</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1Dbo_1_1backend_1_1Sqlite3.html">Dbo::backend::Sqlite3</a>
+  </dt>
+
+  <dd>
+    <p>We've changed the implementation of the storage ISO8601AsText
+    format for time stamps (datetime). In the new, corrected,
+    implementation, we generate dates using 'T' as the separator
+    between date and time (as mandated by ISO8601), while the old
+    behaviour used a space ('&nbsp;') instead as the
+    separator. Sqlite3 supports either format equally. This may
+    however break some applications which use queries for an exact
+    date (or a date comparison), as the results may be affected.
+    </p>
+
+    <p> The old behaviour is still available as PseudoISO8601AsText,
+    which can be configured using
+    <tt>connection.setDateTimeStorage(Wt::Dbo::SqlDateTime,
+    Wt::Dbo::backend::Sqlite3::PseudoISO8601AsText)</tt>
+    </p>
+  </dd>
 <hr>
 
 <h2>Release 3.2.2 (July, 23 2012)</h2>

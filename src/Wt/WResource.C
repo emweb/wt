@@ -103,55 +103,70 @@ void WResource::doContinue(Http::ResponseContinuation *continuation)
 void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 		       Http::ResponseContinuation *continuation)
 {
+  bool retakeLock = false;
+  WebSession::Handler *handler = WebSession::Handler::instance();
+
+  {
 #ifdef WT_THREADED
-  boost::shared_ptr<boost::recursive_mutex> mutex = mutex_;
-  boost::recursive_mutex::scoped_lock lock(*mutex);
+    boost::shared_ptr<boost::recursive_mutex> mutex = mutex_;
+    boost::recursive_mutex::scoped_lock lock(*mutex);
 
-  if (beingDeleted_)
-    return;
+    if (beingDeleted_)
+      return;
 
-  // when we are handling a continuation, we do not have the session
-  // lock, unless we are being called from haveMoreData(), but then it's
-  // fine I guess ?
-  if (!continuation) {
-    WebSession::Handler *h = WebSession::Handler::instance();
-    if (h && h->lock().owns_lock())
-      h->lock().unlock();
-  }
+    // when we are handling a continuation, we do not have the session
+    // lock, unless we are being called from haveMoreData(), but then it's
+    // fine I guess ?
+    if (!continuation) {
+      if (handler &&
+	  handler->haveLock() && 
+	  handler->lockOwner() == boost::this_thread::get_id()) {
+	retakeLock = true;
+	handler->lock().unlock();
+      }
+    }
 #endif // WT_THREADED
 
-  if (continuation)
-    continuation->resource_ = 0;
+    if (continuation)
+      continuation->resource_ = 0;
 
-  Http::Request request(*webRequest, continuation);
-  Http::Response response(this, webResponse, continuation);
+    Http::Request request(*webRequest, continuation);
+    Http::Response response(this, webResponse, continuation);
 
-  if (!continuation)
-    response.setStatus(200);
+    if (!continuation)
+      response.setStatus(200);
 
-  handleRequest(request, response);
+    handleRequest(request, response);
 
-  if (!response.continuation_ || !response.continuation_->resource_) {
-    if (response.continuation_) {
-      Utils::erase(continuations_, response.continuation_);
-      delete response.continuation_;
+    if (!response.continuation_ || !response.continuation_->resource_) {
+      if (response.continuation_) {
+	Utils::erase(continuations_, response.continuation_);
+	delete response.continuation_;
+      }
+
+      response.out(); // trigger committing the headers if still necessary
+
+      webResponse->flush(WebResponse::ResponseDone);
+    } else {
+      if (response.continuation_->waiting_) {
+	response.continuation_->waiting_ = false;
+	webResponse->flush
+	  (WebResponse::ResponseFlush,
+	   boost::bind(&Http::ResponseContinuation::waitForMoreData,
+		       response.continuation_));
+      } else
+	webResponse
+	  ->flush(WebResponse::ResponseFlush,
+		  boost::bind(&Http::ResponseContinuation::doContinue,
+			      response.continuation_));
     }
+  }
 
-    response.out(); // trigger committing the headers if still necessary
-
-    webResponse->flush(WebResponse::ResponseDone);
-  } else {
-    if (response.continuation_->waiting_) {
-      response.continuation_->waiting_ = false;
-      webResponse->flush
-	(WebResponse::ResponseFlush,
-	 boost::bind(&Http::ResponseContinuation::waitForMoreData,
-		     response.continuation_));
-    } else
-      webResponse
-	->flush(WebResponse::ResponseFlush,
-		boost::bind(&Http::ResponseContinuation::doContinue,
-			    response.continuation_));
+  if (retakeLock) {
+#ifdef WT_THREADED
+    if (!handler->haveLock())
+      handler->lock().lock();
+#endif // WT_THREADED
   }
 }
 

@@ -319,7 +319,7 @@ void WebSession::setState(State state, int timeout)
   // this assertion is not true for when we are working from an attached
   // thread: that thread does not have an associated handler, but its contract
   // dictates that it should work on behalf of a thread that has the lock.
-  //assert(WebSession::Handler::instance()->lock().owns_lock());
+  //assert(WebSession::Handler::instance()->haveLock());
 #endif // WT_THREADED
 
   if (state_ != Dead) {
@@ -723,6 +723,7 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 {
   if (takeLock) {
 #ifdef WT_THREADED
+    lockOwner_ = boost::this_thread::get_id();
     lock_.lock();
 #endif
 #ifdef WT_TARGET_JAVA
@@ -744,6 +745,9 @@ WebSession::Handler::Handler(WebSession *session)
     response_(0),
     killed_(false)
 {
+#ifdef WT_THREADED
+  lockOwner_ = boost::this_thread::get_id();
+#endif
 #ifdef WT_TARGET_JAVA
   session->mutex().lock();
 #endif // WT_TARGET_JAVA
@@ -766,6 +770,9 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
     response_(&response),
     killed_(false)
 {
+#ifdef WT_THREADED
+  lockOwner_ = boost::this_thread::get_id();
+#endif
 #ifdef WT_TARGET_JAVA
   session->mutex().lock();
 #endif
@@ -787,11 +794,11 @@ bool WebSession::Handler::haveLock() const
 #ifdef WT_THREADED
   return lock_.owns_lock();
 #else
-#  ifdef WT_TARGET_JAVA
+#ifdef WT_TARGET_JAVA
   return session_->mutex().owns_lock();
-#  else
+#else
   return true;
-#  endif
+#endif
 #endif
 }
 
@@ -878,7 +885,7 @@ void WebSession
 #ifdef WT_TARGET_JAVA
 void WebSession::Handler::release()
 {
-  if (session_->mutex().owns_lock()) {
+  if (haveLock()) {
     if (session_->triggerUpdate_)
       session_->pushUpdates();
     session_->mutex().unlock();
@@ -1936,10 +1943,6 @@ void WebSession::notify(const WEvent& event)
 	    try {
 	      resource->handle(&request, &response);
 	      handler.setRequest(0, 0);
-#ifdef WT_THREADED
-	      if (!handler.lock().owns_lock())
-		handler.lock().lock();
-#endif // WT_THREADED
 	    } catch (std::exception& e) {
 	      LOG_ERROR("Exception while streaming resource" << e.what());
 	      RETHROW(e);
