@@ -175,6 +175,10 @@ WT_DECLARE_WT_MEMBER
      if (scrollWidth < offsetWidth)
        scrollWidth = offsetWidth;
 
+     var maxSize = WT.px(element, 'max' + DC.Size);
+     if (maxSize > 0)
+       scrollWidth = Math.min(maxSize, scrollWidth);
+
      return Math.round(scrollWidth);
    }
 
@@ -570,6 +574,9 @@ WT_DECLARE_WT_MEMBER
      if (parent) {
        var DC = DirConfig[dir],
            totalPs = DC.measures[TOTAL_PREFERRED_SIZE];
+
+       if (DC.maxSize > 0)
+	 totalPs = Math.min(DC.maxSize, totalPs);
 
        if (parentWithWtPS) {
 	 var widget = WT.getElement(id);
