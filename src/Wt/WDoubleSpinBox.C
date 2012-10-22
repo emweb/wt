@@ -156,4 +156,11 @@ bool WDoubleSpinBox::parseNumberValue(const std::string& text)
   }
 }
 
+WValidator::Result WDoubleSpinBox::validateRange() const
+{
+  WDoubleValidator validator;
+  validator.setRange(min_, max_);
+  return validator.validate(WString("{1}").arg(value_));
+}
+
 }

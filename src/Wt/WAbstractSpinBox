@@ -102,6 +102,7 @@ protected:
   virtual bool parseNumberValue(const std::string& text) = 0;
   virtual WString textFromValue() const = 0;
   virtual WValidator *createValidator() = 0; // for nativeControl
+  virtual WValidator::Result validateRange() const = 0;
 
   virtual int boxPadding(Orientation orientation) const;
 

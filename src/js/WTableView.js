@@ -25,7 +25,7 @@ WT_DECLARE_WT_MEMBER
     * We need to remember this for when going through a hide()
     * show() cycle.
     */
-   var scrollTop = 0, scrollLeft = 0;
+   var scrollTop = 0, scrollLeft = 0, currentWidth = 0, currentHeight = 0;
 
    contentsContainer.onscroll = function() {
      scrollLeft = headerContainer.scrollLeft
@@ -45,6 +45,15 @@ WT_DECLARE_WT_MEMBER
 	        contentsContainer.scrollTop, contentsContainer.clientWidth,
 	        contentsContainer.clientHeight);
    };
+
+   contentsContainer.wtResize = function(o, w, h) {
+     if ((w - currentWidth) > (scrollX2 - scrollX1)/2 ||
+         (h - currentHeight) > (scrollY2 - scrollY1)/2) {
+       currentWidth = w; currentHeight = h;
+       APP.emit(el, 'scrolled', o.scrollLeft, o.scrollTop,
+		o.clientWidth, o.clientHeight);
+     }
+   }
 
    function getItem(event) {
      var columnId = -1, rowIdx = -1, selected = false,

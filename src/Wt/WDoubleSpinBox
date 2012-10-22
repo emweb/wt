@@ -127,6 +127,7 @@ protected:
   virtual bool parseNumberValue(const std::string& text);
   virtual WString textFromValue() const;
   virtual WValidator *createValidator();
+  virtual WValidator::Result validateRange() const;
 
 private:
   double value_, min_, max_, step_;

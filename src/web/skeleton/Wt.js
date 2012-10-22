@@ -626,9 +626,12 @@ this.validate = function(edit) {
   else
     v = edit.value;
 
+  if (!edit.defaultTT)
+    edit.defaultTT = edit.getAttribute('title');
+
   v = edit.wtValidate.validate(v);
   if (v.valid) {
-    edit.removeAttribute('title');
+    edit.setAttribute('title', edit.defaultTT);
     $(edit).removeClass('Wt-invalid');
   } else {
     edit.setAttribute('title', v.message);

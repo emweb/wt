@@ -27,7 +27,11 @@ public:
   { }
 
   virtual Result validate(const WT_USTRING& input) const {
-    return spinBox_->parseValue(input) ? Result(Valid) : Result(Invalid);
+    bool valid = spinBox_->parseValue(input);
+    if (valid)
+      return spinBox_->validateRange();
+    else
+      return Result(Invalid);
   }
 
   virtual std::string javaScriptValidate() const {

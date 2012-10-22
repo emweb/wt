@@ -180,11 +180,15 @@ public:
 
   virtual void refresh();
 
+  virtual void setToolTip(const WString& text,
+			  TextFormat textFormat = PlainText);
+
 protected:
   WLabel     *label_;
   WValidator *validator_;
   JSlot      *validateJs_, *filterInput_, *removeEmptyText_;
   WString     emptyText_;
+  bool        settingErrorToolTip_;
 
   // also used in WAbstractToggleButton
   static const char *CHANGE_SIGNAL;

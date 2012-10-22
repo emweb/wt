@@ -133,4 +133,11 @@ bool WSpinBox::parseNumberValue(const std::string& text)
   }
 }
 
+WValidator::Result WSpinBox::validateRange() const
+{
+  WIntValidator validator;
+  validator.setRange(min_, max_);
+  return validator.validate(WString("{1}").arg(value_));
+}
+
 }

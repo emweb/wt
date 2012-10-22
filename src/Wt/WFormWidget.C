@@ -30,6 +30,7 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
     validateJs_(0),
     filterInput_(0),
     removeEmptyText_(0),
+    settingErrorToolTip_(false),
     tabIndex_(0)
 { }
 
@@ -357,8 +358,18 @@ void WFormWidget::setHidden(bool hidden, const WAnimation& animation)
   WInteractWidget::setHidden(hidden, animation);
 }
 
+void WFormWidget::setToolTip(const WString& text, TextFormat textFormat)
+{
+  WInteractWidget::setToolTip(text, textFormat);
+
+  if (validator_ && !settingErrorToolTip_ && textFormat == PlainText)
+    setJavaScriptMember("defaultTT", text.jsStringLiteral());
+}
+
 void WFormWidget::setValidator(WValidator *validator)
 {
+  bool firstValidator = !validator_;
+
   if (validator_)
     validator_->removeFormWidget(this);
 
@@ -371,6 +382,10 @@ void WFormWidget::setValidator(WValidator *validator)
 #endif // WT_TARGET_JAVA
 
     validator_->addFormWidget(this);
+
+    if (firstValidator && !toolTip().empty())
+      setToolTip(toolTip());
+
     validatorChanged();
 #ifndef WT_TARGET_JAVA
     if (!validator_->parent())
@@ -391,7 +406,9 @@ WValidator::State WFormWidget::validate()
     WValidator::Result result = validator()->validate(valueText());
 
     toggleStyleClass("Wt-invalid", result.state() != WValidator::Valid, true);
+    settingErrorToolTip_ = true;
     setToolTip(result.message());
+    settingErrorToolTip_ = false;
 
     validated_.emit(result);
 

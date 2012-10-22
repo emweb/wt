@@ -1367,9 +1367,9 @@ bool WAbstractItemView::isEditing(const WModelIndex& index) const
   return editedItems_.find(index) != editedItems_.end();
 }
 
-bool WAbstractItemView::shiftEditors(const WModelIndex& parent,
-				     int start, int count,
-				     bool persistWhenShifted)
+bool WAbstractItemView::shiftEditorRows(const WModelIndex& parent,
+					int start, int count,
+					bool persistWhenShifted)
 {
   /* Returns whether an editor with a widget shifted */
   bool result = false;
@@ -1409,6 +1409,66 @@ bool WAbstractItemView::shiftEditors(const WModelIndex& parent,
 	    if (p.parent() == parent
 		&& p.row() >= start
 		&& p.row() < start - count) {
+	      toClose.push_back(c);
+	      break;
+	    } else
+	      p = p.parent();
+	  } while (p != parent);
+	}
+      }
+    }
+
+    for (unsigned i = 0; i < toClose.size(); ++i)
+      closeEditor(toClose[i]);
+
+    editedItems_ = newMap;
+  }
+
+  return result;
+}
+
+bool WAbstractItemView::shiftEditorColumns(const WModelIndex& parent,
+					   int start, int count,
+					   bool persistWhenShifted)
+{
+  /* Returns whether an editor with a widget shifted */
+  bool result = false;
+
+  if (!editedItems_.empty()) {
+    std::vector<WModelIndex> toClose;
+
+    EditorMap newMap;
+
+    for (EditorMap::iterator i = editedItems_.begin(); i != editedItems_.end();
+	 ++i) {
+      WModelIndex c = i->first;
+
+      WModelIndex p = c.parent();
+
+      if (p != parent && !WModelIndex::isAncestor(p, parent))
+	newMap[c] = i->second;
+      else {
+	if (p == parent) {
+	  if (c.column() >= start) {
+	    if (c.column() < start - count) {
+	      toClose.push_back(c);
+	    } else {
+	      WModelIndex shifted
+		= model_->index(c.row(), c.column() + count, p);
+	      newMap[shifted] = i->second;
+	      if (i->second.widget) {
+		if (persistWhenShifted)
+	 	  persistEditor(shifted, i->second);
+		result = true;
+              }
+	    }
+	  } else
+	    newMap[c] = i->second;
+	} else if (count < 0) {
+	  do {
+	    if (p.parent() == parent
+		&& p.column() >= start
+		&& p.column() < start - count) {
 	      toClose.push_back(c);
 	      break;
 	    } else

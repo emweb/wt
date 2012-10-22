@@ -952,8 +952,10 @@ protected:
 
   void bindObjJS(JSlot& slot, const std::string& jsMethod);
   void connectObjJS(EventSignalBase& s, const std::string& jsMethod);
-  bool shiftEditors(const WModelIndex& parent, int start, int count,
-		    bool persistWhenShifted);
+  bool shiftEditorRows(const WModelIndex& parent, int start, int count,
+		       bool persistWhenShifted);
+  bool shiftEditorColumns(const WModelIndex& parent, int start, int count,
+			  bool persistWhenShifted);
   void persistEditor(const WModelIndex& index);
 
 private:

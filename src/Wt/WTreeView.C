@@ -2561,7 +2561,7 @@ void WTreeView::shiftModelIndexes(const WModelIndex& parent,
   int removed = shiftModelIndexes(parent, start, count, model(),
 				  selectionModel()->selection_);
 
-  shiftEditors(parent, start, count, false);
+  shiftEditorRows(parent, start, count, false);
 
   if (removed)
     selectionChanged().emit();

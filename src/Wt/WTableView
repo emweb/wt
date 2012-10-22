@@ -232,7 +232,8 @@ private:
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
   virtual void selectRange(const WModelIndex& first, const WModelIndex& last);
-  void shiftModelIndexes(int start, int count);
+  void shiftModelIndexRows(int start, int count);
+  void shiftModelIndexColumns(int start, int count);
   void renderSelected(bool selected, const WModelIndex& index);
   int renderedColumnsCount() const;
 
