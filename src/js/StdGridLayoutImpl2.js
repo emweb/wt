@@ -371,7 +371,6 @@ WT_DECLARE_WT_MEMBER
 	       console.log("measure " + dir + " "
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
 
-
 	     if (item.dirty || layoutDirty) {
 	       var wMinimum = calcMinimumSize(item.w, dir);
 	       if (wMinimum > dMinimum)
@@ -414,7 +413,8 @@ WT_DECLARE_WT_MEMBER
 		   if (item.wasLayout) {
 		     item.wasLayout = false;
 		     item.set = [false, false];
-		     setCss(item.w, DirConfig[0].size, '');
+		     // setCss(item.w, DirConfig[0].size, '');
+		     item.ps -= 0.1;
 		     setCss(item.w, DirConfig[1].size, '');
 		   }
 
@@ -1084,6 +1084,8 @@ WT_DECLARE_WT_MEMBER
 	       case ALIGN_CENTER: off = left + (ts - ps)/2; break;
 	       case ALIGN_RIGHT: off = left + (ts - ps); break;
 	       }
+
+	       ps -= margin(item.w, dir);
 
 	       if (item.layout) {
 		 if (setCss(w, DC.size, ps + 'px'))
