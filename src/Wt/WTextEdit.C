@@ -47,7 +47,7 @@ void WTextEdit::init()
   setJavaScriptMember
     (WT_RESIZE_JS,
      "function(e,w,h) { var obj = $('#" + id() + "').data('obj'); "
-     "obj.wtResize(e,w,h); }");
+     "obj.wtResize(e,w,h); };");
 
   std::string direction = app->layoutDirection() == LeftToRight ? "ltr" : "rtl";
   setConfigurationSetting("directionality", direction);
@@ -210,7 +210,8 @@ void WTextEdit::updateDom(DomElement& element, bool all)
 			   """var obj = $('#" + id() + "').data('obj');"
 			   """obj.render(" + config.str() + ","
 			   + jsStringLiteral(dummy.cssStyle())
-			   + ");})();");
+			   + ");"
+			   "})();");
 
     contentChanged_ = false;
   }

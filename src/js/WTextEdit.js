@@ -35,6 +35,7 @@ WT_DECLARE_WT_MEMBER
        tbl = row.parentNode.parentNode;
 
      tbl.style.cssText='width:100%;' + css;
+     tbl.wtResize = el.wtResize;
 
      el.style.height = tbl.offsetHeight + 'px';
 

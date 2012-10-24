@@ -1319,6 +1319,9 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 
   var offsetParent = WT.widgetPageCoordinates(e.offsetParent);
 
+  offsetParent.x += offsetParent.scrollLeft;
+  offsetParent.y += offsetParent.scrollTop;
+
   var hsides = [ 'left', 'right' ],
       vsides = [ 'top', 'bottom' ],
       elementWidth = WT.px(e, 'maxWidth') || e.offsetWidth,
