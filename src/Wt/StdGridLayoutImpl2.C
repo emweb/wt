@@ -117,13 +117,6 @@ DomElement *StdGridLayoutImpl2::createElement(WLayoutItem *item,
 {
   DomElement *c = getImpl(item)->createDomElement(true, true, app); 
 
-  /*
-   * This seems even fairly okay for all browsers, but let's hear
-   * first if we get complaints older IEs where this at least seems to
-   * fix some issues.
-   */
-  if (app->environment().agentIsIElt(9))
-    c->setProperty(PropertyStylePosition, "absolute");
   c->setProperty(PropertyStyleVisibility, "hidden");
 
   return c;

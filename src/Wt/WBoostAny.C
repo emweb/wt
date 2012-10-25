@@ -95,7 +95,7 @@ bool matchValue(const boost::any& value, const boost::any& query,
     std::string query_str = asString(query).toUTF8();
     std::string value_str = asString(value).toUTF8();
 
-    switch (f) {
+    switch (static_cast<int>(f)) {
     case MatchStringExactly:
       return boost::iequals(value_str, query_str);
     case MatchStringExactly | (int)MatchCaseSensitive:

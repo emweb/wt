@@ -483,9 +483,16 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 	   << "; Version=1;";
 
     if (!cookie.expires.isNull()) {
+#ifndef WT_TARGET_JAVA
+      std::string formatString = "ddd, dd-MMM-yyyy hh:mm:ss 'GMT'";
+#else
+      std::string formatString = "EEE, dd-MMM-yyyy hh:mm:ss 'GMT'";
+#endif
+
       std::string d
 	= cookie.expires.toString
-	(WString::fromUTF8("ddd, dd-MMM-yyyy hh:mm:ss 'GMT'"), false).toUTF8();
+	(WString::fromUTF8(formatString), false).toUTF8();
+
       header << "Expires=" << d << ';';
     }
 

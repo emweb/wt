@@ -74,17 +74,19 @@ WT_DECLARE_WT_MEMBER
 	     + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
 	 el.style.marginTop = '0px';
        }
-     }
 
-     if (el.style.position != '')
-       el.style.visibility = 'visible';
+       if (el.style.position != '') {
+	 el.style.visibility = 'visible';
+       }
+     }
    };
 
    function layoutResize(ignored, w, h) {
      if (el.style.position == '') {
        el.style.position = WT.isIE6 ? 'absolute' : 'fixed';
-       el.style.visibility = 'visible';
      }
+
+     el.style.visibility = 'visible';
 
      el.style.height = Math.max(0, h) + 'px';
      el.style.width = Math.max(0, w) + 'px';

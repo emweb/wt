@@ -330,7 +330,7 @@ WT_DECLARE_WT_MEMBER
 	     item.w.style.position = 'absolute';
 	     item.w.style.visibility = 'hidden';
 
-	     if (!item.w.wtResize && !WT.isIElt9) {
+	     if (!item.w.wtResize && !WT.isIE) {
 	       item.w.style.boxSizing = 'border-box';
 	       var cssPrefix = WT.cssPrefix('BoxSizing');
 	       if (cssPrefix)

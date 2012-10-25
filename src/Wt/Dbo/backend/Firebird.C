@@ -230,7 +230,6 @@ namespace Wt
 	    throw FirebirdException(e.what());
 	  }
 
-	  bool isInsertReturningId = false;
 	  if (affectedRows_ == 0) {
 	    const std::string returning = conn_.autoincrementInsertSuffix();
 	    std::size_t j = sql_.rfind(returning);
@@ -368,6 +367,8 @@ namespace Wt
 			   microseconds(tm.SubSeconds() * 100));
 	    break;
           }
+	  case SqlTime:
+	    break;
 	  }
 	  
 	  DEBUG(resultErr(column, to_simple_string(*value)));

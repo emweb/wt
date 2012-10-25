@@ -177,7 +177,8 @@ void WTransform::decomposeTranslateRotateScaleSkew(TRSSDecomposition& result)
 {
   // Performs a Gram Schmidt orthonormalization
 
-  double q1[2], q2[2];
+  double q1[2];
+  // double q2[2]; -- not used ?
 
   double r11 = norm(m_[M11], m_[M21]);
   q1[0] = m_[M11]/r11;
@@ -185,8 +186,8 @@ void WTransform::decomposeTranslateRotateScaleSkew(TRSSDecomposition& result)
 
   double r12 = m_[M12]*q1[0] + m_[M22]*q1[1];
   double r22 = norm(m_[M12] - r12*q1[0], m_[M22] - r12*q1[1]);
-  q2[0] = (m_[M12] - r12 * q1[0])/r22;
-  q2[1] = (m_[M22] - r12 * q1[1])/r22;
+  //q2[0] = (m_[M12] - r12 * q1[0])/r22;
+  //q2[1] = (m_[M22] - r12 * q1[1])/r22;
 
   result.alpha = std::atan2(q1[1], q1[0]);
 

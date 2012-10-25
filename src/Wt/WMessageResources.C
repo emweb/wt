@@ -623,8 +623,7 @@ int WMessageResources::evalPluralCase(const std::string &expression, ::uint64_t 
   CExpressionParser::ParseState state;
   CExpressionParser p(n, result, state);
   std::string tmp = expression;
-  parse_info<std::string::iterator> info 
-    = parse(tmp.begin(), tmp.end(), p, space_p);
+  parse(tmp.begin(), tmp.end(), p, space_p);
 #endif // WT_NO_SPIRIT
 
   return result;

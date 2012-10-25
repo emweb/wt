@@ -402,20 +402,18 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	      = roundUp125(s.renderMaximum, renderInterval_);
 	}
       } else if (scale_ == DateScale || scale_ == DateTimeScale) {
-	double daysRange, daysInterval = 0.0;
+	double daysInterval = 0.0;
 
 	WDateTime min, max;
 	int interval;
 
 	if (scale_ == DateScale) {
-	  daysRange = diff;
 	  daysInterval = renderInterval_;
 	  min = WDateTime(WDate::fromJulianDay
 			  (static_cast<int>(s.renderMinimum)));
 	  max = WDateTime(WDate::fromJulianDay
 			  (static_cast<int>(s.renderMaximum)));
 	} else if (scale_ == DateTimeScale) {
-	  daysRange = diff / (60.0 * 60.0 * 24);
 	  daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
 	  min = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
 	  max = WDateTime::fromTime_t((std::time_t)s.renderMaximum);
@@ -423,7 +421,8 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 
 	if (daysInterval > 200) {
 	  s.dateTimeRenderUnit = Years;
-	  interval = std::max(1, static_cast<int>(round125(daysInterval / 365)));
+	  interval = std::max(1, 
+			      static_cast<int>(round125(daysInterval / 365)));
 
 	  if (min.date().day() != 1 && min.date().month() != 1)
 	    min = WDateTime(WDate(min.date().year(), 1, 1));

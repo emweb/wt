@@ -560,7 +560,6 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   if (Uri::isDataUri(imgUri)) {
     Uri::Uri uri = Uri::parseDataUri(imgUri);
 
-    bool validMimeType = true;
     if (boost::istarts_with(uri.mimeType, "image/png"))
       strcpy(info.magick, "PNG");
     else if (boost::istarts_with(uri.mimeType, "image/gif"))

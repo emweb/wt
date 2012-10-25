@@ -208,8 +208,8 @@ void SocketNotifier::createSocketPair()
       return;
     }
   }
-  
-  if (peerPort != connectPort) {
+
+  if (peerPort != connectPort && peerAddr != selfAddr) {
     // A hacker has hijacked our secret port!!
     impl_->reportError("socketpair: Accept from unexpected port");
     Close(listenSocket);

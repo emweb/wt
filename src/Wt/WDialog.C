@@ -166,7 +166,10 @@ void WDialog::setMaximumSize(const WLength& width, const WLength& height)
 {
   WCompositeWidget::setMaximumSize(width, height);
 
-  impl_->resolveWidget("layout")->setMaximumSize(width, height);
+  WLength w = width.unit() != WLength::Percentage ? width : WLength::Auto;
+  WLength h = height.unit() != WLength::Percentage ? height : WLength::Auto;
+
+  impl_->resolveWidget("layout")->setMaximumSize(w, h);
 }
 
 void WDialog::render(WFlags<RenderFlag> flags)
@@ -180,12 +183,14 @@ void WDialog::render(WFlags<RenderFlag> flags)
       centerY = offset(Top).isAuto() && offset(Bottom).isAuto();
 
     /*
-     * Make sure layout adjusts too contents preferred width, especially important for
-     * IE workaround which uses static position scheme
+     * Make sure layout adjusts to contents preferred width, especially
+     * important for IE workaround which uses static position scheme
      */
     if (app->environment().ajax())
-      if (width().isAuto() && maximumWidth().isAuto())
-	impl_->resolveWidget("layout")->setMaximumSize(999999, maximumHeight());
+      if (width().isAuto())
+	if (maximumWidth().unit() == WLength::Percentage ||
+	    maximumWidth().toPixels() == 0)
+	  impl_->resolveWidget("layout")->setMaximumSize(999999, maximumHeight());
 
     doJavaScript("new " WT_CLASS ".WDialog("
 		 + app->javaScriptClass() + "," + jsRef()

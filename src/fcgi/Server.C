@@ -379,7 +379,8 @@ int Server::run()
     boost::trim(socketName);
     if (!bindUDStoStdin(socketName, wt_))
       return -1;
-    LOG_INFO_S(&wt_, "reading FastCGI stream from socket '" << socketName << '\'');
+    LOG_INFO_S(&wt_,
+	       "reading FastCGI stream from socket '" << socketName << '\'');
   } else
     LOG_INFO_S(&wt_, "reading FastCGI stream from stdin");
 
@@ -441,14 +442,9 @@ void Server::handleRequest(int serverSocket)
     std::string cookies;
     std::string scriptName;
 
-    char version;
-    short requestId;
-
     for (;;) {
       FCGIRecord *d = new FCGIRecord();
       d->read(serverSocket);
-      version = d->version();
-      requestId = d->requestId();
 
       LOG_DEBUG_S(&wt_, "server read");
 
@@ -641,9 +637,7 @@ void Server::handleRequest(int serverSocket)
 	break;
       }
 
-      bool got = false;
       if (FD_ISSET(serverSocket, &rfds)) {
-	got = true;
 	FCGIRecord d;
 	d.read(serverSocket);
 
@@ -663,7 +657,6 @@ void Server::handleRequest(int serverSocket)
       }
 
       if (FD_ISSET(clientSocket, &rfds)) {
-	got = true;
 	FCGIRecord d;
 	d.read(clientSocket);
 

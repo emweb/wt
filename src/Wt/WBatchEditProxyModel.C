@@ -639,8 +639,6 @@ void WBatchEditProxyModel::sourceDataChanged(const WModelIndex& topLeft,
   if (isRemoved(topLeft.parent()))
     return;
 
-  WModelIndex parent = mapFromSource(topLeft.parent());
-
   for (int row = topLeft.row(); row <= bottomRight.row(); ++row) {
     for (int col = topLeft.column(); col <= bottomRight.column(); ++col) {
       WModelIndex l = sourceModel()->index(row, col, topLeft.parent());

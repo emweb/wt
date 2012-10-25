@@ -581,7 +581,6 @@ void Session::resolveJoinIds(MappingInfo *mapping)
     if (set.type == ManyToMany) {
       MappingInfo *other = getMapping(set.tableName);
 
-      bool found = false;
       for (unsigned j = 0; j < other->sets.size(); ++j) {
 	const SetInfo& otherSet = other->sets[j];
 
@@ -591,7 +590,6 @@ void Session::resolveJoinIds(MappingInfo *mapping)
 	  if (mapping != other || i != j) {
 	    set.joinOtherId = otherSet.joinSelfId;
 	    set.otherFkConstraints = otherSet.fkConstraints;
-	    found = true;
 	    break;
 	  }
 	}
