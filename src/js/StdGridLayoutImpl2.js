@@ -1208,13 +1208,17 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setChildSize = function(widget, dir, preferredSize) {
-     var i, il;
-     var colCount = DirConfig[HORIZONTAL].config.length;
+     var colCount = DirConfig[HORIZONTAL].config.length,
+         DC = DirConfig[dir],
+         i, il;
+
      for (i = 0, il = config.items.length; i < il; ++i) {
        var item = config.items[i];
        if (item && item.id == widget.id) {
 	 var di = (dir === HORIZONTAL ? i % colCount : i / colCount);
-	 if (!DirConfig[dir].stretched[di]) {
+	 var alignment = (item.align >> DC.alignBits) & 0xF;
+
+	 if (alignment || !DC.stretched[di]) {
 	   if (!item.ps)
 	     item.ps = [];
 	   item.ps[dir] = preferredSize;
