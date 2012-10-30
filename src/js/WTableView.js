@@ -53,7 +53,7 @@ WT_DECLARE_WT_MEMBER
        APP.emit(el, 'scrolled', o.scrollLeft, o.scrollTop,
 		o.clientWidth, o.clientHeight);
      }
-   }
+   };
 
    function getItem(event) {
      var columnId = -1, rowIdx = -1, selected = false,
@@ -212,7 +212,7 @@ WT_DECLARE_WT_MEMBER
 
    var dropEl = null;
 
-   el.handleDragDrop=function(action, object, event, sourceId, mimeType) {
+   el.handleDragDrop = function(action, object, event, sourceId, mimeType) {
      if (dropEl) {
        dropEl.className = dropEl.classNameOrig;
        dropEl = null;
@@ -239,7 +239,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    /* Handle TAB/SHIFT-TAB for cycling through editors in the right order */
-   el.onkeydown=function(e) {
+   el.onkeydown = function(e) {
      var event = e||window.event;
 
      var leftKey = 37,

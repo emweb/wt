@@ -250,6 +250,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     = (mouseUp && mouseUp->needsUpdate(all))
     || updateMouseMove;
 
+  static const char *CheckDisabled = "if($(o).hasClass('Wt-disabled')){" 
+    WT_CLASS ".cancelEvent(e);return;}";
+
   if (updateMouseDown) {
     /*
      * when we have a mouseUp event, we also need a mouseDown event
@@ -261,31 +264,34 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * we need to capture everything after on mouse down, and keep track of the
      * down button if we have a mouseMove or mouseDrag
      */
-    std::string js;
+    WStringStream js;
+
+    js << CheckDisabled;
+
     if (mouseUp && mouseUp->isConnected()) {
       if (!app)
 	app = WApplication::instance();
 
-      js += app->javaScriptClass() + "._p_.saveDownPos(event);";
+      js << app->javaScriptClass() << "._p_.saveDownPos(event);";
     }
 
     if ((mouseDrag && mouseDrag->isConnected())
 	|| (mouseDown && mouseDown->isConnected()
 	    && ((mouseUp && mouseUp->isConnected())
 		|| (mouseMove && mouseMove->isConnected()))))
-      js += WT_CLASS ".capture(this);";
+      js << WT_CLASS ".capture(this);";
 
     if ((mouseMove && mouseMove->isConnected())
 	|| (mouseDrag && mouseDrag->isConnected()))
-      js += WT_CLASS ".mouseDown(e);";
+      js << WT_CLASS ".mouseDown(e);";
 
     if (mouseDown) {
-      js += mouseDown->javaScript();
-      element.setEvent("mousedown", js,
+      js << mouseDown->javaScript();
+      element.setEvent("mousedown", js.str(),
 		       mouseDown->encodeCmd(), mouseDown->isExposedSignal());
       mouseDown->updateOk();
     } else
-      element.setEvent("mousedown", js, std::string(), false);
+      element.setEvent("mousedown", js.str(), std::string(), false);
   }
 
   if (updateMouseUp) {
@@ -293,18 +299,21 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * when we have a mouseMove or mouseDrag event, we need to keep track
      * of unpressing the button.
      */
-    std::string js;
+    WStringStream js;
+
+    js << CheckDisabled;
+
     if ((mouseMove && mouseMove->isConnected())
 	|| (mouseDrag && mouseDrag->isConnected()))
-      js += WT_CLASS ".mouseUp(e);";
+      js << WT_CLASS ".mouseUp(e);";
       
     if (mouseUp) {
-      js += mouseUp->javaScript();
-      element.setEvent("mouseup", js,
+      js << mouseUp->javaScript();
+      element.setEvent("mouseup", js.str(),
 		       mouseUp->encodeCmd(), mouseUp->isExposedSignal());
       mouseUp->updateOk();
     } else
-      element.setEvent("mouseup", js, std::string(), false);
+      element.setEvent("mouseup", js.str(), std::string(), false);
   }
 
   if (updateMouseMove) {
@@ -350,7 +359,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   if (updateMouseClick) {
     WStringStream js;
 
-    js << "if($(o).hasClass('Wt-disabled')){" WT_CLASS ".cancelEvent(e);return;}";
+    js << CheckDisabled;
 
     if (mouseDblClick && mouseDblClick->needsUpdate(all)) {
       /*

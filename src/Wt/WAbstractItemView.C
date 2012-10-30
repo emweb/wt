@@ -931,8 +931,12 @@ void WAbstractItemView::modelHeaderDataChanged(Orientation orientation,
 
 int WAbstractItemView::headerLevel(int column) const
 {
-  return static_cast<int>
-    (asNumber(model_->headerData(column, Horizontal, LevelRole)));
+  boost::any d = model_->headerData(column, Horizontal, LevelRole);
+
+  if (!d.empty())
+    return static_cast<int>(asNumber(d));
+  else
+    return 0;
 }
 
 void WAbstractItemView::saveExtraHeaderWidgets()

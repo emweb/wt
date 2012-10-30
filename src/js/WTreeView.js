@@ -204,6 +204,8 @@ WT_DECLARE_WT_MEMBER
        var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
        r.style.width = allw_1 + 'px';
 
+       APP.layouts2.adjust();
+
        if (WT.isIE) {
 	 setTimeout(function() {
 	     $(el).find('.Wt-tv-rowc')
@@ -282,6 +284,10 @@ WT_DECLARE_WT_MEMBER
       var scrollwidth = contentsContainer.offsetWidth
         - contentsContainer.clientWidth;
 
+      // IE cannot accurately estimate scrollwidth from time to time ?
+      if (scrollwidth > 50)
+	scrollwidth = 0;
+
       if (contentsContainer.clientWidth > 0)
 	tw -= scrollwidth;
 
@@ -316,8 +322,11 @@ WT_DECLARE_WT_MEMBER
 	contentsContainer.style.width = (tw + scrollwidth) + 'px';
 
 	// IE moves the scrollbar left in rtl mode.
-	if (!WT.isIE)
+	var rtl = $(document.body).hasClass('Wt-rtl');
+	if (!rtl || !WT.isIElt9) {
 	  headerContainer.style.marginRight = scrollwidth + 'px';
+	  $('#' + el.id + ' .Wt-scroll').css('marginRight', scrollwidth + 'px');
+	}
 
 	if (c0w != null) {
 	  var w = tw - c0w - (WT.isIE6 ? 10 : 7);
