@@ -30,7 +30,6 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
     validateJs_(0),
     filterInput_(0),
     removeEmptyText_(0),
-    settingErrorToolTip_(false),
     tabIndex_(0)
 { }
 
@@ -327,12 +326,20 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   }
 
   WInteractWidget::updateDom(element, all);
+
+  if (flags_.test(BIT_VALIDATION_CHANGED)) {
+    if (validationToolTip_.empty())
+      element.setAttribute("title", toolTip().toUTF8());
+    else
+      element.setAttribute("title", validationToolTip_.toUTF8());
+  }
 }
 
 void WFormWidget::propagateRenderOk(bool deep)
 {
   flags_.reset(BIT_ENABLED_CHANGED);
   flags_.reset(BIT_TABINDEX_CHANGED);
+  flags_.reset(BIT_VALIDATION_CHANGED);
 
   WInteractWidget::propagateRenderOk(deep);
 }
@@ -362,7 +369,7 @@ void WFormWidget::setToolTip(const WString& text, TextFormat textFormat)
 {
   WInteractWidget::setToolTip(text, textFormat);
 
-  if (validator_ && !settingErrorToolTip_ && textFormat == PlainText)
+  if (validator_ && textFormat == PlainText)
     setJavaScriptMember("defaultTT", text.jsStringLiteral());
 }
 
@@ -406,9 +413,12 @@ WValidator::State WFormWidget::validate()
     WValidator::Result result = validator()->validate(valueText());
 
     toggleStyleClass("Wt-invalid", result.state() != WValidator::Valid, true);
-    settingErrorToolTip_ = true;
-    setToolTip(result.message());
-    settingErrorToolTip_ = false;
+
+    if (validationToolTip_ != result.message()) {
+      validationToolTip_ = result.message();
+      flags_.set(BIT_VALIDATION_CHANGED);
+      repaint(RepaintPropertyAttribute);
+    }
 
     validated_.emit(result);
 

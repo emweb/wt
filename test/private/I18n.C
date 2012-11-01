@@ -195,3 +195,13 @@ BOOST_AUTO_TEST_CASE( I18n_internalArgument1 )
 		"Geïnternationaliseerde tekst met een geïnternationaliseerd "
 		"argument: hallo");
 }
+
+BOOST_AUTO_TEST_CASE( I18n_badUTF8 )
+{
+  // "máquina quente do forró"
+  const char badutf8[] = {'m', (char)225, 'q', 'u', 'i', 'n', 'a', ' ',
+    'q', 'u', 'e', 'n', 't', 'e', ' ', 'd', 'o', ' ',
+    'f', 'o', 'r', 'r', (char)243, 0};
+  std::string badUTF8(badutf8);
+  Wt::WString::checkUTF8Encoding(badUTF8);
+}

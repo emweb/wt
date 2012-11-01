@@ -107,24 +107,6 @@ Server::Server(WServer& wt, int argc, char *argv[])
 
 void Server::execChild(bool debug, const std::string& extraArg)
 {
-#ifdef _GNU_SOURCE
-  /*
-   * if you want to make sure that all delete actually releases
-   * memory back to the OS:
-   */
-  //const char *const envp[]
-  //  = { "GLIBCXX_FORCE_NEW=1",
-  //      "GLIBCPP_FORCE_NEW=1",
-  //	NULL };
-
-  /*
-   * It's more useful to pass on the environment:
-   */
-  char **envp = environ;
-#else
-  const char *const envp[] = { NULL };
-#endif // _GNU_SOURCE
-
   Configuration& conf = wt_.configuration();
 
   std::string prepend;
@@ -154,8 +136,7 @@ void Server::execChild(bool debug, const std::string& extraArg)
     LOG_DEBUG("argv[" << i << "]: " << argv[i]);
   }
 
-  execve(argv[0], const_cast<char *const *>(argv),
-	 const_cast<char *const *>(envp));
+  execv(argv[0], const_cast<char *const *>(argv));
 
   delete[] argv;
 }

@@ -266,7 +266,8 @@ WT_DECLARE_WT_MEMBER
    */
 
   this.wtResize = function() {
-    sizeSet = true;
+      sizeSet = true;
+
       doAdjustColumns();
 
       var $el=$(el),

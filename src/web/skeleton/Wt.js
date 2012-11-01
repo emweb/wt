@@ -626,8 +626,10 @@ this.validate = function(edit) {
   else
     v = edit.value;
 
-  if (!edit.defaultTT)
+  if (typeof edit.defaultTT === 'undefined')
     edit.defaultTT = edit.getAttribute('title');
+  else
+    edit.defaultTT = '';
 
   v = edit.wtValidate.validate(v);
   if (v.valid) {

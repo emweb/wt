@@ -213,6 +213,12 @@ namespace {
         string_inserter<CharEncoding, Tag>::call(sink, "Infinity");
     }
 
+    static int floatfield(T t) {
+      return (t != 0.0) && ((t < 0.001) || (t > 1E8)) ?
+	karma::real_policies<T>::fmtflags::scientific :
+	karma::real_policies<T>::fmtflags::fixed;
+    }
+
     // 7 significant numbers; about float precision
     static unsigned precision(T) { return 7; }
   };

@@ -202,13 +202,14 @@ WString WString::fromUTF8(const char *value, bool checkValid)
 void WString::checkUTF8Encoding(std::string& value)
 {
   const char *c = value.c_str();
-  for (; c != value.c_str() + value.length();) {
+  for (; c < value.c_str() + value.length();) {
     const char *at = c;
     try {
       char *dest = 0;
       rapidxml::xml_document<>::copy_check_utf8(c, dest);
     } catch (rapidxml::parse_error& e) {
-      for (const char *i = at; i < c; ++i)
+      for (const char *i = at; i < c && i < value.c_str() + value.length();
+        ++i)
 	value[i - value.c_str()] = '?';
     }
   }
