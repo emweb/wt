@@ -425,14 +425,14 @@ bool WTime::writeSpecial(const std::string& f, unsigned& i,
     return true;
   case 'a':
   case 'A':
-    if (f[i + 1] == 'p' || f[i + 1] == 'P')
-      ++i;
-
     if (hour() < 12)
       result << ((f[i] == 'a') ? "am" : "AM");
     else
-      result << ((f[i] == 'p') ? "pm" : "PM");
+      result << ((f[i] == 'a') ? "pm" : "PM");
  
+    if (f[i + 1] == 'p' || f[i + 1] == 'P')
+      ++i;
+
     return true;
   default:
     return false;

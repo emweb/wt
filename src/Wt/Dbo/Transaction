@@ -116,9 +116,9 @@ public:
   void rollback();
 
   /*! \brief Returns the session associated with this transaction.
-     *
-     * This is the same session that was set in the constructor.
-     */
+   *
+   * \sa Transaction()
+   */
   Session& session() const;
 
 private:
