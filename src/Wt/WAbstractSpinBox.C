@@ -48,9 +48,7 @@ WAbstractSpinBox::WAbstractSpinBox(WContainerWidget *parent)
     valueChangedConnection_(false),
     preferNative_(false),
     setup_(false)
-{ 
-  setJavaScriptMember("_a", "0");
-}
+{ }
 
 void WAbstractSpinBox::setNativeControl(bool nativeControl)
 {
@@ -120,7 +118,7 @@ void WAbstractSpinBox::defineJavaScript()
     + suffix().jsStringLiteral() + ","
     + jsMinMaxStep() + ");";
 
-  setJavaScriptMember("_a", "0;" + jsObj);
+  setJavaScriptMember(" WSpinBox", jsObj);
 }
 
 void WAbstractSpinBox::setText(const WT_USTRING& text)
