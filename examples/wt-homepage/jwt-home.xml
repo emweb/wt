@@ -336,7 +336,7 @@ browser.
 <h4 class="example">Hello world!</h4>
 
 <p>
-  <a href="http://jwt.emweb.be/jwt-hello" class="run" target="_blank">
+  <a href="http://jwt.emweb.be/jwt-hello/" class="run" target="_blank">
     <img src="/icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>

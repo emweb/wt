@@ -128,11 +128,15 @@ void WDatePicker::setGlobalPopup(bool global)
 
 void WDatePicker::setFormat(const WT_USTRING& format)
 {
+  WDate d = this->date();
+
   format_ = format;
 
   WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
   if (dv)
     dv->setFormat(format);
+
+  setDate(d);
 }
 
 void WDatePicker::setFromCalendar()
