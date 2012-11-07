@@ -172,6 +172,13 @@ void WDialog::setMaximumSize(const WLength& width, const WLength& height)
   impl_->resolveWidget("layout")->setMaximumSize(w, h);
 }
 
+void WDialog::setMinimumSize(const WLength& width, const WLength& height)
+{
+  WCompositeWidget::setMinimumSize(width, height);
+
+  impl_->resolveWidget("layout")->setMinimumSize(width, height);
+}
+
 void WDialog::render(WFlags<RenderFlag> flags)
 {
   if (!initialized_) {

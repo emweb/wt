@@ -303,7 +303,7 @@ WT_DECLARE_WT_MEMBER
      var measurePreferredForStretching = true;
 
      for (di = 0; di < dirCount; ++di) {
-       var dPreferred = 0;
+       var dPreferred = 0, dSpanPreferred = 0;
        var dMinimum = DC.config[di][MIN_SIZE];
        var allHidden = true;
 
@@ -462,15 +462,22 @@ WT_DECLARE_WT_MEMBER
 		   wPreferred = item.ps[dir];
 	       }
 
-	       if (!item.span || item.span[dir] == 1)
+	       if (!item.span || item.span[dir] == 1) {
 		 if (wPreferred > dPreferred)
 		   dPreferred = wPreferred;
+	       } else {
+		 if (wPreferred > dSpanPreferred)
+		   dSpanPreferred = wPreferred;
+	       }
 	     } else {
 	       if (!item.span || item.span[dir] == 1) {
 		 if (item.ps[dir] > dPreferred)
 		   dPreferred = item.ps[dir];
 		 if (item.ms[dir] > dMinimum)
 		   dMinimum = item.ms[dir];
+	       } else {
+		 if (item.ps[dir] > dSpanPreferred)
+		   dSpanPreferred = item.ps[dir];
 	       }
 	     }
 
@@ -487,6 +494,9 @@ WT_DECLARE_WT_MEMBER
        }
 
        if (!allHidden) {
+	 if (dPreferred == 0)
+	   dPreferred = dSpanPreferred;
+
 	 if (dMinimum > dPreferred)
 	   dPreferred = dMinimum;
        } else {
