@@ -596,7 +596,7 @@ ptr<C> query_result_traits< ptr<C> >::findById(Session& session, long long id)
 
   C_id = Impl::asIdType(ptr, id, C_id);
 
-  if (C_id != dbo_traits<C>::invalidId())
+  if (!(C_id == dbo_traits<C>::invalidId()))
     ptr = session.load<C>(C_id);
 
   return ptr;
