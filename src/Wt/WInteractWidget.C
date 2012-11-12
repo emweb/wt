@@ -173,7 +173,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     std::vector<DomElement::EventAction> actions;
 
     if (enterPress) {
-      if (enterPress->needsUpdate(all)) {
+      if (enterPress->isConnected()) {
 	/*
 	 * prevent enterPressed from triggering a changed event on all
 	 * browsers except for Opera and IE
@@ -190,7 +190,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	    ""      "this.onchange=function(){this.onchange=g;};";
 
 	actions.push_back
-	  (DomElement::EventAction("(e.keyCode && e.keyCode == 13)",
+	  (DomElement::EventAction("e.keyCode && (e.keyCode == 13)",
 				   enterPress->javaScript() + extraJS,
 				   enterPress->encodeCmd(),
 				   enterPress->isExposedSignal()));
@@ -199,9 +199,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (escapePress) {
-      if (escapePress->needsUpdate(all)) {
+      if (escapePress->isConnected()) {
 	actions.push_back
-	  (DomElement::EventAction("(e.keyCode && e.keyCode == 27)",
+	  (DomElement::EventAction("e.keyCode && (e.keyCode == 27)",
 				   escapePress->javaScript(),
 				   escapePress->encodeCmd(),
 				   escapePress->isExposedSignal()));
@@ -210,7 +210,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (keyDown) {
-      if (keyDown->needsUpdate(all)) {
+      if (keyDown->isConnected()) {
 	actions.push_back
 	  (DomElement::EventAction(std::string(),
 				   keyDown->javaScript(),
@@ -250,7 +250,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     = (mouseUp && mouseUp->needsUpdate(all))
     || updateMouseMove;
 
-  static const char *CheckDisabled = "if($(o).hasClass('Wt-disabled')){" 
+  std::string CheckDisabled = "if($(o).hasClass('Wt-disabled')){"
     WT_CLASS ".cancelEvent(e);return;}";
 
   if (updateMouseDown) {

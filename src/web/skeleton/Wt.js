@@ -627,7 +627,7 @@ this.validate = function(edit) {
     v = edit.value;
 
   if (typeof edit.defaultTT === 'undefined')
-    edit.defaultTT = edit.getAttribute('title');
+    edit.defaultTT = edit.getAttribute('title') || '';
   else
     edit.defaultTT = '';
 
@@ -1321,9 +1321,6 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 
   var offsetParent = WT.widgetPageCoordinates(e.offsetParent);
 
-  offsetParent.x += e.offsetParent.scrollLeft;
-  offsetParent.y += e.offsetParent.scrollTop;
-
   var hsides = [ 'left', 'right' ],
       vsides = [ 'top', 'bottom' ],
       elementWidth = WT.px(e, 'maxWidth') || e.offsetWidth,
@@ -1336,11 +1333,11 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     hside = 0;
   } else if (x + elementWidth > windowX + windowSize.x) {
     // too far right, chose other side
-    rightx -= offsetParent.x;
-    x = e.offsetParent.offsetWidth - (rightx + WT.px(e, 'marginRight'));
+    rightx = rightx - offsetParent.x + e.offsetParent.scrollLeft;
+    x = e.offsetParent.clientWidth - (rightx + WT.px(e, 'marginRight'));
     hside = 1;
   } else {
-    x -= offsetParent.x;
+    x = x - offsetParent.x + e.offsetParent.scrollLeft;
     x = x - WT.px(e, 'marginLeft');
     hside = 0;
   }
@@ -1353,11 +1350,11 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     // too far below, chose other side
     if (bottomy > windowY + windowSize.y)
       bottomy = windowY + windowSize.y;
-    bottomy -= offsetParent.y;
-    y = e.offsetParent.offsetHeight - (bottomy + WT.px(e, 'marginBottom'));
+    bottomy = bottomy - offsetParent.y + e.offsetParent.scrollTop;
+    y = e.offsetParent.clientHeight - (bottomy + WT.px(e, 'marginBottom'));
     vside = 1;
   } else {
-    y -= offsetParent.y;
+    y = y - offsetParent.y + e.offsetParent.scrollTop;
     y = y - WT.px(e, 'marginTop');
     vside = 0;
   }

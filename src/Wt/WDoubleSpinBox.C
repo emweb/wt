@@ -105,6 +105,8 @@ void WDoubleSpinBox::signalConnectionsChanged()
     valueChangedConnection_ = true;
     changed().connect(this, &WDoubleSpinBox::onChange);
   }
+
+  WAbstractSpinBox::signalConnectionsChanged();
 }
 
 void WDoubleSpinBox::onChange()

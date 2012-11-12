@@ -96,6 +96,8 @@ void WSpinBox::signalConnectionsChanged()
     valueChangedConnection_ = true;
     changed().connect(this, &WSpinBox::onChange);
   }
+
+  WAbstractSpinBox::signalConnectionsChanged();
 }
 
 void WSpinBox::onChange()
