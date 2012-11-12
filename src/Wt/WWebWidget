@@ -29,6 +29,7 @@ class WApplication;
  */
 enum DomElementType {
   DomElement_A, DomElement_BR, DomElement_BUTTON, DomElement_COL,
+  DomElement_COLGROUP,
   DomElement_DIV, DomElement_FIELDSET, DomElement_FORM,
   DomElement_H1, DomElement_H2, DomElement_H3, DomElement_H4,
 

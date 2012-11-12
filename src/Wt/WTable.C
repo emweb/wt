@@ -272,13 +272,17 @@ DomElement *WTable::createDomElement(WApplication *app)
   if (withIds)
     tbody->setId(id() + "tb");
 
+  DomElement *colgroup = DomElement::createNew(DomElement_COLGROUP);
+
   for (unsigned col = 0; col < columns_.size(); ++col) {
     DomElement *c = DomElement::createNew(DomElement_COL);
     if (withIds)
       c->setId(columns_[col]->id());
     columns_[col]->updateDom(*c, true);
-    table->addChild(c);
+    colgroup->addChild(c);
   }
+
+  table->addChild(colgroup);
   
   flags_.reset(BIT_COLUMNS_CHANGED);
 

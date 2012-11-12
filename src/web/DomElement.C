@@ -20,6 +20,7 @@ namespace {
 
 const char *elementNames_[] =
   { "a", "br", "button", "col",
+    "colgroup",
     "div", "fieldset", "form",
     "h1", "h2", "h3", "h4",
 
@@ -43,6 +44,7 @@ const char *elementNames_[] =
 
 bool defaultInline_[] =
   { true, true, true, false,
+    false,
     false, false, false,
     true, false, false, false,
 
@@ -1087,6 +1089,7 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
       && (   type_ == DomElement_TBODY
 	  || type_ == DomElement_THEAD
 	  || type_ == DomElement_TABLE
+	  || type_ == DomElement_COLGROUP
 	  || type_ == DomElement_TR
 	  || type_ == DomElement_SELECT
 	  || type_ == DomElement_TD))
