@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 #include <boost/lexical_cast.hpp>
 
 namespace Wt {
@@ -553,6 +554,32 @@ void Session::prepareStatements(MappingInfo *mapping)
   }
 }
 
+void Session::executeSql(std::vector<std::string> &sql,std::ostream *sout)
+{
+  for (unsigned i = 0; i < sql.size(); i++)
+    if (sout)
+      *sout << sql[i] << ";\n";
+    else
+      connection(true)->executeSql(sql[i]);
+}
+
+void Session::executeSql(std::stringstream &sql,std::ostream *sout)
+{
+  if (sout)
+    *sout << sql.str();
+  else
+    connection(true)->executeSql(sql.str());
+}
+
+std::string Session::constraintName(const char *tableName,
+                           std::string foreignKeyName)
+{
+  std::stringstream ans;
+  ans << "\"fk_"<<tableName << "_" << foreignKeyName << "\"";
+  return ans.str();
+}
+
+
 /*
 void Session::mergeDuplicates(MappingInfo *mapping)
 {
@@ -713,52 +740,23 @@ void Session::createTable(MappingInfo *mapping,
   for (unsigned i = 0; i < mapping->fields.size();) {
     const FieldInfo& field = mapping->fields[i];
 
-    if (field.isForeignKey()) {
+    if (field.isForeignKey() && !connection(false)->supportAlterTable()) {
       if (!firstField)
 	sql << ",\n";
 
-      sql << "  constraint \"fk_"
-	  << mapping->tableName << "_" << field.foreignKeyName() << "\""
-	  << " foreign key (\"" << field.name() << "\"";
+      unsigned firstI = i;
+      i = findLastForeignKeyField(mapping, field, firstI);
+      sql << constraintString(mapping, field, firstI, i);
 
-      unsigned j = i + 1;
-      while (j < mapping->fields.size()) {
-	const FieldInfo& nextField = mapping->fields[j];
-	if (nextField.foreignKeyName() == field.foreignKeyName()) {
-	  sql << ", \"" << nextField.name() << "\"";
-	  ++j;
-	} else
-	  break;
-      }
+      createTable(mapping, tablesCreated, sout);
 
-      MappingInfo *otherMapping = getMapping(field.foreignKeyTable().c_str());
-
-      createTable(otherMapping, tablesCreated, sout);
-
-      sql << ") references \"" << Impl::quoteSchemaDot(field.foreignKeyTable())
-	  << "\" (" << otherMapping->primaryKeys() << ")";
-
-      if (field.fkConstraints() & Impl::FKOnUpdateCascade)
-	sql << " on update cascade";
-      else if (field.fkConstraints() & Impl::FKOnUpdateSetNull)
-	sql << " on update set null";
-
-      if (field.fkConstraints() & Impl::FKOnDeleteCascade)
-	sql << " on delete cascade";
-      else if (field.fkConstraints() & Impl::FKOnDeleteSetNull)
-	sql << " on delete set null";
-
-      i = j;
     } else
       ++i;
   }
 
   sql << "\n)\n";
 
-  if (sout)
-    *sout << sql.str();
-  else
-    connection(true)->executeSql(sql.str());
+  executeSql(sql, sout);
 
   if (mapping->surrogateIdFieldName) {
     std::string tableName = Impl::quoteSchemaDot(mapping->tableName);
@@ -768,11 +766,7 @@ void Session::createTable(MappingInfo *mapping,
       connection(false)->autoincrementCreateSequenceSql(tableName,
 							idFieldName);
 
-    for (unsigned i = 0; i < sql.size(); i++)
-      if (sout)
-	*sout << sql[i];
-      else
-	connection(true)->executeSql(sql[i]);
+    executeSql(sql, sout);
   }
 }
 
@@ -794,6 +788,78 @@ void Session::createRelations(MappingInfo *mapping,
       }
     }
   }
+
+  if(connection(false)->supportAlterTable()){//backend condition
+    for (unsigned i = 0; i < mapping->fields.size();) {
+      const FieldInfo& field = mapping->fields[i];
+      if (field.isForeignKey()){
+        std::cout<< i <<", " << "isForeignKey"<<std::endl;
+        std::stringstream sql;
+
+        sql << " alter table "
+            << "\"" << mapping->tableName << "\""
+            << " add ";
+
+        unsigned firstI = i;
+        i = findLastForeignKeyField(mapping, field, firstI);
+        sql << constraintString(mapping, field, firstI, i) << "\n";
+
+        executeSql(sql, sout);
+
+      } else
+        ++i;
+    }
+
+  }
+}
+
+std::string Session::constraintString(MappingInfo *mapping,
+                                      const FieldInfo& field,
+                                      unsigned fromIndex,
+                                      unsigned toIndex)
+{
+  std::stringstream sql;
+
+  sql << " constraint \"fk_"
+      << mapping->tableName << "_" << field.foreignKeyName() << "\""
+      << " foreign key (\"" << field.name() << "\"";
+
+  for(unsigned i = fromIndex + 1; i < toIndex; ++i){
+    const FieldInfo& nextField = mapping->fields[i];
+    sql << ", \"" << nextField.name() << "\"";
+  }
+
+  MappingInfo *otherMapping = getMapping(field.foreignKeyTable().c_str());
+
+  sql << ") references \"" << Impl::quoteSchemaDot(field.foreignKeyTable())
+      << "\" (" << otherMapping->primaryKeys() << ")";
+
+  if (field.fkConstraints() & Impl::FKOnUpdateCascade)
+    sql << " on update cascade";
+  else if (field.fkConstraints() & Impl::FKOnUpdateSetNull)
+    sql << " on update set null";
+
+  if (field.fkConstraints() & Impl::FKOnDeleteCascade)
+    sql << " on delete cascade";
+  else if (field.fkConstraints() & Impl::FKOnDeleteSetNull)
+    sql << " on delete set null";
+
+  return sql.str();
+}
+
+unsigned Session::findLastForeignKeyField(MappingInfo *mapping,
+                                 const FieldInfo& field,
+                                 unsigned index)
+{
+  while (index < mapping->fields.size()) {
+    const FieldInfo& nextField = mapping->fields[index];
+    if (nextField.foreignKeyName() == field.foreignKeyName()) {
+      ++index;
+    } else
+      break;
+  }
+
+  return index;
 }
 
 void Session::createJoinTable(const std::string& joinName,
@@ -852,10 +918,7 @@ void Session::createJoinIndex(MappingInfo& joinTableMapping,
 
   sql << ")";
 
-  if (sout)
-    *sout << sql.str();
-  else
-    connection(true)->executeSql(sql.str());
+  executeSql(sql, sout);
 }
 
 std::vector<Session::JoinId> 
@@ -924,6 +987,33 @@ void Session::dropTables()
   Transaction t(*this);
 
   flush();
+
+  //remove constraints first.
+  std::vector<std::string> sqls;
+  if(connection(false)->supportAlterTable()){
+    for (ClassRegistry::iterator i = classRegistry_.begin();
+         i != classRegistry_.end(); ++i){
+      MappingInfo *mapping = i->second;
+      //find the constraint.
+      //ALTER TABLE products DROP CONSTRAINT some_name
+      for (unsigned j = 0; j < mapping->fields.size(); ++j) {
+        const FieldInfo& field = mapping->fields[j];
+        if (field.isForeignKey()){
+          std::stringstream sql;
+          sql << " alter table "
+              << "\"" << mapping->tableName << "\""
+              << " drop constraint "
+              <<  constraintName(mapping->tableName, field.foreignKeyName())
+              << " \n";
+
+          j = findLastForeignKeyField(mapping, field, j);
+          sqls.push_back(sql.str());
+        }
+      }
+    }
+
+    executeSql(sqls, 0);
+  }
 
   std::set<std::string> tablesDropped;
   for (ClassRegistry::iterator i = classRegistry_.begin();

@@ -93,6 +93,7 @@ public:
 
   void setVersion(int version) { version_ = version; }
   int version() const { return version_; }
+  bool isTransient() const {return (!(version_ == -1));}
 
   void setSession(Session *session) { session_ = session; }
   Session *session() { return session_; }
@@ -700,6 +701,12 @@ public:
    * enabled.
    */
   int version() const;
+
+  /*! \brief Returns whether the object is transient.
+   *
+   * This returns true for a transient object.
+   */
+  bool isTransient() const;
 
   /*! \brief Returns the session with which this pointer is associated.
    *

@@ -640,6 +640,11 @@ const char *Postgres::blobType() const
   return "bytea not null";
 }
 
+bool Postgres::supportAlterTable() const
+{
+  return true;
+}
+
 void Postgres::startTransaction()
 {
   PGresult *result = PQexec(conn_, "start transaction");

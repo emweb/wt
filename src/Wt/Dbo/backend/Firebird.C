@@ -661,6 +661,11 @@ namespace Wt
 	return true;
       }
 
+      bool Firebird::supportAlterTable() const
+      {
+        return true;
+      }
+
       IBPP::Database Firebird::connection()
       {
 	return impl_->m_db;

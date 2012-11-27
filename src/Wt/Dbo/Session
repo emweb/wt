@@ -461,6 +461,12 @@ private:
   void initSchema() const;
   void resolveJoinIds(MappingInfo *mapping);
   void prepareStatements(MappingInfo *mapping);
+
+  void executeSql(std::vector<std::string> &sql,std::ostream *sout);
+  void executeSql(std::stringstream &sql,std::ostream *sout);
+  std::string constraintName(const char *tableName,
+                             std::string foreignKeyName);
+
   std::vector<JoinId> getJoinIds(MappingInfo *mapping, 
 				 const std::string& joinId);
 
@@ -470,6 +476,13 @@ private:
   void createRelations(MappingInfo *mapping,
 		       std::set<std::string>& tablesCreated,
 		       std::ostream *sout);
+  std::string constraintString(MappingInfo *mapping,
+                               const FieldInfo& field,
+                               unsigned fromIndex,
+                               unsigned toIndex);
+  unsigned findLastForeignKeyField(MappingInfo *mapping,
+                                   const FieldInfo& field,
+                                   unsigned index);
   void createJoinTable(const std::string& joinName,
 		       MappingInfo *mapping1, MappingInfo *mapping2,
 		       const std::string& joinId1,

@@ -86,6 +86,10 @@ public:
    */
   WDate();
 
+  /*! \brief Construct a date.
+   */
+  explicit WDate(const boost::gregorian::date& date);
+
   /*! \brief Specify a date by year, month, and day.
    *
    * The \p month has range 1-12 and the \p day has range 1-31.
@@ -103,6 +107,10 @@ public:
    * \sa WDate(int year, int month, int day), year(), month(), day()
    */
   void setDate(int year, int month, int day);
+
+  /*! \brief Sets the date.
+   */
+  void setGregorianDate(const boost::gregorian::date& date);
 
   /*! \brief Adds days.
    *
@@ -265,6 +273,8 @@ public:
    * \sa fromString(const WString& value, const WString& format)
    */
   WT_USTRING toString(const WT_USTRING& format) const;
+
+  boost::gregorian::date toGregorianDate() const;
 
   /*! \brief Parses a string to a date using a default format.
    *

@@ -4,6 +4,7 @@
 
 #include <Wt/WText>
 #include <Wt/WBreak>
+#include <Wt/WHBoxLayout>
 #include <Wt/WVBoxLayout>
 #include <Wt/Ext/Button>
 #include <Wt/Ext/Dialog>
@@ -81,21 +82,26 @@ WWidget *DialogWidgets::wMessageBox()
 	    result);
   
   WContainerWidget *ex = new WContainerWidget(result);
-  
+
+  WHBoxLayout *hLayout = new WHBoxLayout();
+  ex->setLayout(hLayout);
+
   WVBoxLayout *vLayout = new WVBoxLayout();
-  ex->setLayout(vLayout);
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->setSpacing(3);
 
   WPushButton *button;
-  vLayout->addWidget(button = new WPushButton("One liner"), 0, AlignLeft);
+  vLayout->addWidget(button = new WPushButton("One liner"), 0);
   button->clicked().connect(this, &DialogWidgets::messageBox1);
-  vLayout->addWidget(button = new WPushButton("Show some buttons"), 0, AlignLeft);
+  vLayout->addWidget(button = new WPushButton("Show some buttons"), 0);
   button->clicked().connect(this, &DialogWidgets::messageBox2);
-  vLayout->addWidget(button = new WPushButton("Need confirmation"), 0, AlignLeft);
+  vLayout->addWidget(button = new WPushButton("Need confirmation"), 0);
   button->clicked().connect(this, &DialogWidgets::messageBox3);
-  vLayout->addWidget(button = new WPushButton("Discard"), 0, AlignLeft);
+  vLayout->addWidget(button = new WPushButton("Discard"), 0);
   button->clicked().connect(this, &DialogWidgets::messageBox4);
+
+  hLayout->addLayout(vLayout);
+  hLayout->addStretch(1);
 
   return result;
 }

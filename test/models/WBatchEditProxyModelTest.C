@@ -235,3 +235,54 @@ BOOST_AUTO_TEST_CASE( batchedit_test1 )
   BOOST_REQUIRE(sm->rowCount(sm->index(1, 0)) == 1);
   BOOST_REQUIRE(sm->columnCount(sm->index(1, 0)) == 4);
 }
+
+
+BOOST_AUTO_TEST_CASE( batchedit_test2 )
+{
+  BatchEditFixture f;
+
+  WAbstractItemModel *sm = f.sourceModel_;
+  WAbstractItemModel *pm = f.proxyModel_;
+
+  BOOST_REQUIRE(sm->columnCount() == 4);
+  BOOST_REQUIRE(pm->columnCount() == 4);
+
+  BOOST_REQUIRE(sm->rowCount() == 0);
+  BOOST_REQUIRE(pm->rowCount() == 0);
+
+  sm->insertRows(0, 2);
+
+  BOOST_REQUIRE(sm->rowCount() == 2);
+  BOOST_REQUIRE(pm->rowCount() == 2);
+
+  f.clearEvents();
+
+  pm->setData(0, 0, std::string("sm(1, 0)"), EditRole);
+  pm->setData(1, 0, std::string("sm(2, 0)"), EditRole);
+  BOOST_REQUIRE(d(pm, 0, 0) == "sm(1, 0)");
+  BOOST_REQUIRE(d(pm, 1, 0) == "sm(2, 0)");
+
+  pm->insertRows(2, 1);
+  pm->setData(2, 0, std::string("sm(3, 0)"), EditRole);
+
+  BOOST_REQUIRE(sm->rowCount() == 2);
+  BOOST_REQUIRE(pm->rowCount() == 3);
+
+  pm->removeRow(0);
+
+  BOOST_REQUIRE(sm->rowCount() == 2);
+  BOOST_REQUIRE(pm->rowCount() == 2);
+
+  BOOST_REQUIRE(d(pm, 0, 0) == "sm(2, 0)");
+  BOOST_REQUIRE(d(pm, 1, 0) == "sm(3, 0)");
+
+  f.proxyModel_->commitAll();
+
+  BOOST_REQUIRE(sm->rowCount() == 2);
+
+  BOOST_REQUIRE(d(sm, 0, 0) == "sm(2, 0)");
+  BOOST_REQUIRE(d(sm, 1, 0) == "sm(3, 0)");
+
+  BOOST_REQUIRE(d(pm, 0, 0) == "sm(2, 0)");
+  BOOST_REQUIRE(d(pm, 1, 0) == "sm(3, 0)");
+}

@@ -11,6 +11,8 @@
 
 #include "WebUtils.h"
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 using namespace boost::gregorian;
 
 namespace {
@@ -32,9 +34,25 @@ WDate::WDate()
     day_(0)
 { }
 
+WDate::WDate(const date& date)
+{
+  setGregorianDate(date);
+}
+
 WDate::WDate(int year, int month, int day)
 {
   setDate(year, month, day);
+}
+
+void WDate::setGregorianDate(const date& date)
+{
+  valid_ = !date.is_special();
+
+  if (valid_) {
+    year_ = date.year();
+    month_ = date.month();
+    day_ = date.day();
+  }
 }
 
 WDate WDate::addDays(int ndays) const
@@ -122,6 +140,14 @@ int WDate::toJulianDay() const
     date dthis(year_, month_, day_);
     return dthis.julian_day();
   }
+}
+
+boost::gregorian::date WDate::toGregorianDate() const
+{
+  if (isValid())
+    return date(year_, month_, day_);
+  else
+    return date(not_a_date_time);
 }
 
 bool WDate::isNull() const

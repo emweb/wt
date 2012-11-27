@@ -883,7 +883,7 @@ bool WBatchEditProxyModel::removeRows(int row, int count,
   removeIndexes(item, item->insertedRows_, item->removedRows_,
 		&item->insertedItems_, row, count);
 
-  shiftRows(item->editedValues_, row, count);
+  shiftRows(item->editedValues_, row, -count);
 
   endRemoveRows();
 

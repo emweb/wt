@@ -85,9 +85,7 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
    * somebody could already have asked the domElementType()
    */
   if (!setup_ && flags & RenderFull) {
-    setup_ = true;
-    bool useNative = nativeControl();
-    setup(useNative);
+    setup();
   }
 
   WLineEdit::render(flags);
@@ -163,8 +161,11 @@ void WAbstractSpinBox::propagateRenderOk(bool deep)
   WLineEdit::propagateRenderOk(deep);
 }
 
-void WAbstractSpinBox::setup(bool useNative)
+void WAbstractSpinBox::setup()
 {
+  setup_ = true;
+  bool useNative = nativeControl();
+
   if (useNative) {
     setValidator(createValidator());
   } else {
@@ -186,6 +187,14 @@ void WAbstractSpinBox::setup(bool useNative)
 
     setValidator(new SpinBoxValidator(this));
   }
+}
+
+WValidator::State WAbstractSpinBox::validate()
+{
+  if (!setup_)
+    setup();
+
+  return WLineEdit::validate();
 }
 
 int WAbstractSpinBox::boxPadding(Orientation orientation) const

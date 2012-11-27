@@ -86,6 +86,11 @@ bool SqlConnection::usesRowsFromTo() const
   return false;
 }
 
+bool SqlConnection::supportAlterTable() const
+{
+  return false;
+}
+
 bool SqlConnection::showQueries() const
 {
   return property("show-queries") == "true";

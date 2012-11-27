@@ -157,7 +157,7 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     if (!WT.isOpera && !WT.isGecko)
+     if (!WT.isOpera)
        scrollWidth +=
 	 WT.px(element, 'border' + DC.Left + 'Width') +
 	 WT.px(element, 'border' + DC.Right + 'Width');
@@ -852,7 +852,16 @@ WT_DECLARE_WT_MEMBER
 	 if (measures[MINIMUM_SIZE][di] > -1) {
 
 	   var fs = -1;
-	   if (typeof DC.fixedSize[di] !== "undefined")
+
+	   /*
+	    * If we have a fixedSize (set by resizing) then we should
+	    * take it into account only if the resizer is still visible.
+	    *
+	    * This probably isn't entirely accurate, but neither is resizers
+	    * when hiding/showing widgets ?
+	    */
+	   if (typeof DC.fixedSize[di] !== "undefined"
+	       && (di + 1 < dirCount && measures[MINIMUM_SIZE][di + 1] > -1))
 	     fs = DC.fixedSize[di];
 	   else if ((DC.config[di][RESIZABLE] !== 0)
 		    && (DC.config[di][RESIZABLE][RS_INITIAL_SIZE] >= 0)) {
@@ -995,6 +1004,9 @@ WT_DECLARE_WT_MEMBER
 	     handle.style.position='absolute';
 	     handle.style[OC.left] = OC.margins[MARGIN_LEFT] + 'px';
 	     handle.style[DC.size] = DC.margins[SPACING] + 'px';
+	     if (OC.cSize)
+	       handle.style[OC.size] = (OC.cSize - OC.margins[MARGIN_RIGHT] -
+					OC.margins[MARGIN_LEFT]) + 'px';
 	     handle.className = DC.handleClass;
 	     widget.insertBefore(handle, widget.firstChild);
 
@@ -1053,17 +1065,7 @@ WT_DECLARE_WT_MEMBER
 	     if (!alignment) {
 	       var m = margin(item.w, dir);
 
-	       /*
-		* Chrome:
-		*  - some elements lose their margin as soon as you give
-		*    them a size, we thus need to correct for that, or
-		*    confirm their initial margin
-		*/
-	       var tsm = ts;
-	       if (WT.isIElt9 ||
-		   (!WT.hasTag(w, 'BUTTON') && !WT.hasTag(w, 'INPUT') &&
-		    !WT.hasTag(w, 'SELECT') && !WT.hasTag(w, 'TEXTAREA')))
-		 tsm = Math.max(0, tsm - m);
+	       var tsm = Math.max(0, ts - m);
 
 	       /*
 		* IE: a button expands to parent container width ?? WTF ?

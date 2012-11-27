@@ -87,6 +87,8 @@ public:
 
   virtual void setText(const WT_USTRING& text);
 
+  virtual WValidator::State validate();
+
 protected:
   /*! \brief Constructor.
    */
@@ -116,7 +118,7 @@ private:
   void defineJavaScript();
   void connectJavaScript(Wt::EventSignalBase& s,
 			 const std::string& methodName);
-  void setup(bool native);
+  void setup();
   bool parseValue(const WT_USTRING& text);
 
   friend class SpinBoxValidator;

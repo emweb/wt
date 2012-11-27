@@ -1135,10 +1135,7 @@ void WTableView::shiftModelIndexColumns(int start, int count)
   std::vector<WModelIndex> toShift;
   std::vector<WModelIndex> toErase;
 
-  for (WModelIndexSet::iterator it
-	 = set.lower_bound(model()->index(0, start, rootIndex()));
-       it != set.end(); ++it) {
-
+  for (WModelIndexSet::iterator it = set.begin(); it != set.end(); ++it) {
     if (count < 0) {
       if ((*it).column() < start - count) {
 	toErase.push_back(*it);
@@ -1146,8 +1143,10 @@ void WTableView::shiftModelIndexColumns(int start, int count)
       }
     }
 
-    toShift.push_back(*it);
-    toErase.push_back(*it);
+    if ((*it).column() >= start) {
+      toShift.push_back(*it);
+      toErase.push_back(*it);
+    }
   }
 
   for (unsigned i = 0; i < toErase.size(); ++i)

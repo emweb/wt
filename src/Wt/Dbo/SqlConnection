@@ -205,6 +205,8 @@ public:
    * The default implementation returns \c false.
    */
   virtual bool usesRowsFromTo() const;
+
+  virtual bool supportAlterTable() const;
   //@}
 
   bool showQueries() const;

@@ -113,6 +113,8 @@ namespace Wt {
         virtual const char *textType() const;
 	virtual const char *booleanType() const;
         virtual bool usesRowsFromTo() const;
+	virtual bool supportAlterTable() const;
+
 	//@}
  
 	virtual void prepareForDropTables();
