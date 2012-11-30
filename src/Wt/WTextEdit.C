@@ -46,8 +46,8 @@ void WTextEdit::init()
 
   setJavaScriptMember
     (WT_RESIZE_JS,
-     "function(e,w,h) { var obj = $('#" + id() + "').data('obj'); "
-     "obj.wtResize(e,w,h); };");
+     "function(e, w, h) { var obj = $('#" + id() + "').data('obj'); "
+     "obj.wtResize(e, w, h); };");
 
   std::string direction = app->layoutDirection() == LeftToRight ? "ltr" : "rtl";
   setConfigurationSetting("directionality", direction);

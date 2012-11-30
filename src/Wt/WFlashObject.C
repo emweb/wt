@@ -83,9 +83,11 @@ void WFlashObject::updateDom(DomElement& element, bool all)
       ss <<
         """function(self, w, h) {"
         ""  "v=" + jsFlashRef() + ";"
-        ""  "if(v){"
-        ""    "v.setAttribute('width', w);"
-        ""    "v.setAttribute('height', h);"
+        ""  "if (v) {"
+	""    "if (w >= 0) "
+        ""      "v.setAttribute('width', w);"
+        ""    "if (h >= 0) "
+	""      "v.setAttribute('height', h);"
         ""  "}";
       if (alternative_) {
         ss <<

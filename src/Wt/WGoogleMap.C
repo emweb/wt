@@ -194,8 +194,10 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
 	"map.setCenter(new google.maps.LatLng(47.01887777, 8.651888), 13);";
       setJavaScriptMember(WT_RESIZE_JS,
                           "function(self, w, h) {"
-			  """self.style.width=w + 'px';"
-			  """self.style.height=h + 'px';"
+			  """if (w >= 0) "
+			  ""  "self.style.width=w + 'px';"
+			  """if (h >= 0) "
+			  ""  "self.style.height=h + 'px';"
                           """if (self.map) "
 			  ""  "self.map.checkResize();"
                           "}");
@@ -212,8 +214,10 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
 	"map.infowindows = [];";
       setJavaScriptMember(WT_RESIZE_JS,
                           "function(self, w, h) {"
-			  """self.style.width=w + 'px';"
-			  """self.style.height=h + 'px';"
+			  """if (w >= 0) "
+			  ""  "self.style.width=w + 'px';"
+			  """if (h >= 0) "
+			  ""  "self.style.height=h + 'px';"
                           """if (self.map)"
 			  """ google.maps.event.trigger(self.map, 'resize');"
                           "}");

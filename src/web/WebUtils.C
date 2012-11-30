@@ -241,7 +241,7 @@ static inline char *generic_double_to_str(double d, char *buf)
 {
   if (!boost::math::isnan(d)) {
     if (!boost::math::isinf(d)) {
-      sprintf(buf, "%f", (float)d);
+      sprintf(buf, "%.7e", d);
     } else {
       if (d > 0) {
         sprintf(buf, "Infinity");

@@ -93,15 +93,6 @@ void WScrollArea::setScrollBarPolicy(ScrollBarPolicy policy)
 
 void WScrollArea::updateDom(DomElement& element, bool all)
 {
-  if (all)
-    if (isInLayout() && WApplication::instance()->environment().ajax()) {
-      setJavaScriptMember(WT_RESIZE_JS,
-			  "function(s, w, h) {"
-			  "s.style.width=w+'px';"
-			  "s.style.height=h+'px';"
-			  "}");
-    }
-
   if (widgetChanged_ || all) {
     if (widget_)
       element.addChild(widget_->createSDomElement(WApplication::instance()));

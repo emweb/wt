@@ -137,8 +137,9 @@ void WFileUpload::create()
     fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
 
     setJavaScriptMember(WT_RESIZE_JS,
-			"function(self,w,h) {"
-			"$(self).find('input').width(w);"
+			"function(self, w, h) {"
+			"""if (w >= 0) "
+			""  "$(self).find('input').width(w);"
 			"}");
   } else
     fileUploadTarget_ = 0;

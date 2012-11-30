@@ -291,15 +291,17 @@ DomElement *WAbstractMedia::createDomElement(WApplication *app)
     if (!mediaId_.empty()) {
       ss <<
         ""  "v=" + jsMediaRef() + ";"
-        ""  "if(v){"
-        ""    "v.setAttribute('width', w);"
-        ""    "v.setAttribute('height', h);"
+        ""  "if (v) {"
+	""    "if (w >= 0) "
+        ""      "v.setAttribute('width', w);"
+        ""    "if (h >= 0) "
+	""      "v.setAttribute('height', h);"
         ""  "}";
     }
     if (alternative_) {
       ss <<
         """a=" + alternative_->jsRef() + ";"
-        ""  "if(a && a." << WT_RESIZE_JS <<")"
+        ""  "if (a && a." << WT_RESIZE_JS <<")"
         ""    "a." << WT_RESIZE_JS << "(a, w, h);";
     }
     ss

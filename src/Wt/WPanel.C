@@ -45,8 +45,8 @@ WPanel::WPanel(WContainerWidget *parent)
 
   setJavaScriptMember
     (WT_RESIZE_JS,
-     "function(self, w, h) {"
-     // """self.style.height= h + 'px';"
+     "function(self, w, h, l) {"
+     """var defined = h >= 0;"
      """if (" WT_CLASS ".boxSizing(self)) {"
      ""  "h -= " WT_CLASS ".px(self, 'borderTopWidth') + "
      ""       WT_CLASS ".px(self, 'borderBottomWidth');"
@@ -56,7 +56,8 @@ WPanel::WPanel(WContainerWidget *parent)
      """if (t.className == 'titlebar')"
      ""  "h -= t.offsetHeight;"
      """h -= 8;" // padding
-     """if (h > 0) {"
+     """if (defined && h > 0) {"
+     ""  "c.lh = l;"
      ""  "c.style.height = h + 'px';"
      // this seems golden, but, JQuery docs say it doesn't work when
      // the panel is indirectly hidden: will this back-fire ?
@@ -64,6 +65,14 @@ WPanel::WPanel(WContainerWidget *parent)
      ""      "var self = $(this), "
      ""          "padding = self.outerHeight() - self.height();"
      ""      "self.height(h - padding);"
+     ""      "this.lh = l;"
+     ""  "});"
+     """} else {"
+     ""  "c.lh = false;"
+     ""  "c.style.height = '';"
+     ""  "$(c).children().each(function() { "
+     ""      "this.style.height = '';"
+     ""      "this.lh = false;"
      ""  "});"
      """}"
      "};");

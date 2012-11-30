@@ -2690,7 +2690,8 @@ function propagateSize(element, width, height) {
     element.wtWidth = width;
     element.wtHeight = height;
 
-    emit(element, 'resized', width, height);
+    if (width >= 0 && height >= 0)
+      emit(element, 'resized', width, height);
   }
 }
 

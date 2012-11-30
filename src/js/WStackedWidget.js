@@ -11,90 +11,103 @@ WT_DECLARE_WT_MEMBER
  function (APP, widget) {
   jQuery.data(widget, 'obj', this);
 
-  var WT = APP.WT, heightSet = false;
+  var WT = APP.WT;
 
-  this.wtResize = function(self, w, h, item) {
-    if (item && item.set[1]) {
+  this.wtResize = function(self, w, h, layout) {
+    var hdefined = h >= 0;
+    self.lh = hdefined && layout;
+
+    if (hdefined)
       self.style.height = h + 'px';
-      heightSet = true;
-    } else
-      heightSet = false;
+    else
+      self.style.height = '';
 
-     if (WT.boxSizing(self)) {
-       h -= WT.px(self, 'marginTop');
-       h -= WT.px(self, 'marginBottom');
-       h -= WT.px(self, 'borderTopWidth');
-       h -= WT.px(self, 'borderBottomWidth');
-       h -= WT.px(self, 'paddingTop');
-       h -= WT.px(self, 'paddingBottom');
+    if (WT.boxSizing(self)) {
+      h -= WT.px(self, 'marginTop');
+      h -= WT.px(self, 'marginBottom');
+      h -= WT.px(self, 'borderTopWidth');
+      h -= WT.px(self, 'borderBottomWidth');
+      h -= WT.px(self, 'paddingTop');
+      h -= WT.px(self, 'paddingBottom');
 
-       w -= WT.px(self, 'marginLeft');
-       w -= WT.px(self, 'marginRight');
-       w -= WT.px(self, 'borderLeftWidth');
-       w -= WT.px(self, 'borderRightWidth');
-       w -= WT.px(self, 'paddingLeft');
-       w -= WT.px(self, 'paddingRight');
-     }
+      w -= WT.px(self, 'marginLeft');
+      w -= WT.px(self, 'marginRight');
+      w -= WT.px(self, 'borderLeftWidth');
+      w -= WT.px(self, 'borderRightWidth');
+      w -= WT.px(self, 'paddingLeft');
+      w -= WT.px(self, 'paddingRight');
+    }
 
-     function marginV(el) {
-       var result = WT.px(el, 'marginTop');
-       result += WT.px(el, 'marginBottom');
+    function marginV(el) {
+      var result = WT.px(el, 'marginTop');
+      result += WT.px(el, 'marginBottom');
 
-       if (!WT.boxSizing(el)) {
-	 result += WT.px(el, 'borderTopWidth');
-	 result += WT.px(el, 'borderBottomWidth');
-	 result += WT.px(el, 'paddingTop');
-	 result += WT.px(el, 'paddingBottom');
-       }
+      if (!WT.boxSizing(el)) {
+	result += WT.px(el, 'borderTopWidth');
+	result += WT.px(el, 'borderBottomWidth');
+	result += WT.px(el, 'paddingTop');
+	result += WT.px(el, 'paddingBottom');
+      }
 
-       return result;
-     }
+      return result;
+    }
 
-     var j, jl, c;
-     for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
-       c = self.childNodes[j];
+    var j, jl, c;
+    for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
+      c = self.childNodes[j];
 
-       if (c.nodeType == 1) {
-	 if (!WT.isHidden(c)) {
-	   var ch = h - marginV(c);
+      if (c.nodeType == 1) {
+	if (!WT.isHidden(c)) {
 
-	   if (ch > 0) {
-	     if (c.wtResize)
-	       c.wtResize(c, w, ch);
-	     else {
-	       var cheight = ch + 'px';
-	       if (c.style.height != cheight)
-		 c.style.height = cheight;
-	     }
-	   }
-	 }
-       }
-     }
-   };
+	  if (hdefined) {
+	    var ch = h - marginV(c);
+	    if (ch > 0) {
+	      if (c.wtResize)
+		c.wtResize(c, w, ch, layout);
+	      else {
+		var cheight = ch + 'px';
+		if (c.style.height != cheight) {
+		  c.style.height = cheight;
+		  c.lh = layout;
+		}
+	      }
+	    }
+	  } else {
+	    if (c.wtResize)
+	      c.wtResize(c, w, -1, layout);
+	    else {
+	      c.style.height = '';
+	      c.lh = false;
+	    }
+	  }
+	}
+      }
+    }
+  };
 
-   this.wtGetPs = function(self, child, dir, size) {
-      return size;
-   };
+  this.wtGetPs = function(self, child, dir, size) {
+    return size;
+  };
 
-   this.setCurrent = function(child) {
-     var j, jl, c;
-     for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
-       c = widget.childNodes[j];
+  this.setCurrent = function(child) {
+    var j, jl, c;
+    for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
+      c = widget.childNodes[j];
 
-       if (c.nodeType == 1) {
-	 if (c != child)
-	   c.style.display = 'none';
-	 else {
-	   c.style.display = '';
+      if (c.nodeType == 1) {
+	if (c != child)
+	  c.style.display = 'none';
+	else {
+	  c.style.display = '';
 
-	   if (heightSet) {
-	     heightSet = false;
-	     widget.style.height = '';
-	   }
-	 }
-       }
-     }
-   };
+	  if (widget.lh) {
+	    widget.lh = false;
+	    widget.style.height = '';
+	  }
+	}
+      }
+    }
+  };
  });
 
 WT_DECLARE_WT_MEMBER

@@ -108,8 +108,12 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
 
   setLayoutSizeAware(true);
   setJavaScriptMember(WT_RESIZE_JS,
-		      "function(self,w,h) {"
-		      "$(self).find('canvas, img').width(w).height(h);"
+		      "function(self, w, h) {"
+		      """var u = $(self).find('canvas, img');"
+		      """if (w >= 0) "
+		      ""  "u.width(w);"
+		      """if (h >= 0) "
+		      ""  "u.height(h);"
 		      "}");
   setInline(false);
 }

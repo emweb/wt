@@ -85,7 +85,8 @@ void WWidget::setJsSize()
     callJavaScriptMember
       (WT_RESIZE_JS, jsRef() + ","
        + boost::lexical_cast<std::string>(width().toPixels()) + ","
-       + boost::lexical_cast<std::string>(height().toPixels()));
+       + boost::lexical_cast<std::string>(height().toPixels()) + ","
+       + "false");
 }
 
 void WWidget::render(WFlags<RenderFlag> flags)

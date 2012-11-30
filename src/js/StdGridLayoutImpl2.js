@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
    this.ancestor = null;
    this.descendants = [];
 
-   /** @const */ var debug = false;
+   /** @const */ var debug = true;
 
    /** @const */ var STRETCH = 0;
    /** @const */ var RESIZABLE = 1;
@@ -414,7 +414,13 @@ WT_DECLARE_WT_MEMBER
 		     item.wasLayout = false;
 		     item.set = [false, false];
 		     // setCss(item.w, DirConfig[0].size, '');
-		     item.ps -= 0.1;
+		     item.ps -= 0.1; 
+		     /*
+		     item.ps[0] -= 0.1;
+		     item.ps[1] = 0;
+		     */
+		     if (item.w.wtResize)
+		       item.w.wtResize(item.w, -1, -1, true);
 		     setCss(item.w, DirConfig[1].size, '');
 		   }
 
@@ -608,11 +614,7 @@ WT_DECLARE_WT_MEMBER
 	   if (p == parentItemWidget)
 	     break;
 
-	   /*
-	    * Take into account a size set on our direct parent,
-	    * if it is not the parentItemWidget
-	    */
-	   if (p == widget.parentNode && p.offsetHeight > totalPs)
+	   if (p == widget.parentNode && !p.lh && p.offsetHeight > totalPs)
 	     totalPs = p.offsetHeight;
 
 	   c = p;
@@ -779,7 +781,7 @@ WT_DECLARE_WT_MEMBER
      if (dir == VERTICAL && container && container.wtResize) {
        var w = OC.cSize,
 	   h = DC.cSize;
-       container.wtResize(container, Math.round(w), Math.round(h));
+       container.wtResize(container, Math.round(w), Math.round(h), true);
      }
 
      cSize -= otherPadding;
@@ -861,7 +863,7 @@ WT_DECLARE_WT_MEMBER
 	    * when hiding/showing widgets ?
 	    */
 	   if (typeof DC.fixedSize[di] !== "undefined"
-	       && (di + 1 < dirCount && measures[MINIMUM_SIZE][di + 1] > -1))
+	       && (di + 1 == dirCount || measures[MINIMUM_SIZE][di + 1] > -1))
 	     fs = DC.fixedSize[di];
 	   else if ((DC.config[di][RESIZABLE] !== 0)
 		    && (DC.config[di][RESIZABLE][RS_INITIAL_SIZE] >= 0)) {
@@ -1127,8 +1129,11 @@ WT_DECLARE_WT_MEMBER
 	     if (dir == VERTICAL) {
 	       if (w.wtResize)
 		 w.wtResize(w,
-			    Math.round(item.size[HORIZONTAL]),
-			    Math.round(item.size[VERTICAL]), item);
+			    item.set[HORIZONTAL]
+			    ? Math.round(item.size[HORIZONTAL]) : -1,
+			    item.set[VERTICAL]
+			    ? Math.round(item.size[VERTICAL]) : -1,
+			    true);
 
 	       item.dirty = false;
 	     }
