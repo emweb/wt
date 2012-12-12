@@ -141,8 +141,12 @@ std::string WIntValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WIntValidator("
-     << (isMandatory() ? "true" : "false") << ",";
+  js << "new " WT_CLASS ".WIntValidator(";
+  if (isMandatory())
+    js << "true";
+  else
+    js << "false";
+  js << ',';
 
   if (bottom_ != std::numeric_limits<int>::min())
     js << bottom_;

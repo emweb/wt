@@ -29,33 +29,38 @@ namespace Wt {
 namespace http {
   namespace server {
 
+namespace misc_strings {
+  const char char0x0 = 0x0;
+  const char char0xFF = (char)0xFF;
+  const char char0x81 = (char)0x81;
+}
+
 WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
                  const Configuration &config)
   : Reply(request, config),
     entryPoint_(entryPoint),
+    out_(&out_buf_),
+    sending_(0),
     contentLength_(-1),
     bodyReceived_(0),
-    sendingMessages_(false),
-    sending_(false)
+    sendingMessages_(false)
 {
   urlScheme_ = request.urlScheme;
 
   if (request.contentLength > config.maxMemoryRequestSize()) {
     requestFileName_ = Wt::FileUtils::createTempFileName();
-    // First, create the file
+    // First, make sure the file exists
     std::ofstream o(requestFileName_.c_str());
     o.close();
-    // Now, open it for read/write
-    cin_ = new std::fstream(requestFileName_.c_str(),
+    // Now, open it for read/write to verify that the file was
+    // properly created
+    in_ = new std::fstream(requestFileName_.c_str(),
       std::ios::in | std::ios::out | std::ios::binary);
-    if (!*cin_) {
-      // Give up, spool to memory
-      requestFileName_ = "";
-      delete cin_;
-      cin_ = &cin_mem_;
-    }
+    // To avoid an OWASP DoS attack (slow POST), we don't keep
+    // file descriptors open here.
+    static_cast<std::fstream *>(in_)->close();
   } else {
-    cin_ = &cin_mem_;
+    in_ = &in_mem_;
   }
 
   httpRequest_ = 0;
@@ -65,9 +70,9 @@ WtReply::~WtReply()
 {
   delete httpRequest_;
 
-  if (&cin_mem_ != cin_) {
-    dynamic_cast<std::fstream *>(cin_)->close();
-    delete cin_;
+  if (&in_mem_ != in_) {
+    dynamic_cast<std::fstream *>(in_)->close();
+    delete in_;
   }
   if (requestFileName_ != "") {
     unlink(requestFileName_.c_str());
@@ -95,9 +100,27 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
      * A normal HTTP request
      */
     if (state != Request::Error) {
-      if (status() != request_entity_too_large)
-	cin_->write(begin, static_cast<std::streamsize>(end - begin));
-
+      if (status() != request_entity_too_large) {
+	// in_ may be a file stream, or a memory stream. File streams are
+	// closed inbetween receiving parts -> open it
+	std::fstream *f_in = dynamic_cast<std::fstream *>(in_);
+        if (f_in) {
+          f_in->open(requestFileName_.c_str(),
+            std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
+          if (!*f_in) {
+            LOG_ERROR("error opening spool file for request that exceeds "
+              "max-memory-request-size: " << requestFileName_);
+            // Give up
+            setStatus(internal_server_error);
+            setCloseConnection();
+            state = Request::Error;
+          }
+        }
+	in_->write(begin, static_cast<std::streamsize>(end - begin));
+        if (f_in) {
+          f_in->close();
+        }
+      }
       /*
        * We create the HTTPRequest immediately since it may be that
        * the web application is interested in knowing upload progress
@@ -134,8 +157,18 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 					 status(), configuration())));
 	Reply::send();
       } else {
-	cin_->seekg(0); // rewind
-	responseSent_ = false;
+        if (dynamic_cast<std::fstream *>(in_)) {
+          dynamic_cast<std::fstream *>(in_)->open(requestFileName_.c_str(),
+            std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
+          if (!*in_) {
+            LOG_ERROR("error opening spooled request " << requestFileName_);
+            setStatus(internal_server_error);
+            setCloseConnection();
+            state = Request::Error;
+          }
+        }
+
+	in_->seekg(0); // rewind
 
 	connection->server()->controller()->handleRequest(httpRequest_);
       }
@@ -171,8 +204,6 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
        * have sent the 101: some intermediaries may be holding back
        * this data because they are still in HTTP mode
        */
-      responseSent_ = true;
-      sending_ = true;
 
       /*
        * We already create the HTTP request because waitMoreData() depends
@@ -194,7 +225,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
       /*
        * The client handshake has been parsed and is ready.
        */
-      cin_mem_.write(begin, static_cast<std::streamsize>(end - begin));
+      in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
 
       if (!httpRequest_) {
 	httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
@@ -221,17 +252,17 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
 				      Buffer::const_iterator end,
 				      Request::State state)
 {
-  cin_mem_.write(begin, static_cast<std::streamsize>(end - begin));
+  in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
 
   if (state != Request::Partial) {
     if (state == Request::Error)
-      cin_mem_.str("");
+      in_mem_.str("");
     else
-      cin_mem_.seekg(0);
+      in_mem_.seekg(0);
 
     switch (opcode) {
     case connection_close:
-      cin_mem_.str("");
+      in_mem_.str("");
 
       /* fall through */
     case text_frame:
@@ -276,9 +307,10 @@ bool WtReply::waitMoreData() const
   return httpRequest_ != 0 && !httpRequest_->done();
 }
 
-void WtReply::send(const std::string& text, CallbackFunction callBack,
-		   bool responseComplete)
+void WtReply::send(CallbackFunction callBack, bool responseComplete)
 {
+  LOG_DEBUG("WtReply::send(): " << sending_);
+
   ConnectionPtr connection = getConnection();
 
   if (!connection)
@@ -286,84 +318,7 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
 
   fetchMoreDataCallback_ = callBack;
 
-  bool webSocket = request().webSocketVersion >= 0;
-
-  if (webSocket) {
-    if (!sendingMessages_) {
-      /*
-       * This finishes the server handshake. For 00-protocol, we copy
-       * the computed handshake nonce in the output.
-       */
-      nextCout_.assign(cin_mem_.str());
-
-      sendingMessages_ = true;
-    } else {
-      /*
-       * This should be sent as a websocket message.
-       */
-      if (text.empty()) {
-	LOG_DEBUG("ws: closed by app");
-
-	/*
-	 * FIXME: send a close frame
-	 */
-	connection->close();
-	return;
-      }
-
-      LOG_DEBUG("ws: sending a message, length = " << (long long)text.length());
-
-      nextCout_.clear();
-
-      switch (request().webSocketVersion) {
-      case 0:
-	nextCout_ += (char)0;
-	nextCout_ += text;
-	nextCout_ += (char)0xFF;
-
-	break;
-      case 7:
-      case 8:
-      case 13:
-	{
-	  nextCout_ += (char)0x81;
-
-	  std::size_t payloadLength = text.length();
-
-	  if (payloadLength < 126)
-	    nextCout_ += (char)payloadLength;
-	  else if (payloadLength < (1 << 16)) {
-	    nextCout_ += (char)126;
-	    nextCout_ += (char)(payloadLength >> 8);
-	    nextCout_ += (char)(payloadLength);
-	  } else {
-	    nextCout_ += (char)127;
-	    const unsigned SizeTLength = sizeof(payloadLength);
-
-	    for (unsigned i = 8; i > SizeTLength; --i)
-	      nextCout_ += (char)0x0;
-
-	    for (unsigned i = 0; i < SizeTLength; ++i)
-	      nextCout_ += (char)(payloadLength >> ((SizeTLength - 1 - i) * 8));
-	  }
-
-	  nextCout_ += text;
-	}
-	break;
-      default:
-	LOG_ERROR("ws: encoding for version " <<
-		  request().webSocketVersion << " is not implemented");
-	connection->close();
-	return;
-      }
-    }
-  } else {
-    nextCout_.assign(text);
-  }
-
-  responseSent_ = false;
-
-  if (!sending_) {
+  if (sending_ == 0) {
     if (status() == no_status) {
       if (!transmitting() && fetchMoreDataCallback_) {
 	/*
@@ -386,7 +341,6 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
       }
     }
 
-    sending_ = true;
     Reply::send();
   }
 }
@@ -410,13 +364,13 @@ void WtReply::readWebSocketMessage(CallbackFunction callBack)
     consumeWebSocketMessage(connection_close, b.begin(), b.begin(),
 			    Request::Complete);
   } else {
-    if (&cin_mem_ != cin_) {
-      dynamic_cast<std::fstream *>(cin_)->close();
-      delete cin_;
-      cin_ = &cin_mem_;
+    if (&in_mem_ != in_) {
+      dynamic_cast<std::fstream *>(in_)->close();
+      delete in_;
+      in_ = &in_mem_;
     }
 
-    cin_mem_.str("");
+    in_mem_.str("");
 
     connection->server()->service().post
       (boost::bind(&Connection::handleReadBody, connection));
@@ -448,32 +402,104 @@ std::string WtReply::location()
   return contentLength_;
 }
 
-asio::const_buffer WtReply::nextContentBuffer()
+void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
-  LOG_DEBUG("(sending: " << sending_ << ", reponseSent_: " << responseSent_
-	    << ") nextContentBuffer: " << nextCout_.length());
+  LOG_DEBUG("sent: " << sending_);
 
-  cout_.clear();
-  cout_.swap(nextCout_);
+  out_buf_.consume(sending_);
 
-  if (!responseSent_) {
-    responseSent_ = true;
-    if (!cout_.empty())
-      return asio::buffer(cout_);
-  } else
-    cout_.clear();
+  sending_ = out_buf_.size();
 
-  while (cout_.empty() && fetchMoreDataCallback_) {
-    CallbackFunction f = fetchMoreDataCallback_;
-    fetchMoreDataCallback_ = 0;
-    f();
-    cout_.swap(nextCout_);
+  bool webSocket = request().webSocketVersion >= 0;
+
+  if (webSocket) {
+    if (!sendingMessages_) {
+      /*
+       * This finishes the server handshake. For 00-protocol, we copy
+       * the computed handshake nonce in the output.
+       */
+      if (request().webSocketVersion == 0) {
+	std::string s = in_mem_.str();
+	memcpy(gatherBuf_, s.c_str(), std::min((std::size_t)16, s.length()));
+	result.push_back(asio::buffer(gatherBuf_));
+      }
+
+      sendingMessages_ = true;
+    } else {
+      /*
+       * The output stream buf should be sent as a websocket message.
+       */
+      std::size_t size = sending_;
+
+      if (size > 0) {
+	LOG_DEBUG("ws: sending a message, length = " << size);
+
+	switch (request().webSocketVersion) {
+	case 0:
+	  result.push_back(asio::buffer(&misc_strings::char0x0, 1));
+	  result.push_back(out_buf_.data());
+	  result.push_back(asio::buffer(&misc_strings::char0xFF, 1));
+
+	  break;
+	case 7:
+	case 8:
+	case 13:
+	  {
+	    result.push_back(asio::buffer(&misc_strings::char0x81, 1));
+
+	    std::size_t payloadLength = size;
+
+	    if (payloadLength < 126) {
+	      gatherBuf_[0] = (char)payloadLength;
+	      result.push_back(asio::buffer(gatherBuf_, 1));
+	    } else if (payloadLength < (1 << 16)) {
+	      gatherBuf_[0] = (char)126;
+	      gatherBuf_[1] = (char)(payloadLength >> 8);
+	      gatherBuf_[2] = (char)(payloadLength);
+	      result.push_back(asio::buffer(gatherBuf_, 3));
+	    } else {
+	      unsigned j = 0;
+	      gatherBuf_[j++] = (char)127;
+
+	      const unsigned SizeTLength = sizeof(payloadLength);
+
+	      for (unsigned i = 8; i > SizeTLength; --i)
+		gatherBuf_[j++] = (char)0x0;
+
+	      for (unsigned i = 0; i < SizeTLength; ++i)
+		gatherBuf_[j++] = (char)(payloadLength
+					   >> ((SizeTLength - 1 - i) * 8));
+
+	      result.push_back(asio::buffer(gatherBuf_, 9));
+	    }
+
+	    result.push_back(out_buf_.data());
+	  }
+	  break;
+	default:
+	  LOG_ERROR("ws: encoding for version " <<
+		    request().webSocketVersion << " is not implemented");
+
+	  sending_ = 0;
+	  // FIXME: set something to close the connection
+	  return;
+	}
+      }
+    }
+  } else if (sending_)
+    result.push_back(out_buf_.data());
+
+  if (!sending_) {
+    while (!sending_ && fetchMoreDataCallback_) {
+      CallbackFunction f = fetchMoreDataCallback_;
+      fetchMoreDataCallback_ = 0;
+      f();
+    }
+
+    sending_ = out_buf_.size();
+    if (sending_ > 0)
+      result.push_back(out_buf_.data());
   }
-
-  if (cout_.empty())
-    sending_ = false;
-
-  return asio::buffer(cout_);
 }
 
   }

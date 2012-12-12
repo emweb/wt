@@ -18,7 +18,7 @@
 
 namespace {
 
-const char *elementNames_[] =
+std::string elementNames_[] =
   { "a", "br", "button", "col",
     "colgroup",
     "div", "fieldset", "form",
@@ -66,7 +66,7 @@ bool defaultInline_[] =
     true, true
   };
 
-static std::string cssNames_[] =
+std::string cssNames_[] =
   { "position",
     "z-index", "float", "clear",
     "width", "height", "line-height",
@@ -92,7 +92,7 @@ static std::string cssNames_[] =
     "zoom", "visibility", "display",
     "box-sizing"};
 
-static std::string cssCamelNames_[] =
+std::string cssCamelNames_[] =
   { "cssText", "width", "position",
     "zIndex", "cssFloat", "clear",
     "width", "height", "lineHeight",
@@ -120,7 +120,7 @@ static std::string cssCamelNames_[] =
     "boxSizing" 
   };
 
-static const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
+const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
 
 }
 
@@ -671,23 +671,24 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
   // events on the dom root container are events received by the whole
   // document when no element has focus
   bool globalUnfocused = (id_ == app->domRoot()->id());
-  std::string extra1, extra2;
-
-  if (globalUnfocused) {
-    extra1 = 
-      "var g = event||window.event; "
-      "var t = g.target||g.srcElement;"
-      "if ((!t||" WT_CLASS ".hasTag(t,'DIV') "
-      ""     "||" WT_CLASS ".hasTag(t,'BODY') "
-      ""     "||" WT_CLASS ".hasTag(t,'HTML'))) { "; 
-    extra2 =
-      "}";
-  }
 
   int fid = nextId_++;
 
-  out << "function f" << fid
-      << "(event){ " << extra1 << handler.jsCode << extra2 << "}\n";
+  out << "function f" << fid << "(event) { ";
+
+  if (globalUnfocused)
+    out << "var g=event||window.event; "
+      "var t=g.target||g.srcElement;"
+      "if ((!t||" WT_CLASS ".hasTag(t,'DIV') "
+      ""     "||" WT_CLASS ".hasTag(t,'BODY') "
+      ""     "||" WT_CLASS ".hasTag(t,'HTML'))) {";
+
+  out << handler.jsCode;
+
+  if (globalUnfocused)
+    out << '}';
+
+  out << "}\n";
 
   if (globalUnfocused)
     out << "document";
@@ -700,7 +701,7 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
       && app->environment().agentIsGecko())
     out << ".addEventListener('DOMMouseScroll', f" << fid << ", false);\n";
   else
-    out << ".on" << eventName << "=f" << fid << ";\n";
+    out << ".on" << const_cast<char *>(eventName) << "=f" << fid << ";\n";
 }
 
 void DomElement::asHTML(EscapeOStream& out,
@@ -881,7 +882,7 @@ void DomElement::asHTML(EscapeOStream& out,
     fastHtmlAttributeValue(out, attributeValues, clickEvent->second.jsCode);
     out << "><" << elementNames_[renderedType];
   } else
-    out << "<" << elementNames_[renderedType];
+    out << '<' << elementNames_[renderedType];
 
   if (!id_.empty()) {
     out << " id=";
@@ -891,7 +892,7 @@ void DomElement::asHTML(EscapeOStream& out,
   for (AttributeMap::const_iterator i = attributes_.begin();
        i != attributes_.end(); ++i)
     if (!app->environment().agentIsSpiderBot() || i->first != "name") {
-      out << " " << i->first << "=";
+      out << ' ' << i->first << '=';
       fastHtmlAttributeValue(out, attributeValues, i->second);
     }
 
@@ -904,7 +905,7 @@ void DomElement::asHTML(EscapeOStream& out,
 		&& app->environment().agentIsGecko()))
 	  setJavaScriptEvent(javaScript, i->first, i->second, app);
 	else {
-	  out << " on" << i->first << "=";
+	  out << " on" << const_cast<char *>(i->first) << '=';
 	  fastHtmlAttributeValue(out, attributeValues, i->second.jsCode);
 	}
       }
@@ -993,7 +994,7 @@ void DomElement::asHTML(EscapeOStream& out,
     out << " />";
   else {
     if (openingTagOnly) {
-      out << ">";
+      out << '>';
       if (!innerHTML.empty()) {
 	DomElement *self = const_cast<DomElement *>(this);
 	self->childrenHtml_ << innerHTML;
@@ -1008,7 +1009,7 @@ void DomElement::asHTML(EscapeOStream& out,
      * minimized forms for certain elements like <br />
      */
     if (!isSelfClosingTag(renderedType)) {
-      out << ">";
+      out << '>';
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
 	childrenToAdd_[i].child->asHTML(out, javaScript, timeouts);
 
@@ -1389,11 +1390,18 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 
       Utils::insert(timeouts, timeouts_);
 
-      for (unsigned i = 0; i < timeouts.size(); ++i)
+      for (unsigned i = 0; i < timeouts.size(); ++i) {
 	out << app->javaScriptClass()
 	    << "._p_.addTimerEvent('" << timeouts[i].event << "', " 
-	    << timeouts[i].msec << ","
-	    << (timeouts[i].repeat ? "true" : "false") << ");\n";
+	    << timeouts[i].msec << ',';
+
+	if (timeouts[i].repeat)
+	  out << "true";
+	else
+	  out << "false";
+
+	out << ");\n";
+      }
 
       out << js;
     }
@@ -1410,10 +1418,17 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
     out << javaScript_ << '\n';
   }
 
-  if (timeOut_ != -1)
+  if (timeOut_ != -1) {
     out << app->javaScriptClass() << "._p_.addTimerEvent('"
-	<< id_ << "', " << timeOut_ << ","
-	<< (timeOutJSRepeat_ ? "true" : "false") << ");\n";
+	<< id_ << "', " << timeOut_ << ',';
+
+    if (timeOutJSRepeat_)
+      out << "true";
+    else
+      out << "false";
+
+    out << ");\n";
+  }
 }
 
 void DomElement::setJavaScriptProperties(EscapeOStream& out,
@@ -1440,8 +1455,12 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
 	pushed = true;
       }
       fastJsStringLiteral(out, escaped, i->second);
-      out << (i->first == PropertyInnerHTML ? ",false" : ",true")
-	  << ");";
+      if (i->first == PropertyInnerHTML)
+	out << ",false";
+      else
+	out << ",true";
+
+      out << ");";
       break;
     case PropertyScript:
       out << var_ << ".innerHTML=";
@@ -1517,9 +1536,12 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       out << ';';
       break;
     case PropertyStyleFloat:
-      out << var_ << ".style."
-	  << (app->environment().agentIsIE() ? "styleFloat" : "cssFloat")
-	  << "=\'" << i->second << "\';";
+      out << var_ << ".style.";
+      if (app->environment().agentIsIE())
+	out << "styleFloat";
+      else
+	out << "cssFloat";
+      out << "=\'" << i->second << "\';";
       break;
     case Wt::PropertyStyleWidthExpression:
       out << var_ << ".style.setExpression('width',";

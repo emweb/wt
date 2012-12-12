@@ -46,7 +46,7 @@ namespace {
   void appendAttribute(Wt::EscapeOStream &eos,
 		       const std::string &name, 
 		       const std::string &value) {
-    eos << " " << name << "=\"";
+    eos << ' ' << name << "=\"";
     eos.pushEscape(Wt::EscapeOStream::HtmlAttribute);
     eos << value;
     eos.popEscape();
@@ -1662,11 +1662,11 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 
     if (s->sender() == app)
       s->processPreLearnStateless(this);
-
-    WWidget *ww = dynamic_cast<WWidget *>(s->sender());
-
-    if (ww && ww->isRendered())
-      s->processPreLearnStateless(this);
+    else {
+      WWidget *ww = static_cast<WWidget *>(s->sender());
+      if (ww && ww->isRendered())
+	s->processPreLearnStateless(this);
+    }
 
     ++i;
   }
@@ -1737,51 +1737,73 @@ std::string WebRenderer::headDeclarations() const
 
       appendAttribute(result, "content", m.content.toUTF8());
 
-      result << (xhtml ? "/>" : ">");
+      if (xhtml)
+	result << "/>";
+      else
+	result << '>';
     }
     
     for (unsigned i = 0; i < session_.app()->metaLinks_.size(); ++i) {
       const WApplication::MetaLink& ml = session_.app()->metaLinks_[i];
 
-      EscapeOStream link;
-      link << "<link";
+      result << "<link";
 
-      appendAttribute(link, "href", ml.href); 
-      appendAttribute(link, "rel", ml.rel);
+      appendAttribute(result, "href", ml.href); 
+      appendAttribute(result, "rel", ml.rel);
       if (!ml.media.empty())
-	appendAttribute(link, "media", ml.media);
+	appendAttribute(result, "media", ml.media);
       if (!ml.hreflang.empty())
-	appendAttribute(link, "hreflang", ml.hreflang);
+	appendAttribute(result, "hreflang", ml.hreflang);
       if (!ml.type.empty())
-	appendAttribute(link, "type", ml.type);
+	appendAttribute(result, "type", ml.type);
       if (!ml.sizes.empty())
-	appendAttribute(link, "sizes", ml.sizes);
+	appendAttribute(result, "sizes", ml.sizes);
       if (ml.disabled)
-	appendAttribute(link, "disabled", "");
+	appendAttribute(result, "disabled", "");
 
-      link << (xhtml ? "/>" : ">");
-      
-      result << link.c_str();
+      if (xhtml)
+	result << "/>";
+      else
+	result << '>';
     }
   } else
-    if (session_.env().agentIsIElt(9))
-      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7"
-	     << (xhtml ? "\"/>" : "\">") << '\n';
-    else if (session_.env().agent() == WEnvironment::IE9)
-      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9"
-	     << (xhtml ? "\"/>" : "\">") << '\n';
+    if (session_.env().agentIsIElt(9)) {
+      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7";
+      if (xhtml)
+	result << "\"/>";
+      else
+	result << "\">";
+      result << '\n';
+    } else if (session_.env().agent() == WEnvironment::IE9) {
+      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9";
+      if (xhtml)
+	result << "\"/>";
+      else
+	result << "\">";
+      result << '\n';
+    }
 
-  if (!session_.favicon().empty())
+  if (!session_.favicon().empty()) {
     result <<
       "<link rel=\"icon\" "
       "type=\"image/vnd.microsoft.icon\" "
-      "href=\"" << session_.favicon() << (xhtml ? "\"/>" : "\">");
+      "href=\"" << session_.favicon();
+    if (xhtml)
+      result << "\"/>";
+    else
+      result << "\">";
+  }
 
   std::string baseUrl;
   WApplication::readConfigurationProperty("baseURL", baseUrl);
 
-  if (!baseUrl.empty())
-    result << "<base href=\"" << baseUrl << (xhtml ? "\"/>" : "\">");
+  if (!baseUrl.empty()) {
+    result << "<base href=\"" << baseUrl;
+    if (xhtml)
+      result << "\"/>";
+    else
+      result << "\">";
+  }
 
   return result.str();
 }

@@ -26,8 +26,8 @@ public:
   virtual void readWebSocketMessage(CallbackFunction callback);
   virtual bool webSocketMessagePending() const;
 
-  virtual std::istream& in() { return reply_->cin(); }
-  virtual std::ostream& out() { return outstream_; }
+  virtual std::istream& in() { return reply_->in(); }
+  virtual std::ostream& out() { return reply_->out(); }
   virtual std::ostream& err() { return std::cerr; }
 
   virtual void setStatus(int status);
@@ -52,7 +52,6 @@ public:
 
 private:
   WtReplyPtr reply_;
-  std::stringstream outstream_;
 };
 
 }

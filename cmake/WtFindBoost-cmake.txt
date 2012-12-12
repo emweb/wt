@@ -114,6 +114,8 @@ IF (Boost_FOUND)
     SET(BOOST_WTHTTP_LIBRARIES
         ${Boost_THREAD_LIBRARY}
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_DATE_TIME_LIBRARY})
   ENDIF(MSVC)
 ENDIF (Boost_FOUND)

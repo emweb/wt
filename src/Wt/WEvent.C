@@ -21,6 +21,20 @@ namespace Wt {
 namespace {
   using namespace Wt;
 
+#ifndef WT_TARGET_JAVA
+  const std::string& concat(std::string& prefix, int prefixLength, const char *s2)
+  {
+    prefix.resize(prefixLength);
+    prefix += s2;
+    return prefix;
+  } 
+#else
+  std::string concat(const std::string& prefix, int prefixLength, const char *s2)
+  {
+    return prefix + s2;
+  }
+#endif
+
   int asInt(const std::string& v) {
     return boost::lexical_cast<int>(v);
   }
@@ -111,20 +125,23 @@ JavaScriptEvent::JavaScriptEvent()
 
 void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
 {
-  type = getStringParameter(request, se + "type");
+  std::string s = se;
+  int seLength = se.length();
+
+  type = getStringParameter(request, concat(s, seLength, "type"));
   boost::to_lower(type);
 
-  clientX = parseIntParameter(request, se + "clientX", 0);
-  clientY = parseIntParameter(request, se + "clientY", 0);
-  documentX = parseIntParameter(request, se + "documentX", 0);
-  documentY = parseIntParameter(request, se + "documentY", 0);
-  screenX = parseIntParameter(request, se + "screenX", 0);
-  screenY = parseIntParameter(request, se + "screenY", 0);
-  widgetX = parseIntParameter(request, se + "widgetX", 0);
-  widgetY = parseIntParameter(request, se + "widgetY", 0);
-  dragDX = parseIntParameter(request, se + "dragdX", 0);
-  dragDY = parseIntParameter(request, se + "dragdY", 0);
-  wheelDelta = parseIntParameter(request, se + "wheel", 0);
+  clientX = parseIntParameter(request, concat(s, seLength, "clientX"), 0);
+  clientY = parseIntParameter(request, concat(s, seLength, "clientY"), 0);
+  documentX = parseIntParameter(request, concat(s, seLength, "documentX"), 0);
+  documentY = parseIntParameter(request, concat(s, seLength, "documentY"), 0);
+  screenX = parseIntParameter(request, concat(s, seLength, "screenX"), 0);
+  screenY = parseIntParameter(request, concat(s, seLength, "screenY"), 0);
+  widgetX = parseIntParameter(request, concat(s, seLength, "widgetX"), 0);
+  widgetY = parseIntParameter(request, concat(s, seLength, "widgetY"), 0);
+  dragDX = parseIntParameter(request, concat(s, seLength, "dragdX"), 0);
+  dragDY = parseIntParameter(request, concat(s, seLength, "dragdY"), 0);
+  wheelDelta = parseIntParameter(request, concat(s, seLength, "wheel"), 0);
 
   /*
   if (widgetX == 0 && widgetY == 0) {
@@ -135,7 +152,7 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
 	 i != entries.end(); ++i) {
       std::string name = i->first;
 
-      if (name.substr(0, signalLength) == se + "signal=") {
+      if (name.substr(0, signalLength) == concat(s, seLength, "signal=") {
 	std::string e = name.substr(name.length() - 2);
 	if (e == ".x") {
 	  try {
@@ -154,41 +171,44 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
   */
 
   modifiers = 0;
-  if (request.getParameter(se + "altKey") != 0)
+  if (request.getParameter(concat(s, seLength, "altKey")) != 0)
     modifiers |= AltModifier;
 
-  if (request.getParameter(se + "ctrlKey") != 0)
+  if (request.getParameter(concat(s, seLength, "ctrlKey")) != 0)
     modifiers |= ControlModifier;
 
-  if (request.getParameter(se + "shiftKey") != 0)
+  if (request.getParameter(concat(s, seLength, "shiftKey")) != 0)
     modifiers |= ShiftModifier;
 
-  if (request.getParameter(se + "metaKey") != 0)
+  if (request.getParameter(concat(s, seLength, "metaKey")) != 0)
     modifiers |= MetaModifier;
 
-  keyCode = parseIntParameter(request, se + "keyCode", 0);
-  charCode = parseIntParameter(request, se + "charCode", 0);
+  keyCode = parseIntParameter(request, concat(s, seLength, "keyCode"), 0);
+  charCode = parseIntParameter(request, concat(s, seLength, "charCode"), 0);
 
-  button = parseIntParameter(request, se + "button", 0);
+  button = parseIntParameter(request, concat(s, seLength, "button"), 0);
 
-  scrollX = parseIntParameter(request, se + "scrollX", 0);
-  scrollY = parseIntParameter(request, se + "scrollY", 0);
-  viewportWidth = parseIntParameter(request, se + "width", 0);
-  viewportHeight = parseIntParameter(request, se + "height", 0);
+  scrollX = parseIntParameter(request, concat(s, seLength, "scrollX"), 0);
+  scrollY = parseIntParameter(request, concat(s, seLength, "scrollY"), 0);
+  viewportWidth = parseIntParameter(request, concat(s, seLength, "width"), 0);
+  viewportHeight = parseIntParameter(request, concat(s, seLength, "height"), 0);
 
-  response = getStringParameter(request, se + "response");
+  response = getStringParameter(request, concat(s, seLength, "response"));
 
-  int uean = parseIntParameter(request, se + "an", 0);
+  int uean = parseIntParameter(request, concat(s, seLength, "an"), 0);
   userEventArgs.clear();
   for (int i = 0; i < uean; ++i) {
     userEventArgs.push_back
-      (getStringParameter(request, se + "a"
-			  + boost::lexical_cast<std::string>(i)));
+      (getStringParameter(request,
+			  se + "a" + boost::lexical_cast<std::string>(i)));
   }
 
-  decodeTouches(getStringParameter(request, se + "touches"), touches);
-  decodeTouches(getStringParameter(request, se + "ttouches"), targetTouches);
-  decodeTouches(getStringParameter(request, se + "ctouches"), changedTouches);  
+  decodeTouches(getStringParameter(request, concat(s, seLength, "touches")),
+				   touches);
+  decodeTouches(getStringParameter(request, concat(s, seLength, "ttouches")),
+				   targetTouches);
+  decodeTouches(getStringParameter(request, concat(s, seLength, "ctouches")),
+				   changedTouches);  
 }
 
 WMouseEvent::WMouseEvent()

@@ -1598,6 +1598,8 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
 	  (boost::bind(&WebSession::handleWebSocketMessage, session));
       }
 
+      delete message;
+
       return;
     }
 
@@ -2464,10 +2466,13 @@ void WebSession::notifySignal(const WEvent& e)
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);
     } else if (*signalE != "poll") {
-      // Save pending changes (e.g. from resource completion)
       propagateFormValues(e, se);
 
-      if (i == 0)
+      // Save pending changes (e.g. from resource completion)
+      // This is needed because we will discard changes from learned
+      // signals (see below) and thus need to start with a clean slate
+      bool discardStateless = !request.isWebSocketMessage() && i == 0;
+      if (discardStateless)
 	renderer_.saveChanges();
 
       handler.nextSignal = i + 1;
@@ -2502,7 +2507,7 @@ void WebSession::notifySignal(const WEvent& e)
 
 	  processSignal(s, se, request, kind);
 
-	  if (kind == LearnedStateless && i == 0)
+	  if (kind == LearnedStateless && discardStateless)
 	    renderer_.discardChanges();
 	}
       }

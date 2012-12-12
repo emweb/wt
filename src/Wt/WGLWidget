@@ -134,6 +134,18 @@ class WImage;
  * layout manager that manages its width and height. The behaviour of a
  * WGLWidget that was not given a size is undefined.
  *
+ * <h3>Binary buffer transfers</h3>
+ *
+ * Using createAndLoadArrayBuffer(), you can load an array buffer in
+ * binary format from an URL. This will cause the client to fetch the
+ * given URL, and make the contents of the file available in an
+ * ArrayBuffer, which can then be used by BufferData() to bind them
+ * to an OpenGL buffer. This is ideal to load VBO buffers in a faster
+ * way, as it avoids converting floats to text strings on the server
+ * and then back to floats on the client. You can combine this with
+ * the use of WResource (e.g. WMemoryResource) to send an std::vector of
+ * vertices to the client.
+ *
  * <h3>Client side matrices.</h3>
  *
  * The WGLWidget provides the WGLWidget::JavaScriptMatrix4x4 class as
@@ -158,6 +170,7 @@ public:
   typedef std::string Renderbuffer;
   typedef std::string UniformLocation;
   typedef std::string Texture;
+  typedef std::string ArrayBuffer;
 
   /*! \brief A client-side JavaScript matrix
    *
@@ -820,6 +833,46 @@ public:
   void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, 
                          GLenum srcAlpha, GLenum dstAlpha);
 
+  /*! \brief glBufferData - create and initialize a buffer object's data store
+   *
+   * Set the size of the currently bound WebGLBuffer object for the passed target.
+   * The buffer is initialized to 0.
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferData.xml">
+   * glBufferData() OpenGL ES manpage</a>
+   */
+  void bufferData(GLenum target, int size, GLenum usage) {
+    js_ << "ctx.bufferData(" << toString(target) << ",";
+    js_ << size << ",";
+    js_ << toString(usage) << ");";
+    GLDEBUG;
+  }
+
+  /*! \brief glBufferData - create and initialize a buffer object's data store
+   *         from an ArrayBuffer
+   *
+   * Set the size and contents of the currently bound WebGLBuffer object to
+   * be a copy of the given ArrayBuffer.
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferData.xml">
+   * glBufferData() OpenGL ES manpage</a>
+   *
+   * \sa createAndLoadArrayBuffer
+   */
+  void bufferData(GLenum target, ArrayBuffer res, GLenum usage);
+
+  /*! \brief glBufferData - create and initialize a buffer object's data store
+   *         from an ArrayBuffer
+   *
+   * Set the size of the currently bound WebGLBuffer object to
+   * arrayBufferSize, and copy the contents of the ArrayBuffer to
+   * the buffer, starting at the given offset.
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferData.xml">
+   * glBufferData() OpenGL ES manpage</a>
+   *
+   * \sa createAndLoadArrayBuffer
+   */
+  void bufferData(GLenum target, ArrayBuffer res, unsigned arrayBufferOffset,
+                  unsigned arrayBufferSize, GLenum usage);
+
   /*! \brief GL function that loads float or double data in a VBO
    *
    * Unlike the C version, we can't accept a void * here. We must be able
@@ -884,6 +937,32 @@ public:
     GLDEBUG;
   }
 
+  /*! \brief Initialize a buffer object's data store from an ArrayBuffer
+   *
+   * Load the data of the currently bound WebGLBuffer object from
+   * the given ArrayBuffer. The first byte of the resource data will
+   * be written at the given offset of the currently bound buffer.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferSubData.xml">
+   * glBufferSubData() OpenGL ES manpage</a>
+   *
+   * \sa createAndLoadArrayBuffer
+   */
+  void bufferSubData(GLenum target, unsigned offset, ArrayBuffer res);
+
+  /*! \brief Initialize a buffer object's data store from an ArrayBuffer
+   *
+   * Load the data of the currently bound WebGLBuffer object from
+   * the given ArrayBuffer. The byte at position arrayBufferOffset
+   * will be written to the currently bound buffer at position offset.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferSubData.xml">
+   * glBufferSubData() OpenGL ES manpage</a>
+   *
+   * \sa createAndLoadArrayBuffer
+   */
+  void bufferSubData(GLenum target, unsigned offset, ArrayBuffer res,
+                     unsigned arrayBufferOffset, unsigned size);
 
   //GLenum checkFramebufferStatus(GLenum target);
 
@@ -957,6 +1036,14 @@ public:
    * glGenBuffers() OpenGL ES manpage</a>
    */
   Buffer createBuffer();
+
+  /*! \brief Function that creates an ArrayBuffer by loading data from
+   *         a given URL.
+   *
+   * The ArrayBuffer is loaded before executing initGL.
+   * Use it to load binary data for use in bufferData() or bufferSubData().
+   */
+  ArrayBuffer createAndLoadArrayBuffer(const std::string &url);
 
   /*! \brief GL function that creates a frame buffer object
    *
@@ -2041,6 +2128,15 @@ public:
 #endif
   }
 
+    /*! \brief Inject JavaScript into the current js-stream.
+    *
+    * Careful: this method directly puts the given jsString into
+    * the JavaScript stream, whatever state it current has.
+    * For example, if called in initGL(), it will put the jsString
+    * into the client-side initGL() code.
+    */
+    void injectJS(const std::string & jsString){js_ << jsString;}
+
 protected:
   DomElementType domElementType() const;
   DomElement *createDomElement(WApplication *app);
@@ -2068,11 +2164,16 @@ private:
   unsigned attributes_;
   unsigned uniforms_;
   unsigned buffers_;
+  unsigned arrayBuffers_;
+
   unsigned framebuffers_;
   unsigned renderbuffers_;
   unsigned textures_;
   unsigned matrices_;
   std::vector<std::pair<std::string, std::string> > preloadImages_;
+
+  // first: ArrayBuffer string, second: url
+  std::vector<std::pair<ArrayBuffer, std::string> > preloadArrayBuffers_;
 
   // If client detects that a WebGL context cannot be created, it fires this
   // signal, and the handler sets wegGlNotAvailable_ to true. If this happens,
@@ -2133,9 +2234,8 @@ private:
     os << "])";
   }
 
-  static char *makeFloat(double d, char *buf);
-  static char *makeInt(int i, char *buf);
-
+  static const char *makeFloat(double d, char *buf);
+  static const char *makeInt(int i, char *buf);
   static const char *toString(GLenum e);
 
   void defineJavaScript();

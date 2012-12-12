@@ -1625,7 +1625,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	WStringStream ss;
 	ss << WT_CLASS << ".animateDisplay('" << id()
 	   << "'," << transientImpl_->animation_.effects().value()
-	   << "," << transientImpl_->animation_.timingFunction()
+	   << "," << (int)transientImpl_->animation_.timingFunction()
 	   << "," << transientImpl_->animation_.duration()
 	   << ",'" << element.getProperty(PropertyStyleDisplay)
 	   << "');";
@@ -1642,7 +1642,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	WStringStream ss;
 	ss << WT_CLASS << ".animateVisible('" << id()
 	   << "'," << transientImpl_->animation_.effects().value()
-	   << "," << transientImpl_->animation_.timingFunction()
+	   << "," << (int)transientImpl_->animation_.timingFunction()
 	   << "," << transientImpl_->animation_.duration()
 	   << ",'" << element.getProperty(PropertyStyleVisibility)
 	   << "','" << element.getProperty(PropertyStylePosition)

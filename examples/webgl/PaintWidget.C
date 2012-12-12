@@ -8,12 +8,13 @@
 
 #include <Wt/WGLWidget>
 #include <Wt/WMatrix4x4>
+#include <Wt/WMemoryResource>
 
 using namespace Wt;
 
 // To avoid copying large constant data around, the data points are stored
 // in a global variable.
-extern std::vector<double> data;
+extern std::vector<float> data;
 
 // Calculates the centerpoint of the data. This is where the camera looks at.
 void centerpoint(double &x, double &y, double &z)
@@ -36,8 +37,8 @@ void centerpoint(double &x, double &y, double &z)
   z = (minz + maxz)/2.;
 }
 
-PaintWidget::PaintWidget(WContainerWidget *root):
-  WGLWidget(root)
+PaintWidget::PaintWidget(WContainerWidget *root, const bool & useBinaryBuffers):
+  WGLWidget(root), useBinaryBuffers_(useBinaryBuffers)
 {
 }
   
@@ -115,7 +116,30 @@ void PaintWidget::initializeGL()
   // larger than 65K, due to the limitations of WebGL.
   objBuffer_ = createBuffer();
   bindBuffer(ARRAY_BUFFER, objBuffer_);
-  bufferDatafv(ARRAY_BUFFER, data.begin(), data.end(), STATIC_DRAW);
+
+  if (!useBinaryBuffers_)
+  {
+      // embed the buffer directly in the JavaScript stream.
+      bufferDatafv(ARRAY_BUFFER, data.begin(), data.end(), STATIC_DRAW);
+  }else
+  {
+      //Alternatively uncomment the following lines to directly transfer the array
+      //as a binary data resource.
+      //The binary data is prepared as a downloadable resource which is requested
+      //by an XHR of the javascript client
+      WMemoryResource * mem = new WMemoryResource("application/octet", this);
+      // cast the doubles to an unsigned char array to serve it by the memory resource
+      mem->setData(
+          reinterpret_cast<unsigned char*>(&(data[0])),
+          data.size() * sizeof(float));
+      // create client side identifier for the buffer resource and set up for preloading
+      ArrayBuffer clientBufferResource = createAndLoadArrayBuffer(mem->generateUrl());
+      bufferData(ARRAY_BUFFER, clientBufferResource, STATIC_DRAW);
+  }
+
+
+
+
 
   // Set the clear color to a transparant background
   clearColor(0, 0, 0, 0);

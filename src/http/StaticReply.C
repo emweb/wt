@@ -218,23 +218,20 @@ std::string StaticReply::contentType()
   }
 }
 
-asio::const_buffer StaticReply::nextContentBuffer()
+void StaticReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
-  if (request_.method == "HEAD")
-    return emptyBuffer_;
-  else {
+  if (request_.method != "HEAD") {
     boost::uintmax_t rangeRemainder
       = (std::numeric_limits< ::int64_t>::max)();
+
     if (hasRange_)
       rangeRemainder = rangeEnd_ - stream_.tellg() + 1;
-    stream_.read(buf_,
-                 (std::streamsize)(std::min<boost::uintmax_t>)(rangeRemainder,
-                                                               sizeof(buf_)));
 
-    if (stream_.gcount() > 0) {
-      return asio::buffer(buf_, stream_.gcount());
-    } else
-      return emptyBuffer_;
+    stream_.read(buf_, (std::streamsize)
+		 (std::min<boost::uintmax_t>)(rangeRemainder, sizeof(buf_)));
+
+    if (stream_.gcount() > 0)
+      result.push_back(asio::buffer(buf_, stream_.gcount()));
   }
 }
 

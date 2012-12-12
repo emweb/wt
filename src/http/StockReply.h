@@ -46,7 +46,7 @@ protected:
   virtual std::string contentType();
   virtual ::int64_t contentLength();
 
-  virtual asio::const_buffer nextContentBuffer();  
+  virtual void nextContentBuffers(std::vector<asio::const_buffer>& result);
 
 private:
   std::string content_;

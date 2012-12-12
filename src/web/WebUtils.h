@@ -218,6 +218,10 @@ extern WT_API std::string urlEncode(const std::string& url,
 extern std::string dataUrlDecode(const std::string& url,
 				 std::vector<unsigned char> &data);
 
+#ifndef WT_TARGET_JAVA
+extern void inplaceUrlDecode(std::string& s);
+#endif
+
 extern std::string EncodeHttpHeaderField(const std::string &fieldname,
                                          const Wt::WString &fieldValue);
 

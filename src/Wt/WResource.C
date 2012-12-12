@@ -52,8 +52,9 @@ WResource::~WResource()
     delete continuations_[i];
   }
 
-  if (wApp) {
-    wApp->removeExposedResource(this);
+  WApplication *app = WApplication::instance();
+  if (app) {
+    app->removeExposedResource(this);
     if (trackUploadProgress_)
       WebSession::instance()->controller()->removeUploadProgressUrl(url());
   }

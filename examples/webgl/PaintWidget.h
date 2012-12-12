@@ -13,7 +13,7 @@
 class PaintWidget: public Wt::WGLWidget
 {
 public:
-  PaintWidget(Wt::WContainerWidget *root);
+  PaintWidget(Wt::WContainerWidget *root, const bool & useBinaryBuffers);
   
   // Specialization of WGLWidgeT::intializeGL()
   void initializeGL();
@@ -48,6 +48,8 @@ private:
   // The so-called VBOs, Vertex Buffer Objects
   // This one contains both vertex (xyz) and normal (xyz) data
   Buffer objBuffer_;
+
+  bool useBinaryBuffers_;
 };
 
 #endif

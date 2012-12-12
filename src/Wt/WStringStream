@@ -95,20 +95,27 @@ public:
    */
   void append(const char *s, int length);
 
+#ifndef WT_TARGET_JAVA
+  /*
+   * Should not be implemented but is needed to support the specialization
+   * for string literals !
+   */
+  template <typename T>
+    inline WStringStream& operator<< (T t);
+
+  template <std::size_t N>
+    WStringStream& operator<< (const char (&s)[N]) {
+    append(s, N-1); return *this; 
+  }
+#endif // WT_TARGET_JAVA
+
   /*! \brief Appends a character.
    */
   WStringStream& operator<< (char);
 
   /*! \brief Appends a C string.
    */
-  WStringStream& operator<< (const char *s);
-
-#ifndef WT_TARGET_JAVA
-  template <std::size_t N>
-    WStringStream& operator<< (const char s[N]) {
-    append(s, N-1); return *this; 
-  }
-#endif // WT_TARGET_JAVA
+  WStringStream& operator<< (char *s);
 
   /*! \brief Appends a C++ string.
    */

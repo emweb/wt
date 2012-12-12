@@ -144,18 +144,24 @@ std::string WDoubleValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WDoubleValidator("
-     << (isMandatory() ? "true" : "false") << ",";
+  js << "new " WT_CLASS ".WDoubleValidator(";
+
+  if (isMandatory())
+    js << "true";
+  else
+    js << "false";
+
+  js << ',';
 
   if (bottom_ != -std::numeric_limits<double>::max())
-    js << boost::lexical_cast<std::string>(bottom_);
+    js << bottom_;
   else
     js << "null";
 
   js << ',';
 
   if (top_ != std::numeric_limits<double>::max())
-    js << boost::lexical_cast<std::string>(top_);
+    js << top_;
   else
     js << "null";
 

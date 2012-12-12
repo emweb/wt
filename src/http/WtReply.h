@@ -47,38 +47,40 @@ public:
   void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
-  void send(const std::string& text, CallbackFunction callBack,
-	    bool responseComplete);
+  void send(CallbackFunction callBack, bool responseComplete);
   void readWebSocketMessage(CallbackFunction callBack);
   bool readAvailable();
 
   virtual bool waitMoreData() const;
 
-  std::istream& cin() { return *cin_; }
+  std::istream& in() { return *in_; }
+  std::ostream& out() { return out_; }
   const Request& request() const { return request_; }
   std::string urlScheme() const { return urlScheme_; }
 
 protected:
   const Wt::EntryPoint& entryPoint_;
-  std::iostream    *cin_;
-  std::stringstream cin_mem_;
-  std::string       requestFileName_;
-  std::string       cout_, nextCout_;
-  std::string       contentType_;
-  std::string       location_;
-  std::string       urlScheme_;
-  bool              responseSent_;
-  ::int64_t         contentLength_, bodyReceived_;
-  bool              sendingMessages_;
+  std::iostream *in_;
+  std::stringstream in_mem_;
+  std::string requestFileName_;
+  boost::asio::streambuf out_buf_;
+  std::ostream out_;
+  std::string contentType_;
+  std::string location_;
+  std::string urlScheme_;
+  std::size_t sending_;
+  ::int64_t contentLength_, bodyReceived_;
+  bool sendingMessages_;
   CallbackFunction  fetchMoreDataCallback_, readMessageCallback_;
-  HTTPRequest      *httpRequest_;
-  bool              sending_;
+  HTTPRequest *httpRequest_;
+
+  char gatherBuf_[16];
 
   virtual std::string     contentType();
   virtual std::string     location();
   virtual ::int64_t       contentLength();
 
-  virtual asio::const_buffer nextContentBuffer();  
+  virtual void nextContentBuffers(std::vector<asio::const_buffer>& result);
 
 private:
   void readRestWebSocketHandshake();

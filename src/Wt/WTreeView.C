@@ -2744,7 +2744,7 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
     s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
       << row << "," << static_cast<int>(rowHeight().toPixels())
-      << "," << hint << ");";
+      << "," << (int)hint << ");";
 
     doJavaScript(s.str());
   } else

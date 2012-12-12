@@ -30,9 +30,24 @@ public:
 #endif // WT_TARGET_JAVA
 
   void append(const std::string& s, const EscapeOStream& rules);
+  void append(const char *s, std::size_t len);
+
+#ifndef WT_TARGET_JAVA
+  /*
+   * Should not be implemented but is needed to support the specialization
+   * for string literals !
+   */
+  template <typename T>
+    inline EscapeOStream& operator<< (T t);
+
+  template <std::size_t N>
+    EscapeOStream& operator<< (const char (&s)[N]) {
+    append(s, N-1); return *this; 
+  }
+#endif // WT_TARGET_JAVA
 
   EscapeOStream& operator<< (char);
-  EscapeOStream& operator<< (const char *s);
+  EscapeOStream& operator<< (char *s);
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
   EscapeOStream& operator<< (const EscapeOStream& other);

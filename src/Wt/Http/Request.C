@@ -208,8 +208,12 @@ Request::ByteRangeSpecifier Request::getRanges(const std::string &rangeHdr,
   Request::ByteRangeSpecifier retval;
 
   if (filesize == 0) {
-    // Don't waste CPU time and simplify code below.
-    retval.setSatisfiable(false);
+    if (rangeHdr.empty()) {
+      retval.setSatisfiable(true);
+    } else {
+      // Don't waste CPU time and simplify code below.
+      retval.setSatisfiable(false);
+    }
     return retval;
   }
 
@@ -333,24 +337,30 @@ Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
 void Request::parseFormUrlEncoded(const std::string& s,
 				  ParameterMap& parameters)
 {
-  typedef boost::tokenizer<boost::char_separator<char> > amp_tok;
+  for (std::size_t pos = 0; pos < s.length();) {
+    std::size_t next = s.find_first_of("&=", pos);
 
-  amp_tok tok(s, boost::char_separator<char>("&"));
+    if (next == std::string::npos || s[next] == '&') {
+      if (next == std::string::npos)
+	next = s.length();
+      std::string key = s.substr(pos, next - pos);
+      Utils::inplaceUrlDecode(key);
+      parameters[key].push_back(std::string());
+      pos = next + 1;
+    } else {
+      std::size_t amp = s.find('&', next + 1);
+      if (amp == std::string::npos)
+	amp = s.length();
 
-  for (amp_tok::iterator i = tok.begin(); i != tok.end(); ++i) {
-    std::string pair = *i;
+      std::string key = s.substr(pos, next - pos);
+      Utils::inplaceUrlDecode(key);
 
-    // split into key and value
-    std::string::size_type equalPos = pair.find('=');
-    std::string key = pair.substr(0, equalPos);
-    std::string value;
-    if (equalPos != std::string::npos && pair.size() > equalPos + 1)
-      value = pair.substr(equalPos + 1);
+      std::string value = s.substr(next + 1, amp - (next + 1));
+      Utils::inplaceUrlDecode(value);
 
-    key = Wt::Utils::urlDecode(key);
-    value = Wt::Utils::urlDecode(value);
-
-    parameters[key].push_back(value);
+      parameters[key].push_back(value);
+      pos = amp + 1;
+    }
   }
 }
 

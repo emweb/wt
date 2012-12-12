@@ -352,6 +352,7 @@ WGLWidget::WGLWidget(WContainerWidget *parent):
   attributes_(0),
   uniforms_(0),
   buffers_(0),
+  arrayBuffers_(0),
   framebuffers_(0),
   renderbuffers_(0),
   textures_(0),
@@ -420,12 +421,12 @@ std::string WGLWidget::glObjJsRef()
     "})()";
 }
 
-char *WGLWidget::makeFloat(double d, char *buf)
+const char *WGLWidget::makeFloat(double d, char *buf)
 {
   return Utils::round_str(d, 6, buf);
 }
 
-char *WGLWidget::makeInt(int i, char *buf)
+const char *WGLWidget::makeInt(int i, char *buf)
 {
   return Utils::itoa(i, buf);
 }
@@ -531,72 +532,93 @@ void WGLWidget::updateDom(DomElement &element, bool all)
     if (updatePaintGL_) {
       js_.str("");
       paintGL();
-      tmp << "o.paintGL=function(){\n"
+      // TG: cannot overwrite paint before update is executed
+      // therefore overwrite paintgl in a deferred function through the
+      // tasks queue
+      tmp << "var updatePaint = function(){\n";
+      tmp << "var obj=" << glObjJsRef() << ";\n";
+
+      tmp << "obj.paintGL=function(){\n"
         "var obj=" << glObjJsRef() << ";\n"
         "var ctx=obj.ctx;if (!ctx) return;\n"
         << js_.str() << "};";
+
+      tmp << "};\n";
+      tmp << "o.updates.push(updatePaint);";
+
+
     }
     js_.str("");
     // Make sure textures are loaded before we render
     tmp << "}\n";
-    if (preloadImages_.size() > 0) {
-      //tmp << "debugger;\n";
-      tmp <<
-        "o.preloadingTextures=true;"
-        "new Wt._p_.ImagePreloader([";
-      for (unsigned i = 0; i < preloadImages_.size(); ++i) {
-        if (i != 0)
-          tmp << ',';
-        tmp << '\'' << resolveRelativeUrl(preloadImages_[i].second) << '\'';
+
+    // Preloading images and buffers
+    const bool preloadingSomething = preloadImages_.size()>0 || preloadArrayBuffers_.size() >0;
+
+    if (preloadingSomething)  {
+      if (preloadImages_.size() > 0) {
+	tmp <<
+	  //"debugger;"
+	  "o.preloadingTextures++;"
+	  "new Wt._p_.ImagePreloader([";
+	for (unsigned i = 0; i < preloadImages_.size(); ++i) {
+	  if (i != 0)
+	    tmp << ',';
+	  tmp << '\'' << resolveRelativeUrl(preloadImages_[i].second) << '\'';
+	}
+	tmp <<
+	  "],function(images){\n"
+	  //"debugger;\n"
+	  "var o=" << glObjJsRef() << ";\n"
+	  "var ctx=null;\n"
+	  "if(o) ctx=o.ctx;\n"
+	  "if(ctx == null) return;\n";
+	for (unsigned i = 0; i < preloadImages_.size(); ++i) {
+	  std::string texture = preloadImages_[i].first;
+	  tmp << texture << "=ctx.createTexture();\n"
+	    << texture << ".image=images[" << i << "];\n";
+	}
+	tmp << "o.preloadingTextures--;\n"
+	  << "o.handlePreload();\n"
+	  << "});";
+
+	preloadImages_.clear();
       }
-      tmp <<
-        "],function(images){\n"
-        "var o=" << glObjJsRef() << ";\n"
-        "var ctx=null;\n"
-        " if(o) ctx=o.ctx;\n"
-        "o.preloadingTextures=false;"
-        "if(ctx == null) return;\n";
-      for (unsigned i = 0; i < preloadImages_.size(); ++i) {
-        std::string texture = preloadImages_[i].first;
-        tmp << texture << "=ctx.createTexture();\n"
-          << texture << ".image=images[" << i << "];\n";
+
+      // now check for buffers to preload
+      if (preloadArrayBuffers_.size() > 0) {
+	tmp <<
+	  "o.preloadingBuffers++;"
+	  "new Wt._p_.ArrayBufferPreloader([";
+	for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
+	  if (i != 0)
+	    tmp << ',';
+	  //preloadingStream << '\'' << resolveRelativeUrl(preloadBufferResources_[i].second) << '\'';
+	  tmp << '\'' << wApp->makeAbsoluteUrl(preloadArrayBuffers_[i].second) << '\'';
+	}
+	tmp <<
+	  "],function(bufferResources){\n"
+	  //"debugger;\n"
+	  "var o=" << glObjJsRef() << ";\n"
+	  "var ctx=null;\n"
+	  " if(o) ctx=o.ctx;\n"
+	  "if(ctx == null) return;\n";
+	for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
+	  std::string bufferResource = preloadArrayBuffers_[i].first;
+	  // setup datatype
+	  tmp << bufferResource << "={data:0};\n";
+	  // set the data
+	  tmp << bufferResource << ".data=bufferResources[" << i << "];\n";
+	}
+	tmp << "o.preloadingBuffers--;"
+	  << "o.handlePreload();\n"
+	  << "});";
+
+	preloadArrayBuffers_.clear();
       }
-      tmp <<
-        "if(o.initialized){"
-        // Delay calling of update() to after textures are loaded
-        """var key;"
-        """for(key in o.updates) o.updates[key]();"
-        """o.updates = new Array();"
-        // Delay calling of resizeGL() to after updates are executed
-        """o.resizeGL();"
-        """o.paintGL();"
-        "} else {"
-        // initializeGL will call updates and resizeGL
-        """o.initializeGL();\n"
-        """o.resizeGL();\n"
-        """o.paintGL();\n"
-        "}});";
-      preloadImages_.clear();
     } else {
-      // No textures to load - go and paint
-      tmp <<
-        "if(!o.preloadingTextures){"
-        // It's not ok to execute an update method or initialize if we're
-        // waiting for texture to load; this will result in undefined
-        // symbols in JS. After textures are loaded, the code sequence below
-        // is executed from there.
-        """if(o.initialized) {"
-        ""  "var key;"
-        ""  "for(key in o.updates) o.updates[key]();"
-        ""  "o.updates = new Array();"
-        ""  "o.resizeGL();"
-        ""  "o.paintGL();"
-        """} else {"
-        ""  "o.initializeGL();"
-        ""  "o.resizeGL();"
-        ""  "o.paintGL();"
-        """}"
-        "}";
+      // No textures or buffers to load - go and paint
+      tmp << "o.handlePreload();";
     }
     el->callJavaScript(tmp.str());
     updateGL_ = updatePaintGL_ = updateResizeGL_ = false;
@@ -753,6 +775,48 @@ void WGLWidget::blendFuncSeparate(GLenum srcRGB,
   GLDEBUG;
 }
 
+void WGLWidget::bufferData(Wt::WGLWidget::GLenum target, ArrayBuffer res,
+			   unsigned bufferResourceOffset,
+			   unsigned bufferResourceSize,
+			   Wt::WGLWidget::GLenum usage)
+{
+  js_ << "ctx.bufferData(" << toString(target) << ",";
+  js_ << res << ".data.slice(" << bufferResourceOffset << ","
+      << bufferResourceOffset + bufferResourceSize << "),";
+  js_ << toString(usage) << ");";
+  GLDEBUG;
+}
+
+void WGLWidget::bufferData(Wt::WGLWidget::GLenum target, ArrayBuffer res,
+			   Wt::WGLWidget::GLenum usage)
+{
+  js_ << "ctx.bufferData(" << toString(target) << ",";
+  js_ << res << ".data, ";
+  js_ << toString(usage) << ");";
+  GLDEBUG;
+}
+
+void WGLWidget::bufferSubData(Wt::WGLWidget::GLenum target, unsigned offset,
+			      ArrayBuffer res)
+{
+  js_ << "ctx.bufferSubData(" << toString(target) << ",";
+  js_ << offset << ",";
+  js_ << res << ".data);";
+  GLDEBUG;
+}
+
+void WGLWidget::bufferSubData(Wt::WGLWidget::GLenum target, unsigned offset,
+			      ArrayBuffer res, unsigned bufferResourceOffset,
+			      unsigned bufferResourceSize)
+{
+  js_ << "ctx.bufferSubData(" << toString(target) << ",";
+  js_ << offset << ",";
+  js_ << res << ".data.slice("<< bufferResourceOffset <<", "
+      << bufferResourceOffset + bufferResourceSize << "));";
+  GLDEBUG;
+}
+
+
 void WGLWidget::clear(WFlags<GLenum> mask)
 {
   js_ << "ctx.clear(";
@@ -833,6 +897,13 @@ WGLWidget::Buffer WGLWidget::createBuffer()
   js_ << retval << "=ctx.createBuffer();";
   GLDEBUG;
   return retval;
+}
+
+WGLWidget::ArrayBuffer WGLWidget::createAndLoadArrayBuffer(const std::string &url)
+{
+    ArrayBuffer retval = "ctx.WtBufferResource" + boost::lexical_cast<std::string>(arrayBuffers_++);
+    preloadArrayBuffers_.push_back(std::make_pair(retval, url));
+    return retval;
 }
 
 WGLWidget::Framebuffer WGLWidget::createFramebuffer()

@@ -145,7 +145,15 @@ EscapeOStream& EscapeOStream::operator<< (char c)
   return *this;
 }
 
-EscapeOStream& EscapeOStream::operator<< (const char *s)
+void EscapeOStream::append(const char *s, std::size_t len)
+{
+  if (c_special_ == 0)
+    stream_.append(s, len);
+  else
+    put(s, *this);
+}
+
+EscapeOStream& EscapeOStream::operator<< (char *s)
 {
   if (c_special_ == 0)
     stream_ << s;
@@ -160,7 +168,7 @@ void EscapeOStream::append(const std::string& s, const EscapeOStream& rules)
   if (rules.c_special_ == 0)
     stream_ << s;
   else
-    put(s.data(), rules);
+    put(s.c_str(), rules);
 }
 
 EscapeOStream& EscapeOStream::operator<< (const std::string& s)
@@ -189,7 +197,7 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
 
       s = f + 1;
     } else {
-      stream_ << s;
+      stream_ << (char *)s;
       s = 0;
     }
   }

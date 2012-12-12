@@ -115,8 +115,11 @@ WStringStream& WStringStream::operator<< (char c)
   return *this;
 }
 
-WStringStream& WStringStream::operator<< (const char *s)
+WStringStream& WStringStream::operator<< (char *s)
 {
+  if (s == std::string("var"))
+    std::cerr << "append: " << s << std::endl;
+
   append(s, std::strlen(s));
 
   return *this;
@@ -133,21 +136,21 @@ WStringStream& WStringStream::operator<< (int v)
 {
   char buf[20];
   Utils::itoa(v, buf);
-  return *this << (char *)buf;
+  return *this << buf;
 }
 
 WStringStream& WStringStream::operator<< (long long v)
 {
   char buf[40];
   Utils::lltoa(v, buf);
-  return *this << (char *)buf;
+  return *this << buf;
 }
 
 WStringStream& WStringStream::operator<< (double d)
 {
   char buf[50];
   snprintf(buf, 50, "%g", d);
-  return *this << (char *)buf;
+  return *this << buf;
 }
 
 void WStringStream::append(const char *s, int length)

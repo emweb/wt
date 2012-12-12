@@ -123,8 +123,13 @@ std::string WLengthValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WLengthValidator("
-     << (isMandatory() ? "true" : "false") << ",";
+  js << "new " WT_CLASS ".WLengthValidator(";
+  if (isMandatory())
+    js << "true";
+  else
+    js << "false";
+
+  js << ',';
 
   if (minLength_ != 0)
     js << minLength_;

@@ -286,8 +286,11 @@ void WVmlImage::drawPath(const WPainterPath& path)
       p1 = transform.map(p1);
       p2 = transform.map(p2);
 
-      tmp << (deltaTheta < 0 ? "at" : "wa")
-	  <<        myzround(a.x()) << "," << myzround(a.y())
+      if (deltaTheta < 0)
+	tmp << "at";
+      else
+	tmp << "wa";
+      tmp <<        myzround(a.x()) << "," << myzround(a.y())
 	  << "," << myzround(b.x()) << "," << myzround(b.y())
 	  << "," << myzround(p1.x()) << "," << myzround(p1.y())
 	  << "," << myzround(p2.x()) << "," << myzround(p2.y());

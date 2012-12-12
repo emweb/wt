@@ -135,11 +135,9 @@ protected:
   virtual std::string location();
   virtual ::int64_t contentLength() = 0;
 
-  virtual asio::const_buffer nextContentBuffer() = 0;
+  virtual void nextContentBuffers(std::vector<asio::const_buffer>& result) = 0;
 
   void setRelay(ReplyPtr reply);
-
-  asio::const_buffer emptyBuffer_;
 
   static std::string httpDate(time_t t);
 
@@ -162,6 +160,8 @@ private:
 
   ReplyPtr relay_;
   std::list<std::string> bufs_;
+
+  char gather_buf_[100];
 
   asio::const_buffer buf(const std::string s);
 

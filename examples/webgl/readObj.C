@@ -60,17 +60,17 @@ void readObj(const std::string &fname,
   }
 }
 #else
-double str2float(const std::string &s)
+float str2float(const std::string &s)
 {
   return atof(s.c_str());
 }
 
 void readObj(const std::string &fname,
-             std::vector<double> &data)
+             std::vector<float> &data)
 {
-  std::vector<double> points;
-  std::vector<double> normals;
-  std::vector<double> textures;
+  std::vector<float> points;
+  std::vector<float> normals;
+  std::vector<float> textures;
   std::ifstream f(fname.c_str());
   
   while (f) {
@@ -89,9 +89,10 @@ void readObj(const std::string &fname,
         normals.push_back(str2float(splitLine[2]));
         normals.push_back(str2float(splitLine[3]));
       } else if (splitLine[0] == "vt") {
-        textures.push_back(boost::lexical_cast<double>(splitLine[1]));
-        textures.push_back(boost::lexical_cast<double>(splitLine[2]));
-        textures.push_back(boost::lexical_cast<double>(splitLine[3]));
+        // texture coordinates are not used at all
+        textures.push_back(boost::lexical_cast<float>(splitLine[1]));
+        textures.push_back(boost::lexical_cast<float>(splitLine[2]));
+        if (splitLine.size()>3) textures.push_back(boost::lexical_cast<float>(splitLine[3]));
       } else if (splitLine[0] == "f") {
         //std::vector<boost::tuple<int, int, int> > face;
         //std::vector<int> face;
@@ -120,9 +121,12 @@ void readObj(const std::string &fname,
           data.push_back(normals[(n-1)*3 +2]);
         }
         //faces.push_back(face);
-      } else {
-        std::cerr << "ERROR in obj file: unknown line\n";
-        return;
+      } else if (splitLine[0] == "#") {
+        // ignore comments
+      }else {
+          std::cerr << "ERROR in obj file: unknown line: " << line << "\n";
+          //  go on with fingers crossed
+          //return;
       }
     }
   }

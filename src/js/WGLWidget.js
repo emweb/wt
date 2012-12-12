@@ -27,7 +27,8 @@ WT_DECLARE_WT_MEMBER
    this.resizeGL = function() {};
    this.updates = new Array();
    this.initialized = false;
-   this.preloadingTextures = false;
+   this.preloadingTextures = 0;
+   this.preloadingBuffers = 0;
 
    var dragPreviousXY = null;
    var lookAtCenter = null;
@@ -146,4 +147,26 @@ WT_DECLARE_WT_MEMBER
        dragPreviousXY = null;
    };
 
+   // To be called after a load of buffer/texture completes; will
+   // check if it is safe to render
+   this.handlePreload = function() {
+     if (this.preloadingTextures == 0 && this.preloadingBuffers == 0) {
+       if(this.initialized){
+         var key;
+         // execute all updates scheduled in o.updates
+         for(key in this.updates) this.updates[key]();
+         this.updates = new Array();
+         // Delay calling of resizeGL() to after updates are executed
+         this.resizeGL();
+         this.paintGL();
+       } else {
+         // initializeGL will call updates and resizeGL
+         this.initializeGL();
+         this.resizeGL();
+         this.paintGL();
+       }
+     } else {
+       // still waiting for data to arrive...
+     }
+   }
  });

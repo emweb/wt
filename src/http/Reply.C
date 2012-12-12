@@ -45,105 +45,74 @@ namespace Wt {
 namespace http {
 namespace server {
 
+template <typename T>
+inline asio::const_buffer asio_cstring_buf(T str);
+
+template <std::size_t N>
+inline asio::const_buffer asio_cstring_buf(const char (&s) [N])
+{
+  return asio::const_buffer(s, N-1);
+}
+
+unsigned httpDateBuf(time_t t, char *buf)
+{
+  struct tm td;
+  gmtime_r(&t, &td);
+  return strftime(buf, 100, "%a, %d %b %Y %H:%M:%S GMT", &td);
+}
+
 namespace status_strings {
 
-const std::string switching_protocols =
-  "101 Switching Protocol\r\n";
-const std::string ok =
-  "200 OK\r\n";
-const std::string created =
-  "201 Created\r\n";
-const std::string accepted =
-  "202 Accepted\r\n";
-const std::string no_content =
-  "204 No Content\r\n";
-const std::string partial_content =
-  "206 Partial Content\r\n";
-const std::string multiple_choices =
-  "300 Multiple Choices\r\n";
-const std::string moved_permanently =
-  "301 Moved Permanently\r\n";
-const std::string found =
-  "302 Found\r\n";
-const std::string see_other =
-  "303 See Other\r\n";
-const std::string not_modified =
-  "304 Not Modified\r\n";
-const std::string moved_temporarily =
-  "307 Moved Temporarily\r\n";
-const std::string bad_request =
-  "400 Bad Request\r\n";
-const std::string unauthorized =
-  "401 Unauthorized\r\n";
-const std::string forbidden =
-  "403 Forbidden\r\n";
-const std::string not_found =
-  "404 Not Found\r\n";
-const std::string request_entity_too_large =
-  "413 Request Entity too Large\r\n";
-const std::string requested_range_not_satisfiable =
-  "416 Requested Range Not Satisfiable\r\n";
-const std::string internal_server_error =
-  "500 Internal Server Error\r\n";
-const std::string not_implemented =
-  "501 Not Implemented\r\n";
-const std::string bad_gateway =
-  "502 Bad Gateway\r\n";
-const std::string service_unavailable =
-  "503 Service Unavailable\r\n";
-
-const std::string& toText(Reply::status_type status)
+asio::const_buffer toText(Reply::status_type status)
 {
   switch (status)
   {
-  case Reply::no_status:
-    return internal_server_error;
   case Reply::switching_protocols:
-    return switching_protocols;
+    return asio_cstring_buf("101 Switching Protocol\r\n");
   case Reply::ok:
-    return ok;
+    return asio_cstring_buf("200 OK\r\n");
   case Reply::created:
-    return created;
+    return asio_cstring_buf("201 Created\r\n");
   case Reply::accepted:
-    return accepted;
+    return asio_cstring_buf("202 Accepted\r\n");
   case Reply::no_content:
-    return no_content;
+    return asio_cstring_buf("204 No Content\r\n");
   case Reply::partial_content:
-    return partial_content;
+    return asio_cstring_buf("206 Partial Content\r\n");
   case Reply::multiple_choices:
-    return multiple_choices;
-  case Reply::found:
-    return found;
+    return asio_cstring_buf("300 Multiple Choices\r\n");
   case Reply::moved_permanently:
-    return moved_permanently;
+    return asio_cstring_buf("301 Moved Permanently\r\n");
+  case Reply::found:
+    return asio_cstring_buf("302 Found\r\n");
   case Reply::see_other:
-    return see_other;
+    return asio_cstring_buf("303 See Other\r\n");
   case Reply::not_modified:
-    return not_modified;
+    return asio_cstring_buf("304 Not Modified\r\n");
   case Reply::moved_temporarily:
-    return moved_temporarily;
+    return asio_cstring_buf("307 Moved Temporarily\r\n");
   case Reply::bad_request:
-    return bad_request;
+    return asio_cstring_buf("400 Bad Request\r\n");
   case Reply::unauthorized:
-    return unauthorized;
+    return asio_cstring_buf("401 Unauthorized\r\n");
   case Reply::forbidden:
-    return forbidden;
+    return asio_cstring_buf("403 Forbidden\r\n");
   case Reply::not_found:
-    return not_found;
+    return asio_cstring_buf("404 Not Found\r\n");
   case Reply::request_entity_too_large:
-    return request_entity_too_large;
+    return asio_cstring_buf("413 Request Entity too Large\r\n");
   case Reply::requested_range_not_satisfiable:
-    return requested_range_not_satisfiable;
-  case Reply::internal_server_error:
-    return internal_server_error;
+    return asio_cstring_buf("416 Requested Range Not Satisfiable\r\n");
   case Reply::not_implemented:
-    return not_implemented;
+    return asio_cstring_buf("501 Not Implemented\r\n");
   case Reply::bad_gateway:
-    return bad_gateway;
+    return asio_cstring_buf("502 Bad Gateway\r\n");
   case Reply::service_unavailable:
-    return service_unavailable;
+    return asio_cstring_buf("503 Service Unavailable\r\n");
+  case Reply::no_status:
+  case Reply::internal_server_error:
   default:
-    return internal_server_error;
+    return asio_cstring_buf("500 Internal Server Error\r\n");
   }
 }
 
@@ -159,7 +128,6 @@ const char crlf[] = { '\r', '\n' };
 Reply::Reply(const Request& request, const Configuration& config)
   : request_(request),
     configuration_(config),
-    emptyBuffer_((void *)0, 0),
     status_(no_status),
     transmitting_(false),
     closeConnection_(false),
@@ -217,23 +185,33 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
       closeConnection_ = closeConnection_ || request_.closeConnection();
 
+      unsigned gather_i = 0;
       /*
        * Status line.
        */
-      result.push_back
-	(buf("HTTP/"
-	     + boost::lexical_cast<std::string>(request_.http_version_major)
-	     + "."
-	     + boost::lexical_cast<std::string>(request_.http_version_minor)
-	     + " "));
 
-      result.push_back(buf(status_strings::toText(status_)));
+      result.push_back(asio_cstring_buf("HTTP/"));
+
+      gather_buf_[gather_i] = '0' + request_.http_version_major;
+      result.push_back(asio::buffer(gather_buf_ + gather_i++, 1));
+
+      result.push_back(asio_cstring_buf("."));
+
+      gather_buf_[gather_i] = '0' + request_.http_version_minor;
+      result.push_back(asio::buffer(gather_buf_ + gather_i++, 1));
+
+      result.push_back(asio_cstring_buf(" "));
+
+      result.push_back(status_strings::toText(status_));
 
       if (!http10 && status_ != switching_protocols) {
 	/*
 	 * Date header (current time)
 	 */
-	result.push_back(buf(std::string("Date: ") + httpDate(time(0))));
+	result.push_back(asio_cstring_buf("Date: "));
+	unsigned length = httpDateBuf(time(0), gather_buf_ + gather_i);
+	result.push_back(asio::buffer(gather_buf_ + gather_i, length));
+	gather_i += length;
 	result.push_back(asio::buffer(misc_strings::crlf));
       }
 
@@ -244,12 +222,14 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       std::string ct;
       if (status_ >= 300 && status_ < 400) {
 	if (!location().empty()) {
-	  result.push_back(buf(std::string("Location: ") + location()));
+	  result.push_back(asio_cstring_buf("Location: "));
+	  result.push_back(buf(location()));
 	  result.push_back(asio::buffer(misc_strings::crlf));
 	}
       } else if (status_ != not_modified && status_ != switching_protocols) {
 	ct = contentType();
-	result.push_back(buf("Content-Type: " + ct));
+	result.push_back(asio_cstring_buf("Content-Type: "));
+	result.push_back(buf(ct));
 	result.push_back(asio::buffer(misc_strings::crlf));
       }
 
@@ -286,11 +266,11 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
        * Connection
        */
       if (closeConnection_) {
-	result.push_back(buf("Connection: close"));
+	result.push_back(asio_cstring_buf("Connection: close"));
 	result.push_back(asio::buffer(misc_strings::crlf));
       } else {
 	if (http10) {
-	  result.push_back(buf("Connection: keep-alive"));
+	  result.push_back(asio_cstring_buf("Connection: keep-alive"));
 	  result.push_back(asio::buffer(misc_strings::crlf));
 	}
       }
@@ -314,7 +294,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	      || ct.find("text/x-json") != std::string::npos);
 
 	if (gzipEncoding_) {
-	  result.push_back(buf("Content-Encoding: gzip"));
+	  result.push_back(asio_cstring_buf("Content-Encoding: gzip"));
 	  result.push_back(asio::buffer(misc_strings::crlf));
 	  
 	  initGzip();
@@ -326,8 +306,8 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	 * Transmit only header first.
 	 */
 	if (cl != -1) {
-	  result.push_back 
-	    (buf("Content-Length: " + boost::lexical_cast<std::string>(cl)));
+	  result.push_back(asio_cstring_buf("Content-Length: "));
+	  result.push_back(buf(boost::lexical_cast<std::string>(cl)));
 	  result.push_back(asio::buffer(misc_strings::crlf));
 
 	  chunkedEncoding_ = false;
@@ -339,7 +319,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	      chunkedEncoding_ = true;
 
 	if (chunkedEncoding_) {
-	  result.push_back(buf("Transfer-Encoding: chunked"));
+	  result.push_back(asio_cstring_buf("Transfer-Encoding: chunked"));
 	  result.push_back(asio::buffer(misc_strings::crlf));
 	}
 
@@ -376,7 +356,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	    result.push_back(asio::buffer(misc_strings::crlf));
 
 	    if (lastData) {
-	      result.push_back(buf("0"));
+	      result.push_back(asio_cstring_buf("0"));
 	      result.push_back(asio::buffer(misc_strings::crlf));
 	      result.push_back(asio::buffer(misc_strings::crlf));
 	    }
@@ -477,12 +457,9 @@ asio::const_buffer Reply::buf(const std::string s)
 
 std::string Reply::httpDate(time_t t)
 {
-  struct tm td;
-  gmtime_r(&t, &td);
-  char buffer[100];
-  strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S GMT", &td);
-
-  return buffer;
+  char buf[100];
+  httpDateBuf(t, buf);
+  return buf;
 }
 
 #ifdef WTHTTP_WITH_ZLIB
@@ -504,46 +481,78 @@ void Reply::encodeNextContentBuffer(
        std::vector<asio::const_buffer>& result, int& originalSize,
        int& encodedSize)
 {
-  asio::const_buffer b = nextContentBuffer();
-  originalSize = buffer_size(b);
+  std::vector<asio::const_buffer> buffers;
+  nextContentBuffers(buffers);
 
-  bool lastData = (originalSize == 0 && !waitMoreData());
+  originalSize = 0;
+
+  bool lastData = buffers.empty() && !waitMoreData();
 
 #ifdef WTHTTP_WITH_ZLIB
   if (gzipEncoding_) {
     encodedSize = 0;
 
-    gzipStrm_.avail_in = originalSize;
-    gzipStrm_.next_in = (unsigned char *)asio::detail::buffer_cast_helper(b);
+    if (!lastData) {
+      for (unsigned i = 0; i < buffers.size(); ++i) {
+	const asio::const_buffer& b = buffers[i];
+	int bs = buffer_size(b); // std::size_t ?
+	originalSize += bs;
 
-    unsigned char out[16*1024];
-    do {
-      gzipStrm_.next_out = out;
-      gzipStrm_.avail_out = sizeof(out);
+	gzipStrm_.avail_in = bs;
+	gzipStrm_.next_in = (unsigned char *)asio::detail::buffer_cast_helper(b);
 
-      int r = 0;
-      r = deflate(&gzipStrm_, lastData ? Z_FINISH : Z_NO_FLUSH);
+	unsigned char out[16*1024];
+	do {
+	  gzipStrm_.next_out = out;
+	  gzipStrm_.avail_out = sizeof(out);
 
-      assert(r != Z_STREAM_ERROR);
-    
-      unsigned have = sizeof(out) - gzipStrm_.avail_out;
+	  int r = 0;
+	  r = deflate(&gzipStrm_, Z_NO_FLUSH);
 
-      if (have) {
-	encodedSize += have;
-	result.push_back(buf(std::string((char *)out, have)));
+	  assert(r != Z_STREAM_ERROR);
+
+	  unsigned have = sizeof(out) - gzipStrm_.avail_out;
+
+	  if (have) {
+	    encodedSize += have;
+	    result.push_back(buf(std::string((char *)out, have)));
+	  }
+	} while (gzipStrm_.avail_out == 0);
       }
-    } while (gzipStrm_.avail_out == 0);
+    } else {
+      unsigned char out[16*1024];
+      do {
+	gzipStrm_.next_out = out;
+	gzipStrm_.avail_out = sizeof(out);
 
-    if (lastData) {
+	int r = 0;
+	r = deflate(&gzipStrm_, Z_FINISH);
+
+	assert(r != Z_STREAM_ERROR);
+
+	unsigned have = sizeof(out) - gzipStrm_.avail_out;
+
+	if (have) {
+	  encodedSize += have;
+	  result.push_back(buf(std::string((char *)out, have)));
+	}
+      } while (gzipStrm_.avail_out == 0);
+
       deflateEnd(&gzipStrm_);
       gzipBusy_ = false;
     }
   } else {
 #endif
-    encodedSize = originalSize;
+    for (unsigned i = 0; i < buffers.size(); ++i) {
+      const asio::const_buffer& b = buffers[i];
+      int bs = buffer_size(b); // std::size_t ?
+      originalSize += bs;
 
-    if (encodedSize)
-      result.push_back(b);
+      if (bs)
+	result.push_back(b);
+    }
+
+    encodedSize = originalSize;
 #ifdef WTHTTP_WITH_ZLIB
   }
 #endif

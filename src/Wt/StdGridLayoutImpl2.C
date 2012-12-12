@@ -485,8 +485,8 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
     js << "null,";
 
   bool progressive = !app->environment().ajax();
-  js << (fitWidth ? "1" : "0") << "," << (fitHeight ? "1" : "0") << ","
-     << (progressive ? "1" : "0") << ",";
+  js << (fitWidth ? '1' : '0') << "," << (fitHeight ? '1' : '0') << ","
+     << (progressive ? '1' : '0') << ",";
 
   js << maxWidth << "," << maxHeight
      << ",["

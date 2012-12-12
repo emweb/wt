@@ -190,8 +190,14 @@ std::string WDateValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WDateValidator("
-     << (isMandatory() ? "true" : "false") << ",[";
+  js << "new " WT_CLASS ".WDateValidator(";
+
+  if (isMandatory())
+    js << "true";
+  else
+    js << "false";
+
+  js << ",[";
 
   for (unsigned i = 0; i < formats_.size(); ++i) {
     WDate::RegExpInfo r = WDate::formatToRegExp(formats_[i]);

@@ -353,13 +353,12 @@ std::string StockReply::contentType()
   return content_.length();
 }
 
-asio::const_buffer StockReply::nextContentBuffer()
+void StockReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
   if (!transmitted_) {
     transmitted_ = true;
-    return asio::buffer(content_);
-  } else
-    return emptyBuffer_;
+    result.push_back(asio::buffer(content_));
+  }
 }
 
 

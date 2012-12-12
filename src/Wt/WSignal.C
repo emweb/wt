@@ -60,7 +60,7 @@ Signal<void>::Signal(WObject *sender)
 
 EventSignalBase::EventSignalBase(const char *name, WObject *sender)
   : SignalBase(sender), name_(name), id_(nextId_++)
-{ 
+{
   if (!name_)
     flags_.set(BIT_SIGNAL_SERVER_ANYWAY);
 }

@@ -420,7 +420,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
   if (mediaUpdated_) {
     WStringStream ss;
 
-    ss << "{";
+    ss << '{';
 
     bool first = true;
     for (unsigned i = 0; i < media_.size(); ++i) {
@@ -428,22 +428,22 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 	continue;
 
       if (!first)
-	ss << ",";
+	ss << ',';
 
       std::string url = app->resolveRelativeUrl(media_[i].link.url());
 
-      ss << mediaNames[media_[i].encoding] << ": "
+      ss << const_cast<char *>(mediaNames[media_[i].encoding]) << ": "
 	 << WWebWidget::jsStringLiteral(url);
 
       first = false;
     }
 
-    ss << "}";
+    ss << '}';
 
     if (!(flags & RenderFull))
       playerDo("setMedia", ss.str());
     else {
-      initialJs_ = ".jPlayer('setMedia', " + ss.str() + ")" + initialJs_;
+      initialJs_ = ".jPlayer('setMedia', " + ss.str() + ')' + initialJs_;
     }
 
     mediaUpdated_ = false;
@@ -459,20 +459,20 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
        << "ready: function () {";
 
     if (!initialJs_.empty())
-      ss << "$(this)" << initialJs_ << ";";
+      ss << "$(this)" << initialJs_ << ';';
 
     initialJs_.clear();
 
     ss << "},"
-       << "swfPath: \"" << WApplication::resourcesUrl() + "jPlayer\","
+       << "swfPath: \"" << WApplication::resourcesUrl() << "jPlayer\","
        << "supplied: \"";
 
     bool first = true;
     for (unsigned i = 0; i < media_.size(); ++i) {
       if (media_[i].encoding != PosterImage) {
 	if (!first)
-	  ss << ",";
-	ss << mediaNames[media_[i].encoding];
+	  ss << ',';
+	ss << const_cast<char *>(mediaNames[media_[i].encoding]);
 	first = false;
       }
     }
@@ -501,7 +501,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 	if (!first)
 	  ss << ", ";
 
-	ss << controlSelectors[i] << ":\"#" << control_[i]->id() << "\"";
+	ss << const_cast<char *>(controlSelectors[i]) << ":\"#" 
+	   << control_[i]->id() << "\"";
 
 	first = false;
       }
@@ -515,7 +516,8 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 	if (!first)
 	  ss << ", ";
 
-	ss << displaySelectors[i] << ":\"#" << display_[i]->id() << "\"";
+	ss << const_cast<char *>(displaySelectors[i]) << ":\"#"
+	   << display_[i]->id() << "\"";
 
 	first = false;
       }
@@ -542,11 +544,11 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
       first = false;
     }
 
-    ss << "}"
+    ss << '}'
        << "});";
 
     ss << "new " WT_CLASS ".WMediaPlayer("
-       << app->javaScriptClass() << "," << jsRef() << ");";
+       << app->javaScriptClass() << ',' << jsRef() << ");";
 
     doJavaScript(ss.str());
 
@@ -559,7 +561,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     for (unsigned i = boundSignals_; i < signals_.size(); ++i)
       ss << ".bind('" << signals_[i]->name() << "', function(o, e) { "
 	 << signals_[i]->createCall() << "})";
-    ss << ";";
+    ss << ';';
 
     doJavaScript(ss.str());
     boundSignals_ = signals_.size();

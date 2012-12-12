@@ -235,7 +235,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
       strm << additions_[i];
 
     strm << "setTimeout(function(){ delete " << initFunction << ";}, 0)};"
-	 << "google.load(\"maps\", \"" << (apiVersion_ == Version2 ? "2" : "3")
+	 << "google.load(\"maps\", \"" << (apiVersion_ == Version2 ? '2' : '3')
 	 << "\", {other_params:\"sensor=false\", callback: "
 	 << initFunction << "});"
 	 << "}"; // private scope

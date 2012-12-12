@@ -1696,7 +1696,7 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 	WStringStream s;
 
 	s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
-	  << rowY << "," << hint << ");";
+	  << rowY << "," << (int)hint << ");";
 
 	doJavaScript(s.str());
       }

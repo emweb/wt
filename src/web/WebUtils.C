@@ -260,7 +260,8 @@ char *round_str(double d, int digits, char *buf) {
 #ifdef SPIRIT_FLOAT_FORMAT
     return generic_double_to_str(d, buf);
 #else
-  if (((d > 1 && d < 1000000) || (d < -1 && d > -1000000)) && digits < 7) {
+  if (((d == 0) || (d > 1 && d < 1000000) || (d < -1 && d > -1000000))
+      && digits < 7) {
     // range where a very fast float->string converter works
     // mainly intended to render floats for 2D drawing canvas
     static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
@@ -304,6 +305,35 @@ std::string dataUrlDecode(const std::string& url,
 			  std::vector<unsigned char> &data)
 {
   return std::string();
+}
+
+void inplaceUrlDecode(std::string &text)
+{
+  // Note: there is a Java-too duplicate of this function in Wt/Utils.C
+  std::size_t j = 0;
+
+  for (std::size_t i = 0; i < text.length(); ++i) {
+    char c = text[i];
+
+    if (c == '+') {
+      text[j++] = ' ';
+    } else if (c == '%' && i + 2 < text.length()) {
+      std::string h = text.substr(i + 1, 2);
+      char *e = 0;
+      int hval = std::strtol(h.c_str(), &e, 16);
+
+      if (*e == 0) {
+	text[j++] = (char)hval;
+	i += 2;
+      } else {
+	// not a proper %XX with XX hexadecimal format
+	text[j++] = c;
+      }
+    } else
+      text[j++] = c;
+  }
+
+  text.erase(j);
 }
 
 void split(SplitSet& tokens, const std::string &in, const char *sep,
