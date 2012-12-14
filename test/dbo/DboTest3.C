@@ -9,6 +9,7 @@
 
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Postgres>
+#include <Wt/Dbo/backend/MySQL>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/backend/Firebird>
 #include <Wt/WDate>
@@ -16,7 +17,6 @@
 #include <Wt/WTime>
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/Dbo/ptr_tuple>
-
 namespace dbo = Wt::Dbo;
 
 class CustomerAddress;
@@ -68,6 +68,10 @@ struct Dbo3Fixture
         ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
 #endif // POSTGRES
 
+#ifdef MYSQL
+    connection_ = new dbo::backend::MySQL("example_db", "example",
+                                          "example_pw", "localhost", 3307);
+#endif // MYSQL
 #ifdef FIREBIRD
     std::string file;
 #ifdef WIN32
@@ -118,4 +122,3 @@ BOOST_AUTO_TEST_CASE( dbo3_test1 )
 }
 
 #endif
-

@@ -1,0 +1,43 @@
+# This file defines:
+# - MYSQL_LIBRARIES
+# - MYSQL_INCLUDE_DIRS
+# - MYSQL_FOUND
+# - MYSQL_DEFINITIONS
+# Taking into account:
+# - MYSQL_PREFIX
+
+FIND_PATH(MYSQL_INCLUDE mysql.h
+    ${MYSQL_PREFIX}/mariadbclient/include
+    ${MYSQL_PREFIX}/include
+    ${MYSQL_PREFIX}/include/mysql
+    /usr/include
+    /usr/local/include
+    /usr/include/mysql
+    /opt/local/include/mysql5/mysql
+    /usr/local/include/mysql
+)
+
+SET(MYSQL_LIBRARY "mariadb;mariadbclient" CACHE STRING "Library that provides MySQL/MariaDB API")
+
+FIND_LIBRARY(MYSQL_LIB
+    NAMES
+	${MYSQL_LIBRARY}
+    PATHS
+    ${MYSQL_PREFIX}/lib
+    /usr/lib
+    /usr/local/lib
+    /opt/local/lib
+)
+
+SET(MYSQL_FOUND OFF)
+
+IF (MYSQL_INCLUDE AND MYSQL_LIB)
+  SET(MYSQL_FOUND ON)
+  SET(MYSQL_LIBRARIES ${MYSQL_LIB})
+  SET(MYSQL_INCLUDE_DIRS ${MYSQL_INCLUDE})
+ELSE (MYSQL_INCLUDE AND MYSQL_LIB)
+  SET(MYSQL_FOUND OFF)
+  SET(MYSQL_LIBRARIES)
+ENDIF (MYSQL_INCLUDE AND MYSQL_LIB)
+
+

@@ -42,6 +42,8 @@ namespace {
 
     image->errorHandler(error_no, detail_no);
   }
+
+  const double EPSILON = 1e-4;
 }
 
 namespace Wt {
@@ -622,6 +624,8 @@ WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
 
     if (!wordWrap)
       maxWidth = 1E9;
+    else
+      maxWidth += EPSILON;
 
     if (trueTypeFonts_->busy())
       setChanged(Font);

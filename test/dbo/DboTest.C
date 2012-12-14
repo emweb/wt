@@ -9,6 +9,7 @@
 
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Postgres>
+#include <Wt/Dbo/backend/MySQL>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/backend/Firebird>
 #include <Wt/Dbo/FixedSqlConnectionPool>
@@ -23,6 +24,9 @@
 
 //#define SCHEMA "test."
 #define SCHEMA ""
+
+//#define DEBUG(x) x
+#define DEBUG(x)
 
 namespace dbo = Wt::Dbo;
 
@@ -117,12 +121,69 @@ public:
   double d;
 
   bool operator== (const A& other) const {
-    if (binary.size() != other.binary.size())
+    if (binary.size() != other.binary.size()){
+          DEBUG(std::cerr << "ERROR: binary.size = " << binary.size()
+                << " | " << other.binary.size() << std::endl);
       return false;
+    }
 
     for (unsigned j = 0; j < binary.size(); ++j)
-      if (binary[j] != other.binary[j])
-	return false;
+      if (binary[j] != other.binary[j]){
+        DEBUG(std::cerr << "ERROR: binary" << std::endl);
+        return false;
+      }
+
+    //Debug printings:
+    if( date != other.date)
+      DEBUG(std::cerr << "ERROR: date = " << date.toString() << " | "
+            << other.date.toString() << std::endl);
+    if(time  != other.time)
+      DEBUG(std::cerr << "ERROR: time = " << time.toString() << " | "
+            << other.time.toString() << std::endl);
+    if(datetime  != other.datetime)
+      DEBUG(std::cerr << "ERROR: datetime = " << datetime.toString() << " | "
+            << other.datetime.toString() << std::endl);
+    if(wstring  != other.wstring)
+      DEBUG(std::cerr << "ERROR: wstring = " << wstring << " | "
+            << other.wstring << std::endl);
+    if(wstring2  != other.wstring2)
+      DEBUG(std::cerr << "ERROR: wstring2 = " << wstring2 << " | "
+            << other.wstring2 << std::endl);
+    if(string  != other.string)
+      DEBUG(std::cerr << "ERROR: string = " << string << " | " << other.string
+            << std::endl);
+    if(string2  != other.string2)
+      DEBUG(std::cerr << "ERROR: string2 = " << string2 << " | "
+            << other.string2 << std::endl);
+    if(ptime  != other.ptime)
+      DEBUG(std::cerr << "ERROR: ptime = " <<  ptime<< " | " << other.ptime
+            << std::endl);
+    if(pduration  != other.pduration)
+      DEBUG(std::cerr << "ERROR: pduration = " << pduration << " | "
+            << other.pduration << std::endl);
+    if( i != other.i)
+      DEBUG(std::cerr << "ERROR: i = " << i << " | " << other.i << std::endl);
+    if( i64 != other.i64)
+      DEBUG(std::cerr << "ERROR: i64 = " <<i64  << " | "
+            << other.i64 << std::endl);
+    if(ll  != other.ll)
+      DEBUG(std::cerr << "ERROR: ll = " << ll << " | "
+            << other.ll << std::endl);
+    if(checked  != other.checked)
+      DEBUG(std::cerr << "ERROR: checked = " << checked << " | "
+            << other.checked << std::endl);
+    if( f != other.f)
+      DEBUG(std::cerr << "ERROR: f = " << f << " | " << other.f << std::endl);
+    if( d != other.d)
+      DEBUG(std::cerr << "ERROR: d = " << d << " | " << other.d << std::endl);
+    if( b != other.b)
+      DEBUG(std::cerr << "ERROR: b  = " << b  << " | " << other.b << std::endl);
+    if( dthing != other.dthing)
+      DEBUG(std::cerr << "ERROR: dthing = " << dthing << " | " << other.dthing
+            << std::endl);
+    if( parent != other.parent)
+      DEBUG(std::cerr << "ERROR: parent = " << parent << " | " << other.parent
+            << std::endl);
 
     return date == other.date
       && time == other.time
@@ -306,6 +367,16 @@ struct DboFixture
       ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
 #endif // POSTGRES
 
+#ifdef MYSQL
+    if (!logged) {
+      std::cerr << "DboTest.C created a MySQL connector" << std::endl;
+      logged = true;
+    }
+
+    connection = new dbo::backend::MySQL("example_db", "example",
+                                         "example_pw", "localhost", 3307);
+#endif // MYSQL
+
 #ifdef FIREBIRD
     std::string file;
 #ifdef WIN32
@@ -368,6 +439,12 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
     a1.binary.push_back(i);
   a1.date = Wt::WDate(1976, 6, 14);
   a1.time = Wt::WTime(13, 14, 15, 102);
+
+  // There is a bug in the implementation of milliseconds in mariadb c client
+#ifdef MYSQL
+  a1.time = Wt::WTime(13, 14, 15);
+#endif //MYSQL
+
   a1.wstring = "Hello";
   a1.wstring2 = "Kitty";
   a1.string = "There";
@@ -408,6 +485,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
     As allAs = session_->find<A>();
     BOOST_REQUIRE(allAs.size() == 1);
     dbo::ptr<A> a2 = *allAs.begin();
+
     BOOST_REQUIRE(*a2 == a1);
 
     a2.modify()->parent = a2;
@@ -424,6 +502,11 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
       dbo::ptr<A> a2 = *allAs.begin();
 
       BOOST_REQUIRE(a2->parent == a2);
+
+#ifdef MYSQL
+      a2.modify()->parent.reset();
+      a2.flush();
+#endif
 
       a2.remove();
     }
@@ -455,6 +538,10 @@ BOOST_AUTO_TEST_CASE( dbo_test2 )
   a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
   a1.date = Wt::WDate(1980, 12, 4);
   a1.time = Wt::WTime(12, 13, 14, 123);
+  // There is a bug in the implementation of milliseconds in mariadb c client
+#ifdef MYSQL
+  a1.time = Wt::WTime(13, 14, 15);
+#endif //MYSQL
   a1.wstring = "Hello";
   a1.string = "There";
   a1.checked = false;
@@ -662,12 +749,12 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     // because 2 id fields are mentioned in the select clause.
     //
     // A valid alternative would be:
-    //   select count(1) from ( select B."id", B."name", A."id" as id2, A."date", 
+    //   select count(1) from ( select B."id", B."name", A."id" as id2, A."date",
     //   A."b_id" from "table_b" B join "table_a" A on A."b_id" = B."id");
     //
-    // Firebird is not able to execute this query.
+    // Firebird & mysql are not able to execute this query.
 
-#ifndef FIREBIRD
+#if !defined(FIREBIRD) && !defined(MYSQL)
     dbo::Query<BA> q = session_->query<BA>
       ("select B, A "
        "from \"table_b\" B join \"table_a\" A on A.\"b_id\" = B.\"id\"")
@@ -699,7 +786,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
     }
 
     BOOST_REQUIRE(ii == 2);
-#endif //FIREBIRD
+#endif //FIREBIRD && MYSQL
   }
 }
 
@@ -1371,6 +1458,8 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
       BOOST_REQUIRE(aa->checked == checked);
       BOOST_REQUIRE(aa->f == f);
       BOOST_REQUIRE(aa->d == d);
+
+      delete model;
     }
   }
 }

@@ -9,6 +9,7 @@
 
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Postgres>
+#include <Wt/Dbo/backend/MySQL>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/Dbo/backend/Firebird>
 #include <Wt/WDateTime>
@@ -89,6 +90,12 @@ BOOST_AUTO_TEST_CASE( performance_test )
   dbo::backend::Postgres connection
     ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
 #endif // POSTGRES
+
+
+#ifdef MYSQL
+    dbo::backend::MySQL connection("example_db", "example",
+                                   "example_pw", "localhost", 3307);
+#endif // MYSQL
 
 #ifdef FIREBIRD
     std::string file;

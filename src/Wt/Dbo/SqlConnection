@@ -206,7 +206,18 @@ public:
    */
   virtual bool usesRowsFromTo() const;
 
+  /*! \brief Returns true if the backend support Alter Table
+   *
+   * This method will return false by default.
+   */
   virtual bool supportAlterTable() const;
+
+  /*! \brief Returns the command used in alter table .. drop constraint ..
+   *
+   * This method will return "constraint" by default.
+   * Default: ALTER TABLE .. DROP CONSTRAINT ..
+   */
+  virtual const char *alterTableConstraintString() const;
   //@}
 
   bool showQueries() const;

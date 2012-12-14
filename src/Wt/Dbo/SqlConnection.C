@@ -91,6 +91,11 @@ bool SqlConnection::supportAlterTable() const
   return false;
 }
 
+const char *SqlConnection::alterTableConstraintString() const
+{
+  return "constraint";
+}
+
 bool SqlConnection::showQueries() const
 {
   return property("show-queries") == "true";

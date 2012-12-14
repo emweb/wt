@@ -11,6 +11,13 @@
 
 #include <string>
 
+namespace {
+  const double EPSILON = 1e-4;
+  bool isEpsilonMore(double x, double limit) {
+    return x - EPSILON > limit;
+  }
+}
+
 namespace Wt {
 
 LOGGER("Render.WTextRenderer");
@@ -89,11 +96,11 @@ double WTextRenderer::render(const WString& text, double y)
       currentPs.maxX = maxX;
 
       collapseMarginBottom 
-	= docBlock.layoutBlock(currentPs,
-			       false, *this, std::numeric_limits<double>::max(),
+	= docBlock.layoutBlock(currentPs, false, *this,
+			       std::numeric_limits<double>::max(),
 			       collapseMarginBottom);
 
-      if (currentPs.maxX > maxX) {
+      if (isEpsilonMore(currentPs.maxX, maxX)) {
 	if (!tooWide) {
 	  LOG_WARN("contents too wide for page.");
 	  tooWide = true;
@@ -101,8 +108,7 @@ double WTextRenderer::render(const WString& text, double y)
 
 	maxX = currentPs.maxX;
       } else {
-	Block::clearFloats(currentPs, 
-			   maxX - minX);
+	Block::clearFloats(currentPs, maxX - minX);
 
 	break;
       }

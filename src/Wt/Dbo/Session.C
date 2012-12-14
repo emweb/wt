@@ -793,7 +793,6 @@ void Session::createRelations(MappingInfo *mapping,
     for (unsigned i = 0; i < mapping->fields.size();) {
       const FieldInfo& field = mapping->fields[i];
       if (field.isForeignKey()){
-        std::cout<< i <<", " << "isForeignKey"<<std::endl;
         std::stringstream sql;
 
         sql << " alter table "
@@ -813,6 +812,7 @@ void Session::createRelations(MappingInfo *mapping,
   }
 }
 
+//constraint fk_... foreign key ( ..., .. , .. ) references (..)
 std::string Session::constraintString(MappingInfo *mapping,
                                       const FieldInfo& field,
                                       unsigned fromIndex,
@@ -1002,7 +1002,8 @@ void Session::dropTables()
           std::stringstream sql;
           sql << " alter table "
               << "\"" << mapping->tableName << "\""
-              << " drop constraint "
+              << " drop "
+              << connection(false)->alterTableConstraintString() << " "
               <<  constraintName(mapping->tableName, field.foreignKeyName())
               << " \n";
 

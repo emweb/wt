@@ -26,6 +26,16 @@
 
 namespace {
 
+const double EPSILON = 1e-4;
+
+bool isEpsilonMore(double x, double limit) {
+  return x - EPSILON > limit;
+}
+
+bool isEpsilonLess(double x, double limit) {
+  return x + EPSILON < limit;
+}
+
 double pangoUnitsToDouble(const int u) 
 {
   return u / PANGO_SCALE;
@@ -394,9 +404,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 							    cend - measured)),
 			-1, false);
 
-	const double EPSILON = 1e-4;
-
-	if (w + ti.width() - maxWidth > EPSILON) {
+	if (isEpsilonMore(w + ti.width(), maxWidth)) {
 	  nextW = ti.width();
 	  maxWidthReached = true;
 	  break;

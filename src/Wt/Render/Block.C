@@ -25,6 +25,14 @@ using namespace rapidxml;
 namespace {
   const double MARGINX = -1;
   const double EPSILON = 1e-4;
+
+  bool isEpsilonMore(double x, double limit) {
+    return x - EPSILON > limit;
+  }
+
+  bool isEpsilonLess(double x, double limit) {
+    return x + EPSILON < limit;
+  }
 }
 
 namespace Wt {
@@ -672,8 +680,8 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	    rangeX.end += whitespaceWidth; // to avoid an artificial overflow
 	  }
 
-	  if (canIncreaseWidth && 
-	      item.width() - EPSILON > rangeX.end - line.x()) {
+	  if (canIncreaseWidth &&
+	      isEpsilonMore(item.width(), rangeX.end - line.x())) {
 	    maxX += w - (rangeX.end - line.x());
 	    rangeX.end += w - (rangeX.end - line.x());
 	  }
@@ -749,7 +757,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	  baseline = h;
       }
 
-      if (lineBreak || w - EPSILON > rangeX.end - line.x()) {
+      if (lineBreak || isEpsilonMore(w, rangeX.end - line.x())) {
 	/*
 	 * Content does not fit on this line.
 	 */
@@ -768,7 +776,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	   */
 	  line.newLine(minX, line.y() + line.height(), line.page());
 	  h = 0;
-	} else if (w - EPSILON > maxX - minX) {
+	} else if (isEpsilonMore(w, maxX - minX)) {
 	  /*
 	   * Wider than the box width without floats
 	   */
@@ -891,10 +899,11 @@ void Block::layoutTable(PageState &ps,
   double desiredMinWidth = std::max(totalMinWidth, cssSetWidth);
 
   double desiredMaxWidth = totalMaxWidth;
-  if (cssSetWidth > 0 && cssSetWidth < totalMaxWidth)
+  if (cssSetWidth > 0 && cssSetWidth < desiredMaxWidth)
     desiredMaxWidth = std::max(desiredMinWidth, cssSetWidth);
 
   double availableWidth;
+
   for (;;) {
     Range rangeX(ps.minX, ps.maxX);
     adjustAvailableWidth(ps.y, ps.page, ps.floats, rangeX);
@@ -908,15 +917,15 @@ void Block::layoutTable(PageState &ps,
      * If we can increase the available width without clearing floats
      * to fit the table at its widest, then try so
      */
-    if (canIncreaseWidth && availableWidth < desiredMaxWidth) {
+    if (canIncreaseWidth && isEpsilonLess(availableWidth, desiredMaxWidth)) {
       ps.maxX += desiredMaxWidth - availableWidth;
       availableWidth = desiredMaxWidth;
     }
 
-    if (availableWidth >= desiredMinWidth)
+    if (!isEpsilonLess(availableWidth, desiredMinWidth))
       break;
     else {
-      if (desiredMinWidth < ps.maxX - ps.minX) {
+      if (isEpsilonLess(desiredMinWidth, ps.maxX - ps.minX)) {
 	clearFloats(ps, desiredMinWidth);
       } else {
 	ps.maxX += desiredMinWidth - availableWidth;
@@ -984,10 +993,15 @@ void Block::layoutTable(PageState &ps,
   ps.maxX -= cssBoxMargin(Right, renderer.fontScale());
 
   Block *repeatHead = 0;
-  if (!children_.empty() && children_[0]->type_ == DomElement_THEAD) {
-    // Note: should actually interpret CSS 'table-header-group' value for
-    // display
-    repeatHead = children_[0];
+
+  for (unsigned i = 0; i < children_.size(); ++i) {
+    if (children_[i]->type_ == DomElement_THEAD) {
+      // Note: should actually interpret CSS 'table-header-group' value for
+      // display
+      repeatHead = children_[i];
+    } else
+      if (children_[i]->type_ != DomElement_UNKNOWN)
+	break;
   }
   bool protectRows = repeatHead != 0;
 
@@ -1801,7 +1815,8 @@ double Block::layoutFloat(double y, int page, BlockList& floats,
      */
     BlockList innerFloats;
 
-    bool unknownWidth = blockCssWidth < 0 && currentWidth < (maxX - minX);
+    bool unknownWidth = blockCssWidth < 0 &&
+      isEpsilonLess(currentWidth, maxX - minX);
 
     double collapseMarginBottom = 0; // does not apply to a float
 
@@ -1870,7 +1885,7 @@ void Block::clearFloats(PageState &ps,
     Range rangeX(ps.minX, ps.maxX);
     adjustAvailableWidth(ps.y, ps.page, ps.floats, rangeX);
 
-    if (rangeX.end - rangeX.start >= minWidth)
+    if (!isEpsilonMore(minWidth, rangeX.end - rangeX.start))
       break;
   }
 }
@@ -1902,7 +1917,7 @@ double Block::positionFloat(double x, PageState &ps,
 
     double availableWidth = rangeX.end - std::max(x, rangeX.start);
 
-    if (availableWidth >= width)
+    if (!isEpsilonLess(availableWidth, width))
       break;
     else {
       if (canIncreaseWidth) {
@@ -2051,8 +2066,6 @@ std::string Block::cssTextDecoration() const
 
 void Block::reLayout(const BlockBox& from, const BlockBox& to)
 {
-  std::cerr << "Relayout: " << from.y << " -> " << to.y << std::endl;
-
   for (unsigned i = 0; i < inlineLayout.size(); ++i) {
     InlineBox& ib = inlineLayout[i];
 

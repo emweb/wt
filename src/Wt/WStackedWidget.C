@@ -18,6 +18,7 @@ namespace Wt {
 WStackedWidget::WStackedWidget(WContainerWidget *parent)
   : WContainerWidget(parent),
     currentIndex_(-1),
+    widgetsAdded_(false),
     javaScriptDefined_(false),
     loadAnimateJS_(false)
 {
@@ -32,8 +33,8 @@ void WStackedWidget::addWidget(WWidget *widget)
 
   if (currentIndex_ == -1)
     currentIndex_ = 0;
-  else
-    widget->hide();
+
+  widgetsAdded_ = true;
 }
 
 int WStackedWidget::currentIndex() const
@@ -55,8 +56,8 @@ void WStackedWidget::insertWidget(int index, WWidget *widget)
 
   if (currentIndex_ == -1)
     currentIndex_ = 0;
-  else
-    widget->hide();
+
+  widgetsAdded_ = true;
 }
 
 void WStackedWidget::removeChild(WWidget *child)
@@ -162,8 +163,15 @@ void WStackedWidget::defineJavaScript()
 
 void WStackedWidget::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull)
-    defineJavaScript();
+ if (widgetsAdded_) {
+   for (int i = 0; i < count(); ++i)
+     if (widget(i)->isHidden() != (currentIndex_ != i))
+       widget(i)->setHidden(currentIndex_ != i);
+   widgetsAdded_ = false;
+ }
+
+ if (flags & RenderFull)
+   defineJavaScript();
 
   WContainerWidget::render(flags);
 }

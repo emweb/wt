@@ -949,6 +949,11 @@ void WRasterImage::handleRequest(const Http::Request& request,
     std::size_t size;
     void *data = ImageToBlob(&info, image_, &size, &exception);
 
+    if(!data)
+      throw WException("WRasterImage::handleRequest() image could not be "
+                       "converted to blob - is your image type supported "
+		       "by graphicsmagick?");
+
     response.out().write((const char *)data, size);
  
     free(data);

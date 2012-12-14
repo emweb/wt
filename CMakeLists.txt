@@ -24,6 +24,7 @@ SET(WTDBO_SOVERSION 34)
 SET(WTDBOSQLITE3_SOVERSION 34)
 SET(WTDBOPOSTGRES_SOVERSION 34)
 SET(WTDBOFIREBIRD_SOVERSION 34)
+SET(WTDBOMYSQL_SOVERSION 34)
 SET(WTTEST_SOVERSION 4)
 
 IF(NOT SHARED_LIBS)
@@ -97,6 +98,7 @@ OPTION(ENABLE_EXT "Build Wt Ext library with JavaScript-only widgets (http://ext
 OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
 OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_FIREBIRD "Build FirebirdSQL backend for Wt::Dbo" ON)
+OPTION(ENABLE_MYSQL "Build mariadb/mysql backend for Wt::Dbo" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
@@ -229,8 +231,7 @@ SET(FIREBIRD_PREFIX ${USERLIB_PREFIX} CACHE PATH
 SET(IBPP_SRC_DIRECTORY CACHE PATH
   "Path to the SOURCE directory of the IBPP library (C++ Firebird client library, see ibpp.org), Wt includes an ibpp distribution which is used by default. To use a custom IBPP library configure this variable and enable the USE_SYSTEM_IBPP option.")
 SET(MYSQL_PREFIX ${USERLIB_PREFIX} CACHE PATH
-  "Installation prefix of mysql and mysql++ libraries "
-  "(overrides USERLIB_PREFIX)")
+  "Installation prefix of mariadb client libraries (overrides USERLIB_PREFIX)")
 SET(SQLITE3_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of sqlite3 library (overrides USERLIB_PREFIX)")
 SET(HARU_PREFIX ${USERLIB_PREFIX} CACHE PATH
@@ -280,7 +281,7 @@ INCLUDE(cmake/WtFindBoost.txt)
 INCLUDE(cmake/WtFindFcgi.txt)
 INCLUDE(cmake/WtFindZlib.txt)
 INCLUDE(cmake/WtFindSsl.txt)
-INCLUDE(cmake/WtFindMysqlpp.txt)
+INCLUDE(cmake/WtFindMysql.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)

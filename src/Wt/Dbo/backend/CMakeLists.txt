@@ -101,7 +101,8 @@ ELSE(ENABLE_POSTGRES AND POSTGRES_FOUND)
   MESSAGE("** Wt::Dbo: not building Postgres backend.")
 
   IF(ENABLE_POSTGRES)
-    MESSAGE("    Indicate the location of your postgres installation using -DPOSTGRES_PREFIX=...")
+    MESSAGE("    Indicate the location of your postgres installation using ")
+    MESSAGE("    -DPOSTGRES_PREFIX=...")
   ENDIF(ENABLE_POSTGRES)
 
 ENDIF(ENABLE_POSTGRES AND POSTGRES_FOUND)
@@ -169,8 +170,44 @@ ELSE(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
   MESSAGE("** Wt::Dbo: not building Firebird backend.")
 
   IF(ENABLE_FIREBIRD)
-    MESSAGE("    Indicate the location of your FirebirdSQL and IBPP installation using -DFIREBIRD_PREFIX=... -DIBPP_SRC_DIRECTORY=...")
+    MESSAGE("    Indicate the location of your FirebirdSQL and IBPP installation using ")
+    MESSAGE("    -DFIREBIRD_PREFIX=... -DIBPP_SRC_DIRECTORY=...")
   ENDIF(ENABLE_FIREBIRD)
 
 ENDIF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
+
+IF(ENABLE_MYSQL AND MYSQL_FOUND)
+
+  MESSAGE("** Wt::Dbo: building MySQL backend.")
+  ADD_LIBRARY(wtdbomysql
+    MySQL.C
+    )
+  TARGET_LINK_LIBRARIES(wtdbomysql wtdbo ${MYSQL_LIBRARIES} ${BOOST_DT_LIB})
+
+  INCLUDE_DIRECTORIES(${MYSQL_INCLUDE})
+
+  INSTALL(TARGETS wtdbomysql
+    RUNTIME DESTINATION bin	
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+
+  SET_TARGET_PROPERTIES(
+    wtdbomysql
+  PROPERTIES
+    VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
+    SOVERSION ${WTDBOMYSQL_SOVERSION}
+    DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
+  )
+  INSTALL_FILES(/include/Wt/Dbo/backend "^MySQL$")
+  INSTALL_FILES(/include/Wt/Dbo/backend "^.*MySQL.*h$")
+ELSE(ENABLE_MYSQL AND MYSQL_FOUND)
+  MESSAGE("** Wt::Dbo: not building MySQL backend.")
+
+  IF(ENABLE_MYSQL)
+    MESSAGE("    Indicate the location of your mariadb or mysqlclient installation using ")
+    MESSAGE("    -DMYSQL_PREFIX=... and the library to search for (e.g. mariadb or ")
+    MESSAGE("    mysqlclient) using -DMYSQL_LIBRARY=...")
+  ENDIF(ENABLE_MYSQL)
+
+ENDIF(ENABLE_MYSQL AND MYSQL_FOUND)
 
