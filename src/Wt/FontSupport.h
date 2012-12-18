@@ -177,6 +177,9 @@ private:
 
   std::vector<FontCollection> fontCollections_;
 
+  mutable FontMatch lastMatchedFont_;
+  mutable WFont lastWtFont_;
+
   const WFont *font_;
 
   FontMatch matchFont(const WFont& font, const std::string& directory,

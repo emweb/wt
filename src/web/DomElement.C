@@ -1325,7 +1325,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	  << "$('#" << childrenToSave_[i] << "')";
       // In IE, contents is deleted by setting innerHTML
       if (app->environment().agentIsIE())
-	out << ".remove()";
+	out << ".detach()";
       out << ";";
     }
 

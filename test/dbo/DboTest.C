@@ -1523,4 +1523,32 @@ BOOST_AUTO_TEST_CASE( dbo_test18 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test19 )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a = session_->add(new A());
+    dbo::ptr<B> b = session_->add(new B("b", B::State1));
+    a.modify()->b = b;
+  }
+
+  try {
+    dbo::Transaction t(*session_);
+    dbo::ptr<A> a = session_->find<A>();
+
+    a.remove(); // 3
+
+    throw std::runtime_error("Auch");
+  } catch (std::exception& e) {
+    session_->rereadAll();
+    dbo::Transaction t(*session_);
+    t.commit();
+  }
+}
+
 #endif

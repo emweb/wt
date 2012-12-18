@@ -351,8 +351,10 @@ template <class C>
 void Session::Mapping<C>::rereadAll()
 {
   for (typename Registry::iterator i = registry_.begin();
-       i != registry_.end(); ++i)
+       i != registry_.end(); ++i) {
+    ptr<C> p(i->second); // prevents it being deleted
     i->second->reread();
+  }
 }
 
 template <class C>

@@ -125,6 +125,11 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
 {
+  if (lastWtFont_ == font) // FIXME do not take into account size...
+    return lastMatchedFont_;
+
+  lastWtFont_ = font;
+
   FontMatch match;
 
   for (unsigned i = 0; i < fontCollections_.size(); ++i) {
@@ -134,6 +139,8 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
     if (m.quality() > match.quality())
       match = m;
   }
+
+  lastMatchedFont_ = match;
 
   return match;
 }

@@ -8,6 +8,7 @@
 #define WT_SESSIONINFO_H_
 
 #include <stdio.h>
+#include <sys/types.h>
 #include <string>
 
 namespace Wt {

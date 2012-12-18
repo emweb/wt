@@ -114,7 +114,7 @@ private:
   std::string dbsocket_;
   unsigned int dbport_;
 
-  MySQL_impl* impl_; // MySQL connection handle\
+  MySQL_impl* impl_; // MySQL connection handle
 
   void init();
 };
