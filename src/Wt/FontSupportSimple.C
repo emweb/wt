@@ -53,6 +53,7 @@ FontSupport::FontMatch::FontMatch(const std::string& fileName, double quality)
 
 FontSupport::FontSupport(WPaintDevice *device)
   : device_(device),
+    cache_(5),
     font_(0)
 { }
 
@@ -125,13 +126,15 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
 {
-  if (lastWtFont_.genericFamily() == font.genericFamily() &&
-      lastWtFont_.specificFamilies() == font.specificFamilies() &&
-      lastWtFont_.weight() == font.weight() &&
-      lastWtFont_.style() == font.style())
-    return lastMatchedFont_;
-
-  lastWtFont_ = font;
+  for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
+    if (i->font.genericFamily() == font.genericFamily() &&
+	i->font.specificFamilies() == font.specificFamilies() &&
+	i->font.weight() == font.weight() &&
+	i->font.style() == font.style()) {
+      cache_.splice(cache_.begin(), cache_, i); // implement LRU
+      return cache_.front().match;
+    }
+  }
 
   FontMatch match;
 
@@ -143,7 +146,8 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
       match = m;
   }
 
-  lastMatchedFont_ = match;
+  cache_.back().font = font;  // implement LRU
+  cache_.back().match = match;
 
   return match;
 }

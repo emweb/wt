@@ -166,24 +166,24 @@ void AuthWidget::closeDialog()
 
 RegistrationModel *AuthWidget::createRegistrationModel()
 {
-  RegistrationModel *result = new RegistrationModel(*model_->baseAuth(),
-						    model_->users(),
-						    login_, this);
+  if (!registrationModel_) {
+    registrationModel_ = new RegistrationModel(*model_->baseAuth(),
+					       model_->users(),
+					       login_, this);
 
-  if (model_->passwordAuth())
-    result->addPasswordAuth(model_->passwordAuth());
+    if (model_->passwordAuth())
+      registrationModel_->addPasswordAuth(model_->passwordAuth());
 
-  result->addOAuth(model_->oAuth());
+    registrationModel_->addOAuth(model_->oAuth());
+  } else
+    registrationModel_->reset();
 
-  return result;
+  return registrationModel_;
 }
 
 WWidget *AuthWidget::createRegistrationView(const Identity& id)
 {
-  if (!registrationModel_)
-    registrationModel_ = createRegistrationModel();
-  else
-    registrationModel_->reset();
+  registrationModel_ = createRegistrationModel();
 
   if (id.isValid())
     registrationModel_->registerIdentified(id);

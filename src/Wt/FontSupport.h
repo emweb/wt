@@ -8,6 +8,7 @@
 #define FONT_SUPPORT_H_
 
 #ifndef HAVE_PANGO
+#include <list>
 #include <string>
 #else
 #include <pango/pango.h>
@@ -177,8 +178,13 @@ private:
 
   std::vector<FontCollection> fontCollections_;
 
-  mutable FontMatch lastMatchedFont_;
-  mutable WFont lastWtFont_;
+  struct Matched {
+    WFont font;
+    FontMatch match;
+  };
+
+  typedef std::list<Matched> MatchCache;
+  mutable MatchCache cache_;
 
   const WFont *font_;
 

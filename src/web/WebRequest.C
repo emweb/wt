@@ -178,7 +178,7 @@ namespace {
 	  ;
 
 	value
-	  = lexeme_d[(alpha_p >> +(alpha_p | '-')) | '*']
+	  = lexeme_d[(alpha_p >> +(alnum_p | '-')) | '*']
 	    [
 	       bind(&self_t::addValue, self, _1, _2)
 	    ]

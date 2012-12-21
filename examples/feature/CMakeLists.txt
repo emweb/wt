@@ -1,5 +1,6 @@
 SUBDIRS(
   auth1
+  auth2
   broadcast
   client-ssl-auth 
   dbo
