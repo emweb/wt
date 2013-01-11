@@ -115,6 +115,7 @@ public:
   void removeEntryPoint(const std::string& path);
   void setDefaultEntryPoint(const std::string& path);
   const EntryPointList& entryPoints() const { return entryPoints_; }
+  void setNumThreads(int threads);
 #endif // WT_TARGET_JAVA
 
   SessionPolicy sessionPolicy() const;

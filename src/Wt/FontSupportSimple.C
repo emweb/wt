@@ -53,9 +53,11 @@ FontSupport::FontMatch::FontMatch(const std::string& fileName, double quality)
 
 FontSupport::FontSupport(WPaintDevice *device)
   : device_(device),
-    cache_(5),
     font_(0)
-{ }
+{ 
+  for (int i = 0; i < 5; ++i)
+    cache_.push_back(Matched());
+}
 
 FontSupport::~FontSupport()
 { }
@@ -146,8 +148,11 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
       match = m;
   }
 
-  cache_.back().font = font;  // implement LRU
-  cache_.back().match = match;
+  // implement LRU
+  cache_.pop_back();
+  cache_.push_front(Matched());
+  cache_.front().font = font;
+  cache_.front().match = match;
 
   return match;
 }

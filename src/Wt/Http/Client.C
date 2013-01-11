@@ -68,12 +68,16 @@ public:
     std::ostream request_stream(&requestBuf_);
     request_stream << method << " " << path << " HTTP/1.0\r\n";
     request_stream << "Host: " << server << "\r\n";
+
+    bool haveContentLength = false;
     for (unsigned i = 0; i < message.headers().size(); ++i) {
       const Message::Header& h = message.headers()[i];
+      if (h.name() == "Content-Length")
+	haveContentLength = true;
       request_stream << h.name() << ": " << h.value() << "\r\n";
     }
 
-    if (method == "POST")
+    if (method == "POST" && !haveContentLength)
       request_stream << "Content-Length: " << message.body().length() 
 		     << "\r\n";
 

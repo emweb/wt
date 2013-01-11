@@ -124,7 +124,9 @@ WT_DECLARE_WT_MEMBER
 
      if (headerColumn) {
        headerColumnsContainer.style.width = cwidth;
-       APP.layouts2.adjust(el.children[0].id, [[1,0]]);
+       headerColumnsContainer.firstChild.style.width = cwidth;
+       contentsContainer.style.left = cwidth;
+       headerContainer.style.left = cwidth;
      }
 
      header.style.width = (newWidth + 1) + 'px';

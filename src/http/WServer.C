@@ -142,6 +142,9 @@ bool WServer::start()
   configuration().setDefaultEntryPoint(impl_->serverConfiguration_
 				       ->deployPath());
 
+  if (impl_->serverConfiguration_->threads() != -1)
+    configuration().setNumThreads(impl_->serverConfiguration_->threads());
+
   try {
     impl_->server_ = new http::server::Server(*impl_->serverConfiguration_,
 					      *this);

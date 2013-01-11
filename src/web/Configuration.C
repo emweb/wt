@@ -550,6 +550,11 @@ void Configuration::setRunDirectory(const std::string& path)
   runDirectory_ = path;
 }
 
+void Configuration::setNumThreads(int threads)
+{
+  numThreads_ = threads;
+}
+
 void Configuration::readApplicationSettings(xml_node<> *app)
 {
   xml_node<> *sess = singleChildElement(app, "session-management");

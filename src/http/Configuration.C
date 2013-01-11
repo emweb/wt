@@ -37,7 +37,7 @@ namespace server {
 Configuration::Configuration(Wt::WLogger& logger, bool silent)
   : logger_(logger),
     silent_(silent),
-    threads_(10),
+    threads_(-1),
     docRoot_(),
     defaultStatic_(true),
     errRoot_(),
@@ -83,7 +83,8 @@ void Configuration::createOptions(po::options_description& options)
 
     ("threads,t",
      po::value<int>(&threads_)->default_value(threads_),
-     "number of threads")
+     "number of threads (-1 indicates that num_threads from wt_config.xml "
+     "is to be used, which defaults to 10)")
 
     ("servername",
      po::value<std::string>(&serverName_)->default_value(serverName_),

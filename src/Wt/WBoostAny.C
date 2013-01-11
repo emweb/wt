@@ -12,6 +12,8 @@
 #include <boost/shared_ptr.hpp>
 #endif // WT_THREADED
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include "Wt/WBoostAny"
 #include "Wt/WDate"
 #include "Wt/WDateTime"
@@ -277,6 +279,8 @@ int compare(const boost::any& d1, const boost::any& d2)
 	ELSE_COMPARE_ANY(std::string)
 	ELSE_COMPARE_ANY(WDate)
 	ELSE_COMPARE_ANY(WDateTime)
+	ELSE_COMPARE_ANY(boost::posix_time::ptime)
+	ELSE_COMPARE_ANY(boost::posix_time::time_duration)
 	ELSE_COMPARE_ANY(WTime)
 	ELSE_COMPARE_ANY(short)
 	ELSE_COMPARE_ANY(unsigned short)
@@ -339,6 +343,19 @@ WString asString(const boost::any& v, const WT_USTRING& format)
   } else if (v.type() == typeid(WTime)) {
     const WTime& t = boost::any_cast<WTime>(v);
     return t.toString(format.empty() ? "HH:mm:ss" : format);
+  } else if (v.type() == typeid(boost::posix_time::ptime)) {
+    const boost::posix_time::ptime& d 
+      = boost::any_cast<boost::posix_time::ptime>(v);
+    return WDateTime::fromPosixTime(d)
+      .toString(format.empty() ? "dd/MM/yy HH:mm:ss" : format);
+  } else if (v.type() == typeid(boost::posix_time::time_duration)) {
+    const boost::posix_time::time_duration& dt
+      = boost::any_cast<boost::posix_time::time_duration>(v);
+    int millis = dt.fractional_seconds()
+      / ((1 << boost::posix_time::time_duration::num_fractional_digits())
+	 / 1000);
+    return WTime(dt.hours(), dt.minutes(), dt.seconds(), millis)
+      .toString(format.empty() ? "HH:mm:ss" : format);
   }
 
 #define ELSE_LEXICAL_ANY(TYPE)						\
@@ -411,6 +428,14 @@ double asNumber(const boost::any& v)
   } else if (v.type() == typeid(WTime)) {
     const WTime& t = boost::any_cast<WTime>(v);
     return static_cast<double>(WTime(0, 0).msecsTo(t));
+  } else if (v.type() == typeid(boost::posix_time::ptime)) {
+    const boost::posix_time::ptime& d 
+      = boost::any_cast<boost::posix_time::ptime>(v);
+    return static_cast<double>(WDateTime::fromPosixTime(d).toTime_t());
+  } else if (v.type() == typeid(boost::posix_time::time_duration)) {
+    const boost::posix_time::time_duration& dt
+      = boost::any_cast<boost::posix_time::time_duration>(v);
+    return dt.total_milliseconds();
   }
 
 #define ELSE_NUMERICAL_ANY(TYPE) \
@@ -469,6 +494,13 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
   } else if (type == typeid(WTime)) {
     return WTime::fromString
       (s, format.empty() ? "HH:mm:ss" : format);
+  } else if (type == typeid(boost::posix_time::ptime)) {
+    return WDateTime::fromString
+      (s, format.empty() ? "dd/MM/yy HH:mm:ss" : format).toPosixTime();
+  } else if (type == typeid(boost::posix_time::time_duration)) {
+    return boost::posix_time::milliseconds
+      (WTime(0, 0).msecsTo(WTime::fromString
+			   (s, format.empty() ? "HH:mm:ss" : format)));
   } else if (type == typeid(bool)) {
     std::string b = s.toUTF8();
     if (b == "true" || b == "1")

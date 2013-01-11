@@ -181,6 +181,8 @@ private:
   struct Matched {
     WFont font;
     FontMatch match;
+
+    Matched() : font(), match() { }
   };
 
   typedef std::list<Matched> MatchCache;

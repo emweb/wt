@@ -377,6 +377,9 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
   HPDF_Image img = 0;
 
   if (Uri::isDataUri(imgUrl)) {
+#define HAVE_LOAD_FROM_MEM HPDF_MAJOR_VERSION > 2 || (HPDF_MAJOR_VERSION == 2 && (HPDF_MINOR_VERSION >= 2))
+
+#if HAVE_LOAD_FROM_MEM
     Uri::Uri uri = Uri::parseDataUri(imgUrl);
     if ("image/png" == uri.mimeType)
       img = HPDF_LoadPngImageFromMem(pdf_, 
@@ -385,7 +388,10 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
     else if ("image/jpeg" == uri.mimeType)
       img = HPDF_LoadJpegImageFromMem(pdf_, 
 				      (HPDF_BYTE*)uri.data.c_str(), 
-				      uri.data.size()); 
+				      uri.data.size());
+#else
+      LOG_ERROR("drawImage: data URI support requires libharu 2.2.0 or later");
+#endif
   } else {
     std::string mimeType = Image::identifyImageFileMimeType(imgUrl);
     if ("image/png" == mimeType)

@@ -23,6 +23,32 @@ function loadScript(url, callback) {
   h.appendChild(s);
 }
 
+_$_$if_HYBRID_$_();
+var delayedClicks = [];
+function delayClick(e) {
+  var ec = {
+    bubbles: e.bubbles,
+    cancelable: e.cancelable,
+    detail: e.detail,
+    screenX: e.screenX, screenY: e.screenY,
+    clientX: e.clientX, clientY: e.clientY,
+    ctrlKey: e.ctrlKey, altKey: e.altKey, shiftKey: e.shiftKey,
+    metaKey: e.metaKey, button: e.button,
+    targetId: (e.target || e.srcElement).id
+  };
+
+  delayedClicks.push(ec);
+
+  if (e.stopPropagation)
+    e.stopPropagation();
+  if (e.preventDefault)
+    e.preventDefault();
+  e.cancelBubble = true;
+  e.returnValue = false;
+  return false;
+}
+_$_$endif_$_();
+
 (function() {
   function doLoad() {
 
@@ -199,6 +225,18 @@ _$_$if_HYBRID_$_();
         setTimeout(hideForm, 10);
 _$_$endif_$_();
     }
+
+_$_$if_HYBRID_$_();
+    /*
+      Make sure that we are not processing click events while progressing.
+      Instead, delay them.
+    */
+    var db = doc.body;
+    if (db.addEventListener)
+      db.addEventListener('click', delayClick, true);
+    else
+      db.attachEvent('onclick', delayClick);
+_$_$endif_$_();
 
     var allInfo = hashInfo + scaleInfo + htmlHistoryInfo + deployPathInfo;
 _$_$ifnot_SPLIT_SCRIPT_$_();

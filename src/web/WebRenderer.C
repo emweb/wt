@@ -956,9 +956,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
       beforeLoadJS_.str("");
 
       collectedJS1_
-	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
-	"domRoot.style.display = form.style.display;"
-	"document.body.replaceChild(domRoot, form);";
+	<< "var domRoot=" << app->domRoot_->jsRef() << ';'
+	<< WT_CLASS ".progressed(domRoot);";
 
       // Load JavaScript libraries that were added during enableAjax()
       int librariesLoaded = loadScriptLibraries(collectedJS1_, app);

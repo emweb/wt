@@ -1004,7 +1004,7 @@ void Session::dropTables()
               << "\"" << mapping->tableName << "\""
               << " drop "
               << connection(false)->alterTableConstraintString() << " "
-              <<  constraintName(mapping->tableName, field.foreignKeyName())
+              << constraintName(mapping->tableName, field.foreignKeyName())
               << " \n";
 
           j = findLastForeignKeyField(mapping, field, j);

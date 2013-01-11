@@ -1100,8 +1100,8 @@ function initCapture() {
 
   captureInitialized = true;
 
-  if (document.body.addEventListener) {
-    var db = document.body;
+  var db = document.body;
+  if (db.addEventListener) {
     db.addEventListener('mousemove', mouseMove, true);
     db.addEventListener('mouseup', mouseUp, true);
 
@@ -1113,7 +1113,6 @@ function initCapture() {
 			      }, true);
     }
   } else {
-    var db = document.body;
     db.attachEvent('onmousemove', mouseMove);
     db.attachEvent('onmouseup', mouseUp);
   }
@@ -1255,8 +1254,8 @@ this.getCssRule = function(selector, deleteFlag) {
 	  }
 	} catch (err) {
 	  /*
-	     firefox security error 1000 when access a stylesheet.cssRules hosted
-	     from another domain
+	     firefox security error 1000 when access a stylesheet.cssRules
+	     hosted from another domain
 	   */
 	}
 
@@ -1425,6 +1424,44 @@ this.hasFocus = function(el) {
   } catch(e) {
     return false;
   }
+};
+
+this.progressed = function(domRoot) {
+  var doc = document, db = doc.body;
+  var form = this.getElement('Wt-form');
+
+  domRoot.style.display = form.style.display;
+  db.replaceChild(domRoot, form);
+
+  if (db.removeEventListener)
+    db.removeEventListener('click', delayClick, true);
+  else
+    db.detachEvent('click', delayClick);
+
+  setTimeout(function() {
+      var i, il;
+      for (i = 0, il = delayedClicks.length; i < il; ++i) {
+	if (doc.createEvent) {
+	  var e = delayedClicks[i];
+	  var ec = doc.createEvent('MouseEvents');
+	  ec.initMouseEvent('click', e.bubbles, e.cancelable, window,
+			    e.detail, e.screenX, e.screenY,
+			    e.clientX, e.clientY, e.ctrlKey, e.altKey,
+			    e.shiftKey, e.metaKey, e.button, null);
+	  var el = WT.getElement(e.targetId);
+	  if (el)
+	    el.dispatchEvent(ec);
+	} else {
+	  var e = delayedClicks[i];
+	  var ec = doc.createEventObject();
+	  for (i in e)
+	    ec[i] = e[i];
+	  var el = WT.getElement(e.targetId);
+	  if (el)
+	    el.fireEvent('onclick', ec);
+	}
+      }
+    }, 0);
 };
 
 var html5History = !!(window.history && window.history.pushState);
@@ -2491,8 +2528,7 @@ _$_$if_WEB_SOCKETS_$_();
 	  } else {
 	    var query = sessionUrl.substr(sessionUrl.indexOf('?'));
 	    wsurl = "ws" + location.protocol.substr(4)
-	      + "//" + location.hostname + ":"
-	     + location.port + deployUrl + query;
+	      + "//" + location.host + deployUrl + query;
 	  }
 
 	  wsurl += "&request=ws";

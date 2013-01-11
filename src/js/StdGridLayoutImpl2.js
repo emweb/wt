@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER
    this.ancestor = null;
    this.descendants = [];
 
-   /** @const */ var debug = true;
+   /** @const */ var debug = false;
 
    /** @const */ var STRETCH = 0;
    /** @const */ var RESIZABLE = 1;

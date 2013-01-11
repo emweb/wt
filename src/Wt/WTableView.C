@@ -311,7 +311,7 @@ int WTableView::spannerCount(const Side side) const
 		 / rowHeight().toPixels());
   }
   case Left:
-    return firstColumn_;
+    return firstColumn_ - rowHeaderCount();
   case Right:
     return columnCount() - (lastColumn_ + 1);
   default:
@@ -358,7 +358,7 @@ void WTableView::setSpannerCount(const Side side, const int count)
       if (!columnInfo(i).hidden)
 	total += (int)columnInfo(i).width.toPixels() + 7;
     table_->setOffsets(total, Left);
-    firstColumn_ = count;
+    firstColumn_ = count + rowHeaderCount();
     break;
   }
   case Right:
@@ -398,7 +398,7 @@ int WTableView::lastColumn() const
   if (ajaxMode())
     return lastColumn_;
   else
-    return model()->columnCount(rootIndex()) - 1;
+    return columnCount() - 1;
 }
 
 void WTableView::addSection(const Side side,
@@ -548,8 +548,8 @@ void WTableView::renderTable(const int fr, const int lr,
  
   if (oldLastCol - oldFirstCol < 0) {
     leftColsToAdd = 0;
-    setSpannerCount(Left, fc);
-    setSpannerCount(Right, spannerCount(Right) - fc);
+    setSpannerCount(Left, fc - rowHeaderCount());
+    setSpannerCount(Right, columnCount() - fc);
     rightColsToAdd = lc - fc + 1;
   } else {
     leftColsToAdd = firstColumn() - fc;
@@ -664,7 +664,7 @@ void WTableView::resetGeometry()
     renderedLastRow_
       = std::min(model()->rowCount(rootIndex()) - 1,
 		 renderedFirstRow_ + pageSize() - 1);
-    renderedLastColumn_ = model()->columnCount(rootIndex()) - 1;
+    renderedLastColumn_ = columnCount() - 1;
   }
 }
 
@@ -699,7 +699,7 @@ void WTableView::reset()
   table_->clear();
 
   setSpannerCount(Bottom, model()->rowCount(rootIndex()));
-  setSpannerCount(Right, columnCount());
+  setSpannerCount(Right, columnCount() - rowHeaderCount());
 
   headerColumnsTable_->clear();
 
@@ -979,12 +979,13 @@ void WTableView::updateColumnOffsets()
     ColumnInfo ci = columnInfo(i);
 
     ColumnWidget *w = columnContainer(i);
+    w->setOffsets(totalRendered, Left);
     w->setWidth(ci.width.toPixels() + 7);
 
     if (!columnInfo(i).hidden)
-      totalRendered += (int)columnInfo(i).width.toPixels() + 7;
+      totalRendered += (int)ci.width.toPixels() + 7;
 
-    w->setHidden(columnInfo(i).hidden);
+    w->setHidden(ci.hidden);
   }
 
   headerColumnsContainer_->setWidth(totalRendered);
@@ -1010,9 +1011,9 @@ void WTableView::updateColumnOffsets()
       w->setWidth(ci.width.toPixels() + 7);
 
       if (!columnInfo(i).hidden)
-	totalRendered += (int)columnInfo(i).width.toPixels() + 7;
+	totalRendered += (int)ci.width.toPixels() + 7;
 
-      w->setHidden(columnInfo(i).hidden);
+      w->setHidden(ci.hidden);
     }
 
     if (!columnInfo(i).hidden)
@@ -1261,7 +1262,7 @@ void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
   if (parent != rootIndex())
     return;
 
-  for (int c = 0; c < model()->columnCount(); c++) {
+  for (int c = 0; c < columnCount(); c++) {
     for (int r = start; r <= end; r++) {
       closeEditor(model()->index(r, c), false);
     }
@@ -1425,7 +1426,7 @@ void WTableView::computeRenderedArea()
   } else { // Plain HTML
     renderedFirstColumn_ = 0;
     if (model()) {
-      renderedLastColumn_ = model()->columnCount(rootIndex()) - 1;
+      renderedLastColumn_ = columnCount() - 1;
 
       int cp = std::max(0, std::min(currentPage(), pageCount() - 1));
       setCurrentPage(cp);
