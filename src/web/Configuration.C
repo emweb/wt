@@ -173,11 +173,6 @@ EntryPoint::~EntryPoint()
 {
 }
 
-void EntryPoint::setPath(const std::string& path)
-{
-  path_ = path;
-}
-
 Configuration::Configuration(const std::string& applicationPath,
 			     const std::string& appRoot,
 			     const std::string& configurationFile,
@@ -496,26 +491,42 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
 {
   if (ep.type() == StaticResource)
     ep.resource()->currentUrl_ = ep.path();
-
-  entryPoints_.push_back(ep);
+ 
+  entryPoints_.insert(
+    std::upper_bound(entryPoints_.begin(), entryPoints_.end(), ep),
+    ep
+  );
 }
 
 void Configuration::removeEntryPoint(const std::string& path)
-{
-  for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-    EntryPoint &ep = entryPoints_[i];
-    if (ep.path() == path) {
-      entryPoints_.erase(entryPoints_.begin() + i);
-      break;
-    }
-  }
+{ 
+  Wt::EntryPointList::iterator toDelete(
+    std::lower_bound(entryPoints_.begin(), entryPoints_.end(), path)
+  );
+  if ((toDelete != entryPoints_.end()) && (toDelete->path() == path))
+      entryPoints_.erase(toDelete);
 }
 
 void Configuration::setDefaultEntryPoint(const std::string& path)
 {
-  for (unsigned i = 0; i < entryPoints_.size(); ++i)
-    if (entryPoints_[i].path().empty())
-      entryPoints_[i].setPath(path);
+  Wt::EntryPointList::iterator empty(
+    std::lower_bound(entryPoints_.begin(), entryPoints_.end(), "")
+  );
+
+  if ((empty != entryPoints_.end()) && (empty->path() == "")) {
+      Wt::EntryPointList::const_iterator newLocation(
+        //std::upper_bound(entryPoints_.begin(), entryPoints_.end(), "")
+        std::lower_bound(entryPoints_.begin(), entryPoints_.end(), "")
+      );
+      empty->path_ = path;
+      // swap all the items along until we find the new position
+      if (newLocation > empty)
+          while (empty != newLocation)
+              std::swap(empty, ++empty);
+      else
+          while (empty != newLocation)
+              std::swap(empty, --empty);
+  }
 }
 
 void Configuration::setSessionTimeout(int sessionTimeout)

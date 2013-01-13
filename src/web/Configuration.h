@@ -40,33 +40,8 @@ namespace Wt {
   class WServer;
 
 #ifndef WT_TARGET_JAVA
-
-class WT_API EntryPoint {
-public:
-  EntryPoint(EntryPointType type, ApplicationCreator appCallback,
-	     const std::string& path, 
-             const std::string& favicon);
-  EntryPoint(WResource *resource, const std::string& path);
-  ~EntryPoint();
-
-  void setPath(const std::string& path);
-
-  EntryPointType type() const { return type_; }
-  WResource *resource() const { return resource_; }
-  ApplicationCreator appCallback() const { return appCallback_; }
-  const std::string& path() const { return path_; }
-  const std::string& favicon() const { return favicon_; }
-
-private:
-  EntryPointType type_;
-  WResource *resource_;
-  ApplicationCreator appCallback_;
-  std::string path_;
-  std::string favicon_;
-};
-
+class WT_API EntryPoint;
 typedef std::vector<EntryPoint> EntryPointList;
-
 #endif // WT_TARGET_JAVA
 
 class WT_API Configuration
@@ -231,6 +206,37 @@ private:
   void readConfiguration(bool silent);
   WLogEntry log(const std::string& type) const;
 };
+
+#ifndef WT_TARGET_JAVA
+
+class WT_API EntryPoint {
+public:
+  EntryPoint(EntryPointType type, ApplicationCreator appCallback,
+	     const std::string& path, 
+             const std::string& favicon);
+  EntryPoint(WResource *resource, const std::string& path);
+  ~EntryPoint();
+
+  EntryPointType type() const { return type_; }
+  WResource *resource() const { return resource_; }
+  ApplicationCreator appCallback() const { return appCallback_; }
+  const std::string& path() const { return path_; }
+  const std::string& favicon() const { return favicon_; }
+  bool operator <(const EntryPoint& other) const { return path_ < other.path_; }
+  bool operator <(const std::string& other) const { return path_ < other; }
+  operator const std::string&() const { return path_; }
+
+private:
+  friend void Configuration::setDefaultEntryPoint(const std::string& path); // Needed to change the path and keep its list sorted
+  EntryPointType type_;
+  WResource *resource_;
+  ApplicationCreator appCallback_;
+  std::string path_;
+  std::string favicon_;
+};
+
+
+#endif // WT_TARGET_JAVA
 
 }
 
