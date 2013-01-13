@@ -18,6 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <algorithm>
 #include <boost/lexical_cast.hpp>
 
 #include "Request.h"
@@ -34,34 +35,32 @@ RequestHandler::RequestHandler(const Configuration &config,
   : config_(config),
     entryPoints_(entryPoints),
     logger_(logger)
-{ }
+{}
 
 bool RequestHandler::matchesPath(const std::string& path,
-				 const std::string& prefix,
-				 bool matchAfterSlash,
-				 std::string& rest)
+         const std::string& prefix,
+         bool matchAfterSlash,
+         std::string& rest)
 {
-  if (boost::starts_with(path, prefix)) {
-    unsigned prefixLength = prefix.length();
+  /// Assumes that prefix is already a prefix of path
+  unsigned prefixLength = prefix.length();
 
-    if (path.length() > prefixLength) {
-      char next = path[prefixLength];
+  if (path.length() > prefixLength) {
+    char next = path[prefixLength];
 
-      if (next == '/') {
-	rest = path.substr(prefixLength);
-	return true; 
-      } else if (matchAfterSlash) {
-	char last = prefix[prefixLength - 1];
-
-	if (last == '/') {
-	  rest = path.substr(prefixLength);
-	  return true;
-	}
+    if (next == '/') {
+      rest = path.substr(prefixLength);
+      return true; 
+    } else if (matchAfterSlash) {
+      char last = prefix[prefixLength - 1];
+      if (last == '/') {
+        rest = path.substr(prefixLength);
+        return true;
       }
-    } else {
-      rest = std::string();
-      return true;
     }
+  } else {
+    rest = std::string();
+    return true;
   }
 
   return false;
@@ -119,33 +118,58 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
   }
 
   if (!isStaticFile) {
-    int bestMatch = -1;
+    
+    // As entryPoints_ is already sorted, find the first and last path
+    // that req.request_path is a prefix of
+    struct Matcher {
+        static bool compare(const std::string& a, const std::string& b)  {
+            /// Returns true if a should be before b in a sorted list
+            /// Considers a and b equal if a is a prefix of b
+            std::pair<std::string::const_iterator, std::string::const_iterator> found =
+                std::mismatch(a.begin(), a.end(), b.begin());
+            // If prefix is a partial match..
+            if (found.first < a.end()) 
+                return *found.first < *found.second; // Check by value of next matching char
+            else
+                return false; // Full match or no match means a is not less than b
+        }
+    };
+    std::pair<Wt::EntryPointList::const_iterator,
+              Wt::EntryPointList::const_iterator> matchRange(
+        std::equal_range(
+            entryPoints_.begin(), entryPoints_.end(),
+            req.request_path, Matcher::compare
+        )
+    );
+
+    Wt::EntryPointList::const_iterator bestMatch(entryPoints_.end());
     std::string bestPathInfo = req.request_path;
 
-    for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-      const Wt::EntryPoint& ep = entryPoints_[i];
-
+    // Now search but only in the range that has that prefix
+    for (Wt::EntryPointList::const_iterator i=matchRange.first;
+         i < matchRange.second;
+         ++i) {
       std::string pathInfo;
 
       bool matchesApp = matchesPath(req.request_path,
-				    ep.path(),
+				    i->path(),
 				    !config_.defaultStatic(),
 				    pathInfo);
 
       if (matchesApp) {
-	if (pathInfo.length() < bestPathInfo.length()) {
-	  bestPathInfo = pathInfo;
-	  bestMatch = i;
-	}
+        if (pathInfo.length() < bestPathInfo.length()) {
+          bestPathInfo = pathInfo;
+          bestMatch = i;
+        }
       }
     }
 
-    if (bestMatch != -1) {
-      const Wt::EntryPoint& ep = entryPoints_[bestMatch];
+    if (bestMatch != entryPoints_.end()) {
+      const Wt::EntryPoint& ep = *bestMatch;
 
       req.request_extra_path = bestPathInfo;
       if (!bestPathInfo.empty())
-	req.request_path = ep.path();
+	  req.request_path = ep.path();
 
       return ReplyPtr(new WtReply(req, ep, config_));
     }
