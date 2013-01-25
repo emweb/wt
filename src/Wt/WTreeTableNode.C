@@ -5,8 +5,7 @@
  */
 
 #include "Wt/WContainerWidget"
-#include "Wt/WTable"
-#include "Wt/WTableCell"
+#include "Wt/WTemplate"
 #include "Wt/WText"
 #include "Wt/WTreeTable"
 #include "Wt/WTreeTableNode"
@@ -58,11 +57,8 @@ void WTreeTableNode::createExtraColumns(int numColumns)
 {
   if (!row_) {
     row_ = new WContainerWidget();
-    labelArea()->insertBefore(row_, labelArea()->children()[0]);
-    row_->setFloatSide(Right);
-    labelArea()->resize(WLength(100, WLength::Percentage), WLength::Auto);
-    labelArea()->table()->resize(WLength(100, WLength::Percentage),
-				 WLength::Auto);
+    row_->addStyleClass("cols-row");
+    impl()->bindWidget("cols-row", row_);
   }
 
   while (static_cast<int>(columnWidgets_.size()) < numColumns) {

@@ -42,7 +42,7 @@ int replicateHex(const std::string& s)
   return result | (result << 4);
 }
 
-extern WColor parseCssColor(const std::string &name)
+WColor parseCssColor(const std::string &name)
 {
   std::string n = name;
   boost::trim(n);

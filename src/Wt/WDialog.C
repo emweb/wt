@@ -10,6 +10,7 @@
 #include "Wt/WVBoxLayout"
 #include "Wt/WTemplate"
 #include "Wt/WText"
+#include "Wt/WTheme"
 
 #include "Resizable.h"
 #include "WebController.h"
@@ -22,15 +23,30 @@
 
 namespace Wt {
 
-WDialog::WDialog(const WString& windowTitle)
-  : closeIcon_(0),
-    modal_(true),
-    resizable_(false),
-    finished_(this),
-    recursiveEventLoop_(false),
-    initialized_(false)
+WDialog::WDialog(WObject *parent)
+  : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
+    finished_(this)
 {
-  setImplementation(impl_ = new WTemplate(tr("Wt.WDialog.template")));
+  create();
+}
+
+WDialog::WDialog(const WString& windowTitle, WObject *parent)
+  : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
+    finished_(this)
+{
+  create();
+  setWindowTitle(windowTitle);
+}
+
+void WDialog::create()
+{
+  closeIcon_ = 0;
+  footer_ = 0;
+  modal_ = true;
+  resizable_ = false;
+  recursiveEventLoop_ = false;
+  initialized_ = false;
+  impl_ = dynamic_cast<WTemplate *>(implementation());
 
   const char *CSS_RULES_NAME = "Wt::WDialog";
 
@@ -79,34 +95,25 @@ WDialog::WDialog(const WString& windowTitle)
     }
   }
 
-  impl_->setStyleClass("Wt-dialog Wt-outset");
-
-  setPopup(true);
-
   LOAD_JAVASCRIPT(app, "js/WDialog.js", "WDialog", wtjs1);
-
-  WContainerWidget *parent = app->domRoot();
-  parent->addWidget(this);
 
   WContainerWidget *layoutContainer = new WContainerWidget();
   layoutContainer->setStyleClass("dialog-layout");
   WVBoxLayout *layout = new WVBoxLayout(layoutContainer);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
-
-  titleBar_ = new WContainerWidget();
-  titleBar_->setStyleClass("titlebar");
-
-  caption_ = new WText(windowTitle, titleBar_);
-  
-  impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   impl_->bindWidget("layout", layoutContainer);
 
-  layout->addWidget(titleBar_);
+  titleBar_ = new WContainerWidget();
+  app->theme()->apply(this, titleBar_, DialogTitleBarRole);
 
+  caption_ = new WText(titleBar_);
+  caption_->setInline(false);
+  
   contents_ = new WContainerWidget();
-  contents_->setStyleClass("body");
+  app->theme()->apply(this, contents_, DialogBodyRole);
 
+  layout->addWidget(titleBar_);
   layout->addWidget(contents_, 1);
 
   saveCoverState(app, app->dialogCover());
@@ -130,13 +137,26 @@ WDialog::WDialog(const WString& windowTitle)
   } else
     setPositionScheme(app->environment().agent() == WEnvironment::IE6
 		      ? Absolute : Fixed);
-
-  hide();
 }
 
 WDialog::~WDialog()
 {
   hide();
+}
+
+WContainerWidget *WDialog::footer() const
+{
+  if (!footer_) {
+    footer_ = new WContainerWidget();
+    WApplication::instance()->theme()->apply(const_cast<WDialog *>(this),
+					     footer_, DialogFooterRole);
+
+    WContainerWidget *layoutContainer
+      = impl_->resolve<WContainerWidget *>("layout");
+    layoutContainer->layout()->addWidget(footer_);
+  }
+
+  return footer_;
 }
 
 void WDialog::setResizable(bool resizable)
@@ -152,12 +172,13 @@ void WDialog::setResizable(bool resizable)
     if (resizable_) {
       setMinimumSize(WLength::Auto, WLength::Auto);
       Resizable::loadJavaScript(WApplication::instance());
-      setJavaScriptMember(" Resizable",
-			  "(new " WT_CLASS ".Resizable("
-			  WT_CLASS "," + jsRef() + ")).onresize(function(w, h) {"
-			  "var obj = $('#" + id() + "').data('obj');"
-			  "if (obj) obj.onresize(w, h);"
-			  " });");
+      setJavaScriptMember
+	(" Resizable",
+	 "(new " WT_CLASS ".Resizable("
+	 WT_CLASS "," + jsRef() + ")).onresize(function(w, h) {"
+	 "var obj = $('#" + id() + "').data('obj');"
+	 "if (obj) obj.onresize(w, h);"
+	 " });");
     }
   }
 }
@@ -201,6 +222,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
 
     doJavaScript("new " WT_CLASS ".WDialog("
 		 + app->javaScriptClass() + "," + jsRef()
+		 + "," + titleBar_->jsRef()
 		 + "," + (centerX ? "1" : "0")
 		 + "," + (centerY ? "1" : "0") + ");");
 
@@ -238,7 +260,7 @@ void WDialog::setCaption(const WString& caption)
   setWindowTitle(caption);
 }
 
-const WString& WDialog::caption() const
+WString WDialog::caption() const
 {
   return windowTitle();
 }
@@ -246,12 +268,14 @@ const WString& WDialog::caption() const
 
 void WDialog::setWindowTitle(const WString& windowTitle)
 {
-  caption_->setText(windowTitle);
+  caption_->setText(WString::fromUTF8("<h3>" + windowTitle.toUTF8()
+				      + "</h3>"));
 }
 
-const WString& WDialog::windowTitle() const
+WString WDialog::windowTitle() const
 {
-  return caption_->text();
+  std::string text = caption_->text().toUTF8();
+  return WString::fromUTF8(text.substr(4, text.length() - 9));
 }
 
 void WDialog::setTitleBarEnabled(bool enable)
@@ -264,7 +288,8 @@ void WDialog::setClosable(bool closable)
   if (closable) {
     if (!closeIcon_) {
       closeIcon_ = new WText(titleBar_);
-      closeIcon_->setStyleClass("closeicon");
+      WApplication::instance()->theme()->apply(this, closeIcon_,
+					       DialogCloseIconRole);
       closeIcon_->clicked().connect(this, &WDialog::reject);
     }
   } else {

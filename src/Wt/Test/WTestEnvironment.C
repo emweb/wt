@@ -115,7 +115,7 @@ void WTestEnvironment::init(EntryPointType type)
 
   host_ = "localhost";
   clientAddress_ = "127.0.0.1";
-  locale_ = WT_LOCALE("en");
+  locale_ = WLocale("en");
 }
 
 void WTestEnvironment::endRequest()
@@ -173,7 +173,7 @@ void WTestEnvironment::setDpiScale(double dpiScale)
   dpiScale_ = dpiScale;
 }
 
-void WTestEnvironment::setLocale(const WT_LOCALE& locale)
+void WTestEnvironment::setLocale(const WLocale& locale)
 {
   locale_ = locale;
 }

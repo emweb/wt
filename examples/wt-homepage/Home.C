@@ -129,7 +129,6 @@ void Home::createHome()
   contents->setId("main_page");
 
   mainMenu_ = new WMenu(contents, Vertical);
-  mainMenu_->setRenderAsList(true);
 
   mainMenu_->addItem
     (tr("introduction"), introduction())->setPathComponent("");

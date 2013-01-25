@@ -19,6 +19,7 @@ SET(TEST_SOURCES
   color/WColorTest.C
   paintdevice/WSvgTest.C
   payment/MoneyTest.C
+  locale/LocaleNumberTest.C
 )
 
 IF (WT_HAS_WRASTERIMAGE)
@@ -27,49 +28,50 @@ IF (WT_HAS_WRASTERIMAGE)
    )
 ENDIF(WT_HAS_WRASTERIMAGE)
 
-# HAVE_SQLITE does not work: why ?
-IF(ENABLE_SQLITE)
-  ADD_DEFINITIONS(-DWTDBO)
-
-  SET(TEST_SOURCES ${TEST_SOURCES}
-    dbo/DboTest.C
-    dbo/DboTest2.C
-    dbo/DboTest3.C
-    dbo/Benchmark.C
-    private/DboImplTest.C
-  )
-
-IF(TEST_DBO_BACKEND MATCHES "postgres")
-  SET(TEST_LIBS wtdbo wtdbopostgres)
-  ADD_DEFINITIONS(-DPOSTGRES)
-  MESSAGE("** Testing Wt::Dbo using Postgres backend")
-ENDIF(TEST_DBO_BACKEND MATCHES "postgres")
-
-IF(TEST_DBO_BACKEND MATCHES "mysql")
-  SET(TEST_LIBS wtdbo wtdbomysql)
-  ADD_DEFINITIONS(-DMYSQL)
-  MESSAGE("** Testing Wt::Dbo using MySQL backend")
-ENDIF(TEST_DBO_BACKEND MATCHES "mysql")
-
-IF(TEST_DBO_BACKEND MATCHES "firebird")
-  SET(TEST_LIBS wtdbo wtdbofirebird)
-  ADD_DEFINITIONS(-DFIREBIRD)	
-  MESSAGE("** Testing Wt::Dbo using Firebird backend")
-ENDIF(TEST_DBO_BACKEND MATCHES "firebird")
-
-IF(TEST_DBO_BACKEND MATCHES "sqlite")
-  SET(TEST_LIBS wtdbo wtdbosqlite3)
-  ADD_DEFINITIONS(-DSQLITE3)
-  MESSAGE("** Testing Wt::Dbo using Sqlite3 backend")
-ENDIF(TEST_DBO_BACKEND MATCHES "sqlite")
-
-ENDIF(ENABLE_SQLITE)
-
 ADD_EXECUTABLE(test
   ${TEST_SOURCES}
 )
 
 TARGET_LINK_LIBRARIES(test wt wttest ${TEST_LIBS} ${BOOST_FS_LIB})
+
+# Test all dbo backends
+SET(DBO_TEST_SOURCES
+  test.C
+  dbo/DboTest.C
+  dbo/DboTest2.C
+  dbo/DboTest3.C
+  dbo/Benchmark.C
+  private/DboImplTest.C
+)
+
+IF(HAVE_POSTGRES)
+  ADD_EXECUTABLE(       test.postgres ${DBO_TEST_SOURCES})
+  TARGET_LINK_LIBRARIES(test.postgres wt wttest wtdbo wtdbopostgres)
+  SET_TARGET_PROPERTIES(test.postgres PROPERTIES COMPILE_FLAGS "-DPOSTGRES")
+  MESSAGE("** Testing Wt::Dbo using Postgres backend")
+ENDIF(HAVE_POSTGRES)
+
+IF(HAVE_MYSQL)
+  ADD_EXECUTABLE(       test.mysql ${DBO_TEST_SOURCES})
+  TARGET_LINK_LIBRARIES(test.mysql wt wttest wtdbo wtdbomysql)
+  SET_TARGET_PROPERTIES(test.mysql PROPERTIES COMPILE_FLAGS "-DMYSQL")
+  MESSAGE("** Testing Wt::Dbo using Mysql backend")
+ENDIF(HAVE_MYSQL)
+
+IF(HAVE_FIREBIRD)
+  ADD_EXECUTABLE(       test.firebird ${DBO_TEST_SOURCES})
+  TARGET_LINK_LIBRARIES(test.firebird wt wttest wtdbo wtdbofirebird)
+  SET_TARGET_PROPERTIES(test.firebird PROPERTIES COMPILE_FLAGS "-DFIREBIRD")
+  MESSAGE("** Testing Wt::Dbo using Firebird backend")
+ENDIF(HAVE_FIREBIRD)
+
+IF(HAVE_SQLITE)
+  ADD_EXECUTABLE(       test.sqlite3 ${DBO_TEST_SOURCES})
+  TARGET_LINK_LIBRARIES(test.sqlite3 wt wttest wtdbo wtdbosqlite3)
+  SET_TARGET_PROPERTIES(test.sqlite3 PROPERTIES COMPILE_FLAGS "-DSQLITE3")
+  MESSAGE("** Testing Wt::Dbo using Sqlite3 backend")
+ENDIF(HAVE_SQLITE)
+
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 

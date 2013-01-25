@@ -64,13 +64,6 @@ public:
    */
   WStringStream();
 
-  /*! \brief Copy constructor.
-   *
-   * This creates a deep copy of the contents. It is not applicable
-   * to a stringstream which has already a sink set.
-   */
-  WStringStream(const WStringStream& other);
-
   /*! \brief Assignment operator.
    */
   WStringStream& operator=(const WStringStream& other);
@@ -101,7 +94,10 @@ public:
    * for string literals !
    */
   template <typename T>
-    inline WStringStream& operator<< (T t);
+    inline WStringStream& operator<< (T t) {
+    int please_cast_to_a_supported_type = t;
+    return *this;
+  }
 
   template <std::size_t N>
     WStringStream& operator<< (const char (&s)[N]) {
@@ -120,6 +116,12 @@ public:
   /*! \brief Appends a C++ string.
    */
   WStringStream& operator<< (const std::string& s);
+
+  /*! \brief Appends a boolean.
+   *
+   * This is written to the stream as <tt>true</tt> or <tt>false</tt>.
+   */
+  WStringStream& operator<< (bool);
 
   /*! \brief Appends an integer number.
    */
@@ -176,18 +178,25 @@ public:
    */
   void clear();
 
+  // no-op for C++, but needed for Java
+  void spool(std::ostream& sink) { }
+
 private:
+  WStringStream(const WStringStream& other);
+
   enum {S_LEN = 1024};
   enum {D_LEN = 2048};
 
   std::ostream *sink_;
+
   char static_buf_[S_LEN + 1];
 
   char *buf_;
   int buf_i_;
 
-  int buf_len() const { return buf_ == static_buf_
-      ? static_cast<int>(S_LEN) : static_cast<int>(D_LEN); }
+  int buf_len() const 
+    { return buf_ == static_buf_ ? static_cast<int>(S_LEN)
+	: static_cast<int>(D_LEN); }
 
   std::vector<std::pair<char *, int> > bufs_;
 

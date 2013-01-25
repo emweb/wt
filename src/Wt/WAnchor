@@ -13,8 +13,9 @@
 
 namespace Wt {
 
-class WText;
-class WImage;
+  namespace Impl { 
+    class AreaWidget;
+  }
 
 /*! \class WAnchor Wt/WAnchor Wt/WAnchor
  *  \brief A widget that represents an HTML anchor (to link to other documents).
@@ -165,8 +166,6 @@ public:
   WAnchor(WResource *resource, WImage *image, WContainerWidget *parent = 0);
 #endif // WT_TARGET_JAVA
 
-  virtual ~WAnchor();
-
   /*! \brief Sets the link.
    *
    * The link may hold a URL, a resource, or an internal path.
@@ -190,7 +189,7 @@ public:
    *
    * \sa setLink()
    */
-  const WLink& link() const { return link_; }
+  const WLink& link() const { return linkState_.link; }
 
   /*! \brief Sets the linked URL (<b>deprecated</b>).
    *
@@ -322,27 +321,45 @@ public:
    *
    * \sa setTarget()
    */
-  AnchorTarget target() const { return target_; }
+  AnchorTarget target() const { return linkState_.target; }
 
 private:
   static const int BIT_LINK_CHANGED = 0;
   static const int BIT_TARGET_CHANGED = 1;
 
-  WLink link_;
+  struct LinkState {
+    LinkState();
+    ~LinkState();
+
+    WLink link;
+    AnchorTarget target;
+    JSlot *clickJS; 
+  };
+
+  LinkState linkState_;
+
   WText *text_;
   WImage *image_;
-  AnchorTarget target_;
   std::bitset<2> flags_;
 
-  JSlot *changeInternalPathJS_;
-
   void resourceChanged();
+
+  static bool renderHRef(WInteractWidget *widget,
+			 LinkState& linkState, DomElement& element);
+  static void renderHTarget(LinkState& linkState, DomElement& element,
+			    bool all);
+  static void renderUrlResolution(WWidget *widget, DomElement& element,
+				  bool all);
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void propagateRenderOk(bool deep);
   virtual void enableAjax();
+
+  friend class WAbstractArea;
+  friend class WPushButton;
+  friend class Impl::AreaWidget;
 };
 
 }

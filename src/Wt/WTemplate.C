@@ -7,8 +7,10 @@
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <cctype>
+#include <exception>
 
 #include "Wt/WApplication"
+#include "Wt/WContainerWidget"
 #include "Wt/WLogger"
 #include "Wt/WTemplate"
 
@@ -34,6 +36,21 @@ bool WTemplate::_tr(const std::vector<WString>& args,
   }
 }
 
+bool WTemplate::_block(const std::vector<WString>& args,
+                              std::ostream& result)
+{
+  if (args.size() < 1)
+    return false;
+
+  WString tblock = WString::tr(args[0].toUTF8());
+  for (unsigned i = 1; i < args.size(); ++i)
+    tblock.arg(args[i]);
+
+  this->renderTemplateText(result, tblock);
+
+  return true;
+}
+
 bool WTemplate::_id(const std::vector<WString>& args,
 		    std::ostream& result)
 {
@@ -50,18 +67,6 @@ bool WTemplate::_id(const std::vector<WString>& args,
   }
 }
 
-const char *WTemplate::DropShadow_x1_x2
-  ="<span class=\"Wt-x1\">"
-  """<span class=\"Wt-x1a\"></span>"
-  "</span>"
-  "<span class=\"Wt-x2\">"
-  """<span class=\"Wt-x2a\"></span>"
-  "</span>";
-
-#ifdef WT_TARGET_JAVA
-WTemplate::FunctionsList WTemplate::Functions = WTemplate::FunctionsList();
-#endif //WT_TARGET_JAVA
-
 #ifndef WT_TARGET_JAVA
 bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
 			      std::ostream& result)
@@ -69,12 +74,20 @@ bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
   return t->_tr(args, result);
 }
 
+bool WTemplate::Functions::block(WTemplate *t, const std::vector<WString>& args,
+                              std::ostream& result)
+{
+  return t->_block(args, result);
+}
+
 bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
 			      std::ostream& result)
 {
   return t->_id(args, result);
 }
+
 #else
+
 bool WTemplate::TrFunction::evaluate(WTemplate *t, 
 				     const std::vector<WString>& args,
 				     std::ostream& result) const
@@ -84,6 +97,17 @@ bool WTemplate::TrFunction::evaluate(WTemplate *t,
   } catch (std::io_exception ioe) {
     return false;
   } 
+}
+
+bool WTemplate::BlockFunction::evaluate(WTemplate *t,
+                                     const std::vector<WString>& args,
+                                     std::ostream& result) const
+{
+  try {
+    return t->_block(args, result);
+  } catch (std::io_exception ioe) {
+    return false;
+  }
 }
 
 bool WTemplate::IdFunction::evaluate(WTemplate *t, 
@@ -97,11 +121,6 @@ bool WTemplate::IdFunction::evaluate(WTemplate *t,
   }
 }
 
-WTemplate::FunctionsList::FunctionsList()
-{
-  tr = new TrFunction();
-  id = new IdFunction();
-}
 #endif
 
 WTemplate::WTemplate(WContainerWidget *parent)
@@ -140,10 +159,17 @@ void WTemplate::clear()
   repaint(RepaintInnerHtml);  
 }
 
+#ifndef WT_TARGET_JAVA
 void WTemplate::addFunction(const std::string& name, const Function& function)
 {
   functions_[name] = function;
 }
+#else
+void WTemplate::addFunction(const std::string& name, const Function *function)
+{
+  functions_[name] = *function;
+}
+#endif
 
 void WTemplate::setCondition(const std::string& name, bool value)
 {
@@ -194,6 +220,27 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
   repaint(RepaintInnerHtml);  
 }
 
+WWidget *WTemplate::takeWidget(const std::string& varName)
+{
+  WidgetMap::iterator i = widgets_.find(varName);
+
+  if (i != widgets_.end()) {
+    WWidget *result = i->second;
+
+#ifndef WT_TARGET_JAVA
+    widgets_.erase(i);
+#else
+    widgets_.erase(varName);
+#endif
+
+    changed_ = true;
+    repaint(RepaintInnerHtml);
+
+    return result;
+  } else
+    return 0;
+}
+
 void WTemplate::bindEmpty(const std::string& varName)
 {
   bindWidget(varName, 0);
@@ -202,6 +249,10 @@ void WTemplate::bindEmpty(const std::string& varName)
 void WTemplate::bindString(const std::string& varName, const WString& value,
 			   TextFormat textFormat)
 {
+  WWidget *w = resolveWidget(varName);
+  if (w)
+    bindWidget(varName, 0);
+
   WString v = value;
 
   if (textFormat == XHTMLText && v.literal()) {
@@ -218,29 +269,6 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
     changed_ = true;
     repaint(RepaintInnerHtml);  
   }
-
-  WidgetMap::iterator j = widgets_.find(varName);
-  if (j != widgets_.end()) {
-      delete j->second;
-#ifndef WT_TARGET_JAVA
-      widgets_.erase(j);
-#else
-      widgets_.erase(varName);
-#endif
-  }
-}
-
-void WTemplate::nestTemplate(const std::string& varName,
-			     const Wt::WString& templateText)
-{
-#ifndef WT_TARGET_JAVA
-  nestedTemplates_[varName] = templateText;
-#else
-  Wt::WString t = templateText;
-  nestedTemplates_[varName] = t;
-#endif
-  changed_ = true;
-  repaint(RepaintInnerHtml);
 }
 
 void WTemplate::bindInt(const std::string& varName, int value)
@@ -479,13 +507,8 @@ void WTemplate::renderTemplateText(std::ostream& result, const WString& template
 		args.erase(args.begin());
 	    }
 
-	    if (!handled) {
-	      TemplateMap::const_iterator i = nestedTemplates_.find(name);
-	      if (i != nestedTemplates_.end())
-		renderTemplateText(result, i->second);
-	      else
-		resolveString(name, args, result);
-	    }
+	    if (!handled)
+	      resolveString(name, args, result);
 	  }
 	}
 
@@ -623,7 +646,13 @@ void WTemplate::enableAjax()
 
 DomElementType WTemplate::domElementType() const
 {
-  return isInline() ? DomElement_SPAN : DomElement_DIV;
+  DomElementType type = isInline() ? DomElement_SPAN : DomElement_DIV;
+
+  WContainerWidget *p = dynamic_cast<WContainerWidget *>(parentWebWidget());
+  if (p && p->isList())
+    type = DomElement_LI;
+
+  return type;
 }
 
 void WTemplate::setInternalPathEncoding(bool enabled)

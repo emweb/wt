@@ -8,10 +8,11 @@
 #define FILE_SERVE_H_
 
 #include <string>
-#include <iostream>
 #include <map>
 
 namespace Wt {
+
+class WStringStream;
 
 /*
  * A simple template streaming class.
@@ -38,8 +39,8 @@ public:
   void setVar(const std::string& name, int value);
   void setVar(const std::string& name, unsigned value);
   void setCondition(const std::string& name, bool value);
-  void stream(std::ostream& out);
-  void streamUntil(std::ostream& out, const std::string& until);
+  void stream(WStringStream& out);
+  void streamUntil(WStringStream& out, const std::string& until);
 
 private:
   const char *template_;

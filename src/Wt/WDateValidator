@@ -47,17 +47,20 @@ class WT_API WDateValidator : public WValidator
 public:
   /*! \brief Creates a date validator.
    *
-   * The validator will accept any date of the format 'yyyy-MM-dd'.
+   * The validator will accept dates using the current locale's format.
+   *
+   * \sa WLocale::currentLocale()
    */
   WDateValidator(WObject *parent = 0);
 
   /*! \brief Creates a date validator.
    *
-   * The validator will accept dates in the indicated range in the
-   * format 'yyyy-MM-dd'.
+   * The validator will accept dates in the indicated range using the
+   * current locale's format.
+   *
+   * \sa WLocale::currentLocale()
    */
-  WDateValidator(const WDate& bottom,
-		 const WDate& top, WObject *parent = 0);
+  WDateValidator(const WDate& bottom, const WDate& top, WObject *parent = 0);
 
   /*! \brief Creates a date validator.
    *
@@ -108,7 +111,7 @@ public:
    *
    * \sa setFormat()
    */
-  const WT_USTRING& format() const { return formats_[0]; }
+  virtual WT_USTRING format() const { return formats_[0]; }
 
   /*! \brief Sets the date formats used to parse date strings.
    */
@@ -127,16 +130,6 @@ public:
   virtual Result validate(const WT_USTRING& input) const;
 
   virtual void createExtConfig(std::ostream& config) const;
-
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Parses a date from a string (<b>deprecated</b>).
-   *
-   * \deprecated see WDate::fromString() static methods.
-   *
-   * Equivalent to WDate::fromString(\p input, "yyyy-MM-dd");
-   */
-  static WDate parse(const WString& input);
-#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Sets the message to display when the input is not a date.
    *

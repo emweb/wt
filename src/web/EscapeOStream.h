@@ -20,6 +20,7 @@ public:
 
   EscapeOStream();
   EscapeOStream(std::ostream& sink);
+  EscapeOStream(WStringStream& sink);
   EscapeOStream(EscapeOStream& other);
 
   void pushEscape(RuleSet rules);
@@ -50,6 +51,7 @@ public:
   EscapeOStream& operator<< (char *s);
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
+  EscapeOStream& operator<< (bool);
   EscapeOStream& operator<< (const EscapeOStream& other);
 
   const char *c_str(); // for default constructor, can return 0
@@ -59,7 +61,8 @@ public:
   void clear();
 
 private:
-  WStringStream stream_;
+  WStringStream own_stream_;
+  WStringStream& stream_;
 
   struct Entry {
     char c;

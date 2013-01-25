@@ -12,6 +12,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WLogger"
 #include "Wt/WJavaScript"
+#include "Wt/WTheme"
 #include "Wt/WWebWidget"
 
 #include "DomElement.h"
@@ -195,7 +196,7 @@ void WWebWidget::repaint(WFlags<RepaintFlag> flags)
   if (!flags_.test(BIT_RENDERED))
     return;
 
-  WWidget::askRerender();
+  WWidget::scheduleRender();
 
 #ifndef WT_TARGET_JAVA
   flags_ |= (int)flags;
@@ -389,6 +390,8 @@ PositionScheme WWebWidget::positionScheme() const
 
 void WWebWidget::resize(const WLength& width, const WLength& height)
 {
+  bool changed = false;
+
   if (!width_ && !width.isAuto())
     width_ = new WLength();
 
@@ -405,9 +408,10 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
     flags_.set(BIT_HEIGHT_CHANGED);
   }
 
-  repaint(RepaintPropertyAttribute);
-
-  WWidget::resize(width, height);
+  if (changed) {
+    repaint(RepaintPropertyAttribute);
+    WWidget::resize(width, height);
+  }
 }
 
 WLength WWebWidget::width() const
@@ -647,20 +651,37 @@ void WWebWidget::gotParent()
     calcZIndex();
 }
 
+WWebWidget *WWebWidget::parentWebWidget() const
+{
+  /*
+   * Returns the parent webwidget, i.e. skipping composite widgets
+   */
+  WWidget *p = this->parent();
+  while (p != 0 && dynamic_cast<WCompositeWidget *>(p) != 0)
+    p = p->parent();
+
+  return p ? p->webWidget() : 0;
+}
+
+WWidget *WWebWidget::selfWidget()
+{
+  /*
+   * Returns the composite widget implemented by this web widget
+   */
+  WWidget *p = 0, *p_parent = this;
+  do {
+    p = p_parent;
+    p_parent = p->parent();
+  } while (p_parent != 0 && dynamic_cast<WCompositeWidget *>(p_parent) != 0);
+
+  return p;
+}
+
 void WWebWidget::calcZIndex()
 {
   layoutImpl_->zIndex_ = -1;
 
-  // find parent webwidget, i.e. skipping composite widgets
-  WWidget *p = this;
-  do {
-    p = p->parent();
-  } while (p != 0 && dynamic_cast<WCompositeWidget *>(p) != 0);
-
-  if (p == 0)
-    return;
-
-  WWebWidget *ww = p->webWidget();
+  WWebWidget *ww = parentWebWidget();
   if (ww) {
     const std::vector<WWidget *>& children = ww->children();
 
@@ -754,11 +775,7 @@ void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
   if (!lookImpl_)
     lookImpl_ = new LookImpl();
 
-  std::string currentClass = lookImpl_->styleClass_.toUTF8();
-  Utils::SplitSet classes;
-  Utils::split(classes, currentClass, " ", true);
-
-  if (classes.find(styleClass.toUTF8()) != classes.end()) {
+  if (hasStyleClass(styleClass)) {
     // perhaps it is quicker to join the classes back, but then we need to
     // make sure we keep the original order ?
     lookImpl_->styleClass_
@@ -789,6 +806,18 @@ void WWebWidget::addStyleClass(const char *styleClass, bool force)
 void WWebWidget::removeStyleClass(const char *styleClass, bool force)
 {
   removeStyleClass(WString::fromUTF8(styleClass), force);
+}
+
+bool WWebWidget::hasStyleClass(const WT_USTRING& styleClass) const
+{
+  if (!lookImpl_)
+    return false;
+
+  std::string currentClass = lookImpl_->styleClass_.toUTF8();
+  Utils::SplitSet classes;
+  Utils::split(classes, currentClass, " ", true);
+
+  return classes.find(styleClass.toUTF8()) != classes.end();
 }
 
 void WWebWidget::setStyleClass(const WT_USTRING& styleClass)
@@ -950,10 +979,11 @@ void WWebWidget::setToolTip(const WString& text, TextFormat textFormat)
   repaint(RepaintPropertyAttribute);
 }
 
-WString WWebWidget::toolTip() const
+const WString& WWebWidget::toolTip() const
 {
-  return lookImpl_ ? (lookImpl_->toolTip_ ? *lookImpl_->toolTip_ : WString())
-    : WString();
+  return lookImpl_ && lookImpl_->toolTip_ 
+    ? *lookImpl_->toolTip_
+    : WString::Empty;
 }
 
 void WWebWidget::setHiddenKeepsGeometry(bool enabled)
@@ -1765,7 +1795,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
      */
     if (app->session()->renderer().preLearning()) {
       getDomChanges(result, app);
-      askRerender(true);
+      scheduleRerender(true);
     } else {
       if (!app->session()->renderer().visibleOnly()) {
 	flags_.reset(BIT_STUBBED);
@@ -1775,6 +1805,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	  setRendered(true);
 	  render(RenderFull);
 	  DomElement *realElement = createDomElement(app);
+	  app->theme()->apply(selfWidget(), *realElement, 0);
 	  stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
 	  result.push_back(stub);
 	} else
@@ -1895,6 +1926,22 @@ WWidget *WWebWidget::find(const std::string& name)
   return 0;
 }
 
+WWidget *WWebWidget::findById(const std::string& id)
+{
+  if (this->id() == id)
+    return this;
+  else {
+    if (children_)
+      for (unsigned i = 0; i < children_->size(); ++i) {
+	WWidget *result = (*children_)[i]->findById(id);
+	if (result)
+	  return result;
+      }
+  }
+
+  return 0;
+}
+
 DomElement *WWebWidget::createDomElement(WApplication *app)
 {
   setRendered(true);
@@ -1945,11 +1992,15 @@ DomElement *WWebWidget::createStubElement(WApplication *app)
   return stub;
 }
 
-DomElement *WWebWidget::createActualElement(WApplication *app)
+DomElement *WWebWidget::createActualElement(WWidget *self, WApplication *app)
 {
   flags_.reset(BIT_STUBBED);
 
-  return createDomElement(app);
+  DomElement *result = createDomElement(app);
+
+  app->theme()->apply(self, *result, 0);
+
+  return result;
 }
 
 void WWebWidget::refresh()
@@ -2031,7 +2082,7 @@ std::string& WWebWidget::escapeText(std::string& text, bool newlinestoo)
 std::string WWebWidget::jsStringLiteral(const std::string& value,
 					char delimiter)
 {
-  std::stringstream result;
+  WStringStream result;
   DomElement::jsStringLiteral(result, value, delimiter);
   return result.str();
 }

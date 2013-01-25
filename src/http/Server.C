@@ -232,6 +232,14 @@ int Server::httpPort() const
   return tcp_acceptor_.local_endpoint().port();
 }
 
+void Server::setSslPasswordCallback(
+  boost::function<std::string (std::size_t max_length)> cb)
+{
+#ifdef HTTP_WITH_SSL
+  ssl_context_.set_password_callback(boost::bind(cb, _1));
+#endif // HTTP_WITH_SSL
+}
+
 void Server::startAccept()
 {
   /*

@@ -94,23 +94,15 @@ namespace Wt {
  * Functions are resolved by resolveFunction(), and the default implementation
  * considers functions bound with addFunction(). 
  * There are currently two functions that are generally useful:
- * \if cpp
- * - \link Functions::tr()\endlink : resolves a localized strings, this is 
+ * - \link Functions::tr\endlink : resolves a localized strings, this is 
  *   convenient to create a language neutral template, which contains 
  *   translated strings
- * \elseif java
- * - WTemplate#Functions#tr : resolves a localized strings, this is 
- *   convenient to create a language neutral template, which contains 
- *   translated strings
- * \endif
- * \if cpp
- * - \link Functions::id()\endlink : resolves the id of a bound widget, this 
+ * - \link Functions::id\endlink : resolves the id of a bound widget, this 
  *   is convenient to bind &lt;label&gt; elements to a form widget using its 
  *   for attribute.
- * \elseif java
- * - WTemplate#Function#id : resolves the id of a bound widget, this 
- *   is convenient to bind &lt;label&gt; elements to a form widget using its 
- *   for attribute.
+ * - \link Functions::block\endlink : recursively renders another string as
+ *   macro block optional arguments substituted before processing template
+ *   substitution.
  * \endif
  *
  * For example, the following template uses the "tr" function to translate
@@ -127,7 +119,7 @@ namespace Wt {
  * \code
  * WTemplate t = new WTemplate();
  * t.setTemplateText("<div> ${tr:age-label} ${age-input} </div>");
- * t.addFunction("tr", Template.Functions.tr);
+ * t.addFunction("tr", WTemplate.Functions.tr);
  * t.bindWidget("age-input", ageEdit = new WLineEdit());
  * \endcode
  * \endif
@@ -166,14 +158,57 @@ namespace Wt {
  */
 class WT_API WTemplate : public WInteractWidget
 {
- private:
+private:
   bool _tr(const std::vector<WString>& args, 
 	   std::ostream& result);
+  bool _block(const std::vector<WString>& args,
+              std::ostream& result);
   bool _id(const std::vector<WString>& args, 
 	   std::ostream& result);
 
 public:
 #ifndef WT_TARGET_JAVA
+  /*! \brief A function type
+   *
+   * \sa addFunction()
+   * \sa Functions::tr, Functions::id, Functions::block
+   */
+  typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
+			       std::ostream& result)> Function;
+
+#else
+  /*! \brief A function interface type
+   *
+   * \sa addFunction()
+   * \sa Functions::tr, Functions::id, Functions::block
+   */
+  class Function {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+			  std::ostream& result) const = 0;
+
+  };
+
+private:
+  class TrFunction : public Function {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+			  std::ostream& result) const;
+  };
+
+  class BlockFunction : public Function {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+                          std::ostream& result) const;
+  };
+
+  class IdFunction : public Function {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+			  std::ostream& result) const;
+  };
+public:
+#endif
   /*! \brief A collection of predefined functions
    *
    * \sa addFunction()
@@ -182,11 +217,11 @@ public:
   {
     /*! \brief A function that resolves to a localized string.
      *
-     * For example, when bound to the function <tt>"tr"</tt>, a
-     * place-holder
-     * <pre>
-     *   ${tr:name}
-     * </pre>
+     * For example, when bound to the function <tt>"tr"</tt>, template
+     * that contains the placeholder
+     * \code
+     *   ... ${tr:name} ...
+     * \endcode
      * will be resolved to the value of:
      * \code
      *   WString::tr("name")
@@ -194,112 +229,83 @@ public:
      *
      * \sa addFunction()
      */
+#ifndef WT_TARGET_JAVA
     static bool tr(WTemplate *t, const std::vector<WString>& args,
 		   std::ostream& result);
+#else
+    static Function& tr = TrFunction();
+#endif
+
+    /*! \brief A function that renders a macro block.
+     *
+     * The function will consider the first argument as the key
+     * for a localized string that is a macro block, and additional arguments
+     * as positional parameters in that block.
+     *
+     * For example, a template that contains:
+     * \code
+     * ...
+     * ${block:form-field category}
+     * ...
+     * \endcode
+     *
+     * would look-up the following message:
+     *
+     * \code
+     * <message id="form-field">
+     *    <div class="control-group">
+     *       ${{1}-info}
+     *    </div>
+     * </message>
+     * \endcode
+     *
+     * and render as:
+     *
+     * \code
+     * ...
+     * <div class="control-group">
+     *   ${category-info}
+     * </div>
+     * ...
+     * \endcode
+     */
+#ifndef WT_TARGET_JAVA
+    static bool block(WTemplate *t, const std::vector<WString>& args,
+		      std::ostream& result);
+#else
+    static Function& block = BlockFunction();
+#endif
 
     /*! \brief A function that resolves the id of a bound widget
      *
-     * For example, when bound to the function <tt>"id"</tt>, a
-     * place-holder
-     * <pre>
-     *   ${id:name}
-     * </pre>
+     * For example, when bound to the function <tt>"id"</tt>, template text
+     * that contains a place-holder
+     * \code
+     *   ... ${id:name} ...
+     * \endcode
+     *
      * will be resolved to the value of:
+     * \if cpp
      * \code
      *   t->resolveWidget("name")->id()
      * \endcode
+     * \elseif java
+     * \code
+     *   t.resolveWidget("name").id()
+     * \endcode
+     * \endif
      *
      * This is useful for binding labels to input elements.
      *
      * \sa addFunction()
      */
+#ifndef WT_TARGET_JAVA
     static bool id(WTemplate *t, const std::vector<WString>& args,
 		   std::ostream& result);
-  };
-
-  /*! \brief A function type
-   *
-   * \sa addFunction()
-   * \sa Functions::tr(), Functions::id()
-   */
-  typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
-			       std::ostream& result)> Function;
-
-#define WT_TEMPLATE_FUNCTION(a) &WTemplate::Functions::a
 #else
-  class Function {
-  public:
-    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) const = 0;
-
+    static Function& id = IdFunction();
+#endif // WT_TARGET_JAVA
   };
-  
-  /*! \brief A function that resolves to a localized string.
-   *
-   * For example, when bound to the function <tt>"tr"</tt>, a place-holder
-   * <pre>
-   *   ${tr:name}
-   * </pre>
-   * will be resolved to the value of:
-   * \code
-   *   WString#tr("name")
-   * \endcode
-   *
-   * \sa addFunction()
-   */
-  class TrFunction : public Function {
-  public:
-    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) const;
-  };
-
-  /*! \brief A function that resolves the id of a bound widget
-   *
-   * For example, when bound to the function <tt>"id"</tt>, a place-holder
-   * <pre>
-   *   ${id:name}
-   * </pre>
-   * will be resolved to the value of:
-   * \code
-   *   t.resolveWidget("name").id()
-   * \endcode
-   *
-   * This is useful for binding labels to input elements.
-   *
-   * \sa addFunction()
-   */
-  class IdFunction : public Function {
-  public:
-    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) const;
-  };
-
-  /*! \brief Type that holds predefined functions
-   *
-   * \sa addFunction()
-   */
-  struct FunctionsList
-  {
-    /*! \brief A pre-defined tr() function
-     */
-    TrFunction *tr;
-
-    /*! \brief A pre-defined id() function
-     */
-    IdFunction *id;
-
-  private:
-    FunctionsList();
-
-    friend class WTemplate;
-  };
-
-  /*! \brief A collection of predefined functions
-   */
-  static FunctionsList Functions;
-
-#define WT_TEMPLATE_FUNCTION(a) *WTemplate::Functions.a
-#endif
 
   /*! \brief Creates a template widget.
    */
@@ -345,18 +351,8 @@ public:
    * \sa bindWidget(), bindInt()
    * \sa resolveString()
    */
-  void bindString(const std::string& varName, const WString& value,
-		  TextFormat textFormat = XHTMLText);
-
-  /*! \brief Binds a nested template text to a variable.
-   *
-   * The corresponding variable reference within the template will
-   * will be replaced by the nested template text (like bindString()),
-   * but this nested template text will also be recursively
-   * interpreted for place holder substitution.
-   */
-  void nestTemplate(const std::string& varName,
-		    const Wt::WString& templateText);
+  virtual void bindString(const std::string& varName, const WString& value,
+			  TextFormat textFormat = XHTMLText);
 
   /*! \brief Binds an integer value to a variable.
    *
@@ -369,7 +365,8 @@ public:
    * The corresponding variable reference within the template will be
    * replaced with the widget (rendered as XHTML). Since a single
    * widget may be instantiated only once in a template, the variable
-   * \p varName may occur at most once in the template.
+   * \p varName may occur at most once in the template, and the
+   * \p widget must not yet be bound to another variable.
    *
    * If a widget was already bound to the variable, it is deleted
    * first. If previously a string or other value was bound to the
@@ -381,9 +378,23 @@ public:
    * \sa bindString()
    * \sa resolveWidget()
    */
-  void bindWidget(const std::string& varName, WWidget *widget);
+  virtual void bindWidget(const std::string& varName, WWidget *widget);
+
+  /*! \brief Unbinds a widget.
+   *
+   * This removes a previously bound widget and unbinds the
+   * corresponding variable, effectively undoing the effect of
+   * bindWidget().
+   *
+   * \if cpp
+   * The widget is not deleted, but returned instead.
+   * \endif cpp
+   */
+  WWidget *takeWidget(const std::string& varName);
 
   /*! \brief Binds an empty string to a variable.
+   *
+   * If a widget was bound to the variable, it is deleted first.
    *
    * \sa bindString()
    */
@@ -404,16 +415,22 @@ public:
    * WTemplate *t = ...;
    * t->addFunction("id", &WTemplate::Functions::id);
    * t->addFunction("tr", &WTemplate::Functions::tr);
+   * t->addFunction("block", &WTemplate::Functions::block);
    * \endcode
    * \else
    * \code
    * WTemplate t = ...;
    * t.addFunction("id", WTemplate.Functions.id);
    * t.addFunction("tr", WTemplate.Functions.tr);
+   * t.addFunction("block", WTemplate.Functions.block);
    * \endcode
    * \endif
    */
+#ifndef WT_TARGET_JAVA
   void addFunction(const std::string& name, const Function& function);
+#else
+  void addFunction(const std::string& name, const Function *function);
+#endif
 
   /*! \brief Sets a condition.
    *
@@ -488,19 +505,31 @@ public:
    *
    * This method is typically used for delayed binding of widgets.
    * Usage example:
+   * \if cpp
    * \code
-   * {
-   *   if (Widget *known = WTemplate::resolveWidget(varName)) {
-   *     return known;
-   *   } else {
-   *     if (varName == "age-input") {
-   *       WWidget *w = new WLineEdit(); // widget only created when used
-   *       bind(varName, w);
-   *       return w;
-   *     }
+   * if (Wt::Widget *known = WTemplate::resolveWidget(varName)) {
+   *   return known;
+   * } else {
+   *   if (varName == "age-input") {
+   *     Wt::WWidget *w = new Wt::WLineEdit(); // widget only created when used
+   *     bind(varName, w);
+   *     return w;
    *   }
    * }
    * \endcode
+   * \elseif java
+   * \code
+   * if (Widget known = super.resolveWidget(varName)) {
+   *   return known;
+   * } else {
+   *   if (varName == "age-input") {
+   *     WWidget *w = new WLineEdit(); // widget only created when used
+   *     bind(varName, w);
+   *     return w;
+   *   }
+   * }
+   * \endcode
+   * \endif
    */
   virtual WWidget *resolveWidget(const std::string& varName);
 
@@ -535,7 +564,7 @@ public:
    * This also resets all conditions set using setCondition(), but
    * does not remove functions added with addFunction()
    */
-  void clear();
+  virtual void clear();
 
   /*! \brief Enables internal path anchors in the XHTML template.
    *
@@ -558,15 +587,16 @@ public:
    */
   bool hasInternalPathEncoding() const { return encodeInternalPaths_; }
 
-  /*! \brief Refreshes the template.
-   *
-   * This rerenders the template.
-   */
   virtual void refresh();
 
-  static const char *DropShadow_x1_x2;
-
   /*! \brief Renders the template into the given result stream.
+   *
+   * The default implementation will call renderTemplateText() with the
+   * templateText().
+   */
+  virtual void renderTemplate(std::ostream& result);
+
+  /*! \brief Renders a template into the given result stream.
    *
    * The default implementation will parse the template, and resolve variables
    * by calling resolveString().
@@ -575,7 +605,7 @@ public:
    * needed to load content on-demand (e.g. database objects), or support
    * a custom template language.
    */
-  virtual void renderTemplate(std::ostream& result);
+  void renderTemplateText(std::ostream& result, const WString& templateText);
 
 protected:
   /*! \brief Applies arguments to a resolved widget.
@@ -633,8 +663,6 @@ private:
   static std::size_t parseArgs(const std::string& text,
 			       std::size_t pos,
 			       std::vector<WString>& result);
-
-  void renderTemplateText(std::ostream& result, const WString& templateText);
 };
 
 template <typename T> T WTemplate::resolve(const std::string& varName)

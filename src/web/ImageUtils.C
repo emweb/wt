@@ -54,31 +54,34 @@ namespace {
 
 namespace Wt {
   namespace Image {
-    std::string identifyImageFileMimeType(const std::string& fileName)
-    {
-      std::vector<unsigned char> header = FileUtils::fileHeader(fileName, 25);
-      if (header.size() == 0)
-	return "";
-      return identifyImageMimeType(header);
-    }
+
+std::string identifyImageFileMimeType(const std::string& fileName)
+{
+  std::vector<unsigned char> header = FileUtils::fileHeader(fileName, 25);
+ 
+ if (header.size() == 0)
+   return "";
+ else
+   return identifyImageMimeType(header);
+}
     
-    std::string identifyImageMimeType(const std::vector<unsigned char>& header)
-    {
-      //TODO also check the filename extension, if parsing the file did not work
-
-      for (int i = 0; i < mimeTypeCount; ++i) {
+std::string identifyImageMimeType(const std::vector<unsigned char>& header)
+{
+  // TODO: also check the filename extension, if parsing the file did not work
+  for (int i = 0; i < mimeTypeCount; ++i) {
 #ifndef WT_TARGET_JAVA
-	if (std::memcmp(&header[0], 
-			imageHeaders[i], imageHeaderSize[i]) == 0)
-	  return std::string(imageMimeTypes[i]);
+    if (std::memcmp(&header[0], 
+		    imageHeaders[i], imageHeaderSize[i]) == 0)
+      return std::string(imageMimeTypes[i]);
 #else
-	if (std::memcmp(header.data(), 
-			imageHeaders[i], imageHeaderSize[i]) == 0)
-	  return std::string(imageMimeTypes[i]);
+    if (std::memcmp(header.data(), 
+		    imageHeaders[i], imageHeaderSize[i]) == 0)
+      return std::string(imageMimeTypes[i]);
 #endif
-      }
+  }
+    
+  return std::string();
+}
 
-      return std::string();
-    }
   }
 }

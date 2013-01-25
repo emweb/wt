@@ -82,7 +82,7 @@ private:
   int x_, y_, r_;
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
+  virtual bool updateDom(DomElement& element, bool all);
 };
 
 }

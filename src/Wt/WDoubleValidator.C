@@ -120,7 +120,7 @@ WValidator::Result WDoubleValidator::validate(const WT_USTRING& input) const
   std::string text = input.toUTF8();
 
   try {
-    double i = boost::lexical_cast<double>(text);
+    double i = WLocale::currentLocale().toDouble(text);
 
     if (i < bottom_)
       return Result(Invalid, invalidTooSmallText());
@@ -144,14 +144,9 @@ std::string WDoubleValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WDoubleValidator(";
-
-  if (isMandatory())
-    js << "true";
-  else
-    js << "false";
-
-  js << ',';
+  js << "new " WT_CLASS ".WDoubleValidator("
+     << isMandatory()
+     << ',';
 
   if (bottom_ != -std::numeric_limits<double>::max())
     js << bottom_;
@@ -165,7 +160,11 @@ std::string WDoubleValidator::javaScriptValidate() const
   else
     js << "null";
 
-  js << ',' << invalidBlankText().jsStringLiteral()
+  js << "," << WWebWidget::jsStringLiteral(WLocale::currentLocale()
+					   .decimalPoint())
+     << "," << WWebWidget::jsStringLiteral(WLocale::currentLocale()
+					   .groupSeparator())
+     << ',' << invalidBlankText().jsStringLiteral()
      << ',' << invalidNotANumberText().jsStringLiteral()
      << ',' << invalidTooSmallText().jsStringLiteral()
      << ',' << invalidTooLargeText().jsStringLiteral()

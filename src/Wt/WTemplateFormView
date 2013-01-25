@@ -85,20 +85,82 @@ public:
    */
   WTemplateFormView(const WString& text, WContainerWidget *parent = 0);
 
+  /*! \brief Sets the form widget for a given field.
+   */
+  void setFormWidget(WFormModel::Field field, WFormWidget *formWidget);
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief Sets the form widget for a given field.
+   *
+   * This also defines the functions to update the view respectively the
+   * model
+   */
+  void setFormWidget(WFormModel::Field field, WFormWidget *formWidget,
+		     const boost::function<void ()>& updateViewValue,
+		     const boost::function<void ()>& updateModelValue);
+#else
+#ifdef WT_BUILDING
+  template<typename F1, typename F2>
+  void setFormWidget(WFormModel::Field field, WFormWidget *formWidget,
+		     F1 updateViewValue, F2 updateModelValue);
+#endif
+  /*! \brief Interface for custom update methods for field data.
+   */
+  class FieldView
+  {
+  public:
+    /*! \brief Update the widget's value based on the model's data.
+     */
+    void updateViewValue() = 0;
+
+    /*! \brief Update the model's data based on the widget's value.
+     */
+    void updateModelValue() = 0;
+  };
+
+  /*! \brief Sets the form widget for a given field.
+   *
+   * This also defines the functions to update the view respectively the
+   * model
+   */
+  void setFormWidget(WFormModel::Field field, WFormWidget *formWidget,
+		     FieldView *fieldView);
+#endif
+
   /*! \brief Creates or updates a field in the View.
    *
    * This will update or create and bind widgets in the template to represent
    * the field. To create the form widget that implements the editing, it
    * calls createFormWidget().
+   *
+   * \note It's usually more convenient to reimplement updateViewValue()
+   *       to support a non-textual value in the model.
    */
   virtual void updateViewField(WFormModel *model, WFormModel::Field field);
 
-  /*! \brief Updates a field value in the Model.
+  /*! \brief Updates a field in the Model (<b>Deprecated</b>)
    *
-   * This propagates data entered in the form widget to the model with
-   * WFormModel::setValue()
+   * Calls updateViewValue()
+   *
+   * \deprecated Reimplement updateViewValue() instead.
    */
   virtual void updateModelField(WFormModel *model, WFormModel::Field field);
+
+  /*! \brief Updates the value in the View.
+   *
+   * The default implementation sets WFormModel::valueText() into
+   * WFormWidget::setValueText()
+   */
+  virtual void updateViewValue(WFormModel *model, WFormModel::Field field,
+			       WFormWidget *edit);
+
+  /*! \brief Updates a value in the Model.
+   *
+   * The default implementation sets WFormModel::setValue() with
+   * WFormWidget::valueText().
+   */
+  virtual void updateModelValue(WFormModel *model, WFormModel::Field field,
+				WFormWidget *edit);
 
   /*! \brief Updates the View.
    *
@@ -120,10 +182,8 @@ protected:
   /*! \brief Creates a form widget.
    *
    * This method is called by updateViewField() when it needs to
-   * create a form widget for a field. You either need to make sure
-   * these widgets have been created and bound before calling
-   * updateView(), or you need to specialize this method to do it
-   * on-demand.
+   * create a form widget for a field, and none was specified using
+   * setFormWidget().
    */
   virtual WFormWidget *createFormWidget(WFormModel::Field field);
 
@@ -137,8 +197,24 @@ protected:
 				  WText *info,
 				  WFormWidget *edit,
 				  const WValidator::Result& validation);
+private:
+  struct FieldData {
+    FieldData();
+
+    WFormWidget *formWidget;
+#ifndef WT_TARGET_JAVA
+    boost::function<void ()> updateView, updateModel;
+#else
+    FieldView *updateFunctions;
+#endif
+  };
+
+  typedef std::map<std::string, FieldData> FieldMap;
+  FieldMap fields_;
+
+  void init();
 };
 
 }
 
-#endif // WT_AUTH_REGISTRATION_WIDGET_H_
+#endif // WT_TEMPLATE_FORM_VIEW_H_

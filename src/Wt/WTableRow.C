@@ -6,6 +6,8 @@
 #include "DomElement.h"
 #include "WebUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include "Wt/WTable"
 #include "Wt/WTableCell"
 #include "Wt/WTableRow"
@@ -93,6 +95,40 @@ void WTableRow::setStyleClass(const WT_USTRING& style)
 
   styleClass_ = style;
   table_->repaintRow(this);
+}
+
+void WTableRow::addStyleClass(const WT_USTRING& style)
+{
+  std::string currentClass = styleClass_.toUTF8();
+  Utils::SplitSet classes;
+  Utils::split(classes, currentClass, " ", true);
+  
+  if (classes.find(style.toUTF8()) == classes.end()) {
+    styleClass_ = WT_USTRING::fromUTF8(Utils::addWord(styleClass_.toUTF8(),
+						      style.toUTF8()));
+    table_->repaintRow(this);
+  }
+}
+
+void WTableRow::removeStyleClass(const WT_USTRING& style)
+{
+  std::string currentClass = styleClass_.toUTF8();
+  Utils::SplitSet classes;
+  Utils::split(classes, currentClass, " ", true);
+
+  if (classes.find(style.toUTF8()) != classes.end()) {
+    styleClass_ = WT_USTRING::fromUTF8(Utils::eraseWord(styleClass_.toUTF8(),
+							style.toUTF8()));
+    table_->repaintRow(this);
+  }
+}
+
+void WTableRow::toggleStyleClass(const WT_USTRING& style, bool add)
+{
+  if (add)
+    addStyleClass(style);
+  else
+    removeStyleClass(style);
 }
 
 WLength WTableRow::height() const

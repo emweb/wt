@@ -12,14 +12,19 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WIntValidator",
-   function(mandatory, bottom, top, blankError,
+   function(mandatory, bottom, top, groupSeparator, blankError,
 	    NaNError, tooSmallError, tooLargeError) {
      this.validate = function(text) {
+       text = String(text);
+
        if (text.length == 0)
 	 if (mandatory)
 	   return { valid: false, message: blankError };
 	 else
 	   return { valid: true };
+
+       if (groupSeparator != '')
+	 text = text.replace(groupSeparator, '');
 
        var n = Number(text);
 

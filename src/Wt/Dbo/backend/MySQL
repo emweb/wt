@@ -26,9 +26,12 @@ class MySQL_impl;
  * It has been tested against MySQL 5.6.
  *
  * In order to work properly with Wt::Dbo, MySQL must be configured with
- *   - ANSI mode enabled - to ensure the correct quoting of table/column names.
- *   - InnoDB (for MySQL) or XtraDB (for mariadb) as the default database
- *     engine - so that the transaction based functionality works.
+ * InnoDB (for MySQL) or XtraDB (for mariadb) as the default database
+ * engine - so that the transaction based functionality works.
+ *
+ * \note There is a bug in the implementation of milliseconds in mariadb C
+ *       client which affects WTime and posix::time_duration values -- it
+ *       goes berserk when fractional part = 0.
  *
  * \ingroup dbo
  */
@@ -43,12 +46,16 @@ public:
    *  \param dbpasswd The password for the database conection - defaults to an
    *         empty string.
    *  \param dbhost The hostname of the database - defaults to localhost.
-   *
+   *  \param Must be in the range 0 to 6. By diffault return -1: fractional part
+   *         are not stored.
+   *         Fractional seconds part are supported for MySQL 5.6.4
+   *         http://dev.mysql.com/doc/refman/5.6/en/fractional-seconds.html
    */
   MySQL(const std::string &db, const std::string &dbuser="root",
         const std::string &dbpasswd="", const std::string dbhost="localhost",
         unsigned int dbport = 0,
-        const std::string &dbsocket ="/var/run/mysqld/mysqld.sock");
+        const std::string &dbsocket ="/var/run/mysqld/mysqld.sock",
+        int fractionalSecondsPart = -1);
 
   /*! \brief Copies a MySQL connection.
    *
@@ -104,6 +111,28 @@ public:
   virtual const char *blobType() const;
   virtual bool supportAlterTable() const;
   virtual const char *alterTableConstraintString() const;
+  /*! \brief Returns the supported fractional seconds part
+  *
+  * By diffault return -1: fractional part are not stored.
+  * Fractional seconds part are supported for MySQL 5.6.4
+  * http://dev.mysql.com/doc/refman/5.6/en/fractional-seconds.html
+  *
+  * \sa setFractionalSecondsPart()
+  */
+  const int getFractionalSecondsPart() const;
+
+  /*! \brief Set the supported fractional seconds part
+  *
+  *  \param Must be in the range 0 to 6. By diffault return -1: fractional part
+  * are not stored.
+  *
+  * The fractional seconds part can be also set in the constructor
+  * Fractional seconds part are supported for MySQL 5.6.4
+  * http://dev.mysql.com/doc/refman/5.6/en/fractional-seconds.html
+  *
+  * \sa setFractionalSecondsPart()
+  */
+  void setFractionalSecondsPart(int fractionalSecondsPart);
   //@}
 
 private:
@@ -113,6 +142,9 @@ private:
   std::string dbhost_;
   std::string dbsocket_;
   unsigned int dbport_;
+
+  int fractionalSecondsPart_;
+  std::string dateType_, timeType_;
 
   MySQL_impl* impl_; // MySQL connection handle
 

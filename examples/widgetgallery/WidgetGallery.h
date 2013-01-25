@@ -10,12 +10,7 @@
 
 #include <Wt/WContainerWidget>
 
-namespace Wt {
-  class WMenu;
-  class WStackedWidget;
-}
-
-class ControlsWidget;
+class TopicWidget;
 
 class WidgetGallery : public Wt::WContainerWidget
 {
@@ -23,10 +18,12 @@ public:
   WidgetGallery();
 
 private:
+  Wt::WNavigationBar *navigation_;
   Wt::WStackedWidget *contentsStack_;
 
-  void addToMenu(Wt::WMenu *menu, const Wt::WString& name,
-		 ControlsWidget *controls);
+  Wt::WMenuItem *addToMenu(Wt::WMenu *menu,
+			   const Wt::WString& name,
+			   TopicWidget *topic);
 };
 
 #endif // WIDGET_GALLERY_H_

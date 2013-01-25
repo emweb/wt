@@ -7,52 +7,14 @@
 #ifndef WMENU_ITEM_H_
 #define WMENU_ITEM_H_
 
-#include <Wt/WObject>
+#include <Wt/WContainerWidget>
 #include <Wt/WString>
 
 namespace Wt {
 
-class SignalBase;
-class WContainerWidget;
-class WMenu;
-class WWidget;
-
 /*! \brief A single item in a menu.
- *
- * The item determines the look and behaviour of a single item in a
- * WMenu.
- *
- * By default, for enabled menu items a WMenuItem uses a WAnchor widget. For
- * disabled menu items it uses a WText widget. If item is closeable, WMenuItem
- * puts these widgets and extra WText widget (for a close icon) in
- * a WContainerWidget.
- * When the menu participates in application internal paths
- * (see WMenu::setInternalPathEnabled()), the anchor references the
- * bookmark URL corresponding to the pathComponent() for the item (see
- * WApplication::bookmarkUrl()).
- *
- * To provide another look for the menu items (such as perhaps adding
- * an icon), you can specialize this class, and reimplement the
- * virtual methods:
- *
- * - createItemWidget(): to provide another widget to represent the
- *   item.
- * - updateItemWidget(): to update the widget to reflect item changes,
- *   triggered by for example setText() and setPathComponent().
- * - optionally, activateSignal(): to bind the event for activating
- *   the item to something else than the clicked event.
- * - optionally, closeSignal(): to bind the event for closing
- *   the item to something else than the clicked event.
- * - optionally, renderSelected(bool): if you need to do additional
- *   styling to reflect a selection, other than changing style classes.
- *
- * To provide another look for the close icon you can override
- * <tt>Wt-closeicon</tt> CSS class (see WMenu for more details).
- * 
- * \sa WMenu
- * \sa WMenu::addItem(WMenuItem *)
  */
-class WT_API WMenuItem : public WObject
+class WT_API WMenuItem : public WContainerWidget
 {
 public:
   /*! \brief Enumeration that determines when contents should be loaded.
@@ -62,23 +24,28 @@ public:
     PreLoading   //!< Pre-loading: before first use
   };
 
-  /*! \brief Creates a new item.
+  /*! \brief Creates a new item with given label.
    *
-   * The text specifies the item text. The contents is the widget that must
-   * be shown in the WMenu contents stack when the item is selected.
+   * The optional contents is a widget that will be shown in the WMenu
+   * contents stack when the item is selected. For this widget, a load
+   * \p policy can be indicated which specifies whether the contents
+   * widgets is transmitted only when it the item is activated for the
+   * first time (LazyLoading) or transmitted prior to first rendering.
    *
-   * The load policy specifies whether the contents widgets is transmitted
-   * only when it the item is activated for the first time (LazyLoading)
-   * or transmitted prior to first rendering.
-   *
-   * The pathComponent() is derived from \p text, and can be
+   * If the menu supports internal path navigation, then a default
+   * pathComponent() will be derived from the \p label, and can be
    * customized using setPathComponent().
-   *
-   * \p contents may be 0, in which case no contents is associated with
-   * the item in the contents stack.
    */
-  WMenuItem(const WString& text, WWidget *contents,
+  WMenuItem(const WString& label, WWidget *contents = 0,
 	    LoadPolicy policy = LazyLoading);
+
+  /*
+   * The icon is displayed left to the text.
+   *
+   * \note The icon should have a width of 16 pixels.
+   */
+  WMenuItem(const std::string& iconPath, const WString& label,
+	    WWidget *contents = 0, LoadPolicy policy = LazyLoading);
 
   /* !\brief Destructor.
    *
@@ -104,7 +71,36 @@ public:
    *
    * \sa setText();
    */
-  const WString& text() const { return text_; }
+  const WString& text() const;
+
+  /*! \brief Sets the item icon path.
+   *
+   * The icon should have a width of 16 pixels.
+   *
+   * \sa setText()
+   */
+  void setIcon(const std::string& path);
+
+  /*! \brief Returns the item icon path.
+   *
+   * \sa setIcon()
+   */
+  std::string icon() const;
+
+  /*! \brief Sets if the item is checkable.
+   *
+   * When an item is checkable, a checkbox is displayed to the left of the
+   * item text (instead of an icon).
+   *
+   * \sa setChecked(), isChecked()
+   */
+  void setCheckable(bool checkable);
+
+  /*! \brief Returns whether the item is checkable.
+   *
+   * \sa setCheckable()
+   */
+  bool isCheckable() const { return checkBox_ != 0; }
 
   /*! \brief Sets the path component for this item.
    *
@@ -150,6 +146,93 @@ public:
    */
   virtual std::string pathComponent() const;
 
+  /*! \brief Sets the associated link.
+   *
+   * \sa Link()
+   */
+  void setLink(const WLink& link);
+
+  /*! \brief Returns the associated link.
+   *
+   * \sa setLink()
+   */
+  WLink link() const;
+
+  /*! \brief Sets the link target.
+   *
+   * \sa setLink()
+   */
+  void setLinkTarget(AnchorTarget target);
+
+  /*! \brief Returns the link target.
+   *
+   * \sa setLinkTarget()
+   */
+  AnchorTarget linkTarget() const;
+
+  /*! \brief Sets a sub menu.
+   *
+   * Ownership of the \p subMenu is transferred to the item. In
+   * most cases, the sub menu would use the same contents stack as the
+   * parent menu.
+   */
+  void setMenu(WMenu *menu);
+
+  /*! \brief Returns the menu.
+   *
+   * \sa setMenu()
+   */
+  WMenu *menu();
+
+  /*! \brief Sets the checked state.
+   *
+   * This is only used when isCheckable() == \c true.
+   *
+   * \sa setCheckable(bool), isCheckable()
+   */
+  void setChecked(bool checked);
+
+  /*! \brief Returns the checked state.
+   *
+   * This is only used when isCheckable() == \c true.
+   *
+   * \sa setChecked(bool), isCheckable()
+   */
+  bool isChecked() const;
+
+  /*! \brief Sets whether the menu item can be selected.
+   *
+   * Only a menu item that can be selected can be the result of a
+   * popup menu selection.
+   *
+   * The default value is \c true for a normal menu item, and \c false
+   * for a menu item that has a submenu.
+   *
+   * An item that is selectable but is disabled can still not be
+   * selected.
+   */
+  void setSelectable(bool selectable);
+
+  /*! \brief Returns whether the menu item can be selected.
+   *
+   * \sa setSelectable()
+   */
+  bool isSelectable() const { return selectable_; }
+
+  /*! \brief Sets associated additional data with the item.
+   *
+   * You can use this to associate model information with a menu item.
+   */
+  void setData(void *data) { data_ = data; }
+
+  /*! \brief Returns additional data of the item.
+   *
+   * \sa setData()
+   */
+  void *data() const { return data_; }
+
+  WCheckBox *checkBox() const { return checkBox_; }
+
   /*! \brief Make it possible to close this item interactively or by close().
    *
    * \sa close(), isCloseable()
@@ -170,82 +253,6 @@ public:
    * \sa setCloseable(), hide()
    */
   void close();
-
-  /*! \brief Sets whether the item widget is hidden.
-   *
-   * Hides or show the item widget.
-   * 
-   * \sa hide(), show(), isHidden()
-   */
-  void setHidden(bool hidden);
-
-  /*! \brief Returns whether the item widget is hidden.
-   *
-   * \sa setHidden()
-   */
-  bool isHidden() const { return hidden_; }
-
-  /*! \brief Hides the item widget.
-   *
-   * This calls \link setHidden() setHidden(true)\endlink.
-   *
-   * \sa show()
-   */
-  void hide();
-
-  /*! \brief Shows the item widget.
-   *
-   * If the item was previously closed it will be shown.
-   * 
-   * This calls \link setHidden() setHidden(false)\endlink.
-   *
-   * \sa hide(), select()
-   */
-  void show();
-
-  /*! \brief Enables or disables an item.
-   *
-   * A disabled item cannot be activated.
-   *
-   * \sa enable(), disable(), isEnabled()
-   */
-  void setDisabled(bool disabled);
-
-  /*! \brief Returns whether an item is enabled.
-   *
-   * \sa setDisabled()
-   */
-  bool isDisabled() const { return disabled_ ; }
-
-  /*! \brief Enables the item.
-   *
-   * This calls \link setDisabled() setDisabled(false)\endlink.
-   *
-   * \sa disable()
-   */
-  void enable();
-
-  /*! \brief Disables the item.
-   *
-   * This calls \link setDisabled() setDisabled(true)\endlink.
-   *
-   * \sa enable()
-   */
-  void disable();
-
-  /*! \brief Sets a tooltip.
-   *
-   * The tooltip is displayed when the cursor hovers over the label of the item,
-   * i.e. WAnchor or WText, depending on whether the item is enabled or not
-   * (see createItemWidget()).
-   *
-   * \sa toolTip()
-   */
-  void setToolTip(const WString& tip);
-
-  /*! \brief Returns the tooltip.
-   */
-  const WString& toolTip() const { return tip_; }
 
   /*! \brief Returns the menu.
    */
@@ -274,33 +281,25 @@ public:
    */
   void select();
 
-protected:
-  /*! \brief Creates the widget that represents the item.
+  /*! \brief %Signal emitted when an item is activated.
    *
-   * The default implementation will return:
-   * - a WAnchor if item is not closeable and enabled;
-   * - a WText if item is not closeable and disabled;
-   * - a WContainerWidget with WAnchor or WText (the label of enabled
-   * or disabled item accordingly) and WText (the close icon) inside if
-   * item is closeable.
-   * 
-   * A call to createItemWidget() is immediately followed by
-   * updateItemWidget().
+   * Returns this item as argument.
    *
-   * If you reimplement this method, you should probably also
-   * reimplement updateItemWidget().
+   * \sa WMenu::triggered()
    */
-  virtual WWidget *createItemWidget();
+  Signal<WMenuItem *>& triggered() { return triggered_; }
 
-  /*! \brief Updates the widget that represents the item.
+  /*! \brief Returns whether this item is a separator.
    *
-   * The default implementation will cast the \p itemWidget to a
-   * WAnchor, and set the anchor's text and destination according to
-   * text() and pathComponent().
-   *
-   * \sa createItemWidget()
+   * \sa WMenu::addSeparator()
    */
-  virtual void updateItemWidget(WWidget *itemWidget);
+  bool isSeparator() const { return separator_; }
+
+  /*! \brief Returns whether this item is a section header.
+   *
+   * \sa WMenu::addSectionHeader()
+   */
+  bool isSectionHeader() const;
 
   /*! \brief Renders the item as selected or unselected.
    *
@@ -314,66 +313,48 @@ protected:
    */
   virtual void renderSelected(bool selected);
 
-  /*! \brief Returns the signal used to activate the item.
-   *
-   * The default implementation will tries to cast the itemWidget() or
-   * its first child if item is \link WMenuItem::setCloseable closeable\endlink
-   * to a WInteractWidget and returns the \link WInteractWidget::clicked
-   * clicked signal\endlink.
-   */
-  virtual SignalBase& activateSignal();
-
-  /*! \brief Returns the signal used to close the item.
-   *
-   * The default implementation will tries to cast the itemWidget() (or
-   * its second child if item is \link WMenuItem::setCloseable closeable\endlink)
-   * to a WInteractWidget and returns the \link WInteractWidget::clicked
-   * clicked signal\endlink.
-   */
-  virtual SignalBase& closeSignal();
-
   virtual void setFromInternalPath(const std::string& path);
 
-  /*! \brief Progresses to an Ajax-enabled widget.
-   *
-   * This method is called when the progressive bootstrap method is
-   * used, and support for AJAX has been detected. The default
-   * behavior will upgrade the menu and the contents event handling to use AJAX
-   * instead of full page reloads.
-   *
-   * You may want to reimplement this method if you want to make
-   * changes to widget when AJAX is enabled.
-   *
-   * \sa WMenu::enableAjax()
-   */
   virtual void enableAjax();
 
-private:
-  WWidget          *itemWidget_;
-  WContainerWidget *contentsContainer_;
-  WWidget          *contents_;
-  WMenu            *menu_;
-  WString           text_;
-  WString           tip_;
-  std::string       pathComponent_;
-  bool              customPathComponent_;
-  bool              closeable_;
-  bool              disabled_;
-  bool              hidden_;
+protected:
+  virtual void render(WFlags<RenderFlag> flags);
 
+private:
+  // Constructs a separator or header
+  WMenuItem(bool separator, const WString& text);
+
+  WContainerWidget *contentsContainer_;
+  WWidget *contents_;
+  WMenu *menu_, *subMenu_;
+  WText *icon_, *text_;
+  WCheckBox *checkBox_;
+  void *data_;
+  bool separator_, selectable_, signalsConnected_;
+
+  Signal<WMenuItem *> triggered_;
+
+  std::string pathComponent_;
+  bool customPathComponent_;
+  bool closeable_;
+
+  void create(const std::string& iconPath, const WString& text,
+	      WWidget *contents, LoadPolicy policy);
+  WAnchor *anchor() const;
   void purgeContents();
+  void updateInternalPath();
   bool contentsLoaded() const;
   void loadContents();
-  void setMenu(WMenu *menu);
+  void setParentMenu(WMenu *menu);
   void selectNotLoaded();
   void selectVisual();
   void undoSelectVisual();
-  void connectActivate();
   void connectClose();
   void connectSignals();
-  WWidget *recreateItemWidget();
+  void setItemPadding(bool padding);
 
   friend class WMenu;
+  friend class WPopupMenu;
 };
 
 }

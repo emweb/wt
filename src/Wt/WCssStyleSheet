@@ -184,13 +184,20 @@ private:
 class WT_API WCssStyleSheet
 {
 public:
-  /*! \brief Creates a new empty style sheet.
+  /*! \brief Creates a new (internal) style sheet.
    */
   WCssStyleSheet();
+
+  /*! \brief Creates a new (external) style sheet reference.
+   */
+  WCssStyleSheet(const WLink& link, const std::string& media = "all");
 
   /*! \brief Destroys a style sheet, and all rules in it.
    */
   ~WCssStyleSheet();
+
+  const WLink& link() const { return link_; }
+  const std::string& media() const { return media_; }
 
   /*! \brief Adds a CSS rule.
    *
@@ -257,14 +264,18 @@ public:
 
   void ruleModified(WCssRule *rule);
 
-  std::string cssText(bool all);
-  void javaScriptUpdate(WApplication *app, std::ostream& js, bool all);
+  void cssText(WStringStream& out, bool all);
+
+  void javaScriptUpdate(WApplication *app, WStringStream& js, bool all);
 
   void clear();
 
 private:
   typedef std::vector<WCssRule *> RuleList;
   typedef std::set<WCssRule *> RuleSet;
+
+  WLink link_;
+  std::string media_;
 
   RuleList rules_;
   RuleList rulesAdded_;

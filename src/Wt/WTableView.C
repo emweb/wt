@@ -15,6 +15,7 @@
 #include "Wt/WModelIndex"
 #include "Wt/WStringStream"
 #include "Wt/WTable"
+#include "Wt/WTheme"
 
 #ifndef WT_DEBUG_JS
 
@@ -195,26 +196,15 @@ WTableView::~WTableView()
 
 void WTableView::updateTableBackground()
 {
-  std::string backgroundImage;
-
-  if (alternatingRowColors())
-    backgroundImage = "/stripes/stripe-";
-  else
-    backgroundImage = "/no-stripes/no-stripe-";
-
-  backgroundImage = WApplication::resourcesUrl()
-    + "themes/" + WApplication::instance()->cssTheme()
-    + backgroundImage 
-    + boost::lexical_cast<std::string>(static_cast<int>(rowHeight().toPixels()))
-    + "px.gif";
-
   if (ajaxMode()) {
-    table_->decorationStyle().setBackgroundImage(WLink(backgroundImage));
-    headerColumnsTable_
-      ->decorationStyle().setBackgroundImage(WLink(backgroundImage));
+    WApplication::instance()->theme()->apply(this, table_,
+					     TableViewRowContainerRole);
+    WApplication::instance()->theme()->apply(this, headerColumnsContainer_,
+					     TableViewRowContainerRole);
   } else
     // FIXME avoid background on header row ?
-    plainTable_->decorationStyle().setBackgroundImage(WLink(backgroundImage));	
+    WApplication::instance()->theme()->apply(this, plainTable_,
+					     TableViewRowContainerRole);
 }
 
 void WTableView::setModel(WAbstractItemModel* model)
@@ -227,7 +217,7 @@ void WTableView::setModel(WAbstractItemModel* model)
   modelConnections_.push_back(model->columnsInserted().connect
 			      (this, &Self::modelColumnsInserted));
   modelConnections_.push_back(model->columnsAboutToBeRemoved().connect
-			     (this, &Self::modelColumnsAboutToBeRemoved));
+			      (this, &Self::modelColumnsAboutToBeRemoved));
   modelConnections_.push_back(model->rowsInserted().connect
 			      (this, &Self::modelRowsInserted));
   modelConnections_.push_back(model->rowsAboutToBeRemoved().connect
@@ -717,7 +707,9 @@ void WTableView::defineJavaScript()
 		      + app->javaScriptClass() + "," + jsRef() + ","
 		      + contentsContainer_->jsRef() + ","
 		      + headerContainer_->jsRef() + ","
-		      + headerColumnsContainer_->jsRef() + ");");
+		      + headerColumnsContainer_->jsRef() + ",'"
+		      + WApplication::instance()->theme()->activeClass()
+		      + "');");
 
   if (viewportTop_ != 0) {
     WStringStream s;
@@ -793,10 +785,12 @@ void WTableView::rerenderData()
     for (int i = firstRow(); i <= lastRow(); ++i) {
       int renderedRow = i - firstRow();
 
+      std::string cl = WApplication::instance()->theme()->activeClass();
+
       if (selectionBehavior() == SelectRows
 	  && isSelected(model()->index(i, 0, rootIndex()))) {
 	WTableRow *row = plainTable_->rowAt(renderedRow + 1);
-	row->setStyleClass("Wt-selected");
+	row->setStyleClass(cl);
       }
 
       for (int j = firstColumn(); j <= lastColumn(); ++j) {
@@ -816,7 +810,7 @@ void WTableView::rerenderData()
 	  clickedMapper_->mapConnect1(wi->clicked(), index);
 
 	if (selectionBehavior() == SelectItems && isSelected(index))
-	  cell->setStyleClass("Wt-selected");
+	  cell->setStyleClass(cl);
       }
     }
   }
@@ -1188,7 +1182,7 @@ void WTableView::modelColumnsInserted(const WModelIndex& parent,
   if (renderState_ < NeedRerenderHeader)
     scheduleRerender(NeedRerenderHeader);
 
-  if (start > lastColumn() || 
+  if (start > (lastColumn() + 1) || 
       renderState_ == NeedRerender || 
       renderState_ == NeedRerenderData)
     return;
@@ -1492,6 +1486,25 @@ void WTableView::modelLayoutChanged()
   resetGeometry();
 }
 
+WModelIndex WTableView::modelIndexAt(WWidget *widget) const
+{
+  for (WWidget *w = widget; w; w = w->parent()) {
+    if (w->hasStyleClass("Wt-tv-c")) {
+      ColumnWidget *column = dynamic_cast<ColumnWidget *>(w->parent());
+
+      if (!column)
+	return WModelIndex();
+
+      int row = firstRow() + column->indexOf(w);
+      int col = column->column();
+
+      return model()->index(row, col, rootIndex());
+    }
+  }
+
+  return WModelIndex();
+}
+
 WModelIndex WTableView::translateModelIndex(bool headerColumns,
 					    const WMouseEvent& event)
 {
@@ -1566,6 +1579,8 @@ WWidget *WTableView::itemWidget(const WModelIndex& index) const
 
 void WTableView::renderSelected(bool selected, const WModelIndex& index)
 {
+  std::string cl = WApplication::instance()->theme()->activeClass();
+
   if (selectionBehavior() == SelectRows) {
     if (isRowRendered(index.row())) {
       int renderedRow = index.row() - firstRow();
@@ -1574,24 +1589,17 @@ void WTableView::renderSelected(bool selected, const WModelIndex& index)
 	for (int i = 0; i < renderedColumnsCount(); ++i) {
 	  ColumnWidget *column = columnContainer(i);
 	  WWidget *w = column->widget(renderedRow);
-	  if (selected)
-	    w->addStyleClass("Wt-selected");
-	  else
-	    w->removeStyleClass("Wt-selected");
+	  w->toggleStyleClass(cl, selected);
 	}
       } else {
 	WTableRow *row = plainTable_->rowAt(renderedRow + 1);
-	row->setStyleClass(selected ? "Wt-selected" : "");
+	row->toggleStyleClass(cl, selected);
       }
     }
   } else {
     WWidget *w = itemWidget(index);
-    if (w) {
-      if (selected)
-	w->addStyleClass("Wt-selected");
-      else
-	w->removeStyleClass("Wt-selected");
-    }
+    if (w)
+      w->toggleStyleClass(cl, selected);
   }
 }
 

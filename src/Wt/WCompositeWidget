@@ -109,6 +109,7 @@ public:
   virtual void removeStyleClass(const WT_USTRING& styleClass,
 				bool force = false);
   void removeStyleClass(const char *styleClass, bool force = false);
+  virtual bool hasStyleClass(const WT_USTRING& styleClass) const;
   virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength::Auto);
   virtual AlignmentFlag verticalAlignment() const;
@@ -116,7 +117,7 @@ public:
   virtual WWebWidget *webWidget();
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText);
-  virtual WString toolTip() const;
+  virtual const WString& toolTip() const;
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);
@@ -132,6 +133,7 @@ public:
   virtual int tabIndex() const;
   virtual void setId(const std::string& id);
   virtual WWidget *find(const std::string& name);
+  virtual WWidget *findById(const std::string& name);
   virtual void setSelectable(bool selectable);  
   virtual void doJavaScript(const std::string& js);
 
@@ -159,9 +161,9 @@ protected:
    *
    * This returns the widget that implements this compositeWidget.
    */
-  WWidget* implementation() {
-    return impl_;
-  };
+  WWidget* implementation() { return impl_; };
+
+  WWidget *takeImplementation();
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app);

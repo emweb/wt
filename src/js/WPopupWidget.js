@@ -1,0 +1,82 @@
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+/* Note: this is at the same time valid JavaScript and C++. */
+
+WT_DECLARE_WT_MEMBER
+(1, JavaScriptConstructor, "WPopupWidget",
+ function(APP, el, isTransient, autoHideDelay) {
+   jQuery.data(el, 'popup', this);
+
+   var self = this,
+       WT = APP.WT,
+       hideTimeout = null,
+       showF = null, hideF = null;
+
+   function mouseLeave() {
+     clearTimeout(hideTimeout);
+     hideTimeout = setTimeout(function() { self.hide(); }, autoHideDelay);
+   }
+
+   function mouseEnter() {
+     clearTimeout(hideTimeout);
+   }
+
+   function isHidden() {
+     return el.style.display == 'hidden';
+   }
+
+   function onDocumentClick() {
+     self.hide();
+   }
+
+   this.bindShow = function(f) {
+     showF = f;
+   };
+
+   this.bindHide = function(f) {
+     hideF = f;
+   };
+
+   this.shown = function(f) {
+     if (isTransient)
+       setTimeout(function() {
+		    $(document).bind('click', onDocumentClick);
+		  }, 0);
+
+     if (showF) showF();
+   };
+
+   this.show = function(anchorWidget, side) {
+     if (el.style.display != '') {
+       el.style.display = '';
+
+       if (anchorWidget)
+	 WT.positionAtWidget(el.id, anchorWidget.id, side);
+
+       APP.emit(el, "shown");
+     }
+   };
+
+   this.hidden = function() {
+     if (hideF) hideF();
+
+     if (isTransient)
+       $(document).unbind('click', onDocumentClick);     
+   };
+
+   this.hide = function() {
+     if (el.style.display != 'none') {
+       el.style.display = 'none';
+     }
+
+     APP.emit(el, "hidden");
+     self.hidden();
+   };
+
+   if (autoHideDelay > 0)
+     $(el).mouseleave(mouseLeave).mouseenter(mouseEnter);
+ });

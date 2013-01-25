@@ -41,6 +41,13 @@ Message::Message()
   : status_(-1)
 { }
 
+Message::Message(const Message& other)
+  : status_(other.status_),
+    headers_(other.headers_)
+{
+  body_ << other.body_.str();
+}
+
 void Message::setStatus(int status)
 {
   status_ = status;

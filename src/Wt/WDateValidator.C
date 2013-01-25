@@ -6,6 +6,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WDateValidator"
+#include "Wt/WLocale"
 #include "Wt/WLogger"
 #include "Wt/WStringStream"
 #include "Wt/WWebWidget"
@@ -21,7 +22,7 @@ LOGGER("WDateValidator");
 WDateValidator::WDateValidator(WObject *parent)
   : WValidator(parent)
 {
-  setFormat("yyyy-MM-dd");
+  setFormat(WLocale::currentLocale().dateFormat());
 }
 
 WDateValidator::WDateValidator(const WDate& bottom, const WDate& top,
@@ -30,7 +31,7 @@ WDateValidator::WDateValidator(const WDate& bottom, const WDate& top,
     bottom_(bottom),
     top_(top)
 {
-  setFormat("yyyy-MM-dd");
+  setFormat(WLocale::currentLocale().dateFormat());
 }
 
 WDateValidator::WDateValidator(const WT_USTRING& format, WObject *parent)
@@ -144,13 +145,6 @@ WString WDateValidator::invalidTooLateText() const
           .arg(top_.toString(formats_[0]));
 }
 
-#ifndef WT_DEPRECATED_3_0_0
-WDate WDateValidator::parse(const WString& input)
-{
-  return WDate::fromString(input, "yyyy-MM-dd");
-}
-#endif // WT_DEPRECATED_3_0_0
-
 WValidator::Result WDateValidator::validate(const WT_USTRING& input) const
 {
   if (input.empty())
@@ -190,14 +184,9 @@ std::string WDateValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WDateValidator(";
-
-  if (isMandatory())
-    js << "true";
-  else
-    js << "false";
-
-  js << ",[";
+  js << "new " WT_CLASS ".WDateValidator("
+     << isMandatory()
+     << ",[";
 
   for (unsigned i = 0; i < formats_.size(); ++i) {
     WDate::RegExpInfo r = WDate::formatToRegExp(formats_[i]);

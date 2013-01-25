@@ -169,6 +169,11 @@ const std::string WCssTextRule::declarations()
 WCssStyleSheet::WCssStyleSheet()
 { }
 
+WCssStyleSheet::WCssStyleSheet(const WLink& link, const std::string& media)
+  : link_(link),
+    media_(media)
+{ }
+
 WCssStyleSheet::~WCssStyleSheet()
 {
   while (!rules_.empty())
@@ -244,27 +249,32 @@ void WCssStyleSheet::ruleModified(WCssRule *rule)
   rulesModified_.insert(rule);
 }
 
-std::string WCssStyleSheet::cssText(bool all)
+void WCssStyleSheet::cssText(WStringStream& out, bool all)
 {
-  std::string result;
+  if (link_.isNull()) {
+    RuleList& toProcess = all ? rules_ : rulesAdded_;
 
-  RuleList& toProcess = all ? rules_ : rulesAdded_;
+    for (unsigned i = 0; i < toProcess.size(); ++i) {
+      WCssRule *rule = toProcess[i];
+      out << rule->selector() << " { " << rule->declarations() << " }\n";
+    }
 
-  for (unsigned i = 0; i < toProcess.size(); ++i) {
-    WCssRule *rule = toProcess[i];
-    result += rule->selector() + " { " + rule->declarations() + " }\n";
+    rulesAdded_.clear();
+
+    if (all)
+      rulesModified_.clear();
+  } else {
+    WApplication *app = WApplication::instance();
+    out << "@import url(\"" << link_.resolveUrl(app) << "\")";
+
+    if (!media_.empty() && media_ != "all")
+      out << " " << media_;
+    out << ";\n";
   }
-
-  rulesAdded_.clear();
-
-  if (all)
-    rulesModified_.clear();
-
-  return result;
 }
 
 void WCssStyleSheet::javaScriptUpdate(WApplication *app,
-				      std::ostream& js, bool all)
+				      WStringStream& js, bool all)
 {
   if (!all) {
     for (unsigned i = 0; i < rulesRemoved_.size(); ++i) {
@@ -302,19 +312,19 @@ void WCssStyleSheet::javaScriptUpdate(WApplication *app,
       js << WT_CLASS ".addCss('"
 	 << rule->selector() << "',";
       DomElement::jsStringLiteral(js, rule->declarations(), '\'');
-      js << ");" << std::endl;
+      js << ");\n";
     }
 
     rulesAdded_.clear();
     if (all)
       rulesModified_.clear();
   } else {
-    std::string text = cssText(all);
-
-    if (!text.empty()) {
+    WStringStream css;
+    cssText(css, all);
+    if (!css.empty()) {
       js << WT_CLASS ".addCssText(";
-      DomElement::jsStringLiteral(js, text, '\'');
-      js << ");" << std::endl;
+      DomElement::jsStringLiteral(js, css.str(), '\'');
+      js << ");\n";
     }
   }
 }

@@ -24,6 +24,13 @@
 }
 
 /*
+ * Wt-disabled
+ */
+span.Wt-disabled, fieldset.Wt-disabled legend {
+    color: gray;
+}
+
+/*
  * WFormWidget
  */
 .Wt-edit-emptyText {
@@ -211,10 +218,14 @@
     padding: 2px 6px 3px;
 }
 
-.Wt-dialog .body {
-    padding: 4px 6px 4px;
+.Wt-dialog .titlebar h3 {
+    margin: 0px 2px;
+    font-size: 110%;
 }
 
+.Wt-dialog .body, .Wt-dialog .footer {
+    padding: 4px 6px 4px;
+}
 
 /*
  * WMenuItem
@@ -317,35 +328,73 @@
  * WPopupMenu
  */
 .Wt-popupmenu {
+    position: absolute;
+    display: none;
     background: white;
     color: black;
     border: 1px solid #666666;
     z-index: 200;
     cursor: default;
+    list-style: none;
+    padding: 0px;
+    margin: 0;
 }
 
-.Wt-popupmenu .content {
-    overflow-y: auto;
-    overflow-x: hidden;
+.Wt-popupmenu li {
+    padding: 2px 10px;
 }
 
-.Wt-popupmenu .Wt-item, .Wt-popupmenu .Wt-selected {
-    padding: 2px 0px;
+.Wt-popupmenu li a {
+    display: block;
 }
 
-.Wt-popupmenu .Wt-selected {
+.Wt-popupmenu .Wt-padded {
+    margin-right: 3px;
+    margin-left: 24px;
+    padding-right: 24px;
+}
+
+.Wt-popupmenu .Wt-icon {
+    padding: 0px 8px;
+    margin-right: 8px;
+    background-repeat: no-repeat;
+    background-position: center left;
+    height: 16px;
+    display: inline-block;
+}
+
+.Wt-popupmenu .Wt-chkbox {
+    margin-left: 2px;
+    margin-right: 10px;
+    display: inline-block;
+    width: 12px;
+}
+
+.Wt-popupmenu .active {
     background: blue;
     color: white;
 }
 
-.Wt-popupmenu .Wt-disabled {
-    color: #AAAAAA;
+.Wt-popupmenu .Wt-disabled, .Wt-popupmenu .Wt-sectheader.active {
+    color: #AAA;
 }
  
+.Wt-popupmenu .submenu a {
+    background-image: url(../../right-arrow.gif);
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
 .Wt-popupmenu .Wt-separator {
     border-top: 1px solid #CCCCCC;
     border-bottom: 1px solid #DDDDDD;
     margin: 0px 3px;
+    padding: 0;
+}
+
+.Wt-popupmenu .Wt-sectheader, .Wt-popupmenu .Wt-sectheader.active {
+    background: transparent;
+    color: #AAA;
 }
 
 /*
@@ -459,11 +508,11 @@
     padding-right: 16px;
 }
 
-.Wt-spinbox-up {
+.Wt-spinbox.up {
     background-image: url('spin-buttons-up.png');
 }
 
-.Wt-spinbox-dn {
+.Wt-spinbox.dn {
     background-image: url('spin-buttons-dn.png');
 }
 
@@ -476,18 +525,17 @@
     border: 1px solid #666666;
     cursor: default;
     font-size: smaller;
-}
-
-.Wt-suggest .content {
     overflow-y: auto;
     padding: 2px;
+    list-style: none;
+    margin: 0;
 }
 
-.Wt-suggest .content div {
+.Wt-suggest li {
     padding: 0px 3px;
 }
 
-.Wt-suggest .sel {
+.Wt-suggest .active {
     background-color: #C3D9FF;
 }
 
@@ -504,22 +552,15 @@
     margin-bottom: 4px;
     zoom: 1;
     width: 100%;
-}
-
-.Wt-tabs li {
-    display: inline;
-}
-
-.Wt-tabs ul {
-    margin: 0px;
-    padding-left: 10px;
+    margin: 0;
+    padding: 10px 0px 0px;
     list-style-type: none;
     list-style-position: outside;
     background: transparent url(../../tab_b.gif) repeat-x scroll center bottom;
     overflow: auto;
 }
 
-.Wt-tabs span {
+.Wt-tabs li {
     background: transparent url(../../tab_r.gif) no-repeat scroll right top;
     border-bottom:1px solid #84B0C7;
     float:left; display:block;
@@ -527,26 +568,32 @@
     font-size: small; font-weight: bold;
 }
 
-body.Wt-rtl .Wt-tabs span {
+body.Wt-rtl .Wt-tabs a {
     float:right;
 }
 
-.Wt-tabs span.itemselected, .Wt-tabs span.citemselected {
+.Wt-tabs .itemselected {
     background-position:100% -150px;
 }
 
-.Wt-tabs span span {
+.Wt-tabs a {
+    display: block;
     background: transparent url(../../tab_l.gif) no-repeat scroll left top;
     border-bottom: 0px;
     white-space: nowrap;
-    padding:5px 9px;color:#1A419D;
+    padding:5px 9px;
+    color:#1A419D;
 }
 
-.Wt-tabs span.itemselected span, .Wt-tabs span.citemselected span {
+.Wt-tabs .itemselected a {
     background-position:0% -150px;
 }
 
-.Wt-tabs .Wt-closeicon, .Wt-tabs span.citemselected .Wt-closeicon {
+.Wt-tabs .Wt-closable a {
+    margin-right: 13px;
+}
+
+.Wt-tabs .closeicon {
     background: transparent url(closeicons-tab.png) no-repeat scroll right top;
     margin: 6px 4px 0px 0px;
     height: 13px;
@@ -554,11 +601,15 @@ body.Wt-rtl .Wt-tabs span {
     border: 0px;
     padding: 0px;
     cursor: default;
+    float: right;
 }
 
-.Wt-tabs .Wt-closeicon:hover, .Wt-tabs span.citemselected .Wt-closeicon:hover {
+.Wt-tabs .closeicon:hover {
     background-position: right -13px;
 }
+
+.Wt-tabs:after { content: ""; display: block; height: 0; clear: both; }
+.Wt-tabs { clear-after: both; }
 
 /*
  * XHTML Tooltips
@@ -579,59 +630,51 @@ body.Wt-rtl .Wt-tabs span {
  */
 
 .Wt-tree {
-    table-layout: fixed;
     font-family: verdana, helvetica, tahoma, sans-serif;
     font-size: 9pt;
     cursor: default;
-    white-space: nowrap;   
+    white-space: nowrap;
+}
+
+.Wt-tree ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
 }
 
 /* nodes */
-.Wt-tree .Wt-trunk {
-    background: url(../../line-trunk.gif) repeat-y;
-    width: 19px;
-    padding: 0px;
+.Wt-tree.Wt-trunk, .Wt-tree .Wt-item.Wt-trunk {
+    background-image: url(../../line-trunk.gif);
+    background-repeat: repeat-y;
 }
 
-.Wt-tree .Wt-end {
-    background: url(../../line-last.gif) no-repeat 0 0;
-    width: 19px;
-    padding: 0px;
+.Wt-tree .Wt-item.Wt-end {
+    background-image: url(../../line-last.gif);
+    background-repeat: no-repeat;
+    background-position: 0 0;
 }
 
-.Wt-tree .Wt-expand {
-    width: 19px;
-    height: 18px;
-    padding: 0px;
+.Wt-tree div.Wt-root {
+    display: none;
 }
 
-.Wt-tree .Wt-collapse {
+.Wt-tree ul.Wt-root {
+    padding-left: 0px;
+}
+
+.Wt-tree .Wt-ctrl {
+    float: left;
+    display: block;
     width: 19px;
-    height: 18px;
-    padding: 0px;
+    height: 19px;
 }
 
 .Wt-tree .Wt-noexpand {
-    width: 19px;
-    height: 18px;
     background: url(../../line-middle.gif) no-repeat 0 0;
-    display: block;
-    padding: 0px;
 }
 
-.Wt-sentinel {
-    table-layout: auto;
-}
-
-.Wt-treetable div.Wt-header {
-    font-family: verdana,helvetica,tahoma,sans-serif;
-    font-size: 9pt;
-    font-weight: bold;
-    cursor: default;
-    background-color: #EEEEEE;
-    white-space: normal;
-    text-overflow: ellipsis;
-    padding: 3px 0px;
+.Wt-tree .cols-row {
+    float: right;
 }
 
 /* selection */
@@ -643,6 +686,17 @@ body.Wt-rtl .Wt-tabs span {
 .Wt-tree .Wt-label {
     padding: 0px 2px;
     line-height: 150%;
+}
+
+.Wt-treetable div.Wt-header {
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 9pt;
+    font-weight: bold;
+    cursor: default;
+    background-color: #EEEEEE;
+    white-space: normal;
+    text-overflow: ellipsis;
+    padding: 3px 0px;
 }
 
 /*
@@ -830,18 +884,14 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
  */
 
 /* Layout styling */
-.Wt-treeview table {
-    width: 100%;
+.Wt-treeview ul {
+    margin: 0px;
+    padding-left: 20px;
+    list-style: none;
 }
 
-.Wt-treeview .c1 {
-    width: 100%;
-    overflow: hidden;
-}
-
-.Wt-treeview .c0 {
-    width: 19px;
-    vertical-align: middle;
+.Wt-treeview ul.Wt-tv-root {
+    padding-left: 0px;
 }
 
 .Wt-treeview .Wt-tv-row {
@@ -854,7 +904,8 @@ body.Wt-rtl .Wt-treeview .Wt-tv-row {
 }
 
 .Wt-treeview .Wt-tv-row .Wt-tv-c {
-    display: block; float: left;
+    float: left;
+    display: block;
     padding: 0px 3px;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -872,29 +923,14 @@ body.Wt-rtl .Wt-treeview .Wt-tv-row .Wt-tv-c {
     vertical-align: middle;
 }
 
-body.Wt-ltr .Wt-treeview img.icon,
-body.Wt-ltr .Wt-treeview input.icon {
+.Wt-treeview img.icon,
+.Wt-treeview input.icon {
     margin: 0px 3px 2px 0px;
 }
 
 body.Wt-rtl .Wt-treeview img.icon,
 body.Wt-rtl .Wt-treeview input.icon {
     margin: 0px 0px 2px 3px;
-}
-
-.Wt-treeview .Wt-tv-node {
-    table-layout: fixed;
-}
-
-.Wt-treeview .Wt-tv-node img.w0 {
-    width: 0px;
-    margin: 0px;
-}
-
-.Wt-treeview .Wt-tv-node .c0 img,
-.Wt-treeview .Wt-tv-node .c0 input {
-    margin-right: 0px;
-    margin: -4px 0px;
 }
 
 body.Wt-ltr .Wt-treeview .Wt-header .Wt-tv-c {
@@ -930,44 +966,48 @@ body.Wt-rtl .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c { /* data */
 
 /* nodes */
 .Wt-treeview .Wt-trunk {
-    background: url(../../line-trunk.gif) repeat-y;
+    background-image: url(../../line-trunk.gif);
+    background-repeat: repeat-y;
 }
 
 .Wt-treeview .Wt-end {
-    background: url(../../tv-line-last.gif) no-repeat 0 center;
+    background-image: url(../../tv-line-last.gif);
+    background-repeat: no-repeat;
+    background-position: 0 center;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-end {
-    background: url(../../tv-line-last-rtl.gif) no-repeat 0 center;
+    background-image: url(../../tv-line-last-rtl.gif);
+    background-repeat: no-repeat;
+    background-position: 0 center;
 }
 
-.Wt-treeview .Wt-expand {
+.Wt-treeview .Wt-ctrl {
+    float: left;
     width: 19px;
-    height: 18px;
+}
+
+.Wt-treeview .Wt-ctrl.expand {
     background: url(nav-plus.gif) no-repeat 0 center;
 }
 
-body.Wt-rtl .Wt-treeview .Wt-expand {
+body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
     background: url(nav-plus-rtl.gif) no-repeat 0 center;
 }
 
-.Wt-treeview .Wt-collapse {
-    width: 19px;
-    height: 18px;
+.Wt-treeview .Wt-ctrl.collapse {
     background: url(nav-minus.gif) no-repeat 0 center;
 }
 
-body.Wt-rtl .Wt-treeview .Wt-collapse {
+body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
     background: url(nav-minus-rtl.gif) no-repeat 0 center;
 }
 
-.Wt-treeview .Wt-noexpand {
-    width: 19px;
-    height: 18px;
+.Wt-treeview .Wt-ctrl.noexpand {
     background: url(../../line-middle.gif) no-repeat 0 center;
 }
 
-body.Wt-rtl .Wt-treeview .Wt-noexpand {
+body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
     background: url(../../line-middle-rtl.gif) no-repeat 0 center;
 }
 

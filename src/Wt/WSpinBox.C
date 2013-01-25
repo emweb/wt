@@ -5,6 +5,7 @@
  */
 #include <Wt/WSpinBox>
 #include <Wt/WIntValidator>
+#include <Wt/WLocale>
 
 #include "DomElement.h"
 
@@ -17,6 +18,7 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
     max_(99),
     step_(1)
 { 
+  setValidator(createValidator());
   setValue(0);
 }
 
@@ -115,10 +117,10 @@ WValidator *WSpinBox::createValidator()
 WString WSpinBox::textFromValue() const
 {
   if (nativeControl())    
-    return WString::fromUTF8(boost::lexical_cast<std::string>(value_));
+    return WLocale::currentLocale().toString(value_);
   else {
     std::string text = prefix().toUTF8()
-      +  boost::lexical_cast<std::string>(value_)
+      + WLocale::currentLocale().toString(value_).toUTF8()
       + suffix().toUTF8();
 
     return WString::fromUTF8(text);
@@ -128,7 +130,7 @@ WString WSpinBox::textFromValue() const
 bool WSpinBox::parseNumberValue(const std::string& text)
 {
   try {
-    value_ = boost::lexical_cast<int>(text);
+    value_ = WLocale::currentLocale().toInt(WT_USTRING::fromUTF8(text));
     return true;
   } catch (boost::bad_lexical_cast &e) {
     return false;

@@ -1,0 +1,32 @@
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "Wt/WApplication"
+#include "Wt/WCssTheme"
+
+namespace Wt {
+
+WTheme::WTheme(WObject *parent)
+  : WObject(parent)
+{ }
+
+std::string WTheme::resourcesUrl() const
+{
+  return WApplication::resourcesUrl() + "themes/" + name() + "/";
+}
+
+WTheme::~WTheme()
+{ }
+
+void WTheme::serveCss(WStringStream& out) const
+{
+  std::vector<WCssStyleSheet> sheets = styleSheets();
+
+  for (unsigned i = 0; i < sheets.size(); ++i)
+    sheets[i].cssText(out, true);
+}
+
+}

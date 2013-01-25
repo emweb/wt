@@ -65,7 +65,7 @@
   <message id="Wt.WDateTime.months">{1} months</message>
   <message id="Wt.WDateTime.year">one year</message>
   <message id="Wt.WDateTime.years">{1} years</message>
-  <message id="Wt.WDateTime.null">Null</message>
+  <message id="Wt.WDateTime.null"></message>
 
   <message id="Wt.WDateValidator.DateTooEarly">The date must be after {1}</message>
   <message id="Wt.WDateValidator.DateTooLate">The date must be before {1}</message>
@@ -75,7 +75,6 @@
   <message id="Wt.WDefaultLoadingIndicator.Loading">Loading...</message>
 
   <message id="Wt.WDialog.template">
-    ${shadow-x1-x2}
     ${center-script}
     ${layout}
   </message>
@@ -209,4 +208,36 @@
       </ul>
     </div>
   </message>
+
+  <message id="Wt.WNavigationBar.template">
+    <div class="navbar-inner">
+      <div class="container">
+	${collapse-button}
+	${expand-button}
+	${title-link}
+	${contents}
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.WNavigationBar.expand-button">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </message>
+
+  <message id="Wt.WTreeViewNode.template">
+    <div class="Wt-item ${trunk-class} ${selected}">
+      ${cols-row}${expand}${no-expand}${col0}
+    </div>
+    ${children}
+  </message>
+
+  <message id="Wt.WTreeNode.template">
+    <div class="Wt-item ${trunk-class} ${selected}">
+      ${cols-row}${expand}${label-area}
+    </div>
+    ${children}
+  </message>
+
 </messages>

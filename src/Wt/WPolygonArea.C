@@ -60,7 +60,7 @@ void WPolygonArea::setPoints(const std::vector<WPointF>& points)
 }
 #endif // WT_TARGET_JAVA
 
-void WPolygonArea::updateDom(DomElement& element, bool all)
+bool WPolygonArea::updateDom(DomElement& element, bool all)
 {
   element.setAttribute("shape", "poly");
 
@@ -72,7 +72,7 @@ void WPolygonArea::updateDom(DomElement& element, bool all)
   }
   element.setAttribute("coords", coords.str());
 
-  WAbstractArea::updateDom(element, all);
+  return WAbstractArea::updateDom(element, all);
 }
 
 }

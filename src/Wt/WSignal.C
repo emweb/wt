@@ -18,6 +18,10 @@ namespace Wt {
 
 Wt::NoClass Wt::NoClass::none;
 
+SignalBase::SignalBase(WObject *sender)
+  : sender_(sender), blocked_(false)
+{ }
+
 SignalBase::~SignalBase()
 { }
 
@@ -58,11 +62,15 @@ Signal<void>::Signal(WObject *sender)
 { }
 #endif // WT_CNOR
 
-EventSignalBase::EventSignalBase(const char *name, WObject *sender)
+EventSignalBase::EventSignalBase(const char *name, WObject *sender,
+				 bool autoLearn)
   : SignalBase(sender), name_(name), id_(nextId_++)
 {
   if (!name_)
     flags_.set(BIT_SIGNAL_SERVER_ANYWAY);
+
+  if (autoLearn)
+    flags_.set(BIT_CAN_AUTOLEARN); // requires sender is a WWidget !
 }
 
 void *EventSignalBase::alloc()
@@ -143,7 +151,7 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
 
   result << javaScript();
 
-  if (flags_.test(BIT_EXPOSED) || flags_.test(BIT_SIGNAL_SERVER_ANYWAY)) {
+  if (flags_.test(BIT_SERVER_EVENT) || flags_.test(BIT_SIGNAL_SERVER_ANYWAY)) {
     WApplication *app = WApplication::instance();
 
     std::string senderId = encodeCmd();
@@ -209,7 +217,7 @@ const std::string EventSignalBase::javaScript() const
 
 void EventSignalBase::setNotExposed()
 {
-  flags_.reset(BIT_EXPOSED);
+  flags_.reset(BIT_SERVER_EVENT);
   flags_.reset(BIT_SIGNAL_SERVER_ANYWAY);
 }
 
@@ -217,11 +225,11 @@ void EventSignalBase::disconnect(boost::signals::connection& conn)
 {
   conn.disconnect();
 
-  if (flags_.test(BIT_NEEDS_AUTOLEARN))
+  if (flags_.test(BIT_EXPOSED))
     if (!isConnected()) {
       WApplication *app = WApplication::instance();
       app->removeExposedSignal(this);
-      flags_.reset(BIT_NEEDS_AUTOLEARN);
+      flags_.reset(BIT_EXPOSED);
       setNotExposed();
     }
 
@@ -230,7 +238,12 @@ void EventSignalBase::disconnect(boost::signals::connection& conn)
 
 bool EventSignalBase::isExposedSignal() const
 {
-  return flags_.test(BIT_EXPOSED);
+  return flags_.test(BIT_SERVER_EVENT);
+}
+
+bool EventSignalBase::canAutoLearn() const
+{
+  return flags_.test(BIT_CAN_AUTOLEARN);
 }
 
 void EventSignalBase::preventDefaultAction(bool prevent)
@@ -262,11 +275,11 @@ bool EventSignalBase::propagationPrevented() const
 void EventSignalBase::prepareDestruct()
 {
   // uses virtual method encodeCmd()
-  if (flags_.test(BIT_NEEDS_AUTOLEARN)) {
+  if (flags_.test(BIT_EXPOSED)) {
     WApplication *app = WApplication::instance();
     if (app)
       app->removeExposedSignal(this);
-    flags_.reset(BIT_NEEDS_AUTOLEARN);
+    flags_.reset(BIT_EXPOSED);
   }
 }
 
@@ -288,8 +301,8 @@ EventSignalBase::connectStateless(WObject::Method method,
 				  WStatelessSlot *slot)
 {
   boost::signals::connection c = dummy_.connect(boost::bind(method, target));
-  slot->addConnection(this);
-  connections_.push_back(StatelessConnection(c, target, slot));
+  if (slot->addConnection(this))
+    connections_.push_back(StatelessConnection(c, target, slot));
 
   senderRepaint();
 
@@ -338,17 +351,17 @@ bool EventSignalBase::isConnected() const
 void EventSignalBase::exposeSignal()
 {
   /*
-   * - BIT_EXPOSED indicates whether the signal invokes a server-side event
-   * - BIT_AUTOLEARN indicates whether the signal is in the WApplication's
+   * - BIT_SERVER_EVENT indicates whether the signal invokes a server-side event
+   * - BIT_EXPOSED indicates whether the signal is in the WApplication's
    *   exposed signals list, which is used as a list of signals that require
-   *   stateless slot learning.
+   *   stateless slot learning (if BIT_AUTOLEARN).
    *
    * The difference is only signals in those widgets that are used to
    * render a WViewWidget: they are not exposed but need learning
    */
 
-  // cheap catch: if it's exposed, for sure it is also autolearn
-  if (flags_.test(BIT_EXPOSED)) {
+  // cheap catch: if it generates a server event, for sure it is also exposed
+  if (flags_.test(BIT_SERVER_EVENT)) {
     senderRepaint();
     return;
   }
@@ -357,10 +370,10 @@ void EventSignalBase::exposeSignal()
 
   app->addExposedSignal(this);
 
-  flags_.set(BIT_NEEDS_AUTOLEARN);
+  flags_.set(BIT_EXPOSED);
 
   if (app->exposeSignals())
-    flags_.set(BIT_EXPOSED);
+    flags_.set(BIT_SERVER_EVENT);
 
   senderRepaint();
 }

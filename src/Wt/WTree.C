@@ -5,8 +5,7 @@
  */
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
-#include "Wt/WTable"
-#include "Wt/WTableCell"
+#include "Wt/WTemplate"
 #include "Wt/WText"
 #include "Wt/WTree"
 #include "Wt/WTreeNode"
@@ -92,11 +91,6 @@ namespace Wt {
 	addStyleClass("Wt-sentinel");
 	setNodeVisible(false);
 	expand();
-
-	// avoid IE bug where height of table remains too large when
-	// collapsing nodes
-	if (WApplication::instance()->environment().agentIsIE())
-	  impl()->elementAt(1, 0)->resize(1, WLength::Auto);
      }
       
      virtual WTree *tree() const { return tree_; }

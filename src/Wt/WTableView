@@ -137,6 +137,8 @@ public:
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
+  WModelIndex modelIndexAt(WWidget *widget) const;
+
 private:
   class ColumnWidget : public WContainerWidget
   {

@@ -11,11 +11,6 @@
 
 #include "DomElement.h"
 
-namespace {
-  Wt::JSlot safariWorkaroundJS("function(obj, e) { obj.onchange(); }");
-  Wt::JSlot clearOpacityJS("function(obj, e) { obj.style.opacity=''; }");
-}
-
 namespace Wt {
 
 WCheckBox::WCheckBox(WContainerWidget *parent)
@@ -40,10 +35,10 @@ void WCheckBox::setTristate(bool tristate)
 
   if (triState_) {
     if (!supportsIndeterminate(WApplication::instance()->environment()))
-      changed().connect(clearOpacityJS);
+      changed().connect("function(obj, e) { obj.style.opacity=''; }");
     else if (WApplication::instance()->environment().agentIsSafari()
 	     && !safariWorkaround_) {
-      clicked().connect(safariWorkaroundJS);
+      clicked().connect("function(obj, e) { obj.onchange(); }");
       safariWorkaround_ = true;
     }
   }

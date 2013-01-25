@@ -111,7 +111,7 @@ private:
   std::vector<WPoint> points_;
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
+  virtual bool updateDom(DomElement& element, bool all);
 };
 
 }

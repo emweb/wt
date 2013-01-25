@@ -10,6 +10,7 @@
 #include "Wt/WPaintedWidget"
 #include "Wt/WPainter"
 #include "Wt/WSlider"
+#include "Wt/WStringStream"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -30,7 +31,6 @@ public:
   void doUpdateDom(DomElement& element, bool all);
 
   void sliderResized(const WLength& width, const WLength& height);
-  virtual void propagateSetEnabled(bool enabled);
 
 protected:
   void paintEvent(WPaintDevice *paintDevice);
@@ -126,19 +126,6 @@ PaintedSlider::PaintedSlider(WSlider *slider)
   sliderReleased_.connect(this, &PaintedSlider::onSliderReleased);
 }
 
-void PaintedSlider::propagateSetEnabled(bool enabled)
-{
-  if (enabled) {
-    removeStyleClass("Wt-disabled");
-    slider_->removeStyleClass("Wt-disabled");
-  } else {
-    addStyleClass("Wt-disabled");
-    slider_->addStyleClass("Wt-disabled");
-  }
-
-  WPaintedWidget::propagateSetEnabled(enabled);
-}
-
 double PaintedSlider::w() const
 {
   return width().toPixels() + (slider_->orientation() == Horizontal ? 10 : 0);
@@ -177,80 +164,83 @@ void PaintedSlider::updateState()
     dir = "top";
     size = "height";
   }
-  std::string u = (o == Horizontal ? "x" : "y");
-  std::string U = (o == Horizontal ? "X" : "Y");
-  std::string maxS
-    = boost::lexical_cast<std::string>(l - slider_->handleWidth());
-  std::string ppU = boost::lexical_cast<std::string>(pixelsPerUnit);
-  std::string minimumS = boost::lexical_cast<std::string>(slider_->minimum());
-  std::string maximumS = boost::lexical_cast<std::string>(slider_->maximum());
 
-  std::string width = boost::lexical_cast<std::string>(w());
-  std::string horizontal = boost::lexical_cast<std::string>(o == Horizontal);
+  char u = (o == Horizontal ? 'x' : 'y');
+
+  double max = l - slider_->handleWidth();
+  bool horizontal = o == Horizontal;
 
   /*
    * Note: cancelling the mouseDown event prevents the selection behaviour
    */
-  std::string mouseDownJS = 
-    """obj.setAttribute('down', " WT_CLASS ".widgetCoordinates(obj, event)."
-    + u + "); "
-    WT_CLASS ".cancelEvent(event);";
+  WStringStream mouseDownJS;
+  mouseDownJS << "obj.setAttribute('down', " WT_CLASS
+	      <<                     ".widgetCoordinates(obj, event)." << u
+	      <<                  ");"
+	      << WT_CLASS ".cancelEvent(event);";
 
-  // = 'u' position relative to background, corrected for slider
-  std::string computeD =
-    ""  "var objh = " + handle_->jsRef() + ","
-    ""      "objf = " + fill_->jsRef() + ","
-    ""      "objb = " + jsRef() + ","
-    ""      "page_u = WT.pageCoordinates(event)." + u + ","
-    ""      "widget_page_u = WT.widgetPageCoordinates(objb)." + u + ","
-    ""      "pos = page_u - widget_page_u,"
-    ""      "rtl = " + boost::lexical_cast<std::string>(rtl) + ","
-    ""      "horizontal = " + horizontal + ";"
-    ""  "if (rtl && horizontal)"
-    ""  "  pos = " + width + " - pos;"
-    ""  "var d = pos - down;";
+  WStringStream computeD; // = 'u' position relative to background, corrected for slider
+  computeD << "var objh = " << handle_->jsRef() << ","
+	   <<     "objf = " << fill_->jsRef() << ","
+	   <<     "objb = " << jsRef() << ","
+	   <<     "page_u = WT.pageCoordinates(event)." << u << ","
+	   <<     "widget_page_u = WT.widgetPageCoordinates(objb)." << u << ","
+	   <<     "pos = page_u - widget_page_u,"
+	   <<     "rtl = " << rtl << ","
+	   <<     "horizontal = " << horizontal << ";"
+	   <<     "if (rtl && horizontal)"
+	   <<       "pos = " << l << " - pos;"
+	   <<     "var d = pos - down;";
   
+  WStringStream mouseMovedJS;
+  mouseMovedJS << "var down = obj.getAttribute('down');"
+	       << "var WT = " WT_CLASS ";"
+	       << "if (down != null && down != '') {"
+	       <<    computeD.str()
+	       <<   "d = Math.max(0, Math.min(d, " << max << "));"
+	       <<   "var v = Math.round(d/" << pixelsPerUnit << ");"
+	       <<   "var intd = v*" << pixelsPerUnit << ";"
+	       <<   "if (Math.abs(WT.pxself(objh, '" << dir
+	       <<                 "') - intd) > 1) {"
+	       <<     "objf.style." << size << " = ";
+  if (o == Vertical)
+    mouseMovedJS << '(' << max << " - intd)";
+  else
+    mouseMovedJS << "intd";
+  mouseMovedJS <<       " + 'px';" 
+	       <<     "objh.style." << dir << " = intd + 'px';"
+	       <<     "var vs = ";
+  if (o == Horizontal)
+    mouseMovedJS << "v + " << slider_->minimum();
+  else
+    mouseMovedJS << slider_->maximum() << " - v";
+  mouseMovedJS <<     ";"
+	       <<     "var f = objb.parentNode.onValueChange;"
+	       <<     "if (f) f(vs);"
+	       <<      slider_->sliderMoved().createCall("vs")
+	       <<   "}"
+	       << "}";
 
-  std::string mouseMovedJS = 
-    """var down = obj.getAttribute('down');"
-    """var WT = " WT_CLASS ";"
-    """if (down != null && down != '') {"
-    + computeD +
-    ""  "d = Math.max(0, Math.min(d, " + maxS + "));"
-    ""  "var v = Math.round(d/" + ppU + ");"
-    ""  "var intd = v*" + ppU + ";"
-    ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - intd) > 1) {"
-    ""    "objf.style." + size + " = intd + 'px';" + 
-    ""    "objh.style." + dir + " = intd + 'px';" +
-    ""    "var vs = " + (o == Horizontal ? "v + " + minimumS
-			 : maximumS + " - v") + ";"
-    ""    "var f = objb.parentNode.onValueChange;" +
-    ""    "if (f) f(vs);"
-      + slider_->sliderMoved().createCall("vs") + 
-    ""  "}"
-    """}";
-
-  std::string mouseUpJS = 
-    """var down = obj.getAttribute('down');"
-    """var WT = " WT_CLASS ";"
-    """if (down != null && down != '') {"
-    + computeD +
-    """d += "
-    + boost::lexical_cast<std::string>(slider_->handleWidth() / 2) + ";" +
-    sliderReleased_.createCall("d") + 
-    ""  "obj.removeAttribute('down');"
-    """}";
+  WStringStream mouseUpJS;
+  mouseUpJS << "var down = obj.getAttribute('down');"
+	    << "var WT = " WT_CLASS ";"
+	    << "if (down != null && down != '') {"
+	    <<    computeD.str()
+	    <<   "d += " << (slider_->handleWidth() / 2) << ";"
+	    <<    sliderReleased_.createCall("d")
+	    <<   "obj.removeAttribute('down');"
+	    << "}";
 
   bool enabled = !slider_->isDisabled();
   
   mouseDownJS_.setJavaScript(std::string("function(obj, event) {") 
-			     + (enabled ? mouseDownJS : "") 
+			     + (enabled ? mouseDownJS.str() : "") 
 			     + "}");
   mouseMovedJS_.setJavaScript(std::string("function(obj, event) {") 
-			      + (enabled ? mouseMovedJS : "") 
+			      + (enabled ? mouseMovedJS.str() : "") 
 			      + "}");
   mouseUpJS_.setJavaScript(std::string("function(obj, event) {") 
-			   + (enabled ? mouseUpJS : "") 
+			   + (enabled ? mouseUpJS.str() : "") 
 			   + "}");
 
   update();
@@ -262,10 +252,6 @@ void PaintedSlider::doUpdateDom(DomElement& element, bool all)
   if (all) {
     WApplication *app = WApplication::instance();
 
-    element.addChild(createSDomElement(app));
-    element.addChild(((WWebWidget *)handle_)->createSDomElement(app));
-    element.addChild(((WWebWidget *)fill_)->createSDomElement(app));
-
     DomElement *west = DomElement::createNew(DomElement_DIV);
     west->setProperty(PropertyClass, "Wt-w");
     element.addChild(west);
@@ -273,6 +259,10 @@ void PaintedSlider::doUpdateDom(DomElement& element, bool all)
     DomElement *east = DomElement::createNew(DomElement_DIV);
     east->setProperty(PropertyClass, "Wt-e");
     element.addChild(east);
+
+    element.addChild(createSDomElement(app));
+    element.addChild(((WWebWidget *)handle_)->createSDomElement(app));
+    element.addChild(((WWebWidget *)fill_)->createSDomElement(app));
   }
 }
 

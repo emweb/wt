@@ -17,11 +17,12 @@
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
 #include "Wt/WText"
+#include "Wt/WTheme"
 
 #include <memory>
 
 namespace skeletons {
-  extern const char *Auth_xml1;
+  extern const char *AuthStrings_xml1;
 }
 
 namespace Wt {
@@ -38,7 +39,8 @@ RegistrationWidget::RegistrationWidget(AuthWidget *authWidget)
     confirmPasswordLogin_(0)
 {
   WApplication *app = WApplication::instance();
-  app->builtinLocalizedStrings().useBuiltin(skeletons::Auth_xml1);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
+  app->theme()->apply(this, this, AuthWidgets);
 }
 
 void RegistrationWidget::setModel(RegistrationModel *model)
@@ -57,7 +59,7 @@ void RegistrationWidget::render(WFlags<RenderFlag> flags)
     created_ = true;
   }
 
-  WTemplate::render(flags);
+  WTemplateFormView::render(flags);
 }
 
 WFormWidget *RegistrationWidget::createFormWidget(WFormModel::Field field)
@@ -91,9 +93,9 @@ WFormWidget *RegistrationWidget::createFormWidget(WFormModel::Field field)
 
 void RegistrationWidget::update()
 {
-  if (!model_->passwordAuth() && !model_->oAuth().empty())
+  if (model_->passwordAuth())
     bindString("password-description",
-	       tr("Wt.Auth.password-or-oauth-registration"));
+	       tr("Wt.Auth.password-registration"));
   else
     bindEmpty("password-description");
 

@@ -13,6 +13,7 @@
 
 #include <Wt/WDllDefs.h>
 #include <Wt/Http/Request>
+#include <Wt/WLocale>
 #include <Wt/WSignal>
 
 namespace Wt {
@@ -274,7 +275,7 @@ public:
    *
    * \sa WApplication::setLocale()
    */
-  const WT_LOCALE& locale() const { return locale_; }
+  const WLocale& locale() const { return locale_; }
 
   /*! \brief Returns the server host name that is used by the client.
    *
@@ -642,7 +643,7 @@ protected:
   Http::ParameterMap parameters_;
   CookieMap   cookies_;
 
-  WT_LOCALE locale_;
+  WLocale locale_;
   std::string host_;
   std::string userAgent_;
   std::string urlScheme_;

@@ -160,5 +160,27 @@ SUBDIRS(
   webgl
   wt-homepage
   wtwithqt
-  widgetgallery
 )
+
+IF(MSVC_VERSION)
+  IF(MSVC_VERSION GREATER 1600)
+    SET(HAS_CXX11 ON)
+  ENDIF(MSVC_VERSION GREATER 1600)
+ENDIF(MSVC_VERSION)
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+                  OUTPUT_VARIABLE GCC_VERSION)
+  IF(${GCC_VERSION} VERSION_GREATER "4.6.0")
+    SET(HAS_CXX11 ON)
+  ENDIF(${GCC_VERSION} VERSION_GREATER "4.6.0")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
+IF(HAS_CXX11)
+  SUBDIRS(
+    widgetgallery
+  )
+ELSE(HAS_CXX11)
+  MESSAGE("Not building widget gallery; a C++11 compiler is required (gcc > 4.6 or MSVS 2012)")
+ENDIF(HAS_CXX11)
+
+

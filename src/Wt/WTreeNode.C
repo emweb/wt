@@ -8,11 +8,12 @@
 #include "WebUtils.h"
 
 #include "Wt/WApplication"
+#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WIconPair"
-#include "Wt/WTable"
-#include "Wt/WTableCell"
 #include "Wt/WText"
+#include "Wt/WTemplate"
+#include "Wt/WTheme"
 #include "Wt/WTreeNode"
 
 namespace Wt {
@@ -86,9 +87,14 @@ void WTreeNode::setInteractive(bool interactive)
   interactive_ = interactive;
 }
 
-WTableCell *WTreeNode::labelArea()
+WContainerWidget *WTreeNode::labelArea()
 {
-  return layout_->elementAt(0, 1);
+  return layout_->resolve<WContainerWidget *>("label-area");
+}
+
+WContainerWidget *WTreeNode::childContainer()
+{
+  return layout_->resolve<WContainerWidget *>("children");
 }
 
 WTreeNode::~WTreeNode()
@@ -153,50 +159,55 @@ void WTreeNode::setChildrenDecorated(bool decorated)
 
 void WTreeNode::create()
 {
-  setImplementation(layout_ = new WTable());
-
+  setImplementation(layout_ = new WTemplate(tr("Wt.WTreeNode.template")));
   setStyleClass("Wt-tree");
   layout_->setSelectable(false);
 
-  if (WApplication::instance()->environment().agentIsOpera())
-    layout_->setAttributeValue("style", "table-layout: auto");
+  layout_->bindEmpty("cols-row");
+  layout_->bindEmpty("trunk-class");
 
   implementStateless(&WTreeNode::doExpand, &WTreeNode::undoDoExpand);
   implementStateless(&WTreeNode::doCollapse, &WTreeNode::undoDoCollapse);
 
   WApplication *app = WApplication::instance();
 
-  expandIcon_
-    = new WIconPair(WApplication::resourcesUrl() + "themes/" + app->cssTheme()
-		    + "/" + imagePlus_,
-		    WApplication::resourcesUrl() + "themes/" + app->cssTheme()
-		    + "/" + imageMin_);
-  noExpandIcon_ = new WText();
-  noExpandIcon_->setStyleClass("Wt-noexpand");
+  /*
+   * Children
+   */
+  WContainerWidget *children = new WContainerWidget();
+  children->setList(true);
+  children->hide();
+  layout_->bindWidget("children", children);
 
-  layout_->rowAt(1)->hide();
+  /*
+   * Expand icon
+   */
+  expandIcon_
+    = new WIconPair(app->theme()->resourcesUrl() + imagePlus_,
+		    app->theme()->resourcesUrl() + imageMin_);
+  expandIcon_->setStyleClass("Wt-ctrl Wt-expand");
+  noExpandIcon_ = new WText();
+  noExpandIcon_->setStyleClass("Wt-ctrl Wt-noexpand");
+  layout_->bindWidget("expand", noExpandIcon_);
+  addStyleClass("Wt-trunk");
+
+  /*
+   * Label
+   */
+  layout_->bindWidget("label-area", new WContainerWidget());
 
   if (labelText_)
-    // "treenodelabel" is for backwards compatibility with Wt < 3.1.1
-    labelText_->setStyleClass("Wt-label treenodelabel");
+    labelText_->setStyleClass("Wt-label");
 
   childCountLabel_ = 0;
 
-  layout_->elementAt(0, 0)->setStyleClass("Wt-trunk");
-  layout_->elementAt(0, 0)->addWidget(noExpandIcon_);
-
   if (labelIcon_) {
-    layout_->elementAt(0, 1)->addWidget(labelIcon_);
+    labelArea()->addWidget(labelIcon_);
     labelIcon_->setVerticalAlignment(AlignMiddle);
   }
 
   if (labelText_)
-    layout_->elementAt(0, 1)->addWidget(labelText_);
-
-  layout_->elementAt(0, 0)->setContentAlignment(AlignLeft | AlignTop);
-  layout_->elementAt(0, 1)->setContentAlignment(AlignLeft | AlignMiddle);
-
-  layout_->rowAt(0)->setStyleClass("Wt-node");
+    labelArea()->addWidget(labelText_);
 
   childrenLoaded_ = false;
 
@@ -208,10 +219,9 @@ void WTreeNode::setChildCountPolicy(ChildCountPolicy policy)
   if (policy != Disabled && !childCountLabel_) {
     childCountLabel_ = new WText();
     childCountLabel_->setMargin(WLength(7), Left);
-    // "treenodechildcount" is for backwards compatibility.
-    childCountLabel_->setStyleClass("Wt-childcount treenodechildcount");
+    childCountLabel_->setStyleClass("Wt-childcount");
 
-    layout_->elementAt(0, 1)->addWidget(childCountLabel_);
+    labelArea()->addWidget(childCountLabel_);
   }
 
   childCountPolicy_ = policy;
@@ -278,7 +288,7 @@ void WTreeNode::loadChildren()
     doPopulate();
 
     for (unsigned i = 0; i < childNodes_.size(); ++i)
-      layout_->elementAt(1, 1)->addWidget(childNodes_[i]);
+      childContainer()->addWidget(childNodes_[i]);
 
     expandIcon_->icon1Clicked().connect(this, &WTreeNode::doExpand);
     expandIcon_->icon2Clicked().connect(this, &WTreeNode::doCollapse);
@@ -332,7 +342,7 @@ void WTreeNode::insertChildNode(int index, WTreeNode *node)
   node->parentNode_ = this;
 
   if (childrenLoaded_)
-    layout_->elementAt(1, 1)->insertWidget(index, node);
+    childContainer()->insertWidget(index, node);
   else
     node->setParent(0); // because node->hasParent() has Changed
 
@@ -362,7 +372,7 @@ void WTreeNode::removeChildNode(WTreeNode *node)
   node->parentNode_ = 0;
 
   if (childrenLoaded_)
-    layout_->elementAt(1, 1)->removeWidget(node);
+    childContainer()->removeWidget(node);
 
   descendantRemoved(node);
 
@@ -427,7 +437,8 @@ void WTreeNode::doExpand()
 
   if (!childNodes_.empty()) {
     expandIcon_->setState(1);
-    layout_->rowAt(1)->show();
+
+    childContainer()->show();
 
     if (labelIcon_)
       labelIcon_->setState(1);
@@ -446,7 +457,7 @@ void WTreeNode::doCollapse()
   collapsed_ = true;
 
   expandIcon_->setState(0);
-  layout_->rowAt(1)->hide();
+  childContainer()->hide();
 
   if (labelIcon_)
     labelIcon_->setState(0);
@@ -457,7 +468,7 @@ void WTreeNode::undoDoCollapse()
   if (!wasCollapsed_) {
     // re-expand
     expandIcon_->setState(1);
-    layout_->rowAt(1)->show();
+    childContainer()->show();
     if (labelIcon_)
       labelIcon_->setState(1);
     collapsed_ = false;
@@ -469,7 +480,7 @@ void WTreeNode::undoDoExpand()
   if (wasCollapsed_) {
     // re-collapse
     expandIcon_->setState(0);
-    layout_->rowAt(1)->hide();
+    childContainer()->hide();
     if (labelIcon_)
       labelIcon_->setState(0);
 
@@ -490,9 +501,9 @@ void WTreeNode::setLabelIcon(WIconPair *labelIcon)
 
   if (labelIcon_) {
     if (labelText_)
-      layout_->elementAt(0, 1)->insertBefore(labelIcon_, labelText_);
+      labelArea()->insertBefore(labelIcon_, labelText_);
     else
-      layout_->elementAt(0, 1)->addWidget(labelIcon_);
+      labelArea()->addWidget(labelIcon_);
 
     labelIcon_->setState(isExpanded() ? 1 : 0);
   }
@@ -500,7 +511,8 @@ void WTreeNode::setLabelIcon(WIconPair *labelIcon)
 
 void WTreeNode::renderSelected(bool isSelected)
 {
-  layout_->rowAt(0)->setStyleClass(isSelected ? "Wt-selected selected" : "");
+  layout_->bindString("selected", isSelected ?
+		      WApplication::instance()->theme()->activeClass() : "");
   selected().emit(isSelected);
 }
 
@@ -509,37 +521,27 @@ void WTreeNode::update()
   bool isLast = isLastChildNode();
 
   if (!visible_) {
-    layout_->rowAt(0)->hide();
-    expandIcon_->hide();
-    layout_->elementAt(0, 0)->resize(0, WLength::Auto);
-    layout_->elementAt(1, 0)->resize(0, WLength::Auto);
+    layout_->bindString("selected", "Wt-root");
+    childContainer()->addStyleClass("Wt-root");
   } else {
-    layout_->rowAt(0)->show();
-    expandIcon_->show();
-    layout_->elementAt(0, 0)->resize(WLength::Auto, WLength::Auto);
-    layout_->elementAt(1, 0)->resize(WLength::Auto, WLength::Auto);
+    layout_->bindEmpty("selected");
+    childContainer()->removeStyleClass("Wt-root");
   }
 
   WTreeNode *parent = parentNode();
   if (parent && !parent->childrenDecorated_) {
-    layout_->elementAt(0, 0)->hide();
-    layout_->elementAt(1, 0)->hide();
+    // FIXME
   }
 
   if (expandIcon_->state() != (isExpanded() ? 1 : 0))
     expandIcon_->setState(isExpanded() ? 1 : 0);
-  if (layout_->rowAt(1)->isHidden() != !isExpanded())
-    layout_->rowAt(1)->setHidden(!isExpanded());
+  if (childContainer()->isHidden() != !isExpanded())
+    childContainer()->setHidden(!isExpanded());
   if (labelIcon_ && (labelIcon_->state() != (isExpanded() ? 1 : 0)))
     labelIcon_->setState(isExpanded() ? 1 : 0);
 
-  if (isLast) {
-    layout_->elementAt(0, 0)->setStyleClass("Wt-end");
-    layout_->elementAt(1, 0)->setStyleClass("");
-  } else {
-    layout_->elementAt(0, 0)->setStyleClass("Wt-trunk");
-    layout_->elementAt(1, 0)->setStyleClass("Wt-trunk");
-  }
+  toggleStyleClass("Wt-trunk", !isLast);
+  layout_->bindString("trunk-class", isLast ? "Wt-end" : "Wt-trunk");
 
   if (!parentNode() || parentNode()->isExpanded()) {
     if (childCountPolicy_ == Enabled && !populated_)
@@ -547,13 +549,13 @@ void WTreeNode::update()
 
     if (!expandable()) {
       if (noExpandIcon_->parent() == 0) {
-	layout_->elementAt(0, 0)->addWidget(noExpandIcon_);
-	layout_->elementAt(0, 0)->removeWidget(expandIcon_);
+	layout_->takeWidget("expand");
+	layout_->bindWidget("expand", noExpandIcon_);
       }
     } else {
       if (expandIcon_->parent() == 0) {
-	layout_->elementAt(0, 0)->addWidget(expandIcon_);
-	layout_->elementAt(0, 0)->removeWidget(noExpandIcon_);
+	layout_->takeWidget("expand");
+	layout_->bindWidget("expand", expandIcon_);
       }
     }
   }

@@ -13,3 +13,34 @@ body {
     padding-left: 4px;
     padding-right: 4px;
 }
+
+.Wt-auth-registration {
+    width: 600px;
+}
+
+/*
+ * Override some bootstrap styles.
+ */
+
+/*
+ * Do not show informational help, only errors.
+ */
+.form-horizontal .help-inline > span {
+    display: none;
+}
+
+.control-group.error .help-inline > span {
+    display: inline-block;
+}
+
+.control-group.success .control-label,
+.control-group.success .help-inline {
+    color: inherit;
+}
+
+/*
+ * Do not constrain dialog maximum height
+ */
+.modal-body {
+    max-height: none;
+}

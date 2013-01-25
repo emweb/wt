@@ -11,12 +11,6 @@
 
 namespace Wt {
 
-class WIconPair;
-class WTable;
-class WText;
-class WImage;
-class WTableCell;
-
 /*! \class WTreeNode Wt/WTreeNode Wt/WTreeNode
  *  \brief A single node in a tree.
  *
@@ -310,7 +304,7 @@ protected:
    *
    * Use this to customize how the label should look like.
    */
-  WTableCell *labelArea();
+  WContainerWidget *labelArea();
 
   /*! \brief Populates the node dynamically on loading.
    *
@@ -409,9 +403,9 @@ protected:
 
   /*! \brief Accesses the icon pair that allows expansion of the tree node.
    */
-  WIconPair *expandIcon() { return expandIcon_; }
+  WIconPair *expandIcon() const { return expandIcon_; }
 
-  WTable *impl() { return layout_; }
+  WTemplate *impl() const { return layout_; }
 
 private:
   std::vector<WTreeNode *> childNodes_;
@@ -420,7 +414,7 @@ private:
   LoadPolicy               loadPolicy_;
   ChildCountPolicy         childCountPolicy_;
 
-  WTable                  *layout_;
+  WTemplate               *layout_;
   WIconPair               *expandIcon_;
   WText                   *noExpandIcon_;
   WIconPair		  *labelIcon_;
@@ -433,6 +427,7 @@ private:
 
   Signal<bool>             selected_;
 
+  WContainerWidget *childContainer();
   void loadChildren();
   void loadGrandChildren();
   void create();

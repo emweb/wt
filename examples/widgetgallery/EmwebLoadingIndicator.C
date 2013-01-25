@@ -11,8 +11,6 @@
 #include "Wt/WImage"
 #include "Wt/WText"
 
-using namespace Wt;
-
 EmwebLoadingIndicator::EmwebLoadingIndicator()
 {
   setInline(false);

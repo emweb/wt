@@ -1,0 +1,129 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLOCALE_H_
+#define WLOCALE_H_
+
+#include <Wt/WGlobal>
+#include <Wt/WString>
+
+namespace Wt {
+
+/*! \class WLocale Wt/WLocale Wt/WLocale
+ *  \brief A locale
+ *
+ * This class provides localization support for an application.
+ *
+ * It's functionality is currently limited to date and number
+ * formatting, and the formatting properties need to be configured
+ * here.
+ *
+ * \sa WApplication::locale()
+ */
+class WLocale
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * Configures a locale with an empty name, and US conventions:
+   *  - "yyyy/MM/dd" format for dates.
+   *  - "." as decimal point, and no group separator.
+   */
+  WLocale();
+
+  /*! \brief Copy constructor.
+   */
+  WLocale(const Wt::WLocale& locale);
+
+  /* \brief Creates a locale by name.
+   *
+   * The locale name is a string such as "en" (for English) or "en_UK"
+   * (for UK English).
+   */
+  WLocale(const std::string& locale);
+
+  /* \brief Creates a locale by name.
+   *
+   * The locale name is a string such as "en" (for English) or "en_UK"
+   * (for UK English).
+   */
+  WLocale(const char *locale);
+
+  /*! \brief Sets the decimal point.
+   *
+   * Sets the character used to separate integral from fractional
+   * digits in a double.
+   */
+  void setDecimalPoint(WT_UCHAR c);
+
+  /*! \brief Returns the decimal point.
+   *
+   * \sa setDecimalPoint()
+   */
+  WT_UCHAR decimalPoint() const { return decimalPoint_; }
+
+  /*! \brief Sets the decimal group separator.
+   *
+   * Sets the character used to separate thousands in a number.
+   */
+  void setGroupSeparator(WT_UCHAR c);
+
+  /*! \brief Returns the decimal group separator.
+   *
+   * \sa setGroupSeparator()
+   */
+  WT_UCHAR groupSeparator() const { return groupSeparator_; }
+
+  /*! \brief Sets the date format.
+   *
+   * Sets the default format for date entry, e.g. as used in
+   * WDateValidator. See WDate::toString() for the supported syntax.
+   */
+  void setDateFormat(const WT_USTRING& format);
+
+  /*! \brief Returns the date format.
+   *
+   * Returns the date format.
+   */
+  WT_USTRING dateFormat() const { return dateFormat_; }
+
+  /*! \brief Returns the locale name.
+   *
+   * This is the name of the locale that was set through the
+   * constructor.
+   */
+  std::string name() const { return name_; }
+
+  /*! \brief Returns the current (user) locale.
+   *
+   * This returns WApplication::instance()->locale() if the
+   * WApplication::instance() != 0, or a default locale otherwise.
+   */
+  static const WLocale& currentLocale();
+
+  double toDouble(const WT_USTRING& value) const;
+  int toInt(const WT_USTRING& value) const;
+
+  WT_USTRING toString(int value) const;
+  WT_USTRING toString(unsigned int value) const;
+  WT_USTRING toString(::int64_t value) const;
+  WT_USTRING toString(::uint64_t value) const;
+  WT_USTRING toString(double value) const;
+
+private:
+  std::string name_;
+  WT_UCHAR decimalPoint_, groupSeparator_;
+  WT_USTRING dateFormat_;
+
+  bool isDefaultNumberLocale() const;
+
+  WT_USTRING integerToString(const std::string& v) const;
+  std::string addGrouping(const std::string& v, unsigned decimalPoint) const;
+};
+
+}
+
+#endif // WLOCALE_H_

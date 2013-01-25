@@ -84,6 +84,10 @@ public:
    */
   Message(std::vector<Header> headers);
 
+  /*! \brief Copy constructor.
+   */
+  Message(const Message& message);
+
   /*! \brief Sets the status code.
    *
    * \note This method is probably not useful to you, since for a request

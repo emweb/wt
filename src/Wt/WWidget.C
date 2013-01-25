@@ -108,7 +108,12 @@ void WWidget::renderOk()
   }
 }
 
-void WWidget::askRerender(bool laterOnly)
+void WWidget::scheduleRender()
+{
+  scheduleRerender(false);
+}
+
+void WWidget::scheduleRerender(bool laterOnly)
 {
   if (!flags_.test(BIT_NEED_RERENDER)) {
     flags_.set(BIT_NEED_RERENDER);
@@ -320,16 +325,16 @@ DomElement *WWidget::createSDomElement(WApplication *app)
   if (!needsToBeRendered()) {
     DomElement *result = webWidget()->createStubElement(app);
     renderOk();
-    askRerender(true);
+    scheduleRerender(true);
     return result;
   } else {
     webWidget()->setRendered(true);
     render(RenderFull);
-    return webWidget()->createActualElement(app);
+    return webWidget()->createActualElement(this, app);
   }
 }
 
-std::string WWidget::createJavaScript(std::stringstream& js,
+std::string WWidget::createJavaScript(WStringStream& js,
 				      std::string insertJS)
 {
   WApplication *app = WApplication::instance();

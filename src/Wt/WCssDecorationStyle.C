@@ -299,37 +299,45 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
 			  + WApplication::instance()
 			  ->resolveRelativeUrl(backgroundImage_.url()) + ")" 
 			  : "none");
-      switch (backgroundImageRepeat_) {
-      case RepeatXY:
-	element.setProperty(PropertyStyleBackgroundRepeat, "repeat"); break;
-      case RepeatX:
-	element.setProperty(PropertyStyleBackgroundRepeat, "repeat-x"); break;
-      case RepeatY:
-	element.setProperty(PropertyStyleBackgroundRepeat, "repeat-y"); break;
-      case NoRepeat:
-	element.setProperty(PropertyStyleBackgroundRepeat, "no-repeat");break;
-      }
 
-      if (backgroundImageLocation_) {
-	// www3schools claims this is needed for mozilla -- but not true ?
-	//element.setProperty(PropertyStyleBackgroundAttachment, "fixed");
+      if (backgroundImageRepeat_ != RepeatXY
+	  || backgroundImageLocation_ != 0) {
+	switch (backgroundImageRepeat_) {
+	case RepeatXY:
+	  element.setProperty(PropertyStyleBackgroundRepeat, "repeat");
+	  break;
+	case RepeatX:
+	  element.setProperty(PropertyStyleBackgroundRepeat, "repeat-x");
+	  break;
+	case RepeatY:
+	  element.setProperty(PropertyStyleBackgroundRepeat, "repeat-y");
+	  break;
+	case NoRepeat:
+	  element.setProperty(PropertyStyleBackgroundRepeat, "no-repeat");
+	  break;
+	}
 
-	std::string location;
-	if (backgroundImageLocation_ & CenterY)
-	  location += " center";
-	else if (backgroundImageLocation_ & Bottom)
-	  location += " bottom";
-	else
-	  location += " top";
+	if (backgroundImageLocation_) {
+	  // www3schools claims this is needed for mozilla -- but not true ?
+	  //element.setProperty(PropertyStyleBackgroundAttachment, "fixed");
 
-	if (backgroundImageLocation_ & CenterX)
-	  location += " center";
-	else if (backgroundImageLocation_ & Right)
-	  location += " right";
-	else 
-	  location += " left";
+	  std::string location;
+	  if (backgroundImageLocation_ & CenterY)
+	    location += " center";
+	  else if (backgroundImageLocation_ & Bottom)
+	    location += " bottom";
+	  else
+	    location += " top";
 
-	element.setProperty(PropertyStyleBackgroundPosition, location);
+	  if (backgroundImageLocation_ & CenterX)
+	    location += " center";
+	  else if (backgroundImageLocation_ & Right)
+	    location += " right";
+	  else 
+	    location += " left";
+
+	  element.setProperty(PropertyStyleBackgroundPosition, location);
+	}
       }
     }
 

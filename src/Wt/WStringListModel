@@ -14,14 +14,11 @@ namespace Wt {
 /*! \class WStringListModel Wt/WStringListModel Wt/WStringListModel
  *  \brief An model that manages a list of strings.
  *
- * This model only manages a unidimensional list of strings. It is
- * used as the default model for view classes that show a
- * list.
+ * This model only manages a unidimensional list of items and is
+ * optimized for usage by view widgets such as combo-boxes.
  *
- * The model only presents \link Wt::DisplayRole DisplayRole\endlink
- * data of a single column of data, but otherwise provides support for
- * all standard features of a model, including editing and addition
- * and removal of data rows.
+ * It supports all features of a typical item model, including data
+ * for multiple roles, editing and addition and removal of data rows.
  *
  * You can populate the model by passing a list of strings to its
  * consructor, or by using the setStringList() method. You can set or
@@ -76,7 +73,7 @@ public:
    *
    * \sa setStringList()
    */
-  const std::vector<WString>& stringList() const { return strings_; }
+  const std::vector<WString>& stringList() const { return displayData_; }
 
   /*! \brief Returns the flags for an item.
    *
@@ -106,7 +103,14 @@ public:
   virtual void sort(int column, SortOrder order = AscendingOrder);
 
 private:
-  std::vector<WString> strings_;
+#ifndef WT_TARGET_JAVA
+  typedef std::map<int, boost::any> DataMap;
+#else
+  typedef std::treemap<int, boost::any> DataMap;
+#endif
+
+  std::vector<WString> displayData_;
+  std::vector<DataMap> *otherData_;
 };
 
 }

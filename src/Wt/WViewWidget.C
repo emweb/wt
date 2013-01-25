@@ -27,7 +27,7 @@ void WViewWidget::update()
 {
   needContentsUpdate_ = true;
   if (isRendered())
-    askRerender();
+    scheduleRender();
 }
 
 void WViewWidget::refresh()

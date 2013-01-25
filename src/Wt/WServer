@@ -337,6 +337,21 @@ public:
 		       const boost::function<void ()>& fallBackFunction
 		         = boost::function<void ()>());
 
+  /*! \brief Change input method for server certificate passwords (http backend)
+   *
+   * The private server identity key may be protected by a password. If you
+   * want to control how the password is retrieved, set a password handler
+   * by calling this function. If no password handler is set, the OpenSSL
+   * default handler will be used, which asks to enter the password on stdio.
+   *
+   * This function must be called before calling start().
+   *
+   * The max_length parameter is informational and indicates that the
+   * underlying implementation will truncate the password to this length.
+   */
+  WT_API void setSslPasswordCallback(
+    boost::function<std::string (std::size_t max_length)> cb);
+
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA

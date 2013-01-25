@@ -229,6 +229,13 @@ void WServer::resume()
   }
 }
 
+void WServer::setSslPasswordCallback(
+  boost::function<std::string (std::size_t max_length)> cb)
+{
+  LOG_INFO_S(this,
+    "setSslPasswordCallback(): has no effect in fcgi connector");
+}
+
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {

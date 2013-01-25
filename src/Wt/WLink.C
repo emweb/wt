@@ -168,8 +168,8 @@ JSlot *WLink::manageInternalPathChange(WApplication *app,
       }
 
       slot->setJavaScript
-	("function(){"
-	 WT_CLASS ".history.navigate("
+	("function(){" +
+	 app->javaScriptClass() + "._p_.setHash("
 	 + WWebWidget::jsStringLiteral(internalPath()) + ",true);"
 	 "}");
 

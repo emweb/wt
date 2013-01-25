@@ -82,10 +82,12 @@ void WCalendar::create()
   WStringStream text;
 
   text <<
-    "<table class=\"${table-class}\" cellspacing=\"0\" cellpadding=\"0\">"
-    """<caption>"
-    ""  "${nav-prev} ${month} ${year} ${nav-next}"
-    """</caption>"
+    "<table class=\"days ${table-class}\" cellspacing=\"0\" cellpadding=\"0\">"
+    """<tr>"
+    ""  "<th>${nav-prev}</th>"
+    ""  "<th colspan=\"5\">${month} ${year}</th>"
+    ""  "<th>${nav-next}</th>"
+    """</tr>"
     """<tr>";
 
   for (int j = 0; j < 7; ++j)
@@ -204,7 +206,7 @@ void WCalendar::renderMonth()
   needRenderMonth_ = true;
 
   if (isRendered())
-    askRerender();
+    scheduleRender();
 }
 
 void WCalendar::render(WFlags<RenderFlag> flags)
@@ -259,10 +261,16 @@ void WCalendar::render(WFlags<RenderFlag> flags)
 	WInteractWidget* iw = dynamic_cast<WInteractWidget*>(rw->webWidget());
 
 	if (iw && iw != w) {
-	  cellClickMapper_
-	    ->mapConnect(iw->clicked(), Coordinate(i, j));
-	  cellDblClickMapper_
-	    ->mapConnect(iw->doubleClicked(), Coordinate(i, j));
+	  if (clicked().isConnected() 
+	      || (selectionMode_ != ExtendedSelection && singleClickSelect_
+		  && activated().isConnected()))
+	    cellClickMapper_
+	      ->mapConnect(iw->clicked(), Coordinate(i, j));
+
+	  if ((selectionMode_ != ExtendedSelection && !singleClickSelect_
+	       && activated().isConnected()))
+	    cellDblClickMapper_
+	      ->mapConnect(iw->doubleClicked(), Coordinate(i, j));
 	}
 
 	d += date_duration(1);
@@ -416,8 +424,10 @@ void WCalendar::cellDblClicked(Coordinate weekday)
   if (isInvalid(d))
     return;
 
-  clicked().emit(d);
-  activated().emit(d);
+  selectInCurrentMonth(d);
+
+  if (selectionMode_ != ExtendedSelection && !singleClickSelect_)
+    activated().emit(d);
 }
 
 date WCalendar::dateForCell(int week, int dayOfWeek)

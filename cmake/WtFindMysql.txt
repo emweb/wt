@@ -17,13 +17,14 @@ FIND_PATH(MYSQL_INCLUDE mysql.h
     /usr/local/include/mysql
 )
 
-SET(MYSQL_LIBRARY "mariadb;mariadbclient" CACHE STRING "Library that provides MySQL/MariaDB API")
+SET(MYSQL_LIBRARY "mariadb;mariadbclient" CACHE STRING "Library that provides MySQL/MariaDB API (set to mysqlclient for mysql on unix; libmysql on windows)")
 
 FIND_LIBRARY(MYSQL_LIB
     NAMES
 	${MYSQL_LIBRARY}
     PATHS
     ${MYSQL_PREFIX}/lib
+    ${MYSQL_PREFIX}/lib/opt
     /usr/lib
     /usr/local/lib
     /opt/local/lib

@@ -73,6 +73,17 @@ public:
    */
   WDatePicker(WContainerWidget *parent = 0);
 
+  /*! \brief Create a new date picker for a line edit.
+   *
+   * This constructor creates an icon that leads to a popup calendar.
+   *
+   * The \p forEdit argument is the lineEdit that works in conjunction
+   * with the date picker. This widget does not become part of the
+   * date picker, and may be located anywhere else.
+   */
+  WDatePicker(WLineEdit *forEdit,
+	      WContainerWidget *parent = 0);
+
   /*! \brief Create a new date picker for existing line edit and with custom
    *         display widget.
    *
@@ -165,7 +176,8 @@ public:
 
   /*! \brief Hide/unhide the widget.
    */
-  virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
 
   /*! \brief Sets the bottom of the valid date range.
    */
@@ -213,19 +225,22 @@ public:
    */
   Signal<>& popupClosed() { return popupClosed_; }
 
+protected:
+  virtual void render(WFlags<RenderFlag> flags);
+
 private:
-  WT_USTRING        format_;
-  WInteractWidget  *displayWidget_;
-  WLineEdit        *forEdit_;
+  WT_USTRING format_;
+  WInteractWidget *displayWidget_;
+  WLineEdit *forEdit_;
 
   WContainerWidget *layout_;
-  WTemplate        *popup_;
-  WCalendar        *calendar_;
+  WPopupWidget *popup_;
+  WCalendar *calendar_;
 
   Signal<> popupClosed_, changed_;
   JSlot positionJS_;
 
-  void createDefault();
+  void createDefault(WLineEdit *forEdit);
   void create(WInteractWidget *displayWidget, WLineEdit *forEdit);
 
   void setFromCalendar();

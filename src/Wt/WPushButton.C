@@ -5,40 +5,121 @@
  */
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WPopupMenu"
 #include "Wt/WPushButton"
 #include "Wt/WResource"
+#include "Wt/WTheme"
 
 #include "DomElement.h"
 
 namespace Wt {
 
+const char *WPushButton::CHECKED_SIGNAL = "M_checked";
+const char *WPushButton::UNCHECKED_SIGNAL = "M_unchecked";
+
 WPushButton::WPushButton(WContainerWidget *parent)
   : WFormWidget(parent),
-    linkTarget_(TargetSelf),
-    redirectJS_(0)
-{ }
+    popupMenu_(0)
+{ 
+  text_.format = PlainText;
+}
 
 WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
   : WFormWidget(parent),
-    text_(text),
-    linkTarget_(TargetSelf),
-    redirectJS_(0)
-{ }
-
-WPushButton::~WPushButton()
-{
-  delete redirectJS_;
+    popupMenu_(0)
+{ 
+  text_.format = PlainText;
+  text_.text = text;
 }
 
-void WPushButton::setText(const WString& text)
+bool WPushButton::setText(const WString& text)
 {
-  if (canOptimizeUpdates() && (text == text_))
-    return;
+  if (canOptimizeUpdates() && (text == text_.text))
+    return true;
 
-  text_ = text;
+  bool ok = text_.setText(text);
+
   flags_.set(BIT_TEXT_CHANGED);
-
   repaint(RepaintInnerHtml);
+
+  return ok;
+}
+
+void WPushButton::setDefault(bool enabled)
+{
+  flags_.set(BIT_DEFAULT);
+}
+
+bool WPushButton::isDefault() const
+{
+  return flags_.test(BIT_DEFAULT);
+}
+
+void WPushButton::setCheckable(bool checkable)
+{
+  flags_.set(BIT_IS_CHECKABLE, checkable);
+
+  if (checkable) {
+    clicked().connect("function(o,e) { $(o).toggleClass('active'); }");
+    clicked().connect(this, &WPushButton::toggled);
+  }
+}
+
+void WPushButton::toggled()
+{
+  // FIXME: later, make it a true EventSignal
+
+  flags_.set(BIT_IS_CHECKED, !isChecked());
+
+  if (isChecked())
+    checked().emit();
+  else
+    unChecked().emit();
+}
+
+EventSignal<>& WPushButton::checked()
+{
+  return *voidEventSignal(CHECKED_SIGNAL, true);
+}
+
+EventSignal<>& WPushButton::unChecked()
+{
+  return *voidEventSignal(UNCHECKED_SIGNAL, true);
+}
+
+bool WPushButton::isCheckable() const
+{
+  return flags_.test(BIT_IS_CHECKABLE);
+}
+
+void WPushButton::setChecked(bool checked)
+{
+  if (isCheckable()) {
+    flags_.set(BIT_IS_CHECKED, checked);
+
+    flags_.set(BIT_CHECKED_CHANGED, true);
+    repaint(RepaintInnerHtml);
+  }
+}
+
+void WPushButton::setChecked()
+{
+  setChecked(true);
+}
+
+void WPushButton::setUnChecked()
+{
+  setChecked(false);
+}
+
+bool WPushButton::isChecked() const
+{
+  return flags_.test(BIT_IS_CHECKED);
+}
+
+bool WPushButton::setTextFormat(TextFormat textFormat)
+{
+  return text_.setFormat(textFormat);
 }
 
 void WPushButton::setIcon(const WLink& link)
@@ -54,21 +135,22 @@ void WPushButton::setIcon(const WLink& link)
 
 void WPushButton::setLink(const WLink& link)
 {
-  if (link == link_)
+  if (link == linkState_.link)
     return;
 
-  link_ = link;
+  linkState_.link = link;
   flags_.set(BIT_LINK_CHANGED);
 
-  if (link.type() == WLink::Resource)
-    link.resource()->dataChanged().connect(this, &WPushButton::resourceChanged);
+  if (linkState_.link.type() == WLink::Resource)
+    linkState_.link.resource()->dataChanged()
+      .connect(this, &WPushButton::resourceChanged);
 
   repaint(RepaintPropertyIEMobile);
 }
 
 void WPushButton::setLinkTarget(AnchorTarget target)
 {
-  linkTarget_ = target;
+  linkState_.target = target;
 }
 
 void WPushButton::setRef(const std::string& url)
@@ -87,29 +169,41 @@ void WPushButton::resourceChanged()
   repaint(RepaintPropertyIEMobile);
 }
 
+void WPushButton::setMenu(WPopupMenu *popupMenu)
+{
+  popupMenu_ = popupMenu;
+
+  if (popupMenu_)
+    popupMenu_->setButton(this);
+}
+
 void WPushButton::doRedirect()
 {
   WApplication *app = WApplication::instance();
 
   if (!app->environment().ajax()) {
-    if (link_.type() == WLink::InternalPath)
-      app->setInternalPath(link_.internalPath().toUTF8(), true);
+    if (linkState_.link.type() == WLink::InternalPath)
+      app->setInternalPath(linkState_.link.internalPath().toUTF8(), true);
     else
-      app->redirect(link_.url());
+      app->redirect(linkState_.link.url());
   }
 }
 
 DomElementType WPushButton::domElementType() const
 {
+  if (!linkState_.link.isNull()) {
+    WApplication *app = WApplication::instance();
+    if (app->theme()->canStyleAnchorAsButton())
+      return DomElement_A;
+  }
+
   return DomElement_BUTTON;
 }
 
 void WPushButton::updateDom(DomElement& element, bool all)
 {
-  if (all) {
+  if (all && element.type() == DomElement_BUTTON)
     element.setAttribute("type", "button");
-    element.setProperty(PropertyClass, "Wt-btn");
-  }
 
   bool updateInnerHtml = !icon_.isNull() && flags_.test(BIT_TEXT_CHANGED);
 
@@ -123,50 +217,71 @@ void WPushButton::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
-    element
-      .setProperty(Wt::PropertyInnerHTML,
-		   text_.literal() ? escapeText(text_, true).toUTF8()
-		   : text_.toUTF8());
+    element.setProperty(Wt::PropertyInnerHTML, text_.formattedText());
+
     flags_.reset(BIT_TEXT_CHANGED);
   }
 
-  if (flags_.test(BIT_LINK_CHANGED) || (all && !link_.isNull())) {
-    if (!link_.isNull()) {
-      WApplication *app = WApplication::instance();
+  bool needsUrlResolution = false;
 
-      if (!redirectJS_) {
-	redirectJS_ = new JSlot();
-	clicked().connect(*redirectJS_);
+  if (flags_.test(BIT_LINK_CHANGED) || all) {
+    if (element.type() == DomElement_A) {
+      needsUrlResolution = WAnchor::renderHRef(this, linkState_, element);
+      WAnchor::renderHTarget(linkState_, element, all);
+    } else
+      renderHRef(element);
 
-	if (!app->environment().ajax())
-	  clicked().connect(this, &WPushButton::doRedirect);
+    flags_.reset(BIT_LINK_CHANGED);
+  }
+
+  if (isCheckable()) {
+    if (flags_.test(BIT_CHECKED_CHANGED) || all) {
+      if (!all || flags_.test(BIT_IS_CHECKED)) {
+	toggleStyleClass("active", flags_.test(BIT_IS_CHECKED), true);
       }
 
-      if (link_.type() == WLink::InternalPath)
-	redirectJS_->setJavaScript
-	  ("function(){"
-	   WT_CLASS ".history.navigate(" + jsStringLiteral(link_.internalPath())
-	   + ",true);"
-	   "}");
-      else
-	if (linkTarget_ == TargetNewWindow)
-	  redirectJS_->setJavaScript
-	    ("function(){"
-	     "window.open(" + jsStringLiteral(link_.url()) + ");"
-	     "}");
-	else
-	  redirectJS_->setJavaScript
-	    ("function(){"
-	     "window.location=" + jsStringLiteral(link_.url()) + ";"
-	     "}");
-      clicked().senderRepaint(); // XXX only for Java port necessary
-    } else {
-      delete redirectJS_;
-      redirectJS_ = 0;
+      flags_.reset(BIT_CHECKED_CHANGED);
     }
   }
 
   WFormWidget::updateDom(element, all);
+}
+
+void WPushButton::renderHRef(DomElement& element)
+{
+  if (!linkState_.link.isNull()) {
+    WApplication *app = WApplication::instance();
+
+    if (!linkState_.clickJS) {
+      linkState_.clickJS = new JSlot();
+      clicked().connect(*linkState_.clickJS);
+
+      if (!app->environment().ajax())
+	clicked().connect(this, &WPushButton::doRedirect);
+    }
+
+    if (linkState_.link.type() == WLink::InternalPath)
+      linkState_.clickJS->setJavaScript
+	("function(){" +
+	 app->javaScriptClass() + "_p_.setHash("
+	 + jsStringLiteral(linkState_.link.internalPath()) + ",true);"
+	 "}");
+    else
+      if (linkState_.target == TargetNewWindow)
+	linkState_.clickJS->setJavaScript
+	  ("function(){"
+	   "window.open(" + jsStringLiteral(linkState_.link.url()) + ");"
+	   "}");
+      else
+	linkState_.clickJS->setJavaScript
+	  ("function(){"
+	   "window.location=" + jsStringLiteral(linkState_.link.url()) + ";"
+	   "}");
+    clicked().senderRepaint(); // XXX only for Java port necessary
+  } else {
+    delete linkState_.clickJS;
+    linkState_.clickJS = 0;
+  }
 }
 
 void WPushButton::getDomChanges(std::vector<DomElement *>& result,
@@ -206,7 +321,7 @@ void WPushButton::setValueText(const WT_USTRING& value)
 
 void WPushButton::refresh()
 {
-  if (text_.refresh()) {
+  if (text_.text.refresh()) {
     flags_.set(BIT_TEXT_CHANGED);
     repaint(RepaintInnerHtml);
   }

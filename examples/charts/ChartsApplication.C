@@ -15,6 +15,11 @@ public:
   ChartsApplication(const WEnvironment& env)
     : WApplication(env)
   {
+    WLocale l;
+    l.setDecimalPoint(",");
+    l.setGroupSeparator(".");
+    setLocale(l);
+
     setTitle("Charts example");
 
     setCssTheme("polished");
@@ -24,7 +29,6 @@ public:
     root()->resize(WLength::Auto, WLength::Auto);
 
     new ChartsExample(root());
-
 
     /*
      * Set our style sheet last, so that it loaded after the ext stylesheets.

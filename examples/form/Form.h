@@ -58,7 +58,7 @@ private:
   WComboBox *countryEdit_;
   WComboBox *cityEdit_;
 
-  WDatePicker *birthDateEdit_;
+  WDateEdit *birthDateEdit_;
   WLineEdit *childCountEdit_;
   WLineEdit *weightEdit_;
 

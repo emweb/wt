@@ -8,6 +8,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WFormWidget"
 #include "Wt/WLabel"
+#include "Wt/WTheme"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -116,7 +117,6 @@ void WFormWidget::propagateSetEnabled(bool enabled)
 {
   flags_.set(BIT_ENABLED_CHANGED);
   repaint(RepaintPropertyAttribute);
-  
   WInteractWidget::propagateSetEnabled(enabled);
 }
 
@@ -241,8 +241,7 @@ void WFormWidget::validatorChanged()
       changed().connect(*validateJs_);
       if (domElementType() != DomElement_SELECT)
 	clicked().connect(*validateJs_);
-    } else if (isRendered())
-      doJavaScript(validateJs_->execJs(jsRef()));
+    }
   } else {
     delete validateJs_;
     validateJs_ = 0;
@@ -399,7 +398,9 @@ void WFormWidget::setValidator(WValidator *validator)
       WObject::addChild(validator_);
 #endif // WT_TARGET_JAVA
   } else {
-    removeStyleClass("Wt-invalid", true);
+    WApplication::instance()->theme()
+      ->applyValidationStyle(this, WValidator::Result(), ValidationNoStyle);
+
     delete validateJs_;
     validateJs_ = 0;
     delete filterInput_;
@@ -412,7 +413,8 @@ WValidator::State WFormWidget::validate()
   if (validator()) {
     WValidator::Result result = validator()->validate(valueText());
 
-    toggleStyleClass("Wt-invalid", result.state() != WValidator::Valid, true);
+    WApplication::instance()->theme()
+      ->applyValidationStyle(this, result, ValidationInvalidStyle);
 
     if (validationToolTip_ != result.message()) {
       validationToolTip_ = result.message();

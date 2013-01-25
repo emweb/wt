@@ -229,20 +229,12 @@ div #main_menu ul{
 	list-style:none;
 	}
 
-div #main_menu ul ul{
-       padding-bottom:0px;
-       margin-bottom:0px;
-       text-indent:25px;
-       list-style:none;
-       }
-	
 div #main_menu li{
 	padding-top: 8px;
 	width:200px;
 	}
 	
 div#main_menu a {
-	color: #BEBEBE;
 	font-size: 1.25em;
 	font-weight:600;
 	letter-spacing:2px;
@@ -254,7 +246,11 @@ div#main_menu a {
         width:200px;
 	}
 
-div#main_menu .itemselected{
+div#main_menu .item a {
+	color: #BEBEBE;
+	}
+
+div#main_menu .itemselected a {
 	 color: black;
 	}
 
@@ -318,17 +314,18 @@ div#footer_menu  {
       margin-top: 15px;
 }
 
-.home .Wt-tabs ul {
+.home .Wt-tabs {
     background: transparent url(tab_b.gif) repeat-x scroll center bottom;
 }
 
-.home .Wt-tabs span {
+.home .Wt-tabs li {
     background: transparent url(tab_r.gif) no-repeat scroll right top;
     border-bottom:1px solid #accf8a;
 }
 
-.home .Wt-tabs span span {
+.home .Wt-tabs a {
     background: transparent url(tab_l.gif) no-repeat scroll left top;
+    border-bottom:1px solid #accf8a;
 }
 
 .home .Wt-tabs span:hover {

@@ -6,6 +6,7 @@
 
 #include <Wt/WApplication>
 #include <Wt/WBreak>
+#include <Wt/WDoubleValidator>
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
@@ -42,10 +43,17 @@ HelloApplication::HelloApplication(const WEnvironment& env)
   : WApplication(env)
 {
   setTitle("Hello world");                               // application title
+  WLocale l;
+  l.setDecimalPoint(",");
+  l.setGroupSeparator(".");
+  setLocale(l);
 
   root()->addWidget(new WText("Your name, please ? "));  // show some text
   nameEdit_ = new WLineEdit(root());                     // allow text input
   nameEdit_->setFocus();                                 // give focus
+
+  WDoubleValidator *v = new WDoubleValidator(this);
+  nameEdit_->setValidator(v);
 
   WPushButton *button
     = new WPushButton("Greet me.", root());              // create a button

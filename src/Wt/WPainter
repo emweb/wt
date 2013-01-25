@@ -102,8 +102,8 @@ class WRectF;
  * coordinates.
  *
  * The painter provides support for clipping using an arbitrary \link
- * WPainterPath path\endlink, but not that the %VmlImage only has
- * limited support for clipping.
+ * WPainterPath path\endlink, but not that the %WVmlImage paint device
+ * only has limited support for clipping.
  *
  * \if cpp
  * Usage example:
@@ -728,7 +728,11 @@ public:
    * Enables are disables clipping for subsequent operations using the
    * current clip path set using setClipPath().
    *
-   * \p Note: Clipping is not supported for the VML renderer.
+   * \note Clipping support is limited for the VML renderer.
+   *    Only clipping with a rectangle is supported for the VML
+   *    renderer (see WPainterPath::addRect()). The rectangle must,
+   *    after applying the combined transformation system, be aligned
+   *    with the window.
    *
    * \sa hasClipping(), setClipPath(const WPainterPath&)
    */
@@ -736,7 +740,7 @@ public:
 
   /*! \brief Returns whether clipping is enabled.
    *
-   * \p Note: Clipping is not supported for the VML renderer.
+   * \note Clipping support is limited for the VML renderer.
    *
    * \sa setClipping(bool), setClipPath(const WPainterPath&)
    */
@@ -749,10 +753,7 @@ public:
    * using setClipping(bool). The path is specified in local
    * coordinates.
    *
-   * <i>Note: Only clipping with a rectangle is supported for the VML
-   *    renderer (see WPainterPath::addRect()). The rectangle must,
-   *    after applying the combined transformation system, be aligned
-   *    with the window.</i>
+   * \note Clipping support is limited for the VML renderer.
    *
    * \sa clipPath(), setClipping(bool)
    */
@@ -929,6 +930,8 @@ public:
     const;
 
 private:
+  WPainter(const WPainter&);
+
   WPaintDevice *device_;
   WRectF        viewPort_, window_;
   WTransform    viewTransform_;

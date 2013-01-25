@@ -333,9 +333,12 @@ Value Value::toBool() const
     return *this;
   else if (t == typeid(WT_USTRING)) {
     const WT_USTRING& s = boost::any_cast<const WT_USTRING& >(v_);
-    if      (s == "true") return True;
-    else if (s == "false") return False;
-    else return Null;
+    if (s == "true")
+      return True;
+    else if (s == "false")
+      return False;
+    else
+      return Null;
   } else
     return Null;
 }

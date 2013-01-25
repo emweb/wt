@@ -121,6 +121,11 @@ WT_DECLARE_WT_MEMBER
 
      if (scrollWidth === 0) {
        scrollWidth = WT.pxself(element, DC.size);
+
+       if (scrollWidth !== 0 && !WT.isOpera && !WT.isGecko)
+	 scrollWidth -=
+	   WT.px(element, 'border' + DC.Left + 'Width') +
+	   WT.px(element, 'border' + DC.Right + 'Width');
      }
 
      if (scrollWidth === clientWidth) {
@@ -730,8 +735,17 @@ WT_DECLARE_WT_MEMBER
 	       ieCSize = 0;
 	     }
 
-	     if ((WT.isIElt9 && cSize == ieCSize)
-		 || (cSize == minSize + padding(container, dir))) {
+	     if (debug)
+	       console.log('cSize : ' + cSize + ', ieCSize : ' + ieCSize
+			   + ', minSize : ' + minSize + ', padding: '
+			   + padding(container, dir));
+
+	     function epsEqual(a, b) {
+	       return Math.abs(a - b) < 0.1;
+	     }
+
+	     if ((WT.isIElt9 && epsEqual(cSize, ieCSize))
+		 || (epsEqual(cSize, minSize + padding(container, dir)))) {
 	       if (debug)
 		 console.log('switching to managed container size '
 			     + dir + ' ' + id);
@@ -1417,7 +1431,10 @@ WT_DECLARE_APP_MEMBER
 
     var adjustScheduled = false, needRemeasure = false;
 
-    this.scheduleAdjust = function() {
+    this.scheduleAdjust = function(forceMeasureVertical) {
+      if (forceMeasureVertical)
+	measureVertical = true;
+
       if (adjustScheduled)
 	return;
 
@@ -1507,9 +1524,7 @@ WT_DECLARE_APP_MEMBER
     };
 
     window.onresize = function() {
-      measureVertical = true;
-
-      self.scheduleAdjust();
+      self.scheduleAdjust(true);
     };
 
     window.onshow = function() {

@@ -11,17 +11,24 @@
     margin-bottom: 0px;
 }
 
-.home .Wt-tabs span span {
+.home .Wt-tabs span {
     color:#777777;
 }
 
 .home .Wt-tabs a {
-    border-bottom:1px solid #accf8a;
     text-decoration: none;
 }
 
-.home .Wt-tabs span.itemselected span {
+.home .Wt-tabs .itemselected span {
     color:black;
+}
+
+.home .Wt-tabs .itemselected {
+    background-position:100% -150px;
+}
+
+.home .Wt-tabs .itemselected a {
+    background-position:0% -150px;
 }
 
 .home .Wt-tabs span:hover {

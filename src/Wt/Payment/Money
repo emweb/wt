@@ -148,10 +148,6 @@ extern WT_API Money operator* (double v1, const Money& v2);
  */
 extern WT_API Money operator/ (const Money& v1, double v2);
 
-//extern Wt::WStringStream operator<< (Wt::WStringStream &in,
-                                     //const Money &v);
-
-
   }
 }
 

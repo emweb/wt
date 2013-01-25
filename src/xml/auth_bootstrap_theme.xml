@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+  <message id="Wt.Auth.field">
+    ${<if:{1}>}
+    <div class="control-group">
+      <label for="${id:{1}}" class="control-label">
+        ${tr:Wt.Auth.{1}}
+      </label>
+      <div class="controls">
+	${{1}} <span class="help-inline">${{1}-info}</span>
+      </div>
+    </div>
+    ${</if:{1}>}
+  </message>
+
+  <message id="Wt.Auth.template.login">
+    <div class="span8 offset2 Wt-auth-login">
+      <legend>${tr:Wt.Auth.login-form-title}</legend>
+      <p>${tr:Wt.Auth.login-form-info}</p>
+
+      <div class="form-horizontal">
+	${<if:passwords>}
+          <div class="control-group">
+	    <label for="${id:user-name}" class="control-label">
+	      ${user-name-label}
+	    </label>
+	    <div class="controls">
+	      ${user-name} <span class="help-inline">${user-name-info}</span>
+	    </div>
+	  </div>
+
+	  ${block:Wt.Auth.field password}
+	  ${block:Wt.Auth.field remember-me}
+	${</if:passwords>}
+
+	${<if:oauth>}
+	  <div class="control-group">
+	    <div class="controls">
+	      <p>Or login using:</p>
+	      ${icons}
+	    </div>
+	  </div>
+	${</if:oauth>}
+
+	<div class="form-actions">
+	  <p>${login class="btn-primary"}</p>
+	  <p>${lost-password class="btn-link"} ${sep}
+	  ${register class="btn-link"}</p>
+	</div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.registration">
+    <div class="Wt-auth-registration">
+      <p class="lead">
+	${password-description}
+      </p>
+
+      <div class="form-horizontal">
+        ${<if:user-name>}
+	  <div class="control-group">
+	    <label for="${id:user-name}" class="control-label">
+	      ${user-name-label}
+	    </label>
+	    <div class="controls">
+	      ${user-name}
+	      <span class="help-inline">
+		${user-name-info} ${confirm-is-you class="btn-link"}
+	      </span>
+	    </div>
+	  </div>
+	${</if:user-name>}
+
+	${block:Wt.Auth.field choose-password}
+	${block:Wt.Auth.field repeat-password}
+	${block:Wt.Auth.field email}
+
+	${<if:oauth>}
+	  <p class="lead">
+	    ${oauth-description}
+	  </p>
+	  <div class="control-group">
+	    <label class="control-label">${tr:Wt.Auth.oauth}</label>
+	    <div class="controls">
+	      ${icons}
+	    </div>
+	  </div>
+	${</if:oauth>}
+
+	<div class="modal-footer"> <!-- assuming here we're in a dialog -->
+	  ${ok-button class="btn-primary"} ${cancel-button}
+	</div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.update-password">
+    <div class="Wt-auth-update-password">
+      <div class="form-horizontal">
+	<div class="control-group">
+	  <label for="${id:user-name}" class="control-label">
+	    ${tr:Wt.Auth.user-name}
+	  </label>
+	  <div class="controls">
+	    ${user-name}
+	  </div>
+	</div>
+
+	${block:Wt.Auth.field old-password}
+	${block:Wt.Auth.field new-password}
+	${block:Wt.Auth.field repeat-new-password}
+
+	<div class="modal-footer"> 
+	  ${ok-button class="btn-primary"} ${cancel-button}
+	</div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.lost-password">
+    <div class="Wt-form Wt-auth-lost-password">
+      <div class="form-horizontal">
+	<div class="control-group">
+	  <label for="${id:email}" class="control-label">
+	    ${tr:Wt.Auth.email}
+	  </label>
+	  <div class="controls">
+	    ${email}
+	    <span class="help-inline">
+	      <span>${tr:Wt.Auth.email-info}</span>
+	    </span>
+	  </div>
+	</div>
+
+	<div class="modal-footer"> <!-- assuming here we're in a dialog -->
+	  ${send-button class="btn-primary"} ${cancel-button}
+	</div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.password-prompt">
+    <div class="Wt-form Wt-auth-password-prompt">
+      <div class="form-horizontal">
+	<div class="control-group">
+	  <label for="${id:user-name}" class="control-label">
+	    ${tr:Wt.Auth.user-name}
+	  </label>
+	  <div class="controls">
+	    ${user-name}
+	  </div>
+	</div>
+
+	${block:Wt.Auth.field password}
+      </div>
+
+      <div class="Wt-buttons">
+	${ok-button} ${cancel-button}
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.logged-in">
+    <div class="Wt-auth-logged-in">
+      <b>${user-name}</b> ${logout}
+    </div>
+  </message>
+</messages>

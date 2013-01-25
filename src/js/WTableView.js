@@ -8,7 +8,8 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTableView",
- function(APP, el, contentsContainer, headerContainer, headerColumnsContainer) {
+ function(APP, el, contentsContainer, headerContainer, headerColumnsContainer,
+	  selectedClass) {
    jQuery.data(el, 'obj', this);
 
    var self = this;
@@ -68,7 +69,7 @@ WT_DECLARE_WT_MEMBER
        } else if ($t.hasClass('Wt-tv-c')) {
 	 if (t.getAttribute('drop') === 'true')
 	   drop = true;
-	 if ($t.hasClass('Wt-selected'))
+	 if ($t.hasClass(selectedClass))
 	   selected = true;
 	 ele = t;
 	 t = t.parentNode;
@@ -144,6 +145,7 @@ WT_DECLARE_WT_MEMBER
 
      APP.emit(el, 'columnResized', columnId, parseInt(newWidth));
      self.autoJavaScript();
+     APP.layouts2.scheduleAdjust();
    }
 
    this.mouseDown = function(obj, event) {
@@ -294,12 +296,18 @@ WT_DECLARE_WT_MEMBER
 	 wrapped = true;
        }
      }
+
      /* If keycode is up/down/right/left */
      else if (event.keyCode >= leftKey && event.keyCode <= downKey) {
        var currentEl = WT.target(event);
 
-       //do not allow arrow navigation from select
-       if (currentEl.nodeName == 'select')
+       function isInput(el) {
+	 return (WT.hasTag(el,'INPUT') && el.type == 'text')
+	   || WT.hasTag(el, 'TEXTAREA');
+       }
+
+       // do not allow arrow navigation from select
+       if (WT.hasTag(currentEl, 'SELECT'))
 	 return;
 
        var item = getItem(event);
@@ -314,8 +322,7 @@ WT_DECLARE_WT_MEMBER
 
        switch (event.keyCode) {
 	 case rightKey:
-	 if (WT.hasTag(currentEl,'INPUT')
-	       && currentEl.type == 'text') {
+	 if (isInput(currentEl)) {
 	     var range = WT.getSelectionRange(currentEl);
 	     if (range.start != currentEl.value.length)
 	       return;
@@ -324,8 +331,7 @@ WT_DECLARE_WT_MEMBER
 	 case upKey:
 	   rowi--; break;
 	 case leftKey:
-	   if (WT.hasTag(currentEl,'INPUT')
-	       && currentEl.type == 'text') {
+	   if (isInput(currentEl)) {
 	     var range = WT.getSelectionRange(currentEl);
 	     if (range.start != 0)
 	       return;

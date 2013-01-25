@@ -278,6 +278,18 @@ void WPainterPath::addRect(const WRectF& rectangle)
   addRect(rectangle.x(), rectangle.y(), rectangle.width(), rectangle.height());
 }
 
+void WPainterPath::addPolygon(const std::vector<WPointF>& points)
+{
+  if (!points.empty()) {
+    unsigned i = 0;
+    if (currentPosition() != points[0]) 
+      moveTo(points[i++]);
+
+    for (; i < points.size(); ++i)
+      lineTo(points[i]);
+  }
+}
+
 void WPainterPath::addPath(const WPainterPath& path)
 {
   if (currentPosition() != path.beginPosition())

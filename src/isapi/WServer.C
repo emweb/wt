@@ -54,7 +54,7 @@ WServer::WServer(const std::string& applicationPath,
   setAppRoot(approot);
   setConfiguration(configurationFile);
   if (approotLog.str() != "") {
-    log("notice") << approotLog.str();
+    log("info") << approotLog.str();
   }
 }
 
@@ -187,6 +187,13 @@ void WServer::stop()
 //{
 //  return impl_->configuration()->readConfigurationProperty(name, value);
 //}
+
+void WServer::setSslPasswordCallback(
+  boost::function<std::string (std::size_t max_length)> cb)
+{
+  log("info") << "setSslPasswordCallback(): has no effect in isapi connector";
+}
+
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {

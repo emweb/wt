@@ -3,8 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WDoubleSpinBox>
-#include <Wt/WDoubleValidator>
+#include "Wt/WDoubleSpinBox"
+#include "Wt/WDoubleValidator"
+#include "Wt/WLocale"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -19,6 +20,7 @@ WDoubleSpinBox::WDoubleSpinBox(WContainerWidget *parent)
     step_(1.0),
     precision_(2)
 { 
+  setValidator(createValidator());
   setValue(0.0);
 }
 
@@ -123,12 +125,15 @@ WValidator *WDoubleSpinBox::createValidator()
 
 WString WDoubleSpinBox::textFromValue() const
 {
+  // FIXME, need to use WLocale here somehow !!
+
 #ifndef WT_TARGET_JAVA
   // can't use round_str, because (1) precision is only a hint, and
   // (2) precision is limited to values < 7
   std::stringstream ss;
   ss.precision(precision_);
   ss << std::fixed << std::showpoint << value_;
+
   std::string result = ss.str();
 #else
   char buf[30];
@@ -150,7 +155,7 @@ bool WDoubleSpinBox::parseNumberValue(const std::string& text)
     std::string currentV = Utils::round_str(value_, precision_, buf);
 
     if (currentV != text) // to prevent loss of precision
-      value_ = boost::lexical_cast<double>(text);
+      value_ = WLocale::currentLocale().toDouble(text);
 
     return true;
   } catch (boost::bad_lexical_cast &e) {

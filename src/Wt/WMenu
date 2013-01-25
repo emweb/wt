@@ -14,9 +14,6 @@
 
 namespace Wt {
 
-class WStackedWidget;
-class WTable;
-
 /*! \class WMenu Wt/WMenu Wt/WMenu
  *  \brief A widget that shows a menu of options.
  *
@@ -40,8 +37,7 @@ class WTable;
  * Wt::WStackedWidget *contents = new Wt::WStackedWidget(contentsParent);
  *
  * // create a menu
- * Wt::WMenu *menu = new Wt::WMenu(contents, Wt::Vertical, menuParent);
- * menu->setRenderAsList(true);
+ * Wt::WMenu *menu = new Wt::WMenu(contents, menuParent);
  *
  * // add four items using the default lazy loading policy.
  * menu->addItem("Introduction", new Wt::WText("intro"));
@@ -55,8 +51,7 @@ class WTable;
  * WStackedWidget contents = new WStackedWidget(contentsParent);
  *		 
  * // create a menu
- * WMenu menu = new WMenu(contents, Orientation.Vertical, menuParent);
- * menu.setRenderAsList(true);
+ * WMenu menu = new WMenu(contents, menuParent);
  *		 
  * // add four items using the default lazy loading policy.
  * menu.addItem("Introduction", new WText("intro"));
@@ -65,10 +60,6 @@ class WTable;
  * menu.addItem(new WMenuItem("Demo2", new DemoWidget()));
  * \endcode
  * \endif
- *
- * Historically, a menu was implemented as a table, but \link
- * setRenderAsList() rendering as a list\endlink (<tt>&lt;ul&gt;</tt>)
- * is preferred, as it is the norm form implementations.
  *
  * After contruction, the first entry will be selected. At any time,
  * it is possible to select a particular item using select().
@@ -102,10 +93,6 @@ class WTable;
  * specializing WMenuItem.
  *
  * <h3>CSS</h3>
- *
- * Styling a menu will be different depending of the rendering mode
- * (table, list). Conventionally, menus like this are styled as a list
- * (setRenderAsList()).
  *
  * You will want to differentiate between unselected and selected items
  * based on the <tt>"item"</tt> and <tt>"itemselected"</tt> style classes
@@ -225,15 +212,28 @@ class WTable;
 class WT_API WMenu : public WCompositeWidget
 {
 public:
-  /*! \brief Creates a new menu.
+  /*! \brief Creates a new menu (<b>deprecated</b>).
    *
    * Construct a menu with given \p orientation. The menu is not
    * associated with a contents stack, and thus you will want to react
    * to the itemSelected() signal to react to menu changes.
+   *
+   * \deprecated the \p orientation parameter is ignored, since menus
+   *             are now always rendered using &lt;ul&gt; elements,
+   *             and CSS will determine the orientation.
+   *             Use WMenu(WContainerWidget *) instead.
    */
   WMenu(Orientation orientation, WContainerWidget *parent = 0);
 
   /*! \brief Creates a new menu.
+   *
+   * The menu is not associated with a contents stack, and thus you
+   * will want to react to the itemSelected() signal to react to menu
+   * changes.
+   */
+  WMenu(WContainerWidget *parent = 0);
+
+  /*! \brief Creates a new menu (<b>deprecated</b>).
    *
    * Construct a menu to manage the widgets in \p contentsStack,
    * and sets the menu \p orientation.
@@ -241,9 +241,25 @@ public:
    * Each menu item will manage a single widget in the
    * \p contentsStack, making it the current widget when the menu
    * item is activated.
+   *
+   * \deprecated the \p orientation parameter is ignored, since menus
+   *             are now always rendered using &lt;ul&gt; elements,
+   *             and CSS will determine the orientation.
+   *             Use WMenu(WStackedWidget *contentsStack, WContainerWidget *)
+   *             instead.
    */
   WMenu(WStackedWidget *contentsStack, Orientation orientation,
 	WContainerWidget *parent = 0);
+
+  /*! \brief Creates a new menu (<b>deprecated</b>).
+   *
+   * Construct a menu to manage the widgets in \p contentsStack.
+   *
+   * Each menu item will manage a single widget in the
+   * \p contentsStack, making it the current widget when the menu
+   * item is activated.
+   */
+  WMenu(WStackedWidget *contentsStack, WContainerWidget *parent = 0);
 
   /*! \brief Destructor.
    */
@@ -264,8 +280,56 @@ public:
    *
    * \sa addItem(WMenuItem *)
    */
-  WMenuItem *addItem(const WString& name, WWidget *contents,
+  WMenuItem *addItem(const WString& label, WWidget *contents = 0,
 		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+
+  WMenuItem *addItem(const std::string& iconPath, const WString& label,
+		     WWidget *contents = 0,
+		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+
+    /*! \brief Adds an item with given text, and specify a slot method to be
+   *         called when the item is triggered.
+   *
+   * The <i>target</i> and \p method are connected to the
+   * WMenuItem::triggered signal.
+   *
+   * \sa add(WMenuItem *)
+   */
+  template<class T, class V>
+    WMenuItem *addItem(const WString& text, T *target, void (V::*method)());
+    
+  /*! \brief Adds an item with given text and icon, and specify a slot
+   *         method to be called when activated.
+   *
+   * The <i>target</i> and \p method are connected to the
+   * WMenuItem::triggered signal.
+   *
+   * \note The icon should have a width of 16 pixels.
+   *
+   * \sa add(WMenuItem *)
+   */
+  template<class T, class V>
+    WMenuItem *addItem(const std::string& iconPath, const WString& text,
+		       T *target, void (V::*method)());
+
+  /*! \brief Adds a submenu, with given text.
+   *
+   * Adds an item with text \p text, that leads to a submenu
+   * \p menu.
+   *
+   * \sa add(WMenuItem *)
+   */
+  WMenuItem *addMenu(const WString& text, WMenu *menu);
+
+  /*! \brief Adds a submenu, with given icon and text.
+   *
+   * Adds an item with given text and icon, that leads to a submenu
+   * \p menu.
+   *
+   * \sa add(WMenuItem *)
+   */
+  WMenuItem *addMenu(const std::string& iconPath, const WString& text,
+		     WMenu *menu);
 
   /*! \brief Adds an item.
    *
@@ -274,7 +338,18 @@ public:
    *
    * \sa addItem(const WString&, WWidget *, WMenuItem::LoadPolicy)
    */
-  WMenuItem *addItem(WMenuItem *item);
+  void addItem(WMenuItem *item);
+
+  /*! \brief Adds a separator to the menu.
+   *
+   * Adds a separator the menu. The separator is an empty div with
+   * style-class "separator".
+   */
+  void addSeparator();
+
+  /*! \brief Adds a section header to the menu.
+   */
+  void addSectionHeader(const WString& text);
 
   /*! \brief Removes an item.
    *
@@ -311,9 +386,14 @@ public:
    * both when the user activated an item, or when select() was
    * invoked.
    *
+   * For a popup menu, the provided item may also be \c 0 in case the
+   * menu was cancelled.
+   *
    * \sa itemSelectRendered()
    */
   Signal<WMenuItem *>& itemSelected() { return itemSelected_; }
+
+  Signal<WMenuItem *>& triggered() { return itemSelected_; }
 
   /*! \brief %Signal which indicates that a new selected item is rendered.
    *
@@ -352,8 +432,10 @@ public:
   /*! \brief Returns the items.
    *
    * Returns the list of menu items in this menu.
+   *
+   * \sa itemAt()
    */
-  const std::vector<WMenuItem *>& items() const { return items_; }
+  std::vector<WMenuItem *>& items() const;
 
   /*! \brief %Signal which indicates that an item was closed.
    *
@@ -442,30 +524,29 @@ public:
    */
   int currentIndex() const { return current_; }
 
-  /*! \brief Returns the orientation.
+  /*! \brief Returns the orientation (<b>deprecated</b>).
    *
    * The orientation is set at time of construction.
+   *
+   * \deprecated this function no longer has any use and will be removed.
    */
-  Orientation orientation() const { return orientation_; }
+  Orientation orientation() const { return Horizontal; }
 
-  /*! \brief Renders using an HTML list.
+  /*! \brief Renders using an HTML list (<b>deprecated</b>)
    *
-   * By default, the the menu is rendered using an HTML
-   * <tt>&lt;table&gt;</tt> element for layout. Setting this option
-   * enables rendering using <tt>&lt;ul&gt;</tt> and
-   * <tt>&lt;il&gt;</tt> elements, as is commonly done for CSS-based
-   * designs.
+   * This function no longer has an effect, as a menu is now always rendered
+   * as a list.
    *
-   * \note You cannot use this method after items have been added to
-   * the menu.
+   * \deprecated this function no longer has any use and will be removed.
    */
   void setRenderAsList(bool enable);
 
-  /*! \brief Returns whether the menu is rendered as an HTML list.
+  /*! \brief Returns whether the menu is rendered as an HTML list
+   *         (<b>deprecated</b>).
    *
-   * \sa setRenderAsList(bool)
+   * \deprecated this function no longer has any use and will be removed.
    */
-  bool renderAsList() const { return renderAsList_; }
+  bool renderAsList() const { return true; }
 
   /*! \brief Enables internal paths for items.
    *
@@ -522,8 +603,11 @@ public:
    */
   WStackedWidget *contentsStack() const { return contentsStack_; }
 
+  int count() const;
+  WMenuItem *itemAt(int index) const;
+  int indexOf(WMenuItem *item) const;
+
 protected:
-  virtual void enableAjax();
   virtual void render(WFlags<RenderFlag> flags);
 
   /*! \brief Handling of internal path changes.
@@ -553,20 +637,22 @@ protected:
    */
   virtual int nextAfterHide(int index);
 
+  WMenuItem *parentItem() const { return parentItem_; }
+
+protected:
+  WContainerWidget *ul() const { return ul_; }
+
+  virtual void renderSelected(WMenuItem *item, bool selected);
+
 private:
-  WWidget          *impl_;
-  WStackedWidget   *contentsStack_;
-  Orientation       orientation_;
-  bool              renderAsList_;
-  bool              internalPathEnabled_;
-  bool              emitPathChange_;
-  std::string       basePath_, previousInternalPath_;
-  bool              subMenu_;
+  WContainerWidget *ul_;
+  WStackedWidget *contentsStack_;
+  bool internalPathEnabled_, emitPathChange_;
+  std::string basePath_, previousInternalPath_;
+  WMenuItem *parentItem_;
 
   Signal<WMenuItem *> itemSelected_, itemSelectRendered_;
   Signal<WMenuItem *> itemClosed_;
-
-  std::vector<WMenuItem *> items_;
 
   void select(int index, bool changePath);
 
@@ -579,24 +665,33 @@ private:
   int previousStackIndex_;
   bool needSelectionEventUpdate_;
 
-  int indexOf(WMenuItem *item) const;
-
+  void init();
+  void updateItemsInternalPath();
   void itemPathChanged(WMenuItem *item);
   void selectVisual(WMenuItem *item);
-  void selectVisual(int item, bool changePath, bool showContents);
   void undoSelectVisual();
+  void selectVisual(int item, bool changePath, bool showContents);
+  void onItemHidden(int index, bool hidden);
 
   friend class WMenuItem;
-  friend class WSubMenuItem;
 
-  void recreateItem(int index);
-  void recreateItem(WMenuItem *item);
-  void doSetHiddenItem(int index, bool hidden);
-  void doSetHiddenItem(WMenuItem *item, bool hidden);
-  void updateItems();
   void updateSelectionEvent();
-  void setSubMenu(bool submenu);
 };
+
+template<class T, class V>
+WMenuItem *WMenu::addItem(const WString& text, T *target, void (V::*method)())
+{
+  return addItem(std::string(), text, target, method);
+}
+
+template<class T, class V>
+WMenuItem *WMenu::addItem(const std::string& iconPath, const WString& text,
+			  T *target, void (V::*method)())
+{
+  WMenuItem *item = addItem(iconPath, text);
+  item->triggered().connect(target, method);
+  return item;
+}
 
 }
 

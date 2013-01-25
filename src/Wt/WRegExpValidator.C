@@ -105,14 +105,9 @@ std::string WRegExpValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WRegExpValidator(";
-
-  if (isMandatory())
-    js << "true";
-  else
-    js << "false";
-
-  js << ',';
+  js << "new " WT_CLASS ".WRegExpValidator("
+     << isMandatory()
+     << ',';
 
   if (regexp_) {
     js << WWebWidget::jsStringLiteral(regexp_->pattern())

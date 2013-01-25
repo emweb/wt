@@ -16,21 +16,33 @@ namespace Wt {
 const char *WAbstractToggleButton::CHECKED_SIGNAL = "M_checked";
 const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
 
+/*
+ * For bootstrap we need:
+ * <label><input><span>text</span></label>
+ * Wt did:
+ * <span><input><label>text</label></span>
+ *
+ * There is no harm in changing our habits ?
+ */
+
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),
-    stateChanged_(false)
-{ }
+    stateChanged_(false),
+    textChanged_(false)
+{
+  text_.format = PlainText;
+}
 
 WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),
-    stateChanged_(false)
+    stateChanged_(false),
+    textChanged_(false)
 { 
-  WLabel *label = new WLabel(text);
-  label->setBuddy(this);
-  addChild(label);
+  text_.format = PlainText;
+  text_.text = text;
 }
 
 WAbstractToggleButton::~WAbstractToggleButton()
@@ -64,23 +76,12 @@ EventSignal<>& WAbstractToggleButton::unChecked()
 
 void WAbstractToggleButton::setText(const WString& text)
 {
-  WLabel *l = label();
+  if (canOptimizeUpdates() && (text == text_.text))
+    return;
 
-  if (!l) {
-    l = new WLabel(text);
-    l->setBuddy(this);
-    addChild(l);
-  }
-
-  l->setText(text);
-}
-
-const WString WAbstractToggleButton::text() const
-{
-  if (label())
-    return label()->text();
-  else
-    return WString();
+  text_.setText(text);
+  textChanged_ = true;
+  repaint(RepaintInnerHtml);
 }
 
 void WAbstractToggleButton::setChecked(bool how)
@@ -126,14 +127,19 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   const WEnvironment& env = app->environment();
 
   DomElement *input = 0;
-  if (element.type() == DomElement_SPAN) {
+  DomElement *span = 0;
+
+  if (element.type() == DomElement_LABEL) {
     if (all) {
       input = DomElement::createNew(DomElement_INPUT);
       input->setName("in" + id());
-      
-      element.setProperty(Wt::PropertyStyleWhiteSpace, "nowrap");
-    } else
+
+      span = DomElement::createNew(DomElement_SPAN);
+      span->setName("l" + id());
+    } else {
       input = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+      span = DomElement::getForUpdate("l" + id(), DomElement_SPAN);
+    }
   } else
     input = &element;
 
@@ -263,23 +269,23 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 	updateSignalConnection(*input, *click, CLICK_SIGNAL, all);
   }
 
-  if (&element != input)
-    element.addChild(input);
+  if (span) {
+    if (all || textChanged_) {
+      span->setProperty(PropertyInnerHTML, text_.formattedText());
+      textChanged_ = false;
+    }
+  }
 
-  if (all) {
-    WLabel *l = label();
-  
-    if (l && l->parent() == this)
-      element.addChild(l->createSDomElement(app));
+  if (&element != input) {
+    element.addChild(input);
+    element.addChild(span);
   }
 }
 
 DomElementType WAbstractToggleButton::domElementType() const
 {
-  WLabel *l = label();
-
-  if (l && l->parent() == this)
-    return DomElement_SPAN;
+  if (!text_.text.empty())
+    return DomElement_LABEL;
   else
     return DomElement_INPUT;
 }
@@ -330,7 +336,7 @@ bool WAbstractToggleButton::supportsIndeterminate(const WEnvironment& env)
 
 std::string WAbstractToggleButton::formName() const
 {
-  if (domElementType() == DomElement_SPAN)
+  if (domElementType() == DomElement_LABEL)
     return "in" + id();
   else
     return WFormWidget::formName();

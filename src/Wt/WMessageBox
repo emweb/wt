@@ -83,13 +83,13 @@ public:
 
   /*! \brief Creates an empty message box.
    */
-  WMessageBox();
+  WMessageBox(WObject *parent = 0);
 
   /*! \brief Creates a message box with given caption, text, icon, and
    *         buttons.
    */
   WMessageBox(const WString& caption, const WString& text, Icon icon,
-	      WFlags<StandardButton> buttons);
+	      WFlags<StandardButton> buttons, WObject *parent = 0);
 
   /*! \brief Sets the text for the message box.
    */
@@ -175,11 +175,10 @@ private:
   StandardButton result_;
   Signal<StandardButton> buttonClicked_;
 
-  WContainerWidget *buttonContainer_;
   WText            *text_;
   WImage           *iconImage_;
 
-  WSignalMapper<StandardButton,NoClass> *buttonMapper_;
+  WSignalMapper<StandardButton, NoClass> *buttonMapper_;
 
   void create();
 

@@ -23,24 +23,28 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   text_ = new WText(WString::Empty, PlainText, impl_);
   text_->decorationStyle().setCursor(ArrowCursor);
 
-  edit_ = new WLineEdit(impl_);
+  editing_ = new WContainerWidget(impl_);
+  editing_->setInline(true);
+  editing_->hide();
+  editing_->addStyleClass("input-append"); // FIXME
+
+  edit_ = new WLineEdit(editing_);
   edit_->setTextSize(20);
   save_ = 0;
   cancel_ = 0;
-  edit_->hide();
 
   /*
    * This is stateless implementation heaven
    */
   text_->clicked().connect(text_, &WWidget::hide);
-  text_->clicked().connect(edit_, &WWidget::show);
+  text_->clicked().connect(editing_, &WWidget::show);
   text_->clicked().connect(edit_, &WFormWidget::setFocus);
 
   edit_->enterPressed().connect(edit_, &WFormWidget::disable);
   edit_->enterPressed().connect(this, &WInPlaceEdit::save);
   edit_->enterPressed().preventDefaultAction();
 
-  edit_->escapePressed().connect(edit_, &WWidget::hide);
+  edit_->escapePressed().connect(editing_, &WWidget::hide);
   edit_->escapePressed().connect(text_, &WWidget::show);
   edit_->escapePressed().connect(this, &WInPlaceEdit::cancel);
   edit_->escapePressed().preventDefaultAction();
@@ -82,9 +86,13 @@ const WString& WInPlaceEdit::emptyText()
 
 void WInPlaceEdit::save()
 {
-  edit_->hide();
+  editing_->hide();
   text_->show();
   edit_->enable();
+  if (save_)
+    save_->enable();
+  if (cancel_)
+    cancel_->enable();
 
   bool changed
     = empty_ ? !edit_->text().empty() : edit_->text() != text_->text();
@@ -108,37 +116,24 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     c2_.disconnect();
 
   if (enabled) {
-    save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"), impl_);
-    cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"), impl_);
-    save_->hide();
-    cancel_->hide();
+    save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"), editing_);
+    cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"), editing_);
 
-    text_->clicked().connect(save_,   &WWidget::show);
-    text_->clicked().connect(cancel_, &WWidget::show);
-
-    edit_->enterPressed() .connect(save_,   &WWidget::hide);
-    edit_->enterPressed() .connect(cancel_, &WWidget::hide);
-    edit_->escapePressed().connect(save_,   &WWidget::hide);
-    edit_->escapePressed().connect(cancel_, &WWidget::hide);
-
-    save_->clicked().connect(save_,   &WWidget::hide);
-    save_->clicked().connect(cancel_, &WWidget::hide);
-    save_->clicked().connect(edit_,   &WFormWidget::disable);
-    save_->clicked().connect(this,    &WInPlaceEdit::save);
+    save_->clicked().connect(edit_, &WFormWidget::disable);
+    save_->clicked().connect(save_, &WFormWidget::disable);
+    save_->clicked().connect(cancel_, &WFormWidget::disable);
+    save_->clicked().connect(this, &WInPlaceEdit::save);
     
-    cancel_->clicked().connect(save_,   &WWidget::hide);
-    cancel_->clicked().connect(cancel_, &WWidget::hide);
-    cancel_->clicked().connect(edit_,   &WWidget::hide);
-    cancel_->clicked().connect(text_,   &WWidget::show);
-    cancel_->clicked().connect(this,    &WInPlaceEdit::cancel);
-
+    cancel_->clicked().connect(editing_, &WWidget::hide);
+    cancel_->clicked().connect(text_, &WWidget::show);
+    cancel_->clicked().connect(this, &WInPlaceEdit::cancel);
   } else {
     delete save_;
     save_ = 0;
     delete cancel_;
     cancel_ = 0;
     c1_ = edit_->blurred().connect(edit_, &WFormWidget::disable);
-    c2_ = edit_->blurred().connect(this,  &WInPlaceEdit::save);
+    c2_ = edit_->blurred().connect(this, &WInPlaceEdit::save);
   }
 }
 

@@ -2,7 +2,7 @@
 
 #include <Wt/WApplication>
 #include <Wt/WBreak>
-#include <Wt/WDatePicker>
+#include <Wt/WDateEdit>
 #include <Wt/WSelectionBox>
 #include <Wt/WContainerWidget>
 #include <Wt/WImage>
@@ -82,13 +82,13 @@ void Form::createUI()
   // Birth date
   ++row;
 
-  birthDateEdit_ = new WDatePicker(elementAt(row, 2));
+  birthDateEdit_ = new WDateEdit(elementAt(row, 2));
   birthDateEdit_->setBottom(WDate(1900, 1, 1));
   birthDateEdit_->setTop(WDate::currentDate());
   label = new WLabel(tr("example.birthdate"), elementAt(row, 0));
-  label->setBuddy(birthDateEdit_->lineEdit());
+  label->setBuddy(birthDateEdit_);
   birthDateEdit_->setFormat("dd/MM/yyyy");
-  birthDateEdit_->lineEdit()->validator()->setMandatory(true);
+  birthDateEdit_->validator()->setMandatory(true);
 
   // Child count
   ++row;
@@ -181,7 +181,7 @@ bool Form::validate()
     valid = false;
   if (!checkValid(countryEdit_, tr("error.country")))
     valid = false;
-  if (!checkValid(birthDateEdit_->lineEdit(), tr("error.birthdate")))
+  if (!checkValid(birthDateEdit_, tr("error.birthdate")))
     valid = false;
   if (!checkValid(childCountEdit_, tr("error.childcount")))
     valid = false;

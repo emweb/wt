@@ -10,6 +10,7 @@
 #include <Wt/WPanel>
 #include <Wt/WTemplate>
 #include <Wt/WText>
+#include <Wt/WTheme>
 
 #include "StdWidgetItemImpl.h"
 
@@ -26,20 +27,19 @@ WPanel::WPanel(WContainerWidget *parent)
     expandedSS_(this)
 {
   const char *TEMPLATE =
-    "${shadow-x1-x2}"
     "${titlebar}"
     "${contents}";
 
   setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
-  impl_->setStyleClass("Wt-panel Wt-outset");
 
   implementStateless(&WPanel::doExpand, &WPanel::undoExpand);
   implementStateless(&WPanel::doCollapse, &WPanel::undoCollapse);
 
-  WContainerWidget *centralArea = new WContainerWidget();
-  centralArea->setStyleClass("body");
+  WApplication *app = WApplication::instance();
 
-  impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
+  WContainerWidget *centralArea = new WContainerWidget();
+  app->theme()->apply(this, centralArea, PanelBodyRole);
+
   impl_->bindWidget("titlebar", 0);
   impl_->bindWidget("contents", centralArea);
 
@@ -53,7 +53,7 @@ WPanel::WPanel(WContainerWidget *parent)
      """}"
      """var c = self.lastChild;"
      """var t = c.previousSibling;"
-     """if (t.className == 'titlebar')"
+     """if (t && t.className == 'titlebar')"
      ""  "h -= t.offsetHeight;"
      """h -= 8;" // padding
      """if (defined && h > 0) {"
@@ -83,9 +83,12 @@ WPanel::WPanel(WContainerWidget *parent)
 void WPanel::setTitle(const WString& title)
 {
   setTitleBar(true);
+
   if (!title_) {
     title_ = new WText();
-    titleBarWidget()->insertWidget(titleBarWidget()->count() - 1, title_);
+    WApplication *app = WApplication::instance();
+    app->theme()->apply(this, title_, PanelTitleRole);
+    titleBarWidget()->insertWidget(titleBarWidget()->count(), title_);
   }
 
   title_->setText(title);
@@ -114,11 +117,9 @@ void WPanel::setTitleBar(bool enable)
   if (enable && !titleBarWidget()) {
     WContainerWidget *titleBar = new WContainerWidget();
     impl_->bindWidget("titlebar", titleBar);
-    titleBar->setStyleClass("titlebar");
 
-    WBreak *br;
-    titleBar->addWidget(br = new WBreak());
-    br->setClearSides(Horizontals);
+    WApplication *app = WApplication::instance();
+    app->theme()->apply(this, titleBar, PanelTitleBarRole);
   } else if (!enable && titleBar()) {
     impl_->bindWidget("titlebar", 0);
     title_ = 0;
@@ -134,8 +135,11 @@ void WPanel::setCollapsible(bool on)
     setTitleBar(true);
     collapseIcon_ = new WIconPair(resources + "collapse.gif",
 				  resources + "expand.gif");
-    collapseIcon_->setInline(false);
     collapseIcon_->setFloatSide(Left);
+    
+    WApplication *app = WApplication::instance();
+    app->theme()->apply(this, collapseIcon_, PanelCollapseButtonRole);
+
     titleBarWidget()->insertWidget(0, collapseIcon_);
 
     collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);

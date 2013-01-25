@@ -79,6 +79,10 @@ public:
    */
   const WT_USTRING& styleClass() const { return styleClass_; }
 
+  void addStyleClass(const WT_USTRING& styleClass);
+  void removeStyleClass(const WT_USTRING& styleClass);
+  void toggleStyleClass(const WT_USTRING& styleClass, bool add);
+
   /*! \brief Sets whether the row must be hidden.
    *
    * Hide or show the row.

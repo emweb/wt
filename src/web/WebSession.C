@@ -12,6 +12,9 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WException"
 #include "Wt/WFormWidget"
+#ifndef WT_TARGET_JAVA
+#include "Wt/WIOService"
+#endif
 #include "Wt/WResource"
 #include "Wt/WServer"
 #include "Wt/WTimerWidget"
@@ -92,7 +95,6 @@ WebSession::WebSession(WebController *controller,
     asyncResponse_(0),
     bootStyleResponse_(0),
     canWriteAsyncResponse_(false),
-    noBootStyleResponse_(false),
     pollRequestsIgnored_(0),
     progressiveBoot_(false),
     deferredRequest_(0),
@@ -430,7 +432,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 
     if (useUglyInternalPaths()) {
       if (internalPath.length() > 1)
-	url = "?_=" + Utils::urlEncode(internalPath);
+	url = "?_=" + DomElement::urlEncodeS(internalPath, "#");
 
       if (isAbsoluteUrl(applicationUrl_))
 	url = applicationUrl_ + url;
@@ -600,12 +602,12 @@ std::string WebSession::appendInternalPath(const std::string& baseUrl,
       return baseUrl;
   else {
     if (useUglyInternalPaths())
-      return baseUrl + "?_=" + Utils::urlEncode(internalPath);
+      return baseUrl + "?_=" + DomElement::urlEncodeS(internalPath, "#");
     else {
       if (applicationName_.empty())
-	return baseUrl + Utils::urlEncode(internalPath.substr(1));
+	return baseUrl + DomElement::urlEncodeS(internalPath.substr(1), "#");
       else
-	return baseUrl + Utils::urlEncode(internalPath);
+	return baseUrl + DomElement::urlEncodeS(internalPath, "#");
     }
   }
 }
@@ -1039,8 +1041,22 @@ void WebSession::doRecursiveEventLoop()
     asyncResponse_->readWebSocketMessage
      (boost::bind(&WebSession::handleWebSocketMessage, shared_from_this()));
 
-  while (!newRecursiveEvent_)
-    recursiveEvent_.wait(handler->lock());
+  if (controller_->server()->ioService().requestBlockedThread()) {
+    while (!newRecursiveEvent_)
+      try {
+	recursiveEvent_.wait(handler->lock());
+    } catch (...) {
+      controller_->server()->ioService().releaseBlockedThread();
+      throw;
+    }
+    controller_->server()->ioService().releaseBlockedThread();
+  } else {
+    // Allow at least one thread to serve requests in order to avoid a
+    // locked-up Wt. Even worse, Wt deadlocks if all threads are
+    // occupied in internal event loops and all those browser windows
+    // are closed (session time out does not work anymore)
+    throw WException("doRecursiveEventLoop(): all threads are busy. Avoid using recursive event loops.");
+  }
 #else
   while (!newRecursiveEvent_)
     recursiveEvent_.wait();
@@ -1351,10 +1367,9 @@ void WebSession::handleRequest(Handler& handler)
 
 	    const bool xhtml = env_->contentType() == WEnvironment::XHTML1;
 
-	    noBootStyleResponse_
-	      = noBootStyleResponse_ || (!app_ && (ios5 || xhtml || nojs));
+	    bool noBootStyleResponse = (!app_ && (ios5 || xhtml || nojs));
 
-	    if (nojs || noBootStyleResponse_) {
+	    if (nojs || noBootStyleResponse) {
 	      handler.response()->setContentType("text/css");
 	      handler.response()->flush();
 	      handler.setRequest(0, 0);
@@ -1526,7 +1541,6 @@ void WebSession::flushBootStyleResponse()
   if (bootStyleResponse_) {
     bootStyleResponse_->flush();
     bootStyleResponse_ = 0;
-    noBootStyleResponse_ = true;
   }
 }
 
@@ -1974,7 +1988,7 @@ void WebSession::notify(const WEvent& event)
 
 	  if (invalidAckId && ackIdE) {
 	    try {
-	      if (renderer_.ackUpdate(boost::lexical_cast<unsigned>(*ackIdE)))
+	      if (renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE)))
 		invalidAckId = false;
 	    } catch (const boost::bad_lexical_cast& e) {
 	    }
@@ -2321,6 +2335,7 @@ void WebSession::serveResponse(Handler& handler)
       if (handler.response()->responseType() == WebResponse::Script
 	  && !handler.request()->getParameter("skeleton"))
 	renderer_.serveLinkedCss(*bootStyleResponse_);
+
       flushBootStyleResponse();
     }
 

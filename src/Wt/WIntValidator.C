@@ -117,7 +117,7 @@ WValidator::Result WIntValidator::validate(const WT_USTRING& input) const
   std::string text = input.toUTF8();
 
   try {
-    int i = boost::lexical_cast<int>(text);
+    int i = WLocale::currentLocale().toInt(text);
 
     if (i < bottom_)
       return Result(Invalid, invalidTooSmallText());
@@ -141,12 +141,9 @@ std::string WIntValidator::javaScriptValidate() const
 
   WStringStream js;
 
-  js << "new " WT_CLASS ".WIntValidator(";
-  if (isMandatory())
-    js << "true";
-  else
-    js << "false";
-  js << ',';
+  js << "new " WT_CLASS ".WIntValidator("
+     << isMandatory()
+     << ',';
 
   if (bottom_ != std::numeric_limits<int>::min())
     js << bottom_;
@@ -160,7 +157,9 @@ std::string WIntValidator::javaScriptValidate() const
   else
     js << "null";
 
-  js << ',' << invalidBlankText().jsStringLiteral()
+  js << "," << WWebWidget::jsStringLiteral(WLocale::currentLocale()
+					   .groupSeparator())
+     << ',' << invalidBlankText().jsStringLiteral()
      << ',' << invalidNotANumberText().jsStringLiteral()
      << ',' << invalidTooSmallText().jsStringLiteral()
      << ',' << invalidTooLargeText().jsStringLiteral()

@@ -7,7 +7,9 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WApplication>
 #include <Wt/WProgressBar>
+#include <Wt/WTheme>
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -25,7 +27,6 @@ WProgressBar::WProgressBar(WContainerWidget *parent)
 {
   format_ = WString::fromUTF8("%.0f %%");
 
-  setStyleClass("Wt-progressbar");
   setInline(true);
 }
 
@@ -123,13 +124,16 @@ void WProgressBar::updateDom(DomElement& element, bool all)
   DomElement *bar = 0, *label = 0;
 
   if (all) {
+    WApplication *app = WApplication::instance();
+
     bar = DomElement::createNew(DomElement_DIV);
     bar->setId("bar" + id());
-    bar->setProperty(PropertyClass, "Wt-pgb-bar " + valueStyleClass_);
+    bar->setProperty(PropertyClass, valueStyleClass_);
+    app->theme()->apply(this, *bar, ProgressBarBarRole);
 
     label = DomElement::createNew(DomElement_DIV);
     label->setId("lbl" + id());
-    label->setProperty(PropertyClass, "Wt-pgb-label");
+    app->theme()->apply(this, *label, ProgressBarLabelRole);
   }
 
   if (changed_ || all) {

@@ -61,6 +61,14 @@ WWidget *WCompositeWidget::find(const std::string& name)
     return impl_->find(name);
 }
 
+WWidget *WCompositeWidget::findById(const std::string& id)
+{
+  if (this->id() == id)
+    return this;
+  else
+    return impl_->findById(id);
+}
+
 void WCompositeWidget::setSelectable(bool selectable)
 {
   impl_->setSelectable(selectable);
@@ -293,6 +301,11 @@ void WCompositeWidget::removeStyleClass(const char *styleClass, bool force)
   impl_->removeStyleClass(WT_USTRING::fromUTF8(styleClass), force);
 }
 
+bool WCompositeWidget::hasStyleClass(const WT_USTRING& styleClass) const
+{
+  return impl_->hasStyleClass(styleClass);
+}
+
 void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {
@@ -323,7 +336,7 @@ void WCompositeWidget::setToolTip(const WString& text, TextFormat textFormat)
   impl_->setToolTip(text, textFormat);
 }
 
-WString WCompositeWidget::toolTip() const
+const WString& WCompositeWidget::toolTip() const
 {
   return impl_->toolTip();
 }
@@ -427,7 +440,7 @@ void WCompositeWidget::setImplementation(WWidget *widget)
 {
   if (widget->parent())
     throw WException("WCompositeWidget implementation widget "
-		      "cannot have a parent");
+		     "cannot have a parent");
 
   delete impl_;
 
@@ -442,6 +455,18 @@ void WCompositeWidget::setImplementation(WWidget *widget)
   }
 
   widget->setParentWidget(this);
+}
+
+WWidget *WCompositeWidget::takeImplementation()
+{
+  WWidget *result = impl_;
+
+  if (result) {
+    removeChild(result);
+    impl_ = 0;
+  }
+
+  return result;
 }
 
 void WCompositeWidget::setLayout(WLayout *layout)

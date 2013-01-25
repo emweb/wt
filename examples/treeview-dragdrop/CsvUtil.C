@@ -1,10 +1,25 @@
+#include <fstream>
+
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <Wt/WAbstractItemModel>
+#include <Wt/WStandardItemModel>
 #include <Wt/WString>
 
 #include "CsvUtil.h"
+
+Wt::WAbstractItemModel *csvToModel(const std::string& csvFile)
+{
+  std::ifstream f(csvFile.c_str());
+
+  if (f) {
+    Wt::WAbstractItemModel *result = new Wt::WStandardItemModel(0, 0);
+    readFromCsv(f, result);
+    return result;
+  } else
+    return 0;
+}
 
 void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 		 int numRows, bool firstLineIsHeaders)

@@ -4,34 +4,121 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
 #include "Wt/WAbstractToggleButton"
 #include "Wt/WFormWidget"
 #include "Wt/WLogger"
 #include "Wt/WText"
 #include "Wt/WTemplateFormView"
+#include "Wt/WTheme"
+
+#include "WebUtils.h"
 
 namespace Wt {
 
   LOGGER("WTemplateFormView");
 
+WTemplateFormView::FieldData::FieldData()
+  : formWidget(0)
+{ }
+
 WTemplateFormView::WTemplateFormView(const WString& text,
 				     WContainerWidget *parent)
   : WTemplate(text, parent)
 {
-  addFunction("id", WT_TEMPLATE_FUNCTION(id));
-  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
+  init();
 }
 
 WTemplateFormView::WTemplateFormView(WContainerWidget *parent)
   : WTemplate(parent)
 {
-  addFunction("id", WT_TEMPLATE_FUNCTION(id));
-  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
+  init();
 }
+
+void WTemplateFormView::init()
+{
+  addFunction("id", &Functions::id);
+  addFunction("tr", &Functions::tr);
+  addFunction("block", &Functions::block);
+}
+
+void WTemplateFormView::setFormWidget(WFormModel::Field field,
+				      Wt::WFormWidget *formWidget)
+{
+  FieldMap::iterator i = fields_.find(field);
+  if (i == fields_.end())
+    fields_[field] = FieldData();
+
+  fields_[field].formWidget = formWidget;
+  bindWidget(field, formWidget);
+}
+
+#ifndef WT_TARGET_JAVA
+
+void WTemplateFormView
+::setFormWidget(WFormModel::Field field, WFormWidget *formWidget,
+		const boost::function<void()>& updateViewValue,
+		const boost::function<void()>& updateModelValue)
+{
+  fields_[field].formWidget = formWidget;
+  fields_[field].updateView = updateViewValue;
+  fields_[field].updateModel = updateModelValue;
+
+  bindWidget(field, formWidget); 
+}
+
+#else
+
+void WTemplateFormView
+::setFormWidget(WFormModel::Field field, WFormWidget *formWidget,
+		FieldView *fieldView)
+{
+  FieldMap::iterator i = fields_.find(field);
+  if (i == fields_.end())
+    fields_[field] = FieldData();
+
+  fields_[field].formWidget = formWidget;
+  fields_[field].updateFunctions = fieldView;
+
+  bindWidget(field, formWidget); 
+}
+
+#endif // WT_TARGET_JAVA
 
 WFormWidget *WTemplateFormView::createFormWidget(WFormModel::Field field)
 {
   return 0;
+}
+
+void WTemplateFormView::updateViewValue(WFormModel *model,
+					WFormModel::Field field,
+					WFormWidget *edit)
+{
+  FieldMap::const_iterator fi = fields_.find(field);
+
+  if (fi != fields_.end()) {
+#ifndef WT_TARGET_JAVA
+    if (fi->second.updateView) {
+      fi->second.updateView();
+      return;
+    }
+#else
+    if (fi->second.updateFunctions) {
+      fi->second.updateFunctions->updateViewValue();
+      return;
+    }
+#endif
+  }
+
+  WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
+  if (b) {
+    boost::any v = model->value(field);
+    if (v.empty() || boost::any_cast<bool>(v) == false)
+      b->setChecked(false);
+    else
+      b->setChecked(true);
+  } else
+    edit->setValueText(model->valueText(field));
 }
 
 void WTemplateFormView::updateViewField(WFormModel *model,
@@ -52,17 +139,10 @@ void WTemplateFormView::updateViewField(WFormModel *model,
       bindWidget(var, edit);
     }
 
-    WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
-    if (b) {
-      boost::any v = model->value(field);
-      if (v.empty() || boost::any_cast<bool>(v) == false)
-	b->setChecked(false);
-      else
-	b->setChecked(true);
-    } else
-      edit->setValueText(model->valueText(field));
+    if (edit->validator() != model->validator(field))
+      edit->setValidator(model->validator(field));
 
-    // TODO support other types, e.g. combo boxes and date fields ?
+    updateViewValue(model, field, edit);
 
     WText *info = resolve<WText *>(var + "-info");
     if (!info) {
@@ -79,7 +159,6 @@ void WTemplateFormView::updateViewField(WFormModel *model,
 		       info, edit, v);
 
     edit->setDisabled(model->isReadOnly(field));
-    edit->toggleStyleClass("Wt-disabled", edit->isDisabled());
   } else {
     setCondition("if:" + var, false);
     bindEmpty(var);
@@ -96,24 +175,15 @@ void WTemplateFormView::indicateValidation(WFormModel::Field field,
   info->setText(validation.message());
 
   if (validated) {
-    switch (validation.state()) {
-    case WValidator::InvalidEmpty:
-    case WValidator::Invalid:
-      edit->removeStyleClass("Wt-valid", true);
-      edit->addStyleClass("Wt-invalid", true);
-      info->addStyleClass("Wt-error", true);
+    WApplication::instance()->theme()
+      ->applyValidationStyle(edit, validation, ValidationAllStyles);
 
-      break;
-    case WValidator::Valid:
-      edit->removeStyleClass("Wt-invalid", true);
-      edit->addStyleClass("Wt-valid", true);
-      info->removeStyleClass("Wt-error", true);
-
-      break;
-    }
+    info->toggleStyleClass("Wt-error", validation.state() != WValidator::Valid,
+			   true);
   } else {
-    edit->removeStyleClass("Wt-valid", true);
-    edit->removeStyleClass("Wt-invalid", true);
+    WApplication::instance()->theme()
+      ->applyValidationStyle(edit, validation, ValidationNoStyle);
+
     info->removeStyleClass("Wt-error", true);
   }
 }
@@ -122,29 +192,57 @@ void WTemplateFormView::updateModelField(WFormModel *model,
 					 WFormModel::Field field)
 {
   WFormWidget *edit = resolve<WFormWidget *>(field);
+
   if (edit) {
-    WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
-    if (b)
-      model->setValue(field, b->isChecked());
-    else
-      model->setValue(field, edit->valueText());
+    FieldMap::const_iterator fi = fields_.find(field);
+
+    if (fi != fields_.end()) {
+#ifndef WT_TARGET_JAVA
+      if (fi->second.updateModel) {
+	fi->second.updateModel();
+	return;
+      }
+#else
+      if (fi->second.updateFunctions) {
+	fi->second.updateFunctions->updateModelValue();
+	return;
+      }
+#endif
+    }
+
+    updateModelValue(model, field, edit);
   }
+}
+
+void WTemplateFormView::updateModelValue(WFormModel *model,
+					 WFormModel::Field field,
+					 WFormWidget *edit)
+{
+  WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
+  if (b)
+    model->setValue(field, b->isChecked());
+  else
+    model->setValue(field, edit->valueText());
 }
 
 void WTemplateFormView::updateModel(WFormModel *model)
 {
   std::vector<WFormModel::Field> fields = model->fields();
 
-  for (unsigned i = 0; i < fields.size(); ++i)
-    updateModelField(model, fields[i]);
+  for (unsigned i = 0; i < fields.size(); ++i) {
+    WFormModel::Field field = fields[i];
+    updateModelField(model, field);
+  }
 }
 
 void WTemplateFormView::updateView(WFormModel *model)
 {
   std::vector<WFormModel::Field> fields = model->fields();
 
-  for (unsigned i = 0; i < fields.size(); ++i)
-    updateViewField(model, fields[i]);
+  for (unsigned i = 0; i < fields.size(); ++i) {
+    WFormModel::Field field = fields[i];
+    updateViewField(model, field);
+  }
 }
 
 }

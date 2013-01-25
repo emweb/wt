@@ -10,6 +10,8 @@
 #include "AddresseeEdit.h"
 #include "Contact.h"
 
+#include <Wt/WContainerWidget>
+
 namespace {
   WSuggestionPopup::Options contactOptions
   = { "<b>",         // highlightBeginTag

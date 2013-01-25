@@ -87,14 +87,6 @@ public:
    */
   WTabWidget(WContainerWidget *parent = 0);
 
-  /*! \brief Creates a new tab widget (indicating layout alignment) (<b>deprecated</b>).
-   *
-   * \deprecated Since %Wt 3.1.1, the \p layoutAlignment is no longer needed and
-   *             its value is ignored
-   */
-  WTabWidget(WFlags<AlignmentFlag> layoutAlignment,
-	     WContainerWidget *parent = 0);
-
   /*! \brief Adds a new tab, with <i>child</i> as content, and the given label.
    *
    * Returns the menu item that implements the tab item.
@@ -264,7 +256,7 @@ private:
 
   std::vector<WWidget *> contentsWidgets_;
 
-  void create(WFlags<AlignmentFlag> layoutAlignment);
+  void create();
   void onItemSelected(WMenuItem *item);
   void onItemClosed(WMenuItem *item);
 

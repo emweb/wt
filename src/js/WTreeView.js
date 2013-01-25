@@ -31,37 +31,37 @@ WT_DECLARE_WT_MEMBER
      var t = WT.target(event);
 
      while (t) {
-       if (t.className.indexOf('c1 rh') == 0) {
+       if (WT.hasTag(t, 'LI')) {
 	 if (columnId == -1)
            columnId = 0;
+	 nodeId = t.id;
+
+	 break;
        } else if (t.className.indexOf('Wt-tv-c') == 0) {
 	 if (t.className.indexOf('Wt-tv-c') == 0)
-           columnId = t.className.split(' ')[0].substring(7) * 1;
+	   columnId = t.className.split(' ')[0].substring(7) * 1;
 	 else if (columnId == -1)
-	 columnId = 0;
+	   columnId = 0;
 	 if (t.getAttribute('drop') === 'true')
 	   drop = true;
 	 ele = t;
-       } else if (t.className == 'Wt-tv-node') {
-	 nodeId = t.id;
-	 break;
        }
-       if (t.className === 'Wt-selected')
+
+       if ($(t).hasClass('Wt-selected'))
 	 selected = true;
+
        t = t.parentNode;
-       if (WT.hasTag(t, 'BODY'))
-	 break;
      }
 
      return { columnId: columnId, nodeId: nodeId, selected: selected,
 	      drop: drop, el: ele };
-   };
+   }
 
    this.click = function(obj, event) {
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId, item.columnId, 'clicked', '', '');
+		item.nodeId + ':' + item.columnId, 'clicked', '', '');
      }
    };
 
@@ -69,7 +69,7 @@ WT_DECLARE_WT_MEMBER
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId, item.columnId, 'dblclicked', '', '');
+		item.nodeId + ':' + item.columnId, 'dblclicked', '', '');
      }
    };
 
@@ -78,7 +78,7 @@ WT_DECLARE_WT_MEMBER
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId, item.columnId, 'mousedown', '', '');
+		item.nodeId + ':' + item.columnId, 'mousedown', '', '');
        if (el.getAttribute('drag') === 'true' && item.selected)
          APP._p_.dragStart(el, event);
      }
@@ -88,7 +88,7 @@ WT_DECLARE_WT_MEMBER
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId, item.columnId, 'mouseup', '', '');
+		item.nodeId + ':' + item.columnId, 'mouseup', '', '');
      }
    };
 
@@ -182,8 +182,8 @@ WT_DECLARE_WT_MEMBER
 
        if (!c0r.style.width) {
 	 // first resize and c0 width not set
-	 // 9 = 2px (widget border) - 7px column padding
-	 var c0rw = el.scrollWidth - hc.offsetWidth - 9;
+	 // 9 = 2px (widget border) - 7px column padding - 22px (scrollbar room)
+	 var c0rw = el.scrollWidth - hc.offsetWidth - 9 - 15;
 	 if (c0rw > 0)
 	   c0r.style.width = c0rw + 'px';
        } else
@@ -243,7 +243,7 @@ WT_DECLARE_WT_MEMBER
      if (!item.selected && item.drop && item.columnId != -1) {
        if (action=='drop') {
 	 APP.emit(el, { name: 'itemEvent', eventObject: object, event: event },
-		  item.nodeId, item.columnId, 'drop', sourceId, mimeType);
+		  item.nodeId + ':' + item.columnId, 'drop', sourceId, mimeType);
        } else {
          object.className = 'Wt-valid-drop';
          dropEl = item.el;

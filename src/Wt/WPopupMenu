@@ -7,17 +7,10 @@
 #ifndef WPOPUP_MENU_H_
 #define WPOPUP_MENU_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WMenu>
 #include <Wt/WJavaScript>
-#include <Wt/WPopupMenuItem>
 
 namespace Wt {
-
-  class WApplication;
-  class WTemplate;
-  class WMouseEvent;
-  class WPoint;
-  class WPopupMenuItem;
 
 /*! \class WPopupMenu Wt/WPopupMenu Wt/WPopupMenu
  *  \brief A menu presented in a popup window.
@@ -126,7 +119,7 @@ namespace Wt {
  * \image html WPopupMenu-polished-1.png "WPopupMenu example (polished)"
  * \sa WPopupMenuItem
  */
-class WT_API WPopupMenu : public WCompositeWidget
+class WT_API WPopupMenu : public WMenu
 {
 public:
   /*! \brief Creates a new popup menu.
@@ -134,85 +127,7 @@ public:
    * The menu is hidden, by default, and must be shown using popup()
    * or exec().
    */
-  WPopupMenu();
-
-  /*! \brief Adds an item with given text.
-   *
-   * Adds an item to the menu with given text, and returns the
-   * corresponding item object.
-   *
-   * \sa add(WPopupMenuItem *)
-   */
-  WPopupMenuItem *addItem(const WString& text);
-
-  /*! \brief Adds an item with given icon and text.
-   *
-   * Adds an item to the menu with given text and icon, and returns
-   * the corresponding item object.
-   *
-   * \note The icon should have a width of 16 pixels.
-   *
-   * \sa add(WPopupMenuItem *)
-   */
-  WPopupMenuItem *addItem(const std::string& iconPath, const WString& text);
-
-  /*! \brief Adds an item with given text, and specify a slot method to be
-   *         called when the item is triggered.
-   *
-   * The <i>target</i> and \p method are connected to the
-   * WPopupMenuItem::triggered signal.
-   *
-   * \sa add(WPopupMenuItem *)
-   */
-  template<class T, class V>
-    WPopupMenuItem *addItem(const WString& text,
-			    T *target, void (V::*method)());
-    
-  /*! \brief Adds an item with given text and icon, and specify a slot
-   *         method to be called when activated.
-   *
-   * The <i>target</i> and \p method are connected to the
-   * WPopupMenuItem::triggered signal.
-   *
-   * \note The icon should have a width of 16 pixels.
-   *
-   * \sa add(WPopupMenuItem *)
-   */
-  template<class T, class V>
-    WPopupMenuItem *addItem(const std::string& iconPath, const WString& text,
-			    T *target, void (V::*method)());
-
-  /*! \brief Adds a submenu, with given text.
-   *
-   * Adds an item with text \p text, that leads to a submenu
-   * \p menu.
-   *
-   * \sa add(WPopupMenuItem *)
-   */
-  WPopupMenuItem *addMenu(const WString& text, WPopupMenu *menu);
-
-  /*! \brief Adds a submenu, with given icon and text.
-   *
-   * Adds an item with given text and icon, that leads to a submenu
-   * \p menu.
-   *
-   * \sa add(WPopupMenuItem *)
-   */
-  WPopupMenuItem *addMenu(const std::string& iconPath, const WString& text,
-			  WPopupMenu *menu);
-
-  /*! \brief Adds a menu item.
-   *
-   * Adds an item to the popup menu.
-   */
-  void add(WPopupMenuItem *item);
-
-  /*! \brief Adds a separator to the menu.
-   *
-   * Adds a separator the popup menu. The separator is an empty div with
-   * style-class "separator".
-   */
-  void addSeparator();
+  WPopupMenu(WStackedWidget *contentsStack = 0);
 
   /*! \brief Shows the the popup at a position.
    *
@@ -234,6 +149,9 @@ public:
    */
   void popup(const WMouseEvent& event);
 
+  // Sets the button that triggers the popup
+  void setButton(WInteractWidget *button);
+
   /*! \brief Shows the popup besides a widget.
    *
    * \sa positionAt(), popup(const WPointF&)
@@ -251,7 +169,7 @@ public:
    *
    * \sa popup()
    */
-  WPopupMenuItem *exec(const WPoint& point);
+  WMenuItem *exec(const WPoint& point);
 
   /*! \brief Executes the the popup at the location of a mouse event.
    *
@@ -260,19 +178,19 @@ public:
    *
    * \sa exec(const WPoint&)
    */
-  WPopupMenuItem *exec(const WMouseEvent& event);
+  WMenuItem *exec(const WMouseEvent& event);
 
   /*! \brief Executes the popup besides a widget.
    *
    * \sa positionAt(), popup(const WPointF&)
    */
-  WPopupMenuItem *exec(WWidget *location, Orientation orientation = Vertical);
+  WMenuItem *exec(WWidget *location, Orientation orientation = Vertical);
 
   /*! \brief Returns the last triggered menu item.
    *
    * The result is \c 0 when the user cancelled the popup menu.
    */
-  WPopupMenuItem *result() const { return result_; }
+  WMenuItem *result() const { return result_; }
 
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
@@ -289,15 +207,6 @@ public:
    */
   Signal<>& aboutToHide() { return aboutToHide_; }
 
-  /*! \brief %Signal emitted when an item is activated.
-   *
-   * Passes the activated item as argument. This signal is only emitted
-   * for the toplevel menu.
-   *
-   * \sa WPopupMenuItem::triggered()
-   */
-  Signal<WPopupMenuItem *>& triggered() { return triggered_; }
-
   /*! \brief Configure auto-hide when the mouse leaves the menu.
    *
    * If \p enabled, The popup menu will be hidden when the mouse
@@ -312,51 +221,28 @@ public:
 protected:
   virtual bool isExposed(WWidget *widget);
 
+  virtual void renderSelected(WMenuItem *item, bool selected);
+
 private:
-  WTemplate      *impl_;
-  WPopupMenuItem *parentItem_, *result_;
-  WWidget        *location_;
+  WMenuItem *result_;
+  WWidget *location_;
+  WInteractWidget *button_;
 
   Signal<> aboutToHide_;
-  Signal<WPopupMenuItem *> triggered_;
   JSignal<> cancel_;
 
   boost::signals::connection globalClickConnection_, globalEscapeConnection_;
-  bool                       recursiveEventLoop_;
-  int                        autoHideDelay_;
+  bool recursiveEventLoop_;
+  int autoHideDelay_;
 
-  WContainerWidget *contents() const;
-  WPopupMenu *topLevelMenu();
-  void        done();
-  void        done(WPopupMenuItem *result);
-  void        popupImpl();
-  void        popupToo(WWidget *location);
-  void        prepareRender(WApplication *app);
-  void        renderOutAll();
-
-  friend class WPopupMenuItem;
-
-  int count() const;
-  WPopupMenuItem *itemAt(int index) const;
-  void getSubMenus(std::vector<WPopupMenu *>& result);
+  void cancel();
+  void done(WMenuItem *result);
+  void popupImpl();
+  void prepareRender(WApplication *app);
+  void adjustPadding();
+  void popupAtButton();
+  void connectSignals(WPopupMenu * const topLevel);
 };
-
-template<class T, class V>
-WPopupMenuItem *WPopupMenu::addItem(const WString& text,
-				    T *target, void (V::*method)())
-{
-  return addItem(std::string(), text, target, method);
-}
-
-template<class T, class V>
-WPopupMenuItem *WPopupMenu::addItem(const std::string& iconPath,
-				    const WString& text,
-				    T *target, void (V::*method)())
-{
-  WPopupMenuItem *item = addItem(iconPath, text);
-  item->triggered().connect(target, method);
-  return item;
-}
 
 }
 

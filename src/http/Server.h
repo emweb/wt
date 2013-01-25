@@ -67,6 +67,9 @@ public:
   /// Returns the http port number.
   int httpPort() const;
 
+  // Sets callback for SSL passwords
+  void setSslPasswordCallback(boost::function<std::string (std::size_t max_length)> cb);
+
   Wt::WebController *controller();
 
   const Configuration &configuration() { return config_; }

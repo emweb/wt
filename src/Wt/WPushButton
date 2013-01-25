@@ -7,9 +7,11 @@
 #ifndef WPUSHBUTTON_H_
 #define WPUSHBUTTON_H_
 
+#include <Wt/WAnchor>
 #include <Wt/WFormWidget>
 #include <Wt/WJavaScript>
 #include <Wt/WLink>
+#include <Wt/WText>
 
 namespace Wt {
 
@@ -44,20 +46,120 @@ public:
   WPushButton(WContainerWidget *parent = 0);
 
   /*! \brief Creates a push button with given label text.
+   *
+   * The default text format is PlainText.
    */
   WPushButton(const WString& text, WContainerWidget *parent = 0);
 
-  virtual ~WPushButton();
+  /*! \brief Sets the default property.
+   *
+   * The only effect of a default button is that it is may be rendered
+   * in a different style, depending on the theme.
+   */
+  void setDefault(bool enabled);
+
+  /*! \brief Returns whether the button is a default button.
+   *
+   * \sa setDefault()
+   */
+  bool isDefault() const;
+
+  /*! \brief Sets whether the button is checkable.
+   *
+   * A checkable button can be checked and unchecked, and clicking
+   * will toggle between these two states.
+   *
+   * \sa setChecked(bool)
+   */
+  void setCheckable(bool checkable);
+
+  /*! \brief Returns whether a button is checkable.
+   *
+   * \sa setCheckable()
+   */
+  bool isCheckable() const;
+
+  /*! \brief Sets the button state.
+   *
+   * This is ignored for a button which is not checkable.
+   *
+   * This method does not emit one of the checked() or unChecked()
+   * signals.
+   *
+   * \sa setCheckable(), setChecked(), setUnChecked()
+   */
+  void setChecked(bool checked);
+
+  /*! \brief Checks the button.
+   *
+   * Does not emit the checked() signal.
+   *
+   * \sa setChecked(bool)
+   */
+  void setChecked();
+
+  /*! \brief Unchecks the button.
+   *
+   * Does not emit the unChecked() signal.
+   *
+   * \sa setChecked(bool)
+   */
+  void setUnChecked();
+
+  /*! \brief Returns the button state.
+   *
+   * \sa setChecked()
+   */
+  bool isChecked() const;
 
   /*! \brief Sets the button text.
+   *
+   * The default text format is Wt::PlainText.
+   *
+   * When the current text format is Wt::XHTMLText, and \p text is
+   * literal (not created using WString::tr()), it is parsed using an
+   * XML parser which discards malicious tags and attributes
+   * silently. When the parser encounters an XML parse error, the
+   * textFormat is changed to Wt::PlainText.
+   *
+   * Returns whether the text could be set using the current
+   * textFormat. A return value of \c false indicates that the text
+   * format was changed in order to be able to accept the new text.
+   *
+   * \sa setTextFormat()
    */
-  void setText(const WString& text);
+  bool setText(const WString& text);
 
   /*! \brief Returns the button text.
    *
    * \sa setText()
    */
-  const WString& text() const { return text_; }
+  const WString& text() const { return text_.text; }
+
+  /*! \brief Sets the text format.
+   *
+   * The textFormat controls how the string should be interpreted:
+   * either as plain text, which is displayed literally, or as
+   * XHTML-markup.
+   *
+   * When changing the textFormat to Wt::XHTMLText, and the
+   * current text is literal (not created using WString::tr()), the
+   * current text is parsed using an XML parser which discards
+   * malicious tags and attributes silently. When the parser
+   * encounters an XML parse error, the textFormat is left unchanged,
+   * and this method returns false.
+   *
+   * Returns whether the textFormat could be set for the current text.
+   *
+   * The default format is Wt::PlainText.
+   */
+  bool setTextFormat(TextFormat format);
+
+  /*! \brief Returns the text format.
+   *
+   * \sa setTextFormat()
+   */
+  TextFormat textFormat() const { return text_.format; }
 
   /*! \brief Sets an icon.
    *
@@ -88,7 +190,7 @@ public:
    *
    * \sa setLink()
    */
-  const WLink& link() const { return link_; }
+  const WLink& link() const { return linkState_.link; }
 
   /*! \brief Sets a destination URL (<b>deprecated</b>).
    *
@@ -106,7 +208,7 @@ public:
    *
    * \deprecated Use link() instead.
    */
-  std::string ref() const { return link_.url(); }
+  std::string ref() const { return linkState_.link.url(); }
 
   /*! \brief Sets a destination resource (<b>deprecated</b>).
    *
@@ -137,7 +239,7 @@ public:
    *
    * \deprecated Use link() instead.
    */
-  WResource *resource() const { return link_.resource(); }
+  WResource *resource() const { return linkState_.link.resource(); }
 
   /*! \brief Returns the current value.
    *
@@ -163,23 +265,54 @@ public:
    *
    * \sa setLinkTarget()
    */
-  AnchorTarget linkTarget() const { return linkTarget_; }
+  AnchorTarget linkTarget() const { return linkState_.target; }
+
+  void setMenu(WPopupMenu *menu);
+  WPopupMenu *menu() const { return popupMenu_; }
 
   virtual void refresh();
 
+  /*! \brief %Signal emitted when the button gets checked.
+   *
+   * This signal is emitted when the user checks the button.
+   *
+   * You can use the clicked() signal to react to any change of the
+   * button state.
+   *
+   * \sa setCheckable()
+   */
+  EventSignal<>& checked();
+
+  /*! \brief %Signal emitted when the button gets unchecked.
+   *
+   * This signal is emitted when the user unchecks the button.
+   *
+   * You can use the clicked() signal to react to any change of the
+   * button state.
+   *
+   * \sa setCheckable()
+   */
+  EventSignal<>& unChecked();
+
 private:
+  static const char *CHECKED_SIGNAL;
+  static const char *UNCHECKED_SIGNAL;
+
   static const int BIT_TEXT_CHANGED = 0;
   static const int BIT_ICON_CHANGED = 1;
   static const int BIT_ICON_RENDERED = 2;
   static const int BIT_LINK_CHANGED = 3;
+  static const int BIT_DEFAULT = 4;
+  static const int BIT_IS_CHECKABLE = 5;
+  static const int BIT_IS_CHECKED = 6;
+  static const int BIT_CHECKED_CHANGED = 7;
 
-  WString        text_;
+  WAnchor::LinkState linkState_;
+  WText::RichText text_;
+
   WLink          icon_;
-  WLink          link_;
-  AnchorTarget   linkTarget_;
-  std::bitset<4> flags_;
-
-  JSlot         *redirectJS_;
+  std::bitset<8> flags_;
+  WPopupMenu    *popupMenu_;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);
@@ -191,6 +324,8 @@ protected:
 private:
   void doRedirect();
   void resourceChanged();
+  void renderHRef(DomElement& href);
+  void toggled();
 };
 
 }

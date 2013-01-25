@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+
+  <!-- BaseAuth, PasswordAuth and OAuth models -->
+
+  <message id="Wt.Auth.error-invalid-token">The operation could not be completed: invalid token.</message>
+  <message id="Wt.Auth.error-token-expired">The operation could not be completed: the token has expired.</message>
+  <message id="Wt.Auth.mail-sent">An email has been sent. Follow the instructions to set a new password.</message>
+  <message id="Wt.Auth.info-email-confirmed">Your email address is now confirmed.</message>
+
+  <message id="Wt.Auth.passwdqc.reason-error">
+    Check failed
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-same">
+    The same as the old one
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-similar">
+    Based on the old one
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-short">
+    Too short
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-long">
+    Too long
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-simpleshort">
+    Not enough different characters or classes for this length
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-simple">
+    Not enough different characters or classes
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-personal">
+    Based on personal information
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-word">
+    Based on a dictionary word and not a passphrase
+  </message>
+  <message id="Wt.Auth.passwdqc.reason-seq">
+    Based on a common sequence of characters
+  </message>
+
+  <message id="Wt.Auth.GoogleService.badresponse">
+    <p>Sorry, could not login using your Google account.</p>
+    <small>
+      <p>Google's identification server generated an unexpected
+	response.</p>
+    </small>
+  </message>
+
+  <message id="Wt.Auth.FacebookService.badresponse">
+    <p>Sorry, could not login using your Facebook account.</p>
+    <small>
+      <p>Facebook's identification server generated an unexpected
+	response.</p>
+    </small>
+  </message>
+  
+  <!-- LoginWidget -->
+
+  <message id="Wt.Auth.login-form-title">Login</message>
+  <message id="Wt.Auth.login-form-info"></message>
+  <message id="Wt.Auth.user-name">User name</message>
+  <message id="Wt.Auth.user-name-info">Enter your user name</message>
+  <message id="Wt.Auth.user-name-invalid">Invalid</message>
+  <message id="Wt.Auth.email">Email address</message>
+  <message id="Wt.Auth.email-info">Enter your email address</message>
+  <message id="Wt.Auth.optional-email-info">
+    Enter your email address (optional)
+  </message>
+  <message id="Wt.Auth.password">Password</message>
+  <message id="Wt.Auth.password-info">Enter your password</message>
+  <message id="Wt.Auth.remember-me">Remember me</message>
+  <message id="Wt.Auth.remember-me-info.days">
+    Keeps login for {1} days
+  </message>
+  <message id="Wt.Auth.remember-me-info.weeks">
+    Keeps login for {1} weeks
+  </message>
+  <message id="Wt.Auth.lost-password">Lost password</message>
+  <message id="Wt.Auth.login">Login</message>
+  <message id="Wt.Auth.logout">Logout</message>
+  <message id="Wt.Auth.throttle-retry">Retry in {1}s</message>
+
+  <!-- RegistrationWidget -->
+
+  <message id="Wt.Auth.registration-form-title">Registration</message>
+  <message id="Wt.Auth.registration-form-info">Please complete the following information to register.</message>
+  <message id="Wt.Auth.password-registration">Register using a user name and password:</message>
+  <message id="Wt.Auth.oauth-registration">Register with an identity provider:</message>
+  <message id="Wt.Auth.or-oauth-registration">Or, register with an identity provider:</message>
+  <message id="Wt.Auth.valid">Valid</message>
+  <message id="Wt.Auth.choose-password">Password</message>
+  <message id="Wt.Auth.choose-password-info">Choose a password</message>
+  <message id="Wt.Auth.repeat-password">Repeat password</message>
+  <message id="Wt.Auth.repeat-password-info">Re-enter your password</message>
+  <message id="Wt.Auth.email-invalid">Invalid email address</message>
+  <message id="Wt.Auth.email-exists">Email already registered</message>
+  <message id="Wt.Auth.oauth">Your external account</message>
+  <message id="Wt.Auth.oauth-info">Choose one of your accounts</message>
+  <message id="Wt.Auth.user-name-exists">User already exists</message>
+  <message id="Wt.Auth.confirm-is-you">User exists, is this you?</message>
+  <message id="Wt.Auth.user-name-tooshort">Min. size {1} characters</message>
+  <message id="Wt.Auth.password-tooshort">Min. size {1} characters</message>
+  <message id="Wt.Auth.passwords-dont-match">Passwords don't match</message>
+  <message id="Wt.Auth.registration">Registration</message>
+  <message id="Wt.Auth.register">Register</message>
+  <message id="Wt.Auth.error-user-invalid">Registration failed.</message>
+
+  <!-- PasswordPromptDialog -->
+
+  <message id="Wt.Auth.enter-password">Enter your password</message>
+  <message id="Wt.Auth.password-prompt-form-title">Enter your password</message>
+  <message id="Wt.Auth.password-prompt-form-info"></message>
+  <message id="Wt.Auth.password-invalid">Invalid password</message>
+
+  <!-- UpdatePasswordWidget -->
+
+  <message id="Wt.Auth.updatepassword">Update password</message>
+  <message id="Wt.Auth.update-password-form-title">Update password</message>
+  <message id="Wt.Auth.update-password-form-info">Enter a new password below</message>
+  <message id="Wt.Auth.old-password">Current password</message>
+  <message id="Wt.Auth.old-password-info">Enter your current password</message>
+  <message id="Wt.Auth.new-password">New password</message>
+  <message id="Wt.Auth.repeat-new-password">Repeat new password</message>
+  <message id="Wt.Auth.repeat-new-password-info">Re-enter your new password</message>
+
+  <!-- LostPasswordDialog -->
+
+  <message id="Wt.Auth.lostpassword">Password forgotten? No sweat!</message>
+  <message id="Wt.Auth.lost-password-form-title">Recover your password</message>
+  <message id="Wt.Auth.lost-password-form-info">Please enter below the
+  email address which you used during registration. A mail will be
+  sent with instructions to enter a new password.</message>
+  <message id="Wt.Auth.send">Send</message>
+
+  <!-- Message boxes -->
+
+  <message id="Wt.Auth.error">Error</message>
+  <message id="Wt.Auth.notice">Notice</message>
+
+  <!-- Emails -->
+
+  <message id="Wt.Auth.confirmmail.subject">User account activation Link</message>
+
+  <message id="Wt.Auth.confirmmail.body">
+Hello {1},
+
+Thank you for joining!
+
+To complete your registration, please finally confirm your account by
+clicking on the following link or copying the URL into your browser.
+ 
+Please click here to confirm your registration or copy and paste the
+following URL into your browser: (Note: be sure to copy the entire
+URL, including any part of it which goes onto a second line.)
+
+{3}
+
+This text is resolved from the "Wt.Auth.confirmmail.subject",
+"Wt.Auth.confirmmail.body", and "Wt.Auth.confirmmail.htmlbody"
+resource keys.
+
+Good luck with your Wt application,
+
+The Wt team.
+  </message>
+
+  <message id="Wt.Auth.confirmmail.htmlbody">
+    <h3>Hello {1},</h3>
+
+    <p>Thank you for joining!</p>
+
+    <p>To complete your registration, please finally confirm your
+    account by clicking on the following link or copying the URL into
+    your browser.</p>
+ 
+    <p>Please <a href="{3}">click here to confirm</a> your
+    registration or copy and paste the following URL into your
+    browser: <i>(Note: be sure to copy the entire URL, including any
+    part of it which goes onto a second line.)</i></p>
+    
+    <b>{3}</b>
+
+    <p>
+      <i>Note to developer:</i>
+    </p>
+    <p>
+      This text is resolved from the "Wt.Auth.confirmmail.subject",
+      "Wt.Auth.confirmmail.body", and "Wt.Auth.confirmmail.htmlbody"
+      resource keys.
+    </p>
+
+    <p>Good luck with your Wt application,</p>
+
+    <p>The Wt team.</p>
+  </message>
+
+  <message id="Wt.Auth.lostpasswordmail.subject">Lost password instructions</message>
+
+  <message id="Wt.Auth.lostpasswordmail.body">
+Hello {1},
+
+This mail has been sent to you, because someone (presumably you?)
+indicated that he wishes to choose a new password, because the current
+password escapes his mind.
+
+If you requested this, then choose a new password by clicking on the
+following link or copying the URL into your browser. If you didn't
+request this, you can safely ignore and discard this email.
+ 
+Please copy and paste the following URL into your browser: (Note: be
+sure to copy the entire URL, including any part of it which goes onto
+a second line.)
+ 
+{3} 
+
+This text is resolved from the "Wt.Auth.lostpasswordmail.subject",
+"Wt.Auth.lostpasswordmail.body", and "Wt.Auth.lostpasswordmail.htmlbody"
+resource keys.
+
+Good luck with your Wt application,
+
+The Wt team.
+  </message>
+
+  <message id="Wt.Auth.lostpasswordmail.htmlbody">
+    <h3>Hello {1},</h3>
+
+    <p>This mail has been sent to you, because someone (presumably
+    you?)  indicated that he wishes to choose a new password, because
+    the current password escapes his mind.</p>
+
+    <p>If you requested this, then choose a new password by clicking
+    on the following link or copying the URL into your browser. If you
+    didn't request this, you can safely ignore and discard this
+    email.</p>
+ 
+    <p>Please <a href="{3}">click here to choose a new password</a> or
+    copy and paste the following URL into your browser: <i>(Note: be
+    sure to copy the entire URL, including any part of it which goes
+    onto a second line.)</i></p>
+    
+    <b>{3}</b>
+
+    <p>
+      <i>Note to developer:</i>
+    </p>
+    <p>
+      This text is resolved from the
+      "Wt.Auth.lostpasswordmail.subject",
+      "Wt.Auth.lostpasswordmail.body", and
+      "Wt.Auth.lostpasswordmail.htmlbody" resource keys.
+    </p>
+
+    <p>Good luck with your Wt application,</p>
+
+    <p>The Wt team.</p>
+  </message>
+
+</messages>

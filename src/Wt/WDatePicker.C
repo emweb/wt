@@ -12,9 +12,11 @@
 #include "Wt/WDateValidator"
 #include "Wt/WImage"
 #include "Wt/WInteractWidget"
-#include "Wt/WTemplate"
+#include "Wt/WPopupWidget"
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
+#include "Wt/WTemplate"
+#include "Wt/WTheme"
 
 #include "WebUtils.h"
 
@@ -23,7 +25,7 @@ namespace Wt {
 WDatePicker::WDatePicker(WContainerWidget *parent)
   : WCompositeWidget(parent)
 {
-  createDefault();
+  createDefault(0);
 }
 
 WDatePicker::WDatePicker(WInteractWidget *displayWidget,
@@ -33,24 +35,30 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
   create(displayWidget, forEdit);
 }
 
+WDatePicker::WDatePicker(WLineEdit *forEdit, WContainerWidget *parent)
+  : WCompositeWidget(parent)
+{
+  createDefault(forEdit);
+}
+
 WDatePicker::~WDatePicker()
 {
   WApplication::instance()->doJavaScript
     (WT_CLASS ".remove('" + popup_->id() + "');");
 }
 
-void WDatePicker::createDefault()
+void WDatePicker::createDefault(WLineEdit *forEdit)
 {
   WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
   icon->resize(16, 16);
   icon->setVerticalAlignment(AlignMiddle);
-  WLineEdit *lineEdit = new WLineEdit();
 
-  create(icon, lineEdit);
-
-  layout_->insertWidget(0, lineEdit);
-
-  lineEdit->setValidator(new WDateValidator(format_, this));
+  if (!forEdit) {
+    forEdit = new WLineEdit();
+    create(icon, forEdit);
+    layout_->insertWidget(0, forEdit);
+  } else
+    create(icon, forEdit);
 }
 
 void WDatePicker::create(WInteractWidget *displayWidget,
@@ -62,6 +70,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   forEdit_ = forEdit;
   forEdit_->setVerticalAlignment(AlignMiddle);
   forEdit_->changed().connect(this, &WDatePicker::setFromLineEdit);
+
   format_ = "dd/MM/yyyy";
 
   layout_->setInline(true);
@@ -69,11 +78,12 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   layout_->setAttributeValue("style", "white-space: nowrap");
 
   const char *TEMPLATE =
-    "${shadow-x1-x2}"
     "${calendar}"
     "<div style=\"text-align:center; margin-top:3px\">${close}</div>";
 
-  layout_->addWidget(popup_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+  WTemplate *t = new WTemplate(WString::fromUTF8(TEMPLATE));
+  popup_ = new WPopupWidget(t, this);
+  popup_->setAnchorWidget(displayWidget_, Horizontal);
 
   calendar_ = new WCalendar();
   calendar_->activated().connect(popup_, &WWidget::hide);
@@ -84,24 +94,18 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   closeButton->clicked().connect(popup_, &WWidget::hide);
   closeButton->clicked().connect(this, &WDatePicker::onPopupHidden);
 
-  popup_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
-  popup_->bindWidget("calendar", calendar_);
-  popup_->bindWidget("close", closeButton);
+  t->bindWidget("calendar", calendar_);
+  t->bindWidget("close", closeButton);
 
-  popup_->hide();
-  popup_->setPopup(true);
-  popup_->setPositionScheme(Absolute);
-  popup_->setStyleClass("Wt-outset Wt-datepicker");
+  WApplication::instance()->theme()->apply(this, popup_, DatePickerPopupRole);
 
-  // This confuses the close button hide ? XXX
-  //WApplication::instance()->globalEscapePressed()
-  //  .connect(popup_, &WWidget::hide);
-  popup_->escapePressed().connect(popup_, &WWidget::hide);
   displayWidget->clicked().connect(popup_, &WWidget::show);
-  displayWidget->clicked().connect(positionJS_);
   displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
 
   setGlobalPopup(false);
+
+  if (!forEdit_->validator())
+    forEdit_->setValidator(new WDateValidator(format_, this));
 }
 
 void WDatePicker::setPopupVisible(bool visible)
@@ -117,13 +121,6 @@ void WDatePicker::onPopupHidden()
 
 void WDatePicker::setGlobalPopup(bool global)
 {
-  positionJS_.setJavaScript("function() { " 
-			    WT_CLASS ".getElement('" + popup_->id() + "')"
-			    ".style.display = '';"
-			    WT_CLASS ".positionAtWidget('"
-			    + popup_->id()  + "','" + displayWidget_->id()
-			    + "', " WT_CLASS ".Horizontal, "
-			    + (global ? "true" : "false") + ");}");
 }
 
 void WDatePicker::setFormat(const WT_USTRING& format)
@@ -238,4 +235,20 @@ WDate WDatePicker::top() const
   else 
     return WDate();
 }
+
+void WDatePicker::render(WFlags<RenderFlag> flags)
+{
+  if (flags & RenderFull) {
+    WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+
+    if (dv) {
+      setTop(dv->top());
+      setBottom(dv->bottom());
+      setFormat(dv->format());
+    }
+  }
+
+  WCompositeWidget::render(flags);
+}
+
 }

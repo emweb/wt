@@ -17,8 +17,9 @@ class WRegExp;
 /*! \class WRegExpValidator Wt/WRegExpValidator Wt/WRegExpValidator
  *  \brief A validator that checks user input against a regular expression.
  *
- * This validator checks whether user input is matched by the given
- * (perl-like) regular expression.
+ * This validator checks whether user input matches the given (perl-like)
+ * regular expression. It checks the complete input; prefix ^ and suffix $
+ * are not needed.
  *
  * The following perl features are not supported (since client-side validation
  * cannot handle them):

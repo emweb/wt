@@ -111,7 +111,9 @@ const boost::any& WFormModel::value(Field field) const
 
 WT_USTRING WFormModel::valueText(Field field) const
 {
-  return asString(value(field));
+  WValidator *v = validator(field);
+
+  return asString(value(field), v ? v->format() : WT_USTRING());
 }
 
 void WFormModel::setValidator(Field field, WValidator *validator)
@@ -131,6 +133,19 @@ void WFormModel::setValidator(Field field, WValidator *validator)
     LOG_ERROR("setValidator(): " << field << " not in model");
 }
 
+WValidator *WFormModel::validator(Field field) const
+{
+  FieldMap::const_iterator i = fields_.find(field);
+
+  if (i != fields_.end()) {
+    const FieldData& d = i->second;
+
+    return d.validator;
+  }
+
+  return 0;
+}
+
 bool WFormModel::validateField(Field field)
 {
   if (!isVisible(field))
@@ -142,7 +157,7 @@ bool WFormModel::validateField(Field field)
     FieldData& d = i->second;
 
     if (d.validator)
-      setValidation(field, d.validator->validate(asString(d.value)));
+      setValidation(field, d.validator->validate(asString(valueText(field))));
     else
       setValidation(field, Valid);
 

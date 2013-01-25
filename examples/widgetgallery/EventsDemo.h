@@ -5,21 +5,15 @@
  * See the LICENSE file for terms of use.
  */
 
-#ifndef EVENTSDEMO_H_
-#define EVENTSDEMO_H_
+#ifndef EVENTS_DEMO_H_
+#define EVENTS_DEMO_H_
 
-#include "ControlsWidget.h"
+#include "TopicWidget.h"
 
-namespace Wt {
-  class WMouseEvent;
-  class WKeyEvent;
-  class WText;
-}
-
-class EventsDemo : public ControlsWidget
+class EventsDemo : public TopicWidget
 {
 public:
-  EventsDemo(EventDisplayer *ed);
+  EventsDemo();
 
   void populateSubMenu(Wt::WMenu *menu);
 

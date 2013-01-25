@@ -39,7 +39,7 @@ WT_DECLARE_WT_MEMBER
     var p = $el.get(0).parentNode;
 
     if (p.wtAnimateChild) {
-      p.wtAnimateChild($el.get(0), effects, timing, duration,
+      p.wtAnimateChild(WT, $el.get(0), effects, timing, duration,
 		       { display: display });
       return;
     }
@@ -67,6 +67,15 @@ WT_DECLARE_WT_MEMBER
     }
 
     var restore = set;
+
+    function onEnd() {
+      if (el.wtAnimatedHidden)
+	el.wtAnimatedHidden(hide);
+
+      // FIXME: APP instead of Wt
+      if (Wt.layouts2)
+	Wt.layouts2.scheduleAdjust(true);
+    }
 
     function show() {
       el.style.display = display;
@@ -102,8 +111,11 @@ WT_DECLARE_WT_MEMBER
 	    pStyle);
 
 	show();
-	targetHeight = $el.height() + "px";
 
+	if ($el.height() == 0)
+	  el.style.height = 'auto';
+
+	targetHeight = $el.height() + "px";
 	set(el,
 	    {   height: "0px",
 	      overflow: "hidden" },
@@ -144,7 +156,9 @@ WT_DECLARE_WT_MEMBER
 		el.scrollTop = 0;
 		if (elc)
 		  restore(elc, elcStyle);
-	      } 
+	      }
+
+	      onEnd();
 	    });
 	}, 0);
     }
@@ -183,6 +197,8 @@ WT_DECLARE_WT_MEMBER
 		el.style.display = display;
 
 	      restore(el, elStyle);
+
+	      onEnd();
 	    });
 	}, 0);
     }

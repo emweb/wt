@@ -36,9 +36,9 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
      * into account whether the password is derived from the email
      * address.
      */
-    registrationModel_->setValue(RegistrationModel::EmailField,
-			 WT_USTRING::fromUTF8(user.email() + " "
-					      + user.unverifiedEmail()));
+    registrationModel_->setValue
+      (RegistrationModel::EmailField,
+       WT_USTRING::fromUTF8(user.email() + " " + user.unverifiedEmail()));
   }
 
   // Make sure it does not block validation

@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifdef WTDBO
 
 #include <boost/test/unit_test.hpp>
 
@@ -69,8 +68,8 @@ struct Dbo3Fixture
 #endif // POSTGRES
 
 #ifdef MYSQL
-    connection_ = new dbo::backend::MySQL("example_db", "example",
-                                          "example_pw", "localhost", 3307);
+    connection_ = new dbo::backend::MySQL("wt_test_db", "test_user",
+                                          "test_pw", "localhost", 3306);
 #endif // MYSQL
 #ifdef FIREBIRD
     std::string file;
@@ -115,10 +114,10 @@ BOOST_AUTO_TEST_CASE( dbo3_test1 )
 
   dbo::Session& session = *f.session_;
 
-  session.mapClass<Customer>("customer");
-  session.mapClass<CustomerAddress>("customer_address");
+  // Really short names required here to make firebird test
+  // succeed (max 31 char identifiers)
+  session.mapClass<Customer>("c");
+  session.mapClass<CustomerAddress>("ca");
 
   session.createTables();
 }
-
-#endif

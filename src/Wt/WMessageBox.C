@@ -28,8 +28,9 @@ const char *WMessageBox::iconURI[]
       "icons/critical.png",
       "icons/question.png" };
 
-WMessageBox::WMessageBox()
-  : buttons_(0),
+WMessageBox::WMessageBox(WObject *parent)
+  : WDialog(parent),
+    buttons_(0),
     icon_(NoIcon),
     result_(NoButton),
     buttonClicked_(this)
@@ -38,8 +39,9 @@ WMessageBox::WMessageBox()
 }
 
 WMessageBox::WMessageBox(const WString& caption, const WString& text,
-			 Icon icon, WFlags<StandardButton> buttons)
-  : WDialog(caption),
+			 Icon icon, WFlags<StandardButton> buttons,
+			 WObject *parent)
+  : WDialog(caption, parent),
     buttons_(0),
     icon_(NoIcon),
     buttonClicked_(this)
@@ -53,7 +55,7 @@ WMessageBox::WMessageBox(const WString& caption, const WString& text,
 
 WPushButton *WMessageBox::addButton(const WString& text, StandardButton result)
 {
-  WPushButton *b = new WPushButton(text, buttonContainer_);
+  WPushButton *b = new WPushButton(text, footer());
   buttonMapper_->mapConnect(b->clicked(), result);
 
   return b;
@@ -66,14 +68,11 @@ void WMessageBox::create()
   WContainerWidget *buttons = new WContainerWidget(contents());
   buttons->setMargin(WLength(3), Top);
   buttons->setPadding(WLength(5), Left|Right);
-  buttonContainer_ = new WContainerWidget(buttons);
   buttonMapper_ = new WSignalMapper<StandardButton>(this);
   buttonMapper_->mapped().connect(this, &WMessageBox::onButtonClick);
 
   //buttonMapper_->mapConnect(contents()->escapePressed, Cancel);
   //contents()->escapePressed.preventDefault();
-
-  buttonContainer_->setStyleClass("Wt-msgbox-buttons");
 
   rejectWhenEscapePressed();
 }
@@ -110,12 +109,12 @@ void WMessageBox::setIcon(Icon icon)
 void WMessageBox::setButtons(WFlags<StandardButton> buttons)
 {
   buttons_ = buttons;
-  buttonContainer_->clear();
+  footer()->clear();
 
   for (int i = 0; i < 9; ++i)
     if (buttons_ & order_[i]) {
       WPushButton *b
-	= new WPushButton(tr(buttonText_[i]), buttonContainer_);
+	= new WPushButton(tr(buttonText_[i]), footer());
       buttonMapper_->mapConnect(b->clicked(), order_[i]);
 
       if (order_[i] == Ok || order_[i] == Yes)
@@ -130,7 +129,7 @@ WPushButton *WMessageBox::button(StandardButton b)
     if (buttons_ & order_[i]) {
       if (order_[i] == b)
 	return
-	  dynamic_cast<WPushButton *>(buttonContainer_->children()[index]);
+	  dynamic_cast<WPushButton *>(footer()->children()[index]);
       ++index;
     }
 

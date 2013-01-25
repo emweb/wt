@@ -1,0 +1,819 @@
+/*
+ * Reuse settings and mixins from Bootstrap
+ */
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.clearfix:after {
+  clear: both;
+}
+.hide-text {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+.input-block-level {
+  display: block;
+  width: 100%;
+  min-height: 30px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/*
+ * Extend menu support to include sub menus
+ */
+.nav > li > .nav {
+  display: none;
+  margin-left: 2ex;
+}
+.nav > li.active .nav {
+  display: block;
+}
+/*
+ * More dropdown-menu support
+ */
+.dropdown-menu .disabled a,
+.dropdown-menu .disabled a:hover {
+  text-decoration: none;
+  color: #999999;
+  cursor: default;
+  background-color: transparent;
+}
+.dropdown-menu .Wt-icon {
+  margin-right: 8px;
+  background-repeat: no-repeat;
+  background-position: center left;
+  display: inline-block;
+  width: 16px;
+  height: 14px;
+  line-height: 14px;
+  vertical-align: text-top;
+}
+.dropdown-menu .Wt-chkbox {
+  margin-left: 2px;
+  margin-right: 10px;
+  display: inline-block;
+  width: 12px;
+}
+.dropdown-menu .Wt-padded {
+  padding-left: 39px;
+}
+.dropdown-menu .submenu a {
+  background-image: url(../../right-arrow.gif);
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+/*
+ * Custom collapse nav support
+ */
+.nav-bar .nav-collapse {
+  display: block !important;
+}
+/*
+ * Less odd drop down menu support in navbar
+ */
+.navbar .nav > li.submenu > a:hover,
+.navbar .nav > li.submenu > a.active {
+  color: #555555;
+  text-decoration: none;
+  background-color: #e5e5e5;
+  -webkit-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
+  -moz-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
+}
+/*
+ * Dialog extensions
+ */
+.modal .modal-header {
+  cursor: move;
+}
+.modal .modal-header div {
+  float: left;
+}
+/*
+ * Non-bootstrap widgets
+ */
+/*
+ * Resize handles
+ */
+.Wt-vsh,
+.Wt-hrh2,
+.Wt-vsh2 {
+  cursor: row-resize;
+}
+.Wt-vsh {
+  margin: 2px;
+}
+.Wt-hsh,
+.Wt-vrh2,
+.Wt-hsh2 {
+  cursor: col-resize;
+}
+.Wt-hsh {
+  margin: 0px 2px;
+}
+.Wt-hrh2 {
+  background-color: #EEEEEE;
+  background: url(splitter-v.png) no-repeat 50% 50%;
+}
+.Wt-vrh2 {
+  background-color: #EEEEEE;
+  background: url(splitter-h.png) no-repeat 50% 50%;
+}
+.Wt-hsh,
+.Wt-vsh,
+.Wt-hsh2,
+.Wt-vsh2,
+.Wt-vrh2:hover,
+.Wt-hrh2:hover {
+  background-color: #999999;
+}
+/*
+ * WCalendar
+ */
+.Wt-cal table.d1 {
+  width: 170px;
+}
+.Wt-cal table.d3 {
+  width: 255px;
+}
+.Wt-cal table.dlong {
+  width: 560px;
+}
+.Wt-cal .days.d1 td {
+  width: 20px;
+}
+.Wt-cal .days.d3 td {
+  width: 35px;
+}
+.Wt-cal .days.dlong td {
+  width: 80px;
+}
+.Wt-cal td,
+.Wt-cal th,
+.Wt-cal td > div {
+  text-align: center;
+  height: 20px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.Wt-cal th,
+.Wt-cal td > div {
+  padding: 4px 5px;
+}
+.Wt-cal tr:first-child th {
+  cursor: pointer;
+}
+.Wt-cal tr:first-child th:hover {
+  background: #eeeeee;
+}
+.Wt-cal tr:first-child th select {
+  width: 105px;
+  margin: 0px;
+}
+.Wt-cal tr:first-child th input {
+  width: 35px;
+  margin: 0px;
+}
+.Wt-cal .days td:hover {
+  background: #eeeeee;
+  cursor: pointer;
+}
+.Wt-cal .days td .Wt-cal-oom {
+  color: #999999;
+}
+.Wt-cal .days td .Wt-cal-oor {
+  color: #999999;
+}
+.Wt-cal .days td .Wt-cal-sel,
+.Wt-cal .days td .Wt-cal-sel:hover {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #006dcc;
+  background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
+  background-image: -webkit-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -o-linear-gradient(top, #0088cc, #0044cc);
+  background-image: linear-gradient(to bottom, #0088cc, #0044cc);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0044cc', GradientType=0);
+  border-color: #0044cc #0044cc #002a80;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #0044cc;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+.Wt-cal .days td .Wt-cal-sel:hover,
+.Wt-cal .days td .Wt-cal-sel:hover:hover,
+.Wt-cal .days td .Wt-cal-sel:active,
+.Wt-cal .days td .Wt-cal-sel:hover:active,
+.Wt-cal .days td .Wt-cal-sel.active,
+.Wt-cal .days td .Wt-cal-sel:hover.active,
+.Wt-cal .days td .Wt-cal-sel.disabled,
+.Wt-cal .days td .Wt-cal-sel:hover.disabled,
+.Wt-cal .days td .Wt-cal-sel[disabled],
+.Wt-cal .days td .Wt-cal-sel:hover[disabled] {
+  color: #ffffff;
+  background-color: #0044cc;
+  *background-color: #003bb3;
+}
+.Wt-cal .days td .Wt-cal-sel:active,
+.Wt-cal .days td .Wt-cal-sel:hover:active,
+.Wt-cal .days td .Wt-cal-sel.active,
+.Wt-cal .days td .Wt-cal-sel:hover.active {
+  background-color: #003399 \9;
+}
+/*
+ * WDateEdit
+ */
+.Wt-dateedit {
+  background-image: url('date-edit-button.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
+}
+.Wt-dateedit.hover {
+  cursor: default;
+  background-position: right -30px;
+}
+.Wt-dateedit.active {
+  cursor: default;
+  background-position: right -60px;
+}
+/*
+ * WDatePicker
+ */
+.Wt-datepicker {
+  display: block;
+  top: auto;
+  left: auto;
+}
+/*
+ * WProgressBar
+ */
+.progress {
+  width: 200px;
+  vertical-align: middle;
+  position: relative;
+  margin-bottom: 0px;
+}
+.progress .bar-label {
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  text-align: center;
+  font-size: 0.8em;
+  top: 0.1em;
+}
+/*
+ * WGoogleMap
+ */
+.Wt-googlemap img {
+  max-width: none;
+}
+/*
+ * WSpinBox
+ */
+.Wt-spinbox {
+  background-image: url('spin-buttons.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 16px;
+}
+.Wt-spinbox.up {
+  background-position: right -30px;
+}
+.Wt-spinbox.dn {
+  background-position: right -60px;
+}
+/*
+ * WSlider
+ */
+.Wt-slider-h .Wt-slider-bg {
+  margin: 0px 5px;
+}
+.Wt-slider-h .Wt-w {
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  left: -1px;
+  margin-top: -5px;
+  height: 8px;
+  border: 1px solid #dddddd;
+  background: #eeeeee;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.Wt-slider-h .fill {
+  top: 50%;
+  margin-top: -5px;
+  height: 8px;
+  border: 1px solid #0088cc;
+  background: #0088cc;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.Wt-slider-h .handle {
+  top: 50% !important;
+  margin-top: -10px;
+  height: 18px !important;
+  border: 1px solid #bbbbbb;
+  color: #333333;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  background-color: #f5f5f5;
+  background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe6e6e6', GradientType=0);
+  border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #e6e6e6;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.Wt-slider-h .handle:hover,
+.Wt-slider-h .handle:active,
+.Wt-slider-h .handle.active,
+.Wt-slider-h .handle.disabled,
+.Wt-slider-h .handle[disabled] {
+  color: #333333;
+  background-color: #e6e6e6;
+  *background-color: #d9d9d9;
+}
+.Wt-slider-h .handle:active,
+.Wt-slider-h .handle.active {
+  background-color: #cccccc \9;
+}
+.Wt-slider-h .handle:hover {
+  background-color: #e6e6e6;
+  background-position: 0 -15px;
+}
+.Wt-slider-h .handle:active {
+  background-color: #e6e6e6;
+  background-color: #d9d9d9 \9;
+  background-image: none;
+  outline: 0;
+}
+.Wt-slider-v .Wt-slider-bg {
+  margin: 5px 0px;
+}
+.Wt-slider-v .Wt-w {
+  position: absolute;
+  height: 100%;
+  left: 50%;
+  margin-left: -5px;
+  width: 8px;
+  border: 1px solid #dddddd;
+  background: #eeeeee;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.Wt-slider-v .fill {
+  left: 50%;
+  margin-left: -5px;
+  bottom: -1px;
+  width: 8px;
+  border: 1px solid #0088cc;
+  background: #0088cc;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.Wt-slider-v .handle {
+  left: 50% !important;
+  margin-left: -10px;
+  width: 18px !important;
+  border: 1px solid #bbbbbb;
+  color: #333333;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  background-color: #f5f5f5;
+  background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe6e6e6', GradientType=0);
+  border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #e6e6e6;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.Wt-slider-v .handle:hover,
+.Wt-slider-v .handle:active,
+.Wt-slider-v .handle.active,
+.Wt-slider-v .handle.disabled,
+.Wt-slider-v .handle[disabled] {
+  color: #333333;
+  background-color: #e6e6e6;
+  *background-color: #d9d9d9;
+}
+.Wt-slider-v .handle:active,
+.Wt-slider-v .handle.active {
+  background-color: #cccccc \9;
+}
+.Wt-slider-v .handle:hover {
+  background-color: #e6e6e6;
+  background-position: 0 -15px;
+}
+.Wt-slider-v .handle:active {
+  background-color: #e6e6e6;
+  background-color: #d9d9d9 \9;
+  background-image: none;
+  outline: 0;
+}
+/*
+ * WAbstractItemView (WTableView and WTreeView)
+ */
+.Wt-itemview {
+  cursor: default;
+  white-space: nowrap;
+  background: white;
+  border: 1px solid #dddddd;
+  /* header */
+
+  /* resize handles */
+
+  /* sort handles */
+
+  /* item drag & drop */
+
+}
+.Wt-itemview .Wt-spacer {
+  background: url(../../loading.png);
+}
+.Wt-itemview .Wt-headerdiv {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+  overflow: hidden;
+  width: 100%;
+}
+.Wt-itemview .Wt-headerdiv,
+.Wt-itemview .Wt-headerdiv .Wt-tv-rowc,
+.Wt-itemview th {
+  font-weight: bold;
+}
+.Wt-itemview th,
+.Wt-itemview th .Wt-tv-br {
+  overflow: hidden;
+}
+.Wt-itemview Wt-header .Wt-label {
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  /* needed for IE only */
+
+  white-space: nowrap;
+}
+.Wt-itemview Wt-header .Wt-wwrap .Wt-label {
+  overflow: visible;
+  white-space: normal;
+}
+.Wt-itemview .Wt-tv-rh {
+  float: right;
+  width: 4px;
+  cursor: col-resize;
+}
+.Wt-itemview .Wt-tv-no-rh {
+  width: 0px;
+  margin-left: 4px;
+  cursor: default;
+}
+.Wt-itemview .Wt-tv-sh {
+  float: right;
+  width: 16px;
+  height: 16px;
+  padding-bottom: 6px;
+  cursor: pointer;
+}
+.Wt-itemview .Wt-tv-rh:hover {
+  background-color: #999999;
+}
+.Wt-itemview .Wt-tv-sh-none {
+  background: url(sort-arrow-none.gif) no-repeat 0 6px;
+}
+.Wt-itemview .Wt-tv-sh-up {
+  background: url(sort-arrow-up.gif) no-repeat 0 6px;
+}
+.Wt-itemview .Wt-tv-sh-down {
+  background: url(sort-arrow-down.gif) no-repeat 0 6px;
+}
+.Wt-itemview .active {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  background-color: #0088cc;
+  cursor: default;
+}
+.Wt-itemview .Wt-drop-site {
+  background-color: #EEEEEE;
+  outline: 1px dotted black;
+}
+body.Wt-rtl .Wt-itemview .Wt-tv-rh,
+body.Wt-rtl .Wt-itemview .Wt-tv-sh {
+  float: left;
+}
+/*
+ * WTableView
+ */
+.Wt-tableview {
+  white-space: nowrap;
+  /* header */
+
+  /* borders */
+
+}
+.Wt-tableview .cwidth {
+  margin-top: -1px;
+}
+.Wt-tableview .Wt-header .Wt-tv-c {
+  padding-left: 6px;
+}
+.Wt-tableview .Wt-tv-contents {
+  background-color: #ffffff;
+}
+.Wt-tableview .Wt-tv-contents.Wt-striped div.Wt-tv-c:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+.Wt-tableview .Wt-tv-contents.Wt-striped div.active:nth-child(odd) {
+  background-color: #0088cc;
+}
+.Wt-tableview .Wt-tv-contents .Wt-tv-c,
+.Wt-tableview .Wt-plaintable .Wt-tv-c {
+  padding: 0px 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.Wt-tableview .Wt-tv-contents img.icon,
+.Wt-tableview .Wt-plaintable img.icon,
+.Wt-tableview .Wt-tv-contents input.icon,
+.Wt-tableview .Wt-plaintable input.icon {
+  margin: 0px 3px 2px 0px;
+  vertical-align: middle;
+}
+.Wt-tableview .Wt-spacer {
+  position: relative;
+  overflow: hidden;
+}
+.Wt-tableview table {
+  background-position: left bottom;
+}
+.Wt-tableview th {
+  padding: 0px;
+}
+.Wt-tableview .Wt-tv-br {
+  border-right: 1px solid #dddddd;
+}
+.Wt-tableview .Wt-tv-contents .Wt-tv-c,
+.Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
+  border-right: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
+  margin-top: -1px;
+}
+.Wt-tableview .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
+.Wt-tableview .Wt-tv-contents > div:last-child .Wt-tv-c {
+  border-right: 0;
+}
+.Wt-tableview .Wt-header {
+  border-bottom: 1px solid #dddddd;
+}
+body.Wt-rtl .Wt-tableview .Wt-header .Wt-tv-c {
+  padding-right: 6px;
+}
+body.Wt-rtl .Wt-tableview .Wt-tv-br {
+  border-left: 1px solid #dddddd;
+}
+body.Wt-rtl .Wt-tableview .Wt-tv-contents .Wt-tv-c,
+body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
+  border-left: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
+  margin-top: -1px;
+}
+/*
+ * WTree(node)
+ */
+.Wt-tree {
+  cursor: default;
+}
+.Wt-tree ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+.Wt-tree div.Wt-root {
+  display: none;
+}
+.Wt-tree ul.Wt-root {
+  padding-left: 0px;
+}
+.Wt-tree.Wt-trunk,
+.Wt-tree .Wt-item.Wt-trunk {
+  background-image: url(../../line-trunk.gif);
+  background-repeat: repeat-y;
+}
+.Wt-tree .Wt-item.Wt-end {
+  background-image: url(../../line-last.gif);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
+.Wt-tree .active {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  background-color: #0088cc;
+  cursor: default;
+}
+.Wt-tree .Wt-ctrl {
+  float: left;
+  display: block;
+  width: 19px;
+  height: 19px;
+}
+.Wt-tree .Wt-ctrl.Wt-noexpand {
+  background: url(../../line-middle.gif) no-repeat 0 0;
+}
+.Wt-tree .Wt-ctrl img {
+  vertical-align: top;
+}
+.Wt-tree .cols-row {
+  float: right;
+}
+.Wt-tree .Wt-label {
+  padding: 0px 2px;
+  line-height: 150%;
+}
+.Wt-treetable .Wt-header {
+  font-weight: bold;
+  border-bottom: 1px solid #dddddd;
+  line-height: 28px;
+}
+/*
+ * WTreeView
+ */
+/* Layout styling */
+.Wt-treeview {
+  /* nodes */
+
+}
+.Wt-treeview ul {
+  margin: 0px;
+  padding-left: 20px;
+  list-style: none;
+}
+.Wt-treeview ul.Wt-tv-root {
+  padding-left: 0px;
+}
+.Wt-treeview img.icon,
+.Wt-treeview input.icon {
+  margin: 0px 3px 2px 0px;
+}
+.Wt-treeview .Wt-header {
+  border-bottom: 1px solid #dddddd;
+}
+.Wt-treeview .Wt-header .Wt-tv-c {
+  padding: 0px;
+  margin-left: 7px;
+}
+.Wt-treeview .Wt-tv-br,
+.Wt-treeview .Wt-tv-node .Wt-tv-c {
+  /* data */
+
+  margin-right: 0px;
+  border-right: 1px solid #dddddd;
+}
+.Wt-treeview .Wt-tv-c {
+  padding: 0px 3px;
+}
+.Wt-treeview .Wt-tv-row {
+  float: right;
+  overflow: hidden;
+}
+.Wt-treeview .Wt-tv-row .Wt-tv-c {
+  float: left;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.Wt-treeview img.icon,
+.Wt-treeview input.icon {
+  vertical-align: middle;
+}
+.Wt-treeview .Wt-scroll {
+  overflow: auto;
+  height: 22px;
+}
+.Wt-treeview .Wt-scroll div {
+  height: 1px;
+}
+.Wt-treeview .Wt-trunk {
+  background-image: url(../../line-trunk.gif);
+  background-repeat: repeat-y;
+}
+.Wt-treeview .Wt-end {
+  background-image: url(../../tv-line-last.gif);
+  background-repeat: no-repeat;
+  background-position: 0 center;
+}
+.Wt-treeview .Wt-ctrl {
+  float: left;
+  width: 19px;
+}
+.Wt-treeview .Wt-ctrl.expand {
+  background: url(nav-plus.gif) no-repeat 0 center;
+}
+.Wt-treeview .Wt-ctrl.collapse {
+  background: url(nav-minus.gif) no-repeat 0 center;
+}
+.Wt-treeview .Wt-ctrl.noexpand {
+  background: url(../../line-middle.gif) no-repeat 0 center;
+}
+body.Wt-rtl .Wt-treeview .Wt-tv-row {
+  float: left;
+}
+body.Wt-rtl .Wt-treeview .Wt-tv-row .Wt-tv-c {
+  float: right;
+}
+body.Wt-rtl .Wt-treeview img.icon,
+body.Wt-rtl .Wt-treeview input.icon {
+  margin: 0px 0px 2px 3px;
+}
+body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
+  padding: 0px;
+  margin-left: 0px;
+  margin-right: 7px;
+}
+body.Wt-rtl .Wt-treeview .Wt-tv-br,
+body.Wt-rtl .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
+  /* data */
+
+  margin-right: 1px;
+  border-right: 0px;
+  margin-left: 0px;
+  border-left: 1px solid #dddddd;
+}
+body.Wt-rtl .Wt-treeview .Wt-end {
+  background-image: url(../../tv-line-last-rtl.gif);
+}
+body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
+  background: url(nav-plus-rtl.gif) no-repeat 0 center;
+}
+body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
+  background: url(nav-minus-rtl.gif) no-repeat 0 center;
+}
+body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
+  background: url(../../line-middle-rtl.gif) no-repeat 0 center;
+}
+/*
+ * WTreeView and WTableView default paging bar
+ */
+.Wt-pagingbar {
+  text-align: center;
+  padding: 2px;
+  height: 25px;
+  line-height: 25px;
+}
+.Wt-pagingbar span {
+  margin: 0px 4px;
+}
+.Wt-pagingbar button {
+  margin: 0px 4px;
+}
+.Wt-in-place-edit span:hover {
+  color: #ffffff;
+  background-color: #0088cc;
+}
+/*
+ * WStackedWidget
+ */
+.Wt-stack.Wt-animated {
+  overflow: hidden;
+  position: relative;
+}

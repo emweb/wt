@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WSuggestionPopup",
- function(APP, el, replacerJS, matcherJS, filterLength, defaultValue, global) {
+ function(APP, el, replacerJS, matcherJS, filterLength, defaultValue) {
    $('.Wt-domRoot').add(el);
 
    jQuery.data(el, 'obj', this);
@@ -44,16 +44,17 @@ WT_DECLARE_WT_MEMBER
    }
 
    function positionPopup(edit) {
-     WT.positionAtWidget(el.id, edit.id, WT.Vertical, global, true);
+     el.style.display='block';
+     WT.positionAtWidget(el.id, edit.id, WT.Vertical);
    }
 
    function contentClicked(event) {
      var e = event || window.event;
      var line = WT.target(e);
-     if (line.className == "content")
+     if (WT.hasTag(line, "UL"))
        return;
 
-     while (line && !WT.hasTag(line, "DIV"))
+     while (line && !WT.hasTag(line, "LI"))
        line = line.parentNode;
 
      if (line)
@@ -61,7 +62,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function suggestionClicked(line) {
-     var suggestion = line.firstChild,
+     var suggestion = line.firstChild.firstChild,
          edit = WT.getElement(editId),
          sText = suggestion.innerHTML,
          sValue = suggestion.getAttribute('sug');
@@ -79,7 +80,7 @@ WT_DECLARE_WT_MEMBER
    var keyDownFun = null;
 
    this.showPopup = function(edit) {
-     el.style.display = '';
+     el.style.display = 'block';
      selId = null;
      lastFilterValue = null;
      keyDownFun = edit.onkeydown;
@@ -135,7 +136,7 @@ WT_DECLARE_WT_MEMBER
      for (n = down ? n.nextSibling : n.previousSibling;
 	  n;
 	  n = down ? n.nextSibling : n.previousSibling) {
-       if (WT.hasTag(n, 'DIV'))
+       if (WT.hasTag(n, 'LI'))
 	 if (n.style.display != 'none')
 	   return n;
      }
@@ -205,9 +206,9 @@ WT_DECLARE_WT_MEMBER
 	   n = l;
 	 }
 
-         if (n && WT.hasTag(n, 'DIV')) {
+         if (n && WT.hasTag(n, 'LI')) {
            sel.className = '';
-           n.className = 'sel';
+           n.className = 'active';
            selId = n.id;
          }
 
@@ -238,7 +239,7 @@ WT_DECLARE_WT_MEMBER
      var sel = selId ? WT.getElement(selId) : null,
          edit = WT.getElement(editId),
          matcher = matcherJS(edit),
-         sels = el.lastChild.childNodes,
+         sels = el.childNodes,
          text = matcher(null);
 
      lastFilterValue = edit.value;
@@ -270,16 +271,17 @@ WT_DECLARE_WT_MEMBER
 
      for (i = 0, il = sels.length; i < il; ++i) {
        var child = sels[i];
-       if (WT.hasTag(child, 'DIV')) {
+       if (WT.hasTag(child, 'LI')) {
+	 var a = child.firstChild;
          if (child.orig == null) {
-           child.orig = child.firstChild.innerHTML;
+           child.orig = a.firstChild.innerHTML;
 	 }
 
 	 var result = matcher(child.orig),
 	     match = showall || result.match;
 
-	 if (result.suggestion != child.firstChild.innerHTML)
-	   child.firstChild.innerHTML = result.suggestion;
+	 if (result.suggestion != a.firstChild.innerHTML)
+	   a.firstChild.innerHTML = result.suggestion;
 
          if (match) {
 	   if (child.style.display != '')
@@ -312,7 +314,7 @@ WT_DECLARE_WT_MEMBER
          selId = sel.id;
        }
 
-       sel.className = 'sel';
+       sel.className = 'active';
        scrollToSelected(sel);
      }
    };
@@ -345,13 +347,13 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
-   el.lastChild.onclick = contentClicked;
+   el.onclick = contentClicked;
 
    /*
     * In Safari, scrolling causes the edit to lose focus, but we don't want
     * that. Can it be avoided? In any case, this fixes it.
     */
-   el.lastChild.onscroll = function() {
+   el.onscroll = function() {
      if (delayHideTimeout) {
        clearTimeout(delayHideTimeout);
        var edit = WT.getElement(editId);

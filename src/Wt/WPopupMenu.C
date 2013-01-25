@@ -11,7 +11,6 @@
 #include "Wt/WException"
 #include "Wt/WPoint"
 #include "Wt/WPopupMenu"
-#include "Wt/WPopupMenuItem"
 #include "Wt/WTemplate"
 
 #include "WebSession.h"
@@ -20,34 +19,27 @@
 #include "js/WPopupMenu.min.js"
 #endif
 
+/*
+ * TODO:
+ *  - use anchor#hover CSS instead of stateless slot for rendering
+ *    hovering; except for showing a sub-popup-menu
+ *
+ *  - renderVisual() on click: only if the menu has internal paths enabled
+ *
+ *  - get sub popup menus going again
+ */
+
 namespace Wt {
 
-WPopupMenu::WPopupMenu()
-  : WCompositeWidget(),
-    parentItem_(0),
+WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
+  : WMenu(contentsStack),
     result_(0),
     location_(0),
     aboutToHide_(this),
-    triggered_(this),
     cancel_(this, "cancel"),
     recursiveEventLoop_(false),
     autoHideDelay_(-1)
 {
-  const char *TEMPLATE =
-    "${shadow-x1-x2}"
-    "${contents}";
-
-  setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
-  impl_->setLoadLaterWhenInvisible(false);
-
-  setPositionScheme(Absolute);
-  setStyleClass("Wt-popupmenu Wt-outset");
-
-  impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
-  WContainerWidget *content = new WContainerWidget();
-  content->setStyleClass("content");
-  impl_->bindWidget("contents", content);
-
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
 
   WApplication *app = WApplication::instance();
@@ -57,94 +49,51 @@ WPopupMenu::WPopupMenu()
       (".Wt-notselected .Wt-popupmenu", "visibility: hidden;", CSS_RULES_NAME);
 
   app->domRoot()->addWidget(this);
-
-  hide();
 }
 
-WContainerWidget *WPopupMenu::contents() const
+void WPopupMenu::setButton(WInteractWidget *button)
 {
-  return dynamic_cast<WContainerWidget *>(impl_->resolveWidget("contents"));
+  button_ = button;
+
+  if (button_)
+    button_->clicked().connect(this, &WPopupMenu::popupAtButton);
+}
+
+void WPopupMenu::popupAtButton()
+{
+  button_->addStyleClass("active", true);
+
+  popup(button_);
 }
 
 void WPopupMenu::setMaximumSize(const WLength& width,
 				const WLength& height)
 {
   WCompositeWidget::setMaximumSize(width, height);
-  contents()->setMaximumSize(width, height);
+  ul()->setMaximumSize(width, height);
 }
 
 void WPopupMenu::setMinimumSize(const WLength& width,
 				const WLength& height)
 {
   WCompositeWidget::setMinimumSize(width, height);
-  contents()->setMinimumSize(width, height);
-}
-
-WPopupMenuItem *WPopupMenu::addItem(const WString& text)
-{
-  return addItem(std::string(), text);
-}
-
-WPopupMenuItem *WPopupMenu::addItem(const std::string& iconPath,
-				    const WString& text)
-{
-  WPopupMenuItem *item = new WPopupMenuItem(iconPath, text);
-  add(item);
-  return item;
-}
-
-WPopupMenuItem *WPopupMenu::addMenu(const WString& text, WPopupMenu *menu)
-{
-  return addMenu(std::string(), text, menu);
-}
-
-WPopupMenuItem *WPopupMenu::addMenu(const std::string& iconPath,
-				    const WString& text, WPopupMenu *menu)
-{
-  WPopupMenuItem *item = addItem(iconPath, text);
-  item->setPopupMenu(menu);
-  return item;
-}
-
-void WPopupMenu::add(WPopupMenuItem *item)
-{
-  contents()->addWidget(item);
-}
-
-void WPopupMenu::addSeparator()
-{
-  add(new WPopupMenuItem(true));
-}
-
-WPopupMenu *WPopupMenu::topLevelMenu()
-{
-  return parentItem_ ? parentItem_->topLevelMenu() : this;
+  ul()->setMinimumSize(width, height);
 }
 
 void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 {
-  if (!WApplication::instance()->session()->renderer().preLearning()
-      && (animation.empty() && hidden == isHidden()))
-    return;
-
   WCompositeWidget::setHidden(hidden, animation);
 
-  if (autoHideDelay_ >= 0 && cancel_.isConnected())
+  if (cancel_.isConnected())
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj').setHidden("
 		 + (hidden ? "1" : "0") + ");");
-
-  if (hidden)
-    renderOutAll();
 }
 
-void WPopupMenu::renderOutAll()
+void WPopupMenu::done(WMenuItem *result)
 {
-  for (int i = 0; i < count(); ++i)
-    itemAt(i)->renderOut();
-}
+  if (location_ && location_ == button_)
+    button_->removeStyleClass("active", true);
 
-void WPopupMenu::done(WPopupMenuItem *result)
-{
   location_ = 0;
   result_ = result;
 
@@ -158,12 +107,10 @@ void WPopupMenu::done(WPopupMenuItem *result)
 
   recursiveEventLoop_ = false;
 
-  triggered_.emit(result_);
-
   aboutToHide_.emit();
 }
 
-void WPopupMenu::done()
+void WPopupMenu::cancel()
 {
   done(0);
 }
@@ -179,12 +126,6 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
   positionAt(location, orientation);
 }
 
-void WPopupMenu::popupToo(WWidget *location)
-{
-  show();
-  positionAt(location, Horizontal);
-}
-
 void WPopupMenu::popup(const WMouseEvent& e)
 {
   popup(WPoint(e.document().x, e.document().y));
@@ -192,8 +133,6 @@ void WPopupMenu::popup(const WMouseEvent& e)
 
 void WPopupMenu::popupImpl()
 {
-  renderOutAll();
-
   result_ = 0;
 
   WApplication *app = WApplication::instance();
@@ -205,9 +144,9 @@ void WPopupMenu::popupImpl()
     app->globalEscapePressed().emit();
 
   globalClickConnection_
-    = app->root()->clicked().connect(this, &WPopupMenu::done);
+    = app->root()->clicked().connect(this, &WPopupMenu::cancel);
   globalEscapeConnection_
-    = app->globalEscapePressed().connect(this, &WPopupMenu::done);
+    = app->globalEscapePressed().connect(this, &WPopupMenu::cancel);
 
   app->pushExposedConstraint(this);
 
@@ -229,17 +168,6 @@ void WPopupMenu::popup(const WPoint& p)
 	       + boost::lexical_cast<std::string>(p.y()) + ");");
 }
 
-void WPopupMenu::getSubMenus(std::vector<WPopupMenu *>& result)
-{
-  for (int i = 0; i < count(); ++i) {
-    WPopupMenuItem *item = itemAt(i);
-    if (item->popupMenu()) {
-      result.push_back(item->popupMenu());
-      item->popupMenu()->getSubMenus(result);
-    }
-  }
-}
-
 void WPopupMenu::prepareRender(WApplication *app)
 {
   if (app->environment().agentIsIE()) {
@@ -247,35 +175,61 @@ void WPopupMenu::prepareRender(WApplication *app)
 		 + jsRef() + ".lastChild.offsetWidth + 'px';");
   }
 
-  // FIXME: we should really also prepareRender() of submenus when shown...
-
   if (!cancel_.isConnected()) {
     LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
-
-    std::vector<WPopupMenu *> subMenus;
-    getSubMenus(subMenus);
 
     WStringStream s;
 
     s << "new " WT_CLASS ".WPopupMenu("
       << app->javaScriptClass() << ',' << jsRef() << ','
-      << autoHideDelay_ << ",[";
-
-    for (unsigned i = 0; i < subMenus.size(); ++i) {
-      if (i != 0)
-	s << ',';
-      s << WWebWidget::jsStringLiteral(subMenus[i]->id());
-    }
-
-    s << "]);";
+      << autoHideDelay_ << ");";
 
     setJavaScriptMember(" WPopupMenu", s.str());
 
-    cancel_.connect(this, &WPopupMenu::done);
+    cancel_.connect(this, &WPopupMenu::cancel);
+
+    connectSignals(this);
+  }
+
+  adjustPadding();
+}
+
+void WPopupMenu::connectSignals(WPopupMenu * const topLevel)
+{
+  triggered().connect(topLevel, &WPopupMenu::done);
+
+  for (int i = 0; i < count(); ++i) {
+    WMenuItem *item = itemAt(i);
+    WPopupMenu *subMenu = dynamic_cast<WPopupMenu *>(item->menu());
+
+    if (subMenu)
+      subMenu->connectSignals(topLevel);
   }
 }
 
-WPopupMenuItem *WPopupMenu::exec(const WPoint& p)
+void WPopupMenu::adjustPadding()
+{
+  bool needPadding = false;
+
+  for (int i = 0; i < count(); ++i) {
+    WMenuItem *item = itemAt(i);
+    if (!item->icon().empty() || item->isCheckable()) {
+      needPadding = true;
+      break;
+    }
+  }
+
+  for (int i = 0; i < count(); ++i) {
+    WMenuItem *item = itemAt(i);
+    item->setItemPadding(needPadding);
+    WPopupMenu *subMenu = dynamic_cast<WPopupMenu *>(item->menu());
+
+    if (subMenu)
+      subMenu->adjustPadding();
+  }
+}
+
+WMenuItem *WPopupMenu::exec(const WPoint& p)
 {
   if (recursiveEventLoop_)
     throw WException("WPopupMenu::exec(): already being executed.");
@@ -298,12 +252,12 @@ WPopupMenuItem *WPopupMenu::exec(const WPoint& p)
   return result_;
 }
 
-WPopupMenuItem *WPopupMenu::exec(const WMouseEvent& e)
+WMenuItem *WPopupMenu::exec(const WMouseEvent& e)
 {
   return exec(WPoint(e.document().x, e.document().y));
 }
 
-WPopupMenuItem *WPopupMenu::exec(WWidget *location, Orientation orientation)
+WMenuItem *WPopupMenu::exec(WWidget *location, Orientation orientation)
 {
   if (recursiveEventLoop_)
     throw WException("WPopupMenu::exec(): already being executed.");
@@ -349,9 +303,10 @@ bool WPopupMenu::isExposed(WWidget *w)
    * w is a contained popup menu or contained by a sub-popup menu
    */
   for (int i = 0; i < count(); ++i) {
-    WPopupMenuItem *item = itemAt(i);
-    if (item->popupMenu())
-      if (item->popupMenu()->isExposed(w))
+    WMenuItem *item = itemAt(i);
+    WPopupMenu *popup = dynamic_cast<WPopupMenu *>(item->menu());
+    if (popup)
+      if (popup->isExposed(w))
 	return true;
   }
 
@@ -364,21 +319,14 @@ bool WPopupMenu::isExposed(WWidget *w)
 	return false;
   }
 
-  if (!parentItem_) {
-    done();
+  if (!parentItem()) {
+    cancel();
     return true;
   } else
     return false;
 }
 
-int WPopupMenu::count() const
-{
-  return contents()->count();
-}
-
-WPopupMenuItem *WPopupMenu::itemAt(int index) const
-{
-  return dynamic_cast<WPopupMenuItem *>(contents()->widget(index));
-}
+void WPopupMenu::renderSelected(WMenuItem *item, bool selected)
+{ }
 
 }

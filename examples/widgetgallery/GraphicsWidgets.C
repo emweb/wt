@@ -4,79 +4,173 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "DeferredWidget.h"
 #include "GraphicsWidgets.h"
-#include "PaintExample.h"
-#include "PaintBrush.h"
+#include "TopicTemplate.h"
 
-#include <Wt/WText>
-#include <Wt/WGlobal>
-#include <Wt/WCssDecorationStyle>
-#include <Wt/WBorder>
-#include <Wt/WBreak>
-#include <Wt/WPushButton>
+#include <Wt/WAbstractItemModel>
+#include <Wt/WImage>
+#include <Wt/WStandardItem>
+#include <Wt/WStandardItemModel>
 
-GraphicsWidgets::GraphicsWidgets(EventDisplayer *ed)
-  : ControlsWidget(ed, true)
+GraphicsWidgets::GraphicsWidgets()
+    : TopicWidget()
 {
-  topic("WPaintedWidget", this);
   addText(tr("graphics-intro"), this);
 }
 
-void GraphicsWidgets::populateSubMenu(WMenu *menu)
+void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
 {
-  menu->addItem("Emweb logo example", emwebLogo());
-  menu->addItem("Paintbrush example", paintbrush());
+  menu->setInternalBasePath("/graphics-charts");
+
+  menu->addItem("2D painting", painting2d())->setPathComponent("");
+  menu->addItem("Paintbrush", 
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::paintbrush, this)));
+  menu->addItem("Category chart", 
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::categoryChart, this)));
+  menu->addItem("Scatter plot", 
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::scatterPlot, this)));
+  menu->addItem("Pie chart", 
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::pieChart, this)));
+  menu->addItem("Maps",
+                deferCreate(boost::bind
+			    (&GraphicsWidgets::googleMap, this)));
+  menu->addItem("3D painting", 
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::painting3d, this)));
 }
 
-WWidget* GraphicsWidgets::emwebLogo()
-{
-  WContainerWidget *result = new WContainerWidget();
 
-  topic("WPaintedWidget", result);
-  
-  new PaintExample(result, false);
-  
+#include "examples/PaintingEvent.cpp"
+#include "examples/PaintingShapes.cpp"
+#include "examples/PaintingTransformations.cpp"
+#include "examples/PaintingClipping.cpp"
+#include "examples/PaintingStyle.cpp"
+#include "examples/PaintingImages.cpp"
+
+Wt::WWidget *GraphicsWidgets::painting2d()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-Painting2D");
+
+  result->bindWidget("PaintingEvent", PaintingEvent());
+  result->bindWidget("PaintingShapes", PaintingShapes());
+  result->bindWidget("PaintingTransformations", PaintingTransformations());
+  result->bindWidget("PaintingClipping", PaintingClipping());
+  result->bindWidget("PaintingStyle", PaintingStyle());
+  result->bindWidget("PaintingImages", PaintingImages());
+
   return result;
 }
 
-void addColor(PaintBrush *const canvas,
-	      WTableCell *cell, 
-	      const WColor& color)
+
+#include "examples/Paintbrush.cpp"
+
+Wt::WWidget *GraphicsWidgets::paintbrush()
 {
-  cell->decorationStyle().setBackgroundColor(color);
-  cell->resize(15, 15);
+  Wt::WTemplate *result = new TopicTemplate("graphics-Paintbrush");
 
-  const WColor *const javaColor = &color;
-
-  cell->clicked().connect(boost::bind(&PaintBrush::setColor, 
-				      canvas, 
-				      *javaColor));
-}
-
-WWidget* GraphicsWidgets::paintbrush()
-{
-  WContainerWidget *result = new WContainerWidget();
-  
-  topic("WPaintedWidget", result);
-
-  addText(tr("graphics-paintbrush"), result);
-
-  WTable* layout = new WTable(result);
-
-  PaintBrush *const canvas = new PaintBrush(710, 400, layout->elementAt(0,0));
-  canvas->decorationStyle()
-    .setBorder(WBorder(WBorder::Solid, WBorder::Medium, WColor(black)));
-
-  addText("Color chooser:", layout->elementAt(0,1));
-  WTable* colorTable = new WTable(layout->elementAt(0,1));
-  addColor(canvas, colorTable->elementAt(0, 0), WColor(black));
-  addColor(canvas, colorTable->elementAt(0, 1), WColor(red));
-  addColor(canvas, colorTable->elementAt(1, 0), WColor(green));
-  addColor(canvas, colorTable->elementAt(1, 1), WColor(blue));
-  new WBreak(layout->elementAt(0,1));
-  WPushButton* clearButton = new WPushButton("Clear", layout->elementAt(0,1));
-  clearButton->clicked().connect(canvas, &PaintBrush::clear);
-  layout->elementAt(0,1)->setPadding(3);
+  result->bindWidget("Paintbrush", Paintbrush());
 
   return result;
 }
+
+
+#include "examples/CategoryChart.cpp"
+
+Wt::WWidget *GraphicsWidgets::categoryChart()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-CategoryChart");
+
+  result->bindWidget("CategoryChart", CategoryChart());
+
+  return result;
+}
+
+
+#include "examples/ScatterPlotData.cpp"
+#include "examples/ScatterPlotCurve.cpp"
+
+Wt::WWidget *GraphicsWidgets::scatterPlot()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-ScatterPlot");
+
+  result->bindWidget("ScatterPlotData", ScatterPlotData());
+  result->bindWidget("ScatterPlotCurve", ScatterPlotCurve());
+
+  return result;
+}
+
+
+#include "examples/PieChart.cpp"
+
+Wt::WWidget *GraphicsWidgets::pieChart()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-PieChart");
+
+  result->bindWidget("PieChart", PieChart());
+
+  return result;
+}
+
+
+#include "examples/GoogleMap.cpp"
+
+Wt::WWidget *GraphicsWidgets::googleMap()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-GoogleMap");
+
+  result->bindWidget("GoogleMap", GoogleMap());
+
+  // Show the XML-template as text
+  result->bindString("GoogleMap-controls",
+                     reindent(tr("graphics-GoogleMap-controls")),
+		     Wt::PlainText);
+  return result;
+}
+
+
+#include "examples/Painting3D.cpp"
+
+Wt::WWidget *GraphicsWidgets::painting3d()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-Painting3D");
+
+  result->bindWidget("Painting3D", Painting3D());
+
+  return result;
+}
+
+
+
+/*
+ * Reads a CSV file as an (editable) standard item model.
+ */
+Wt::WAbstractItemModel *readCsvFile(const std::string &fname,
+				    Wt::WContainerWidget *parent)
+{
+  Wt::WStandardItemModel *model = new Wt::WStandardItemModel(0, 0, parent);
+  std::ifstream f(fname.c_str());
+
+  if (f) {
+    readFromCsv(f, model);
+
+    for (int row = 0; row < model->rowCount(); ++row)
+      for (int col = 0; col < model->columnCount(); ++col) {
+	model->item(row, col)->setFlags(Wt::ItemIsSelectable 
+					| Wt::ItemIsEditable);
+    }
+
+    return model;
+  } else {
+    Wt::WString error(Wt::WString::tr("error-missing-data"));
+    error.arg(fname, Wt::UTF8);
+    new Wt::WText(error, parent);
+    return 0;
+  }
+}
+
+

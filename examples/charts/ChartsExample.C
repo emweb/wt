@@ -119,9 +119,9 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
 
   // We use a single delegate for all items which rounds values to
   // the closest integer value.
-  WItemDelegate *delegate = new WItemDelegate(this);
-  delegate->setTextFormat("%.f");
-  table->setItemDelegate(delegate);
+  //WItemDelegate *delegate = new WItemDelegate(this);
+  //delegate->setTextFormat("%.f");
+  //table->setItemDelegate(delegate);
 
   table->setColumnWidth(0, 80);
   for (int i = 1; i < model->columnCount(); ++i)
@@ -206,10 +206,12 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
     table->setEditTriggers(WAbstractItemView::NoEditTrigger);
   }
 
+  /*
   WItemDelegate *delegate = new WItemDelegate(this);
   delegate->setTextFormat("%.1f");
   table->setItemDelegate(delegate);
   table->setItemDelegateForColumn(0, new WItemDelegate(this));
+  */
 
   table->setColumnWidth(0, 80);
   for (int i = 1; i < model->columnCount(); ++i)

@@ -1,0 +1,7 @@
+<server>
+    <application-settings location="*">
+        <web-sockets>true</web-sockets>
+	<progressive-bootstrap>true</progressive-bootstrap>
+	<log-config>* -debug -info:WebRequest</log-config>
+    </application-settings>
+</server>

@@ -95,7 +95,7 @@ private:
   int x_, y_, width_, height_;
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
+  virtual bool updateDom(DomElement& element, bool all);
 };
 
 }

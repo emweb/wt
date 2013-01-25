@@ -8,7 +8,6 @@
 #define WEBRENDERER_H_
 
 #include <string>
-#include <sstream>
 #include <vector>
 #include <set>
 #include "Wt/WDateTime"
@@ -58,8 +57,8 @@ public:
   void letReloadHTML(WebResponse& request, bool newSession);
 
   bool isDirty() const;
-  unsigned scriptId() const { return scriptId_; }
-  unsigned pageId() const { return pageId_; }
+  int scriptId() const { return scriptId_; }
+  int pageId() const { return pageId_; }
 
   void serveResponse(WebResponse& request);
   void serveError(int status, WebResponse& request, 
@@ -73,9 +72,9 @@ public:
   bool preLearning() const { return learning_; }
   void learningIncomplete();
 
-  bool ackUpdate(unsigned updateId);
+  bool ackUpdate(int updateId);
 
-  void streamRedirectJS(std::ostream& out, const std::string& redirect);
+  void streamRedirectJS(WStringStream& out, const std::string& redirect);
 
   bool checkResponsePuzzle(const WebRequest& request);
 
@@ -94,9 +93,8 @@ private:
 
   WebSession& session_;
 
-  bool visibleOnly_, rendered_;
-  int twoPhaseThreshold_;
-  unsigned pageId_, expectedAckId_, scriptId_;
+  bool visibleOnly_, rendered_, initialStyleRendered_;
+  int twoPhaseThreshold_, pageId_, expectedAckId_, scriptId_;
   std::string solution_;
 
   std::map<std::string, CookieValue> cookiesToSet_;
@@ -112,31 +110,35 @@ private:
   void serveMainscript(WebResponse& response);
   void serveBootstrap(WebResponse& request);
   void serveMainpage(WebResponse& response);
-  void serveMainAjax(WebResponse& response);
+  void serveMainAjax(WStringStream& out);
   void serveWidgetSet(WebResponse& request);
   void collectJavaScript();
 
   void collectChanges(std::vector<DomElement *>& changes);
 
-  void collectJavaScriptUpdate(std::ostream& out);
-  void loadStyleSheets(std::ostream& out, WApplication *app);
-  int loadScriptLibraries(std::ostream& out, WApplication *app,
+  void collectJavaScriptUpdate(WStringStream& out);
+  void loadStyleSheet(WStringStream& out, WApplication *app,
+		      const WCssStyleSheet& sheet);
+  void loadStyleSheets(WStringStream& out, WApplication *app);
+  int loadScriptLibraries(WStringStream& out, WApplication *app,
 			  int count = -1);
-  void updateLoadIndicator(std::ostream& out, WApplication *app, bool all);
-  void renderSetServerPush(std::ostream& out);
+  void updateLoadIndicator(WStringStream& out, WApplication *app, bool all);
+  void renderSetServerPush(WStringStream& out);
   void setJSSynced(bool invisibleToo);
+  void renderStyleSheet(WStringStream& out, const WCssStyleSheet& sheet,
+			WApplication *app, bool xhtml);
 
   std::string createFormObjectsList(WApplication *app);
 
-  void preLearnStateless(WApplication *app, std::ostream& out);
-  std::stringstream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_,
+  void preLearnStateless(WApplication *app, WStringStream& out);
+  WStringStream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_,
     beforeLoadJS_;
-  void collectJS(std::ostream *js);
+  void collectJS(WStringStream *js);
 
   void setPageVars(FileServe& page);
   void streamBootContent(WebResponse& response, 
 			 FileServe& boot, bool hybrid);
-  void addResponseAckPuzzle(std::ostream& out);
+  void addResponseAckPuzzle(WStringStream& out);
   void addContainerWidgets(WWebWidget *w,
 			   std::vector<WContainerWidget *>& v);
 
@@ -154,6 +156,7 @@ public:
   std::string       learn(WStatelessSlot* slot);
 
   friend class WApplication;
+  friend class WebSession;
 };
 
 }

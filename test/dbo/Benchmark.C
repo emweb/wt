@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifdef WTDBO
 
 #include <boost/test/unit_test.hpp>
 
@@ -93,8 +92,8 @@ BOOST_AUTO_TEST_CASE( performance_test )
 
 
 #ifdef MYSQL
-    dbo::backend::MySQL connection("example_db", "example",
-                                   "example_pw", "localhost", 3307);
+    dbo::backend::MySQL connection("wt_test_db", "test_user",
+                                   "test_pw", "localhost", 3306);
 #endif // MYSQL
 
 #ifdef FIREBIRD
@@ -178,4 +177,3 @@ BOOST_AUTO_TEST_CASE( performance_test )
   session.dropTables();
 }
 
-#endif

@@ -31,7 +31,7 @@ FormExample::FormExample(WContainerWidget *parent)
   /*
    * Start with the reported locale, if available
    */
-  setLanguage(wApp->locale());
+  setLanguage(wApp->locale().name());
 
   Form *form = new Form(this);
   form->setMargin(20);

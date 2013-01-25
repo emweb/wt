@@ -155,7 +155,7 @@ void WMediaPlayer::clearSources()
   media_.clear();
 
   mediaUpdated_ = true;
-  askRerender();
+  scheduleRender();
 }
 
 void WMediaPlayer::addSource(Encoding encoding, const WLink& link)
@@ -165,7 +165,7 @@ void WMediaPlayer::addSource(Encoding encoding, const WLink& link)
   media_.back().encoding = encoding;
 
   mediaUpdated_ = true;
-  askRerender();
+  scheduleRender();
 }
 
 WLink WMediaPlayer::getSource(Encoding encoding) const
@@ -528,7 +528,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 	ss << ", ";
 
       ss << "seekBar:\"#" << progressBar_[Time]->id() << "\", "
-	 << "playBar:\"#" << progressBar_[Time]->id() << " .Wt-pgb-bar\"";
+	 << "playBar:\"#bar" << progressBar_[Time]->id() << "\"";
 
       first = false;
     }
@@ -538,8 +538,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 	ss << ", ";
 
       ss << "volumeBar:\"#" << progressBar_[Volume]->id() << "\", "
-	 << "volumeBarValue:\"#" << progressBar_[Volume]->id()
-	 << " .Wt-pgb-bar\"";
+	 << "volumeBarValue:\"#bar" << progressBar_[Volume]->id() << "\"";
 
       first = false;
     }
@@ -641,7 +640,7 @@ JSignal<>& WMediaPlayer::signal(const char *name)
   JSignal<> *result;
   signals_.push_back(result = new JSignal<>(this, name, true));
 
-  askRerender();
+  scheduleRender();
 
   return *result;
 }

@@ -1,0 +1,52 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_WBOOTSTRAP_THEME_H
+#define WT_WBOOTSTRAP_THEME_H
+
+#include <Wt/WTheme>
+
+namespace Wt {
+
+/*! \class WBootstrapTheme Wt/WBootstrapTheme Wt/WBootstrapTheme
+ *  \brief Theme based on the Twitter Bootstrap CSS framework.
+ *
+ * By default, the theme will use CSS resources that are shipped
+ * together with the %Wt distribution.
+ *
+ * \sa WApplication::setTheme()
+ */
+class WT_API WBootstrapTheme : public WTheme
+{
+public:
+  /*! \brief Constructor.
+   */
+  WBootstrapTheme(WObject *parent = 0);
+
+  virtual ~WBootstrapTheme();
+
+  virtual std::string name() const;
+
+  virtual std::vector<WCssStyleSheet> styleSheets() const;
+
+  virtual void apply(WWidget *widget, WWidget *child, int widgetRole)
+    const;
+  virtual void apply(WWidget *widget, DomElement& element, int elementRole)
+    const;
+
+  virtual std::string disabledClass() const;
+  virtual std::string activeClass() const;
+
+  virtual bool canStyleAnchorAsButton() const;
+
+  virtual void applyValidationStyle(WWidget *widget,
+				    const Wt::WValidator::Result& validation,
+				    WFlags<ValidationStyleFlag> styles) const;
+};
+
+}
+
+#endif // WT_WBOOTSTRAP_THEME_H

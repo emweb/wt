@@ -137,13 +137,14 @@ public:
   virtual void removeStyleClass(const WT_USTRING& styleClass,
 				bool force = false);
   void removeStyleClass(const char *styleClass, bool force = false);
+  virtual bool hasStyleClass(const WT_USTRING& styleClass) const;
   virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength());
   virtual AlignmentFlag verticalAlignment() const;
   virtual WLength verticalAlignmentLength() const;
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText);
-  virtual WString toolTip() const;
+  virtual const WString& toolTip() const;
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);
@@ -160,6 +161,7 @@ public:
 
   virtual void setId(const std::string& id);
   virtual WWidget *find(const std::string& name);
+  virtual WWidget *findById(const std::string& id);
   virtual void setSelectable(bool selectable);
   virtual void doJavaScript(const std::string& javascript);
   virtual const std::string id() const;
@@ -170,7 +172,7 @@ public:
   virtual DomElementType domElementType() const = 0;
 
   DomElement *createStubElement(WApplication *app);
-  DomElement *createActualElement(WApplication *app);
+  DomElement *createActualElement(WWidget *self, WApplication *app);
 
   /*! \brief Change the way the widget is loaded when invisible.
    *
@@ -284,6 +286,8 @@ protected:
   virtual void addChild(WWidget *child);
   virtual void removeChild(WWidget *child);
   virtual void setHideWithOffsets(bool how = true);
+
+  WWidget *selfWidget();
 
   void doLoad(WWidget *w);
   void childAdded(WWidget *child);
@@ -446,6 +450,7 @@ private:
 			      WApplication *app);
   void         getSFormObjects(FormObjectsMap& formObjects);
 
+  WWebWidget *parentWebWidget() const;
   void gotParent();
 
   /*

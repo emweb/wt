@@ -1,0 +1,19 @@
+TODO:
+
+- WPanel
+- (Tables ? Adapt .table to WTableView ? But what about WTreeView ? )
+
+- Forms
+
+  WTemplateFormView
+  WFormWidget -> validation
+
+- buttons: icon using class ?
+
+- Breadcrumbs ? a dynamic WMenu ?
+
+- progress bars -> WProgressBar
+
+- navigation bar animation: RevealFromTop ?
+
+Volgorde:

@@ -15,12 +15,20 @@
 
 namespace Wt {
 
+WAnchor::LinkState::LinkState()
+  : target(TargetSelf),
+    clickJS(0)
+{ }
+
+WAnchor::LinkState::~LinkState()
+{
+  delete clickJS;
+}
+
 WAnchor::WAnchor(WContainerWidget *parent)
   : WContainerWidget(parent),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 {
   setInline(true);
 }
@@ -28,9 +36,7 @@ WAnchor::WAnchor(WContainerWidget *parent)
 WAnchor::WAnchor(const WLink& link, WContainerWidget *parent)
   : WContainerWidget(parent),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 {
   setInline(true);
 
@@ -40,21 +46,18 @@ WAnchor::WAnchor(const WLink& link, WContainerWidget *parent)
 #ifdef WT_TARGET_JAVA
 WAnchor::WAnchor(const std::string& ref, WContainerWidget *parent)
   : WContainerWidget(parent),
-    link_(WLink::Url, ref),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 {
   setInline(true);
+
+  linkState_.link = WLink(WLink::Url, ref);
 }
 
 WAnchor::WAnchor(WResource *resource, WContainerWidget *parent)
   : WContainerWidget(parent),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 {
   setInline(true);
 
@@ -66,9 +69,7 @@ WAnchor::WAnchor(const WLink& link, const WString& text,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 {
   setInline(true);
 
@@ -81,13 +82,12 @@ WAnchor::WAnchor(const WLink& link, const WString& text,
 WAnchor::WAnchor(const std::string& ref, const WString& text,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
-    link_(WLink::Url, ref),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 { 
   setInline(true);
+
+  setLink(WLink(WLink::Url, ref));
 
   text_ = new WText(text, this);
 }
@@ -96,9 +96,7 @@ WAnchor::WAnchor(WResource *resource, const WString& text,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 { 
   setInline(true);
 
@@ -111,9 +109,7 @@ WAnchor::WAnchor(WResource *resource, const WString& text,
 WAnchor::WAnchor(const WLink& link, WImage *image, WContainerWidget *parent)
   : WContainerWidget(parent),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 { 
   setInline(true);
 
@@ -128,13 +124,12 @@ WAnchor::WAnchor(const WLink& link, WImage *image, WContainerWidget *parent)
 WAnchor::WAnchor(const std::string& ref, WImage *image,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
-    link_(WLink::Url, ref),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 { 
   setInline(true);
+
+  linkState_.link = WLink(WLink::Url, ref);
 
   image_ = image;
 
@@ -146,9 +141,7 @@ WAnchor::WAnchor(WResource *resource, WImage *image,
 		 WContainerWidget *parent)
   : WContainerWidget(parent),
     text_(0),
-    image_(0),
-    target_(TargetSelf),
-    changeInternalPathJS_(0)
+    image_(0)
 { 
   setInline(true);
 
@@ -160,25 +153,21 @@ WAnchor::WAnchor(WResource *resource, WImage *image,
 }
 #endif // WT_TARGET_JAVA
 
-WAnchor::~WAnchor()
-{
-  delete changeInternalPathJS_;
-}
-
 void WAnchor::setLink(const WLink& link)
 {
-  if (link_.type() != WLink::Resource && link_ == link)
+  if (linkState_.link.type() != WLink::Resource && linkState_.link == link)
     return;
 
-  link_ = link;
+  linkState_.link = link;
 
   flags_.set(BIT_LINK_CHANGED);
 
   repaint(RepaintPropertyIEMobile);
 
-  switch (link_.type()) {
+  switch (linkState_.link.type()) {
   case WLink::Resource:
-    link_.resource()->dataChanged().connect(this, &WAnchor::resourceChanged);
+    linkState_.link.resource()->dataChanged().connect
+      (this, &WAnchor::resourceChanged);
     break;
   case WLink::InternalPath:
     WApplication::instance()->enableInternalPaths();
@@ -205,8 +194,8 @@ void WAnchor::setResource(WResource *resource)
 
 void WAnchor::setTarget(AnchorTarget target)
 {
-  if (target_ != target) {
-    target_ = target;
+  if (linkState_.target != target) {
+    linkState_.target = target;
     flags_.set(BIT_TARGET_CHANGED);
   }
 }
@@ -276,7 +265,7 @@ void WAnchor::resourceChanged()
 
 void WAnchor::enableAjax()
 {
-  if (link_.type() == WLink::InternalPath) {
+  if (linkState_.link.type() == WLink::InternalPath) {
     flags_.set(BIT_LINK_CHANGED);
     repaint(RepaintPropertyIEMobile);
   }
@@ -289,60 +278,78 @@ void WAnchor::updateDom(DomElement& element, bool all)
   bool needsUrlResolution = false;
 
   if (flags_.test(BIT_LINK_CHANGED) || all) {
-    WApplication *app = WApplication::instance();
-
-    if (link_.isNull())
-      element.removeAttribute("href");
-    else {
-      std::string url = link_.resolveUrl(app);
-
-      /*
-       * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
-       * does not work without the check below:
-       */
-      if (target_ == TargetSelf)
-	changeInternalPathJS_
-	  = link_.manageInternalPathChange(app, this, changeInternalPathJS_);
-      else {
-	delete changeInternalPathJS_;
-	changeInternalPathJS_ = 0;
-      }
-
-      url = app->encodeUntrustedUrl(url);
-
-      std::string href = resolveRelativeUrl(url);
-      element.setAttribute("href", href);
-      needsUrlResolution = !app->environment().hashInternalPaths()
-	&& href.find("://") == std::string::npos && href[0] != '/';
-    }
-
+    needsUrlResolution = renderHRef(this, linkState_, element);
     flags_.reset(BIT_LINK_CHANGED);
   }
 
   if (flags_.test(BIT_TARGET_CHANGED) || all) {
-    switch (target_) {
-    case TargetSelf:
-      if (!all)
-	element.setProperty(PropertyTarget, "_self");
-      break;
-    case TargetThisWindow:
-      element.setProperty(PropertyTarget, "_top");
-      break;
-    case TargetNewWindow:
-      element.setProperty(PropertyTarget, "_blank");
-    }
+    renderHTarget(linkState_, element, all);
     flags_.reset(BIT_TARGET_CHANGED);
   }
 
   WContainerWidget::updateDom(element, all);
 
-  if (needsUrlResolution) {
-    if (all)
-      element.setProperty(PropertyClass,
-			  Utils::addWord(styleClass().toUTF8(), "Wt-rr"));
-    else
-      element.callJavaScript("$('#" + id() + "').addClass('Wt-rr');");
+  if (needsUrlResolution)
+    renderUrlResolution(this, element, all);
+}
+
+bool WAnchor::renderHRef(WInteractWidget *widget,
+			 LinkState& linkState, DomElement& element)
+{
+  WApplication *app = WApplication::instance();
+
+  if (linkState.link.isNull())
+    element.removeAttribute("href");
+  else {
+    std::string url = linkState.link.resolveUrl(app);
+
+    /*
+     * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
+     * does not work without the check below:
+     */
+    if (linkState.target == TargetSelf) {
+      linkState.clickJS
+	= linkState.link.manageInternalPathChange(app, widget,
+						  linkState.clickJS);
+    } else {
+      delete linkState.clickJS;
+      linkState.clickJS = 0;
+    }
+
+    url = app->encodeUntrustedUrl(url);
+
+    std::string href = widget->resolveRelativeUrl(url);
+    element.setAttribute("href", href);
+    return !app->environment().hashInternalPaths()
+      && href.find("://") == std::string::npos && href[0] != '/';
   }
+
+  return false;
+}
+
+void WAnchor::renderHTarget(LinkState& linkState, DomElement& element, bool all)
+{
+  switch (linkState.target) {
+  case TargetSelf:
+    if (!all)
+      element.setProperty(PropertyTarget, "_self");
+    break;
+  case TargetThisWindow:
+    element.setProperty(PropertyTarget, "_top");
+    break;
+  case TargetNewWindow:
+    element.setProperty(PropertyTarget, "_blank");
+  }
+}
+
+void WAnchor::renderUrlResolution(WWidget *widget, DomElement& element,
+				  bool all)
+{
+  if (all)
+    element.setProperty(PropertyClass,
+			Utils::addWord(widget->styleClass().toUTF8(), "Wt-rr"));
+  else
+    element.callJavaScript("$('#" + widget->id() + "').addClass('Wt-rr');");
 }
 
 void WAnchor::propagateRenderOk(bool deep)

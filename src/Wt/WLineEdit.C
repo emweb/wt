@@ -9,6 +9,7 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WStringUtil"
+#include "Wt/WTheme"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -112,6 +113,9 @@ void WLineEdit::getDomChanges(std::vector<DomElement *>& result,
   if (app->environment().agentIsIE() && flags_.test(BIT_ECHO_MODE_CHANGED)) {
     DomElement *e = DomElement::getForUpdate(this, domElementType());
     DomElement *d = createDomElement(app);
+
+    app->theme()->apply(selfWidget(), *d, 0);
+
     e->replaceWith(d);
     result.push_back(e);
   } else

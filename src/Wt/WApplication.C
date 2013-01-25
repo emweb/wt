@@ -10,6 +10,7 @@
 #include "Wt/WApplication"
 #include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
+#include "Wt/WCssTheme"
 #include "Wt/WDate"
 #include "Wt/WDefaultLoadingIndicator"
 #include "Wt/WException"
@@ -46,11 +47,6 @@ const char *WApplication::RESOURCES_URL = "resourcesURL";
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
 					   const std::string& aSymbol)
   : uri(anUri), symbol(aSymbol)
-{ }
-
-WApplication::StyleSheet::StyleSheet(const std::string& anUri,
-				     const std::string& aMedia)
-  : uri(anUri), media(aMedia)
 { }
 
 WApplication::MetaHeader::MetaHeader(MetaHeaderType aType,
@@ -114,7 +110,7 @@ WApplication::WApplication(const WEnvironment& env
     selectionEnd_(-1),
     layoutDirection_(LeftToRight),
     scriptLibrariesAdded_(0),
-    theme_("default"),
+    theme_(0),
     styleSheetsAdded_(0),
     exposeSignals_(true),
     newBeforeLoadJavaScript_(0),
@@ -132,10 +128,11 @@ WApplication::WApplication(const WEnvironment& env
   locale_ = environment().locale();
 
   newInternalPath_ = environment().internalPath();
-
   internalPathIsChanged_ = false;
   internalPathDefaultValid_ = true;
   internalPathValid_ = true;
+
+  theme_ = new WCssTheme("default", this);
 
 #ifndef WT_TARGET_JAVA
   setLocalizedStrings(new WMessageResourceBundle());
@@ -232,8 +229,6 @@ WApplication::WApplication(const WEnvironment& env
     styleSheet_.addRule(".Wt-wrap",
 			"margin: -1px 0px -3px;");
   //styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
-  styleSheet_.addRule("span.Wt-disabled", "color: gray;");
-  styleSheet_.addRule("fieldset.Wt-disabled legend", "color: gray;");
   styleSheet_.addRule(".unselectable",
 		      "-moz-user-select:-moz-none;"
 		      "-khtml-user-select: none;"
@@ -466,8 +461,8 @@ void WApplication::bindWidget(WWidget *widget, const std::string& domId)
 WContainerWidget *WApplication::dialogCover(bool create)
 {
   if (dialogCover_ == 0 && create && timerRoot_) {
-    dialogCover_ = new WContainerWidget(domRoot_);
-    dialogCover_->setStyleClass("Wt-dialogcover");
+    dialogCover_ = new WContainerWidget(domRoot_);    
+    theme()->apply(domRoot_, dialogCover_, DialogCoverRole);
     dialogCover_->hide();
   }
 
@@ -532,23 +527,28 @@ void WApplication::changeSessionId()
 
 void WApplication::setCssTheme(const std::string& theme)
 {
-  // TODO: allow modifying the theme
+  setTheme(new WCssTheme(theme, this));
+}
+
+void WApplication::setTheme(const WTheme *theme)
+{
   theme_ = theme;
 }
 
-void WApplication::useStyleSheet(const std::string& uri)
+void WApplication::useStyleSheet(const WLink& link, const std::string& media)
 {
-  for (unsigned i = 0; i < styleSheets_.size(); ++i)
-    if (styleSheets_[i].uri == uri)
-      return;
-
-  styleSheets_.push_back(StyleSheet(uri, ""));
-  ++styleSheetsAdded_;
+  useStyleSheet(WCssStyleSheet(link, media));
 }
 
-void WApplication::useStyleSheet(const std::string& uri,
+void WApplication::useStyleSheet(const WLink& link,
 				 const std::string& condition,
 				 const std::string& media)
+{
+  useStyleSheet(WCssStyleSheet(link, media), condition);
+}
+
+void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
+				 const std::string& condition)
 {
   bool display = true;
 
@@ -615,7 +615,14 @@ void WApplication::useStyleSheet(const std::string& uri,
   }
 
   if (display) {
-    styleSheets_.push_back(StyleSheet(uri, media));
+    for (unsigned i = 0; i < styleSheets_.size(); ++i) {
+      if (styleSheets_[i].link() == styleSheet.link()
+	  && styleSheets_[i].media() == styleSheet.media()) {
+	return;
+      }
+    }
+
+    styleSheets_.push_back(styleSheet);
     ++styleSheetsAdded_;
   }
 }
@@ -825,7 +832,7 @@ WObject *WApplication::decodeObject(const std::string& objectId) const
     return 0;
 }
 
-void WApplication::setLocale(const WT_LOCALE& locale)
+void WApplication::setLocale(const WLocale& locale)
 {
   locale_ = locale;
   refresh();
@@ -932,14 +939,8 @@ void WApplication::enableAjax()
 {
   enableAjax_ = true;
 
-#ifdef WT_TARGET_JAVA
-  try {
-#endif
-    streamBeforeLoadJavaScript(session_->renderer().beforeLoadJS_, false);
-    streamAfterLoadJavaScript(session_->renderer().beforeLoadJS_);
-#ifdef WT_TARGET_JAVA
-  } catch (std::io_exception& e) { }
-#endif
+  streamBeforeLoadJavaScript(session_->renderer().beforeLoadJS_, false);
+  streamAfterLoadJavaScript(session_->renderer().beforeLoadJS_);
 
   domRoot_->enableAjax();
 
@@ -1509,13 +1510,13 @@ void WApplication::declareJavaScriptFunction(const std::string& name,
   doJavaScript(javaScriptClass_ + '.' + name + '=' + function + ';', false);
 }
 
-void WApplication::streamAfterLoadJavaScript(std::ostream& out)
+void WApplication::streamAfterLoadJavaScript(WStringStream& out)
 {
   out << afterLoadJavaScript_;
   afterLoadJavaScript_.clear();
 }
 
-void WApplication::streamBeforeLoadJavaScript(std::ostream& out, bool all)
+void WApplication::streamBeforeLoadJavaScript(WStringStream& out, bool all)
 {
   streamJavaScriptPreamble(out, all);
 
@@ -1549,15 +1550,9 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
   ScriptLibrary sl(uri, symbol);
 
   if (Utils::indexOf(scriptLibraries_, sl) == -1) {
-#ifdef WT_TARGET_JAVA
-    try {
-#endif
-      std::stringstream ss;
-      streamBeforeLoadJavaScript(ss, false);
-      sl.beforeLoadJS = ss.str();
-#ifdef WT_TARGET_JAVA
-    } catch (std::io_exception& e) { return false; }
-#endif
+    WStringStream ss;
+    streamBeforeLoadJavaScript(ss, false);
+    sl.beforeLoadJS = ss.str();
 
     scriptLibraries_.push_back(sl);
     ++scriptLibrariesAdded_;
@@ -1618,7 +1613,7 @@ void WApplication::loadJavaScript(const char *jsFile)
   }
 }
 
-void WApplication::streamJavaScriptPreamble(std::ostream& out, bool all)
+void WApplication::streamJavaScriptPreamble(WStringStream& out, bool all)
 {
   if (all) {
     out << "window.currentApp = " + javaScriptClass_ + ";";
@@ -1636,7 +1631,7 @@ void WApplication::streamJavaScriptPreamble(std::ostream& out, bool all)
   newJavaScriptToLoad_.clear();
 }
 
-void WApplication::loadJavaScriptFile(std::ostream& out, const char *jsFile)
+void WApplication::loadJavaScriptFile(WStringStream& out, const char *jsFile)
 {
 #define xstr(s) str(s)
 #define str(s) #s
@@ -1658,7 +1653,7 @@ void WApplication::loadJavaScript(const char *jsFile,
   }
 }
 
-void WApplication::streamJavaScriptPreamble(std::ostream& out, bool all)
+void WApplication::streamJavaScriptPreamble(WStringStream& out, bool all)
 {
   if (all)
     newJavaScriptPreamble_ = javaScriptPreamble_.size();
@@ -1670,11 +1665,12 @@ void WApplication::streamJavaScriptPreamble(std::ostream& out, bool all)
       = preamble.scope == ApplicationScope ? javaScriptClass() : WT_CLASS;
 
     if (preamble.type == JavaScriptFunction) {
-      out << scope << '.' << preamble.name << " = function() { return ("
-	  << preamble.src << ").apply(" << scope << ", arguments) };";
+      out << scope << '.' << (char *)preamble.name
+	  << " = function() { return ("
+	  << (char *)preamble.src << ").apply(" << scope << ", arguments) };";
     } else {
-      out << scope << '.' << preamble.name << " = " << preamble.src
-	  << std::endl;
+      out << scope << '.' << (char *)preamble.name
+	  << " = " << (char *)preamble.src << '\n';
     }
   }
 

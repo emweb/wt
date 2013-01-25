@@ -13,6 +13,7 @@
 #include "Wt/WRandom"
 #include "Wt/WWebWidget"
 #include "Wt/WStringStream"
+#include "Wt/WTheme"
 #include "Wt/Utils"
 
 #include "Configuration.h"
@@ -90,6 +91,7 @@ WebRenderer::WebRenderer(WebSession& session)
   : session_(session),
     visibleOnly_(true),
     rendered_(false),
+    initialStyleRendered_(false),
     twoPhaseThreshold_(5000),
     pageId_(0),
     expectedAckId_(0),
@@ -126,9 +128,9 @@ bool WebRenderer::isDirty() const
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
     || session_.app()->styleSheetsAdded_
-    || Utils::length(collectedJS1_) > 0
-    || Utils::length(collectedJS2_) > 0
-    || Utils::length(invisibleJS_) > 0;
+    || !collectedJS1_.empty()
+    || !collectedJS2_.empty()
+    || invisibleJS_.empty();
 }
 
 const WebRenderer::FormObjectsMap& WebRenderer::formObjects() const
@@ -163,7 +165,7 @@ void WebRenderer::discardChanges()
   collectJS(0);
 }
 
-bool WebRenderer::ackUpdate(unsigned updateId)
+bool WebRenderer::ackUpdate(int updateId)
 {
   /*
    * If we are using an unreliable transport, then we remember
@@ -213,7 +215,7 @@ void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
   response.out() << "</script><body></body></html>";
 }
 
-void WebRenderer::streamRedirectJS(std::ostream& out,
+void WebRenderer::streamRedirectJS(WStringStream& out,
 				   const std::string& redirect)
 {
   if (session_.app() && session_.app()->internalPathIsChanged_)
@@ -221,7 +223,7 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
 	<< session_.app()->javaScriptClass()
 	<< "._p_.setHash("
 	<< WWebWidget::jsStringLiteral(session_.app()->newInternalPath_)
-	<< ");\n";
+	<< ", false);\n";
   out <<
     "if (window.location.replace)"
     " window.location.replace('" << redirect << "');"
@@ -238,6 +240,7 @@ void WebRenderer::serveResponse(WebResponse& response)
     serveJavaScriptUpdate(response);
     break;
   case WebResponse::Page:
+    initialStyleRendered_ = false;
     if (session_.app())
       serveMainpage(response);
     else
@@ -296,6 +299,8 @@ void WebRenderer::streamBootContent(WebResponse& response,
 {
   Configuration& conf = session_.controller()->configuration();
 
+  WStringStream out(response.out());
+
   FileServe bootJs(skeletons::Boot_js1);
 
   boot.setVar("BLANK_HTML",
@@ -339,8 +344,10 @@ void WebRenderer::streamBootContent(WebResponse& response,
     = hybrid ? session_.app()->internalPath() : session_.env().internalPath();
   bootJs.setVar("INTERNAL_PATH", safeJsStringLiteral(internalPath));
 
-  boot.streamUntil(response.out(), "BOOT_JS");
-  bootJs.stream(response.out());
+  boot.streamUntil(out, "BOOT_JS");
+  bootJs.stream(out);
+
+  out.spool(response.out());
 }
 
 void WebRenderer::serveLinkedCss(WebResponse& response)
@@ -349,33 +356,19 @@ void WebRenderer::serveLinkedCss(WebResponse& response)
 
   response.setContentType("text/css");
 
-  if (!app->cssTheme().empty()) {
-    response.out() << "@import url(\""
-		   << WApplication::resourcesUrl() << "themes/"
-		   << app->cssTheme() << "/wt.css\");\n";
+  WStringStream out(response.out());
 
-    if (app->environment().agentIsIE())
-      response.out() << "@import url(\""
-		     << WApplication::resourcesUrl() << "themes/"
-		     << app->cssTheme() << "/wt_ie.css\");\n";
+  if (app->theme())
+    app->theme()->serveCss(out);
 
-    if (app->environment().agent() == WEnvironment::IE6)
-      response.out() << "@import url(\""
-		     << WApplication::resourcesUrl() << "themes/"
-		     << app->cssTheme() << "/wt_ie6.css\");\n";
-  }
-
-  for (unsigned i = 0; i < app->styleSheets_.size(); ++i) {
-    std::string url = app->styleSheets_[i].uri;
-    response.out() << "@import url(\"" << url << "\")";
-    if (!app->styleSheets_[i].media.empty()
-	&& app->styleSheets_[i].media != "all")
-      response.out() << ' ' << app->styleSheets_[i].media;
-
-    response.out() << ";\n";
-  }
+  for (unsigned i = 0; i < app->styleSheets_.size(); ++i)
+    app->styleSheets_[i].cssText(out, true);
 
   app->styleSheetsAdded_ = 0;
+
+  initialStyleRendered_ = true;
+
+  out.spool(response.out());
 }
 
 void WebRenderer::serveBootstrap(WebResponse& response)
@@ -383,10 +376,12 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
   Configuration& conf = session_.controller()->configuration();
 
+  WStringStream out(response.out());
+
   FileServe boot(skeletons::Boot_html1);
   setPageVars(boot);
 
-  std::stringstream noJsRedirectUrl;
+  WStringStream noJsRedirectUrl;
   DomElement::htmlAttributeValue
     (noJsRedirectUrl,
      session_.bootstrapUrl(response, WebSession::KeepInternalPath) + "&js=no");
@@ -403,7 +398,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
     boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
   }
 
-  std::stringstream bootStyleUrl;
+  WStringStream bootStyleUrl;
   DomElement::htmlAttributeValue
     (bootStyleUrl,
      session_.bootstrapUrl(response, WebSession::ClearInternalPath)
@@ -419,9 +414,11 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   setHeaders(response, contentType);
 
   streamBootContent(response, boot, false);
-  boot.stream(response.out());
+  boot.stream(out);
 
   rendered_ = false;
+
+  out.spool(response.out());
 }
 
 void WebRenderer::serveError(int status, WebResponse& response,
@@ -437,14 +434,14 @@ void WebRenderer::serveError(int status, WebResponse& response,
       << "<title>Error occurred.</title>"
       << "<h2>Error occurred.</h2>"
       << WWebWidget::escapeText(WString(message), true).toUTF8()
-      << std::endl;    
+      << '\n';
   } else {
-    response.out() <<
-      app->javaScriptClass() << "._p_.quit();"
-      "document.title = 'Error occurred.';"
-      "document.body.innerHtml='<h2>Error occurred.</h2>' +";
-    DomElement::jsStringLiteral(response.out(), message, '\'');
-    response.out() << ";";
+    response.out() << app->javaScriptClass()
+		   << "._p_.quit();"
+		   << "document.title = 'Error occurred.';"
+		   << "document.body.innerHtml='<h2>Error occurred.</h2>' +"
+		   <<  WWebWidget::jsStringLiteral(message)
+		   << ';';
   }
 }
 
@@ -518,13 +515,13 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
   response.setContentType(mimeType);
 }
 
-void WebRenderer::renderSetServerPush(std::ostream& out)
+void WebRenderer::renderSetServerPush(WStringStream& out)
 {
   if (session_.app()->serverPushChanged_) {
-    out
-      << session_.app()->javaScriptClass()
-      << "._p_.setServerPush("
-      << (session_.app()->updatesEnabled() ? "true" : "false") << ");";
+    out << session_.app()->javaScriptClass()
+	<< "._p_.setServerPush("
+	<< session_.app()->updatesEnabled()
+	<< ");";
 
     session_.app()->serverPushChanged_ = false;
   }
@@ -554,21 +551,25 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
     session_.sessionIdChanged_ = false;
   }
 
+  WStringStream out(response.out());
+
   if (!rendered_) {
-    serveMainAjax(response);
+    serveMainAjax(out);
   } else {
     collectJavaScript();
 
+    addResponseAckPuzzle(out);
+    renderSetServerPush(out);
+
     LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
-    addResponseAckPuzzle(response.out());
-    renderSetServerPush(response.out());
-
-    response.out() << collectedJS1_.str() << collectedJS2_.str();
+    out << collectedJS1_.str() << collectedJS2_.str();
 
     if (response.isWebSocketRequest() || response.isWebSocketMessage())
       setJSSynced(false);
   }
+
+  out.spool(response.out());
 }
 
 void WebRenderer::addContainerWidgets(WWebWidget *w,
@@ -589,7 +590,7 @@ void WebRenderer::addContainerWidgets(WWebWidget *w,
   }
 }
 
-void WebRenderer::addResponseAckPuzzle(std::ostream& out)
+void WebRenderer::addResponseAckPuzzle(WStringStream& out)
 {
   std::string puzzle;
 
@@ -714,7 +715,7 @@ void WebRenderer::collectJavaScript()
    * acknowledged:
    */
   collectedJS1_ << invisibleJS_.str();
-  invisibleJS_.str("");
+  invisibleJS_.clear();
 
   if (conf.inlineCss())
     app->styleSheet().javaScriptUpdate(app, collectedJS1_, false);
@@ -725,9 +726,12 @@ void WebRenderer::collectJavaScript()
     collectedJS1_ << "document.body.parentNode.className='"
 		  << app->htmlClass_ << "';"
 		  << "document.body.className='" << bodyClassRtl() << "';"
-		  << "document.body.setAttribute('dir', '"
-		  << (app->layoutDirection() == LeftToRight
-		      ? "LTR" : "RTL") << "');";
+		  << "document.body.setAttribute('dir', '";
+    if (app->layoutDirection() == LeftToRight)
+      collectedJS1_ << "LTR";
+    else
+      collectedJS1_ << "RTL";
+    collectedJS1_ << "');";
   }
 
   /*
@@ -765,9 +769,9 @@ void WebRenderer::collectJavaScript()
 
 	collectJavaScriptUpdate(invisibleJS_);
 
-	if (Utils::length(invisibleJS_) < (int)twoPhaseThreshold_) {
+	if (invisibleJS_.length() < (unsigned)twoPhaseThreshold_) {
 	  collectedJS1_ << invisibleJS_.str();
-	  invisibleJS_.str("");
+	  invisibleJS_.clear();
 	  needFetchInvisible = false;
 	}
 
@@ -809,6 +813,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
 
+  WStringStream out(response.out());
+
   bool serveSkeletons = !conf.splitScript() 
     || response.getParameter("skeleton");
   bool serveRest = !conf.splitScript() || !serveSkeletons;
@@ -823,7 +829,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     std::string redirect = session_.getRedirect();
 
     if (!redirect.empty()) {
-      streamRedirectJS(response.out(), redirect);
+      streamRedirectJS(out, redirect);
       return;
     }
   } else {
@@ -842,15 +848,15 @@ void WebRenderer::serveMainscript(WebResponse& response)
     bool haveJQuery = app->customJQuery();
 
     if (!haveJQuery) {
-      response.out() << "if (typeof window.$ === 'undefined') {";
+      out << "if (typeof window.$ === 'undefined') {";
 #ifndef WT_TARGET_JAVA
       std::vector<const char *> parts = skeletons::JQuery_js();
       for (std::size_t i = 0; i < parts.size(); ++i)
-	response.out() << parts[i];
+	out << const_cast<char *>(parts[i]);
 #else
-      response.out() << skeletons::JQuery_js1;
+      out << const_cast<char *>(skeletons::JQuery_js1);
 #endif
-      response.out() << "}";
+      out << '}';
     }
 
 #ifndef WT_TARGET_JAVA
@@ -927,14 +933,15 @@ void WebRenderer::serveMainscript(WebResponse& response)
     }
     script.setVar("PARAMS", params);
 
-    script.stream(response.out());
+    script.stream(out);
   }
 
-  if (!serveRest)
+  if (!serveRest) {
+    out.spool(response.out());
     return;
+  }
 
-  response.out() << app->javaScriptClass()
-		 << "._p_.setPage(" << pageId_ << ");";
+  out << app->javaScriptClass() << "._p_.setPage(" << pageId_ << ");";
 
   formObjectsChanged_ = true;
   app->autoJavaScriptChanged_ = true;
@@ -943,7 +950,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     response.out() << app->javaScriptClass()
 		   << "._p_.update(null, 'load', null, false);";
   } else if (!rendered_) {
-    serveMainAjax(response);
+    serveMainAjax(out);
   } else {
     bool enabledAjax = app->enableAjax_;
 
@@ -953,7 +960,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
       collectedJS1_ << "var form = " WT_CLASS ".getElement('Wt-form'); "
 	"if (form) {" << beforeLoadJS_.str();
 
-      beforeLoadJS_.str("");
+      beforeLoadJS_.clear();
 
       collectedJS1_
 	<< "var domRoot=" << app->domRoot_->jsRef() << ';'
@@ -971,14 +978,14 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
       loadScriptLibraries(collectedJS2_, app, librariesLoaded);
 
-      collectedJS2_ << "}";
+      collectedJS2_ << '}';
 
       app->enableAjax_ = false;
     } else
-      app->streamBeforeLoadJavaScript(response.out(), true);
+      app->streamBeforeLoadJavaScript(out, true);
 
-    response.out() << "window." << app->javaScriptClass()
-		   << "LoadWidgetTree = function(){\n";
+    out << "window." << app->javaScriptClass()
+	<< "LoadWidgetTree = function(){\n";
 
     visibleOnly_ = false;
 
@@ -989,30 +996,28 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
-    response.out() << collectedJS1_.str();
+    out << collectedJS1_.str();
 
-    addResponseAckPuzzle(response.out());
+    addResponseAckPuzzle(out);
 
-    response.out() 
-      << app->javaScriptClass()
-      << "._p_.setHash("
-      << WWebWidget::jsStringLiteral(app->newInternalPath_)
-      << ");\n";
+    out << app->javaScriptClass()
+	<< "._p_.setHash("
+	<< WWebWidget::jsStringLiteral(app->newInternalPath_)
+	<< ", false);\n";
 
     if (!app->environment().hashInternalPaths())
       session_.setPagePathInfo(app->newInternalPath_);
 
-    response.out()
-        << app->javaScriptClass()
+    out << app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
 	<< collectedJS2_.str()
 	<< "};"; // LoadWidgetTree = function() { ... }
 
     session_.app()->serverPushChanged_ = true;
-    renderSetServerPush(response.out());
+    renderSetServerPush(out);
 
     if (enabledAjax)
-      response.out()
+      out
 	/*
 	 * Firefox < 3.5 doesn't have this and in that case it could be
 	 * that we are already ready and jqeury doesn't fire the callback.
@@ -1023,12 +1028,14 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<<   "}, 400);"
 	<< "else ";
 
-    response.out() <<  "$(document).ready(function() { "
-		   << app->javaScriptClass() << "._p_.load(true);});\n";
+    out << "$(document).ready(function() { "
+	<< app->javaScriptClass() << "._p_.load(true);});\n";
   }
+
+  out.spool(response.out());
 }
 
-void WebRenderer::serveMainAjax(WebResponse& response)
+void WebRenderer::serveMainAjax(WStringStream& out)
 {
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
@@ -1048,43 +1055,39 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   app->loadingIndicatorWidget_->hide();
 
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
-  int librariesLoaded = loadScriptLibraries(response.out(), app);
+  int librariesLoaded = loadScriptLibraries(out, app);
 
-  response.out() << app->javaScriptClass()
-		 << "._p_.autoJavaScript=function(){"
-		 << app->autoJavaScript_ << "};\n";
+  out << app->javaScriptClass() << "._p_.autoJavaScript=function(){"
+      << app->autoJavaScript_ << "};\n";
   app->autoJavaScriptChanged_ = false;
 
   currentFormObjectsList_ = createFormObjectsList(app);
-  response.out() << app->javaScriptClass()
-		 << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);";
+  out << app->javaScriptClass()
+      << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);";
   formObjectsChanged_ = false;
 
-  response.out() << "\n";
+  out << '\n';
 
-  app->streamBeforeLoadJavaScript(response.out(), true);
+  app->streamBeforeLoadJavaScript(out, true);
 
   if (!widgetset)
-    response.out() << "window." << app->javaScriptClass()
-		   << "LoadWidgetTree = function(){\n";
+    out << "window." << app->javaScriptClass()
+	<< "LoadWidgetTree = function(){\n";
 
-  if (widgetset || !session_.bootStyleResponse()) {
-    if (!app->cssTheme().empty()) {
-      response.out() << WT_CLASS << ".addStyleSheet('"
-		     << WApplication::resourcesUrl() << "themes/"
-		     << app->cssTheme() << "/wt.css', 'all');";
-      if (app->environment().agentIsIE())
-	response.out() << WT_CLASS << ".addStyleSheet('"
-		       << WApplication::resourcesUrl() << "themes/"
-		       << app->cssTheme() << "/wt_ie.css', 'all');";
-      if (app->environment().agent() == WEnvironment::IE6)
-	response.out() << WT_CLASS << ".addStyleSheet('"
-		       << WApplication::resourcesUrl() << "themes/"
-		       << app->cssTheme() << "/wt_ie6.css', 'all');";
+  if (!initialStyleRendered_) {
+    /*
+     * In case we have not yet served the bootstyle for this page:
+     */
+    if (app->theme()) {
+      std::vector<WCssStyleSheet> styleSheets = app->theme()->styleSheets();
+      for (unsigned i = 0; i < styleSheets.size(); ++i)
+	loadStyleSheet(out, app, styleSheets[i]);
     }
 
     app->styleSheetsAdded_ = app->styleSheets_.size();
-    loadStyleSheets(response.out(), app);
+    loadStyleSheets(out, app);
+
+    initialStyleRendered_ = true;
   }
 
   /*
@@ -1092,21 +1095,23 @@ void WebRenderer::serveMainAjax(WebResponse& response)
    * may be made during rendering, e.g. from WViewWidget::render()
    */
   if (conf.inlineCss())
-    app->styleSheet().javaScriptUpdate(app, response.out(), true);
+    app->styleSheet().javaScriptUpdate(app, out, true);
 
   if (app->bodyHtmlClassChanged_) {
-    response.out() << "document.body.parentNode.className='"
-		   << app->htmlClass_ << "';"
-		   << "document.body.className='" << bodyClassRtl() << "';"
-		   << "document.body.setAttribute('dir', '"
-		   << (app->layoutDirection() == LeftToRight
-		       ? "LTR" : "RTL") << "');";
+    out << "document.body.parentNode.className='" << app->htmlClass_ << "';"
+	<< "document.body.className='" << bodyClassRtl() << "';"
+	<< "document.body.setAttribute('dir', '";
+    if (app->layoutDirection() == LeftToRight)
+      out << "LTR";
+    else
+      out << "RTL";
+    out << "');";
   }
 
 #ifdef WT_DEBUG_ENABLED
-  std::stringstream s;
+  WStringStream s;
 #else
-  std::ostream& s = response.out();
+  WStringStream& s = out;
 #endif // WT_DEBUG_ENABLED
 
   mainElement->addToParent(s, "document.body", widgetset ? 0 : -1, app);
@@ -1122,7 +1127,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
 #ifdef WT_DEBUG_ENABLED
   LOG_DEBUG("js: " << s.str());
-  response.out() << s.str();
+  out << s.str();
 #endif // WT_DEBUG_ENABLED
 
   setJSSynced(true);
@@ -1131,51 +1136,50 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
   LOG_DEBUG("js: " << collectedJS1_.str());
 
-  response.out() << collectedJS1_.str();
-  collectedJS1_.str("");  
+  out << collectedJS1_.str();
+  collectedJS1_.clear();  
 
-  updateLoadIndicator(response.out(), app, true);
+  updateLoadIndicator(out, app, true);
 
   if (widgetset) {
     const std::string *historyE = app->environment().getParameter("Wt-history");
     if (historyE) {
-      response.out() << WT_CLASS << ".history.initialize('"
-		     << (*historyE)[0] << "-field', '"
-		     << (*historyE)[0] << "-iframe', '');\n";
+      out << WT_CLASS << ".history.initialize('"
+	  << (*historyE)[0] << "-field', '"
+	  << (*historyE)[0] << "-iframe', '');\n";
     }
   }
 
-  app->streamAfterLoadJavaScript(response.out());
-  response.out() << "{var o=null,e=null;"
-		 << app->hideLoadingIndicator_.javaScript()
-		 << "}";
+  app->streamAfterLoadJavaScript(out);
+  out << "{var o=null,e=null;"
+      << app->hideLoadingIndicator_.javaScript()
+      << '}';
 
   if (!widgetset) {
     if (!app->isQuited())
-      response.out() << session_.app()->javaScriptClass()
-		     << "._p_.update(null, 'load', null, false);\n";
-    response.out() << "};\n";
+      out << session_.app()->javaScriptClass()
+	  << "._p_.update(null, 'load', null, false);\n";
+    out << "};\n";
   }
 
-  renderSetServerPush(response.out());
+  renderSetServerPush(out);
 
-  response.out() << "$(document).ready(function() { "
-		 << app->javaScriptClass() << "._p_.load("
-		 << (widgetset ? "false" : "true") << ");});\n";
+  out << "$(document).ready(function() { "
+      << app->javaScriptClass() << "._p_.load(" << !widgetset << ");});\n";
 
-  loadScriptLibraries(response.out(), app, librariesLoaded);
+  loadScriptLibraries(out, app, librariesLoaded);
 }
 
 void WebRenderer::setJSSynced(bool invisibleToo)
 {
   //LOG_DEBUG("setJSSynced: " << invisibleToo);
-  collectedJS1_.str("");
-  collectedJS2_.str("");
+  collectedJS1_.clear();
+  collectedJS2_.clear();
 
   if (!invisibleToo)
     collectedJS1_ << invisibleJS_.str();
 
-  invisibleJS_.str("");
+  invisibleJS_.clear();
 }
 
 std::string WebRenderer::safeJsStringLiteral(const std::string& value)
@@ -1184,7 +1188,7 @@ std::string WebRenderer::safeJsStringLiteral(const std::string& value)
   return Wt::Utils::replace(s, "<", "<'+'");
 }
 
-void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
+void WebRenderer::updateLoadIndicator(WStringStream& out, WApplication *app,
 				      bool all)
 {
   if (app->showLoadingIndicator_.needsUpdate(all)) {
@@ -1198,6 +1202,23 @@ void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 	<< app->hideLoadingIndicator_.javaScript() << "};\n";
     app->hideLoadingIndicator_.updateOk();
   }
+}
+
+void WebRenderer::renderStyleSheet(WStringStream& out, const WCssStyleSheet& sheet,
+				   WApplication *app, bool xhtml)
+{
+  out << "<link href=";
+  DomElement::htmlAttributeValue(out, sheet.link().resolveUrl(app));
+  out << " rel=\"stylesheet\" type=\"text/css\"";
+
+  if (!sheet.media().empty() && sheet.media() != "all")
+    out << " media=\"" << sheet.media() << '"';
+  
+  if (xhtml)
+    out << "/>";
+  else
+    out << '>';
+  out << "\n";
 }
 
 /*
@@ -1262,49 +1283,27 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
 
-  std::string styleSheets;
+  WStringStream styleSheets;
 
-  if (!app->cssTheme().empty()) {
-    styleSheets += "<link href=\""
-      + WApplication::resourcesUrl() + "themes/" + app->cssTheme()
-      + "/wt.css\" rel=\"stylesheet\" type=\"text/css\""
-      + (xhtml ? "/>" : ">") + "\n";
+  if (app->theme()) {
+    std::vector<WCssStyleSheet> sheets = app->theme()->styleSheets();
 
-    if (app->environment().agentIsIE())
-      styleSheets += "<link href=\""
-	+ WApplication::resourcesUrl() + "themes/" + app->cssTheme()
-	+ "/wt_ie.css\" rel=\"stylesheet\" type=\"text/css\""
-	+ (xhtml ? "/>" : ">") + "\n";
-
-    if (app->environment().agent() == WEnvironment::IE6)
-      styleSheets += "<link href=\""
-	+ WApplication::resourcesUrl() + "themes/" + app->cssTheme()
-	+ "/wt_ie6.css\" rel=\"stylesheet\" type=\"text/css\""
-	+ (xhtml ? "/>" : ">") + "\n";
+    for (unsigned i = 0; i < sheets.size(); ++i)
+      renderStyleSheet(styleSheets, sheets[i], app, xhtml);
   }
 
-  for (unsigned i = 0; i < app->styleSheets_.size(); ++i) {
-    std::string url = app->styleSheets_[i].uri;
-    url = Wt::Utils::replace(url, '&', "&amp;");
-    styleSheets += "<link href=\""
-      + session_.fixRelativeUrl(url)
-      + "\" rel=\"stylesheet\" type=\"text/css\"";
+  for (unsigned i = 0; i < app->styleSheets_.size(); ++i)
+    renderStyleSheet(styleSheets, app->styleSheets_[i], app, xhtml);
 
-    if (!app->styleSheets_[i].media.empty()
-	&& app->styleSheets_[i].media != "all")
-      styleSheets += " media=\"" + app->styleSheets_[i].media + '"';
-
-    styleSheets += xhtml ? "/>" : ">";
-    styleSheets += "\n";
-  }
   app->styleSheetsAdded_ = 0;
+  initialStyleRendered_ = true;
 
-  beforeLoadJS_.str("");
+  beforeLoadJS_.clear();
   for (unsigned i = 0; i < app->scriptLibraries_.size(); ++i) {
     std::string url = app->scriptLibraries_[i].uri;
-    url = Wt::Utils::replace(url, '&', "&amp;");
-    styleSheets += "<script src='"
-      + session_.fixRelativeUrl(url) + "'></script>\n";
+    styleSheets << "<script src=";
+    DomElement::htmlAttributeValue(styleSheets, session_.fixRelativeUrl(url));
+    styleSheets << "></script>\n";
 
     beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadJS;
   }
@@ -1328,12 +1327,14 @@ void WebRenderer::serveMainpage(WebResponse& response)
   url = Wt::Utils::replace(url, '&', "&amp;");
   page.setVar("RELATIVE_URL", url);
 
-  if (conf.inlineCss())
-    page.setVar("STYLESHEET", app->styleSheet().cssText(true));
-  else
+  if (conf.inlineCss()) {
+    WStringStream css;
+    app->styleSheet().cssText(css, true);
+    page.setVar("STYLESHEET", css.str());
+  } else
     page.setVar("STYLESHEET", "");
 
-  page.setVar("STYLESHEETS", styleSheets);
+  page.setVar("STYLESHEETS", styleSheets.str());
 
   page.setVar("TITLE", WWebWidget::escapeText(app->title()).toUTF8());
 
@@ -1350,13 +1351,14 @@ void WebRenderer::serveMainpage(WebResponse& response)
   if (hybridPage)
     streamBootContent(response, page, true);
 
-  page.streamUntil(response.out(), "HTML");
+  WStringStream out(response.out());
+  page.streamUntil(out, "HTML");
 
   DomElement::TimeoutList timeouts;
   {
     EscapeOStream js;
-    EscapeOStream out(response.out());
-    mainElement->asHTML(out, js, timeouts);
+    EscapeOStream eout(out);
+    mainElement->asHTML(eout, js, timeouts);
     app->afterLoadJavaScript_ = js.str() + app->afterLoadJavaScript_;
     delete mainElement;
 
@@ -1365,7 +1367,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   int refresh;
   if (app->environment().ajax()) {
-    std::stringstream str;
+    WStringStream str;
     DomElement::createTimeoutJs(str, timeouts, app);
     app->doJavaScript(str.str());
 
@@ -1381,12 +1383,14 @@ void WebRenderer::serveMainpage(WebResponse& response)
   }
   page.setVar("REFRESH", boost::lexical_cast<std::string>(refresh));
 
-  page.stream(response.out());
+  page.stream(out);
 
   app->internalPathIsChanged_ = false;
+
+  out.spool(response.out());
 }
 
-int WebRenderer::loadScriptLibraries(std::ostream& out,
+int WebRenderer::loadScriptLibraries(WStringStream& out,
 				     WApplication *app, int count)
 {
   if (count == -1) {
@@ -1418,15 +1422,20 @@ int WebRenderer::loadScriptLibraries(std::ostream& out,
   }
 }
 
-void WebRenderer::loadStyleSheets(std::ostream& out, WApplication *app)
+void WebRenderer::loadStyleSheet(WStringStream& out, WApplication *app,
+				 const WCssStyleSheet& sheet)
+{
+  out << WT_CLASS << ".addStyleSheet('"
+      << sheet.link().resolveUrl(app) << "', '"
+      << sheet.media() << "');\n";
+}
+
+void WebRenderer::loadStyleSheets(WStringStream& out, WApplication *app)
 {
   int first = app->styleSheets_.size() - app->styleSheetsAdded_;
 
-  for (unsigned i = first; i < app->styleSheets_.size(); ++i) {
-    out << WT_CLASS << ".addStyleSheet('"
-	<< session_.fixRelativeUrl(app->styleSheets_[i].uri) << "', '"
-	<< app->styleSheets_[i].media << "');\n";
-  }
+  for (unsigned i = first; i < app->styleSheets_.size(); ++i)
+    loadStyleSheet(out, app, app->styleSheets_[i]);
 
   app->styleSheetsAdded_ = 0;
 }
@@ -1499,7 +1508,7 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
   } while (!learning_ && moreUpdates_);
 }
 
-void WebRenderer::collectJavaScriptUpdate(std::ostream& out)
+void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 {
   WApplication *app = session_.app();
 
@@ -1569,7 +1578,7 @@ std::string WebRenderer::createFormObjectsList(WApplication *app)
   return result;
 }
 
-void WebRenderer::collectJS(std::ostream* js)
+void WebRenderer::collectJS(WStringStream* js)
 {
   std::vector<DomElement *> changes;
 
@@ -1620,7 +1629,7 @@ void WebRenderer::collectJS(std::ostream* js)
       *js << app->javaScriptClass()
 	  << "._p_.setHash("
 	  << WWebWidget::jsStringLiteral(app->newInternalPath_)
-	  << ");\n";
+	  << ", false);\n";
       if (!preLearning() && !app->environment().hashInternalPaths())
 	session_.setPagePathInfo(app->newInternalPath_);
     }
@@ -1632,7 +1641,7 @@ void WebRenderer::collectJS(std::ostream* js)
   app->internalPathIsChanged_ = false;
 }
 
-void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
+void WebRenderer::preLearnStateless(WApplication *app, WStringStream& out)
 {
   bool isIEMobile = app->environment().agentIsIEMobile();
 
@@ -1661,7 +1670,7 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 
     if (s->sender() == app)
       s->processPreLearnStateless(this);
-    else {
+    else if (s->canAutoLearn()) {
       WWidget *ww = static_cast<WWidget *>(s->sender());
       if (ww && ww->isRendered())
 	s->processPreLearnStateless(this);
@@ -1671,7 +1680,7 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
   }
 
   out << statelessJS_.str();
-  statelessJS_.str("");
+  statelessJS_.clear();
 }
 
 std::string WebRenderer::learn(WStatelessSlot* slot)
@@ -1683,7 +1692,7 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
 
   slot->trigger();
 
-  std::stringstream js;
+  WStringStream js;
 
   collectJS(&js);
 

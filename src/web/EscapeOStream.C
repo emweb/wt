@@ -68,16 +68,24 @@ const std::string EscapeOStream::standardSetsSpecial_[] = {
 };
 
 EscapeOStream::EscapeOStream()
-  : c_special_(0)
+  : stream_(own_stream_),
+    c_special_(0)
 { }
 
 EscapeOStream::EscapeOStream(std::ostream& sink)
+  : own_stream_(sink),
+    stream_(own_stream_),
+    c_special_(0)
+{ }
+
+EscapeOStream::EscapeOStream(WStringStream& sink)
   : stream_(sink),
     c_special_(0)
 { }
 
 EscapeOStream::EscapeOStream(EscapeOStream& other)
-  : mixed_(other.mixed_),
+  : stream_(own_stream_),
+    mixed_(other.mixed_),
     special_(other.special_),
     c_special_(special_.empty() ? 0 : special_.c_str()),
     ruleSets_(other.ruleSets_)
@@ -92,7 +100,7 @@ void EscapeOStream::mixRules()
 
   if (ruleSetsSize == 0) {
     c_special_ = 0;
-  } else { 
+  } else {
     if (ruleSetsSize == 1) {
       mixed_ = standardSets_[ruleSets_[0]];
       special_ = standardSetsSpecial_[ruleSets_[0]];
@@ -206,6 +214,13 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
 EscapeOStream& EscapeOStream::operator<< (int arg)
 {
   stream_ << arg;
+
+  return *this;
+}
+
+EscapeOStream& EscapeOStream::operator<< (bool b)
+{
+  stream_ << b;
 
   return *this;
 }

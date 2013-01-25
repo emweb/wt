@@ -15,11 +15,12 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <mysql.h>
 
 #ifdef WIN32
 #define snprintf _snprintf
+#include <winsock.h>
 #endif
+#include <mysql.h>
 
 #define BYTEAOID 17
 
@@ -101,7 +102,7 @@ class MySQLStatement : public SqlStatement
     virtual ~MySQLStatement()
     {
       std::cerr << "closing prepared stmt " << sql_ << std::endl;
-      for(int i = 0;   i < mysql_stmt_param_count(stmt_) ; ++i)
+      for(unsigned int i = 0;   i < mysql_stmt_param_count(stmt_) ; ++i)
           freeColumn(i);
       if (in_pars_) free(in_pars_);
 
@@ -217,6 +218,7 @@ class MySQLStatement : public SqlStatement
       ts->year = dd.year();
       ts->month = dd.month();
       ts->day = dd.day();
+      ts->neg = 0;
 
       if (type == SqlDate){
         in_pars_[column].buffer_type = MYSQL_TYPE_DATE;
@@ -231,7 +233,10 @@ class MySQLStatement : public SqlStatement
         ts->hour = tim.hours();
         ts->minute = tim.minutes();
         ts->second = tim.seconds();
-        ts->second_part = tim.fractional_seconds();
+        if (conn_.getFractionalSecondsPart() > 0)
+          ts->second_part = (unsigned long)tim.fractional_seconds();
+        else
+          ts->second_part = 0;
       }
       freeColumn(column);
       in_pars_[column].buffer = ts;
@@ -250,20 +255,23 @@ class MySQLStatement : public SqlStatement
       //IMPL note that there is not really a "duration" type in mysql...
       //mapping to a datetime
       in_pars_[column].buffer_type = MYSQL_TYPE_TIME;//MYSQL_TYPE_DATETIME;
+
+      ts->year = 0;
+      ts->month = 0;
       ts->day = 0;
       ts->neg = 0;
-      ts->month = 0;
       ts->hour = value.hours();
       ts->minute = value.minutes();
       ts->second = value.seconds();
-      ts->second_part = value.fractional_seconds();
+      if(conn_.getFractionalSecondsPart() > 0)
+        ts->second_part = (unsigned long)value.fractional_seconds();
+      else
+        ts->second_part = 0;
       freeColumn(column);
       in_pars_[column].buffer = ts;
       in_pars_[column].length = 0;
       in_pars_[column].is_null = 0;
-
     }
-
 
     virtual void bind(int column, const std::vector<unsigned char>& value)
     {
@@ -276,7 +284,8 @@ class MySQLStatement : public SqlStatement
 
       *len = value.size();
       data = (char *)malloc(*len);
-      memcpy(data, &(*value.begin()), *len);
+      if (value.size() > 0) // must not dereference begin() for empty vectors
+	memcpy(data, &(*value.begin()), *len);
 
       freeColumn(column);
       in_pars_[column].buffer = data;
@@ -360,7 +369,7 @@ class MySQLStatement : public SqlStatement
 
     virtual int affectedRowCount()
     {
-      return affectedRows_;
+      return (int)affectedRows_;
     }
 
     virtual bool nextRow()
@@ -430,7 +439,9 @@ class MySQLStatement : public SqlStatement
       if (*(out_pars_[column].is_null) == 1)
          return false;
 
-       *value = *static_cast<short*>(out_pars_[column].buffer);
+      *value = *static_cast<short*>(out_pars_[column].buffer);
+
+      return true;
     }
 
     virtual bool getResult(int column, int *value)
@@ -448,7 +459,7 @@ class MySQLStatement : public SqlStatement
 
         case MYSQL_TYPE_LONGLONG:
 
-          *value = *static_cast<long long*>(out_pars_[column].buffer);
+          *value = (int)*static_cast<long long*>(out_pars_[column].buffer);
           break;
 
       }
@@ -594,7 +605,7 @@ class MySQLStatement : public SqlStatement
     // is passed in many cases....
     static const my_bool mysqltrue_;
     enum { NoFirstRow, NextRow, Done } state_;
-    int lastId_, row_, affectedRows_;
+    long long lastId_, row_, affectedRows_;
 
     void bind_output() {
       if(out_pars_) free_outpars();
@@ -602,7 +613,7 @@ class MySQLStatement : public SqlStatement
             mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
       memset(out_pars_, 0,
               mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
-      for(int i = 0; i < mysql_num_fields(result_); ++i){
+      for(unsigned int i = 0; i < mysql_num_fields(result_); ++i){
         MYSQL_FIELD* field = mysql_fetch_field_direct(result_, i);
         out_pars_[i].buffer_type = field->type;
         switch(field->type){
@@ -683,7 +694,7 @@ class MySQLStatement : public SqlStatement
       }else
         count = mysql_num_fields(result_);
 
-      for (int i = 0; i < count; ++i){
+      for (unsigned int i = 0; i < count; ++i){
        if(out_pars_[i].buffer != 0)free(out_pars_[i].buffer);
        if(out_pars_[i].is_null != 0)free(out_pars_[i].is_null) ;
        if(out_pars_[i].length != 0)free(out_pars_[i].length);
@@ -700,7 +711,8 @@ const my_bool MySQLStatement::mysqltrue_ = 1;
 
 MySQL::MySQL(const std::string &db,  const std::string &dbuser,
              const std::string &dbpasswd, const std::string dbhost,
-             unsigned int dbport, const std::string &dbsocket)
+             unsigned int dbport, const std::string &dbsocket,
+             int fractionalSecondsPart)
 : impl_(NULL),
   dbname_(db),
   dbuser_(dbuser),
@@ -709,6 +721,8 @@ MySQL::MySQL(const std::string &db,  const std::string &dbuser,
   dbsocket_(dbsocket),
   dbport_(dbport)
 {
+  setFractionalSecondsPart(fractionalSecondsPart);
+
   connect();
 }
 
@@ -719,8 +733,11 @@ MySQL::MySQL(const MySQL& other)
     dbuser_(other.dbuser_),
     dbpasswd_(other.dbpasswd_),
     dbhost_(other.dbhost_),
+    dbsocket_(other.dbsocket_),
     dbport_(other.dbport_)
 {
+  setFractionalSecondsPart(other.fractionalSecondsPart_);
+
   if (!other.dbname_.empty())
     connect();
 }
@@ -755,7 +772,8 @@ bool MySQL::connect()
         if(mysql_real_connect(impl_->mysql, dbhost_.c_str(), dbuser_.c_str(),
                               dbpasswd_.empty() ? 0 : dbpasswd_.c_str(),
                               dbname_.c_str(), dbport_,
-                              dbsocket_.c_str(),
+                              //dbsocket_.c_str(),
+                              "/var/run/mysqld/mysqld.sock",
                               CLIENT_FOUND_ROWS) != impl_->mysql){
           std::string errtext = mysql_error(impl_->mysql);
           mysql_close(impl_->mysql);
@@ -784,6 +802,8 @@ bool MySQL::connect()
 void MySQL::init()
 {
   executeSql("SET sql_mode='ANSI_QUOTES,REAL_AS_FLOAT'");
+  executeSql("SET storage_engine=INNODB;");
+  executeSql("SET NAMES 'utf8';");
 }
 
 SqlStatement *MySQL::prepareStatement(const std::string& sql)
@@ -793,8 +813,6 @@ SqlStatement *MySQL::prepareStatement(const std::string& sql)
 
 void MySQL::executeSql(const std::string &sql)
 {
-  MYSQL_RES *result;
-
   if (showQueries())
     std::cerr << sql << std::endl;
 
@@ -841,13 +859,12 @@ MySQL::autoincrementDropSequenceSql(const std::string &table,
 const char *MySQL::dateTimeType(SqlDateTimeType type) const
 {
   switch (type) {
-    case SqlDate:
-      return "date";
-    case SqlDateTime:
-      return "datetime(6)";
-    case SqlTime:
-      //IMPL note that there is not really a "duration" type in mysql...
-      return "time(6)";
+  case SqlDate:
+    return "date";
+  case SqlDateTime:
+    return dateType_.c_str();
+  case SqlTime:
+    return timeType_.c_str();
   }
   std::stringstream ss;
   ss << __FILE__ << ":" << __LINE__ << ": implementation error";
@@ -867,6 +884,32 @@ bool MySQL::supportAlterTable() const
 const char *MySQL::alterTableConstraintString() const
 {
   return "foreign key";
+}
+
+const int MySQL::getFractionalSecondsPart() const
+{
+  return fractionalSecondsPart_;
+}
+
+void MySQL::setFractionalSecondsPart(int fractionalSecondsPart)
+{
+  fractionalSecondsPart_ = fractionalSecondsPart;
+
+  if (fractionalSecondsPart_ != -1) {
+    dateType_ = "datetime(";
+    dateType_ += boost::lexical_cast<std::string>(fractionalSecondsPart_);
+    dateType_ += ")";
+  } else
+    dateType_ = "datetime";
+
+
+  //IMPL note that there is not really a "duration" type in mysql...
+  if (fractionalSecondsPart_ != -1) {
+    timeType_ = "time(";
+    timeType_ += boost::lexical_cast<std::string>(fractionalSecondsPart_);
+    timeType_ += ")";
+  } else
+    timeType_ = "time";
 }
 
 void MySQL::startTransaction()

@@ -619,28 +619,6 @@ this.getElement = function(id) {
 
 this.$ = this.getElement;
 
-this.validate = function(edit) {
-  var v;
-  if (edit.options)
-    v = edit.options.item(edit.selectedIndex).text;
-  else
-    v = edit.value;
-
-  if (typeof edit.defaultTT === 'undefined')
-    edit.defaultTT = edit.getAttribute('title') || '';
-  else
-    edit.defaultTT = '';
-
-  v = edit.wtValidate.validate(v);
-  if (v.valid) {
-    edit.setAttribute('title', edit.defaultTT);
-    $(edit).removeClass('Wt-invalid');
-  } else {
-    edit.setAttribute('title', v.message);
-    $(edit).addClass('Wt-invalid');
-  }
-};
-
 this.filter = function(edit, event, tokens) {
   var c = String.fromCharCode((typeof event.charCode !== 'undefined') ?
                               event.charCode : event.keyCode);
@@ -648,8 +626,8 @@ this.filter = function(edit, event, tokens) {
     WT.cancelEvent(event);
 };
 
-// Get coordinates of element relative to page origin.
-this.widgetPageCoordinates = function(obj) {
+// Get coordinates of element relative to an ancestor object (or page origin).
+this.widgetPageCoordinates = function(obj, reference) {
   var objX = 0, objY = 0, op;
 
   if (!obj.parentNode)
@@ -662,7 +640,7 @@ this.widgetPageCoordinates = function(obj) {
 
   var rtl = $(document.body).hasClass('Wt-rtl');
 
-  while (obj) {
+  while (obj && obj !== reference) {
     objX += obj.offsetLeft;
     objY += obj.offsetTop;
 
@@ -748,9 +726,27 @@ this.wheelDelta = function(e) {
 };
 
 this.scrollIntoView = function(id) {
-  var obj = document.getElementById(id);
-  if (obj && obj.scrollIntoView)
-    obj.scrollIntoView(true);
+  setTimeout(function() { 
+      var hashI = id.indexOf('#');
+      if (hashI != -1)
+	id = id.substr(hashI + 1);
+
+      var obj = document.getElementById(id);
+      if (obj) {
+	/* Locate a suitable ancestor to scroll */
+	var p;
+	for (p = obj.parentNode; p != document.body; p = p.parentNode) {
+	  if (p.scrollHeight > p.clientHeight &&
+	      WT.css(p, 'overflow-y') == 'auto') {
+	    var xy = WT.widgetPageCoordinates(obj, p);
+	    p.scrollTop += xy.y;
+	    return;
+	  }
+	}
+
+	obj.scrollIntoView(true);
+      }
+    }, 100);
 };
 
 this.getSelectionRange = function(elem) {
@@ -1310,21 +1306,23 @@ this.windowSize = function() {
  * bottom of (y) or top from (bottomy)
  */
 this.fitToWindow = function(e, x, y, rightx, bottomy) {
-  var windowSize = WT.windowSize();
+  var hsides = [ 'left', 'right' ],
+      vsides = [ 'top', 'bottom' ];
 
-  var windowX = document.body.scrollLeft + document.documentElement.scrollLeft;
-  var windowY = document.body.scrollTop + document.documentElement.scrollTop;
+  e.style[hsides[0]] = e.style[hsides[1]] = 'auto';
+  e.style[vsides[0]] = e.style[vsides[1]] = 'auto';
+
+  var elementWidth = WT.px(e, 'maxWidth') || e.offsetWidth,
+      elementHeight = WT.px(e, 'maxHeight') || e.offsetHeight,
+      hside, vside,
+      windowSize = WT.windowSize(),
+      windowX = document.body.scrollLeft + document.documentElement.scrollLeft,
+      windowY = document.body.scrollTop + document.documentElement.scrollTop;
 
   if (!e.offsetParent)
     return;
 
   var offsetParent = WT.widgetPageCoordinates(e.offsetParent);
-
-  var hsides = [ 'left', 'right' ],
-      vsides = [ 'top', 'bottom' ],
-      elementWidth = WT.px(e, 'maxWidth') || e.offsetWidth,
-      elementHeight = WT.px(e, 'maxHeight') || e.offsetHeight,
-      hside, vside;
 
   if (elementWidth > windowSize.x) {
     // wider than window
@@ -1366,9 +1364,7 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
   */
 
   e.style[hsides[hside]] = x + 'px';
-  e.style[hsides[1 - hside]] = '';
   e.style[vsides[vside]] = y + 'px';
-  e.style[vsides[1 - vside]] = '';
 };
 
 this.positionXY = function(id, x, y) {
@@ -1381,10 +1377,12 @@ this.positionXY = function(id, x, y) {
 this.Horizontal = 0x1;
 this.Vertical = 0x2;
 
-this.positionAtWidget = function(id, atId, orientation, parentInRoot,
-				 autoShow) {
+this.positionAtWidget = function(id, atId, orientation, delta) {
   var w = WT.getElement(id),
     atw = WT.getElement(atId);
+
+  if (!delta)
+    delta = 0;
 
   if (!atw || !w)
     return;
@@ -1392,25 +1390,39 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot,
   var xy = WT.widgetPageCoordinates(atw),
     x, y, rightx, bottomy;
 
-  if (parentInRoot) {
-    w.parentNode.removeChild(w);
-    $('.Wt-domRoot').get(0).appendChild(w);
-  }
-
   w.style.position = 'absolute';
-  if (autoShow)
-    w.style.display = 'block';
 
-  if (orientation == WT.Horizontal) {
+  if (orientation === WT.Horizontal) {
     x = xy.x + atw.offsetWidth;
-    y = xy.y;
-    rightx = xy.x,
-    bottomy = xy.y + atw.offsetHeight;
+    y = xy.y + delta;
+    rightx = xy.x;
+    bottomy = xy.y + atw.offsetHeight - delta;
   } else {
     x = xy.x;
     y = xy.y + atw.offsetHeight;
     rightx = xy.x + atw.offsetWidth;
     bottomy = xy.y;
+  }
+
+  /*
+   * Reparent the widget in a suitable parent:
+   *  an ancestor of w which isn't overflowing
+   */
+  if (!w.wtNoReparent) {
+    var p, domRoot = $('.Wt-domRoot').get(0);
+    w.parentNode.removeChild(w);
+  
+    for (p = atw.parentNode; p != domRoot; p = p.parentNode) {
+      if (p.scrollHeight > p.clientHeight || p.scrollWidth > p.clientWidth) {
+	break;
+      }
+    }
+
+    var posP = WT.css(p, 'position');
+    if (posP != 'absolute' && posP != 'relative')
+      p.style.position = 'relative';
+    
+    p.appendChild(w);
   }
 
   WT.fitToWindow(w, x, y, rightx, bottomy);
@@ -1420,7 +1432,7 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot,
 
 this.hasFocus = function(el) {
   try {
-    return el == document.activeElement;
+    return el === document.activeElement;
   } catch(e) {
     return false;
   }
@@ -1474,7 +1486,7 @@ function gentleURIEncode(s) {
   return s.replace(/%/g, '%25')
     .replace(/\+/g, '%2b')
     .replace(/ /g, '%20')
-    .replace(/#/g, '%23')
+    //.replace(/#/g, '%23')
     .replace(/&/g, '%26');
 }
 
@@ -1860,16 +1872,18 @@ function onHashChange() {
     return;
 
   currentHash = newLocation;
+
   setTimeout(function() { update(null, 'hash', null, true); }, 1);
 };
 
-function setHash(newLocation) {
-  if (currentHash == newLocation || !currentHash && newLocation == '/')
+function setHash(newLocation, generateEvent) {
+  if (currentHash == newLocation || (!currentHash && newLocation == '/'))
     return;
 
-  currentHash = newLocation;
+  if (!generateEvent)
+    currentHash = newLocation;
 
-  WT.history.navigate(newLocation, false);
+  WT.history.navigate(newLocation, generateEvent);
 };
 
 var dragState = {
@@ -1953,11 +1967,11 @@ function dragStart(obj, e) {
 };
 
 function dragDrag(e) {
-  if (dragState.object != null) {
+  if (dragState.object !== null) {
     var ds = dragState;
     var xy = WT.pageCoordinates(e);
 
-    if (ds.object.style["display"] != '' && ds.xy.x != xy.x && ds.xy.y != xy.y)
+    if (ds.object.style["display"] !== '' && ds.xy.x !== xy.x && ds.xy.y !== xy.y)
       ds.object.style["display"] = '';
 
     ds.object.style["left"] = (xy.x - ds.offsetX) + 'px';

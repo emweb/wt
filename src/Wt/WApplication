@@ -26,6 +26,7 @@ namespace boost {
 #include <Wt/WCssStyleSheet>
 #include <Wt/WEvent>
 #include <Wt/WJavaScriptPreamble>
+#include <Wt/WLocale>
 #include <Wt/WMessageResourceBundle>
 #include <Wt/WSignal>
 #include <Wt/WString>
@@ -314,23 +315,38 @@ public:
 
   /*! \brief Adds an external style sheet.
    *
+   * The \p link is a link to a stylesheet.
+   *
+   * The \p media indicates the CSS media to which this stylesheet
+   * applies. This may be a comma separated list of media. The default
+   * value is "all" indicating all media.
+   *
+   * This is an overloaded method for convenience, equivalent to:
+   * \code
+   * useStyleSheet(Wt::WCssStyleSheet(link, media))
+   * \endcode
+   */
+  void useStyleSheet(const WLink& link, const std::string& media = "all");
+
+  /*! \brief Conditionally adds an external style sheet.
+   *
+   * This is an overloaded method for convenience, equivalent to:
+   * \code
+   * useStyleSheet(Wt::WCssStyleSheet(link, media), condition)
+   * \endcode
+   */
+  void useStyleSheet(const WLink& link, const std::string& condition,
+		     const std::string& media);
+
+  /*! \brief Adds an external stylesheet.
+   *
    * Widgets may allow configuration of their look and feel through
    * style classes. These may be defined in an inline stylesheet,
    * or in external style sheets.
    *
-   * The \p url indicates a relative or absolute URL to the
-   * stylesheet.
-   *
    * External stylesheets are inserted after the internal style sheet,
    * and can therefore override default styles set by widgets in the
    * internal style sheet.
-   *
-   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&)
-   * \sa WWidget::setStyleClass()
-   */
-  void useStyleSheet(const std::string& url);
-
-  /*! \brief Adds an external style sheet, constrained with conditions.
    *
    * If not empty, \p condition is a string that is used to apply the
    * stylesheet to specific versions of IE. Only a limited subset of
@@ -342,17 +358,11 @@ public:
    * - "!IE gte 6": only for IE versions prior to IE6.
    * - "IE lte 7": only for IE versions prior to IE7.
    *
-   * The \p media indicates the CSS media to which this stylesheet
-   * applies.  This may be a comma separated list of media. The
-   * default value is "all" indicating all media.
-   *
-   * The \p url indicates a relative or absolute URL to the
-   * stylesheet.
-   *
-   * \sa useStyleSheet()
+   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&)
+   * \sa WWidget::setStyleClass()
    */
-  void useStyleSheet(const std::string& url, const std::string& condition,
-		     const std::string& media = "all");
+  void useStyleSheet(const WCssStyleSheet& styleSheet,
+		     const std::string& condition = "");
 
   /*! \brief Sets the theme.
    *
@@ -360,16 +370,26 @@ public:
    * using CSS style rules. Rules for each theme are defined in the
    * <tt>resources/themes/</tt><i>theme</i><tt>/</tt> folder.
    *
-   * The default theme is "default". When setting "", the external style
-   * sheets related to the theme are not loaded.
+   * The default theme is "default" CSS theme.
    */
-  void setCssTheme(const std::string& theme);
+  void setTheme(const WTheme *theme);
 
   /*! \brief Returns the theme.
-   *
-   * \sa setCssTheme()
    */
-  std::string cssTheme() const { return theme_; }
+  const WTheme *theme() const { return theme_; }
+
+  /*! \brief Sets a CSS theme.
+   *
+   * This sets a WCssTheme as theme.
+   *
+   * The theme provides the look and feel of several built-in widgets,
+   * using CSS style rules. Rules for each CSS theme are defined in
+   * the <tt>resources/themes/</tt><i>name</i><tt>/</tt> folder.
+   *
+   * The default theme is "default". Setting an empty theme "" will
+   * result in a stub CSS theme that does not load any stylesheets. 
+   */
+  void setCssTheme(const std::string& name);
 
   /*! \brief Sets the layout direction.
    * 
@@ -535,13 +555,13 @@ public:
    *
    * \sa localizedStrings(), WString::tr()
    */
-  void setLocale(const WT_LOCALE& locale);
+  void setLocale(const WLocale& locale);
 
   /*! \brief Returns the current locale.
    *
    * \sa setLocale(const std::string&)
    */
-  WT_LOCALE locale() const { return locale_; }
+  const WLocale& locale() const { return locale_; }
 
   /*! \brief Refreshes the application.
    *
@@ -944,6 +964,8 @@ public:
    * \sa appRoot()
    */
   std::string docRoot() const;
+#else
+  static std::string appRoot();
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns the unique identifier for the current session.
@@ -2070,9 +2092,9 @@ private:
   WContainerWidget      *domRoot_;     // main DOM root
   WContainerWidget      *domRoot2_;    // other virtual root for WidgetSet mode
   WContainerWidget      *timerRoot_;   // timers in main DOM root
-  WCssStyleSheet         styleSheet_;  // internal style sheet
+  WCssStyleSheet         styleSheet_;  // internal stylesheet
   WCombinedLocalizedStrings *localizedStrings_;
-  WT_LOCALE              locale_;
+  WLocale                locale_;
   std::string            oldInternalPath_, newInternalPath_;
   Signal<std::string>    internalPathChanged_, internalPathInvalid_;
   bool                   internalPathIsChanged_;
@@ -2105,15 +2127,9 @@ private:
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;
 
-  struct StyleSheet {
-    std::string uri, media;
-
-    StyleSheet(const std::string& anUri, const std::string& aMedia);
-  };
-
-  std::string             theme_;
-  std::vector<StyleSheet> styleSheets_;
-  int                     styleSheetsAdded_;
+  const WTheme *theme_;
+  std::vector<WCssStyleSheet> styleSheets_;
+  int styleSheetsAdded_;
 
   std::vector<MetaHeader> metaHeaders_;
   std::vector<MetaLink>   metaLinks_;
@@ -2175,11 +2191,11 @@ private:
    * Methods for accessing javaScript, which may have erase-on-read
    * semantics
    */
-  void streamAfterLoadJavaScript(std::ostream& out);
-  void streamBeforeLoadJavaScript(std::ostream& out, bool all);
-  void streamJavaScriptPreamble(std::ostream& out, bool all);
+  void streamAfterLoadJavaScript(WStringStream& out);
+  void streamBeforeLoadJavaScript(WStringStream& out, bool all);
+  void streamJavaScriptPreamble(WStringStream& out, bool all);
 #ifdef WT_DEBUG_JS
-  void loadJavaScriptFile(std::ostream& out, const char *jsFile);
+  void loadJavaScriptFile(WStringStream& out, const char *jsFile);
 #endif // WT_DEBUG_JS
 
   /*

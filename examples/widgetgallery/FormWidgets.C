@@ -1,431 +1,316 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+  *Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
  *
- * See the LICENSE file for terms of use.
+  *See the LICENSE file for terms of use.
  */
 #include "FormWidgets.h"
-#include "EventDisplayer.h"
+#include "TopicTemplate.h"
 #include "DeferredWidget.h"
 
-#include <Wt/WBreak>
-#include <Wt/WButtonGroup>
-#include <Wt/WCalendar>
-#include <Wt/WCheckBox>
-#include <Wt/WComboBox>
-#include <Wt/WDatePicker>
-#include <Wt/WFileUpload>
-#include <Wt/WInPlaceEdit>
-#include <Wt/WLineEdit>
-#include <Wt/WProgressBar>
-#include <Wt/WPushButton>
-#include <Wt/WRadioButton>
-#include <Wt/WSelectionBox>
-#include <Wt/WDoubleSpinBox>
-#include <Wt/WSuggestionPopup>
-#include <Wt/WText>
-#include <Wt/WTextArea>
-#include <Wt/WTextEdit>
-#include <Wt/WStandardItem>
-#include <Wt/WPopupMenu>
-#include <Wt/WPopupMenuItem>
-#include <Wt/WLabel>
-
-using namespace Wt;
-
-FormWidgets::FormWidgets(EventDisplayer *ed)
-  : ControlsWidget(ed, true)
+FormWidgets::FormWidgets()
+  : TopicWidget()
 {
   addText(tr("formwidgets-intro"), this);
 }
 
-void FormWidgets::populateSubMenu(WMenu *menu)
+void FormWidgets::populateSubMenu(Wt::WMenu *menu)
 {
-  menu->addItem("WPushButton", wPushButton());
-  menu->addItem("WCheckBox", wCheckBox());
-  menu->addItem("WRadioButton", wRadioButton());
-  menu->addItem("WComboBox", wComboBox());
-  menu->addItem("WSelectionBox", wSelectionBox());
-  menu->addItem("WLineEdit", wLineEdit());
-  menu->addItem("WSpinBox", wSpinBox());
-  menu->addItem("WTextArea", wTextArea());
-  menu->addItem("WCalendar", wCalendar());
-  menu->addItem("WDatePicker", wDatePicker());
-  menu->addItem("WInPlaceEdit", wInPlaceEdit());
-  menu->addItem("WSuggestionPopup", wSuggestionPopup());
-  menu->addItem("WTextEdit",
-		deferCreate(boost::bind(&FormWidgets::wTextEdit, this)));
-  menu->addItem("WFileUpload", wFileUpload());
-#ifndef WT_TARGET_JAVA
-  menu->addItem("WPopupMenu", wPopupMenu());
-#endif
+  menu->addItem("Introduction", introduction())->setPathComponent("");
+  menu->addItem("Line/Text editor",
+		deferCreate(boost::bind
+			    (&FormWidgets::textEditors, this)));
+  menu->addItem("Check boxes", 
+		deferCreate(boost::bind
+			    (&FormWidgets::checkBox, this)));
+  menu->addItem("Radio buttons", 
+		deferCreate(boost::bind
+			    (&FormWidgets::radioButton, this)));
+  menu->addItem("Combo box", 
+		deferCreate(boost::bind
+			    (&FormWidgets::comboBox, this)));
+  menu->addItem("Selection box", 
+		deferCreate(boost::bind
+			    (&FormWidgets::selectionBox, this)));
+  menu->addItem("Autocomplete", 
+		deferCreate(boost::bind
+			    (&FormWidgets::autoComplete, this)));
+  menu->addItem("Date entry", 
+		deferCreate(boost::bind
+			    (&FormWidgets::dateEntry, this)));
+  menu->addItem("In-place edit", 
+		deferCreate(boost::bind
+			    (&FormWidgets::inPlaceEdit, this)));
+  menu->addItem("Slider", 
+		deferCreate(boost::bind
+			    (&FormWidgets::slider, this)));
+  menu->addItem("Progress bar", 
+		deferCreate(boost::bind
+			    (&FormWidgets::progressBar, this)));
+  menu->addItem("File upload", 
+		deferCreate(boost::bind
+			    (&FormWidgets::fileUpload, this)));
+  menu->addItem("Push button", 
+		deferCreate(boost::bind
+			    (&FormWidgets::pushButton, this)));
+  menu->addItem("Validation", 
+		deferCreate(boost::bind
+			    (&FormWidgets::validation, this)));
+  menu->addItem("Integration example", 
+		deferCreate(boost::bind
+			    (&FormWidgets::example, this)));
 }
 
-WWidget *FormWidgets::wPushButton()
+
+#include "examples/SimpleForm.cpp"
+#include "examples/FormModel.cpp"
+
+Wt::WWidget *FormWidgets::introduction()
 {
-  WContainerWidget *result = new WContainerWidget();
+  Wt::WTemplate *result = new TopicTemplate("forms-introduction");
+  result->bindWidget("SimpleForm", SimpleForm());
+  result->bindWidget("FormModel", FormModel());
 
-  topic("WPushButton", result);
-  addText(tr("formwidgets-WPushButton"), result);
-  WPushButton *pb = new WPushButton("Click me!", result);
-  ed_->showSignal(pb->clicked(), "WPushButton click");
-
-  addText(tr("formwidgets-WPushButton-more"), result);
-  pb = new WPushButton("Try to click me...", result);
-  pb->setEnabled(false);
-  
-  return result;
-}
-
-WWidget *FormWidgets::wCheckBox()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WCheckBox", result);
-  addText(tr("formwidgets-WCheckBox"), result);
-  WCheckBox *cb = new WCheckBox("Check me!", result);
-  cb->setChecked(true);
-  ed_->showSignal(cb->checked(), "'Check me!' checked");
-  ed_->showSignal(cb->unChecked(), "'Check me!' unchecked");
-  new WBreak(result);
-  cb = new WCheckBox("Check me too!", result);
-  ed_->showSignal(cb->checked(), "'Check me too!' checked");
-  new WBreak(result);
-  cb = new WCheckBox("Check me, I'm tristate!", result);
-  cb->setTristate();
-  cb->setCheckState(PartiallyChecked);
-  ed_->showSignal(cb->checked(), "'Check me, I'm tristate!' checked");
-
-  return result;
-}
-
-WWidget *FormWidgets::wRadioButton()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WRadioButton", result);
-  addText(tr("formwidgets-WRadioButton"), result);
-  WRadioButton *rb = 0;
-  rb = new WRadioButton("Radio me!", result);
-  ed_->showSignal(rb->checked(), "'Radio me!' checked (not in buttongroup)");
-  new WBreak(result);
-  rb = new WRadioButton("Radio me too!", result);
-  ed_->showSignal(rb->checked(), "'Radio me too!' checked "
-		 "(not in buttongroup)");
-  
-  addText(tr("formwidgets-WRadioButton-group"), result);
-  WButtonGroup *wgb = new WButtonGroup(result);
-  rb = new WRadioButton("Radio me!", result);
-  ed_->showSignal(rb->checked(), "'Radio me!' checked");
-  wgb->addButton(rb);
-  new WBreak(result);
-  rb = new WRadioButton("No, radio me!", result);
-  ed_->showSignal(rb->checked(), "'No, Radio me!' checked");
-  wgb->addButton(rb);
-  new WBreak(result);
-  rb = new WRadioButton("Nono, radio me!", result);
-  ed_->showSignal(rb->checked(), "'Nono, radio me!' checked");
-  wgb->addButton(rb);
-
-  wgb->setSelectedButtonIndex(0);
+  // Show the XML-templates as text
+  result->bindString("simpleForm-template",
+                     reindent(tr("simpleForm-template")), Wt::PlainText);
+  result->bindString("form-field",
+                     reindent(tr("form-field")), Wt::PlainText);
+  result->bindString("userForm-template",
+                     reindent(tr("userForm-template")), Wt::PlainText);
 
   return result;
 }
 
-WWidget *FormWidgets::wComboBox()
+
+#include "examples/LineEdit.cpp"
+#include "examples/LineEditEvent.cpp"
+#include "examples/TextArea.cpp"
+#include "examples/TextEdit.cpp"
+#include "examples/SpinBox.cpp"
+#include "examples/TextSide.cpp"
+
+Wt::WWidget *FormWidgets::textEditors()
 {
-  WContainerWidget *result = new WContainerWidget();
+  Wt::WTemplate *result = new TopicTemplate("forms-textEditors");
+  result->bindWidget("LineEdit", LineEdit());
+  result->bindWidget("LineEditEvent", LineEditEvent());
+  result->bindWidget("TextArea", TextArea());
+  result->bindWidget("TextEdit", TextEdit());
+  result->bindWidget("SpinBox", SpinBox());
+  result->bindWidget("TextSide", TextSide());
 
-  topic("WComboBox", result);
-  addText(tr("formwidgets-WComboBox"), result);
-  WComboBox *cb = new WComboBox(result);
-  cb->addItem("Heavy");
-  cb->addItem("Medium");
-  cb->addItem("Light");
-  cb->setCurrentIndex(1); // select 'Medium'
-  ed_->showSignal(cb->sactivated(), "Combo-box 1 activated: ");
+  // Show the XML-template as text
+  result->bindString("lineEdit-template", reindent(tr("lineEdit-template")),
+                     Wt::PlainText);
+  result->bindString("editSide-template", reindent(tr("editSide-template")),
+                     Wt::PlainText);
+  return result;
+}
 
-  addText(tr("formwidgets-WComboBox-model"), result);
-  
-  addText(tr("formwidgets-WComboBox-style"), result);
-  WComboBox *colorCb = new WComboBox(result);
-  WStandardItemModel* model = new WStandardItemModel(colorCb);
-  model->insertColumns(0, 3);
-  addColorElement(model, "Red", "combo-red");
-  addColorElement(model, "Blue", "combo-blue");
-  addColorElement(model, "Green", "combo-green");
-  colorCb->setModel(model);
-  colorCb->setCurrentIndex(0); // select 'Red'
-  ed_->showSignal(colorCb->sactivated(), "Combo-box 2 activated: ");
+
+#include "examples/CheckBoxInline.cpp"
+#include "examples/CheckBoxStack.cpp"
+
+Wt::WWidget *FormWidgets::checkBox()
+{
+  Wt::WTemplate *result = new TopicTemplate("forms-checkBox");
+  result->bindWidget("CheckBoxInline", CheckBoxInline());
+  result->bindWidget("CheckBoxStack", CheckBoxStack());
 
   return result;
 }
 
-void FormWidgets::addColorElement(WStandardItemModel* model,
-				  std::string name, 
-				  std::string style)
+
+#include "examples/RadioButtonsLoose.cpp"
+#include "examples/RadioButtonGroup.cpp"
+#include "examples/RadioButtonStack.cpp"
+#include "examples/RadioButtonsActivated.cpp"
+
+Wt::WWidget *FormWidgets::radioButton()
 {
-  WStandardItem* item = new WStandardItem(name);
-  item->setStyleClass(style);
-  model->appendRow(item);
-}
-
-
-WWidget *FormWidgets::wSelectionBox()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WSelectionBox", result);
-  addText(tr("formwidgets-WSelectionBox"), result);
-  WSelectionBox *sb1 = new WSelectionBox(result);
-  sb1->addItem("Heavy");
-  sb1->addItem("Medium");
-  sb1->addItem("Light");
-  sb1->setCurrentIndex(1); // Select 'medium'
-  ed_->showSignal(sb1->sactivated(), "SelectionBox activated: ");
-  addText("<p>... or multiple options (use shift and/or ctrl-click "
-	    "to select your pizza toppings)</p>", result);
-  WSelectionBox *sb2 = new WSelectionBox(result);
-  sb2->addItem("Bacon");
-  sb2->addItem("Cheese");
-  sb2->addItem("Mushrooms");
-  sb2->addItem("Green peppers");
-  sb2->addItem("Red peppers");
-  sb2->addItem("Ham");
-  sb2->addItem("Pepperoni");
-  sb2->addItem("Turkey");
-  sb2->setSelectionMode(ExtendedSelection);
-  std::set<int> selection;
-  selection.insert(1);
-  selection.insert(2);
-  selection.insert(5);
-  sb2->setSelectedIndexes(selection);
-  ed_->showSignal(sb2->changed(), "SelectionBox 2 changed");
-
-  addText(tr("formwidgets-WSelectionBox-model"), result);
-  
-  return result;
-}
-
-WWidget *FormWidgets::wLineEdit()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WLineEdit", result);
-  addText(tr("formwidgets-WLineEdit"), result);
-
-  WLineEdit *le = new WLineEdit(result);
-  le->setEmptyText("Edit me");
-  ed_->showSignal(le->keyWentUp(), "Line edit key up event");
-
-  addText("<p>The line edit on the following line reacts on the "
-	    "enter button:</p>", result);
-
-  le = new WLineEdit(result);
-  ed_->showSignal(le->enterPressed(), "Line edit enter pressed event");
-
-  addText(tr("formwidgets-WLineEdit-more"), result);
+  Wt::WTemplate *result = new TopicTemplate("forms-radioButton");
+  result->bindWidget("RadioButtonsLoose", RadioButtonsLoose());
+  result->bindWidget("RadioButtonGroup", RadioButtonGroup());
+  result->bindWidget("RadioButtonStack", RadioButtonStack());
+  result->bindWidget("RadioButtonsActivated", RadioButtonsActivated());
 
   return result;
 }
 
-WWidget *FormWidgets::wSpinBox()
+
+#include "examples/ComboBox.cpp"
+#include "examples/ComboBoxActivated.cpp"
+#include "examples/ComboBoxModel.cpp"
+
+Wt::WWidget *FormWidgets::comboBox()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WSpinBox", result);
-  addText(tr("formwidgets-WSpinBox"), result);
-
-  addText("Enter a number between 0 and 100: ", result);
-  WDoubleSpinBox *le = new WDoubleSpinBox(result);
-  ed_->showSignal(le->changed(), "Spin box value changed");
-  le->setValue(30.123);
-  le->setDecimals(3);
-  // le->setPrefix("$ ");
-  // le->setSuffix(WString::fromUTF8(" €"));
+  Wt::WTemplate *result = new TopicTemplate("forms-comboBox");
+  result->bindWidget("ComboBox", ComboBox());
+  result->bindWidget("ComboBoxActivated", ComboBoxActivated());
+  result->bindWidget("ComboBoxModel", ComboBoxModel());
 
   return result;
 }
 
-WWidget *FormWidgets::wTextArea()
+
+#include "examples/SelectionBoxSimple.cpp"
+#include "examples/SelectionBoxExtended.cpp"
+
+Wt::WWidget *FormWidgets::selectionBox()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WTextArea", result);
-  addText(tr("formwidgets-WTextArea"), result);
-
-  WTextArea *ta = new WTextArea(result);
-  ta->setColumns(80);
-  ta->setRows(15);
-  ta->setText(tr("formwidgets-WTextArea-contents"));
-  ed_->showSignal(ta->changed(), "Text area changed");
- 
-  addText(tr("formwidgets-WTextArea-related"), result);
+  Wt::WTemplate *result = new TopicTemplate("forms-selectionBox");
+  result->bindWidget("SelectionBoxSimple", SelectionBoxSimple());
+  result->bindWidget("SelectionBoxExtended", SelectionBoxExtended());
 
   return result;
 }
 
-WWidget *FormWidgets::wCalendar()
+
+#include "examples/AutoComplete.cpp"
+
+Wt::WWidget *FormWidgets::autoComplete()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WCalendar", result);
-
-  addText(tr("formwidgets-WCalendar"), result);
-
-  WCalendar *c = new WCalendar(result);
-  ed_->showSignal(c->selectionChanged(), "First calendar's selection changed");
-  addText("<p>A flag indicates if multiple dates can be selected...</p>",
-	    result);
-  WCalendar *c2 = new WCalendar(result);
-  c2->setSelectionMode(ExtendedSelection);
-  ed_->showSignal(c2->selectionChanged(), "Second calendar's selection changed");
+  Wt::WTemplate *result = new TopicTemplate("forms-autoComplete");
+  result->bindWidget("AutoComplete", AutoComplete());
 
   return result;
 }
 
-WWidget *FormWidgets::wDatePicker()
+
+#include "examples/CalendarSimple.cpp"
+#include "examples/CalendarExtended.cpp"
+#include "examples/DateEdit.cpp"
+#include "examples/DatePicker.cpp"
+
+Wt::WWidget *FormWidgets::dateEntry()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WDatePicker", result);
-  addText("<p>The <tt>WDatePicker</tt> allows the entry of a date.</p>",
-	    result);
-
-  WDatePicker* dp1 = new WDatePicker(result);
-  ed_->showSignal(dp1->lineEdit()->changed(), "Date picker 1 changed");
-  addText("(format " + dp1->format() + ")", result);
-  
-  new WBreak(result);
-  
-  WDatePicker* dp2 = new WDatePicker(result);
-  ed_->showSignal(dp2->lineEdit()->changed(), "Date picker 2 changed");
-  dp2->setFormat("dd MM yyyy");
-  addText("(format " + dp2->format() + ")", result);
+  Wt::WTemplate *result = new TopicTemplate("forms-dateEntry");
+  result->bindWidget("CalendarSimple", CalendarSimple());
+  result->bindWidget("CalendarExtended", CalendarExtended());
+  result->bindWidget("DateEdit", DateEdit());
+  result->bindWidget("DatePicker", DatePicker());
 
   return result;
 }
 
-WWidget *FormWidgets::wInPlaceEdit()
-{
-  WContainerWidget *result = new WContainerWidget();
 
-  topic("WInPlaceEdit", result);
-  addText(tr("formwidgets-WInPlaceEdit"), result);
-  addText("Try it here: ", result);
-  WInPlaceEdit *ipe = new WInPlaceEdit("This is editable text", result);
-  ipe->setStyleClass("in-place-edit");
-  ed_->showSignal(ipe->valueChanged(), "In-place edit changed: ");
+#include "examples/InPlaceEditButtons.cpp"
+#include "examples/InPlaceEdit.cpp"
+
+Wt::WWidget *FormWidgets::inPlaceEdit()
+{
+  Wt::WTemplate *result = new TopicTemplate("forms-inPlaceEdit");
+  result->bindWidget("InPlaceEditButtons", InPlaceEditButtons());
+  result->bindWidget("InPlaceEdit", InPlaceEdit());
 
   return result;
 }
 
-WWidget *FormWidgets::wSuggestionPopup()
+
+#include "examples/Slider.cpp"
+#include "examples/SliderVertical.cpp"
+
+Wt::WWidget *FormWidgets::slider()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  topic("WSuggestionPopup", result);
-  addText(tr("formwidgets-WSuggestionPopup"), result);
-
-  // options for email address suggestions
-  WSuggestionPopup::Options contactOptions;
-  contactOptions.highlightBeginTag = "<span class=\"highlight\">";
-  contactOptions.highlightEndTag = "</span>";
-  contactOptions.listSeparator = ',';
-  contactOptions.whitespace = " \\n";
-  contactOptions.wordSeparators = "-., \"@\\n;";
-  contactOptions.appendReplacedText = ", ";
-
-  WSuggestionPopup *sp =
-    new WSuggestionPopup(WSuggestionPopup::generateMatcherJS(contactOptions),
-			 WSuggestionPopup::generateReplacerJS(contactOptions),
-			 result);
-  WLineEdit *le = new WLineEdit(result);
-  le->setTextSize(50);
-  le->setInline(false);
-  sp->forEdit(le);
-  sp->addSuggestion("John Tech <techie@mycompany.com>",
-		    "John Tech <techie@mycompany.com>");
-  sp->addSuggestion("Johnny Cash <cash@mycompany.com>", 
-		    "Johnny Cash <cash@mycompany.com>");
-  sp->addSuggestion("John Rambo <rambo@mycompany.com>",
-		    "John Rambo <rambo@mycompany.com>");
-  sp->addSuggestion("Johanna Tree <johanna@mycompany.com>",
-		    "Johanna Tree <johanna@mycompany.com>");
+  Wt::WTemplate *result = new TopicTemplate("forms-slider");
+  result->bindWidget("Slider", Slider());
+  result->bindWidget("SliderVertical", SliderVertical());
 
   return result;
 }
 
-WWidget *FormWidgets::wTextEdit()
-{
-  WContainerWidget *result = new WContainerWidget();
 
-  topic("WTextEdit", result);
-  addText("<p>The <tt>WTextEdit</tt> is a full-featured editor for rich text"
-	    "editing. It is based on the TinyMCE editor, which must be "
-	    "downloaded separately from its author's website. The TinyMCE "
-	    "toolbar layout and plugins can be configured through Wt's "
-	    "interface. The default, shown below, covers only a small "
-	    "portion of TinyMCE's capabilities.</p>", result);
-  WTextEdit *te = new WTextEdit(result);
-  te->setHeight(200);
-  ed_->showSignal(te->changed(), "Text edit changed");
+#include "examples/ProgressBar.cpp"
+
+Wt::WWidget *FormWidgets::progressBar()
+{
+  Wt::WTemplate *result = new TopicTemplate("forms-progressBar");
+  result->bindWidget("ProgressBar", ProgressBar());
 
   return result;
 }
 
-WWidget *FormWidgets::wFileUpload()
-{
-  WContainerWidget *result = new WContainerWidget();
 
-  topic("WFileUpload", result);
-  addText(tr("formwidgets-WFileUpload"), result);
-  WFileUpload *const fu = new WFileUpload(result);
-  fu->setProgressBar(new WProgressBar());
-  fu->changed().connect(fu, &WFileUpload::upload);
-  ed_->showSignal(fu->changed(), "File upload changed");
-  ed_->showSignal(fu->uploaded(), "File upload finished");
-  ed_->showSignal(fu->fileTooLarge(), "File too large");
-  addText(tr("formwidgets-WFileUpload-more"), result);
+#include "examples/FileUpload.cpp"
+
+Wt::WWidget *FormWidgets::fileUpload()
+{
+  Wt::WTemplate *result = new TopicTemplate("forms-fileUpload");
+  result->bindWidget("FileUpload", FileUpload());
 
   return result;
 }
 
-#ifndef WT_TARGET_JAVA
-WWidget *FormWidgets::wPopupMenu()
+
+#include "examples/PushButton.cpp"
+#include "examples/PushButtonOnce.cpp"
+#include "examples/PushButtonLink.cpp"
+#include "examples/PushButtonDropdownAppended.cpp"
+#include "examples/PushButtonDropdownPrepended.cpp"
+#include "examples/PushButtonColor.cpp"
+#include "examples/PushButtonSize.cpp"
+#include "examples/PushButtonPrimary.cpp"
+#include "examples/PushButtonAction.cpp"
+
+Wt::WWidget *FormWidgets::pushButton()
 {
-  WContainerWidget *result = new WContainerWidget();
+  Wt::WTemplate *result = new TopicTemplate("forms-pushButton");
+  result->bindWidget("PushButton", PushButton());
+  result->bindWidget("PushButtonOnce", PushButtonOnce());
+  result->bindWidget("PushButtonLink", PushButtonLink());
+  result->bindWidget("PushButtonDropdownAppended",
+                     PushButtonDropdownAppended());
+  result->bindWidget("PushButtonDropdownPrepended",
+                     PushButtonDropdownPrepended());
+  result->bindWidget("PushButtonColor", PushButtonColor());
+  result->bindWidget("PushButtonSize", PushButtonSize());
+  result->bindWidget("PushButtonPrimary", PushButtonPrimary());
+  result->bindWidget("PushButtonAction", PushButtonAction());
 
-  topic("WPopupMenu", "WPopupMenuItem", result);
-  addText(tr("formwidgets-WPopupMenu"), result);
-
-  WPopupMenu *popup = new WPopupMenu();
-  popup->setAutoHide(true, 1000);
-  popup->addItem("icons/house.png", "Build a house");
-  popup->addItem("Roof included")->setCheckable(true);
-  popup->addItem("Add a door")->setDisabled(true);
-  popup->addSeparator();
-  popup->addItem("Add a window");
-  WPopupMenu *subMenu = new WPopupMenu();
-  subMenu->addItem("Add a chair");
-  subMenu->addItem("Add a table");
-  popup->addMenu("Add furniture", subMenu);
-
-  popup->aboutToHide().connect(boost::bind(&FormWidgets::popupAction,
-					   this, popup));
-
-  WLabel* clickMe = new WLabel("Clicking here will show a popup menu.",
-			       result);
-  clickMe->setStyleClass("popupmenuLabel");
-  clickMe->clicked().connect(popup, &WPopupMenu::popup);
- 
+  // Show the XML-templates as text
+  result->bindString("appendedDropdownButton-template",
+                     reindent(tr("appendedDropdownButton-template")),
+                     Wt::PlainText);
+  result->bindString("prependedDropdownButton-template",
+                     reindent(tr("prependedDropdownButton-template")),
+                     Wt::PlainText);
+  result->bindString("pushButtonColor-template",
+                     reindent(tr("pushButtonColor-template")), Wt::PlainText);
+  result->bindString("pushButtonSize-template",
+                     reindent(tr("pushButtonSize-template")), Wt::PlainText);
+  result->bindString("pushButtonAction-template",
+                     reindent(tr("pushButtonAction-template")), Wt::PlainText);
   return result;
 }
 
-void FormWidgets::popupAction(WPopupMenu *menu)
+
+#include "examples/Validation.cpp"
+#include "examples/ValidationDate.cpp"
+#include "examples/ValidationModel.cpp"
+
+Wt::WWidget *FormWidgets::validation()
 {
-  if (menu->result())
-    ed_->setStatus("PopupMenu '" + menu->result()->text() + "' selected");
+  Wt::WTemplate *result = new TopicTemplate("forms-validation");
+  result->bindWidget("Validation", Validation());
+  result->bindWidget("ValidationDate", ValidationDate());
+  result->bindWidget("ValidationModel", ValidationModel());
+
+  // Show the XML-template as text
+  result->bindString("validation-template", reindent(tr("validation-template")),
+                     Wt::PlainText);
+  return result;  
 }
 
-#endif
 
+Wt::WWidget *FormWidgets::example()
+{
+  Wt::WTemplate *result = new TopicTemplate("forms-integration-example");
+  result->bindWidget("FormModel", FormModel());
+
+  // Show the XML-templates as text
+  result->bindString("form-field",
+                     reindent(tr("form-field")), Wt::PlainText);
+  result->bindString("userForm-template",
+                     reindent(tr("userForm-template")), Wt::PlainText);
+  return result;
+}

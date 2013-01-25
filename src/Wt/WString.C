@@ -361,27 +361,27 @@ WString& WString::arg(const WString& value)
 
 WString& WString::arg(int value)
 {
-  return arg(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
+  return arg(WLocale::currentLocale().toString(value));
 }
 
 WString& WString::arg(unsigned value)
 {
-  return arg(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
+  return arg(WLocale::currentLocale().toString(value));
 }
 
 WString& WString::arg(::int64_t value)
 {
-  return arg(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
+  return arg(WLocale::currentLocale().toString(value));
 }
 
 WString& WString::arg(::uint64_t value)
 {
-  return arg(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
+  return arg(WLocale::currentLocale().toString(value));
 }
 
 WString& WString::arg(double value)
 {
-  return arg(WString::fromUTF8(boost::lexical_cast<std::string>(value)));
+  return arg(WLocale::currentLocale().toString(value));
 }
 
 bool WString::refresh()

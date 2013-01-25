@@ -16,20 +16,18 @@
 #include <Wt/Utils>
 #include "DragExample.h"
 
-using namespace Wt;
-
 EventsDemo::EventsDemo(EventDisplayer *ed)
-  : ControlsWidget(ed, true),
+  : TopicWidget(ed),
     keyEventRepeatCounter_(0)
-{
-  addText(tr("events-intro"), this);
-}
+{ }
 
 void EventsDemo::populateSubMenu(WMenu *menu)
 {
-  menu->addItem("WKeyEvent", wKeyEvent());
-  menu->addItem("WMouseEvent", wMouseEvent());
-  menu->addItem("WDropEvent", wDropEvent());
+  menu->addItem("Overview", addText(tr("events-intro")));
+  menu->addItem("Keyboard Events", wKeyEvent());
+  menu->addItem("Mouse Events", wMouseEvent());
+  menu->addItem("Drag & Drop", wDropEvent());
+  menu->addItem("Other events", addText(tr("other-events")));
 }
 
 WWidget *EventsDemo::wKeyEvent()

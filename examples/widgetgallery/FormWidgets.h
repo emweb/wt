@@ -8,42 +8,35 @@
 #ifndef FORMWIDGETS_H_
 #define FORMWIDGETS_H_
 
-#include "ControlsWidget.h"
+#include "TopicWidget.h"
 
 #include "Wt/WStandardItemModel"
 
 class EventDisplayer;
 
-class FormWidgets: public ControlsWidget
+class FormWidgets : public TopicWidget
 {
 public:
-  FormWidgets(EventDisplayer *ed);
+  FormWidgets();
 
   void populateSubMenu(Wt::WMenu *menu);
 
 private:
-  Wt::WWidget *wPushButton();
-  Wt::WWidget *wCheckBox();
-  Wt::WWidget *wRadioButton();
-  Wt::WWidget *wComboBox();
-  Wt::WWidget *wSelectionBox();
-  Wt::WWidget *wLineEdit();
-  Wt::WWidget *wSpinBox();
-  Wt::WWidget *wTextArea();
-  Wt::WWidget *wCalendar();
-  Wt::WWidget *wDatePicker();
-  Wt::WWidget *wInPlaceEdit();
-  Wt::WWidget *wSuggestionPopup();
-  Wt::WWidget *wTextEdit();
-  Wt::WWidget *wFileUpload();
-#ifndef WT_TARGET_JAVA
-  Wt::WWidget *wPopupMenu();
-  void popupAction(Wt::WPopupMenu *menu);
-#endif
-
-  void addColorElement(Wt::WStandardItemModel* model,
-		       std::string name, 
-		       std::string style);
+  Wt::WWidget *introduction();
+  Wt::WWidget *textEditors();
+  Wt::WWidget *checkBox();
+  Wt::WWidget *radioButton();
+  Wt::WWidget *comboBox();
+  Wt::WWidget *selectionBox();
+  Wt::WWidget *autoComplete();
+  Wt::WWidget *dateEntry();
+  Wt::WWidget *inPlaceEdit();
+  Wt::WWidget *slider();
+  Wt::WWidget *progressBar();
+  Wt::WWidget *fileUpload();
+  Wt::WWidget *pushButton();
+  Wt::WWidget *validation();
+  Wt::WWidget *example();
 };
 
-#endif
+#endif // FORMWIDGETS_H_

@@ -150,7 +150,7 @@ namespace Wt
 	  time_duration::fractional_seconds_type msec =
 	    d.fractional_seconds();
 	  
-	  return msec / ticks_per_msec;
+	  return (int)(msec / ticks_per_msec);
 	}
 
 	virtual void bind(int column, 
@@ -197,8 +197,8 @@ namespace Wt
 
 	virtual void bind(int column, const std::vector<unsigned char>& value)
 	{
-	  DEBUG(bindErr(column, 
-			std::string(" (blob, size=") + value.size() + ")"));
+	  //DEBUG(bindErr(column, 
+		//	std::string(" (blob, size=") + value.size() + ")"));
 
 	  IBPP::Blob b = IBPP::BlobFactory(conn_.impl_->m_db, 
 					   conn_.impl_->m_tra);
@@ -414,7 +414,7 @@ namespace Wt
 	  if (size > 0)
 	    b->Read((void *)&value->front(), size);
 
-	  DEBUG(resultErr(column, std::string("blob (size=") + value.size()));
+	  //DEBUG(resultErr(column, std::string("blob (size=") + value->size()));
 	  
 	  return true;
 	}
@@ -543,13 +543,13 @@ namespace Wt
       {
 	std::vector<std::string> sql;
 	
-	std::string sequenceId = "sequence_" + table + "_" + id;
+	std::string sequenceId = "seq_" + table + "_" + id;
 	
 	sql.push_back(std::string("create generator ") + sequenceId + ";");
 	sql.push_back(std::string("set generator ") + sequenceId + " to 0;");
 	
 	std::stringstream trigger;
-	trigger << "CREATE TRIGGER sequence_trigger_" << table
+	trigger << "CREATE TRIGGER seq_trig_" << table
 		<< " FOR \"" << table << "\""
 		<< " ACTIVE BEFORE INSERT POSITION 0" 
 		<< " AS"
@@ -570,8 +570,8 @@ namespace Wt
       {
 	std::vector<std::string> sql;
 	
-	sql.push_back(std::string("drop trigger sequence_trigger_") + table); 
-	sql.push_back(std::string("drop generator sequence_") 
+	sql.push_back(std::string("drop trigger seq_trig_") + table); 
+	sql.push_back(std::string("drop generator seq_") 
 		      + table + "_" + id);
 
 	return sql;

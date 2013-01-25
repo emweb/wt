@@ -7,19 +7,22 @@
 #include <cmath>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WAbstractItemModel"
 #include "Wt/WApplication"
+#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WItemDelegate"
 #include "Wt/WItemSelectionModel"
 #include "Wt/WStringStream"
-#include "Wt/WTable"
-#include "Wt/WTableCell"
+#include "Wt/WTemplate"
 #include "Wt/WText"
+#include "Wt/WTheme"
 #include "Wt/WTreeView"
 #include "Wt/WVBoxLayout"
 #include "Wt/WWebWidget"
+
 
 #ifndef WT_DEBUG_JS
 #include "js/WTreeView.min.js"
@@ -65,7 +68,8 @@ private:
 class ToggleButtonConfig
 {
 public:
-  ToggleButtonConfig(WWidget *parent) : toggleJS_(0)
+  ToggleButtonConfig(WWidget *parent, const std::string& styleClass)
+    : styleClass_(styleClass)
   {
     toggleJS_ = new JSlot(parent);
   }
@@ -95,9 +99,10 @@ public:
     js <<
       """), i, il;"
       """for (i=0; i<" << states_.size() << "; ++i) {"
-      ""  "if (s.className == states[i]) {"
-      "" << app->javaScriptClass() << ".emit(s, 't-'+s.className);"
-      ""    "s.className = states[(i+1) % " << states_.size() << "];"
+      ""  "if ($(s).hasClass(states[i])) {"
+      "" << app->javaScriptClass() << ".emit(s, 't-'+states[i]);"
+      ""    "$(s).removeClass(states[i])"
+      ""        ".addClass(states[(i+1) % " << states_.size() << "]);"
       ""    "break;"
       ""  "}"
       """}"
@@ -107,10 +112,12 @@ public:
   }
 
   const std::vector<std::string>& states() const { return states_; }
+  const std::string& styleClass() const { return styleClass_; }
 
 private:
   std::vector<std::string> states_;
   JSlot *toggleJS_;
+  std::string styleClass_;
 
   friend class ToggleButton;
 };
@@ -122,10 +129,13 @@ public:
     : WText(parent),
       config_(config)
   {
+    setStyleClass(config_->styleClass());
+
     setInline(false);
 
     if (WApplication::instance()->environment().ajax()) {
       clicked().connect(*config_->toggleJS_);
+      clicked().preventPropagation();
 
       for (unsigned i = 0; i < config_->states().size(); ++i)
 	signals_.push_back(new JSignal<>(this, "t-" + config_->states()[i]));
@@ -145,7 +155,7 @@ public:
 
   void setState(int i)
   {
-    setStyleClass(config_->states()[i]);
+    setStyleClass(config_->styleClass() + config_->states()[i]);
   }
 
 private:
@@ -168,7 +178,7 @@ public:
     : node_(node),
       height_(0)
   {
-    resize(Wt::WLength::Auto, 0);
+    setHeight(0);
     setInline(false);
     setStyleClass("Wt-spacer");
   }
@@ -191,7 +201,7 @@ private:
   int height_;
 };
 
-class WTreeViewNode : public WTable
+class WTreeViewNode : public WTemplate
 {
 public:
   WTreeViewNode(WTreeView *view, const WModelIndex& index,
@@ -253,23 +263,19 @@ public:
   void doExpand();
   void doCollapse();
 
-  WWidget *widget(int column);
+  WWidget *cellWidget(int column);
 
 private:
-  WTreeView     *view_;
-  WModelIndex    index_;
-  int            childrenHeight_;
+  WTreeView *view_;
+  WModelIndex index_;
+  int childrenHeight_;
   WTreeViewNode *parentNode_;
-
-  bool           childrenLoaded_;
-  ToggleButton  *expandButton_;
-  WText         *noExpandIcon_;
-
+  bool childrenLoaded_;
   void loadChildren();
 
   WModelIndex childIndex(int column);
 
-  void setWidget(int column, WWidget *w);
+  void setCellWidget(int column, WWidget *w);
   void addColumnStyleClass(int column, WWidget *w);
 };
 
@@ -280,7 +286,7 @@ void RowSpacer::setRows(int height, bool force)
   else
     if (force || height != height_) {
       height_ = height;
-      resize(Wt::WLength::Auto, node_->view()->rowHeight() * height);
+      setHeight(node_->view()->rowHeight() * height);
     }
 }
 
@@ -302,22 +308,26 @@ int RowSpacer::renderedRow(int lowerBound, int upperBound)
 WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 			     int childrenHeight, bool isLast,
 			     WTreeViewNode *parent)
-  : view_(view),
+  : WTemplate(tr("Wt.WTreeViewNode.template")),
+    view_(view),
     index_(index),
     childrenHeight_(childrenHeight),
     parentNode_(parent),
-    childrenLoaded_(false),
-    expandButton_(0),
-    noExpandIcon_(0)
+    childrenLoaded_(false)
 {
+  bindEmpty("cols-row");
+  bindEmpty("selected");
+  bindEmpty("expand");
+  bindEmpty("no-expand");
+  bindEmpty("col0");
+  bindEmpty("children");
+
   setStyleClass("Wt-tv-node");
-
   int selfHeight = 0;
-
-  if (index_ != view_->rootIndex() && !view->isExpanded(index_))
-    rowAt(1)->hide();
-
   bool needLoad = view_->isExpanded(index_);
+
+  if (index_ != view_->rootIndex() && !needLoad)
+    childContainer()->hide();
 
   if (needLoad) {
     childrenLoaded_ = true;
@@ -330,8 +340,6 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
     childrenHeight_ = 0;
 
   if (index_ != view_->rootIndex()) {
-    elementAt(0, 1)->setStyleClass("c1 rh");
-
     updateGraphics(isLast, !view_->model()->hasChildren(index_));
     insertColumns(0, view_->columnCount());
 
@@ -339,11 +347,6 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 
     if (view_->selectionBehavior() == SelectRows && view_->isSelected(index_))
       renderSelected(true, 0);
-  } else {
-    if (WApplication::instance()->environment().agentIsIE())
-      elementAt(0, 0)->resize(1, WLength::Auto);
-    else
-      elementAt(0, 0)->resize(0, WLength::Auto);
   }
 
   view_->addRenderedNode(this);
@@ -374,7 +377,7 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
   for (int i = firstColumn; i <= lastColumn; ++i) {
     WModelIndex child = i < thisNodeCount ? childIndex(i) : WModelIndex();
 
-    WWidget *w = widget(i);
+    WWidget *w = cellWidget(i);
 
     WFlags<ViewItemRenderFlag> renderFlags = 0;
     if (view_->selectionBehavior() == SelectItems && view_->isSelected(child))
@@ -396,7 +399,7 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
       view_->setEditorWidget(child, w);
 
     if (!w->parent()) {
-      setWidget(i, w);
+      setCellWidget(i, w);
 
       /*
        * If we are creating a new editor, then reset its current edit
@@ -418,71 +421,64 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
     return;
 
   if (index_.parent() == view_->rootIndex() && !view_->rootIsDecorated()) {
-    delete expandButton_;
-    expandButton_ = 0;
-    delete noExpandIcon_;
-    noExpandIcon_ = 0;
-    elementAt(0, 0)->setStyleClass("c0");
-    elementAt(1, 0)->setStyleClass("c0");
-
+    bindEmpty("expand");
+    bindEmpty("no-expand");
     return;
   }
 
   if (!isEmpty) {
-    if (!expandButton_) {
-      delete noExpandIcon_;
-      noExpandIcon_ = 0;
-      expandButton_ = new ToggleButton(view_->expandConfig_);
+    ToggleButton *expandButton = resolve<ToggleButton *>("expand");
+    if (!expandButton) {
+      bindEmpty("no-expand");
+      expandButton = new ToggleButton(view_->expandConfig_);
+      bindWidget("expand", expandButton);
+
       if (WApplication::instance()->environment().agentIsIE())
-	expandButton_->resize(19, WLength::Auto);
-      elementAt(0, 0)->addWidget(expandButton_);
+	expandButton->setWidth(19);
 
-      expandButton_->signal(0).connect(this, &WTreeViewNode::doExpand);
-      expandButton_->signal(1).connect(this, &WTreeViewNode::doCollapse);
+      expandButton->signal(0).connect(this, &WTreeViewNode::doExpand);
+      expandButton->signal(1).connect(this, &WTreeViewNode::doCollapse);
 
-      expandButton_->setState(isExpanded() ? 1 : 0);
+      expandButton->setState(isExpanded() ? 1 : 0);
     }
   } else {
-    if (!noExpandIcon_) {
-      delete expandButton_;
-      expandButton_ = 0;
-      noExpandIcon_ = new WText();
-      noExpandIcon_->setInline(false);
-      noExpandIcon_->setStyleClass("Wt-noexpand");
+    WText *noExpandIcon = resolve<WText *>("no-expand");
+    if (!noExpandIcon) {
+      bindEmpty("expand");
+      noExpandIcon = new WText();
+      bindWidget("no-expand", noExpandIcon);
+      noExpandIcon->setInline(false);
+      noExpandIcon->setStyleClass("Wt-ctrl rh noexpand");
       if (WApplication::instance()->environment().agentIsIE())
-	noExpandIcon_->resize(19, WLength::Auto);
-      elementAt(0, 0)->addWidget(noExpandIcon_);
+	noExpandIcon->setWidth(19);
     }
   }
 
-  if (!isLast) {
-    elementAt(0, 0)->setStyleClass("Wt-trunk c0");
-    elementAt(1, 0)->setStyleClass("Wt-trunk c0");
-  } else {
-    elementAt(0, 0)->setStyleClass("Wt-end c0");
-    elementAt(1, 0)->setStyleClass("c0");
-  }
+  toggleStyleClass("Wt-trunk", !isLast);
+  bindString("trunk-class", isLast ? "Wt-end" : "Wt-trunk");
 }
 
 void WTreeViewNode::insertColumns(int column, int count)
 {
-  WTableCell *tc = elementAt(0, 1);
-  tc->clear();
+  WContainerWidget *row = resolve<WContainerWidget *>("cols-row");
 
   if (view_->columnCount() > 1) {
-    WContainerWidget *row = new WContainerWidget();
+    if (!row) {
+      row = new WContainerWidget();
 
-    if (view_->rowHeaderCount()) {
-      row->setStyleClass("Wt-tv-rowc rh");
-      WContainerWidget *rowWrap = new WContainerWidget();
-      rowWrap->addWidget(row);
-      row = rowWrap;
+      if (view_->rowHeaderCount()) {
+	row->setStyleClass("Wt-tv-rowc rh");
+	WContainerWidget *rowWrap = new WContainerWidget();
+	rowWrap->addWidget(row);
+	row = rowWrap;
+      }
+
+      row->setStyleClass("Wt-tv-row rh");
+
+      bindWidget("cols-row", row);
     }
-
-    row->setObjectName("row");
-    row->setStyleClass("Wt-tv-row rh");
-    tc->insertWidget(0, row);
-  }
+  } else 
+    delete row;
 
   update(0, view_->columnCount() - 1);
 }
@@ -513,11 +509,9 @@ void WTreeViewNode::addColumnStyleClass(int column, WWidget *w)
   w->setStyleClass(WString::fromUTF8(s.c_str()));
 }
 
-void WTreeViewNode::setWidget(int column, WWidget *newW)
+void WTreeViewNode::setCellWidget(int column, WWidget *newW)
 {
-  WTableCell *tc = elementAt(0, 1);
-
-  WWidget *current = widget(column);
+  WWidget *current = cellWidget(column);
 
   addColumnStyleClass(column, newW);
 
@@ -525,13 +519,10 @@ void WTreeViewNode::setWidget(int column, WWidget *newW)
     current->setStyleClass(WString::Empty);
 
   if (column == 0) {
-    if (current)
-      tc->removeWidget(current);
-
     newW->setInline(false);
-    tc->addWidget(newW);
+    bindWidget("col0", newW);
   } else {
-    WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
+    WContainerWidget *row = resolve<WContainerWidget *>("cols-row");
     if (view_->rowHeaderCount())
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
@@ -548,18 +539,12 @@ void WTreeViewNode::setWidget(int column, WWidget *newW)
   }
 }
 
-WWidget *WTreeViewNode::widget(int column)
+WWidget *WTreeViewNode::cellWidget(int column)
 {
-  WTableCell *tc = elementAt(0, 1);
-
-  if (column == 0) {
-    if (tc->count() > 0) {
-      WWidget *result = tc->widget(tc->count() - 1);
-      return (tc->count() > 1 || result->objectName() != "row") ? result : 0;
-    } else
-      return 0;
-  } else {
-    WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
+  if (column == 0)
+    return resolveWidget("col0");
+  else {
+    WContainerWidget *row = resolve<WContainerWidget *>("cols-row");
 
     if (view_->rowHeaderCount())
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
@@ -575,12 +560,14 @@ void WTreeViewNode::doExpand()
 
   loadChildren();
 
-  if (expandButton_)
-    expandButton_->setState(1);
+  ToggleButton *expandButton = resolve<ToggleButton *>("expand");
+  if (expandButton)
+    expandButton->setState(1);
 
   view_->expandedSet_.insert(index_);
 
-  rowAt(1)->show();
+  childContainer()->show();
+
   if (parentNode())
     parentNode()->adjustChildrenHeight(childrenHeight_);
 
@@ -595,12 +582,14 @@ void WTreeViewNode::doCollapse()
   if (!isExpanded())
     return;
 
-  if (expandButton_)
-    expandButton_->setState(0);
+  ToggleButton *expandButton = resolve<ToggleButton *>("expand");
+  if (expandButton)
+    expandButton->setState(0);
 
   view_->setCollapsed(index_);
 
-  rowAt(1)->hide();
+  childContainer()->hide();
+
   if (parentNode())
     parentNode()->adjustChildrenHeight(-childrenHeight_);
 
@@ -611,7 +600,7 @@ void WTreeViewNode::doCollapse()
 
 bool WTreeViewNode::isExpanded()
 {
-  return index_ == view_->rootIndex() || !rowAt(1)->isHidden();
+  return index_ == view_->rootIndex() || !childContainer()->isHidden();
 }
 
 void WTreeViewNode::normalizeSpacers()
@@ -673,7 +662,17 @@ void WTreeViewNode::adjustChildrenHeight(int diff)
 
 WContainerWidget *WTreeViewNode::childContainer()
 {
-  return elementAt(index_ == view_->rootIndex() ? 0 : 1, 1);
+  WContainerWidget *result = resolve<WContainerWidget *>("children");
+  if (!result) {
+    result = new WContainerWidget();
+    bindWidget("children", result);
+    result->setList(true);
+
+    if (index_ == view_->rootIndex())
+      result->addStyleClass("Wt-tv-root");
+  }
+
+  return result;
 }
 
 WWidget *WTreeViewNode::widgetForModelRow(int modelRow)
@@ -738,7 +737,7 @@ void WTreeViewNode::shiftModelIndexes(int start, int offset)
       for (int j = 0; j <= lastColumn; ++j) {
 	WModelIndex child = j < thisNodeCount
 	  ? n->childIndex(j) : WModelIndex();
-	view_->itemDelegate(j)->updateModelIndex(n->widget(j), child);
+	view_->itemDelegate(j)->updateModelIndex(n->cellWidget(j), child);
       }
 
       view_->addRenderedNode(n);
@@ -885,14 +884,13 @@ int WTreeViewNode::renderedRow(WTreeViewNode *node,
 
 void WTreeViewNode::renderSelected(bool selected, int column)
 {
-  if (view_->selectionBehavior() == SelectRows)
-    rowAt(0)->setStyleClass(selected ? "Wt-selected" : "");
-  else {
-    WWidget *w = widget(column);
-    if (selected)
-      w->addStyleClass(WT_USTRING::fromUTF8("Wt-selected"));
-    else
-      w->removeStyleClass(WT_USTRING::fromUTF8("Wt-selected"));
+  std::string cl = WApplication::instance()->theme()->activeClass();
+
+  if (view_->selectionBehavior() == SelectRows) {
+    bindString("selected", selected ? cl : std::string());
+  } else {
+    WWidget *w = cellWidget(column);
+    w->toggleStyleClass(cl, selected);
   }
 }
 
@@ -933,9 +931,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
 {
   setSelectable(false);
 
-  expandConfig_ = new ToggleButtonConfig(this);
-  expandConfig_->addState("Wt-expand");
-  expandConfig_->addState("Wt-collapse");
+  expandConfig_ = new ToggleButtonConfig(this, "Wt-ctrl rh ");
+  expandConfig_->addState("expand");
+  expandConfig_->addState("collapse");
   expandConfig_->generate();
 
   setStyleClass("Wt-itemview Wt-treeview");
@@ -1092,7 +1090,7 @@ void WTreeView::setRowHeaderCount(int count)
     addStyleClass("column1");
     WContainerWidget *rootWrap
       = dynamic_cast<WContainerWidget *>(contents_->widget(0));
-    rootWrap->resize(WLength(100, WLength::Percentage), WLength::Auto);
+    rootWrap->setWidth(WLength(100, WLength::Percentage));
     rootWrap->setOverflow(WContainerWidget::OverflowHidden);
     contents_->setPositionScheme(Relative);
     rootWrap->setPositionScheme(Absolute);
@@ -1124,7 +1122,7 @@ void WTreeView::setRowHeaderCount(int count)
 
     WContainerWidget *scrollBarContainer = new WContainerWidget();
     scrollBarContainer->setStyleClass("cwidth");
-    scrollBarContainer->resize(WLength::Auto, SCROLLBAR_WIDTH);
+    scrollBarContainer->setHeight(SCROLLBAR_WIDTH);
     scrollBarC_ = new WContainerWidget(scrollBarContainer);
     scrollBarC_->setStyleClass("Wt-tv-row Wt-scroll");
     scrollBarC_->scrolled().connect(tieRowsScrollJS_);
@@ -1190,8 +1188,8 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
   columnInfo(column).width = width;
 
   WWidget *toResize = columnInfo(column).styleRule->templateWidget();
-  toResize->resize(0, WLength::Auto);
-  toResize->resize(width.toPixels(), WLength::Auto);
+  toResize->setWidth(0);
+  toResize->setWidth(width.toPixels());
 
   WApplication *app = WApplication::instance();
 
@@ -1225,10 +1223,9 @@ void WTreeView::setColumnBorder(const WColor& color)
   delete borderColorRule_;
   borderColorRule_
     = new WCssTextRule
-    (".Wt-treeview .Wt-tv-br, "             // header columns 1-n
-     ".Wt-treeview .header .Wt-tv-row, "    // header column 0
-     ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c, "   // data columns 1-n
-     ".Wt-treeview .Wt-tv-node .Wt-tv-row", // data column 0
+    (".Wt-treeview .Wt-tv-br, "            // header columns 1-n
+     ".Wt-treeview .header .Wt-tv-row, "   // header column 0
+     ".Wt-treeview .Wt-tv-node .Wt-tv-c",  // data columns 0-n
      "border-color: " + color.cssText(),
      this);
   WApplication::instance()->styleSheet().addRule(borderColorRule_);
@@ -1257,9 +1254,8 @@ void WTreeView::setRootNodeStyle()
 
   if (alternatingRowColors())
     rootNode_->decorationStyle().setBackgroundImage
-      (WLink(WApplication::resourcesUrl()
-	     + "themes/" + WApplication::instance()->cssTheme()
-	     + "/stripes/stripe-" + boost::lexical_cast<std::string>
+      (WLink(WApplication::instance()->theme()->resourcesUrl()
+	     + "stripes/stripe-" + boost::lexical_cast<std::string>
 	     (static_cast<int>(rowHeight().toPixels())) + "px.gif"));
    else
      rootNode_->decorationStyle().setBackgroundImage(WLink(""));
@@ -1269,7 +1265,7 @@ void WTreeView::setRowHeight(const WLength& rowHeight)
 {
   WAbstractItemView::setRowHeight(rowHeight);
 
-  rowHeightRule_->templateWidget()->resize(WLength::Auto, rowHeight);
+  rowHeightRule_->templateWidget()->setHeight(rowHeight);
   rowHeightRule_->templateWidget()->setLineHeight(rowHeight);
 
   if (!WApplication::instance()->environment().ajax() && !height().isAuto())
@@ -1291,10 +1287,10 @@ void WTreeView::resize(const WLength& width, const WLength& height)
   WApplication *app = WApplication::instance();
   WLength w = app->environment().ajax() ? WLength::Auto : width;
 
-  contentsContainer_->resize(w, WLength::Auto);
+  contentsContainer_->setWidth(w);
   
   if (headerContainer_)
-    headerContainer_->resize(w, WLength::Auto);
+    headerContainer_->setWidth(w);
 
   if (!height.isAuto()) {
     if (!app->environment().ajax()) {
@@ -1487,7 +1483,6 @@ void WTreeView::rerenderTree()
   validRowCount_ = 0;
 
   rootNode_ = new WTreeViewNode(this, rootIndex(), -1, true, 0);
-  rootNode_->resize(WLength(100, WLength::Percentage), 1);
 
   if (WApplication::instance()->environment().ajax()) {
     connectObjJS(rootNode_->clicked(), "click");
@@ -1525,10 +1520,26 @@ void WTreeView::contentsSizeChanged(int width, int height)
   scheduleRerender(NeedAdjustViewPort);
 }
 
-void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,
+void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
 			    std::string extra1, std::string extra2,
 			    WMouseEvent event)
 {
+  // nodeId and columnId are combined because WSignal needed to be changed
+  // since MSVS 2012 does not support >5 arguments in std::bind()
+  std::vector<std::string> nodeAndColumnSplit;
+  boost::split(nodeAndColumnSplit, nodeAndColumnId, boost::is_any_of(":"));
+  if (nodeAndColumnSplit.size() != 2)
+    throw Wt::WException("WTreeview::onEventItem: unexpected value for "
+			 "param 1");
+
+  std::string nodeId = nodeAndColumnSplit[0];
+  int columnId;
+  try {
+    columnId = boost::lexical_cast<int>(nodeAndColumnSplit[1]);
+  } catch (boost::bad_lexical_cast &e) {
+    throw Wt::WException("WTreeview::onEventItem: bad format for param 1");
+  }
+
   int column = (columnId == 0 ? 0 : -1);
   for (unsigned i = 0; i < columns_.size(); ++i)
     if (columns_[i].id == columnId) {
@@ -1702,7 +1713,7 @@ WWidget *WTreeView::itemWidget(const WModelIndex& index) const
 
   WTreeViewNode *n = nodeForIndex(index);
   if (n)
-    return n->widget(index.column());
+    return n->cellWidget(index.column());
   else
     return 0;
 }

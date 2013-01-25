@@ -254,11 +254,7 @@ void WPainter::restore()
 
 void WPainter::drawArc(const WRectF& rectangle, int startAngle, int spanAngle)
 {
-  WBrush oldBrush = WBrush(brush());
-
-  setBrush(NoBrush);
   device_->drawArc(rectangle.normalized(), startAngle / 16., spanAngle / 16.);
-  setBrush(oldBrush);
 }
 
 void WPainter::drawArc(double x, double y, double width, double height,

@@ -21,8 +21,9 @@ LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
     users_(users),
     baseAuth_(auth)
 {
-  addFunction("id", WT_TEMPLATE_FUNCTION(id));
-  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
+  addFunction("id", &Functions::id);
+  addFunction("tr", &Functions::tr);
+  addFunction("block", &Functions::block);
 
   WLineEdit *email = new WLineEdit();
   email->setFocus();

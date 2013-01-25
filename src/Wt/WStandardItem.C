@@ -48,9 +48,7 @@ namespace {
 	else
 	  return false;
     }
-#endif // WT_TARGET_JAVA
-
-#ifdef WT_TARGET_JAVA
+#else
     int compare(int r1, int r2) const {
       WStandardItem *item1 = item->child(r1, column);
       WStandardItem *item2 = item->child(r2, column);
@@ -848,7 +846,7 @@ void WStandardItem::recursiveSortChildren(int column, SortOrder order)
 
     for (int c = 0; c < columnCount(); ++c) {
 #ifdef WT_TARGET_JAVA
-    Column temp;
+      Column temp;
 #endif // WT_TARGET_JAVA
       Column& cc = (*columns_)[c];
       for (int r = 0; r < rowCount(); ++r) {

@@ -153,13 +153,5 @@ Money operator/ (const Money& v1, double v2)
 }
 #endif
 
-//todo
-Wt::WStringStream operator<< (Wt::WStringStream &in,
-                                     const Money &v)
-{
-  in<<v.value() << "." <<v.cents();
-  return in;
-}
-
   }
 }

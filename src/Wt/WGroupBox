@@ -107,7 +107,6 @@ protected:
   virtual DomElementType domElementType() const;
 
   virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateSetEnabled(bool enabled);
   virtual void propagateRenderOk(bool deep);
   virtual int firstChildIndex() const;
 

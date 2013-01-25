@@ -60,7 +60,7 @@ void WRectArea::setHeight(int height)
   repaint();
 }
 
-void WRectArea::updateDom(DomElement& element, bool all)
+bool WRectArea::updateDom(DomElement& element, bool all)
 {
   element.setAttribute("shape", "rect");
 
@@ -72,7 +72,7 @@ void WRectArea::updateDom(DomElement& element, bool all)
     coords << x_ << ',' << y_ << ',' << (x_ + width_) << ',' << (y_ + height_);
   element.setAttribute("coords", coords.str());
 
-  WAbstractArea::updateDom(element, all);
+  return WAbstractArea::updateDom(element, all);
 }
 
 }

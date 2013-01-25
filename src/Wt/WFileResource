@@ -77,6 +77,27 @@ public:
    */
   const std::string& fileName() const { return fileName_; }
 
+  /*! \brief Handles a request.
+   *
+   * You may want to specialize this function to compute the file on the fly.
+   * However, you need to take into account the fact that the WFileResource
+   * implementation may use continuations to split the download in smaller
+   * chunks. Your implementation should thus look like:
+   *
+   * \if cpp
+   * \code
+   * void handleRequest(const Http::Request& request,
+   *                    Http::Response& response) {
+   *   if (!request.continuation()) {
+   *     ... prepare data
+   *     setFileName(myTmpFile);
+   *   }
+   *
+   *   WFileResource::handleRequest(request, response);
+   * }
+   * \endcode
+   * \endif
+   */
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response);
 

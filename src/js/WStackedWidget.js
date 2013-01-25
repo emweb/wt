@@ -11,7 +11,7 @@ WT_DECLARE_WT_MEMBER
  function (APP, widget) {
   jQuery.data(widget, 'obj', this);
 
-  var WT = APP.WT;
+  var WT = APP.WT, scrollTops = [], scrollLefts = [];
 
   this.wtResize = function(self, w, h, layout) {
     var hdefined = h >= 0;
@@ -58,7 +58,6 @@ WT_DECLARE_WT_MEMBER
 
       if (c.nodeType == 1) {
 	if (!WT.isHidden(c)) {
-
 	  if (hdefined) {
 	    var ch = h - marginV(c);
 	    if (ch > 0) {
@@ -89,15 +88,46 @@ WT_DECLARE_WT_MEMBER
     return size;
   };
 
-  this.setCurrent = function(child) {
+  this.adjustScroll = function(child) {
     var j, jl, c;
+    var sl = widget.scrollLeft, st = widget.scrollTop;
+
     for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
       c = widget.childNodes[j];
 
       if (c.nodeType == 1) {
-	if (c != child)
-	  c.style.display = 'none';
-	else {
+	if (c != child) {
+	  if (c.style.display != 'none') {
+	    scrollLefts[j] = sl;
+	    scrollTops[j] = st;
+	  }
+	} else {
+	  if (typeof scrollLefts[j] !== 'undefined') {
+	    widget.scrollLeft = scrollLefts[j];
+	    widget.scrollTop = scrollTops[j];
+	  } else {
+	    widget.scrollLeft = 0;
+	    widget.scrollTop = 0;
+	  }
+	}
+      }
+    }
+  }
+
+  this.setCurrent = function(child) {
+    var j, jl, c;
+
+    this.adjustScroll(child);
+
+    for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
+      c = widget.childNodes[j];
+
+      if (c.nodeType == 1) {
+	if (c != child) {
+	  if (c.style.display != 'none') {
+	    c.style.display = 'none';
+	  }
+	} else {
 	  c.style.display = '';
 
 	  if (widget.lh) {
@@ -112,7 +142,7 @@ WT_DECLARE_WT_MEMBER
 
 WT_DECLARE_WT_MEMBER
 (2, JavaScriptPrototype, "WStackedWidget.prototype.animateChild",
- function (child, effects, timing, duration, style) {
+ function (WT, child, effects, timing, duration, style) {
      /* const */ var SlideInFromLeft = 0x1;
      /* const */ var SlideInFromRight = 0x2;
      /* const */ var SlideInFromBottom = 0x3;
@@ -196,7 +226,7 @@ WT_DECLARE_WT_MEMBER
 
      var from = stack.childNodes[index.from],
        to = stack.childNodes[index.to],
-       h = stack.offsetHeight, w = stack.offsetWidth;
+       h = stack.scrollHeight, w = stack.scrollWidth;
 
      /*
       * If an animation is already busy, then wait until it is done
@@ -208,8 +238,26 @@ WT_DECLARE_WT_MEMBER
        return;
      }
 
-     to.style.left = '0px';
-     to.style.top = '0px';
+     h -= WT.px(stack, 'paddingTop');
+     h -= WT.px(stack, 'paddingBottom');
+     h -= WT.px(to, 'marginTop');
+     h -= WT.px(to, 'marginBottom');
+     h -= WT.px(to, 'borderTopWidth');
+     h -= WT.px(to, 'borderBottomWidth');
+     h -= WT.px(to, 'paddingTop');
+     h -= WT.px(to, 'paddingBottom');
+
+     w -= WT.px(stack, 'paddingLeft');
+     w -= WT.px(stack, 'paddingRight');
+     w -= WT.px(to, 'marginLeft');
+     w -= WT.px(to, 'marginRight');
+     w -= WT.px(to, 'borderLeftWidth');
+     w -= WT.px(to, 'borderRightWidth');
+     w -= WT.px(to, 'paddingLeft');
+     w -= WT.px(to, 'paddingRight');
+
+     to.style.left = from.style.left || WT.px(stack, 'paddingLeft');
+     to.style.top = from.style.top || WT.px(stack, 'paddingTop');
      to.style.width = w + 'px';
      to.style.height = h + 'px';
      to.style.position = 'absolute';

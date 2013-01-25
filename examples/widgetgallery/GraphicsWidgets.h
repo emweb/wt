@@ -5,25 +5,29 @@
  * See the LICENSE file for terms of use.
  */
 
-#ifndef GRAPHICSWIDGETS_H_
-#define GRAPHICSWIDGETS_H_
+#ifndef GRAPHICS_WIDGETS_H_
+#define GRAPHICS_WIDGETS_H_
 
-#include "ControlsWidget.h"
+#include "TopicWidget.h"
 
-#include "Wt/WTable"
-#include "Wt/WColor"
-#include "Wt/WSignalMapper"
-
-class GraphicsWidgets : public ControlsWidget
+class GraphicsWidgets : public TopicWidget
 {
 public:
-  GraphicsWidgets(EventDisplayer *ed);
-  virtual ~GraphicsWidgets() {}
+  GraphicsWidgets();
+
   virtual void populateSubMenu(Wt::WMenu *menu);
-  
+
 private:
-  Wt::WWidget* emwebLogo();
-  Wt::WWidget* paintbrush();
+  Wt::WWidget *painting2d();
+  Wt::WWidget *paintbrush();
+  Wt::WWidget *categoryChart();
+  Wt::WWidget *scatterPlot();
+  Wt::WWidget *pieChart();
+  Wt::WWidget *googleMap();
+  Wt::WWidget *painting3d();
+
+  Wt::WAbstractItemModel *readCsvFile(const std::string &fname,
+                  Wt::WContainerWidget *parent);
 };
 
-#endif
+#endif // GRAPHICS_WIDGETS_H_

@@ -226,6 +226,12 @@ int WServer::httpPort() const
   return impl_->server_->httpPort();
 }
 
+void WServer::setSslPasswordCallback(
+  boost::function<std::string (std::size_t max_length)> cb)
+{
+  impl_->server_->setSslPasswordCallback(cb);
+}
+
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {
@@ -235,6 +241,8 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
       server.addEntryPoint(Application, createApplication);
       if (server.start()) {
 #ifdef WT_THREADED
+	// MacOSX + valgrind:
+	// for (;;) { sleep(100); }
 	int sig = WServer::waitForShutdown(argv[0]);
 	LOG_INFO_S(&server, "shutdown (signal = " << sig << ")");
 #endif

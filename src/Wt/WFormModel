@@ -213,6 +213,12 @@ public:
    */
   virtual void setValidator(Field field, WValidator *validator);
 
+  /*! \brief Returns a validator.
+   *
+   * Returns the validator for the field.
+   */
+  virtual WValidator *validator(Field field) const;
+
   /*! \brief Validates a field.
    *
    * The default implementation uses the validator configured for the

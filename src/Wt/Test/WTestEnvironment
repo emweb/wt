@@ -150,11 +150,11 @@ public:
 
   /*! \brief Sets the locale.
    *
-   * The default value is "en".
+   * The default value is WLocale("en").
    *
    * \sa locale()
    */
-  void setLocale(const WT_LOCALE& locale);
+  void setLocale(const WLocale& locale);
 
   /*! \brief Sets the host name.
    *

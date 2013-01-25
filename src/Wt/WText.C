@@ -16,9 +16,54 @@ namespace Wt {
 
 LOGGER("WText");
 
+WText::RichText::RichText()
+  : format(XHTMLText)
+{ }
+
+bool WText::RichText::setText(const WString& newText)
+{
+  text = newText;
+
+  bool ok = checkWellFormed();
+  if (!ok)
+    format = PlainText;
+
+  return ok;
+}
+
+bool WText::RichText::setFormat(TextFormat newFormat)
+{
+  if (format != newFormat) {
+    TextFormat oldFormat = format;
+    format = newFormat;
+    bool ok = checkWellFormed();
+
+    if (!ok)
+      format = oldFormat;
+
+    return ok;
+  } else
+    return true;
+}
+
+bool WText::RichText::checkWellFormed()
+{
+  if (format == XHTMLText && text.literal()) {
+    return removeScript(text);
+  } else
+    return true;
+}
+
+std::string WText::RichText::formattedText() const
+{
+  if (format == PlainText)
+    return escapeText(text, true).toUTF8();
+  else
+    return text.toUTF8();
+}
+
 WText::WText(WContainerWidget *parent)
   : WInteractWidget(parent),
-    textFormat_(XHTMLText),
     padding_(0)
 {
   flags_.set(BIT_WORD_WRAP);
@@ -27,7 +72,6 @@ WText::WText(WContainerWidget *parent)
 
 WText::WText(const WString& text, WContainerWidget *parent)
   : WInteractWidget(parent),
-    textFormat_(XHTMLText),
     padding_(0)
 {
   flags_.set(BIT_WORD_WRAP);
@@ -37,9 +81,9 @@ WText::WText(const WString& text, WContainerWidget *parent)
 
 WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
   : WInteractWidget(parent),
-    textFormat_(format),
     padding_(0)
 {
+  text_.format = format;
   flags_.set(BIT_WORD_WRAP);
   WT_DEBUG(setObjectName("WText"));
   setText(text);
@@ -52,25 +96,21 @@ WText::~WText()
 
 bool WText::setText(const WString& text)
 {
-  if (canOptimizeUpdates() && (text == text_))
+  if (canOptimizeUpdates() && (text == text_.text))
     return true;
 
-  text_ = text;
-
-  bool textok = checkWellFormed();
-  if (!textok)
-    textFormat_ = PlainText;
+  bool ok = text_.setText(text);
 
   flags_.set(BIT_TEXT_CHANGED);
   repaint(RepaintInnerHtml);
 
-  return textok;
+  return ok;
 }
 
 void WText::autoAdjustInline()
 {
-  if (textFormat_ != PlainText && isInline()) {
-    std::string t = text_.toUTF8();
+  if (text_.format != PlainText && isInline()) {
+    std::string t = text_.text.toUTF8();
     boost::trim_left(t);
     if (   boost::istarts_with(t, "<div")
 	|| boost::istarts_with(t, "<p")
@@ -93,7 +133,7 @@ void WText::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
     std::string text = formattedText();
     if (flags_.test(BIT_TEXT_CHANGED) || !text.empty())
-      element.setProperty(Wt::PropertyInnerHTML, formattedText());
+      element.setProperty(Wt::PropertyInnerHTML, text);
     flags_.reset(BIT_TEXT_CHANGED);
   }
 
@@ -128,26 +168,7 @@ void WText::propagateRenderOk(bool deep)
 
 bool WText::setTextFormat(TextFormat textFormat)
 {
-  if (textFormat_ != textFormat) {
-    TextFormat oldTextFormat = textFormat_;
-
-    textFormat_ = textFormat;
-    bool textok = checkWellFormed();
-
-    if (!textok)
-      textFormat_ = oldTextFormat;
-
-    return textok;
-  } else
-    return true;
-}
-
-bool WText::checkWellFormed()
-{
-  if (textFormat_ == XHTMLText && text_.literal()) {
-    return removeScript(text_);
-  } else
-    return true;
+  return text_.setFormat(textFormat);
 }
 
 void WText::setInternalPathEncoding(bool enabled)
@@ -205,8 +226,8 @@ WLength WText::padding(Side side) const
 
 std::string WText::formattedText() const
 {
-  if (textFormat_ == PlainText)
-    return escapeText(text_, true).toUTF8();
+  if (text_.format == PlainText)
+    return escapeText(text_.text, true).toUTF8();
   else {
     WApplication *app = WApplication::instance();
     if (flags_.test(BIT_ENCODE_INTERNAL_PATHS)
@@ -216,11 +237,11 @@ std::string WText::formattedText() const
 	options |= EncodeInternalPaths;
       if (app->session()->hasSessionIdInUrl())
 	options |= EncodeRedirectTrampoline;
-      WString result = text_;
+      WString result = text_.text;
       EncodeRefs(result, options);
       return result.toUTF8();
     } else
-      return text_.toUTF8();
+      return text_.text.toUTF8();
   }
 }
 
@@ -239,7 +260,7 @@ void WText::render(WFlags<RenderFlag> flags)
 
 void WText::refresh()
 {
-  if (text_.refresh()) {
+  if (text_.text.refresh()) {
     flags_.set(BIT_TEXT_CHANGED);
     repaint(RepaintInnerHtml);
   }

@@ -16,6 +16,7 @@
 #include "Wt/WItemDelegate"
 #include "Wt/WPushButton"
 #include "Wt/WText"
+#include "Wt/WTheme"
 
 #include "SizeHandle.h"
 #include "WebUtils.h"
@@ -909,7 +910,7 @@ void WAbstractItemView::scheduleRerender(RenderState what)
   if (!isRendered())
     return;
 
-  askRerender();
+  scheduleRender();
 }
 
 void WAbstractItemView::modelHeaderDataChanged(Orientation orientation,
@@ -1131,7 +1132,7 @@ void WAbstractItemView::setHeaderHeight(const WLength& height)
   if (columns_.size() > 0) {
     WWidget *w = headerWidget(0);
     if (w)
-      w->askRerender(); // for layout
+      w->scheduleRender(); // for layout
   }
 
   headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);

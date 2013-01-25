@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WException"
+#include "Wt/WLocale"
 #include "Wt/WLogger"
 #include "WebRequest.h"
 
@@ -198,7 +199,7 @@ namespace {
   };
 };
 
-WT_LOCALE WebRequest::parsePreferredAcceptValue(const std::string& str) const
+std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
 {
   std::vector<ValueListParser::Value> values;
 
@@ -223,17 +224,16 @@ WT_LOCALE WebRequest::parsePreferredAcceptValue(const std::string& str) const
     return "";
   }
 }
-
 #else
-WT_LOCALE WebRequest::parsePreferredAcceptValue(const std::string& str) const
+std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
 {
   return std::string();
 }
 #endif // WT_NO_SPIRIT
 
-WT_LOCALE WebRequest::parseLocale() const
+WLocale WebRequest::parseLocale() const
 {
-  return parsePreferredAcceptValue(headerValue("Accept-Language"));
+  return WLocale(parsePreferredAcceptValue(headerValue("Accept-Language")));
 }
 
 void WebRequest::setAsyncCallback(boost::function<void(void)> cb)

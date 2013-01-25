@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifdef WTDBO
 
 #include <boost/test/unit_test.hpp>
 
@@ -101,8 +100,8 @@ struct Dbo2Fixture
 #endif // POSTGRES
 
 #ifdef MYSQL
-    connection_ = new dbo::backend::MySQL("example_db", "example",
-                                          "example_pw", "localhost", 3307);
+    connection_ = new dbo::backend::MySQL("wt_test_db", "test_user",
+                                          "test_pw", "localhost", 3306);
 #endif // MYSQL
 
 #ifdef FIREBIRD
@@ -226,5 +225,3 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
 
   transaction.commit();
 }
-
-#endif

@@ -10,7 +10,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/scoped_array.hpp>
 
-#include "Wt/WApplication"
+#include "Wt/WLocale"
 #include "Wt/WLogger"
 #include "Wt/WMessageResources"
 #include "Wt/WStringStream"
@@ -315,8 +315,7 @@ void WMessageResources::refresh()
     readResourceFile("", defaults_);
 
     local_.map_.clear();
-    WApplication *app = WApplication::instance();
-    std::string locale = app ? app->locale() : std::string();
+    std::string locale = WLocale::currentLocale().name();
 
     if (!locale.empty())
       for(;;) {

@@ -6,6 +6,8 @@
 
 #include "TimeSuggestions.h"
 
+#include <Wt/WContainerWidget>
+
 #include <stdio.h>
 
 using namespace Wt;

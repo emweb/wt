@@ -6,6 +6,7 @@
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
 #include <Wt/WServer>
+#include <Wt/WBootstrapTheme>
 
 #include <Wt/Auth/AuthModel>
 #include <Wt/Auth/AuthWidget>
@@ -21,6 +22,9 @@ public:
       session_(appRoot() + "auth.db")
   {
     session_.login().changed().connect(this, &AuthApplication::authEvent);
+
+    root()->addStyleClass("container");
+    setTheme(new Wt::WBootstrapTheme());
 
     useStyleSheet("css/style.css");
 

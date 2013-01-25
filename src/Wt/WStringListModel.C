@@ -9,16 +9,56 @@
 
 #include <functional>
 
+namespace {
+
+  using namespace Wt;
+
+struct StringListModelCompare W_JAVA_COMPARATOR(int)
+{
+  WStringListModel *model_;
+  SortOrder order_;
+
+  StringListModelCompare(WStringListModel *model, SortOrder order)
+    : model_(model), order_(order)
+  { }
+
+#ifndef WT_TARGET_JAVA
+  bool operator()(int r1, int r2) const {
+    if (order_ == AscendingOrder)
+      return compare(r1, r2);
+    else
+      return compare(r2, r1);
+  }
+
+  bool compare(int r1, int r2) const {
+    return model_->stringList()[r1] < model_->stringList()[r2];
+  }
+#else
+  int compare(int r1, int r2) const {
+    int result = model_->stringList()[r1].compareTo(model_->stringList()[r2]);
+
+    if (order_ == DescendingOrder)
+      result = -result;
+
+    return result;
+  }
+#endif // WT_TARGET_JAVA
+};
+
+}
+
 namespace Wt {
 
 WStringListModel::WStringListModel(WObject *parent)
-  : WAbstractListModel(parent)
+  : WAbstractListModel(parent),
+    otherData_(0)
 { }
 
 WStringListModel::WStringListModel(const std::vector<WString>& strings,
 				   WObject *parent)
   : WAbstractListModel(parent),
-    strings_(strings)
+    displayData_(strings),
+    otherData_(0)
 { }
 
 WStringListModel::~WStringListModel()
@@ -26,7 +66,7 @@ WStringListModel::~WStringListModel()
 
 void WStringListModel::setStringList(const std::vector<WString>& strings)
 {
-  int currentSize = strings_.size();
+  int currentSize = displayData_.size();
   int newSize = strings.size();
 
   if (newSize > currentSize)
@@ -34,7 +74,9 @@ void WStringListModel::setStringList(const std::vector<WString>& strings)
   else if (newSize < currentSize)
     beginRemoveRows(WModelIndex(), newSize, currentSize - 1);
 
-  strings_ = strings;
+  displayData_ = strings;
+  delete otherData_;
+  otherData_ = 0;
 
   if (newSize > currentSize)
     endInsertRows();
@@ -60,12 +102,17 @@ void WStringListModel::insertString(int row, const WString& string)
 
 int WStringListModel::rowCount(const WModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : strings_.size();
+  return parent.isValid() ? 0 : displayData_.size();
 }
 
 boost::any WStringListModel::data(const WModelIndex& index, int role) const
 {
-  return role == DisplayRole ? boost::any(strings_[index.row()]) : boost::any();
+  if (role == DisplayRole)
+    return boost::any(displayData_[index.row()]);
+  else if (otherData_)
+    return (*otherData_)[index.row()][role];
+  else
+    return boost::any();
 }
 
 bool WStringListModel::setData(const WModelIndex& index,
@@ -74,12 +121,25 @@ bool WStringListModel::setData(const WModelIndex& index,
   if (role == EditRole)
     role = DisplayRole;
 
-  if (role == DisplayRole) {
-    strings_[index.row()] = asString(value);
-    dataChanged().emit(index, index);
-    return true;
-  } else
-    return false;
+  if (role == DisplayRole)
+    displayData_[index.row()] = asString(value);
+  else {
+    if (!otherData_) {
+#ifndef WT_TARGET_JAVA
+      otherData_ = new std::vector<DataMap>(displayData_.size());
+#else
+      otherData_ = new std::vector<DataMap>();
+      for (int i = 0; i < displayData_.size(); ++i)
+	otherData_->push_back(DataMap());
+#endif
+    }
+
+    (*otherData_)[index.row()][role] = value;
+  }
+
+  dataChanged().emit(index, index);
+
+  return true;
 }
 
 WFlags<ItemFlag> WStringListModel::flags(const WModelIndex& index) const
@@ -91,7 +151,9 @@ bool WStringListModel::insertRows(int row, int count, const WModelIndex& parent)
 {
   if (!parent.isValid()) {
     beginInsertRows(parent, row, row + count - 1);
-    strings_.insert(strings_.begin() + row, count, WString());
+    displayData_.insert(displayData_.begin() + row, count, WString());
+    if (otherData_)
+      otherData_->insert(otherData_->begin() + row, count, DataMap());
     endInsertRows();
 
     return true;
@@ -103,7 +165,10 @@ bool WStringListModel::removeRows(int row, int count, const WModelIndex& parent)
 {
   if (!parent.isValid()) {
     beginRemoveRows(parent, row, row + count - 1);
-    strings_.erase(strings_.begin() + row, strings_.begin() + row + count);
+    displayData_.erase(displayData_.begin() + row,
+		       displayData_.begin() + row + count);
+    otherData_->erase(otherData_->begin() + row,
+		      otherData_->begin() + row + count);
     endRemoveRows();
 
     return true;
@@ -115,10 +180,38 @@ void WStringListModel::sort(int column, SortOrder order)
 {
   layoutAboutToBeChanged().emit();
 
-  if (order == AscendingOrder)
-    Utils::sort(strings_);
-  else
-    Utils::sort(strings_, std::greater<WString>());
+  if (!otherData_) {
+    if (order == AscendingOrder)
+      Utils::sort(displayData_);
+    else
+      Utils::sort(displayData_, std::greater<WString>());
+  } else {
+#ifndef WT_TARGET_JAVA
+    std::vector<int> permutation(rowCount());
+    for (unsigned i = 0; i < permutation.size(); ++i)
+      permutation[i] = i;
+#else
+    std::vector<int> permutation;
+    for (unsigned i = 0; i < rowCount(); ++i)
+      permutation.push_back(i);
+#endif // WT_TARGET_JAVA
+
+    Utils::sort(permutation, StringListModelCompare(this, order));
+
+    std::vector<WString> displayData;
+    displayData.resize(rowCount());
+    std::vector<DataMap> *otherData = new std::vector<DataMap>();
+    otherData->resize(rowCount());
+
+    for (unsigned i = 0; i < permutation.size(); ++i) {
+      displayData[i] = displayData_[permutation[i]];
+      (*otherData)[i] = (*otherData_)[permutation[i]];
+    }
+
+    displayData_ = displayData;
+    delete otherData_;
+    otherData_ = otherData;
+  }
 
   layoutChanged().emit();
 }

@@ -44,7 +44,7 @@ namespace Wt {
     protected:
       virtual void updateDom(DomElement& element, bool all)
       {
-	facade_->updateDom(element, all);
+	bool needsUrlResolution = facade_->updateDom(element, all);
 
 	WInteractWidget::updateDom(element, all);
 
@@ -52,6 +52,9 @@ namespace Wt {
 	    && !wApp->environment().agentIsGecko()
 	    && element.getAttribute("href").empty())
 	  element.setAttribute("href", "javascript:void(0);");
+
+	if (needsUrlResolution)
+	  WAnchor::renderUrlResolution(this, element, all);
       }
 
       virtual DomElementType domElementType() const {
@@ -62,16 +65,6 @@ namespace Wt {
     };
 
   }
-
-WAbstractArea::AnchorImpl::AnchorImpl()
-  : target_(TargetSelf),
-    changeInternalPathJS_(0)
-{ }
-
-WAbstractArea::AnchorImpl::~AnchorImpl()
-{
-  delete changeInternalPathJS_;
-}
 
 WAbstractArea::WAbstractArea()
   : impl_(new Impl::AreaWidget(this)),
@@ -182,11 +175,11 @@ void WAbstractArea::setRef(const std::string& ref)
 const std::string WAbstractArea::ref() const
 {
   if (anchor_)
-    switch (anchor_->link_.type()) {
+    switch (anchor_->linkState.link.type()) {
     case WLink::InternalPath:
-      return anchor_->link_.internalPath().toUTF8();
+      return anchor_->linkState.link.internalPath().toUTF8();
     default:
-      return anchor_->link_.url();
+      return anchor_->linkState.link.url();
     }
   else
     return std::string();
@@ -203,10 +196,10 @@ void WAbstractArea::setLink(const WLink& link)
 {
   createAnchorImpl();
 
-  anchor_->link_ = link;
+  anchor_->linkState.link = link;
 
-  if (anchor_->link_.type() == WLink::Resource)
-    anchor_->link_.resource()->dataChanged().connect
+  if (anchor_->linkState.link.type() == WLink::Resource)
+    anchor_->linkState.link.resource()->dataChanged().connect
       (this, &WAbstractArea::resourceChanged);
 
   repaint();
@@ -217,7 +210,7 @@ WLink WAbstractArea::link() const
   if (!anchor_)
     return WLink();
   else
-    return anchor_->link_;
+    return anchor_->linkState.link;
 }
 
 void WAbstractArea::setResource(WResource *resource)
@@ -228,7 +221,7 @@ void WAbstractArea::setResource(WResource *resource)
 WResource *WAbstractArea::resource() const
 {
   if (anchor_)
-    return anchor_->link_.resource();
+    return anchor_->linkState.link.resource();
   else
     return 0;
 }
@@ -237,7 +230,7 @@ void WAbstractArea::setTarget(AnchorTarget target)
 {
   createAnchorImpl();
 
-  anchor_->target_ = target;
+  anchor_->linkState.target = target;
 
   repaint();
 }
@@ -245,7 +238,7 @@ void WAbstractArea::setTarget(AnchorTarget target)
 AnchorTarget WAbstractArea::target() const
 {
   if (anchor_)
-    return anchor_->target_;
+    return anchor_->linkState.target;
   else
     return TargetSelf;
 }
@@ -254,7 +247,7 @@ void WAbstractArea::setAlternateText(const WString& text)
 {
   createAnchorImpl();
 
-  anchor_->altText_ = text;
+  anchor_->altText = text;
 
   repaint();
 }
@@ -262,7 +255,7 @@ void WAbstractArea::setAlternateText(const WString& text)
 const WString WAbstractArea::alternateText() const
 {
   if (anchor_)
-    return anchor_->altText_;
+    return anchor_->altText;
   else
     return WString();
 }
@@ -319,10 +312,8 @@ Cursor WAbstractArea::cursor() const
 
 void WAbstractArea::createAnchorImpl()
 {
-  if (!anchor_) {
+  if (!anchor_)
     anchor_ = new AnchorImpl();
-    anchor_->target_ = TargetSelf;
-  }
 }
 
 void WAbstractArea::resourceChanged()
@@ -335,34 +326,23 @@ void WAbstractArea::repaint()
   impl_->repaint();
 }
 
-void WAbstractArea::updateDom(DomElement& element, bool all)
+bool WAbstractArea::updateDom(DomElement& element, bool all)
 {
+  bool needsUrlResolution = false;
+
   if (!hole_ && anchor_) {
-    WApplication *app = WApplication::instance();
-
-    std::string url = anchor_->link_.resolveUrl(app);
-    element.setAttribute("href", WWebWidget::resolveRelativeUrl(url));
-
-    // FIXME: add Wt-rr style relative URL resolution like in WAnchor
-
-    switch (anchor_->target_) {
-    case TargetSelf:
-      anchor_->changeInternalPathJS_ = anchor_->link_.manageInternalPathChange
-	(app, impl_, anchor_->changeInternalPathJS_);
-      break;
-    case TargetThisWindow:
-      element.setProperty(PropertyTarget, "_top");
-      break;
-    case TargetNewWindow:
-      element.setProperty(PropertyTarget, "_blank");
-    }
-    element.setAttribute("alt", anchor_->altText_.toUTF8());
+    needsUrlResolution = WAnchor::renderHRef(impl(), anchor_->linkState,
+					     element);
+    WAnchor::renderHTarget(anchor_->linkState, element, all);
+    element.setAttribute("alt", anchor_->altText.toUTF8());
   } else {
     element.setAttribute("alt", "");
 
     if (hole_)
       element.setAttribute("nohref", "nohref");
   }
+
+  return needsUrlResolution;
 }
 
 WInteractWidget *WAbstractArea::impl()

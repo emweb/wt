@@ -41,7 +41,11 @@ ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C JQuery_js)
 
 FILE_TO_STRING(xml/wt.xml Wt_xml.C Wt_xml)
-FILE_TO_STRING(xml/auth.xml Auth_xml.C Auth_xml)
+FILE_TO_STRING(xml/auth_strings.xml AuthStrings_xml.C AuthStrings_xml)
+FILE_TO_STRING(xml/auth_bootstrap_theme.xml
+	AuthBootstrapTheme_xml.C AuthBootstrapTheme_xml)
+FILE_TO_STRING(xml/auth_css_theme.xml
+	AuthCssTheme_xml.C AuthCssTheme_xml)
 
 SET(libsources
 Wt/PopupWindow.C
@@ -71,6 +75,7 @@ Wt/WApplication.C
 Wt/WAudio.C
 Wt/WBatchEditProxyModel.C
 Wt/WBoostAny.C
+Wt/WBootstrapTheme.C
 Wt/WBorder.C
 Wt/WBorderLayout.C
 Wt/WBoxLayout.C
@@ -88,7 +93,9 @@ Wt/WCompositeWidget.C
 Wt/WContainerWidget.C
 Wt/WCssDecorationStyle.C
 Wt/WCssStyleSheet.C
+Wt/WCssTheme.C
 Wt/WDate.C
+Wt/WDateEdit.C
 Wt/WDatePicker.C
 Wt/WDateTime.C
 Wt/WDateValidator.C
@@ -119,6 +126,7 @@ Wt/WInPlaceEdit.C
 Wt/WIntValidator.C
 Wt/WInteractWidget.C
 Wt/WIOService.C
+Wt/WLocale.C
 Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C
@@ -145,6 +153,7 @@ Wt/WMessageBox.C
 Wt/WMessageResourceBundle.C
 Wt/WMessageResources.C
 Wt/WModelIndex.C
+Wt/WNavigationBar.C
 Wt/WObject.C
 Wt/WOverlayLoadingIndicator.C
 Wt/WPaintDevice.C
@@ -157,7 +166,7 @@ Wt/WPoint.C
 Wt/WPointF.C
 Wt/WPolygonArea.C
 Wt/WPopupMenu.C
-Wt/WPopupMenuItem.C
+Wt/WPopupWidget.C
 Wt/WProgressBar.C
 Wt/WPushButton.C
 Wt/WRadioButton.C
@@ -178,6 +187,7 @@ Wt/WSlider.C
 Wt/WSocketNotifier.C
 Wt/WSortFilterProxyModel.C
 Wt/WSpinBox.C
+Wt/WSplitButton.C
 Wt/WSound.C
 Wt/WSslCertificate.C
 Wt/WSslInfo.C
@@ -190,7 +200,6 @@ Wt/WStreamResource.C
 Wt/WStringListModel.C
 Wt/WStringStream.C
 Wt/WStringUtil.C
-Wt/WSubMenuItem.C
 Wt/WSuggestionPopup.C
 Wt/WSvgImage.C
 Wt/WTabWidget.C
@@ -204,9 +213,11 @@ Wt/WTableView.C
 Wt/WText.C
 Wt/WTextArea.C
 Wt/WTextEdit.C
+Wt/WTheme.C
 Wt/WTime.C
 Wt/WTimer.C
 Wt/WTimerWidget.C
+Wt/WToolBar.C
 Wt/WTransform.C
 Wt/WTree.C
 Wt/WTreeNode.C
@@ -317,7 +328,9 @@ Hybrid_html.C
 Boot_js.C
 Wt_js.C
 Wt_xml.C
-Auth_xml.C
+AuthStrings_xml.C
+AuthBootstrapTheme_xml.C
+AuthCssTheme_xml.C
 JQuery_js.C
 )
 
@@ -336,6 +349,7 @@ SET(libsources ${libsources}
 IF(HAVE_HARU)
   SET(libsources ${libsources} Wt/WPdfImage.C Wt/Render/WPdfRenderer.C)
   SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} ${BOOST_FS_LIB})
+  ADD_DEFINITIONS(-DHAVE_PDF_IMAGE)
 ENDIF(HAVE_HARU)
 
 IF(HAVE_GM)

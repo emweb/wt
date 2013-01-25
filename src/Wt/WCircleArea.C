@@ -46,7 +46,7 @@ void WCircleArea::setRadius(int radius)
   repaint();
 }
 
-void WCircleArea::updateDom(DomElement& element, bool all)
+bool WCircleArea::updateDom(DomElement& element, bool all)
 {
   element.setAttribute("shape", "circle");
 
@@ -54,7 +54,7 @@ void WCircleArea::updateDom(DomElement& element, bool all)
   coords << x_ << ',' << y_ << ',' << r_;
   element.setAttribute("coords", coords.str());
 
-  WAbstractArea::updateDom(element, all);
+  return WAbstractArea::updateDom(element, all);
 }
 
 }

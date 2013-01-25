@@ -1,88 +1,106 @@
-#include "WidgetGallery.h"
-#include "BasicControls.h"
-#include "ChartWidgets.h"
-#include "DialogWidgets.h"
+
 #include "EventsDemo.h"
-#include "EventDisplayer.h"
-#include "ExtWidgets.h"
 #include "FormWidgets.h"
 #include "GraphicsWidgets.h"
-#include "MvcWidgets.h"
-#include "Validators.h"
-#include "StyleLayout.h"
-#include "SpecialPurposeWidgets.h"
+#include "Layout.h"
+#include "Media.h"
+#include "Navigation.h"
+//#include "StyleLayout.h"
+#include "TreesTables.h"
+#include "WidgetGallery.h"
 
-#include <Wt/WMenu>
-#include <Wt/WSubMenuItem>
 #include <Wt/WHBoxLayout>
-#include <Wt/WVBoxLayout>
+#include <Wt/WMenu>
+#include <Wt/WNavigationBar>
 #include <Wt/WStackedWidget>
 #include <Wt/WText>
-
-using namespace Wt;
+#include <Wt/WVBoxLayout>
 
 WidgetGallery::WidgetGallery()
   : WContainerWidget()
 {
-  contentsStack_ = new WStackedWidget();
-  contentsStack_->setOverflow(WContainerWidget::OverflowAuto);
-  contentsStack_->setStyleClass("contents");
+  setOverflow(OverflowHidden);
 
-  EventDisplayer *eventDisplayer = new EventDisplayer(0);
+  navigation_ = new Wt::WNavigationBar();
+  navigation_->addStyleClass("main-nav");
+  navigation_->setTitle("Wt Widget Gallery",
+			"http://www.webtoolkit.eu/widgets");
+  navigation_->setResponsive(true);
+
+  contentsStack_ = new Wt::WStackedWidget();
+  Wt::WAnimation animation(Wt::WAnimation::Fade,
+			   Wt::WAnimation::Linear,
+			   200);
+  contentsStack_->setTransitionAnimation(animation, true);
 
   /*
-   * Setup the menu (and submenus)
+   * Setup the top-level menu
    */
-  WMenu *menu = new WMenu(contentsStack_, Vertical, 0);
-  menu->setRenderAsList(true);
-  menu->setStyleClass("menu");
+  Wt::WMenu *menu = new Wt::WMenu(contentsStack_, 0);
   menu->setInternalPathEnabled();
   menu->setInternalBasePath("/");
 
-  addToMenu(menu, "Basics", new BasicControls(eventDisplayer));
-  addToMenu(menu, "Form Widgets", new FormWidgets(eventDisplayer));
-  addToMenu(menu, "Form Validators", new Validators(eventDisplayer));
-#ifndef WT_TARGET_JAVA
-  addToMenu(menu, "Ext Widgets", new ExtWidgets(eventDisplayer));
-#endif
-  addToMenu(menu, "Vector Graphics", new GraphicsWidgets(eventDisplayer));
-  addToMenu(menu, "Special Purpose", new SpecialPurposeWidgets(eventDisplayer));
-  addToMenu(menu, "Dialogs", new DialogWidgets(eventDisplayer));
-  addToMenu(menu, "Charts", new ChartWidgets(eventDisplayer));
-  addToMenu(menu, "MVC Widgets", new MvcWidgets(eventDisplayer));
-  addToMenu(menu, "Events", new EventsDemo(eventDisplayer));
-  addToMenu(menu, "Style and Layout", new StyleLayout(eventDisplayer));
+  addToMenu(menu, "Layout", new Layout());
+  addToMenu(menu, "Forms", new FormWidgets());
+  addToMenu(menu, "Navigation", new Navigation());
+  addToMenu(menu, "Trees & Tables", new TreesTables())
+    ->setPathComponent("trees-tables");
+  addToMenu(menu, "Graphics & Charts", new GraphicsWidgets())
+    ->setPathComponent("graphics-charts");
+  // addToMenu(menu, "Events", new EventsDemo());
+  addToMenu(menu, "Media", new Media());
+
+  navigation_->addMenu(menu);
 
   /*
    * Add it all inside a layout
    */
-  WHBoxLayout *horizLayout = new WHBoxLayout(this);
-  WVBoxLayout *vertLayout = new WVBoxLayout;
-
-  horizLayout->addWidget(menu, 0);
-  horizLayout->addLayout(vertLayout, 1);
-  vertLayout->addWidget(contentsStack_, 1);
-  vertLayout->addWidget(eventDisplayer);
-
-  horizLayout->setResizable(0, true);
+  Wt::WVBoxLayout *layout = new Wt::WVBoxLayout(this);
+  layout->addWidget(navigation_);
+  layout->addWidget(contentsStack_, 1);
+  layout->setContentsMargins(0, 0, 0, 0);
 }
 
-void WidgetGallery::addToMenu(WMenu *menu, const WString& name,
-			      ControlsWidget *controls)
+Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
+					const Wt::WString& name,
+					TopicWidget *topic)
 {
-  if (controls->hasSubMenu()) {
-    WSubMenuItem *smi = new WSubMenuItem(name, controls);
-    WMenu *subMenu = new WMenu(contentsStack_, Vertical, 0);
-    subMenu->setRenderAsList(true);
+  Wt::WContainerWidget *result = new Wt::WContainerWidget();
 
-    smi->setSubMenu(subMenu);
-    menu->addItem(smi);
+  Wt::WContainerWidget *pane = new Wt::WContainerWidget();
 
-    subMenu->setInternalPathEnabled();
-    subMenu->setInternalBasePath("/" + smi->pathComponent());
-    subMenu->setStyleClass("menu submenu");
+  Wt::WVBoxLayout *vLayout = new Wt::WVBoxLayout(result);
+  vLayout->setContentsMargins(0, 0, 0, 0);
+  vLayout->addWidget(topic);
+  vLayout->addWidget(pane, 1);
 
-    controls->populateSubMenu(subMenu);
-  } else
-    menu->addItem(name, controls);
+  Wt::WHBoxLayout *hLayout = new Wt::WHBoxLayout(pane);
+
+  Wt::WMenuItem *item = new Wt::WMenuItem(name, result);
+  menu->addItem(item);
+
+  Wt::WStackedWidget *subStack = new Wt::WStackedWidget();
+  subStack->addStyleClass("contents");
+  subStack->setOverflow(WContainerWidget::OverflowAuto);
+
+  /*
+  Wt::WAnimation animation(Wt::WAnimation::Fade,
+			   Wt::WAnimation::Linear,
+			   100);
+  subStack->setTransitionAnimation(animation, true);
+  */
+
+  Wt::WMenu *subMenu = new Wt::WMenu(subStack);
+  subMenu->addStyleClass("nav-pills nav-stacked");
+  subMenu->setWidth(200);
+
+  hLayout->addWidget(subMenu);
+  hLayout->addWidget(subStack,1);
+
+  subMenu->setInternalPathEnabled();
+  subMenu->setInternalBasePath("/" + item->pathComponent());
+
+  topic->populateSubMenu(subMenu);
+
+  return item;
 }

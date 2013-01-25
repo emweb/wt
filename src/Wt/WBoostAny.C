@@ -18,6 +18,7 @@
 #include "Wt/WDate"
 #include "Wt/WDateTime"
 #include "Wt/WException"
+#include "Wt/WLocale"
 #include "Wt/WTime"
 #include "Wt/WWebWidget"
 
@@ -238,8 +239,8 @@ boost::any updateFromJS(const boost::any& v, std::string s)
   ELSE_LEXICAL_ANY(unsigned int);
   ELSE_LEXICAL_ANY(long);
   ELSE_LEXICAL_ANY(unsigned long);
-  ELSE_LEXICAL_ANY(int64_t);
-  ELSE_LEXICAL_ANY(uint64_t);
+  ELSE_LEXICAL_ANY(::int64_t);
+  ELSE_LEXICAL_ANY(::uint64_t);
   ELSE_LEXICAL_ANY(long long);
   ELSE_LEXICAL_ANY(unsigned long long);
   ELSE_LEXICAL_ANY(float);
@@ -336,10 +337,14 @@ WString asString(const boost::any& v, const WT_USTRING& format)
     return WString::tr(boost::any_cast<bool>(v) ? "Wt.true" : "Wt.false");
   else if (v.type() == typeid(WDate)) {
     const WDate& d = boost::any_cast<WDate>(v);
-    return d.toString(format.empty() ? "dd/MM/yy" : format);
+    return d.toString(format.empty() ? 
+		      WLocale::currentLocale().dateFormat() :
+		      format);
   } else if (v.type() == typeid(WDateTime)) {
     const WDateTime& dt = boost::any_cast<WDateTime>(v);
-    return dt.toString(format.empty() ? "dd/MM/yy HH:mm:ss" : format);
+    return dt.toString(format.empty() ? 
+		       "dd/MM/yy HH:mm:ss" :
+		       format);
   } else if (v.type() == typeid(WTime)) {
     const WTime& t = boost::any_cast<WTime>(v);
     return t.toString(format.empty() ? "HH:mm:ss" : format);
@@ -358,31 +363,76 @@ WString asString(const boost::any& v, const WT_USTRING& format)
       .toString(format.empty() ? "HH:mm:ss" : format);
   }
 
-#define ELSE_LEXICAL_ANY(TYPE)						\
+#define ELSE_LEXICAL_ANY(TYPE, CAST_TYPE)				\
   else if (v.type() == typeid(TYPE)) {					\
     if (format.empty())							\
-      return WString::fromUTF8(boost::lexical_cast<std::string>		\
-			       (boost::any_cast<TYPE>(v)));		\
+      return WLocale::currentLocale()					\
+        .toString((CAST_TYPE)boost::any_cast<TYPE>(v));			\
     else {								\
       char buf[100];							\
-      snprintf(buf, 100, format.toUTF8().c_str(), boost::any_cast<TYPE>(v)); \
+      snprintf(buf, 100, format.toUTF8().c_str(),			\
+	       (CAST_TYPE)boost::any_cast<TYPE>(v));			\
       return WString::fromUTF8(buf);					\
     }									\
   }
 
-  ELSE_LEXICAL_ANY(short)
-  ELSE_LEXICAL_ANY(unsigned short)
-  ELSE_LEXICAL_ANY(int)
-  ELSE_LEXICAL_ANY(unsigned int)
-  ELSE_LEXICAL_ANY(long)
-  ELSE_LEXICAL_ANY(unsigned long)
-  ELSE_LEXICAL_ANY(int64_t)
-  ELSE_LEXICAL_ANY(uint64_t)
-  ELSE_LEXICAL_ANY(long long)
-  ELSE_LEXICAL_ANY(float)
-  ELSE_LEXICAL_ANY(double)
+  ELSE_LEXICAL_ANY(short, short)
+  ELSE_LEXICAL_ANY(unsigned short, unsigned short)
+  ELSE_LEXICAL_ANY(int, int)
+  ELSE_LEXICAL_ANY(unsigned int, unsigned int)
+  ELSE_LEXICAL_ANY(::int64_t, ::int64_t)
+  ELSE_LEXICAL_ANY(::uint64_t, ::uint64_t)
+  ELSE_LEXICAL_ANY(long long, ::int64_t)
+  ELSE_LEXICAL_ANY(unsigned long long, ::uint64_t)
+  ELSE_LEXICAL_ANY(float, float)
+  ELSE_LEXICAL_ANY(double, double)
 
 #undef ELSE_LEXICAL_ANY
+  else if (v.type() == typeid(long)) {
+    if (sizeof(long) == 4) {
+      if (format.empty())
+	return WLocale::currentLocale().toString
+	  ((int)boost::any_cast<long>(v));
+      else {
+	char buf[100];
+	snprintf(buf, 100, format.toUTF8().c_str(),
+		 (int)boost::any_cast<long>(v));
+	return WString::fromUTF8(buf);
+      }
+    } else {
+      if (format.empty())
+	return WLocale::currentLocale()
+	  .toString((::int64_t)boost::any_cast<long>(v));
+      else {
+	char buf[100];
+	snprintf(buf, 100, format.toUTF8().c_str(),
+		 (::int64_t)boost::any_cast<long>(v));
+	return WString::fromUTF8(buf);
+      }
+    }
+  } else if (v.type() == typeid(unsigned long)) {
+    if (sizeof(long) == 4) {
+      if (format.empty())
+	return WLocale::currentLocale().toString
+	  ((unsigned)boost::any_cast<long>(v));
+      else {
+	char buf[100];
+	snprintf(buf, 100, format.toUTF8().c_str(),
+		 (unsigned)boost::any_cast<long>(v));
+	return WString::fromUTF8(buf);
+      }
+    } else {
+      if (format.empty())
+	return WLocale::currentLocale()
+	  .toString((::uint64_t)boost::any_cast<long>(v));
+      else {
+	char buf[100];
+	snprintf(buf, 100, format.toUTF8().c_str(),
+		 (::uint64_t)boost::any_cast<long>(v));
+	return WString::fromUTF8(buf);
+      }
+    }
+  }
 
   else {
     Impl::AbstractTypeHandler *handler = Impl::getRegisteredType(&v.type(),
@@ -402,26 +452,26 @@ double asNumber(const boost::any& v)
     return std::numeric_limits<double>::signaling_NaN();
   else if (v.type() == typeid(WString))
     try {
-      return boost::lexical_cast<double>(boost::any_cast<WString>(v).toUTF8());
+      return WLocale::currentLocale().toDouble(boost::any_cast<WString>(v));
     } catch (boost::bad_lexical_cast& e) {
       return std::numeric_limits<double>::signaling_NaN();
     }
   else if (v.type() == typeid(std::string))
     try {
-      return boost::lexical_cast<double>(boost::any_cast<std::string>(v));
+      return WLocale::currentLocale().toDouble(WT_USTRING::fromUTF8(boost::any_cast<std::string>(v)));
     } catch (boost::bad_lexical_cast& e) {
       return std::numeric_limits<double>::signaling_NaN();
     }
   else if (v.type() == typeid(const char *))
     try {
-      return boost::lexical_cast<double>(boost::any_cast<const char *>(v));
+      return WLocale::currentLocale().toDouble(WT_USTRING::fromUTF8(boost::any_cast<const char *>(v)));
     } catch (boost::bad_lexical_cast&) {
       return std::numeric_limits<double>::signaling_NaN();
     }
   else if (v.type() == typeid(bool))
     return boost::any_cast<bool>(v) ? 1 : 0;
   else if (v.type() == typeid(WDate))
-    return static_cast<double>(boost::any_cast<WDate>(v).toJulianDay());
+    return boost::any_cast<WDate>(v).toJulianDay();
   else if (v.type() == typeid(WDateTime)) {
     const WDateTime& dt = boost::any_cast<WDateTime>(v);
     return static_cast<double>(dt.toTime_t());
@@ -448,8 +498,8 @@ double asNumber(const boost::any& v)
   ELSE_NUMERICAL_ANY(unsigned int);
   ELSE_NUMERICAL_ANY(long);
   ELSE_NUMERICAL_ANY(unsigned long);
-  ELSE_NUMERICAL_ANY(int64_t);
-  ELSE_NUMERICAL_ANY(uint64_t);
+  ELSE_NUMERICAL_ANY(::int64_t);
+  ELSE_NUMERICAL_ANY(::uint64_t);
   ELSE_NUMERICAL_ANY(long long);
   ELSE_NUMERICAL_ANY(float);
   ELSE_NUMERICAL_ANY(double);
@@ -487,7 +537,9 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
     return s.toUTF8().c_str();
   else if (type == typeid(WDate)) {
     return WDate::fromString
-      (s, format.empty() ? "dd/MM/yy" : format);
+      (s, format.empty() ? 
+       WLocale::currentLocale().dateFormat() :
+       format);
   } else if (type == typeid(WDateTime)) {
     return WDateTime::fromString
       (s, format.empty() ? "dd/MM/yy HH:mm:ss" : format);
@@ -523,8 +575,8 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
   ELSE_LEXICAL_ANY(unsigned int)
   ELSE_LEXICAL_ANY(long)
   ELSE_LEXICAL_ANY(unsigned long)
-  ELSE_LEXICAL_ANY(int64_t)
-  ELSE_LEXICAL_ANY(uint64_t)
+  ELSE_LEXICAL_ANY(::int64_t)
+  ELSE_LEXICAL_ANY(::uint64_t)
   ELSE_LEXICAL_ANY(long long)
   ELSE_LEXICAL_ANY(float)
   ELSE_LEXICAL_ANY(double)

@@ -197,9 +197,9 @@ public:
   std::string jsMediaRef() const;
 
 protected:
-  void getDomChanges(std::vector<DomElement *>& result,
-                     WApplication *app);
-  DomElement *createDomElement(WApplication *app);
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
+  virtual DomElement *createDomElement(WApplication *app);
 
   virtual void updateMediaDom(DomElement& element, bool all);
   virtual DomElement *createMediaDomElement() = 0;

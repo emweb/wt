@@ -7,6 +7,7 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WFormWidget"
+#include "Wt/WTheme"
 
 #include "DomElement.h"
 
@@ -156,7 +157,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 {
   bool updateKeyDown = false;
 
-  WApplication *app = 0;
+  WApplication *app = WApplication::instance();
 
   /*
    * -- combine enterPress, escapePress and keyDown signals
@@ -179,8 +180,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	 * browsers except for Opera and IE
 	 */
 	std::string extraJS;
-	if (!app)
-	  app = WApplication::instance();
 
 	const WEnvironment& env = app->environment();
 
@@ -268,12 +267,8 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
     js << CheckDisabled;
 
-    if (mouseUp && mouseUp->isConnected()) {
-      if (!app)
-	app = WApplication::instance();
-
+    if (mouseUp && mouseUp->isConnected())
       js << app->javaScriptClass() << "._p_.saveDownPos(event);";
-    }
 
     if ((mouseDrag && mouseDrag->isConnected())
 	|| (mouseDown && mouseDown->isConnected()
@@ -295,12 +290,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   }
 
   if (updateMouseUp) {
+    WStringStream js;
+
     /*
      * when we have a mouseMove or mouseDrag event, we need to keep track
      * of unpressing the button.
      */
-    WStringStream js;
-
     js << CheckDisabled;
 
     if ((mouseMove && mouseMove->isConnected())
@@ -374,14 +369,10 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
       js << mouseDblClick->javaScript();
 
-      if (mouseDblClick->isExposedSignal()) {
-	if (!app)
-	  app = WApplication::instance();
-  
+      if (mouseDblClick->isExposedSignal())
 	js << app->javaScriptClass()
 		 << "._p_.update(o,'" << mouseDblClick->encodeCmd()
 		 << "',e,true);";
-      }
 
       mouseDblClick->updateOk();
 
@@ -396,9 +387,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	js << mouseClick->javaScript();
 
 	if (mouseClick->isExposedSignal()) {
-	  if (!app)
-	    app = WApplication::instance();
-
 	  js << app->javaScriptClass()
 		   << "._p_.update(o,'" << mouseClick->encodeCmd()
 		   << "',e,true);";
@@ -413,12 +401,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	js << mouseClick->javaScript();
 
 	if (mouseClick->isExposedSignal()) {
-	  if (!app)
-	    app = WApplication::instance();
-
 	  js << app->javaScriptClass()
-		   << "._p_.update(o,'" << mouseClick->encodeCmd()
-		   << "',e,true);";
+	     << "._p_.update(o,'" << mouseClick->encodeCmd()
+	     << "',e,true);";
 	}
 
 	mouseClick->updateOk();
@@ -429,8 +414,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 		     mouseClick ? mouseClick->encodeCmd() : "");
 
     if (mouseDblClick) {
-      if (!app)
-	app = WApplication::instance();
       if (app->environment().agentIsIElt(9))
 	element.setEvent("dblclick", "this.onclick()");
     }
@@ -454,9 +437,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	 << mouseOver->javaScript();
 
       if (mouseOver->isExposedSignal()) {
-	if (!app)
-	  app = WApplication::instance();
-
 	js << app->javaScriptClass()
 	   << "._p_.update(o,'" << mouseOver->encodeCmd() << "',e,true);";
       }
@@ -562,7 +542,9 @@ void WInteractWidget::propagateSetEnabled(bool enabled)
 {
   flags_.set(BIT_ENABLED, enabled);
 
-  toggleStyleClass("Wt-disabled", !enabled, true);
+  WApplication *app = WApplication::instance();
+  std::string disabledClass = app->theme()->disabledClass();
+  toggleStyleClass(disabledClass, !enabled, true);
 
   WWebWidget::propagateSetEnabled(enabled);
 }

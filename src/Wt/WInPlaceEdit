@@ -147,7 +147,7 @@ private:
 
 private:
   Signal<WString> valueChanged_;
-  WContainerWidget *impl_;
+  WContainerWidget *impl_, *editing_;
   WText            *text_;
   WString          emptyText_;
   WLineEdit        *edit_;

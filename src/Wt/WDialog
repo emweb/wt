@@ -7,7 +7,7 @@
 #ifndef WDIALOG_H_
 #define WDIALOG_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WPopupWidget>
 #include <Wt/WContainerWidget>
 #include <Wt/WJavaScript>
 
@@ -37,7 +37,8 @@ class WText;
  * signal, which you then can listen for to process the dialog result
  * and delete the dialog. Unlike other widgets, a dialog does not need
  * to be added to a parent widget, but is hidden by default. You must
- * use the method show() or setHidden(true) to show the dialog.
+ * use the method show() or \link setHidden() setHidden(false)\endlink
+ * to show the dialog.
  *
  * The synchronous use of a dialog involves a call to exec() which
  * will block (suspend the thread) until the dialog window is closed,
@@ -57,10 +58,10 @@ class WText;
  * available on Servlet 3.0 compatible servlet containers.  \endif
  *
  *
- * Use setModal(false) to create a non-modal dialog. A non-modal
- * dialog does not block the underlying user interface: the user must
- * not first deal with the dialog before interacting with the rest of
- * the user interface.
+ * Use \link setModal() setModal(false)\endlink  to create a non-modal
+ * dialog. A non-modal dialog does not block the underlying user interface:
+ * the user must not first deal with the dialog before interacting with the
+ * rest of the user interface.
  *
  * Contents for the dialog is defined by adding it to the contents()
  * widget.
@@ -136,7 +137,7 @@ class WText;
  *       interface below) to render properly in IE, the "html body"
  *       margin is set to 0 (if it wasn't already).
  */
-class WT_API WDialog : public WCompositeWidget
+class WT_API WDialog : public WPopupWidget
 {
 public:
   /*! \brief The result of a modal dialog execution.
@@ -145,15 +146,25 @@ public:
 		    Accepted  //!< Dialog closed with accept()
   };
 
-  /*! \brief Constructs a %WDialog with a given window title.
+  /*! \brief Constructs a new dialog.
    *
-   * Only a single Dialog may be constructed at any time. Unlike other
-   * widgets, a dialog does not need to be added to a container
-   * widget.
+   * Unlike other widgets, the dialog does not require a parent
+   * container since it is a top-level widget. You may however still
+   * provide a parent object to let the dialog be deleted together
+   * with its parent.
    */
-  WDialog(const WString& windowTitle = WString());
+  WDialog(WObject *parent = 0);
 
-  /*! \brief Destructs a %WDialog.
+  /*! \brief Constructs a dialog with a given window title.
+   *
+   * Unlike other widgets, the dialog does not require a parent
+   * container since it is a top-level widget. You may however still
+   * provide a parent object to let the dialog be deleted together
+   * with its parent.
+   */
+  WDialog(const WString& windowTitle, WObject *parent = 0);
+
+  /*! \brief Deletes a dialog.
    */
   ~WDialog();
 
@@ -169,7 +180,7 @@ public:
    *
    * \sa setWindowTitle()
    */
-  const WString& windowTitle() const;
+  WString windowTitle() const;
 
 #ifndef WT_DEPRECATED_3_0_0
   /*! \brief Sets the dialog caption (<b>deprecated</b>).
@@ -182,7 +193,7 @@ public:
    *
    * \deprecated Use windowTitle() instead.
    */
-  const WString& caption() const;
+  WString caption() const;
 #endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Enables or disables the title bar.
@@ -210,6 +221,12 @@ public:
    * Content to the dialog window may be added to this container widget. 
    */
   WContainerWidget *contents() const { return contents_; }
+
+  /*! \brier Returns the dialog footer container.
+   *
+   * This is an optional section which is typically used for buttons.
+   */
+  WContainerWidget *footer() const;
 
   /*! \brief Executes the dialog in a recursive event loop.
    *
@@ -345,6 +362,7 @@ private:
   WText            *closeIcon_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
+  mutable WContainerWidget *footer_;
   bool              modal_, resizable_;
 
   int               coverPreviousZIndex_;
@@ -358,6 +376,7 @@ private:
 
   bool initialized_;
 
+  void create();
   void saveCoverState(WApplication *app, WContainerWidget *cover);
   void restoreCoverState(WApplication *app, WContainerWidget *cover);
 };

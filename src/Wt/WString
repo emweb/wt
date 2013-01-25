@@ -180,6 +180,10 @@ public:
    */
   bool operator> (const WString& rhs) const;
 
+#ifdef WT_TARGET_JAVA
+  int compareTo(const WString& rhs) const;
+#endif
+
   /*! \brief Self-concatenation operator
    *
    * Appends a string to the current value. If the string was localized,

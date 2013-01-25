@@ -751,10 +751,10 @@ public:
 
   /*! \brief %Signal emitted when the layout is about to be changed.
    *
-   * A layout change reorders the data in the model, but columns are
-   * preserved. Model indexes are invalidated by a layout change, but
-   * indexes may be ported across a layout change by using the
-   * toRawIndex() and fromRawIndex() methods.
+   * A layout change may reorder or add/remove rows in the model, but
+   * columns are preserved. Model indexes are invalidated by a layout
+   * change, but indexes may be ported across a layout change by using
+   * the toRawIndex() and fromRawIndex() methods.
    *
    * \sa layoutChanged(), toRawIndex(), fromRawIndex()
    */
@@ -796,7 +796,6 @@ protected:
    */
   WModelIndex createIndex(int row, int column, void *ptr) const;
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Creates a model index for the given row and column.
    *
    * Use this method to create a model index. \p id is an internal id
@@ -807,8 +806,6 @@ protected:
    * \sa WModelIndex::internalId()
    */
   WModelIndex createIndex(int row, int column, ::uint64_t id) const;
-
-#endif // WT_TARGET_JAVA
 
   /*! \brief Method to be called before inserting columns.
    *

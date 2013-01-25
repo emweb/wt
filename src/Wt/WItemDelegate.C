@@ -16,6 +16,7 @@
 #include "Wt/WModelIndex"
 #include "Wt/WHBoxLayout"
 #include "Wt/WText"
+#include "Wt/WTheme"
 
 namespace Wt {
 
@@ -142,7 +143,8 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
   WT_USTRING sc = asString(index.data(StyleClassRole));
 
   if (flags & RenderSelected)
-    sc += WT_USTRING::fromUTF8(" Wt-selected");
+    sc += WT_USTRING::fromUTF8
+      (" " + WApplication::instance()->theme()->activeClass());
 
   if (flags & RenderEditing)
     sc += WT_USTRING::fromUTF8(" Wt-delegate-edit");

@@ -174,7 +174,7 @@ public:
   const Http::UploadedFileMap& uploadedFiles() const { return files_; }
   ::int64_t postDataExceeded() const { return postDataExceeded_; }
 
-  WT_LOCALE parseLocale() const;
+  WLocale parseLocale() const;
 
   void setResponseType(ResponseType responseType);
   ResponseType responseType() const { return responseType_; }

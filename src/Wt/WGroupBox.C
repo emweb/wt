@@ -56,16 +56,6 @@ void WGroupBox::updateDom(DomElement& element, bool all)
   WContainerWidget::updateDom(element, all);
 }
 
-void WGroupBox::propagateSetEnabled(bool enabled)
-{
-  if (enabled)
-    removeStyleClass("Wt-disabled");
-  else
-    addStyleClass("Wt-disabled");
-
-  WInteractWidget::propagateSetEnabled(enabled);
-}
-
 void WGroupBox::propagateRenderOk(bool deep)
 {
   titleChanged_ = false;

@@ -43,6 +43,7 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   WPanel *panel = new WPanel(this);
   panel->resize(600, 300);
   panel->setCentralWidget(treeView_ = new WTreeView());
+  
   if (!WApplication::instance()->environment().ajax())
     treeView_->resize(WLength::Auto, 290);
 
@@ -55,10 +56,8 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   treeView_->setColumnWidth(3, WLength(100));
   treeView_->setColumnAlignment(3, AlignCenter);
 
-  /*
   treeView_->setRowHeaderCount(1);
   treeView_->setColumnWidth(0, 300);
-  */
 
   /*
    * Expand the first (and single) top level node

@@ -85,8 +85,10 @@ WObject::~WObject()
 
   if (children_) {
     for (unsigned i = 0; i < children_->size(); ++i) {
-      (*children_)[i]->parent_ = 0;
-      delete (*children_)[i];
+      WObject *c = (*children_)[i];
+      if (c->parent_ == this) // exception: WPopupWidget
+	c->parent_ = 0;
+      delete c;
     }
     delete children_;
   }
@@ -192,7 +194,7 @@ WStatelessSlot *WObject::implementAutolearn(Method method)
 }
 
 WStatelessSlot *WObject::implementPrelearn(Method method, Method undoMethod)
-{        
+{
   for (unsigned i = 0; i < statelessSlots_.size(); i++)
     if (statelessSlots_[i]->implementsMethod(method)) {
       statelessSlots_[i]->reimplementPreLearn(undoMethod);

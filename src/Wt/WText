@@ -130,7 +130,7 @@ public:
    *
    * \sa setText(const WString&)
    */
-  const WString& text() const { return text_; }
+  const WString& text() const { return text_.text; }
 
   /*! \brief Sets the text.
    *
@@ -171,7 +171,7 @@ public:
    *
    * \sa setTextFormat()
    */
-  TextFormat textFormat() const { return textFormat_; }
+  TextFormat textFormat() const { return text_.format; }
 
   /*! \brief Configures word wrapping.
    *
@@ -238,8 +238,19 @@ public:
   virtual void refresh();
 
 private:
-  WString      text_;
-  TextFormat   textFormat_;
+  struct RichText {
+    RichText();
+
+    WString text;
+    TextFormat format;
+
+    bool setText(const WString& text);
+    bool setFormat(TextFormat format);
+    bool checkWellFormed();
+    std::string formattedText() const;
+  };
+
+  RichText text_;
 
   static const int BIT_WORD_WRAP = 0;
   static const int BIT_TEXT_CHANGED = 1;
@@ -249,11 +260,10 @@ private:
 
   std::bitset<5> flags_;
 
-  bool        checkWellFormed();
   std::string formattedText() const;
-  void        autoAdjustInline();
+  void autoAdjustInline();
 
-  WLength     *WT_ARRAY padding_;
+  WLength *WT_ARRAY padding_;
 
 protected:
   virtual void           render(WFlags<RenderFlag> flags);
@@ -261,7 +271,9 @@ protected:
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);
 
+  friend class WAbstractToggleButton;
   friend class WLabel;
+  friend class WPushButton;
 };
 
 }

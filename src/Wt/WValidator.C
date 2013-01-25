@@ -76,6 +76,11 @@ WValidator::Result WValidator::validate(const WT_USTRING& input) const
   return Result(Valid);  
 }
 
+WT_USTRING WValidator::format() const
+{
+  return WT_USTRING();
+}
+
 std::string WValidator::javaScriptValidate() const
 {
   if (mandatory_) {

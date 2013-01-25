@@ -66,6 +66,7 @@ public:
    * Default margins are 0, and the default DPI is 72.
    */
   WPdfRenderer(HPDF_Doc pdf, HPDF_Page page);
+
   virtual ~WPdfRenderer();
 
   /*! \brief Sets the page margins.

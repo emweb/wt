@@ -103,6 +103,8 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
 
     WWidget *previous = currentWidget();
 
+    doJavaScript("$('#" + id() + "').data('obj').adjustScroll("
+		 + widget(currentIndex_)->jsRef() + ");");
     setJavaScriptMember("wtAutoReverse", autoReverse ? "true" : "false");
 
     if (previous)

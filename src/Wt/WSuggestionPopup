@@ -7,7 +7,7 @@
 #ifndef WSUGGESTION_POPUP_H_
 #define WSUGGESTION_POPUP_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WPopupWidget>
 #include <Wt/WJavaScript>
 
 namespace Wt {
@@ -171,7 +171,7 @@ class WTemplate;
  *
  * \ingroup modelview
  */
-class WT_API WSuggestionPopup : public WCompositeWidget
+class WT_API WSuggestionPopup : public WPopupWidget
 {
 public:
   /*! \brief Enumeration that defines a trigger for showing the popup.
@@ -260,7 +260,7 @@ public:
    *
    * \sa generateMatcherJS(), generateReplacerJS()
    */
-  WSuggestionPopup(const Options& options, WContainerWidget *parent = 0);
+  WSuggestionPopup(const Options& options, WObject *parent = 0);
 
   /*! \brief Creates a suggestion popup with given matcherJS and replacerJS.
    *
@@ -268,7 +268,7 @@ public:
    * JavaScript functions.
    */
   WSuggestionPopup(const std::string& matcherJS, const std::string& replacerJS,
-		   WContainerWidget *parent = 0);
+		   WObject *parent = 0);
 
   /*! \brief Lets this suggestion popup assist in editing an edit field.
    *
@@ -316,7 +316,7 @@ public:
    * \sa clearSuggestions(), setModel()
    */
   void addSuggestion(const WString& suggestionText,
-		     const WString& suggestionValue);
+		     const WString& suggestionValue = WString::Empty);
 
   /*! \brief Sets the model to be used for the suggestions.
    *
@@ -444,23 +444,15 @@ public:
    */
   Signal<int, WFormWidget *>& activated() { return activated_; }
 
-  /*! \brief Controls how the suggestion popup is positioned.
+  /*! \brief Controls how the popup is positioned (<b>deprecated</b>).
    *
-   * When \p global is \c true, then the popup will position itself
-   * globally. This avoids that the popup is affected by enclosing
-   * parents with overflow settings that clip the popup. This makes
-   * the popup however no longer follow the popup line edit when this
-   * line edit moves.
-   *
-   * The default is \c false.
+   * \deprecated this option is now ignored, since the popup is automatically
+   *             positioned to behave properly.
    */
-  void setGlobalPopup(bool global) { global_ = global; }
-
-  virtual void setMaximumSize(const WLength& width, const WLength& height);
-  virtual void setMinimumSize(const WLength& width, const WLength& height);
+  void setGlobalPopup(bool global);
 
 private:
-  WTemplate *impl_;
+  WContainerWidget   *impl_;
   WAbstractItemModel *model_;
   int modelColumn_;
   int filterLength_;
@@ -469,7 +461,6 @@ private:
 
   std::string       matcherJS_;
   std::string       replacerJS_;
-  WContainerWidget *content_;
 
   Signal<WT_USTRING> filterModel_;
   Signal<int, WFormWidget *> activated_;
@@ -480,8 +471,6 @@ private:
   JSignal<std::string, std::string> jactivated_;
 
   std::vector<WFormWidget *> edits_;
-
-  bool global_;
 
   void init();
   void doFilter(std::string input);

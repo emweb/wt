@@ -38,7 +38,7 @@ public:
   void setJavaScript(const std::string& javaScript);
 
   bool addConnection(EventSignalBase *);
-  bool removeConnection(EventSignalBase *);	
+  bool removeConnection(EventSignalBase *);
 
   const std::string& javaScript() const { return jscript_; }
 

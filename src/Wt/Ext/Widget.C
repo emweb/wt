@@ -224,7 +224,8 @@ std::string Widget::createMixed(const std::vector<WWidget *>& items,
     if (w && !ff) {
       var = w->createExtElement(js, 0);
     } else {
-      var = c->createJavaScript(js, "document.body.appendChild(");
+      WStringStream wjs(js);
+      var = c->createJavaScript(wjs, "document.body.appendChild(");
     }
 
     if (i != 0)
@@ -250,7 +251,8 @@ void Widget::renderExtAdd(WWidget *c)
     std::string var = w->createExtElement(js, 0);
     js << elVar() << ".add(" << var << ");";
   } else {
-    c->createJavaScript(js, elVar() + ".add(");
+    WStringStream wjs(js);
+    c->createJavaScript(wjs, elVar() + ".add(");
   }
 
   addUpdateJS(js.str());

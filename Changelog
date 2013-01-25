@@ -1,3 +1,8 @@
+25-01-2013:
+	* Merged in bootstrap branch, with many additions, changes and above
+	all addition of support for Twitter's Bootstrap framework as a new
+	theme
+
 12-12-2012:
 	* Added binary WebGL VBO buffers, contributed by Tassilo Glander
 

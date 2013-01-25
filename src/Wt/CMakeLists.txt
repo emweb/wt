@@ -2,6 +2,8 @@ SUBDIRS(Auth Chart Dbo Json Http Mail Payment Render Test)
 
 IF(ENABLE_EXT)
   SUBDIRS(Ext)
+ELSE(ENABLE_EXT)
+  SUBDIRS(EXCLUDE_FROM_ALL Ext)
 ENDIF(ENABLE_EXT)
 
 INSTALL_FILES(/include/Wt "^W.*[^C~]$")

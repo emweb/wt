@@ -372,7 +372,7 @@ private:
 
   bool wasEmpty() const;
 
-  void rootAsJavaScript(WApplication *app, std::ostream& out, bool all);
+  void rootAsJavaScript(WApplication *app, WStringStream& out, bool all);
 
   friend class WebRenderer;
 

@@ -1,0 +1,838 @@
+/*
+ * Reuse settings and mixins from Bootstrap
+ */
+@import "variables.less";
+@import "mixins.less";
+
+/*
+ * Extend menu support to include sub menus
+ */
+.nav > li > .nav {
+    display: none;
+    margin-left: 2ex;
+}
+
+.nav > li.active .nav {
+    display: block;
+}
+
+/*
+ * More dropdown-menu support
+ */
+.dropdown-menu {
+
+    .disabled a,
+    .disabled a:hover {
+	text-decoration: none;
+	color: #999999;
+	cursor: default;
+	background-color: transparent;
+    }
+
+    .Wt-icon {
+	margin-right: 8px;
+	background-repeat: no-repeat;
+	background-position: center left;
+	display: inline-block;
+	width: 16px;
+	height: 14px;
+	line-height: 14px;
+	vertical-align: text-top;
+    }
+
+    .Wt-chkbox {
+	margin-left: 2px;
+	margin-right: 10px;
+	display: inline-block;
+	width: 12px;
+    }
+
+    .Wt-padded {
+	padding-left: 39px;
+    }
+
+    .submenu a {
+	background-image: url(../../right-arrow.gif);
+	background-repeat: no-repeat;
+	background-position: right center;
+    }
+}
+
+/*
+ * Custom collapse nav support
+ */
+.nav-bar .nav-collapse {
+	 display: block !important; 
+}
+
+/*
+ * Less odd drop down menu support in navbar
+ */
+.navbar .nav > li.submenu > a:hover,
+.navbar .nav > li.submenu > a.active {
+  color: @navbarLinkColorActive;
+  text-decoration: none;
+  background-color: @navbarLinkBackgroundActive;
+  .box-shadow(inset 0 3px 8px rgba(0,0,0,.125));
+}
+
+/*
+ * Dialog extensions
+ */
+.modal {
+    .modal-header {
+	cursor: move;
+ 
+	div {
+	    float: left;
+	}
+    }
+}
+
+
+/*
+ * Non-bootstrap widgets
+ */
+
+/*
+ * Resize handles
+ */
+.Wt-vsh, .Wt-hrh2, .Wt-vsh2 {
+    cursor: row-resize;
+}
+
+.Wt-vsh {
+    margin: 2px;
+}
+
+.Wt-hsh, .Wt-vrh2, .Wt-hsh2 {
+    cursor: col-resize;
+}
+
+.Wt-hsh {
+    margin: 0px 2px;
+}
+
+.Wt-hrh2 {
+    background-color: #EEEEEE;
+    background: url(splitter-v.png) no-repeat 50% 50%;
+}
+
+.Wt-vrh2 {
+    background-color: #EEEEEE;
+    background: url(splitter-h.png) no-repeat 50% 50%;
+}
+
+.Wt-hsh, .Wt-vsh, .Wt-hsh2, .Wt-vsh2, 
+.Wt-vrh2:hover, .Wt-hrh2:hover {
+    background-color: @grayLight;
+}
+
+/*
+ * WCalendar
+ */
+
+.Wt-cal {
+    table {
+	&.d1 {
+	    width: 170px;
+	}
+
+	&.d3 {
+	    width: 255px;
+	}
+
+	&.dlong {
+	    width: 560px;
+	}
+    }
+
+    .days.d1 td {
+	width: 20px;
+    }
+
+    .days.d3 td {
+	width: 35px;
+    }
+
+    .days.dlong td {
+	width: 80px;
+    }
+
+    td, th, td > div {
+	text-align: center;
+	height: 20px;
+	.border-radius(4px);
+    }
+
+    th, td > div {
+	padding: 4px 5px;
+    }
+
+    tr:first-child th {
+	cursor: pointer;
+	&:hover{
+	    background: @grayLighter;
+	}
+
+	select {
+	    width: 105px;
+	    margin: 0px;
+	}
+
+	input {
+	    width: 35px;
+	    margin: 0px;
+	}
+    }
+
+    .days td {
+	&:hover {
+	    background: @grayLighter;
+	    cursor: pointer;
+	}
+
+	.Wt-cal-oom {
+	    color: @grayLight;
+	}
+
+	.Wt-cal-oor {
+	    color: @grayLight;
+	}
+
+	.Wt-cal-sel, .Wt-cal-sel:hover {
+	    .buttonBackground(@btnPrimaryBackground,
+			      @btnPrimaryBackgroundHighlight);
+	    color: #fff;
+	    text-shadow: 0 -1px 0 rgba(0,0,0,.25);
+	}
+    }
+}
+
+/*
+ * WDateEdit
+ */
+.Wt-dateedit {
+    background-image: url('date-edit-button.png');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+
+    &.hover {
+        cursor: default;
+        background-position: right -30px;
+    }
+
+    &.active {
+        cursor: default;
+        background-position: right -60px;
+    }
+}
+
+/*
+ * WDatePicker
+ */
+.Wt-datepicker {
+   display: block;
+   top: auto;
+   left: auto;
+}
+
+/*
+ * WProgressBar
+ */
+.progress {
+   width: 200px;
+   vertical-align: middle;
+   position: relative;
+   margin-bottom: 0px;
+
+   .bar-label {
+      position: absolute;
+      left: 0px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.8em;
+      top:0.1em;
+   }
+}
+
+/*
+ * WGoogleMap
+ */
+.Wt-googlemap img {
+   max-width: none;
+}
+
+/*
+ * WSpinBox
+ */
+.Wt-spinbox {
+    background-image: url('spin-buttons.png');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 16px;
+
+    &.up {
+        background-position: right -30px;
+    }
+
+    &.dn {
+        background-position: right -60px;
+    }
+}
+
+/*
+ * WSlider
+ */
+.Wt-slider-h {
+    .Wt-slider-bg {
+        margin: 0px 5px;
+    }
+
+    .Wt-w {
+        position: absolute;
+        width: 100%;
+	top: 50%;
+	left: -1px;
+        margin-top: -5px;
+	height: 8px;
+        border: 1px solid @tableBorder;
+        background: @grayLighter;
+ 	.border-radius(@baseBorderRadius);
+    }
+
+    .fill {
+	top: 50%;
+        margin-top: -5px;
+	height: 8px;
+        border: 1px solid @btnPrimaryBackground;
+        background: @btnPrimaryBackground;
+ 	.border-radius(@baseBorderRadius);
+    }
+
+    .handle {
+        top: 50% !important;
+        margin-top: -10px;
+	height: 18px !important;
+        border: 1px solid @btnBorder;
+	.buttonBackground(@btnBackground, @btnBackgroundHighlight,
+			  @grayDark, 0 1px 1px rgba(255,255,255,.75));
+	.border-radius(@baseBorderRadius);
+
+	&:hover {
+	    background-color: darken(@white, 10%);
+	    background-position: 0 -15px;
+	}
+
+	&:active {
+	    background-color: darken(@white, 10%);
+	    background-color: darken(@white, 15%) e("\9");
+	    background-image: none;
+	    outline: 0;
+	}
+    }
+}
+
+.Wt-slider-v {
+    .Wt-slider-bg {
+        margin: 5px 0px;
+    }
+
+    .Wt-w {
+        position: absolute;
+        height: 100%;
+	left: 50%;
+        margin-left: -5px;
+	width: 8px;
+        border: 1px solid @tableBorder;
+        background: @grayLighter;
+ 	.border-radius(@baseBorderRadius);
+    }
+
+    .fill {
+	left: 50%;
+        margin-left: -5px;
+	bottom: -1px;
+	width: 8px;
+        border: 1px solid @btnPrimaryBackground;
+        background: @btnPrimaryBackground;
+ 	.border-radius(@baseBorderRadius);
+    }
+
+    .handle {
+        left: 50% !important;
+        margin-left: -10px;
+	width: 18px !important;
+        border: 1px solid @btnBorder;
+	.buttonBackground(@btnBackground, @btnBackgroundHighlight,
+			  @grayDark, 0 1px 1px rgba(255,255,255,.75));
+	.border-radius(@baseBorderRadius);
+
+	&:hover {
+	    background-color: darken(@white, 10%);
+	    background-position: 0 -15px;
+	}
+
+	&:active {
+	    background-color: darken(@white, 10%);
+	    background-color: darken(@white, 15%) e("\9");
+	    background-image: none;
+	    outline: 0;
+	}
+    }
+}
+
+/*
+ * WAbstractItemView (WTableView and WTreeView)
+ */
+.Wt-itemview {
+    cursor: default;
+    white-space: nowrap;
+    background: white;
+    border: 1px solid @tableBorder;
+
+    .Wt-spacer {
+	background: url(../../loading.png);
+    }
+
+    /* header */
+    .Wt-headerdiv {
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;
+	overflow: hidden;
+	width: 100%;
+    }
+
+    .Wt-headerdiv,
+    .Wt-headerdiv .Wt-tv-rowc,
+    th {
+	font-weight: bold;
+    }
+
+    th,
+    th .Wt-tv-br {
+	overflow: hidden;
+    }
+
+    Wt-header {
+	.Wt-label {
+	    font-weight: bold;
+	    text-overflow: ellipsis;
+	    overflow: hidden; /* needed for IE only */
+	    white-space: nowrap;
+	}
+
+	.Wt-wwrap .Wt-label {
+	    overflow: visible;
+	    white-space: normal;
+	}
+    }
+
+
+    /* resize handles */
+    .Wt-tv-rh {
+	float: right;
+	width: 4px;
+	cursor: col-resize;
+    }
+
+    .Wt-tv-no-rh {
+	width: 0px;
+	margin-left: 4px;
+	cursor: default;
+    }
+
+    /* sort handles */
+    .Wt-tv-sh {
+	float: right;
+	width: 16px;
+	height: 16px;
+	padding-bottom: 6px;
+	cursor: pointer;
+    }
+
+    .Wt-tv-rh:hover {
+	background-color: @grayLight; // LESS
+    }
+
+    .Wt-tv-sh-none {
+	background: url(sort-arrow-none.gif) no-repeat 0 6px;
+    }
+
+    .Wt-tv-sh-up {
+	background: url(sort-arrow-up.gif) no-repeat 0 6px;
+    }
+
+    .Wt-tv-sh-down {
+	background: url(sort-arrow-down.gif) no-repeat 0 6px;
+    }
+
+    .active {
+	color: @white;
+	text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+	background-color: @linkColor;
+	cursor: default;
+    }
+
+    /* item drag & drop */
+    .Wt-drop-site {
+	background-color: #EEEEEE; // LESS
+	outline: 1px dotted black; // LESS
+    }
+}
+
+body.Wt-rtl {
+    .Wt-itemview {
+	.Wt-tv-rh, .Wt-tv-sh {
+	    float: left;
+	}
+    }
+}
+
+/*
+ * WTableView
+ */
+.Wt-tableview {
+    white-space: nowrap;
+
+    .cwidth {
+	margin-top: -1px;
+    }
+
+    .Wt-header .Wt-tv-c {
+	padding-left: 6px;
+    }
+
+    .Wt-tv-contents {
+	background-color: @white;
+    }
+
+    .Wt-tv-contents.Wt-striped div.Wt-tv-c:nth-child(odd) {
+	background-color: @tableBackgroundAccent;
+    }
+
+    .Wt-tv-contents.Wt-striped div.active:nth-child(odd) {
+	background-color: @linkColor;
+    }
+
+    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable .Wt-tv-c {
+	padding: 0px 3px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+    }
+
+    .Wt-tv-contents img.icon,
+    .Wt-plaintable img.icon,
+    .Wt-tv-contents input.icon,
+    .Wt-plaintable input.icon {
+	margin: 0px 3px 2px 0px;
+	vertical-align: middle;
+    }
+
+    .Wt-spacer {
+	position: relative;
+	overflow: hidden;
+    }
+
+    table {
+       background-position: left bottom;
+    }
+
+    /* header */
+    th {
+       padding: 0px;
+    }
+
+    /* borders */
+    .Wt-tv-br {
+	border-right: 1px solid @tableBorder;
+    }
+
+    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable tbody .Wt-tv-c {
+	border-right: 1px solid @tableBorder;
+	border-top: 1px solid @tableBorder;
+	margin-top: -1px;
+    }
+
+    .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
+    .Wt-tv-contents > div:last-child .Wt-tv-c {
+	border-right: 0;
+    }
+
+    .Wt-header {
+	border-bottom: 1px solid @tableBorder;
+    }
+}
+
+body.Wt-rtl {
+    .Wt-tableview {
+	.Wt-header .Wt-tv-c {
+	    padding-right: 6px;
+	}
+
+	.Wt-tv-br {
+	    border-left: 1px solid @tableBorder;
+	}
+
+	.Wt-tv-contents .Wt-tv-c, .Wt-plaintable tbody .Wt-tv-c {
+	    border-left: 1px solid @tableBorder;
+	    border-top: 1px solid @tableBorder;
+	    margin-top: -1px;
+	}
+    }
+}
+
+/*
+ * WTree(node)
+ */
+
+.Wt-tree {
+    cursor: default;
+
+    ul {
+	margin: 0;
+	padding-left: 20px;
+	list-style: none;
+    }
+
+    div.Wt-root {
+	display: none;
+    }
+
+    ul.Wt-root {
+	padding-left: 0px;
+    }
+
+    &.Wt-trunk, .Wt-item.Wt-trunk {
+	background-image: url(../../line-trunk.gif);
+	background-repeat: repeat-y;
+    }
+
+    .Wt-item.Wt-end {
+	background-image: url(../../line-last.gif);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+    }
+
+    .active {
+	color: @white;
+	text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+	background-color: @linkColor;
+	cursor: default;
+    }
+
+    .Wt-ctrl {
+	float: left;
+	display: block;
+	width: 19px;
+	height: 19px;
+
+	&.Wt-noexpand {
+	    background: url(../../line-middle.gif) no-repeat 0 0;
+	}
+
+	img {
+	    vertical-align: top;
+	}
+    }
+
+    .cols-row {
+	float: right;
+    }
+
+    .Wt-label {
+	padding: 0px 2px;
+	line-height: 150%;
+    }
+}
+
+.Wt-treetable {
+    .Wt-header {
+	font-weight: bold;
+        border-bottom: 1px solid @tableBorder;
+	line-height: 28px;
+    }
+}
+
+/*
+ * WTreeView
+ */
+
+/* Layout styling */
+.Wt-treeview {
+
+    ul {
+	margin: 0px;
+	padding-left: 20px;
+	list-style: none;
+
+	&.Wt-tv-root {
+	    padding-left: 0px;
+	}
+    }
+
+    img.icon, input.icon {
+	margin: 0px 3px 2px 0px;
+    }
+
+    .Wt-header {
+	border-bottom: 1px solid @tableBorder;
+
+	.Wt-tv-c {
+	    padding: 0px;
+	    margin-left: 7px;
+	}
+    }
+
+    .Wt-tv-br,             /* header */
+    .Wt-tv-node .Wt-tv-c { /* data */
+	margin-right: 0px;
+	border-right: 1px solid @tableBorder;
+    }
+
+    .Wt-tv-c {
+	padding: 0px 3px;
+    }
+
+    .Wt-tv-row {
+	float: right;
+	overflow: hidden;
+
+	.Wt-tv-c {
+	    float: left;
+	    display: block;
+	    text-overflow: ellipsis;
+	    overflow: hidden;
+	    white-space: nowrap;
+	}
+    }
+
+    img.icon, input.icon {
+	vertical-align: middle;
+    }
+
+    .Wt-scroll {
+	overflow: auto;
+	height: 22px;
+
+	div {
+	    height: 1px;
+	}
+    }
+
+    /* nodes */
+    .Wt-trunk {
+	background-image: url(../../line-trunk.gif);
+	background-repeat: repeat-y;
+    }
+
+    .Wt-end {
+	background-image: url(../../tv-line-last.gif);
+	background-repeat: no-repeat;
+	background-position: 0 center;
+    }
+
+    .Wt-ctrl {
+	float: left;
+	width: 19px;
+
+	&.expand {
+	    background: url(nav-plus.gif) no-repeat 0 center;
+	}
+
+	&.collapse {
+	    background: url(nav-minus.gif) no-repeat 0 center;
+	}
+
+	&.noexpand {
+	    background: url(../../line-middle.gif) no-repeat 0 center;
+	}
+    }
+}
+
+body.Wt-rtl {
+
+    .Wt-treeview {
+
+	.Wt-tv-row {
+	    float: left;
+
+	    .Wt-tv-c {
+		float: right;
+	    }
+	}
+
+	img.icon, input.icon {
+	    margin: 0px 0px 2px 3px;
+	}
+
+	.Wt-header {
+	    .Wt-tv-c {
+		padding: 0px;
+		margin-left: 0px;
+		margin-right: 7px;
+	    }
+	}
+ 
+	.Wt-tv-br,                        /* header */
+	.Wt-tv-node .Wt-tv-row .Wt-tv-c { /* data */
+	    margin-right: 1px;
+	    border-right: 0px;
+	    margin-left: 0px;
+	    border-left: 1px solid @tableBorder;
+	}
+
+	.Wt-end {
+	    background-image: url(../../tv-line-last-rtl.gif);
+	}
+
+	.Wt-ctrl {
+	    &.expand {
+		background: url(nav-plus-rtl.gif) no-repeat 0 center;
+	    }
+
+	    &.collapse {
+		background: url(nav-minus-rtl.gif) no-repeat 0 center;
+	    }
+
+	    &.noexpand {
+		background: url(../../line-middle-rtl.gif) no-repeat 0 center;
+	    }
+	}
+    }
+}
+
+/*
+ * WTreeView and WTableView default paging bar
+ */
+.Wt-pagingbar {
+    text-align: center;
+    padding: 2px;
+    height: 25px;
+    line-height: 25px;
+
+    span {
+	margin: 0px 4px;
+    }
+
+    button {
+	margin: 0px 4px;
+    }
+}
+
+.Wt-in-place-edit {
+    span:hover {
+        color: @white;
+        background-color: @linkColor;
+    } 
+}
+
+/*
+ * WStackedWidget
+ */
+.Wt-stack.Wt-animated {
+    overflow: hidden;
+    position: relative;
+}

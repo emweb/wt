@@ -17,8 +17,9 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var tooSmallError = "The number must be at least ";
    /** @const */ var tooLargeError = "The number may be at most ";
 
-   /** @const */ var CLASS_DOWN = 'Wt-spinbox-dn';
-   /** @const */ var CLASS_UP = 'Wt-spinbox-up';
+   /** @const */ var CLASS_DOWN = 'dn';
+   /** @const */ var CLASS_UP = 'up';
+   /** @const */ var CLASS_UNSELECTABLE = 'unselectable';
 
    jQuery.data(edit, 'obj', this);
 
@@ -134,6 +135,7 @@ WT_DECLARE_WT_MEMBER
      if (edit.style.cursor == CH) {
        WT.capture(null);
        WT.capture(edit);
+       $edit.addClass(CLASS_UNSELECTABLE);
 
        dragStartXY = WT.pageCoordinates(event);
        dragStartValue = getValue();
@@ -143,6 +145,7 @@ WT_DECLARE_WT_MEMBER
 	 // suppress selection, focus
 	 WT.cancelEvent(event);
 	 WT.capture(edit);
+	 $edit.addClass(CLASS_UNSELECTABLE);
 
 	 var mid = edit.offsetHeight/2;
 	 if (xy.y < mid)
@@ -154,6 +157,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseUp = function(o, event) {
+     $edit.removeClass(CLASS_UNSELECTABLE);
      if (isReadOnly())
        return;
 

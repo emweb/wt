@@ -1,0 +1,89 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_WTOOLBAR_H_
+#define WT_WTOOLBAR_H_
+
+#include <vector>
+
+#include <Wt/WCompositeWidget>
+
+namespace Wt {
+
+/*! \class WToolBar Wt/WToolBar Wt/WToolBar
+ *  \brief A toolbar
+ *
+ *
+ * By default, a toolbar is rendered as "compact" leaving no margin
+ * between buttons. By adding a separator or a split button, the
+ * toolbar also supports separation between buttons.
+ */
+class WT_API WToolBar : public WCompositeWidget
+{
+public:
+  /*! \brief Constructor.
+   */
+  WToolBar(WContainerWidget *parent = 0);
+
+  /*! \brief Adds a button.
+   */
+  void addButton(WPushButton *button);
+
+  /*! \brief Adds a split button.
+   *
+   * When adding a split button, the toolbar automatically becomes
+   * non-compact, since otherwise the split button functionality
+   * cannot be distinguished from other buttons.
+   *
+   * \sa setCompact()
+   */
+  void addButton(WSplitButton *button);
+
+  /*! \brief Adds a separator.
+   *
+   * The toolbar automatically becomes non-compact.
+   *
+   * \sa setCompact()
+   */
+  void addSeparator();
+
+  /*! \brief Returns the number of buttons.
+   *
+   * \sa widget()
+   */
+  int count() const;
+
+  /*! \brief Returns a button.
+   *
+   * The returned button is a WPushButton or WSplitButton.
+   */
+  WWidget *widget(int index) const;
+
+  /*! \brief Sets the toolbar to be rendered compact.
+   *
+   * The default value is \c true, but <tt>setCompact(true)</tt> is
+   * called automatically when calling addButton(WSplitButton *) or
+   * addSeparator().
+   */
+  void setCompact(bool compact);
+
+  /*! \brief Returns whether the toolbar was rendered compact.
+   *
+   * \sa setCompact()
+   */
+  bool isCompact() const { return compact_; }
+
+private:
+  bool compact_;
+  WContainerWidget *impl_;
+  WContainerWidget *lastGroup_;
+
+  WContainerWidget *lastGroup();
+};
+
+}
+
+#endif // WT_WTOOLBAR_H_

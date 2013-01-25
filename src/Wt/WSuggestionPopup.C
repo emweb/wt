@@ -7,12 +7,13 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WApplication"
+#include "Wt/WAnchor"
 #include "Wt/WContainerWidget"
 #include "Wt/WFormWidget"
 #include "Wt/WLogger"
 #include "Wt/WSuggestionPopup"
 #include "Wt/WStringStream" 
-#include "Wt/WStandardItemModel"
+#include "Wt/WStringListModel"
 #include "Wt/WTemplate"
 #include "Wt/WText"
 
@@ -49,12 +50,8 @@ namespace Wt {
 
 LOGGER("WSuggestionPopup");
 
-#define TEMPLATE "${shadow-x1-x2}${contents}"
-
-WSuggestionPopup::WSuggestionPopup(const Options& options,
-				   WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    impl_(new WTemplate(WString::fromUTF8(TEMPLATE))),
+WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
+  : WPopupWidget(new WContainerWidget(), parent),
     model_(0),
     modelColumn_(0),
     filterLength_(0),
@@ -63,18 +60,16 @@ WSuggestionPopup::WSuggestionPopup(const Options& options,
     replacerJS_(generateReplacerJS(options)),
     filterModel_(this),
     activated_(this),
-    filter_(impl_, "filter"),
-    jactivated_(impl_, "select"),
-    global_(false)
+    filter_(implementation(), "filter"),
+    jactivated_(implementation(), "select")
 {
   init();
 }
 
 WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
 				   const std::string& replacerJS,
-				   WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    impl_(new WTemplate(WString::fromUTF8(TEMPLATE))),
+				   WObject *parent)
+  : WPopupWidget(new WContainerWidget(), parent),
     model_(0),
     modelColumn_(0),
     filterLength_(0),
@@ -82,48 +77,29 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
     defaultValue_(-1),
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
-    filter_(impl_, "filter"),
-    jactivated_(impl_, "select"),
-    global_(false)
+    filter_(implementation(), "filter"),
+    jactivated_(implementation(), "select")
 {
   init();
 }
 
 void WSuggestionPopup::init()
 {
-  setImplementation(impl_);
-  impl_->setLoadLaterWhenInvisible(false);
-  impl_->setStyleClass("Wt-suggest Wt-outset");
+  impl_ = dynamic_cast<WContainerWidget *>(implementation());
 
-  impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
-  impl_->bindWidget("contents", content_ = new WContainerWidget());
-  content_->setStyleClass("content");
+  impl_->setList(true);
+  impl_->setLoadLaterWhenInvisible(false);
 
   /*
    * We use display: none because logically, the popup is visible and
    * propagates signals
    */
-  setAttributeValue("style", "z-index: 10000; display: none");
-  setPositionScheme(Absolute);
+  setAttributeValue("style", "z-index: 10000; display: none; overflow: auto");
 
-  setModel(new WStandardItemModel(0, 1, this));
+  setModel(new WStringListModel(this));
 
   filter_.connect(this, &WSuggestionPopup::doFilter);
   jactivated_.connect(this, &WSuggestionPopup::doActivate);
-}
-
-void WSuggestionPopup::setMaximumSize(const WLength& width,
-				      const WLength& height)
-{
-  WCompositeWidget::setMaximumSize(width, height);
-  content_->setMaximumSize(width, height);
-}
-
-void WSuggestionPopup::setMinimumSize(const WLength& width,
-				      const WLength& height)
-{
-  WCompositeWidget::setMinimumSize(width, height);
-  content_->setMinimumSize(width, height);
 }
 
 void WSuggestionPopup::defineJavaScript()
@@ -139,8 +115,7 @@ void WSuggestionPopup::defineJavaScript()
 		      + app->javaScriptClass() + "," + jsRef() + ","
 		      + replacerJS_ + "," + matcherJS_ + ","
 		      + boost::lexical_cast<std::string>(filterLength_) + ","
-		      + boost::lexical_cast<std::string>(defaultValue_) + ","
-		      + (global_ ? "true" : "false") + ");");
+		      + boost::lexical_cast<std::string>(defaultValue_) + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
@@ -192,7 +167,7 @@ void WSuggestionPopup::setModelColumn(int modelColumn)
 {
   modelColumn_ = modelColumn;
 
-  content_->clear();
+  impl_->clear();
   modelRowsInserted(WModelIndex(), 0, model_->rowCount() - 1);
 }
 
@@ -222,20 +197,20 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 
   for (int i = start; i <= end; ++i) {
     WContainerWidget *line = new WContainerWidget();
-    content_->insertWidget(i, line);
+    impl_->insertWidget(i, line);
 
     WModelIndex index = model_->index(i, modelColumn_);
 
     boost::any d = index.data();
 
     TextFormat format = index.flags() & ItemIsXHTMLText ? XHTMLText : PlainText;
-    WText *value = new WText(asString(d), format);
+    WAnchor *anchor = new WAnchor(line);
+    WText *value = new WText(asString(d), format, anchor);
 
     boost::any d2 = index.data(UserRole);
     if (d2.empty())
       d2 = d;
 
-    line->addWidget(value);
     value->setAttributeValue("sug", asString(d2));
 
     boost::any styleclass = index.data(StyleClassRole);
@@ -252,8 +227,8 @@ void WSuggestionPopup::modelRowsRemoved(const WModelIndex& parent,
     return;
 
   for (int i = start; i <= end; ++i)
-    if (start < content_->count())
-      delete content_->widget(start);
+    if (start < impl_->count())
+      delete impl_->widget(start);
     else
       break;
 }
@@ -268,8 +243,9 @@ void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
     return;
 
   for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
-    WContainerWidget *w = dynamic_cast<WContainerWidget *>(content_->widget(i));
-    WText *value = dynamic_cast<WText *>(w->widget(0));
+    WContainerWidget *w = dynamic_cast<WContainerWidget *>(impl_->widget(i));
+    WAnchor *anchor = dynamic_cast<WAnchor *>(w->widget(0));
+    WText *value = dynamic_cast<WText *>(anchor->widget(0));
 
     WModelIndex index = model_->index(i, modelColumn_);
 
@@ -289,7 +265,7 @@ void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
 
 void WSuggestionPopup::modelLayoutChanged()
 {
-  content_->clear();
+  impl_->clear();
   modelRowsInserted(WModelIndex(), 0, model_->rowCount() - 1);
 }
 
@@ -341,7 +317,8 @@ void WSuggestionPopup::addSuggestion(const WString& suggestionText,
 
   if (model_->insertRow(row)) {
     model_->setData(row, modelColumn_, boost::any(suggestionText), DisplayRole);
-    model_->setData(row, modelColumn_, boost::any(suggestionValue), UserRole);
+    if (!suggestionValue.empty())
+      model_->setData(row, modelColumn_, boost::any(suggestionValue), UserRole);
   }
 }
 
@@ -378,8 +355,8 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
   if (edit == 0)
     LOG_ERROR("activate from bogus editor");
 
-  for (int i = 0; i < content_->count(); ++i)
-    if (content_->widget(i)->id() == itemId) {
+  for (int i = 0; i < impl_->count(); ++i)
+    if (impl_->widget(i)->id() == itemId) {
       activated_.emit(i, edit);
       return;
     }

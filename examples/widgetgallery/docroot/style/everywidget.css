@@ -1,0 +1,263 @@
+.main-nav {
+    margin-bottom: 0px;
+}
+
+tt {
+    font-family: andale mono;
+    color: #570;
+    font-size: 97%;
+}
+
+.wmediaplayer li {
+    margin: 0px;
+    line-height: 100%;
+}
+
+.contents h1 {
+    color: #528B12;
+}
+
+.contents h2 {
+    color: #528B12;
+}
+
+.contents h3 {
+    color: #528B12;
+}
+
+.trhead {
+    font-family: sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    border-bottom: 1px solid black;
+}
+
+.trhead td {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.trdata {
+    font-family: sans-serif;
+    font-size: 10pt;
+}
+
+.trdata td {
+    vertical-align: middle;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.trdata td input[type="checkbox"] {
+    text-align: center;
+    margin: 0px auto;
+    display: block;
+}
+
+.tdhead {
+    font-family: sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    padding-right: 8px;
+    text-align: right;
+}
+
+.tddata {
+    font-family: sans-serif;
+    font-size: 10pt;
+    padding-left: 4px;
+}
+
+.Wt-suggest .highlight, .typeahead .highlight {
+    padding: 0px;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.menu {
+    overflow: auto;
+}
+
+.menu > li > .nav-pills > .active > a,
+.menu > li > .nav-pills > .active > a:hover {
+    color: black;
+    background-color: #9CF;
+}
+
+.menu > li > .nav-pills a {
+    color: #333;
+}
+
+span.title {
+    font-size: 150%;
+    font-weight: bold;
+    color: #528B12;
+}
+
+span.doc {
+    vertical-align: top;
+}
+
+span.doc a {
+    color: #7E7E7E;
+    text-decoration: none;
+    vertical-align: top;
+}
+
+span.doc a:hover {
+    color: #70BD1A;
+    text-decoration: none;
+}
+
+span.reactive {
+    display: block;
+    background-color: #CCCCCC;
+    cursor: pointer;cursor:hand;
+    margin: 3px 0px;
+}
+
+div.contents {
+    padding: 0px 12px 6px;
+}
+
+.example-table {
+    margin: 5px auto;
+    border: 1px solid gray;
+}
+
+.example-table td {
+    padding: 3px 5px;
+    border-right: 1px solid gray;
+}
+
+.example-tree .selected {
+    background-color: yellow;
+}
+
+.centered {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.yellow-box {
+    background-color: #ffffb4;
+    border: 1px solid black;
+    margin-top: 1ex;
+    margin-bottom: 1ex;
+}
+
+.green-box {
+    background-color: #c4ffb4;
+    min-height: 30px;
+    text-align: center;
+    padding: 3px;
+}
+
+.blue-box {
+    background-color: #65dae8;
+    min-height: 30px;
+    text-align: center;
+    padding: 3px;
+}
+
+.events {
+    border: 4px solid #528B12;
+    padding: 5px;
+}
+
+.popupmenuLabel {
+    padding: 5px;
+    background-color: #E7E5E0;
+    cursor: default;   
+}
+
+.example .form {
+    background: #DDD;
+    text-align: center;
+    width: 40ex;
+    padding: 3px;
+    margin: 0px auto;
+}
+
+.form p {
+    margin: 5px;
+}
+
+.googlemaps-controls .zoom {
+    width: 2em;
+}
+
+.googlemaps-controls td {
+    white-space: nowrap;
+    padding: 2px;
+}
+
+.example {
+    border: 1px solid #E5E5E5;
+    padding: 10px;
+    margin: 14px 0px;
+}
+
+.example > legend {
+    width: auto;
+    border-bottom: 0px;
+    padding: 0px 5px;
+    margin-bottom: -5px;
+}
+
+.src {
+    margin-top: 10px;
+}
+
+.src > legend {
+    text-align: left;
+    font-size: 85%;
+    line-height: 24px;
+    border-bottom: 0px;
+    border-top: 1px solid #E5E5E5;
+    margin-bottom: 0px;
+}
+
+.src pre {
+    border: 0px;
+    background-color: whiteSmoke;
+    margin-bottom: 0px;
+}
+
+.centered-example {
+    width: 400px;
+    margin: 0px auto;
+}
+
+.example .Wt-tableview, .example .Wt-treeview {
+    margin: 0px auto;
+}
+
+.example .text-edit-example button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.example .text-edit-example .out {
+    margin-top: 10px;
+    margin-left: 100px;
+}
+
+.centered {
+    text-align: center;
+}
+
+.lead {
+    padding: 0.1em 1em;
+    margin: 0;
+}
+
+.inline-buttons button {
+    margin-left: 7px;
+}
+
+.reset h1 {
+    font-size: auto;
+    font-weight: auto;
+    color: inherit;
+}

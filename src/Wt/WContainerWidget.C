@@ -607,7 +607,7 @@ DomElementType WContainerWidget::domElementType() const
 {
   DomElementType type = isInline() ? DomElement_SPAN : DomElement_DIV;
 
-  WContainerWidget *p = dynamic_cast<WContainerWidget *>(parent());
+  WContainerWidget *p = dynamic_cast<WContainerWidget *>(parentWebWidget());
   if (p && p->isList())
     type = DomElement_LI;
 
@@ -773,7 +773,7 @@ void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
 #endif // WT_NO_LAYOUT
 }
 
-void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,
+void WContainerWidget::rootAsJavaScript(WApplication *app, WStringStream& out,
 					bool all)
 {
   std::vector<WWidget *> *toAdd

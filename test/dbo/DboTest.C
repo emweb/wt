@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifdef WTDBO
 
 #include <boost/test/unit_test.hpp>
 
@@ -34,6 +33,8 @@ class A;
 class B;
 class C;
 class D;
+
+bool fractionalSeconds = true;
 
 struct Coordinate {
   int x, y;
@@ -186,7 +187,7 @@ public:
             << std::endl);
 
     return date == other.date
-      && time == other.time
+      && (time == other.time || !fractionalSeconds)
       && datetime == other.datetime
       && wstring == other.wstring
       && wstring2 == other.wstring2
@@ -373,11 +374,16 @@ struct DboFixture
       logged = true;
     }
 
-    connection = new dbo::backend::MySQL("example_db", "example",
-                                         "example_pw", "localhost", 3307);
+    fractionalSeconds = false;
+    connection = new dbo::backend::MySQL("wt_test_db", "test_user",
+                                            "test_pw", "localhost", 3306);
 #endif // MYSQL
 
 #ifdef FIREBIRD
+    // gsec.exe -user sysdba -pass masterkey
+    // add test_user -pw test_pwd
+    // isql.exe
+    // create database 'C:\opt\db\firebird\wt_test.fdb' user 'test_user' password 'test_pwd'
     std::string file;
 #ifdef WIN32
     file = "C:\\opt\\db\\firebird\\wt_test.fdb";
@@ -403,12 +409,15 @@ struct DboFixture
     session_ = new dbo::Session();
     session_->setConnectionPool(*connectionPool_);
 
+
     session_->mapClass<A>(SCHEMA "table_a");
     session_->mapClass<B>(SCHEMA "table_b");
     session_->mapClass<C>(SCHEMA "table_c");
     session_->mapClass<D>(SCHEMA "table_d");
 
     std::cerr << session_->tableCreationSql() << std::endl;
+
+    //session_->dropTables();
 
     session_->createTables();
 
@@ -1365,6 +1374,7 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
     A a1;
     a1.date = Wt::WDate(1976, 6, 14);
     a1.time = Wt::WTime(13, 14, 15, 102);
+
     for (unsigned i = 0; i < 255; ++i)
       a1.binary.push_back(i);
     a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
@@ -1408,7 +1418,8 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
       model->addColumn ("d");
       
       Wt::WDate date(1982, 12, 2);
-      Wt::WTime time(14, 15, 16, 103);
+      Wt::WTime time(14, 15, 16, 0);
+
       std::vector<unsigned char> bin;
       for (unsigned i = 0; i < 255; ++i)
 	bin.push_back(255 - i);
@@ -1418,7 +1429,7 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
 	(boost::gregorian::date(2010,boost::gregorian::Sep,9),
 	 boost::posix_time::time_duration(3,2,1));
       boost::posix_time::time_duration p_duration 
-	= boost::posix_time::hours(1) + boost::posix_time::seconds(10);
+        = boost::posix_time::hours(1) + boost::posix_time::seconds(10);
       int i = 50;
       ::int64_t i64 = 8223372036854775805LL;;
       long long ll = 7066005651767221LL;
@@ -1550,5 +1561,3 @@ BOOST_AUTO_TEST_CASE( dbo_test19 )
     t.commit();
   }
 }
-
-#endif

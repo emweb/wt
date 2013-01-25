@@ -356,11 +356,30 @@ private:
   JSignal(const JSignal<A1, A2, A3, A4, A5, A6>&);
 
   std::string name_;
-  bool collectSlotJavaScript_;
   mutable std::string senderId_;
   void processDynamic(const JavaScriptEvent& e);
+#ifndef _MSC_VER
+  // Up to 6 arguments allowed
+  typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
+#else
+#  if _MSC_VER >= 1700
+  // MSVS 2012's std::bind implementation may support only 5 arguments
+  // http://blogs.msdn.com/b/vcblog/archive/2011/09/12/10209291.aspx
+#    if defined(_VARIADIC_MAX) && (_VARIADIC_MAX < 6)
+       // default MSVS 2012: defaults to 5. We assume no-one will lower this.
+       typedef boost::signal5<void, A1, A2, A3, A4, A5> BoostSignalType;
+#      define A6_MUST_BE_NOCLASS
+#    else
+       // You can reconfigure this, and MS promised to raise _VARIADIC_MAX
+       // in future compilers
+       typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
+#    endif
+#  else
+    typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
+#  endif
+#endif
 
-  boost::signal6<void, A1, A2, A3, A4, A5, A6> *impl_;
+  BoostSignalType *impl_;
 };
 
 #ifndef WT_CNOR
@@ -386,7 +405,7 @@ public:
 
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
-
+  boost::signals::connection connect(const boost::bound& f);
   
   void connect(const std::string& function);
   void connect(const char * function);
@@ -405,11 +424,14 @@ template <typename A1, typename A2, typename A3,
 JSignal<A1, A2, A3, A4, A5, A6>::JSignal(WObject *object,
 					 const std::string& name,
 					 bool collectSlotJavaScript)
-  : EventSignalBase(0, object),
+  : EventSignalBase(0, object, collectSlotJavaScript),
     name_(name),
-    collectSlotJavaScript_(collectSlotJavaScript),
     impl_(0)
-{ }
+{
+#ifdef A6_MUST_BE_NOCLASS
+  A6 YourMsvsOnlySupports5BindArguments = NoClass::none;
+#endif
+}
 
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
@@ -462,7 +484,7 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 {
   exposeSignal();
   if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+    impl_ = new BoostSignalType;
   return impl_->connect(function);
 }
 
@@ -549,7 +571,7 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 
   WStatelessSlot *s = o->isStateless(static_cast<WObject::Method>(method));
 
-  if (collectSlotJavaScript_ && s)
+  if (canAutoLearn() && s)
     return EventSignalBase::connectStateless
       (static_cast<WObject::Method>(method), o, s);
   else
@@ -560,7 +582,7 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(const std::string& function)
 {
-  if (!collectSlotJavaScript_) {
+  if (!canAutoLearn()) {
     Wt::log("error") << "JSignal: connect(const std::string&): signal does "
       "not collect JavaScript from slots";
     return;
@@ -573,7 +595,7 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(const char *function)
 {
-  if (!collectSlotJavaScript_) {
+  if (!canAutoLearn()) {
     Wt::log("error") << "JSignal: connect(const std::string&): signal does "
       "not collect JavaScript from slots";
     return;
@@ -586,7 +608,7 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::connect(JSlot& slot)
 {
-  if (!collectSlotJavaScript_) {
+  if (!canAutoLearn()) {
     Wt::log("error") << "JSignal: connect(JSlot): signal does not collect "
       "JavaScript from slots";
     return;
@@ -602,7 +624,7 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 {
   exposeSignal();
   WStatelessSlot *s = target->isStateless(method);
-  if (collectSlotJavaScript_ && s)
+  if (canAutoLearn() && s)
     return EventSignalBase::connectStateless(method, target, s);
   else
     return connect(boost::bind(method, target));
@@ -615,7 +637,11 @@ void JSignal<A1, A2, A3, A4, A5, A6>::emit(A1 a1, A2 a2, A3 a3,
 {
   if (impl_) {
     pushSender(sender());
+#ifndef A6_MUST_BE_NOCLASS
     (*impl_)(a1, a2, a3, a4, a5, a6);
+#else
+    (*impl_)(a1, a2, a3, a4, a5);
+#endif
     popSender();
   }
 }

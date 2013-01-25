@@ -158,6 +158,12 @@ public:
    */
   virtual Result validate(const WT_USTRING& input) const;
 
+  /*! \brief Returns the validator format.
+   *
+   * The default implementation returns an empty string.
+   */
+  virtual WT_USTRING format() const;
+
   /*! \brief Provides Ext-compatible config options for client-side validation.
    */
   virtual void createExtConfig(std::ostream& config) const;

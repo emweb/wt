@@ -9,12 +9,15 @@
 #include "Wt/WMenu"
 #include "Wt/WMenuItem"
 #include "Wt/WStackedWidget"
-#include "Wt/WTable"
-#include "Wt/WTableCell"
-#include "Wt/WText"
+#include "Wt/WTemplate"
 
 #include "WebUtils.h"
 
+/*
+ * TODO:
+ *  - disable everything selection-related for menu items that have a
+ *    popup menu
+ */
 namespace {
 
   /*
@@ -51,138 +54,116 @@ LOGGER("WMenu");
 WMenu::WMenu(Orientation orientation, WContainerWidget *parent)
   : WCompositeWidget(parent),
     contentsStack_(0),
-    orientation_(orientation),
-    internalPathEnabled_(false),
-    emitPathChange_(false),
-    subMenu_(false),
     itemSelected_(this),
     itemSelectRendered_(this),
-    itemClosed_(this),
-    current_(-1),
-    needSelectionEventUpdate_(false)
-{
-  setRenderAsList(false);
+    itemClosed_(this)
+{ 
+  init();
+}
+
+WMenu::WMenu(WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    contentsStack_(0),
+    itemSelected_(this),
+    itemSelectRendered_(this),
+    itemClosed_(this)
+{ 
+  init();
 }
 
 WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
 	     WContainerWidget *parent)
   : WCompositeWidget(parent),
     contentsStack_(contentsStack),
-    orientation_(orientation),
-    internalPathEnabled_(false),
-    emitPathChange_(false),
-    subMenu_(false),
     itemSelected_(this),
     itemSelectRendered_(this),
-    itemClosed_(this),
-    current_(-1),
-    needSelectionEventUpdate_(false)
+    itemClosed_(this)
 {
-  setRenderAsList(false);
+  init();
+}
 
+WMenu::WMenu(WStackedWidget *contentsStack, WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    contentsStack_(contentsStack),
+    itemSelected_(this),
+    itemSelectRendered_(this),
+    itemClosed_(this)
+{
+  init();
+}
+
+void WMenu::init()
+{
+  internalPathEnabled_ = false;
+  emitPathChange_ = false;
+  parentItem_ = 0;
+  needSelectionEventUpdate_ = false;
+  current_ = -1;
+
+  if (contentsStack_) {
 #ifndef WT_CNOR
-  contentsStackConnection_ = contentsStack->destroyed().connect(
-    this, &WMenu::contentsDestroyed);
+    contentsStackConnection_
+      = contentsStack_->destroyed().connect(this, &WMenu::contentsDestroyed);
 #endif // WT_CNOR
 
-  contentsStack->childrenChanged().connect(this, &WMenu::updateSelectionEvent);
+    contentsStack_->childrenChanged().connect(this,
+					      &WMenu::updateSelectionEvent);
+  }
+
+  setImplementation(ul_ = new WContainerWidget());
+  ul_->setList(true);
 }
 
 void WMenu::contentsDestroyed()
 {
-  for (unsigned i = 0; i < items_.size(); ++i) {
-    items_[i]->purgeContents();
-  }
+  for (int i = 0; i < count(); ++i)
+    itemAt(i)->purgeContents();
 }
 
 void WMenu::setRenderAsList(bool enable)
-{
-  if (enable) {
-    WContainerWidget *c = new WContainerWidget();
-    //WBreak *w = new WBreak(c);
-    //w->setAttributeValue("style","clear:both;");
-    c->setList(true);
-
-    setImplementation(impl_ = c);
-  } else {
-    setImplementation(impl_ = new WTable());
-  }
-
-  renderAsList_ = enable;
+{ 
+  LOG_ERROR("WMenu::setRenderAsList() has been deprecated.");
 }
 
 WMenu::~WMenu()
 {
   contentsStackConnection_.disconnect();
-
-  for (unsigned i = 0; i < items_.size(); ++i) {
-    items_[i]->setMenu(0);
-    delete items_[i];
-  }
 }
 
 void WMenu::setInternalPathEnabled(const std::string& basePath)
 {
+  WApplication *app = WApplication::instance();
+
+  basePath_ = basePath.empty() ? app->internalPath() : basePath;
+  basePath_ = Utils::append(Utils::prepend(basePath_, '/'), '/');
+
   if (!internalPathEnabled_) {
     internalPathEnabled_ = true;
-
-    WApplication *app = wApp;
-
-    basePath_ = basePath.empty() ? app->internalPath() : basePath;
-    basePath_ = Utils::append(Utils::prepend(basePath_, '/'), '/');
-
     app->internalPathChanged().connect(this, &WMenu::handleInternalPathChange);
-
-    previousInternalPath_ = app->internalPath();
-    internalPathChanged(app->internalPath());
-
-    updateItems();
   }
+
+  previousInternalPath_ = app->internalPath();
+  internalPathChanged(app->internalPath());
+
+  updateItemsInternalPath();
 }
 
 void WMenu::handleInternalPathChange(const std::string& path)
 {
-  if (!subMenu_)
+  if (!parentItem_)
     internalPathChanged(path);
-}
-
-void WMenu::setSubMenu(bool submenu)
-{
-  subMenu_ = submenu;
-}
-
-void WMenu::enableAjax()
-{
-  for (unsigned i = 0; i < items_.size(); ++i) {
-    WMenuItem *item = items_[i];
-    item->enableAjax();
-  }
-
-  WCompositeWidget::enableAjax();
 }
 
 void WMenu::setInternalBasePath(const std::string& basePath)
 {
-  std::string bp = Utils::append(Utils::prepend(basePath, '/'), '/');
-
-  if (basePath_ != bp) {
-    basePath_ = bp;
-
-    if (internalPathEnabled_) {
-      WApplication *app = wApp;
-      previousInternalPath_ = app->internalPath();
-      internalPathChanged(app->internalPath());
-
-      updateItems();
-    }
-  }
+  setInternalPathEnabled(basePath);
 }
 
-void WMenu::updateItems()
+void WMenu::updateItemsInternalPath()
 {
-  for (unsigned i = 0; i < items_.size(); ++i) {
-    WMenuItem *item = items_[i];
-    item->updateItemWidget(item->itemWidget());
+  for (int i = 0; i < count(); ++i) {
+    WMenuItem *item = itemAt(i);
+    item->updateInternalPath();
   }
 
   updateSelectionEvent();
@@ -191,34 +172,45 @@ void WMenu::updateItems()
 WMenuItem *WMenu::addItem(const WString& name, WWidget *contents,
 			  WMenuItem::LoadPolicy policy)
 {
-  return addItem(new WMenuItem(name, contents, policy));
+  return addItem(std::string(), name, contents, policy);
 }
 
-WMenuItem *WMenu::addItem(WMenuItem *item)
+WMenuItem *WMenu::addItem(const std::string& iconPath, const WString& name,
+			  WWidget *contents, WMenuItem::LoadPolicy policy)
 {
-  item->setMenu(this);
-  items_.push_back(item);
+  WMenuItem *item = new WMenuItem(iconPath, name, contents, policy);
+  addItem(item);
+  return item;
+}
 
-  if (renderAsList_) {
-    WContainerWidget *p = dynamic_cast<WContainerWidget *>(impl_);
-    WContainerWidget *li = new WContainerWidget();
-    p->insertWidget(p->count()/* - 1 */, li);
-    li->addWidget(item->itemWidget());
-  } else {
-    WTable *layout = dynamic_cast<WTable *>(impl_);
-    WTableCell *parent
-      = layout->elementAt((orientation_ == Vertical) ? items_.size() - 1 : 0,
-			  0);
+WMenuItem *WMenu::addMenu(const WString& text, WMenu *menu)
+{
+  return addMenu(std::string(), text, menu);
+}
 
-    WWidget *w = item->itemWidget();
-    parent->addWidget(w);
+WMenuItem *WMenu::addMenu(const std::string& iconPath,
+			  const WString& text, WMenu *menu)
+{
+  WMenuItem *item = addItem(iconPath, text);
+  item->setMenu(menu);
+  return item;
+}
 
-    // separate horizontal items so wrapping will occur inbetween items.
-    if (orientation_ == Horizontal) {
-      w->setInline(true);
-      new WText(" ", parent);
-    }
-  }
+void WMenu::addSeparator()
+{
+  addItem(new WMenuItem(true, WString::Empty));
+}
+
+void WMenu::addSectionHeader(const WString& text)
+{
+  addItem(new WMenuItem(false, text));
+}
+
+void WMenu::addItem(WMenuItem *item)
+{
+  item->setParentMenu(this);
+
+  ul()->addWidget(item);
 
   if (contentsStack_) {
     WWidget *contents = item->contents();
@@ -230,18 +222,14 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
       if (contents)
 	contentsStack_->setCurrentWidget(contents);
 
-      items_[0]->renderSelected(true);
-      items_[0]->loadContents();
+      renderSelected(item, true);
+      item->loadContents();
     } else
-      item->renderSelected(false);
+      renderSelected(item, false);
   } else
-    item->renderSelected(false);
-
-  item->itemWidget()->parent()->setHidden(item->isHidden());
+    renderSelected(item, false);
 
   itemPathChanged(item);
-
-  return item;
 }
 
 void WMenu::itemPathChanged(WMenuItem *item)
@@ -256,37 +244,16 @@ void WMenu::itemPathChanged(WMenuItem *item)
 
 void WMenu::removeItem(WMenuItem *item)
 {
-  int itemIndex = indexOf(item);
+  WContainerWidget *items = ul();
 
-  if (itemIndex != -1) {
-    items_.erase(items_.begin() + itemIndex);
-
-    if (renderAsList_) {
-      WContainerWidget *li
-	= dynamic_cast<WContainerWidget *>(item->itemWidget()->parent());
-      li->removeWidget(item->itemWidget());
-      delete li;
-    } else {
-      WTableCell *parent =
-        dynamic_cast<WTableCell *>(item->itemWidget()->parent());
-
-      if (orientation_ == Horizontal) {
-        WWidget *itemWidget = item->itemWidget();
-        WWidget *separator = parent->widget(parent->indexOf(itemWidget) + 1);
-
-        parent->removeWidget(itemWidget);
-        delete separator;
-      } else {
-        WTable *table = parent->table();
-        parent->removeWidget(item->itemWidget());
-        table->deleteRow(parent->row());
-      }
-    }
+  if (item->parent() == items) {
+    int itemIndex = items->indexOf(item);
+    items->removeWidget(item);
 
     if (contentsStack_ && item->contents())
       contentsStack_->removeWidget(item->contents());
 
-    item->setMenu(0);
+    item->setParentMenu(0);
 
     if (itemIndex <= current_ && current_ >= 0)
       --current_;
@@ -305,11 +272,11 @@ void WMenu::select(int index, bool changePath)
   selectVisual(index, changePath, true);
 
   if (index != -1) {
-    if (isItemHidden(index))
-      setItemHidden(index, false);
-
-    items_[index]->loadContents();
-    itemSelected_.emit(items_[current_]);
+    WMenuItem *item = itemAt(index);
+    item->show();
+    item->loadContents();
+    item->triggered().emit(item);
+    itemSelected_.emit(item);
 
     if (changePath && emitPathChange_) {
       WApplication *app = wApp;
@@ -328,11 +295,13 @@ void WMenu::selectVisual(int index, bool changePath, bool showContents)
 
   current_ = index;
 
+  WMenuItem *item = current_ >= 0 ? itemAt(current_) : 0;
+
   if (changePath && internalPathEnabled_ && current_ != -1) {
     WApplication *app = wApp;
     previousInternalPath_ = app->internalPath();
 
-    std::string newPath = basePath_ + items_[current_]->pathComponent();
+    std::string newPath = basePath_ + item->pathComponent();
     if (newPath != app->internalPath())
       emitPathChange_ = true;
 
@@ -340,47 +309,45 @@ void WMenu::selectVisual(int index, bool changePath, bool showContents)
     app->setInternalPath(newPath);
   }
 
-  for (unsigned i = 0; i < items_.size(); ++i)
-    items_[i]->renderSelected((int)i == current_);
+  for (int i = 0; i < count(); ++i)
+    renderSelected(itemAt(i), (int)i == current_);
 
   if (index == -1)
     return;
 
   if (showContents && contentsStack_) {
-    WWidget *contents = items_[current_]->contents();
+    WWidget *contents = item->contents();
     if (contents)
       contentsStack_->setCurrentWidget(contents);
   }
 
-  itemSelectRendered_.emit(items_[current_]);
+  itemSelectRendered_.emit(item);
+}
+
+void WMenu::renderSelected(WMenuItem *item, bool selected)
+{
+  item->renderSelected(selected);
 }
 
 void WMenu::setItemHidden(int index, bool hidden)
 {
-  items_[index]->setHidden(hidden);
+  itemAt(index)->setHidden(hidden);
 }
 
-void WMenu::doSetHiddenItem(int index, bool hidden)
+void WMenu::onItemHidden(int index, bool hidden)
 {
   if (hidden) {
     int nextItem = nextAfterHide(index);
     if (nextItem != current_)
       select(nextItem);
   }
-
-  items_[index]->itemWidget()->parent()->setHidden(hidden);
-}
-
-void WMenu::doSetHiddenItem(WMenuItem *item, bool hidden)
-{
-  doSetHiddenItem(indexOf(item), hidden);
 }
 
 int WMenu::nextAfterHide(int index)
 {
   if (current_ == index) {
     // Try to find visible item to the right of the current.
-    for (unsigned i = current_ + 1; i < items_.size(); ++i)
+    for (int i = current_ + 1; i < count(); ++i)
       if (!isItemHidden(i))
         return i;
 
@@ -395,51 +362,50 @@ int WMenu::nextAfterHide(int index)
 
 void WMenu::setItemHidden(WMenuItem *item, bool hidden)
 {
-  setItemHidden(indexOf(item), hidden);
+  item->setHidden(hidden);
 }
 
 bool WMenu::isItemHidden(int index) const
 {
-  return items_[index]->isHidden();
+  return isItemHidden(itemAt(index));
 }
 
 bool WMenu::isItemHidden(WMenuItem *item) const
 {
-  return isItemHidden(indexOf(item));
+  return item->isHidden();
 }
 
 void WMenu::setItemDisabled(int index, bool disabled)
 {
-  items_[index]->setDisabled(disabled);
+  setItemDisabled(itemAt(index), disabled);
 }
 
 void WMenu::setItemDisabled(WMenuItem* item, bool disabled)
 {
-  setItemDisabled(indexOf(item), disabled);
+  item->setDisabled(disabled);
 }
 
 bool WMenu::isItemDisabled(int index) const
 {
-  return items_[index]->isDisabled();
+  return isItemDisabled(itemAt(index));
 }
 
 bool WMenu::isItemDisabled(WMenuItem *item) const
 {
-  return isItemDisabled(indexOf(item));
+  return item->isDisabled();
 }
 
 void WMenu::close(int index)
 {
-  WMenuItem *item = items_[index];
-  if (item->isCloseable()) {
-    item->hide();
-    itemClosed_.emit(item);
-  }
+  close(itemAt(index));
 }
 
 void WMenu::close(WMenuItem *item)
 {
-  close(indexOf(item));
+  if (item->isCloseable()) {
+    item->hide();
+    itemClosed_.emit(item);
+  }
 }
 
 void WMenu::internalPathChanged(const std::string& path)
@@ -451,8 +417,8 @@ void WMenu::internalPathChanged(const std::string& path)
 
     int bestI = -1, bestMatchLength = -1;
 
-    for (unsigned i = 0; i < items_.size(); ++i) {
-      int matchLength = match(subPath, items_[i]->pathComponent());
+    for (int i = 0; i < count(); ++i) {
+      int matchLength = match(subPath, itemAt(i)->pathComponent());
 
       if (matchLength > bestMatchLength) {
 	bestMatchLength = matchLength;
@@ -461,7 +427,7 @@ void WMenu::internalPathChanged(const std::string& path)
     }
 
     if (bestI != -1)
-      items_[bestI]->setFromInternalPath(path);
+      itemAt(bestI)->setFromInternalPath(path);
     else {
       if (!subPath.empty())
 	LOG_WARN("unknown path: '"<< subPath << "'");
@@ -483,7 +449,7 @@ void WMenu::selectVisual(WMenuItem *item)
 
 int WMenu::indexOf(WMenuItem *item) const
 {
-  return Utils::indexOf(items_, item);
+  return ul()->indexOf(item);
 }
 
 void WMenu::undoSelectVisual()
@@ -504,45 +470,15 @@ void WMenu::undoSelectVisual()
 
 WMenuItem *WMenu::currentItem() const
 {
-  return current_ >= 0 ? items_[current_] : 0;
-}
-
-void WMenu::recreateItem(int index)
-{
-  WMenuItem *item = items_[index];
-
-  WContainerWidget *parent =
-    dynamic_cast<WContainerWidget *>(item->itemWidget()->parent());
-
-  if (renderAsList_) {
-    parent->addWidget(item->recreateItemWidget());
-  } else {
-    if (orientation_ == Horizontal) {
-      const int pos = parent->indexOf(item->itemWidget());
-      WWidget *newItemWidget = item->recreateItemWidget();
-      parent->insertWidget(pos, newItemWidget);
-      newItemWidget->setInline(true);
-    } else
-      parent->addWidget(item->recreateItemWidget());
-  }
-
-  item->renderSelected(current_ == index);
-
-  parent->setHidden(item->isHidden());
-
-  updateSelectionEvent();
-}
-
-void WMenu::recreateItem(WMenuItem *item)
-{
-  recreateItem(indexOf(item));
+  return current_ >= 0 ? itemAt(current_) : 0;
 }
 
 void WMenu::render(WFlags<RenderFlag> flags)
 {
   if (needSelectionEventUpdate_) {
-    for (unsigned i = 0; i < items_.size(); ++i)
-      items_[i]->resetLearnedSlots();
+    for (int i = 0; i < count(); ++i)
+      itemAt(i)->resetLearnedSlots();
+
     needSelectionEventUpdate_ = false;
   }
 
@@ -552,7 +488,17 @@ void WMenu::render(WFlags<RenderFlag> flags)
 void WMenu::updateSelectionEvent()
 {
   needSelectionEventUpdate_ = true;
-  askRerender();
+  scheduleRender();
+}
+
+int WMenu::count() const
+{
+  return ul()->count();
+}
+
+WMenuItem *WMenu::itemAt(int index) const
+{
+  return dynamic_cast<WMenuItem *>(ul()->widget(index));
 }
 
 }

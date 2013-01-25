@@ -9,7 +9,6 @@
 
 #include <map>
 #include <vector>
-#include <sstream>
 #include <string>
 
 #include "Wt/WWebWidget"
@@ -21,7 +20,7 @@ class WApplication;
 
 /*! \brief Enumeration for a DOM property.
  *
- * For internal use only.
+ * This is an internal API, subject to change.
  */
 enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyValue, PropertyDisabled,
@@ -74,68 +73,202 @@ enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyStyleBoxSizing };
 
 /*! \class DomElement web/DomElement web/DomElement
- *  \brief Class to represent a DOM element.
+ *  \brief Class to represent a client-side DOM element (proxy).
  *
- * This class is for internal use only.
+ * The DOM element proxy object is used as an intermediate layer to
+ * render the creation of new DOM elements or updates to existing DOM
+ * elements. A DOM element can be serialized to HTML or to JavaScript
+ * manipulations, and therefore is the main abstraction layer to avoid
+ * hard-coding JavaScript-based rendering within the library while
+ * still allowing fine-grained Ajax updates or large-scale HTML
+ * changes.
+ *
+ * This is an internal API, subject to change.
  */
 class WT_API DomElement
 {
 public:
+  /*! \brief Enumeration for the access mode (creation or update) */
   enum Mode { ModeCreate, ModeUpdate };
+
 #ifndef WT_TARGET_JAVA
+  /*! \brief A map for property values */
   typedef std::map<Wt::Property, std::string> PropertyMap;
 #else
   typedef std::treemap<Wt::Property, std::string> PropertyMap;
 #endif
 
+  /*! \brief Constructor.
+   *
+   * This constructs a DomElement reference, with a given mode and
+   * element type. Note that even when updating an existing element,
+   * the type is taken into account for information on what kind of
+   * operations are allowed (workarounds for IE deficiencies for
+   * examples) or to infer some basic CSS defaults for it (whether it
+   * is inline or a block element).
+   *
+   * Typically, elements are created using one of the 'named'
+   * constructors: createNew(), getForUpdate() or updateGiven().
+   */
   DomElement(Mode mode, DomElementType type);
+
+  /*! \brief Destructor.
+   */
   ~DomElement();
 
+  /*! \brief Low-level URL encoding function.
+   */
   static std::string urlEncodeS(const std::string& url);
+
+  /*! \brief Low-level URL encoding function.
+   *
+   * This variant allows the exclusion of certain characters from URL
+   * encoding.
+   */
   static std::string urlEncodeS(const std::string& url,
                                 const std::string& allowed);
 
+  /*! \brief Returns the mode.
+   */
   Mode mode() const { return mode_; }
-
+  
+  /*! \brief Sets the element type.
+   */
   void setType(DomElementType type);
+
+  /*! \brief Returns the element type.
+   */
   DomElementType type() const { return type_; }
 
+  /*! \brief Creates a reference to a new element.
+   */
   static DomElement *createNew(DomElementType type);
+
+  /*! \brief Creates a reference to an existing element, using its ID.
+   */
   static DomElement *getForUpdate(const std::string& id, DomElementType type);
+
+  /*! \brief Creates a reference to an existing element, deriving the ID from
+   *         an object.
+   *
+   * This uses object->id() as the id.
+   */
   static DomElement *getForUpdate(const WObject *object, DomElementType type);
+
+  /*! \brief Creates a reference to an existing element, using an expression
+   *         to access the element.
+   */
   static DomElement *updateGiven(const std::string& el, DomElementType type);
 
+  /*! \brief Returns the JavaScript variable name.
+   *
+   * This variable name is only defined when the element is being
+   * rendered using JavaScript, after declare() has been called.
+   */
   std::string var() { return var_; }
 
-  /*
-   * General methods (for both createnew and update modes)
+  /*! \brief Sets whether the element was initially empty.
+   *
+   * Knowing that an element was empty allows optimization of
+   * addChild()
    */
-  void setWasEmpty(bool how); // allows optimisation of addChild()
+  void setWasEmpty(bool how);
+
+  /*! \brief Adds a child.
+   *
+   * Ownership of the child is transferred to this element, and the
+   * child should not be manipulated after the call, since it could be
+   * that it gets directly converted into HTML and deleted.
+   */
   void addChild(DomElement *child);
+
+  /*! \brief Inserts a child.
+   *
+   * Ownership of the child is transferred to this element, and the child
+   * should not be manipulated after the call.
+   */
   void insertChildAt(DomElement *child, int pos);
+
+  /*! \brief Saves an existing child.
+   *
+   * This detaches the child from the parent, allowing the
+   * manipulation of the innerHTML without deleting the child. Stubs
+   * in the the new HTML that reference the same id will be replaced
+   * with the saved child.
+   */
   void saveChild(const std::string& id);
 
+  /*! \brief Sets an attribute value.
+   */
   void setAttribute(const std::string& attribute, const std::string& value);
 
+  /*! \brief Returns an attribute value set.
+   *
+   * \sa setAttribute()
+   */
   std::string getAttribute(const std::string& attribute) const;
+
+  /*! \brief Removes an attribute.
+   */
   void removeAttribute(const std::string& attribute);
 
+  /*! \brief Sets a property.
+   */
   void setProperty(Wt::Property property, const std::string& value);
+
+  /*! \brief Adds a 'word' to a property.
+   *
+   * This adds a word (delimited by a space) to an existing property value.
+   */
+  void addPropertyWord(Wt::Property property, const std::string& value);
+
+  /*! \brief Returns a property value set.
+   *
+   * \sa setProperty()
+   */
   std::string getProperty(Wt::Property property) const;
+
+  /*! \brief Removes a property.
+   */
   void removeProperty(Wt::Property property);
+
+  /*! \brief Sets a whole map of properties.
+   */
   void setProperties(const PropertyMap& properties);
+
+  /*! \brief Returns all properties currently set.
+   */
   const PropertyMap& properties() const { return properties_; }
+
+  /*! \brief Clears all properties.
+   */
   void clearProperties();
 
+  /*! \brief Sets an event handler based on a signal's connections.
+   */
   void setEventSignal(const char *eventName, const EventSignalBase& signal);
 
+  /*! \brief Sets an event handler.
+   *
+   * This sets an event handler by a combination of client-side
+   * JavaScript code and a server-side signal to emit.
+   */
   void setEvent(const char *eventName,
 		const std::string& jsCode,
 		const std::string& signalName,
 		bool isExposed = false);
+
+  /*! \brief Sets an event handler.
+   *
+   * This sets a JavaScript event handler.
+   */
   void setEvent(const char *eventName, const std::string& jsCode);
+
+  /*! \brief This adds more JavaScript to an event handler.
+   */
   void addEvent(const char *eventName, const std::string& jsCode);
 
+  /*! \brief A data-structure for an aggregated event handler. */ 
   struct EventAction
   {
     std::string jsCondition;
@@ -147,33 +280,77 @@ public:
 		const std::string& updateCmd, bool exposed);
   };
 
+  /*! \brief Sets an aggregated event handler. */
   void setEvent(const char * eventName,
 		const std::vector<EventAction>& actions);
 
+  /*! \brief Sets the DOM element id.
+   */
   void setId(const std::string& id);
+
+  /*! \brief Sets a DOM element name.
+   */
   void setName(const std::string& name);
+
+  /*! \brief Configures the DOM element as a source for timed events.
+   */
   void setTimeout(int msec, bool jsRepeat);
+
+  /*! \brief Calls a JavaScript method on the DOM element.
+   */
   void callMethod(const std::string& method);
+
+  /*! \brief Calls JavaScript (related to the DOM element).
+   */
   void callJavaScript(const std::string& javascript,
 		      bool evenWhenDeleted = false);
 
+  /*! \brief Returns the id.
+   */
   const std::string& id() const { return id_; }
 
-  /*
-   * only for ModeUpdate
+  /*! \brief Removes all children.
+   *
+   * If firstChild != 0, then only children starting from firstChild
+   * are removed.
    */
   void removeAllChildren(int firstChild = 0);
+
+  /*! \brief Removes the element.
+   */
   void removeFromParent();
+
+  /*! \brief Replaces the element by another element.
+   */
   void replaceWith(DomElement *newElement);
+
+  /*! \brief Unstubs an element by another element.
+   *
+   * Stubs are used to render hidden elements initially and update
+   * them in the background. This is almost the same as replaceWith()
+   * except that some style properties are copied over (most
+   * importantly its visibility).
+   */
   void unstubWith(DomElement *newElement, bool hideWithDisplay);
+
+  /*! \brief Inserts the element in the DOM as a new sibling.
+   */
   void insertBefore(DomElement *sibling);
+
+  /*! \brief Unwraps an element to progress to Ajax support.
+   *
+   * In plain HTML mode, some elements are rendered wrapped in or as
+   * another element, to provide more interactivity in the absense of
+   * JavaScript.
+   */
   void unwrap();
 
-  void setDiscardWithParent(bool discard);
-  bool discardWithParent() const { return discardWithParent_; }
-
+  /*! \brief Enumeration for an update rendering phase.
+   */
   enum Priority { Delete, Create, Update };
 
+  /*! \brief Structure for keeping track of timers attached to this element.
+   */
   struct TimeoutEvent {
     int msec;
     std::string event;
@@ -184,50 +361,130 @@ public:
       : msec(m), event(e), repeat(r) { }
   };
 
+  /*! \brief A list of timeouts.
+   */
   typedef std::vector<TimeoutEvent> TimeoutList;
 
-  void asJavaScript(std::ostream& out);
+  /*! \brief Renders the element as JavaScript.
+   */
+  void asJavaScript(WStringStream& out);
+
+  /*! \brief Renders the element as JavaScript, by phase.
+   *
+   * To avoid temporarily having dupliate IDs as elements move around
+   * in the page, rendering is ordered in a number of phases : first
+   * deleting existing elements, then creating new elements, and
+   * finally updates to existing elements.
+   */
   std::string asJavaScript(EscapeOStream& out, Priority priority) const;
 
+  /*! \brief Renders the element as HTML.
+   *
+   * Anything that cannot be rendered as HTML is rendered as
+   * javaScript as a by-product.
+   */
   void asHTML(EscapeOStream& out, EscapeOStream& javaScript,
 	      TimeoutList& timeouts, bool openingTagOnly = false) const;
-  static void createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
+
+  /*! \brief Creates the JavaScript statements for timer rendering.
+   */
+  static void createTimeoutJs(WStringStream& out, const TimeoutList& timeouts,
 			      WApplication *app);
 
+  /*! \brief Returns the default display property for this element.
+   *
+   * This returns whether the element is by default an inline or block
+   * element.
+   */
   bool isDefaultInline() const;
+
+  /*! \brief Declares the element.
+   *
+   * Only after the element has been declared, var() returns a useful
+   * JavaScript reference.
+   */
   void declare(EscapeOStream& out) const;
 
+  /*! \brief Renders properties and attributes into CSS.
+   */
   std::string cssStyle() const;
 
+  /*! \brief Utility for rapid rendering of JavaScript strings.
+   *
+   * It uses pre-computed mixing rules for escaping of the string.
+   */
   static void fastJsStringLiteral(EscapeOStream& outRaw,
 				  const EscapeOStream& outEscaped,
 				  const std::string& s);
+
+  /*! \brief Utility that renders a string as JavaScript literal.
+   */
   static void jsStringLiteral(EscapeOStream& out, const std::string& s,
 			      char delimiter);
-  static void jsStringLiteral(std::ostream& out, const std::string& s,
+
+  /*! \brief Utility that renders a string as JavaScript literal.
+   */
+  static void jsStringLiteral(WStringStream& out, const std::string& s,
 			      char delimiter);
+
+  /*! \brief Utility for rapid rendering of HTML attribute values.
+   *
+   * It uses pre-computed mixing rules for escaping of the attribute
+   * value.
+   */
   static void fastHtmlAttributeValue(EscapeOStream& outRaw,
 				     const EscapeOStream& outEscaped,
 				     const std::string& s);
-  static void htmlAttributeValue(std::ostream& out, const std::string& s);
+
+  /*! \brief Utility that renders a string as HTML attribute.
+   */
+  static void htmlAttributeValue(WStringStream& out, const std::string& s);
+
+  /*! \brief Returns whether a tag is self-closing in HTML.
+   */
   static bool isSelfClosingTag(const std::string& tag);
+
+  /*! \brief Returns whether a tag is self-closing in HTML.
+   */
   static bool isSelfClosingTag(DomElementType element);
+
+  /*! \brief Parses a tag name to a DOMElement type.
+   */
   static DomElementType parseTagName(const std::string& tag);
+
+  /*! \brief Returns the name for a CSS property, as a string.
+   */
   static const std::string& cssName(Property property);
+
+  /*! \brief Returns whether a paritcular element is by default inline.
+   */
   static bool isDefaultInline(DomElementType type);
 
+  /*! \brief Returns all custom JavaScript collected in this element.
+   */
   std::string javaScript() const { return javaScript_.str(); }
 
+  /*! \brief Something to do with broken IE Mobile 5 browsers...
+   */
   void updateInnerHtmlOnly();
 
-  std::string addToParent(std::ostream& out, const std::string& parentVar,
+  /*! \brief Adds an element to a parent, using suitable methods.
+   *
+   * Depending on the type, different DOM methods are needed. In
+   * particular for table cells, some browsers require dedicated API
+   * instead of generic insertAt() or appendChild() functions.
+   */
+  std::string addToParent(WStringStream& out, const std::string& parentVar,
 			  int pos, WApplication *app);
 
-  void createElement(std::ostream& out, WApplication *app,
+  /*! \brief Renders the element as JavaScript, and inserts it in the DOM.
+   */
+  void createElement(WStringStream& out, WApplication *app,
 		     const std::string& domInsertJS);
 
+  /*! \brief Allocates a JavaScript variable.
+   */
   std::string createVar() const;
-
 
 private:
   struct EventHandler {
@@ -295,8 +552,6 @@ private:
   std::vector<DomElement *> updatedChildren_;
   EscapeOStream childrenHtml_;
   TimeoutList timeouts_;
-
-  bool discardWithParent_;
 
   static int nextId_;
 

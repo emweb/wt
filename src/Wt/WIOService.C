@@ -4,30 +4,31 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WIOService"
+#include "Wt/WLogger"
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
 #ifdef WT_THREADED
-#include <boost/thread.hpp>
-
 #if !defined(_WIN32)
-
 #include <pthread.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
 #endif // !_WIN32
-
 #endif // WT_THREADED
 
-#include "Wt/WIOService"
-
 namespace Wt {
+
+LOGGER("WIOService");
 
 WIOService::WIOService()
   : threadCount_(5),
     work_(0)
+#ifdef WT_THREADED
+    , blockedThreadCounter_(0)
+#endif
 { }
 
 WIOService::~WIOService()
@@ -126,6 +127,32 @@ void WIOService::handleTimeout(boost::asio::deadline_timer *timer,
 
 void WIOService::initializeThread()
 { }
+
+bool WIOService::requestBlockedThread()
+{
+#ifdef WT_THREADED
+  boost::mutex::scoped_lock l(blockedThreadMutex_);
+  if (blockedThreadCounter_ >= threadCount() - 1)
+    return false;
+  else {
+    blockedThreadCounter_++;
+    return true;
+  }
+#else
+  return false;
+#endif
+}
+
+void WIOService::releaseBlockedThread()
+{
+#ifdef WT_THREADED
+  boost::mutex::scoped_lock l(blockedThreadMutex_);
+  if (blockedThreadCounter_ > 0)
+    blockedThreadCounter_--;
+  else
+    LOG_ERROR("releaseBlockedThread: oops!");
+#endif
+}
 
 void WIOService::run()
 {

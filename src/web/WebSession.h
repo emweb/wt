@@ -97,7 +97,6 @@ public:
   void pushUpdates();
 
   void doRecursiveEventLoop();
-  bool bootStyleResponse() const { return !noBootStyleResponse_; }
 
   void deferRendering();
   void resumeRendering();
@@ -284,7 +283,7 @@ private:
   std::string redirect_;
   std::string pagePathInfo_;
   WebResponse *asyncResponse_, *bootStyleResponse_;
-  bool canWriteAsyncResponse_, noBootStyleResponse_;
+  bool canWriteAsyncResponse_;
   int pollRequestsIgnored_;
   bool progressiveBoot_;
 

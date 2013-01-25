@@ -12,6 +12,7 @@
 #include "Wt/Utils"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/version.hpp>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -232,7 +233,10 @@ static inline char *generic_double_to_str(double d, char *buf)
   using namespace boost::spirit;
   using namespace boost::spirit::karma;
   char *p = buf;
-  generate(p, KarmaJavaScriptDouble(), d);
+  if (d != 0)
+    generate(p, KarmaJavaScriptDouble(), d);
+  else
+    *p++ = '0';
   *p = '\0';
   return buf;
 }
@@ -258,9 +262,11 @@ static inline char *generic_double_to_str(double d, char *buf)
 
 char *round_str(double d, int digits, char *buf) {
 #ifdef SPIRIT_FLOAT_FORMAT
-    return generic_double_to_str(d, buf);
+  return generic_double_to_str(d, buf);
 #else
-  if (((d == 0) || (d > 1 && d < 1000000) || (d < -1 && d > -1000000))
+  if (((d == 0)
+       || (d > 1 && d < 1000000)
+       || (d < -1 && d > -1000000))
       && digits < 7) {
     // range where a very fast float->string converter works
     // mainly intended to render floats for 2D drawing canvas

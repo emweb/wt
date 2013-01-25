@@ -626,6 +626,10 @@ public:
 
   void toggleStyleClass(const char *styleClass, bool add, bool force = false);
 
+  /*! \brief Returns whether the widget has a style class.
+   */
+  virtual bool hasStyleClass(const WT_USTRING& styleClass) const = 0;
+
   /*! \brief Sets the vertical alignment.
    *
    * This only applies to inline widgets, and determines how to position
@@ -664,7 +668,7 @@ public:
 
   /*! \brief Returns the tooltip.
    */
-  virtual WString toolTip() const = 0;
+  virtual const WString& toolTip() const = 0;
 
   /*! \brief Refresh the widget.
    *
@@ -831,6 +835,8 @@ public:
    */
   virtual WWidget *find(const std::string& name) = 0;
 
+  virtual WWidget *findById(const std::string& id) = 0;
+
   /*! \brief Streams the (X)HTML representation.
    *
    * Streams the widget as UTF8-encoded (HTML-compatible) XHTML.
@@ -879,7 +885,7 @@ public:
 
   std::string inlineCssStyle();
 
-  std::string createJavaScript(std::stringstream& js, std::string insertJS);
+  std::string createJavaScript(WStringStream& js, std::string insertJS);
 
   /*! \brief Hides the widget.
    *
@@ -1073,7 +1079,32 @@ protected:
   virtual void setParentWidget(WWidget *parent);
 
   virtual bool isStubbed() const = 0;
+
+  /*! \brief Schedules rerendering of the widget.
+   *
+   * This schedules a rendering phase after all events have been
+   * processed. This method is used internally whenever a property of
+   * a widget has been changed. But you may want to use this if you
+   * are deferring actual changes to a widget in response to an event,
+   * and instead postpone this until all events have been received.
+   *
+   * \sa render()
+   */
+  void scheduleRender();
+
+  /*! \brief Renders the widget.
+   *
+   * This function renders the widget (or an update for the widget), after
+   * this has been scheduled using scheduleRender().
+   *
+   * The default implementation will render the widget by serializing changes
+   * to JavaScript and HTML. You may want to reimplement this widget if you
+   * have been postponing some of the layout / rendering implementation
+   * until the latest moment possible. In that case you should make sure you
+   * call the base implementation however.
+   */
   virtual void render(WFlags<RenderFlag> flags);
+
   virtual void childResized(WWidget *child, WFlags<Orientation> directions);
 
   WWidget *adam();
@@ -1093,7 +1124,7 @@ protected:
   virtual WStatelessSlot *getStateless(Method method);
 
   void renderOk();
-  void askRerender(bool laterOnly = false);
+  void scheduleRerender(bool laterOnly);
   bool needRerender() const { return flags_.test(BIT_NEED_RERENDER); }
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
@@ -1131,24 +1162,24 @@ private:
   virtual WLayout          *layout();
 
   friend class StdWidgetItemImpl;
+  friend class WebRenderer;
   friend class WAbstractArea;
   friend class WAbstractItemView;
   friend class WApplication;
+  friend class WCalendar;
   friend class WContainerWidget;
   friend class WCompositeWidget;
   friend class WFileUpload;
   friend class WGLWidget;
-  friend class WebRenderer;
   friend class WLayout;
   friend class WMenuItem;
   friend class WPaintedWidget;
+  friend class WPopupWidget;
   friend class WScrollArea;
-  friend class WSubMenuItem;
+  friend class WTemplate;
   friend class WViewWidget;
   friend class WWebWidget;
   friend class WWidgetItem;
-  friend class WTemplate;
-  friend class WCalendar;
 };
 
 }

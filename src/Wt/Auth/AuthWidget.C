@@ -24,8 +24,8 @@
 #include "Wt/WLineEdit"
 #include "Wt/WMessageBox"
 #include "Wt/WPushButton"
-#include "Wt/WTemplate"
 #include "Wt/WText"
+#include "Wt/WTheme"
 
 #include "Login"
 #include "AuthWidget"
@@ -34,7 +34,7 @@
 #include <memory>
 
 namespace skeletons {
-  extern const char * Auth_xml1;
+  extern const char * AuthStrings_xml1;
 }
 
 namespace Wt {
@@ -69,13 +69,10 @@ void AuthWidget::init()
   dialog_ = 0;
   messageBox_ = 0;
 
-  addFunction("id", WT_TEMPLATE_FUNCTION(id));
-  addFunction("tr", WT_TEMPLATE_FUNCTION(tr));
-
   WApplication *app = WApplication::instance();
-  app->useStyleSheet(WApplication::resourcesUrl() + "form.css");
   app->internalPathChanged().connect(this, &AuthWidget::onPathChange);
-  app->builtinLocalizedStrings().useBuiltin(skeletons::Auth_xml1);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
+  app->theme()->apply(this, this, AuthWidgets);
 }
 
 void AuthWidget::setModel(AuthModel *model)
@@ -256,7 +253,7 @@ void AuthWidget::render(WFlags<RenderFlag> flags)
     created_ = true;
   }
 
-  WTemplate::render(flags);
+  WTemplateFormView::render(flags);
 }
 
 void AuthWidget::create()
@@ -275,6 +272,10 @@ void AuthWidget::onLoginChange()
   clear();
 
   if (login_.loggedIn()) {
+#ifndef WT_TARGET_JAVA
+    WApplication::instance()->changeSessionId();
+#endif // WT_TARGET_JAVA
+
     createLoggedInView();
   } else {
     if (model_->baseAuth()->authTokensEnabled()) {

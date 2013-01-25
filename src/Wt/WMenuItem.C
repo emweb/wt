@@ -6,12 +6,16 @@
 
 #include "Wt/WAnchor"
 #include "Wt/WApplication"
+#include "Wt/WCheckBox"
 #include "Wt/WContainerWidget"
+#include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WMenuItem"
 #include "Wt/WMenu"
+#include "Wt/WPopupMenu"
 #include "Wt/WStackedWidget"
 #include "Wt/WText"
+#include "Wt/WTheme"
 
 #include "StdWidgetItemImpl.h"
 
@@ -21,94 +25,147 @@ namespace Wt {
 
 WMenuItem::WMenuItem(const WString& text, WWidget *contents,
 		     LoadPolicy policy)
-  : itemWidget_(0),
-    contentsContainer_(0),
-    contents_(contents),
-    menu_(0),
-    customPathComponent_(false),
-    closeable_(false),
-    disabled_(false),
-    hidden_(false)
+  : separator_(false),
+    triggered_(this)
 {
-  setText(text);
+  create(std::string(), text, contents, policy);
+}
 
-  if (policy == PreLoading)
-    // prelearn the stateless slot only if already needed.
-    implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
-  else if (contents_) {
+WMenuItem::WMenuItem(const std::string& iconPath, const WString& text,
+		     WWidget *contents, LoadPolicy policy)
+  : separator_(false),
+    triggered_(this)
+{
+  create(iconPath, text, contents, policy);
+}
+
+WMenuItem::WMenuItem(bool separator, const WString& text)
+  : separator_(true),
+    triggered_(this)
+{
+  create(std::string(), WString::Empty, 0, LazyLoading);
+
+  separator_ = separator;
+  selectable_ = false;
+
+  if (!text.empty()) {
+    text_ = new WText(text, PlainText, this);
+  }
+}
+
+void WMenuItem::create(const std::string& iconPath, const WString& text,
+		       WWidget *contents, LoadPolicy policy)
+{
+  contentsContainer_ = 0;
+  contents_ = contents;
+  menu_ = 0;
+  customPathComponent_ = false;
+  closeable_ = false;
+  selectable_ = true;
+
+  text_ = 0;
+  icon_ = 0;
+  checkBox_ = 0;
+  subMenu_ = 0;
+  data_ = 0;
+
+  if (contents_ && policy != PreLoading) {
     contentsContainer_ = new WContainerWidget();
     contentsContainer_
       ->setJavaScriptMember("wtResize", StdWidgetItemImpl::childrenResizeJS());
 
-    addChild(contents_);
-
-    WT_DEBUG( contentsContainer_->setObjectName("contents-container") );
     contentsContainer_->resize(WLength::Auto,
 			       WLength(100, WLength::Percentage));
   }
+
+  if (!separator_) {
+    WAnchor *a = new WAnchor(this);
+
+    WApplication *app = WApplication::instance();
+    if (app->environment().agent() == WEnvironment::IE6)
+      a->setLink(WLink("javascript:false"));
+  }
+
+  signalsConnected_ = false;
+
+  if (!iconPath.empty())
+    setIcon(iconPath);
+
+  if (!separator_)
+    setText(text);
 }
 
 WMenuItem::~WMenuItem()
 {
-  if (menu_)
-    menu_->removeItem(this);
+  if (!contentsLoaded())
+    delete contents_;
 
-  delete itemWidget_;
-  delete contents();
+  delete subMenu_;
 }
 
-WWidget *WMenuItem::createItemWidget()
+bool WMenuItem::isSectionHeader() const
 {
-  WAnchor *enabledLabel = 0;
-  WText *disabledLabel = 0;
+  WAnchor *a = anchor();
+  return !separator_ && !a && !subMenu_ && text_;
+}
 
-  if (!disabled_) {
-    enabledLabel = new WAnchor();
-    enabledLabel->setWordWrap(false);
-  } else {
-    disabledLabel = new WText("");
-    disabledLabel->setWordWrap(false);
+WAnchor *WMenuItem::anchor() const
+{
+  for (int i = 0; i < count(); ++i) {
+    WAnchor *result = dynamic_cast<WAnchor *>(widget(i));
+    if (result)
+      return result;
   }
 
-  if (closeable_) {
-    WText *closeIcon = new WText("");
-    closeIcon->setStyleClass("Wt-closeicon");
-    WContainerWidget *c = new WContainerWidget();
-    c->setInline(true);
-    if (enabledLabel) {
-      enabledLabel->setStyleClass("label");
-      c->addWidget(enabledLabel);
-    } else {
-      disabledLabel->setStyleClass("label");
-      c->addWidget(disabledLabel);
-    }
-
-    c->addWidget(closeIcon);
-
-    return c;
-  } else if (enabledLabel)
-    return enabledLabel;
-  else
-    return disabledLabel;
+  return 0;
 }
 
-WWidget *WMenuItem::recreateItemWidget()
+void WMenuItem::setIcon(const std::string& path)
 {
-  delete itemWidget_;
-  itemWidget_ = 0;
-  return itemWidget();
+  if (!icon_) {
+    WAnchor *a = anchor();
+    if (!a)
+      return;
+
+    icon_ = new WText(" ");
+    a->insertWidget(0, icon_);
+
+    WApplication *app = WApplication::instance();
+    app->theme()->apply(this, icon_, MenuItemIconRole);
+  }
+
+  icon_->decorationStyle().setBackgroundImage(WLink(path));
+}
+
+std::string WMenuItem::icon() const
+{
+  if (icon_)
+    return icon_->decorationStyle().backgroundImage();
+  else
+    return std::string();
 }
 
 void WMenuItem::setText(const WString& text)
 {
-  text_ = text;
+  if (!text_) {
+    text_ = new WText(anchor());
+    text_->setTextFormat(Wt::PlainText);
+  }
+
+  text_->setText(text);
 
   if (!customPathComponent_) {
     std::string result;
-    if (text_.literal())
-      result = text_.narrow();
+#ifdef WT_TARGET_JAVA
+    WString t = text;
+#else
+    const WString& t = text;
+#endif
+
+    if (t.literal())
+      result = t.narrow();
     else
-      result = text_.key();
+      result = t.key();
 
     for (unsigned i = 0; i < result.length(); ++i) {
       if (std::isspace((unsigned char)result[i]))
@@ -119,11 +176,17 @@ void WMenuItem::setText(const WString& text)
 	result[i] = '_';
     }
 
-    pathComponent_ = result;
+    setPathComponent(result);
+    customPathComponent_ = false;
   }
+}
 
-  if (itemWidget_)
-    updateItemWidget(itemWidget_);
+const WString& WMenuItem::text() const
+{
+  if (text_)
+    return text_->text();
+  else
+    return WString::Empty;
 }
 
 std::string WMenuItem::pathComponent() const
@@ -131,42 +194,121 @@ std::string WMenuItem::pathComponent() const
   return pathComponent_;
 }
 
+void WMenuItem::setLink(const WLink& link)
+{
+  WAnchor *a = anchor();
+  if (a)
+    a->setLink(link);
+}
+
+WLink WMenuItem::link() const
+{
+  WAnchor *a = anchor();
+  if (a)
+    return a->link();
+  else
+    return std::string();
+}
+
+void WMenuItem::setLinkTarget(AnchorTarget target)
+{
+  WAnchor *a = anchor();
+  if (a)
+    a->setTarget(target);
+}
+
+AnchorTarget WMenuItem::linkTarget() const
+{
+  WAnchor *a = anchor();
+  if (a)
+    return anchor()->target();
+  else
+    return TargetSelf;
+}
+
+void WMenuItem::updateInternalPath()
+{  
+  if (menu_ && menu_->internalPathEnabled()
+      && !dynamic_cast<WPopupMenu *>(menu())) {
+    std::string internalPath = menu_->internalBasePath() + pathComponent();
+    WLink link(WLink::InternalPath, internalPath);
+    WAnchor *a = anchor();
+    if (a)
+      a->setLink(link);
+  } else {
+    WAnchor *a = anchor();
+    if (a) {
+      if (WApplication::instance()->environment().agent() == WEnvironment::IE6)
+	a->setLink(WLink("#"));
+      else
+	a->setLink(WLink());
+    }
+  }
+}
+
 void WMenuItem::setPathComponent(const std::string& path)
 {
   customPathComponent_ = true;
   pathComponent_ = path;
 
-  if (itemWidget_)
-    updateItemWidget(itemWidget_);
-
+  updateInternalPath();
   if (menu_)
     menu_->itemPathChanged(this);
 }
 
+void WMenuItem::setSelectable(bool selectable)
+{
+  selectable_ = selectable;
+}
+
 void WMenuItem::setCloseable(bool closeable)
 {
-  closeable_ = closeable;
+  if (closeable_ != closeable) {
+    closeable_ = closeable;
 
-  if (menu_)
-    menu_->recreateItem(this);
+    if (closeable_) {
+      WText *closeIcon = new WText("");
+      insertWidget(0, closeIcon);
+      WApplication *app = WApplication::instance();
+      app->theme()->apply(this, closeIcon, MenuItemCloseRole);
+
+      closeIcon->clicked().connect(this, &WMenuItem::close);
+    } else {
+      delete widget(0);
+    }
+  }
 }
 
-void WMenuItem::setHidden(bool hidden)
+void WMenuItem::setCheckable(bool checkable)
 {
-  hidden_ = hidden;
+  if (isCheckable() != checkable) {
+    if (checkable) {
+      checkBox_ = new WCheckBox();
+      anchor()->insertWidget(0, checkBox_);
 
-  if (menu_)
-    menu_->doSetHiddenItem(this, hidden_);
+      WApplication *app = WApplication::instance();
+      app->theme()->apply(this, checkBox_, MenuItemCheckBoxRole);
+    } else {
+      delete checkBox_;
+    }
+  }
 }
 
-void WMenuItem::hide()
+void WMenuItem::setChecked(bool checked)
 {
-  setHidden(true);
+  if (isCheckable()) {
+    WCheckBox *cb = dynamic_cast<WCheckBox *>(anchor()->widget(0));
+    cb->setChecked(checked);
+  }
 }
 
-void WMenuItem::show()
+bool WMenuItem::isChecked() const
 {
-  setHidden(false);
+  if (isCheckable()) {
+    WCheckBox *cb = dynamic_cast<WCheckBox *>(anchor()->widget(0));
+    return cb->isChecked();
+  } else
+    return false;
 }
 
 void WMenuItem::close()
@@ -175,122 +317,31 @@ void WMenuItem::close()
     menu_->close(this);
 }
 
-WWidget *WMenuItem::itemWidget()
-{
-  if (!itemWidget_) {
-    itemWidget_ = createItemWidget();
-    updateItemWidget(itemWidget_);
-    connectSignals();
-  }
-
-  return itemWidget_;
-}
-
-void WMenuItem::connectActivate()
-{
-  SignalBase& as = activateSignal();
-  if (contentsContainer_ && contentsContainer_->count() == 0)
-    // load contents (will only do something on the first activation).
-    as.connect(this, &WMenuItem::selectNotLoaded);
-  else {
-    as.connect(this, &WMenuItem::selectVisual);
-    as.connect(this, &WMenuItem::select);
-  }
-}
-
-void WMenuItem::connectClose()
-{
-  SignalBase& cs = closeSignal();
-  cs.connect(this, &WMenuItem::close);
-}
-
 void WMenuItem::enableAjax()
 {
-  if (!contentsLoaded())
-    contents_->enableAjax();
-
-  if (menu_->internalPathEnabled()) {
-    updateItemWidget(itemWidget());
+  if (menu_->internalPathEnabled())
     resetLearnedSlots();
-  }
+
+  WContainerWidget::enableAjax();
 }
 
-void WMenuItem::updateItemWidget(WWidget *itemWidget)
+void WMenuItem::render(WFlags<RenderFlag> flags)
 {
-  WAnchor *enabledLabel = 0;
-  WText *disabledLabel = 0;
+  connectSignals();
 
-  if (closeable_) {
-    WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget);
-    if (!disabled_)
-      enabledLabel = dynamic_cast<WAnchor *>(c->children()[0]);
-    else
-      disabledLabel = dynamic_cast<WText *>(c->children()[0]);
-  } else if (!disabled_)
-    enabledLabel = dynamic_cast<WAnchor *>(itemWidget);
-  else
-    disabledLabel = dynamic_cast<WText *>(itemWidget);
-
-  if (enabledLabel) {
-    enabledLabel->setText(text());
-
-    std::string url;
-    if (menu_ && menu_->internalPathEnabled()) {
-      std::string internalPath = menu_->internalBasePath() + pathComponent();
-      WLink link(WLink::InternalPath, internalPath);
-      WApplication *app = WApplication::instance();
-      url = link.resolveUrl(app);
-    } else
-      url = "#";
-
-    enabledLabel->setLink(WLink(url));
-    enabledLabel->setToolTip(toolTip());
-    enabledLabel->clicked().preventDefaultAction();
-  } else {
-    disabledLabel->setText(text());
-    disabledLabel->setToolTip(toolTip());
-  }
-}
-
-SignalBase& WMenuItem::activateSignal()
-{
-  WWidget *w = 0;
-
-  if (closeable_) {
-    WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget_);
-    w = c->children()[0];
-  } else
-    w = itemWidget_;
-
-  WInteractWidget *wi  = dynamic_cast<WInteractWidget *>(w->webWidget());
-
-  if (wi)
-    return wi->clicked();
-  else
-    throw WException("WMenuItem::activateSignal(): "
-		     "could not dynamic_cast itemWidget() or "
-		     "itemWidget()->children()[0] to a WInteractWidget");
-}
-
-SignalBase& WMenuItem::closeSignal()
-{
-  WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget_);
-  WInteractWidget *ci = dynamic_cast<WInteractWidget *>(c->children()[1]);
-
-  if (ci)
-    return ci->clicked();
-  else
-    throw WException("WMenuItem::closeSignal(): "
-		     "could not dynamic_cast itemWidget()->children()[1] "
-		     "to a WInteractWidget");
+  WContainerWidget::render(flags);
 }
 
 void WMenuItem::renderSelected(bool selected)
 {
-  if (closeable_)
-    itemWidget()->setStyleClass(selected ? "citemselected" : "citem");
+  WApplication *app = WApplication::instance();
+
+  std::string active = app->theme()->activeClass();
+
+  if (active == "Wt-selected") // for CSS theme, our styles are messed up
+    setStyleClass(selected ? "itemselected" : "item");
   else
-    itemWidget()->setStyleClass(selected ? "itemselected" : "item");
+    toggleStyleClass(active, selected, true);
 }
 
 void WMenuItem::selectNotLoaded()
@@ -307,22 +358,47 @@ bool WMenuItem::contentsLoaded() const
 void WMenuItem::loadContents()
 {
   if (!contentsLoaded()) {
-    removeChild(contents_);
     contentsContainer_->addWidget(contents_);
-
-    // A user should do the following himself, if he wants.
-    // contents_->resize(WLength::Auto, WLength(100, WLength::Percentage));
-
-    // now prelearn the stateless slot
-    implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
-
-    connectActivate();
+    signalsConnected_ = false;
+    connectSignals();
   }
 }
 
-void WMenuItem::setMenu(WMenu *menu)
+void WMenuItem::connectSignals()
+{
+  if (!signalsConnected_) {
+    signalsConnected_ = true;
+
+    if (contentsLoaded())
+      implementStateless(&WMenuItem::selectVisual,
+			 &WMenuItem::undoSelectVisual);
+
+    WAnchor *a = anchor();
+
+    if (a) {
+      SignalBase *as;
+
+      if (checkBox_) {
+	as = &a->mouseWentUp();
+	a->setLink(WLink());
+      } else {
+	as = &a->clicked();
+      }
+
+      if (contentsContainer_ && contentsContainer_->count() == 0)
+	as->connect(this, &WMenuItem::selectNotLoaded);
+      else {
+	as->connect(this, &WMenuItem::selectVisual);
+	as->connect(this, &WMenuItem::select);
+      }
+    }
+  }
+}
+
+void WMenuItem::setParentMenu(WMenu *menu)
 {
   menu_ = menu;
+  updateInternalPath();
 }
 
 WWidget *WMenuItem::contents() const
@@ -337,9 +413,7 @@ WWidget *WMenuItem::takeContents()
 {
   WWidget *result = contents_;
 
-  if (!contentsLoaded())
-    removeChild(contents_);
-  else
+  if (contentsLoaded())
     if (contentsContainer_)
       contentsContainer_->removeWidget(contents_);
 
@@ -359,62 +433,59 @@ void WMenuItem::setFromInternalPath(const std::string& path)
   if (menu_->contentsStack_
       && menu_->contentsStack_->currentWidget() != contents())
     menu_->select(menu_->indexOf(this), false);
+
+  if (subMenu_ && subMenu_->internalPathEnabled())
+    subMenu_->internalPathChanged(path);
 }
 
 void WMenuItem::select()
 {
-  if (menu_)
+  if (menu_ && selectable_)
     menu_->select(this);
 }
 
 void WMenuItem::selectVisual()
 {
-  if (menu_)
+  if (menu_ && selectable_)
     menu_->selectVisual(this);
 }
 
 void WMenuItem::undoSelectVisual()
 {
-  if (menu_)
+  if (menu_ && selectable_)
     menu_->undoSelectVisual();
 }
 
-void WMenuItem::setToolTip(const WString& tip)
+void WMenuItem::setMenu(WMenu *menu)
 {
-  tip_ = tip;
+  subMenu_ = menu;
+  subMenu_->parentItem_ = this;
 
-  if (itemWidget_)
-    updateItemWidget(itemWidget_);
-}
+  addWidget(subMenu_);
 
-void WMenuItem::setDisabled(bool disabled)
-{
-  disabled_ = disabled;
-
-  if (menu_)
-    menu_->recreateItem(this);
-}
-
-void WMenuItem::enable()
-{
-  setDisabled(false);
-}
-
-void WMenuItem::disable()
-{
-  setDisabled(true);
-}
-
-void WMenuItem::connectSignals()
-{
-  if (!disabled_) {
-    if (contentsLoaded())
-      implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
-    connectActivate();
+  WPopupMenu *popup = dynamic_cast<WPopupMenu *>(this->menu());
+  if (popup) {
+    popup->setJavaScriptMember("wtNoReparent", "true");
+    setSelectable(false);
+    popup->setButton(anchor());
+    updateInternalPath();
   }
 
-  if (closeable_)
-    connectClose();
+  addStyleClass("submenu");
+}
+
+WMenu *WMenuItem::menu()
+{
+  return subMenu_;
+}
+
+void WMenuItem::setItemPadding(bool padding)
+{
+  if (!checkBox_ && !icon_) {
+    WAnchor *a = anchor();
+    if (a)
+      a->toggleStyleClass("Wt-padded", padding);
+  }
 }
 
 }

@@ -1,0 +1,26 @@
+.CSS-example table {
+  width: 0%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.CSS-example .table-bordered {
+  border: 1px solid #DDD;
+  border-left: 0;
+  border-radius: 4px;
+}
+
+.CSS-example .table-condensed th,
+.CSS-example .table-condensed td {
+  padding: 4px 5px;
+}
+
+.CSS-example .code {
+  font-family: andale mono;
+  color: #570;
+  font-size: 97%;
+}
+
+.CSS-example .info {
+  background-color: #D9EDF7;
+}

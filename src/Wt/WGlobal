@@ -50,7 +50,9 @@ namespace Wt {
   class WCssStyleSheet;
   class WCssTemplateRule;
   class WCssTextRule;
+  class WCssTheme;
   class WDate;
+  class WDateEdit;
   class WDatePicker;
   class WDateTime;
   class WDateValidator;
@@ -94,6 +96,7 @@ namespace Wt {
   class WLineEdit;
   class WLineF;
   class WLink;
+  class WLocale;
   class WLoadingIndicator;
   class WLocalizedStrings;
   class WLogEntry;
@@ -108,6 +111,7 @@ namespace Wt {
   class WMessageResources;
   class WModelIndex;
   class WMouseEvent;
+  class WNavigationBar;
   class WObject;
   class WOverlayLoadingIndicator;
   class WPaintDevice;
@@ -121,7 +125,8 @@ namespace Wt {
   class WPointF;
   class WPolygonArea;
   class WPopupMenu;
-  class WPopupMenuItem;
+  class WPopupWidget;
+  typedef WMenuItem WPopupMenuItem;
   class WProgressBar;
   class WPushButton;
   class WRadioButton;
@@ -144,13 +149,14 @@ namespace Wt {
   class WSortFilterProxyModel;
   class WSound;
   class WSpinBox;
+  class WSplitButton;
   class WStackedWidget;
   class WStandardItem;
   class WStandardItemModel;
   class WStreamResource;
   class WString;
   class WStringListModel;
-  class WSubMenuItem;
+  typedef class WMenuItem WSubMenuItem;
   class WSuggestionPopup;
   class WSvgImage;
   class WTabWidget;
@@ -163,6 +169,8 @@ namespace Wt {
   class WText;
   class WTextArea;
   class WTextEdit;
+  class WToolBar;
+  class WTheme;
   class WTime;
   class WTimer;
   class WTouchEvent;

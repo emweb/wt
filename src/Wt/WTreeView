@@ -335,7 +335,7 @@ private:
 
   int firstRemovedRow_, removedHeight_;
 
-  JSignal<std::string, int, std::string, std::string,
+  JSignal<std::string, std::string, std::string,
           std::string, WMouseEvent> itemEvent_;
 
   ToggleButtonConfig *expandConfig_;
@@ -365,7 +365,7 @@ private:
 
   void onViewportChange(WScrollEvent event);
   void contentsSizeChanged(int width, int height);
-  void onItemEvent(std::string nodeId, int columnId, std::string type,
+  void onItemEvent(std::string nodeId, std::string type,
 		   std::string extra1, std::string extra2, WMouseEvent event);
   void setRootNodeStyle();
   void setCollapsed(const WModelIndex& index);

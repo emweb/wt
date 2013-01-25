@@ -116,9 +116,7 @@ public:
     boost::signals::connection connect(T *target, void (V::*method)());
 
 protected:
-  SignalBase(WObject *sender)
-    : sender_(sender), blocked_(false)
-  { }
+  SignalBase(WObject *sender);
 
   static void pushSender(WObject *sender);
   static void popSender();
@@ -400,7 +398,27 @@ public:
 private:
   Signal(const Signal<A1, A2, A3, A4, A5, A6>&);
 
-  boost::signal6<void, A1, A2, A3, A4, A5, A6> *impl_;
+#ifndef _MSC_VER
+  // Up to 6 arguments allowed
+  typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
+#else
+#  if _MSC_VER >= 1700
+  // MSVS 2012's std::bind implementation may support only 5 arguments
+  // http://blogs.msdn.com/b/vcblog/archive/2011/09/12/10209291.aspx
+#    if defined(_VARIADIC_MAX) && (_VARIADIC_MAX < 6)
+       // default MSVS 2012: defaults to 5. We assume no-one will lower this.
+       typedef boost::signal5<void, A1, A2, A3, A4, A5> BoostSignalType;
+#      define A6_MUST_BE_NOCLASS
+#    else
+       // You can reconfigure this, and MS promised to raise _VARIADIC_MAX
+       // in future compilers
+       typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
+#    endif
+#  else
+    typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
+#  endif
+#endif
+  BoostSignalType *impl_;
 };
 
 #ifndef WT_CNOR
@@ -427,6 +445,7 @@ public:
 
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
+  boost::signals::connection connect(const boost::bound& f);
 };
 
 #endif // WT_CNOR
@@ -459,6 +478,7 @@ public:
   virtual const std::string encodeCmd() const;
   const std::string javaScript() const;
   bool isExposedSignal() const;
+  bool canAutoLearn() const;
   void setNotExposed();
   void disconnect(boost::signals::connection& conn);
 
@@ -524,18 +544,19 @@ protected:
   };
 
   static const int BIT_NEED_UPDATE = 0;
-  static const int BIT_EXPOSED = 1;
-  static const int BIT_NEEDS_AUTOLEARN = 2;
-  static const int BIT_PREVENT_DEFAULT = 3;
-  static const int BIT_PREVENT_PROPAGATION = 4;
-  static const int BIT_SIGNAL_SERVER_ANYWAY = 5;
+  static const int BIT_SERVER_EVENT = 1;
+  static const int BIT_EXPOSED = 2;
+  static const int BIT_CAN_AUTOLEARN = 3;
+  static const int BIT_PREVENT_DEFAULT = 4;
+  static const int BIT_PREVENT_PROPAGATION = 5;
+  static const int BIT_SIGNAL_SERVER_ANYWAY = 6;
 
   static int nextId_;
 
   const char                       *name_;
   const int                         id_;
   std::vector<StatelessConnection>  connections_;
-  std::bitset<6>                    flags_;
+  std::bitset<7>                    flags_;
 
   /*
    * Dummy signal used for knowing if stateless connections are still
@@ -543,7 +564,7 @@ protected:
    */
   boost::signal0<void>              dummy_;
 
-  EventSignalBase(const char *name, WObject *sender);
+  EventSignalBase(const char *name, WObject *sender, bool autoLearn);
 
   void prepareDestruct();
   void exposeSignal();
@@ -762,7 +783,11 @@ template <typename A1, typename A2, typename A3,
 Signal<A1, A2, A3, A4, A5, A6>::Signal(WObject *sender)
   : SignalBase(sender),
     impl_(0)
-{ }
+{
+#ifdef A6_MUST_BE_NOCLASS
+  A6 YourMsvsOnlySupports5BindArguments = NoClass::none;
+#endif
+}
 
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
@@ -778,7 +803,7 @@ boost::signals::connection Signal<A1, A2, A3, A4, A5, A6>
 ::connect(const F& function)
 {
   if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+    impl_ = new BoostSignalType;
   return impl_->connect(function, boost::signals::at_front);
 }
 
@@ -938,7 +963,11 @@ void Signal<A1, A2, A3, A4, A5, A6>::emit(A1 a1, A2 a2, A3 a3,
 {
   if (impl_ && !isBlocked()) {
     pushSender(sender());
+#ifndef A6_MUST_BE_NOCLASS
     (*impl_)(a1, a2, a3, a4, a5, a6);
+#else
+    (*impl_)(a1, a2, a3, a4, a5);
+#endif
     popSender();
   }
 }
@@ -972,7 +1001,7 @@ void EventSignal<E>::operator delete(void *deletable, std::size_t size) {
 
 template <typename E>
 EventSignal<E>::EventSignal(const char *name, WObject *sender)
-  : EventSignalBase(name, sender)
+  : EventSignalBase(name, sender, true)
 { }
 
 template <typename E>

@@ -8,6 +8,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WException"
+#include "Wt/WStringStream"
 
 #include "FileServe.h"
 
@@ -48,12 +49,12 @@ void FileServe::setVar(const std::string& name, unsigned value)
   setVar(name, boost::lexical_cast<std::string>(value));
 }
 
-void FileServe::stream(std::ostream& out)
+void FileServe::stream(WStringStream& out)
 {
   streamUntil(out, std::string());
 }
 
-void FileServe::streamUntil(std::ostream& out, const std::string& until)
+void FileServe::streamUntil(WStringStream& out, const std::string& until)
 {
   std::string currentVar;
   bool readingVar = false;
@@ -119,7 +120,7 @@ void FileServe::streamUntil(std::ostream& out, const std::string& until)
     } else {
       if (std::strncmp(s, "_$_", 3) == 0) {
 	if (!noMatchConditions && (currentPos_ - start > 0))
-	  out.write(template_ + start, currentPos_ - start);
+	  out.append(template_ + start, currentPos_ - start);
 
 	currentPos_ += 2;
 	readingVar = true;
@@ -129,7 +130,7 @@ void FileServe::streamUntil(std::ostream& out, const std::string& until)
   }
 
   if (!noMatchConditions && (currentPos_ - start > 0))
-    out.write(template_ + start, currentPos_ - start);
+    out.append(template_ + start, currentPos_ - start);
 }
 
 }

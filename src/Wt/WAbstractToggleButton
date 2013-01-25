@@ -8,6 +8,7 @@
 #define WABSTRACTTOGGLEBUTTON_H_
 
 #include <Wt/WFormWidget>
+#include <Wt/WText>
 
 namespace Wt {
 
@@ -44,7 +45,7 @@ public:
 
   /*! \brief Sets the label text.
    *
-   * The label is rendered to the right fo the button.
+   * The label is rendered to the right of the button.
    */
   void setText(const WString& text);
 
@@ -52,7 +53,7 @@ public:
    *
    * \sa setText()
    */
-  const WString text() const;
+  const WString text() const { return text_.text; }
 
   /*! \brief Returns the button state.
    *
@@ -107,7 +108,7 @@ public:
    */
   EventSignal<>& checked();
 
-  /*! \brief %Signal emitted when the button gets unChecked.
+  /*! \brief %Signal emitted when the button gets un-checked.
    *
    * This signal is emitted when the user unchecks the button.
    *
@@ -135,7 +136,9 @@ private:
   static const char *UNCHECKED_SIGNAL;
   static const char *UNDETERMINATE_CLICK_SIGNAL;
 
-  bool stateChanged_;
+  WText::RichText text_;
+
+  bool stateChanged_, textChanged_;
   CheckState prevState_;
 
   void undoSetChecked();

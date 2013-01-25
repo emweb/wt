@@ -8,7 +8,6 @@
 #include "PanelList.h"
 
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 #include <boost/date_time/gregorian/greg_year.hpp>
 
 #include <Wt/WAbstractItemModel>
@@ -20,6 +19,7 @@
 #include <Wt/WEnvironment>
 #include <Wt/WIntValidator>
 #include <Wt/WLineEdit>
+#include <Wt/WLocale>
 #include <Wt/WPanel>
 #include <Wt/WPushButton>
 #include <Wt/WStandardItemModel>
@@ -44,7 +44,7 @@ namespace {
 
   bool getDouble(WLineEdit *edit, double& value) {
     try {
-      value = boost::lexical_cast<double>(edit->text().toUTF8());
+      value = WLocale::currentLocale().toDouble(edit->text());
       return true;
     } catch (...) {
       return false;
@@ -116,7 +116,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   chartConfig->elementAt(row, 0)->addWidget(new WText("Width:"));
   chartWidthEdit_ = new WLineEdit(chartConfig->elementAt(row, 1));
   chartWidthEdit_
-    ->setText(boost::lexical_cast<std::string>(chart_->width().value()));
+    ->setText(WLocale::currentLocale().toString(chart_->width().value()));
   chartWidthEdit_->setValidator(sizeValidator);
   chartWidthEdit_->setMaxLength(4);
   connectSignals(chartWidthEdit_);
@@ -125,7 +125,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   chartConfig->elementAt(row, 0)->addWidget(new WText("Height:"));
   chartHeightEdit_ = new WLineEdit(chartConfig->elementAt(row, 1));
   chartHeightEdit_
-    ->setText(boost::lexical_cast<std::string>(chart_->height().value()));
+    ->setText(WLocale::currentLocale().toString(chart_->height().value()));
   chartHeightEdit_->setValidator(sizeValidator);
   chartHeightEdit_->setMaxLength(4);
   connectSignals(chartHeightEdit_);
@@ -337,13 +337,15 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     bool autoValues = axis.autoLimits() == (MinimumValue | MaximumValue);
 
     sc.minimumEdit = new WLineEdit(axisConfig->elementAt(j, 4));
-    sc.minimumEdit->setText(boost::lexical_cast<std::string>(axis.minimum()));
+    sc.minimumEdit->setText(WLocale::currentLocale()
+                            .toString(axis.minimum()));
     sc.minimumEdit->setValidator(anyNumberValidator);
     sc.minimumEdit->setEnabled(!autoValues);
     connectSignals(sc.minimumEdit);
 
     sc.maximumEdit = new WLineEdit(axisConfig->elementAt(j, 5));
-    sc.maximumEdit->setText(boost::lexical_cast<std::string>(axis.maximum()));
+    sc.maximumEdit->setText(WLocale::currentLocale()
+                            .toString(axis.maximum()));
     sc.maximumEdit->setValidator(anyNumberValidator);
     sc.maximumEdit->setEnabled(!autoValues);
     connectSignals(sc.maximumEdit);

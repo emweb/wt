@@ -166,12 +166,8 @@ void WAbstractSpinBox::setup()
   setup_ = true;
   bool useNative = nativeControl();
 
-  if (useNative) {
-    setValidator(createValidator());
-  } else {
+  if (!useNative) {
     defineJavaScript();
-
-    addStyleClass("Wt-spinbox");
 
 #ifdef WT_CNOR
     EventSignalBase& b = mouseMoved();
@@ -191,9 +187,6 @@ void WAbstractSpinBox::setup()
 
 WValidator::State WAbstractSpinBox::validate()
 {
-  if (!setup_)
-    setup();
-
   return WLineEdit::validate();
 }
 
@@ -225,6 +218,9 @@ bool WAbstractSpinBox::parseValue(const WT_USTRING& text)
       }
     }
   }
+
+  if (valid)
+    valid = textUtf8.length() > 0;
 
   if (valid)
     valid = parseNumberValue(textUtf8);

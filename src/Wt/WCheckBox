@@ -19,12 +19,14 @@ namespace Wt {
  * using setChecked().
  *
  * A checkbox may also provide a third state, Wt::PartiallyChecked,
- * which is useful to indicate that it is neither checked or
+ * which is useful to indicate that it is neither checked nor
  * unchecked. %Wt will use native browser support for this HTML5
  * extension when available (Safari and MS IE), and use an image-based
  * workaround otherwise. You may enable support for the third state
  * using setTristate(), and use setCheckState() and checkState() to
  * read all three states.
+ * Once a tri-state checkbox is clicked, it cycles through the states
+ * Wt::Checked and Wt::Unchecked.
  *
  * A label is added as a sibling of the checkbox to the same parent.
  *

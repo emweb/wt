@@ -172,8 +172,7 @@ DomElement::DomElement(Mode mode, DomElementType type)
     insertBefore_(0),
     type_(type),
     numManipulations_(0),
-    timeOut_(-1),
-    discardWithParent_(true)
+    timeOut_(-1)
 { }
 
 DomElement::~DomElement()
@@ -354,11 +353,6 @@ void DomElement::addEvent(const char *eventName, const std::string& jsCode)
   eventHandlers_[eventName].jsCode += jsCode;
 }
 
-void DomElement::setDiscardWithParent(bool discard)
-{
-  discardWithParent_ = discard;
-}
-
 DomElement::EventAction::EventAction(const std::string& aJsCondition,
 				     const std::string& aJsCode,
 				     const std::string& anUpdateCmd,
@@ -489,6 +483,11 @@ void DomElement::setProperty(Property property, const std::string& value)
     minMaxSizeProperties_ = true;
 }
 
+void DomElement::addPropertyWord(Property property, const std::string& value)
+{
+  setProperty(property, Utils::addWord(getProperty(property), value));
+}
+
 std::string DomElement::getProperty(Property property) const
 {
   PropertyMap::const_iterator i = properties_.find(property);
@@ -573,14 +572,14 @@ void DomElement::callMethod(const std::string& method)
   javaScript_ << method << ";\n";
 }
 
-void DomElement::jsStringLiteral(std::ostream& out, const std::string& s,
+void DomElement::jsStringLiteral(WStringStream& out, const std::string& s,
 				 char delimiter)
 {
   EscapeOStream sout(out);
   jsStringLiteral(sout, s, delimiter);
 }
 
-void DomElement::htmlAttributeValue(std::ostream& out, const std::string& s)
+void DomElement::htmlAttributeValue(WStringStream& out, const std::string& s)
 {
   EscapeOStream sout(out);
   sout.pushEscape(EscapeOStream::HtmlAttribute);
@@ -1113,7 +1112,7 @@ bool DomElement::containsElement(DomElementType type) const
 }
 #endif
 
-void DomElement::asJavaScript(std::ostream& out)
+void DomElement::asJavaScript(WStringStream& out)
 {
   mode_ = ModeUpdate;
 
@@ -1129,17 +1128,17 @@ void DomElement::asJavaScript(std::ostream& out)
   asJavaScript(eout, Update);
 }
 
-void DomElement::createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
+void DomElement::createTimeoutJs(WStringStream& out, const TimeoutList& timeouts,
 				 WApplication *app)
 {
   for (unsigned i = 0; i < timeouts.size(); ++i)
     out << app->javaScriptClass()
 	<< "._p_.addTimerEvent('" << timeouts[i].event << "', " 
 	<< timeouts[i].msec << ","
-	<< (timeouts[i].repeat ? "true" : "false") << ");\n";
+	<< timeouts[i].repeat << ");\n";
 }
 
-void DomElement::createElement(std::ostream& out, WApplication *app,
+void DomElement::createElement(WStringStream& out, WApplication *app,
 			       const std::string& domInsertJS)
 {
   EscapeOStream sout(out);
@@ -1183,7 +1182,7 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
   }
 }
 
-std::string DomElement::addToParent(std::ostream& out,
+std::string DomElement::addToParent(WStringStream& out,
 				    const std::string& parentVar,
 				    int pos, WApplication *app)
 {
@@ -1282,6 +1281,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	  out << WT_CLASS ".block('" + id_ + "');\n";
 	  return var_;
 	}
+      } else if (!javaScript_.empty()) {
+	out << javaScript_;
+	return var_;
       }
     }
 
@@ -1393,14 +1395,8 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
       for (unsigned i = 0; i < timeouts.size(); ++i) {
 	out << app->javaScriptClass()
 	    << "._p_.addTimerEvent('" << timeouts[i].event << "', " 
-	    << timeouts[i].msec << ',';
-
-	if (timeouts[i].repeat)
-	  out << "true";
-	else
-	  out << "false";
-
-	out << ");\n";
+	    << timeouts[i].msec << ','
+	    << timeouts[i].repeat << ");\n";
       }
 
       out << js;
@@ -1420,14 +1416,8 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 
   if (timeOut_ != -1) {
     out << app->javaScriptClass() << "._p_.addTimerEvent('"
-	<< id_ << "', " << timeOut_ << ',';
-
-    if (timeOutJSRepeat_)
-      out << "true";
-    else
-      out << "false";
-
-    out << ");\n";
+	<< id_ << "', " << timeOut_ << ','
+	<< timeOutJSRepeat_ << ");\n";
   }
 }
 

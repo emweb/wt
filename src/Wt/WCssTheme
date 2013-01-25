@@ -1,0 +1,56 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_WCSS_THEME_H
+#define WT_WCSS_THEME_H
+
+#include <Wt/WTheme>
+
+namespace Wt {
+
+/*! \class WCssTheme Wt/WCssTheme Wt/WCssTheme
+ *
+ * CSS-based theme support. This implements the classic %Wt themes, which
+ * were available before theme support was customized with the addition of
+ * the WTheme class.
+ *
+ * \sa WApplication::setTheme()
+ */
+class WT_API WCssTheme : public WTheme
+{
+public:
+  /*! \brief Constructor.
+   *
+   * Creates a classic %Wt theme ("polished" or "default").
+   */
+  WCssTheme(const std::string& name, WObject *parent = 0);
+
+  virtual ~WCssTheme();
+
+  virtual std::string name() const;
+
+  virtual std::vector<WCssStyleSheet> styleSheets() const;
+
+  virtual void apply(WWidget *widget, WWidget *child, int widgetRole) const;
+  virtual void apply(WWidget *widget, DomElement& element, int elementRole)
+    const;
+
+  virtual std::string disabledClass() const;
+  virtual std::string activeClass() const;
+
+  virtual bool canStyleAnchorAsButton() const;
+
+  virtual void applyValidationStyle(WWidget *widget,
+				    const Wt::WValidator::Result& validation,
+				    WFlags<ValidationStyleFlag> styles) const;
+
+private:
+  std::string name_;
+};
+
+}
+
+#endif // WT_WCSS_THEME_H

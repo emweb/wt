@@ -281,6 +281,16 @@ public:
    */
   void addRect(double x, double y, double width, double height);
 
+  /*! \brief Adds a polygon.
+   *
+   * If the first point is different from the current position, the last
+   * sub path is first closed, otherwise the last sub path is extended
+   * with the polygon.
+   *
+   * \sa moveTo(), lineTo()
+   */
+  void addPolygon(const std::vector<WPointF>& points);
+
   /*! \brief Adds a path.
    *
    * Adds an entire \p path to the current path. If the path's

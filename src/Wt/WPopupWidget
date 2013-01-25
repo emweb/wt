@@ -1,0 +1,51 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2012 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPOPUP_WIDGET_H_
+#define WPOPUP_WIDGET_H_
+
+#include <Wt/WCompositeWidget>
+
+namespace Wt {
+
+class WT_API WPopupWidget : public WCompositeWidget
+{
+public:
+  WPopupWidget(WWidget *impl, WObject *parent = 0);
+
+  void setAnchorWidget(WWidget *widget, Orientation orientation = Vertical);
+  WWidget *anchorWidget() const { return anchorWidget_; }
+  Orientation orientation() const { return orientation_; }
+
+  void setTransient(bool transient, int autoHideDelay = 0);
+  bool isTransient() const { return transient_; }
+  int autoHideDelay() const { return autoHideDelay_; }
+
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
+
+  Signal<>& hidden() { return hidden_; }
+  Signal<>& shown() { return shown_; }
+
+protected:
+  virtual void render(WFlags<RenderFlag> flags);
+  virtual void setParent(WObject *parent);
+
+private:
+  WWidget *anchorWidget_;
+  Orientation orientation_;
+  bool transient_;
+  int autoHideDelay_;
+  Signal<> hidden_, shown_;
+  JSignal<> jsHidden_, jsShown_;
+
+  void create(WWidget *parent);
+  void defineJavaScript();
+};
+
+}
+
+#endif // WPOPUP_WIDGET_H_

@@ -27,14 +27,6 @@ WStringStream::WStringStream()
     buf_i_(0)
 { }
 
-WStringStream::WStringStream(const WStringStream& other)
-  : sink_(0),
-    buf_(static_buf_),
-    buf_i_(0)
-{ 
-  *this << other.str();
-}
-
 WStringStream::WStringStream(std::ostream& sink)
   : sink_(&sink),
     buf_(static_buf_),
@@ -59,8 +51,9 @@ void WStringStream::clear()
 {
   buf_i_ = 0;
 
-  for (unsigned int i = 1; i < bufs_.size(); ++i)
-    delete[] bufs_[i].first;
+  for (unsigned int i = 0; i < bufs_.size(); ++i)
+    if (bufs_[i].first != static_buf_)
+      delete[] bufs_[i].first;
 
   bufs_.clear();
 
@@ -72,7 +65,7 @@ void WStringStream::clear()
 
 bool WStringStream::empty() const
 {
-  return !sink_ && buf_ == static_buf_ && buf_i_ == 0;
+  return !sink_ && buf_i_ == 0 && bufs_.empty();
 }
 
 std::size_t WStringStream::length() const
@@ -95,14 +88,17 @@ void WStringStream::flushSink()
 
 void WStringStream::pushBuf()
 {
+  if (buf_i_ == 0)
+    return;
+
   if (sink_) {
     sink_->write(buf_, buf_i_);
-    buf_i_ = 0;
   } else {
     bufs_.push_back(std::make_pair(buf_, buf_i_));
     buf_ = new char[D_LEN];
-    buf_i_ = 0;
   }
+
+  buf_i_ = 0;
 }
 
 WStringStream& WStringStream::operator<< (char c)
@@ -137,6 +133,14 @@ WStringStream& WStringStream::operator<< (int v)
   char buf[20];
   Utils::itoa(v, buf);
   return *this << buf;
+}
+
+WStringStream& WStringStream::operator<< (bool v)
+{
+  if (v)
+    return *this << "true";
+  else
+    return *this << "false";
 }
 
 WStringStream& WStringStream::operator<< (long long v)

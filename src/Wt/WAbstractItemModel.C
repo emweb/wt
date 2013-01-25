@@ -7,6 +7,7 @@
 #include "Wt/WModelIndex"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WItemSelectionModel"
+#include "Wt/WLogger"
 
 #include "WebUtils.h"
 
@@ -19,6 +20,8 @@ namespace {
 }
 
 namespace Wt {
+
+LOGGER("WAbstractItemModel");
 
 WAbstractItemModel::WAbstractItemModel(WObject *parent)
   : WObject(parent),
@@ -215,13 +218,11 @@ WModelIndex WAbstractItemModel::createIndex(int row, int column, void *ptr)
   return WModelIndex(row, column, this, ptr);
 }
 
-#ifndef WT_TARGET_JAVA
 WModelIndex WAbstractItemModel::createIndex(int row, int column, ::uint64_t id)
   const
 {
   return WModelIndex(row, column, this, id);
 }
-#endif // WT_TARGET_JAVA
 
 void *WAbstractItemModel::toRawIndex(const WModelIndex& index) const
 {
@@ -276,8 +277,11 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
     if (action == MoveAction || row == -1) {
       if (row == -1)
 	row = rowCount(parent);
-
-      insertRows(row, selectionModel->selectedIndexes().size(), parent);
+      
+      if (!insertRows(row, selectionModel->selectedIndexes().size(), parent)) {
+	LOG_ERROR("dropEvent(): could not insertRows()");
+	return;
+      }
     }
 
     /*
@@ -312,7 +316,10 @@ void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
       while (!selectionModel->selectedIndexes().empty()) {
 	WModelIndex i = Utils::last(selectionModel->selectedIndexes());
 
-	sourceModel->removeRow(i.row(), i.parent());
+	if (!sourceModel->removeRow(i.row(), i.parent())) {
+	  LOG_ERROR("dropEvent(): could not removeRows()");
+	  return;
+	}
       }
     }
   }

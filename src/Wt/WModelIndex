@@ -423,6 +423,10 @@ private:
   bool isRawIndex() const;
 };
 
+/*! \brief List of indexes
+ *
+ * The list is defined as std::vector<WModelIndex>.
+ */
 typedef std::vector<WModelIndex> WModelIndexList;
 
 }

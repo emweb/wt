@@ -8,11 +8,10 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WDialog",
- function(APP, el, centerX, centerY) {
+ function(APP, el, titlebar, centerX, centerY) {
    jQuery.data(el, 'obj', this);
 
    var self = this;
-   var titlebar = $(el).find(".titlebar").first().get(0);
    var layoutContainer = $(el).find(".dialog-layout").get(0);
    var WT = APP.WT;
    var dsx, dsy;
