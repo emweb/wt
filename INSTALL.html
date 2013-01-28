@@ -167,10 +167,15 @@ This may be done on the command-line using -D<i>var</i>=<i>value</i> or
 using the interactive program:
 
 <pre>
-    $ ccmake .
+    $ ccmake ../
+</pre>
+or
+<pre>
+    $ cmake-gui ../
 </pre>
 
-<p>Variables that you may set to configure Wt's built-in boost finding
+<p>The GUI lists all variables that are configurable in Wt's build process.
+Variables that you may set to configure Wt's built-in boost finding
 method:</p>
 
 <dl>
@@ -186,7 +191,7 @@ and include/ are located for your boost installation.</dd>
 </dl>
 
 Other variables specify several build and configuration aspects of Wt, of which
-the most relevant ones are:
+the most relevant ones are (there are many more visible in the GUI):
 
 <dl>
 <dt><strong>CMAKE_INSTALL_PREFIX</strong></dt>

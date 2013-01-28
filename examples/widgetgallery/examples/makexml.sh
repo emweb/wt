@@ -6,7 +6,7 @@ echo "<messages>" >> $DEST
 for i in *.cpp; do
   echo $i;
   echo "  <message id=\"src-`basename $i .cpp`\">" >> $DEST
-  cat $i | sed -e 's/extern //g' | grep -v SAMPLE_ | pygmentize -l cpp -f html >> $DEST
+  cat $i | sed -e 's/extern //g' | grep -v SAMPLE_ | grep -v 'ifdef' | grep -v 'endif' | pygmentize -l cpp -f html >> $DEST
   echo "  </message>" >> $DEST
 done
 

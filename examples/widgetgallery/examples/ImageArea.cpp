@@ -1,3 +1,4 @@
+#include <Wt/WBreak>
 #include <Wt/WCircleArea>
 #include <Wt/WContainerWidget>
 #include <Wt/WImage>

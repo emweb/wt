@@ -56,19 +56,19 @@ public:
     return createIndex(row, column, parentId);
   }
 
-  virtual int columnCount(const Wt::WModelIndex& index = Wt::WModelIndex()) const {
+  virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const {
     return 2;
   }
 
-  virtual int rowCount(const Wt::WModelIndex& index = Wt::WModelIndex()) const {
+  virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const {
     int treeId;
 
-    if (index.isValid()) {
-      if (index.column() != 0)
+    if (parent.isValid()) {
+      if (parent.column() != 0)
 	return 0;
-      Git::Object o = getObject(index);
+      Git::Object o = getObject(parent);
       if (o.type == Git::Tree) { // is a folder
-	treeId = getTreeId(index.internalId(), index.row());
+	treeId = getTreeId(parent.internalId(), parent.row());
       } else                     // is a file
 	return 0;
     } else {

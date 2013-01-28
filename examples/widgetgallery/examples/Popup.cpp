@@ -53,12 +53,12 @@ subMenu->addItem("Index")->triggered().connect(std::bind([=] () {
 }));
 subMenu->addSeparator();
 subMenu->addItem("About")->triggered().connect(std::bind([=] () {
-      Wt::WMessageBox *mb = new Wt::WMessageBox
+      Wt::WMessageBox *messageBox = new Wt::WMessageBox
 	("About", "<p>This is a program to make connections.</p>",
 	 Wt::Information, Wt::Ok);
-      mb->show();
-      mb->buttonClicked().connect(std::bind([=] () {
-	  delete mb;
+      messageBox->show();
+      messageBox->buttonClicked().connect(std::bind([=] () {
+	  delete messageBox;
       }));
 }));
 

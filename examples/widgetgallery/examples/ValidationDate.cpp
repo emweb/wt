@@ -1,3 +1,4 @@
+#include <Wt/WBreak>
 #include <Wt/WContainerWidget>
 #include <Wt/WDate>
 #include <Wt/WDatePicker>

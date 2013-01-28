@@ -23,7 +23,7 @@ namespace Wt {
  *
  * \sa WApplication::locale()
  */
-class WLocale
+class WT_API WLocale
 {
 public:
   /*! \brief Default constructor.

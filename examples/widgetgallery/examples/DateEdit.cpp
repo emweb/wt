@@ -1,4 +1,5 @@
 #include <Wt/WContainerWidget>
+#include <Wt/WCalendar>
 #include <Wt/WDate>
 #include <Wt/WDateEdit>
 #include <Wt/WLabel>

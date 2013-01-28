@@ -1,3 +1,4 @@
+#include <Wt/WContainerWidget>
 #include <Wt/WInPlaceEdit>
 #include <Wt/WText>
 

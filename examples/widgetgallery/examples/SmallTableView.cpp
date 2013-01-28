@@ -1,5 +1,7 @@
+#include <Wt/WApplication>
 #include <Wt/WStandardItemModel>
 #include <Wt/WTableView>
+#include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(SmallTableView)
 Wt::WTableView *tableView = new Wt::WTableView();

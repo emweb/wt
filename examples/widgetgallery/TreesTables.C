@@ -107,6 +107,12 @@ Wt::WWidget *TreesTables::tableViews()
   return result;  
 }
 
+#ifndef WT_TARGET_JAVA
+#define GIT_REPOSITORY "../../.git"
+#else
+#define GIT_REPOSITORY "../../.git"
+#endif
+
 #ifndef _WIN32
 #include "examples/GitModel.cpp"
 #include "examples/TreeView.cpp"

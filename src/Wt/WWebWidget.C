@@ -396,6 +396,7 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
     width_ = new WLength();
 
   if (width_ && *width_ != width) {
+    changed = true;
     *width_ = nonNegative(width);
     flags_.set(BIT_WIDTH_CHANGED);
   }
@@ -404,6 +405,7 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
     height_ = new WLength();
 
   if (height_ && *height_ != height) {
+    changed = true;
     *height_ = nonNegative(height);
     flags_.set(BIT_HEIGHT_CHANGED);
   }

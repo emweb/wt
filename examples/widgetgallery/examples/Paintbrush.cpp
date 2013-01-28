@@ -2,8 +2,10 @@
 #include <Wt/WColor>
 #include <Wt/WContainerWidget>
 #include <Wt/WEvent>
+#include <Wt/WPainter>
 #include <Wt/WPaintedWidget>
 #include <Wt/WPainterPath>
+#include <Wt/WPen>
 #include <Wt/WPointF>
 #include <Wt/WPushButton>
 #include <Wt/WRectF>

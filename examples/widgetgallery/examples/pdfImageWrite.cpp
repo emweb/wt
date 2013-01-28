@@ -1,3 +1,6 @@
+#include <Wt/Chart/WCartesianChart>
+#include <Wt/WPdfImage>
+
 Wt::Chart::WCartesianChart *chart = new Wt::Chart::WCartesianChart(...);
 
 Wt::WPdfImage pdfImage("4cm", "3cm");

@@ -6,6 +6,27 @@
 
 namespace {
 
+#ifdef WT_EXAMPLE
+    struct Employee {
+	std::string firstName;
+	std::string lastName;
+	double pay;
+
+        Employee(const std::string& aFirstName, 
+		 const std::string& aLastName,
+		 double aPay)
+	  : firstName(aFirstName),
+	    lastName(aLastName),
+	    pay(aPay) { }
+    };
+
+    Employee employees[] = {
+      Employee("Mark", "Otto", 100),
+      Employee("Jacob", "Thornton", 50),
+      Employee("Larry the Bird", "", 10)
+    };
+#endif // WT_EXAMPLE
+
 extern 
     void addOptionToggle(Wt::WWidget *widget, const char *option, 
 			 const char *styleClass, Wt::WContainerWidget *parent) {

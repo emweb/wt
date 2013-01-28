@@ -1,4 +1,5 @@
 #include <Wt/WContainerWidget>
+#include <Wt/WImage>
 #include <Wt/WFlashObject>
 
 SAMPLE_BEGIN(Flash)

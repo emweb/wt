@@ -1,3 +1,4 @@
+#include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WTextEdit>
 
@@ -9,7 +10,6 @@ Wt::WLineEdit *le = new Wt::WLineEdit(container);
 le->setEmptyText("Edit me");
 
 Wt::WLineEdit *out = new Wt::WLineEdit(container);
-out->emptyText("");
 out->setReadOnly(true);
 
 le->keyWentUp().connect(std::bind([=] () {

@@ -5,6 +5,7 @@
 #include <Wt/WPopupMenu>
 #include <Wt/WPopupMenuItem>
 #include <Wt/WStackedWidget>
+#include <Wt/WText>
 
 SAMPLE_BEGIN(NavigationBar)
 

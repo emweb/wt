@@ -1,5 +1,9 @@
 #include <Wt/WTableView>
 
+#ifdef WT_EXAMPLE
+#include "VirtualModel.cpp"
+#endif // WT_EXAMPLE
+
 SAMPLE_BEGIN(LargeTableView)
 
 Wt::WTableView *tableView = new Wt::WTableView();

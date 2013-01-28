@@ -1,4 +1,6 @@
 #include <Wt/WIconPair>
+#include <Wt/WText>
+#include <Wt/WTree>
 #include <Wt/WTreeTable>
 #include <Wt/WTreeTableNode>
 

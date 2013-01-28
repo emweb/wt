@@ -15,24 +15,24 @@ out->setMargin(10, Wt::Left);
 button->clicked().connect(std::bind([=] () {
       out->setText("The status button is clicked.");
 
-      Wt::WMessageBox *mb = new Wt::WMessageBox
+      Wt::WMessageBox *messageBox = new Wt::WMessageBox
 	  ("Status",
 	   "<p>Ready to launch the rocket...</p>"
 	   "<p>Launch the rocket immediately?</p>",
 	   Wt::Information, Wt::Yes | Wt::No);
 
-      mb->setModal(false);
+      messageBox->setModal(false);
 
-      mb->buttonClicked().connect(std::bind([=] () {
-	    if (mb->buttonResult() == Wt::Yes)
+      messageBox->buttonClicked().connect(std::bind([=] () {
+	    if (messageBox->buttonResult() == Wt::Yes)
 	        out->setText("The rocket is launched!");
 	    else
 	        out->setText("The rocket is ready for launch...");
 
-	    delete mb;
+	    delete messageBox;
       }));
 
-      mb->show();
+      messageBox->show();
 }));
 
 SAMPLE_END(return container)

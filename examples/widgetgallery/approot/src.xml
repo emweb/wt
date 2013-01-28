@@ -362,7 +362,7 @@
   </message>
   <message id="src-CheckBoxInline">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WCheckBox&gt;</span>
-<span class="cp">#include &lt;Wt/WTemplate&gt;</span>
+<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
 
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
@@ -380,7 +380,7 @@
   </message>
   <message id="src-CheckBoxStack">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WCheckBox&gt;</span>
-<span class="cp">#include &lt;Wt/WTemplate&gt;</span>
+<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
 
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
@@ -485,6 +485,7 @@
   </message>
   <message id="src-DateEdit">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WCalendar&gt;</span>
 <span class="cp">#include &lt;Wt/WDate&gt;</span>
 <span class="cp">#include &lt;Wt/WDateEdit&gt;</span>
 <span class="cp">#include &lt;Wt/WLabel&gt;</span>
@@ -544,6 +545,7 @@
   </message>
   <message id="src-DatePicker">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WCalendar&gt;</span>
 <span class="cp">#include &lt;Wt/WDate&gt;</span>
 <span class="cp">#include &lt;Wt/WDatePicker&gt;</span>
 <span class="cp">#include &lt;Wt/WLabel&gt;</span>
@@ -681,17 +683,6 @@
 <span class="p">}));</span>
 </pre></div>
   </message>
-  <message id="src-EmwebLogo">
-<div class="highlight"><pre><span class="cp">#include &quot;PaintExample.h&quot;</span>
-
-<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
-
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
-
-<span class="c1">//new PaintExample(container, false);</span>
-</pre></div>
-  </message>
   <message id="src-FileUpload">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WBreak&gt;</span>
 <span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
@@ -740,6 +731,7 @@
   </message>
   <message id="src-Flash">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WImage&gt;</span>
 <span class="cp">#include &lt;Wt/WFlashObject&gt;</span>
 
 
@@ -1215,19 +1207,19 @@
     <span class="k">return</span> <span class="n">createIndex</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">parentId</span><span class="p">);</span>
   <span class="p">}</span>
 
-  <span class="k">virtual</span> <span class="kt">int</span> <span class="n">columnCount</span><span class="p">(</span><span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="o">&amp;</span> <span class="n">index</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="p">())</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">virtual</span> <span class="kt">int</span> <span class="n">columnCount</span><span class="p">(</span><span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="o">&amp;</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="p">())</span> <span class="k">const</span> <span class="p">{</span>
     <span class="k">return</span> <span class="mi">2</span><span class="p">;</span>
   <span class="p">}</span>
 
-  <span class="k">virtual</span> <span class="kt">int</span> <span class="n">rowCount</span><span class="p">(</span><span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="o">&amp;</span> <span class="n">index</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="p">())</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">virtual</span> <span class="kt">int</span> <span class="n">rowCount</span><span class="p">(</span><span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="o">&amp;</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="p">())</span> <span class="k">const</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">treeId</span><span class="p">;</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">index</span><span class="p">.</span><span class="n">isValid</span><span class="p">())</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">index</span><span class="p">.</span><span class="n">column</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">isValid</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">column</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
 	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-      <span class="n">Git</span><span class="o">::</span><span class="n">Object</span> <span class="n">o</span> <span class="o">=</span> <span class="n">getObject</span><span class="p">(</span><span class="n">index</span><span class="p">);</span>
+      <span class="n">Git</span><span class="o">::</span><span class="n">Object</span> <span class="n">o</span> <span class="o">=</span> <span class="n">getObject</span><span class="p">(</span><span class="n">parent</span><span class="p">);</span>
       <span class="k">if</span> <span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">Git</span><span class="o">::</span><span class="n">Tree</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// is a folder</span>
-	<span class="n">treeId</span> <span class="o">=</span> <span class="n">getTreeId</span><span class="p">(</span><span class="n">index</span><span class="p">.</span><span class="n">internalId</span><span class="p">(),</span> <span class="n">index</span><span class="p">.</span><span class="n">row</span><span class="p">());</span>
+	<span class="n">treeId</span> <span class="o">=</span> <span class="n">getTreeId</span><span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">internalId</span><span class="p">(),</span> <span class="n">parent</span><span class="p">.</span><span class="n">row</span><span class="p">());</span>
       <span class="p">}</span> <span class="k">else</span>                     <span class="c1">// is a file</span>
 	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
@@ -1817,7 +1809,8 @@
 </pre></div>
   </message>
   <message id="src-ImageArea">
-<div class="highlight"><pre><span class="cp">#include &lt;Wt/WCircleArea&gt;</span>
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WBreak&gt;</span>
+<span class="cp">#include &lt;Wt/WCircleArea&gt;</span>
 <span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
 <span class="cp">#include &lt;Wt/WImage&gt;</span>
 <span class="cp">#include &lt;Wt/WPolygonArea&gt;</span>
@@ -1886,7 +1879,8 @@
 </pre></div>
   </message>
   <message id="src-InPlaceEdit">
-<div class="highlight"><pre><span class="cp">#include &lt;Wt/WInPlaceEdit&gt;</span>
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WInPlaceEdit&gt;</span>
 <span class="cp">#include &lt;Wt/WText&gt;</span>
 
 
@@ -1907,7 +1901,8 @@
 </pre></div>
   </message>
   <message id="src-InPlaceEditButtons">
-<div class="highlight"><pre><span class="cp">#include &lt;Wt/WInPlaceEdit&gt;</span>
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WInPlaceEdit&gt;</span>
 <span class="cp">#include &lt;Wt/WText&gt;</span>
 
 
@@ -1926,6 +1921,8 @@
   </message>
   <message id="src-LargeTableView">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WTableView&gt;</span>
+
+<span class="cp">#include &quot;VirtualModel.cpp&quot;</span>
 
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WTableView</span> <span class="o">*</span><span class="n">tableView</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTableView</span><span class="p">();</span>
@@ -2110,24 +2107,24 @@
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
       <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;The status button is clicked.&quot;</span><span class="p">);</span>
 
-      <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span> <span class="o">*</span><span class="n">mb</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span>
+      <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span> <span class="o">*</span><span class="n">messageBox</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span>
 	  <span class="p">(</span><span class="s">&quot;Status&quot;</span><span class="p">,</span>
 	   <span class="s">&quot;&lt;p&gt;Ready to launch the rocket...&lt;/p&gt;&quot;</span>
 	   <span class="s">&quot;&lt;p&gt;Launch the rocket immediately?&lt;/p&gt;&quot;</span><span class="p">,</span>
 	   <span class="n">Wt</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">No</span><span class="p">);</span>
 
-      <span class="n">mb</span><span class="o">-&gt;</span><span class="n">setModal</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+      <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">setModal</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
 
-      <span class="n">mb</span><span class="o">-&gt;</span><span class="n">buttonClicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-	    <span class="k">if</span> <span class="p">(</span><span class="n">mb</span><span class="o">-&gt;</span><span class="n">buttonResult</span><span class="p">()</span> <span class="o">==</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Yes</span><span class="p">)</span>
+      <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">buttonClicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
+	    <span class="k">if</span> <span class="p">(</span><span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">buttonResult</span><span class="p">()</span> <span class="o">==</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Yes</span><span class="p">)</span>
 	        <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;The rocket is launched!&quot;</span><span class="p">);</span>
 	    <span class="k">else</span>
 	        <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;The rocket is ready for launch...&quot;</span><span class="p">);</span>
 
-	    <span class="k">delete</span> <span class="n">mb</span><span class="p">;</span>
+	    <span class="k">delete</span> <span class="n">messageBox</span><span class="p">;</span>
       <span class="p">}));</span>
 
-      <span class="n">mb</span><span class="o">-&gt;</span><span class="n">show</span><span class="p">();</span>
+      <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">show</span><span class="p">();</span>
 <span class="p">}));</span>
 </pre></div>
   </message>
@@ -2163,6 +2160,7 @@
 <span class="cp">#include &lt;Wt/WPopupMenu&gt;</span>
 <span class="cp">#include &lt;Wt/WPopupMenuItem&gt;</span>
 <span class="cp">#include &lt;Wt/WStackedWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WText&gt;</span>
 
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
@@ -2262,8 +2260,10 @@
 <span class="cp">#include &lt;Wt/WColor&gt;</span>
 <span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
 <span class="cp">#include &lt;Wt/WEvent&gt;</span>
+<span class="cp">#include &lt;Wt/WPainter&gt;</span>
 <span class="cp">#include &lt;Wt/WPaintedWidget&gt;</span>
 <span class="cp">#include &lt;Wt/WPainterPath&gt;</span>
+<span class="cp">#include &lt;Wt/WPen&gt;</span>
 <span class="cp">#include &lt;Wt/WPointF&gt;</span>
 <span class="cp">#include &lt;Wt/WPushButton&gt;</span>
 <span class="cp">#include &lt;Wt/WRectF&gt;</span>
@@ -3292,12 +3292,12 @@
 <span class="p">}));</span>
 <span class="n">subMenu</span><span class="o">-&gt;</span><span class="n">addSeparator</span><span class="p">();</span>
 <span class="n">subMenu</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;About&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">triggered</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-      <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span> <span class="o">*</span><span class="n">mb</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span>
+      <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span> <span class="o">*</span><span class="n">messageBox</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WMessageBox</span>
 	<span class="p">(</span><span class="s">&quot;About&quot;</span><span class="p">,</span> <span class="s">&quot;&lt;p&gt;This is a program to make connections.&lt;/p&gt;&quot;</span><span class="p">,</span>
 	 <span class="n">Wt</span><span class="o">::</span><span class="n">Information</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Ok</span><span class="p">);</span>
-      <span class="n">mb</span><span class="o">-&gt;</span><span class="n">show</span><span class="p">();</span>
-      <span class="n">mb</span><span class="o">-&gt;</span><span class="n">buttonClicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-	  <span class="k">delete</span> <span class="n">mb</span><span class="p">;</span>
+      <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">show</span><span class="p">();</span>
+      <span class="n">messageBox</span><span class="o">-&gt;</span><span class="n">buttonClicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
+	  <span class="k">delete</span> <span class="n">messageBox</span><span class="p">;</span>
       <span class="p">}));</span>
 <span class="p">}));</span>
 
@@ -3962,6 +3962,7 @@
   </message>
   <message id="src-Slider">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WBreak&gt;</span>
 <span class="cp">#include &lt;Wt/WSlider&gt;</span>
 <span class="cp">#include &lt;Wt/WText&gt;</span>
 
@@ -4015,8 +4016,10 @@
 </pre></div>
   </message>
   <message id="src-SmallTableView">
-<div class="highlight"><pre><span class="cp">#include &lt;Wt/WStandardItemModel&gt;</span>
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WApplication&gt;</span>
+<span class="cp">#include &lt;Wt/WStandardItemModel&gt;</span>
 <span class="cp">#include &lt;Wt/WTableView&gt;</span>
+<span class="cp">#include &quot;../treeview-dragdrop/CsvUtil.h&quot;</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WTableView</span> <span class="o">*</span><span class="n">tableView</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTableView</span><span class="p">();</span>
 <span class="n">tableView</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">csvToModel</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">appRoot</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;table.csv&quot;</span><span class="p">));</span>
@@ -4157,6 +4160,25 @@
 <span class="cp">#include &lt;Wt/WCheckBox&gt;</span>
 
 <span class="k">namespace</span> <span class="p">{</span>
+
+    <span class="k">struct</span> <span class="n">Employee</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">firstName</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">lastName</span><span class="p">;</span>
+	<span class="kt">double</span> <span class="n">pay</span><span class="p">;</span>
+
+        <span class="n">Employee</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">aFirstName</span><span class="p">,</span> 
+		 <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">aLastName</span><span class="p">,</span>
+		 <span class="kt">double</span> <span class="n">aPay</span><span class="p">)</span>
+	  <span class="o">:</span> <span class="n">firstName</span><span class="p">(</span><span class="n">aFirstName</span><span class="p">),</span>
+	    <span class="n">lastName</span><span class="p">(</span><span class="n">aLastName</span><span class="p">),</span>
+	    <span class="n">pay</span><span class="p">(</span><span class="n">aPay</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+    <span class="p">};</span>
+
+    <span class="n">Employee</span> <span class="n">employees</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">Employee</span><span class="p">(</span><span class="s">&quot;Mark&quot;</span><span class="p">,</span> <span class="s">&quot;Otto&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+      <span class="n">Employee</span><span class="p">(</span><span class="s">&quot;Jacob&quot;</span><span class="p">,</span> <span class="s">&quot;Thornton&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+      <span class="n">Employee</span><span class="p">(</span><span class="s">&quot;Larry the Bird&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="p">};</span>
 
 
     <span class="kt">void</span> <span class="n">addOptionToggle</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WWidget</span> <span class="o">*</span><span class="n">widget</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">option</span><span class="p">,</span> 
@@ -4307,7 +4329,8 @@
 </pre></div>
   </message>
   <message id="src-TextEditors">
-<div class="highlight"><pre><span class="cp">#include &lt;Wt/WLineEdit&gt;</span>
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WLineEdit&gt;</span>
 <span class="cp">#include &lt;Wt/WTextEdit&gt;</span>
 
 
@@ -4317,7 +4340,6 @@
 <span class="n">le</span><span class="o">-&gt;</span><span class="n">setEmptyText</span><span class="p">(</span><span class="s">&quot;Edit me&quot;</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span> <span class="o">*</span><span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
-<span class="n">out</span><span class="o">-&gt;</span><span class="n">emptyText</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
 <span class="n">out</span><span class="o">-&gt;</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
 
 <span class="n">le</span><span class="o">-&gt;</span><span class="n">keyWentUp</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
@@ -4488,6 +4510,7 @@
   </message>
   <message id="src-Tree">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WIconPair&gt;</span>
+<span class="cp">#include &lt;Wt/WText&gt;</span>
 <span class="cp">#include &lt;Wt/WTree&gt;</span>
 <span class="cp">#include &lt;Wt/WTreeNode&gt;</span>
 
@@ -4523,6 +4546,8 @@
   </message>
   <message id="src-TreeTable">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WIconPair&gt;</span>
+<span class="cp">#include &lt;Wt/WText&gt;</span>
+<span class="cp">#include &lt;Wt/WTree&gt;</span>
 <span class="cp">#include &lt;Wt/WTreeTable&gt;</span>
 <span class="cp">#include &lt;Wt/WTreeTableNode&gt;</span>
 
@@ -4571,10 +4596,13 @@
   <message id="src-TreeView">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WTreeView&gt;</span>
 
+<span class="cp">#include &quot;GitModel.cpp&quot;</span>
+<span class="cp">#define GIT_REPOSITORY &quot;/path/to/repository/.git&quot;</span>
+
 <span class="n">Wt</span><span class="o">::</span><span class="n">WTreeView</span> <span class="o">*</span><span class="n">treeView</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTreeView</span><span class="p">();</span>
 <span class="n">treeView</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">400</span><span class="p">);</span>
 
-<span class="n">Wt</span><span class="o">::</span><span class="n">WAbstractItemModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GitModel</span><span class="p">(</span><span class="s">&quot;../../.git&quot;</span><span class="p">,</span> <span class="n">treeView</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WAbstractItemModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GitModel</span><span class="p">(</span><span class="n">GIT_REPOSITORY</span><span class="p">,</span> <span class="n">treeView</span><span class="p">);</span>
 <span class="n">treeView</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
 
 <span class="n">treeView</span><span class="o">-&gt;</span><span class="n">setRowHeight</span><span class="p">(</span><span class="mi">24</span><span class="p">);</span>
@@ -4686,7 +4714,8 @@
 </pre></div>
   </message>
   <message id="src-ValidationDate">
-<div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WBreak&gt;</span>
+<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
 <span class="cp">#include &lt;Wt/WDate&gt;</span>
 <span class="cp">#include &lt;Wt/WDatePicker&gt;</span>
 <span class="cp">#include &lt;Wt/WDateValidator&gt;</span>
@@ -4998,7 +5027,10 @@
 </pre></div>
   </message>
   <message id="src-pdfImageWrite">
-<div class="highlight"><pre><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span> <span class="o">*</span><span class="n">chart</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="p">(...);</span>
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/Chart/WCartesianChart&gt;</span>
+<span class="cp">#include &lt;Wt/WPdfImage&gt;</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span> <span class="o">*</span><span class="n">chart</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="p">(...);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WPdfImage</span> <span class="n">pdfImage</span><span class="p">(</span><span class="s">&quot;4cm&quot;</span><span class="p">,</span> <span class="s">&quot;3cm&quot;</span><span class="p">);</span>
 <span class="p">{</span>

@@ -1,4 +1,5 @@
 #include <Wt/WContainerWidget>
+#include <Wt/WBreak>
 #include <Wt/WSlider>
 #include <Wt/WText>
 

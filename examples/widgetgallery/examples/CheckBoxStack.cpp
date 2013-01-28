@@ -1,6 +1,5 @@
-
 #include <Wt/WCheckBox>
-#include <Wt/WTemplate>
+#include <Wt/WContainerWidget>
 
 SAMPLE_BEGIN(CheckBoxStack)
 
