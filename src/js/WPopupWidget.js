@@ -29,8 +29,17 @@ WT_DECLARE_WT_MEMBER
      return el.style.display == 'hidden';
    }
 
-   function onDocumentClick() {
-     self.hide();
+   function onDocumentClick(event) {
+     function isAncestor(a, b) {
+       for (b = b.parentNode; b; b = b.parentNode)
+	 if (a == b)
+	   return true;
+      
+       return false;
+     }
+
+     if (!isAncestor(el, WT.target(event)))
+       self.hide();
    }
 
    this.bindShow = function(f) {

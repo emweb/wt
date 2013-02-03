@@ -1070,7 +1070,7 @@ Follow the <a
 href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">Installation
 instructions</a> to build Wt and run the examples, or see if your
 platform is listed in the <a
-href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">platform specific
+href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">platform specific
 installation instructions</a>.
 
 <h4>Git repository</h4>
@@ -1152,7 +1152,7 @@ Omer Katz, and Lukasz Matuszewski.
 
 <p>
 There is a community-run <a
-href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> with useful
+href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt Wiki</a> with useful
 information, including installation notes for several Linux
 distributions.
 </p>
@@ -1286,9 +1286,9 @@ Generic installation instructions (UNIX)
 are <a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">here</a>, which
 is also included in the source package (INSTALL or INSTALL.html).</p>
 <p>
-In addition, the <a href="http://redmine.webtoolkit.eu/wiki/wt">Wt
+In addition, the <a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt
 Wiki</a> has a section dedicated
-to <a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">platform
+to <a href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">platform
 specific installation notes</a>.
 </p>
 
@@ -1343,7 +1343,7 @@ target="_blank">here (in a new window)</a>.</p>
 <h4>Wiki</h4>
 
 <p>
-There is a community-run <a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> with useful information such as a FAQ and
+There is a community-run <a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt Wiki</a> with useful information such as a FAQ and
 tips and tricks.
 </p>
 

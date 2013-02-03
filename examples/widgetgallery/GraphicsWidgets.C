@@ -143,34 +143,3 @@ Wt::WWidget *GraphicsWidgets::painting3d()
 
   return result;
 }
-
-
-
-/*
- * Reads a CSV file as an (editable) standard item model.
- */
-Wt::WAbstractItemModel *readCsvFile(const std::string &fname,
-				    Wt::WContainerWidget *parent)
-{
-  Wt::WStandardItemModel *model = new Wt::WStandardItemModel(0, 0, parent);
-  std::ifstream f(fname.c_str());
-
-  if (f) {
-    readFromCsv(f, model);
-
-    for (int row = 0; row < model->rowCount(); ++row)
-      for (int col = 0; col < model->columnCount(); ++col) {
-	model->item(row, col)->setFlags(Wt::ItemIsSelectable 
-					| Wt::ItemIsEditable);
-    }
-
-    return model;
-  } else {
-    Wt::WString error(Wt::WString::tr("error-missing-data"));
-    error.arg(fname, Wt::UTF8);
-    new Wt::WText(error, parent);
-    return 0;
-  }
-}
-
-

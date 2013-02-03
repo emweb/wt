@@ -77,7 +77,7 @@ WTableView::WTableView(WContainerWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
 
     headerContainer_ = new WContainerWidget();
-    headerContainer_->setStyleClass("Wt-header headerrh cwidth");
+    headerContainer_->setStyleClass("Wt-header headerrh");
     headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
     headerContainer_->addWidget(headers_);
 
@@ -93,7 +93,6 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->addWidget(table_);
 
     contentsContainer_ = new WContainerWidget();
-    contentsContainer_->setStyleClass("cwidth");
     contentsContainer_->setOverflow(WContainerWidget::OverflowAuto);
     contentsContainer_->setPositionScheme(Absolute);
     contentsContainer_->addWidget(canvas_);
@@ -101,8 +100,8 @@ WTableView::WTableView(WContainerWidget *parent)
     scrolled_.connect(this, &WTableView::onViewportChange);
 
     headerColumnsHeaderContainer_ = new WContainerWidget();
-    headerColumnsHeaderContainer_->setStyleClass("Wt-header headerrh cwidth "
-						 "Wt-headerdiv");
+    headerColumnsHeaderContainer_->setStyleClass("Wt-header Wt-headerdiv "
+						 "headerrh");
     headerColumnsHeaderContainer_->hide();
 
     headerColumnsTable_ = new WContainerWidget();
@@ -130,6 +129,9 @@ WTableView::WTableView(WContainerWidget *parent)
     layout->addWidget(headerContainer_, 0, 1);
     layout->addWidget(headerColumnsContainer_, 1, 0);
     layout->addWidget(contentsContainer_, 1, 1);
+
+    for (int i = 0; i < layout->count(); ++i)
+      layout->itemAt(i)->widget()->addStyleClass("tcontainer");
 
     layout->setRowStretch(1, 1);
     layout->setColumnStretch(1, 1);
@@ -199,7 +201,7 @@ void WTableView::updateTableBackground()
   if (ajaxMode()) {
     WApplication::instance()->theme()->apply(this, table_,
 					     TableViewRowContainerRole);
-    WApplication::instance()->theme()->apply(this, headerColumnsContainer_,
+    WApplication::instance()->theme()->apply(this, headerColumnsTable_,
 					     TableViewRowContainerRole);
   } else
     // FIXME avoid background on header row ?
@@ -348,7 +350,7 @@ void WTableView::setSpannerCount(const Side side, const int count)
       if (!columnInfo(i).hidden)
 	total += (int)columnInfo(i).width.toPixels() + 7;
     table_->setOffsets(total, Left);
-    firstColumn_ = count + rowHeaderCount();
+    firstColumn_ = count;
     break;
   }
   case Right:
@@ -538,7 +540,7 @@ void WTableView::renderTable(const int fr, const int lr,
  
   if (oldLastCol - oldFirstCol < 0) {
     leftColsToAdd = 0;
-    setSpannerCount(Left, fc - rowHeaderCount());
+    setSpannerCount(Left, fc);
     setSpannerCount(Right, columnCount() - fc);
     rightColsToAdd = lc - fc + 1;
   } else {
@@ -684,7 +686,7 @@ void WTableView::reset()
     removeSection(Top);
 
   setSpannerCount(Top, 0);
-  setSpannerCount(Left, 0);
+  setSpannerCount(Left, rowHeaderCount());
 
   table_->clear();
 

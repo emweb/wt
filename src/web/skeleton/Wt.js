@@ -566,7 +566,11 @@ this.ajaxInternalPaths = function(basePath) {
 this.resolveRelativeAnchors = function() {
   if (window.$)
     $('.Wt-rr').each(function() {
-      this.setAttribute('href', this.href);
+      if (this.href)
+	this.setAttribute('href', this.href);
+      if (this.src)
+	this.setAttribute('src', this.src);
+
       $(this).removeClass("Wt-rr");
     });
 };
@@ -2181,16 +2185,20 @@ function encodeEvent(event, i) {
     result += se + 'screenX=' + e.screenX + se + 'screenY=' + e.screenY;
 
   var widgetCoords = { x: 0, y: 0 };
+
   if (event.object && event.object.nodeType != 9) {
     widgetCoords = WT.widgetPageCoordinates(event.object);
     var objX = widgetCoords.x;
     var objY = widgetCoords.y;
 
-    result += se + 'scrollX=' + event.object.scrollLeft
-      + se + 'scrollY=' + event.object.scrollTop
-      + se + 'width=' + event.object.clientWidth
-      + se + 'height=' + event.object.clientHeight
-      + se + 'widgetX=' + (posX - objX) + se + 'widgetY=' + (posY - objY);
+    if (typeof event.object.scrollLeft != 'undefined') {
+      result += se + 'scrollX=' + event.object.scrollLeft
+	+ se + 'scrollY=' + event.object.scrollTop
+	+ se + 'width=' + event.object.clientWidth
+	+ se + 'height=' + event.object.clientHeight;
+    }
+
+    result += se + 'widgetX=' + (posX - objX) + se + 'widgetY=' + (posY - objY);
   }
 
   var button = WT.button(e);

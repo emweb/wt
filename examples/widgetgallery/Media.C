@@ -112,13 +112,13 @@ Wt::WWidget *Media::resources()
   return result;
 }
 
-#ifdef WT_TARGET_JAVA
-#undef WT_HAS_WPDFIMAGE
-#endif
-
 #ifdef WT_HAS_WPDFIMAGE
 #include "examples/PdfImage.cpp"
+#ifdef WT_TARGET_JAVA
+#include "examples/JavaPdfRenderer.cpp"
+#else
 #include "examples/PdfRenderer.cpp"
+#endif
 #endif
 
 Wt::WWidget *Media::pdf()

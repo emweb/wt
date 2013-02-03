@@ -24,7 +24,7 @@
 namespace {
   const int AXIS_MARGIN = 4;
   const int AUTO_V_LABEL_PIXELS = 25;
-  const int AUTO_H_LABEL_PIXELS = 60;
+  const int AUTO_H_LABEL_PIXELS = 80;
 
 #ifndef __linux__
   double round(double d)

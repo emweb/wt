@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<messages>
+<messages xmlns:if="Wt.WTemplate.conditions">
 
 <!--LAYOUT message blocks-->
-
   <message id="layout-intro">
     <p class="lead">Layout &#8212; building blocks for organizing your
     application as a tree of widgets</p>
@@ -892,10 +891,11 @@
     <p><a href="#CSS">Top</a></p>
 
     <h3>Bootstrap Grid System</h3>
-
-    When using the Bootstrap theme, there are many pre-defined CSS
-    style classes that you can use to impact the layout or visual
-    appearance of standard controls.
+    <p>
+      When using the Bootstrap theme, there are many pre-defined CSS
+      style classes that you can use to impact the layout or visual
+      appearance of standard controls.
+    </p>
 
     <h4>Block level inputs</h4>
     <p>
@@ -949,28 +949,45 @@
   </message>
 
   <message id="layout-Themes">
-    <h2 id="themes">Styling with a theme</h2>
+    <h2 id="theme">Styling with a theme</h2>
     <p>
-      theme1
+      A theme provides the look and feel of several built-in widgets, using CSS
+      style rules. The rules for each CSS theme are defined in the folder
+      <tt>resources/themes/</tt>. There each theme is organized in a subfolder.
     </p>
     <p>
-      theme2
-    </p>
-    <p>
-      theme3
+      You can choose from three themes:
+      <dl class="dl-horizontal">
+        <dt>default</dt>
+        <dd>You don't have to do anything to use this theme from the
+          ${doc-link WCssTheme} class as it is the default theme.
+        </dd>
+        <dt>polished</dt>
+        <dd>This class is also part of the ${doc-link WCssTheme} class. You can
+          change to this CSS theme with the method <tt>setCssTheme()</tt>
+          from the class ${doc-link WApplication} and passing the parameter
+          "polished".
+        </dd>
+        <dt>bootstrap</dt>
+        <dd>
+          This class is also part of the ${doc-link WBootstrapTheme} class. Use
+          <tt>setCssTheme("bootstrap")</tt> to apply this theme.
+        </dd>
+      </dl>
     </p>
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${Theme}
-      ${src Theme}
+      ${src theme}
     </fieldset>
 
+    <h3>Remark</h3>
     <p>
-      theme4
+      Setting an empty theme (with parameter "") will result in a stub CSS theme
+      that does not load any stylesheets.
     </p>
 
-  <p><a href="#themes">Top</a></p>
+    <p><a href="#theme">Top</a></p>
 
   </message>
 
@@ -1099,7 +1116,7 @@
       the model).
     </p>
     <p>
-      <img src="pics/model-view.png" alt="model-view picture"></img>
+      <img src="/pics/model-view.png" alt="model-view picture"></img>
     </p>
     <p>
       The view may render fields of more than one model. Note that there are
@@ -1295,7 +1312,7 @@
 
     <p>
       You could also render the XHTML text to pdf using the
-      ${doc-link WPdfRenderer} class.
+      ${doc-link Render-WPdfRenderer} class.
       See <a href="#/media/pdf-output">Media > Pdf output</a> for more details.
     </p>
 
@@ -1389,7 +1406,7 @@
   </message>
 
   <message id="forms-checkBox">
-    <h2 id="check-boxes">Checkboxes</h2>
+    <h2 id="check-boxes">Check boxes</h2>
     <p>
       Wt provides different kinds of button widgets. The ${doc-link WCheckBox}
       class provides independent on/off options in contrast to
@@ -1409,7 +1426,7 @@
       behaviour.
     </p>
 
-    <h3>Inline checkboxes</h3>
+    <h3>Inline check boxes</h3>
     <p>
       By default, check boxes will appear on the same line.
     </p>
@@ -1420,7 +1437,7 @@
       ${src CheckBoxInline}
     </fieldset>
 
-    <h3>Stacked checkboxes</h3>
+    <h3>Stacked check boxes</h3>
     <p>
       Since by default, check boxes are inline, you will need to use
       <tt>setInline(false)</tt> to let them stack vertically.
@@ -1657,7 +1674,7 @@
   </message>
 
   <message id="forms-autoComplete">
-    <h2>Auto complete</h2>
+    <h2 id="auto-complete">Auto complete</h2>
     <p>
       The ${doc-link WSuggestionPopup} class is a widget which pops up to
       assist in editing a text area or line edit through auto completion.
@@ -1738,9 +1755,11 @@
     <h3>Remark</h3>
     <p>
       You can find several more advanced examples in the Wt distribution
-      directory <tt>examples/feature/suggestionpopup/</tt>; in the <tt>
+      directory <tt>examples/feature/suggestionpopup/</tt>. In the <tt>
       SuggestionPopup.C</tt> class you can explore different functions.
     </p>
+
+    <p><a href="#auto-complete">Top</a></p>
 
   </message>
 
@@ -1816,7 +1835,7 @@
   </message>
 
   <message id="forms-inPlaceEdit">
-    <h2>In place edit</h2>
+    <h2 id="in-place-edit">In place edit</h2>
     <p>
       The ${doc-link WInPlaceEdit} widget provides in-place-editable text. The
       text that may be edited in place by clicking on it.
@@ -1849,10 +1868,12 @@
         ${src InPlaceEdit}
     </fieldset>
 
+    <p><a href="#in-place-edit">Top</a></p>
+
   </message>
 
   <message id="forms-slider">
-    <h2>Slider</h2>
+    <h2 id="slider">Slider</h2>
     <p>
       A ${doc-link WSlider} is a horizontal or vertical linear control with
       which you can set an integer value by moving an indicator within a
@@ -1872,6 +1893,8 @@
         ${src Slider}
     </fieldset>
 
+    <p><a href="#slider">Top</a></p>
+
     <h3>Vertical slider</h3>
     <p>
       You can create a vertical slider using <tt>setOrientation()</tt> with the
@@ -1885,10 +1908,12 @@
         ${src SliderVertical}
     </fieldset>
 
+    <p><a href="#slider">Top</a></p>
+
   </message>
 
   <message id="forms-progressBar">
-    <h2>Progress bar</h2>
+    <h2 id="progress-bar">Progress bar</h2>
     <p>
       The ${doc-link WProgressBar} can be used to indicate the progress of a
       certain operation. The text displayed in the progress bar can be
@@ -1912,10 +1937,12 @@
       native HTML5 control when available.
     </p>
 
+    <p><a href="#progress-bar">Top</a></p>
+
   </message>
 
   <message id="forms-fileUpload">
-    <h2>File upload</h2>
+    <h2 id="file-upload">File upload</h2>
     <p>
       The ${doc-link WFileUpload} widget allows you to upload a local file to
       the server.
@@ -1959,6 +1986,8 @@
         ${FileUpload}
         ${src FileUpload}
     </fieldset>
+
+    <p><a href="#file-upload">Top</a></p>
 
   </message>
 
@@ -2286,7 +2315,7 @@
   </message>
 
   <message id="forms-validation">
-    <h2>Validation</h2>
+    <h2 id="validation">Validation</h2>
     <p>
       A validator is used to validate user input according to pre-defined rules.
     </p>
@@ -2339,6 +2368,8 @@
       </fieldset>
     </fieldset>
 
+    <p><a href="#validation">Top</a></p>
+
     <h3>Validation with a date picker</h3>
     <p>
       The input of a date picker widget is validated through the line edit
@@ -2351,6 +2382,8 @@
         ${ValidationDate}
         ${src ValidationDate}
     </fieldset>
+
+    <p><a href="#validation">Top</a></p>
 
     <h3>Server-side validation using a form model</h3>
     <p>
@@ -2396,6 +2429,8 @@
       ${ValidationModel}
       ${src ValidationModel}
     </fieldset>
+
+    <p><a href="#validation">Top</a></p>
 
   </message>
 
@@ -2499,7 +2534,7 @@
       ${src Path}
     </fieldset>
 
-<!--== Internal paths
+<!-- == Internal paths
 
 .A navigation model for your application
 
@@ -2709,7 +2744,7 @@ calls the corresponding logic to update the application.
 
 .Example: simple central controller
 [source,C]
-----
+
 class MyApplication : public WApplication
 {
 public:
@@ -2757,7 +2792,6 @@ private:
   UserWidget *userWidget_;
   ...
 }
-----
 
 This example manages a widget stack, `content_`, which displays
 either a welcome page, the `UserWidget` for a particular user, or an
@@ -2785,7 +2819,7 @@ Let us modify the previous example to show how this would be done.
 
 .Example: delegating internal path handling
 [source,C]
-----
+
 class UserWidget : public WCompositeWidget
 {
 public:
@@ -2852,7 +2886,6 @@ private:
   UserWidget *userWidget_;
   ...
 }
-----
 
 `WCompositeWidget` already provides some boilerplate methods to help
 with deploying it at a particular path:
@@ -2875,11 +2908,10 @@ widget is used by the library's `WMenu` widget, to associate paths
 with each menu entry and react to internal path changes to navigate to
 the correct page.-->
 
-
   </message>
 
   <message id="navigation-anchor">
-    <h2>Anchor</h2>
+    <h2 id="anchor">Anchor</h2>
     <p>
       An ${doc-link WAnchor} is a widget that represents an HTML
       <tt>&lt;a&gt;</tt> element, and provides a link to an URL. So, you can
@@ -2942,6 +2974,8 @@ the correct page.-->
       provide styling. It can be styled using inline or external CSS as
       appropriate.
     </p>
+
+    <p><a href="#anchor">Top</a></p>
 
   </message>
 
@@ -3044,6 +3078,8 @@ the correct page.-->
       addition to selectors like <tt>ul</tt>, <tt>li</tt> and <tt>span</tt>.
     </p>
 
+    <p><a href="#navigation-tab">Top</a></p>
+
   </message>
 
   <message id="navigation-navigationBar">
@@ -3087,10 +3123,13 @@ the correct page.-->
       ${src NavigationBar}
     </fieldset>
 
+    <h3>Remark</h3>
     <p>
       In some cases, you may want to add a form field to the navigation bar
       (e.g. for a compact login option) with <tt>addFormField()</tt>.
     </p>
+
+    <p><a href="#navigation-bar">Top</a></p>
 
   </message>
 
@@ -3156,6 +3195,8 @@ the correct page.-->
       ${src Popup}
     </fieldset>
 
+    <p><a href="#popup-menu">Top</a></p>
+
   </message>
 
   <message id="navigation-splitButton">
@@ -3201,7 +3242,7 @@ the correct page.-->
   </message>
 
   <message id="treestables-Tables">
-    <h2>Tables</h2>
+    <h2 id="tables">Tables</h2>
     <p>
       The most direct way to organize widgets in a tabular grid is
       using ${doc-link WTable}. This widget renders as an HTML
@@ -3248,12 +3289,25 @@ the correct page.-->
       the data or resize columns.
     </p>
 
+    <p><a href="#tables">Top</a></p>
+
     <h3>Bootstrap styling</h3>
 
     <p>
       The bootstrap theme provides optional markup for the
       table. These styles are enabled by adding the <tt>"table"</tt>
-      style class, and other optional style classes.
+      style class, and other optional style classes. The other styling
+      options are enabled by adding one of the following classes:
+      <dl class="dl-horizontal">
+        <dt>table-bordered</dt>
+        <dd>Adds borders</dd>
+        <dt>table-hover</dt>
+        <dd>Enables a row hover effect</dd>
+        <dt>table-condensed</dt>
+        <dd>Makes the table more compact</dd>
+        <dt>table-striped</dt>
+        <dd>Adds alternating row colors</dd>
+      </dl>
     </p>
 
     <fieldset class="example">
@@ -3262,37 +3316,12 @@ the correct page.-->
       ${src StyledTable}
     </fieldset>
 
-    <p>
-      The other styling options ar enabled by adding one of the following
-      classes:
-      <dl class="dl-horizontal">
-	<dt>table-bordered</dt>
-	<dd>Adds borders</dd>
-	<dt>table-hover</dt>
-	<dd>Enables a row hover effect</dd>
-	<dt>table-condensed</dt>
-	<dd>Makes the table more compact</dd>
-	<dt>table-striped</dt>
-	<dd>Adds alternating row colors</dd>
-      </dl>
-    </p>
-  </message>
+    <p><a href="#tables">Top</a></p>
 
-  <message id="treestables-TreeTables">
-    <h2>Trees</h2>
-    <p>
-      A ${doc-link WTreeTable} displays a tree widget.
-    </p>
-
-    <fieldset class="example">
-      <legend>Example</legend>
-      ${TreeTable}
-      ${src TreeTable}
-    </fieldset>
   </message>
 
   <message id="treestables-Trees">
-    <h2>Trees</h2>
+    <h2 id="tree">Trees</h2>
     <p>
       A ${doc-link WTree} displays a tree widget.
     </p>
@@ -3302,10 +3331,29 @@ the correct page.-->
       ${Tree}
       ${src Tree}
     </fieldset>
+
+    <p><a href="#tree">Top</a></p>
+
+  </message>
+
+  <message id="treestables-TreeTables">
+    <h2 id="treetable">Trees</h2>
+    <p>
+      A ${doc-link WTreeTable} displays a tree widget.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${TreeTable}
+      ${src TreeTable}
+    </fieldset>
+
+    <p><a href="#treetable">Top</a></p>
+
   </message>
 
   <message id="treestables-TableViews">
-    <h2>MVC Table Views</h2>
+    <h2 id="mvc-table-view">MVC Table Views</h2>
     <p>
       A ${doc-link WTableView} displays tabular data. The data is
       provided by a separate ${doc-link WAbstractItemModel}. This is a
@@ -3335,6 +3383,8 @@ the correct page.-->
       ${src SmallTableView}
     </fieldset>
 
+    <p><a href="#mvc-table-view">Top</a></p>
+
     <h3>Virtual scrolling</h3>
     <p>
       A tableview has the capbility todisplay large datasets, by
@@ -3357,6 +3407,8 @@ the correct page.-->
       <a href="#/trees-tables/mvc-item-models">in the section on item
       models</a>
     </fieldset>
+
+    <p><a href="#mvc-table-view">Top</a></p>
 
     <h3>Customizing cell rendering</h3>
 
@@ -3389,6 +3441,8 @@ the correct page.-->
       data roles.
     </p>
 
+    <p><a href="#mvc-table-view">Top</a></p>
+
     <h3>Editing</h3>
     <p>
       MVC Views will automaticlly react to changes to the underlying
@@ -3411,10 +3465,13 @@ the correct page.-->
       <tt>WAbstractItemView::setRowHeaderCount()</tt>), which are kept
       in view while scrolling to the columns.
     </p>
+
+    <p><a href="#mvc-table-view">Top</a></p>
+
   </message>
 
   <message id="treestables-TreeViews">
-    <h2>MVC Tree Views</h2>
+    <h2 id="mvc-tree-view">MVC Tree Views</h2>
     <p>
       A ${doc-link WTreeView} displays tree data (with additional
       properties available in extra columns). The archetypical
@@ -3461,16 +3518,20 @@ the correct page.-->
     </fieldset>
 
     <h3>Other Features</h3>
+    <p>
+      The tree view shares a great deal of functionality with its
+      sibling table view (which both reimplement
+      ${doc-link WAbstractItemView}), such as customizing cell rendering,
+      editing and row headers. See <a href="#/trees-tables/mvc-table-views">
+      MVC Table Views</a>.
+    </p>
 
-    The tree view shares a great deal of functionality with its
-    sibling table view (which both reimplement ${doc-link
-    WAbstractItemView}), such as customizing cell rendering, editing
-    and row headers. See <a href="#/trees-tables/mvc-table-views">
-    MVC Table Views</a>.
+    <p><a href="#mvc-tree-view">Top</a></p>
+
   </message>
 
   <message id="treestables-ItemModels">
-    <h2>MVC Item Models</h2>
+    <h2 id="mvc-item-models">MVC Item Models</h2>
 
     <p>A common data model involves lists, tables and trees of more or
     less uniform items. Several standard widgets provided by the
@@ -3491,6 +3552,11 @@ the correct page.-->
     href="#/graphics-charts/pie-chart">Pie Chart</a>.
     </p>
 
+    <div>
+      <img src="/pics/modelview.png"
+	   style="max-width: none; margin: 5px auto; display: block"/>
+    </div>
+
     <h3>The model</h3>
 
     <blockquote>
@@ -3504,11 +3570,11 @@ the correct page.-->
 
     <h4>Lists</h4>
 
+    <img src="/pics/list-models.png" style="max-width: none; float: right; margin: 30px"/>
+
     <p>In its most simple and perhaps most common form, an item model
     simply stores a list of items. Such a model has only one column.
     </p>
-
-    <!-- Insert picture here -->
 
     <p>
       Each item may holds different facets of the data, stored as
@@ -3548,29 +3614,29 @@ the correct page.-->
       list of standard roles, whose use may depend on the View.
     </p>
 
-    <h4>Tables</h4>
+    <h4 style="clear: both">Tables</h4>
+
+    <img src="/pics/table-models.png" style="max-width: none; float: right; margin: 30px"/>
 
     As a straight forward generalization to lists, tables may include
     more than one more column, and each item can be identified by a
     <i>(row, column)</i> pair.
       
-    <!-- Insert picture here -->
+    <h4 style="clear: both">Trees</h4>
 
-    <h4>Trees</h4>
+    <img src="/pics/tree-models.png" style="max-width: none; float: right; margin: 30px"/>
 
     <p>
-      A tree model is, like a list, a model with a single column, but
+      A tree model is - like a list - a model with a single column. In addition
       each item may be parent to another list.
     </p>
-
-    <!-- Insert picture here -->
 
     <p>
       At this point it becomes necessary to introduce the concept of
       a ${doc-link WModelIndex} to uniquely identify an item. A model
       index is a data structucre containing:
 
-      <dl class="dl-horizontal">
+      <dl class="dl-horizontal no-clear">
 	<dt>row</dt>
 	<dd>The row number</dd>
 	<dt>column</dt>
@@ -3578,7 +3644,9 @@ the correct page.-->
 	<dt>parent</dt>
 	<dd>The parent model index</dd>
       </dl>
+    </p>
 
+    <p>
       The recursion is thus achieved by associating a parent index
       with each item index. By convention, top-level items have an
       <strong>Invalid</strong> index (which is a default constructed
@@ -3595,14 +3663,14 @@ the correct page.-->
       columns of data to be associated with each item row.
     </p>
 
-    <!-- Insert picture here -->
-
     <p>
       None of the standard Views render hierarchical data that is not
       present in the first column ! While such data structures can
       indeed be defined by item models, this will effectively be
       ignored by the standard View classes.
     </p>
+
+    <p><a href="#mvc-item-models">Top</a></p>
 
     <h3>Standard model implementations</h3>
 
@@ -3720,6 +3788,8 @@ the correct page.-->
       href="#/trees-tables/mvc-tree-views">MVC Tree Views</a>.
     </fieldset>
 
+    <p><a href="#mvc-item-models">Top</a></p>
+
     <h3>Sorting</h3>
 
     <p>
@@ -3744,12 +3814,13 @@ the correct page.-->
       A model does not necessarily need to be a static data source, but
       its data can also change, and data (rows/columns) can be added or
       removed. A model needs to generate events to inform Views of these
-      modifications, to which Views subscribe. When implementing a
-      custom model which is dynamic in nature, it is therefore important
-      to emit these signals when making the modifications.
+      modifications (for the events to which a View is subscribed). When
+      implementing a custom model which is dynamic in nature, it is
+      therefore important to emit these signals when making the
+      modifications.
     </p>
 
-    <!-- List the relevant events here, in a table ? -->
+    <!-- TODO List the relevant events here, in a table ? -->
 
     <h3>Editing</h3>
 
@@ -3776,6 +3847,9 @@ the correct page.-->
 	<dd>Removes one or more rows</dd>
       </dl>
     </p>
+
+    <p><a href="#mvc-item-models">Top</a></p>
+
   </message>
 
 <!--GRAPHICS & CHARTS message blocks-->
@@ -4155,8 +4229,8 @@ the correct page.-->
       The two main chart widgets are
       <ul>
         <li>
-          ${doc-link WCartesianChart}, which provides category charts and
-          scatter plots, and
+          ${doc-link WCartesianChart}, which provides charts with a X and a Y
+          axis to show data, and
         </li>
         <li>
           ${doc-link WPieChart} which provides pie charts.
@@ -4166,29 +4240,55 @@ the correct page.-->
       from a ${doc-link WAbstractItemModel}.
     </p>
     <p>
+      A cartesian chart is either a CategoryChart or a ScatterPlot.
+      <ul>
+        <li>
+          A <strong>CategoryChart</strong> shows data in categories.
+        </li>
+        <li>
+          A <strong>ScatterPlot</strong> shows the data according to a
+          numerical X scale.
+        </li>
+      </ul>
+      It can display one or multiple data series which may be rendered
+      individually using bars, lines, areas, or points.
+      To use a cartesian chart, the minimum you need to do is to set a model
+      using <tt>setModel()</tt>, set the model column that holds the X data
+      using <tt>setXSeriesColumn(int modelColumn)</tt>, and add one or more
+      series using <tt>addSeries(const WDataSeries&amp;)</tt>. Each series
+      corresponds to one data column that holds Y data.
+    </p>
+    <p>
       Many aspects of the charts may be customized. By default, style
       information for rendering data series are taken from a
-      ${doc-link WChartPalette}. It is straight forward to specialize this
-      class to provide different styles from the standard styles provided by
+      ${doc-link WChartPalette}. It is straightforward to specialize this class
+      to provide different styles from the standard styles provided by
       ${doc-link WStandardPalette}.
     </p>
     <p>
-      The examples are reused in the interface of the charts widget (in the
-      library at /examples/charts/charts.wt). This demonstrates how
-      object-oriented widgets can easily be reused in other applications
-      without having to worry about naming conflicts or HTML identifier
-      clashes.
+      The cartesian chart has support for dual Y axes. Each data series may be
+      bound to one of the two Y axes. By default, only the first Y axis is
+      displayed. To show the second Y axis you will need to call
+      <tt>chart->axis(Y2Axis).setVisible(true)</tt>
+      By default a chart has a horizontal X axis and a vertical Y axis, which
+      corresponds to a <tt>Vertical</tt> orientation. The orientation may be
+      changed to <tt>Horizontal</tt> using <tt>setOrientation()</tt>.
+      The styling of the data series are defined by a palette which may be set
+      using <tt>setPalette(WChartPalette *)</tt>, but may be overridden by
+      settings in each data series.
     </p>
 
     <h3>What is a category chart?</h3>
     <p>
-      A category chart has categories on the X axis, and displays values of one
-      or more data series on the Y axes. The values corresponding to each
-      category are plotted consecutively (this is the main difference with a
-      scatterplot). Each data series corresponds to a column from the model.
+      A category chart has different categories on the X axis, and displays
+      values of one or more data series on the Y axes as a series of bars. The
+      values corresponding to each category are plotted consecutively in model
+      row order. Each data series corresponds to a column from the model and
+      may be rendered differently (This is configured in the data series - See
+      ${doc-link WDataSeries} for more information).
     </p>
     <p>
-      A cartesian chart provides automatic configuration of the axes, and
+      As a cartesian chart it provides automatic configuration of the axes, and
       support for a second Y axis. In addition, you may use a simple built-in
       legend, or extend the class to provide a specialized legend. In the
       example below, we use a manual Y axis configuration, with a break as
@@ -4225,15 +4325,28 @@ the correct page.-->
     <p>
       A scatter plot is very much like a category chart, but uses numerical
       data on the X axis. By default, these numerical data are mapped linearly
-      on the X axis, but may also be log transformed (as can be configured for
-      the Y axes). In addition, there is special support for displaying date
-      series, by means of smart heuristics for chosing the labels on the X
-      axis.
+      on the X axis, but may also be log transformed (This can also be
+      configured for the Y axes). In addition, there is special support for
+      displaying date series, by means of smart heuristics for chosing the
+      labels on the X axis.
+    </p>
+    <p>
+      In a ScatterPlot, the X series data are interpreted as numbers on a
+      linear scale. The scale for the X axis defaults to a
+      <strong>LinearScale</strong>, but this may be changed to a
+      <strong>DateScale</strong> when the X series contains dates (of type
+      <tt>WDate</tt>) to create a time series chart, or to a
+      <strong>LogScale</strong>. A ScatterPlot supports the same types of data
+      series as a CategoryChart, but does not support stacking. In a scatter
+      plot, the X series do not need to be ordered in increasing values, and it
+      may be set differently for each dataseries using
+      <tt>WDataSeries::setXSeriesColumn(int modelColumn)</tt>.
     </p>
 
     <h3>Scatter plot of a time series</h3>
     <p>
-      Below is an extract from historical financial market data.
+      The table below shows an extract from historical financial market data.
+      The scatter plot shows the second and the third column as line series.
     </p>
 
     <fieldset class="example">
@@ -4241,6 +4354,8 @@ the correct page.-->
       ${ScatterPlotData}
       ${src ScatterPlotData}
     </fieldset>
+
+    <p><a href="#scatter-plot">Top</a></p>
 
     <h3>Scatter plot of a function</h3>
     <p>
@@ -4255,6 +4370,12 @@ the correct page.-->
       ${ScatterPlotCurve}
       ${src ScatterPlotCurve}
     </fieldset>
+
+    <h3>Remark</h3>
+    <p>
+      Missing data in a model series Y values is interpreted as a break. For
+      curve-like series, this breaks the curve (or line).
+    </p>
 
     <p><a href="#scatter-plot">Top</a></p>
 
@@ -4287,7 +4408,7 @@ the correct page.-->
   </message>
 
   <message id="graphics-GoogleMap">
-    <h2>Google Maps</h2>
+    <h2 id="google-map">Google Maps</h2>
     <p>
       The ${doc-link WGoogleMap} widget displays a google map. It implements a
       Wt wrapper around the Google Maps functionality.
@@ -4325,6 +4446,8 @@ the correct page.-->
         <pre>${GoogleMap-controls}</pre>
       </fieldset>
     </fieldset>
+
+    <p><a href="#google-map">Top</a></p>
 
   </message>
 
@@ -4387,16 +4510,35 @@ the correct page.-->
 
 <!--EVENTS message blocks-->
 
+  <message id="events-intro">
+    <p class="lead">Events &#8212; making your application dynamic with the signal/slot concept</p>
+  </message>
+
+  <message id="events-Introduction">
+    <h2 id="events">Introduction</h2>
+    <h3></h3>
+    <p>
+
+    </p>
+
+    <h3></h3>
+    <p>
+
+    </p>
+
+    <p><a href="#events">Top</a></p>
+
+  </message>
 
 
 <!--MEDIA message blocks-->
 
   <message id="specialpurposewidgets-intro">
-    <p class="lead">Media &#8212; of video, audio, PDF and other resources</p>
+    <p class="lead">Media &#8212; video, audio, PDF and other resources</p>
   </message>
 
   <message id="media-MediaPlayer">
-    <h2>Media Player</h2>
+    <h2 id="media-player">Media Player</h2>
     <p>
       This widget implements a media player with a customizable user-interface,
       suitable to play video or audio.
@@ -4471,6 +4613,9 @@ the correct page.-->
       controlsWidget. In this case however, full screen mode should not be used
       since there is no way to restore the original size.
     </p>
+
+    <p><a href="#media-player">Top</a></p>
+
   </message>
 
   <message id="media-Sound">
@@ -4500,7 +4645,7 @@ the correct page.-->
   </message>
 
   <message id="media-Audio">
-    <h2>Audio</h2>
+    <h2 id="audio">Audio</h2>
     <p>
       ${doc-link WAudio} is a widget to play audio. It is a low-level widget,
       mapping directly onto a <tt>&lt;audio&gt;</tt> element available in HTML5
@@ -4555,10 +4700,12 @@ the correct page.-->
       called after the widget is rendered.
     </p>
 
+    <p><a href="#audio">Top</a></p>
+
   </message>
 
   <message id="media-Video">
-    <h2>Video</h2>
+    <h2 id="video">Video</h2>
     <p>
       Although the <a href="#/media/wmediaplayer">WMediaPlayer</a> widget
       implements a cross-browser video player, in some cases, you may need
@@ -4587,6 +4734,8 @@ the correct page.-->
       ${src Video}
     </fieldset>
 
+    <p><a href="#video">Top</a></p>
+
     <h3>Native video with fallback</h3>
     <p>
       For browsers that support HTML <tt>&lt;video&gt;</tt>, the video below
@@ -4612,6 +4761,8 @@ the correct page.-->
       example.
     </p>
 
+    <p><a href="#video">Top</a></p>
+
   </message>
 
   <message id="media-FlashObject">
@@ -4633,7 +4784,7 @@ the correct page.-->
   </message>
 
   <message id="media-Resources">
-    <h2>Resources</h2>
+    <h2 id="resources">Resources</h2>
     <p>
       A ${doc-link WResource} is a target for a HTTP request. It specifies
       application-dependent content that may be generated by your
@@ -4697,25 +4848,17 @@ the correct page.-->
       ${src ResourceCustom}
     </fieldset>
 
+    <p><a href="#resources">Top</a></p>
+
+    <h3>Static resources</h3>
     <p>
-      Whenever the resource has changed, you should call the
-      <tt>setChanged()</tt> method which will...
-      <ul>
-        <li>
-          <strong>generate a new URL</strong> to ensure that the browser will
-          use a new version of the resource, and
-        </li>
-        <li>
-          <strong>emit the <tt>dataChanged()</tt> signal</strong> to make
-          those objects that refer to the resource aware that they should
-          update their references to the new URL.
-        </li>
-      </ul>
+      Static resources are global which means that they are available as long
+      as the application is running. A web service (e.g. REST, SOAP, WSDL) is a
+      typical example of a resource that should always be available. This could
+      be needed for machine-to-machine communication, etc.
     </p>
     <p>
-      Use <tt>WServer::addResource()</tt> to deploy static resources, which are
-      global. Thanks to the following example you can browse directly to the
-       URL <tt>/media/static-resource</tt>.
+      Use <tt>WServer::addResource()</tt> to deploy static resources.
     </p>
 
     <fieldset class="example">
@@ -4739,6 +4882,8 @@ the correct page.-->
       </ul>
     </p>
 
+    <p><a href="#resources">Top</a></p>
+
   </message>
 
   <message id="media-PDF">
@@ -4757,49 +4902,64 @@ the correct page.-->
       </ul>
     </p>
 
-    <h3 id="media/pdf-images">PDF images</h3>
+    <h3 id="media/pdf-images">PDF Images</h3>
     <p>
-      The class ${doc-link WPdfImage} is a paint device for rendering to PDF.
-      You can use it...
+      The class ${doc-link WPdfImage} is a paint device for rendering
+      to PDF. It supports two main use-cases:
       <ul>
-        <li>to make a PDF version of a painting, or</li>
-        <li>to embed a painting in a PDF document.</li>
+        <li>as any other paint device, it can be used to create a PDF
+        output of the painting (which could e.g. be a chart or your
+        own painted widget), or</li>
+        <li>it can be used to embed Wt-generated contents into a larger PDF
+	document, e.g. to generate a report</li>
       </ul>
     </p>
     <p>
-      A <tt>WPdfImage</tt> paint device should be used in conjunction with a
-      ${doc-link WPainter}. It can be used to make a PDF version of a
-      ${doc-link WPaintedWidget}'s contents.
+      A <tt>WPdfImage</tt> paint device is typically used in
+      conjunction with a ${doc-link WPainter}, which provides a
+      high-level unified painting API.
     </p>
-    <p>
-      The PDF is generated using
-      <a href="http://libharu.org/">The Haru Free PDF Library</a>. This class
-      is included in the library only if <tt>libharu</tt> was found during the
-      build of the library.
-    </p>
-    <p>
-      You can use the image as a resource and specialize
-      <tt>handleRequest()</tt> to paint the contents on the fly.
-      Alternatively, you could use <tt>write()</tt> to serialize to a PDF file
-      (<tt>std::ostream</tt>).
-    </p>
+    ${<if:cpp>}
+      <p>
+	The PDF is generated using
+	<a href="http://libharu.org/">The Haru Free PDF Library</a>. This class
+	is included in the library only if <tt>libharu</tt> was found during the
+	build of the library.
+      </p>
+    ${</if:cpp>}
+    ${<if:java>}
+      <p>
+	The PDF is generated using the <a
+	href="http://pdfjet.com">PDFjet library</a>, and Wt can use
+	either the open source or commercial version.
+      </p>
+    ${</if:java>}
 
+    <p>The following example shows how to use a <tt>WPdfImage</tt> directly in
+    conjunction with <tt>WPainter</tt>.</p>
+    
     <fieldset class="example">
       <legend>Example</legend>
       ${PdfImage}
       ${src PdfImage}
     </fieldset>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      ${src pdfImageWrite}
-    </fieldset>
+    ${<if:cpp>}
+      <p>Another common use-case is to paint the contents of a
+      <tt>WPaintedWidget</tt>, such as a chart, to a PDF :
+      </p>
+
+      <fieldset class="example">
+	${src pdfImageWrite}
+      </fieldset>
+    ${</if:cpp>}
 
     <p>
-      A constructor is provided to embed the generated PDF image directly into
-      a page of a larger <tt>libharu</tt> document. This approach is used for
-      example by the <a href="#media/pdf-renderer">WPdfRenderer</a> to render
-      XHTML to multi-page PDF files.
+      When you want to embed a PDF image into a larger document, you
+      need to use its constructor which passes an existing PDF
+      document and page for it to paint on.  This approach is used for
+      example by the <a href="#media/pdf-renderer">WPdfRenderer</a> to
+      render XHTML to multi-page PDF files.
     </p>
     <p>
       Font information is embedded in the PDF. Fonts supported are native
@@ -4812,10 +4972,7 @@ the correct page.-->
       <ul>
         <li>
           Images (cf. <tt>WPainter::drawImage()</tt>) can only be included
-          from local files.
-        </li>
-        <li>
-          Only JPG and PNG images are supported.
+          from local files, and only JPG or PNG images can be embedded.
         </li>
         <li>
           Drop shadows are not supported.
@@ -4825,23 +4982,28 @@ the correct page.-->
 
     <p><a href="#pdf">Top</a></p>
 
-    <h3 id="media/pdf-renderer">PDF rendering</h3>
+    <h3 id="media/pdf-renderer">Rendering HTML to PDF</h3>
     <p>
-      The class ${doc-link WPdfRenderer} provides a XHTML to PDF renderer.
-      You can create a multi-page PDF with it and it may contain one or more
-      <a href="#media/pdf-images">WPdfImage</a>s.
+      The class ${doc-link Render-WPdfRenderer} implements a XHTML to
+      PDF renderer. It can be used to create mult-page reports,
+      without the need for programming tedious layouting using a
+      low-level drawing API.
     </p>
     <p>
       The rendering engine supports only a subset of XHTML. See the
-      documentation of ${doc-link WTextRenderer} for more information.
+      documentation of ${doc-link Render-WTextRenderer} for more information.
     </p>
     <p>
-      The renderer renders to a <tt>libharu</tt> PDF document. By default it
-      uses a pixel resolution of 72 DPI, which is the default for
-      <tt>libharu</tt>, but differs from the default used by most browsers
-      (which is 96 DPI and has nothing to do with the actual screen
-      resolution). The resolution can be increased using <tt>setDpi()</tt>.
-      This has the effect of scaling down the rendering. This can be used in
+      Although the rendering class itself can render to any
+      <tt>WPaintDevice</tt> (with font-metris), by far the most common
+      use-case is to render to a PDF document using
+      <tt>WPdfImage</tt>. Typically, you will want to adapt the pixel
+      resolution By default it uses a pixel resolution of 72 DPI,
+      which is a common default for printed documents, but differs
+      from the default used by most browsers (which is 96 DPI and has
+      nothing to do with the actual screen resolution). The resolution
+      can be changed using <tt>setDpi()</tt> and has the effect of
+      scaling down (or up) the rendering. This can be used in
       conjunction with <tt>setFontScale()</tt> to scale the font size
       differently than other content.
     </p>
@@ -4858,383 +5020,382 @@ the correct page.-->
 
   <message id="report.example">
     <div>
-    <h1>Hello World!</h1>
-    
-    <p>
-      This could be a <span style="font-size:20pt">big</span> deal to
-      your project, since this modest renderer does support many
-      things commonly needed to render reports, such as:
-    </p>
+      <h1>Hello World!</h1>
 
-    Unordered lists:
-    <ul>
-      <li>with one ...</li>
-      <li>or <em>more</em> items</li>
-    </ul>
+      <p>
+        This could be a <span style="font-size:20pt">big</span> deal to
+        your project, since this modest renderer does support many
+        things commonly needed to render reports, such as:
+      </p>
 
-    Ordered lists:
-    <ol>
-      <li>it's a basic thing</li>
-      <li>and they come in good use</li>
-    </ol>
+      Unordered lists:
+      <ul>
+        <li>with one ...</li>
+        <li>or <em>more</em> items</li>
+      </ul>
 
-    <div style="float: right; border: 1px solid black; background-color: #EEE; padding: 10px; margin: 10px;">
-      Floats are notoriously hard to render.
+      Ordered lists:
+      <ol>
+        <li>it's a basic thing</li>
+        <li>and they come in good use</li>
+      </ol>
+
+      <div style="float: right; border: 1px solid black; background-color: #EEE; padding: 10px; margin: 10px;">
+        Floats are notoriously hard to render.
+      </div>
+      <p>
+        The renderer has fairly complete support for layout of floats
+        (like images), including nested floats and their interactions
+        with other inline and block contents.
+      </p>
+
+      <p>
+        There is obvious support for <span style="color: #11E">colors</span>,
+        different font sizes - <span style="font-size:15pt">big</span> and
+        <span style="font-size: 9pt">small</span> - and other fonts; including
+        support for <span style="font-family: serif">true type</span> fonts.
+      </p>
+
+      <p>
+        Reports typically contain tables, and these are also well
+        supported; including multi-page ones, with automatic repetition
+        of table headers.
+
+        <table style="font-size: 8pt; margin-left: auto; margin-right: auto">
+          <thead>
+            <tr>
+              <th style="border-bottom: 1px solid black">FirstName</th>
+              <th style="border-bottom: 1px solid black">LastName</th>
+              <th style="border-bottom: 1px solid black">Company</th>
+              <th style="border-bottom: 1px solid black">Address</th>
+              <th style="border-bottom: 1px solid black">City</th>
+              <th style="border-bottom: 1px solid black">County</th>
+              <th style="border-bottom: 1px solid black">State</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Essie</td>
+              <td>Vaill</td>
+              <td>Litronic Industries</td>
+              <td>14225 Hancock Dr</td>
+              <td>Anchorage</td>
+              <td>Anchorage</td>
+              <td>AK</td>
+            </tr>
+            <tr>
+              <td>Cruz</td>
+              <td>Roudabush</td>
+              <td>Meridian Products</td>
+              <td>2202 S Central Ave</td>
+              <td>Phoenix</td>
+              <td>Maricopa</td>
+              <td>AZ</td>
+            </tr>
+            <tr>
+              <td>Billie</td>
+              <td>Tinnes</td>
+              <td>D &amp; M Plywood Inc</td>
+              <td>28 W 27th St</td>
+              <td>New York</td>
+              <td>New York</td>
+              <td>NY</td>
+            </tr>
+            <tr>
+              <td>Zackary</td>
+              <td>Mockus</td>
+              <td>Metropolitan Elevator Co</td>
+              <td>286 State St</td>
+              <td>Perth Amboy</td>
+              <td>Middlesex</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Rosemarie</td>
+              <td>Fifield</td>
+              <td>Technology Services</td>
+              <td>3131 N Nimitz Hwy</td>
+              <td>Honolulu</td>
+              <td>Honolulu</td>
+              <td>HI</td>
+            </tr>
+            <tr>
+              <td>Bernard</td>
+              <td>Laboy</td>
+              <td>Century 21 Keewaydin Prop</td>
+              <td>22661 S Frontage Rd</td>
+              <td>Channahon</td>
+              <td>Will</td>
+              <td>IL</td>
+            </tr>
+            <tr>
+              <td>Sue</td>
+              <td>Haakinson</td>
+              <td>Kim Peacock Beringhause</td>
+              <td>9617 N Metro Pky W</td>
+              <td>Phoenix</td>
+              <td>Maricopa</td>
+              <td>AZ</td>
+            </tr>
+            <tr>
+              <td>Valerie</td>
+              <td>Pou</td>
+              <td>Sea Port Record One Stop Inc</td>
+              <td>7475 Hamilton Blvd</td>
+              <td>Trexlertown</td>
+              <td>Lehigh</td>
+              <td>PA</td>
+            </tr>
+            <tr>
+              <td>Lashawn</td>
+              <td>Hasty</td>
+              <td>Kpff Consulting Engineers</td>
+              <td>815 S Glendora Ave</td>
+              <td>West Covina</td>
+              <td>Los Angeles</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Marianne</td>
+              <td>Earman</td>
+              <td>Albers Technologies Corp</td>
+              <td>6220 S Orange Blossom Trl</td>
+              <td>Orlando</td>
+              <td>Orange</td>
+              <td>FL</td>
+            </tr>
+            <tr>
+              <td>Justina</td>
+              <td>Dragaj</td>
+              <td>Uchner, David D Esq</td>
+              <td>2552 Poplar Ave</td>
+              <td>Memphis</td>
+              <td>Shelby</td>
+              <td>TN</td>
+            </tr>
+            <tr>
+              <td>Mandy</td>
+              <td>Mcdonnell</td>
+              <td>Southern Vermont Surveys</td>
+              <td>343 Bush St Se</td>
+              <td>Salem</td>
+              <td>Marion</td>
+              <td>OR</td>
+            </tr>
+            <tr>
+              <td>Conrad</td>
+              <td>Lanfear</td>
+              <td>Kahler, Karen T Esq</td>
+              <td>49 Roche Way</td>
+              <td>Youngstown</td>
+              <td>Mahoning</td>
+              <td>OH</td>
+            </tr>
+            <tr>
+              <td>Cyril</td>
+              <td>Behen</td>
+              <td>National Paper &amp; Envelope Corp</td>
+              <td>1650 S Harbor Blvd</td>
+              <td>Anaheim</td>
+              <td>Orange</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Shelley</td>
+              <td>Groden</td>
+              <td>Norton, Robert L Esq</td>
+              <td>110 Broadway St</td>
+              <td>San Antonio</td>
+              <td>Bexar</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Rosalind</td>
+              <td>Krenzke</td>
+              <td>Waldein Manufacturing</td>
+              <td>7000 Bass Lake Rd</td>
+              <td>Minneapolis</td>
+              <td>Hennepin</td>
+              <td>MN</td>
+            </tr>
+            <tr>
+              <td>Davis</td>
+              <td>Brevard</td>
+              <td>Transit Trading Corp</td>
+              <td>6715 Tippecanoe Rd</td>
+              <td>Canfield</td>
+              <td>Mahoning</td>
+              <td>OH</td>
+            </tr>
+            <tr>
+              <td>Winnie</td>
+              <td>Reich</td>
+              <td>Pacific Seating Co</td>
+              <td>1535 Hawkins Blvd</td>
+              <td>El Paso</td>
+              <td>El Paso</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Trudy</td>
+              <td>Worlds</td>
+              <td>Shapiro, Mark R Esq</td>
+              <td>24907 Tibbitts Avenue</td>
+              <td>Valencia</td>
+              <td>Los Angeles</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Deshawn</td>
+              <td>Inafuku</td>
+              <td>Telair Div Of Teleflex Inc</td>
+              <td>3508 Leopard St</td>
+              <td>Corpus Christi</td>
+              <td>Nueces</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Claudio</td>
+              <td>Loose</td>
+              <td>Audiotek Electronics</td>
+              <td>286 State St</td>
+              <td>Perth Amboy</td>
+              <td>Middlesex</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Sal</td>
+              <td>Pindell</td>
+              <td>Wrigley, Robert I Esq</td>
+              <td>1112 Se 1st St</td>
+              <td>Evansville</td>
+              <td>Vanderburgh</td>
+              <td>IN</td>
+            </tr>
+            <tr>
+              <td>Cristina</td>
+              <td>Sharper</td>
+              <td>Tax Office</td>
+              <td>111 W 40th St</td>
+              <td>New York</td>
+              <td>New York</td>
+              <td>NY</td>
+            </tr>
+            <tr>
+              <td>Cary</td>
+              <td>Mccamey</td>
+              <td>Williams Scotsman</td>
+              <td>100 E Broad St</td>
+              <td>Columbus</td>
+              <td>Franklin</td>
+              <td>OH</td>
+            </tr>
+            <tr>
+              <td>Haley</td>
+              <td>Rocheford</td>
+              <td>Davis, Robert L Esq</td>
+              <td>6030 Greenwood Plaza Blvd</td>
+              <td>Englewood</td>
+              <td>Arapahoe</td>
+              <td>CO</td>
+            </tr>
+            <tr>
+              <td>Dorothea</td>
+              <td>Sweem</td>
+              <td>Ehrmann, Rolfe F Esq</td>
+              <td>100 Thanet Circ</td>
+              <td>Trenton</td>
+              <td>Mercer</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Fannie</td>
+              <td>Steese</td>
+              <td>Chiapete, W Richard Esq</td>
+              <td>926 E ParkAve</td>
+              <td>Tallahassee</td>
+              <td>Leon</td>
+              <td>FL</td>
+            </tr>
+            <tr>
+              <td>Allyson</td>
+              <td>Gillispie</td>
+              <td>De Friese Theo &amp; Sons</td>
+              <td>1722 White Horse Mercerville R</td>
+              <td>Trenton</td>
+              <td>Mercer</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Roger</td>
+              <td>Seid</td>
+              <td>Yoshida, Gerald C Esq</td>
+              <td>3738 N Monroe St</td>
+              <td>Tallahassee</td>
+              <td>Leon</td>
+              <td>FL</td>
+            </tr>
+            <tr>
+              <td>Dollie</td>
+              <td>Daquino</td>
+              <td>Jd Edwards &amp; Co</td>
+              <td>1005 Congress Ave</td>
+              <td>Austin</td>
+              <td>Travis</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Eva</td>
+              <td>Seahorn</td>
+              <td>Saunders Appraisal Inc</td>
+              <td>3 Northern Blvd</td>
+              <td>Amherst</td>
+              <td>Hillsborough</td>
+              <td>NH</td>
+            </tr>
+            <tr>
+              <td>Mamie</td>
+              <td>Mcintee</td>
+              <td>Jacobs, Brian Realtor</td>
+              <td>2810 Jacobs Ave</td>
+              <td>Eureka</td>
+              <td>Humboldt</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Lyndon</td>
+              <td>Bellerdine</td>
+              <td>A B C Lock &amp; Key</td>
+              <td>200 California St</td>
+              <td>San Francisco</td>
+              <td>San Francisco</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Lashonda</td>
+              <td>Derouen</td>
+              <td>Travel Agent Magazine</td>
+              <td>101 Royal St</td>
+              <td>Alexandria</td>
+              <td>Alexandria City</td>
+              <td>VA</td>
+            </tr>
+            <tr>
+              <td>Jacklyn</td>
+              <td>Emayo</td>
+              <td>Super 8 Motel Temple</td>
+              <td>101 Us Highway 46</td>
+              <td>Fairfield</td>
+              <td>Essex</td>
+              <td>NJ</td>
+            </tr>
+          </tbody>
+        </table>
+      </p>
+
+      <p style="text-align: center">
+        So, keep it in mind !
+      </p>
     </div>
-    <p>
-      The renderer has fairly complete support for layout of floats
-      (like images), including nested floats and there interactions
-      with other inline and block contents.
-    </p>
-
-    <p>
-      There is <span style="color: #11E">obvious</span> support for
-      colors, different font sizes, <span style="font-size:
-      15pt">big</span> and <span style="font-size: 9pt">small</span>,
-      and <span style="font-family: serif">other fonts</span>,
-      including support for true type fonts.
-    </p>
-    
-    <p>
-      Reports typically contain tables, and these are also well
-      supported, including multi-page ones, with automatic repetition
-      of table headers.
-
-      <table style="font-size: 8pt; margin-left: auto; margin-right: auto">
-	<thead>
-	  <tr>
-	    <th style="border-bottom: 1px solid black">FirstName</th>
-	    <th style="border-bottom: 1px solid black">LastName</th>
-	    <th style="border-bottom: 1px solid black">Company</th>
-	    <th style="border-bottom: 1px solid black">Address</th>
-	    <th style="border-bottom: 1px solid black">City</th>
-	    <th style="border-bottom: 1px solid black">County</th>
-	    <th style="border-bottom: 1px solid black">State</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr>
-	    <td>Essie</td>
-	    <td>Vaill</td>
-	    <td>Litronic Industries</td>
-	    <td>14225 Hancock Dr</td>
-	    <td>Anchorage</td>
-	    <td>Anchorage</td>
-	    <td>AK</td>
-	  </tr>
-	  <tr>
-	    <td>Cruz</td>
-	    <td>Roudabush</td>
-	    <td>Meridian Products</td>
-	    <td>2202 S Central Ave</td>
-	    <td>Phoenix</td>
-	    <td>Maricopa</td>
-	    <td>AZ</td>
-	  </tr>
-	  <tr>
-	    <td>Billie</td>
-	    <td>Tinnes</td>
-	    <td>D &amp; M Plywood Inc</td>
-	    <td>28 W 27th St</td>
-	    <td>New York</td>
-	    <td>New York</td>
-	    <td>NY</td>
-	  </tr>
-	  <tr>
-	    <td>Zackary</td>
-	    <td>Mockus</td>
-	    <td>Metropolitan Elevator Co</td>
-	    <td>286 State St</td>
-	    <td>Perth Amboy</td>
-	    <td>Middlesex</td>
-	    <td>NJ</td>
-	  </tr>
-	  <tr>
-	    <td>Rosemarie</td>
-	    <td>Fifield</td>
-	    <td>Technology Services</td>
-	    <td>3131 N Nimitz Hwy</td>
-	    <td>Honolulu</td>
-	    <td>Honolulu</td>
-	    <td>HI</td>
-	  </tr>
-	  <tr>
-	    <td>Bernard</td>
-	    <td>Laboy</td>
-	    <td>Century 21 Keewaydin Prop</td>
-	    <td>22661 S Frontage Rd</td>
-	    <td>Channahon</td>
-	    <td>Will</td>
-	    <td>IL</td>
-	  </tr>
-	  <tr>
-	    <td>Sue</td>
-	    <td>Haakinson</td>
-	    <td>Kim Peacock Beringhause</td>
-	    <td>9617 N Metro Pky W</td>
-	    <td>Phoenix</td>
-	    <td>Maricopa</td>
-	    <td>AZ</td>
-	  </tr>
-	  <tr>
-	    <td>Valerie</td>
-	    <td>Pou</td>
-	    <td>Sea Port Record One Stop Inc</td>
-	    <td>7475 Hamilton Blvd</td>
-	    <td>Trexlertown</td>
-	    <td>Lehigh</td>
-	    <td>PA</td>
-	  </tr>
-	  <tr>
-	    <td>Lashawn</td>
-	    <td>Hasty</td>
-	    <td>Kpff Consulting Engineers</td>
-	    <td>815 S Glendora Ave</td>
-	    <td>West Covina</td>
-	    <td>Los Angeles</td>
-	    <td>CA</td>
-	  </tr>
-	  <tr>
-	    <td>Marianne</td>
-	    <td>Earman</td>
-	    <td>Albers Technologies Corp</td>
-	    <td>6220 S Orange Blossom Trl</td>
-	    <td>Orlando</td>
-	    <td>Orange</td>
-	    <td>FL</td>
-	  </tr>
-	  <tr>
-	    <td>Justina</td>
-	    <td>Dragaj</td>
-	    <td>Uchner, David D Esq</td>
-	    <td>2552 Poplar Ave</td>
-	    <td>Memphis</td>
-	    <td>Shelby</td>
-	    <td>TN</td>
-	  </tr>
-	  <tr>
-	    <td>Mandy</td>
-	    <td>Mcdonnell</td>
-	    <td>Southern Vermont Surveys</td>
-	    <td>343 Bush St Se</td>
-	    <td>Salem</td>
-	    <td>Marion</td>
-	    <td>OR</td>
-	  </tr>
-	  <tr>
-	    <td>Conrad</td>
-	    <td>Lanfear</td>
-	    <td>Kahler, Karen T Esq</td>
-	    <td>49 Roche Way</td>
-	    <td>Youngstown</td>
-	    <td>Mahoning</td>
-	    <td>OH</td>
-	  </tr>
-	  <tr>
-	    <td>Cyril</td>
-	    <td>Behen</td>
-	    <td>National Paper &amp; Envelope Corp</td>
-	    <td>1650 S Harbor Blvd</td>
-	    <td>Anaheim</td>
-	    <td>Orange</td>
-	    <td>CA</td>
-	  </tr>
-	  <tr>
-	    <td>Shelley</td>
-	    <td>Groden</td>
-	    <td>Norton, Robert L Esq</td>
-	    <td>110 Broadway St</td>
-	    <td>San Antonio</td>
-	    <td>Bexar</td>
-	    <td>TX</td>
-	  </tr>
-	  <tr>
-	    <td>Rosalind</td>
-	    <td>Krenzke</td>
-	    <td>Waldein Manufacturing</td>
-	    <td>7000 Bass Lake Rd</td>
-	    <td>Minneapolis</td>
-	    <td>Hennepin</td>
-	    <td>MN</td>
-	  </tr>
-	  <tr>
-	    <td>Davis</td>
-	    <td>Brevard</td>
-	    <td>Transit Trading Corp</td>
-	    <td>6715 Tippecanoe Rd</td>
-	    <td>Canfield</td>
-	    <td>Mahoning</td>
-	    <td>OH</td>
-	  </tr>
-	  <tr>
-	    <td>Winnie</td>
-	    <td>Reich</td>
-	    <td>Pacific Seating Co</td>
-	    <td>1535 Hawkins Blvd</td>
-	    <td>El Paso</td>
-	    <td>El Paso</td>
-	    <td>TX</td>
-	  </tr>
-	  <tr>
-	    <td>Trudy</td>
-	    <td>Worlds</td>
-	    <td>Shapiro, Mark R Esq</td>
-	    <td>24907 Tibbitts Avenue</td>
-	    <td>Valencia</td>
-	    <td>Los Angeles</td>
-	    <td>CA</td>
-	  </tr>
-	  <tr>
-	    <td>Deshawn</td>
-	    <td>Inafuku</td>
-	    <td>Telair Div Of Teleflex Inc</td>
-	    <td>3508 Leopard St</td>
-	    <td>Corpus Christi</td>
-	    <td>Nueces</td>
-	    <td>TX</td>
-	  </tr>
-	  <tr>
-	    <td>Claudio</td>
-	    <td>Loose</td>
-	    <td>Audiotek Electronics</td>
-	    <td>286 State St</td>
-	    <td>Perth Amboy</td>
-	    <td>Middlesex</td>
-	    <td>NJ</td>
-	  </tr>
-	  <tr>
-	    <td>Sal</td>
-	    <td>Pindell</td>
-	    <td>Wrigley, Robert I Esq</td>
-	    <td>1112 Se 1st St</td>
-	    <td>Evansville</td>
-	    <td>Vanderburgh</td>
-	    <td>IN</td>
-	  </tr>
-	  <tr>
-	    <td>Cristina</td>
-	    <td>Sharper</td>
-	    <td>Tax Office</td>
-	    <td>111 W 40th St</td>
-	    <td>New York</td>
-	    <td>New York</td>
-	    <td>NY</td>
-	  </tr>
-	  <tr>
-	    <td>Cary</td>
-	    <td>Mccamey</td>
-	    <td>Williams Scotsman</td>
-	    <td>100 E Broad St</td>
-	    <td>Columbus</td>
-	    <td>Franklin</td>
-	    <td>OH</td>
-	  </tr>
-	  <tr>
-	    <td>Haley</td>
-	    <td>Rocheford</td>
-	    <td>Davis, Robert L Esq</td>
-	    <td>6030 Greenwood Plaza Blvd</td>
-	    <td>Englewood</td>
-	    <td>Arapahoe</td>
-	    <td>CO</td>
-	  </tr>
-	  <tr>
-	    <td>Dorothea</td>
-	    <td>Sweem</td>
-	    <td>Ehrmann, Rolfe F Esq</td>
-	    <td>100 Thanet Circ</td>
-	    <td>Trenton</td>
-	    <td>Mercer</td>
-	    <td>NJ</td>
-	  </tr>
-	  <tr>
-	    <td>Fannie</td>
-	    <td>Steese</td>
-	    <td>Chiapete, W Richard Esq</td>
-	    <td>926 E ParkAve</td>
-	    <td>Tallahassee</td>
-	    <td>Leon</td>
-	    <td>FL</td>
-	  </tr>
-	  <tr>
-	    <td>Allyson</td>
-	    <td>Gillispie</td>
-	    <td>De Friese Theo &amp; Sons</td>
-	    <td>1722 White Horse Mercerville R</td>
-	    <td>Trenton</td>
-	    <td>Mercer</td>
-	    <td>NJ</td>
-	  </tr>
-	  <tr>
-	    <td>Roger</td>
-	    <td>Seid</td>
-	    <td>Yoshida, Gerald C Esq</td>
-	    <td>3738 N Monroe St</td>
-	    <td>Tallahassee</td>
-	    <td>Leon</td>
-	    <td>FL</td>
-	  </tr>
-	  <tr>
-	    <td>Dollie</td>
-	    <td>Daquino</td>
-	    <td>Jd Edwards &amp; Co</td>
-	    <td>1005 Congress Ave</td>
-	    <td>Austin</td>
-	    <td>Travis</td>
-	    <td>TX</td>
-	  </tr>
-	  <tr>
-	    <td>Eva</td>
-	    <td>Seahorn</td>
-	    <td>Saunders Appraisal Inc</td>
-	    <td>3 Northern Blvd</td>
-	    <td>Amherst</td>
-	    <td>Hillsborough</td>
-	    <td>NH</td>
-	  </tr>
-	  <tr>
-	    <td>Mamie</td>
-	    <td>Mcintee</td>
-	    <td>Jacobs, Brian Realtor</td>
-	    <td>2810 Jacobs Ave</td>
-	    <td>Eureka</td>
-	    <td>Humboldt</td>
-	    <td>CA</td>
-	  </tr>
-	  <tr>
-	    <td>Lyndon</td>
-	    <td>Bellerdine</td>
-	    <td>A B C Lock &amp; Key</td>
-	    <td>200 California St</td>
-	    <td>San Francisco</td>
-	    <td>San Francisco</td>
-	    <td>CA</td>
-	  </tr>
-	  <tr>
-	    <td>Lashonda</td>
-	    <td>Derouen</td>
-	    <td>Travel Agent Magazine</td>
-	    <td>101 Royal St</td>
-	    <td>Alexandria</td>
-	    <td>Alexandria City</td>
-	    <td>VA</td>
-	  </tr>
-	  <tr>
-	    <td>Jacklyn</td>
-	    <td>Emayo</td>
-	    <td>Super 8 Motel Temple</td>
-	    <td>101 Us Highway 46</td>
-	    <td>Fairfield</td>
-	    <td>Essex</td>
-	    <td>NJ</td>
-	  </tr>
-	</tbody>
-      </table>
-    </p>
-
-    <p style="text-align: center">
-      So, keep it in mind !
-    </p>
-  </div>
-</message>
+  </message>
 </messages>

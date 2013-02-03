@@ -109,9 +109,10 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     width: 70px;
 }
 
-.Wt-cal caption {
+.Wt-cal th.caption {
     margin: 0;
     padding: 0;
+    border: 0;
     background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
     color: #fff;
     font: bold 13px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
@@ -988,7 +989,7 @@ body.Wt-rtl .Wt-treeview .Wt-tv-row .Wt-tv-c {
 }
 
 .Wt-treeview .Wt-tv-c {
-    padding: 0px 3px;
+    /* padding: 0px 3px; */
 }
 
 .Wt-treeview img.icon, .Wt-treeview input.icon {

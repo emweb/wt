@@ -6,6 +6,7 @@
 #endif // WT_EXAMPLE
 
 SAMPLE_BEGIN(TreeView)
+
 Wt::WTreeView *treeView = new Wt::WTreeView();
 treeView->resize(600, 400);
 
@@ -16,4 +17,5 @@ treeView->setRowHeight(24);
 treeView->setHeaderHeight(24);
 treeView->setSortingEnabled(false);
 treeView->setSelectionMode(Wt::SingleSelection);
+
 SAMPLE_END(return treeView)

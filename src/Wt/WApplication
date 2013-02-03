@@ -1930,6 +1930,15 @@ public:
    */
   std::string encodeUntrustedUrl(const std::string& url) const;
 
+  /*! \brief Pushes a (modal) widget onto the expose stack.
+   *
+   * This defines a new context of widgets that are currently visible.
+   */
+  void pushExposedConstraint(WWidget *w);
+  void popExposedConstraint(WWidget *w);
+  void addGlobalWidget(WWidget *w);
+  void removeGlobalWidget(WWidget *w);
+
 protected:
   /*! \brief Notifies an event to the application.
    *
@@ -2205,9 +2214,6 @@ private:
   bool exposeSignals() const { return exposeSignals_; }
   void doUnload();
 
-  void pushExposedConstraint(WWidget *w);
-  void popExposedConstraint(WWidget *w);
-
 #ifndef WT_TARGET_JAVA
   int startWaitingAtLock();
   void endWaitingAtLock(int id);
@@ -2243,7 +2249,6 @@ private:
   friend class WInteractWidget;
   friend class WLineEdit;
   friend class WMenu;
-  friend class WPopupMenu;
   friend class WResource;
   friend class WSound;
   friend class WString;

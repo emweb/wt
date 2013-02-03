@@ -17,6 +17,7 @@ namespace {
 }
 
 SAMPLE_BEGIN(TreeTable)
+
 Wt::WTreeTable *treeTable = new Wt::WTreeTable();
 
 treeTable->resize(650, 200);

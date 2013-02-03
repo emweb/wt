@@ -19,16 +19,6 @@
 #include "js/WPopupMenu.min.js"
 #endif
 
-/*
- * TODO:
- *  - use anchor#hover CSS instead of stateless slot for rendering
- *    hovering; except for showing a sub-popup-menu
- *
- *  - renderVisual() on click: only if the menu has internal paths enabled
- *
- *  - get sub popup menus going again
- */
-
 namespace Wt {
 
 WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
@@ -48,7 +38,9 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     app->styleSheet().addRule
       (".Wt-notselected .Wt-popupmenu", "visibility: hidden;", CSS_RULES_NAME);
 
-  app->domRoot()->addWidget(this);
+  app->addGlobalWidget(this);
+
+  hide();
 }
 
 void WPopupMenu::setButton(WInteractWidget *button)
@@ -311,19 +303,7 @@ bool WPopupMenu::isExposed(WWidget *w)
   }
 
   // Signal outside of the menu:
-  //  - signal of a widget that is an ancestor of location_: ignore it
-  //  - otherwise: close the menu and let it be handled.
-  if (location_) {
-    for (WWidget *p = location_->parent(); p; p = p->parent())
-      if (w == p)
-	return false;
-  }
-
-  if (!parentItem()) {
-    cancel();
-    return true;
-  } else
-    return false;
+  return false;
 }
 
 void WPopupMenu::renderSelected(WMenuItem *item, bool selected)

@@ -30,6 +30,8 @@ WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
   if (parent)
     parent->addChild(this);
 
+  WApplication::instance()->addGlobalWidget(this);
+
   hide();
   setPopup(true);
   setPositionScheme(Absolute);
@@ -38,15 +40,16 @@ WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
   //WApplication::instance()->globalEscapePressed()
   //  .connect(popup_, &WWidget::hide);
   WInteractWidget *iw = dynamic_cast<WInteractWidget *>(impl);
-  if (iw) {
+  if (iw)
     iw->escapePressed().connect(this, &WWidget::hide);
-    iw->clicked().preventPropagation();
-  }
 
   jsHidden_.connect(this, &WWidget::hide);
   jsShown_.connect(this, &WWidget::show);
+}
 
-  WApplication::instance()->domRoot()->addWidget(this);
+WPopupWidget::~WPopupWidget()
+{
+  WApplication::instance()->removeGlobalWidget(this);
 }
 
 void WPopupWidget::setParent(WObject *p)

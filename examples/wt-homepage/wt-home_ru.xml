@@ -1086,7 +1086,7 @@ Wt дополнительными возможностями:
 href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">инструкциям
 по установке</a> для сборки Wt и запуска примеров, или смотрите
 <a
-href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">инструкции по
+href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">инструкции по
 установке для конкретных платформ</a>, если Ваша платформа в них присутствует.
 
 <h4>Репозиторий Git</h4>
@@ -1161,7 +1161,7 @@ Boost Software License</a></li>
 
 <p>
 Существует поддерживаемая сообществом <a
-href="http://redmine.webtoolkit.eu/wiki/wt">Вики Wt</a>, содержащая полезную
+href="http://redmine.webtoolkit.eu/projects/wt/wiki">Вики Wt</a>, содержащая полезную
 информацию, включая замечания по инсталляции для нескольких дистрибутивов Linux.
 </p>
 
@@ -1299,9 +1299,9 @@ JWt прямо из Clojure</a>, документируя опыты в своё
 находятся <a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">здесь</a>, а также
 включены в исходный дистрибутив (файлы INSTALL или INSTALL.html).</p>
 <p>
-В дополнении, <a href="http://redmine.webtoolkit.eu/wiki/wt">Вики
+В дополнении, <a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Вики
 Wt</a> содержит раздел, посвящённый
-<a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">замечаниям
+<a href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">замечаниям
 по установке на конкретных платформах</a>.
 </p>
 
@@ -1351,7 +1351,7 @@ target="_blank">здесь (в новом окне)</a>.</p>
 <h4>Вики</h4>
 
 <p>
-Существует поддерживаемая сообществом <a href="http://redmine.webtoolkit.eu/wiki/wt">Вики Wt</a> с такой полезной информацией как FAQ, советы и трюки.
+Существует поддерживаемая сообществом <a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Вики Wt</a> с такой полезной информацией как FAQ, советы и трюки.
 </p>
 
   </message>

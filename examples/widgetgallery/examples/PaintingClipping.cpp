@@ -57,7 +57,7 @@ private:
       painter.save();
       painter.translate(75 - std::rand() % 150 + 1,
 			75 - std::rand() % 150 + 1);
-      drawStar(painter, std::rand() % 4 + 2);
+      drawStar(painter, std::max(0, std::rand() % 4) + 2);
       painter.restore();
     }
     painter.restore();

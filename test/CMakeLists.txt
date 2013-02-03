@@ -32,7 +32,7 @@ ADD_EXECUTABLE(test
   ${TEST_SOURCES}
 )
 
-TARGET_LINK_LIBRARIES(test wt wttest ${TEST_LIBS} ${BOOST_FS_LIB})
+TARGET_LINK_LIBRARIES(test wt wttest ${BOOST_FS_LIB})
 
 # Test all dbo backends
 SET(DBO_TEST_SOURCES

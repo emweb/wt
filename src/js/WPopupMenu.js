@@ -37,8 +37,7 @@ WT_DECLARE_WT_MEMBER
 
 	 $(u).mousemove(handleSubMenus);
 
-	 if (autoHideDelay >= 0)
-	   bindOverEvents(u);
+	 bindOverEvents(u);
 
 	 return u;
        }
@@ -125,7 +124,8 @@ WT_DECLARE_WT_MEMBER
      --entered;
      if (entered == 0) {
        clearTimeout(hideTimeout);
-       hideTimeout = setTimeout(doHide, autoHideDelay);
+       if (autoHideDelay >= 0)
+	 hideTimeout = setTimeout(doHide, autoHideDelay);
      }
    }
 
@@ -136,6 +136,11 @@ WT_DECLARE_WT_MEMBER
 
    function bindOverEvents(popup) {
      $(popup).mouseleave(mouseLeave).mouseenter(mouseEnter);
+   }
+
+   function onDocumentClick(event) {
+     if (!entered)
+       doHide();
    }
 
    this.setHidden = function(hidden) {
@@ -158,7 +163,11 @@ WT_DECLARE_WT_MEMBER
        el.style.display = '';
        el.style.left = '';
        el.style.top = '';
+       $(document).unbind('click', onDocumentClick);     
      } else {
+       setTimeout(function() {
+		    $(document).bind('click', onDocumentClick);
+		  }, 0);
        el.style.display = 'block';
      }
 
@@ -166,19 +175,16 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.popupAt = function(widget) {
-     if (autoHideDelay >= 0) {
-       if (location !== widget) {
-	 location = widget;
-	 bindOverEvents(location);
-	 mouseEnter(); // assume we are currently over the location
-       }
+     if (location !== widget) {
+       location = widget;
+       bindOverEvents(location);
+       mouseEnter(); // assume we are currently over the location
      }
 
      self.setHidden(false);
    };
 
-   if (autoHideDelay >= 0)
-     setTimeout(function() { bindOverEvents(el); }, 0);
+   setTimeout(function() { bindOverEvents(el); }, 0);
 
    $(el).mousemove(handleSubMenus);
  });

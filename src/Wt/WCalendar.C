@@ -84,9 +84,9 @@ void WCalendar::create()
   text <<
     "<table class=\"days ${table-class}\" cellspacing=\"0\" cellpadding=\"0\">"
     """<tr>"
-    ""  "<th>${nav-prev}</th>"
-    ""  "<th colspan=\"5\">${month} ${year}</th>"
-    ""  "<th>${nav-next}</th>"
+    ""  "<th class=\"caption\">${nav-prev}</th>"
+    ""  "<th class=\"caption\"colspan=\"5\">${month} ${year}</th>"
+    ""  "<th class=\"caption\">${nav-next}</th>"
     """</tr>"
     """<tr>";
 

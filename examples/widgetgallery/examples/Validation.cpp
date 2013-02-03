@@ -15,6 +15,7 @@ t->bindWidget("age", ageEdit);
 
 // Create a validator that accepts integer values between 0 and 150.
 Wt::WIntValidator *validator = new Wt::WIntValidator(0, 150);
+validator->setMandatory(true);
 ageEdit->setValidator(validator);
 
 Wt::WPushButton *button = new Wt::WPushButton("Save");
@@ -24,13 +25,11 @@ Wt::WText *out = new Wt::WText();
 t->bindWidget("age-info", out);
 
 button->clicked().connect(std::bind([=] () {
-        if (ageEdit->validate()) {
+        if (ageEdit->validate() == Wt::WValidator::Valid) {
             out->setText("Age of " + ageEdit->text() + " is saved!");
         } else {
             out->setText("The number must be in the range 0 to 150");
         }
-        ageEdit->setText("");
-        ageEdit->setFocus();
 }));
 
 SAMPLE_END(return t)

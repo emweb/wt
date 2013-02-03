@@ -248,17 +248,34 @@ namespace {
     }
   }
 
+  char *copy_chars(const char *begin, const char *end, char *out)
+  {
+    while (begin != end)
+      *out++ = *begin++;
+    return out;
+  }
+
   std::string readElementContent(xml_node<> *x_parent, 
 				 boost::scoped_array<char> &buf) 
   {
     char *ptr = buf.get();
-    
-    for (xml_node<> *x_child = x_parent->first_node();
-	 x_child; x_child = x_child->next_sibling()) {
-      fixSelfClosingTags(x_child);
-      ptr = print(ptr, *x_child, print_no_indenting);
+
+    if (x_parent->type() == node_cdata) {
+      return std::string(x_parent->value(), x_parent->value_size());
+    } else {
+      for (xml_node<> *x_child = x_parent->first_node();
+	   x_child; x_child = x_child->next_sibling()) {
+	if (x_child->type() == node_cdata) {
+	  ptr = copy_chars(x_child->value(),
+			   x_child->value() + x_child->value_size(), ptr);
+	} else {
+	  fixSelfClosingTags(x_child);
+	  ptr = print(ptr, *x_child, print_no_indenting);
+	}
+      }
+
+      return std::string(buf.get(), ptr - buf.get());
     }
-    return std::string(buf.get(), ptr - buf.get());
   }
 
   int attributeValueToInt(xml_attribute<> *x_attribute)

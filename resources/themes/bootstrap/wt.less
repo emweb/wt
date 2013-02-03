@@ -497,7 +497,7 @@ body.Wt-rtl {
 .Wt-tableview {
     white-space: nowrap;
 
-    .cwidth {
+    .tcontainer {
 	margin-top: -1px;
     }
 
@@ -556,10 +556,14 @@ body.Wt-rtl {
 	margin-top: -1px;
     }
 
-    .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
-    .Wt-tv-contents > div:last-child .Wt-tv-c {
-	border-right: 0;
-    }
+    /*
+      This breaks row headers ...
+
+      .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
+      .Wt-tv-contents > div:last-child .Wt-tv-c {
+    	border-right: 0;
+      }
+   */
 
     .Wt-header {
 	border-bottom: 1px solid @tableBorder;

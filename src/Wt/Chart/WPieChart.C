@@ -317,11 +317,12 @@ WString WPieChart::labelText(int index, double v, double total,
   if (options & TextLabel)
     if (labelsColumn_ != -1)
       text = asString(model()->data(index, labelsColumn_));
-  
+
   if (options & TextPercentage) {
 #ifndef WT_TARGET_JAVA
     char buf[20];
 #else
+    text = WString(text.toUTF8());
     char *buf = 0;
     buf =
 #endif // WT_TARGET_JAVA

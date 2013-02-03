@@ -29,7 +29,11 @@ public:
   {
     switch (role) {
     case Wt::DisplayRole:
-      return Wt::WString("Item row {1}, col {2}").arg(index.row()).arg(index.column());
+      if (index.column() == 0)
+	return Wt::WString("Row {1}").arg(index.row());
+      else
+	return Wt::WString("Item row {1}, col {2}")
+	  .arg(index.row()).arg(index.column());
     default:
       return boost::any();
     }

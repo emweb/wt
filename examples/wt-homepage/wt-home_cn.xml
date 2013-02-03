@@ -807,7 +807,7 @@ Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>w
 你可以依照<a
 href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">安装指南
 </a>编译Wt并运行相关示例，或者如果你的运行平台包含在列表
-<a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装指南</a>
+<a href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">平台相关安装指南</a>
 中的话，也可参照执行。
 
 <h4>Git仓库</h4>
@@ -849,7 +849,7 @@ href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>）。</li
 <h4>Wiki</h4>
 
 <p>
-<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a>
+<a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt Wiki</a>
 由社区维护，包括很多有用信息，如针对不同Linux发行版的安装说明等。
 </p>
 
@@ -978,8 +978,8 @@ href="http://www.nsa.be/index.php/eng/Blog/Using-Jwt-yes-it-s-a-J-with-Clojure">
 <a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">此处</a>，此文档也可
 在源文件包中找到，分别为INSTALL或INSTALL.html文件。</p>
 <p>
-另外，<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> 还有一部分涉及到
-<a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装说明</a>。
+另外，<a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt Wiki</a> 还有一部分涉及到
+<a href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">平台相关安装说明</a>。
 </p>
 
 <h4>介绍和入门</h4>
@@ -1025,7 +1025,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
 
 <h4>Wiki</h4>
 
-<p>由社区维护的<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a>也可以查看，里面有
+<p>由社区维护的<a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt Wiki</a>也可以查看，里面有
    很多有用信息，比如FAQ和一些技巧等。
 </p>
 

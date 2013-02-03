@@ -198,7 +198,6 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
@@ -550,8 +549,15 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
 
   /* borders */
 
+  /*
+    .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
+    .Wt-tv-contents > div:last-child .Wt-tv-c {
+	border-right: 0;
+    }
+*/
+
 }
-.Wt-tableview .cwidth {
+.Wt-tableview .tcontainer {
   margin-top: -1px;
 }
 .Wt-tableview .Wt-header .Wt-tv-c {
@@ -597,10 +603,6 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
   border-right: 1px solid #dddddd;
   border-top: 1px solid #dddddd;
   margin-top: -1px;
-}
-.Wt-tableview .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
-.Wt-tableview .Wt-tv-contents > div:last-child .Wt-tv-c {
-  border-right: 0;
 }
 .Wt-tableview .Wt-header {
   border-bottom: 1px solid #dddddd;

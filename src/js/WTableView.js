@@ -145,7 +145,6 @@ WT_DECLARE_WT_MEMBER
 
      APP.emit(el, 'columnResized', columnId, parseInt(newWidth));
      self.autoJavaScript();
-     APP.layouts2.scheduleAdjust();
    }
 
    this.mouseDown = function(obj, event) {

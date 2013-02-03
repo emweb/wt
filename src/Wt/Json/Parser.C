@@ -88,7 +88,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     
     object
       =  lit('{')[boost::bind(&Self::startObject, this)]
-      >> *(member % ',')
+      >> -(member % ',')
       >> lit('}')[boost::bind(&Self::endObject, this)]
       ;
                 
@@ -100,7 +100,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
                 
     array 
       = lit('[')[boost::bind(&Self::startArray, this)]
-      >> *(value % ',')
+      >> -(value % ',')
       >> lit(']')[boost::bind(&Self::endArray, this)]
       ;
 

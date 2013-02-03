@@ -193,6 +193,12 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 	element.addPropertyWord(PropertyClass, "Wt-googlemap");
 	return;
       }
+
+      WAbstractItemView *itemView = dynamic_cast<WAbstractItemView *>(widget);
+      if (itemView) {
+	element.addPropertyWord(PropertyClass, "form-horizontal");
+	return;
+      }
     }
     break;
 

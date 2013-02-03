@@ -223,7 +223,7 @@ private:
 };
 
 
-/*! \class PayPalService Wt/Payment/PayPalService Wt/Payment/PayPalService
+/*! \class PayPalService Wt/Payment/PayPal Wt/Payment/PayPal
  *  \brief This is a PayPal service class.
  *
  * This class holds the PayPal configuration, and is usually shared between

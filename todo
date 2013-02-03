@@ -1,13 +1,22 @@
 TODO list for Wt 3.3.0
 ======================
 
+Navigation > Tab widget
+-----------------------
+Settings: WTabWidget::setCloseable(true);
+The 'Close' tab in the WTabWidget example is not closeable anymore.
+
+Media > WFlashObject > Example - no result visible
+--------------------------------------------------
+Neither a video nor a static image is shown.
+
 * WFormModel: WSpinBox - empty text
 ----------------------------------------
 Initially, the lowest value in the spin box range is shown.
 It should be possible to set an empty text initially.
  -- Not easy -- what should value() then return ?
 
- ==> -1
+ => -1
     Is it possible to show an empty text if value() returns -1?
     This would only be possible in case of the default range from 0..99 or any
     other range from 0.
@@ -19,11 +28,23 @@ Initially, the lowest value in the spin box range is shown.
 It would be nice if you could set a default/initial value through a different
 constructor like WSpinBox (int minimum, int maximum, int default=0,
                            WContainerWidget *parent=0)
- ==> Just use setValue() ?
+ => Just use setValue()?
+    -- Koen, the constructor would be a shorthand to create and initialize the
+       spinbox at once. Indeed, you can always change the value afterwards with
+       setValue().
 
-WTabWidget
-----------
-WTabWidget::setCloseable(true);
+WColor - missing constructors
+-----------------------------
+It is possible to create a RGB color with transparency with
+        WColor(int red, int green, int blue, int alpha = 255)
+but it is not possible to create a color with transparency based on a CSS color
+name or global color name like
+        WColor(const WString &name, int alpha=255), or
+        WColor(GlobalColor name, int alpha=255)
+
+WPopupMenu used in Popup menu example - application crashes!
+------------------------------------------------------------
+[error] "Wt: decodeSignal(): signal 's152' not exposed"
 
 * WMediaPlayer - no ended() signal
 --------------------------------
@@ -37,61 +58,20 @@ ended signal. (Not OK)
 Add method to set the text to selected: setTextSelected() / selectText().
  -- later
 
-Bootstrap error (in Chrome)
----------------
-Failed to load resource: the server responded with a status of 404 (Not Found)
-http://localhost:9090/resources/themes/bootstrap/splitter-h.png
-
-
 Links
 =====
-
-Widget gallery > Forms > Auto complete - Add navigation link
-------------------------------------------------------------
-In the Remark section create a navigation link to the SuggestionPopup.C class.
-
-"You can find several more advanced examples in the Wt distribution directory
-examples/feature/suggestionpopup/; in the SuggestionPopup.C class you can
-explore different functions."
-
-Widget gallery > Forms > Line/Text editors
-------------------------------------------
-In the text edit section create an internal link to the pdf renderer
-menu/section.
-        <a href="#/???">WPdfRenderer</a>
-Create the target page for the link.
 
 Widget gallery > Forms > Radio Buttons
 --------------------------------------
 Create the target menu for the internal link
 	<a href="#/events" target="blank">More details on events</a>
 
-Widget gallery > Forms > Button > 'Navigation button' section - enable link
----------------------------------------------------------------------------
-Create the target page for the internal paths "/navigation" and
-"/navigation/anchor" to enable the button link.
-
-Widget gallery - Add a navigation menu/bar to each widget
----------------------------------------------------------
-
-Add navigation links
---------------------------------------
-Widget gallery > Forms > Combo box
-Widget gallery > Forms > Selection box
-Widget gallery > Forms > Auto complete
-Widget gallery > Forms > In place edit
-Widget gallery > Forms > Slider
-Widget gallery > Forms > Progress bar
-Widget gallery > Forms > File upload
-Widget gallery > Forms > Button
-Widget gallery > Forms > Validation
-
 Next for volunteers !
 ---------------------
-
 * Events section
 
-* Charts section
+* Navigation section - Internal Paths
+    explain principle, internalPathChanged() signal
 
 Postponed after 3.3.0 release
 -----------------------------
@@ -102,12 +82,12 @@ Next for Dietrich
 -----------------
 
 Navigation:
- - Internal Paths
-   * text: ask me, we could start from a draft book chapter on this
-   * explains principle, internalPathChanged() signal
 
  - Anchors:
    * anchors in WTemplate/WText XHTML text, special support for internal paths
    
  - Widget stack:
    * building block for multi-page
+
+Internal paths -> Koen
+Static resources -> Koen

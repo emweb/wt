@@ -257,14 +257,14 @@ namespace {
 	std::vector<std::string> usCities;
 	usCities.push_back("Boston");
 	usCities.push_back("Chicago");
-	usCities.push_back("Los Angeles");
+        usCities.push_back("Los Angeles");
 	usCities.push_back("New York");
 
 	UserFormModel::CityMap retval;
 	retval["BE"] = beCities;
 	retval["NL"] = nlCities;
 	retval["UK"] = ukCities;
-	retval["US"] = usCities;
+        retval["US"] = usCities;
 	return retval;
     }
 }
@@ -281,7 +281,7 @@ public:
         setTemplateText(tr("userForm-template"));
         addFunction("id", &WTemplate::Functions::id);
 
-	/*
+        /*
 	 * First Name
 	 */
 	setFormWidget(UserFormModel::FirstNameField, new Wt::WLineEdit());
@@ -314,7 +314,7 @@ public:
 	        std::string code = model_->countryCode(countryCB->currentIndex());
 		model_->setValue(UserFormModel::CountryField, code);
             });
-	
+
 	/*
 	 * City
 	 */
@@ -333,15 +333,15 @@ public:
 	    [=] () { // updateViewValue()
 	        Wt::WDate date = boost::any_cast<Wt::WDate>
 		    (model_->value(UserFormModel::BirthField));
-		birthDP->setDate(date);
+                birthDP->setDate(date);
 	    }, 
 
             [=] () { // updateModelValue()
 	        Wt::WDate date = birthDP->date();
-		model_->setValue(UserFormModel::BirthField, date);
+                model_->setValue(UserFormModel::BirthField, date);
 	    });
 
-	/*
+        /*
 	 * Children
 	 */ 
 	setFormWidget(UserFormModel::ChildrenField, new Wt::WSpinBox());
@@ -386,6 +386,7 @@ private:
                     resolve<Wt::WLineEdit*>(UserFormModel::FirstNameField);
             viewField->setFocus();
         } else {
+            bindEmpty("submit-info"); // Delete the previous user data.
             updateView(model_);
         }
     }

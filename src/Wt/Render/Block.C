@@ -2393,7 +2393,7 @@ std::string Block::cssProperty(Property property) const
 	  
 	  if (isAggregate(n)) {
 	    Wt::Utils::SplitVector allvalues;
-	    boost::split(allvalues, v, boost::is_any_of(" \t\n"));
+	    boost::split(allvalues, v, boost::is_any_of(" "));
 
 	    /*
 	     * count up to first value that does not start with a digit,
@@ -2411,18 +2411,19 @@ std::string Block::cssProperty(Property property) const
 	    if (count == 0) {
 	      LOG_ERROR("Strange aggregate CSS length property: '" << v << "'");
 	    } else if (count == 1) {
-	      css_[n + "-top"] = css_[n + "-right"] = css_[n + "-bottom"]
-		= css_[n + "-left"]
-		= Wt::Utils::splitEntryToString(allvalues[0]);
+	      css_[n + "-top"] = v;
+	      css_[n + "-right"] = v;
+	      css_[n + "-bottom"] = v;
+	      css_[n + "-left"] = v;
 	    } else if (count == 2) {
-	      css_[n + "-top"] = css_[n + "-bottom"] 
-		= Wt::Utils::splitEntryToString(allvalues[0]);
-	      css_[n + "-right"] = css_[n + "-left"] 
-		= Wt::Utils::splitEntryToString(allvalues[1]);
+	      css_[n + "-top"] = Wt::Utils::splitEntryToString(allvalues[0]);
+	      css_[n + "-bottom"] = Wt::Utils::splitEntryToString(allvalues[0]);
+	      css_[n + "-right"] = Wt::Utils::splitEntryToString(allvalues[1]);
+	      css_[n + "-left"] = Wt::Utils::splitEntryToString(allvalues[1]);
 	    } else if (count == 3) {
 	      css_[n + "-top"] = Wt::Utils::splitEntryToString(allvalues[0]);
-	      css_[n + "-right"] = css_[n + "-left"] 
-		= Wt::Utils::splitEntryToString(allvalues[1]);
+	      css_[n + "-right"] = Wt::Utils::splitEntryToString(allvalues[1]);
+	      css_[n + "-left"] = Wt::Utils::splitEntryToString(allvalues[1]);
 	      css_[n + "-bottom"] = Wt::Utils::splitEntryToString(allvalues[2]);
 	    } else {
 	      css_[n + "-top"] = Wt::Utils::splitEntryToString(allvalues[0]);

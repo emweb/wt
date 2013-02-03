@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
   <message id="Wt.Auth.field">
+    <![CDATA[
     ${<if:{1}>}
       <label for="${id:{1}}">${tr:Wt.Auth.{1}}
         ${{1}-info class="Wt-info"}
       </label>
       ${{1}}
     ${</if:{1}>}
+    ]]>
   </message>
 
   <message id="Wt.Auth.template.login">

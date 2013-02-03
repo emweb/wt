@@ -486,13 +486,20 @@ void WApplication::popExposedConstraint(WWidget *w)
   }
 }
 
+void WApplication::addGlobalWidget(WWidget *w)
+{
+  domRoot_->addWidget(w);
+}
+
+void WApplication::removeGlobalWidget(WWidget *w)
+{ }
+
 bool WApplication::isExposed(WWidget *w) const
 {
   /*
    * This not right: for example a file upload is usually hidden while
    * uploading, but then could not receive the upload event
-   */
-  /*
+
   if (!w->isVisible())
     return false;
   */
@@ -503,10 +510,21 @@ bool WApplication::isExposed(WWidget *w) const
   if (w->parent() == timerRoot_)
     return true;
 
-  WWidget *exposedOnly = exposedOnly_.empty() ? 0 : exposedOnly_.back();
+  if (!exposedOnly_.empty()) {
+    WWidget *top = exposedOnly_.back();
 
-  if (exposedOnly)
-    return exposedOnly->isExposed(w);
+    if (top->isExposed(w))
+      return true;
+
+    for (WWidget *p = w->parent(); p; p = p->parent()) {
+      if (p == domRoot_)
+	return w != root();
+      w = p;
+    }
+
+    return false;
+  }
+    
   else {
     WWidget *p = w->adam();
     return (p == domRoot_ || p == domRoot2_);

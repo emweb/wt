@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/test/unit_test.hpp>
+#include <boost/version.hpp>
 
 #include <Wt/Json/Parser>
 #include <Wt/Json/Object>
@@ -118,6 +119,20 @@ BOOST_AUTO_TEST_CASE( json_structure_test )
   BOOST_REQUIRE(n1 == "212 555-1234");
 }
 
+BOOST_AUTO_TEST_CASE( json_bad_test )
+{
+  bool caught = false;
+
+  try {
+    Json::Object result;
+    Json::parse("{ \"Field1\": \"one\" \n \"Field2\" : \"two\" }", result);
+  } catch (std::exception& e) {
+    caught = true;
+  }
+
+  BOOST_REQUIRE(caught);
+}
+
 BOOST_AUTO_TEST_CASE( json_utf8_test )
 {
   std::ifstream t("json/UTF-8-test.json", std::ios::in | std::ios::binary);
@@ -157,7 +172,7 @@ BOOST_AUTO_TEST_CASE( json_utf8_test )
   BOOST_REQUIRE(ws1[4] == 949);
   BOOST_REQUIRE(ws2[0] == 128);
   BOOST_REQUIRE(ws3[0] == 2048);
-  BOOST_REQUIRE(ws4[0] == 65533); // !!!
+  BOOST_REQUIRE(ws4[0] == 65533 || ws4[0] == 65536);
   BOOST_REQUIRE(ws5[0] == 127);
   BOOST_REQUIRE(ws6[0] == 2047);
   BOOST_REQUIRE(ws7[0] == 65535);

@@ -42,12 +42,12 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
 
   edit_->enterPressed().connect(edit_, &WFormWidget::disable);
   edit_->enterPressed().connect(this, &WInPlaceEdit::save);
-  edit_->enterPressed().preventDefaultAction();
+  edit_->enterPressed().preventPropagation();
 
   edit_->escapePressed().connect(editing_, &WWidget::hide);
   edit_->escapePressed().connect(text_, &WWidget::show);
   edit_->escapePressed().connect(this, &WInPlaceEdit::cancel);
-  edit_->escapePressed().preventDefaultAction();
+  edit_->escapePressed().preventPropagation();
 
   setButtonsEnabled();
 

@@ -191,8 +191,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	if (status() < 300)
 	  setStatus(bad_request);
 
-	setRelay(ReplyPtr(new StockReply(request(), status(),
-					 configuration())));
+	setRelay(ReplyPtr(new StockReply(request(), status(), configuration())));
 
 	Reply::send();
       }

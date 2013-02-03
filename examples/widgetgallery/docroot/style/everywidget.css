@@ -261,3 +261,7 @@ div.contents {
     font-weight: auto;
     color: inherit;
 }
+
+.dl-horizontal.no-clear:after {
+  clear: none;
+}

@@ -16,8 +16,12 @@ TopicTemplate::TopicTemplate(const char *trKey)
   setInternalPathEncoding(true);
 
 #ifndef WT_TARGET_JAVA
+  setCondition("if:cpp", true);
+  setCondition("if:java", false);
   bindString("doc-url", "http://www.webtoolkit.eu/wt/doc/reference/html/");
 #else
+  setCondition("if:cpp", false);
+  setCondition("if:java", true);
   bindString("doc-url", "http://www.webtoolkit.eu/"
 	     "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/");
 #endif
@@ -41,6 +45,7 @@ std::string TopicTemplate::docUrl(const std::string& className)
   ss << getString("doc-url") << "class" << escape("Wt::" + className)
      << ".html";
 #else
+  boost::replace_all(className, ".", "/");
   ss << getString("doc-url") << className << ".html";
 #endif
 
@@ -54,11 +59,20 @@ void TopicTemplate::resolveString(const std::string& varName,
   if (varName == "doc-link") {
     std::string className = args[0].toUTF8();
 
+#ifndef WT_TARGET_JAVA
     boost::replace_all(className, "-", "::");
+#else
+    boost::replace_all(className, "Render-", "render.");    
+#endif
 
     result << "<a href=\"" << docUrl(className)
-	   << "\" target=\"_blank\">"
-	   << className << "</a>";
+	   << "\" target=\"_blank\">";
+
+#ifdef WT_TARGET_JAVA
+    boost::replace_all(className, "render.", "");
+#endif // WT_TARGET_JAVA
+
+    result << className << "</a>";
   } else if (varName == "src") {
     std::string exampleName = args[0].toUTF8();
     result << "<fieldset class=\"src\">"

@@ -30,7 +30,7 @@ WT_DECLARE_WT_MEMBER
 
      var t = WT.target(event);
 
-     while (t) {
+     while (t && t != el) {
        if (WT.hasTag(t, 'LI')) {
 	 if (columnId == -1)
            columnId = 0;

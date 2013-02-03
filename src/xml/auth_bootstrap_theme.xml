@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
   <message id="Wt.Auth.field">
+    <![CDATA[
     ${<if:{1}>}
     <div class="control-group">
       <label for="${id:{1}}" class="control-label">
@@ -11,6 +12,7 @@
       </div>
     </div>
     ${</if:{1}>}
+    ]]>
   </message>
 
   <message id="Wt.Auth.template.login">

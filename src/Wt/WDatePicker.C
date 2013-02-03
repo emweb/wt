@@ -77,32 +77,24 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   layout_->addWidget(displayWidget);
   layout_->setAttributeValue("style", "white-space: nowrap");
 
-  const char *TEMPLATE =
-    "${calendar}"
-    "<div style=\"text-align:center; margin-top:3px\">${close}</div>";
+  const char *TEMPLATE = "${calendar}";
 
   WTemplate *t = new WTemplate(WString::fromUTF8(TEMPLATE));
   popup_ = new WPopupWidget(t, this);
   popup_->setAnchorWidget(displayWidget_, Horizontal);
+  popup_->setTransient(true);
 
   calendar_ = new WCalendar();
   calendar_->activated().connect(popup_, &WWidget::hide);
   calendar_->activated().connect(this, &WDatePicker::onPopupHidden);
   calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
-  WPushButton *closeButton = new WPushButton(tr("Wt.WDatePicker.Close"));
-  closeButton->clicked().connect(popup_, &WWidget::hide);
-  closeButton->clicked().connect(this, &WDatePicker::onPopupHidden);
-
   t->bindWidget("calendar", calendar_);
-  t->bindWidget("close", closeButton);
 
   WApplication::instance()->theme()->apply(this, popup_, DatePickerPopupRole);
 
   displayWidget->clicked().connect(popup_, &WWidget::show);
   displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
-
-  setGlobalPopup(false);
 
   if (!forEdit_->validator())
     forEdit_->setValidator(new WDateValidator(format_, this));
@@ -120,8 +112,7 @@ void WDatePicker::onPopupHidden()
 }
 
 void WDatePicker::setGlobalPopup(bool global)
-{
-}
+{ }
 
 void WDatePicker::setFormat(const WT_USTRING& format)
 {

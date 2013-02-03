@@ -1,3 +1,4 @@
+#include <Wt/WBreak>
 #include <Wt/WContainerWidget>
 #include <Wt/WMenu>
 #include <Wt/WStackedWidget>
@@ -20,10 +21,6 @@ menu->addItem("Anchor", new Wt::WTextArea("Anchor contents"));
 menu->addItem("Stacked widget", new Wt::WTextArea("Stacked widget contents"));
 menu->addItem("Tab widget", new Wt::WTextArea("Tab widget contents"));
 menu->addItem("Menu", new Wt::WTextArea("Menu contents"));
-menu->addItem("Navigation bar", new Wt::WTextArea("Navigation bar contents"));
-menu->addItem("Popup menu", new Wt::WTextArea("Popup menu contents"));
-menu->addItem("Split button", new Wt::WTextArea("Split button contents"));
-menu->addItem("Tool bar", new Wt::WTextArea("Tool bar contents"));
 
 container->addWidget(contents);
 

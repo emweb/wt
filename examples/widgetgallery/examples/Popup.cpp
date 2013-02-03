@@ -34,6 +34,7 @@ popup->addItem("icons/house.png", "I'm home")->triggered().connect(std::bind([=]
 
 Wt::WMenuItem *item = popup->addItem("Don't disturb");
 item->setCheckable(true);
+
 item->triggered().connect(std::bind([=] () {
       out->setText(Wt::WString::fromUTF8("<p>{1} item is {2}.</p>")
 		   .arg(item->text())
@@ -70,12 +71,11 @@ button->setMenu(popup);
 popup->show();
 
 // React to an item selection
-popup->itemSelected().connect(std::bind([=] () {
-      Wt::WMenuItem *item = popup->result();
+popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
       status->setText
 	  (Wt::WString::fromUTF8("Selected menu item: {1}.")
 	   .arg(item->text()));
-}));
+}, std::placeholders::_1));
 
 container->addWidget(status);
 container->addWidget(out);

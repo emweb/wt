@@ -183,13 +183,12 @@ Wt::WWidget *Layout::css()
 }
 
 
-#include "examples/Theme.cpp"
-
 Wt::WWidget *Layout::themes()
 {
   Wt::WTemplate *result = new TopicTemplate("layout-Themes");
 
-  result->bindWidget("Theme", Theme());
+  // Show the source code only for the theme example.
+  result->bindString("Theme", reindent(tr("theme")), Wt::PlainText);
 
   return result;
 }

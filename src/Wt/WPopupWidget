@@ -11,23 +11,93 @@
 
 namespace Wt {
 
+/*! \class WPopupWidget Wt/WPopupWidget Wt/WPopupWidget
+ *  \brief Base class for popup widgets.
+ *
+ * A popup widget anchors to another widget, for which it usually
+ * provides additional information or assists in editing, etc...
+ *
+ * The popup widget will position itself relative to the anchor widget
+ * by taking into account available space, and switching sides if
+ * necessary to fit the widget into the current window. For example, a
+ * vertically anchored widget will by default be a "drop-down",
+ * positioning itself under the anchor widget, but it may also choose
+ * to position itself above the anchor widget if space is lacking
+ * below.
+ */
 class WT_API WPopupWidget : public WCompositeWidget
 {
 public:
+  /*! \brief Constructor.
+   *
+   * You need to pass in a widget that provides the main contents of the
+   * widget (e.g. a WTemplate or WContainerWidget).
+   *
+   * Unlike other widgets, a popup widget does not need a parent
+   * widget (it acts like a pseudo top-level widget), but it can be
+   * given a parent object which is used to scope its lifetime.
+   */
   WPopupWidget(WWidget *impl, WObject *parent = 0);
 
+  /*! \brief Destructor.
+   */
+  virtual ~WPopupWidget();
+
+  /*! \brief Sets an anchor widget.
+   *
+   * A vertical popup will show below (or above) the widget, while a
+   * horizontal popup will show right (or left) of the widget.
+   */
   void setAnchorWidget(WWidget *widget, Orientation orientation = Vertical);
+
+  /* \brief Returns the anchor widget.
+   *
+   * \sa setAnchorWidget()
+   */
   WWidget *anchorWidget() const { return anchorWidget_; }
+
+  /*! \brief Returns the orientation.
+   *
+   * \sa setOrientation()
+   */
   Orientation orientation() const { return orientation_; }
 
+  /*! \brief Sets transient property.
+   *
+   * A transient popup will automatically hide when the user clicks
+   * outside of the popup. When \p autoHideDelay is not 0, then it
+   * will also automatically hide when the user moves the mouse
+   * outside the widget for longer than this delay.
+   */
   void setTransient(bool transient, int autoHideDelay = 0);
+
+  /*! \brief Returns whether the popup is transient.
+   *
+   * \sa setTransient()
+   */
   bool isTransient() const { return transient_; }
+
+  /*! \brief Returns the auto-hide delay.
+   *
+   * \sa setTransient()
+   */
   int autoHideDelay() const { return autoHideDelay_; }
 
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
+  /*! \brief %Signal emitted when the popup is hidden.
+   *
+   * This signal is emitted when the popup is being hidden because of a
+   * client-side event (not when setHidden() or hide() is called).
+   */
   Signal<>& hidden() { return hidden_; }
+
+  /*! \brief %Signal emitted when the popup is shown.
+   *
+   * This signal is emitted when the popup is being hidden because of a
+   * client-side event (not when setHidden() or show() is called).
+   */
   Signal<>& shown() { return shown_; }
 
 protected:

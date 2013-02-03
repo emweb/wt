@@ -1,6 +1,5 @@
 #include <Wt/WPushButton>
 #include <Wt/WResource>
-#include <Wt/WFileResource>
 #include <Wt/Http/Request>
 #include <Wt/Http/Response>
 #include <Wt/Render/WPdfRenderer>
@@ -14,6 +13,7 @@ namespace {
         (unsigned int) error_no, (int) detail_no);
   }
 }
+
 
 class ReportResource : public Wt::WResource
 {
