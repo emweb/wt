@@ -1469,7 +1469,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
 
-  if (transientImpl_) {
+  if (!all && transientImpl_) {
     for (unsigned i = 0; i < transientImpl_->addedStyleClasses_.size(); ++i)
       element.callJavaScript("$('#" + id() + "').addClass('"
 			     + transientImpl_->addedStyleClasses_[i].toUTF8()

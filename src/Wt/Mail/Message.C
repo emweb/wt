@@ -26,6 +26,29 @@
 namespace Wt {
   namespace Mail {
 
+Message::Header::Header()
+{ }
+
+Message::Header::Header(const std::string& name, const std::string& value)
+  : name_(name),
+    value_(value)
+{ }
+
+Message::Header::Header(const Header& other)
+  : name_(other.name_),
+    value_(other.value_)
+{ }
+
+void Message::Header::setName(const std::string& name)
+{
+  name_ = name;
+}
+
+void Message::Header::setValue(const std::string& value)
+{
+  value_ = value;
+}
+
 Message::Message()
 { }
 
@@ -64,6 +87,32 @@ void Message::addHtmlBody(const WString& text)
 void Message::addAttachment(const std::string& mimeType /* ... */)
 {
 
+}
+
+void Message::setHeader(const std::string& name, const std::string& value)
+{
+  for (unsigned i = 0; i < headers_.size(); ++i) {
+    if (headers_[i].name() == name) {
+      headers_[i].setValue(value);
+      return;
+    }
+  }
+
+  addHeader(name, value);
+}
+
+void Message::addHeader(const std::string& name, const std::string& value)
+{
+  headers_.push_back(Header(name, value));
+}
+
+const std::string *Message::getHeader(const std::string& name) const
+{
+  for (unsigned i = 0; i < headers_.size(); ++i)
+    if (headers_[i].name() == name)
+      return &headers_[i].value();
+
+  return 0;
 }
 
 void Message::write(std::ostream& out) const
@@ -118,6 +167,13 @@ void Message::write(std::ostream& out) const
     const Recipient& r = recipients_[i];
     if (r.type != Bcc)
       r.mailbox.write(recipients[r.type], out);
+  }
+
+  for (unsigned i = 0; i < headers_.size(); ++i) {
+    const Header& h = headers_[i];
+    out << h.name() << ": ";
+    encodeWord(h.value(), out, false);
+    out << "\r\n";
   }
 
   if (mimeMultiPartAlternative) {

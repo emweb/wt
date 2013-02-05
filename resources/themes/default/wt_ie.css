@@ -41,6 +41,10 @@
     white-space: nowrap;   
 }
 
+.Wt-tree .Wt-item {
+    zoom: 1;
+}
+
 /*
  * WTreeView
  */
@@ -58,6 +62,10 @@ body.Wt-ltr .Wt-treeview .Wt-header .Wt-tv-c {
 body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
     margin: 0px;
     padding: 0px 7px 0px 0px;
+}
+
+.Wt-treeview .Wt-item {
+    zoom: 1;
 }
 
 .Wt-treeview .Wt-scroll {

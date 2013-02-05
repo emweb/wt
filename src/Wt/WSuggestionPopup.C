@@ -56,6 +56,7 @@ WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
     modelColumn_(0),
     filterLength_(0),
     filtering_(false),
+    defaultValue_(-1),
     matcherJS_(generateMatcherJS(options)),
     replacerJS_(generateReplacerJS(options)),
     filterModel_(this),

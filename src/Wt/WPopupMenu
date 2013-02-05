@@ -231,7 +231,6 @@ private:
   Signal<> aboutToHide_;
   JSignal<> cancel_;
 
-  boost::signals::connection globalClickConnection_, globalEscapeConnection_;
   bool recursiveEventLoop_;
   int autoHideDelay_;
 

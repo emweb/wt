@@ -650,11 +650,11 @@ bool WDate::writeSpecial(const std::string& f, unsigned&i,
 	if (f[i + 3] == 'M') {
 	  // 4 M's
 	  i += 3;
-	  result << longMonthName(month_).toUTF8();
+	  result << longMonthName(month_, localized).toUTF8();
 	} else {
 	  // 3 M's
 	  i += 2;
-	  result << shortMonthName(month_).toUTF8();
+	  result << shortMonthName(month_, localized).toUTF8();
 	}
       } else {
 	// 2 M's

@@ -319,7 +319,7 @@ void WStandardItem::setChecked(bool checked)
 
 void WStandardItem::setCheckState(CheckState state)
 {
-  if (checkState() != state) {
+  if (checkState() != state || data(CheckStateRole).empty()) {
     if (isTristate())
       setData(boost::any(state), CheckStateRole);
     else

@@ -741,7 +741,7 @@ WT_DECLARE_WT_MEMBER
 			   + padding(container, dir));
 
 	     function epsEqual(a, b) {
-	       return Math.abs(a - b) < 0.1;
+	       return Math.abs(a - b) < 1;
 	     }
 
 	     if ((WT.isIElt9 && epsEqual(cSize, ieCSize))
@@ -762,6 +762,11 @@ WT_DECLARE_WT_MEMBER
 	 cSize = WT.pxself(widget, DC.size);
 	 cPaddedSize = true;
        }
+     } else {
+       if (DC.sizeSet) {
+	 cSize = WT.pxself(container, DC.size);
+	 cPaddedSize = true;
+       }
      }
 
      var otherPadding = 0;
@@ -773,7 +778,7 @@ WT_DECLARE_WT_MEMBER
      if (totalPreferredSize < DC.minSize)
        totalPreferredSize = DC.minSize;
 
-     if (DC.maxSize) {
+     if (DC.maxSize && !DC.sizeSet) {
        // (2) adjust container width/height
        if (totalPreferredSize + otherPadding < DC.maxSize) {
 	 if (setCss(container, DC.size,
@@ -1310,6 +1315,10 @@ WT_DECLARE_WT_MEMBER
 	   if (p.childNodes.length != 1 && !p.wtGetPS)
 	     break;
 	 }
+
+	 var container = widget.parentNode;
+	 for (var i = 0; i < 2; ++i)
+	   DirConfig[i].sizeSet = WT.pxself(container, DirConfig[i].size) != 0;
        }
      }
 

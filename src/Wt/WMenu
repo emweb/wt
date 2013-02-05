@@ -661,7 +661,6 @@ private:
   void handleInternalPathChange(const std::string& path);
 
   int current_;
-  int previousCurrent_;
   int previousStackIndex_;
   bool needSelectionEventUpdate_;
 

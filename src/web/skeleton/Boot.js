@@ -23,7 +23,7 @@ function loadScript(url, callback) {
   h.appendChild(s);
 }
 
-_$_$if_HYBRID_$_();
+_$_$if_PROGRESS_$_();
 var delayedClicks = [];
 function delayClick(e) {
   var ec = {
@@ -226,7 +226,7 @@ _$_$if_HYBRID_$_();
 _$_$endif_$_();
     }
 
-_$_$if_HYBRID_$_();
+_$_$if_PROGRESS_$_();
     /*
       Make sure that we are not processing click events while progressing.
       Instead, delay them.

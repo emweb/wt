@@ -461,6 +461,11 @@ void WMenuItem::setMenu(WMenu *menu)
   subMenu_ = menu;
   subMenu_->parentItem_ = this;
 
+  Wt::WContainerWidget *sparent
+    = dynamic_cast<Wt::WContainerWidget *>(subMenu_->parent());
+  if (sparent)
+    sparent->removeWidget(subMenu_);
+
   addWidget(subMenu_);
 
   WPopupMenu *popup = dynamic_cast<WPopupMenu *>(this->menu());
@@ -472,6 +477,11 @@ void WMenuItem::setMenu(WMenu *menu)
   }
 
   addStyleClass("submenu");
+}
+
+void WMenuItem::setSubMenu(WMenu *menu)
+{
+  setMenu(menu);
 }
 
 WMenu *WMenuItem::menu()

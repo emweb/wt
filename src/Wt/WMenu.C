@@ -269,14 +269,20 @@ void WMenu::select(int index)
 
 void WMenu::select(int index, bool changePath)
 {
+  int last = current_;
+  current_ = index;
+
   selectVisual(index, changePath, true);
 
   if (index != -1) {
     WMenuItem *item = itemAt(index);
     item->show();
     item->loadContents();
-    item->triggered().emit(item);
-    itemSelected_.emit(item);
+
+    if (last != index) {
+      item->triggered().emit(item);
+      itemSelected_.emit(item);
+    }
 
     if (changePath && emitPathChange_) {
       WApplication *app = wApp;
@@ -288,16 +294,12 @@ void WMenu::select(int index, bool changePath)
 
 void WMenu::selectVisual(int index, bool changePath, bool showContents)
 {
-  previousCurrent_ = current_;
-
   if (contentsStack_)
     previousStackIndex_ = contentsStack_->currentIndex();
 
-  current_ = index;
+  WMenuItem *item = index >= 0 ? itemAt(index) : 0;
 
-  WMenuItem *item = current_ >= 0 ? itemAt(current_) : 0;
-
-  if (changePath && internalPathEnabled_ && current_ != -1) {
+  if (changePath && internalPathEnabled_ && index != -1) {
     WApplication *app = wApp;
     previousInternalPath_ = app->internalPath();
 
@@ -310,7 +312,7 @@ void WMenu::selectVisual(int index, bool changePath, bool showContents)
   }
 
   for (int i = 0; i < count(); ++i)
-    renderSelected(itemAt(i), (int)i == current_);
+    renderSelected(itemAt(i), (int)i == index);
 
   if (index == -1)
     return;
@@ -457,7 +459,7 @@ void WMenu::undoSelectVisual()
   std::string prevPath = previousInternalPath_;
   int prevStackIndex = previousStackIndex_;
 
-  selectVisual(previousCurrent_, true, true);
+  selectVisual(current_, true, true);
 
   if (internalPathEnabled_) {
     WApplication *app = wApp;

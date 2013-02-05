@@ -143,6 +143,11 @@ WT_DECLARE_WT_MEMBER
        doHide();
    }
 
+   function onDocumentKeyDown(event) {
+     if (event.keyCode == 27)
+       doHide();
+   }
+
    this.setHidden = function(hidden) {
      if (hideTimeout) {
        clearTimeout(hideTimeout);
@@ -164,10 +169,12 @@ WT_DECLARE_WT_MEMBER
        el.style.left = '';
        el.style.top = '';
        $(document).unbind('click', onDocumentClick);     
+       $(document).unbind('keydown', onDocumentKeyDown);     
      } else {
        setTimeout(function() {
-		    $(document).bind('click', onDocumentClick);
-		  }, 0);
+	   $(document).bind('click', onDocumentClick);
+	   $(document).bind('keydown', onDocumentKeyDown);
+	 }, 0);
        el.style.display = 'block';
      }
 

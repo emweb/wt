@@ -178,6 +178,12 @@ public:
    */
   void setMenu(WMenu *menu);
 
+  /*! \brief Sets a sub menu (<b>deprecated</b>)
+   *
+   * \depcrated use setMenu() instead
+   */
+  void setSubMenu(WMenu *menu);
+
   /*! \brief Returns the menu.
    *
    * \sa setMenu()

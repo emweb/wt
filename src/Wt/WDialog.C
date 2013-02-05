@@ -170,7 +170,6 @@ void WDialog::setResizable(bool resizable)
       contents_->setSelectable(true);
 
     if (resizable_) {
-      setMinimumSize(WLength::Auto, WLength::Auto);
       Resizable::loadJavaScript(WApplication::instance());
       setJavaScriptMember
 	(" Resizable",

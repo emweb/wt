@@ -140,9 +140,8 @@ WApplication::WApplication(const WEnvironment& env
   setLocalizedStrings(0);
 #endif // !WT_TARGET_JAVA
 
-  if (environment().agentIsIElt(9))
-    addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=7");
-  else if (environment().agent() == WEnvironment::IE9)
+  if (environment().agentIsIE() &&
+      environment().agent() >= WEnvironment::IE9)
     addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=9");
 
   domRoot_ = new WContainerWidget();
@@ -1079,13 +1078,13 @@ void WApplication::addMetaLink(const std::string &href,
 
 void WApplication::removeMetaLink(const std::string &href)
 {
-    for (unsigned i = 0; i < metaLinks_.size(); ++i) {
-      MetaLink& ml = metaLinks_[i];
-      if (ml.href == href) {
-	metaLinks_.erase(metaLinks_.begin() + i);
-	return;
-      }
+  for (unsigned i = 0; i < metaLinks_.size(); ++i) {
+    MetaLink& ml = metaLinks_[i];
+    if (ml.href == href) {
+      metaLinks_.erase(metaLinks_.begin() + i);
+      return;
     }
+  }
 }
 
 void WApplication::addMetaHeader(const std::string& name,

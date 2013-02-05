@@ -550,11 +550,13 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
   /* borders */
 
   /*
-    .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
-    .Wt-tv-contents > div:last-child .Wt-tv-c {
-	border-right: 0;
-    }
-*/
+      This breaks row headers ...
+
+      .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
+      .Wt-tv-contents > div:last-child .Wt-tv-c {
+    	border-right: 0;
+      }
+   */
 
 }
 .Wt-tableview .tcontainer {
@@ -640,6 +642,9 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
 .Wt-tree .Wt-item.Wt-trunk {
   background-image: url(../../line-trunk.gif);
   background-repeat: repeat-y;
+}
+.Wt-tree .Wt-item {
+  *zoom: 1;
 }
 .Wt-tree .Wt-item.Wt-end {
   background-image: url(../../line-last.gif);
@@ -734,6 +739,9 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
 }
 .Wt-treeview .Wt-scroll div {
   height: 1px;
+}
+.Wt-treeview .Wt-item {
+  *zoom: 1;
 }
 .Wt-treeview .Wt-trunk {
   background-image: url(../../line-trunk.gif);

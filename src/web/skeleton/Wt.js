@@ -631,6 +631,7 @@ this.filter = function(edit, event, tokens) {
 };
 
 // Get coordinates of element relative to an ancestor object (or page origin).
+// It computes the location of the left-top corner of the margin-box.
 this.widgetPageCoordinates = function(obj, reference) {
   var objX = 0, objY = 0, op;
 

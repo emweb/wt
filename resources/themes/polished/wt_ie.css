@@ -63,6 +63,10 @@
     white-space: nowrap;   
 }
 
+.Wt-tree .Wt-item {
+    zoom: 1;
+}
+
 /*
  * WAbstractItemView
  */
@@ -77,6 +81,10 @@
 /* IE ignores white-space on a table or td */
 .Wt-treeview div, .Wt-treeview span {
     white-space: nowrap;
+}
+
+.Wt-treeview .Wt-item {
+    zoom: 1;
 }
 
 body.Wt-ltr .Wt-treeview .Wt-header .Wt-tv-c {

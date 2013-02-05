@@ -143,6 +143,7 @@ WT_DECLARE_WT_MEMBER
 WT_DECLARE_WT_MEMBER
 (2, JavaScriptPrototype, "WStackedWidget.prototype.animateChild",
  function (WT, child, effects, timing, duration, style) {
+   doAnimateChild = function(WT, child, effects, timing, duration, style) {
      /* const */ var SlideInFromLeft = 0x1;
      /* const */ var SlideInFromRight = 0x2;
      /* const */ var SlideInFromBottom = 0x3;
@@ -233,7 +234,7 @@ WT_DECLARE_WT_MEMBER
       */
      if ($(from).hasClass("in")) {
        $(from).one(animationEventEnd, function() {
-	   animateChild(child, effects, timing, duration, style);
+	   doAnimateChild(WT, child, effects, timing, duration, style);
 	 });
        return;
      }
@@ -290,4 +291,7 @@ WT_DECLARE_WT_MEMBER
      $(to).addClass(anim + ' in');
 
      $(to).one(animationEventEnd, restore);
+  }
+
+  doAnimateChild(WT, child, effects, timing, duration, style);
  });

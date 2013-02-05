@@ -92,9 +92,6 @@ void WPopupMenu::done(WMenuItem *result)
   hide();
 
   WApplication *app = WApplication::instance();
-
-  app->root()->clicked().disconnect(globalClickConnection_);
-  app->globalEscapePressed().disconnect(globalEscapeConnection_);
   app->popExposedConstraint(this);
 
   recursiveEventLoop_ = false;
@@ -128,18 +125,6 @@ void WPopupMenu::popupImpl()
   result_ = 0;
 
   WApplication *app = WApplication::instance();
-
-  // XXX
-  // We rely here on the fact that no other widget is listening for
-  // escape on the root()
-  if (app->globalEscapePressed().isConnected())
-    app->globalEscapePressed().emit();
-
-  globalClickConnection_
-    = app->root()->clicked().connect(this, &WPopupMenu::cancel);
-  globalEscapeConnection_
-    = app->globalEscapePressed().connect(this, &WPopupMenu::cancel);
-
   app->pushExposedConstraint(this);
 
   prepareRender(app);

@@ -331,7 +331,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
 
   bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
   bootJs.setCondition("HYBRID", hybrid);
-
+  bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());
   /*
    * When server XHTML content, we cannot defer the script request after
    * the style request, because the <noscript />style request is loaded
@@ -1735,9 +1735,14 @@ std::string WebRenderer::headDeclarations() const
       result << "<meta";
 
       if (!m.name.empty()) {
-	appendAttribute(result, 
-			m.type == MetaName ? "name" : "http-equiv",
-			m.name);
+	std::string attribute;
+	switch (m.type) {
+	case MetaName: attribute = "name"; break;
+	case MetaProperty: attribute = "property"; break;
+	case MetaHttpHeader: attribute = "http-equiv"; break;
+	}
+
+	appendAttribute(result, attribute, m.name);
       }
 
       if (!m.lang.empty())
@@ -1775,14 +1780,8 @@ std::string WebRenderer::headDeclarations() const
 	result << '>';
     }
   } else
-    if (session_.env().agentIsIElt(9)) {
-      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7";
-      if (xhtml)
-	result << "\"/>";
-      else
-	result << "\">";
-      result << '\n';
-    } else if (session_.env().agent() == WEnvironment::IE9) {
+    if (session_.env().agentIsIE() && 
+	session_.env().agent() >= WEnvironment::IE9) {
       result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9";
       if (xhtml)
 	result << "\"/>";
