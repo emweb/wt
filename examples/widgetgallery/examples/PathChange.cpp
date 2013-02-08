@@ -4,6 +4,8 @@
 #include <Wt/WAnchor>
 #include <Wt/WText>
 
+namespace {
+
 void handlePathChange(Wt::WText *out)
 {
     Wt::WApplication *app = Wt::WApplication::instance();
@@ -14,6 +16,8 @@ void handlePathChange(Wt::WText *out)
 	out->setText("<p>Needed some food, eating now!</p>");
     else
 	out->setText("<p><i>Idle.</i></p>");
+}
+
 }
 
 SAMPLE_BEGIN(PathChange)

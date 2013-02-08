@@ -45,7 +45,7 @@ public:
 	}));
 
 	std::string cityNames[] = { "Brussels", "Lisbon", "Paris" };
-	static Wt::WGoogleMap::Coordinate cityCoords[] = {
+	Wt::WGoogleMap::Coordinate cityCoords[] = {
 	    Wt::WGoogleMap::Coordinate(50.85034,4.35171),
 	    Wt::WGoogleMap::Coordinate(38.703731,-9.135475),
 	    Wt::WGoogleMap::Coordinate(48.877474, 2.312579)
@@ -55,8 +55,9 @@ public:
 	    Wt::WPushButton *city = new Wt::WPushButton(cityNames[i]);
 	    controls->bindWidget(cityNames[i], city);
 
+            Wt::WGoogleMap::Coordinate coord = cityCoords[i];
 	    city->clicked().connect(std::bind([=] () {
-		map_->panTo(cityCoords[i]);
+		map_->panTo(coord);
 	    }));
 	}
 
