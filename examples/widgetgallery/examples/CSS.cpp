@@ -5,7 +5,6 @@
 #include <Wt/WTable>
 
 SAMPLE_BEGIN(CSS)
-
 // Add an external style sheet to the application.
 Wt::WApplication::instance()->useStyleSheet("style/CSSexample.css");
 

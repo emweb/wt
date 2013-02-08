@@ -3,7 +3,6 @@
 #include <Wt/WLink>
 
 SAMPLE_BEGIN(Anchor)
-
 // Create an anchor that links to a URL through clickable text.
 Wt::WAnchor *anchor =
         new Wt::WAnchor(Wt::WLink("http://www.webtoolkit.eu/"),

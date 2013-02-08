@@ -12,7 +12,6 @@
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(CategoryChart)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WStandardItemModel *model

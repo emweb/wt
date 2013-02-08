@@ -3,7 +3,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(HBoxLayout)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 container->setStyleClass("yellow-box");
 

@@ -5,7 +5,6 @@
 #endif // WT_EXAMPLE
 
 SAMPLE_BEGIN(LargeTableView)
-
 Wt::WTableView *tableView = new Wt::WTableView();
 tableView->setModel(new VirtualModel(10000, 50));
 

@@ -3,7 +3,6 @@
 #include <Wt/WTemplate>
 
 SAMPLE_BEGIN(PushButtonPrimary)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WPushButton *button = new Wt::WPushButton("Save", container);

@@ -25,7 +25,7 @@ extern void showDialog(Wt::WText *out)
 
     ok->disable();
     edit->keyWentUp().connect(std::bind([=] () {
-	  ok->setDisabled(edit->validate() != Wt::WValidator::Valid);
+	ok->setDisabled(edit->validate() != Wt::WValidator::Valid);
     }));
 
     /*
@@ -37,8 +37,8 @@ extern void showDialog(Wt::WText *out)
     }));
 
     edit->enterPressed().connect(std::bind([=] () {
-	 if (edit->validate())
-	     dialog->accept();
+	if (edit->validate())
+	    dialog->accept();
     }));
 
     /*
@@ -62,9 +62,7 @@ extern void showDialog(Wt::WText *out)
 }
 
 }
-
 SAMPLE_BEGIN(Dialog)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WPushButton *button = new Wt::WPushButton("Jump", container);

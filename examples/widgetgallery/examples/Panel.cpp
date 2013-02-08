@@ -2,7 +2,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(Panel)
-
 Wt::WPanel *panel = new Wt::WPanel();
 panel->addStyleClass("centered-example");
 panel->setTitle("Terrific panel");

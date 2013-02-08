@@ -4,7 +4,6 @@
 #include <Wt/WTimer>
 
 SAMPLE_BEGIN(ProgressBar)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 container->setStyleClass("inline-buttons");
 
@@ -24,39 +23,39 @@ Wt::WTimer *intervalTimer = new Wt::WTimer();
 intervalTimer->setInterval(1000);
 
 startButton->clicked().connect(std::bind([=] () {
-      if (bar->value() < 10) {
-	  intervalTimer->start();
-	  startButton->setText("Resume");
-      }
+    if (bar->value() < 10) {
+	intervalTimer->start();
+	startButton->setText("Resume");
+    }
 
-      startButton->disable();
-      stopButton->enable();
-      resetButton->disable();
+    startButton->disable();
+    stopButton->enable();
+    resetButton->disable();
 }));
 
 stopButton->clicked().connect(std::bind([=] () {
-      intervalTimer->stop();
+    intervalTimer->stop();
 
-      startButton->enable();
-      stopButton->disable();
-      resetButton->enable();
+    startButton->enable();
+    stopButton->disable();
+    resetButton->enable();
 }));
 
 resetButton->clicked().connect(std::bind([=] () {
-      bar->setValue(0.0);
-      startButton->setText("Start");
+    bar->setValue(0.0);
+    startButton->setText("Start");
 
-      startButton->enable();
-      stopButton->disable();
-      resetButton->disable();
+    startButton->enable();
+    stopButton->disable();
+    resetButton->disable();
 }));
 
 intervalTimer->timeout().connect(std::bind([=] () {
-      bar->setValue(bar->value() + 1);
-      if (bar->value() == 10) {
-	  stopButton->clicked().emit(Wt::WMouseEvent());
-	  startButton->disable();
-      }
+    bar->setValue(bar->value() + 1);
+    if (bar->value() == 10) {
+	stopButton->clicked().emit(Wt::WMouseEvent());
+	startButton->disable();
+    }
 }));
 
 SAMPLE_END(return container)

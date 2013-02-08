@@ -3,7 +3,6 @@
 #include <Wt/WRadioButton>
 
 SAMPLE_BEGIN(RadioButtonStack)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WButtonGroup *group = new Wt::WButtonGroup(container);

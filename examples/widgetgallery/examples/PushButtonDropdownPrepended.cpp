@@ -7,7 +7,7 @@
 SAMPLE_BEGIN(PushButtonDropdownPrepended)
 
 Wt::WTemplate *result =
-        new Wt::WTemplate(Wt::WString::tr("prependedDropdownButton-template"));
+    new Wt::WTemplate(Wt::WString::tr("prependedDropdownButton-template"));
 
 Wt::WPopupMenu *popup = new Wt::WPopupMenu();
 popup->addItem("Choose a button type");

@@ -96,7 +96,7 @@ Wt::WPushButton *createColorToggle(const char *className, const Wt::WColor& colo
     button->addStyleClass(className);
     button->setWidth(30);
     button->checked().connect(std::bind([=] () {
-	  canvas->setColor(color);
+	canvas->setColor(color);
     }));
 
     return button;

@@ -102,6 +102,8 @@ WT_DECLARE_WT_MEMBER
 	    scrollTops[j] = st;
 	  }
 	} else {
+	  c.style.display = '';
+
 	  if (typeof scrollLefts[j] !== 'undefined') {
 	    widget.scrollLeft = scrollLefts[j];
 	    widget.scrollTop = scrollTops[j];

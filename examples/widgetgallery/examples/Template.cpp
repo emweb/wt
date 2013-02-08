@@ -3,7 +3,6 @@
 #include <Wt/WTemplate>
 
 SAMPLE_BEGIN(Template)
-
 Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("WTemplate-example"));
 
 t->bindWidget("name-edit", new Wt::WLineEdit());

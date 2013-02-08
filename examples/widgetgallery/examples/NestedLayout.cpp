@@ -4,7 +4,6 @@
 #include <Wt/WVBoxLayout>
 
 SAMPLE_BEGIN(NestedLayout)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 container->resize(200, 200);
 container->setStyleClass("yellow-box centered");

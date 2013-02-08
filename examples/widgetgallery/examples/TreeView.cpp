@@ -6,7 +6,6 @@
 #endif // WT_EXAMPLE
 
 SAMPLE_BEGIN(TreeView)
-
 Wt::WTreeView *treeView = new Wt::WTreeView();
 treeView->resize(600, 400);
 

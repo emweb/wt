@@ -5,7 +5,6 @@
 #include <Wt/WTextArea>
 
 SAMPLE_BEGIN(Menu)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 // Create a stack where the contents will be located.

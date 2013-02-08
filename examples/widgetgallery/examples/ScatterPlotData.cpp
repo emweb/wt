@@ -15,7 +15,6 @@
 #include "../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(ScatterPlotData)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WStandardItemModel *model

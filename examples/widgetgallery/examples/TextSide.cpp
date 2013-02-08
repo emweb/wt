@@ -2,7 +2,6 @@
 #include <Wt/WTemplate>
 
 SAMPLE_BEGIN(TextSide)
-
 Wt::WTemplate *result = new Wt::WTemplate(Wt::WString::tr("editSide-template"));
 
 Wt::WLineEdit *edit = new Wt::WLineEdit("Username");

@@ -4,7 +4,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(Slider)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 new Wt::WText("In which year are you born?", container);
@@ -22,7 +21,7 @@ new Wt::WBreak(container);
 Wt::WText *out = new Wt::WText(container);
 
 slider->valueChanged().connect(std::bind([=] () {
-        out->setText("I'm born in the year " + slider->valueText() + ".");
+    out->setText("I'm born in the year " + slider->valueText() + ".");
 }));
 
 SAMPLE_END(return container)

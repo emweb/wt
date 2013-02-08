@@ -3,7 +3,6 @@
 #include <Wt/WSuggestionPopup>
 
 SAMPLE_BEGIN(AutoComplete)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 // Set options for email address suggestions:

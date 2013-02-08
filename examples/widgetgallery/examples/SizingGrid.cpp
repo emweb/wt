@@ -4,7 +4,6 @@
 #include <Wt/WTextArea>
 
 SAMPLE_BEGIN(SizingGrid)
-
 Wt::WContainerWidget *parentContainer = new Wt::WContainerWidget();
 
 Wt::WLineEdit *edit = new Wt::WLineEdit(parentContainer);

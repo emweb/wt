@@ -3,7 +3,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(InPlaceEditButtons)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WText *out = new Wt::WText(container);
@@ -13,7 +12,7 @@ Wt::WInPlaceEdit *ipe = new Wt::WInPlaceEdit("This is editable text", container)
 ipe->setEmptyText("You deleted the text!");
 
 ipe->valueChanged().connect(std::bind([=] () {
-        out->setText("In-place edit is set to... ");
+    out->setText("In-place edit is set to... ");
 }));
 
 SAMPLE_END(return container)

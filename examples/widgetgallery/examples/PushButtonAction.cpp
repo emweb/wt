@@ -4,7 +4,7 @@
 SAMPLE_BEGIN(PushButtonAction)
 
 Wt::WTemplate *result =
-        new Wt::WTemplate(Wt::WString::tr("pushButtonAction-template"));
+    new Wt::WTemplate(Wt::WString::tr("pushButtonAction-template"));
 
 Wt::WPushButton *button = new Wt::WPushButton("Save");
 result->bindWidget("button-save", button);

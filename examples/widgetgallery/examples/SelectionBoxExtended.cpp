@@ -25,18 +25,18 @@ sb2->setMargin(10, Wt::Right);
 Wt::WText *out = new Wt::WText(container);
 
 sb2->activated().connect(std::bind([=] () {
-      Wt::WString selected;
+    Wt::WString selected;
 
-      std::set<int> selection = sb2->selectedIndexes();
-      for (std::set<int>::iterator it = selection.begin();
-	   it != selection.end(); ++it) {
+    std::set<int> selection = sb2->selectedIndexes();
+    for (std::set<int>::iterator it = selection.begin();
+	 it != selection.end(); ++it) {
 	if (!selected.empty())
-          selected += ", ";
+	    selected += ", ";
 
 	selected += sb2->itemText(*it);
-      }
+    }
 
-      out->setText(Wt::WString::fromUTF8("You choose {1}.").arg(selected));
+    out->setText(Wt::WString::fromUTF8("You choose {1}.").arg(selected));
 }));
 
 SAMPLE_END(return container)

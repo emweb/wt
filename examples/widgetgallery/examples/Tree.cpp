@@ -9,8 +9,8 @@ Wt::WTree *tree = new Wt::WTree();
 tree->setSelectionMode(Wt::ExtendedSelection);
 
 Wt::WIconPair *folderIcon 
-  = new Wt::WIconPair("icons/yellow-folder-closed.png",
-		      "icons/yellow-folder-open.png", false);
+    = new Wt::WIconPair("icons/yellow-folder-closed.png",
+			"icons/yellow-folder-open.png", false);
 
 Wt::WTreeNode *node = new Wt::WTreeNode("Furniture", folderIcon);
 

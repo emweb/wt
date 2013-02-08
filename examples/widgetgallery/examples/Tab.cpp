@@ -4,7 +4,6 @@
 #include <Wt/WTextArea>
 
 SAMPLE_BEGIN(Tab)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WTabWidget *tabW = new Wt::WTabWidget(container);
@@ -19,9 +18,9 @@ tabW->addTab(new Wt::WTextArea("You could change any other style attribute of th
 	     "Style", Wt::WTabWidget::PreLoading)->setStyleClass("trhead");
 
 Wt::WMenuItem *tab 
-= tabW->addTab(new Wt::WTextArea("You can close this tab"
-				 " by clicking on the close icon."),
-	       "Close");
+    = tabW->addTab(new Wt::WTextArea("You can close this tab"
+				     " by clicking on the close icon."),
+		   "Close");
 tab->setCloseable(true);
 
 tabW->setStyleClass("tabwidget");

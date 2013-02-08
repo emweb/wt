@@ -3,14 +3,13 @@
 #include <Wt/WFlashObject>
 
 SAMPLE_BEGIN(Flash)
-
 // Define poster image location
 std::string poster = "pics/sintel_trailer.jpg";
 
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WFlashObject *flash =
-       new Wt::WFlashObject("www.youtube.com/watch?v=HOfdboHvshg", container);
+    new Wt::WFlashObject("www.youtube.com/watch?v=HOfdboHvshg", container);
 flash->setFlashParameter("allowFullScreen", "true");
 flash->setAlternativeContent(new Wt::WImage(poster));
 flash->resize(640, 360);

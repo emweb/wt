@@ -4,7 +4,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(Stack)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WSpinBox *sb = new Wt::WSpinBox(container);
@@ -19,7 +18,7 @@ stack->addWidget(new Wt::WText("<strong>Stacked widget-index 2</strong>"
                                "<p>Do you like it?</p>"));
 
 sb->changed().connect(std::bind([=] () {
-        stack->setCurrentIndex(sb->value());
+    stack->setCurrentIndex(sb->value());
 }));
 
 SAMPLE_END(return container)

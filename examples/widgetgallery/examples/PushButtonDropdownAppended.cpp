@@ -7,7 +7,7 @@
 SAMPLE_BEGIN(PushButtonDropdownAppended)
 
 Wt::WTemplate *result =
-        new Wt::WTemplate(Wt::WString::tr("appendedDropdownButton-template"));
+    new Wt::WTemplate(Wt::WString::tr("appendedDropdownButton-template"));
 
 Wt::WPopupMenu *popup = new Wt::WPopupMenu();
 

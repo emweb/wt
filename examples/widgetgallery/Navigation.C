@@ -48,12 +48,14 @@ void Navigation::populateSubMenu(Wt::WMenu *menu)
 
 
 #include "examples/Path.cpp"
+#include "examples/PathChange.cpp"
 
 Wt::WWidget *Navigation::internalPaths()
 {
   Wt::WTemplate *result = new TopicTemplate("navigation-internalPaths");
 
   result->bindWidget("Path", Path());
+  result->bindWidget("PathChange", PathChange());
 
   return result;
 }

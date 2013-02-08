@@ -3,7 +3,6 @@
 #include <Wt/WVBoxLayout>
 
 SAMPLE_BEGIN(VBoxLayout)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 container->resize(150, 150);
 container->setStyleClass("yellow-box centered");

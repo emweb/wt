@@ -91,6 +91,8 @@ protected:
   /// The manager for this connection.
   ConnectionManager& ConnectionManager_;
 
+  asio::strand strand_;
+
   void finishReply();
 
 private:

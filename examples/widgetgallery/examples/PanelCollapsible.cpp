@@ -3,7 +3,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(PanelCollapsible)
-
 Wt::WPanel *panel = new Wt::WPanel();
 panel->setTitle("Collapsible panel");
 panel->addStyleClass("centered-example");

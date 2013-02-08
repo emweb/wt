@@ -8,7 +8,6 @@ public:
 };
 
 SAMPLE_BEGIN(PdfRenderer)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WText *text = new Wt::WText(Wt::WString::tr("report.example"), container);

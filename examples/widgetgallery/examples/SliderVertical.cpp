@@ -4,7 +4,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(SliderVertical)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 new Wt::WText("How much does Wt increase your efficiency?", container);
@@ -20,8 +19,8 @@ Wt::WText *out = new Wt::WText(container);
 out->setMargin(10, Wt::Left);
 
 verticalSlider->valueChanged().connect(std::bind([=] () {
-        out->setText("Currenly, my efficiency increased " +
-                     verticalSlider->valueText() + "%!");
+    out->setText("Currenly, my efficiency increased " +
+		 verticalSlider->valueText() + "%!");
 }));
 
 SAMPLE_END(return container)

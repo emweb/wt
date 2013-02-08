@@ -4,7 +4,6 @@
 #include <Wt/WTemplate>
 
 SAMPLE_BEGIN(RadioButtonGroup)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WButtonGroup *group = new Wt::WButtonGroup(container);

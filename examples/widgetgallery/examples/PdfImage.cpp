@@ -29,7 +29,6 @@ private:
 };
 
 SAMPLE_BEGIN(PdfImage)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WResource *pdf = new SamplePdfResource(container);

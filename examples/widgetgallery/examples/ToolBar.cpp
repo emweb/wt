@@ -20,7 +20,6 @@ Wt::WPushButton *createColorButton(const char *className,
 }
 
 SAMPLE_BEGIN(ToolBar)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 std::vector<Wt::WPushButton *> colorButtons;

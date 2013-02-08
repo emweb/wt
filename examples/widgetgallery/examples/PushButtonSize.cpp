@@ -2,9 +2,8 @@
 #include <Wt/WTemplate>
 
 SAMPLE_BEGIN(PushButtonSize)
-
 Wt::WTemplate *result =
-        new Wt::WTemplate(Wt::WString::tr("pushButtonSize-template"));
+    new Wt::WTemplate(Wt::WString::tr("pushButtonSize-template"));
 
 Wt::WPushButton *button = new Wt::WPushButton("Large");
 button->setStyleClass("btn-large");

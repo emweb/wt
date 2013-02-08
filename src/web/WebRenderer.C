@@ -376,8 +376,6 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
   Configuration& conf = session_.controller()->configuration();
 
-  WStringStream out(response.out());
-
   FileServe boot(skeletons::Boot_html1);
   setPageVars(boot);
 
@@ -413,6 +411,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   setHeaders(response, contentType);
 
+  WStringStream out(response.out());
   streamBootContent(response, boot, false);
   boot.stream(out);
 
@@ -813,8 +812,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
 
-  WStringStream out(response.out());
-
   bool serveSkeletons = !conf.splitScript() 
     || response.getParameter("skeleton");
   bool serveRest = !conf.splitScript() || !serveSkeletons;
@@ -823,6 +820,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   setCaching(response, conf.splitScript() && serveSkeletons);
   setHeaders(response, "text/javascript; charset=UTF-8");
+
+  WStringStream out(response.out());
 
   if (!widgetset) {
     // FIXME: this cannot be replayed
@@ -994,6 +993,11 @@ void WebRenderer::serveMainscript(WebResponse& response)
     collectJavaScript();
     updateLoadIndicator(collectedJS1_, app, true);
 
+    if (app->internalPathsEnabled_)
+      out << app->javaScriptClass() << "._p_.enableInternalPaths("
+	  << WWebWidget::jsStringLiteral(app->internalPath())
+	  << ");\n";
+
     LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
     out << collectedJS1_.str();
@@ -1063,10 +1067,8 @@ void WebRenderer::serveMainAjax(WStringStream& out)
 
   currentFormObjectsList_ = createFormObjectsList(app);
   out << app->javaScriptClass()
-      << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);";
+      << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);\n";
   formObjectsChanged_ = false;
-
-  out << '\n';
 
   app->streamBeforeLoadJavaScript(out, true);
 

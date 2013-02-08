@@ -19,26 +19,26 @@ Wt::WText *out = new Wt::WText();
 
 // Create some menu items for the popup menu
 popup->addItem("Connect")->triggered().connect(std::bind([=] () {
-      out->setText("<p>Connecting...</p>");
+    out->setText("<p>Connecting...</p>");
 }));
 
 popup->addItem("Disconnect")->triggered().connect(std::bind([=] () {
-      out->setText("<p>You are disconnected now.</p>");
+    out->setText("<p>You are disconnected now.</p>");
 }));
 
 popup->addSeparator();
 
 popup->addItem("icons/house.png", "I'm home")->triggered().connect(std::bind([=] () {
-      out->setText("");
+    out->setText("");
 }));
 
 Wt::WMenuItem *item = popup->addItem("Don't disturb");
 item->setCheckable(true);
 
 item->triggered().connect(std::bind([=] () {
-      out->setText(Wt::WString::fromUTF8("<p>{1} item is {2}.</p>")
-		   .arg(item->text())
-		   .arg(item->isChecked() ? "checked" : "unchecked"));
+    out->setText(Wt::WString::fromUTF8("<p>{1} item is {2}.</p>")
+		 .arg(item->text())
+		 .arg(item->isChecked() ? "checked" : "unchecked"));
 }));
 
 popup->addSeparator();
@@ -47,20 +47,22 @@ popup->addSeparator();
 Wt::WPopupMenu *subMenu = new Wt::WPopupMenu();
 
 subMenu->addItem("Contents")->triggered().connect(std::bind([=] () {
-      out->setText("<p>This could be a link to /contents.html.</p>");
+    out->setText("<p>This could be a link to /contents.html.</p>");
 }));
+
 subMenu->addItem("Index")->triggered().connect(std::bind([=] () {
-      out->setText("<p>This could be a link to /index.html.</p>");
+    out->setText("<p>This could be a link to /index.html.</p>");
 }));
+
 subMenu->addSeparator();
 subMenu->addItem("About")->triggered().connect(std::bind([=] () {
-      Wt::WMessageBox *messageBox = new Wt::WMessageBox
-	("About", "<p>This is a program to make connections.</p>",
+    Wt::WMessageBox *messageBox = new Wt::WMessageBox
+        ("About", "<p>This is a program to make connections.</p>",
 	 Wt::Information, Wt::Ok);
-      messageBox->show();
-      messageBox->buttonClicked().connect(std::bind([=] () {
-	  delete messageBox;
-      }));
+    messageBox->show();
+    messageBox->buttonClicked().connect(std::bind([=] () {
+	delete messageBox;
+    }));
 }));
 
 // Assign the submenu to the parent popup menu.
@@ -72,9 +74,9 @@ popup->show();
 
 // React to an item selection
 popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
-      status->setText
-	  (Wt::WString::fromUTF8("Selected menu item: {1}.")
-	   .arg(item->text()));
+    status->setText
+        (Wt::WString::fromUTF8("Selected menu item: {1}.")
+	 .arg(item->text()));
 }, std::placeholders::_1));
 
 container->addWidget(status);

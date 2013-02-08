@@ -3,7 +3,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(InPlaceEdit)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WText *out = new Wt::WText(container);

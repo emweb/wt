@@ -3,7 +3,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(BorderLayout)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 container->setHeight(400);
 container->setStyleClass("yellow-box");

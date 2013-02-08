@@ -5,7 +5,6 @@
 #include <Wt/WCheckBox>
 
 namespace {
-
 #ifdef WT_EXAMPLE
     struct Employee {
 	std::string firstName;

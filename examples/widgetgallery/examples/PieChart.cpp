@@ -7,7 +7,6 @@
 #include <Wt/WTableView>
 
 SAMPLE_BEGIN(PieChart)
-
 Wt::WStandardItemModel *model = new Wt::WStandardItemModel();
 
 // Configure the header.

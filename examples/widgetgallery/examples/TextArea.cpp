@@ -4,7 +4,6 @@
 #include <Wt/WDateTime>
 
 SAMPLE_BEGIN(TextArea)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WTextArea *ta = new Wt::WTextArea(container);

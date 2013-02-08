@@ -1448,7 +1448,7 @@ this.progressed = function(domRoot) {
   var form = this.getElement('Wt-form');
 
   domRoot.style.display = form.style.display;
-  db.replaceChild(domRoot, form);
+  form.parentNode.replaceChild(domRoot, form);
 
   if (db.removeEventListener)
     db.removeEventListener('click', delayClick, true);
@@ -2960,7 +2960,6 @@ ArrayBufferPreloader.prototype.preload = function(uri, index) {
   xhr.onerror = ArrayBufferPreloader.prototype.afterload;
   xhr.onabort = ArrayBufferPreloader.prototype.afterload;
 
-  //debugger;
   // actually start the query
   xhr.send();
 };

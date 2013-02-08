@@ -4,7 +4,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(Audio)
-
 // Define media source locations.
 std::string mp3Audio =
             "http://www.webtoolkit.eu/audio/LaSera-NeverComeAround.mp3";

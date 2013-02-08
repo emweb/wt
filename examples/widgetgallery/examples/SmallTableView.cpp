@@ -19,7 +19,7 @@ tableView->setSelectionMode(Wt::SingleSelection);
  * Configure column widths and matching table width
  */
 for (int i = 0; i < tableView->model()->columnCount(); ++i)
-  tableView->setColumnWidth(i, 120);
+    tableView->setColumnWidth(i, 120);
 
 tableView->setWidth(127 * tableView->model()->columnCount());
 

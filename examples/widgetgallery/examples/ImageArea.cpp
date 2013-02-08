@@ -7,7 +7,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(ImageArea)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WImage *image = new Wt::WImage(Wt::WLink("pics/sintel_trailer.jpg"),
@@ -49,22 +48,22 @@ polygon->setCursor(Wt::CrossCursor);
 image->addArea(polygon);
 
 circle->clicked().connect(std::bind([=] () {
-        out->setText("You clicked the tree.");
+    out->setText("You clicked the tree.");
 }));
 
 rect->clicked().connect(std::bind([=] () {
-        out->setText("You clicked the title.");
+    out->setText("You clicked the title.");
 }));
 
 polygon->clicked().connect(std::bind([=] () {
-        out->setText("You clicked the person.");
+    out->setText("You clicked the person.");
 }));
 
 image->mouseMoved().connect(std::bind([=] (const Wt::WMouseEvent& e) {
-        out->setText("You're pointing the background at "
-                     "(" + boost::lexical_cast<std::string>(e.widget().x) +
-                     "," + boost::lexical_cast<std::string>(e.widget().y) +
-                     ").");
+    out->setText("You're pointing the background at "
+		 "(" + boost::lexical_cast<std::string>(e.widget().x) +
+		 "," + boost::lexical_cast<std::string>(e.widget().y) +
+		 ").");
 }, std::placeholders::_1));
 
 SAMPLE_END(return container)

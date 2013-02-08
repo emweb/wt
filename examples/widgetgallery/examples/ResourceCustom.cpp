@@ -26,7 +26,6 @@ public:
 };
 
 SAMPLE_BEGIN(ResourceCustom)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WResource *textResource = new MyResource(container);

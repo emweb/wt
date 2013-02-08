@@ -5,7 +5,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(SplitButton)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WSplitButton *sb = new Wt::WSplitButton("Save", container);
@@ -20,11 +19,11 @@ popup->addItem("Save Template");
 sb->dropDownButton()->setMenu(popup);
 
 sb->actionButton()->clicked().connect(std::bind([=] () {
-      out->setText("Saved!");
+    out->setText("Saved!");
 }));
 
 popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {
-      out->setText(item->text());
+    out->setText(item->text());
 }, std::placeholders::_1));
 
 SAMPLE_END(return container)

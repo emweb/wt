@@ -2,7 +2,6 @@
 #include <Wt/WRadioButton>
 
 SAMPLE_BEGIN(RadioButtonsLoose)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 new Wt::WRadioButton("Radio me!", container);

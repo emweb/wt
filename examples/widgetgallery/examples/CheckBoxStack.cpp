@@ -2,7 +2,6 @@
 #include <Wt/WContainerWidget>
 
 SAMPLE_BEGIN(CheckBoxStack)
-
 Wt::WContainerWidget *result = new Wt::WContainerWidget();
 Wt::WCheckBox *cb;
 

@@ -1166,7 +1166,7 @@ void WApplication::enableInternalPaths()
     doJavaScript
       (javaScriptClass() + "._p_.enableInternalPaths("
        + WWebWidget::jsStringLiteral(newInternalPath_)
-       + ");" , false);
+       + ");");
 
     if (session_->useUglyInternalPaths())
       LOG_WARN("Deploy-path ends with '/', using /?_= for internal paths");

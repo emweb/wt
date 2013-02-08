@@ -5,7 +5,6 @@
 #include <Wt/WTextArea>
 
 SAMPLE_BEGIN(SizingBlock)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WLineEdit *edit = new Wt::WLineEdit(container);

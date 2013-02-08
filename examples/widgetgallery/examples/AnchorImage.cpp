@@ -4,7 +4,6 @@
 #include <Wt/WLink>
 
 SAMPLE_BEGIN(AnchorImage)
-
 // Create an anchor that links to a URL through an image.
 Wt::WAnchor *anchor = new Wt::WAnchor(Wt::WLink("http://www.emweb.be/"));
 anchor->setTarget(Wt::TargetNewWindow);

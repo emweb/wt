@@ -5,7 +5,6 @@
 #include <cmath>
 
 SAMPLE_BEGIN(ScatterPlotCurve)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WStandardItemModel *model = new Wt::WStandardItemModel(40, 2, container);
@@ -13,10 +12,10 @@ model->setHeaderData(0, Wt::WString("X"));
 model->setHeaderData(1, Wt::WString("Y = sin(X)"));
 
 for (unsigned i = 0; i < 40; ++i) {
-  double x = (static_cast<double>(i) - 20) / 4;
+    double x = (static_cast<double>(i) - 20) / 4;
 
-  model->setData(i, 0, x);
-  model->setData(i, 1, std::sin(x));
+    model->setData(i, 0, x);
+    model->setData(i, 1, std::sin(x));
 }
 
 /*

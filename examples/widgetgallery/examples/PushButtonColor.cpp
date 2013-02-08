@@ -4,7 +4,7 @@
 SAMPLE_BEGIN(PushButtonColor)
 
 Wt::WTemplate *result =
-        new Wt::WTemplate(Wt::WString::tr("pushButtonColor-template"));
+    new Wt::WTemplate(Wt::WString::tr("pushButtonColor-template"));
 
 Wt::WPushButton *button = new Wt::WPushButton("Default");
 result->bindWidget("button-default", button);

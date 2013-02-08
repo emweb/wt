@@ -2500,31 +2500,141 @@
 
   <message id="navigation-internalPaths">
     <h2>Internal paths</h2>
+
     <p>
-      An internal path is a link to a page in a web application.
-      You can create an internal path using ${doc-link WLink}. Usually, you'll
-      use the constructor
-      <tt>WLink::WLink(type, value)</tt> where type should be set to
-      <tt>InternalPath</tt>. The value will be interpreted as a UTF8 encoded
-      string. Alternatively, you could create an internal path using the
-      default constructor of <tt>WLink</tt> and configure it as an internal
-      path type of link with <tt>setInternalPath()</tt>.
+      Out of the box a Wt application is a <i>single page</i>
+      application: regardless of what the user does, the URL displayed
+      in the location bar does not change. Single page applications
+      are typically implemented in JavaScript and use Ajax to pull
+      data from the server, while multi-page applications typically
+      require full page refreshes.
     </p>
+
+    <p>Single page appliations have a number of draw-backs:
+
+      <dl>
+	<dt>Usability</dt>
+	<dd><p>The usability of your web application may suffer because
+	users lose the ability to use browser history to navigate
+	through the application, and bookmarks to bookmark particular
+	content (or application state). Whether this is an actual
+	usability problem will depend on the type of application: only
+	when a user's intuition is deceived in trying to use browser
+	navigation buttons to navigate through the pages in your
+	application, you should be concerned.</p>
+
+	<p>
+	  For example, an interactive web application that mimicks a
+	  desktop application with a single window whose content is
+	  manipulated might be conceptually considered a single page for
+	  the user.
+	</p>
+
+	<p>
+	  On the other hand, applications such as web shops, CMS systems, or
+	  online email readers, all have a need for the user to be able to
+	  bookmark certain content pages.
+	</p>
+	</dd>
+
+	<dt>Deep linking</dt>
+	<dd>
+	  <p>There is no possibility for deep linking to content within
+	  your application from other websites. This is to some extent
+	  related to the previous point. For example a web shop will
+	  want its products pages to be linked to from product review
+	  websites. But for other applications which have no public
+	  information such as email applications, this might not be a
+	  motivation for internal paths.</p>
+	</dd>
+
+	<dt>Search engine indexing</dt>
+	<dd>
+	  <p>Content in your web application cannot be indexed properly
+	  by search engines. A related problem, which might be more
+	  serious for certain types of applications, is how search
+	  engines will perceive your web application. Web robots index
+	  the web by retrieving pages and following anchors to other
+	  pages. When your application is presented as only a single
+	  page, only the content on your initial page is accessible to
+	  these search engines.
+	  </p>
+	</dd>
+      </dl>
+    </p>
+
     <p>
-      For the following widgets you can associate an internal path with the
-      method <tt>setLink()</tt>:
+      Wt allows the application to define internal paths and handle
+      changes of internal paths. Because a Wt application is not
+      composed of pages, a URL does not define to particular page, but
+      rather a particular application state. An internal path is a
+      link to a page in a web application.
+    </p>
+
+    <p>
+      The widget gallery makes extensive use of internal paths: the
+      top-level menu provides the first level, and the menu to the
+      left a second level.
+    </p>
+
+    <blockquote>
+      <p>
+	With the help of HTML5's History API, Wt provides a perfect
+	illusion of a multi-page application, but within a single page!
+      </p>
+    </blockquote>
+
+    <p>
+      The recommended method to integrate internal path support in
+      your application is to use internal path links (defined by
+      ${doc-link WLink}) in anchors or menu items, for people to
+      navigate to a different 'page' in the application, and respond
+      to internal path change events, to show the new page in
+      response. thus instead of directly listening to a click event,
+      the click results in an internal path change.
+    </p>
+
+    <p>
+      The main benefit of this approach is that internal path changes
+      may also originate from a user navigating using the brower's
+      back and forward buttons, may follow such a link in a new window
+      (and thus a new session) or may arrive at the internal path
+      following a deep link from elsewhere, and this approach
+      decouples the origin of the event from the handling of the
+      event.
+    </p>
+
+    <p>
+      As a corner stone feature in Wt, internal paths are entirely
+      supported both in Ajax and plain HTML sessions. For browsers
+      without support for the HTML5 History API, Ajax sesion will fall
+      back to <i>named anchors</i>. This effectively makes internal
+      paths the perfect tool for search engine accessibility of your
+      application.
+    </p>
+
+    <h3>Creating Internal Path Links</h3>
+
+    <p>
+      For the following widgets you can associate an internal path
+      with the method <tt>setLink()</tt>:
       <ul>
-        <li>any ${doc-link WAbstractArea} implemention (like a rectangle,
-          circle or polygon),</li>
-        <li>an <a href="#/navigation/anchor">anchor</a> (${doc-link WAnchor}),
-        </li>
-        <li>a menu item (${doc-link WMenuItem}),</li>
-        <li>a pushbutton (${doc-link WPushButton}), or</li>
-        <li>a standard item (${doc-link WStandardItem}).</li>
+        <li>an <a href="#/navigation/anchor">anchor</a> (${doc-link WAnchor})
+	or a pushbutton (${doc-link WPushButton}), or</li>
+        <li>a menu item (${doc-link WMenuItem}) from within menus or
+        popup menus,</li>
+        <li>any ${doc-link WAbstractArea} implementation (like a rectangle,
+          circle or polygon) which define interactive areas on images.</li>
       </ul>
-      In the example below, the push button is configured to navigate to
-      /navigation/anchor; the next item in the menu bar. The button behaves as
-      an <a href="#/navigation/anchor">anchor</a>. This is similar to how a
+      In addition, standard item views such as ${doc-link WTableView}
+      will render links for <tt>LinkRole</tt> data.
+    </p>
+
+    <p>
+      In the example below, the push button is configured to navigate
+      to the internal path <tt>/navigation/anchor</tt>; the next item
+      in the menu bar. The button behaves as an <a
+      href="#/navigation/anchor">anchor</a>. This is similar to how a
       ${doc-link WMenuWidget} or a ${doc-link WTabWidget} works.
     </p>
 
@@ -2534,379 +2644,43 @@
       ${src Path}
     </fieldset>
 
-<!-- == Internal paths
-
-.A navigation model for your application
-
-From its inception, the World Wide Web is a virtual catalogue of
-pages, each uniquely defined by their URL. A web page may _link_ to
-another page (perhaps at a different web server) using _anchors_, and
-a user can navigate from one page to the other by following these
-hyperlinks.
-
-Two browser features increase the usability of navigating the
-Internet.
-
-* *Browser history navigation* allows a user to step back through his
-browser history to move back to a previous page, or again forward to
-the next page.
-* *Bookmarks* are used to register a particular page using its URL, to
-later revisit that page at some point in the future.
-
-A Wt application will participate in browser navigation by allowing a
-developer to define paths internal to the application, which
-correspond to a particular application state, and to respond to
-internal path changes.
-
-.Should I have internal paths ?
-
-A Wt application is deployed as a single page and will respond to
-events by updating the content of the page. Without defining internal
-paths, a Wt application will never change its URL. While this is
-somewhat a natural consequence of Wt's API which takes from the
-desktop world, there may be three motivations for improving your
-application's web presence using internal paths:
-
-[qanda]
-
-Usability::
-
-  The usability of your web application may suffer because users lose
-  the ability to use browser history to navigate through the
-  application, and bookmarks to bookmark particular content (or
-  application state). Whether this is an actual usability problem will
-  depend on the type of application: only when a user's intuition is
-  deceived in trying to use browser navigation buttons to navigate
-  through the pages in your application, you should be
-  concerned. +
-  For example, an interactive web application that mimicks a desktop
-  application with a single window whose content is manipulated might
-  be conceptually considered a single page for the user. +
-  On the other hand, applications such as web shops, CMS systems, or
-  online email readers, all have a need for the user to be able to
-  bookmark certain content pages.
-
-Deep linking::
-
-  There is no possibility for deep linking to content within your
-  application from other websites. This is to some extent related to
-  the previous point. For example a web shop will want its products pages
-  to be linked to from product review websites. But for other applications
-  which have no public information such as email applications, this might
-  not be a motivation for internal paths.
-
-Search engine indexing::
-
-  Content in your web application cannot be indexed properly by search
-  engines. A related problem, which might be more serious for certain
-  types of applications, is how search engines will perceive your web
-  application. Web robots index the web by retrieving pages and
-  following anchors to other pages. When your application is presented
-  as only a single page, only the content on your initial page is
-  accessible to these search engines.
-
-.The famous back button problem.
-****
-
-Dealing with the "back" button is an old problem for web
-applications. In fact, surprisingly few traditional page-based web
-applications can deal properly with the user going back and forward
-through its application, usually because this disrupts the assumed
-application state at the server.
-
-Typical examples are where a user wishes to return to a previous
-"form" using the back button, to correct some information entered and
-resubmits that form. This may confuse a web application because it is
-not expecting this second submission as this does not correspond to
-the assumed application state at the server.
-
-In many cases it is also not clear what going back and forward would
-imply as intended behavior. Consider for example the situation where
-you have just bought something in an online web shop, and then push the
-back button: that cannot be understood as undoing the buy? Because of
-all this, users have already developed a natural wariness against
-using the back button when dealing with web forms.
-
-****
-
-.Wt's internal path features
-
-Luckily, we do not need to point out this problem without providing a
-solution: Wt's internal path API. Wt allows the application to define
-internal paths and handle changes of internal paths. Because a Wt
-application is not composed of pages, a URL does not define to
-particular page, but rather a particular application state.
-
-To use the internal path API, you need to:
-
-. _Associate an internal path_ to a particular application state.
-. _React to internal path changes_ to set or restore a particular state.
-
-In the remainder of this chapter we will look at Wt's internal path
-API and learn how Wt's implementation remains consistent for both
-plain HTML sessions and Ajax sessions.
-
-=== Associating an internal path with an application state.
-
-There are _a priori_ and _a posteriori_ ways of changing the internal
-path. _A priori_, anchors may be used that reference internal paths,
-and when followed by the user, the application will respond to the
-internal path change. _A posteriori_, the application may set a new
-internal path during event handling.
-
-In either case, any time a different internal path is set, an entry is
-added to the browser navigation history.
-
-The _a priori_ way of using anchors is recommended if you know what
-the internal path in advance. An anchor that links to the internal
-path may be created using `WAnchor::setRefInternalPath(const
-std::string&amp; internalPath)`. Because an anchor's is naturally used to
-navigate also within a web application, this approach has some
-benefits. Search engine robots may easily navigate anchors, and
-therefore this is the natural way to unlock content in your site to
-search engine robots.
-
-.Wt's two forms of internal paths
-****
-
-Internal paths have different representations for a plain HTML session
-and an Ajax session. In an Ajax session, _named anchors_ are used to
-avoid a page reload when changing the internal path: a `#` is used to
-delineate the actual deployment path of the application from the
-internal path. This named anchor may be changed using JavaScript
-without reloading the page.
-
-The portable representation of an internal path uses PathInfo
-information, which are real paths internal to the application. The
-difference with the Ajax form is that the '#' is missing.
-
-Wt will treat both representations equally, but when an Ajax session
-is started from a portable URL, the application will switch first to
-the canonical Ajax URL by inserting the `#`.
-
-For example, if an application is deployed at `"/myapp"`, then both the
-following URLs indicate the internal path `"/user/thomas/inbox/1523"`.
-
-Portable representation::
-`"/myapp/user/thomas/inbox/1523"`
-Canonical Ajax representation::
-`"/myapp#/user/thomas/inbox/1523"`
-
-The `WAnchor` method `setRefInternalPath(path)` will create a URL that
-fits with the current session type, in way that you get consistent
-behavior regardless of the session type: when invoked by the user,
-`internalPathChanged(path)` is propagated through the session.
-
-****
-
-There are however situations when an anchor will not suffice. One
-reason may be that you only know the internal path in response to an
-event, usually by reading some form data. In that case, anchors cannot
-be used not only for the obvious reason that the internal path must be
-known in advance, but also because (without Ajax), following an anchor
-cannot be combined with propagating the changed content of form
-elements (such as line edits, checkboxes, etc...). The latter artifact
-should not be a problem in most cases, as following an anchor may have
-the natural implication of "canceling" the current operation (this is
-an artifact of an anchor is not specific to Wt applications). Note that
-for an Ajax session, all form values will still be propagated when
-following an anchor to an internal path.
-
-In those situations, one may use the direct method to set the internal
-path _a posteriori_, in response to any kind of event (e.g. form
-submission), using: `WApplication::setInternalPath(const std::string&
-path)`. This method changes the internal path, changing the URL in the
-browser's location bar. This method promises to the user when the URL
-is later revisited, the application will return to this state
-(whatever that exactly means in the user's intuition).
-
-=== Reacting to internal path changes
-
-The more interesting aspect of the internal path API is how one may
-react to the initial internal path and to internal path changes.
-
-In traditional page-based frameworks, a _controller_ or _request
-router_ is a central component that decides what page content needs
-to be rendered in response to a particular request. Such an approach
-does not apply to a Wt application, since only changes are usually
-rendered, and there are no well-defined pages. Instead, you can react
-to internal path changes, by listening to the
-`WApplication::internalPathChanged()` signal, as you would react to
-any other event. At any time, including when the application is
-started, the current internal path is available through
-`WApplication::internalPath()`.
-
-There are a number of ways to organize your application to deal with
-internal paths. The most simple way is to implement a kind controller
-that centrally orchestrates the various "pages" in your
-application. This controller listens for internal path changes, and
-calls the corresponding logic to update the application.
-
-.Example: simple central controller
-[source,C]
-
-class MyApplication : public WApplication
-{
-public:
-  MyApplication(const WEnvironment&amp; environment)
-    : WApplication(environment),
-      userWidget_(0)
-  {
-    content_ = new WStackedWidget(root());
-
-    internalPathChanged()
-      .connect(this, &amp;MyApplication::handlePathChange);
-
-    handlePathChange();
-  }
-
-  void handlePathChange() {
-    if (internalPath() == "/")
-      show(welcome());
-    } else if (internalPathMatches("/user")) {
-      std::string userName = internalPathNextPart("/user/");
-      show(userWidget(userName));
-    } else
-      show(error(tr("unknown-path").arg(internalPath())));
-  }
-
-  void show(WWidget *w) {
-    content_->setCurrentWidget(w);
-  }
-
-  WWidget *userWidget(const std::string&amp; userName) {
-    if (!userWidget_)
-      userWidget_ = new UserWidget(content_);
-
-    userWidget_->setUser(userName);
-
-    return userWidget_;
-  }
-
-  WWidget *welcome() { ... }
-
-  WWidget *error(const WString&amp; msg) { ... }
-
-private:
-  WStackedWidget *content_;
-  UserWidget *userWidget_;
-  ...
-}
-
-This example manages a widget stack, `content_`, which displays
-either a welcome page, the `UserWidget` for a particular user, or an
-error. This example uses two utility methods
-`WApplication::internalPathMatches()` and `internalPathNextPart()`
-which help in examining the internal path to decide which content to
-show.
-
-This approach however is not scalable. Consider the path
-`"/user/thomas/inbox/1523"`, which might correspond to inbox message
-1523 of user thomas. Typically, each part of this path is interpreted
-in the context of the upstream parts (much like a filesystem
-organization). Letting a central controller deal with all of the
-complexity of mailboxes for a specific user is not a correct
-separation of concerns. It would be preferable if the `UserWidget`
-would deal with any paths that start with `"/user"`, including
-possible sub paths which it may delegate again to other widgets (such
-as `"inbox/"` to a widget that manages a single mailbox).  In this
-way, `UserWidget` not only encapsulates its own rendering and event
-handling, but also its own internal path handling. This is a much
-better separation of concerns, as the widget now again manages its own
-internal affairs.
-
-Let us modify the previous example to show how this would be done.
-
-.Example: delegating internal path handling
-[source,C]
-
-class UserWidget : public WCompositeWidget
-{
-public:
-  UserWidget(const std::string&amp; basePath,
-             WContainerWidget *parent = 0)
-    : WCompositeWidget(parent)
-  {
-    // ...
-
-    setInternalBasePath(basePath);
-  }
-
-  virtual void changeInternalPath(const std::string&amp;
-                                      internalPath) {
-    showUser(internalPathNextPart());
-  }
-
-  void showUser(const std::string&amp; userName) {
-    // ...
-  }
-}
-
-class MyApplication : public WApplication
-{
-public:
-  MyApplication(const WEnvironment&amp; environment)
-    : WApplication(environment),
-      userWidget_(0)
-  {
-    content_ = new WStackedWidget(root());
-
-    internalPathChanged()
-      .connect(this, &MyApplication::handlePathChange);
-
-    handlePathChange();
-  }
-
-  void handlePathChange() {
-    if (internalPath() == "/")
-      show(welcome());
-    } else if (internalPathMatches("/user")) {
-      show(userWidget());
-    } else
-      show(error(tr("unknown-path").arg(internalPath())));
-  }
-
-  void show(WWidget *w) {
-    content_->setCurrentWidget(w);
-  }
-
-  WWidget *userWidget() {
-    if (!userWidget_)
-      userWidget_ = new UserWidget("/user", root());
-
-    return userWidget_;
-  }
-
-  WWidget *welcome() { ... }
-
-  WWidget *error(const WString&amp; msg) { ... }
-
-private:
-  WStackedWidget *content_;
-  UserWidget *userWidget_;
-  ...
-}
-
-`WCompositeWidget` already provides some boilerplate methods to help
-with deploying it at a particular path:
-
-* `setInternalBasePath()` sets the base path and lets the
-  widget listen to internal path changes that match its internal base path.
-* `changeInternalPath()` is called whenever the internal path
-  relative to its internal base path is changed.
-* `internalPathNextPart()` retrieves the next part of the internal path,
-  relative to its internal base path.
-
-Although in this example, a widget manages (and consumes) only one
-part of the path, there is no reason to stick with this approach. The
-`internalPathNextPart()` method is merely a convenience method that
-does trivial string processing on the `internalPath()` to handle this
-common approach of peeling of part by part from the internal path.
-
-This way of delegating internal path handling to be encapsulated by a
-widget is used by the library's `WMenu` widget, to associate paths
-with each menu entry and react to internal path changes to navigate to
-the correct page.-->
+    <p>
+      In this example, the <a href="#/navigation/menu">menu</a> reacts
+      to the internal path event and selects the corresponding menu
+      item. One can also catch the navigation event directly.
+    </p>
+
+    <h3>Reacting to internal path changes</h3>
+
+    <p>
+      Whereas in traditional page-based frameworks, a
+      <i>controller</i> or <i>request router</i> is a central
+      component that decides what page content needs to be rendered in
+      response to a particular request, Wt employs a quite different
+      model. Instead, you can react to internal path changes, by
+      listening to the <tt>WApplication::internalPathChanged()</tt>
+      signal, as you would react to any other event. At any time,
+      including when the application is started, the current internal
+      path is available through <tt>WApplication::internalPath()</tt>.
+    </p>
+
+    <p>
+      The following example shows the basic mechanism to react to an
+      internal path event.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${PathChange}
+      ${src PathChange}
+    </fieldset>
+
+    <p>
+      Notice how the same function is used to react to an actual event
+      but also to the initial state. This will be a common pattern in
+      widgets that support internal path navigation, as they also need
+      to initialize to the initial internal path.
+    </p>
 
   </message>
 
@@ -4462,7 +4236,7 @@ the correct page.-->
       <tr>
         <td>Pan to:</td>
         <td>
-          ${brussels} ${lisbon} ${paris} ${emweb}
+          ${Brussels} ${Lisbon} ${Paris} ${emweb}
         </td>
       </tr>
       <tr>

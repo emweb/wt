@@ -2,7 +2,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(TextEvents)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 // Create four text widgets.
@@ -30,19 +29,19 @@ Wt::WText *out = new Wt::WText(container);
 
 // Assign a signal/slot mechanism to the text controls.
 text1->clicked().connect(std::bind([=] () {
-        out->setText("<p>Text was clicked.</p>");
+    out->setText("<p>Text was clicked.</p>");
 }));
 
 text2->doubleClicked().connect(std::bind([=] () {
-        out->setText("<p>Text was double clicked.</p>");
+    out->setText("<p>Text was double clicked.</p>");
 }));
 
 text3->mouseWentOver().connect(std::bind([=] () {
-        out->setText("<p>Mouse went over text.</p>");
+    out->setText("<p>Mouse went over text.</p>");
 }));
 
 text4->mouseWentOut().connect(std::bind([=] () {
-        out->setText("<p>Mouse went out text.</p>");
+    out->setText("<p>Mouse went out text.</p>");
 }));
 
 SAMPLE_END(return container)

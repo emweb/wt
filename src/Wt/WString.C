@@ -201,16 +201,20 @@ WString WString::fromUTF8(const char *value, bool checkValid)
 
 void WString::checkUTF8Encoding(std::string& value)
 {
-  const char *c = value.c_str();
-  for (; c < value.c_str() + value.length();) {
-    const char *at = c;
+  unsigned pos = 0;
+  for (; pos < value.length();) {
+    unsigned at = pos;
+    const char *c_start = value.c_str() + pos;
+    const char *c = c_start;
     try {
       char *dest = 0;
       rapidxml::xml_document<>::copy_check_utf8(c, dest);
+      pos += c - c_start;
     } catch (rapidxml::parse_error& e) {
-      for (const char *i = at; i < c && i < value.c_str() + value.length();
+      pos += c - c_start;
+      for (unsigned i = at; i < pos && i < value.length();
         ++i)
-	value[i - value.c_str()] = '?';
+	value[i] = '?';
     }
   }
 }

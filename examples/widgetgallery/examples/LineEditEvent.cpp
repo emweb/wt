@@ -3,7 +3,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(LineEditEvent)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WLineEdit *edit = new Wt::WLineEdit(container);

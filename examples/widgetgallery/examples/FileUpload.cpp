@@ -6,7 +6,6 @@
 #include <Wt/WText>
 
 SAMPLE_BEGIN(FileUpload)
-
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WFileUpload *fu = new Wt::WFileUpload(container);
@@ -22,25 +21,25 @@ Wt::WText *out = new Wt::WText(container);
 
 // Upload when the button is clicked.
 uploadButton->clicked().connect(std::bind([=] () {
-        fu->upload();
-        uploadButton->disable();
+    fu->upload();
+    uploadButton->disable();
 }));
 
 // Upload automatically when the user entered a file.
 fu->changed().connect(std::bind([=] () {
-        fu->upload();
-        uploadButton->disable();
-        out->setText("File upload is changed.");
+    fu->upload();
+    uploadButton->disable();
+    out->setText("File upload is changed.");
 }));
 
 // React to a succesfull upload.
 fu->uploaded().connect(std::bind([=] () {
-        out->setText("File upload is finished.");
+    out->setText("File upload is finished.");
 }));
 
 // React to a file upload problem.
 fu->fileTooLarge().connect(std::bind([=] () {
-        out->setText("File is too large.");
+    out->setText("File is too large.");
 }));
 
 SAMPLE_END(return container)

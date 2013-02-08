@@ -5,9 +5,8 @@
 #include <Wt/WTemplate>
 
 SAMPLE_BEGIN(LineEdit)
-
 Wt::WTemplate *result =
-        new Wt::WTemplate(Wt::WString::tr("lineEdit-template"));
+    new Wt::WTemplate(Wt::WString::tr("lineEdit-template"));
 
 Wt::WLabel *label = new Wt::WLabel("Age:");
 result->bindWidget("label", label);

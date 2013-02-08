@@ -53,6 +53,7 @@ static const int KEEPALIVE_TIMEOUT  = 10;  // 10 seconds
 Connection::Connection(asio::io_service& io_service, Server *server,
     ConnectionManager& manager, RequestHandler& handler)
   : ConnectionManager_(manager),
+    strand_(io_service),
     request_handler_(handler),
     readTimer_(io_service),
     writeTimer_(io_service),
@@ -92,15 +93,17 @@ void Connection::start()
 void Connection::setReadTimeout(int seconds)
 {
   readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
-  readTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
-  				asio::placeholders::error));  
+  readTimer_.async_wait(strand_.wrap
+			(boost::bind(&Connection::timeout, shared_from_this(),
+				     asio::placeholders::error)));
 }
 
 void Connection::setWriteTimeout(int seconds)
 {
   writeTimer_.expires_from_now(boost::posix_time::seconds(seconds));
-  writeTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
-  				asio::placeholders::error));  
+  writeTimer_.async_wait(strand_.wrap
+			 (boost::bind(&Connection::timeout, shared_from_this(),
+				      asio::placeholders::error)));
 }
 
 void Connection::cancelReadTimer()

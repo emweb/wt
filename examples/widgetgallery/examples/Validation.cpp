@@ -7,7 +7,7 @@
 SAMPLE_BEGIN(Validation)
 
 Wt::WTemplate *t
-        = new Wt::WTemplate(Wt::WString::tr("validation-template"));
+    = new Wt::WTemplate(Wt::WString::tr("validation-template"));
 t->addFunction("id", &Wt::WTemplate::Functions::id);
 
 Wt::WLineEdit *ageEdit = new Wt::WLineEdit();
@@ -25,11 +25,11 @@ Wt::WText *out = new Wt::WText();
 t->bindWidget("age-info", out);
 
 button->clicked().connect(std::bind([=] () {
-        if (ageEdit->validate() == Wt::WValidator::Valid) {
-            out->setText("Age of " + ageEdit->text() + " is saved!");
-        } else {
-            out->setText("The number must be in the range 0 to 150");
-        }
+    if (ageEdit->validate() == Wt::WValidator::Valid) {
+	out->setText("Age of " + ageEdit->text() + " is saved!");
+    } else {
+	out->setText("The number must be in the range 0 to 150");
+    }
 }));
 
 SAMPLE_END(return t)

@@ -60,10 +60,11 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
   boost::shared_ptr<TcpConnection> sft 
     = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-			  boost::bind(&Connection::handleReadRequest,
-				      sft,
-				      asio::placeholders::error,
-				      asio::placeholders::bytes_transferred));
+			  strand_.wrap
+			  (boost::bind(&Connection::handleReadRequest,
+				       sft,
+				       asio::placeholders::error,
+				       asio::placeholders::bytes_transferred)));
 }
 
 void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
@@ -74,10 +75,11 @@ void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
   boost::shared_ptr<TcpConnection> sft 
     = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-			  boost::bind(&Connection::handleReadBody,
-				      sft,
-				      asio::placeholders::error,
-				      asio::placeholders::bytes_transferred));
+			  strand_.wrap
+			  (boost::bind(&Connection::handleReadBody,
+				       sft,
+				       asio::placeholders::error,
+				       asio::placeholders::bytes_transferred)));
 }
 
 void TcpConnection::startAsyncWriteResponse
@@ -90,9 +92,10 @@ void TcpConnection::startAsyncWriteResponse
   boost::shared_ptr<TcpConnection> sft 
     = boost::dynamic_pointer_cast<TcpConnection>(shared_from_this());
   asio::async_write(socket_, buffers,
-		    boost::bind(&Connection::handleWriteResponse,
-				sft,
-				asio::placeholders::error));
+		    strand_.wrap
+		    (boost::bind(&Connection::handleWriteResponse,
+				 sft,
+				 asio::placeholders::error)));
 }
 
 } // namespace server
