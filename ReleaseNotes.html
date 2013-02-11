@@ -22,6 +22,280 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.0 (Feb, ? 2013)</h2>
+
+<p>
+ This release focusses on a reorganization of Wt's theme
+ infrastructure, with the objective of supporting Twitter's Bootstrap
+ CSS framework as a new theme. At the same time we've added a number
+ of widgets for which Twitter Bootstrap provides styling.
+</p>
+
+<p>It is our intention to support the Bootstrap theme (or more
+ specifically, the Bootstrap class names) alongside the themes we
+ already supported (which are based on our own class names). Ignoring
+ what Bootstrap brings, you should be able to upgrade to this release
+ without too much trouble, although you may need to adapt some CSS
+ stylesheets as we did reorganize a number of things which were
+ required for Bootstrap and were a good idea for our own CSS
+ stlesheets too.</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WTheme.html">WTheme</a>,
+    <a href="classWt_1_1WCssTheme.html">WCssTheme</a>,
+    <a href="classWt_1_1WBootstrapTheme.html">WBootstrapTheme</a>,
+  </dt>
+  <dd>
+    Theme support classes for Wt. The role of a theme is to:
+    <ul>
+      <li>Load the CSS stylesheets for a new session</li>
+      <li>Annotate newly created widgets with appropriate style
+      classes</li>
+    </ul>
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WDateEdit.html">WDateEdit</a>
+  </dt>
+  <dd>
+    Functionally almost the same as a WDatePicker, this class
+    specializes WLineEdit and is thus a WFormWidget, making it much
+    easier to use in WTemplateFormView.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WLocale.html">WLocale</a>
+  </dt>
+  <dd>
+    This class supports localization for number formatting and
+    extends the simple localization support we had in the previous
+    versions of Wt (which as only effect had the selection of
+    a different language for the resource bundles). It's main
+    added value of native C++ support for localization is that it
+    also affects client-side handling and parsing of number values,
+    i.e. in <a href="classWt_1_1WIntValidator.html">WIntValidator</a> and
+    <a href="classWt_1_1WDoubleValidato.htmlr">WDoubleValidator</a>.
+  </dd>
+  
+  <dt>
+    <a href="classWt_1_1WNavigationBar.html">WNavigationBar</a>
+  </dt>
+  <dd>
+    A navigation bar styles a menu as a typical top-level bar
+    (currently only styled in the Bootstrap Theme).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WPopupWidget.html">WPopupWidget</a>
+  </dt>
+  <dd>
+    A base class to simplify the creation of popup widgets that
+    typically assist in editing or provide circumstancial information
+    for another widget.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WSplitButton.html">WSplitButton</a>
+  </dt>
+  <dd>
+    A split button, which combines a button and a popup menu
+    (currently only styled in the Bootstrap Theme).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WToolBar.html">WToolBar</a>
+  </dt>
+  <dd>
+    A button tool bar (currently only styled in the Bootstrap Theme)
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1backend_1_1MySQL.html">Dbo::MySQL</a>
+  </dt>
+  <dd>
+    A MariaDB/MySQL backend for Wt::Dbo. This is based on the work
+    from Paul Harrisson who maintained this backend so far outside the
+    Wt distribution. The backend has been designed for MariaDB, but
+    should work fine for MySQL as well.
+  </dd>  
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1Mail_1_1Message.html">Mail::Message</a>
+  </dt>
+  <dd>
+    Added API support for additional SMTP headers.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WDatePicker.html">WDatePicker</a>,
+    <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>
+  </dt>
+  <dd>
+    The setGlobalPopup() functionality has been deprecated and does no
+    longer have any effect, since a new improved algorithm is being
+    used to anchor the popup to the DOM which no longer requires this
+    workaround.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WDialog.html">WDialog</a>
+  </dt>
+  <dd>
+    Addition of a footer() method that returns a container for dialog
+    footer elements, typically buttons.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WFormModel.html">WFormModel</a>
+  </dt>
+  <dd>
+    Addition of a validator() function that returns the validator for
+    a field set using setValidator(), 
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WGLWidget.html">WGLWidget</a>
+  </dt>
+  <dd>
+    Support for binary transfers which avoids serialization and
+    deserialization of floats to text.
+  </dd>
+  
+  <dt>
+    <a href="classWt_1_1WPushButton.html">WPushButton</a>
+  </dt>
+  <dd>
+    A push button can now act as a toggle button, using setCheckable()
+    and related API (currently only styled in the Bootstrap Theme) and
+    can be linked to a popup menu using setMenu().
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WStackedWidget.html">WStackedWidget</a>
+  </dt>
+  <dd>
+    When switching between current widgets, the stacked widget will
+    now record and restore the current scroll position, providing a
+    much improved user experience when using the stacked widget for
+    the 'main' contents of an application.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WStringListModel.html">WStringListModel</a>
+  </dt>
+  <dd>
+    Full support was added for storing data of all roles, lifting the
+    requirement to use another model such as WStandardItemModel for
+    simple MVC widgets like WComboBox or WSuggestionPopup simply to be
+    able to store UserRole data.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WTemplate.html">WTemplate</a>
+  </dt>
+  <dd>
+    Added a new standard function (Functions::block) which allows the
+    definition and use of a macro block inside a placeholder, which is
+    in particular useful for forms which have repetitive formatting
+    for each field.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WTemplateFormView.html">WTemplateFormView</a>
+  </dt>
+  <dd>
+    Several API improvements: A new setFormWidget() allows the
+    definition of the form widget for editing a field which
+    is a more useful alternative compared to reimplement
+    createFormWidget(). It also allows the optional
+    definition of functions to update the view/model values, which
+    avoids the need for specializing updateViewField() and
+    updateModelField() these latter two functions have been deprecated
+    in favour of two new functions updateViewValue() and
+    updateModelValue() which only update the value but not other
+    aspects such as visibility, validation state, or messages.
+  </dd>
+  
+  <dt>
+    Built-in httpd improvements
+  </dt>
+  <dd>
+    A redundant copy operation of the response generated and sent by
+    Wt has been removed, using scatter-gather I/O implemented by
+    boost::asio instead.
+  </dd>
+</dl>
+
+<h3>C) Non-backwards compatible changes</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WMenuItem.html">WMenuItem</a>
+  </dt>
+  <dd>
+    While in previous version of Wt, this class was only a data class
+    that held the information related to an item, in 3.3.0 we modified
+    this so that this class represents the widget itself. If you were
+    redefining protected methods to customize the widget
+    (i.e. createItemWidget() and updateItemWidget()), then this will no
+    longer work as expected. The new system should be easier to
+    customize (since you can simply specialize WMenuItem itself).
+    In addition, we've simplified the rendering of a menu item so that
+    a redundant layer of spans (or div's) has been removed. It makes
+    the menu more consistent with the way CSS designers expect a menu
+    to rendered, and this was done (you can guess the theme of this
+    release by now ?) to be compatible with bootstrap's CSS styles.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WApplication.html">WApplication::locale()</a>
+  </dt>
+  <dd>
+    This now returns a WLocale object instead of the string
+    designation of the locale (which you can query by calling name())
+    on the locale object.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WCalendar.html">WCalendar</a>
+  </dt>
+  <dd>
+    The markup for this class has changed, and thus customized CSS
+    will need to be updated.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WMenuItem.html">WPopupMenuItem</a>
+  </dt>
+  <dd>
+    The popup menu item class has been merged with WMenuItem (and
+    WPopupMenu is now a specialized WMenu). This should not have
+    noticable API changes, except for the changes in markup and CSS
+    documented above.
+  </dd>
+  
+  <dt>
+    <a href="classWt_1_1WTreeNode.html">WTreeNode</a>,
+    <a href="classWt_1_1WTreeTable.html">WTreeTable</a>
+    <a href="classWt_1_1WTreeView.html">WTreeView</a>
+  </dt>
+  <dd>
+    The markup for tree rendering has been changed (to using nested
+    unordered list instead of nested tables), and thus customized CSS
+    will need to be updated. The only API consequence is that
+    WTreeNode::labelArea() is no longer returning a WTableCell but
+    instead a WContainerWidget.
+  </dd>
+</dl>
+<hr>
+
 <h2>Release 3.2.3 (November, 1 2012)</h2>
 
 <p>

@@ -1,11 +1,20 @@
 IF(ENABLE_SQLITE)
 
   OPTION(USE_SYSTEM_SQLITE3 "Use system-wide Sqlite3 instead of Wt's version" OFF)
+  OPTION(USE_SQLITE3_BDB "Use BerkeleyDB storage with Sqlite3 API" OFF)
 
   IF(USE_SYSTEM_SQLITE3)
+
     FIND_PACKAGE( Sqlite3 REQUIRED)
+
+    IF (USE_SQLITE3_BDB)
+      ADD_DEFINITIONS(-DSQLITE3_BDB)
+    ENDIF (USE_SQLITE3_BDB)
+
   ELSE(USE_SYSTEM_SQLITE3)
+
     SET(Sqlite3_SRCS amalgamation/sqlite3.c)
+
   ENDIF(USE_SYSTEM_SQLITE3)
 
   FIND_PACKAGE(Threads)

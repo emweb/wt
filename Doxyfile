@@ -1537,7 +1537,7 @@ INCLUDE_FILE_PATTERNS  =
 
 PREDEFINED             = DOXYGEN_ONLY \
                          WT_USTRING=WString \
-                         WT_LOCALE=std::string \
+                         WT_UCHAR=std::string \
                          WT_BOSTREAM=std::ostream \
                          WT_ARRAY=
 

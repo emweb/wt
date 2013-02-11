@@ -1670,7 +1670,8 @@ double Block::layoutBlock(PageState &ps,
   double height = cssHeight(renderer.fontScale());
 
   if (isTableCell())
-    contentsHeight_ = diff(ps.y, ps.page, startY, startPage, renderer);
+    contentsHeight_ = std::max(0.0, diff(ps.y, ps.page, startY,
+					 startPage, renderer));
 
   if (height >= 0) {
     ps.page = startPage;

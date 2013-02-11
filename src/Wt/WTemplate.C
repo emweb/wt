@@ -483,7 +483,7 @@ void WTemplate::renderTemplateText(std::ostream& result, const WString& template
 	      ++suppressing;
 	  } else {
 	    std::string cond = name.substr(2, nl - 3);
-	    if (conditions.back() != cond) {
+	    if (conditions.empty() || conditions.back() != cond) {
 	      LOG_ERROR("mismatching condition block end: " << cond);
 	      return;
 	    }

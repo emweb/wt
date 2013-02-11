@@ -9,10 +9,8 @@
 #include <Wt/WPushButton>
 #include <Wt/WSuggestionPopup>
 #include <Wt/WLineEdit>
-#include <Wt/WText>
-#include <Wt/WStandardItemModel>
-#include <Wt/WStandardItem>
 #include <Wt/WStringListModel>
+#include <Wt/WText>
 
 /*
  * See also: http://www.webtoolkit.eu/wt/blog/2010/03/02/javascript_that_is_c__
@@ -37,7 +35,7 @@ public:
   }
 
 private:
-  Wt::WStandardItemModel *fourCharModel_;
+  Wt::WStringListModel *fourCharModel_;
 
   Wt::WAbstractItemModel *createSimpleDrugsModel()
   {
@@ -110,21 +108,19 @@ private:
       0
     };
 
-    Wt::WStandardItemModel *model = new Wt::WStandardItemModel(0, 1, this);
+    Wt::WStringListModel *model = new Wt::WStringListModel(this);
 
     for (const char **i = hivDrugs; *i; ++i) {
-      Wt::WStandardItem *item = new Wt::WStandardItem();
+      int row = model->rowCount();
 
       std::string names = *i;
-      item->setData(names, Wt::DisplayRole);
+      model->addString(names);
 
       std::string value = names;
       std::size_t sc = value.find(';');
       if (sc != std::string::npos)
 	value = value.substr(0, sc);
-      item->setData(value, Wt::UserRole);
-
-      model->appendRow(item);
+      model->setData(row, 0, value, Wt::UserRole);
     }
 
     model->sort(0);
@@ -180,7 +176,7 @@ private:
 
   void serverSideFilteringPopups(Wt::WContainerWidget *parent)
   {
-    fourCharModel_ = new Wt::WStandardItemModel(0, 1, this);
+    fourCharModel_ = new Wt::WStringListModel(this);
 
     Wt::WSuggestionPopup *popup = createAliasesMatchingPopup(parent);
     popup->setModel(fourCharModel_);
@@ -212,16 +208,16 @@ private:
     fourCharModel_->removeRows(0, fourCharModel_->rowCount());
 
     for (int i = 0; i < 26; ++i) {
+      int row = fourCharModel_->rowCount();
+
       /*
        * If the input is shorter than the server-side filter length,
        * then limit the number of matches and end with a '...'
        */
       if (input.value().length() < 3 && i > 10) {
-	Wt::WStandardItem *item = new Wt::WStandardItem();
-
-	item->setText("...");
-	item->setData(std::string(""), Wt::UserRole); // no actual value
-	fourCharModel_->appendRow(item);
+	fourCharModel_->addString("...");
+	// no actual value
+	fourCharModel_->setData(row, 0, std::string(""), Wt::UserRole);
 
 	break;
       }
@@ -231,11 +227,8 @@ private:
 	v += L'a';
 
       v += (L'a' + i);
-
-      Wt::WStandardItem *item = new Wt::WStandardItem();
-
-      item->setText(v);
-      fourCharModel_->appendRow(item);
+      
+      fourCharModel_->addString(v);
     }
   }
 

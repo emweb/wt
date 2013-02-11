@@ -13,6 +13,13 @@
 namespace Wt {
 
 /*! \brief A single item in a menu.
+ *
+ * Since %Wt 3.3.0, this item is now a proper widget, which renders a
+ * single item in a menu.
+ *
+ * An optional contents item can be associated with a menu item, which
+ * is inserted and shown in the widget stack of the menu to which this
+ * menu item belongs.
  */
 class WT_API WMenuItem : public WContainerWidget
 {

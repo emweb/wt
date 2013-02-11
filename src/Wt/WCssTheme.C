@@ -112,7 +112,7 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
     }
 
   case DatePickerPopupRole:
-    child->addStyleClass("Wt-outset Wt-datepicker");
+    child->addStyleClass("Wt-datepicker");
     break;
   case PanelTitleBarRole:
     child->addStyleClass("titlebar");
@@ -132,6 +132,12 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
 void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
   const
 {
+  {
+    WPopupWidget *popup = dynamic_cast<WPopupWidget *>(widget);
+    if (popup)
+      element.addPropertyWord(PropertyClass, "Wt-outset");
+  }
+
   switch (element.type()) {
   case DomElement_BUTTON:
     element.addPropertyWord(PropertyClass, "Wt-btn");
@@ -151,7 +157,7 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
 	  = dynamic_cast<WSuggestionPopup *>(widget);
 
 	if (suggestions)
-	  element.addPropertyWord(PropertyClass, "Wt-suggest Wt-outset");
+	  element.addPropertyWord(PropertyClass, "Wt-suggest");
       }
     }
     break;
@@ -172,7 +178,7 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
     {
       WDialog *dialog = dynamic_cast<WDialog *>(widget);
       if (dialog) {
-	element.addPropertyWord(PropertyClass, "Wt-dialog Wt-outset");
+	element.addPropertyWord(PropertyClass, "Wt-dialog");
 	return;
       }
 

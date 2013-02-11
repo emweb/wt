@@ -7,6 +7,9 @@
 #include "Wt/Dbo/backend/Sqlite3"
 #include "Wt/Dbo/Exception"
 
+#ifdef SQLITE3_BDB
+#include <db.h>
+#endif // SQLITE3_BDB
 #include <sqlite3.h>
 #include <iostream>
 #include <math.h>

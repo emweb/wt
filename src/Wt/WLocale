@@ -19,7 +19,9 @@ namespace Wt {
  *
  * It's functionality is currently limited to date and number
  * formatting, and the formatting properties need to be configured
- * here.
+ * here, we plan to leverage standard C++ locale functionality to
+ * obtain these configurations. The locale also provides client-side
+ * support, and thus cannot solely rely on C++'s locale support.
  *
  * \sa WApplication::locale()
  */
@@ -56,6 +58,9 @@ public:
    *
    * Sets the character used to separate integral from fractional
    * digits in a double.
+   *
+   * \note the argument is a UTF-8 encoded character and can thus be up
+   *       to 4 byte.
    */
   void setDecimalPoint(WT_UCHAR c);
 
@@ -68,6 +73,9 @@ public:
   /*! \brief Sets the decimal group separator.
    *
    * Sets the character used to separate thousands in a number.
+   *
+   * \note the argument is a UTF-8 encoded character and can thus be up
+   *       to 4 byte.
    */
   void setGroupSeparator(WT_UCHAR c);
 
@@ -104,13 +112,36 @@ public:
    */
   static const WLocale& currentLocale();
 
+  /*! \brief Parses a floating point number.
+   *
+   * Throws a runtime exception if the number could not be parsed.
+   */
   double toDouble(const WT_USTRING& value) const;
+
+  /*! \brief Parses an integer number.
+   *
+   * Throws a runtime exception if the number could not be parsed.
+   */
   int toInt(const WT_USTRING& value) const;
 
+  /*! \brief Formats an integer number.
+   */
   WT_USTRING toString(int value) const;
+
+  /*! \brief Formats an integer number.
+   */
   WT_USTRING toString(unsigned int value) const;
+
+  /*! \brief Formats an integer number.
+   */
   WT_USTRING toString(::int64_t value) const;
+
+  /*! \brief Formats an integer number.
+   */
   WT_USTRING toString(::uint64_t value) const;
+
+  /*! \brief Formats a floating point number.
+   */
   WT_USTRING toString(double value) const;
 
 private:

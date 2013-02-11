@@ -102,7 +102,7 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
     }
 
   case DatePickerPopupRole:
-    child->addStyleClass("dropdown-menu Wt-datepicker");
+    child->addStyleClass("Wt-datepicker");
     break;
 
   case PanelTitleBarRole:
@@ -128,6 +128,12 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
 void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 			    int elementRole) const
 {
+  {
+    WPopupWidget *popup = dynamic_cast<WPopupWidget *>(widget);
+    if (popup)
+      element.addPropertyWord(PropertyClass, "dropdown-menu");
+  }
+
   switch (element.type()) {
 
   case DomElement_A:
@@ -157,12 +163,6 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
       WDialog *dialog = dynamic_cast<WDialog *>(widget);
       if (dialog) {
 	element.addPropertyWord(PropertyClass, "modal");
-	return;
-      }
-
-      WDatePicker *picker = dynamic_cast<WDatePicker *>(widget);
-      if (picker) {
-	element.addPropertyWord(PropertyClass, "dropdown-menu");
 	return;
       }
 
@@ -269,7 +269,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 	    = dynamic_cast<WSuggestionPopup *>(widget);
 
 	  if (suggestions)
-	    element.addPropertyWord(PropertyClass, "typeahead dropdown-menu");
+	    element.addPropertyWord(PropertyClass, "typeahead");
 	}
       }
     }

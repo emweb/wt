@@ -91,7 +91,7 @@ double WTextRenderer::render(const WString& text, double y)
 
     bool tooWide = false;
 
-    for (;;) {
+    for (int i = 0; i < 2; ++i) {
       currentPs.minX = minX;
       currentPs.maxX = maxX;
 

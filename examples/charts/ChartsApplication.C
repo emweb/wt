@@ -15,11 +15,6 @@ public:
   ChartsApplication(const WEnvironment& env)
     : WApplication(env)
   {
-    WLocale l;
-    l.setDecimalPoint(",");
-    l.setGroupSeparator(".");
-    setLocale(l);
-
     setTitle("Charts example");
 
     setCssTheme("polished");

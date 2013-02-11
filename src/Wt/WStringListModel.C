@@ -167,8 +167,9 @@ bool WStringListModel::removeRows(int row, int count, const WModelIndex& parent)
     beginRemoveRows(parent, row, row + count - 1);
     displayData_.erase(displayData_.begin() + row,
 		       displayData_.begin() + row + count);
-    otherData_->erase(otherData_->begin() + row,
-		      otherData_->begin() + row + count);
+    if (otherData_)
+      otherData_->erase(otherData_->begin() + row,
+			otherData_->begin() + row + count);
     endRemoveRows();
 
     return true;
