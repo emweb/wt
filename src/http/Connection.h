@@ -66,6 +66,7 @@ public:
   virtual ~Connection();
 
   Server *server() const { return server_; }
+  asio::strand& strand() { return strand_; }
 
 #ifdef HTTP_WITH_SSL
   void registerSslHandle(SSL *ssl) { request_.ssl = ssl; }

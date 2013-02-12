@@ -17,6 +17,7 @@
 #include "Connection.h"
 #include "Reply.h"
 #include "Request.h"
+#include "Server.h"
 
 #include <time.h>
 #include <string>
@@ -409,8 +410,12 @@ void Reply::setConnection(ConnectionPtr connection)
 void Reply::send()
 {
   ConnectionPtr connection = getConnection();
-  if (connection)
-    connection->startWriteResponse();
+
+  if (connection) {
+    connection->server()->service().post
+      (connection->strand().wrap
+       (boost::bind(&Connection::startWriteResponse, connection)));
+  }
 }
 
 void Reply::setRelay(ReplyPtr reply)

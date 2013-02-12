@@ -170,7 +170,10 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 	in_->seekg(0); // rewind
 
-	connection->server()->controller()->handleRequest(httpRequest_);
+	connection->server()->service().post
+	  (boost::bind(&Wt::WebController::handleRequest,
+		       connection->server()->controller(),
+		       httpRequest_));
       }
     }
   } else {
@@ -372,7 +375,8 @@ void WtReply::readWebSocketMessage(CallbackFunction callBack)
     in_mem_.str("");
 
     connection->server()->service().post
-      (boost::bind(&Connection::handleReadBody, connection));
+      (connection->strand().wrap
+       (boost::bind(&Connection::handleReadBody, connection)));
   }
 }
 
