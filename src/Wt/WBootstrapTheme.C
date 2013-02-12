@@ -130,8 +130,11 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 {
   {
     WPopupWidget *popup = dynamic_cast<WPopupWidget *>(widget);
-    if (popup)
-      element.addPropertyWord(PropertyClass, "dropdown-menu");
+    if (popup) {
+      WDialog *dialog = dynamic_cast<WDialog *>(widget);
+      if (!dialog)
+	element.addPropertyWord(PropertyClass, "dropdown-menu");
+    }
   }
 
   switch (element.type()) {
