@@ -110,7 +110,7 @@ Wt::WWidget *TreesTables::tableViews()
 #ifndef WT_TARGET_JAVA
 #define GIT_REPOSITORY "../../.git"
 #else
-#define GIT_REPOSITORY "../../.git"
+#define GIT_REPOSITORY "/home/koen/git/jwt"
 #endif
 
 #ifndef _WIN32

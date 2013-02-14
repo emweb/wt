@@ -285,8 +285,8 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
   }
 
   if (backgroundColorChanged_ || all) {
-    if ((all && !backgroundColor_.isDefault())
-	|| backgroundColorChanged_)
+    if ((all && !backgroundColor_.isDefault()) ||
+	backgroundColorChanged_)
       element.setProperty(PropertyStyleBackgroundColor,
 			  backgroundColor_.cssText());
     backgroundColorChanged_ = false;
@@ -294,14 +294,18 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
 
   if (backgroundImageChanged_ || all) {
     if (!backgroundImage_.isNull() || backgroundImageChanged_) {
-      element.setProperty(PropertyStyleBackgroundImage,
-			  !backgroundImage_.isNull() ? "url("
-			  + WApplication::instance()
-			  ->resolveRelativeUrl(backgroundImage_.url()) + ")" 
-			  : "none");
+      if (backgroundImage_.isNull())
+	element.setProperty(PropertyStyleBackgroundImage, "none");
+      else {
+	std::string url =
+	  WApplication::instance()->resolveRelativeUrl(backgroundImage_.url());
 
-      if (backgroundImageRepeat_ != RepeatXY
-	  || backgroundImageLocation_ != 0) {
+	element.setProperty(PropertyStyleBackgroundImage,
+			    "url(" + WWebWidget::jsStringLiteral(url) + ")");
+      }
+
+      if (backgroundImageRepeat_ != RepeatXY ||
+	  backgroundImageLocation_ != 0) {
 	switch (backgroundImageRepeat_) {
 	case RepeatXY:
 	  element.setProperty(PropertyStyleBackgroundRepeat, "repeat");

@@ -274,7 +274,10 @@ void WDialog::setWindowTitle(const WString& windowTitle)
 WString WDialog::windowTitle() const
 {
   std::string text = caption_->text().toUTF8();
-  return WString::fromUTF8(text.substr(4, text.length() - 9));
+  if (text.length() > 9)
+    return WString::fromUTF8(text.substr(4, text.length() - 9));
+  else
+    return WString::Empty;
 }
 
 void WDialog::setTitleBarEnabled(bool enable)

@@ -2119,9 +2119,13 @@ void Block::render(WTextRenderer& renderer, int page)
       renderer.painter()->drawRect(rect);
 #endif // DEBUG_LAYOUT
 
-      renderer.painter()->drawImage(rect,
-				    WPainter::Image(attributeValue("src"),
-						    (int)width, (int)height));
+      if (width > 0 && height > 0)
+	renderer.painter()->drawImage(rect,
+				      WPainter::Image(attributeValue("src"),
+						      (int)width, (int)height));
+      else
+	LOG_ERROR("Cannot paint image '" << attributeValue("src") << "', "
+		  << "need (CSS) width and height explicitly set");
     }
   }
 
