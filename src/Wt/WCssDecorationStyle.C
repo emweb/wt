@@ -301,7 +301,8 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
 	  WApplication::instance()->resolveRelativeUrl(backgroundImage_.url());
 
 	element.setProperty(PropertyStyleBackgroundImage,
-			    "url(" + WWebWidget::jsStringLiteral(url) + ")");
+			    "url(" + WWebWidget::jsStringLiteral(url, '"')
+			    + ")");
       }
 
       if (backgroundImageRepeat_ != RepeatXY ||
