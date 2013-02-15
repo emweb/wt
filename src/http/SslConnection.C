@@ -48,8 +48,8 @@ void SslConnection::start()
 {
   socket_.async_handshake(asio::ssl::stream_base::server,
 			  strand_.wrap
-			  (boost::bind((&SslConnection::handleHandshake, this,
-					asio::placeholders::error))));
+			  (boost::bind(&SslConnection::handleHandshake, this,
+				       asio::placeholders::error)));
 }
 
 void SslConnection::handleHandshake(const asio_error_code& error)

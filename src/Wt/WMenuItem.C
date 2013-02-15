@@ -311,6 +311,11 @@ bool WMenuItem::isChecked() const
     return false;
 }
 
+WWidget *WMenuItem::itemWidget()
+{
+  return this;
+}
+
 void WMenuItem::close()
 {
   if (menu_)

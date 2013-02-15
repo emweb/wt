@@ -13,6 +13,10 @@ WT_DECLARE_WT_MEMBER
 
   var WT = APP.WT, scrollTops = [], scrollLefts = [];
 
+  function isProperChild(el) {
+    return el.nodeType == 1;
+  }
+
   this.wtResize = function(self, w, h, layout) {
     var hdefined = h >= 0;
     self.lh = hdefined && layout;
@@ -56,7 +60,7 @@ WT_DECLARE_WT_MEMBER
     for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
       c = self.childNodes[j];
 
-      if (c.nodeType == 1) {
+      if (isProperChild(c)) {
 	if (!WT.isHidden(c)) {
 	  if (hdefined) {
 	    var ch = h - marginV(c);
@@ -95,7 +99,7 @@ WT_DECLARE_WT_MEMBER
     for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
       c = widget.childNodes[j];
 
-      if (c.nodeType == 1) {
+      if (isProperChild(c)) {
 	if (c != child) {
 	  if (c.style.display != 'none') {
 	    scrollLefts[j] = sl;
@@ -124,7 +128,7 @@ WT_DECLARE_WT_MEMBER
     for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
       c = widget.childNodes[j];
 
-      if (c.nodeType == 1) {
+      if (isProperChild(c)) {
 	if (c != child) {
 	  if (c.style.display != 'none') {
 	    c.style.display = 'none';

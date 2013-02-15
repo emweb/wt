@@ -14,8 +14,7 @@ WT_DECLARE_WT_MEMBER
    var self = this,
        WT = APP.WT,
        hideTimeout = null,
-       location = null,
-       entered = 0,
+       entered = false,
        current = null;
 
    function doHide() {
@@ -121,16 +120,14 @@ WT_DECLARE_WT_MEMBER
    }
 
    function mouseLeave() {
-     --entered;
-     if (entered == 0) {
-       clearTimeout(hideTimeout);
-       if (autoHideDelay >= 0)
-	 hideTimeout = setTimeout(doHide, autoHideDelay);
-     }
+     entered = false;
+     clearTimeout(hideTimeout);
+     if (autoHideDelay >= 0)
+       hideTimeout = setTimeout(doHide, autoHideDelay);
    }
 
    function mouseEnter() {
-     ++entered;
+     entered = true;
      clearTimeout(hideTimeout);
    }
 
@@ -139,8 +136,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function onDocumentClick(event) {
-     if (!entered)
-       doHide();
+     doHide();
    }
 
    function onDocumentKeyDown(event) {
@@ -154,14 +150,8 @@ WT_DECLARE_WT_MEMBER
        hideTimeout = null;
      }
 
-     entered = 0;
+     entered = false;
      current = null;
-
-     if (autoHideDelay > 0 && !hidden) {
-       entered = 1;
-       if (!location)   // assume we are currently over the location
-	 mouseLeave();
-     }
 
      if (hidden) {
        el.style.position = '';
@@ -182,12 +172,6 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.popupAt = function(widget) {
-     if (location !== widget) {
-       location = widget;
-       bindOverEvents(location);
-       mouseEnter(); // assume we are currently over the location
-     }
-
      self.setHidden(false);
    };
 

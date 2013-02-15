@@ -76,7 +76,8 @@ void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 {
   WCompositeWidget::setHidden(hidden, animation);
 
-  if (cancel_.isConnected())
+  if (isRendered() ||
+      WApplication::instance()->session()->renderer().preLearning())
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj').setHidden("
 		 + (hidden ? "1" : "0") + ");");
 }

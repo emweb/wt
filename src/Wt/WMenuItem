@@ -279,10 +279,12 @@ public:
   WWidget *contents() const;
   WWidget *takeContents();
 
-  /*! \brief Returns the widget that represents the item.
+  /*! \brief Returns the widget that represents the item (<b>deprecated</b>).
    *
-   * This returns the item widget, creating it using
-   * createItemWidget() if necessary.
+   * This returns this.
+   *
+   * \deprecated This is a pre-Wt 3.3.0 artifact which has lost its value
+   *             since WMenuItem is now a widget.
    */
   WWidget *itemWidget();
 

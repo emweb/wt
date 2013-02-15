@@ -680,7 +680,8 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
        */
       if (resolution == 0) {
 	if (scale_ == LinearScale)
-	  resolution = std::fabs(1E-3 * segment.renderMinimum);
+	  resolution = std::max(1E-3,
+				std::fabs(1E-3 * segment.renderMinimum));
 	else if (scale_ == DateScale)
 	  resolution = 1;
 	else if (scale_ == DateTimeScale)
