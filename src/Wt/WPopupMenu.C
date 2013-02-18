@@ -26,6 +26,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     result_(0),
     location_(0),
     aboutToHide_(this),
+    triggered_(this),
     cancel_(this, "cancel"),
     recursiveEventLoop_(false),
     autoHideDelay_(-1)
@@ -96,6 +97,9 @@ void WPopupMenu::done(WMenuItem *result)
   app->popExposedConstraint(this);
 
   recursiveEventLoop_ = false;
+
+  if (result_)
+    triggered_.emit(result_);
 
   aboutToHide_.emit();
 }

@@ -1006,15 +1006,16 @@ void WebSession::doRecursiveEventLoop()
    *
    * It could be that handler does not have a request/response:
    *  if it is actually a long polling server push request.
-   *  if we are somehow recursing recursive event loops (can anyone explain
-   *  that ?)
+   *  if we are somehow recursing recursive event loops: e.g. 
+   *    processEvents() during exec()
    *
    * In that case, we do not need to finish it.
    */
   if (handler->request())
     handler->session()->notifySignal(WEvent(WEvent::Impl(handler)));
   else
-    app_->triggerUpdate();
+    if (app_->updatesEnabled())
+      app_->triggerUpdate();
 
   if (handler->response())
     handler->session()->render(*handler);
@@ -1029,6 +1030,7 @@ void WebSession::doRecursiveEventLoop()
    * handleRequest() to let the recursive event loop do the actual
    * notification.
    */
+  Handler *prevRecursiveEventLoop = recursiveEventLoop_;
   recursiveEventLoop_ = handler;
   newRecursiveEvent_ = false;
 
@@ -1075,7 +1077,7 @@ void WebSession::doRecursiveEventLoop()
    */
   app_->notify(WEvent(WEvent::Impl(handler)));
 
-  recursiveEventLoop_ = 0;
+  recursiveEventLoop_ = prevRecursiveEventLoop;
 #endif // WT_BOOST_THREADS
 }
 
@@ -2564,6 +2566,9 @@ void WebSession::setPagePathInfo(const std::string& path)
 #ifndef WT_TARGET_JAVA
 void WebSession::generateNewSessionId()
 {
+  if (!renderer_.isRendered())
+    return;
+
   std::string oldId = sessionId_;
   sessionId_ = controller_->generateNewSessionId(shared_from_this());
   sessionIdChanged_ = true;

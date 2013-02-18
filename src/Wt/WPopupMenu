@@ -200,12 +200,24 @@ public:
 
   /*! \brief %Signal emitted when the popup is hidden.
    *
-   * This signal is emitted when the popup is hidden, either because an item
-   * was selected, or when the menu was cancelled.
+   * Unlike the itemSelected() signal, aboutToHide() is only emitted
+   * by the toplevel popup menu (and not by submenus), and is also
+   * emitted when no item was selected.
    *
-   * You can use result() to get the selected item.
+   * You can use result() to get the selected item, which may be \c 0.
+   *
+   * \sa triggered(), itemSelected()
    */
   Signal<>& aboutToHide() { return aboutToHide_; }
+
+  /*! \brief %Signal emitted when an item is selected.
+   *
+   * Unlike the itemSelected() signal, triggered() is only emitted
+   * by the toplevel popup menu (and not by submenus).
+   *
+   * \sa aboutToHide(), itemSelected()
+   */
+  Signal<WMenuItem *>& triggered() { return triggered_; }
 
   /*! \brief Configure auto-hide when the mouse leaves the menu.
    *
@@ -229,6 +241,7 @@ private:
   WInteractWidget *button_;
 
   Signal<> aboutToHide_;
+  Signal<WMenuItem *> triggered_;
   JSignal<> cancel_;
 
   bool recursiveEventLoop_;

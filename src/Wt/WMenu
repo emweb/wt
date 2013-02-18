@@ -386,14 +386,9 @@ public:
    * both when the user activated an item, or when select() was
    * invoked.
    *
-   * For a popup menu, the provided item may also be \c 0 in case the
-   * menu was cancelled.
-   *
    * \sa itemSelectRendered()
    */
   Signal<WMenuItem *>& itemSelected() { return itemSelected_; }
-
-  Signal<WMenuItem *>& triggered() { return itemSelected_; }
 
   /*! \brief %Signal which indicates that a new selected item is rendered.
    *

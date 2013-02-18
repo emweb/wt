@@ -44,7 +44,7 @@ public:
 
 private:
     void renderReport(HPDF_Doc pdf) {
-	renderPdf(Wt::WString::tr("report.example"), pdf);
+        renderPdf(Wt::WString::tr("report.example"), pdf);
     }
 
     void renderPdf(const Wt::WString& html, HPDF_Doc pdf)

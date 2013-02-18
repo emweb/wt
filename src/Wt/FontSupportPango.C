@@ -99,7 +99,11 @@ FontSupport::FontSupport(WPaintDevice *paintDevice)
   if (!pangoFontMap)
     pangoFontMap = pango_ft2_font_map_new();
 
+#if PANGO_VERSION_MAJOR > 1 || PANGO_VERSION_MINOR > 21
   context_ = pango_font_map_create_context(pangoFontMap);
+#else
+  context_ = pango_ft2_font_map_create_context(pangoFontMap);
+#endif
 
   currentFont_ = 0;
 }

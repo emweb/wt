@@ -330,6 +330,8 @@ void WtReply::send(CallbackFunction callBack, bool responseComplete)
 	 * This is used in a resource continuation which indicates to wait
 	 * for more data before sending anything at all.
 	 */
+	LOG_DEBUG("Invoking callback (no status)");
+
 	CallbackFunction f = fetchMoreDataCallback_;
 	fetchMoreDataCallback_ = 0;
 	f();
@@ -413,6 +415,8 @@ void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 
   sending_ = out_buf_.size();
 
+  LOG_DEBUG("avail now: " << sending_);
+
   bool webSocket = request().webSocketVersion >= 0;
 
   if (webSocket) {
@@ -494,12 +498,14 @@ void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 
   if (!sending_) {
     while (!sending_ && fetchMoreDataCallback_) {
+      sending_ = 1;
+      LOG_DEBUG("Invoking callback (nextContentBuffers)");
       CallbackFunction f = fetchMoreDataCallback_;
       fetchMoreDataCallback_ = 0;
       f();
+      sending_ = out_buf_.size();
     }
 
-    sending_ = out_buf_.size();
     if (sending_ > 0)
       result.push_back(out_buf_.data());
   }

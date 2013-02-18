@@ -799,6 +799,88 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test4b )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a1(new A());
+
+    BOOST_REQUIRE(a1->self() == a1);
+
+    a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+					  Wt::WTime(12, 11, 31));
+    a1.modify()->date = Wt::WDate(1980, 12, 4);
+    a1.modify()->wstring = "Hello";
+    a1.modify()->string = "There";
+    a1.modify()->i = 42;
+    a1.modify()->i64 = 9223372036854775803LL;
+    a1.modify()->ll = 6066005651767220LL;
+    a1.modify()->f = (float)42.42;
+    a1.modify()->d = 42.424242;
+
+    dbo::ptr<A> a2(new A(*a1));
+    a2.modify()->wstring = "Oh my god";
+    a2.modify()->i = 142;
+
+    dbo::ptr<B> b(new B());
+    b.modify()->name = "b";
+    b.modify()->state = B::State1;
+
+    a1.modify()->b = b;
+    a2.modify()->b = b;
+
+    session_->add(a1);
+    session_->add(a2);
+    session_->add(b);
+
+  }
+
+
+  {
+    dbo::Transaction t(*session_);
+    
+    typedef dbo::ptr_tuple<B, A>::type BA;
+    typedef dbo::collection<BA> C_BAs;
+    typedef std::vector<BA> BAs;
+
+#if !defined(FIREBIRD) && !defined(MYSQL)
+    dbo::Query<BA> q = session_->query<BA>
+      ("select B, A "
+       "from \"table_b\" B join \"table_a\" A on A.\"b_id\" = B.\"id\"")
+      .orderBy("A.\"i\"");
+
+    C_BAs c_bas = q.resultList();
+    BAs bas(c_bas.begin(), c_bas.end());
+
+    BOOST_REQUIRE(bas.size() == 2);
+
+    int ii = 0;
+    for (BAs::const_iterator i = bas.begin(); i != bas.end(); ++i) {
+      dbo::ptr<A> a_result;
+      dbo::ptr<B> b_result;
+      boost::tie(b_result, a_result) = *i;
+
+      if (ii == 0) {
+	BOOST_REQUIRE(a_result->i == 42);
+	BOOST_REQUIRE(b_result->name == "b");
+      } else if (ii == 1) {
+	BOOST_REQUIRE(a_result->i == 142);
+	BOOST_REQUIRE(b_result->name == "b");
+      }
+
+      ++ii;
+    }
+
+    BOOST_REQUIRE(ii == 2);
+#endif //FIREBIRD && MYSQL
+  }
+}
+
 BOOST_AUTO_TEST_CASE( dbo_test5 )
 {
   DboFixture f;

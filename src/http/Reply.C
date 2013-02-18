@@ -412,6 +412,8 @@ void Reply::send()
   ConnectionPtr connection = getConnection();
 
   if (connection) {
+    LOG_DEBUG(this << ": Reply: send(): scheduling write response.");
+
     connection->server()->service().post
       (connection->strand().wrap
        (boost::bind(&Connection::startWriteResponse, connection)));

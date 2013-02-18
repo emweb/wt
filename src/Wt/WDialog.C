@@ -45,7 +45,6 @@ void WDialog::create()
   modal_ = true;
   resizable_ = false;
   recursiveEventLoop_ = false;
-  initialized_ = false;
   impl_ = dynamic_cast<WTemplate *>(implementation());
 
   const char *CSS_RULES_NAME = "Wt::WDialog";
@@ -201,9 +200,7 @@ void WDialog::setMinimumSize(const WLength& width, const WLength& height)
 
 void WDialog::render(WFlags<RenderFlag> flags)
 {
-  if (!initialized_) {
-    initialized_ = true;
-
+  if (flags & RenderFull) {
     WApplication *app = WApplication::instance();
 
     bool centerX = offset(Left).isAuto() && offset(Right).isAuto(),

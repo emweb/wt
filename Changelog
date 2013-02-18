@@ -1,5 +1,10 @@
+18-02-2013:
+	* Fixed regression in resource continations
+
 15-02-2013:
 	* Fixed bugs #1699, #1697, #1696, #1695, #1677, #1676
+
+	* Fixed WPopupMenu::triggered() behaviour change from 3.2.3
 
 12-02-2013:
 	* Wt-3.3.0-rc1

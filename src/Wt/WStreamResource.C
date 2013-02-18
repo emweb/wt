@@ -56,7 +56,8 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
     if (!input) {
       response.setStatus(404);
       return;
-    }
+    } else
+      response.setStatus(200);
 
     /*
      * See if we should return a range.

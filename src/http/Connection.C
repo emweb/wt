@@ -13,6 +13,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#define DEBUG
+
 #include <vector>
 #include <boost/bind.hpp>
 
@@ -130,7 +132,7 @@ void Connection::handleReadRequest0()
 {
 #ifdef DEBUG
   try {
-    LOG_DEBUG("incoming request: "
+    LOG_DEBUG(socket().native() << "incoming request: "
 	      << socket().remote_endpoint().port() << ": "
 	      << std::string(remaining_,
 			     std::min(buffer_.data()
@@ -151,6 +153,8 @@ void Connection::handleReadRequest0()
 
     if (doWebSockets)
       request_.enableWebSocket();
+
+    LOG_DEBUG(socket().native() << "request: " << status);
 
     if (status >= 300)
       sendStockReply(status);
@@ -267,17 +271,20 @@ void Connection::startWriteResponse()
   std::vector<asio::const_buffer> buffers;
   moreDataToSendNow_ = !reply_->nextBuffers(buffers);
 
+  unsigned s = 0;
 #ifdef DEBUG
-  LOG_DEBUG("sending: ");
-
   for (unsigned i = 0; i < buffers.size(); ++i) {
-    char *data = (char *)asio::detail::buffer_cast_helper(buffers[i]);
     int size = asio::buffer_size(buffers[i]);
-
+    s += size;
+#ifdef DEBUG_DUMP
+    char *data = (char *)asio::detail::buffer_cast_helper(buffers[i]);
     for (int j = 0; j < size; ++j)
       std::cerr << data[j];
+#endif
   }
 #endif
+  LOG_DEBUG(socket().native() << "sending: " << s << "(buffers: "
+	    << buffers.size() << ")");
 
   if (!buffers.empty()) {
     startAsyncWriteResponse(buffers, CONNECTION_TIMEOUT);
