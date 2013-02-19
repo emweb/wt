@@ -265,8 +265,8 @@ char *round_str(double d, int digits, char *buf) {
   return generic_double_to_str(d, buf);
 #else
   if (((d == 0)
-       || (d > 1 && d < 1000000)
-       || (d < -1 && d > -1000000))
+       || (d >= 1 && d < 1000000)
+       || (d <= -1 && d > -1000000))
       && digits < 7) {
     // range where a very fast float->string converter works
     // mainly intended to render floats for 2D drawing canvas

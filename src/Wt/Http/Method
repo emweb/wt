@@ -16,9 +16,10 @@ namespace Wt {
  * used HTTP methods.
  */
 enum Method {
-  Get,  //!< a HTTP GET
-  Post, //!< a HTTP POST
-  Put   //!< a HTTP PUT
+  Get,   //!< a HTTP GET
+  Post,  //!< a HTTP POST
+  Put,   //!< a HTTP PUT
+  Delete //!< a HTTP DELETE
 };
 
   }

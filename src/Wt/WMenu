@@ -251,7 +251,7 @@ public:
   WMenu(WStackedWidget *contentsStack, Orientation orientation,
 	WContainerWidget *parent = 0);
 
-  /*! \brief Creates a new menu (<b>deprecated</b>).
+  /*! \brief Creates a new menu.
    *
    * Construct a menu to manage the widgets in \p contentsStack.
    *

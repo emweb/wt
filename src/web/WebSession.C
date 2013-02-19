@@ -2015,14 +2015,7 @@ void WebSession::notify(const WEvent& event)
 	   * request.
 	   */
 	  if (asyncResponse_ && !asyncResponse_->isWebSocketRequest()) {
-
-	    /* Not sure of this is still relevant? */
-	    //if (*signalE == "poll")
-	    //  renderer_.letReloadJS(*asyncResponse_, true);
-
-#ifndef WT_TARGET_JAVA
 	    asyncResponse_->flush();
-#endif
 	    asyncResponse_ = 0;
 	    canWriteAsyncResponse_ = false;
 	  }
@@ -2078,6 +2071,13 @@ void WebSession::notify(const WEvent& event)
 	      }
 	    } else
 	      pollRequestsIgnored_ = 0;
+	  } else {
+#ifdef WT_BOOST_THREADS
+	    if (!WebController::isAsyncSupported()) {
+	      updatesPending_ = false;
+	      updatesPendingEvent_.notify_one();
+	    }
+#endif
 	  }
 
 	  if (handler.request()) {

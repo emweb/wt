@@ -77,13 +77,13 @@ public:
       request_stream << h.name() << ": " << h.value() << "\r\n";
     }
 
-    if (method == "POST" && !haveContentLength)
+    if ((method == "POST" || method == "PUT" || method == "DELETE") && !haveContentLength)
       request_stream << "Content-Length: " << message.body().length() 
 		     << "\r\n";
 
     request_stream << "Connection: close\r\n\r\n";
 
-    if (method == "POST")
+    if (method == "POST" || method == "PUT" || method == "DELETE")
       request_stream << message.body();
 
     tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
@@ -551,6 +551,16 @@ bool Client::post(const std::string& url, const Message& message)
   return request(Post, url, message);
 }
 
+bool Client::put(const std::string& url, const Message& message)
+{
+  return request(Put, url, message);
+}
+
+bool Client::deleteRequest(const std::string& url, const Message& message)
+{
+  return request(Delete, url, message);
+}
+
 bool Client::request(Http::Method method, const std::string& url,
 		     const Message& message)
 {
@@ -618,7 +628,7 @@ bool Client::request(Http::Method method, const std::string& url,
   impl_->setTimeout(timeout_);
   impl_->setMaximumResponseSize(maximumResponseSize_);
 
-  const char *methodNames_[] = { "GET", "POST", "PUT" };
+  const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE" };
 
   LOG_DEBUG(methodNames_[method] << " " << url);
 

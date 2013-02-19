@@ -325,6 +325,26 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 /*
+ * Icons, check-boxes in WMenuItem
+ */
+.Wt-icon {
+    display: inline-block;
+    padding: 0px 8px;
+    margin-right: 8px;
+    background-repeat: no-repeat;
+    background-position: center left;
+    height: 16px;
+}
+
+.Wt-chkbox {
+    display: inline-block;
+    margin-left: 2px;
+    margin-right: 10px;
+    width: 12px;
+}
+
+
+/*
  * WPopupMenu
  */
 .Wt-popupmenu {
@@ -352,22 +372,6 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     margin-right: 3px;
     margin-left: 24px;
     padding-right: 24px;
-}
-
-.Wt-popupmenu .Wt-icon {
-    padding: 0px 8px;
-    margin-right: 8px;
-    background-repeat: no-repeat;
-    background-position: center left;
-    height: 16px;
-    display: inline-block;
-}
-
-.Wt-popupmenu .Wt-chkbox {
-    margin-left: 2px;
-    margin-right: 10px;
-    display: inline-block;
-    width: 12px;
 }
 
 .Wt-popupmenu .active {
