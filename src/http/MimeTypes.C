@@ -39,6 +39,7 @@ struct mapping
   { "mp4", "video/mp4" },
   { "mv4", "video/mp4" },
   { "mp3", "audio/mp3" },
+  { "svg", "image/svg+xml" },
   { "webm", "video/webm" },
   { 0, 0 } // Marks end of list.
 };

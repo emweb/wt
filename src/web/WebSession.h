@@ -130,6 +130,7 @@ public:
   const std::string& deploymentPath() const { return deploymentPath_; }
 
   bool hasSessionIdInUrl() const { return sessionIdInUrl_; }
+  void setSessionIdInUrl(bool value) { sessionIdInUrl_ = value; }
   bool useUglyInternalPaths() const;
   void setPagePathInfo(const std::string& path);
   std::string pagePathInfo() const { return pagePathInfo_; }

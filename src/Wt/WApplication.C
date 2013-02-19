@@ -994,7 +994,8 @@ std::string WApplication::encodeUntrustedUrl(const std::string& url) const
    * current page has the session ID in the URL.
    */
 
-  bool needRedirect = url.find("://") != std::string::npos
+  bool needRedirect = (url.find("://") != std::string::npos
+		       || boost::starts_with(url, "//"))
     && session_->hasSessionIdInUrl();
 
   if (needRedirect) {

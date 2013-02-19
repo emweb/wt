@@ -287,6 +287,15 @@ public:
    */
   void startRequest();
 
+  /*! \brief Simulates the presence of the session ID in the URL.
+   *
+   * A session ID in the URL should cause a trampoline to be used for
+   * references to external servers.
+   *
+   * The default value is \c false.
+   */
+  void setSessionIdInUrl(bool sessionIdInUrl);
+
 private:
   boost::shared_ptr<WebSession> theSession_;
 

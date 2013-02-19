@@ -679,7 +679,7 @@ body.Wt-rtl .Wt-tabs li {
     vertical-align: top;
 }
 
-.Wt-tabs .Wt-closeicon:hover {
+.Wt-tabs .closeicon:hover {
     background-position: right -10px;
 }
 

@@ -1446,8 +1446,9 @@
 	    <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span> <span class="o">*</span><span class="n">city</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="p">(</span><span class="n">cityNames</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
 	    <span class="n">controls</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="n">cityNames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">city</span><span class="p">);</span>
 
+            <span class="n">Wt</span><span class="o">::</span><span class="n">WGoogleMap</span><span class="o">::</span><span class="n">Coordinate</span> <span class="n">coord</span> <span class="o">=</span> <span class="n">cityCoords</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
 	    <span class="n">city</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-		<span class="n">map_</span><span class="o">-&gt;</span><span class="n">panTo</span><span class="p">(</span><span class="n">cityCoords</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+		<span class="n">map_</span><span class="o">-&gt;</span><span class="n">panTo</span><span class="p">(</span><span class="n">coord</span><span class="p">);</span>
 	    <span class="p">}));</span>
 	<span class="p">}</span>
 
@@ -2916,6 +2917,95 @@
 </pre></div>
   </message>
   <message id="src-PaintingTransformations">
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WBrush&gt;</span>
+<span class="cp">#include &lt;Wt/WColor&gt;</span>
+<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WPaintDevice&gt;</span>
+<span class="cp">#include &lt;Wt/WPaintedWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WPainter&gt;</span>
+
+<span class="k">class</span> <span class="nc">TransformationsWidget</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPaintedWidget</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">TransformationsWidget</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">parent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+	<span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPaintedWidget</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="p">{</span>
+	<span class="n">resize</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>  <span class="c1">// Provide a default size.</span>
+    <span class="p">}</span>
+
+<span class="k">protected</span><span class="o">:</span>
+    <span class="kt">void</span> <span class="n">paintEvent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPaintDevice</span> <span class="o">*</span><span class="n">paintDevice</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">Wt</span><span class="o">::</span><span class="n">WPainter</span> <span class="n">painter</span><span class="p">(</span><span class="n">paintDevice</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">red</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">black</span><span class="p">);</span>
+
+	<span class="c1">// SAVE AND RESTORE CANVAS STATE EXAMPLE</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">save</span><span class="p">();</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">white</span><span class="p">);</span>
+	<span class="c1">// Draw and fill a rectangle with the current brush.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">drawRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">save</span><span class="p">();</span>                 <span class="c1">// Save the canvas state on a stack.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">yellow</span><span class="p">);</span>   <span class="c1">// Change the fill style.</span>
+	<span class="c1">// Draw a rectangle with the current settings.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">drawRect</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">80</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">save</span><span class="p">();</span>                 <span class="c1">// Save the current canvas state.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">red</span><span class="p">);</span>      <span class="c1">// Change the fill style.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">drawRect</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="mi">60</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">restore</span><span class="p">();</span>              <span class="c1">// Restore the previous canvas state.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">drawRect</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">40</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">restore</span><span class="p">();</span>              <span class="c1">// Restore the original canvas state.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">drawRect</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">restore</span><span class="p">();</span>              <span class="c1">// Restore the original pen.</span>
+
+	<span class="c1">// TRANSLATING</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+	    <span class="n">painter</span><span class="p">.</span><span class="n">save</span><span class="p">();</span>
+	    <span class="n">painter</span><span class="p">.</span><span class="n">translate</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="mi">130</span><span class="p">);</span>
+	    <span class="n">drawFilledPolygon</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="mi">200</span><span class="p">));</span>
+	    <span class="n">painter</span><span class="p">.</span><span class="n">restore</span><span class="p">();</span>
+	<span class="p">}</span>
+
+	<span class="c1">// ROTATING</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">);</span>  <span class="c1">// Translate the origin for a Y-offset of rings</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">save</span><span class="p">();</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>   <span class="c1">// Translate the origin for a X-offset of rings</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ring</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">ring</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="n">ring</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// Loop through rings</span>
+	    <span class="n">painter</span><span class="p">.</span><span class="n">save</span><span class="p">();</span>
+	    <span class="n">painter</span><span class="p">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBrush</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">51</span><span class="o">*</span><span class="n">ring</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="o">-</span><span class="mi">51</span><span class="o">*</span><span class="n">ring</span><span class="p">),</span> <span class="mi">255</span><span class="p">)));</span>
+
+	    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">ring</span> <span class="o">*</span> <span class="mi">6</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>           <span class="c1">// Draw individual dots:</span>
+		<span class="n">painter</span><span class="p">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="p">(</span><span class="n">ring</span><span class="o">*</span><span class="mi">6</span><span class="p">));</span>            <span class="c1">// 1. Rotate full circle in ring*6 steps</span>
+		<span class="n">painter</span><span class="p">.</span><span class="n">drawEllipse</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ring</span><span class="o">*</span><span class="mf">12.5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span> <span class="c1">// 2. Draw a dot.</span>
+	    <span class="p">}</span>
+	    <span class="n">painter</span><span class="p">.</span><span class="n">restore</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">restore</span><span class="p">();</span>          <span class="c1">// Reset the X-offset.</span>
+
+	<span class="c1">// SCALING</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">save</span><span class="p">();</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">);</span>
+	<span class="n">drawFilledPolygon</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">));</span>   <span class="c1">// no scaling.</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">scale</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>                                  <span class="c1">// with X scaling</span>
+	<span class="n">drawFilledPolygon</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">55</span><span class="p">));</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">restore</span><span class="p">();</span>
+  <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="kt">void</span> <span class="n">drawFilledPolygon</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPainter</span> <span class="o">&amp;</span><span class="n">painter</span><span class="p">,</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="o">&amp;</span> <span class="n">color</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">color</span><span class="p">);</span>
+	<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span> <span class="n">points</span><span class="p">[]</span> 
+	    <span class="o">=</span> <span class="p">{</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+		<span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mf">34.6</span><span class="p">),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">69.2</span><span class="p">),</span>
+		<span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">69.2</span><span class="p">),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">34.6</span><span class="p">),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPointF</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">};</span>
+	<span class="n">painter</span><span class="p">.</span><span class="n">drawPolygon</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
+
+<span class="k">new</span> <span class="n">TransformationsWidget</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+</pre></div>
   </message>
   <message id="src-Panel">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WPanel&gt;</span>
@@ -2969,6 +3059,8 @@
 <span class="cp">#include &lt;Wt/WAnchor&gt;</span>
 <span class="cp">#include &lt;Wt/WText&gt;</span>
 
+<span class="k">namespace</span> <span class="p">{</span>
+
 <span class="kt">void</span> <span class="n">handlePathChange</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span> <span class="o">*</span><span class="n">out</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span> <span class="o">*</span><span class="n">app</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">instance</span><span class="p">();</span>
@@ -2979,6 +3071,8 @@
 	<span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Needed some food, eating now!&lt;/p&gt;&quot;</span><span class="p">);</span>
     <span class="k">else</span>
 	<span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;&lt;i&gt;Idle.&lt;/i&gt;&lt;/p&gt;&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
 <span class="p">}</span>
 
 <span class="cm">/*</span>
@@ -3078,6 +3172,8 @@
 	<span class="n">response</span><span class="p">.</span><span class="n">setMimeType</span><span class="p">(</span><span class="s">&quot;application/pdf&quot;</span><span class="p">);</span>
 
 	<span class="n">HPDF_Doc</span> <span class="n">pdf</span> <span class="o">=</span> <span class="n">HPDF_New</span><span class="p">(</span><span class="n">error_handler</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+	<span class="c1">// Note: UTF-8 encoding (for TrueType fonts) is only available since libharu 2.3.0 !</span>
 	<span class="n">HPDF_UseUTFEncodings</span><span class="p">(</span><span class="n">pdf</span><span class="p">);</span>
 
 	<span class="n">renderReport</span><span class="p">(</span><span class="n">pdf</span><span class="p">);</span>
@@ -3093,7 +3189,7 @@
 
 <span class="k">private</span><span class="o">:</span>
     <span class="kt">void</span> <span class="n">renderReport</span><span class="p">(</span><span class="n">HPDF_Doc</span> <span class="n">pdf</span><span class="p">)</span> <span class="p">{</span>
-	<span class="n">renderPdf</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">&quot;report.example&quot;</span><span class="p">),</span> <span class="n">pdf</span><span class="p">);</span>
+        <span class="n">renderPdf</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">&quot;report.example&quot;</span><span class="p">),</span> <span class="n">pdf</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="kt">void</span> <span class="n">renderPdf</span><span class="p">(</span><span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="o">&amp;</span> <span class="n">html</span><span class="p">,</span> <span class="n">HPDF_Doc</span> <span class="n">pdf</span><span class="p">)</span>

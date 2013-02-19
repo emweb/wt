@@ -20,6 +20,7 @@ SET(TEST_SOURCES
   paintdevice/WSvgTest.C
   payment/MoneyTest.C
   locale/LocaleNumberTest.C
+  trampoline/RefEncoder.C
 )
 
 IF (WT_HAS_WRASTERIMAGE)

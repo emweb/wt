@@ -106,8 +106,14 @@ Transaction::Impl::Impl(Session& session)
     needsRollback_(false),
     open_(false),
     transactionCount_(0)
-{ 
+{
   connection_ = session_.useConnection();
+}
+
+Transaction::Impl::~Impl()
+{
+  if (connection_)
+    session_.returnConnection(connection_);
 }
 
 void Transaction::Impl::open()
@@ -134,6 +140,7 @@ void Transaction::Impl::commit()
   objects_.clear();
 
   session_.returnConnection(connection_);
+  connection_ = 0;
   session_.transaction_ = 0;
   active_ = false;
   needsRollback_ = false;
@@ -158,6 +165,7 @@ void Transaction::Impl::rollback()
   objects_.clear();
 
   session_.returnConnection(connection_);
+  connection_ = 0;
   session_.transaction_ = 0;
   active_ = false;
 }

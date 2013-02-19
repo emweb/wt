@@ -14,6 +14,8 @@
 #include "WebSession.h"
 #include "WebUtils.h"
 
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_print.hpp"
 
@@ -23,15 +25,45 @@ namespace Wt {
 
 LOGGER("RefEncoder");
 
+static std::string replaceUrlInStyle(std::string& style, WApplication *app)
+{
+  boost::regex re("url\\((.*//.*)\\)",
+		  boost::regex::perl | boost::regex::icase);
+
+  boost::sregex_iterator i(style.begin(), style.end(), re);
+  boost::sregex_iterator end;
+
+  WStringStream result;
+  std::size_t pos = 0;
+
+  for (; i != end; ++i) {
+    result << style.substr(pos, i->position(1) - pos);
+
+    std::string url = style.substr(i->position(1), i->length(1));
+    boost::algorithm::trim(url);
+    if (url.length() > 2)
+      if (url[0] == '\'' || url[1] == '"')
+	url = url.substr(1, url.length() - 2);
+    
+    result << WWebWidget::jsStringLiteral(app->encodeUntrustedUrl(url), '\'');
+
+    pos = i->position(1) + i->length(1);
+  }
+
+  result << style.substr(pos);
+
+  return result.str();
+}
+
 void EncodeRefs(xml_node<> *x_node, WApplication *app,
 		WFlags<RefEncoderOption> options)
 {
+  xml_document<> *doc = x_node->document();
+
   if (strcmp(x_node->name(), "a") == 0) {
     xml_attribute<> *x_href = x_node->first_attribute("href");
     if (x_href) {
       std::string path = x_href->value();
-      xml_document<> *doc = x_node->document();
-
       if ((options & EncodeInternalPaths)
 	  && path.length() >= 2 && path.substr(0, 2) == "#/") {
 	path = path.substr(1);
@@ -75,15 +107,35 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
 	x_href->value
 	  (doc->allocate_string(app->resolveRelativeUrl(url).c_str()));
       } else if (options & EncodeRedirectTrampoline) {
-	/*
-	 * FIXME: also apply this to other occurences of URLs:
-	 * - images
-	 * - in CSS
-	 */
-	if (path.find("://") != std::string::npos) {
+	if (path.find("://") != std::string::npos ||
+	    boost::starts_with(path, "//")) {
 	  path = app->encodeUntrustedUrl(path);
 	  x_href->value(doc->allocate_string(path.c_str()));
 	}
+      }
+    }
+  }
+
+  if (options & EncodeRedirectTrampoline) {
+    xml_attribute<> *x_style = x_node->first_attribute("style");
+
+    if (x_style) {
+      std::string style = x_style->value();
+      if (style.find("//") != std::string::npos) {
+        style = replaceUrlInStyle(style, app);
+        x_style->value(doc->allocate_string(style.c_str()));
+      }
+    }
+
+    if (strcmp(x_node->name(), "img") == 0) {
+      xml_attribute<> *x_scr = x_node->first_attribute("src");
+      if (x_scr) {
+        std::string path = x_scr->value();
+        if (path.find("://") != std::string::npos ||
+	    boost::starts_with(path, "//")) {
+          path = app->encodeUntrustedUrl(path);
+          x_scr->value(doc->allocate_string(path.c_str()));
+        }
       }
     }
   }

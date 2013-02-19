@@ -297,8 +297,10 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
       if (backgroundImage_.isNull())
 	element.setProperty(PropertyStyleBackgroundImage, "none");
       else {
-	std::string url =
-	  WApplication::instance()->resolveRelativeUrl(backgroundImage_.url());
+	Wt::WApplication *app = Wt::WApplication::instance();
+
+	std::string url = app->encodeUntrustedUrl
+	  (app->resolveRelativeUrl(backgroundImage_.url()));
 
 	element.setProperty(PropertyStyleBackgroundImage,
 			    "url(" + WWebWidget::jsStringLiteral(url, '"')

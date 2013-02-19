@@ -59,6 +59,12 @@ void WPopupMenu::popupAtButton()
   popup(button_);
 }
 
+void WPopupMenu::select(int index, bool changePath)
+{
+  WMenu::select(index, changePath);
+  WMenu::select(-1, false);
+}
+
 void WPopupMenu::setMaximumSize(const WLength& width,
 				const WLength& height)
 {
@@ -106,7 +112,8 @@ void WPopupMenu::done(WMenuItem *result)
 
 void WPopupMenu::cancel()
 {
-  done(0);
+  if (!isHidden())
+    done(0);
 }
 
 void WPopupMenu::popup(WWidget *location, Orientation orientation)
@@ -178,7 +185,7 @@ void WPopupMenu::prepareRender(WApplication *app)
 
 void WPopupMenu::connectSignals(WPopupMenu * const topLevel)
 {
-  triggered().connect(topLevel, &WPopupMenu::done);
+  itemSelected().connect(topLevel, &WPopupMenu::done);
 
   for (int i = 0; i < count(); ++i) {
     WMenuItem *item = itemAt(i);

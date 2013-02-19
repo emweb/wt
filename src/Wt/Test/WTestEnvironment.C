@@ -238,6 +238,11 @@ bool WTestEnvironment::isTest() const
   return true;
 }
 
+void WTestEnvironment::setSessionIdInUrl(bool sessionIdInUrl)
+{
+  theSession_->setSessionIdInUrl(sessionIdInUrl);
+}
+
 Signal<WDialog *>& WTestEnvironment::dialogExecuted() const
 {
   return dialogExecuted_;

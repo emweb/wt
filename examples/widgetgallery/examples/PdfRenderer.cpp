@@ -31,7 +31,7 @@ public:
 	HPDF_Doc pdf = HPDF_New(error_handler, 0);
 
 #if HPDF_MAJOR_VERION >= 2 || HPDF_MINOR_VERSION >= 3
-	// UTF-8 encoding (for true type fonts) is only available since 2.3.0
+	// Note: UTF-8 encoding (for TrueType fonts) is only available since libharu 2.3.0 !
 	HPDF_UseUTFEncodings(pdf);
 #endif
 

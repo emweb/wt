@@ -6,17 +6,26 @@ This is the [widget gallery](http://www.webtoolkit.eu/widgets), which serves mor
 How to run
 ----------
 
-See the README in the parent directory.
+This application illustrates a recommended deployment setup for a more involved application, separating:
+- docroot: these are publicly available files for the browser to download
+  through the web server (e.g. css, resources, ...)
+- approot: these are private application files opened by the application (e.g.
+  resource files, config files, etc...) and not deployed in your document root
+
+To run the application using the built-in httpd, you thus need to:
+
+    cd widgetgallery/docroot
+    ln -s ../../../resources . # include standard Wt resource files in docroot
+    cd ..
+    ../../build/examples/widgetgallery/widgetgallery.wt \
+          --docroot docroot --approot approot \
+          --http-address 0.0.0.0 --http-port 8080
 
 What it illustrates
 -------------------
 
-- most widgets in Wt in some form or another
-- using `WMenu` with submenus
-- internal path handling
-
-Caveat lector
--------------
-There are 2 known issues with Ext widgets on Internet Explorer 9 :
-- the width of the Ext datefield calendar is incorrect 
-- when opening an Ext dialog the browser window is grayed out and the application no longer responds
+- most widgets in Wt in some form or another, in combination with the bootstrap
+  theme (you can actually trigger the use of another theme using
+  ?theme=default or ?theme=polished parameters)
+- lots of small examples
+- internal path handling and cross referencing

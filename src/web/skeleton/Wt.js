@@ -180,8 +180,9 @@ function host(url) {
 }
 
 this.initAjaxComm = function(url, handler) {
-  var crossDomain = url.indexOf("://") != -1
-                    && host(url) != window.location.host;
+  var crossDomain = 
+    (url.indexOf("://") != -1 || url.indexOf("//") == 0) &&
+    host(url) != window.location.host;
 
   function createRequest(method, url) {
     var request = null;
@@ -2815,8 +2816,10 @@ function addTimerEvent(timerid, msec, repeat) {
 	obj.onclick();
     }
   };
-
+  
   var obj = WT.getElement(timerid);
+  if (obj.timer)
+    clearTimeout(obj.timer);
   obj.timer = setTimeout(tm, msec);
   obj.tm = tm;
 }

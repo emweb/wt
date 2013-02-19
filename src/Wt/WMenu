@@ -639,6 +639,8 @@ protected:
 
   virtual void renderSelected(WMenuItem *item, bool selected);
 
+  virtual void select(int index, bool changePath);
+
 private:
   WContainerWidget *ul_;
   WStackedWidget *contentsStack_;
@@ -648,8 +650,6 @@ private:
 
   Signal<WMenuItem *> itemSelected_, itemSelectRendered_;
   Signal<WMenuItem *> itemClosed_;
-
-  void select(int index, bool changePath);
 
   boost::signals::connection contentsStackConnection_;
   void contentsDestroyed();

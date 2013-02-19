@@ -54,8 +54,8 @@ protected:
 	    painter.save();
 	    painter.setBrush(Wt::WBrush(Wt::WColor(51*ring, (255-51*ring), 255)));
 
-	    for (int j = 0; j < ring * 6; j++) {        // Draw individual dots:
-		painter.rotate(360 / (ring*6));   // 1.   Rotate 360° in ring*6 steps
+	    for (int j = 0; j < ring * 6; j++) {           // Draw individual dots:
+		painter.rotate(360 / (ring*6));            // 1. Rotate full circle in ring*6 steps
 		painter.drawEllipse(0, ring*12.5, 10, 10); // 2. Draw a dot.
 	    }
 	    painter.restore();
@@ -78,7 +78,8 @@ private:
 	const Wt::WPointF points[] 
 	    = { Wt::WPointF(20, 0), Wt::WPointF(60, 0),
 		Wt::WPointF(80, 34.6), Wt::WPointF(60, 69.2),
-		Wt::WPointF(20, 69.2), Wt::WPointF(0, 34.6), Wt::WPointF(20, 0) };
+		Wt::WPointF(20, 69.2), Wt::WPointF(0, 34.6),
+		Wt::WPointF(20, 0) };
 	painter.drawPolygon(points, 6);
     }
 };

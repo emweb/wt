@@ -49,12 +49,12 @@ void WTimer::setSingleShot(bool singleShot)
 
 void WTimer::start()
 {
-  if (active_)
-    stop();
+  if (!active_) {
+    WApplication *app = WApplication::instance();    
+    if (app && app->timerRoot())
+      app->timerRoot()->addWidget(timerWidget_);
+  }
 
-  WApplication *app = WApplication::instance();    
-  if (app && app->timerRoot())
-    app->timerRoot()->addWidget(timerWidget_);
   active_ = true;
   *timeout_ = Time() + interval_;
 
