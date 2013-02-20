@@ -639,7 +639,7 @@ protected:
 
   virtual void renderSelected(WMenuItem *item, bool selected);
 
-  virtual void select(int index, bool changePath);
+  virtual void setCurrent(int index);
 
 private:
   WContainerWidget *ul_;
@@ -666,6 +666,7 @@ private:
   void undoSelectVisual();
   void selectVisual(int item, bool changePath, bool showContents);
   void onItemHidden(int index, bool hidden);
+  void select(int index, bool changePath);
 
   friend class WMenuItem;
 

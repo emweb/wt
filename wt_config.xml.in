@@ -441,13 +441,28 @@
 	  <user-agent>.*Twiceler.*</user-agent>
 	</user-agents>
 
-	<!-- Whether the progressive bootstrap is used.
+	<!-- Configures different rendering engines for certain browsers.
+
+           Currently this is only used to select IE7 compatible rendering
+	   engine for IE8, which solves problems of unreliable and slow
+	   rendering performance for VML which Microsoft broke in IE8.
+
+           Before 3.3.0, the default value was IE8=IE7, but since 3.3.0
+	   this has been changed to an empty string (i.e. let IE8 use the
+	   standard IE8 rendering engine) to take advantage of IE8's
+	   improved CSS support.
+	  -->
+	<UA-Compatible>IE8=IE7</UA-Compatible>
+
+	<!-- Configures whether the progressive bootstrap method is used.
 
 	   The default bootstrap method first senses whether there is Ajax
 	   support, and only then creates the application.
 
 	   The progressive bootstrap method first renders a plain HTML
 	   version and later upgrades to an Ajax version.
+
+           (Not to be confused with the Twitter Bootstrap theme)
 	  -->
 	<progressive-bootstrap>false</progressive-bootstrap>
 

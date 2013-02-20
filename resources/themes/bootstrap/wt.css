@@ -75,8 +75,12 @@
 /*
  * Custom collapse nav support
  */
-.nav-bar .nav-collapse {
+.navbar .nav-collapse {
   display: block !important;
+}
+.navbar .navbar-inner .container {
+  margin-left: 0px;
+  margin-right: 0px;
 }
 /*
  * Less odd drop down menu support in navbar

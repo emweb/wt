@@ -162,6 +162,7 @@ public:
 
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;
+  std::string uaCompatible() const;
 
   // Things which are overridden by the connector
   void setSessionTimeout(int sessionTimeout);
@@ -184,6 +185,7 @@ private:
   std::string applicationPath_;
   std::string appRoot_;
   std::string configurationFile_;
+  std::string uaCompatible_;
 
 #ifndef WT_TARGET_JAVA
   EntryPointList entryPoints_;

@@ -290,7 +290,7 @@ public:
      * Create an image which is located at the <i>uri</i>, and which has
      * dimensions <i>width</i> x <i>height</i>.
      */
-    Image(const std::string& uri, int width, int height);
+    Image(const std::string& url, int width, int height);
 
     /*! \brief Creates an image.
      *
@@ -298,11 +298,11 @@ public:
      * the local filesystem as <i>file</i>. The image dimensions are
      * retrieved from the file.
      */
-    Image(const std::string& uri, const std::string& file);
+    Image(const std::string& url, const std::string& file);
 
-    /*! \brief Returns the uri.
+    /*! \brief Returns the url.
      */
-    std::string uri() const { return uri_; }
+    std::string uri() const { return url_; }
 
     /*! \brief Returns the image width.
      */
@@ -313,8 +313,10 @@ public:
     int height() const { return height_; }
 
   private:
-    std::string uri_;
+    std::string url_;
     int width_, height_;
+
+    void setUrl(const std::string& url);
   };
 
   /*! \brief Draws an image.

@@ -409,6 +409,12 @@ bool Configuration::ajaxPuzzle() const
   return ajaxPuzzle_;
 }
 
+std::string Configuration::uaCompatible() const
+{
+  READ_LOCK;
+  return uaCompatible_;
+}
+
 bool Configuration::sessionIdCookie() const
 {
   return sessionIdCookie_;
@@ -660,6 +666,9 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
   setBoolean(app, "inline-css", inlineCss_);
   setBoolean(app, "persistent-sessions", persistentSessions_);
+
+  uaCompatible_ = singleChildElementValue(app, "UA-Compatible", "");
+
   setBoolean(app, "progressive-bootstrap", progressiveBoot_);
   if (progressiveBoot_)
     setBoolean(app, "split-script", splitScript_);

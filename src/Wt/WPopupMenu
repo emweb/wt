@@ -234,7 +234,7 @@ protected:
   virtual bool isExposed(WWidget *widget);
 
   virtual void renderSelected(WMenuItem *item, bool selected);
-  virtual void select(int index, bool changePath);
+  virtual void setCurrent(int index);
 
 private:
   WMenuItem *result_;

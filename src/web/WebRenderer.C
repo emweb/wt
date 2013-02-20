@@ -40,18 +40,33 @@
 #endif
 
 namespace {
+
   bool isAbsoluteUrl(const std::string& url) {
     return url.find("://") != std::string::npos;
   }
 
-  void appendAttribute(Wt::EscapeOStream &eos,
-		       const std::string &name, 
-		       const std::string &value) {
+  void appendAttribute(Wt::EscapeOStream& eos,
+		       const std::string& name, 
+		       const std::string& value) {
     eos << ' ' << name << "=\"";
     eos.pushEscape(Wt::EscapeOStream::HtmlAttribute);
     eos << value;
     eos.popEscape();
     eos << '"';
+  }
+
+  void closeSpecial(Wt::WStringStream& s, bool xhtml) {
+    if (xhtml)
+      s << "/>\n";
+    else
+      s << ">\n";
+  }
+
+  void closeSpecial(Wt::EscapeOStream& s, bool xhtml) {
+    if (xhtml)
+      s << "/>\n";
+    else
+      s << ">\n";
   }
 }
 
@@ -1206,7 +1221,8 @@ void WebRenderer::updateLoadIndicator(WStringStream& out, WApplication *app,
   }
 }
 
-void WebRenderer::renderStyleSheet(WStringStream& out, const WCssStyleSheet& sheet,
+void WebRenderer::renderStyleSheet(WStringStream& out,
+				   const WCssStyleSheet& sheet,
 				   WApplication *app, bool xhtml)
 {
   out << "<link href=";
@@ -1216,11 +1232,7 @@ void WebRenderer::renderStyleSheet(WStringStream& out, const WCssStyleSheet& she
   if (!sheet.media().empty() && sheet.media() != "all")
     out << " media=\"" << sheet.media() << '"';
   
-  if (xhtml)
-    out << "/>";
-  else
-    out << '>';
-  out << "\n";
+  closeSpecial(out, xhtml);
 }
 
 /*
@@ -1752,10 +1764,7 @@ std::string WebRenderer::headDeclarations() const
 
       appendAttribute(result, "content", m.content.toUTF8());
 
-      if (xhtml)
-	result << "/>";
-      else
-	result << '>';
+      closeSpecial(result, xhtml);
     }
     
     for (unsigned i = 0; i < session_.app()->metaLinks_.size(); ++i) {
@@ -1776,42 +1785,38 @@ std::string WebRenderer::headDeclarations() const
       if (ml.disabled)
 	appendAttribute(result, "disabled", "");
 
-      if (xhtml)
-	result << "/>";
-      else
-	result << '>';
+      closeSpecial(result, xhtml);
     }
   } else
-    if (session_.env().agentIsIE() && 
-	session_.env().agent() >= WEnvironment::IE9) {
-      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9";
-      if (xhtml)
-	result << "\"/>";
-      else
-	result << "\">";
-      result << '\n';
+    if (session_.env().agentIsIE()) {
+      if (session_.env().agent() < WEnvironment::IE9) {
+	const Configuration& conf = session_.env().server()->configuration(); 
+	bool selectIE7 = conf.uaCompatible().find("IE8=IE7")
+	  != std::string::npos;
+
+	if (selectIE7) {
+	  result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7\"";
+	  closeSpecial(result, xhtml);
+	}
+      } else {
+	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\"";
+	closeSpecial(result, xhtml);
+      }
     }
 
   if (!session_.favicon().empty()) {
     result <<
-      "<link rel=\"icon\" "
-      "type=\"image/vnd.microsoft.icon\" "
-      "href=\"" << session_.favicon();
-    if (xhtml)
-      result << "\"/>";
-    else
-      result << "\">";
+      "<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" "
+      "href=\"" << session_.favicon() << '"';
+    closeSpecial(result, xhtml);
   }
 
   std::string baseUrl;
   WApplication::readConfigurationProperty("baseURL", baseUrl);
 
   if (!baseUrl.empty()) {
-    result << "<base href=\"" << baseUrl;
-    if (xhtml)
-      result << "\"/>";
-    else
-      result << "\">";
+    result << "<base href=\"" << baseUrl << '"';
+    closeSpecial(result, xhtml);
   }
 
   return result.str();

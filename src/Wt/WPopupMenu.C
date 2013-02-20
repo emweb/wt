@@ -59,12 +59,6 @@ void WPopupMenu::popupAtButton()
   popup(button_);
 }
 
-void WPopupMenu::select(int index, bool changePath)
-{
-  WMenu::select(index, changePath);
-  WMenu::select(-1, false);
-}
-
 void WPopupMenu::setMaximumSize(const WLength& width,
 				const WLength& height)
 {
@@ -181,6 +175,11 @@ void WPopupMenu::prepareRender(WApplication *app)
   }
 
   adjustPadding();
+}
+
+void WPopupMenu::setCurrent(int index)
+{
+  // a popup menu does not have a 'current' item.
 }
 
 void WPopupMenu::connectSignals(WPopupMenu * const topLevel)

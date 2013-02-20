@@ -140,9 +140,17 @@ WApplication::WApplication(const WEnvironment& env
   setLocalizedStrings(0);
 #endif // !WT_TARGET_JAVA
 
-  if (environment().agentIsIE() &&
-      environment().agent() >= WEnvironment::IE9)
-    addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=9");
+  if (environment().agentIsIE()) {
+    if (environment().agent() < WEnvironment::IE9) {
+      const Configuration& conf = environment().server()->configuration(); 
+      bool selectIE7 = conf.uaCompatible().find("IE8=IE7")
+	!= std::string::npos;
+
+      if (selectIE7)
+	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=7");
+    } else
+      addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=9");
+  }
 
   domRoot_ = new WContainerWidget();
   domRoot_->setStyleClass("Wt-domRoot");

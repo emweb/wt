@@ -13,6 +13,7 @@
 #include "Wt/Render/WTextRenderer"
 #endif
 
+#include "Wt/WApplication"
 #include "Wt/WException"
 #include "Wt/WLineF"
 #include "Wt/WPainter"
@@ -104,15 +105,26 @@ WPainter::State WPainter::State::clone()
 }
 #endif // WT_TARGET_JAVA
 
-WPainter::Image::Image(const std::string& uri, int width, int height)
-  : uri_(uri),
-    width_(width),
+WPainter::Image::Image(const std::string& url, int width, int height)
+  : width_(width),
     height_(height)
-{ }
-
-WPainter::Image::Image(const std::string& uri, const std::string& fileName)
-  : uri_(uri)
 {
+  setUrl(url);
+}
+
+void WPainter::Image::setUrl(const std::string& url)
+{
+  WApplication *app = WApplication::instance();
+  if (app)
+    url_ = app->resolveRelativeUrl(url);
+  else
+    url_ = url;
+}
+
+WPainter::Image::Image(const std::string& url, const std::string& fileName)
+{
+  setUrl(url);
+
   /*
    * Contributed by Daniel Derr @ ArrowHead Electronics Health-Care
    */

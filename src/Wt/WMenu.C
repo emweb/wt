@@ -218,7 +218,8 @@ void WMenu::addItem(WMenuItem *item)
       contentsStack_->addWidget(contents);
 
     if (contentsStack_->count() == 1) {
-      current_ = 0;
+      setCurrent(0);
+
       if (contents)
 	contentsStack_->setCurrentWidget(contents);
 
@@ -267,27 +268,32 @@ void WMenu::select(int index)
   select(index, true);
 }
 
+void WMenu::setCurrent(int index)
+{
+  current_ = index;
+}
+
 void WMenu::select(int index, bool changePath)
 {
   int last = current_;
-  current_ = index;
+  setCurrent(index);
 
-  selectVisual(index, changePath, true);
+  selectVisual(current_, changePath, true);
 
   if (index != -1) {
     WMenuItem *item = itemAt(index);
     item->show();
     item->loadContents();
 
-    if (last != index) {
-      item->triggered().emit(item);
-      itemSelected_.emit(item);
-    }
-
     if (changePath && emitPathChange_) {
       WApplication *app = wApp;
       app->internalPathChanged().emit(app->internalPath());
       emitPathChange_ = false;
+    }
+
+    if (last != index) {
+      item->triggered().emit(item);
+      itemSelected_.emit(item);
     }
   }
 }
