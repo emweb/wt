@@ -130,7 +130,8 @@ void WTextEdit::initTinyMCE()
     if (app->environment().ajax())
       app->doJavaScript("window.tinyMCE_GZ = { loaded: true };", false);
 
-    std::string tinyMCEBaseURL = WApplication::resourcesUrl() + "tiny_mce/";
+    std::string tinyMCEBaseURL 
+      = WApplication::relativeResourcesUrl() + "tiny_mce/";
 
     WApplication::readConfigurationProperty("tinyMCEBaseURL", tinyMCEBaseURL);
 

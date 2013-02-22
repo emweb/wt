@@ -38,6 +38,12 @@ void WFormModel::addField(Field field, const WString& info)
   fields_[field].validation = WValidator::Result(WValidator::Invalid, info);
 }
 
+void WFormModel::removeField(Field field)
+{
+  FieldMap::iterator i = fields_.find(field);
+  fields_.erase(i);
+}
+
 std::vector<WFormModel::Field> WFormModel::fields() const
 {
   std::vector<WFormModel::Field> result;

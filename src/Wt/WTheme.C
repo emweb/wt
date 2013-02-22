@@ -15,7 +15,7 @@ WTheme::WTheme(WObject *parent)
 
 std::string WTheme::resourcesUrl() const
 {
-  return WApplication::resourcesUrl() + "themes/" + name() + "/";
+  return WApplication::relativeResourcesUrl() + "themes/" + name() + "/";
 }
 
 WTheme::~WTheme()

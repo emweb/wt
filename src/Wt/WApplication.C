@@ -276,7 +276,7 @@ WApplication::WApplication(const WEnvironment& env
     else if (environment().agentIsGecko())
       prefix = "moz-";
 
-    useStyleSheet(WApplication::resourcesUrl() + prefix + "transitions.css");
+    useStyleSheet(relativeResourcesUrl() + prefix + "transitions.css");
   }
 
   setLoadingIndicator(new WDefaultLoadingIndicator());
@@ -413,7 +413,7 @@ void WApplication::setAjaxMethod(AjaxMethod method)
   ajaxMethod_ = method;
 }
 
-std::string WApplication::resourcesUrl()
+std::string WApplication::relativeResourcesUrl()
 {
 #ifndef WT_TARGET_JAVA
   std::string result = "resources/";
@@ -422,7 +422,7 @@ std::string WApplication::resourcesUrl()
   if (!result.empty() && result[result.length()-1] != '/')
     result += '/';
 
-  return WApplication::instance()->resolveRelativeUrl(result);
+  return result;
 #else
   WApplication *app = WApplication::instance(); 
   const Configuration& conf = app->environment().server()->configuration(); 
@@ -440,6 +440,11 @@ std::string WApplication::resourcesUrl()
   } else 
     return *path;
 #endif // WT_TARGET_JAVA
+}
+
+std::string WApplication::resourcesUrl()
+{
+  return WApplication::instance()->resolveRelativeUrl(relativeResourcesUrl());
 }
 
 #ifndef WT_TARGET_JAVA

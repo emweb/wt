@@ -36,6 +36,8 @@ PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
      "{"
      """var s = $('#" + id + "');"
      """s.toggleClass('chat-maximized chat-minimized');"
+     + Wt::WApplication::instance()->javaScriptClass()
+     + ".layouts2.scheduleAdjust(true);"
      "}");
 
   online_ = false;
@@ -128,6 +130,7 @@ void PopupChatWidget::createLayout(Wt::WWidget *messages,
   Wt::WContainerWidget *bar = createBar();
 
   layout->addWidget(bar);
+  bar->setMinimumSize(Wt::WLength::Auto, 20);
   layout->addWidget(messages, 1);
   layout->addWidget(messageEdit);
 

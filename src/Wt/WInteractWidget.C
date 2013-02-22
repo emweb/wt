@@ -485,6 +485,11 @@ void WInteractWidget::setMouseOverDelay(int delay)
     mouseOver->senderRepaint();
 }
 
+int WInteractWidget::mouseOverDelay() const
+{
+  return mouseOverDelay_;
+}
+
 void WInteractWidget::updateEventSignals(DomElement& element, bool all)
 {
   EventSignalList& other = eventSignals();

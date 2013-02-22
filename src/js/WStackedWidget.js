@@ -106,8 +106,6 @@ WT_DECLARE_WT_MEMBER
 	    scrollTops[j] = st;
 	  }
 	} else {
-	  c.style.display = '';
-
 	  if (typeof scrollLefts[j] !== 'undefined') {
 	    widget.scrollLeft = scrollLefts[j];
 	    widget.scrollTop = scrollTops[j];
@@ -118,7 +116,7 @@ WT_DECLARE_WT_MEMBER
 	}
       }
     }
-  }
+  };
 
   this.setCurrent = function(child) {
     var j, jl, c;
@@ -297,7 +295,7 @@ WT_DECLARE_WT_MEMBER
      $(to).addClass(anim + ' in');
 
      $(to).one(animationEventEnd, restore);
-  }
+  };
 
   doAnimateChild(WT, child, effects, timing, duration, style);
  });

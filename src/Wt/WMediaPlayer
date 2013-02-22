@@ -54,7 +54,7 @@ namespace Wt {
  * The following code creates a video using the default controls:
  * \if cpp
  * \code
- *   useStyleSheet(WApplication::resourcesUrl() + "jPlayer/skin/jplayer.blue.monday.css");
+ *   useStyleSheet(WApplication::relativeRsourcesUrl() + "jPlayer/skin/jplayer.blue.monday.css");
  *
  *   WMediaPlayer *player = new WMediaPlayer(WMediaPlayer::Video);
  *

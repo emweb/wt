@@ -54,12 +54,12 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
 {
   std::vector<WCssStyleSheet> result;
 
-  std::string themeDir = WApplication::resourcesUrl() + "themes/" + name();
+  std::string themeDir = resourcesUrl();
 
-  result.push_back(WCssStyleSheet(WLink(themeDir + "/bootstrap.css")));
+  result.push_back(WCssStyleSheet(WLink(themeDir + "bootstrap.css")));
   result.push_back(WCssStyleSheet(WLink(themeDir
-					+ "/bootstrap-responsive.css")));
-  result.push_back(WCssStyleSheet(WLink(themeDir + "/wt.css")));
+					+ "bootstrap-responsive.css")));
+  result.push_back(WCssStyleSheet(WLink(themeDir + "wt.css")));
 
   return result;
 }

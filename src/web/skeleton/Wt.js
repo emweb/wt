@@ -143,6 +143,7 @@ var agent = navigator.userAgent.toLowerCase();
 
 this.isIE = ie !== undefined;
 this.isIE6 = ie === 6;
+this.isIE8 = ie === 8;
 this.isIElt9 = ie < 9;
 this.isIEMobile = agent.indexOf("msie 4")!=-1 || agent.indexOf("msie 5")!=-1;
 this.isOpera = typeof window.opera !== 'undefined';
@@ -1325,10 +1326,11 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
       windowX = document.body.scrollLeft + document.documentElement.scrollLeft,
       windowY = document.body.scrollTop + document.documentElement.scrollTop;
 
-  if (!e.offsetParent)
+  var op = e.offsetParent;
+  if (!op)
     return;
 
-  var offsetParent = WT.widgetPageCoordinates(e.offsetParent);
+  var offsetParent = WT.widgetPageCoordinates(op);
 
   if (elementWidth > windowSize.x) {
     // wider than window
@@ -1336,11 +1338,11 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     hside = 0;
   } else if (x + elementWidth > windowX + windowSize.x) {
     // too far right, chose other side
-    rightx = rightx - offsetParent.x + e.offsetParent.scrollLeft;
-    x = e.offsetParent.clientWidth - (rightx + WT.px(e, 'marginRight'));
+    rightx = rightx - offsetParent.x + op.scrollLeft;
+    x = op.clientWidth - (rightx + WT.px(e, 'marginRight'));
     hside = 1;
   } else {
-    x = x - offsetParent.x + e.offsetParent.scrollLeft;
+    x = x - offsetParent.x + op.scrollLeft;
     x = x - WT.px(e, 'marginLeft');
     hside = 0;
   }
@@ -1353,11 +1355,11 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     // too far below, chose other side
     if (bottomy > windowY + windowSize.y)
       bottomy = windowY + windowSize.y;
-    bottomy = bottomy - offsetParent.y + e.offsetParent.scrollTop;
-    y = e.offsetParent.clientHeight - (bottomy + WT.px(e, 'marginBottom'));
+    bottomy = bottomy - offsetParent.y + op.scrollTop;
+    y = op.clientHeight - (bottomy + WT.px(e, 'marginBottom'));
     vside = 1;
   } else {
-    y = y - offsetParent.y + e.offsetParent.scrollTop;
+    y = y - offsetParent.y + op.scrollTop;
     y = y - WT.px(e, 'marginTop');
     vside = 0;
   }
@@ -1376,8 +1378,10 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 this.positionXY = function(id, x, y) {
   var w = WT.getElement(id);
 
-  if (!WT.isHidden(w))
+  if (!WT.isHidden(w)) {
+    w.style.display = 'block';
     WT.fitToWindow(w, x, y, x, y);
+  }
 };
 
 this.Horizontal = 0x1;
@@ -1526,10 +1530,10 @@ if (html5History) {
       function onPopState(event) {
 	var newState = event.state;
 
-	if (newState === null)
+	if (newState == null)
 	  newState = stateMap[w.location.pathname + w.location.search];
 
-	if (newState === null) {
+	if (newState == null) {
 	  saveState(currentState);
 	  return;
 	}
@@ -1611,7 +1615,49 @@ _$_$endif_$_();
     }
   };
 })();
+} else if (WT.isIE8) {
+  this.history = (function()
+{
+  var currentState = null, cb = null, w = window;
 
+  return {
+    _initialize: function() { },
+
+    _initTimeout: function() { },
+
+    register: function (initialState, onStateChange) {
+      currentState = initialState;
+      cb = onStateChange;
+
+      function onHashChange() {
+	if (currentState != w.location.hash) {
+	  currentState = w.location.hash.substring(1);
+	  cb(currentState);
+	}
+      }
+
+      w.onhashchange = onHashChange;
+    },
+
+    initialize: function (stateField, histFrame, deployUrl) {
+    },
+
+    navigate: function (state, generateEvent) {
+      currentState = state;
+
+      w.location.hash = state;
+
+      WT.scrollIntoView(state);
+
+      if (generateEvent)
+	cb(state);
+    },
+
+    getCurrentState: function () {
+      return currentState;
+    }
+  };
+})();
 } else {
   this.history = (function()
 {
@@ -1623,7 +1669,6 @@ _$_$endif_$_();
    * http://developer.yahoo.net/yui/license.txt
    * version: 2.5.2
    */
-  var _UAwebkit = false;
   var _UAie = WT.isIElt9;
   var _UAopera = false;
   var _onLoadFn = null;
@@ -1642,9 +1687,6 @@ _$_$endif_$_();
   }
   function _storeStates() {
     _stateField.value = _initialState + "|" + _currentState;
-    if (_UAwebkit) {
-      _stateField.value += "|" + _fqstates.join(",");
-    }
   }
   function onStateChange() {
     var i, il;
@@ -1703,7 +1745,9 @@ _$_$endif_$_();
 	  } else {
 	    newHash = fqstate;
 	  }
-	  location.hash = newHash;
+	  if (location.hash != newHash && 
+	      location.hash.substring(1) != newHash)
+	    location.hash = newHash;
 	  hash = newHash;
 	  _storeStates();
 	} else if (newHash !== hash) {
@@ -1732,12 +1776,6 @@ _$_$endif_$_();
 	  hash = newHash;
 	  counter = newCounter;
 	  _handleFQStateChange(hash);
-	  _storeStates();
-	} else if (newCounter !== counter && _UAwebkit) {
-	  hash = newHash;
-	  counter = newCounter;
-	  state = _fqstates[counter - 1];
-	  _handleFQStateChange(state);
 	  _storeStates();
 	}
       }, 50);
@@ -1787,13 +1825,6 @@ _$_$endif_$_();
     if (vendor === "KDE") {
     } else if (typeof window.opera !== "undefined")
       _UAopera = true;
-    else if (!_UAie && vendor.indexOf("Apple Computer, Inc.") > -1)
-      _UAwebkit = true;
-
-    /*
-    if (_UAopera && typeof history.navigationMode !== "undefined")
-      history.navigationMode = "compatible";
-    */
 
     if (typeof stateField === "string")
       stateField = document.getElementById(stateField);
@@ -1825,11 +1856,8 @@ _$_$endif_$_();
     if (_UAie) {
       _updateIFrame(fqstate);
     } else {
-      if (fqstate.length > 0)
+      if (fqstate.length > 0) {
 	location.hash = fqstate;
-      if (_UAwebkit) {
-	_fqstates[history.length] = fqstate;
-	_storeStates();
       }
     }
     if (generateEvent)

@@ -24,9 +24,9 @@
 
 // This seems to not work very well (or at all)
 
-//#if BOOST_VERSION >= 104700
-//#define VERIFY_CERTIFICATE
-//#endif
+#if BOOST_VERSION >= 104700
+#define VERIFY_CERTIFICATE
+#endif
 
 #endif // WT_WITH_SSL
 
@@ -457,7 +457,7 @@ protected:
 
   virtual void asyncHandshake(const ConnectHandler& handler)
   {
-#if VERIFY_CERTIFICATE
+#ifdef VERIFY_CERTIFICATE
     socket_.set_verify_mode(boost::asio::ssl::verify_peer);
     LOG_DEBUG("verifying that peer is " << hostName_);
     socket_.set_verify_callback
@@ -601,7 +601,7 @@ bool Client::request(Http::Method method, const std::string& url,
     boost::asio::ssl::context context
       (*ioService, boost::asio::ssl::context::sslv23);
 
-#if VERIFY_CERTIFICATE
+#ifdef VERIFY_CERTIFICATE
     context.set_default_verify_paths();
 #endif
 

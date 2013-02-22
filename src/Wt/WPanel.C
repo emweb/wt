@@ -130,7 +130,7 @@ void WPanel::setTitleBar(bool enable)
 void WPanel::setCollapsible(bool on)
 {
   if (on && !collapseIcon_) {
-    std::string resources = WApplication::resourcesUrl();
+    std::string resources = WApplication::relativeResourcesUrl();
 
     setTitleBar(true);
     collapseIcon_ = new WIconPair(resources + "collapse.gif",

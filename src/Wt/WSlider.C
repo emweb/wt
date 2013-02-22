@@ -140,8 +140,6 @@ void PaintedSlider::updateState()
 {
   bool rtl = WApplication::instance()->layoutDirection() == RightToLeft;
 
-  std::string resourcesURL = WApplication::resourcesUrl();
-
   Orientation o = slider_->orientation();
 
   if (o == Horizontal) {

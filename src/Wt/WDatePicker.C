@@ -49,7 +49,8 @@ WDatePicker::~WDatePicker()
 
 void WDatePicker::createDefault(WLineEdit *forEdit)
 {
-  WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
+  WImage *icon = new WImage(WApplication::relativeResourcesUrl() 
+			    + "calendar_edit.png");
   icon->resize(16, 16);
   icon->setVerticalAlignment(AlignMiddle);
 

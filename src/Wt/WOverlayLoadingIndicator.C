@@ -21,7 +21,7 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass,
   cover_ = new WContainerWidget(this);
   center_ = new WContainerWidget(this);
 
-  WImage *img = new WImage(WApplication::resourcesUrl()
+  WImage *img = new WImage(WApplication::relativeResourcesUrl()
 			   + "ajax-loading.gif", center_);
   img->setMargin(7, Top | Bottom);
 

@@ -555,6 +555,11 @@ void WAbstractItemView::setHeaderItemDelegate(WAbstractItemDelegate *delegate)
   headerItemDelegate_ = delegate;
 }
 
+WAbstractItemDelegate *WAbstractItemView::headerItemDelegate() const
+{
+  return headerItemDelegate_;
+}
+
 std::string repeat(const std::string& s, int times)
 {
   std::string result;
@@ -991,13 +996,13 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     WImage *collapseIcon = new WImage(contents);
     collapseIcon->setFloatSide(Left);
     collapseIcon
-      ->setImageLink(WLink(WApplication::resourcesUrl() + "minus.gif"));
+      ->setImageLink(WLink(WApplication::relativeResourcesUrl() + "minus.gif"));
     clickedForCollapseMapper_->mapConnect(collapseIcon->clicked(), info.id);
   } else if (model_->headerFlags(column) & ColumnIsCollapsed) {
     WImage *expandIcon = new WImage(contents);
     expandIcon->setFloatSide(Left);
     expandIcon
-      ->setImageLink(WLink(WApplication::resourcesUrl() + "plus.gif"));
+      ->setImageLink(WLink(WApplication::relativeResourcesUrl() + "plus.gif"));
     clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
   }    
 

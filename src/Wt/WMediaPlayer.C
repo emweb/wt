@@ -121,7 +121,7 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType, WContainerWidget *parent)
 
   LOAD_JAVASCRIPT(app, "js/WMediaPlayer.js", "WMediaPlayer", wtjs1);
 
-  std::string res = WApplication::resourcesUrl() + "jPlayer/";
+  std::string res = WApplication::relativeResourcesUrl() + "jPlayer/";
 
   if (!app->environment().ajax())
     app->require(res + "jquery.min.js");
@@ -313,7 +313,13 @@ void WMediaPlayer::pause()
 
 void WMediaPlayer::setVolume(double volume)
 {
+  status_.volume = volume;
   playerDo("volume", boost::lexical_cast<std::string>(volume));
+}
+
+double WMediaPlayer::volume() const
+{
+  return status_.volume;
 }
 
 void WMediaPlayer::setPlaybackRate(double rate)

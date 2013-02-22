@@ -31,7 +31,7 @@ public:
     session_.login().changed().connect(this, &AuthApplication::authEvent);
 
     useStyleSheet("css/style.css");
-    messageResourceBundle().use("templates");
+    messageResourceBundle().use(appRoot() + "templates");
 
     QRAuthWidget *authWidget = new QRAuthWidget(session_.login());
 

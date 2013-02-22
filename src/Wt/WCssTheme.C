@@ -44,17 +44,17 @@ std::vector<WCssStyleSheet> WCssTheme::styleSheets() const
   std::vector<WCssStyleSheet> result;
 
   if (!name_.empty()) {
-    std::string themeDir = WApplication::resourcesUrl() + "themes/" + name_;
+    std::string themeDir = resourcesUrl();
 
     WApplication *app = WApplication::instance();
 
-    result.push_back(WCssStyleSheet(WLink(themeDir + "/wt.css")));
+    result.push_back(WCssStyleSheet(WLink(themeDir + "wt.css")));
 
     if (app->environment().agentIsIE())
-      result.push_back(WCssStyleSheet(WLink(themeDir + "/wt_ie.css")));
+      result.push_back(WCssStyleSheet(WLink(themeDir + "wt_ie.css")));
 
     if (app->environment().agent() == WEnvironment::IE6)
-      result.push_back(WCssStyleSheet(WLink(themeDir + "/wt_ie6.css")));
+      result.push_back(WCssStyleSheet(WLink(themeDir + "wt_ie6.css")));
   }
 
   return result;
@@ -123,7 +123,7 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
 
   case AuthWidgets:
     WApplication *app = WApplication::instance();
-    app->useStyleSheet(WApplication::resourcesUrl() + "form.css");
+    app->useStyleSheet(WApplication::relativeResourcesUrl() + "form.css");
     app->builtinLocalizedStrings().useBuiltin(skeletons::AuthCssTheme_xml1);
     break;
   }

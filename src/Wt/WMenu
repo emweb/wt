@@ -267,6 +267,19 @@ public:
 
   /*! \brief Adds an item.
    *
+   * Use this version of addItem() if you do not want to specify an icon
+   * for this menu item.
+   *
+   * Returns the corresponding WMenuItem.
+   *
+   * \sa addItem(const std::string&, const WString&, WWidget *, WMenuItem::LoadPolicy)
+   * \sa addItem(WMenuItem *)
+   */
+  WMenuItem *addItem(const WString& label, WWidget *contents = 0,
+		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+
+  /*! \brief Adds an item.
+   *
    * Adds a menu item with given \p contents, which is added to the
    * menu's associated contents stack.
    *
@@ -280,9 +293,6 @@ public:
    *
    * \sa addItem(WMenuItem *)
    */
-  WMenuItem *addItem(const WString& label, WWidget *contents = 0,
-		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
-
   WMenuItem *addItem(const std::string& iconPath, const WString& label,
 		     WWidget *contents = 0,
 		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);

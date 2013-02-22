@@ -103,7 +103,7 @@ WT_DECLARE_WT_MEMBER
 
    jQuery.data(document.getElementById(id), 'layout', this);
 
-   function calcPreferredSize(element, dir) {
+   function calcPreferredSize(element, dir, asSet) {
      var DC = DirConfig[dir];
      var scrollWidth = dir ? element.scrollHeight : element.scrollWidth;
      var clientWidth = dir ? element.clientHeight : element.clientWidth;
@@ -161,6 +161,9 @@ WT_DECLARE_WT_MEMBER
 	   scrollWidth = 0;
        }
      }
+
+     if (asSet)
+       return scrollWidth;
 
      if (!WT.isOpera)
        scrollWidth +=
@@ -418,30 +421,32 @@ WT_DECLARE_WT_MEMBER
 		   if (item.wasLayout) {
 		     item.wasLayout = false;
 		     item.set = [false, false];
-		     // setCss(item.w, DirConfig[0].size, '');
 		     item.ps -= 0.1; 
-		     /*
-		     item.ps[0] -= 0.1;
-		     item.ps[1] = 0;
-		     */
 		     if (item.w.wtResize)
 		       item.w.wtResize(item.w, -1, -1, true);
 		     setCss(item.w, DirConfig[1].size, '');
 		   }
 
-		   var calculated = calcPreferredSize(item.w, dir);
+		   var calculated = calcPreferredSize(item.w, dir, false);
 
 		   /*
 		    * If we've set the size then we should not take the
 		    * set size as the preferred size, instead we revert
 		    * to a previous preferred size.
-		    *
-		    * We seem to be a few pixels off here, typically seen
-		    * on buttons ?
 		    */
-		   var sizeSet = item.set[dir] &&
-			 (calculated >= item.psize[dir] - 4) &&
-			 (calculated <= item.psize[dir] + 4);
+		   var sizeSet = item.set[dir];
+		   if (sizeSet) {
+		     /*
+		      * Make an exception for very small sizes set ...
+		      * Typically to discount for margin/paddings on
+		      * form elements which are not properly measured
+		      * if the item is being reduced to very small
+		      * width/height
+		      */
+		     if (item.psize[dir] > 8)
+		       sizeSet = (calculated >= item.psize[dir] - 2) &&
+			 (calculated <= item.psize[dir] + 2);
+		   }
 
 		   /*
 		    * If this is an item that is stretching and has
@@ -1087,6 +1092,9 @@ WT_DECLARE_WT_MEMBER
 	       var m = margin(item.w, dir);
 
 	       var tsm = Math.max(0, ts - m);
+
+	       if (!WT.isIE && WT.hasTag(w, 'TEXTAREA'))
+		 tsm = ts;
 
 	       /*
 		* IE: a button expands to parent container width ?? WTF ?

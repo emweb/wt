@@ -30,12 +30,14 @@
       href="#/trees-tables/table">WTable</a> for organizing children
       in a table (without using a layout manager).
     </p>
+    ${<if:cpp>}
     <p>
       The container takes ownership of its children: when the parent
       is deleted, the children will be deleted as well. This does not
       stop you from deleting a child widget, as this also automatically
       removes it from the parent.
     </p>
+    ${</if:cpp>}
     <p>
       As a fundamental building block of Wt, a container widget itself
       usually does not have any visual aspect (although it can very
@@ -464,7 +466,8 @@
       dialog may be closed by calling <tt>accept()</tt>, <tt>reject()</tt> or
       <tt>done()</tt> (or connecting a signal to one of these methods). This
       will hide the dialog and emit the <tt>finished()</tt> signal, which you
-      then can listen for to process the dialog result and delete the dialog.
+      then can listen for to process the dialog result${<if:cpp>} and delete
+      the dialog${</if:cpp>}.
       Typically, an OK button will be connected to <tt>accept()</tt>, and in
       some cases a Cancel button to <tt>reject()</tt>.
       You can add content to the dialog by adding the content to its container.
@@ -507,7 +510,8 @@
     <p>
       The usage is similar to instantiating a <tt>WDialog</tt> (or any other
       widget). You need to connect to the <tt>buttonClicked</tt> signal with a
-      method that interpretes the result and deletes the message box.
+      method that interpretes the result${<if:cpp>} and deletes the message
+      box${</if:cpp>}.
       You can get the resulting standard button with <tt>buttonResult()</tt>.
     </p>
     <p>
@@ -4610,11 +4614,16 @@
       application, resource requests are not serialized, but are
       <strong>handled concurrently</strong>. You need to grab the application
       lock if you want to access or modify other widget state from within the
-      resource. When deleting a resource, any pending request is cancelled
+      resource.
+    </p>
+    ${<if:cpp>}
+    <p>
+      When deleting a resource, any pending request is cancelled
       first. For this mechanism to work you need to specialize the destructor
       and call <tt>beingDeleted()</tt>. This method may safely be called
       multiple times (i.e. from within each destructor in the hierachy).
     </p>
+    ${</if:cpp>}
 
     <fieldset class="example">
       <legend>Example</legend>

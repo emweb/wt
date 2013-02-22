@@ -449,7 +449,7 @@ public:
    * \deprecated this option is now ignored, since the popup is automatically
    *             positioned to behave properly.
    */
-  void setGlobalPopup(bool global);
+  void setGlobalPopup(bool global) {};
 
 private:
   WContainerWidget   *impl_;

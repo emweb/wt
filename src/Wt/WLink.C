@@ -138,21 +138,25 @@ bool WLink::operator!=(const WLink& other) const
 
 std::string WLink::resolveUrl(WApplication *app) const
 {
+  std::string relativeUrl;
+
   switch (type_) {
   case InternalPath: {
     if (app->environment().ajax())
-      return app->bookmarkUrl(internalPath().toUTF8());
+      relativeUrl = app->bookmarkUrl(internalPath().toUTF8());
     else if (app->environment().agentIsSpiderBot())
-      return app->bookmarkUrl(internalPath().toUTF8());
+      relativeUrl = app->bookmarkUrl(internalPath().toUTF8());
     else
       // If no JavaScript is available, then we still add the session
       // so that when used in WAnchor it will be handled by the same
       // session.
-      return app->session()->mostRelativeUrl(internalPath().toUTF8());
+      relativeUrl = app->session()->mostRelativeUrl(internalPath().toUTF8());
   }
   default:
-    return url();
+    relativeUrl = url();
   }
+
+  return app->resolveRelativeUrl(relativeUrl);
 }
 
 JSlot *WLink::manageInternalPathChange(WApplication *app,

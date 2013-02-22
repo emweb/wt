@@ -192,6 +192,14 @@ void WAnchor::setResource(WResource *resource)
   setLink(WLink(resource));
 }
 
+WResource *WAnchor::resource() const
+{
+  if (linkState_.link.type() == WLink::Resource)
+    return linkState_.link.resource();
+  else
+    return 0;
+}
+
 void WAnchor::setTarget(AnchorTarget target)
 {
   if (linkState_.target != target) {
@@ -318,7 +326,7 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
 
     url = app->encodeUntrustedUrl(url);
 
-    std::string href = widget->resolveRelativeUrl(url);
+    std::string href = url;
     element.setAttribute("href", href);
     return !app->environment().hashInternalPaths()
       && href.find("://") == std::string::npos && href[0] != '/';

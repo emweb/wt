@@ -904,12 +904,21 @@ public:
 
   /*! \brief Returns the URL at which the resources are deployed.
    *
-   * \if cpp
-   * This returns the value of the 'resources' property set in the
-   * configuration file.
-   * \endif
+   * Returns resolveRelativeUrl(relativeResourcesUrl())
    */
   static std::string resourcesUrl();
+
+  /*! \brief Returns the URL at which the resources are deployed.
+   *
+   * \if cpp
+   * This returns the value of the 'resources' property set in the
+   * configuration file, and may thus be a URL relative to the deployment
+   * path.
+   * \endif
+   *
+   * \sa resolveRelativeUrl()
+   */
+  static std::string relativeResourcesUrl();
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Returns the appRoot special property
