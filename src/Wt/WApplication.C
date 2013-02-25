@@ -276,7 +276,8 @@ WApplication::WApplication(const WEnvironment& env
     else if (environment().agentIsGecko())
       prefix = "moz-";
 
-    useStyleSheet(relativeResourcesUrl() + prefix + "transitions.css");
+    useStyleSheet(WApplication::relativeResourcesUrl()
+		  + prefix + "transitions.css");
   }
 
   setLoadingIndicator(new WDefaultLoadingIndicator());
@@ -444,7 +445,8 @@ std::string WApplication::relativeResourcesUrl()
 
 std::string WApplication::resourcesUrl()
 {
-  return WApplication::instance()->resolveRelativeUrl(relativeResourcesUrl());
+  return WApplication::instance()->resolveRelativeUrl
+    (WApplication::relativeResourcesUrl());
 }
 
 #ifndef WT_TARGET_JAVA

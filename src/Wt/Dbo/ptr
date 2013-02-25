@@ -332,6 +332,7 @@ public:
   void reread();
   void transactionDone(bool success);
 
+  bool isLoaded() const { return obj_; }
   C *obj();
   void setObj(C *obj);
 

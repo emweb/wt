@@ -1990,8 +1990,10 @@ AlignmentFlag Block::cssTextAlign() const
 	return AlignLeft;
       }
     }
-  } else
+  } else if (parent_)
     return parent_->cssTextAlign();
+  else
+    return AlignLeft;
 }
 
 WFont Block::cssFont(double fontScale) const

@@ -3,7 +3,6 @@
  *
  * See the LICENSE file for terms of use.
  */
-
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/Dbo/Dbo>
@@ -255,6 +254,7 @@ public:
 
   As    asManyToOne;
   Cs    csManyToMany;
+  Cs    csManyToOne;
 
   B() { }
 
@@ -278,6 +278,7 @@ public:
 		   dbo::NotNull
 		 | dbo::OnDeleteCascade
 		 | dbo::OnUpdateCascade);
+    dbo::hasMany(a, csManyToOne, dbo::ManyToOne, "b2");
   }
 };
 
@@ -286,6 +287,7 @@ public:
   std::string name;
   
   dbo::weak_ptr<A> aOneToOne;
+  dbo::ptr<B> b;
 
   Bs    bsManyToMany;
   Ds    dsManyToMany;
@@ -304,6 +306,8 @@ public:
   void persist(Action& a)
   {
     dbo::field(a, name, "name");
+
+    dbo::belongsTo(a, b, "b2");
 
     dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_c",
 		   dbo::NotNull
@@ -809,74 +813,122 @@ BOOST_AUTO_TEST_CASE( dbo_test4b )
     dbo::Transaction t(*session_);
 
     dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a2(new A());
+    dbo::ptr<A> a3(new A());
+    dbo::ptr<A> a4(new A());
+    dbo::ptr<A> a5(new A());
+    dbo::ptr<A> a6(new A());
 
-    BOOST_REQUIRE(a1->self() == a1);
+    dbo::ptr<B> b1(new B());
+    dbo::ptr<B> b2(new B());
+    dbo::ptr<B> b3(new B());
 
-    a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
-					  Wt::WTime(12, 11, 31));
-    a1.modify()->date = Wt::WDate(1980, 12, 4);
-    a1.modify()->wstring = "Hello";
-    a1.modify()->string = "There";
-    a1.modify()->i = 42;
-    a1.modify()->i64 = 9223372036854775803LL;
-    a1.modify()->ll = 6066005651767220LL;
-    a1.modify()->f = (float)42.42;
-    a1.modify()->d = 42.424242;
+    dbo::ptr<C> c1(new C());
+    dbo::ptr<C> c2(new C());
+    dbo::ptr<C> c3(new C());
 
-    dbo::ptr<A> a2(new A(*a1));
-    a2.modify()->wstring = "Oh my god";
-    a2.modify()->i = 142;
+    a1.modify()->wstring = "a1";
+    a2.modify()->wstring = "a2";
+    a3.modify()->wstring = "a3";
+    a4.modify()->wstring = "a4";
+    a5.modify()->wstring = "a5";
+    a6.modify()->wstring = "a6";
 
-    dbo::ptr<B> b(new B());
-    b.modify()->name = "b";
-    b.modify()->state = B::State1;
+    b1.modify()->name = "b1";
+    b2.modify()->name = "b2";
+    b3.modify()->name = "b3";
 
-    a1.modify()->b = b;
-    a2.modify()->b = b;
+    c1.modify()->name = "c1";
+    c2.modify()->name = "c2";
+    c3.modify()->name = "c3";
 
+    a1.modify()->b = b1;
+    a2.modify()->b = b1;
+    a3.modify()->b = b2;
+    a4.modify()->b = b2;
+    a5.modify()->b = b3;
+    a6.modify()->b = b3;
+
+    c1.modify()->b = b1;
+    c2.modify()->b = b2;
+    c3.modify()->b = b3;
+
+    session_->add(b1);
+    session_->add(b2);
+    session_->add(b3);
     session_->add(a1);
     session_->add(a2);
-    session_->add(b);
-
+    session_->add(a3);
+    session_->add(a4);
+    session_->add(a5);
+    session_->add(a6);
+    session_->add(c1);
+    session_->add(c2);
+    session_->add(c3);
   }
-
 
   {
     dbo::Transaction t(*session_);
-    
-    typedef dbo::ptr_tuple<B, A>::type BA;
-    typedef dbo::collection<BA> C_BAs;
-    typedef std::vector<BA> BAs;
+
+    typedef dbo::ptr_tuple<A, B, C>::type ABC;
+    typedef dbo::collection<ABC> C_ABCs;
+    typedef std::vector<ABC> ABCs;
 
 #if !defined(FIREBIRD) && !defined(MYSQL)
-    dbo::Query<BA> q = session_->query<BA>
-      ("select B, A "
-       "from \"table_b\" B join \"table_a\" A on A.\"b_id\" = B.\"id\"")
-      .orderBy("A.\"i\"");
+    dbo::Query<ABC> q = session_->query<ABC>
+      ("select A, B, C " 
+       "from \"table_A\" A join \"table_b\" B on (A.\"b_id\" = B.\"id\") join \"table_c\" C on (C.\"b2_id\" = B.\"id\")").orderBy("A.\"wstring\", B.\"name\", C.\"name\"");
 
-    C_BAs c_bas = q.resultList();
-    BAs bas(c_bas.begin(), c_bas.end());
+    C_ABCs c_abcs = q.resultList();
+    ABCs abcs(c_abcs.begin(), c_abcs.end());
 
-    BOOST_REQUIRE(bas.size() == 2);
+    BOOST_REQUIRE(abcs.size() == 6);
 
     int ii = 0;
-    for (BAs::const_iterator i = bas.begin(); i != bas.end(); ++i) {
+    for (ABCs::const_iterator i = abcs.begin(); i != abcs.end(); ++i) {
       dbo::ptr<A> a_result;
       dbo::ptr<B> b_result;
-      boost::tie(b_result, a_result) = *i;
+      dbo::ptr<C> c_result;
+      boost::tie(a_result, b_result, c_result) = *i;
 
-      if (ii == 0) {
-	BOOST_REQUIRE(a_result->i == 42);
-	BOOST_REQUIRE(b_result->name == "b");
-      } else if (ii == 1) {
-	BOOST_REQUIRE(a_result->i == 142);
-	BOOST_REQUIRE(b_result->name == "b");
+      switch (ii)
+      {
+        case 0:
+            BOOST_REQUIRE(a_result->wstring == "a1");
+            BOOST_REQUIRE(b_result->name == "b1");
+            BOOST_REQUIRE(c_result->name == "c1");
+            break;
+        case 1:
+            BOOST_REQUIRE(a_result->wstring == "a2");
+            BOOST_REQUIRE(b_result->name == "b1");
+            BOOST_REQUIRE(c_result->name == "c1");
+            break;
+        case 2:
+            BOOST_REQUIRE(a_result->wstring == "a3");
+            BOOST_REQUIRE(b_result->name == "b2");
+            BOOST_REQUIRE(c_result->name == "c2");
+            break;
+        case 3:
+            BOOST_REQUIRE(a_result->wstring == "a4");
+            BOOST_REQUIRE(b_result->name == "b2");
+            BOOST_REQUIRE(c_result->name == "c2");
+            break;
+        case 4:
+            BOOST_REQUIRE(a_result->wstring == "a5");
+            BOOST_REQUIRE(b_result->name == "b3");
+            BOOST_REQUIRE(c_result->name == "c3");
+            break;
+        case 5:
+            BOOST_REQUIRE(a_result->wstring == "a6");
+            BOOST_REQUIRE(b_result->name == "b3");
+            BOOST_REQUIRE(c_result->name == "c3");
+            break;
       }
 
       ++ii;
     }
 
-    BOOST_REQUIRE(ii == 2);
+    BOOST_REQUIRE(ii == 6);
 #endif //FIREBIRD && MYSQL
   }
 }

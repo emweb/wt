@@ -40,8 +40,7 @@ void WFormModel::addField(Field field, const WString& info)
 
 void WFormModel::removeField(Field field)
 {
-  FieldMap::iterator i = fields_.find(field);
-  fields_.erase(i);
+  fields_.erase(field);
 }
 
 std::vector<WFormModel::Field> WFormModel::fields() const

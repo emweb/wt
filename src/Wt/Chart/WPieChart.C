@@ -56,7 +56,6 @@ WPieChart::WPieChart(WContainerWidget *parent)
     shadow_(false)
 {
   setPalette(new WStandardPalette(WStandardPalette::Neutral));
-  setPreferredMethod(InlineSvgVml);
   setPlotAreaPadding(5);
 }
 

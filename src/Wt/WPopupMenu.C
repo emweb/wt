@@ -153,11 +153,6 @@ void WPopupMenu::popup(const WPoint& p)
 
 void WPopupMenu::prepareRender(WApplication *app)
 {
-  if (app->environment().agentIsIE()) {
-    doJavaScript(jsRef() + ".lastChild.style.width="
-		 + jsRef() + ".lastChild.offsetWidth + 'px';");
-  }
-
   if (!cancel_.isConnected()) {
     LOAD_JAVASCRIPT(app, "js/WPopupMenu.js", "WPopupMenu", wtjs1);
 

@@ -2778,6 +2778,14 @@ function sendUpdate() {
 }
 
 function propagateSize(element, width, height) {
+  /*
+   * Propagate the size, even if it's the elements unconstrained size.
+   */
+  if (width == -1)
+    width = element.offsetWidth;
+  if (height == -1)
+    height = element.offsetHeight;
+
   if ((typeof element.wtWidth === 'undefined')
       || (element.wtWidth != width)
       || (typeof element.wtHeight === 'undefined')

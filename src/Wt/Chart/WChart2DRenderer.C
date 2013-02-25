@@ -993,6 +993,13 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
     break;
   }
 
+  if (axis.labelAngle() != 0) {
+    if (vertical)
+      labelHFlag = AlignCenter;
+    else
+      labelHFlag = AlignMiddle;
+  }
+
   for (int segment = 0; segment < axis.segmentCount(); ++segment) {
     const WAxis::Segment& s = axis.segments_[segment];
 
@@ -1055,19 +1062,21 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 
       WPointF labelPos;
 
+      int angleDelta = axis.labelAngle() != 0 ? (vertical ? 10 : 5) : 0;
+
       switch (location_[axis.id()]) {
       case MinimumValue:
 	if (vertical)
-	  labelPos = WPointF(u - tickLength, dd);
+	  labelPos = WPointF(u - tickLength - angleDelta, dd);
 	else
-	  labelPos = WPointF(dd, u + tickLength);
+	  labelPos = WPointF(dd, u + angleDelta + tickLength);
 
 	break;
       case MaximumValue:
 	if (vertical)
-	  labelPos = WPointF(u + tickLength, dd);
+	  labelPos = WPointF(u + tickLength + angleDelta, dd);
 	else
-	  labelPos = WPointF(dd, u - tickLength);
+	  labelPos = WPointF(dd, u - tickLength - angleDelta);
 
 	break;
       case ZeroValue:
@@ -1075,17 +1084,17 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 	  /* force labels at bottom and left even if axis is in middle */
 	  if (chart_->type() == CategoryChart)
 	    labelPos = WPointF(chartArea_.left() - 0.5
-			       - axis.margin() - tickLength,
+			       - axis.margin() - tickLength - angleDelta,
 			       dd);
 	  else
-	    labelPos = WPointF(u - tickLength, dd);
+	    labelPos = WPointF(u - tickLength - angleDelta, dd);
       } else {
 	  /* force labels at bottom and left even if axis is in middle */
 	  if (chart_->type() == CategoryChart)
 	    labelPos = WPointF(dd, chartArea_.bottom() + 0.5
-			       + axis.margin() + tickLength);
+			       + axis.margin() + tickLength + angleDelta);
 	  else
-	    labelPos = WPointF(dd, u + tickLength);
+	    labelPos = WPointF(dd, u + tickLength + angleDelta);
 	}
       }
 
@@ -1112,19 +1121,15 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 	WFlags<AlignmentFlag> labelFlags = labelHFlag;
 
 	if (vertical)
-	  if (axis.labelAngle() == 0)
-	    labelFlags |= AlignMiddle;
-	  else if (axis.labelAngle() > 0)
-	    labelFlags |= AlignTop;
-	  else
-	    labelFlags |= AlignBottom;
-	else
+	  labelFlags |= AlignMiddle;
+	else {
 	  if (axis.labelAngle() == 0)
 	    labelFlags |= AlignCenter;
 	  else if (axis.labelAngle() > 0)
 	    labelFlags |= AlignRight;
 	  else
 	    labelFlags |= AlignLeft;
+	}
 
 	renderLabel(ticks[i].label,
 		    labelPos, black, labelFlags, axis.labelAngle(), 3);
@@ -1597,9 +1602,6 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
 
   WPointF pos = hv(p);
 
-  double left = pos.x();
-  double top = pos.y();
-
   if (chart_->orientation() == Horizontal) {
     switch (horizontalAlign) {
     case AlignLeft:
@@ -1624,24 +1626,27 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
     }
   }
 
+  double left = pos.x();
+  double top = pos.y();
+
   switch (rHorizontalAlign) {
   case AlignLeft:
-    left = pos.x() + margin; break;
+    left += margin; break;
   case AlignCenter:
-    left = pos.x() - width/2; break;
+    left -= width/2; break;
   case AlignRight:
-    left = pos.x() - width - margin;
+    left -= width + margin;
   default:
     break;
- }
+  }
 
   switch (rVerticalAlign) {
   case AlignTop:
-    top = pos.y() + margin; break;
+    top += margin; break;
   case AlignMiddle:
-    top = pos.y() - height/2; break;
+    top -= height/2; break;
   case AlignBottom:
-    top = pos.y() - height - margin; break;
+    top -= height + margin; break;
   default:
     break;
   }

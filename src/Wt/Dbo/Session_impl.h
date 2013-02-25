@@ -157,7 +157,10 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
 
       return ptr<C>(dbo);
     } else {
-      column += (int)mapping->fields.size() + 1; // + version
+      if (!i->second->isLoaded())
+	implLoad<C>(*i->second, statement, column);
+      else
+	column += (int)mapping->fields.size() + 1; // + version
 
       return ptr<C>(i->second);
     }
