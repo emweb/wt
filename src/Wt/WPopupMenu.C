@@ -77,7 +77,7 @@ void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 {
   WCompositeWidget::setHidden(hidden, animation);
 
-  if (isRendered() ||
+  if (cancel_.isConnected() ||
       WApplication::instance()->session()->renderer().preLearning())
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj').setHidden("
 		 + (hidden ? "1" : "0") + ");");
@@ -115,8 +115,6 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
   location_ = location;
 
   popupImpl();
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').popupAt("
-	       + location->jsRef() + ");");
 
   positionAt(location, orientation);
 }

@@ -49,7 +49,7 @@
   background-color: transparent;
 }
 .dropdown-menu .Wt-icon {
-  margin-right: 8px;
+  margin-right: 4px;
   background-repeat: no-repeat;
   background-position: center left;
   display: inline-block;
@@ -59,10 +59,11 @@
   vertical-align: text-top;
 }
 .dropdown-menu .Wt-chkbox {
-  margin-left: 2px;
-  margin-right: 10px;
+  margin-left: 1px;
+  margin-right: 7px;
   display: inline-block;
   width: 12px;
+  vertical-align: text-top;
 }
 .dropdown-menu .Wt-padded {
   padding-left: 39px;
@@ -202,6 +203,7 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));

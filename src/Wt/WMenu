@@ -440,7 +440,7 @@ public:
    *
    * \sa itemAt()
    */
-  std::vector<WMenuItem *>& items() const;
+  std::vector<WMenuItem *> items() const;
 
   /*! \brief %Signal which indicates that an item was closed.
    *

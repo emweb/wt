@@ -509,4 +509,14 @@ WMenuItem *WMenu::itemAt(int index) const
   return dynamic_cast<WMenuItem *>(ul()->widget(index));
 }
 
+std::vector<WMenuItem *> WMenu::items() const
+{
+  std::vector<WMenuItem *> result;
+
+  for (int i = 0; i < count(); ++i)
+    result.push_back(itemAt(i));
+
+  return result;
+}
+
 }

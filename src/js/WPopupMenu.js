@@ -171,10 +171,6 @@ WT_DECLARE_WT_MEMBER
      setOthersInactive(el, null);
    };
 
-   this.popupAt = function(widget) {
-     self.setHidden(false);
-   };
-
    setTimeout(function() { bindOverEvents(el); }, 0);
 
    $(el).mousemove(handleSubMenus);
