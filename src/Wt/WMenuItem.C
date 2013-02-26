@@ -383,12 +383,10 @@ void WMenuItem::connectSignals()
     if (a) {
       SignalBase *as;
 
-      if (checkBox_) {
-	as = &a->mouseWentUp();
+      as = &a->clicked();
+
+      if (checkBox_)
 	a->setLink(WLink());
-      } else {
-	as = &a->clicked();
-      }
 
       if (contentsContainer_ && contentsContainer_->count() == 0)
 	as->connect(this, &WMenuItem::selectNotLoaded);
