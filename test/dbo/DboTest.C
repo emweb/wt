@@ -1272,12 +1272,13 @@ BOOST_AUTO_TEST_CASE( dbo_test11 )
 
     model->addAllFieldsAsColumns();
 
-    BOOST_REQUIRE(model->columnCount() == 3);
+    BOOST_REQUIRE(model->columnCount() == 4);
     BOOST_REQUIRE(model->rowCount() == 1);
 
     BOOST_REQUIRE(Wt::asString(model->headerData(0)) == "id");
     BOOST_REQUIRE(Wt::asString(model->headerData(1)) == "version");
     BOOST_REQUIRE(Wt::asString(model->headerData(2)) == "name");
+    BOOST_REQUIRE(Wt::asString(model->headerData(3)) == "b2_id");
 
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "c1");
 
@@ -1339,12 +1340,13 @@ BOOST_AUTO_TEST_CASE( dbo_test12 )
 
     model->addAllFieldsAsColumns();
 
-    BOOST_REQUIRE(model->columnCount() == 3);
+    BOOST_REQUIRE(model->columnCount() == 4);
     BOOST_REQUIRE(model->rowCount() == 1);
 
     BOOST_REQUIRE(Wt::asString(model->headerData(0)) == "id");
     BOOST_REQUIRE(Wt::asString(model->headerData(1)) == "version");
     BOOST_REQUIRE(Wt::asString(model->headerData(2)) == "name");
+    BOOST_REQUIRE(Wt::asString(model->headerData(3)) == "b2_id");
 
     BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "c1");
 
