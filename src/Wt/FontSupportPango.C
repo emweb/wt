@@ -431,16 +431,15 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 
     delete[] attrs;
 
-    /*
-     * For some reason, the sum of the individual widths is a bit less
-     * (for longer stretches of text), so we re-measure it !
-     */
-    w = measureText(font, WString::fromUTF8(utf8.substr(0, measured)),
-		    -1, false).width();
-
     if (maxWidthReached) {
       return WTextItem(WString::fromUTF8(utf8.substr(0, current)), w, nextW);
     } else {
+      /*
+       * For some reason, the sum of the individual widths is a bit less
+       * (for longer stretches of text), so we re-measure it !
+       */
+      w = measureText(font, WString::fromUTF8(utf8.substr(0, measured)),
+		      -1, false).width();
       return WTextItem(text, w);
     }
   } else {
