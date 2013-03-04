@@ -557,8 +557,8 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   GetExceptionInfo(&exception);
 
   Image *cImage;
-  if (Uri::isDataUri(imgUri)) {
-    Uri::Uri uri = Uri::parseDataUri(imgUri);
+  if (DataUri::isDataUri(imgUri)) {
+    DataUri uri(imgUri);
 
     if (boost::istarts_with(uri.mimeType, "image/png"))
       strcpy(info.magick, "PNG");
@@ -570,7 +570,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     else 
       throw WException("Unsupported image mimetype: " + uri.mimeType);
 
-    cImage = ReadInlineImage(&info, uri.data.c_str(), &exception);
+    cImage = ReadInlineImage(&info, imgUri.substr(imgUri.find(',') + 1).c_str(), &exception);
   } else {
     strncpy(info.filename, imgUri.c_str(), 2048);
     cImage = ReadImage(&info, &exception);

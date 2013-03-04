@@ -197,11 +197,11 @@ bool removeScript(WString& text)
 
 std::string guessImageMimeTypeData(const std::vector<unsigned char>& header)
 {
-  return Wt::Image::identifyImageMimeType(header);
+  return Wt::ImageUtils::identifyMimeType(header);
 }
 std::string guessImageMimeType(const std::string& file)
 {
-  return Wt::Image::identifyImageFileMimeType(file);
+  return Wt::ImageUtils::identifyMimeType(file);
 }
   
   }

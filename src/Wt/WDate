@@ -307,7 +307,7 @@ public:
    */
   static WDate fromString(const WT_USTRING& s, const WT_USTRING& format);
 
-  /* \brief Converts a Julian Day <i>jd</i> to a \link Wt::WDate WDate \endlink.
+  /*! \brief Converts a Julian Day <i>jd</i> to a \link Wt::WDate WDate \endlink.
    *
    * \sa toJulianDay() const
    */

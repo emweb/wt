@@ -4,7 +4,7 @@
 #include <Wt/WHBoxLayout>
 #include <Wt/WGoogleMap>
 #include <Wt/WPushButton>
-#include <Wt/WStandardItemModel>
+#include <Wt/WStringListModel>
 #include <Wt/WTemplate>
 
 class GoogleMapExample : public Wt::WContainerWidget
@@ -84,7 +84,7 @@ public:
             map_->returnToSavedPosition();
         }));
 
-	mapTypeModel_ = new Wt::WStandardItemModel();
+	mapTypeModel_ = new Wt::WStringListModel(this);
 	addMapTypeControl("No control", Wt::WGoogleMap::NoControl);
 	addMapTypeControl("Default", Wt::WGoogleMap::DefaultControl);
 	addMapTypeControl("Menu", Wt::WGoogleMap::MenuControl);

@@ -43,7 +43,7 @@ std::string elementNames_[] =
   };
 
 bool defaultInline_[] =
-  { true, true, true, false,
+  { true, false, true, false,
     false,
     false, false, false,
     true, false, false, false,

@@ -9,12 +9,13 @@
 
 #include "CsvUtil.h"
 
-Wt::WStandardItemModel *csvToModel(const std::string& csvFile)
+Wt::WStandardItemModel *csvToModel(const std::string& csvFile,
+				   Wt::WObject *parent)
 {
   std::ifstream f(csvFile.c_str());
 
   if (f) {
-    Wt::WStandardItemModel *result = new Wt::WStandardItemModel(0, 0);
+    Wt::WStandardItemModel *result = new Wt::WStandardItemModel(0, 0, parent);
     readFromCsv(f, result);
     return result;
   } else

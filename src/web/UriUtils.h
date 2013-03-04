@@ -8,18 +8,24 @@
 #define URI_UTILS_H_
 
 #include <string>
+#include <vector>
 
 namespace Wt {
-  namespace Uri {
-    bool isDataUri(const std::string& uri);
 
-    struct Uri {
-      std::string mimeType;
-      std::string data;
-    };
+  class DataUri
+  {
+  public:
+    DataUri(const std::string& dataUri);
 
-    Uri parseDataUri(const std::string& uri);
-  }
+    std::string mimeType;
+    std::vector<unsigned char> data;
+
+    static bool isDataUri(const std::string& uri);
+
+  private:
+    void parse(const std::string& dataUri);
+  };
+
 }
 
 #endif // URI_UTILS_H_

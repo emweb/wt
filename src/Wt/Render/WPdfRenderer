@@ -20,14 +20,20 @@ namespace Wt {
  * supports only a subset of XHTML. See the documentation of WTextRenderer
  * for more information.
  *
- * The renderer renders to a libharu PDF document. By default it uses
- * a pixel resolution of 72 DPI, which is the default for libharu, but
- * differs from the default used by most browsers (which is 96 DPI and
- * has nothing to do with the actual screen resolution). The
- * resolution can be increased using setDpi(). This has the effect of
- * scaling down the rendering. This can be used in conjunction with
- * setFontScale() to scale the font size differently than other
- * content.
+ * \if cpp
+ * The renderer renders to a libharu PDF document (using WPdfImage).
+ * \endif
+ * \if java
+ * The renderer renders to a PDFJet PDF document (using WPdfImage).
+ * \endif
+ *
+ * By default it uses a pixel resolution of 72 DPI, which is the
+ * default for a WPdfImage, but differs from the default used by most
+ * browsers (which is 96 DPI and has nothing to do with the actual
+ * screen resolution). The pixel resolution can be configured using
+ * setDpi(). Increasing the resolution has the effect of scaling down
+ * the rendering. This can be used in conjunction with setFontScale() to
+ * scale the font size differently than other content.
  *
  * \if cpp
  * Usage example:
@@ -87,8 +93,7 @@ public:
    * The dpi setting also affects the pageWidth(), pageHeight(), and
    * margin() pixel calculations.
    *
-   * The default resolution is 72 DPI (this is the default resolution
-   * used by libharu).
+   * The default resolution is 72 DPI.
    */
   void setDpi(int dpi);
 

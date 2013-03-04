@@ -30,10 +30,9 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
     app->setTheme(new Wt::WBootstrapTheme(app));
 
   // load text bundles (for the tr() function)
+  app->messageResourceBundle().use(app->appRoot() + "report");
   app->messageResourceBundle().use(app->appRoot() + "text");
   app->messageResourceBundle().use(app->appRoot() + "src");
-  app->messageResourceBundle().use(app->appRoot() + "charts");
-  app->messageResourceBundle().use(app->appRoot() + "treeview");
  
   Wt::WHBoxLayout *layout = new Wt::WHBoxLayout(app->root());
   layout->setContentsMargins(0, 0, 0, 0);

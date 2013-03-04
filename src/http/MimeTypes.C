@@ -41,6 +41,7 @@ struct mapping
   { "mp3", "audio/mp3" },
   { "svg", "image/svg+xml" },
   { "webm", "video/webm" },
+  { "xml", "application/xml" },
   { 0, 0 } // Marks end of list.
 };
 

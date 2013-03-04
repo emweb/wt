@@ -417,9 +417,11 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 	  current = g_utf8_offset_to_pointer(s, i) - s;
 	  w += ti.width();
 
-	  if (i == utflen)
+	  if (i == utflen) {
 	    w += measureText(font, WString::fromUTF8(utf8.substr(measured)),
 			     -1, false).width();
+	    measured = utf8.length();
+	  }
 	}
       }
 
@@ -428,6 +430,13 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
     }
 
     delete[] attrs;
+
+    /*
+     * For some reason, the sum of the individual widths is a bit less
+     * (for longer stretches of text), so we re-measure it !
+     */
+    w = measureText(font, WString::fromUTF8(utf8.substr(0, measured)),
+		    -1, false).width();
 
     if (maxWidthReached) {
       return WTextItem(WString::fromUTF8(utf8.substr(0, current)), w, nextW);

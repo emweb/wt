@@ -26,6 +26,7 @@
 
 #include "FileUtils.h"
 #include "ImageUtils.h"
+#include "UriUtils.h"
 
 namespace Wt {
 
@@ -112,42 +113,40 @@ WPainter::Image::Image(const std::string& url, int width, int height)
   setUrl(url);
 }
 
-void WPainter::Image::setUrl(const std::string& url)
-{
-  WApplication *app = WApplication::instance();
-  if (app)
-    url_ = app->resolveRelativeUrl(url);
-  else
-    url_ = url;
-}
-
 WPainter::Image::Image(const std::string& url, const std::string& fileName)
 {
   setUrl(url);
 
-  /*
-   * Contributed by Daniel Derr @ ArrowHead Electronics Health-Care
-   */
-  std::vector<unsigned char> header = Wt::FileUtils::fileHeader(fileName, 25);
-  if (header.size() != 0) {
-    std::string mimeType = Wt::Image::identifyImageMimeType(header);
-    if (mimeType == "image/png") {
-      width_ = ( ( ( int(header[16]) << 8
-		     | int(header[17])) << 8
-		   | int(header[18])) << 8
-		 | int(header[19]));
-      height_ = ( ( ( int(header[20]) << 8
-		      | int(header[21])) << 8
-		    | int(header[22])) << 8
-		  | int(header[23]));
-    } else if (mimeType == "image/gif") {
-      width_ = int(header[7]) << 8 | int(header[6]);
-      height_ = int(header[9]) << 8 | int(header[8]);
-    } else {
-      throw Wt::WException("'" + fileName + "': unsupported file format");
-    }
-  } else
-    throw Wt::WException("'" + fileName + "': could not read");
+  if (DataUri::isDataUri(url)) {
+    DataUri uri(url);
+
+    WPoint size = Wt::ImageUtils::getSize(uri.data);
+    if (size.x() == 0 || size.y() == 0)
+      throw WException("data url: (" + uri.mimeType
+		       + "): could not determine image size");
+
+    width_ = size.x();
+    height_ = size.y();
+  } else {
+    WPoint size = Wt::ImageUtils::getSize(fileName);
+
+    if (size.x() == 0 || size.y() == 0)
+      throw WException("'" + fileName
+		       + "': could not determine image size");
+
+    width_ = size.x();
+    height_ = size.y();
+  }
+}
+
+void WPainter::Image::setUrl(const std::string& url)
+{
+  WApplication *app = WApplication::instance();
+
+  if (app)
+    url_ = app->resolveRelativeUrl(url);
+  else
+    url_ = url;
 }
 
 WPainter::WPainter()

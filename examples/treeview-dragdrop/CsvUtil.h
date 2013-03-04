@@ -10,6 +10,7 @@
 #include <iostream>
 
 namespace Wt {
+  class WObject;
   class WAbstractItemModel;
   class WStandardItemModel;
 }
@@ -17,6 +18,7 @@ namespace Wt {
 extern void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 			int numRows = -1, bool firstLineIsHeaders = true);
 
-extern Wt::WStandardItemModel *csvToModel(const std::string& csvFile);
+extern Wt::WStandardItemModel *csvToModel(const std::string& csvFile,
+					  Wt::WObject *parent);
 
 #endif // CSV_UTIL_H_

@@ -147,11 +147,12 @@ public:
 
   /*! \brief Sets whether a field is visible.
    *
-   * Fields are visible by default.
+   * Fields are visible by default. An invisible field will be ignored during
+   * validation (i.e. will be considered as valid).
    *
    * \sa isVisible()
    */
-  void setVisible(Field field, bool readOnly);
+  void setVisible(Field field, bool visible);
 
   /*! \brief Returns whether a field is visible.
    *

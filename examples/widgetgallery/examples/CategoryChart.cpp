@@ -15,7 +15,7 @@ SAMPLE_BEGIN(CategoryChart)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WStandardItemModel *model
-    = csvToModel(Wt::WApplication::appRoot() + "category.csv");
+    = csvToModel(Wt::WApplication::appRoot() + "category.csv", container);
 
 if (!model)
     return container;
@@ -59,7 +59,7 @@ if (Wt::WApplication::instance()->environment().ajax()) {
 /*
  * Use a delegate for the numeric data which rounds values sensibly.
  */
-Wt::WItemDelegate *delegate = new Wt::WItemDelegate();
+Wt::WItemDelegate *delegate = new Wt::WItemDelegate(table);
 delegate->setTextFormat("%.f");
 table->setItemDelegate(delegate);
 

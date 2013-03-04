@@ -869,24 +869,43 @@ version released during one year.
     <td>+</td>
   </tr>
   <tr class="r1">
+    <th>Charting Module</th>
+    <td></td>
+    <td>+</td>
+  </tr>
+  <tr class="r0">
+    <th>XHTML Rendering Module</th>
+    <td></td>
+    <td>+</td>
+  </tr>
+  <tr class="r1">
     <th>C++ ORM</th>
     <td>+</td>
     <td>+</td>
   </tr>
   <tr class="r0">
-    <th>Sqlite3 driver</th>
+    <th class="indent">Sqlite3 driver</th>
     <td>+</td>
     <td>+</td>
   </tr>
   <tr class="r1">
-    <th>PostgreSQL driver</th>
+    <th class="indent">PostgreSQL driver</th>
     <td>+</td>
     <td>+</td>
   </tr>
   <tr class="r0">
-    <th>Firebird driver</th>
+    <th class="indent">Firebird driver</th>
     <td>+</td>
     <td>+</td>
+  </tr>
+  <tr class="r1">
+    <th class="indent">MariaDB/MySQL driver</th>
+    <td>+</td>
+    <td>+</td>
+  </tr>
+  <tr class="r0">
+    <th class="indent">Oracle driver</th>
+    <td colspan="2"><a href="mailto:sales@emweb.be">Contact us</a></td>
   </tr>
   <tr class="separate r1">
     <th>License</th>
@@ -915,6 +934,9 @@ version released during one year.
   </tr>
 </table>
 
+There is also an Oracle driver for Wt::Dbo, which is sold separately and
+can be used only in conjunction with a Commercial License for Wt::Dbo.
+
   </message>
   
   <message id="home.download.packages">
@@ -928,13 +950,12 @@ version released during one year.
 
 <p>
   If you are on Ubuntu, you can install a reasonably recent version of
-  Wt from Pau Garcia's PPA repository:
+  Wt from official packages.
 </p>
 
 <div class="fragment">
-  <pre class="fragment">$ sudo add-apt-repository ppa:pgquiles/wt
-$ sudo apt-get update
-$ sudo apt-get install witty witty-dev witty-doc witty-examples</pre>
+  <pre class="fragment">
+$ sudo apt-get install libwt libwt-dev libwthttp-dev witty-examples</pre>
 </div>
 
 <p>
@@ -985,9 +1006,9 @@ least the following two packages:
   </li>
   <li>
     The indispensable <a href="http://www.boost.org/"> boost C++
-    library</a>: boost-1.41 or later. Older boost versions (up to
-    1.36) may also be used, but some functionality will be missing
-    (JSON parsing and a better SQL query parsing for Wt::Dbo).<br />
+    library</a>: boost-1.41 or later. Older boost versions (as old as 1.36)
+    may also be used, but some functionality will be missing
+    (JSON parsing and a better SQL query parsing for Wt::Dbo). <br />
 
     The following boost libraries (which are not headers only) are
     needed: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
@@ -1008,9 +1029,12 @@ features in Wt:
   <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>: if
     available, a
     <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
-    paint device will be included, which outputs to PDF. For more
-    complete support for TrueType fonts and Unicode, you need 
-    <a href="https://github.com/kdeforche/libharu">a patched libharu</a>.</li>
+    paint device will be included, which provides rendering support for PDF
+    documents. For more complete support for TrueType fonts and Unicode, you'll
+    want <a href="https://github.com/kdeforche/libharu">a patched libharu</a>
+    and probably also libpango (see further) for accurate font/glyph
+    selection.
+  </li>
   <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>: if
     available,
     a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
@@ -1020,12 +1044,16 @@ features in Wt:
     text rendering for WPdfImage and WRasterImage will be assisted by
     this library for TrueType font selection, taking into
     consideration both the font face and unicode coverage.</li>
-  <li><a href="http://www.postgresql.org/">PostgreSQL</a>: if
-    available, a
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
-    connector</a> for the ORM library
-    (<a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>) will be built.
-   </li>
+  <li>
+    <a href="http://www.postgresql.org/">PostgreSQL</a>, <a
+    href="http://www.mysql.com/">MySQL</a>/<a
+    href="http://mariadb.org/">MariaDB</a>, and <a
+    href="http://firebirdsql.org">Firebird</a>: if available,
+    connectors for these databases for the ORM library (<a
+    href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">
+    Wt::Dbo</a>) will be built (alongside the Sqlite3 connector which
+    is distributed with Wt).
+  </li>
 </ul>
 
 <p>The other requirements depend on the connector support you would
@@ -1145,7 +1173,7 @@ domain.</a></li>
 <p>
 Other independent contributors include: Richard Ulrich, Gaetano
 Mendola, Thomas Suckow, Hilary Cheng, Dmitriy Igrishin, Daniel Derr,
-Omer Katz, and Lukasz Matuszewski.
+Omer Katz, and Lukasz Matuszewski, and many others (see the Changelog).
 </p>
 
 <h4>Wiki</h4>

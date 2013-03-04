@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-//#define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT
 
 #include "Wt/WFontMetrics"
 #include "Wt/WLogger"
@@ -732,14 +732,16 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	w = cssWidth(renderer.fontScale());
 	h = cssHeight(renderer.fontScale());
 
-	if (w <= 0) {
-	  LOG_ERROR("image with unknown width");
-	  w = 10;
-	}
+	std::string src = attributeValue("src");
 
-	if (h <= 0) {
-	  LOG_ERROR("image with unknown height");
-	  h = 10;
+	if (w <= 0 || h <= 0) {
+	  WPainter::Image image(src, src);
+
+	  if (w <= 0)
+	    w = image.width();
+
+	  if (h <= 0)
+	    h = image.height();
 	}
 
 	w += cssBoxMargin(Left, renderer.fontScale())
@@ -1111,7 +1113,7 @@ void Block::tableRowDoLayout(double x, PageState &ps,
 
       double width = 0;
       for (unsigned j = col; j < col + colSpan; ++j)
-	width += widths[col];
+	width += widths[j];
 
       width += (colSpan - 1) * cellSpacing;
 
@@ -1562,6 +1564,17 @@ double Block::layoutBlock(PageState &ps,
 
     if (type_ == DomElement_IMG) {
       double height = cssHeight(renderer.fontScale());
+      std::string src = attributeValue("src");
+
+      if (width <= 0 || height <= 0) {
+	WPainter::Image image(src, src);
+
+	if (height <= 0)
+	  height = image.height();
+
+	if (width <= 0)
+	  width = image.width();
+      }
 
       if (ps.y + height > renderer.textHeight(ps.page)) {
 	pageBreak(ps);
@@ -1573,6 +1586,9 @@ double Block::layoutBlock(PageState &ps,
       }
 
       ps.y += height;
+
+      // FIXME this should be reviewed for margin/border implications
+      ps.maxX = std::max(ps.minX + width, ps.maxX);
     } else {
       double cMinX = ps.minX + cssPadding(Left, renderer.fontScale())
 	+ cssBorderWidth(Left, renderer.fontScale());
@@ -2111,8 +2127,9 @@ void Block::render(WTextRenderer& renderer, int page)
 	+ cssBorderWidth(Left, renderer.fontScale());
       double top = renderer.margin(Top) + bb.y
 	+ cssBorderWidth(Top, renderer.fontScale());
-      double width = cssWidth(renderer.fontScale());
-      double height = cssHeight(renderer.fontScale());
+
+      double width = bb.width;
+      double height = bb.height;
 
       WRectF rect(left, top, width, height);
 
@@ -2121,13 +2138,9 @@ void Block::render(WTextRenderer& renderer, int page)
       renderer.painter()->drawRect(rect);
 #endif // DEBUG_LAYOUT
 
-      if (width > 0 && height > 0)
-	renderer.painter()->drawImage(rect,
-				      WPainter::Image(attributeValue("src"),
-						      (int)width, (int)height));
-      else
-	LOG_ERROR("Cannot paint image '" << attributeValue("src") << "', "
-		  << "need (CSS) width and height explicitly set");
+      renderer.painter()->drawImage(rect,
+				    WPainter::Image(attributeValue("src"),
+						    (int)width, (int)height));
     }
   }
 

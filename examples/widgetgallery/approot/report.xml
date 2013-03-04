@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="report.example">
+    <div>
+      <h1>Hello World!</h1>
+
+      <p>
+        This could be a <span style="font-size:20pt">big</span> deal
+        to your project, since this modest renderer does support many
+        things commonly needed to render reports, such as:
+      </p>
+
+      Unordered lists:
+      <ul>
+        <li>with one ...</li>
+        <li>or <em>more</em> items</li>
+      </ul>
+
+      Ordered lists:
+      <ol>
+        <li>it's a basic thing</li>
+        <li>and they come in good use</li>
+      </ol>
+
+      <div style="float: right; border: 1px solid black; background-color: #EEE; padding: 10px; margin-left: 10px; margin-bottom: 10px; width: 200px">
+	<img style="float: right" src="data:image/png;base64,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" />
+        That's a logo to look for, right there.
+      </div>
+      <p>
+        The renderer has fairly complete support for layout of floats
+        (like images), including nested floats and their interactions
+        with other inline and block contents.
+      </p>
+
+      <p>
+        There is obvious support for <span style="color: #11E">colors</span>,
+        different font sizes - <span style="font-size:15pt">big</span> and
+        <span style="font-size: 9pt">small</span> - and other fonts; including
+        support for <span style="font-family: serif">true type</span> fonts.
+      </p>
+
+      <p>
+        Reports typically contain tables, and these are also well
+        supported; including multi-page ones, with automatic repetition
+        of table headers.
+
+        <table style="font-size: 8pt; margin-left: auto; margin-right: auto">
+          <thead>
+            <tr>
+              <th style="border-bottom: 1px solid black">FirstName</th>
+              <th style="border-bottom: 1px solid black">LastName</th>
+              <th style="border-bottom: 1px solid black">Company</th>
+              <th style="border-bottom: 1px solid black">Address</th>
+              <th style="border-bottom: 1px solid black">City</th>
+              <th style="border-bottom: 1px solid black">County</th>
+              <th style="border-bottom: 1px solid black">State</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Essie</td>
+              <td>Vaill</td>
+              <td>Litronic Industries</td>
+              <td>14225 Hancock Dr</td>
+              <td>Anchorage</td>
+              <td>Anchorage</td>
+              <td>AK</td>
+            </tr>
+            <tr>
+              <td>Cruz</td>
+              <td>Roudabush</td>
+              <td>Meridian Products</td>
+              <td>2202 S Central Ave</td>
+              <td>Phoenix</td>
+              <td>Maricopa</td>
+              <td>AZ</td>
+            </tr>
+            <tr>
+              <td>Billie</td>
+              <td>Tinnes</td>
+              <td>D &amp; M Plywood Inc</td>
+              <td>28 W 27th St</td>
+              <td>New York</td>
+              <td>New York</td>
+              <td>NY</td>
+            </tr>
+            <tr>
+              <td>Zackary</td>
+              <td>Mockus</td>
+              <td>Metropolitan Elevator Co</td>
+              <td>286 State St</td>
+              <td>Perth Amboy</td>
+              <td>Middlesex</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Rosemarie</td>
+              <td>Fifield</td>
+              <td>Technology Services</td>
+              <td>3131 N Nimitz Hwy</td>
+              <td>Honolulu</td>
+              <td>Honolulu</td>
+              <td>HI</td>
+            </tr>
+            <tr>
+              <td>Bernard</td>
+              <td>Laboy</td>
+              <td>Century 21 Keewaydin Prop</td>
+              <td>22661 S Frontage Rd</td>
+              <td>Channahon</td>
+              <td>Will</td>
+              <td>IL</td>
+            </tr>
+            <tr>
+              <td>Sue</td>
+              <td>Haakinson</td>
+              <td>Kim Peacock Beringhause</td>
+              <td>9617 N Metro Pky W</td>
+              <td>Phoenix</td>
+              <td>Maricopa</td>
+              <td>AZ</td>
+            </tr>
+            <tr>
+              <td>Valerie</td>
+              <td>Pou</td>
+              <td>Sea Port Record One Stop Inc</td>
+              <td>7475 Hamilton Blvd</td>
+              <td>Trexlertown</td>
+              <td>Lehigh</td>
+              <td>PA</td>
+            </tr>
+            <tr>
+              <td>Lashawn</td>
+              <td>Hasty</td>
+              <td>Kpff Consulting Engineers</td>
+              <td>815 S Glendora Ave</td>
+              <td>West Covina</td>
+              <td>Los Angeles</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Marianne</td>
+              <td>Earman</td>
+              <td>Albers Technologies Corp</td>
+              <td>6220 S Orange Blossom Trl</td>
+              <td>Orlando</td>
+              <td>Orange</td>
+              <td>FL</td>
+            </tr>
+            <tr>
+              <td>Justina</td>
+              <td>Dragaj</td>
+              <td>Uchner, David D Esq</td>
+              <td>2552 Poplar Ave</td>
+              <td>Memphis</td>
+              <td>Shelby</td>
+              <td>TN</td>
+            </tr>
+            <tr>
+              <td>Mandy</td>
+              <td>Mcdonnell</td>
+              <td>Southern Vermont Surveys</td>
+              <td>343 Bush St Se</td>
+              <td>Salem</td>
+              <td>Marion</td>
+              <td>OR</td>
+            </tr>
+            <tr>
+              <td>Conrad</td>
+              <td>Lanfear</td>
+              <td>Kahler, Karen T Esq</td>
+              <td>49 Roche Way</td>
+              <td>Youngstown</td>
+              <td>Mahoning</td>
+              <td>OH</td>
+            </tr>
+            <tr>
+              <td>Cyril</td>
+              <td>Behen</td>
+              <td>National Paper &amp; Envelope Corp</td>
+              <td>1650 S Harbor Blvd</td>
+              <td>Anaheim</td>
+              <td>Orange</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Shelley</td>
+              <td>Groden</td>
+              <td>Norton, Robert L Esq</td>
+              <td>110 Broadway St</td>
+              <td>San Antonio</td>
+              <td>Bexar</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Rosalind</td>
+              <td>Krenzke</td>
+              <td>Waldein Manufacturing</td>
+              <td>7000 Bass Lake Rd</td>
+              <td>Minneapolis</td>
+              <td>Hennepin</td>
+              <td>MN</td>
+            </tr>
+            <tr>
+              <td>Davis</td>
+              <td>Brevard</td>
+              <td>Transit Trading Corp</td>
+              <td>6715 Tippecanoe Rd</td>
+              <td>Canfield</td>
+              <td>Mahoning</td>
+              <td>OH</td>
+            </tr>
+            <tr>
+              <td>Winnie</td>
+              <td>Reich</td>
+              <td>Pacific Seating Co</td>
+              <td>1535 Hawkins Blvd</td>
+              <td>El Paso</td>
+              <td>El Paso</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Trudy</td>
+              <td>Worlds</td>
+              <td>Shapiro, Mark R Esq</td>
+              <td>24907 Tibbitts Avenue</td>
+              <td>Valencia</td>
+              <td>Los Angeles</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Deshawn</td>
+              <td>Inafuku</td>
+              <td>Telair Div Of Teleflex Inc</td>
+              <td>3508 Leopard St</td>
+              <td>Corpus Christi</td>
+              <td>Nueces</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Claudio</td>
+              <td>Loose</td>
+              <td>Audiotek Electronics</td>
+              <td>286 State St</td>
+              <td>Perth Amboy</td>
+              <td>Middlesex</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Sal</td>
+              <td>Pindell</td>
+              <td>Wrigley, Robert I Esq</td>
+              <td>1112 Se 1st St</td>
+              <td>Evansville</td>
+              <td>Vanderburgh</td>
+              <td>IN</td>
+            </tr>
+            <tr>
+              <td>Cristina</td>
+              <td>Sharper</td>
+              <td>Tax Office</td>
+              <td>111 W 40th St</td>
+              <td>New York</td>
+              <td>New York</td>
+              <td>NY</td>
+            </tr>
+            <tr>
+              <td>Cary</td>
+              <td>Mccamey</td>
+              <td>Williams Scotsman</td>
+              <td>100 E Broad St</td>
+              <td>Columbus</td>
+              <td>Franklin</td>
+              <td>OH</td>
+            </tr>
+            <tr>
+              <td>Haley</td>
+              <td>Rocheford</td>
+              <td>Davis, Robert L Esq</td>
+              <td>6030 Greenwood Plaza Blvd</td>
+              <td>Englewood</td>
+              <td>Arapahoe</td>
+              <td>CO</td>
+            </tr>
+            <tr>
+              <td>Dorothea</td>
+              <td>Sweem</td>
+              <td>Ehrmann, Rolfe F Esq</td>
+              <td>100 Thanet Circ</td>
+              <td>Trenton</td>
+              <td>Mercer</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Fannie</td>
+              <td>Steese</td>
+              <td>Chiapete, W Richard Esq</td>
+              <td>926 E ParkAve</td>
+              <td>Tallahassee</td>
+              <td>Leon</td>
+              <td>FL</td>
+            </tr>
+            <tr>
+              <td>Allyson</td>
+              <td>Gillispie</td>
+              <td>De Friese Theo &amp; Sons</td>
+              <td>1722 White Horse Mercerville R</td>
+              <td>Trenton</td>
+              <td>Mercer</td>
+              <td>NJ</td>
+            </tr>
+            <tr>
+              <td>Roger</td>
+              <td>Seid</td>
+              <td>Yoshida, Gerald C Esq</td>
+              <td>3738 N Monroe St</td>
+              <td>Tallahassee</td>
+              <td>Leon</td>
+              <td>FL</td>
+            </tr>
+            <tr>
+              <td>Dollie</td>
+              <td>Daquino</td>
+              <td>Jd Edwards &amp; Co</td>
+              <td>1005 Congress Ave</td>
+              <td>Austin</td>
+              <td>Travis</td>
+              <td>TX</td>
+            </tr>
+            <tr>
+              <td>Eva</td>
+              <td>Seahorn</td>
+              <td>Saunders Appraisal Inc</td>
+              <td>3 Northern Blvd</td>
+              <td>Amherst</td>
+              <td>Hillsborough</td>
+              <td>NH</td>
+            </tr>
+            <tr>
+              <td>Mamie</td>
+              <td>Mcintee</td>
+              <td>Jacobs, Brian Realtor</td>
+              <td>2810 Jacobs Ave</td>
+              <td>Eureka</td>
+              <td>Humboldt</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Lyndon</td>
+              <td>Bellerdine</td>
+              <td>A B C Lock &amp; Key</td>
+              <td>200 California St</td>
+              <td>San Francisco</td>
+              <td>San Francisco</td>
+              <td>CA</td>
+            </tr>
+            <tr>
+              <td>Lashonda</td>
+              <td>Derouen</td>
+              <td>Travel Agent Magazine</td>
+              <td>101 Royal St</td>
+              <td>Alexandria</td>
+              <td>Alexandria City</td>
+              <td>VA</td>
+            </tr>
+            <tr>
+              <td>Jacklyn</td>
+              <td>Emayo</td>
+              <td>Super 8 Motel Temple</td>
+              <td>101 Us Highway 46</td>
+              <td>Fairfield</td>
+              <td>Essex</td>
+              <td>NJ</td>
+            </tr>
+          </tbody>
+        </table>
+      </p>
+
+      <p style="text-align: center">
+        So, keep it in mind !
+      </p>
+    </div>
+  </message>
+</messages>

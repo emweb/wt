@@ -5,7 +5,8 @@
 
 SAMPLE_BEGIN(SmallTableView)
 Wt::WTableView *tableView = new Wt::WTableView();
-tableView->setModel(csvToModel(Wt::WApplication::appRoot() + "table.csv"));
+tableView->setModel(csvToModel(Wt::WApplication::appRoot() + "table.csv",
+			       tableView));
 
 tableView->setColumnResizeEnabled(false);
 tableView->setColumnAlignment(0, Wt::AlignCenter);

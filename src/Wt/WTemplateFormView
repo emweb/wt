@@ -13,7 +13,7 @@
 namespace Wt {
 
 /*! \class WTemplateFormView Wt/WTemplateFormView
- *  \brief A template-based View class form form models.
+ *  \brief A template-based View class form models.
  *
  * This implements a View to be used in conjunction with WFormModel
  * models to implement forms.
@@ -140,9 +140,9 @@ public:
 
   /*! \brief Updates a field in the Model (<b>Deprecated</b>)
    *
-   * Calls updateViewValue()
+   * Calls updateModelValue()
    *
-   * \deprecated Reimplement updateViewValue() instead.
+   * \deprecated Reimplement updateModelValue() instead.
    */
   virtual void updateModelField(WFormModel *model, WFormModel::Field field);
 

@@ -269,6 +269,7 @@ Wt/Chart/WCartesianChart.C
 Wt/Chart/WChart2DRenderer.C
 Wt/Chart/WChartPalette.C
 Wt/Chart/WStandardPalette.C
+Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
 Wt/Json/Value.C

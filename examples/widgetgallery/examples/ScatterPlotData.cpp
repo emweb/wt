@@ -18,7 +18,7 @@ SAMPLE_BEGIN(ScatterPlotData)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WStandardItemModel *model
-    = csvToModel(Wt::WApplication::appRoot() + "timeseries.csv");
+    = csvToModel(Wt::WApplication::appRoot() + "timeseries.csv", container);
 
 if (!model)
     return container;
@@ -50,10 +50,10 @@ for (int column = 1; column < model->columnCount(); ++column)
 /*
  * Use a delegate for the numeric data which rounds values sensibly.
  */
-Wt::WItemDelegate *delegate = new Wt::WItemDelegate();
+Wt::WItemDelegate *delegate = new Wt::WItemDelegate(table);
 delegate->setTextFormat("%.1f");
 table->setItemDelegate(delegate);
-table->setItemDelegateForColumn(0, new Wt::WItemDelegate());
+table->setItemDelegateForColumn(0, new Wt::WItemDelegate(table));
 
 /*
  * Creates the scatter plot.

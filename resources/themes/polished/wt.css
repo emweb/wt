@@ -362,7 +362,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     color: #888;
 }
 
-.Wt-popupmenu .submenu a {
+.Wt-popupmenu .submenu {
     background-image: url(../../right-arrow.gif);
     background-repeat: no-repeat;
     background-position: right center;

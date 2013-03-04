@@ -12,38 +12,38 @@
 #include <boost/algorithm/string.hpp>
 
 namespace Wt {
-  namespace Uri {
 
-#ifdef WT_TARGET_JAVA	
-    class UriUtils {
-    };
-#endif //WT_TARGET_JAVA
+  DataUri::DataUri(const std::string& uriString)
+  {
+    parse(uriString);
+  }
 
-    bool isDataUri(const std::string& uriString)
-    {
-      return boost::starts_with(uriString, "data:");
-    }
-    
-    Uri parseDataUri(const std::string& uriString)
-    {
-      Uri uri;
+  bool DataUri::isDataUri(const std::string& uriString)
+  {
+    return boost::starts_with(uriString, "data:");
+  }
 
-      size_t dataEndPos = uriString.find("data:") + 5;
-      size_t commaPos = uriString.find(",");
-      if (commaPos == std::string::npos)
-	commaPos = dataEndPos;
+  void DataUri::parse(const std::string& uriString)
+  {
+    std::size_t dataEndPos = uriString.find("data:") + 5;
+    std::size_t commaPos = uriString.find(",");
+    if (commaPos == std::string::npos)
+      commaPos = dataEndPos;
       
-      uri.mimeType = uriString.substr(dataEndPos, commaPos - dataEndPos);
-      uri.data = uriString.substr(commaPos + 1);
+    mimeType = uriString.substr(dataEndPos, commaPos - dataEndPos);
 
-      uri.data = Utils::base64Decode(uri.data);
-      
-      if (!boost::ends_with(uri.mimeType, ";base64") || uri.data.size() == 0)
-	throw WException("Ill formed data URI: " + uriString);
-      else {
-	uri.mimeType = uri.mimeType.substr(0, uri.mimeType.find(";"));
-	return uri;
-      }
-    }
+    std::string d = uriString.substr(commaPos + 1);
+
+#ifndef WT_TARGET_JAVA
+    d = Utils::base64Decode(d);
+    data = std::vector<unsigned char>(d.begin(), d.end());
+#else
+    data = Utils::base64Decode(d);
+#endif // WT_TARGET_JAVA
+
+    if (!boost::ends_with(mimeType, ";base64") || data.empty())
+      throw WException("Ill formed data URI: " + uriString);
+    else
+      mimeType = mimeType.substr(0, mimeType.find(";"));
   }
 }

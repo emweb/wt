@@ -68,7 +68,8 @@
 .dropdown-menu .Wt-padded {
   padding-left: 39px;
 }
-.dropdown-menu .submenu a {
+.dropdown-menu .submenu a,
+.dropdown-menu .submenu a:hover {
   background-image: url(../../right-arrow.gif);
   background-repeat: no-repeat;
   background-position: right center;

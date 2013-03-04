@@ -6,7 +6,7 @@
 
 SAMPLE_BEGIN(LargeTableView)
 Wt::WTableView *tableView = new Wt::WTableView();
-tableView->setModel(new VirtualModel(10000, 50));
+tableView->setModel(new VirtualModel(10000, 50, tableView));
 
 tableView->setRowHeaderCount(1); // treat first column as 'fixed' row headers
 tableView->setSortingEnabled(false);

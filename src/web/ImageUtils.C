@@ -53,19 +53,19 @@ namespace {
 }
 
 namespace Wt {
-  namespace Image {
 
-std::string identifyImageFileMimeType(const std::string& fileName)
+std::string ImageUtils::identifyMimeType(const std::string& fileName)
 {
   std::vector<unsigned char> header = FileUtils::fileHeader(fileName, 25);
  
- if (header.size() == 0)
-   return "";
- else
-   return identifyImageMimeType(header);
+  if (header.empty())
+    return "";
+  else
+    return identifyMimeType(header);
 }
     
-std::string identifyImageMimeType(const std::vector<unsigned char>& header)
+std::string ImageUtils::identifyMimeType(const std::vector<unsigned char>&
+					 header)
 {
   // TODO: also check the filename extension, if parsing the file did not work
   for (int i = 0; i < mimeTypeCount; ++i) {
@@ -83,5 +83,39 @@ std::string identifyImageMimeType(const std::vector<unsigned char>& header)
   return std::string();
 }
 
-  }
+WPoint ImageUtils::getSize(const std::string& fileName)
+{
+  std::vector<unsigned char> header = FileUtils::fileHeader(fileName, 25);
+ 
+  if (header.empty())
+    return WPoint();
+  else
+    return getSize(header);
+}
+
+WPoint ImageUtils::getSize(const std::vector<unsigned char>& header)
+{
+  /*
+   * Contributed by Daniel Derr @ ArrowHead Electronics Health-Care
+   */
+  std::string mimeType = identifyMimeType(header);
+
+  if (mimeType == "image/png") {
+    int width = ( ( ( int(header[16]) << 8
+		      | int(header[17])) << 8
+		    | int(header[18])) << 8
+		  | int(header[19]));
+    int height = ( ( ( int(header[20]) << 8
+		       | int(header[21])) << 8
+		     | int(header[22])) << 8
+		   | int(header[23]));
+    return WPoint(width, height);
+  } else if (mimeType == "image/gif") {
+    int width = int(header[7]) << 8 | int(header[6]);
+    int height = int(header[9]) << 8 | int(header[8]);
+    return WPoint(width, height);
+  } else
+    return WPoint();
+}
+
 }

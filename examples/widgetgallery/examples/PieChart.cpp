@@ -7,7 +7,9 @@
 #include <Wt/WTableView>
 
 SAMPLE_BEGIN(PieChart)
-Wt::WStandardItemModel *model = new Wt::WStandardItemModel();
+Wt::WContainerWidget *container = new Wt::WContainerWidget();
+
+Wt::WStandardItemModel *model = new Wt::WStandardItemModel(container);
 
 // Configure the header.
 model->insertColumns(model->columnCount(), 2);
@@ -42,7 +44,6 @@ for (row = 0; row < model->rowCount(); ++row)
     for (int col = 0; col < model->columnCount(); ++col)
 	model->item(row, col)->setFlags(Wt::ItemIsEditable);
 
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
 Wt::WTableView* table = new Wt::WTableView(container);
 
 table->setMargin(10, Wt::Top | Wt::Bottom);

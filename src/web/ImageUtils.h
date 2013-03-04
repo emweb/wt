@@ -10,28 +10,20 @@
 #include <string>
 #include <vector>
 
-#include <Wt/WDllDefs.h>
+#include <Wt/WPoint>
 
 namespace Wt {
-  namespace Image {
+  class ImageUtils {
+  public:
+    static std::string identifyMimeType(const std::vector<unsigned char>&
+					header);
 
-#ifdef WT_TARGET_JAVA	
-    class ImageUtils {
-    };
-#endif //WT_TARGET_JAVA
+    static std::string identifyMimeType(const std::string& fileName);
 
-    // Tries to identify the image mime type based on:
-    // 1) the file content (header: first 25 bytes)
-    // 2) the file name extension
+    static WPoint getSize(const std::string& fileName);
 
-    // If no mime type could be identified, an empty string is returned
-
-    extern WT_API
-    std::string identifyImageMimeType(const std::vector<unsigned char>& header);
-
-    extern WT_API
-    std::string identifyImageFileMimeType(const std::string& fileName);
-  }
+    static WPoint getSize(const std::vector<unsigned char>& header);
+  };
 }
 
 #endif // IMAGE_UTILS_H_
