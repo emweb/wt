@@ -19,10 +19,6 @@ class WTreeTable;
  *
  * Additional data for each column can be set using setColumnWidget().
  *
- * <h3>CSS</h3>
- *
- * This widget is styled by the current CSS theme. See WTreeNode for details.
- *
  * \sa WTreeNode, WTreeTable
  */
 class WT_API WTreeTableNode : public WTreeNode

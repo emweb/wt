@@ -15,6 +15,9 @@
 #include "DomElement.h"
 #include "WebUtils.h"
 
+/*
+ * FIXME: move styling to the theme classes
+ */
 namespace Wt {
 
 const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = 0;

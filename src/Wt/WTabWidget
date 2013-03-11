@@ -55,32 +55,23 @@ namespace Wt {
  * \endcode
  * \endif
  *
-  * <h3>CSS</h3>
+ * <h3>CSS</h3>
  *
- * The tab widget is styled by the current CSS theme. The look (of the
- * header) can be overridden using the <tt>Wt-tabs</tt> CSS class and
- * the following selectors:
- *
- * \verbatim
-.Wt-tabs ul        : the list
-.Wt-tabs li        : a list item
-.Wt-tabs span      : outer span of a list item
-.Wt-span span span : inner span of a list item
-\endverbatim
-* 
-* <TABLE border="0" align="center"> <TR> <TD> 
-* \image html WTabWidget-default-1.png "An example WTabWidget (default)"
-* </TD> <TD>
-* \image html WTabWidget-polished-1.png "An example WTabWidget (polished)"
-* </TD> </TR> </TABLE>
+ * The tab widget is styled by the current CSS theme.
+ * 
+ * <TABLE border="0" align="center"> <TR> <TD> 
+ * \image html WTabWidget-default-1.png "An example WTabWidget (default)"
+ * </TD> <TD>
+ * \image html WTabWidget-polished-1.png "An example WTabWidget (polished)"
+ * </TD> </TR> </TABLE>
  */
 class WT_API WTabWidget : public WCompositeWidget
 {
 public:
-  /*! \brief When should the contents be loaded ?
+  /*! \brief Enumeration to indicate when the contents should be loaded
    */
-  enum LoadPolicy { LazyLoading,     //!< Lazy loading: on first use
-		    PreLoading       //!< Pre-loading: before first use
+  enum LoadPolicy { LazyLoading, //!< Lazy loading: on first use
+		    PreLoading   //!< Pre-loading: before first use
   };
 
   /*! \brief Creates a new tab widget

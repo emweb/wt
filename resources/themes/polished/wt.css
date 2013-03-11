@@ -1065,12 +1065,12 @@ body.Wt-rtl .Wt-treeview .Wt-tv-br {
     border-left: 1px solid #dcdfe8;
 }
 
-body.Wt-ltr .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
+body.Wt-ltr .Wt-treeview li .Wt-tv-row .Wt-tv-c {
     border-right: 0px;
     margin-right: 1px;
 }
 
-body.Wt-rtl .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
+body.Wt-rtl .Wt-treeview li .Wt-tv-row .Wt-tv-c {
     border-left: 0px;
     margin-left: 1px;
 }

@@ -44,10 +44,6 @@ namespace Wt {
  * };
  * \endcode
  * \endif
- *
- * <h3>CSS</h3>
- *
- * Styling through CSS is propagated to its implementation.
  */
 class WT_API WCompositeWidget : public WWidget
 {

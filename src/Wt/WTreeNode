@@ -63,26 +63,6 @@ namespace Wt {
  *
  * See WTree for a usage example.
  *
- * <h3>CSS</h3>
- *
- * The tree is styled by the current CSS theme. The look can be
- * overridden using the <tt>Wt-tree</tt> CSS class and the following
- * selectors:
- *
- * \verbatim
-.Wt-tree .Wt-trunk          : vertical line, trunk
-.Wt-tree .Wt-end            : vertical line, last item
-.Wt-tree .Wt-collapse       : collapse icon (img *)
-.Wt-tree .Wt-expand         : expand icon (img *)
-.Wt-tree .Wt-noexpand       : leaf icon
-
-.Wt-tree .Wt-label          : the node label
-.Wt-tree .Wt-childcount     : the node child count
-.Wt-tree .Wt-node           : the node's table row
-\endverbatim
- * * The collapse and expand icons are fetched themselves as images,
- * <tt>nav-plus.gif</tt> and <tt>nav-minus.gif</tt>.
- *
  * \sa WTree, WTreeTableNode
  */
 class WT_API WTreeNode : public WCompositeWidget

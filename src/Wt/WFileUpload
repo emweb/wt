@@ -94,7 +94,8 @@ namespace Wt {
  *
  * The file upload itself corresponds to a <tt>&lt;input
  * type="file"&gt;</tt> tag, but may be wrapped in a
- * <tt>&lt;form&gt;</tt> tag. This widget does not provide styling, 
+ * <tt>&lt;form&gt;</tt> tag for an Ajax session to implement the
+ * asynchronous upload action. This widget does not provide styling,
  * and styling through CSS is not well supported across browsers.
  */
 class WT_API WFileUpload : public WWebWidget

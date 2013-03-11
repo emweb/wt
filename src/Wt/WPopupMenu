@@ -16,8 +16,8 @@ namespace Wt {
  *  \brief A menu presented in a popup window.
  *
  * The menu implements a typical context menu, with support for
- * submenu's. It is not to be confused with WMenu which implements an
- * always-visible navigation menu for a web application.
+ * submenu's. It is a specialized WMenu from which it inherits most of
+ * the API.
  *
  * When initially created, the menu is invisible, until popup() or
  * exec() is called. Then, the menu will remain visible until an item
@@ -28,26 +28,22 @@ namespace Wt {
  * the menu at the current mouse position and provide feed-back of the
  * currently selected item.
  *
- * Similar in use as WDialog, there are two ways of using the
- * menu. The simplest way is to use one of the exec() methods, to use
- * a reentrant event loop and wait until the user cancelled the popup
- * menu (by hitting Escape or clicking elsewhere), or selected an item.
+ * As with WDialog, there are two ways of using the menu. The simplest
+ * way is to use one of the synchronous exec() methods, which starts a
+ * reentrant event loop and waits until the user cancelled the popup
+ * menu (by hitting Escape or clicking elsewhere), or selected an
+ * item.
  *
  * Alternatively, you can use one of the popup() methods to show the
- * menu and listen to the \link WPopupMenu::aboutToHide
- * aboutToHide\endlink signal where you read the result().
+ * menu and listen to the \link WPopupMenu::triggered
+ * triggered\endlink signal where you read the result().
  *
  * You have several options to react to the selection of an item:
- * - Either you use the WPopupMenuItem itself to identify the action,
+ * - Either you use the WMenuItem itself to identify the action,
  *   perhaps by specialization or simply by binding custom data using
- *   WPopupMenuItem::setData().
- * - You can bind a separate method to each item's WPopupMenuItem::triggered
+ *   WMenuItem::setData().
+ * - You can bind a separate method to each item's WMenuItem::triggered
  *   signal.
- * \if cpp
- * - You can use a WSignalMapper to bind extra data with an item's
- *   WPopupMenuItem::triggered signal, and handle them in a single
- *   slot.
- * \endif
  *
  * Usage example:
  * \if cpp
@@ -69,7 +65,7 @@ namespace Wt {
  * subMenu->addItem("Sub Item 2");
  * popup.addMenu("Item 7", subMenu);
  *
- * WPopupMenuItem *item = popup.exec(event);
+ * WMenuItem *item = popup.exec(event);
  *
  * if (item) {
  *   // ... do associated action.
@@ -94,30 +90,19 @@ namespace Wt {
  * subMenu.addItem("Sub Item 2");
  * popup.addMenu("Item 7", subMenu);
  *		 
- * WPopupMenuItem item = popup.exec(event);
+ * WMenuItem item = popup.exec(event);
  *		 
- * if (item) {
+ * if (item != null) {
  *  // ... do associated action.
  * }
  * \endcode
  * \endif
  *
- * <h3>CSS</h3>
- *
- * A WPopupMenu has the <tt>Wt-popupmenu</tt> style class. 
- * The look can be overridden using the following style class
- * selectors:
- *
- * \verbatim
-.Wt-popupmenu .Wt-item, .Wt-popupmenu .Wt-selected : item
-.Wt-popupmenu .Wt-selected                         : selected item
-.Wt-popupmenu .Wt-separator                        : separator
-\endverbatim
- *
  * A snapshot of the WPopupMenu: 
  * \image html WPopupMenu-default-1.png "WPopupMenu example (default)"
  * \image html WPopupMenu-polished-1.png "WPopupMenu example (polished)"
- * \sa WPopupMenuItem
+ *
+ * \sa WMenuItem
  */
 class WT_API WPopupMenu : public WMenu
 {

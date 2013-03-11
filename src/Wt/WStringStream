@@ -179,7 +179,7 @@ public:
   void clear();
 
   // no-op for C++, but needed for Java
-  void spool(std::ostream& sink) { }
+  void spool(std::ostream& ) { }
 
 private:
   WStringStream(const WStringStream& other);

@@ -478,8 +478,6 @@ void WMenuItem::setMenu(WMenu *menu)
     popup->setButton(anchor());
     updateInternalPath();
   }
-
-  addStyleClass("submenu");
 }
 
 void WMenuItem::setSubMenu(WMenu *menu)

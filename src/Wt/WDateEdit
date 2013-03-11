@@ -19,6 +19,11 @@ namespace Wt {
  * icon and a calendar).
  *
  * A WDateValidator is used to validate date entry.
+ *
+ * In many cases, it provides a more convenient implementation of a
+ * date picker compared to WDatePicker since it is implemented as a
+ * line edit. This also makes the implementation ready for a native
+ * HTML5 control.
  */
 class WT_API WDateEdit : public WLineEdit
 {

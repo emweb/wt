@@ -263,7 +263,7 @@ void WPushButton::renderHRef(DomElement& element)
     if (linkState_.link.type() == WLink::InternalPath)
       linkState_.clickJS->setJavaScript
 	("function(){" +
-	 app->javaScriptClass() + "_p_.setHash("
+	 app->javaScriptClass() + "._p_.setHash("
 	 + jsStringLiteral(linkState_.link.internalPath()) + ",true);"
 	 "}");
     else

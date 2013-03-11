@@ -68,13 +68,6 @@ class WText;
  * - Wt.WMessageBox.Retry: Retry
  * - Wt.WMessageBox.Yes: Yes
  * - Wt.WMessageBox.YesToAll: Yes to All
- *
- * <h3>CSS</h3>
- *
- * A WMessageBox can be styled using the <tt>Wt-dialog</tt> and 
- * <tt>Wt-outset</tt> style classes from it's superclass WDialog. 
- * The messagebox' buttons can be styled using <tt>Wt-msgbox-buttons</tt>
- * style class.
  */
 class WT_API WMessageBox : public WDialog
 {

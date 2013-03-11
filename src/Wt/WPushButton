@@ -33,10 +33,8 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * The widget corresponds to the HTML <tt>&lt;button&gt;</tt> tag and
- * has the <tt>Wt-btn</tt> style. It may be styled through the current
- * theme, or you can override the style using internal or external CSS
- * as appropriate.
+ * The widget corresponds to the HTML <tt>&lt;button&gt;</tt> tag (with some
+ * exceptions in the bootstrap theme).
  */
 class WT_API WPushButton : public WFormWidget
 {

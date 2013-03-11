@@ -65,30 +65,6 @@ class WTemplate;
  * \image html WCalendar-polished-1.png "WCalendar with polished look" 
  * </TD> </TR> </TABLE>
  *
- * <h3>CSS</h3>
- *
- * The calendar is styled by the current CSS theme. The look can be
- * overridden using the <tt>Wt-calendar</tt> CSS class and the following
- * selectors:
- *
- * \verbatim
-.Wt-cal table       : The table
-.Wt-cal table.d1    : The table (single letter day headers)
-.Wt-cal table.d3    : The table (three letter day headers)
-.Wt-cal table.dlong : The table (long day headers)
-
-.Wt-cal caption	    : The caption (containing the navigation buttons)
-.Wt-cal-year        : The caption year in-place-edit
-
-.Wt-cal th          : Header cell (week day)
-
-.Wt-cal td          : Day cell
-.Wt-cal-oom         : Out-of-month day
-.Wt-cal-oor         : Out-of-range day (day < bottom or day > top)
-.Wt-cal-sel         : Selected day
-.Wt-cal-now         : Today day
-\endverbatim
- *
  */
 class WT_API WCalendar : public WCompositeWidget
 {

@@ -73,19 +73,6 @@ class WText;
  * \endcode
  * \endif
  *
- * <h3>CSS</h3>
- *
- * The treetable is styled by the current CSS theme. The look can be
- * overridden using the <tt>Wt-treetable</tt> CSS class. The style
- * selectors that affect the rendering of the tree are indicated in
- * the documentation for WTree (for selection) and WTreeNode (for
- * decoration). In addition, the following selector may be used to to
- * style the header:
- *
- * \verbatim
-.Wt-treetable .Wt-header : header
-\endverbatim
- *
  * A screenshot of the treetable:
  * \image html WTreeTable-default-1.png "An example WTreeTable (default)"
  * \image html WTreeTable-polished-1.png "An example WTreeTable (polished)"

@@ -14,13 +14,10 @@ namespace Wt {
 /*! \class WAbstractSpinBox Wt/WAbstractSpinBox Wt/WAbstractSpinBox
  *  \brief An abstract spin box.
  *
- * <h3>CSS</h3>
- *
- * Using HTML4, the widget is implemented using a &lt;input
- * type="text"&gt; The element can be styled using the
- * <tt>Wt-spinbox</tt> style. It may be styled through the current
- * theme, or you can override the style using internal or external CSS
- * as appropriate.
+ * Although the element can be rendered using a native HTML5 control,
+ * by default it is rendered using an HTML4 compatibility workaround
+ * which is implemented using JavaScript and CSS, as most browsers do
+ * not yet implement the HTML5 native element.
  */
 class WT_API WAbstractSpinBox : public WLineEdit
 {

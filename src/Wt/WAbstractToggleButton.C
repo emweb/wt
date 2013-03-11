@@ -16,15 +16,6 @@ namespace Wt {
 const char *WAbstractToggleButton::CHECKED_SIGNAL = "M_checked";
 const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
 
-/*
- * For bootstrap we need:
- * <label><input><span>text</span></label>
- * Wt did:
- * <span><input><label>text</label></span>
- *
- * There is no harm in changing our habits ?
- */
-
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),

@@ -322,7 +322,6 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
   bindEmpty("col0");
   bindEmpty("children");
 
-  setStyleClass("Wt-tv-node");
   int selfHeight = 0;
   bool needLoad = view_->isExpanded(index_);
 
@@ -1223,9 +1222,9 @@ void WTreeView::setColumnBorder(const WColor& color)
   delete borderColorRule_;
   borderColorRule_
     = new WCssTextRule
-    (".Wt-treeview .Wt-tv-br, "            // header columns 1-n
-     ".Wt-treeview .header .Wt-tv-row, "   // header column 0
-     ".Wt-treeview .Wt-tv-node .Wt-tv-c",  // data columns 0-n
+    (".Wt-treeview .Wt-tv-br, "          // header columns 1-n
+     ".Wt-treeview .header .Wt-tv-row, " // header column 0
+     ".Wt-treeview li .Wt-tv-c",         // data columns 0-n
      "border-color: " + color.cssText(),
      this);
   WApplication::instance()->styleSheet().addRule(borderColorRule_);
@@ -2680,7 +2679,7 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(int column) const
     ci.width = WLength::Auto;
     ci.styleRule->templateWidget()->resize(WLength::Auto, WLength::Auto);
 
-    const_cast<WTreeView*>(this)->addCssRule("#" + this->id() + " .Wt-tv-node"
+    const_cast<WTreeView*>(this)->addCssRule("#" + this->id() + " li"
 					     " ." + ci.styleClass(),
 					     "width: auto;"
 					     "text-overflow: ellipsis;"

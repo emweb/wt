@@ -65,12 +65,12 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * This widget corresponds to the HTML <tt>&lt;input
- * type="checkbox"&gt;</tt> tag. Depending on whether a text is
- * included, it may be nested in a <tt>&lt;span&gt;</tt> tag which
- * also includes a rendered WLabel. This widget does not provide
- * styling, and can be styled using inline or external CSS as
- * appropriate.
+ * This widget is rendered using an HTML <tt>&lt;input
+ * type="checkbox"&gt;</tt> tag. When a label is specified, the input
+ * element is nested in a <tt>&lt;label&gt;</tt>.
+ *
+ * This widget does not provide styling, and can be styled using
+ * inline or external CSS as appropriate.
  *
  * \sa WAbstractToggleButton
  */

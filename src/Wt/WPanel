@@ -34,25 +34,6 @@ namespace Wt {
  *
  * \image html WPanel-default-1.png "Two panels: one collapsed and one expanded (default theme)"
  * \image html WPanel-polished-1.png "Two panels: one collapsed and one expanded (polished theme)"
- *
- * \if cpp
- * \note This widget is in development. It will provide features similar to the
- *       Ext::Panel.
- *
- * \sa Ext::Panel
- * \endif
- *
- * <h3>CSS</h3>
- *
- * A panel has the <tt>Wt-panel</tt> and <tt>Wt-outset</tt> style
- * classes. The look can be overridden using the following style class
- * selectors:
- *
- * \verbatim
- .Wt-panel .titlebar : The title bar
- .Wt-panel .body     : The body (requires vertical padding 4px).
-\endverbatim
- *
  */
 class WT_API WPanel : public WCompositeWidget
 {

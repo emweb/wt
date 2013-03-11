@@ -46,22 +46,7 @@ class WTemplate;
  * <h3>i18n</h3>
  *
  * Internationalization of WDatePicker is mostly handled through
- * the internationalization mechanism of WDate. The 'Close' button
- * can be internationalized by overriding the default value for
- * the localization key Wt.DatePicker.Close.
- *
- * <h3>CSS</h3>
- *
- * The date picker is styled by the current CSS theme. The look can be
- * overridden using the <tt>Wt-datepicker</tt> and <tt>Wt-outset</tt>
- * CSS class; the calendar itself can be styled as documented in
- * WCalendar.
- *
- * <TABLE border="0" align="center"> <TR> <TD> 
- * \image html WDatePicker-default-1.png "Example of a WDatePicker (default theme) 
- * </TD> <TD> 
- * \image html WDatePicker-polished-1.png "Example of a WDatePicker (polished theme) 
- * </TD> </TR> </TABLE>
+ * the internationalization mechanism of WDate.
  */
 class WT_API WDatePicker : public WCompositeWidget
 {

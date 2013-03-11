@@ -23,13 +23,6 @@ namespace Wt {
  *
  * %WProgressBar is an \link WWidget::setInline(bool) inline \endlink widget.
  *
- * <h3>CSS</h3>
- *
- * Using HTML4, the widget is implemented using a set of nested
- * DIVs. The element can be styled using the <tt>Wt-progressbar</tt>
- * style. It may be styled through the current theme, or you can
- * override the style using internal or external CSS as appropriate.
- *
  * \note With the advent of HTML5, this widget will be implemented using
  *       the native HTML5 control when available.
  */

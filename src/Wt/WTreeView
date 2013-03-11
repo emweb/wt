@@ -105,47 +105,6 @@ namespace Wt {
  * needs to be given an explicit height using resize() which determines the
  * number of rows that are displayed at a time.
  *
- * <h3>CSS</h3>
- *
- * The treeview is styled by the current CSS theme. The look can be
- * overridden using the <tt>Wt-treeview</tt> CSS class and the following
- * selectors.
- *
- * Selectors that apply to the body
- * \verbatim
- .Wt-treeview .Wt-pagingbar        : paging bar
- \endverbatim
- * Selectors that apply to the header:
- * \verbatim
-.Wt-treeview .Wt-headerdiv         : header (background)
-.Wt-treeview .Wt-header .Wt-label  : header label
-.Wt-treeview .Wt-tv-rh             : column resize handle
-.Wt-treeview .Wt-tv-sh-none        : column sort handle, no sorting
-.Wt-treeview .Wt-tv-sh-up          : column sort handle, sort up
-.Wt-treeview .Wt-tv-sh-down        : column sort handle, sort down
-.Wt-treeview .Wt-tv-br             : header border
-\endverbatim
- * Selectors that apply to the tree decoration:
- * \verbatim
-.Wt-treeview .Wt-trunk          : vertical line, trunk
-.Wt-treeview .Wt-end            : vertical line, last item
-.Wt-treeview .Wt-collapse       : collapse icon
-.Wt-treeview .Wt-expand         : expand icon
-.Wt-treeview .Wt-noexpand       : leaf icon
-\endverbatim
- * Selectors that apply to the table contents:
- * \verbatim
-.Wt-treeview .Wt-spacer         : spacer for non-loaded content
-.Wt-treeview .Wt-selected       : selected item
-.Wt-treeview .Wt-drop-site      : possible drop site
-\endverbatim
- * Selectors that apply to the table borders (which must be 1 pixel wide)
- * \verbatim
-.Wt-treeview .Wt-tv-row .Wt-tv-c      : border-right property of cells
-.Wt-treeview .Wt-header .Wt-tv-row,
-  .Wt-treeview .Wt-tv-node .Wt-tv-row : border-left property of cells
-\endverbatim
- *
  * A snapshot of the WTreeView: 
  * \image html WTreeView-default-1.png "WTreeView example (default)"
  * \image html WTreeView-polished-1.png "WTreeView example (polished)"

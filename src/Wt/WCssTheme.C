@@ -8,6 +8,7 @@
 #include "Wt/WAbstractItemView"
 #include "Wt/WAbstractSpinBox"
 #include "Wt/WApplication"
+#include "Wt/WCalendar"
 #include "Wt/WCssTheme"
 #include "Wt/WDateEdit"
 #include "Wt/WDialog"
@@ -170,6 +171,8 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
 	  element.addPropertyWord(PropertyClass, "Wt-separator");
    	if (item->isSectionHeader())
 	  element.addPropertyWord(PropertyClass, "Wt-sectheader");
+	if (item->menu())
+	  element.addPropertyWord(PropertyClass, "submenu");
       }
     }
     break;

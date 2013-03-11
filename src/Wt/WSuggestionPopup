@@ -151,17 +151,6 @@ class WTemplate;
  * \image html WSuggestionPopup-polished-1.png "An example WSuggestionPopup (polished)"
  * </TD> </TR> </TABLE>
  *
- * <h3>CSS</h3>
- *
- * The suggestion popup is styled by the current CSS theme. The look can be
- * overridden using the <tt>Wt-suggest</tt> CSS class and the following
- * selectors:
- *
- * \verbatim
-.Wt-suggest .content div : A suggestion element
-.Wt-suggest .sel :         A selected suggestion element
-\endverbatim
- *
  * When using the DropDownIcon trigger, an additional style class is
  * provided for the edit field: <tt>Wt-suggest-dropdown</tt>, which
  * renders the icon to the right inside the edit field. This class may

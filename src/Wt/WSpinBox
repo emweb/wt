@@ -21,10 +21,6 @@ namespace Wt {
  *
  * %WSpinBox is an \link WWidget::setInline(bool) inline \endlink widget.
  *
- * <h3>CSS</h3>
- *
- * See WAbstractSpinBox.
- *
  * \sa WDoubleSpinBox
  *
  * \note A spinbox configures a validator for validating the input. Therefore

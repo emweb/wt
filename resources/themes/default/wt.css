@@ -947,14 +947,14 @@ body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
     margin-right: 7px;
 }
  
-body.Wt-ltr .Wt-treeview .Wt-tv-br,                        /* header */
-body.Wt-ltr .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c { /* data */
+body.Wt-ltr .Wt-treeview .Wt-tv-br,               /* header */
+body.Wt-ltr .Wt-treeview li .Wt-tv-row .Wt-tv-c { /* data */
     margin-right: 0px;
     border-right: 1px solid white;
 }
 
-body.Wt-rtl .Wt-treeview .Wt-tv-br,                        /* header */
-body.Wt-rtl .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c { /* data */
+body.Wt-rtl .Wt-treeview .Wt-tv-br,               /* header */
+body.Wt-rtl .Wt-treeview li .Wt-tv-row .Wt-tv-c { /* data */
     margin-left: 0px;
     border-left: 1px solid white;
 }

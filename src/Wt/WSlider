@@ -43,17 +43,7 @@ class PaintedSlider;
  * <h3>CSS</h3>
  *
  * The non-native slider (HTML4, see setNativeControl()) is styled by
- * the current CSS theme. The look can be overridden using the
- * <tt>Wt-slider-[hv]</tt> CSS class and the following selectors
- * (shown here for a horizontal slider, the vertical slider is
- * equivalent but using Wt-slider-v instead of Wt-slider-h:
- *
- * \verbatim
-.Wt-slider-h .Wt-slider-bg : A background sized with 5px left/right margin
-.Wt-slider-h .Wt-e         : A west background image (5px width)
-.Wt-slider-h .Wt-w         : An east background image (5px width)
-.Wt-slider-h .handle       : The handle (20px width)
-\endverbatim
+ * the current CSS theme.
  */
 class WT_API WSlider : public WFormWidget
 {

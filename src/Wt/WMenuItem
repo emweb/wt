@@ -20,6 +20,12 @@ namespace Wt {
  * An optional contents item can be associated with a menu item, which
  * is inserted and shown in the widget stack of the menu to which this
  * menu item belongs.
+ *
+ * <h3>CSS</h3>
+ *
+ * A menu item renders as a &gt;li&;lt with additional markup/style
+ * classes provided by the theme. Unless you use the bootstrap theme,
+ * you will need to provide appropriate CSS.
  */
 class WT_API WMenuItem : public WContainerWidget
 {
