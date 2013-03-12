@@ -39,7 +39,8 @@ WT_DECLARE_WT_MEMBER
 	 bindOverEvents(u);
 
 	 return u;
-       }
+       } else
+	 return null;
      }
    }
 
@@ -169,6 +170,10 @@ WT_DECLARE_WT_MEMBER
      }
 
      setOthersInactive(el, null);
+   };
+
+   this.popupAt = function(widget) {
+     bindOverEvents(widget);
    };
 
    setTimeout(function() { bindOverEvents(el); }, 0);
