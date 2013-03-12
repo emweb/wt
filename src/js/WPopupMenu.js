@@ -78,8 +78,10 @@ WT_DECLARE_WT_MEMBER
 	 if (!itemLeadsTo(item, activeItem)) {
 	   setActive(item, false);
 	   var sm = submenu(item);
-	   if (sm)
+	   if (sm) {
 	     sm.style.display = 'none';
+	     processMenu(sm);
+	   }
 	 } else if (item !== activeItem) {
 	   var sm = submenu(item);
 	   if (sm)
