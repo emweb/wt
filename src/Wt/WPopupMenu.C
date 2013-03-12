@@ -295,7 +295,19 @@ bool WPopupMenu::isExposed(WWidget *w)
   }
 
   // Signal outside of the menu:
-  return false;
+  //  - signal of a widget that is an ancestor of location_: ignore it
+  //  - otherwise: close the menu and let it be handled.
+  if (location_) {
+    for (WWidget *p = location_->parent(); p; p = p->parent())
+      if (w == p)
+	return false;
+  }
+
+  if (!parentItem()) {
+    cancel();
+    return true;
+  } else
+    return false;
 }
 
 void WPopupMenu::renderSelected(WMenuItem *item, bool selected)
