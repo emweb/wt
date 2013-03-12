@@ -1603,6 +1603,10 @@ void WebRenderer::collectJS(WStringStream* js)
     if (!preLearning())
       app->streamBeforeLoadJavaScript(*js, false);
 
+    Configuration& conf = session_.controller()->configuration();
+    if (conf.inlineCss())
+      app->styleSheet().javaScriptUpdate(app, *js, false);
+
     EscapeOStream sout(*js);
 
     for (unsigned i = 0; i < changes.size(); ++i)
