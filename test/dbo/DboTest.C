@@ -1697,3 +1697,22 @@ BOOST_AUTO_TEST_CASE( dbo_test19 )
     t.commit();
   }
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test20 )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+#ifndef FIREBIRD
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::QueryModel<std::string> *model = new dbo::QueryModel<std::string>();
+    model->setQuery(session_->query<std::string>("select 'dima '' ? '"));
+
+    std::cerr << model->columnCount() << std::endl
+	      << model->rowCount() << std::endl;
+  }
+#endif //FIREBIRD
+}

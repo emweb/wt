@@ -82,6 +82,18 @@ void query_result_traits<Result>::remove(Result& result)
 {
 }
 
+template <typename Result>
+long long query_result_traits<Result>::id(const Result& result)
+{
+  return -1;
+}
+
+template <typename Result>
+Result query_result_traits<Result>::findById(Session& session, long long id)
+{
+  return Result();
+}
+
   }
 }
 
