@@ -537,9 +537,7 @@ bool WApplication::isExposed(WWidget *w) const
     }
 
     return false;
-  }
-    
-  else {
+  } else {
     WWidget *p = w->adam();
     return (p == domRoot_ || p == domRoot2_);
   }

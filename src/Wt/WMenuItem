@@ -348,7 +348,8 @@ private:
   WContainerWidget *contentsContainer_;
   WWidget *contents_;
   WMenu *menu_, *subMenu_;
-  WText *icon_, *text_;
+  WText *icon_;
+  WLabel *text_;
   WCheckBox *checkBox_;
   void *data_;
   bool separator_, selectable_, signalsConnected_;

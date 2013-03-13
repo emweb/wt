@@ -113,6 +113,31 @@ public:
    */
   const WString& text() const;
 
+  /*! \brief Sets the text format.
+   *
+   * The textFormat controls how the string should be interpreted:
+   * either as plain text, which is displayed literally, or as
+   * XHTML-markup.
+   *
+   * When changing the textFormat to Wt::XHTMLText, and the
+   * current text is literal (not created using WString::tr()), the
+   * current text is parsed using an XML parser which discards
+   * malicious tags and attributes silently. When the parser
+   * encounters an XML parse error, the textFormat is left unchanged,
+   * and this method returns false.
+   *
+   * Returns whether the textFormat could be set for the current text.
+   *
+   * The default format is Wt::XHTMLText.
+   */
+  bool setTextFormat(TextFormat format);
+
+  /*! \brief Returns the text format.
+   *
+   * \sa setTextFormat()
+   */
+  TextFormat textFormat() const;
+
   /*! \brief Sets the image.
    */
   void setImage(WImage *image, Side side = Left);

@@ -85,6 +85,9 @@ void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 
 void WPopupMenu::done(WMenuItem *result)
 {
+  if (isHidden())
+    return;
+
   if (location_ && location_ == button_)
     button_->removeStyleClass("active", true);
 
@@ -92,9 +95,6 @@ void WPopupMenu::done(WMenuItem *result)
   result_ = result;
 
   hide();
-
-  WApplication *app = WApplication::instance();
-  app->popExposedConstraint(this);
 
   recursiveEventLoop_ = false;
 
@@ -132,8 +132,6 @@ void WPopupMenu::popupImpl()
   result_ = 0;
 
   WApplication *app = WApplication::instance();
-  app->pushExposedConstraint(this);
-
   prepareRender(app);
 
   show();
@@ -263,51 +261,6 @@ void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
     autoHideDelay_ = autoHideDelay;
   else
     autoHideDelay_ = -1;
-}
-
-bool WPopupMenu::isExposed(WWidget *w)
-{
-  /*
-   * w is the popupmenu or contained by the popup menu
-   */
-  if (WCompositeWidget::isExposed(w))
-    return true;
-
-  if (w == WApplication::instance()->root())
-    return true;
-
-  /*
-   * w is the location at which the popup was positioned, we ignore
-   * events on this widget without closing the popup
-   */
-  if (w == location_)
-    return false;
-
-  /*
-   * w is a contained popup menu or contained by a sub-popup menu
-   */
-  for (int i = 0; i < count(); ++i) {
-    WMenuItem *item = itemAt(i);
-    WPopupMenu *popup = dynamic_cast<WPopupMenu *>(item->menu());
-    if (popup)
-      if (popup->isExposed(w))
-	return true;
-  }
-
-  // Signal outside of the menu:
-  //  - signal of a widget that is an ancestor of location_: ignore it
-  //  - otherwise: close the menu and let it be handled.
-  if (location_) {
-    for (WWidget *p = location_->parent(); p; p = p->parent())
-      if (w == p)
-	return false;
-  }
-
-  if (!parentItem()) {
-    cancel();
-    return true;
-  } else
-    return false;
 }
 
 void WPopupMenu::renderSelected(WMenuItem *item, bool selected)

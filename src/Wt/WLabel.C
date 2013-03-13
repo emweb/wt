@@ -82,6 +82,24 @@ void WLabel::setText(const WString& text)
   text_->setText(text);
 }
 
+bool WLabel::setTextFormat(TextFormat format)
+{
+  if (!text_) {
+    setText("A");
+    setText("");
+  }
+
+  return text_->setTextFormat(format);
+}
+
+TextFormat WLabel::textFormat() const
+{
+  if (!text_)
+    return XHTMLText;
+  else
+    return text_->textFormat();
+}
+
 const WString& WLabel::text() const
 {
   static WString empty("");

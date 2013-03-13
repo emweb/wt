@@ -21,7 +21,7 @@ namespace Wt {
  *
  * <table>
  *  <tr>
- *   <td rowspan="12">WAbstractItemView ‡</td>
+ *   <td rowspan="12">WAbstractItemView *</td>
  *   <td>.Wt-itemview</td>
  *   <td></td>
  *  </tr>
@@ -75,7 +75,7 @@ namespace Wt {
  *   <td>(for the HTML4 implementation)</td>
  *  </tr>
  *  <tr>
- *   <td rowspan="11">WCalendar ‡</td>
+ *   <td rowspan="11">WCalendar *</td>
  *   <td>.Wt-cal</td>
  *   <td></td>
  *  </tr>
@@ -234,7 +234,7 @@ namespace Wt {
  *   <td></td>
  *  </tr>
  *  <tr>
- *   <td rowspan="6">WSlider ‡</td>
+ *   <td rowspan="6">WSlider *</td>
  *   <td>.Wt-slider-h <i>or</i> .Wt-slider-v</td>
  *   <td>for horizontal or vertical slider</td>
  *  </tr>
@@ -277,7 +277,7 @@ namespace Wt {
  *   <td>the header, which is a WMenu</td>
  *  </tr>
  *  <tr>
- *   <td rowspan="3">WTableView ‡</td>
+ *   <td rowspan="3">WTableView *</td>
  *   <td>.Wt-tableview</td>
  *   <td>see supra (%WAbstractItemView)</td>
  *  </tr>
@@ -290,7 +290,7 @@ namespace Wt {
  *   <td>a contents cell</td>
  *  </tr>
  *  <tr>
- *   <td rowspan="10">WTreeNode ‡</td>
+ *   <td rowspan="10">WTreeNode *</td>
  *   <td>.Wt-tree</td>
  *   <td>a tree node</td>
  *  </tr>
@@ -331,7 +331,7 @@ namespace Wt {
  *   <td>the label</td>
  *  </tr>
  *  <tr>
- *   <td rowspan="10">WTreeView ‡</td>
+ *   <td rowspan="10">WTreeView *</td>
  *   <td>.Wt-treeview</td>
  *   <td>see supra (%WAbstractItemView)</td>
  *  </tr>
@@ -373,8 +373,8 @@ namespace Wt {
  *  </tr>
  * </table>
  *
- * ‡ CSS selectors for these widgets are currently still hard-coded in the
- * widget itself.
+ * <tt>*</tt> CSS selectors for these widgets are currently still
+ * hard-coded in the widget itself.
  *
  * \sa WApplication::setTheme()
  */

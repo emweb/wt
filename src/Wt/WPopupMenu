@@ -216,8 +216,6 @@ public:
   void setAutoHide(bool enabled, int autoHideDelay = 0);
 
 protected:
-  virtual bool isExposed(WWidget *widget);
-
   virtual void renderSelected(WMenuItem *item, bool selected);
   virtual void setCurrent(int index);
 

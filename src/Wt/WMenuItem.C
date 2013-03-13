@@ -10,6 +10,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WException"
+#include "Wt/WLabel"
 #include "Wt/WMenuItem"
 #include "Wt/WMenu"
 #include "Wt/WPopupMenu"
@@ -49,7 +50,9 @@ WMenuItem::WMenuItem(bool separator, const WString& text)
   selectable_ = false;
 
   if (!text.empty()) {
-    text_ = new WText(text, PlainText, this);
+    text_ = new WLabel(this);
+    text_->setTextFormat(PlainText);
+    text_->setText(text);
   }
 }
 
@@ -148,7 +151,7 @@ std::string WMenuItem::icon() const
 void WMenuItem::setText(const WString& text)
 {
   if (!text_) {
-    text_ = new WText(anchor());
+    text_ = new WLabel(anchor());
     text_->setTextFormat(Wt::PlainText);
   }
 
@@ -285,6 +288,9 @@ void WMenuItem::setCheckable(bool checkable)
     if (checkable) {
       checkBox_ = new WCheckBox();
       anchor()->insertWidget(0, checkBox_);
+      setText(text());
+
+      text_->setBuddy(checkBox_);
 
       WApplication *app = WApplication::instance();
       app->theme()->apply(this, checkBox_, MenuItemCheckBoxRole);

@@ -877,7 +877,7 @@ BOOST_AUTO_TEST_CASE( dbo_test4b )
 #if !defined(FIREBIRD) && !defined(MYSQL)
     dbo::Query<ABC> q = session_->query<ABC>
       ("select A, B, C " 
-       "from \"table_A\" A join \"table_b\" B on (A.\"b_id\" = B.\"id\") join \"table_c\" C on (C.\"b2_id\" = B.\"id\")").orderBy("A.\"wstring\", B.\"name\", C.\"name\"");
+       "from \"table_a\" A join \"table_b\" B on (A.\"b_id\" = B.\"id\") join \"table_c\" C on (C.\"b2_id\" = B.\"id\")").orderBy("A.\"wstring\", B.\"name\", C.\"name\"");
 
     C_ABCs c_abcs = q.resultList();
     ABCs abcs(c_abcs.begin(), c_abcs.end());
