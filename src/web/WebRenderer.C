@@ -1809,8 +1809,7 @@ std::string WebRenderer::headDeclarations() const
 
   if (!session_.favicon().empty()) {
     result <<
-      "<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" "
-      "href=\"" << session_.favicon() << '"';
+      "<link rel=\"shortcut icon\" href=\"" << session_.favicon() << '"';
     closeSpecial(result, xhtml);
   }
 
