@@ -257,7 +257,7 @@ void DomElement::updateInnerHtmlOnly()
 void DomElement::addChild(DomElement *child)
 {
   if (child->mode() == ModeCreate) {
-    ++numManipulations_;
+    numManipulations_ += 2; // cannot be short-cutted
 
     if (wasEmpty_ && canWriteInnerHTML(WApplication::instance())) {
       child->asHTML(childrenHtml_, javaScript_, timeouts_);
