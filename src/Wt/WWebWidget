@@ -49,7 +49,7 @@ enum DomElementType {
   
   DomElement_AUDIO, DomElement_VIDEO, DomElement_SOURCE,
 
-  DomElement_STRONG, DomElement_EM, DomElement_UNKNOWN
+  DomElement_B, DomElement_STRONG, DomElement_EM, DomElement_UNKNOWN
 };
 
 enum RepaintFlag {

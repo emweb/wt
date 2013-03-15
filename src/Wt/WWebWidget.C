@@ -1758,7 +1758,8 @@ bool WWebWidget::needsToBeRendered() const
 
 void WWebWidget::getSFormObjects(FormObjectsMap& result)
 {
-  if (!flags_.test(BIT_STUBBED) && !flags_.test(BIT_HIDDEN))
+  if (!flags_.test(BIT_STUBBED) && !flags_.test(BIT_HIDDEN)
+      && flags_.test(BIT_RENDERED))
     getFormObjects(result);
 }
 

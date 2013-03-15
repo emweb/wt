@@ -412,6 +412,9 @@ void WTemplate::updateDom(DomElement& element, bool all)
       WWidget *w = *i;
       w->webWidget()->setRendered(false);
     }
+
+    WApplication::instance()->session()->renderer()
+      .updateFormObjects(this, true);
   }
 
   WInteractWidget::updateDom(element, all);

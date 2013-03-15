@@ -452,6 +452,10 @@ public:
    */
   static DomElementType parseTagName(const std::string& tag);
 
+  /*! \brief Returns the tag name for a DOMElement type.
+   */
+  static std::string tagName(DomElementType type);
+
   /*! \brief Returns the name for a CSS property, as a string.
    */
   static const std::string& cssName(Property property);

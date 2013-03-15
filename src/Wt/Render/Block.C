@@ -202,7 +202,8 @@ void Block::determineDisplay()
 	inline_ = DomElement::isDefaultInline(type_);
 
       if (inline_ && !allChildrenInline)
-	LOG_ERROR("inline element cannot contain block elements");
+	LOG_ERROR("inline element " << DomElement::tagName(type_) <<
+		  " cannot contain block elements");
     } else
       inline_ = false;
   }
@@ -482,7 +483,8 @@ int Block::cssFontWeight() const
 
   std::string v = cssProperty(PropertyStyleFontWeight);
 
-  if (v.empty() && (type_ == DomElement_STRONG
+  if (v.empty() && (type_ == DomElement_B
+		    || type_ == DomElement_STRONG
 		    || type_ == DomElement_TH
 		    || (type_ >= DomElement_H1
 			&& type_ <= DomElement_H6)))

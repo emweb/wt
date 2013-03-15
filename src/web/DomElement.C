@@ -39,14 +39,14 @@ std::string elementNames_[] =
 
     "audio", "video", "source",
 
-    "strong", "em"
+    "b", "strong", "em"
   };
 
 bool defaultInline_[] =
   { true, false, true, false,
     false,
     false, false, false,
-    true, false, false, false,
+    false, false, false, false,
 
     false, false, true, true,
     true, true, true, false,
@@ -63,7 +63,7 @@ bool defaultInline_[] =
 
     false, false, false,
 
-    true, true
+    true, true, true
   };
 
 std::string cssNames_[] =
@@ -1619,6 +1619,11 @@ DomElementType DomElement::parseTagName(const std::string& tag)
       return (DomElementType)i;
 
   return DomElement_UNKNOWN;
+}
+
+std::string DomElement::tagName(DomElementType type)
+{
+  return elementNames_[type];
 }
 
 const std::string& DomElement::cssName(Property property)
