@@ -67,7 +67,7 @@ namespace {
       delete request_;
     }
 
-    virtual void flush(ResponseState state, CallbackFunction callback) {
+    virtual void flush(ResponseState state, const WriteCallback& callback) {
 
       out().flush();
 

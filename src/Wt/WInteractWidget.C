@@ -363,9 +363,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
        *  - start timer, clear timer and click()
        */
 
-      js << "if(window.wtClickTimeout) {"
-	       << "clearTimeout(window.wtClickTimeout);"
-	       << "window.wtClickTimeout = null;";
+      js << "if(o.wtClickTimeout) {"
+	       << "clearTimeout(o.wtClickTimeout);"
+	       << "o.wtClickTimeout = null;";
 
       js << mouseDblClick->javaScript();
 
@@ -380,8 +380,8 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	"}else{"
 	"""if (" WT_CLASS ".isIElt9 && document.createEventObject) "
 	""  "e = document.createEventObject(e);"
-	"""window.wtClickTimeout = setTimeout(function() {"
-	""   "window.wtClickTimeout = null;";
+	"""o.wtClickTimeout = setTimeout(function() {"
+	""   "o.wtClickTimeout = null;";
 
       if (mouseClick) {
 	js << mouseClick->javaScript();

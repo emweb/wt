@@ -24,7 +24,7 @@ bool HTTPRequest::done() const
   return !reply_.get();
 }
 
-void HTTPRequest::flush(ResponseState state, CallbackFunction callback)
+void HTTPRequest::flush(ResponseState state, const WriteCallback& callback)
 {
   WtReplyPtr ptr = reply_;
 
@@ -34,7 +34,7 @@ void HTTPRequest::flush(ResponseState state, CallbackFunction callback)
   ptr->send(callback, state == ResponseDone);
 }
 
-void HTTPRequest::readWebSocketMessage(CallbackFunction callback)
+void HTTPRequest::readWebSocketMessage(const ReadCallback& callback)
 {
   reply_->readWebSocketMessage(callback);
 }

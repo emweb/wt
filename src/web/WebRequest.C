@@ -51,7 +51,7 @@ WebRequest::~WebRequest()
   LOG_INFO("took " << (double)d.total_microseconds() / 1000  << "ms");
 }
 
-void WebRequest::readWebSocketMessage(CallbackFunction callback)
+void WebRequest::readWebSocketMessage(const ReadCallback& callback)
 { 
   throw WException("should not get here");
 }
@@ -236,12 +236,12 @@ WLocale WebRequest::parseLocale() const
   return WLocale(parsePreferredAcceptValue(headerValue("Accept-Language")));
 }
 
-void WebRequest::setAsyncCallback(boost::function<void(void)> cb)
+void WebRequest::setAsyncCallback(const WriteCallback& cb)
 {
   asyncCallback_ = cb;
 }
 
-boost::function<void(void)> WebRequest::getAsyncCallback()
+const WebRequest::WriteCallback& WebRequest::getAsyncCallback()
 {
   return asyncCallback_;
 }
@@ -261,7 +261,7 @@ void WebRequest::emulateAsync(ResponseState state)
       doingAsyncCallbacks_ = true;
 
       while (asyncCallback_) {
-	boost::function<void(void)> fn = asyncCallback_;
+	WriteCallback fn = asyncCallback_;
 	asyncCallback_.clear();
 	fn();
       };

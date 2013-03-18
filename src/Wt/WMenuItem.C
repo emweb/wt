@@ -477,7 +477,7 @@ void WMenuItem::setMenu(WMenu *menu)
 
   addWidget(subMenu_);
 
-  WPopupMenu *popup = dynamic_cast<WPopupMenu *>(this->menu());
+  WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);
   if (popup) {
     popup->setJavaScriptMember("wtNoReparent", "true");
     setSelectable(false);

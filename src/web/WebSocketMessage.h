@@ -20,9 +20,9 @@ public:
   WebSocketMessage(WebSession *session);
 
   virtual void flush(ResponseState state = ResponseDone,
-		     CallbackFunction callback = CallbackFunction());
+		     const WriteCallback& callback = WriteCallback());
 
-  virtual void setWebSocketMessageCallback(CallbackFunction callback);
+  virtual void setWebSocketMessageCallback(const ReadCallback& callback);
   virtual bool webSocketMessagePending() const;
 
   virtual std::istream& in();

@@ -26,7 +26,7 @@ public:
   virtual bool isSynchronous() const;
 
   virtual void flush(ResponseState state = ResponseDone,
-		     CallbackFunction callback = CallbackFunction());
+		     WriteCallback callback = WriteCallback());
 
   // Sends a simple text reply
   void sendSimpleReply(int status, const std::string &msg);

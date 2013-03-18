@@ -2611,7 +2611,8 @@ _$_$if_WEB_SOCKETS_$_();
 	    /*
 	     * Sometimes, we can connect but cannot send data
 	     */
-	    if (reconnectTries == 3 && websocket.state == WebSocketsUnknown)
+	    if (websocket.reconnectTries == 3 &&
+		websocket.state == WebSocketsUnknown)
 	      websocket.state = WebSocketsUnavailable;
 	    reconnect();
 	  };
@@ -2620,8 +2621,8 @@ _$_$if_WEB_SOCKETS_$_();
 	    /*
 	     * Sometimes, we can connect but cannot send data
 	     */
-	    if (websocket.reconnectTries == 3
-		&& websocket.state == WebSocketsUnknown)
+	    if (websocket.reconnectTries == 3 &&
+		websocket.state == WebSocketsUnknown)
 	      websocket.state = WebSocketsUnavailable;
 	    reconnect();
 	  };

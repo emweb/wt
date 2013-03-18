@@ -1702,10 +1702,10 @@ BOOST_AUTO_TEST_CASE( dbo_test20 )
 {
   DboFixture f;
 
-  dbo::Session *session_ = f.session_;
-
 #ifndef FIREBIRD
   {
+    dbo::Session *session_ = f.session_;
+
     dbo::Transaction t(*session_);
 
     dbo::QueryModel<std::string> *model = new dbo::QueryModel<std::string>();

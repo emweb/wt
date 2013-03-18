@@ -22,8 +22,8 @@ public:
 
   bool done() const;
 
-  virtual void flush(ResponseState state, CallbackFunction callback);
-  virtual void readWebSocketMessage(CallbackFunction callback);
+  virtual void flush(ResponseState state, const WriteCallback& callback);
+  virtual void readWebSocketMessage(const ReadCallback& callback);
   virtual bool webSocketMessagePending() const;
 
   virtual std::istream& in() { return reply_->in(); }

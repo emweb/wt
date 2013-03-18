@@ -251,7 +251,7 @@ void IsapiRequest::abort()
     &status, 0, 0);
 }
 
-void IsapiRequest::flush(ResponseState state, CallbackFunction callback)
+void IsapiRequest::flush(ResponseState state, WriteCallback callback)
 {
   reading_ = false;
   if (!headerSent_) {
@@ -273,7 +273,7 @@ void IsapiRequest::flush(ResponseState state, CallbackFunction callback)
   if (state == ResponseFlush) {
     setAsyncCallback(callback);
   } else {
-    setAsyncCallback(CallbackFunction());
+    setAsyncCallback(WriteCallback());
   }
 
   // Reserve some space so that data doesn't get copied around

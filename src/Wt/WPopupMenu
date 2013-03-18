@@ -220,6 +220,7 @@ protected:
   virtual void setCurrent(int index);
 
 private:
+  WPopupMenu *topLevel_;
   WMenuItem *result_;
   WWidget *location_;
   WInteractWidget *button_;

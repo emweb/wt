@@ -479,8 +479,16 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       wsMask_ |= (unsigned char)(*begin);
       --wsCount_;
 
-      if (wsCount_ == 0)
-	wsState_ = ws13_payload;
+      if (wsCount_ == 0) {
+	if (remainder_ != 0) {
+	  wsState_ = ws13_payload;
+	} else {
+	  // Frame without data (like pong)
+	  if (wsFrameType_ & 0x80)
+	    state = Request::Complete;
+	  wsState_ = ws13_frame_start;
+	}
+      }
       
       ++begin;
 

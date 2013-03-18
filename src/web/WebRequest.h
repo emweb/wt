@@ -41,7 +41,13 @@ public:
     Update
   };
 
-  typedef boost::function<void(void)> CallbackFunction;
+  enum ReadEvent {
+    MessageEvent, // WebSocket message
+    PingEvent     // Ping message
+  };
+
+  typedef boost::function<void(void)> WriteCallback;
+  typedef boost::function<void(ReadEvent)> ReadCallback;
 
   void startAsync() { }
 
@@ -56,7 +62,7 @@ public:
    *    writes.
    */
   virtual void flush(ResponseState state = ResponseDone,
-		     CallbackFunction callback = CallbackFunction()) = 0;
+		     const WriteCallback& callback = WriteCallback()) = 0;
 
   /*
    * For a web socket request (isWebSocketRequest()), read a message
@@ -64,7 +70,7 @@ public:
    *
    * The new message is available in in() and has length contentLength()
    */
-  virtual void readWebSocketMessage(CallbackFunction callback);
+  virtual void readWebSocketMessage(const ReadCallback& callback);
 
   /*
    * For a web socket request (isWebSocketRequest()), returns whether
@@ -195,8 +201,8 @@ protected:
   virtual ~WebRequest();
 
 #ifndef WT_CNOR
-  void setAsyncCallback(boost::function<void(void)> cb);
-  boost::function<void(void)> getAsyncCallback();
+  void setAsyncCallback(const WriteCallback& cb);
+  const WriteCallback& getAsyncCallback();
 #endif // WT_CNOR
 
 private:
@@ -212,7 +218,7 @@ private:
   static Http::ParameterValues emptyValues_;
 
 #ifndef WT_CNOR
-  boost::function<void(void)> asyncCallback_;
+  WriteCallback asyncCallback_;
 #endif // WT_CNOR
 
   friend class CgiParser;

@@ -14,6 +14,7 @@
 
 #include "Reply.h"
 #include "../web/Configuration.h"
+#include "../web/WebRequest.h"
 
 namespace http {
 namespace server {
@@ -29,8 +30,6 @@ typedef boost::shared_ptr<WtReply> WtReplyPtr;
 class WtReply : public Reply
 {
 public:
-  typedef boost::function<void(void)> CallbackFunction;
-
   WtReply(const Request& request, const Wt::EntryPoint& ep,
 	  const Configuration &config);
   ~WtReply();
@@ -47,8 +46,9 @@ public:
   void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
-  void send(CallbackFunction callBack, bool responseComplete);
-  void readWebSocketMessage(CallbackFunction callBack);
+  void send(const Wt::WebRequest::WriteCallback& callBack,
+	    bool responseComplete);
+  void readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack);
   bool readAvailable();
 
   virtual bool waitMoreData() const;
@@ -71,14 +71,15 @@ protected:
   std::size_t sending_;
   ::int64_t contentLength_, bodyReceived_;
   bool sendingMessages_;
-  CallbackFunction  fetchMoreDataCallback_, readMessageCallback_;
+  Wt::WebRequest::WriteCallback fetchMoreDataCallback_;
+  Wt::WebRequest::ReadCallback readMessageCallback_;
   HTTPRequest *httpRequest_;
 
   char gatherBuf_[16];
 
-  virtual std::string     contentType();
-  virtual std::string     location();
-  virtual ::int64_t       contentLength();
+  virtual std::string contentType();
+  virtual std::string location();
+  virtual ::int64_t contentLength();
 
   virtual void nextContentBuffers(std::vector<asio::const_buffer>& result);
 

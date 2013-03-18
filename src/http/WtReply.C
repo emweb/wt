@@ -264,24 +264,56 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
     switch (opcode) {
     case connection_close:
+      LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx close");
       in_mem_.str("");
 
       /* fall through */
+    case continuation:
+      LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx continuation");
+
     case text_frame:
       {
-	CallbackFunction cb = readMessageCallback_;
+	LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx text_frame");
+
+	/*
+	 * FIXME: check that we have received the entire message.
+	 *  If yes: call the callback; else resume reading (expecting
+	 *  continuation frames in that case)
+	 */
+	Wt::WebRequest::ReadCallback cb = readMessageCallback_;
 	readMessageCallback_ = 0;
-	cb();
+	cb(Wt::WebRequest::MessageEvent);
 
 	break;
       }
     case ping:
-      /* trouble */
+      {
+	LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx ping");
 
+	Wt::WebRequest::ReadCallback cb = readMessageCallback_;
+	readMessageCallback_ = 0;
+	cb(Wt::WebRequest::PingEvent);
+
+	break;
+      }
       break;
-    case continuation:
-    case pong:
     case binary_frame:
+      LOG_ERROR("ws: binary_frame received, don't know what to do.");
+
+      /* fall through */
+    case pong:
+      {
+	LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx pong");
+
+	/*
+	 * We do not need to send a response; resume reading, keeping the
+	 * same read callback
+	 */
+	Wt::WebRequest::ReadCallback cb = readMessageCallback_;
+	readMessageCallback_ = 0;
+	readWebSocketMessage(cb);
+      }
+
       break;
     }
   }
@@ -309,7 +341,8 @@ bool WtReply::waitMoreData() const
   return httpRequest_ != 0 && !httpRequest_->done();
 }
 
-void WtReply::send(CallbackFunction callBack, bool responseComplete)
+void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
+		   bool responseComplete)
 {
   LOG_DEBUG("WtReply::send(): " << sending_);
 
@@ -332,7 +365,7 @@ void WtReply::send(CallbackFunction callBack, bool responseComplete)
 	 */
 	LOG_DEBUG("Invoking callback (no status)");
 
-	CallbackFunction f = fetchMoreDataCallback_;
+	Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
 	fetchMoreDataCallback_ = 0;
 	f();
 
@@ -349,7 +382,7 @@ void WtReply::send(CallbackFunction callBack, bool responseComplete)
   }
 }
 
-void WtReply::readWebSocketMessage(CallbackFunction callBack)
+void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
 {
   ConnectionPtr connection = getConnection();
 
@@ -500,7 +533,7 @@ void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
     while (!sending_ && fetchMoreDataCallback_) {
       sending_ = 1;
       LOG_DEBUG("Invoking callback (nextContentBuffers)");
-      CallbackFunction f = fetchMoreDataCallback_;
+      Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
       fetchMoreDataCallback_ = 0;
       f();
       sending_ = out_buf_.size();

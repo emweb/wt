@@ -20,7 +20,7 @@ WebSocketMessage::WebSocketMessage(WebSession *session)
 { }
 
 void WebSocketMessage::flush(ResponseState state,
-			     CallbackFunction callback)
+			     const WriteCallback& callback)
 {
   if (state != ResponseDone)
     error("flush(" + boost::lexical_cast<std::string>(state) + ") expected");
@@ -30,7 +30,7 @@ void WebSocketMessage::flush(ResponseState state,
   delete this;
 }
 
-void WebSocketMessage::setWebSocketMessageCallback(CallbackFunction callback)
+void WebSocketMessage::setWebSocketMessageCallback(const ReadCallback& callback)
 {
   error("setWebSocketMessageCallback() not supported");
 }

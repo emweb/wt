@@ -24,6 +24,7 @@
 
 #include "TimeUtil.h"
 #include "WebRenderer.h"
+#include "WebRequest.h"
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
@@ -255,7 +256,8 @@ public:
 
 private:
   void handleWebSocketRequest(Handler& handler);
-  static void handleWebSocketMessage(boost::weak_ptr<WebSession> session);
+  static void handleWebSocketMessage(boost::weak_ptr<WebSession> session,
+				     WebRequest::ReadEvent event);
   static void webSocketReady(boost::weak_ptr<WebSession> session);
 
   void checkTimers();
@@ -283,6 +285,7 @@ private:
   std::string applicationUrl_, deploymentPath_;
   std::string redirect_;
   std::string pagePathInfo_;
+  std::string pongMessage_;
   WebResponse *asyncResponse_, *bootStyleResponse_;
   bool canWriteAsyncResponse_;
   int pollRequestsIgnored_;

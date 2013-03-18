@@ -1041,7 +1041,8 @@ void WebSession::doRecursiveEventLoop()
 #ifndef WT_TARGET_JAVA
   if (asyncResponse_ && asyncResponse_->isWebSocketRequest())
     asyncResponse_->readWebSocketMessage
-     (boost::bind(&WebSession::handleWebSocketMessage, shared_from_this()));
+      (boost::bind(&WebSession::handleWebSocketMessage, shared_from_this(),
+		   _1));
 
   if (controller_->server()->ioService().requestBlockedThread()) {
     while (!newRecursiveEvent_)
@@ -1569,14 +1570,15 @@ void WebSession::handleWebSocketRequest(Handler& handler)
 
   asyncResponse_->readWebSocketMessage
     (boost::bind(&WebSession::handleWebSocketMessage,
-		 boost::weak_ptr<WebSession>(shared_from_this())));
+		 boost::weak_ptr<WebSession>(shared_from_this()), _1));
 
 
   handler.setRequest(0, 0);
 #endif // WT_TARGET_JAVA
 }
 
-void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
+void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
+					WebRequest::ReadEvent event)
 {
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
@@ -1588,61 +1590,95 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
 
     WebSocketMessage *message = new WebSocketMessage(lock.get());
 
-    bool closing = message->contentLength() == 0;
+    switch (event) {
+    case WebRequest::PingEvent:
+      {
+	/* Copy message */
+	::int64_t len = message->contentLength();
+	char *buf = new char[len + 1];
+	message->in().read(buf, len);
+	buf[message->in().gcount()] = 0;
+	lock->pongMessage_ = buf;
+	delete[] buf;
 
-    if (!closing) {
-      CgiParser cgi(lock->controller_->configuration().maxRequestSize());
-      try {
-	cgi.parse(*message, CgiParser::ReadDefault);
-      } catch (std::exception& e) {
-	LOG_ERROR("could not parse ws message: " << e.what());
-	delete message;
-	closing = true;
+	if (lock->canWriteAsyncResponse_) {
+	  lock->canWriteAsyncResponse_ = false;
+	  lock->asyncResponse_->out() << lock->pongMessage_;
+	  lock->pongMessage_.clear();
+	  lock->asyncResponse_->flush
+	    (WebRequest::ResponseFlush,
+	     boost::bind(&WebSession::webSocketReady, session));
+	  lock->asyncResponse_->readWebSocketMessage
+	    (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
+	} else {
+	  // FIXME:
+	  //  We need to remember that we need to send the pong message
+	  //  in webSocketReady()
+	}
+
+      break;
+      }
+
+    case WebRequest::MessageEvent:
+      {
+	bool closing = message->contentLength() == 0;
+
+	if (!closing) {
+	  CgiParser cgi(lock->controller_->configuration().maxRequestSize());
+	  try {
+	    cgi.parse(*message, CgiParser::ReadDefault);
+	  } catch (std::exception& e) {
+	    LOG_ERROR("could not parse ws message: " << e.what());
+	    delete message;
+	    closing = true;
+	  }
+	}
+
+	const std::string *signalE = message->getParameter("signal");
+
+	if (signalE && *signalE == "ping") {
+	  if (lock->canWriteAsyncResponse_) {
+	    lock->canWriteAsyncResponse_ = false;
+	    lock->asyncResponse_->out() << "{}";
+	    lock->asyncResponse_->flush
+	      (WebRequest::ResponseFlush,
+	       boost::bind(&WebSession::webSocketReady, session));
+	    lock->asyncResponse_->readWebSocketMessage
+	      (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
+	  }
+
+	  delete message;
+
+	  return;
+	}
+
+	const std::string *pageIdE = message->getParameter("pageId");
+	if (pageIdE && *pageIdE
+	    != boost::lexical_cast<std::string>(lock->renderer_.pageId()))
+	  closing = true;
+
+	if (!closing) {
+	  handler.setRequest(message, (WebResponse *)(message));
+	  lock->handleRequest(handler);
+	}
+
+	if (lock->dead()) {
+	  closing = true;
+	  lock->controller_->removeSession(lock->sessionId());
+	}
+
+	if (closing) {
+	  if (lock->asyncResponse_)
+	    lock->asyncResponse_->flush();
+	  lock->asyncResponse_ = 0;
+	  lock->canWriteAsyncResponse_ = false;
+	} else
+	  if (lock->asyncResponse_ &&
+	      lock->asyncResponse_->isWebSocketRequest())
+	    lock->asyncResponse_->readWebSocketMessage
+	      (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
       }
     }
-
-    const std::string *signalE = message->getParameter("signal");
-
-    if (signalE && *signalE == "ping") {
-      if (lock->canWriteAsyncResponse_) {
-	lock->canWriteAsyncResponse_ = false;
-	lock->asyncResponse_->out() << "{}";
-	lock->asyncResponse_->flush
-	  (WebRequest::ResponseFlush,
-	   boost::bind(&WebSession::webSocketReady, session));
-	lock->asyncResponse_->readWebSocketMessage
-	  (boost::bind(&WebSession::handleWebSocketMessage, session));
-      }
-
-      delete message;
-
-      return;
-    }
-
-    const std::string *pageIdE = message->getParameter("pageId");
-    if (pageIdE	&& *pageIdE
-	!= boost::lexical_cast<std::string>(lock->renderer_.pageId()))
-      closing = true;
-
-    if (!closing) {
-      handler.setRequest(message, (WebResponse *)(message));
-      lock->handleRequest(handler);
-    }
-
-    if (lock->dead()) {
-      closing = true;
-      lock->controller_->removeSession(lock->sessionId());
-    }
-
-    if (closing) {
-      if (lock->asyncResponse_)
-	lock->asyncResponse_->flush();
-      lock->asyncResponse_ = 0;
-      lock->canWriteAsyncResponse_ = false;
-    } else
-      if (lock->asyncResponse_ && lock->asyncResponse_->isWebSocketRequest())
-	lock->asyncResponse_->readWebSocketMessage
-	  (boost::bind(&WebSession::handleWebSocketMessage, session));
   }
 #endif // WT_TARGET_JAVA
 }

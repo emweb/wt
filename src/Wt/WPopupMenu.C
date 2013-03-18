@@ -23,6 +23,7 @@ namespace Wt {
 
 WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
   : WMenu(contentsStack),
+    topLevel_(0),
     result_(0),
     location_(0),
     aboutToHide_(this),
@@ -54,9 +55,11 @@ void WPopupMenu::setButton(WInteractWidget *button)
 
 void WPopupMenu::popupAtButton()
 {
-  button_->addStyleClass("active", true);
+  if (topLevel_ == this) {
+    button_->addStyleClass("active", true);
 
-  popup(button_);
+    popup(button_);
+  }
 }
 
 void WPopupMenu::setMaximumSize(const WLength& width,
@@ -178,6 +181,7 @@ void WPopupMenu::setCurrent(int index)
 
 void WPopupMenu::connectSignals(WPopupMenu * const topLevel)
 {
+  topLevel_ = topLevel;
   itemSelected().connect(topLevel, &WPopupMenu::done);
 
   for (int i = 0; i < count(); ++i) {
