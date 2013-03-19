@@ -691,13 +691,19 @@ public:
 
   bool isEditing() const;
 
-  /*! \brief %Signal emitted when an item is clicked.
+  /*! \brief %Signal emitted when clicked.
    *
+   * When the event happened over an item, the first argument
+   * indicates the item that was clicked on.
+
    * \sa doubleClicked()
    */
   Signal<WModelIndex, WMouseEvent>& clicked() { return clicked_; }
 
-  /*! \brief %Signal emitted when an item is double clicked.
+  /*! \brief %Signal emitted when double clicked.
+   *
+   * When the event happened over an item, the first argument
+   * indicates the item that was double clicked on.
    *
    * \sa clicked()
    */
@@ -705,11 +711,17 @@ public:
 
   /*! \brief %Signal emitted when a mouse button is pressed down.
    *
+   * When the event happened over an item, the first argument
+   * indicates the item where the mouse went down.
+   *
    * \sa mouseWentUp()
    */
   Signal<WModelIndex, WMouseEvent>& mouseWentDown() { return mouseWentDown_; }
 
   /*! \brief %Signal emitted when the mouse button is released.
+   *
+   * When the event happened over an item, the first argument
+   * indicates the item where the mouse went up.
    *
    * \sa mouseWentDown()
    */

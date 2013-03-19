@@ -251,7 +251,7 @@ void IsapiRequest::abort()
     &status, 0, 0);
 }
 
-void IsapiRequest::flush(ResponseState state, WriteCallback callback)
+void IsapiRequest::flush(ResponseState state, const WriteCallback& callback)
 {
   reading_ = false;
   if (!headerSent_) {

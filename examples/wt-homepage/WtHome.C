@@ -35,7 +35,7 @@ WtHome::WtHome(const WEnvironment& env)
   if (wtExamplePath)
     wtExamplePath_ = wtExamplePath;
   else
-    wtExamplePath_ = "../";
+    wtExamplePath_ = "..";
 
   init();
 }

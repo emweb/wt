@@ -967,15 +967,15 @@
           ${doc-link WCssTheme} class as it is the default theme.
         </dd>
         <dt>polished</dt>
-        <dd>This class is also part of the ${doc-link WCssTheme} class. You can
-          change to this CSS theme with the method <tt>setCssTheme()</tt>
-          from the class ${doc-link WApplication} and passing the parameter
-          "polished".
+        <dd>This theme is also implemented by the ${doc-link WCssTheme} class.
+	  You can change to this CSS theme with <tt>setCssTheme("polished")</tt>
+          in your ${doc-link WApplication}.
         </dd>
         <dt>bootstrap</dt>
         <dd>
-          This class is also part of the ${doc-link WBootstrapTheme} class. Use
-          <tt>setCssTheme("bootstrap")</tt> to apply this theme.
+          This theme is implemented by the ${doc-link WBootstrapTheme}
+          class, and relies on Twitter's Bootstrap CSS framework. Use
+          <tt>setTheme(new WBootstrapTheme())</tt> to use this theme.
         </dd>
       </dl>
     </p>

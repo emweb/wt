@@ -105,6 +105,12 @@ public:
    */
   std::string name() const { return name_; }
 
+  /*! \brief Casts to the locale string (for pre-3.3.0 compatibility).
+   *
+   * \deprecated Use name() instead. 
+   */
+  operator std::string() const { return name(); }
+
   /*! \brief Returns the current (user) locale.
    *
    * This returns WApplication::instance()->locale() if the

@@ -357,9 +357,8 @@ tutorial</a>) has the following features:
   <li>Use a single connection or share connection pools between
     multiple sessions from which connections are used only during an
     active transaction.</li>
-  <li>Comes with Sqlite3, Firebird, and PostgreSQL backends, and a <a
-    href="http://wtdbomysql.sourceforge.net/">MySQL backend (GPL
-    only)</a> is maintained by the community (Paul Harisson).</li>
+  <li>Comes with Sqlite3, Firebird, MariaDB/MySQL and PostgreSQL
+    backends, and an Oracle backend is also available on request.</li>
 </ul>
 
 <h4>Testing</h4>
@@ -989,7 +988,7 @@ Download the package
 (<a href="http://www.webtoolkit.eu/packages/winst-0.4.tar.gz">winst-0.4.tar.gz</a>)
 or get the latest git version:
 <div class="fragment">
-  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/winst.git</pre>
+  <pre class="fragment">$ git clone git://github.com/kdeforche/wt.git</pre>
 </div>
 </p>
 
@@ -1031,7 +1030,7 @@ features in Wt:
     <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
     paint device will be included, which provides rendering support for PDF
     documents. For more complete support for TrueType fonts and Unicode, you'll
-    want <a href="https://github.com/kdeforche/libharu">a patched libharu</a>
+    want <a href="https://github.com/libharu/libharu">the latest git version</a>
     and probably also libpango (see further) for accurate font/glyph
     selection.
   </li>
@@ -1112,7 +1111,7 @@ repository</a>.</p>
 <p>
 Alternatively checkout the repository using:
 <div class="fragment">
-  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/wt.git</pre>
+  <pre class="fragment">$ git clone git://github.com/kdeforche/wt.git</pre>
 </div>
 </p>
   </message>

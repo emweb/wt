@@ -526,7 +526,7 @@ void Reply::encodeNextContentBuffer(
 	  }
 	} while (gzipStrm_.avail_out == 0);
       }
-    } else {
+    } else if (gzipStrm_.next_in) {
       unsigned char out[16*1024];
       do {
 	gzipStrm_.next_out = out;

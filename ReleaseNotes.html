@@ -295,6 +295,19 @@ behaviour.
     WTreeNode::labelArea() is no longer returning a WTableCell but
     instead a WContainerWidget.
   </dd>
+
+  <dt>
+    <a href="classWt_1_1WTreeView.html">WTreeView</a>,
+    <a href="classWt_1_1WTableView.html">WTableView</a>
+  </dt>
+  <dd>
+    Event handling (clicked(), doubleClicked(), ... ) has been
+    generalized: events that are not generated on an item (but for
+    example in empty space below the items) will now also
+    generate these events, but then with an invalid model index.
+    You may thus need to adapt current code to check whether the model
+    index that is returned is valid.
+  </dd>
 </dl>
 <hr>
 

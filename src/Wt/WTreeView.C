@@ -1476,6 +1476,7 @@ void WTreeView::rerenderTree()
   WContainerWidget *wrapRoot
     = dynamic_cast<WContainerWidget *>(contents_->widget(0));
 
+  bool firstTime = rootNode_ == 0;
   wrapRoot->clear();
 
   firstRenderedRow_ = calcOptimalFirstRenderedRow();
@@ -1485,13 +1486,26 @@ void WTreeView::rerenderTree()
 
   if (WApplication::instance()->environment().ajax()) {
     connectObjJS(rootNode_->clicked(), "click");
+    if (firstTime)
+      connectObjJS(contentsContainer_->clicked(), "rootClick");
 
-    if (editTriggers() & DoubleClicked || doubleClicked().isConnected())
+    if (editTriggers() & DoubleClicked || doubleClicked().isConnected()) {
       connectObjJS(rootNode_->doubleClicked(), "dblClick");
-    if (mouseWentDown().isConnected() || dragEnabled_)
+      if (firstTime)
+	connectObjJS(contentsContainer_->doubleClicked(), "rootDblClick");
+    }
+
+    if (mouseWentDown().isConnected() || dragEnabled_) {
       connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
-    if (mouseWentUp().isConnected())
+      if (firstTime)
+	connectObjJS(contentsContainer_->mouseWentDown(), "rootMouseDown");
+    }
+
+    if (mouseWentUp().isConnected()) {
       connectObjJS(rootNode_->mouseWentUp(), "mouseUp");
+      if (firstTime)
+	connectObjJS(contentsContainer_->mouseWentUp(), "rootMouseUp");
+    }
   }
 
   setRootNodeStyle();
@@ -1527,46 +1541,42 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
   // since MSVS 2012 does not support >5 arguments in std::bind()
   std::vector<std::string> nodeAndColumnSplit;
   boost::split(nodeAndColumnSplit, nodeAndColumnId, boost::is_any_of(":"));
-  if (nodeAndColumnSplit.size() != 2)
-    throw Wt::WException("WTreeview::onEventItem: unexpected value for "
-			 "param 1");
 
-  std::string nodeId = nodeAndColumnSplit[0];
-  int columnId;
-  try {
-    columnId = boost::lexical_cast<int>(nodeAndColumnSplit[1]);
-  } catch (boost::bad_lexical_cast &e) {
-    throw Wt::WException("WTreeview::onEventItem: bad format for param 1");
-  }
+  WModelIndex index;
 
-  int column = (columnId == 0 ? 0 : -1);
-  for (unsigned i = 0; i < columns_.size(); ++i)
-    if (columns_[i].id == columnId) {
-      column = i;
+  if (nodeAndColumnSplit.size() == 2) {
+    std::string nodeId = nodeAndColumnSplit[0];
+    int columnId = -1;
+    try {
+      columnId = boost::lexical_cast<int>(nodeAndColumnSplit[1]);
+    } catch (boost::bad_lexical_cast &e) {
+      LOG_ERROR("WTreeview::onEventItem: bad value for format 1: "
+		<< nodeAndColumnSplit[1]);
+    }
+
+    int column = (columnId == 0 ? 0 : -1);
+    for (unsigned i = 0; i < columns_.size(); ++i)
+      if (columns_[i].id == columnId) {
+	column = i;
       break;
     }
 
-  if (column == -1)
-    return; // illegal column Id
+    if (column != -1) {
+      WModelIndex c0index;
+      for (NodeMap::const_iterator i = renderedNodes_.begin();
+	   i != renderedNodes_.end(); ++i) {
+	if (i->second->id() == nodeId) {
+	  c0index = i->second->modelIndex();
+	  break;
+	}
+      }
 
-  WModelIndex c0index;
-  for (NodeMap::const_iterator i = renderedNodes_.begin();
-       i != renderedNodes_.end(); ++i) {
-    if (i->second->id() == nodeId) {
-      c0index = i->second->modelIndex();
-      break;
+      if (c0index.isValid())
+	index = model()->index(c0index.row(), column, c0index.parent());
+      else
+	LOG_ERROR("WTreeView::onEventItem: illegal node id: " << nodeId);
     }
   }
-
-  if (!c0index.isValid()) {
-    LOG_ERROR("illegal id in WTreeView::onItemEvent()");
-    return; // illegal node Id
-  }
-
-  WModelIndex index = model()->index(c0index.row(), column, c0index.parent());
-
-  if (!index.isValid())
-    return;
 
   if (type == "clicked") {
     handleClick(index, event);

@@ -49,7 +49,6 @@ PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
   updateUsers();
 
   connect();
-
 }
 
 void PopupChatWidget::setName(const Wt::WString& name)

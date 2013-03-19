@@ -164,10 +164,16 @@ void Connection::handleReadRequest0()
       else
 	request_.urlScheme = urlScheme();
 
-      request_.port = socket().local_endpoint().port();
-      reply_ = request_handler_.handleRequest(request_);
-      reply_->setConnection(shared_from_this());
-      moreDataToSendNow_ = true;
+      try {
+	request_.port = socket().local_endpoint().port();
+	reply_ = request_handler_.handleRequest(request_);
+	reply_->setConnection(shared_from_this());
+	moreDataToSendNow_ = true;
+      } catch (const asio_error_code& e) {
+	LOG_ERROR("Error in handleRequest0(): " << e.message());
+	handleError(e);
+	return;
+      }
 
       handleReadBody();
     }
@@ -203,8 +209,8 @@ void Connection::handleReadRequest(const asio_error_code& e,
     remaining_ = buffer_.data();
     buffer_size_ = bytes_transferred;
     handleReadRequest0();
-  } else if (e != asio::error::operation_aborted
-	     && e != asio::error::bad_descriptor) {
+  } else if (e != asio::error::operation_aborted &&
+	     e != asio::error::bad_descriptor) {
     handleError(e);
   }
 }
