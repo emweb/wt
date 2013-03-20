@@ -16,5 +16,6 @@ treeView->setRowHeight(24);
 treeView->setHeaderHeight(24);
 treeView->setSortingEnabled(false);
 treeView->setSelectionMode(Wt::SingleSelection);
+treeView->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
 
 SAMPLE_END(return treeView)

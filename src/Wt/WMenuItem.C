@@ -231,8 +231,8 @@ AnchorTarget WMenuItem::linkTarget() const
 
 void WMenuItem::updateInternalPath()
 {  
-  if (menu_ && menu_->internalPathEnabled()
-      && !dynamic_cast<WPopupMenu *>(menu())) {
+  if (menu_ && menu_->internalPathEnabled() &&
+      !dynamic_cast<WPopupMenu *>(menu_)) {
     std::string internalPath = menu_->internalBasePath() + pathComponent();
     WLink link(WLink::InternalPath, internalPath);
     WAnchor *a = anchor();
@@ -489,11 +489,6 @@ void WMenuItem::setMenu(WMenu *menu)
 void WMenuItem::setSubMenu(WMenu *menu)
 {
   setMenu(menu);
-}
-
-WMenu *WMenuItem::menu()
-{
-  return subMenu_;
 }
 
 void WMenuItem::setItemPadding(bool padding)

@@ -7,8 +7,10 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WFormWidget"
+#include "Wt/WServer"
 #include "Wt/WTheme"
 
+#include "Configuration.h"
 #include "DomElement.h"
 
 /*
@@ -395,7 +397,8 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	mouseClick->updateOk();
       }
 
-      js << "},200);}";
+      const Configuration& conf = app->environment().server()->configuration();
+      js << "}," << conf.doubleClickTimeout() << ");}";
     } else {
       if (mouseClick && mouseClick->needsUpdate(all)) {
 	js << mouseClick->javaScript();

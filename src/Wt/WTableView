@@ -196,10 +196,10 @@ private:
   void handleMouseWentUp(bool headerColumns, const WMouseEvent& event);
   WModelIndex translateModelIndex(bool headerColumns, const WMouseEvent& event);
 
-  void handleRootSingleClick(const WMouseEvent& event);
-  void handleRootDoubleClick(const WMouseEvent& event);
-  void handleRootMouseWentDown(const WMouseEvent& event);
-  void handleRootMouseWentUp(const WMouseEvent& event);
+  void handleRootSingleClick(int u, const WMouseEvent& event);
+  void handleRootDoubleClick(int u, const WMouseEvent& event);
+  void handleRootMouseWentDown(int u, const WMouseEvent& event);
+  void handleRootMouseWentUp(int u, const WMouseEvent& event);
 
   void updateItem(const WModelIndex& index,
 		  int renderedRow, int renderedColumn);

@@ -396,6 +396,12 @@
           -->
 	<indicator-timeout>500</indicator-timeout>
 
+	<!-- The timeout for processing a double click event.
+
+	   The value is specified in ms.
+          -->
+	<double-click-timeout>200</double-click-timeout>
+
 	<!-- Ajax user agent list
 
            Wt considers three types of sessions:

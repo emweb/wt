@@ -129,6 +129,7 @@ public:
   int sessionTimeout() const;
   int bootstrapTimeout() const;
   int indicatorTimeout() const;
+  int doubleClickTimeout() const;
   int serverPushTimeout() const;
   std::string valgrindPath() const;
   ErrorReporting errorReporting() const;
@@ -202,6 +203,7 @@ private:
   int             sessionTimeout_;
   int             bootstrapTimeout_;
   int		  indicatorTimeout_;
+  int             doubleClickTimeout_;
   int             serverPushTimeout_;
   std::string     valgrindPath_;
   ErrorReporting  errorReporting_;

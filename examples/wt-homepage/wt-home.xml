@@ -988,7 +988,7 @@ Download the package
 (<a href="http://www.webtoolkit.eu/packages/winst-0.4.tar.gz">winst-0.4.tar.gz</a>)
 or get the latest git version:
 <div class="fragment">
-  <pre class="fragment">$ git clone git://github.com/kdeforche/wt.git</pre>
+  <pre class="fragment">$ git clone git://github.com/kdeforche/winst.git</pre>
 </div>
 </p>
 

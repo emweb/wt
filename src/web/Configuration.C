@@ -208,6 +208,7 @@ void Configuration::reset()
   sessionTimeout_ = 600;
   bootstrapTimeout_ = 10;
   indicatorTimeout_ = 500;
+  doubleClickTimeout_ = 200;
   serverPushTimeout_ = 50;
   valgrindPath_ = "";
   errorReporting_ = ErrorMessage;
@@ -299,6 +300,12 @@ int Configuration::indicatorTimeout() const
 {
   READ_LOCK;
   return indicatorTimeout_;
+}
+
+int Configuration::doubleClickTimeout() const
+{
+  READ_LOCK;
+  return doubleClickTimeout_;
 }
 
 int Configuration::serverPushTimeout() const
@@ -677,15 +684,13 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   std::string plainAjaxSessionsRatioLimit
     = singleChildElementValue(app, "plain-ajax-sessions-ratio-limit", "");
 
-  std::string indicatorTimeoutStr
-    = singleChildElementValue(app, "indicator-timeout", "");
-
   if (!plainAjaxSessionsRatioLimit.empty())
     maxPlainSessionsRatio_
       = boost::lexical_cast<float>(plainAjaxSessionsRatioLimit);
 
   setBoolean(app, "ajax-puzzle", ajaxPuzzle_);
   setInt(app, "indicator-timeout", indicatorTimeout_);
+  setInt(app, "double-click-timeout", doubleClickTimeout_);
 
   std::vector<xml_node<> *> userAgents = childElements(app, "user-agents");
 

@@ -13,6 +13,8 @@ tableView->setSortingEnabled(false);
 tableView->setAlternatingRowColors(true);
 tableView->setRowHeight(28);
 tableView->setHeaderHeight(28);
+tableView->setSelectionMode(Wt::ExtendedSelection);
+tableView->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
 
 tableView->resize(650, 400);
 

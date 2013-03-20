@@ -15,6 +15,7 @@ tableView->setAlternatingRowColors(true);
 tableView->setRowHeight(28);
 tableView->setHeaderHeight(28);
 tableView->setSelectionMode(Wt::SingleSelection);
+tableView->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
 
 /*
  * Configure column widths and matching table width

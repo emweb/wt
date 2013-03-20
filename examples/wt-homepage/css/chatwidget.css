@@ -1,0 +1,79 @@
+.chat-widget {
+    position: fixed;
+    right: 5px;
+    bottom: 0px;    
+    border: 1px solid #BBB;
+    border-bottom: 0px;
+    z-index: 100;
+    background-color: white;
+}
+
+.chat-minimized {
+    width: 185px;
+    height: 20px;
+}
+
+.chat-maximized {
+    width: 200px;
+    height: 250px;
+}
+
+.chat-bar {
+    height: 21px;
+    padding: 2px 5px;
+    background-color: #70bd1A;
+    color: white;
+}
+
+.chat-bar.alert {
+    background-color: #D05D2A;
+}
+
+.chat-bar .chat-minmax {
+    float: right;
+    width: 16px;
+    height: 16px;
+}
+
+.chat-bar .self {
+    font-size: 110%;
+    font-weight: bold;
+}
+
+.chat-bar .online {
+    color: #DDDDDD;
+}
+
+.chat-maximized .chat-bar .chat-minmax {
+    background: url(icons/minimize.png) no-repeat center center;
+}
+
+.chat-minimized .chat-bar .chat-minmax {
+    background: url(icons/maximize.png) no-repeat center center;
+}
+
+.chat-self {
+  color: #B42600;
+  font-weight: bold;
+  padding-right: 0.2em;
+}
+
+.chat-highlight {
+  font-weight: bold;
+}
+
+.chat-msg {
+  padding: 0px 3px;
+  line-height: 1.3;
+}
+
+.chat-info {
+  font-style: oblique;
+  color: gray;
+}
+
+.chat-user {
+  color: #DD7200;
+  font-weight: bold;
+  padding-right: 0.2em;
+}

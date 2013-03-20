@@ -1,0 +1,5 @@
+.chat-widget {
+    position: absolute;
+    right: expression(((ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft + 5)) + 'px' );
+    bottom: expression(((ignoreMe3 = document.body.innerHeight - (window.innerHeight + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)))) + 'px' );
+}

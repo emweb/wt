@@ -255,9 +255,13 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
     {
       WPopupMenu *popupMenu
 	= dynamic_cast<WPopupMenu *>(widget);
-      if (popupMenu)
+      if (popupMenu) {
 	element.addPropertyWord(PropertyClass, "dropdown-menu");
-      else {
+
+	if (popupMenu->parentItem() &&
+	    dynamic_cast<WPopupMenu *>(popupMenu->parentItem()->parentMenu()))
+	  element.addPropertyWord(PropertyClass, "submenu");
+      } else {
 	WMenu *menu = dynamic_cast<WMenu *>(widget);
 	if (menu) {
 	  element.addPropertyWord(PropertyClass, "nav");

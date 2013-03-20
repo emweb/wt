@@ -101,11 +101,11 @@ WTableView::WTableView(WContainerWidget *parent)
     contentsContainer_->addWidget(canvas_);
 
     contentsContainer_->clicked()
-      .connect(boost::bind(&WTableView::handleRootSingleClick, this, _1));
+      .connect(boost::bind(&WTableView::handleRootSingleClick, this, 0, _1));
     contentsContainer_->mouseWentDown()
-      .connect(boost::bind(&WTableView::handleRootMouseWentDown, this, _1)); 
+      .connect(boost::bind(&WTableView::handleRootMouseWentDown, this, 0, _1)); 
     contentsContainer_->mouseWentUp()
-      .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, _1)); 
+      .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, 0, _1)); 
 
     scrolled_.connect(this, &WTableView::onViewportChange);
 
@@ -136,11 +136,11 @@ WTableView::WTableView(WContainerWidget *parent)
     headerColumnsContainer_->hide();
 
     headerColumnsContainer_->clicked()
-      .connect(boost::bind(&WTableView::handleRootSingleClick, this, _1));
+      .connect(boost::bind(&WTableView::handleRootSingleClick, this, 0, _1));
     headerColumnsContainer_->mouseWentDown()
-      .connect(boost::bind(&WTableView::handleRootMouseWentDown, this, _1)); 
+      .connect(boost::bind(&WTableView::handleRootMouseWentDown, this, 0, _1)); 
     headerColumnsContainer_->mouseWentUp()
-      .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, _1)); 
+      .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, 0, _1)); 
 
     layout->addWidget(headerColumnsHeaderContainer_, 0, 0);
     layout->addWidget(headerContainer_, 0, 1);
@@ -759,9 +759,9 @@ void WTableView::render(WFlags<RenderFlag> flags)
       headerColumnsCanvas_->doubleClicked().preventPropagation();
 
       contentsContainer_->doubleClicked()
-	.connect(boost::bind(&WTableView::handleRootDoubleClick, this, _1));
+	.connect(boost::bind(&WTableView::handleRootDoubleClick, this, 0, _1));
       headerColumnsContainer_->doubleClicked()
-	.connect(boost::bind(&WTableView::handleRootDoubleClick, this, _1));
+	.connect(boost::bind(&WTableView::handleRootDoubleClick, this, 0, _1));
     }
   }
 
@@ -1501,22 +1501,22 @@ void WTableView::handleMouseWentUp(bool headerColumns, const WMouseEvent& event)
   WAbstractItemView::handleMouseUp(index, event);
 }
 
-void WTableView::handleRootSingleClick(const WMouseEvent& event)
+void WTableView::handleRootSingleClick(int u, const WMouseEvent& event)
 {
   WAbstractItemView::handleClick(WModelIndex(), event);
 }
 
-void WTableView::handleRootDoubleClick(const WMouseEvent& event)
+void WTableView::handleRootDoubleClick(int u, const WMouseEvent& event)
 {
   WAbstractItemView::handleDoubleClick(WModelIndex(), event);
 }
 
-void WTableView::handleRootMouseWentDown(const WMouseEvent& event)
+void WTableView::handleRootMouseWentDown(int u, const WMouseEvent& event)
 {
   WAbstractItemView::handleMouseDown(WModelIndex(), event);
 }
 
-void WTableView::handleRootMouseWentUp(const WMouseEvent& event)
+void WTableView::handleRootMouseWentUp(int u, const WMouseEvent& event)
 {
   WAbstractItemView::handleMouseUp(WModelIndex(), event);
 }

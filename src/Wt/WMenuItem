@@ -197,11 +197,11 @@ public:
    */
   void setSubMenu(WMenu *menu);
 
-  /*! \brief Returns the menu.
+  /*! \brief Returns the submenu.
    *
    * \sa setMenu()
    */
-  WMenu *menu();
+  WMenu *menu() const { return subMenu_; }
 
   /*! \brief Sets the checked state.
    *
@@ -273,9 +273,7 @@ public:
    */
   void close();
 
-  /*! \brief Returns the menu.
-   */
-  WMenu *menu() const { return menu_; }
+  WMenu *parentMenu() const { return menu_; }
 
   /*! \brief Returns the contents widget for this item.
    *

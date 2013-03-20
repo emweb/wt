@@ -48,6 +48,8 @@ Home::Home(const WEnvironment& env, const std::string& title,
   useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7");
   useStyleSheet("css/home.css");
   useStyleSheet("css/sourceview.css");
+  useStyleSheet("css/chatwidget.css");
+  useStyleSheet("css/chatwidget_ie6.css", "lt IE 7");
   setTitle(title);
 
   setLocale("");
@@ -269,15 +271,15 @@ WWidget *Home::blog()
 void Home::chatSetUser(const WString& userName)
 {
   WApplication::instance()->doJavaScript
-    ("if (window.chat) "
-     "try {"
-     """window.chat.emit(window.chat, 'login', "
-     ""                   "" + userName.jsStringLiteral() + "); "
-     "} catch (e) {"
-     """window.chatUser = " + userName.jsStringLiteral() + ";"
-     "}"
-     "else "
-     """window.chatUser = " + userName.jsStringLiteral() + ";");
+    ("if (window.chat && window.chat.emit) {"
+     """try {"
+     ""  "window.chat.emit(window.chat, 'login', "
+     ""                    "" + userName.jsStringLiteral() + "); "
+     """} catch (e) {"
+     ""  "window.chatUser=" + userName.jsStringLiteral() + ";"
+     """}"
+     "} else "
+     """window.chatUser=" + userName.jsStringLiteral() + ";");
 }
 
 WWidget *Home::status()

@@ -55,7 +55,7 @@ void WPopupMenu::setButton(WInteractWidget *button)
 
 void WPopupMenu::popupAtButton()
 {
-  if (topLevel_ == this) {
+  if (!topLevel_ || topLevel_ == this) {
     button_->addStyleClass("active", true);
 
     popup(button_);

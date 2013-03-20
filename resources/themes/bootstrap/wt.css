@@ -97,6 +97,15 @@
   box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
 }
 /*
+ * Fix submens in popup menus in navbar
+ */
+.navbar .nav > li > .dropdown-menu.submenu:before {
+  display: none;
+}
+.navbar .nav > li > .dropdown-menu.submenu:after {
+  display: none;
+}
+/*
  * Dialog extensions
  */
 .modal .modal-header {
@@ -716,7 +725,7 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
   margin-left: 7px;
 }
 .Wt-treeview .Wt-tv-br,
-.Wt-treeview .Wt-tv-node .Wt-tv-c {
+.Wt-treeview ul .Wt-tv-c {
   /* data */
 
   margin-right: 0px;
@@ -788,7 +797,7 @@ body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
   margin-right: 7px;
 }
 body.Wt-rtl .Wt-treeview .Wt-tv-br,
-body.Wt-rtl .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
+body.Wt-rtl .Wt-treeview ul .Wt-tv-row .Wt-tv-c {
   /* data */
 
   margin-right: 1px;

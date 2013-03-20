@@ -503,6 +503,8 @@ public:
   WMenuItem *itemAt(int index) const;
   int indexOf(WMenuItem *item) const;
 
+  WMenuItem *parentItem() const { return parentItem_; }
+
 protected:
   virtual void render(WFlags<RenderFlag> flags);
 
@@ -532,8 +534,6 @@ protected:
    * with given index.
    */
   virtual int nextAfterHide(int index);
-
-  WMenuItem *parentItem() const { return parentItem_; }
 
 protected:
   WContainerWidget *ul() const { return ul_; }

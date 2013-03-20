@@ -13,6 +13,7 @@
 #include "Wt/WAbstractItemModel"
 #include "Wt/WDate"
 #include "Wt/WException"
+#include "Wt/WLogger"
 #include "Wt/WTime"
 
 #include "Wt/Chart/WAxis"
@@ -61,6 +62,9 @@ namespace {
 }
 
 namespace Wt {
+
+LOGGER("Chart.WAxis");
+
   namespace Chart {
 
 class ExtremesIterator : public SeriesIterator
@@ -419,6 +423,8 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  max = WDateTime::fromTime_t((std::time_t)s.renderMaximum);
 	}
 
+	LOG_DEBUG("Range: " << min.toString() << ", " << max.toString());
+
 	if (daysInterval > 200) {
 	  s.dateTimeRenderUnit = Years;
 	  interval = std::max(1, 
@@ -647,6 +653,10 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	  = std::max(maximum, findMinimum ? minimum : segment.minimum);
     }
     
+    WDateTime min = WDateTime::fromTime_t((std::time_t)segment.renderMinimum);
+    WDateTime max = WDateTime::fromTime_t((std::time_t)segment.renderMaximum);
+    LOG_DEBUG("Range: " << min.toString() << ", " << max.toString());
+
     double diff = segment.renderMaximum - segment.renderMinimum;
 
     if (scale_ == LogScale) {
