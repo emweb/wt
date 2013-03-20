@@ -77,23 +77,23 @@ private:
 #endif
 
       if (!ok) {
-	LOG_ERROR("could not parse Json: '" << response.body() << "'");
-	setError(ERROR_MSG("badjson"));
-	authenticated().emit(Identity::Invalid);
+          LOG_ERROR("could not parse Json: '" << response.body() << "'");
+          setError(ERROR_MSG("badjson"));
+          authenticated().emit(Identity::Invalid);
       } else {
-	std::string id = userInfo.get("id");
-	WT_USTRING userName = userInfo.get("name");
-	std::string email = userInfo.get("email").orIfNull("");
-	bool emailVerified = userInfo.get("verified_email").orIfNull(false);
-	authenticated().emit(Identity(service().name(), id, userName,
-				      email, emailVerified));
+          std::string id = userInfo.get("id");
+          WT_USTRING userName = userInfo.get("name");
+          std::string email = userInfo.get("email").orIfNull("");
+          bool emailVerified = userInfo.get("verified_email").orIfNull(false);
+          authenticated().emit(Identity(service().name(), id, userName,
+                      email, emailVerified));
       }
     } else {
       setError(ERROR_MSG("badresponse"));
 
       if (!err) {
-	LOG_ERROR("user info request returned: " << response.status());
-	LOG_ERROR("with: " << response.body());
+          LOG_ERROR("user info request returned: " << response.status());
+          LOG_ERROR("with: " << response.body());
       }
 
       authenticated().emit(Identity::Invalid);
