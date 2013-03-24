@@ -530,6 +530,7 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
   canvas->setAttribute("width", wstr);
   canvas->setAttribute("height", hstr);
   result->addChild(canvas);
+  widget_->sizeChanged_ = false;
 
   WCanvasPaintDevice *canvasDevice = dynamic_cast<WCanvasPaintDevice *>(device);
 

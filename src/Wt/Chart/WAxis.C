@@ -132,7 +132,8 @@ WAxis::WAxis()
     gridLines_(false),
     gridLinesPen_(gray),
     margin_(0),
-    labelAngle_(0)
+    labelAngle_(0),
+    roundLimits_(MinimumValue | MaximumValue)
 {
   titleFont_.setFamily(WFont::SansSerif);
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
@@ -184,6 +185,8 @@ void WAxis::setMinimum(double minimum)
   set(s.minimum, minimum);
   set(s.maximum, std::max(s.minimum, s.maximum));
 #endif // WT_TARGET_JAVA
+
+  roundLimits_.clear(MinimumValue);
 }
 
 double WAxis::minimum() const
@@ -203,6 +206,8 @@ void WAxis::setMaximum(double maximum)
   set(s.maximum, maximum);
   set(s.minimum, std::min(s.minimum, s.maximum));
 #endif // WT_TARGET_JAVA
+
+  roundLimits_.clear(MaximumValue);
 }
 
 double WAxis::maximum() const
@@ -219,8 +224,15 @@ void WAxis::setRange(double minimum, double maximum)
     segments_.front().minimum = minimum;
     segments_.back().maximum = maximum;
 
+    roundLimits_ = 0;
+
     update();
   }
+}
+
+void WAxis::setRoundLimits(WFlags<AxisValue> locations)
+{
+  roundLimits_ = locations;
 }
 
 void WAxis::setResolution(const double resolution)
@@ -231,10 +243,15 @@ void WAxis::setResolution(const double resolution)
 
 void WAxis::setAutoLimits(WFlags<AxisValue> locations)
 {
-  if (locations & MinimumValue)
+  if (locations & MinimumValue) {
     set(segments_.front().minimum, AUTO_MINIMUM);
-  if (locations & MaximumValue)
+    roundLimits_ |= MinimumValue;
+  }
+
+  if (locations & MaximumValue) {
     set(segments_.back().maximum, AUTO_MAXIMUM);
+    roundLimits_ |= MaximumValue;
+  }
 }
 
 WFlags<AxisValue> WAxis::autoLimits() const
@@ -397,11 +414,11 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 
       if (scale_ == LinearScale) {
 	if (it == 0) {
-	  if (s.minimum == AUTO_MINIMUM)
+	  if (roundLimits_ & MinimumValue)
 	    s.renderMinimum
 	      = roundDown125(s.renderMinimum, renderInterval_);
-      
-	  if (s.maximum == AUTO_MAXIMUM)
+	  
+	  if (roundLimits_ & MaximumValue)
 	    s.renderMaximum
 	      = roundUp125(s.renderMaximum, renderInterval_);
 	}
@@ -430,11 +447,13 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  interval = std::max(1, 
 			      static_cast<int>(round125(daysInterval / 365)));
 
-	  if (min.date().day() != 1 && min.date().month() != 1)
-	    min = WDateTime(WDate(min.date().year(), 1, 1));
+	  if (roundLimits_ & MinimumValue)
+	    if (min.date().day() != 1 && min.date().month() != 1)
+	      min = WDateTime(WDate(min.date().year(), 1, 1));
 
-	  if (max.date().day() != 1 && max.date().day() != 1)
-	    max = WDateTime(WDate(max.date().year() + 1, 1, 1));
+	  if (roundLimits_ & MaximumValue)
+	    if (max.date().day() != 1 && max.date().day() != 1)
+	      max = WDateTime(WDate(max.date().year() + 1, 1, 1));
 	} else if (daysInterval > 20) {
 	  s.dateTimeRenderUnit = Months;
 
@@ -450,21 +469,25 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  else
 	    interval = 6;
 	
-	    /* push min and max to a round month (at interval boundary) */
+	  /* push min and max to a round month (at interval boundary) */
+	  if (roundLimits_ & MinimumValue) {
+	    if ((min.date().month() - 1) % interval != 0) {
+	      int m = roundDown(min.date().month() - 1, interval) + 1;
+	      min = WDateTime(WDate(min.date().year(), m, 1));
+	    } else if (min.date().day() != 1)
+	      min = WDateTime(WDate(min.date().year(), min.date().month(), 1));
+	  }
 
-	  if ((min.date().month() - 1) % interval != 0) {
-	    int m = roundDown(min.date().month() - 1, interval) + 1;
-	    min = WDateTime(WDate(min.date().year(), m, 1));
-	  } else if (min.date().day() != 1)
-	    min = WDateTime(WDate(min.date().year(), min.date().month(), 1));
+	  if (roundLimits_ & MaximumValue) {
+	    if (max.date().day() != 1)
+	      max = WDateTime
+		(WDate(max.date().year(), max.date().month(), 1).addMonths(1));
 
-	  if (max.date().day() != 1)
-	    max = WDateTime
-	      (WDate(max.date().year(), max.date().month(), 1).addMonths(1));
-
-	  if ((max.date().month() - 1) % interval != 0) {
-	    int m = roundDown(max.date().month() - 1, interval) + 1;
-	    max = WDateTime(WDate(max.date().year(), m, 1).addMonths(interval));
+	    if ((max.date().month() - 1) % interval != 0) {
+	      int m = roundDown(max.date().month() - 1, interval) + 1;
+	      max = WDateTime(WDate(max.date().year(), m, 1)
+			      .addMonths(interval));
+	    }
 	  }
 	} else if (daysInterval > 0.6) {
 	  s.dateTimeRenderUnit = Days;
@@ -472,7 +495,8 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  if (daysInterval < 1.3)
 	    interval = 1;
 	  else
-	    interval = 7 * std::max(1, static_cast<int>((daysInterval + 5) / 7));
+	    interval = 7 * std::max(1,
+				    static_cast<int>((daysInterval + 5) / 7));
 	} else {
 	  double minutes = daysInterval * 24 * 60;
 
@@ -494,23 +518,27 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	      interval = 12;
 
 	    /* push min and max to a round hour (at interval boundary) */
-	    if (min.time().hour() % interval != 0) {
-	      int h = roundDown(min.time().hour(), interval);
-	      min.setTime(WTime(h, 0));
-	    } else if (min.time().minute() != 0)
-	      min.setTime(WTime(min.time().hour(), 0));
-
-	    if (max.time().minute() != 0) {
-	      max.setTime(WTime(max.time().hour(), 0));
-	      max = max.addSecs(60 * 60);
+	    if (roundLimits_ & MinimumValue) {
+	      if (min.time().hour() % interval != 0) {
+		int h = roundDown(min.time().hour(), interval);
+		min.setTime(WTime(h, 0));
+	      } else if (min.time().minute() != 0)
+		min.setTime(WTime(min.time().hour(), 0));
 	    }
 
-	    if (max.time().hour() % interval != 0) {
-	      int h = roundDown(max.time().hour(), interval);
-	      max.setTime(WTime(h, 0));
-	      max = max.addSecs(interval * 60 * 60);
+	    if (roundLimits_ & MaximumValue) {
+	      if (max.time().minute() != 0) {
+		max.setTime(WTime(max.time().hour(), 0));
+		max = max.addSecs(60 * 60);
+	      }
+
+	      if (max.time().hour() % interval != 0) {
+		int h = roundDown(max.time().hour(), interval);
+		max.setTime(WTime(h, 0));
+		max = max.addSecs(interval * 60 * 60);
+	      }
 	    }
-	  } else {
+	  } else if (minutes > 2) {
 	    s.dateTimeRenderUnit = Minutes;
 
 	    if (minutes < 1.3)
@@ -528,22 +556,69 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	    else
 	      interval = 30;
 
-	    /* push min and max to a round minute (at interval boundary) */
-	    if (min.time().minute() % interval != 0) {
-	      int m = roundDown(min.time().minute(), interval);
-	      min.setTime(WTime(min.time().hour(), m));
-	    } else if (min.time().second() != 0)
-	      min.setTime(WTime(min.time().hour(), min.time().minute()));
-
-	    if (max.time().second() != 0) {
-	      max.setTime(WTime(max.time().hour(), max.time().minute()));
-	      max = max.addSecs(60);
+	    if (roundLimits_ & MinimumValue) {
+	      /* push min and max to a round minute (at interval boundary) */
+	      if (min.time().minute() % interval != 0) {
+		int m = roundDown(min.time().minute(), interval);
+		min.setTime(WTime(min.time().hour(), m));
+	      } else if (min.time().second() != 0)
+		min.setTime(WTime(min.time().hour(), min.time().minute()));
 	    }
 
-	    if (max.time().minute() % interval != 0) {
-	      int m = roundDown(max.time().minute(), interval);
-	      max.setTime(WTime(max.time().hour(), m));
-	      max = max.addSecs(interval * 60);
+	    if (roundLimits_ & MaximumValue) {
+	      if (max.time().second() != 0) {
+		max.setTime(WTime(max.time().hour(), max.time().minute()));
+		max = max.addSecs(60);
+	      }
+
+	      if (max.time().minute() % interval != 0) {
+		int m = roundDown(max.time().minute(), interval);
+		max.setTime(WTime(max.time().hour(), m));
+		max = max.addSecs(interval * 60);
+	      }
+	    }
+	  } else {
+	    s.dateTimeRenderUnit = Seconds;
+
+	    double seconds = minutes * 60;
+
+	    if (seconds < 1.3)
+	      interval = 1;
+	    else if (seconds < 2.3)
+	      interval = 2;
+	    else if (seconds < 5.3)
+	      interval = 5;
+	    else if (seconds < 10.3)
+	      interval = 10;
+	    else if (seconds < 15.3)
+	      interval = 15;
+	    else if (seconds < 20.3)
+	      interval = 20;
+	    else
+	      interval = 30;
+
+	    /* push min and max to a round second (at interval boundary) */
+	    if (roundLimits_ & MinimumValue) {
+	      if (min.time().second() % interval != 0) {
+		int sec = roundDown(min.time().second(), interval);
+		min.setTime(WTime(min.time().hour(), min.time().minute(), sec));
+	      } else if (min.time().msec() != 0)
+		min.setTime(WTime(min.time().hour(), min.time().minute(),
+				  min.time().second()));
+	    }
+
+	    if (roundLimits_ & MaximumValue) {
+	      if (max.time().msec() != 0) {
+		max.setTime(WTime(max.time().hour(), max.time().minute(),
+				  max.time().second()));
+		max = max.addSecs(1);
+	      }
+
+	      if (max.time().second() % interval != 0) {
+		int sec = roundDown(max.time().second(), interval);
+		max.setTime(WTime(max.time().hour(), max.time().minute(), sec));
+		max = max.addSecs(interval);
+	      }
 	    }
 	  }
 	}
@@ -653,10 +728,6 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	  = std::max(maximum, findMinimum ? minimum : segment.minimum);
     }
     
-    WDateTime min = WDateTime::fromTime_t((std::time_t)segment.renderMinimum);
-    WDateTime max = WDateTime::fromTime_t((std::time_t)segment.renderMaximum);
-    LOG_DEBUG("Range: " << min.toString() << ", " << max.toString());
-
     double diff = segment.renderMaximum - segment.renderMinimum;
 
     if (scale_ == LogScale) {
@@ -969,7 +1040,66 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
     int interval = s.dateTimeRenderInterval;
     DateTimeUnit unit = s.dateTimeRenderUnit;
 
-    bool atTick = (interval > 1) || (unit <= Days);
+    bool atTick = (interval > 1) ||
+      (unit <= Days) || 
+      !(roundLimits_ & MinimumValue);
+
+    WString format = labelFormat_;
+
+    if (format.empty()) {
+      if (atTick) {
+	switch (unit) {
+	case Months:
+	case Years:
+	case Days:
+	  if (dt.time().second() != 0)
+	    format = WString::fromUTF8("dd/MM/yy hh:mm:ss");
+	  else if (dt.time().hour() != 0)
+	    format = WString::fromUTF8("dd/MM/yy hh:mm");
+	  else
+	    format = WString::fromUTF8("dd/MM/yy");
+
+	  break;
+	case Hours:
+	  if (dt.time().second() != 0)
+	    format = WString::fromUTF8("dd/MM hh:mm:ss");
+	  else if (dt.time().minute() != 0)
+	    format = WString::fromUTF8("dd/MM hh:mm");
+	  else
+	    format = WString::fromUTF8("h'h' dd/MM");
+
+	  break;
+	case Minutes:
+	  if (dt.time().second() != 0)
+	    format = WString::fromUTF8("hh:mm:ss");
+	  else
+	    format = WString::fromUTF8("hh:mm");
+
+	  break;
+	case Seconds:
+	  format = WString::fromUTF8("hh:mm:ss");
+
+	  break;
+	}
+      } else {
+	switch (unit) {
+	case Years:
+	  format = WString::fromUTF8("yyyy"); break;
+	case Months:
+	  format = WString::fromUTF8("MMM yy"); break;
+	case Days:
+	  format = WString::fromUTF8("dd/MM/yy"); break;
+	case Hours:
+	  format = WString::fromUTF8("h'h' dd/MM"); break;
+	case Minutes:
+	  format = WString::fromUTF8("hh:mm"); break;
+	case Seconds:
+	  format = WString::fromUTF8("hh:mm:ss"); break;
+	default:
+	  break;
+	}
+      }
+    }
 
     for (;;) {
       long dl = getDateNumber(dt);
@@ -989,40 +1119,11 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 	next = dt.addSecs(interval * 60 * 60); break;
       case Minutes:
 	next = dt.addSecs(interval * 60); break;
+      case Seconds:
+	next = dt.addSecs(interval); break;
       }
 
-      WString text;
-
-      if (!labelFormat_.empty())
-	text = dt.toString(labelFormat_);
-      else {
-	if (atTick) 
-	  switch (unit) {
-	  case Months:
-	  case Years:
-	  case Days:
-	    text = dt.toString("dd/MM/yy"); break;
-	  case Hours:
-	    text = dt.toString("h'h' dd/MM"); break;
-	  case Minutes:
-	    text = dt.toString("hh:mm"); break;
-	  default:
-	    break;
-	  }
-	else
-	  switch (unit) {
-	  case Months:
-	    text = dt.toString("MMM yy"); break;
-	  case Years:
-	    text = dt.toString("yyyy"); break;
-	  case Hours:
-	    text = dt.toString("h'h' dd/MM"); break;
-	  case Minutes:
-	    text = dt.toString("hh:mm"); break;
-	  default:
-	    break;
-	  }
-      }
+      WString text = dt.toString(format);
 
       if (dl >= s.renderMinimum)
 	ticks.push_back(TickLabel(static_cast<double>(dl),

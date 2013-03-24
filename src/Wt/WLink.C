@@ -152,6 +152,7 @@ std::string WLink::resolveUrl(WApplication *app) const
       // session.
       relativeUrl = app->session()->mostRelativeUrl(internalPath().toUTF8());
   }
+    break;
   default:
     relativeUrl = url();
   }

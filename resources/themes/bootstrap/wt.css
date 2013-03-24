@@ -68,11 +68,14 @@
 .dropdown-menu .Wt-padded {
   padding-left: 39px;
 }
-.dropdown-menu .submenu a,
-.dropdown-menu .submenu a:hover {
-  background-image: url(../../right-arrow.gif);
-  background-repeat: no-repeat;
-  background-position: right center;
+.dropdown-menu li label {
+  display: inline;
+}
+/*
+ * Make label in any menu item inline
+ */
+.nav li label {
+  display: inline;
 }
 /*
  * Custom collapse nav support
@@ -213,7 +216,6 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));

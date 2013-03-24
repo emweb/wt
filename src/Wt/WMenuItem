@@ -193,7 +193,7 @@ public:
 
   /*! \brief Sets a sub menu (<b>deprecated</b>)
    *
-   * \depcrated use setMenu() instead
+   * \deprecated use setMenu() instead
    */
   void setSubMenu(WMenu *menu);
 

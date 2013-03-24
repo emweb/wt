@@ -1658,7 +1658,8 @@ public:
    *
    * This would create a log entry that looks like:
    * \verbatim
-[2008-Jul-13 14:01:17.817348] 16879 [/app.wt Z2gCmSxIGjLHD73L] [notice] "User bart logged in successfully." \endverbatim
+[2008-Jul-13 14:01:17.817348] 16879 [/app.wt Z2gCmSxIGjLHD73L] [notice] "User bart logged in successfully."
+   * \endverbatim
    * \endif
    *
    * \if cpp

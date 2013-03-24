@@ -87,15 +87,15 @@ enum AxisScale {
 
   /*! A date scale is a special linear scale, which is useful for the
    * X axis in a ScatterPlot, when the X series contain dates (of type
-   * WDate). The dates are internally stored in julian date format. 
+   * WDate). The dates are converted to numbers, as Julian Days.
    */
   DateScale = 3,
 
-  /*! A datetime scale is a special linear scale, which is useful for the
-   * X axis in a ScatterPlot, when the X series contain timedates (of type
-   * WDateTime). The dates are internally stored as
-   * the number of seconds since the Unix Epoch (midnight 
-   * Coordinated Universal Time (UTC) of January 1, 1970).
+  /*! A datetime scale is a special linear scale, which is useful for
+   * the X axis in a ScatterPlot, when the X series contain timedates
+   * (of type WDateTime). The dates are converted to numbers, as the
+   * number of seconds since the Unix Epoch (midnight Coordinated
+   * Universal Time (UTC) of January 1, 1970).
    */
   DateTimeScale = 4
 };
@@ -110,8 +110,8 @@ enum AxisScale {
  * chart has a unique id() that identifies which of these three axes
  * it is in the enclosing chart().
  *
- * Use setVisible(bool) to change the visibility of an axis,
- * setGridLinesEnabled(bool) to show grid lines for an axis. The pen
+ * Use setVisible() to change the visibility of an axis,
+ * setGridLinesEnabled() to show grid lines for an axis. The pen
  * styles for rendering the axis or grid lines may be changed using
  * setPen() and setGridLinesPen(). A margin between the axis and the
  * main plot area may be configured using setMargin().
@@ -130,10 +130,12 @@ enum AxisScale {
  * omission is rendered in the axis and in bars that cross the break.
  *
  * The labels are shown using a "%.4g" format string for numbers, and
- * "dd/MM/yyyy" (for \link Chart::DateScale DateScale\endlink). The
- * format may be customized using setLabelFormat(). The angle of the
- * label text may be changed using setLabelAngle(double). By default,
- * all labels are printed horizontally.
+ * a suitable format for \link Chart::DateScale DateScale\endlink or
+ * \link Chart::DateTimeScale DateTimeScale\endlink formats, which
+ * uses heuristics to choose a suitable format. The format may be
+ * customized using setLabelFormat(). The angle of the label text may
+ * be changed using setLabelAngle(). By default, all labels are
+ * printed horizontally.
  * 
  * \sa WCartesianChart
  *
@@ -156,7 +158,7 @@ public:
 
   /*! \brief Returns the axis id.
    *
-   * \sa chart(), WCartesianChart::axis(Axis)
+   * \sa chart(), WCartesianChart::axis()
    */
   Axis id() const { return axis_; }
 
@@ -164,18 +166,18 @@ public:
    *
    * Changes whether the axis is displayed, including ticks and
    * labels. The rendering of the grid lines is controlled seperately
-   * by setGridLinesEnabled(bool).
+   * by setGridLinesEnabled().
    *
    * The default value is true for the X axis and first Y axis, but false
    * for the second Y axis.
    *
-   * \sa setGridLinesEnabled(bool).
+   * \sa setGridLinesEnabled().
    */
   void setVisible(bool visible);
 
   /*! \brief Returns whether this axis is visible.
    *
-   * \sa setVisible(bool)
+   * \sa setVisible()
    */
   bool isVisible() const { return visible_; }
 
@@ -193,7 +195,7 @@ public:
 
   /*! \brief Returns the axis location.
    *
-   * \sa setLocation(AxisValue)
+   * \sa setLocation()
    */
   AxisValue location() const { return location_; }
 
@@ -216,76 +218,75 @@ public:
 
   /*! \brief Returns the scale of the axis.
    *
-   * \sa setScale(AxisScale)
+   * \sa setScale()
    */
   AxisScale scale() const { return scale_; }
 
   /*! \brief Sets the minimum value displayed on the axis.
    *
-   * Specify the minimum value to be displayed on the axis. By
-   * default, the minimum and maximum values are determined
+   * By default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
    * The numerical value corresponding to a data point is 
    * defined by it's AxisScale type.
    *
-   * \sa minimum(), setMaximum(double)
+   * \sa setMaximum(), setAutoLimits()
    */
   void setMinimum(double minimum);
 
   /*! \brief Returns the minimum value displayed on the axis.
    *
    * This returned the minimum value that was set using setMinimum(),
-   * or otherwise the automatically calculated minimum.
+   * or otherwise the automatically calculated (and rounded) minimum.
    *
-   * The numerical value corresponding to a data point is 
-   * defined by it's AxisScale type.
+   * The numerical value corresponding to a data point is defined by
+   * it's AxisScale type.
    *
-   * \sa maximum(), setMinimum(double), setAutoLimits()
+   * \sa setMinimum(), setAutoLimits(), setRoundLimits()
    */
   double minimum() const;
 
   /*! \brief Sets the maximum value for the axis displayed on the axis.
    *
-   * Specify the maximum value to be displayed on the axis. By
-   * default, the minimum and maximum values are determined
+   * By default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
    * The numerical value corresponding to a data point is 
    * defined by it's AxisScale type.
    *
-   * \sa minimum(), setMinimum(double)
+   * \sa setMinimum(), setAutoLimits()
    */
   void setMaximum(double maximum);
 
   /*! \brief Returns the maximum value displayed on the axis.
    *
    * This returned the maximum value that was set using setMaximum(),
-   * or otherwise the automatically calculated maximum.
+   * or otherwise the automatically calculated (and rounded) maximum.
    *
-   * The numerical value corresponding to a data point is 
-   * defined by it's AxisScale type.
+   * The numerical value corresponding to a data point is defined by
+   * it's AxisScale type.
    *
-   * \sa minimum(), setMaximum(double)
+   * \sa setMaximum(), setAutoLimits(), setRoundLimits()
    */
   double maximum() const;
 
   /*! \brief Sets the axis range (minimum and maximum values) manually.
    *
-   * Specifies both minimum and maximum value for the axis.
-   * This automatically disables automatic range calculation.
+   * Specifies both minimum and maximum value for the axis. This
+   * automatically disables automatic range calculation.
    *
-   * The numerical value corresponding to a data point is 
-   * defined by it's AxisScale type.
+   * The numerical value corresponding to a data point is defined by
+   * it's AxisScale type.
    *
-   * \sa setMinimum(double), setMaximum(double)
+   * \sa setMinimum(), setMaximum()
    */
   void setRange(double minimum, double maximum);
 
   /*! \brief Sets the axis resolution.
    *
-   * Specifies the axis resolution, in case maximum-minimum < resolution
-   * minimum and maximum are modified so the maximum - minimum = resolution
+   * Specifies the axis resolution, in case maximum-minimum <
+   * resolution minimum and maximum are modified so the maximum -
+   * minimum = resolution
    *
    * The default resolution is 0, which uses a built-in epsilon.
    *
@@ -323,7 +324,26 @@ public:
    */
   WFlags<AxisValue> autoLimits() const;
 
-  /*! \brief Specify a range that needs to be omitted from the axis.
+  /*! \brief Specifies whether limits should be rounded.
+   *
+   * When enabling rounding, this has the effect of rounding down the
+   * minimum value, or rounding up the maximum value, to the nearest
+   * label interval.
+   *
+   * By default, rounding is enabled for an auto-calculated limited,
+   * and disabled for a manually specifed limit.
+   *
+   * \sa setAutoLimits()
+   */
+  void setRoundLimits(WFlags<AxisValue> locations);
+
+  /*! \brief Returns whether limits should be rounded.
+   *
+   * \sa setRoundLimits()
+   */
+  WFlags<AxisValue> roundLimits() const { return roundLimits_; }
+
+  /*! \brief Specifies a range that needs to be omitted from the axis.
    *
    * This is useful to display data with a few outliers which would
    * otherwise swamp the chart. This is not done automatically, but
@@ -339,21 +359,21 @@ public:
    * The default value is 0.0, and indicates that the interval should be
    * computed automatically.
    *
-   * \sa setLabelFormat(const WString&)
+   * \sa setLabelFormat()
    */
   void setLabelInterval(double labelInterval);
 
   /*! \brief Returns the label interval.
    *
-   * \sa setLabelInterval(double)
+   * \sa setLabelInterval()
    */
   double labelInterval() const { return labelInterval_; }
 
   /*! \brief Sets the label format.
    *
    * Sets a format string which is used to format values, both for the
-   * axis labels as well as data series values (see
-   * WDataSeries::setLabelsEnabled(Axis, bool)).
+   * axis labels as well as data series values
+   * (see WDataSeries::setLabelsEnabled()).
    *
    * For an axis with a \link Chart::LinearScale LinearScale\endlink
    * or \link Chart::LogScale LogScale\endlink scale, the format string
@@ -363,9 +383,14 @@ public:
    *
    * For an axis with a \link Chart::DateScale DateScale\endlink
    * scale, the format string must be a format string accepted by
-   * WDate::toString(const WString&), to format a date. If the format
-   * string is an empty string, "dd/MM/yyyy", "MMM yy" or "yyyy" is
-   * used depending on the situation.
+   * WDate::toString(), to format a date. If the format string is an
+   * empty string, a suitable format is chosen based on heuristics.
+   *
+   * For an axis with a
+   * \link Chart::DateTimeScale DateTimeScale\endlink scale, the format
+   * string must be a format string accepted by WDateTime::toString(),
+   * to format a date. If the format string is an empty string, a suitable
+   * format is chosen based on heuristics.
    *
    * The default value is an empty string ("").
    *
@@ -375,7 +400,7 @@ public:
 
   /*! \brief Returns the label format string.
    *
-   * \sa setLabelFormat(const WString&)
+   * \sa setLabelFormat()
    */
   const WString& labelFormat() const { return labelFormat_; }
 
@@ -385,7 +410,7 @@ public:
    * corresponds to horizontal text. Note that this option is only supported
    * by the InlineSvgVml renderers, but not by HtmlCanvas.
    *
-   * The default value is 0.0 ("horizontal text").
+   * The default value is 0.0.
    *
    * \sa labelAngle()
    */
@@ -393,7 +418,7 @@ public:
 
   /*! \brief Returns the label angle.
    *
-   * \sa setLabelAngle(double)
+   * \sa setLabelAngle()
    */
   double labelAngle() const { return labelAngle_; }
 
@@ -403,15 +428,15 @@ public:
    * using the gridLinesPen().
    *
    * Unlike all other visual aspects of an axis, rendering of the
-   * gridlines is not controlled by setDisplayEnabled(bool).
+   * gridlines is not controlled by setDisplayEnabled().
    *
-   * \sa setGridLinesPen(const WPen&), isGridLinesEnabled()
+   * \sa setGridLinesPen(), isGridLinesEnabled()
    */
   void setGridLinesEnabled(bool enabled);
 
   /*! \brief Returns whether gridlines are displayed for this axis.
    *
-   * \sa setGridLinesEnabled(bool)
+   * \sa setGridLinesEnabled()
    */
   bool isGridLinesEnabled() const { return gridLines_; }
 
@@ -419,13 +444,13 @@ public:
    *
    * The default value is a black pen of 0 width.
    *
-   * \sa setGridLinesPen(const WPen&).
+   * \sa setGridLinesPen().
    */
   void setPen(const WPen& pen);
 
   /*! \brief Returns the pen used for rendering the axis and ticks.
    *
-   * \sa setPen(const WPen&)
+   * \sa setPen()
    */
   const WPen& pen() const { return pen_; }
 
@@ -433,13 +458,13 @@ public:
    *
    * The default value is a gray pen of 0 width.
    *
-   * \sa setPen(const WPen&), gridLinesPen().
+   * \sa setPen(), gridLinesPen().
    */
   void setGridLinesPen(const WPen& pen);
 
   /*! \brief Returns the pen used for rendering the grid lines.
    *
-   * \sa setGridLinesPen(const WPen&)
+   * \sa setGridLinesPen()
    */
   const WPen& gridLinesPen() const { return gridLinesPen_; }
 
@@ -455,7 +480,7 @@ public:
 
   /*! \brief Returns the margin between the axis and the plot area.
    *
-   * \sa setMargin(int)
+   * \sa setMargin()
    */
   int margin() const { return margin_; }
 
@@ -512,7 +537,7 @@ public:
   int segmentCount() const { return (int)segments_.size(); }
 
 private:
-  enum DateTimeUnit { Minutes, Hours, Days, Months, Years };
+  enum DateTimeUnit { Seconds, Minutes, Hours, Days, Months, Years };
 
   WCartesianChart *chart_;
   Axis             axis_;
@@ -528,6 +553,7 @@ private:
   double           labelAngle_;
   WString          title_;
   WFont            titleFont_, labelFont_;
+  WFlags<AxisValue> roundLimits_;
 
   struct Segment {
     double minimum, maximum;

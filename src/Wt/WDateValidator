@@ -170,9 +170,9 @@ public:
   /*! \brief Sets the message to display when the date is later than top.
    *
    * \if cpp
-   * Depending on whether bottom() and top() are \link WDate::isNull
-   * defined\endlink, the default message is "The date must be
-   * between {1} and {2}" or "The date must be before {2}".
+   * Depending on whether bottom() and top() are
+   * \link WDate::isNull() defined\endlink, the default message is 
+   * "The date must be between {1} and {2}" or "The date must be before {2}".
    * \elseif java
    * Depending on whether bottom() and top() are defined, the default message is
    * "The date must be between {1} and {2}" or "The date must be before {2}".

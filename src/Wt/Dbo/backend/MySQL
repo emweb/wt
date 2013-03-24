@@ -46,8 +46,8 @@ public:
    *  \param dbpasswd The password for the database conection - defaults to an
    *         empty string.
    *  \param dbhost The hostname of the database - defaults to localhost.
-   *  \param Must be in the range 0 to 6. By diffault return -1: fractional part
-   *         are not stored.
+   *  \param fractionalSecondsPart Must be in the range 0 to 6. A value
+   *         of -1 indicates that the fractional part is not stored.
    *         Fractional seconds part are supported for MySQL 5.6.4
    *         http://dev.mysql.com/doc/refman/5.6/en/fractional-seconds.html
    */

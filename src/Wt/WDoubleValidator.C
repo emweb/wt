@@ -104,10 +104,10 @@ WString WDoubleValidator::invalidTooLargeText() const
     if (top_ == std::numeric_limits<double>::max())
       return WString();
     else
-      if (bottom_ == -std::numeric_limits<int>::max())
-	return WString::tr("Wt.WDoubleValidator.TooLarge").arg(top_);
+      if (bottom_ == -std::numeric_limits<double>::max())
+        return WString::tr("Wt.WDoubleValidator.TooLarge").arg(top_);
       else
-	return WString::tr("Wt.WDoubleValidator.BadRange").
+        return WString::tr("Wt.WDoubleValidator.BadRange").
           arg(bottom_).arg(top_);
 }
 

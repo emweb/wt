@@ -231,6 +231,10 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 	  element.addPropertyWord(PropertyClass, "divider");
 	if (item->isSectionHeader())
 	  element.addPropertyWord(PropertyClass, "nav-header");
+	if (item->menu()) {
+	  if (dynamic_cast<WPopupMenu *>(item->parentMenu()))
+	    element.addPropertyWord(PropertyClass, "dropdown-submenu");
+	}
       }
     }
     break;

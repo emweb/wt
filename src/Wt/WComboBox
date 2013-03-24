@@ -218,7 +218,12 @@ private:
 
   void itemsChanged();
   void propagateChange();
+
+  void rowsAboutToBeInserted(const WModelIndex &index, int from, int to);
+  void rowsInserted(const WModelIndex &index, int from, int to);
   void rowsAboutToBeRemoved(const WModelIndex &index, int from, int to);
+  void rowsRemoved(const WModelIndex &index, int from, int to);
+
   virtual bool supportsNoSelection() const;
 
 protected:

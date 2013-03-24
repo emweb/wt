@@ -1844,8 +1844,8 @@ void WebSession::notify(const WEvent& event)
   const std::string *requestE = request.getParameter("request");
 
   const std::string *pageIdE = request.getParameter("pageId");
-  if (pageIdE
-      && *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
+  if (pageIdE &&
+      *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
     handler.response()->setContentType("text/javascript; charset=UTF-8");
     handler.response()->out() << "{}";
     handler.response()->flush();
@@ -2148,8 +2148,9 @@ void WebSession::notify(const WEvent& event)
 	  if (!app_->internalPathIsChanged_) {
 	    if (hashE)
 	      changeInternalPath(*hashE, handler.response());
-	    else if (!request.pathInfo().empty())
-	      changeInternalPath(request.pathInfo(), handler.response());
+	    else if (!handler.request()->pathInfo().empty())
+	      changeInternalPath(handler.request()->pathInfo(),
+				 handler.response());
 	    else
 	      changeInternalPath("", handler.response());
 	  }
@@ -2174,7 +2175,7 @@ void WebSession::notify(const WEvent& event)
 	  if (controller_->configuration().persistentSessions()) {
 	    LOG_INFO("refresh for persistent session");
 	    WEnvironment oldEnv = *env_;
-	    env_->init(request);
+	    env_->init(*handler.request());
 	    env_->parameters_ = handler.request()->getParameterMap();
 
 	    try {

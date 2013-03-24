@@ -211,7 +211,7 @@ public:
    */
   WContainerWidget *contents() const { return contents_; }
 
-  /*! \brier Returns the dialog footer container.
+  /*! \brief Returns the dialog footer container.
    *
    * This is an optional section which is typically used for buttons.
    */
