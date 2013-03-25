@@ -11,6 +11,7 @@
 #include "Wt/WException"
 #include "Wt/WPoint"
 #include "Wt/WPopupMenu"
+#include "Wt/WPushButton"
 #include "Wt/WTemplate"
 
 #include "WebSession.h"
@@ -43,6 +44,15 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
   app->addGlobalWidget(this);
 
   hide();
+}
+
+WPopupMenu::~WPopupMenu()
+{
+  if (button_) {
+    WPushButton *b = dynamic_cast<WPushButton *>(button_);
+    if (b)
+      b->setMenu(0);
+  }
 }
 
 void WPopupMenu::setButton(WInteractWidget *button)

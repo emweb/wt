@@ -114,6 +114,8 @@ public:
    */
   WPopupMenu(WStackedWidget *contentsStack = 0);
 
+  virtual ~WPopupMenu();
+
   /*! \brief Shows the the popup at a position.
    *
    * Displays the popup at a point with document coordinates

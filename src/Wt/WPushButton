@@ -49,6 +49,8 @@ public:
    */
   WPushButton(const WString& text, WContainerWidget *parent = 0);
 
+  virtual ~WPushButton();
+
   /*! \brief Sets the default property.
    *
    * The only effect of a default button is that it is may be rendered

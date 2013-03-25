@@ -61,9 +61,6 @@ namespace Wt {
  * }
  *
  * \endcode
- * 
- * <i>Note: At present, WSocketNotifier works only in conjunction with
- * the wthttpd connector, and not when using the FastCGI connector.</i>
  */
 class WT_API WSocketNotifier : public WObject
 {

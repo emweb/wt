@@ -32,6 +32,12 @@ WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
   text_.text = text;
 }
 
+WPushButton::~WPushButton()
+{
+  if (popupMenu_)
+    popupMenu_->setButton(0);
+}
+
 bool WPushButton::setText(const WString& text)
 {
   if (canOptimizeUpdates() && (text == text_.text))
