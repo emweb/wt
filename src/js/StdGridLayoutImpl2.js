@@ -105,9 +105,15 @@ WT_DECLARE_WT_MEMBER
 
    function calcPreferredSize(element, dir, asSet) {
      var DC = DirConfig[dir];
+
+     /* Allow accurate measurement for widgets with offsets */
+     var l = element.style[DC.left];
+     setCss(element, DC.left, NA_px);
      var scrollWidth = dir ? element.scrollHeight : element.scrollWidth;
      var clientWidth = dir ? element.clientHeight : element.clientWidth;
      var offsetWidth = dir ? element.offsetHeight : element.offsetWidth;
+     setCss(element, DC.left, l);
+
 
      /*
       * Firefox adds the -NA offset to the reported width ??
@@ -308,10 +314,10 @@ WT_DECLARE_WT_MEMBER
      var preferredSize = [], minimumSize = [],
        totalPreferredSize = 0, totalMinSize = 0, di, oi;
 
-     var measurePreferredForStretching = true;
+     var measurePreferredForStretching = true, spanned = false;
 
      for (di = 0; di < dirCount; ++di) {
-       var dPreferred = 0, dSpanPreferred = 0;
+       var dPreferred = 0;
        var dMinimum = DC.config[di][MIN_SIZE];
        var allHidden = true;
 
@@ -481,20 +487,16 @@ WT_DECLARE_WT_MEMBER
 	       if (!item.span || item.span[dir] == 1) {
 		 if (wPreferred > dPreferred)
 		   dPreferred = wPreferred;
-	       } else {
-		 if (wPreferred > dSpanPreferred)
-		   dSpanPreferred = wPreferred;
-	       }
+	       } else
+		 spanned = true;
 	     } else {
 	       if (!item.span || item.span[dir] == 1) {
 		 if (item.ps[dir] > dPreferred)
 		   dPreferred = item.ps[dir];
 		 if (item.ms[dir] > dMinimum)
 		   dMinimum = item.ms[dir];
-	       } else {
-		 if (item.ps[dir] > dSpanPreferred)
-		   dSpanPreferred = item.ps[dir];
-	       }
+	       } else
+		 spanned = true;
 	     }
 
 	     if (debug)
@@ -502,17 +504,16 @@ WT_DECLARE_WT_MEMBER
 			   + item.ps[1]);
 
 	     // XXX second condition is a hack for WTextEdit
-	     if (item.w.style.display !== 'none'
+	     if ((item.w.style.display !== 'none'
 		 || (WT.hasTag(item.w, 'TEXTAREA') && item.w.wtResize))
+		 && (!item.span || item.span[dir] == 1)) {
 	       allHidden = false;
+	     }
 	   }
 	 }
        }
 
        if (!allHidden) {
-	 if (dPreferred == 0)
-	   dPreferred = dSpanPreferred;
-
 	 if (dMinimum > dPreferred)
 	   dPreferred = dMinimum;
        } else {
@@ -526,6 +527,57 @@ WT_DECLARE_WT_MEMBER
        if (dMinimum > -1) {
 	 totalPreferredSize += dPreferred;
 	 totalMinSize += dMinimum;
+       }
+     }
+
+     if (spanned) {
+       if (debug)
+	 console.log("(before spanned) "
+		     + id + ': ' + dir + " ps " + preferredSize);
+       for (di = 0; di < dirCount; ++di) {
+	 for (oi = 0; oi < otherCount; ++oi) {
+	   var item = DC.getItem(di, oi);
+
+	   if (item && item.span && item.span[dir] > 1) {
+	     var ps = item.ps[dir], count = 0, stretch = 0;
+
+	     for (si = 0; si < item.span[dir]; ++si) {
+	       var cps = preferredSize[di + si];
+
+	       if (cps != -1) {
+		 ps -= cps;
+		 ++count;
+		 if (DC.config[di + si][STRETCH] > 0)
+		   stretch += DC.config[di + si][STRETCH];
+	       }
+	     }
+
+	     if (ps > 0) {
+	       if (count > 0) {
+		 if (stretch > 0)
+		   count = stretch;
+
+		 for (si = 0; si < item.span[dir]; ++si) {
+		   var cps = preferredSize[di + si];
+		   if (cps != -1) {
+		     var portion;
+		     if (stretch > 0)
+		       portion = DC.config[di + si][STRETCH];
+		     else
+		       portion = 1;
+
+		     if (portion > 0) {
+		       var fract = Math.round(ps / portion);
+		       ps -= fract; count -= portion;
+		       preferredSize[di + si] += fract;
+		     }
+		   }
+		 }
+	       } else
+		 preferredSize[di] = ps;
+	     }
+	   }
+	 }
        }
      }
 
@@ -916,8 +968,10 @@ WT_DECLARE_WT_MEMBER
 
 	     targetSize[di] = measures[PREFERRED_SIZE][di];
 	   }
-	 } else
+	 } else {
 	   stretch[di] = HIDDEN;
+	   targetSize[di] = -1;
+	 }
        }
 
        if (totalStretch == 0) {
@@ -1015,7 +1069,8 @@ WT_DECLARE_WT_MEMBER
        console.log(" -> targetSize: " + targetSize);
 
      // (4) set widths/heights of cells
-     var left = 0, first = true, resizeHandle = false, oi, di;
+     var left = DC.margins[MARGIN_LEFT], 
+       first = true, resizeHandle = false, oi, di;
 
      for (di = 0; di < dirCount; ++di) {
        if (targetSize[di] > -1) {
@@ -1049,126 +1104,128 @@ WT_DECLARE_WT_MEMBER
 
 	 resizeHandle = DC.config[di][RESIZABLE] !== 0;
 
-	 if (first) {
-	   left += DC.margins[MARGIN_LEFT];
+	 if (first)
 	   first = false;
-	 } else
+	 else
 	   left += DC.margins[SPACING];
+       }
 
-	 for (oi = 0; oi < otherCount; ++oi) {
-	   var item = DC.getItem(di, oi);
-	   if (item && item.w) {
-	     var w = item.w;
+       for (oi = 0; oi < otherCount; ++oi) {
+	 var item = DC.getItem(di, oi);
+	 if (item && item.w) {
+	   var w = item.w;
 
-	     var ts = targetSize[di];
-	     if (item.span) {
-	       var si;
+	   var ts = Math.max(targetSize[di], 0);
+	   if (item.span) {
+	     var si;
 
-	       var rs = resizeHandle;
-	       for (si = 1; si < item.span[dir]; ++si) {
-		 if (di + si >= targetSize.length)
-		   break;
+	     var rs = resizeHandle;
+	     for (si = 1; si < item.span[dir]; ++si) {
+	       if (di + si >= targetSize.length)
+		 break;
 
-		 if (rs)
-		   ts += RESIZE_HANDLE_MARGIN * 2;
+	       if (rs)
+		 ts += RESIZE_HANDLE_MARGIN * 2;
 
-		 rs = DC.config[di + si][RESIZABLE] !== 0;
+	       rs = DC.config[di + si][RESIZABLE] !== 0;
+
+	       if (targetSize[di + si - 1] > -1 && targetSize[di + si] > -1)
 		 ts += DC.margins[SPACING];
-		 ts += targetSize[di + si];
-	       }
-	     }
-
-	     var off;
-
-	     setCss(w, 'visibility', '');
-
-	     var alignment = (item.align >> DC.alignBits) & 0xF;
-	     var ps = item.ps[dir];
-
-	     if (ts < ps)
-	       alignment = 0;
-
-	     if (!alignment) {
-	       var m = margin(item.w, dir);
-
-	       var tsm = Math.max(0, ts - m);
-
-	       if (!WT.isIE && WT.hasTag(w, 'TEXTAREA'))
-		 tsm = ts;
-
-	       /*
-		* IE: a button expands to parent container width ?? WTF ?
-		*/
-	       var setSize = false;
-	       if (WT.isIE && WT.hasTag(w, 'BUTTON'))
-		 setSize = true;
-
-	       if (setSize || ts != ps || item.layout) {
-		 if (setCss(w, DC.size, tsm + 'px'))
-		   setItemDirty(item);
-		 item.set[dir] = true;
-	       } else {
-		 if (!item.fs[dir]) {
-		   if (setCss(w, DC.size, ''))
-		     setItemDirty(item);
-		   item.set[dir] = false;
-		 } else if (dir == HORIZONTAL)
-		   setCss(w, DC.size, item.fs[dir] + 'px');
-	       }
-
-	       off = left;
-	       item.size[dir] = tsm;
-	       item.psize[dir] = ts;
-	     } else {
-	       switch (alignment) {
-	       case ALIGN_LEFT: off = left; break;
-	       case ALIGN_CENTER: off = left + (ts - ps)/2; break;
-	       case ALIGN_RIGHT: off = left + (ts - ps); break;
-	       }
-
-	       ps -= margin(item.w, dir);
-
-	       if (item.layout) {
-		 if (setCss(w, DC.size, ps + 'px'))
-		   setItemDirty(item);
-		 item.set[dir] = true;
-	       } else if (ts >= ps && item.set[dir]) {
-		 if (setCss(w, DC.size, ps + 'px'))
-		   setItemDirty(item);
-		 item.set[dir] = false;
-	       }
-
-	       item.size[dir] = ps;
-	       item.psize[dir] = ps;
-	     }
-
-	     if (!progressive)
-	       setCss(w, DC.left, off + 'px');
-	     else
-	       if (thisResized) {
-		 setCss(w, DC.left, (RESIZE_HANDLE_MARGIN * 2) + 'px');
-		 var pc = WT.css(w, 'position');
-		 if (pc !== 'absolute')
-		   w.style.position = 'relative';
-	       } else
-		 setCss(w, DC.left, '0px');
-
-	     if (dir == VERTICAL) {
-	       if (w.wtResize)
-		 w.wtResize(w,
-			    item.set[HORIZONTAL]
-			    ? Math.round(item.size[HORIZONTAL]) : -1,
-			    item.set[VERTICAL]
-			    ? Math.round(item.size[VERTICAL]) : -1,
-			    true);
-
-	       item.dirty = false;
+	       ts += targetSize[di + si];
 	     }
 	   }
-	 }
+	   
+	   var off;
 
-	 left += targetSize[di];
+	   setCss(w, 'visibility', '');
+
+	   var alignment = (item.align >> DC.alignBits) & 0xF;
+	   var ps = item.ps[dir];
+
+	   if (ts < ps)
+	     alignment = 0;
+
+	   if (!alignment) {
+	     var m = margin(item.w, dir);
+
+	     var tsm = Math.max(0, ts - m);
+
+	     if (!WT.isIE && WT.hasTag(w, 'TEXTAREA'))
+	       tsm = ts;
+
+	     /*
+	      * IE: a button expands to parent container width ?? WTF ?
+	      */
+	     var setSize = false;
+	     if (WT.isIE && WT.hasTag(w, 'BUTTON'))
+	       setSize = true;
+
+	     if (setSize || ts != ps || item.layout) {
+	       if (setCss(w, DC.size, tsm + 'px'))
+		 setItemDirty(item);
+	       item.set[dir] = true;
+	     } else {
+	       if (!item.fs[dir]) {
+		 if (setCss(w, DC.size, ''))
+		   setItemDirty(item);
+		 item.set[dir] = false;
+	       } else if (dir == HORIZONTAL)
+		 setCss(w, DC.size, item.fs[dir] + 'px');
+	     }
+
+	     off = left;
+	     item.size[dir] = tsm;
+	     item.psize[dir] = ts;
+	   } else {
+	     switch (alignment) {
+	     case ALIGN_LEFT: off = left; break;
+	     case ALIGN_CENTER: off = left + (ts - ps)/2; break;
+	     case ALIGN_RIGHT: off = left + (ts - ps); break;
+	     }
+
+	     ps -= margin(item.w, dir);
+
+	     if (item.layout) {
+	       if (setCss(w, DC.size, ps + 'px'))
+		 setItemDirty(item);
+	       item.set[dir] = true;
+	     } else if (ts >= ps && item.set[dir]) {
+	       if (setCss(w, DC.size, ps + 'px'))
+		 setItemDirty(item);
+	       item.set[dir] = false;
+	     }
+
+	     item.size[dir] = ps;
+	     item.psize[dir] = ps;
+	   }
+
+	   if (!progressive)
+	     setCss(w, DC.left, off + 'px');
+	   else
+	     if (thisResized) {
+	       setCss(w, DC.left, (RESIZE_HANDLE_MARGIN * 2) + 'px');
+	       var pc = WT.css(w, 'position');
+	       if (pc !== 'absolute')
+		 w.style.position = 'relative';
+	     } else
+	       setCss(w, DC.left, '0px');
+
+	   if (dir == VERTICAL) {
+	     if (w.wtResize)
+	       w.wtResize(w,
+			  item.set[HORIZONTAL]
+			  ? Math.round(item.size[HORIZONTAL]) : -1,
+			  item.set[VERTICAL]
+			  ? Math.round(item.size[VERTICAL]) : -1,
+			  true);
+
+	     item.dirty = false;
+	   }
+	 }
        }
+
+       if (targetSize[di] > -1)
+	 left += targetSize[di];
      }
 
      $(widget).children("." + OC.handleClass)

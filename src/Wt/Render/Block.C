@@ -6,6 +6,8 @@
 
 // #define DEBUG_LAYOUT
 
+// TODO : support position absolute
+
 #include "Wt/WFontMetrics"
 #include "Wt/WLogger"
 #include "Wt/WPaintDevice"

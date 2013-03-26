@@ -29,9 +29,7 @@
     English words ({1} words)
   </message>
 
-  <message id="hangman.newGame">
-    New game
-  </message>
+  <message id="hangman.newGame">New game</message>
 
   <message id="hangman.guessTheWord">
     <h2>Guess the word, {1}!</h2>
