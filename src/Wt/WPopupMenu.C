@@ -27,6 +27,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     topLevel_(0),
     result_(0),
     location_(0),
+    button_(0),
     aboutToHide_(this),
     triggered_(this),
     cancel_(this, "cancel"),

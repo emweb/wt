@@ -838,7 +838,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	if (line.bottom() >= renderer.textHeight(line.page()))
 	  line.moveToNextPage(floats, minX, maxX, renderer);
 
-	if (!isText() || (isText() && utf8Count == s.length()))
+	if (!isText() || (isText() && utf8Pos == s.length()))
 	  break;
       }
     }
@@ -915,9 +915,9 @@ void Block::layoutTable(PageState &ps,
     adjustAvailableWidth(ps.y, ps.page, ps.floats, rangeX);
     ps.maxX = rangeX.end;
 
-    availableWidth = rangeX.end - rangeX.start
-      - cssBorderWidth(Left, renderer.fontScale())
-      - cssBorderWidth(Right, renderer.fontScale());
+    double border = cssBorderWidth(Left, renderer.fontScale())
+      + cssBorderWidth(Right, renderer.fontScale());
+    availableWidth = rangeX.end - rangeX.start - border;
 
     /*
      * If we can increase the available width without clearing floats
@@ -931,7 +931,7 @@ void Block::layoutTable(PageState &ps,
     if (!isEpsilonLess(availableWidth, desiredMinWidth))
       break;
     else {
-      if (isEpsilonLess(desiredMinWidth, ps.maxX - ps.minX)) {
+      if (isEpsilonLess(desiredMinWidth, ps.maxX - ps.minX - border)) {
 	clearFloats(ps, desiredMinWidth);
       } else {
 	ps.maxX += desiredMinWidth - availableWidth;
@@ -974,9 +974,6 @@ void Block::layoutTable(PageState &ps,
     }
   }
 
-  width += cssBoxMargin(Left, renderer.fontScale())
-    + cssBoxMargin(Right, renderer.fontScale());
-
   AlignmentFlag hAlign = horizontalAlignment();
 
   switch (hAlign) {
@@ -994,9 +991,6 @@ void Block::layoutTable(PageState &ps,
   default:
     break;
   }
-
-  ps.minX += cssBoxMargin(Left, renderer.fontScale());
-  ps.maxX -= cssBoxMargin(Right, renderer.fontScale());
 
   Block *repeatHead = 0;
 

@@ -537,19 +537,19 @@ void WPdfImage::drawText(const WRectF& rect,
     switch (horizontalAlign) {
     case AlignLeft:
       left = rect.left();
-      right = left + 1000;
+      right = left + 10000;
       alignment = HPDF_TALIGN_LEFT;
       break;
     case AlignRight:
       right = rect.right();
-      left = right - 1000;
+      left = right - 10000;
       alignment = HPDF_TALIGN_RIGHT;
       break;
     case AlignCenter:
       {
 	float center = rect.center().x();
-	left = center - 500;
-	right = center + 500;
+	left = center - 5000;
+	right = center + 5000;
 	alignment = HPDF_TALIGN_CENTER;
 	break;
       }

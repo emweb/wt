@@ -92,6 +92,8 @@ double WTextRenderer::render(const WString& text, double y)
     bool tooWide = false;
 
     for (int i = 0; i < 2; ++i) {
+      currentPs.y = y;
+      currentPs.page = 0;
       currentPs.minX = minX;
       currentPs.maxX = maxX;
 
@@ -102,7 +104,8 @@ double WTextRenderer::render(const WString& text, double y)
 
       if (isEpsilonMore(currentPs.maxX, maxX)) {
 	if (!tooWide) {
-	  LOG_WARN("contents too wide for page.");
+	  LOG_WARN("contents too wide for page. ("
+		   << currentPs.maxX << " > " << maxX << ")");
 	  tooWide = true;
 	}
 
