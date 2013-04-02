@@ -804,10 +804,44 @@ public:
    */
   void setInternalPath(const std::string& path, bool emitChange = false);
 
+  /*! \brief Sets whether an internal path is valid by default.
+   *
+   * This configures how you treat (invalid) internal paths. If an
+   * internal path is treated valid by default then you need to call
+   * setInternalPath(false) for an invalid path. If on the other hand
+   * you treat an internal path as invalid by default, then you need
+   * to call setInternalPath(true) for a valid path.
+   * 
+   * A user which opens an invalid internal path will receive a HTTP
+   * 404-Not Found response code (if sent an HTML response).
+   *
+   * The default value is \c true.
+   */
   void setInternalPathDefaultValid(bool valid);
+
+  /*! \brief Returns whether an internal path is valid by default.
+   *
+   * \sa setInternalPathDefaultValid()
+   */
   bool internalPathDefaultValid() const { return internalPathDefaultValid_; }
 
+  /*! \brief Sets whether the current internal path is valid.
+   *
+   * You can use this function in response to an internal path change
+   * event (or at application startup) to indicate whether the new (or
+   * initial) internal path is valid. This has only an effect on plain
+   * HTML sessions, or on the first response in an application
+   * deployed with progressive bootstrap settings, as this generates
+   * then a 404 Not-Found response.
+   *
+   * \sa internalPathChanged(), setInternalPathDefaultValid()
+   */
   void setInternalPathValid(bool valid);
+
+  /*! \brief Returns whether the current internal path is valid.
+   *
+   * \sa setInternalPathValid()
+   */
   bool internalPathValid() const { return internalPathValid_; }
 
   /*! \brief Returns the current internal path.

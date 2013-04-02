@@ -145,7 +145,7 @@ bool WebRenderer::isDirty() const
     || session_.app()->styleSheetsAdded_
     || !collectedJS1_.empty()
     || !collectedJS2_.empty()
-    || invisibleJS_.empty();
+    || !invisibleJS_.empty();
 }
 
 const WebRenderer::FormObjectsMap& WebRenderer::formObjects() const
