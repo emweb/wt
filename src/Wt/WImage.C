@@ -252,7 +252,7 @@ void WImage::getDomChanges(std::vector<DomElement *>& result,
 {
   if (map_) {
     // TODO: check if BIT_MAP_CREATED: then need to replace the whole
-    // element with a <span><img/><map/></span>. Currently we document
+    // element with a <span><img /><map /></span>. Currently we document
     // this as a limitation.
     DomElement *e = DomElement::getForUpdate("i" + id(), DomElement_IMG);
     updateDom(*e, false);

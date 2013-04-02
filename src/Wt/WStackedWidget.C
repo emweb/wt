@@ -78,10 +78,10 @@ void WStackedWidget::setTransitionAnimation(const WAnimation& animation,
     if (!animation.empty())
       addStyleClass("Wt-animated");
 
-    loadAnimateJS();
-
     animation_ = animation;
     autoReverseAnimation_ = autoReverse;
+
+    loadAnimateJS();
   }
 }
 

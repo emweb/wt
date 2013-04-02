@@ -1320,9 +1320,12 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
     // FIXME optimize with subselect
 
-    for (unsigned i = 0; i < childrenToSave_.size(); ++i) {
+    if (!childrenToSave_.empty()) {
       declare(out);
+      out << WT_CLASS << ".saveReparented(" << var_ << ");";
+    }
 
+    for (unsigned i = 0; i < childrenToSave_.size(); ++i) {
       out << "var c" << var_ << (int)i << '='
 	  << "$('#" << childrenToSave_[i] << "')";
       // In IE, contents is deleted by setting innerHTML

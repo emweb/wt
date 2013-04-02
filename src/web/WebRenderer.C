@@ -1357,6 +1357,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   contentType += "; charset=UTF-8";
 
   setCaching(response, false);
+  response.addHeader("X-Frame-Options", "SAMEORIGIN");
   setHeaders(response, contentType);
 
   currentFormObjectsList_ = createFormObjectsList(app);

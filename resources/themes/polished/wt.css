@@ -240,33 +240,23 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * WGridLayout
  */
 
-.Wt-vsh, .Wt-hrh2, .Wt-vsh2 {
+.Wt-hrh2, .Wt-vsh2 {
     cursor: row-resize;
 }
 
-.Wt-vsh {
-    margin: 2px;
-}
-
-.Wt-hsh, .Wt-vrh2, .Wt-hsh2 {
+.Wt-vrh2, .Wt-hsh2 {
     cursor: col-resize;
 }
 
-.Wt-hsh {
-    margin: 0px 2px;
-}
-
 .Wt-hrh2 {
-    background-color: #EEEEEE;
-    background: url(splitter-v.png) no-repeat 50% 50%;
+    background: url(splitter-v.png) no-repeat 50% 50% #EEE;
 }
 
 .Wt-vrh2 {
-    background-color: #EEEEEE;
-    background: url(splitter-h.png) no-repeat 50% 50%;
+    background: url(splitter-h.png) no-repeat 50% 50% #EEE;
 }
 
-.Wt-hsh, .Wt-vsh, .Wt-hsh2, .Wt-vsh2 {
+.Wt-hsh2, .Wt-vsh2 {
     background-color: #8ea2bd;
 }
 

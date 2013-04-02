@@ -101,7 +101,7 @@ namespace Wt {
  * Since the conversion from JavaScript to C++ uses
  * <tt>boost::lexical_cast<T>(arg)</tt>, you may provide support for
  * custom types by implementing the c++ input stream operator
- * <tt>operator<< (std::istream&, T& t)</tt> for your type.
+ * <tt>operator>> (std::istream&, T& t)</tt> for your type.
  *
  * \sa WWidget::jsRef(), WObject::id()
  *

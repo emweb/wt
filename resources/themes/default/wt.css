@@ -256,45 +256,32 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * WGridLayout
  */
 
-.Wt-hrh div, .Wt-vsh, .Wt-hrh2, .Wt-vsh2 {
+.Wt-hrh2, .Wt-vsh2 {
     cursor: row-resize;
 }
 
-.Wt-hrh div, .Wt-vsh {
-    margin: 2px;
-}
-
-.Wt-vrh div, .Wt-hsh, .Wt-vrh2, .Wt-hsh2 {
+.Wt-vrh2, .Wt-hsh2 {
     cursor: col-resize;
 }
 
-.Wt-vrh div, .Wt-hsh {
-    margin: 0px 2px;
-}
-
-.Wt-hrh div, .Wt-hrh2 {
+.Wt-hrh2 {
     background: url(splitter-v.png) no-repeat 50% 50%;
 }
 
-.Wt-vrh div, .Wt-vrh2 {
+.Wt-vrh2 {
     background: url(splitter-h.png) no-repeat 50% 50%;
 }
 
-.Wt-hrh div, .Wt-vrh div, .Wt-vrh2 {
-    background-color: #CCCCCC;
+.Wt-vrh2 {
+    background-color: #CCC;
 }
 
-.Wt-hsh, .Wt-vsh, .Wt-hsh2, .Wt-vsh2 {
-    background-color: #EEEEEE;
+.Wt-hsh2, .Wt-vsh2 {
+    background-color: #EEE;
 }
 
-.Wt-hrh div:hover, .Wt-vrh div:hover,
 .Wt-vrh2:hover, .Wt-hrh2:hover {
-    background-color: #EEEEEE;
-}
-
-.Wt-chwrap {
-    position: relative;
+    background-color: #EEE;
 }
 
 /*

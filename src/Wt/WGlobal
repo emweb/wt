@@ -9,6 +9,8 @@
 
 #include <Wt/WFlags>
 
+/*! \file */
+
 namespace Wt {
   class EventSignalBase;
   class JSlot;

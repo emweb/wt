@@ -474,6 +474,13 @@ this.unstub = function(from, to, methodDisplay) {
     to.style.width = from.style.width;
 };
 
+this.saveReparented = function(el) {
+  $(el).find('.wt-reparented').each(function() {
+      var domRoot = $('.Wt-domRoot').get(0);
+      domRoot.appendChild(this.parentNode.removeChild(this));
+    });
+};
+
 this.changeTag = function(e, type)
 {
   var n = document.createElement(type);
@@ -1445,6 +1452,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
       p.style.position = 'relative';
     
     p.appendChild(w);
+    $(w).addClass('wt-reparented');
   }
 
   WT.fitToWindow(w, x, y, rightx, bottomy);
