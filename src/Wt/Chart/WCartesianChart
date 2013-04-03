@@ -157,10 +157,12 @@ public:
 
   /*! \brief Sets the the model column for the X series.
    *
-   * Use this method to specify the data for the X series. For a \link
-   * Wt::Chart::ScatterPlot ScatterPlot\endlink this is mandatory,
-   * while for a \link Wt::Chart::CategoryChart CategoryChart\endlink,
-   * if not specified, an increasing series of integer numbers will be
+   * Use this method to specify the default data for the X series.
+   * For a \link Wt::Chart::ScatterPlot ScatterPlot\endlink this is
+   * mandatory if an X series is not specified for every
+   * \link Wt::Chart::WDataSeries WDataSeries\endlink. For a
+   * \link Wt::Chart::CategoryChart CategoryChart\endlink, if not
+   * specified, an increasing series of integer numbers will be
    * used (1, 2, ...).
    *
    * Scatterplot dataseries may each individually be given its own
