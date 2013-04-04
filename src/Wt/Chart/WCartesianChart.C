@@ -463,15 +463,19 @@ void WCartesianChart::modelRowsRemoved(const WModelIndex& parent,
 void WCartesianChart::modelDataChanged(const WModelIndex& topLeft,
 				       const WModelIndex& bottomRight)
 {
-  if (XSeriesColumn_ <= topLeft.column()
-      && XSeriesColumn_ >= bottomRight.column()) {
+  if (XSeriesColumn_ >= topLeft.column()
+      && XSeriesColumn_ <= bottomRight.column()) {
     update();
     return;
   }
 
   for (unsigned i = 0; i < series_.size(); ++i) {
-    if (series_[i].modelColumn() >= topLeft.column()
-	&& series_[i].modelColumn() <= bottomRight.column()) {
+    if (
+      (series_[i].modelColumn() >= topLeft.column()
+      && series_[i].modelColumn() <= bottomRight.column() )
+      || (series_[i].XSeriesColumn() >= topLeft.column()
+      && series_[i].XSeriesColumn() <= bottomRight.column() )
+      ) {
       update();
       break;
     }
