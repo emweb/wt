@@ -2459,6 +2459,11 @@ function handleResponse(status, msg, timer) {
   if (quited)
     return;
 
+  if (waitingForJavaScript) {
+    setTimeout(function() { handleResponse(status, msg, timer); }, 50);
+    return;
+  }
+
   if (status == 0) {
     WT.resolveRelativeAnchors();
 _$_$if_CATCH_ERROR_$_();
@@ -2875,15 +2880,19 @@ function addTimerEvent(timerid, msec, repeat) {
 }
 
 var jsLibsLoaded = {};
+var waitingForJavaScript = false;
 
 function onJsLoad(path, f) {
   // setTimeout needed for Opera
   setTimeout(function() {
     if (jsLibsLoaded[path] === true) {
+      waitingForJavaScript = false;
       f();
     } else
       jsLibsLoaded[path] = f;
     }, 20);
+
+  waitingForJavaScript = true;
 };
 
 function jsLoaded(path)
@@ -2891,8 +2900,10 @@ function jsLoaded(path)
   if (jsLibsLoaded[path] === true)
     return;
   else {
-    if (typeof jsLibsLoaded[path] !== 'undefined')
+    if (typeof jsLibsLoaded[path] !== 'undefined') {
+      waitingForJavaScript = false;
       jsLibsLoaded[path]();
+    }
     jsLibsLoaded[path] = true;
   }
 };

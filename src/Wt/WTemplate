@@ -213,7 +213,7 @@ public:
    *
    * \sa addFunction()
    */
-  struct Functions
+  struct WT_API Functions
   {
     /*! \brief A function that resolves to a localized string.
      *

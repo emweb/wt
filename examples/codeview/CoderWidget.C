@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <Wt/WApplication>
 #include <Wt/WPushButton>
 #include <Wt/WLineEdit>
 #include <Wt/WTextArea>

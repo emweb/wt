@@ -105,6 +105,7 @@ public:
 #endif // WT_CNOR
 
   bool expireSessions();
+  void start();
   void shutdown();
 
   static std::string sessionFromCookie(std::string cookies,
@@ -132,6 +133,7 @@ private:
   bool autoExpire_;
   int plainHtmlSessions_, ajaxSessions_;
   std::string redirectSecret_;
+  bool running_;
 
 #ifdef WT_THREADED
   boost::mutex uploadProgressUrlsMutex_;

@@ -88,6 +88,10 @@ SocketNotifier::~SocketNotifier()
   interruptThread();
   if (impl_->thread_.joinable())
     impl_->thread_.join();
+  if (impl_->socket1_ != -1)
+    Close(impl_->socket1_);
+  if (impl_->socket2_ != -1)
+    Close(impl_->socket2_);
   delete impl_;
 }
 

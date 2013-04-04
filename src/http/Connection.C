@@ -56,6 +56,7 @@ Connection::Connection(asio::io_service& io_service, Server *server,
     ConnectionManager& manager, RequestHandler& handler)
   : ConnectionManager_(manager),
     strand_(io_service),
+    state_(Idle),
     request_handler_(handler),
     readTimer_(io_service),
     writeTimer_(io_service),
@@ -87,13 +88,16 @@ void Connection::start()
     LOG_ERROR("remote_endpoint() threw: " << e.what());
   }
 
-  socket().set_option(asio::ip::tcp::no_delay(true));
+  asio_error_code ignored_ec;
+  socket().set_option(asio::ip::tcp::no_delay(true), ignored_ec);
 
   startAsyncReadRequest(buffer_, CONNECTION_TIMEOUT);
 }
 
 void Connection::setReadTimeout(int seconds)
 {
+  state_ = Reading;
+
   readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
   readTimer_.async_wait(strand_.wrap
 			(boost::bind(&Connection::timeout, shared_from_this(),
@@ -102,6 +106,8 @@ void Connection::setReadTimeout(int seconds)
 
 void Connection::setWriteTimeout(int seconds)
 {
+  state_ = Writing;
+
   writeTimer_.expires_from_now(boost::posix_time::seconds(seconds));
   writeTimer_.async_wait(strand_.wrap
 			 (boost::bind(&Connection::timeout, shared_from_this(),
@@ -110,11 +116,15 @@ void Connection::setWriteTimeout(int seconds)
 
 void Connection::cancelReadTimer()
 {
+  state_ = Idle;
+
   readTimer_.cancel();
 }
 
 void Connection::cancelWriteTimer()
 {
+  state_ = Idle;
+
   writeTimer_.cancel();
 }
 
@@ -222,6 +232,9 @@ void Connection::close()
 
   LOG_DEBUG(socket().native() << ": close()");
 
+  if (reply_)
+    reply_.reset();
+
   ConnectionManager_.stop(shared_from_this());
 }
 
@@ -240,6 +253,8 @@ void Connection::handleReadBody()
 
     if (!result)
       startAsyncReadBody(buffer_, CONNECTION_TIMEOUT);
+  } else {
+    LOG_DEBUG(socket().native() << "handleReadBody(): no reply");
   }
 }
 
@@ -274,6 +289,11 @@ void Connection::handleReadBody(const asio_error_code& e,
 
 void Connection::startWriteResponse()
 {
+  if (state_ != Idle || !reply_) {
+    close();
+    return;
+  }
+
   std::vector<asio::const_buffer> buffers;
   moreDataToSendNow_ = !reply_->nextBuffers(buffers);
 

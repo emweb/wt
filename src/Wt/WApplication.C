@@ -1346,41 +1346,6 @@ WApplication::UpdateLock WApplication::getUpdateLock()
 }
 
 #ifndef WT_TARGET_JAVA
-#ifdef WT_THREADED
-int WApplication::startWaitingAtLock()
-{
-  WebSession::SyncLocks& syncLocks = session_->syncLocks_;
-
-  boost::mutex::scoped_lock guard(syncLocks.state_);
-
-  return ++syncLocks.lastId_;
-}
-
-void WApplication::endWaitingAtLock(int id)
-{
-  WebSession::SyncLocks& syncLocks = session_->syncLocks_;
-
-  boost::mutex::scoped_lock guard(syncLocks.state_);
-
-  /*
-   * This is all untested, we never have had a case where we were actually
-   * waiting at a lock that got through before we were allowed
-   */
-
-  // If we are not the last sync lock, we definitely need to block
-  while (id < syncLocks.lastId_)
-    syncLocks.unlock_.wait(guard);
-
-  // We need to block if an update lock relies on us
-  while (id == syncLocks.lockedId_) {
-    syncLocks.unlock_.wait(guard);
-  }
-
-  --syncLocks.lastId_;
-
-  syncLocks.unlock_.notify_all();
-}
-#endif // WT_THREADED
 
 class UpdateLockImpl
 {
@@ -1389,70 +1354,19 @@ public:
     : handler_(0)
   {
 #ifdef WT_THREADED
-    WApplication *selfApp = 0;
-
-    prevHandler_ = WebSession::Handler::instance();
-    if (prevHandler_)
-      selfApp = prevHandler_->session()->app();
-
-    handler_ = new WebSession::Handler(app->weakSession_.lock(), false);
-
-    for (;;) {
-      if (handler_->lock().try_lock())
-	return;
-
-      WebSession::SyncLocks& syncLocks = app->session_->syncLocks_;
-      boost::mutex::scoped_lock guard(syncLocks.state_);
-
-      // See if the current application thread is being held in a sync lock
-      if (syncLocks.lastId_ > syncLocks.lockedId_) {
-	LOG_DEBUG("using a sync lock");
-	delete handler_;
-	handler_ = 0;
-
-	assert(syncLocks.lastId_ == syncLocks.lockedId_ + 1);
-	syncLockId_ = syncLocks.lockedId_ = syncLocks.lastId_;
-
-	WebSession::Handler::attachThreadToSession(app->weakSession_.lock());
-	return;
-      }
-
-      if (selfApp) {
-	int id = selfApp->startWaitingAtLock();
-	boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-	selfApp->endWaitingAtLock(id);
-      }
-    }
+    handler_ = new WebSession::Handler(app->weakSession_.lock(), true);
 #endif // WT_THREADED
   }
 
 #ifdef WT_THREADED
   ~UpdateLockImpl() {
-    if (handler_)
-      delete handler_;
-    else {
-      assert(syncLockId_);
-
-      WebSession::SyncLocks& syncLocks
-	= WApplication::instance()->session_->syncLocks_;
-
-      assert(syncLockId_ == syncLocks.lockedId_);
-      --syncLocks.lockedId_;
-
-      syncLocks.unlock_.notify_all();
-
-      WebSession::Handler::attachThreadToHandler(prevHandler_);
-    }
+    delete handler_;
   }
 #endif // WT_THREADED
 
 private:
   // Handler which we created for actual lock
   WebSession::Handler *handler_;
-
-  // Sync lock state
-  int syncLockId_;
-  WebSession::Handler *prevHandler_; 
 };
 
 WApplication::UpdateLock::UpdateLock(WApplication *app)

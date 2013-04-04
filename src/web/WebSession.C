@@ -114,10 +114,6 @@ WebSession::WebSession(WebController *controller,
     debug_(controller_->configuration().debug()),
     recursiveEventLoop_(0)
 {
-#ifdef WT_THREADED
-  syncLocks_.lastId_ = syncLocks_.lockedId_ = 0;
-#endif // WT_THREADED
-
   env_ = env ? env : &embeddedEnv_;
 
   /*

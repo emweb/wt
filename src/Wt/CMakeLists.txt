@@ -7,7 +7,6 @@ ELSE(ENABLE_EXT)
 ENDIF(ENABLE_EXT)
 
 INSTALL_FILES(/include/Wt "^W.*[^C~]$")
-INSTALL_FILES(/include/Wt "SyncLock")
 INSTALL_FILES(/include/Wt "^Utils$")
 #INSTALL(
 #  FILES

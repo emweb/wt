@@ -5,9 +5,9 @@
  */
 
 #include "ObserverWidget.h"
-#include <Wt/WText>
 
-#include <boost/tuple/tuple.hpp>
+#include <Wt/WApplication>
+#include <Wt/WText>
 
 using namespace Wt;
 

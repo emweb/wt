@@ -85,6 +85,8 @@ WebController::WebController(WServer& server,
   // in boost.filesystem before the threads are started.
   boost::filesystem::path bugFixFilePath("please-initialize-globals");
 #endif
+
+  start();
 }
 
 WebController::~WebController()
@@ -94,6 +96,11 @@ WebController::~WebController()
 #endif
 }
 
+void WebController::start()
+{
+  running_ = true;
+}
+
 void WebController::shutdown()
 {
 #ifdef WT_THREADED
@@ -101,6 +108,8 @@ void WebController::shutdown()
 #endif // WT_THREADED
 
   LOG_INFO_S(&server_, "shutdown: stopping sessions.");
+
+  running_ = false;
 
   for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
     boost::shared_ptr<WebSession> session = i->second;
@@ -358,6 +367,9 @@ bool WebController::requestDataReceived(WebRequest *request,
   boost::mutex::scoped_lock lock(uploadProgressUrlsMutex_);
 #endif // WT_THREADED
 
+  if (!running_)
+    return false;
+
   if (uploadProgressUrls_.find(request->queryString())
       != uploadProgressUrls_.end()) {
 #ifdef WT_THREADED
@@ -484,6 +496,12 @@ std::string WebController::computeRedirectHash(const std::string& url)
 
 void WebController::handleRequest(WebRequest *request)
 {
+  if (!running_) {
+    request->setStatus(500);
+    request->flush();
+    return;
+  }
+
   if (!request->entryPoint_) {
     request->entryPoint_ = getEntryPoint(request);
     if (!request->entryPoint_) {

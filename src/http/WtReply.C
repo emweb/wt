@@ -142,6 +142,9 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	  state = Request::Error;
 	}
       }
+    } else {
+      delete httpRequest_;
+      httpRequest_ = 0;
     }
 
     if (state == Request::Error) {

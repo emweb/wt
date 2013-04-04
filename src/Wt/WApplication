@@ -1209,13 +1209,6 @@ public:
      * The lock guarantees exclusive access to modify the
      * application's state.
      *
-     * When one application <i>A</i> is trying to take the lock of an
-     * another application <i>B</i>, this lock behaves like a
-     * Wt::SyncLock. Thus while application <i>A</i> waits for
-     * application <i>B</i>'s update lock, application <i>B</i> or
-     * <i>C</i> may succesfully take application <i>A</i>'s update
-     * lock, in this way avoiding dead-lock situations.
-     *
      * You should also consider WServer::post() for lock-free
      * communication between different application sessions.
      *
@@ -2302,8 +2295,6 @@ private:
   friend class WWidget;
   friend class Ext::Dialog;
   friend class Ext::MessageBox;
-
-  template <class Lock> friend class SyncLock;
 };
 
 #ifndef WT_TARGET_JAVA

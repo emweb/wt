@@ -96,6 +96,14 @@ protected:
 
   void finishReply();
 
+  enum State {
+    Idle,
+    Reading,
+    Writing
+  };
+
+  State state_;
+
 private:
   /*
    * Asynchronoulsy reading a request

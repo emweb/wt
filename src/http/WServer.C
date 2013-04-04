@@ -153,6 +153,8 @@ bool WServer::start()
     LOG_WARN("No boost thread support, running in main thread.");
 #endif // WT_THREADED
 
+    webController_->start();
+
     ioService().start();
 
 #ifndef WT_THREADED

@@ -381,10 +381,13 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
 bool Reply::closeConnection() const
 {
+  if (closeConnection_)
+    return true;
+
   if (relay_.get())
     return relay_->closeConnection();
   else
-    return closeConnection_;
+    return false;
 }
 
 void Reply::setConnection(ConnectionPtr connection)

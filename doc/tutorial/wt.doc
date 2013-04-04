@@ -576,7 +576,7 @@ ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
         std::string fname = "icons/hangman"; 
         fname += boost::lexical_cast<std::string>(i) + ".png"; 
         WImage *theImage = new WImage(fname, this);
-        hangmanImages_.push_back(theImage);
+        images_.push_back(theImage);
 
         theImage->hide();
     } 
@@ -588,7 +588,7 @@ ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
     showImage(HURRAY);
 } 
 
-void ImagesWidget::showImage(int image) 
+void ImagesWidget::showImage(int index) 
 {
     image(image_)->hide();
     image_ = index;
@@ -705,8 +705,8 @@ Thus, if a user is logged in, we show the game when the path is
 +“/play”+ and the high scores when the path is +“/highscores”+. For
 good form, we redirect all other paths to +“/play”+ (which will end up
 triggering the same function again). In our game we make
-authentication (whether a user is currently logged in orthogonal to
-the internal paths): in this way a user may arrive at the game using
+authentication (whether a user is currently logged in) orthogonal to
+the internal paths: in this way a user may arrive at the game using
 any internal path, log in, and automatically proceed with the function
 for that internal path. You may imagine that this is what you want in
 a complex application: the login function should not prevent the user

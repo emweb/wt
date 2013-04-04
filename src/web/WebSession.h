@@ -242,18 +242,6 @@ public:
 
   void generateNewSessionId();
 
-#if defined(WT_THREADED)
-  /*
-   * SyncLocks
-   */
-  struct SyncLocks {
-    boost::mutex state_;
-    boost::condition unlock_;
-    int lastId_;
-    int lockedId_;
-  } syncLocks_;
-#endif // WT_THREADED
-
 private:
   void handleWebSocketRequest(Handler& handler);
   static void handleWebSocketMessage(boost::weak_ptr<WebSession> session,

@@ -9,7 +9,6 @@
 
 #include <Wt/WString>
 #include <Wt/WSignal>
-#include <Wt/SyncLock>
 
 #include <vector>
 #include <boost/thread.hpp>

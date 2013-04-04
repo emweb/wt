@@ -55,6 +55,12 @@ void TcpConnection::stop()
 void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
   LOG_DEBUG(socket().native() << ": startAsyncReadRequest");
+
+  if (state_ != Idle) {
+    stop();
+    return;
+  }
+
   setReadTimeout(timeout);
 
   boost::shared_ptr<TcpConnection> sft 
@@ -70,6 +76,12 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
 {
   LOG_DEBUG(socket().native() << ": startAsyncReadBody");
+
+  if (state_ != Idle) {
+    stop();
+    return;
+  }
+
   setReadTimeout(timeout);
 
   boost::shared_ptr<TcpConnection> sft 
@@ -87,6 +99,14 @@ void TcpConnection::startAsyncWriteResponse
      int timeout)
 {
   LOG_DEBUG(socket().native() << ": startAsyncWriteResponse");
+
+  if (state_ != Idle) {
+    stop();
+    return;
+  }
+
+  state_ = Writing;
+
   setWriteTimeout(timeout);
 
   boost::shared_ptr<TcpConnection> sft 
