@@ -68,7 +68,7 @@ public:
   /*! \brief Tries to connect.
    *
    * Throws an exception if there was a problem, otherwise true.
-   * An example string forn connection could be: 
+   * An example connecion string could be: 
    * "host=127.0.0.1 user=test password=test port=5432 dbname=test"
    */
   bool connect(const std::string& db);
