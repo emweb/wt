@@ -78,6 +78,7 @@ void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
   LOG_DEBUG(socket().native() << ": startAsyncReadBody");
 
   if (state_ != Idle) {
+    LOG_DEBUG(socket().native() << ": state_ = " << state_);
     stop();
     return;
   }
@@ -101,11 +102,10 @@ void TcpConnection::startAsyncWriteResponse
   LOG_DEBUG(socket().native() << ": startAsyncWriteResponse");
 
   if (state_ != Idle) {
+    LOG_DEBUG(socket().native() << ": state_ = " << state_);
     stop();
     return;
   }
-
-  state_ = Writing;
 
   setWriteTimeout(timeout);
 

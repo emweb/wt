@@ -2084,7 +2084,7 @@ void WebSession::notify(const WEvent& event)
 	       * assuming to have a websocket), we will need to assume
 	       * the web socket isn't working properly.
 	       */
-	      if (!asyncResponse_ || (pollRequestsIgnored_ == 5)) {
+	      if (!asyncResponse_ || (pollRequestsIgnored_ == 2)) {
 		if (asyncResponse_) {
 		  LOG_INFO("discarding broken asyncResponse, (ws: " <<
 			   asyncResponse_->isWebSocketRequest());
@@ -2141,15 +2141,13 @@ void WebSession::notify(const WEvent& event)
 
 	  env_->parameters_ = handler.request()->getParameterMap();
 
-	  if (!app_->internalPathIsChanged_) {
-	    if (hashE)
-	      changeInternalPath(*hashE, handler.response());
-	    else if (!handler.request()->pathInfo().empty())
-	      changeInternalPath(handler.request()->pathInfo(),
-				 handler.response());
-	    else
-	      changeInternalPath("", handler.response());
-	  }
+	  if (hashE)
+	    changeInternalPath(*hashE, handler.response());
+	  else if (!handler.request()->pathInfo().empty())
+	    changeInternalPath(handler.request()->pathInfo(),
+			       handler.response());
+	  else
+	    changeInternalPath("", handler.response());
 	}
 
 	if (!signalE) {
@@ -2211,9 +2209,10 @@ void WebSession::notify(const WEvent& event)
 void WebSession::changeInternalPath(const std::string& path,
 				    WebResponse *response)
 {
-  if (!app_->changedInternalPath(path))
-    if (response->responseType() == WebResponse::Page)
-      response->setStatus(404);
+  if (!app_->internalPathIsChanged_)
+    if (!app_->changedInternalPath(path))
+      if (response->responseType() == WebResponse::Page)
+	response->setStatus(404);
 }
 
 EventType WebSession::getEventType(const WEvent& event) const
@@ -2535,7 +2534,6 @@ void WebSession::notifySignal(const WEvent& e)
 			     + WWebWidget::jsStringLiteral(*hashE) + ");");
 	} else
 	  changeInternalPath("", handler.response());
-
       } else {
 	for (unsigned k = 0; k < 3; ++k) {
 	  SignalKind kind = (SignalKind)k;

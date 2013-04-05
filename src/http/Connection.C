@@ -96,7 +96,10 @@ void Connection::start()
 
 void Connection::setReadTimeout(int seconds)
 {
-  state_ = Reading;
+  LOG_DEBUG(socket().native() << " setting read timeout (ws: "
+	    << request_.webSocketVersion << ")");
+  if (request_.webSocketVersion <= 0)
+    state_ = Reading;
 
   readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
   readTimer_.async_wait(strand_.wrap
@@ -106,7 +109,10 @@ void Connection::setReadTimeout(int seconds)
 
 void Connection::setWriteTimeout(int seconds)
 {
-  state_ = Writing;
+  LOG_DEBUG(socket().native() << " setting write timeout (ws: "
+	    << request_.webSocketVersion << ")");
+  if (request_.webSocketVersion <= 0)
+    state_ = Writing;
 
   writeTimer_.expires_from_now(boost::posix_time::seconds(seconds));
   writeTimer_.async_wait(strand_.wrap
@@ -116,6 +122,7 @@ void Connection::setWriteTimeout(int seconds)
 
 void Connection::cancelReadTimer()
 {
+  LOG_DEBUG(socket().native() << " cancel read timeout");
   state_ = Idle;
 
   readTimer_.cancel();
@@ -123,6 +130,7 @@ void Connection::cancelReadTimer()
 
 void Connection::cancelWriteTimer()
 {
+  LOG_DEBUG(socket().native() << " cancel write timeout");
   state_ = Idle;
 
   writeTimer_.cancel();
@@ -309,7 +317,7 @@ void Connection::startWriteResponse()
 #endif
   }
 #endif
-  LOG_DEBUG(socket().native() << "sending: " << s << "(buffers: "
+  LOG_DEBUG(socket().native() << " sending: " << s << "(buffers: "
 	    << buffers.size() << ")");
 
   if (!buffers.empty()) {

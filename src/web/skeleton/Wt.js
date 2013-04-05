@@ -2656,15 +2656,20 @@ _$_$if_WEB_SOCKETS_$_();
 	     *
 	     * So, we ping pong ourselves. It costs virtually nothing.
 	     */
+	    ws.send('&signal=ping'); // to get our first onmessage
+
+	    if (websocket.keepAlive)
+	      clearInterval(websocket.keepAlive);
+
 	    websocket.keepAlive = setInterval
-	    (function() {
-	       if (ws.readyState == 1)
-		 ws.send('&signal=ping');
-	       else {
-		 clearInterval(websocket.keepAlive);
-		 websocket.keepAlive = null;
-	       }
-	     }, _$_SERVER_PUSH_TIMEOUT_$_);
+	      (function() {
+		if (ws.readyState == 1)
+		  ws.send('&signal=ping');
+		else {
+		  clearInterval(websocket.keepAlive);
+		  websocket.keepAlive = null;
+		}
+	      }, _$_SERVER_PUSH_TIMEOUT_$_);
 	  };
 	}
       }
