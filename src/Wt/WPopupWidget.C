@@ -36,13 +36,6 @@ WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
   setPopup(true);
   setPositionScheme(Absolute);
 
-  // This confuses the close button hide ? XXX
-  //WApplication::instance()->globalEscapePressed()
-  //  .connect(popup_, &WWidget::hide);
-  WInteractWidget *iw = dynamic_cast<WInteractWidget *>(impl);
-  if (iw)
-    iw->escapePressed().connect(this, &WWidget::hide);
-
   jsHidden_.connect(this, &WWidget::hide);
   jsShown_.connect(this, &WWidget::show);
 }

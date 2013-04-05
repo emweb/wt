@@ -611,6 +611,8 @@ public:
    *
    * The object returned is owned by WEnvironment and will be deleted
    * when WEnvironment is destroyed (= at the end of the session).
+   *
+   * \sa Wt::Http::Request::sslInfo()
    */
   WSslInfo *sslInfo() const {
     return sslInfo_;

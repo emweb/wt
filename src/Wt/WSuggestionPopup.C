@@ -99,6 +99,8 @@ void WSuggestionPopup::init()
 
   setModel(new WStringListModel(this));
 
+  impl_->escapePressed().connect(this, &WWidget::hide);
+
   filter_.connect(this, &WSuggestionPopup::doFilter);
   jactivated_.connect(this, &WSuggestionPopup::doActivate);
 }

@@ -1190,7 +1190,7 @@
         <div class="control-group">
           <label for="${id:birth}" class="control-label">Birth date</label>
           <div class="controls">
-            ${birth} ${birth-dp} <span class="help-inline">${birth-info}</span>
+            ${birth} <span class="help-inline">${birth-info}</span>
           </div>
         </div>
         <div class="control-group">

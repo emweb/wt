@@ -90,6 +90,9 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   calendar_->activated().connect(this, &WDatePicker::onPopupHidden);
   calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
+  t->escapePressed().connect(popup_, &WTemplate::hide);
+  t->escapePressed().connect(forEdit_, &WLineEdit::setFocus);
+
   t->bindWidget("calendar", calendar_);
 
   WApplication::instance()->theme()->apply(this, popup_, DatePickerPopupRole);

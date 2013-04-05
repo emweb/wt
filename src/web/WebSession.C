@@ -1716,7 +1716,7 @@ void WebSession::pushUpdates()
 {
   triggerUpdate_ = false;
 
-  if (!renderer_.isDirty() || state_ == Dead) {
+  if (!renderer_.isDirty()) {
     LOG_DEBUG("pushUpdates(): nothing to do");
     return;
   }
@@ -2322,7 +2322,8 @@ void WebSession::render(Handler& handler)
     if (app_->isQuited())
       kill();
 
-    serveResponse(handler);
+    if (handler.response()) // a recursive eventloop may remove it in kill()
+      serveResponse(handler);
   } catch (std::exception& e) {
     handler.response()->flush();
     handler.setRequest(0, 0);

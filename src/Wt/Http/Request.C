@@ -197,6 +197,15 @@ std::string Request::clientAddress() const
   return request_ ? request_->remoteAddr() : std::string();
 }
 
+WSslInfo *Request::sslInfo() const
+{
+  if (sslInfo_)
+    return sslInfo_;
+  if (request_)
+    sslInfo_ = request_->sslInfo();
+  return sslInfo_;
+}
+
 Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
 {
   return getRanges(headerValue("Range"), filesize);
@@ -319,18 +328,27 @@ Request::Request(const WebRequest& request, ResponseContinuation *continuation)
   : request_(&request),
     parameters_(request.getParameterMap()),
     files_(request.uploadedFiles()),
-    continuation_(continuation)
+    continuation_(continuation),
+    sslInfo_(0)
 { }
 
 Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
   : request_(0),
     parameters_(parameters),
     files_(files),
-    continuation_(0)
+    continuation_(0),
+    sslInfo_(0)
 {
   std::string cookie = headerValue("Cookie");
   if (!cookie.empty())
     parseCookies(cookie, cookies_);
+}
+
+Request::~Request()
+{
+#ifdef WT_WITH_SSL
+  delete sslInfo_;
+#endif
 }
 
 #ifndef WT_TARGET_JAVA

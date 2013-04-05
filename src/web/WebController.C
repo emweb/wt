@@ -462,6 +462,13 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
 	session->app()->notify(WEvent(WEvent::Impl(&handler, event.function)));
       else
 	session->notify(WEvent(WEvent::Impl(&handler, event.function)));
+
+      if (session->app() && session->app()->isQuited())
+	session->kill();
+
+      if (session->dead())
+	removeSession(event.sessionId);
+
       return true;
     } else {
       if (!event.fallbackFunction.empty())

@@ -68,9 +68,11 @@ WString WDateValidator::invalidNotADateText() const
 
 void WDateValidator::setFormat(const WT_USTRING& format)
 {
-  formats_.clear();
-  formats_.push_back(format);
-  repaint();
+  if (formats_.empty() || formats_[0] != format) {
+    formats_.clear();
+    formats_.push_back(format);
+    repaint();
+  }
 }
 
 void WDateValidator::setFormats(const std::vector<WT_USTRING>& formats)

@@ -19,7 +19,7 @@
 namespace Wt {
 
 class WResource;
-
+class WSslInfo;
 class WebRequest;
 class WebSession;
 
@@ -372,6 +372,31 @@ public:
    */
    ByteRangeSpecifier getRanges(::int64_t filesize) const;
 
+  /*! \brief Returns information on the SSL client certificate or \c 0
+   *  if no authentication took place.
+   *
+   * This function will return \c 0 if no verification took place, %Wt
+   * was compiled without SSL support, or the web server was
+   * configured without client SSL certificates.
+   *
+   * This method may return a pointer to a WSslInfo object, while the
+   * authentication may have failed. This depends on the configuration
+   * of the web server. It is therefore important to always check the
+   * verification result with WSslInfo::clientVerificationResult().
+   *
+   * Session-bound resources will probably not use this method, but rely on
+   * the validation done at the start of the session (see sslInfo() in
+   * WEnvironment). Static resources on the other hand don't have an
+   * associated session, so using this method you can perform client
+   * authentication verification.
+   *
+   * The object returned is owned by Request and will be deleted
+   * when the Request object is destroyed.
+   *
+   * \sa WEnvironment::sslInfo()
+   */
+  WSslInfo *sslInfo() const;
+
    static ByteRangeSpecifier getRanges(const std::string &header,
     ::int64_t filesize);
 
@@ -387,9 +412,11 @@ private:
   const UploadedFileMap& files_;
   ResponseContinuation *continuation_;
   std::map<std::string, std::string> cookies_;
+  mutable WSslInfo *sslInfo_;
 
   Request(const WebRequest& request, ResponseContinuation *continuation);
   Request(const ParameterMap& parameters, const UploadedFileMap& files);
+  ~Request();
 
   friend class Wt::WResource;
   friend class Wt::WebSession;

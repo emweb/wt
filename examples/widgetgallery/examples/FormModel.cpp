@@ -2,7 +2,7 @@
 #include <Wt/WBoostAny>
 #include <Wt/WComboBox>
 #include <Wt/WDate>
-#include <Wt/WDatePicker>
+#include <Wt/WDateEdit>
 #include <Wt/WDateValidator>
 #include <Wt/WFormModel>
 #include <Wt/WImage>
@@ -325,19 +325,16 @@ public:
 	/*
 	 * Birth Date
 	 */
-	Wt::WLineEdit *dateEdit = new Wt::WLineEdit();
-	Wt::WDatePicker *birthDP = new Wt::WDatePicker(dateEdit);
-	bindWidget("birth-dp", birthDP);
-
+	Wt::WDateEdit *dateEdit = new Wt::WDateEdit();
 	setFormWidget(UserFormModel::BirthField, dateEdit,
 	    [=] () { // updateViewValue()
 	        Wt::WDate date = boost::any_cast<Wt::WDate>
 		    (model_->value(UserFormModel::BirthField));
-                birthDP->setDate(date);
+                dateEdit->setDate(date);
 	    }, 
 
             [=] () { // updateModelValue()
-	        Wt::WDate date = birthDP->date();
+	        Wt::WDate date = dateEdit->date();
                 model_->setValue(UserFormModel::BirthField, date);
 	    });
 
