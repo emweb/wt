@@ -152,7 +152,8 @@ bool WDoubleSpinBox::parseNumberValue(const std::string& text)
   try {
     char buf[30];
 
-    std::string currentV = Utils::round_str(value_, precision_, buf);
+    // ??
+    std::string currentV = Utils::round_css_str(value_, precision_, buf);
 
     if (currentV != text) // to prevent loss of precision
       value_ = WLocale::currentLocale().toDouble(text);

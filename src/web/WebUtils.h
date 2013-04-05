@@ -187,8 +187,12 @@ inline const T& last(const std::set<T>& s)
   return *s.rbegin();
 }
 
-// Fast round and format to string routine
-extern char *round_str(double d, int digits, char *buf);
+// Fast round and format to string routine, CSS compliant (does not use
+// scientific notation)
+extern char *round_css_str(double d, int digits, char *buf);
+
+// Fast round and format to string routine, JS compliant
+extern char *round_js_str(double d, int digits, char *buf);
 
 // Only for Java target
 extern std::string toHexString(int i);

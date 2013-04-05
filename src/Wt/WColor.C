@@ -151,7 +151,7 @@ const std::string WColor::cssText(bool withAlpha) const
 	s << "rgba(" << red_
 	  << ',' << green_
 	  << ',' << blue_
-	  << ',' << Utils::round_str(alpha_ / 255., 2, buf) << ')';
+	  << ',' << Utils::round_css_str(alpha_ / 255., 2, buf) << ')';
       }	else
 	s << "rgb(" << red_ << ',' << green_ << ',' << blue_ << ')';
 

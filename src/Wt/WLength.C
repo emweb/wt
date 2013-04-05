@@ -138,7 +138,7 @@ const std::string WLength::cssText() const
   else {
 #ifndef WT_TARGET_JAVA
     char buf[30];
-    Utils::round_str(value_, 1, buf);
+    Utils::round_css_str(value_, 1, buf);
     std::strcat(buf, unitText[unit_]);
     return buf;
 #else

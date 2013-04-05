@@ -363,9 +363,9 @@ std::string WVmlImage::createShadowFilter() const
 	 << "px;z-index:-10;";
   filter << "filter:progid:DXImageTransform.Microsoft.Blur(makeShadow=1,";
   filter << "pixelradius="
-	 << Utils::round_str(r, 2, buf);
+	 << Utils::round_css_str(r, 2, buf);
   filter << ",shadowOpacity="
-	 << Utils::round_str(currentShadow_.color().alpha()/255., 2, buf)
+	 << Utils::round_css_str(currentShadow_.color().alpha()/255., 2, buf)
 	 << ");";
 
   return filter.str();
@@ -584,7 +584,7 @@ std::string WVmlImage::quote(const std::string& s)
 std::string WVmlImage::quote(double d)
 {
   char buf[30];
-  return quote(Utils::round_str(d, 5, buf));
+  return quote(Utils::round_js_str(d, 5, buf));
 }
 
 std::string WVmlImage::colorAttributes(const WColor& color)
@@ -604,16 +604,16 @@ std::string WVmlImage::skewElement(const WTransform& t) const
     WStringStream s;
 
     s << "<v:skew on=\"true\" matrix=\""
-      << Utils::round_str(t.m11(), 5, buf) << ',';
-    s << Utils::round_str(t.m21(), 5, buf) << ',';
-    s << Utils::round_str(t.m12(), 5, buf) << ',';
-    s << Utils::round_str(t.m22(), 5, buf)
+      << Utils::round_js_str(t.m11(), 5, buf) << ',';
+    s << Utils::round_js_str(t.m21(), 5, buf) << ',';
+    s << Utils::round_js_str(t.m12(), 5, buf) << ',';
+    s << Utils::round_js_str(t.m22(), 5, buf)
       << ",0,0\""
       " origin=\"-0.5 -0.5\""
       " offset=\"";
-    s << Utils::round_str(t.dx() + std::fabs(t.m11()) * 0.5, 5, buf)
+    s << Utils::round_js_str(t.dx() + std::fabs(t.m11()) * 0.5, 5, buf)
       << "px,";
-    s << Utils::round_str(t.dy() + std::fabs(t.m22()) * 0.5, 5, buf)
+    s << Utils::round_js_str(t.dy() + std::fabs(t.m22()) * 0.5, 5, buf)
       << "px\"/>";
 
     /*
@@ -639,8 +639,8 @@ std::string WVmlImage::shadowElement(const WShadow& shadow) const
     WStringStream result;
 
     result << "<v:shadow on=\"true\" offset=\""
-	   << Utils::round_str(shadow.offsetX(), 3, buf) << "px,";
-    result << Utils::round_str(shadow.offsetY(), 3, buf) << "px\" "
+	   << Utils::round_js_str(shadow.offsetX(), 3, buf) << "px,";
+    result << Utils::round_js_str(shadow.offsetY(), 3, buf) << "px\" "
 	   << colorAttributes(shadow.color()) << "/>";
 
     return result.str();

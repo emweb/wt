@@ -98,10 +98,10 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
     makeNewGroup();
 
     shapes_ << "<" SVG "ellipse "
-	    << " cx=\""<< Utils::round_str(rect.center().x(), 3, buf);
-    shapes_ << "\" cy=\"" << Utils::round_str(rect.center().y(), 3, buf);
-    shapes_ << "\" rx=\"" << Utils::round_str(rect.width() / 2, 3, buf);
-    shapes_ << "\" ry=\"" << Utils::round_str(rect.height() / 2, 3, buf)
+	    << " cx=\""<< Utils::round_js_str(rect.center().x(), 3, buf);
+    shapes_ << "\" cy=\"" << Utils::round_js_str(rect.center().y(), 3, buf);
+    shapes_ << "\" rx=\"" << Utils::round_js_str(rect.width() / 2, 3, buf);
+    shapes_ << "\" ry=\"" << Utils::round_js_str(rect.height() / 2, 3, buf)
 	    << "\" />";
   } else {
     WPainterPath path;
@@ -224,12 +224,12 @@ void WSvgImage::makeNewGroup()
       const WTransform& t = painter()->clipPathTransform();
       if (!t.isIdentity()) {
 	shapes_ << " transform=\"matrix("
-		<<        Utils::round_str(t.m11(), 3, buf);
-	shapes_ << ' ' << Utils::round_str(t.m12(), 3, buf);
-	shapes_ << ' ' << Utils::round_str(t.m21(), 3, buf);
-	shapes_ << ' ' << Utils::round_str(t.m22(), 3, buf);
-	shapes_ << ' ' << Utils::round_str(t.m31(), 3, buf);
-	shapes_ << ' ' << Utils::round_str(t.m32(), 3, buf)
+		<<        Utils::round_js_str(t.m11(), 3, buf);
+	shapes_ << ' ' << Utils::round_js_str(t.m12(), 3, buf);
+	shapes_ << ' ' << Utils::round_js_str(t.m21(), 3, buf);
+	shapes_ << ' ' << Utils::round_js_str(t.m22(), 3, buf);
+	shapes_ << ' ' << Utils::round_js_str(t.m31(), 3, buf);
+	shapes_ << ' ' << Utils::round_js_str(t.m32(), 3, buf)
 		<< ")\"";
       }
       shapes_ << "/></" SVG "clipPath></" SVG "defs>";
@@ -278,12 +278,12 @@ void WSvgImage::makeNewGroup()
 
   if (!currentTransform_.isIdentity()) {
     shapes_ << " transform=\"matrix("
-	    << Utils::round_str(currentTransform_.m11(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(currentTransform_.m12(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(currentTransform_.m21(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(currentTransform_.m22(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(currentTransform_.m31(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(currentTransform_.m32(), 3, buf)
+	    << Utils::round_js_str(currentTransform_.m11(), 3, buf);
+    shapes_ << ' ' << Utils::round_js_str(currentTransform_.m12(), 3, buf);
+    shapes_ << ' ' << Utils::round_js_str(currentTransform_.m21(), 3, buf);
+    shapes_ << ' ' << Utils::round_js_str(currentTransform_.m22(), 3, buf);
+    shapes_ << ' ' << Utils::round_js_str(currentTransform_.m31(), 3, buf);
+    shapes_ << ' ' << Utils::round_js_str(currentTransform_.m32(), 3, buf)
 	    << ")\"";
   }
 
@@ -300,8 +300,8 @@ int WSvgImage::createShadowFilter(WStringStream& out)
   out << "<filter id=\"f" << result
       << "\" width=\"150%\" height=\"150%\">"
       << "<feOffset result=\"offOut\" in=\"SourceAlpha\" dx=\""
-      << Utils::round_str(currentShadow_.offsetX(), 3, buf) << "\" dy=\"";
-  out << Utils::round_str(currentShadow_.offsetY(), 3, buf) << "\" />";
+      << Utils::round_js_str(currentShadow_.offsetX(), 3, buf) << "\" dy=\"";
+  out << Utils::round_js_str(currentShadow_.offsetY(), 3, buf) << "\" />";
 
   out << "<feColorMatrix result=\"colorOut\" in=\"offOut\" "
       << "type=\"matrix\" values=\"";
@@ -310,12 +310,12 @@ int WSvgImage::createShadowFilter(WStringStream& out)
   double b = currentShadow_.color().blue() / 255.;
   double a = currentShadow_.color().alpha() / 255.;
 
-  out << "0 0 0 " << Utils::round_str(r, 3, buf) << " 0 ";
-  out << "0 0 0 " << Utils::round_str(g, 3, buf) << " 0 ";
-  out << "0 0 0 " << Utils::round_str(b, 3, buf) << " 0 ";
-  out << "0 0 0 " << Utils::round_str(a, 3, buf) << " 0\"/>";
+  out << "0 0 0 " << Utils::round_js_str(r, 3, buf) << " 0 ";
+  out << "0 0 0 " << Utils::round_js_str(g, 3, buf) << " 0 ";
+  out << "0 0 0 " << Utils::round_js_str(b, 3, buf) << " 0 ";
+  out << "0 0 0 " << Utils::round_js_str(a, 3, buf) << " 0\"/>";
   out << "<feGaussianBlur result=\"blurOut\" in=\"colorOut\" stdDeviation=\""
-      << Utils::round_str(std::sqrt(currentShadow_.blur()), 3, buf) << "\" />"
+      << Utils::round_js_str(std::sqrt(currentShadow_.blur()), 3, buf) << "\" />"
     "<feBlend in=\"SourceGraphic\" in2=\"blurOut\" mode=\"normal\" />"
     "</filter>";
 
@@ -368,15 +368,15 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
       const int fs = (deltaTheta > 0 ? 1 : 0);
 
       if (!fequal(current.x(), x1) || !fequal(current.y(), y1)) {
-	out << 'L' << Utils::round_str(x1 + pathTranslation_.x(), 3, buf);
-	out << ',' << Utils::round_str(y1 + pathTranslation_.y(), 3, buf);
+	out << 'L' << Utils::round_js_str(x1 + pathTranslation_.x(), 3, buf);
+	out << ',' << Utils::round_js_str(y1 + pathTranslation_.y(), 3, buf);
       }
 
-      out << 'A' << Utils::round_str(rx, 3, buf);
-      out << ',' << Utils::round_str(ry, 3, buf);
+      out << 'A' << Utils::round_js_str(rx, 3, buf);
+      out << ',' << Utils::round_js_str(ry, 3, buf);
       out << " 0 " << fa << "," << fs;
-      out << ' ' << Utils::round_str(x2 + pathTranslation_.x(), 3, buf);
-      out << ',' << Utils::round_str(y2 + pathTranslation_.y(), 3, buf);
+      out << ' ' << Utils::round_js_str(x2 + pathTranslation_.x(), 3, buf);
+      out << ',' << Utils::round_js_str(y2 + pathTranslation_.y(), 3, buf);
     } else {
       switch (s.type()) {
       case WPainterPath::Segment::MoveTo:
@@ -402,8 +402,8 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
 	assert(false);
       }
 
-      out << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf);
-      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
+      out << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf);
+      out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
     }
   }
 }
@@ -440,11 +440,11 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
   if (drect.width() != srect.width()
       || drect.height() != srect.height()) {
     shapes_ << "<" SVG "g transform=\"matrix("
-	    << Utils::round_str(drect.width() / srect.width(), 3, buf);
+	    << Utils::round_js_str(drect.width() / srect.width(), 3, buf);
     shapes_ << " 0 0 " 
-	    << Utils::round_str(drect.height() / srect.height(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(drect.x(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(drect.y(), 3, buf) << ")\">";
+	    << Utils::round_js_str(drect.height() / srect.height(), 3, buf);
+    shapes_ << ' ' << Utils::round_js_str(drect.x(), 3, buf);
+    shapes_ << ' ' << Utils::round_js_str(drect.y(), 3, buf) << ")\">";
 
     drect = WRectF(0, 0, srect.width(), srect.height());
 
@@ -467,19 +467,19 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
 
   if (WRectF(x, y, width, height) != drect) {
     shapes_ << "<" SVG "clipPath id=\"imgClip" << imgClipId << "\">";
-    shapes_ << "<" SVG "rect x=\"" << Utils::round_str(drect.x(), 3, buf) << '"';
-    shapes_ << " y=\"" << Utils::round_str(drect.y(), 3, buf) << '"';
-    shapes_ << " width=\"" << Utils::round_str(drect.width(), 3, buf) << '"';
-    shapes_ << " height=\"" << Utils::round_str(drect.height(), 3, buf) << '"';
+    shapes_ << "<" SVG "rect x=\"" << Utils::round_js_str(drect.x(), 3, buf) << '"';
+    shapes_ << " y=\"" << Utils::round_js_str(drect.y(), 3, buf) << '"';
+    shapes_ << " width=\"" << Utils::round_js_str(drect.width(), 3, buf) << '"';
+    shapes_ << " height=\"" << Utils::round_js_str(drect.height(), 3, buf) << '"';
     shapes_ << " /></" SVG "clipPath>";
     useClipPath = true;
   }
 
   shapes_ << "<" SVG "image xlink:href=\"" << imageUri << "\"";
-  shapes_ << " x=\"" << Utils::round_str(x, 3, buf) << '"';
-  shapes_ << " y=\"" << Utils::round_str(y, 3, buf) << '"';
-  shapes_ << " width=\"" << Utils::round_str(width, 3, buf) << '"';
-  shapes_ << " height=\"" << Utils::round_str(height, 3, buf) << '"';
+  shapes_ << " x=\"" << Utils::round_js_str(x, 3, buf) << '"';
+  shapes_ << " y=\"" << Utils::round_js_str(y, 3, buf) << '"';
+  shapes_ << " width=\"" << Utils::round_js_str(width, 3, buf) << '"';
+  shapes_ << " height=\"" << Utils::round_js_str(height, 3, buf) << '"';
 
   if (useClipPath)
     shapes_ << " clip-path=\"url(#imgClip" << imgClipId << ")\"";
@@ -516,7 +516,7 @@ void WSvgImage::drawText(const WRectF& rect,
     const WColor& color = painter()->pen().color();
     style << "fill:" + color.cssText() << ';'
 	  << "fill-opacity:" 
-	  << Utils::round_str(color.alpha() / 255., 3, buf)
+	  << Utils::round_css_str(color.alpha() / 255., 3, buf)
 	  << ';';
   }
   style << '"';
@@ -646,7 +646,7 @@ std::string WSvgImage::quote(const std::string& s)
 std::string WSvgImage::quote(double d)
 {
   char buf[30];
-  return quote(Utils::round_str(d, 3, buf));
+  return quote(Utils::round_js_str(d, 3, buf));
 }
 
 std::string WSvgImage::fillStyle() const
@@ -663,7 +663,7 @@ std::string WSvgImage::fillStyle() const
     result += "fill:" + color.cssText() + ";";
     if (color.alpha() != 255) {
       result += "fill-opacity:";
-      result += Utils::round_str(color.alpha() / 255., 3, buf);
+      result += Utils::round_css_str(color.alpha() / 255., 3, buf);
       result += ';';
     }
     break;
@@ -703,7 +703,7 @@ std::string WSvgImage::strokeStyle() const
     result << "stroke:" << color.cssText() << ';';
     if (color.alpha() != 255)
       result << "stroke-opacity:"
-	     << Utils::round_str(color.alpha() / 255., 2, buf) << ';';
+	     << Utils::round_css_str(color.alpha() / 255., 2, buf) << ';';
 
     WLength w = painter()->normalizedPenWidth(pen.width(), true);
     if (w != WLength(1))

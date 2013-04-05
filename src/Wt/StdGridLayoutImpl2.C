@@ -528,7 +528,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 	  : (100.0 * stretch / totalColStretch);
 
 	WStringStream ss;
-	ss << "width:" << Utils::round_str(pct, 2, buf) << "%;";
+	ss << "width:" << Utils::round_css_str(pct, 2, buf) << "%;";
 	c->setProperty(PropertyStyle, ss.str());
       }
 

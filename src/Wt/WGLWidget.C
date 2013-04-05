@@ -423,7 +423,7 @@ std::string WGLWidget::glObjJsRef()
 
 const char *WGLWidget::makeFloat(double d, char *buf)
 {
-  return Utils::round_str(d, 6, buf);
+  return Utils::round_js_str(d, 6, buf);
 }
 
 const char *WGLWidget::makeInt(int i, char *buf)

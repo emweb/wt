@@ -260,45 +260,46 @@ static inline char *generic_double_to_str(double d, char *buf)
 }
 #endif
 
-char *round_str(double d, int digits, char *buf) {
+char *round_css_str(double d, int digits, char *buf)
+{
+  static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
+
+  long long i
+    = static_cast<long long>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
+
+  lltoa(i, buf);
+  char *num = buf;
+
+  if (num[0] == '-')
+    ++num;
+  int len = std::strlen(num);
+
+  if (len <= digits) {
+    int shift = digits + 1 - len;
+    for (int i = digits + 1; i >= 0; --i) {
+      if (i >= shift)
+	num[i] = num[i - shift];
+      else
+	num[i] = '0';
+    }
+    len = digits + 1;
+  }
+  
+  int dotPos = (std::max)(len - digits, 0);
+
+  for (int i = digits + 1; i >= 0; --i)
+    num[dotPos + i + 1] = num[dotPos + i];
+
+  num[dotPos] = '.';
+  
+  return buf;
+}
+
+char *round_js_str(double d, int digits, char *buf) {
 #ifdef SPIRIT_FLOAT_FORMAT
   return generic_double_to_str(d, buf);
 #else
-  if (((d == 0)
-       || (d >= 1 && d < 1000000)
-       || (d <= -1 && d > -1000000))
-      && digits < 7) {
-    // range where a very fast float->string converter works
-    // mainly intended to render floats for 2D drawing canvas
-    static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
-
-    long long i = static_cast<long long>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
-    lltoa(i, buf);
-    char *num = buf;
-
-    if (num[0] == '-')
-      ++num;
-    int len = std::strlen(num);
-
-    if (len <= digits) {
-      int shift = digits + 1 - len;
-      for (int i = digits + 1; i >= 0; --i) {
-        if (i >= shift)
-          num[i] = num[i - shift];
-        else
-          num[i] = '0';
-      }
-      len = digits + 1;
-    }
-    int dotPos = (std::max)(len - digits, 0);
-    for (int i = digits + 1; i >= 0; --i)
-      num[dotPos + i + 1] = num[dotPos + i];
-    num[dotPos] = '.';
-    return buf;
-  } else {
-    // an implementation that covers everything
-    return generic_double_to_str(d, buf);
-  }
+  return generic_double_to_str(d, buf);
 #endif
 }
 

@@ -188,16 +188,16 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   char buf[30];
 
   js_ << "ctx.save();"
-      << "ctx.translate(" << Utils::round_str(rect.center().x(), 3, buf);
-  js_ << "," << Utils::round_str(rect.center().y(), 3, buf);
+      << "ctx.translate(" << Utils::round_js_str(rect.center().x(), 3, buf);
+  js_ << "," << Utils::round_js_str(rect.center().y(), 3, buf);
   js_ << ");"
-      << "ctx.scale(" << Utils::round_str(sx, 3, buf);
-  js_ << "," << Utils::round_str(sy, 3, buf) << ");";
-  js_ << "ctx.lineWidth = " << Utils::round_str(lw, 3, buf) << ";"
+      << "ctx.scale(" << Utils::round_js_str(sx, 3, buf);
+  js_ << "," << Utils::round_js_str(sy, 3, buf) << ");";
+  js_ << "ctx.lineWidth = " << Utils::round_js_str(lw, 3, buf) << ";"
       << "ctx.beginPath();";
-  js_ << "ctx.arc(0,0," << Utils::round_str(r, 3, buf);
-  js_ << ',' << Utils::round_str(ra.x(), 3, buf);
-  js_ << "," << Utils::round_str(ra.y(), 3, buf) << ",true);";
+  js_ << "ctx.arc(0,0," << Utils::round_js_str(r, 3, buf);
+  js_ << ',' << Utils::round_js_str(ra.x(), 3, buf);
+  js_ << "," << Utils::round_js_str(ra.y(), 3, buf) << ",true);";
 
   if (currentBrush_.style() != NoBrush) {
     js_ << "ctx.fill();";
@@ -229,14 +229,14 @@ void WCanvasPaintDevice::drawImage(const WRectF& rect,
 
   char buf[30];
   js_ << "ctx.drawImage(images[" << imageIndex
-      << "]," << Utils::round_str(sourceRect.x(), 3, buf);
-  js_ << ',' << Utils::round_str(sourceRect.y(), 3, buf);
-  js_ << ',' << Utils::round_str(sourceRect.width(), 3, buf);
-  js_ << ',' << Utils::round_str(sourceRect.height(), 3, buf);
-  js_ << ',' << Utils::round_str(rect.x(), 3, buf);
-  js_ << ',' << Utils::round_str(rect.y(), 3, buf);
-  js_ << ',' << Utils::round_str(rect.width(), 3, buf);
-  js_ << ',' << Utils::round_str(rect.height(), 3, buf) << ");";
+      << "]," << Utils::round_js_str(sourceRect.x(), 3, buf);
+  js_ << ',' << Utils::round_js_str(sourceRect.y(), 3, buf);
+  js_ << ',' << Utils::round_js_str(sourceRect.width(), 3, buf);
+  js_ << ',' << Utils::round_js_str(sourceRect.height(), 3, buf);
+  js_ << ',' << Utils::round_js_str(rect.x(), 3, buf);
+  js_ << ',' << Utils::round_js_str(rect.y(), 3, buf);
+  js_ << ',' << Utils::round_js_str(rect.width(), 3, buf);
+  js_ << ',' << Utils::round_js_str(rect.height(), 3, buf) << ");";
 }
 
 void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
@@ -260,46 +260,46 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 
     switch (s.type()) {
     case WPainterPath::Segment::MoveTo:
-      out << "ctx.moveTo(" << Utils::round_str(s.x() + pathTranslation_.x(),
-					       3, buf);
-      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(),
+      out << "ctx.moveTo(" << Utils::round_js_str(s.x() + pathTranslation_.x(),
+						  3, buf);
+      out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(),
 				     3, buf) << ");";
       break;
     case WPainterPath::Segment::LineTo:
-      out << "ctx.lineTo(" << Utils::round_str(s.x() + pathTranslation_.x(),
-					       3, buf);
-      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(),
-				     3, buf) << ");";
+      out << "ctx.lineTo(" << Utils::round_js_str(s.x() + pathTranslation_.x(),
+						  3, buf);
+      out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(),
+					3, buf) << ");";
       break;
     case WPainterPath::Segment::CubicC1:
       out << "ctx.bezierCurveTo("
-	  << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf);
-      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
+	  << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf);
+      out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case WPainterPath::Segment::CubicC2:
-      out << ',' << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf)
+      out << ',' << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf)
 	  << ',';
-      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
+      out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case WPainterPath::Segment::CubicEnd:
-      out << ',' << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf)
+      out << ',' << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf)
 	  << ',';
-      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
+      out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
       break;
     case WPainterPath::Segment::ArcC:
-      out << "ctx.arc(" << Utils::round_str(s.x() + pathTranslation_.x(), 3,
-					    buf) << ',';
-      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
+      out << "ctx.arc(" << Utils::round_js_str(s.x() + pathTranslation_.x(), 3,
+					       buf) << ',';
+      out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case WPainterPath::Segment::ArcR:
-      out << ',' << Utils::round_str(s.x(), 3, buf);
+      out << ',' << Utils::round_js_str(s.x(), 3, buf);
       break;
     case WPainterPath::Segment::ArcAngleSweep:
       {
 	WPointF r = normalizedDegreesToRadians(s.x(), s.y());
 
-	out << ',' << Utils::round_str(r.x(), 3, buf);
-	out << ',' << Utils::round_str(r.y(), 3, buf);
+	out << ',' << Utils::round_js_str(r.x(), 3, buf);
+	out << ',' << Utils::round_js_str(r.y(), 3, buf);
 	out << ',' << (s.y() > 0 ? "true" : "false") << ");";
       }
       break;
@@ -321,17 +321,17 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 
       // and now call cubic Bezier curve to function 
       out << "ctx.bezierCurveTo("
-	  << Utils::round_str(cp1x + pathTranslation_.x(), 3, buf) << ',';
-      out << Utils::round_str(cp1y + pathTranslation_.y(), 3, buf) << ',';
-      out << Utils::round_str(cp2x + pathTranslation_.x(), 3, buf) << ',';
-      out << Utils::round_str(cp2y + pathTranslation_.y(), 3, buf);
+	  << Utils::round_js_str(cp1x + pathTranslation_.x(), 3, buf) << ',';
+      out << Utils::round_js_str(cp1y + pathTranslation_.y(), 3, buf) << ',';
+      out << Utils::round_js_str(cp2x + pathTranslation_.x(), 3, buf) << ',';
+      out << Utils::round_js_str(cp2y + pathTranslation_.y(), 3, buf);
 
       break;
     }
     case WPainterPath::Segment::QuadEnd:
       out << ','
-	  << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf) << ',';
-      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
+	  << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf) << ',';
+      out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
     }
   }
 }
@@ -434,8 +434,8 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       char buf[30];
 
       js_ << "ctx.fillText(" << text.jsStringLiteral()
-	  << ',' << Utils::round_str(x, 3, buf) << ',';
-      js_ << Utils::round_str(y, 3, buf) << ");";
+	  << ',' << Utils::round_js_str(x, 3, buf) << ',';
+      js_ << Utils::round_js_str(y, 3, buf) << ");";
 
       if (currentBrush_.color() != currentPen_.color())
 	js_ << "ctx.fillStyle="
@@ -579,16 +579,16 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
 
     if (!invert) {
       if (std::fabs(d.dx) > EPSILON || std::fabs(d.dy) > EPSILON) {
-	s << "ctx.translate(" << Utils::round_str(d.dx, 3, buf) << ',';
-	s << Utils::round_str(d.dy, 3, buf) << ");";
+	s << "ctx.translate(" << Utils::round_js_str(d.dx, 3, buf) << ',';
+	s << Utils::round_js_str(d.dy, 3, buf) << ");";
       }
 
       if (std::fabs(d.alpha1) > EPSILON)
 	s << "ctx.rotate(" << d.alpha1 << ");";
 
       if (std::fabs(d.sx - 1) > EPSILON || std::fabs(d.sy - 1) > EPSILON) {
-	s << "ctx.scale(" << Utils::round_str(d.sx, 3, buf) << ',';
-	s << Utils::round_str(d.sy, 3, buf) << ");";
+	s << "ctx.scale(" << Utils::round_js_str(d.sx, 3, buf) << ',';
+	s << Utils::round_js_str(d.sy, 3, buf) << ");";
       }
 
       if (std::fabs(d.alpha2) > EPSILON)
@@ -598,16 +598,16 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
 	s << "ctx.rotate(" << -d.alpha2 << ");";
 
       if (std::fabs(d.sx - 1) > EPSILON || std::fabs(d.sy - 1) > EPSILON) {
-	s << "ctx.scale(" << Utils::round_str(1/d.sx, 3, buf) << ',';
-	s << Utils::round_str(1/d.sy, 3, buf) << ");";
+	s << "ctx.scale(" << Utils::round_js_str(1/d.sx, 3, buf) << ',';
+	s << Utils::round_js_str(1/d.sy, 3, buf) << ");";
       }
 
       if (std::fabs(d.alpha1) > EPSILON)
 	s << "ctx.rotate(" << -d.alpha1 << ");";
 
       if (std::fabs(d.dx) > EPSILON || std::fabs(d.dy) > EPSILON) {
-	s << "ctx.translate(" << Utils::round_str(-d.dx, 3, buf) << ',';
-	s << Utils::round_str(-d.dy, 3, buf) << ");";
+	s << "ctx.translate(" << Utils::round_js_str(-d.dx, 3, buf) << ',';
+	s << Utils::round_js_str(-d.dy, 3, buf) << ");";
       }
     }
   }
