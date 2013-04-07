@@ -38,6 +38,9 @@
   <message id="Wt.Auth.passwdqc.reason-seq">
     Based on a common sequence of characters
   </message>
+  <message id="Wt.Auth.passwdqc.reason-ok">
+    Valid
+  </message>
 
   <message id="Wt.Auth.GoogleService.badresponse">
     <p>Sorry, could not login using your Google account.</p>

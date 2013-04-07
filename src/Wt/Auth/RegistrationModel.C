@@ -261,7 +261,7 @@ bool RegistrationModel::validateField(Field field)
     return true;
 
   if (valid)
-    setValid(field);
+    setValid(field, error);
   else
     setValidation(field, WValidator::Result(WValidator::Invalid, error));
 

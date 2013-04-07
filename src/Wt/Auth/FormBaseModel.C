@@ -4,9 +4,14 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
 #include "Wt/Auth/AuthService"
 #include "Wt/Auth/FormBaseModel"
 #include "web/WebUtils.h"
+
+namespace skeletons {
+  extern const char *AuthStrings_xml1;
+}
 
 namespace Wt {
   namespace Auth {
@@ -20,7 +25,10 @@ FormBaseModel::FormBaseModel(const AuthService& baseAuth,
     baseAuth_(baseAuth),
     users_(users),
     passwordAuth_(0)
-{ }
+{ 
+  WApplication *app = WApplication::instance();
+  app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
+}
 
 void FormBaseModel::addPasswordAuth(const AbstractPasswordService *auth)
 {
@@ -48,9 +56,15 @@ WString FormBaseModel::label(Field field) const
 
 void FormBaseModel::setValid(Field field)
 {
+  setValid(field, WString::Empty);
+}
+
+void FormBaseModel::setValid(Field field, const Wt::WString& message)
+{
   setValidation(field,
 		WValidator::Result(WValidator::Valid,
-				   WString::tr("Wt.Auth.valid")));
+				   message.empty() ? 
+				   WString::tr("Wt.Auth.valid") : message));
 }
 
   }

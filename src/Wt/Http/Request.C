@@ -12,6 +12,7 @@
 #include "Wt/Http/Request"
 #include "Wt/Utils"
 #include "Wt/WEnvironment"
+#include "Wt/WSslInfo"
 #include "WebUtils.h"
 #include "WebRequest.h"
 

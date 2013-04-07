@@ -33,10 +33,6 @@
 
 #include <memory>
 
-namespace skeletons {
-  extern const char * AuthStrings_xml1;
-}
-
 namespace Wt {
 
 LOGGER("Auth.AuthWidget");
@@ -71,7 +67,6 @@ void AuthWidget::init()
 
   WApplication *app = WApplication::instance();
   app->internalPathChanged().connect(this, &AuthWidget::onPathChange);
-  app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
   app->theme()->apply(this, this, AuthWidgets);
 }
 

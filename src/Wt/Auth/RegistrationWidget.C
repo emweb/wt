@@ -21,10 +21,6 @@
 
 #include <memory>
 
-namespace skeletons {
-  extern const char *AuthStrings_xml1;
-}
-
 namespace Wt {
 
 LOGGER("Auth.RegistrationWidget");	     
@@ -39,7 +35,6 @@ RegistrationWidget::RegistrationWidget(AuthWidget *authWidget)
     confirmPasswordLogin_(0)
 {
   WApplication *app = WApplication::instance();
-  app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
   app->theme()->apply(this, this, AuthWidgets);
 }
 

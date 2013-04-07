@@ -404,22 +404,23 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 	int cend = g_utf8_offset_to_pointer(s, end) - s;
 
 	WTextItem ti
-	  = measureText(font, WString::fromUTF8(utf8.substr(measured,
-							    cend - measured)),
+	  = measureText(font, WString::fromUTF8(utf8.substr(0, cend)),
 			-1, false);
 
-	if (isEpsilonMore(w + ti.width(), maxWidth)) {
-	  nextW = ti.width();
+	if (isEpsilonMore(ti.width(), maxWidth)) {
+	  nextW = measureText(font, 
+			      WString::fromUTF8(utf8.substr(measured,
+							    cend - measured)),
+			      -1, false).width();
 	  maxWidthReached = true;
 	  break;
 	} else {
 	  measured = cend;
 	  current = g_utf8_offset_to_pointer(s, i) - s;
-	  w += ti.width();
+	  w = ti.width();
 
 	  if (i == utflen) {
-	    w += measureText(font, WString::fromUTF8(utf8.substr(measured)),
-			     -1, false).width();
+	    w = measureText(font, WString::fromUTF8(utf8), -1, false).width();
 	    measured = utf8.length();
 	  }
 	}
@@ -434,12 +435,6 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
     if (maxWidthReached) {
       return WTextItem(WString::fromUTF8(utf8.substr(0, current)), w, nextW);
     } else {
-      /*
-       * For some reason, the sum of the individual widths is a bit less
-       * (for longer stretches of text), so we re-measure it !
-       */
-      w = measureText(font, WString::fromUTF8(utf8.substr(0, measured)),
-		      -1, false).width();
       return WTextItem(text, w);
     }
   } else {

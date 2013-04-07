@@ -1491,7 +1491,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    element.callJavaScript(WT_CLASS ".remove('" + js.substr(1) + "');",
 				   true);
 	  else
-	    element.callJavaScript(js);
+	    element.callJavaScript(js, true);
 	}
       } else
 	element.removeAllChildren();

@@ -89,6 +89,7 @@ public:
 
 protected:
   void setValid(Field field);
+  void setValid(Field field, const WString& message);
 
 private:
   const AuthService& baseAuth_;
