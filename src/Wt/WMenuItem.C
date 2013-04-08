@@ -389,7 +389,10 @@ void WMenuItem::connectSignals()
     if (a) {
       SignalBase *as;
 
-      as = &a->clicked();
+      if (checkBox_)
+	as = &checkBox_->changed();
+      else
+	as = &a->clicked();
 
       if (checkBox_)
 	a->setLink(WLink());

@@ -63,8 +63,6 @@ WT_DECLARE_WT_MEMBER
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 		item.nodeId + ':' + item.columnId, 'clicked', '', '');
      }
-
-     WT.cancelEvent(event);
    };
 
    this.dblClick = function(obj, event) {
@@ -72,7 +70,6 @@ WT_DECLARE_WT_MEMBER
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 		item.nodeId + ':' + item.columnId, 'dblclicked', '', '');
-       WT.cancelEvent(event);
      }
    };
 
@@ -84,8 +81,6 @@ WT_DECLARE_WT_MEMBER
 		item.nodeId + ':' + item.columnId, 'mousedown', '', '');
        if (el.getAttribute('drag') === 'true' && item.selected)
          APP._p_.dragStart(el, event);
-
-       WT.cancelEvent(event);
      }
    };
 
@@ -94,29 +89,28 @@ WT_DECLARE_WT_MEMBER
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 		item.nodeId + ':' + item.columnId, 'mouseup', '', '');
-       WT.cancelEvent(event);
      }
    };
 
    this.rootClick = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 	      '', 'clicked', '', '');
-   }
+   };
 
    this.rootDblclick = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 	      '', 'dblclicked', '', '');
-   }
+   };
 
    this.rootMouseDown = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 	      '', 'mousedown', '', '');
-   }
+   };
 
    this.rootMouseUp = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 	      '', 'mouseup', '', '');
-   }
+   };
 
    this.resizeHandleMDown = function(obj, event) {
      var parent = obj.parentNode,

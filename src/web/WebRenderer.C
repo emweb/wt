@@ -140,7 +140,7 @@ bool WebRenderer::isDirty() const
 {
   return !updateMap_.empty()
     || formObjectsChanged_
-    || session_.app_->isQuited()
+    || session_.app()->isQuited()
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
     || session_.app()->styleSheetsAdded_

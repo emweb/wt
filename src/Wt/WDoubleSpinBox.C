@@ -138,7 +138,7 @@ WString WDoubleSpinBox::textFromValue() const
 #else
   char buf[30];
 
-  std::string result = Utils::round_str(value_, precision_, buf);
+  std::string result = Utils::round_js_str(value_, precision_, buf);
 #endif // WT_TARGET_JAVA
 
   if (!nativeControl())

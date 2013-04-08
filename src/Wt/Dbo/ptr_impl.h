@@ -427,6 +427,15 @@ int ptr<C>::version() const
 }
 
 template <class C>
+bool ptr<C>::isTransient() const
+{
+  if (obj_)
+    return obj_->isTransient();
+  else
+    return true;
+}
+
+template <class C>
 Session *ptr<C>::session() const
 {
   if (obj_)

@@ -11,6 +11,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WDateValidator"
 #include "Wt/WLineEdit"
+#include "Wt/WLogger"
 #include "Wt/WPopupWidget"
 #include "Wt/WPushButton"
 #include "Wt/WTemplate"
@@ -23,6 +24,8 @@
 #endif
 
 namespace Wt {
+
+LOGGER("WDateEdit");
 
 WDateEdit::WDateEdit(WContainerWidget *parent)
   : WLineEdit(parent)
@@ -58,14 +61,27 @@ WDateValidator *WDateEdit::validator() const
 
 void WDateEdit::setFormat(const WT_USTRING& format)
 {
-  WDate d = this->date();
-  validator()->setFormat(format);
-  setDate(d);
+  WDateValidator *dv = validator();
+
+  if (dv) {
+    WDate d = this->date();
+    dv->setFormat(format);
+    setDate(d);
+  } else {
+    LOG_WARN("setFormat() ignored since validator is not a WDateValidator");
+  }
 }
 
 WT_USTRING WDateEdit::format() const
 {
-  return validator()->format();
+  WDateValidator *dv = validator();
+
+  if (dv) {
+    return dv->format();
+  } else {
+    LOG_WARN("format() is bogus  since validator is not a WDateValidator");
+    return WT_USTRING();
+  }
 }
 
 void WDateEdit::setFromCalendar()
@@ -125,24 +141,30 @@ void WDateEdit::setHidden(bool hidden, const WAnimation& animation)
 
 void WDateEdit::setBottom(const WDate& bottom)
 {
-  validator()->setBottom(bottom);
+  WDateValidator *dv = validator();
+  if (dv)
+    dv->setBottom(bottom);
+
   calendar_->setBottom(bottom);
 }
 
 WDate WDateEdit::bottom() const
 {
-  return validator()->bottom();
+  return calendar_->bottom();
 }
   
 void WDateEdit::setTop(const WDate& top) 
 {
-  validator()->setTop(top);
+  WDateValidator *dv = validator();
+  if (dv)
+    dv->setTop(top);
+
   calendar_->setTop(top);
 }
 
 WDate WDateEdit::top() const
 {
-  return validator()->top();
+  return calendar_->top();
 }
 
 void WDateEdit::connectJavaScript(Wt::EventSignalBase& s,
@@ -184,9 +206,12 @@ void WDateEdit::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull) {
     defineJavaScript();
-    setTop(validator()->top());
-    setBottom(validator()->bottom());
-    setFormat(validator()->format());
+    WDateValidator *dv = validator();
+    if (dv) {
+      setTop(dv->top());
+      setBottom(dv->bottom());
+      setFormat(dv->format());
+    }
   }
 
   WLineEdit::render(flags);

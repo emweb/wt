@@ -1486,22 +1486,26 @@ void WTreeView::rerenderTree()
 
   if (WApplication::instance()->environment().ajax()) {
     connectObjJS(rootNode_->clicked(), "click");
+    rootNode_->clicked().preventPropagation();
     if (firstTime)
       connectObjJS(contentsContainer_->clicked(), "rootClick");
 
     if (editTriggers() & DoubleClicked || doubleClicked().isConnected()) {
       connectObjJS(rootNode_->doubleClicked(), "dblClick");
+      rootNode_->doubleClicked().preventPropagation();
       if (firstTime)
 	connectObjJS(contentsContainer_->doubleClicked(), "rootDblClick");
     }
 
     if (mouseWentDown().isConnected() || dragEnabled_) {
       connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
+      rootNode_->mouseWentDown().preventPropagation();
       if (firstTime)
 	connectObjJS(contentsContainer_->mouseWentDown(), "rootMouseDown");
     }
 
-    if (mouseWentUp().isConnected()) {
+    if (mouseWentUp().isConnected()) { 
+      rootNode_->mouseWentUp().preventPropagation();
       connectObjJS(rootNode_->mouseWentUp(), "mouseUp");
       if (firstTime)
 	connectObjJS(contentsContainer_->mouseWentUp(), "rootMouseUp");

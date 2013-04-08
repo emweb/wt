@@ -365,6 +365,21 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
        *  - start timer, clear timer and click()
        */
 
+      /* We have to prevent this immediately ! */
+      if (mouseClick) {
+	if (mouseClick->defaultActionPrevented() ||
+	    mouseClick->propagationPrevented()) {
+	  js << WT_CLASS ".cancelEvent(e";
+	  if (mouseClick->defaultActionPrevented() &&
+	      mouseClick->propagationPrevented())
+	    js << ");";
+	  else if (mouseClick->defaultActionPrevented())
+	    js << ",0x2);";
+	  else
+	    js << ",0x1);";
+	}
+      }
+
       js << "if(o.wtClickTimeout) {"
 	       << "clearTimeout(o.wtClickTimeout);"
 	       << "o.wtClickTimeout = null;";

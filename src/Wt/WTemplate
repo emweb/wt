@@ -93,7 +93,7 @@ namespace Wt {
  *
  * Functions are resolved by resolveFunction(), and the default implementation
  * considers functions bound with addFunction(). 
- * There are currently two functions that are generally useful:
+ * There are currently three functions that are generally useful:
  * - \link Functions::tr\endlink : resolves a localized strings, this is 
  *   convenient to create a language neutral template, which contains 
  *   translated strings
@@ -409,7 +409,7 @@ public:
    *
    * <tt>${fun:bla}</tt>
    *
-   * There are two predefined functions, which can be bound using:
+   * There are three predefined functions, which can be bound using:
    * \if cpp
    * \code
    * WTemplate *t = ...;
