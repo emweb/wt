@@ -95,6 +95,7 @@ WebSession::WebSession(WebController *controller,
     asyncResponse_(0),
     bootStyleResponse_(0),
     canWriteAsyncResponse_(false),
+    noBootStyleResponse_(false),
     pollRequestsIgnored_(0),
     progressiveBoot_(false),
     deferredRequest_(0),
@@ -1366,9 +1367,10 @@ void WebSession::handleRequest(Handler& handler)
 
 	    const bool xhtml = env_->contentType() == WEnvironment::XHTML1;
 
-	    bool noBootStyleResponse = (!app_ && (ios5 || xhtml || nojs));
+	    noBootStyleResponse_
+	      = noBootStyleResponse_ || (!app_ && (ios5 || xhtml || nojs));
 
-	    if (nojs || noBootStyleResponse) {
+	    if (nojs || noBootStyleResponse_) {
 	      handler.response()->setContentType("text/css");
 	      handler.response()->flush();
 	      handler.setRequest(0, 0);
@@ -1540,6 +1542,7 @@ void WebSession::flushBootStyleResponse()
   if (bootStyleResponse_) {
     bootStyleResponse_->flush();
     bootStyleResponse_ = 0;
+    noBootStyleResponse_ = true;
   }
 }
 

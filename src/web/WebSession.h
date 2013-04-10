@@ -275,7 +275,7 @@ private:
   std::string pagePathInfo_;
   std::string pongMessage_;
   WebResponse *asyncResponse_, *bootStyleResponse_;
-  bool canWriteAsyncResponse_;
+  bool canWriteAsyncResponse_, noBootStyleResponse_;
   int pollRequestsIgnored_;
   bool progressiveBoot_;
 
