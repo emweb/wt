@@ -18,7 +18,8 @@ stack->addWidget(new Wt::WText("<strong>Stacked widget-index 2</strong>"
                                "<p>Do you like it?</p>"));
 
 sb->changed().connect(std::bind([=] () {
-    stack->setCurrentIndex(sb->value());
+    if (sb->validate())
+	stack->setCurrentIndex(sb->value());
 }));
 
 SAMPLE_END(return container)

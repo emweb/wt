@@ -952,9 +952,8 @@ Wt::Dbo) для разработки приложений, используя с
 </p>
 
 <div class="fragment">
-  <pre class="fragment">$ sudo add-apt-repository ppa:pgquiles/wt
-$ sudo apt-get update
-$ sudo apt-get install witty witty-dev witty-doc witty-examples</pre>
+  <pre class="fragment">
+  $ sudo apt-get install witty witty-dev witty-doc witty-dbg witty-examples</pre>
 </div>
 
 <p>

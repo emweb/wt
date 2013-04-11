@@ -124,6 +124,8 @@ WWidget *WtHome::examples()
   // "/examples/hello_world" as internal path
   examplesMenu_->addTab(wrapView(&WtHome::helloWorldExample),
 			tr("hello-world"))->setPathComponent("");
+  examplesMenu_->addTab(wrapView(&WtHome::widgetGalleryExample),
+			tr("widget-gallery"));
   examplesMenu_->addTab(wrapView(&WtHome::chartExample),
   			tr("charts"));
   examplesMenu_->addTab(wrapView(&WtHome::homepageExample),
@@ -138,8 +140,6 @@ WWidget *WtHome::examples()
 			tr("mail-composer"));
   examplesMenu_->addTab(wrapView(&WtHome::hangmanExample),
 			tr("hangman"));
-  examplesMenu_->addTab(wrapView(&WtHome::widgetGalleryExample),
-			tr("widget-gallery"));
 
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");

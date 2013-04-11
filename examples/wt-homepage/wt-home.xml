@@ -949,12 +949,13 @@ can be used only in conjunction with a Commercial License for Wt::Dbo.
 
 <p>
   If you are on Ubuntu, you can install a reasonably recent version of
-  Wt from official packages.
+  Wt from official packages. The wiki contains more details on
+  <a href="http://redmine.emweb.be/projects/wt/wiki/Installing_Wt_on_Ubuntu">installing Wt on Ubuntu</a>
 </p>
 
 <div class="fragment">
   <pre class="fragment">
-$ sudo apt-get install libwt libwt-dev libwthttp-dev witty-examples</pre>
+$ sudo apt-get install witty witty-dev witty-doc witty-dbg witty-examples</pre>
 </div>
 
 <p>

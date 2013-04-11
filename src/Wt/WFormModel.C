@@ -48,8 +48,7 @@ std::vector<WFormModel::Field> WFormModel::fields() const
   std::vector<WFormModel::Field> result;
 
   for (FieldMap::const_iterator i = fields_.begin(); i != fields_.end(); ++i)
-    if (isVisible(i->first))
-      result.push_back(i->first);
+    result.push_back(i->first);
 
   return result;
 }

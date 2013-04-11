@@ -1784,8 +1784,6 @@ void WWebWidget::getDomChanges(std::vector<DomElement *>& result,
 void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 				WApplication *app)
 {
-  bool isIEMobile = app->environment().agentIsIEMobile();
-
   if (flags_.test(BIT_STUBBED)) {
     /*
      * If we are prelearning, we still want to catch changes to *this*
@@ -1803,46 +1801,17 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
       if (!app->session()->renderer().visibleOnly()) {
 	flags_.reset(BIT_STUBBED);
 
-	if (!isIEMobile) {
-	  DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
-	  setRendered(true);
-	  render(RenderFull);
-	  DomElement *realElement = createDomElement(app);
-	  app->theme()->apply(selfWidget(), *realElement, 0);
-	  stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
-	  result.push_back(stub);
-	} else
-	  propagateRenderOk();
+	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
+	setRendered(true);
+	render(RenderFull);
+	DomElement *realElement = createDomElement(app);
+	app->theme()->apply(selfWidget(), *realElement, 0);
+	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
+	result.push_back(stub);
       }
     }
   } else {
     render(RenderUpdate);
-
-    if (isIEMobile) {
-      if (flags_.test(BIT_REPAINT_PROPERTY_ATTRIBUTE)) {
-	WWidget *p = this;
-	WWebWidget *w = this;
-	do {
-	  p = p->parent();
-	  if (p)
-	    w = p->webWidget();
-	} while (p && w == this);
-
-	if (w != this)
-	  w->getSDomChanges(result, app);
-      } else if (flags_.test(BIT_REPAINT_INNER_HTML)
-		 || !flags_.test(BIT_REPAINT_PROPERTY_IEMOBILE)) {
-	// the last condition results from repainting the parent, in which
-	// case no change flags are set
-	DomElement *e = createDomElement(app);
-	e->updateInnerHtmlOnly();
-	result.push_back(e);
-      } else { // BIT_REPAINT_PROPERTY_IEMOBILE only
-	getDomChanges(result, app);
-      }
-
-      return;
-    }
 
     getDomChanges(result, app);
   }
