@@ -1662,9 +1662,7 @@ void WebRenderer::collectJS(WStringStream* js)
 
 void WebRenderer::preLearnStateless(WApplication *app, WStringStream& out)
 {
-  bool isIEMobile = app->environment().agentIsIEMobile();
-
-  if (isIEMobile || !session_.env().ajax())
+  if (!session_.env().ajax())
     return;
 
   collectJS(&out);

@@ -69,6 +69,8 @@ WWidget *JWtHome::examples()
   // "/examples/hello_world" as internal path
   examplesMenu_->addTab(wrapView(&JWtHome::helloWorldExample),
   			tr("hello-world"))->setPathComponent("");
+  examplesMenu_->addTab(wrapView(&JWtHome::widgetGalleryExample),
+			tr("widget-gallery"));
   examplesMenu_->addTab(wrapView(&JWtHome::chartExample),
   			tr("charts"));
   examplesMenu_->addTab(wrapView(&JWtHome::treeviewExample),
@@ -79,8 +81,6 @@ WWidget *JWtHome::examples()
 			tr("chat"));
   examplesMenu_->addTab(wrapView(&JWtHome::figtreeExample),
 			tr("figtree"));
-  examplesMenu_->addTab(wrapView(&JWtHome::widgetGalleryExample),
-			tr("widget-gallery"));
   
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");

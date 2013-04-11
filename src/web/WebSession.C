@@ -215,11 +215,13 @@ WebSession::~WebSession()
 			   boost::bind(&WApplication::finalize, app_))));
 
   delete app_;
+  app_ = 0;
 #endif // WT_TARGET_JAVA
 
   if (asyncResponse_) {
     asyncResponse_->flush();
     asyncResponse_ = 0;
+    canWriteAsyncResponse_ = false;
   }
 
   if (deferredResponse_) {
@@ -1716,7 +1718,7 @@ void WebSession::pushUpdates()
 {
   triggerUpdate_ = false;
 
-  if (!renderer_.isDirty()) {
+  if (!app_ || !renderer_.isDirty()) {
     LOG_DEBUG("pushUpdates(): nothing to do");
     return;
   }

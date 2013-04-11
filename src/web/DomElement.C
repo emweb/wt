@@ -314,10 +314,7 @@ void DomElement::setEvent(const char *eventName,
 
   WStringStream js;
   if (isExposed || anchorClick || !jsCode.empty()) {
-    if (app->environment().agentIsIEMobile())
-      js << "var e=window.event,";
-    else
-      js << "var e=event||window.event,";
+    js << "var e=event||window.event,";
     js << "o=this;";
 
     if (anchorClick)
@@ -790,20 +787,9 @@ void DomElement::asHTML(EscapeOStream& out,
     }
   }
 
-  const bool isIEMobile = app->environment().agentIsIEMobile();
-  const bool supportButton = !isIEMobile;
+  const bool supportButton = true;
 
   bool needAnchorWrap = false;
-
-  if (!needButtonWrap) {
-    if (isIEMobile && app->environment().ajax()
-	&& (clickEvent != eventHandlers_.end())
-	&& (!clickEvent->second.jsCode.empty())
-	&& (   type_ == DomElement_IMG
-	    || type_ == DomElement_SPAN
-	    || type_ == DomElement_DIV))
-      needAnchorWrap = true;
-  }
 
   if (!supportButton && type_ == DomElement_BUTTON) {
     renderedType = DomElement_INPUT;
@@ -1063,9 +1049,6 @@ void DomElement::declare(EscapeOStream& out) const
 
 bool DomElement::canWriteInnerHTML(WApplication *app) const
 {
-  if (app->environment().agentIsIEMobile())
-    return true;
-
   /*
    * http://lists.apple.com/archives/web-dev/2004/Apr/msg00122.html
    * "The problem is not that innerHTML doesn't work (it works fine),

@@ -216,7 +216,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
   if (updateInnerHtml || flags_.test(BIT_ICON_CHANGED)
       || (all && !icon_.isNull())) {
     DomElement *image = DomElement::createNew(DomElement_IMG);
-    image->setProperty(PropertySrc, icon_.url());
+    image->setProperty(PropertySrc, icon_.resolveUrl(WApplication::instance()));
     image->setId("im" + formName());
     element.insertChildAt(image, 0);
     flags_.set(BIT_ICON_RENDERED);
