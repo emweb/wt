@@ -397,8 +397,14 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 	// of the dialog
 	doJavaScript
 	  ("try {"
-	   """if (document.activeElement && document.activeElement.blur)"
+           """var ae=document.activeElement;"
+           // On IE when a dialog is shown on startup, activeElement is the
+           // body. Bluring the body sends the window to the background if
+           // it is the only tab.
+           // http://redmine.emweb.be/boards/2/topics/6415
+	   """if (ae && ae.blur && ae.nodeName != 'BODY') {"
 	   ""  "document.activeElement.blur();"
+           "}"
 	   "} catch (e) { }");
       } else
 	restoreCoverState(app, cover);
