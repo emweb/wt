@@ -563,7 +563,6 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 		  << "._p_.setSessionUrl("
 		  << WWebWidget::jsStringLiteral(sessionUrl())
 		  << ");";
-    session_.sessionIdChanged_ = false;
   }
 
   WStringStream out(response.out());
@@ -1530,6 +1529,14 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
   out << '{';
 
   collectJS(&out);
+
+  if (session_.sessionIdChanged_) {
+    out << session_.app()->javaScriptClass()
+	<< "._p_.setSessionUrl("
+	<< WWebWidget::jsStringLiteral(sessionUrl())
+	<< ");";
+    session_.sessionIdChanged_ = false;
+  }
 
   /*
    * Now, as we have cleared and recorded all JavaScript changes that were

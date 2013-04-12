@@ -256,10 +256,10 @@ void AuthWidget::create()
   if (created_)
     return;
 
-  created_ = true;
-
   login_.changed().connect(this, &AuthWidget::onLoginChange);
   onLoginChange();
+
+  created_ = true;
 }
 
 void AuthWidget::onLoginChange()
@@ -268,7 +268,8 @@ void AuthWidget::onLoginChange()
 
   if (login_.loggedIn()) {
 #ifndef WT_TARGET_JAVA
-    WApplication::instance()->changeSessionId();
+    if (created_) // do not do this if onLoginChange() is called from create()
+      WApplication::instance()->changeSessionId();
 #endif // WT_TARGET_JAVA
 
     createLoggedInView();
