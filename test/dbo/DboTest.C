@@ -1709,10 +1709,12 @@ BOOST_AUTO_TEST_CASE( dbo_test20 )
     dbo::Transaction t(*session_);
 
     dbo::QueryModel<std::string> *model = new dbo::QueryModel<std::string>();
-    model->setQuery(session_->query<std::string>("select 'dima '' ? '"));
+    model->setQuery(session_->query<std::string>("select 'dima' '?'"));
+    model->addAllFieldsAsColumns();
 
     std::cerr << model->columnCount() << std::endl
 	      << model->rowCount() << std::endl;
+    std::cerr << Wt::asString(model->data(0, 0)) << std::endl;
   }
 #endif //FIREBIRD
 }

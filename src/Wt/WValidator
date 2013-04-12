@@ -86,7 +86,7 @@ public:
      * Creates a result with given \p state and initalizes the message field to
      * an empty WString.
      */
-    Result(State state);
+    explicit Result(State state);
 
     /*! \brief Returns the validation state.
      */

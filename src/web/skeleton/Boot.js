@@ -1,26 +1,47 @@
 window.onresize = function() { };
 
 function loadScript(url, callback) {
-  var s = document.createElement('script');
-
-  if (callback) {
-    if (s.readyState) {
-      s.onreadystatechange = function() {
-        if (s.readyState == "loaded" || s.readyState == "complete") {
-          s.onreadystatechange = null;
-          callback();
-        }
-      };
-    } else {
-      s.onload = function() {
-        callback();
-      };
-    }
-  }
-
-  s.setAttribute('src', url);
   var h = document.getElementsByTagName('head')[0];
-  h.appendChild(s);
+  var agent = navigator.userAgent.toLowerCase();
+  var re = /firefox\/(\d+)\./;
+  var m = re.exec(agent);
+
+  if (m && m[1] >= 20) {
+    var async = new XMLHttpRequest();
+    async.open('GET', url, true);
+
+    async.onreadystatechange = function() {
+      if (async.readyState == 4) {
+	var s = document.createElement('script');
+	s.type = 'text/javascript';
+	s.innerHTML=async.responseText;
+	h.appendChild(s);
+	if (callback)
+	  callback();
+      }
+    };
+
+    async.send(null);
+  } else {
+    var s = document.createElement('script');
+    if (callback) {
+      if (s.readyState) {
+	s.onreadystatechange = function() {
+	  if (s.readyState == "loaded" || s.readyState == "complete") {
+	    s.onreadystatechange = null;
+	    callback();
+	  }
+	};
+      } else {
+	s.onload = function() {
+	  callback();
+	};
+      }
+    }
+
+    s.setAttribute('src', url);
+    h.appendChild(s);
+  }
 }
 
 _$_$if_PROGRESS_$_();
@@ -255,12 +276,7 @@ _$_$endif_$_();
 }
     }
 
-_$_$if_DEFER_SCRIPT_$_();
- setTimeout(doLoad, 0);
-_$_$endif_$_();
-_$_$ifnot_DEFER_SCRIPT_$_();
  doLoad();
-_$_$endif_$_();
 
 })();
 
