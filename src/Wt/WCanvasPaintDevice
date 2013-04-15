@@ -103,7 +103,8 @@ private:
   void finishPath();
   void renderTransform(std::stringstream& s, const WTransform& t,
 		       bool invert = false);
-  void renderStateChanges();
+  void renderStateChanges(bool resetPathTranslation);
+  void resetPathTranslation();
   void drawPlainPath(std::stringstream& s, const WPainterPath& path);
 
   int createImage(const std::string& imgUri);

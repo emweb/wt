@@ -70,7 +70,6 @@ popup->addMenu("Help", subMenu);
 
 Wt::WPushButton *button = new Wt::WPushButton(container);
 button->setMenu(popup);
-popup->show();
 
 // React to an item selection
 popup->itemSelected().connect(std::bind([=] (Wt::WMenuItem *item) {

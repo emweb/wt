@@ -21,7 +21,7 @@
 #include <boost/lexical_cast.hpp>
 
 namespace {
-  static const double EPSILON=1E-5;
+  static const double EPSILON = 1E-5;
 }
 
 namespace Wt {
@@ -160,7 +160,7 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   if (rect.width() < EPSILON || rect.height() < EPSILON)
     return;
 
-  renderStateChanges();
+  renderStateChanges(true);
 
   WPointF ra = normalizedDegreesToRadians(startAngle, spanAngle);
 
@@ -223,7 +223,7 @@ void WCanvasPaintDevice::drawImage(const WRectF& rect,
 {
   finishPath();
 
-  renderStateChanges();
+  renderStateChanges(true);
 
   int imageIndex = createImage(imgUri);
 
@@ -353,7 +353,7 @@ void WCanvasPaintDevice::finishPath()
 
 void WCanvasPaintDevice::drawPath(const WPainterPath& path)
 {
-  renderStateChanges();
+  renderStateChanges(false);
 
   drawPlainPath(js_, path);
 }
@@ -380,7 +380,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 
   if (textMethod_ != DomText) {
     finishPath();
-    renderStateChanges();
+    renderStateChanges(true);
   }
 
   switch (textMethod_) {
@@ -613,8 +613,13 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
   }
 }
 
-void WCanvasPaintDevice::renderStateChanges()
+void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 {
+  if (resetPathTranslation && 
+      (!fequal(pathTranslation_.x(), 0) ||
+       !fequal(pathTranslation_.y(), 0)))
+    changeFlags_ |= Transform;
+
   if (!changeFlags_)
     return;
 
@@ -659,7 +664,7 @@ void WCanvasPaintDevice::renderStateChanges()
       resetTransform = currentTransform_ != f;
 
       if (busyWithPath_) {
-	if (   fequal(f.m11(), currentTransform_.m11())
+	if (fequal(f.m11(), currentTransform_.m11())
 	    && fequal(f.m12(), currentTransform_.m12())
 	    && fequal(f.m21(), currentTransform_.m21())
 	    && fequal(f.m22(), currentTransform_.m22())) {
@@ -693,8 +698,9 @@ void WCanvasPaintDevice::renderStateChanges()
 	  resetTransform = false;
 	}
       } else if (!resetTransform) {
-	pathTranslation_.setX(0);
-	pathTranslation_.setY(0);
+	if (!fequal(pathTranslation_.x(), 0)
+	    || !fequal(pathTranslation_.y(), 0))
+	  resetTransform = true;
       }
 
       if (resetTransform) {
