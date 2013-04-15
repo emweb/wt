@@ -109,10 +109,15 @@ WT_DECLARE_WT_MEMBER
      /* Allow accurate measurement for widgets with offsets */
      var l = element.style[DC.left];
      setCss(element, DC.left, NA_px);
+     var prev_size = element.style[DC.size];
+     setCss(element, DirConfig[dir].size, '');
      var scrollWidth = dir ? element.scrollHeight : element.scrollWidth;
      var clientWidth = dir ? element.clientHeight : element.clientWidth;
      var offsetWidth = dir ? element.offsetHeight : element.offsetWidth;
      setCss(element, DC.left, l);
+     if (prev_size) {
+       setCss(element, DirConfig[dir].size, prev_size);
+     }
 
 
      /*
