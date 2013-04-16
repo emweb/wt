@@ -238,7 +238,8 @@ void WMenuItem::updateInternalPath()
   } else {
     WAnchor *a = anchor();
     if (a) {
-      if (WApplication::instance()->environment().agent() == WEnvironment::IE6)
+      if ((WApplication::instance()->environment().agent() == WEnvironment::IE6) ||
+          !WApplication::instance()->environment().javaScript())
 	a->setLink(WLink("#"));
       else
 	a->setLink(WLink());
