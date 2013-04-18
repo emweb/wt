@@ -114,6 +114,8 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
   }
 
   tmp << "{var ctx=" << canvasVar << ".getContext('2d');";
+  // Older browsers don't have setLineDash
+  tmp << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
 
   if (!paintUpdate_) {
     tmp << "ctx.clearRect(0,0,"
@@ -732,6 +734,26 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       js_ << "ctx.strokeStyle="
 	  << WWebWidget::jsStringLiteral(painter()->pen().color().cssText(true))
 	  << ";";
+
+    const char *style = "";
+    switch(painter()->pen().style()) {
+      case SolidLine:
+        style = "ctx.setLineDash([]);";
+        break;
+      case DashLine:
+        style = "ctx.setLineDash([4,2]);";
+        break;
+      case DotLine:
+        style = "ctx.setLineDash([1,2]);";
+        break;
+      case DashDotLine:
+        style = "ctx.setLineDash([4,2,1,2]);";
+        break;
+      case DashDotDotLine:
+        style = "ctx.setLineDash([4,2,1,2,1,2]);";
+        break;
+    }
+    js_ << style;
 
     js_ << "ctx.lineWidth="
 	<< painter()->normalizedPenWidth(painter()->pen().width(), true).value()

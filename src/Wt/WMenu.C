@@ -275,6 +275,7 @@ void WMenu::setCurrent(int index)
 
 void WMenu::select(int index, bool changePath)
 {
+
   int last = current_;
   setCurrent(index);
 
@@ -285,15 +286,25 @@ void WMenu::select(int index, bool changePath)
     item->show();
     item->loadContents();
 
+    DeletionTracker guard(this);
+
     if (changePath && emitPathChange_) {
       WApplication *app = wApp;
       app->internalPathChanged().emit(app->internalPath());
+      if (guard.deleted())
+        return;
       emitPathChange_ = false;
     }
 
     if (last != index) {
       item->triggered().emit(item);
-      itemSelected_.emit(item);
+      if (!guard.deleted()) {
+        // item may have been deleted too
+        if (ul()->indexOf(item) != -1)
+          itemSelected_.emit(item);
+        else
+          select(-1);
+      }
     }
   }
 }

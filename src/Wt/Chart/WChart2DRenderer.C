@@ -11,6 +11,7 @@
 
 #include "Wt/WAbstractItemModel"
 #include "Wt/WCircleArea"
+#include "Wt/WLineF"
 #include "Wt/WPainter"
 #include "Wt/WPolygonArea"
 #include "Wt/WRectArea"
@@ -1039,8 +1040,8 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
       }
     }
 
-    WPainterPath gridPath;
-    WPainterPath ticksPath;
+    std::vector<Wt::WLineF> gridPath;
+    std::vector<Wt::WLineF> ticksPath;
 
     std::vector<WAxis::TickLabel> ticks;
     axis.getLabelTicks(*this, ticks, segment);
@@ -1100,18 +1101,22 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 
       if (ticks[i].tickLength != WAxis::TickLabel::Zero) {
 	if (vertical) {
-	  ticksPath.moveTo(hv(u + (tickPos & Left ? -tickLength : 0), dd));
-	  ticksPath.lineTo(hv(u + (tickPos & Right ? +tickLength : 0), dd));
+	  ticksPath.push_back(
+	    WLineF(hv(u + (tickPos & Left ? -tickLength : 0), dd),
+		   hv(u + (tickPos & Right ? +tickLength : 0), dd)));
 	  if (ticks[i].tickLength == WAxis::TickLabel::Long) {
-	    gridPath.moveTo(hv(s0.renderStart, dd));
-	    gridPath.lineTo(hv(sn.renderStart + sn.renderLength, dd));
+	    gridPath.push_back(\
+	      WLineF(hv(s0.renderStart, dd),
+		     hv(sn.renderStart + sn.renderLength, dd)));
 	  }
 	} else {
-	  ticksPath.moveTo(hv(dd, u + (tickPos & Right ? -tickLength : 0)));
-	  ticksPath.lineTo(hv(dd, u + (tickPos & Left ? +tickLength : 0)));
+	  ticksPath.push_back(
+	    WLineF(hv(dd, u + (tickPos & Right ? -tickLength : 0)),
+	           hv(dd, u + (tickPos & Left ? +tickLength : 0))));
 	  if (ticks[i].tickLength == WAxis::TickLabel::Long) {
-	    gridPath.moveTo(hv(dd, s0.renderStart));
-	    gridPath.lineTo(hv(dd, sn.renderStart - sn.renderLength));
+	    gridPath.push_back(
+	      WLineF(hv(dd, s0.renderStart),
+		     hv(dd, sn.renderStart - sn.renderLength)));
 	  }
 	}
       }
@@ -1136,11 +1141,31 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
       }
     }
 
-    if ((properties & Grid) && axis.isGridLinesEnabled())
-      painter_.strokePath(gridPath, axis.gridLinesPen());
+    if ((properties & Grid) && axis.isGridLinesEnabled()) {
+      WBrush oldBrush = WBrush(painter_.brush());
+      WPen   oldPen = WPen(painter_.pen());
 
-    if ((properties & Line) && axis.isVisible())
-      painter_.strokePath(ticksPath, axis.pen());
+      painter_.setBrush(WBrush());
+      painter_.setPen(axis.gridLinesPen());
+
+      painter_.drawLines(gridPath);
+
+      painter_.setBrush(oldBrush);
+      painter_.setPen(oldPen);
+    }
+
+    if ((properties & Line) && axis.isVisible()) {
+      WBrush oldBrush = WBrush(painter_.brush());
+      WPen   oldPen = WPen(painter_.pen());
+
+      painter_.setBrush(WBrush());
+      painter_.setPen(axis.pen());
+
+      painter_.drawLines(ticksPath);
+
+      painter_.setBrush(oldBrush);
+      painter_.setPen(oldPen);
+    }
 
     if (segment == 0 && (properties & Labels) && !axis.title().empty()) {
       WFont oldFont2 = painter_.font();

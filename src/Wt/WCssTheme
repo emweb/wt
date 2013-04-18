@@ -383,7 +383,8 @@ class WT_API WCssTheme : public WTheme
 public:
   /*! \brief Constructor.
    *
-   * Creates a classic %Wt theme ("polished" or "default").
+   * Creates a classic %Wt theme. %Wt comes with two CSS themes: "polished" and
+   * default. For the bootstrap theme, use WBootstrapTheme.
    */
   WCssTheme(const std::string& name, WObject *parent = 0);
 
@@ -391,15 +392,33 @@ public:
 
   virtual std::string name() const;
 
+  /*! \brief Returns wt.css, plus on IE wt_ie.css, plus on IE6 wt_ie6.css. The
+   *         style sheets are located in the theme directory in the resources
+   *         folder.
+   */
   virtual std::vector<WCssStyleSheet> styleSheets() const;
 
   virtual void apply(WWidget *widget, WWidget *child, int widgetRole) const;
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)
     const;
 
+  /*! \brief Returns a generic CSS class name for a disabled element.
+   *
+   * The CSS class Wt-disabled is applied to disabled classes.
+   */
   virtual std::string disabledClass() const;
+
+  /*! \brief Returns a generic CSS class name for an active element.
+   *
+   * The CSS class Wt-selected is applied to active classes.
+   */
   virtual std::string activeClass() const;
 
+  /*! \brief Returns whether the theme allows for an anchor to be styled
+   *         as a button.
+   *
+   * Returns false.
+   */
   virtual bool canStyleAnchorAsButton() const;
 
   virtual void applyValidationStyle(WWidget *widget,

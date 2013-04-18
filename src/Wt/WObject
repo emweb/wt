@@ -12,6 +12,7 @@
 #include <Wt/Http/Request>
 
 #include <boost/signals/trackable.hpp>
+#include <boost/signal.hpp>
 #include <cassert>
 #include <vector>
 #include <map>
@@ -301,6 +302,27 @@ public:
   virtual bool hasParent() const;
 
   static void seedId(unsigned id);
+
+  /* Class that can be used to check if a WObject is deleted.
+   *
+   * Usage example:
+   * {
+   *   DeletionTracker guard(this);
+   *   changed_.emit();
+   *   if (!guard.deleted())
+   *     changedTo_.emit(currentValue);
+   * }
+   */
+  class DeletionTracker {
+  public:
+    DeletionTracker(WObject *trackable);
+    bool deleted() const;
+  private:
+#ifndef WT_TARGET_JAVA
+    boost::signal<void()> signal_;
+    boost::signals::connection connection_;
+#endif
+  };
 
 protected:
   virtual void signalConnectionsChanged();

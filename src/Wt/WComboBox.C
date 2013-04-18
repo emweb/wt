@@ -196,30 +196,16 @@ void WComboBox::propagateChange()
   if (currentIndex_ != -1)
     myCurrentValue = currentText();
 
-#ifndef WT_TARGET_JAVA
-
-  /*
-   * use this connection to know if the widget was killed
-   */
-  boost::signals::connection alive
-    = sactivated_.connect(this, &WComboBox::dummy);
+  DeletionTracker guard(this);
 
   activated_.emit(currentIndex_);
 
-  if (alive.connected()) {
-    alive.disconnect();
+  if (!guard.deleted()) {
 
     if (myCurrentIndex != - 1)
       sactivated_.emit(myCurrentValue);
   }
 
-#else // WT_TARGET_JAVA
-
-  activated_.emit(currentIndex_);
-  if (myCurrentIndex != - 1)
-    sactivated_.emit(myCurrentValue);
-
-#endif // WT_TARGET_JAVA
 }
 
 void WComboBox::dummy()

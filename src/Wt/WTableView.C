@@ -23,6 +23,7 @@
 #endif
 
 #define UNKNOWN_VIEWPORT_HEIGHT 800
+#define CONTENTS_VIEWPORT_HEIGHT -1
 
 #include <cmath>
 
@@ -1393,22 +1394,32 @@ void WTableView::computeRenderedArea()
     const int borderRows = 5;
     const int borderColumnPixels = 200;
 
-    /* row range */
-    int top = std::min(viewportTop_,
-		       static_cast<int>(canvas_->height().toPixels()));
-    int height = std::min(viewportHeight_,
-			  static_cast<int>(canvas_->height().toPixels()));
-
-    renderedFirstRow_ = static_cast<int>(top / rowHeight().toPixels());
-
-    int renderedRows = static_cast<int>(height / rowHeight().toPixels() + 0.5);
-
+    int modelHeight = 0;
     if (model())
+      modelHeight = model()->rowCount(rootIndex());
+
+    if (viewportHeight_ != -1) {
+      /* row range */
+      int top = std::min(viewportTop_,
+			 static_cast<int>(canvas_->height().toPixels()));
+
+      int height = std::min(viewportHeight_,
+			    static_cast<int>(canvas_->height().toPixels()));
+
+      int renderedRows = static_cast<int>(height / rowHeight().toPixels()
+					  + 0.5);
+
+      renderedFirstRow_ = static_cast<int>(top / rowHeight().toPixels());
+
       renderedLastRow_
 	= std::min(renderedFirstRow_ + renderedRows * 2 + borderRows,
-		   model()->rowCount(rootIndex()) - 1);
-    renderedFirstRow_
-      = std::max(renderedFirstRow_ - renderedRows - borderRows, 0);
+		   modelHeight - 1);
+      renderedFirstRow_
+	= std::max(renderedFirstRow_ - renderedRows - borderRows, 0);
+    } else {
+      renderedFirstRow_ = 0;
+      renderedLastRow_ = modelHeight - 1;
+    }
 
     if (renderedFirstRow_ % 2 == 1)
       --renderedFirstRow_;
