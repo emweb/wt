@@ -347,7 +347,7 @@ private:
   struct TransientImpl {
     std::vector<std::string> childRemoveChanges_;
     std::vector<WWidget *>   addedChildren_;
-    std::vector<WT_USTRING>  addedStyleClasses_, removedStyleClasses_;
+    std::set<WT_USTRING>  addedStyleClasses_, removedStyleClasses_;
     std::vector<std::string> attributesSet_;
 
     bool specialChildRemove_;
