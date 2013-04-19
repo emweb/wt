@@ -16,6 +16,7 @@ namespace Wt {
 
 WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
   : WCompositeWidget(),
+    fakeParent_(0),
     anchorWidget_(0),
     orientation_(Vertical),
     transient_(false),
@@ -42,13 +43,24 @@ WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
 
 WPopupWidget::~WPopupWidget()
 {
+  if (fakeParent_)
+    fakeParent_->WObject::removeChild(this);
+
   WApplication::instance()->removeGlobalWidget(this);
 }
 
 void WPopupWidget::setParent(WObject *p)
 {
-  if (!p || p == WApplication::instance()->domRoot())
+  /*
+   * We will only register the dom root as parent, since this
+   * is required for rendering.
+   */
+  if (!p || p == WApplication::instance()->domRoot()) {
+    if (!p)
+      fakeParent_ = 0;
     WObject::setParent(p);
+  } else if (p)
+    fakeParent_ = p;
 }
 
 void WPopupWidget::setAnchorWidget(WWidget *anchorWidget,

@@ -111,10 +111,12 @@ public:
   virtual const char *blobType() const;
   virtual bool supportAlterTable() const;
   virtual const char *alterTableConstraintString() const;
+  //@}
+
   /*! \brief Returns the supported fractional seconds part
   *
-  * By diffault return -1: fractional part are not stored.
-  * Fractional seconds part are supported for MySQL 5.6.4
+  * By default return -1: fractional part is not stored.
+  * Fractional seconds part is supported for MySQL 5.6.4
   * http://dev.mysql.com/doc/refman/5.6/en/fractional-seconds.html
   *
   * \sa setFractionalSecondsPart()
@@ -123,17 +125,17 @@ public:
 
   /*! \brief Set the supported fractional seconds part
   *
-  *  \param Must be in the range 0 to 6. By diffault return -1: fractional part
-  * are not stored.
+  *  \param Must be in the range 0 to 6. By default return -1: fractional part
+  * is not stored.
   *
   * The fractional seconds part can be also set in the constructor
-  * Fractional seconds part are supported for MySQL 5.6.4
+  * Fractional seconds part is supported for MySQL 5.6.4
   * http://dev.mysql.com/doc/refman/5.6/en/fractional-seconds.html
   *
   * \sa setFractionalSecondsPart()
   */
   void setFractionalSecondsPart(int fractionalSecondsPart);
-  //@}
+
 
 private:
   std::string dbname_;

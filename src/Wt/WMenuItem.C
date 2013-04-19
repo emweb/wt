@@ -82,11 +82,8 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   }
 
   if (!separator_) {
-    WAnchor *a = new WAnchor(this);
-
-    WApplication *app = WApplication::instance();
-    if (app->environment().agent() == WEnvironment::IE6)
-      a->setLink(WLink("javascript:false"));
+    new WAnchor(this);
+    updateInternalPath();
   }
 
   signalsConnected_ = false;

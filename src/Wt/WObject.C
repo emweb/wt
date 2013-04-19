@@ -20,6 +20,22 @@ void WObject::seedId(unsigned id)
   nextObjId_ = id;
 }
 
+WObject::DeletionTracker::DeletionTracker(WObject *object)
+{
+#ifndef WT_TARGET_JAVA
+  // any signal would do, we just take one that already exists.
+  connection_ = signal_.connect(boost::bind(&WObject::parent, object));
+#endif
+}
+bool WObject::DeletionTracker::deleted() const
+{
+#ifndef WT_TARGET_JAVA
+  return !connection_.connected();
+#else
+  return false;
+#endif
+}
+
 WObject::WObject(WObject* parent)
   : statelessSlots_(0),
     id_(nextObjId_++),
@@ -60,12 +76,11 @@ void WObject::addChild(WObject *child)
 
 void WObject::removeChild(WObject *child)
 {
-  if (child->parent_ != this)
-    throw WException("WObject::removeChild() called with non-child");
-
-  assert(children_);
-  Utils::erase(*children_, child);
-  child->setParent(0);
+  if (children_) {
+    Utils::erase(*children_, child);
+    if (child->parent_ == this) // exception: WPopupWidget
+      child->setParent(0);
+  }
 }
 
 WObject::~WObject()
@@ -87,7 +102,7 @@ WObject::~WObject()
     for (unsigned i = 0; i < children_->size(); ++i) {
       WObject *c = (*children_)[i];
       if (c->parent_ == this) // exception: WPopupWidget
-	c->parent_ = 0;
+	c->setParent(0);
       delete c;
     }
     delete children_;

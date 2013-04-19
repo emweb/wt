@@ -774,11 +774,11 @@ void DomElement::asHTML(EscapeOStream& out,
       std::string href = getAttribute("href");
 
       /*
-       * IE7 or higher does not allow <a> inside a button
+       * If we're IE7/8 or there is a real URL, then we don't wrap
        */
-      if ((app->environment().agentIsIE()
-	   && app->environment().agent() != WEnvironment::IE6)
-	  || href != "#")
+      if (app->environment().agent() == WEnvironment::IE7 ||
+	  app->environment().agent() == WEnvironment::IE8 ||
+	  href.length() > 1)
 	needButtonWrap = false;
     } else if (type_ == DomElement_AREA) {
       DomElement *self = const_cast<DomElement *>(this);

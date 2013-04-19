@@ -107,34 +107,47 @@ WT_DECLARE_WT_MEMBER
      var DC = DirConfig[dir];
 
      /* Allow accurate measurement for widgets with offsets */
-     var l = element.style[DC.left];
+     var l = element.style[DC.left], p;
      setCss(element, DC.left, NA_px);
-     var scrollWidth = dir ? element.scrollHeight : element.scrollWidth;
-     var clientWidth = dir ? element.clientHeight : element.clientWidth;
-     var offsetWidth = dir ? element.offsetHeight : element.offsetWidth;
-     setCss(element, DC.left, l);
 
+     var scrollSize = dir ? element.scrollHeight : element.scrollWidth;
+     var clientSize = dir ? element.clientHeight : element.clientWidth;
 
      /*
-      * Firefox adds the -NA offset to the reported width ??
+      * Firefox sets scrollSize = clientSize when there is no overflow
+      * on the widget. But setting merely overflow does not help. Removing
+      * the size constraint temporarily does work.
       */
-     if (clientWidth >= NA)
-       clientWidth -= NA;
-     if (scrollWidth >= NA)
-       scrollWidth -= NA;
-     if (offsetWidth >= NA)
-       offsetWidth -= NA;
+     if (WT.isGecko) {
+       p = element.style[DC.size];
+       setCss(element, DC.size, '');
+     }
+     var offsetSize = dir ? element.offsetHeight : element.offsetWidth;
+     setCss(element, DC.left, l);
+     if (WT.isGecko) {
+       setCss(element, DC.size, p);
+     }
 
-     if (scrollWidth === 0) {
-       scrollWidth = WT.pxself(element, DC.size);
+     /*
+      * Firefox sometimes adds the -NA offset to the reported size
+      */
+     if (clientSize >= NA)
+       clientSize -= NA;
+     if (scrollSize >= NA)
+       scrollSize -= NA;
+     if (offsetSize >= NA)
+       offsetSize -= NA;
 
-       if (scrollWidth !== 0 && !WT.isOpera && !WT.isGecko)
-	 scrollWidth -=
+     if (scrollSize === 0) {
+       scrollSize = WT.pxself(element, DC.size);
+
+       if (scrollSize !== 0 && !WT.isOpera && !WT.isGecko)
+	 scrollSize -=
 	   WT.px(element, 'border' + DC.Left + 'Width') +
 	   WT.px(element, 'border' + DC.Right + 'Width');
      }
 
-     if (scrollWidth === clientWidth) {
+     if (scrollSize === clientSize) {
        // might be too big, investigate children
        // TODO
      }
@@ -142,10 +155,10 @@ WT_DECLARE_WT_MEMBER
      if (WT.isIE &&
 	 (WT.hasTag(element, 'BUTTON') || WT.hasTag(element, 'TEXTAREA')
 	  || WT.hasTag(element, 'INPUT') || WT.hasTag(element, 'SELECT'))) {
-       scrollWidth = clientWidth;
+       scrollSize = clientSize;
      }
 
-     if (scrollWidth > offsetWidth) {
+     if (scrollSize > offsetSize) {
        /*
 	* could be because of a nested absolutely positioned element
 	* with z-index > 0 ?, or could be because of genuine contents that is
@@ -155,51 +168,51 @@ WT_DECLARE_WT_MEMBER
 	* element
 	*/
        if (WT.pxself(element, DC.size) == 0)
-	 scrollWidth = 0;
+	 scrollSize = 0;
        else {
 	 var visiblePopup = false;
 	 $(element).find(".Wt-popup").each
 	   (function(index) {
-	     if (this.style.display != 'none')
+	     if (this.style.display !== 'none')
 	       visiblePopup = true;
 	   });
 	 if (visiblePopup)
-	   scrollWidth = 0;
+	   scrollSize = 0;
        }
      }
 
      if (asSet)
-       return scrollWidth;
+       return scrollSize;
 
      if (!WT.isOpera)
-       scrollWidth +=
+       scrollSize +=
 	 WT.px(element, 'border' + DC.Left + 'Width') +
 	 WT.px(element, 'border' + DC.Right + 'Width');
 
-     scrollWidth +=
+     scrollSize +=
        WT.px(element, 'margin' + DC.Left) +
        WT.px(element, 'margin' + DC.Right);
 
      if (!WT.boxSizing(element) && !WT.isIE)
-       scrollWidth +=
+       scrollSize +=
 	 WT.px(element, 'padding' + DC.Left) +
 	 WT.px(element, 'padding' + DC.Right);
 
      /* Must be because of a scrollbar */
-     if (scrollWidth < offsetWidth)
-       scrollWidth = offsetWidth;
+     if (scrollSize < offsetSize)
+       scrollSize = offsetSize;
 
      var maxSize = WT.px(element, 'max' + DC.Size);
      if (maxSize > 0)
-       scrollWidth = Math.min(maxSize, scrollWidth);
+       scrollSize = Math.min(maxSize, scrollSize);
 
-     return Math.round(scrollWidth);
+     return Math.round(scrollSize);
    }
 
    function calcMinimumSize(element, dir) {
      var DC = DirConfig[dir];
 
-     if (element.style.display == 'none')
+     if (element.style.display === 'none')
        return 0;
      else {
        if (element['layoutMin' + DC.Size])
@@ -1160,7 +1173,8 @@ WT_DECLARE_WT_MEMBER
 	     if (WT.isIE && WT.hasTag(w, 'BUTTON'))
 	       setSize = true;
 
-	     if (setSize || ts != ps || item.layout) {
+	     if (w.style.display !== 'none' &&
+		 (setSize || ts != ps || item.layout)) {
 	       if (setCss(w, DC.size, tsm + 'px'))
 		 setItemDirty(item);
 	       item.set[dir] = true;
