@@ -765,8 +765,8 @@ void WWebWidget::addStyleClass(const WT_USTRING& styleClass, bool force)
     if (!transientImpl_)
       transientImpl_ = new TransientImpl();
 
-    transientImpl_->addedStyleClasses_.push_back(styleClass);
-    Utils::erase(transientImpl_->removedStyleClasses_, styleClass);
+    transientImpl_->addedStyleClasses_.insert(styleClass);
+    transientImpl_->removedStyleClasses_.erase(styleClass);
 
     repaint(RepaintPropertyAttribute);
   }
@@ -793,8 +793,8 @@ void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
     if (!transientImpl_)
       transientImpl_ = new TransientImpl();
 
-    transientImpl_->removedStyleClasses_.push_back(styleClass);
-    Utils::erase(transientImpl_->addedStyleClasses_, styleClass);
+    transientImpl_->removedStyleClasses_.insert(styleClass);
+    transientImpl_->addedStyleClasses_.erase(styleClass);
 
     repaint(RepaintPropertyAttribute);
   }
@@ -1470,15 +1470,22 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   }
 
   if (!all && transientImpl_) {
-    for (unsigned i = 0; i < transientImpl_->addedStyleClasses_.size(); ++i)
+    std::set<WT_USTRING>::iterator it_sc;
+    for (it_sc = transientImpl_->addedStyleClasses_.begin();
+      it_sc != transientImpl_->addedStyleClasses_.end();
+      ++it_sc) {
       element.callJavaScript("$('#" + id() + "').addClass('"
-			     + transientImpl_->addedStyleClasses_[i].toUTF8()
+			     + it_sc->toUTF8()
 			     +"');");
+    }
 
-    for (unsigned i = 0; i < transientImpl_->removedStyleClasses_.size(); ++i)
+    for (it_sc = transientImpl_->removedStyleClasses_.begin();
+      it_sc != transientImpl_->removedStyleClasses_.end();
+      ++it_sc) {
       element.callJavaScript("$('#" + id() + "').removeClass('"
-			     + transientImpl_->removedStyleClasses_[i].toUTF8()
+			     + it_sc->toUTF8()
 			     +"');");
+    }
 
     if (!transientImpl_->childRemoveChanges_.empty()) {
       if ((children_
