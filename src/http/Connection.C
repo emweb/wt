@@ -76,6 +76,11 @@ void Connection::finishReply()
 	      << " (ws:" << request_.webSocketVersion << ")");
 }
 
+void Connection::scheduleStop()
+{
+  strand_.wrap(boost::bind(&Connection::stop, shared_from_this()));
+}
+
 void Connection::start()
 {
   LOG_DEBUG(socket().native() << ": start()");

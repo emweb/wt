@@ -85,13 +85,14 @@ private:
   WResource *resource_;
   WebResponse *response_;
   boost::any data_;
-  bool waiting_;
+  bool waiting_, readyToContinue_, needsContinue_;
 
   ResponseContinuation(WResource *resource, WebResponse *response);
   ResponseContinuation(const ResponseContinuation&);
   ~ResponseContinuation();
 
   void stop();
+  void flagReadyToContinue();
   WebResponse *response() { return response_; }
 
   friend class Wt::WResource;

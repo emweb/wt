@@ -6,10 +6,12 @@
 
 #include <Wt/WPainter>
 #include <Wt/Render/WTextRenderer>
+#include <WebUtils.h>
 
 #include "Block.h"
 
 #include <string>
+#include <boost/lexical_cast.hpp>
 
 namespace {
   const double EPSILON = 1e-4;
@@ -23,6 +25,73 @@ namespace Wt {
 LOGGER("Render.WTextRenderer");
 
   namespace Render {
+
+WTextRenderer::Node::Node(Block& block, LayoutBox& lb,
+                          WTextRenderer& renderer):
+  renderer_(renderer),
+  block_(block),
+  lb_(lb)
+{ }
+
+DomElementType WTextRenderer::Node::type() const
+{
+  return block_.type();
+}
+
+std::string WTextRenderer::Node::attributeValue(const std::string& attribute)
+const
+{
+  const char *a = attribute.c_str();
+  std::string ans = block_.attributeValue(a);
+  return ans;
+}
+
+int WTextRenderer::Node::page() const
+{
+  return lb_.page;
+}
+
+double WTextRenderer::Node::x() const
+{
+  return lb_.x + renderer_.margin(Left);
+}
+
+double WTextRenderer::Node::y() const
+{
+  return lb_.y + renderer_.margin(Top);
+}
+
+double WTextRenderer::Node::width() const
+{
+  return lb_.width;
+}
+
+double WTextRenderer::Node::height() const
+{
+  return lb_.height;
+}
+
+int WTextRenderer::Node::fragment() const
+{
+  if (!block_.blockLayout.empty()){
+    for(unsigned i = 0; i < block_.blockLayout.size(); ++i)
+      if(&lb_ == &block_.blockLayout[i])
+        return i;
+
+    return -1;
+  }else{
+    for(unsigned i = 0; i < block_.inlineLayout.size(); ++i)
+      if(&lb_ == &block_.inlineLayout[i])
+        return i;
+
+    return -1;
+  }
+}
+
+int WTextRenderer::Node::fragmentCount() const
+{
+  return block_.blockLayout.size() + block_.inlineLayout.size();
+}
 
 WTextRenderer::WTextRenderer()
   : device_(0),
@@ -124,7 +193,7 @@ double WTextRenderer::render(const WString& text, double y)
 	painter_->setFont(defaultFont);
       }
 
-      docBlock.render(*this, page);
+      docBlock.render(*this, *painter_, page);
 
       endPage(device_);
     }
@@ -133,6 +202,11 @@ double WTextRenderer::render(const WString& text, double y)
   } catch (rapidxml::parse_error& e) {
     throw e;
   }
+}
+
+void WTextRenderer::paintNode(WPainter& painter, const Node& node)
+{
+  node.block().actualRender(*this, painter, node.lb());
 }
 
   }

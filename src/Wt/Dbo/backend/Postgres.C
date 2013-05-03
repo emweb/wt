@@ -74,6 +74,8 @@ public:
 
   virtual void reset()
   {
+    params_.clear();
+
     state_ = Done;
   }
 

@@ -519,6 +519,7 @@ private:
 				 const std::string& parentVar, int pos,
 				 WApplication *app);
   void renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const;
+  void renderDeferredJavaScript(EscapeOStream& out) const;
 
   Mode         mode_;
   bool         wasEmpty_;

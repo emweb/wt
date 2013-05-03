@@ -97,7 +97,7 @@ int FCGIRecord::getChar(int fd, bool waitForIt)
   }
      
   if (plainTextLength_ >= plainTextBufLength_) {
-    plainTextBufLength_ += 100;
+    plainTextBufLength_ += 1024;
     plainTextBuf_ = (unsigned char *)
       realloc(plainTextBuf_, plainTextBufLength_);
   }
@@ -138,6 +138,7 @@ bool FCGIRecord::getBuffer(int fd, unsigned char *buf,
 
   if (plainTextLength_ + length > plainTextBufLength_) {
     plainTextBufLength_ += length;
+    plainTextBufLength_ = (plainTextBufLength_ + 8) / 8 * 8;
     plainTextBuf_ = (unsigned char *)
       realloc(plainTextBuf_, plainTextBufLength_);
   }

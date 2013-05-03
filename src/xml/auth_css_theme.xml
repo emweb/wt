@@ -93,9 +93,9 @@
 	</label>
 	${user-name}
 
-	${block:Wt.Auth.field old-password}
-	${block:Wt.Auth.field new-password}
-	${block:Wt.Auth.field repeat-new-password}
+	${block:Wt.Auth.field password}
+	${block:Wt.Auth.field choose-password}
+	${block:Wt.Auth.field repeat-password}
       </div>
 
       <div class="Wt-buttons">

@@ -49,20 +49,22 @@ public:
   virtual asio::ip::tcp::socket& socket();
 
   virtual void start();
-  virtual void stop();
   virtual std::string urlScheme() { return "https"; }
 
-private:
+protected:
+
+  virtual void stop();
+
   virtual void startAsyncReadRequest(Buffer& buffer, int timeout);
   virtual void startAsyncReadBody(Buffer& buffer, int timeout);
   virtual void startAsyncWriteResponse
       (const std::vector<asio::const_buffer>& buffers, int timeout);
+
+private:
   void handleReadRequestSsl(const asio_error_code& e,
                             std::size_t bytes_transferred);
   void handleReadBodySsl(const asio_error_code& e,
                          std::size_t bytes_transferred);
-
-private:
   void handleHandshake(const asio_error_code& error);
   void stopNextLayer(const boost::system::error_code& ec);
 

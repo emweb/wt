@@ -265,6 +265,14 @@ Query<Result, DirectBinding>::bind(const T& value)
 }
 
 template <class Result>
+void Query<Result, DirectBinding>::reset()
+{
+  column_ = 0;
+  this->statement_->reset();
+  this->countStatement_->reset();
+}
+
+template <class Result>
 Result Query<Result, DirectBinding>::resultValue() const
 {
   return this->singleResult(resultList());

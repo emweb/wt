@@ -109,9 +109,9 @@
 	  </div>
 	</div>
 
-	${block:Wt.Auth.field old-password}
-	${block:Wt.Auth.field new-password}
-	${block:Wt.Auth.field repeat-new-password}
+	${block:Wt.Auth.field password}
+	${block:Wt.Auth.field choose-password}
+	${block:Wt.Auth.field repeat-password}
 
 	<div class="modal-footer"> 
 	  ${ok-button class="btn-primary"} ${cancel-button}

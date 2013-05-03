@@ -19,6 +19,18 @@ void ResponseContinuation::setData(const boost::any& data)
 
 void ResponseContinuation::doContinue()
 {
+  /*
+   * Although we are waiting for more data, we're not yet ready to continue
+   * We'll remember to continue as soon as we become ready.
+   */
+  if (waiting_ && !readyToContinue_) { 
+    needsContinue_ = true;
+    return;
+  }
+
+  waiting_ = false;
+  needsContinue_ = false;
+
   // We are certain that the continuation is still "alive" because it is
   // protected by a mutex, and thus a simultaneous change with
   // WebResponse::flush() is not possible: ResponseContinuation::stop(),
@@ -31,7 +43,9 @@ ResponseContinuation::ResponseContinuation(WResource *resource,
 					   WebResponse *response)
   : resource_(resource),
     response_(response),
-    waiting_(false)
+    waiting_(false),
+    needsContinue_(false),
+    readyToContinue_(false)
 {
   resource_->continuations_.push_back(this);
 }
@@ -44,6 +58,16 @@ void ResponseContinuation::stop()
 void ResponseContinuation::waitForMoreData()
 {
   waiting_ = true;
+  needsContinue_ = false;
+  readyToContinue_ = false;
+}
+
+void ResponseContinuation::flagReadyToContinue()
+{
+  readyToContinue_ = true;
+
+  if (needsContinue_)
+    doContinue();
 }
 
 ResponseContinuation::~ResponseContinuation()

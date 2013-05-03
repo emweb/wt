@@ -81,10 +81,9 @@ void WResource::haveMoreData()
 
   std::vector<Http::ResponseContinuation *> cs = continuations_;
 
-  for (unsigned i = 0; i < cs.size(); ++i) {
+  for (unsigned i = 0; i < cs.size(); ++i)
     if (cs[i]->isWaitingForMoreData())
       cs[i]->doContinue();
-  }
 }
 
 void WResource::doContinue(Http::ResponseContinuation *continuation)
@@ -149,17 +148,16 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
       webResponse->flush(WebResponse::ResponseDone);
     } else {
-      if (response.continuation_->waiting_) {
-	response.continuation_->waiting_ = false;
+      if (response.continuation_->isWaitingForMoreData()) {
 	webResponse->flush
 	  (WebResponse::ResponseFlush,
-	   boost::bind(&Http::ResponseContinuation::waitForMoreData,
+	   boost::bind(&Http::ResponseContinuation::flagReadyToContinue,
 		       response.continuation_));
       } else
-	webResponse
-	  ->flush(WebResponse::ResponseFlush,
-		  boost::bind(&Http::ResponseContinuation::doContinue,
-			      response.continuation_));
+	webResponse->flush
+	  (WebResponse::ResponseFlush,
+	   boost::bind(&Http::ResponseContinuation::doContinue,
+		       response.continuation_));
     }
   }
 

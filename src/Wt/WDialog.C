@@ -183,7 +183,7 @@ void WDialog::setResizable(bool resizable)
 
 void WDialog::setMaximumSize(const WLength& width, const WLength& height)
 {
-  WCompositeWidget::setMaximumSize(width, height);
+  WPopupWidget::setMaximumSize(width, height);
 
   WLength w = width.unit() != WLength::Percentage ? width : WLength::Auto;
   WLength h = height.unit() != WLength::Percentage ? height : WLength::Auto;
@@ -193,7 +193,7 @@ void WDialog::setMaximumSize(const WLength& width, const WLength& height)
 
 void WDialog::setMinimumSize(const WLength& width, const WLength& height)
 {
-  WCompositeWidget::setMinimumSize(width, height);
+  WPopupWidget::setMinimumSize(width, height);
 
   impl_->resolveWidget("layout")->setMinimumSize(width, height);
 }
@@ -239,7 +239,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
       impl_->bindEmpty("center-script");
   }
 
-  WCompositeWidget::render(flags);
+  WPopupWidget::render(flags);
 }
 
 void WDialog::rejectWhenEscapePressed()
@@ -411,14 +411,14 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
     }
   }
 
-  WCompositeWidget::setHidden(hidden, animation);
+  WPopupWidget::setHidden(hidden, animation);
 }
 
 void WDialog::positionAt(const WWidget *widget, Orientation orientation)
 {
   setPositionScheme(Absolute);
   setOffsets(0, Left | Top);
-  WCompositeWidget::positionAt(widget, orientation);
+  WPopupWidget::positionAt(widget, orientation);
 }
 
 }

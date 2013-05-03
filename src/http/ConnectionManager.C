@@ -72,11 +72,7 @@ void ConnectionManager::stop(ConnectionPtr c)
   lock.unlock();
 #endif // WT_THREADED
 
-  /*
-   * Note: access to the connection's reply ptr is not thread-safe in
-   * this way (FIXME).
-   */
-  c->stop();
+  c->scheduleStop();
 }
 
 void ConnectionManager::stopAll()

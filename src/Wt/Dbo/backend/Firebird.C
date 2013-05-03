@@ -90,13 +90,10 @@ namespace Wt
 	}
 
 	virtual ~FirebirdStatement()
-	{
-	}
+	{ }
 
 	virtual void reset()
-	{
-	  
-	}
+	{ }
 
 	// The first column index is 1!
 	virtual void bind(int column, const std::string& value)

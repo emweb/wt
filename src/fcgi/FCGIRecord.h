@@ -23,10 +23,10 @@ public:
   unsigned char type() const { return type_; }
   unsigned char version() const { return version_; }
   unsigned short requestId() const { return requestId_; }
-  unsigned short contentLength() const { return contentLength_; }
+  unsigned int contentLength() const { return contentLength_; }
   const unsigned char *contentData() const { return contentData_; }
 
-  unsigned short plainTextLength() const { return plainTextLength_; }
+  unsigned int plainTextLength() const { return plainTextLength_; }
   const unsigned char *plainText() const { return plainTextBuf_; }
 
   void read(int fd);
@@ -39,14 +39,14 @@ private:
   unsigned char version_;
   unsigned char type_;
   unsigned short requestId_;
-  unsigned short contentLength_;
+  unsigned int contentLength_;
   unsigned char paddingLength_;
   unsigned char reserved_;
   unsigned char *contentData_;
 
-  unsigned short plainTextLength_;
+  unsigned int plainTextLength_;
   unsigned char *plainTextBuf_;
-  unsigned short plainTextBufLength_;
+  unsigned int plainTextBufLength_;
 
   int getChar(int fd, bool waitForIt);
   bool getBuffer(int fd, unsigned char *buf, int length);

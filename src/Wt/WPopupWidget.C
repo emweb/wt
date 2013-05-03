@@ -110,7 +110,8 @@ void WPopupWidget::defineJavaScript()
   WStringStream jsObj;
   jsObj << "new " WT_CLASS ".WPopupWidget("
 	<< app->javaScriptClass() << ',' << jsRef() << ','
-	<< transient_ << ',' << autoHideDelay_ << ");";
+	<< transient_ << ',' << autoHideDelay_ << ','
+	<< !isHidden() << ");";
 
   setJavaScriptMember(" WPopupWidget", jsObj.str());
 }

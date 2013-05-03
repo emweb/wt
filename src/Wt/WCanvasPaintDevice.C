@@ -735,25 +735,25 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 	  << WWebWidget::jsStringLiteral(painter()->pen().color().cssText(true))
 	  << ";";
 
-    const char *style = "";
-    switch(painter()->pen().style()) {
-      case SolidLine:
-        style = "ctx.setLineDash([]);";
-        break;
-      case DashLine:
-        style = "ctx.setLineDash([4,2]);";
-        break;
-      case DotLine:
-        style = "ctx.setLineDash([1,2]);";
-        break;
-      case DashDotLine:
-        style = "ctx.setLineDash([4,2,1,2]);";
-        break;
-      case DashDotDotLine:
-        style = "ctx.setLineDash([4,2,1,2,1,2]);";
-        break;
+    switch (painter()->pen().style()) {
+    case SolidLine:
+      js_ << "ctx.setLineDash([]);";
+      break;
+    case DashLine:
+      js_ << "ctx.setLineDash([4,2]);";
+      break;
+    case DotLine:
+      js_ << "ctx.setLineDash([1,2]);";
+      break;
+    case DashDotLine:
+      js_ << "ctx.setLineDash([4,2,1,2]);";
+      break;
+    case DashDotDotLine:
+      js_ << "ctx.setLineDash([4,2,1,2,1,2]);";
+      break;
+    case NoPen:
+      break;
     }
-    js_ << style;
 
     js_ << "ctx.lineWidth="
 	<< painter()->normalizedPenWidth(painter()->pen().width(), true).value()

@@ -66,12 +66,13 @@ class WT_API WPdfRenderer : public WTextRenderer
 public:
   /*! \brief Creates a new PDF renderer.
    *
-   * The PDF renderer will render on the given \p pdf (starting) on the
-   * given \p page.
+   * The PDF renderer will render on the given \p pdf (starting).
+   * If the \p page is not \c 0, then rendering will happen on this
+   * first page (and its page sizes will be taken into account).
    *
    * Default margins are 0, and the default DPI is 72.
    */
-  WPdfRenderer(HPDF_Doc pdf, HPDF_Page page);
+  WPdfRenderer(HPDF_Doc pdf, HPDF_Page page = 0);
 
   virtual ~WPdfRenderer();
 
@@ -103,10 +104,14 @@ public:
    */
   void addFontCollection(const std::string& directory, bool recursive=true);
 
+  /*! \brief Sets the current page.
+   */
+  void setCurrentPage(HPDF_Page page);
+
   /*! \brief Returns the current page.
    *
-   * This returns the page last created using createPage(), or the initial
-   * page if no additional apges have yet been created.
+   * This returns the page last created using createPage(), or the page
+   * set with setCurrentPage() page.
    */
   HPDF_Page currentPage() const { return page_; }
 

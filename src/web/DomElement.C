@@ -1157,6 +1157,7 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
     out << "');";
     out << domInsertJS;
     renderInnerHtmlJS(out, app);
+    renderDeferredJavaScript(out);
   } else {
     out << "document.createElement('" << elementNames_[type_] << "');";
     out << domInsertJS;
@@ -1333,6 +1334,10 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       out << "$('#" << childrenToSave_[i] << "').replaceWith(c"
 	  << var_ << (int)i << ");";
 
+    // Fix for http://redmine.emweb.be/issues/1847: custom JS
+    // won't find objects that still have to be moved in place
+    renderDeferredJavaScript(out);
+
     if (!childrenUpdated)
       for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
 	DomElement *child = updatedChildren_[i];
@@ -1395,15 +1400,18 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
     }
   }
 
-  if (!javaScript_.empty()) {
-    declare(out);
-    out << javaScript_ << '\n';
-  }
-
   if (timeOut_ != -1) {
     out << app->javaScriptClass() << "._p_.addTimerEvent('"
 	<< id_ << "', " << timeOut_ << ','
 	<< timeOutJSRepeat_ << ");\n";
+  }
+}
+
+void DomElement::renderDeferredJavaScript(EscapeOStream& out) const
+{
+  if (!javaScript_.empty()) {
+    declare(out);
+    out << javaScript_ << '\n';
   }
 }
 

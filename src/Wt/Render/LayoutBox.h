@@ -13,6 +13,8 @@ namespace Wt {
 struct LayoutBox {
   LayoutBox();
 
+  bool isNull() const { return page == -1; }
+
   int page;
   double x, y;
   double width;

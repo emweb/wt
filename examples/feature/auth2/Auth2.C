@@ -39,10 +39,13 @@ public:
   }
 
   void authEvent() {
-    if (session_.login().loggedIn())
+    if (session_.login().loggedIn()) {
       Wt::log("notice") << "User " << session_.login().user().id()
 			<< " logged in.";
-    else
+      Wt::Dbo::Transaction t(session_);
+      dbo::ptr<User> user = session_.user();
+      Wt::log("notice") << "(Favourite pet: " << user->favouritePet << ")";
+    } else
       Wt::log("notice") << "User logged out.";
   }
 

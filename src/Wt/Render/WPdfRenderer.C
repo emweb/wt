@@ -20,12 +20,13 @@ LOGGER("Render.WPdfRendererer");
 
 WPdfRenderer::WPdfRenderer(HPDF_Doc pdf, HPDF_Page page)
   : pdf_(pdf),
-    page_(page),
     dpi_(72),
     painter_(0)
 {
   for (int i = 0; i < 4; ++i)
     margin_[i] = 0;
+
+  setCurrentPage(page);
 }
 
 WPdfRenderer::~WPdfRenderer()
@@ -103,10 +104,15 @@ double WPdfRenderer::pageHeight(int page) const
   return HPDF_Page_GetHeight(page_) * dpi_ / 72.0;
 }
 
+void WPdfRenderer::setCurrentPage(HPDF_Page page)
+{
+  page_ = page;
+}
+
 WPaintDevice *WPdfRenderer::startPage(int page)
 {
   if (page > 0)
-    page_ = createPage(page);
+    setCurrentPage(createPage(page));
 
 #ifndef WT_TARGET_JAVA
   HPDF_Page_Concat (page_, 72.0f/dpi_, 0, 0, 72.0f/dpi_, 0, 0);
