@@ -1,0 +1,83 @@
+#ifndef WMATCHVALIDATOR_H_
+#define WMATCHVALIDATOR_H_
+
+#include <Wt/WValidator>
+#include <Wt/WFormWidget>
+
+namespace Wt {
+
+	class WT_API WMatchValidator : public WValidator
+	{
+		public:
+			WMatchValidator(WFormWidget *pCompareWidget, WObject *pParent = 0)
+				: WValidator(pParent), m_pCompareWidget(pCompareWidget)
+			{
+			}
+
+			WMatchValidator(WFormWidget *pCompareWidget, bool bMandatory, WObject *pParent = 0)
+				: WValidator(bMandatory, pParent), m_pCompareWidget(pCompareWidget)
+			{
+			}
+
+			virtual ~WMatchValidator()
+			{
+			}
+
+			void SetCompareWidget(WFormWidget *pCompareWidget)
+			{
+				m_pCompareWidget = pCompareWidget;
+			}
+
+			WFormWidget* CompareWidget()
+			{
+				return m_pCompareWidget;
+			}
+
+			void setInvalidDataText(const WString& text)
+			{
+				m_strInvalidDataText = text;
+			}
+
+			WString invalidDataText() const
+			{
+				if(m_strInvalidDataText.empty()) {
+					return WString::tr("Wt.WMatchValidator.InternalError");
+				}
+
+				return m_strInvalidDataText;
+			}
+
+			void setMismatchText(const WString& text)
+			{
+				m_strMismatchText = text;
+			}
+
+			WString mismatchText() const
+			{
+				if(m_strMismatchText.empty()) {
+					return WString::tr("Wt.WMatchValidator.Mismatch");
+				}
+
+				return m_strMismatchText;
+			}
+
+			WValidator::Result validate(const WT_USTRING& strInput) const;
+			std::string javaScriptValidate() const;
+
+#ifndef WT_TARGET_JAVA
+			void createExtConfig(std::ostream& config) const;
+#endif //WT_TARGET_JAVA
+
+		protected:
+			static void loadJavaScript(WApplication *app);
+
+		private:
+			WFormWidget *m_pCompareWidget;
+			WString m_strInvalidDataText; 
+			WString m_strMismatchText; 
+	};
+
+} // namespace Wt
+
+#endif // WMATCHVALIDATOR_H_
+
