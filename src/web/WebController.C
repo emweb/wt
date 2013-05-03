@@ -103,25 +103,31 @@ void WebController::start()
 
 void WebController::shutdown()
 {
+  std::vector<boost::shared_ptr<WebSession> > sessionList;
+
+  {
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(mutex_);
+    boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
-  LOG_INFO_S(&server_, "shutdown: stopping sessions.");
+    running_ = false;
 
-  running_ = false;
+    LOG_INFO_S(&server_, "shutdown: stopping sessions.");
 
-  for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
-    boost::shared_ptr<WebSession> session = i->second;
-    WebSession::Handler handler(session, true);
-    session->expire();
-    sessions_.erase(i++);
+    for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i)
+      sessionList.push_back(i->second);
+
+    sessions_.clear();
+
+    ajaxSessions_ = 0;
+    plainHtmlSessions_ = 0;
   }
 
-  sessions_.clear();
-
-  ajaxSessions_ = 0;
-  plainHtmlSessions_ = 0;
+  for (unsigned i = 0; i < sessionList.size(); ++i) {
+    boost::shared_ptr<WebSession> session = sessionList[i];
+    WebSession::Handler handler(session, true);
+    session->expire();
+  }
 }
 
 Configuration& WebController::configuration()
@@ -136,7 +142,7 @@ int WebController::sessionCount() const
 
 bool WebController::expireSessions()
 {
-  std::vector<boost::shared_ptr<WebSession> > toKill;
+  std::vector<boost::shared_ptr<WebSession> > toExpire;
 
   bool result;
   {
@@ -159,10 +165,7 @@ bool WebController::expireSessions()
 	  }
 	  ++i;
 	} else {
-	  LOG_INFO_S(session, "timeout: expiring");
-	  WebSession::Handler handler(session, true);
-	  session->expire();
-	  toKill.push_back(session);
+	  toExpire.push_back(session);
 
 	  if (session->env().ajax())
 	    --ajaxSessions_;
@@ -178,7 +181,13 @@ bool WebController::expireSessions()
     result = !sessions_.empty();
   }
 
-  toKill.clear();
+  for (unsigned i = 0; i < toExpire.size(); ++i) {
+    boost::shared_ptr<WebSession> session = toExpire[i];
+
+    LOG_INFO_S(session, "timeout: expiring");
+    WebSession::Handler handler(session, true);
+    session->expire();
+  }
 
   return result;
 }

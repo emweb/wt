@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WPopupWidget",
- function(APP, el, isTransient, autoHideDelay) {
+ function(APP, el, isTransient, autoHideDelay, shown) {
    jQuery.data(el, 'popup', this);
 
    var self = this,
@@ -51,10 +51,11 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.shown = function(f) {
-     if (isTransient)
+     if (isTransient) {
        setTimeout(function() {
 		    $(document).bind('click', onDocumentClick);
 		  }, 0);
+     }
 
      if (showF) showF();
    };
@@ -88,4 +89,7 @@ WT_DECLARE_WT_MEMBER
 
    if (autoHideDelay > 0)
      $(el).mouseleave(mouseLeave).mouseenter(mouseEnter);
+
+   if (shown)
+     this.shown();
  });

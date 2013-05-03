@@ -109,6 +109,19 @@
   display: none;
 }
 /*
+ * Show pointer even if anchor has no href
+ */
+.navbar .nav > li > a {
+  cursor: pointer;
+}
+/*
+ * Fix open drop down menu
+ */
+.navbar .nav li > .dropdown-toggle.active {
+  color: #555555;
+  background-color: #e5e5e5;
+}
+/*
  * Dialog extensions
  */
 .modal .modal-header {
@@ -204,7 +217,6 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));

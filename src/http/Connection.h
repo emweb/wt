@@ -55,9 +55,6 @@ public:
   /// Start the first asynchronous operation for the connection.
   virtual void start();
 
-  /// Stop all asynchronous operations associated with the connection.
-  virtual void stop() = 0;
-
   void close();
 
   /// Like CGI's Url scheme: http or https
@@ -67,6 +64,9 @@ public:
 
   Server *server() const { return server_; }
   asio::strand& strand() { return strand_; }
+
+  /// Stop all asynchronous operations associated with the connection.
+  void scheduleStop();
 
 #ifdef HTTP_WITH_SSL
   void registerSslHandle(SSL *ssl) { request_.ssl = ssl; }
@@ -103,6 +103,8 @@ protected:
   };
 
   State state_;
+
+  virtual void stop() = 0;
 
 private:
   /*

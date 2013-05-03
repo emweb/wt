@@ -162,6 +162,12 @@ public:
   template<typename T>
   Query<Result, BindStrategy>& bind(const T& value);
 
+  /*! \brief Resets bound values.
+   *
+   * This undoes all previous calls to bind().
+   */
+  void reset();
+
   /*! \brief Returns a unique result value.
    *
    * You can use this method if you are expecting the query to return
@@ -307,6 +313,7 @@ public:
   Query();
   ~Query();
   template<typename T> Query<Result, DirectBinding>& bind(const T& value);
+  void reset();
   Result resultValue() const;
   collection< Result > resultList() const;
   operator Result () const;
@@ -336,6 +343,7 @@ public:
   Query(const Query& other);
   Query& operator= (const Query& other);
   template<typename T> Query<Result, DynamicBinding>& bind(const T& value);
+  void reset();
   Query<Result, DynamicBinding>& where(const std::string& condition);
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);
   Query<Result, DynamicBinding>& groupBy(const std::string& fields);
@@ -357,7 +365,6 @@ private:
 
   std::vector<Impl::ParameterBase *> parameters_;
 
-  void reset();
   void bindParameters(SqlStatement *statement) const;
 
   friend class Session;

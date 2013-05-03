@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-// #define DEBUG_LAYOUT
+//#define DEBUG_LAYOUT
 
 // TODO : support position absolute
 
@@ -27,7 +27,6 @@ using namespace rapidxml;
 namespace {
   const double MARGINX = -1;
   const double EPSILON = 1e-4;
-
   bool isEpsilonMore(double x, double limit) {
     return x - EPSILON > limit;
   }
@@ -72,6 +71,7 @@ Block::Block(xml_node<> *node, Block *parent)
     float_(None),
 #endif
     inline_(false),
+    currentTheadBlock_(0),
     currentWidth_(0),
     contentsHeight_(0)
 {
@@ -436,15 +436,10 @@ WColor Block::cssBorderColor(Side side) const
 
 WColor Block::cssColor() const
 {
-  if (!node_)
-    return parent_->cssColor();
+  std::string color = inheritedCssProperty(PropertyStyleColor);
 
-  std::string colorStr = cssProperty(PropertyStyleColor);
-
-  if (!colorStr.empty())
-    return WColor(WString::fromUTF8(colorStr));
-  else if (parent_)
-    return parent_->cssColor();
+  if (!color.empty())
+    return WColor(WString::fromUTF8(color));
   else
     return black;
 }
@@ -612,11 +607,45 @@ double Block::cssLineHeight(double fontLineHeight, double fontScale) const
   }
 }
 
+void Block::inlinePageBreak(const std::string& pageBreak,
+			    Line& line, BlockList& floats,
+			    double minX, double maxX,
+			    const WTextRenderer& renderer)
+{
+  if (pageBreak == "always") {
+    if (inlineLayout.empty()) {
+      inlineLayout.push_back(InlineBox());
+      InlineBox& b = inlineLayout.back();
+
+      b.page = line.page();
+      b.x = line.x();
+      b.width = 1;
+      b.y = line.y();
+      b.height = 1;
+      b.baseline = 0;
+
+      b.utf8Count = 0;
+      b.utf8Pos = 0;
+      b.whitespaceWidth = 0;
+
+      line.adjustHeight(1, 0, 0);
+      line.setX(line.x() + b.width);
+      line.addBlock(this);
+    }
+
+    line.newLine(minX, line.y() + line.height(), line.page());
+    line.moveToNextPage(floats, minX, maxX, renderer);
+  }
+}
+
 double Block::layoutInline(Line& line, BlockList& floats,
 			   double minX, double maxX, bool canIncreaseWidth,
 			   const WTextRenderer& renderer)
 {
   inlineLayout.clear();
+
+  inlinePageBreak(cssProperty(PropertyStylePageBreakBefore),
+		  line, floats, minX, maxX, renderer);
 
   if (isText() || type_ == DomElement_IMG || type_ == DomElement_BR) {
     std::string s;
@@ -865,12 +894,35 @@ double Block::layoutInline(Line& line, BlockList& floats,
 
 	  line.reflow(c);
 	  line.addBlock(c);
+	} else if (c->isPositionedAbsolutely()) {
+	  if (!c->offsetParent_)
+	    c->setOffsetParent();
+
+	  /*
+	   * A hypothetical static layout, good enough for LTR text
+	   */
+	  c->inlineLayout.clear();
+	  c->inlineLayout.push_back(InlineBox());
+	  InlineBox& box = c->inlineLayout.back();
+	  box.page = line.page();
+	  box.x = line.x();
+	  box.y = line.y();
+	  box.width = 0;
+	  box.height = 0;
+	  /* other fields are unused */
 	} else
 	  maxX = c->layoutInline(line, floats, minX, maxX, canIncreaseWidth,
 				 renderer);
       }
     }
   }
+
+  if (isInline())
+    for (unsigned i = 0; i < offsetChildren_.size(); ++i)
+      offsetChildren_[i]->layoutAbsolute(renderer);
+
+  inlinePageBreak(cssProperty(PropertyStylePageBreakAfter),
+		  line, floats, minX, maxX, renderer);
 
   return maxX;
 }
@@ -1340,6 +1392,8 @@ void Block::advance(PageState &ps, double height,
     height -= (renderer.textHeight(ps.page) - ps.y);
     if (height < 0)
       height = 0;
+    if((renderer.textHeight(ps.page) - ps.y) < 0 && height >= 0)
+      throw new WException("The margin is to large");
   }
 
   ps.y += height;
@@ -1643,7 +1697,17 @@ double Block::layoutBlock(PageState &ps,
 	    cMaxX = c->layoutFloat(ps.y, ps.page, ps.floats, 
 				   cMinX, 0, cMinX, cMaxX,
 				   canIncreaseWidth, renderer);
-	  else {
+	  else if (c->isPositionedAbsolutely()) {
+	    if (!c->offsetParent_)
+	      c->setOffsetParent();
+
+	    /*
+	     * This layout computes the 'hypothetical' static layout
+	     * properties
+	     */
+	    PageState absolutePs = ps;
+	    c->layoutBlock(absolutePs, false, renderer, 0, 0);
+	  } else {
 	    double copyMinX = ps.minX;
 	    double copyMaxX = ps.maxX;
 
@@ -1707,7 +1771,7 @@ double Block::layoutBlock(PageState &ps,
   }
 
   for (int i = startPage; i <= ps.page; ++i) {
-    double boxY =  (i == startPage) ? startY : 0;
+    double boxY = (i == startPage) ? startY : 0;
     double boxH;
     
     if (i == ps.page)
@@ -1727,13 +1791,36 @@ double Block::layoutBlock(PageState &ps,
     }
   }
 
-  ps.y += collapseMarginBottom;
+  if (ps.y != 0)
+    ps.y += collapseMarginBottom;
+  else
+    collapseMarginBottom = 0;
 
   if (blockLayout.empty()) {
     ps.page = startPage;
     ps.y = inY;
     collapseMarginBottom = inCollapseMarginTop;
+
+    /*
+     * Record an empty layout box, since this is used for offset
+     * children for example. And we need this for borders etc...
+     * anyway ?
+     */
+    blockLayout.push_back(BlockBox());
+    BlockBox& box = blockLayout.back();
+
+    box.page = startPage;
+    box.x = ps.minX;
+    box.width = ps.maxX - ps.minX;
+    box.y = inY;
+    box.height = 0;
   }
+
+  /*
+   * Layout dependent absolute/fixed positioned blocks.
+   */
+  for (unsigned i = 0; i < offsetChildren_.size(); ++i)
+    offsetChildren_[i]->layoutAbsolute(renderer);
 
   /*
    * For a percentage length we will not try to overflow the parent,
@@ -1782,6 +1869,260 @@ WString Block::generateItem() const
     return boost::lexical_cast<std::string>(counter) + ". ";
   } else
     return "- ";
+}
+
+Block *Block::findOffsetParent()
+{
+  if (parent_) {
+    std::string pos = parent_->cssProperty(PropertyStylePosition);
+    if (pos == "absolute" ||
+	pos == "fixed" ||
+	pos == "relative")
+      return parent_;
+    else
+      return parent_->findOffsetParent();
+  } else
+    return this;
+}
+
+bool Block::isPositionedAbsolutely() const
+{
+  std::string pos = cssProperty(PropertyStylePosition);
+  return (pos == "absolute" || pos == "fixed");
+}
+
+void Block::setOffsetParent()
+{
+  offsetParent_ = findOffsetParent();
+  offsetParent_->offsetChildren_.push_back(this);
+}
+
+LayoutBox Block::firstInlineLayoutBox()
+{
+  if (!inlineLayout.empty())
+    return inlineLayout.front();
+  else {
+    for (unsigned i = 0; i < children_.size(); ++i) {
+      Block *c = children_[i];
+
+      LayoutBox b = c->firstInlineLayoutBox();
+      if (!b.isNull())
+	return b;
+    }
+
+    return LayoutBox();
+  }
+}
+
+LayoutBox Block::layoutTotal()
+{
+  if (isInline()) {
+    return firstInlineLayoutBox();
+  } else {
+    LayoutBox result;
+    LayoutBox& first = blockLayout.front();
+    result.x = first.x;
+    result.y = first.y;
+    result.page = first.page;
+    result.width = first.width;
+    result.height = first.height;
+
+    for (unsigned i = 1; i < blockLayout.size(); ++i)
+      result.height += blockLayout[i].height;
+
+    return result;
+  }
+}
+
+bool isOffsetAuto(const std::string& s) {
+  return s.empty() || s == "auto";
+}
+
+void Block::layoutAbsolute(const WTextRenderer& renderer)
+{
+  /*
+   * This is lacking logic for 'auto' margins still, although the main
+   * use case of it (centering horizontally) is dealt with I believe in
+   * layoutBlock() itself ?
+   */
+
+  /*
+   * the static position: this we need to record from a hypothetical
+   * static layout, which has been done before getting here
+   */
+  LayoutBox staticLayout = layoutTotal();
+  LayoutBox containingLayout = offsetParent_->layoutTotal();
+
+  bool leftAuto = isOffsetAuto(cssProperty(PropertyStyleLeft));
+  bool widthAuto = isOffsetAuto(cssProperty(PropertyStyleWidth));
+  bool rightAuto = isOffsetAuto(cssProperty(PropertyStyleRight));
+
+  double staticLeft = staticLayout.x - containingLayout.x;
+  /*
+    useful only for RTL
+    
+    double staticRight = (containingLayout.x + containingLayout.width)
+      - (staticLayout.x + staticLayout.width);  
+   */
+
+  /*
+   * This is not entirely accurate...
+   *
+   *   we should be doing a table-cell like layout for maximum and minimum
+   *   preferred widths, and as maximum the containing width
+   */
+  PageState ps;
+  layoutBlock(ps, false, renderer, 0, 0);
+  double preferredMinWidth = ps.maxX;
+
+  ps = PageState();
+  layoutBlock(ps, true, renderer, 0, 0);
+  double preferredWidth = ps.maxX;
+
+  // FIXME containing box: add border, padding widths
+  double availableWidth = containingLayout.width;
+
+  double shrinkToFitWidth = 
+    std::min(std::max(preferredMinWidth, availableWidth), preferredWidth);
+
+  double left = 0, width = 0, right = 0;
+
+  if (!leftAuto)
+    left = cssDecodeLength(cssProperty(PropertyStyleLeft),
+			   renderer.fontScale(), 0,
+			   PercentageOfParentSize,
+			   containingLayout.width);
+
+  if (!rightAuto)
+    right = cssDecodeLength(cssProperty(PropertyStyleRight),
+			    renderer.fontScale(), 0,
+			    PercentageOfParentSize,
+			    containingLayout.width);
+
+  if (!widthAuto)
+    width = cssWidth(renderer.fontScale());
+
+  /*
+   * compute final values for left and width according to the rules of
+   * W3C CSS2 10.3.7
+   */
+  if (leftAuto && widthAuto && rightAuto) {
+    /* assuming ltr, 10.3.7 rule 3 */
+    left = staticLeft;
+    width = shrinkToFitWidth;
+  } else if (!leftAuto && !widthAuto && !rightAuto) {
+    /* assuming ltr */
+    // keep left and width
+  } else if (leftAuto && widthAuto && !rightAuto) {
+    // 10.3.7 rule 1.
+    width = shrinkToFitWidth;
+    left = containingLayout.width - right - width;
+  } else if (leftAuto && !widthAuto && rightAuto) {
+    // 10.3.7 rule 2.
+    /* assuming ltr */
+    // keep left and width
+  } else if (!leftAuto && widthAuto && rightAuto) {
+    // 10.3.7 rule 3.
+    width = shrinkToFitWidth;
+  } else if (leftAuto && !widthAuto && !rightAuto) {
+    // 10.3.7 rule 4.
+    left = containingLayout.width - right - width;
+  } else if (!leftAuto && widthAuto && !rightAuto) {
+    // 10.3.7 rule 5.
+    width = std::max(0.0, containingLayout.width - left - right);
+  } else if (!leftAuto && !widthAuto && rightAuto) {
+    // 10.3.7 rule 6.
+    // keep left and width
+  }
+
+  double staticTop = staticLayout.y - containingLayout.y;
+
+  /*
+   * correct for page differences; XXX this will only work if
+   * textHeight() is the same for all pages
+   */
+  staticTop += (staticLayout.page - containingLayout.page)
+    * renderer.textHeight(containingLayout.page);
+
+  bool topAuto = isOffsetAuto(cssProperty(PropertyStyleTop));
+  bool heightAuto = isOffsetAuto(cssProperty(PropertyStyleHeight));
+  bool bottomAuto = isOffsetAuto(cssProperty(PropertyStyleBottom));
+
+  double top = 0, height = 0, bottom = 0;
+
+  if (!topAuto)
+    top = cssDecodeLength(cssProperty(PropertyStyleTop),
+			   renderer.fontScale(), 0,
+			   PercentageOfParentSize,
+			   containingLayout.height);
+
+  if (!bottomAuto)
+    right = cssDecodeLength(cssProperty(PropertyStyleBottom),
+			    renderer.fontScale(), 0,
+			    PercentageOfParentSize,
+			    containingLayout.height);
+
+  if (!heightAuto)
+    height = cssWidth(renderer.fontScale());
+
+  /*
+   * Perform a layout to compute the contents height
+   */
+  ps = PageState();
+  ps.minX = containingLayout.x + left;
+  ps.maxX = containingLayout.x + left + width;
+  layoutBlock(ps, false, renderer, 0, 0);
+  double contentHeight = layoutTotal().height;
+
+  /*
+   * compute final values for top and height according to the rules of
+   * W3C CSS2 10.6.4
+   */
+  if (topAuto && heightAuto && bottomAuto) {
+    /* 10.6.4 rule 3 */
+    top = staticTop;
+    height = contentHeight;
+  } else if (!topAuto && !heightAuto && !bottomAuto) {
+    // keep top and height
+  } else if (topAuto && heightAuto && !bottomAuto) {
+    /* 10.6.4 rule 1 */
+    height = contentHeight;
+    top = containingLayout.height - bottom - height;
+  } else if (topAuto && !heightAuto && bottomAuto) {
+    /* 10.6.4 rule 2 */
+    top = staticTop;
+  } else if (!topAuto && heightAuto && bottomAuto) {
+    /* 10.6.4 rule 3 */
+    height = contentHeight;
+  } else if (topAuto && !heightAuto && !bottomAuto) {
+    /* 10.6.4 rule 4 */
+    top = containingLayout.height - bottom - height;
+  } else if (!topAuto && heightAuto && !bottomAuto) {
+    /* 10.6.4 rule 5 */
+    height = containingLayout.height - top - bottom;
+  } else if (!topAuto && !heightAuto && bottomAuto) {
+    /* 10.6.4 rule 6 */
+    // keep top and height
+  }
+
+  /*
+   * Perform final layout
+   */
+  ps = PageState();
+  ps.y = containingLayout.y + top;
+  ps.page = containingLayout.page;
+
+  /* 
+   * XXX this will only work if textHeight() is the same for all pages
+   */
+  while (ps.y > renderer.pageHeight(ps.page)) {
+    ++ps.page;
+    ps.y -= renderer.pageHeight(ps.page);
+  }
+  ps.minX = containingLayout.x + left;
+  ps.maxX = containingLayout.x + left + width;
+ 
+  layoutBlock(ps, false, renderer, 0, 0);
 }
 
 double Block::layoutFloat(double y, int page, BlockList& floats,
@@ -1885,8 +2226,7 @@ void Block::adjustAvailableWidth(double y, int page,
   }
 }
 
-void Block::clearFloats(PageState &ps,
-			double minWidth)
+void Block::clearFloats(PageState &ps, double minWidth)
 {
   /* Floats need to be cleared in order */
   for (; !ps.floats.empty();) {
@@ -2081,7 +2421,7 @@ std::string Block::cssTextDecoration() const
     return v;
 }
 
-void Block::reLayout(const BlockBox& from, const BlockBox& to)
+void Block::reLayout(const LayoutBox &from, const LayoutBox &to)
 {
   for (unsigned i = 0; i < inlineLayout.size(); ++i) {
     InlineBox& ib = inlineLayout[i];
@@ -2103,98 +2443,163 @@ void Block::reLayout(const BlockBox& from, const BlockBox& to)
     children_[i]->reLayout(from, to);
 }
 
-void Block::render(WTextRenderer& renderer, int page)
+void Block::render(WTextRenderer& renderer, WPainter& painter, int page)
 {
-  if (isText())
-    renderText(text(), renderer, page);
+  bool painterTranslated = false;
 
-  if (type_ == DomElement_IMG) {
-    LayoutBox *lb;
+  if (cssProperty(PropertyStylePosition) == "relative") {
+    painter.save();
+    painterTranslated = true;
 
-    if (!blockLayout.empty())
-      lb = &blockLayout[0];
-    else
-      lb = &inlineLayout[0];
+    LayoutBox box = layoutTotal();
+    double left = cssDecodeLength(cssProperty(PropertyStyleLeft),
+				  renderer.fontScale(), 0,
+				  PercentageOfParentSize,
+				  box.width);
+    double top = cssDecodeLength(cssProperty(PropertyStyleTop),
+				 renderer.fontScale(), 0,
+				 PercentageOfParentSize,
+				 box.height);
 
-    if (lb->page == page) {
-      LayoutBox bb = toBorderBox(*lb, renderer.fontScale());
+    painter.translate(left, top);
+  }
 
-      renderBorders(bb, renderer, Top | Bottom);
+  if (isText()) {
+    renderText(text(), renderer, painter, page);
 
-      double left = renderer.margin(Left) + bb.x
-	+ cssBorderWidth(Left, renderer.fontScale());
-      double top = renderer.margin(Top) + bb.y
-	+ cssBorderWidth(Top, renderer.fontScale());
-
-      double width = bb.width;
-      double height = bb.height;
-
-      WRectF rect(left, top, width, height);
-
-#ifdef DEBUG_LAYOUT
-      renderer.painter()->setPen(WPen(red));      
-      renderer.painter()->drawRect(rect);
-#endif // DEBUG_LAYOUT
-
-      renderer.painter()->drawImage(rect,
-				    WPainter::Image(attributeValue("src"),
-						    (int)width, (int)height));
+    if (type_ != DomElement_LI) { // there are inline children
+      if (painterTranslated)
+	painter.restore();
+      return;
     }
   }
 
+  if (type_ == DomElement_THEAD)
+    currentTheadBlock_ = blockLayout.empty() ? 0 : &blockLayout.front();
+
+  unsigned first = (type_ == DomElement_LI) ? 1 : 0;
+  for (unsigned i = first; i < inlineLayout.size(); ++i) {
+    LayoutBox& lb = inlineLayout[i];
+
+    if (lb.page == page)
+      renderer.paintNode(painter, WTextRenderer::Node(*this, lb, renderer));
+  }
+
   for (unsigned i = 0; i < blockLayout.size(); ++i) {
-    BlockBox& lb = blockLayout[i];
-    if (lb.page == page) {
-      LayoutBox bb = toBorderBox(lb, renderer.fontScale());
+    LayoutBox& lb = blockLayout[i];
 
-      WFlags<Side> verticals;
-      if (i == 0)
-	verticals |= Top;
-      if (i == blockLayout.size() - 1)
-	verticals |= Bottom;
+    if (lb.page == page)
+      renderer.paintNode(painter, WTextRenderer::Node(*this, lb, renderer));
+  }
 
-      WRectF rect(bb.x + renderer.margin(Left), bb.y + renderer.margin(Top),
-		  bb.width, bb.height);
+  if (inlineLayout.empty() && blockLayout.empty()) {
+    for (unsigned i = 0; i < children_.size(); ++i)
+      children_[i]->render(renderer, painter, page);
+  }
 
-      std::string s = cssProperty(PropertyStyleBackgroundColor);
-      if (!s.empty()) {
-	WColor c(WString::fromUTF8(s));
-	renderer.painter()->fillRect(rect, WBrush(c));
-      }
+  if (painterTranslated)
+    painter.restore();
+}
 
-      renderBorders(bb, renderer, verticals);
+int Block::firstLayoutPage() const
+{
+  if (!inlineLayout.empty())
+    return inlineLayout.front().page;
+
+  if (!blockLayout.empty())
+    return blockLayout.front().page;
+
+  return -1;
+}
+
+int Block::lastLayoutPage() const
+{
+  if (!inlineLayout.empty())
+    return inlineLayout.back().page;
+
+  if (!blockLayout.empty())
+    return blockLayout.back().page;
+
+  return -1;
+}
+
+void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
+                         LayoutBox& lb)
+{
+  if (type_ == DomElement_IMG) {
+    LayoutBox bb = toBorderBox(lb, renderer.fontScale());
+
+    renderBorders(bb, renderer, painter, Top | Bottom);
+
+    double left = renderer.margin(Left) + bb.x
+     + cssBorderWidth(Left, renderer.fontScale());
+    double top = renderer.margin(Top) + bb.y
+     + cssBorderWidth(Top, renderer.fontScale());
+
+    double width = bb.width;
+    double height = bb.height;
+
+    WRectF rect(left, top, width, height);
 
 #ifdef DEBUG_LAYOUT
-      renderer.painter()->setPen(WPen(green));
-      renderer.painter()->drawRect(rect);
+    painter.setPen(WPen(red));
+    painter.drawRect(rect);
 #endif // DEBUG_LAYOUT
 
-      if (type_ == DomElement_THEAD) {
-	/*
-	 * This is the first or a repeated THEAD element
-	 * (for a repeated:) move children here + render
-	 */
-	for (unsigned j = 0; j < children_.size(); ++j) {
-	  if (i > 0)
-	    children_[j]->reLayout(blockLayout[i-1], lb);
-	  children_[j]->render(renderer, page);
-	}
+    painter.drawImage(rect, WPainter::Image(attributeValue("src"),
+					    (int)width, (int)height));
+  } else {
+    LayoutBox bb = toBorderBox(lb, renderer.fontScale());
+
+    WRectF rect(bb.x + renderer.margin(Left), bb.y + renderer.margin(Top),
+                bb.width, bb.height);
+
+    std::string s = cssProperty(PropertyStyleBackgroundColor);
+    if (!s.empty()) {
+      WColor c(WString::fromUTF8(s));
+      painter.fillRect(rect, WBrush(c));
+    }
+
+    WFlags<Side> verticals;
+    if (lb.page == firstLayoutPage())
+      verticals |= Top;
+    if (lb.page == lastLayoutPage())
+      verticals |= Bottom;
+
+    renderBorders(bb, renderer, painter, verticals);
+
+#ifdef DEBUG_LAYOUT
+    painter.setPen(WPen(green));
+    painter.drawRect(rect);
+#endif // DEBUG_LAYOUT
+
+    if (type_ == DomElement_THEAD) {
+      /*
+       * This is the first or a repeated THEAD element
+       * (for a repeated:) move children here + render
+       */
+      for (unsigned j = 0; j < children_.size(); ++j) {
+        if (currentTheadBlock_ != &lb)
+          children_[j]->reLayout(*currentTheadBlock_, lb);
+
+        children_[j]->render(renderer, painter, lb.page);
       }
+
+      currentTheadBlock_ = &lb;
     }
   }
 
   if (type_ != DomElement_THEAD)
     for (unsigned i = 0; i < children_.size(); ++i)
-      children_[i]->render(renderer, page);
+      children_[i]->render(renderer, painter, lb.page);
 }
 
 void Block::renderText(const std::string& text, WTextRenderer& renderer,
-		       int page)
+                       WPainter& painter, int page)
 {
-  WPainter& painter = *renderer.painter();
   WPaintDevice *device = painter.device();
 
-  renderer.painter()->setFont(cssFont(renderer.fontScale()));
+  painter.setFont(cssFont(renderer.fontScale()));
 
   WFontMetrics metrics = device->fontMetrics();
   double lineHeight = cssLineHeight(metrics.height(), renderer.fontScale());
@@ -2233,7 +2638,7 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
       }
       */
 
-      renderer.painter()->setPen(WPen(cssColor()));
+      painter.setPen(WPen(cssColor()));
 
       if (ib.whitespaceWidth == device->measureText(" ").width()) {
 	WString t = WString::fromUTF8(text.substr(ib.utf8Pos, ib.utf8Count));
@@ -2299,7 +2704,7 @@ LayoutBox Block::toBorderBox(const LayoutBox& bb, double fontScale) const
 }
 
 void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
-			  WFlags<Side> verticals)
+                          WPainter &painter, WFlags<Side> verticals)
 {
   if (!node_)
     return;
@@ -2318,7 +2723,6 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
     borderColor[i] = cssBorderColor(sides[i]);
   }
 
-  WPainter& painter = *renderer.painter();
   WPen borderPen;
   borderPen.setCapStyle(FlatCap);
 

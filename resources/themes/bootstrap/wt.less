@@ -91,12 +91,28 @@
  * Fix submens in popup menus in navbar
  */
 .navbar .nav > li > .dropdown-menu.submenu:before {
-  display: none;
+    display: none;
 }
 
 .navbar .nav > li > .dropdown-menu.submenu:after {
-  display: none;
+    display: none;
 }
+
+/*
+ * Show pointer even if anchor has no href
+ */
+.navbar .nav > li > a {
+   cursor: pointer;
+}
+
+/*
+ * Fix open drop down menu
+ */
+.navbar .nav li > .dropdown-toggle.active {
+  color: #555555;
+  background-color: #e5e5e5;
+}
+
 
 /*
  * Dialog extensions

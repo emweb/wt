@@ -8,36 +8,41 @@
 #define RENDER_WTEXT_RENDERER_H_
 
 #include <Wt/WString>
+#include <Wt/WWebWidget>
 
 namespace Wt {
-
   /*! \brief Namespace for the \ref render
    */
   namespace Render {
 
+  class Block;
+  class LayoutBox;
+
 /*! \defgroup render XHTML Rendering (Wt::Render)
  *  \brief An XHTML rendering library implemented using the %Wt \ref painting
  *
- * The rendering library contains a (limited) XHTML layout engine.
+ * The rendering library contains an (increasingly less limited)
+ * XHTML/CSS layout engine.
  */
 
 /*! \class WTextRenderer Wt/Render/WTextRenderer Wt/Render/WTextRenderer
  *  \brief An XHTML renderering engine.
  *
  * This class implements a rendering engine for a (subset of)
- * XHTML. Its intended use is to be able to accurately render the
+ * XHTML/CSS. Its intended use is to be able to accurately render the
  * output of the WTextEdit widget (although it handles a more general
- * subset of XHTML than is required to do just that). Its focus is on
- * high-quality rendering of text-like contents.
+ * subset of XHTML/CSS than is required to do just that). Its focus is
+ * on high-quality rendering of text-like contents.
  *
  * The following are the main features:
  * - compliant rendering of inline (text) contents, floats,
  *   tables, images, ordered lists, unordered lists, in any arbitrary
  *   combination
+ * - supports normal flow, and also relative and absolute positioned contents
  * - support for fonts, font styles, font sizes and text decorations
  * - support for text alignment options, padding, margins, borders, background
  *   color (only on block elements) and text colors
- * - supports automatic page breaks
+ * - supports automatic and forced page breaks
  * - supports font scaling (rendering text at another DPI than the rest)
  * - can be used in conjunction with other drawing instructions to the same
  *   paint device.
@@ -47,10 +52,9 @@ namespace Wt {
  *   the "class" attribute is ignored entirely.
  * - only "display: inline" or "display: block" elements are supported.
  *   "display: none" and "display: inline-block" are not (yet) recognized. 
- * - only normal positioning is supported (absolute positioning and relative
- *   positioning is not supported <i>yet</i>).
  * - only colors defined in terms of RGB values are supported: CSS named colors
  *   (e.g. 'blue') are not allowed.
+ * - Bidi (Right-to-Left) text rendering is not supported
  *
  * The basics are solid though and the hardest part has been implemented
  * (notably handling floats and (nested) tables). Anything else could be
@@ -69,6 +73,73 @@ namespace Wt {
 class WTextRenderer 
 {
 public:
+  /*! \class Node
+   *  \brief A rendering box of a layed out DOM node.
+   *
+   * \sa paintNode()
+   */
+  class Node {
+  public:
+    /*! \brief Returns the element type.
+     */
+    DomElementType type() const;
+
+    /*! \brief Returns an attribute value.
+     *
+     * This returns an empty string for an undefined attribute.
+     */
+    std::string attributeValue(const std::string& attribute) const;
+
+    /*! \brief Returns the page.
+     */
+    int page() const;
+
+    /*! \brief Returns the x position.
+     */
+    double x() const;
+
+    /*! \brief Returns the y position.
+     */
+    double y() const;
+
+    /*! \brief Returns the width.
+     */
+    double width() const;
+
+    /*! \brief Returns the height.
+     */
+    double height() const;
+
+    /*! \brief Returns the fragment number.
+     *
+     * A single DOM node can result in multiple layout boxes:
+     * e.g. inline contents can be split over multiple lines,
+     * resulting in a layout box for each line, and block layout
+     * contents can be split over multiple pages, resulting in a
+     * layout box per page.
+     */
+    int fragment() const;
+
+    /*! \brief Returns the fragment count.
+     *
+     * \sa fragment()
+     */
+    int fragmentCount() const;
+
+  private:
+    WTextRenderer& renderer_;
+    Block& block_;
+    LayoutBox& lb_;
+
+    Node(Block& block, LayoutBox& lb, WTextRenderer& renderer);
+
+    Block &block() const { return block_; }
+    LayoutBox &lb() const { return lb_; }
+
+    friend class Block;
+    friend class WTextRenderer;
+  };
+
   /*! \brief Destructor.
    */
   virtual ~WTextRenderer();
@@ -162,6 +233,20 @@ public:
   /*! \brief Returns a painter for the current page.
    */
   virtual WPainter *getPainter(WPaintDevice *device) = 0;
+
+  /*! \brief Paints an XHTML node.
+   *
+   * The default implementation paints the node conforming to the
+   * XHTML specification.
+   *
+   * You may want to specialize this method if you wish to customize
+   * (or ignore) the rendering for certain nodes or node types, or if you
+   * want to capture the actual layout positions for other processing.
+   *
+   * The node information contains the layout position at which the node
+   * is being painted.
+   */
+  virtual void paintNode(WPainter& painter, const Node& node);
 
 protected:
  /*! \brief Constructor.

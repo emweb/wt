@@ -10,6 +10,7 @@
 #include <Wt/WFont>
 #include <Wt/WGlobal>
 #include <Wt/WWebWidget>
+#include <Wt/WPainter>
 
 #include "DomElement.h"
 #include "LayoutBox.h"
@@ -24,9 +25,11 @@ class Line;
 
 typedef std::vector<Block *> BlockList;
 
-struct PageState {
-  PageState() 
-  {}
+struct PageState
+{
+  PageState()
+    : y(0), minX(0), maxX(0), page(0)
+  { }
 
   double y;
   double minX, maxX;
@@ -34,10 +37,11 @@ struct PageState {
   int page;
 };
 
-struct Range {
+struct Range
+{
   Range(double start, double end) 
     : start(start), end(end)
-  {}
+  { }
 
   double start, end;
 };
@@ -69,7 +73,9 @@ public:
 		     double collapseMarginBottom,
 		     double cellHeight = -1);
 
-  void render(WTextRenderer& renderer, int page);
+  void actualRender(WTextRenderer& renderer, WPainter& painter, LayoutBox& lb);
+
+  void render(WTextRenderer& renderer, WPainter& painter, int page);
 
   static void clearFloats(PageState &ps);
   static void clearFloats(PageState &ps,
@@ -83,6 +89,8 @@ public:
 				   Range &rangeX);
 
   static bool isWhitespace(char c);
+
+  std::string attributeValue(const char *attribute) const;
 
 private:
   struct CssLength {
@@ -99,16 +107,20 @@ private:
 private:
   rapidxml::xml_node<> *node_;
   Block *parent_;
+  BlockList offsetChildren_;
+  Block *offsetParent_;
   DomElementType type_;
   Side float_;
   bool inline_;
   BlockList children_;
+  const LayoutBox *currentTheadBlock_;
   double currentWidth_;
   double contentsHeight_;
   mutable std::map<std::string, std::string> css_;
 
-  std::string attributeValue(const char *attribute) const;
   int attributeValue(const char *attribute, int defaultValue) const;
+
+  bool isPositionedAbsolutely() const;
 
   std::string cssProperty(Property property) const;
   std::string inheritedCssProperty(Property property) const;
@@ -124,6 +136,7 @@ private:
   double cssBoxMargin(Side side, double fontScale) const;
   double cssLineHeight(double fontLineHeight, double fontScale) const;
   double cssFontSize(double fontScale = 1) const;
+  std::string cssPosition() const;
   WFont::Style cssFontStyle() const;
   int cssFontWeight() const;
   WFont cssFont(double fontScale) const;
@@ -140,6 +153,10 @@ private:
   bool isInside(DomElementType type) const;
 
   void pageBreak(PageState& ps);
+  void inlinePageBreak(const std::string& pageBreak,
+                              Line& line, BlockList& floats,
+                              double minX, double maxX,
+                              const WTextRenderer& renderer);
   double layoutInline(Line& line, BlockList& floats,
 		      double minX, double maxX, bool canIncreaseWidth,
 		      const WTextRenderer& renderer);
@@ -152,6 +169,8 @@ private:
 		     double minX, double maxX,
 		     bool canIncreaseWidth,
 		     const WTextRenderer& renderer);
+  void layoutAbsolute(const WTextRenderer& renderer);
+
   void tableDoLayout(double x, PageState &ps, int cellSpacing,
 		     const std::vector<double>& widths,
 		     bool protectRows, Block *repeatHead,
@@ -170,19 +189,29 @@ private:
 			      const WTextRenderer& renderer,
 			      Block *table);
 
+  void setOffsetParent();
+  Block *findOffsetParent();
+  LayoutBox layoutTotal();
+  LayoutBox firstInlineLayoutBox();
+
   LayoutBox toBorderBox(const LayoutBox& bb, double fontScale) const;
   double maxLayoutY(int page) const;
   double minLayoutY(int page) const;
   double maxChildrenLayoutY(int page) const;
   double minChildrenLayoutY(int page) const;
   double childrenLayoutHeight(int page) const;
-  void reLayout(const BlockBox& from, const BlockBox& to);
+  void reLayout(const LayoutBox& from, const LayoutBox& to);
 
-  void renderText(const std::string& text, WTextRenderer& renderer, int page);
-  void renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
-		     WFlags<Side> verticals);
+  void renderText(const std::string& text, WTextRenderer& renderer,
+                   WPainter& painter, int page);
+  void renderBorders(const LayoutBox& bb, WTextRenderer& renderer, WPainter &painter,
+                     WFlags<Side> verticals);
 
   WString generateItem() const;
+
+  int firstLayoutPage() const;
+
+  int lastLayoutPage() const;
 
   static void advance(PageState &ps, double height,
 		      const WTextRenderer& renderer);

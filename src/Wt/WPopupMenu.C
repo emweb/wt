@@ -60,8 +60,10 @@ void WPopupMenu::setButton(WInteractWidget *button)
 {
   button_ = button;
 
-  if (button_)
+  if (button_) {
     button_->clicked().connect(this, &WPopupMenu::popupAtButton);
+    button_->addStyleClass("dropdown-toggle");
+  }
 }
 
 void WPopupMenu::popupAtButton()
@@ -190,7 +192,10 @@ void WPopupMenu::prepareRender(WApplication *app)
 
 void WPopupMenu::setCurrent(int index)
 {
-  // a popup menu does not have a 'current' item.
+  // a popup menu does not have a 'current' item, unless it's involved
+  // in a contents stack ... but then it will render oddly ?
+  if (contentsStack())
+    WMenu::setCurrent(index);
 }
 
 void WPopupMenu::connectSignals(WPopupMenu * const topLevel)

@@ -73,6 +73,9 @@ WT_DECLARE_WT_MEMBER
 	 getItem: function (ci, ri) {
 	   return config.items[ri * DirConfig[HORIZONTAL].config.length + ci];
 	 },
+	 setItem: function (ci, ri, item) {
+	   config.items[ri * DirConfig[HORIZONTAL].config.length + ci] = item;
+	 },
 	 handleClass: 'Wt-vrh2',
 	 resizeDir: 'h',
 	 resizerClass: 'Wt-hsh2',
@@ -94,6 +97,9 @@ WT_DECLARE_WT_MEMBER
 	 alignBits: 4,
 	 getItem: function (ri, ci) {
 	   return config.items[ri * DirConfig[HORIZONTAL].config.length + ci];
+	 },
+	 setItem: function (ri, ci, item) {
+	   config.items[ri * DirConfig[HORIZONTAL].config.length + ci] = item;
 	 },
 	 handleClass: 'Wt-hrh2',
 	 resizeDir: 'v',
@@ -118,13 +124,13 @@ WT_DECLARE_WT_MEMBER
       * on the widget. But setting merely overflow does not help. Removing
       * the size constraint temporarily does work.
       */
-     if (WT.isGecko) {
+     if (WT.isGecko && dir == HORIZONTAL) {
        p = element.style[DC.size];
        setCss(element, DC.size, '');
      }
      var offsetSize = dir ? element.offsetHeight : element.offsetWidth;
      setCss(element, DC.left, l);
-     if (WT.isGecko) {
+     if (WT.isGecko && dir == HORIZONTAL) {
        setCss(element, DC.size, p);
      }
 
@@ -336,12 +342,20 @@ WT_DECLARE_WT_MEMBER
 
        for (oi = 0; oi < otherCount; ++oi) {
 	 var item = DC.getItem(di, oi);
+
 	 if (item) {
 	   if (!item.w || (dir == HORIZONTAL && item.dirty)) {
 	     var $w = $("#" + item.id);
 	     var w2 = $w.get(0);
+
+	     if (!w2) { // is missing, could be because it is overspanned!
+	       DC.setItem(di, oi, null);
+	       continue;
+	     }
+
 	     if (w2 != item.w) {
 	       item.w = w2;
+
 	       $w.find("img").add($w.filter("img"))
 		 .bind('load',
 		       { item: item},

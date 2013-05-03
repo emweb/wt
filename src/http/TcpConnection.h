@@ -44,7 +44,6 @@ public:
   /// Get the socket associated with the connection.
   virtual asio::ip::tcp::socket& socket();
 
-  virtual void stop();
   virtual std::string urlScheme() { return "http"; }
 
 protected:
@@ -52,6 +51,8 @@ protected:
   virtual void startAsyncReadBody(Buffer& buffer, int timeout);
   virtual void startAsyncWriteResponse
       (const std::vector<asio::const_buffer>& buffers, int timeout);
+
+  virtual void stop();
 
   /// Socket for the connection.
   asio::ip::tcp::socket socket_;

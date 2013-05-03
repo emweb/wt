@@ -61,9 +61,13 @@ public:
 
   virtual void reset()
   {
-    int err = sqlite3_reset(st_);
+    if (st_) {
+      int err = sqlite3_reset(st_);
+      handleErr(err);
 
-    handleErr(err);
+      err = sqlite3_clear_bindings(st_);
+      handleErr(err);
+    }
 
     state_ = Done;
   }

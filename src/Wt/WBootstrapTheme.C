@@ -74,6 +74,13 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
   case MenuItemCheckBoxRole:
     child->addStyleClass("Wt-chkbox");
     break;
+  case MenuItemCloseRole:
+    {
+      WText *txt = dynamic_cast<WText *>(child);
+      if (txt)
+        txt->setText("<button class='close'>&times;</button>");
+    }
+    break;
   case DialogCoverRole:
     child->addStyleClass("modal-backdrop");
     break;
