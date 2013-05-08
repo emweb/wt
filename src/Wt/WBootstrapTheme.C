@@ -152,18 +152,20 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
     break;
 
   case DomElement_BUTTON: {
-    element.addPropertyWord(PropertyClass, "btn");
-
-    WPushButton *button = dynamic_cast<WPushButton *>(widget);
-    if (button) {
-      if (button->isDefault())
-	element.addPropertyWord(PropertyClass, "btn-primary");
-
-      if (button->menu()) {
-	element.addPropertyWord(PropertyInnerHTML,
+    if(1 == elementRole) {
+      if(dynamic_cast<WPushButton *>(widget)->menu()) {
+        element.addPropertyWord(PropertyInnerHTML,
 				"<span class=\"caret\"></span>");
       }
-    }
+    } else {
+      element.addPropertyWord(PropertyClass, "btn");
+
+      WPushButton *button = dynamic_cast<WPushButton *>(widget);
+      if (button) {
+        if (button->isDefault())
+	  element.addPropertyWord(PropertyClass, "btn-primary");
+      }
+    } 
 
     break;
   }

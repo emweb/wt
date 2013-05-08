@@ -234,6 +234,7 @@ Wt/WVirtualImage.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
+Wt/WMatchValidator.C
 Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthModel.C

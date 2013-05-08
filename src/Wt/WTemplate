@@ -392,6 +392,31 @@ public:
    */
   WWidget *takeWidget(const std::string& varName);
 
+  /*! \brief Binds a new widget to a variable returning the old bound widget.
+   *
+   * The corresponding variable reference within the template will be
+   * replaced with the widget (rendered as XHTML). Since a single
+   * widget may be instantiated only once in a template, the variable
+   * \p varName may occur at most once in the template, and the
+   * \p widget must not yet be bound to another variable.
+   *
+   * If a widget was already bound to the variable, it is removed
+   * first. If previously a string or other value was bound to the
+   * variable, it is removed. This API is similar to the combination of
+   * takeWidget() and bindWidget() i.e. this method unbinds the already bound
+   * widget and binds the specified \p widget but does not delete the old
+   * widget, instead it returns it back to the caller.
+   *
+   * You may also pass a \c 0 \p widget, which will resolve to an empty
+   * string.
+   *
+   * \sa bindWidget()
+   * \sa takeWidget()
+   * \sa bindString()
+   * \sa resolveWidget()
+   */
+  virtual WWidget *replaceWidget(const std::string& varName, WWidget *widget);
+
   /*! \brief Binds an empty string to a variable.
    *
    * If a widget was bound to the variable, it is deleted first.

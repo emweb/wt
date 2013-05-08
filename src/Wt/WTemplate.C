@@ -241,6 +241,43 @@ WWidget *WTemplate::takeWidget(const std::string& varName)
     return 0;
 }
 
+WWidget* WTemplate::replaceWidget(const std::string& varName, WWidget *widget)
+{
+	WWidget *result = 0;
+
+	WidgetMap::iterator i = widgets_.find(varName);
+	if (i != widgets_.end()) {
+		if (i->second == widget) {
+			return result;
+		} else {
+			result = i->second;
+
+#ifndef WT_TARGET_JAVA
+			widgets_.erase(i);
+#else
+			widgets_.erase(varName);
+#endif
+		}
+	}
+
+	if (widget) {
+		widget->setParentWidget(this);
+		widgets_[varName] = widget;
+		strings_.erase(varName);
+	} else {
+		StringMap::const_iterator j = strings_.find(varName);
+		if (j != strings_.end() && j->second.empty()) {
+			return result;
+		}
+		strings_[varName] = std::string();
+	}
+
+	changed_ = true;
+	repaint(RepaintInnerHtml);
+
+	return result;
+}
+
 void WTemplate::bindEmpty(const std::string& varName)
 {
   bindWidget(varName, 0);
