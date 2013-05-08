@@ -181,6 +181,9 @@ void WPushButton::setMenu(WPopupMenu *popupMenu)
 
   if (popupMenu_)
     popupMenu_->setButton(this);
+
+  flags_.set(BIT_TEXT_CHANGED);
+  repaint(RepaintInnerHtml);
 }
 
 void WPushButton::doRedirect()
@@ -224,6 +227,8 @@ void WPushButton::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
     element.setProperty(Wt::PropertyInnerHTML, text_.formattedText());
+
+    WApplication::instance()->theme()->apply(this, element, 1);
 
     flags_.reset(BIT_TEXT_CHANGED);
   }
