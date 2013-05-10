@@ -77,9 +77,8 @@ void ConnectionManager::stop(ConnectionPtr c)
 
 void ConnectionManager::stopAll()
 {
-  while(connections_.size()) {
+  while(connections_.size())
     stop(*connections_.begin());
-  }
 }
 
 } // namespace server

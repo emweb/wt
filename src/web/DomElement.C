@@ -33,7 +33,7 @@ std::string elementNames_[] =
     "tfoot", "th", "td", "textarea",
 
     "tr", "p", "canvas",
-    "map", "area",
+    "map", "area", "style",
 
     "object", "param",
 
@@ -57,7 +57,7 @@ bool defaultInline_[] =
     false, false, false, true,
 
     false, false, true,
-    false, true,
+    false, true, true,
 
     false, false,
 

@@ -15,6 +15,7 @@
 #include "Wt/Render/WTextRenderer"
 
 #include "Block.h"
+#include "CssParser.h"
 #include "Line.h"
 #include "WebUtils.h"
 #include "RenderUtils.h"
@@ -73,7 +74,8 @@ Block::Block(xml_node<> *node, Block *parent)
     inline_(false),
     currentTheadBlock_(0),
     currentWidth_(0),
-    contentsHeight_(0)
+    contentsHeight_(0),
+    styleSheet_(0)
 {
   if (node) {
     if (Render::Utils::isXMLElement(node)) {
@@ -94,6 +96,19 @@ Block::~Block()
     delete children_[i];
 }
 
+std::string Block::id() const
+{
+  return attributeValue("id");
+}
+
+std::vector<std::string> Block::classes() const
+{
+  std::string s = attributeValue("class");
+  std::vector<std::string> r;
+  boost::split(r, s, boost::is_any_of(" "));
+  return r;
+}
+
 bool Block::isWhitespace(char c)
 {
   return c == ' ' || c == '\n' || c == '\r' || c == '\t';
@@ -111,6 +126,26 @@ std::string Block::text() const
     return generateItem().toUTF8();
   else
     return Render::Utils::nodeValueToString(node_);
+}
+
+void Block::collectStyles(WStringStream& ss)
+{
+  for (unsigned int i = 0; i < children_.size(); ++i) {
+    if (children_[i]->type_ == DomElement_STYLE) {
+      ss << Render::Utils::nodeValueToString(children_[i]->node_);
+      children_.erase(children_.begin() + i);
+      --i;
+    } else
+      children_[i]->collectStyles(ss);
+  }
+}
+
+void Block::setStyleSheet(StyleSheet* styleSheet)
+{
+  styleSheet_ = styleSheet;
+  css_.clear();
+  for (unsigned int i = 0; i < children_.size(); ++i)
+    children_[i]->setStyleSheet(styleSheet);
 }
 
 void Block::determineDisplay()
@@ -2788,82 +2823,127 @@ bool Block::isAggregate(const std::string& cssProperty)
     || cssProperty == "padding";
 }
 
+void Block::updateAggregateProperty(const std::string& property,
+                                    const std::string& aggregate,
+                                    const Specificity& spec,
+                                    const std::string& value) const
+{
+  if (css_.find(property + aggregate) == css_.end()
+     || css_[property + aggregate].s_.isSmallerOrEqualThen(spec))
+    css_[property + aggregate] = PropertyValue(value, spec);
+}
+
+void Block::fillinStyle(const std::string& style,
+                        const Specificity& specificity) const
+{
+  if (style.empty())
+    return;
+
+  Wt::Utils::SplitVector values;
+  boost::split(values, style, boost::is_any_of(";"));
+
+  for (unsigned i = 0; i < values.size(); ++i) {
+    Wt::Utils::SplitVector namevalue;
+
+    boost::split(namevalue, values[i], boost::is_any_of(":"));
+    if (namevalue.size() == 2) {
+      std::string n = Wt::Utils::splitEntryToString(namevalue[0]);
+      std::string v = Wt::Utils::splitEntryToString(namevalue[1]);
+
+      boost::trim(n);
+      boost::trim(v);
+
+      updateAggregateProperty(n, "", specificity, v);
+
+      if (isAggregate(n)) {
+        Wt::Utils::SplitVector allvalues;
+        boost::split(allvalues, v, boost::is_any_of(" "));
+
+        /*
+         * count up to first value that does not start with a digit,
+         *  we want to interpret '1px solid rgb(...)' as '1px'
+         */
+        unsigned int count = 0;
+        for (unsigned j = 0; j < allvalues.size(); ++j) {
+          std::string vj = Wt::Utils::splitEntryToString(allvalues[j]);
+          if (vj[0] < '0' || vj[0] > '9')
+            break;
+
+          ++count;
+        }
+
+        if (count == 0) {
+          LOG_ERROR("Strange aggregate CSS length property: '" << v << "'");
+        } else if (count == 1) {
+          std::string v0 = Wt::Utils::splitEntryToString(allvalues[0]);
+
+          updateAggregateProperty(n, "-top",    specificity, v0);
+          updateAggregateProperty(n, "-right",  specificity, v0);
+          updateAggregateProperty(n, "-bottom", specificity, v0);
+          updateAggregateProperty(n, "-left",   specificity, v0);
+        } else if (count == 2) {
+          std::string v1 = Wt::Utils::splitEntryToString(allvalues[0]);
+          updateAggregateProperty(n, "-top",    specificity, v1);
+          updateAggregateProperty(n, "-bottom", specificity, v1);
+
+          std::string v2 = Wt::Utils::splitEntryToString(allvalues[1]);
+          updateAggregateProperty(n, "-right",  specificity, v2);
+          updateAggregateProperty(n, "-left",   specificity, v2);
+        } else if (count == 3) {
+          std::string v1 = Wt::Utils::splitEntryToString(allvalues[0]);
+          updateAggregateProperty(n, "-top",    specificity, v1);
+
+          std::string v2 = Wt::Utils::splitEntryToString(allvalues[1]);
+          updateAggregateProperty(n, "-right",  specificity, v2);
+          updateAggregateProperty(n, "-left",   specificity, v2);
+
+          std::string v3 = Wt::Utils::splitEntryToString(allvalues[2]);
+          updateAggregateProperty(n, "-bottom", specificity, v3);
+        } else {
+          std::string v1 = Wt::Utils::splitEntryToString(allvalues[0]);
+          updateAggregateProperty(n, "-top",    specificity, v1);
+
+          std::string v2 = Wt::Utils::splitEntryToString(allvalues[1]);
+          updateAggregateProperty(n, "-right",  specificity, v2);
+
+          std::string v3 = Wt::Utils::splitEntryToString(allvalues[2]);
+          updateAggregateProperty(n, "-bottom", specificity, v3);
+
+          std::string v4 = Wt::Utils::splitEntryToString(allvalues[3]);
+          updateAggregateProperty(n, "-left",   specificity, v4);
+        }
+      }
+    }
+  }
+}
+
 std::string Block::cssProperty(Property property) const
 {
   if (!node_)
     return std::string();
 
   if (css_.empty()) {
-    std::string style = attributeValue("style");
-
-    if (!style.empty()) {
-      Wt::Utils::SplitVector values;
-      boost::split(values, style, boost::is_any_of(";"));
-
-      for (unsigned i = 0; i < values.size(); ++i) {
-	Wt::Utils::SplitVector namevalue;
-
-	boost::split(namevalue, values[i], boost::is_any_of(":"));
-	if (namevalue.size() == 2) {
-	  std::string n = Wt::Utils::splitEntryToString(namevalue[0]);
-	  std::string v = Wt::Utils::splitEntryToString(namevalue[1]);
-
-	  boost::trim(n);
-	  boost::trim(v);
-
-	  css_[n] = v;
-	  
-	  if (isAggregate(n)) {
-	    Wt::Utils::SplitVector allvalues;
-	    boost::split(allvalues, v, boost::is_any_of(" "));
-
-	    /*
-	     * count up to first value that does not start with a digit,
-	     *  we want to interpret '1px solid rgb(...)' as '1px'
-	     */
-	    unsigned int count = 0;
-	    for (unsigned j = 0; j < allvalues.size(); ++j) {
-	      std::string vj = Wt::Utils::splitEntryToString(allvalues[j]);
-	      if (vj[0] < '0' || vj[0] > '9')
-		break;
-
-	      ++count;
-	    }
-
-	    if (count == 0) {
-	      LOG_ERROR("Strange aggregate CSS length property: '" << v << "'");
-	    } else if (count == 1) {
-	      css_[n + "-top"] = v;
-	      css_[n + "-right"] = v;
-	      css_[n + "-bottom"] = v;
-	      css_[n + "-left"] = v;
-	    } else if (count == 2) {
-	      css_[n + "-top"] = Wt::Utils::splitEntryToString(allvalues[0]);
-	      css_[n + "-bottom"] = Wt::Utils::splitEntryToString(allvalues[0]);
-	      css_[n + "-right"] = Wt::Utils::splitEntryToString(allvalues[1]);
-	      css_[n + "-left"] = Wt::Utils::splitEntryToString(allvalues[1]);
-	    } else if (count == 3) {
-	      css_[n + "-top"] = Wt::Utils::splitEntryToString(allvalues[0]);
-	      css_[n + "-right"] = Wt::Utils::splitEntryToString(allvalues[1]);
-	      css_[n + "-left"] = Wt::Utils::splitEntryToString(allvalues[1]);
-	      css_[n + "-bottom"] = Wt::Utils::splitEntryToString(allvalues[2]);
-	    } else {
-	      css_[n + "-top"] = Wt::Utils::splitEntryToString(allvalues[0]);
-	      css_[n + "-right"] = Wt::Utils::splitEntryToString(allvalues[1]);
-	      css_[n + "-bottom"] = Wt::Utils::splitEntryToString(allvalues[2]);
-	      css_[n + "-left"] = Wt::Utils::splitEntryToString(allvalues[3]);
-	    }
-	  }
-	}
+    if (styleSheet_) {
+      for (unsigned int i = 0; i < styleSheet_->rulesetSize(); ++i) {
+        Specificity s = Match::isMatch(this,
+				       styleSheet_->rulesetAt(i).selector());
+        if (s.isValid()) {
+          fillinStyle(styleSheet_->rulesetAt(i).declarationBlock()
+		      .declarationString(),
+                      s);
+        }
       }
     }
+
+    // The "style" attribute has Specificity(1,0,0,0)
+    fillinStyle(attributeValue("style"), Specificity(1,0,0,0));
   }
 
-  std::map<std::string, std::string>::const_iterator i
+  std::map<std::string, PropertyValue>::const_iterator i
     = css_.find(DomElement::cssName(property));
 
   if (i != css_.end())
-    return i->second;
+    return i->second.value_;
   else
     return std::string();
 }

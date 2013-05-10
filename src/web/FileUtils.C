@@ -65,6 +65,16 @@ namespace Wt {
 #endif //WT_HAVE_POSIX_FILEIO
     }
 
+    std::string* fileToString(const std::string& fileName)
+    {
+      std::ifstream ifs(fileName.c_str());
+      if(!ifs)
+        return 0;
+      else
+        return new std::string((std::istreambuf_iterator<char>(ifs)),
+                     std::istreambuf_iterator<char>());
+    }
+
     time_t lastWriteTime(const std::string &file) 
     {
 #ifndef WT_HAVE_POSIX_FILEIO

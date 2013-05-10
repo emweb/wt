@@ -11,6 +11,11 @@ SET(TEST_SOURCES
   private/HttpTest.C
   private/CExpressionParserTest.C
   private/I18n.C
+  render/BlockCssPropertyTest.C
+  render/CssParserTest.C
+  render/CssSelectorTest.C
+  render/SpecificityTest.C
+  render/WTextRendererTest.C
   utf8/Utf8Test.C
   utf8/XmlTest.C
   utils/Base64Test.C

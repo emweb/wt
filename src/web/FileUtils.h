@@ -19,6 +19,7 @@ namespace Wt {
     std::vector<unsigned char> fileHeader(const std::string &fileName, 
 					  unsigned size);
     extern WT_API unsigned long long size(const std::string &file);
+    extern WT_API std::string* fileToString(const std::string &fileName);
 #ifndef WT_TARGET_JAVA
     extern WT_API time_t lastWriteTime(const std::string &file);
 #endif

@@ -1442,7 +1442,9 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
 	break;
       }
 
-      if (p.scrollHeight > p.clientHeight || p.scrollWidth > p.clientWidth) {
+      if (WT.css(p, 'display') != 'inline' &&
+	  (p.scrollHeight > p.offsetHeight ||
+	   p.scrollWidth > p.offsetWidth)) {
 	break;
       }
 

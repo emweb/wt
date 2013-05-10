@@ -1224,9 +1224,9 @@ void WebRenderer::renderStyleSheet(WStringStream& out,
 				   const WCssStyleSheet& sheet,
 				   WApplication *app, bool xhtml)
 {
-  out << "<link href=";
+  out << "<link href=\"";
   DomElement::htmlAttributeValue(out, sheet.link().resolveUrl(app));
-  out << " rel=\"stylesheet\" type=\"text/css\"";
+  out << "\" rel=\"stylesheet\" type=\"text/css\"";
 
   if (!sheet.media().empty() && sheet.media() != "all")
     out << " media=\"" << sheet.media() << '"';

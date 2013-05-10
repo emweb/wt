@@ -4,12 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "web/FileUtils.h"
 #include <Wt/WPainter>
 #include <Wt/Render/WTextRenderer>
+#include <Wt/Render/CssParser.h>
 #include <WebUtils.h>
 
 #include "Block.h"
 
+#include <fstream>
 #include <string>
 #include <boost/lexical_cast.hpp>
 
@@ -25,6 +28,37 @@ namespace Wt {
 LOGGER("Render.WTextRenderer");
 
   namespace Render {
+
+class CombinedStyleSheet : public StyleSheet
+{
+public:
+  CombinedStyleSheet() { }
+  virtual ~CombinedStyleSheet() { }
+
+  void use(StyleSheet *sh) {
+    sheets_.push_back(sh);
+  }
+
+  virtual unsigned int rulesetSize() const {
+    unsigned int result = 0;
+    for (unsigned i = 0; i < sheets_.size(); ++i)
+      result += sheets_[i]->rulesetSize();
+    return result;
+  }
+
+  virtual const Ruleset& rulesetAt(int j) const {
+    for (unsigned i = 0; i < sheets_.size(); ++i) {
+      if ((unsigned)j < sheets_[i]->rulesetSize())
+	return sheets_[i]->rulesetAt(j);
+      j -= sheets_[i]->rulesetSize();
+    }
+
+    return sheets_[0]->rulesetAt(0);
+  }
+
+private:
+  std::vector<StyleSheet *> sheets_;
+};
 
 WTextRenderer::Node::Node(Block& block, LayoutBox& lb,
                           WTextRenderer& renderer):
@@ -95,11 +129,14 @@ int WTextRenderer::Node::fragmentCount() const
 
 WTextRenderer::WTextRenderer()
   : device_(0),
-    fontScale_(1)
+    fontScale_(1),
+    styleSheet_(0)
 { }
 
 WTextRenderer::~WTextRenderer()
-{ }
+{ 
+  delete styleSheet_;
+}
 
 void WTextRenderer::setFontScale(double factor)
 {
@@ -137,6 +174,23 @@ double WTextRenderer::render(const WString& text, double y)
 
     Block docBlock(&doc, (Block*)0);
 
+    CombinedStyleSheet styles;
+    if (styleSheet_)
+      styles.use(styleSheet_);
+
+    WStringStream ss;
+    docBlock.collectStyles(ss);
+
+    if (!ss.empty()) {
+      CssParser parser;
+      Wt::Render::StyleSheet *docStyles = parser.parse(ss.str());
+      if (docStyles)
+	styles.use(docStyles);
+      else
+	LOG_ERROR("Error parsing style sheet: " << parser.getLastError());
+    }
+
+    docBlock.setStyleSheet(&styles);
     docBlock.determineDisplay();
     docBlock.normalizeWhitespace(false, doc);
 
@@ -202,6 +256,56 @@ double WTextRenderer::render(const WString& text, double y)
   } catch (rapidxml::parse_error& e) {
     throw e;
   }
+}
+
+bool WTextRenderer::useStyleSheet(const WString& filename)
+{
+  std::string* contents = FileUtils::fileToString(filename.toUTF8());
+  if(!contents)
+    return false;
+
+  bool b = setStyleSheetText(styleSheetText() + "\n" + *contents);
+  delete contents;
+  return b;
+}
+
+void WTextRenderer::clearStyleSheet()
+{
+  setStyleSheetText("");
+}
+
+bool WTextRenderer::setStyleSheetText(const WString& styleSheetContents)
+{
+  if (styleSheetContents.empty()) {
+    styleSheetText_ = WString();
+    delete styleSheet_;
+    styleSheet_ = 0;
+    error_ = "";
+    return true;
+  } else {
+    CssParser parser;
+    Wt::Render::StyleSheet* styleSheet = parser.parse(styleSheetContents);
+    if (!styleSheet) {
+      error_ = parser.getLastError();
+      return false;
+    }
+
+    error_ = "";
+    styleSheetText_ = styleSheetContents;
+    delete styleSheet_;
+    styleSheet_ = styleSheet;
+    return true;
+  }
+}
+
+WString WTextRenderer::styleSheetText() const
+{
+  return styleSheetText_;
+}
+
+std::string WTextRenderer::getStyleSheetParseErrors() const
+{
+  return error_;
 }
 
 void WTextRenderer::paintNode(WPainter& painter, const Node& node)

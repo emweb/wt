@@ -99,12 +99,14 @@ WObject::~WObject()
     Utils::erase(*parent_->children_, this);
 
   if (children_) {
-    for (unsigned i = 0; i < children_->size(); ++i) {
-      WObject *c = (*children_)[i];
+    while (!children_->empty()) {
+      WObject *c = (*children_)[0];
       if (c->parent_ == this) // exception: WPopupWidget
 	c->setParent(0);
+      children_->erase(children_->begin());
       delete c;
     }
+
     delete children_;
   }
 }

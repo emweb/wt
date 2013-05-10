@@ -4,6 +4,27 @@
     <div>
       <h1>Hello World!</h1>
 
+      <style>
+	span.special {
+	  color: #FF0000;
+	  font-weight: bold;
+	}
+
+	#main_table {
+	  font-size: 8pt;
+	  margin-left: auto;
+	  margin-right: auto;
+	}
+
+	#main_table .special {
+	  color: #FF0000;
+	}
+
+	#main_table th {
+	  border-bottom: 1px solid black;
+	}
+      </style>
+
       <p>
         This could be a <span style="font-size:20pt">big</span> deal
         to your project, since this modest renderer does support many
@@ -40,20 +61,25 @@
       </p>
 
       <p>
+	You can attach an external style sheet, highlighting items that need
+	<span class="special">special attention</span>.
+      </p>
+
+      <p>
         Reports typically contain tables, and these are also well
         supported; including multi-page ones, with automatic repetition
         of table headers.
 
-        <table style="font-size: 8pt; margin-left: auto; margin-right: auto">
+        <table id="main_table">
           <thead>
             <tr>
-              <th style="border-bottom: 1px solid black">FirstName</th>
-              <th style="border-bottom: 1px solid black">LastName</th>
-              <th style="border-bottom: 1px solid black">Company</th>
-              <th style="border-bottom: 1px solid black">Address</th>
-              <th style="border-bottom: 1px solid black">City</th>
-              <th style="border-bottom: 1px solid black">County</th>
-              <th style="border-bottom: 1px solid black">State</th>
+              <th>FirstName</th>
+              <th>LastName</th>
+              <th>Company</th>
+              <th>Address</th>
+              <th>City</th>
+              <th>County</th>
+              <th>State</th>
             </tr>
           </thead>
           <tbody>
@@ -84,7 +110,7 @@
               <td>New York</td>
               <td>NY</td>
             </tr>
-            <tr>
+            <tr class="special">
               <td>Zackary</td>
               <td>Mockus</td>
               <td>Metropolitan Elevator Co</td>
@@ -120,7 +146,7 @@
               <td>Maricopa</td>
               <td>AZ</td>
             </tr>
-            <tr>
+            <tr class="special">
               <td>Valerie</td>
               <td>Pou</td>
               <td>Sea Port Record One Stop Inc</td>
@@ -219,7 +245,7 @@
               <td>El Paso</td>
               <td>TX</td>
             </tr>
-            <tr>
+            <tr class="special">
               <td>Trudy</td>
               <td>Worlds</td>
               <td>Shapiro, Mark R Esq</td>
@@ -343,15 +369,6 @@
               <td>2810 Jacobs Ave</td>
               <td>Eureka</td>
               <td>Humboldt</td>
-              <td>CA</td>
-            </tr>
-            <tr>
-              <td>Lyndon</td>
-              <td>Bellerdine</td>
-              <td>A B C Lock &amp; Key</td>
-              <td>200 California St</td>
-              <td>San Francisco</td>
-              <td>San Francisco</td>
               <td>CA</td>
             </tr>
             <tr>

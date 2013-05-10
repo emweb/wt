@@ -12,9 +12,10 @@
 #include <Wt/WWebWidget>
 #include <Wt/WPainter>
 
-#include "DomElement.h"
+#include "web/DomElement.h"
 #include "LayoutBox.h"
 #include "rapidxml/rapidxml.hpp"
+#include "Wt/Render/Specificity.h"
 
 namespace Wt {
   namespace Render {
@@ -22,6 +23,7 @@ namespace Wt {
 class WTextRenderer;
 class Block;
 class Line;
+class StyleSheet;
 
 typedef std::vector<Block *> BlockList;
 
@@ -52,6 +54,8 @@ public:
   Block(rapidxml::xml_node<> *node, Block *parent);
   virtual ~Block();
 
+  const Block* parent() const { return parent_; }
+  BlockList children() const { return children_; }
   void determineDisplay();
   bool normalizeWhitespace(bool haveWhitespace,
 			   rapidxml::xml_document<> &doc);
@@ -73,6 +77,8 @@ public:
 		     double collapseMarginBottom,
 		     double cellHeight = -1);
 
+  void collectStyles(WStringStream& ss);
+  void setStyleSheet(StyleSheet* styleSheet);
   void actualRender(WTextRenderer& renderer, WPainter& painter, LayoutBox& lb);
 
   void render(WTextRenderer& renderer, WPainter& painter, int page);
@@ -90,6 +96,9 @@ public:
 
   static bool isWhitespace(char c);
 
+  std::string id() const;
+  std::vector<std::string> classes() const;
+  std::string cssProperty(Property property) const;
   std::string attributeValue(const char *attribute) const;
 
 private:
@@ -104,7 +113,16 @@ private:
     IgnorePercentage
   };
 
-private:
+  struct PropertyValue
+  {
+    PropertyValue() { }
+    PropertyValue(const std::string& value, const Specificity& s)
+      : value_(value), s_(s) { }
+
+    std::string value_;
+    Specificity s_;
+  };
+
   rapidxml::xml_node<> *node_;
   Block *parent_;
   BlockList offsetChildren_;
@@ -116,13 +134,18 @@ private:
   const LayoutBox *currentTheadBlock_;
   double currentWidth_;
   double contentsHeight_;
-  mutable std::map<std::string, std::string> css_;
+  mutable std::map<std::string, PropertyValue> css_;
+  StyleSheet* styleSheet_;
 
   int attributeValue(const char *attribute, int defaultValue) const;
 
+  void updateAggregateProperty(const std::string& property,
+                               const std::string& aggregate,
+                               const Specificity& spec,
+                               const std::string& value) const;
+  void fillinStyle(const std::string& style,
+                   const Specificity &specificity) const;
   bool isPositionedAbsolutely() const;
-
-  std::string cssProperty(Property property) const;
   std::string inheritedCssProperty(Property property) const;
   double cssWidth(double fontScale) const;
   double cssHeight(double fontScale) const;

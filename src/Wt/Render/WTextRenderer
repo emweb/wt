@@ -15,8 +15,9 @@ namespace Wt {
    */
   namespace Render {
 
-  class Block;
-  class LayoutBox;
+class StyleSheet;
+class Block;
+class LayoutBox;
 
 /*! \defgroup render XHTML Rendering (Wt::Render)
  *  \brief An XHTML rendering library implemented using the %Wt \ref painting
@@ -35,21 +36,23 @@ namespace Wt {
  * on high-quality rendering of text-like contents.
  *
  * The following are the main features:
- * - compliant rendering of inline (text) contents, floats,
+ * - decent rendering of inline (text) contents, floats,
  *   tables, images, ordered lists, unordered lists, in any arbitrary
- *   combination
- * - supports normal flow, and also relative and absolute positioned contents
- * - support for fonts, font styles, font sizes and text decorations
+ *   combination, with mixtures of font sizes, etc...
+ * - CSS stylesheet support using &lt;style&gt; setStyleSheet(), or inline
+ *   style attributes
+ * - layout using static flow, and also relative and absolute positioned
+ *   contents
+ * - support for (true type) fonts, font styles, font sizes and text decorations
  * - support for text alignment options, padding, margins, borders, background
  *   color (only on block elements) and text colors
- * - supports automatic and forced page breaks
+ * - supports automatic and CSS page breaks (page-break-after or
+ *   page-break-before)
  * - supports font scaling (rendering text at another DPI than the rest)
  * - can be used in conjunction with other drawing instructions to the same
  *   paint device.
  *
  * Some of the main limitations are:
- * - there is no CSS style resolution other than inline style definitions:
- *   the "class" attribute is ignored entirely.
  * - only "display: inline" or "display: block" elements are supported.
  *   "display: none" and "display: inline-block" are not (yet) recognized. 
  * - only colors defined in terms of RGB values are supported: CSS named colors
@@ -57,8 +60,8 @@ namespace Wt {
  * - Bidi (Right-to-Left) text rendering is not supported
  *
  * The basics are solid though and the hardest part has been implemented
- * (notably handling floats and (nested) tables). Anything else could be
- * easily improved, let us known in the bug tracker.
+ * (notably handling floats, (nested) tables and absolute positioned contents).
+ * Anything else could be easily improved, let us known in the bug tracker.
  *
  * This class is an abstract class. A concrete class implements the
  * pure virtual methods to create an appropriate WPaintDevice for each
@@ -164,6 +167,69 @@ public:
    */
   double render(const WString& text, double y = 0);
 
+  /*! \brief Sets the contents of a cascading style sheet (CSS).
+   *
+   * This sets the text \p contents to be used as CSS. Any previous CSS
+   * declarations are discarded. Returns true if parsing was successful,
+   * false if otherwise.
+   * If parsing failed, the stylesheet text that was already in use will
+   * not have been changed. Use getStyleSheetParseErrors to access parse
+   * error information.
+   *
+   * \warning Only the following CSS selector features are supported:
+   * - tag selectors: e.g. span or *
+   * - class name selectors: .class
+   * - id selectors: #id
+   * - descendant selectors: h1 h2 h3 {}
+   * - Multiples: h1, h2, h3 {}
+   * \code
+   * h1.a1#one.a2 h3#two.c {}
+   * \endcode
+   *
+   * \sa getStyleSheetParseErrors()
+   *
+   */
+  bool setStyleSheetText(const WString& contents);
+
+  /*! \brief Appends an external cascading style sheet (CSS).
+   *
+   * This is an overloaded member, provided for convenience. Equivalent to:
+   * \code
+   * setStyleSheetText(styleSheetText() + <filename_contents>)
+   * \endcode
+   *
+   * \sa setStyleSheetText(const WString& contents)
+   */
+  bool useStyleSheet(const WString& filename);
+
+  /*! \brief Clears the used stylesheet
+   *
+   * This is an overloaded member, provided for convenience. Equivalent to:
+   * \code
+   * setStyleSheetText("")
+   * \endcode
+   *
+   * \sa setStyleSheetText(const WString& contents)
+   */
+  void clearStyleSheet();
+
+  /*! \brief Returns the CSS in use.
+   *
+   * This returns all the CSS declarations in use.
+   */
+  WString styleSheetText() const;
+
+  /*! \brief Returns all parse error information of the last call to
+   * setStyleSheetText.
+   *
+   * setStyleSheetText stores all parse errors inside. Use
+   * getStyleSheetParseErrors to access information about them.
+   * Information is newline(\ n) seperated.
+   *
+   * \sa setStyleSheetText(const WString& contents)
+  */
+  std::string getStyleSheetParseErrors() const;
+
   /*! \brief Returns the page text width.
    *
    * This returns the width of the page in which text needs to be rendered,
@@ -257,6 +323,9 @@ private:
   WPainter *painter_;
   WPaintDevice *device_;
   double fontScale_;
+  WString styleSheetText_;
+  StyleSheet* styleSheet_;
+  std::string error_;
 
   WPainter *painter() const { return painter_; }
 

@@ -24,6 +24,5 @@ input->setStyleClass("span2");
 Wt::WPushButton *prependedDropdownButton = new Wt::WPushButton("Action");
 result->bindWidget("prependedButton", prependedDropdownButton);
 prependedDropdownButton->setMenu(popup);
-popup->show();
 
 SAMPLE_END(return result)

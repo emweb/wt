@@ -58,8 +58,9 @@ PasswordStrengthValidator::evaluateStrength(const WT_USTRING& password,
   params.random_bits = 0;
   params.max = 256;
 
+  std::string login_utf8 = loginName.toUTF8();
   passwdqc_user_t user;
-  user.pw_name = loginName.toUTF8().c_str();
+  user.pw_name = login_utf8.c_str();
   user.pw_email = email.c_str();
   
   int index = passwdqc_check(&params, password.toUTF8().c_str(), 0, &user);

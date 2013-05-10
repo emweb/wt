@@ -9,6 +9,8 @@
 #include "Message"
 #include "Wt/WException"
 #include "Wt/WStringStream"
+#include "base64.h"
+
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -84,9 +86,16 @@ void Message::addHtmlBody(const WString& text)
   htmlBody_ = text;
 }
 
-void Message::addAttachment(const std::string& mimeType /* ... */)
+void Message::addAttachment(const std::string& mimeType,
+			    const std::string& fileName,
+			    std::istream *data)
 {
+  Attachment attachment;
+  attachment.mimeType = mimeType;
+  attachment.fileName = fileName;
+  attachment.data = data;
 
+  attachments_.push_back(attachment);
 }
 
 void Message::setHeader(const std::string& name, const std::string& value)
@@ -115,38 +124,52 @@ const std::string *Message::getHeader(const std::string& name) const
   return 0;
 }
 
+std::string Message::generateBoundary()
+{
+  std::string result;
+
+  result.reserve(32);
+  result = "--=_"; // recommended as per RFC 2045
+  srand(getpid() + rand());
+
+  for (unsigned j = 0; j < 50; ++j) {
+    unsigned i = rand() % 67;
+    char c;
+    if (i < 26)
+      c = 'a' + i;
+    else if (i < 52)
+      c = 'A' + (i - 26);
+    else if (i < 62)
+      c = '0' + (i - 52);
+    else {
+      /*
+       * We had to trim this down from what is allowed by the RFC because
+       * of Outlook ...
+       */
+      const char *specials = "()+-.";
+      c = specials[i - 62];
+    }
+
+    result += c;
+  }
+
+  return result;
+}
+
 void Message::write(std::ostream& out) const
 {
-  bool mimeMultiPartAlternative = !htmlBody_.empty();
-  std::string boundary;
-
   out << "MIME-Version: 1.0\r\n"; // to support encodings
 
-  if (mimeMultiPartAlternative) {
-    boundary.reserve(32);
-    boundary = "--=_"; // recommended as per RFC 2045
-    srand(getpid() + rand());
-    for (unsigned j = 0; j < 50; ++j) {
-      unsigned i = rand() % 67;
-      char c;
-      if (i < 26)
-	c = 'a' + i;
-      else if (i < 52)
-	c = 'A' + (i - 26);
-      else if (i < 62)
-	c = '0' + (i - 52);
-      else {
-	/*
-	 * We had to trim this down from what is allowed by the RFC because
-	 * of Outlook ...
-	 */
-	const char *specials = "()+-.";
-	c = specials[i - 62];
-      }
+  bool mimeMultiPartAlternative = !htmlBody_.empty();
+  bool mimeMultiPartMixed = !attachments_.empty();
 
-      boundary += c;
-    }
-  }
+  std::string altBoundary, mixedBoundary;
+
+  if (mimeMultiPartMixed)
+    mixedBoundary = generateBoundary();
+
+  if (mimeMultiPartAlternative)
+    altBoundary = generateBoundary();
 
   from_.write("From", out);
 
@@ -176,11 +199,18 @@ void Message::write(std::ostream& out) const
     out << "\r\n";
   }
 
+  if (mimeMultiPartMixed) {
+    out << "Content-Type: multipart/mixed; boundary=\""
+	<< mixedBoundary << "\"\r\n"
+	<< "--" << mixedBoundary << "\r\n";
+  }
+
   if (mimeMultiPartAlternative) {
     out << "Content-Type: multipart/alternative; boundary=\""
-	<< boundary << "\"\r\n"
-	<< "--" << boundary << "\r\n";
+	<< altBoundary << "\"\r\n"
+	<< "--" << altBoundary << "\r\n";
   }
+
   out << "Content-Type: text/plain; charset=UTF-8\r\n"
       << "Content-Transfer-Encoding: quoted-printable\r\n"
       << "\r\n";
@@ -188,13 +218,50 @@ void Message::write(std::ostream& out) const
   encodeQuotedPrintable(body_, out);
 
   if (mimeMultiPartAlternative) {
-    out << "--" << boundary << "\r\n";
+    out << "--" << altBoundary << "\r\n";
     out << "Content-Type: text/html; charset=UTF-8\r\n"
 	<< "Content-Transfer-Encoding: quoted-printable\r\n"
 	 << "\r\n";
     encodeQuotedPrintable(htmlBody_, out);
-    out << "--" << boundary << "--\r\n";
+    out << "--" << altBoundary << "--\r\n";
   }
+
+  for (unsigned i = 0; i < attachments_.size(); ++i) {
+    out << "--" << mixedBoundary << "\r\n";
+
+    encodeAttachment(attachments_[i], out);
+  }
+
+  if (mimeMultiPartMixed)
+    out << "--" << mixedBoundary << "--\r\n";
+}
+
+void Message::encodeAttachment(const Attachment& attachment, std::ostream& out)
+{
+  out << "Content-Type: ";
+
+  std::string contentType = attachment.mimeType;
+  if (!attachment.fileName.empty())
+    contentType += "; name=\"" + attachment.fileName + "\"";
+
+  encodeWord(WString::fromUTF8(contentType), out, false);
+  out << "\r\n";
+
+  if (!attachment.fileName.empty()) {
+    out << "Content-Disposition: ";
+    encodeWord(WString::fromUTF8("attachment; filename=\""
+				 + attachment.fileName + "\""), out, false);
+    out << "\r\n";
+  }
+
+  out << "Content-Transfer-Encoding: base64\r\n"
+      << "\r\n";
+
+  std::istreambuf_iterator<char> eos;
+  std::istreambuf_iterator<char> iit(attachment.data->rdbuf());
+
+  base64::encode(iit, eos, std::ostreambuf_iterator<char>(out));
+  out << "\r\n";
 }
 
 void Message::encodeQuotedPrintable(const WString& text, std::ostream& out)

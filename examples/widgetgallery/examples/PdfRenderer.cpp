@@ -3,6 +3,7 @@
 #include <Wt/Http/Request>
 #include <Wt/Http/Response>
 #include <Wt/Render/WPdfRenderer>
+#include <Wt/WApplication>
 
 #include <hpdf.h>
 

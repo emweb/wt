@@ -184,7 +184,14 @@ public:
    */
   void addHtmlBody(const WString& text);
 
-  void addAttachment(const std::string& mimeType /* ... */);
+  /*! \brief Adds an attachment.
+   *
+   * Ownership of the \p data stream is not transferred; you should keep this
+   * object valid until the message has been sent using Client::send() or
+   * written using write().
+   */
+  void addAttachment(const std::string& mimeType, const std::string& fileName,
+		     std::istream *data);
 
   /*! \brief Writes the message to the stream.
    *
@@ -193,11 +200,22 @@ public:
   void write(std::ostream& out) const;
 
 private:
+  struct Attachment {
+    std::string mimeType;
+    std::string fileName;
+    std::istream *data;
+  };
+
   Mailbox from_, replyTo_;
   std::vector<Recipient> recipients_;
   std::vector<Header> headers_;
+  std::vector<Attachment> attachments_;
 
   WString subject_, body_, htmlBody_;
+
+  static std::string generateBoundary();
+  static void encodeAttachment(const Attachment& attachment,
+			       std::ostream& out);
 
   static void encodeChar(WStringStream& s, unsigned char c);
   static void encodeWord(const WString& text, std::ostream& out,

@@ -290,9 +290,13 @@ Wt/Payment/Order.C
 Wt/Payment/OrderItem.C
 Wt/Payment/Result.C
 Wt/Render/Block.C
+Wt/Render/CssData.C
+Wt/Render/CssData_p.C
+Wt/Render/CssParser.C
 Wt/Render/Line.C
 Wt/Render/LayoutBox.C
 Wt/Render/RenderUtils.C
+Wt/Render/Specificity.C
 Wt/Render/WTextRenderer.C
 web/md5.c
 web/sha1.c
