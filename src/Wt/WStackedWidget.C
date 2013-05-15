@@ -22,8 +22,6 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
     javaScriptDefined_(false),
     loadAnimateJS_(false)
 {
-  WT_DEBUG( setObjectName("WStackedWidget") );
-
   addStyleClass("Wt-stack");
 }
 

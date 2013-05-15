@@ -50,6 +50,17 @@ namespace {
     2,
     2
   };
+
+#ifndef WT_TARGET_JAVA
+#define toUnsigned unsigned
+#else
+  static unsigned toUnsigned(int c) {
+    unsigned result = c;
+    if (result < 0)
+      result += 256;
+    return result;
+  }
+#endif
 }
 
 namespace Wt {
@@ -101,18 +112,18 @@ WPoint ImageUtils::getSize(const std::vector<unsigned char>& header)
   std::string mimeType = identifyMimeType(header);
 
   if (mimeType == "image/png") {
-    int width = ( ( ( int(header[16]) << 8
-		      | int(header[17])) << 8
-		    | int(header[18])) << 8
-		  | int(header[19]));
-    int height = ( ( ( int(header[20]) << 8
-		       | int(header[21])) << 8
-		     | int(header[22])) << 8
-		   | int(header[23]));
+    int width = ( ( ( toUnsigned(header[16]) << 8
+		      | toUnsigned(header[17])) << 8
+		    | toUnsigned(header[18])) << 8
+		  | toUnsigned(header[19]));
+    int height = ( ( ( toUnsigned(header[20]) << 8
+		       | toUnsigned(header[21])) << 8
+		     | toUnsigned(header[22])) << 8
+		   | toUnsigned(header[23]));
     return WPoint(width, height);
   } else if (mimeType == "image/gif") {
-    int width = int(header[7]) << 8 | int(header[6]);
-    int height = int(header[9]) << 8 | int(header[8]);
+    int width = toUnsigned(header[7]) << 8 | toUnsigned(header[6]);
+    int height = toUnsigned(header[9]) << 8 | toUnsigned(header[8]);
     return WPoint(width, height);
   } else
     return WPoint();

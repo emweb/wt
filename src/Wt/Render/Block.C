@@ -2950,6 +2950,9 @@ std::string Block::cssProperty(Property property) const
 
 std::string Block::attributeValue(const char *attribute) const
 {
+  if (!node_)
+    return std::string();
+
   xml_attribute<> *attr = node_->first_attribute(attribute);
 
   if (attr)

@@ -39,10 +39,9 @@ class LayoutBox;
  * - decent rendering of inline (text) contents, floats,
  *   tables, images, ordered lists, unordered lists, in any arbitrary
  *   combination, with mixtures of font sizes, etc...
- * - CSS stylesheet support using &lt;style&gt; setStyleSheet(), or inline
- *   style attributes
- * - layout using static flow, and also relative and absolute positioned
- *   contents
+ * - CSS stylesheet support using in-document &lt;style&gt;, inline style
+ *   attributes or using setStyleSheetText().
+ * - support for relative and absolute positioned layout contexts
  * - support for (true type) fonts, font styles, font sizes and text decorations
  * - support for text alignment options, padding, margins, borders, background
  *   color (only on block elements) and text colors
@@ -59,9 +58,9 @@ class LayoutBox;
  *   (e.g. 'blue') are not allowed.
  * - Bidi (Right-to-Left) text rendering is not supported
  *
- * The basics are solid though and the hardest part has been implemented
- * (notably handling floats, (nested) tables and absolute positioned contents).
- * Anything else could be easily improved, let us known in the bug tracker.
+ * The renderer is not CSS compliant (simply because it is still lacking
+ * alot of features), but the subset of CSS that is supported is a pragmatic
+ * choice. If things are lacking, let us known in the bug tracker.
  *
  * This class is an abstract class. A concrete class implements the
  * pure virtual methods to create an appropriate WPaintDevice for each
@@ -69,7 +68,7 @@ class LayoutBox;
  * needs to support font metrics, which currently is only implemented
  * by WPdfImage or WRasterImage.
  *
- * All coordinates and dimensions used by this class are pixel coordinates.
+ * All coordinates and dimensions in the API below are pixel coordinates.
  *
  * \ingroup render
  */
@@ -181,13 +180,12 @@ public:
    * - class name selectors: .class
    * - id selectors: #id
    * - descendant selectors: h1 h2 h3 {}
-   * - Multiples: h1, h2, h3 {}
+   * - multiples: h1, h2, h3 {}
    * \code
    * h1.a1#one.a2 h3#two.c {}
    * \endcode
    *
    * \sa getStyleSheetParseErrors()
-   *
    */
   bool setStyleSheetText(const WString& contents);
 
@@ -198,7 +196,7 @@ public:
    * setStyleSheetText(styleSheetText() + <filename_contents>)
    * \endcode
    *
-   * \sa setStyleSheetText(const WString& contents)
+   * \sa setStyleSheetText()
    */
   bool useStyleSheet(const WString& filename);
 
@@ -209,13 +207,15 @@ public:
    * setStyleSheetText("")
    * \endcode
    *
-   * \sa setStyleSheetText(const WString& contents)
+   * \sa setStyleSheetText()
    */
   void clearStyleSheet();
 
   /*! \brief Returns the CSS in use.
    *
    * This returns all the CSS declarations in use.
+   *
+   * \sa setStyleSheetText()
    */
   WString styleSheetText() const;
 

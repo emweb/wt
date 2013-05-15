@@ -28,14 +28,11 @@ const Wt::Render::Block* childBlock(const Wt::Render::Block* parent,
   return block;
 }
 
-rapidxml::xml_document<>* createXHtml(std::string xhtml)
+rapidxml::xml_document<>* createXHtml(const char *xhtml)
 {
-  unsigned l = xhtml.length();
-  char* cxhtml = new char[l + 1];
-  memcpy(cxhtml, xhtml.c_str(), l);
-  cxhtml[l] = 0;
-
   rapidxml::xml_document<>* doc = new rapidxml::xml_document<>();
+
+  char *cxhtml = doc->allocate_string(xhtml);
   doc->parse<rapidxml::parse_xhtml_entity_translation>(cxhtml);
 
   return doc;
@@ -75,6 +72,9 @@ BOOST_AUTO_TEST_CASE( CssSelector_test1 )
   // PASS li/h1/h2/h1 to "h1 h1"
   BOOST_REQUIRE(  Match::isMatch(childBlock(&b, list_of(1)(0)(0)(0)),
                   style->rulesetAt(4).selector() ) );
+
+  delete style;
+  delete doc;
 }
 
 BOOST_AUTO_TEST_CASE( CssSelector_test2 )
@@ -100,6 +100,9 @@ BOOST_AUTO_TEST_CASE( CssSelector_test2 )
   // FAIL h1/h2/h3 to "#two h3#four"
   BOOST_REQUIRE( !Match::isMatch(childBlock(&b, list_of(0)(0)(0)),
                   style->rulesetAt(2).selector() ) );
+
+  delete style;
+  delete doc;
 }
 
 BOOST_AUTO_TEST_CASE( CssSelector_test3 )
@@ -128,8 +131,10 @@ BOOST_AUTO_TEST_CASE( CssSelector_test3 )
   // PASS h1/h2/h3/h4 to ".b .c.e .d"
   BOOST_REQUIRE(  Match::isMatch(childBlock(&b, list_of(0)(0)(0)(0)),
                   style->rulesetAt(3).selector() ) );
-}
 
+  delete style;
+  delete doc;
+}
 
 BOOST_AUTO_TEST_CASE( CssSelector_test4 )
 {
@@ -146,8 +151,10 @@ BOOST_AUTO_TEST_CASE( CssSelector_test4 )
   // PASS h1/h2/h3 to "h1.a1#one.a2 * h3#two.c{}"
   BOOST_REQUIRE(  Match::isMatch(childBlock(&b, list_of(0)(0)(0)),
                   style->rulesetAt(0).selector() ) );
-}
 
+  delete style;
+  delete doc;
+}
 
 BOOST_AUTO_TEST_CASE( CssSelector_testSpecificity )
 {
@@ -160,6 +167,7 @@ BOOST_AUTO_TEST_CASE( CssSelector_testSpecificity )
                  == Wt::Render::Specificity(0,0,0,0) );
   BOOST_REQUIRE( style->rulesetAt(2).selector().specificity()
                  == Wt::Render::Specificity(0,2,3,4) );
+  delete style;
 }
 
 #endif // CSS_PARSER

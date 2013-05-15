@@ -976,11 +976,9 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
   /* Contents */
 
   WContainerWidget *contents = new WContainerWidget();
-  contents->setObjectName("contents");
 
   if (info.sorting) {
     WText *sortIcon = new WText(contents);
-    sortIcon->setObjectName("sort");
     sortIcon->setInline(false);
     sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
     clickedForSortMapper_->mapConnect(sortIcon->clicked(), info.id);

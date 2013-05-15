@@ -29,8 +29,6 @@ void WTabWidget::create()
 {
   setImplementation(layout_ = new WContainerWidget());
 
-  WT_DEBUG( setObjectName("WTabWidget") );
-
   menu_ = new WMenu(new WStackedWidget());
 
   layout_->addWidget(menu_);

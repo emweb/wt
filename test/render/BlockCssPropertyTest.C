@@ -25,14 +25,10 @@ const Wt::Render::Block* childBlock2(const Wt::Render::Block* parent,
   return block;
 }
 
-rapidxml::xml_document<>* createXHtml2(std::string xhtml)
+rapidxml::xml_document<>* createXHtml2(const char * xhtml)
 {
-  unsigned l = xhtml.length();
-  char* cxhtml = new char[l + 1];
-  memcpy(cxhtml, xhtml.c_str(), l);
-  cxhtml[l] = 0;
-
   rapidxml::xml_document<>* doc = new rapidxml::xml_document<>();
+  char *cxhtml = doc->allocate_string(xhtml);
   doc->parse<rapidxml::parse_xhtml_entity_translation>(cxhtml);
 
   return doc;
@@ -83,6 +79,9 @@ BOOST_AUTO_TEST_CASE( BlockCssProperty_test1 )
   // h1/h2 border-right == 120px
   BOOST_REQUIRE(childBlock2(&b, list_of(1)(0))
                 ->cssProperty(Wt::PropertyStyleBorderRight) == "120px");
+
+  delete style;
+  delete doc;
 }
 
 #endif // CSS_PARSER

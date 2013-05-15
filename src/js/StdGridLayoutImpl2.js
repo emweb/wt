@@ -120,19 +120,26 @@ WT_DECLARE_WT_MEMBER
      var clientSize = dir ? element.clientHeight : element.clientWidth;
 
      /*
-      * Firefox sets scrollSize = clientSize when there is no overflow
-      * on the widget. But setting merely overflow does not help. Removing
+      * Firefox sets scrollSize = clientSize when there are no scrollbars
+      * configured (overflow == 'visible' or 'none') on the widget.
+      * But setting merely overflow does not help. Removing
       * the size constraint temporarily does work.
       */
-     if (WT.isGecko && dir == HORIZONTAL) {
+     function isNone(overflow) {
+       return overflow == 'visible' || overflow == 'none';
+     }
+
+     if (WT.isGecko &&
+	 dir == HORIZONTAL &&
+	 isNone(WT.css(element, 'overflow'))) {
        p = element.style[DC.size];
        setCss(element, DC.size, '');
      }
      var offsetSize = dir ? element.offsetHeight : element.offsetWidth;
      setCss(element, DC.left, l);
-     if (WT.isGecko && dir == HORIZONTAL) {
+
+     if (p)
        setCss(element, DC.size, p);
-     }
 
      /*
       * Firefox sometimes adds the -NA offset to the reported size

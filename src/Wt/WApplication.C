@@ -169,7 +169,6 @@ WApplication::WApplication(const WEnvironment& env
 
     domRoot2_ = 0;
     widgetRoot_ = new WContainerWidget(domRoot_);
-    WT_DEBUG(widgetRoot_->setObjectName("wt-app-root"));
     widgetRoot_->resize(WLength::Auto,
 			WLength(100, WLength::Percentage));
   } else {

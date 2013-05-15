@@ -67,7 +67,6 @@ WText::WText(WContainerWidget *parent)
     padding_(0)
 {
   flags_.set(BIT_WORD_WRAP);
-  WT_DEBUG(setObjectName("WText"));
 }
 
 WText::WText(const WString& text, WContainerWidget *parent)
@@ -75,7 +74,6 @@ WText::WText(const WString& text, WContainerWidget *parent)
     padding_(0)
 {
   flags_.set(BIT_WORD_WRAP);
-  WT_DEBUG(setObjectName("WText"));
   setText(text);
 }
 
@@ -85,7 +83,6 @@ WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
 {
   text_.format = format;
   flags_.set(BIT_WORD_WRAP);
-  WT_DEBUG(setObjectName("WText"));
   setText(text);
 }
 
