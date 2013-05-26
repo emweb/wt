@@ -529,9 +529,14 @@ void Reply::encodeNextContentBuffer(
 	  }
 	} while (gzipStrm_.avail_out == 0);
       }
-    } else if (gzipStrm_.next_in) {
+    } else {
       unsigned char out[16*1024];
+      unsigned char in[1];
       do {
+	if (!gzipStrm_.next_in) {
+	  gzipStrm_.next_in = in;
+	  gzipStrm_.avail_in = 0;
+	}
 	gzipStrm_.next_out = out;
 	gzipStrm_.avail_out = sizeof(out);
 
