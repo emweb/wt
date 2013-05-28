@@ -691,16 +691,19 @@ bool WDate::writeSpecial(const std::string& f, unsigned&i,
 namespace {
 
   std::string extLiteral(char c) {
-    char extSpecial[] = { ',', 'D', 'j', 'l', 'S', 'w', 'z', 'W', 'F', 'm', 'M',
-			  'n', 't', 'L', 'Y', 'y', 'a', 'A', 'g', 'G', 'h', 'H',
-			  'i', 's', 'O', 'T', 'Z', 0 };
-
-    for (int i = 0; extSpecial[i]; ++i) {
-      if (c == extSpecial[i])
-	return "\\" + c;
+    std::string result("");
+    switch (c) {
+      case ',': case 'D': case 'j': case 'l':
+      case 'S': case 'w': case 'z': case 'W':
+      case 'F': case 'm': case 'M': case 'n':
+      case 't': case 'L': case 'Y': case 'y':
+      case 'a': case 'A': case 'g': case 'G':
+      case 'h': case 'H': case 'i': case 's':
+      case 'O': case 'T': case 'Z': case 0:
+      result.push_back('\\');
     }
-
-    return std::string() + c;
+    result.push_back(c);
+    return result;
   }
 
   void writeExtLast(std::string& result, int& d, int& M, int& y,
