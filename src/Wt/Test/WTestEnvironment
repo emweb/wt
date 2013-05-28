@@ -20,8 +20,6 @@ class WebController;
 
 namespace Test {
 
-class TestServer;
-
 /*! \class WTestEnvironment Wt/Test/WTestEnvironment Wt/Test/WTestEnvironment
  *  \brief An environment for testing purposes.
  *
@@ -312,8 +310,6 @@ private:
   virtual bool isTest() const;
 
   void init(EntryPointType type);
-
-  friend class TestServer;
 };
 
 }
