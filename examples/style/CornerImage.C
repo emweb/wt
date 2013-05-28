@@ -35,7 +35,7 @@ public:
     painter.setBrush(img->background());
     painter.drawRect(0, 0, img->radius(), img->radius());
 
-    int cx, cy;
+    double cx, cy;
 
     if (img->corner() & Top)
       cy = img->radius() + 0.5;
