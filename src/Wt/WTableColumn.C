@@ -10,9 +10,8 @@
 
 namespace Wt {
 
-WTableColumn::WTableColumn(WTable *table)
-  : table_(table),
-    width_(0),
+WTableColumn::WTableColumn()
+  : width_(0),
     id_(0)
 { }
 

@@ -58,6 +58,16 @@ void WWidget::setParentWidget(WWidget *p)
     p->addChild(this);
 }
 
+void WWidget::removeChild(WObject *child)
+{
+  WWidget *w = dynamic_cast<WWidget *>(child);
+
+  if (w)
+    removeChild(w);
+  else
+    WObject::removeChild(child);
+}
+
 void WWidget::refresh()
 {
   setJsSize();

@@ -529,8 +529,18 @@ void Reply::encodeNextContentBuffer(
 	  }
 	} while (gzipStrm_.avail_out == 0);
       }
-    } else if (gzipStrm_.next_in) {
-      unsigned char out[16*1024];
+    } else {
+      unsigned char out[16*1024], in[1];
+
+      /*
+       * Could be for a 0 length response, still needs to be properly
+       * encoded.
+       */
+      if (!gzipStrm_.next_in) {
+	gzipStrm_.next_in = in;
+	gzipStrm_.avail_in = 0;
+      }
+
       do {
 	gzipStrm_.next_out = out;
 	gzipStrm_.avail_out = sizeof(out);

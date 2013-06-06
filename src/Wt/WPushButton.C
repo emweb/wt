@@ -250,12 +250,15 @@ void WPushButton::updateDom(DomElement& element, bool all)
     }
   }
 
+  WApplication::instance()->theme()->apply(this, element,
+					   MainElementThemeRole);
+
   WFormWidget::updateDom(element, all);
 }
 
 void WPushButton::renderHRef(DomElement& element)
 {
-  if (!linkState_.link.isNull()) {
+  if (!linkState_.link.isNull() && !isDisabled()) {
     WApplication *app = WApplication::instance();
 
     if (!linkState_.clickJS) {
@@ -315,6 +318,13 @@ void WPushButton::propagateRenderOk(bool deep)
   flags_.reset();
 
   WFormWidget::propagateRenderOk(deep);
+}
+
+void WPushButton::propagateSetEnabled(bool enabled)
+{
+  WFormWidget::propagateSetEnabled(enabled);
+  flags_.set(BIT_LINK_CHANGED);
+  repaint(RepaintPropertyIEMobile);
 }
 
 WT_USTRING WPushButton::valueText() const

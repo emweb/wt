@@ -116,6 +116,8 @@ void WAbstractChart::setModel(WAbstractItemModel *model)
 		      (this, &WAbstractChart::modelReset));
   modelConnections_.push_back(model_->modelReset().connect
 		      (this, &WAbstractChart::modelReset));
+  modelConnections_.push_back(model_->headerDataChanged().connect
+		      (this, &WAbstractChart::modelHeaderDataChanged));
 
   modelChanged();
 }

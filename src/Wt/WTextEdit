@@ -26,21 +26,47 @@ namespace Wt {
  * configured and tailored using the setConfigurationSetting() and
  * related methods that provide direct access to the underlying
  * TinyMCE component.
- * 
- * \if cpp
- * To use this widget, you need to download TinyMCE (version 3.5b1 or
- * later) and deploy the <tt>tinymce/jscripts/tiny_mce</tt> folder to
- * <i>tinyMCEBaseURL</i>. The default value for <i>tinyMCEBaseURL</i> is
- * <i>resourcesURL</i><tt>/tiny_mce</tt>, where <i>resourcesURL</i> is
- * the configuration property that locates the %Wt <tt>resources/</tt>
- * folder (i.e., we assume by default that you copy the
- * <tt>tiny_mce</tt> folder to the <tt>resources/</tt> folder), see
- * also \ref deployment "deployment and resources".
  *
- * The value may be overridden with a URL that points to the directory
- * where the <tt>tiny_mce</tt> folder is located, by configuring the
- * <i<>tinyMCEBaseURL/i> property in your %Wt configuration file, see \ref
- * config_general "configuration properties".
+ * \if cpp
+ * You can use this widget with TinyMCE version 3 or 4, but this requires
+ * different configurations.
+ *
+ * By default, %Wt assumes a 3.x version of TinyMCE. You need to
+ * download TinyMCE (version 3.5b1 or later) and deploy the
+ * <tt>tinymce/jscripts/tiny_mce</tt> folder to
+ * <i>tinyMCEBaseURL</i>. The default value for <i>tinyMCEBaseURL</i>
+ * is <i>resourcesURL</i><tt>/tiny_mce</tt>, where <i>resourcesURL</i>
+ * is the configuration property that locates the %Wt
+ * <tt>resources/</tt> folder (i.e., we assume by default that you
+ * copy the <tt>tiny_mce</tt> folder to the <tt>resources/</tt>
+ * folder), see also \ref deployment "deployment and resources".
+ *
+ * If you prefer to use TinyMCE 4 (or later) instead, you'll need to
+ * set the <i>tinyMCEVersion</i> property to 4 (or later). Note that
+ * TinyMCE changed its folder layout in version 4. You will need to
+ * deploy the <tt>js/tinymce</tt> folder to <i>tinyMCEBaseURL</i>. The
+ * default value for <i>tinyMCEBaseURL</i> for TinyMCE 4 (or later) is
+ * is <i>resourcesURL</i><tt>/tinymce</tt> (i.e., we assume by default that you
+ * copy the <tt>tiny_mce</tt> folder to the <tt>resources/</tt>
+ * folder)
+ *
+ * Because the default folder names are different ("tiny_mce" for
+ * version 3 versus "tinymce" for version 4, you can have the
+ * resources for TinyMCE3 and TinyMCE4 alongside each other while
+ * experimenting with the old and new TinyMCE).
+ *
+ * The default location for the TinyMCE resources may be overridden by
+ * configuring the <i>tinyMCEBaseURL</i> property in your %Wt
+ * configuration file, see \ref config_general "configuration
+ * properties".
+ *
+ * \endif
+ *
+ * \if java
+ * You can use this widget with TinyMCE version 3 or version 4.
+ *
+ * The choice is global and set using
+ * {@link Configuration#setTinyMCEVersion(int)}.
  * \endif
  *
  * \if cpp
@@ -76,6 +102,12 @@ public:
    */
   ~WTextEdit();
 
+  /*! \brief Returns the TinyMCE version.
+   *
+   * This returns the configured version of TinyMCE (currently 3 or 4).
+   */
+  int version() const { return version_; }
+
   /*! \brief Sets the content.
    *
    * The \p text should be valid XHTML.
@@ -109,7 +141,7 @@ public:
    * list.
    *
    * The various plugins are described in the <a
-   * href="http://wiki.moxiecode.com/index.php/TinyMCE:Plugins">TinyMCE
+   * href="http://www.tinymce.com/wiki.php/Plugins">TinyMCE
    * documentation</a>.
    *
    * \note Plugins can only be loaded before the initial display of
@@ -128,8 +160,9 @@ public:
    * This configures the buttons for the \p i'th tool bar (with 0
    * <= \p i <= 3).
    *
+   * <h3>TinyMCE 3</h3>
    * The syntax and available buttons is documented in the <a
-   * href="http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/theme_advanced_buttons_1_n">TinyMCE
+   * href="http://www.tinymce.com/wiki.php/Configuration3x:theme_advanced_buttons_1_n">TinyMCE
    * documentation</a>.
    *
    * The default <i>config</i> for the first tool bar (\p i = 0)
@@ -138,6 +171,15 @@ public:
     justifyfull, |, anchor, |, numlist, bullist".
    *
    * By default, the other three tool bars are disabled (\p config = "").
+   *
+   * <h3>TinyMCE 4</h3>
+   *
+   * The syntax and available buttons is documented in the <a
+   * href="http://www.tinymce.com/wiki.php/Configuration:toolbar%3CN%3E">
+   * TinyMCEdocumentation</a>.
+   *
+   * The default <i>config</i> for the first tool bar (\p i = 0)
+    is: "undo redo | styleselect | bold italic | link".
    *
    * Some buttons are only available after loading extra plugins using
    * setExtraPlugins().
@@ -184,6 +226,7 @@ protected:
   virtual int boxBorder(Orientation orientation) const;
 
 private:
+  int version_;
   bool contentChanged_;
   std::map<std::string, boost::any> configurationSettings_;
 
@@ -191,6 +234,7 @@ private:
 
   void init();
   static void initTinyMCE();
+  static int getTinyMCEVersion();
 };
 
 }

@@ -306,7 +306,7 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
 {
   WApplication *app = WApplication::instance();
 
-  if (linkState.link.isNull())
+  if (linkState.link.isNull() || widget->isDisabled())
     element.removeAttribute("href");
   else {
     std::string url = linkState.link.resolveUrl(app);
@@ -366,6 +366,13 @@ void WAnchor::propagateRenderOk(bool deep)
   flags_.reset(BIT_TARGET_CHANGED);
 
   WContainerWidget::propagateRenderOk(deep);
+}
+
+void WAnchor::propagateSetEnabled(bool enabled)
+{
+  WContainerWidget::propagateSetEnabled(enabled);
+
+  resourceChanged();
 }
 
 DomElementType WAnchor::domElementType() const

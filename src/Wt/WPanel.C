@@ -144,13 +144,23 @@ void WPanel::setCollapsible(bool on)
 
     collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);
     collapseIcon_->icon1Clicked().connect(this, &WPanel::onCollapse);
+    collapseIcon_->icon1Clicked().preventPropagation();
     collapseIcon_->icon2Clicked().connect(this, &WPanel::doExpand);
     collapseIcon_->icon2Clicked().connect(this, &WPanel::onExpand);
-    collapseIcon_->setState(0);
+    collapseIcon_->icon2Clicked().preventPropagation();
+    collapseIcon_->setState(isCollapsed() ? 1 : 0);
+
+    titleBarWidget()->clicked().connect(this, &WPanel::toggleCollapse);
+
   } else if (!on && collapseIcon_) {
     delete collapseIcon_;
     collapseIcon_ = 0;
   }
+}
+
+void WPanel::toggleCollapse()
+{
+  setCollapsed(!isCollapsed());
 }
 
 void WPanel::setCollapsed(bool on)
@@ -163,7 +173,7 @@ void WPanel::setCollapsed(bool on)
 
 bool WPanel::isCollapsed() const
 {
-  return isCollapsible() && collapseIcon_->state() == 1;
+  return centralArea()->isHidden();
 }
 
 void WPanel::collapse()

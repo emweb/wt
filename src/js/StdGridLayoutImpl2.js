@@ -377,13 +377,6 @@ WT_DECLARE_WT_MEMBER
 	   if (!progressive && item.w.style.position != 'absolute') {
 	     item.w.style.position = 'absolute';
 	     item.w.style.visibility = 'hidden';
-
-	     if (!item.w.wtResize && !WT.isIE) {
-	       item.w.style.boxSizing = 'border-box';
-	       var cssPrefix = WT.cssPrefix('BoxSizing');
-	       if (cssPrefix)
-		 item.w.style[cssPrefix + 'BoxSizing'] = 'border-box';
-	     }
 	   }
 
 	   if (!item.ps)
@@ -461,7 +454,7 @@ WT_DECLARE_WT_MEMBER
 		   if (item.wasLayout) {
 		     item.wasLayout = false;
 		     item.set = [false, false];
-		     item.ps -= 0.1; 
+		     item.ps = [];
 		     if (item.w.wtResize)
 		       item.w.wtResize(item.w, -1, -1, true);
 		     setCss(item.w, DirConfig[1].size, '');
@@ -484,8 +477,8 @@ WT_DECLARE_WT_MEMBER
 		      * width/height
 		      */
 		     if (item.psize[dir] > 8)
-		       sizeSet = (calculated >= item.psize[dir] - 2) &&
-			 (calculated <= item.psize[dir] + 2);
+		       sizeSet = (calculated >= item.psize[dir] - 4) &&
+			 (calculated <= item.psize[dir] + 4);
 		   }
 
 		   /*
@@ -538,9 +531,9 @@ WT_DECLARE_WT_MEMBER
 			   + item.ps[1]);
 
 	     // XXX second condition is a hack for WTextEdit
-	     if ((item.w.style.display !== 'none'
-		 || (WT.hasTag(item.w, 'TEXTAREA') && item.w.wtResize))
-		 && (!item.span || item.span[dir] == 1)) {
+	     var hidden = item.w.style.display === 'none' && !item.w.ed;
+
+	     if (!hidden && (!item.span || item.span[dir] == 1)) {
 	       allHidden = false;
 	     }
 	   }
@@ -871,19 +864,14 @@ WT_DECLARE_WT_MEMBER
 
      if (DC.maxSize && !DC.sizeSet) {
        // (2) adjust container width/height
-       if (totalPreferredSize + otherPadding < DC.maxSize) {
-	 if (setCss(container, DC.size,
-		    (totalPreferredSize
-		     + otherPadding + sizePadding(container, dir)) + 'px'))
-	   APP.layouts2.remeasure();
+       var sz = Math.min(totalPreferredSize, DC.maxSize) + otherPadding;
+       if (setCss(container, DC.size,
+		  (sz + sizePadding(container, dir)) + 'px'))
+	 APP.layouts2.remeasure();
 
-	 cSize = totalPreferredSize + otherPadding;
-	 cPaddedSize = true;
-	 noStretch = true;
-       } else {
-	 cSize = DC.maxSize;
-	 cClientSize = false;
-       }
+       cSize = sz;
+       cPaddedSize = true;
+       noStretch = true;
      }
 
      DC.cSize = cSize;
@@ -1194,8 +1182,9 @@ WT_DECLARE_WT_MEMBER
 	     if (WT.isIE && WT.hasTag(w, 'BUTTON'))
 	       setSize = true;
 
-	     if (w.style.display !== 'none' &&
-		 (setSize || ts != ps || item.layout)) {
+	     var hidden = w.style.display === 'none' && !w.ed;
+
+	     if (!hidden && (setSize || ts != ps || item.layout)) {
 	       if (setCss(w, DC.size, tsm + 'px'))
 		 setItemDirty(item);
 	       item.set[dir] = true;

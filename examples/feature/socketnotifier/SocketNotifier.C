@@ -166,8 +166,9 @@ private:
 
   void write()
   {
-    const char request[] = "GET " URL_PATH
-      " HTTP/1.1\r\nHost: " HOSTNAME "\r\n\r\n";
+    const char request[] = "GET " URL_PATH " HTTP/1.1\r\n"
+      "Host: " HOSTNAME "\r\n"
+      "Connection: Close\r\n\r\n";
 
     switch(state_) {
     case CONNECT:

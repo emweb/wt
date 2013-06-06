@@ -144,14 +144,18 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
 				     const std::string& arg5,
 				     const std::string& arg6) const
 {
-  if (!this->isExposedSignal())
+  /*
+   * If we aren't connected yet to anything, assume we will be later to
+   * a server-side signal, and expose the signal now.
+   */
+  if (!this->isExposedSignal() && !isConnected())
     const_cast<EventSignalBase*>(this)->exposeSignal();
 
   std::stringstream result;
 
   result << javaScript();
 
-  if (flags_.test(BIT_SERVER_EVENT) || flags_.test(BIT_SIGNAL_SERVER_ANYWAY)) {
+  if (flags_.test(BIT_SERVER_EVENT)) {
     WApplication *app = WApplication::instance();
 
     std::string senderId = encodeCmd();

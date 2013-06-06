@@ -355,6 +355,7 @@ protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void propagateRenderOk(bool deep);
+  virtual void propagateSetEnabled(bool enabled);
   virtual void enableAjax();
 
   friend class WAbstractArea;

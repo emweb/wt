@@ -9,9 +9,6 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
-#ifdef WT_THREADED
-#include <boost/thread.hpp>
-#endif
 #include <boost/function.hpp>
 
 namespace boost {
@@ -21,6 +18,8 @@ namespace boost {
 #include <Wt/WDllDefs.h>
 
 namespace Wt {
+
+class WIOServiceImpl;
 
 /**! \class WIOService Wt/WIOService Wt/WIOService
  *   \brief An I/O service.
@@ -96,16 +95,7 @@ public:
   void releaseBlockedThread();
 
 private:
-  int threadCount_;
-  boost::asio::io_service::work *work_;
-
-#ifdef WT_THREADED
-  boost::mutex blockedThreadMutex_;
-  int blockedThreadCounter_;
-#endif
-
-  std::vector<boost::thread *> threads_;
-
+  WIOServiceImpl *impl_;
   void handleTimeout(boost::asio::deadline_timer *timer,
 		     const boost::function<void ()>& function,
 		     const boost::system::error_code& e);

@@ -145,7 +145,7 @@ enum ItemDataRole {
 enum ItemFlag {
   ItemIsSelectable = 0x1,    //!< Item can be selected
   ItemIsEditable = 0x2,      //!< Item can be edited
-  ItemIsUserCheckable = 0x4, //!< Item can be checked
+  ItemIsUserCheckable = 0x4, //!< Item can be checked (checkbox is enabled)
   ItemIsDragEnabled = 0x8,   //!< Item can be dragged
   ItemIsDropEnabled = 0x10,  //!< Item can be a drop target
   /*! Item has tree states. When set, Wt::CheckStateRole data is of type

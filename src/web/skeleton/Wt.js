@@ -472,6 +472,11 @@ this.unstub = function(from, to, methodDisplay) {
     to.style.height = from.style.height;
   if (from.style.width)
     to.style.width = from.style.width;
+
+  to.style.boxSizing = from.style.boxSizing;
+  var cssPrefix = WT.cssPrefix('BoxSizing');
+  if (cssPrefix)
+    to.style[cssPrefix + 'BoxSizing'] = from.style[cssPrefix + 'BoxSizing'];
 };
 
 this.saveReparented = function(el) {

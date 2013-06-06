@@ -191,7 +191,7 @@ const WString& WMenuItem::text() const
 
 std::string WMenuItem::pathComponent() const
 {
-  return pathComponent_;
+  return isSectionHeader() ? "--none--" : pathComponent_;
 }
 
 void WMenuItem::setLink(const WLink& link)
@@ -346,9 +346,10 @@ void WMenuItem::renderSelected(bool selected)
 
   std::string active = app->theme()->activeClass();
 
-  if (active == "Wt-selected") // for CSS theme, our styles are messed up
-    setStyleClass(selected ? "itemselected" : "item");
-  else
+  if (active == "Wt-selected"){ // for CSS theme, our styles are messed up
+    removeStyleClass(!selected ? "itemselected" : "item", true);
+    addStyleClass(selected ? "itemselected" : "item", true);
+  } else
     toggleStyleClass(active, selected, true);
 }
 
@@ -449,7 +450,7 @@ void WMenuItem::setFromInternalPath(const std::string& path)
 
 void WMenuItem::select()
 {
-  if (menu_ && selectable_)
+  if (menu_ && selectable_ && !isDisabled())
     menu_->select(this);
 }
 

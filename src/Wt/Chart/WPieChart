@@ -262,6 +262,7 @@ private:
 
   std::vector<PieData> pie_;
 
+protected:
   virtual void modelChanged();
   virtual void modelReset();
   virtual void modelColumnsInserted(const WModelIndex& parent,
@@ -274,7 +275,10 @@ private:
 				int start, int end);
   virtual void modelDataChanged(const WModelIndex& topLeft,
 				const WModelIndex& bottomRight);
+  virtual void modelHeaderDataChanged(Orientation orientation,
+				      int start, int end);
 
+private:
   void drawPie(WPainter& painter, double cx, double cy, double r, double h,
 	       double total) const;
   void drawSlices(WPainter& painter, double cx, double cy, double r,

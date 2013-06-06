@@ -88,6 +88,19 @@ inline int indexOf(const std::vector<T>& v, const T& value)
 }
 
 template<typename T>
+inline bool add(std::vector<T>& v, const T& value)
+{
+  typename std::vector<T>::iterator i = std::find(v.begin(), v.end(), value);
+
+  if (i != v.end())
+    return false;
+  else {
+    v.push_back(value);
+    return true;
+  }
+}
+
+template<typename T>
 inline bool erase(std::vector<T>& v, const T& value)
 {
   typename std::vector<T>::iterator i = std::find(v.begin(), v.end(), value);

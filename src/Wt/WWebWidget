@@ -93,6 +93,8 @@ public:
   WWebWidget(WContainerWidget *parent = 0);
   virtual ~WWebWidget();
 
+  using WWidget::removeChild;
+
   virtual void setPositionScheme(PositionScheme scheme);
   virtual PositionScheme positionScheme() const;
   virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All);
@@ -282,7 +284,6 @@ protected:
   virtual bool isStubbed() const;
   virtual void enableAjax();
 
-  virtual void removeChild(WObject *child);
   virtual void addChild(WWidget *child);
   virtual void removeChild(WWidget *child);
   virtual void setHideWithOffsets(bool how = true);

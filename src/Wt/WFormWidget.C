@@ -135,7 +135,12 @@ bool WFormWidget::isReadOnly() const
 
 void WFormWidget::setEmptyText(const WString& emptyText) 
 {
-  emptyText_ = emptyText;
+  setPlaceholderText(emptyText);
+}
+
+void WFormWidget::setPlaceholderText(const WString& placeholderText)
+{
+  emptyText_ = placeholderText;
 
   WApplication* app = WApplication::instance();
   const WEnvironment& env = app->environment();
@@ -165,7 +170,7 @@ void WFormWidget::setEmptyText(const WString& emptyText)
       removeEmptyText_ = 0;
     }
   } else {
-    setToolTip(emptyText);
+    setToolTip(placeholderText);
   }
 }
 

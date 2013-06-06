@@ -271,7 +271,7 @@ public:
    *
    * \sa reject()
    */
-  void rejectWhenEscapePressed();
+  void rejectWhenEscapePressed(bool enable = true);
   
   /*! \brief %Signal emitted when the dialog is closed.
    *
@@ -364,6 +364,9 @@ private:
   bool recursiveEventLoop_;
 
   bool initialized_;
+
+  boost::signals::connection escapeConnection1_;
+  boost::signals::connection escapeConnection2_;
 
   void create();
   void saveCoverState(WApplication *app, WContainerWidget *cover);

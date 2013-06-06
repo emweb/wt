@@ -76,32 +76,17 @@ void WTable::removeCell(int row, int column)
 
 void WTable::expand(int row, int column, int rowSpan, int columnSpan)
 {
-  int newNumRows = row + rowSpan;
+  int curNumRows = rowCount();
   int curNumColumns = columnCount();
+
+  int newNumRows = row + rowSpan;
   int newNumColumns = std::max(curNumColumns, column + columnSpan);
 
-  if ((newNumRows > rowCount())
-      || (newNumColumns > curNumColumns)) {
-    if (newNumColumns == curNumColumns && rowCount() >= headerRowCount_)
-      rowsAdded_ += newNumRows - rowCount();
-    else
-      flags_.set(BIT_GRID_CHANGED);
+  for (int r = curNumRows; r < newNumRows; ++r)
+    insertRow(r);
 
-    repaint(RepaintInnerHtml);
-
-    for (int r = rowCount(); r < newNumRows; ++r)
-      rows_.push_back(new WTableRow(this, newNumColumns));
-
-    if (newNumColumns > curNumColumns) {
-      for (int r = 0; r < rowCount(); ++r) {
-	WTableRow *tr = rows_[r];
-	tr->expand(newNumColumns);
-      }
-
-      for (int c = curNumColumns; c <= column; ++c)
-	columns_.push_back(new WTableColumn(this));
-    }
-  }
+  for (int c = curNumColumns; c < newNumColumns; ++c)
+    insertColumn(c);
 
   //printDebug();
 }
@@ -116,29 +101,34 @@ int WTable::columnCount() const
   return columns_.size();
 }
 
-WTableRow* WTable::insertRow(int row)
+WTableRow* WTable::insertRow(int row, WTableRow *tableRow)
 {
-  if (row >= rowCount())
-    return rowAt(row); // trigger a simple expand()
-  else {
-    WTableRow* tableRow = new WTableRow(this, columnCount());
-
-    rows_.insert(rows_.begin() + row, tableRow);
+  if (row == rowCount() && rowCount() >= headerRowCount_)
+    ++rowsAdded_;
+  else
     flags_.set(BIT_GRID_CHANGED);
-    repaint(RepaintInnerHtml);
-  
-    return tableRow;
-  }
+
+  if (!tableRow)
+    tableRow = new WTableRow();
+  tableRow->table_ = this;
+  tableRow->expand(columnCount());
+  rows_.insert(rows_.begin() + row, tableRow);
+  repaint(RepaintInnerHtml);
+
+  return tableRow;
 }
 
-WTableColumn* WTable::insertColumn(int column)
+WTableColumn* WTable::insertColumn(int column, WTableColumn *tableColumn)
 {
   for (unsigned i = 0; i < rows_.size(); ++i)
     rows_[i]->insertColumn(column);
 
-  WTableColumn* tableColumn = 0;
   if ((unsigned)column <= columns_.size()) {
-    tableColumn = new WTableColumn(this);
+    if(!tableColumn){
+      tableColumn = new WTableColumn();
+      tableColumn->table_ = this;
+    }
+
     columns_.insert(columns_.begin() + column, tableColumn);
   }
 

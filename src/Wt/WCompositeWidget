@@ -60,6 +60,8 @@ public:
 
   ~WCompositeWidget();
 
+  using WWidget::removeChild;
+
   virtual const std::string id() const;
 
   virtual void setPositionScheme(PositionScheme scheme);

@@ -100,16 +100,18 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
     bool haveCheckBox = false;
 
-    if (index.flags() & ItemIsUserCheckable) {
-      boost::any checkedData = index.data(CheckStateRole);
-      CheckState state = checkedData.empty() ? Unchecked
-	: (checkedData.type() == typeid(bool) ?
+    boost::any checkedData = index.data(CheckStateRole);
+    if (!checkedData.empty()) {
+      haveCheckBox = true;
+      CheckState state =
+	(checkedData.type() == typeid(bool) ?
 	   (boost::any_cast<bool>(checkedData) ? Checked : Unchecked)
 	   : (checkedData.type() == typeid(CheckState) ?
 	      boost::any_cast<CheckState>(checkedData) : Unchecked));
-      checkBox(widgetRef, index, true, index.flags() & ItemIsTristate)
-	->setCheckState(state);
-      haveCheckBox = true;
+      IndexCheckBox *icb =
+        checkBox(widgetRef, index, true, index.flags() & ItemIsTristate);
+      icb->setCheckState(state);
+      icb->setEnabled(index.flags() & ItemIsUserCheckable);
     } else if (!isNew)
       delete checkBox(widgetRef, index, false);
 

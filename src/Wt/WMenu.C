@@ -191,8 +191,9 @@ WMenuItem *WMenu::addMenu(const WString& text, WMenu *menu)
 WMenuItem *WMenu::addMenu(const std::string& iconPath,
 			  const WString& text, WMenu *menu)
 {
-  WMenuItem *item = addItem(iconPath, text);
+  WMenuItem *item = new WMenuItem(iconPath, text, 0, WMenuItem::LazyLoading);
   item->setMenu(menu);
+  addItem(item);
   return item;
 }
 
@@ -201,9 +202,11 @@ void WMenu::addSeparator()
   addItem(new WMenuItem(true, WString::Empty));
 }
 
-void WMenu::addSectionHeader(const WString& text)
+WMenuItem *WMenu::addSectionHeader(const WString& text)
 {
-  addItem(new WMenuItem(false, text));
+  WMenuItem *result = new WMenuItem(false, text);
+  addItem(result);
+  return result;
 }
 
 void WMenu::addItem(WMenuItem *item)

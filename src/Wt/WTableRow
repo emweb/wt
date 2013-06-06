@@ -22,9 +22,6 @@ class WTableCell;
  * A %WTableRow is returned by WTable::rowAt() and managing various
  * properties of a single row in a table (it is however not a widget).
  *
- * You cannot access table cells through the row. Instead, to access
- * table cells, see WTable::elementAt().
- *
  * A table row corresponds to the HTML <tt>&lt;tr&gt;</tt> tag.
  *
  * \sa WTable, WTableColumn
@@ -32,6 +29,17 @@ class WTableCell;
 class WT_API WTableRow : public WObject 
 {
 public:
+  /*! \brief Creates a new table row.
+   *
+   * Table rows must be added to a table using WTable::insertRow()
+   * before you can access contents in it using elementAt().
+   */
+  WTableRow();
+
+  /*! \brief Destructor.
+   */
+  virtual ~WTableRow();
+
   /*! \brief Returns the table to which this row belongs.
    *
    * \sa WTable::rowAt()
@@ -42,10 +50,14 @@ public:
    *
    * Like WTable::elementAt(), if the column is beyond the current
    * table dimensions, then the table is expanded automatically.
+   *
+   * The row must be inserted within a table first.
    */
   WTableCell *elementAt(int column);
 
   /*! \brief Returns the row number of this row in the table.
+   *
+   * Returns -1 if the row is not yet part of a table.
    *
    * \sa WTable::rowAt()
    */
@@ -124,8 +136,6 @@ public:
   virtual const std::string id() const;
 
 private:
-  WTableRow(WTable *table, int numCells);
-  ~WTableRow();
   void expand(int numCells);
 
   struct TableData {

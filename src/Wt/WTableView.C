@@ -103,10 +103,8 @@ WTableView::WTableView(WContainerWidget *parent)
 
     contentsContainer_->clicked()
       .connect(boost::bind(&WTableView::handleRootSingleClick, this, 0, _1));
-    contentsContainer_->mouseWentDown()
-      .connect(boost::bind(&WTableView::handleRootMouseWentDown, this, 0, _1)); 
     contentsContainer_->mouseWentUp()
-      .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, 0, _1)); 
+      .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, 0, _1));
 
     scrolled_.connect(this, &WTableView::onViewportChange);
 
@@ -138,8 +136,6 @@ WTableView::WTableView(WContainerWidget *parent)
 
     headerColumnsContainer_->clicked()
       .connect(boost::bind(&WTableView::handleRootSingleClick, this, 0, _1));
-    headerColumnsContainer_->mouseWentDown()
-      .connect(boost::bind(&WTableView::handleRootMouseWentDown, this, 0, _1)); 
     headerColumnsContainer_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, 0, _1)); 
 
@@ -753,10 +749,10 @@ void WTableView::render(WFlags<RenderFlag> flags)
     if (!canvas_->doubleClicked().isConnected()
 	&& (editTriggers() & DoubleClicked || doubleClicked().isConnected())) {
       canvas_->doubleClicked()
-	.connect(boost::bind(&WTableView::handleDoubleClick, this, false, _1));
+	.connect(boost::bind(&WTableView::handleDblClick, this, false, _1));
       canvas_->doubleClicked().preventPropagation();
       headerColumnsCanvas_->doubleClicked()
-	.connect(boost::bind(&WTableView::handleDoubleClick, this, true, _1));
+	.connect(boost::bind(&WTableView::handleDblClick, this, true, _1));
       headerColumnsCanvas_->doubleClicked().preventPropagation();
 
       contentsContainer_->doubleClicked()
@@ -1254,6 +1250,8 @@ void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
       renderState_ == NeedRerenderData)
     return;
 
+  resetGeometry();
+
   scheduleRerender(NeedRerenderData);
 }
 
@@ -1493,7 +1491,7 @@ void WTableView::handleSingleClick(bool headerColumns, const WMouseEvent& event)
   WAbstractItemView::handleClick(index, event);
 }
 
-void WTableView::handleDoubleClick(bool headerColumns, const WMouseEvent& event)
+void WTableView::handleDblClick(bool headerColumns, const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(headerColumns, event);
   WAbstractItemView::handleDoubleClick(index, event);

@@ -147,7 +147,7 @@ WT_DECLARE_WT_MEMBER
 WT_DECLARE_WT_MEMBER
 (2, JavaScriptPrototype, "WStackedWidget.prototype.animateChild",
  function (WT, child, effects, timing, duration, style) {
-   doAnimateChild = function(WT, child, effects, timing, duration, style) {
+   var doAnimateChild = function(WT, child, effects, timing, duration, style) {
      /* const */ var SlideInFromLeft = 0x1;
      /* const */ var SlideInFromRight = 0x2;
      /* const */ var SlideInFromBottom = 0x3;

@@ -308,6 +308,7 @@ void WebRenderer::setPageVars(FileServe& page)
 
   page.setCondition("FORM", !session_.env().agentIsSpiderBot()
 		    && !session_.env().ajax());
+  page.setCondition("BOOT_STYLE", !xhtml);
 }
 
 void WebRenderer::streamBootContent(WebResponse& response, 
@@ -348,13 +349,14 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
   bootJs.setCondition("HYBRID", hybrid);
   bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());
+
   /*
    * When server XHTML content, we cannot defer the script request after
    * the style request, because the <noscript />style request is loaded
-   * anyway, even if scripting is present.
+   * anyway, even if scripting is present. But then we cannot access the
+   * document body, which we really need...
    */
-  bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
-  bootJs.setCondition("DEFER_SCRIPT", !xhtml);
+  bootJs.setCondition("DEFER_SCRIPT", true);
 
   std::string internalPath
     = hybrid ? session_.app()->internalPath() : session_.env().internalPath();

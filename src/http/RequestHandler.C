@@ -98,12 +98,6 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
     req.request_path.erase(anchor + 1);
   }
 
-  // Request path must be absolute and not contain "..".
-  if (req.request_path.empty() || req.request_path[0] != '/'
-      || req.request_path.find("..") != std::string::npos) {
-    return ReplyPtr(new StockReply(req, Reply::bad_request, "", config_));
-  }
-
   bool isStaticFile = false;
 
   if (!config_.defaultStatic()) {
@@ -149,6 +143,12 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
 
       return ReplyPtr(new WtReply(req, ep, config_));
     }
+  }
+
+  // Request path for a static file must be absolute and not contain "..".
+  if (req.request_path.empty() || req.request_path[0] != '/'
+      || req.request_path.find("..") != std::string::npos) {
+    return ReplyPtr(new StockReply(req, Reply::bad_request, "", config_));
   }
 
   // If path ends in slash (i.e. is a directory) then add "index.html".

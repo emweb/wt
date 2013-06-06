@@ -739,10 +739,18 @@ void WPieChart::modelRowsRemoved(const WModelIndex& parent,
 void WPieChart::modelDataChanged(const WModelIndex& topLeft,
 				 const WModelIndex& bottomRight)
 {
-  if ((labelsColumn_ >= topLeft.column()
-       && labelsColumn_ <= bottomRight.column())
-      || (dataColumn_ >= topLeft.column()
-	  && dataColumn_ <= bottomRight.column()))
+  if ((labelsColumn_ >= topLeft.column() &&
+       labelsColumn_ <= bottomRight.column()) ||
+      (dataColumn_ >= topLeft.column() && 
+       dataColumn_ <= bottomRight.column()))
+    update();
+}
+
+void WPieChart::modelHeaderDataChanged(Orientation orientation,
+				       int start, int end)
+{
+  if ((labelsColumn_ >= start && labelsColumn_ <= end) ||
+      (dataColumn_ >= start && dataColumn_ <= end))
     update();
 }
 

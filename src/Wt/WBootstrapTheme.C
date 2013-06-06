@@ -135,6 +135,8 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
 void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 			    int elementRole) const
 {
+  bool creating = element.mode() == DomElement::ModeCreate;
+
   {
     WPopupWidget *popup = dynamic_cast<WPopupWidget *>(widget);
     if (popup) {
@@ -152,14 +154,17 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
     break;
 
   case DomElement_BUTTON: {
-    element.addPropertyWord(PropertyClass, "btn");
+    if (creating)
+      element.addPropertyWord(PropertyClass, "btn");
 
     WPushButton *button = dynamic_cast<WPushButton *>(widget);
     if (button) {
-      if (button->isDefault())
+      if (creating && button->isDefault())
 	element.addPropertyWord(PropertyClass, "btn-primary");
 
-      if (button->menu()) {
+      if (button->menu() && 
+	  element.properties().find(PropertyInnerHTML) != 
+	  element.properties().end()) {
 	element.addPropertyWord(PropertyInnerHTML,
 				"<span class=\"caret\"></span>");
       }
@@ -349,6 +354,12 @@ void WBootstrapTheme
     widget->toggleStyleClass("Wt-valid", validStyle);
     widget->toggleStyleClass("Wt-invalid", invalidStyle);
   }
+}
+
+bool WBootstrapTheme::canBorderBoxElement(const DomElement& element) const
+{
+  // confuses the CSS for it, see #1937
+  return element.type() != DomElement_INPUT;
 }
 
 }

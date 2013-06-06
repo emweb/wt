@@ -67,7 +67,7 @@ public:
 
   /*! \brief Deletes the table and its entire contents.
    */
-  ~WTable();
+  virtual ~WTable();
 
   /*! \brief Accesses the table element at the given row and column.
    *
@@ -97,6 +97,8 @@ public:
   /*! \brief Deletes a table cell and its contents.
    *
    * The table cell at that position is recreated.
+   *
+   * \sa removeCell(int int)
    */
   void removeCell(WTableCell *item);
 
@@ -104,32 +106,32 @@ public:
    *
    * \sa removeCell(WTableCell *)
    */
-  void removeCell(int row, int column);
+  virtual void removeCell(int row, int column);
 
   /*! \brief Inserts an empty row.
    */
-  WTableRow* insertRow(int row);
+  virtual WTableRow* insertRow(int row, WTableRow *tableRow = 0);
 
   /*! \brief Deletes a row and all its contents.
    *
    * Rows below the given row are shifted up.
    */
-  void deleteRow(int row);
+  virtual void deleteRow(int row);
 
   /*! \brief Inserts an empty column.
    */
-  WTableColumn* insertColumn(int column);
+  virtual WTableColumn* insertColumn(int column, WTableColumn *tableColumn = 0);
 
   /*! \brief Delete a column and all its contents.
    */
-  void deleteColumn(int column);
+  virtual void deleteColumn(int column);
 
   /*! \brief Clears the entire table.
    *
    * This method clears the entire table: all cells and their contents
    * are deleted.
    */
-  void clear();
+  virtual void clear();
 
   /*! \brief Returns the number of rows in the table.
    */
@@ -161,7 +163,7 @@ public:
    *
    * \sa moveColumn()
    */
-  void moveRow(int from, int to);
+  virtual void moveRow(int from, int to);
 
   /*! \brief Move a table column from its original position to a new position.
    *
@@ -170,7 +172,7 @@ public:
    *
    * \sa moveRow()
    */
-  void moveColumn(int from, int to);
+  virtual void moveColumn(int from, int to);
 
 private:
   static const int BIT_GRID_CHANGED = 0;

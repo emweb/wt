@@ -191,7 +191,7 @@ private:
   void resetGeometry();
   
   void handleSingleClick(bool headerColumns, const WMouseEvent& event);
-  void handleDoubleClick(bool headerColumns, const WMouseEvent& event);
+  void handleDblClick(bool headerColumns, const WMouseEvent& event);
   void handleMouseWentDown(bool headerColumns, const WMouseEvent& event);
   void handleMouseWentUp(bool headerColumns, const WMouseEvent& event);
   WModelIndex translateModelIndex(bool headerColumns, const WMouseEvent& event);

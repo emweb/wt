@@ -189,6 +189,7 @@ private:
   // when the model changes.
   std::vector<boost::signals::connection> modelConnections_;
 
+protected:
   /*! \brief Method called whenever the entire model was changed.
    *
    * \sa setModel(WAbstractItemModel *)
@@ -237,6 +238,14 @@ private:
   virtual void modelDataChanged(const WModelIndex& topLeft,
 				const WModelIndex& bottomRight) = 0;
 
+  /*! \brief Method called when header data has been changed in the model.
+   *
+   * \sa WAbstractItemModel::headerDataChanged
+   */
+  virtual void modelHeaderDataChanged(Orientation orientation,
+				      int start, int end) = 0;
+
+private:
   template <typename T>
   void set(T& m, const T& v);
 };

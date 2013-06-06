@@ -23,9 +23,6 @@ class WTable;
  * various properties of a single column in a table (it is however not
  * a widget).
  *
- * You cannot access table cells through the column. Instead, to access
- * table cells, see WTable::elementAt().
- *
  * A table column corresponds to the HTML <tt>&lt;col&gt;</tt> tag.
  *
  * \sa WTable, WTableRow
@@ -33,6 +30,17 @@ class WTable;
 class WT_API WTableColumn : public WObject 
 {
 public:
+  /*! \brief Creates a new table column.
+   *
+   * Table columns must be added to a table using WTable::insertColumn()
+   * before you can access contents in it using elementAt().
+   */
+  WTableColumn();
+
+  /*! \brief Destructor.
+   */
+  ~WTableColumn();
+
   /*! \brief Returns the table to which this column belongs.
    *
    * \sa WTable::rowAt()
@@ -43,12 +51,16 @@ public:
    *
    * Like WTable::elementAt(), if the row is beyond the current table
    * dimensions, then the table is expanded automatically.
+   *
+   * The column must be inserted within a table first.
    */
   WTableCell *elementAt(int row);
 
   /*! \brief Returns the column number of this column in the table.
    *
-   * \sa WTable::rowAt()
+   * Returns -1 if the column is not yet part of a table.
+   *
+   * \sa WTable::columnAt()
    */
   int columnNum() const;
 
@@ -93,9 +105,6 @@ public:
   virtual const std::string id() const;
 
 private:
-  WTableColumn(WTable *table);
-  ~WTableColumn();
-
   WTable *table_;
 
   WLength *width_;

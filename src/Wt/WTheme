@@ -155,6 +155,8 @@ public:
 				    const Wt::WValidator::Result& validation,
 				    WFlags<ValidationStyleFlag> flags) const
     = 0;
+
+  virtual bool canBorderBoxElement(const DomElement& element) const = 0;
 };
 
 }

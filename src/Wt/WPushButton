@@ -315,11 +315,12 @@ private:
   WPopupMenu    *popupMenu_;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
+  virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
-  virtual void           propagateRenderOk(bool deep);
-  virtual void           getDomChanges(std::vector<DomElement *>& result,
-				       WApplication *app);
+  virtual void propagateRenderOk(bool deep);
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
+  virtual void propagateSetEnabled(bool enabled);
 
 private:
   void doRedirect();

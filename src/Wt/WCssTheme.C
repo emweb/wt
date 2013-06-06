@@ -51,7 +51,7 @@ std::vector<WCssStyleSheet> WCssTheme::styleSheets() const
 
     result.push_back(WCssStyleSheet(WLink(themeDir + "wt.css")));
 
-    if (app->environment().agentIsIE())
+    if (app->environment().agentIsIElt(9))
       result.push_back(WCssStyleSheet(WLink(themeDir + "wt_ie.css")));
 
     if (app->environment().agent() == WEnvironment::IE6)
@@ -133,6 +133,8 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
 void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
   const
 {
+  bool creating = element.mode() == DomElement::ModeCreate;
+
   {
     WPopupWidget *popup = dynamic_cast<WPopupWidget *>(widget);
     if (popup)
@@ -141,7 +143,8 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
 
   switch (element.type()) {
   case DomElement_BUTTON:
-    element.addPropertyWord(PropertyClass, "Wt-btn");
+    if (creating)
+      element.addPropertyWord(PropertyClass, "Wt-btn");
     break;
 
   case DomElement_UL:
@@ -277,6 +280,11 @@ void WCssTheme::applyValidationStyle(WWidget *widget,
     widget->toggleStyleClass("Wt-valid", validStyle);
     widget->toggleStyleClass("Wt-invalid", invalidStyle);
   }
+}
+
+bool WCssTheme::canBorderBoxElement(const DomElement& element) const
+{
+  return true;
 }
 
 }

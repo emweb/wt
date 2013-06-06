@@ -85,6 +85,8 @@ public:
    */
   WWidget *parent() const { return dynamic_cast<WWidget *>(WObject::parent()); }
 
+  virtual void removeChild(WObject *child);
+
   /*! \brief Sets the CSS position scheme.
    *
    * Establishes how the widget must be layed-out relative to its

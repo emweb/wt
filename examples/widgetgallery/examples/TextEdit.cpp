@@ -8,8 +8,7 @@ SAMPLE_BEGIN(TextEdit)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WTextEdit *edit = new Wt::WTextEdit(container);
-edit->setWidth(200);
-edit->setHeight(200);
+edit->setHeight(300);
 edit->setText("<p>"
     "<span style=\"font-family: 'courier new', courier; font-size: medium;\">"
     "<strong>WTextEdit</strong></span></p>"
@@ -26,7 +25,7 @@ edit->setText("<p>"
     "<p>don't have style.</p>");
 
 Wt::WPushButton *button = new Wt::WPushButton("Get text", container);
-button->setMargin(10, Wt::Top);
+button->setMargin(10, Wt::Top | Wt::Bottom);
 
 Wt::WText *out = new Wt::WText(container);
 out->setStyleClass("xhtml-output");

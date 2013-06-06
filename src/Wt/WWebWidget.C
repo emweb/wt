@@ -289,15 +289,6 @@ std::string WWebWidget::renderRemoveJs()
   return "_" + id();
 }
 
-void WWebWidget::removeChild(WObject *child)
-{
-  WWidget *w = dynamic_cast<WWidget *>(child);
-  if (w)
-    removeChild(w);
-  else
-    WObject::removeChild(child);
-}
-
 void WWebWidget::removeChild(WWidget *child)
 {
   assert(children_ != 0);
@@ -765,7 +756,7 @@ void WWebWidget::addStyleClass(const WT_USTRING& styleClass, bool force)
     if (!transientImpl_)
       transientImpl_ = new TransientImpl();
 
-    transientImpl_->addedStyleClasses_.push_back(styleClass);
+    Utils::add(transientImpl_->addedStyleClasses_, styleClass);
     Utils::erase(transientImpl_->removedStyleClasses_, styleClass);
 
     repaint(RepaintPropertyAttribute);
@@ -793,7 +784,7 @@ void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
     if (!transientImpl_)
       transientImpl_ = new TransientImpl();
 
-    transientImpl_->removedStyleClasses_.push_back(styleClass);
+    Utils::add(transientImpl_->removedStyleClasses_, styleClass);
     Utils::erase(transientImpl_->addedStyleClasses_, styleClass);
 
     repaint(RepaintPropertyAttribute);
@@ -1970,7 +1961,7 @@ DomElement *WWebWidget::createActualElement(WWidget *self, WApplication *app)
 
   DomElement *result = createDomElement(app);
 
-  app->theme()->apply(self, *result, 0);
+  app->theme()->apply(self, *result, MainElementThemeRole);
 
   return result;
 }

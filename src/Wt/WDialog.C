@@ -242,12 +242,18 @@ void WDialog::render(WFlags<RenderFlag> flags)
   WPopupWidget::render(flags);
 }
 
-void WDialog::rejectWhenEscapePressed()
+void WDialog::rejectWhenEscapePressed(bool enable)
 {
-  WApplication::instance()->globalEscapePressed()
-    .connect(this, &WDialog::reject);
+  if (enable) {
+    escapeConnection1_ = WApplication::instance()->globalEscapePressed()
+      .connect(this, &WDialog::reject);
 
-  impl_->escapePressed().connect(this, &WDialog::reject);  
+    escapeConnection2_ = impl_->escapePressed()
+      .connect(this, &WDialog::reject);
+  } else {
+    escapeConnection1_.disconnect();
+    escapeConnection2_.disconnect();
+  }
 }
 
 #ifndef WT_DEPRECATED_3_0_0

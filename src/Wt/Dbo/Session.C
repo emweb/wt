@@ -789,14 +789,15 @@ void Session::createRelations(MappingInfo *mapping,
     }
   }
 
-  if(connection(false)->supportAlterTable()){//backend condition
+  if (connection(false)->supportAlterTable()){ //backend condition
     for (unsigned i = 0; i < mapping->fields.size();) {
       const FieldInfo& field = mapping->fields[i];
       if (field.isForeignKey()){
         std::stringstream sql;
 
-        sql << " alter table "
-            << "\"" << mapping->tableName << "\""
+	std::string table = Impl::quoteSchemaDot(mapping->tableName);
+
+        sql << " alter table \"" << table << "\""
             << " add ";
 
         unsigned firstI = i;
@@ -990,7 +991,8 @@ void Session::dropTables()
 
   //remove constraints first.
   std::vector<std::string> sqls;
-  if(connection(false)->supportAlterTable()){
+
+  if (connection(false)->supportAlterTable()){
     for (ClassRegistry::iterator i = classRegistry_.begin();
          i != classRegistry_.end(); ++i){
       MappingInfo *mapping = i->second;
@@ -1000,8 +1002,9 @@ void Session::dropTables()
         const FieldInfo& field = mapping->fields[j];
         if (field.isForeignKey()){
           std::stringstream sql;
-          sql << " alter table "
-              << "\"" << mapping->tableName << "\""
+	  std::string table = Impl::quoteSchemaDot(mapping->tableName);
+
+          sql << " alter table \"" << table << "\""
               << " drop "
               << connection(false)->alterTableConstraintString() << " "
               << constraintName(mapping->tableName, field.foreignKeyName())

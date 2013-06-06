@@ -1,3 +1,12 @@
+15-05-2013:
+	* WStandardItem, WStandardItemModel: before: checkboxes are rendered
+	in enabled state when ItemIsUserCheckable flag is set. Now: checkboxes
+	are rendered when CheckStateRole is present. If ItemIsUserCheckable is
+	set, the checkbox will be editable. If ItemIsUserCheckable is not set,
+	the checkbox will be uneditable. setCheckable(true) will add a
+	CheckStateRole of false when no CheckStateRole was present on the
+	element.
+
 05-04-2013:
 	* Client SSL certificates can be queried from (static) WResources
 

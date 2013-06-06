@@ -45,6 +45,8 @@ public:
   virtual void applyValidationStyle(WWidget *widget,
 				    const Wt::WValidator::Result& validation,
 				    WFlags<ValidationStyleFlag> styles) const;
+
+  virtual bool canBorderBoxElement(const DomElement& element) const;
 };
 
 }

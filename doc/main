@@ -759,7 +759,8 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       WApplication::readConfigurationProperty(). For example:
       \code
  <properties>
-    <property name="extBaseURL">/ext/</property>
+    <property name="tinyMCEVersion">4</property>
+    <property name="tinyMCEBaseURL">/tinymce</property>
     <property name="resourcesURL">/resources</property>
     <property name="appRoot">/opt/myapp</property>
  </properties>

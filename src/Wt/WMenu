@@ -240,7 +240,7 @@ public:
    *
    * \sa addItem(const WString&, WWidget *, WMenuItem::LoadPolicy)
    */
-  void addItem(WMenuItem *item);
+  virtual void addItem(WMenuItem *item);
 
   /*! \brief Adds a separator to the menu.
    *
@@ -250,7 +250,7 @@ public:
 
   /*! \brief Adds a section header to the menu.
    */
-  void addSectionHeader(const WString& text);
+  WMenuItem *addSectionHeader(const WString& text);
 
   /*! \brief Removes an item.
    *
@@ -258,7 +258,7 @@ public:
    *
    * \sa addItem()
    */
-  void removeItem(WMenuItem *item);
+  virtual void removeItem(WMenuItem *item);
 
   /*! \brief Selects an item.
    *

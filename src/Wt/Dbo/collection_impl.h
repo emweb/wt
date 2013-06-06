@@ -258,9 +258,11 @@ collection<C>::collection(Session *session, SqlStatement *statement,
   : session_(session),
     type_(QueryCollection)
 {
-  data_.query.statement = statement;
-  data_.query.countStatement = countStatement;
-  data_.query.size = -1;
+  data_.query = new QueryData();
+  data_.query->useCount = 1;
+  data_.query->statement = statement;
+  data_.query->countStatement = countStatement;
+  data_.query->size = -1;
 }
 
 template <class C>
@@ -271,6 +273,42 @@ collection<C>::collection(const collection<C>& other)
 {
   if (type_ == RelationCollection)
     data_.relation.activity = 0;
+  else
+    ++data_.query->useCount;
+}
+
+template <class C>
+void collection<C>::releaseQuery()
+{
+  if (type_ == QueryCollection) {
+    if (--data_.query->useCount == 0) {
+      if (data_.query->statement)
+	data_.query->statement->done();      
+      if (data_.query->countStatement)
+	data_.query->countStatement->done();
+      delete data_.query;
+    }
+  }
+}
+
+template <class C>
+collection<C>& collection<C>::operator=(const collection<C>& other)
+{
+  if (type_ == RelationCollection)
+    delete data_.relation.activity;
+  else
+    releaseQuery();
+
+  session_ = other.session_;
+  type_ = other.type_;
+  data_ = other.data_;
+  
+  if (type_ == RelationCollection)
+    data_.relation.activity = 0;
+  else
+    ++data_.query->useCount;
+
+  return *this;
 }
 
 template <class C>
@@ -278,19 +316,15 @@ collection<C>::~collection()
 {
   if (type_ == RelationCollection)
     delete data_.relation.activity;
-  else {
-    if (data_.query.statement)
-      data_.query.statement->done();      
-    if (data_.query.countStatement)
-      data_.query.countStatement->done();
-  }
+  else
+    releaseQuery();
 }
 
 template <class C>
 void collection<C>::iterateDone() const
 {
   if (type_ == QueryCollection)
-    data_.query.statement = 0;
+    data_.query->statement = 0;
 }
 
 template <class C>
@@ -302,7 +336,7 @@ SqlStatement *collection<C>::executeStatement() const
     session_->flush();
 
   if (type_ == QueryCollection)
-    statement = data_.query.statement;
+    statement = data_.query->statement;
   else {
     if (data_.relation.sql) {
       statement = session_->getOrPrepareStatement(*data_.relation.sql);
@@ -350,8 +384,8 @@ C collection<C>::front() const
 template <class C>
 typename collection<C>::size_type collection<C>::size() const
 {
-  if (type_ == QueryCollection && data_.query.size != -1)
-    return data_.query.size;
+  if (type_ == QueryCollection && data_.query->size != -1)
+    return data_.query->size;
 
   SqlStatement *countStatement = 0;
 
@@ -359,7 +393,7 @@ typename collection<C>::size_type collection<C>::size() const
     session_->flush();
 
   if (type_ == QueryCollection)
-    countStatement = data_.query.countStatement;
+    countStatement = data_.query->countStatement;
   else {
     if (data_.relation.sql) {
       const std::string *sql = data_.relation.sql;
@@ -388,8 +422,8 @@ typename collection<C>::size_type collection<C>::size() const
       throw Exception("collection<C>::size(): multiple results?");
 
     if (type_ == QueryCollection) {
-      data_.query.size = result;
-      data_.query.countStatement = 0;
+      data_.query->size = result;
+      data_.query->countStatement = 0;
     }
 
     return result;

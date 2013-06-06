@@ -352,4 +352,14 @@ void WAbstractToggleButton::setValueText(const WT_USTRING& text)
     setCheckState(PartiallyChecked);
 }
 
+void WAbstractToggleButton::refresh()
+{
+  if (text_.text.refresh()) {
+    textChanged_ = true;
+    repaint(RepaintInnerHtml);
+  }
+
+  WFormWidget::refresh();
+}
+
 }

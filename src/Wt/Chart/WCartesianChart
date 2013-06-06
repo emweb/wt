@@ -561,6 +561,8 @@ private:
   int                       axisPadding_;
 
   void init();
+
+ protected:
   virtual void modelColumnsInserted(const WModelIndex& parent,
 				    int start, int end);
   virtual void modelColumnsRemoved(const WModelIndex& parent,
@@ -571,10 +573,13 @@ private:
 				int start, int end);
   virtual void modelDataChanged(const WModelIndex& topLeft,
 			        const WModelIndex& bottomRight);
+  virtual void modelHeaderDataChanged(Orientation orientation,
+				      int start, int end);
 
   virtual void modelChanged();
   virtual void modelReset();
 
+private:
   int seriesIndexOf(int modelColumn) const;
 
   WPointF hv(double x, double y, double width) const;

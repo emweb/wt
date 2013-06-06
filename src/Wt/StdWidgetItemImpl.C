@@ -13,6 +13,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
 #include "Wt/WWidgetItem"
+#include "Wt/WTheme"
 
 #ifndef WT_DEBUG_JS
 #include "js/WtResize.min.js"
@@ -193,7 +194,9 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   // FIXME IE9 does border-box perhaps ?
   if (!app->environment().agentIsIE() && 
-      w->javaScriptMember(WWidget::WT_RESIZE_JS).empty())
+      w->javaScriptMember(WWidget::WT_RESIZE_JS).empty() &&
+      d->type() != DomElement_TABLE /* buggy in Chrome, see #1856 */ &&
+      app->theme()->canBorderBoxElement(*d))
     d->setProperty(PropertyStyleBoxSizing, "border-box");
 #endif
 

@@ -92,9 +92,16 @@ bool matchValue(const boost::any& value, const boost::any& query,
 {
   WFlags<MatchFlag> f = flags & MatchTypeMask;
 
-  if ((f & MatchTypeMask) == MatchExactly)
-    return (query.type() == value.type()) && asString(query) == asString(value);
-  else {
+  if ((f & MatchTypeMask) == MatchExactly) {
+    if (query.type() == value.type() ||
+	(query.type() == typeid(WString) &&
+	 value.type() == typeid(std::string)) ||
+	(query.type() == typeid(std::string) &&
+	 value.type() == typeid(WString)))
+      return asString(query) == asString(value);
+    else
+      return false;
+  } else {
     std::string query_str = asString(query).toUTF8();
     std::string value_str = asString(value).toUTF8();
 

@@ -117,6 +117,8 @@ public:
    */
   EventSignal<>& unChecked();
 
+  virtual void refresh();
+
 protected:
   CheckState state_;
 

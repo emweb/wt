@@ -309,6 +309,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   background: #FFFFFF;
   padding: 4px 6px 4px;
   -webkit-backface-visibility: hidden; /* !flicker on Chrome */
+  clear: left;
 }
 
 /*

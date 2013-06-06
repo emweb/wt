@@ -78,7 +78,8 @@ void Connection::finishReply()
 
 void Connection::scheduleStop()
 {
-  strand_.wrap(boost::bind(&Connection::stop, shared_from_this()));
+  server_->service()
+    .post(strand_.wrap(boost::bind(&Connection::stop, shared_from_this())));
 }
 
 void Connection::start()

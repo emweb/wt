@@ -14,15 +14,12 @@
 
 namespace Wt {
 
-WTableRow::WTableRow(WTable *table, int numCells)
-  : table_(table),
-    height_(0),
+WTableRow::WTableRow()
+  : height_(0),
     id_(0),
     hidden_(false),
     hiddenChanged_(false)
 { 
-  expand(numCells);
-
   implementStateless(&WTableRow::hide, &WTableRow::undoHide);
   implementStateless(&WTableRow::show, &WTableRow::undoHide);
 }

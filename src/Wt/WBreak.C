@@ -9,7 +9,9 @@ namespace Wt {
 
 WBreak::WBreak(WContainerWidget *parent)
   : WWebWidget(parent)
-{ }
+{ 
+  setInline(false);
+}
 
 DomElementType WBreak::domElementType() const
 {

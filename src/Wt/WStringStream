@@ -96,6 +96,7 @@ public:
   template <typename T>
     inline WStringStream& operator<< (T t) {
     int please_cast_to_a_supported_type = t;
+    please_cast_to_a_supported_type++; // silence compiler for normal case
     return *this;
   }
 

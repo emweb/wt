@@ -9,6 +9,9 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptFunction, "animateDisplay",
  function(id, effects, timing, duration, display) {
+  var WT = this;
+
+  var doAnimateDisplay = function(id, effects, timing, duration, display) {
 
   /* const */ var NoEffect = 0x0;
   /* const */ var SlideInFromLeft = 0x1;
@@ -28,7 +31,7 @@ WT_DECLARE_WT_MEMBER
   var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ],
     inverseTiming = [ 0, 1, 3, 2, 4, 5 ];
 
-  var WT = this, $el = $("#" + id), el = $el.get(0),
+  var $el = $("#" + id), el = $el.get(0),
     prefix = WT.cssPrefix("Transition"),
     animationEventEnd = prefix == "Moz"
       ? "animationend" : "webkitAnimationEnd",
@@ -36,13 +39,22 @@ WT_DECLARE_WT_MEMBER
       ? "transitionend" : "webkitTransitionEnd";
 
   if ($el.css("display") !== display) {
-    var p = $el.get(0).parentNode;
+    var p = el.parentNode;
 
     if (p.wtAnimateChild) {
       p.wtAnimateChild(WT, $el.get(0), effects, timing, duration,
 		       { display: display });
       return;
     }
+
+    if ($el.hasClass("animating")) {
+      $(el).one(transitionEventEnd, function() {
+	  doAnimateDisplay(id, effects, timing, duration, display);
+	});
+      return;
+    }
+
+    $el.addClass("animating");
 
     var effect = effects & 0xFF,
       hide = display === "none",
@@ -71,6 +83,8 @@ WT_DECLARE_WT_MEMBER
     function onEnd() {
       if (el.wtAnimatedHidden)
 	el.wtAnimatedHidden(hide);
+
+      $el.removeClass("animating");
 
       // FIXME: APP instead of Wt
       if (Wt.layouts2)
@@ -258,6 +272,9 @@ WT_DECLARE_WT_MEMBER
      }
    } , 0);
   }
+  };
+
+ doAnimateDisplay(id, effects, timing, duration, display);
  }
 );
 

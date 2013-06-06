@@ -711,8 +711,8 @@ public:
 
   /*! \brief %Signal emitted when a mouse button is pressed down.
    *
-   * When the event happened over an item, the first argument
-   * indicates the item where the mouse went down.
+   * This signal is emitted only when 'over' an item (the model index is
+   * passed as first argument is never invalid).
    *
    * \sa mouseWentUp()
    */
@@ -819,6 +819,8 @@ protected:
    * \sa WAbstractItemModel::dropEvent()
    */
   virtual void dropEvent(const WDropEvent& event, const WModelIndex& target);
+
+  using WWidget::dropEvent;
 
   /*! \brief Create an extra widget in the header.
    *

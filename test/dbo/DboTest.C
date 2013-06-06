@@ -778,7 +778,8 @@ BOOST_AUTO_TEST_CASE( dbo_test4 )
 
     BOOST_REQUIRE(fields.size() == fields2.size());
 
-    BAs bas = q.resultList();
+    BAs bas;
+    bas = q.resultList();
     BOOST_REQUIRE(bas.size() == 2);
 
     int ii = 0;
@@ -1403,7 +1404,8 @@ BOOST_AUTO_TEST_CASE( dbo_test13 )
 
 
     {
-      dbo::collection<dbo::ptr<B> > c = session_->query< dbo::ptr<B> >
+      dbo::collection<dbo::ptr<B> > c;
+      c = session_->query< dbo::ptr<B> >
 	("select B from \"table_b\" B ")
 	.where("B.\"state\" = ?").orderBy("B.\"name\"")
 	.limit(1).bind(0);
@@ -1709,12 +1711,14 @@ BOOST_AUTO_TEST_CASE( dbo_test20 )
     dbo::Transaction t(*session_);
 
     dbo::QueryModel<std::string> *model = new dbo::QueryModel<std::string>();
-    model->setQuery(session_->query<std::string>("select 'dima' '?'"));
+    model->setQuery(session_->query<std::string>("select 'dima '' ?'"));
     model->addAllFieldsAsColumns();
 
     std::cerr << model->columnCount() << std::endl
 	      << model->rowCount() << std::endl;
     std::cerr << Wt::asString(model->data(0, 0)) << std::endl;
+
+    delete model;
   }
 #endif //FIREBIRD
 }

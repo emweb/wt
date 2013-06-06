@@ -726,7 +726,7 @@ private:
   void takeObj();
   void freeObj();
 
-  void reset(MetaDboBase *dbo);
+  void resetObj(MetaDboBase *dbo);
   virtual void transactionDone(bool success);
   
   friend class Session;

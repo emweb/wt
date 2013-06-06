@@ -425,6 +425,8 @@ public:
 				    const Wt::WValidator::Result& validation,
 				    WFlags<ValidationStyleFlag> styles) const;
 
+  virtual bool canBorderBoxElement(const DomElement& element) const;
+
 private:
   std::string name_;
 };

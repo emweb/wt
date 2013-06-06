@@ -245,7 +245,13 @@ namespace Wt {
      */
     collection();
 
+    /*! \brief Copy constructor.
+     */
     collection(const collection<C>& other);
+
+    /*! \brief Assignment operator.
+     */
+    collection<C>& operator=(const collection<C>& other);
 
     /*! \brief Destructor.
      */
@@ -370,12 +376,13 @@ namespace Wt {
     };
 
     struct QueryData {
-      mutable SqlStatement *statement, *countStatement;
-      mutable int size;
+      SqlStatement *statement, *countStatement;
+      int size;
+      int useCount;
     };
 
     union {
-      QueryData query;
+      QueryData *query;
       RelationData relation;
     } data_;
 
@@ -394,6 +401,7 @@ namespace Wt {
 			 Session::SetInfo *info);
     Activity *activity() const { return data_.relation.activity; }
     void resetActivity();
+    void releaseQuery();
 
     SqlStatement *executeStatement() const;
 

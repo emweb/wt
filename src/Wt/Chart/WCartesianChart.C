@@ -463,21 +463,40 @@ void WCartesianChart::modelRowsRemoved(const WModelIndex& parent,
 void WCartesianChart::modelDataChanged(const WModelIndex& topLeft,
 				       const WModelIndex& bottomRight)
 {
-  if (XSeriesColumn_ >= topLeft.column()
-      && XSeriesColumn_ <= bottomRight.column()) {
+  if (XSeriesColumn_ >= topLeft.column() &&
+      XSeriesColumn_ <= bottomRight.column()) {
     update();
     return;
   }
 
   for (unsigned i = 0; i < series_.size(); ++i) {
-    if (
-      (series_[i].modelColumn() >= topLeft.column()
-      && series_[i].modelColumn() <= bottomRight.column() )
-      || (series_[i].XSeriesColumn() >= topLeft.column()
-      && series_[i].XSeriesColumn() <= bottomRight.column() )
-      ) {
+    if ((series_[i].modelColumn() >= topLeft.column() &&
+	 series_[i].modelColumn() <= bottomRight.column()) ||
+	(series_[i].XSeriesColumn() >= topLeft.column() &&
+	 series_[i].XSeriesColumn() <= bottomRight.column())) {
       update();
       break;
+    }
+  }
+}
+
+void WCartesianChart::modelHeaderDataChanged(Orientation orientation,
+					     int start, int end)
+{
+  if (orientation == Horizontal) {
+    if (XSeriesColumn_ >= start && XSeriesColumn_ <= end) {
+      update();
+      return;
+    }
+
+    for (unsigned i = 0; i < series_.size(); ++i) {
+      if ((series_[i].modelColumn() >= start &&
+	   series_[i].modelColumn() <= end) ||
+	  (series_[i].XSeriesColumn() >= start &&
+	   series_[i].XSeriesColumn() <= end)) {
+	update();
+	break;
+      }
     }
   }
 }

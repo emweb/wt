@@ -452,7 +452,7 @@ ptr<C>::ptr(MetaDbo<C> *obj)
 }
 
 template <class C>
-void ptr<C>::reset(MetaDboBase *dbo)
+void ptr<C>::resetObj(MetaDboBase *dbo)
 {
   freeObj();
   obj_ = dynamic_cast<MetaDbo<C> *>(dbo);

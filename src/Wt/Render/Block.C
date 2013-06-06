@@ -367,6 +367,9 @@ double Block::cssMargin(Side side, double fontScale) const
   CssLength result;
   result.length = 0;
 
+  if (type_ == DomElement_TD)
+    return 0;
+
   try {
     result = cssLength(PropertyStyleMarginTop, side, fontScale);
   } catch (std::exception& e) {
@@ -488,7 +491,7 @@ double Block::cssBoxMargin(Side side, double fontScale) const
 
 WFont::Style Block::cssFontStyle() const
 {
-  if (!node_)
+  if (!node_ && parent_)
     return parent_->cssFontStyle();
 
   std::string v = cssProperty(PropertyStyleFontStyle);
@@ -510,7 +513,7 @@ WFont::Style Block::cssFontStyle() const
 
 int Block::cssFontWeight() const
 {
-  if (!node_)
+  if (!node_ && parent_)
     return parent_->cssFontWeight();
 
   std::string v = cssProperty(PropertyStyleFontWeight);
@@ -555,7 +558,7 @@ int Block::cssFontWeight() const
 
 double Block::cssFontSize(double fontScale) const
 {
-  if (!node_)
+  if (!node_ && parent_)
     return fontScale * parent_->cssFontSize();
 
   std::string v = cssProperty(PropertyStyleFontSize);
@@ -614,7 +617,7 @@ double Block::cssFontSize(double fontScale) const
 
 double Block::cssLineHeight(double fontLineHeight, double fontScale) const
 {
-  if (!node_)
+  if (!node_ && parent_)
     return parent_->cssLineHeight(fontLineHeight, fontScale);
 
   std::string v = cssProperty(PropertyStyleLineHeight);
@@ -1787,6 +1790,9 @@ double Block::layoutBlock(PageState &ps,
 					 startPage, renderer));
 
   if (height >= 0) {
+    int prevPage = ps.page;
+    double prevY = ps.y;
+
     ps.page = startPage;
     ps.y = startY;
 
@@ -1794,6 +1800,15 @@ double Block::layoutBlock(PageState &ps,
       ps.y += marginTop;
 
     advance(ps, height, renderer);
+
+    if (type_ == DomElement_TABLE) {
+      // A table will overflow if necessary
+      if (prevPage > ps.page ||
+	  (prevPage == ps.page && prevY > ps.y)) {
+	ps.page = prevPage;
+	ps.y = prevY;
+      }
+    }
   }
 
   collapseMarginBottom = std::max(marginBottom, collapseMarginBottom);

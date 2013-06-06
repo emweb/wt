@@ -299,6 +299,8 @@ void WStandardItem::setCheckable(bool checkable)
 {
   if (!isCheckable() && checkable) {
     flags_ |= ItemIsUserCheckable;
+    if (data(CheckStateRole).empty())
+      setChecked(false);
     signalModelDataChange();
   } if (isCheckable() && !checkable) {
     flags_.clear(ItemIsUserCheckable);
@@ -313,13 +315,15 @@ bool WStandardItem::isCheckable() const
 
 void WStandardItem::setChecked(bool checked)
 {
-  if (isChecked() != checked)
+  boost::any d = data(CheckStateRole);
+  if (d.empty() || isChecked() != checked)
     setCheckState(checked ? Checked : Unchecked);
 }
 
 void WStandardItem::setCheckState(CheckState state)
 {
-  if (checkState() != state || data(CheckStateRole).empty()) {
+  boost::any d = data(CheckStateRole);
+  if (d.empty() || checkState() != state || data(CheckStateRole).empty()) {
     if (isTristate())
       setData(boost::any(state), CheckStateRole);
     else

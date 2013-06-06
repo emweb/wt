@@ -442,10 +442,14 @@ WModelIndex WAggregateProxyModel::index(int row, int column,
   WModelIndex sourceParent = mapToSource(parent);
   int sourceRow = row;
   int sourceColumn = topLevel_.mapToSource(column);
+
   WModelIndex sourceIndex
     = sourceModel()->index(sourceRow, sourceColumn, sourceParent);
 
-  return createIndex(row, column, sourceIndex.internalPointer());
+  return createIndex(row, column,
+		     sourceIndex.isValid() ? 
+		     sourceIndex.internalPointer() : 
+		     (void *)0);
 }
 
 WModelIndex WAggregateProxyModel::parent(const WModelIndex& index) const

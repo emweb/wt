@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 
 #ifdef WT_THREADED
+#include <boost/thread.hpp>
 #if !defined(_WIN32)
 #include <pthread.h>
 #include <signal.h>
@@ -23,33 +24,52 @@ namespace Wt {
 
 LOGGER("WIOService");
 
-WIOService::WIOService()
+class WIOServiceImpl {
+public:
+  WIOServiceImpl()
   : threadCount_(5),
     work_(0)
 #ifdef WT_THREADED
     , blockedThreadCounter_(0)
 #endif
+  {
+  }
+  int threadCount_;
+  boost::asio::io_service::work *work_;
+
+#ifdef WT_THREADED
+  boost::mutex blockedThreadMutex_;
+  int blockedThreadCounter_;
+#endif
+
+  std::vector<boost::thread *> threads_;
+
+};
+
+WIOService::WIOService()
+  : impl_(new WIOServiceImpl())
 { }
 
 WIOService::~WIOService()
 {
   stop();
+  delete impl_;
 }
 
 void WIOService::setThreadCount(int count)
 { 
-  threadCount_ = count;
+  impl_->threadCount_ = count;
 }
 
 int WIOService::threadCount() const
 {
-  return threadCount_;
+  return impl_->threadCount_;
 }
 
 void WIOService::start()
 {
-  if (!work_) {
-    work_ = new boost::asio::io_service::work(*this);
+  if (!impl_->work_) {
+    impl_->work_ = new boost::asio::io_service::work(*this);
 
 #ifdef WT_THREADED
 
@@ -61,8 +81,8 @@ void WIOService::start()
     pthread_sigmask(SIG_BLOCK, &new_mask, &old_mask);
 #endif // _WIN32
 
-    for (int i = 0; i < threadCount_; ++i) {
-      threads_.push_back
+    for (int i = 0; i < impl_->threadCount_; ++i) {
+      impl_->threads_.push_back
 	(new boost::thread(boost::bind(&WIOService::run, this)));
     }
 
@@ -82,16 +102,16 @@ void WIOService::start()
 
 void WIOService::stop()
 {
-  delete work_;
-  work_ = 0;
+  delete impl_->work_;
+  impl_->work_ = 0;
 
 #ifdef WT_THREADED
-  for (unsigned i = 0; i < threads_.size(); ++i) {
-    threads_[i]->join();
-    delete threads_[i];
+  for (unsigned i = 0; i < impl_->threads_.size(); ++i) {
+    impl_->threads_[i]->join();
+    delete impl_->threads_[i];
   }
 
-  threads_.clear();
+  impl_->threads_.clear();
 #endif // WT_THREADED
 
   reset();
@@ -131,11 +151,11 @@ void WIOService::initializeThread()
 bool WIOService::requestBlockedThread()
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock l(blockedThreadMutex_);
-  if (blockedThreadCounter_ >= threadCount() - 1)
+  boost::mutex::scoped_lock l(impl_->blockedThreadMutex_);
+  if (impl_->blockedThreadCounter_ >= threadCount() - 1)
     return false;
   else {
-    blockedThreadCounter_++;
+    impl_->blockedThreadCounter_++;
     return true;
   }
 #else
@@ -146,9 +166,9 @@ bool WIOService::requestBlockedThread()
 void WIOService::releaseBlockedThread()
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock l(blockedThreadMutex_);
-  if (blockedThreadCounter_ > 0)
-    blockedThreadCounter_--;
+  boost::mutex::scoped_lock l(impl_->blockedThreadMutex_);
+  if (impl_->blockedThreadCounter_ > 0)
+    impl_->blockedThreadCounter_--;
   else
     LOG_ERROR("releaseBlockedThread: oops!");
 #endif

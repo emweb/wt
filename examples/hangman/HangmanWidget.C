@@ -72,11 +72,13 @@ void HangmanWidget::newGame()
 
 void HangmanWidget::registerGuess(char c)
 {
-  bool correct = word_->guess(c);
+  if (badGuesses_ < MaxGuesses) {
+    bool correct = word_->guess(c);
 
-  if (!correct) {
-    ++badGuesses_;
-    images_->showImage(badGuesses_);
+    if (!correct) {
+      ++badGuesses_;
+      images_->showImage(badGuesses_);
+    }
   }
 
   if (badGuesses_ == MaxGuesses) {

@@ -286,6 +286,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 .Wt-panel .body {
+    clear: left;
     padding: 4px 6px;
 }
 

@@ -140,17 +140,31 @@ public:
    */
   bool isReadOnly() const;
 
-  /*! \brief Sets the empty text to be shown when the field is empty.
+  /*! \brief Sets the placeholder text (<b>deprecated</b>).
    *
-   * \sa emptyText()
+   * \deprecated use setPlaceholderText() instead
    */
   void setEmptyText(const WString& emptyText);
 
-  /*! \brief Returns the empty text to be shown when the field is empty.
+  /*! \brief Returns the placeholder text (<b>deprecated</b>).
    *
-   * \sa setEmptyText()
+   * \deprecated use placeholderText() instead.
    */
-  const WString& emptyText() {
+  const WString& emptyText() const {
+    return placeholderText();
+  }
+
+  /*! \brief Sets the placeholder text.
+   *
+   * This sets the text that is shown when the field is empty.
+   */
+  void setPlaceholderText(const WString& placeholder);
+
+  /*! \brief Returns the placeholder text.
+   *
+   * \sa setPlaceholderText()
+   */
+  const WString& placeholderText() const {
     return emptyText_;
   }
 

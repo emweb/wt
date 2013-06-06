@@ -192,7 +192,8 @@ public:
    *
    * By default, an item is not checked.
    *
-   * Note: this requires that the item is checkable (see setCheckable()).
+   * Note: the checkbox will only be enabled if the item is checkable
+   *       (see setCheckable()).
    *
    * If the item is tri-state, you may consider using setCheckState() instead
    * which supports also setting the third Wt::PartiallyChecked state.

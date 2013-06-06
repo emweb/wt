@@ -27,7 +27,12 @@ WLength::WLength(const char *s)
   : auto_(false),
     unit_(Pixel),
     value_(-1)
-{ 
+{
+  if (std::string("auto") == s) {
+    auto_ = true;
+    return;
+  }
+
   char *end = 0;
 #ifndef WT_TARGET_JAVA
   value_ = strtod(s, &end);

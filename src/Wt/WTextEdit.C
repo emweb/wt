@@ -41,6 +41,8 @@ void WTextEdit::init()
 
   initTinyMCE();
 
+  version_ = getTinyMCEVersion();
+
   setJavaScriptMember(" WTextEdit", "new " WT_CLASS ".WTextEdit("
 		      + app->javaScriptClass() + "," + jsRef() + ");");
 
@@ -52,24 +54,31 @@ void WTextEdit::init()
   std::string direction = app->layoutDirection() == LeftToRight ? "ltr" : "rtl";
   setConfigurationSetting("directionality", direction);
 
-  std::string toolbar = 
-    "fontselect,|,bold,italic,underline,|,fontsizeselect,|"
-    ",forecolor,backcolor,|"
-    ",justifyleft,justifycenter,justifyright,justifyfull,|,anchor,|"
-    ",numlist,bullist";
+  std::string toolbar;
+  if (version_ < 4)
+    toolbar = "fontselect,|,bold,italic,underline,|,fontsizeselect,|"
+      ",forecolor,backcolor,|"
+      ",justifyleft,justifycenter,justifyright,justifyfull,|,anchor,|"
+      ",numlist,bullist";
+  else
+    toolbar = "undo redo | styleselect | bold italic | link";
+
   setToolBar(0, toolbar);
   for (int i = 1; i <= 3; i++)
     setToolBar(i, std::string());
 
-  //this setting is no longer mentioned in the tinymce documenation though...
-  setConfigurationSetting("button_tile_map", true);
-  
   setConfigurationSetting("doctype", wApp->docType());
   setConfigurationSetting("relative_urls", true);
-  setConfigurationSetting("theme", std::string("advanced"));
-  setConfigurationSetting("theme_advanced_toolbar_location", 
-			  std::string("top"));
-  setConfigurationSetting("theme_advanced_toolbar_align", std::string("left"));
+
+  if (version_ < 4) {
+    //this setting is no longer mentioned in the tinymce documenation though...
+    setConfigurationSetting("button_tile_map", true);
+    setConfigurationSetting("theme", std::string("advanced"));
+    setConfigurationSetting("theme_advanced_toolbar_location", 
+			    std::string("top"));
+    setConfigurationSetting("theme_advanced_toolbar_align",
+			    std::string("left"));
+  }
 }
 
 WTextEdit::~WTextEdit()
@@ -100,16 +109,26 @@ const std::string WTextEdit::extraPlugins() const
 
 void WTextEdit::setToolBar(int i, const std::string& config)
 {
+  std::string setting;
+  if (version_ < 4)
+    setting = "theme_advanced_buttons";
+  else
+    setting = "toolbar";
+
   setConfigurationSetting
-    ("theme_advanced_buttons" + boost::lexical_cast<std::string>(i + 1),
-     config);
+    (setting + boost::lexical_cast<std::string>(i + 1), config);
 }
 
 const std::string WTextEdit::toolBar(int i) const
 {
+  std::string setting;
+  if (version_ < 4)
+    setting = "theme_advanced_buttons";
+  else
+    setting = "toolbar";
+
   return asString(configurationSetting
-		  ("theme_advanced_buttons"
-		   + boost::lexical_cast<std::string>(i + 1))).toUTF8();
+		  (setting + boost::lexical_cast<std::string>(i + 1))).toUTF8();
 }
 
 std::string WTextEdit::renderRemoveJs()
@@ -118,6 +137,13 @@ std::string WTextEdit::renderRemoveJs()
     return jsRef() + ".ed.remove();" WT_CLASS ".remove('" + id() + "');";
   else
     return WTextArea::renderRemoveJs();
+}
+
+int WTextEdit::getTinyMCEVersion()
+{
+  std::string version = "4";
+  WApplication::readConfigurationProperty("tinyMCEVersion", version);
+  return boost::lexical_cast<int>(version);
 }
 
 void WTextEdit::initTinyMCE()
@@ -130,16 +156,19 @@ void WTextEdit::initTinyMCE()
     if (app->environment().ajax())
       app->doJavaScript("window.tinyMCE_GZ = { loaded: true };", false);
 
-    std::string tinyMCEBaseURL 
-      = WApplication::relativeResourcesUrl() + "tiny_mce/";
+    int version = getTinyMCEVersion();
 
+    std::string folder = version == 3 ? "tiny_mce/" : "tinymce/";
+    std::string jsFile = version == 3 ? "tiny_mce.js" : "tinymce.js";
+
+    std::string tinyMCEBaseURL = WApplication::relativeResourcesUrl() + folder;
     WApplication::readConfigurationProperty("tinyMCEBaseURL", tinyMCEBaseURL);
 
     if (!tinyMCEBaseURL.empty()
 	&& tinyMCEBaseURL[tinyMCEBaseURL.length()-1] != '/')
       tinyMCEBaseURL += '/';
 
-    app->require(tinyMCEBaseURL + "tiny_mce.js", "window['tinyMCE']");
+    app->require(tinyMCEBaseURL + jsFile, "window['tinyMCE']");
     app->styleSheet().addRule(".mceEditor",
 			      "display: block; position: absolute;");
 
@@ -161,9 +190,13 @@ void WTextEdit::setText(const WT_USTRING& text)
 std::string WTextEdit::plugins() const
 {
   std::string plugins = extraPlugins();
-  if (!plugins.empty())
-    plugins += ",";
-  plugins += "safari";
+
+  if (version_ == 3) {
+    if (!plugins.empty())
+      plugins += ",";
+    plugins += "safari";
+  }
+
   return plugins;
 }
 

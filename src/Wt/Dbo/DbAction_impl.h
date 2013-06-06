@@ -666,7 +666,7 @@ template<class C>
 void SetReciproceAction::actPtr(const PtrRef<C>& field)
 { 
   if (field.name() == joinName_)
-    field.value().reset(value_);
+    field.value().resetObj(value_);
 }
 
 template<class C>
