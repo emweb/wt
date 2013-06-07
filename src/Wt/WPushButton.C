@@ -250,8 +250,9 @@ void WPushButton::updateDom(DomElement& element, bool all)
     }
   }
 
-  WApplication::instance()->theme()->apply(this, element,
-					   MainElementThemeRole);
+  if (!all)
+    WApplication::instance()->theme()->apply(this, element,
+					     MainElementThemeRole);
 
   WFormWidget::updateDom(element, all);
 }

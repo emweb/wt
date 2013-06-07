@@ -370,23 +370,25 @@ void WebRenderer::streamBootContent(WebResponse& response,
 
 void WebRenderer::serveLinkedCss(WebResponse& response)
 {
-  WApplication *app = session_.app();
-
   response.setContentType("text/css");
 
-  WStringStream out(response.out());
+  if (!initialStyleRendered_) {
+    WApplication *app = session_.app();
+    
+    WStringStream out(response.out());
 
-  if (app->theme())
-    app->theme()->serveCss(out);
+    if (app->theme())
+      app->theme()->serveCss(out);
 
-  for (unsigned i = 0; i < app->styleSheets_.size(); ++i)
-    app->styleSheets_[i].cssText(out, true);
+    for (unsigned i = 0; i < app->styleSheets_.size(); ++i)
+      app->styleSheets_[i].cssText(out, true);
 
-  app->styleSheetsAdded_ = 0;
+    app->styleSheetsAdded_ = 0;
 
-  initialStyleRendered_ = true;
+    initialStyleRendered_ = true;
 
-  out.spool(response.out());
+    out.spool(response.out());
+  }
 }
 
 void WebRenderer::serveBootstrap(WebResponse& response)
