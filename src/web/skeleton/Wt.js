@@ -287,10 +287,12 @@ this.initAjaxComm = function(url, handler) {
 	}
 
 	this.abort = function() {
-	  request.onreadystatechange = new Function;
-	  handled = true;
-	  request.abort();
-	  request = null;
+	  if(request != null){
+	    request.onreadystatechange = new Function;
+	    handled = true;
+	    request.abort();
+	    request = null;
+	  }
 	};
 
 	if (_$_CLOSE_CONNECTION_$_)

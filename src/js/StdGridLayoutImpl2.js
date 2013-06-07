@@ -703,7 +703,10 @@ WT_DECLARE_WT_MEMBER
 	   if (p == parentItemWidget)
 	     break;
 
-	   if (p == widget.parentNode && !p.lh && p.offsetHeight > totalPs)
+	   if (dir == VERTICAL &&
+	       p == widget.parentNode && 
+	       !p.lh && 
+	       p.offsetHeight > totalPs)
 	     totalPs = p.offsetHeight;
 
 	   c = p;

@@ -211,7 +211,7 @@ StdGridLayoutImpl2::~StdGridLayoutImpl2()
       app->setHtmlClass("");
     }
 
-    if (app->environment().agentIsIElt(9))
+    if (app->environment().agentIsIElt(9) && container())
       container()->setOverflow(WContainerWidget::OverflowVisible);
   }
 }
