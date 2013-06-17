@@ -68,6 +68,19 @@ function delayClick(e) {
   e.returnValue = false;
   return false;
 }
+
+function setupDelayClick() {
+    var db = document.body;
+    if (!db) {
+      setTimeout(setupDelayClick, 0);
+    }
+    else {
+      if (db.addEventListener)
+	db.addEventListener('click', delayClick, true);
+      else
+	db.attachEvent('onclick', delayClick);
+    }
+}
 _$_$endif_$_();
 
 (function() {
@@ -252,11 +265,8 @@ _$_$if_PROGRESS_$_();
       Make sure that we are not processing click events while progressing.
       Instead, delay them.
     */
-    var db = doc.body;
-    if (db.addEventListener)
-      db.addEventListener('click', delayClick, true);
-    else
-      db.attachEvent('onclick', delayClick);
+
+    setupDelayClick();
 _$_$endif_$_();
 
     var allInfo = hashInfo + scaleInfo + htmlHistoryInfo + deployPathInfo;
