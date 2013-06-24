@@ -24,7 +24,12 @@ std::string createSalt(unsigned int length)
     unsigned r = WRandom::get();
     memcpy(saltBuf + i, &r, 3);
   }
-  return std::string(saltBuf, saltBuf + length);
+
+  std::string s(saltBuf, saltBuf + length);
+
+  delete[] saltBuf;
+
+  return s;
 }
 
 /*

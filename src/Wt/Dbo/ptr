@@ -93,7 +93,7 @@ public:
 
   void setVersion(int version) { version_ = version; }
   int version() const { return version_; }
-  bool isTransient() const {return (!(version_ == -1));}
+  bool isTransient() const { return isNew(); }
 
   void setSession(Session *session) { session_ = session; }
   Session *session() { return session_; }

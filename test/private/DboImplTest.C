@@ -5,6 +5,7 @@
  */
 #include <boost/test/unit_test.hpp>
 
+#include <boost/version.hpp>
 #include <Wt/Dbo/Dbo>
 
 namespace dbo = Wt::Dbo;
@@ -53,6 +54,9 @@ BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
   // These ones only work correctly with our new spirit-based parser
 
   parseSql("select 'Barts'', car', bike from depot", 1, 2, true);
+
+  parseSql("SELECT cast(round(number, 2) as text) AS column_number FROM table",
+	   1, 1, true);
 
   parseSql
     (SQL

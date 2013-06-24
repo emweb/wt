@@ -266,7 +266,7 @@ bool WPaintedWidget::createPainter()
 
 DomElementType WPaintedWidget::domElementType() const
 {
-  if (isInline() && WApplication::instance()->environment().agentIsIE())
+  if (isInline() && WApplication::instance()->environment().agentIsIElt(9))
     return DomElement_SPAN;
   else  
     return DomElement_DIV;

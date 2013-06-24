@@ -35,10 +35,13 @@ Home::~Home()
 {
 }
 
-Home::Home(const WEnvironment& env, const std::string& title,
-	   const std::string& resourceBundle, const std::string& cssPath)
+Home::Home(const WEnvironment& env,
+	   Wt::Dbo::SqlConnectionPool& blogDb,
+	   const std::string& title, const std::string& resourceBundle,
+	   const std::string& cssPath)
   : WApplication(env),
     releases_(0),
+    blogDb_(blogDb),
     homePage_(0),
     sourceViewer_(0)
 {
@@ -257,7 +260,7 @@ WWidget *Home::blog()
   const Lang& l = languages[language_];
   std::string langPath = l.path_;
   BlogView *blog = new BlogView(langPath + "blog/",
-				appRoot() + "blog.db", "/wt/blog/feed/");
+				blogDb_, "/wt/blog/feed/");
   blog->setObjectName("blog");
 
   if (!blog->user().empty())

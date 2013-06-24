@@ -14,7 +14,7 @@ class BlogSession;
 class BlogRSSFeed : public Wt::WResource
 {
 public:
-  BlogRSSFeed(const std::string& sqliteDb,
+  BlogRSSFeed(Wt::Dbo::SqlConnectionPool& connectionPool,
 	      const std::string& title,
 	      const std::string& url,
 	      const std::string& description);
@@ -25,8 +25,7 @@ protected:
 			     Wt::Http::Response &response);
 
 private:
-  BlogSession *session_;
-
+  Wt::Dbo::SqlConnectionPool& connectionPool_;
   std::string title_, url_, description_;
 };
 

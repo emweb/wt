@@ -12,13 +12,15 @@
 #include "User.h"
 #include "../asciidoc/asciidoc.h"
 
-#include "Wt/Auth/AuthService"
-#include "Wt/Auth/HashFunction"
-#include "Wt/Auth/Identity"
-#include "Wt/Auth/PasswordService"
-#include "Wt/Auth/PasswordStrengthValidator"
-#include "Wt/Auth/PasswordVerifier"
-#include "Wt/Auth/GoogleService"
+#include <Wt/Auth/AuthService>
+#include <Wt/Auth/HashFunction>
+#include <Wt/Auth/Identity>
+#include <Wt/Auth/PasswordService>
+#include <Wt/Auth/PasswordStrengthValidator>
+#include <Wt/Auth/PasswordVerifier>
+#include <Wt/Auth/GoogleService>
+
+#include <Wt/Dbo/FixedSqlConnectionPool>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -96,15 +98,22 @@ void BlogSession::configureAuth()
     blogOAuth.push_back(new Auth::GoogleService(blogAuth));
 }
 
-BlogSession::BlogSession(const std::string& sqliteDb)
-  : connection_(sqliteDb),
-    users_(*this)
+dbo::SqlConnectionPool *BlogSession::createConnectionPool(const std::string& sqliteDb)
 {
-  connection_.setProperty("show-queries", "true");
-  connection_.setDateTimeStorage(Wt::Dbo::SqlDateTime,
+  dbo::backend::Sqlite3 *connection = new dbo::backend::Sqlite3(sqliteDb);
+
+  connection->setProperty("show-queries", "true");
+  connection->setDateTimeStorage(Wt::Dbo::SqlDateTime,
 				 Wt::Dbo::backend::Sqlite3::PseudoISO8601AsText);
 
-  setConnection(connection_);
+  return new dbo::FixedSqlConnectionPool(connection, 10);
+}
+
+BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
+  : connectionPool_(connectionPool),
+    users_(*this)
+{
+  setConnectionPool(connectionPool_);
 
   mapClass<Comment>("comment");
   mapClass<Post>("post");

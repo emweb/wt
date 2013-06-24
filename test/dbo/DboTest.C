@@ -1722,3 +1722,23 @@ BOOST_AUTO_TEST_CASE( dbo_test20 )
   }
 #endif //FIREBIRD
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test21 )
+{
+  DboFixture f;
+
+  {
+    dbo::Session *session_ = f.session_;
+
+    dbo::Transaction t(*session_);
+
+    dbo::QueryModel<std::string> *model = new dbo::QueryModel<std::string>();
+    model->setQuery(session_->query<std::string>
+		    ("SELECT cast(round(number, 2) as text) AS column_number "
+		     "FROM table"));
+
+    model->addColumn("column_number", "label");
+
+    delete model;
+  }
+}

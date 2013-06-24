@@ -149,7 +149,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
   switch (element.type()) {
 
   case DomElement_A:
-    if (dynamic_cast<WPushButton *>(widget))
+    if (creating && dynamic_cast<WPushButton *>(widget))
       element.addPropertyWord(PropertyClass, "btn");
     break;
 

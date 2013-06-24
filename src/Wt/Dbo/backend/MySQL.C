@@ -123,17 +123,20 @@ class MySQLStatement : public SqlStatement
     {
       DEBUG(std::cerr << this << " bind " << column << " "
             << value << std::endl);
+
       unsigned long * len = (unsigned long *)malloc(sizeof(unsigned long));
+
       char * data;
       //memset(&in_pars_[column], 0, sizeofin_pars_[column]);// Check
       in_pars_[column].buffer_type = MYSQL_TYPE_STRING;
 
-      *len = value.length() + 1;
-      data = (char *)malloc(*len);
-      strcpy(data, value.c_str());
+      unsigned long bufLen = value.length() + 1;
+      *len = value.length();
+      data = (char *)malloc(bufLen);
+      memcpy(data, value.c_str(), value.length());
       freeColumn(column);
       in_pars_[column].buffer = data;
-      in_pars_[column].buffer_length = *len;
+      in_pars_[column].buffer_length = bufLen;
       in_pars_[column].length = len;
       in_pars_[column].is_null = 0;
     }
@@ -278,6 +281,7 @@ class MySQLStatement : public SqlStatement
             value.size() << ")" << std::endl);
 
       unsigned long * len = (unsigned long *)malloc(sizeof(unsigned long));
+
       char * data;
       in_pars_[column].buffer_type = MYSQL_TYPE_BLOB;
 
@@ -421,8 +425,7 @@ class MySQLStatement : public SqlStatement
         out_pars_[column].buffer_length = *(out_pars_[column].length)+1;
         mysql_stmt_fetch_column(stmt_,  &out_pars_[column], column, 0);
         str = static_cast<char*>( out_pars_[column].buffer);
-        str[*out_pars_[column].length] = '\0';
-        *value = str;
+        *value = std::string(str, *out_pars_[column].length);
 
         DEBUG(std::cerr << this
               << " result string " << column << " " << *value << std::endl);

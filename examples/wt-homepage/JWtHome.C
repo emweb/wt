@@ -24,10 +24,10 @@
 
 #include "ExampleSourceViewer.h"
 
-JWtHome::JWtHome(const WEnvironment& env)
-  : Home(env, 
-      "JWt, Java Web Toolkit",
-      "jwt-home", "css/jwt")
+JWtHome::JWtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
+  : Home(env, blogDb,
+	 "JWt, Java Web Toolkit",
+	 "jwt-home", "css/jwt")
 {
   addLanguage(Lang("en", "/", "en", "English"));
 
@@ -154,7 +154,8 @@ WWidget *JWtHome::wrapView(WWidget *(JWtHome::*createWidget)())
   return makeStaticModel(boost::bind(createWidget, this));
 }
 
-WApplication *createJWtHomeApplication(const WEnvironment& env)
+WApplication *createJWtHomeApplication(const WEnvironment& env, 
+				       Wt::Dbo::SqlConnectionPool *blogDb)
 {
-  return new JWtHome(env);
+  return new JWtHome(env, *blogDb);
 }

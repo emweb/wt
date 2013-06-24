@@ -33,7 +33,7 @@ class BlogSession : public dbo::Session
 public:
   static void configureAuth();
 
-  BlogSession(const std::string& sqliteDb);
+  BlogSession(dbo::SqlConnectionPool& connectionPool);
 
   dbo::ptr<User> user() const;
 
@@ -46,8 +46,10 @@ public:
   Wt::Auth::PasswordService *passwordAuth() const;
   const std::vector<const Wt::Auth::OAuthService *>& oAuth() const;
 
+  static dbo::SqlConnectionPool *createConnectionPool(const std::string& sqlite3);
+
 private:
-  dbo::backend::Sqlite3 connection_;
+  dbo::SqlConnectionPool& connectionPool_;
   BlogUserDatabase users_;
   Wt::Auth::Login login_;
 

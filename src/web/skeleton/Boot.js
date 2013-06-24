@@ -167,17 +167,20 @@ var deployPathInfo = '&deployPath=' + encodeURIComponent(deployPath);
 // ajax support
 var ajax = (win.XMLHttpRequest || win.ActiveXObject);
 
+var no_replace = _$_RELOAD_IS_NEWSESSION_$_;
+_$_$if_COOKIE_CHECKS_$_();
 // client-side cookie support
 var testcookie='jscookietest=valid';
 doc.cookie=testcookie;
-var no_replace = _$_RELOAD_IS_NEWSESSION_$_
-  || (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) != -1);
+no_replace = no_replace || 
+	  (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) != -1);
 doc.cookie=testcookie+';expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
 // server-side cookie support
 var inOneSecond = new Date();
 inOneSecond.setTime(inOneSecond.getTime() + 1000);
 doc.cookie='WtTestCookie=ok;path=/;expires=' + inOneSecond.toGMTString();
+_$_$endif_$_();
 
 // hash to query
 var hash = win.location.hash;

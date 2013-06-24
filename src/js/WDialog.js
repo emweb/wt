@@ -119,11 +119,19 @@ WT_DECLARE_WT_MEMBER
    layoutContainer.wtResize = layoutResize;
    el.wtPosition = wtPosition;
 
-   if (el.style.width != '')
-     layoutContainer.style.width = el.offsetWidth + 'px';
+   if (el.style.width != '') {
+     if (WT.parsePx(el.style.width) > 0)
+       layoutContainer.style.width = el.style.width;
+     else
+       layoutContainer.style.width = el.offsetWidth + 'px';
+   }
 
-   if (el.style.height != '')
-     layoutContainer.style.height = el.offsetHeight + 'px';
+   if (el.style.height != '') {
+     if (WT.parsePx(el.style.height) > 0)
+       layoutContainer.style.height = el.style.height;
+     else
+       layoutContainer.style.height = el.offsetHeight + 'px';
+   }
 
    self.centerDialog();
  });

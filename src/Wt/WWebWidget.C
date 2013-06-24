@@ -684,7 +684,7 @@ void WWebWidget::calcZIndex()
       maxZ = std::max(maxZ, wi->zIndex());
     }
 
-    layoutImpl_->zIndex_ = maxZ + 5;
+    layoutImpl_->zIndex_ = maxZ + 100;
   }
 }
 
@@ -1962,6 +1962,15 @@ DomElement *WWebWidget::createActualElement(WWidget *self, WApplication *app)
   DomElement *result = createDomElement(app);
 
   app->theme()->apply(self, *result, MainElementThemeRole);
+
+  /* Make sure addStyleClass() does not mess up later */
+  std::string styleClass = result->getProperty(Wt::PropertyClass);
+  if (!styleClass.empty()) {
+    if (!lookImpl_)
+      lookImpl_ = new LookImpl();
+
+    lookImpl_->styleClass_ = styleClass;
+  }
 
   return result;
 }

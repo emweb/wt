@@ -55,8 +55,8 @@ public:
    * colors such as "aqua", or colors defined as RGB components.
    *
    * Only if the color is defined in terms of RGB components (using
-   * the rgba() format), will the CSS color be parsed into red, blue
-   * and green values. to an appropriate value. Otherwise, these
+   * the #rgb, #rrggbb, rgb() or rgba() formats), will the CSS color
+   * be parsed into red, blue and green values. Otherwise, these
    * values are not available, and the color can only be used in media
    * that support CSS colors.
    *

@@ -456,9 +456,10 @@
            Before 3.3.0, the default value was IE8=IE7, but since 3.3.0
 	   this has been changed to an empty string (i.e. let IE8 use the
 	   standard IE8 rendering engine) to take advantage of IE8's
-	   improved CSS support.
+	   improved CSS support. If you make heavy use of VML, you may need
+	   to revert to IE8=IE7.
 	  -->
-	<UA-Compatible>IE8=IE7</UA-Compatible>
+	<UA-Compatible></UA-Compatible>
 
 	<!-- Configures whether the progressive bootstrap method is used.
 
@@ -495,6 +496,14 @@
 	   for this purpose, and can be enabled using this setting.
 	  -->
 	<session-id-cookie>false</session-id-cookie>
+
+	<!-- Configure cookie checks
+
+         By default, Wt will test for cookie support using JavaScript.
+	 Because cookie manipulation from JavaScript is a common security
+	 risk vector, some prefer to disable these checks.
+	-->
+	<cookie-checks>true</cookie-checks>
 
 	<!-- Runtime Properties
      

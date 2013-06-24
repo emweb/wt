@@ -6,6 +6,7 @@
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
 #include <Wt/WServer>
+#include <Wt/Dbo/SqlConnectionPool>
 
 #include "model/BlogSession.h"
 #include "model/Token.h"
@@ -24,18 +25,18 @@ static const char *BlogUrl = "/blog";
 class BlogApplication : public WApplication
 {
 public:
-  BlogApplication(const WEnvironment& env) 
+  BlogApplication(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb) 
     : WApplication(env)
   {
-    root()->addWidget(new BlogView("/",
-      WApplication::appRoot() + "blog.db", FeedUrl));
+    root()->addWidget(new BlogView("/", blogDb, FeedUrl));
     useStyleSheet("css/blogexample.css");
   }
 };
 
-WApplication *createApplication(const WEnvironment& env)
+WApplication *createApplication(const WEnvironment& env,
+				Wt::Dbo::SqlConnectionPool *blogDb)
 {
-  return new BlogApplication(env);
+  return new BlogApplication(env, *blogDb);
 }
 
 int main(int argc, char **argv)
@@ -47,13 +48,16 @@ int main(int argc, char **argv)
 
     BlogSession::configureAuth();
 
-    BlogRSSFeed rssFeed(server.appRoot() + "blog.db", "Wt blog example",
-      "", "It's just an example.");
+    Wt::Dbo::SqlConnectionPool *blogDb
+      = BlogSession::createConnectionPool(server.appRoot() + "blog.db");
+
+    BlogRSSFeed rssFeed(*blogDb, "Wt blog example", "", "It's just an example.");
 
     server.addResource(&rssFeed, FeedUrl);
     //When the blog application is deployed in ISAPI on the path "/blog"
     //the resources (css+images) are not fetched correctly
-    server.addEntryPoint(Application, createApplication, BlogUrl);    
+    server.addEntryPoint(Application,
+			 boost::bind(&createApplication, _1, blogDb), BlogUrl);    
 
     std::cerr << "\n\n -- Warning: Example is deployed at '"
       << BlogUrl << "'\n\n";
@@ -62,6 +66,8 @@ int main(int argc, char **argv)
       WServer::waitForShutdown();
       server.stop();
     }
+
+    delete blogDb;
   } catch (WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {

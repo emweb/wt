@@ -16,7 +16,7 @@ using namespace Wt;
 class JWtHome : public Home 
 {
 public:
-  JWtHome(const WEnvironment& env);
+  JWtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb);
 
 protected:
   virtual WWidget *examples();
@@ -40,6 +40,7 @@ private:
   std::string jwtExamplePath_;
 };
 
-WApplication *createJWtHomeApplication(const WEnvironment& env);
+WApplication *createJWtHomeApplication(const WEnvironment& env,
+				       Wt::Dbo::SqlConnectionPool *blogDb);
 
 #endif // JWT_HOME_H_

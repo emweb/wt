@@ -108,21 +108,22 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
   {
 #ifdef WT_THREADED
-    boost::shared_ptr<boost::recursive_mutex> mutex = mutex_;
-    boost::recursive_mutex::scoped_lock lock(*mutex);
+    if (handler || continuation) {
+      boost::shared_ptr<boost::recursive_mutex> mutex = mutex_;
+      boost::recursive_mutex::scoped_lock lock(*mutex);
 
-    if (beingDeleted_)
-      return;
+      if (beingDeleted_)
+	return;
 
-    // when we are handling a continuation, we do not have the session
-    // lock, unless we are being called from haveMoreData(), but then it's
-    // fine I guess ?
-    if (!continuation) {
-      if (handler &&
-	  handler->haveLock() && 
-	  handler->lockOwner() == boost::this_thread::get_id()) {
-	retakeLock = true;
-	handler->lock().unlock();
+      // when we are handling a continuation, we do not have the session
+      // lock, unless we are being called from haveMoreData(), but then it's
+      // fine I guess ?
+      if (!continuation) {
+	if (handler->haveLock() && 
+	    handler->lockOwner() == boost::this_thread::get_id()) {
+	  retakeLock = true;
+	  handler->lock().unlock();
+	}
       }
     }
 #endif // WT_THREADED

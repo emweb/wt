@@ -443,6 +443,70 @@ std::string WtReply::location()
   return contentLength_;
 }
 
+void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
+{
+  assert(sending_ > 0);
+
+  bool webSocket = request().webSocketVersion >= 0;
+  if (webSocket) {
+    std::size_t size = sending_;
+
+    LOG_DEBUG("ws: sending a message, length = " << size);
+
+    switch (request().webSocketVersion) {
+    case 0:
+      result.push_back(asio::buffer(&misc_strings::char0x0, 1));
+      result.push_back(out_buf_.data());
+      result.push_back(asio::buffer(&misc_strings::char0xFF, 1));
+
+      break;
+    case 7:
+    case 8:
+    case 13:
+      {
+	result.push_back(asio::buffer(&misc_strings::char0x81, 1));
+
+	std::size_t payloadLength = size;
+
+	if (payloadLength < 126) {
+	  gatherBuf_[0] = (char)payloadLength;
+	  result.push_back(asio::buffer(gatherBuf_, 1));
+	} else if (payloadLength < (1 << 16)) {
+	  gatherBuf_[0] = (char)126;
+	  gatherBuf_[1] = (char)(payloadLength >> 8);
+	  gatherBuf_[2] = (char)(payloadLength);
+	  result.push_back(asio::buffer(gatherBuf_, 3));
+	} else {
+	  unsigned j = 0;
+	  gatherBuf_[j++] = (char)127;
+
+	  const unsigned SizeTLength = sizeof(payloadLength);
+
+	  for (unsigned i = 8; i > SizeTLength; --i)
+	    gatherBuf_[j++] = (char)0x0;
+
+	  for (unsigned i = 0; i < SizeTLength; ++i)
+	    gatherBuf_[j++] = (char)(payloadLength
+				     >> ((SizeTLength - 1 - i) * 8));
+
+	  result.push_back(asio::buffer(gatherBuf_, 9));
+	}
+
+	result.push_back(out_buf_.data());
+      }
+      break;
+    default:
+      LOG_ERROR("ws: encoding for version " <<
+		request().webSocketVersion << " is not implemented");
+
+      sending_ = 0;
+      // FIXME: set something to close the connection
+      return;
+    }
+  } else
+    result.push_back(out_buf_.data());
+}
+
 void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
   LOG_DEBUG("sent: " << sending_);
@@ -455,85 +519,24 @@ void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 
   bool webSocket = request().webSocketVersion >= 0;
 
-  if (webSocket) {
-    if (!sendingMessages_) {
-      /*
-       * This finishes the server handshake. For 00-protocol, we copy
-       * the computed handshake nonce in the output.
-       */
-      if (request().webSocketVersion == 0) {
-	std::string s = in_mem_.str();
-	memcpy(gatherBuf_, s.c_str(), std::min((std::size_t)16, s.length()));
-	result.push_back(asio::buffer(gatherBuf_));
-      }
-
-      sendingMessages_ = true;
-    } else {
-      /*
-       * The output stream buf should be sent as a websocket message.
-       */
-      std::size_t size = sending_;
-
-      if (size > 0) {
-	LOG_DEBUG("ws: sending a message, length = " << size);
-
-	switch (request().webSocketVersion) {
-	case 0:
-	  result.push_back(asio::buffer(&misc_strings::char0x0, 1));
-	  result.push_back(out_buf_.data());
-	  result.push_back(asio::buffer(&misc_strings::char0xFF, 1));
-
-	  break;
-	case 7:
-	case 8:
-	case 13:
-	  {
-	    result.push_back(asio::buffer(&misc_strings::char0x81, 1));
-
-	    std::size_t payloadLength = size;
-
-	    if (payloadLength < 126) {
-	      gatherBuf_[0] = (char)payloadLength;
-	      result.push_back(asio::buffer(gatherBuf_, 1));
-	    } else if (payloadLength < (1 << 16)) {
-	      gatherBuf_[0] = (char)126;
-	      gatherBuf_[1] = (char)(payloadLength >> 8);
-	      gatherBuf_[2] = (char)(payloadLength);
-	      result.push_back(asio::buffer(gatherBuf_, 3));
-	    } else {
-	      unsigned j = 0;
-	      gatherBuf_[j++] = (char)127;
-
-	      const unsigned SizeTLength = sizeof(payloadLength);
-
-	      for (unsigned i = 8; i > SizeTLength; --i)
-		gatherBuf_[j++] = (char)0x0;
-
-	      for (unsigned i = 0; i < SizeTLength; ++i)
-		gatherBuf_[j++] = (char)(payloadLength
-					   >> ((SizeTLength - 1 - i) * 8));
-
-	      result.push_back(asio::buffer(gatherBuf_, 9));
-	    }
-
-	    result.push_back(out_buf_.data());
-	  }
-	  break;
-	default:
-	  LOG_ERROR("ws: encoding for version " <<
-		    request().webSocketVersion << " is not implemented");
-
-	  sending_ = 0;
-	  // FIXME: set something to close the connection
-	  return;
-	}
-      }
+  if (webSocket && !sendingMessages_) {
+    /*
+     * This finishes the server handshake. For 00-protocol, we copy
+     * the computed handshake nonce in the output.
+     */
+    if (request().webSocketVersion == 0) {
+      std::string s = in_mem_.str();
+      memcpy(gatherBuf_, s.c_str(), std::min((std::size_t)16, s.length()));
+      result.push_back(asio::buffer(gatherBuf_));
     }
-  } else if (sending_)
-    result.push_back(out_buf_.data());
 
-  if (!sending_) {
-    while (!sending_ && fetchMoreDataCallback_) {
+    sendingMessages_ = true;
+  } else if (sending_ > 0) {
+    formatResponse(result);
+  }
+
+  if (sending_ == 0) {
+    while (sending_ == 0 && fetchMoreDataCallback_) {
       sending_ = 1;
       LOG_DEBUG("Invoking callback (nextContentBuffers)");
       Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
@@ -541,9 +544,9 @@ void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
       f();
       sending_ = out_buf_.size();
     }
-
+ 
     if (sending_ > 0)
-      result.push_back(out_buf_.data());
+      formatResponse(result);
   }
 }
 

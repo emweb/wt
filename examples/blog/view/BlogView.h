@@ -18,7 +18,7 @@ class BlogImpl;
 class BlogView : public Wt::WCompositeWidget
 {
 public:
-  BlogView(const std::string& basePath, const std::string& sqliteDb,
+  BlogView(const std::string& basePath, Wt::Dbo::SqlConnectionPool& db,
 	   const std::string& rssFeedUrl, Wt::WContainerWidget *parent = 0);
 
   void setInternalBasePath(const std::string& basePath);

@@ -67,7 +67,7 @@ DeferredWidget<Function> *deferCreate(Function f)
 class Home : public WApplication
 {
 public:
-  Home(const WEnvironment& env,
+  Home(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb,
        const std::string& title,
        const std::string& resourceBundle, const std::string& cssPath);
   
@@ -95,6 +95,7 @@ protected:
   void readReleases(WTable *releaseTable);
 
 private:
+  Wt::Dbo::SqlConnectionPool& blogDb_;
   WWidget *homePage_;
   WWidget *sourceViewer_;
 

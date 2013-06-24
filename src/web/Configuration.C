@@ -231,6 +231,7 @@ void Configuration::reset()
   maxPlainSessionsRatio_ = 1;
   ajaxPuzzle_ = false;
   sessionIdCookie_ = false;
+  cookieChecks_ = true;
 
   if (!appRoot_.empty())
     properties_["appRoot"] = appRoot_;
@@ -424,7 +425,14 @@ std::string Configuration::uaCompatible() const
 
 bool Configuration::sessionIdCookie() const
 {
+  READ_LOCK;
   return sessionIdCookie_;
+}
+
+bool Configuration::cookieChecks() const
+{
+  READ_LOCK;
+  return cookieChecks_;
 }
 
 bool Configuration::useSlashExceptionForInternalPaths() const
@@ -680,6 +688,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   if (progressiveBoot_)
     setBoolean(app, "split-script", splitScript_);
   setBoolean(app, "session-id-cookie", sessionIdCookie_);
+  setBoolean(app, "cookie-checks", cookieChecks_);
 
   std::string plainAjaxSessionsRatioLimit
     = singleChildElementValue(app, "plain-ajax-sessions-ratio-limit", "");

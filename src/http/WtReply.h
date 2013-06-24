@@ -89,6 +89,7 @@ private:
   void consumeRequestBody(Buffer::const_iterator begin,
 			  Buffer::const_iterator end,
 			  Request::State state);
+  void formatResponse(std::vector<asio::const_buffer>& result);
 };
 
 } // namespace server

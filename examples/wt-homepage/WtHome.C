@@ -24,8 +24,8 @@
 
 #include "ExampleSourceViewer.h"
 
-WtHome::WtHome(const WEnvironment& env)
-  : Home(env, "Wt, C++ Web Toolkit", "wt-home", "css/wt")
+WtHome::WtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb)
+  : Home(env, blogDb, "Wt, C++ Web Toolkit", "wt-home", "css/wt")
 {
   addLanguage(Lang("en", "/", "en", "English"));
   addLanguage(Lang("cn", "/cn/", "汉语", "中文 (Chinese)"));
@@ -167,61 +167,8 @@ WWidget *WtHome::wrapView(WWidget *(WtHome::*createWidget)())
   return makeStaticModel(boost::bind(createWidget, this));
 }
 
-WApplication *createWtHomeApplication(const WEnvironment& env)
+WApplication *createWtHomeApplication(const WEnvironment& env, 
+				      Wt::Dbo::SqlConnectionPool *blogDb)
 {
-  // support for old (< Wt-2.2) homepage URLS: redirect from "states"
-  // to "internal paths"
-  // this contains the initial "history state" in old Wt versions
-  const std::string *historyKey = env.getParameter("historyKey");
-
-  if (historyKey) {
-    const char *mainStr[]
-      = { "main:0", "/",
-	  "main:1", "/news",
-	  "main:2", "/features",
-	  "main:4", "/examples",
-	  "main:3", "/documentation",
-	  "main:5", "/download",
-	  "main:6", "/community" };
-
-    const char *exampleStr[]
-      = { "example:0", "/examples",
-	  "example:1", "/examples/charts",
-	  "example:2", "/examples/wt-homepage",
-	  "example:3", "/examples/treelist",
-	  "example:4", "/examples/hangman",
-	  "example:5", "/examples/chat",
-	  "example:6", "/examples/mail-composer",
-	  "example:7", "/examples/drag-and-drop",
-	  "example:8", "/examples/file-explorer",
-	  "example:9", "/examples/calendar" };
-
-    if (historyKey->find("main:4") != std::string::npos) {
-      for (unsigned i = 0; i < 10; ++i)
-	if (historyKey->find(exampleStr[i*2]) != std::string::npos) {
-	  WApplication *app = new WApplication(env);
-	  app->log("notice") << "redirecting old style URL '"
-			     << *historyKey << "' to internal path: '"
-			     << exampleStr[i*2+1] << "'";
-	  app->redirect(app->bookmarkUrl(exampleStr[i*2+1]));
-	  app->quit();
-	  return app;
-	}
-    } else
-      for (unsigned i = 0; i < 6; ++i)
-	if (historyKey->find(mainStr[i*2]) != std::string::npos) {
-	  WApplication *app = new WApplication(env);
-
-	  app->log("notice") << "redirecting old style URL '"
-			     << *historyKey << "' to internal path: '"
-			     << mainStr[i*2+1] << "'";
-	  app->redirect(app->bookmarkUrl(mainStr[i*2+1]));
-	  app->quit();
-	  return app;
-	}
-
-    // unknown history key, just continue
-  }
-
-  return new WtHome(env);
+  return new WtHome(env, *blogDb);
 }

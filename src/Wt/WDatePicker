@@ -122,9 +122,15 @@ public:
 
   /*! \brief The display widget.
    *
-   * Returns the widget which is displayed to activate the calendar.
+   * Returns the icon which activates the popup.
    */
   WInteractWidget *displayWidget() const { return displayWidget_; }
+
+  /*! \brief The popup widget.
+   *
+   * Returns the popup widget that contains the calendar. 
+   */
+  WPopupWidget *popupWidget() const { return popup_; }
 
   /*! \brief The current date.
    *

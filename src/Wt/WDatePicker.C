@@ -117,7 +117,9 @@ void WDatePicker::onPopupHidden()
 }
 
 void WDatePicker::setGlobalPopup(bool global)
-{ }
+{ 
+  popup_->toggleStyleClass("wt-no-reparent", global);
+}
 
 void WDatePicker::setFormat(const WT_USTRING& format)
 {

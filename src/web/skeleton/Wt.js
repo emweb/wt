@@ -1439,7 +1439,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
    * Reparent the widget in a suitable parent:
    *  an ancestor of w which isn't overflowing
    */
-  if (!w.wtNoReparent) {
+  if (!w.wtNoReparent && !$(w).hasClass("wt-no-reparent")) {
     var p, pp = atw, domRoot = $('.Wt-domRoot').get(0);
     w.parentNode.removeChild(w);
   

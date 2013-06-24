@@ -38,9 +38,9 @@ namespace Wt {
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
  * Wt::WBorderLayout *layout = new Wt::WBorderLayout();
- * layout->addWidget(new Wt::WText("West-side is best"), Wt::West);
- * layout->addWidget(new Wt::WText("East-side is best"), Wt::East);
- * layout->addWidget(contents, Wt::Center);
+ * layout->addWidget(new Wt::WText("West-side is best"), Wt::WBorderLayout::West);
+ * layout->addWidget(new Wt::WText("East-side is best"), Wt::WBorderLayout::East);
+ * layout->addWidget(contents, Wt::WBorderLayout::Center);
  *
  * // use layout but do not justify vertically
  * w->setLayout(layout, Wt::AlignTop | Wt::AlignJustify);

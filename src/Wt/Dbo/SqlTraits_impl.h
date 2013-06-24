@@ -8,6 +8,7 @@
 #define WT_DBO_SQL_TRAITS_IMPL_H_
 
 #include <Wt/Dbo/SqlStatement>
+#include <boost/algorithm/string/find.hpp>
 
 namespace Wt {
   namespace Dbo {
@@ -33,9 +34,9 @@ void query_result_traits<Result>::getFields(Session& session,
 
   std::string sqlType = "??"; // FIXME, get from session ?
 
-  std::size_t as = name.find(" as ");
-  if (as != std::string::npos)
-    name = name.substr(as + 4);
+  std::string::iterator as = boost::ifind_last(name, " as ").end();
+  if (as != name.end())
+    name = name.substr(as - name.begin());
 
   result.push_back(FieldInfo(name, &typeid(Result), sqlType, 0));
 }

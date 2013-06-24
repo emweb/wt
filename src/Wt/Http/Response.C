@@ -58,7 +58,8 @@ ResponseContinuation *Response::continuation() const
 WT_BOSTREAM& Response::out()
 {
   if (!headersCommitted_) {
-    if (!continuation_ &&
+    if (response_ &&
+	!continuation_ &&
 	(resource_->dispositionType() != WResource::NoDisposition
 	 || !resource_->suggestedFileName().empty())) {
       std::string theDisposition;

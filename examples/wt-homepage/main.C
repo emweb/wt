@@ -5,6 +5,7 @@
  */
 
 #include <Wt/WServer>
+#include <Wt/Dbo/SqlConnectionPool>
 
 #include "BlogRSSFeed.h"
 #include "model/BlogSession.h"
@@ -22,21 +23,28 @@ int main(int argc, char **argv)
 
     BlogSession::configureAuth();
 
-    BlogRSSFeed rssFeed(server.appRoot() + "blog.db", "Wt and JWt blog",
-      "http://www.webtoolkit.eu/wt/blog",
-      "We care about our webtoolkits.");
+    Wt::Dbo::SqlConnectionPool *blogDb
+      = BlogSession::createConnectionPool(server.appRoot() + "blog.db");
+
+    BlogRSSFeed rssFeed(*blogDb, "Wt and JWt blog",
+			"http://www.webtoolkit.eu/wt/blog",
+			"We care about our webtoolkits.");
 
     server.addResource(&rssFeed, "/wt/blog/feed/");
 
-    server.addEntryPoint(Application, createJWtHomeApplication,
-      "/jwt", "/css/jwt/favicon.ico");
-    server.addEntryPoint(Application, createWtHomeApplication,
-      "", "/css/wt/favicon.ico");
+    server.addEntryPoint(Application,
+			 boost::bind(&createJWtHomeApplication, _1, blogDb),
+			 "/jwt", "/css/jwt/favicon.ico");
+    server.addEntryPoint(Application,
+			 boost::bind(&createWtHomeApplication, _1, blogDb),
+			 "", "/css/wt/favicon.ico");
 
     if (server.start()) {
       WServer::waitForShutdown();
       server.stop();
     }
+
+    delete blogDb;
   } catch (Wt::WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {

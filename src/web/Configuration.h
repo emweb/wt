@@ -158,6 +158,7 @@ public:
   float maxPlainSessionsRatio() const;
   bool ajaxPuzzle() const;
   bool sessionIdCookie() const;
+  bool cookieChecks() const;
   bool useSlashExceptionForInternalPaths() const;
   bool needReadBodyBeforeResponse() const;
 
@@ -224,6 +225,7 @@ private:
   float           maxPlainSessionsRatio_;
   bool            ajaxPuzzle_;
   bool            sessionIdCookie_;
+  bool            cookieChecks_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

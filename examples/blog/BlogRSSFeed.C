@@ -18,24 +18,24 @@
 
 namespace dbo = Wt::Dbo;
 
-BlogRSSFeed::BlogRSSFeed(const std::string& sqliteDb,
+BlogRSSFeed::BlogRSSFeed(dbo::SqlConnectionPool& connectionPool,
 			 const std::string& title,
 			 const std::string& url,
 			 const std::string& description)
-  : session_(new BlogSession(sqliteDb)),
+  : connectionPool_(connectionPool),
     title_(title),
     url_(url),
     description_(description)
 { }
 
 BlogRSSFeed::~BlogRSSFeed()
-{
-  delete session_;
-}
+{ }
 
 void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
 				Wt::Http::Response &response)
 {
+  BlogSession session(connectionPool_);
+
   response.setMimeType("application/rss+xml");
 
   std::string url = url_;
@@ -59,9 +59,9 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
     "    <description>" << Wt::Utils::htmlEncode(description_)
 		 << "</description>\n";
 
-  dbo::Transaction t(*session_);
+  dbo::Transaction t(session);
 
-  Posts posts = session_->find<Post>
+  Posts posts = session.find<Post>
     ("where state = ? "
      "order by date desc "
      "limit 10").bind(Post::Published);

@@ -16,7 +16,7 @@ using namespace Wt;
 class WtHome : public Home 
 {
 public:
-  WtHome(const WEnvironment& env);
+  WtHome(const WEnvironment& env, Wt::Dbo::SqlConnectionPool& blogDb);
 
 protected:
   virtual WWidget *examples();
@@ -42,6 +42,7 @@ private:
   WWidget *wrapView(WWidget *(WtHome::*createFunction)());
 };
 
-WApplication *createWtHomeApplication(const WEnvironment& env);
+WApplication *createWtHomeApplication(const WEnvironment& env,
+				      Wt::Dbo::SqlConnectionPool *blogDb);
 
 #endif // WT_HOME_H_

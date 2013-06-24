@@ -42,11 +42,11 @@ namespace dbo = Wt::Dbo;
 class BlogImpl : public WContainerWidget
 {
 public:
-  BlogImpl(const std::string& basePath, const std::string& sqliteDb,
+  BlogImpl(const std::string& basePath, dbo::SqlConnectionPool& connectionPool,
 	   const std::string& rssFeedUrl, BlogView *blogView)
     : basePath_(basePath),
       rssFeedUrl_(rssFeedUrl),
-      session_(sqliteDb),
+      session_(connectionPool),
       blogView_(blogView),
       panel_(0),
       authorPanel_(0),
@@ -456,12 +456,12 @@ private:
   }
 };
 
-BlogView::BlogView(const std::string& basePath, const std::string& sqliteDb,
+BlogView::BlogView(const std::string& basePath, dbo::SqlConnectionPool& db,
 		   const std::string& rssFeedUrl, WContainerWidget *parent)
   : WCompositeWidget(parent),
     userChanged_(this)
 {
-  impl_ = new BlogImpl(basePath, sqliteDb, rssFeedUrl, this);
+  impl_ = new BlogImpl(basePath, db, rssFeedUrl, this);
   setImplementation(impl_);
 }
 
