@@ -472,7 +472,8 @@ private:
 
   void createTable(MappingInfo *mapping,
 		   std::set<std::string>& tablesCreated,
-		   std::ostream *sout);
+                   std::ostream *sout,
+                   bool createConstraints);
   void createRelations(MappingInfo *mapping,
 		       std::set<std::string>& tablesCreated,
 		       std::ostream *sout);

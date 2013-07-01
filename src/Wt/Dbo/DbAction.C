@@ -11,6 +11,22 @@
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+
+    std::string createJoinName(RelationType type,
+                               const char *c1, const char *c2) {
+      if (type == ManyToOne) {
+        return c1;
+      } else {
+        std::string t1 = c1;
+        std::string t2 = c2;
+        if (t2 < t1)
+          std::swap(t1, t2);
+
+        return t1 + "_" + t2;
+      }
+    }
+}
 
 InitSchema::InitSchema(Session& session, Session::MappingInfo& mapping)
   : session_(session),

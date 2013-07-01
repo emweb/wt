@@ -172,7 +172,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.offsetHeight,
-		       minDelta, maxDelta, 'Wt-hsh',
+		       minDelta, maxDelta, 'Wt-hsh2',
 		       function (delta) {
 			 resizeColumn(header, delta);
 		       }, obj, el, event, -2, -1);

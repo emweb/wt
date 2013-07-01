@@ -682,7 +682,7 @@ body.Wt-rtl .Wt-tabs li {
  */
 .Wt-tooltip {
     position: absolute;
-    max-width: 1000px;
+    max-width: 700px;
     background-color: #ffffcc;
     border: 1px solid black;
     padding: 1px 2px;

@@ -45,8 +45,6 @@ WT_DECLARE_WT_MEMBER
 
      if (typeof edit.defaultTT === 'undefined')
        edit.defaultTT = edit.getAttribute('title') || '';
-     else
-       edit.defaultTT = '';
 
      if (state)
        edit.setAttribute('title', edit.defaultTT);

@@ -447,7 +447,7 @@ template <class Action, class C>
 void hasMany(Action& action, collection< ptr<C> >& value,
 	     RelationType type, const std::string& name,
 	     const std::string& joinId,
-	     ForeignKeyConstraint constraints = NotNull);
+             ForeignKeyConstraint constraints = (NotNull | OnDeleteCascade));
 
   }
 }

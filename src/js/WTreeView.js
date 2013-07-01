@@ -130,7 +130,7 @@ WT_DECLARE_WT_MEMBER
        }
 
        new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.offsetHeight,
-	                 minDelta, maxDelta, 'Wt-hsh',
+	                 minDelta, maxDelta, 'Wt-hsh2',
 			 function (delta) {
 			   var newWidth = cw + (rtl ? -delta : delta),
 			       columnId = c.substring(7) * 1;

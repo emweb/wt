@@ -194,7 +194,8 @@ void hasMany(A& action, collection< ptr<C> >& value,
 	     RelationType type, const std::string& joinName)
 {
   action.actCollection(CollectionRef<C>(value, type, joinName, std::string(),
-					Impl::FKNotNull));
+                                        Impl::FKNotNull |
+                                        Impl::FKOnDeleteCascade));
 }
 
 template <class A, class C>

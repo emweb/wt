@@ -19,7 +19,8 @@ WLocale::WLocale()
 { }
 
 WLocale::WLocale(const WLocale& other)
-  : decimalPoint_(other.decimalPoint()),
+  : name_(other.name_),
+    decimalPoint_(other.decimalPoint()),
     groupSeparator_(other.groupSeparator()),
     dateFormat_(other.dateFormat())
 { }

@@ -2363,12 +2363,26 @@ void WebSession::serveResponse(Handler& handler)
      * In any case, flush the style request when we are serving a new
      * page (without Ajax) or the main script (with Ajax).
      */
-    if (bootStyleResponse_) {
-      if (handler.response()->responseType() == WebResponse::Script
-	  && !handler.request()->getParameter("skeleton"))
+    if (handler.response()->responseType() == WebResponse::Script
+	&& !handler.request()->getParameter("skeleton")) {
+#ifndef WT_TARGET_JAVA
+      if (bootStyleResponse_) {
 	renderer_.serveLinkedCss(*bootStyleResponse_);
 
-      flushBootStyleResponse();
+	flushBootStyleResponse();
+      }
+#else
+      /*
+       * Preempt the thread waiting for the bootstyle to be ready.
+       * Otherwise there is a reflow as the page already renders
+       * without having the CSS (Duh?)
+       */
+      mutex_.unlock();
+      try {
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+      } catch (InterruptedException& e) { }
+      mutex_.lock();
+#endif
     }
 
     renderer_.serveResponse(*handler.response());

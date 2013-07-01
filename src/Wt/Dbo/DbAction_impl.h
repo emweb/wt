@@ -12,6 +12,11 @@
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+      extern std::string createJoinName(RelationType type,
+                                        const char *c1, const char *c2);
+    }
+
 
 template <class C, class Enable>
 template <class A>
@@ -126,7 +131,8 @@ void InitSchema::actCollection(const CollectionRef<C>& field)
   const char *joinTableName = session_.tableName<C>();
   std::string joinName = field.joinName();
   if (joinName.empty())
-    joinName = mapping_.tableName;
+    joinName = Impl::createJoinName(field.type(),
+                                    mapping_.tableName, joinTableName);
 
   mapping_.sets.push_back
     (Session::SetInfo(joinTableName, field.type(), joinName, field.joinId(),
@@ -179,8 +185,15 @@ template<class C>
 void DropSchema::actCollection(const CollectionRef<C>& field)
 {
   if (field.type() == ManyToMany) {
-    if (tablesDropped_.count(field.joinName()) == 0)
-      drop(field.joinName());
+    const char *joinTableName = session_.tableName<C>();
+    std::string joinName = field.joinName();
+    if (joinName.empty())
+      joinName = Impl::createJoinName(field.type(),
+                                      mapping_.tableName,
+                                      joinTableName);
+
+    if (tablesDropped_.count(joinName) == 0)
+      drop(joinName);
   } else {
     const char *tableName = session_.tableName<C>();
     if (tablesDropped_.count(tableName) == 0) {

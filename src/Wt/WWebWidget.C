@@ -1173,11 +1173,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   /*
    * determine display
    */
-  if (!all &&
-      flags_.test(BIT_HIDDEN_CHANGED) &&
-      !flags_.test(BIT_HIDDEN) &&
-      !flags_.test(BIT_HIDE_WITH_OFFSETS))
-    element.callJavaScript("window.onresize();");
 
   if (flags_.test(BIT_GEOMETRY_CHANGED)
       || (!flags_.test(BIT_HIDE_WITH_VISIBILITY)

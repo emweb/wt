@@ -394,7 +394,7 @@ void WFormWidget::setValidator(WValidator *validator)
 
     validator_->addFormWidget(this);
 
-    if (firstValidator && !toolTip().empty())
+    if (firstValidator)
       setToolTip(toolTip());
 
     validatorChanged();

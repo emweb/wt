@@ -50,6 +50,7 @@ public:
 };
 
 class Tag;
+typedef dbo::collection< dbo::ptr<Tag> > Tags;
 
 class Post {
 public:
@@ -57,8 +58,7 @@ public:
   std::string contents;
 
   dbo::ptr<User> user;
-
-  dbo::collection< dbo::ptr<Tag> > tags;
+  Tags tags;
 
   template<class Action>
   void persist(Action& a)
@@ -66,7 +66,7 @@ public:
     dbo::field(a, title, "title");
     dbo::field(a, contents, "contents");
 
-    dbo::belongsTo(a, user, "user");
+    dbo::belongsTo(a, user, "user", Wt::Dbo::OnDeleteCascade);
     dbo::hasMany(a, tags, dbo::ManyToMany, "post_tags");
   }
 };
@@ -224,4 +224,38 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
 	    << std::endl;
 
   transaction.commit();
+
+  //test OnDeleteCascade
+
+  {
+    dbo::Transaction transaction2(session);
+
+    Posts posts = session.find<Post>();
+    BOOST_REQUIRE(posts.size() == 1);
+    Tags tags = session.find<Tag>();
+    BOOST_REQUIRE (tags.size() == 1);
+    int postTagsCount =
+        session.query<int>("select count(*) from \"post_tags\"");
+    BOOST_REQUIRE (postTagsCount == 1);
+
+    dbo::ptr<User> joe3 = session.query< dbo::ptr<User> >
+        ("select u from \"user\" u where \"name\" = ?").bind("Joe");
+    joe3.remove();
+
+    transaction2.commit();
+  }
+  {
+    dbo::Transaction transaction(session);
+
+    Posts posts = session.find<Post>();
+    BOOST_REQUIRE(posts.size() < 1);
+    Tags tags = session.find<Tag>();
+    BOOST_REQUIRE(tags.size() == 1);
+    int postTagsCount =
+        session.query<int>("select count(*) from \"post_tags\"");
+    BOOST_REQUIRE (postTagsCount == 0);
+
+    transaction.commit();
+  }
+
 }

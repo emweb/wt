@@ -15,9 +15,14 @@ WT_DECLARE_WT_MEMBER
 
    if (!eventsBound) {
      (new (function() {
-	var showTimer = null, coords = null, toolTipEl = null;
+        var showTimer = null, checkInt = null, coords = null, toolTipEl = null;
 	/* const */ var MouseDistance = 10;
 	/* const */ var Delay = 500;
+
+	function checkIsOver() {
+	  if (!$('#' + id + ':hover').length)
+	    hideToolTip();
+	}
 
 	function showToolTip() {
 	  toolTipEl = document.createElement('div');
@@ -27,6 +32,18 @@ WT_DECLARE_WT_MEMBER
 	  var x = coords.x, y = coords.y;
 	  WT.fitToWindow(toolTipEl, x + MouseDistance, y + MouseDistance,
 			 x - MouseDistance, y - MouseDistance);
+
+	  checkInt = setInterval(function() { checkIsOver(); }, 200); 
+	}
+
+	function hideToolTip() {
+	  clearTimeout(showTimer);
+	  if (toolTipEl) {
+	    $(toolTipEl).remove();
+	    toolTipEl = null;
+	    clearInterval(checkInt);
+	    checkInt = null;
+	  }
 	}
 
 	function resetTimer(e) {
@@ -37,25 +54,9 @@ WT_DECLARE_WT_MEMBER
 	    showTimer = setTimeout(function() { showToolTip(); }, Delay);
 	}
 
-
 	$el.mouseenter(resetTimer);
 	$el.mousemove(resetTimer);
-
-	$el.mouseleave(function() {
-			 clearTimeout(showTimer);
-			 if (toolTipEl) {
-			   $(toolTipEl).remove();
-			   toolTipEl = null;
-			 }
-		       });
-
-	$el.mouseup(function() {
-			 clearTimeout(showTimer);
-			 if (toolTipEl) {
-			   $(toolTipEl).remove();
-			   toolTipEl = null;
-			 }
-		       });
+	$el.mouseleave(hideToolTip);
       })());
    }
  }

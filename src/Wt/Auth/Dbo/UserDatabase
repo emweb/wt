@@ -28,7 +28,7 @@ namespace Wt {
  * \ingroup auth
  */
 template <class DboType>
-class WT_API UserDatabase : public AbstractUserDatabase
+class UserDatabase : public AbstractUserDatabase
 {
   typedef typename DboType::AuthTokenType AuthTokenType;
   typedef Wt::Dbo::collection< Wt::Dbo::ptr<AuthTokenType> > AuthTokens;

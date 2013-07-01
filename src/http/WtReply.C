@@ -285,7 +285,9 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
 	 */
 	Wt::WebRequest::ReadCallback cb = readMessageCallback_;
 	readMessageCallback_ = 0;
-	cb(Wt::WebRequest::MessageEvent);
+	ConnectionPtr connection = getConnection();
+	connection->server()->service().post
+	  (boost::bind(cb, Wt::WebRequest::MessageEvent));
 
 	break;
       }
@@ -295,7 +297,9 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
 	Wt::WebRequest::ReadCallback cb = readMessageCallback_;
 	readMessageCallback_ = 0;
-	cb(Wt::WebRequest::PingEvent);
+	ConnectionPtr connection = getConnection();
+	connection->server()->service().post
+	  (boost::bind(cb, Wt::WebRequest::PingEvent));
 
 	break;
       }

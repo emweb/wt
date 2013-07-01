@@ -637,7 +637,7 @@ std::string Session::tableCreationSql()
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createTable(i->second, tablesCreated, &sout);
+    createTable(i->second, tablesCreated, &sout, false);
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
@@ -658,7 +658,7 @@ void Session::createTables()
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    createTable(i->second, tablesCreated, 0);
+    createTable(i->second, tablesCreated, 0, false);
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
@@ -669,7 +669,8 @@ void Session::createTables()
 
 void Session::createTable(MappingInfo *mapping,
 			  std::set<std::string>& tablesCreated,
-			  std::ostream *sout)
+                          std::ostream *sout,
+                          bool createConstraints)
 {
   if (tablesCreated.count(mapping->tableName) != 0)
     return;
@@ -740,7 +741,7 @@ void Session::createTable(MappingInfo *mapping,
   for (unsigned i = 0; i < mapping->fields.size();) {
     const FieldInfo& field = mapping->fields[i];
 
-    if (field.isForeignKey() && !connection(false)->supportAlterTable()) {
+    if (field.isForeignKey() && (createConstraints || !connection(false)->supportAlterTable())) {
       if (!firstField)
 	sql << ",\n";
 
@@ -748,7 +749,7 @@ void Session::createTable(MappingInfo *mapping,
       i = findLastForeignKeyField(mapping, field, firstI);
       sql << constraintString(mapping, field, firstI, i);
 
-      createTable(mapping, tablesCreated, sout);
+      createTable(mapping, tablesCreated, sout, false);
 
     } else
       ++i;
@@ -809,7 +810,6 @@ void Session::createRelations(MappingInfo *mapping,
       } else
         ++i;
     }
-
   }
 }
 
@@ -882,7 +882,7 @@ void Session::createJoinTable(const std::string& joinName,
   addJoinTableFields(joinTableMapping, mapping2, joinId2, "key2",
 		     fkConstraints2);
 
-  createTable(&joinTableMapping, tablesCreated, sout);
+  createTable(&joinTableMapping, tablesCreated, sout, true);
 
   createJoinIndex(joinTableMapping, mapping1, joinId1, "key1", sout);
   createJoinIndex(joinTableMapping, mapping2, joinId2, "key2", sout);
