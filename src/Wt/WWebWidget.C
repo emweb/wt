@@ -949,8 +949,27 @@ void WWebWidget::addJavaScriptStatement(JavaScriptStatementType type,
     otherImpl_->jsStatements_
       = new std::vector<OtherImpl::JavaScriptStatement>();
 
-  otherImpl_->jsStatements_->push_back
-    (OtherImpl::JavaScriptStatement(type, data));
+  std::vector<OtherImpl::JavaScriptStatement>& v = *otherImpl_->jsStatements_;
+
+  /*
+   * a SetMember is idempotent, if one is already scheduled we do not need
+   * to add another statement.
+   */
+  if (type == SetMember) {
+    for (unsigned i = 0; i < v.size(); ++i) {
+      if (v[i].type == SetMember && v[i].data == data)
+	return;
+    }
+  }
+
+  /*
+   * If the last statement is exactly the same, then it's a dupe, discard it
+   * too.
+   */
+  if (v.empty() ||
+      v.back().type != type ||
+      v.back().data != data)
+    v.push_back(OtherImpl::JavaScriptStatement(type, data));
 }
 
 void WWebWidget::setToolTip(const WString& text, TextFormat textFormat)
