@@ -138,6 +138,11 @@ WT_DECLARE_WT_MEMBER
      $(popup).mouseleave(mouseLeave).mouseenter(mouseEnter);
    }
 
+   function onDocumentDown(event) {
+     if (WT.button(event) != 1)
+       doHide();
+   }
+
    function onDocumentClick(event) {
      doHide();
    }
@@ -161,11 +166,13 @@ WT_DECLARE_WT_MEMBER
        el.style.display = '';
        el.style.left = '';
        el.style.top = '';
-       $(document).unbind('mousedown', onDocumentClick);     
+       $(document).unbind('mousedown', onDocumentDown);     
+       $(document).unbind('click', onDocumentClick);     
        $(document).unbind('keydown', onDocumentKeyDown);     
      } else {
        setTimeout(function() {
-	   $(document).bind('mousedown', onDocumentClick);
+	   $(document).bind('mousedown', onDocumentDown);
+	   $(document).bind('click', onDocumentClick);     
 	   $(document).bind('keydown', onDocumentKeyDown);
 	 }, 0);
        el.style.display = 'block';
