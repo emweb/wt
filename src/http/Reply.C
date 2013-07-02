@@ -24,6 +24,8 @@
 #include <boost/lexical_cast.hpp>
 
 #ifdef WIN32
+// gmtime_r can be defined by mingw
+#ifndef gmtime_r
 static struct tm* gmtime_r(const time_t* t, struct tm* r)
 {
   // gmtime is threadsafe in windows because it uses TLS
@@ -35,6 +37,7 @@ static struct tm* gmtime_r(const time_t* t, struct tm* r)
     return 0;
   }
 }
+#endif // gmtime_r
 #else
 extern struct tm* gmtime_r(const time_t* t, struct tm* r);
 #endif
