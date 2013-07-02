@@ -2442,15 +2442,8 @@ function setServerPush(how) {
   serverPush = how;
 }
 
-var autoJavaScriptScheduled = false;
 function doAutoJavaScript() {
-  if (autoJavaScriptScheduled)
-    return;
-
-  autoJavaScriptScheduled = true;
-
-  setTimeout(function() { autoJavaScriptScheduled = false;
-			  self._p_.autoJavaScript(); }, 1);
+    self._p_.autoJavaScript();
 }
 
 function doJavaScript(js) {
