@@ -64,7 +64,7 @@ WT_DECLARE_WT_MEMBER
      if (WT.isIE)
        doc = document.frames[iframe.id].document; // one day it may work? :-)
      else
-       doc = iframe.contentDocument.document;
+       doc = iframe.contentDocument;
 
      $(doc.body).bind('paste', function(event) {
        var clipboardData = 
