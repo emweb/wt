@@ -54,6 +54,9 @@ StdGridLayoutImpl2::StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid)
     app->doJavaScript("$(window).load(function() { "
 		      + app->javaScriptClass() + ".layouts2.scheduleAdjust();"
 		      + "});");
+
+    WApplication::instance()->addAutoJavaScript
+      (app->javaScriptClass() + ".layouts2.adjustNow();");
   }
 }
 

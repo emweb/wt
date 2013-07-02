@@ -394,6 +394,9 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.fs)
 	     item.fs = []; // fixed size (size defined by inline size or CSS)
 
+	   if (!item.margin)
+	     item.margin = [];
+
 	   if ($(item.w).hasClass('Wt-hidden')) {
 	     item.ps[dir] = item.ms[dir] = 0;
 	     continue;
@@ -428,16 +431,17 @@ WT_DECLARE_WT_MEMBER
 		* the first time
 		*/
                if (!item.set[dir]) {
+		 item.margin[dir] = margin(item.w, dir);
 		 if (dir == HORIZONTAL || !first) {
 		   var fw = WT.pxself(item.w, DC.size);
 		   if (fw)
-		     item.fs[dir] = fw + margin(item.w, dir);
+		     item.fs[dir] = fw + item.margin[dir];
 		   else
 		     item.fs[dir] = 0;
 		 } else {
 		   var fw = Math.round(WT.px(item.w, DC.size));
 		   if (fw > Math.max(sizePadding(item.w, dir), wMinimum))
-		     item.fs[dir] = fw + margin(item.w, dir);
+		     item.fs[dir] = fw + item.margin[dir];
 		   else
 		     item.fs[dir] = 0;
 		 }
@@ -1171,7 +1175,7 @@ WT_DECLARE_WT_MEMBER
 	     alignment = 0;
 
 	   if (!alignment) {
-	     var m = margin(item.w, dir);
+	     var m = item.margin[dir];
 
 	     var tsm = Math.max(0, ts - m);
 
@@ -1210,7 +1214,7 @@ WT_DECLARE_WT_MEMBER
 	     case ALIGN_RIGHT: off = left + (ts - ps); break;
 	     }
 
-	     ps -= margin(item.w, dir);
+	     ps -= item.margin[dir];
 
 	     if (item.layout) {
 	       if (setCss(w, DC.size, ps + 'px'))
@@ -1624,8 +1628,19 @@ WT_DECLARE_APP_MEMBER
       needRemeasure = true;
     };
 
+    this.adjustNow = function() {
+      if (adjustScheduled)
+	self.adjust();
+    }
+
+    var resizeDelay = null;
+    
     window.onresize = function() {
-      self.scheduleAdjust(true);
+      clearTimeout(resizeDelay);
+      resizeDelay = setTimeout(function() {
+	  resizeDelay = null;
+	  self.scheduleAdjust(true);
+	}, 20);
     };
 
     window.onshow = function() {
