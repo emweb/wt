@@ -161,11 +161,11 @@ WT_DECLARE_WT_MEMBER
        el.style.display = '';
        el.style.left = '';
        el.style.top = '';
-       $(document).unbind('click', onDocumentClick);     
+       $(document).unbind('mousedown', onDocumentClick);     
        $(document).unbind('keydown', onDocumentKeyDown);     
      } else {
        setTimeout(function() {
-	   $(document).bind('click', onDocumentClick);
+	   $(document).bind('mousedown', onDocumentClick);
 	   $(document).bind('keydown', onDocumentKeyDown);
 	 }, 0);
        el.style.display = 'block';
