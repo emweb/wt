@@ -59,12 +59,11 @@ void WVideo::setPoster(const std::string &url)
 {
   posterUrl_ = url;
   posterChanged_ = true;
-  this->repaint(Wt::RepaintPropertyAttribute);
+  repaint();
 }
 
 void WVideo::resize(const WLength &width, const WLength &height)
 {
   sizeChanged_ = true;
   WWebWidget::resize(width, height);
-  repaint(Wt::RepaintPropertyAttribute);
 }

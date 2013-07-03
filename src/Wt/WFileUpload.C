@@ -465,7 +465,7 @@ void WFileUpload::upload()
 {
   if (fileUploadTarget_ && !flags_.test(BIT_UPLOADING)) {
     flags_.set(BIT_DO_UPLOAD);
-    repaint(RepaintPropertyIEMobile);
+    repaint();
 
     if (progressBar_) {
       if (progressBar_->parent() != this)
@@ -483,7 +483,7 @@ void WFileUpload::upload()
 void WFileUpload::propagateSetEnabled(bool enabled)
 {
   flags_.set(BIT_ENABLED_CHANGED);
-  repaint(RepaintPropertyAttribute);
+  repaint();
 
   WWebWidget::propagateSetEnabled(enabled);
 }

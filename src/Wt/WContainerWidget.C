@@ -136,7 +136,7 @@ void WContainerWidget::childResized(WWidget *child,
 	if (dynamic_cast<StdLayoutImpl *>(item->parentLayout()->impl())
 	    ->itemResized(item)) {
 	  flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
-	  repaint(RepaintInnerHtml);
+	  repaint();
 	}
       }
     }
@@ -199,7 +199,7 @@ void WContainerWidget::addWidget(WWidget *widget)
 
   transientImpl_->addedChildren_.push_back(widget);
   flags_.set(BIT_ADJUST_CHILDREN_ALIGN); // children margins hacks
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   widget->setParentWidget(this);
 }
@@ -233,7 +233,7 @@ void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
 
   children_->insert(children_->begin() + i, widget);
   flags_.set(BIT_ADJUST_CHILDREN_ALIGN); // children margins hacks
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   if (!transientImpl_)
     transientImpl_ = new TransientImpl();
@@ -254,7 +254,7 @@ void WContainerWidget::removeWidget(WWidget *widget)
 {
   widget->setParentWidget(0);
 
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WContainerWidget::clear()
@@ -333,7 +333,7 @@ void WContainerWidget::setContentAlignment(WFlags<AlignmentFlag> alignment)
 
   flags_.set(BIT_CONTENT_ALIGNMENT_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WContainerWidget::setList(bool list, bool ordered)
@@ -376,7 +376,7 @@ void WContainerWidget::setPadding(const WLength& length, WFlags<Side> sides)
     padding_[3] = length;
 
   flags_.set(BIT_PADDINGS_CHANGED);
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 void WContainerWidget::setOverflow(Overflow value,
@@ -397,7 +397,7 @@ void WContainerWidget::setOverflow(Overflow value,
   //   setPositionScheme(Relative);
 
   flags_.set(BIT_OVERFLOW_CHANGED);
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 WLength WContainerWidget::padding(Side side) const
@@ -817,7 +817,7 @@ void WContainerWidget::layoutChanged(bool rerender, bool deleted)
   else
     flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
 
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   if (deleted)
     layout_ = 0;

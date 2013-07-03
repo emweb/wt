@@ -35,7 +35,7 @@ void WSpinBox::setMinimum(int minimum)
   min_ = minimum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WSpinBox::setMaximum(int maximum)
@@ -43,7 +43,7 @@ void WSpinBox::setMaximum(int maximum)
   max_ = maximum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WSpinBox::setRange(int minimum, int maximum)
@@ -52,7 +52,7 @@ void WSpinBox::setRange(int minimum, int maximum)
   max_ = maximum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WSpinBox::setSingleStep(int step)
@@ -60,7 +60,7 @@ void WSpinBox::setSingleStep(int step)
   step_ = step;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 int WSpinBox::decimals() const

@@ -162,7 +162,7 @@ void WAnchor::setLink(const WLink& link)
 
   flags_.set(BIT_LINK_CHANGED);
 
-  repaint(RepaintPropertyIEMobile);
+  repaint();
 
   switch (linkState_.link.type()) {
   case WLink::Resource:
@@ -268,14 +268,14 @@ void WAnchor::setImage(WImage *image)
 void WAnchor::resourceChanged()
 {
   flags_.set(BIT_LINK_CHANGED);
-  repaint(RepaintPropertyIEMobile);
+  repaint();
 }
 
 void WAnchor::enableAjax()
 {
   if (linkState_.link.type() == WLink::InternalPath) {
     flags_.set(BIT_LINK_CHANGED);
-    repaint(RepaintPropertyIEMobile);
+    repaint();
   }
 
   WContainerWidget::enableAjax();

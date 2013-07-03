@@ -156,7 +156,7 @@ void WTemplate::clear()
   conditions_.clear();
 
   changed_ = true;
-  repaint(RepaintInnerHtml);  
+  repaint(RepaintSizeAffected);  
 }
 
 #ifndef WT_TARGET_JAVA
@@ -180,7 +180,7 @@ void WTemplate::setCondition(const std::string& name, bool value)
       conditions_.erase(name);
 
     changed_ = true;
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 }
 
@@ -217,7 +217,7 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
   }
 
   changed_ = true;
-  repaint(RepaintInnerHtml);  
+  repaint(RepaintSizeAffected);  
 }
 
 WWidget *WTemplate::takeWidget(const std::string& varName)
@@ -234,7 +234,7 @@ WWidget *WTemplate::takeWidget(const std::string& varName)
 #endif
 
     changed_ = true;
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
 
     return result;
   } else
@@ -267,7 +267,7 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
     strings_[varName] = v.toUTF8();
 
     changed_ = true;
-    repaint(RepaintInnerHtml);  
+    repaint(RepaintSizeAffected);  
   }
 }
 
@@ -367,7 +367,7 @@ void WTemplate::setTemplateText(const WString& text, TextFormat textFormat)
     text_ = escapeText(text_, true);
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WTemplate::updateDom(DomElement& element, bool all)
@@ -663,7 +663,7 @@ void WTemplate::setInternalPathEncoding(bool enabled)
   if (encodeInternalPaths_ != enabled) {
     encodeInternalPaths_ = enabled;
     changed_ = true;
-    repaint(RepaintInnerHtml);
+    repaint();
   }
 }
 
@@ -671,7 +671,7 @@ void WTemplate::refresh()
 {
   if (text_.refresh()) {
     changed_ = true;
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   WInteractWidget::refresh();

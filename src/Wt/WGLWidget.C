@@ -491,8 +491,9 @@ void WGLWidget::repaintGL(WFlags<ClientSideRenderer> which)
     updateResizeGL_ = true;
   if (which & UPDATE_GL)
     updateGL_ = true;
+
   if (which != 0)
-    repaint(Wt::RepaintPropertyAttribute); // FIXME: correct?
+    repaint();
 }
 
 void WGLWidget::updateDom(DomElement &element, bool all)
@@ -650,7 +651,7 @@ void WGLWidget::layoutSizeChanged(int width, int height)
   renderWidth_ = width;
   renderHeight_ = height;
   sizeChanged_ = true;
-  repaint(Wt::RepaintPropertyAttribute);
+  repaint();
   repaintGL(RESIZE_GL);
 }
 

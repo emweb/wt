@@ -112,6 +112,7 @@ void WWidget::renderOk()
 {
   if (flags_.test(BIT_NEED_RERENDER)) {
     flags_.reset(BIT_NEED_RERENDER);
+    flags_.reset(BIT_NEED_RERENDER_SIZE_CHANGE);
     WApplication *app = WApplication::instance();
     if (app)
       app->session()->renderer().doneUpdate(this);
@@ -120,37 +121,46 @@ void WWidget::renderOk()
 
 void WWidget::scheduleRender()
 {
-  scheduleRerender(false);
+  scheduleRerender(false, RepaintSizeAffected);
 }
 
-void WWidget::scheduleRerender(bool laterOnly)
+void WWidget::scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags)
 {
   if (!flags_.test(BIT_NEED_RERENDER)) {
     flags_.set(BIT_NEED_RERENDER);
     WApplication::instance()->session()->renderer().needUpdate(this, laterOnly);
+  }
+
+  if ((flags & RepaintSizeAffected) &&
+      !flags_.test(BIT_NEED_RERENDER_SIZE_CHANGE)) {
+    flags_.set(BIT_NEED_RERENDER_SIZE_CHANGE);
 
     /*
-     * Let's start with assuming that every change is a potential resize
-     *
+     * A size change to an absolutely positioned widget will not affect
+     * a layout computation
+     */
+    if (positionScheme() == Absolute)
+      return;
+
+    /*
      * Propagate event up, this will be caught by a container widget
      * with a layout manager.
      */
     WWidget *p = parent();
 
-    if (p) {
-      /*
-       * Stop propagation at an absolutely positioned widget
-       */
-      if (p->positionScheme() != Absolute ||
-	  p->width().isAuto() ||
-	  p->height().isAuto())
-	p->childResized(this, Vertical);
-    }
+    if (p)
+      p->childResized(this, Vertical);
   }
 }
 
 void WWidget::childResized(WWidget *child, WFlags<Orientation> directions)
 {
+  /*
+   * Stop propagation at an absolutely positioned widget
+   */
+  if (positionScheme() == Absolute)
+    return;
+
   WWidget *p = parent();
 
   if (p)

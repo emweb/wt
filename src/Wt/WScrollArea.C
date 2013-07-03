@@ -36,7 +36,7 @@ WScrollArea::~WScrollArea()
 void WScrollArea::scrollBarChanged()
 {
   scrollBarChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WScrollArea::setWidget(WWidget *widget)
@@ -45,7 +45,7 @@ void WScrollArea::setWidget(WWidget *widget)
 
   widget_ = widget;
   widgetChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   if (widget) {
     widget->setParentWidget(this);
@@ -74,21 +74,21 @@ void WScrollArea::setHorizontalScrollBarPolicy(ScrollBarPolicy policy)
 {
   horizontalScrollBarPolicy_ = policy;
   scrollBarPolicyChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WScrollArea::setVerticalScrollBarPolicy(ScrollBarPolicy policy)
 {
   verticalScrollBarPolicy_ = policy;
   scrollBarPolicyChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WScrollArea::setScrollBarPolicy(ScrollBarPolicy policy)
 {
   horizontalScrollBarPolicy_ = verticalScrollBarPolicy_ = policy;
   scrollBarPolicyChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WScrollArea::updateDom(DomElement& element, bool all)

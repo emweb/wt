@@ -27,7 +27,7 @@ void WSelectionBox::setVerticalSize(int items)
 {
   verticalSize_ = items;
   configChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 void WSelectionBox::setSelectionMode(SelectionMode mode)
@@ -35,7 +35,7 @@ void WSelectionBox::setSelectionMode(SelectionMode mode)
   if (mode != selectionMode_) {
     selectionMode_ = mode;
     configChanged_ = true;
-    repaint(RepaintPropertyAttribute);
+    repaint();
 
     if (mode == ExtendedSelection) {
       selection_.clear();
@@ -59,7 +59,7 @@ void WSelectionBox::setSelectedIndexes(const std::set<int>& selection)
 
   selection_ = selection;
   selectionChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WSelectionBox::clearSelection()

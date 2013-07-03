@@ -367,11 +367,11 @@ void WAbstractMedia::getDomChanges(std::vector<DomElement *>& result,
   WInteractWidget::getDomChanges(result, app);
 }
 
-void WAbstractMedia::setOptions(const WFlags<Options> &flags)
+void WAbstractMedia::setOptions(const WFlags<Options>& flags)
 {
   flags_ = flags;
   flagsChanged_ = true;
-  this->repaint(Wt::RepaintPropertyAttribute);
+  repaint();
 }
 
 WFlags<WAbstractMedia::Options> WAbstractMedia::getOptions() const
@@ -383,7 +383,7 @@ void WAbstractMedia::setPreloadMode(PreloadMode mode)
 {
   preloadMode_ = mode;
   preloadChanged_ = true;
-  repaint(Wt::RepaintPropertyAttribute);
+  repaint();
 }
 
 WAbstractMedia::PreloadMode WAbstractMedia::preloadMode() const
@@ -397,7 +397,7 @@ void WAbstractMedia::clearSources()
     delete sources_[i];
   }
   sources_.clear();
-  repaint(Wt::RepaintPropertyAttribute);
+  repaint();
 }
 
 void WAbstractMedia::addSource(const WLink& link, const std::string &type,
@@ -405,7 +405,7 @@ void WAbstractMedia::addSource(const WLink& link, const std::string &type,
 {
   sources_.push_back(new Source(this, link, type, media));
   sourcesChanged_ = true;
-  repaint(Wt::RepaintPropertyAttribute);
+  repaint();
 }
 
 void WAbstractMedia::setAlternativeContent(WWidget *alternative)
@@ -438,5 +438,5 @@ WAbstractMedia::Source::~Source()
 void WAbstractMedia::Source::resourceChanged()
 {
   parent->sourcesChanged_ = true;
-  parent->repaint(Wt::RepaintPropertyAttribute);
+  parent->repaint();
 }

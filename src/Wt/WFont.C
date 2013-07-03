@@ -72,21 +72,21 @@ void WFont::setFamily(GenericFamily genericFamily,
   genericFamily_ = genericFamily;
   specificFamilies_ = specificFamilies;
   familyChanged_ = true;
-  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintSizeAffected);
 }
 
 void WFont::setStyle(Style style)
 {
   style_ = style;
   styleChanged_ = true;
-  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintSizeAffected);
 }
 
 void WFont::setVariant(Variant variant)
 {
   variant_ = variant;
   variantChanged_ = true;
-  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintSizeAffected);
 }
 
 void WFont::setWeight(Weight weight, int value)
@@ -94,7 +94,7 @@ void WFont::setWeight(Weight weight, int value)
   weight_ = weight;
   weightValue_ = value;
   weightChanged_ = true;
-  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintSizeAffected);
 }
 
 WFont::Weight WFont::weight() const
@@ -135,7 +135,7 @@ void WFont::setSize(Size size)
   size_ = size;
   sizeLength_ = WLength::Auto;
   sizeChanged_ = true;
-  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintSizeAffected);
 }
 
 void WFont::setSize(const WLength& size)
@@ -143,7 +143,7 @@ void WFont::setSize(const WLength& size)
   size_ = FixedSize;
   sizeLength_ = size;
   sizeChanged_ = true;
-  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintSizeAffected);
 }
 
 WFont::Size WFont::size(double mediumSize) const

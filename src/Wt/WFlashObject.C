@@ -226,7 +226,6 @@ void WFlashObject::resize(const WLength &width, const WLength &height)
 {
   sizeChanged_ = true;
   WWebWidget::resize(width, height);
-  repaint(Wt::RepaintPropertyAttribute);
 }
 
 DomElementType WFlashObject::domElementType() const
@@ -236,7 +235,7 @@ DomElementType WFlashObject::domElementType() const
 void WFlashObject::renderIeAltnerative()
 {
   replaceDummyIeContent_ = true;
-  repaint(Wt::RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 }

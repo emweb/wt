@@ -42,7 +42,7 @@ void WLineEdit::setText(const WT_USTRING& text)
   if (content_ != text) {
     content_ = text;
     flags_.set(BIT_CONTENT_CHANGED);
-    repaint(RepaintPropertyIEMobile);
+    repaint();
 
     validate();
 
@@ -55,7 +55,7 @@ void WLineEdit::setTextSize(int chars)
   if (textSize_ != chars) {
     textSize_ = chars;
     flags_.set(BIT_TEXT_SIZE_CHANGED);
-    repaint(RepaintPropertyAttribute);
+    repaint(RepaintSizeAffected);
   }
 }
 
@@ -64,8 +64,7 @@ void WLineEdit::setMaxLength(int chars)
   if (maxLength_ != chars) {
     maxLength_ = chars;
     flags_.set(BIT_MAX_LENGTH_CHANGED);
-    // IMPROVE: could be RepaintPropertyIEMobile if we would use property
-    repaint(RepaintPropertyAttribute);
+    repaint();
   }
 }
 
@@ -74,7 +73,7 @@ void WLineEdit::setEchoMode(EchoMode echoMode)
   if (echoMode_ != echoMode) {
     echoMode_ = echoMode;
     flags_.set(BIT_ECHO_MODE_CHANGED);
-    repaint(RepaintPropertyAttribute);
+    repaint();
   }
 }
 

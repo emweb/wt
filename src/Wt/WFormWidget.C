@@ -85,7 +85,7 @@ EventSignal<>& WFormWidget::focussed()
 void WFormWidget::setFocus(bool focus)
 {
   flags_.set(BIT_GOT_FOCUS, focus);
-  repaint(RepaintPropertyIEMobile);
+  repaint();
 
   WApplication *app = WApplication::instance();
   if (focus)
@@ -116,7 +116,7 @@ void WFormWidget::setEnabled(bool enabled)
 void WFormWidget::propagateSetEnabled(bool enabled)
 {
   flags_.set(BIT_ENABLED_CHANGED);
-  repaint(RepaintPropertyAttribute);
+  repaint();
   WInteractWidget::propagateSetEnabled(enabled);
 }
 
@@ -125,7 +125,7 @@ void WFormWidget::setReadOnly(bool readOnly)
   flags_.set(BIT_READONLY, readOnly);
   flags_.set(BIT_READONLY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 bool WFormWidget::isReadOnly() const
@@ -424,7 +424,7 @@ WValidator::State WFormWidget::validate()
     if (validationToolTip_ != result.message()) {
       validationToolTip_ = result.message();
       flags_.set(BIT_VALIDATION_CHANGED);
-      repaint(RepaintPropertyAttribute);
+      repaint();
     }
 
     validated_.emit(result);
@@ -444,8 +444,7 @@ void WFormWidget::setTabIndex(int index)
   tabIndex_ = index;
 
   flags_.set(BIT_TABINDEX_CHANGED);
-
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 int WFormWidget::tabIndex() const

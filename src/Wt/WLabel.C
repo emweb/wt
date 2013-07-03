@@ -63,7 +63,7 @@ void WLabel::setBuddy(WFormWidget *buddy)
     buddy_->setLabel(this);
 
   buddyChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WLabel::setText(const WString& text)
@@ -76,7 +76,7 @@ void WLabel::setText(const WString& text)
     text_->setWordWrap(false);
     text_->setParentWidget(this);
     newText_ = true;
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   text_->setText(text);
@@ -119,7 +119,7 @@ void WLabel::setImage(WImage *image, Side side)
   }
 
   newImage_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WLabel::setWordWrap(bool wordWrap)
@@ -128,7 +128,7 @@ void WLabel::setWordWrap(bool wordWrap)
     text_ = new WText();
     text_->setParentWidget(this);
     newText_ = true;
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   text_->setWordWrap(wordWrap);

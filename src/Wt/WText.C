@@ -99,7 +99,7 @@ bool WText::setText(const WString& text)
   bool ok = text_.setText(text);
 
   flags_.set(BIT_TEXT_CHANGED);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   return ok;
 }
@@ -121,7 +121,7 @@ void WText::setWordWrap(bool wordWrap)
   if (flags_.test(BIT_WORD_WRAP) != wordWrap) {
     flags_.set(BIT_WORD_WRAP, wordWrap);
     flags_.set(BIT_WORD_WRAP_CHANGED);
-    repaint(RepaintPropertyAttribute);
+    repaint(RepaintSizeAffected);
   }
 }
 
@@ -197,7 +197,7 @@ void WText::setPadding(const WLength& length, WFlags<Side> sides)
     LOG_ERROR("setPadding(..., Bottom) is not supported.");
 
   flags_.set(BIT_PADDINGS_CHANGED);
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 WLength WText::padding(Side side) const
@@ -259,7 +259,7 @@ void WText::refresh()
 {
   if (text_.text.refresh()) {
     flags_.set(BIT_TEXT_CHANGED);
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   WInteractWidget::refresh();

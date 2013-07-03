@@ -20,6 +20,13 @@
 
 namespace Wt {
 
+enum RepaintFlag {
+  RepaintSizeAffected = 0x1,
+  RepaintToAjax = 0x2
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag)
+
 class WContainerWidget;
 class WCssDecorationStyle;
 class WDropEvent;
@@ -1126,7 +1133,7 @@ protected:
   virtual WStatelessSlot *getStateless(Method method);
 
   void renderOk();
-  void scheduleRerender(bool laterOnly);
+  void scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags = 0);
   bool needRerender() const { return flags_.test(BIT_NEED_RERENDER); }
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
@@ -1147,9 +1154,10 @@ private:
   static const int BIT_WAS_HIDDEN = 0;
   static const int BIT_WAS_DISABLED = 1;
   static const int BIT_NEED_RERENDER = 2;
-  static const int BIT_HAS_PARENT = 3;
-  static const int BIT_RESIZE_AWARE = 4;
-  std::bitset<5> flags_;
+  static const int BIT_NEED_RERENDER_SIZE_CHANGE = 3;
+  static const int BIT_HAS_PARENT = 4;
+  static const int BIT_RESIZE_AWARE = 5;
+  std::bitset<6> flags_;
 
   EventSignalList eventSignals_;
 

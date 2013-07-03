@@ -78,7 +78,7 @@ void WComboBox::rowsAboutToBeRemoved(const WModelIndex &index,
 void WComboBox::rowsRemoved(const WModelIndex &index, int from, int to)
 {
   itemsChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   if (currentIndex_ < from) // selection is not affected
     return;
@@ -98,7 +98,7 @@ void WComboBox::rowsAboutToBeInserted(const WModelIndex &index,
 void WComboBox::rowsInserted(const WModelIndex &index, int from, int to)
 {
   itemsChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   if (currentIndex_ < from && currentIndex_ != -1) // selection is not affected
     return;
@@ -167,7 +167,7 @@ void WComboBox::setCurrentIndex(int index)
     validate();
 
     selectionChanged_ = true;
-    repaint(RepaintPropertyIEMobile);
+    repaint();
 
     // changed().emit();
   }
@@ -319,7 +319,7 @@ void WComboBox::setValueText(const WT_USTRING& value)
 void WComboBox::itemsChanged()
 {
   itemsChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   if (currentIndex_ > count() - 1)
     currentIndex_ = count() - 1;

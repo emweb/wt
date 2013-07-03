@@ -49,7 +49,7 @@ namespace {
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<29> WWebWidget::AllChangeFlags = std::bitset<29>()
+const std::bitset<26> WWebWidget::AllChangeFlags = std::bitset<26>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -167,7 +167,7 @@ void WWebWidget::setSelectable(bool selectable)
   flags_.set(BIT_SET_UNSELECTABLE, !selectable);
   flags_.set(BIT_SELECTABLE_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 const std::string WWebWidget::id() const
@@ -196,39 +196,22 @@ void WWebWidget::repaint(WFlags<RepaintFlag> flags)
   if (!flags_.test(BIT_RENDERED))
     return;
 
-  WWidget::scheduleRender();
+  WWidget::scheduleRerender(false, flags);
 
-#ifndef WT_TARGET_JAVA
-  flags_ |= (int)flags;
-#else
-  if (flags & RepaintPropertyIEMobile)
-    flags_.set(BIT_REPAINT_PROPERTY_IEMOBILE);
-  if (flags & RepaintPropertyAttribute)
-    flags_.set(BIT_REPAINT_PROPERTY_ATTRIBUTE);
-  if (flags & RepaintInnerHtml)
-    flags_.set(BIT_REPAINT_INNER_HTML);
   if (flags & RepaintToAjax)
     flags_.set(BIT_REPAINT_TO_AJAX);
-#endif // WT_TARGET_JAVA
 }
 
 void WWebWidget::renderOk()
 {
   WWidget::renderOk();
 
-#ifndef WT_TARGET_JAVA
-  flags_ &= ~(int)(RepaintAll | RepaintToAjax);
-#else // WT_TARGET_JAVA
-  flags_.reset(BIT_REPAINT_PROPERTY_IEMOBILE);
-  flags_.reset(BIT_REPAINT_PROPERTY_ATTRIBUTE);
-  flags_.reset(BIT_REPAINT_INNER_HTML);
   flags_.reset(BIT_REPAINT_TO_AJAX);
-#endif // WT_TARGET_JAVA
 }
 
 void WWebWidget::signalConnectionsChanged()
 {
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WWebWidget::beingDeleted()
@@ -307,7 +290,7 @@ void WWebWidget::removeChild(WWidget *child)
     if (js[0] != '_')
       transientImpl_->specialChildRemove_ = true;
 
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   /*
@@ -371,7 +354,7 @@ void WWebWidget::setPositionScheme(PositionScheme scheme)
     flags_.reset(BIT_INLINE);
 
   flags_.set(BIT_GEOMETRY_CHANGED);
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 PositionScheme WWebWidget::positionScheme() const
@@ -402,7 +385,7 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
   }
 
   if (changed) {
-    repaint(RepaintPropertyAttribute);
+    repaint(RepaintSizeAffected);
     WWidget::resize(width, height);
   }
 }
@@ -427,7 +410,7 @@ void WWebWidget::setMinimumSize(const WLength& width, const WLength& height)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 WLength WWebWidget::minimumWidth() const
@@ -450,7 +433,7 @@ void WWebWidget::setMaximumSize(const WLength& width, const WLength& height)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 WLength WWebWidget::maximumWidth() const
@@ -472,7 +455,7 @@ void WWebWidget::setLineHeight(const WLength& height)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 WLength WWebWidget::lineHeight() const
@@ -489,7 +472,7 @@ void WWebWidget::setFloatSide(Side s)
 
   flags_.set(BIT_FLOAT_SIDE_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 Side WWebWidget::floatSide() const
@@ -509,7 +492,7 @@ void WWebWidget::setClearSides(WFlags<Side> sides)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 WFlags<Side> WWebWidget::clearSides() const
@@ -535,7 +518,7 @@ void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 AlignmentFlag WWebWidget::verticalAlignment() const
@@ -564,7 +547,7 @@ void WWebWidget::setOffsets(const WLength& offset, WFlags<Side> sides)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 WLength WWebWidget::offset(Side s) const
@@ -603,7 +586,7 @@ void WWebWidget::setInline(bool inl)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 bool WWebWidget::isInline() const
@@ -623,7 +606,7 @@ void WWebWidget::setPopup(bool popup)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WWebWidget::setZIndex(int zIndex)
@@ -635,7 +618,7 @@ void WWebWidget::setZIndex(int zIndex)
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WWebWidget::gotParent()
@@ -709,7 +692,7 @@ void WWebWidget::setMargin(const WLength& margin, WFlags<Side> sides)
 
   flags_.set(BIT_MARGINS_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 WLength WWebWidget::margin(Side side) const
@@ -748,7 +731,7 @@ void WWebWidget::addStyleClass(const WT_USTRING& styleClass, bool force)
 
     if (!force) {
       flags_.set(BIT_STYLECLASS_CHANGED);
-      repaint(RepaintPropertyAttribute);
+      repaint(RepaintSizeAffected);
     }
   }
 
@@ -759,7 +742,7 @@ void WWebWidget::addStyleClass(const WT_USTRING& styleClass, bool force)
     Utils::add(transientImpl_->addedStyleClasses_, styleClass);
     Utils::erase(transientImpl_->removedStyleClasses_, styleClass);
 
-    repaint(RepaintPropertyAttribute);
+    repaint(RepaintSizeAffected);
   }
 }
 
@@ -776,7 +759,7 @@ void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
 					      styleClass.toUTF8()));
     if (!force) {
       flags_.set(BIT_STYLECLASS_CHANGED);
-      repaint(RepaintPropertyAttribute);
+      repaint(RepaintSizeAffected);
     }
   }
 
@@ -787,7 +770,7 @@ void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
     Utils::add(transientImpl_->removedStyleClasses_, styleClass);
     Utils::erase(transientImpl_->addedStyleClasses_, styleClass);
 
-    repaint(RepaintPropertyAttribute);
+    repaint(RepaintSizeAffected);
   }
 }
 
@@ -825,7 +808,7 @@ void WWebWidget::setStyleClass(const WT_USTRING& styleClass)
 
   flags_.set(BIT_STYLECLASS_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 void WWebWidget::setStyleClass(const char *styleClass)
@@ -860,7 +843,7 @@ void WWebWidget::setAttributeValue(const std::string& name,
 
   transientImpl_->attributesSet_.push_back(name);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 WT_USTRING WWebWidget::attributeValue(const std::string& name) const
@@ -909,7 +892,7 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
 
   addJavaScriptStatement(SetMember, name);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 std::string WWebWidget::javaScriptMember(const std::string& name) const
@@ -936,7 +919,7 @@ void WWebWidget::callJavaScriptMember(const std::string& name,
 {
   addJavaScriptStatement(CallMethod, name + "(" + args + ");");
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WWebWidget::addJavaScriptStatement(JavaScriptStatementType type,
@@ -988,7 +971,7 @@ void WWebWidget::setToolTip(const WString& text, TextFormat textFormat)
 
   flags_.set(BIT_TOOLTIP_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 const WString& WWebWidget::toolTip() const
@@ -1030,7 +1013,7 @@ void WWebWidget::setHidden(bool hidden, const WAnimation& animation)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, true);
 
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 bool WWebWidget::isHidden() const
@@ -1062,7 +1045,7 @@ void WWebWidget::setDisabled(bool disabled)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, true);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WWebWidget::propagateSetEnabled(bool enabled)
@@ -1994,7 +1977,7 @@ void WWebWidget::refresh()
   if (lookImpl_ && lookImpl_->toolTip_)
     if (lookImpl_->toolTip_->refresh()) {
       flags_.set(BIT_TOOLTIP_CHANGED);
-      repaint(RepaintPropertyAttribute);
+      repaint();
     }
 
   if (children_)
@@ -2105,7 +2088,7 @@ void WWebWidget::render(WFlags<RenderFlag> flags)
 void WWebWidget::doJavaScript(const std::string& javascript)
 {
   addJavaScriptStatement(Statement, javascript);
-  repaint(RepaintAll);
+  repaint();
 }
 
 bool WWebWidget::loaded() const

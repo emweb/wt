@@ -72,7 +72,7 @@ void WAbstractToggleButton::setText(const WString& text)
 
   text_.setText(text);
   textChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WAbstractToggleButton::setChecked(bool how)
@@ -87,7 +87,7 @@ void WAbstractToggleButton::setCheckState(CheckState state)
 
   state_ = state;
   stateChanged_ = true;
-  repaint(RepaintPropertyIEMobile);
+  repaint();
 }
 
 void WAbstractToggleButton::setChecked()
@@ -356,7 +356,7 @@ void WAbstractToggleButton::refresh()
 {
   if (text_.text.refresh()) {
     textChanged_ = true;
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   WFormWidget::refresh();

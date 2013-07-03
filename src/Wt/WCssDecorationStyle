@@ -230,7 +230,7 @@ private:
   bool		            fontChanged_;
   bool                      textDecorationChanged_;
 
-  void changed();
+  void changed(WFlags<RepaintFlag> flags = 0);
   void backgroundImageResourceChanged();
   WBorder borderI(unsigned i) const;
 

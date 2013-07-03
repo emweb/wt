@@ -34,7 +34,7 @@ void WGroupBox::setTitle(const WString& title)
 {
   title_ = title;
   titleChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WGroupBox::updateDom(DomElement& element, bool all)
@@ -72,7 +72,7 @@ void WGroupBox::refresh()
 {
   if (title_.refresh()) {
     titleChanged_ = true;
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   WContainerWidget::refresh();

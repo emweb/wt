@@ -52,18 +52,6 @@ enum DomElementType {
   DomElement_B, DomElement_STRONG, DomElement_EM, DomElement_UNKNOWN
 };
 
-enum RepaintFlag {
-  RepaintPropertyIEMobile = 0x1 << 12,  // pocket PC 2002 or later
-  RepaintPropertyAttribute = 0x1 << 13, // any attribute or property
-  RepaintInnerHtml = 0x1 << 14,
-  RepaintToAjax = 0x1 << 15
-};
-
-W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag)
-
-static const WFlags<RepaintFlag> RepaintAll
-  = RepaintPropertyIEMobile | RepaintPropertyAttribute | RepaintInnerHtml;
-
 class WCssDecorationStyle;
 class WContainerWidget;
 class DomElement;
@@ -271,7 +259,7 @@ public:
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
 
-  void repaint(WFlags<RepaintFlag> flags = RepaintAll);
+  void repaint(WFlags<RepaintFlag> flags = 0);
 
   virtual void getFormObjects(FormObjectsMap& formObjects);
   virtual void doneRerender();
@@ -313,10 +301,10 @@ private:
   static const int BIT_BEING_DELETED = 9;
   static const int BIT_DONOT_STUB = 10;
   static const int BIT_FLOAT_SIDE_CHANGED = 11;
-  static const int BIT_REPAINT_PROPERTY_IEMOBILE = 12;
-  static const int BIT_REPAINT_PROPERTY_ATTRIBUTE = 13;
-  static const int BIT_REPAINT_INNER_HTML = 14;
-  static const int BIT_REPAINT_TO_AJAX = 15;
+  static const int BIT_REPAINT_TO_AJAX = 12;
+  static const int BIT_HIDE_WITH_VISIBILITY = 13;
+  static const int BIT_HIDDEN_CHANGED = 14;
+  static const int BIT_ENABLED = 15; // caches isEnabled() for WInteractWidget
   static const int BIT_TOOLTIP_CHANGED = 16;
   static const int BIT_MARGINS_CHANGED = 17;
   static const int BIT_STYLECLASS_CHANGED = 18;
@@ -327,18 +315,15 @@ private:
   static const int BIT_HEIGHT_CHANGED = 23;
   static const int BIT_DISABLED = 24;
   static const int BIT_DISABLED_CHANGED = 25;
-  static const int BIT_HIDE_WITH_VISIBILITY = 26;
-  static const int BIT_HIDDEN_CHANGED = 27;
-  static const int BIT_ENABLED = 28; // caches isEnabled() for WInteractWidget
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<29> AllChangeFlags;
+  static const std::bitset<26> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<29> flags_;
+  std::bitset<26> flags_;
   WLength	 *width_;
   WLength	 *height_;
 

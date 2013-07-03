@@ -113,7 +113,7 @@ WTableRow* WTable::insertRow(int row, WTableRow *tableRow)
   tableRow->table_ = this;
   tableRow->expand(columnCount());
   rows_.insert(rows_.begin() + row, tableRow);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   return tableRow;
 }
@@ -133,7 +133,7 @@ WTableColumn* WTable::insertColumn(int column, WTableColumn *tableColumn)
   }
 
   flags_.set(BIT_GRID_CHANGED);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   return tableColumn;
 }
@@ -157,7 +157,7 @@ void WTable::deleteRow(int row)
     --rowsAdded_;
   else {
     flags_.set(BIT_GRID_CHANGED);
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   delete rows_[row];
@@ -175,7 +175,7 @@ void WTable::deleteColumn(int column)
   }
 
   flags_.set(BIT_GRID_CHANGED);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WTable::repaintRow(WTableRow *row)
@@ -187,13 +187,13 @@ void WTable::repaintRow(WTableRow *row)
     rowsChanged_ = new std::set<WTableRow *>();
 
   rowsChanged_->insert(row);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WTable::repaintColumn(WTableColumn *column)
 {
   flags_.set(BIT_COLUMNS_CHANGED);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WTable::clear()
@@ -414,7 +414,7 @@ void WTable::moveRow(int from, int to)
   rows_.insert(rows_.begin() + to, from_tr);
 
   flags_.set(BIT_GRID_CHANGED);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WTable::moveColumn(int from, int to)
@@ -439,7 +439,7 @@ void WTable::moveColumn(int from, int to)
   }
 
   flags_.set(BIT_GRID_CHANGED);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 }

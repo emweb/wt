@@ -42,7 +42,7 @@ void WTextArea::setText(const WT_USTRING& text)
 {
   content_ = text;
   contentChanged_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 
   validate();
 
@@ -53,14 +53,14 @@ void WTextArea::setColumns(int columns)
 {
   cols_ = columns;
   attributesChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 void WTextArea::setRows(int rows)
 {
   rows_ = rows;
   attributesChanged_ = true;
-  repaint(RepaintPropertyAttribute);
+  repaint(RepaintSizeAffected);
 }
 
 void WTextArea::resetContentChanged()

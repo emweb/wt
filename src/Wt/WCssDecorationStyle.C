@@ -69,9 +69,10 @@ void WCssDecorationStyle::setWebWidget(WWebWidget *w)
   font_.setWebWidget(w);
 }
 
-void WCssDecorationStyle::changed()
+void WCssDecorationStyle::changed(WFlags<RepaintFlag> flags)
 {
-  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+  if (widget_)
+    widget_->repaint(flags);
 }
 
 void WCssDecorationStyle::setCursor(Cursor c)
@@ -102,7 +103,7 @@ void WCssDecorationStyle::setFont(const WFont& font)
       || font_ != font) {
     font_ = font;
     fontChanged_ = true;
-    changed();
+    changed(RepaintSizeAffected);
   }
 }
 
@@ -178,7 +179,7 @@ void WCssDecorationStyle::setBorder(WBorder border, WFlags<Side> sides)
   }
 
   if (borderChanged_)
-    changed();
+    changed(RepaintSizeAffected);
 }
 
 WBorder WCssDecorationStyle::border(Side side) const

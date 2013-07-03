@@ -32,10 +32,6 @@ namespace Wt {
 	}
       }
 
-      void repaint(WFlags<RepaintFlag> flags = RepaintAll) {
-	WInteractWidget::repaint(RepaintPropertyAttribute);
-      }
-
       WAbstractArea *facade() const { return facade_; }
 
     private:

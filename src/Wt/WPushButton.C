@@ -46,7 +46,7 @@ bool WPushButton::setText(const WString& text)
   bool ok = text_.setText(text);
 
   flags_.set(BIT_TEXT_CHANGED);
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 
   return ok;
 }
@@ -104,7 +104,7 @@ void WPushButton::setChecked(bool checked)
     flags_.set(BIT_IS_CHECKED, checked);
 
     flags_.set(BIT_CHECKED_CHANGED, true);
-    repaint(RepaintInnerHtml);
+    repaint();
   }
 }
 
@@ -136,7 +136,7 @@ void WPushButton::setIcon(const WLink& link)
   icon_ = link;
   flags_.set(BIT_ICON_CHANGED);
 
-  repaint(RepaintInnerHtml);
+  repaint(RepaintSizeAffected);
 }
 
 void WPushButton::setLink(const WLink& link)
@@ -151,7 +151,7 @@ void WPushButton::setLink(const WLink& link)
     linkState_.link.resource()->dataChanged()
       .connect(this, &WPushButton::resourceChanged);
 
-  repaint(RepaintPropertyIEMobile);
+  repaint();
 }
 
 void WPushButton::setLinkTarget(AnchorTarget target)
@@ -172,7 +172,7 @@ void WPushButton::setResource(WResource *resource)
 void WPushButton::resourceChanged()
 {
   flags_.set(BIT_LINK_CHANGED);
-  repaint(RepaintPropertyIEMobile);
+  repaint();
 }
 
 void WPushButton::setMenu(WPopupMenu *popupMenu)
@@ -325,7 +325,7 @@ void WPushButton::propagateSetEnabled(bool enabled)
 {
   WFormWidget::propagateSetEnabled(enabled);
   flags_.set(BIT_LINK_CHANGED);
-  repaint(RepaintPropertyIEMobile);
+  repaint();
 }
 
 WT_USTRING WPushButton::valueText() const
@@ -340,7 +340,7 @@ void WPushButton::refresh()
 {
   if (text_.text.refresh()) {
     flags_.set(BIT_TEXT_CHANGED);
-    repaint(RepaintInnerHtml);
+    repaint(RepaintSizeAffected);
   }
 
   WFormWidget::refresh();

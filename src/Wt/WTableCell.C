@@ -51,7 +51,7 @@ void WTableCell::setRowSpan(int rowSpan)
     spanChanged_ = true;
     
     table()->flags_.set(WTable::BIT_GRID_CHANGED);
-    table()->repaint(RepaintInnerHtml);
+    table()->repaint(RepaintSizeAffected);
   }
 }
 
@@ -63,7 +63,7 @@ void WTableCell::setColumnSpan(int colSpan)
     spanChanged_ = true;
     
     table()->flags_.set(WTable::BIT_GRID_CHANGED);
-    table()->repaint(RepaintInnerHtml);
+    table()->repaint(RepaintSizeAffected);
   }
 }
 

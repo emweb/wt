@@ -45,7 +45,7 @@ void WProgressBar::setValue(double value)
     progressCompleted_.emit();
   
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WProgressBar::setMinimum(double minimum)
@@ -53,7 +53,7 @@ void WProgressBar::setMinimum(double minimum)
   min_ = minimum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WProgressBar::setMaximum(double maximum)
@@ -61,7 +61,7 @@ void WProgressBar::setMaximum(double maximum)
   max_ = maximum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WProgressBar::setRange(double minimum, double maximum)
@@ -70,7 +70,7 @@ void WProgressBar::setRange(double minimum, double maximum)
   max_ = maximum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WProgressBar::setState(double minimum, double maximum, double value)

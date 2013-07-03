@@ -120,7 +120,7 @@ void WImage::setImageLink(const WLink& link)
 
   flags_.set(BIT_IMAGE_LINK_CHANGED);
 
-  repaint(RepaintPropertyIEMobile);
+  repaint(RepaintSizeAffected);
 }
 
 void WImage::setResource(WResource *resource)
@@ -146,7 +146,7 @@ const std::string WImage::imageRef() const
 void WImage::resourceChanged()
 {
   flags_.set(BIT_IMAGE_LINK_CHANGED);
-  repaint(RepaintPropertyIEMobile);
+  repaint(RepaintSizeAffected);
 }
 
 void WImage::setAlternateText(const WString& text)
@@ -157,7 +157,7 @@ void WImage::setAlternateText(const WString& text)
   altText_ = text;
   flags_.set(BIT_ALT_TEXT_CHANGED);
 
-  repaint(RepaintPropertyAttribute);
+  repaint();
 }
 
 void WImage::addArea(WAbstractArea *area)
@@ -170,7 +170,7 @@ void WImage::insertArea(int index, WAbstractArea *area)
   if (!map_) {
     addChild(map_ = new Impl::MapWidget());
     flags_.set(BIT_MAP_CREATED);
-    repaint(RepaintPropertyAttribute);
+    repaint();
   }
 
   map_->insertWidget(index, area->impl());

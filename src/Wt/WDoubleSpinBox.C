@@ -37,7 +37,7 @@ void WDoubleSpinBox::setMinimum(double minimum)
   min_ = minimum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WDoubleSpinBox::setMaximum(double maximum)
@@ -45,7 +45,7 @@ void WDoubleSpinBox::setMaximum(double maximum)
   max_ = maximum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WDoubleSpinBox::setRange(double minimum, double maximum)
@@ -54,7 +54,7 @@ void WDoubleSpinBox::setRange(double minimum, double maximum)
   max_ = maximum;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 void WDoubleSpinBox::setSingleStep(double step)
@@ -62,7 +62,7 @@ void WDoubleSpinBox::setSingleStep(double step)
   step_ = step;
 
   changed_ = true;
-  repaint(RepaintInnerHtml);
+  repaint();
 }
 
 int WDoubleSpinBox::decimals() const
