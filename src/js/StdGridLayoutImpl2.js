@@ -109,14 +109,22 @@ WT_DECLARE_WT_MEMBER
 
    jQuery.data(document.getElementById(id), 'layout', this);
 
-   function calcPreferredSize(element, dir, asSet) {
+   function calcPreferredSize(element, dir, asSet, widget) {
      var DC = DirConfig[dir];
 
-     /* Allow accurate measurement for widgets with offsets */
-     var l = element.style[DC.left], p;
-     setCss(element, DC.left, NA_px);
-
      var scrollSize = dir ? element.scrollHeight : element.scrollWidth;
+
+     var l, p;
+
+     /* Allow accurate width measurement for widget with offset */
+     if (dir == HORIZONTAL &&
+	 (scrollSize + WT.pxself(element, DC.left) >= widget.clientWidth)) {
+       l = element.style[DC.left];
+       setCss(element, DC.left, NA_px);
+       
+       scrollSize = dir ? element.scrollHeight : element.scrollWidth;
+     }
+
      var clientSize = dir ? element.clientHeight : element.clientWidth;
 
      /*
@@ -136,7 +144,9 @@ WT_DECLARE_WT_MEMBER
        setCss(element, DC.size, '');
      }
      var offsetSize = dir ? element.offsetHeight : element.offsetWidth;
-     setCss(element, DC.left, l);
+
+     if (l)
+       setCss(element, DC.left, l);
 
      if (p)
        setCss(element, DC.size, p);
@@ -298,8 +308,13 @@ WT_DECLARE_WT_MEMBER
 		       WT.px(el, 'padding' + DC.Right));
    }
 
-   function setItemDirty(item, scheduleAdjust) {
-     item.dirty = true;
+   /*
+    * dirt: 0 = not dirty
+    *       1 = remeasure size
+    *       2 = remeasure all
+    */
+   function setItemDirty(item, dirt, scheduleAdjust) {
+     item.dirty = Math.max(item.dirty, dirt);
      itemDirty = true;
      if (scheduleAdjust)
        APP.layouts2.scheduleAdjust();
@@ -351,7 +366,7 @@ WT_DECLARE_WT_MEMBER
 	 var item = DC.getItem(di, oi);
 
 	 if (item) {
-	   if (!item.w || (dir == HORIZONTAL && item.dirty)) {
+	   if (!item.w || (dir == HORIZONTAL && item.dirty > 1)) {
 	     var $w = $("#" + item.id);
 	     var w2 = $w.get(0);
 
@@ -367,10 +382,8 @@ WT_DECLARE_WT_MEMBER
 		 .bind('load',
 		       { item: item},
 		       function(event) {
-			 setItemDirty(event.data.item, true);
+			 setItemDirty(event.data.item, 1, true);
 		       });
-
-	       item.w.style[DC.left] = item.w.style[OC.left] = NA_px;
 	     }
 	   }
 
@@ -416,10 +429,14 @@ WT_DECLARE_WT_MEMBER
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
 
 	     if (item.dirty || layoutDirty) {
-	       var wMinimum = calcMinimumSize(item.w, dir);
+	       var wMinimum;
+	       if (item.dirty > 1) {
+		 calcMinimumSize(item.w, dir);
+		 item.ms[dir] = wMinimum;
+	       } else
+		 wMinimum = item.ms[dir];
 	       if (wMinimum > dMinimum)
 		 dMinimum = wMinimum;
-	       item.ms[dir] = wMinimum;
 
 	       /*
 		* if we do not have an size set, we can and should take into
@@ -430,8 +447,10 @@ WT_DECLARE_WT_MEMBER
 		* we'll consider computedStyle only for vertical size, and only
 		* the first time
 		*/
-               if (!item.set[dir]) {
+	       if (item.dirty > 1)
 		 item.margin[dir] = margin(item.w, dir);
+
+               if (!item.set[dir]) {
 		 if (dir == HORIZONTAL || !first) {
 		   var fw = WT.pxself(item.w, DC.size);
 		   if (fw)
@@ -464,7 +483,8 @@ WT_DECLARE_WT_MEMBER
 		     setCss(item.w, DirConfig[1].size, '');
 		   }
 
-		   var calculated = calcPreferredSize(item.w, dir, false);
+		   var calculated = calcPreferredSize(item.w, dir, false,
+						      widget);
 
 		   /*
 		    * If we've set the size then we should not take the
@@ -1193,12 +1213,12 @@ WT_DECLARE_WT_MEMBER
 
 	     if (!hidden && (setSize || ts != ps || item.layout)) {
 	       if (setCss(w, DC.size, tsm + 'px'))
-		 setItemDirty(item);
+		 setItemDirty(item, 1);
 	       item.set[dir] = true;
 	     } else {
 	       if (!item.fs[dir]) {
 		 if (setCss(w, DC.size, ''))
-		   setItemDirty(item);
+		   setItemDirty(item, 1);
 		 item.set[dir] = false;
 	       } else if (dir == HORIZONTAL)
 		 setCss(w, DC.size, item.fs[dir] + 'px');
@@ -1218,11 +1238,11 @@ WT_DECLARE_WT_MEMBER
 
 	     if (item.layout) {
 	       if (setCss(w, DC.size, ps + 'px'))
-		 setItemDirty(item);
+		 setItemDirty(item, 1);
 	       item.set[dir] = true;
 	     } else if (ts >= ps && item.set[dir]) {
 	       if (setCss(w, DC.size, ps + 'px'))
-		 setItemDirty(item);
+		 setItemDirty(item, 1);
 	       item.set[dir] = false;
 	     }
 
@@ -1250,7 +1270,7 @@ WT_DECLARE_WT_MEMBER
 			  ? Math.round(item.size[VERTICAL]) : -1,
 			  true);
 
-	     item.dirty = false;
+	     item.dirty = 0;
 	   }
 	 }
        }
@@ -1315,7 +1335,7 @@ WT_DECLARE_WT_MEMBER
 
        var item = config.items[row * colCount + col];
 
-       item.dirty = true;
+       item.dirty = 2;
 
        /*
 	* When the item contains a layout, a change may also impact this:
@@ -1358,7 +1378,7 @@ WT_DECLARE_WT_MEMBER
 
 	 item.layout = true;
 
-	 setItemDirty(item);
+	 setItemDirty(item, 1);
 	 break;
        }
      }

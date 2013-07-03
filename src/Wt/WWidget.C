@@ -137,8 +137,15 @@ void WWidget::scheduleRerender(bool laterOnly)
      */
     WWidget *p = parent();
 
-    if (p)
-      p->childResized(this, Vertical);
+    if (p) {
+      /*
+       * Stop propagation at an absolutely positioned widget
+       */
+      if (p->positionScheme() != Absolute ||
+	  p->width().isAuto() ||
+	  p->height().isAuto())
+	p->childResized(this, Vertical);
+    }
   }
 }
 

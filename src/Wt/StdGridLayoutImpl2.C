@@ -423,7 +423,7 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
 	  js << "align:" << (int)align << ",";
 	}
 
-	js << "id:'" << id << "'"
+	js << "dirty:2,id:'" << id << "'"
 	   << "}";
       } else
 	js << "null";
