@@ -106,12 +106,15 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   bool retakeLock = false;
   WebSession::Handler *handler = WebSession::Handler::instance();
 
+  bool dynamic = handler || continuation;
+
   {
 #ifdef WT_THREADED
-    if (handler || continuation) {
-      boost::shared_ptr<boost::recursive_mutex> mutex = mutex_;
-      boost::recursive_mutex::scoped_lock lock(*mutex);
+    boost::shared_ptr<boost::recursive_mutex> mutex = mutex_;
+    boost::recursive_mutex::scoped_lock lock(*mutex, boost::defer_lock);
 
+    if (dynamic) {
+      lock.lock();
       if (beingDeleted_)
 	return;
 

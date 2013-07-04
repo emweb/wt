@@ -17,7 +17,7 @@ namespace Wt {
 
 class StyleSheet;
 class Block;
-class LayoutBox;
+struct LayoutBox;
 
 /*! \defgroup render XHTML Rendering (Wt::Render)
  *  \brief An XHTML rendering library implemented using the %Wt \ref painting

@@ -28,6 +28,10 @@ namespace {
 	x_(x), y_(y), w_(w), h_(h)
     { }
 
+    virtual ~MandelbrotResource() {
+      beingDeleted();
+    }
+
     void handleRequest(const Http::Request& request,
 		       Http::Response& response) {
       WRasterImage image("png", w_, h_);
