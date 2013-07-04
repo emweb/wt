@@ -72,7 +72,7 @@ struct LayoutBox;
  *
  * \ingroup render
  */
-class WTextRenderer 
+class WT_API WTextRenderer 
 {
 public:
   /*! \class Node
