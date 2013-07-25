@@ -282,7 +282,7 @@ public:
    * \p message contains the result.
    *
    * If the \p error is not 0, then an error message is given by
-   * <tt>error.message()</tt>.
+   * <tt>err.message()</tt>.
    *
    * Typical code to process the result is:
    * \code
