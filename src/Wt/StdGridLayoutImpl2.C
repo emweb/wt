@@ -67,7 +67,8 @@ bool StdGridLayoutImpl2::itemResized(WLayoutItem *item)
 
   for (unsigned row = 0; row < rowCount; ++row)
     for (unsigned col = 0; col < colCount; ++col)
-      if (grid_.items_[row][col].item_ == item) {
+      if (grid_.items_[row][col].item_ == item &&
+	  !grid_.items_[row][col].update_) {
 	grid_.items_[row][col].update_ = true;
 	needAdjust_ = true;
 	return true;

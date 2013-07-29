@@ -150,6 +150,9 @@ void Server::start()
     LOG_INFO_S(&wt_, "starting server: https://" <<
 	       config_.httpsAddress() << ":" << config_.httpsPort());
 
+    if (config_.hasSslPasswordCallback())
+      ssl_context_.set_password_callback(config_.sslPasswordCallback());
+
     int sslOptions = asio::ssl::context::default_workarounds
       | asio::ssl::context::no_sslv2
       | asio::ssl::context::single_dh_use;
@@ -230,14 +233,6 @@ void Server::start()
 int Server::httpPort() const
 {
   return tcp_acceptor_.local_endpoint().port();
-}
-
-void Server::setSslPasswordCallback(
-  boost::function<std::string (std::size_t max_length)> cb)
-{
-#ifdef HTTP_WITH_SSL
-  ssl_context_.set_password_callback(boost::bind(cb, _1));
-#endif // HTTP_WITH_SSL
 }
 
 void Server::startAccept()

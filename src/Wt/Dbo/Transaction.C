@@ -36,18 +36,18 @@ Transaction::~Transaction()
     if (impl_->needsRollback_ || std::uncaught_exception()) {
       try {
 	rollback();
-      } catch (std::exception& e) {
+      } catch (std::exception&) {
 	release();
 	throw;
       }
     } else {
       try {
 	commit();
-      } catch (std::exception& e) {
+      } catch (std::exception&) {
 	try {
 	  if (impl_->transactionCount_ == 1)
 	    rollback();
-	} catch (std::exception& e) {
+	} catch (std::exception&) {
 	  std::cerr << "Unexpected transaction during Transaction::rollback()"
 		    << std::endl;
 	}

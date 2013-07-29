@@ -483,7 +483,7 @@ private:
 
   DataStore *dataStore_;
 
-  std::vector<boost::signals::connection> modelConnections_;
+  std::vector<Wt::Signals::connection> modelConnections_;
 
   virtual std::string createJS(DomElement *inContainer);
 

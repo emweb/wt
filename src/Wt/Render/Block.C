@@ -4,9 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-//#define DEBUG_LAYOUT
-
-// TODO : support position absolute
+// #define DEBUG_LAYOUT
 
 #include "Wt/WFontMetrics"
 #include "Wt/WLogger"
@@ -496,7 +494,8 @@ WFont::Style Block::cssFontStyle() const
 
   std::string v = cssProperty(PropertyStyleFontStyle);
 
-  if (v.empty() && type_ == DomElement_EM)
+  if (v.empty() &&
+      (type_ == DomElement_EM || type_ == DomElement_I))
     return WFont::Italic;
   else if (v == "normal")
     return WFont::NormalStyle;

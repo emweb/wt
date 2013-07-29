@@ -109,6 +109,8 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 
   impl_->serverConfiguration_ = new http::server::Configuration(logger());
 
+  impl_->serverConfiguration_->setSslPasswordCallback(sslPasswordCallback_);
+
   if (argc != 0)
     impl_->serverConfiguration_->setOptions(argc, argv,
 					    serverConfigurationFile);
@@ -229,9 +231,11 @@ int WServer::httpPort() const
 }
 
 void WServer::setSslPasswordCallback(
-  boost::function<std::string (std::size_t max_length)> cb)
+  boost::function<std::string (std::size_t max_length, int purpose)> cb)
 {
-  impl_->server_->setSslPasswordCallback(cb);
+  sslPasswordCallback_ = cb;
+  if (impl_ && impl_->serverConfiguration_)
+    impl_->serverConfiguration_->setSslPasswordCallback(sslPasswordCallback_);
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)

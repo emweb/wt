@@ -26,10 +26,6 @@
 #include <boost/asio.hpp>
 namespace asio = boost::asio;
 
-#ifdef WT_THREADED
-#include <boost/thread/recursive_mutex.hpp>
-#endif // WT_THREADED
-
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 

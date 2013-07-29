@@ -1,3 +1,9 @@
+10-07-2013:
+	* WSignal: Due to boost 1.54 complaining on boost.signals being
+	deprecated, namespace Wt::Signals was created. This namespace contains
+	the boost signals implementation that is optimal for your boost: for
+	boost < 1.54 it will be signals, for boost > 1.54 it will be signals2.
+
 15-05-2013:
 	* WStandardItem, WStandardItemModel: before: checkboxes are rendered
 	in enabled state when ItemIsUserCheckable flag is set. Now: checkboxes

@@ -44,7 +44,6 @@ WTableView::WTableView(WContainerWidget *parent)
     headerColumnsContainer_(0),
     plainTable_(0),
     dropEvent_(impl_, "dropEvent"),
-    columnWidthChanged_(impl_, "columnResized"),
     scrolled_(impl_, "scrolled"),
     firstColumn_(-1),
     lastColumn_(-1),

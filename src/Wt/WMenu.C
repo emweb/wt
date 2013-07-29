@@ -211,9 +211,42 @@ WMenuItem *WMenu::addSectionHeader(const WString& text)
 
 void WMenu::addItem(WMenuItem *item)
 {
+  insertItem(ul()->count(), item);
+}
+
+WMenuItem *WMenu::insertItem(int index, const WString& name, WWidget *contents,
+                          WMenuItem::LoadPolicy policy)
+{
+  return insertItem(index, std::string(), name, contents, policy);
+}
+
+WMenuItem *WMenu::insertItem(int index, const std::string& iconPath,
+                             const WString& name, WWidget *contents,
+                             WMenuItem::LoadPolicy policy)
+{
+  WMenuItem *item = new WMenuItem(iconPath, name, contents, policy);
+  insertItem(index, item);
+  return item;
+}
+
+WMenuItem *WMenu::insertMenu(int index, const WString& text, WMenu *menu)
+{
+  return insertMenu(index, std::string(), text, menu);
+}
+
+WMenuItem *WMenu::insertMenu(int index, const std::string& iconPath,
+                          const WString& text, WMenu *menu)
+{
+  WMenuItem *item = new WMenuItem(iconPath, text, 0, WMenuItem::LazyLoading);
+  item->setMenu(menu);
+  insertItem(index, item);
+  return item;
+}
+void WMenu::insertItem(int index, WMenuItem *item)
+{
   item->setParentMenu(this);
 
-  ul()->addWidget(item);
+  ul()->insertWidget(index, item);
 
   if (contentsStack_) {
     WWidget *contents = item->contents();
@@ -224,7 +257,7 @@ void WMenu::addItem(WMenuItem *item)
       setCurrent(0);
 
       if (contents)
-	contentsStack_->setCurrentWidget(contents);
+        contentsStack_->setCurrentWidget(contents);
 
       renderSelected(item, true);
       item->loadContents();

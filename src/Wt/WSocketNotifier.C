@@ -57,7 +57,7 @@ void WSocketNotifier::notify()
    * use this connection to know if the notifier was killed while
    * processing the notification
    */
-  boost::signals::connection alive
+  Wt::Signals::connection alive
     = activated_.connect(this, &WSocketNotifier::dummy);
 
   activated_.emit(socket_);

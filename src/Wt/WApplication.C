@@ -1649,7 +1649,7 @@ void WApplication::resumeRendering()
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_CNOR
-void WtEmitBindSignal(const boost::shared_ptr< boost::signal0<void> >& s)
+void WtEmitBindSignal(const boost::shared_ptr< Wt::Signals::signal0<void> >& s)
 {
   (*s)();
 }

@@ -230,7 +230,7 @@ void WServer::resume()
 }
 
 void WServer::setSslPasswordCallback(
-  boost::function<std::string (std::size_t max_length)> cb)
+  boost::function<std::string (std::size_t max_length, int purpose)> cb)
 {
   LOG_INFO_S(this,
     "setSslPasswordCallback(): has no effect in fcgi connector");

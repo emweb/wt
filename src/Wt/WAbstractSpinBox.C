@@ -35,7 +35,7 @@ public:
   }
 
   virtual std::string javaScriptValidate() const {
-    return "jQuery.data(" + spinBox_->jsRef() + ", 'obj');";
+    return "new function() { this.validate = function(t) { return jQuery.data(" + spinBox_->jsRef() + ", 'obj').validate(t); }; }";
   }
 
 private:

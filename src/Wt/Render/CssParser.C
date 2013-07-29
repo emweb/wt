@@ -180,7 +180,7 @@ struct ErrorReporting
 
     unsigned int column = std::distance(lastNewLine, errorPos);
 
-    std::string s(errorPos, std::min(errorPos+30, endPos));
+    std::string s(errorPos, (endPos - errorPos > 30) ? errorPos + 30 : endPos);
     std::replace_if(s.begin(), s.end(), boost::is_any_of("\n\r\f"), ' ');
     std::stringstream ss;
     ss

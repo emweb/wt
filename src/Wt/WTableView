@@ -127,7 +127,6 @@ private:
   WTable *plainTable_;
 
   JSignal<int, int, std::string, std::string, WMouseEvent> dropEvent_;
-  JSignal<int, int> columnWidthChanged_;
   JSignal<int, int, int, int> scrolled_;
 
   /* Ajax only: First and last columns rendered (this somewhat

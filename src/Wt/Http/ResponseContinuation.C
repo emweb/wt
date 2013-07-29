@@ -44,8 +44,8 @@ ResponseContinuation::ResponseContinuation(WResource *resource,
   : resource_(resource),
     response_(response),
     waiting_(false),
-    needsContinue_(false),
-    readyToContinue_(false)
+    readyToContinue_(false),
+    needsContinue_(false)
 {
   resource_->continuations_.push_back(this);
 }

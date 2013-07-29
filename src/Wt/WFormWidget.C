@@ -373,8 +373,10 @@ void WFormWidget::setToolTip(const WString& text, TextFormat textFormat)
 {
   WInteractWidget::setToolTip(text, textFormat);
 
-  if (validator_ && textFormat == PlainText)
+  if (validator_ && textFormat == PlainText) {
     setJavaScriptMember("defaultTT", text.jsStringLiteral());
+    validate();
+  }
 }
 
 void WFormWidget::setValidator(WValidator *validator)

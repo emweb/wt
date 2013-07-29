@@ -22,6 +22,7 @@ WImage *createDragImage(const char *url, const char *smallurl,
 {
   WImage *result = new WImage(url, p);
   WImage *dragImage = new WImage(smallurl, p);
+  dragImage->setMargin(-15, Left | Top);
 
   /*
    * Set the image to be draggable, showing the other image (dragImage)

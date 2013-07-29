@@ -159,8 +159,8 @@ void Connection::handleReadRequest0()
     LOG_DEBUG(socket().native() << "incoming request: "
 	      << socket().remote_endpoint().port() << ": "
 	      << std::string(remaining_,
-			     std::min(buffer_.data()
-				      - remaining_ + buffer_size_,
+			     std::min((unsigned long)(buffer_.data()
+				      - remaining_ + buffer_size_),
 				      (long unsigned)1000)));
   } catch (...) {
   }
@@ -193,9 +193,9 @@ void Connection::handleReadRequest0()
 	reply_ = request_handler_.handleRequest(request_);
 	reply_->setConnection(shared_from_this());
 	moreDataToSendNow_ = true;
-      } catch (const asio_error_code& e) {
-	LOG_ERROR("Error in handleRequest0(): " << e.message());
-	handleError(e);
+      } catch (asio_system_error& e) {
+	LOG_ERROR("Error in handleRequest0(): " << e.what());
+	handleError(e.code());
 	return;
       }
 

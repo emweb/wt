@@ -441,6 +441,37 @@ Result QueryModel<Result>::resultById(long long id) const
   return query_result_traits<Result>::findById(query_.session(), id);
 }
 
+template <class Result>
+void *QueryModel<Result>::toRawIndex(const WModelIndex& index) const
+{
+  if (index.isValid()) {
+    long long id = resultId(resultRow(index.row()));
+
+    if (id >= 0)
+      return reinterpret_cast<void *>(id + 1);
+    else
+      return 0;
+  } else
+    return 0;
+}
+
+template <class Result>
+WModelIndex QueryModel<Result>::fromRawIndex(void *rawIndex) const
+{
+  if (rawIndex) {
+    long long id = reinterpret_cast<long long>(rawIndex) - 1;
+
+    for (int row = 0; row < std::min(rowCount(), batchSize_); ++row) {
+      const Result& result = resultRow(row);
+
+      if (resultId(result) == id)
+	return index(row, 0);
+    }
+  }
+
+  return WModelIndex();
+}
+
   }
 }
 

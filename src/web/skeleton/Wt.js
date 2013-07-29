@@ -2001,17 +2001,17 @@ function dragStart(obj, e) {
 
   ds.sourceId = obj.getAttribute("dsid");
   ds.objectPrevStyle = {
-    position: ds.object.style["position"],
-    display: ds.object.style["display"],
-    left: ds.object.style["left"],
-    top: ds.object.style["top"],
+    position: ds.object.style.position,
+    display: ds.object.style.display,
+    left: ds.object.style.left,
+    top: ds.object.style.top,
     className: ds.object.className
   };
 
   ds.object.parentNode.removeChild(ds.object);
-  ds.object.style["position"] = 'absolute';
+  ds.object.style.position = 'absolute';
   ds.object.className = '';
-  ds.object.style["z-index"] = '1000';
+  ds.object.style.zIndex = '1000';
   document.body.appendChild(ds.object);
 
   WT.capture(null);
@@ -2032,18 +2032,29 @@ function dragStart(obj, e) {
 };
 
 function dragDrag(e) {
+  e = e || window.event;
   if (dragState.object !== null) {
     var ds = dragState;
     var xy = WT.pageCoordinates(e);
 
-    if (ds.object.style["display"] !== '' && ds.xy.x !== xy.x && ds.xy.y !== xy.y)
-      ds.object.style["display"] = '';
+    if (ds.object.style.display !== '' &&
+	ds.xy.x !== xy.x &&
+	ds.xy.y !== xy.y)
+      ds.object.style.display = '';
 
-    ds.object.style["left"] = (xy.x - ds.offsetX) + 'px';
-    ds.object.style["top"] = (xy.y - ds.offsetY) + 'px';
+    ds.object.style.left = (xy.x - ds.offsetX) + 'px';
+    ds.object.style.top = (xy.y - ds.offsetY) + 'px';
 
     var prevDropTarget = ds.dropTarget;
     var t = WT.target(e);
+    if (t == ds.object) {
+      if (document.elementFromPoint) {
+	ds.object.style['display']='none';
+	t = document.elementFromPoint(e.clientX, e.clientY);
+	ds.object.style['display']='';
+      }
+    }
+
     var mimeType = "{" + ds.mimeType + ":";
     var amts = null;
 
@@ -2097,6 +2108,7 @@ function dragDrag(e) {
 };
 
 function dragEnd(e) {
+  e = e || window.event;
   WT.capture(null);
 
   var ds = dragState;
@@ -2116,10 +2128,10 @@ function dragEnd(e) {
       // could not be dropped, animate it floating back ?
     }
 
-    ds.object.style["position"] = ds.objectPrevStyle.position;
-    ds.object.style["display"] = ds.objectPrevStyle.display;
-    ds.object.style["left"] = ds.objectPrevStyle.left;
-    ds.object.style["top"] = ds.objectPrevStyle.top;
+    ds.object.style.position = ds.objectPrevStyle.position;
+    ds.object.style.display = ds.objectPrevStyle.display;
+    ds.object.style.left = ds.objectPrevStyle.left;
+    ds.object.style.top = ds.objectPrevStyle.top;
     ds.object.className = ds.objectPrevStyle.className;
 
     ds.object = null;

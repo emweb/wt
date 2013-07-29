@@ -610,6 +610,10 @@ public:
    * the style class to the DOM element (if JavaScript is
    * available). This may be necessary when client-side JavaScript
    * manipulates the same style class.
+   *
+   * The \p styleClass should be a single class (although multiple
+   * classes will work for the common case that the additional style classes
+   * are all not yet present on the element.
    */
   virtual void addStyleClass(const WT_USTRING& styleClass,
 			     bool force = false) = 0;
@@ -622,6 +626,8 @@ public:
    * the style class from the DOM element (if JavaScript is
    * available). This may be necessary when client-side JavaScript
    * manipulates the same style class.
+   *
+   * The \p styleClass should be a single class
    */
   virtual void removeStyleClass(const WT_USTRING& styleClass,
 				bool force = false) = 0;
@@ -1099,7 +1105,7 @@ protected:
    *
    * \sa render()
    */
-  void scheduleRender();
+  void scheduleRender(WFlags<RepaintFlag> flags = 0);
 
   /*! \brief Renders the widget.
    *

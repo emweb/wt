@@ -1573,6 +1573,8 @@ void WebSession::handleWebSocketRequest(Handler& handler)
 void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 					WebRequest::ReadEvent event)
 {
+  // LOG_DEBUG("handleWebSocketMessage: " << (int)event);
+
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
@@ -1636,9 +1638,10 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	    lock->asyncResponse_->flush
 	      (WebRequest::ResponseFlush,
 	       boost::bind(&WebSession::webSocketReady, session));
-	    lock->asyncResponse_->readWebSocketMessage
-	      (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
 	  }
+
+	  lock->asyncResponse_->readWebSocketMessage
+	    (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
 
 	  delete message;
 
@@ -1722,8 +1725,10 @@ void WebSession::pushUpdates()
 
   if (canWriteAsyncResponse_) {
     if (asyncResponse_->isWebSocketRequest()
-	&& asyncResponse_->webSocketMessagePending())
+	&& asyncResponse_->webSocketMessagePending()) {
+      LOG_DEBUG("pushUpdates(): web socket message pending");
       return;
+    }
 
     if (asyncResponse_->isWebSocketRequest()) {
 #ifndef WT_TARGET_JAVA
@@ -1760,10 +1765,15 @@ void WebSession::pushUpdates()
 
 void WebSession::webSocketReady(boost::weak_ptr<WebSession> session)
 {
+  LOG_DEBUG("webSocketReady()");
+
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
     Handler handler(lock, true);
+
+    LOG_DEBUG("webSocketReady: asyncResponse_ = " << lock->asyncResponse_
+	      << " updatesPending = " << lock->updatesPending_);
 
     if (lock->asyncResponse_) {
       lock->canWriteAsyncResponse_ = true;

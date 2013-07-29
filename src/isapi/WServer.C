@@ -189,7 +189,7 @@ void WServer::stop()
 //}
 
 void WServer::setSslPasswordCallback(
-  boost::function<std::string (std::size_t max_length)> cb)
+  boost::function<std::string (std::size_t max_length, int purpose)> cb)
 {
   log("info") << "setSslPasswordCallback(): has no effect in isapi connector";
 }

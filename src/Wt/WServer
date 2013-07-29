@@ -350,7 +350,7 @@ public:
    * underlying implementation will truncate the password to this length.
    */
   WT_API void setSslPasswordCallback(
-    boost::function<std::string (std::size_t max_length)> cb);
+    boost::function<std::string (std::size_t max_length, int purpose)> cb);
 
 #endif // WT_TARGET_JAVA
 
@@ -423,6 +423,7 @@ private:
   WT_API void setCatchSignals(bool catchSignals);
 
   WT_API static WServer *instance_;
+  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 };
 
 }

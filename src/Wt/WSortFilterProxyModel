@@ -319,7 +319,7 @@ private:
   SortOrder sortOrder_;
   bool      dynamic_, inserting_;
 
-  std::vector<boost::signals::connection> modelConnections_;
+  std::vector<Wt::Signals::connection> modelConnections_;
   mutable ItemMap mappedIndexes_;
   mutable Item* mappedRootItem_;
 

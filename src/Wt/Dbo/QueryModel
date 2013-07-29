@@ -313,6 +313,9 @@ public:
 				Orientation orientation = Horizontal,
 				int role = DisplayRole) const;
 
+  virtual void *toRawIndex(const WModelIndex& index) const;
+  virtual WModelIndex fromRawIndex(void *rawIndex) const;
+
 protected:
   /*! \brief Creates a new row.
    *

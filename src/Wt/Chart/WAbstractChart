@@ -187,7 +187,7 @@ private:
 
   // connections with the current model, used to disconnect from a model
   // when the model changes.
-  std::vector<boost::signals::connection> modelConnections_;
+  std::vector<Wt::Signals::connection> modelConnections_;
 
 protected:
   /*! \brief Method called whenever the entire model was changed.

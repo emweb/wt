@@ -751,6 +751,34 @@ public:
    */
   Signal<int, WLength>& columnResized() { return columnResized_; }
 
+  /*! \brief Returns whether the view is sortable.
+   *
+   * When enabeld the view can be sorted by clicking on the header.
+   */
+  bool sortEnabled() {return sortEnabled_;}
+
+  /*! \brief Alow to sort.
+   *
+   * When enabeld the view can be sorted by clicking on the header.
+   */
+  void setHeaderClickSortEnabled(bool enabled) {sortEnabled_ = enabled;}
+
+  /*! \brief %Signal emitted when a header item is clicked.
+   *
+   * The argument that is passed is the column number.
+   *
+   * \sa clicked(), headerDblClicked()
+   */
+  Signal<int> &headerClicked() { return headerClicked_; }
+
+  /*! \brief %Signal emitted when a header item is double clicked.
+   *
+   * The argument that is passed is the column number.
+   *
+   * \sa doubleClicked(), headerClicked()
+   */
+  Signal<int> &headerDoubleClicked() { return headerDblClicked_; }
+
   /*! \brief Configures the number of columns that are used as row
    *         headers.
    *
@@ -888,7 +916,7 @@ protected:
 
   WContainerWidget *impl_;
   RenderState renderState_;
-  std::vector<boost::signals::connection> modelConnections_;
+  std::vector<Wt::Signals::connection> modelConnections_;
 
   WSignalMapper<WModelIndex, WMouseEvent> *clickedMapper_;
 
@@ -998,6 +1026,7 @@ private:
   bool defaultHeaderWordWrap_;
   int rowHeaderCount_;
   WString computedDragMimeType_;
+  bool sortEnabled_;
 
   JSignal<int, int>    columnWidthChanged_;
   Signal<int, WLength> columnResized_;
@@ -1006,16 +1035,19 @@ private:
 
   mutable int nextColumnId_;
   
-  WSignalMapper<int>
-    *clickedForSortMapper_, *clickedForExpandMapper_,
-    *clickedForCollapseMapper_;
+  WSignalMapper<int> *clickedForExpandMapper_, *clickedForCollapseMapper_;
 
+  WSignalMapper<int> *headerDblClickedMapper_,
+   *headerClickedMapper_;
   bool alternatingRowColors_;
 
   JSlot resizeHandleMDownJS_;
 
   typedef std::map<WModelIndex, Editor> EditorMap;
   EditorMap editedItems_;
+
+  Signal<int> headerDblClicked_;
+  Signal<int> headerClicked_;
 
   Signal<WModelIndex, WMouseEvent> clicked_;
   Signal<WModelIndex, WMouseEvent> doubleClicked_;
@@ -1044,6 +1076,8 @@ private:
   void checkDragSelection();
   void configureModelDragDrop();
 
+  void handleHeaderClicked(int columnid);
+  void handleHeaderDblClicked(int columnid);
   void toggleSortColumn(int columnid);
   void updateColumnWidth(int columnId, int width);
 

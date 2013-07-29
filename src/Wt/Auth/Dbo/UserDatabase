@@ -162,6 +162,7 @@ public:
 	.where("provider = ?").bind(provider).resultList().size() != 0) {
       Wt::log("error") << "cannot add identity " << provider
 		       << ":'" << identity << "': already exists";
+      return;
     }
 
     /*
@@ -170,6 +171,23 @@ public:
     user_.modify()->authIdentities().insert
       (Wt::Dbo::ptr<AuthIdentityType>(new AuthIdentityType(provider,
 							   identity)));
+  }
+
+  virtual void setIdentity(const User& user, const std::string& provider,
+			   const WT_USTRING& identity) {
+    WithUser find(*this, user);
+
+    AuthIdentities c
+      = user_->authIdentities().find().where("provider = ?").bind(provider);
+
+    typename AuthIdentities::const_iterator i = c.begin();
+
+    if (i != c.end())
+      i->modify()->setIdentity(identity);
+    else
+      user_.modify()->authIdentities().insert
+	(Wt::Dbo::ptr<AuthIdentityType>(new AuthIdentityType(provider,
+							     identity)));
   }
 
   virtual bool setEmail(const User& user, const std::string& address) {

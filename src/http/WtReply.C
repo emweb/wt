@@ -391,6 +391,9 @@ void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
 
 void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
 {
+  LOG_DEBUG("readWebSocketMessage(): " << readMessageCallback_
+	    << ", " << callBack);
+
   ConnectionPtr connection = getConnection();
 
   assert(request().webSocketVersion >= 0);

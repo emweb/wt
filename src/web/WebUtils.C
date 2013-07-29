@@ -13,6 +13,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/version.hpp>
+#include <boost/scoped_array.hpp>
 
 #include <ctype.h>
 #include <stdio.h>

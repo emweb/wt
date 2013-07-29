@@ -242,6 +242,91 @@ public:
    */
   virtual void addItem(WMenuItem *item);
 
+  /*! \brief inserts an item.
+   *
+   * Use this version of insertItem() if you do not want to specify an icon
+   * for this menu item.
+   *
+   * Returns the corresponding WMenuItem.
+   *
+   * \sa insertItem(int index, const std::string&, const WString&, WWidget *, WMenuItem::LoadPolicy)
+   * \sa insertItem(int index, WMenuItem *)
+   */
+  WMenuItem *insertItem(int index, const WString& label, WWidget *contents = 0,
+                     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+
+  /*! \brief inserts an item.
+   *
+   * inserts a menu item with given \p contents, which is inserted to the
+   * menu's associated contents stack.
+   *
+   * \p contents may be \c 0 for two reasons:
+   * - if the menu is not associated with a contents stack, then you cannot
+   *   associate a menu item with a contents widget
+   * - or, you may have one or more items which which are not associated with
+   *   a contents widget in the contents stack.
+   *
+   * Returns the corresponding WMenuItem.
+   *
+   * \sa insertItem(int index, WMenuItem *)
+   */
+  WMenuItem *insertItem(int index, const std::string& iconPath,
+                        const WString& label, WWidget *contents = 0,
+                     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+
+    /*! \brief inserts an item with given text, and specify a slot method to be
+   *         called when the item is triggered.
+   *
+   * The <i>target</i> and \p method are connected to the
+   * WMenuItem::triggered signal.
+   *
+   * \sa insert(int index,WMenuItem *)
+   */
+  template<class T, class V>
+    WMenuItem *insertItem(int index, const WString& text,
+                          T *target, void (V::*method)());
+
+  /*! \brief inserts an item with given text and icon, and specify a slot
+   *         method to be called when activated.
+   *
+   * The <i>target</i> and \p method are connected to the
+   * WMenuItem::triggered signal.
+   *
+   * \note The icon should have a width of 16 pixels.
+   *
+   * \sa insert(int index, WMenuItem *)
+   */
+  template<class T, class V>
+    WMenuItem *insertItem(int index, const std::string& iconPath,
+                          const WString& text, T *target, void (V::*method)());
+
+  /*! \brief inserts a submenu, with given text.
+   *
+   * inserts an item with text \p text, that leads to a submenu
+   * \p menu.
+   *
+   * \sa insert(int index, WMenuItem *)
+   */
+  WMenuItem *insertMenu(int index, const WString& text, WMenu *menu);
+
+  /*! \brief inserts a submenu, with given icon and text.
+   *
+   * inserts an item with given text and icon, that leads to a submenu
+   * \p menu.
+   *
+   * \sa insert(int index, WMenuItem *)
+   */
+  WMenuItem *insertMenu(int index, const std::string& iconPath,
+                        const WString& text, WMenu *menu);
+  /*! \brief Inserts an item.
+   *
+   * Inserts a menu item. Use this form to insert specialized WMenuItem
+   * implementations.
+   *
+   * \sa insertItem(WMenuItem *item)
+   */
+  virtual void insertItem(int index, WMenuItem *item);
+
   /*! \brief Adds a separator to the menu.
    *
    * Adds a separator the menu.
@@ -552,7 +637,7 @@ private:
   Signal<WMenuItem *> itemSelected_, itemSelectRendered_;
   Signal<WMenuItem *> itemClosed_;
 
-  boost::signals::connection contentsStackConnection_;
+  Wt::Signals::connection contentsStackConnection_;
   void contentsDestroyed();
   void handleInternalPathChange(const std::string& path);
 
@@ -589,6 +674,22 @@ WMenuItem *WMenu::addItem(const std::string& iconPath, const WString& text,
   return item;
 }
 
+template<class T, class V>
+WMenuItem *WMenu::insertItem(int index, const WString& text, T *target,
+                             void (V::*method)())
+{
+  return insertItem( index, std::string(), text, target, method);
+}
+
+template<class T, class V>
+WMenuItem *WMenu::insertItem(int index, const std::string& iconPath,
+                             const WString& text, T *target,
+                             void (V::*method)())
+{
+  WMenuItem *item = insertItem(index, iconPath, text);
+  item->triggered().connect(target, method);
+  return item;
+}
 }
 
 #endif // WMENU_H_

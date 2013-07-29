@@ -7,14 +7,16 @@
 #ifndef WT_DBO_DBACTION_IMPL_H_
 #define WT_DBO_DBACTION_IMPL_H_
 
+#include <Wt/Dbo/Exception>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 
 namespace Wt {
   namespace Dbo {
     namespace Impl {
-      extern std::string createJoinName(RelationType type,
-                                        const char *c1, const char *c2);
+      extern std::string WTDBO_API createJoinName(RelationType type,
+                                                  const char *c1,
+                                                  const char *c2);
     }
 
 

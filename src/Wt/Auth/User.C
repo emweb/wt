@@ -84,6 +84,20 @@ void User::addIdentity(const std::string& provider, const WT_USTRING& identity)
   db_->addIdentity(*this, provider, identity);
 }
 
+void User::setIdentity(const std::string& provider, const WT_USTRING& identity)
+{
+  checkValid();
+
+  db_->setIdentity(*this, provider, identity);
+}
+
+void User::removeIdentity(const std::string& provider)
+{
+  checkValid();
+
+  db_->removeIdentity(*this, provider);
+}
+
 WT_USTRING User::identity(const std::string& provider) const
 {
   checkValid();

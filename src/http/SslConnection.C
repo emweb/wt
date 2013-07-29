@@ -46,9 +46,13 @@ asio::ip::tcp::socket& SslConnection::socket()
 
 void SslConnection::start()
 {
+  boost::shared_ptr<SslConnection> sft 
+    = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
+
   socket_.async_handshake(asio::ssl::stream_base::server,
 			  strand_.wrap
-			  (boost::bind(&SslConnection::handleHandshake, this,
+			  (boost::bind(&SslConnection::handleHandshake,
+			               sft,
 				       asio::placeholders::error)));
 }
 

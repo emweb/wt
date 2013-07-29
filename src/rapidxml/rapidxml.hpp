@@ -1590,18 +1590,25 @@ namespace rapidxml
 
 	      if ((
 		   // F0 90-BF 80-BF 80-BF
-		   (                                    (unsigned char)src[0] == 0xF0)
-		   && (0x90 <= (unsigned char)src[1] && (unsigned char)src[1] <= 0xBF)
-		   && (0x80 <= (unsigned char)src[2] && (unsigned char)src[2] <= 0xBF)
-		   && (0x80 <= (unsigned char)src[3] && (unsigned char)src[3] <= 0xBF)
+		   ((unsigned char)src[0] == 0xF0) && 
+		   (0x90 <= (unsigned char)src[1] && 
+		    (unsigned char)src[1] <= 0xBF) && 
+		   (0x80 <= (unsigned char)src[2] &&
+		    (unsigned char)src[2] <= 0xBF) &&
+		   (0x80 <= (unsigned char)src[3] && 
+		    (unsigned char)src[3] <= 0xBF)
 		   ) ||
 		  (
 		   // F1-F3 80-BF 80-BF 80-BF
-		   (   0xF1 <= (unsigned char)src[0] && (unsigned char)src[0] <= 0xF3)
-		   && (0x80 <= (unsigned char)src[1] && (unsigned char)src[1] <= 0xBF)
-		   && (0x80 <= (unsigned char)src[2] && (unsigned char)src[2] <= 0xBF)
-		   && (0x80 <= (unsigned char)src[3] && (unsigned char)src[3] <= 0xBF)
-		   ))    
+		   (0xF1 <= (unsigned char)src[0] &&
+		    (unsigned char)src[0] <= 0xF3) &&
+		   (0x80 <= (unsigned char)src[1] &&
+		    (unsigned char)src[1] <= 0xBF) &&
+		   (0x80 <= (unsigned char)src[2] &&
+		    (unsigned char)src[2] <= 0xBF) &&
+		   (0x80 <= (unsigned char)src[3] &&
+		    (unsigned char)src[3] <= 0xBF)
+		   ))
 		legal = true;
 
 	    } else if ((unsigned char)src[0] >= 0xE0) {
@@ -1609,15 +1616,20 @@ namespace rapidxml
 	      
 	      if ((
 		   // E0 A0*-BF 80-BF
-		   (                                    (unsigned char)src[0] == 0xE0)
-		   && (0xA0 <= (unsigned char)src[1] && (unsigned char)src[1] <= 0xBF)
-		   && (0x80 <= (unsigned char)src[2] && (unsigned char)src[2] <= 0xBF)
+		   ((unsigned char)src[0] == 0xE0) &&
+		   (0xA0 <= (unsigned char)src[1] &&
+		    (unsigned char)src[1] <= 0xBF) &&
+		   (0x80 <= (unsigned char)src[2] &&
+		    (unsigned char)src[2] <= 0xBF)
 		   ) ||
 		  (
 		   // E1-EF 80-BF 80-BF
-		   (   0xE1 <= (unsigned char)src[0] && (unsigned char)src[0] <= 0xF1)
-		   && (0x80 <= (unsigned char)src[1] && (unsigned char)src[1] <= 0xBF)
-		   && (0x80 <= (unsigned char)src[2] && (unsigned char)src[2] <= 0xBF)
+		   (0xE1 <= (unsigned char)src[0] &&
+		    (unsigned char)src[0] <= 0xF1) &&
+		   (0x80 <= (unsigned char)src[1] &&
+		    (unsigned char)src[1] <= 0xBF) &&
+		   (0x80 <= (unsigned char)src[2] &&
+		    (unsigned char)src[2] <= 0xBF)
 		   ))
 		legal = true;
 
@@ -1626,17 +1638,35 @@ namespace rapidxml
 
 	      if (
 		  // C2-DF 80-BF
-		  (   0xC2 <= (unsigned char)src[0] && (unsigned char)src[0] <= 0xDF)
-		  && (0x80 <= (unsigned char)src[1] && (unsigned char)src[1] <= 0xBF)
+		  (0xC2 <= (unsigned char)src[0] &&
+		   (unsigned char)src[0] <= 0xDF) &&
+		  (0x80 <= (unsigned char)src[1] &&
+		   (unsigned char)src[1] <= 0xBF)
 		  )
 		legal = true;
 	    }
 
 	    if (legal) {
-	      if (dest)
-		for (unsigned i = 0; i < length; ++i)
-		  *dest++ = *src++;
-	      else
+	      if (dest) {
+		if (length == 3) {
+		  /*
+		    U+2028 and U+2029 may cause problems, they are line
+		    separators that mess up JavaScript string literals.
+		    We will replace them here by '\n'.
+		   */
+		  if ((unsigned char)src[0] == 0xe2 &&
+		      (unsigned char)src[1] == 0x80 &&
+		      ((unsigned char)src[2] == 0xa8 ||
+		       (unsigned char)src[2] == 0xa9)) {
+		    *dest++ = '\n';
+		    src += length;
+		  } else
+		    for (unsigned i = 0; i < length; ++i)
+		      *dest++ = *src++;
+		} else
+		  for (unsigned i = 0; i < length; ++i)
+		    *dest++ = *src++;
+	      } else
 		src += length;
 	    } else {
 	      if (dest)
@@ -2497,7 +2527,7 @@ namespace rapidxml
         };
 
         // Text (i.e. PCDATA) that does not require processing when ws normalization is disabled 
-        // (anything but < \0 &)
+        // (anything but < \0 & 0xe2 (for U+2028, U+2029))
         template<int Dummy>
         const unsigned char lookup_tables<Dummy>::lookup_text_pure_no_ws[256] = 
         {
@@ -2516,12 +2546,12 @@ namespace rapidxml
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // B
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // C
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // D
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
+             1,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1   // F
         };
 
         // Text (i.e. PCDATA) that does not require processing when ws normalizationis is enabled
-        // (anything but < \0 & space \n \r \t)
+        // (anything but < \0 & space \n \r \t 0xe2 (for U+2028, U+2029))
         template<int Dummy>
         const unsigned char lookup_tables<Dummy>::lookup_text_pure_with_ws[256] = 
         {
@@ -2540,7 +2570,7 @@ namespace rapidxml
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // B
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // C
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // D
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
+             1,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1   // F
         };
 

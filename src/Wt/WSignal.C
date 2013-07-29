@@ -85,7 +85,7 @@ void EventSignalBase::free(void *s)
 }
 
 EventSignalBase
-::StatelessConnection::StatelessConnection(const boost::signals::connection& c,
+::StatelessConnection::StatelessConnection(const Wt::Signals::connection& c,
                                            WObject *t,
                                            WStatelessSlot *s)
   : connection(c),
@@ -225,7 +225,7 @@ void EventSignalBase::setNotExposed()
   flags_.reset(BIT_SIGNAL_SERVER_ANYWAY);
 }
 
-void EventSignalBase::disconnect(boost::signals::connection& conn)
+void EventSignalBase::disconnect(Wt::Signals::connection& conn)
 {
   conn.disconnect();
 
@@ -299,12 +299,12 @@ EventSignalBase::~EventSignalBase()
 }
 
 #ifndef WT_CNOR
-boost::signals::connection
+Wt::Signals::connection
 EventSignalBase::connectStateless(WObject::Method method,
 				  WObject *target,
 				  WStatelessSlot *slot)
 {
-  boost::signals::connection c = dummy_.connect(boost::bind(method, target));
+  Wt::Signals::connection c = dummy_.connect(boost::bind(method, target));
   if (slot->addConnection(this))
     connections_.push_back(StatelessConnection(c, target, slot));
 
@@ -319,7 +319,7 @@ void EventSignalBase::connect(JSlot& slot)
   WStatelessSlot *s = slot.slotimp();
 
   if (s->addConnection(this)) {
-    boost::signals::connection c;
+    Wt::Signals::connection c;
     connections_.push_back(StatelessConnection(c, 0, s));
 
     senderRepaint();
@@ -328,7 +328,7 @@ void EventSignalBase::connect(JSlot& slot)
 
 void EventSignalBase::connect(const std::string& javaScript)
 {
-  boost::signals::connection c;
+  Wt::Signals::connection c;
   connections_.push_back
     (StatelessConnection(c, 0,
 			 new WStatelessSlot("(" + javaScript  + ")(o,e);")));

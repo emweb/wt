@@ -16,6 +16,10 @@
 #include <string>
 #include <boost/lexical_cast.hpp>
 
+#ifndef WT_TARGET_JAVA
+#include <boost/scoped_array.hpp>
+#endif // WT_TARGET_JAVA
+
 namespace {
   const double EPSILON = 1e-4;
   bool isEpsilonMore(double x, double limit) {

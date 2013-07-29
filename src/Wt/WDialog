@@ -365,8 +365,8 @@ private:
 
   bool initialized_;
 
-  boost::signals::connection escapeConnection1_;
-  boost::signals::connection escapeConnection2_;
+  Wt::Signals::connection escapeConnection1_;
+  Wt::Signals::connection escapeConnection2_;
 
   void create();
   void saveCoverState(WApplication *app, WContainerWidget *cover);

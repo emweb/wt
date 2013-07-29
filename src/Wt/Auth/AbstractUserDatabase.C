@@ -68,6 +68,14 @@ void AbstractUserDatabase::setPassword(const User& user,
   LOG_ERROR(Require("setPassword()", PASSWORDS).what());
 }
 
+void AbstractUserDatabase::setIdentity(const User& user,
+				       const std::string& provider,
+				       const WT_USTRING& id)
+{
+  removeIdentity(user, provider);
+  addIdentity(user, provider, id);
+}
+
 User AbstractUserDatabase::registerNew()
 {
   LOG_ERROR(Require("registerNew()", REGISTRATION).what());

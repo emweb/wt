@@ -119,9 +119,9 @@ void WWidget::renderOk()
   }
 }
 
-void WWidget::scheduleRender()
+void WWidget::scheduleRender(WFlags<RepaintFlag> flags)
 {
-  scheduleRerender(false, RepaintSizeAffected);
+  scheduleRerender(false, flags);
 }
 
 void WWidget::scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags)

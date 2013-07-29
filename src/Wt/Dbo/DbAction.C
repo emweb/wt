@@ -5,6 +5,7 @@
  */
 
 #include "Wt/Dbo/DbAction"
+#include "DbAction_impl.h"
 #include "Wt/Dbo/Session"
 #include "Wt/Dbo/SqlConnection"
 #include "Wt/Dbo/SqlStatement"

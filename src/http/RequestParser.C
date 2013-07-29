@@ -440,6 +440,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       remainder_ = *begin & 0x7F;
 
       if (remainder_ < 126) {
+	LOG_DEBUG("ws: new frame length " << remainder_);
 	wsMask_ = 0;
 	wsState_ = ws13_mask;
 	wsCount_ = 4;
@@ -462,6 +463,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       --wsCount_;
 
       if (wsCount_ == 0) {
+	LOG_DEBUG("ws: new frame length " << remainder_);
 	if (remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH) {
 	  LOG_ERROR("ws: oversized frame of length " << remainder_);
 	  return Request::Error;
@@ -480,6 +482,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       --wsCount_;
 
       if (wsCount_ == 0) {
+	LOG_DEBUG("ws: new frame read mask");
 	if (remainder_ != 0) {
 	  wsState_ = ws13_payload;
 	} else {
@@ -511,6 +514,8 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  wsCount_ = (wsCount_ + 1) % 4;
 	}
 
+	LOG_DEBUG("ws: reading payload, remains = " << remainder_);
+
 	if (remainder_ == 0) {
 	  if (wsFrameType_ & 0x80)
 	    state = Request::Complete;
@@ -524,6 +529,8 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       assert(false);
     }
   }
+
+  LOG_DEBUG("ws: " << (dataEnd - dataBegin) << "," << state);
 
   if (dataBegin < dataEnd || state == Request::Complete) {
     if (wsState_ < ws13_frame_start) {

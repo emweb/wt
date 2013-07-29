@@ -22,6 +22,7 @@ WComboBox::WComboBox(WContainerWidget *parent)
     model_(0),
     modelColumn_(0),
     currentIndex_(-1),
+    currentIndexRaw_(0),
     itemsChanged_(false),
     selectionChanged_(false),
     currentlyConnected_(false),
@@ -50,30 +51,23 @@ void WComboBox::setModel(WAbstractItemModel *model)
   modelConnections_.push_back
     (model_->columnsRemoved().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-     (model_->rowsAboutToBeInserted()
-      .connect(this, &WComboBox::rowsAboutToBeInserted));
+    (model_->rowsInserted().connect(this, &WComboBox::rowsInserted));
   modelConnections_.push_back
-     (model_->rowsInserted().connect(this, &WComboBox::rowsInserted));
+    (model_->rowsRemoved().connect(this, &WComboBox::rowsRemoved));
   modelConnections_.push_back
-    (model_->rowsAboutToBeRemoved()
-     .connect(this, &WComboBox::rowsAboutToBeRemoved));
+    (model_->dataChanged().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-     (model_->rowsRemoved().connect(this, &WComboBox::rowsRemoved));
+    (model_->modelReset().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-     (model_->dataChanged().connect(this, &WComboBox::itemsChanged));
+    (model_->layoutAboutToBeChanged().connect(this,
+					      &WComboBox::saveSelection));
   modelConnections_.push_back
-     (model_->modelReset().connect(this, &WComboBox::itemsChanged));
-  modelConnections_.push_back
-    (model_->layoutChanged().connect(this, &WComboBox::itemsChanged));
+    (model_->layoutChanged().connect(this, &WComboBox::layoutChanged));
 
   /* Redraw contents of the combo box to match the contents of the new model.
    */
   refresh();
 }
-
-void WComboBox::rowsAboutToBeRemoved(const WModelIndex &index, 
-				     int from, int to)
-{ }
 
 void WComboBox::rowsRemoved(const WModelIndex &index, int from, int to)
 {
@@ -87,13 +81,13 @@ void WComboBox::rowsRemoved(const WModelIndex &index, int from, int to)
   
   if (currentIndex_ > to) // shift up the selection by amount of removed rows
     currentIndex_ -= count; 
-  else if (currentIndex_ >= from)
-    currentIndex_ = model_->rowCount() > 0 ? 0 : -1;
+  else if (currentIndex_ >= from) {
+    if (supportsNoSelection())
+      currentIndex_ = -1;
+    else
+      currentIndex_ = model_->rowCount() > 0 ? 0 : -1;
+  }
 }
-
-void WComboBox::rowsAboutToBeInserted(const WModelIndex &index, 
-				      int from, int to)
-{ }
 
 void WComboBox::rowsInserted(const WModelIndex &index, int from, int to)
 {
@@ -168,8 +162,6 @@ void WComboBox::setCurrentIndex(int index)
 
     selectionChanged_ = true;
     repaint();
-
-    // changed().emit();
   }
 }
 
@@ -323,6 +315,37 @@ void WComboBox::itemsChanged()
 
   if (currentIndex_ > count() - 1)
     currentIndex_ = count() - 1;
+}
+
+void WComboBox::saveSelection()
+{
+  if (currentIndex_ >= 0)
+    currentIndexRaw_ = 
+      model_->toRawIndex(model_->index(currentIndex_, modelColumn_));
+  else
+    currentIndexRaw_ = 0;
+}
+
+void WComboBox::restoreSelection()
+{
+  if (currentIndexRaw_) {
+    WModelIndex m = model_->fromRawIndex(currentIndexRaw_);
+    if (m.isValid())
+      currentIndex_ = m.row();
+    else
+      currentIndex_ = -1;
+  } else
+    currentIndex_ = -1;
+
+  currentIndexRaw_ = 0;
+}
+
+void WComboBox::layoutChanged()
+{
+  itemsChanged_ = true;
+  repaint(RepaintSizeAffected);
+
+  restoreSelection();
 }
 
 int WComboBox::findText(const WString& text, WFlags<MatchFlag> flags)

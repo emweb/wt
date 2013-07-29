@@ -18,6 +18,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #ifdef WT_WITH_SSL
 #include <boost/asio/ssl.hpp>

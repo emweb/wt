@@ -346,7 +346,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bootJs.setVar("PATH_INFO", WWebWidget::jsStringLiteral
 		(session_.env().pathInfo_));
 
-  bootJs.setCondition("COOKIE_CHECKS", false && conf.cookieChecks());
+  bootJs.setCondition("COOKIE_CHECKS", conf.cookieChecks());
   bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
   bootJs.setCondition("HYBRID", hybrid);
   bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());

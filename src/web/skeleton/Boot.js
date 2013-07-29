@@ -279,12 +279,7 @@ _$_$endif_$_();
 }
     }
 
-_$_$if_DEFER_SCRIPT_$_();
- setTimeout(doLoad, 1);
-_$_$endif_$_();
-_$_$ifnot_DEFER_SCRIPT_$_();
- doLoad();
-_$_$endif_$_();
+ setTimeout(doLoad, 0);
 
 })();
 

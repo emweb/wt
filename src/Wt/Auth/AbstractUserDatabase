@@ -119,9 +119,9 @@ public:
   virtual User findWithIdentity(const std::string& provider,
 				const WT_USTRING& identity) const = 0;
 
-  /*! \brief Sets an identifier for the user.
+  /*! \brief Adds an identify for the user.
    *
-   * This associates an identifier with the user.
+   * This adds an identity to the user.
    *
    * You are free to support only one identity per user, e.g. if you
    * only use password-based authentication. But you may also want to
@@ -131,6 +131,13 @@ public:
    */
   virtual void addIdentity(const User& user, const std::string& provider,
 			   const WT_USTRING& id) = 0;
+
+  /*! \brief Changes an identity for a user.
+   *
+   * The base implementation calls removeIdentity() followed by addIdentity().
+   */
+  virtual void setIdentity(const User& user, const std::string& provider,
+			   const WT_USTRING& id);
 
   /*! \brief Returns a user identity.
    *
@@ -142,6 +149,12 @@ public:
   virtual WT_USTRING identity(const User& user, const std::string& provider)
     const = 0;
 
+  /*! \brief Removes a user identity.
+   *
+   * This removes all identities of a \p provider from the \p user.
+   *
+   * \sa addIdentity()
+   */
   virtual void removeIdentity(const User& user, const std::string& provider)
     = 0;
   //@}

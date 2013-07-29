@@ -106,13 +106,35 @@ public:
    */
   const std::string& id() const { return id_; }
 
-  /*! \brief Returns the user's identity.
+  /*! \brief Returns an identity.
    */
   WT_USTRING identity(const std::string& provider) const;
 
-  /*! \brief Adds (or modifies) a user's identity.
+  /*! \brief Adds an identity.
+   *
+   * Depending on whether the database supports multiple identities
+   * per provider, this may change (like setIdentity()), or add
+   * another identity to the user. For some identity providers (e.g. a
+   * 3rd party identity provider), it may be sensible to have more
+   * than one identity of the same provider for a single user
+   * (e.g. multiple email accounts managed by the same provider, that
+   * in fact identify the same user).
    */
   void addIdentity(const std::string& provider, const WT_USTRING& identity);
+
+  /*! \brief Sets an identity.
+   *
+   * Unlike addIdentity() this overrides any other identity of the
+   * given provider, in case the underlying database supports multiple
+   * identities per user.
+   */
+  void setIdentity(const std::string& provider, const WT_USTRING& identity);
+
+  /*! \brief Removes an identity.
+   *
+   * \sa addIdentity()
+   */
+  void removeIdentity(const std::string& provider);
 
   /*! \brief Sets a password.
    *

@@ -11,8 +11,37 @@
 #include <Wt/WGlobal>
 #include <Wt/Http/Request>
 
+#if defined(WT_USE_BOOST_SIGNALS)
+
 #include <boost/signals/trackable.hpp>
 #include <boost/signal.hpp>
+
+namespace Wt {
+  namespace Signals {
+    using boost::signal;
+    using boost::signal0;
+    using boost::signal1;
+    using boost::signal2;
+    using boost::signal3;
+    using boost::signal4;
+    using boost::signal5;
+    using boost::signal6;
+    using boost::signals::trackable;
+    using boost::signals::connection;
+    using boost::signals::at_front;
+  }
+}
+
+#elif defined(WT_USE_BOOST_SIGNALS2)
+
+#include <boost/signals2/trackable.hpp>
+#include <boost/signals2.hpp>
+namespace Wt {
+  namespace Signals = ::boost::signals2;
+}
+
+#endif
+
 #include <cassert>
 #include <vector>
 #include <map>
@@ -99,7 +128,7 @@ class WStatelessSlot;
  *
  * \ingroup signalslot
  */
-class WT_API WObject : public boost::signals::trackable
+class WT_API WObject : public Wt::Signals::trackable
 {
 public:
   /*! \brief Typedef for a %WObject method without arguments.
@@ -319,8 +348,8 @@ public:
     bool deleted() const;
   private:
 #ifndef WT_TARGET_JAVA
-    boost::signal<void()> signal_;
-    boost::signals::connection connection_;
+    Wt::Signals::signal<void()> signal_;
+    Wt::Signals::connection connection_;
 #endif
   };
 

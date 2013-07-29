@@ -75,6 +75,16 @@ public:
 
   ::int64_t maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
 
+  // ssl Password callback is not configurable from a file but we store it
+  // here because it's used in the Server constructor (inside start())
+  void setSslPasswordCallback(
+          boost::function<std::string (std::size_t max_length, int purpose)> cb)
+  { sslPasswordCallback_ = cb; }
+  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback()
+  { return sslPasswordCallback_; }
+  bool hasSslPasswordCallback()
+  { return sslPasswordCallback_; }
+
 private:
   Wt::WLogger& logger_;
   bool silent_;
@@ -109,6 +119,8 @@ private:
   std::string accessLog_;
 
   ::int64_t maxMemoryRequestSize_;
+
+  boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 
   void createOptions(po::options_description& options);
   void readOptions(const po::variables_map& vm);

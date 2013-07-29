@@ -190,7 +190,7 @@ private:
 
   Aggregate topLevel_;
 
-  std::vector<boost::signals::connection> modelConnections_;
+  std::vector<Wt::Signals::connection> modelConnections_;
 
   void expand(Aggregate& aggregate);
   void collapse(Aggregate& aggregate);

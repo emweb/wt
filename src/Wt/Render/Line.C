@@ -72,7 +72,7 @@ void Line::moveToNextPage(BlockList& floats, double minX, double maxX,
   x_ = minX;
   ++page_;
 
-  BlockList blocks = blocks_;
+  BlockList blocks = BlockList(blocks_);
   blocks_.clear();
 
   Range rangeX(x_, maxX);

@@ -227,10 +227,13 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     defaultHeaderVAlignment_(AlignMiddle),
     defaultHeaderWordWrap_(true),
     rowHeaderCount_(0),
+    sortEnabled_(true),
     columnWidthChanged_(impl_, "columnResized"),
     columnResized_(this),
     nextColumnId_(1),
     alternatingRowColors_(false),
+    headerDblClicked_(this),
+    headerClicked_(this),
     clicked_(this),
     doubleClicked_(this),
     mouseWentDown_(this),
@@ -255,8 +258,12 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
 
   typedef WAbstractItemView Self;
 
-  clickedForSortMapper_ = new WSignalMapper<int>(this);
-  clickedForSortMapper_->mapped().connect(this, &Self::toggleSortColumn);
+  headerClickedMapper_ = new WSignalMapper<int>(this);
+  headerClickedMapper_->mapped().connect(this, &Self::handleHeaderClicked);
+
+  headerDblClickedMapper_ = new WSignalMapper<int>(this);
+  headerDblClickedMapper_->mapped().connect(this,
+                                            &Self::handleHeaderDblClicked);
 
   clickedForCollapseMapper_ = new WSignalMapper<int>(this);
   clickedForCollapseMapper_->mapped().connect(this, &Self::collapseColumn);
@@ -363,6 +370,10 @@ void WAbstractItemView::updateColumnWidth(int columnId, int width)
   if (column >= 0) {
     columnInfo(column).width = width;
     columnResized_.emit(column, columnInfo(column).width);
+
+    WWidget *w = headerWidget(column, 0);
+    if (w)
+      w->scheduleRender(RepaintSizeAffected); // for layout
   }
 }
 
@@ -670,6 +681,22 @@ WWidget *WAbstractItemView::extraHeaderWidget(int column)
   return columnInfo(column).extraHeaderWidget;
 }
 
+void WAbstractItemView::handleHeaderClicked(int columnid)
+{
+  int column = columnById(columnid);
+  ColumnInfo& info = columnInfo(column);
+
+  if (sortEnabled_ && info.sorting)
+    toggleSortColumn(columnid);
+
+  headerClicked_.emit(column);
+}
+
+void WAbstractItemView::handleHeaderDblClicked(int columnid)
+{
+  headerDblClicked_.emit(columnById(columnid));
+}
+
 void WAbstractItemView::toggleSortColumn(int columnid)
 {
   int column = columnById(columnid);
@@ -930,6 +957,13 @@ void WAbstractItemView::modelHeaderDataChanged(Orientation orientation,
 	headerItemDelegate_->update(tw, headerModel_->index(0, i), 0);
 	tw->setInline(false);
 	tw->addStyleClass("Wt-label");
+
+        WWidget *h = headerWidget(i, false);
+        ColumnInfo& info = columnInfo(i);
+        h->setStyleClass(info.styleClass() + " Wt-tv-c headerrh");
+        WT_USTRING sc = asString(headerModel_->index(0, i).data(StyleClassRole));
+        if (!sc.empty())
+          h->addStyleClass(sc);
       }
     }
   }
@@ -976,12 +1010,14 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
   /* Contents */
 
   WContainerWidget *contents = new WContainerWidget();
+  contents->setObjectName("contents");
 
   if (info.sorting) {
     WText *sortIcon = new WText(contents);
+    sortIcon->setObjectName("sort");
     sortIcon->setInline(false);
     sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
-    clickedForSortMapper_->mapConnect(sortIcon->clicked(), info.id);
+    headerClickedMapper_->mapConnect(sortIcon->clicked(), info.id);
 
     if (currentSortColumn_ == column)
       sortIcon->setStyleClass(info.sortOrder == AscendingOrder
@@ -1011,10 +1047,10 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
   contents->addWidget(i);
 
   // FIXME: we probably want this as an API option ?
-  if (info.sorting) {
-    WInteractWidget *ww = dynamic_cast<WInteractWidget *>(i);
-    if (ww)
-      clickedForSortMapper_->mapConnect(ww->clicked(), info.id);
+  WInteractWidget *ww = dynamic_cast<WInteractWidget *>(i);
+  if (ww){
+    headerClickedMapper_->mapConnect(ww->clicked(), info.id);
+    headerDblClickedMapper_->mapConnect(ww->doubleClicked(), info.id);
   }
 
   int headerLevel = model_ ? this->headerLevel(column) : 0;
@@ -1133,9 +1169,9 @@ void WAbstractItemView::setHeaderHeight(const WLength& height)
   WLength headerHeight = headerLineHeight_ * lineCount;
 
   if (columns_.size() > 0) {
-    WWidget *w = headerWidget(0);
+    WWidget *w = headerWidget(0, false);
     if (w)
-      w->scheduleRender(); // for layout
+      w->scheduleRender(RepaintSizeAffected); // for layout
   }
 
   headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);

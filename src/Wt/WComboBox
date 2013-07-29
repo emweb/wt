@@ -206,22 +206,22 @@ private:
   WAbstractItemModel *model_;
   int modelColumn_;
   int currentIndex_;
+  void *currentIndexRaw_;
 
   bool itemsChanged_;
   bool selectionChanged_;
   bool currentlyConnected_;
 
-  std::vector<boost::signals::connection> modelConnections_;
+  std::vector<Wt::Signals::connection> modelConnections_;
 
   Signal<int>     activated_;
   Signal<WString> sactivated_;
 
+  void layoutChanged();
   void itemsChanged();
   void propagateChange();
 
-  void rowsAboutToBeInserted(const WModelIndex &index, int from, int to);
   void rowsInserted(const WModelIndex &index, int from, int to);
-  void rowsAboutToBeRemoved(const WModelIndex &index, int from, int to);
   void rowsRemoved(const WModelIndex &index, int from, int to);
 
   virtual bool supportsNoSelection() const;
@@ -235,6 +235,8 @@ protected:
 
   virtual bool isSelected(int index) const;
   virtual void dummy();
+  virtual void saveSelection();
+  virtual void restoreSelection();
 
   friend class WSelectionBox;
 };

@@ -39,7 +39,7 @@ std::string elementNames_[] =
 
     "audio", "video", "source",
 
-    "b", "strong", "em"
+    "b", "strong", "em", "i"
   };
 
 bool defaultInline_[] =
@@ -63,7 +63,7 @@ bool defaultInline_[] =
 
     false, false, false,
 
-    true, true, true
+    true, true, true, true
   };
 
 std::string cssNames_[] =
