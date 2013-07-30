@@ -108,6 +108,7 @@ void WContainerWidget::setLayout(WLayout *layout,
     flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
 
     if (layout) {
+      containsLayout();
       WWidget::setLayout(layout);
       layoutImpl()->setContainer(this);
     }

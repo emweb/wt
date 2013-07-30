@@ -96,9 +96,9 @@ WApplication::WApplication(const WEnvironment& env
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
 #endif // WT_CNOR
     javaScriptClass_("Wt"),
-    dialogCover_(0),
     quited_(false),
     internalPathsEnabled_(false),
+    exposedOnly_(0),
     loadingIndicator_(0),
     connected_(true),
     bodyHtmlClassChanged_(true),
@@ -370,7 +370,6 @@ std::string WApplication::onePixelGifUrl()
 WApplication::~WApplication()
 {
   timerRoot_ = 0; // marker for being deleted
-  dialogCover_ = 0;
 
   delete domRoot_;
   domRoot_ = 0;
@@ -471,32 +470,15 @@ void WApplication::bindWidget(WWidget *widget, const std::string& domId)
   domRoot2_->addWidget(widget);
 }
 
-WContainerWidget *WApplication::dialogCover(bool create)
-{
-  if (dialogCover_ == 0 && create && timerRoot_) {
-    dialogCover_ = new WContainerWidget(domRoot_);    
-    theme()->apply(domRoot_, dialogCover_, DialogCoverRole);
-    dialogCover_->hide();
-  }
-
-  return dialogCover_;
-}
-
 void WApplication::pushExposedConstraint(WWidget *w)
 {
-  exposedOnly_.push_back(w);
+  exposedOnly_ = w;
 }
 
 void WApplication::popExposedConstraint(WWidget *w)
 {
-  for (unsigned i = exposedOnly_.size(); i > 0; --i) {
-    unsigned j = i - 1;
-    if (exposedOnly_[j] == w) {
-      while (exposedOnly_.size() > j)
-	exposedOnly_.pop_back();
-      break;
-    }
-  }
+  assert (exposedOnly_ == w);
+  exposedOnly_ = 0;
 }
 
 void WApplication::addGlobalWidget(WWidget *w)
@@ -523,20 +505,9 @@ bool WApplication::isExposed(WWidget *w) const
   if (w->parent() == timerRoot_)
     return true;
 
-  if (!exposedOnly_.empty()) {
-    WWidget *top = exposedOnly_.back();
-
-    if (top->isExposed(w))
-      return true;
-
-    for (WWidget *p = w->parent(); p; p = p->parent()) {
-      if (p == domRoot_)
-	return w != root();
-      w = p;
-    }
-
-    return false;
-  } else {
+  if (exposedOnly_)
+    return exposedOnly_->isExposed(w);
+  else {
     WWidget *p = w->adam();
     return (p == domRoot_ || p == domRoot2_);
   }

@@ -120,7 +120,8 @@ public:
    */
   enum ContentType {
     XHTML1, //!< XHTML1.x
-    HTML4   //!< HTML4
+    HTML4,  //!< HTML4
+    HTML5   //!< HTML5
   }; 
 
   /*! \brief Cookie map.
@@ -471,14 +472,10 @@ public:
 
   /*! \brief The type of the content provided to the browser.
    *
-   * This is determined by listening to the capabilities of the browser.
-   * Xhtml1 is chosen only if the browser reports support for it, and it is
-   * allowed in the configuration file (wt_config.xml).
-   *
-   * Note that %Wt makes also use of common non-standard techniques implemented
-   * in every major browser.
+   * This is here for backwards compatibility, but the implementation now
+   * alwasy returns HTML5.
    */
-  ContentType contentType() const { return contentType_; }
+  ContentType contentType() const { return HTML5; }
 
   /*! \brief Returns the user agent type.
    *
@@ -639,7 +636,6 @@ protected:
   bool        hashInternalPaths_;
   UserAgent   agent_;
   double      dpiScale_;
-  ContentType contentType_;
   std::string queryString_;
 
   Http::ParameterMap parameters_;

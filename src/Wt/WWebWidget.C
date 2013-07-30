@@ -49,7 +49,7 @@ namespace {
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<26> WWebWidget::AllChangeFlags = std::bitset<26>()
+const std::bitset<27> WWebWidget::AllChangeFlags = std::bitset<27>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -625,6 +625,12 @@ void WWebWidget::gotParent()
 {
   if (isPopup())
     calcZIndex();
+
+  if (flags_.test(BIT_CONTAINS_LAYOUT)) {
+    WWebWidget *p = parentWebWidget();
+    if (p)
+      p->containsLayout();
+  }
 }
 
 WWebWidget *WWebWidget::parentWebWidget() const
@@ -1013,7 +1019,21 @@ void WWebWidget::setHidden(bool hidden, const WAnimation& animation)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, true);
 
+  if (!hidden && flags_.test(BIT_CONTAINS_LAYOUT)) {
+    WApplication::instance()->session()->renderer().updateLayout();    
+  }
+
   repaint(RepaintSizeAffected);
+}
+
+void WWebWidget::containsLayout()
+{
+  if (!flags_.test(BIT_CONTAINS_LAYOUT)) {
+    flags_.set(BIT_CONTAINS_LAYOUT);
+    WWebWidget *p = parentWebWidget();
+    if (p)
+      p->containsLayout();
+  }
 }
 
 bool WWebWidget::isHidden() const

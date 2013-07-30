@@ -13,9 +13,7 @@
 
 namespace Wt {
 
-class WTable;
-class WTemplate;
-class WText;
+class DialogCover;
 
 /*! \class WDialog Wt/WDialog Wt/WDialog
  *  \brief A %WDialog shows a dialog.
@@ -56,7 +54,6 @@ class WText;
  * concurrent users than the amount of threads in your threadpool (like on
  * some intranets or extranets).  \if java This functionality is only
  * available on Servlet 3.0 compatible servlet containers.  \endif
- *
  *
  * Use \link setModal() setModal(false)\endlink  to create a non-modal
  * dialog. A non-modal dialog does not block the underlying user interface:
@@ -354,9 +351,6 @@ private:
   mutable WContainerWidget *footer_;
   bool              modal_, resizable_;
 
-  int               coverPreviousZIndex_;
-  bool              coverWasHidden_;
-
   Signal<DialogCode> finished_;
 
   DialogCode result_;
@@ -369,8 +363,8 @@ private:
   Wt::Signals::connection escapeConnection2_;
 
   void create();
-  void saveCoverState(WApplication *app, WContainerWidget *cover);
-  void restoreCoverState(WApplication *app, WContainerWidget *cover);
+
+  DialogCover *cover();
 };
 
 }

@@ -146,7 +146,6 @@ public:
 #endif
 
   std::string appRoot() const;
-  bool sendXHTMLMimeType() const;
   bool behindReverseProxy() const;
   std::string redirectMessage() const;
   bool serializedEvents() const;

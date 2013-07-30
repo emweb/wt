@@ -55,18 +55,12 @@ namespace {
     eos << '"';
   }
 
-  void closeSpecial(Wt::WStringStream& s, bool xhtml) {
-    if (xhtml)
-      s << "/>\n";
-    else
-      s << ">\n";
+  void closeSpecial(Wt::WStringStream& s) {
+    s << ">\n";
   }
 
-  void closeSpecial(Wt::EscapeOStream& s, bool xhtml) {
-    if (xhtml)
-      s << "/>\n";
-    else
-      s << ">\n";
+  void closeSpecial(Wt::EscapeOStream& s) {
+    s << ">\n";
   }
 }
 
@@ -111,6 +105,8 @@ WebRenderer::WebRenderer(WebSession& session)
     pageId_(0),
     expectedAckId_(0),
     scriptId_(0),
+    formObjectsChanged_(true),
+    updateLayout_(false),
     learning_(false)
 { }
 
@@ -270,7 +266,6 @@ void WebRenderer::serveResponse(WebResponse& response)
 
 void WebRenderer::setPageVars(FileServe& page)
 {
-  bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
   WApplication *app = session_.app();
 
   page.setVar("DOCTYPE", session_.docType());
@@ -280,19 +275,13 @@ void WebRenderer::setPageVars(FileServe& page)
     htmlAttr = " class=\"" + app->htmlClass_ + "\"";
   }
 
-  if (xhtml) {
+  if (session_.env().agentIsIE())
     page.setVar("HTMLATTRIBUTES",
-		"xmlns=\"http://www.w3.org/1999/xhtml\"" + htmlAttr);
-    page.setVar("METACLOSE", "/>");
-  } else {
-    if (session_.env().agentIsIE())
-      page.setVar("HTMLATTRIBUTES",
-		  "xmlns:v=\"urn:schemas-microsoft-com:vml\""
-		  " lang=\"en\" dir=\"ltr\"" + htmlAttr);
-    else
-      page.setVar("HTMLATTRIBUTES", "lang=\"en\" dir=\"ltr\"" + htmlAttr);
-    page.setVar("METACLOSE", ">");
-  }
+		"xmlns:v=\"urn:schemas-microsoft-com:vml\""
+		" lang=\"en\" dir=\"ltr\"" + htmlAttr);
+  else
+    page.setVar("HTMLATTRIBUTES", "lang=\"en\" dir=\"ltr\"" + htmlAttr);
+  page.setVar("METACLOSE", ">");
 
   std::string attr = bodyClassRtl();
 
@@ -308,7 +297,7 @@ void WebRenderer::setPageVars(FileServe& page)
 
   page.setCondition("FORM", !session_.env().agentIsSpiderBot()
 		    && !session_.env().ajax());
-  page.setCondition("BOOT_STYLE", !xhtml);
+  page.setCondition("BOOT_STYLE", true);
 }
 
 void WebRenderer::streamBootContent(WebResponse& response, 
@@ -350,13 +339,6 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
   bootJs.setCondition("HYBRID", hybrid);
   bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());
-
-  /*
-   * When server XHTML content, we cannot defer the script request after
-   * the style request, because the <noscript />style request is loaded
-   * anyway, even if scripting is present. But then we cannot access the
-   * document body, which we really need...
-   */
   bootJs.setCondition("DEFER_SCRIPT", true);
 
   std::string internalPath
@@ -394,7 +376,6 @@ void WebRenderer::serveLinkedCss(WebResponse& response)
 
 void WebRenderer::serveBootstrap(WebResponse& response)
 {
-  bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
   Configuration& conf = session_.controller()->configuration();
 
   FileServe boot(skeletons::Boot_html1);
@@ -406,16 +387,10 @@ void WebRenderer::serveBootstrap(WebResponse& response)
      session_.bootstrapUrl(response, WebSession::KeepInternalPath) + "&js=no");
 
   boot.setVar("REDIRECT_URL", noJsRedirectUrl.str());
-
-  if (xhtml) {
-    boot.setVar("AUTO_REDIRECT", "");
-    boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
-  } else {
-    boot.setVar("AUTO_REDIRECT",
-		"<noscript><meta http-equiv=\"refresh\" content=\"0; url="
-		+ noJsRedirectUrl.str() + "\"></noscript>");
-    boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
-  }
+  boot.setVar("AUTO_REDIRECT",
+	      "<noscript><meta http-equiv=\"refresh\" content=\"0; url="
+	      + noJsRedirectUrl.str() + "\"></noscript>");
+  boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
 
   WStringStream bootStyleUrl;
   DomElement::htmlAttributeValue
@@ -427,8 +402,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   setCaching(response, false);
 
-  std::string contentType = xhtml ? "application/xhtml+xml" : "text/html";
-  contentType += "; charset=UTF-8";
+  std::string contentType = "text/html; charset=UTF-8";
 
   setHeaders(response, contentType);
 
@@ -857,11 +831,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   WApplication *app = session_.app();
 
-  /*
-   * Opera and Safari cannot use innerHTML in XHTML documents.
-   */
-  const bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
-  const bool innerHtml = !xhtml || session_.env().agentIsGecko();
+  const bool innerHtml = true;
 
   if (serveSkeletons) {
     bool haveJQuery = app->customJQuery();
@@ -1227,7 +1197,7 @@ void WebRenderer::updateLoadIndicator(WStringStream& out, WApplication *app,
 
 void WebRenderer::renderStyleSheet(WStringStream& out,
 				   const WCssStyleSheet& sheet,
-				   WApplication *app, bool xhtml)
+				   WApplication *app)
 {
   out << "<link href=\"";
   DomElement::htmlAttributeValue(out, sheet.link().resolveUrl(app));
@@ -1236,7 +1206,7 @@ void WebRenderer::renderStyleSheet(WStringStream& out,
   if (!sheet.media().empty() && sheet.media() != "all")
     out << " media=\"" << sheet.media() << '"';
   
-  closeSpecial(out, xhtml);
+  closeSpecial(out);
 }
 
 /*
@@ -1299,19 +1269,17 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   setJSSynced(true);
 
-  const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
-
   WStringStream styleSheets;
 
   if (app->theme()) {
     std::vector<WCssStyleSheet> sheets = app->theme()->styleSheets();
 
     for (unsigned i = 0; i < sheets.size(); ++i)
-      renderStyleSheet(styleSheets, sheets[i], app, xhtml);
+      renderStyleSheet(styleSheets, sheets[i], app);
   }
 
   for (unsigned i = 0; i < app->styleSheets_.size(); ++i)
-    renderStyleSheet(styleSheets, app->styleSheets_[i], app, xhtml);
+    renderStyleSheet(styleSheets, app->styleSheets_[i], app);
 
   app->styleSheetsAdded_ = 0;
   initialStyleRendered_ = true;
@@ -1358,8 +1326,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   app->titleChanged_ = false;
 
-  std::string contentType = xhtml ? "application/xhtml+xml" : "text/html";
-  contentType += "; charset=UTF-8";
+  std::string contentType = "text/html; charset=UTF-8";
 
   setCaching(response, false);
   response.addHeader("X-Frame-Options", "SAMEORIGIN");
@@ -1565,6 +1532,11 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
   if (app->isQuited())
     out << app->javaScriptClass() << "._p_.quit();";
 
+  if (updateLayout_) {
+    out << "window.onresize();";
+    updateLayout_ = false;
+  }
+
   updateLoadIndicator(out, app, false);
 
   out << '}';
@@ -1753,8 +1725,6 @@ void WebRenderer::learningIncomplete()
 
 std::string WebRenderer::headDeclarations() const
 {
-  const bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
-
   EscapeOStream result;
 
   if (session_.app()) {
@@ -1779,7 +1749,7 @@ std::string WebRenderer::headDeclarations() const
 
       appendAttribute(result, "content", m.content.toUTF8());
 
-      closeSpecial(result, xhtml);
+      closeSpecial(result);
     }
     
     for (unsigned i = 0; i < session_.app()->metaLinks_.size(); ++i) {
@@ -1800,7 +1770,7 @@ std::string WebRenderer::headDeclarations() const
       if (ml.disabled)
 	appendAttribute(result, "disabled", "");
 
-      closeSpecial(result, xhtml);
+      closeSpecial(result);
     }
   } else
     if (session_.env().agentIsIE()) {
@@ -1811,18 +1781,18 @@ std::string WebRenderer::headDeclarations() const
 
 	if (selectIE7) {
 	  result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7\"";
-	  closeSpecial(result, xhtml);
+	  closeSpecial(result);
 	}
       } else {
 	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\"";
-	closeSpecial(result, xhtml);
+	closeSpecial(result);
       }
     }
 
   if (!session_.favicon().empty()) {
     result <<
       "<link rel=\"shortcut icon\" href=\"" << session_.favicon() << '"';
-    closeSpecial(result, xhtml);
+    closeSpecial(result);
   }
 
   std::string baseUrl;
@@ -1830,7 +1800,7 @@ std::string WebRenderer::headDeclarations() const
 
   if (!baseUrl.empty()) {
     result << "<base href=\"" << baseUrl << '"';
-    closeSpecial(result, xhtml);
+    closeSpecial(result);
   }
 
   return result.str();

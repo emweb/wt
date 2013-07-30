@@ -28,8 +28,7 @@ WEnvironment::WEnvironment()
     doesAjax_(false),
     doesCookies_(false),
     hashInternalPaths_(false),
-    dpiScale_(1),
-    contentType_(HTML4)
+    dpiScale_(1)
 #ifndef WT_TARGET_JAVA
     , sslInfo_(0)
 #endif
@@ -40,8 +39,7 @@ WEnvironment::WEnvironment(WebSession *session)
     doesAjax_(false),
     doesCookies_(false),
     hashInternalPaths_(false),
-    dpiScale_(1),
-    contentType_(HTML4)
+    dpiScale_(1)
 #ifndef WT_TARGET_JAVA
     , sslInfo_(0)
 #endif
@@ -133,14 +131,6 @@ void WEnvironment::init(const WebRequest& request)
     parseCookies(cookie, cookies_);
 
   locale_ = request.parseLocale();
-
-  /*
-   * checked=\"checked\" seems not to work with IE9 XHTML mode
-   */
-  if (conf.sendXHTMLMimeType()
-      && (accept_.find("application/xhtml+xml") != std::string::npos)
-      && !agentIsIE())
-    contentType_ = XHTML1;
 }
 
 std::string WEnvironment::getClientAddress(const WebRequest& request,

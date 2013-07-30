@@ -351,12 +351,6 @@ std::string Configuration::sessionIdPrefix() const
   return connectorSessionIdPrefix_;
 }
 
-bool Configuration::sendXHTMLMimeType() const
-{
-  READ_LOCK;
-  return xhtmlMimeType_;
-}
-
 bool Configuration::behindReverseProxy() const
 {
   READ_LOCK;
@@ -673,6 +667,8 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 			      connectorSessionIdPrefix_);
 
   setBoolean(app, "send-xhtml-mime-type", xhtmlMimeType_);
+  if (xhtmlMimeType_)
+    LOG_WARN("ignoring send-xhtml-mime-type setting: HTML5 is now always used");
   redirectMsg_ = singleChildElementValue(app, "redirect-message", redirectMsg_);
 
   setBoolean(app, "behind-reverse-proxy", behindReverseProxy_);

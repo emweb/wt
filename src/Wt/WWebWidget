@@ -149,6 +149,7 @@ public:
   virtual bool loaded() const;
   virtual void setTabIndex(int index);
   virtual int tabIndex() const;
+  virtual int zIndex() const;
 
   virtual void setId(const std::string& id);
   virtual WWidget *find(const std::string& name);
@@ -252,7 +253,6 @@ public:
 
   void setFormObject(bool how);
   static bool canOptimizeUpdates();
-  int zIndex() const;
   void setZIndex(int zIndex);
 
   bool isRendered() const;
@@ -316,17 +316,18 @@ private:
   static const int BIT_HEIGHT_CHANGED = 23;
   static const int BIT_DISABLED = 24;
   static const int BIT_DISABLED_CHANGED = 25;
+  static const int BIT_CONTAINS_LAYOUT = 26;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<26> AllChangeFlags;
+  static const std::bitset<27> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<26> flags_;
-  WLength	 *width_;
-  WLength	 *height_;
+  std::bitset<27> flags_;
+  WLength *width_;
+  WLength *height_;
 
   /*
    * Data only stored transiently, during event handling.
@@ -475,6 +476,8 @@ protected:
 
   void updateSignalConnection(DomElement& element, EventSignalBase& signal,
 			      const char *name, bool all);
+
+  void containsLayout();
 
   /*
    * WWebWidget ended up with more friends than me...

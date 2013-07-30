@@ -129,6 +129,7 @@ public:
   virtual bool loaded() const;
   virtual void setTabIndex(int index);
   virtual int tabIndex() const;
+  virtual int zIndex() const;
   virtual void setId(const std::string& id);
   virtual WWidget *find(const std::string& name);
   virtual WWidget *findById(const std::string& name);

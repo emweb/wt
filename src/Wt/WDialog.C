@@ -23,6 +23,112 @@
 
 namespace Wt {
 
+class DialogCover : public WContainerWidget
+{
+public:
+  DialogCover()
+    : WContainerWidget()
+  {
+    setObjectName("dialog-cover");
+    WApplication *app = WApplication::instance();
+    app->domRoot()->addWidget(this);
+
+    app->theme()->apply(app->domRoot(), this, DialogCoverRole);
+
+    hide();
+  }
+
+  void pushDialog(WDialog *dialog, const WAnimation& animation) {
+    dialogs_.push_back(dialog);
+
+    if (dialog->isModal())
+      coverFor(dialog, animation);
+  }
+
+  void popDialog(WDialog *dialog, const WAnimation& animation) {
+    Utils::erase(dialogs_, dialog);
+
+    WDialog *topModal = 0;
+
+    for (unsigned i = dialogs_.size(); i > 0; --i) {
+      unsigned j = i - 1;
+      if (dialogs_[j]->isModal()) {
+	topModal = dialogs_[j];
+	break;
+      }
+    }
+
+    coverFor(topModal, animation);
+
+    if (dialogs_.empty())
+      delete this;
+  }
+
+  virtual bool isExposed(WWidget *w) {
+    for (unsigned i = dialogs_.size(); i > 0; --i) {
+      unsigned j = i - 1;
+
+      if (dialogs_[j]->isExposed(w))
+	return true;
+
+      if (dialogs_[j]->isModal())
+	return isInOtherPopup(w);
+    }
+
+    return false;
+  }
+
+private:
+  std::vector<WDialog *> dialogs_;
+
+  void coverFor(WDialog *dialog, const WAnimation& animation) {
+    if (dialog) {
+      if (isHidden()) {
+	if (!animation.empty())
+	  animateShow(WAnimation(WAnimation::Fade, WAnimation::Linear,
+				 animation.duration() * 4));
+	else
+	  show();
+
+	WApplication::instance()->pushExposedConstraint(this);
+      }
+
+      setZIndex(dialog->zIndex() - 1);
+    } else {
+      if (!isHidden()) {
+	if (!animation.empty())
+	  animateHide(WAnimation(WAnimation::Fade, WAnimation::Linear,
+				 animation.duration() * 4));
+	else
+	  hide();
+
+	WApplication::instance()->popExposedConstraint(this);
+      }
+    }
+  }
+
+
+  bool isInOtherPopup(WWidget *w) {
+    WApplication *app = WApplication::instance();
+
+    /*
+     * Not sure if the following is entirely correct for popup widgets
+     * and popup menus?
+     */
+    for (WWidget *p = w; p; p = p->parent()) {
+      if (dynamic_cast<WDialog *>(p))
+	return false;
+
+      if (p == app->domRoot())
+	return w != app->root();
+
+      w = p;
+    }
+
+    return false;
+  }
+};
+
 WDialog::WDialog(WObject *parent)
   : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
     finished_(this)
@@ -114,8 +220,6 @@ void WDialog::create()
 
   layout->addWidget(titleBar_);
   layout->addWidget(contents_, 1);
-
-  saveCoverState(app, app->dialogCover());
 
   /*
    * Cannot be done using the CSS stylesheet in case there are
@@ -365,58 +469,27 @@ void WDialog::setModal(bool modal)
   modal_ = modal;
 }
 
-void WDialog::saveCoverState(WApplication *app, WContainerWidget *cover)
-{
-  coverWasHidden_ = cover->isHidden();
-  coverPreviousZIndex_ = cover->zIndex();
-}
-
-void WDialog::restoreCoverState(WApplication *app, WContainerWidget *cover)
-{
-  cover->setHidden(coverWasHidden_);
-  cover->setZIndex(coverPreviousZIndex_);
-  app->popExposedConstraint(this);
-}
-
 void WDialog::setHidden(bool hidden, const WAnimation& animation)
 {
   if (isHidden() != hidden) {
-    if (modal_) {
-      WApplication *app = WApplication::instance();
-      WContainerWidget *cover = app->dialogCover();
-
-      if (!cover)
-	return; // when application is being destroyed
-
-      if (!hidden) {
-	saveCoverState(app, cover);
-
-	if (cover->isHidden()) {
-	  if (!animation.empty()) {
-	    cover->animateShow(WAnimation(WAnimation::Fade, WAnimation::Linear,
-					  animation.duration() * 4));
-	  } else
-	    cover->show();
-	}
-
-	cover->setZIndex(impl_->zIndex() - 1);
-	app->pushExposedConstraint(this);
-
-	// FIXME: this should only blur if the active element is outside
-	// of the dialog
+    if (!hidden) {
+      cover()->pushDialog(this, animation);
+    
+      if (modal_) {
 	doJavaScript
 	  ("try {"
-           """var ae=document.activeElement;"
-           // On IE when a dialog is shown on startup, activeElement is the
-           // body. Bluring the body sends the window to the background if
-           // it is the only tab.
-           // http://redmine.emweb.be/boards/2/topics/6415
+	   """var ae=document.activeElement;"
+	   // On IE when a dialog is shown on startup, activeElement is the
+	   // body. Bluring the body sends the window to the background if
+	   // it is the only tab.
+	   // http://redmine.emweb.be/boards/2/topics/6415
 	   """if (ae && ae.blur && ae.nodeName != 'BODY') {"
 	   ""  "document.activeElement.blur();"
-           "}"
+	   "}"
 	   "} catch (e) { }");
-      } else
-	restoreCoverState(app, cover);
+      }
+    } else {
+      cover()->popDialog(this, animation);
     }
   }
 
@@ -428,6 +501,16 @@ void WDialog::positionAt(const WWidget *widget, Orientation orientation)
   setPositionScheme(Absolute);
   setOffsets(0, Left | Top);
   WPopupWidget::positionAt(widget, orientation);
+}
+
+DialogCover *WDialog::cover() 
+{
+  WWidget *w = WApplication::instance()->findWidget("dialog-cover");
+
+  if (w)
+    return dynamic_cast<DialogCover *>(w);
+  else
+    return new DialogCover();
 }
 
 }

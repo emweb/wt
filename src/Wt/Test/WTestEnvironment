@@ -239,11 +239,9 @@ public:
    */
   void setInternalPath(const std::string& internalPath);
 
-  /*! \brief Sets the content type.
+  /*! \brief Sets the content type (<b>deprecated</b>.
    *
-   * The default value is XHTML1.
-   *
-   * \sa contentType()
+   * Since contentType is now always HTML5, this setting is ignored.
    */
   void setContentType(ContentType contentType);
 

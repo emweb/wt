@@ -73,6 +73,8 @@ public:
   bool preLearning() const { return learning_; }
   void learningIncomplete();
 
+  void updateLayout() { updateLayout_ = true; }
+
   bool ackUpdate(int updateId);
 
   void streamRedirectJS(WStringStream& out, const std::string& redirect);
@@ -101,8 +103,9 @@ private:
   std::map<std::string, CookieValue> cookiesToSet_;
 
   FormObjectsMap currentFormObjects_;
-  std::string	 currentFormObjectsList_;
-  bool           formObjectsChanged_;
+  std::string currentFormObjectsList_;
+  bool formObjectsChanged_;
+  bool updateLayout_;
 
   void setHeaders(WebResponse& request, const std::string mimeType);
   void setCaching(WebResponse& response, bool allowCache);
@@ -127,7 +130,7 @@ private:
   void renderSetServerPush(WStringStream& out);
   void setJSSynced(bool invisibleToo);
   void renderStyleSheet(WStringStream& out, const WCssStyleSheet& sheet,
-			WApplication *app, bool xhtml);
+			WApplication *app);
 
   std::string createFormObjectsList(WApplication *app);
 

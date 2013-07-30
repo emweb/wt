@@ -1490,8 +1490,13 @@ void WebSession::handleRequest(Handler& handler)
 		       !controller_->limitPlainHtmlSessions())
 	      setLoaded();	    
           }
-        } else
+        } else {
+#ifndef WT_TARGET_JAVA
           doNotify = !app_->initialized_;
+#else
+	  doNotify = false;
+#endif
+	}
 
         if (doNotify) {
 	  app_->notify(WEvent(WEvent::Impl(&handler)));

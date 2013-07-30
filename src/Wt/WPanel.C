@@ -47,6 +47,10 @@ WPanel::WPanel(WContainerWidget *parent)
     (WT_RESIZE_JS,
      "function(self, w, h, l) {"
      """var defined = h >= 0;"
+     """if (defined) {"
+     ""  "var mh = " WT_CLASS ".px(self, 'maxHeight');"
+     ""  "if (mh > 0) h = Math.min(h, mh);"
+     """}"
      """if (" WT_CLASS ".boxSizing(self)) {"
      ""  "h -= " WT_CLASS ".px(self, 'borderTopWidth') + "
      ""       WT_CLASS ".px(self, 'borderBottomWidth');"

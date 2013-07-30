@@ -436,6 +436,11 @@ int WCompositeWidget::tabIndex() const
   return impl_->tabIndex();
 }
 
+int WCompositeWidget::zIndex() const
+{
+  return impl_->zIndex();
+}
+
 void WCompositeWidget::setImplementation(WWidget *widget)
 {
   if (widget->parent())

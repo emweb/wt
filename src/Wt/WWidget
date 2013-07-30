@@ -812,6 +812,8 @@ public:
    */
   virtual int tabIndex() const = 0;
 
+  virtual int zIndex() const = 0;
+
   /*! \brief Sets a mime type to be accepted for dropping.
    *
    * You may specify a style class that is applied to the widget when the
@@ -951,6 +953,8 @@ public:
 
   static void setTabOrder(WWidget *first, WWidget *second);
 
+  virtual bool isExposed(WWidget *widget);
+
 protected:
   static const char *WT_RESIZE_JS;
   static const char *WT_GETPS_JS;
@@ -1082,8 +1086,6 @@ protected:
    * propagate the signal to all children.
    */
   virtual void propagateSetEnabled(bool enabled) = 0;
-
-  virtual bool isExposed(WWidget *widget);
 
   void getDrop(const std::string sourceId, const std::string mimeType,
 	       WMouseEvent event);

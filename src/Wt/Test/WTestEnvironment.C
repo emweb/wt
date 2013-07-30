@@ -100,7 +100,6 @@ void WTestEnvironment::init(EntryPointType type)
   doesAjax_ = true;
   doesCookies_ = true;
   dpiScale_ = 1;
-  contentType_ = XHTML1;
 
   urlScheme_ = "http";
   referer_ = "";
@@ -224,9 +223,7 @@ void WTestEnvironment::setInternalPath(const std::string& internalPath)
 }
 
 void WTestEnvironment::setContentType(ContentType contentType)
-{
-  contentType_ = contentType;
-}
+{ }
 
 void WTestEnvironment::setUserAgent(const std::string& userAgent)
 {

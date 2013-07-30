@@ -2152,11 +2152,10 @@ private:
 #endif // WT_TARGET_JAVA
   std::string            javaScriptClass_;
   AjaxMethod             ajaxMethod_;
-  WContainerWidget      *dialogCover_;
   bool                   quited_;
   std::string            onePixelGifUrl_;
   bool                   internalPathsEnabled_;
-  std::vector<WWidget *> exposedOnly_;
+  WWidget               *exposedOnly_;
   WLoadingIndicator     *loadingIndicator_;
   WWidget               *loadingIndicatorWidget_;
   bool                   connected_;
@@ -2208,9 +2207,7 @@ private:
   std::map<const char *, boost::any> objectStore_;
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
-  WContainerWidget *dialogCover(bool create = true);
-
-  WEnvironment&     env();       // short-hand for session_->env()
+  WEnvironment& env(); // short-hand for session_->env()
 
   /*
    * Functions for exposed signals, resources, and objects
