@@ -188,6 +188,7 @@ public:
 
     bool haveLock() const;
 
+    void flushResponse();
     WebResponse *response() { return response_; }
     WebRequest *request() { return request_; }
     WebSession *session() const { return session_; }

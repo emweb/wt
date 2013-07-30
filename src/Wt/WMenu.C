@@ -311,7 +311,6 @@ void WMenu::setCurrent(int index)
 
 void WMenu::select(int index, bool changePath)
 {
-
   int last = current_;
   setCurrent(index);
 

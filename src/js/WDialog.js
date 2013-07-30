@@ -100,6 +100,9 @@ WT_DECLARE_WT_MEMBER
        layoutContainer.style.height = h + 'px';
 
      self.centerDialog();
+
+     if (el.wtResize)
+       el.wtResize(el, w, h);
    };
 
    function wtPosition() {

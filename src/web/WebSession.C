@@ -898,9 +898,12 @@ void WebSession::Handler::release()
 WebSession::Handler::~Handler()
 {
 #ifndef WT_TARGET_JAVA
-  if (haveLock())
+  if (haveLock()) {
     if (session_->triggerUpdate_)
       session_->pushUpdates();
+    else if (response_)
+      session()->render(*this);
+  }
 
   Utils::erase(session_->handlers_, this);
 
@@ -916,6 +919,14 @@ void WebSession::Handler::setRequest(WebRequest *request,
 {
   request_ = request;
   response_ = response;
+}
+
+void WebSession::Handler::flushResponse()
+{
+  if (response_) {
+    response_->flush();
+    setRequest(0, 0);
+  }
 }
 
 void WebSession::hibernate()
@@ -1151,7 +1162,7 @@ void WebSession::handleRequest(Handler& handler)
 	 *
 	 * But we close the socket nevertheless.
 	 */
-	handler.response()->flush();
+	handler.flushResponse();
 	return;
       }
   }
@@ -1166,7 +1177,7 @@ void WebSession::handleRequest(Handler& handler)
     LOG_INFO("Sec-WebSocket-Version: "
 	     << request.headerValue("Sec-WebSocket-Version"));
 
-    handler.response()->flush();
+    handler.flushResponse();
     return;
   }
 
@@ -1175,7 +1186,7 @@ void WebSession::handleRequest(Handler& handler)
       handleWebSocketRequest(handler);
       return;
     } else {
-      handler.response()->flush();
+      handler.flushResponse();
       kill();
       return;
     }
@@ -1193,7 +1204,7 @@ void WebSession::handleRequest(Handler& handler)
 	|| request.requestMethod() == "POST"
 	|| request.requestMethod() == "GET")) {
     handler.response()->setStatus(400); // Bad Request
-    handler.response()->flush();
+    handler.flushResponse();
     return;
   }
 
@@ -1367,8 +1378,7 @@ void WebSession::handleRequest(Handler& handler)
 
 	    if (noBootStyleResponse) {
 	      handler.response()->setContentType("text/css");
-	      handler.response()->flush();
-	      handler.setRequest(0, 0);
+	      handler.flushResponse();
 	    } else {
 #ifndef WT_TARGET_JAVA
 	      if (!app_) {
@@ -1381,8 +1391,7 @@ void WebSession::handleRequest(Handler& handler)
 					 this));
 	      } else {
 		renderer_.serveLinkedCss(*handler.response());
-		handler.response()->flush();
-		handler.setRequest(0, 0);
+		handler.flushResponse();
 	      }
 #else
 	      /*
@@ -1406,8 +1415,7 @@ void WebSession::handleRequest(Handler& handler)
 	      if (i < MAX_TRIES)
 		renderer_.serveLinkedCss(*handler.response());
 
-	      handler.response()->flush();
-	      handler.setRequest(0, 0);
+	      handler.flushResponse();
 #endif // WT_TARGET_JAVA
 	    }
 
@@ -1465,21 +1473,27 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	}
 
-	if (!handler.request())
-	  break;
+        bool doNotify = false;
 
-	const std::string *signalE = handler.request()->getParameter("signal");
-	bool isPoll = signalE && *signalE == "poll";
+	if (handler.request()) {
+	  const std::string *signalE = handler.request()->getParameter("signal");
+	  bool isPoll = signalE && *signalE == "poll";
 
-	if (requestForResource || isPoll || !unlockRecursiveEventLoop()) {
-	  if (env_->ajax()) {
-	    if (state_ != ExpectLoad
-		&& handler.response()->responseType() == WebResponse::Update)
-	      setLoaded();
-	  } else if (state_ != ExpectLoad
-		     && !controller_->limitPlainHtmlSessions())
-	    setLoaded();	    
+	  if (requestForResource || isPoll || !unlockRecursiveEventLoop()) {
+            doNotify = true;
 
+	    if (env_->ajax()) {
+	      if (state_ != ExpectLoad &&
+		  handler.response()->responseType() == WebResponse::Update)
+	        setLoaded();
+	    } else if (state_ != ExpectLoad &&
+		       !controller_->limitPlainHtmlSessions())
+	      setLoaded();	    
+          }
+        } else
+          doNotify = !app_->initialized_;
+
+        if (doNotify) {
 	  app_->notify(WEvent(WEvent::Impl(&handler)));
 	  if (handler.response() && !requestForResource) {
 	    /*
@@ -1529,7 +1543,7 @@ void WebSession::handleRequest(Handler& handler)
     }
 
   if (handler.response())
-    handler.response()->flush();
+    handler.flushResponse();
 }
 
 void WebSession::flushBootStyleResponse()
@@ -1544,7 +1558,7 @@ void WebSession::handleWebSocketRequest(Handler& handler)
 {
 #ifndef WT_TARGET_JAVA
   if (state_ != Loaded && state_ != ExpectLoad) {
-    handler.response()->flush(WebRequest::ResponseDone);
+    handler.flushResponse();
     return;
   }
 
@@ -1830,6 +1844,14 @@ void WebSession::notify(const WEvent& event)
 
     return;
   }
+
+  if (!app_->initialized_) {
+    app_->initialize();
+    app_->initialized_ = true;
+  }
+
+  if (!handler.response())
+    return;
 #endif // WT_TARGET_JAVA
 
   WebRequest& request = *handler.request();
@@ -1851,17 +1873,9 @@ void WebSession::notify(const WEvent& event)
       *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
     handler.response()->setContentType("text/javascript; charset=UTF-8");
     handler.response()->out() << "{}";
-    handler.response()->flush();
-    handler.setRequest(0, 0);
+    handler.flushResponse();
     return;
   }
-
-#ifndef WT_TARGET_JAVA
-  if (!app_->initialized_) {
-    app_->initialize();
-    app_->initialized_ = true;
-  }
-#endif // WT_TARGET_JAVA
 
   switch (state_) {
   case WebSession::JustCreated:
@@ -1990,8 +2004,7 @@ void WebSession::notify(const WEvent& event)
 	  handler.response()->out() <<
 	    "<html><head><title>bhm</title></head>"
 	    "<body> </body></html>";
-	  handler.response()->flush();
-	  handler.setRequest(0, 0);
+	  handler.flushResponse();
 	} else {
 	  if (!resource)
 	    resource = app_->decodeExposedResource(*resourceE);
@@ -2013,8 +2026,7 @@ void WebSession::notify(const WEvent& event)
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() <<
 	      "<html><body><h1>Nothing to say about that.</h1></body></html>";
-	    handler.response()->flush();
-	    handler.setRequest(0, 0);
+	    handler.flushResponse();
 	  }
 	}
       } else {
@@ -2144,24 +2156,25 @@ void WebSession::notify(const WEvent& event)
 
 	if (handler.response()
 	    && handler.response()->responseType() == WebResponse::Page
-	    && !env_->ajax()) {
+	    && (!env_->ajax() ||
+		!controller_->configuration().reloadIsNewSession())) {
+	  app_->domRoot()->setRendered(false);
 
 	  env_->parameters_ = handler.request()->getParameterMap();
 
 	  if (hashE)
 	    changeInternalPath(*hashE, handler.response());
-	  else if (!handler.request()->pathInfo().empty())
+	  else if (!handler.request()->pathInfo().empty()) {
 	    changeInternalPath(handler.request()->pathInfo(),
 			       handler.response());
-	  else
+	  } else
 	    changeInternalPath("", handler.response());
 	}
 
 	if (!signalE) {
 	  if (type() == WidgetSet) {
 	    LOG_ERROR("bogus request: missing signal, discarding");
-	    handler.response()->flush();
-	    handler.setRequest(0, 0);
+	    handler.flushResponse();
 	    return;
 	  }
 
@@ -2191,8 +2204,7 @@ void WebSession::notify(const WEvent& event)
 	      handler.response()->out() <<
 		"<html><body><h1>Are you trying some shenanigans?"
 		"</h1></body></html>";
-	      handler.response()->flush();
-	      handler.setRequest(0, 0);    
+	      handler.flushResponse();
 	    }
 	  } else {
 #endif // WT_TARGET_JAVA
@@ -2332,13 +2344,11 @@ void WebSession::render(Handler& handler)
     if (handler.response()) // a recursive eventloop may remove it in kill()
       serveResponse(handler);
   } catch (std::exception& e) {
-    handler.response()->flush();
-    handler.setRequest(0, 0);
+    handler.flushResponse();
 
     RETHROW(e);
   } catch (...) {
-    handler.response()->flush();
-    handler.setRequest(0, 0);
+    handler.flushResponse();
 
     throw;
   }
@@ -2349,8 +2359,7 @@ void WebSession::render(Handler& handler)
 void WebSession::serveError(int status, Handler& handler, const std::string& e)
 {
   renderer_.serveError(status, *handler.response(), e);
-  handler.response()->flush();
-  handler.setRequest(0, 0);
+  handler.flushResponse();
 }
 
 void WebSession::serveResponse(Handler& handler)
@@ -2398,8 +2407,7 @@ void WebSession::serveResponse(Handler& handler)
     renderer_.serveResponse(*handler.response());
   }
 
-  handler.response()->flush();
-  handler.setRequest(0, 0);
+  handler.flushResponse();
 }
 
 void WebSession::propagateFormValues(const WEvent& e, const std::string& se)

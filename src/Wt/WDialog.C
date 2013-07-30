@@ -337,6 +337,9 @@ WDialog::DialogCode WDialog::exec(const WAnimation& animation)
 
 void WDialog::done(DialogCode result)
 {
+  if (isHidden())
+    return;
+
   result_ = result;
 
   if (recursiveEventLoop_) {

@@ -430,13 +430,15 @@ int WWidget::boxBorder(Orientation orientation) const
 
 void WWidget::positionAt(const WWidget *widget, Orientation orientation)
 {
+  if (isHidden())
+    show();
+
   std::string side = (orientation == Horizontal ? ".Horizontal" : ".Vertical");
 
-  WApplication::instance()->doJavaScript
-    (WT_CLASS ".positionAtWidget('"
-     + id() + "','"
-     + widget->id() + "',"
-     WT_CLASS + side + ");");
+  doJavaScript(WT_CLASS ".positionAtWidget('"
+	       + id() + "','"
+	       + widget->id() + "',"
+	       WT_CLASS + side + ");");
 }
 
 void WWidget::setLayoutSizeAware(bool aware)

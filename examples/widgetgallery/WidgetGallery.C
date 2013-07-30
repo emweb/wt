@@ -28,6 +28,7 @@ WidgetGallery::WidgetGallery()
   navigation_->setResponsive(true);
 
   contentsStack_ = new Wt::WStackedWidget();
+
   Wt::WAnimation animation(Wt::WAnimation::Fade,
 			   Wt::WAnimation::Linear,
 			   200);

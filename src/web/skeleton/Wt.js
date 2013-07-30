@@ -1422,6 +1422,8 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
     x, y, rightx, bottomy;
 
   w.style.position = 'absolute';
+  if (WT.css(w, 'display') == 'none')
+    w.style.display = 'block';
 
   if (orientation === WT.Horizontal) {
     x = xy.x + atw.offsetWidth;

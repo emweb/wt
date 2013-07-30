@@ -333,7 +333,8 @@ public:
   /*! \brief Positions a widget next to another widget.
    *
    * Positions this absolutely positioned widget next to another \p
-   * widget. Both widgets must be visible.
+   * widget. Both widgets must be visible (including all their
+   * ancestors). The current widget is shown automatically if needed.
    *
    * When \p orientation = Wt::Vertical, the widget is displayed below the
    * other widget (or above in case there is not enough room

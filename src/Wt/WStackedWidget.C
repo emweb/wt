@@ -163,15 +163,15 @@ void WStackedWidget::defineJavaScript()
 
 void WStackedWidget::render(WFlags<RenderFlag> flags)
 {
- if (widgetsAdded_) {
-   for (int i = 0; i < count(); ++i)
-     if (widget(i)->isHidden() != (currentIndex_ != i))
-       widget(i)->setHidden(currentIndex_ != i);
-   widgetsAdded_ = false;
- }
+  if (widgetsAdded_ || (flags & RenderFull)) {
+    for (int i = 0; i < count(); ++i)
+      if (widget(i)->isHidden() != (currentIndex_ != i))
+	widget(i)->setHidden(currentIndex_ != i);
+    widgetsAdded_ = false;
+  }
 
- if (flags & RenderFull)
-   defineJavaScript();
+  if (flags & RenderFull)
+    defineJavaScript();
 
   WContainerWidget::render(flags);
 }
