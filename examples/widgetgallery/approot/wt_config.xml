@@ -18,7 +18,7 @@
             <user-agent>.*AhrefsBot.*</user-agent>
         </user-agents>
 
-        <web-sockets>false</web-sockets>
+        <web-sockets>true</web-sockets>
 	<progressive-bootstrap>false</progressive-bootstrap>
 	<log-config>* -debug -info:WebRequest</log-config>
 	<UA-Compatible>IE8=IE7</UA-Compatible>

@@ -31,35 +31,9 @@ public:
 class Term
 {
 public:
-  enum Type {
-    Font, Length, Angle, Time, Frequency, OtherNumber,
-    QuotedString, Identifier, Hash, Uri, Invalid };
-  enum Unit {
-    Em, Ex,                  // Font
-    Px, Cm, Mm, In, Pt, Pc,  // Length
-    Deg, Rad, Grad,          // Angle
-    Ms, Seconds,             // Time
-    Hz, Khz,                 // Frequency
-    Percentage,              // OtherNumber
-    InvalidUnit
-  };
-
-  Term() : unit_(InvalidUnit){}
-  void setUnit        (Unit u);
-  void setQuotedString(const std::string& s);
-  void setIdentifier  (const std::string& id);
-  void setHash        (const std::string& hash);
-  void setUri         (const std::string& uri);
-
-  Type type() const;
-
-  double value_;
-  std::string quotedString_;
-  std::string identifier_;
-  std::string hash_;
-  std::string uri_;
-  Unit unit_;
-  Type type_;
+  Term() { }
+  void setValue(const std::string& s);
+  std::string value_;
 };
 
 class DeclarationBlock

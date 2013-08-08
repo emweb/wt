@@ -13,7 +13,7 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var CLASS_ACTIVE = 'active';
    /** @const */ var CLASS_UNSELECTABLE = 'unselectable';
 
-   jQuery.data(edit, 'obj', this);
+   jQuery.data(edit, 'dobj', this);
 
    var self = this, WT = APP.WT, $edit = $(edit);
 

@@ -191,6 +191,23 @@ bool AuthModel::login(Login& login)
   return false;
 }
 
+void AuthModel::logout(Login& login)
+{
+  if (login.loggedIn()) {
+    if (baseAuth()->authTokensEnabled()) {
+      WApplication *app = WApplication::instance();
+      app->removeCookie(baseAuth()->authTokenCookieName());
+
+      /*
+       * FIXME: it would be nice if we also delete the relevant token
+       * from the database!
+       */
+    }
+
+    login.logout();
+  }
+}
+
 EmailTokenResult AuthModel::processEmailToken(const std::string& token)
 {
   return baseAuth()->processEmailToken(token, users());
@@ -210,8 +227,11 @@ User AuthModel::processAuthToken()
 
       switch(result.result()) {
       case AuthTokenResult::Valid:
+	/*
+	 * Only extend the validity from what we had currently.
+	 */
 	app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
-		       baseAuth()->authTokenValidity() * 60);
+		       result.newTokenValidity());
 
 	return result.user();
       case AuthTokenResult::Invalid:

@@ -143,6 +143,14 @@ void User::removeAuthToken(const std::string& token) const
   db_->removeAuthToken(*this, token);
 }
 
+int User::updateAuthToken(const std::string& hash,
+			  const std::string& newHash) const
+{
+  checkValid();
+
+  return db_->updateAuthToken(*this, hash, newHash);
+}
+
 int User::failedLoginAttempts() const
 {
   return db_->failedLoginAttempts(*this);

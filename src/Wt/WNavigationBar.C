@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WLineEdit"
 #include "Wt/WMenu"
 #include "Wt/WNavigationBar"
@@ -13,6 +15,29 @@ namespace Wt {
 
 LOGGER("WNavigationBar");
 
+class NavContainer : public WContainerWidget
+{
+public:
+  NavContainer(WContainerWidget *parent = 0)
+    : WContainerWidget(parent) 
+  { }
+
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation())
+  {
+    if (animation.empty()) {
+      /* Comply with bootstrap responsive CSS assumptions */
+      /* When animations are used, this is actually done in wtAnimatedHidden */
+      if (hidden)
+	setHeight(0);
+      else
+	setHeight(WLength::Auto);
+    }
+
+    WContainerWidget::setHidden(hidden, animation);
+  }
+};
+
 WNavigationBar::WNavigationBar(WContainerWidget *parent)
   : WTemplate(tr("Wt.WNavigationBar.template"), parent)
 {
@@ -21,7 +46,7 @@ WNavigationBar::WNavigationBar(WContainerWidget *parent)
   bindEmpty("collapse-button");
   bindEmpty("expand-button");
   bindEmpty("title-link");
-  bindWidget("contents", new WContainerWidget());
+  bindWidget("contents", new NavContainer());
 
   implementStateless(&WNavigationBar::collapseContents,
 		     &WNavigationBar::undoExpandContents);
@@ -66,6 +91,7 @@ void WNavigationBar::setResponsive(bool responsive)
     }
 
     contents->addStyleClass("nav-collapse");
+    contents->hide();
 
     /* Comply with bootstrap responsive CSS assumptions */
     contents->setJavaScriptMember
@@ -144,11 +170,15 @@ void WNavigationBar::collapseContents()
   collapseButton->hide();
   expandButton->show();
 
-  if (canOptimizeUpdates())
-    contents->show(); /* We are collapsed only in appearance */
-  else
-    contents->animateHide(WAnimation(WAnimation::SlideInFromTop,
-				     WAnimation::Ease));
+  if (!animatedResponsive())
+    contents->hide();
+  else {
+    if (canOptimizeUpdates())
+      contents->show(); /* We are collapsed only in appearance */
+    else
+      contents->animateHide(WAnimation(WAnimation::SlideInFromTop,
+				       WAnimation::Ease));
+  }
 }
 
 void WNavigationBar::expandContents()
@@ -162,11 +192,15 @@ void WNavigationBar::expandContents()
   collapseButton->show();
   expandButton->hide();
 
-  if (canOptimizeUpdates())
+  if (!animatedResponsive())
     contents->show();
-  else
-    contents->animateShow(WAnimation(WAnimation::SlideInFromTop,
-				     WAnimation::Ease));
+  else {
+    if (canOptimizeUpdates())
+      contents->show();
+    else
+      contents->animateShow(WAnimation(WAnimation::SlideInFromTop,
+				       WAnimation::Ease));
+  }
 }
 
 void WNavigationBar::undoExpandContents()
@@ -180,7 +214,10 @@ void WNavigationBar::undoExpandContents()
   collapseButton->hide();
   expandButton->show();
 
-  contents->show();  /* We are collapsed only in appearance */
+  if (!animatedResponsive())
+    contents->hide();
+  else
+    contents->show();  /* We are collapsed only in appearance */
 }
 
 WInteractWidget *WNavigationBar::createExpandButton()
@@ -194,6 +231,12 @@ WInteractWidget *WNavigationBar::createExpandButton()
 WInteractWidget *WNavigationBar::createCollapseButton()
 {
   return createExpandButton();
+}
+
+bool WNavigationBar::animatedResponsive() const
+{
+  return WApplication::instance()->environment().supportsCss3Animations() &&
+    WApplication::instance()->environment().ajax();
 }
 
 }

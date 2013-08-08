@@ -11,6 +11,8 @@
 #include <Wt/WString>
 #include <exception>
 
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+
 namespace Wt {
 
 /*! \class InvalidTimeException Wt/WTime Wt/WTime
@@ -195,6 +197,8 @@ public:
           <td>PM</td></tr>
    *  <tr><td>ap or a</td><td>use am/pm display: affects h or hh display and is replaced itself by am/pm</td>
           <td>pm</td></tr>
+   *  <tr><td>Z</td><td>the timezone in RFC 822 format (e.g. -0800)</td>
+          <td>+0000</td></tr>
    * </table>
    *
    * Any other text is kept literally. String content between single
@@ -260,6 +264,8 @@ public:
 
   static RegExpInfo formatToRegExp(const WT_USTRING& format);
 
+  boost::posix_time::time_duration toTimeDuration() const;
+
 private:
   bool valid_;
   long time_;
@@ -282,7 +288,7 @@ private:
 					    const WString& format);
 
   bool writeSpecial(const std::string& f, unsigned& i, std::stringstream& result,
-		    bool useAMPM) const;
+		    bool useAMPM, int zoneOffset) const;
 
   int pmhour() const;
 

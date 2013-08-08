@@ -70,12 +70,18 @@ bool WAbstractSpinBox::nativeControl() const
 
 void WAbstractSpinBox::setPrefix(const WString& prefix)
 {
-  prefix_ = prefix;
+  if (prefix_ != prefix) {
+    prefix_ = prefix;
+    setText(textFromValue());
+  }
 }
 
 void WAbstractSpinBox::setSuffix(const WString& suffix)
 {
-  suffix_ = suffix;
+  if (suffix_ != suffix) {
+    suffix_ = suffix;
+    setText(textFromValue());
+  }
 }
 
 void WAbstractSpinBox::render(WFlags<RenderFlag> flags)

@@ -503,12 +503,12 @@ private:
 
   std::string utf8_;
 
-  void resolveKey(const std::string& key, std::string& result) const;
+  std::string resolveKey() const;
 
   void makeLiteral();
 
   struct Impl {
-    std::string                key_;
+    std::string key_;
     std::vector<WString> arguments_;
     ::int64_t n_;
 

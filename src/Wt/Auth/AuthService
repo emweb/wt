@@ -171,7 +171,8 @@ public:
    * Creates an authentication token result.
    */
   AuthTokenResult(Result result, const User& user = User(),
-		  const std::string& newToken = std::string());
+		  const std::string& newToken = std::string(),
+		  int newTokenValidity = -1);
 
   /*! \brief Returns the result.
    */
@@ -192,10 +193,19 @@ public:
    */
   std::string newToken() const;
 
+  /*! \brief Returns the validity of the new token.
+   *
+   * This returns the token validity in seconds.
+   *
+   * \sa newToken()
+   */
+  int newTokenValidity() const;
+
 private:
   Result result_;
   User user_;
   std::string newToken_;
+  int newTokenValidity_;
 };
 
 /*! \class AuthService Wt/Auth/AuthService Wt/Auth/AuthService

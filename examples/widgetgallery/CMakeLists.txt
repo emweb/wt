@@ -39,10 +39,6 @@ IF (HAVE_HARU)
   INCLUDE_DIRECTORIES(${HARU_INCLUDE_DIRS})
 ENDIF(HAVE_HARU)
 
-IF(CMAKE_COMPILER_IS_GNUCXX)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-
 #
 # If you have Wt installed somehwere, you should use the
 # installed Wt header files for your own Wt projects.

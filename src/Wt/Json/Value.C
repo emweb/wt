@@ -122,17 +122,35 @@ Value& Value::operator= (const Value& other)
   return *this;
 }
 
-/*
 bool Value::operator== (const Value& other) const
 {
-  return v_ == other.v_;
+  if (typeid(v_) != typeid(other.v_))
+    return false;
+  else if (v_.empty() == other.v_.empty())
+    return true;
+  else if (typeid(v_) == typeid(Json::Object))
+    return boost::any_cast<Json::Object>(v_) ==
+      boost::any_cast<Json::Object>(other.v_);
+  else if (typeid(v_) == typeid(Json::Array))
+    return boost::any_cast<Json::Array>(v_) ==
+      boost::any_cast<Json::Array>(other.v_);
+  else if (typeid(v_) == typeid(bool))
+    return boost::any_cast<bool>(v_) == boost::any_cast<bool>(other.v_);
+  else if (typeid(v_) == typeid(int))
+    return boost::any_cast<int>(v_) == boost::any_cast<int>(other.v_);
+  else if (typeid(v_) == typeid(long long))
+    return boost::any_cast<long long>(v_) ==
+      boost::any_cast<long long>(other.v_);
+  else if (typeid(v_) == typeid(double))
+    return boost::any_cast<double>(v_) == boost::any_cast<double>(other.v_);
+  else
+    throw WException("Value::operator== : unknown value type\n");
 }
 
 bool Value::operator!= (const Value& other) const
 {
-  return v_ != other.v_;
+  return !(*this == other);
 }
-*/
 
 Type Value::type() const
 {

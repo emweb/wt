@@ -10,6 +10,7 @@
 #include <boost/algorithm/string/trim.hpp>
 
 #include "Wt/WApplication"
+#include "Wt/WServer"
 #include "Wt/WString"
 #include "Wt/WStringUtil"
 #include "Wt/WWebWidget"
@@ -219,21 +220,32 @@ void WString::checkUTF8Encoding(std::string& value)
   }
 }
 
-void WString::resolveKey(const std::string& key, std::string& result) const
+std::string WString::resolveKey() const
 {
-  bool resolved = false;
+  std::string result;
+  WLocalizedStrings *ls = 0;
 
   WApplication *app = WApplication::instance();
-  if (app) {
-    if (impl_->n_ == -1)
-      resolved = app->localizedStrings_->resolveKey(impl_->key_, result);
-    else
-      resolved = app->localizedStrings_->resolvePluralKey(impl_->key_, result,
-							  impl_->n_);
+  if (app)
+    ls = app->localizedStrings_;
+
+  if (!ls) {
+    WServer *server = WServer::instance();
+    if (server)
+      ls = server->localizedStrings();
   }
 
-  if (!resolved)
-    result = "??" + key + "??";
+  if (ls) {
+    if (impl_->n_ == -1) {
+      if (ls->resolveKey(impl_->key_, result))
+	return result;
+    } else {
+      if (ls->resolvePluralKey(impl_->key_, result, impl_->n_))
+	return result;
+    }
+  }
+
+  return "??" + impl_->key_ + "??";
 }
 
 std::string WString::toUTF8() const
@@ -242,7 +254,7 @@ std::string WString::toUTF8() const
     std::string result = utf8_;
 
     if (!impl_->key_.empty())
-      resolveKey(impl_->key_, result);
+      result = resolveKey();
 
     for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
       std::string key = '{' + boost::lexical_cast<std::string>(i+1) + '}';
@@ -533,7 +545,7 @@ bool operator!= (const wchar_t *lhs, const WString& rhs)
 void WString::makeLiteral()
 {
   if (!literal()) {
-    resolveKey(impl_->key_, utf8_);
+    utf8_ = resolveKey();
     impl_->key_ = std::string();
   }
 }

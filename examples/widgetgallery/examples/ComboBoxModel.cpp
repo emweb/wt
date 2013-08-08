@@ -1,5 +1,6 @@
 #include <Wt/WComboBox>
 #include <Wt/WContainerWidget>
+#include <Wt/WStringListModel>
 #include <Wt/WText>
 
 SAMPLE_BEGIN(ComboBoxModel)
@@ -8,17 +9,19 @@ Wt::WContainerWidget *container = new Wt::WContainerWidget();
 Wt::WComboBox *cb = new Wt::WComboBox(container);
 cb->setMargin(10, Wt::Right);
 
-Wt::WAbstractItemModel *model = cb->model();
+Wt::WStringListModel *model = new Wt::WStringListModel(cb);
 
-model->insertRows(0, 4);
-model->setData(0, 0, std::string("Belgium"), Wt::DisplayRole);
+model->addString("Belgium");
 model->setData(0, 0, std::string("BE"), Wt::UserRole);
-model->setData(1, 0, std::string("Netherlands"), Wt::DisplayRole);
+model->addString("Netherlands");
 model->setData(1, 0, std::string("NL"), Wt::UserRole);
-model->setData(2, 0, std::string("United Kingdom"), Wt::DisplayRole);
+model->addString("United Kingdom");
 model->setData(2, 0, std::string("UK"), Wt::UserRole);
-model->setData(3, 0, std::string("United States"), Wt::DisplayRole);
+model->addString("United States");
 model->setData(3, 0, std::string("US"), Wt::UserRole);
+model->setFlags(3, 0);
+
+cb->setModel(model);
 
 Wt::WText *out = new Wt::WText(container);
 

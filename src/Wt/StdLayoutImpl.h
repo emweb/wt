@@ -26,9 +26,10 @@ public:
 
   // Returns whether updateDom() is needed
   virtual bool itemResized(WLayoutItem *item) = 0;
+  virtual bool parentResized() = 0;
 
   virtual WContainerWidget *container() const;
-  virtual WLayoutItem      *layoutItem() const;
+  virtual WLayoutItem *layoutItem() const;
 
 protected:
   virtual void containerAddWidgets(WContainerWidget *container);

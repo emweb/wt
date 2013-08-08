@@ -115,7 +115,8 @@ void TcpConnection::startAsyncWriteResponse
 		    strand_.wrap
 		    (boost::bind(&Connection::handleWriteResponse,
 				 sft,
-				 asio::placeholders::error)));
+				 asio::placeholders::error,
+				 asio::placeholders::bytes_transferred)));
 }
 
 } // namespace server

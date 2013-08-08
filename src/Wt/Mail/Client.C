@@ -78,13 +78,15 @@ public:
 
   ~Impl()
   {
-    try {
-      send("QUIT\r\n");
-      failIfReplyCodeNot(Bye);
-    } catch (std::exception& e) {
-      socket_.close();
-      LOG_ERROR(e.what());
-      return;
+    if (good()) {
+      try {
+	send("QUIT\r\n");
+	failIfReplyCodeNot(Bye);
+      } catch (std::exception& e) {
+	socket_.close();
+	LOG_ERROR(e.what());
+	return;
+      }
     }
   }
 

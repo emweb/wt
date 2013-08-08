@@ -18,7 +18,8 @@ WDoubleSpinBox::WDoubleSpinBox(WContainerWidget *parent)
     min_(0.0),
     max_(99.99),
     step_(1.0),
-    precision_(2)
+    precision_(2),
+    valueChanged_(this)
 { 
   setValidator(createValidator());
   setValue(0.0);

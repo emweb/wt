@@ -28,7 +28,8 @@ WEnvironment::WEnvironment()
     doesAjax_(false),
     doesCookies_(false),
     hashInternalPaths_(false),
-    dpiScale_(1)
+    dpiScale_(1),
+    timeZoneOffset_(0)
 #ifndef WT_TARGET_JAVA
     , sslInfo_(0)
 #endif
@@ -39,7 +40,8 @@ WEnvironment::WEnvironment(WebSession *session)
     doesAjax_(false),
     doesCookies_(false),
     hashInternalPaths_(false),
-    dpiScale_(1)
+    dpiScale_(1),
+    timeZoneOffset_(0)
 #ifndef WT_TARGET_JAVA
     , sslInfo_(0)
 #endif
@@ -194,6 +196,13 @@ void WEnvironment::enableAjax(const WebRequest& request)
     dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
   } catch (boost::bad_lexical_cast &e) {
     dpiScale_ = 1;
+  }
+
+  const std::string *tzE = request.getParameter("tz");
+
+  try {
+    timeZoneOffset_ = tzE ? boost::lexical_cast<int>(*tzE) : 0;
+  } catch (boost::bad_lexical_cast &e) {
   }
 
   const std::string *hashE = request.getParameter("_");

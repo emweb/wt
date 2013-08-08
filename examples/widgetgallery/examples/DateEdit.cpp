@@ -20,6 +20,7 @@ Wt::WLabel *de2Label = new Wt::WLabel("To (format \"dd MM yyyy\")", container);
 Wt::WDateEdit *de2 = new Wt::WDateEdit(container);
 de2->setFormat("dd MM yyyy"); // Apply a different date format.
 de2->calendar()->setHorizontalHeaderFormat(Wt::WCalendar::SingleLetterDayNames);
+de2->setBottom(de1->date());
 de2Label->setBuddy(de2);
 
 new Wt::WText("<p></p>", container);
@@ -29,13 +30,17 @@ Wt::WText *out = new Wt::WText(container);
 out->setMargin(10, Wt::Left);
 
 de1->changed().connect(std::bind([=] () {
-    de2->setBottom(de1->date());
-    out->setText("<p>Date picker 1 is changed.</p>");
+    if (de1->validate() == Wt::WValidator::Valid) {
+        de2->setBottom(de1->date());
+	out->setText("<p>Date picker 1 is changed.</p>");
+    }
 }));
 
 de2->changed().connect(std::bind([=] () {
-    de1->setTop(de2->date());
-    out->setText("<p>Date picker 2 is changed.</p>");
+    if (de1->validate() == Wt::WValidator::Valid) {
+        de1->setTop(de2->date());
+	out->setText("<p>Date picker 2 is changed.</p>");
+    }
 }));
 
 button->clicked().connect(std::bind([=] () {

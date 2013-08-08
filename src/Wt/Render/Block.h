@@ -70,6 +70,15 @@ public:
   AlignmentFlag verticalAlignment() const;
   Side floatSide() const { return float_; }
 
+  bool isTableCell() const
+    { return type_ == DomElement_TD || type_ == DomElement_TH; }
+
+  bool isTable() const
+    { return type_ == DomElement_TABLE; }
+
+  Block *table() const;
+  bool tableCollapseBorders() const;
+
   double layoutBlock(PageState &ps,
 		     bool canIncreaseWidth,
 		     const WTextRenderer& renderer,
@@ -123,6 +132,23 @@ private:
     Specificity s_;
   };
 
+  enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
+
+  enum WidthType {
+    AsSetWidth,
+    MinimumWidth,
+    MaximumWidth
+  };
+
+  struct BorderElement {
+    const Block *block;
+    Side side;
+
+    BorderElement() : block(0), side(Left) { }
+    BorderElement(const Block *aBlock, Side aSide)
+      : block(aBlock), side(aSide) { }
+  };
+
   rapidxml::xml_node<> *node_;
   Block *parent_;
   BlockList offsetChildren_;
@@ -136,6 +162,12 @@ private:
   double contentsHeight_;
   mutable std::map<std::string, PropertyValue> css_;
   StyleSheet* styleSheet_;
+
+  /* For table */
+  int tableRowCount_, tableColCount_;
+
+  /* For table cell */
+  int cellRow_, cellCol_;
 
   int attributeValue(const char *attribute, int defaultValue) const;
 
@@ -152,8 +184,16 @@ private:
   CssLength cssLength(Property top, Side side, double fontScale) const;
   double cssMargin(Side side, double fontScale) const;
   double cssPadding(Side side, double fontScale) const;
+  double cssBorderSpacing(double fontScale) const;
+
   double cssBorderWidth(Side side, double fontScale) const;
+  double collapsedBorderWidth(Side side, double fontScale) const;
+  double rawCssBorderWidth(Side side, double fontScale,
+			   bool indicateHidden = false) const;
   WColor cssBorderColor(Side side) const;
+  WColor collapsedBorderColor(Side side) const;
+  WColor rawCssBorderColor(Side side) const;
+
   WColor cssColor() const;
   AlignmentFlag cssTextAlign() const;
   double cssBoxMargin(Side side, double fontScale) const;
@@ -194,20 +234,27 @@ private:
 		     const WTextRenderer& renderer);
   void layoutAbsolute(const WTextRenderer& renderer);
 
-  void tableDoLayout(double x, PageState &ps, int cellSpacing,
+  void tableDoLayout(double x, PageState &ps, double cellSpacing,
 		     const std::vector<double>& widths,
 		     bool protectRows, Block *repeatHead,
 		     const WTextRenderer& renderer);
   void tableRowDoLayout(double x, PageState &ps,
-			int cellSpacing,
+			double cellSpacing,
 			const std::vector<double>& widths,
 			const WTextRenderer& renderer,
 			double rowHeight);
   void tableComputeColumnWidths(std::vector<double>& minima,
 				std::vector<double>& maxima,
+				std::vector<double>& asSet,
 				const WTextRenderer& renderer,
 				Block *table);
-  int cellComputeColumnWidths(int col, bool maximum,
+
+  BorderElement collapseCellBorders(Side side) const;
+  int numberTableCells(int row, std::vector<int>& rowSpan);
+  Block *findTableCell(int row, int col) const;
+  Block *siblingTableCell(Side side) const;
+
+  int cellComputeColumnWidths(int col, WidthType type,
 			      std::vector<double>& values,
 			      const WTextRenderer& renderer,
 			      Block *table);
@@ -255,8 +302,11 @@ private:
 
   static bool isAggregate(const std::string& cssProperty);
 
-  bool isTableCell() const
-    { return type_ == DomElement_TD || type_ == DomElement_TH; }
+  static double maxBorderWidth(Block *b1, Side s1,
+			       Block *b2, Side s2,
+			       Block *b3, Side s3,
+			       Block *b4, Side s4,
+			       double fontScale);
 
   friend class Line;
 };

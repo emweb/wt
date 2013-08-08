@@ -225,6 +225,10 @@ void WComboBox::updateDom(DomElement& element, bool all)
       item->setProperty(PropertyInnerHTML,
 			escapeText(asString(model_->data(i, modelColumn_)))
 			.toUTF8());
+
+      if (!(model_->flags(model_->index(i, modelColumn_)) & ItemIsSelectable))
+	item->setProperty(PropertyDisabled, "true");
+
       if (isSelected(i))
 	item->setProperty(PropertySelected, "true");
 

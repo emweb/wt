@@ -23,6 +23,15 @@ IF(CONNECTOR_HTTP)
 
  OPTION(HTTP_WITH_ZLIB "Support for zlib (http compression)" ${ZLIB_FOUND})
 
+ IF(WIN32)
+# boost asio has a serious bug causing subtle data corruption
+# https://svn.boost.org/trac/boost/ticket/8935
+# https://svn.boost.org/trac/boost/ticket/8933
+  IF (Boost_VERSION EQUAL 105400)
+    MESSAGE(FATAL_ERROR "** boost 1.54 is blacklisted for httpd on Windows (boost ticket #8935)")
+  ENDIF (Boost_VERSION EQUAL 105400)
+ ENDIF(WIN32)
+
  IF (HAVE_SSL)
     SET(MY_SSL_LIBS ${SSL_LIBRARIES})
     ADD_DEFINITIONS(-DHTTP_WITH_SSL)

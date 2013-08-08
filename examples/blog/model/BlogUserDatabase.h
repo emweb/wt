@@ -51,6 +51,9 @@ public:
 
   virtual void addAuthToken(const Wt::Auth::User& user,
 			    const Wt::Auth::Token& token);
+  virtual int updateAuthToken(const Wt::Auth::User& user,
+			      const std::string& hash,
+			      const std::string& newHash);
   virtual void removeAuthToken(const Wt::Auth::User& user,
 			       const std::string& hash);
   virtual Wt::Auth::User findWithAuthToken(const std::string& hash) const;

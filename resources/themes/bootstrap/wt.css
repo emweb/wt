@@ -83,6 +83,11 @@
 .navbar .nav-collapse {
   display: block !important;
 }
+@media (max-width: 979px) {
+  .nav-collapse .dropdown-menu {
+    display: block !important;
+  }
+}
 .navbar .navbar-inner .container {
   margin-left: 0px;
   margin-right: 0px;
@@ -168,6 +173,9 @@
 .Wt-cal table.dlong {
   width: 560px;
 }
+.Wt-cal .Wt-cal-navbutton {
+  display: block;
+}
 .Wt-cal .days.d1 td {
   width: 20px;
 }
@@ -217,6 +225,7 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));

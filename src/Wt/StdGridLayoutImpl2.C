@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#ifndef OLD_LAYOUT
-
 #include <boost/lexical_cast.hpp>
 #include <sstream>
 
@@ -37,6 +35,7 @@ StdGridLayoutImpl2::StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
     grid_(grid),
     needAdjust_(false),
+    needRemeasure_(false),
     needConfigUpdate_(false)
 {
   const char *THIS_JS = "js/StdGridLayoutImpl2.js";
@@ -75,6 +74,15 @@ bool StdGridLayoutImpl2::itemResized(WLayoutItem *item)
       }
 
   return false;
+}
+
+bool StdGridLayoutImpl2::parentResized()
+{
+  if (!needRemeasure_) {
+    needRemeasure_ = true;
+    return true;
+  } else
+    return false;
 }
 
 int StdGridLayoutImpl2::nextRowWithItem(int row, int c) const
@@ -157,6 +165,13 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
     streamConfig(js, app);
     js << ");";
 
+    app->doJavaScript(js.str());
+  }
+
+  if (needRemeasure_) {
+    needRemeasure_ = false;
+    WStringStream js;
+    js << app->javaScriptClass() << ".layouts2.setDirty('" << id() << "');";
     app->doJavaScript(js.str());
   }
 
@@ -451,7 +466,7 @@ int StdGridLayoutImpl2::pixelSize(const WLength& size)
 DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 						 WApplication *app)
 {
-  needAdjust_ = needConfigUpdate_ = false;
+  needAdjust_ = needConfigUpdate_ = needRemeasure_ = false;
   addedItems_.clear();
   removedItems_.clear();
 
@@ -757,5 +772,3 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 }
 
 }
-
-#endif // OLD_LAYOUT

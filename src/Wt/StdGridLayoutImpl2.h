@@ -40,13 +40,14 @@ public:
   static const char* childrenResizeJS();
 
   virtual bool itemResized(WLayoutItem *item);
+  virtual bool parentResized();
 
 protected:
   virtual void containerAddWidgets(WContainerWidget *container);
 
 private:
   Impl::Grid& grid_;
-  bool needAdjust_, needConfigUpdate_;
+  bool needAdjust_, needRemeasure_, needConfigUpdate_;
   std::vector<WLayoutItem *> addedItems_;
   std::vector<std::string> removedItems_;
 

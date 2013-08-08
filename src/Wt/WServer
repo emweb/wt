@@ -379,6 +379,21 @@ public:
 					 const std::string& value);
 #endif // WT_TARGET_JAVA
 
+  /*! \brief Sets the resource object that provides localized strings.
+   *
+   * This is used only for WString::tr() used from within static
+   * resources.
+   *
+   * The default value is 0.
+   */
+  void setLocalizedStrings(WLocalizedStrings *stringResolver);
+  
+  /*! \brief Sets the resource object that provides localized strings.
+   *
+   * \sa setLocalizedStrings()
+   */
+  WLocalizedStrings *localizedStrings() { return localizedStrings_; }
+
 #ifndef WT_TARGET_JAVA
   WT_API WLogger& logger() { return logger_; }
   WT_API WLogEntry log(const std::string& type) const;
@@ -402,6 +417,7 @@ private:
 
   std::string application_, configurationFile_, appRoot_, description_;
   Configuration *configuration_;
+  WLocalizedStrings *localizedStrings_;
 
   bool ownsIOService_;
   WIOService *ioService_;

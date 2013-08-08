@@ -195,6 +195,24 @@ void BlogUserDatabase::addAuthToken(const Auth::User& user,
     (dbo::ptr<Token>(new Token(token.hash(), token.expirationTime())));
 }
 
+int BlogUserDatabase::updateAuthToken(const Auth::User& user,
+				      const std::string& hash,
+				      const std::string& newHash)
+{
+  WithUser find(*this, user);
+
+  for (Tokens::const_iterator i = user_->authTokens.begin();
+       i != user_->authTokens.end(); ++i) {
+    if ((*i)->value == hash) {
+      dbo::ptr<Token> p = *i;
+      p.modify()->value = newHash;
+      return std::max(Wt::WDateTime::currentDateTime().secsTo(p->expires), 0);
+    }
+  }
+
+  return 0;
+}
+
 void BlogUserDatabase::removeAuthToken(const Auth::User& user,
 				       const std::string& hash)
 {

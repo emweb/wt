@@ -57,12 +57,14 @@ BOOST_FUSION_ADAPT_STRUCT(
     (std::vector<SimpleSelectorImpl>, simpleSelectors_)
 )
 
+/*
 BOOST_FUSION_ADAPT_STRUCT(
     Term,
     (double, value_)
     (Term::Unit, unit_)
     (Term::Type, type_)
 )
+*/
 
 typedef std::map<std::string, Term> justForBoostFusion;
 BOOST_FUSION_ADAPT_STRUCT(
@@ -144,9 +146,8 @@ class CssGrammer : qi::grammar<Iterator, CssSkipper<Iterator> >
     qi::rule<Iterator, SimpleSelectorImpl()                         >
         simple_selector_;
     qi::rule<Iterator, std::string()>
-        class_, HASH_, IDENT_, STRING_, nonascii_, h_, nmstart_, subset_, ws_,
-        element_name_, hexcolor_, escape_, nmchar_, URI_, subset1_, subset2_,
-        hexcolor6_, hexcolor3_;
+        class_, HASH_, IDENT_, STRING_, nonstring_, nonascii_, nmstart_,
+      element_name_, escape_, nmchar_, subset1_, subset2_;
     Iterator begin_;
     std::string error_;
 };
@@ -278,33 +279,10 @@ CssGrammer<Iterator>::CssGrammer()
     = lit('/') | lit(',');
 
   term_
-    = (doubleWithoutExponent_
-                        [phoenix::bind(&Term::value_, _val) = _1]
-        >  (-( no_case[
-             lit("EM")  [phoenix::bind(&Term::setUnit, _val, Term::Em)]
-           | lit("EX")  [phoenix::bind(&Term::setUnit, _val, Term::Ex)]
-           | lit("PX")  [phoenix::bind(&Term::setUnit, _val, Term::Px)]
-           | lit("CM")  [phoenix::bind(&Term::setUnit, _val, Term::Cm)]
-           | lit("MM")  [phoenix::bind(&Term::setUnit, _val, Term::Mm)]
-           | lit("IN")  [phoenix::bind(&Term::setUnit, _val, Term::In)]
-           | lit("PT")  [phoenix::bind(&Term::setUnit, _val, Term::Pt)]
-           | lit("PC")  [phoenix::bind(&Term::setUnit, _val, Term::Pc)]
-           | lit("DEG") [phoenix::bind(&Term::setUnit, _val, Term::Deg)]
-           | lit("RAD") [phoenix::bind(&Term::setUnit, _val, Term::Rad)]
-           | lit("GRAD")[phoenix::bind(&Term::setUnit, _val, Term::Grad)]
-           | lit("MS")  [phoenix::bind(&Term::setUnit, _val, Term::Ms)]
-           | lit("S")   [phoenix::bind(&Term::setUnit, _val, Term::Seconds)]
-           | lit("HZ")  [phoenix::bind(&Term::setUnit, _val, Term::Hz)]
-           | lit("KHZ") [phoenix::bind(&Term::setUnit, _val, Term::Khz)]
-           | lit("%")   [phoenix::bind(&Term::setUnit, _val, Term::Percentage)]
-        ]))
-      ) // TODO: missing DIMENSION
-       | URI_
-       | STRING_        [phoenix::bind(&Term::quotedString_, _val) = _1]
-       | IDENT_         [phoenix::bind(&Term::identifier_,   _val) = _1]
-       | hexcolor_      [phoenix::bind(&Term::hash_,         _val) = _1]
-       ;
+    = +(STRING_ | nonstring_) [phoenix::bind(&Term::setValue, _val, _1)];
 
+  nonstring_ = ~char_("\"';}");
+  
   element_name_
     = IDENT_
     | lit('*')
@@ -315,13 +293,6 @@ CssGrammer<Iterator>::CssGrammer()
     >  IDENT_
     ;
 
-  hexcolor6_ = repeat(6)[char_("0-9a-fA-F")];
-  hexcolor3_ = repeat(3)[char_("0-9a-fA-F")];
-
-  hexcolor_
-    = '#' >  ( hexcolor6_
-             | hexcolor3_ );
-
   HASH_
     = '#'
     > IDENT_
@@ -330,7 +301,7 @@ CssGrammer<Iterator>::CssGrammer()
   // TODO The following is a bit of a mess, but I couldn't get it
   // in 1 rule.
   subset1_ = ~char_("\n\r\f\\\"");
-  subset2_ = ~char_("\n\r\f\\\'");
+  subset2_ = ~char_("\n\r\f\\'");
   STRING_
     = (lit('\"') > *(escape_ | subset1_ | qi::string("\\\n")) > lit('\"'))
     | (lit('\'') > *(escape_ | subset2_ | qi::string("\\\n")) > lit('\''))
@@ -338,10 +309,6 @@ CssGrammer<Iterator>::CssGrammer()
 
   nonascii_
     = char_("\xA0-\xFF")
-    ;
-
-  h_
-    = char_("0-9a-fA-F")
     ;
 
   escape_
@@ -367,19 +334,6 @@ CssGrammer<Iterator>::CssGrammer()
     > *nmchar_
     ;
 
-  ws_
-    = +char_(" \t\r\n\f");
-
-  URI_
-    = "url("
-      > -ws_
-      > (
-           STRING_
-         | *( char_("!#$%&*-~") | nonascii_ | escape_ )
-         )
-      > -ws_
-      > ")";
-
   rulesetArray_.name("stylesheet");
   ruleset_.name("ruleset");
   selector_.name("selector");
@@ -392,18 +346,14 @@ CssGrammer<Iterator>::CssGrammer()
   HASH_.name("HASH");
   IDENT_.name("IDENT");
   STRING_.name("STRING");
+  nonstring_.name("nonstring");
   nonascii_.name("nonascii");
-  h_.name("h");
   nmstart_.name("nmstart");
   element_name_.name("element_name");
-  hexcolor_.name("hexcolor");
   escape_.name("escape");
   nmchar_.name("nmchar");
-  URI_.name("URI");
   subset1_.name("double_quoted_string");
   subset2_.name("single_quoted_string");
-  hexcolor6_.name("hexcolor6");
-  hexcolor3_.name("hexcolor3");
 
   phoenix::function<ErrorReporting< Iterator > > error_report(this);
 

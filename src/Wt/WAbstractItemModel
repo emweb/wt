@@ -54,7 +54,7 @@ namespace Wt {
  * Wt's standard view classes can display (Wt::DisplayRole) the following data:
  *
  *  - strings of type WString or std::string
- *  - WDate, WTime, WDateTime
+ *  - WDate, WTime, WDateTime, WLocalDateTime
  *  - standard C++ numeric types (int, double, etc...)
  *  - bool
  *

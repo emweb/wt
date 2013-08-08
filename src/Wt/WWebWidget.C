@@ -625,12 +625,6 @@ void WWebWidget::gotParent()
 {
   if (isPopup())
     calcZIndex();
-
-  if (flags_.test(BIT_CONTAINS_LAYOUT)) {
-    WWebWidget *p = parentWebWidget();
-    if (p)
-      p->containsLayout();
-  }
 }
 
 WWebWidget *WWebWidget::parentWebWidget() const
@@ -1019,12 +1013,20 @@ void WWebWidget::setHidden(bool hidden, const WAnimation& animation)
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, true);
 
-  if (!hidden && flags_.test(BIT_CONTAINS_LAYOUT)) {
-    WApplication::instance()->session()->renderer().updateLayout();    
-  }
-
   repaint(RepaintSizeAffected);
 }
+
+void WWebWidget::parentResized(WWidget *parent, WFlags<Orientation> directions)
+{
+  if (flags_.test(BIT_CONTAINS_LAYOUT)) {
+    if (children_)
+      for (unsigned i = 0; i < children_->size(); ++i) {
+	WWidget *c = (*children_)[i];
+	if (!c->isHidden())
+	  c->webWidget()->parentResized(parent, directions);
+      }
+  }
+}    
 
 void WWebWidget::containsLayout()
 {

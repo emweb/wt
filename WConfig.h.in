@@ -39,10 +39,8 @@
 #cmakedefine WT_NO_STD_WSTRING
 #cmakedefine WT_DEBUG_ENABLED
 
-// Only one of the two below should be selected
 #cmakedefine WT_USE_BOOST_SIGNALS
 #cmakedefine WT_USE_BOOST_SIGNALS2
-#define WT_USE_BOOST_SIGNALS
 
 #endif
 

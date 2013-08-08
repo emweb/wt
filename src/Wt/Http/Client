@@ -90,6 +90,14 @@ class WIOService;
  * context of the application that created the client. WServer::post()
  * is used for this.
  *
+ * <h3>Basic acces authentication</h3>
+ * When you want to add authentication information in the %URL, this can be done
+ * as <tt>https://username:password@www.example.com/</tt>. When doing this,
+ * make sure that the username and password string are URL-encoded
+ * (\ref Wt::Utils::urlEncode). For example,
+ * <tt>https://username:pass word@www.example.com/</tt> should be passed as
+ * <tt>https://username:pass%20word@www.example.com/</tt>.
+ *
  * \ingroup http
  */
 class WT_API Client : public WObject
@@ -305,6 +313,8 @@ public:
   struct URL {
     //! The protocol (e.g. "http")
     std::string protocol;
+    //! Authentication
+    std::string auth;
     //! The host (e.g. "www.webtoolkit.eu")
     std::string host;
     //! The port number (e.g. 80)

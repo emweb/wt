@@ -135,6 +135,8 @@ void WWidget::scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags)
       !flags_.test(BIT_NEED_RERENDER_SIZE_CHANGE)) {
     flags_.set(BIT_NEED_RERENDER_SIZE_CHANGE);
 
+    webWidget()->parentResized(this, Vertical);
+
     /*
      * A size change to an absolutely positioned widget will not affect
      * a layout computation

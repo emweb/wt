@@ -110,6 +110,11 @@ void Message::setHeader(const std::string& name, const std::string& value)
   addHeader(name, value);
 }
 
+void Message::setDate(const Wt::WLocalDateTime& date)
+{
+  date_ = date;
+}
+
 void Message::addHeader(const std::string& name, const std::string& value)
 {
   headers_.push_back(Header(name, value));
@@ -172,6 +177,9 @@ void Message::write(std::ostream& out) const
     altBoundary = generateBoundary();
 
   from_.write("From", out);
+
+  if (!date_.isNull())
+    out << "Date: " << date_.toString("ddd, dd MMM yyyy HH:mm:ss Z") << "\r\n";
 
   if (!replyTo_.empty())
     replyTo_.write("Reply-To", out);

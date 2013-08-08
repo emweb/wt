@@ -9,55 +9,14 @@
 
 using namespace Wt::Render;
 
-void Term::setUnit(Unit u)
+void Wt::Render::Term::setValue(const std::string& value)
 {
-  unit_ = u;
-  if(u <= Ex)
-    type_ = Font;
-  else if(u <= Pc)
-    type_ = Length;
-  else if(u <= Grad)
-    type_ = Angle;
-  else if(u <= Seconds)
-    type_ = Time;
-  else if(u <= Khz)
-    type_ = Frequency;
-  else if(u <= Percentage)
-    type_ = OtherNumber;
-  else
-    type_ = Invalid;
+  value_ = value;
 }
-
-void Term::setQuotedString(const std::string& s)
-{
-  quotedString_ = s;
-  type_ = QuotedString;
-}
-
-void Term::setIdentifier(const std::string& id)
-{
-  identifier_ = id;
-  type_ = Identifier;
-}
-
-void Term::setHash (const std::string& hash)
-{
-  hash_ = hash;
-  type_ = Hash;
-}
-
-void Term::setUri(const std::string& uri)
-{
-  uri_ = uri;
-  type_ = Uri;
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///// isMatch                                                             /////
 ///////////////////////////////////////////////////////////////////////////////
-
-
 
 bool Wt::Render::Match::isMatch(const Block* block, const SimpleSelector& s)
 {
@@ -110,15 +69,16 @@ Specificity Wt::Render::Match::isMatch(const Block* block, const Selector& selec
   const Block* parent = block->parent();
   for(int i = selector.size()-2; i >= 0; --i)
   {
+    bool matchFound;
     while(parent)
     {
-      if(isMatch(parent, selector.at(i)))
+      matchFound = isMatch(parent, selector.at(i));
+      parent = parent->parent();
+      if(matchFound)
         break;
-      else
-        parent = parent->parent();
     }
 
-    if(!parent)
+    if(!matchFound && !parent)
       return Specificity(false);
   }
   return selector.specificity();

@@ -4,6 +4,7 @@ SET(TEST_SOURCES
   auth/SHA1Test.C
   chart/WChartTest.C
   json/JsonParserTest.C
+  json/JsonSerializerTest.C
   http/HttpClientTest.C
   mail/MailClientTest.C
   models/WBatchEditProxyModelTest.C

@@ -16,7 +16,8 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
     value_(-1),
     min_(0),
     max_(99),
-    step_(1)
+    step_(1),
+    valueChanged_(this)
 { 
   setValidator(createValidator());
   setValue(0);

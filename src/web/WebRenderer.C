@@ -140,6 +140,7 @@ bool WebRenderer::isDirty() const
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
     || session_.app()->styleSheetsAdded_
+    || session_.app()->internalPathIsChanged_
     || !collectedJS1_.empty()
     || !collectedJS2_.empty()
     || !invisibleJS_.empty();
@@ -333,7 +334,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
 		safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
   bootJs.setVar("APP_CLASS", "Wt");
   bootJs.setVar("PATH_INFO", WWebWidget::jsStringLiteral
-		(session_.env().pathInfo_));
+		(session_.pagePathInfo_));
 
   bootJs.setCondition("COOKIE_CHECKS", conf.cookieChecks());
   bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
@@ -549,6 +550,9 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
   if (!rendered_) {
     serveMainAjax(out);
   } else {
+    if (response.isWebSocketRequest() || response.isWebSocketMessage())
+      setJSSynced(false);
+
     collectJavaScript();
 
     addResponseAckPuzzle(out);
@@ -1242,9 +1246,18 @@ void WebRenderer::serveMainpage(WebResponse& response)
 	  || */(app->internalPathIsChanged_
 		&& app->oldInternalPath_ != app->newInternalPath_))) {
     app->oldInternalPath_ = app->newInternalPath_;
-    session_.redirect
-      (session_.fixRelativeUrl
-       (session_.mostRelativeUrl(app->newInternalPath_)));
+
+    if (session_.state() == WebSession::JustCreated &&
+	conf.progressiveBoot()) {
+      session_.redirect
+	(session_.fixRelativeUrl
+	 (session_.bookmarkUrl(app->newInternalPath_)));
+      session_.kill();
+    } else {
+      session_.redirect
+	(session_.fixRelativeUrl
+	 (session_.mostRelativeUrl(app->newInternalPath_)));
+    }
   }
 
   std::string redirect = session_.getRedirect();

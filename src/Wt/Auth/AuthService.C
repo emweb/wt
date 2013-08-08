@@ -86,10 +86,12 @@ const User& EmailTokenResult::user() const
 }
 
 AuthTokenResult::AuthTokenResult(Result result, const User& user,
-				 const std::string& newToken)
+				 const std::string& newToken,
+				 int newTokenValidity)
   : result_(result),
     user_(user),
-    newToken_(newToken)
+    newToken_(newToken),
+    newTokenValidity_(newTokenValidity)
 { }
 
 const User& AuthTokenResult::user() const
@@ -106,6 +108,14 @@ std::string AuthTokenResult::newToken() const
     return newToken_;
   else
     throw WException("AuthTokenResult::newToken() invalid");
+}
+
+int AuthTokenResult::newTokenValidity() const
+{
+  if (user_.isValid())
+    return newTokenValidity_;
+  else
+    throw WException("AuthTokenResult::newTokenValidity() invalid");
 }
 
 AuthService::AuthService()
@@ -225,7 +235,7 @@ std::string AuthService::createAuthToken(const User& user) const
 }
 
 AuthTokenResult AuthService::processAuthToken(const std::string& token,
-					   AbstractUserDatabase& users) const
+					      AbstractUserDatabase& users) const
 {
   std::auto_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
@@ -234,13 +244,23 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
   User user = users.findWithAuthToken(hash);
 
   if (user.isValid()) {
-    user.removeAuthToken(hash);
+    std::string newToken = WRandom::generateId(tokenLength_);
+    std::string newHash = tokenHashFunction()->compute(newToken, std::string());
+    int validity = user.updateAuthToken(hash, newHash);
 
-    std::string newToken = createAuthToken(user);
+    if (validity < 0) {
+      /*
+       * Old API, this is bad since we always extend the lifetime of the
+       * token.
+       */
+      user.removeAuthToken(hash);
+      newToken = createAuthToken(user);
+      validity = authTokenValidity_ * 60;
+    }
 
     if (t.get()) t->commit();
 
-    return AuthTokenResult(AuthTokenResult::Valid, user, newToken);
+    return AuthTokenResult(AuthTokenResult::Valid, user, newToken, validity);
   } else {
     if (t.get()) t->commit();
     

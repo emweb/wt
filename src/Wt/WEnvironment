@@ -278,6 +278,18 @@ public:
    */
   const WLocale& locale() const { return locale_; }
 
+  /*! \brief Returns the time zone offset as reported by the client.
+   *
+   * This returns the time offset that the client has relative to
+   * UTC. A positive value thus means that the local time is ahead of
+   * UTC.
+   *
+   * This requires JavaScript support.
+   *
+   * \sa WLocalDateTime::timeZoneOffset()
+   */
+  int timeZoneOffset() const { return timeZoneOffset_; }
+
   /*! \brief Returns the server host name that is used by the client.
    *
    * The hostname is the unresolved host name with optional port number,
@@ -642,6 +654,7 @@ protected:
   CookieMap   cookies_;
 
   WLocale locale_;
+  int timeZoneOffset_;
   std::string host_;
   std::string userAgent_;
   std::string urlScheme_;

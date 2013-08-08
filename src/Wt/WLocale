@@ -10,6 +10,8 @@
 #include <Wt/WGlobal>
 #include <Wt/WString>
 
+#include <boost/date_time/local_time/local_time.hpp>
+
 namespace Wt {
 
 /*! \class WLocale Wt/WLocale Wt/WLocale
@@ -85,10 +87,46 @@ public:
    */
   WT_UCHAR groupSeparator() const { return groupSeparator_; }
 
+  /*! \brief Sets the time zone.
+   *
+   * This sets the time zone (used by the client). The \p
+   * posixTimeZone must be an IEEE Std 1003.1 zone string in the form
+   * of: "std offset dst [offset],start[/time],end[/time]" and
+   * specifies all aspects of UTC to local time conversion for the
+   * user, including taking into account daylight savings time.
+   *
+   * e.g. "EST-5EDT,M4.1.0,M10.5.0" represents the time zone configuration
+   *      suitable for USA EastCoast (NYC).
+   *
+   * The time zone is not provided by the browser and therefore you
+   * will need to ask the user to select an appropriate time
+   * zone. This can be done using for example
+   * boost::local_time::tz_database by asking the user to select his
+   * region from this database, and retrieving the corresponding time
+   * zone string. You may want to propose a suitable default time zone
+   * by using WEnvironment::timeZoneOffset() and pre-selecting a
+   * region that matches this offset.
+   *
+   * The default value is empty.
+   *
+   * The timezone is used by WLocalDateTime.
+   *
+   * \sa WEnvironment::timeZoneOffset()
+   */
+  void setTimeZone(const std::string& posixTimeZone);
+
+  /*! \brief Returns the user's time zone.
+   *
+   * \sa setTimeZone()
+   */
+  std::string timeZone() const;
+
   /*! \brief Sets the date format.
    *
    * Sets the default format for date entry, e.g. as used in
    * WDateValidator. See WDate::toString() for the supported syntax.
+   *
+   * The default date format is "yyyy-MM-dd".
    */
   void setDateFormat(const WT_USTRING& format);
 
@@ -97,6 +135,22 @@ public:
    * Returns the date format.
    */
   WT_USTRING dateFormat() const { return dateFormat_; }
+
+  /*! \brief Sets the date/time format.
+   *
+   * Sets the format for a localized time stamp (using
+   * WLocalDateTime::toString()). See WDateTime::toString() for the
+   * supported syntax.
+   *
+   * The default date/time format is "yyyy-MM-dd HH:mm:ss".
+   */
+  void setDateTimeFormat(const WT_USTRING& format);
+
+  /*! \brief Returns the date/time format.
+   *
+   * Returns the date/time format.
+   */
+  WT_USTRING dateTimeFormat() const { return dateTimeFormat_; }
 
   /*! \brief Returns the locale name.
    *
@@ -150,10 +204,14 @@ public:
    */
   WT_USTRING toString(double value) const;
 
+  boost::local_time::time_zone_ptr time_zone_ptr() const { return time_zone_; }
+
 private:
   std::string name_;
   WT_UCHAR decimalPoint_, groupSeparator_;
-  WT_USTRING dateFormat_;
+  WT_USTRING dateFormat_, dateTimeFormat_;
+
+  boost::local_time::time_zone_ptr time_zone_;
 
   bool isDefaultNumberLocale() const;
 

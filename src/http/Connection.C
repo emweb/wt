@@ -363,9 +363,11 @@ void Connection::handleWriteResponse()
   }
 }
 
-void Connection::handleWriteResponse(const asio_error_code& e)
+void Connection::handleWriteResponse(const asio_error_code& e,
+    std::size_t bytes_transferred)
 {
-  LOG_DEBUG(socket().native() << ": handleWriteResponse(): " << e.message());
+  LOG_DEBUG(socket().native() << ": handleWriteResponse(): "
+      << bytes_transferred << " ; " << e.message());
 
   cancelWriteTimer();
 

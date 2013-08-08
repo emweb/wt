@@ -7,6 +7,7 @@
 #include "Wt/WApplication"
 #include "Wt/WDate"
 #include "Wt/WException"
+#include "Wt/WLocalDateTime"
 #include "Wt/WLogger"
 
 #include "WebUtils.h"
@@ -24,14 +25,11 @@ namespace Wt {
 LOGGER("WDate");
 
 InvalidDateException::InvalidDateException()
-  : WException("Error: Attempted operation on an invalid WDate")
+ : WException("Error: Attempted operation on an invalid WDate")
 { }
 
 WDate::WDate()
-  : valid_(false),
-    year_(-1),
-    month_(0),
-    day_(0)
+  : ymd_(0)
 { }
 
 WDate::WDate(const date& date)
@@ -46,61 +44,69 @@ WDate::WDate(int year, int month, int day)
 
 void WDate::setGregorianDate(const date& date)
 {
-  valid_ = !date.is_special();
+  bool valid = !date.is_special();
 
-  if (valid_) {
-    year_ = date.year();
-    month_ = date.month();
-    day_ = date.day();
-  }
+  if (valid)
+    setYmd(date.year(), date.month(), date.day());
+  else
+    ymd_ = 1; // not null and not valid
 }
 
 WDate WDate::addDays(int ndays) const
 {
-  if (valid_) {
-    date d(year_, month_, day_);
+  if (isValid()) {
+    date d(year(), month(), day());
     d += date_duration(ndays);
-
+    if (d.year() > 9999 || d.year() < 1400)
+      return WDate();
     return WDate(d.year(), d.month(), d.day());
   } else
-    return *this;
+    return WDate();
 }
 
 WDate WDate::addMonths(int nmonths) const
 {
-  if (valid_) {
-    date d(year_, month_, day_);
+  if (isValid()) {
+    date d(year(), month(), day());
     d += months(nmonths);
-
+    if (d.year() > 9999 || d.year() < 1400)
+      return WDate();
     return WDate(d.year(), d.month(), d.day());
   } else
-    return *this;
+    return WDate();
 }
 
 WDate WDate::addYears(int nyears) const
 {
-  if (valid_) {
-    date d(year_, month_, day_);
+  if (isValid()) {
+    date d(year(), month(), day());
     d += years(nyears);
-
+    if (d.year() > 9999 || d.year() < 1400)
+      return WDate();
     return WDate(d.year(), d.month(), d.day());
   } else
-    return *this;
+    return WDate();
 }
 
 void WDate::setDate(int year, int month, int day)
 {
-  year_ = year;
-  month_ = month;
-  day_ = day;
-  valid_ = false;
-
   try {
     date d(year, month, day);
-    valid_ = true;
+    if (d.year() > 9999 || d.year() < 1400) {
+      LOG_WARN("Invalid date: not in range 1400 .. 9999");
+      ymd_ = 1;
+      return;
+    }
+    setYmd(year, month, day);
   } catch (std::out_of_range& e) {
     LOG_WARN("Invalid date: " << e.what());
+    ymd_ = 1;
   }
+}
+
+void WDate::setYmd(int y, int m, int d)
+{
+  ymd_ = (y << 16) | ((m & 0xFF) << 8) | (d & 0xFF);
 }
 
 bool WDate::isLeapYear(int year)
@@ -111,22 +117,20 @@ bool WDate::isLeapYear(int year)
 int WDate::dayOfWeek() const
 {
   if (!isValid())
-    throw InvalidDateException();
+    return 0;
 
-  date d(year_, month_, day_);
-
+  date d(year(), month(), day());
   int dow = d.day_of_week().as_number();
-
   return (dow == 0 ? 7 : dow);
 }
 
 int WDate::daysTo(const WDate& other) const
 {
   if (!isValid() || !other.isValid())
-    throw InvalidDateException();
+    return 0;
 
-  date dthis(year_, month_, day_);
-  date dother(other.year_, other.month_, other.day_);
+  date dthis(year(), month(), day());
+  date dother(other.year(), other.month(), other.day());
   date_duration dd = dother - dthis;
 
   return dd.days();
@@ -135,9 +139,9 @@ int WDate::daysTo(const WDate& other) const
 int WDate::toJulianDay() const
 {
   if (!isValid())
-    return -1;
+    return 0;
   else {
-    date dthis(year_, month_, day_);
+    date dthis(year(), month(), day());
     return dthis.julian_day();
   }
 }
@@ -145,20 +149,14 @@ int WDate::toJulianDay() const
 boost::gregorian::date WDate::toGregorianDate() const
 {
   if (isValid())
-    return date(year_, month_, day_);
+    return date(year(), month(), day());
   else
     return date(not_a_date_time);
-}
-
-bool WDate::isNull() const
-{
-  return year_ == -1;
 }
 
 bool WDate::isValid(int year, int month, int day)
 {
   WDate d(year, month, day);
-
   return d.isValid();
 }
 
@@ -169,22 +167,7 @@ bool WDate::operator> (const WDate& other) const
 
 bool WDate::operator< (const WDate& other) const
 {
-  if (!isValid() || !other.isValid())
-    throw InvalidDateException();
-
-  if (year_ < other.year_)
-    return true;
-  else
-    if (year_ == other.year_) {
-      if (month_ < other.month_)
-	return true;
-      else
-	if (month_ == other.month_)
-	  return day_ < other.day_;
-	else
-	  return false;
-    } else
-      return false;
+  return ymd_ < other.ymd_;
 }
 
 bool WDate::operator!= (const WDate& other) const
@@ -194,10 +177,7 @@ bool WDate::operator!= (const WDate& other) const
 
 bool WDate::operator== (const WDate& other) const
 {
-  if ((!isValid() && !isNull()) || (!other.isValid() && !other.isNull()))
-    throw InvalidDateException();
-
-  return (year_ == other.year_ && month_ == other.month_ && day_ == other.day_);
+  return ymd_ == other.ymd_;
 }
 
 bool WDate::operator<= (const WDate& other) const
@@ -219,7 +199,7 @@ WDate WDate::currentServerDate()
 
 WDate WDate::currentDate()
 {
-  return currentServerDate(); // FIXME
+  return WLocalDateTime::currentDateTime().date();
 }
 
 WString WDate::shortDayName(int weekday, bool localized)
@@ -612,10 +592,10 @@ WString WDate::toString() const
 
 WString WDate::toString(const WString& format) const
 {
-  return WDateTime::toString(this, 0, format);
+  return WDateTime::toString(this, 0, format, 0, true);
 }
 
-bool WDate::writeSpecial(const std::string& f, unsigned&i,
+bool WDate::writeSpecial(const std::string& f, unsigned& i,
 			 std::stringstream& result, bool localized) const
 {
   char buf[30];
@@ -636,11 +616,11 @@ bool WDate::writeSpecial(const std::string& f, unsigned&i,
       } else {
 	// 2 d's
 	i += 1;
-	result << Utils::pad_itoa(day_, 2, buf);
+	result << Utils::pad_itoa(day(), 2, buf);
       }
     } else {
       // 1 d
-      result << Utils::itoa(day_, buf);
+      result << Utils::itoa(day(), buf);
     }
 
     return true;
@@ -650,20 +630,20 @@ bool WDate::writeSpecial(const std::string& f, unsigned&i,
 	if (f[i + 3] == 'M') {
 	  // 4 M's
 	  i += 3;
-	  result << longMonthName(month_, localized).toUTF8();
+	  result << longMonthName(month(), localized).toUTF8();
 	} else {
 	  // 3 M's
 	  i += 2;
-	  result << shortMonthName(month_, localized).toUTF8();
+	  result << shortMonthName(month(), localized).toUTF8();
 	}
       } else {
 	// 2 M's
 	i += 1;
-	result << Utils::pad_itoa(month_, 2, buf);
+	result << Utils::pad_itoa(month(), 2, buf);
       }
     } else {
       // 1 M
-      result << Utils::itoa(month_, buf);
+      result << Utils::itoa(month(), buf);
     }
 
     return true;
@@ -672,13 +652,13 @@ bool WDate::writeSpecial(const std::string& f, unsigned&i,
       if (f[i + 2] == 'y' && f[i + 3] == 'y') {
 	// 4 y's
 	i += 3;
-	result << Utils::itoa(year_, buf);
+	result << Utils::itoa(year(), buf);
 
 	return true;
       } else {
 	// 2 y's
 	i += 1;
-	result << Utils::pad_itoa(year_ % 100, 2, buf);
+	result << Utils::pad_itoa(year() % 100, 2, buf);
 
 	return true;
       }

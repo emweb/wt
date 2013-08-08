@@ -7,6 +7,7 @@
 #ifndef WT_MAIL_MESSAGE_H_
 #define WT_MAIL_MESSAGE_H_
 
+#include <Wt/WLocalDateTime>
 #include <Wt/Mail/Mailbox>
 
 namespace Wt {
@@ -128,7 +129,17 @@ public:
    *
    * \sa setSubject()
    */
-  const WString& subject() const;
+  const WString& subject() const { return subject_; }
+
+  /*! \brief Sets a date.
+   *
+   * According to RFC 2822, the date should express local time.
+   */
+  void setDate(const WLocalDateTime& date);
+
+  /*! \brief Returns the date.
+   */
+  WLocalDateTime date() const { return date_; }
 
   /*! \brief Sets the plain text body.
    *
@@ -212,6 +223,7 @@ private:
   std::vector<Attachment> attachments_;
 
   WString subject_, body_, htmlBody_;
+  WLocalDateTime date_;
 
   static std::string generateBoundary();
   static void encodeAttachment(const Attachment& attachment,

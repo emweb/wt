@@ -381,6 +381,7 @@ protected:
   virtual int firstChildIndex() const;
 
   virtual void childResized(WWidget *child, WFlags<Orientation> directions);
+  virtual void parentResized(WWidget *parent, WFlags<Orientation> directions);
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
   DomElement *createDomElement(WApplication *app, bool addChildren);

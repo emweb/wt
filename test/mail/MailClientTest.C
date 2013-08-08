@@ -9,6 +9,7 @@
 
 #include <Wt/Mail/Client>
 #include <Wt/Mail/Message>
+#include <Wt/WLocalDateTime>
 
 using namespace Wt;
 using namespace Wt::Mail;
@@ -50,6 +51,7 @@ BOOST_AUTO_TEST_CASE( mail_test2 )
 {
   Message m;
   m.setFrom(Mailbox("bas@kode.be", "Bas Deforche"));
+  m.setDate(WLocalDateTime::currentServerDateTime());
   m.addRecipient(To, Mailbox("koen@emweb.be", "Koen Deforche"));
   m.addRecipient(Bcc,
 		 Mailbox("koen.deforche@gmail.com",

@@ -9,16 +9,13 @@
 #include "Wt/WApplication"
 #include "Wt/WDateTime"
 #include "Wt/WDate"
+#include "Wt/WLocalDateTime"
 #include "Wt/WTime"
 
 #ifndef DOXYGEN_ONLY
 
 namespace posix = boost::posix_time;
 namespace gregorian = boost::gregorian;
-
-/*
- * TODO: -isValid() versus !isNull()
- */
 
 namespace Wt {
 
@@ -46,24 +43,23 @@ WDateTime::WDateTime()
 WDateTime::WDateTime(const WDate& date)
 {
   if (date.isValid()) {
-    gregorian::date d(date.year(), date.month(), date.day());
+    gregorian::date d = date.toGregorianDate();
     posix::time_duration t(0, 0, 0, 0);
 
     datetime_ = posix::ptime(d, t);
-  }
+  } else
+    datetime_ = posix::ptime(posix::neg_infin);
 }
 
 WDateTime::WDateTime(const WDate& date, const WTime& time)
 {
   if (date.isValid() && time.isValid()) {
-    gregorian::date d(date.year(), date.month(), date.day());
-    posix::time_duration::fractional_seconds_type ticks_per_msec =
-      posix::time_duration::ticks_per_second() / 1000;
-    posix::time_duration t(time.hour(), time.minute(),
-      time.second(), time.msec() * ticks_per_msec);
+    gregorian::date d = date.toGregorianDate();
+    posix::time_duration t = time.toTimeDuration();
 
     datetime_ = posix::ptime(d, t);
-  }
+  } else
+    datetime_ = posix::ptime(posix::neg_infin);
 }
 
 WDateTime::WDateTime(posix::ptime dt)
@@ -82,29 +78,25 @@ void WDateTime::setPosixTime(const posix::ptime& dt)
 
 void WDateTime::setDate(const WDate& date)
 {
-  if (isValid()) {
+  if (isValid())
     *this = WDateTime(date, time());
-  } else {
+  else
     *this = WDateTime(date, WTime(0, 0));
-  }
 }
 
 const WDate WDateTime::date() const
 {
   if (isValid()) {
     gregorian::date d = datetime_.date();
-    return WDate(d.year(), d.month(), d.day());
+    return WDate(d);
   } else
     return WDate();
 }
 
 void WDateTime::setTime(const WTime& time)
 {
-  if (isValid()) {
+  if (isValid())
     *this = WDateTime(date(), time);
-  } else {
-    // FIXME: without a valid date, what to do ??
-  }
 }
 
 const WTime WDateTime::time() const
@@ -126,28 +118,36 @@ WDateTime WDateTime::addMSecs(int ms) const
   if (isValid()) {
     posix::time_duration::fractional_seconds_type ticks_per_msec =
       posix::time_duration::ticks_per_second() / 1000;
-    posix::ptime dt = datetime_ + posix::time_duration(0, 0, 0, ms * ticks_per_msec);
+    posix::ptime dt = datetime_ + posix::time_duration(0, 0, 0,
+						       ms * ticks_per_msec);
+    if (dt.is_not_a_date_time())
+      dt = posix::ptime(posix::neg_infin);
+
     return WDateTime(dt);
   } else
-    return *this;
+    return WDateTime();
 }
 
 WDateTime WDateTime::addSecs(int s) const
 {
   if (isValid()) {
     posix::ptime dt = datetime_ + posix::time_duration(0, 0, s, 0);
+    if (dt.is_not_a_date_time())
+      dt = posix::ptime(posix::neg_infin);
     return WDateTime(dt);
   } else
-    return *this;
+    return WDateTime();
 }
 
 WDateTime WDateTime::addDays(int ndays) const
 {
   if (isValid()) {
     posix::ptime dt = datetime_ + gregorian::days(ndays);
+    if (dt.is_not_a_date_time())
+      dt = posix::ptime(posix::neg_infin);
     return WDateTime(dt);
   } else
-    return *this;
+    return WDateTime();
 }
 
 WDateTime WDateTime::addMonths(int nmonths) const
@@ -157,7 +157,7 @@ WDateTime WDateTime::addMonths(int nmonths) const
     WTime t = time();
     return WDateTime(d, t);
   } else
-    return *this;
+    return WDateTime();
 }
 
 WDateTime WDateTime::addYears(int nyears) const
@@ -167,23 +167,26 @@ WDateTime WDateTime::addYears(int nyears) const
     WTime t = time();
     return WDateTime(d, t);
   } else
-    return *this;
+    return WDateTime();
 }
 
 bool WDateTime::isNull() const
 {
-  return !isValid();
+  return datetime_.is_not_a_date_time();
 }
 
 bool WDateTime::isValid() const
 {
-  return !datetime_.is_not_a_date_time();
+  return !datetime_.is_special();
 }
 
 std::time_t WDateTime::toTime_t() const
 {
-  return (datetime_ - posix::ptime(gregorian::date(1970, 1, 1)))
-    .total_seconds();
+  if (isValid())
+    return (datetime_ - posix::ptime(gregorian::date(1970, 1, 1)))
+      .total_seconds();
+  else
+    return (std::time_t) 0;
 }
 
 posix::ptime WDateTime::toPosixTime() const
@@ -191,10 +194,17 @@ posix::ptime WDateTime::toPosixTime() const
   return datetime_;
 }
 
+WLocalDateTime WDateTime::toLocalTime(const WLocale& locale)
+{
+  return WLocalDateTime
+    (boost::local_time::local_date_time(datetime_, locale.time_zone_ptr()),
+     locale.dateTimeFormat());
+}
+
 int WDateTime::secsTo(const WDateTime& other) const
 {
   if (!isValid() || !other.isValid())
-    throw InvalidDateTimeException();
+    return 0;
 
   return (int)other.toTime_t() - (int)toTime_t();
 }
@@ -206,6 +216,9 @@ int WDateTime::daysTo(const WDateTime& other) const
 
 WString WDateTime::timeTo(const WDateTime& other, int minValue) const
 {
+  if (!isValid() || !other.isValid())
+    return WString::Empty;
+
   int secs = secsTo(other);
 
   if (abs(secs) < 1)
@@ -440,11 +453,12 @@ WString WDateTime::toString(const WString& format, bool localized) const
   WDate d = date();
   WTime t = time();
 
-  return toString(&d, &t, format, localized);
+  return toString(&d, &t, format, localized, 0);
 }
 
 WString WDateTime::toString(const WDate *date, const WTime *time,
-                            const WString& format, bool localized)
+                            const WString& format, bool localized,
+			    int zoneOffset)
 {
   if ((date && !date->isValid()) || (time && !time->isValid())) {
     if (WApplication::instance()) {
@@ -516,7 +530,7 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
       if (date)
 	handled = date->writeSpecial(f, i, result, localized);
       if (!handled && time)
-        handled = time->writeSpecial(f, i, result, useAMPM);
+        handled = time->writeSpecial(f, i, result, useAMPM, zoneOffset);
 
       if (!handled) {
 	if (f[i] == '\'') {

@@ -317,6 +317,18 @@ public:
    * exists.
    */
   virtual User findWithAuthToken(const std::string& hash) const;
+
+  /*! \brief Updates the authentication token with a new hash.
+   *
+   * If successful, returns the validity of the updated token in seconds.
+   *
+   * Returns 0 if the token could not be updated because it wasn't found
+   * or is expired.
+   *
+   * Returns -1 if not implemented.
+   */
+  virtual int updateAuthToken(const User& user, const std::string& oldhash,
+			      const std::string& newhash);
   //@}
 
   /** @name Authenticaton attempt throttling

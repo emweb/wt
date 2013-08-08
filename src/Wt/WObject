@@ -11,6 +11,105 @@
 #include <Wt/WGlobal>
 #include <Wt/Http/Request>
 
+namespace Wt {
+  /*! \brief Namespace for signal/slot implementation
+   *
+   * Namespace Wt::Signals offers classes for connecting signals to handlers
+   * of those signals. The underlying implementation is configurable, and
+   * some details may be different from one configuration to the other, but
+   * the common basis is documented here.
+   *
+   * For now, %Wt's signals implementations are based on boost's signals
+   * implementation. %Wt wraps these implementations in its own Wt::Signal
+   * class, so you don't interact immediately with this object. Refer to
+   * the documentation of Wt::Signal for the API description. Connection
+   * lifetime management however depends on the underlying signals
+   * implementation.
+   *
+   * A call to Wt::Signal::connect() returns a class of type
+   * Wt::Signals::connection. This class allows for manual connection
+   * management: if you ever want to disconnect a signal, keep a copy of the
+   * connection object and invoke connection.disconnect(). Usually, you will
+   * use automatic connection management as described below.
+   *
+   * %Wt's signal/slot implementation offers automatic connection management
+   * through object lifetime tracking. With automatic connection management,
+   * a signal will be disconnected when the signal's target object is
+   * deleted. This lifetime tracking works, provided that the classes whose
+   * lifetime has to be tracked inherit from WObject, and that the
+   * Wt::WSignal class is able to detect the presence of the WObject
+   * class.
+   *
+   * Since WObject is a base class for WWidget, the first condition
+   * is fullfilled for all of %Wt's widgets, classes inheriting from widgets,
+   * and other classes that inherit from WObject. For your own classes, you may
+   * inherit from WObject in order to activate automatic
+   * lifeteime tracking.
+   *
+   * The second condition, the ability for the signals library to detect this
+   * WObject class, you have to know for which situations lifetime tracking
+   * is supported - for all other cases, assume it's not supported. The ability
+   * for the signals implementation to detect the lifetime tracked objects,
+   * depends on how you invoke the connect() method.
+   *
+   * Any connect call where you pass the receiver of the signal directly
+   * to the Wt::WSignal::connect() method as first parameter, is ok. If the
+   * receiver inherits from WObject, the signal will be disconnected when
+   * the receiver is deleted.
+   *
+   * In general, connection tracking does not work for the
+   * Wt::WSignal::connect(const F &function) method. The only exception is
+   * when the function pointer object was created by boost::bind, in which case
+   * the receiver object (inheriting from WObject) will be tracked.
+   *
+   * Practical guidelines:
+   * - use WSignal::connect with an explicit target parameter for connecting
+   *   to slots which are member methods and for which no binding is required.
+   *   This first parameter is a class derived from WObject (or inheriting
+   *   from Wt::Signals::trackable, for boost signal/slot implementations)
+   * - use std::bind for lambda functions, as these are not as good supported by
+   *   boost::bind as std::bind. Remember that automatic connection management
+   *   will not work - connecting to the signals of the receiver itself or a
+   *   signal of one of its signals is generally safe, but connecting to a
+   *   signal from outside your own descendants likely requires additional
+   *   measurements to ensure proper lifetime tracking.
+   * - use boost::bind for all other bindings, as this will offer you automatic
+   *   lifetime management.
+   *
+   * %Wt used boost.signal (v1) as underlying implementation for its signal/slot
+   * system. Since boost 1.54, boost.signal has been marked deprecated, being
+   * replaced by boost.signals2. The WT_SIGNALS_IMPLEMENTATION cmake defines
+   * allows you to switch between the available implementation for Wt::Signals.
+   * There may be other signal/slot libraries supported in the future. With
+   * the boost implementations, %Wt relies on boost::trackable for the
+   * implementation of object lifetime tracking for connection management,
+   * meaning that WObject inherits from boost.trackable.
+   *
+   * The classes of Wt::Signals are to be considered as not thread safe. Since
+   * Wt has a per-session locking mechanism, under the form of the
+   * WApplication::UpdateLock, this is hardly an issue. The boost.signals2
+   * implementation offers some degree of thread-safety; please ensure to
+   * understand its details before relying on it.
+   *
+   * \ingroup signalslot
+   */
+  namespace Signals {
+#ifdef DOXYGEN_ONLY
+    /*! \brief Base class for lifetime-tracked objects
+     *
+     */
+    typedef implementation_defined trackable;
+
+    /*! \brief Implementation-defined class representing a connection
+     *
+     * This object can be used to manually disconnect a signal-slot connection.
+     * For boost signals, the disconnect() member disconnects the connection.
+     */
+    typedef implementation_defined connection;
+#endif
+  }
+}
+
 #if defined(WT_USE_BOOST_SIGNALS)
 
 #include <boost/signals/trackable.hpp>
@@ -37,7 +136,14 @@ namespace Wt {
 #include <boost/signals2/trackable.hpp>
 #include <boost/signals2.hpp>
 namespace Wt {
-  namespace Signals = ::boost::signals2;
+  namespace Signals {
+    using boost::signals2::signal;
+    using boost::signals2::trackable;
+    using boost::signals2::connection;
+    using boost::signals2::at_front;
+    // Note: signal0-6 are not available in signals2 if the compiler supports
+    // variadic templates
+  }
 }
 
 #endif
@@ -189,7 +295,7 @@ public:
    *
    * \sa id()
    */
-  void setObjectName(const std::string& name);
+  virtual void setObjectName(const std::string& name);
 
   /*! \brief Returns the object name.
    *

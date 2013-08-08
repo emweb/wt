@@ -358,6 +358,8 @@ public:
   {
     Sqlite3::DateTimeStorage storageType = db_.dateTimeStorage(type);
 
+    *value = boost::posix_time::not_a_date_time;
+
     switch (storageType) {
     case Sqlite3::ISO8601AsText:
     case Sqlite3::PseudoISO8601AsText: {

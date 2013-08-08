@@ -77,6 +77,8 @@ void WStringListModel::setStringList(const std::vector<WString>& strings)
     beginRemoveRows(WModelIndex(), newSize, currentSize - 1);
 
   displayData_ = strings;
+  flags_.clear();
+
   delete otherData_;
   otherData_ = 0;
 
@@ -144,9 +146,21 @@ bool WStringListModel::setData(const WModelIndex& index,
   return true;
 }
 
+void WStringListModel::setFlags(int row, WFlags<ItemFlag> flags)
+{
+  if (flags_.empty())
+    flags_.insert(flags_.begin(), rowCount(),
+		  ItemIsSelectable | ItemIsEditable);
+
+  flags_[row] = flags;
+}
+
 WFlags<ItemFlag> WStringListModel::flags(const WModelIndex& index) const
 {
-  return ItemIsSelectable | ItemIsEditable;
+  if (flags_.empty())
+    return ItemIsSelectable | ItemIsEditable;
+  else
+    return flags_[index.row()];
 }
 
 bool WStringListModel::insertRows(int row, int count, const WModelIndex& parent)
@@ -154,6 +168,9 @@ bool WStringListModel::insertRows(int row, int count, const WModelIndex& parent)
   if (!parent.isValid()) {
     beginInsertRows(parent, row, row + count - 1);
     displayData_.insert(displayData_.begin() + row, count, WString());
+    if (!flags_.empty())
+      flags_.insert(flags_.begin() + row, count,
+		    ItemIsSelectable | ItemIsEditable);
     if (otherData_)
       otherData_->insert(otherData_->begin() + row, count, DataMap());
     endInsertRows();
@@ -169,6 +186,8 @@ bool WStringListModel::removeRows(int row, int count, const WModelIndex& parent)
     beginRemoveRows(parent, row, row + count - 1);
     displayData_.erase(displayData_.begin() + row,
 		       displayData_.begin() + row + count);
+    if (!flags_.empty())
+      flags_.erase(flags_.begin() + row, flags_.begin() + row + count);
     if (otherData_)
       otherData_->erase(otherData_->begin() + row,
 			otherData_->begin() + row + count);
@@ -183,7 +202,7 @@ void WStringListModel::sort(int column, SortOrder order)
 {
   layoutAboutToBeChanged().emit();
 
-  if (!otherData_) {
+  if (!otherData_ && flags_.empty()) {
     if (order == AscendingOrder)
       Utils::sort(displayData_);
     else
@@ -203,17 +222,29 @@ void WStringListModel::sort(int column, SortOrder order)
 
     std::vector<WString> displayData;
     displayData.resize(rowCount());
-    std::vector<DataMap> *otherData = new std::vector<DataMap>();
-    otherData->resize(rowCount());
+
+    std::vector<WFlags<ItemFlag> > flags;
+    if (!flags_.empty())
+      flags.resize(rowCount());
+
+    std::vector<DataMap> *otherData = 0;
+    if (otherData_) {
+      otherData = new std::vector<DataMap>();
+      otherData->resize(rowCount());
+    }
 
     for (unsigned i = 0; i < permutation.size(); ++i) {
       displayData[i] = displayData_[permutation[i]];
-      (*otherData)[i] = (*otherData_)[permutation[i]];
+      if (otherData)
+	(*otherData)[i] = (*otherData_)[permutation[i]];
+      if (!flags.empty())
+	flags[i] = flags_[permutation[i]];
     }
 
     displayData_ = displayData;
     delete otherData_;
     otherData_ = otherData;
+    flags_ = flags;
   }
 
   layoutChanged().emit();

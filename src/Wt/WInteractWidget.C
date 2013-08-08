@@ -251,8 +251,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     = (mouseUp && mouseUp->needsUpdate(all))
     || updateMouseMove;
 
-  std::string CheckDisabled = "if($(o).hasClass('Wt-disabled')){"
-    WT_CLASS ".cancelEvent(e);return;}";
+  std::string CheckDisabled = "if($(o).hasClass('" +
+    app->theme()->disabledClass() +
+    "')){" WT_CLASS ".cancelEvent(e);return;}";
 
   if (updateMouseDown) {
     /*

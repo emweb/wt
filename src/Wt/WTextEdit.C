@@ -141,7 +141,7 @@ std::string WTextEdit::renderRemoveJs()
 
 int WTextEdit::getTinyMCEVersion()
 {
-  std::string version = "4";
+  std::string version = "3";
   WApplication::readConfigurationProperty("tinyMCEVersion", version);
   return boost::lexical_cast<int>(version);
 }

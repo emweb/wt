@@ -88,7 +88,7 @@ WT_DECLARE_WT_MEMBER
 
       // FIXME: APP instead of Wt
       if (Wt.layouts2)
-	Wt.layouts2.scheduleAdjust(true);
+	Wt.layouts2.setElementDirty(el);
     }
 
     function show() {

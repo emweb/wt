@@ -250,12 +250,6 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
 
   WApplication *app = WApplication::instance();
 
-#ifdef OLD_LAYOUT
-  // FIXME Not needed for new layout managers ?
-  if (app->environment().agentIsChrome())
-    impl_->setMargin(1, Right); // Chrome WTF ? #452
-#endif
-
   typedef WAbstractItemView Self;
 
   headerClickedMapper_ = new WSignalMapper<int>(this);

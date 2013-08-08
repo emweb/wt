@@ -43,6 +43,11 @@ WCompositeWidget::~WCompositeWidget()
   delete impl_;
 }
 
+void WCompositeWidget::setObjectName(const std::string& name)
+{
+  impl_->setObjectName(name);
+}
+
 const std::string WCompositeWidget::id() const
 {
   return impl_->id();

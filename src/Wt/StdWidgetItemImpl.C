@@ -113,79 +113,6 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
   DomElement *d = w->createSDomElement(app);
   DomElement *result = d;
 
-#ifdef OLD_LAYOUT
-  int marginRight = 0, marginBottom = 0;
-
-  // Note to self: we should support actual IE8 since this version has
-  // box-sizing too.
-  bool boxSizing = !app->environment().agentIsIE();
-
-  if (!boxSizing) {
-    if (fitWidth)
-      marginRight = (w->boxPadding(Horizontal) + w->boxBorder(Horizontal)) * 2;
-
-    if (fitHeight)
-      marginBottom = (w->boxPadding(Vertical) + w->boxBorder(Vertical)) * 2;
-
-    bool forceDiv
-      = (fitHeight && d->type() == DomElement_SELECT
-	 && d->getAttribute("size").empty());
-
-    if (marginRight || marginBottom || forceDiv) {
-      result = DomElement::createNew(DomElement_DIV);
-      result->setProperty(PropertyClass, "Wt-wrapdiv");
-      std::stringstream style;
-
-      if (app->environment().agentIsIElt(9) && !forceDiv) {
-	style << "margin-top:-1px;";
-	marginBottom -= 1;
-      }
-
-      if (marginRight)
-	style << (app->layoutDirection() == LeftToRight
-		  ? "margin-right:" : "margin-left:")
-	      << marginRight << "px;";
-
-      if (marginBottom)
-	style << "margin-bottom:" << marginBottom << "px;";
-
-      result->setProperty(PropertyStyle, style.str());
-    }
-  }
-
-  /*
-   * Known issues:
-   *  - textarea does not interpret height 100%, and thus it does not
-   *    work inside the wrapped div, on IE6/7 -> fixed in the JavaScript code
-   *  - select does not interpret height that is set on IE6
-   *    it does work on IE7 !
-   *  - webkit gets entirely confused by 100% on a div, and possibly
-   *    also on other elements ??
-   */
-  if (fitHeight && d->getProperty(PropertyStyleHeight).empty())
-    if (  (d->type() == DomElement_DIV && !app->environment().agentIsWebKit())
-	|| d->type() == DomElement_UL
-	|| d->type() == DomElement_INPUT
-	|| d->type() == DomElement_TABLE
-	|| d->type() == DomElement_TEXTAREA)
-      d->setProperty(PropertyStyleHeight, "100%");
-
-  // on IE, a select is reduced to width 0 when setting width: 100% when nothing
-  // else in that column takes up space: that is a very bad thing...
-  if (fitWidth && d->getProperty(PropertyStyleWidth).empty()) {
-    if ((d->type() == DomElement_BUTTON
-	 || (d->type() == DomElement_INPUT
-	     && d->getAttribute("type") != "radio"
-	     && d->getAttribute("type") != "checkbox")
-	 || (d->type() == DomElement_SELECT
-	     && !app->environment().agentIsIE())
-	 || d->type() == DomElement_TEXTAREA))
-      d->setProperty(PropertyStyleWidth, "100%");
-  }
-
-  if (result != d)
-    result->addChild(d);
-#else
   if (app->environment().agentIsIElt(9) &&
       (d->type() == DomElement_TEXTAREA || d->type() == DomElement_SELECT
        || d->type() == DomElement_INPUT || d->type() == DomElement_BUTTON)) {
@@ -198,7 +125,6 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
       d->type() != DomElement_TABLE /* buggy in Chrome, see #1856 */ &&
       app->theme()->canBorderBoxElement(*d))
     d->setProperty(PropertyStyleBoxSizing, "border-box");
-#endif
 
   return result;
 }

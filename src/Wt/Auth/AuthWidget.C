@@ -216,7 +216,7 @@ WDialog *AuthWidget::createPasswordPromptDialog(Login& login)
 
 void AuthWidget::logout()
 {
-  login_.logout();
+  model_->logout(login_);
 }
 
 void AuthWidget::displayError(const WString& m)

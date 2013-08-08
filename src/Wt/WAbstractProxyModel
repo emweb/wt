@@ -124,7 +124,7 @@ protected:
    *
    * \sa createIndex()
    */
-  struct BaseItem {
+  struct WT_API BaseItem {
     /*! \brief The source model index.
      *
      * The source model index for this item.

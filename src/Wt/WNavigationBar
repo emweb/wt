@@ -86,6 +86,8 @@ private:
   void addWrapped(WWidget *widget, AlignmentFlag alignment,
 		  const char *wrapClass);
   void align(WWidget *widget, AlignmentFlag alignment);
+
+  bool animatedResponsive() const;
 };
 
 }

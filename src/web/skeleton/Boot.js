@@ -68,6 +68,18 @@ function delayClick(e) {
   e.returnValue = false;
   return false;
 }
+
+function setupDelayClick() {
+  var db = document.body;
+  if (!db)
+     setTimeout(setupDelayClick, 1);
+  else {
+    if (db.addEventListener)
+      db.addEventListener('click', delayClick, true);
+    else
+      db.attachEvent('onclick', delayClick);
+  }
+}
 _$_$endif_$_();
 
 (function() {
@@ -168,6 +180,9 @@ var deployPathInfo = '&deployPath=' + encodeURIComponent(deployPath);
 var ajax = (win.XMLHttpRequest || win.ActiveXObject);
 
 var no_replace = _$_RELOAD_IS_NEWSESSION_$_;
+var inOneSecond = new Date();
+inOneSecond.setTime(inOneSecond.getTime() + 1000);
+
 _$_$if_COOKIE_CHECKS_$_();
 // client-side cookie support
 var testcookie='jscookietest=valid';
@@ -177,8 +192,6 @@ no_replace = no_replace ||
 doc.cookie=testcookie+';expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
 // server-side cookie support
-var inOneSecond = new Date();
-inOneSecond.setTime(inOneSecond.getTime() + 1000);
 doc.cookie='WtTestCookie=ok;path=/;expires=' + inOneSecond.toGMTString();
 _$_$endif_$_();
 
@@ -196,9 +209,9 @@ if ((ua.indexOf("gecko") == -1) || (ua.indexOf("webkit") != -1))
   hash = unescape(hash);
 
 // scale (VML)
-var scaleInfo = "";
+var otherInfo = "";
 if (screen.deviceXDPI != screen.logicalXDPI)
-  scaleInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
+  otherInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
 
 // determine url
 var selfUrl = _$_SELF_URL_$_ + '&sid=' + _$_SCRIPT_ID_$_;
@@ -206,6 +219,10 @@ var selfUrl = _$_SELF_URL_$_ + '&sid=' + _$_SCRIPT_ID_$_;
 // determine html history support
 var htmlHistory = !!(window.history && window.history.pushState),
     htmlHistoryInfo = htmlHistory ? "&htmlHistory=true" : "";
+
+// determine time zone offset
+var tzOffset = (new Date()).getTimezoneOffset();
+otherInfo += "&tz=" + (-tzOffset);
 
 var needSessionInUrl = !no_replace || !ajax;
 
@@ -255,14 +272,10 @@ _$_$if_PROGRESS_$_();
       Make sure that we are not processing click events while progressing.
       Instead, delay them.
     */
-    var db = doc.body;
-    if (db.addEventListener)
-      db.addEventListener('click', delayClick, true);
-    else
-      db.attachEvent('onclick', delayClick);
+    setupDelayClick();
 _$_$endif_$_();
 
-    var allInfo = hashInfo + scaleInfo + htmlHistoryInfo + deployPathInfo;
+    var allInfo = hashInfo + otherInfo + htmlHistoryInfo + deployPathInfo;
 _$_$ifnot_SPLIT_SCRIPT_$_();
     loadScript(selfUrl + allInfo + '&request=script&rand=' + rand(),
                null);

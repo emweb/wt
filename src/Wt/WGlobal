@@ -99,6 +99,7 @@ namespace Wt {
   class WLineF;
   class WLink;
   class WLocale;
+  class WLocalDateTime;
   class WLoadingIndicator;
   class WLocalizedStrings;
   class WLogEntry;

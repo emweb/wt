@@ -50,9 +50,10 @@ WT_DECLARE_WT_MEMBER
 
      if (dt.getDate() != d ||
          dt.getMonth() != m-1 ||
-         dt.getFullYear() != y)
-       return { valid: false, massage: formatError};
-
+         dt.getFullYear() != y ||
+	 dt.getFullYear() < 1400) {
+       return { valid: false, message: formatError };
+     }
 
      if (bottom)
        if (dt.getTime() < bottom.getTime())

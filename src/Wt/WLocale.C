@@ -15,28 +15,35 @@ const WLocale systemLocale;
 WLocale::WLocale()
   : decimalPoint_("."),
     groupSeparator_(""),
-    dateFormat_("yyyy-MM-dd")
+    dateFormat_("yyyy-MM-dd"),
+    dateTimeFormat_("yyyy-MM-dd HH:mm:ss")
 { }
 
 WLocale::WLocale(const WLocale& other)
   : name_(other.name_),
     decimalPoint_(other.decimalPoint()),
     groupSeparator_(other.groupSeparator()),
-    dateFormat_(other.dateFormat())
+    dateFormat_(other.dateFormat()),
+    dateTimeFormat_(other.dateTimeFormat()),
+    time_zone_(other.time_zone_)
 { }
 
 WLocale::WLocale(const std::string& name)
   : name_(name),
     decimalPoint_(systemLocale.decimalPoint()),
     groupSeparator_(systemLocale.groupSeparator()),
-    dateFormat_(systemLocale.dateFormat())
+    dateFormat_(systemLocale.dateFormat()),
+    dateTimeFormat_(systemLocale.dateTimeFormat()),
+    time_zone_(systemLocale.time_zone_)
 { }
 
 WLocale::WLocale(const char *name)
   : name_(name),
     decimalPoint_(systemLocale.decimalPoint()),
     groupSeparator_(systemLocale.groupSeparator()),
-    dateFormat_(systemLocale.dateFormat())
+    dateFormat_(systemLocale.dateFormat()),
+    dateTimeFormat_(systemLocale.dateTimeFormat()),
+    time_zone_(systemLocale.time_zone_)
 { }
 
 void WLocale::setDecimalPoint(WT_UCHAR c)
@@ -52,6 +59,19 @@ void WLocale::setGroupSeparator(WT_UCHAR c)
 void WLocale::setDateFormat(const WT_USTRING& format)
 {
   dateFormat_ = format;
+}
+
+void WLocale::setTimeZone(const std::string& posixTimeZone)
+{
+  time_zone_.reset(new boost::local_time::posix_time_zone(posixTimeZone));
+}
+
+std::string WLocale::timeZone() const
+{
+  if (time_zone_)
+    return time_zone_->to_posix_string();
+  else
+    return std::string();
 }
 
 const WLocale& WLocale::currentLocale()

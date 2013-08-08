@@ -126,6 +126,7 @@ Wt/WIntValidator.C
 Wt/WInteractWidget.C
 Wt/WIOService.C
 Wt/WLocale.C
+Wt/WLocalDateTime.C
 Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C
@@ -271,6 +272,7 @@ Wt/Chart/WStandardPalette.C
 Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
+Wt/Json/Serializer.C
 Wt/Json/Value.C
 Wt/Http/HttpUtils.C
 Wt/Http/Client.C

@@ -46,9 +46,9 @@ WT_DECLARE_WT_MEMBER
 
    var self = this;
    var config = conf;
-   var itemDirty = false;  /* one or more items (with .dirty=true) need to
+   var itemDirty = true;  /* one or more items (with .dirty=true) need to
 			      be remeasured */
-   var layoutDirty = true; /* all items dirty need to be remeasured */
+   var layoutDirty = true; /* the parent size may have changed */
    var topLevel = false, parent = null, parentItemWidget = null,
      parentInitialized = false, parentMargin = [], parentWithWtPS = false;
 
@@ -337,19 +337,23 @@ WT_DECLARE_WT_MEMBER
          otherCount = OC.config.length,
          maxSize = DC.maxSize;
 
-     if (!itemDirty && !layoutDirty)
-       return;
+     var prevMeasures = measures.slice();
+     if (prevMeasures.length == 5) {
+       prevMeasures[PREFERRED_SIZE] = prevMeasures[PREFERRED_SIZE].slice();
+       prevMeasures[MINIMUM_SIZE] = prevMeasures[MINIMUM_SIZE].slice();
+     }
+
+     /*
+      * If only layoutDirty then we do not need to remeasure children, but simply
+      * propagate up again the total preferred size and reapply the layout as the
+      * container may have changed in size.
+      */
+     if (itemDirty) {
 
      if (container && typeof DC.minSize == 'undefined') {
        DC.minSize = WT.px(container, 'min' + DC.Size);
        if (DC.minSize > 0)
 	 DC.minSize -= sizePadding(container, dir);
-     }
-
-     var prevMeasures = measures.slice();
-     if (prevMeasures.length == 5) {
-       prevMeasures[PREFERRED_SIZE] = prevMeasures[PREFERRED_SIZE].slice();
-       prevMeasures[MINIMUM_SIZE] = prevMeasures[MINIMUM_SIZE].slice();
      }
 
      var preferredSize = [], minimumSize = [],
@@ -428,7 +432,7 @@ WT_DECLARE_WT_MEMBER
 	       console.log("measure " + dir + " "
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
 
-	     if (item.dirty || layoutDirty) {
+	     if (item.dirty) {
 	       var wMinimum;
 	       if (item.dirty > 1) {
 		 calcMinimumSize(item.w, dir);
@@ -664,6 +668,7 @@ WT_DECLARE_WT_MEMBER
 	     totalMinSize,
 	     totalMargin
 	     ];
+     } // itemDirty
 
      if (layoutDirty ||
 	 (prevMeasures[TOTAL_PREFERRED_SIZE] !=
@@ -1326,6 +1331,19 @@ WT_DECLARE_WT_MEMBER
      return id;
    };
 
+   this.setElDirty = function(el) {
+     var i, il;
+
+     for (i = 0, il = config.items.length; i < il; ++i) {
+       var item = config.items[i];
+       if (item && item.id == el.id) {
+	 item.dirty = 2;
+	 itemDirty = true;
+	 return;
+       }
+     }
+   }
+
    this.setItemsDirty = function(items) {
      var i, il;
 
@@ -1498,12 +1516,31 @@ WT_DECLARE_APP_MEMBER
       return jQuery.data(document.getElementById(id), 'layout');
     };
 
-    this.setDirty = function(layoutEl) {
-      var layout = jQuery.data(layoutEl, 'layout');
-
-      if (layout)
+    this.setDirty = function(id) {
+      var layout = this.find(id);
+      if (layout) {
 	layout.setDirty();
+	self.scheduleAdjust();
+      }
     };
+
+    this.setElementDirty = function(el) {
+      /*
+       * We need to find the first parent of el that is a layout item, and
+       * then mark it dirty.
+       */
+      var item = el;
+      el = el.parentNode;
+      while (el && el != document.body) {
+	var layout = jQuery.data(el, 'layout');
+	if (layout) {
+	  layout.setElDirty(item);
+	  self.scheduleAdjust();
+	}
+	item = el;
+	el = el.parentNode;
+      }
+    }
 
     this.setChildLayoutsDirty = function(layout, itemWidget) {
       var i, il;

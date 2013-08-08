@@ -4,14 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "StdWidgetItemImpl.h"
-
-#ifdef OLD_LAYOUT
-#include "StdGridLayoutImpl.h"
-#define GridLayoutImpl StdGridLayoutImpl
-#else
 #include "StdGridLayoutImpl2.h"
-#define GridLayoutImpl StdGridLayoutImpl2
-#endif
 
 #include "Wt/WApplication"
 #include "Wt/WBorderLayout"
@@ -90,7 +83,6 @@ void WContainerWidget::setLayout(WLayout *layout,
   if (layout_ && layout != layout_)
     delete layout_;
 
-#ifndef OLD_LAYOUT
   AlignmentFlag hAlign = alignment & AlignHorizontalMask;
   AlignmentFlag vAlign = alignment & AlignVerticalMask;
   
@@ -99,7 +91,6 @@ void WContainerWidget::setLayout(WLayout *layout,
 	     "longer have the special meaning it used to have). Use spacers "
 	     "or CSS instead to control alignment");
   }
-#endif
 
   contentAlignment_ = alignment;
 
@@ -108,7 +99,6 @@ void WContainerWidget::setLayout(WLayout *layout,
     flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
 
     if (layout) {
-      containsLayout();
       WWidget::setLayout(layout);
       layoutImpl()->setContainer(this);
     }
@@ -123,27 +113,31 @@ void WContainerWidget::childResized(WWidget *child,
 {
 #ifndef WT_NO_LAYOUT
   if (layout_) {
-#ifdef OLD_LAYOUT
-    AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
-    bool setUpdate
-      = (directions & Vertical) && (vAlign == 0)
-      && !flags_.test(BIT_LAYOUT_NEEDS_UPDATE);
-#else
-    bool setUpdate = true;
-#endif
-    if (setUpdate) {
-      WWidgetItem *item = layout_->findWidgetItem(child);
-      if (item) {
-	if (dynamic_cast<StdLayoutImpl *>(item->parentLayout()->impl())
-	    ->itemResized(item)) {
-	  flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
-	  repaint();
-	}
+    WWidgetItem *item = layout_->findWidgetItem(child);
+    if (item) {
+      if (dynamic_cast<StdLayoutImpl *>(item->parentLayout()->impl())
+	  ->itemResized(item)) {
+	flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
+	repaint();
       }
     }
   } else
-#endif
     WInteractWidget::childResized(child, directions);
+#endif
+}
+
+void WContainerWidget::parentResized(WWidget *parent,
+				     WFlags<Orientation> directions)
+{
+#ifndef WT_NO_LAYOUT
+  if (layout_) {
+    if (dynamic_cast<StdLayoutImpl *>(layout_->impl())->parentResized()) {
+      flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
+      repaint();
+    }
+  } else
+    WInteractWidget::parentResized(parent, directions);
+#endif
 }
 
 WLayoutItemImpl *WContainerWidget::createLayoutItemImpl(WLayoutItem *item)
@@ -158,19 +152,19 @@ WLayoutItemImpl *WContainerWidget::createLayoutItemImpl(WLayoutItem *item)
   {
     WBorderLayout *l = dynamic_cast<WBorderLayout *>(item);
     if (l)
-      return new GridLayoutImpl(l, l->grid());
+      return new StdGridLayoutImpl2(l, l->grid());
   }
 
   {
     WBoxLayout *l = dynamic_cast<WBoxLayout *>(item);
     if (l)
-      return new GridLayoutImpl(l, l->grid());
+      return new StdGridLayoutImpl2(l, l->grid());
   }
 
   {
     WGridLayout *l = dynamic_cast<WGridLayout *>(item);
     if (l)
-      return new GridLayoutImpl(l, l->grid());
+      return new StdGridLayoutImpl2(l, l->grid());
   }
 #endif
 
@@ -668,6 +662,7 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
 {
   if (layout_) {
 #ifndef WT_NO_LAYOUT
+    containsLayout();
     bool fitWidth = contentAlignment_ & AlignJustify;
     bool fitHeight = !(contentAlignment_ & AlignVerticalMask);
 

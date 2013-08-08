@@ -62,6 +62,7 @@ public:
 
   using WWidget::removeChild;
 
+  virtual void setObjectName(const std::string& name);
   virtual const std::string id() const;
 
   virtual void setPositionScheme(PositionScheme scheme);

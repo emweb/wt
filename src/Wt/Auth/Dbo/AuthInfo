@@ -310,6 +310,10 @@ public:
    */
   const std::string& value() const { return value_; }
 
+  /*! \brief Sets the token value.
+   */
+  void setValue(const std::string& value) { value_ = value; }
+
   /*! \brief Returns the token expiry date.
    */
   const Wt::WDateTime& expires() const { return expires_; }

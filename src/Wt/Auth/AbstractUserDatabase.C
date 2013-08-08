@@ -161,6 +161,15 @@ void AbstractUserDatabase::removeAuthToken(const User& user,
   LOG_ERROR(Require("removeAuthToken()", AUTH_TOKEN).what());
 }
 
+int AbstractUserDatabase::updateAuthToken(const User& user,
+					  const std::string& hash,
+					  const std::string& newHash)
+{
+  LOG_WARN(Require("updateAuthToken()", AUTH_TOKEN).what());
+
+  return -1;
+}
+
 User AbstractUserDatabase::findWithAuthToken(const std::string& hash) const
 {
   LOG_ERROR(Require("findWithAuthToken()", AUTH_TOKEN).what());

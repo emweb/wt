@@ -123,6 +123,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     cursor: pointer; cursor: hand;
     font: bold 20px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
     vertical-align: middle;
+    display: block;
 }
 
 .Wt-cal caption select {

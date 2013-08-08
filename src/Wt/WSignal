@@ -62,12 +62,24 @@ class JavaScriptEvent;
    signals. To react to one of these events, the programmer connects a
    self-defined or already existing slot to such a signal.
 
-   To connect a signal from multiple senders to a single slot, the
-   \link WSignalMapper WSignalMapper<T> \endlink class may be
-   convenient. Using that class you can still identify the sender,
-   using an arbitrary property of the sender which you define when
-   making the connection. That property is passed as an additional
-   slot argument.
+   To connect a signal from multiple senders to a single slot, we
+   recommend the use of boost::bind() to identify the sender (or
+   otherwise the intention) of the signal. The use of class
+   \link WSignalMapper WSignalMapper<T> \endlink is discouraged.
+
+   \if cpp
+   Usage example:
+   \code
+   std::vector<Wt::WPushButton*> buttons = ...;
+   for(unsigned i = 0; i < buttons.size(); ++i) {
+     buttons[i]->clicked().connect(boost::bind(&Keyboard::handleClick, i));
+   }
+
+   void Keyboard::handleClick(int i) {
+     t->setText(WString("You pressed button {1}").args(i));
+   }
+   \endcode
+   \endif
 */
 
 /*! \brief Abstract base class of a signal.
@@ -252,7 +264,7 @@ public:
    *
    * When the receiver function is an object method, the signal will
    * automatically be disconnected when the object is deleted, as long as the
-   * object inherits from WObject or Wt::Signals::trackable.
+   * object inherits from WObject (or Wt::Signals::trackable).
    *
    * The function may leave up to <i>N</i> parameters unbound
    * (e.g. using boost::bind placeholders _1 to _N) that may be bound
@@ -398,26 +410,12 @@ public:
 private:
   Signal(const Signal<A1, A2, A3, A4, A5, A6>&);
 
-#ifndef _MSC_VER
-  // Up to 6 arguments allowed
-  typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
+#ifdef WT_CNOR
+  typedef Wt::Signals::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
 #else
-#  if _MSC_VER >= 1700
-  // MSVS 2012's std::bind implementation may support only 5 arguments
-  // http://blogs.msdn.com/b/vcblog/archive/2011/09/12/10209291.aspx
-#    if defined(_VARIADIC_MAX) && (_VARIADIC_MAX < 6)
-       // default MSVS 2012: defaults to 5. We assume no-one will lower this.
-       typedef Wt::Signals::signal5<void, A1, A2, A3, A4, A5> BoostSignalType;
-#      define A6_MUST_BE_NOCLASS
-#    else
-       // You can reconfigure this, and MS promised to raise _VARIADIC_MAX
-       // in future compilers
-       typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
-#    endif
-#  else
-    typedef boost::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
-#  endif
+  typedef Wt::Signals::signal<void(A1, A2, A3, A4, A5, A6)> BoostSignalType;
 #endif
+
   BoostSignalType *impl_;
 };
 
@@ -562,7 +560,11 @@ protected:
    * Dummy signal used for knowing if stateless connections are still
    * connected.
    */
+#ifndef WT_CNOR
+  Wt::Signals::signal<void()>              dummy_;
+#else
   Wt::Signals::signal0<void>              dummy_;
+#endif
 
   EventSignalBase(const char *name, WObject *sender, bool autoLearn);
 
@@ -639,7 +641,7 @@ public:
    *
    * When the receiver function is an object method, the signal will
    * automatically be disconnected when the object is deleted, as long as the
-   * object inherits from WObject or Wt::Signals::trackable.
+   * object inherits from WObject (or Wt::Signals::trackable).
    *
    * The function may leave 1 parameters unbound (e.g. using
    * boost::bind placeholders _1) that may be bound to the event
@@ -739,7 +741,11 @@ public:
 					     WObject::Method method);
 
 private:
+#ifndef WT_CNOR
+  typedef Wt::Signals::signal<void(E)> BoostSignalType;
+#else
   typedef Wt::Signals::signal1<void, E> BoostSignalType;
+#endif
   BoostSignalType dynamic_;
 
   void processDynamic(const JavaScriptEvent& e);

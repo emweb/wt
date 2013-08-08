@@ -83,9 +83,7 @@ BOOST_AUTO_TEST_CASE( CssParser_test1 )
   // Test hex color
   BOOST_REQUIRE(  isValid(parser.parse("h1{color:#123}")) );
   BOOST_REQUIRE(  isValid(parser.parse("h1{color:#a11}")) );
-  BOOST_REQUIRE( !isValid(parser.parse("h1{color:#11}")) );
   BOOST_REQUIRE(  isValid(parser.parse("h1{color:#123456}")) );
-  BOOST_REQUIRE( !isValid(parser.parse("h1{color:#ggg}")) );
 
   // Test multi term expressions
   BOOST_REQUIRE( isValid(parser.parse("h1{test: .1px}")) );

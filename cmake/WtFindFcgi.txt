@@ -17,12 +17,14 @@ FIND_PATH(FCGI_INCLUDE_DIR
 FIND_LIBRARY(FCGI_LIB fcgi
   ${FCGI_PREFIX}/lib
   /usr/lib
+  /usr/lib64
   /usr/local/lib
 )
 
 FIND_LIBRARY(FCGIPP_LIB fcgi++
   ${FCGI_PREFIX}/lib
   /usr/lib
+  /usr/lib64
   /usr/local/lib
 )
 

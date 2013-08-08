@@ -170,4 +170,24 @@ BOOST_AUTO_TEST_CASE( CssSelector_testSpecificity )
   delete style;
 }
 
+BOOST_AUTO_TEST_CASE( CssSelector_test5 )
+{
+  rapidxml::xml_document<>* doc = createXHtml(
+        "<h1><h1><h1></h1></h1></h1>");
+
+  Wt::Render::StyleSheet* style = Wt::Render::CssParser().parse(
+        "h1 h1 h1{}");
+
+  BOOST_REQUIRE( style );
+
+
+  Wt::Render::Block b(doc, 0);
+  // Sanity check, match h1/h1/h1 to "h1 h1 h1"
+  BOOST_REQUIRE(  Match::isMatch(childBlock(&b, list_of(0)(0)(0)),
+                  style->rulesetAt(0).selector() ) );
+  // FAIL h1/h1 to "h1 h1 h1"
+  BOOST_REQUIRE( !Match::isMatch(childBlock(&b, list_of(0)(0)),
+                  style->rulesetAt(0).selector() ) );
+}
+
 #endif // CSS_PARSER

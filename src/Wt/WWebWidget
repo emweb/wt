@@ -477,6 +477,7 @@ protected:
   void updateSignalConnection(DomElement& element, EventSignalBase& signal,
 			      const char *name, bool all);
 
+  virtual void parentResized(WWidget *parent, WFlags<Orientation> directions);
   void containsLayout();
 
   /*

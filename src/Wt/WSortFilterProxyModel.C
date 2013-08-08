@@ -456,7 +456,11 @@ void WSortFilterProxyModel::sourceRowsAboutToBeInserted
    * at all in changes to a node which he has not yet 'opened' ..., but
    * strictly spoken we are obliged to propagate these changes !
    */
-  itemFromIndex(mapFromSource(parent));
+  WModelIndex pparent = mapFromSource(parent);
+  // distinguish between invalid parent being root item or being filtered out
+  if (parent.isValid() && !pparent.isValid())
+    return;
+  itemFromIndex(pparent);
 }
 
 void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
@@ -470,6 +474,9 @@ void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
   int count = end - start + 1;
 
   WModelIndex pparent = mapFromSource(parent);
+  // distinguish between invalid parent being root item or being filtered out
+  if (parent.isValid() && !pparent.isValid())
+    return;
   Item *item = itemFromIndex(pparent);
 
   // Shift existing entries in proxyRowMap, and reserve place in sourceRowMap
@@ -501,6 +508,9 @@ void WSortFilterProxyModel::sourceRowsAboutToBeRemoved
 (const WModelIndex& parent, int start, int end)
 {
   WModelIndex pparent = mapFromSource(parent);
+  // distinguish between invalid parent being root item or being filtered out
+  if (parent.isValid() && !pparent.isValid())
+    return;
   Item *item = itemFromIndex(pparent);
 
   for (int row = start; row <= end; ++row) {
@@ -523,6 +533,9 @@ void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
   shiftModelIndexes(parent, start, -count, mappedIndexes_);
 
   WModelIndex pparent = mapFromSource(parent);
+  // distinguish between invalid parent being root item or being filtered out
+  if (parent.isValid() && !pparent.isValid())
+    return;
   Item *item = itemFromIndex(pparent);
 
   // Shift existing entries in proxyRowMap, and remove entries in sourceRowMap
@@ -547,6 +560,9 @@ void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 		   && sortKeyColumn_ <= bottomRight.column());
 
   WModelIndex parent = mapFromSource(topLeft.parent());
+  // distinguish between invalid parent being root item or being filtered out
+  if (topLeft.parent().isValid() && !parent.isValid())
+    return;
   Item *item = itemFromIndex(parent);
 
   for (int row = topLeft.row(); row <= bottomRight.row(); ++row) {

@@ -2,7 +2,7 @@ IF(CONNECTOR_FCGI)
   IF(NOT FCGI_FOUND)
 
     MESSAGE("** Disabling FCGI connector: requires libfcgi ")
-    MESSAGE("   Indicate the location of libfcgi using -DUSERLIB_ROOT=..., or omit this connector using -DCONNECTOR_FCGI=OFF")
+    MESSAGE("   Indicate the location of libfcgi using -DFCGI_PREFIX=..., or omit this connector using -DCONNECTOR_FCGI=OFF")
 
   ELSE(NOT FCGI_FOUND)
     MESSAGE("** Enabling FastCGI connector.")

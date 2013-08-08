@@ -9,6 +9,7 @@
 
 #include <Wt/WDllDefs.h>
 #include <Wt/WException>
+#include <Wt/WLocale>
 #include <Wt/WString>
 #include <exception>
 
@@ -17,9 +18,11 @@
 namespace Wt {
 
 /*! \class InvalidDateTimeException Wt/WDateTime Wt/WDateTime
- *  \brief Exception thrown when calculating with an invalid date.
+ *  \brief Exception thrown when calculating with an invalid date (<b>deprecated</b>)
  *
  * \sa WDateTime
+ *
+ * \deprecated Is never thrown
  */
 class WT_API InvalidDateTimeException : public WException
 {
@@ -27,19 +30,15 @@ public:
   InvalidDateTimeException();
 };
 
-class WDate;
-class WTime;
-
 /*! \class WDateTime Wt/WDateTime Wt/WDateTime
  *  \brief A calendar date and clock time.
  *
  * The date time class combines the functionality of a WDate (for a
  * calendar date) and WTime (for clock time) into a single class.
  *
- * Conventionally date time is assumed in UTC, which affects the behaviour
- * of the following methods:
- * - toTime_t(), setTime_t()
- * - currentDateTime()
+ * This class stores and represents the date time in UTC. To deal with local
+ * (wall clock) time, see WLocalDateTime. To convert from UTC to local time
+ * use toUTC().
  *
  * <h3>i18n</h3>
  *
@@ -61,7 +60,6 @@ class WTime;
  * - Wt.WDateTime.seconds: {1} seconds
  * The placeholder {1} will be replaced by the actual number of seconds. The
  * same keys also exist for minutes, hours, days, weeks, monts and years.
- *
  */
 class WT_API WDateTime
 {
@@ -88,6 +86,10 @@ public:
    */
   WDateTime(const WDate& date, const WTime& time);
 
+  /*! \brief Creates a date time.
+   */
+  explicit WDateTime(const boost::posix_time::ptime time);
+
   /*! \brief Sets the time in seconds from the Epoch.
    *
    * The \p time is the number of seconds since the Epoch (00:00:00
@@ -106,6 +108,9 @@ public:
    * Returns a datetime that is \p ms milliseconds later than this
    * datetime. Negative values for \p ms will result in a datetime that
    * is as many milliseconds earlier.
+   *
+   * Returns a null date if the current date time is invalid or the new
+   * date time is out of range.
    */
   WDateTime addMSecs(int ms) const;
 
@@ -114,6 +119,9 @@ public:
    * Returns a datetime that is \p s seconds later than this
    * datetime. Negative values for \p s will result in a datetime that
    * is as many seconds earlier.
+   *
+   * Returns a null date if the current date time is invalid or the new
+   * date time is out of range.
    */
   WDateTime addSecs(int s) const;
 
@@ -122,6 +130,9 @@ public:
    * Returns a datetime that is \p ndays later than this
    * datetime. Negative values for \p ndays will result in a datetime
    * that is as many days earlier.
+   *
+   * Returns a null date if the current date time is invalid or the new
+   * date time is out of range.
    *
    * \sa addMonths(), addYears()
    */
@@ -133,6 +144,9 @@ public:
    * nmonths later than this date. Negative values for \p nmonths will
    * result in a datetime that is as many months earlier.
    *
+   * Returns a null date if the current date time is invalid or the new
+   * date time is out of range.
+   *
    * \sa addDays(), addYears()
    */
   WDateTime addMonths(int nmonths) const;
@@ -142,6 +156,9 @@ public:
    * Returns a datetime that is \p nyears later than this
    * datetime. Negative values for \p nyears will result in a datetime
    * that is as many years earlier.
+   *
+   * Returns a null date if the current date time is invalid or the new
+   * date time is out of range.
    *
    * \sa addDays(), addMonths()
    */
@@ -205,9 +222,19 @@ public:
    */
   boost::posix_time::ptime toPosixTime() const;
 
+  /*! \brief Converts to a local time.
+   *
+   * The conversion is based on the fact that WDateTime represents UTC time.
+   * 
+   * This is the reverse of WLocalDateTime::toUTC()
+   */
+  WLocalDateTime toLocalTime(const WLocale& locale = WLocale::currentLocale());
+
   /*! \brief Returns the difference between two datetime values (in seconds).
    *
    * The result is negative if other is earlier than this.
+   *
+   * Returns 0 if either date is invalid.
    *
    * \sa daysTo()
    */
@@ -216,6 +243,8 @@ public:
   /*! \brief Returns the difference between two datetime values (in days).
    *
    * The result is negative if other is earlier than this.
+   *
+   * Returns 0 if either date is invalid.
    *
    * \sa secsTo()
    */
@@ -228,6 +257,8 @@ public:
    * representation returns the difference as a number of seconds,
    * minutes, hours, days, weeks, months, or years, using the coarsest
    * unit that is more than \p minValue.
+   *
+   * Returns an empty string if either date is invalid.
    *
    * \sa daysTo(), secsTo()
    */
@@ -291,7 +322,7 @@ public:
    */
   static WDateTime fromString(const WT_USTRING& s, const WT_USTRING& format);
 
-  /*! \brief Reports the current UTC datetime.
+  /*! \brief Reports the current datetime (UTC clock).
    *
    * This method returns the datetime as indicated by the system clock
    * of the server, in the UTC timezone.
@@ -315,15 +346,15 @@ private:
 
   enum CharState { CharUnhandled, CharHandled, CharInvalid };
 
-  WDateTime(boost::posix_time::ptime datetime);
-
   static void fromString(WDate *date, WTime *time, const WString& s,
 			 const WString& format);
   static WString toString(const WDate *date, const WTime *time,
-                          const WString& format, bool localized = true);
+                          const WString& format, bool localized,
+			  int zoneOffset);
 
   friend class WDate;
   friend class WTime;
+  friend class WLocalDateTime;
 };
 
 }

@@ -75,13 +75,19 @@ public:
    */
   const std::vector<WString>& stringList() const { return displayData_; }
 
-  /*! \brief Returns the flags for an item.
+  /*! \brief Sets model flags for an item.
    *
-   * This method is reimplemented to return \link Wt::ItemIsSelectable
+   * The default item flags are \link Wt::ItemIsSelectable
    * ItemIsSelectable\endlink | \link Wt::ItemIsEditable
    * ItemIsEditable\endlink.
+   */
+  void setFlags(int index, WFlags<ItemFlag> flags);
+
+  /*! \brief Returns the flags for an item.
    *
-   * \sa Wt::ItemFlag
+   * This method is reimplemented to return flags set in setFlags().
+   *
+   * \sa setFlags()
    */
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
 
@@ -111,6 +117,7 @@ private:
 
   std::vector<WString> displayData_;
   std::vector<DataMap> *otherData_;
+  std::vector<WFlags<ItemFlag> > flags_;
 };
 
 }

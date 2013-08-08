@@ -368,7 +368,19 @@ WString WTime::toString() const
 
 WString WTime::toString(const WString& format) const
 {
-  return WDateTime::toString(0, this, format);
+  return WDateTime::toString(0, this, format, true, 0);
+}
+
+boost::posix_time::time_duration WTime::toTimeDuration() const
+{
+  if (isValid()) {
+    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
+      boost::posix_time::time_duration::ticks_per_second() / 1000;
+    return boost::posix_time::time_duration(hour(), minute(),
+					    second(),
+					    msec() * ticks_per_msec);
+  } else
+    return boost::posix_time::time_duration(boost::date_time::not_a_date_time);
 }
 
 int WTime::pmhour() const
@@ -378,7 +390,8 @@ int WTime::pmhour() const
 }
 
 bool WTime::writeSpecial(const std::string& f, unsigned& i,
-			 std::stringstream& result, bool useAMPM) const
+			 std::stringstream& result, bool useAMPM,
+			 int zoneOffset) const
 {
   char buf[30];
 
@@ -415,6 +428,18 @@ bool WTime::writeSpecial(const std::string& f, unsigned& i,
       result << Utils::itoa(second(), buf);
 
     return true;
+  case 'Z': {
+    int hours = zoneOffset / 60;
+    int minutes = zoneOffset % 60;
+    if (zoneOffset >= 0)
+      result << '+';
+    else
+      result << '-';
+    result << Utils::pad_itoa(hours, 2, buf);
+    result << Utils::pad_itoa(minutes, 2, buf);
+
+    return true;
+  }
   case 'z':
     if (f.substr(i + 1, 2) == "zz") {
       i += 2;

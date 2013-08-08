@@ -103,6 +103,33 @@ OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 
+# C++11 vs C++98
+# Binary compatibility is not guaranteed. We give our users the choice on
+# how to compile Wt
+# We're not sure yet if you can safely link Wt compiled in 03 mode against
+# an application compiled in 11 mode. Boost probably causes problems here
+# (specially boost.signals2)
+IF(NOT MSVC)
+  # For now, don't auto-detect
+  #IF(CMAKE_COMPILER_IS_GNUCXX)
+  #  execute_process(COMMAND ${CMAKE_C_COMPILER} "-dumpversion"
+  #                  OUTPUT_VARIABLE GCC_VERSION)
+  #  IF(${GCC_VERSION} VERSION_GREATER "4.5.99")
+  #    SET(HAS_CXX11 ON)
+  #  ENDIF(${GCC_VERSION} VERSION_GREATER "4.5.99")
+  #ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(WT_CPP_11_MODE "" CACHE STRING "C++ mode to compile Wt in (leave empty for your compiler's default, or set to -std=c++11, -std=c++0x, ...)")
+  IF(WT_CPP_11_MODE)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WT_CPP_11_MODE}")
+    SET(HAS_CXX11 ON)
+  ENDIF(WT_CPP_11_MODE)
+ELSE(NOT MSVC)
+  # For once, msvs is easier than gcc/llvm
+  IF(MSVC_VERSION GREATER 1600)
+    SET(HAS_CXX11 ON)
+  ENDIF(MSVC_VERSION GREATER 1600)
+ENDIF(NOT MSVC)
+
 IF(APPLE)
   OPTION(USE_BOOST_FRAMEWORK "Uses a Boost framework" OFF)
 ENDIF(APPLE)
@@ -351,6 +378,27 @@ ELSE(BOOST_WT_MT_FOUND)
   ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
 ENDIF(BOOST_WT_MT_FOUND)
 
+# decide on signals vs signals2
+# boost 1.54 deprecated boost signals -> use signals2
+IF (Boost_VERSION GREATER 105300)
+  MESSAGE(STATUS "Boost ${Boost_VERSION} > 1.53, WT_SIGNALS_IMPLEMENTATION = boost.signals2 recommended")
+  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals2")
+ELSE (Boost_VERSION GREATER 105300)
+  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals")
+  MESSAGE(STATUS "Boost ${Boost_VERSION} < 1.54, WT_SIGNALS_IMPLEMENTATION = boost.signals recommended")
+ENDIF (Boost_VERSION GREATER 105300)
+SET(WT_SIGNALS_IMPLEMENTATION ${DEFAULT_WT_SIGNALS_IMPLEMENTATION} CACHE STRING "Select what implementation should be used for Wt signals")
+SET_PROPERTY(CACHE WT_SIGNALS_IMPLEMENTATION PROPERTY STRINGS boost.signals boost.signals2)
+
+IF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
+  MESSAGE(STATUS "Selecting boost.signals")
+  SET(WT_USE_BOOST_SIGNALS ON)
+  SET(WT_USE_BOOST_SIGNALS2 OFF)
+ELSEIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals2")
+  MESSAGE(STATUS "Selecting boost.signals2")
+  SET(WT_USE_BOOST_SIGNALS OFF)
+  SET(WT_USE_BOOST_SIGNALS2 ON)
+ENDIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
 
 
 FIND_PACKAGE(Doxygen)

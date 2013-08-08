@@ -13,6 +13,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
 #include "Wt/WServer"
+#include "Wt/Utils"
 
 #include <sstream>
 #include <boost/lexical_cast.hpp>
@@ -63,12 +64,18 @@ public:
     maximumResponseSize_ = bytes;
   }
 
-  void request(const std::string& method, const std::string& server, int port,
-	       const std::string& path, const Message& message)
+  void request(const std::string& method, const std::string& auth, 
+	       const std::string& server, int port, const std::string& path,
+	       const Message& message)
   {
     std::ostream request_stream(&requestBuf_);
     request_stream << method << " " << path << " HTTP/1.0\r\n";
-    request_stream << "Host: " << server << "\r\n";
+    request_stream << "Host: " << server << ":" 
+		   << boost::lexical_cast<std::string>(port) << "\r\n";
+
+    if (!auth.empty())
+      request_stream << "Authorization: Basic " 
+		     << Wt::Utils::base64Encode(auth) << "\r\n";
 
     bool haveContentLength = false;
     for (unsigned i = 0; i < message.headers().size(); ++i) {
@@ -634,6 +641,7 @@ bool Client::request(Http::Method method, const std::string& url,
   LOG_DEBUG(methodNames_[method] << " " << url);
 
   impl_->request(methodNames_[method], 
+		 parsedUrl.auth,
 		 parsedUrl.host, 
 		 parsedUrl.port, 
 		 parsedUrl.path, 
@@ -657,6 +665,15 @@ bool Client::parseUrl(const std::string &url, URL &parsedUrl)
 
   parsedUrl.protocol = url.substr(0, i);
   std::string rest = url.substr(i + 3);
+  // find auth
+  std::size_t l = rest.find('@');
+  if (l != std::string::npos) {
+    parsedUrl.auth = rest.substr(0, l);
+    parsedUrl.auth = Wt::Utils::urlDecode(parsedUrl.auth);
+    rest = rest.substr(l+1);
+  }
+
+  // find host
   std::size_t j = rest.find('/');
 
   if (j == std::string::npos)

@@ -45,6 +45,7 @@ void WServer::init(const std::string& wtApplicationPath,
   ioService_ = 0;
   webController_ = 0;
   configuration_ = 0;
+  localizedStrings_ = 0;
 
   logger_.addField("datetime", false);
   logger_.addField("app", false);
@@ -64,8 +65,15 @@ void WServer::destroy()
 
   delete webController_;
   delete configuration_;
+  delete localizedStrings_;
 
   instance_ = 0;
+}
+
+void WServer::setLocalizedStrings(WLocalizedStrings *stringResolver)
+{
+  delete localizedStrings_;
+  localizedStrings_ = stringResolver;
 }
 
 void WServer::setIOService(WIOService& ioService)

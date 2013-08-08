@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-// #define DEBUG_LAYOUT
+//#define DEBUG_LAYOUT
 
 #include "Wt/WFontMetrics"
 #include "Wt/WLogger"
@@ -149,6 +149,7 @@ void Block::setStyleSheet(StyleSheet* styleSheet)
 void Block::determineDisplay()
 {
   std::string fl = cssProperty(PropertyStyleFloat);
+
   if (!fl.empty()) {
     if (fl == "left")
       float_ = Left;
@@ -157,7 +158,7 @@ void Block::determineDisplay()
     else {
       unsupportedCssValue(PropertyStyleFloat, fl);
     }
-  } else if (type_ == DomElement_IMG || type_ == DomElement_TABLE) {
+  } else if (type_ == DomElement_IMG || isTable()) {
     std::string align = attributeValue("align");
     if (!align.empty()) {
       if (align == "left")
@@ -242,6 +243,18 @@ void Block::determineDisplay()
     } else
       inline_ = false;
   }
+
+  if (type_ == DomElement_TABLE) {
+    std::vector<int> rowSpan;
+
+    int row = numberTableCells(0, rowSpan);
+    int maxRowSpan = 0;
+    for (unsigned i = 0; i < rowSpan.size(); ++i)
+      maxRowSpan = std::max(maxRowSpan, rowSpan[i]);
+
+    tableRowCount_ = row + maxRowSpan;
+    tableColCount_ = rowSpan.size();
+  }
 }
 
 /*
@@ -271,6 +284,54 @@ bool Block::normalizeWhitespace(bool haveWhitespace,
     return whitespaceIn;
   else
     return haveWhitespace;
+}
+
+int Block::numberTableCells(int row, std::vector<int>& rowSpan)
+{
+  if (   type_ == DomElement_TABLE
+      || type_ == DomElement_TBODY
+      || type_ == DomElement_THEAD
+      || type_ == DomElement_TFOOT) {
+    for (unsigned i = 0; i < children_.size(); ++i) {
+      Block *c = children_[i];
+
+      row = c->numberTableCells(row, rowSpan);
+    }
+  } else if (type_ == DomElement_TR) {
+    int col = 0;
+
+    for (unsigned i = 0; i < children_.size(); ++i) {
+      Block *c = children_[i];
+
+      if (c->isTableCell()) {
+	/* skip overspanned cells by previous rows */
+	while (col < (int)rowSpan.size() && rowSpan[col] > 0)
+	  ++col;
+
+	c->cellCol_ = col;
+	c->cellRow_ = row;
+
+	int rs = c->attributeValue("rowspan", 1);
+	int cs = c->attributeValue("colspan", 1);
+
+	while ((int)rowSpan.size() <= col + cs - 1)
+	  rowSpan.push_back(1);
+
+	for (int k = 0; k < cs; ++k)
+	  rowSpan[col + k] = rs;
+
+	col += cs;
+      }
+    }
+
+    for (unsigned i = 0; i < rowSpan.size(); ++i)
+      if (rowSpan[i] > 0)
+	rowSpan[i] = rowSpan[i] - 1;
+
+    ++row;
+  }
+
+  return row;
 }
 
 bool Block::inlineChildren() const
@@ -352,7 +413,7 @@ double Block::cssPadding(Side side, double fontScale) const
 
   if (!result.defined) {
     if (isTableCell())
-      return 4;
+      return 1;
     else if ((type_ == DomElement_UL || type_ == DomElement_OL) && side == Left)
       return 40;
   }
@@ -414,7 +475,213 @@ bool Block::isInside(DomElementType type) const
     return false;
 }
 
+double Block::cssBorderSpacing(double fontScale) const
+{
+  if (tableCollapseBorders())
+    return 0;
+
+  std::string spacingStr = cssProperty(PropertyStyleBorderSpacing);
+
+  if (!spacingStr.empty()) {
+    WLength l(spacingStr.c_str());
+    return l.toPixels(cssFontSize(fontScale));
+  } else
+    return attributeValue("cellspacing", 2);
+}
+
+Block *Block::table() const
+{
+  Block *result = parent_;
+  while (result && !result->isTable())
+    result = result->parent_;
+  return result;
+}
+
+bool Block::tableCollapseBorders() const
+{
+  return cssProperty(PropertyStyleBorderCollapse) == "collapse";
+}
+
 double Block::cssBorderWidth(Side side, double fontScale) const
+{
+  if (isTableCell()) {
+    Block *t = table();
+    if (t && t->tableCollapseBorders())
+      return collapsedBorderWidth(side, fontScale);
+    else
+      return rawCssBorderWidth(side, fontScale);
+  } else if (isTable() && tableCollapseBorders())
+    return collapsedBorderWidth(side, fontScale);
+  else
+    return rawCssBorderWidth(side, fontScale);
+}
+
+Block *Block::findTableCell(int row, int col) const
+{
+  if (   type_ == DomElement_TABLE
+      || type_ == DomElement_TBODY
+      || type_ == DomElement_THEAD
+      || type_ == DomElement_TFOOT) {
+    for (unsigned i = 0; i < children_.size(); ++i) {
+      Block *c = children_[i];
+
+      Block *result = c->findTableCell(row, col);
+      if (result)
+	return result;
+    }
+
+    return 0;
+  } else if (type_ == DomElement_TR) {
+    for (unsigned i = 0; i < children_.size(); ++i) {
+      Block *c = children_[i];
+
+      if (c->isTableCell()) {
+	int rs = c->attributeValue("rowspan", 1);
+	int cs = c->attributeValue("colspan", 1);
+
+	if (row >= c->cellRow_ && row < c->cellRow_ + rs &&
+	    col >= c->cellCol_ && col < c->cellCol_ + cs)
+	  return c;
+      }
+    }
+
+    return 0;
+  }
+
+  return 0;
+}
+
+Block *Block::siblingTableCell(Side side) const
+{
+  Block *t = table();
+
+  switch (side) {
+  case Left:
+    if (cellCol_ == 0)
+      return 0;
+    else
+      return t->findTableCell(cellRow_, cellCol_ - 1);
+  case Right: {
+    int nextCol = cellCol_ + attributeValue("colspan", 1);
+    if (nextCol >= t->tableColCount_)
+      return 0;
+    else
+      return t->findTableCell(cellRow_, nextCol);
+  }
+  case Top:
+    if (cellRow_ == 0)
+      return 0;
+    else
+      return t->findTableCell(cellRow_ - 1, cellCol_);
+  case Bottom: {
+    int nextRow = cellRow_ + attributeValue("rowspan", 1);
+    if (nextRow >= t->tableRowCount_)
+      return 0;
+    else
+      return t->findTableCell(nextRow, cellCol_);
+  }
+  default:
+    break;
+  }
+
+  return 0;
+}
+
+Block::BorderElement Block::collapseCellBorders(Side side) const
+{
+  std::vector<BorderElement> elements;
+  elements.reserve(2);
+
+  Block *s = siblingTableCell(side);
+  Block *t = table();
+
+  switch (side) {
+  case Left:
+    if (s) {
+      elements.push_back(BorderElement(s, Right));
+      elements.push_back(BorderElement(this, Left));
+    } else {
+      elements.push_back(BorderElement(this, Left));
+      elements.push_back(BorderElement(t, Left));
+    }
+
+    break;
+  case Top:
+    if (s) {
+      elements.push_back(BorderElement(s, Bottom));
+      elements.push_back(BorderElement(this, Top));
+    } else {
+      elements.push_back(BorderElement(this, Top));
+      elements.push_back(BorderElement(t, Top));
+    }
+
+    break;
+  case Right:
+    elements.push_back(BorderElement(this, Right));
+    if (s)
+      elements.push_back(BorderElement(s, Left));
+    else
+      elements.push_back(BorderElement(t, Right));
+    
+    break;
+  case Bottom:
+    elements.push_back(BorderElement(this, Bottom));
+    if (s)
+      elements.push_back(BorderElement(s, Top));
+    else
+      elements.push_back(BorderElement(t, Bottom));
+  default:
+    break;
+  }
+
+  double borderWidth = 0;
+  BorderElement result;
+
+  for (unsigned i = 0; i < elements.size(); ++i) {
+    double c = elements[i].block->rawCssBorderWidth(elements[i].side, 1, true);
+    if (c == -1)
+      return elements[i];
+
+    if (c > borderWidth) {
+      result = elements[i];
+      borderWidth = std::max(borderWidth, c);
+    }
+  }
+
+  if (!result.block) {
+    /*
+      Disabled because I can't understand when a browser does this or not,
+      and tinyMCE annoyingly alwasy puts this border attribute.
+     
+    bool tableDefault = t->attributeValue("border", 0) > 0;
+    if (tableDefault)
+      return BorderElement(t, side);
+    else
+
+     */
+    return elements[0];
+  } else
+    return result;
+}
+
+double Block::collapsedBorderWidth(Side side, double fontScale) const
+{
+  /* 17.6.2.1 border conflict resolution */
+  assert (isTable() || isTableCell());
+
+  if (isTable()) {
+    // we should examine all bordering cells and take the widest to
+    // accurately reflect the table width/height, but let's not bother (yet)
+
+    return 0;
+  }
+
+  BorderElement be = collapseCellBorders(side);
+  return be.block->rawCssBorderWidth(be.side, fontScale);
+}
+
+double Block::rawCssBorderWidth(Side side, double fontScale,
+				bool indicateHidden) const
 {
   if (!node_)
     return 0;
@@ -429,23 +696,29 @@ double Block::cssBorderWidth(Side side, double fontScale) const
     std::vector<std::string> values;
     boost::split(values, borderStr, boost::is_any_of(" "));
 
+    if (values.size() > 1 && values[1] == "hidden") {
+      if (indicateHidden)
+	return -1;
+      else
+	return 0;
+    }
+
     WLength l(values[0].c_str());
     result = l.toPixels(cssFontSize(fontScale));
   }
 
   if (result == 0) {
-    if (type_ == DomElement_TABLE) {
-      result = attributeValue("border", 0);
+    if (isTable()) {
+      result = attributeValue("border", 0) ? 1 : 0;
     } else if (isTableCell()) {
       /*
-       * If the table has a border, then we have a default border of 1px
+       * If the table has a 'border' itself, then we have a default
+       * border of 1px (note Firefox and Chrome disagree on the color
+       * of that border)
        */
-      Block *table = parent_;
-      while (table && table->type_ != DomElement_TABLE)
-	table = table->parent_;
-
-      if (table)
-	result = table->attributeValue("border", 0) ? 1 : 0;
+      Block *t = table();
+      if (t && !t->tableCollapseBorders())
+	result = t->attributeValue("border", 0) ? 1 : 0;
     }
   }
 
@@ -453,6 +726,34 @@ double Block::cssBorderWidth(Side side, double fontScale) const
 }
 
 WColor Block::cssBorderColor(Side side) const
+{
+  if (isTableCell()) {
+    Block *t = table();
+    if (t && t->tableCollapseBorders())
+      return collapsedBorderColor(side);
+    else
+      return rawCssBorderColor(side);
+  } else if (isTable() && tableCollapseBorders())
+    return collapsedBorderColor(side);
+  else
+    return rawCssBorderColor(side);
+}
+
+WColor Block::collapsedBorderColor(Side side) const
+{
+  /* 17.6.2.1 border conflict resolution */
+  assert (isTable() || isTableCell());
+
+  if (isTable()) {
+    /* do not actually render the border around the table */
+    return WColor();
+  }
+
+  BorderElement be = collapseCellBorders(side);
+  return be.block->rawCssBorderColor(be.side);
+}
+
+WColor Block::rawCssBorderColor(Side side) const
 {
   int index = sideToIndex(side);
   Property property = (Property)(PropertyStyleBorderTop + index);
@@ -974,19 +1275,26 @@ void Block::layoutTable(PageState &ps,
 
   std::vector<double> minimumColumnWidths;
   std::vector<double> maximumColumnWidths;
+  std::vector<double> setColumnWidths;
 
   for (unsigned i = 0; i < children_.size(); ++i) {
     Block *c = children_[i];
-
     c->tableComputeColumnWidths(minimumColumnWidths, maximumColumnWidths,
-				renderer, this);
+				setColumnWidths, renderer, this);
   }
 
   currentWidth_ = 0;
 
   unsigned colCount = minimumColumnWidths.size();
 
-  int cellSpacing = attributeValue("cellspacing", 2);
+  for (unsigned i = 0; i < colCount; ++i) {
+    if (setColumnWidths[i] >= 0) {
+      setColumnWidths[i] = std::max(setColumnWidths[i], minimumColumnWidths[i]);
+      maximumColumnWidths[i] = minimumColumnWidths[i] = setColumnWidths[i];
+    }
+  }
+
+  double cellSpacing = cssBorderSpacing(renderer.fontScale());
   double totalSpacing = (colCount + 1) * cellSpacing;
   double totalMinWidth = sum(minimumColumnWidths) + totalSpacing;
   double totalMaxWidth = sum(maximumColumnWidths) + totalSpacing;
@@ -1044,17 +1352,37 @@ void Block::layoutTable(PageState &ps,
 
   if (width > totalMaxWidth) {
     widths = maximumColumnWidths;
-    double factor = width / totalMaxWidth;
 
-    for (unsigned i = 0; i < widths.size(); ++i)
-      widths[i] *= factor;
+    double rWidth = width - totalSpacing;
+    double rTotalMaxWidth = totalMaxWidth - totalSpacing;
+    for (unsigned i = 0; i < colCount; ++i) {
+      if (setColumnWidths[i] >= 0) {
+	rWidth -= widths[i];
+	rTotalMaxWidth -= widths[i];
+      }
+    }
+
+    if (rTotalMaxWidth <= 0) {
+      rWidth = width - totalSpacing;
+      rTotalMaxWidth = totalMaxWidth - totalSpacing;
+
+      for (unsigned i = 0; i < setColumnWidths[i]; ++i)
+	setColumnWidths[i] = -1.0;
+    }
+
+    double factor = rWidth / rTotalMaxWidth;
+
+    for (unsigned i = 0; i < widths.size(); ++i) {
+      if (setColumnWidths[i] == -1)
+	widths[i] *= factor;
+    }
   } else if (width > totalMinWidth) {
     double totalStretch = 0;
 
     for (unsigned i = 0; i < widths.size(); ++i)
       totalStretch += maximumColumnWidths[i] - minimumColumnWidths[i];
 
-    double room = width - totalMinWidth;
+    double room = width - totalStretch - totalMinWidth;
     double factor = room / totalStretch;
 
     for (unsigned i = 0; i < widths.size(); ++i) {
@@ -1103,7 +1431,7 @@ void Block::layoutTable(PageState &ps,
   ps.y += cellSpacing;
 }
 
-void Block::tableDoLayout(double x, PageState &ps, int cellSpacing,
+void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
 			  const std::vector<double>& widths,
 			  bool protectRows, Block *repeatHead,
 			  const WTextRenderer& renderer)
@@ -1176,7 +1504,7 @@ void Block::tableDoLayout(double x, PageState &ps, int cellSpacing,
 }
 
 void Block::tableRowDoLayout(double x, PageState &ps,
-			     int cellSpacing,
+			     double cellSpacing,
 			     const std::vector<double>& widths,
 			     const WTextRenderer& renderer,
 			     double rowHeight)
@@ -1213,6 +1541,8 @@ void Block::tableRowDoLayout(double x, PageState &ps,
       double collapseMarginBottom = 0;
       double collapseMarginTop = std::numeric_limits<double>::max();
 
+      std::string s = c->cssProperty(PropertyStyleBackgroundColor);
+
       collapseMarginBottom = c->layoutBlock(cellPs, false, renderer,
 					    collapseMarginTop, 
 					    collapseMarginBottom, 
@@ -1242,6 +1572,7 @@ void Block::tableRowDoLayout(double x, PageState &ps,
 
 void Block::tableComputeColumnWidths(std::vector<double>& minima,
 				     std::vector<double>& maxima,
+				     std::vector<double>& asSet,
 				     const WTextRenderer& renderer,
 				     Block *table)
 {
@@ -1255,7 +1586,7 @@ void Block::tableComputeColumnWidths(std::vector<double>& minima,
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
-      c->tableComputeColumnWidths(minima, maxima, renderer, table);
+      c->tableComputeColumnWidths(minima, maxima, asSet, renderer, table);
     }
   } else if (type_ == DomElement_TR) {
     int col = 0;
@@ -1264,8 +1595,10 @@ void Block::tableComputeColumnWidths(std::vector<double>& minima,
       Block *c = children_[i];
 
       if (c->isTableCell()) {
-	c->cellComputeColumnWidths(col, false, minima, renderer, table);
-	col = c->cellComputeColumnWidths(col, true, maxima, renderer, table);
+	c->cellComputeColumnWidths(col, AsSetWidth, asSet, renderer, table);
+	c->cellComputeColumnWidths(col, MinimumWidth, minima, renderer, table);
+	col = c->cellComputeColumnWidths(col, MaximumWidth, maxima, renderer,
+					 table);
       }
     }
   }
@@ -1280,7 +1613,7 @@ int Block::attributeValue(const char *attribute, int defaultValue) const
     return defaultValue;
 }
 
-int Block::cellComputeColumnWidths(int col, bool maximum,
+int Block::cellComputeColumnWidths(int col, WidthType type,
 				   std::vector<double>& values,
 				   const WTextRenderer& renderer,
 				   Block *table)
@@ -1289,36 +1622,48 @@ int Block::cellComputeColumnWidths(int col, bool maximum,
 
   int colSpan = attributeValue("colspan", 1);
 
+  double defaultWidth = 0;
+  if (type == AsSetWidth)
+    defaultWidth = -1;
+
   while (col + colSpan > (int)values.size())
-    values.push_back(0.0);
+    values.push_back(defaultWidth);
 
   for (int i = 0; i < colSpan; ++i)
     currentWidth += values[col + i];
 
   double width = currentWidth;
 
-  PageState ps;
-  ps.y = 0;
-  ps.page = 0;
-  ps.minX = 0;
-  ps.maxX = width;
+  switch (type) {
+  case AsSetWidth:
+    width = cssWidth(renderer.fontScale());
+    break;
+  case MinimumWidth:
+  case MaximumWidth:
+    {
+      PageState ps;
+      ps.y = 0;
+      ps.page = 0;
+      ps.minX = 0;
+      ps.maxX = width;
 
-  double origTableWidth = table->currentWidth_;
-  if (!maximum)
-    table->currentWidth_ = 0;
+      double origTableWidth = table->currentWidth_;
+      if (type == MinimumWidth)
+	table->currentWidth_ = 0;
 
-  layoutBlock(ps, maximum, renderer, 0, 0);
+      layoutBlock(ps, type == MaximumWidth, renderer, 0, 0);
 
-  table->currentWidth_ = origTableWidth;
+      table->currentWidth_ = origTableWidth;
 
-  width = ps.maxX;
+      width = ps.maxX;
+    }
+  }
 
   if (width > currentWidth) {
     double extraPerColumn = (width - currentWidth) / colSpan;
 
-    for (int i = 0; i < colSpan; ++i) {
+    for (int i = 0; i < colSpan; ++i)
       values[col + i] += extraPerColumn;
-    }
   }
 
   return col + colSpan;
@@ -1595,7 +1940,7 @@ double Block::layoutBlock(PageState &ps,
 
   double cssSetWidth = cssWidth(renderer.fontScale());
 
-  if (type_ == DomElement_TABLE) {
+  if (isTable()) {
     /*
      * A table will apply the width to it's border box, unlike a block level
      * element which applies the width to it's padding box !
@@ -1679,10 +2024,20 @@ double Block::layoutBlock(PageState &ps,
       // FIXME this should be reviewed for margin/border implications
       ps.maxX = std::max(ps.minX + width, ps.maxX);
     } else {
+      double borderFactor = 1.0;
+
+      if (isTableCell()) {
+	Block *t = table();
+	if (t && t->tableCollapseBorders())
+	  borderFactor = 0.5;
+      }
+
       double cMinX = ps.minX + cssPadding(Left, renderer.fontScale())
-	+ cssBorderWidth(Left, renderer.fontScale());
+	+ borderFactor * cssBorderWidth(Left, renderer.fontScale());
       double cMaxX = ps.maxX - cssPadding(Right, renderer.fontScale())
-	- cssBorderWidth(Right, renderer.fontScale());
+	- borderFactor * cssBorderWidth(Right, renderer.fontScale());
+
+      cMaxX = std::max(cMaxX, cMinX);
 
       currentWidth_ = cMaxX - cMinX;
 
@@ -1768,7 +2123,7 @@ double Block::layoutBlock(PageState &ps,
       }
 
       ps.maxX = cMaxX + cssPadding(Right, renderer.fontScale())
-	+ cssBorderWidth(Right, renderer.fontScale());
+	+ borderFactor * cssBorderWidth(Right, renderer.fontScale());
 
       advance(ps, spacerBottom, renderer);
 
@@ -1800,8 +2155,8 @@ double Block::layoutBlock(PageState &ps,
 
     advance(ps, height, renderer);
 
-    if (type_ == DomElement_TABLE) {
-      // A table will overflow if necessary
+    if (isTable() || isTableCell()) {
+      // A table or table cell will overflow if necessary
       if (prevPage > ps.page ||
 	  (prevPage == ps.page && prevY > ps.y)) {
 	ps.page = prevPage;
@@ -2369,7 +2724,7 @@ AlignmentFlag Block::cssTextAlign() const
   if (node_ && !isInline()) {
     std::string s = cssProperty(PropertyStyleTextAlign);
 
-    if (s.empty() && type_ != DomElement_TABLE)
+    if (s.empty() && !isTable())
       s = attributeValue("align");
 
     if (s.empty() || s == "inherit") {
@@ -2752,6 +3107,29 @@ LayoutBox Block::toBorderBox(const LayoutBox& bb, double fontScale) const
   return result;
 }
 
+double Block::maxBorderWidth(Block *b1, Side s1,
+			     Block *b2, Side s2,
+			     Block *b3, Side s3,
+			     Block *b4, Side s4,
+			     double fontScale)
+{
+  double result = 0;
+
+  if (b1)
+    result = std::max(result, b1->collapsedBorderWidth(s1, fontScale));
+
+  if (b2)
+    result = std::max(result, b2->collapsedBorderWidth(s2, fontScale));
+
+  if (b3)
+    result = std::max(result, b3->collapsedBorderWidth(s3, fontScale));
+
+  if (b4)
+    result = std::max(result, b4->collapsedBorderWidth(s4, fontScale));
+
+  return result;
+}
+
 void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
                           WPainter &painter, WFlags<Side> verticals)
 {
@@ -2772,41 +3150,142 @@ void Block::renderBorders(const LayoutBox& bb, WTextRenderer& renderer,
     borderColor[i] = cssBorderColor(sides[i]);
   }
 
-  WPen borderPen;
-  borderPen.setCapStyle(FlatCap);
+  double offsetFactor = 1;
+
+  /*
+   * For a table-collapsed cell, do not add the borderWidth offsets
+   */
+  if (isTableCell()) {
+    Block *t = table();
+    if (t && t->tableCollapseBorders())
+      offsetFactor = 0;
+  }
+
+  double cornerMaxWidth[4] = { 0, 0, 0, 0 };
+
+  if (offsetFactor == 0) {
+    Block *siblings[4];
+    for (unsigned i = 0; i < 4; ++i)
+      siblings[i] = siblingTableCell(sides[i]);
+
+    cornerMaxWidth[TopLeft] = maxBorderWidth(siblings[3], Top,
+					     this, Top,
+					     siblings[0], Left,
+					     this, Left,
+					     renderer.fontScale());
+
+    cornerMaxWidth[TopRight] = maxBorderWidth(siblings[1], Top,
+					      this, Top,
+					      siblings[0], Right,
+					      this, Right,
+					      renderer.fontScale());
+
+    cornerMaxWidth[BottomLeft] = maxBorderWidth(siblings[3], Bottom,
+						this, Bottom,
+						siblings[2], Left,
+						this, Left,
+						renderer.fontScale());
+
+    cornerMaxWidth[BottomRight] = maxBorderWidth(siblings[1], Bottom,
+						 this, Bottom,
+						 siblings[2], Right,
+						 this, Right,
+						 renderer.fontScale());
+  }
 
   for (unsigned i = 0; i < 4; ++i) {
     if (borderWidth[i] != 0) {
+      WPen borderPen;
+      borderPen.setCapStyle(FlatCap);
       borderPen.setWidth(borderWidth[i]);
       borderPen.setColor(borderColor[i]);
       painter.setPen(borderPen);
 
       switch (sides[i]) {
       case Top:
-	if (verticals & Top)
-	  painter.drawLine(left, 
-			   top + borderWidth[0]/2,
-			   right,
-			   top + borderWidth[0]/2);
+	if (verticals & Top) {
+	  double leftOffset = 0, rightOffset = 0;
+
+	  if (borderWidth[i] < cornerMaxWidth[TopLeft])
+	    leftOffset = cornerMaxWidth[TopLeft] / 2;
+	  else if (offsetFactor == 0)
+	    leftOffset = -borderWidth[i] / 2;
+
+	  if (borderWidth[i] < cornerMaxWidth[TopRight])
+	    rightOffset = cornerMaxWidth[TopRight] / 2;
+	  else if (offsetFactor == 0)
+	    rightOffset = -borderWidth[i] / 2;
+
+	  painter.drawLine(left + leftOffset, 
+			   top + offsetFactor * borderWidth[i]/2,
+			   right - rightOffset,
+			   top + offsetFactor * borderWidth[i]/2);
+
+	}
+
 	break;
       case Right:
-	painter.drawLine(right - borderWidth[1]/2,
-			 top,
-			 right - borderWidth[1]/2,
-			 bottom);
+	{
+	  double topOffset = 0, bottomOffset = 0;
+
+	  if (borderWidth[i] < cornerMaxWidth[TopRight])
+	    topOffset = cornerMaxWidth[TopRight] / 2;
+	  else if (offsetFactor == 0)
+	    topOffset = -borderWidth[i] / 2;
+
+	  if (borderWidth[i] < cornerMaxWidth[BottomRight])
+	    bottomOffset = cornerMaxWidth[BottomRight] / 2;
+	  else if (offsetFactor == 0)
+	    bottomOffset = -borderWidth[i] / 2;
+
+	  painter.drawLine(right - offsetFactor * borderWidth[i]/2,
+			   top + topOffset,
+			   right - offsetFactor * borderWidth[i]/2,
+			   bottom - bottomOffset);
+	}
+
 	break;
       case Bottom:
-	if (verticals & Bottom)
-	  painter.drawLine(left,
-			   bottom - borderWidth[2]/2,
-			   right,
-			   bottom - borderWidth[2]/2);
+	if (verticals & Bottom) {
+	  double leftOffset = 0, rightOffset = 0;
+
+	  if (borderWidth[i] < cornerMaxWidth[BottomLeft])
+	    leftOffset = cornerMaxWidth[BottomLeft] / 2;
+	  else if (offsetFactor == 0)
+	    leftOffset = -borderWidth[i] / 2;
+
+	  if (borderWidth[i] < cornerMaxWidth[TopRight])
+	    rightOffset = cornerMaxWidth[BottomRight] / 2;
+	  else if (offsetFactor == 0)
+	    rightOffset = -borderWidth[i] / 2;
+
+	  painter.drawLine(left + leftOffset,
+			   bottom - offsetFactor * borderWidth[i]/2,
+			   right - rightOffset,
+			   bottom - offsetFactor * borderWidth[i]/2);
+	}
+
 	break;
       case Left:
-	painter.drawLine(left + borderWidth[3]/2,
-			 top,
-			 left + borderWidth[3]/2,
-			 bottom);
+	{
+	  double topOffset = 0, bottomOffset = 0;
+
+	  if (borderWidth[i] < cornerMaxWidth[TopLeft])
+	    topOffset = cornerMaxWidth[TopLeft] / 2;
+	  else if (offsetFactor == 0)
+	    topOffset = -borderWidth[i] / 2;
+
+	  if (borderWidth[i] < cornerMaxWidth[BottomLeft])
+	    bottomOffset = cornerMaxWidth[BottomLeft] / 2;
+	  else if (offsetFactor == 0)
+	    bottomOffset = -borderWidth[i] / 2;
+
+	  painter.drawLine(left + offsetFactor * borderWidth[i]/2,
+			   top + topOffset,
+			   left + offsetFactor * borderWidth[i]/2,
+			   bottom - bottomOffset);
+	}
+
 	break;
       default:
 	break;
@@ -2889,12 +3368,10 @@ void Block::fillinStyle(const std::string& style,
         if (count == 0) {
           LOG_ERROR("Strange aggregate CSS length property: '" << v << "'");
         } else if (count == 1) {
-          std::string v0 = Wt::Utils::splitEntryToString(allvalues[0]);
-
-          updateAggregateProperty(n, "-top",    specificity, v0);
-          updateAggregateProperty(n, "-right",  specificity, v0);
-          updateAggregateProperty(n, "-bottom", specificity, v0);
-          updateAggregateProperty(n, "-left",   specificity, v0);
+          updateAggregateProperty(n, "-top",    specificity, v);
+          updateAggregateProperty(n, "-right",  specificity, v);
+          updateAggregateProperty(n, "-bottom", specificity, v);
+          updateAggregateProperty(n, "-left",   specificity, v);
         } else if (count == 2) {
           std::string v1 = Wt::Utils::splitEntryToString(allvalues[0]);
           updateAggregateProperty(n, "-top",    specificity, v1);

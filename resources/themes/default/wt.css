@@ -128,8 +128,9 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     color: #FFFFFF;
     background-color:#6699CC;
     cursor: pointer; cursor: hand;
-    padding: 0px 2px 2px;
+    margin: 3px;
     vertical-align: middle;
+    display: block;
 }
 
 .Wt-cal-year {

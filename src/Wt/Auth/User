@@ -214,6 +214,13 @@ public:
    */
   void removeAuthToken(const std::string& hash) const;
 
+  /*! \brief Updates an authentication token.
+   *
+   * \sa AbstractUserDatabase::updateAuthToken()
+   */
+  int updateAuthToken(const std::string& hash, const std::string& newHash)
+    const;
+
   /*! \brief Logs the result of an authentication attempt.
    *
    * This changes the number of failed login attempts, and stores the

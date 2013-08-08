@@ -73,7 +73,8 @@ public:
 #endif
 
 public: // huh?
-  void handleWriteResponse(const asio_error_code& e);
+  void handleWriteResponse(const asio_error_code& e,
+      std::size_t bytes_transferred);
   void handleWriteResponse();
   void startWriteResponse();
   void handleReadRequest(const asio_error_code& e,

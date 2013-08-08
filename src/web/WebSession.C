@@ -1592,7 +1592,7 @@ void WebSession::handleWebSocketRequest(Handler& handler)
 void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 					WebRequest::ReadEvent event)
 {
-  // LOG_DEBUG("handleWebSocketMessage: " << (int)event);
+  //LOG_DEBUG("handleWebSocketMessage: " << (int)event);
 
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();

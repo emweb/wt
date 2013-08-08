@@ -21,9 +21,11 @@ namespace boost {
 namespace Wt {
 
 /*! \class InvalidDateException Wt/WDate Wt/WDate
- *  \brief Exception thrown when calculating with an invalid date.
+ *  \brief Exception thrown when calculating with an invalid date (<b>deprecated</b>).
  *
  * \sa WDate
+ *
+ * \deprecated This excepteion is no longer thrown
  */
 class WT_API InvalidDateException : public WException
 {
@@ -54,8 +56,7 @@ public:
  * same format syntax is supported by both methods.
  *
  * Simple operations are supported to compare dates, or to calculate
- * with dates. These operations throw InvalidDateException when one of
- * the dates is invalid.
+ * with dates.
  *
  * <h3>i18n</h3>
  *
@@ -102,7 +103,7 @@ public:
   /*! \brief Sets the date by year, month, and day.
    *
    * The \p month has range 1-12 and the \p day has range 1-31.
-   * When the new date is invalid, isValid() is set to \c false.
+   * When the new date is invalid, isValid() will return \c false.
    *
    * \sa WDate(int year, int month, int day), year(), month(), day()
    */
@@ -118,6 +119,9 @@ public:
    * date. Negative values for \p ndays will result in a date that
    * is as many days earlier.
    *
+   * Returns a null date if the current date is invalid or the new
+   * date is out of range.
+   *
    * \sa addMonths(), addYears()
    */
   WDate addDays(int ndays) const;
@@ -129,6 +133,9 @@ public:
    * \p nmonths will result in a date that is as many months
    * earlier.
    *
+   * Returns a null date if the current date is invalid or the new
+   * date is out of range.
+   *
    * \sa addDays(), addYears()
    */
   WDate addMonths(int nmonths) const;
@@ -138,6 +145,9 @@ public:
    * Returns a date that is \p nyears later than this
    * date. Negative values for \p nyears will result in a date
    * that is as many years earlier.
+   *
+   * Returns a null date if the current date is invalid or the new
+   * date is out of range.
    *
    * \sa addDays(), addMonths()
    */
@@ -149,37 +159,49 @@ public:
    *
    * \sa isValid(), WDate()
    */
-  bool isNull() const;
+  bool isNull() const { return ymd_ == 0; }
 
   /*! \brief Returns if this date is valid.
    *
    * \sa isNull(), WDate(int, int, int), setDate()
    */
-  bool isValid() const { return valid_; }
+  bool isValid() const { return ymd_ > 1; }
 
   /*! \brief Returns the year.
+   *
+   * Returns 0 if the date is invalid.
    */
-  int year() const { return year_; }
+  int year() const { return (ymd_ >> 16); }
 
   /*! \brief Returns the month (1-12).
+   *
+   * Returns 0 if the date is invalid.
    */
-  int month() const { return month_; }
+  int month() const { return (ymd_ >> 8) & 0xFF; }
 
   /*! \brief Returns the day of month (1-31).
+   *
+   * Returns 0 if the date is invalid.
    */
-  int day() const { return day_; }
+  int day() const { return ymd_ & 0xFF; }
 
   /*! \brief Returns the day of week (1-7).
    *
    * Returns the day of week, from Monday (=1) to Sunday (=7).
+   *
+   * Returns 0 if the date is invalid.
    */
   int dayOfWeek() const;
 
   /*! \brief Returns the difference between two dates (in days).
+   *
+   * Returns 0 if either date is invalid.
    */
   int daysTo(const WDate& date) const;
 
   /*! \brief Converts the date to a Julian day. 
+   *
+   * Returns 0 if the date is invalid.
    *
    * \sa fromJulianDay()
    */
@@ -317,8 +339,6 @@ public:
    *
    * This method uses browser information to retrieve the date that is
    * configured in the client.
-   *
-   * \note Not Yet Implemented !
    */
   static WDate currentDate();
 
@@ -405,10 +425,9 @@ public:
   static RegExpInfo formatToRegExp(const WT_USTRING& format);
 
 private:
-  bool valid_;
-  int  year_;
-  int  month_;
-  int  day_;
+  unsigned ymd_;
+
+  void setYmd(int year, int month, int day);
 
   struct ParseState {
     int d, M, y;
