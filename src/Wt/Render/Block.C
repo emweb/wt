@@ -1370,11 +1370,18 @@ void Block::layoutTable(PageState &ps,
 	setColumnWidths[i] = -1.0;
     }
 
-    double factor = rWidth / rTotalMaxWidth;
+    if (rTotalMaxWidth > 0) {
+      double factor = rWidth / rTotalMaxWidth;
 
-    for (unsigned i = 0; i < widths.size(); ++i) {
-      if (setColumnWidths[i] == -1)
-	widths[i] *= factor;
+      for (unsigned i = 0; i < widths.size(); ++i) {
+	if (setColumnWidths[i] == -1)
+	  widths[i] *= factor;
+      }
+    } else { /* degenerate case: all columns have width 0 */
+      double widthPerColumn = rWidth / colCount;
+
+      for (unsigned i = 0; i < colCount; ++i)
+	widths[i] = widthPerColumn;
     }
   } else if (width > totalMinWidth) {
     double totalStretch = 0;
@@ -1382,7 +1389,7 @@ void Block::layoutTable(PageState &ps,
     for (unsigned i = 0; i < widths.size(); ++i)
       totalStretch += maximumColumnWidths[i] - minimumColumnWidths[i];
 
-    double room = width - totalStretch - totalMinWidth;
+    double room = width - totalMinWidth;
     double factor = room / totalStretch;
 
     for (unsigned i = 0; i < widths.size(); ++i) {
