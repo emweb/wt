@@ -190,6 +190,7 @@ public:
    * \sa setFont()
    */
   WFont& font() { return font_; }
+  const WFont& font() const { return font_; }
 
   /*! \brief Sets text decoration options.
    *

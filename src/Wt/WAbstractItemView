@@ -946,7 +946,7 @@ protected:
   virtual ColumnInfo createColumnInfo(int column) const;
 
   void saveExtraHeaderWidgets();
-  WWidget *createHeaderWidget(WApplication *app, int column);
+  WWidget *createHeaderWidget(int column);
   WText *headerTextWidget(int column);
 
   /*! \brief Handles a click event.

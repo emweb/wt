@@ -39,8 +39,8 @@ enum DomElementType {
 
   DomElement_OPTION, DomElement_UL, DomElement_SCRIPT, DomElement_SELECT,
   DomElement_SPAN, DomElement_TABLE, DomElement_TBODY, DomElement_THEAD,
-  DomElement_TFOOT, DomElement_TH, DomElement_TD,
-  DomElement_TEXTAREA,
+  DomElement_TFOOT, DomElement_TH, DomElement_TD, DomElement_TEXTAREA,
+  DomElement_OPTGROUP,
 
   DomElement_TR, DomElement_P, DomElement_CANVAS,
   DomElement_MAP, DomElement_AREA, DomElement_STYLE,
@@ -119,6 +119,7 @@ public:
   virtual bool isInline() const;
   virtual void setDecorationStyle(const WCssDecorationStyle& style);
   virtual WCssDecorationStyle& decorationStyle();
+  virtual const WCssDecorationStyle& decorationStyle() const;
   virtual void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
   virtual WT_USTRING styleClass() const;
@@ -377,7 +378,7 @@ private:
     ~LookImpl();
   };
 
-  LookImpl *lookImpl_;
+  mutable LookImpl *lookImpl_;
 
   struct DropMimeType {
     WT_USTRING hoverStyleClass;

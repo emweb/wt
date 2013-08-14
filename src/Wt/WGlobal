@@ -81,6 +81,7 @@ namespace Wt {
   class WGroupBox;
   class WHBoxLayout;
   class WMouseEvent;
+  class WIcon;
   class WIconPair;
   class WImage;
   class WInPlaceEdit;
@@ -328,14 +329,14 @@ W_DECLARE_OPERATORS_FOR_FLAGS(StandardButton)
 
 /*! \brief Enumeration that indiciates a standard icon.
  *
- * \note Not used yet.
+ * \sa WMessageBox
  */
 enum Icon {
-  NoIcon = 0,       //!< No icon
-  Information = 1,  //!< An information icon <i>(not implemented)</i>
-  Warning = 2,      //!< An warning icon <i>(not implemented)</i>
-  Critical = 3,     //!< An critical icon <i>(not implemented)</i>
-  Question = 4      //!< An question icon <i>(not implemented)</i>
+  NoIcon = 0,       //!< No icon.
+  Information = 1,  //!< An information icon.
+  Warning = 2,      //!< A warning icon.
+  Critical = 3,     //!< A critical icon.
+  Question = 4      //!< A question icon.
 };
 
 /*! \brief Enumeration that indicates how items may be selected.

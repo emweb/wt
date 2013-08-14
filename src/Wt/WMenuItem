@@ -143,7 +143,7 @@ public:
    *       to use WString in the future).
    * \endif
    */
-  void setPathComponent(const std::string& path);
+  virtual void setPathComponent(const std::string& path);
 
   /*! \brief Returns the path component for this item.
    *
@@ -158,6 +158,24 @@ public:
    * \endif
    */
   virtual std::string pathComponent() const;
+
+  /*! \brief Configures internal path support for the item.
+   *
+   * This configures whether the item supports internal paths (in a menu
+   * which supports internal paths).
+   *
+   * The default value is \c true for all items but section headers and
+   * separators.
+   *
+   * \sa WMenu::setInternalPathEnabled()
+   */
+  virtual void setInternalPathEnabled(bool enabled);
+
+  /*! \brief Returns whether an item participates in internal paths.
+   *
+   * \sa setInternalPathEnabled()
+   */
+  virtual bool internalPathEnabled() const;
 
   /*! \brief Sets the associated link.
    *
@@ -355,7 +373,7 @@ private:
   Signal<WMenuItem *> triggered_;
 
   std::string pathComponent_;
-  bool customPathComponent_;
+  bool customPathComponent_, internalPathEnabled_;
   bool closeable_;
 
   void create(const std::string& iconPath, const WString& text,

@@ -193,7 +193,7 @@ private:
         int retval = ::send(socket_, request + bytesSent_, len, 0);
         if (retval >= 0) {
           bytesSent_ += retval;
-          if (bytesSent_ >= sizeof request) {
+          if (bytesSent_ >= (int)(sizeof request)) {
             addText(" Done!<br/>Reading data");
             state_ = READ;
             // We don't need any further notifications that we can
@@ -213,6 +213,8 @@ private:
         }
       }
       break;
+      case READ:
+	break;
     }
   }
 

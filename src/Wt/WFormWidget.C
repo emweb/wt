@@ -101,6 +101,7 @@ void WFormWidget::setFocus()
 
 void WFormWidget::undoSetFocus()
 {
+  flags_.reset(BIT_GOT_FOCUS);
 }
 
 bool WFormWidget::hasFocus() const

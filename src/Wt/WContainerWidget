@@ -377,6 +377,8 @@ private:
   friend class WebRenderer;
 
 protected:
+  using WWidget::removeChild;
+
   virtual void removeChild(WWidget *child);
   virtual int firstChildIndex() const;
 

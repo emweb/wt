@@ -31,6 +31,7 @@ std::string elementNames_[] =
     "option", "ul", "script", "select",
     "span", "table", "tbody", "thead",
     "tfoot", "th", "td", "textarea",
+    "optgroup",
 
     "tr", "p", "canvas",
     "map", "area", "style",
@@ -55,6 +56,7 @@ bool defaultInline_[] =
     true, false, false, true,
     true, false, false, false,
     false, false, false, true,
+    true,
 
     false, false, true,
     false, true, true,
@@ -966,6 +968,10 @@ void DomElement::asHTML(EscapeOStream& out,
       out << " class=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
+    case PropertyLabel:
+      out << " label=";
+      fastHtmlAttributeValue(out, attributeValues, i->second);
+      break;
     default:
       break;
     }
@@ -1079,7 +1085,8 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
 	  || type_ == DomElement_COLGROUP
 	  || type_ == DomElement_TR
 	  || type_ == DomElement_SELECT
-	  || type_ == DomElement_TD))
+	  || type_ == DomElement_TD
+	  || type_ == DomElement_OPTGROUP))
     return false;
 
   return true;

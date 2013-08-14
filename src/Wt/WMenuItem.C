@@ -48,6 +48,7 @@ WMenuItem::WMenuItem(bool separator, const WString& text)
 
   separator_ = separator;
   selectable_ = false;
+  internalPathEnabled_ = false;
 
   if (!text.empty()) {
     text_ = new WLabel(this);
@@ -63,6 +64,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   contents_ = contents;
   menu_ = 0;
   customPathComponent_ = false;
+  internalPathEnabled_ = true;
   closeable_ = false;
   selectable_ = true;
 
@@ -191,7 +193,17 @@ const WString& WMenuItem::text() const
 
 std::string WMenuItem::pathComponent() const
 {
-  return isSectionHeader() ? "--none--" : pathComponent_;
+  return pathComponent_;
+}
+
+void WMenuItem::setInternalPathEnabled(bool enabled)
+{
+  internalPathEnabled_ = enabled;
+}
+
+bool WMenuItem::internalPathEnabled() const
+{
+  return internalPathEnabled_;
 }
 
 void WMenuItem::setLink(const WLink& link)

@@ -115,6 +115,8 @@ Touch::Touch(unsigned identifier,
     clientY_(clientY),
     documentX_(documentX),
     documentY_(documentY),
+    screenX_(screenX),
+    screenY_(screenY),
     widgetX_(widgetX),
     widgetY_(widgetY),
     identifier_(identifier)

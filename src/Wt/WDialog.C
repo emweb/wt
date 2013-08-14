@@ -8,6 +8,7 @@
 #include "Wt/WDialog"
 #include "Wt/WException"
 #include "Wt/WVBoxLayout"
+#include "Wt/WPushButton"
 #include "Wt/WTemplate"
 #include "Wt/WText"
 #include "Wt/WTheme"
@@ -43,6 +44,8 @@ public:
 
     if (dialog->isModal())
       coverFor(dialog, animation);
+
+    scheduleRender();
   }
 
   void popDialog(WDialog *dialog, const WAnimation& animation) {
@@ -78,8 +81,21 @@ public:
     return false;
   }
 
+  bool isTopDialogRendered(WDialog *dialog) const {
+    return dialog->id() == topDialogId_;
+  }
+
+protected:
+  virtual void render(WFlags<RenderFlag> flags) {
+    if (dialogs_.empty())
+      topDialogId_.erase();
+    else
+      topDialogId_ = dialogs_.back()->id();
+  }
+
 private:
   std::vector<WDialog *> dialogs_;
+  std::string topDialogId_; // as currently rendered
 
   void coverFor(WDialog *dialog, const WAnimation& animation) {
     if (dialog) {
@@ -106,7 +122,6 @@ private:
       }
     }
   }
-
 
   bool isInOtherPopup(WWidget *w) {
     WApplication *app = WApplication::instance();
@@ -151,6 +166,7 @@ void WDialog::create()
   modal_ = true;
   resizable_ = false;
   recursiveEventLoop_ = false;
+  escapeIsReject_ = false;
   impl_ = dynamic_cast<WTemplate *>(implementation());
 
   const char *CSS_RULES_NAME = "Wt::WDialog";
@@ -348,16 +364,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
 
 void WDialog::rejectWhenEscapePressed(bool enable)
 {
-  if (enable) {
-    escapeConnection1_ = WApplication::instance()->globalEscapePressed()
-      .connect(this, &WDialog::reject);
-
-    escapeConnection2_ = impl_->escapePressed()
-      .connect(this, &WDialog::reject);
-  } else {
-    escapeConnection1_.disconnect();
-    escapeConnection2_.disconnect();
-  }
+  escapeIsReject_ = enable;
 }
 
 #ifndef WT_DEPRECATED_3_0_0
@@ -469,9 +476,58 @@ void WDialog::setModal(bool modal)
   modal_ = modal;
 }
 
+void WDialog::onDefaultPressed()
+{
+  if (cover()->isTopDialogRendered(this)) {
+    for (int i = 0; i < footer()->count(); ++i) {
+      WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));
+      if (b && b->isDefault()) {
+	if (b->isEnabled())
+	  b->clicked().emit(WMouseEvent());
+        break;
+      }
+    }
+  }
+}
+
+void WDialog::onEscapePressed()
+{
+  if (cover()->isTopDialogRendered(this))
+    reject();
+}
+
 void WDialog::setHidden(bool hidden, const WAnimation& animation)
 {
   if (isHidden() != hidden) {
+    if (!hidden) {
+      WApplication *app = WApplication::instance();
+
+      for (int i = 0; i < footer()->count(); ++i) {
+	WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));
+	if (b && b->isDefault()) {
+	  enterConnection1_ = app->globalEnterPressed()
+	    .connect(this, &WDialog::onDefaultPressed);
+
+	  enterConnection2_ = impl_->enterPressed()
+	    .connect(this, &WDialog::onDefaultPressed);
+	  break;
+	}
+      }
+
+      if (escapeIsReject_) {
+	escapeConnection1_ = app->globalEscapePressed()
+	  .connect(this, &WDialog::onEscapePressed);
+
+	escapeConnection2_ = impl_->escapePressed()
+	  .connect(this, &WDialog::onEscapePressed);
+      }
+    } else {
+      escapeConnection1_.disconnect();
+      escapeConnection2_.disconnect();
+      enterConnection1_.disconnect();
+      enterConnection2_.disconnect();
+    }
+
     if (!hidden) {
       cover()->pushDialog(this, animation);
     

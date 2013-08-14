@@ -79,7 +79,7 @@ bool WApplication::ScriptLibrary::operator== (const ScriptLibrary& other) const
 
 WApplication::WApplication(const WEnvironment& env
 #if !(defined(DOXYGEN_ONLY) || defined(WT_TARGET_JAVA))
-			   , WtLibVersion version
+			   , WtLibVersion
 #endif
 )
   : session_(env.session_),
@@ -486,7 +486,7 @@ void WApplication::addGlobalWidget(WWidget *w)
   domRoot_->addWidget(w);
 }
 
-void WApplication::removeGlobalWidget(WWidget *w)
+void WApplication::removeGlobalWidget(WWidget *)
 { }
 
 bool WApplication::isExposed(WWidget *w) const
@@ -724,10 +724,11 @@ void WApplication::removeExposedSignal(Wt::EventSignalBase *signal)
 {
   std::string s = signal->encodeCmd();
 
-  if (exposedSignals_.erase(s))
+  if (exposedSignals_.erase(s)) {
     LOG_DEBUG("removeExposedSignal: " << s);
-  else
-    LOG_DEBUG("removeExposedSignal of non-exposed " << s << "??");    
+  } else {
+    LOG_DEBUG("removeExposedSignal of non-exposed " << s << "??");
+  }
 }
 
 EventSignalBase *
@@ -760,8 +761,7 @@ std::string WApplication::resourceMapKey(WResource *resource)
     ? resource->id() : "/path/" + resource->internalPath();
 }
 
-std::string WApplication::addExposedResource(WResource *resource,
-					     const std::string& internalPath)
+std::string WApplication::addExposedResource(WResource *resource)
 {
   exposedResources_[resourceMapKey(resource)] = resource;
 

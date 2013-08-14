@@ -205,7 +205,7 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
 
       s = f + 1;
     } else {
-      stream_ << (char *)s;
+      stream_ << const_cast<char *>(s);
       s = 0;
     }
   }

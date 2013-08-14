@@ -271,7 +271,7 @@ void WMenu::insertItem(int index, WMenuItem *item)
 
 void WMenu::itemPathChanged(WMenuItem *item)
 {
-  if (internalPathEnabled_) {
+  if (internalPathEnabled_ && item->internalPathEnabled()) {
     WApplication *app = wApp;
 
     if (app->internalPathMatches(basePath_ + item->pathComponent()))
@@ -351,7 +351,8 @@ void WMenu::selectVisual(int index, bool changePath, bool showContents)
 
   WMenuItem *item = index >= 0 ? itemAt(index) : 0;
 
-  if (changePath && internalPathEnabled_ && index != -1) {
+  if (changePath && internalPathEnabled_ &&
+      index != -1 && item->internalPathEnabled()) {
     WApplication *app = wApp;
     previousInternalPath_ = app->internalPath();
 
@@ -472,11 +473,13 @@ void WMenu::internalPathChanged(const std::string& path)
     int bestI = -1, bestMatchLength = -1;
 
     for (int i = 0; i < count(); ++i) {
-      int matchLength = match(subPath, itemAt(i)->pathComponent());
+      if (itemAt(i)->internalPathEnabled()) {
+	int matchLength = match(subPath, itemAt(i)->pathComponent());
 
-      if (matchLength > bestMatchLength) {
-	bestMatchLength = matchLength;
-	bestI = i;
+	if (matchLength > bestMatchLength) {
+	  bestMatchLength = matchLength;
+	  bestI = i;
+	}
       }
     }
 

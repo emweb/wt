@@ -8,7 +8,6 @@
 #define WT_WEB_MAIN_H_
 
 #include "Wt/WServer"
-#include "boost/signal.hpp"
 
 namespace Wt {
 

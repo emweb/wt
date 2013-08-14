@@ -888,7 +888,7 @@ const char *MySQL::alterTableConstraintString() const
   return "foreign key";
 }
 
-const int MySQL::getFractionalSecondsPart() const
+int MySQL::getFractionalSecondsPart() const
 {
   return fractionalSecondsPart_;
 }

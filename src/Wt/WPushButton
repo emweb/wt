@@ -53,8 +53,11 @@ public:
 
   /*! \brief Sets the default property.
    *
-   * The only effect of a default button is that it is may be rendered
-   * in a different style, depending on the theme.
+   * This has only a functional meaning for a button in a WMessageBox,
+   * see WMessageBox::setDefaultButton().
+   *
+   * A default button may be rendered in a different style, depending
+   * on the theme.
    */
   void setDefault(bool enabled);
 

@@ -97,8 +97,7 @@ boost::any WAbstractItemModel::data(int row, int column, int role,
   return data(index(row, column, parent), role);
 }
 
-boost::any WAbstractItemModel::headerData(int section,
-					  Orientation orientation,
+boost::any WAbstractItemModel::headerData(int section, Orientation orientation,
 					  int role) const
 {
   if (role == LevelRole)
@@ -409,8 +408,11 @@ WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
     WModelIndex idx = index(row, start.column(), start.parent());
     boost::any v = data(idx, role);
 
-    if (Impl::matchValue(v, value, flags))
+    if (Impl::matchValue(v, value, flags)) {
       result.push_back(idx);
+      if (hits != -1 && (int)result.size() == hits)
+	break;
+    }
   }
 
   return result;

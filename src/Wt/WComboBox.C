@@ -219,7 +219,10 @@ void WComboBox::updateDom(DomElement& element, bool all)
     if (!all)
       element.removeAllChildren();
 
+    DomElement *currentGroup = 0;
+    bool groupDisabled = true;
     for (int i = 0; i < count(); ++i) {
+      // Make new option item
       DomElement *item = DomElement::createNew(DomElement_OPTION);
       item->setProperty(PropertyValue, boost::lexical_cast<std::string>(i));
       item->setProperty(PropertyInnerHTML,
@@ -236,8 +239,59 @@ void WComboBox::updateDom(DomElement& element, bool all)
       if (!sc.empty())
 	item->setProperty(PropertyClass, sc.toUTF8());
 
-      element.addChild(item);
+
+      // Read out opt-group
+      WString groupname = Wt::asString(model_->data(i, modelColumn_,
+						    LevelRole));
+
+      bool isSoloItem = false;
+      if (groupname.empty()) { // no group
+	isSoloItem = true;
+
+	if (currentGroup) { // possibly close off an active group
+	  if (groupDisabled)
+	    currentGroup->setProperty(PropertyDisabled, "true");
+	  element.addChild(currentGroup);
+	  currentGroup = 0;
+	}
+      } else {
+	isSoloItem = false;
+
+	// not same as current group
+	if (!currentGroup ||
+	    currentGroup->getProperty(PropertyLabel) != groupname) {
+	  if (currentGroup) { // possibly close off an active group
+	    if (groupDisabled)
+	      currentGroup->setProperty(PropertyDisabled, "true");
+	    element.addChild(currentGroup);
+	    currentGroup = 0;
+	  }
+
+	  // make group
+	  currentGroup = DomElement::createNew(DomElement_OPTGROUP);
+	  currentGroup->setProperty(PropertyLabel, groupname.toUTF8());
+	  groupDisabled = !(model_->flags(model_->index(i, modelColumn_))
+			    & ItemIsSelectable);
+	} else {
+	  if (model_->flags(model_->index(i, modelColumn_)) & ItemIsSelectable)
+	    groupDisabled = false;
+	}
+      }
+      
+      if (isSoloItem)
+	element.addChild(item);
+      else
+	currentGroup->addChild(item);
+
+      // last loop and there's still an open group
+      if (i == count()-1 && currentGroup) {
+	if (groupDisabled)
+	  currentGroup->setProperty(PropertyDisabled, "true");
+	element.addChild(currentGroup);
+	currentGroup = 0;
+      }
     }
+
 
     itemsChanged_ = false;
     selectionChanged_ = false;

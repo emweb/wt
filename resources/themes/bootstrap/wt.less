@@ -75,6 +75,16 @@
     .nav-collapse .dropdown-menu {
        display: block !important;
     }
+
+    .nav-collapse .dropdown-menu li > a:hover {
+       color: @navbarLinkColorActive;
+       background: #f2f2f2;
+    }
+
+    .nav-collapse .dropdown-menu .active >a {
+       color: inherit;
+       background: inherit;
+    }
 }
 
 .navbar .navbar-inner .container {
@@ -133,6 +143,16 @@
     }
 }
 
+/*
+ * Message box
+ */
+.modal .Wt-msgbox-icon {
+    display: block;
+    float: left;
+    margin: -5px 15px 0px 0px;
+    width: 25px;
+    height: 35px;
+}
 
 /*
  * Non-bootstrap widgets

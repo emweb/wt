@@ -13,17 +13,23 @@ extern void showDialog(Wt::WText *out)
 {
     Wt::WDialog *dialog = new Wt::WDialog("Go to cell");
 
-    Wt::WLabel *label = new Wt::WLabel("Cell location (A1..Z999)", dialog->contents());
+    Wt::WLabel *label = new Wt::WLabel("Cell location (A1..Z999)",
+				       dialog->contents());
     Wt::WLineEdit *edit = new Wt::WLineEdit(dialog->contents());
     label->setBuddy(edit);
 
-    Wt::WRegExpValidator *validator = new Wt::WRegExpValidator("[A-Za-z][1-9][0-9]{0,2}");
+    Wt::WRegExpValidator *validator = 
+        new Wt::WRegExpValidator("[A-Za-z][1-9][0-9]{0,2}");
+    validator->setMandatory(true);
     edit->setValidator(validator);
 
     Wt::WPushButton *ok = new Wt::WPushButton("OK", dialog->footer());
-    Wt::WPushButton *cancel = new Wt::WPushButton("Cancel", dialog->footer());
-
+    ok->setDefault(true);
     ok->disable();
+
+    Wt::WPushButton *cancel = new Wt::WPushButton("Cancel", dialog->footer());
+    dialog->rejectWhenEscapePressed();
+
     edit->keyWentUp().connect(std::bind([=] () {
 	ok->setDisabled(edit->validate() != Wt::WValidator::Valid);
     }));
@@ -32,11 +38,6 @@ extern void showDialog(Wt::WText *out)
      * Accept the dialog
      */
     ok->clicked().connect(std::bind([=] () {
-	if (edit->validate())
-	    dialog->accept();
-    }));
-
-    edit->enterPressed().connect(std::bind([=] () {
 	if (edit->validate())
 	    dialog->accept();
     }));

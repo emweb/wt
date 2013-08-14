@@ -352,7 +352,10 @@ CheckState WStandardItem::checkState() const
 
 void WStandardItem::setTristate(bool tristate)
 {
-  flags_ |= ItemIsTristate;
+  if (tristate)
+    flags_ |= ItemIsTristate;
+  else
+    flags_.clear(ItemIsTristate);
 }
 
 bool WStandardItem::isTristate() const

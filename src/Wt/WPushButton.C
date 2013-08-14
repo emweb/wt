@@ -53,7 +53,7 @@ bool WPushButton::setText(const WString& text)
 
 void WPushButton::setDefault(bool enabled)
 {
-  flags_.set(BIT_DEFAULT);
+  flags_.set(BIT_DEFAULT, enabled);
 }
 
 bool WPushButton::isDefault() const
@@ -228,11 +228,11 @@ void WPushButton::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_TEXT_CHANGED);
   }
 
-  bool needsUrlResolution = false;
+  // bool needsUrlResolution = false;
 
   if (flags_.test(BIT_LINK_CHANGED) || all) {
     if (element.type() == DomElement_A) {
-      needsUrlResolution = WAnchor::renderHRef(this, linkState_, element);
+      /* needsUrlResolution = */ WAnchor::renderHRef(this, linkState_, element);
       WAnchor::renderHTarget(linkState_, element, all);
     } else
       renderHRef(element);
@@ -276,17 +276,21 @@ void WPushButton::renderHRef(DomElement& element)
 	 app->javaScriptClass() + "._p_.setHash("
 	 + jsStringLiteral(linkState_.link.internalPath()) + ",true);"
 	 "}");
-    else
+    else {
+      std::string url = linkState_.link.resolveUrl(app);
+
       if (linkState_.target == TargetNewWindow)
 	linkState_.clickJS->setJavaScript
 	  ("function(){"
-	   "window.open(" + jsStringLiteral(linkState_.link.url()) + ");"
+	   "window.open(" + jsStringLiteral(url) + ");"
 	   "}");
       else
 	linkState_.clickJS->setJavaScript
 	  ("function(){"
-	   "window.location=" + jsStringLiteral(linkState_.link.url()) + ";"
+	   "window.location=" + jsStringLiteral(url) + ";"
 	   "}");
+    }
+
     clicked().senderRepaint(); // XXX only for Java port necessary
   } else {
     delete linkState_.clickJS;

@@ -151,6 +151,16 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
   case DomElement_A:
     if (creating && dynamic_cast<WPushButton *>(widget))
       element.addPropertyWord(PropertyClass, "btn");
+
+    if (element.getProperty(PropertyClass).find("dropdown-toggle")
+	!= std::string::npos) {
+      WMenuItem *item = dynamic_cast<WMenuItem *>(widget->parent());
+      if (!dynamic_cast<WPopupMenu *>(item->parentMenu())) {
+	DomElement *b = DomElement::createNew(DomElement_B);
+	b->setProperty(PropertyClass, "caret");
+	element.addChild(b);
+      }
+    }
     break;
 
   case DomElement_BUTTON: {
@@ -246,6 +256,8 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 	if (item->menu()) {
 	  if (dynamic_cast<WPopupMenu *>(item->parentMenu()))
 	    element.addPropertyWord(PropertyClass, "dropdown-submenu");
+	  else
+	    element.addPropertyWord(PropertyClass, "dropdown");
 	}
       }
     }

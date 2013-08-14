@@ -64,7 +64,6 @@ WT_DECLARE_WT_MEMBER
 
      var xy = WT.widgetCoordinates(edit, event);
      if (xy.x > edit.offsetWidth - 40) {
-       WT.cancelEvent(event);
        $edit.addClass(CLASS_UNSELECTABLE).addClass(CLASS_ACTIVE);
      }
    };

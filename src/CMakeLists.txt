@@ -119,6 +119,7 @@ Wt/WGoogleMap.C
 Wt/WGridLayout.C
 Wt/WGroupBox.C
 Wt/WHBoxLayout.C
+Wt/WIcon.C
 Wt/WIconPair.C
 Wt/WImage.C
 Wt/WInPlaceEdit.C

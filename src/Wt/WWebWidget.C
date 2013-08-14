@@ -255,6 +255,11 @@ WCssDecorationStyle& WWebWidget::decorationStyle()
   return *lookImpl_->decorationStyle_;
 }
 
+const WCssDecorationStyle& WWebWidget::decorationStyle() const
+{
+  return const_cast<WWebWidget *>(this)->decorationStyle();
+}
+
 void WWebWidget::setDecorationStyle(const WCssDecorationStyle& style)
 {
 #ifndef WT_TARGET_JAVA

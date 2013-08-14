@@ -550,9 +550,6 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
   if (!rendered_) {
     serveMainAjax(out);
   } else {
-    if (response.isWebSocketRequest() || response.isWebSocketMessage())
-      setJSSynced(false);
-
     collectJavaScript();
 
     addResponseAckPuzzle(out);
@@ -1497,8 +1494,9 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 	      w->getSDomChanges(changes, app);
 	    } else
 	      w->getSDomChanges(changes, app); */
-	  } else
+	  } else {
 	    LOG_DEBUG("Ignoring: " << w->id());
+	  }
 	} else {
 	  w->getSDomChanges(changes, app);
 	}

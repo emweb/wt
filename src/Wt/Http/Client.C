@@ -24,8 +24,6 @@
 #ifdef WT_WITH_SSL
 #include <boost/asio/ssl.hpp>
 
-// This seems to not work very well (or at all)
-
 #if BOOST_VERSION >= 104700
 #define VERIFY_CERTIFICATE
 #endif
@@ -85,7 +83,8 @@ public:
       request_stream << h.name() << ": " << h.value() << "\r\n";
     }
 
-    if ((method == "POST" || method == "PUT" || method == "DELETE") && !haveContentLength)
+    if ((method == "POST" || method == "PUT" || method == "DELETE") &&
+	!haveContentLength)
       request_stream << "Content-Length: " << message.body().length() 
 		     << "\r\n";
 

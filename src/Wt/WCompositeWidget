@@ -100,6 +100,7 @@ public:
   virtual bool isInline() const;
   virtual void setDecorationStyle(const WCssDecorationStyle& style);
   virtual WCssDecorationStyle& decorationStyle();
+  virtual const WCssDecorationStyle& decorationStyle() const;
   virtual void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
   virtual WT_USTRING styleClass() const;

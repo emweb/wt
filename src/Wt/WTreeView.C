@@ -1445,7 +1445,7 @@ void WTreeView::rerenderHeader()
     row->setStyleClass("Wt-tv-row");
 
   for (int i = 0; i < columnCount(); ++i) {
-    WWidget *w = createHeaderWidget(app, i);
+    WWidget *w = createHeaderWidget(i);
 
     if (i != 0) {
       w->setFloatSide(Left);
@@ -1787,7 +1787,7 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 	WContainerWidget *row = headerRow();
 
 	for (int i = start; i < start + count; ++i) {
-	  WWidget* w = createHeaderWidget(app, i);
+	  WWidget* w = createHeaderWidget(i);
 	  w->setFloatSide(Left);
 	  row->insertWidget(i - 1, w);
 	}
@@ -1996,7 +1996,7 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 {
   int count = end - start + 1;
 
-  if (renderState_ != NeedRerender || renderState_ != NeedRerenderData) {
+  if (renderState_ != NeedRerender && renderState_ != NeedRerenderData) {
     firstRemovedRow_ = -1;
     removedHeight_ = 0;
 

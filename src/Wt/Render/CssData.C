@@ -69,7 +69,7 @@ Specificity Wt::Render::Match::isMatch(const Block* block, const Selector& selec
   const Block* parent = block->parent();
   for(int i = selector.size()-2; i >= 0; --i)
   {
-    bool matchFound;
+    bool matchFound = false;
     while(parent)
     {
       matchFound = isMatch(parent, selector.at(i));

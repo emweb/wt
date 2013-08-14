@@ -281,8 +281,9 @@ WebRequest *FCGIStream::getNextRequest(int timeoutsec)
       if (errno != EINTR) {
 	perror("select");
 	exit(1); // FIXME: throw exception
-      } else
-	; // EINTR, try again
+      } else {
+	// EINTR, try again
+      }
     } else
       break;
   }

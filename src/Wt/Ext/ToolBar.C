@@ -127,9 +127,9 @@ void ToolBar::removeChild(WWidget *child)
 {
   Widget::removeChild(child);
 
-  if (Utils::erase(items_, child))
+  if (Utils::erase(items_, child)) {
     // FIXME: no ext method to remove a button??
-    ;
+  }
 }
 
 std::string ToolBar::createJS(DomElement *inContainer)

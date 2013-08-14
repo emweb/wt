@@ -201,7 +201,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 }
 
 void FontSupport::addFontCollection(const std::string& directory,
-				      bool recursive)
+				    bool recursive)
 {
 }
 

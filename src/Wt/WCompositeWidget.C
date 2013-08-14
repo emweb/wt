@@ -269,6 +269,11 @@ WCssDecorationStyle& WCompositeWidget::decorationStyle()
   return impl_->decorationStyle();
 }
 
+const WCssDecorationStyle& WCompositeWidget::decorationStyle() const
+{
+  return impl_->decorationStyle();
+}
+
 void WCompositeWidget::setStyleClass(const WT_USTRING& styleClass)
 {
   impl_->setStyleClass(styleClass);

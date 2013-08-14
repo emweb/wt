@@ -842,13 +842,11 @@ void WTableView::rerenderHeader()
 {
   saveExtraHeaderWidgets();
 
-  WApplication *app = WApplication::instance();
-
   if (ajaxMode()) {
     headers_->clear();
 
     for (int i = 0; i < columnCount(); ++i) {
-      WWidget *w = createHeaderWidget(app, i);
+      WWidget *w = createHeaderWidget(i);
       w->setFloatSide(Left);
       if (i < rowHeaderCount())
 	headerColumnsHeaderContainer_->addWidget(w);
@@ -860,7 +858,7 @@ void WTableView::rerenderHeader()
     }
   } else { // Plain HTML mode
     for (int i = 0; i < columnCount(); ++i) {
-      WWidget *w = createHeaderWidget(app, i);
+      WWidget *w = createHeaderWidget(i);
       WTableCell *cell = plainTable_->elementAt(0, i);
       cell->clear();
       cell->setStyleClass("headerrh");

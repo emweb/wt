@@ -107,6 +107,7 @@ public:
 			      bool autoReverse = false);
 
 protected:
+  using WWidget::removeChild;
   virtual void removeChild(WWidget *child);
   virtual DomElement *createDomElement(WApplication *app);
   virtual void getDomChanges(std::vector<DomElement *>& result,

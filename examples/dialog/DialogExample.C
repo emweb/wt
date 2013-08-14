@@ -79,7 +79,7 @@ void DialogExample::messageBox2()
   messageBox_
     = new WMessageBox("Question",
 		      "Are you getting comfortable ?",
-		      NoIcon, Yes | No | Cancel);
+		      Question, Yes | No | Cancel);
 
   messageBox_
     ->buttonClicked().connect(this, &DialogExample::messageBoxDone);
@@ -104,18 +104,20 @@ void DialogExample::messageBox3()
 void DialogExample::messageBox4()
 {
   messageBox_
-    = new WMessageBox("Your work",
-		      "Your work is not saved",
+    = new WMessageBox("Warning!",
+		      "Are you sure you want to continue?\n"
+		      "You have unsaved changes.",
 		      NoIcon, NoButton);
 
-  messageBox_->addButton("Cancel modifications", Ok);
-  messageBox_->addButton("Continue modifying work", Cancel);
+  messageBox_->addButton("Discard Modifications", Ok);
+  WPushButton *continueButton
+    = messageBox_->addButton("Cancel", Cancel);
+  messageBox_->setDefaultButton(continueButton);
 
   messageBox_
     ->buttonClicked().connect(this, &DialogExample::messageBoxDone);
 
   messageBox_->setOffsets(0, Bottom);
-
   messageBox_->animateShow
     (WAnimation(WAnimation::SlideInFromBottom
 		| WAnimation::Fade, WAnimation::Linear, 250));
@@ -145,19 +147,20 @@ void DialogExample::custom()
   WDialog dialog("Personalia");
   dialog.setClosable(true);
   dialog.setResizable(true);
+  dialog.rejectWhenEscapePressed(true);
 
   new WText("Enter your name: ", dialog.contents());
   WLineEdit edit(dialog.contents());
-  new WBreak(dialog.contents());
-  WPushButton ok("Ok", dialog.contents());
+  WPushButton ok("Ok", dialog.footer());
+  ok.setDefault(true);
 
   edit.setFocus();
-
-  edit.enterPressed().connect(&dialog, &WDialog::accept);
   ok.clicked().connect(&dialog, &WDialog::accept);
 
   if (dialog.exec() == WDialog::Accepted) {
     setStatus("Welcome, " + edit.text());
+  } else {
+    setStatus("Oh nevermind!");
   }
 }
 

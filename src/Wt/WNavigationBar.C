@@ -123,6 +123,7 @@ void WNavigationBar::addWidget(WWidget *widget, AlignmentFlag alignment)
 
     WContainerWidget *contents = resolve<WContainerWidget *>("contents");
     contents->addWidget(widget);
+    contents->setLoadLaterWhenInvisible(false);
   } else
     addWrapped(widget, alignment, "navbar-form");
 }

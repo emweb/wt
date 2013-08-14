@@ -127,6 +127,8 @@ void WColor::setRgb(int red, int green, int blue, int alpha)
 void WColor::setName(const WString& name)
 {
   default_ = false;
+  name_ = name;
+
   red_ = green_ = blue_ = -1;
   alpha_ = 255;
 }

@@ -340,29 +340,27 @@ public:
   virtual void setMaximumSize(const WLength& width, const WLength& height);
 
 protected:
-  void render(WFlags<RenderFlag> flags);
+  virtual void render(WFlags<RenderFlag> flags);
 
 private:
-  WTemplate        *impl_;
-  WText            *caption_;
-  WText            *closeIcon_;
+  WTemplate *impl_;
+  WText *caption_;
+  WText *closeIcon_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
   mutable WContainerWidget *footer_;
-  bool              modal_, resizable_;
+  bool modal_, resizable_, escapeIsReject_;
 
   Signal<DialogCode> finished_;
-
   DialogCode result_;
+  bool recursiveEventLoop_, initialized_;
 
-  bool recursiveEventLoop_;
-
-  bool initialized_;
-
-  Wt::Signals::connection escapeConnection1_;
-  Wt::Signals::connection escapeConnection2_;
+  Wt::Signals::connection escapeConnection1_, escapeConnection2_,
+    enterConnection1_, enterConnection2_;
 
   void create();
+  void onEscapePressed();
+  void onDefaultPressed();
 
   DialogCover *cover();
 };

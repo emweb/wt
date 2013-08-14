@@ -982,7 +982,7 @@ void WAbstractItemView::saveExtraHeaderWidgets()
   }
 }
 
-WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
+WWidget *WAbstractItemView::createHeaderWidget(int column)
 {
   /****
    * result:

@@ -71,9 +71,10 @@ Connection::~Connection()
 
 void Connection::finishReply()
 { 
-  if (!request_.uri.empty())
+  if (!request_.uri.empty()) {
     LOG_DEBUG("last request: " << request_.method << " " << request_.uri
 	      << " (ws:" << request_.webSocketVersion << ")");
+  }
 }
 
 void Connection::scheduleStop()

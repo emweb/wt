@@ -34,8 +34,9 @@ void WAbstractItemDelegate::setModelData(const boost::any& editState,
 					 const WModelIndex& index) const
 { }
 
-  WValidator::State WAbstractItemDelegate::validate(const WModelIndex& index,
-						    const boost::any& editState) const
+WValidator::State WAbstractItemDelegate::validate(const WModelIndex& index,
+						  const boost::any& editState)
+  const
 {
   return WValidator::Valid;
 }

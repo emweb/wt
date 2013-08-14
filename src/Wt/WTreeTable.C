@@ -107,9 +107,8 @@ void WTreeTable::setTree(WTree *root, const WString& h)
   WContainerWidget *parent = dynamic_cast<WContainerWidget *>(tree_->parent());
 
   delete tree_;
-
+  parent->addWidget(tree_ = root);
   header(0)->setText(h);
-  parent->addWidget(tree_ = new WTree());
   tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
 
   treeRoot()->setTable(this);

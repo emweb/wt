@@ -205,6 +205,8 @@ protected:
    */
   virtual WResource *render(::int64_t x, ::int64_t y, int width, int height);
 
+  using WCompositeWidget::render;
+
 private:
   Signal<int64_t, int64_t> viewPortChanged_;
 

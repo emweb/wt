@@ -27,10 +27,10 @@ class WText;
  * synchronously or asynchronously.
  *
  * When using a messagebox asynchronously, there is no API call that
- * waits for the messagebox to be processed. Then, the usage is similar
- * to instantiating a WDialog (or any other widget). You need to connect
- * to the buttonClicked signal with a method that interpretes
- * the result and deletes the message box.
+ * waits for the messagebox to be processed. Instead, the usage is
+ * similar to instantiating a WDialog (or any other widget). You need
+ * to connect to the buttonClicked() signal to interpret the result and
+ * delete the message box.
  *
  * The synchronous use of a messagebox involves the use of the static
  * show() method, which blocks the current thread until the user has
@@ -107,36 +107,105 @@ public:
    */
   Icon icon() const { return icon_; }
 
-  /* !\brief Returns the icon image.
+  /*! \brief Adds a custom button.
    *
-   * This may be useful to customize the style or layout of the displayed
-   * icon. If icon() == NoIcon, then this method returns \c 0.
+   * When the button is clicked, the associated result will be returned.
    */
-  WImage *iconImage() const { return iconImage_; }
+  void addButton(WPushButton *button, StandardButton result);
 
-  /*! \brief Add a custom button with given text.
+  /*! \brief Adds a custom button with given text.
    *
    * When the button is clicked, the associated result will be returned.
    */
   WPushButton *addButton(const WString& text, StandardButton result);
 
-  /*! \brief Sets standard buttons for the message box.
+  /*! \brief Adds a standard button.
+   */
+  WPushButton *addButton(StandardButton result);
+
+  /*! \brief Sets standard buttons for the message box (<b>deprecated</b>).
+   *
+   * \deprecated this method has been renamed to setStandardButtons().
    */
   void setButtons(WFlags<StandardButton> buttons);
 
-  /*! \brief Returns the standard buttons.
+  /*! \brief Sets standard buttons for the message box.
    */
-  WFlags<StandardButton> buttons() const { return buttons_; }
+  void setStandardButtons(WFlags<StandardButton> buttons);
+
+  /*! \brief Returns the standard buttons.
+   *
+   * \sa setStandardButtons(), addButton()
+   */
+  WFlags<StandardButton> standardButtons() const;
+
+  /*! \brief Returns the buttons.
+   *
+   * \note buttons() returning WFlags<StandardButton> has been renamed
+   *       to standardButtons() in %Wt 3.3.1
+   */
+  std::vector<WPushButton *> buttons() const;
 
   /*! \brief Returns the button widget for the given standard button.
    *
+   * Returns \c 0 if the button isn't in the message box.
+   *
    * This may be useful to customize the style or layout of the button.
    */
-  WPushButton *button(StandardButton b);
+  WPushButton *button(StandardButton button);
+
+  /*! \brief Sets the button as the default button.
+   *
+   * The default button is pressed when the user presses enter. Only one
+   * button can be the default button.
+   *
+   * If no default button is set, %Wt will take a button that is associated
+   * with a Wt::Ok or Wt::Yes result.
+   */
+  void setDefaultButton(WPushButton *button);
+
+  /*! \brief Sets the button as the default button.
+   *
+   * The default button is pressed when the user presses enter. Only one
+   * button can be the default button.
+   *
+   * The default value is 0 (no default button).
+   */
+  void setDefaultButton(StandardButton button);
+
+  /*! \brief Returns the default button.
+   *
+   * \sa setDefaultButton()
+   */
+  WPushButton *defaultButton() const { return defaultButton_; }
+
+  /*! \brief Sets the escape button.
+   *
+   * The escape button is pressed when the user presses escapes.
+   *
+   * If no escape button is set, %Wt will take a button that is associated
+   * with a Wt::Cancel or Wt::No result.
+   */
+  void setEscapeButton(WPushButton *button);
+
+  /*! \brief Sets the escape button.
+   *
+   * The escape button is pressed when the user presses escapes.
+   *
+   * If no escape button is set, %Wt will take a button that is associated
+   * with a Wt::Cancel or Wt::No result.
+   */
+  void setEscapeButton(StandardButton button);
+
+  /*! \brief Returns the escape button.
+   *
+   * \sa setEscapeButton()
+   */
+  WPushButton *escapeButton() const { return escapeButton_; }
 
   /*! \brief Returns the result of this message box.
    *
-   * This value is only defined after a button has been clicked.
+   * This value is only defined after the dialog is finished.
    */
   StandardButton buttonResult() { return result_; }
 
@@ -162,26 +231,35 @@ public:
    */
   Signal<StandardButton>& buttonClicked() { return buttonClicked_; }
 
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
+
 private:
-  WFlags<StandardButton> buttons_;
+  struct Button {
+    WPushButton *button;
+    StandardButton result;
+  };
+
+  std::vector<Button> buttons_;
   Icon icon_;
   StandardButton result_;
   Signal<StandardButton> buttonClicked_;
+  WPushButton *defaultButton_, *escapeButton_;
 
-  WText            *text_;
-  WImage           *iconImage_;
+  WText *text_;
+  WIcon *iconW_;
 
   WSignalMapper<StandardButton, NoClass> *buttonMapper_;
 
   void create();
 
+  void onFinished();
   void onButtonClick(StandardButton b);
   void mappedButtonClick(StandardButton b);
 
   static StandardButton order_[];
-
   static const char *buttonText_[];
-  static const char *iconURI[];
+  static WString standardButtonText(StandardButton b);
 };
 
 }

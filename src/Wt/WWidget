@@ -584,6 +584,7 @@ public:
    * \sa setDecorationStyle()
    */
   virtual WCssDecorationStyle& decorationStyle() = 0;
+  virtual const WCssDecorationStyle& decorationStyle() const = 0;
 
   /*! \brief Sets (one or more) CSS style classes.
    *

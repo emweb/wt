@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <vector>
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WAbstractItemView"
 #include "Wt/WAbstractSpinBox"
@@ -17,6 +18,7 @@
 #include "Wt/WPanel"
 #include "Wt/WPopupMenu"
 #include "Wt/WProgressBar"
+#include "Wt/WPushButton"
 #include "Wt/WSuggestionPopup"
 #include "Wt/WTabWidget"
 
@@ -143,8 +145,12 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
 
   switch (element.type()) {
   case DomElement_BUTTON:
-    if (creating)
+    if (creating) {
       element.addPropertyWord(PropertyClass, "Wt-btn");
+      WPushButton *b = dynamic_cast<WPushButton *>(widget);
+      if (b && b->isDefault())
+	element.addPropertyWord(PropertyClass, "Wt-btn-default");
+    }
     break;
 
   case DomElement_UL:
@@ -227,6 +233,7 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
       }
     }
     break;
+
   default:
     break;
   }

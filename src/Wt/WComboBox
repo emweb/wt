@@ -138,7 +138,10 @@ public:
    * transferred.
    *
    * The default value is a WStringListModel that is owned by the
-   * combo box.
+   * combo box. Items in the model can be grouped by setting the
+   * \ref LevelRole. The contents is interpreted by \ref Wt::asString, and
+   * subsequent items of the same group are rendered as children of a HTML
+   * <tt> <optgroup> </tt>element.
    *
    * \sa setModelColumn(int)
    */

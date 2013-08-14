@@ -87,8 +87,7 @@ void ComposeExample::send()
   }
 
   horiz = new WContainerWidget(feedback);
-  WText *t = new WText("Subject: \"" + composer_->subject() + "\"",
-		       PlainText, horiz);
+  new WText("Subject: \"" + composer_->subject() + "\"", PlainText, horiz);
 
   std::vector<Attachment> attachments = composer_->attachments();
   if (!attachments.empty())
@@ -109,13 +108,13 @@ void ComposeExample::send()
   std::wstring message = composer_->message();
 
   horiz = new WContainerWidget(feedback);
-  t = new WText("Message body: ", horiz);
+  new WText("Message body: ", horiz);
   new WBreak(horiz);
 
   if (!message.empty()) {
-    t = new WText(message, PlainText, horiz);
+    new WText(message, PlainText, horiz);
   } else
-    t = new WText("<i>(empty)</i>", horiz);
+    new WText("<i>(empty)</i>", horiz);
 
   delete composer_;
   delete details_;

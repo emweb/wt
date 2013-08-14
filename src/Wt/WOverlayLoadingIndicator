@@ -96,6 +96,8 @@ public:
   virtual WWidget *widget() { return this; }
   virtual void setMessage(const WString& text);
 
+  using WContainerWidget::widget;
+
 private:
   WContainerWidget *cover_;
   WContainerWidget *center_;

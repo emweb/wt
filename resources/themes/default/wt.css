@@ -184,6 +184,16 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 /*
+ * WDateEdit
+ */
+.Wt-dateedit {
+    background-image: url('../../calendar_edit.png');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+}
+
+/*
  * WDatePicker
  */
 .Wt-datepicker {
@@ -228,6 +238,10 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     padding: 4px 6px 4px;
 }
 
+.Wt-dialog .footer {
+    text-align: right;
+}
+
 /*
  * WMenuItem
  */
@@ -248,9 +262,16 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 /* 
  * WMessageBox
  */
-.Wt-msgbox-buttons button {
-    padding: 1px 4px 1px;
-    margin: 2px;
+.Wt-dialog .Wt-msgbox-icon {
+    display: block;
+    float: left;
+    margin: 0px 15px -15px;
+    width: 25px;
+    height: 35px;
+}
+
+.Wt-dialog .Wt-msgbox-body {
+    padding: 10px;
 }
 
 /*
@@ -425,6 +446,13 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
    text-align: center;
    font-size: 0.8em;
    top:0.1em;
+}
+
+/*
+ * WPushButton
+ */
+.Wt-btn.Wt-btn-default {
+    font-weight: bold;
 }
 
 /*

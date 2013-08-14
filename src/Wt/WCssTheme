@@ -392,9 +392,11 @@ public:
 
   virtual std::string name() const;
 
-  /*! \brief Returns wt.css, plus on IE wt_ie.css, plus on IE6 wt_ie6.css. The
-   *         style sheets are located in the theme directory in the resources
-   *         folder.
+  /*! \brief Returns the stylesheets.
+   *
+   * Returns wt.css, plus on IE wt_ie.css, plus on IE6 wt_ie6.css. The
+   * style sheets are located in the theme directory in the resources
+   * folder.
    */
   virtual std::vector<WCssStyleSheet> styleSheets() const;
 

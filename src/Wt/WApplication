@@ -2220,7 +2220,7 @@ private:
   SignalMap&  exposedSignals() { return exposedSignals_; }
 
   std::string resourceMapKey(WResource *resource);
-  std::string addExposedResource(WResource *resource, const std::string& path);
+  std::string addExposedResource(WResource *resource);
   void removeExposedResource(WResource *resource);
   WResource *decodeExposedResource(const std::string& resourceMapKey) const;
 

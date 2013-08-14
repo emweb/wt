@@ -134,56 +134,74 @@ public:
       }
 
     //Debug printings:
-    if( date != other.date)
+    if (date != other.date) {
       DEBUG(std::cerr << "ERROR: date = " << date.toString() << " | "
             << other.date.toString() << std::endl);
-    if(time  != other.time)
+    }
+    if (time  != other.time) {
       DEBUG(std::cerr << "ERROR: time = " << time.toString() << " | "
             << other.time.toString() << std::endl);
-    if(datetime  != other.datetime)
+    }
+    if (datetime  != other.datetime) {
       DEBUG(std::cerr << "ERROR: datetime = " << datetime.toString() << " | "
             << other.datetime.toString() << std::endl);
-    if(wstring  != other.wstring)
+    }
+    if (wstring  != other.wstring) {
       DEBUG(std::cerr << "ERROR: wstring = " << wstring << " | "
             << other.wstring << std::endl);
-    if(wstring2  != other.wstring2)
+    }
+    if (wstring2  != other.wstring2) {
       DEBUG(std::cerr << "ERROR: wstring2 = " << wstring2 << " | "
             << other.wstring2 << std::endl);
-    if(string  != other.string)
+    }
+    if (string  != other.string) {
       DEBUG(std::cerr << "ERROR: string = " << string << " | " << other.string
             << std::endl);
-    if(string2  != other.string2)
+    }
+    if (string2  != other.string2) {
       DEBUG(std::cerr << "ERROR: string2 = " << string2 << " | "
             << other.string2 << std::endl);
-    if(ptime  != other.ptime)
+    }
+    if (ptime  != other.ptime) {
       DEBUG(std::cerr << "ERROR: ptime = " <<  ptime<< " | " << other.ptime
             << std::endl);
-    if(pduration  != other.pduration)
+    }
+    if (pduration  != other.pduration) {
       DEBUG(std::cerr << "ERROR: pduration = " << pduration << " | "
             << other.pduration << std::endl);
-    if( i != other.i)
+    }
+    if (i != other.i) {
       DEBUG(std::cerr << "ERROR: i = " << i << " | " << other.i << std::endl);
-    if( i64 != other.i64)
+    }
+    if (i64 != other.i64) {
       DEBUG(std::cerr << "ERROR: i64 = " <<i64  << " | "
             << other.i64 << std::endl);
-    if(ll  != other.ll)
+    }
+    if (ll != other.ll) {
       DEBUG(std::cerr << "ERROR: ll = " << ll << " | "
             << other.ll << std::endl);
-    if(checked  != other.checked)
+    }
+    if (checked != other.checked) {
       DEBUG(std::cerr << "ERROR: checked = " << checked << " | "
             << other.checked << std::endl);
-    if( f != other.f)
+    }
+    if (f != other.f) {
       DEBUG(std::cerr << "ERROR: f = " << f << " | " << other.f << std::endl);
-    if( d != other.d)
+    }
+    if (d != other.d) {
       DEBUG(std::cerr << "ERROR: d = " << d << " | " << other.d << std::endl);
-    if( b != other.b)
+    }
+    if (b != other.b) {
       DEBUG(std::cerr << "ERROR: b  = " << b  << " | " << other.b << std::endl);
-    if( dthing != other.dthing)
+    }
+    if (dthing != other.dthing) {
       DEBUG(std::cerr << "ERROR: dthing = " << dthing << " | " << other.dthing
             << std::endl);
-    if( parent != other.parent)
+    }
+    if (parent != other.parent) {
       DEBUG(std::cerr << "ERROR: parent = " << parent << " | " << other.parent
             << std::endl);
+    }
 
     return date == other.date
       && (time == other.time || !fractionalSeconds)

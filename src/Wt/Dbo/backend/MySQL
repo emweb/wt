@@ -121,7 +121,7 @@ public:
   *
   * \sa setFractionalSecondsPart()
   */
-  const int getFractionalSecondsPart() const;
+  int getFractionalSecondsPart() const;
 
   /*! \brief Set the supported fractional seconds part
   *

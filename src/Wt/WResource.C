@@ -220,7 +220,7 @@ const std::string& WResource::generateUrl()
 
     if (c && !currentUrl_.empty())
       c->removeUploadProgressUrl(currentUrl_);
-    currentUrl_ = app->addExposedResource(this, internalPath_);
+    currentUrl_ = app->addExposedResource(this);
     if (c)
       c->addUploadProgressUrl(currentUrl_);    
   } else
