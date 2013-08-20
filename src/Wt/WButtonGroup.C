@@ -166,10 +166,13 @@ int WButtonGroup::generateId() const
 
 Signal<WRadioButton *>& WButtonGroup::checkedChanged()
 {
-  checkedChangedConnected_ = true;
+  if (!checkedChangedConnected_) {
+    checkedChangedConnected_ = true;
 
-  for (unsigned i = 0; i < buttons_.size(); ++i)
-    buttons_[i].button->changed().connect(this, &WButtonGroup::onButtonChange);
+    for (unsigned i = 0; i < buttons_.size(); ++i)
+      buttons_[i].button->changed()
+	.connect(this, &WButtonGroup::onButtonChange);
+  }
 
   return checkedChanged_;
 }

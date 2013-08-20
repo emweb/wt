@@ -243,8 +243,10 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = IE7;
   else if (userAgent_.find("MSIE 8.") != std::string::npos)
     agent_ = IE8;
-  else if (userAgent_.find("MSIE") != std::string::npos)
+  else if (userAgent_.find("MSIE 9") != std::string::npos)
     agent_ = IE9;
+  else if (userAgent_.find("MSIE") != std::string::npos)
+    agent_ = IE10;
 
   if (userAgent_.find("Opera") != std::string::npos) {
     agent_ = Opera;
@@ -341,7 +343,9 @@ bool WEnvironment::agentSupportsAjax() const
 
 bool WEnvironment::supportsCss3Animations() const
 {
-  return ((agentIsGecko() && agent_ >= Firefox5_0) || agentIsWebKit());
+  return ((agentIsGecko() && agent_ >= Firefox5_0) ||
+	  (agentIsIE() && agent_ >= IE10) ||
+	  agentIsWebKit());
 }
 
 std::string WEnvironment::libraryVersion()

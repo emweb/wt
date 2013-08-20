@@ -164,9 +164,9 @@ public:
    */
   WDateTime addYears(int nyears) const;
 
-  /*! \brief Returns if this datetime is <i>Null</i>.
+  /*! \brief Returns if this datetime is Null.
    *
-   * A null time is also invalid.
+   * A <i>null</i> time is also invalid.
    *
    * \sa isValid(), WDateTime()
    */
@@ -325,7 +325,7 @@ public:
   /*! \brief Reports the current datetime (UTC clock).
    *
    * This method returns the datetime as indicated by the system clock
-   * of the server, in the UTC timezone.
+   * of the server, in UTC.
    */
   static WDateTime currentDateTime();
 

@@ -217,14 +217,13 @@ private:
 
   static const int BIT_ENABLED_CHANGED  = 0;
   static const int BIT_GOT_FOCUS        = 1;
-  static const int BIT_INITIAL_FOCUS    = 2;
-  static const int BIT_READONLY         = 3;
-  static const int BIT_READONLY_CHANGED = 4;
-  static const int BIT_TABINDEX_CHANGED = 5;
-  static const int BIT_JS_OBJECT        = 6;
-  static const int BIT_VALIDATION_CHANGED = 7;
+  static const int BIT_READONLY         = 2;
+  static const int BIT_READONLY_CHANGED = 3;
+  static const int BIT_TABINDEX_CHANGED = 4;
+  static const int BIT_JS_OBJECT        = 5;
+  static const int BIT_VALIDATION_CHANGED = 6;
 
-  std::bitset<8> flags_;
+  std::bitset<7> flags_;
   int tabIndex_;
   Signal<WValidator::Result> validated_;
   WString validationToolTip_;

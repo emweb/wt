@@ -178,7 +178,7 @@ public:
    * \warning Only the following CSS selector features are supported:
    * - tag selectors: e.g. span or *
    * - class name selectors: .class
-   * - id selectors: #id
+   * - id selectors: \#id
    * - descendant selectors: h1 h2 h3 {}
    * - multiples: h1, h2, h3 {}
    * \code

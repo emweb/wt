@@ -162,26 +162,12 @@ WT_DECLARE_WT_MEMBER
      /* const */ var EaseInOut = 4;
      /* const */ var CubicBezier = 5;
 
-     function getPrefix(prop) {
-       var prefixes = ['Moz', 'Webkit'],
-	 elem = document.createElement('div'),
-	 i, il;
-
-       for (i = 0, il = prefixes.length; i < il; ++i) {
-	 if ((prefixes[i] + prop) in elem.style)
-	   return prefixes[i];
-       }
-
-       return '';
-     }
-
      var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ],
        inverseTiming = [ 0, 1, 3, 2, 4, 5 ],
-       prefix = getPrefix("AnimationDuration");
+       prefix = WT.vendorPrefix(WT.styleAttribute("animation-duration"));
 
-     var cssAnimation = prefix + "Animation",
-       animationEventEnd = prefix == "Moz"
-       ? "animationend" : "webkitAnimationEnd";
+     var animationEventEnd = prefix == "Webkit"
+	   ? "webkitAnimationEnd" : "animationend";
 
      /*
       * We only need to implement the show() -- we hide the currently
@@ -211,8 +197,8 @@ WT_DECLARE_WT_MEMBER
      function restore() {
        $(from).removeClass(anim + ' out');
        from.style.display = 'none';
-       from.style[cssAnimation + 'Duration'] = '';
-       from.style[cssAnimation + 'TimingFunction'] = '';
+       from.style[WT.styleAttribute('animation-duration')] = '';
+       from.style[WT.styleAttribute('animation-timing-function')] = '';
 
        $(to).removeClass(anim + ' in');
        to.style.left = '';
@@ -220,8 +206,8 @@ WT_DECLARE_WT_MEMBER
        to.style.top = '';
        to.style.height = '';
        to.style.position = '';
-       to.style[cssAnimation + 'Duration'] = '';
-       to.style[cssAnimation + 'TimingFunction'] = '';
+       to.style[WT.styleAttribute('animation-duration')] = '';
+       to.style[WT.styleAttribute('animation-timing-function')] = '';
      }
 
      var index = getIndexes();
@@ -285,11 +271,11 @@ WT_DECLARE_WT_MEMBER
      if (needReverse)
        anim += " reverse";
 
-     from.style[cssAnimation + 'Duration'] = duration + 'ms';
-     to.style[cssAnimation + 'Duration'] = duration + 'ms';
-     from.style[cssAnimation + 'TimingFunction']
+     from.style[WT.styleAttribute('animation-duration')] = duration + 'ms';
+     to.style[WT.styleAttribute('animation-duration')] = duration + 'ms';
+     from.style[WT.styleAttribute('animation-timing-function')]
        = timings[inverseTiming[timing]];
-     to.style[cssAnimation + 'TimingFunction'] = timings[timing];
+     to.style[WT.styleAttribute('animation-timing-function')] = timings[timing];
 
      $(from).addClass(anim + ' out');
      $(to).addClass(anim + ' in');

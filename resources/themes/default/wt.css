@@ -201,6 +201,13 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 /*
+ * Wt-dateedit
+ */
+.Wt-dateedit::-ms-clear {
+    display:none
+}
+
+/*
  * WDialog
  */
 .Wt-dialog {
@@ -272,6 +279,10 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 
 .Wt-dialog .Wt-msgbox-body {
     padding: 10px;
+}
+
+.Wt-dialog .Wt-msgbox-text {
+    padding-left: 40px;
 }
 
 /*
@@ -527,6 +538,10 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     background-repeat: no-repeat;
     background-position: right center;
     padding-right: 16px;
+}
+
+.Wt-spinbox::-ms-clear {
+    display: none;
 }
 
 .Wt-spinbox.up {

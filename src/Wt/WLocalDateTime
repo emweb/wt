@@ -46,16 +46,19 @@ public:
    *
    * The datetime is valid if both \p date and \p time are valid and the
    * given time could correctly be interpreted in the local time zone:
-   * - the time exists (on the day that the time changes from 2AM to 3AM the time 2.30AM does not exist)
-   * - the time is unambiguous (on the day that time changes from 3AM to 2AM, the time 2.30AM is not unambigous). In the latter case, setDateTime() may be used
-   *   indicating whether the time is day light savings time or not.
+   * - the time must exist (on the day that the time changes from 2AM to
+   *   3AM the time 2.30AM does not exist)
+   * - the time must be unambiguous. On the day that time changes from
+   *   3AM to 2AM, the time 2.30AM is not unambiguous. In that case the
+   *   ambiguity must be resolved by using setDateTime() indicating whether
+   *   the time is day light savings time or not.
    */
   WLocalDateTime(const WDate& date, const WTime& time,
 		 const WLocale& locale = WLocale::currentLocale());
 
   /*! \brief Returns if this datetime is <i>Null</i>.
    *
-   * A null time is also invalid.
+   * A <i>null</i> time is also invalid.
    *
    * \sa isValid(), WDateTime()
    */
@@ -75,7 +78,7 @@ public:
    *   3AM the time 2.30AM does not exist)
    * - the time is unambiguous (on the day that time changes from 3AM to 2AM.
    *   the time 2.30AM is not unambigous). In the latter case,
-   *   setDateTime(const WDate&, const WTime, bool) may still be used.
+   *   setDateTime(const WDate&, const WTime&, bool) may still be used.
    */
   void setDateTime(const WDate& date, const WTime& time);
 
@@ -89,8 +92,8 @@ public:
 
   /*! \brief Sets the date part.
    *
-   * Changes the date part part, leaving the time unmodified. If no time
-   * was set, it is set to 00:00.
+   * Changes the date part part, leaving the time unmodified. If no
+   * time was set, it is set to 00:00.
    *
    * \sa setTime()
    */
@@ -158,7 +161,10 @@ public:
 
   /*! \brief Reports the current datetime.
    *
-   * This method returns the current datetime in the user locale.
+   * This method returns the current datetime in the given
+   * locale. Note that this is usually accurate even if one does not
+   * know exactly the user's time zone, since this can be based on the
+   * timeZoneOffset reported in the WEnvironment.
    */
   static WLocalDateTime currentDateTime(const WLocale& locale = WLocale::currentLocale());
 

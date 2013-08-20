@@ -116,6 +116,7 @@ int WLocale::toInt(const WT_USTRING& value) const
   return boost::lexical_cast<int>(v);
 }
 
+#ifndef DOXYGEN_ONLY
 WT_USTRING WLocale::toString(int value) const
 {
   return integerToString(boost::lexical_cast<std::string>(value));
@@ -135,6 +136,7 @@ WT_USTRING WLocale::toString(::uint64_t value) const
 {
   return integerToString(boost::lexical_cast<std::string>(value));
 }
+#endif // DOXYGEN_ONLY
 
 WT_USTRING WLocale::integerToString(const std::string& v) const
 {

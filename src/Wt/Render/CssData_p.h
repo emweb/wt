@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Wt/Render/CssData.h"
+#include "DomElement.h"
 
 namespace Wt {
 namespace Render {
@@ -14,16 +15,22 @@ struct SimpleSelectorImpl : public SimpleSelector
 {
 public:
   SimpleSelectorImpl(){}
-  virtual std::string elementName() const { return elementName_; }
-  virtual std::string hashId()      const { return hashid_; }
-  virtual std::vector<std::string> classes() const { return classes_; }
+  virtual const std::string& elementName() const { return elementName_; }
+  virtual DomElementType elementType() const { return elementType_; }
+  virtual const std::string& hashId()      const { return hashid_; }
+  virtual const std::vector<std::string>& classes() const { return classes_; }
 
-  void setElementName(const std::string& name) { elementName_ = name; }
+  void setElementName(const std::string& name) {
+    elementName_ = name; 
+    elementType_ = Wt::DomElement::parseTagName(elementName_);
+  }
+
   void addClass      (const std::string& id)   { classes_.push_back(id); }
   void setHash       (const std::string& id)
                              { if(!hashid_.size()) hashid_ = id; }
 
   std::string elementName_;
+  DomElementType elementType_;
   std::vector<std::string> classes_;
   std::string hashid_;
 };
@@ -69,7 +76,8 @@ class DeclarationBlockImpl : public DeclarationBlock
 public:
   DeclarationBlockImpl() { }
   virtual Term value(const std::string& property) const;
-  virtual std::string declarationString() const { return declarationString_; }
+  virtual const std::string& declarationString() const
+    { return declarationString_; }
 
   std::map<std::string, Term > properties_;
   std::string declarationString_;

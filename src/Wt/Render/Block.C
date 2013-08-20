@@ -82,6 +82,9 @@ Block::Block(xml_node<> *node, Block *parent)
 	LOG_ERROR("unsupported element: " << node->name());
 	type_ = DomElement_DIV;
       }
+
+      std::string s = attributeValue("class");
+      boost::split(classes_, s, boost::is_any_of(" "));
     }
 
     Render::Utils::fetchBlockChildren(node, this, children_);
@@ -97,14 +100,6 @@ Block::~Block()
 std::string Block::id() const
 {
   return attributeValue("id");
-}
-
-std::vector<std::string> Block::classes() const
-{
-  std::string s = attributeValue("class");
-  std::vector<std::string> r;
-  boost::split(r, s, boost::is_any_of(" "));
-  return r;
 }
 
 bool Block::isWhitespace(char c)
@@ -1781,8 +1776,8 @@ void Block::advance(PageState &ps, double height,
     height -= (renderer.textHeight(ps.page) - ps.y);
     if (height < 0)
       height = 0;
-    if((renderer.textHeight(ps.page) - ps.y) < 0 && height >= 0)
-      throw new WException("The margin is to large");
+    if ((renderer.textHeight(ps.page) - ps.y) < 0 && height >= 0)
+      throw new WException("The margin is too large");
   }
 
   ps.y += height;
@@ -2763,6 +2758,9 @@ AlignmentFlag Block::cssTextAlign() const
 
 WFont Block::cssFont(double fontScale) const
 {
+  if (font_.genericFamily() != WFont::Default)
+    return font_;
+
   WFont::GenericFamily genericFamily = WFont::SansSerif;
   WString specificFamilies;
 
@@ -2809,14 +2807,13 @@ WFont Block::cssFont(double fontScale) const
     }
   }
 
-  WFont result;
+  font_.setFamily(genericFamily, specificFamilies);
+  font_.setSize(WFont::FixedSize,
+		WLength(cssFontSize(fontScale), WLength::Pixel));
+  font_.setWeight(WFont::Value, cssFontWeight());
+  font_.setStyle(cssFontStyle());
 
-  result.setFamily(genericFamily, specificFamilies);
-  result.setSize(WFont::FixedSize,
-		 WLength(cssFontSize(fontScale), WLength::Pixel));
-  result.setWeight(WFont::Value, cssFontWeight());
-  result.setStyle(cssFontStyle());
-  return result;
+  return font_;
 }
 
 std::string Block::cssTextDecoration() const

@@ -48,8 +48,8 @@ WDateEdit::WDateEdit(WContainerWidget *parent)
 
   WApplication::instance()->theme()->apply(this, popup_, DatePickerPopupRole);
 
-  t->escapePressed().connect(popup_, &WTemplate::hide);
-  t->escapePressed().connect(this, &WDateEdit::setFocus);
+  escapePressed().connect(popup_, &WPopupWidget::hide);
+  escapePressed().connect(this, &WDateEdit::setFocus);
 
   setValidator(new WDateValidator("dd/MM/yyyy", this));
 }

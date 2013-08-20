@@ -39,7 +39,6 @@ WMessageBox::WMessageBox(const WString& caption, const WString& text,
 			 Icon icon, WFlags<StandardButton> buttons,
 			 WObject *parent)
   : WDialog(caption, parent),
-    buttons_(0),
     icon_(NoIcon),
     buttonClicked_(this),
     defaultButton_(0),
@@ -122,6 +121,7 @@ void WMessageBox::setIcon(Icon icon)
   icon_ = icon;
 
   iconW_->toggleStyleClass("Wt-msgbox-icon", icon_ != NoIcon);
+  text_->toggleStyleClass("Wt-msgbox-text", icon_ != NoIcon);
   iconW_->setSize(icon_ != NoIcon ? 2.5 : 1);
 
   switch (icon_) {

@@ -32,7 +32,7 @@ WDate::WDate()
   : ymd_(0)
 { }
 
-WDate::WDate(const date& date)
+WDate::WDate(const boost::gregorian::date& date)
 {
   setGregorianDate(date);
 }

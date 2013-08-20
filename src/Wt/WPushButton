@@ -53,8 +53,9 @@ public:
 
   /*! \brief Sets the default property.
    *
-   * This has only a functional meaning for a button in a WMessageBox,
-   * see WMessageBox::setDefaultButton().
+   * This has only a functional meaning for a button in a dialog
+   * footer, as it becomes associated with pressing 'enter' in the
+   * dialog.
    *
    * A default button may be rendered in a different style, depending
    * on the theme.

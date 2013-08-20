@@ -22,18 +22,18 @@ class UserFormModel : public Wt::WFormModel
 {
 public:
     // Associate each field with a unique string literal.
-    // In C++11, it's nicer to put these inside the UserFormModel class
-    // like this:
+    // With C++11 you can actually put these directly inside the
+    // UserFormModel class like this:
     //
     //   static constexpr Field FirstNameField = "first-name";
   
-    static Wt::WFormModel::Field FirstNameField;
-    static Wt::WFormModel::Field LastNameField;
-    static Wt::WFormModel::Field CountryField;
-    static Wt::WFormModel::Field CityField;
-    static Wt::WFormModel::Field BirthField;
-    static Wt::WFormModel::Field ChildrenField;
-    static Wt::WFormModel::Field RemarksField;
+    static const Wt::WFormModel::Field FirstNameField;
+    static const Wt::WFormModel::Field LastNameField;
+    static const Wt::WFormModel::Field CountryField;
+    static const Wt::WFormModel::Field CityField;
+    static const Wt::WFormModel::Field BirthField;
+    static const Wt::WFormModel::Field ChildrenField;
+    static const Wt::WFormModel::Field RemarksField;
 
     UserFormModel(Wt::WObject *parent = 0)
         : Wt::WFormModel(parent)
@@ -81,9 +81,9 @@ public:
     void updateCityModel(const std::string& countryCode) {
         cityModel_->clear();
 
-        CityMap::const_iterator i = cities_.find(countryCode);
+        CityMap::const_iterator i = cities.find(countryCode);
 
-        if (i != cities_.end()) {
+        if (i != cities.end()) {
             const std::vector<std::string>& cities = i->second;
 
             // The initial text shown in the city combo box should be an empty
@@ -121,8 +121,8 @@ public:
     typedef std::map<std::string, std::string> CountryMap;
 
 private:
-    static const CityMap cities_;
-    static const CountryMap countries_;
+    static const CityMap cities;
+    static const CountryMap countries;
     Wt::WStandardItemModel *countryModel_, *cityModel_;
 
     static const int MAX_LENGTH = 25;
@@ -130,7 +130,7 @@ private:
 
     void initializeModels() {
         // Create a country model.
-        unsigned countryModelRows = countries_.size() + 1;
+        unsigned countryModelRows = countries.size() + 1;
         const unsigned countryModelColumns = 1;
         countryModel_ =
           new Wt::WStandardItemModel(countryModelRows, countryModelColumns,
@@ -147,10 +147,10 @@ private:
         // - set the country name for the display role,
         // - set the city names for the user role.
         row = 1;
-        for (CountryMap::const_iterator i = countries_.begin();
-                                        i != countries_.end(); ++i, ++row) {
+        for (CountryMap::const_iterator i = countries.begin();
+                                        i != countries.end(); ++i) {
             countryModel_->setData(row, 0, i->second, Wt::DisplayRole);
-            countryModel_->setData(row, 0, i->first, Wt::UserRole);
+            countryModel_->setData(row++, 0, i->first, Wt::UserRole);
         }
 
         // Create a city model.
@@ -163,23 +163,18 @@ private:
         v->setMandatory(true);
         v->setMinimumLength(1);
         v->setMaximumLength(MAX_LENGTH);
-        v->setInvalidBlankText("A " + field + " is mandatory!");
-        v->setInvalidTooLongText( Wt::WString("The " + field +
-                          " may not exceed {1} characters!").arg(MAX_LENGTH) );
         return v;
     }
 
     Wt::WValidator *createCountryValidator() {
         Wt::WLengthValidator *v = new Wt::WLengthValidator();
         v->setMandatory(true);
-        v->setInvalidBlankText("A choice for the country is mandatory!");
         return v;
     }
 
     Wt::WValidator *createCityValidator() {
         Wt::WLengthValidator *v = new Wt::WLengthValidator();
         v->setMandatory(true);
-        v->setInvalidBlankText("A choice for the city is mandatory!");
         return v;
     }
 
@@ -195,27 +190,22 @@ private:
     Wt::WValidator *createChildrenValidator() {
         Wt::WIntValidator *v = new Wt::WIntValidator(0, MAX_CHILDREN);
         v->setMandatory(true);
-        v->setInvalidBlankText("Set the number of children!");
-        v->setInvalidTooSmallText(
-            Wt::WString("Enter a value between 0 and {1}!").arg(MAX_CHILDREN));
-        v->setInvalidTooLargeText(
-            Wt::WString("Enter a value between 0 and {1}!").arg(MAX_CHILDREN));
         return v;
     }
 
 };
 
-Wt::WFormModel::Field UserFormModel::FirstNameField = "first-name";
-Wt::WFormModel::Field UserFormModel::LastNameField = "last-name";
-Wt::WFormModel::Field UserFormModel::CountryField = "country";
-Wt::WFormModel::Field UserFormModel::CityField = "city";
-Wt::WFormModel::Field UserFormModel::BirthField = "birth";
-Wt::WFormModel::Field UserFormModel::ChildrenField = "children";
-Wt::WFormModel::Field UserFormModel::RemarksField = "remarks";
+const Wt::WFormModel::Field UserFormModel::FirstNameField = "first-name";
+const Wt::WFormModel::Field UserFormModel::LastNameField = "last-name";
+const Wt::WFormModel::Field UserFormModel::CountryField = "country";
+const Wt::WFormModel::Field UserFormModel::CityField = "city";
+const Wt::WFormModel::Field UserFormModel::BirthField = "birth";
+const Wt::WFormModel::Field UserFormModel::ChildrenField = "children";
+const Wt::WFormModel::Field UserFormModel::RemarksField = "remarks";
 
 // In C++11, this initializing can be done inline, within the declaration:
 //
-// const UserFormModel::CityMap UserFormModel::cities_ = {
+// const UserFormModel::CityMap UserFormModel::cities = {
 //    { "BE", { "Antwerp", "Bruges", "Brussels", "Ghent" } },
 //    { "NL", { "Amsterdam", "Eindhoven", "Rotterdam", "The Hague"} },
 //    { "UK", { "London", "Bristol", "Oxford", "Stonehenge"} },
@@ -232,7 +222,7 @@ namespace {
 	return retval;
     }
 }
-const UserFormModel::CountryMap UserFormModel::countries_ = getCountryMap();
+const UserFormModel::CountryMap UserFormModel::countries = getCountryMap();
 
 namespace {
     UserFormModel::CityMap getCityMap() {
@@ -269,14 +259,14 @@ namespace {
     }
 }
 
-const UserFormModel::CityMap UserFormModel::cities_ = getCityMap();
+const UserFormModel::CityMap UserFormModel::cities = getCityMap();
 
 class UserFormView : public Wt::WTemplateFormView
 {
 public:
     // inline constructor
     UserFormView() {
-        model_ = new UserFormModel(this);
+        model = new UserFormModel(this);
 
         setTemplateText(tr("userForm-template"));
         addFunction("id", &WTemplate::Functions::id);
@@ -295,31 +285,31 @@ public:
 	 * Country
 	 */
 	Wt::WComboBox *countryCB = new Wt::WComboBox();
-	countryCB->setModel(model_->countryModel());
+	countryCB->setModel(model->countryModel());
 
 	countryCB->activated().connect(std::bind([=] () {
-	    std::string code = model_->countryCode(countryCB->currentIndex());
-	    model_->updateCityModel(code);
+	    std::string code = model->countryCode(countryCB->currentIndex());
+	    model->updateCityModel(code);
 	}));
 
 	setFormWidget(UserFormModel::CountryField, countryCB,
             [=] () { // updateViewValue()
 	        std::string code = boost::any_cast<std::string>
-		    (model_->value(UserFormModel::CountryField));
-		int row = model_->countryModelRow(code);
+		    (model->value(UserFormModel::CountryField));
+		int row = model->countryModelRow(code);
 		countryCB->setCurrentIndex(row);
 	    },
 
             [=] () { // updateModelValue()
-	        std::string code = model_->countryCode(countryCB->currentIndex());
-		model_->setValue(UserFormModel::CountryField, code);
+	        std::string code = model->countryCode(countryCB->currentIndex());
+		model->setValue(UserFormModel::CountryField, code);
             });
 
 	/*
 	 * City
 	 */
 	Wt::WComboBox *cityCB = new Wt::WComboBox();
-	cityCB->setModel(model_->cityModel());
+	cityCB->setModel(model->cityModel());
 	setFormWidget(UserFormModel::CityField, cityCB);
 
 	/*
@@ -329,13 +319,13 @@ public:
 	setFormWidget(UserFormModel::BirthField, dateEdit,
 	    [=] () { // updateViewValue()
 	        Wt::WDate date = boost::any_cast<Wt::WDate>
-		    (model_->value(UserFormModel::BirthField));
+		    (model->value(UserFormModel::BirthField));
                 dateEdit->setDate(date);
 	    }, 
 
             [=] () { // updateModelValue()
 	        Wt::WDate date = dateEdit->date();
-                model_->setValue(UserFormModel::BirthField, date);
+                model->setValue(UserFormModel::BirthField, date);
 	    });
 
         /*
@@ -364,31 +354,31 @@ public:
 
         button->clicked().connect(this, &UserFormView::process);
 
-        updateView(model_);
+        updateView(model);
     }
 
 private:
     void process() {
-        updateModel(model_);
+        updateModel(model);
 
-        if (model_->validate()) {
+        if (model->validate()) {
             // Do something with the data in the model: show it.
             bindString("submit-info",
                        Wt::WString::fromUTF8("Saved user data for ")
-		       + model_->userData(), Wt::PlainText);
+		       + model->userData(), Wt::PlainText);
             // Udate the view: Delete any validation message in the view, etc.
-            updateView(model_);
+            updateView(model);
             // Set the focus on the first field in the form.
             Wt::WLineEdit *viewField =
                     resolve<Wt::WLineEdit*>(UserFormModel::FirstNameField);
             viewField->setFocus();
         } else {
             bindEmpty("submit-info"); // Delete the previous user data.
-            updateView(model_);
+            updateView(model);
         }
     }
 
-    UserFormModel *model_;
+    UserFormModel *model;
     Wt::WComboBox *cityCB;
 };
 

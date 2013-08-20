@@ -100,9 +100,7 @@ void WFormWidget::setFocus()
 }
 
 void WFormWidget::undoSetFocus()
-{
-  flags_.reset(BIT_GOT_FOCUS);
-}
+{ }
 
 bool WFormWidget::hasFocus() const
 {
@@ -315,19 +313,22 @@ void WFormWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_TABINDEX_CHANGED);
   }
 
-  if (isEnabled()) {
-    if (all && flags_.test(BIT_GOT_FOCUS))
-      flags_.set(BIT_INITIAL_FOCUS);
+  if (flags_.test(BIT_GOT_FOCUS)) {
+    WApplication *app = WApplication::instance();
 
-    if (flags_.test(BIT_GOT_FOCUS)
-	|| (all && flags_.test(BIT_INITIAL_FOCUS))) {
-      element.callJavaScript("setTimeout(function() {"
-			     """var f = " + jsRef() + ";"
-			     """if (f) try { f.focus(); } catch (e) { } }, "
-			     + (env.agentIsIElt(9) ? "500" : "10") + ");");
+    element.callJavaScript("setTimeout(function() {"
+			   """var o = " + jsRef() + ";"
+			   """if (o) {"
+			   ""   "if (!$(o).hasClass('" +
+			         app->theme()->disabledClass() + "')) {"
+			   ""      "try { "
+			   ""          "f.focus();"
+			   ""      "} catch (e) {}"
+			   ""   "}"
+			   """}"
+			   "}, " + (env.agentIsIElt(9) ? "500" : "10") + ");");
 
-      flags_.reset(BIT_GOT_FOCUS);
-    }
+    flags_.reset(BIT_GOT_FOCUS);
   }
 
   WInteractWidget::updateDom(element, all);

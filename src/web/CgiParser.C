@@ -174,8 +174,6 @@ void CgiParser::init()
 #endif
 }
 
-char CgiParser::buf_[BUFSIZE + MAXBOUND];
-
 CgiParser::CgiParser(::int64_t maxPostData)
   : maxPostData_(maxPostData)
 { }

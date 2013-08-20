@@ -34,26 +34,35 @@ const char *InvalidTimeException::what() const throw()
 
 WTime::WTime()
   : valid_(false),
-    time_(-1)
+    null_(true),
+    time_(0)
 { }
 
 WTime::WTime(int h, int m, int s, int ms)
+  : valid_(false),
+    null_(false),
+    time_(0)
 {
   setHMS(h, m, s, ms);
 }
 
 bool WTime::setHMS(int h, int m, int s, int ms)
 {
-  if (   h >= 0 && h <= 23
-      && m >= 0 && m <= 59
+  null_ = false;
+
+  if (   m >= 0 && m <= 59
       && s >= 0 && s <= 59
       && ms >= 0 && ms <= 999) {
     valid_ = true;
+    bool negative = h < 0;
+    if (negative)
+      h = -h;
     time_ = ((h * 60 + m) * 60 + s) * 1000 + ms;
+    if (negative)
+      time_ = -time_;
   } else {
     LOG_WARN("Invalid time: " << h << ":" << m << ":" << s << "." << ms);
     valid_ = false;
-    time_ = 0; // !null
   }
 
   return valid_;
@@ -62,8 +71,7 @@ bool WTime::setHMS(int h, int m, int s, int ms)
 WTime WTime::addMSecs(int ms) const
 {
   if (valid_) {
-    long t = ((time_ + ms) % MSECS_PER_DAY + MSECS_PER_DAY) % MSECS_PER_DAY;
-    return WTime(t);
+    return WTime(time_ + ms);
   } else
     return *this;
 }
@@ -73,11 +81,6 @@ WTime WTime::addSecs(int s) const
   return addMSecs(1000 * s);
 }
 
-bool WTime::isNull() const
-{
-  return time_ == -1;
-}
-
 int WTime::hour() const
 {
   return time_ / (1000 * 60 * 60);
@@ -85,30 +88,30 @@ int WTime::hour() const
 
 int WTime::minute() const
 {
-  return (time_ / (1000 * 60)) % 60;
+  return (abs(time_) / (1000 * 60)) % 60;
 }
 
 int WTime::second() const
 {
-  return (time_ / 1000) % 60;
+  return (abs(time_) / 1000) % 60;
 }
 
 int WTime::msec() const
 {
-  return time_ % 1000;
+  return abs(time_) % 1000;
 }
 
-int WTime::secsTo(const WTime& t) const
+long WTime::secsTo(const WTime& t) const
 {
   return msecsTo(t) / 1000;
 }
 
-int WTime::msecsTo(const WTime& t) const
+long WTime::msecsTo(const WTime& t) const
 {
-  if (!isValid() || !t.isValid())
-    throw InvalidTimeException();
-
-  return t.time_ - time_;
+  if (isValid() && t.isValid())
+    return t.time_ - time_;
+  else
+    return 0;
 }
 
 bool WTime::operator> (const WTime& other) const
@@ -118,13 +121,10 @@ bool WTime::operator> (const WTime& other) const
 
 bool WTime::operator< (const WTime& other) const
 {
-  if (!isValid() && !other.isValid())
+  if (isValid() && other.isValid())
+    return time_ < other.time_;
+  else
     return false;
-
-  if (!isValid() || !other.isValid())
-    throw InvalidTimeException();
-
-  return time_ < other.time_;
 }
 
 bool WTime::operator!= (const WTime& other) const
@@ -134,24 +134,12 @@ bool WTime::operator!= (const WTime& other) const
 
 bool WTime::operator== (const WTime& other) const
 {
-  if (!isValid() && !other.isValid())
-    return true;
-
-  if (!isValid() || !other.isValid())
-    throw InvalidTimeException();
-
-  return time_ == other.time_;
+  return valid_ == other.valid_ && null_ == other.null_ && time_ == other.time_;
 }
 
 bool WTime::operator<= (const WTime& other) const
 {
-  if (!isValid() && !other.isValid())
-    return true;
-
-  if (!isValid() || !other.isValid())
-    throw InvalidTimeException();
-
-  return time_ <= other.time_;
+  return (*this == other) || (*this < other);
 }
 
 bool WTime::operator>= (const WTime& other) const
@@ -161,7 +149,7 @@ bool WTime::operator>= (const WTime& other) const
 
 WTime WTime::currentServerTime()
 {
-  return WTime((long)boost::posix_time::microsec_clock::local_time()
+  return WTime((long)boost::posix_time::microsec_clock::universal_time()
 	       .time_of_day().total_milliseconds());
 }
 
@@ -308,6 +296,14 @@ bool WTime::parseLast(const std::string& v, unsigned& vi,
 
 	if (vi >= v.length())
 	  return false;
+
+	if ((i == 0) && (v[vi] == '-' || v[vi] == '+')) {
+	  str += v[vi++];
+
+	  if (vi >= v.length())
+	    return false;
+	}
+
 	str += v[vi++];
 
 	for (int j = 0; j < maxCount - 1; ++j)
@@ -396,20 +392,27 @@ bool WTime::writeSpecial(const std::string& f, unsigned& i,
   char buf[30];
 
   switch (f[i]) {
+  case '+':
+    if (f[i + 1] == 'h' || f[i + 1] == 'H') {
+      result << ((hour() >= 0) ? '+' : '-');
+      return true;
+    }
+
+    return false;
   case 'h':
     if (f[i + 1] == 'h') {
       ++i;
-      result << Utils::pad_itoa(useAMPM ? pmhour() : hour(), 2, buf);
+      result << Utils::pad_itoa(abs(useAMPM ? pmhour() : hour()), 2, buf);
     } else
-      result << Utils::itoa(useAMPM ? pmhour() : hour(), buf);
+      result << Utils::itoa(abs(useAMPM ? pmhour() : hour()), buf);
 
     return true;
   case 'H':
     if (f[i + 1] == 'H') {
       ++i;
-      result << Utils::pad_itoa(hour(), 2, buf);
+      result << Utils::pad_itoa(abs(hour()), 2, buf);
     } else
-      result << Utils::itoa(hour(), buf);
+      result << Utils::itoa(abs(hour()), buf);
 
     return true;
   case 'm':
@@ -429,12 +432,15 @@ bool WTime::writeSpecial(const std::string& f, unsigned& i,
 
     return true;
   case 'Z': {
+    bool negate = zoneOffset < 0;
+    if (!negate)
+      result << '+';
+    else {
+      result << '-';
+      zoneOffset = -zoneOffset;
+    }
     int hours = zoneOffset / 60;
     int minutes = zoneOffset % 60;
-    if (zoneOffset >= 0)
-      result << '+';
-    else
-      result << '-';
     result << Utils::pad_itoa(hours, 2, buf);
     result << Utils::pad_itoa(minutes, 2, buf);
 
@@ -466,6 +472,7 @@ bool WTime::writeSpecial(const std::string& f, unsigned& i,
 
 WTime::WTime(long t)
   : valid_(true),
+    null_(false),
     time_(t)
 { }
 

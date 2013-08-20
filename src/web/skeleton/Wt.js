@@ -476,9 +476,10 @@ this.unstub = function(from, to, methodDisplay) {
     to.style.width = from.style.width;
 
   to.style.boxSizing = from.style.boxSizing;
-  var cssPrefix = WT.cssPrefix('BoxSizing');
-  if (cssPrefix)
-    to.style[cssPrefix + 'BoxSizing'] = from.style[cssPrefix + 'BoxSizing'];
+  var attrName = WT.styleAttribute('box-sizing');
+  var vendorPrefix = WT.vendorPrefix(attrName);
+  if (vendorPrefix)
+    to.style[attrName] = from.style[attrName];
 };
 
 this.saveReparented = function(el) {
@@ -958,23 +959,40 @@ this.pctself = function(c, s) {
   return parsePct(c.style[s], 0);
 };
 
-this.cssPrefix = function(prop) {
-  var prefixes = ['Moz', 'Webkit'],
-    elem = document.createElement('div'),
-    i, il;
+// Convert from css property to element attribute (possibly a vendor name)
+this.styleAttribute = function(cssProp) {
+    function toCamelCase(str) {
+	var n=str.search(/-./);
+	while (n != -1) {
+	    var letter = (str.charAt(n+1)).toUpperCase();
+	    str = str.replace(/-./, letter);
+	    n=str.search(/-./);
+	}
+	return str;
+    }
 
-  for (i = 0, il = prefixes.length; i < il; ++i) {
-    if ((prefixes[i] + prop) in elem.style)
-      return prefixes[i];
-  }
+    var prefixes = ['', '-moz-', '-webkit-', '-o-', '-ms-'];
+    var elem = document.createElement('div'), i, il;
 
-  return null;
+    for (i = 0, il = prefixes.length; i < il; ++i) {
+	var attr = toCamelCase(prefixes[i] + cssProp);
+	if (attr in elem.style)
+	    return attr;
+    }
+    return toCamelCase(cssProp);
+};
+
+this.vendorPrefix = function(attr) {
+    var prefixes = ['Moz', 'Webkit', 'O', 'Ms'];
+    for (i = 0, il = prefixes.length; i < il; ++i) {
+	if (attr.search(prefixes[i]) != -1)
+	    return prefixes[i];
+    }
+    return '';
 };
 
 this.boxSizing = function(w) {
-  return (w.style['boxSizing']
-	  || w.style['MozBoxSizing']
-	  || w.style['WebkitBoxSizing']) === 'border-box';
+  return (w.style[WT.styleAttribute('box-sizing')]) === 'border-box';
 };
 
 // Return if an element (or one of its ancestors) is hidden
@@ -2242,22 +2260,26 @@ function encodeEvent(event, i) {
   }
 
   if (e.clientX || e.clientY)
-    result += se + 'clientX=' + e.clientX + se + 'clientY=' + e.clientY;
+    result += se + 'clientX=' + Math.round(e.clientX) + se
+	+ 'clientY=' + Math.round(e.clientY);
 
   var pageCoords = WT.pageCoordinates(e);
   var posX = pageCoords.x;
   var posY = pageCoords.y;
 
   if (posX || posY) {
-    result += se + 'documentX=' + posX + se + 'documentY=' + posY;
-    result += se + 'dragdX=' + (posX - downX) + se + 'dragdY=' + (posY - downY);
+    result += se + 'documentX=' + Math.round(posX) + se
+	  + 'documentY=' + Math.round(posY);
+    result += se + 'dragdX=' + Math.round(posX - downX) + se
+	  + 'dragdY=' + Math.round(posY - downY);
 
     var delta = WT.wheelDelta(e);
-    result += se + 'wheel=' + delta;
+    result += se + 'wheel=' + Math.round(delta);
   }
 
   if (e.screenX || e.screenY)
-    result += se + 'screenX=' + e.screenX + se + 'screenY=' + e.screenY;
+    result += se + 'screenX=' + Math.round(e.screenX) + se
+	+ 'screenY=' + Math.round(e.screenY);
 
   var widgetCoords = { x: 0, y: 0 };
 
@@ -2267,13 +2289,14 @@ function encodeEvent(event, i) {
     var objY = widgetCoords.y;
 
     if (typeof event.object.scrollLeft != 'undefined') {
-      result += se + 'scrollX=' + event.object.scrollLeft
-	+ se + 'scrollY=' + event.object.scrollTop
-	+ se + 'width=' + event.object.clientWidth
-	+ se + 'height=' + event.object.clientHeight;
+      result += se + 'scrollX=' + Math.round(event.object.scrollLeft)
+	+ se + 'scrollY=' + Math.round(event.object.scrollTop)
+	+ se + 'width=' + Math.round(event.object.clientWidth)
+	+ se + 'height=' + Math.round(event.object.clientHeight);
     }
 
-    result += se + 'widgetX=' + (posX - objX) + se + 'widgetY=' + (posY - objY);
+    result += se + 'widgetX=' + Math.round(posX - objX) + se
+	  + 'widgetY=' + Math.round(posY - objY);
   }
 
   var button = WT.button(e);

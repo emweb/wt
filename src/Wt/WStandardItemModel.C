@@ -198,7 +198,15 @@ boost::any WStandardItemModel::headerData(int section, Orientation orientation,
 
   HeaderData::const_iterator i = d.find(role);
 
-  return i != d.end() ? i->second : boost::any();
+  if (i != d.end()) {
+    /*
+     * Work around CLang bug, 'return i->second' would try to create
+     * a boost::any<const boost::any> ... ?
+     */
+    boost::any result = i->second;
+    return result;
+  } else
+    return boost::any();
 }
 
 WModelIndex WStandardItemModel::index(int row, int column,

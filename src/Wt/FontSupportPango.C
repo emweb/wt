@@ -92,7 +92,7 @@ std::string FontSupport::FontMatch::fileName() const
 
 FontSupport::FontSupport(WPaintDevice *paintDevice)
   : device_(paintDevice),
-    matchFont_(0)
+    cache_(10)
 {
   PANGO_LOCK;
 
@@ -112,8 +112,10 @@ FontSupport::~FontSupport()
 {
   PANGO_LOCK;
 
-  if (matchFont_)
-    g_object_unref(matchFont_);
+  for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
+    if (i->match)
+      g_object_unref(i->match);
+  }
 
   g_object_unref(context_);
 }
@@ -181,23 +183,28 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 {
-  if (wtFont_ == f)
-    return FontMatch(matchFont_);
-
-  wtFont_ = f;
+  for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
+    if (i->font == f) {
+      cache_.splice(cache_.begin(), cache_, i); // implement LRU
+      return FontMatch(i->match);
+    }
+  }
 
   PANGO_LOCK;
 
   PangoFontDescription *desc = createFontDescription(f);
 
-  if (matchFont_)
-    g_object_unref(matchFont_);
-
-  matchFont_ = pango_font_map_load_font(pangoFontMap, context_, desc);
+  PangoFont *match = pango_font_map_load_font(pangoFontMap, context_, desc);
   pango_context_set_font_description(context_, desc); // for layoutText()
   pango_font_description_free(desc);
 
-  return FontMatch(matchFont_);
+  if (cache_.back().match)
+    g_object_unref(cache_.back().match);
+
+  cache_.pop_back();
+  cache_.push_front(Matched(f, match));
+
+  return FontMatch(match);
 }
 
 void FontSupport::addFontCollection(const std::string& directory,

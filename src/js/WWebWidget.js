@@ -32,11 +32,11 @@ WT_DECLARE_WT_MEMBER
     inverseTiming = [ 0, 1, 3, 2, 4, 5 ];
 
   var $el = $("#" + id), el = $el.get(0),
-    prefix = WT.cssPrefix("Transition"),
-    animationEventEnd = prefix == "Moz"
-      ? "animationend" : "webkitAnimationEnd",
-    transitionEventEnd = prefix == "Moz"
-      ? "transitionend" : "webkitTransitionEnd";
+    prefix = WT.vendorPrefix(WT.styleAttribute('transition')),
+    animationEventEnd = prefix == "Webkit"
+      ? "webkitAnimationEnd": "animationend",
+    transitionEventEnd = prefix == "Webkit"
+      ? "webkitTransitionEnd" : "transitionend";
 
   if ($el.css("display") !== display) {
     var p = el.parentNode;
@@ -67,9 +67,10 @@ WT_DECLARE_WT_MEMBER
       for (i in style) {
 	var k = i;
 
-	if (k == "transform"
+	if ((k == "transform"
 	    || k == "transition"
-	    || k == "animationDuration")
+	    || k == "animationDuration") &&
+	   prefix != '')
 	  k = prefix + k.substring(0, 1).toUpperCase() + k.substring(1);
 
 	if (savedStyle && typeof(savedStyle[k]) === "undefined")

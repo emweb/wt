@@ -22,6 +22,159 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.1 (August, ? 2013)</h2>
+
+<p>
+ This release has a focus on bug fixes and other cleanups after the big
+ changes that went into 3.3.0.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a>
+  </dt>
+  <dd>
+    So far, the library only provided date/time classes that dealt with
+    UTC time (or that at least is the intended use). In this release
+    we have added functionality to also deal with date's in a specific
+    time zone, which includes this new type as well as improvements in
+    WDateTime to convert to local date time, and time zone information
+    in WEnvironment and WLocale.
+  </dd>
+
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WComboBox.html">WComboBox</a>
+    </dt>
+  <dd>
+    The combo box now interprets LevelRole data to display headers
+    (using HTML &lt;optgroup&lt; elements). Another improvement is
+    that now the combobox saves its single selection while the model
+    is updated.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WDialog.html">WDialog</a>
+    </dt>
+  <dd>
+    Modal dialogs can now be created and destroyed in any order
+    without confusing the 'silk screen'. We now also consistently
+    interpret an enter press in the dialog to invoke the default
+    button added to the dialog footer (if there is one).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WMessageBox.html">WMessageBox</a>
+    </dt>
+  <dd>
+    Several improvements include the ability to indicate what buttons
+    are the default and escape buttons with setDefaultButton() or
+    button->setDefault() and setEscapeButton(), and the (long overdue)
+    implementation of icons!
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WTextEdit.html">WTextEdit</a>
+    </dt>
+  <dd>
+    We've added support for TinyMCE 4.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Signal.html">Signal</a>
+    </dt>
+  <dd>
+    For boost versions 1.52 or later, we now support the
+    Boost.Signals2 library for the signals implementation.
+  </dd>
+
+  <dt>
+    <a href="namespaceWt_1_1Render.html">Render library</a>
+    </dt>
+  <dd>
+    We've added a CSS style sheet parser which will parse and apply
+    style rules in &lt;style&gt; blocks (or loaded through the API),
+    and expanded CSS support to much improvemed table rendering
+    (including border-collapse border model and repeated table
+    headers), relative/absolute positioning, and page-break-before/after
+    support.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Auth_1_1AbstractUserDatabase.html">Auth::AbstractUserDatabase</a>
+  </dt>
+  <dd>
+    A setIdentity() method was added to modify an existing identity
+    (e.g. username) and updateAuthToken() was added to update an
+    existing token (e.g. keeping the expiration time but changing the
+    hash).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1Query.html">Dbo::Query</a>
+  </dt>
+  <dd>
+    Added a reset() function which resets previous bound arguments.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1QueryModel.html">Dbo::QueryModel</a>
+  </dt>
+  <dd>
+    The model now implements toRawIndex() and fromRawIndex() methods to
+    allow selection to persist across layout changes (e.g. resorting).
+  </dd>
+
+  <dt>
+    <a href="group__json.html">Wt::Json (JSON library)</a>
+  </dt>
+  <dd>
+    We've added serialization functions to complement the parsing API.
+  </dd>
+
+  <dt>
+    <a href="group__mail.html">Wt::Mail (SMTP library)</a>
+  </dt>
+  <dd>
+    We've added attachment support, and optional indication of the local
+    sender date.
+  </dd>
+
+</dl>
+
+<h3>C) Non-backwards compatible changes</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WDate.html">WDate</a>,
+    <a href="classWt_1_1WDateTime.html">WDateTime</a>
+    <a href="classWt_1_1WTime.html">WTime</a>
+  </dt>
+  <dd>
+    We've deprecated the exceptions (Invalid[Date][Time]Exception)
+    that were thrown by these classes when one attempted to compute or
+    use an 'invalid' value. These exceptions are no longer thrown.
+    Instead, we now documented what value
+    (usually 'null') is returned when one attempts to do operations on
+    such a date/time class, which makes the behaviour more consistent
+    with how Qt's equivalent classes behave.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WMessageBox.html">WMessageBox</a></dt>
+  <dd>
+    The buttons() method has been renamed to standardButtons(), and
+    buttons() now return the actual list of added buttons.
+  </dd>
+</dl>
+<hr>
+
 <h2>Release 3.3.0 (April, 8 2013)</h2>
 
 <p>

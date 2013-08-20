@@ -16,9 +16,11 @@
 namespace Wt {
 
 /*! \class InvalidTimeException Wt/WTime Wt/WTime
- *  \brief Exception thrown when calculating with an invalid time.
+ *  \brief Exception thrown when calculating with an invalid time (<b>deprecated</b>).
  *
  * \sa WTime
+ *
+ * \deprecated This exception is never thrown.
  */
 class WT_API InvalidTimeException : public std::exception
 {
@@ -34,8 +36,12 @@ public:
 /*! \class WTime Wt/WTime Wt/WTime
  *  \brief A value class that defines a clock time.
  *
- * A clock time represents the time of day (0 to 24 hour), up to
- * millisecond precision.
+ * A clock time represents the time of day (usually 0 to 24 hour), up
+ * to millisecond precision.
+ *
+ * As of version %3.3.1, the time class itself will no longer limit times
+ * to the 24-hour range, but will allow any time (duration), including negative
+ * values.
  *
  * \sa WDate, WDateTime
  */
@@ -53,8 +59,8 @@ public:
 
   /*! \brief Construct a time given hour, minutes, seconds, and milliseconds.
    *
-   * \p h has range 0-23, \p m and \p s have range 0-59, and \p ms has
-   * range 0-999.
+   * \p m and \p s have range 0-59, and \p ms has range 0-999. A duration can
+   * be positive or negative depending on the sign of \p h.
    *
    * When the time is invalid, isValid() is set to \c false.
    */
@@ -62,8 +68,7 @@ public:
 
   /*! \brief Sets the time.
    *
-   * \p h has range 0-23, \p m and \p s have range 0-59, and \p ms has
-   * range 0-999.
+   * \p m and \p s have range 0-59, and \p ms has range 0-999.
    *
    * When the time is invalid, isValid() is set to \c false.
    */
@@ -91,13 +96,13 @@ public:
    *
    * \sa isValid(), WTime()
    */
-  bool isNull() const;
+  bool isNull() const { return null_; }
 
   /*! \brief Returns if this time is valid.
    */
   bool isValid() const { return valid_; }
 
-  /*! \brief Returns the hour (0-23).
+  /*! \brief Returns the hour.
    */
   int hour() const;
 
@@ -115,23 +120,15 @@ public:
 
   /*! \brief Returns the difference between two time values (in seconds).
    *
-   * This returns a value between -86400 s and 86400 s.
-   *
    * The result is negative if t is earlier than this.
    */
-  int secsTo(const WTime& t) const;
+  long secsTo(const WTime& t) const;
 
   /*! \brief Returns the difference between two time values (in milliseconds).
    *
-   * This returns a value between -86400000 ms and 86400000 ms.
-   *
    * The result is negative if t is earlier than this.
    */
-  int msecsTo(const WTime& t) const;
-
-  int start();
-  int restart();
-  int elapsed();
+  long msecsTo(const WTime& t) const;
 
   /*! \brief Compares two time values.
    */
@@ -181,6 +178,8 @@ public:
           <td>14</td></tr>
    *  <tr><td>HH</td><td>The hour with leading zero (00-23)</td>
           <td>14</td></tr>
+   *  <tr><td>+ followed by (h/hh/H/HH)</td><td>The sign of the hour (+/-)</td>
+          <td>+</td></tr>
    *  <tr><td>m</td><td>The minutes without leading zero (0-59)</td>
           <td>6</td></tr>
    *  <tr><td>mm</td><td>The minutes with leading zero (00-59)</td>
@@ -247,10 +246,10 @@ public:
    */
   static WTime fromString(const WT_USTRING& s, const WT_USTRING& format);
 
-  /*! \brief Reports the current server time.
+  /*! \brief Reports the current time (UTC clock).
    *
-   * This method returns the time as indicated by the system clock of
-   * the server.
+   * This method returns the time as indicated by the system clock
+   * of the server, in UTC.
    */
   static WTime currentServerTime();
 
@@ -267,7 +266,7 @@ public:
   boost::posix_time::time_duration toTimeDuration() const;
 
 private:
-  bool valid_;
+  bool valid_, null_;
   long time_;
 
   WTime (long time);

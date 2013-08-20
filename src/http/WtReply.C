@@ -260,15 +260,17 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
   in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
 
   if (state != Request::Partial) {
-    if (state == Request::Error)
+    if (state == Request::Error) {
       in_mem_.str("");
-    else
+      in_mem_.clear();
+    } else
       in_mem_.seekg(0);
 
     switch (opcode) {
     case connection_close:
       LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx close");
       in_mem_.str("");
+      in_mem_.clear();
 
       /* fall through */
     case continuation:
@@ -418,6 +420,7 @@ void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
     }
 
     in_mem_.str("");
+    in_mem_.clear();
 
     connection->server()->service().post
       (connection->strand().wrap

@@ -82,12 +82,14 @@ WLength::WLength(double value, Unit unit)
   setUnit(unit);
 }
 
+#ifndef DOXYGEN_ONLY
 WLength::WLength(int value, Unit unit)
   : auto_(false),
     value_((double)value)
 {
   setUnit(unit);
 }
+#endif
 
 WLength::WLength(long value, Unit unit)
   : auto_(false),

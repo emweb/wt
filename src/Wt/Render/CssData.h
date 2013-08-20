@@ -3,7 +3,9 @@
 
 #include <Wt/WDllDefs.h>
 #include <Wt/WString>
+#include <Wt/WWebWidget>
 #include "Wt/Render/Specificity.h"
+
 
 namespace Wt{
 namespace Render{
@@ -14,9 +16,10 @@ class SimpleSelector
 {
 public:
   virtual ~SimpleSelector(){}
-  virtual std::string elementName() const = 0;
-  virtual std::string hashId()      const = 0;
-  virtual std::vector<std::string> classes() const = 0;
+  virtual const std::string& elementName() const = 0;
+  virtual DomElementType elementType() const = 0;
+  virtual const std::string& hashId()      const = 0;
+  virtual const std::vector<std::string>& classes() const = 0;
 };
 
 class Selector
@@ -41,7 +44,7 @@ class DeclarationBlock
 public:
   virtual ~DeclarationBlock(){}
   virtual Term value(const std::string& property) const = 0;
-  virtual std::string declarationString() const = 0;
+  virtual const std::string& declarationString() const = 0;
 };
 
 class Ruleset

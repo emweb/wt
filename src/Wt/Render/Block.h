@@ -106,7 +106,7 @@ public:
   static bool isWhitespace(char c);
 
   std::string id() const;
-  std::vector<std::string> classes() const;
+  const std::vector<std::string>& classes() const { return classes_; }
   std::string cssProperty(Property property) const;
   std::string attributeValue(const char *attribute) const;
 
@@ -154,6 +154,7 @@ private:
   BlockList offsetChildren_;
   Block *offsetParent_;
   DomElementType type_;
+  std::vector<std::string> classes_;
   Side float_;
   bool inline_;
   BlockList children_;
@@ -161,6 +162,7 @@ private:
   double currentWidth_;
   double contentsHeight_;
   mutable std::map<std::string, PropertyValue> css_;
+  mutable WFont font_;
   StyleSheet* styleSheet_;
 
   /* For table */

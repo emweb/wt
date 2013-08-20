@@ -361,7 +361,14 @@ private:
 #ifdef WT_CNOR
   typedef Wt::Signals::signal6<void, A1, A2, A3, A4, A5, A6> BoostSignalType;
 #else
+#  if (_MSC_VER >= 1700) && defined(_VARIADIC_MAX) && (_VARIADIC_MAX < 6)
+  // MSVS 2012's std::bind implementation may support only 5 arguments
+  // http://blogs.msdn.com/b/vcblog/archive/2011/09/12/10209291.aspx
+  typedef Wt::Signals::signal<void(A1, A2, A3, A4, A5)> BoostSignalType;
+#  define A6_MUST_BE_NOCLASS
+#  else
   typedef Wt::Signals::signal<void(A1, A2, A3, A4, A5, A6)> BoostSignalType;
+#  endif
 #endif
 
   BoostSignalType *impl_;

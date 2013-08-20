@@ -1163,42 +1163,48 @@
     <legend>${title}</legend>
     <div class="form-horizontal">
       <fieldset>
-      <div class="control-group">
-      <label for="${id:first-name}" class="control-label">First name</label>
-        <div class="controls">
-          ${first-name} <span class="help-inline">${first-name-info}</span>
-        </div>
-      </div>
-      <div class="control-group">
+	<div class="control-group">
+	  <label for="${id:first-name}" class="control-label">First name</label>
+	  <div class="controls">
+	    ${first-name} <span class="help-inline">${first-name-info}</span>
+	  </div>
+	</div>
+
+	<div class="control-group">
           <label for="${id:last-name}" class="control-label">Last name</label>
           <div class="controls">
             ${last-name} <span class="help-inline">${last-name-info}</span>
           </div>
         </div>
+
         <div class="control-group">
           <label for="${id:country}" class="control-label">Country</label>
           <div class="controls">
             ${country} <span class="help-inline">${country-info}</span>
           </div>
         </div>
+
         <div class="control-group">
           <label for="${id:city}" class="control-label">City</label>
           <div class="controls">
             ${city} <span class="help-inline">${city-info}</span>
           </div>
         </div>
+
         <div class="control-group">
           <label for="${id:birth}" class="control-label">Birth date</label>
           <div class="controls">
             ${birth} <span class="help-inline">${birth-info}</span>
           </div>
         </div>
+
         <div class="control-group">
           <label for="${id:children}" class="control-label">Children</label>
           <div class="controls">
             ${children} <span class="help-inline">${children-info}</span>
           </div>
         </div>
+
         <div class="control-group">
           <label for="${id:remarks}" class="control-label">Remarks</label>
           <div class="controls">
@@ -1206,6 +1212,7 @@
           </div>
         </div>
       </fieldset>
+
       <div class="form-actions">
         <div class="controls">
           ${submit-button} <span class="help-inline">${submit-info}</span>

@@ -88,7 +88,7 @@ public:
 protected:
   virtual void render(WFlags<RenderFlag> flags) {
     if (dialogs_.empty())
-      topDialogId_.erase();
+      topDialogId_.clear();
     else
       topDialogId_ = dialogs_.back()->id();
   }
@@ -334,7 +334,8 @@ void WDialog::render(WFlags<RenderFlag> flags)
       if (width().isAuto())
 	if (maximumWidth().unit() == WLength::Percentage ||
 	    maximumWidth().toPixels() == 0)
-	  impl_->resolveWidget("layout")->setMaximumSize(999999, maximumHeight());
+	  impl_->resolveWidget("layout")->setMaximumSize(999999,
+							 maximumHeight());
 
     doJavaScript("new " WT_CLASS ".WDialog("
 		 + app->javaScriptClass() + "," + jsRef()
@@ -498,6 +499,10 @@ void WDialog::onEscapePressed()
 
 void WDialog::setHidden(bool hidden, const WAnimation& animation)
 {
+  /* For JWt: setHidden() is called from WPopupWidget constructor. */
+  if (!contents_)
+    return;
+
   if (isHidden() != hidden) {
     if (!hidden) {
       WApplication *app = WApplication::instance();

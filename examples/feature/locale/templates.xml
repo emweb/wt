@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message id="info">
+    <table style="border-collapse: separate; border-spacing: 5px; margin: 20px 0px">
+      <tr>
+	<th>Time zone: </th><td>${time-zone}</td>
+      </tr>
+      <tr>
+	<th>UTC time: </th><td>${utc-time}</td>
+      </tr>
+      <tr>
+	<th>Local time: </th><td>${local-time}</td>
+      </tr>
+    </table>
+  </message>
+</messages>

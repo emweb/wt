@@ -22,32 +22,32 @@ bool Wt::Render::Match::isMatch(const Block* block, const SimpleSelector& s)
 {
   const DomElementType tag = block->type();
   const std::string id = block->id();
-  const std::vector<std::string> classes = block->classes();
-  const std::vector<std::string> requiredClasses = s.classes();
+  const std::vector<std::string>& classes = block->classes();
+  const std::vector<std::string>& requiredClasses = s.classes();
 
   //cout << "isMatch? block:" << tag << " " << id
   //               << "; s: " << s.elementName() << " " << s.hashId();
 
   // Match tagname?
-  if(s.elementName().size()
-     && s.elementName() != "*"
-     && tag != Wt::DomElement::parseTagName(s.elementName()))
+  if (!s.elementName().empty() &&
+      s.elementName() != "*" &&
+      tag != s.elementType())
   {
     //cout << "; NO! tag" << endl;
     return false;
   }
 
   // Match Id?
-  if(s.hashId().size() && id != s.hashId())
+  if (s.hashId().size() && id != s.hashId())
   {
     //cout << "; NO! id" << endl;
     return false;
   }
 
   // Match all classes?
-  for(unsigned int i = 0; i < requiredClasses.size(); ++i)
+  for (unsigned int i = 0; i < requiredClasses.size(); ++i)
   {
-    if(Wt::Utils::indexOf(classes, requiredClasses[i]) == -1)
+    if (Wt::Utils::indexOf(classes, requiredClasses[i]) == -1)
     {
       //cout << "; NO! classes" << r << endl;
       return false;

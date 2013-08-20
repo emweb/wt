@@ -61,7 +61,7 @@ private:
   enum {MAXBOUND = 100};
 
   int buflen_;
-  static char buf_[BUFSIZE + MAXBOUND];
+  char buf_[BUFSIZE + MAXBOUND];
 };
 
 }

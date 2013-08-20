@@ -4,6 +4,7 @@ SUBDIRS(
   broadcast
   client-ssl-auth 
   dbo
+  locale
   mediaplayer
   miniwebgl
   multiple_servers

@@ -7,8 +7,9 @@
 #ifndef FONT_SUPPORT_H_
 #define FONT_SUPPORT_H_
 
-#ifndef HAVE_PANGO
 #include <list>
+
+#ifndef HAVE_PANGO
 #include <string>
 #else
 #include <pango/pango.h>
@@ -159,8 +160,16 @@ private:
   PangoContext *context_;
   PangoFont *currentFont_;
 
-  mutable PangoFont *matchFont_;
-  mutable WFont wtFont_;
+  struct Matched {
+    WFont font;
+    PangoFont *match;
+
+    Matched() : font(), match(0) { }
+    Matched(const WFont& f, PangoFont *m) : font(f), match(m) { }
+  };
+
+  typedef std::list<Matched> MatchCache;
+  mutable MatchCache cache_;
 
   PangoFontDescription *createFontDescription(const WFont& f) const;
   static std::string fontPath(PangoFont *font);
