@@ -502,6 +502,7 @@
 <span class="n">Wt</span><span class="o">::</span><span class="n">WDateEdit</span> <span class="o">*</span><span class="n">de2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WDateEdit</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
 <span class="n">de2</span><span class="o">-&gt;</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;dd MM yyyy&quot;</span><span class="p">);</span> <span class="c1">// Apply a different date format.</span>
 <span class="n">de2</span><span class="o">-&gt;</span><span class="n">calendar</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">setHorizontalHeaderFormat</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WCalendar</span><span class="o">::</span><span class="n">SingleLetterDayNames</span><span class="p">);</span>
+<span class="n">de2</span><span class="o">-&gt;</span><span class="n">setBottom</span><span class="p">(</span><span class="n">de1</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
 <span class="n">de2Label</span><span class="o">-&gt;</span><span class="n">setBuddy</span><span class="p">(</span><span class="n">de2</span><span class="p">);</span>
 
 <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;&lt;/p&gt;&quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
@@ -511,13 +512,17 @@
 <span class="n">out</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span><span class="p">);</span>
 
 <span class="n">de1</span><span class="o">-&gt;</span><span class="n">changed</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="n">de2</span><span class="o">-&gt;</span><span class="n">setBottom</span><span class="p">(</span><span class="n">de1</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
-    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Date picker 1 is changed.&lt;/p&gt;&quot;</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">de1</span><span class="o">-&gt;</span><span class="n">validate</span><span class="p">()</span> <span class="o">==</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WValidator</span><span class="o">::</span><span class="n">Valid</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">de2</span><span class="o">-&gt;</span><span class="n">setBottom</span><span class="p">(</span><span class="n">de1</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
+	<span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Date picker 1 is changed.&lt;/p&gt;&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
 <span class="p">}));</span>
 
 <span class="n">de2</span><span class="o">-&gt;</span><span class="n">changed</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="n">de1</span><span class="o">-&gt;</span><span class="n">setTop</span><span class="p">(</span><span class="n">de2</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
-    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Date picker 2 is changed.&lt;/p&gt;&quot;</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">de1</span><span class="o">-&gt;</span><span class="n">validate</span><span class="p">()</span> <span class="o">==</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WValidator</span><span class="o">::</span><span class="n">Valid</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">de1</span><span class="o">-&gt;</span><span class="n">setTop</span><span class="p">(</span><span class="n">de2</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">());</span>
+	<span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Date picker 2 is changed.&lt;/p&gt;&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
 <span class="p">}));</span>
 
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
@@ -615,17 +620,23 @@
 <span class="p">{</span>
     <span class="n">Wt</span><span class="o">::</span><span class="n">WDialog</span> <span class="o">*</span><span class="n">dialog</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WDialog</span><span class="p">(</span><span class="s">&quot;Go to cell&quot;</span><span class="p">);</span>
 
-    <span class="n">Wt</span><span class="o">::</span><span class="n">WLabel</span> <span class="o">*</span><span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLabel</span><span class="p">(</span><span class="s">&quot;Cell location (A1..Z999)&quot;</span><span class="p">,</span> <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">contents</span><span class="p">());</span>
+    <span class="n">Wt</span><span class="o">::</span><span class="n">WLabel</span> <span class="o">*</span><span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLabel</span><span class="p">(</span><span class="s">&quot;Cell location (A1..Z999)&quot;</span><span class="p">,</span>
+				       <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">contents</span><span class="p">());</span>
     <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span> <span class="o">*</span><span class="n">edit</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="p">(</span><span class="n">dialog</span><span class="o">-&gt;</span><span class="n">contents</span><span class="p">());</span>
     <span class="n">label</span><span class="o">-&gt;</span><span class="n">setBuddy</span><span class="p">(</span><span class="n">edit</span><span class="p">);</span>
 
-    <span class="n">Wt</span><span class="o">::</span><span class="n">WRegExpValidator</span> <span class="o">*</span><span class="n">validator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WRegExpValidator</span><span class="p">(</span><span class="s">&quot;[A-Za-z][1-9][0-9]{0,2}&quot;</span><span class="p">);</span>
+    <span class="n">Wt</span><span class="o">::</span><span class="n">WRegExpValidator</span> <span class="o">*</span><span class="n">validator</span> <span class="o">=</span> 
+        <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WRegExpValidator</span><span class="p">(</span><span class="s">&quot;[A-Za-z][1-9][0-9]{0,2}&quot;</span><span class="p">);</span>
+    <span class="n">validator</span><span class="o">-&gt;</span><span class="n">setMandatory</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
     <span class="n">edit</span><span class="o">-&gt;</span><span class="n">setValidator</span><span class="p">(</span><span class="n">validator</span><span class="p">);</span>
 
     <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span> <span class="o">*</span><span class="n">ok</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="p">(</span><span class="s">&quot;OK&quot;</span><span class="p">,</span> <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">footer</span><span class="p">());</span>
-    <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span> <span class="o">*</span><span class="n">cancel</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="p">(</span><span class="s">&quot;Cancel&quot;</span><span class="p">,</span> <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">footer</span><span class="p">());</span>
-
+    <span class="n">ok</span><span class="o">-&gt;</span><span class="n">setDefault</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
     <span class="n">ok</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span>
+
+    <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span> <span class="o">*</span><span class="n">cancel</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="p">(</span><span class="s">&quot;Cancel&quot;</span><span class="p">,</span> <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">footer</span><span class="p">());</span>
+    <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">rejectWhenEscapePressed</span><span class="p">();</span>
+
     <span class="n">edit</span><span class="o">-&gt;</span><span class="n">keyWentUp</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
 	<span class="n">ok</span><span class="o">-&gt;</span><span class="n">setDisabled</span><span class="p">(</span><span class="n">edit</span><span class="o">-&gt;</span><span class="n">validate</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WValidator</span><span class="o">::</span><span class="n">Valid</span><span class="p">);</span>
     <span class="p">}));</span>
@@ -634,11 +645,6 @@
 <span class="cm">     * Accept the dialog</span>
 <span class="cm">     */</span>
     <span class="n">ok</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">edit</span><span class="o">-&gt;</span><span class="n">validate</span><span class="p">())</span>
-	    <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">accept</span><span class="p">();</span>
-    <span class="p">}));</span>
-
-    <span class="n">edit</span><span class="o">-&gt;</span><span class="n">enterPressed</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
 	<span class="k">if</span> <span class="p">(</span><span class="n">edit</span><span class="o">-&gt;</span><span class="n">validate</span><span class="p">())</span>
 	    <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">accept</span><span class="p">();</span>
     <span class="p">}));</span>
@@ -763,18 +769,18 @@
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="c1">// Associate each field with a unique string literal.</span>
-    <span class="c1">// In C++11, it&#39;s nicer to put these inside the UserFormModel class</span>
-    <span class="c1">// like this:</span>
+    <span class="c1">// With C++11 you can actually put these directly inside the</span>
+    <span class="c1">// UserFormModel class like this:</span>
     <span class="c1">//</span>
     <span class="c1">//   static constexpr Field FirstNameField = &quot;first-name&quot;;</span>
   
-    <span class="k">static</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">FirstNameField</span><span class="p">;</span>
-    <span class="k">static</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">LastNameField</span><span class="p">;</span>
-    <span class="k">static</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">CountryField</span><span class="p">;</span>
-    <span class="k">static</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">CityField</span><span class="p">;</span>
-    <span class="k">static</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">BirthField</span><span class="p">;</span>
-    <span class="k">static</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">ChildrenField</span><span class="p">;</span>
-    <span class="k">static</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">RemarksField</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">FirstNameField</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">LastNameField</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">CountryField</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">CityField</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">BirthField</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">ChildrenField</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">RemarksField</span><span class="p">;</span>
 
     <span class="n">UserFormModel</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span> <span class="o">*</span><span class="n">parent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
         <span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
@@ -822,9 +828,9 @@
     <span class="kt">void</span> <span class="n">updateCityModel</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">countryCode</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">cityModel_</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
 
-        <span class="n">CityMap</span><span class="o">::</span><span class="n">const_iterator</span> <span class="n">i</span> <span class="o">=</span> <span class="n">cities_</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">countryCode</span><span class="p">);</span>
+        <span class="n">CityMap</span><span class="o">::</span><span class="n">const_iterator</span> <span class="n">i</span> <span class="o">=</span> <span class="n">cities</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">countryCode</span><span class="p">);</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">cities_</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">cities</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
             <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">cities</span> <span class="o">=</span> <span class="n">i</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
 
             <span class="c1">// The initial text shown in the city combo box should be an empty</span>
@@ -862,8 +868,8 @@
     <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">CountryMap</span><span class="p">;</span>
 
 <span class="k">private</span><span class="o">:</span>
-    <span class="k">static</span> <span class="k">const</span> <span class="n">CityMap</span> <span class="n">cities_</span><span class="p">;</span>
-    <span class="k">static</span> <span class="k">const</span> <span class="n">CountryMap</span> <span class="n">countries_</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">CityMap</span> <span class="n">cities</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">CountryMap</span> <span class="n">countries</span><span class="p">;</span>
     <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span> <span class="o">*</span><span class="n">countryModel_</span><span class="p">,</span> <span class="o">*</span><span class="n">cityModel_</span><span class="p">;</span>
 
     <span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">MAX_LENGTH</span> <span class="o">=</span> <span class="mi">25</span><span class="p">;</span>
@@ -871,7 +877,7 @@
 
     <span class="kt">void</span> <span class="n">initializeModels</span><span class="p">()</span> <span class="p">{</span>
         <span class="c1">// Create a country model.</span>
-        <span class="kt">unsigned</span> <span class="n">countryModelRows</span> <span class="o">=</span> <span class="n">countries_</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="kt">unsigned</span> <span class="n">countryModelRows</span> <span class="o">=</span> <span class="n">countries</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
         <span class="k">const</span> <span class="kt">unsigned</span> <span class="n">countryModelColumns</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
         <span class="n">countryModel_</span> <span class="o">=</span>
           <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span><span class="p">(</span><span class="n">countryModelRows</span><span class="p">,</span> <span class="n">countryModelColumns</span><span class="p">,</span>
@@ -888,10 +894,10 @@
         <span class="c1">// - set the country name for the display role,</span>
         <span class="c1">// - set the city names for the user role.</span>
         <span class="n">row</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">CountryMap</span><span class="o">::</span><span class="n">const_iterator</span> <span class="n">i</span> <span class="o">=</span> <span class="n">countries_</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
-                                        <span class="n">i</span> <span class="o">!=</span> <span class="n">countries_</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">,</span> <span class="o">++</span><span class="n">row</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">CountryMap</span><span class="o">::</span><span class="n">const_iterator</span> <span class="n">i</span> <span class="o">=</span> <span class="n">countries</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+                                        <span class="n">i</span> <span class="o">!=</span> <span class="n">countries</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">countryModel_</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">DisplayRole</span><span class="p">);</span>
-            <span class="n">countryModel_</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">UserRole</span><span class="p">);</span>
+            <span class="n">countryModel_</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="n">row</span><span class="o">++</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">UserRole</span><span class="p">);</span>
         <span class="p">}</span>
 
         <span class="c1">// Create a city model.</span>
@@ -904,23 +910,18 @@
         <span class="n">v</span><span class="o">-&gt;</span><span class="n">setMandatory</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
         <span class="n">v</span><span class="o">-&gt;</span><span class="n">setMinimumLength</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
         <span class="n">v</span><span class="o">-&gt;</span><span class="n">setMaximumLength</span><span class="p">(</span><span class="n">MAX_LENGTH</span><span class="p">);</span>
-        <span class="n">v</span><span class="o">-&gt;</span><span class="n">setInvalidBlankText</span><span class="p">(</span><span class="s">&quot;A &quot;</span> <span class="o">+</span> <span class="n">field</span> <span class="o">+</span> <span class="s">&quot; is mandatory!&quot;</span><span class="p">);</span>
-        <span class="n">v</span><span class="o">-&gt;</span><span class="n">setInvalidTooLongText</span><span class="p">(</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;The &quot;</span> <span class="o">+</span> <span class="n">field</span> <span class="o">+</span>
-                          <span class="s">&quot; may not exceed {1} characters!&quot;</span><span class="p">).</span><span class="n">arg</span><span class="p">(</span><span class="n">MAX_LENGTH</span><span class="p">)</span> <span class="p">);</span>
         <span class="k">return</span> <span class="n">v</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="n">Wt</span><span class="o">::</span><span class="n">WValidator</span> <span class="o">*</span><span class="n">createCountryValidator</span><span class="p">()</span> <span class="p">{</span>
         <span class="n">Wt</span><span class="o">::</span><span class="n">WLengthValidator</span> <span class="o">*</span><span class="n">v</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLengthValidator</span><span class="p">();</span>
         <span class="n">v</span><span class="o">-&gt;</span><span class="n">setMandatory</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
-        <span class="n">v</span><span class="o">-&gt;</span><span class="n">setInvalidBlankText</span><span class="p">(</span><span class="s">&quot;A choice for the country is mandatory!&quot;</span><span class="p">);</span>
         <span class="k">return</span> <span class="n">v</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="n">Wt</span><span class="o">::</span><span class="n">WValidator</span> <span class="o">*</span><span class="n">createCityValidator</span><span class="p">()</span> <span class="p">{</span>
         <span class="n">Wt</span><span class="o">::</span><span class="n">WLengthValidator</span> <span class="o">*</span><span class="n">v</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLengthValidator</span><span class="p">();</span>
         <span class="n">v</span><span class="o">-&gt;</span><span class="n">setMandatory</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
-        <span class="n">v</span><span class="o">-&gt;</span><span class="n">setInvalidBlankText</span><span class="p">(</span><span class="s">&quot;A choice for the city is mandatory!&quot;</span><span class="p">);</span>
         <span class="k">return</span> <span class="n">v</span><span class="p">;</span>
     <span class="p">}</span>
 
@@ -936,27 +937,22 @@
     <span class="n">Wt</span><span class="o">::</span><span class="n">WValidator</span> <span class="o">*</span><span class="n">createChildrenValidator</span><span class="p">()</span> <span class="p">{</span>
         <span class="n">Wt</span><span class="o">::</span><span class="n">WIntValidator</span> <span class="o">*</span><span class="n">v</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WIntValidator</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">MAX_CHILDREN</span><span class="p">);</span>
         <span class="n">v</span><span class="o">-&gt;</span><span class="n">setMandatory</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
-        <span class="n">v</span><span class="o">-&gt;</span><span class="n">setInvalidBlankText</span><span class="p">(</span><span class="s">&quot;Set the number of children!&quot;</span><span class="p">);</span>
-        <span class="n">v</span><span class="o">-&gt;</span><span class="n">setInvalidTooSmallText</span><span class="p">(</span>
-            <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;Enter a value between 0 and {1}!&quot;</span><span class="p">).</span><span class="n">arg</span><span class="p">(</span><span class="n">MAX_CHILDREN</span><span class="p">));</span>
-        <span class="n">v</span><span class="o">-&gt;</span><span class="n">setInvalidTooLargeText</span><span class="p">(</span>
-            <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;Enter a value between 0 and {1}!&quot;</span><span class="p">).</span><span class="n">arg</span><span class="p">(</span><span class="n">MAX_CHILDREN</span><span class="p">));</span>
         <span class="k">return</span> <span class="n">v</span><span class="p">;</span>
     <span class="p">}</span>
 
 <span class="p">};</span>
 
-<span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">FirstNameField</span> <span class="o">=</span> <span class="s">&quot;first-name&quot;</span><span class="p">;</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">LastNameField</span> <span class="o">=</span> <span class="s">&quot;last-name&quot;</span><span class="p">;</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryField</span> <span class="o">=</span> <span class="s">&quot;country&quot;</span><span class="p">;</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CityField</span> <span class="o">=</span> <span class="s">&quot;city&quot;</span><span class="p">;</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">BirthField</span> <span class="o">=</span> <span class="s">&quot;birth&quot;</span><span class="p">;</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">ChildrenField</span> <span class="o">=</span> <span class="s">&quot;children&quot;</span><span class="p">;</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">RemarksField</span> <span class="o">=</span> <span class="s">&quot;remarks&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">FirstNameField</span> <span class="o">=</span> <span class="s">&quot;first-name&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">LastNameField</span> <span class="o">=</span> <span class="s">&quot;last-name&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryField</span> <span class="o">=</span> <span class="s">&quot;country&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CityField</span> <span class="o">=</span> <span class="s">&quot;city&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">BirthField</span> <span class="o">=</span> <span class="s">&quot;birth&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">ChildrenField</span> <span class="o">=</span> <span class="s">&quot;children&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WFormModel</span><span class="o">::</span><span class="n">Field</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">RemarksField</span> <span class="o">=</span> <span class="s">&quot;remarks&quot;</span><span class="p">;</span>
 
 <span class="c1">// In C++11, this initializing can be done inline, within the declaration:</span>
 <span class="c1">//</span>
-<span class="c1">// const UserFormModel::CityMap UserFormModel::cities_ = {</span>
+<span class="c1">// const UserFormModel::CityMap UserFormModel::cities = {</span>
 <span class="c1">//    { &quot;BE&quot;, { &quot;Antwerp&quot;, &quot;Bruges&quot;, &quot;Brussels&quot;, &quot;Ghent&quot; } },</span>
 <span class="c1">//    { &quot;NL&quot;, { &quot;Amsterdam&quot;, &quot;Eindhoven&quot;, &quot;Rotterdam&quot;, &quot;The Hague&quot;} },</span>
 <span class="c1">//    { &quot;UK&quot;, { &quot;London&quot;, &quot;Bristol&quot;, &quot;Oxford&quot;, &quot;Stonehenge&quot;} },</span>
@@ -973,7 +969,7 @@
 	<span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
     <span class="p">}</span>
 <span class="p">}</span>
-<span class="k">const</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryMap</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">countries_</span> <span class="o">=</span> <span class="n">getCountryMap</span><span class="p">();</span>
+<span class="k">const</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryMap</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">countries</span> <span class="o">=</span> <span class="n">getCountryMap</span><span class="p">();</span>
 
 <span class="k">namespace</span> <span class="p">{</span>
     <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CityMap</span> <span class="n">getCityMap</span><span class="p">()</span> <span class="p">{</span>
@@ -1010,14 +1006,14 @@
     <span class="p">}</span>
 <span class="p">}</span>
 
-<span class="k">const</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CityMap</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">cities_</span> <span class="o">=</span> <span class="n">getCityMap</span><span class="p">();</span>
+<span class="k">const</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">CityMap</span> <span class="n">UserFormModel</span><span class="o">::</span><span class="n">cities</span> <span class="o">=</span> <span class="n">getCityMap</span><span class="p">();</span>
 
 <span class="k">class</span> <span class="nc">UserFormView</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTemplateFormView</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="c1">// inline constructor</span>
     <span class="n">UserFormView</span><span class="p">()</span> <span class="p">{</span>
-        <span class="n">model_</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserFormModel</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserFormModel</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
 
         <span class="n">setTemplateText</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="s">&quot;userForm-template&quot;</span><span class="p">));</span>
         <span class="n">addFunction</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">WTemplate</span><span class="o">::</span><span class="n">Functions</span><span class="o">::</span><span class="n">id</span><span class="p">);</span>
@@ -1036,31 +1032,31 @@
 <span class="cm">	 * Country</span>
 <span class="cm">	 */</span>
 	<span class="n">Wt</span><span class="o">::</span><span class="n">WComboBox</span> <span class="o">*</span><span class="n">countryCB</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WComboBox</span><span class="p">();</span>
-	<span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">model_</span><span class="o">-&gt;</span><span class="n">countryModel</span><span class="p">());</span>
+	<span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">countryModel</span><span class="p">());</span>
 
 	<span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">activated</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
-	    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">code</span> <span class="o">=</span> <span class="n">model_</span><span class="o">-&gt;</span><span class="n">countryCode</span><span class="p">(</span><span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">currentIndex</span><span class="p">());</span>
-	    <span class="n">model_</span><span class="o">-&gt;</span><span class="n">updateCityModel</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
+	    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">code</span> <span class="o">=</span> <span class="n">model</span><span class="o">-&gt;</span><span class="n">countryCode</span><span class="p">(</span><span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">currentIndex</span><span class="p">());</span>
+	    <span class="n">model</span><span class="o">-&gt;</span><span class="n">updateCityModel</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
 	<span class="p">}));</span>
 
 	<span class="n">setFormWidget</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryField</span><span class="p">,</span> <span class="n">countryCB</span><span class="p">,</span>
             <span class="p">[</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// updateViewValue()</span>
 	        <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">code</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">any_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span>
-		    <span class="p">(</span><span class="n">model_</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryField</span><span class="p">));</span>
-		<span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="n">model_</span><span class="o">-&gt;</span><span class="n">countryModelRow</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
+		    <span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryField</span><span class="p">));</span>
+		<span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="n">model</span><span class="o">-&gt;</span><span class="n">countryModelRow</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
 		<span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
 	    <span class="p">},</span>
 
             <span class="p">[</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// updateModelValue()</span>
-	        <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">code</span> <span class="o">=</span> <span class="n">model_</span><span class="o">-&gt;</span><span class="n">countryCode</span><span class="p">(</span><span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">currentIndex</span><span class="p">());</span>
-		<span class="n">model_</span><span class="o">-&gt;</span><span class="n">setValue</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryField</span><span class="p">,</span> <span class="n">code</span><span class="p">);</span>
+	        <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">code</span> <span class="o">=</span> <span class="n">model</span><span class="o">-&gt;</span><span class="n">countryCode</span><span class="p">(</span><span class="n">countryCB</span><span class="o">-&gt;</span><span class="n">currentIndex</span><span class="p">());</span>
+		<span class="n">model</span><span class="o">-&gt;</span><span class="n">setValue</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">CountryField</span><span class="p">,</span> <span class="n">code</span><span class="p">);</span>
             <span class="p">});</span>
 
 	<span class="cm">/*</span>
 <span class="cm">	 * City</span>
 <span class="cm">	 */</span>
 	<span class="n">Wt</span><span class="o">::</span><span class="n">WComboBox</span> <span class="o">*</span><span class="n">cityCB</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WComboBox</span><span class="p">();</span>
-	<span class="n">cityCB</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">model_</span><span class="o">-&gt;</span><span class="n">cityModel</span><span class="p">());</span>
+	<span class="n">cityCB</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">cityModel</span><span class="p">());</span>
 	<span class="n">setFormWidget</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">CityField</span><span class="p">,</span> <span class="n">cityCB</span><span class="p">);</span>
 
 	<span class="cm">/*</span>
@@ -1070,13 +1066,13 @@
 	<span class="n">setFormWidget</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">BirthField</span><span class="p">,</span> <span class="n">dateEdit</span><span class="p">,</span>
 	    <span class="p">[</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// updateViewValue()</span>
 	        <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span> <span class="n">date</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">any_cast</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span><span class="o">&gt;</span>
-		    <span class="p">(</span><span class="n">model_</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">BirthField</span><span class="p">));</span>
+		    <span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">BirthField</span><span class="p">));</span>
                 <span class="n">dateEdit</span><span class="o">-&gt;</span><span class="n">setDate</span><span class="p">(</span><span class="n">date</span><span class="p">);</span>
 	    <span class="p">},</span> 
 
             <span class="p">[</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// updateModelValue()</span>
 	        <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span> <span class="n">date</span> <span class="o">=</span> <span class="n">dateEdit</span><span class="o">-&gt;</span><span class="n">date</span><span class="p">();</span>
-                <span class="n">model_</span><span class="o">-&gt;</span><span class="n">setValue</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">BirthField</span><span class="p">,</span> <span class="n">date</span><span class="p">);</span>
+                <span class="n">model</span><span class="o">-&gt;</span><span class="n">setValue</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">BirthField</span><span class="p">,</span> <span class="n">date</span><span class="p">);</span>
 	    <span class="p">});</span>
 
         <span class="cm">/*</span>
@@ -1105,31 +1101,31 @@
 
         <span class="n">button</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">UserFormView</span><span class="o">::</span><span class="n">process</span><span class="p">);</span>
 
-        <span class="n">updateView</span><span class="p">(</span><span class="n">model_</span><span class="p">);</span>
+        <span class="n">updateView</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
     <span class="p">}</span>
 
 <span class="k">private</span><span class="o">:</span>
     <span class="kt">void</span> <span class="n">process</span><span class="p">()</span> <span class="p">{</span>
-        <span class="n">updateModel</span><span class="p">(</span><span class="n">model_</span><span class="p">);</span>
+        <span class="n">updateModel</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">model_</span><span class="o">-&gt;</span><span class="n">validate</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">validate</span><span class="p">())</span> <span class="p">{</span>
             <span class="c1">// Do something with the data in the model: show it.</span>
             <span class="n">bindString</span><span class="p">(</span><span class="s">&quot;submit-info&quot;</span><span class="p">,</span>
                        <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="o">::</span><span class="n">fromUTF8</span><span class="p">(</span><span class="s">&quot;Saved user data for &quot;</span><span class="p">)</span>
-		       <span class="o">+</span> <span class="n">model_</span><span class="o">-&gt;</span><span class="n">userData</span><span class="p">(),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">PlainText</span><span class="p">);</span>
+		       <span class="o">+</span> <span class="n">model</span><span class="o">-&gt;</span><span class="n">userData</span><span class="p">(),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">PlainText</span><span class="p">);</span>
             <span class="c1">// Udate the view: Delete any validation message in the view, etc.</span>
-            <span class="n">updateView</span><span class="p">(</span><span class="n">model_</span><span class="p">);</span>
+            <span class="n">updateView</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
             <span class="c1">// Set the focus on the first field in the form.</span>
             <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span> <span class="o">*</span><span class="n">viewField</span> <span class="o">=</span>
                     <span class="n">resolve</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">UserFormModel</span><span class="o">::</span><span class="n">FirstNameField</span><span class="p">);</span>
             <span class="n">viewField</span><span class="o">-&gt;</span><span class="n">setFocus</span><span class="p">();</span>
         <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
             <span class="n">bindEmpty</span><span class="p">(</span><span class="s">&quot;submit-info&quot;</span><span class="p">);</span> <span class="c1">// Delete the previous user data.</span>
-            <span class="n">updateView</span><span class="p">(</span><span class="n">model_</span><span class="p">);</span>
+            <span class="n">updateView</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="n">UserFormModel</span> <span class="o">*</span><span class="n">model_</span><span class="p">;</span>
+    <span class="n">UserFormModel</span> <span class="o">*</span><span class="n">model</span><span class="p">;</span>
     <span class="n">Wt</span><span class="o">::</span><span class="n">WComboBox</span> <span class="o">*</span><span class="n">cityCB</span><span class="p">;</span>
 <span class="p">};</span>
 
@@ -4654,17 +4650,14 @@
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span> <span class="o">*</span><span class="n">edit</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="p">(</span><span class="s">&quot;Username&quot;</span><span class="p">);</span>
 <span class="n">edit</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;span2&quot;</span><span class="p">);</span>
-<span class="n">edit</span><span class="o">-&gt;</span><span class="n">setId</span><span class="p">(</span><span class="s">&quot;prependedInput&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">edit</span><span class="p">);</span>
 
 <span class="n">edit</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="p">();</span>
 <span class="n">edit</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;span2&quot;</span><span class="p">);</span>
-<span class="n">edit</span><span class="o">-&gt;</span><span class="n">setId</span><span class="p">(</span><span class="s">&quot;appendedInput&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;amount1&quot;</span><span class="p">,</span> <span class="n">edit</span><span class="p">);</span>
 
 <span class="n">edit</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="p">();</span>
 <span class="n">edit</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;span2&quot;</span><span class="p">);</span>
-<span class="n">edit</span><span class="o">-&gt;</span><span class="n">setId</span><span class="p">(</span><span class="s">&quot;appendedPrependedInput&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;amount2&quot;</span><span class="p">,</span> <span class="n">edit</span><span class="p">);</span>
 </pre></div>
   </message>
