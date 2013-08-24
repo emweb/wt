@@ -112,7 +112,7 @@ void WLocalDateTime::setDate(const WDate& date)
     setDateTime(date, WTime(0, 0));
 }
 
-const WDate WLocalDateTime::date() const
+WDate WLocalDateTime::date() const
 {
   if (isValid()) {
     boost::gregorian::date d = datetime_.local_time().date();
@@ -127,7 +127,7 @@ void WLocalDateTime::setTime(const WTime& time)
     setDateTime(date(), time);
 }
 
-const WTime WLocalDateTime::time() const
+WTime WLocalDateTime::time() const
 {
   if (isValid()) {
     boost::posix_time::time_duration d = datetime_.local_time().time_of_day();
