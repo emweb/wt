@@ -60,8 +60,7 @@ namespace Wt {
  *
  * The default location for the TinyMCE resources may be overridden by
  * configuring the <i>tinyMCEBaseURL</i> property in your %Wt
- * configuration file, see \ref config_general "configuration
- * properties".
+ * configuration file, see \ref config_general "configuration properties".
  *
  * \endif
  *
