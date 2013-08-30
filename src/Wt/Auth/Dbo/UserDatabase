@@ -346,6 +346,20 @@ public:
     return user_->lastLoginAttempt();    
   }
 
+  /*! \brief Returns max number of tokens user can have in the database
+   *
+   * Default value is 50.
+   */
+  unsigned maxAuthTokensPerUser() const {
+    return maxAuthTokensPerUser_;
+  }
+
+  /*! \brief Sets max number of tokens user can have in the database
+   */
+  void setMaxAuthTokensPerUser(unsigned maxAuthTokensPerUser) {
+    maxAuthTokensPerUser_ = maxAuthTokensPerUser;
+  }
+
 private:
   Wt::Dbo::Session& session_;
   mutable Wt::Dbo::ptr<DboType> user_;
