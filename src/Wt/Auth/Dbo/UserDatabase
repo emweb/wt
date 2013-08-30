@@ -7,6 +7,8 @@
 #ifndef WT_AUTH_DBO_USER_DATABASE_H_
 #define WT_AUTH_DBO_USER_DATABASE_H_
 
+#include <boost/foreach.hpp>
+
 #include <Wt/Auth/AbstractUserDatabase>
 #include <Wt/Auth/Dbo/AuthInfo>
 #include <Wt/WLogger>
@@ -272,8 +274,20 @@ public:
     /*
      * Prevent a user from piling up the database with tokens
      */
-    if (user_->authTokens().size() > maxAuthTokensPerUser_)
-      return;
+    int tokens_number = user_->authTokens().size();
+    if (tokens_number >= maxAuthTokensPerUser_) {
+      // remove so many tokens, that their number
+      // would be (maxAuthTokensPerUser_ - 1)
+      int tokens_to_remove = tokens_number - (maxAuthTokensPerUser_ - 1);
+      // remove the first token(s) to expire
+      Wt::Dbo::collection<Wt::Dbo::ptr<AuthTokenType> > earliest_tokens =
+        user_->authTokens().find().orderBy("expires").limit(tokens_to_remove);
+      std::vector<Wt::Dbo::ptr<AuthTokenType> > earliest_tokens_v(
+        earliest_tokens.begin(), earliest_tokens.end());
+      BOOST_FOREACH (Wt::Dbo::ptr<AuthTokenType> token, earliest_tokens_v) {
+        token.remove();
+      }
+    }
 
     user_.modify()->authTokens().insert
       (Wt::Dbo::ptr<AuthTokenType>
