@@ -17,7 +17,7 @@ for building database-driven web applications, but may be equally well
 used independently from it.
 
 The library provides a class-based view on database tables which keeps
-an object-hiearchy of database object automatically synchronized with
+an object-hierarchy of database objects automatically synchronized with
 a database by inserting, updating and deleting database
 records. {cpp} classes map to database tables, class fields to
 table columns, and pointers and collections of pointers to database
@@ -241,8 +241,8 @@ happen within a transaction.
 A call to
 {doc}classWt_1_1Dbo_1_1Session.html#a1ffa672cd86ff1ce6d59837b05081946[Session::add()]
 adds an object to the database. This call returns a
-+{doc}classWt_1_1Dbo_1_1ptr.html[ptr<Dbo>]+ to reference a database
-object of type +_Dbo_+. This is a shared pointer which also keeps
++{doc}classWt_1_1Dbo_1_1ptr.html[ptr<User>]+ to reference a database
+object of type +_User_+. This is a shared pointer which also keeps
 track of the persistence state of the referenced object. Within each
 session, a database object will be loaded at most once: the session
 keeps track of loaded database objects and returns an existing object

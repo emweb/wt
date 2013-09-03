@@ -344,8 +344,8 @@ WT_DECLARE_WT_MEMBER
      }
 
      /*
-      * If only layoutDirty then we do not need to remeasure children, but simply
-      * propagate up again the total preferred size and reapply the layout as the
+      * If only layoutDirty then we do not need to remeasure children,
+      * but simply propagate up again the total preferred size and reapply the layout as the
       * container may have changed in size.
       */
      if (itemDirty) {
@@ -430,7 +430,8 @@ WT_DECLARE_WT_MEMBER
 
 	     if (debug)
 	       console.log("measure " + dir + " "
-	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]);
+	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]
+			   + ',' + item.dirty);
 
 	     if (item.dirty) {
 	       var wMinimum;
@@ -1217,9 +1218,10 @@ WT_DECLARE_WT_MEMBER
 	     var hidden = w.style.display === 'none' && !w.ed;
 
 	     if (!hidden && (setSize || ts != ps || item.layout)) {
-	       if (setCss(w, DC.size, tsm + 'px'))
+	       if (setCss(w, DC.size, tsm + 'px')) {
 		 setItemDirty(item, 1);
-	       item.set[dir] = true;
+		 item.set[dir] = true;
+	       }
 	     } else {
 	       if (!item.fs[dir]) {
 		 if (setCss(w, DC.size, ''))

@@ -193,6 +193,21 @@ public:
    */
   bool wordWrap() const { return flags_.test(BIT_WORD_WRAP); }
 
+  /*! \brief Specifies how text is aligned.
+   *
+   * Only the horizontal alignment can be specified. Note that there
+   * is no way to specify vertical alignment. You can put the
+   * text in a layout with vertical alignment options though, or (misuse)
+   * the line-height CSS property for single line texts.
+   */
+  void setTextAlignment(AlignmentFlag textAlignment);
+
+  /*! \brief Returns the alignment of children
+   *
+   * \sa setTextAlignment()
+   */
+  AlignmentFlag textAlignment() const;
+
   /*! \brief Sets padding inside the widget
    *
    * Setting padding has the effect of adding distance between the
@@ -257,8 +272,12 @@ private:
   static const int BIT_WORD_WRAP_CHANGED = 2;
   static const int BIT_PADDINGS_CHANGED = 3;
   static const int BIT_ENCODE_INTERNAL_PATHS = 4;
+  static const int BIT_TEXT_ALIGN_LEFT = 5;
+  static const int BIT_TEXT_ALIGN_CENTER = 6;
+  static const int BIT_TEXT_ALIGN_RIGHT = 7;
+  static const int BIT_TEXT_ALIGN_CHANGED = 8;
 
-  std::bitset<5> flags_;
+  std::bitset<9> flags_;
 
   std::string formattedText() const;
   void autoAdjustInline();

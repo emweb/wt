@@ -39,6 +39,13 @@ struct PageState
   int page;
 };
 
+struct CellState : public PageState
+{
+  int lastRow;
+  double x;
+  Block *cell;
+};
+
 struct Range
 {
   Range(double start, double end) 
@@ -48,7 +55,8 @@ struct Range
   double start, end;
 };
 
-class Block
+// exported for test.exe
+class WT_API Block
 {
 public:
   Block(rapidxml::xml_node<> *node, Block *parent);
@@ -238,13 +246,24 @@ private:
 
   void tableDoLayout(double x, PageState &ps, double cellSpacing,
 		     const std::vector<double>& widths,
+		     std::vector<CellState>& rowSpanBackLog,
 		     bool protectRows, Block *repeatHead,
 		     const WTextRenderer& renderer);
   void tableRowDoLayout(double x, PageState &ps,
 			double cellSpacing,
 			const std::vector<double>& widths,
+			std::vector<CellState>& rowSpanBackLog,
 			const WTextRenderer& renderer,
 			double rowHeight);
+  void tableCellDoLayout(double x, const PageState &ps,
+			 double cellSpacing, PageState& rowEnd,
+			 const std::vector<double>& widths,
+			 const WTextRenderer& renderer,
+			 double rowHeight);
+  double tableCellX(const std::vector<double>& widths,
+		    double cellSpacing) const;
+  double tableCellWidth(const std::vector<double>& widths,
+			double cellSpacing) const;
   void tableComputeColumnWidths(std::vector<double>& minima,
 				std::vector<double>& maxima,
 				std::vector<double>& asSet,
@@ -256,10 +275,10 @@ private:
   Block *findTableCell(int row, int col) const;
   Block *siblingTableCell(Side side) const;
 
-  int cellComputeColumnWidths(int col, WidthType type,
-			      std::vector<double>& values,
-			      const WTextRenderer& renderer,
-			      Block *table);
+  void cellComputeColumnWidths(WidthType type,
+			       std::vector<double>& values,
+			       const WTextRenderer& renderer,
+			       Block *table);
 
   void setOffsetParent();
   Block *findOffsetParent();

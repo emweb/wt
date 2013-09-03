@@ -399,7 +399,7 @@ void WMenuItem::connectSignals()
     if (a) {
       SignalBase *as;
 
-      if (checkBox_)
+      if (checkBox_ && !checkBox_->clicked().propagationPrevented())
 	as = &checkBox_->changed();
       else
 	as = &a->clicked();

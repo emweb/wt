@@ -139,9 +139,9 @@ void WWidget::scheduleRerender(bool laterOnly, WFlags<RepaintFlag> flags)
 
     /*
      * A size change to an absolutely positioned widget will not affect
-     * a layout computation
+     * a layout computation, except if it's itself in a layout!
      */
-    if (positionScheme() == Absolute)
+    if (positionScheme() == Absolute && !isInLayout())
       return;
 
     /*
@@ -160,7 +160,7 @@ void WWidget::childResized(WWidget *child, WFlags<Orientation> directions)
   /*
    * Stop propagation at an absolutely positioned widget
    */
-  if (positionScheme() == Absolute)
+  if (positionScheme() == Absolute && !isInLayout())
     return;
 
   WWidget *p = parent();

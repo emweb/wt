@@ -1,7 +1,7 @@
+REM This-is-a-wt-example
 set PATH=%~p0;%PATH%
 set OLDPWD=%CD%
+REM Required until all examples accept a "--approot path" parameter
 cd ..\lib\Wt\examples\@EXAMPLESUBDIR@
-set DOCROOT=%CD%
-cd %OLDPWD%
 
-%~p0\..\lib\Wt\examples\@EXAMPLESUBDIR@\@EXAMPLENAME@.wt  --docroot %DOCROOT%\@DOCROOTSUBFOLDER@ --approot %DOCROOT%\@APPROOTSUBFOLDER@ --http-port 8080 --http-addr 0.0.0.0 %*
+%~p0\@EXAMPLENAME@.wt @SCRIPT_DOCROOT@ @SCRIPT_APPROOT@ --http-port 8080 --http-addr 0.0.0.0 %*

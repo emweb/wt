@@ -40,7 +40,7 @@ std::string elementNames_[] =
 
     "audio", "video", "source",
 
-    "b", "strong", "em", "i"
+    "b", "strong", "em", "i", "hr"
   };
 
 bool defaultInline_[] =
@@ -65,7 +65,7 @@ bool defaultInline_[] =
 
     false, false, false,
 
-    true, true, true, true
+    true, true, true, true, false
   };
 
 std::string cssNames_[] =
@@ -83,6 +83,10 @@ std::string cssNames_[] =
     "margin-bottom", "margin-left", "cursor",
     "border-top", "border-right",
     "border-bottom", "border-left",
+    "border-color-top", "border-color-right",
+    "border-color-bottom", "border-color-left",
+    "border-width-top", "border-width-right",
+    "border-width-bottom", "border-width-left",
     "color", "overflow-x", "overflow-y",
     "opacity",
     "font-family", "font-style", "font-variant",
@@ -109,9 +113,13 @@ std::string cssCamelNames_[] =
     "paddingBottom", "paddingLeft",
     "marginTop", "marginRight",
     "marginBottom", "marginLeft",
-    "cursor", 	    
+    "cursor",
     "borderTop", "borderRight",
     "borderBottom", "borderLeft",
+    "borderColorTop", "borderColorRight",
+    "borderColorBottom", "borderColorLeft",
+    "borderWidthTop", "borderWidthRight",
+    "borderWidthBottom", "borderWidthLeft",
     "color", "overflowX", "overflowY",
     "opacity",
     "fontFamily", "fontStyle", "fontVariant",

@@ -70,20 +70,24 @@ WIconPair *FileTreeTableNode::createIcon(const boost::filesystem::path& path)
 
 void FileTreeTableNode::populate()
 {
-  try {
-    if (boost::filesystem::is_directory(path_)) {
-      std::set<boost::filesystem::path> paths;
-      boost::filesystem::directory_iterator end_itr;
+  if (boost::filesystem::is_directory(path_)) {
+    std::set<boost::filesystem::path> paths;
+    boost::filesystem::directory_iterator end_itr;
 
-      for (boost::filesystem::directory_iterator i(path_); i != end_itr; ++i)
+    for (boost::filesystem::directory_iterator i(path_); i != end_itr; ++i)
+      try {
 	paths.insert(*i);
+      } catch (boost::filesystem::filesystem_error& e) {
+        std::cerr << e.what() << std::endl;
+      }
 
-      for (std::set<boost::filesystem::path>::iterator i = paths.begin();
-	   i != paths.end(); ++i)
-	addChildNode(new FileTreeTableNode(*i));
-    }
-  } catch (boost::filesystem::filesystem_error& e) {
-    std::cerr << e.what() << std::endl;
+    for (std::set<boost::filesystem::path>::iterator i = paths.begin();
+      i != paths.end(); ++i)
+      try {
+        addChildNode(new FileTreeTableNode(*i));
+      } catch (boost::filesystem::filesystem_error& e) {
+        std::cerr << e.what() << std::endl;
+      }
   }
 }
 

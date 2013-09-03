@@ -1476,7 +1476,8 @@ void WebSession::handleRequest(Handler& handler)
         bool doNotify = false;
 
 	if (handler.request()) {
-	  const std::string *signalE = handler.request()->getParameter("signal");
+	  const std::string *signalE
+	    = handler.request()->getParameter("signal");
 	  bool isPoll = signalE && *signalE == "poll";
 
 	  if (requestForResource || isPoll || !unlockRecursiveEventLoop()) {
@@ -2096,8 +2097,10 @@ void WebSession::notify(const WEvent& event)
 		} catch (InterruptedException& e) { }
 #endif // WT_TARGET_JAVA
 	      }
-	      if (!updatesPending_)
+	      if (!updatesPending_) {
+		handler.flushResponse();
 		return;
+	      }
 	    }
 #endif // WT_BOOST_THREADS
 

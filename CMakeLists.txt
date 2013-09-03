@@ -9,7 +9,12 @@ IF(COMMAND CMAKE_POLICY)
 ENDIF(COMMAND CMAKE_POLICY)
 
 PROJECT(WT)
-SET(CMAKE_MODULE_PATH ${WT_SOURCE_DIR} ${WT_SOURCE_DIR}/cmake)
+
+SET(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  ${WT_SOURCE_DIR}
+  ${WT_SOURCE_DIR}/cmake
+)
 
 SET(VERSION_SERIES 3)
 SET(VERSION_MAJOR 3)
@@ -307,6 +312,7 @@ include (CheckSymbolExists)
 INCLUDE(cmake/WtFindBoost.txt)
 INCLUDE(cmake/WtFindFcgi.txt)
 INCLUDE(cmake/WtFindZlib.txt)
+INCLUDE(cmake/WtFindPng.txt)
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysql.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)

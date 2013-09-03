@@ -434,11 +434,22 @@ this.hasTag = function(e, s) {
   return e.nodeType == 1 && e.tagName && e.tagName.toUpperCase() === s;
 };
 
-this.insertAt = function(p, c, i) {
+this.insertAt = function(p, c, pos) {
   if (!p.childNodes.length)
     p.appendChild(c);
-  else
-    p.insertBefore(c, p.childNodes[i]);
+  else {
+    var i, j, il;
+    for (i = 0, j = 0, il = p.childNodes.length; i < il; ++i) {
+      if ($(p.childNodes[i]).hasClass("wt-reparented"))
+         continue;
+      if (j === pos) {
+          p.insertBefore(c, p.childNodes[i]);
+          return;
+      }
+      ++j;
+    }
+    p.appendChild(c);
+  }
 };
 
 this.remove = function(id)
@@ -1358,12 +1369,22 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
   e.style[hsides[0]] = e.style[hsides[1]] = 'auto';
   e.style[vsides[0]] = e.style[vsides[1]] = 'auto';
 
-  var elementWidth = WT.px(e, 'maxWidth') || e.offsetWidth,
-      elementHeight = WT.px(e, 'maxHeight') || e.offsetHeight,
+  var reserveWidth = e.offsetWidth,
+      reserveHeight = e.offsetHeight,
       hside, vside,
       windowSize = WT.windowSize(),
       windowX = document.body.scrollLeft + document.documentElement.scrollLeft,
       windowY = document.body.scrollTop + document.documentElement.scrollTop;
+
+    /*
+     * Should really distinguish between static versus dynamic: for a
+     * widget that can grow dynamically (e.g. a suggestion popup) we
+     * should prepare ourselves and consider maximum size here
+     */
+  if (!$(e).hasClass('Wt-tooltip')) {
+    reserveWidth = WT.px(e, 'maxWidth') || reserveWidth;
+    reserveHeight = WT.px(e, 'maxHeight') || reserveHeight;
+  }
 
   var op = e.offsetParent;
   if (!op)
@@ -1371,34 +1392,46 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 
   var offsetParent = WT.widgetPageCoordinates(op);
 
-  if (elementWidth > windowSize.x) {
+  if (reserveWidth > windowSize.x) {
     // wider than window
     x = windowX;
     hside = 0;
-  } else if (x + elementWidth > windowX + windowSize.x) {
+  } else if (x + reserveWidth > windowX + windowSize.x) {
     // too far right, chose other side
-    rightx = rightx - offsetParent.x + op.scrollLeft;
+    var scrollX = op.scrollLeft;
+    if (op == document.body)
+      scrollX = (op.clientWidth - windowSize.x);
+    rightx = rightx - offsetParent.x + scrollX;
     x = op.clientWidth - (rightx + WT.px(e, 'marginRight'));
     hside = 1;
   } else {
-    x = x - offsetParent.x + op.scrollLeft;
+    var scrollX = op.scrollLeft;
+    if (op == document.body)
+      scrollX = 0;
+    x = x - offsetParent.x + scrollX;
     x = x - WT.px(e, 'marginLeft');
     hside = 0;
   }
 
-  if (elementHeight > windowSize.y) {
+  if (reserveHeight > windowSize.y) {
     // taller than window
     y = windowY;
     vside = 0;
-  } else if (y + elementHeight > windowY + windowSize.y) {
+  } else if (y + reserveHeight > windowY + windowSize.y) {
     // too far below, chose other side
     if (bottomy > windowY + windowSize.y)
       bottomy = windowY + windowSize.y;
-    bottomy = bottomy - offsetParent.y + op.scrollTop;
+    var scrollY = op.scrollTop;
+    if (op == document.body)
+      scrollY = (op.clientHeight - windowSize.y);
+    bottomy = bottomy - offsetParent.y + scrollY;
     y = op.clientHeight - (bottomy + WT.px(e, 'marginBottom'));
     vside = 1;
   } else {
-    y = y - offsetParent.y + op.scrollTop;
+    var scrollY = op.scrollTop;
+    if (op == document.body)
+      scrollY = 0;
+    y = y - offsetParent.y + scrollY;
     y = y - WT.px(e, 'marginTop');
     vside = 0;
   }

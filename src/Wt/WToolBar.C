@@ -22,12 +22,17 @@ WToolBar::WToolBar(WContainerWidget *parent)
   setStyleClass("btn-group");
 }
 
-void WToolBar::addButton(WPushButton *button)
+void WToolBar::addButton(WPushButton *button, AlignmentFlag alignmentFlag)
 {
-  if (compact_)
+  if (compact_){
     impl_->addWidget(button);
-  else
+    if(alignmentFlag == AlignRight)
+      button->setAttributeValue("style", "float:right;");
+  } else{
+    if(alignmentFlag == AlignRight)
+      lastGroup()->setAttributeValue("style", "float:right;");
     lastGroup()->addWidget(button);
+  }
 }
 
 void WToolBar::addButton(WSplitButton *button)

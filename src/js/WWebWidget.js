@@ -31,11 +31,13 @@ WT_DECLARE_WT_MEMBER
   var timings = [ "ease", "linear", "ease-in", "ease-out", "ease-in-out" ],
     inverseTiming = [ 0, 1, 3, 2, 4, 5 ];
 
+  var animationPrefix = WT.vendorPrefix(WT.styleAttribute('animation'));
+  var transitionPrefix = WT.vendorPrefix(WT.styleAttribute('transition'));
+  var transformPrefix = WT.vendorPrefix(WT.styleAttribute('transform'));
   var $el = $("#" + id), el = $el.get(0),
-    prefix = WT.vendorPrefix(WT.styleAttribute('transition')),
-    animationEventEnd = prefix == "Webkit"
-      ? "webkitAnimationEnd": "animationend",
-    transitionEventEnd = prefix == "Webkit"
+    animationEventEnd = animationPrefix == "Webkit"
+	  ? "webkitAnimationEnd": "animationend";
+    transitionEventEnd = transitionPrefix == "Webkit"
       ? "webkitTransitionEnd" : "transitionend";
 
   if ($el.css("display") !== display) {
@@ -67,11 +69,15 @@ WT_DECLARE_WT_MEMBER
       for (i in style) {
 	var k = i;
 
-	if ((k == "transform"
-	    || k == "transition"
-	    || k == "animationDuration") &&
-	   prefix != '')
-	  k = prefix + k.substring(0, 1).toUpperCase() + k.substring(1);
+	if (k == "animationDuration" && animationPrefix != '')
+	  k = animationPrefix + k.substring(0, 1).toUpperCase()
+	      + k.substring(1);
+	else if (k == "transform" && transformPrefix != '')
+	  k = transformPrefix + k.substring(0, 1).toUpperCase()
+	      + k.substring(1);
+	else if (k == "transition" && transitionPrefix != '')
+	  k = transitionPrefix + k.substring(0, 1).toUpperCase()
+	      + k.substring(1);
 
 	if (savedStyle && typeof(savedStyle[k]) === "undefined")
 	  savedStyle[k] = el.style[k];

@@ -21,6 +21,7 @@ typedef std::map<std::string, boost::any> SettingsMapType;
 
 WTextEdit::WTextEdit(WContainerWidget *parent)
   : WTextArea(parent),
+    onChange_(this, "change"),
     contentChanged_(false)
 {
   init();
@@ -28,6 +29,7 @@ WTextEdit::WTextEdit(WContainerWidget *parent)
 
 WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
   : WTextArea(text, parent),
+    onChange_(this, "change"),
     contentChanged_(false)
 {
   init();
@@ -79,12 +81,19 @@ void WTextEdit::init()
     setConfigurationSetting("theme_advanced_toolbar_align",
 			    std::string("left"));
   }
+
+  onChange_.connect(this, &WTextEdit::propagateOnChange);
 }
 
 WTextEdit::~WTextEdit()
 {
   // to have virtual renderRemoveJs():
   setParentWidget(0);
+}
+
+void WTextEdit::propagateOnChange()
+{
+  changed().emit();
 }
 
 void WTextEdit::setStyleSheet(const std::string& uri)
@@ -243,7 +252,8 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     element.callJavaScript("(function() { "
 			   """var obj = $('#" + id() + "').data('obj');"
 			   """obj.render(" + config.str() + ","
-			   + jsStringLiteral(dummy.cssStyle())
+			   + jsStringLiteral(dummy.cssStyle()) + ","
+			   + (changed().isConnected() ? "true" : "false")
 			   + ");"
 			   "})();");
 

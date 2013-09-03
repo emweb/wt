@@ -295,6 +295,8 @@ int Block::numberTableCells(int row, std::vector<int>& rowSpan)
   } else if (type_ == DomElement_TR) {
     int col = 0;
 
+    cellRow_ = row;
+
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
@@ -453,6 +455,8 @@ double Block::cssMargin(Side side, double fontScale) const
 	return 0.75 * cssFontSize(fontScale);
       else if (type_ == DomElement_H3)
 	return 0.83 * cssFontSize(fontScale);
+      else if (type_ == DomElement_HR)
+	return 0.5 * cssFontSize(fontScale);
     }
   }
 
@@ -685,8 +689,8 @@ double Block::rawCssBorderWidth(Side side, double fontScale,
   Property property = (Property)(PropertyStyleBorderTop + index);
 
   std::string borderStr = cssProperty(property);
+  std::string borderWidthStr;
 
-  double result = 0;
   if (!borderStr.empty()) {
     std::vector<std::string> values;
     boost::split(values, borderStr, boost::is_any_of(" "));
@@ -698,7 +702,18 @@ double Block::rawCssBorderWidth(Side side, double fontScale,
 	return 0;
     }
 
-    WLength l(values[0].c_str());
+    borderWidthStr = values[0];
+  }
+
+  if (borderWidthStr.empty()) {
+    property = (Property)(PropertyStyleBorderWidthTop + index);
+    borderWidthStr = cssProperty(property);
+  }
+
+  double result = 0;
+
+  if (!borderWidthStr.empty()) {
+    WLength l(borderWidthStr.c_str());
     result = l.toPixels(cssFontSize(fontScale));
   }
 
@@ -714,7 +729,8 @@ double Block::rawCssBorderWidth(Side side, double fontScale,
       Block *t = table();
       if (t && !t->tableCollapseBorders())
 	result = t->attributeValue("border", 0) ? 1 : 0;
-    }
+    } else if (type_ == DomElement_HR)
+      result = 1;
   }
 
   return result;
@@ -754,14 +770,23 @@ WColor Block::rawCssBorderColor(Side side) const
   Property property = (Property)(PropertyStyleBorderTop + index);
 
   std::string borderStr = cssProperty(property);
+  std::string borderColorStr;
 
   if (!borderStr.empty()) {
     std::vector<std::string> values;
     boost::split(values, borderStr, boost::is_any_of(" "));
 
     if (values.size() > 2)
-      return WColor(WString::fromUTF8(values[2]));
+      borderColorStr = values[2];
   }
+
+  if (borderColorStr.empty()) {
+    property = (Property)(PropertyStyleBorderColorTop + index);
+    borderColorStr = cssProperty(property);
+  }
+
+  if (!borderColorStr.empty())
+    return WColor(WString::fromUTF8(borderColorStr));
 
   return black;
 }
@@ -1295,8 +1320,8 @@ void Block::layoutTable(PageState &ps,
   double totalMaxWidth = sum(maximumColumnWidths) + totalSpacing;
 
   double desiredMinWidth = std::max(totalMinWidth, cssSetWidth);
-
   double desiredMaxWidth = totalMaxWidth;
+
   if (cssSetWidth > 0 && cssSetWidth < desiredMaxWidth)
     desiredMaxWidth = std::max(desiredMinWidth, cssSetWidth);
 
@@ -1369,7 +1394,7 @@ void Block::layoutTable(PageState &ps,
       double factor = rWidth / rTotalMaxWidth;
 
       for (unsigned i = 0; i < widths.size(); ++i) {
-	if (setColumnWidths[i] == -1)
+	if (setColumnWidths[i] < 0)
 	  widths[i] *= factor;
       }
     } else { /* degenerate case: all columns have width 0 */
@@ -1424,7 +1449,8 @@ void Block::layoutTable(PageState &ps,
   }
   bool protectRows = repeatHead != 0;
 
-  tableDoLayout(ps.minX, ps, cellSpacing, widths,
+  std::vector<CellState> rowSpanBackLog;
+  tableDoLayout(ps.minX, ps, cellSpacing, widths, rowSpanBackLog,
 		protectRows, repeatHead, renderer);
 
   ps.minX -= cssBorderWidth(Left, renderer.fontScale());
@@ -1435,6 +1461,7 @@ void Block::layoutTable(PageState &ps,
 
 void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
 			  const std::vector<double>& widths,
+			  std::vector<CellState>& rowSpanBackLog,
 			  bool protectRows, Block *repeatHead,
 			  const WTextRenderer& renderer)
 {
@@ -1445,7 +1472,8 @@ void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
-      c->tableDoLayout(x, ps, cellSpacing, widths, protectRows,
+      c->tableDoLayout(x, ps, cellSpacing, widths, rowSpanBackLog,
+		       protectRows,
 		       (type_ != DomElement_THEAD ? repeatHead : 0),
 		       renderer);
     }
@@ -1465,7 +1493,7 @@ void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
   } else if (type_ == DomElement_TR) {
     double startY = ps.y;
     int startPage = ps.page;
-    tableRowDoLayout(x, ps, cellSpacing, widths, renderer, -1);
+    tableRowDoLayout(x, ps, cellSpacing, widths, rowSpanBackLog, renderer, -1);
 
     if (protectRows && ps.page != startPage) {
       ps.y = startY;
@@ -1492,7 +1520,8 @@ void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
 
       startY = ps.y;
       startPage = ps.page;
-      tableRowDoLayout(x, ps, cellSpacing, widths, renderer, -1);
+      tableRowDoLayout(x, ps, cellSpacing, widths, rowSpanBackLog,
+		       renderer, -1);
     }
 
     double rowHeight = (ps.page - startPage) 
@@ -1501,75 +1530,122 @@ void Block::tableDoLayout(double x, PageState &ps, double cellSpacing,
 
     ps.y = startY;
     ps.page = startPage;
-    tableRowDoLayout(x, ps, cellSpacing, widths, renderer, rowHeight);
+    tableRowDoLayout(x, ps, cellSpacing, widths, rowSpanBackLog,
+		     renderer, rowHeight);
+  }
+}
+
+double Block::tableCellX(const std::vector<double>& widths,
+			 double cellSpacing) const
+{
+  double result = 0;
+  for (int j = 0; j < cellCol_; ++j)
+    result += widths[j] + cellSpacing;
+
+  return result;
+}
+
+double Block::tableCellWidth(const std::vector<double>& widths,
+			     double cellSpacing) const
+{
+  int colSpan = attributeValue("colspan", 1);
+
+  double width = 0;
+  for (int j = cellCol_; j < cellCol_ + colSpan; ++j)
+    width += widths[j];
+
+  return width + (colSpan - 1) * cellSpacing;
+}
+
+void Block::tableCellDoLayout(double x, const PageState& ps,
+			      double cellSpacing, PageState& rowEnd,
+			      const std::vector<double>& widths,
+			      const WTextRenderer& renderer,
+			      double rowHeight)
+{
+  x += tableCellX(widths, cellSpacing);
+  double width = tableCellWidth(widths, cellSpacing);
+
+  PageState cellPs;
+  cellPs.y = ps.y + cellSpacing;
+  cellPs.page = ps.page;
+  cellPs.minX = x;
+  cellPs.maxX = x + width;
+
+  double collapseMarginBottom = 0;
+  double collapseMarginTop = std::numeric_limits<double>::max();
+
+  std::string s = cssProperty(PropertyStyleBackgroundColor);
+
+  collapseMarginBottom = layoutBlock(cellPs, false, renderer,
+				     collapseMarginTop, 
+				     collapseMarginBottom, 
+				     rowHeight);
+
+  if (collapseMarginBottom < collapseMarginTop)
+    cellPs.y -= collapseMarginBottom;
+
+  cellPs.minX = x;
+  cellPs.maxX = x + width;
+  Block::clearFloats(cellPs, width);
+
+  if (cellPs.page > rowEnd.page
+      || (cellPs.page == rowEnd.page && cellPs.y > rowEnd.y)) {
+    rowEnd.page = cellPs.page;
+    rowEnd.y = cellPs.y;
   }
 }
 
 void Block::tableRowDoLayout(double x, PageState &ps,
 			     double cellSpacing,
 			     const std::vector<double>& widths,
+			     std::vector<CellState>& rowSpanBackLog,
 			     const WTextRenderer& renderer,
 			     double rowHeight)
 {
-  double endY = ps.y;
-  int endPage = ps.page;
-
-  unsigned col = 0;
+  PageState rowEnd;
+  rowEnd.y = ps.y;
+  rowEnd.page = ps.page;
 
   x += cellSpacing;
 
   for (unsigned i = 0; i < children_.size(); ++i) {
     Block *c = children_[i];
 
-    // TODO skip row-overspanned cells: we need to keep a list of
-    // cells that are overspanning, and then we need to adjust their
-    // height once done.
-
     if (c->isTableCell()) {
-      int colSpan = c->attributeValue("colspan", 1);
-
-      double width = 0;
-      for (unsigned j = col; j < col + colSpan; ++j)
-	width += widths[j];
-
-      width += (colSpan - 1) * cellSpacing;
-
-      PageState cellPs;
-      cellPs.y = ps.y + cellSpacing;
-      cellPs.page = ps.page;
-      cellPs.minX = x;
-      cellPs.maxX = x + width;
-
-      double collapseMarginBottom = 0;
-      double collapseMarginTop = std::numeric_limits<double>::max();
-
-      std::string s = c->cssProperty(PropertyStyleBackgroundColor);
-
-      collapseMarginBottom = c->layoutBlock(cellPs, false, renderer,
-					    collapseMarginTop, 
-					    collapseMarginBottom, 
-					    rowHeight);
-
-      if (collapseMarginBottom < collapseMarginTop)
-	cellPs.y -= collapseMarginBottom;
-
-      cellPs.minX = x;
-      cellPs.maxX = x + width;
-      Block::clearFloats(cellPs, width);
-
-      if (cellPs.page > endPage
-	  || (cellPs.page == endPage && cellPs.y > endY)) {
-	endPage = cellPs.page;
-	endY = cellPs.y;
-      }
-
-      col += colSpan;
-      x += width + cellSpacing;
+      int rowSpan = c->attributeValue("rowspan", 1);
+      if (rowSpan > 1) {
+	if (rowHeight == -1) {
+	  CellState cs;
+	  cs.lastRow = c->cellRow_ + rowSpan - 1;
+	  cs.y = ps.y;
+	  cs.page = ps.page;
+	  cs.cell = c;
+	  rowSpanBackLog.push_back(cs);
+	}
+      } else
+	c->tableCellDoLayout(x, ps, cellSpacing, rowEnd,
+			     widths, renderer, rowHeight);
     }
   }
 
-  ps.y = endY;
-  ps.page = endPage;
+  for (unsigned i = 0; i < rowSpanBackLog.size(); ++i) {
+    if (rowSpanBackLog[i].lastRow == cellRow_) {
+      const CellState& cs = rowSpanBackLog[i];
+      double rh = rowHeight;
+
+      if (rh >= 0)
+	rh += (ps.page - cs.page) 
+	  * renderer.textHeight(cs.page) // XXX
+	  + (ps.y - cs.y);
+
+      cs.cell->tableCellDoLayout(x, cs, cellSpacing, rowEnd,
+				 widths, renderer, rh);
+    }
+  }
+
+  ps.y = rowEnd.y;
+  ps.page = rowEnd.page;
 }
 
 void Block::tableComputeColumnWidths(std::vector<double>& minima,
@@ -1591,16 +1667,13 @@ void Block::tableComputeColumnWidths(std::vector<double>& minima,
       c->tableComputeColumnWidths(minima, maxima, asSet, renderer, table);
     }
   } else if (type_ == DomElement_TR) {
-    int col = 0;
-
     for (unsigned i = 0; i < children_.size(); ++i) {
       Block *c = children_[i];
 
       if (c->isTableCell()) {
-	c->cellComputeColumnWidths(col, AsSetWidth, asSet, renderer, table);
-	c->cellComputeColumnWidths(col, MinimumWidth, minima, renderer, table);
-	col = c->cellComputeColumnWidths(col, MaximumWidth, maxima, renderer,
-					 table);
+	c->cellComputeColumnWidths(AsSetWidth, asSet, renderer, table);
+	c->cellComputeColumnWidths(MinimumWidth, minima, renderer, table);
+	c->cellComputeColumnWidths(MaximumWidth, maxima, renderer, table);
       }
     }
   }
@@ -1615,13 +1688,14 @@ int Block::attributeValue(const char *attribute, int defaultValue) const
     return defaultValue;
 }
 
-int Block::cellComputeColumnWidths(int col, WidthType type,
-				   std::vector<double>& values,
-				   const WTextRenderer& renderer,
-				   Block *table)
+void Block::cellComputeColumnWidths(WidthType type,
+				    std::vector<double>& values,
+				    const WTextRenderer& renderer,
+				    Block *table)
 {
   double currentWidth = 0;
 
+  int col = cellCol_;
   int colSpan = attributeValue("colspan", 1);
 
   double defaultWidth = 0;
@@ -1631,8 +1705,10 @@ int Block::cellComputeColumnWidths(int col, WidthType type,
   while (col + colSpan > (int)values.size())
     values.push_back(defaultWidth);
 
-  for (int i = 0; i < colSpan; ++i)
-    currentWidth += values[col + i];
+  for (int i = 0; i < colSpan; ++i) {
+    if (values[col + i] > 0)
+      currentWidth += values[col + i];
+  }
 
   double width = currentWidth;
 
@@ -1667,8 +1743,6 @@ int Block::cellComputeColumnWidths(int col, WidthType type,
     for (int i = 0; i < colSpan; ++i)
       values[col + i] += extraPerColumn;
   }
-
-  return col + colSpan;
 }
 
 bool Block::isPercentageLength(const std::string& length)
@@ -3317,7 +3391,9 @@ bool Block::isAggregate(const std::string& cssProperty)
 {
   return cssProperty == "margin"
     || cssProperty == "border"
-    || cssProperty == "padding";
+    || cssProperty == "padding"
+    || cssProperty == "border-color"
+    || cssProperty == "border-width";
 }
 
 void Block::updateAggregateProperty(const std::string& property,
@@ -3369,9 +3445,10 @@ void Block::fillinStyle(const std::string& style,
           ++count;
         }
 
-        if (count == 0) {
-          LOG_ERROR("Strange aggregate CSS length property: '" << v << "'");
-        } else if (count == 1) {
+        if (count == 0)
+	  count = allvalues.size();
+
+        if (count == 1) {
           updateAggregateProperty(n, "-top",    specificity, v);
           updateAggregateProperty(n, "-right",  specificity, v);
           updateAggregateProperty(n, "-bottom", specificity, v);

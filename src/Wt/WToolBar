@@ -30,7 +30,8 @@ public:
 
   /*! \brief Adds a button.
    */
-  void addButton(WPushButton *button);
+  void addButton(WPushButton *button,
+                 AlignmentFlag alignmentFlag = AlignLeft);
 
   /*! \brief Adds a split button.
    *

@@ -20,12 +20,17 @@ WT_DECLARE_WT_MEMBER
    if (!tinymce.dom.Event.domLoaded)
      tinymce.dom.Event.domLoaded = true;
 
-   tinyMCE.init({mode:"none"});
+   tinyMCE.init({ mode:"none" });
 
-   this.render = function(config, aCss) {
+   this.render = function(config, aCss, connectOnChange) {
      css = aCss;
      el.ed = new tinymce.Editor(el.id, config, tinymce.EditorManager);
      el.ed.render();
+     if (connectOnChange) {
+       el.ed.onChange.add(function() {
+	   APP.emit(el, 'change');
+       });
+     }
    };
 
    this.init = function() {

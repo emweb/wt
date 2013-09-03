@@ -322,7 +322,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 			   ""   "if (!$(o).hasClass('" +
 			         app->theme()->disabledClass() + "')) {"
 			   ""      "try { "
-			   ""          "f.focus();"
+			   ""          "o.focus();"
 			   ""      "} catch (e) {}"
 			   ""   "}"
 			   """}"

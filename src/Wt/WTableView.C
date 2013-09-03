@@ -906,8 +906,9 @@ void WTableView::setColumnHidden(int column, bool hidden)
 
 void WTableView::setColumnWidth(int column, const WLength& width)
 {
-  int delta = (int)(width.toPixels() - columnInfo(column).width.toPixels());
-  columnInfo(column).width = width;
+  WLength rWidth = WLength(std::round(width.value()), width.unit());
+  double delta = rWidth.toPixels() - columnInfo(column).width.toPixels();
+  columnInfo(column).width = rWidth;
 
   if (columnInfo(column).hidden)
     delta = 0;
@@ -930,9 +931,9 @@ void WTableView::setColumnWidth(int column, const WLength& width)
     return;
 
   WWidget *hc = headers_->widget(column);
-  hc->setWidth(width.toPixels() + 1);
+  hc->setWidth(rWidth.toPixels() + 1);
   if (!ajaxMode())
-    hc->parent()->resize(width.toPixels() + 1, hc->height());
+    hc->parent()->resize(rWidth.toPixels() + 1, hc->height());
 }
 
 bool WTableView::isRowRendered(const int row) const
@@ -1258,17 +1259,21 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
   if (parent != rootIndex())
     return;
 
-  shiftModelIndexRows(start, end - start + 1);
+  int count = end - start + 1;
+  shiftModelIndexRows(start, count);
+
+  computeRenderedArea();
 
   if (ajaxMode()) {
     canvas_->setHeight(canvasHeight());
     headerColumnsCanvas_->setHeight(canvasHeight());
     scheduleRerender(NeedAdjustViewPort);
-  }
 
-  computeRenderedArea();
-
-  if (start <= lastRow())
+    if (start < firstRow())
+      setSpannerCount(Top, spannerCount(Top) + count);
+    else if (start <= lastRow())
+      scheduleRerender(NeedRerenderData);
+  } else if (start <= lastRow())
     scheduleRerender(NeedRerenderData);
 }
 
@@ -1296,12 +1301,23 @@ void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
     canvas_->setHeight(canvasHeight());
     headerColumnsCanvas_->setHeight(canvasHeight());
     scheduleRerender(NeedAdjustViewPort);
-  }
+
+    if (start >= firstRow() && start <= lastRow()) {
+      int toRemove = std::min(lastRow(), end) - start + 1;
+      int first = start - firstRow();
+      
+      for (int i = 0; i < renderedColumnsCount(); ++i) {
+	ColumnWidget *column = columnContainer(i);
+	for (int j = 0; j < toRemove; ++j)
+	  delete column->widget(first);
+      }
+
+      setSpannerCount(Bottom, spannerCount(Bottom) + toRemove);
+    }
+  } else if (start <= lastRow())
+    scheduleRerender(NeedRerenderData);
 
   computeRenderedArea();
-
-  if (start <= lastRow())
-    scheduleRerender(NeedRerenderData);
 }
 
 

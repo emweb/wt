@@ -18,6 +18,8 @@
 #include "WebSession.h"
 #include "WebUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
 #ifndef WT_DEBUG_JS
 #include "js/WDialog.min.js"
 #endif
@@ -33,8 +35,6 @@ public:
     setObjectName("dialog-cover");
     WApplication *app = WApplication::instance();
     app->domRoot()->addWidget(this);
-
-    app->theme()->apply(app->domRoot(), this, DialogCoverRole);
 
     hide();
   }
@@ -110,6 +110,11 @@ private:
       }
 
       setZIndex(dialog->zIndex() - 1);
+
+      setStyleClass(userCoverClasses(dialog));
+
+      WApplication *app = WApplication::instance();
+      app->theme()->apply(app->domRoot(), this, DialogCoverRole);
     } else {
       if (!isHidden()) {
 	if (!animation.empty())
@@ -121,6 +126,23 @@ private:
 	WApplication::instance()->popExposedConstraint(this);
       }
     }
+  }
+
+  std::string userCoverClasses(WWidget *w) {
+    std::string c = w->styleClass().toUTF8();
+    std::vector<std::string> classes;
+    boost::split(classes, c, boost::is_any_of(" "));
+
+    std::string result;
+    for (unsigned i = 0; i < classes.size(); ++i) {
+      if (!classes[i].empty() && !boost::starts_with(classes[i], "Wt-")) {
+	if (!result.empty())
+	  result += " ";
+	result += classes[i] + "-cover";
+      }
+    }
+
+    return result;
   }
 
   bool isInOtherPopup(WWidget *w) {
@@ -500,10 +522,7 @@ void WDialog::onEscapePressed()
 void WDialog::setHidden(bool hidden, const WAnimation& animation)
 {
   /* For JWt: setHidden() is called from WPopupWidget constructor. */
-  if (!contents_)
-    return;
-
-  if (isHidden() != hidden) {
+  if (contents_ && isHidden() != hidden) {
     if (!hidden) {
       WApplication *app = WApplication::instance();
 

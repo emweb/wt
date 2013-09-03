@@ -8,6 +8,7 @@
 #define WTEXTEDIT_H_
 
 #include <Wt/WTextArea>
+#include <Wt/WJavaScript>
 
 #include <boost/any.hpp>
 
@@ -226,6 +227,7 @@ protected:
   virtual int boxBorder(Orientation orientation) const;
 
 private:
+  JSignal<> onChange_;
   int version_;
   bool contentChanged_;
   std::map<std::string, boost::any> configurationSettings_;
@@ -233,6 +235,7 @@ private:
   std::string plugins() const;
 
   void init();
+  void propagateOnChange();
   static void initTinyMCE();
   static int getTinyMCEVersion();
 };

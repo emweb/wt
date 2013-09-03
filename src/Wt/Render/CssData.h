@@ -63,7 +63,8 @@ public:
   virtual const Ruleset& rulesetAt(int i) const = 0;
 };
 
-class Match
+// exported for test.exe
+class WT_API Match
 {
 public:
   static bool        isMatch(const Block* block, const SimpleSelector& s );

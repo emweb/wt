@@ -125,6 +125,36 @@ void WText::setWordWrap(bool wordWrap)
   }
 }
 
+void WText::setTextAlignment(AlignmentFlag textAlignment)
+{
+  flags_.reset(BIT_TEXT_ALIGN_LEFT);
+  flags_.reset(BIT_TEXT_ALIGN_CENTER);
+  flags_.reset(BIT_TEXT_ALIGN_RIGHT);
+
+  switch (textAlignment) {
+  case AlignLeft: flags_.set(BIT_TEXT_ALIGN_LEFT); break;
+  case AlignCenter: flags_.set(BIT_TEXT_ALIGN_CENTER); break;
+  case AlignRight: flags_.set(BIT_TEXT_ALIGN_RIGHT); break;
+  default:
+    LOG_ERROR("setTextAlignment(): illegal value for textAlignment");
+    return;
+    break;
+  }
+
+  flags_.set(BIT_TEXT_ALIGN_CHANGED);
+  repaint();
+}
+
+AlignmentFlag WText::textAlignment() const
+{
+  if (flags_.test(BIT_TEXT_ALIGN_CENTER))
+    return AlignCenter;
+  else if (flags_.test(BIT_TEXT_ALIGN_RIGHT))
+    return AlignRight;
+  else
+    return AlignLeft; // perhaps take into account RLT setting?
+}
+
 void WText::updateDom(DomElement& element, bool all)
 {
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
@@ -151,6 +181,19 @@ void WText::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_PADDINGS_CHANGED);
   }
 
+  if (flags_.test(BIT_TEXT_ALIGN_CHANGED) || all) {
+    if (flags_.test(BIT_TEXT_ALIGN_CENTER))
+      element.setProperty(PropertyStyleTextAlign, "center");
+    else if (flags_.test(BIT_TEXT_ALIGN_RIGHT))
+      element.setProperty(PropertyStyleTextAlign, "right");
+    else if (flags_.test(BIT_TEXT_ALIGN_LEFT))
+      element.setProperty(PropertyStyleTextAlign, "left");
+    else if (!all)
+      element.setProperty(PropertyStyleTextAlign, "");
+
+    flags_.reset(BIT_TEXT_ALIGN_CHANGED);
+  }
+
   WInteractWidget::updateDom(element, all);
 }
 
@@ -159,6 +202,7 @@ void WText::propagateRenderOk(bool deep)
   flags_.reset(BIT_TEXT_CHANGED);
   flags_.reset(BIT_WORD_WRAP_CHANGED);
   flags_.reset(BIT_PADDINGS_CHANGED);
+  flags_.reset(BIT_TEXT_ALIGN_CHANGED);
 
   WInteractWidget::propagateRenderOk(deep);
 }

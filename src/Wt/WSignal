@@ -1002,12 +1002,12 @@ bool Signal<A1, A2, A3, A4, A5, A6>::isConnected() const
 
 #ifndef __clang__
 template <typename E>
-void *EventSignal<E>::operator new(std::size_t size) {
+void *EventSignal<E>::operator new(std::size_t) {
   return EventSignalBase::alloc();
 }
 
 template <typename E>
-void EventSignal<E>::operator delete(void *deletable, std::size_t size) {
+void EventSignal<E>::operator delete(void *deletable, std::size_t) {
   EventSignalBase::free(deletable);
 }
 #endif // __clang__
