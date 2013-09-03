@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <math.h>
 #include <cmath>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
@@ -1184,11 +1185,14 @@ WT_USTRING WTreeView::columnFormat(int column) const
 
 void WTreeView::setColumnWidth(int column, const WLength& width)
 {
-  columnInfo(column).width = width;
+  if (!width.isAuto())
+    columnInfo(column).width = WLength(round(width.value()), width.unit());
+  else
+    columnInfo(column).width = WLength::Auto;
 
   WWidget *toResize = columnInfo(column).styleRule->templateWidget();
   toResize->setWidth(0);
-  toResize->setWidth(width.toPixels());
+  toResize->setWidth(columnInfo(column).width.toPixels());
 
   WApplication *app = WApplication::instance();
 

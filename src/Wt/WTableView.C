@@ -26,6 +26,7 @@
 #define CONTENTS_VIEWPORT_HEIGHT -1
 
 #include <cmath>
+#include <math.h>
 
 namespace Wt {
 
@@ -906,7 +907,7 @@ void WTableView::setColumnHidden(int column, bool hidden)
 
 void WTableView::setColumnWidth(int column, const WLength& width)
 {
-  WLength rWidth = WLength(std::round(width.value()), width.unit());
+  WLength rWidth = WLength(round(width.value()), width.unit());
   double delta = rWidth.toPixels() - columnInfo(column).width.toPixels();
   columnInfo(column).width = rWidth;
 
