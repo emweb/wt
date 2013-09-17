@@ -191,7 +191,7 @@ WT_DECLARE_WT_MEMBER
 	* element
 	*/
        if (WT.pxself(element, DC.size) == 0)
-	 scrollSize = 0;
+	 scrollSize = clientSize;
        else {
 	 var visiblePopup = false;
 	 $(element).find(".Wt-popup").each
@@ -200,7 +200,7 @@ WT_DECLARE_WT_MEMBER
 	       visiblePopup = true;
 	   });
 	 if (visiblePopup)
-	   scrollSize = 0;
+	   scrollSize = clientSize;
        }
      }
 

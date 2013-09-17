@@ -8,17 +8,20 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WPopupWidget",
- function(APP, el, isTransient, autoHideDelay, shown) {
+ function(APP, el, tr, ahd, shown) {
    jQuery.data(el, 'popup', this);
 
    var self = this,
        WT = APP.WT,
        hideTimeout = null,
+       isTransient = tr,
+       autoHideDelay = ahd,
        showF = null, hideF = null;
 
    function mouseLeave() {
      clearTimeout(hideTimeout);
-     hideTimeout = setTimeout(function() { self.hide(); }, autoHideDelay);
+     if (autoHideDelay > 0)
+       hideTimeout = setTimeout(function() { self.hide(); }, autoHideDelay);
    }
 
    function mouseEnter() {
@@ -87,8 +90,17 @@ WT_DECLARE_WT_MEMBER
      self.hidden();
    };
 
-   if (autoHideDelay > 0)
-     $(el).mouseleave(mouseLeave).mouseenter(mouseEnter);
+   this.setTransient = function(t, delay) {
+     isTransient = t;
+     autoHideDelay = delay;
+
+     if (isTransient && !isHidden())
+       setTimeout(function() {
+		    $(document).bind('click', onDocumentClick);
+		  }, 0);
+   };
+
+   $(el).mouseleave(mouseLeave).mouseenter(mouseEnter);
 
    if (shown)
      this.shown();

@@ -67,9 +67,16 @@ public:
 	authWidget->registerNewUser(id);
       else
 	session_.login().login(u, Wt::Auth::WeakLogin);
+
+      root()->addWidget(authWidget);
+    } else {
+      new Wt::WText("Not an SSL session, or no client certificate available. "
+          "Please read the readme file in examples/feature/client-ssl-auth "
+          "for more info.",
+          root());
+      quit();
     }
 
-    root()->addWidget(authWidget);
   }
 
   void authEvent() {

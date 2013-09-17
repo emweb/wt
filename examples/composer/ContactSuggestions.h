@@ -34,7 +34,7 @@ class ContactSuggestions : public WSuggestionPopup
 public:
   /*! \brief Create a new ContactSuggestions popup.
    */
-  ContactSuggestions(WContainerWidget *parent = 0);
+  ContactSuggestions(WObject *parent = 0);
 
   /*! \brief Set the address book.
    */

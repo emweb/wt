@@ -252,6 +252,7 @@ WT_DECLARE_WT_MEMBER
      to.style.width = w + 'px';
      to.style.height = h + 'px';
      to.style.position = 'absolute';
+     to.style.opacity = '0';
      to.style.display = style.display;
 
      var needReverse = reverseIfPrecedes && (index.to < index.from),
@@ -279,6 +280,7 @@ WT_DECLARE_WT_MEMBER
 
      $(from).addClass(anim + ' out');
      $(to).addClass(anim + ' in');
+     to.style.opacity = '';
 
      $(to).one(animationEventEnd, restore);
   };

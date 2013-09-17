@@ -216,8 +216,9 @@ private:
        */
       if (input.value().length() < 3 && i > 10) {
 	fourCharModel_->addString("...");
-	// no actual value
 	fourCharModel_->setData(row, 0, std::string(""), Wt::UserRole);
+	fourCharModel_->setData(row, 0, std::string("Wt-more-data"),
+				Wt::StyleClassRole);
 
 	break;
       }

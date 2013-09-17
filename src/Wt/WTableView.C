@@ -28,6 +28,15 @@
 #include <cmath>
 #include <math.h>
 
+#ifdef _MSC_VER
+namespace {
+  double round(double x)
+  {
+    return floor(x + 0.5);
+  }
+}
+#endif
+
 namespace Wt {
 
 LOGGER("WTableView");

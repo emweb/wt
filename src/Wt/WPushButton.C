@@ -350,4 +350,16 @@ void WPushButton::refresh()
   WFormWidget::refresh();
 }
 
+void WPushButton::enableAjax()
+{
+  if (!linkState_.link.isNull()) {
+    WApplication *app = WApplication::instance();
+    if (app->theme()->canStyleAnchorAsButton()) {
+      flags_.set(BIT_LINK_CHANGED);
+    }
+  }
+
+  WFormWidget::enableAjax();
+}
+
 }

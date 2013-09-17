@@ -27,13 +27,13 @@ public:
     //
     //   static constexpr Field FirstNameField = "first-name";
   
-    static const Wt::WFormModel::Field FirstNameField;
-    static const Wt::WFormModel::Field LastNameField;
-    static const Wt::WFormModel::Field CountryField;
-    static const Wt::WFormModel::Field CityField;
-    static const Wt::WFormModel::Field BirthField;
-    static const Wt::WFormModel::Field ChildrenField;
-    static const Wt::WFormModel::Field RemarksField;
+    static const Field FirstNameField;
+    static const Field LastNameField;
+    static const Field CountryField;
+    static const Field CityField;
+    static const Field BirthField;
+    static const Field ChildrenField;
+    static const Field RemarksField;
 
     UserFormModel(Wt::WObject *parent = 0)
         : Wt::WFormModel(parent)

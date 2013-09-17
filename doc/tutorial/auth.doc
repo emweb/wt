@@ -323,7 +323,7 @@ Session::Session(const std::string& sqliteDb)
   try {
     createTables();
     std::cerr << "Created database." << std::endl;
-  } catch (std::exception& e) {
+  } catch (Wt::Dbo::Exception& e) {
     std::cerr << e.what() << std::endl;
     std::cerr << "Using existing database";
   }
@@ -565,6 +565,8 @@ int main(int argc, char **argv)
     }
   } catch (Wt::WServer::Exception& e) {
     std::cerr << e.what() << std::endl;
+  } catch (Wt::Dbo::Exception &e) {
+    std::cerr << "Dbo exception: " << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;
   }

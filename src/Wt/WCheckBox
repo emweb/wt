@@ -77,7 +77,11 @@ namespace Wt {
 class WT_API WCheckBox : public WAbstractToggleButton
 {
 public:
-  /*! \brief Creates a checkbox with empty label.
+  /*! \brief Creates a checkbox without label.
+   *
+   * A checkbox created by this constructor will not contain a placeholder
+   * for a label, and therefore it is not possible to assign a label to it
+   * later through setText().
    */
   WCheckBox(WContainerWidget *parent = 0);
 

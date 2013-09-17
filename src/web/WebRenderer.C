@@ -717,9 +717,11 @@ void WebRenderer::collectJavaScript()
   loadStyleSheets(collectedJS1_, app);
 
   if (app->bodyHtmlClassChanged_) {
-    collectedJS1_ << "document.body.parentNode.className='"
+    bool widgetset = session_.type() == WidgetSet;
+    std::string op = widgetset ? "+=" : "=";
+    collectedJS1_ << "document.body.parentNode.className" << op << '\''
 		  << app->htmlClass_ << "';"
-		  << "document.body.className='" << bodyClassRtl() << "';"
+		  << "document.body.className'" << op << '\'' << bodyClassRtl() << "';"
 		  << "document.body.setAttribute('dir', '";
     if (app->layoutDirection() == LeftToRight)
       collectedJS1_ << "LTR";
@@ -1090,8 +1092,9 @@ void WebRenderer::serveMainAjax(WStringStream& out)
     app->styleSheet().javaScriptUpdate(app, out, true);
 
   if (app->bodyHtmlClassChanged_) {
-    out << "document.body.parentNode.className='" << app->htmlClass_ << "';"
-	<< "document.body.className='" << bodyClassRtl() << "';"
+    std::string op = widgetset ? "+=" : "=";
+    out << "document.body.parentNode.className" << op << '\'' << app->htmlClass_ << "';"
+	<< "document.body.className" << op << '\'' << bodyClassRtl() << "';"
 	<< "document.body.setAttribute('dir', '";
     if (app->layoutDirection() == LeftToRight)
       out << "LTR";

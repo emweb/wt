@@ -74,6 +74,12 @@ void WPopupWidget::setTransient(bool isTransient, int autoHideDelay)
 {
   transient_ = isTransient;
   autoHideDelay_ = autoHideDelay;
+  if (isRendered()) {
+    WStringStream ss;
+    ss << "jQuery.data(" << jsRef() << ", 'popup').setTransient("
+       << transient_ << ',' << autoHideDelay_ << ");";
+    doJavaScript(ss.str());
+  }
 }
 
 void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)

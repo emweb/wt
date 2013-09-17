@@ -279,12 +279,12 @@
     background-position: right top;
     padding-right: 40px;
 
-    &.hover {
+    &:hover {
         cursor: default;
         background-position: right -30px;
     }
 
-    &.active {
+    &:active {
         cursor: default;
         background-position: right -60px;
     }
@@ -449,6 +449,35 @@
 	    background-image: none;
 	    outline: 0;
 	}
+    }
+}
+
+/*
+ * WSuggestionPopup icon!
+ */
+.Wt-suggest-dropdown {
+    background-image: url('suggest-dropdown.png');
+    background-repeat: no-repeat;
+    background-position: right top;
+    padding-right: 40px;
+
+    &:hover {
+        cursor: default;
+        background-position: right -30px;
+    }
+
+    &:active {
+        cursor: default;
+        background-position: right -60px;
+    }
+}
+
+.dropdown-menu.typeahead {
+    cursor: pointer;
+
+    li > a:hover {
+       color: inherit;
+       background: inherit;
     }
 }
 

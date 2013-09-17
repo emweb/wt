@@ -451,19 +451,36 @@ class MySQLStatement : public SqlStatement
       if (*(out_pars_[column].is_null) == 1)
         return false;
       switch (out_pars_[column].buffer_type ){
-        case MYSQL_TYPE_TINY:
+      case MYSQL_TYPE_TINY:
         *value = (int)*static_cast<bool*>(out_pars_[column].buffer);
         break;
-        case MYSQL_TYPE_LONG:
+      case MYSQL_TYPE_LONG:
+        *value = *static_cast<int*>(out_pars_[column].buffer);
+        break;
 
-          *value = *static_cast<int*>(out_pars_[column].buffer);
-          break;
+      case MYSQL_TYPE_LONGLONG:
+        *value = (int)*static_cast<long long*>(out_pars_[column].buffer);
+        break;
 
-        case MYSQL_TYPE_LONGLONG:
+      case MYSQL_TYPE_NEWDECIMAL:
+        std::string *strValue = new std::string();
+        if (!getResult(column, strValue, 0))
+          return false;
 
-          *value = (int)*static_cast<long long*>(out_pars_[column].buffer);
-          break;
+        try{
+          *value = boost::lexical_cast<int>(*strValue);
+        } catch( boost::bad_lexical_cast const& ) {
+          try{
+            *value = (int)boost::lexical_cast<double>(*strValue);
+          } catch( boost::bad_lexical_cast const& ) {
+            std::cout << "Error: MYSQL_TYPE_NEWDECIMAL "
+                      << "could not be casted to int" << std::endl;
+          }
 
+
+          return false;
+        }
+        break;
       }
 
       DEBUG(std::cerr << this
@@ -638,6 +655,10 @@ class MySQLStatement : public SqlStatement
           out_pars_[i].buffer_length = sizeof(float);
           break;
 
+        case MYSQL_TYPE_NEWDECIMAL: // newdecimal is stored as string.
+          out_pars_[i].buffer = 0;
+          out_pars_[i].buffer_length = 0;
+          break;
         case MYSQL_TYPE_LONGLONG:
           out_pars_[i].buffer = malloc(sizeof(long long));
           out_pars_[i].buffer_length = sizeof(long long);
@@ -663,7 +684,7 @@ class MySQLStatement : public SqlStatement
           //http://dev.mysql.com/doc/refman/5.0/en/mysql-stmt-fetch.html
           break;
         default:
-          std::cerr << "Programming Error: unknown type "
+          std::cerr << "MySQL Backend Programming Error: unknown type "
                     << field->type << std::endl;
         }
         out_pars_[i].buffer_type = field->type;

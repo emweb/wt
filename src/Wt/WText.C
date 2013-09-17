@@ -138,7 +138,6 @@ void WText::setTextAlignment(AlignmentFlag textAlignment)
   default:
     LOG_ERROR("setTextAlignment(): illegal value for textAlignment");
     return;
-    break;
   }
 
   flags_.set(BIT_TEXT_ALIGN_CHANGED);

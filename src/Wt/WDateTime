@@ -38,7 +38,7 @@ public:
  *
  * This class stores and represents the date time in UTC. To deal with local
  * (wall clock) time, see WLocalDateTime. To convert from UTC to local time
- * use toUTC().
+ * use toLocalTime().
  *
  * <h3>i18n</h3>
  *

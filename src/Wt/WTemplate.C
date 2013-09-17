@@ -578,7 +578,7 @@ std::size_t WTemplate::parseArgs(const std::string& text,
       } else if (c == '}') {
 	result.push_back(WString::fromUTF8(v.str()));
 	return pos;
-      } else if (std::isalnum(c) || c == '_' || c == '-')
+      } else if (std::isalnum(c) || c == '_' || c == '-' || c == '.')
 	v << c;
       else
 	return Error;

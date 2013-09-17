@@ -187,8 +187,7 @@ public:
 
   /*! \brief Scales the transformation.
    *
-   * Applies a clock-wise rotation to the current transformation
-   * matrix, over \p angle radians.
+   * Scales the current transformation.
    *
    * \sa shear()
    */

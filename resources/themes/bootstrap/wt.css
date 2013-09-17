@@ -290,11 +290,11 @@
   background-position: right top;
   padding-right: 40px;
 }
-.Wt-dateedit.hover {
+.Wt-dateedit:hover {
   cursor: default;
   background-position: right -30px;
 }
-.Wt-dateedit.active {
+.Wt-dateedit:active {
   cursor: default;
   background-position: right -60px;
 }
@@ -500,6 +500,30 @@
   background-color: #d9d9d9 \9;
   background-image: none;
   outline: 0;
+}
+/*
+ * WSuggestionPopup icon!
+ */
+.Wt-suggest-dropdown {
+  background-image: url('suggest-dropdown.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
+}
+.Wt-suggest-dropdown:hover {
+  cursor: default;
+  background-position: right -30px;
+}
+.Wt-suggest-dropdown:active {
+  cursor: default;
+  background-position: right -60px;
+}
+.dropdown-menu.typeahead {
+  cursor: pointer;
+}
+.dropdown-menu.typeahead li > a:hover {
+  color: inherit;
+  background: inherit;
 }
 /*
  * WAbstractItemView (WTableView and WTreeView)

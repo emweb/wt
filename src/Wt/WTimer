@@ -183,8 +183,8 @@ void WTimer::singleShot(int msec, const F& f)
   timer->setSingleShot(true);
   timer->setInterval(msec);
   timer->setSelfDestruct();
-  timer->timeout().connect(f);
   timer->start();
+  timer->timeout().connect(f);
 }
 #endif // WT_TARGET_JAVA
 

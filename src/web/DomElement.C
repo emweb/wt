@@ -12,6 +12,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WStringStream"
+#include "Wt/WTheme"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -794,6 +795,12 @@ void DomElement::asHTML(EscapeOStream& out,
 	  app->environment().agent() == WEnvironment::IE8 ||
 	  href.length() > 1)
 	needButtonWrap = false;
+      else if (app->theme()->canStyleAnchorAsButton()) {
+	DomElement *self = const_cast<DomElement *>(this);
+	self->setAttribute("href", app->url(app->internalPath())
+			   + "&signal=" + clickEvent->second.signalName);
+	needButtonWrap = false;
+      }
     } else if (type_ == DomElement_AREA) {
       DomElement *self = const_cast<DomElement *>(this);
       self->setAttribute("href", app->url(app->internalPath())
@@ -1130,8 +1137,8 @@ void DomElement::asJavaScript(WStringStream& out)
   asJavaScript(eout, Update);
 }
 
-void DomElement::createTimeoutJs(WStringStream& out, const TimeoutList& timeouts,
-				 WApplication *app)
+void DomElement::createTimeoutJs(WStringStream& out,
+				 const TimeoutList& timeouts, WApplication *app)
 {
   for (unsigned i = 0; i < timeouts.size(); ++i)
     out << app->javaScriptClass()

@@ -32,4 +32,6 @@ the current session, but also of all other sessions is updated and
 
   </message>
 
+ <message id="serverpushwarning">Note, you do not have JavaScript and this chat will have degraded functionality</message>
+
 </messages>

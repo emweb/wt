@@ -28,6 +28,12 @@ public:
    */
   WToolBar(WContainerWidget *parent = 0);
 
+  /*! \brief Set vertical or horizontal orientation
+   *
+   * Use bootstrap btn-group-vertical style for vertical orientation.
+   */
+  void setOrientation(Orientation orientation);
+
   /*! \brief Adds a button.
    */
   void addButton(WPushButton *button,

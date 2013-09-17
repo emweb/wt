@@ -40,6 +40,7 @@ namespace {
 
     s << ", " << Wt::WWebWidget::jsStringLiteral(options.whitespace) << ", "
       << Wt::WWebWidget::jsStringLiteral(options.wordSeparators) << ", "
+      << Wt::WWebWidget::jsStringLiteral(options.wordStartRegexp) << ", "
       << Wt::WWebWidget::jsStringLiteral(options.appendReplacedText) << ")";
 
     return s.str();
@@ -117,7 +118,9 @@ void WSuggestionPopup::defineJavaScript()
 		      "new " WT_CLASS ".WSuggestionPopup("
 		      + app->javaScriptClass() + "," + jsRef() + ","
 		      + replacerJS_ + "," + matcherJS_ + ","
-		      + boost::lexical_cast<std::string>(filterLength_) + ","
+		      + boost::lexical_cast<std::string>
+		        (std::max(0, filterLength_)) + ","
+		      + boost::lexical_cast<std::string>(partialResults()) + ","
 		      + boost::lexical_cast<std::string>(defaultValue_) + ");");
 }
 
@@ -342,7 +345,20 @@ void WSuggestionPopup::doFilter(std::string input)
    */
   WApplication::instance()->
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
-		 + WWebWidget::jsStringLiteral(input) + ");");
+		 + WWebWidget::jsStringLiteral(input) + ","
+		 + (partialResults() ? "1" : "0") + ");");
+}
+
+bool WSuggestionPopup::partialResults() const
+{
+  if (filterLength_ < 0)
+    return true;
+  else if (model_->rowCount() > 0) {
+    WModelIndex index = model_->index(model_->rowCount() - 1, modelColumn_);
+    boost::any styleclass = index.data(StyleClassRole);
+    return Wt::asString(styleclass) == "Wt-more-data";
+  } else
+    return false;
 }
 
 void WSuggestionPopup::doActivate(std::string itemId, std::string editId)

@@ -131,6 +131,22 @@ public:
    */
   EchoMode echoMode() const { return echoMode_; }
 
+  /*! \brief Sets (built-in browser) autocomplete support.
+   *
+   * Depending on the user agent, this may assist the user in filling in
+   * text for common input fields (e.g. address information) based on
+   * some heuristics.
+   *
+   * The default value is \c true.
+   */
+  void setAutoComplete(bool enabled);
+
+  /*! \brief Returns auto-completion support.
+   *
+   * \sa setAutoComplete()
+   */
+  bool autoComplete() const { return autoComplete_; }
+
   /*! \brief Returns the current selection start.
    *
    * Returns -1 if there is no selected text.
@@ -176,13 +192,15 @@ private:
   int        textSize_;
   int        maxLength_;
   EchoMode   echoMode_;
+  bool       autoComplete_;
 
   static const int BIT_CONTENT_CHANGED    = 0;
   static const int BIT_TEXT_SIZE_CHANGED  = 1;
   static const int BIT_MAX_LENGTH_CHANGED = 2;
   static const int BIT_ECHO_MODE_CHANGED  = 3;
+  static const int BIT_AUTOCOMPLETE_CHANGED  = 4;
 
-  std::bitset<4> flags_;
+  std::bitset<5> flags_;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);

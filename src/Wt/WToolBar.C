@@ -22,6 +22,13 @@ WToolBar::WToolBar(WContainerWidget *parent)
   setStyleClass("btn-group");
 }
 
+void WToolBar::setOrientation(Orientation orientation){
+  if(orientation == Vertical)
+    addStyleClass("btn-group-vertical");
+  else
+    removeStyleClass("btn-group-vertical");
+}
+
 void WToolBar::addButton(WPushButton *button, AlignmentFlag alignmentFlag)
 {
   if (compact_){

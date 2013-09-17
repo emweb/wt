@@ -326,6 +326,8 @@ protected:
 			     WApplication *app);
   virtual void propagateSetEnabled(bool enabled);
 
+  virtual void enableAjax();
+
 private:
   void doRedirect();
   void resourceChanged();

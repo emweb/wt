@@ -39,9 +39,7 @@ class WTemplate;
  * WStringListModel by default. You can set a custom model using
  * setModel(). The model can provide different text for the suggestion
  * text (Wt::DisplayRole) and value (Wt::UserRole). The member methods
- * clearSuggestions() and addSuggestion() manipulate this model. Note
- * that a WStringListModel does not support Wt::UserRole data, so you
- * may need to use a WStandardItemModel instead.
+ * clearSuggestions() and addSuggestion() manipulate this model.
  *
  * By default, the popup implements all filtering client-side. To
  * support large datasets, you may enable server-side filtering of
@@ -224,11 +222,11 @@ public:
      */
     std::string whitespace;
 
-    /*! \brief To show suggestions based on matches of the edited
-     *         value with parts of the suggestion.
+    /*! \brief Characters that start a word in a suggestion to match against.
      *
      * For example, " .@" will also match with suggestion text after a space,
-     * a dot (.) or an at-symbol (@).
+     * a dot (.) or an at-symbol (@). Alternatively you may also specify this
+     * as a regular expression in \p wordStartRegexp.
      *
      * Used during matching.
      */
@@ -240,6 +238,15 @@ public:
      * Used during replacing.
      */
     std::string appendReplacedText;
+
+    /*! \brief Regular expression that starts a word in a suggestion to
+     *         match against.
+     *
+     * When empty, the value of \p wordSeparators is used instead.
+     *
+     * Used during replacing.
+     */
+    std::string wordStartRegexp;
   };
 
   /*! \brief Creates a suggestion popup.
@@ -379,13 +386,15 @@ public:
    *
    * When the user has typed this much characters, filterModel() is
    * emitted which allows you to filter the model based on the initial
-   * input.
+   * input. The filtering is done as long as the model indicates that
+   * results are partial by setting a StyleClassRole of "Wt-more-data"
+   * on the last item.
    *
-   * The default value is 0, which has the effect of always showing
-   * the entire model.
+   * The default value is 0.
    *
-   * A value of -1 indicates that server-side filtering is
-   * continuously applied, no matter the length of the text input.
+   * A value of -1 is a equivalent to 0 but filtering is always applied
+   * as if the last item always has "Wt-more-data" (for backwards
+   * compatibility)
    *
    * \sa filterModel()
    */
@@ -471,6 +480,7 @@ private:
   void modelDataChanged(const WModelIndex& topLeft,
 			const WModelIndex& bottomRight);
   void modelLayoutChanged();
+  bool partialResults() const;
 
   void defineJavaScript();
 

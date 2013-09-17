@@ -8,7 +8,8 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WSuggestionPopup",
- function(APP, el, replacerJS, matcherJS, filterLength, defaultValue) {
+ function(APP, el, replacerJS, matcherJS, filterMinLength, filterMore,
+	  defaultValue) {
    $('.Wt-domRoot').add(el);
 
    jQuery.data(el, 'obj', this);
@@ -28,8 +29,9 @@ WT_DECLARE_WT_MEMBER
    var key_down = 40;
 
    var selId = null, editId = null, kd = false,
-       filter = null, filtering = null, delayHideTimeout = null,
-       lastFilterValue = null, droppedDown = false;
+     filter = null, filtering = null, filterPartial = filterMore,
+     delayHideTimeout = null,
+     lastFilterValue = null, droppedDown = false;
 
    this.defaultValue = defaultValue;
 
@@ -218,8 +220,10 @@ WT_DECLARE_WT_MEMBER
      return (event.keyCode != key_enter && event.keyCode != key_tab);
    };
 
-   this.filtered = function(f) {
+   this.filtered = function(f, partial) {
      filter = f;
+     filterPartial = partial;
+
      self.refilter();
    };
 
@@ -244,22 +248,20 @@ WT_DECLARE_WT_MEMBER
 
      lastFilterValue = edit.value;
 
-     if (filterLength != 0) {
-       if (text.length < filterLength && !droppedDown) {
+     if (filterMinLength > 0 || filterMore) {
+       if (text.length < filterMinLength && !droppedDown) {
 	 hidePopup();
 	 return;
        } else {
-	 var nf = filterLength == -1 ? text : text.substring(0, filterLength);
+	 var nf = filterPartial ?
+	   text :
+	   text.substring(0, Math.max(filter !== null ? filter.length : 0,
+				      filterMinLength));
+
 	 if (nf != filter) {
 	   if (nf != filtering) {
 	     filtering = nf;
 	     APP.emit(el, "filter", nf);
-	   }
-
-	   if (!droppedDown) {
-	     // better would be to set a Loading indicator
-	     hidePopup();
-	     return;
 	   }
 	 }
        }
@@ -374,7 +376,7 @@ WT_DECLARE_WT_MEMBER
 WT_DECLARE_WT_MEMBER
 (2, JavaScriptConstructor, "WSuggestionPopupStdMatcher",
  function(highlightBeginTag, highlightEndTag, listSeparator, whiteSpace,
-	  wordSeparators, appendReplacedText) {
+	  wordSeparators, wordRegexp, appendReplacedText) {
    function parseEdit(edit) {
      var value = edit.value;
      var pos = edit.selectionStart ? edit.selectionStart : value.length;
@@ -394,10 +396,13 @@ WT_DECLARE_WT_MEMBER
      var value = edit.value.substring(range.start, range.end);
 
      var regexp;
-     if (wordSeparators.length != 0)
-       regexp = "(^|(?:[" + wordSeparators + "]))";
-     else
-       regexp = "(^)";
+     if (wordRegexp.length == 0) {
+       if (wordSeparators.length != 0)
+	 regexp = "(^|(?:[" + wordSeparators + "]))";
+       else
+	 regexp = "(^)";
+     } else
+       regexp = "(" + wordRegexp + ")";
 
      regexp += "(" + value.replace
        (new RegExp("([\\^\\\\\\][\\-.$*+?()|{}])","g"), "\\$1") + ")";

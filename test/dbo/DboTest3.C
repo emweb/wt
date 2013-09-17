@@ -16,6 +16,8 @@
 #include <Wt/WTime>
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/Dbo/ptr_tuple>
+
+#include <string>
 namespace dbo = Wt::Dbo;
 
 class CustomerAddress;
@@ -51,6 +53,25 @@ public:
     Wt::Dbo::hasOne(action, default_customer, "default_customer_address");
 
   }
+};
+
+
+class FuncTest : public Wt::Dbo::Dbo<FuncTest>
+{
+public:
+        int intC;
+        double doubleC;
+
+        template<class Action>
+        void persist(Action &a)
+        {
+                Wt::Dbo::field(a, intC, "intC");
+                Wt::Dbo::field(a, doubleC, "doubleC");
+        }
+        static const char *TableName()
+        {
+                return "func";
+        }
 };
 
 
@@ -90,10 +111,13 @@ struct Dbo3Fixture
     session_ = new dbo::Session();
     session_->setConnection(*connection_);
 
-//    session_->mapClass<Customer>("customer");
-//    session_->mapClass<CustomerAddress>("customer_address");
+    // Really short names required here to make firebird test
+    // succeed (max 31 char identifiers)
+    session_->mapClass<Customer>("c");
+    session_->mapClass<CustomerAddress>("ca");
+    session_->mapClass<FuncTest>(FuncTest::TableName());
 
-    //session_->createTables();
+    session_->createTables();
   }
 
   ~Dbo3Fixture()
@@ -108,16 +132,71 @@ struct Dbo3Fixture
   dbo::Session *session_;
 };
 
-BOOST_AUTO_TEST_CASE( dbo3_test1 )
+BOOST_AUTO_TEST_CASE( dbo3_test2 )
 {
   Dbo3Fixture f;
 
   dbo::Session& session = *f.session_;
+  {
+    dbo::Transaction transaction(session);
+    FuncTest *f1 = new FuncTest;
+    f1->intC = 1;
+    f1->doubleC = 1.1;
+    session.add(f1);
 
-  // Really short names required here to make firebird test
-  // succeed (max 31 char identifiers)
-  session.mapClass<Customer>("c");
-  session.mapClass<CustomerAddress>("ca");
+    FuncTest *f2 = new FuncTest;
+    f2->intC = 2;
+    f2->doubleC = 2.2;
+    session.add(f2);
 
-  session.createTables();
+    FuncTest *f3 = new FuncTest;
+    f3->intC = 3;
+    f3->doubleC = 3.3;
+    session.add(f3);
+
+    transaction.commit();
+  }
+
+  typedef boost::tuple<int, double> tupel;
+
+  dbo::Transaction transaction(session);
+
+  tupel tupe = session.query<tupel>(std::string(
+          "SELECT SUM(\"intC\"), \"doubleC\" FROM \"") +
+           FuncTest::TableName() + "\" LIMIT 1");
+
+  BOOST_REQUIRE(tupe.get<0>() == 6);
+
+  tupe = session.query<tupel>(std::string(
+          "SELECT SUM(\"intC\"), SUM(\"doubleC\") FROM \"") +
+           FuncTest::TableName() + "\" LIMIT 1");
+
+  BOOST_REQUIRE(tupe.get<0>() == 6);
+  BOOST_REQUIRE(tupe.get<1>() == 6.6);
+
+  double d = session.query<double>(std::string(
+          "SELECT SUM(\"doubleC\" * \"intC\") FROM \"") +
+           FuncTest::TableName() + "\" LIMIT 1");
+
+  BOOST_REQUIRE(std::abs(d - 15.4) < 0.001);//d == 15.4
+
+  d = session.query<double>(std::string(
+          "SELECT MAX(\"doubleC\" * \"intC\") FROM \"") +
+           FuncTest::TableName() + "\" LIMIT 1");
+
+  BOOST_REQUIRE(std::abs(d - 9.9) < 0.001);
+
+  int i = session.query<int>(std::string(
+          "SELECT AVG(\"intC\") FROM \"") +
+          FuncTest::TableName() + "\" LIMIT 1");
+
+  BOOST_REQUIRE(i == 2);
+
+  i = session.query<int>(std::string(
+          "SELECT COUNT(\"intC\") FROM \"") +
+          FuncTest::TableName() + "\" LIMIT 1");
+
+  BOOST_REQUIRE(i == 3);
+
+  transaction.commit();
 }

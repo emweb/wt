@@ -310,7 +310,11 @@ public:
   /*! \brief Creates the database schema.
    *
    * This will create the database schema of the mapped tables. Schema
-   * creation will fail if one or more tables already existed.
+   * creation will fail if one or more tables already existed. The creation
+   * of the tables is executed in a transaction that is rolled back when
+   * an error occurs.
+   *
+   * This method throws an Wt::Dbo::Exception if the table creation failed.
    *
    * \sa mapClass(), dropTables()
    */

@@ -23,7 +23,7 @@ namespace {
     };
 }
 
-ContactSuggestions::ContactSuggestions(WContainerWidget *parent)
+ContactSuggestions::ContactSuggestions(WObject *parent)
   : WSuggestionPopup(WSuggestionPopup::generateMatcherJS(contactOptions),
 		     WSuggestionPopup::generateReplacerJS(contactOptions),
 		     parent)

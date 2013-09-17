@@ -590,9 +590,9 @@ ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
 
 void ImagesWidget::showImage(int index) 
 {
-    image(image_)->hide();
+    image(index)->hide();
     image_ = index;
-    image(image_)->show();
+    image(index)->show();
 }
 
 WImage *ImagesWidget::image(int index) const

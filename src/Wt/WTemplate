@@ -27,6 +27,7 @@ namespace Wt {
  * Placeholders (for variables and functions) are delimited by:
  * <tt>${...}</tt>. To use a literal <tt>"${"</tt>, use
  * <tt>"$${"</tt>.
+ * Place holder names can contain '_', '-', '.' and alfanumeric characters.
  *
  * Usage example:
  * \if cpp

@@ -10,6 +10,7 @@
 #include <Wt/WPushButton>
 #include <Wt/WServer>
 #include <Wt/WText>
+#include <Wt/WTimer>
 
 #include "SimpleChatServer.h"
 #include "PopupChatWidget.h"
@@ -32,25 +33,34 @@ public:
 
 private:
   SimpleChatServer& server_;
+   Wt::WText *javaScriptError_;
+   const WEnvironment& env_;
+   Wt::WTimer *timer_;
 
   /*! \brief Add another chat client.
    */
   void addChatWidget();
+  void javaScriptTest();
+  void emptyFunc();
 };
 
 ChatApplication::ChatApplication(const WEnvironment& env,
 				 SimpleChatServer& server)
   : WApplication(env),
-    server_(server)
+    server_(server),
+    env_(env)
 {
   setTitle("Wt Chat");
   useStyleSheet("chatapp.css");
 
   messageResourceBundle().use(appRoot() + "simplechat");
 
+  javaScriptTest();
+
   root()->addWidget(new WText(WString::tr("introduction")));
 
-  SimpleChatWidget *chatWidget = new SimpleChatWidget(server_, root());
+  SimpleChatWidget *chatWidget =
+      new SimpleChatWidget(server_, root());
   chatWidget->setStyleClass("chat");
 
   root()->addWidget(new WText(WString::tr("details")));
@@ -59,6 +69,23 @@ ChatApplication::ChatApplication(const WEnvironment& env,
   b->clicked().connect(b, &WPushButton::hide);
   b->clicked().connect(this, &ChatApplication::addChatWidget);
 }
+
+void ChatApplication::javaScriptTest()
+{
+  if(!env_.javaScript()){
+    javaScriptError_ = new WText(WString::tr("serverpushwarning"), root());
+
+    // The 5 second timer is a fallback for real server push. The updated
+    // server state will piggy back on the response to this timeout.
+    timer_ = new Wt::WTimer(root());
+    timer_->setInterval(5000);
+    timer_->timeout().connect(this, &ChatApplication::emptyFunc);
+    timer_->start();
+  }
+}
+
+void ChatApplication::emptyFunc()
+{}
 
 void ChatApplication::addChatWidget()
 {

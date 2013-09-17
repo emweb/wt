@@ -22,11 +22,8 @@
 #include "ConnectionManager.h"
 #include "Server.h"
 
-//#define DEBUG_ASYNC(a) a  
-#define DEBUG_ASYNC(a)
-
 namespace Wt {
-  LOGGER("SslConnection");
+  LOGGER("wthttp/async");
 }
 
 namespace http {
@@ -36,7 +33,8 @@ SslConnection::SslConnection(asio::io_service& io_service, Server *server,
     asio::ssl::context& context,
     ConnectionManager& manager, RequestHandler& handler)
   : Connection(io_service, server, manager, handler),
-    socket_(io_service, context)
+    socket_(io_service, context),
+    sslShutdownTimer_(io_service)
 { }
 
 asio::ip::tcp::socket& SslConnection::socket()
@@ -78,7 +76,7 @@ void SslConnection::handleHandshake(const asio_error_code& error)
 	       << X509_verify_cert_error_string(sslState));
     }
 
-    DEBUG_ASYNC(std::cerr << socket().native() << "handleHandshake error: "
+    LOG_DEBUG(socket().native() << "handleHandshake error: "
       << error.message() << "\n");
     ConnectionManager_.stop(shared_from_this());
   }
@@ -86,12 +84,18 @@ void SslConnection::handleHandshake(const asio_error_code& error)
 
 void SslConnection::stop()
 {
-  DEBUG_ASYNC(std::cerr << socket().native() << ": stop()" << std::endl);
+  LOG_DEBUG(socket().native() << ": stop()");
   finishReply();
-  DEBUG_ASYNC(std::cerr << socket().native() << ": SSL shutdown" << std::endl);
+  LOG_DEBUG(socket().native() << ": SSL shutdown");
   
   boost::shared_ptr<SslConnection> sft 
     = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
+
+  sslShutdownTimer_.expires_from_now(boost::posix_time::seconds(1));
+  sslShutdownTimer_.async_wait(strand_.wrap(
+    boost::bind(&SslConnection::stopNextLayer,
+    sft, asio::placeholders::error)));
+
   socket_.async_shutdown(strand_.wrap
 			 (boost::bind(&SslConnection::stopNextLayer,
 				      sft,
@@ -100,24 +104,24 @@ void SslConnection::stop()
 
 void SslConnection::stopNextLayer(const boost::system::error_code& ec)
 {
+  // We may get here either because of sslShutdownTimer_ timing out, or because
+  // shutdown is complete. In both cases, closing next layer socket is the thing to do.
+  // In case of timeout, we will get here twice.
+  sslShutdownTimer_.cancel();
   if (ec) {
-    DEBUG_ASYNC(std::cerr << socket().native() << ": ssl_shutdown failed:"
-      << ec.message() << std::endl);
+    LOG_DEBUG(socket().native() << ": ssl_shutdown failed:"
+      << ec.message());
   }
   try {
-    boost::system::error_code ignored_ec;
-    DEBUG_ASYNC(std::cerr 
-		<< socket().native() << ": socket shutdown" 
-		<< std::endl);
-    socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    DEBUG_ASYNC(std::cerr 
-		<< socket().native() << "closing socket" 
-		<< std::endl);
-    socket().close();
+    if (socket().is_open()) {
+      boost::system::error_code ignored_ec;
+      LOG_DEBUG(socket().native() << ": socket shutdown");
+      socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+      LOG_DEBUG(socket().native() << "closing socket");
+      socket().close();
+    }
   } catch (asio_system_error& e) {
-    DEBUG_ASYNC(std::cerr 
-		<< socket().native() << ": error " << e.what() 
-		<< std::endl);
+    LOG_DEBUG(socket().native() << ": error " << e.what());
   }
 }
 

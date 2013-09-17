@@ -126,13 +126,19 @@ protected:
   virtual void render(WFlags<RenderFlag> flags);
   virtual void propagateSetEnabled(bool enabled);
 
+  /*! \brief Sets the value from the calendar to the line edit.
+   */
+  virtual void setFromCalendar();
+
+  /*! \brief Sets the value from the line edit to the calendar.
+   */
+  virtual void setFromLineEdit();
+
 private:
   WPopupWidget *popup_;
   WCalendar *calendar_;
 
   void defineJavaScript();
-  void setFromCalendar();
-  void setFromLineEdit();
   void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
 };
 

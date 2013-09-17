@@ -544,6 +544,8 @@ this.unwrap = function(e) {
     if (e.getAttribute('type') == 'submit') {
       e.setAttribute('type', 'button');
       e.removeAttribute('name');
+    } else if (WT.hasTag(e, 'A') && e.href.indexOf('&signal=') != -1) {
+        e.href = 'javascript:void(0)';
     } if (WT.hasTag(e, 'INPUT') && e.getAttribute('type') == 'image') {
       WT.changeTag(e, 'img');
     }

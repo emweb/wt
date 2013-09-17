@@ -20,7 +20,8 @@ WLineEdit::WLineEdit(WContainerWidget *parent)
   : WFormWidget(parent),
     textSize_(10),
     maxLength_(-1),
-    echoMode_(Normal)
+    echoMode_(Normal),
+    autoComplete_(true)
 { 
   setInline(true);
   setFormObject(true);
@@ -31,7 +32,8 @@ WLineEdit::WLineEdit(const WT_USTRING& text, WContainerWidget *parent)
     content_(text),
     textSize_(10),
     maxLength_(-1),
-    echoMode_(Normal)
+    echoMode_(Normal),
+    autoComplete_(true)
 { 
   setInline(true);
   setFormObject(true);
@@ -77,6 +79,15 @@ void WLineEdit::setEchoMode(EchoMode echoMode)
   }
 }
 
+void WLineEdit::setAutoComplete(bool enabled)
+{
+  if (autoComplete_ != enabled) {
+    autoComplete_ = enabled;
+    flags_.set(BIT_AUTOCOMPLETE_CHANGED);
+    repaint();
+  }
+}
+
 void WLineEdit::updateDom(DomElement& element, bool all)
 {
   if (all || flags_.test(BIT_CONTENT_CHANGED)) {
@@ -87,6 +98,14 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   if (all || flags_.test(BIT_ECHO_MODE_CHANGED)) {
     element.setAttribute("type", echoMode_ == Normal ? "text" : "password");
     flags_.reset(BIT_ECHO_MODE_CHANGED);
+  }
+
+  if (all || flags_.test(BIT_AUTOCOMPLETE_CHANGED)) {
+    if (!all || !autoComplete_) {
+      element.setAttribute("autocomplete",
+			   autoComplete_ == true ? "on" : "off");
+    }
+    flags_.reset(BIT_AUTOCOMPLETE_CHANGED);
   }
 
   if (all || flags_.test(BIT_TEXT_SIZE_CHANGED)) {

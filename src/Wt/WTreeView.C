@@ -29,6 +29,15 @@
 #include "js/WTreeView.min.js"
 #endif
 
+#ifdef _MSC_VER
+namespace {
+  double round(double x)
+  {
+    return floor(x + 0.5);
+  }
+}
+#endif
+
 /*
   TODO:
 

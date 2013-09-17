@@ -105,3 +105,8 @@ body {
 	height: 100%;
 }
 
+/* This is needed for IE8 */
+html {
+	height: 100%;
+}
+
