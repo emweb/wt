@@ -44,6 +44,7 @@ if (!window._$_WT_CLASS_$_)
   window._$_WT_CLASS_$_ = new (function()
 {
 var WT = this;
+/** @const */ var UNDEFINED = 'undefined';
 
 this.condCall = function(o, f, a) {
   if (o[f])
@@ -71,7 +72,7 @@ this.button = function(e)
     return 0;
   }
 
-  if (!WT.isGecko && typeof e.which !== 'undefined') {
+  if (!WT.isGecko && typeof e.which !== UNDEFINED) {
     if (e.which == 3)
       return 4;
     else if (e.which == 2)
@@ -80,7 +81,7 @@ this.button = function(e)
       return 1;
     else
       return 0;
-  } else if (WT.isIE && typeof e.button !== 'undefined') {
+  } else if (WT.isIE && typeof e.button !== UNDEFINED) {
     if (e.button == 2)
       return 4;
     else if (e.button == 4)
@@ -89,7 +90,7 @@ this.button = function(e)
       return 1;
     else
       return 0;
-  } else if (typeof e.button !== 'undefined') {
+  } else if (typeof e.button !== UNDEFINED) {
     if (e.button == 2)
       return 4;
     else if (e.button == 1)
@@ -146,7 +147,7 @@ this.isIE6 = ie === 6;
 this.isIE8 = ie === 8;
 this.isIElt9 = ie < 9;
 this.isIEMobile = agent.indexOf("msie 4")!=-1 || agent.indexOf("msie 5")!=-1;
-this.isOpera = typeof window.opera !== 'undefined';
+this.isOpera = typeof window.opera !== UNDEFINED;
 this.isAndroid = (agent.indexOf("safari") != -1)
 		  && (agent.indexOf("android") != -1);
 this.isWebKit = (agent.indexOf("applewebkit") != -1);
@@ -661,7 +662,7 @@ this.getElement = function(id) {
 this.$ = this.getElement;
 
 this.filter = function(edit, event, tokens) {
-  var c = String.fromCharCode((typeof event.charCode !== 'undefined') ?
+  var c = String.fromCharCode((typeof event.charCode !== UNDEFINED) ?
                               event.charCode : event.keyCode);
   if (!new RegExp(tokens).test(c))
     WT.cancelEvent(event);
@@ -858,7 +859,7 @@ this.setSelectionRange = function(elem, start, end) {
 
   elem.focus();
 
-  if (typeof elem.selectionStart !== 'undefined') {
+  if (typeof elem.selectionStart !== UNDEFINED) {
     elem.selectionStart = start;
     elem.selectionEnd = end;
   }
@@ -877,7 +878,7 @@ this.isKeyPress = function(e) {
   if (e.altKey || e.ctrlKey || e.metaKey)
     return false;
 
-  var charCode = (typeof e.charCode !== 'undefined') ? e.charCode : 0;
+  var charCode = (typeof e.charCode !== UNDEFINED) ? e.charCode : 0;
 
   if (charCode > 0 || WT.isIE)
     return true;
@@ -1966,6 +1967,7 @@ window._$_APP_CLASS_$_ = new (function() {
 
 var self = this;
 var WT = _$_WT_CLASS_$_;
+/** @const */ var UNDEFINED = 'undefined';
 
 var downX = 0;
 var downY = 0;
@@ -2294,7 +2296,7 @@ function encodeEvent(event, i) {
   } catch (e) {
   }
 
-  if (e.clientX || e.clientY)
+  if (typeof e.clientX !== UNDEFINED)
     result += se + 'clientX=' + Math.round(e.clientX) + se
 	+ 'clientY=' + Math.round(e.clientY);
 
@@ -2312,7 +2314,7 @@ function encodeEvent(event, i) {
     result += se + 'wheel=' + Math.round(delta);
   }
 
-  if (e.screenX || e.screenY)
+  if (typeof e.screenX !== UNDEFINED)
     result += se + 'screenX=' + Math.round(e.screenX) + se
 	+ 'screenY=' + Math.round(e.screenY);
 
@@ -2323,7 +2325,7 @@ function encodeEvent(event, i) {
     var objX = widgetCoords.x;
     var objY = widgetCoords.y;
 
-    if (typeof event.object.scrollLeft != 'undefined') {
+    if (typeof event.object.scrollLeft != UNDEFINED) {
       result += se + 'scrollX=' + Math.round(event.object.scrollLeft)
 	+ se + 'scrollY=' + Math.round(event.object.scrollTop)
 	+ se + 'width=' + Math.round(event.object.clientWidth)
@@ -2345,11 +2347,11 @@ function encodeEvent(event, i) {
   }
   result += se + 'button=' + button;
 
-  if (typeof e.keyCode !== 'undefined')
+  if (typeof e.keyCode !== UNDEFINED)
     result += se + 'keyCode=' + e.keyCode;
 
   var charCode = 0;
-  if (typeof e.charCode !== 'undefined') {
+  if (typeof e.charCode !== UNDEFINED) {
     if (e.type == 'keypress')
       charCode = e.charCode;
   } else {
@@ -2367,11 +2369,11 @@ function encodeEvent(event, i) {
   if (e.shiftKey)
     result += se + 'shiftKey=1';
 
-  if (typeof e.touches !== 'undefined')
+  if (typeof e.touches !== UNDEFINED)
     result += encodeTouches(se + "touches", e.touches, widgetCoords);
-  if (typeof e.targetTouches !== 'undefined')
+  if (typeof e.targetTouches !== UNDEFINED)
     result += encodeTouches(se + "ttouches", e.targetTouches, widgetCoords);
-  if (typeof e.changedTouches !== 'undefined')
+  if (typeof e.changedTouches !== UNDEFINED)
     result += encodeTouches(se + "ctouches", e.changedTouches, widgetCoords);
 
   if (e.scale)
@@ -2659,8 +2661,8 @@ function scheduleUpdate() {
 
 _$_$if_WEB_SOCKETS_$_();
   if (websocket.state != WebSocketsUnavailable) {
-    if (typeof window.WebSocket === 'undefined'
-        && typeof window.MozWebSocket === 'undefined')
+    if (typeof window.WebSocket === UNDEFINED
+        && typeof window.MozWebSocket === UNDEFINED)
       websocket.state = WebSocketsUnavailable;
     else {
       var ws = websocket.socket;
@@ -2686,7 +2688,7 @@ _$_$if_WEB_SOCKETS_$_();
 
 	  wsurl += "&request=ws";
 
-	  if (typeof window.WebSocket !== 'undefined')
+	  if (typeof window.WebSocket !== UNDEFINED)
 	    websocket.socket = ws = new WebSocket(wsurl);
 	  else
 	    websocket.socket = ws = new MozWebSocket(wsurl);
@@ -2886,9 +2888,9 @@ function propagateSize(element, width, height) {
   if (height == -1)
     height = element.offsetHeight;
 
-  if ((typeof element.wtWidth === 'undefined')
+  if ((typeof element.wtWidth === UNDEFINED)
       || (element.wtWidth != width)
-      || (typeof element.wtHeight === 'undefined')
+      || (typeof element.wtHeight === UNDEFINED)
       || (element.wtHeight != height)) {
     element.wtWidth = width;
     element.wtHeight = height;
@@ -2981,7 +2983,7 @@ function jsLoaded(path)
   if (jsLibsLoaded[path] === true)
     return;
   else {
-    if (typeof jsLibsLoaded[path] !== 'undefined') {
+    if (typeof jsLibsLoaded[path] !== UNDEFINED) {
       waitingForJavaScript = false;
       jsLibsLoaded[path]();
     }
