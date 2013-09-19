@@ -72,7 +72,7 @@ this.button = function(e)
     return 0;
   }
 
-  if (!WT.isGecko && typeof e.which !== UNDEFINED) {
+  if (!WT.isGecko && typeof e.which === 'number') {
     if (e.which == 3)
       return 4;
     else if (e.which == 2)
@@ -81,7 +81,7 @@ this.button = function(e)
       return 1;
     else
       return 0;
-  } else if (WT.isIE && typeof e.button !== UNDEFINED) {
+  } else if (WT.isIE && typeof e.which === 'number') {
     if (e.button == 2)
       return 4;
     else if (e.button == 4)
@@ -90,7 +90,7 @@ this.button = function(e)
       return 1;
     else
       return 0;
-  } else if (typeof e.button !== UNDEFINED) {
+  } else if (typeof e.button === 'number') {
     if (e.button == 2)
       return 4;
     else if (e.button == 1)
@@ -2296,7 +2296,7 @@ function encodeEvent(event, i) {
   } catch (e) {
   }
 
-  if (typeof e.clientX !== UNDEFINED)
+  if (typeof e.clientX === 'number')
     result += se + 'clientX=' + Math.round(e.clientX) + se
 	+ 'clientY=' + Math.round(e.clientY);
 
@@ -2314,7 +2314,7 @@ function encodeEvent(event, i) {
     result += se + 'wheel=' + Math.round(delta);
   }
 
-  if (typeof e.screenX !== UNDEFINED)
+  if (typeof e.screenX === 'number')
     result += se + 'screenX=' + Math.round(e.screenX) + se
 	+ 'screenY=' + Math.round(e.screenY);
 
@@ -2325,7 +2325,7 @@ function encodeEvent(event, i) {
     var objX = widgetCoords.x;
     var objY = widgetCoords.y;
 
-    if (typeof event.object.scrollLeft != UNDEFINED) {
+    if (typeof event.object.scrollLeft == 'number') {
       result += se + 'scrollX=' + Math.round(event.object.scrollLeft)
 	+ se + 'scrollY=' + Math.round(event.object.scrollTop)
 	+ se + 'width=' + Math.round(event.object.clientWidth)
@@ -2347,7 +2347,7 @@ function encodeEvent(event, i) {
   }
   result += se + 'button=' + button;
 
-  if (typeof e.keyCode !== UNDEFINED)
+  if (typeof e.keyCode === 'number')
     result += se + 'keyCode=' + e.keyCode;
 
   var charCode = 0;

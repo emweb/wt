@@ -43,7 +43,7 @@ void WTemplateFormView::init()
 }
 
 void WTemplateFormView::setFormWidget(WFormModel::Field field,
-				      Wt::WFormWidget *formWidget)
+				      Wt::WWidget *formWidget)
 {
   FieldMap::iterator i = fields_.find(field);
   if (i == fields_.end())
@@ -56,7 +56,7 @@ void WTemplateFormView::setFormWidget(WFormModel::Field field,
 #ifndef WT_TARGET_JAVA
 
 void WTemplateFormView
-::setFormWidget(WFormModel::Field field, WFormWidget *formWidget,
+::setFormWidget(WFormModel::Field field, WWidget *formWidget,
 		const boost::function<void()>& updateViewValue,
 		const boost::function<void()>& updateModelValue)
 {
@@ -70,7 +70,7 @@ void WTemplateFormView
 #else
 
 void WTemplateFormView
-::setFormWidget(WFormModel::Field field, WFormWidget *formWidget,
+::setFormWidget(WFormModel::Field field, WWidget *formWidget,
 		FieldView *fieldView)
 {
   FieldMap::iterator i = fields_.find(field);
@@ -85,7 +85,7 @@ void WTemplateFormView
 
 #endif // WT_TARGET_JAVA
 
-WFormWidget *WTemplateFormView::createFormWidget(WFormModel::Field field)
+WWidget *WTemplateFormView::createFormWidget(WFormModel::Field field)
 {
   return 0;
 }
@@ -94,21 +94,8 @@ void WTemplateFormView::updateViewValue(WFormModel *model,
 					WFormModel::Field field,
 					WFormWidget *edit)
 {
-  FieldMap::const_iterator fi = fields_.find(field);
-
-  if (fi != fields_.end()) {
-#ifndef WT_TARGET_JAVA
-    if (fi->second.updateView) {
-      fi->second.updateView();
-      return;
-    }
-#else
-    if (fi->second.updateFunctions) {
-      fi->second.updateFunctions->updateViewValue();
-      return;
-    }
-#endif
-  }
+  if (updateViewValue(model, field, (WWidget *)edit))
+    return;
 
   WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
   if (b) {
@@ -121,6 +108,29 @@ void WTemplateFormView::updateViewValue(WFormModel *model,
     edit->setValueText(model->valueText(field));
 }
 
+bool WTemplateFormView::updateViewValue(WFormModel *model,
+					WFormModel::Field field,
+					WWidget *edit)
+{
+  FieldMap::const_iterator fi = fields_.find(field);
+
+  if (fi != fields_.end()) {
+#ifndef WT_TARGET_JAVA
+    if (fi->second.updateView) {
+      fi->second.updateView();
+      return true;
+    }
+#else
+    if (fi->second.updateFunctions) {
+      fi->second.updateFunctions->updateViewValue();
+      return true;
+    }
+#endif
+  }
+
+  return false;
+} 
+
 void WTemplateFormView::updateViewField(WFormModel *model,
 					WFormModel::Field field)
 {
@@ -128,7 +138,7 @@ void WTemplateFormView::updateViewField(WFormModel *model,
 
   if (model->isVisible(field)) {
     setCondition("if:" + var, true);
-    WFormWidget *edit = resolve<WFormWidget *>(var);
+    WWidget *edit = resolveWidget(var);
     if (!edit) {
       edit = createFormWidget(field);
       if (!edit) {
@@ -139,10 +149,15 @@ void WTemplateFormView::updateViewField(WFormModel *model,
       bindWidget(var, edit);
     }
 
-    if (edit->validator() != model->validator(field))
-      edit->setValidator(model->validator(field));
-
-    updateViewValue(model, field, edit);
+    WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
+    if (fedit) {
+      if (fedit->validator() != model->validator(field) &&
+	  model->validator(field)) {
+	fedit->setValidator(model->validator(field));
+	updateViewValue(model, field, fedit);
+      } else
+	updateViewValue(model, field, edit);
+    }
 
     WText *info = resolve<WText *>(var + "-info");
     if (!info) {
@@ -154,10 +169,8 @@ void WTemplateFormView::updateViewField(WFormModel *model,
 
     const WValidator::Result& v = model->validation(field);
     info->setText(v.message());
-
     indicateValidation(field, model->isValidated(field),
 		       info, edit, v);
-
     edit->setDisabled(model->isReadOnly(field));
   } else {
     setCondition("if:" + var, false);
@@ -169,7 +182,7 @@ void WTemplateFormView::updateViewField(WFormModel *model,
 void WTemplateFormView::indicateValidation(WFormModel::Field field,
 					   bool validated,
 					   WText *info,
-					   WFormWidget *edit,
+					   WWidget *edit,
 					   const WValidator::Result& validation)
 {
   info->setText(validation.message());
@@ -191,38 +204,49 @@ void WTemplateFormView::indicateValidation(WFormModel::Field field,
 void WTemplateFormView::updateModelField(WFormModel *model,
 					 WFormModel::Field field)
 {
-  WFormWidget *edit = resolve<WFormWidget *>(field);
-
-  if (edit) {
-    FieldMap::const_iterator fi = fields_.find(field);
-
-    if (fi != fields_.end()) {
-#ifndef WT_TARGET_JAVA
-      if (fi->second.updateModel) {
-	fi->second.updateModel();
-	return;
-      }
-#else
-      if (fi->second.updateFunctions) {
-	fi->second.updateFunctions->updateModelValue();
-	return;
-      }
-#endif
-    }
-
+  WWidget *edit = resolveWidget(field);
+  WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
+  if (fedit)
+    updateModelValue(model, field, fedit);
+  else
     updateModelValue(model, field, edit);
-  }
 }
 
 void WTemplateFormView::updateModelValue(WFormModel *model,
 					 WFormModel::Field field,
 					 WFormWidget *edit)
 {
+  if (updateModelValue(model, field, (WWidget *)edit))
+    return;
+
   WAbstractToggleButton *b = dynamic_cast<WAbstractToggleButton *>(edit);
   if (b)
     model->setValue(field, b->isChecked());
   else
     model->setValue(field, edit->valueText());
+}
+
+bool WTemplateFormView::updateModelValue(WFormModel *model,
+					 WFormModel::Field field,
+					 WWidget *edit)
+{
+  FieldMap::const_iterator fi = fields_.find(field);
+
+  if (fi != fields_.end()) {
+#ifndef WT_TARGET_JAVA
+    if (fi->second.updateModel) {
+      fi->second.updateModel();
+      return true;
+    }
+#else
+    if (fi->second.updateFunctions) {
+      fi->second.updateFunctions->updateModelValue();
+      return true;
+    }
+#endif
+  }
+   
+  return false;
 }
 
 void WTemplateFormView::updateModel(WFormModel *model)
