@@ -736,9 +736,9 @@ this.widgetCoordinates = function(obj, e) {
 this.pageCoordinates = function(e) {
   if (!e) e = window.event;
   var posX = 0, posY = 0;
-  if (e.pageX || e.pageY) {
+  if (typeof e.pageX === 'number') {
     posX = e.pageX; posY = e.pageY;
-  } else if (e.clientX || e.clientY) {
+  } else if (typeof e.clientX === 'number') {
     posX = e.clientX + document.body.scrollLeft
       + document.documentElement.scrollLeft;
     posY = e.clientY + document.body.scrollTop
