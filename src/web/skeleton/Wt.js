@@ -2292,7 +2292,8 @@ function encodeEvent(event, i) {
     result += se + 'tid=' + t.id;
 
   try {
-    result += se + 'type=' + e.type;
+    if (typeof e.type === 'string')
+      result += se + 'type=' + e.type;
   } catch (e) {
   }
 
@@ -2350,23 +2351,25 @@ function encodeEvent(event, i) {
   if (typeof e.keyCode === 'number')
     result += se + 'keyCode=' + e.keyCode;
 
-  var charCode = 0;
-  if (typeof e.charCode !== UNDEFINED) {
-    if (e.type == 'keypress')
-      charCode = e.charCode;
-  } else {
-    if (e.type == 'keypress')
-      charCode = e.keyCode;
+  if (typeof e.type === 'string') {
+    var charCode = 0;
+    if (typeof e.charCode !== UNDEFINED) {
+      if (e.type === 'keypress')
+	charCode = e.charCode;
+    } else {
+      if (e.type === 'keypress')
+	charCode = e.keyCode;
+    }
+    result += se + 'charCode=' + charCode;
   }
-  result += se + 'charCode=' + charCode;
 
-  if (e.altKey)
+  if (typeof e.altKey === 'number')
     result += se + 'altKey=1';
-  if (e.ctrlKey)
+  if (typeof e.ctrlKey === 'number')
     result += se + 'ctrlKey=1';
-  if (e.metaKey)
+  if (typeof e.metaKey === 'number')
     result += se + 'metaKey=1';
-  if (e.shiftKey)
+  if (typeof e.shiftKey === 'number')
     result += se + 'shiftKey=1';
 
   if (typeof e.touches !== UNDEFINED)
@@ -2376,9 +2379,9 @@ function encodeEvent(event, i) {
   if (typeof e.changedTouches !== UNDEFINED)
     result += encodeTouches(se + "ctouches", e.changedTouches, widgetCoords);
 
-  if (e.scale)
+  if (typeof e.scale !== UNDEFINED)
     result += se + "scale=" + e.scale;
-  if (e.rotation)
+  if (typeof e.rotation !== UNDEFINED)
     result += se + "rotation=" + e.rotation;
 
   event.data = result;
