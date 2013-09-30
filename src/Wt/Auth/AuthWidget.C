@@ -130,6 +130,8 @@ WDialog *AuthWidget::showDialog(const WString& title, WWidget *contents)
     dialog_->contents()->childrenChanged()
       .connect(this, &AuthWidget::closeDialog);
 
+    dialog_->footer()->hide();
+
     if (!WApplication::instance()->environment().ajax()) {
       /*
        * try to center it better, we need to set the half width and

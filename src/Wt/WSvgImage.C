@@ -43,6 +43,7 @@ namespace {
 namespace Wt {
 
 int WSvgImage::nextClipId_ = 0;
+int WSvgImage::nextGradientId_ = 0;
 
 WSvgImage::WSvgImage(const WLength& width, const WLength& height,
 		     WObject *parent, bool paintUpdate)
@@ -55,6 +56,8 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
     newClipPath_(false),
     busyWithPath_(false),
     currentClipId_(-1),
+    currentFillGradientId_(-1),
+    currentStrokeGradientId_(-1),
     currentShadowId_(-1),
     nextShadowId_(0)
 { }
@@ -260,11 +263,23 @@ void WSvgImage::makeNewGroup()
 
   if (penChanged) {
     currentPen_ = painter()->pen();
+
+    if (!currentPen_.gradient().isEmpty()) {
+      currentStrokeGradientId_ = nextGradientId_++;
+      defineGradient(currentPen_.gradient(), currentStrokeGradientId_);
+    }
+
     strokeStyle_ = strokeStyle();
   }
 
   if (brushChanged) {
     currentBrush_ = painter()->brush();
+
+    if (!currentBrush_.gradient().isEmpty()) {
+      currentFillGradientId_ = nextGradientId_++;
+      defineGradient(currentBrush_.gradient(), currentFillGradientId_);
+    }
+
     fillStyle_ = fillStyle();
   }
 
@@ -320,6 +335,56 @@ int WSvgImage::createShadowFilter(WStringStream& out)
     "</filter>";
 
   return result;
+}
+
+void WSvgImage::defineGradient(const WGradient& gradient, int id)
+{
+  char buf[30];
+
+  shapes_ << "<defs>";
+  bool linear = gradient.style() == LinearGradient;
+
+  // linear or radial + add proper position parameters
+  if (linear) {
+    shapes_ << "<linearGradient gradientUnits=\"userSpaceOnUse\" ";
+    shapes_ << "x1=\"" << gradient.linearGradientVector().x1() << "\" "
+	    << "y1=\"" << gradient.linearGradientVector().y1() << "\" "
+	    << "x2=\"" << gradient.linearGradientVector().x2() << "\" "
+	    << "y2=\"" << gradient.linearGradientVector().y2() << "\" ";
+  } else {
+    shapes_ << "<radialGradient gradientUnits=\"userSpaceOnUse\" ";
+    shapes_ << "cx=\"" << gradient.radialCenterPoint().x() << "\" "
+	    << "cy=\"" << gradient.radialCenterPoint().y() << "\" "
+	    << "r=\"" << gradient.radialRadius() << "\" "
+	    << "fx=\"" << gradient.radialFocalPoint().x() << "\" "
+	    << "fy=\"" << gradient.radialFocalPoint().y() << "\" ";
+  }
+
+  shapes_ << "id=\"gradient" << id << "\">";
+
+  // add colorstops
+  for (unsigned i = 0; i < gradient.colorstops().size(); i++) {
+    shapes_ << "<stop ";
+    std::string offset =
+      boost::lexical_cast<std::string>((int)(gradient.colorstops()[i]
+					     .position()*100));
+    offset += '%';
+    shapes_ << "offset=\"" << offset << "\" ";
+    shapes_ << "stop-color=\"" <<
+      gradient.colorstops()[i].color().cssText()
+	    << "\" ";
+    shapes_ << "stop-opacity=\"" <<
+      Utils::round_css_str(gradient.colorstops()[i].color().alpha() / 255.,
+			   3, buf)
+	    << "\" ";
+    shapes_ << "/>";
+  }
+
+  if (linear)
+    shapes_ << "</linearGradient>";
+  else
+    shapes_ << "</radialGradient>";
+  shapes_ << "</defs>";
 }
 
 void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
@@ -658,16 +723,25 @@ std::string WSvgImage::fillStyle() const
   case NoBrush:
     result += "fill:none;";
     break;
-  case SolidPattern: {
-    const WColor& color = painter()->brush().color();
-    result += "fill:" + color.cssText() + ";";
-    if (color.alpha() != 255) {
-      result += "fill-opacity:";
-      result += Utils::round_css_str(color.alpha() / 255., 3, buf);
-      result += ';';
+  case SolidPattern:
+    {
+      const WColor& color = painter()->brush().color();
+      result += "fill:" + color.cssText() + ";";
+      if (color.alpha() != 255) {
+	result += "fill-opacity:";
+	result += Utils::round_css_str(color.alpha() / 255., 3, buf);
+	result += ';';
+      }
+
+      break;
     }
-    break;
-  }
+  case GradientPattern:
+    if (!currentBrush_.gradient().isEmpty()) {
+      result += "fill:"; 
+      result += "url(#gradient";
+      result += boost::lexical_cast<std::string>(currentFillGradientId_);
+      result += ");";
+    }
   }
 
   return result;
@@ -700,10 +774,16 @@ std::string WSvgImage::strokeStyle() const
   if (pen.style() != NoPen) {
     const WColor& color = pen.color();
 
-    result << "stroke:" << color.cssText() << ';';
-    if (color.alpha() != 255)
-      result << "stroke-opacity:"
-	     << Utils::round_css_str(color.alpha() / 255., 2, buf) << ';';
+    if (!pen.gradient().isEmpty()) {
+      result << "stroke:url(#gradient"
+	     << boost::lexical_cast<std::string>(currentStrokeGradientId_)
+	     << ");";
+    } else {
+      result << "stroke:" << color.cssText() << ';';
+      if (color.alpha() != 255)
+	result << "stroke-opacity:"
+	       << Utils::round_css_str(color.alpha() / 255., 2, buf) << ';';
+    }
 
     WLength w = painter()->normalizedPenWidth(pen.width(), true);
     if (w != WLength(1))

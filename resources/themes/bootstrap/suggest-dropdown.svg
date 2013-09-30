@@ -10,13 +10,13 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="40"
+   width="20"
    height="90"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.0 r9654"
    sodipodi:docname="suggest-dropdown.svg"
-   inkscape:export-filename="/Users/koen/project/wt/git/wt/resources/themes/bootstrap/date-edit-button.png"
+   inkscape:export-filename="/Users/koen/project/wt/git/wt/resources/themes/bootstrap/suggest-dropdown.png"
    inkscape:export-xdpi="90.000023"
    inkscape:export-ydpi="90.000023">
   <defs
@@ -219,7 +219,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="10.24"
      inkscape:cx="34.099595"
-     inkscape:cy="64.420272"
+     inkscape:cy="64.539272"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -252,7 +252,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -260,7 +260,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-220,-312.81591)">
+     transform="translate(-220,-312.93491)">
     <rect
        style="fill:#eeeeee;fill-opacity:1;stroke:none"
        id="rect3792-9"
@@ -319,9 +319,30 @@
        transform="matrix(0,1,-1,0,0,0)" />
     <path
        style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.10000002;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       d="m 4,14.54626 12,0 -6,7 z"
+       d="m 226,325.48117 8,0 -4,4 z"
        id="path3058"
        inkscape:connector-curvature="0"
-       transform="translate(220,312.81591)" />
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/Users/koen/project/wt/git/wt/resources/themes/bootstrap/path3058.png"
+       inkscape:export-xdpi="90.000023"
+       inkscape:export-ydpi="90.000023" />
+    <path
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.10000002;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 226,355.48117 8,0 -4,4 z"
+       id="path3058-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/Users/koen/project/wt/git/wt/resources/themes/bootstrap/path3058.png"
+       inkscape:export-xdpi="90.000023"
+       inkscape:export-ydpi="90.000023" />
+    <path
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.10000002;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 226,385.48117 8,0 -4,4 z"
+       id="path3058-2-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/Users/koen/project/wt/git/wt/resources/themes/bootstrap/path3058.png"
+       inkscape:export-xdpi="90.000023"
+       inkscape:export-ydpi="90.000023" />
   </g>
 </svg>

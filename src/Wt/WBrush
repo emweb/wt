@@ -8,6 +8,7 @@
 #define WBRUSH_H_
 
 #include <Wt/WColor>
+#include <Wt/WGradient>
 
 namespace Wt {
 
@@ -15,8 +16,8 @@ namespace Wt {
  *  \brief A value class that defines the style for filling a path
  *
  * A brush defines the properties of how areas (the interior of
- * shapes) are filled. A brush is defined using a color and a fill
- * type (currently only solid fills are supported).
+ * shapes) are filled. A brush is defined either as a solid color
+ * or a gradient.
  *
  * \sa WPainter::setBrush(), WPen
  *
@@ -31,9 +32,7 @@ public:
    */
   WBrush();
 
-  /*! \brief Creates a black brush with given style.
-   *
-   * Creates a black brush with the indicated \p style.
+  /*! \brief Creates a brush with the given style.
    */
   WBrush(BrushStyle style);
 
@@ -43,11 +42,15 @@ public:
    */
   WBrush(const WColor& color);
 
-  /*! \brief Creates a solid brush with a particular standard color.
+  /*! \brief Creates a solid brush with a standard color.
    *
    * Creates a solid brush with the indicated \p color.
    */
   WBrush(GlobalColor color);
+
+  /*! \brief Creates a gradient brush.
+   */
+  WBrush(const WGradient& gradient);
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Clone method.
@@ -83,6 +86,9 @@ public:
 
   /*! \brief Sets the brush color.
    *
+   * If the current style is a gradient style, then it is reset to
+   * \link Wt::SolidPattern SolidPattern\endlink.
+   *
    * \sa color()
    */
   void setColor(const WColor& color);
@@ -93,9 +99,22 @@ public:
    */
   const WColor& color() const { return color_; }
 
+  /*! \brief Sets the brush gradient.
+   *
+   * This also sets the style to
+   * \link Wt::GradientPattern GradientPattern\endlink.
+   */
+  void setGradient(const WGradient& gradient);
+
+  /*! \brief Returns the brush gradient.
+   */
+  const WGradient& gradient() const { return gradient_; }
+
 private:
   BrushStyle style_;
-  WColor      color_;
+
+  WColor color_;
+  WGradient gradient_;
 };
 
 }

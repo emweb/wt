@@ -41,18 +41,18 @@ table->setRowHeight(28);
 table->setHeaderHeight(28);
 table->setMargin(10, Wt::Top | Wt::Bottom);
 table->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right);
+table->setWidth(4*120 + 80 + 5*7);
 
 /*
  * Editing does not really work without Ajax, it would require an
  * additional button somewhere to confirm the edited value.
  */
+
 if (Wt::WApplication::instance()->environment().ajax()) {
-    table->resize(600, 6 * 28);
     table->setEditTriggers(Wt::WAbstractItemView::SingleClicked);
     table->setEditOptions(table->editOptions() | 
 			  Wt::WAbstractItemView::SaveWhenClosed);
 } else {
-    table->resize(600, Wt::WLength::Auto);
     table->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
 }
 

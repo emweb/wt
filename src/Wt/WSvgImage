@@ -100,6 +100,9 @@ private:
   bool        busyWithPath_;
   int         currentClipId_;
   static int  nextClipId_;
+  int         currentFillGradientId_;
+  int         currentStrokeGradientId_;
+  static int  nextGradientId_;
 
   WTransform  currentTransform_;
   WBrush      currentBrush_;
@@ -119,6 +122,7 @@ private:
   std::string fontStyle() const;
   std::string clipPath() const;
   int createShadowFilter(WStringStream& out);
+  void defineGradient(const WGradient& gradient, int id);
 
   std::string fillStyle_, strokeStyle_, fontStyle_;
 

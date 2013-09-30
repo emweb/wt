@@ -49,6 +49,35 @@ namespace {
   bool fequal(double d1, double d2) {
     return std::fabs(d1 - d2) < 1E-5;
   }
+
+  std::string defineGradient(const Wt::WGradient& gradient,
+			     std::stringstream& js) {
+    std::string jsRef = "grad";
+    if (gradient.style() == Wt::LinearGradient) {
+      const WLineF& gradVec = gradient.linearGradientVector();
+      js << "var " << jsRef << " = ctx.createLinearGradient("
+	  << gradVec.x1() << ", " << gradVec.y1() << ", "
+	  << gradVec.x2() << ", " << gradVec.y2()
+	  << ");";
+    } else if (gradient.style() == Wt::RadialGradient) {
+      js << "var " << jsRef << " = ctx.createRadialGradient("
+	  << gradient.radialFocalPoint().x() << ", "
+	  << gradient.radialFocalPoint().y() << ","
+	  << "0, "
+	  << gradient.radialCenterPoint().x() << ", "
+	  << gradient.radialCenterPoint().y() << ", "
+	  << gradient.radialRadius() << ");";
+    }
+    for (unsigned i=0; i<gradient.colorstops().size(); i++) {
+      js << jsRef << ".addColorStop(" 
+	 << gradient.colorstops()[i].position() << ","
+	 << WWebWidget::jsStringLiteral
+	(gradient.colorstops()[i].color().cssText(true))
+	 << ");";
+    }
+
+    return jsRef;
+  }
 }
 
 WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
@@ -201,6 +230,10 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   js_ << ',' << Utils::round_js_str(ra.x(), 3, buf);
   js_ << "," << Utils::round_js_str(ra.y(), 3, buf) << ",true);";
 
+  // restore comes before fill and stroke, otherwise the gradient will use 
+  // this temporary coordinate system
+  js_ << "ctx.restore();";
+
   if (currentBrush_.style() != NoBrush) {
     js_ << "ctx.fill();";
   }
@@ -208,8 +241,6 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   if (currentPen_.style() != NoPen) {
     js_ << "ctx.stroke();";
   }
-
-  js_ << "ctx.restore();";
 }
 
 int WCanvasPaintDevice::createImage(const std::string& imgUri)
@@ -358,6 +389,9 @@ void WCanvasPaintDevice::drawPath(const WPainterPath& path)
   renderStateChanges(false);
 
   drawPlainPath(js_, path);
+  if (currentBrush_.color().alpha() != 255 ||
+      currentPen_.color().alpha() != 255)
+    finishPath();
 }
 
 void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
@@ -630,7 +664,8 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
   bool penChanged
     = (changeFlags_ & Pen) && (currentPen_ != painter()->pen());
   bool penColorChanged
-    = penChanged && (currentPen_.color() != painter()->pen().color());
+    = penChanged && (currentPen_.color() != painter()->pen().color() ||
+		     currentPen_.gradient() != painter()->pen().gradient());
   bool shadowChanged
     = (changeFlags_ & Shadow) && (currentShadow_ != painter()->shadow());
   bool fontChanged
@@ -666,7 +701,10 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       resetTransform = currentTransform_ != f;
 
       if (busyWithPath_) {
-	if (fequal(f.m11(), currentTransform_.m11())
+	if (!painter()->brush().gradient().isEmpty() ||
+	    !painter()->pen().gradient().isEmpty()) {
+	  resetTransform = true;
+	} else if (fequal(f.m11(), currentTransform_.m11())
 	    && fequal(f.m12(), currentTransform_.m12())
 	    && fequal(f.m21(), currentTransform_.m21())
 	    && fequal(f.m22(), currentTransform_.m22())) {
@@ -730,10 +768,19 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
     finishPath();
 
   if (penChanged) {
-    if (penColorChanged)
-      js_ << "ctx.strokeStyle="
-	  << WWebWidget::jsStringLiteral(painter()->pen().color().cssText(true))
-	  << ";";
+    if (penColorChanged) {
+      if (!painter()->pen().gradient().isEmpty()) {
+	std::string gradientName = defineGradient(painter()->pen().gradient(),
+						  js_);
+	js_ << "ctx.strokeStyle=" << gradientName << ";";
+	renderStateChanges(true);
+      } else {
+	js_ << "ctx.strokeStyle="
+	    << WWebWidget::jsStringLiteral
+	  (painter()->pen().color().cssText(true))
+	    << ";";
+      }
+    }
 
     switch (painter()->pen().style()) {
     case SolidLine:
@@ -788,9 +835,15 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 
   if (brushChanged) {
     currentBrush_ = painter_->brush();
-    js_ << "ctx.fillStyle=" 
-	<< WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
-	<< ";";
+    if (!currentBrush_.gradient().isEmpty()) {
+      std::string gradientName = defineGradient(currentBrush_.gradient(), js_);
+      js_ << "ctx.fillStyle=" << gradientName << ";";
+      renderStateChanges(true);
+    } else {
+      js_ << "ctx.fillStyle=" 
+	  << WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
+	  << ";";
+    }
   }
 
   if (shadowChanged) {

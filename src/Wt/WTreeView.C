@@ -174,7 +174,7 @@ private:
 
   void handleClick() {
     for (unsigned i = 0; i < config_->states().size(); ++i)
-      if (config_->states()[i] == styleClass().toUTF8()) {
+      if (boost::ends_with(styleClass().toUTF8(), config_->states()[i])) {
 	(dynamic_cast<Signal<> *>(signals_[i]))->emit();
 	break;
       }

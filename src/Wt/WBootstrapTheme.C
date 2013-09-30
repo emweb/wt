@@ -178,6 +178,9 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 	element.addPropertyWord(PropertyInnerHTML,
 				"<span class=\"caret\"></span>");
       }
+
+      if (creating && !button->text().empty())
+	element.addPropertyWord(PropertyClass, "with-label");
     }
 
     break;

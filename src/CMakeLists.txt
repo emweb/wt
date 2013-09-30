@@ -116,6 +116,7 @@ Wt/WFormModel.C
 Wt/WFormWidget.C
 Wt/WGLWidget.C
 Wt/WGoogleMap.C
+Wt/WGradient.C
 Wt/WGridLayout.C
 Wt/WGroupBox.C
 Wt/WHBoxLayout.C
@@ -373,11 +374,27 @@ ELSE(HAVE_HARU OR HAVE_GM)
   SET(HAVE_PANGO false) # font support is not needed
 ENDIF(HAVE_HARU OR HAVE_GM)
 
+# check if we need -lrt, used in boost::chrone::steady_clock::now()
+SET(RT_test_fname "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/rt.c")
+FILE(WRITE
+    "${RT_test_fname}"
+    "#include <time.h>\nint main() { struct timespec time1; clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1); return 0; }"
+    )
+TRY_COMPILE(RT_required
+    "${CMAKE_BINARY_DIR}" "${RT_test_fname}"
+    CMAKE_FLAGS
+    -DLINK_LIBRARIES:STRING=rt
+    )
+IF(RT_required)
+  SET(RT_LIBRARY "rt")
+ENDIF(RT_required)
+
 ADD_LIBRARY(wt ${libsources})
 TARGET_LINK_LIBRARIES(wt
     ${BOOST_WT_LIBRARIES}
     ${WT_SOCKET_LIBRARY}
     ${WT_MATH_LIBRARY}
+    ${RT_LIBRARY}
     )
 
 ADD_LIBRARY(wttest

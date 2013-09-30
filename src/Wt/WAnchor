@@ -327,7 +327,7 @@ private:
   static const int BIT_LINK_CHANGED = 0;
   static const int BIT_TARGET_CHANGED = 1;
 
-  struct LinkState {
+  struct WT_API LinkState {
     LinkState();
     ~LinkState();
 

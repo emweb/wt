@@ -50,11 +50,14 @@ class WT_API WCompositeWidget : public WWidget
 public:
   /*! \brief Creates a %WCompositeWidget.
    *
-   * You need to set an implemetation using setImplementation().
+   * You need to set an implemetation using setImplementation() directly
+   * after construction.
    */
   WCompositeWidget(WContainerWidget* parent = 0);
 
   /*! \brief Creates a %WCompositeWidget with given implementation.
+   *
+   * \sa setImplementation()
    */
   WCompositeWidget(WWidget *implementation, WContainerWidget* parent);
 

@@ -142,7 +142,7 @@ public:
    * \note When instantiating multiple servers, this will simply return the
    *       last instance. You probably want to avoid this function then.
    */
-  WT_API static WServer *instance() { return instance_; }
+  static WServer *instance() { return instance_; }
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Configures the HTTP(S) server or FastCGI process.
@@ -395,7 +395,7 @@ public:
   WLocalizedStrings *localizedStrings() { return localizedStrings_; }
 
 #ifndef WT_TARGET_JAVA
-  WT_API WLogger& logger() { return logger_; }
+  WLogger& logger() { return logger_; }
   WT_API WLogEntry log(const std::string& type) const;
 
   WT_API void initLogger(const std::string& logFile,
@@ -406,7 +406,7 @@ public:
 
   WT_API Configuration& configuration();
 
-  WT_API WebController *controller() { return webController_; }
+  WebController *controller() { return webController_; }
 
 private:
   WebController *webController_;
@@ -429,7 +429,7 @@ private:
 			       const std::string& application);
 
   WT_API void setConfiguration(const std::string& file);
-  WT_API const std::string& configurationFile() const {
+  const std::string& configurationFile() const {
     return configurationFile_;
   }
 

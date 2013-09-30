@@ -6,7 +6,10 @@
 # Taking into account:
 # - PNG_PREFIX
 
-SET(PNG_NAMES png png12 png14)
+IF(NOT PNG_NAMES)
+  SET(PNG_NAMES png png12 png14)
+ENDIF(NOT PNG_NAMES)
+
 foreach(l ${PNG_NAMES})
   list(APPEND PNG_DEBUG_NAMES "${l}d")
 endforeach()

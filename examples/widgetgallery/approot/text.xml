@@ -3896,6 +3896,9 @@
           <strong>transparency</strong> - drawing semi-transparent shapes using
           a color with lower opacity
         </li>
+	<li>
+	  painting with a <strong>gradient brush</strong>
+	</li>
         <li>
           rendering <strong>line ends</strong> with the line style
           <tt>PenCapStyle</tt> (flat, square or round)

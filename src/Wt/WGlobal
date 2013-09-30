@@ -624,8 +624,20 @@ enum PenJoinStyle {
  * \relates WBrush
  */
 enum BrushStyle {
-  NoBrush,      //!< Do not fill
-  SolidPattern  //!< Fill with a solid color
+  NoBrush,        //!< Do not fill
+  SolidPattern,   //!< Fill with a solid color
+  GradientPattern //!< Fill with a color gradient
+};
+
+/*! \brief Enumeration that indicates a gradient style.
+ *
+ * \ingroup painting
+ *
+ * \relates WGradient
+ */
+enum GradientStyle {
+  LinearGradient,
+  RadialGradient
 };
 
 /*! \brief Enumeration that specifies where the target of an anchor should

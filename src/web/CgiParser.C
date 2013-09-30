@@ -439,10 +439,8 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 
   currentKey_.clear();
 
-  if (std::string(buf_ + boundary.length(), 2) == "--") {
-    LOG_INFO("end of multi-part data");
+  if (std::string(buf_ + boundary.length(), 2) == "--")
     return false;
-  }
 
   windBuffer(boundary.length() + 2);
 

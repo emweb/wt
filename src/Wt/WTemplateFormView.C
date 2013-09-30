@@ -152,12 +152,11 @@ void WTemplateFormView::updateViewField(WFormModel *model,
     WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
     if (fedit) {
       if (fedit->validator() != model->validator(field) &&
-	  model->validator(field)) {
+	  model->validator(field))
 	fedit->setValidator(model->validator(field));
-	updateViewValue(model, field, fedit);
-      } else
-	updateViewValue(model, field, edit);
-    }
+      updateViewValue(model, field, fedit);
+    } else
+      updateViewValue(model, field, edit);
 
     WText *info = resolve<WText *>(var + "-info");
     if (!info) {

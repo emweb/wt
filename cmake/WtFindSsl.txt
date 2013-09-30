@@ -18,10 +18,23 @@ FIND_PATH(SSL_INCLUDE_DIRS openssl/ssl.h
 )
 
 IF(WIN32)
+  IF(NOT SSL_LIB_NAMES)
+    SET(SSL_LIB_NAMES ssleay32MD ssleay32)
+  ENDIF(NOT SSL_LIB_NAMES)
+  IF(NOT SSL_LIB_TOO_NAMES)
+    SET(SSL_LIB_TOO_NAMES libeay32MD libeay32)
+  ENDIF(NOT SSL_LIB_TOO_NAMES)
+  MESSAGE("Looking for ssl: ${SSL_LIB_NAMES}, ${SSL_LIB_TOO_NAMES}")
+  FOREACH(l ${SSL_LIB_NAMES})
+    LIST(APPEND SSL_LIB_DEBUG_NAMES "${l}d")
+  ENDFOREACH()
+  FOREACH(l ${SSL_LIB_TOO_NAMES})
+    LIST(APPEND SSL_LIB_TOO_DEBUG_NAMES "${l}d")
+  ENDFOREACH()
+
   FIND_LIBRARY(SSL_LIB_RELEASE
     NAMES
-      ssl
-      ssleay32MD
+      ${SSL_LIB_NAMES}
     PATHS
       /usr/lib
       /usr/local/lib
@@ -32,7 +45,7 @@ IF(WIN32)
 
   FIND_LIBRARY(SSL_LIB_DEBUG
     NAMES
-    ssleay32MDd
+      ${SSL_LIB_DEBUG_NAMES}
     PATHS
       /usr/lib
       /usr/local/lib
@@ -43,7 +56,7 @@ IF(WIN32)
 
   FIND_LIBRARY(SSL_TOO_LIB_RELEASE
     NAMES
-      libeay32MD
+      ${SSL_LIB_TOO_NAMES}
     PATHS
       ${SSL_PREFIX}/lib
       ${SSL_PREFIX}/lib/VC
@@ -52,7 +65,7 @@ IF(WIN32)
 
   FIND_LIBRARY(SSL_TOO_LIB_DEBUG
     NAMES
-      libeay32MDd
+      ${SSL_LIB_TOO_DEBUG_NAMES}
     PATHS
       ${SSL_PREFIX}/lib
       ${SSL_PREFIX}/lib/VC

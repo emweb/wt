@@ -278,7 +278,7 @@ private:
   WebResponse *asyncResponse_, *bootStyleResponse_;
   bool canWriteAsyncResponse_;
   int pollRequestsIgnored_;
-  bool progressiveBoot_;
+  bool progressiveBoot_, bootStyle_;
 
   WebRequest *deferredRequest_;
   WebResponse *deferredResponse_;

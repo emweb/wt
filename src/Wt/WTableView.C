@@ -1511,51 +1511,52 @@ void WTableView::setAlternatingRowColors(bool enable)
 void WTableView::handleSingleClick(bool headerColumns, const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(headerColumns, event);
-  WAbstractItemView::handleClick(index, event);
+  handleClick(index, event);
 }
 
 void WTableView::handleDblClick(bool headerColumns, const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(headerColumns, event);
-  WAbstractItemView::handleDoubleClick(index, event);
+  handleDoubleClick(index, event);
 }
 
 void WTableView::handleMouseWentDown(bool headerColumns,
 				     const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(headerColumns, event);
-  WAbstractItemView::handleMouseDown(index, event);
+  handleMouseDown(index, event);
 }
 
 void WTableView::handleMouseWentUp(bool headerColumns, const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(headerColumns, event);
-  WAbstractItemView::handleMouseUp(index, event);
+  handleMouseUp(index, event);
 }
 
 void WTableView::handleRootSingleClick(int u, const WMouseEvent& event)
 {
-  WAbstractItemView::handleClick(WModelIndex(), event);
+  handleClick(WModelIndex(), event);
 }
 
 void WTableView::handleRootDoubleClick(int u, const WMouseEvent& event)
 {
-  WAbstractItemView::handleDoubleClick(WModelIndex(), event);
+  handleDoubleClick(WModelIndex(), event);
 }
 
 void WTableView::handleRootMouseWentDown(int u, const WMouseEvent& event)
 {
-  WAbstractItemView::handleMouseDown(WModelIndex(), event);
+  handleMouseDown(WModelIndex(), event);
 }
 
 void WTableView::handleRootMouseWentUp(int u, const WMouseEvent& event)
 {
-  WAbstractItemView::handleMouseUp(WModelIndex(), event);
+  handleMouseUp(WModelIndex(), event);
 }
 
 void WTableView::modelLayoutChanged()
 {
   WAbstractItemView::modelLayoutChanged();
+  selectionChanged().emit();
 
   resetGeometry();
 }
@@ -1804,4 +1805,10 @@ void WTableView::setRowHeaderCount(int count)
   }
 }
 
+EventSignal<WScrollEvent>& WTableView::scrolled(){
+  if (wApp->environment().ajax() && contentsContainer_ != 0)
+    return contentsContainer_->scrolled();
+
+  throw WException("Scrolled signal existes only with ajax.");
+}
 }

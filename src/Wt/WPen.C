@@ -40,6 +40,15 @@ WPen::WPen(GlobalColor color)
     color_(color)
 { }
 
+WPen::WPen(const WGradient& gradient)
+  : penStyle_(SolidLine),
+    penCapStyle_(SquareCap),
+    penJoinStyle_(BevelJoin),
+    width_(0),
+    color_(black),
+    gradient_(gradient)
+{ }
+
 #ifdef WT_TARGET_JAVA
 WPen WPen::clone() const
 {
@@ -76,6 +85,12 @@ void WPen::setWidth(const WLength& width)
 void WPen::setColor(const WColor& color)
 {
   color_ = color;
+  gradient_ = WGradient();
+}
+
+void WPen::setGradient(const WGradient& gradient)
+{
+  gradient_ = gradient;
 }
 
 bool WPen::operator==(const WPen& other) const
@@ -85,7 +100,8 @@ bool WPen::operator==(const WPen& other) const
     && penCapStyle_ == other.penCapStyle_
     && penJoinStyle_ == other.penJoinStyle_
     && width_ == other.width_
-    && color_ == other.color_;
+    && color_ == other.color_
+    && gradient_ == other.gradient_;
 }
 
 bool WPen::operator!=(const WPen& other) const

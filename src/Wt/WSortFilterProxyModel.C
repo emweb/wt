@@ -176,7 +176,11 @@ WFlags<RegExpFlag> WSortFilterProxyModel::filterFlags() const
   if (regex_)
     return regex_->flags();
   else 
+#ifndef WT_TARGET_JAVA
+    return WFlags<RegExpFlag>();
+#else
     return (int)0;
+#endif
 }
 
 void WSortFilterProxyModel::sort(int column, SortOrder order)
