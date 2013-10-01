@@ -187,8 +187,10 @@ WT_DECLARE_WT_MEMBER
 	 topLevel.style.display = 'block';
        }
 
-       if (iframe.style.height != h)
+       if (iframe.style.height != h) {
 	 iframe.style.height = h;
+	 APP.layouts2.setElementDirty(el);
+       }
      } else {
        lastW = w;
        lastH = h;
@@ -196,4 +198,5 @@ WT_DECLARE_WT_MEMBER
    };
 
    lastH = el.offsetHeight;
+   lastW = el.offsetWidth;
  });

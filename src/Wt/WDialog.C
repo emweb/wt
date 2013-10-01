@@ -12,6 +12,7 @@
 #include "Wt/WTemplate"
 #include "Wt/WText"
 #include "Wt/WTheme"
+#include "Wt/Utils"
 
 #include "Resizable.h"
 #include "WebController.h"
@@ -404,8 +405,9 @@ WString WDialog::caption() const
 
 void WDialog::setWindowTitle(const WString& windowTitle)
 {
-  caption_->setText(WString::fromUTF8("<h3>" + windowTitle.toUTF8()
-				      + "</h3>"));
+  caption_->setText
+    (WString::fromUTF8("<h3>" + Utils::htmlEncode(windowTitle.toUTF8())
+		       + "</h3>"));
 }
 
 WString WDialog::windowTitle() const
@@ -501,7 +503,8 @@ void WDialog::setModal(bool modal)
 
 void WDialog::onDefaultPressed()
 {
-  if (cover()->isTopDialogRendered(this)) {
+  DialogCover *c = cover();
+  if (c && c->isTopDialogRendered(this)) {
     for (int i = 0; i < footer()->count(); ++i) {
       WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));
       if (b && b->isDefault()) {
@@ -515,7 +518,8 @@ void WDialog::onDefaultPressed()
 
 void WDialog::onEscapePressed()
 {
-  if (cover()->isTopDialogRendered(this))
+  DialogCover *c = cover();
+  if (c && c->isTopDialogRendered(this))
     reject();
 }
 
@@ -552,8 +556,10 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
       enterConnection2_.disconnect();
     }
 
+    DialogCover *c = cover();
     if (!hidden) {
-      cover()->pushDialog(this, animation);
+      if (c)
+	c->pushDialog(this, animation);
     
       if (modal_) {
 	doJavaScript
@@ -569,7 +575,8 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 	   "} catch (e) { }");
       }
     } else {
-      cover()->popDialog(this, animation);
+      if (c)
+	c->popDialog(this, animation);
     }
   }
 
@@ -585,12 +592,16 @@ void WDialog::positionAt(const WWidget *widget, Orientation orientation)
 
 DialogCover *WDialog::cover() 
 {
-  WWidget *w = WApplication::instance()->findWidget("dialog-cover");
+  WApplication *app = WApplication::instance();
+  if (app->domRoot()) {
+    WWidget *w = app->findWidget("dialog-cover");
 
-  if (w)
-    return dynamic_cast<DialogCover *>(w);
-  else
-    return new DialogCover();
+    if (w)
+      return dynamic_cast<DialogCover *>(w);
+    else
+      return new DialogCover();
+  } else
+    return 0;
 }
 
 }

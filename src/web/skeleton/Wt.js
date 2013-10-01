@@ -45,6 +45,7 @@ if (!window._$_WT_CLASS_$_)
 {
 var WT = this;
 /** @const */ var UNDEFINED = 'undefined';
+/** @const */ var UNKNOWN = 'unknown'; // seen on IE for reasons unknown
 
 this.condCall = function(o, f, a) {
   if (o[f])
@@ -72,7 +73,9 @@ this.button = function(e)
     return 0;
   }
 
-  if (!WT.isGecko && typeof e.which === 'number') {
+  if (!WT.isGecko && 
+      typeof e.which !== UNDEFINED && 
+      typeof e.which !== UNKNOWN) {
     if (e.which == 3)
       return 4;
     else if (e.which == 2)
@@ -81,7 +84,9 @@ this.button = function(e)
       return 1;
     else
       return 0;
-  } else if (WT.isIE && typeof e.which === 'number') {
+  } else if (WT.isIE && 
+	     typeof e.which !== UNDEFINED &&
+	     typeof e.which !== UNKNOWN) {
     if (e.button == 2)
       return 4;
     else if (e.button == 4)
@@ -90,7 +95,8 @@ this.button = function(e)
       return 1;
     else
       return 0;
-  } else if (typeof e.button === 'number') {
+  } else if (typeof e.which !== UNDEFINED &&
+	     typeof e.which !== UNKNOWN) {
     if (e.button == 2)
       return 4;
     else if (e.button == 1)
@@ -1590,8 +1596,8 @@ function gentleURIEncode(s) {
 if (html5History) {
   this.history = (function()
 {
-  var currentState = null, baseUrl = null, cb = null, stateMap = { },
-      w = window;
+  var currentState = null, baseUrl = null, ugly = false, cb = null,
+      stateMap = { }, w = window;
 
   function saveState(state) {
     stateMap[w.location.pathname + w.location.search] = state;
@@ -1624,7 +1630,7 @@ if (html5History) {
 	}
       }
 
-      window.addEventListener("popstate", onPopState, false);
+      w.addEventListener("popstate", onPopState, false);
     },
 
     initialize: function (stateField, histFrame, deployUrl) {
@@ -1633,7 +1639,7 @@ if (html5History) {
       baseUrl = deployUrl;
       if (baseUrl.length >= 1 && baseUrl[baseUrl.length - 1] == '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
-	baseUrl += "?_=";
+	ugly = true;
 _$_$endif_$_();
 _$_$ifnot_UGLY_INTERNAL_PATHS_$_();
 	baseUrl = baseUrl.substr(0, baseUrl.length - 1);
@@ -1646,9 +1652,12 @@ _$_$endif_$_();
 
       currentState = state;
 
-      var url = baseUrl + gentleURIEncode(state);
+      var ip = gentleURIEncode(state), url = baseUrl;
 
-      if (baseUrl.length < 3 || baseUrl.substr(baseUrl.length - 3) != "?_=") {
+      if (ip.length != 0)
+	url += (ugly ? "?_=" : "") + state;
+
+      if (!ugly) {
 	url += window.location.search;
       } else {
 	function stripHashParameter(q) {
@@ -1670,7 +1679,10 @@ _$_$endif_$_();
 	if (q.length > 1) {
 	  if (q.length > 2 && q[0] == '?' && q[1] == '&')
 	    q = q.substr(1);
-	  url += '&' + q.substr(1);
+	  if (url.indexOf('?') == -1)
+	    url += '?' + q.substr(1);
+	  else
+	    url += '&' + q.substr(1);
 	}
       }
 
@@ -1968,6 +1980,7 @@ window._$_APP_CLASS_$_ = new (function() {
 var self = this;
 var WT = _$_WT_CLASS_$_;
 /** @const */ var UNDEFINED = 'undefined';
+/** @const */ var UNKNOWN = 'unknown'; // seen on IE for reasons unknown
 
 var downX = 0;
 var downY = 0;
@@ -2297,7 +2310,8 @@ function encodeEvent(event, i) {
   } catch (e) {
   }
 
-  if (typeof e.clientX === 'number')
+  if (typeof e.clientX !== UNDEFINED && 
+      typeof e.clientX !== UNKNOWN)
     result += se + 'clientX=' + Math.round(e.clientX) + se
 	+ 'clientY=' + Math.round(e.clientY);
 
@@ -2315,7 +2329,8 @@ function encodeEvent(event, i) {
     result += se + 'wheel=' + Math.round(delta);
   }
 
-  if (typeof e.screenX === 'number')
+  if (typeof e.screenX !== UNDEFINED &&
+      typeof e.screenX !== UNKNOWN)
     result += se + 'screenX=' + Math.round(e.screenX) + se
 	+ 'screenY=' + Math.round(e.screenY);
 
@@ -2326,7 +2341,8 @@ function encodeEvent(event, i) {
     var objX = widgetCoords.x;
     var objY = widgetCoords.y;
 
-    if (typeof event.object.scrollLeft == 'number') {
+    if (typeof event.object.scrollLeft !== UNDEFINED &&
+	typeof event.object.scrollLeft !== UNKNOWN) {
       result += se + 'scrollX=' + Math.round(event.object.scrollLeft)
 	+ se + 'scrollY=' + Math.round(event.object.scrollTop)
 	+ se + 'width=' + Math.round(event.object.clientWidth)
@@ -2348,7 +2364,8 @@ function encodeEvent(event, i) {
   }
   result += se + 'button=' + button;
 
-  if (typeof e.keyCode === 'number')
+  if (typeof e.keyCode !== UNDEFINED && 
+      typeof e.keyCode !== UNKNOWN)
     result += se + 'keyCode=' + e.keyCode;
 
   if (typeof e.type === 'string') {
@@ -2363,13 +2380,21 @@ function encodeEvent(event, i) {
     result += se + 'charCode=' + charCode;
   }
 
-  if (typeof e.altKey === 'number')
+    
+  if (typeof e.altKey !== UNDEFINED && 
+      typeof e.altKey !== UNKNOWN &&
+      e.altKey)
     result += se + 'altKey=1';
-  if (typeof e.ctrlKey === 'number')
+  if (typeof e.ctrlKey !== UNDEFINED &&
+      typeof e.ctrlKey !== UNKNOWN &&
+      e.ctrlKey)
     result += se + 'ctrlKey=1';
-  if (typeof e.metaKey === 'number')
+  if (typeof e.metaKey !== UNDEFINED &&
+      typeof e.metaKey !== UNKNOWN &&
+      e.metaKey)
     result += se + 'metaKey=1';
-  if (typeof e.shiftKey === 'number')
+  if (typeof e.shiftKey !== UNDEFINED && typeof e.shiftKey !== UNKNOWN &&
+      e.shiftKey)
     result += se + 'shiftKey=1';
 
   if (typeof e.touches !== UNDEFINED)
@@ -2379,9 +2404,13 @@ function encodeEvent(event, i) {
   if (typeof e.changedTouches !== UNDEFINED)
     result += encodeTouches(se + "ctouches", e.changedTouches, widgetCoords);
 
-  if (typeof e.scale !== UNDEFINED)
+  if (typeof e.scale !== UNDEFINED &&
+      typeof e.scale !== UNKNOWN &&
+      e.scale)
     result += se + "scale=" + e.scale;
-  if (typeof e.rotation !== UNDEFINED)
+  if (typeof e.rotation !== UNDEFINED &&
+      typeof e.rotation !== UNKNOWN &&
+      e.rotation)
     result += se + "rotation=" + e.rotation;
 
   event.data = result;

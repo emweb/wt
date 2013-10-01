@@ -46,7 +46,7 @@ WT_DECLARE_WT_MEMBER
 
    var self = this;
    var config = conf;
-   var itemDirty = true;  /* one or more items (with .dirty=true) need to
+   var itemDirty = true;   /* one or more items (with .dirty=true) need to
 			      be remeasured */
    var layoutDirty = true; /* the parent size may have changed */
    var topLevel = false, parent = null, parentItemWidget = null,
@@ -204,13 +204,16 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
+     var border = WT.px(element, 'border' + DC.Left + 'Width') +
+	 WT.px(element, 'border' + DC.Right + 'Width');
+
+     var scrollbar = offsetSize - (clientSize + border) != 0;
+
      if (asSet)
-       return scrollSize;
+       return [scrollSize, scrollBar];
 
      if (!WT.isOpera)
-       scrollSize +=
-	 WT.px(element, 'border' + DC.Left + 'Width') +
-	 WT.px(element, 'border' + DC.Right + 'Width');
+       scrollSize += border;
 
      scrollSize +=
        WT.px(element, 'margin' + DC.Left) +
@@ -222,14 +225,16 @@ WT_DECLARE_WT_MEMBER
 	 WT.px(element, 'padding' + DC.Right);
 
      /* Must be because of a scrollbar */
-     if (scrollSize < offsetSize)
+     scrollSize += (offsetSize - (clientSize + border));
+
+     if (scrollSize < offsetSize) // happens on IE8?
        scrollSize = offsetSize;
 
      var maxSize = WT.px(element, 'max' + DC.Size);
      if (maxSize > 0)
        scrollSize = Math.min(maxSize, scrollSize);
 
-     return Math.round(scrollSize);
+     return [Math.round(scrollSize), scrollbar];
    }
 
    function calcMinimumSize(element, dir) {
@@ -345,8 +350,8 @@ WT_DECLARE_WT_MEMBER
 
      /*
       * If only layoutDirty then we do not need to remeasure children,
-      * but simply propagate up again the total preferred size and reapply the layout as the
-      * container may have changed in size.
+      * but simply propagate up again the total preferred size and reapply the
+      * layout as the container may have changed in size.
       */
      if (itemDirty) {
 
@@ -399,6 +404,9 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.ps)
 	     item.ps = []; // preferred size
 
+	   if (!item.sc)
+	     item.sc = []; // scrollbar (if present needs forceful size set)
+	     
 	   if (!item.ms)
 	     item.ms = []; // minimum size
 
@@ -488,8 +496,9 @@ WT_DECLARE_WT_MEMBER
 		     setCss(item.w, DirConfig[1].size, '');
 		   }
 
-		   var calculated = calcPreferredSize(item.w, dir, false,
-						      widget);
+		   var calc = calcPreferredSize(item.w, dir, false, widget);
+
+		   var calculated = calc[0];
 
 		   /*
 		    * If we've set the size then we should not take the
@@ -529,6 +538,7 @@ WT_DECLARE_WT_MEMBER
 		     wPreferred = Math.max(wPreferred, calculated);
 
 		   item.ps[dir] = wPreferred;
+		   item.sc[dir] = calc[1];
 		 } else {
 		   if (wPreferred == 0)
 		     wPreferred = item.ps[dir];
@@ -595,7 +605,7 @@ WT_DECLARE_WT_MEMBER
 	   var item = DC.getItem(di, oi);
 
 	   if (item && item.span && item.span[dir] > 1) {
-	     var ps = item.ps[dir], count = 0, stretch = 0;
+	     var ps = item.ps[dir], count = 0, stretch = 0, si;
 
 	     for (si = 0; si < item.span[dir]; ++si) {
 	       var cps = preferredSize[di + si];
@@ -1209,11 +1219,10 @@ WT_DECLARE_WT_MEMBER
 	       tsm = ts;
 
 	     /*
-	      * IE: a button expands to parent container width ?? WTF ?
+	      * We need to force setting a size if there is a scrollbar
+	      * (reasons unknown)
 	      */
-	     var setSize = false;
-	     if (WT.isIE && WT.hasTag(w, 'BUTTON'))
-	       setSize = true;
+	     var setSize = item.sc[dir];
 
 	     var hidden = w.style.display === 'none' && !w.ed;
 
@@ -1378,6 +1387,16 @@ WT_DECLARE_WT_MEMBER
    this.setDirty = function() {
      layoutDirty = true;
    };
+
+   this.setAllDirty = function() {
+     for (i = 0, il = config.items.length; i < il; ++i) {
+       var item = config.items[i];
+       if (item)
+	 item.dirty = 2;
+     }
+
+     itemDirty = true;
+   }
 
    this.setChildSize = function(widget, dir, preferredSize) {
      var colCount = DirConfig[HORIZONTAL].config.length,
@@ -1636,6 +1655,8 @@ WT_DECLARE_APP_MEMBER
 
 	  if (dir == VERTICAL && measureVertical)
 	    ll.setDirty();
+	  else if (dir == HORIZONTAL && needRemeasure)
+	    ll.setAllDirty();
 
 	  ll.measure(dir);
 	}

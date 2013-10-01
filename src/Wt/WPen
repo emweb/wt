@@ -9,6 +9,7 @@
 
 #include <Wt/WLength>
 #include <Wt/WColor>
+#include <Wt/WGradient>
 
 namespace Wt {
 
@@ -58,7 +59,7 @@ public:
    */
   WPen(const WColor& color);
 
-  /*! \brief Creates a solid pen of a particular standard color.
+  /*! \brief Creates a solid pen of a standard color.
    *
    * Constructs a solid pen of 0 width (i.e. cosmetic single pixel
    * width), with \link Wt::SquareCap SquareCap\endlink line ends and
@@ -67,6 +68,16 @@ public:
    * The pen color is set to \p color.
    */
   WPen(GlobalColor color);
+
+  /*! \brief Creates a solid pen with a gradient color.
+   *
+   * Constructs a solid pen of 0 width (i.e. cosmetic single pixel
+   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
+   * \link Wt::BevelJoin BevelJoin\endlink line join style.
+   *
+   * The pen's color is defined by the gradient \p color.
+   */
+  WPen(const WGradient& gradient);
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Clone method.
@@ -90,7 +101,8 @@ public:
 
   /*! \brief Sets the pen style.
    *
-   * \sa style()
+   * The pen style determines the pattern with which the pen is
+   * rendered.
    */
   void setStyle(PenStyle style);
 
@@ -102,7 +114,7 @@ public:
 
   /*! \brief Sets the style for rendering line ends.
    *
-   * \sa capStyle()
+   * The cap style configures how line ends are rendered.
    */
   void setCapStyle(PenCapStyle style);
 
@@ -114,7 +126,8 @@ public:
 
   /*! \brief Sets the style for rendering line joins.
    *
-   * \sa joinStyle()
+   * The join style configures how corners are rendered between
+   * different segments of a poly-line, rectange or painter path.
    */
   void setJoinStyle(PenJoinStyle style);
 
@@ -127,8 +140,6 @@ public:
   /*! \brief Sets the pen width.
    *
    * A pen width \p must be specified using WLength::Pixel units.
-   *
-   * \sa width()
    */
   void setWidth(const WLength& width);
 
@@ -140,15 +151,27 @@ public:
 
   /*! \brief Sets the pen color.
    *
-   * \sa color()
+   * \a setGradient()
    */
   void setColor(const WColor& color);
 
   /*! \brief Returns the pen color.
    *
-   * \sa color()
+   * \sa setColor()
    */
   const WColor& color() const { return color_; }
+
+  /*! \brief Sets the pen color as a gradient.
+   *
+   * \sa setColor()
+   */
+  void setGradient(const WGradient& gradient);
+
+  /*! \brief Returns the pen color gradient.
+   *
+   * \sa setGradient()
+   */
+  const WGradient& gradient() const { return gradient_; }
 
 private:
   PenStyle penStyle_;
@@ -156,6 +179,7 @@ private:
   PenJoinStyle penJoinStyle_;
   WLength  width_;
   WColor   color_;
+  WGradient gradient_;
 };
 
 }

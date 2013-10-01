@@ -594,7 +594,7 @@ void Postgres::executeSql(const std::string &sql)
 
 std::string Postgres::autoincrementType() const
 {
-  return "serial";
+  return "bigserial";
 }
   
 std::string Postgres::autoincrementSql() const

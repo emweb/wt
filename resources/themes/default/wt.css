@@ -465,6 +465,14 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     font-weight: bold;
 }
 
+.Wt-btn img {
+    vertical-align: middle;
+}
+
+.Wt-btn.with-label img {
+    padding-right: 10px;
+}
+
 /*
  * WResizable
  */

@@ -97,6 +97,7 @@ WebSession::WebSession(WebController *controller,
     canWriteAsyncResponse_(false),
     pollRequestsIgnored_(0),
     progressiveBoot_(false),
+    bootStyle_(true),
     deferredRequest_(0),
     deferredResponse_(0),
     deferCount_(0),
@@ -1374,9 +1375,13 @@ void WebSession::handleRequest(Handler& handler)
 		  || env_->userAgent().find("OS 7_") != std::string::npos
 		  || env_->userAgent().find("OS 8_") != std::string::npos);
 
-	    bool noBootStyleResponse = (!app_ && ios5);
+	    // check js parameter
+	    const std::string *jsE = request.getParameter("js");
+	    bool nojs = jsE && *jsE == "no";
 
-	    if (noBootStyleResponse) {
+	    bootStyle_ = bootStyle_ && (app_ || (!ios5 && !nojs));
+
+	    if (!bootStyle_) {
 	      handler.response()->setContentType("text/css");
 	      handler.flushResponse();
 	    } else {
@@ -1412,8 +1417,9 @@ void WebSession::handleRequest(Handler& handler)
 		++i;
 	      }
 
-	      if (i < MAX_TRIES)
+	      if (i < MAX_TRIES) {
 		renderer_.serveLinkedCss(*handler.response());
+	      }
 
 	      handler.flushResponse();
 #endif // WT_TARGET_JAVA
@@ -2395,7 +2401,6 @@ void WebSession::serveResponse(Handler& handler)
 #ifndef WT_TARGET_JAVA
       if (bootStyleResponse_) {
 	renderer_.serveLinkedCss(*bootStyleResponse_);
-
 	flushBootStyleResponse();
       }
 #else

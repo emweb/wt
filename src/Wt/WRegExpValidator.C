@@ -55,8 +55,13 @@ WFlags<RegExpFlag> WRegExpValidator::flags() const
 {
   if (regexp_)
     return regexp_->flags();
-  else 
+  else {
+#ifndef WT_TARGET_JAVA
+    return WFlags<RegExpFlag>();
+#else
     return (int)0;
+#endif
+  }
 }
 
 WT_USTRING WRegExpValidator::regExp() const

@@ -175,19 +175,22 @@ void WPaintedWidget::enableAjax()
 
 WPaintedWidget::Method WPaintedWidget::getMethod() const
 {
-  Method method;
-
   const WEnvironment& env = WApplication::instance()->environment();
 
-  if (env.contentType() != WEnvironment::XHTML1 &&
-      !((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
+  Method method;
+
+  if (!((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
         || (env.agentIsIE() && env.agent() >= WEnvironment::IE9)
-        || (env.agentIsGecko() && env.agent() >= WEnvironment::Firefox4_0)))
+        || (env.agentIsGecko() && env.agent() >= WEnvironment::Firefox4_0))) {
     // on older browsers, inline svg is only supported in xhtml mode. HTML5
     // also allows inline svg
     // Safari 5 and Opera 11 do not seem to support inline svg in html mode
+#ifdef WT_HAS_WRASTERIMAGE
+    method = env.javaScript() ? HtmlCanvas : PngImage;
+#else
     method = HtmlCanvas;
-  else 
+#endif
+  } else 
     if (!env.javaScript())
       method = InlineSvgVml;
     else {
@@ -248,6 +251,8 @@ bool WPaintedWidget::createPainter()
 
   if (method == InlineSvgVml)
     painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineSvg);
+  else if (method == PngImage)
+    painter_ = new WWidgetRasterPainter(this);
   else
     painter_ = new WWidgetCanvasPainter(this);
 

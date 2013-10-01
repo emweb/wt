@@ -194,22 +194,6 @@ WT_DECLARE_WT_MEMBER
        return { from: fromI, to: toI };
      }
 
-     function restore() {
-       $(from).removeClass(anim + ' out');
-       from.style.display = 'none';
-       from.style[WT.styleAttribute('animation-duration')] = '';
-       from.style[WT.styleAttribute('animation-timing-function')] = '';
-
-       $(to).removeClass(anim + ' in');
-       to.style.left = '';
-       to.style.width = '';
-       to.style.top = '';
-       to.style.height = '';
-       to.style.position = '';
-       to.style[WT.styleAttribute('animation-duration')] = '';
-       to.style[WT.styleAttribute('animation-timing-function')] = '';
-     }
-
      var index = getIndexes();
 
      if (index.from == -1 || index.to == -1 || index.from == index.to)
@@ -217,13 +201,33 @@ WT_DECLARE_WT_MEMBER
 
      var from = stack.childNodes[index.from],
        to = stack.childNodes[index.to],
+       $from = $(from),
+       $to = $(to),
        h = stack.scrollHeight, w = stack.scrollWidth;
+
+     function restoreTo() {
+       $to.removeClass(anim + ' in');
+       to.style.position = '';
+       to.style.left = '';
+       to.style.width = '';
+       to.style.top = '';
+       to.style.height = '';
+       to.style[WT.styleAttribute('animation-duration')] = '';
+       to.style[WT.styleAttribute('animation-timing-function')] = '';
+     }
+
+     function restoreFrom() {
+       $from.removeClass(anim + ' out');
+       from.style.display = 'none';
+       from.style[WT.styleAttribute('animation-duration')] = '';
+       from.style[WT.styleAttribute('animation-timing-function')] = '';
+     }
 
      /*
       * If an animation is already busy, then wait until it is done
       */
-     if ($(from).hasClass("in")) {
-       $(from).one(animationEventEnd, function() {
+     if ($from.hasClass("in")) {
+       $from.one(animationEventEnd, function() {
 	   doAnimateChild(WT, child, effects, timing, duration, style);
 	 });
        return;
@@ -252,7 +256,8 @@ WT_DECLARE_WT_MEMBER
      to.style.width = w + 'px';
      to.style.height = h + 'px';
      to.style.position = 'absolute';
-     to.style.opacity = '0';
+     if (WT.isGecko)
+        to.style.opacity = '0';
      to.style.display = style.display;
 
      var needReverse = reverseIfPrecedes && (index.to < index.from),
@@ -278,12 +283,14 @@ WT_DECLARE_WT_MEMBER
        = timings[inverseTiming[timing]];
      to.style[WT.styleAttribute('animation-timing-function')] = timings[timing];
 
-     $(from).addClass(anim + ' out');
-     $(to).addClass(anim + ' in');
-     to.style.opacity = '';
+     $from.addClass(anim + ' out');
+     $from.one(animationEventEnd, restoreFrom);
 
-     $(to).one(animationEventEnd, restore);
+     $to.addClass(anim + ' in');
+     $to.one(animationEventEnd, restoreTo);
+     if (WT.isGecko)
+       to.style.opacity = '';
   };
 
   doAnimateChild(WT, child, effects, timing, duration, style);
- });
+});

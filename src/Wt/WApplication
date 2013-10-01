@@ -785,7 +785,7 @@ public:
    * internalPathChanged() event is emitted. You should listen to this
    * signal to switch the application to the corresponding state. When
    * \p emitChange is \c true, this signal is also emitted by setting
-   * the path.
+   * the path (but only if the path is actually changed).
    *
    * A url that includes the internal path may be obtained using
    * bookmarkUrl().

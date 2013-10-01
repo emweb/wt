@@ -70,15 +70,37 @@ protected:
 
 	// On top of these draw a set of semi-transparant white circles with
 	// increasing diameter. The final result is a radial gradient.
-	for (int i = 0; i > 7; i++) {
+	for (int i = 1; i < 8; i++) {
 	    Wt::WPainterPath path;
 	    path.addEllipse(75 - i*10, 75 - i*10, i*20, i*20);
-	    Wt::WBrush brush = Wt::WBrush(Wt::WColor(255, 255, 255, 255/7*i));
+	    Wt::WBrush brush = Wt::WBrush(Wt::WColor(255, 255, 255, 50));
 	    painter.fillPath(path, brush);
 	}
 	
 	painter.translate(0, 170);
+	// Gradient Brush example
+	// Rectangle with a linear gradient from left top to right bottom
+	painter.setPen(Wt::WPen(Wt::NoPen));
+	Wt::WGradient linGrad;
+	linGrad.setLinearGradient(0, 0, 100, 150);
+	linGrad.addColorStop(0, Wt::WColor(255, 0, 0, 255));
+	linGrad.addColorStop(0.5, Wt::WColor(0, 0, 255, 255));
+	linGrad.addColorStop(1, Wt::WColor(0, 255, 0, 255));
+	Wt::WBrush linearGradientBrush(linGrad);
+	painter.setBrush(linearGradientBrush);
+	painter.drawRect(0, 0, 100, 150);
 
+	// Circle with a radial gradient
+	Wt::WGradient radGrad;
+	radGrad.setRadialGradient(170, 100, 50, 130, 130);
+	radGrad.addColorStop(0.2, Wt::WColor(255, 0, 0, 255));
+	radGrad.addColorStop(0.9, Wt::WColor(0, 0, 255, 255));
+	radGrad.addColorStop(1, Wt::WColor(0, 0, 255, 0));
+	Wt::WBrush radialGradientBrush(radGrad);
+	painter.setBrush(radialGradientBrush);
+	painter.drawEllipse(120, 50, 100, 100);
+
+	painter.translate(0, 170);
 	// LineWidth example
 
 	// You can use WPainter::drawLine() or WPainter::strokePath() to draw a

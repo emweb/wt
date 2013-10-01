@@ -721,7 +721,7 @@ void WebRenderer::collectJavaScript()
     std::string op = widgetset ? "+=" : "=";
     collectedJS1_ << "document.body.parentNode.className" << op << '\''
 		  << app->htmlClass_ << "';"
-		  << "document.body.className'" << op << '\'' << bodyClassRtl() << "';"
+		  << "document.body.className" << op << '\'' << bodyClassRtl() << "';"
 		  << "document.body.setAttribute('dir', '";
     if (app->layoutDirection() == LeftToRight)
       collectedJS1_ << "LTR";
@@ -1514,15 +1514,28 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 
   out << '{';
 
-  collectJS(&out);
-
   if (session_.sessionIdChanged_) {
+    if (session_.hasSessionIdInUrl()) {
+      if (app->environment().ajax() &&
+	  !app->environment().hashInternalPaths()) {
+	streamRedirectJS(out, app->url(app->internalPath()));
+	// better would be to use HTML5 history in this case but that would
+	// need some minor JavaScript reorganizations
+      } else {
+	streamRedirectJS(out, app->url(app->internalPath()));
+      }
+      out << '}';
+      return;
+    }
+
     out << session_.app()->javaScriptClass()
 	<< "._p_.setSessionUrl("
 	<< WWebWidget::jsStringLiteral(sessionUrl())
 	<< ");";
     session_.sessionIdChanged_ = false;
   }
+
+  collectJS(&out);
 
   /*
    * Now, as we have cleared and recorded all JavaScript changes that were

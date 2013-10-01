@@ -75,6 +75,10 @@ public:
    */
   WPointF p2() const;
 
+  bool operator==(const WLineF& other) const;
+
+  bool operator!=(const WLineF& other) const;
+
 private:
   double x1_, y1_, x2_, y2_;
 };

@@ -17,7 +17,7 @@
 
 #ifdef WIN32
 #define snprintf _snprintf
-#include <winsock.h>
+#include <winsock2.h>
 #endif
 #include <mysql.h>
 

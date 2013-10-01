@@ -13,6 +13,8 @@ struct timeval;
 
 namespace Wt {
 
+  class TimeImpl;
+
 class WT_API Time
 {
 public:
@@ -28,7 +30,7 @@ public:
 
 private:
   // Pointer to avoid inclusion of windows header files in wt
-  struct timeval *t_;
+  class TimeImpl *t_;
 };
 
 }

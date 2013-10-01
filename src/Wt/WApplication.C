@@ -194,14 +194,7 @@ WApplication::WApplication(const WEnvironment& env
   styleSheet_.addRule("td", "text-align: left;");
   styleSheet_.addRule(RTL "td", "text-align: right;");
   styleSheet_.addRule("button", "white-space: nowrap;");
-  styleSheet_.addRule("button img",
-		      "vertical-align: middle; padding-right: 10px");
   styleSheet_.addRule("video", "display: block");
-
-  if (environment().contentType() == WEnvironment::XHTML1) {
-    //styleSheet_.addRule("img", "margin: -5px 0px;");
-    styleSheet_.addRule("button", "display: inline");
-  }
 
   if (environment().agentIsGecko())
     styleSheet_.addRule("html", "overflow: auto;");
@@ -371,8 +364,9 @@ WApplication::~WApplication()
 {
   timerRoot_ = 0; // marker for being deleted
 
-  delete domRoot_;
+  WContainerWidget *r = domRoot_;
   domRoot_ = 0;
+  delete r;
 
   delete domRoot2_;
   domRoot2_ = 0;

@@ -148,8 +148,13 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
     if (creating) {
       element.addPropertyWord(PropertyClass, "Wt-btn");
       WPushButton *b = dynamic_cast<WPushButton *>(widget);
-      if (b && b->isDefault())
-	element.addPropertyWord(PropertyClass, "Wt-btn-default");
+      if (b) {
+	if (b->isDefault())
+	  element.addPropertyWord(PropertyClass, "Wt-btn-default");
+
+	if (!b->text().empty())
+	  element.addPropertyWord(PropertyClass, "with-label");
+      }
     }
     break;
 
