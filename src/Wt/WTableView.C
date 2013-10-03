@@ -1187,7 +1187,7 @@ void WTableView::shiftModelIndexColumns(int start, int count)
 
   shiftEditorColumns(rootIndex(), start, count, true);
 
-  if (!toErase.empty())
+  if (!toShift.empty() || !toErase.empty())
     selectionChanged().emit();
 }
 
@@ -1556,7 +1556,6 @@ void WTableView::handleRootMouseWentUp(int u, const WMouseEvent& event)
 void WTableView::modelLayoutChanged()
 {
   WAbstractItemView::modelLayoutChanged();
-  selectionChanged().emit();
 
   resetGeometry();
 }

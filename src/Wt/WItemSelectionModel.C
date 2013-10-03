@@ -19,14 +19,7 @@ WItemSelectionModel::WItemSelectionModel(WAbstractItemModel *model,
   : WObject(parent),
     model_(model),
     selectionBehavior_(SelectRows)
-{ 
-  if (model_) {
-    model_->layoutAboutToBeChanged()
-      .connect(this, &WItemSelectionModel::modelLayoutAboutToBeChanged);
-    model_->layoutChanged()
-      .connect(this, &WItemSelectionModel::modelLayoutChanged);
-  }
-}
+{ }
 
 void WItemSelectionModel::setSelectionBehavior(SelectionBehavior behavior)
 {
