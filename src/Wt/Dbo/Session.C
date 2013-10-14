@@ -1070,6 +1070,9 @@ void Session::needsFlush(MetaDboBase *obj)
 
 void Session::flush()
 {
+  for (unsigned i=0; i < objectsToAdd_.size(); i++)
+    needsFlush(objectsToAdd_[i]);
+
   while (!dirtyObjects_.empty()) {
     MetaDboBaseSet::iterator i = dirtyObjects_.begin();
     MetaDboBase *dbo = *i;
@@ -1085,6 +1088,12 @@ void Session::rereadAll(const char *tableName)
        i != classRegistry_.end(); ++i)
     if (!tableName || std::string(tableName) == i->second->tableName)
       i->second->rereadAll();
+}
+
+void Session::discardUnflushed()
+{
+  objectsToAdd_.clear();
+  rereadAll();
 }
 
 std::string Session::statementId(const char *tableName, int statementIdx)

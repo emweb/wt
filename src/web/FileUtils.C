@@ -159,7 +159,7 @@ namespace Wt {
     {
       std::string tempDir;
       
-      char *wtTmpDir = getenv("WT_TMP_DIR");
+      char *wtTmpDir = std::getenv("WT_TMP_DIR");
       if (wtTmpDir)
       tempDir = wtTmpDir;
       else {

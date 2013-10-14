@@ -1057,7 +1057,7 @@ std::string DomElement::createVar() const
 {
 #ifndef WT_TARGET_JAVA
   char buf[20];
-  sprintf(buf, "j%d", nextId_++);
+  std::sprintf(buf, "j%d", nextId_++);
   var_ = buf;
 #else // !WT_TARGET_JAVA
   var_ = "j" + boost::lexical_cast<std::string>(nextId_++);

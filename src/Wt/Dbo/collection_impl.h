@@ -13,6 +13,29 @@
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+
+      template <class C>
+      struct Helper {
+	static void skipIfRemoved
+	(typename collection<C>::iterator::shared_impl& it)
+	{ }
+      };
+
+
+      template <class T>
+      struct Helper< ptr<T> >
+      {
+	static void skipIfRemoved
+	(typename collection< ptr<T> >::iterator::shared_impl& it)
+	{
+	  if (std::find(it.collection_.manualModeRemovals().begin(),
+			it.collection_.manualModeRemovals().end(),
+			it.current_) != it.collection_.manualModeRemovals().end())
+	    it.fetchNextRow();
+	}
+      };
+    }
 
 template <class C>
 collection<C>::iterator::iterator(const iterator& other)
@@ -64,7 +87,7 @@ C&
 collection<C>::iterator::operator* ()
 {
   if (impl_ && !impl_->ended_)
-    return impl_->current_;
+    return impl_->current();
   else
     throw Exception("set< ptr<C> >::operator* : read beyond end.");
 }
@@ -74,7 +97,7 @@ C *
 collection<C>::iterator::operator-> ()
 {
   if (impl_ && !impl_->ended_)
-    return &impl_->current_;
+    return &impl_->current();
   else
     return 0;
 }
@@ -119,6 +142,8 @@ shared_impl::shared_impl(const collection<C>& collection,
   : collection_(collection),
     statement_(statement),
     useCount_(0),
+    queryEnded_(false),
+    posPastQuery_(0),
     ended_(false)
 {
   fetchNextRow();
@@ -138,9 +163,17 @@ void collection<C>::iterator::shared_impl::fetchNextRow()
 {
   if (ended_)
     throw Exception("set< ptr<C> >::operator++ : beyond end.");
+  else if (queryEnded_) {
+    posPastQuery_++;
+    if (posPastQuery_ == collection_.manualModeInsertions().size())
+      ended_ = true;
+    return;
+  }
 
   if (!statement_ || !statement_->nextRow()) {
-    ended_ = true;
+    queryEnded_ = true;
+    if (collection_.manualModeInsertions().size() == 0)
+      ended_ = true;
     if (statement_) {
       statement_->done();
       collection_.iterateDone();
@@ -149,7 +182,18 @@ void collection<C>::iterator::shared_impl::fetchNextRow()
     int column = 0;
     current_
       = query_result_traits<C>::load(*collection_.session(), *statement_, column);
+
+    Impl::Helper<C>::skipIfRemoved(*this);
   }
+}
+
+template <class C>
+typename collection<C>::value_type& collection<C>::iterator::shared_impl::current()
+{
+  if (!queryEnded_)
+    return current_;
+  else
+    return const_cast<collection<C>&>(collection_).manualModeInsertions()[posPastQuery_];
 }
 
 template <class C>
@@ -332,7 +376,7 @@ SqlStatement *collection<C>::executeStatement() const
 {
   SqlStatement *statement = 0;
 
-  if (session_)
+  if (session_ && session_->flushMode() == Auto)
     session_->flush();
 
   if (type_ == QueryCollection)
@@ -389,7 +433,7 @@ typename collection<C>::size_type collection<C>::size() const
 
   SqlStatement *countStatement = 0;
 
-  if (session_)
+  if (session_ && session_->flushMode() == Auto)
     session_->flush();
 
   if (type_ == QueryCollection)
@@ -424,6 +468,11 @@ typename collection<C>::size_type collection<C>::size() const
     if (type_ == QueryCollection) {
       data_.query->size = result;
       data_.query->countStatement = 0;
+    }
+
+    if (type_ != QueryCollection) {
+      result += manualModeInsertions_.size();
+      result -= manualModeRemovals_.size();
     }
 
     return result;
@@ -465,10 +514,14 @@ void collection<C>::insert(C c)
     throw Exception("collection<C>::insert() only for a relational "
 		    "collection.");
 
-  if (relation.dbo) {
-    relation.dbo->setDirty();
-    if (relation.dbo->session())
-      relation.dbo->session()->add(c);
+  if (session_->flushMode() == Auto) {
+    if (relation.dbo) {
+      relation.dbo->setDirty();
+      if (relation.dbo->session())
+	relation.dbo->session()->add(c);
+    }
+  } else if (session_->flushMode() == Manual) {
+    manualModeInsertions_.push_back(c);
   }
 
   if (relation.setInfo->type == ManyToMany) {
@@ -511,6 +564,15 @@ void collection<C>::erase(C c)
     SetReciproceAction setPtr(session_, relation.setInfo->joinName, 0);
     setPtr.visit(*c.modify());
   }
+
+  typename std::vector<C>::iterator pos =
+    std::find(manualModeInsertions_.begin(), manualModeInsertions_.end(), c);
+  if (pos != manualModeInsertions_.end())
+    manualModeInsertions_.erase(pos);
+
+  if (session_->flushMode() == Manual) {
+    manualModeRemovals_.push_back(c);
+  }
 }
 
 template <class C>
@@ -538,6 +600,8 @@ void collection<C>::clear()
     relation.dbo->bindId(call.statement_, column);
     call.run();
   }
+  manualModeInsertions_.clear();
+  manualModeRemovals_.clear();
 }
 
 template <class C>
@@ -547,7 +611,8 @@ int collection<C>::count(C c) const
     throw Exception("collection<C>::count() only for a collection "
 		    "that is bound to a session.");
 
-  session_->flush();
+  if (session_->flushMode() == Auto)
+    session_->flush();
 
   if (type_ != RelationCollection)
     throw Exception("collection<C>::count() only for a relational "
@@ -559,7 +624,13 @@ int collection<C>::count(C c) const
 
   Query<C, DynamicBinding> q = find().where(mapping->idCondition);
   c.obj()->bindId(q.parameters_);
-  return q.resultList().size();
+  int result = q.resultList().size();
+
+  result += 
+    std::count(manualModeInsertions_.begin(), manualModeInsertions_.end(), c);
+  result -=
+    std::count(manualModeRemovals_.begin(), manualModeRemovals_.end(), c);
+  return result;
 }
 
 template <class C>

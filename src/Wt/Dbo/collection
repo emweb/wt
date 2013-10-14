@@ -155,20 +155,23 @@ namespace Wt {
        */
       iterator  operator++ (int);
 
-    private:
       struct shared_impl {
 	const collection<C>& collection_;
 	SqlStatement *statement_;
 	value_type current_;
 	int useCount_;
+	bool queryEnded_;
+	unsigned posPastQuery_;
 	bool ended_;
 
 	shared_impl(const collection<C>& collection, SqlStatement *statement);
 	~shared_impl();
 
 	void fetchNextRow();
+	typename collection<C>::value_type& current();
       };
 
+    private:
       shared_impl *impl_;
 
       iterator();
@@ -363,6 +366,11 @@ namespace Wt {
      */
     Query<C, DynamicBinding> find() const;
 
+    const std::vector<C>& manualModeInsertions() const { return manualModeInsertions_; }
+    std::vector<C>& manualModeInsertions() { return manualModeInsertions_; }
+    const std::vector<C>& manualModeRemovals() const { return manualModeRemovals_; }
+    std::vector<C>& manualModeRemovals() { return manualModeRemovals_; }
+
   private:
     Session *session_;
     enum { QueryCollection, RelationCollection } type_;
@@ -385,6 +393,9 @@ namespace Wt {
       QueryData *query;
       RelationData relation;
     } data_;
+
+    std::vector<C> manualModeInsertions_;
+    std::vector<C> manualModeRemovals_;
 
     friend class DboAction;
     friend class SessionAddAction;

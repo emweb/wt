@@ -72,7 +72,7 @@ std::string SHA1HashFunction::compute(const std::string& msg,
 
     for (unsigned i = 0; i < 5; ++i) {
       unsigned v = htonl(sha.Message_Digest[i]);
-      memcpy(hash + (i*4), &v, 4);
+      std::memcpy(hash + (i*4), &v, 4);
     }
 
     return Utils::encodeAscii(std::string(hash, hash + SHA1_LENGTH));
@@ -94,17 +94,17 @@ std::string BCryptHashFunction::compute(const std::string& msg,
   char setting[32];
 
   char c_salt[16];
-  strncpy(c_salt, salt.c_str(), 16);
+  std::strncpy(c_salt, salt.c_str(), 16);
   if (salt.length() < 16)
-    memset(c_salt + salt.length(), 'A', 16 - salt.length());
+    std::memset(c_salt + salt.length(), 'A', 16 - salt.length());
 
   if (!crypt_gensalt_rn("$2y$", count_, c_salt, 16, setting, 32)) {
-    perror("crypt_gen_salt_rn");
+    std::perror("crypt_gen_salt_rn");
     throw std::runtime_error("bcrypt() gensalt internal error");
   } else {
     char result[64];
     if (!crypt_rn(msg.c_str(), setting, result, 64)) {
-      perror("crypt_rn");
+      std::perror("crypt_rn");
       throw std::runtime_error("bcrypt() internal error");
     }
     return result;
@@ -118,7 +118,7 @@ bool BCryptHashFunction::verify(const std::string& msg,
   char result[64];
 
   if (!crypt_rn(msg.c_str(), hash.c_str(), result, 64)) {
-    perror("crypt_rn");
+    std::perror("crypt_rn");
     throw std::runtime_error("bcrypt() internal error");
   }
 

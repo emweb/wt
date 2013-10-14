@@ -84,7 +84,8 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   }
 
   if (!separator_) {
-    new WAnchor(this);
+    WAnchor *anchor = new WAnchor(this);
+    anchor->clicked().preventPropagation();
     updateInternalPath();
   }
 

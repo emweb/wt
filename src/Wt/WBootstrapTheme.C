@@ -16,6 +16,7 @@
 #include "Wt/WEnvironment"
 #include "Wt/WGoogleMap"
 #include "Wt/WInPlaceEdit"
+#include "Wt/WLogger"
 #include "Wt/WMenu"
 #include "Wt/WPanel"
 #include "Wt/WPopupMenu"
@@ -37,6 +38,8 @@ namespace skeletons {
 }
 
 namespace Wt {
+
+LOGGER("WBootstrapTheme");
 
 WBootstrapTheme::WBootstrapTheme(WObject *parent)
   : WTheme(parent)
@@ -181,6 +184,10 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 
       if (creating && !button->text().empty())
 	element.addPropertyWord(PropertyClass, "with-label");
+
+      if (!button->link().isNull())
+	LOG_ERROR("Cannot use WPushButton::setLink() after the button has "
+		  "been rendered with WBootstrapTheme");
     }
 
     break;

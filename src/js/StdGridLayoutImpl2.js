@@ -126,7 +126,6 @@ WT_DECLARE_WT_MEMBER
      }
 
      var clientSize = dir ? element.clientHeight : element.clientWidth;
-
      /*
       * Firefox sets scrollSize = clientSize when there are no scrollbars
       * configured (overflow == 'visible' or 'none') on the widget.
@@ -137,7 +136,8 @@ WT_DECLARE_WT_MEMBER
        return overflow == 'visible' || overflow == 'none';
      }
 
-     if (WT.isGecko &&
+    if (WT.isGecko &&
+	 !element.style[DC.size] &&
 	 dir == HORIZONTAL &&
 	 isNone(WT.css(element, 'overflow'))) {
        p = element.style[DC.size];
@@ -532,9 +532,9 @@ WT_DECLARE_WT_MEMBER
 		     && (DC.config[di][STRETCH] > 0)
 		     && item.set[dir];
 
-		   if (sizeSet || stretching)
+		   if (sizeSet || stretching) 
 		     wPreferred = Math.max(wPreferred, item.ps[dir]);
-		   else
+		   else 
 		     wPreferred = Math.max(wPreferred, calculated);
 
 		   item.ps[dir] = wPreferred;
@@ -1215,19 +1215,25 @@ WT_DECLARE_WT_MEMBER
 
 	     var tsm = Math.max(0, ts - m);
 
-	     if (!WT.isIE && WT.hasTag(w, 'TEXTAREA'))
-	       tsm = ts;
-
 	     /*
 	      * We need to force setting a size if there is a scrollbar
-	      * (reasons unknown)
+	      * (reasons unknown, only for a vertical scrollbar?)
 	      */
-	     var setSize = item.sc[dir];
+	     var setSize = dir == 0 && item.sc[dir];
 
 	     var hidden = w.style.display === 'none' && !w.ed;
 
 	     if (!hidden && (setSize || ts != ps || item.layout)) {
 	       if (setCss(w, DC.size, tsm + 'px')) {
+		 /*
+		  * Setting a size cancels the built-in margin!
+		  */
+		 if (!WT.isIE && (WT.hasTag(w, 'TEXTAREA') ||
+				  WT.hasTag(w, 'INPUT'))) {
+		   setCss(w, 'margin-' + DC.left, item.margin[dir]/2 + 'px');
+		   setCss(w, 'margin-' + OC.left, item.margin[!dir]/2 + 'px');
+		 }
+
 		 setItemDirty(item, 1);
 		 item.set[dir] = true;
 	       }
@@ -1244,6 +1250,11 @@ WT_DECLARE_WT_MEMBER
 	     item.size[dir] = tsm;
 	     item.psize[dir] = ts;
 	   } else {
+	     //debugger;
+	     //console.log(alignment);
+	     //console.log(left);
+	     //console.log(ts);
+	     //console.log(ps);
 	     switch (alignment) {
 	     case ALIGN_LEFT: off = left; break;
 	     case ALIGN_CENTER: off = left + (ts - ps)/2; break;
@@ -1334,6 +1345,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      layoutDirty = true;
+     itemDirty = true;
 
      APP.layouts2.scheduleAdjust();
    };

@@ -88,17 +88,17 @@ int WTime::hour() const
 
 int WTime::minute() const
 {
-  return (abs(time_) / (1000 * 60)) % 60;
+  return (std::abs(time_) / (1000 * 60)) % 60;
 }
 
 int WTime::second() const
 {
-  return (abs(time_) / 1000) % 60;
+  return (std::abs(time_) / 1000) % 60;
 }
 
 int WTime::msec() const
 {
-  return abs(time_) % 1000;
+  return std::abs(time_) % 1000;
 }
 
 long WTime::secsTo(const WTime& t) const
@@ -404,15 +404,15 @@ bool WTime::writeSpecial(const std::string& f, unsigned& i,
       ++i;
       result << Utils::pad_itoa(abs(useAMPM ? pmhour() : hour()), 2, buf);
     } else
-      result << Utils::itoa(abs(useAMPM ? pmhour() : hour()), buf);
+      result << Utils::itoa(std::abs(useAMPM ? pmhour() : hour()), buf);
 
     return true;
   case 'H':
     if (f[i + 1] == 'H') {
       ++i;
-      result << Utils::pad_itoa(abs(hour()), 2, buf);
+      result << Utils::pad_itoa(std::abs(hour()), 2, buf);
     } else
-      result << Utils::itoa(abs(hour()), buf);
+      result << Utils::itoa(std::abs(hour()), buf);
 
     return true;
   case 'm':

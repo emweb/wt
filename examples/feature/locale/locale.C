@@ -3,6 +3,12 @@
  *
  * See the LICENSE file for terms of use.
  */
+
+// see http://stackoverflow.com/questions/15234527/boost-1-53-local-date-time-compiler-error-with-std-c0x
+#if __cplusplus >= 201103L
+#define BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+#endif
+
 #include <Wt/WApplication>
 #include <Wt/WAbstractTableModel>
 #include <Wt/WEnvironment>

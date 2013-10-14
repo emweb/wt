@@ -883,8 +883,8 @@ bool Configuration::registerSessionId(const std::string& oldId,
       if (newId.empty())
 	unlink(sessionSocketPath(oldId).c_str());
       else
-	rename(sessionSocketPath(oldId).c_str(),
-	       sessionSocketPath(newId).c_str());
+	std::rename(sessionSocketPath(oldId).c_str(),
+	            sessionSocketPath(newId).c_str());
     }
   }
 
