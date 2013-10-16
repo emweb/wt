@@ -161,11 +161,20 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
 
   dbo::Transaction transaction(session);
 
-  tupel tupe = session.query<tupel>(std::string(
+  tupel tupe;
+
+#ifdef SQLITE3
+  /*
+   * Odd enough Sqlite3 thinks this is legal SQL, but postgres
+   * complains (rightfully) that you can't combine aggregate and
+   * non-aggregate fields.
+   */
+  tupe = session.query<tupel>(std::string(
           "SELECT SUM(\"intC\"), \"doubleC\" FROM \"") +
            FuncTest::TableName() + "\" LIMIT 1");
 
   BOOST_REQUIRE(tupe.get<0>() == 6);
+#endif
 
   tupe = session.query<tupel>(std::string(
           "SELECT SUM(\"intC\"), SUM(\"doubleC\") FROM \"") +
@@ -186,11 +195,11 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
 
   BOOST_REQUIRE(std::abs(d - 9.9) < 0.001);
 
-  int i = session.query<int>(std::string(
+  double i = session.query<double>(std::string(
           "SELECT AVG(\"intC\") FROM \"") +
           FuncTest::TableName() + "\" LIMIT 1");
 
-  BOOST_REQUIRE(i == 2);
+  BOOST_REQUIRE(i == 2.0);
 
   i = session.query<int>(std::string(
           "SELECT COUNT(\"intC\") FROM \"") +

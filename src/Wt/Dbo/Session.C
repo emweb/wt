@@ -110,7 +110,8 @@ Session::Session()
     useRowsFromTo_(false),
     connection_(0),
     connectionPool_(0),
-    transaction_(0)
+    transaction_(0),
+    flushMode_(Auto)
 { }
 
 Session::~Session()
@@ -1072,6 +1073,8 @@ void Session::flush()
 {
   for (unsigned i=0; i < objectsToAdd_.size(); i++)
     needsFlush(objectsToAdd_[i]);
+
+  objectsToAdd_.clear();
 
   while (!dirtyObjects_.empty()) {
     MetaDboBaseSet::iterator i = dirtyObjects_.begin();

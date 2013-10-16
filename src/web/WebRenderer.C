@@ -1057,11 +1057,6 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << app->autoJavaScript_ << "};\n";
   app->autoJavaScriptChanged_ = false;
 
-  currentFormObjectsList_ = createFormObjectsList(app);
-  out << app->javaScriptClass()
-      << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);\n";
-  formObjectsChanged_ = false;
-
   app->streamBeforeLoadJavaScript(out, true);
 
   if (!widgetset)
@@ -1124,6 +1119,11 @@ void WebRenderer::serveMainAjax(WStringStream& out)
   LOG_DEBUG("js: " << s.str());
   out << s.str();
 #endif // WT_DEBUG_ENABLED
+
+  currentFormObjectsList_ = createFormObjectsList(app);
+  out << app->javaScriptClass()
+      << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);\n";
+  formObjectsChanged_ = false;
 
   setJSSynced(true);
 
