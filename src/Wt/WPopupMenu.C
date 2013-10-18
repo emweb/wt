@@ -43,6 +43,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
       (".Wt-notselected .Wt-popupmenu", "visibility: hidden;", CSS_RULES_NAME);
 
   app->addGlobalWidget(this);
+  setPopup(true);
 
   hide();
 }

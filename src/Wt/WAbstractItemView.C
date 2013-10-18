@@ -1217,6 +1217,8 @@ void WAbstractItemView::modelLayoutAboutToBeChanged()
     persistEditor(i->first, i->second);
     (const_cast<WModelIndex &>(i->first)).encodeAsRawIndex();
   }
+
+  selectionModel_->modelLayoutAboutToBeChanged();
 }
 
 void WAbstractItemView::modelLayoutChanged()
@@ -1233,7 +1235,11 @@ void WAbstractItemView::modelLayoutChanged()
   }
   editedItems_.swap(newEditorMap);
 
+  selectionModel_->modelLayoutChanged();
+
   scheduleRerender(NeedRerenderData);
+
+  selectionChanged().emit();
 }
 
 WWidget *WAbstractItemView::createPageNavigationBar()

@@ -22,7 +22,7 @@ std::string createSalt(unsigned int length)
   unsigned char *saltBuf = new unsigned char[length];
   for (unsigned i = 0; i < length; i += 3) {
     unsigned r = WRandom::get();
-    memcpy(saltBuf + i, &r, 3);
+    std::memcpy(saltBuf + i, &r, 3);
   }
 
   std::string s(saltBuf, saltBuf + length);

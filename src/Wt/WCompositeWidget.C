@@ -48,6 +48,11 @@ void WCompositeWidget::setObjectName(const std::string& name)
   impl_->setObjectName(name);
 }
 
+std::string WCompositeWidget::objectName() const
+{
+  return impl_->objectName();
+}
+
 const std::string WCompositeWidget::id() const
 {
   return impl_->id();

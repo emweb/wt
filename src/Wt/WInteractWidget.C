@@ -176,7 +176,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     std::vector<DomElement::EventAction> actions;
 
     if (enterPress) {
-      if (enterPress->isConnected()) {
+      if (enterPress->needsUpdate(true)) {
 	/*
 	 * prevent enterPressed from triggering a changed event on all
 	 * browsers except for Opera and IE
@@ -200,7 +200,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (escapePress) {
-      if (escapePress->isConnected()) {
+      if (escapePress->needsUpdate(true)) {
 	actions.push_back
 	  (DomElement::EventAction("e.keyCode && (e.keyCode == 27)",
 				   escapePress->javaScript(),
@@ -211,7 +211,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (keyDown) {
-      if (keyDown->isConnected()) {
+      if (keyDown->needsUpdate(true)) {
 	actions.push_back
 	  (DomElement::EventAction(std::string(),
 				   keyDown->javaScript(),

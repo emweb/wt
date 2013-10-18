@@ -217,9 +217,12 @@ void PaintedSlider::updateState()
     mouseMovedJS << slider_->maximum() << " - v";
   mouseMovedJS <<     ";"
 	       <<     "var f = objb.parentNode.onValueChange;"
-	       <<     "if (f) f(vs);"
-	       <<      slider_->sliderMoved().createCall("vs")
-	       <<   "}"
+	       <<     "if (f) f(vs);";
+
+  if (slider_->sliderMoved().needsUpdate(true))
+    mouseMovedJS << slider_->sliderMoved().createCall("vs");
+
+  mouseMovedJS <<   "}"
 	       << "}";
 
   WStringStream mouseUpJS;

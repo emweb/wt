@@ -127,7 +127,8 @@ void Transaction::Impl::open()
 void Transaction::Impl::commit()
 {
   needsRollback_ = true;
-  session_.flush();
+  if (session_.flushMode() == Auto)
+    session_.flush();
 
   if (open_)
     connection_->commitTransaction();

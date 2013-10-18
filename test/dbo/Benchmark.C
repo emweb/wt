@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( performance_test )
     dbo::ptr<Perf::Post> p;
 
     for (unsigned long i = 0; i < 500; ++i) {
-      unsigned long id = rand() % total_objects;
+      unsigned long id = std::rand() % total_objects;
       p = session.load<Perf::Post>(id);
     }
 

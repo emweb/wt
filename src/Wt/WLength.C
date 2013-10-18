@@ -35,7 +35,7 @@ WLength::WLength(const char *s)
 
   char *end = 0;
 #ifndef WT_TARGET_JAVA
-  value_ = strtod(s, &end);
+  value_ = std::strtod(s, &end);
 #else
   Utils::stringToDouble(s, &end, value_);
 #endif

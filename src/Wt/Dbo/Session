@@ -32,6 +32,15 @@ struct NullType {
   static NullType null_;
 };
 
+/*! \brief Enumeration that indicates the flush mode.
+ *
+ * \sa setFlushMode(), discardUnflushed()
+ */
+enum FlushMode {
+  Auto,    //!< Dbo decides when to flush changes to a transaction
+  Manual   //!< Changes are never automatically flushed
+};
+
 class Call;
 class SqlConnection;
 class SqlConnectionPool;
@@ -358,8 +367,42 @@ public:
    */
   void rereadAll(const char *tableName = 0);
 
+  /*! \brief Discards all unflushed changes.
+   *
+   * This method is useful when the flushMode() is set to Manual. It discards
+   * all Dbo-objects which were added to the session and rereads all existing
+   * Dbo-objects.
+   *
+   * \sa setFlushMode()
+   */
+  void discardUnflushed();
+
   void getFields(const char *tableName, std::vector<FieldInfo>& result);
-  
+
+  /*! \brief Returns the flushMode.
+   *
+   * \sa setFlushMode()
+   */
+  FlushMode flushMode() { return flushMode_; }
+
+  /*! \brief Sets the flushMode.
+   *
+   * The default flushMode is Auto. Inside a transaction this means that
+   * changes are flushed when a query is affected by them. When flushMode is
+   * set to Manual, changes are only flushed when the user manually calls
+   * flush(), or resets the mode to Auto. Query's wil possibly return an
+   * inconsistent result, but collections will still keep track of changes.
+   * This also makes it possible to operate on Dbo-objects and collections
+   * outside of a transaction. When the moment comes to flush the changes, a
+   * transaction must of course be active.
+   *
+   * <em>Note:</em> only operations on a collecion are tracked in Manual mode,
+   * reciproke operations are not yet taken into account.
+   *
+   * \sa flushMode(), discardUnflushed()
+   */
+  void setFlushMode(FlushMode mode) { flush(); flushMode_ = mode; }
+
 private:
   Session(const Session& s);
 
@@ -458,9 +501,11 @@ private:
   bool useRowsFromTo_;
 
   MetaDboBaseSet dirtyObjects_;
+  std::vector<MetaDboBase*> objectsToAdd_;
   SqlConnection  *connection_;
   SqlConnectionPool *connectionPool_;
   Transaction::Impl *transaction_;
+  FlushMode flushMode_;
 
   void initSchema() const;
   void resolveJoinIds(MappingInfo *mapping);

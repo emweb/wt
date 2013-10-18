@@ -176,7 +176,10 @@ ptr<C> Session::add(ptr<C>& obj)
   MetaDbo<C> *dbo = obj.obj();
   if (dbo && !dbo->session()) {
     dbo->setSession(this);
-    needsFlush(dbo);
+    if (flushMode() == Auto)
+      needsFlush(dbo);
+    else
+      objectsToAdd_.push_back(dbo);
 
     SessionAddAction act(*dbo, *getMapping<C>());
     act.visit(*dbo->obj());

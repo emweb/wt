@@ -38,6 +38,14 @@
 #include <boost/math/special_functions/sign.hpp>
 #endif // SPIRIT_FLOAT_FORMAT
 
+// Qnx gcc 4.4.2
+#ifdef isnan
+#undef isnan
+#endif
+#ifdef isfin
+#undef isfun
+#endif
+
 namespace Wt {
   namespace Utils {
 
