@@ -49,7 +49,7 @@ namespace {
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<27> WWebWidget::AllChangeFlags = std::bitset<27>()
+const std::bitset<28> WWebWidget::AllChangeFlags = std::bitset<28>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -59,7 +59,8 @@ const std::bitset<27> WWebWidget::AllChangeFlags = std::bitset<27>()
   .set(BIT_SELECTABLE_CHANGED)
   .set(BIT_WIDTH_CHANGED)
   .set(BIT_HEIGHT_CHANGED)
-  .set(BIT_DISABLED_CHANGED);
+  .set(BIT_DISABLED_CHANGED)
+  .set(BIT_ZINDEX_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -609,7 +610,7 @@ void WWebWidget::setPopup(bool popup)
   if (popup && parent())
     calcZIndex();
 
-  flags_.set(BIT_GEOMETRY_CHANGED);
+  flags_.set(BIT_ZINDEX_CHANGED);
 
   repaint();
 }
@@ -621,7 +622,7 @@ void WWebWidget::setZIndex(int zIndex)
 
   layoutImpl_->zIndex_ = zIndex;
 
-  flags_.set(BIT_GEOMETRY_CHANGED);
+  flags_.set(BIT_ZINDEX_CHANGED);
 
   repaint();
 }
@@ -1236,23 +1237,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       element.setProperty(PropertyStyleDisplay, "none");
   }
 
-  if (flags_.test(BIT_GEOMETRY_CHANGED) || all) {
+  if (flags_.test(BIT_ZINDEX_CHANGED) || all) {
     if (layoutImpl_) {
-      /*
-       * set position
-       */
-      if (!(flags_.test(BIT_HIDE_WITH_VISIBILITY) && flags_.test(BIT_HIDDEN)))
-	switch (layoutImpl_->positionScheme_) {
-	case Static:
-	  break;
-	case Relative:
-	  element.setProperty(PropertyStylePosition, "relative"); break;
-	case Absolute:
-	  element.setProperty(PropertyStylePosition, "absolute"); break;
-	case Fixed:
-	  element.setProperty(PropertyStylePosition, "fixed"); break;
-	}
-
       /*
        * set z-index
        */
@@ -1291,6 +1277,27 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	  element.addChild(i);
 	}
       }
+    }
+
+    flags_.reset(BIT_ZINDEX_CHANGED);
+  }
+
+  if (flags_.test(BIT_GEOMETRY_CHANGED) || all) {
+    if (layoutImpl_) {
+      /*
+       * set position
+       */
+      if (!(flags_.test(BIT_HIDE_WITH_VISIBILITY) && flags_.test(BIT_HIDDEN)))
+	switch (layoutImpl_->positionScheme_) {
+	case Static:
+	  break;
+	case Relative:
+	  element.setProperty(PropertyStylePosition, "relative"); break;
+	case Absolute:
+	  element.setProperty(PropertyStylePosition, "absolute"); break;
+	case Fixed:
+	  element.setProperty(PropertyStylePosition, "fixed"); break;
+	}
 
       /*
        * set clear: FIXME: multiple values
@@ -1854,6 +1861,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_WIDTH_CHANGED);
   flags_.reset(BIT_HEIGHT_CHANGED);
   flags_.reset(BIT_DISABLED_CHANGED);
+  flags_.reset(BIT_ZINDEX_CHANGED);
 #endif
 
   renderOk();
@@ -2070,9 +2078,12 @@ std::string& WWebWidget::escapeText(std::string& text, bool newlinestoo)
 
   Wt::Utils::sanitizeUnicode(sout, text);
 
+#ifndef WT_TARGET_JAVA
   text = sout.str();
-
   return text;
+#else
+  return sout.str();
+#endif // WT_TARGET_JAVA
 }
 
 std::string WWebWidget::jsStringLiteral(const std::string& value,

@@ -330,6 +330,7 @@ public:
    */
   int mouseOverDelay() const;
 
+  virtual void setPopup(bool popup);
   virtual void load();
   virtual bool isEnabled() const;
 

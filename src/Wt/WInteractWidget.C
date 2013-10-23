@@ -55,6 +55,17 @@ WInteractWidget::~WInteractWidget()
   delete dragSlot_;
 }
 
+void WInteractWidget::setPopup(bool popup)
+{
+  if (popup) {
+    clicked().preventPropagation();
+    mouseWentDown().preventPropagation();
+    mouseWentUp().preventPropagation();
+  }
+
+  WWebWidget::setPopup(popup);
+}
+
 EventSignal<WKeyEvent>& WInteractWidget::keyWentDown()
 {
   return *keyEventSignal(KEYDOWN_SIGNAL, true);

@@ -51,6 +51,10 @@ namespace Wt {
 
 LOGGER("WSuggestionPopup");
 
+WSuggestionPopup::Options::Options() 
+  : listSeparator(0)
+{ }
+
 WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
   : WPopupWidget(new WContainerWidget(), parent),
     model_(0),

@@ -1242,6 +1242,8 @@ void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
     if (!columnInfo(i).hidden)
       width += (int)columnInfo(i).width.toPixels() + 7;
 
+  for (int i=start; i<start+count; i++)
+    delete columns_[i].styleRule;
   columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
 
   if (ajaxMode())

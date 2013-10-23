@@ -1834,6 +1834,8 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 	doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
     }
 
+    for (int i=start; i<start+count; i++)
+      delete columns_[i].styleRule;
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
 
     if (renderState_ < NeedRerenderHeader) {

@@ -252,13 +252,6 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
 
   typedef WAbstractItemView Self;
 
-  headerClickedMapper_ = new WSignalMapper<int>(this);
-  headerClickedMapper_->mapped().connect(this, &Self::handleHeaderClicked);
-
-  headerDblClickedMapper_ = new WSignalMapper<int>(this);
-  headerDblClickedMapper_->mapped().connect(this,
-                                            &Self::handleHeaderDblClicked);
-
   clickedForCollapseMapper_ = new WSignalMapper<int>(this);
   clickedForCollapseMapper_->mapped().connect(this, &Self::collapseColumn);
 
@@ -293,11 +286,13 @@ WAbstractItemView::~WAbstractItemView()
 
 void WAbstractItemView::setModel(WAbstractItemModel *model)
 {
+  bool isReset = false;
   if (model_) {
     /* disconnect slots from previous model */
     for (unsigned i = 0; i < modelConnections_.size(); ++i)
       modelConnections_[i].disconnect();
     modelConnections_.clear();
+    isReset = true;
   }
 
   model_ = model;
@@ -311,6 +306,9 @@ void WAbstractItemView::setModel(WAbstractItemModel *model)
   delete oldSelectionModel;
 
   editedItems_.clear();
+
+  if (!isReset)
+    initDragDrop();
 
   configureModelDragDrop();
 
@@ -607,8 +605,6 @@ void WAbstractItemView::dropEvent(const WDropEvent& e, const WModelIndex& index)
 
 void WAbstractItemView::configureModelDragDrop()
 {
-  initDragDrop();
-
   if (!model_)
     return;
 
@@ -675,7 +671,7 @@ WWidget *WAbstractItemView::extraHeaderWidget(int column)
   return columnInfo(column).extraHeaderWidget;
 }
 
-void WAbstractItemView::handleHeaderClicked(int columnid)
+void WAbstractItemView::handleHeaderClicked(int columnid, WMouseEvent event)
 {
   int column = columnById(columnid);
   ColumnInfo& info = columnInfo(column);
@@ -683,12 +679,12 @@ void WAbstractItemView::handleHeaderClicked(int columnid)
   if (sortEnabled_ && info.sorting)
     toggleSortColumn(columnid);
 
-  headerClicked_.emit(column);
+  headerClicked_.emit(column, event);
 }
 
-void WAbstractItemView::handleHeaderDblClicked(int columnid)
+void WAbstractItemView::handleHeaderDblClicked(int columnid, WMouseEvent event)
 {
-  headerDblClicked_.emit(columnById(columnid));
+  headerDblClicked_.emit(columnById(columnid), event);
 }
 
 void WAbstractItemView::toggleSortColumn(int columnid)
@@ -1011,8 +1007,9 @@ WWidget *WAbstractItemView::createHeaderWidget(int column)
     sortIcon->setObjectName("sort");
     sortIcon->setInline(false);
     sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
-    headerClickedMapper_->mapConnect(sortIcon->clicked(), info.id);
-
+    sortIcon->clicked().connect(
+          boost::bind(&WAbstractItemView::handleHeaderClicked,
+                      this, info.id, _1));
     if (currentSortColumn_ == column)
       sortIcon->setStyleClass(info.sortOrder == AscendingOrder
 			      ? "Wt-tv-sh Wt-tv-sh-up"
@@ -1043,8 +1040,12 @@ WWidget *WAbstractItemView::createHeaderWidget(int column)
   // FIXME: we probably want this as an API option ?
   WInteractWidget *ww = dynamic_cast<WInteractWidget *>(i);
   if (ww){
-    headerClickedMapper_->mapConnect(ww->clicked(), info.id);
-    headerDblClickedMapper_->mapConnect(ww->doubleClicked(), info.id);
+    ww->clicked().connect(
+          boost::bind(&WAbstractItemView::handleHeaderClicked, this,
+                      info.id, _1));
+    ww->doubleClicked().connect(
+          boost::bind(&WAbstractItemView::handleHeaderDblClicked,
+                      this, info.id, _1));
   }
 
   int headerLevel = model_ ? this->headerLevel(column) : 0;
