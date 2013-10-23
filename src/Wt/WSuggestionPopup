@@ -187,6 +187,10 @@ public:
    * \sa WSuggestionPopup
    */
   struct Options {
+    /*! \brief Constructor
+     */
+    Options();
+
     /*! \brief Open tag to highlight a match in a suggestion.
      *
      * Must be an opening markup tag, such as &lt;b&gt;.

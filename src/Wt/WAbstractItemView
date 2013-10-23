@@ -769,7 +769,7 @@ public:
    *
    * \sa clicked(), headerDblClicked()
    */
-  Signal<int> &headerClicked() { return headerClicked_; }
+  Signal<int, WMouseEvent> &headerClicked() { return headerClicked_; }
 
   /*! \brief %Signal emitted when a header item is double clicked.
    *
@@ -777,7 +777,7 @@ public:
    *
    * \sa doubleClicked(), headerClicked()
    */
-  Signal<int> &headerDoubleClicked() { return headerDblClicked_; }
+  Signal<int, WMouseEvent> &headerDoubleClicked() { return headerDblClicked_; }
 
   /*! \brief Configures the number of columns that are used as row
    *         headers.
@@ -1037,8 +1037,8 @@ private:
   
   WSignalMapper<int> *clickedForExpandMapper_, *clickedForCollapseMapper_;
 
-  WSignalMapper<int> *headerDblClickedMapper_,
-   *headerClickedMapper_;
+//  WSignalMapper<int, WMouseEvent> *headerDblClickedMapper_,
+//    *headerClickedMapper_;
   bool alternatingRowColors_;
 
   JSlot resizeHandleMDownJS_;
@@ -1046,8 +1046,8 @@ private:
   typedef std::map<WModelIndex, Editor> EditorMap;
   EditorMap editedItems_;
 
-  Signal<int> headerDblClicked_;
-  Signal<int> headerClicked_;
+  Signal<int, WMouseEvent> headerDblClicked_;
+  Signal<int, WMouseEvent> headerClicked_;
 
   Signal<WModelIndex, WMouseEvent> clicked_;
   Signal<WModelIndex, WMouseEvent> doubleClicked_;
@@ -1076,8 +1076,8 @@ private:
   void checkDragSelection();
   void configureModelDragDrop();
 
-  void handleHeaderClicked(int columnid);
-  void handleHeaderDblClicked(int columnid);
+  void handleHeaderClicked(int columnid, WMouseEvent event);
+  void handleHeaderDblClicked(int columnid, WMouseEvent event);
   void toggleSortColumn(int columnid);
   void updateColumnWidth(int columnId, int width);
 

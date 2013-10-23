@@ -318,15 +318,16 @@ private:
   static const int BIT_DISABLED = 24;
   static const int BIT_DISABLED_CHANGED = 25;
   static const int BIT_CONTAINS_LAYOUT = 26;
+  static const int BIT_ZINDEX_CHANGED = 27;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<27> AllChangeFlags;
+  static const std::bitset<28> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<27> flags_;
+  std::bitset<28> flags_;
   WLength *width_;
   WLength *height_;
 
