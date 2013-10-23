@@ -28,27 +28,37 @@ WPolygonArea::WPolygonArea(const std::vector<WPointF>& points)
 void WPolygonArea::addPoint(int x, int y)
 {
   points_.push_back(WPoint(x, y));
+  
+  repaint();
 }
 
 void WPolygonArea::addPoint(double x, double y)
 {
   points_.push_back(WPoint(static_cast<int>(x), static_cast<int>(y)));
+  
+  repaint();
 }
 
 void WPolygonArea::addPoint(const WPoint& point)
 {
   points_.push_back(point);
+  
+  repaint();
 }
 
 void WPolygonArea::addPoint(const WPointF& point)
 {
   points_.push_back(WPoint(static_cast<int>(point.x()),
 			   static_cast<int>(point.y())));
+               
+  repaint();
 }
 
 void WPolygonArea::setPoints(const std::vector<WPoint>& points)
 {
   points_ = points;
+  
+  repaint();
 }
 
 #ifndef WT_TARGET_JAVA
