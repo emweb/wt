@@ -61,10 +61,11 @@ std::string TopicWidget::docAnchor(const std::string &classname) const
      << escape("Wt::" + classname)
      << ".html\" target=\"_blank\">doc</a>";
 #else
-  std::string cn = boost::replace_all(classname, "Chart::","chart/");
+  std::string cn = classname;
+  cn = boost::replace_all(cn, "Chart::","chart/");
   ss << "<a href=\"http://www.webtoolkit.eu/"
      << "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/"
-     << classname
+     << cn
      << ".html\" target=\"_blank\">doc</a>";
 #endif
 

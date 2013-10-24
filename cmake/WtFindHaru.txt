@@ -9,9 +9,9 @@ FIND_PATH(HARU_INCLUDE_DIR
     hpdf.h
   PATHS
     ${HARU_PREFIX}/include
+    ${HARU_PREFIX}/include/hpdf
+    ${HARU_PREFIX}/include/libharu
     /usr/include
-    /usr/local/include
-    /usr/local/include/hpdf
 )
 
 IF(WIN32)
@@ -43,6 +43,7 @@ ELSE(WIN32)
   FIND_LIBRARY(HARU_LIB
     NAMES
       hpdf
+      haru
     PATHS
       ${HARU_PREFIX}/lib
   )

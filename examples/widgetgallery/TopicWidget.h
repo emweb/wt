@@ -19,23 +19,6 @@ public:
 
   virtual void populateSubMenu(Wt::WMenu *menu);
 
-  // Inserts the classname in the parent, with a link to the
-  // documentation
-  void topic(const std::string &classname,
-	     WContainerWidget *parent) const;
-  void topic(const std::string &classname1,
-	     const std::string &classname2,
-	     WContainerWidget *parent) const;
-  void topic(const std::string &classname1,
-	     const std::string &classname2,
-	     const std::string &classname3,
-	     WContainerWidget *parent) const;
-  void topic(const std::string &classname1,
-	     const std::string &classname2,
-	     const std::string &classname3,
-	     const std::string &classname4,
-	     WContainerWidget *parent) const;
-
   static Wt::WString reindent(const Wt::WString& text);
 
 protected:

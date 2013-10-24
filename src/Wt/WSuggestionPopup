@@ -187,9 +187,11 @@ public:
    * \sa WSuggestionPopup
    */
   struct Options {
+#ifdef WT_TARGET_JAVA
     /*! \brief Constructor
      */
     Options();
+#endif
 
     /*! \brief Open tag to highlight a match in a suggestion.
      *

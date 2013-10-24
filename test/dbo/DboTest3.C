@@ -170,40 +170,40 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
    * non-aggregate fields.
    */
   tupe = session.query<tupel>(std::string(
-          "SELECT SUM(\"intC\"), \"doubleC\" FROM \"") +
-           FuncTest::TableName() + "\" LIMIT 1");
+          "SELECT SUM(\"intC\") as sc, \"doubleC\" FROM \"") +
+			      FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(tupe.get<0>() == 6);
 #endif
 
   tupe = session.query<tupel>(std::string(
-          "SELECT SUM(\"intC\"), SUM(\"doubleC\") FROM \"") +
-           FuncTest::TableName() + "\" LIMIT 1");
+          "SELECT SUM(\"intC\") as sc, SUM(\"doubleC\") as dc FROM \"") +
+           FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(tupe.get<0>() == 6);
   BOOST_REQUIRE(tupe.get<1>() == 6.6);
 
   double d = session.query<double>(std::string(
-          "SELECT SUM(\"doubleC\" * \"intC\") FROM \"") +
-           FuncTest::TableName() + "\" LIMIT 1");
+          "SELECT SUM(\"doubleC\" * \"intC\") as sc FROM \"") +
+           FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(std::abs(d - 15.4) < 0.001);//d == 15.4
 
   d = session.query<double>(std::string(
-          "SELECT MAX(\"doubleC\" * \"intC\") FROM \"") +
-           FuncTest::TableName() + "\" LIMIT 1");
+          "SELECT MAX(\"doubleC\" * \"intC\") as m FROM \"") +
+           FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(std::abs(d - 9.9) < 0.001);
 
   double i = session.query<double>(std::string(
-          "SELECT AVG(\"intC\") FROM \"") +
-          FuncTest::TableName() + "\" LIMIT 1");
+          "SELECT AVG(\"intC\") as a FROM \"") +
+          FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(i == 2.0);
 
   i = session.query<int>(std::string(
-          "SELECT COUNT(\"intC\") FROM \"") +
-          FuncTest::TableName() + "\" LIMIT 1");
+          "SELECT COUNT(\"intC\") as c FROM \"") +
+          FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(i == 3);
 

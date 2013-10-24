@@ -51,9 +51,11 @@ namespace Wt {
 
 LOGGER("WSuggestionPopup");
 
+#ifdef WT_TARGET_JAVA
 WSuggestionPopup::Options::Options() 
   : listSeparator(0)
 { }
+#endif
 
 WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
   : WPopupWidget(new WContainerWidget(), parent),

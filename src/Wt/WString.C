@@ -23,6 +23,7 @@ namespace Wt {
 
 std::vector<WString> WString::stArguments_;
 const WString WString::Empty;
+CharEncoding WString::defaultEncoding_ = Wt::LocalEncoding;
 
 WString::WString()
   : impl_(0)
@@ -49,7 +50,7 @@ WString::WString(const char *value, CharEncoding encoding)
   : impl_(0)
 {
   if (value) {
-    if (encoding == UTF8)
+    if (realEncoding(encoding) == UTF8)
       utf8_ = value;
     else
       utf8_ = Wt::toUTF8(value);
@@ -59,7 +60,7 @@ WString::WString(const char *value, CharEncoding encoding)
 WString::WString(const std::string& value, CharEncoding encoding)
   : impl_(0)
 { 
-  if (encoding == UTF8)
+  if (realEncoding(encoding) == UTF8)
     utf8_ = value;
   else
     utf8_ = Wt::toUTF8(value);
@@ -337,7 +338,7 @@ WString& WString::arg(const std::string& value, CharEncoding encoding)
 {
   createImpl();
 
-  if (encoding == UTF8)
+  if (realEncoding(encoding) == UTF8)
     impl_->arguments_.push_back(WString::fromUTF8(value, true));
   else {
     WString s;
@@ -429,6 +430,19 @@ WString utf8(const std::string& value)
 std::string WString::jsStringLiteral(char delimiter) const
 {
   return WWebWidget::jsStringLiteral(toUTF8(), delimiter);
+}
+
+void WString::setDefaultEncoding(Wt::CharEncoding encoding)
+{
+  if (encoding == DefaultEncoding)
+    defaultEncoding_ = LocalEncoding;
+  else
+    defaultEncoding_ = encoding;
+}
+
+CharEncoding WString::realEncoding(CharEncoding encoding)
+{
+  return encoding == DefaultEncoding ? defaultEncoding_ : encoding;
 }
 
 WString operator+ (const WString& lhs, const WString& rhs)

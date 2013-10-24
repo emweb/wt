@@ -45,8 +45,9 @@ std::string TopicTemplate::docUrl(const std::string& className)
   ss << getString("doc-url") << "class" << escape("Wt::" + className)
      << ".html";
 #else
-  boost::replace_all(className, ".", "/");
-  ss << getString("doc-url") << className << ".html";
+  std::string cn = className;
+  boost::replace_all(cn, ".", "/");
+  ss << getString("doc-url") << cn << ".html";
 #endif
 
   return ss.str();

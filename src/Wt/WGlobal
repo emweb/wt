@@ -563,6 +563,13 @@ enum Cursor {
  * \relates WString
  */
 enum CharEncoding {
+  /*! \brief Wt's default encoding
+   *
+   * Wt's global default encoding, as set through WString::setDefaultEncoding()
+   *
+   */
+  DefaultEncoding,
+
   /*! \brief The (server) system locale.
    *
    * Each byte represents a character, according to the locale
