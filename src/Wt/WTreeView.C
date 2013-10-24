@@ -1071,8 +1071,9 @@ void WTreeView::defineJavaScript()
 		      + app->javaScriptClass() + "," + jsRef() + ","
 		      + contentsContainer_->jsRef() + ","
 		      + headerContainer_->jsRef() + ","
-		      + boost::lexical_cast<std::string>(rowHeaderCount())
-		      + ");");
+		      + boost::lexical_cast<std::string>(rowHeaderCount())+ ",'"
+		      + WApplication::instance()->theme()->activeClass()
+		      + "');");
 
   setJavaScriptMember(WT_RESIZE_JS,
 		      "function(self,w,h) {"

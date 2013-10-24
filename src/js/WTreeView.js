@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTreeView",
- function(APP, el, contentsContainer, headerContainer, rowHeaderCount) {
+ function(APP, el, contentsContainer, headerContainer, rowHeaderCount, selectedClass) {
    jQuery.data(el, 'obj', this);
 
    var contents = contentsContainer.firstChild;
@@ -47,7 +47,7 @@ WT_DECLARE_WT_MEMBER
 	 ele = t;
        }
 
-       if ($(t).hasClass('Wt-selected'))
+       if ($(t).hasClass(selectedClass))
 	 selected = true;
 
        t = t.parentNode;
