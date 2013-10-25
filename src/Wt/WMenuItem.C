@@ -199,6 +199,7 @@ std::string WMenuItem::pathComponent() const
 void WMenuItem::setInternalPathEnabled(bool enabled)
 {
   internalPathEnabled_ = enabled;
+  updateInternalPath();
 }
 
 bool WMenuItem::internalPathEnabled() const
@@ -240,8 +241,7 @@ AnchorTarget WMenuItem::linkTarget() const
 
 void WMenuItem::updateInternalPath()
 {  
-  if (menu_ && menu_->internalPathEnabled() &&
-      !dynamic_cast<WPopupMenu *>(menu_)) {
+  if (menu_ && menu_->internalPathEnabled() && internalPathEnabled()) {
     std::string internalPath = menu_->internalBasePath() + pathComponent();
     WLink link(WLink::InternalPath, internalPath);
     WAnchor *a = anchor();
@@ -453,8 +453,9 @@ void WMenuItem::purgeContents()
 
 void WMenuItem::setFromInternalPath(const std::string& path)
 {
-  if (menu_->contentsStack_
-      && menu_->contentsStack_->currentWidget() != contents())
+  if (internalPathEnabled() &&
+      menu_->contentsStack_ &&
+      menu_->contentsStack_->currentWidget() != contents())
     menu_->select(menu_->indexOf(this), false);
 
   if (subMenu_ && subMenu_->internalPathEnabled())

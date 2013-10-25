@@ -58,9 +58,8 @@ WInteractWidget::~WInteractWidget()
 void WInteractWidget::setPopup(bool popup)
 {
   if (popup) {
+    clicked().connect("function(o,e) { $(document).trigger('click', e); }");
     clicked().preventPropagation();
-    mouseWentDown().preventPropagation();
-    mouseWentUp().preventPropagation();
   }
 
   WWebWidget::setPopup(popup);

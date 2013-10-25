@@ -473,13 +473,11 @@ void WMenu::internalPathChanged(const std::string& path)
     int bestI = -1, bestMatchLength = -1;
 
     for (int i = 0; i < count(); ++i) {
-      if (itemAt(i)->internalPathEnabled()) {
-	int matchLength = match(subPath, itemAt(i)->pathComponent());
+      int matchLength = match(subPath, itemAt(i)->pathComponent());
 
-	if (matchLength > bestMatchLength) {
-	  bestMatchLength = matchLength;
-	  bestI = i;
-	}
+      if (matchLength > bestMatchLength) {
+	bestMatchLength = matchLength;
+	bestI = i;
       }
     }
 
