@@ -135,7 +135,7 @@ WT_DECLARE_WT_MEMBER
 
      header.style.width = (newWidth + 1) + 'px';
      column.style.width = (newWidth + 7) + 'px';
-     APP.layouts2.adjust(el.children[0].id, [[1,1]]);
+     APP.layouts2.adjust(el.childNodes[0].id, [[1,1]]);
 
      for (; h; h = h.nextSibling) {
        if (c) {
@@ -404,7 +404,7 @@ WT_DECLARE_WT_MEMBER
      var pns = headerColumnsContainer.style;
      if (pns && (pns.marginBottom !== scrollheight + 'px')) {
        pns.marginBottom = scrollheight + 'px';
-       APP.layouts2.adjust(el.children[0].id, [[1,0]]);
+       APP.layouts2.adjust(el.childNodes[0].id, [[1,0]]);
      }
    };
  });

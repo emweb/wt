@@ -156,9 +156,9 @@ WT_DECLARE_WT_MEMBER
 	   topLevel.style.width = (w - 2) + 'px';
 
 	 // deduct height of all the rest
-	 for (i=0, il=container.children.length; i<il; i++) {
-           if (container.children[i] != item) {
-             h -= container.children[i].offsetHeight + 1;
+	 for (i=0, il=container.childNodes.length; i<il; i++) {
+           if (container.childNodes[i] != item) {
+             h -= container.childNodes[i].offsetHeight + 1;
 	   }
          }
 
