@@ -388,31 +388,32 @@ private:
 	lower.setDate(year, 1, 1);
 	upper = lower.addYears(1);
       }
-
-      Posts posts = session_.find<Post>
-	("where date >= ? "
-	 "and date < ? "
-	 "and (state = ? or author_id = ?)")
-	.bind(WDateTime(lower))
-	.bind(WDateTime(upper))
-	.bind(Post::Published)
-	.bind(session_.user().id());
-
-      if (parts.size() > 3) {
-	std::string title = parts[3];
-
-	for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i)
-	  if ((*i)->titleToUrl() == title) {
-	    showPost(*i, PostView::Detail, parent);
-	    return;
-	  }
-
-	showError(tr("blog-no-post"));
-      } else {
-	showPosts(posts, parent);
-      }
-    } catch (std::exception& e) {
+    } catch (boost::bad_lexical_cast& e) {
       showError(tr("blog-no-post"));
+      return;
+    }
+
+    Posts posts = session_.find<Post>
+      ("where date >= ? "
+       "and date < ? "
+       "and (state = ? or author_id = ?)")
+      .bind(WDateTime(lower))
+      .bind(WDateTime(upper))
+      .bind(Post::Published)
+      .bind(session_.user().id());
+
+    if (parts.size() > 3) {
+      std::string title = parts[3];
+
+      for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i)
+	if ((*i)->titleToUrl() == title) {
+	  showPost(*i, PostView::Detail, parent);
+	  return;
+	}
+
+      showError(tr("blog-no-post"));
+    } else {
+      showPosts(posts, parent);
     }
   }
 

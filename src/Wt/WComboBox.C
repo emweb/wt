@@ -259,7 +259,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
 
 	// not same as current group
 	if (!currentGroup ||
-	    currentGroup->getProperty(PropertyLabel) != groupname) {
+	    currentGroup->getProperty(PropertyLabel) != groupname.toUTF8()) {
 	  if (currentGroup) { // possibly close off an active group
 	    if (groupDisabled)
 	      currentGroup->setProperty(PropertyDisabled, "true");

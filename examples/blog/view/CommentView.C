@@ -151,7 +151,12 @@ void CommentView::renderView()
     bindString("delete", WString::Empty);
 
   typedef std::vector< dbo::ptr<Comment> > CommentVector;
-  CommentVector comments(comment_->children.begin(), comment_->children.end());
+  CommentVector comments;
+  {
+    dbo::collection<dbo::ptr<Comment> > cmts
+      = comment_->children.find().orderBy("date");
+    comments.insert(comments.end(), cmts.begin(), cmts.end());
+  }
 
   WContainerWidget *children = new WContainerWidget();
   for (int i = (int)comments.size() - 1; i >= 0; --i)

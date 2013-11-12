@@ -1655,7 +1655,7 @@ _$_$endif_$_();
       var ip = gentleURIEncode(state), url = baseUrl;
 
       if (ip.length != 0)
-	url += (ugly ? "?_=" : "") + state;
+	url += (ugly ? "?_=" : "") + ip;
 
       if (!ugly) {
 	url += window.location.search;
@@ -3025,17 +3025,29 @@ function jsLoaded(path)
 
 function loadScript(uri, symbol, tries)
 {
+  var loaded = false, error = false;
+
   function onerror() {
-    var t = tries === undefined ? (WT.isIE ? 1 : 2) : tries;
-    if (t > 1) {
-      loadScript(uri, symbol, t - 1);
-    } else {
-      alert('Fatal error: failed loading ' + uri);
-      quit();
+    if (!loaded && !error) {
+      error = true;
+
+      var t = tries === undefined ? (WT.isIE ? 1 : 2) : tries;
+      if (t > 1) {
+	loadScript(uri, symbol, t - 1);
+      } else {
+	alert('Fatal error: failed loading ' + uri);
+	quit();
+      }      
     }
   }
 
-  var loaded = false;
+  function onload() {
+    if (!loaded && !error) {
+      loaded = true;
+      jsLoaded(uri);
+    }
+  }
+
   if (symbol != "") {
     try {
       loaded = !eval("typeof " + symbol + " === 'undefined'");
@@ -3047,17 +3059,17 @@ function loadScript(uri, symbol, tries)
   if (!loaded) {
     var s = document.createElement('script');
     s.setAttribute('src', uri);
-    s.onload = function() { jsLoaded(uri); };
+    s.onload = onload;
     s.onerror = onerror;
     s.onreadystatechange = function() {
       var rs = s.readyState;
-      if (rs == 'loaded') {
+      if (rs == 'loaded') { // may still be 404 in IE<=8; too bad!
 	if (WT.isOpera || WT.isIE) {
-	  jsLoaded(uri);
+	  onload();
 	} else
 	  onerror();
       } else if (rs == 'complete') {
-	jsLoaded(uri);
+	onload();
       }
     };
     var h = document.getElementsByTagName('head')[0];
