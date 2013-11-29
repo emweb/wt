@@ -120,7 +120,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
   }
 
   // FIXME IE9 does border-box perhaps ?
-  if (!app->environment().agentIsIE() && 
+  if (!app->environment().agentIsIElt(9) && 
       w->javaScriptMember(WWidget::WT_RESIZE_JS).empty() &&
       d->type() != DomElement_TABLE /* buggy in Chrome, see #1856 */ &&
       app->theme()->canBorderBoxElement(*d))

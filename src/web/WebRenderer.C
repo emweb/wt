@@ -1813,7 +1813,7 @@ std::string WebRenderer::headDeclarations() const
       } else if (session_.env().agent() == WEnvironment::IE9) {
 	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\"";
 	closeSpecial(result);
-      } else {
+      } else if (session_.env().agent() == WEnvironment::IE10) {
 	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=10\"";
 	closeSpecial(result);
       }

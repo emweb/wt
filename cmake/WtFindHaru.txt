@@ -15,17 +15,22 @@ FIND_PATH(HARU_INCLUDE_DIR
 )
 
 IF(WIN32)
+  IF(HARU_DYNAMIC)
+    SET(HARU_RELEASE_NAMES "libhpdf")
+    SET(HARU_DEBUG_NAMES "libhpdfd")
+  ELSE(HARU_DYNAMIC)
+    SET(HARU_RELEASE_NAMES "libhpdfs")
+    SET(HARU_DEBUG_NAMES "libhpdfsd")
+  ENDIF(HARU_DYNAMIC)
   FIND_LIBRARY(HARU_LIB_RELEASE
     NAMES
-      libhpdfs
-      libhpdf
+      ${HARU_RELEASE_NAMES}
     PATHS
       ${HARU_PREFIX}/lib
   )
   FIND_LIBRARY(HARU_LIB_DEBUG
     NAMES
-      libhpdfsd
-      libhpdfd
+      ${HARU_DEBUG_NAMES}
     PATHS
       ${HARU_PREFIX}/lib
   )

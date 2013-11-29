@@ -136,7 +136,11 @@ void WDateEdit::propagateSetEnabled(bool enabled)
 void WDateEdit::setHidden(bool hidden, const WAnimation& animation)
 {
   WLineEdit::setHidden(hidden, animation);
-  popup_->setHidden(hidden, animation);
+  // rationale: when calling hide(), line edit and popup should go away. When
+  // calling show(), line edit becomes visible, but popup is only shown when
+  // using the widget.
+  if (hidden)
+    popup_->setHidden(hidden, animation);
 }
 
 void WDateEdit::setBottom(const WDate& bottom)

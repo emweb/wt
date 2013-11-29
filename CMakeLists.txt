@@ -96,7 +96,6 @@ OPTION(INSTALL_EXAMPLES "Install examples (binaries and source)" OFF)
 OPTION(INSTALL_RESOURCES "Install resources directory" ON)
 OPTION(INSTALL_FINDWT_CMAKE_FILE "Install FindWt.cmake in systemwide cmake dir (in addition to CMAKE_INSTALL_PREFIX/cmake)" OFF)
 OPTION(ENABLE_SSL "Enable cryptography functions, using OpenSSL" ON)
-OPTION(ENABLE_GM "Enable GraphicsMagick, for supporting painting to raster images (PNG, GIF, ...) (WRasterImage)" ON)
 OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide support for painting to PDF (WPdfImage)" ON)
 OPTION(ENABLE_PANGO "Enable Pango Library, which is used for improved font support (WPdfImage and WRasterImage)" ON)
 OPTION(ENABLE_EXT "Build Wt Ext library with JavaScript-only widgets (http://extjs.com/) DEPRECATED" OFF)
@@ -243,6 +242,7 @@ ENDIF(DEFINED USERLIB_ROOT)
 IF(WIN32)
   SET(BOOST_PREFIX_DEFAULT "c:/Program Files/Boost")
   OPTION(BOOST_DYNAMIC "Link to boost DLLs (OFF means static link)" OFF)
+  OPTION(HARU_DYNAMIC "Link to libharu DLLs (OFF means static link)" OFF)
 ELSE(WIN32)
   SET(BOOST_PREFIX_DEFAULT ${USERLIB_PREFIX})
 ENDIF(WIN32)
@@ -275,6 +275,8 @@ SET(ZLIB_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of zlib library (overrides USERLIB_PREFIX)")
 SET(GM_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of GraphicsMagick library (overrides USERLIB_PREFIX)")
+SET(SKIA_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Prefix of skia library (overrides USERLIB_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 IF(CYGWIN)
@@ -319,6 +321,7 @@ INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
+INCLUDE(cmake/WtFindSkia.txt)
 
 IF (ENABLE_PANGO)
   INCLUDE(cmake/WtFindPangoFt2.txt)
@@ -400,6 +403,7 @@ ELSE (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
   SET_PROPERTY(CACHE WT_SIGNALS_IMPLEMENTATION PROPERTY STRINGS boost.signals boost.signals2)
 ENDIF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
 
+
 IF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
   MESSAGE(STATUS "Selecting boost.signals")
   SET(WT_USE_BOOST_SIGNALS ON)
@@ -410,6 +414,30 @@ ELSEIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals2")
   SET(WT_USE_BOOST_SIGNALS2 ON)
 ENDIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
 
+
+# decide on GraphicsMagick vs skia
+# todo: set default to whatever was found
+SET(WT_WRASTERIMAGE_DEFAULT_IMPLEMENTATION "none")
+SET(WT_WRASTERIMAGE_IMPLEMENTATION ${WT_WRASTERIMAGE_DEFAULT_IMPLEMENTATION} CACHE STRING "Implementation for WRasterImage server-side rendering")
+IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+  MESSAGE(STATUS "Informational: WT_WRASTERIMAGE_IMPLEMENTATION should be either GraphicsMagick or skia")
+ELSE (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+  SET_PROPERTY(CACHE WT_WRASTERIMAGE_IMPLEMENTATION PROPERTY STRINGS GraphicsMagick skia none)
+ENDIF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+
+IF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
+  IF (NOT GM_FOUND)
+    MESSAGE(FATAL_ERROR "WT_WRASTERIMAGE_IMPLEMENTATION set to GraphicsMagick but GM is not found. Indicate the location of your graphicsmagick library using -DGM_PREFIX=...")
+  ENDIF (NOT GM_FOUND)
+  SET(WT_HAS_WRASTERIMAGE true)
+ELSEIF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "skia")
+  IF (NOT SKIA_FOUND)
+    MESSAGE(FATAL_ERROR "WT_WRASTERIMAGE_IMPLEMENTATION set to skia but skia is not found. Indicate the location of your skia library using -DSKIA_PREFIX=...")
+  ENDIF (NOT SKIA_FOUND)
+  SET(WT_HAS_WRASTERIMAGE true)
+ELSE (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
+    MESSAGE("No WRasterimage support. Set WT_WRASTERIMAGE_IMPLEMENTATION to GraphicsMagick or skia.")
+ENDIF (${WT_WRASTERIMAGE_IMPLEMENTATION} STREQUAL "GraphicsMagick")
 
 FIND_PACKAGE(Doxygen)
 
@@ -424,6 +452,9 @@ IF(WIN32)
     # is not set, but this is problematic for cygwin
     ADD_DEFINITIONS(-DBOOST_THREAD_USE_LIB)
   ENDIF(BOOST_DYNAMIC)
+  IF(HARU_DYNAMIC)
+    ADD_DEFINITIONS(-DHPDF_DLL)
+  ENDIF(HARU_DYNAMIC)
   ADD_DEFINITIONS(
       -D_CRT_SECURE_NO_WARNINGS
       -D_SCL_SECURE_NO_WARNINGS
@@ -518,11 +549,6 @@ IF(ENABLE_SSL AND SSL_FOUND)
   SET(HAVE_SSL ON)
   SET(WT_WITH_SSL true)
 ENDIF(ENABLE_SSL AND SSL_FOUND)
-
-IF(ENABLE_GM AND GM_FOUND)
-  SET(HAVE_GM ON)
-  SET(WT_HAS_WRASTERIMAGE true)
-ENDIF(ENABLE_GM AND GM_FOUND)
 
 IF(ENABLE_PANGO AND PANGO_FT2_FOUND)
   SET(HAVE_PANGO ON)

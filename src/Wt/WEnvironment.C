@@ -237,10 +237,6 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = IEMobile;
   else if (userAgent_.find("MSIE 6.") != std::string::npos)
     agent_ = IE6;
-  else if (userAgent_.find("Trident/5.0") != std::string::npos)
-    agent_ = IE9;
-  else if (userAgent_.find("Trident/6.0") != std::string::npos)
-    agent_ = IE10;
   else if (userAgent_.find("MSIE 7.") != std::string::npos)
     agent_ = IE7;
   else if (userAgent_.find("MSIE 8.") != std::string::npos)
@@ -249,6 +245,14 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = IE9;
   else if (userAgent_.find("MSIE") != std::string::npos)
     agent_ = IE10;
+  else if (userAgent_.find("Trident/5.0") != std::string::npos)
+    agent_ = IE9;
+  else if (userAgent_.find("Trident/6.0") != std::string::npos)
+    agent_ = IE10;
+  else if (userAgent_.find("Trident/7.0") != std::string::npos) {
+    agent_ = IE11;
+    return;
+  }
 
   if (userAgent_.find("Opera") != std::string::npos) {
     agent_ = Opera;

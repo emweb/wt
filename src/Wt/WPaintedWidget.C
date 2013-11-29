@@ -16,9 +16,9 @@
 #include "Wt/WSvgImage"
 #include "Wt/WVmlImage"
 
-#ifdef HAVE_RASTER_IMAGE
+#ifdef WT_HAS_WRASTERIMAGE
 #include "Wt/WRasterImage"
-#endif // HAVE_RASTER_IMAGE
+#endif // WT_HAS_WRASTERIMAGE
 
 #include "DomElement.h"
 
@@ -602,7 +602,7 @@ WWidgetRasterPainter::WWidgetRasterPainter(WPaintedWidget *widget)
 
 WWidgetRasterPainter::~WWidgetRasterPainter()
 {
-#ifdef HAVE_RASTER_IMAGE
+#ifdef WT_HAS_WRASTERIMAGE
   delete device_;
 #endif
 }
@@ -610,7 +610,7 @@ WWidgetRasterPainter::~WWidgetRasterPainter()
 WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
 {
   if (!device_ || widget_->sizeChanged_) {
-#ifdef HAVE_RASTER_IMAGE
+#ifdef WT_HAS_WRASTERIMAGE
     delete device_;
     device_
       = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
@@ -619,7 +619,7 @@ WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
 #endif
   }
 
-#ifdef HAVE_RASTER_IMAGE
+#ifdef WT_HAS_WRASTERIMAGE
   if (!paintUpdate)
     device_->clear();
 

@@ -87,7 +87,8 @@ public:
     IE7 = 1002,                 //!< Internet Explorer 7
     IE8 = 1003,                 //!< Internet Explorer 8
     IE9 = 1004,                 //!< Internet Explorer 9
-    IE10 = 1005,                //!< Internet Explorer 10 or later
+    IE10 = 1005,                //!< Internet Explorer 10
+    IE11 = 1006,                //!< Internet Explorer 11
     Opera = 3000,               //!< Opera
     Opera10 = 3010,             //!< Opera 10 or later
     WebKit = 4000,              //!< WebKit

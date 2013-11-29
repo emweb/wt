@@ -675,7 +675,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 
 	if (table) {
 	  if (c) {
-	    if (!app->environment().agentIsIE())
+	    if (!app->environment().agentIsIElt(9))
 	      c->setProperty(PropertyStyleBoxSizing, "border-box");
 
 	    if (hAlign == 0)

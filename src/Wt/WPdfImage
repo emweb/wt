@@ -14,16 +14,7 @@
 #include <Wt/WTransform>
 #endif //WT_TARGET_JAVA
 
-/*
- * Forwards for libharu types
- */
-struct _HPDF_Dict_Rec;
-struct _HPDF_Doc_Rec;
-typedef _HPDF_Dict_Rec *HPDF_Page;
-typedef _HPDF_Dict_Rec *HPDF_Font;
-typedef _HPDF_Doc_Rec *HPDF_Doc;
-typedef float HPDF_REAL;
-typedef long unsigned HPDF_STATUS;
+#include <hpdf.h>
 
 namespace Wt {
 

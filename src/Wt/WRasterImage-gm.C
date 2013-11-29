@@ -85,72 +85,104 @@ namespace Wt {
 
 LOGGER("WRasterImage");
 
+class WRasterImage::Impl {
+public:
+  std::string type_;
+  FontSupport *fontSupport_;
+  bool renderText_;
+
+  unsigned long w_, h_;
+  unsigned char *pixels_;
+  DrawContext context_;
+  Image *image_;
+  double fontSize_;
+
+  typedef std::list< std::pair<WPainterPath, int> > PathCache;
+  PathCache clipPathCache_;
+  int currentClipPath_;
+  int currentClipPathRendered_;
+  WRasterImage *rasterImage_;
+
+  void internalInit(bool applyChanges = true);
+  void internalDone();
+  void paintPath();
+  void drawPlainPath(const WPainterPath& path);
+  void setTransform(const WTransform& t);
+  void applyTransform(const WTransform& f);
+  std::string currentClipPathName() const;
+
+};
+
 WRasterImage::WRasterImage(const std::string& type,
 			   const WLength& width, const WLength& height,
 			   WObject *parent)
   : WResource(parent),
     width_(width),
     height_(height),
-    type_(type),
     painter_(0),
-    currentClipPath_(-1),
-    currentClipPathRendered_(-1)
+    impl_(new Impl)
 {
   InitializeMagick(0);
 
-  w_ = static_cast<unsigned long>(width.toPixels());
-  h_ = static_cast<unsigned long>(height.toPixels());
+  impl_->rasterImage_ = this;
+  impl_->type_ = type;
+  impl_->currentClipPath_ = -1;
+  impl_->currentClipPathRendered_ = -1;
 
-  context_ = 0;
-  fontSupport_ = 0;
+  impl_->w_ = static_cast<unsigned long>(width.toPixels());
+  impl_->h_ = static_cast<unsigned long>(height.toPixels());
 
-  if (!w_ || !h_) {
-    pixels_ = 0;
-    image_ = 0;
+  impl_->context_ = 0;
+  impl_->fontSupport_ = 0;
+
+  if (!impl_->w_ || !impl_->h_) {
+    impl_->pixels_ = 0;
+    impl_->image_ = 0;
     return;
   }
 
-  unsigned long bufSize = 4 * w_ * h_;
-  pixels_ = new unsigned char[bufSize];
-  for (unsigned i = 0; i < w_ * h_; ++i) {
-    pixels_[i*4] = pixels_[i*4 + 1] = pixels_[i*4 + 2] = 254;
-    pixels_[i*4 + 3] = 0;
+  unsigned long bufSize = 4 * impl_->w_ * impl_->h_;
+  impl_->pixels_ = new unsigned char[bufSize];
+  for (unsigned i = 0; i < impl_->w_ * impl_->h_; ++i) {
+    impl_->pixels_[i*4] = impl_->pixels_[i*4 + 1] = impl_->pixels_[i*4 + 2] = 254;
+    impl_->pixels_[i*4 + 3] = 0;
   }
 
   ExceptionInfo exception;
   GetExceptionInfo(&exception);
-  image_ = ConstituteImage(w_, h_, "RGBA", CharPixel, pixels_, &exception);
+  impl_->image_ = ConstituteImage(impl_->w_, impl_->h_, "RGBA", CharPixel,
+    impl_->pixels_, &exception);
 
-  SetImageType(image_, TrueColorMatteType);
-  SetImageOpacity(image_, 254); // 255 seems a special value...
+  SetImageType(impl_->image_, TrueColorMatteType);
+  SetImageOpacity(impl_->image_, 254); // 255 seems a special value...
                                 // 254 will have to do
 
   std::string magick = type;
   std::transform(magick.begin(), magick.end(), magick.begin(), toupper);
-  strcpy(image_->magick, type.c_str());
+  strcpy(impl_->image_->magick, type.c_str());
 }
 
 void WRasterImage::clear()
 {
-  if (!image_)
+  if (!impl_->image_)
     return;
 
-  PixelPacket *pixel = SetImagePixels(image_, 0, 0, w_, h_);
-  for (unsigned i = 0; i < w_ * h_; ++i)
+  PixelPacket *pixel = SetImagePixels(impl_->image_, 0, 0, impl_->w_, impl_->h_);
+  for (unsigned i = 0; i < impl_->w_ * impl_->h_; ++i)
     WColorToPixelPacket(WColor(0, 0, 0, 1), pixel + i);
-  SyncImagePixels(image_);
+  SyncImagePixels(impl_->image_);
 }
 
 WRasterImage::~WRasterImage()
 {
   beingDeleted();
 
-  if (image_) {
-    DestroyImage(image_);
-    delete[] pixels_;
+  if (impl_->image_) {
+    DestroyImage(impl_->image_);
+    delete[] impl_->pixels_;
   }
 
-  delete fontSupport_;
+  delete impl_->fontSupport_;
 
   // DestroyMagick(); apparently should be called only once ?
 }
@@ -158,12 +190,12 @@ WRasterImage::~WRasterImage()
 void WRasterImage::addFontCollection(const std::string& directory,
 				     bool recursive)
 {
-  fontSupport_->addFontCollection(directory, recursive);
+  impl_->fontSupport_->addFontCollection(directory, recursive);
 }
 
 WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 {
-  if (fontSupport_->canRender())
+  if (impl_->fontSupport_->canRender())
     return HasFontMetrics;
   else
     return 0;
@@ -171,19 +203,19 @@ WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 
 void WRasterImage::init()
 {
-  if (!w_ || !h_)
+  if (!impl_->w_ || !impl_->h_)
     throw WException("Raster image should have non-0 width and height");
 
-  fontSupport_ = new FontSupport(this);
+  impl_->fontSupport_ = new FontSupport(this);
 
   /* If the font support can actually render fonts to bitmaps, we use that */
-  if (fontSupport_->canRender())
-    fontSupport_->setDevice(0);
+  if (impl_->fontSupport_->canRender())
+    impl_->fontSupport_->setDevice(0);
 
-  internalInit(true);
+  impl_->internalInit(true);
 }
 
-void WRasterImage::internalInit(bool applyChanges)
+void WRasterImage::Impl::internalInit(bool applyChanges)
 {
   if (!context_) {
     currentClipPathRendered_ = -1;
@@ -200,19 +232,19 @@ void WRasterImage::internalInit(bool applyChanges)
     DrawPushGraphicContext(context_); // for painter->combinedTransform()
 
     if (applyChanges)
-      setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
+      rasterImage_->setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
   }
 }
 
 void WRasterImage::done()
 {
-  internalDone();
+  impl_->internalDone();
 
-  delete fontSupport_;
-  fontSupport_ = 0;
+  delete impl_->fontSupport_;
+  impl_->fontSupport_ = 0;
 }
 
-void WRasterImage::internalDone()
+void WRasterImage::Impl::internalDone()
 {
   if (context_) {
     DrawPopGraphicContext(context_); // for painter->combinedTransform()
@@ -230,7 +262,7 @@ void WRasterImage::internalDone()
   }
 }
 
-void WRasterImage::applyTransform(const WTransform& t)
+void WRasterImage::Impl::applyTransform(const WTransform& t)
 {
   AffineMatrix matrix;
   matrix.sx = t.m11();
@@ -243,7 +275,7 @@ void WRasterImage::applyTransform(const WTransform& t)
   DrawAffine(context_, &matrix);
 }
 
-void WRasterImage::setTransform(const WTransform& t)
+void WRasterImage::Impl::setTransform(const WTransform& t)
 {
   DrawPopGraphicContext(context_);
   DrawPushGraphicContext(context_);
@@ -258,21 +290,21 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
    * the context_, since some clipping paths are cached.
    */
   if (flags != Clipping)
-    internalInit();
+    impl_->internalInit();
 
   if (flags & Clipping) {
     if (painter()->hasClipping()) {
-      if (clipPathCache_.empty())
-	clipPathCache_.resize(3); // keep 3
+      if (impl_->clipPathCache_.empty())
+	impl_->clipPathCache_.resize(3); // keep 3
 
       int index = -1;
       int nextIndex = 0;
 
-      for (PathCache::iterator i = clipPathCache_.begin();
-	   i != clipPathCache_.end(); ++i) {
+      for (Impl::PathCache::iterator i = impl_->clipPathCache_.begin();
+	   i != impl_->clipPathCache_.end(); ++i) {
 	if (i->first == painter()->clipPath()) {
 	  index = i->second;
-	  clipPathCache_.splice(clipPathCache_.begin(), clipPathCache_, i);
+	  impl_->clipPathCache_.splice(impl_->clipPathCache_.begin(), impl_->clipPathCache_, i);
 	  break;
 	} else {
 	  nextIndex = std::max(i->second, nextIndex);
@@ -280,67 +312,67 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       }
 
       if (index == -1) {
-	internalInit(false);
+	impl_->internalInit(false);
 
-	DrawPopGraphicContext(context_);
-	DrawPopGraphicContext(context_);
-	DrawPushGraphicContext(context_);
+	DrawPopGraphicContext(impl_->context_);
+	DrawPopGraphicContext(impl_->context_);
+	DrawPushGraphicContext(impl_->context_);
 
 	index = nextIndex + 1;
 	DrawPushClipPath
-	  (context_,("clip" + boost::lexical_cast<std::string>(index)).c_str());
+	  (impl_->context_,("clip" + boost::lexical_cast<std::string>(index)).c_str());
 	drawPath(painter()->clipPath());
-	DrawPopClipPath(context_);
+	DrawPopClipPath(impl_->context_);
 
-	clipPathCache_.pop_back(); // implement LRU
-	clipPathCache_.push_front(std::make_pair(painter()->clipPath(), index));
-      } else if (context_) {
-	DrawPopGraphicContext(context_);
-	DrawPopGraphicContext(context_);
-	DrawPushGraphicContext(context_);
+	impl_->clipPathCache_.pop_back(); // implement LRU
+	impl_->clipPathCache_.push_front(std::make_pair(painter()->clipPath(), index));
+      } else if (impl_->context_) {
+	DrawPopGraphicContext(impl_->context_);
+	DrawPopGraphicContext(impl_->context_);
+	DrawPushGraphicContext(impl_->context_);
       }
 
-      currentClipPath_ = index;
+      impl_->currentClipPath_ = index;
 
-      if (context_) {
+      if (impl_->context_) {
 	const WTransform& t = painter()->clipPathTransform();
 
-	applyTransform(t);
+	impl_->applyTransform(t);
 
-	DrawSetClipUnits(context_, UserSpaceOnUse);
-	DrawSetClipPath(context_, currentClipPathName().c_str());
+	DrawSetClipUnits(impl_->context_, UserSpaceOnUse);
+	DrawSetClipPath(impl_->context_, impl_->currentClipPathName().c_str());
 
-	applyTransform(t.inverted());
+	impl_->applyTransform(t.inverted());
       }
     } else {
-      currentClipPath_ = -1;
+      impl_->currentClipPath_ = -1;
 
-      if (context_) {
-	DrawPopGraphicContext(context_);
-	DrawPopGraphicContext(context_);
-	DrawPushGraphicContext(context_);
+      if (impl_->context_) {
+	DrawPopGraphicContext(impl_->context_);
+	DrawPopGraphicContext(impl_->context_);
+	DrawPushGraphicContext(impl_->context_);
       }
     }
 
-    if (context_) {
-      DrawPushGraphicContext(context_);
+    if (impl_->context_) {
+      DrawPushGraphicContext(impl_->context_);
       flags = Transform;
     }
   }
 
   if (flags != Clipping)
-    internalInit();
+    impl_->internalInit();
 
   if (flags & Transform) {
-    setTransform(painter()->combinedTransform());
+    impl_->setTransform(painter()->combinedTransform());
     flags = Pen | Brush | Font | Hints;
   }
 
   if (flags & Hints) {
     if (!(painter()->renderHints() & WPainter::Antialiasing))
-      DrawSetStrokeAntialias(context_, 0);
+      DrawSetStrokeAntialias(impl_->context_, 0);
     else
-      DrawSetStrokeAntialias(context_, 1);
+      DrawSetStrokeAntialias(impl_->context_, 1);
   }
 
   if (flags & Pen) {
@@ -352,22 +384,22 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       PixelPacket pp;
       WColorToPixelPacket(color, &pp);
       pp.opacity = 0;
-      DrawSetStrokeColor(context_, &pp);
-      DrawSetStrokeOpacity(context_, color.alpha() / 255.0);
+      DrawSetStrokeColor(impl_->context_, &pp);
+      DrawSetStrokeOpacity(impl_->context_, color.alpha() / 255.0);
 
       WLength w = pen.width();
       w = painter()->normalizedPenWidth(w, w.value() == 0);
-      DrawSetStrokeWidth(context_, w.toPixels());
+      DrawSetStrokeWidth(impl_->context_, w.toPixels());
 
       switch (pen.capStyle()) {
       case FlatCap:
-	DrawSetStrokeLineCap(context_, ::ButtCap);
+	DrawSetStrokeLineCap(impl_->context_, ::ButtCap);
 	break;
       case SquareCap:
-	DrawSetStrokeLineCap(context_, ::SquareCap);
+	DrawSetStrokeLineCap(impl_->context_, ::SquareCap);
 	break;
       case RoundCap:
-	DrawSetStrokeLineCap(context_, ::RoundCap);
+	DrawSetStrokeLineCap(impl_->context_, ::RoundCap);
 	break;
       }
 
@@ -390,33 +422,33 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       case NoPen:
 	break;
       case SolidLine:
-	DrawSetStrokeDashArray(context_, 0, 0);
+	DrawSetStrokeDashArray(impl_->context_, 0, 0);
 	break;
       case DashLine: {
 	const double dasharray[] = { 4, 2 };
-	DrawSetStrokeDashArray(context_, 2, dasharray);
+	DrawSetStrokeDashArray(impl_->context_, 2, dasharray);
 	break;
       }
       case DotLine: {
 	const double dasharray[] = { 1, 2 };
-	DrawSetStrokeDashArray(context_, 2, dasharray);
+	DrawSetStrokeDashArray(impl_->context_, 2, dasharray);
 	break;
       }
       case DashDotLine: {
 	const double dasharray[] = { 4, 2, 1, 2 };
-	DrawSetStrokeDashArray(context_, 4, dasharray);
+	DrawSetStrokeDashArray(impl_->context_, 4, dasharray);
 	break;
       }
       case DashDotDotLine: {
 	const double dasharray[] = { 4, 2, 1, 2, 1, 2 };
-	DrawSetStrokeDashArray(context_, 6, dasharray);
+	DrawSetStrokeDashArray(impl_->context_, 6, dasharray);
 	break;
       }
       }
 
     } else {
-      DrawSetStrokeWidth(context_, 0);
-      DrawSetStrokeOpacity(context_, 0);
+      DrawSetStrokeWidth(impl_->context_, 0);
+      DrawSetStrokeOpacity(impl_->context_, 0);
     }
   }
 
@@ -428,10 +460,10 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       PixelPacket pp;
       WColorToPixelPacket(color, &pp);
       pp.opacity = 0;
-      DrawSetFillColor(context_, &pp);
-      DrawSetFillOpacity(context_, color.alpha() / 255.0);
+      DrawSetFillColor(impl_->context_, &pp);
+      DrawSetFillOpacity(impl_->context_, color.alpha() / 255.0);
     } else
-      DrawSetFillOpacity(context_, 0);
+      DrawSetFillOpacity(impl_->context_, 0);
   }
 
   if (flags & Font) {
@@ -442,19 +474,19 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
     /*
      * First, consult the font support to locate a suitable font
      */
-    if (fontSupport_->busy()) {
+    if (impl_->fontSupport_->busy()) {
       /*
        * We have a resolved true type font.
        */
-      name = fontSupport_->drawingFontPath();
+      name = impl_->fontSupport_->drawingFontPath();
     } else {
-      FontSupport::FontMatch match = fontSupport_->matchFont(font);
+      FontSupport::FontMatch match = impl_->fontSupport_->matchFont(font);
 
       if (match.matched())
 	name = match.fileName();
     }
 
-    if (name.empty() || !fontSupport_->canRender()) {
+    if (name.empty() || !impl_->fontSupport_->canRender()) {
       if (name.empty()) {
 	/*
 	 * FIXME, does this actually make any sense ?
@@ -520,19 +552,19 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	  name = "Times-Roman";
       }
 
-      DrawSetFont(context_, name.c_str());
+      DrawSetFont(impl_->context_, name.c_str());
 
-      fontSize_ = font.sizeLength(12).toPixels();
+      impl_->fontSize_ = font.sizeLength(12).toPixels();
 
-      DrawSetFontSize(context_, fontSize_);
+      DrawSetFontSize(impl_->context_, impl_->fontSize_);
 
-      renderText_ = true;
+      impl_->renderText_ = true;
     } else
-      renderText_ = false;
+      impl_->renderText_ = false;
   }
 }
 
-std::string WRasterImage::currentClipPathName() const
+std::string WRasterImage::Impl::currentClipPathName() const
 {
   return "clip" + boost::lexical_cast<std::string>(currentClipPath_);
 }
@@ -540,9 +572,9 @@ std::string WRasterImage::currentClipPathName() const
 void WRasterImage::drawArc(const WRectF& rect,
 			   double startAngle, double spanAngle)
 {
-  internalInit();
+  impl_->internalInit();
 
-  DrawArc(context_, rect.left(), rect.top(), rect.right(), rect.bottom(), 
+  DrawArc(impl_->context_, rect.left(), rect.top(), rect.right(), rect.bottom(), 
 	  startAngle, startAngle + spanAngle);
 }
 
@@ -601,13 +633,13 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     directComposite = true;
 
   if (!directComposite) {
-    internalInit();
-    DrawComposite(context_, OverCompositeOp, rect.x(), rect.y(),
+    impl_->internalInit();
+    DrawComposite(impl_->context_, OverCompositeOp, rect.x(), rect.y(),
 		  rect.width(), rect.height(), croppedImage);
   } else {
-    internalDone();
+    impl_->internalDone();
 
-    CompositeImage(image_, OverCompositeOp, croppedImage,
+    CompositeImage(impl_->image_, OverCompositeOp, croppedImage,
 		   rect.x() + t.dx(), rect.y() + t.dy());
   }
 
@@ -617,19 +649,19 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 
 void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 {
-  internalInit();
+  impl_->internalInit();
 
-  DrawLine(context_, x1, y1, x2, y2);
+  DrawLine(impl_->context_, x1, y1, x2, y2);
 }
 
 void WRasterImage::drawPath(const WPainterPath& path)
 {
-  internalInit();
+  impl_->internalInit();
 
   if (!path.isEmpty()) {
-    DrawPathStart(context_);
-    drawPlainPath(path);
-    DrawPathFinish(context_);
+    DrawPathStart(impl_->context_);
+    impl_->drawPlainPath(path);
+    DrawPathFinish(impl_->context_);
   }
 }
 
@@ -639,18 +671,18 @@ void WRasterImage::setPixel(int x, int y, const WColor& c)
     throw WException("WRasterImage::setPixel(): cannot be used while a "
 		     "painter is active");
 
-  PixelPacket *pixel = SetImagePixels(image_, x, y, 1, 1);
+  PixelPacket *pixel = SetImagePixels(impl_->image_, x, y, 1, 1);
   WColorToPixelPacket(c, pixel);
-  SyncImagePixels(image_);
+  SyncImagePixels(impl_->image_);
 }
 
 WColor WRasterImage::getPixel(int x, int y) 
 {
-  PixelPacket *pixel = GetImagePixels(image_, x, y, 1, 1);
+  PixelPacket *pixel = GetImagePixels(impl_->image_, x, y, 1, 1);
   return WColor(pixel->red, pixel->green, pixel->blue, pixel->opacity);
 }
 
-void WRasterImage::drawPlainPath(const WPainterPath& path)
+void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
 {
   internalInit();
 
@@ -746,8 +778,8 @@ void WRasterImage::drawText(const WRectF& rect,
   if (textFlag == TextWordWrap)
     throw WException("WRasterImage::drawText() TextWordWrap is not supported");
 
-  if (renderText_) {
-    internalInit();
+  if (impl_->renderText_) {
+    impl_->internalInit();
 
     AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
     AlignmentFlag verticalAlign = flags & AlignVerticalMask;
@@ -762,8 +794,8 @@ void WRasterImage::drawText(const WRectF& rect,
 
     WPointF p;
 
-    double ascent = 0.8 * fontSize_;
-    double descent = fontSize_ - ascent;
+    double ascent = 0.8 * impl_->fontSize_;
+    double descent = impl_->fontSize_ - ascent;
 
     switch (verticalAlign) {
     case AlignTop:
@@ -772,7 +804,7 @@ void WRasterImage::drawText(const WRectF& rect,
       break;
     case AlignMiddle:
       p = rect.center();
-      p.setY(p.y() + ascent - fontSize_/2);
+      p.setY(p.y() + ascent - impl_->fontSize_/2);
       break;
     case AlignBottom:
       p = rect.bottomLeft();
@@ -792,7 +824,7 @@ void WRasterImage::drawText(const WRectF& rect,
       p.setX(rect.center().x());
 
       p = t.map(p);
-      p.setX(p.x() - w_/2);
+      p.setX(p.x() - impl_->w_/2);
       p = t.inverted().map(p);
       break;
     case AlignRight:
@@ -800,30 +832,30 @@ void WRasterImage::drawText(const WRectF& rect,
       p.setX(rect.right());
 
       p = t.map(p);
-      p.setX(w_ - p.x());
+      p.setX(impl_->w_ - p.x());
       p = t.inverted().map(p);
       break;
     default:
       break;
     }
 
-    DrawPushGraphicContext(context_);
+    DrawPushGraphicContext(impl_->context_);
 
     PixelPacket pp;
     WColorToPixelPacket(painter()->pen().color(), &pp);
     pp.opacity = 0;
-    DrawSetFillColor(context_, &pp);
-    DrawSetFillOpacity(context_, painter()->pen().color().alpha() / 255.0);
-    DrawSetStrokeOpacity(context_, 0);
+    DrawSetFillColor(impl_->context_, &pp);
+    DrawSetFillOpacity(impl_->context_, painter()->pen().color().alpha() / 255.0);
+    DrawSetStrokeOpacity(impl_->context_, 0);
   
-    DrawSetGravity(context_, gravity);
+    DrawSetGravity(impl_->context_, gravity);
 
     std::string utf8 = text.toUTF8();
     Utils::replace(utf8, '%', "%%");
 
-    DrawAnnotation(context_, p.x(), p.y(), (const unsigned char *)utf8.c_str());
+    DrawAnnotation(impl_->context_, p.x(), p.y(), (const unsigned char *)utf8.c_str());
 
-    DrawPopGraphicContext(context_);
+    DrawPopGraphicContext(impl_->context_);
 
     setChanged(Transform);
   } else {
@@ -832,10 +864,10 @@ void WRasterImage::drawText(const WRectF& rect,
     if (painter()->hasClipping())
       setChanged(Clipping);
 
-    internalDone();
+    impl_->internalDone();
 
-    if (currentClipPath_ != currentClipPathRendered_) {
-      if (currentClipPath_ != -1) {
+    if (impl_->currentClipPath_ != impl_->currentClipPathRendered_) {
+      if (impl_->currentClipPath_ != -1) {
 	ImageInfo info;
 	GetImageInfo(&info);
 	DrawInfo *drawInfo = (DrawInfo *)malloc(sizeof(DrawInfo));
@@ -850,14 +882,14 @@ void WRasterImage::drawText(const WRectF& rect,
 	m.ty = t.dy();
 
 	drawInfo->clip_units = UserSpaceOnUse;
-	DrawClipPath(image_, drawInfo, currentClipPathName().c_str());
+	DrawClipPath(impl_->image_, drawInfo, impl_->currentClipPathName().c_str());
 
 	DestroyDrawInfo(drawInfo);	
       } else {
-	SetImageClipMask(image_, 0);
+	SetImageClipMask(impl_->image_, 0);
       }
 
-      currentClipPathRendered_ = currentClipPath_;
+      impl_->currentClipPathRendered_ = impl_->currentClipPath_;
     }
 
     WRectF renderRect;
@@ -873,16 +905,16 @@ void WRasterImage::drawText(const WRectF& rect,
     } else {
       x0 = 0;
       y0 = 0;
-      w = w_;
-      h = h_;
+      w = impl_->w_;
+      h = impl_->h_;
       renderRect = rect;
     }
 
     FontSupport::Bitmap bitmap(w, h);
-    fontSupport_->drawText(painter_->font(), renderRect,
+    impl_->fontSupport_->drawText(painter_->font(), renderRect,
 			   t, bitmap, flags, text);
 
-    PixelPacket *pixels = GetImagePixels(image_, 0, 0, w_, h_);
+    PixelPacket *pixels = GetImagePixels(impl_->image_, 0, 0, impl_->w_, impl_->h_);
 
     WColor c = painter()->pen().color();
     PixelPacket pc;
@@ -891,16 +923,16 @@ void WRasterImage::drawText(const WRectF& rect,
     for (int y = 0; y < h; ++y) {
       int iy = y0 + y;
 
-      if (iy < 0 || iy >= (int)h_)
+      if (iy < 0 || iy >= (int)impl_->h_)
 	continue;
 
       for (int x = 0; x < w; ++x) {
 	int ix = x0 + x;
 
-	if (ix < 0 || ix >= (int)w_)
+	if (ix < 0 || ix >= (int)impl_->w_)
 	  continue;
 
-	PixelPacket *pixel = pixels + (iy * w_ + ix);
+	PixelPacket *pixel = pixels + (iy * impl_->w_ + ix);
 
 	unsigned char bit = bitmap.value(x, y);
 
@@ -912,34 +944,34 @@ void WRasterImage::drawText(const WRectF& rect,
       }
     }
 
-    SyncImagePixels(image_);
+    SyncImagePixels(impl_->image_);
   }
 }
 
 WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
 				    bool wordWrap)
 {
-  if (renderText_)
+  if (impl_->renderText_)
     throw WException("WRasterImage::measureText() not supported");
   else
-    return fontSupport_->measureText(painter_->font(), text, maxWidth,
+    return impl_->fontSupport_->measureText(painter_->font(), text, maxWidth,
 				     wordWrap);
 }
 
 WFontMetrics WRasterImage::fontMetrics()
 {
-  if (renderText_)
+  if (impl_->renderText_)
     throw WException("WRasterImage::fontMetrics() not supported");
   else
-    return fontSupport_->fontMetrics(painter_->font());
+    return impl_->fontSupport_->fontMetrics(painter_->font());
 }
 
 void WRasterImage::handleRequest(const Http::Request& request,
 				 Http::Response& response)
 {
-  response.setMimeType("image/" + type_);
+  response.setMimeType("image/" + impl_->type_);
 
-  if (image_) {
+  if (impl_->image_) {
     ImageInfo info;
     GetImageInfo(&info);
 
@@ -947,7 +979,7 @@ void WRasterImage::handleRequest(const Http::Request& request,
     GetExceptionInfo(&exception);
 
     std::size_t size;
-    void *data = ImageToBlob(&info, image_, &size, &exception);
+    void *data = ImageToBlob(&info, impl_->image_, &size, &exception);
 
     if(!data)
       throw WException("WRasterImage::handleRequest() image could not be "

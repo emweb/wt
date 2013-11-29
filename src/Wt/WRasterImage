@@ -12,9 +12,6 @@
 
 #include <list>
 
-typedef struct _DrawContext *DrawContext;
-typedef struct _Image Image;
-
 namespace Wt {
 
 class FontSupport;
@@ -144,6 +141,17 @@ public:
    */
   WColor getPixel(int x, int y);
 
+  /*! \brief Low-level pixel retrievaer
+   *
+   * This is a more efficient alternative than calling getPixel() for every
+   * pixel.
+   *
+   * Parameter data must point to an allocated memory region of width*height
+   * 32-bit words. The pixels will be written in row-order from top-left
+   * to bottom-right, in RGBA format.
+   */
+  void getPixels(void *data);
+
   /*! \brief Clears the image.
    *
    * Fills the image with a white background.
@@ -156,29 +164,11 @@ protected:
 
 private:
   WLength width_, height_;
-  std::string type_;
   WPainter *painter_;
-  FontSupport *fontSupport_;
-  bool renderText_;
 
-  unsigned long w_, h_;
-  unsigned char *pixels_;
-  DrawContext context_;
-  Image *image_;
-  double fontSize_;
+  class Impl;
+  Impl *impl_;
 
-  typedef std::list< std::pair<WPainterPath, int> > PathCache;
-  PathCache clipPathCache_;
-  int currentClipPath_;
-  int currentClipPathRendered_;
-
-  void internalInit(bool applyChanges = true);
-  void internalDone();
-  void paintPath();
-  void drawPlainPath(const WPainterPath& path);
-  void setTransform(const WTransform& t);
-  void applyTransform(const WTransform& f);
-  std::string currentClipPathName() const;
 };
 
 }

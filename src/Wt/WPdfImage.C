@@ -35,9 +35,9 @@ namespace {
     return result;
   }
 
-  void error_handler(HPDF_STATUS   error_no,
-		     HPDF_STATUS   detail_no,
-		     void         *user_data) {
+  void HPDF_STDCALL error_handler(HPDF_STATUS   error_no,
+		                  HPDF_STATUS   detail_no,
+		                  void         *user_data) {
     Wt::WPdfImage *image = (Wt::WPdfImage *)user_data;
 
     image->errorHandler(error_no, detail_no);

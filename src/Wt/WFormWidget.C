@@ -194,8 +194,16 @@ void WFormWidget::defineJavaScript(bool force)
 
 void WFormWidget::render(WFlags<RenderFlag> flags)
 {
-  if ((flags & RenderFull) && flags_.test(BIT_JS_OBJECT))
-    defineJavaScript(true);
+  if ((flags & RenderFull)) {
+    if (flags_.test(BIT_JS_OBJECT))
+      defineJavaScript(true);
+
+    if (validator()) {
+      WValidator::Result result = validator()->validate(valueText());
+      WApplication::instance()->theme()
+	->applyValidationStyle(this, result, ValidationInvalidStyle);
+    }
+  }
 
   WInteractWidget::render(flags);
 }
@@ -407,8 +415,9 @@ void WFormWidget::setValidator(WValidator *validator)
       WObject::addChild(validator_);
 #endif // WT_TARGET_JAVA
   } else {
-    WApplication::instance()->theme()
-      ->applyValidationStyle(this, WValidator::Result(), ValidationNoStyle);
+    if (isRendered())
+      WApplication::instance()->theme()
+	->applyValidationStyle(this, WValidator::Result(), ValidationNoStyle);
 
     delete validateJs_;
     validateJs_ = 0;
@@ -422,8 +431,9 @@ WValidator::State WFormWidget::validate()
   if (validator()) {
     WValidator::Result result = validator()->validate(valueText());
 
-    WApplication::instance()->theme()
-      ->applyValidationStyle(this, result, ValidationInvalidStyle);
+    if (isRendered())
+      WApplication::instance()->theme()
+	->applyValidationStyle(this, result, ValidationInvalidStyle);
 
     if (validationToolTip_ != result.message()) {
       validationToolTip_ = result.message();

@@ -35,7 +35,7 @@
 #include "TimeUtil.h"
 #include "WebUtils.h"
 
-#ifdef HAVE_RASTER_IMAGE
+#ifdef HAVE_GRAPHICSMAGICK
 #include <magick/api.h>
 #endif
 
@@ -71,7 +71,7 @@ WebController::WebController(WServer& server,
 
   redirectSecret_ = WRandom::generateId(32);
 
-#ifdef HAVE_RASTER_IMAGE
+#ifdef HAVE_GRAPHICSMAGICK
   InitializeMagick(0);
 #endif
 
@@ -91,7 +91,7 @@ WebController::WebController(WServer& server,
 
 WebController::~WebController()
 {
-#ifdef HAVE_RASTER_IMAGE
+#ifdef HAVE_GRAPHICSMAGICK
   DestroyMagick();
 #endif
 }
