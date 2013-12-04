@@ -67,16 +67,37 @@ ENDIF(Boost_RANDOM_FOUND)
 OPTION(WT_NO_BOOST_RANDOM "For compatibility with older boost versions. Do not enable for boost > 1.45" ${NOT_Boost_RANDOM_FOUND})
 MESSAGE("WT_NO_BOOST_RANDOM is ${WT_NO_BOOST_RANDOM}")
 
-FIND_PACKAGE(Boost 1.35
-  COMPONENTS
-    date_time
-    regex
-    program_options
-    signals
-    system
-    filesystem
-    thread
-  REQUIRED)
+# decide on signals vs signals2
+# boost 1.54 deprecated boost signals -> use signals2
+IF (Boost_VERSION GREATER 105300)
+  MESSAGE(STATUS "Boost ${Boost_VERSION} > 1.53, WT_SIGNALS_IMPLEMENTATION = boost.signals2 recommended")
+  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals2")
+ELSE (Boost_VERSION GREATER 105300)
+  SET(DEFAULT_WT_SIGNALS_IMPLEMENTATION "boost.signals")
+  MESSAGE(STATUS "Boost ${Boost_VERSION} < 1.54, WT_SIGNALS_IMPLEMENTATION = boost.signals recommended")
+ENDIF (Boost_VERSION GREATER 105300)
+SET(WT_SIGNALS_IMPLEMENTATION ${DEFAULT_WT_SIGNALS_IMPLEMENTATION} CACHE STRING "Select what implementation should be used for Wt signals")
+IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+  MESSAGE(STATUS "Informational: WT_SIGNALS_IMPLEMENTATION should be either boost.signals or boost.signals2")
+ELSE (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+  SET_PROPERTY(CACHE WT_SIGNALS_IMPLEMENTATION PROPERTY STRINGS boost.signals boost.signals2)
+ENDIF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+
+IF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
+  MESSAGE(STATUS "Selecting boost.signals")
+  SET(WT_USE_BOOST_SIGNALS ON)
+  SET(WT_USE_BOOST_SIGNALS2 OFF)
+ELSEIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals2")
+  MESSAGE(STATUS "Selecting boost.signals2")
+  SET(WT_USE_BOOST_SIGNALS OFF)
+  SET(WT_USE_BOOST_SIGNALS2 ON)
+ENDIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
+
+SET(WT_BOOST_COMPONENTS date_time regex program_options system filesystem thread)
+IF(WT_USE_BOOST_SIGNALS)
+  SET(WT_BOOST_COMPONENTS ${WT_BOOST_COMPONENTS} signals)
+ENDIF()
+FIND_PACKAGE(Boost 1.35 COMPONENTS ${WT_BOOST_COMPONENTS} REQUIRED)
 
 IF (Boost_FOUND)
   # Translate variables from official cmake names to internally used names
@@ -107,10 +128,12 @@ IF (Boost_FOUND)
         ${Boost_THREAD_LIBRARY}
         ${BOOST_RANDOM_LIB}
         ${Boost_REGEX_LIBRARY}
-        ${Boost_SIGNALS_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_DATE_TIME_LIBRARY})
+    IF(WT_USE_BOOST_SIGNALS)
+      SET(BOOST_WT_LIBRARIES ${BOOST_WT_LIBRARIES} ${Boost_SIGNALS_LIBRARY})
+    ENDIF(WT_USE_BOOST_SIGNALS)
     SET(BOOST_WTHTTP_LIBRARIES
         ${Boost_THREAD_LIBRARY}
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
