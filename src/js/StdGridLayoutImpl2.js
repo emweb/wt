@@ -50,7 +50,8 @@ WT_DECLARE_WT_MEMBER
 			      be remeasured */
    var layoutDirty = true; /* the parent size may have changed */
    var topLevel = false, parent = null, parentItemWidget = null,
-     parentInitialized = false, parentMargin = [], parentWithWtPS = false;
+     propagateSizeToParent = false, parentInitialized = false,
+     parentMargin = [], parentWithWtPS = false;
 
    var rtl = $(document.body).hasClass('Wt-rtl');
 
@@ -717,45 +718,47 @@ WT_DECLARE_WT_MEMBER
       * has changed (or force).
       */
      if (parent) {
-       var DC = DirConfig[dir],
+       if (propagateSizeToParent) {
+	 var DC = DirConfig[dir],
            totalPs = DC.measures[TOTAL_PREFERRED_SIZE];
 
-       if (DC.maxSize > 0)
-	 totalPs = Math.min(DC.maxSize, totalPs);
+	 if (DC.maxSize > 0)
+	   totalPs = Math.min(DC.maxSize, totalPs);
 
-       if (parentWithWtPS) {
-	 var widget = WT.getElement(id);
+	 if (parentWithWtPS) {
+	   var widget = WT.getElement(id);
 
-	 if (!widget)
-	   return;
+	   if (!widget)
+	     return;
 
-	 /*
-	  * Go back up and apply wtGetPS() to totalPs
-	  */
-	 var c = widget, p = c.parentNode;
+	   /*
+	    * Go back up and apply wtGetPS() to totalPs
+	    */
+	   var c = widget, p = c.parentNode;
 
-	 for (;;) {
-	   if (p.wtGetPS)
-	     totalPs = p.wtGetPS(p, c, dir, totalPs);
+	   for (;;) {
+	     if (p.wtGetPS)
+	       totalPs = p.wtGetPS(p, c, dir, totalPs);
 
-	   totalPs += boxMargin(p, dir);
+	     totalPs += boxMargin(p, dir);
 
-	   if (p == parentItemWidget)
-	     break;
+	     if (p == parentItemWidget)
+	       break;
 
-	   if (dir == VERTICAL &&
-	       p == widget.parentNode && 
-	       !p.lh && 
-	       p.offsetHeight > totalPs)
-	     totalPs = p.offsetHeight;
+	     if (dir == VERTICAL &&
+		 p == widget.parentNode && 
+		 !p.lh && 
+		 p.offsetHeight > totalPs)
+	       totalPs = p.offsetHeight;
 
-	   c = p;
-	   p = c.parentNode;
-	 }
-       } else
-	 totalPs += parentMargin[dir];
+	     c = p;
+	     p = c.parentNode;
+	   }
+	 } else
+	   totalPs += parentMargin[dir];
 
-       parent.setChildSize(parentItemWidget, dir, totalPs);
+	 parent.setChildSize(parentItemWidget, dir, totalPs);
+       }
      }
    };
 
@@ -909,8 +912,10 @@ WT_DECLARE_WT_MEMBER
        // (2) adjust container width/height
        var sz = Math.min(totalPreferredSize, DC.maxSize) + otherPadding;
        if (setCss(container, DC.size,
-		  (sz + sizePadding(container, dir)) + 'px'))
-	 APP.layouts2.remeasure();
+		  (sz + sizePadding(container, dir)) + 'px')) {
+	 if (parent)
+	   parent.setElDirty(parentItemWidget);
+       }
 
        cSize = sz;
        cPaddedSize = true;
@@ -1362,10 +1367,12 @@ WT_DECLARE_WT_MEMBER
        if (item && item.id == el.id) {
 	 item.dirty = 2;
 	 itemDirty = true;
+	 APP.layouts2.scheduleAdjust();
+
 	 return;
        }
      }
-   }
+   };
 
    this.setItemsDirty = function(items) {
      var i, il;
@@ -1401,6 +1408,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setAllDirty = function() {
+     var i, il;
      for (i = 0, il = config.items.length; i < il; ++i) {
        var item = config.items[i];
        if (item)
@@ -1408,7 +1416,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      itemDirty = true;
-   }
+   };
 
    this.setChildSize = function(widget, dir, preferredSize) {
      var colCount = DirConfig[HORIZONTAL].config.length,
@@ -1447,6 +1455,7 @@ WT_DECLARE_WT_MEMBER
      if (!parentInitialized) {
        parentInitialized = true;
        topLevel = parentId == null;
+       propagateSizeToParent = true;
 
        if (!topLevel) {
 	 parent = jQuery.data(document.getElementById(parentId), 'layout');
@@ -1462,7 +1471,7 @@ WT_DECLARE_WT_MEMBER
 	 var c = widget, p = c.parentNode;
 
 	 parentMargin = [0, 0];
-	 for (;;) {
+	 for (;p != document;) {
 	   parentMargin[HORIZONTAL] += boxMargin(p, HORIZONTAL);
 	   parentMargin[VERTICAL] += boxMargin(p, VERTICAL);
 
@@ -1480,7 +1489,7 @@ WT_DECLARE_WT_MEMBER
 	   p = c.parentNode;
 
 	   if (p.childNodes.length != 1 && !p.wtGetPS)
-	     break;
+             propagateSizeToParent = false;
 	 }
 
 	 var container = widget.parentNode;
@@ -1566,14 +1575,12 @@ WT_DECLARE_APP_MEMBER
       el = el.parentNode;
       while (el && el != document.body) {
 	var layout = jQuery.data(el, 'layout');
-	if (layout) {
+	if (layout)
 	  layout.setElDirty(item);
-	  self.scheduleAdjust();
-	}
 	item = el;
 	el = el.parentNode;
       }
-    }
+    };
 
     this.setChildLayoutsDirty = function(layout, itemWidget) {
       var i, il;
@@ -1624,7 +1631,7 @@ WT_DECLARE_APP_MEMBER
       self.scheduleAdjust();
     };
 
-    var adjustScheduled = false, needRemeasure = false;
+    var adjustScheduled = false;
 
     this.scheduleAdjust = function(forceMeasureVertical) {
       if (forceMeasureVertical)
@@ -1655,7 +1662,6 @@ WT_DECLARE_APP_MEMBER
 	return;
 
       adjusting = true;
-      needRemeasure = false;
 
       function measure(layouts, dir) {
 	var i, il;
@@ -1667,7 +1673,7 @@ WT_DECLARE_APP_MEMBER
 
 	  if (dir == VERTICAL && measureVertical)
 	    ll.setDirty();
-	  else if (dir == HORIZONTAL && needRemeasure)
+	  else if (dir == HORIZONTAL)
 	    ll.setAllDirty();
 
 	  ll.measure(dir);
@@ -1696,15 +1702,7 @@ WT_DECLARE_APP_MEMBER
       measure(topLevelLayouts, VERTICAL);
       apply(topLevelLayouts, VERTICAL);
 
-      if (needRemeasure) {
-	measure(topLevelLayouts, HORIZONTAL);
-	apply(topLevelLayouts, HORIZONTAL);
-	measure(topLevelLayouts, VERTICAL);
-	apply(topLevelLayouts, VERTICAL);
-      }
-
       adjusting = false;
-      needRemeasure = false;
       measureVertical = false;
     };
 
@@ -1716,14 +1714,10 @@ WT_DECLARE_APP_MEMBER
       return;
     };
 
-    this.remeasure = function() {
-      needRemeasure = true;
-    };
-
     this.adjustNow = function() {
       if (adjustScheduled)
 	self.adjust();
-    }
+    };
 
     var resizeDelay = null;
     

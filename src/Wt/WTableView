@@ -112,6 +112,9 @@ public:
    */
   EventSignal<WScrollEvent>& scrolled();
 
+ protected:
+  virtual void render(WFlags<RenderFlag> flags);
+
 private:
   class ColumnWidget : public WContainerWidget
   {
@@ -179,8 +182,6 @@ private:
   int lastRow() const;
   int firstColumn() const;
   int lastColumn() const;
-
-  virtual void render(WFlags<RenderFlag> flags);
 
   void reset();
   void rerenderHeader();

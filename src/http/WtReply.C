@@ -174,9 +174,10 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	in_->seekg(0); // rewind
 
 	connection->server()->service().post
-	  (boost::bind(&Wt::WebController::handleRequest,
-		       connection->server()->controller(),
-		       httpRequest_));
+	  (connection->strand().wrap
+	   (boost::bind(&Wt::WebController::handleRequest,
+			connection->server()->controller(),
+			httpRequest_)));
       }
     }
   } else {

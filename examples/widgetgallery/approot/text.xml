@@ -1152,9 +1152,7 @@
   <message id="simpleForm-template">
     <div class="form-inline">
       <div class="control-group">
-        <span class="controls">
-          ${name} ${button} ${out}
-        </span>
+	${name} ${button} ${out}
       </div>
     </div>
   </message>

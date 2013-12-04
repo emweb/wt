@@ -331,7 +331,11 @@ Request::Request(const WebRequest& request, ResponseContinuation *continuation)
     files_(request.uploadedFiles()),
     continuation_(continuation),
     sslInfo_(0)
-{ }
+{ 
+  std::string cookie = headerValue("Cookie");
+  if (!cookie.empty())
+    parseCookies(cookie, cookies_);
+}
 
 Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
   : request_(0),
