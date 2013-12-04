@@ -1,3 +1,24 @@
+# Macro for selecting the correct boost.signals version.
+# To be called after Boost's version has been read, so that a default value is available.
+MACRO(WT_BOOST_SIGNALS_OPTION DEFAULT_WT_SIGNALS_IMPLEMENTATION)
+	SET(WT_SIGNALS_IMPLEMENTATION ${DEFAULT_WT_SIGNALS_IMPLEMENTATION} CACHE STRING "Select what implementation should be used for Wt signals")
+	IF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+	  MESSAGE(STATUS "Informational: WT_SIGNALS_IMPLEMENTATION should be either boost.signals or boost.signals2")
+	ELSE (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+	  SET_PROPERTY(CACHE WT_SIGNALS_IMPLEMENTATION PROPERTY STRINGS boost.signals boost.signals2)
+	ENDIF (CMAKE_MAJOR_VERSION EQUAL 2 AND CMAKE_MINOR_VERSION LESS 8)
+
+	IF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
+	  MESSAGE(STATUS "Selecting boost.signals")
+	  SET(WT_USE_BOOST_SIGNALS ON)
+	  SET(WT_USE_BOOST_SIGNALS2 OFF)
+	ELSEIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals2")
+	  MESSAGE(STATUS "Selecting boost.signals2")
+	  SET(WT_USE_BOOST_SIGNALS OFF)
+	  SET(WT_USE_BOOST_SIGNALS2 ON)
+	ENDIF ("${WT_SIGNALS_IMPLEMENTATION}" STREQUAL "boost.signals")
+ENDMACRO(WT_BOOST_SIGNALS_OPTION)
+
 # Includes the appropriate boost finder
 IF(WT_BOOST_DISCOVERY)
   INCLUDE(${WT_SOURCE_DIR}/cmake/WtFindBoost-vintage.txt)
