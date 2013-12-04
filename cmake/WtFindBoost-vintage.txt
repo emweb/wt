@@ -149,21 +149,26 @@ ELSE(MSVC)
     NO_DEFAULT_PATH
   )
 
-  FIND_LIBRARY(BOOST_SIGNALS_LIB
-    NAMES
-      boost_signals-${BOOST_COMPILER}-mt-${BOOST_FLAGS}-${BOOST_VERSION}
-      boost_signals-${BOOST_COMPILER}-mt-${BOOST_VERSION}
-      boost_signals-${BOOST_COMPILER}-mt
-      boost_signals-mt-${BOOST_VERSION}
-      boost_signals-mt
-      boost_signals-${BOOST_COMPILER}-${BOOST_VERSION}
-      boost_signals-${BOOST_COMPILER}
-      boost_signals-${BOOST_VERSION}
-      boost_signals
-    PATHS
-      ${BOOST_LIB_DIRS}
-    NO_DEFAULT_PATH
-  )
+  WT_BOOST_SIGNALS_OPTION("boost.signals")
+  IF(WT_USE_BOOST_SIGNALS)
+    FIND_LIBRARY(BOOST_SIGNALS_LIB
+      NAMES
+        boost_signals-${BOOST_COMPILER}-mt-${BOOST_FLAGS}-${BOOST_VERSION}
+        boost_signals-${BOOST_COMPILER}-mt-${BOOST_VERSION}
+        boost_signals-${BOOST_COMPILER}-mt
+        boost_signals-mt-${BOOST_VERSION}
+        boost_signals-mt
+        boost_signals-${BOOST_COMPILER}-${BOOST_VERSION}
+        boost_signals-${BOOST_COMPILER}
+        boost_signals-${BOOST_VERSION}
+        boost_signals
+      PATHS
+        ${BOOST_LIB_DIRS}
+      NO_DEFAULT_PATH
+    )
+  ELSE(WT_USE_BOOST_SIGNALS)
+    SET(BOOST_SIGNALS_LIB "")
+  ENDIF(WT_USE_BOOST_SIGNALS)
 
   FIND_LIBRARY(BOOST_SYSTEM_LIB
     NAMES
