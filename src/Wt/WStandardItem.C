@@ -365,8 +365,12 @@ bool WStandardItem::isTristate() const
 
 void WStandardItem::setEditable(bool editable)
 {
-  if (!isEditable()) {
+  if (!isEditable() && editable) {
     flags_ |= ItemIsEditable;
+    signalModelDataChange();
+  }
+  else if (isEditable() && !editable) {
+    flags_ ^= ItemIsEditable;
     signalModelDataChange();
   }
 }
