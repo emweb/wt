@@ -384,9 +384,8 @@ WString asString(const boost::any& v, const WT_USTRING& format)
   } else if (v.type() == typeid(boost::posix_time::time_duration)) {
     const boost::posix_time::time_duration& dt
       = boost::any_cast<boost::posix_time::time_duration>(v);
-    int millis = dt.fractional_seconds()
-      / ((1 << boost::posix_time::time_duration::num_fractional_digits())
-	 / 1000);
+    int millis = dt.fractional_seconds() *
+      ::pow(10, 3 - boost::posix_time::time_duration::num_fractional_digits()); 
     return WTime(dt.hours(), dt.minutes(), dt.seconds(), millis)
       .toString(format.empty() ? "HH:mm:ss" : format);
   }
