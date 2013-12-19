@@ -79,6 +79,11 @@ public:
   void makeCurrent();
   void unmakeCurrent();
   void resize(int width, int height);
+#ifdef FRAMEBUFFER_RENDERING
+  void initReadBuffer();
+  void setDrawBuffer();
+  void initializeRenderbuffers();
+#endif
 private:
 #ifdef WIN32_GL
   HWND wnd_;
@@ -101,6 +106,7 @@ private:
 #ifdef FRAMEBUFFER_RENDERING
   int width_, height_;
   GLuint framebuffer_, renderbuffer_, depthbuffer_;
+  GLuint framebufferRead_, renderbufferRead_;
 #endif
 };
 
@@ -266,12 +272,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl():
   glewExperimental = 1;
   GLenum res = glewInit();
   if (res == GLEW_OK && GLEW_ARB_framebuffer_object) {
-    glGenFramebuffers(1, &framebuffer_);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-    glGenRenderbuffers(1, &renderbuffer_);
-    glGenRenderbuffers(1, &depthbuffer_);
-    unmakeCurrent();
-    resize(100, 100); // whatever
+    initializeRenderbuffers();
   } else {
     unmakeCurrent();
     CGLSetCurrentContext(NULL);
@@ -299,33 +300,6 @@ void WServerGLWidgetImpl::makeCurrent()
 void WServerGLWidgetImpl::unmakeCurrent()
 {
   CGLSetCurrentContext(NULL);
-}
-#endif
-#ifdef FRAMEBUFFER_RENDERING
-void WServerGLWidgetImpl::resize(int width, int height)
-{
-  if (width == width_ && height == height_)
-    return;
-  makeCurrent();
-  int status;
-  glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer_);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-			    GL_RENDERBUFFER, renderbuffer_);
-
-  glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer_);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-			    GL_RENDERBUFFER, depthbuffer_);
-  status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-  unmakeCurrent();
-  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-    throw WException("WServerGLWidget: resize failed\n");
-  width_ = width;
-  height_ = height;
 }
 #endif
 
@@ -455,6 +429,11 @@ WServerGLWidgetImpl::WServerGLWidgetImpl()
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   glGenRenderbuffers(1, &renderbuffer_);
   glGenRenderbuffers(1, &depthbuffer_);
+  glGenFramebuffers(1, &framebufferRead_);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebufferRead_);
+  glGenRenderbuffers(1, &renderbufferRead_);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   unmakeCurrent();
   resize(100, 100); // whatever
 }
@@ -469,6 +448,69 @@ WServerGLWidgetImpl::~WServerGLWidgetImpl()
   ReleaseDC(wnd_, hdc_);
   DestroyWindow(wnd_);
 }
+
+#ifdef FRAMEBUFFER_RENDERING
+void WServerGLWidgetImpl::initializeRenderbuffers()
+{
+  glGenFramebuffers(1, &framebuffer_);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  glGenRenderbuffers(1, &renderbuffer_);
+  glGenRenderbuffers(1, &depthbuffer_);
+  glGenFramebuffers(1, &framebufferRead_);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebufferRead_);
+  glGenRenderbuffers(1, &renderbufferRead_);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  unmakeCurrent();
+  resize(100, 100); // whatever
+}
+
+void WServerGLWidgetImpl::resize(int width, int height)
+{
+  if (width == width_ && height == height_)
+    return;
+  makeCurrent();
+  int status;
+  glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer_);
+  glRenderbufferStorageMultisample(GL_RENDERBUFFER, 2, GL_RGBA8, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			    GL_RENDERBUFFER, renderbuffer_);
+
+  glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer_);
+  glRenderbufferStorageMultisample(GL_RENDERBUFFER, 2, GL_DEPTH_COMPONENT, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+			    GL_RENDERBUFFER, depthbuffer_);
+  status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, framebufferRead_);
+  glBindRenderbuffer(GL_RENDERBUFFER, renderbufferRead_);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			    GL_RENDERBUFFER, renderbufferRead_);
+  
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+
+  unmakeCurrent();
+  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+    throw WException("WServerGLWidget: resize failed\n");
+  width_ = width;
+  height_ = height;
+}
+
+void WServerGLWidgetImpl::initReadBuffer()
+{
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferRead_);
+  glBlitFramebuffer(0,0,width_,height_,0,0,width_,height_, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, framebufferRead_);
+}
+
+void WServerGLWidgetImpl::setDrawBuffer()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+}
+#endif
 
 void WServerGLWidgetImpl::makeCurrent()
 {
@@ -1591,9 +1633,16 @@ void WServerGLWidget::render(const std::string& jsRef,
   // paint a picture with the framebuffer 0
   std::vector<unsigned char> pixelData(renderWidth_ * renderHeight_ * 4);
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  SERVERGLDEBUG;
+#ifdef FRAMEBUFFER_RENDERING
+  impl_->initReadBuffer();
+#endif
   glReadPixels(0, 0, renderWidth_, renderHeight_, GL_RGBA,
 	       GL_UNSIGNED_BYTE, &pixelData[0]);
   SERVERGLDEBUG;
+#ifdef FRAMEBUFFER_RENDERING
+  impl_->setDrawBuffer();
+#endif
 
   if (!raster_)
     raster_ = new WRasterImage("png", renderWidth_, renderHeight_);
