@@ -7,6 +7,7 @@
 #ifndef CHART_WAXIS_H_
 #define CHART_WAXIS_H_
 
+#include <Wt/Chart/WChartGlobal>
 #include <Wt/WFont>
 #include <Wt/WPen>
 #include <Wt/WString>
@@ -15,10 +16,10 @@
 #include <cfloat>
 
 namespace Wt {
+
   namespace Chart {
 
-class WCartesianChart;
-class WChart2DRenderer;
+class WAbstractChartImplementation;
 
 /*! \brief Enumeration that indicates a chart axis.
  *
@@ -31,12 +32,10 @@ enum Axis {
   YAxis = 1,            //!< First Y axis (== Y1Axis).
   Y1Axis = YAxis,       //!< First Y axis (== YAxis).
   Y2Axis = 2,           //!< Second Y Axis.
-  OrdinateAxis = YAxis  //!< Ordinate axis (== Y1Axis for a 2D plot).
-  /* Future:
-   ,XAxis_3D = 0,
-    ZAxis_3D = 1, // = Y
-    YAxis_3D = 2
-   */
+  OrdinateAxis = YAxis,  //!< Ordinate axis (== Y1Axis for a 2D plot).
+  XAxis_3D = 0,
+  YAxis_3D = 3,
+  ZAxis_3D = 1 // = Y
 };
 
 /*! \brief Enumeration that indicates a logical location for an axis.
@@ -512,6 +511,10 @@ public:
    */
   const WFont& titleFont() const { return titleFont_; }
 
+  void setTitleOffset(double offset) { titleOffset_ = offset; }
+
+  double titleOffset() const { return titleOffset_; }
+
   /*! \brief Sets the axis label font.
    *
    * The default label font is a 10 point Sans Serif font.
@@ -532,14 +535,48 @@ public:
    *
    * \sa WCartesianChart::axis()
    */
-  WCartesianChart *chart() const { return chart_; }
+  //  WCartesianChart *chart() const { return chart_; }
 
   int segmentCount() const { return (int)segments_.size(); }
+
+  double segmentMargin() const { return segmentMargin_; }
+
+  bool prepareRender(Orientation orientation, double length) const;
+
+  void render(WPainter& painter,
+	      WFlags<AxisProperty> properties,
+	      const WPointF& axisStart,
+	      const WPointF& axisEnd,
+	      double tickStart, double tickEnd, double labelPos,
+	      WFlags<AlignmentFlag> labelFlags) const;
+
+  std::vector<double> gridLinePositions() const;
+
+  void renderLabel(WPainter& painter,
+		   const WString& text, const WPointF& p,
+		   const WColor& color,
+		   WFlags<AlignmentFlag> flags,
+		   double angle, int margin) const;
+
+  void setRenderMirror(bool enable) { renderingMirror_ = enable; }
+
+protected:
+  struct TickLabel {
+    enum TickLength { Zero, Short, Long };
+
+    double u;
+    TickLength tickLength;
+    WString    label;
+
+    TickLabel(double v, TickLength length, const WString& l = WString());
+  };
+
+  virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment) const;
 
 private:
   enum DateTimeUnit { Seconds, Minutes, Hours, Days, Months, Years };
 
-  WCartesianChart *chart_;
+  WAbstractChartImplementation *chart_;
   Axis             axis_;
   bool             visible_;
   AxisValue        location_;
@@ -554,6 +591,11 @@ private:
   WString          title_;
   WFont            titleFont_, labelFont_;
   WFlags<AxisValue> roundLimits_;
+  double           segmentMargin_;
+  double           titleOffset_;
+
+  // for 3D charts, don't call update when the labelangle is tempor. changed
+  bool             renderingMirror_;
 
   struct Segment {
     double minimum, maximum;
@@ -569,33 +611,19 @@ private:
   mutable double renderInterval_;
 
   WAxis();
-  void init(WCartesianChart *chart, Axis axis);
+  void init(WAbstractChartImplementation* chart, Axis axis);
   void update();
 
   template <typename T>
   bool set(T& m, const T& v);
 
-  bool prepareRender(WChart2DRenderer& renderer) const;
-  void computeRange(WChart2DRenderer& renderer, const Segment& segment) const;
+  void computeRange(const Segment& segment) const;
   void setOtherAxisLocation(AxisValue otherLocation) const;
-
-  struct TickLabel {
-    enum TickLength { Zero, Short, Long };
-
-    double u;
-    TickLength tickLength;
-    WString    label;
-
-    TickLabel(double v, TickLength length, const WString& l = WString());
-  };
-
-  void getLabelTicks(WChart2DRenderer& renderer, std::vector<TickLabel>& ticks,
-		     int segment) const;
 
   double getValue(const boost::any& v) const;
   static double getDateValue(const boost::any& value);
 
-  double calcAutoNumLabels(const Segment& s) const;
+  double calcAutoNumLabels(Orientation orientation, const Segment& s) const;
 
   double mapFromDevice(double d) const;
   double mapToDevice(const boost::any& value, int segment = 0) const;
@@ -604,6 +632,7 @@ private:
   long getDateNumber(Wt::WDateTime dt) const;
 
   friend class WCartesianChart;
+  friend class WCartesian3DChart;
   friend class WChart2DRenderer;
 };
 

@@ -310,13 +310,17 @@ bool WPainterPath::asRect(WRectF& result) const
 {
   if (isRect_) {
     if (segments_.size() == 4) {
-      result = WRectF(0, 0, segments_[0].x(), segments_[1].y());
+      result.setX(0);
+      result.setY(0);
+      result.setWidth(segments_[0].x());
+      result.setHeight(segments_[1].y());
       return true;
     } else if (segments_.size() == 5
 	       && segments_[0].type() == Segment::MoveTo) {
-      result = WRectF(segments_[0].x(), segments_[0].y(),
-		      segments_[1].x() - segments_[0].x(),
-		      segments_[2].y() - segments_[0].y());
+      result.setX(segments_[0].x());
+      result.setY(segments_[0].y());
+      result.setWidth(segments_[1].x() - segments_[0].x());
+      result.setHeight(segments_[2].y() - segments_[0].y());
       return true;
     } else
       return false;

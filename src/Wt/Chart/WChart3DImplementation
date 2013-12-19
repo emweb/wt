@@ -1,0 +1,42 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#ifndef CHART_WCHART3DIMPLEMENTATION_H
+#define CHART_WCHART3DIMPLEMENTATION_H
+
+#include <Wt/Chart/WAbstractChartImplementation>
+
+namespace Wt {
+  namespace Chart {
+
+class WCartesian3DChart;
+
+class WChart3DImplementation : public WAbstractChartImplementation
+{
+public:
+  WChart3DImplementation(WCartesian3DChart *chart);
+  // ~WChart3DImplementation() {}
+
+  virtual ChartType chartType() const;
+  virtual Orientation orientation() const;
+  virtual int axisPadding() const;
+  
+  virtual int numberOfCategories(Axis axis = XAxis) const;
+  virtual WString categoryLabel(int u, Axis axis) const;
+  
+  virtual RenderRange computeRenderRange(Axis axis, AxisScale scale = LinearScale) const;
+  
+  virtual void update();
+
+private:
+  WCartesian3DChart *chart_;
+};
+
+  }
+}
+
+#endif

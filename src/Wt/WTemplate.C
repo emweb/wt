@@ -14,6 +14,7 @@
 #include "Wt/WLogger"
 #include "Wt/WTemplate"
 
+#include "WebUtils.h"
 #include "DomElement.h"
 #include "RefEncoder.h"
 #include "WebSession.h"
@@ -147,11 +148,16 @@ WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
 void WTemplate::clear()
 {
   setIgnoreChildRemoves(true);
-  for (WidgetMap::iterator i = widgets_.begin(); i != widgets_.end(); ++i)
+  /*
+   * We need to copy them first so that removeChild() will not be confused
+   * by it.
+   */
+  WidgetMap toDelete = widgets_;
+  widgets_ = WidgetMap();
+  for (WidgetMap::iterator i = toDelete.begin(); i != toDelete.end(); ++i)
     delete i->second;
   setIgnoreChildRemoves(false);
 
-  widgets_.clear();
   strings_.clear();
   conditions_.clear();
 
@@ -196,12 +202,13 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
     if (i->second == widget)
       return;
     else {
-      delete i->second;
+      WWidget *toDelete = i->second;
 #ifndef WT_TARGET_JAVA
       widgets_.erase(i);
 #else
       widgets_.erase(varName);
 #endif
+      delete toDelete;
     }
   }
 
@@ -226,16 +233,7 @@ WWidget *WTemplate::takeWidget(const std::string& varName)
 
   if (i != widgets_.end()) {
     WWidget *result = i->second;
-
-#ifndef WT_TARGET_JAVA
-    widgets_.erase(i);
-#else
-    widgets_.erase(varName);
-#endif
-
-    changed_ = true;
-    repaint(RepaintSizeAffected);
-
+    result->setParentWidget(0);
     return result;
   } else
     return 0;
@@ -633,6 +631,22 @@ void WTemplate::format(std::ostream& result, const WString& s,
     v = escapeText(v, true);
 
   result << v.toUTF8();
+}
+
+void WTemplate::removeChild(WWidget *child)
+{
+  for (WidgetMap::iterator i = widgets_.begin(); i != widgets_.end(); ++i) {
+    if (i->second == child) {
+      Utils::eraseAndNext(widgets_, i);
+
+      changed_ = true;
+      repaint(RepaintSizeAffected);
+
+      break;
+    }
+  }
+
+  WInteractWidget::removeChild(child);
 }
 
 void WTemplate::propagateRenderOk(bool deep)

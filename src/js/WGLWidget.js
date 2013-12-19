@@ -29,6 +29,7 @@ WT_DECLARE_WT_MEMBER
    this.initialized = false;
    this.preloadingTextures = 0;
    this.preloadingBuffers = 0;
+   this.jsMatrices = new Array();
 
    var dragPreviousXY = null;
    var lookAtCenter = null;
@@ -38,6 +39,9 @@ WT_DECLARE_WT_MEMBER
    var cameraMatrix = null;
    var walkFrontRate = 0;
    var walkYawRate = 0;
+   var pinchWidth = null;
+   var singleTouch = null;
+   var doubleTouch = null;
 
    this.discoverContext = function(noGLHandler) {
      if (canvas.getContext) {
@@ -68,11 +72,9 @@ WT_DECLARE_WT_MEMBER
      lookAtYawRate = yawRate;
    };
 
-   this.mouseDragLookAt = function(o, event) {
-     if (this.ctx == null) return; // no WebGL support
-     var c = WT.pageCoordinates(event);
-     var dx=(c.x - dragPreviousXY.x);
-     var dy=(c.y - dragPreviousXY.y);
+   this.rotate = function(newCoords) {
+     var dx=(newCoords.x - dragPreviousXY.x);
+     var dy=(newCoords.y - dragPreviousXY.y);
      var s=vec3.create();
      s[0]=cameraMatrix[0];
      s[1]=cameraMatrix[4];
@@ -86,21 +88,16 @@ WT_DECLARE_WT_MEMBER
      mat4.translate(r, lookAtCenter);
      vec3.negate(lookAtCenter);
      mat4.multiply(cameraMatrix,r,cameraMatrix);
-     //console.log('mouseDragLookAt after: ' + mat4.str(cameraMatrix));
+     //console.log('rotate after: ' + mat4.str(cameraMatrix));
      // Repaint!
-     //console.log('mouseDragLookAt: repaint');
+     //console.log('rotate: repaint');
      this.paintGL();
      // store mouse coord for next action
-     dragPreviousXY = WT.pageCoordinates(event);
+     dragPreviousXY = newCoords;
    };
 
-   // Mouse wheel = zoom in/out
-   this.mouseWheelLookAt = function(o, event) {
-     if (this.ctx == null) return; // no WebGL support
-     WT.cancelEvent(event);
-     //alert('foo');
-     var d = WT.wheelDelta(event);
-     var s = Math.pow(1.2, d);
+   this.zoom = function(delta) {
+     var s = Math.pow(1.2, delta);
      mat4.translate(cameraMatrix, lookAtCenter);
      mat4.scale(cameraMatrix, [s, s, s]);
      vec3.negate(lookAtCenter);
@@ -108,6 +105,14 @@ WT_DECLARE_WT_MEMBER
      vec3.negate(lookAtCenter);
      // Repaint!
      this.paintGL();
+   }
+
+   // Mouse wheel = zoom in/out
+   this.mouseWheelLookAt = function(o, event) {
+     WT.cancelEvent(event);
+     //alert('foo');
+     var d = WT.wheelDelta(event);
+     this.zoom(d);
    };
 
    this.setWalkParams = function(matrix, frontRate, yawRate) {
@@ -116,11 +121,9 @@ WT_DECLARE_WT_MEMBER
      walkYawRate = yawRate;
    };
 
-   this.mouseDragWalk = function(o, event){
-     if (this.ctx == null) return; // no WebGL support
-     var c = WT.pageCoordinates(event);
-     var dx=(c.x - dragPreviousXY.x);
-     var dy=(c.y - dragPreviousXY.y);
+   this.walk = function(newCoords){
+     var dx=(newCoords.x - dragPreviousXY.x);
+     var dy=(newCoords.y - dragPreviousXY.y);
      var r=mat4.create();
      mat4.identity(r);
      mat4.rotateY(r, dx * walkYawRate);
@@ -134,8 +137,25 @@ WT_DECLARE_WT_MEMBER
      dragPreviousXY = WT.pageCoordinates(event);
    };
 
+   this.mouseDragWalk = function(o, event) {
+     if (dragPreviousXY == null)
+	 return;
+     var c = WT.pageCoordinates(event);
+     this.walk(c);
+   };
+   this.mouseDragLookAt = function(o, event) {
+     if (dragPreviousXY == null)
+       return;
+     var c = WT.pageCoordinates(event);
+     this.rotate(c);
+   };
 
    this.mouseDown = function(o, event) {
+     if (event.button != 0 && !WT.isIElt9)
+	 return;
+     else if (WT.isIElt9 && event.button != 1)
+	 return;
+
      WT.capture(null);
      WT.capture(canvas);
 
@@ -145,6 +165,57 @@ WT_DECLARE_WT_MEMBER
    this.mouseUp = function(o, event) {
      if (dragPreviousXY != null)
        dragPreviousXY = null;
+   };
+
+   this.touchStart = function(o, event) {
+     singleTouch = event.touches.length == 1 ? true : false;
+     doubleTouch = event.touches.length == 2 ? true : false;
+
+     if (singleTouch) {
+       WT.capture(null);
+       WT.capture(canvas);
+       dragPreviousXY = WT.pageCoordinates(event.touches[0]);
+     } else if (doubleTouch) {
+       var c0 = WT.pageCoordinates(event.touches[0]);
+       var c1 = WT.pageCoordinates(event.touches[1]);
+       pinchWidth = Math.sqrt( (c0.x-c1.x)*(c0.x-c1.x) + (c0.y-c1.y)*(c0.y-c1.y) );
+     } else {
+       return;
+     }
+     event.preventDefault();
+   };
+   this.touchEnd = function(o, event) {
+     var noTouch = event.touches.length == 0 ? true : false;
+     singleTouch = event.touches.length == 1 ? true : false;
+     doubleTouch = event.touches.length == 2 ? true : false;
+
+     if (noTouch)
+       this.mouseUp(null, null);
+     if (singleTouch || doubleTouch)
+       this.touchStart(o, event);
+   };
+   this.touchMoved = function(o, event) {
+     if ( (!singleTouch) && (!doubleTouch) )
+       return;
+
+     event.preventDefault();
+     if (singleTouch)
+       this.mouseDragLookAt(o, event.touches[0]);
+     if (doubleTouch) {
+       var c0 = WT.pageCoordinates(event.touches[0]);
+       var c1 = WT.pageCoordinates(event.touches[1]);
+       var d = Math.sqrt( (c0.x-c1.x)*(c0.x-c1.x) + (c0.y-c1.y)*(c0.y-c1.y) );
+       var scale = d / pinchWidth;
+       if (Math.abs(scale-1) < 0.05) {
+	 return;
+       } else if (scale > 1) {
+	 scale = 1;
+       } else {
+	 scale = -1;
+       }
+       pinchWidth = d;
+       this.zoom(scale);
+     }
    };
 
    // To be called after a load of buffer/texture completes; will
@@ -168,5 +239,24 @@ WT_DECLARE_WT_MEMBER
      } else {
        // still waiting for data to arrive...
      }
+   };
+
+   function encodeJSMatrices() {
+     var obj = jQuery.data(canvas, 'obj');
+     var str = '';
+     for (var index=0; index < obj.jsMatrices.length; index++) {
+       str += index + ':';
+       for (var i=0; i < obj.jsMatrices[index].length; i++) {
+	 str += obj.jsMatrices[index][i];
+	 if (i != 15) {
+	   str += ',';
+	 } else {
+	   str += ';';
+	 }
+       }
+     }
+     return str;
    }
+
+   canvas.wtEncodeValue = encodeJSMatrices;
  });

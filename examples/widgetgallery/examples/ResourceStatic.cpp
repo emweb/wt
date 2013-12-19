@@ -1,6 +1,5 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WPainter>
-#include <Wt/WPdfImage>
 #include <Wt/WResource>
 #include <Wt/WServer>
 

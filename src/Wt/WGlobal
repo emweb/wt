@@ -232,7 +232,6 @@ namespace Wt {
     class WAbstractChart;
     class WAxis;
     class WCartesianChart;
-    class WChart2DRenderer;
     class WChartPalette;
     class WDataSeries;
     class WPieChart;

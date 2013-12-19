@@ -41,6 +41,9 @@ WT_DECLARE_WT_MEMBER
        return false;
      }
 
+     if (WT.target(event) == document)
+	 return;
+
      if (!isAncestor(el, WT.target(event)))
        self.hide();
    }

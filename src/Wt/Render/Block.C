@@ -2956,9 +2956,6 @@ void Block::render(WTextRenderer& renderer, WPainter& painter, int page)
     }
   }
 
-  if (type_ == DomElement_THEAD)
-    currentTheadBlock_ = blockLayout.empty() ? 0 : &blockLayout.front();
-
   unsigned first = (type_ == DomElement_LI) ? 1 : 0;
   for (unsigned i = first; i < inlineLayout.size(); ++i) {
     LayoutBox& lb = inlineLayout[i];
@@ -3056,10 +3053,9 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
 #endif // DEBUG_LAYOUT
 
     if (type_ == DomElement_THEAD) {
-      /*
-       * This is the first or a repeated THEAD element
-       * (for a repeated:) move children here + render
-       */
+      if (currentTheadBlock_ == 0 && !blockLayout.empty())
+	currentTheadBlock_ = &blockLayout.front();
+
       for (unsigned j = 0; j < children_.size(); ++j) {
         if (currentTheadBlock_ != &lb)
           children_[j]->reLayout(*currentTheadBlock_, lb);

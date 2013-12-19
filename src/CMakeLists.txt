@@ -115,6 +115,8 @@ Wt/WFontMetrics.C
 Wt/WFormModel.C
 Wt/WFormWidget.C
 Wt/WGLWidget.C
+Wt/WAbstractGLImplementation.C
+Wt/WClientGLWidget.C
 Wt/WGoogleMap.C
 Wt/WGradient.C
 Wt/WGridLayout.C
@@ -268,9 +270,20 @@ Wt/Chart/WAxis.C
 Wt/Chart/WDataSeries.C
 Wt/Chart/WPieChart.C
 Wt/Chart/WCartesianChart.C
-Wt/Chart/WChart2DRenderer.C
+Wt/Chart/WCartesian3DChart.C
+Wt/Chart/WAbstractChartImplementation.C
+Wt/Chart/WChart2DImplementation.C
+Wt/Chart/WChart3DImplementation.C
 Wt/Chart/WChartPalette.C
 Wt/Chart/WStandardPalette.C
+Wt/Chart/WStandardColorMap.C
+Wt/Chart/WLegend.C
+Wt/Chart/WLegend3D.C
+Wt/Chart/WAbstractDataSeries3D.C
+Wt/Chart/WAbstractGridData.C
+Wt/Chart/WGridData.C
+Wt/Chart/WEquidistantGridData.C
+Wt/Chart/WScatterData.C
 Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
@@ -366,6 +379,17 @@ ELSEIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "skia")
   SET(libsources ${libsources} Wt/WRasterImage-skia.C)
 ENDIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
 
+IF(HAVE_GL)
+  SET(libsources ${libsources} Wt/WServerGLWidget.C)
+  IF(NOT USE_SYSTEM_GLEW)
+    ADD_DEFINITIONS(-DGLEW_STATIC)
+    SET(libsources
+      ${libsources}
+      3rdparty/glew-1.10.0/src/glew.c
+    )
+  ENDIF(NOT USE_SYSTEM_GLEW)
+ENDIF(HAVE_GL)
+
 IF(HAVE_HARU OR "${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
   IF(HAVE_PANGO)
     SET(libsources ${libsources} Wt/FontSupportPango.C)
@@ -442,6 +466,16 @@ ELSE(HAVE_HARU)
   ENDIF(ENABLE_HARU)
 ENDIF(HAVE_HARU)
 
+IF(HAVE_GL)
+  INCLUDE_DIRECTORIES(${GL_INCLUDE_DIRS})
+  IF(USE_SYSTEM_GLEW)
+    TARGET_LINK_LIBRARIES(wt GLEW)
+  ENDIF(USE_SYSTEM_GLEW)
+  TARGET_LINK_LIBRARIES(wt ${GL_LIBRARIES})
+ELSE(HAVE_GL)
+  MESSAGE("** Disabling server-side opengl rendering (WGLWidget): requires gl, glew.")
+ENDIF(HAVE_GL)
+
 IF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
   TARGET_LINK_LIBRARIES(wt ${GM_LIBRARIES})
   INCLUDE_DIRECTORIES(${GM_INCLUDE_DIRS})
@@ -449,6 +483,7 @@ IF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
 ELSEIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "skia")
   TARGET_LINK_LIBRARIES(wt ${SKIA_LIBRARIES})
   INCLUDE_DIRECTORIES(${SKIA_INCLUDE_DIRS})
+  ADD_DEFINITIONS(${SKIA_DEFINES})
 ELSE("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
   MESSAGE("** Disabling raster image support (WRasterImage): set WT_WRASTERIMAGE_IMPLEMENTATION to GraphicsMagick or skia.")
 ENDIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")

@@ -29,6 +29,7 @@ WEnvironment::WEnvironment()
     doesCookies_(false),
     hashInternalPaths_(false),
     dpiScale_(1),
+    webGLsupported_(false),
     timeZoneOffset_(0)
 #ifndef WT_TARGET_JAVA
     , sslInfo_(0)
@@ -41,6 +42,7 @@ WEnvironment::WEnvironment(WebSession *session)
     doesCookies_(false),
     hashInternalPaths_(false),
     dpiScale_(1),
+    webGLsupported_(false),
     timeZoneOffset_(0)
 #ifndef WT_TARGET_JAVA
     , sslInfo_(0)
@@ -197,6 +199,10 @@ void WEnvironment::enableAjax(const WebRequest& request)
   } catch (boost::bad_lexical_cast &e) {
     dpiScale_ = 1;
   }
+
+  const std::string *webGLE = request.getParameter("webGL");
+
+  webGLsupported_ = webGLE ? (*webGLE == "true") : false;
 
   const std::string *tzE = request.getParameter("tz");
 

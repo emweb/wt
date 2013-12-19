@@ -173,11 +173,12 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 	in_->seekg(0); // rewind
 
+	// Note: cannot be wrapped in the strand because then we get into
+	// trouble with recursive event loop?
 	connection->server()->service().post
-	  (connection->strand().wrap
-	   (boost::bind(&Wt::WebController::handleRequest,
-			connection->server()->controller(),
-			httpRequest_)));
+	  (boost::bind(&Wt::WebController::handleRequest,
+		       connection->server()->controller(),
+		       httpRequest_));
       }
     }
   } else {

@@ -1,0 +1,225 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+namespace {
+
+const std::string barFragShaderSrc = 
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "varying vec2 vTextureCoord;\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform sampler2D uSampler;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (vPos.x < 0.0 || vPos.x > 1.0 ||"
+  "      vPos.y < 0.0 || vPos.y > 1.0 ||"
+  "      vPos.z < 0.0 || vPos.z > 1.0) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t) );\n"  
+  "}\n";
+
+const std::string barVertexShaderSrc =
+  "attribute vec3 aVertexPosition;\n"
+  "attribute vec2 aTextureCoord;\n"
+  "\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "varying vec2 vTextureCoord;\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "void main(void) {\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
+  "  vTextureCoord = aTextureCoord;\n"
+  "  vPos = aVertexPosition;\n"
+  "}\n";
+
+const std::string colBarFragShaderSrc = 
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "varying vec3 vPos;\n"
+  "varying vec4 vColor;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (vPos.x < 0.0 || vPos.x > 1.0 ||"
+  "      vPos.y < 0.0 || vPos.y > 1.0 ||"
+  "      vPos.z < 0.0 || vPos.z > 1.0) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = vColor;\n"  
+  "}\n";
+
+const std::string colBarVertexShaderSrc =
+  "attribute vec3 aVertexPosition;\n"
+  "attribute vec4 aVertexColor;\n"
+  "\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "varying vec4 vColor;\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "void main(void) {\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
+  "  vColor = aVertexColor/255.0;\n"
+  "  vPos = aVertexPosition;\n"
+  "}\n";
+
+const std::string ptFragShaderSrc = 
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "varying float x, y, z;\n"
+  "\n"
+  "uniform sampler2D uSampler;\n"
+  "uniform float uOffset;\n"
+  "uniform float uScaleFactor;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (x < 0.0 || x > 1.0 ||"
+  "      y < 0.0 || y > 1.0 ||"
+  "      z < 0.0 || z > 1.0) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = texture2D(uSampler, vec2(0.0, uScaleFactor * (z - uOffset) ) );\n"
+  "}\n";
+
+// // make round points (z-buffer issues)
+//   "  gl_FragColor =  vec4(texture2D(uSampler, vec2(0.0, zNorm )).rgb, (1.0 - smoothstep(0.4, 0.6, distance(vec2(0.5,0.5), gl_PointCoord))) * texture2D(uSampler, vec2(0.0, zNorm )).a);\n"
+
+const std::string ptVertexShaderSrc =
+  "attribute vec3 aVertexPosition;\n"
+  "attribute float aPointSize;\n"
+  "\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "varying float x, y, z;\n"
+  "\n"
+  "void main(void) {\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
+  "  x = aVertexPosition.x;\n"
+  "  y = aVertexPosition.y;\n"
+  "  z = aVertexPosition.z;\n"
+  "  gl_PointSize = aPointSize;\n"
+  "}\n";
+
+const std::string colPtFragShaderSrc = 
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif"
+  "\n"
+  "varying vec4 vColor;\n"
+  "varying float x, y, z;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (x < 0.0 || x > 1.0 ||"
+  "      y < 0.0 || y > 1.0 ||"
+  "      z < 0.0 || z > 1.0) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = vColor;\n"
+  "}\n";
+
+const std::string colPtVertexShaderSrc =
+  "attribute vec3 aVertexPosition;\n"
+  "attribute float aPointSize;\n"
+  "attribute vec4 aColor;\n"
+  "\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "varying vec4 vColor;\n"
+  "varying float x, y, z;\n"
+  "\n"
+  "void main(void) {\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
+  "  vColor = aColor/255.0;\n"
+  "  x = aVertexPosition.x;\n"
+  "  y = aVertexPosition.y;\n"
+  "  z = aVertexPosition.z;\n"
+  "  gl_PointSize = aPointSize;\n"
+  "}\n";
+
+const std::string surfFragShaderSrc = 
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "varying float x, y, z;\n"
+  "\n"
+  "uniform sampler2D uSampler;\n"
+  "uniform float uOffset;\n"
+  "uniform float uScaleFactor;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (x < 0.0 || x > 1.0 ||"
+  "      y < 0.0 || y > 1.0 ||"
+  "      z < 0.0 || z > 1.0) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = texture2D(uSampler, vec2(0.0, uScaleFactor * (z - uOffset) ) );\n"  
+  "}\n";
+
+const std::string surfVertexShaderSrc =
+  "attribute vec3 aVertexPosition;\n"
+  "\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "varying float x, y, z;\n"
+  "\n"
+  "void main(void) {\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
+  "  x = aVertexPosition.x;\n"
+  "  y = aVertexPosition.y;\n"
+  "  z = aVertexPosition.z;\n"
+  "}\n";
+
+const std::string meshFragShaderSrc = 
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform vec4 uColor;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (vPos.x < 0.0 || vPos.x > 1.0 ||"
+  "      vPos.y < 0.0 || vPos.y > 1.0 ||"
+  "      vPos.z < 0.0 || vPos.z > 1.0) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = uColor/255.0;\n"  
+  "}\n";
+
+const std::string meshVertexShaderSrc = 
+  "attribute vec3 aVertexPosition;\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "void main(void) {\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
+  "  vPos = aVertexPosition;\n"
+  "}\n";
+
+}

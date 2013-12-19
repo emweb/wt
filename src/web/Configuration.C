@@ -232,6 +232,7 @@ void Configuration::reset()
   ajaxPuzzle_ = false;
   sessionIdCookie_ = false;
   cookieChecks_ = true;
+  webglDetection_ = true;
 
   if (!appRoot_.empty())
     properties_["appRoot"] = appRoot_;
@@ -437,6 +438,12 @@ bool Configuration::useSlashExceptionForInternalPaths() const
 bool Configuration::needReadBodyBeforeResponse() const
 {
   return connectorNeedReadBody_;
+}
+
+bool Configuration::webglDetect() const
+{
+  READ_LOCK;
+  return webglDetection_;
 }
 
 bool Configuration::agentIsBot(const std::string& agent) const
@@ -685,6 +692,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     setBoolean(app, "split-script", splitScript_);
   setBoolean(app, "session-id-cookie", sessionIdCookie_);
   setBoolean(app, "cookie-checks", cookieChecks_);
+  setBoolean(app, "webgl-detection", webglDetection_);
 
   std::string plainAjaxSessionsRatioLimit
     = singleChildElementValue(app, "plain-ajax-sessions-ratio-limit", "");

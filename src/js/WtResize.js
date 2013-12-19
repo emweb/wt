@@ -127,9 +127,6 @@ WT_DECLARE_WT_MEMBER
  function(self, child, dir, size) {
   var WT = this, i, il;
 
- if (child.wtGetPS)
-   return size;
-
   for (i = 0, il = self.childNodes.length; i < il; ++i) {
     var c = self.childNodes[i];
     if (c != child) {

@@ -11,18 +11,22 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WAbstractItemModel"
+#include "Wt/WColor"
 #include "Wt/WDate"
 #include "Wt/WException"
 #include "Wt/WLogger"
+#include "Wt/WPainter"
+#include "Wt/WPainterPath"
+#include "Wt/WRectF"
 #include "Wt/WTime"
 
 #include "Wt/Chart/WAxis"
-#include "Wt/Chart/WCartesianChart"
-#include "Wt/Chart/WChart2DRenderer"
+#include "Wt/Chart/WAbstractChartImplementation"
 
 #include "WebUtils.h"
 
 namespace {
+  const int TICK_LENGTH = 5;
   const int AXIS_MARGIN = 4;
   const int AUTO_V_LABEL_PIXELS = 25;
   const int AUTO_H_LABEL_PIXELS = 80;
@@ -59,6 +63,43 @@ namespace {
   int roundDown(int v, int factor) {
     return (v / factor) * factor;
   }
+
+  Wt::WPointF interpolate(const Wt::WPointF& p1, const Wt::WPointF& p2,
+			  double u) {
+    double x = p1.x();
+    if (p2.x() - p1.x() > 0)
+      x += u;
+    else if (p2.x() - p1.x() < 0)
+      x -= u;
+
+    double y = p1.y();
+    if (p2.y() - p1.y() > 0)
+      y += u;
+    else if (p2.y() - p1.y() < 0)
+      y -= u;
+
+    return Wt::WPointF(x, y);
+  }
+
+  class TildeStartMarker : public Wt::WPainterPath {
+  public:
+    TildeStartMarker(int segmentMargin) {
+      moveTo(0, 0);
+      lineTo(0, segmentMargin - 25);
+      moveTo(-15, segmentMargin - 10);
+      lineTo(15, segmentMargin - 20);
+    }
+  };
+
+  class TildeEndMarker : public Wt::WPainterPath {
+  public:
+    TildeEndMarker(int segmentMargin) {
+      moveTo(0, 0);
+      lineTo(0, -(segmentMargin - 25));
+      moveTo(-15, -(segmentMargin - 20));
+      lineTo(15, -(segmentMargin - 10));
+    }
+  };
 }
 
 namespace Wt {
@@ -66,42 +107,6 @@ namespace Wt {
 LOGGER("Chart.WAxis");
 
   namespace Chart {
-
-class ExtremesIterator : public SeriesIterator
-{
-public:
-  ExtremesIterator(Axis axis, AxisScale scale)
-    : axis_(axis), scale_(scale),
-      minimum_(DBL_MAX),
-      maximum_(-DBL_MAX)
-  { }
-
-  virtual bool startSeries(const WDataSeries& series, double groupWidth,
-			   int numBarGroups, int currentBarGroup)
-  {
-    return axis_ == XAxis || series.axis() == axis_;
-  }
-
-  virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY, const WModelIndex& xIndex,
-			const WModelIndex& yIndex)
-  {
-    double v = axis_ == XAxis ? x : y;
-
-    if (!Utils::isNaN(v) && (scale_ != LogScale || v > 0.0)) {
-      maximum_ = std::max(v, maximum_);
-      minimum_ = std::min(v, minimum_);
-    }
-  }
-
-  double minimum() { return minimum_; }
-  double maximum() { return maximum_; }
-
-private:
-  Axis axis_;
-  AxisScale scale_;
-  double minimum_, maximum_;
-};
 
 WAxis::TickLabel::TickLabel(double v, TickLength length, const WString& l)
   : u(v),
@@ -133,7 +138,9 @@ WAxis::WAxis()
     gridLinesPen_(gray),
     margin_(0),
     labelAngle_(0),
-    roundLimits_(MinimumValue | MaximumValue)
+    roundLimits_(MinimumValue | MaximumValue),
+    segmentMargin_(40),
+    titleOffset_(0)
 {
   titleFont_.setFamily(WFont::SansSerif);
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
@@ -143,13 +150,14 @@ WAxis::WAxis()
   segments_.push_back(Segment());
 }
 
-void WAxis::init(WCartesianChart *chart, Axis axis)
+void WAxis::init(WAbstractChartImplementation* chart,
+		 Axis axis)
 {
   chart_ = chart;
   axis_ = axis;
 
-  if (axis == XAxis) {
-    if (chart->type() == CategoryChart)
+  if (axis == XAxis || axis_ == XAxis_3D || axis_ == YAxis_3D) {
+    if (chart_->chartType() == CategoryChart)
       scale_ = CategoryScale;
     else if (scale_ != DateScale)
       scale_ = LinearScale;
@@ -187,6 +195,7 @@ void WAxis::setMinimum(double minimum)
 #endif // WT_TARGET_JAVA
 
   roundLimits_.clear(MinimumValue);
+  update();
 }
 
 double WAxis::minimum() const
@@ -208,6 +217,7 @@ void WAxis::setMaximum(double maximum)
 #endif // WT_TARGET_JAVA
 
   roundLimits_.clear(MaximumValue);
+  update();
 }
 
 double WAxis::maximum() const
@@ -292,7 +302,10 @@ void WAxis::setLabelFormat(const WString& format)
 
 void WAxis::setLabelAngle(double angle)
 {
-  set(labelAngle_, angle);
+  if (renderingMirror_)
+    labelAngle_ = angle;
+  else
+    set(labelAngle_, angle);
 }
 
 void WAxis::setGridLinesEnabled(bool enabled)
@@ -336,28 +349,24 @@ void WAxis::update()
     chart_->update();
 }
 
-bool WAxis::prepareRender(WChart2DRenderer& renderer) const
+bool WAxis::prepareRender(Orientation orientation, double length) const
 {
   double totalRenderRange = 0;
 
   for (unsigned i = 0; i < segments_.size(); ++i) {
     const Segment& s = segments_[i];
-
-    computeRange(renderer, s);
+    computeRange(s);
     totalRenderRange += s.renderMaximum - s.renderMinimum;
   }
 
-  bool vertical = axis_ != XAxis;
+  double clipMin = segments_.front().renderMinimum == 0 ?
+    0 : chart_->axisPadding();
+  double clipMax = segments_.back().renderMaximum == 0 ?
+    0 : chart_->axisPadding();
 
-  double clipMin = segments_.front().renderMinimum == 0 ? 0 : chart_->axisPadding();
-  double clipMax = segments_.back().renderMaximum == 0 ? 0 : chart_->axisPadding();
-
-  double totalRenderLength
-    = vertical ? renderer.chartArea().height() : renderer.chartArea().width();
-  double totalRenderStart
-    = vertical ? renderer.chartArea().bottom() - clipMin
-    : renderer.chartArea().left() + clipMin;
-
+  double totalRenderLength = length;
+  double totalRenderStart = clipMin;
+  
   const double SEGMENT_MARGIN = 40;
 
   // 6 pixels additional margin to avoid clipping lines that render
@@ -369,10 +378,6 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
     renderInterval_ = 1.0;
     return false;
   }
-
-  int rc = 0;
-  if (chart_->model())
-    rc = chart_->model()->rowCount();
 
   /*
    * Iterate twice, since we adjust the render extrema based on the size
@@ -394,13 +399,13 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
 	renderInterval_ = labelInterval_;
 	if (renderInterval_ == 0) {
 	  if (scale_ == CategoryScale) {
-	    double numLabels = calcAutoNumLabels(s) / 1.5;
-
+	    double numLabels = calcAutoNumLabels(orientation, s) / 1.5;
+	    int rc = chart_->numberOfCategories(axis_);
 	    renderInterval_ = std::max(1.0, std::floor(rc / numLabels));
 	  } else if (scale_ == LogScale) {
 	    renderInterval_ = 1; // does not apply
 	  } else {
-	    double numLabels = calcAutoNumLabels(s);
+	    double numLabels = calcAutoNumLabels(orientation, s);
 
 	    renderInterval_ = round125(diff / numLabels);
 	  }
@@ -635,15 +640,11 @@ bool WAxis::prepareRender(WChart2DRenderer& renderer) const
       }
 
       totalRenderRange += s.renderMaximum - s.renderMinimum;
-
-      if (axis_ == XAxis)
-	rs += s.renderLength + SEGMENT_MARGIN;
-      else
-	rs -= s.renderLength + SEGMENT_MARGIN;
+      rs += s.renderLength + SEGMENT_MARGIN;
     }
   }
-  return true;
 
+  return true;
 }
 
 void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
@@ -664,23 +665,15 @@ void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
       }
 
       s.renderLength -= (borderMin + borderMax);
-
-      if (axis_ == XAxis)
-	s.renderStart += borderMin;
-      else
-	s.renderStart -= borderMin;
+      s.renderStart += borderMin;
     }
   }
 }
 
-void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
-  const
+void WAxis::computeRange(const Segment& segment) const
 {
-  int rc = 0;
-  if (chart_->model())
-    rc = chart_->model()->rowCount();
-
   if (scale_ == CategoryScale) {
+    int rc = chart_->numberOfCategories(axis_);
     rc = std::max(1, rc);
     segment.renderMinimum = -0.5;
     segment.renderMaximum = rc - 0.5;
@@ -695,11 +688,10 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
       double minimum = std::numeric_limits<double>::max();
       double maximum = -std::numeric_limits<double>::max();
 
-      ExtremesIterator iterator(axis_, scale_);
-      renderer.iterateSeries(&iterator);
-
-      minimum = iterator.minimum();
-      maximum = iterator.maximum();
+      WAbstractChartImplementation::RenderRange rr =
+	chart_->computeRenderRange(axis_, scale_);
+      minimum = rr.minimum;
+      maximum = rr.maximum;
 
       if (minimum == std::numeric_limits<double>::max()) {
 	if (scale_ == LogScale)
@@ -872,10 +864,7 @@ double WAxis::mapToDevice(double u, int segment) const
       * s.renderLength;
   }
 
-  if (axis_ == XAxis)
-    return s.renderStart + d;
-  else
-    return s.renderStart - d;
+  return s.renderStart + d;
 }
 
 double WAxis::mapFromDevice(double d) const
@@ -886,10 +875,7 @@ double WAxis::mapFromDevice(double d) const
     bool lastSegment = (i == segments_.size() - 1);
 
     if (lastSegment || d < mapToDevice(s.renderMaximum, i)) {
-      if (axis_ == XAxis)
-	d = d - s.renderStart;
-      else
-	d = s.renderStart - d;
+      d = d - s.renderStart;
 
       if (scale_ != LogScale) {
 	return s.renderMinimum + d * (s.renderMaximum - s.renderMinimum)
@@ -916,9 +902,8 @@ WString WAxis::label(double u) const
   WString text;
 
   if (scale_ == CategoryScale) {
-    if (chart_->XSeriesColumn() != -1) {
-      text = asString(chart_->model()->data((int)u, chart_->XSeriesColumn()));
-    } else {
+    text = chart_->categoryLabel((int)u, axis_);
+    if (text.empty()) {
 #ifdef WT_TARGET_JAVA
       buf =
 #endif // WT_TARGET_JAVA
@@ -950,19 +935,16 @@ WString WAxis::label(double u) const
   return text;
 }
 
-void WAxis::getLabelTicks(WChart2DRenderer& renderer,
-			  std::vector<TickLabel>& ticks, int segment) const
+void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
 {
   static double EPSILON = 1E-3;
 
   const Segment& s = segments_[segment];
 
-  int rc = 0;
-  if (chart_->model())
-    rc = chart_->model()->rowCount();
-
+  int rc;
   switch (scale_) {
   case CategoryScale: {
+    rc = chart_->numberOfCategories(axis_);
     int renderInterval = std::max(1, static_cast<int>(renderInterval_));
     if (renderInterval == 1) {
       ticks.push_back(TickLabel(-0.5, TickLabel::Long));
@@ -1159,13 +1141,179 @@ long WAxis::getDateNumber(WDateTime dt) const
   }
 }
 
-double WAxis::calcAutoNumLabels(const Segment& s) const
+double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
 {
-  bool vertical = (axis_ != XAxis) == (chart_->orientation() == Vertical);
-
   return s.renderLength
-    / (vertical ? AUTO_V_LABEL_PIXELS : AUTO_H_LABEL_PIXELS);
+    / (orientation == Vertical ? AUTO_V_LABEL_PIXELS : AUTO_H_LABEL_PIXELS);
 }
 
+void WAxis::render(WPainter& painter,
+		   WFlags<AxisProperty> properties,
+		   const WPointF& axisStart,
+		   const WPointF& axisEnd,
+		   double tickStart, double tickEnd, double labelPos,
+		   WFlags<AlignmentFlag> labelFlags) const
+{
+  WFont oldFont1 = painter.font();
+  painter.setFont(labelFont_);
+  
+
+  bool vertical = axisStart.x() == axisEnd.x();
+
+  for (int segment = 0; segment < segmentCount(); ++segment) {
+    const WAxis::Segment& s = segments_[segment];
+
+    if (properties & Line) { 
+      painter.setPen(pen());
+
+      WPointF begin = interpolate(axisStart, axisEnd, s.renderStart);
+      WPointF end = interpolate(axisStart, axisEnd, s.renderStart +
+				s.renderLength);
+
+      painter.drawLine(begin, end);
+
+      bool rotate = vertical;
+
+      if (segment != 0) {
+  	painter.save();
+  	painter.translate(begin);
+  	if (rotate)
+  	  painter.rotate(90);
+  	painter.drawPath(TildeStartMarker((int)segmentMargin_));
+  	painter.restore();
+      }
+
+      if (segment != segmentCount() - 1) {
+  	painter.save();
+  	painter.translate(end);
+  	if (rotate)
+  	  painter.rotate(90);
+  	painter.drawPath(TildeEndMarker((int)segmentMargin_));
+  	painter.restore();	
+      }
+    }
+
+    WPainterPath ticksPath;
+
+    std::vector<WAxis::TickLabel> ticks;
+    getLabelTicks(ticks, segment);
+
+    for (unsigned i = 0; i < ticks.size(); ++i) {
+      double u = mapToDevice(ticks[i].u, segment);
+      WPointF p = interpolate(axisStart, axisEnd, std::floor(u));
+
+      if ((properties & Line) &&
+	  ticks[i].tickLength != WAxis::TickLabel::Zero) {
+	double ts = tickStart;
+	double te = tickEnd;
+
+	if (ticks[i].tickLength == WAxis::TickLabel::Short) {
+	  ts = tickStart / 2;
+	  te = tickEnd / 2;
+	}
+
+  	if (vertical) {
+	  ticksPath.moveTo(WPointF(p.x() + ts, p.y()));
+	  ticksPath.lineTo(WPointF(p.x() + te, p.y()));
+  	} else {
+	  ticksPath.moveTo(WPointF(p.x(), p.y() + ts));
+	  ticksPath.lineTo(WPointF(p.x(), p.y() + te));
+  	}
+      }
+
+      if ((properties & Labels) && !ticks[i].label.empty()) {
+	WPointF labelP;
+
+	if (vertical)
+	  labelP = WPointF(p.x() + labelPos, p.y());
+	else
+	  labelP = WPointF(p.x(), p.y() + labelPos);
+
+	renderLabel(painter, ticks[i].label, labelP,
+		    black, labelFlags, labelAngle(), 3);
+      }
+    }
+
+    if (!ticksPath.isEmpty())
+      painter.strokePath(ticksPath, pen());
+  }
+
+  painter.setFont(oldFont1);
+}
+
+void WAxis::renderLabel(WPainter& painter,
+			const WString& text, const WPointF& p,
+			const WColor& color,
+			WFlags<AlignmentFlag> flags,
+			double angle, int margin) const
+{
+  AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
+  AlignmentFlag verticalAlign = flags & AlignVerticalMask;
+
+  double width = 1000;
+  double height = 20;
+
+  WPointF pos = p;
+
+  double left = pos.x();
+  double top = pos.y();
+
+  switch (horizontalAlign) {
+  case AlignLeft:
+    left += margin; break;
+  case AlignCenter:
+    left -= width/2; break;
+  case AlignRight:
+    left -= width + margin;
+  default:
+    break;
+  }
+
+  switch (verticalAlign) {
+  case AlignTop:
+    top += margin; break;
+  case AlignMiddle:
+    top -= height/2; break;
+  case AlignBottom:
+    top -= height + margin; break;
+  default:
+    break;
+  }
+
+  WPen pen(color);
+  WPen oldPen = painter.pen();
+  painter.setPen(pen);
+
+  if (angle == 0)
+    painter.drawText(WRectF(left, top, width, height),
+		      horizontalAlign | verticalAlign, text);
+  else {
+    painter.save();
+    painter.translate(pos);
+    painter.rotate(-angle);
+    painter.drawText(WRectF(left - pos.x(), top - pos.y(), width, height),
+		     horizontalAlign | verticalAlign, text);
+    painter.restore();
+  }
+
+  painter.setPen(oldPen);
+}
+
+std::vector<double> WAxis::gridLinePositions() const
+{
+  std::vector<double> pos;
+
+  for (unsigned segment = 0; segment < segments_.size(); ++segment) {
+    std::vector<WAxis::TickLabel> ticks;
+    getLabelTicks(ticks, segment);
+
+    for (unsigned i = 0; i < ticks.size(); ++i)
+      if (ticks[i].tickLength == WAxis::TickLabel::Long)
+	pos.push_back(mapToDevice(ticks[i].u, segment));
+  }
+  
+  return pos;
+}
+  
   }
 }

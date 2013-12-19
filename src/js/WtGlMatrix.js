@@ -30,6 +30,16 @@
 WT_DECLARE_WT_MEMBER
 (2, JavaScriptObject, "glMatrix",
   (function() {
+
+// Fallback for systems that don't support WebGL
+if(typeof Float32Array != 'undefined') {
+        glMatrixArrayType = Float32Array;
+} else if(typeof WebGLFloatArray != 'undefined') {
+        glMatrixArrayType = WebGLFloatArray; // This is officially deprecated and should dissapear in future revisions.
+} else {
+        glMatrixArrayType = Array;
+}
+
 /*
  * vec3 - 3 Dimensional Vector
  */
@@ -47,7 +57,7 @@ var vec3 = {};
  * New vec3
  */
 vec3.create = function(vec) {
-	var dest = new Float32Array(3);
+	var dest = new glMatrixArrayType(3);
 
 	if(vec) {
 		dest[0] = vec[0];
@@ -331,7 +341,7 @@ var mat3 = {};
  * New mat3
  */
 mat3.create = function(mat) {
-	var dest = new Float32Array(9);
+	var dest = new glMatrixArrayType(9);
 
 	if(mat) {
 		dest[0] = mat[0];
@@ -466,7 +476,7 @@ var mat4 = {};
  * New mat4
  */
 mat4.create = function(mat) {
-	var dest = new Float32Array(16);
+	var dest = new glMatrixArrayType(16);
 
 	if(mat) {
 		dest[0] = mat[0];
@@ -1410,7 +1420,7 @@ var quat4 = {};
  * New quat4
  */
 quat4.create = function(quat) {
-	var dest = new Float32Array(4);
+	var dest = new glMatrixArrayType(4);
 
 	if(quat) {
 		dest[0] = quat[0];

@@ -28,6 +28,13 @@ namespace Wt {
   class WString;
   class EscapeOStream;
 
+#ifndef WT_TARGET_JAVA
+  typedef std::vector<float> FloatBuffer;
+  typedef std::vector<int> IntBuffer;
+#else
+#include <java/buffer>
+#endif
+
   namespace Utils {
 
 // appends the character to the string if it does not end with it
@@ -292,6 +299,40 @@ extern void stringToDouble(const char *str, char **end, double &value);
 extern std::string readFile(const std::string& fname);
 
 extern WString formatFloat(const WString &format, double value);
+
+#ifndef WT_TARGET_JAVA
+inline FloatBuffer createFloatBuffer(int size) {
+  FloatBuffer vec;
+  vec.reserve(size);
+  return vec;
+}
+
+inline const unsigned char* toCharPointer(const FloatBuffer& fb) {
+  return reinterpret_cast<const unsigned char*>(&(fb[0]));
+}
+
+inline IntBuffer createIntBuffer(int size) {
+  IntBuffer vec;
+  vec.reserve(size);
+  return vec;
+}
+#else
+FloatBuffer createFloatBuffer(int size);
+unsigned char* toCharPointer(const FloatBuffer& fb);
+IntBuffer createIntBuffer(int size);
+#endif
+
+
+#ifndef WT_TARGET_JAVA
+template<typename T>
+int sizeofFunction(const T &t) { return sizeof(t)/sizeof(*t); }
+// template<typename T, int size>
+// int sizeofFunction(const T t) { return size/sizeof(*t); }
+#else
+int sizeofFunction(const double[]);
+int sizeofFunction(const float[]);
+int sizeofFunction(const int[]);
+#endif
 
   }
 }

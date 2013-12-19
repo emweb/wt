@@ -1498,7 +1498,13 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       out << var_ << ".indeterminate=" << i->second << ";";
       break;
     case PropertyDisabled:
-      out << var_ << ".disabled=" << i->second << ';';
+      if (type_ == DomElement_A) {
+	if (i->second == "true")
+	  out << var_ << ".setAttribute('disabled', 'disabled');";
+	else
+	  out << var_ << ".removeAttribute('disabled', 'disabled');";
+      } else
+	out << var_ << ".disabled=" << i->second << ';';
       break;
     case PropertyReadOnly:
       out << var_ << ".readOnly=" << i->second << ';';

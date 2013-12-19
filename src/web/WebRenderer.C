@@ -341,6 +341,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bootJs.setCondition("HYBRID", hybrid);
   bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());
   bootJs.setCondition("DEFER_SCRIPT", true);
+  bootJs.setCondition("WEBGL_DETECT", conf.webglDetect());
 
   std::string internalPath
     = hybrid ? session_.app()->internalPath() : session_.env().internalPath();
@@ -1815,6 +1816,9 @@ std::string WebRenderer::headDeclarations() const
 	closeSpecial(result);
       } else if (session_.env().agent() == WEnvironment::IE10) {
 	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=10\"";
+	closeSpecial(result);
+      } else {
+	result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=11\"";
 	closeSpecial(result);
       }
     }

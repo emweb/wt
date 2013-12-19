@@ -252,6 +252,8 @@ public:
    */
   bool ajax() const { return doesAjax_; }
 
+  bool webGL() const { return webGLsupported_; }
+
   /*! \brief Returns the browser-side DPI scaling factor
    *
    * Internet Explorer scales all graphics, fonts and other elements
@@ -651,6 +653,7 @@ protected:
   UserAgent   agent_;
   double      dpiScale_;
   std::string queryString_;
+  bool        webGLsupported_;
 
   Http::ParameterMap parameters_;
   CookieMap   cookies_;

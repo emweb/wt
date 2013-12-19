@@ -1,0 +1,24 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#ifndef CHART_WAXIS3D_H
+#define CHART_WAXIS3D_H
+
+#include <Wt/Chart/WAxis>
+
+namespace Wt {
+  namespace Chart {
+
+class WAxis3D : public WAxis {
+public:
+  virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment) const;
+};
+
+  }
+}
+
+#endif

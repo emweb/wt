@@ -10,6 +10,10 @@
 #include <string>
 #include <Wt/WResource>
 
+namespace boost {
+  class mutex;
+}
+
 namespace Wt {
 
 /*! \class WMemoryResource Wt/WMemoryResource Wt/WMemoryResource
@@ -77,7 +81,7 @@ public:
 
   /*! \brief Returns the data this resource will serve.
    */
-  const std::vector<unsigned char>& data() const;
+  const std::vector<unsigned char> data() const;
 
   /*! \brief Returns the mime-type.
    */
@@ -91,8 +95,14 @@ public:
 			     Http::Response& response);
 
 private:
+  typedef boost::shared_ptr< const std::vector<unsigned char> > DataPtr;
+
   std::string mimeType_;
-  std::vector<unsigned char> data_;
+  DataPtr data_;
+
+  boost::shared_ptr<boost::mutex> dataMutex_;
+
+  void create();
 };
 
 }

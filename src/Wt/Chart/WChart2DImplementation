@@ -1,0 +1,65 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#ifndef CHART_WCHART2DIMPLEMENTATION_H
+#define CHART_WCHART2DIMPLEMENTATION_H
+
+#include <Wt/Chart/WCartesianChart>
+#include <Wt/Chart/WAbstractChartImplementation>
+
+namespace Wt {
+  namespace Chart {
+
+class ExtremesIterator : public SeriesIterator
+{
+public:
+  ExtremesIterator(Axis axis, AxisScale scale)
+    : axis_(axis), scale_(scale),
+      minimum_(DBL_MAX),
+      maximum_(-DBL_MAX)
+  { }
+  
+  virtual bool startSeries(const WDataSeries& series, double groupWidth,
+			   int numBarGroups, int currentBarGroup);
+  
+  virtual void newValue(const WDataSeries& series, double x, double y,
+			double stackY, const WModelIndex& xIndex,
+			const WModelIndex& yIndex);
+  
+  double minimum() { return minimum_; }
+  double maximum() { return maximum_; }
+
+private:
+  Axis axis_;
+  AxisScale scale_;
+  double minimum_, maximum_;
+};
+
+
+class WChart2DImplementation : public WAbstractChartImplementation
+{
+public:
+  WChart2DImplementation(WCartesianChart *chart);
+
+  virtual ChartType chartType() const;
+  virtual Orientation orientation() const;
+  virtual int axisPadding() const;
+
+  virtual int numberOfCategories(Axis axis = XAxis) const;
+  virtual WString categoryLabel(int u, Axis axis = XAxis) const;
+  virtual RenderRange computeRenderRange(Axis axis, AxisScale scale) const;
+
+  virtual void update();
+  
+private:
+  WCartesianChart *chart_;
+};
+
+  }
+}
+
+#endif

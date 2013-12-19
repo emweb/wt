@@ -11,7 +11,6 @@ WT_DECLARE_WT_MEMBER
  function(APP, id, parentId, fitWidth, fitHeight, progressive,
 	  maxWidth, maxHeight, hMargins, vMargins, conf) {
    var WT = APP.WT;
-   this.ancestor = null;
    this.descendants = [];
 
    /** @const */ var debug = false;
@@ -685,7 +684,7 @@ WT_DECLARE_WT_MEMBER
      if (layoutDirty ||
 	 (prevMeasures[TOTAL_PREFERRED_SIZE] !=
 	  DC.measures[TOTAL_PREFERRED_SIZE]))
-       self.updateSizeInParent(dir);
+	 self.updateSizeInParent(dir);
 
      /* If our minimum layout requirements have changed, then we want
       * to communicate this up using the minimum widths
@@ -696,9 +695,7 @@ WT_DECLARE_WT_MEMBER
 	 && prevMeasures[TOTAL_MINIMUM_SIZE] != DC.measures[TOTAL_MINIMUM_SIZE]
 	 && container.parentNode.className != 'Wt-domRoot') {
        var w = DC.measures[TOTAL_MINIMUM_SIZE] + 'px';
-       if (setCss(container, 'min' + DC.Size, w))
-	 if (self.ancestor)
-	   self.ancestor.setContentsDirty(container);
+       setCss(container, 'min' + DC.Size, w);
      }
 
      if (container) {
@@ -1255,11 +1252,6 @@ WT_DECLARE_WT_MEMBER
 	     item.size[dir] = tsm;
 	     item.psize[dir] = ts;
 	   } else {
-	     //debugger;
-	     //console.log(alignment);
-	     //console.log(left);
-	     //console.log(ts);
-	     //console.log(ps);
 	     switch (alignment) {
 	     case ALIGN_LEFT: off = left; break;
 	     case ALIGN_CENTER: off = left + (ts - ps)/2; break;

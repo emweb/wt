@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <list>
 #include <boost/array.hpp>
+#include <string>
 
 /**
  * @addtogroup gitmodelexample

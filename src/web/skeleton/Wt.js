@@ -642,12 +642,6 @@ this.cancelEvent = function(e, cancelType) {
       e.stopPropagation();
     else
       e.cancelBubble=true;
-
-    try {
-      if (document.activeElement && document.activeElement.blur)
-	if (WT.hasTag(document.activeElement, "TEXTAREA"))
-	  document.activeElement.blur();
-    } catch(e) { }
   }
 };
 
@@ -742,7 +736,13 @@ this.widgetCoordinates = function(obj, e) {
 this.pageCoordinates = function(e) {
   if (!e) e = window.event;
   var posX = 0, posY = 0;
-  if (typeof e.pageX === 'number') {
+  
+  if (e.touches && e.touches[0]) {
+    return WT.pageCoordinates(e.touches[0]);
+  } else if (!WT.isIE && e.changedTouches && e.changedTouches[0]) {
+    posX = e.changedTouches[0].pageX;
+    posY = e.changedTouches[0].pageY;
+  } else if (typeof e.pageX === 'number') {
     posX = e.pageX; posY = e.pageY;
   } else if (typeof e.clientX === 'number') {
     posX = e.clientX + document.body.scrollLeft

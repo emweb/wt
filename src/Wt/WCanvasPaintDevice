@@ -68,6 +68,7 @@ public:
   virtual bool paintActive() const { return painter_ != 0; }
 
   void render(const std::string& canvasId, DomElement* text);
+  void renderPaintCommands(std::stringstream& js, const std::string& element);
 
   virtual WLength width() const { return width_; }
   virtual WLength height() const { return height_; }

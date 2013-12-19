@@ -42,12 +42,22 @@ void WToolBar::addButton(WPushButton *button, AlignmentFlag alignmentFlag)
   }
 }
 
-void WToolBar::addButton(WSplitButton *button)
+void WToolBar::addButton(WSplitButton *button, AlignmentFlag alignmentFlag)
 {
   setCompact(false);
   lastGroup_ = 0;
-
+  if(alignmentFlag == AlignRight)
+    button->setAttributeValue("style", "float:right;");
   impl_->addWidget(button);
+}
+
+void WToolBar::addWidget(WWidget *widget, AlignmentFlag alignmentFlag)
+{
+  setCompact(false);
+  lastGroup_ = 0;
+  if(alignmentFlag == AlignRight)
+    widget->setAttributeValue("style", "float:right;");
+  impl_->addWidget(widget);
 }
 
 void WToolBar::addSeparator()

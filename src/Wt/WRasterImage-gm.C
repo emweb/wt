@@ -159,7 +159,7 @@ WRasterImage::WRasterImage(const std::string& type,
 
   std::string magick = type;
   std::transform(magick.begin(), magick.end(), magick.begin(), toupper);
-  strcpy(impl_->image_->magick, type.c_str());
+  strcpy(impl_->image_->magick, magick.c_str());
 }
 
 void WRasterImage::clear()
@@ -651,7 +651,7 @@ void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 {
   impl_->internalInit();
 
-  DrawLine(impl_->context_, x1, y1, x2, y2);
+  DrawLine(impl_->context_, x1-0.5, y1-0.5, x2-0.5, y2-0.5);
 }
 
 void WRasterImage::drawPath(const WPainterPath& path)
@@ -676,10 +676,34 @@ void WRasterImage::setPixel(int x, int y, const WColor& c)
   SyncImagePixels(impl_->image_);
 }
 
+void WRasterImage::getPixels(void *data)
+{
+  int w = (int)width_.value();
+  int h = (int)height_.value();
+  unsigned char *d = (unsigned char *)data;
+  ExceptionInfo ei;
+  const PixelPacket *pixel = AcquireImagePixels(impl_->image_,
+    0, 0, w, h, &ei);
+  if (pixel) {
+    int i = 0;
+    for (int r = 0; r < h; r++)
+      for (int c = 0; c < w; c++) {
+	d[i++] = pixel->red;
+	d[i++] = pixel->green;
+	d[i++] = pixel->blue;
+	d[i++] = 254-pixel->opacity;
+	pixel++;
+      }
+  } else {
+    throw WException(std::string("WRasterImage::getPixels(): error: ") +
+      ei.description);
+  }
+}
+
 WColor WRasterImage::getPixel(int x, int y) 
 {
-  PixelPacket *pixel = GetImagePixels(impl_->image_, x, y, 1, 1);
-  return WColor(pixel->red, pixel->green, pixel->blue, pixel->opacity);
+  PixelPacket pixel = GetOnePixel(impl_->image_, x, y);
+  return WColor(pixel.red, pixel.green, pixel.blue, 254-pixel.opacity);
 }
 
 void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)

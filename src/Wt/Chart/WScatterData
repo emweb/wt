@@ -1,0 +1,243 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#ifndef CHART_SCATTERDATA_H
+#define CHART_SCATTERDATA_H
+
+#include <Wt/WModelIndex>
+#include <Wt/Chart/WAbstractDataSeries3D>
+#include <Wt/Chart/WCartesian3DChart>
+
+namespace Wt {
+class WMemoryResource;
+
+  namespace Chart {
+
+/*! \class WScatterData
+ *  \brief Class representing a collection of points for on a 3D chart.
+ *
+ * General information can be found at WAbstractDataSeries3D. The model should 
+ * be structured as a table where every row represents a point. In the simplest 
+ * case, there are three columns representing the x-, y- and z-values. By 
+ * default, this is column 0 for X, column 1 for Y and column 2 for Z. It is 
+ * also possible to provide an additional column containing information on the 
+ * color for each point. The same is possible for the size. Color-information 
+ * in the model should be present as a WColor.
+ *
+ * If these extra columns are not included, the MarkerBrushColorRole and 
+ * MarkerScaleFactorRole can still be used to style individual points. These 
+ * dataroles should be set on the values in the column containing the z-values.
+ *
+ * The figure below shows an upward spiral of points, with droplines enabled 
+ * and a pointsize of 5 pixels.
+ *
+ * \image html spiral.png "An example of WScatterData"
+ */
+class WT_API WScatterData : public WAbstractDataSeries3D {
+public:
+  /*! \brief Constructor
+   */
+  WScatterData(WAbstractItemModel *model);
+
+  /*! \brief Enables or disables droplines for all points.
+   *
+   * Enabling droplines will cause a line to be drawn from every point to the 
+   * the ground-plane of the chart's plotcube. By default the droplines are 
+   * disabled.
+   *
+   * \sa setDroplinesPen()
+   */
+  void setDroplinesEnabled(bool enable = true);
+
+  /*! \brief Returns whether droplines are enabled.
+   *
+   * \sa setDroplinesEnabled(), setDroplinesPen()
+   */
+  bool droplinesEnabled() const { return droplinesEnabled_; }
+
+  /*! \brief Sets the pen that is used to draw droplines.
+   *
+   * The default pen is a default constructed WPen. 
+   *
+   * Note: only the width and color of the pen are used.
+   *
+   * \sa setDroplinesEnabled()
+   */
+  void setDroplinesPen(const WPen &pen);
+
+  /*! \brief Returns the pen that is used to draw droplines.
+   *
+   * \sa setDroplinesEnabled(), setDroplinesPen()
+   */
+  WPen droplinesPen() const { return droplinesPen_; }
+
+  /*! \brief Sets the column-index from the model that is used for the 
+   * x-coordinate of all points.
+   *
+   * The default X column index is 0.
+   */
+  void setXSeriesColumn(int columnNumber) { XSeriesColumn_ = columnNumber; }
+
+  /*! \brief Returns the column-index from the model that is used for the 
+   * x-coordinate of all points.
+   *
+   * \sa setXSeriesColumn()
+   */
+  int XSeriesColumn() const { return XSeriesColumn_; }
+
+  /*! \brief Sets the column-index from the model that is used for the 
+   * y-coordinate of all points.
+   *
+   * The default X column index is 1.
+   */
+  void setYSeriesColumn(int columnNumber) { YSeriesColumn_ = columnNumber; }
+
+  /*! \brief Returns the column-index from the model that is used for the 
+   * y-coordinate of all points.
+   *
+   * \sa setYSeriesColumn()
+   */
+  int YSeriesColumn() const { return YSeriesColumn_; }
+
+  /*! \brief Sets the column-index from the model that is used for the 
+   * z-coordinate of all points.
+   *
+   * The default Z column index is 2.
+   *
+   * Note that this column is also used to check for a MarkerBrushColorRole 
+   * and a MarkerScaleFactorRole is no color-column or size-column are set.
+   *
+   * \sa setColorColumn(), setSizeColumn()
+   */
+  void setZSeriesColumn(int columnNumber) { ZSeriesColumn_ = columnNumber; }
+
+  /*! \brief Returns the column-index from the model that is used for the 
+   * z-coordinate of all points.
+   *
+   * \sa setZSeriesColumn()
+   */
+  int ZSeriesColumn() const { return ZSeriesColumn_; }
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief Configure a column in the model to be used for the color of the 
+   * points.
+   *
+   * By default, the color-column is set to -1. This means there is no column 
+   * which specifies color-values. Also, the basic mechanism of using the 
+   * MarkerBrushColorRole (if present) is then active. The Z-seriescolumn is 
+   * checked for the presence of this Role.
+   *
+   * /sa setZSeriesColumn()
+   */
+  void setColorColumn(int columnNumber, ItemDataRole role = DisplayRole);
+
+  /*! \brief Configure a column in the model to be used for the size of the 
+   * points.
+   *
+   * By default, the size-column is set to -1. This means there is no column 
+   * which specifies size-values. Also, the basic mechanism of using the 
+   * MarkerScaleFactorRole (if present) is then active. The Z-seriescolumn is 
+   * checked for the presence of this Role.
+   *
+   * /sa setZSeriesColumn()
+   */
+  void setSizeColumn(int columnNumber, ItemDataRole role = DisplayRole);
+#else
+  void setColorColumn(int columnNumber, int role = DisplayRole); 
+  void setSizeColumn(int columnNumber, int role = DisplayRole);
+#endif
+
+  virtual double minimum(Axis axis) const;
+
+  virtual double maximum(Axis axis) const;
+
+  virtual void initializeGL() {}
+  virtual void paintGL() const;
+  virtual void updateGL();
+  virtual void resizeGL();
+  virtual void deleteAllGLResources();
+
+private:
+  int countSimpleData() const;
+  void dataFromModel(FloatBuffer& simplePtsArray,
+		     FloatBuffer& simplePtsSize,
+		     FloatBuffer& coloredPtsArray,
+		     FloatBuffer& coloredPtsSize,
+		     FloatBuffer& coloredPtsColor);
+  void dropLineVertices(FloatBuffer& dataPoints,
+			FloatBuffer& verticesOUT);
+  void initShaders();
+  void findXRange() const;
+  void findYRange() const;
+  void findZRange() const;
+
+  int XSeriesColumn_;
+  int YSeriesColumn_;
+  int ZSeriesColumn_;
+
+  int colorColumn_;
+#ifndef WT_TARGET_JAVA
+  ItemDataRole asColorRole_;
+  ItemDataRole asSizeRole_;
+#else
+  int asColorRole_;
+  int asSizeRole_;
+#endif
+  int sizeColumn_;
+
+  bool droplinesEnabled_;
+  WPen droplinesPen_;
+
+  mutable double xMin_, xMax_, yMin_, yMax_;
+
+  mutable bool xRangeCached_;
+  mutable bool yRangeCached_;
+
+  WGLWidget::Buffer vertexPosBuffer_, vertexSizeBuffer_;
+  WGLWidget::Buffer vertexPosBuffer2_, vertexSizeBuffer2_, vertexColorBuffer2_;
+  WGLWidget::Buffer lineVertBuffer_;
+
+  int vertexBufferSize_, vertexBuffer2Size_, lineVertBufferSize_;
+
+  WGLWidget::Texture colormapTexture_;
+
+  WGLWidget::Shader vertexShader_;
+  WGLWidget::Shader colVertexShader_;
+  WGLWidget::Shader linesVertShader_;
+  WGLWidget::Shader fragmentShader_;
+  WGLWidget::Shader colFragmentShader_;
+  WGLWidget::Shader linesFragShader_;
+
+  WGLWidget::Program shaderProgram_;
+  WGLWidget::Program colShaderProgram_;
+  WGLWidget::Program linesProgram_;
+
+  WGLWidget::AttribLocation posAttr_;
+  WGLWidget::AttribLocation posAttr2_;
+  WGLWidget::AttribLocation posAttrLines_;
+  WGLWidget::AttribLocation sizeAttr_;
+  WGLWidget::AttribLocation sizeAttr2_;
+  WGLWidget::AttribLocation colorAttr2_;
+  WGLWidget::UniformLocation mvMatrixUniform_;
+  WGLWidget::UniformLocation mvMatrixUniform2_;
+  WGLWidget::UniformLocation mvMatrixUniform3_;
+  WGLWidget::UniformLocation pMatrixUniform_;
+  WGLWidget::UniformLocation pMatrixUniform2_;
+  WGLWidget::UniformLocation pMatrixUniform3_;
+  WGLWidget::UniformLocation cMatrixUniform_;
+  WGLWidget::UniformLocation cMatrixUniform2_;
+  WGLWidget::UniformLocation cMatrixUniform3_;
+  WGLWidget::UniformLocation lineColorUniform_;
+  WGLWidget::UniformLocation samplerUniform_;
+  WGLWidget::UniformLocation offsetUniform_;
+  WGLWidget::UniformLocation scaleFactorUniform_;
+};
+    
+  }
+}
+
+#endif

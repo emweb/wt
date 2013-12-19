@@ -160,6 +160,7 @@ public:
   bool cookieChecks() const;
   bool useSlashExceptionForInternalPaths() const;
   bool needReadBodyBeforeResponse() const;
+  bool webglDetect() const;
 
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;
@@ -225,6 +226,7 @@ private:
   bool            ajaxPuzzle_;
   bool            sessionIdCookie_;
   bool            cookieChecks_;
+  bool            webglDetection_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

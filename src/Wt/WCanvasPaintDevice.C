@@ -166,6 +166,15 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
     text->addChild(textElements_[i]);
 }
 
+void WCanvasPaintDevice::renderPaintCommands(std::stringstream& js_target,
+					     const std::string& canvasElement)
+{
+  js_target << "var ctx=" << canvasElement << ".getContext('2d');";
+  js_target << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
+  js_target << "ctx.save();ctx.save();" << js_.str() 
+	    << "ctx.restore();ctx.restore();";
+}
+
 void WCanvasPaintDevice::init()
 {
   currentBrush_ = WBrush();
@@ -250,13 +259,18 @@ int WCanvasPaintDevice::createImage(const std::string& imgUri)
 }
 
 void WCanvasPaintDevice::drawImage(const WRectF& rect,
-				   const std::string& imgUri,
+				   const std::string& imageUri,
 				   int imgWidth, int imgHeight,
 				   const WRectF& sourceRect)
 {
   finishPath();
 
   renderStateChanges(true);
+
+  WApplication *app = WApplication::instance();
+  std::string imgUri;
+  if (app)
+    imgUri = app->resolveRelativeUrl(imageUri);
 
   int imageIndex = createImage(imgUri);
 

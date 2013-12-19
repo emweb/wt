@@ -617,6 +617,8 @@ protected:
    */
   virtual void applyArguments(WWidget *w, const std::vector<WString>& args);
 
+  using WWidget::removeChild;
+  virtual void removeChild(WWidget *child);
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);

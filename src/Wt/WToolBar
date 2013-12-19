@@ -47,7 +47,15 @@ public:
    *
    * \sa setCompact()
    */
-  void addButton(WSplitButton *button);
+  void addButton(WSplitButton *button,
+                 AlignmentFlag alignmentFlag = AlignLeft);
+
+  /*! \brief Adds a widget.
+   *
+   * The toolbar automatically becomes non-compact.
+   *
+   */
+  void addWidget(WWidget *widget, AlignmentFlag alignmentFlag = AlignLeft);
 
   /*! \brief Adds a separator.
    *
@@ -65,7 +73,8 @@ public:
 
   /*! \brief Returns a button.
    *
-   * The returned button is a WPushButton or WSplitButton.
+   * The returned widget is a WPushButton or WSplitButton added by addButton()
+   * or a widget added by addWidget().
    */
   WWidget *widget(int index) const;
 

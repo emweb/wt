@@ -49,13 +49,7 @@ WT_DECLARE_WT_MEMBER
      WT.cancelEvent(event);
 
      function computeDelta(event) {
-       var p, result;
-
-       if (!WT.isIE && event.changedTouches)
-	 p = { x: event.changedTouches[0].pageX,
-	       y: event.changedTouches[0].pageY };
-       else
-	 p = WT.pageCoordinates(event);
+       var result, p = WT.pageCoordinates(event);
 
        if (orientation == 'h')
          result = (p.x - offset.x) - elpos.x;

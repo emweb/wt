@@ -1,0 +1,258 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#ifndef CHART_WABSTRACTGRIDDATA_H
+#define CHART_WABSTRACTGRIDDATA_H
+
+#include <Wt/Chart/WAbstractDataSeries3D>
+#include <Wt/Chart/WCartesian3DChart>
+#include <Wt/WPen>
+
+namespace Wt {
+class WAbstractItemModel;
+class WMemoryResource;
+
+  namespace Chart {
+  class WCartesian3DChart;
+
+/*! \brief Enumeration with the possible representations of WAbstractGridData
+ */
+enum Series3DType {
+  PointSeries3D, //!< Series rendered as points
+  SurfaceSeries3D, //!< Series rendered as a surface
+  BarSeries3D //!< Series rendered as bars
+};
+
+/*! \class WAbstractGridData
+ *  \brief Class representing grid-based data for on a 3D chart.
+ *
+ * General information can be found at WAbstractDataSeries3D. Information on 
+ * how the model is structured is provided in the subclasses. GridData can be 
+ * represented in three ways. This is indicated by \ref Series3DType and can be 
+ * either PointSeries3D, SurfaceSeries3D or BarSeries3D. Note that points and 
+ * surfaces can only be added to charts of type \ref ScatterPlot, while bars 
+ * can only be added to charts of type \ref CategoryChart.
+ *
+ * When the data is shown as a surface, a mesh can be added to the surface. 
+ * This draws lines over the surface at the positions of the x- and y-values. 
+ * For bar-series data, it is possible to adjust the width of the bars in both 
+ * directions.
+ *
+ * The three types of data-representation are illustrated below.
+ *
+ * \image html gridDataTypes.png "The three representation types of grid-based data"
+ */
+class WT_API WAbstractGridData : public WAbstractDataSeries3D {
+public:
+  /*! \brief Constructor
+   */
+  WAbstractGridData(WAbstractItemModel *model);
+
+  virtual ~WAbstractGridData();
+
+  virtual double minimum(Axis axis) const = 0;
+
+  virtual double maximum(Axis axis) const = 0;
+  
+  /*! \brief Sets the type of representation that will be used for the data.
+   *
+   * All representations in \ref Series3DType are possible for the data. Note 
+   * that \ref PointSeries3D and \ref SurfaceSeries3D can only be used on a 
+   * chart that is configured as a \ref ScatterPlot and \ref BarSeries3D can 
+   * only be used on a chart that is configured to be a \ref CategoryChart.
+   * 
+   * The default value is PointSeries3D.
+   */
+  void setType(Series3DType type);
+
+  /*! \brief Returns the type of representation that will be used for the data.
+   *
+   * \sa setType()
+   */
+  Series3DType type() const { return seriesType_; }
+  
+  /*! \brief Enables or disables a mesh for when a surface is drawn.
+   *
+   * The default value is false. This option only takes effect when the type of 
+   * this WGridData is \ref SurfaceSeries3D. The mesh is drawn at the position 
+   * of the x-axis and y-axis values.
+   */
+  void setSurfaceMeshEnabled(bool enabled = true);
+
+  /*! \brief Returns whether the surface-mesh is enabled for this dataseries.
+   *
+   * \sa setSurfaceMeshEnabled()
+   */
+  bool isSurfaceMeshEnabled() { return surfaceMeshEnabled_; }
+  
+  /*! \brief Sets the bar-width.
+   *
+   * This option only takes effect when the type of this WGridData is 
+   * BarSeries3D. The values provided should be between 0 and 1, where 1 lets 
+   * the bars each take up 1/(nb of x/y-values) of the axis.
+   * 
+   * The default bar-width is 0.5 in both directions. 
+   */
+  void setBarWidth(double xWidth, double yWidth);
+
+  /*! \brief Returns the bar-width in the X-axis direction.
+   *
+   * \sa setBarWidth()
+   */
+  double barWidthX() { return barWidthX_; }
+
+  /*! \brief Returns the bar-width in the Y-axis direction.
+   *
+   * \sa setBarWidth()
+   */
+  double barWidthY() { return barWidthY_; }
+
+  /*! \brief Sets the WPen that is used for drawing the mesh.
+   *
+   * Used when drawing the mesh on a surface or the lines around bars. The 
+   * default is a default constructed WPen (black and one pixel wide).
+   * 
+   * Note: only the width and color of this WPen are used.
+   * 
+   * \sa setSurfaceMeshEnabled()
+   */
+  void setPen(const WPen &pen);
+
+  /*! \brief Returns the pen that is used for drawing the mesh.
+   *
+   * \sa setPen()
+   */
+  WPen pen() const { return meshPen_; }
+  
+  static const int SURFACE_SIDE_LIMIT = 256; // = sqrt(2^16)
+  static const int BAR_BUFFER_LIMIT = 8190; // = 2^16/8
+
+  virtual int nbXPoints() = 0;
+  virtual int nbYPoints() = 0;
+  virtual WString axisLabel(int u, Axis axis) const = 0;
+  virtual boost::any data(int i, int j) const = 0;
+
+  virtual void initializeGL();
+  virtual void paintGL() const;
+  virtual void updateGL();
+  virtual void resizeGL();
+  virtual void deleteAllGLResources();
+
+protected:
+  virtual void pointDataFromModel(FloatBuffer& simplePtsArray,
+				  FloatBuffer& simplePtsSize,
+				  FloatBuffer& coloredPtsArray,
+				  FloatBuffer& coloredPtsSize,
+				  FloatBuffer& coloredPtsColor) = 0;
+  virtual void surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) = 0;
+  virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
+				std::vector<FloatBuffer>& coloredPtsArrays,
+				std::vector<FloatBuffer>& coloredPtsColors) = 0;
+
+  // data without color-role
+  virtual int countSimpleData() const = 0;
+  // adds up the value (i, j) for all dataseries, i and j should be specified
+  // without any offsets for axes in the model
+  float stackAllValues(std::vector<WAbstractGridData*> dataseries,
+		       int i, int j) const;
+
+  Series3DType seriesType_;
+
+  bool surfaceMeshEnabled_;
+  bool colorRoleEnabled_;
+  
+  double barWidthX_;
+  double barWidthY_;
+
+  WPen meshPen_;
+
+  static const float zeroBarCompensation;
+
+private:
+  void initShaders();
+  void initializePointSeriesBuffers();
+  void initializeSurfaceSeriesBuffers();
+  void initializeBarSeriesBuffers();
+  void loadBinaryResource(FloatBuffer&,
+			  std::vector<WGLWidget::Buffer>& buffers);
+  void barSeriesVertexData(FloatBuffer& verticesIN,
+			   FloatBuffer& verticesOUT);
+  void generateVertexIndices(IntBuffer& indicesOUT,
+			     int Nx, int Ny, int size = 0);
+  void generateMeshIndices(IntBuffer& indicesOUT,
+			   int Nx, int Ny, int size = 0);
+  void generateTextureCoords(FloatBuffer& coordsOUT,
+			     const FloatBuffer& dataArray,
+			     int size);
+
+  std::vector<int> vertexPosBufferSizes_, vertexPosBuffer2Sizes_;
+  std::vector<int> indexBufferSizes_, lineBufferSizes_;
+  std::vector<int> indexBufferSizes2_, lineBufferSizes2_;
+
+  std::vector<WGLWidget::Buffer> vertexPosBuffers_;
+  std::vector<WGLWidget::Buffer> vertexPosBuffers2_;
+  std::vector<WGLWidget::Buffer> vertexSizeBuffers_;
+  std::vector<WGLWidget::Buffer> vertexSizeBuffers2_;
+  std::vector<WGLWidget::Buffer> vertexColorBuffers2_;
+  std::vector<WGLWidget::Buffer> indexBuffers_;
+  std::vector<WGLWidget::Buffer> indexBuffers2_;
+  std::vector<WGLWidget::Buffer> overlayLinesBuffers_;
+  std::vector<WGLWidget::Buffer> overlayLinesBuffers2_;
+  std::vector<WGLWidget::Buffer> colormapTexBuffers_;
+
+  std::vector<WMemoryResource*> binaryResources_;
+
+  // Shader program
+  WGLWidget::Shader fragShader_;
+  WGLWidget::Shader colFragShader_;
+  WGLWidget::Shader meshFragShader_;
+
+  WGLWidget::Shader vertShader_;
+  WGLWidget::Shader colVertShader_;
+  WGLWidget::Shader meshVertShader_;
+
+  WGLWidget::Program seriesProgram_;
+  WGLWidget::Program colSeriesProgram_;
+  WGLWidget::Program meshProgram_;
+
+  // Shader attributes
+  WGLWidget::AttribLocation vertexPosAttr_;
+  WGLWidget::AttribLocation vertexPosAttr2_;
+  WGLWidget::AttribLocation meshVertexPosAttr_;
+
+  WGLWidget::AttribLocation vertexSizeAttr_;
+  WGLWidget::AttribLocation vertexSizeAttr2_;
+  WGLWidget::AttribLocation vertexColAttr2_;
+
+  WGLWidget::AttribLocation barTexCoordAttr_;
+
+  // Shader uniform variables
+  WGLWidget::UniformLocation mvMatrixUniform_;
+  WGLWidget::UniformLocation mvMatrixUniform2_;
+  WGLWidget::UniformLocation mesh_mvMatrixUniform_;
+
+  WGLWidget::UniformLocation pMatrix_;
+  WGLWidget::UniformLocation pMatrix2_;
+  WGLWidget::UniformLocation mesh_pMatrix_;
+
+  WGLWidget::UniformLocation cMatrix_;
+  WGLWidget::UniformLocation cMatrix2_;
+  WGLWidget::UniformLocation mesh_cMatrix_;
+
+  WGLWidget::UniformLocation TexSampler_;
+  WGLWidget::UniformLocation mesh_colorUniform_;
+
+  WGLWidget::UniformLocation offset_;
+  WGLWidget::UniformLocation scaleFactor_;
+
+  WGLWidget::Texture colormapTexture_;
+};
+
+  }
+}
+
+#endif

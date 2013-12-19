@@ -10,13 +10,14 @@
 #include "CsvUtil.h"
 
 Wt::WStandardItemModel *csvToModel(const std::string& csvFile,
-				   Wt::WObject *parent)
+				   Wt::WObject *parent,
+				   bool firstLineIsHeaders)
 {
   std::ifstream f(csvFile.c_str());
 
   if (f) {
     Wt::WStandardItemModel *result = new Wt::WStandardItemModel(0, 0, parent);
-    readFromCsv(f, result);
+    readFromCsv(f, result, -1, firstLineIsHeaders);
     return result;
   } else
     return 0;

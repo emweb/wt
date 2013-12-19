@@ -213,6 +213,26 @@ var otherInfo = "";
 if (screen.deviceXDPI != screen.logicalXDPI)
   otherInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
 
+_$_$if_WEBGL_DETECT_$_();
+// webgl-check
+var webGLInfo = "";
+if (window.WebGLRenderingContext) {
+    var canvas = document.createElement("canvas");
+    var ctx = null;
+    try {
+        ctx = canvas.getContext('webgl', {antialias: true});
+    } catch (e) {}
+    if (ctx == null) {
+        try {
+            ctx = canvas.getContext('experimental-webgl');
+        } catch (e) {}
+    }
+    if (ctx != null) {
+	otherInfo += "&webGL=true";
+    }
+}
+_$_$endif_$_();
+
 // determine url
 var selfUrl = _$_SELF_URL_$_ + '&sid=' + _$_SCRIPT_ID_$_;
 

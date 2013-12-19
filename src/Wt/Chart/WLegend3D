@@ -1,0 +1,30 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2013 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#ifndef CHART_WLEGEND3D
+#define CHART_WLEGEND3D
+
+#include "WLegend"
+
+#include <Wt/Chart/WAbstractDataSeries3D>
+
+namespace Wt {
+  namespace Chart {
+   
+class WLegend3D : public WLegend {
+public:
+  void renderLegend(WPainter* painter,
+		    const std::vector<WAbstractDataSeries3D*> &dataseries);
+
+  int width();
+  int height(const std::vector<WAbstractDataSeries3D*> &dataseries);
+};
+ 
+  }
+}
+
+#endif

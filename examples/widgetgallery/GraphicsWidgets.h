@@ -25,6 +25,8 @@ private:
   Wt::WWidget *pieChart();
   Wt::WWidget *googleMap();
   Wt::WWidget *painting3d();
+  Wt::WWidget *numCharts3d();
+  Wt::WWidget *catCharts3d();
 
   Wt::WAbstractItemModel *readCsvFile(const std::string &fname,
                   Wt::WContainerWidget *parent);

@@ -122,8 +122,11 @@ PaintedSlider::PaintedSlider(WSlider *slider)
   handle_->setStyleClass("handle");
 
   handle_->mouseWentDown().connect(mouseDownJS_);
+  handle_->touchStarted().connect(mouseDownJS_);
   handle_->mouseMoved().connect(mouseMovedJS_);
+  handle_->touchMoved().connect(mouseMovedJS_);
   handle_->mouseWentUp().connect(mouseUpJS_);
+  handle_->touchEnded().connect(mouseUpJS_);
 
   slider->clicked().connect(this, &PaintedSlider::onSliderClick);
   sliderReleased_.connect(this, &PaintedSlider::onSliderReleased);

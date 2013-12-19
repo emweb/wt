@@ -283,6 +283,56 @@
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLength</span><span class="o">::</span><span class="n">Auto</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
 </pre></div>
   </message>
+  <message id="src-CategoryCharts3D">
+<div class="highlight"><pre><span class="cp">#include &quot;Tabs.h&quot;</span>
+
+<span class="cp">#include &quot;Wt/WContainerWidget&quot;</span>
+<span class="cp">#include &quot;Wt/WTabWidget&quot;</span>
+<span class="cp">#include &quot;Wt/WCssDecorationStyle&quot;</span>
+<span class="cp">#include &quot;Wt/WBorder&quot;</span>
+<span class="cp">#include &quot;Wt/Chart/WCartesian3DChart&quot;</span>
+<span class="cp">#include &quot;Wt/Chart/WGridData&quot;</span>
+
+<span class="cp">#include &quot;../treeview-dragdrop/CsvUtil.h&quot;</span>
+<span class="cp">#include &lt;fstream&gt;</span>
+
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
+
+<span class="c1">// create the chart and add a border to the widget</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesian3DChart</span> <span class="o">*</span><span class="n">chart</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesian3DChart</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">CategoryChart</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WCssDecorationStyle</span> <span class="n">style</span><span class="p">;</span>
+<span class="n">style</span><span class="p">.</span><span class="n">setBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="o">::</span><span class="n">Solid</span><span class="p">));</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setDecorationStyle</span><span class="p">(</span><span class="n">style</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>
+
+<span class="c1">// load first set of data (horizontal plane)</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span> <span class="o">*</span><span class="n">model1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">container</span><span class="p">);;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">f1</span><span class="p">((</span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">appRoot</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;hor_plane.csv&quot;</span><span class="p">).</span><span class="n">c_str</span><span class="p">());</span>
+<span class="n">readFromCsv</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">model1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WGridData</span> <span class="o">*</span><span class="n">horPlane</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WGridData</span><span class="p">(</span><span class="n">chart</span><span class="p">,</span> <span class="n">model1</span><span class="p">);</span>
+<span class="n">horPlane</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">BarSeries3D</span><span class="p">);</span>
+
+<span class="c1">// load second set of data (stability of isotopes)</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span> <span class="o">*</span><span class="n">model2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">container</span><span class="p">);;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">f2</span><span class="p">((</span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">appRoot</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;isotope_decay.csv&quot;</span><span class="p">).</span><span class="n">c_str</span><span class="p">());</span>
+<span class="n">readFromCsv</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WGridData</span> <span class="o">*</span><span class="n">isotopes</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WGridData</span><span class="p">(</span><span class="n">chart</span><span class="p">,</span> <span class="n">model2</span><span class="p">);</span>
+<span class="n">isotopes</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">BarSeries3D</span><span class="p">);</span>
+
+<span class="c1">// add the dataseries to the chart</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">horPlane</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">isotopes</span><span class="p">);</span>
+
+<span class="c1">// Set up the WTabWidget for configuring the charts</span>
+<span class="n">CategoryDataSettings</span> <span class="o">*</span><span class="n">settings1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CategoryDataSettings</span><span class="p">(</span><span class="n">horPlane</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+<span class="n">CategoryDataSettings</span> <span class="o">*</span><span class="n">settings2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CategoryDataSettings</span><span class="p">(</span><span class="n">isotopes</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span> <span class="o">*</span><span class="n">configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+<span class="n">configuration</span><span class="o">-&gt;</span><span class="n">addTab</span><span class="p">(</span><span class="n">settings1</span><span class="p">,</span> <span class="s">&quot;horizontal plane&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="o">::</span><span class="n">PreLoading</span><span class="p">);</span>
+<span class="n">configuration</span><span class="o">-&gt;</span><span class="n">addTab</span><span class="p">(</span><span class="n">settings2</span><span class="p">,</span> <span class="s">&quot;isotope data&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="o">::</span><span class="n">PreLoading</span><span class="p">);</span>
+</pre></div>
+  </message>
   <message id="src-CheckBoxInline">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WCheckBox&gt;</span>
 <span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
@@ -2229,6 +2279,62 @@
 <span class="n">item</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="s">&quot;Item 3&quot;</span><span class="p">);</span>
 <span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;blue-box&quot;</span><span class="p">);</span>
 <span class="n">hbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+</pre></div>
+  </message>
+  <message id="src-NumericalCharts3D">
+<div class="highlight"><pre><span class="cp">#include &quot;Tabs.h&quot;</span>
+<span class="cp">#include &quot;DataModels.h&quot;</span>
+
+<span class="cp">#include &quot;Wt/WAbstractTableModel&quot;</span>
+<span class="cp">#include &quot;Wt/WContainerWidget&quot;</span>
+<span class="cp">#include &quot;Wt/WTabWidget&quot;</span>
+<span class="cp">#include &quot;Wt/Chart/WCartesian3DChart&quot;</span>
+<span class="cp">#include &quot;Wt/Chart/WGridData&quot;</span>
+<span class="cp">#include &quot;Wt/Chart/WEquidistantGridData&quot;</span>
+<span class="cp">#include &quot;Wt/Chart/WScatterData&quot;</span>
+<span class="cp">#include &quot;Wt/Chart/WStandardColorMap&quot;</span>
+
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
+
+<span class="c1">// create the chart and add a border to the widget</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesian3DChart</span> <span class="o">*</span><span class="n">chart</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesian3DChart</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">ScatterPlot</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WCssDecorationStyle</span> <span class="n">style</span><span class="p">;</span>
+<span class="n">style</span><span class="p">.</span><span class="n">setBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="o">::</span><span class="n">Solid</span><span class="p">));</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setDecorationStyle</span><span class="p">(</span><span class="n">style</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>
+
+<span class="c1">// make first dataset (WGridData)</span>
+<span class="n">WAbstractTableModel</span> <span class="o">*</span><span class="n">model1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SombreroData</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WGridData</span> <span class="o">*</span><span class="n">dataset1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WGridData</span><span class="p">(</span><span class="n">chart</span><span class="p">,</span> <span class="n">model1</span><span class="p">);</span>
+<span class="n">dataset1</span><span class="o">-&gt;</span><span class="n">setColormap</span><span class="p">(</span><span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WStandardColorMap</span><span class="p">(</span><span class="n">dataset1</span><span class="o">-&gt;</span><span class="n">minimum</span><span class="p">(</span><span class="n">ZAxis_3D</span><span class="p">),</span>
+						       <span class="n">dataset1</span><span class="o">-&gt;</span><span class="n">maximum</span><span class="p">(</span><span class="n">ZAxis_3D</span><span class="p">),</span>
+						       <span class="kc">true</span><span class="p">));</span>
+<span class="n">GridDataSettings</span> <span class="o">*</span><span class="n">datasettings1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GridDataSettings</span><span class="p">(</span><span class="n">dataset1</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+
+<span class="c1">// make second dataset (WEquidistantGridData)</span>
+<span class="n">WAbstractTableModel</span> <span class="o">*</span><span class="n">model2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlaneData</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WEquidistantGridData</span> <span class="o">*</span><span class="n">dataset2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WEquidistantGridData</span>
+  <span class="p">(</span><span class="n">chart</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">GridDataSettings</span> <span class="o">*</span><span class="n">datasettings2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GridDataSettings</span><span class="p">(</span><span class="n">dataset2</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+
+<span class="c1">// make third dataset (WScatterData)</span>
+<span class="n">WAbstractTableModel</span> <span class="o">*</span><span class="n">model3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PointsData</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WScatterData</span> <span class="o">*</span><span class="n">dataset3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WScatterData</span><span class="p">(</span><span class="n">chart</span><span class="p">,</span> <span class="n">model3</span><span class="p">);</span>
+<span class="n">ScatterDataSettings</span> <span class="o">*</span><span class="n">datasettings3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScatterDataSettings</span><span class="p">(</span><span class="n">dataset3</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+
+<span class="c1">// add the data to the chart</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">dataset1</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">dataset2</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">dataset3</span><span class="p">);</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span> <span class="o">*</span><span class="n">configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+<span class="n">configuration</span><span class="o">-&gt;</span><span class="n">addTab</span><span class="p">(</span><span class="k">new</span> <span class="n">ChartSettings</span><span class="p">(</span><span class="n">chart</span><span class="p">),</span> <span class="s">&quot;General Chart Settings&quot;</span><span class="p">,</span>
+		      <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="o">::</span><span class="n">PreLoading</span><span class="p">);</span>
+<span class="n">configuration</span><span class="o">-&gt;</span><span class="n">addTab</span><span class="p">(</span><span class="n">datasettings1</span><span class="p">,</span> <span class="s">&quot;Dataset 1&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="o">::</span><span class="n">PreLoading</span><span class="p">);</span>
+<span class="n">configuration</span><span class="o">-&gt;</span><span class="n">addTab</span><span class="p">(</span><span class="n">datasettings2</span><span class="p">,</span> <span class="s">&quot;Dataset 2&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="o">::</span><span class="n">PreLoading</span><span class="p">);</span>
+<span class="n">configuration</span><span class="o">-&gt;</span><span class="n">addTab</span><span class="p">(</span><span class="n">datasettings3</span><span class="p">,</span> <span class="s">&quot;Dataset 3&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WTabWidget</span><span class="o">::</span><span class="n">PreLoading</span><span class="p">);</span>
 </pre></div>
   </message>
   <message id="src-Paintbrush">

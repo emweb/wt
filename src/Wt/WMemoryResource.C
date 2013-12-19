@@ -7,25 +7,43 @@
 #include "Wt/WMemoryResource"
 #include "Wt/Http/Response"
 
+#ifdef WT_THREADED
+#include <boost/thread/mutex.hpp>
+#endif // WT_THREADED
+
 namespace Wt {
 
 WMemoryResource::WMemoryResource(WObject *parent)
   : WResource(parent)
-{ }
+{ 
+  create();
+}
 
 WMemoryResource::WMemoryResource(const std::string& mimeType,
 				 WObject *parent)
   : WResource(parent),
-    mimeType_(mimeType)
-{ }
+    mimeType_(mimeType),
+    data_(new std::vector<unsigned char>())
+{ 
+  create();
+}
 
 WMemoryResource::WMemoryResource(const std::string& mimeType,
 				 const std::vector<unsigned char> &data,
 				 WObject *parent)
   : WResource(parent),
     mimeType_(mimeType),
-    data_(data)
-{ }
+    data_(new std::vector<unsigned char>(data))
+{ 
+  create();
+}
+
+void WMemoryResource::create()
+{
+#ifdef WT_THREADED
+  dataMutex_.reset(new boost::mutex());
+#endif // WT_THREADED
+}
 
 WMemoryResource::~WMemoryResource()
 {
@@ -35,35 +53,64 @@ WMemoryResource::~WMemoryResource()
 void WMemoryResource::setMimeType(const std::string& mimeType)
 {
   mimeType_ = mimeType;
+
   setChanged();
 }
 
 void WMemoryResource::setData(const std::vector<unsigned char>& data)
 {
-  data_ = data;
+  {
+#ifdef WT_THREADED
+    boost::mutex::scoped_lock lock(*dataMutex_);
+#endif // WT_THREADED
+
+    data_.reset(new std::vector<unsigned char>(data));
+  }
+
   setChanged();
 }
 
 void WMemoryResource::setData(const unsigned char *data, int count)
 {
-  data_.clear();
-  data_.insert(data_.end(), data, data + count);
+  {
+#ifdef WT_THREADED
+    boost::mutex::scoped_lock l(*dataMutex_);
+#endif
+    data_.reset(new std::vector<unsigned char>(data, data + count));
+  }
 
   setChanged();
 }
 
-const std::vector<unsigned char>& WMemoryResource::data() const
+const std::vector<unsigned char> WMemoryResource::data() const
 {
-  return data_;
+  DataPtr data;
+
+  {
+#ifdef WT_THREADED
+    boost::mutex::scoped_lock l(*dataMutex_);
+#endif
+    data = data_;
+  }
+
+  return *data;
 }
 
 void WMemoryResource::handleRequest(const Http::Request& request,
 				    Http::Response& response)
 {
+  DataPtr data;
+  {
+#ifdef WT_THREADED
+    boost::mutex::scoped_lock l(*dataMutex_);
+#endif
+    data = data_;
+  }
+
   response.setMimeType(mimeType_);
 
-  for (unsigned int i = 0; i < data_.size(); ++i)
-    response.out().put(data_[i]);
+  for (unsigned int i = 0; i < (*data).size(); ++i)
+    response.out().put((*data)[i]);
 }
 
 }

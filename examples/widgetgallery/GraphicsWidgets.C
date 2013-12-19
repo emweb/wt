@@ -42,6 +42,12 @@ void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
   menu->addItem("3D painting", 
 		deferCreate(boost::bind
 			    (&GraphicsWidgets::painting3d, this)));
+  menu->addItem("3D numerical chart",
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::numCharts3d, this)));
+  menu->addItem("3D category chart",
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::catCharts3d, this)));
 }
 
 
@@ -140,6 +146,28 @@ Wt::WWidget *GraphicsWidgets::painting3d()
   Wt::WTemplate *result = new TopicTemplate("graphics-Painting3D");
 
   result->bindWidget("Painting3D", Painting3D());
+
+  return result;
+}
+
+#include "examples/NumericalCharts3D.cpp"
+
+Wt::WWidget *GraphicsWidgets::numCharts3d()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-NumCharts3D");
+
+  result->bindWidget("NumericalCharts3D", NumChart3d());
+ 
+  return result;
+}
+
+#include "examples/CategoryCharts3D.cpp"
+
+Wt::WWidget *GraphicsWidgets::catCharts3d()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-CatCharts3D");
+
+  result->bindWidget("CategoryCharts3D", CatChart3d());
 
   return result;
 }

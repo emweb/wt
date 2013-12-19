@@ -141,12 +141,7 @@ WPainter::Image::Image(const std::string& url, const std::string& fileName)
 
 void WPainter::Image::setUrl(const std::string& url)
 {
-  WApplication *app = WApplication::instance();
-
-  if (app)
-    url_ = app->resolveRelativeUrl(url);
-  else
-    url_ = url;
+  url_ = url; // url is resolved (to url or filesystem) in the paintdevice
 }
 
 WPainter::WPainter()
@@ -195,12 +190,10 @@ bool WPainter::begin(WPaintDevice *device)
 
   device_->init();
 
-  viewPort_.setX(0);
-  viewPort_.setY(0);
-  viewPort_.setWidth(device_->width().value());
-  viewPort_.setHeight(device_->height().value());
-
+  viewPort_ = WRectF(0, 0, device_->width().value(), device_->height().value());
+  
   window_ = viewPort_;
+
   recalculateViewTransform();
 
   return true;

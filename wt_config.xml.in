@@ -341,6 +341,18 @@
 	  -->
 	<web-sockets>false</web-sockets>
 
+	<!-- Enables the detection of webgl-capabilites.
+
+	     When this is enabled, the browser will try to create a
+	     webgl-context when loading to verify that it is possible. This
+	     is neccesary when using WGLWidget.
+
+	     This can take up some load time. When your application does not
+	     use WGLWidget, this option can be set to false. It will improve
+	     the initial loading time of the web-application.
+	-->
+	<webgl-detection>true</webgl-detection>
+
 	<!-- Redirect message shown for browsers without JavaScript support
 
 	   By default, Wt will use an automatic redirect to start the

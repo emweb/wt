@@ -1,0 +1,152 @@
+<messages>
+  <message id="dataconfig.x-axisMin">Minimum X:</message>
+  <message id="dataconfig.x-axisMax">Maximum X:</message>
+  <message id="dataconfig.y-axisMin">Minimum Y:</message>
+  <message id="dataconfig.y-axisMax">Maximum Y:</message>
+  <message id="dataconfig.nbXPoints">Datapoints in X-axis:</message>
+  <message id="dataconfig.nbYPoints">Datapoints in Y-axis:</message>
+  <message id="dataconfig.meshEnabled">Enable mesh:</message>
+  <message id="dataconfig.hiddenEnabled">Hide data:</message>
+  <message id="dataconfig.typeSelection">Chart type:</message>
+
+  <message id="bs-controlgroup">
+    <div class="control-group">
+      <label class="control-label" for="${id:{1}}">${tr:dataconfig.{1}}</label>
+      <div class="controls">
+	${{1}}
+      </div>
+    </div>
+  </message>
+
+<message id="chartconfig-template">
+  <div class="row">
+    <div class="span5">
+      <table class="table table-bordered table-condensed">
+	<tr><td>Title:</td><td>${chartTitle}</td></tr>
+	<tr><td>Enable legend:</td><td>${chartLegend}</td></tr>
+	<tr><td>Legend side:</td><td>${legendside}</td></tr>
+	<tr><td>Legend alignment:</td><td>${legendalignment}</td></tr>
+	<tr><td>Enable gridlines:</td><td>${gridlines}</td></tr>
+	<tr><td>Width:</td><td>${width}</td></tr>
+	<tr><td>Height:</td><td>${height}</td></tr>
+	<tr><td>X-axis title:</td><td>${xTitle}</td></tr>
+	<tr><td>Y-axis title:</td><td>${yTitle}</td></tr>
+	<tr><td>Z-axis title:</td><td>${zTitle}</td></tr>
+	
+      </table>
+    </div>
+    <div class="span7">
+      <table class="table table-bordered table-condensed">
+	<tr><td>X-axis range (${xAuto} auto):</td><td>${xAxisMin}</td><td>${xAxisMax}</td></tr>
+	<tr><td>Y-axis range (${yAuto} auto):</td><td>${yAxisMin}</td><td>${yAxisMax}</td></tr>
+	<tr><td>Z-axis range (${zAuto} auto):</td><td>${zAxisMin}</td><td>${zAxisMax}</td></tr>
+      </table>
+    </div>
+  </div>
+</message>
+
+<message id="dataselection-template">
+  <div class="row-fluid">
+    <div class="span6">
+      ${notshownselection}
+    </div>
+    <div class="span6">
+      ${shownselection}
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+      <div class="btn-group">
+	${addbutton}
+	${removebutton}
+      </div>
+    </div>
+  </div>
+</message>
+
+<message id="totaldataconfig-template">
+  <div class="row-fluid">
+    <div class="span6">
+      ${dataselection}
+    </div>
+    <div class="span6">
+      ${dataconfig}
+    </div>
+  </div>
+</message>
+
+<message id="dataconfig-template">
+  <table class="table table-bordered table-condensed">
+    <tr><td>X range min/max</td><td>${x-axisMin}</td><td>${x-axisMax}</td></tr>
+    <tr><td>Y range min/max</td><td>${y-axisMin}</td><td>${y-axisMax}</td></tr>
+    <tr><td>number of points X/Y</td><td>${nbXPoints}</td><td>${nbYPoints}</td></tr>
+    <tr><td>colorbands(${bandsEnabled} enable)</td><td>${nbOfBands}</td><td></td></tr>
+  </table>
+  <form class="form-horizontal">
+    ${block:bs-controlgroup typeSelection}
+    ${block:bs-controlgroup meshEnabled}
+    ${block:bs-controlgroup hiddenEnabled}
+  </form>
+</message>
+
+<message id="scatterdata-config">
+  <table class="table">
+    <tr><td>Scatterdata:</td></tr>
+    <tr><td>Enable droplines</td><td>${enableDroplines}</td></tr>
+    <tr><td>Hide data</td><td>${hide}</td></tr>
+  </table>
+</message>
+
+<message id="categorydata-config">
+  <table class="table">
+    <tr><td>Categoric dataset 1:</td></tr>
+    <tr><td>Bar width X/Y</td><td>${barWidthX}</td><td>${barWidthY}</td></tr>
+    <tr><td>Hide data</td><td>${hide}</td></tr>
+  </table>
+</message>
+
+<message id="numgriddata-template">
+  <table class="table table-bordered table-condensed">
+    <tr><td>Dataset name:</td><td>${setname}</td></tr>
+    <tr><td>Hide data:</td><td>${hide}</td></tr>
+    <tr><td>Point-size:</td><td>${ptsize}</td></tr>
+    <tr><td>Colormap:</td><td>${colormap}</td></tr>
+    <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
+    <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
+    
+    <tr><td>Type:</td><td>${datatype}</td></tr>
+    <tr><td>Enable mesh:</td><td>${enablemesh}</td></tr>
+    <tr><td>Mesh pen-width:</td><td>${pensize}</td></tr>
+    <tr><td>Mesh pen-color:</td><td>${pencolor}</td></tr>
+  </table>
+</message>
+
+<message id="catgriddata-template">
+  <table class="table table-bordered table-condensed">
+    <tr><td>Dataset name:</td><td>${setname}</td></tr>
+    <tr><td>Hide data:</td><td>${hide}</td></tr>
+    <tr><td>Point-size:</td><td>${ptsize}</td></tr>
+    <tr><td>Colormap:</td><td>${colormap}</td></tr>
+    <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
+    <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
+    
+    <tr><td>Bar-width (x/y):</td><td>${widthx}</td><td>${widthy}</td></tr>
+  </table>
+</message>
+
+<message id="scatterdata-template">
+  <table class="table table-bordered table-condensed">
+    <tr><td>Dataset name:</td><td>${setname}</td></tr>
+    <tr><td>Hide data:</td><td>${hide}</td></tr>
+    <tr><td>Point-size:</td><td>${ptsize}</td></tr>
+    <tr><td>Colormap:</td><td>${colormap}</td></tr>
+    <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
+    <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
+    
+    <tr><td>Enable droplines:</td><td>${enabledroplines}</td></tr>
+    <tr><td>Droplines pen-width:</td><td>${pensize}</td></tr>
+    <tr><td>Droplines pen-color:</td><td>${pencolor}</td></tr>
+  </table>
+</message>
+
+</messages>

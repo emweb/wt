@@ -46,9 +46,9 @@ namespace Wt {
 template<typename T, std::size_t Rows, std::size_t Cols>
 class WGenericMatrix
 {
+public:
   typedef boost::numeric::ublas::bounded_matrix<T, Rows, Cols,
     boost::numeric::ublas::row_major> MatrixType;
-public:
   typedef typename boost::numeric::ublas::bounded_matrix<T, Rows, Cols,
     boost::numeric::ublas::row_major>::array_type ArrayType;
 
@@ -179,7 +179,7 @@ public:
    */
   bool operator!=(const WGenericMatrix<T, Rows, Cols> &rhs) const {
     return !(*this == rhs);
-   }
+  }
 
   /*! \brief Returns the element at the given position
    */
@@ -191,6 +191,17 @@ public:
   /*! \brief Returns the element at the given position
    */
   T &operator()(int row, int column) { return m_(row, column); }
+
+  /*! \brief Returns the element at the given position
+   */
+  const T &at(int row, int column) const
+  {
+    return m_(row, column);
+  }
+
+  /*! \brief Returns the element at the given position
+   */
+  T &at(int row, int column) { return m_(row, column); } 
 
   /*! \brief Multiply every element of the matrix with the given factor
    */

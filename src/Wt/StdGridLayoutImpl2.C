@@ -691,6 +691,10 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 	      DomElement *itd = DomElement::createNew(DomElement_TD);
 	      if (vAlign == 0)
 		itd->setProperty(PropertyStyle, "height:100%;");
+
+	      bool haveMinWidth
+		= !c->getProperty(PropertyStyleMinWidth).empty();
+
 	      itd->addChild(c);
 
 	      if (app->environment().agentIsIElt(9)) {
@@ -698,7 +702,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(bool fitWidth, bool fitHeight,
 		// properly when in a table.
 		//  see http://stackoverflow.com/questions/2356525
 		//            /css-min-width-in-ie6-7-and-8
-		if (!c->getProperty(PropertyStyleMinWidth).empty()) {
+		if (haveMinWidth) {
 		  DomElement *spacer = DomElement::createNew(DomElement_DIV);
 		  spacer->setProperty(PropertyStyleWidth,
 				      c->getProperty(PropertyStyleMinWidth));

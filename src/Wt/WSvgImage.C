@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
 #include "Wt/WFontMetrics"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
@@ -489,12 +490,17 @@ void WSvgImage::drawPath(const WPainterPath& path)
   drawPlainPath(shapes_, path);
 }
 
-void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
+void WSvgImage::drawImage(const WRectF& rect, const std::string& imgUri,
 			  int imgWidth, int imgHeight,
 			  const WRectF& srect)
 {
   finishPath();
   makeNewGroup();
+
+  WApplication *app = WApplication::instance();
+  std::string imageUri;
+  if (app)
+    imageUri = app->resolveRelativeUrl(imgUri);
 
   WRectF drect = rect;
 
