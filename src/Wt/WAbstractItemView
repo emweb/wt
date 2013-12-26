@@ -779,6 +779,12 @@ public:
    */
   Signal<int, WMouseEvent> &headerDoubleClicked() { return headerDblClicked_; }
 
+  /*! \brief Signals when scrolling.
+   *
+   *  \note Works only if ajax is available.
+   */
+  virtual EventSignal<WScrollEvent>& scrolled() = 0;
+
   /*! \brief Configures the number of columns that are used as row
    *         headers.
    *
@@ -887,6 +893,7 @@ protected:
    * listen to the pageChanged() signal to react to changes.
    */
   virtual WWidget *createPageNavigationBar();
+
 
 protected:
   struct ColumnInfo {

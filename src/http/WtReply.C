@@ -174,7 +174,15 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	in_->seekg(0); // rewind
 
 	// Note: cannot be wrapped in the strand because then we get into
-	// trouble with recursive event loop?
+	// trouble with recursive event loop
+	// 
+	// Are we sure that the reply object isn't deleted before it's used?
+	// the httpRequest_ has a WtReplyPtr and httpRequest_ is only deleted
+	// from the destructor, so that's okay.
+	//
+	// The WtReplyPtr is reset in HTTPRequest::flush(Done), could that
+	// be called already? No because nobody is aware yet of this request
+	// object.
 	connection->server()->service().post
 	  (boost::bind(&Wt::WebController::handleRequest,
 		       connection->server()->controller(),

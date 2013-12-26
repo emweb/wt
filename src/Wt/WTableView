@@ -106,11 +106,7 @@ public:
 
   WModelIndex modelIndexAt(WWidget *widget) const;
 
-  /*! \brief Signals when scrolling.
-   *
-   *  \note Works only if ajax is available.
-   */
-  EventSignal<WScrollEvent>& scrolled();
+  virtual EventSignal<WScrollEvent>& scrolled();
 
  protected:
   virtual void render(WFlags<RenderFlag> flags);

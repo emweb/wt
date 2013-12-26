@@ -247,6 +247,7 @@ public:
 
   virtual void scrollTo(const WModelIndex& index,
 			ScrollHint hint = EnsureVisible);
+  virtual EventSignal<WScrollEvent>& scrolled();
 
 protected:
   virtual void render(WFlags<RenderFlag> flags);

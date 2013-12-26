@@ -28,7 +28,7 @@ WT_DECLARE_WT_MEMBER
     */
    var scrollTop = 0, scrollLeft = 0, currentWidth = 0, currentHeight = 0;
 
-   contentsContainer.onscroll = function() {
+   this.onContentsContainerScroll = function() {
      scrollLeft = headerContainer.scrollLeft
 		   = contentsContainer.scrollLeft;
      scrollTop = headerColumnsContainer.scrollTop

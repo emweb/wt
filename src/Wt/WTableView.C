@@ -166,6 +166,8 @@ WTableView::WTableView(WContainerWidget *parent)
        "if (obj) obj.autoJavaScript();}");
 
     connectObjJS(canvas_->mouseWentDown(), "mouseDown");
+    connectObjJS(contentsContainer_->scrolled(),
+                 "onContentsContainerScroll");
   } else {
     plainTable_ = new WTable();
     plainTable_->setStyleClass("Wt-plaintable");

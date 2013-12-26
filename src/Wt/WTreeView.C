@@ -2791,6 +2791,12 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
     setCurrentPage(row / pageSize());
 }
 
+EventSignal<WScrollEvent>& WTreeView::scrolled(){
+  if (wApp->environment().ajax() && contentsContainer_ != 0)
+    return contentsContainer_->scrolled();
+
+  throw WException("Scrolled signal existes only with ajax.");
+}
 }
 
 #endif // DOXYGEN_ONLY
