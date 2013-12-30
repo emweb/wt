@@ -299,6 +299,7 @@ public:
    * this item.
    */
   WWidget *contents() const;
+
   WWidget *takeContents();
 
   /*! \brief Returns the widget that represents the item (<b>deprecated</b>).
@@ -371,6 +372,7 @@ private:
   bool separator_, selectable_, signalsConnected_;
 
   Signal<WMenuItem *> triggered_;
+  Wt::Signals::connection contentsDestroyedConnection_;
 
   std::string pathComponent_;
   bool customPathComponent_, internalPathEnabled_;
@@ -390,6 +392,7 @@ private:
   void connectClose();
   void connectSignals();
   void setItemPadding(bool padding);
+  void contentsDestroyed();
 
   friend class WMenu;
   friend class WPopupMenu;

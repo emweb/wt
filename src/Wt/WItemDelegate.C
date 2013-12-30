@@ -140,7 +140,9 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
   WString tooltip = asString(index.data(ToolTipRole));
   if (!tooltip.empty() || !isNew)
-    widgetRef.w->setToolTip(tooltip);
+    widgetRef.w->setToolTip(tooltip,
+			    (index.flags() & ItemIsXHTMLText) ? 
+			    XHTMLText : PlainText);
 
   WT_USTRING sc = asString(index.data(StyleClassRole));
 

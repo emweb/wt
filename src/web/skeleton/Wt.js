@@ -1620,8 +1620,14 @@ if (html5History) {
 	  newState = stateMap[w.location.pathname + w.location.search];
 
 	if (newState == null) {
-	  saveState(currentState);
-	  return;
+	  var endw = w.location.pathname.lastIndexOf(currentState);
+	  if (endw != -1 &&
+	      endw == w.location.pathname.length - currentState.length) {
+	    saveState(currentState);
+	    return;
+	  } else {
+	    newState = w.location.pathname.substr(baseUrl.length);
+	  }
 	}
 
 	if (newState != currentState) {
@@ -2044,8 +2050,9 @@ function dragStart(obj, e) {
     /*
      * Ignore drags that start on a scrollbar (#1231)
      */
-    if (t.offsetWidth > t.clientWidth
-	|| t.offsetHeight > t.clientHeight) {
+    if (WT.css(t, 'display') !== 'inline' &&
+	(t.offsetWidth > t.clientWidth ||
+	 t.offsetHeight > t.clientHeight)) {
       var wc = WT.widgetPageCoordinates(t);
       var pc = WT.pageCoordinates(e);
       var x = pc.x - wc.x;

@@ -62,6 +62,15 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
 {
   contentsContainer_ = 0;
   contents_ = contents;
+
+#ifndef WT_CNOR
+  // contents' ownership will be moved to a containerwidget once
+  // it is in the widget tree (contentsLoaded). In any case, if
+  // contents_ is destroyed elsewhere, we want to know about it.
+  contentsDestroyedConnection_ =
+    contents_->destroyed().connect(this, &WMenuItem::contentsDestroyed);
+#endif // WT_CNOR
+
   menu_ = 0;
   customPathComponent_ = false;
   internalPathEnabled_ = true;
@@ -378,6 +387,8 @@ bool WMenuItem::contentsLoaded() const
 
 void WMenuItem::loadContents()
 {
+  if (!contents_)
+    return;
   if (!contentsLoaded()) {
     contentsContainer_->addWidget(contents_);
     signalsConnected_ = false;
@@ -434,12 +445,20 @@ WWidget *WMenuItem::contents() const
 
 WWidget *WMenuItem::takeContents()
 {
+  if (contents_ == 0)
+    return 0;
+
   WWidget *result = contents_;
 
-  if (contentsLoaded())
+  if (contentsLoaded()) {
     if (contentsContainer_)
       contentsContainer_->removeWidget(contents_);
+  } else {
+    // contents_ is still owned by WMenuItem -> setting ptr to 0 is ok
+  }
 
+  if (contentsDestroyedConnection_.connected())
+    contentsDestroyedConnection_.disconnect();
   contents_ = 0;
 
   return result;
@@ -447,7 +466,13 @@ WWidget *WMenuItem::takeContents()
 
 void WMenuItem::purgeContents()
 {
+  // this is called to avoid dangling pointers to objects that are deleted
   contentsContainer_ = 0;
+  // two cases are possible for contents: either ownership is with WMenuItem,
+  // or it was with the destroyed container. In the first case, we have to
+  // delete, while in the second case, contents_ will already be deleted and
+  // set to 0 by the contentsDestroyed() slot
+  delete contents_;
   contents_ = 0;
 }
 
@@ -513,6 +538,12 @@ void WMenuItem::setItemPadding(bool padding)
     if (a)
       a->toggleStyleClass("Wt-padded", padding);
   }
+}
+
+void WMenuItem::contentsDestroyed()
+{
+  contentsContainer_ = 0;
+  contents_ = 0;
 }
 
 }

@@ -370,7 +370,7 @@ void WStandardItem::setEditable(bool editable)
     signalModelDataChange();
   }
   else if (isEditable() && !editable) {
-    flags_ ^= ItemIsEditable;
+    flags_.clear(ItemIsEditable);
     signalModelDataChange();
   }
 }

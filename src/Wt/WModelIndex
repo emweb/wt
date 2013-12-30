@@ -113,16 +113,19 @@ typedef std::treeset<WModelIndex> WModelIndexSet;
  * \ingroup modelview
  */
 enum ItemDataRole {
-  DisplayRole = 0,      //!< Role for textual representation
-  DecorationRole = 1,   //!< Role for the url of an icon
-  EditRole = 2,         //!< Role for the edited value
-  StyleClassRole = 3,   //!< Role for the style class
-  /*! Role that indicates the check state. Data for this role should be
-   * a <tt>bool</tt>. When the Wt::ItemIsTristate flag is set for the item,
-   * data for this role should be of type Wt::CheckState.
+  DisplayRole = 0,       //!< Role for textual representation
+  DecorationRole = 1,    //!< Role for the url of an icon
+  EditRole = 2,          //!< Role for the edited value
+  StyleClassRole = 3,    //!< Role for the style class
+
+  /*! Role that indicates the check state.
+   *
+   * Data for this role should be a <tt>bool</tt>. When the
+   * Wt::ItemIsTristate flag is set for the item, data for this role
+   * should be of type Wt::CheckState.
    */
   CheckStateRole = 4,   
-  ToolTipRole = 5,       //!< Role for a tooltip
+  ToolTipRole = 5,       //!< Role for a (plain) tooltip
   LinkRole = 6,          //!< Role for a link
   MimeTypeRole = 7,      //!< Role for mime type information
   LevelRole = 8,         //!< Level in aggregation, for header data.
@@ -148,11 +151,13 @@ enum ItemFlag {
   ItemIsUserCheckable = 0x4, //!< Item can be checked (checkbox is enabled)
   ItemIsDragEnabled = 0x8,   //!< Item can be dragged
   ItemIsDropEnabled = 0x10,  //!< Item can be a drop target
-  /*! Item has tree states. When set, Wt::CheckStateRole data is of type
+  /*! Item has tree states.
+   *
+   * When set, Wt::CheckStateRole data is of type
    * Wt::CheckState
    */
   ItemIsTristate = 0x20,
-  ItemIsXHTMLText = 0x40,    //!< Item's textual is HTML
+  ItemIsXHTMLText = 0x40,    //!< Item's text (DisplayRole, ToolTipRole) is HTML
   ItemIsDirty = 0x80         //!< Item's value has been modified
 };
 
