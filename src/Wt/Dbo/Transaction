@@ -121,6 +121,9 @@ public:
    */
   Session& session() const;
 
+protected:
+  virtual void release();
+
 private:
   struct Impl {
     Session& session_;
@@ -147,7 +150,6 @@ private:
 
   friend class Session;
 
-  void release();
 };
 
   }
