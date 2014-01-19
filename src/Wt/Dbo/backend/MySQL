@@ -40,14 +40,9 @@ class WTDBOMYSQL_API MySQL : public SqlConnection
 public:
   /*! \brief Opens a new MySQL backend connection.
    *
-   *  \param db The database name.
-   *  \param dbuser The username for the database connection -
-   *         defaults to "root".
-   *  \param dbpasswd The password for the database conection - defaults to an
-   *         empty string.
-   *  \param dbhost The hostname of the database - defaults to localhost.
-   *  \param dbport The portnumber - defaults to a default port.
-   *  \param dbsocket The socket to use.
+   *  For the connection parameter description, please refer to the
+   *  connect() method.
+   *
    *  \param fractionalSecondsPart The number of fractional units (0 to 6).
    *         A value of -1 indicates that the fractional part is not stored.
    *         Fractional seconds part are supported for MySQL 5.6.4
@@ -80,9 +75,21 @@ public:
 
   /*! \brief Tries to connect.
    *
+   *  \param db The database name.
+   *  \param dbuser The username for the database connection -
+   *         defaults to "root".
+   *  \param dbpasswd The password for the database conection - defaults to an
+   *         empty string.
+   *  \param dbhost The hostname of the database - defaults to localhost.
+   *  \param dbport The portnumber - defaults to a default port.
+   *  \param dbsocket The socket to use.
+   *
    * Throws an exception if there was a problem, otherwise true.
    */
-  bool connect();
+  bool connect(const std::string &db, const std::string &dbuser="root",
+        const std::string &dbpasswd="", const std::string &dbhost="localhost",
+        unsigned int dbport = 0,
+        const std::string &dbsocket ="/var/run/mysqld/mysqld.sock");
 
   /*! \brief Returns the underlying connection.
    */

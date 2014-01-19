@@ -2503,6 +2503,7 @@ function load(fullapp) {
     document.addEventListener("blur", trackActiveElementLost, true);
   }
 
+  // this could be cancelled leading to havoc?
   $(document).mousedown(WT.mouseDown).mouseup(WT.mouseUp);
 
   WT.history._initialize();

@@ -25,13 +25,9 @@ class WT_API WRectF
 public:
   /*! \brief Default constructor.
    *
-   * \if cpp
    * Constructs a \p null rectangle.
    * 
    * \sa isNull()
-   * \elseif java
-   * Constructs an empty rectangle at point (0, 0).
-   * \endif
    */
   WRectF();
 

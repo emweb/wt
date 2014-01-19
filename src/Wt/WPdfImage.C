@@ -529,12 +529,14 @@ void WPdfImage::drawText(const WRectF& rect,
     trueTypeFonts_->drawText(painter()->font(), rect, flags, text);
   else {
     HPDF_REAL left, top, right, bottom;
-    HPDF_TextAlignment alignment;
+    HPDF_TextAlignment alignment = HPDF_TALIGN_LEFT;
 
     AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
     AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
     switch (horizontalAlign) {
+    default:
+      // should never happen
     case AlignLeft:
       left = rect.left();
       right = left + 10000;
@@ -553,11 +555,11 @@ void WPdfImage::drawText(const WRectF& rect,
 	alignment = HPDF_TALIGN_CENTER;
 	break;
       }
-    default:
-      break;
     }
 
     switch (verticalAlign) {
+    default:
+      // fall-through ; should never happen
     case AlignTop:
       top = rect.top(); break;
     case AlignMiddle:
@@ -565,8 +567,6 @@ void WPdfImage::drawText(const WRectF& rect,
       top = rect.center().y() - 0.60 * fontSize_; break;
     case AlignBottom:
       top = rect.bottom() - fontSize_; break;
-    default:
-      break;
     }
 
     bottom = top + fontSize_;

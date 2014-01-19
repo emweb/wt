@@ -193,7 +193,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 
   WRectF rect = rectangle;
 
-  if (rect.isEmpty())
+  if (rect.isNull() || rect.isEmpty())
     rect = painter.window();
 
   rect.setX(rect.x() + plotAreaPadding(Left));

@@ -29,7 +29,7 @@
 #include "js/WTreeView.min.js"
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
 namespace {
   double round(double x)
   {

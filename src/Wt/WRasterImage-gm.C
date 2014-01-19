@@ -39,7 +39,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#ifdef WIN32
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
 namespace {
   double round(double x)
   {

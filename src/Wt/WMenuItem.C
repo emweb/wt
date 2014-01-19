@@ -64,11 +64,13 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   contents_ = contents;
 
 #ifndef WT_CNOR
-  // contents' ownership will be moved to a containerwidget once
-  // it is in the widget tree (contentsLoaded). In any case, if
-  // contents_ is destroyed elsewhere, we want to know about it.
-  contentsDestroyedConnection_ =
-    contents_->destroyed().connect(this, &WMenuItem::contentsDestroyed);
+  if (contents_) {
+    // contents' ownership will be moved to a containerwidget once
+    // it is in the widget tree (contentsLoaded). In any case, if
+    // contents_ is destroyed elsewhere, we want to know about it.
+    contentsDestroyedConnection_ =
+      contents_->destroyed().connect(this, &WMenuItem::contentsDestroyed);
+  }
 #endif // WT_CNOR
 
   menu_ = 0;
