@@ -542,8 +542,8 @@ namespace Wt
 	
 	std::string sequenceId = "seq_" + table + "_" + id;
 	
-	sql.push_back(std::string("create generator ") + sequenceId + ";");
-	sql.push_back(std::string("set generator ") + sequenceId + " to 0;");
+	sql.push_back(std::string("create generator ") + sequenceId);
+	sql.push_back(std::string("set generator ") + sequenceId + " to 0");
 	
 	std::stringstream trigger;
 	trigger << "CREATE TRIGGER seq_trig_" << table

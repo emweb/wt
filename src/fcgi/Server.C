@@ -70,16 +70,19 @@ bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
 
   if (bind(s, (struct sockaddr *)& local, len) == -1) {
     LOG_ERROR_S(&server, "fatal: bind(): " << strerror(errno));
+    close(s);
     return false;
   }
 
   if (listen(s, 5) == -1) {
     LOG_ERROR_S(&server, "fatal: listen(): " << strerror(errno));
+    close(s);
     return false;
   }
 
   if (dup2(s, STDIN_FILENO) == -1) {
     LOG_ERROR_S(&server, "fatal: dup2(): " << strerror(errno));
+    close(s);
     return false;
   }
 
@@ -329,8 +332,10 @@ void Server::checkConfig()
 		<< conf.runDirectory() << "'");
       exit(1);
     }
-  } else
+  } else {
     unlink((conf.runDirectory() + "/test").c_str());
+    fclose(test);
+  }
 }
 
 int Server::run()

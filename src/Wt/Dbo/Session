@@ -511,8 +511,8 @@ private:
   void resolveJoinIds(MappingInfo *mapping);
   void prepareStatements(MappingInfo *mapping);
 
-  void executeSql(std::vector<std::string> &sql,std::ostream *sout);
-  void executeSql(std::stringstream &sql,std::ostream *sout);
+  void executeSql(std::vector<std::string> &sql, std::ostream *sout);
+  void executeSql(std::stringstream &sql, std::ostream *sout);
   std::string constraintName(const char *tableName,
                              std::string foreignKeyName);
 

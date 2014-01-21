@@ -100,7 +100,7 @@ class MySQLStatement : public SqlStatement
 
     virtual ~MySQLStatement()
     {
-      std::cerr << "closing prepared stmt " << sql_ << std::endl;
+      DEBUG(std::cerr << "closing prepared stmt " << sql_ << std::endl);
       for(unsigned int i = 0;   i < mysql_stmt_param_count(stmt_) ; ++i)
           freeColumn(i);
       if (in_pars_) free(in_pars_);
@@ -112,6 +112,7 @@ class MySQLStatement : public SqlStatement
       }
 
       mysql_stmt_close(stmt_);
+      stmt_ = 0;
     }
 
     virtual void reset()
@@ -385,9 +386,7 @@ class MySQLStatement : public SqlStatement
         case NextRow:
           //bind the output..
           bind_output();
-          if ((status = mysql_stmt_fetch(stmt_)) == 0 ||
-              status ==  MYSQL_DATA_TRUNCATED) {
-            //perhaps should set state to indicate truncated
+          if ((status = mysql_stmt_fetch(stmt_)) == 0) {
             row_++;
             return true;
           } else {
@@ -399,6 +398,8 @@ class MySQLStatement : public SqlStatement
               result_ = 0;
               state_ = Done;
               return false;
+            } else if (status == MYSQL_DATA_TRUNCATED) {
+              throw MySQLException(std::string("MySQL: row fetch failure: data truncated"));
             }
             else{
               throw MySQLException(std::string("MySQL: row fetch failure: ") +
@@ -463,24 +464,26 @@ class MySQLStatement : public SqlStatement
         break;
 
       case MYSQL_TYPE_NEWDECIMAL:
-        std::string *strValue = new std::string();
-        if (!getResult(column, strValue, 0))
-          return false;
+	{
+	  std::string strValue;
+	  if (!getResult(column, &strValue, 0))
+	    return false;
 
-        try{
-          *value = boost::lexical_cast<int>(*strValue);
-        } catch( boost::bad_lexical_cast const& ) {
-          try{
-            *value = (int)boost::lexical_cast<double>(*strValue);
-          } catch( boost::bad_lexical_cast const& ) {
-            std::cout << "Error: MYSQL_TYPE_NEWDECIMAL "
-                      << "could not be casted to int" << std::endl;
-          }
-
-
-          return false;
-        }
+	  try{
+	    *value = boost::lexical_cast<int>(strValue);
+	  } catch( boost::bad_lexical_cast const& ) {
+	    try{
+	      *value = (int)boost::lexical_cast<double>(strValue);
+	    } catch( boost::bad_lexical_cast const& ) {
+	      std::cout << "Error: MYSQL_TYPE_NEWDECIMAL " << strValue
+		<< "could not be casted to int" << std::endl;
+	      return false;
+	    }
+	  }
+	}
         break;
+      default:
+	return false;
       }
 
       DEBUG(std::cerr << this
@@ -529,8 +532,31 @@ class MySQLStatement : public SqlStatement
     {
       if (*(out_pars_[column].is_null) == 1)
          return false;
+      switch (out_pars_[column].buffer_type ){
+      case MYSQL_TYPE_DOUBLE:
+        *value = *static_cast<double*>(out_pars_[column].buffer);
+        break;
+      case MYSQL_TYPE_FLOAT:
+        *value = *static_cast<float*>(out_pars_[column].buffer);
+        break;
+      case MYSQL_TYPE_NEWDECIMAL:
+	{
+	  std::string strValue;
+	  if (!getResult(column, &strValue, 0))
+	    return false;
 
-       *value = *static_cast<double*>(out_pars_[column].buffer);
+	  try {
+	    *value = boost::lexical_cast<double>(strValue);
+	  } catch( boost::bad_lexical_cast const& ) {
+	    std::cout << "Error: MYSQL_TYPE_NEWDECIMAL " << strValue
+	      << "could not be casted to double" << std::endl;
+	    return false;
+	  }
+	}
+        break;
+      default:
+	return false;
+      }
 
       DEBUG(std::cerr << this
             << " result double " << column << " " << *value << std::endl);
@@ -736,33 +762,31 @@ MySQL::MySQL(const std::string &db,  const std::string &dbuser,
              const std::string &dbpasswd, const std::string dbhost,
              unsigned int dbport, const std::string &dbsocket,
              int fractionalSecondsPart)
-: impl_(NULL),
-  dbname_(db),
-  dbuser_(dbuser),
-  dbpasswd_(dbpasswd),
-  dbhost_(dbhost),
-  dbsocket_(dbsocket),
-  dbport_(dbport)
+: impl_(new MySQL_impl())
 {
   setFractionalSecondsPart(fractionalSecondsPart);
 
-  connect();
+  try {
+    connect(db, dbuser, dbpasswd, dbhost, dbport, dbsocket);
+  } catch (...) {
+    delete impl_;
+    throw;
+  }
 }
 
 MySQL::MySQL(const MySQL& other)
   : SqlConnection(other),
-    impl_(NULL),
-    dbname_(other.dbname_),
-    dbuser_(other.dbuser_),
-    dbpasswd_(other.dbpasswd_),
-    dbhost_(other.dbhost_),
-    dbsocket_(other.dbsocket_),
-    dbport_(other.dbport_)
+    impl_(new MySQL_impl())
 {
   setFractionalSecondsPart(other.fractionalSecondsPart_);
 
-  if (!other.dbname_.empty())
-    connect();
+  try {
+    if (!other.dbname_.empty())
+      connect(other.dbname_, other.dbuser_, other.dbpasswd_, other.dbhost_, other.dbport_, other.dbsocket_);
+  } catch (...) {
+    delete impl_;
+    throw;
+  }
 }
 
 MySQL::~MySQL()
@@ -772,7 +796,7 @@ MySQL::~MySQL()
     mysql_close(impl_->mysql);
 
   if (impl_){
-    free(impl_);
+    delete impl_;
     impl_ = 0;
   }
 }
@@ -782,39 +806,44 @@ MySQL *MySQL::clone() const
   return new MySQL(*this);
 }
 
-bool MySQL::connect()
+bool MySQL::connect(const std::string &db,  const std::string &dbuser,
+             const std::string &dbpasswd, const std::string &dbhost,
+             unsigned int dbport, const std::string &dbsocket)
 {
-  if(!impl_)
-    impl_ = (MySQL_impl *)malloc(sizeof(MySQL_impl));
+  if (impl_->mysql)
+    throw MySQLException("MySQL : Already connected, disconnect first");
 
-  if(!dbname_.empty()){
-    if((impl_->mysql = mysql_init(NULL))){
-      my_bool reconnect = true;
-      if(!mysql_options(impl_->mysql, MYSQL_OPT_RECONNECT, &reconnect))
-      {
-        if(mysql_real_connect(impl_->mysql, dbhost_.c_str(), dbuser_.c_str(),
-                              dbpasswd_.empty() ? 0 : dbpasswd_.c_str(),
-                              dbname_.c_str(), dbport_,
-                              //dbsocket_.c_str(),
-                              "/var/run/mysqld/mysqld.sock",
-                              CLIENT_FOUND_ROWS) != impl_->mysql){
-          std::string errtext = mysql_error(impl_->mysql);
-          mysql_close(impl_->mysql);
-          throw MySQLException(
-                std::string("MySQL : Failed to connect to database server: ")
-                + errtext);
-        }
+  if((impl_->mysql = mysql_init(NULL))){
+    my_bool reconnect = true;
+    if(!mysql_options(impl_->mysql, MYSQL_OPT_RECONNECT, &reconnect)) {
+      if(mysql_real_connect(impl_->mysql, dbhost.c_str(), dbuser.c_str(),
+	dbpasswd.empty() ? 0 : dbpasswd.c_str(),
+	db.c_str(), dbport,
+	dbsocket.c_str(),
+	CLIENT_FOUND_ROWS) != impl_->mysql) {
+	  std::string errtext = mysql_error(impl_->mysql);
+	  mysql_close(impl_->mysql);
+	  impl_->mysql = 0;
+	  throw MySQLException(
+	    std::string("MySQL : Failed to connect to database server: ")
+	    + errtext);
+      } else {
+	// success!
+	dbname_ = db;
+	dbuser_ = dbuser;
+	dbpasswd_ = dbpasswd;
+	dbhost_ = dbhost;
+	dbsocket_ = dbsocket;
+	dbport_ = dbport;
       }
-      else
-      {
-        throw MySQLException("MySQL : Failed to set the reconnect option");
-      }
+    } else {
+      mysql_close(impl_->mysql);
+      impl_->mysql = 0;
+      throw MySQLException("MySQL : Failed to set the reconnect option");
     }
-    else
-    {
-      throw MySQLException(
-            std::string("MySQL : Failed to initialize database: ") + dbname_);
-    }
+  } else {
+    throw MySQLException(
+      std::string("MySQL : Failed to initialize database: ") + dbname_);
   }
 
   init();

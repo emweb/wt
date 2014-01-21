@@ -189,7 +189,8 @@ WT_DECLARE_WT_MEMBER
 
        if (iframe.style.height != h) {
 	 iframe.style.height = h;
-	 APP.layouts2.setElementDirty(el);
+	 if (APP.layouts2)
+	   APP.layouts2.setElementDirty(el);
        }
      } else {
        lastW = w;

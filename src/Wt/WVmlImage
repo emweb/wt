@@ -88,7 +88,9 @@ private:
     std::string path;
     WRectF      bbox;
 
-    ActivePath() { };
+    ActivePath()
+      : bbox(0, 0, 0, 0)
+    { }
   };
 
   std::vector<ActivePath> activePaths_;

@@ -868,7 +868,7 @@ WT_DECLARE_WT_MEMBER
 			   + padding(container, dir));
 
 	     function epsEqual(a, b) {
-	       return Math.abs(a - b) < 1;
+	       return Math.abs(a - b) <= 1;
 	     }
 
 	     if ((WT.isIElt9 && epsEqual(cSize, ieCSize))

@@ -1711,7 +1711,7 @@ BOOST_AUTO_TEST_CASE( dbo_test19 )
     a.remove(); // 3
 
     throw std::runtime_error("Auch");
-  } catch (std::exception& e) {
+  } catch (std::exception& ) {
     session_->rereadAll();
     dbo::Transaction t(*session_);
     t.commit();
