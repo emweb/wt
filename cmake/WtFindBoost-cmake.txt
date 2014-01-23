@@ -53,18 +53,7 @@ ENDIF(WIN32)
 
 SET(Boost_DEBUG ON)
 
-FIND_PACKAGE(Boost 1.35
-  COMPONENTS
-    random
-)
-
-IF(Boost_RANDOM_FOUND)
-  SET(NOT_Boost_RANDOM_FOUND OFF)
-ELSE(Boost_RANDOM_FOUND)
-  SET(NOT_Boost_RANDOM_FOUND ON)
-ENDIF(Boost_RANDOM_FOUND)
-
-OPTION(WT_NO_BOOST_RANDOM "For compatibility with older boost versions. Do not enable for boost > 1.45" ${NOT_Boost_RANDOM_FOUND})
+OPTION(WT_NO_BOOST_RANDOM "For compatibility with older boost versions. Do not enable for boost > 1.45" OFF)
 MESSAGE("WT_NO_BOOST_RANDOM is ${WT_NO_BOOST_RANDOM}")
 
 FIND_PACKAGE(Boost 1.35

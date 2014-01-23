@@ -143,7 +143,7 @@ WT_USTRING WLocale::integerToString(const std::string& v) const
   if (groupSeparator_.empty())
     return WT_USTRING::fromUTF8(v);
   else
-    return WT_USTRING::fromUTF8(addGrouping(v, 0));
+    return WT_USTRING::fromUTF8(addGrouping(v, v.length()));
 }
 
 WT_USTRING WLocale::toString(double value) const
