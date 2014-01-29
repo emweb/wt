@@ -6,6 +6,7 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WDialog"
+#include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WVBoxLayout"
 #include "Wt/WPushButton"
@@ -16,7 +17,6 @@
 
 #include "Resizable.h"
 #include "WebController.h"
-#include "WebSession.h"
 #include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
@@ -462,7 +462,7 @@ WDialog::DialogCode WDialog::exec(const WAnimation& animation)
       throw WException("Test case must close dialog");
   } else {
     do {
-      app->session()->doRecursiveEventLoop();
+      app->waitForEvent();
     } while (recursiveEventLoop_);
   }
 

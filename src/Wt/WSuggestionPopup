@@ -177,6 +177,7 @@ public:
      *
      * The lineedit is modified to show a drop down icon, and clicking
      * the icon shows the suggestions, very much like a WComboCox.
+     * line edit.
      */
     DropDownIcon = 0x2
   };
@@ -455,6 +456,12 @@ public:
    */
   void setGlobalPopup(bool global) {};
 
+  /*! \brief When drop down icon is clicked the popup content will be
+   *   unfiltered.
+   *  \sa forEdit() and enum PopupTrigger
+   */
+  void setDropDownIconUnfiltered(bool isUnfiltered);
+
 private:
   WContainerWidget   *impl_;
   WAbstractItemModel *model_;
@@ -462,6 +469,7 @@ private:
   int filterLength_;
   bool filtering_;
   int defaultValue_;
+  bool isDropDownIconUnfiltered_;
 
   std::string       matcherJS_;
   std::string       replacerJS_;

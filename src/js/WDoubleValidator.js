@@ -24,7 +24,7 @@ WT_DECLARE_WT_MEMBER
 	   return { valid: true };
 
        if (groupSeparator != '')
-	 text = text.replace(groupSeparator, '');
+	 text = text.replace(groupSeparator, '', 'g');
        if (decimalPoint != '.')
 	 text = text.replace(decimalPoint, '.');
 

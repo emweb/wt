@@ -101,6 +101,14 @@ public:
   virtual void scrollTo(const WModelIndex& index,
 			ScrollHint hint = EnsureVisible);
 
+  /*! \brief Scrolls the view x px left and y px top.
+   */
+  void scrollTo(int x, int y);
+
+  /*! \brief set css overflow
+   */
+  void setOverflow(WContainerWidget::Overflow overflow);
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
@@ -147,8 +155,6 @@ private:
   /* Desired rendered area */
   int renderedFirstRow_, renderedLastRow_,
     renderedFirstColumn_, renderedLastColumn_;
-
-  int tabIndex_;
 
   void updateTableBackground();
 

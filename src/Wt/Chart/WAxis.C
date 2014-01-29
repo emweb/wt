@@ -31,13 +31,6 @@ namespace {
   const int AUTO_V_LABEL_PIXELS = 25;
   const int AUTO_H_LABEL_PIXELS = 80;
 
-#ifndef __linux__
-  double round(double d)
-  {
-    return (int)(d + 0.5);
-  }
-#endif
-
   double round125(double v) {
     double n = std::pow(10, std::floor(std::log10(v)));
     double msd = v / n;

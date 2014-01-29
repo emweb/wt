@@ -766,7 +766,7 @@ void ToAnysAction::act(const FieldRef<V>& field)
 template<class C>
 void ToAnysAction::actPtr(const PtrRef<C>& field)
 {
-  field.visit(*this, 0);
+  field.visit(*this, session());
 }
 
 template<class C>
@@ -784,6 +784,9 @@ void ToAnysAction::actCollection(const CollectionRef<C>& field)
 template<class C>
 void FromAnyAction::visit(const ptr<C>& obj)
 {
+  if (!session_ && obj.session())
+    session_ = obj.session();
+
   if (dbo_traits<C>::surrogateIdField()) {
     if (index_ == 0)
       throw Exception("dbo_result_traits::setValues(): cannot set surrogate "
@@ -813,7 +816,7 @@ struct FromAny
 };
 
 template <typename Enum>
-struct FromAny<Enum, typename boost::enable_if<boost::is_enum<Enum> >::type> 
+struct FromAny<Enum, typename boost::enable_if<boost::is_enum<Enum> >::type>
 {
   static Enum convert(const boost::any& v) {
     return static_cast<Enum>(boost::any_cast<int>(v));
@@ -847,7 +850,7 @@ void FromAnyAction::act(const FieldRef<V>& field)
 template<class C>
 void FromAnyAction::actPtr(const PtrRef<C>& field)
 {
-  field.visit(*this, 0);
+  field.visit(*this, session());
 }
 
 template<class C>

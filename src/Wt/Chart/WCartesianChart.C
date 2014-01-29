@@ -1344,7 +1344,7 @@ void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 
   WRectF rect = rectangle;
 
-  if (rect.isEmpty())
+  if (rect.isNull() || rect.isEmpty())
     rect = painter.window();
 
   render(painter, rect);
@@ -1381,7 +1381,7 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
 bool WCartesianChart::initLayout(const WRectF& rectangle) const
 {
   WRectF rect = rectangle;
-  if (rect.isEmpty())
+  if (rect.isNull() || rect.isEmpty())
     rect = WRectF(0.0, 0.0, width().toPixels(), height().toPixels());
 
   if (orientation() == Vertical) {

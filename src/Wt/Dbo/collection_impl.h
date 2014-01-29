@@ -616,7 +616,10 @@ int collection<C>::count(C c) const
 
   if (type_ != RelationCollection)
     throw Exception("collection<C>::count() only for a relational "
-			     "relation.");
+		    "relation.");
+
+  if (!c)
+    return 0;
 
   const RelationData& relation = data_.relation;
   Session::MappingInfo *mapping

@@ -1440,6 +1440,18 @@ public:
    */
   void processEvents();
 
+  /*! \brief Blocks the thread, waiting for an UI event.
+   *
+   * This function is used by functions like WDialog::exec() or
+   * WPopupMenu::exec(), to block the current thread waiting for a new
+   * event.
+   *
+   * This requires that at least one additional thread is available to
+   * process incoming requests, and is not scalable when working with
+   * a fixed size thread pools.
+   */
+  virtual void waitForEvent();
+
 #ifndef WT_TARGET_JAVA
   /*! \brief Reads a configuration property.
    *

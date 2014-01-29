@@ -970,7 +970,12 @@ enum HeaderFlag {
    *
    * When set, Wt::CheckStateRole data is of type Wt::CheckState
    */
-  HeaderIsTristate = 0x10
+  HeaderIsTristate = 0x10,
+
+  /*! \brief Flag that indicates that the item text (DisplayRole, ToolTipRole)
+   * is HTML
+   */
+  HeaderIsXHTMLText = 0x40
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)

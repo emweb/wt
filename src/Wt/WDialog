@@ -353,7 +353,7 @@ private:
 
   Signal<DialogCode> finished_;
   DialogCode result_;
-  bool recursiveEventLoop_, initialized_;
+  bool recursiveEventLoop_;
 
   Wt::Signals::connection escapeConnection1_, escapeConnection2_,
     enterConnection1_, enterConnection2_;

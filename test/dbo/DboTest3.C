@@ -181,6 +181,8 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
            FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(tupe.get<0>() == 6);
+
+  // NOTE: can fail w/valgrind due to precision of emulated floating point
   BOOST_REQUIRE(tupe.get<1>() == 6.6);
 
   double d = session.query<double>(std::string(

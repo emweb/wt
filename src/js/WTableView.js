@@ -193,6 +193,12 @@ WT_DECLARE_WT_MEMBER
      headerColumnsContainer.scrollTop = scrollTop;
    };
 
+   this.scrollToPx = function(x, y) {
+     scrollTop = y;
+     scrollLeft = x;
+     this.resetScroll();
+   };
+
    this.scrollTo = function(x, y, hint) {
      if (y != -1) {
        var top = contentsContainer.scrollTop,

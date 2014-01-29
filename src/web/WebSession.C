@@ -1068,7 +1068,8 @@ void WebSession::doRecursiveEventLoop()
     // locked-up Wt. Even worse, Wt deadlocks if all threads are
     // occupied in internal event loops and all those browser windows
     // are closed (session time out does not work anymore)
-    throw WException("doRecursiveEventLoop(): all threads are busy. Avoid using recursive event loops.");
+    throw WException("doRecursiveEventLoop(): all threads are busy. "
+		     "Avoid using recursive event loops.");
   }
 #else
   while (!newRecursiveEvent_)

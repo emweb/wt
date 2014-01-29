@@ -26,7 +26,11 @@ Transaction::Transaction(Session& session)
   ++impl_->transactionCount_;
 }
 
-Transaction::~Transaction()
+/*
+ * About noexcept(false), see
+ * http://akrzemi1.wordpress.com/2011/09/21/destructors-that-throw/
+ */
+Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
 {
   // Either this Transaction shell was not committed (first condition)
   // or the commit failed (we are still active and need to rollback)

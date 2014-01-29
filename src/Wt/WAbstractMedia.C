@@ -149,7 +149,7 @@ void WAbstractMedia::play()
 
 void WAbstractMedia::pause()
 {
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').pause();}");
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').pause();");
 }
 
 void WAbstractMedia::renderSource(DomElement* element,

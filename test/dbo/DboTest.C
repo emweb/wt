@@ -186,10 +186,12 @@ public:
             << other.checked << std::endl);
     }
     if (f != other.f) {
-      DEBUG(std::cerr << "ERROR: f = " << f << " | " << other.f << std::endl);
+      DEBUG(std::cerr << "ERROR: f = " << std::setprecision(10) << f << " | " << other.f << std::endl);
     }
     if (d != other.d) {
-      DEBUG(std::cerr << "ERROR: d = " << d << " | " << other.d << std::endl);
+      // NOTE: this may fail in dbo_test1 when run under valgrind with postgres on 64-bit Linux
+      //       probably due to valgrind emulation of floating point
+      DEBUG(std::cerr << "ERROR: d = " << std::setprecision(20) << d << " | " << other.d << std::endl);
     }
     if (b != other.b) {
       DEBUG(std::cerr << "ERROR: b  = " << b  << " | " << other.b << std::endl);
@@ -274,7 +276,7 @@ public:
   Cs    csManyToMany;
   Cs    csManyToOne;
 
-  B() { }
+  B() : state(State1) { }
 
   B(const std::string& aName, State aState)
     : name(aName), state(aState)
@@ -534,8 +536,10 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
 
       BOOST_REQUIRE(a2->parent == a2);
 
-#ifdef MYSQL
+      // NOTE: if you do not reset self-reference in parent, memory is leaked
       a2.modify()->parent.reset();
+
+#ifdef MYSQL
       a2.flush();
 #endif
 
@@ -948,6 +952,117 @@ BOOST_AUTO_TEST_CASE( dbo_test4b )
     }
 
     BOOST_REQUIRE(ii == 6);
+#endif //FIREBIRD && MYSQL
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test4c )
+{
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a1(new A());
+    dbo::ptr<A> a2(new A());
+    dbo::ptr<A> a3(new A());
+    dbo::ptr<A> a4(new A());
+
+    dbo::ptr<B> b1(new B());
+    dbo::ptr<B> b2(new B());
+
+    dbo::ptr<C> c1(new C());
+    dbo::ptr<C> c2(new C());
+
+    a1.modify()->wstring = "a1";
+    a2.modify()->wstring = "a2";
+    a3.modify()->wstring = "a3";
+    a4.modify()->wstring = "a4";
+
+    b1.modify()->name = "b1";
+    b2.modify()->name = "b2";
+
+    c1.modify()->name = "c1";
+    c2.modify()->name = "c2";
+
+    a1.modify()->b = b1;
+    a1.modify()->c = c1;
+
+    // a2 has no c
+    a2.modify()->b = b2;
+
+    // a3 has no b
+    a3.modify()->c = c2;
+
+    // a4 has no b or c
+
+    session_->add(b1);
+    session_->add(b2);
+    session_->add(c1);
+    session_->add(c2);
+    session_->add(a1);
+    session_->add(a2);
+    session_->add(a3);
+    session_->add(a4);
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    typedef dbo::ptr_tuple<A, B, C>::type ABC;
+    typedef dbo::collection<ABC> C_ABCs;
+    typedef std::vector<ABC> ABCs;
+
+#if !defined(FIREBIRD) && !defined(MYSQL)
+    dbo::Query<ABC> q = session_->query<ABC>
+      ("select A, B, C "
+       "from \"table_a\" A "
+       "left join \"table_b\" as B on A.\"b_id\" = B.\"id\" "
+       "left join \"table_c\" as C on A.\"table_c_id\" = C.\"id\"")
+      .orderBy("A.\"wstring\"");
+
+    C_ABCs c_abcs = q.resultList();
+    ABCs abcs(c_abcs.begin(), c_abcs.end());
+
+    BOOST_REQUIRE(abcs.size() == 4);
+
+    int ii = 0;
+    for (ABCs::const_iterator i = abcs.begin(); i != abcs.end(); ++i) {
+      dbo::ptr<A> a_result;
+      dbo::ptr<B> b_result;
+      dbo::ptr<C> c_result;
+      boost::tie(a_result, b_result, c_result) = *i;
+
+      switch (ii)
+      {
+        case 0:
+            BOOST_REQUIRE(a_result->wstring == "a1");
+            BOOST_REQUIRE(b_result->name == "b1");
+            BOOST_REQUIRE(c_result->name == "c1");
+            break;
+        case 1:
+            BOOST_REQUIRE(a_result->wstring == "a2");
+            BOOST_REQUIRE(b_result->name == "b2");
+            BOOST_REQUIRE(!a_result->c);
+            break;
+        case 2:
+            BOOST_REQUIRE(a_result->wstring == "a3");
+            BOOST_REQUIRE(!a_result->b);
+            BOOST_REQUIRE(c_result->name == "c2");
+            break;
+        case 3:
+            BOOST_REQUIRE(a_result->wstring == "a4");
+            BOOST_REQUIRE(!a_result->b);
+            BOOST_REQUIRE(!a_result->c);
+            break;
+      }
+
+      ++ii;
+    }
+
+    BOOST_REQUIRE(ii == 4);
 #endif //FIREBIRD && MYSQL
   }
 }
@@ -1474,6 +1589,8 @@ BOOST_AUTO_TEST_CASE( dbo_test14 )
     BOOST_REQUIRE(!a->b);
 
     b.modify()->asManyToOne.insert(a);
+
+    BOOST_REQUIRE(b->asManyToOne.count(dbo::ptr<A>()) == 0);
 
     BOOST_REQUIRE(a->b == b);
     BOOST_REQUIRE(b->asManyToOne.count(a) == 1);

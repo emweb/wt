@@ -115,8 +115,13 @@ ptr<C> Session::loadWithNaturalId(SqlStatement *statement, int& column)
 				   MetaDboBase::Persisted, *this, 0);
   implLoad<C>(*dbo, statement, column);
 
-  typename Mapping<C>::Registry::iterator i
-    = mapping->registry_.find(dbo->id());
+  if (dbo->id() == dbo_traits<C>::invalidId()) {
+    dbo->setSession(0);
+    delete dbo;
+    return ptr<C>();
+  }
+
+  typename Mapping<C>::Registry::iterator i = mapping->registry_.find(dbo->id());
 
   if (i == mapping->registry_.end()) {
     mapping->registry_[dbo->id()] = dbo;
@@ -141,10 +146,19 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
      * If not, then we need to first read the object, get the id, and if
      * we already had it, delete the redundant copy.
      */
-    long long id;
+    long long id = dbo_traits<C>::invalidId();
 
-    /* Auto-generated surrogate key is first field */
-    statement->getResult(column++, &id);
+    /*
+     * Auto-generated surrogate key is first field
+     *
+     * NOTE: getResult will return false if the id field is NULL. This
+     * could occur with a LEFT JOIN involving the table. See:
+     * dbo_test4c.
+     */
+    if (!statement->getResult(column++, &id)) {
+      column += (int)mapping->fields.size() + 1; // + version
+      return ptr<C>();
+    }
 
     typename Mapping<C>::Registry::iterator i = mapping->registry_.find(id);
 

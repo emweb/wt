@@ -69,7 +69,8 @@ WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
     filterModel_(this),
     activated_(this),
     filter_(implementation(), "filter"),
-    jactivated_(implementation(), "select")
+    jactivated_(implementation(), "select"),
+    isDropDownIconUnfiltered_(false)
 {
   init();
 }
@@ -120,6 +121,7 @@ void WSuggestionPopup::defineJavaScript()
   LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopup", wtjs1);
   LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopupStdMatcher", wtjs2);
 
+  std::string ddUnfiltered = isDropDownIconUnfiltered_ ? "true" : "false";
   setJavaScriptMember(" WSuggestionPopup",
 		      "new " WT_CLASS ".WSuggestionPopup("
 		      + app->javaScriptClass() + "," + jsRef() + ","
@@ -127,7 +129,8 @@ void WSuggestionPopup::defineJavaScript()
 		      + boost::lexical_cast<std::string>
 		        (std::max(0, filterLength_)) + ","
 		      + boost::lexical_cast<std::string>(partialResults()) + ","
-		      + boost::lexical_cast<std::string>(defaultValue_) + ");");
+                      + boost::lexical_cast<std::string>(defaultValue_) + ","
+                      + ddUnfiltered + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
@@ -301,6 +304,11 @@ void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
   }
 
   edits_.push_back(edit);
+}
+
+void WSuggestionPopup::setDropDownIconUnfiltered(bool isUnfiltered)
+{
+  isDropDownIconUnfiltered_ = isUnfiltered;
 }
 
 void WSuggestionPopup::showAt(WFormWidget *edit)

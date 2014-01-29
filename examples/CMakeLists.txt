@@ -170,6 +170,7 @@ SUBDIRS(
   javascript
   mandelbrot
   mission
+  onethread
   painting
   planner
   qrlogin

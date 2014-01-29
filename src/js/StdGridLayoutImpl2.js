@@ -1531,14 +1531,6 @@ WT_DECLARE_WT_MEMBER
    this.WT = WT;
  });
 
-WT_DECLARE_WT_MEMBER
-(2, JavaScriptPrototype, "StdLayout2.prototype.initResize",
- function(WT, id, config) {
-   var self = this;
-
-   self.resizeInitialized = true;
- });
-
 WT_DECLARE_APP_MEMBER
 (1, JavaScriptObject, "layouts2",
   new (function() {

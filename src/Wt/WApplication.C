@@ -1450,6 +1450,11 @@ void WApplication::processEvents()
   doJavaScript("setTimeout(\"" + javaScriptClass_
 	       + "._p_.update(null,'none',null,true);\",0);");
 
+  waitForEvent();
+}
+
+void WApplication::waitForEvent()
+{
   if (!environment().isTest())
     session_->doRecursiveEventLoop();
 }

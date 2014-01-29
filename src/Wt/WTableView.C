@@ -330,7 +330,7 @@ int WTableView::spannerCount(const Side side) const
 		 / rowHeight().toPixels());
   }
   case Left:
-    return firstColumn_ - rowHeaderCount();
+    return firstColumn_; // headers are included
   case Right:
     return columnCount() - (lastColumn_ + 1);
   default:
@@ -944,7 +944,12 @@ void WTableView::setColumnWidth(int column, const WLength& width)
   if (renderState_ >= NeedRerenderHeader)
     return;
 
-  WWidget *hc = headers_->widget(column);
+  WWidget *hc;
+  if (column < rowHeaderCount())
+    hc = headerColumnsHeaderContainer_->widget(column);
+  else
+    hc = headers_->widget(column - rowHeaderCount());
+
   hc->setWidth(rWidth.toPixels() + 1);
   if (!ajaxMode())
     hc->parent()->resize(rWidth.toPixels() + 1, hc->height());
@@ -990,6 +995,7 @@ WTableView::ColumnWidget *WTableView::columnContainer(int renderedColumn) const
     return dynamic_cast<ColumnWidget *>
       (headerColumnsTable_->widget(renderedColumn));
   else if (table_->count() > 0) {
+    // -1 is last column
     if (renderedColumn < 0)
       return dynamic_cast<ColumnWidget *>(table_->widget(table_->count() - 1));
     else
@@ -1643,9 +1649,16 @@ int WTableView::renderedColumnsCount() const
 
 WWidget *WTableView::itemWidget(const WModelIndex& index) const
 {
-  if (isRowRendered(index.row()) && isColumnRendered(index.column())) {
+  if (index.column() < rowHeaderCount() ||
+      (isRowRendered(index.row()) && isColumnRendered(index.column())))
+  {
     int renderedRow = index.row() - firstRow();
-    int renderedCol = index.column() - firstColumn();
+    int renderedCol;
+
+    if (index.column() < rowHeaderCount())
+      renderedCol = index.column();
+    else
+      renderedCol = rowHeaderCount() + index.column() - firstColumn();
 
     if (ajaxMode()) {
       ColumnWidget *column = columnContainer(renderedCol);
@@ -1792,6 +1805,24 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
     } else
       setCurrentPage(index.row() / pageSize());
   }
+}
+
+void WTableView::scrollTo(int x, int y) {
+  if (ajaxMode()) {
+    if (isRendered()) {
+      WStringStream s;
+
+      s << "debugger; jQuery.data(" << jsRef() << ", 'obj').scrollToPx(" << x << ", "
+        << y << ");";
+
+      doJavaScript(s.str());
+    }
+  }
+}
+
+void WTableView::setOverflow(WContainerWidget::Overflow overflow){
+  if (contentsContainer_)
+    contentsContainer_->setOverflow(overflow);
 }
 
 void WTableView::setRowHeaderCount(int count)

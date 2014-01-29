@@ -135,6 +135,8 @@ public:
       result |= ItemIsUserCheckable;
     if (headerFlags & HeaderIsTristate)
       result |= ItemIsTristate;
+    if (headerFlags & HeaderIsXHTMLText)
+      result |= ItemIsXHTMLText;
 
     return result;
   }

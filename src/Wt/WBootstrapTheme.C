@@ -380,8 +380,7 @@ void WBootstrapTheme
 
 bool WBootstrapTheme::canBorderBoxElement(const DomElement& element) const
 {
-  // confuses the CSS for it, see #1937
-  return element.type() != DomElement_INPUT;
+  return true; // The issue reported in #1937 no longer troubles browsers
 }
 
 }

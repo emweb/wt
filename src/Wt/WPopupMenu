@@ -234,6 +234,7 @@ private:
   bool recursiveEventLoop_;
   int autoHideDelay_;
 
+  void exec();
   void cancel();
   void done(WMenuItem *result);
   void popupImpl();

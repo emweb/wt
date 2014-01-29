@@ -10,6 +10,16 @@
 #include <vector>
 #include <Wt/Dbo/WDboDllDefs.h>
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X) || __cplusplus >= 201103L
+#define WT_CXX11
+#endif
+
+#ifdef WT_CXX11
+#define WT_CXX11ONLY(x) x
+#else
+#define WT_CXX11ONLY(x)
+#endif
+
 namespace Wt {
   namespace Dbo {
 
@@ -82,7 +92,7 @@ public:
    *
    * If the transaction is still active, it is rolled back.
    */
-  ~Transaction();
+  ~Transaction() WT_CXX11ONLY(noexcept(false));
 
   /*! \brief Returns whether the transaction is still active.
    *

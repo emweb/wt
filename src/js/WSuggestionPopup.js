@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WSuggestionPopup",
  function(APP, el, replacerJS, matcherJS, filterMinLength, filterMore,
-	  defaultValue) {
+	  defaultValue, isDropDownIconUnfiltered) {
    $('.Wt-domRoot').add(el);
 
    jQuery.data(el, 'obj', this);
@@ -112,11 +112,11 @@ WT_DECLARE_WT_MEMBER
        edit.style.cursor = '';
    };
 
-   this.showAt = function(edit) {
+   this.showAt = function(edit, value) {
      hidePopup();
      editId = edit.id;
      droppedDown = true;
-     self.refilter();
+     self.refilter(value);
    };
 
    this.editClick = function(edit, event) {
@@ -126,7 +126,7 @@ WT_DECLARE_WT_MEMBER
      var xy = WT.widgetCoordinates(edit, event);
      if (xy.x > edit.offsetWidth - 16) {
        if (editId != edit.id || !visible()) {
-	 self.showAt(edit);
+	 self.showAt(edit, '');
        } else {
 	 hidePopup();
 	 editId = null;
@@ -224,7 +224,7 @@ WT_DECLARE_WT_MEMBER
      filter = f;
      filterPartial = partial;
 
-     self.refilter();
+     self.refilter(lastFilterValue);
    };
 
    function scrollToSelected(sel) {
@@ -239,14 +239,14 @@ WT_DECLARE_WT_MEMBER
    /*
     * Refilter the current selection list based on the edit value.
     */
-   this.refilter = function() {
+   this.refilter = function(value) {
      var sel = selId ? WT.getElement(selId) : null,
          edit = WT.getElement(editId),
          matcher = matcherJS(edit),
          sels = el.childNodes,
-         text = matcher(null);
+         text = (isDropDownIconUnfiltered && value != null)  ? value : matcher(null);
 
-     lastFilterValue = edit.value;
+     lastFilterValue = isDropDownIconUnfiltered ? value : edit.value;
 
      if (filterMinLength > 0 || filterMore) {
        if (text.length < filterMinLength && !droppedDown) {
@@ -340,7 +340,7 @@ WT_DECLARE_WT_MEMBER
        hidePopup();
      } else {
        if (edit.value != lastFilterValue)
-	 self.refilter();
+	 self.refilter(edit.value);
        else {
 	 var sel = selId ? WT.getElement(selId) : null;
 	 if (sel)
