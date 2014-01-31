@@ -69,9 +69,7 @@ void WWidget::removeChild(WObject *child)
 }
 
 void WWidget::refresh()
-{
-  setJsSize();
-}
+{ }
 
 void WWidget::resize(const WLength& width, const WLength& height)
 {

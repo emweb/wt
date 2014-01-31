@@ -91,6 +91,11 @@ bool SqlConnection::supportAlterTable() const
   return false;
 }
 
+bool SqlConnection::supportDeferrableFKConstraint() const
+{
+  return false;
+}
+
 const char *SqlConnection::alterTableConstraintString() const
 {
   return "constraint";

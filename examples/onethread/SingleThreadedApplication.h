@@ -38,7 +38,12 @@ protected:
    */
   virtual void destroy() = 0;
 
-  virtual void notify(const Wt::WEvent& e);
+  /*
+   * Actual notify within the private thread.
+   */
+  virtual void threadNotify(const Wt::WEvent& event);
+
+  virtual void notify(const Wt::WEvent& event);
   virtual void initialize();
   virtual void finalize();
   virtual void waitForEvent();

@@ -2287,7 +2287,7 @@ EventType WebSession::getEventType(const WEvent& event) const
       const std::string *signalE = getSignal(request, "");
 
       if (resource || (requestE && *requestE == "resource" && resourceE))
-	return OtherEvent;
+	return ResourceEvent;
       else if (signalE) {
 	if (*signalE == "none" || *signalE == "load" || 
 	    *signalE == "hash" || *signalE == "poll")

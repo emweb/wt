@@ -123,6 +123,7 @@ public:
   virtual std::string autoincrementInsertSuffix() const;
   virtual const char *dateTimeType(SqlDateTimeType type) const;
   virtual const char *blobType() const;
+  virtual bool supportDeferrableFKConstraint() const;
   //@}
 private:
   DateTimeStorage dateTimeStorage_[2];

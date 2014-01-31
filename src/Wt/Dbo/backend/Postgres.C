@@ -647,6 +647,11 @@ bool Postgres::supportAlterTable() const
   return true;
 }
 
+bool Postgres::supportDeferrableFKConstraint() const
+{
+  return true;
+}
+
 void Postgres::startTransaction()
 {
   PGresult *result = PQexec(conn_, "start transaction");

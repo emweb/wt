@@ -212,6 +212,13 @@ public:
    */
   virtual bool supportAlterTable() const;
 
+  /*! \brief Returns true if the backend supports "deferrable initially
+   * deferred" foreign key constraints
+   *
+   * This method will return false by default.
+   */
+  virtual bool supportDeferrableFKConstraint() const;
+
   /*! \brief Returns the command used in alter table .. drop constraint ..
    *
    * This method will return "constraint" by default.

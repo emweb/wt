@@ -621,6 +621,11 @@ const char *Sqlite3::blobType() const
   return "blob not null";
 }
 
+bool Sqlite3::supportDeferrableFKConstraint() const
+{
+  return true;
+}
+
 void Sqlite3::setDateTimeStorage(SqlDateTimeType type,
 				 DateTimeStorage storage)
 {

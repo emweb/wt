@@ -847,6 +847,9 @@ std::string Session::constraintString(MappingInfo *mapping,
   else if (field.fkConstraints() & Impl::FKOnDeleteSetNull)
     sql << " on delete set null";
 
+  if (connection(false)->supportDeferrableFKConstraint()) //backend condition
+    sql << " deferrable initially deferred";
+
   return sql.str();
 }
 

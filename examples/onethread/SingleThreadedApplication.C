@@ -34,7 +34,7 @@ void SingleThreadedApplication::finalize()
   finalized_ = true;
 }
 
-void SingleThreadedApplication::notify(const Wt::WEvent& e)
+void SingleThreadedApplication::notify(const Wt::WEvent& event)
 {
   if (appThread_.get_id() == boost::thread::id()) { // not-a-thread
     done_ = false;
@@ -47,7 +47,18 @@ void SingleThreadedApplication::notify(const Wt::WEvent& e)
   if (boost::this_thread::get_id() == appThread_.get_id()) {
     /* This could be from within a recursive event loop */
     log("info") << "STA: notify() called within app thread";
-    Wt::WApplication::notify(e);
+    threadNotify(event);
+    return;
+  }
+
+  if (event.eventType() == Wt::ResourceEvent) {
+    /*
+     * We do not relay resource events since these will not unlock
+     * a recursive event loop and thus we cannot communicate with the
+     * private thread when it's blocked in a recursive event loop
+     */
+    log("info") << "STA: notify() for resource, handling in thread pool.";
+    threadNotify(event);
     return;
   }
 
@@ -100,7 +111,7 @@ void SingleThreadedApplication::run()
     log("info") << "STA: [thread] handling event";
     attachThread(true);
     try {
-      Wt::WApplication::notify(*event_);
+      threadNotify(*event_);
     } catch (std::exception& e) {
       log("error") << "STA: [thread] Caught exception: " << e.what();
       exception_ = true;
@@ -118,6 +129,11 @@ void SingleThreadedApplication::run()
   }
 
   signalDone();
+}
+
+void SingleThreadedApplication::threadNotify(const Wt::WEvent& event)
+{
+  Wt::WApplication::notify(event);
 }
 
 void SingleThreadedApplication::waitForEvent()

@@ -117,7 +117,6 @@ PaintedSlider::PaintedSlider(WSlider *slider)
   fill_->setPositionScheme(Absolute);
   fill_->setStyleClass("fill");
 
-  handle_->setPopup(true);
   handle_->setPositionScheme(Absolute);
   handle_->setStyleClass("handle");
 

@@ -1748,7 +1748,6 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
   }
 }
 
-#if 0 // doesn't work, no solution yet
 BOOST_AUTO_TEST_CASE( dbo_test17 )
 {
   DboFixture f;
@@ -1763,6 +1762,7 @@ BOOST_AUTO_TEST_CASE( dbo_test17 )
     a.modify()->b = b;
   }
 
+#if !defined(FIREBIRD) && !defined(MYSQL)
   {
     dbo::Transaction t(*session_);
     dbo::ptr<A> a = session_->find<A>();
@@ -1772,8 +1772,8 @@ BOOST_AUTO_TEST_CASE( dbo_test17 )
     b.remove(); // 2
     a.remove(); // 3
   }
+#endif //!FIREBIRD && !MYSQL
 }
-#endif
 
 BOOST_AUTO_TEST_CASE( dbo_test18 )
 {

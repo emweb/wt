@@ -995,9 +995,10 @@ enum MetaHeaderType {
  * \sa WEvent::eventType()
  */
 enum EventType {
-  OtherEvent, //!< An event which is not user- or timer-initiated
-  UserEvent,  //!< A user-initiated event
-  TimerEvent  //!< A timer-initiated event
+  OtherEvent,   //!< An event which is not user- or timer-initiated
+  UserEvent,    //!< A user-initiated event
+  TimerEvent,   //!< A timer-initiated event
+  ResourceEvent //!< An event which is a resource request
 };
 
 /*! \brief An enumeration describing a layout direction.

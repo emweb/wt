@@ -411,6 +411,7 @@
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+  z-index: 2;
 }
 .Wt-slider-h .handle:hover,
 .Wt-slider-h .handle:active,
