@@ -403,7 +403,6 @@ class MySQLStatement : public SqlStatement
               lastOutCount_ = mysql_num_fields(result_);
               mysql_free_result(result_);
               mysql_stmt_free_result(stmt_);
-              mysql_stmt_reset(stmt_);//too drastic?...
               result_ = 0;
               state_ = Done;
               return false;
@@ -428,8 +427,11 @@ class MySQLStatement : public SqlStatement
 
       if(*(out_pars_[column].length) > 0){
         char * str;
-        out_pars_[column].buffer = malloc(*(out_pars_[column].length)+1);
-        out_pars_[column].buffer_length = *(out_pars_[column].length)+1;
+	if (*(out_pars_[column].length) + 1 > out_pars_[column].buffer_length) {
+	  free(out_pars_[column].buffer);
+	  out_pars_[column].buffer = malloc(*(out_pars_[column].length)+1);
+	  out_pars_[column].buffer_length = *(out_pars_[column].length)+1;
+	}
         mysql_stmt_fetch_column(stmt_,  &out_pars_[column], column, 0);
 
         if (has_truncation_ && *out_pars_[column].error)
@@ -660,8 +662,11 @@ class MySQLStatement : public SqlStatement
         return false;
 
       if(*(out_pars_[column].length) > 0){
-        out_pars_[column].buffer = malloc(*(out_pars_[column].length));
-        out_pars_[column].buffer_length = *(out_pars_[column].length);
+	if (*(out_pars_[column].length) > out_pars_[column].buffer_length) {
+	  free(out_pars_[column].buffer);
+	  out_pars_[column].buffer = malloc(*(out_pars_[column].length));
+	  out_pars_[column].buffer_length = *(out_pars_[column].length);
+	}
         mysql_stmt_fetch_column(stmt_,  &out_pars_[column], column, 0);
 
       if (*out_pars_[column].error)
@@ -709,76 +714,71 @@ class MySQLStatement : public SqlStatement
     long long lastId_, row_, affectedRows_;
 
     void bind_output() {
-      if(out_pars_)
-	free_outpars();
-      if (errors_)
-	delete[] errors_;
-      out_pars_ =(MYSQL_BIND *)malloc(
-            mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
-      errors_ = new my_bool[mysql_num_fields(result_)];
-      memset(out_pars_, 0,
-              mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
-      for(unsigned int i = 0; i < mysql_num_fields(result_); ++i){
-        MYSQL_FIELD* field = mysql_fetch_field_direct(result_, i);
-        out_pars_[i].buffer_type = field->type;
-	out_pars_[i].error = &errors_[i];
-        switch(field->type){
-        case MYSQL_TYPE_TINY:
-          out_pars_[i].buffer = malloc(1);
-          out_pars_[i].buffer_length = 1;
-          break;
+      if (!out_pars_) {
+	out_pars_ =(MYSQL_BIND *)malloc(
+	      mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
+	memset(out_pars_, 0,
+		mysql_num_fields(result_) * sizeof(struct st_mysql_bind));
+	errors_ = new my_bool[mysql_num_fields(result_)];
+	for(unsigned int i = 0; i < mysql_num_fields(result_); ++i){
+	  MYSQL_FIELD* field = mysql_fetch_field_direct(result_, i);
+	  out_pars_[i].buffer_type = field->type;
+	  out_pars_[i].error = &errors_[i];
+	  switch(field->type){
+	  case MYSQL_TYPE_TINY:
+	    out_pars_[i].buffer = malloc(1);
+	    out_pars_[i].buffer_length = 1;
+	    break;
 
-        case MYSQL_TYPE_SHORT:
-          out_pars_[i].buffer = malloc(sizeof(short));
-          out_pars_[i].buffer_length = sizeof(short);
-          break;
+	  case MYSQL_TYPE_SHORT:
+	    out_pars_[i].buffer = malloc(sizeof(short));
+	    out_pars_[i].buffer_length = sizeof(short);
+	    break;
 
-        case MYSQL_TYPE_LONG:
-          out_pars_[i].buffer = malloc(sizeof(int));
-          out_pars_[i].buffer_length = sizeof(int);
-          break;
-        case MYSQL_TYPE_FLOAT:
-          out_pars_[i].buffer = malloc(sizeof(float));
-          out_pars_[i].buffer_length = sizeof(float);
-          break;
+	  case MYSQL_TYPE_LONG:
+	    out_pars_[i].buffer = malloc(sizeof(int));
+	    out_pars_[i].buffer_length = sizeof(int);
+	    break;
+	  case MYSQL_TYPE_FLOAT:
+	    out_pars_[i].buffer = malloc(sizeof(float));
+	    out_pars_[i].buffer_length = sizeof(float);
+	    break;
 
-        case MYSQL_TYPE_NEWDECIMAL: // newdecimal is stored as string.
-          out_pars_[i].buffer = 0;
-          out_pars_[i].buffer_length = 0;
-          break;
-        case MYSQL_TYPE_LONGLONG:
-          out_pars_[i].buffer = malloc(sizeof(long long));
-          out_pars_[i].buffer_length = sizeof(long long);
-          break;
-        case MYSQL_TYPE_DOUBLE:
-          out_pars_[i].buffer = malloc(sizeof(double));
-          out_pars_[i].buffer_length = sizeof(double);
-          break;
+	  case MYSQL_TYPE_LONGLONG:
+	    out_pars_[i].buffer = malloc(sizeof(long long));
+	    out_pars_[i].buffer_length = sizeof(long long);
+	    break;
+	  case MYSQL_TYPE_DOUBLE:
+	    out_pars_[i].buffer = malloc(sizeof(double));
+	    out_pars_[i].buffer_length = sizeof(double);
+	    break;
 
-        case MYSQL_TYPE_TIME:
-        case MYSQL_TYPE_DATE:
-        case MYSQL_TYPE_DATETIME:
-        case MYSQL_TYPE_TIMESTAMP:
-          out_pars_[i].buffer = malloc(sizeof(struct st_mysql_time));
-          out_pars_[i].buffer_length = sizeof(struct st_mysql_time);
-          break;
+	  case MYSQL_TYPE_TIME:
+	  case MYSQL_TYPE_DATE:
+	  case MYSQL_TYPE_DATETIME:
+	  case MYSQL_TYPE_TIMESTAMP:
+	    out_pars_[i].buffer = malloc(sizeof(struct st_mysql_time));
+	    out_pars_[i].buffer_length = sizeof(struct st_mysql_time);
+	    break;
 
-        case MYSQL_TYPE_STRING:
-        case MYSQL_TYPE_VAR_STRING:
-        case MYSQL_TYPE_BLOB:
-          out_pars_[i].buffer = 0;
-          out_pars_[i].buffer_length = 0; // actually get data later- see
-          //http://dev.mysql.com/doc/refman/5.0/en/mysql-stmt-fetch.html
-          break;
-        default:
-          std::cerr << "MySQL Backend Programming Error: unknown type "
-                    << field->type << std::endl;
-        }
-        out_pars_[i].buffer_type = field->type;
-        out_pars_[i].is_null = (my_bool *)malloc(sizeof(char));
-        out_pars_[i].length =
-            (unsigned long *) malloc(sizeof(unsigned long));
-        out_pars_[i].error = (my_bool *)malloc(sizeof(char));
+	  case MYSQL_TYPE_NEWDECIMAL: // newdecimal is stored as string.
+	  case MYSQL_TYPE_STRING:
+	  case MYSQL_TYPE_VAR_STRING:
+	  case MYSQL_TYPE_BLOB:
+	    out_pars_[i].buffer = malloc(256);
+	    out_pars_[i].buffer_length = 256; // Reserve 256 bytes, if the content is longer, it will be reallocated later
+	    //http://dev.mysql.com/doc/refman/5.0/en/mysql-stmt-fetch.html
+	    break;
+	  default:
+	    std::cerr << "MySQL Backend Programming Error: unknown type "
+		      << field->type << std::endl;
+	  }
+	  out_pars_[i].buffer_type = field->type;
+	  out_pars_[i].is_null = (my_bool *)malloc(sizeof(char));
+	  out_pars_[i].length =
+	      (unsigned long *) malloc(sizeof(unsigned long));
+	  out_pars_[i].error = (my_bool *)malloc(sizeof(char));
+	}
       }
       mysql_stmt_bind_result(stmt_, out_pars_);
     }

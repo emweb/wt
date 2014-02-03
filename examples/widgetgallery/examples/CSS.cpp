@@ -59,8 +59,8 @@ allB->clicked().connect(std::bind([=] () {
     toggleB->enable();
 }));
 
+table->rowAt(1)->removeStyleClass("info");
 removeB->clicked().connect(std::bind([=] () {
-    table->rowAt(1)->removeStyleClass("info");
     removeB->disable();
 }));
 

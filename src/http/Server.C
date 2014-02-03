@@ -77,6 +77,8 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
 {
   if (config.accessLog().empty())
     accessLogger_.setStream(std::cout);
+  else if (config.accessLog() == "-")
+    accessLogger_.configure(std::string("-*"));
   else
     accessLogger_.setFile(config.accessLog());
 

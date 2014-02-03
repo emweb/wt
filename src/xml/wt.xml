@@ -240,4 +240,8 @@
     ${children}
   </message>
 
+  <message id="Wt.DatePicker.template">
+    ${edit}
+    ${img}
+  </message>
 </messages>

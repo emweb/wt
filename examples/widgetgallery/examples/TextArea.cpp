@@ -13,6 +13,7 @@ ta->setText("Change this text... \n"
             "and click outside the text area to get a changed event.");
 
 Wt::WText *out = new Wt::WText("<p></p>", container);
+out->addStyleClass("help-block");
 
 ta->changed().connect(std::bind([=] () {
     out->setText("<p>Text area changed at " +

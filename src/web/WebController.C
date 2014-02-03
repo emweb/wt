@@ -217,15 +217,18 @@ void WebController::removeSession(const std::string& sessionId)
   }
 }
 
-std::string WebController::appSessionCookie(std::string url)
+std::string WebController::appSessionCookie(const std::string& url)
 {
   return Utils::urlEncode(url);
 }
 
-std::string WebController::sessionFromCookie(std::string cookies,
-					     std::string scriptName,
+std::string WebController::sessionFromCookie(const char *cookies,
+					     const std::string& scriptName,
 					     int sessionIdLength)
 {
+  if (!cookies)
+    return std::string();
+
   std::string cookieName = appSessionCookie(scriptName);
 
 #ifndef WT_HAVE_GNU_REGEX
@@ -237,7 +240,7 @@ std::string WebController::sessionFromCookie(std::string cookies,
 
   boost::smatch what;
 
-  if (boost::regex_match(cookies, what, cookieSession_e))
+  if (boost::regex_match(std::string(cookies), what, cookieSession_e))
     return what[1];
   else
     return std::string();
@@ -614,7 +617,7 @@ void WebController::handleRequest(WebRequest *request)
 		   "persistent session requested Id: " << sessionId << ", "
 		   << "persistent Id: " << singleSessionId_);
 
-	if (sessions_.empty() || request->requestMethod() == "GET")
+	if (sessions_.empty() || strcmp(request->requestMethod(), "GET") == 0)
 	  sessionId = singleSessionId_;
       } else
 	sessionId = singleSessionId_;
@@ -692,8 +695,8 @@ WApplication *WebController::doCreateApplication(WebSession *session)
 const EntryPoint *
 WebController::getEntryPoint(WebRequest *request)
 {
-  std::string scriptName = request->scriptName();
-  std::string pathInfo = request->pathInfo();
+  const std::string& scriptName = request->scriptName();
+  const std::string& pathInfo = request->pathInfo();
 
   // Only one default entry point.
   if (conf_.entryPoints().size() == 1

@@ -137,6 +137,10 @@ std::string cssCamelNames_[] =
 
 const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
 
+inline char hexLookup(int n) {
+  return "0123456789abcdef"[(n & 0xF)];
+}
+
 }
 
 namespace Wt {
@@ -205,30 +209,20 @@ DomElement::~DomElement()
 std::string DomElement::urlEncodeS(const std::string& url,
                                    const std::string &allowed)
 {
-  std::stringstream result;
-#ifndef WT_CNOR
-  result << std::hex;
-#endif
+  WStringStream result;
 
   for (unsigned i = 0; i < url.length(); ++i) {
     unsigned char c = url[i];
     if (c <= 31 || c >= 127 || unsafeChars_.find(c) != std::string::npos) {
       if (allowed.find(c) != std::string::npos) {
-        // overridden
-        result.put(c);
+        result << (char)c;
       } else {
         result << '%';
-        if ((int)c < 16) {
-          result << '0';
-        }
-#ifndef WT_CNOR
-        result << (int)c;
-#else
-        result << Utils::toHexString(c);
-#endif // WT_CNOR
+	result << hexLookup(c >> 4);
+        result << hexLookup(c);
       }
     } else
-      result.put(c);
+      result << (char)c;
   }
 
   return result.str();

@@ -1,27 +1,20 @@
-#include <Wt/WBreak>
-#include <Wt/WContainerWidget>
+#include <Wt/WTemplate>
 #include <Wt/WDate>
-#include <Wt/WDatePicker>
 #include <Wt/WDateValidator>
 #include <Wt/WLabel>
-#include <Wt/WLineEdit>
+#include <Wt/WDateEdit>
 #include <Wt/WPushButton>
 #include <Wt/WValidator>
 
 SAMPLE_BEGIN(ValidationDate)
 
-Wt::WContainerWidget *container = new Wt::WContainerWidget();
+Wt::WTemplate *t = new Wt::WTemplate(Wt::WString::tr("date-template"));
+t->addFunction("id", &Wt::WTemplate::Functions::id);
 
-Wt::WLabel *label = new Wt::WLabel("When is your birthdate?", container);
-Wt::WLineEdit *dateEdit = new Wt::WLineEdit(container);
-label->setBuddy(dateEdit);
+Wt::WDateEdit *dateEdit = new Wt::WDateEdit();
+t->bindWidget("birth-date", dateEdit);
 
-Wt::WDatePicker *birthDP = new Wt::WDatePicker(dateEdit, container);
-
-// Create and customize a date validator
 Wt::WDateValidator *dv = new Wt::WDateValidator();
-dateEdit->setValidator(dv);
-
 dv->setBottom(Wt::WDate(1900, 1, 1));
 dv->setTop(Wt::WDate::currentDate());
 dv->setFormat("dd/MM/yyyy");
@@ -36,26 +29,38 @@ dv->setInvalidTooLateText
     (Wt::WString("That's too late... The date must be {1} or earlier!"
 		 "").arg(dv->top().toString("dd/MM/yyyy")));
 
-new Wt::WBreak(container);
+dateEdit->setValidator(dv);
 
-Wt::WPushButton *button = new Wt::WPushButton("OK", container);
-Wt::WText *out = new Wt::WText(container);
+Wt::WPushButton *button = new Wt::WPushButton("Ok");
+t->bindWidget("button", button);
+
+Wt::WText *out = new Wt::WText();
+out->setInline(false);
+out->hide();
+t->bindWidget("info", out);
 
 button->clicked().connect(std::bind([=] () {
-    Wt::WValidator::Result result =
-        dv->validate(birthDP->lineEdit()->text());
+    out->show();
+
+    Wt::WValidator::Result result = dv->validate(dateEdit->text());
     if (result.state() == Wt::WValidator::Valid) {
 	Wt::WDate d = Wt::WDate::currentServerDate();
-	int years = d.year() - birthDP->date().year();
-	int days = d.daysTo(birthDP->date().addYears(years));
+	int years = d.year() - dateEdit->date().year();
+	int days = d.daysTo(dateEdit->date().addYears(years));
 	if (days < 0)
-	    days = d.daysTo( birthDP->date().addYears(years + 1) );
+	    days = d.daysTo( dateEdit->date().addYears(years + 1) );
 	out->setText("<p>In " + boost::lexical_cast<std::string>(days) +
 		     " days, we will be celebrating your next anniversary!</p>");
+	out->setStyleClass("alert alert-success");
     } else {
-	birthDP->lineEdit()->setFocus();
+	dateEdit->setFocus();
 	out->setText(result.message());
+	out->setStyleClass("alert alert-danger");
     }
 }));
 
-SAMPLE_END(return container)
+dateEdit->enterPressed().connect(std::bind([=] () {
+    button->clicked().emit(Wt::WMouseEvent());
+}));
+
+SAMPLE_END(return t)

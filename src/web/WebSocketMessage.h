@@ -35,26 +35,30 @@ public:
   virtual void setContentLength(::int64_t length);
 
   virtual void addHeader(const std::string& name, const std::string& value);
-  virtual std::string envValue(const std::string& name) const;
+  virtual const char *envValue(const char *name) const;
 
-  virtual std::string serverName() const;
-  virtual std::string serverPort() const;
-  virtual std::string scriptName() const;
-  virtual std::string requestMethod() const;
-  virtual std::string queryString() const;
-  virtual std::string pathInfo() const;
-  virtual std::string remoteAddr() const;
-  virtual std::string urlScheme() const;
+  virtual const std::string& serverName() const;
+  virtual const std::string& serverPort() const;
+  virtual const std::string& scriptName() const;
+  virtual const char *requestMethod() const;
+  virtual const std::string& queryString() const;
+  virtual const std::string& pathInfo() const;
+  virtual const std::string& remoteAddr() const;
+
+  virtual const char *urlScheme() const;
+
   virtual Wt::WSslInfo*sslInfo() const;
 
-  virtual std::string headerValue(const std::string& name) const;
+  virtual const char * headerValue(const char *name) const;
 
-  virtual bool isWebSocketMessage() const {
-    return true;
-  }
+  virtual bool isWebSocketMessage() const { return true; }
+
+  virtual const char *contentType() const;
+  virtual ::int64_t contentLength() const;
 
 private:
   WebSession *session_;
+  std::string queryString_;
 
   WebRequest *webSocket() const;
   void error(const std::string& msg) const;

@@ -24,6 +24,7 @@ model->setFlags(3, 0);
 cb->setModel(model);
 
 Wt::WText *out = new Wt::WText(container);
+out->addStyleClass("help-block");
 
 cb->changed().connect(std::bind([=] () {
     Wt::WString countryName = cb->currentText();

@@ -207,9 +207,10 @@ void PaintedSlider::updateState()
 	       <<                 "') - intd) > 1) {"
 	       <<     "objf.style." << size << " = ";
   if (o == Vertical)
-    mouseMovedJS << '(' << max << " - intd)";
+    mouseMovedJS << '(' << max << " - intd + " << (slider_->handleWidth() / 2)
+		 << ")";
   else
-    mouseMovedJS << "intd";
+    mouseMovedJS << "intd + " << (slider_->handleWidth() / 2);
   mouseMovedJS <<       " + 'px';" 
 	       <<     "objh.style." << dir << " = intd + 'px';"
 	       <<     "var vs = ";
@@ -336,10 +337,10 @@ void PaintedSlider::updateSliderPosition()
 
   if (slider_->orientation() == Horizontal) {
     handle_->setOffsets(u, Left);
-    fill_->setWidth(u);
+    fill_->setWidth(u + slider_->handleWidth() / 2);
   } else {
     handle_->setOffsets(h() - slider_->handleWidth() - u, Top);
-    fill_->setHeight(u);
+    fill_->setHeight(u + slider_->handleWidth() / 2);
   }
 }
 

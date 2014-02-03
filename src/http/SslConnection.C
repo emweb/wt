@@ -87,6 +87,8 @@ void SslConnection::stop()
   LOG_DEBUG(socket().native() << ": stop()");
   finishReply();
   LOG_DEBUG(socket().native() << ": SSL shutdown");
+
+  Connection::stop();
   
   boost::shared_ptr<SslConnection> sft 
     = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
@@ -127,6 +129,11 @@ void SslConnection::stopNextLayer(const boost::system::error_code& ec)
 
 void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
+  if (state_ != Idle) {
+    stop();
+    return;
+  }
+
   setReadTimeout(timeout);
 
   boost::shared_ptr<SslConnection> sft 
@@ -147,14 +154,20 @@ void SslConnection::handleReadRequestSsl(const asio_error_code& e,
   // return in case of a recursive event loop, so the SSL write
   // deadlocks a session. Hence, post the processing of the data
   // read, so that the read handler can return here immediately.
-  server()->service().post(strand_.wrap
-			   (boost::bind(&Connection::handleReadRequest,
-					shared_from_this(),
-					e, bytes_transferred)));
+  strand_.post(boost::bind(&SslConnection::handleReadRequest,
+			   shared_from_this(),
+			   e, bytes_transferred));
 }
 
-void SslConnection::startAsyncReadBody(Buffer& buffer, int timeout)
+void SslConnection::startAsyncReadBody(ReplyPtr reply,
+				       Buffer& buffer, int timeout)
 {
+  if (state_ != Idle) {
+    LOG_DEBUG(socket().native() << ": state_ = " << state_);
+    stop();
+    return;
+  }
+
   setReadTimeout(timeout);
 
   boost::shared_ptr<SslConnection> sft
@@ -163,33 +176,42 @@ void SslConnection::startAsyncReadBody(Buffer& buffer, int timeout)
 			  strand_.wrap
 			  (boost::bind(&SslConnection::handleReadBodySsl,
 				       sft,
+				       reply,
 				       asio::placeholders::error,
 				       asio::placeholders::bytes_transferred)));
 }
 
-void SslConnection::handleReadBodySsl(const asio_error_code& e,
+void SslConnection::handleReadBodySsl(ReplyPtr reply,
+				      const asio_error_code& e,
                                       std::size_t bytes_transferred)
 {
   // See handleReadRequestSsl for explanation
   boost::shared_ptr<SslConnection> sft 
     = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
-  server()->service().post(strand_.wrap
-			   (boost::bind(&SslConnection::handleReadBody,
-					sft,
-					e, bytes_transferred)));
+  strand_.post(boost::bind(&SslConnection::handleReadBody,
+			   sft, reply, e, bytes_transferred));
 }
 
 void SslConnection::startAsyncWriteResponse
-    (const std::vector<asio::const_buffer>& buffers, int timeout)
+    (ReplyPtr reply,
+     const std::vector<asio::const_buffer>& buffers,
+     int timeout)
 {
+  if (state_ != Idle) {
+    LOG_DEBUG(socket().native() << ": state_ = " << state_);
+    stop();
+    return;
+  }
+
   setWriteTimeout(timeout);
 
   boost::shared_ptr<SslConnection> sft 
     = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
   asio::async_write(socket_, buffers,
 		    strand_.wrap
-		    (boost::bind(&Connection::handleWriteResponse,
+		    (boost::bind(&SslConnection::handleWriteResponse,
 				 sft,
+				 reply,
 				 asio::placeholders::error,
 				 asio::placeholders::bytes_transferred)));
 }

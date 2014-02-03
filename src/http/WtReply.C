@@ -38,16 +38,66 @@ namespace misc_strings {
 WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
                  const Configuration &config)
   : Reply(request, config),
-    entryPoint_(entryPoint),
+    entryPoint_(&entryPoint),
+    in_(&in_mem_),
     out_(&out_buf_),
+    urlScheme_(request.urlScheme),
     sending_(0),
     contentLength_(-1),
     bodyReceived_(0),
-    sendingMessages_(false)
+    sendingMessages_(false),
+    httpRequest_(0)
 {
-  urlScheme_ = request.urlScheme;
+  reset(&entryPoint);
+}
 
-  if (request.contentLength > config.maxMemoryRequestSize()) {
+WtReply::~WtReply()
+{
+  delete httpRequest_;
+
+  if (&in_mem_ != in_) {
+    dynamic_cast<std::fstream *>(in_)->close();
+    delete in_;
+  }
+
+  if (!requestFileName_.empty())
+    unlink(requestFileName_.c_str());
+}
+
+void WtReply::reset(const Wt::EntryPoint *ep)
+{
+  Reply::reset(ep);
+
+  entryPoint_ = ep;
+
+  in_mem_.str("");
+  in_mem_.clear();
+
+  out_buf_.consume(sending_);
+  sending_ = 0;
+  contentType_.clear();
+  location_.clear();
+  sending_ = false;
+  contentLength_ = -1;
+  bodyReceived_ = 0;
+  sendingMessages_ = false;
+
+  fetchMoreDataCallback_ = 0;
+  readMessageCallback_ = 0;
+
+  if (httpRequest_)
+    httpRequest_->reset(boost::dynamic_pointer_cast<WtReply>
+			(shared_from_this()), ep);
+
+  if (&in_mem_ != in_) {
+    dynamic_cast<std::fstream *>(in_)->close();
+    delete in_;
+  }
+
+  if (!requestFileName_.empty())
+    unlink(requestFileName_.c_str());
+
+  if (request_.contentLength > configuration().maxMemoryRequestSize()) {
     requestFileName_ = Wt::FileUtils::createTempFileName();
     // First, make sure the file exists
     std::ofstream o(requestFileName_.c_str());
@@ -62,21 +112,6 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
   } else {
     in_ = &in_mem_;
   }
-
-  httpRequest_ = 0;
-}
-
-WtReply::~WtReply()
-{
-  delete httpRequest_;
-
-  if (&in_mem_ != in_) {
-    dynamic_cast<std::fstream *>(in_)->close();
-    delete in_;
-  }
-  if (requestFileName_ != "") {
-    unlink(requestFileName_.c_str());
-  }
 }
 
 void WtReply::consumeData(Buffer::const_iterator begin,
@@ -90,11 +125,6 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 				 Buffer::const_iterator end,
 				 Request::State state)
 {
-  ConnectionPtr connection = getConnection();
-
-  if (!connection)
-    return;
-
   if (request().webSocketVersion < 0) {
     /*
      * A normal HTTP request
@@ -127,12 +157,12 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
        */
       if (!httpRequest_)
 	httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-				       (shared_from_this()), &entryPoint_);
+				       (shared_from_this()), entryPoint_);
 
       if (end - begin > 0) {
 	bodyReceived_ += (end - begin);
 
-	if (!connection->server()->controller()->requestDataReceived
+	if (!connection()->server()->controller()->requestDataReceived
 	    (httpRequest_, bodyReceived_, request().contentLength)) {
 	  delete httpRequest_;
 	  httpRequest_ = 0;
@@ -173,8 +203,9 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
 	in_->seekg(0); // rewind
 
-	// Note: cannot be wrapped in the strand because then we get into
-	// trouble with recursive event loop
+	// Note: this is being posted because we want to release the strand
+	// we currently hold; we need to do that because otherwise the strand
+	// could be locked during a recursive event loop
 	// 
 	// Are we sure that the reply object isn't deleted before it's used?
 	// the httpRequest_ has a WtReplyPtr and httpRequest_ is only deleted
@@ -183,10 +214,16 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	// The WtReplyPtr is reset in HTTPRequest::flush(Done), could that
 	// be called already? No because nobody is aware yet of this request
 	// object.
-	connection->server()->service().post
-	  (boost::bind(&Wt::WebController::handleRequest,
-		       connection->server()->controller(),
-		       httpRequest_));
+
+	// But (for benchmark's sake), there's no need to post for a static
+	// resource
+	if (entryPoint_->resource())
+	  connection()->server()->controller()->handleRequest(httpRequest_);
+	else
+	  connection()->server()->service().post
+	    (boost::bind(&Wt::WebController::handleRequest,
+			 connection()->server()->controller(),
+			 httpRequest_));
       }
     }
   } else {
@@ -202,12 +239,13 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	 * We already committed the reply -- all we can (and should)
 	 * do now is close the connection.
 	 */
-	connection->close();
+	connection()->close();
       } else {
 	if (status() < 300)
 	  setStatus(bad_request);
 
-	setRelay(ReplyPtr(new StockReply(request(), status(), configuration())));
+	setRelay
+	  (ReplyPtr(new StockReply(request(), status(), configuration())));
 
 	Reply::send();
       }
@@ -225,7 +263,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
        * on it.
        */
       httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-                                     (shared_from_this()), &entryPoint_);
+                                     (shared_from_this()), entryPoint_);
       httpRequest_->setWebSocketRequest(true);
       
       fetchMoreDataCallback_
@@ -244,22 +282,19 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
       if (!httpRequest_) {
 	httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-				       (shared_from_this()), &entryPoint_);
+				       (shared_from_this()), entryPoint_);
 	httpRequest_->setWebSocketRequest(true);
       }
 
       LOG_DEBUG("ws: accepting connection");
-      connection->server()->controller()->handleRequest(httpRequest_);
+      connection()->server()->controller()->handleRequest(httpRequest_);
     }
   }
 }
 
 void WtReply::readRestWebSocketHandshake()
 {
-  ConnectionPtr connection = getConnection();
-
-  if (connection)
-    connection->handleReadBody();
+  connection()->handleReadBody(shared_from_this());
 }
 
 void WtReply::consumeWebSocketMessage(ws_opcode opcode,
@@ -271,8 +306,17 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
   if (state != Request::Partial) {
     if (state == Request::Error) {
+      LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx error");
       in_mem_.str("");
       in_mem_.clear();
+
+      Wt::WebRequest::ReadCallback cb = readMessageCallback_;
+      readMessageCallback_ = 0;
+
+      // We need to post since in Wt we may be entering a recursive event
+      // loop and we need to release the strand
+      connection()->server()->service().post
+	(boost::bind(cb, Wt::ReadError));
     } else
       in_mem_.seekg(0);
 
@@ -297,9 +341,11 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
 	 */
 	Wt::WebRequest::ReadCallback cb = readMessageCallback_;
 	readMessageCallback_ = 0;
-	ConnectionPtr connection = getConnection();
-	connection->server()->service().post
-	  (boost::bind(cb, Wt::WebRequest::MessageEvent));
+
+	// We need to post since in Wt we may be entering a recursive event
+	// loop and we need to release the strand
+	connection()->server()->service().post
+	  (boost::bind(cb, Wt::ReadMessage));
 
 	break;
       }
@@ -309,9 +355,11 @@ void WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
 	Wt::WebRequest::ReadCallback cb = readMessageCallback_;
 	readMessageCallback_ = 0;
-	ConnectionPtr connection = getConnection();
-	connection->server()->service().post
-	  (boost::bind(cb, Wt::WebRequest::PingEvent));
+
+	// We need to post since in Wt we may be entering a recursive event
+	// loop and we need to release the strand
+	connection()->server()->service().post
+	  (boost::bind(cb, Wt::ReadPing));
 
 	break;
       }
@@ -360,15 +408,24 @@ bool WtReply::waitMoreData() const
   return httpRequest_ != 0 && !httpRequest_->done();
 }
 
+void WtReply::writeDone(bool success)
+{
+  LOG_DEBUG("writeDone() success:" << success << ", sent: " << sending_);
+  out_buf_.consume(sending_);
+
+  if (!success) {
+    if (fetchMoreDataCallback_) {
+      Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
+      fetchMoreDataCallback_ = 0;
+      f(Wt::WriteError);
+    }
+  }
+}
+
 void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
 		   bool responseComplete)
 {
   LOG_DEBUG("WtReply::send(): " << sending_);
-
-  ConnectionPtr connection = getConnection();
-
-  if (!connection)
-    return;
 
   fetchMoreDataCallback_ = callBack;
 
@@ -386,7 +443,7 @@ void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
 
 	Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
 	fetchMoreDataCallback_ = 0;
-	f();
+	f(Wt::WriteCompleted);
 
 	return;
       } else {
@@ -406,8 +463,6 @@ void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
   LOG_DEBUG("readWebSocketMessage(): " << readMessageCallback_
 	    << ", " << callBack);
 
-  ConnectionPtr connection = getConnection();
-
   assert(request().webSocketVersion >= 0);
 
   if (readMessageCallback_)
@@ -415,37 +470,23 @@ void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
 
   readMessageCallback_ = callBack;
 
-  if (!connection) {
-    /*
-     * Simulate a connection_close to the application
-     */
-    Buffer b;
-    consumeWebSocketMessage(connection_close, b.begin(), b.begin(),
-			    Request::Complete);
-  } else {
-    if (&in_mem_ != in_) {
-      dynamic_cast<std::fstream *>(in_)->close();
-      delete in_;
-      in_ = &in_mem_;
-    }
-
-    in_mem_.str("");
-    in_mem_.clear();
-
-    connection->server()->service().post
-      (connection->strand().wrap
-       (boost::bind(&Connection::handleReadBody, connection)));
+  if (&in_mem_ != in_) {
+    dynamic_cast<std::fstream *>(in_)->close();
+    delete in_;
+    in_ = &in_mem_;
   }
+
+  in_mem_.str("");
+  in_mem_.clear();
+
+  connection()->strand().post(boost::bind(&Connection::handleReadBody,
+					  connection(),
+					  shared_from_this()));
 }
 
 bool WtReply::readAvailable()
 {
-  ConnectionPtr connection = getConnection();
-
-  if (connection)
-    return connection->readAvailable();
-  else
-    return false;
+  return connection()->readAvailable();
 }
 
 std::string WtReply::contentType()
@@ -527,12 +568,8 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
     result.push_back(out_buf_.data());
 }
 
-void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
+bool WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
-  LOG_DEBUG("sent: " << sending_);
-
-  out_buf_.consume(sending_);
-
   sending_ = out_buf_.size();
 
   LOG_DEBUG("avail now: " << sending_);
@@ -561,13 +598,14 @@ void WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
       LOG_DEBUG("Invoking callback (nextContentBuffers)");
       Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
       fetchMoreDataCallback_ = 0;
-      f();
+      f(Wt::WriteCompleted);
       sending_ = out_buf_.size();
     }
  
     if (sending_ > 0)
       formatResponse(result);
   }
+  return fetchMoreDataCallback_ == 0;
 }
 
   }

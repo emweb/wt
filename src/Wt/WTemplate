@@ -14,6 +14,8 @@
 
 namespace Wt {
 
+class EscapeOStream;
+
 /*! \class WTemplate Wt/WTemplate Wt/WTemplate
  *  \brief A widget that renders an XHTML template.
  *
@@ -164,6 +166,8 @@ private:
 	   std::ostream& result);
   bool _block(const std::vector<WString>& args,
               std::ostream& result);
+  bool _while(const std::vector<WString>& args,
+	      std::ostream& result);
   bool _id(const std::vector<WString>& args, 
 	   std::ostream& result);
 
@@ -172,7 +176,7 @@ public:
   /*! \brief A function type
    *
    * \sa addFunction()
-   * \sa Functions::tr, Functions::id, Functions::block
+   * \sa Functions::tr, Functions::id, Functions::block, Functions::while_f
    */
   typedef boost::function<bool(WTemplate *t, const std::vector<WString>& args,
 			       std::ostream& result)> Function;
@@ -181,7 +185,7 @@ public:
   /*! \brief A function interface type
    *
    * \sa addFunction()
-   * \sa Functions::tr, Functions::id, Functions::block
+   * \sa Functions::tr, Functions::id, Functions::block, Functions::while_f
    */
   class Function {
   public:
@@ -201,6 +205,12 @@ private:
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
                           std::ostream& result) const;
+  };
+
+  class WhileFunction : public Function {
+  public:
+    virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
+			  std::ostream& result) const;
   };
 
   class IdFunction : public Function {
@@ -277,6 +287,18 @@ public:
     static Function& block = BlockFunction();
 #endif
 
+    /*! \brief A function that renders a macro block as long as the given condition is true
+     *
+     * The function will consider the first argument as the condition, and the
+     * second argument as the key for a localized string that is a macro block.
+     */
+#ifndef WT_TARGET_JAVA
+    static bool while_f(WTemplate *t, const std::vector<WString>& args,
+		      std::ostream& result);
+#else
+    static Function& while_f = WhileFunction();
+#endif
+
     /*! \brief A function that resolves the id of a bound widget
      *
      * For example, when bound to the function <tt>"id"</tt>, template text
@@ -320,6 +342,8 @@ public:
    * Wt::XHTMLText textformat.
    */
   WTemplate(const WString& text, WContainerWidget *parent = 0);
+
+  virtual ~WTemplate();
 
   /*! \brief Returns the template.
    *
@@ -445,7 +469,7 @@ public:
    *
    * \sa setCondition()
    */
-  bool conditionValue(const std::string& name) const;
+  virtual bool conditionValue(const std::string& name) const;
 
   /*! \brief Resolves the string value for a variable name.
    *
@@ -666,6 +690,8 @@ private:
   static std::size_t parseArgs(const std::string& text,
 			       std::size_t pos,
 			       std::vector<WString>& result);
+
+  EscapeOStream* plainTextNewLineEscStream_;
 };
 
 template <typename T> T WTemplate::resolve(const std::string& varName)

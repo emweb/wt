@@ -13,9 +13,19 @@
 namespace http {
 namespace server {
 
+const std::string HTTPRequest::empty_;
+
 HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
   : reply_(reply)
 {
+  entryPoint_ = entryPoint;
+}
+
+void HTTPRequest::reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
+{
+  WebRequest::reset();
+
+  reply_ = reply;
   entryPoint_ = entryPoint;
 }
 
@@ -69,114 +79,135 @@ void HTTPRequest::setRedirect(const std::string& url)
   reply_->setLocation(url);
 }
 
-std::string HTTPRequest::headerValue(const std::string& name) const
+const char *HTTPRequest::headerValue(const char *name) const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return 0;
 
-  Request::HeaderMap::const_iterator i = p->request().headerMap.find(name);
-  if (i != p->request().headerMap.end())
-    return i->second;
+  const Request::Header *i = p->request().getHeader(name);
+  if (i)
+    return cstr(i->value);
   else
-    return std::string();
+    return 0;
 }
 
-std::string HTTPRequest::envValue(const std::string& name) const
-{
-  if (name == "CONTENT_TYPE") {
-    return headerValue("Content-Type");
-  } else if (name == "CONTENT_LENGTH") {
-    return headerValue("Content-Length");
-  } else if (name == "SERVER_SIGNATURE") {
-    return "<address>Wt httpd Server ("
-      + envValue("SERVER_SOFTWARE")
-      + ")</address>";
-  } else if (name == "SERVER_SOFTWARE") {
-    return "Wthttpd/"
-      + boost::lexical_cast<std::string>(WT_SERIES) + '.'
-      + boost::lexical_cast<std::string>(WT_MAJOR) + '.'
-      + boost::lexical_cast<std::string>(WT_MINOR);
-  } else if (name == "SERVER_ADMIN") {
-    return "webmaster@localhost"; // FIXME
-  } else if (name == "REMOTE_ADDR") {
-    return remoteAddr();
-  } else if (name == "DOCUMENT_ROOT") {
-    return reply_->configuration().docRoot();
-  } else
-    return std::string();
+const char *HTTPRequest::cstr(const buffer_string& bs) const {
+  if (!bs.next)
+    return bs.data;
+  else {
+    s_.push_back(bs.str());
+    return s_.back().c_str();
+  }
 }
 
-std::string HTTPRequest::serverName() const
+::int64_t HTTPRequest::contentLength() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return 0;
+
+  return p->request().contentLength;
+}
+
+const char *HTTPRequest::contentType() const
+{
+  return headerValue("Content-Type");
+}
+
+const char *HTTPRequest::envValue(const char *name) const
+{
+  if (strcmp(name, "CONTENT_TYPE") == 0) {
+    return headerValue("Content-Type");
+  } else if (strcmp(name, "CONTENT_LENGTH") == 0) {
+    return headerValue("Content-Length");
+  } else if (strcmp(name, "SERVER_SIGNATURE") == 0) {
+    return "<address>Wt httpd server</address>";
+  } else if (strcmp(name, "SERVER_SOFTWARE") == 0) {
+    return "Wthttpd/" WT_VERSION_STR ;
+  } else if (strcmp(name, "SERVER_ADMIN") == 0) {
+    return "webmaster@localhost";
+  } else if (strcmp(name, "REMOTE_ADDR") == 0) {
+    return remoteAddr().c_str();
+  } else if (strcmp(name, "DOCUMENT_ROOT") == 0) {
+    return reply_->configuration().docRoot().c_str();
+  } else
+    return 0;
+}
+
+const std::string& HTTPRequest::serverName() const
+{
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return empty_;
 
   return p->configuration().serverName();
 }
 
-std::string HTTPRequest::serverPort() const
+const std::string& HTTPRequest::serverPort() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return empty_;
 
-  return boost::lexical_cast<std::string>(p->request().port);
+  if (serverPort_.empty())
+    serverPort_ = boost::lexical_cast<std::string>(p->request().port);
+
+  return serverPort_;
 }
 
-std::string HTTPRequest::scriptName() const
+const std::string& HTTPRequest::scriptName() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return empty_;
 
   return p->request().request_path;
 }
 
-std::string HTTPRequest::requestMethod() const
+const char * HTTPRequest::requestMethod() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return 0;
 
-  return p->request().method;
+  return cstr(p->request().method);
 }
 
-std::string HTTPRequest::queryString() const
+const std::string& HTTPRequest::queryString() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return empty_;
 
   return p->request().request_query;
 }
 
-std::string HTTPRequest::pathInfo() const
+const std::string& HTTPRequest::pathInfo() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return empty_;
 
   return p->request().request_extra_path;
 }
 
-std::string HTTPRequest::remoteAddr() const
+const std::string& HTTPRequest::remoteAddr() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return empty_;
 
   return p->request().remoteIP;
 }
 
-std::string HTTPRequest::urlScheme() const
+const char *HTTPRequest::urlScheme() const
 {
   WtReplyPtr p = reply_;
   if (!p.get())
-    return std::string();
+    return "http";
 
-  return p->urlScheme();
+  return p->request().urlScheme;
 }
 
 bool HTTPRequest::isSynchronous() const

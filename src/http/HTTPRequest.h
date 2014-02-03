@@ -19,7 +19,7 @@ class HTTPRequest : public Wt::WebRequest
 {
 public:
   HTTPRequest(WtReplyPtr wtReply, const Wt::EntryPoint *entryPoint);
-
+  void reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint);
   bool done() const;
 
   virtual void flush(ResponseState state, const WriteCallback& callback);
@@ -37,21 +37,30 @@ public:
   virtual void setContentType(const std::string& value);
   virtual void setRedirect(const std::string& url);
 
-  virtual std::string envValue(const std::string& name) const;
-  virtual std::string headerValue(const std::string& name) const;
-  virtual std::string serverName() const;
-  virtual std::string serverPort() const;
-  virtual std::string scriptName() const;
-  virtual std::string requestMethod() const;
-  virtual std::string queryString() const;
-  virtual std::string pathInfo() const;
-  virtual std::string remoteAddr() const;
-  virtual std::string urlScheme() const;
+  virtual const char *contentType() const;
+  virtual ::int64_t contentLength() const;
+
+  virtual const char *envValue(const char *name) const;
+  virtual const char *headerValue(const char *name) const;
+  virtual const std::string& serverName() const;
+  virtual const std::string& serverPort() const;
+  virtual const std::string& scriptName() const;
+  virtual const char *requestMethod() const;
+  virtual const std::string& queryString() const;
+  virtual const std::string& pathInfo() const;
+  virtual const std::string& remoteAddr() const;
+  virtual const char *urlScheme() const;
   virtual bool isSynchronous() const;
   virtual Wt::WSslInfo *sslInfo() const;
 
 private:
   WtReplyPtr reply_;
+  mutable std::string serverPort_;
+  mutable std::vector<std::string> s_;
+
+  const char *cstr(const buffer_string& bs) const;
+
+  static const std::string empty_;
 };
 
 }

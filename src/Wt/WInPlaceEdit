@@ -82,19 +82,31 @@ public:
    */
   void setText(const WString& text);
 
-  /*! \brief Sets the empty text to be shown when the field is empty 
-   *         and not being edited.
+  /*! \brief Sets the placeholder text (<b>deprecated</b>).
    *
-   * \sa emptyText()
+   * \deprecated use setPlaceholderText()x instead
    */
   void setEmptyText(const WString& emptyText);
 
-  /*! \brief Returns the empty text to be shown when the field is empty 
-   *         and not being edited.
+  /*! \brief Returns the placeholder text (<b>deprecated</b>).
    *
-   * \sa setEmptyText()
+   * \deprecated use placeholderText() instead.
    */
-  const WString& emptyText();
+  const WString& emptyText() const {
+    return placeholderText();
+  }
+
+  /*! \brief Sets the placeholder text.
+   *
+   * This sets the text that is shown when the field is empty.
+   */
+  void setPlaceholderText(const WString& placeholder);
+
+  /*! \brief Returns the placeholder text.
+   *
+   * \sa setPlaceholderText()
+   */
+  const WString& placeholderText() const;
 
   /*! \brief Returns the line edit.
    *
@@ -141,21 +153,21 @@ public:
    */
   void setButtonsEnabled(bool enabled = true);
 
+protected:
+  virtual void render(WFlags<RenderFlag> flags);
+
 private:
   void save();
   void cancel();
 
 private:
   Signal<WString> valueChanged_;
-  WContainerWidget *impl_, *editing_;
-  WText            *text_;
-  WString          emptyText_;
-  WLineEdit        *edit_;
-  WPushButton      *save_;
-  WPushButton      *cancel_;
-  Wt::Signals::connection c1_;
-  Wt::Signals::connection c2_;
-  bool              empty_;
+  WContainerWidget *impl_, *editing_, *buttons_;
+  WText *text_;
+  WLineEdit *edit_;
+  WPushButton *save_, *cancel_;
+  Wt::Signals::connection c1_, c2_;
+  bool empty_;
 };
 
 }

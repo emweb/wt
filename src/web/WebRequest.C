@@ -38,17 +38,37 @@ WebRequest::WebRequest()
     doingAsyncCallbacks_(false),
     webSocketRequest_(false)
 {
+#ifndef BENCH
   start_ = boost::posix_time::microsec_clock::local_time();
+#endif
 }
 
 WebRequest::~WebRequest()
 {
+#ifndef BENCH
   boost::posix_time::ptime
     end = boost::posix_time::microsec_clock::local_time();
 
   boost::posix_time::time_duration d = end - start_;
 
   LOG_INFO("took " << (double)d.total_microseconds() / 1000  << "ms");
+#endif
+}
+
+void WebRequest::reset()
+{
+  // FIXME: logging of time took?
+
+#ifndef BENCH
+  start_ = boost::posix_time::microsec_clock::local_time();
+#endif
+
+  entryPoint_ = 0;
+  doingAsyncCallbacks_ = false;
+  webSocketRequest_ = false;
+
+  parameters_.clear();
+  files_.clear();
 }
 
 void WebRequest::readWebSocketMessage(const ReadCallback& callback)
@@ -61,30 +81,30 @@ bool WebRequest::webSocketMessagePending() const
   throw WException("should not get here");
 }
 
-std::string WebRequest::userAgent() const
+const char *WebRequest::userAgent() const
 {
   return headerValue("User-Agent");
 }
 
-std::string WebRequest::referer() const
+const char *WebRequest::referer() const
 {
   return headerValue("Referer");
 }
 
-std::string WebRequest::contentType() const
+const char *WebRequest::contentType() const
 {
   return envValue("CONTENT_TYPE");
 }
 
 ::int64_t WebRequest::contentLength() const
 {
-  std::string lenstr = envValue("CONTENT_LENGTH");
+  const char *lenstr = envValue("CONTENT_LENGTH");
 
-  if (lenstr.empty())
+  if (!lenstr)
     return 0;
   else {
     try {
-      ::int64_t len = boost::lexical_cast< ::int64_t >(lenstr);
+      ::int64_t len = boost::lexical_cast< ::int64_t >(std::string(lenstr));
       if (len < 0) {
 	LOG_ERROR("Bad content-length: " << lenstr);
 	throw WException("Bad content-length");
@@ -193,19 +213,18 @@ namespace {
 
       rule<ScannerT> option, value, valuelist;
 
-      rule<ScannerT> const&
-      start() const { return valuelist; }
+      rule<ScannerT> const& start() const { return valuelist; }
     };
   };
 };
 
-std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
+std::string WebRequest::parsePreferredAcceptValue(const char *str) const
 {
   std::vector<ValueListParser::Value> values;
 
   ValueListParser valueListParser(values);
 
-  parse_info<> info = parse(str.c_str(), valueListParser, space_p);
+  parse_info<> info = parse(str, valueListParser, space_p);
 
   if (info.full) {
     unsigned best = 0;
@@ -225,7 +244,7 @@ std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
   }
 }
 #else
-std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
+std::string WebRequest::parsePreferredAcceptValue(const char *str) const
 {
   return std::string();
 }
@@ -263,7 +282,7 @@ void WebRequest::emulateAsync(ResponseState state)
       while (asyncCallback_) {
 	WriteCallback fn = asyncCallback_;
 	asyncCallback_.clear();
-	fn();
+	fn(WriteCompleted);
       };
 
       doingAsyncCallbacks_ = false;

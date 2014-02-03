@@ -206,6 +206,15 @@ public:
    */
   bool logging(const std::string& type) const;
 
+  /*! \brief Returns whether messages of a given type are logged.
+   *
+   * Returns \c true if messages of the given type are logged. It may be
+   * that not messages of all scopes are logged.
+   *
+   * \sa configure()
+   */
+  bool logging(const char *type) const;
+
   /*! \brief Returns whether messages of a given type and scope are logged.
    *
    * \sa configure()
@@ -325,6 +334,8 @@ private:
   friend class WLogger;
 };
 
+WLogger& logInstance();
+
 #ifdef DOXYGEN_ONLY
 /*! \file */
 /*! \brief Logging function
@@ -360,13 +371,25 @@ WT_API extern WLogEntry log(const std::string& type);
 #   endif
 
 #   define LOG_INFO_S(s,m) (s)->log("info") << Wt::logger << ": " << m
-#   define LOG_INFO(m) Wt::log("info") << Wt::logger << ": " << m
+#   define LOG_INFO(m) do { \
+    if (Wt::logInstance().logging("info", Wt::logger))	\
+      Wt::log("info") << Wt::logger << ": " << m;	\
+    }  while(0)
 #   define LOG_WARN_S(s,m) (s)->log("warning") << Wt::logger << ": " << m
-#   define LOG_WARN(m) Wt::log("warning") << Wt::logger << ": " << m
+#   define LOG_WARN(m) do { \
+    if (Wt::logInstance().logging("warning", Wt::logger)) \
+      Wt::log("warning") << Wt::logger << ": " << m; \
+    } while(0)
 #   define LOG_SECURE_S(s,m) (s)->log("secure") << Wt::logger << ": " << m
-#   define LOG_SECURE(m) Wt::log("secure") << Wt::logger << ": " << m
+#   define LOG_SECURE(m) do { \
+    if (Wt::logInstance().logging("secure", Wt::logger)) \
+      Wt::log("secure") << Wt::logger << ": " << m; \
+    } while(0)
 #   define LOG_ERROR_S(s,m) (s)->log("error") << Wt::logger << ": " << m
-#   define LOG_ERROR(m) Wt::log("error") << Wt::logger << ": " << m
+#   define LOG_ERROR(m) do { \
+    if (Wt::logInstance().logging("error", Wt::logger)) \
+      Wt::log("error") << Wt::logger << ": " << m; \
+    } while(0)
 
 #  else // !LOG4CPLUS
 

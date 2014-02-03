@@ -38,8 +38,15 @@ namespace Wt {
 namespace {
   using namespace Wt;
 
+  inline std::string str(const char *v) {
+    return v ? std::string(v) : std::string();
+  }
+
   class FCGIRequest : public WebRequest
   {
+    mutable std::string scriptName_, serverName_, queryString_,
+      serverPort_, pathInfo_, remoteAddr_;
+
   public:
     FCGIRequest(FCGX_Request *request)
       : request_(request),
@@ -48,11 +55,10 @@ namespace {
       in_streambuf_ = new fcgi_streambuf(request_->in);
       out_streambuf_ = new fcgi_streambuf(request_->out);
       err_streambuf_ = new fcgi_streambuf(request_->err);
+
       in_ = new std::istream(in_streambuf_);
       out_ = new std::ostream(out_streambuf_);
       err_ = new std::ostream(err_streambuf_);
-
-      //std::cerr.rdbuf(err_->rdbuf());
     }
 
     ~FCGIRequest() {
@@ -118,19 +124,19 @@ namespace {
       *out_ << "Location: " << url << "\r\n\r\n";
     }
 
-    virtual std::string headerValue(const std::string& name) const {
-      return envValue(cgiEnvName(name));
+    virtual const char *headerValue(const char *name) const {
+      return envValue(cgiEnvName(name).c_str());
     }
 
-    virtual std::string envValue(const std::string& name) const {
-      char *result = FCGX_GetParam(name.c_str(), request_->envp);
+    virtual const char *envValue(const char *name) const {
+      char *result = FCGX_GetParam(name, request_->envp);
       if (result)
 	return result;
       else
-	return "";
+	return 0;
     }
 
-    std::string cgiEnvName(const std::string& name) const {
+    std::string cgiEnvName(const char *name) const {
       std::string result = name;
       std::string::size_type i;
       while ((i = result.find('-')) != std::string::npos)
@@ -141,50 +147,65 @@ namespace {
       return "HTTP_" + result;
     }
 
-    virtual std::string scriptName() const {
-      if (entryPoint_) {
-        return envValue("SCRIPT_NAME") + entryPoint_->path();
-      } else {
-        return envValue("SCRIPT_NAME");
+    virtual const std::string& scriptName() const {
+      if (scriptName_.empty()) {
+	if (entryPoint_)
+	  scriptName_ = str(envValue("SCRIPT_NAME")) + entryPoint_->path();
+	else
+	  scriptName_ = str(envValue("SCRIPT_NAME"));
       }
+
+      return scriptName_;
     }
 
-    virtual std::string serverName() const {
-      return envValue("SERVER_NAME");
+    virtual const std::string& serverName() const {
+      if (serverName_.empty())
+	serverName_ = str(envValue("SERVER_NAME"));
+
+      return serverName_;
     }
 
-    virtual std::string requestMethod() const {
+    virtual const char *requestMethod() const {
       return envValue("REQUEST_METHOD");
     }
 
-    virtual std::string queryString() const {
-      return envValue("QUERY_STRING");
+    virtual const std::string& queryString() const {
+      if (queryString_.empty())
+	queryString_ = str(envValue("QUERY_STRING"));
+
+      return queryString_;
     }
 
-    virtual std::string serverPort() const {
-      return envValue("SERVER_PORT");
+    virtual const std::string& serverPort() const {
+      if (serverPort_.empty())
+	serverPort_ = str(envValue("SERVER_PORT"));
+
+      return serverPort_;
     }
 
-    virtual std::string pathInfo() const {
-      if (entryPoint_) {
-        std::string pi = envValue("PATH_INFO");
-        if (pi.size() >= entryPoint_->path().size()) {
-          return pi.substr(entryPoint_->path().size());
-        } else {
-          return pi;
-        }
-      } else {
-        return envValue("PATH_INFO");
+    virtual const std::string& pathInfo() const {
+      if (pathInfo_.empty()) {
+	pathInfo_ = str(envValue("PATH_INFO"));
+	if (entryPoint_) {
+	  if (pathInfo_.size() >= entryPoint_->path().size()) {
+	    pathInfo_ = pathInfo_.substr(entryPoint_->path().size());
+	  }
+	}
       }
+
+      return pathInfo_;
     }
 
-    virtual std::string remoteAddr() const {
-      return envValue("REMOTE_ADDR");
+    virtual const std::string& remoteAddr() const {
+      if (remoteAddr_.empty())
+	remoteAddr_ = str(envValue("REMOTE_ADDR"));
+
+      return remoteAddr_;
     }
 
-    virtual std::string urlScheme() const {
-      std::string https = envValue("HTTPS");
-      if (https == "ON" || https == "on")
+    virtual const char *urlScheme() const {
+      const char *https = envValue("HTTPS");
+      if (https && strcasecmp(https, "ON") == 0)
 	return "https";
       else
 	return "http";
@@ -196,7 +217,7 @@ namespace {
 
     virtual WSslInfo *sslInfo() const {
 #ifdef WT_WITH_SSL
-      std::string clientCert = envValue("SSL_CLIENT_CERT");
+      std::string clientCert = str(envValue("SSL_CLIENT_CERT"));
       if (!clientCert.empty()) {
 	X509 *x509 = Wt::Ssl::readFromPem(clientCert);
 	
@@ -221,7 +242,7 @@ namespace {
 	  
 	  
           Wt::WValidator::State state = Wt::WValidator::Invalid;
-	  std::string verify = envValue("SSL_CLIENT_VERIFY");
+	  std::string verify = str(envValue("SSL_CLIENT_VERIFY"));
           std::string verifyInfo;
 	  if (verify == "SUCCESS") {
 	    state = Wt::WValidator::Valid;

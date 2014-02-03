@@ -34,8 +34,9 @@ class Request;
 class StaticReply : public Reply
 {
 public:
-  StaticReply(const std::string &full_path, const std::string &extension,
-	      const Request& request, const Configuration& configuration);
+  StaticReply(const Request& request, const Configuration& config);
+
+  virtual void reset(const Wt::EntryPoint *ep);
 
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
@@ -45,12 +46,12 @@ protected:
   virtual std::string contentType();
   virtual ::int64_t contentLength();
 
-  virtual void nextContentBuffers(std::vector<asio::const_buffer>& result);
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result);
 
 private:
-  std::string     path_;
-  std::string     extension_;
-  std::ifstream   stream_;
+  std::string path_;
+  std::string extension_;
+  std::ifstream stream_;
   ::int64_t fileSize_;
 
   char buf_[64 * 1024];

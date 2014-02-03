@@ -98,9 +98,6 @@ private:
   /// The strand for handleTcpAccept(), handleSslAccept() and handleStop()
   asio::strand accept_strand_;
 
-  /// The strand for schedule()
-  // asio::strand schedule_strand_;
-
   /// Acceptor used to listen for incoming http connections.
   asio::ip::tcp::acceptor tcp_acceptor_;
 

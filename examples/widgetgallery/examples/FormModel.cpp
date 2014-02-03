@@ -270,6 +270,7 @@ public:
 
         setTemplateText(tr("userForm-template"));
         addFunction("id", &WTemplate::Functions::id);
+        addFunction("block", &WTemplate::Functions::id);
 
         /*
 	 * First Name

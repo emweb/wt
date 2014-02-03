@@ -10,14 +10,18 @@
 #include "Wt/WApplication"
 #include "Wt/WBootstrapTheme"
 #include "Wt/WCheckBox"
+#include "Wt/WComboBox"
 #include "Wt/WDateEdit"
 #include "Wt/WDatePicker"
 #include "Wt/WDialog"
 #include "Wt/WEnvironment"
 #include "Wt/WGoogleMap"
 #include "Wt/WInPlaceEdit"
+#include "Wt/WLabel"
+#include "Wt/WLineEdit"
 #include "Wt/WLogger"
 #include "Wt/WMenu"
+#include "Wt/WNavigationBar"
 #include "Wt/WPanel"
 #include "Wt/WPopupMenu"
 #include "Wt/WProgressBar"
@@ -34,7 +38,8 @@
 #endif
 
 namespace skeletons {
-  extern const char * AuthBootstrapTheme_xml1;
+  extern const char * BootstrapTheme_xml1;
+  extern const char * Bootstrap3Theme_xml1;
 }
 
 namespace Wt {
@@ -42,7 +47,10 @@ namespace Wt {
 LOGGER("WBootstrapTheme");
 
 WBootstrapTheme::WBootstrapTheme(WObject *parent)
-  : WTheme(parent)
+  : WTheme(parent),
+    version_(Version2),
+    responsive_(false),
+    formControlStyle_(true)
 { }
 
 WBootstrapTheme::~WBootstrapTheme()
@@ -58,11 +66,33 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
   std::vector<WCssStyleSheet> result;
 
   std::string themeDir = resourcesUrl();
+  std::stringstream themeVersionDir;
+  themeVersionDir << themeDir << version_ << "/";
 
-  result.push_back(WCssStyleSheet(WLink(themeDir + "bootstrap.css")));
-  result.push_back(WCssStyleSheet(WLink(themeDir
-					+ "bootstrap-responsive.css")));
-  result.push_back(WCssStyleSheet(WLink(themeDir + "wt.css")));
+  result.push_back(WCssStyleSheet
+		   (WLink(themeVersionDir.str() 
+			  + "bootstrap.css")));
+
+  WApplication *app = WApplication::instance();
+ 
+  if (responsive_) {
+    if (version_ < Version3)
+      result.push_back(WCssStyleSheet
+		       (WLink(themeVersionDir.str()
+			      + "bootstrap-responsive.css")));
+    else if (app)
+      app->addMetaHeader("viewport",
+			 "width=device-width, initial-scale=1");
+  }
+
+  result.push_back(WCssStyleSheet(WLink(themeVersionDir.str() + "wt.css")));
+
+  if (app) {
+    app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
+    if (version_ >= Version3)
+      app->builtinLocalizedStrings().useBuiltin
+	(skeletons::Bootstrap3Theme_xml1);
+  }
 
   return result;
 }
@@ -75,7 +105,8 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
     child->addStyleClass("Wt-icon");
     break;
   case MenuItemCheckBoxRole:
-    child->addStyleClass("Wt-chkbox");
+    child->setStyleClass("Wt-chkbox");
+    ((WFormWidget *)child)->label()->addStyleClass("checkbox-inline");
     break;
   case MenuItemCloseRole:
     {
@@ -84,14 +115,21 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
         txt->setText("<button class='close'>&times;</button>");
     }
     break;
+  case DialogContent:
+    if (version_ == Version3)
+      child->addStyleClass("modal-content");
+    break;
   case DialogCoverRole:
-    child->addStyleClass("modal-backdrop");
+    if (version_ == Version3)
+      child->addStyleClass("modal-backdrop in");
+    else
+      child->addStyleClass("modal-backdrop");
     break;
   case DialogTitleBarRole:
-    child->addStyleClass("modal-header");
+       child->addStyleClass("modal-header");
     break;
   case DialogBodyRole:
-    child->addStyleClass("modal-body");
+      child->addStyleClass("modal-body");
     break;
   case DialogFooterRole:
     child->addStyleClass("modal-footer");
@@ -116,7 +154,7 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
     break;
 
   case PanelTitleBarRole:
-    child->addStyleClass("accordion-heading");
+    child->addStyleClass(classAccordionHeading());
     break;
 
   case PanelCollapseButtonRole:
@@ -125,12 +163,28 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
     break;
 
   case PanelBodyRole:
-    child->addStyleClass("accordion-inner");
+    child->addStyleClass(classAccordionInner());
     break;
-  case AuthWidgets:
-    WApplication *app = WApplication::instance();
-    app->builtinLocalizedStrings().useBuiltin
-      (skeletons::AuthBootstrapTheme_xml1);
+  case InPlaceEditingRole:
+    if (version_ == Version2)
+      child->addStyleClass("input-append");
+    else
+      child->addStyleClass("input-group");
+    break;
+  case NavCollapseRole:
+    child->addStyleClass(classNavCollapse());
+    break;
+  case NavBrandRole:
+    child->addStyleClass(classBrand());
+    break;
+  case NavbarSearchRole:
+    child->addStyleClass(classNavbarSearch());
+    break;
+  case NavbarMenuRole:
+    child->addStyleClass(classNavbarMenu());
+    break;
+  case  NavbarBtn:
+    child->addStyleClass(classNavbarBtn());
     break;
   }
 }
@@ -153,7 +207,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 
   case DomElement_A:
     if (creating && dynamic_cast<WPushButton *>(widget))
-      element.addPropertyWord(PropertyClass, "btn");
+      element.addPropertyWord(PropertyClass, classBtn());
 
     if (element.getProperty(PropertyClass).find("dropdown-toggle")
 	!= std::string::npos) {
@@ -168,7 +222,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 
   case DomElement_BUTTON: {
     if (creating)
-      element.addPropertyWord(PropertyClass, "btn");
+      element.addPropertyWord(PropertyClass, classBtn());
 
     WPushButton *button = dynamic_cast<WPushButton *>(widget);
     if (button) {
@@ -197,13 +251,16 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
     {
       WDialog *dialog = dynamic_cast<WDialog *>(widget);
       if (dialog) {
-	element.addPropertyWord(PropertyClass, "modal");
+        if (version_ == Version2)
+          element.addPropertyWord(PropertyClass, "modal");
+        else
+          element.addPropertyWord(PropertyClass, "modal-dialog");
 	return;
       }
 
       WPanel *panel = dynamic_cast<WPanel *>(widget);
       if (panel) {
-	element.addPropertyWord(PropertyClass, "accordion-group");
+        element.addPropertyWord(PropertyClass, classAccordionGroup());
 	return;
       }
 
@@ -214,7 +271,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 	  element.addPropertyWord(PropertyClass, "progress");
 	  break;
 	case ProgressBarBarRole:
-	  element.addPropertyWord(PropertyClass, "bar");
+          element.addPropertyWord(PropertyClass, classBar());
 	  break;
 	case ProgressBarLabelRole:
 	  element.addPropertyWord(PropertyClass, "bar-label");
@@ -234,21 +291,47 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 	element.addPropertyWord(PropertyClass, "form-horizontal");
 	return;
       }
+
+      WNavigationBar *navBar = dynamic_cast<WNavigationBar *>(widget);
+      if (navBar) {
+	element.addPropertyWord(PropertyClass, classNavbar());
+	return;
+      }
     }
     break;
 
   case DomElement_LABEL:
     {
-      WCheckBox *cb = dynamic_cast<WCheckBox *>(widget);
-      if (cb) {
-	element.addPropertyWord(PropertyClass, "checkbox");
-	if (cb->isInline())
-	  element.addPropertyWord(PropertyClass, "inline");
-      } else {
-	WRadioButton *rb = dynamic_cast<WRadioButton *>(widget);
-	if (rb) {
-	  element.addPropertyWord(PropertyClass, "radio");
-	  if (rb->isInline())
+      if (elementRole == 1) {
+	if (version_ == Version3) {
+	  WCheckBox *cb = dynamic_cast<WCheckBox *>(widget);
+	  WRadioButton *rb = 0;
+ 
+	  if (cb) {
+	    element.addPropertyWord(PropertyClass, widget->isInline() ? 
+				    "checkbox-inline" : "checkbox");
+	  } else {
+	    rb = dynamic_cast<WRadioButton *>(widget);
+	    if (rb)
+	      element.addPropertyWord(PropertyClass, widget->isInline() ?
+				      "radio-inline" : "radio");
+	  }
+
+	  if ((cb || rb) && !widget->isInline())
+	    element.setType(DomElement_DIV);
+	} else {
+	  WCheckBox *cb = dynamic_cast<WCheckBox *>(widget);
+	  WRadioButton *rb = 0;
+ 
+	  if (cb) {
+	    element.addPropertyWord(PropertyClass, "checkbox");
+	  } else {
+	    rb = dynamic_cast<WRadioButton *>(widget);
+	    if (rb)
+	      element.addPropertyWord(PropertyClass, "radio");
+	  }
+
+	  if ((cb || rb) && widget->isInline())
 	    element.addPropertyWord(PropertyClass, "inline");
 	}
       }
@@ -275,40 +358,54 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 
   case DomElement_INPUT:
     {
+      if (version_ == Version3 && formControlStyle_) {
+	WAbstractToggleButton *tb
+	  = dynamic_cast<WAbstractToggleButton *>(widget);
+	if (!tb)
+	  element.addPropertyWord(PropertyClass, "form-control");
+      }
+
       WAbstractSpinBox *spinBox = dynamic_cast<WAbstractSpinBox *>(widget);
       if (spinBox) {
-	element.addPropertyWord(PropertyClass, "Wt-spinbox");
-	return;
+        element.addPropertyWord(PropertyClass, "Wt-spinbox");
+        return;
       }
 
       WDateEdit *dateEdit = dynamic_cast<WDateEdit *>(widget);
       if (dateEdit) {
-	element.addPropertyWord(PropertyClass, "Wt-dateedit");
-	return;
+        element.addPropertyWord(PropertyClass, "Wt-dateedit");
+        return;
       }
+
+
     }
     break;
+  case DomElement_TEXTAREA:
+  case DomElement_SELECT:
+    if (version_ == Version3 && formControlStyle_)
+      element.addPropertyWord(PropertyClass, "form-control");
 
+    break;
   case DomElement_UL:
     {
       WPopupMenu *popupMenu
 	= dynamic_cast<WPopupMenu *>(widget);
       if (popupMenu) {
-	element.addPropertyWord(PropertyClass, "dropdown-menu");
+        element.addPropertyWord(PropertyClass, "dropdown-menu");
 
 	if (popupMenu->parentItem() &&
 	    dynamic_cast<WPopupMenu *>(popupMenu->parentItem()->parentMenu()))
 	  element.addPropertyWord(PropertyClass, "submenu");
       } else {
-	WMenu *menu = dynamic_cast<WMenu *>(widget);
-	if (menu) {
-	  element.addPropertyWord(PropertyClass, "nav");
+        WMenu *menu = dynamic_cast<WMenu *>(widget);
+        if (menu) {
+          element.addPropertyWord(PropertyClass, "nav");
 
-	  WTabWidget *tabs
-	    = dynamic_cast<WTabWidget *>(menu->parent()->parent());
+          WTabWidget *tabs
+              = dynamic_cast<WTabWidget *>(menu->parent()->parent());
 
-	  if (tabs)
-	    element.addPropertyWord(PropertyClass, "nav-tabs");
+          if (tabs)
+            element.addPropertyWord(PropertyClass, "nav-tabs");
 	} else {
 	  WSuggestionPopup *suggestions
 	    = dynamic_cast<WSuggestionPopup *>(widget);
@@ -324,7 +421,13 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
       WInPlaceEdit *inPlaceEdit
 	= dynamic_cast<WInPlaceEdit *>(widget);
       if (inPlaceEdit)
-	element.addPropertyWord(PropertyClass, "Wt-in-place-edit");
+        element.addPropertyWord(PropertyClass, "Wt-in-place-edit");
+      else {
+	WDatePicker *picker
+	  = dynamic_cast<WDatePicker *>(widget);
+	if (picker)
+	  element.addPropertyWord(PropertyClass, "Wt-datepicker");
+      }
     }
     break;
   default:
@@ -358,11 +461,13 @@ void WBootstrapTheme
   LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "setValidationState", wtjs2);
 
   if (app->environment().ajax()) {
+    int version = version_;
     WStringStream js;
     js << WT_CLASS ".setValidationState(" << widget->jsRef() << ","
        << (validation.state() == WValidator::Valid ? 1 : 0) << ","
        << validation.message().jsStringLiteral() << ","
-       << styles.value() << ");";
+       << styles.value() << ","
+       << version<< ");";
 
     widget->doJavaScript(js.str());
   } else {
@@ -381,6 +486,81 @@ void WBootstrapTheme
 bool WBootstrapTheme::canBorderBoxElement(const DomElement& element) const
 {
   return true; // The issue reported in #1937 no longer troubles browsers
+}
+
+void WBootstrapTheme::setVersion(Version version)
+{
+  version_ = version;
+}
+
+void WBootstrapTheme::setFormControlStyleEnabled(bool enabled)
+{
+  formControlStyle_ = enabled;
+}
+
+std::string WBootstrapTheme::classBtn() const
+{
+  return version_ == Version2 ? "btn" : "btn btn-default";
+}
+
+std::string WBootstrapTheme::classBar() const
+{
+  return version_ == Version2 ? "bar" : "progress-bar";
+}
+
+std::string WBootstrapTheme::classAccordion() const
+{
+  return version_ == Version2 ? "accordion" : "panel-group";
+}
+
+std::string WBootstrapTheme::classAccordionGroup() const
+{
+  return version_ == Version2 ? "accordion-group" : "panel panel-default";
+}
+
+std::string WBootstrapTheme::classAccordionHeading() const
+{
+  return version_ == Version2 ? "accordion-heading" : "panel-heading";
+}
+
+std::string WBootstrapTheme::classAccordionBody() const
+{
+  return version_ == Version2 ? "accordion-body" : "panel-collapse";
+}
+
+std::string WBootstrapTheme::classAccordionInner() const
+{
+  return version_ == Version2 ? "accordion-inner" : "panel-body";
+}
+
+std::string WBootstrapTheme::classNavbar() const
+{
+  return version_ == Version2 ? "navbar" : "navbar navbar-default";
+}
+
+std::string WBootstrapTheme::classNavCollapse() const
+{
+  return version_ == Version2 ? "nav-collapse" : "navbar-collapse";
+}
+
+std::string WBootstrapTheme::classBrand() const
+{
+  return version_ == Version2 ? "brand" : "navbar-brand";
+}
+
+std::string WBootstrapTheme::classNavbarSearch() const
+{
+  return version_ == Version2 ? "search-query" : "navbar-search";
+}
+
+std::string WBootstrapTheme::classNavbarBtn() const
+{
+  return version_ == Version2 ? "btn-navbar" : "navbar-toggle";
+}
+
+std::string WBootstrapTheme::classNavbarMenu() const
+{
+  return version_ == Version2 ? "navbar-nav" : "navbar-nav";
 }
 
 }

@@ -83,7 +83,7 @@ void WResource::haveMoreData()
 
   for (unsigned i = 0; i < cs.size(); ++i)
     if (cs[i]->isWaitingForMoreData())
-      cs[i]->doContinue();
+      cs[i]->doContinue(WriteCompleted);
 }
 
 void WResource::doContinue(Http::ResponseContinuation *continuation)
@@ -156,12 +156,12 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 	webResponse->flush
 	  (WebResponse::ResponseFlush,
 	   boost::bind(&Http::ResponseContinuation::flagReadyToContinue,
-		       response.continuation_));
+		       response.continuation_, _1));
       } else
 	webResponse->flush
 	  (WebResponse::ResponseFlush,
 	   boost::bind(&Http::ResponseContinuation::doContinue,
-		       response.continuation_));
+		       response.continuation_, _1));
     }
   }
 

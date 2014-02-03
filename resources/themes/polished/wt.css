@@ -250,7 +250,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     margin: 2px;
 }
 
-.Wt-dialog .titlebar h3 {
+.Wt-dialog .titlebar h4 {
     margin: 0px 2px;
     font-size: 110%;
 }
@@ -271,6 +271,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 .Wt-dialog .Wt-msgbox-text {
+    overflow: auto;
 }
 
 /*

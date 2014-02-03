@@ -6,7 +6,7 @@
 #include "Wt/WAbstractToggleButton"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
-#include "Wt/WLabel"
+#include "Wt/WTheme"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -119,20 +119,31 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   DomElement *input = 0;
   DomElement *span = 0;
+  DomElement *label = 0;
 
-  if (element.type() == DomElement_LABEL) {
+  // Already apply theme here because it may determine its organization
+  if (all)
+    app->theme()->apply(this, element, 1);
+
+  if (element.type() == DomElement_INPUT)
+    input = &element;
+  else {
     if (all) {
       input = DomElement::createNew(DomElement_INPUT);
       input->setName("in" + id());
 
       span = DomElement::createNew(DomElement_SPAN);
-      span->setName("l" + id());
+      span->setName("t" + id());
+ 
+      if (element.type() != DomElement_LABEL) {
+	label = DomElement::createNew(DomElement_LABEL);
+	label->setName("l" + id());
+      }
     } else {
       input = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
-      span = DomElement::getForUpdate("l" + id(), DomElement_SPAN);
+      span = DomElement::getForUpdate("t" + id(), DomElement_SPAN);
     }
-  } else
-    input = &element;
+  }
 
   if (all)
     updateInput(*input, all);
@@ -268,8 +279,14 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   }
 
   if (&element != input) {
-    element.addChild(input);
-    element.addChild(span);
+    if (label) {
+      label->addChild(input);
+      label->addChild(span);
+      element.addChild(label);
+    } else {
+      element.addChild(input);
+      element.addChild(span);
+    }
   }
 }
 

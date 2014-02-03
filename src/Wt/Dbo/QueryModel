@@ -56,6 +56,10 @@ class QueryColumn;
  * row and setting its data happens within a single SQL
  * <tt>"insert"</tt> statement.
  *
+ * To get good performance, the model keeps the following data cached:
+ *  - rowCount()
+ *  - a batch of data, controlled by setBatchSize()
+ *
  * \ingroup dbo modelview
  */
 template <class Result>
@@ -187,11 +191,9 @@ public:
   /*! \brief Rereads the data from the database.
    *
    * This invalidates the current (cached) data and informs views that
-   * they should rerender.
-   *
-   * The model keeps the following data cached:
-   *  - rowCount()
-   *  - a batch of data, controlled by setBatchSize()
+   * they should rerender. This emits the layoutAboutToBeChanged()
+   * signal to inform the views that data and perhaps also row count was
+   * changed.
    */
   void reload();
 

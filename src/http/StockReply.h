@@ -34,9 +34,12 @@ class WTHTTP_API StockReply : public Reply
 public:
   StockReply(const Request& request, status_type status,
 	     const Configuration& configuration);
+
   StockReply(const Request& request, status_type status,
 	     std::string extraContent,
 	     const Configuration& configuration);
+
+  virtual void reset(const Wt::EntryPoint *ep);
 
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
@@ -46,7 +49,7 @@ protected:
   virtual std::string contentType();
   virtual ::int64_t contentLength();
 
-  virtual void nextContentBuffers(std::vector<asio::const_buffer>& result);
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result);
 
 private:
   std::string content_;

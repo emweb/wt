@@ -204,6 +204,11 @@ void WFileUpload::enableAjax()
   WWebWidget::enableAjax();
 }
 
+void WFileUpload::setFilters(std::string acceptAttributes)
+{
+  acceptAttributes_ = acceptAttributes;
+}
+
 void WFileUpload::setProgressBar(WProgressBar *bar)
 {
   delete progressBar_;
@@ -319,6 +324,8 @@ void WFileUpload::updateDom(DomElement& element, bool all)
     else
       inputE->callMethod("disabled=false");
 
+    inputE->setAttribute("accept", acceptAttributes_);
+
     flags_.reset(BIT_ENABLED_CHANGED);
   }
 
@@ -407,6 +414,7 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
       input->setAttribute("multiple", "multiple");
     input->setAttribute("name", "data");
     input->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
+    input->setAttribute("accept", acceptAttributes_);
     input->setId("in" + id());
 
     if (!isEnabled())

@@ -242,7 +242,8 @@ void WDialog::create()
   LOAD_JAVASCRIPT(app, "js/WDialog.js", "WDialog", wtjs1);
 
   WContainerWidget *layoutContainer = new WContainerWidget();
-  layoutContainer->setStyleClass("dialog-layout");
+  wApp->theme()->apply(this, layoutContainer, DialogContent);
+  layoutContainer->addStyleClass("dialog-layout");
   WVBoxLayout *layout = new WVBoxLayout(layoutContainer);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
@@ -406,8 +407,8 @@ WString WDialog::caption() const
 void WDialog::setWindowTitle(const WString& windowTitle)
 {
   caption_->setText
-    (WString::fromUTF8("<h3>" + Utils::htmlEncode(windowTitle.toUTF8())
-		       + "</h3>"));
+    (WString::fromUTF8("<h4>" + Utils::htmlEncode(windowTitle.toUTF8())
+		       + "</h4>"));
 }
 
 WString WDialog::windowTitle() const

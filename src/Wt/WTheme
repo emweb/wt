@@ -30,6 +30,7 @@ enum WidgetThemeRole {
   DialogBodyRole = 202,
   DialogFooterRole = 203,
   DialogCloseIconRole = 204,
+  DialogContent = 205, // For bootstrap 3 modal-content style
 
   TableViewRowContainerRole = 300,
 
@@ -40,7 +41,16 @@ enum WidgetThemeRole {
   PanelTitleRole = 502,
   PanelBodyRole = 503,
 
-  AuthWidgets = 600
+  AuthWidgets = 600,
+
+  InPlaceEditingRole = 700,
+
+  NavbarRole = 800,
+  NavCollapseRole = 801,
+  NavBrandRole = 802,
+  NavbarSearchRole = 803,
+  NavbarMenuRole = 804,
+  NavbarBtn = 805
 };
 
 /*! \brief Enumeration for the role of a DOM element (for theme support)

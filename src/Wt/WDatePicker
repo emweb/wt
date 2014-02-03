@@ -224,7 +224,7 @@ private:
   WInteractWidget *displayWidget_;
   WLineEdit *forEdit_;
 
-  WContainerWidget *layout_;
+  WTemplate *layout_;
   WPopupWidget *popup_;
   WCalendar *calendar_;
 

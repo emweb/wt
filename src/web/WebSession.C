@@ -64,6 +64,10 @@ namespace {
     }
     return url.substr(0, pos - 1);
   }
+
+  inline std::string str(const char *v) {
+    return v ? std::string(v) : std::string();
+  }
 }
 
 namespace Wt {
@@ -184,6 +188,11 @@ void WebSession::setTriggerUpdate(bool update)
 }
 
 #ifndef WT_TARGET_JAVA
+WLogger& WebSession::logInstance() const
+{
+    return controller_->server()->logger();
+}
+
 WLogEntry WebSession::log(const std::string& type) const
 {
   WLogEntry e = controller_->server()->logger().entry(type);
@@ -385,9 +394,6 @@ void WebSession::init(const WebRequest& request)
   }
 
   bookmarkUrl_ = applicationName_;
-
-  if (applicationName_.empty())
-    bookmarkUrl_ = applicationUrl_;
 
   if (type() == WidgetSet || useAbsoluteUrls) {
     applicationUrl_ = absoluteBaseUrl_ + applicationName_;
@@ -637,7 +643,7 @@ std::string WebSession::getCgiValue(const std::string& varName) const
 {
   WebRequest *request = WebSession::Handler::instance()->request();
   if (request)
-    return request->envValue(varName);
+    return str(request->envValue(varName.c_str()));
   else
     return std::string();
 }
@@ -646,7 +652,7 @@ std::string WebSession::getCgiHeader(const std::string& headerName) const
 {
   WebRequest *request = WebSession::Handler::instance()->request();
   if (request)
-    return request->headerValue(headerName);
+    return str(request->headerValue(headerName.c_str()));
   else
     return std::string();
 }
@@ -1130,8 +1136,8 @@ void WebSession::handleRequest(Handler& handler)
   /*
    * Cross-Origin Resource Sharing
    */
-  std::string origin = request.headerValue("Origin");
-  if (!origin.empty()) {
+  const char *origin = request.headerValue("Origin");
+  if (origin) {
     /*
      * Do we allow this XMLHttpRequest or WebSocketRequest?
      *
@@ -1139,12 +1145,12 @@ void WebSession::handleRequest(Handler& handler)
      * not for a new session.
      */
     if ((wtdE && *wtdE == sessionId_) || state_ == JustCreated) {
-      if (origin == "null")
+      if (strcmp(origin, "null") == 0)
 	origin = "*";
       handler.response()->addHeader("Access-Control-Allow-Origin", origin);
       handler.response()->addHeader("Access-Control-Allow-Credentials", "true");
 
-      if (request.requestMethod() == "OPTIONS") {
+      if (strcmp(request.requestMethod(), "OPTIONS") == 0) {
 	WebResponse *response = handler.response();
 
 	response->setStatus(200);
@@ -1174,10 +1180,10 @@ void WebSession::handleRequest(Handler& handler)
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
     LOG_ERROR("invalid WebSocket request, ignoring");
 
-    LOG_INFO("Connection: " << request.headerValue("Connection"));
-    LOG_INFO("Upgrade: " << request.headerValue("Upgrade"));
+    LOG_INFO("Connection: " << str(request.headerValue("Connection")));
+    LOG_INFO("Upgrade: " << str(request.headerValue("Upgrade")));
     LOG_INFO("Sec-WebSocket-Version: "
-	     << request.headerValue("Sec-WebSocket-Version"));
+	     << str(request.headerValue("Sec-WebSocket-Version")));
 
     handler.flushResponse();
     return;
@@ -1203,8 +1209,8 @@ void WebSession::handleRequest(Handler& handler)
    * listening.
    */
   if (!((requestE && *requestE == "resource")
-	|| request.requestMethod() == "POST"
-	|| request.requestMethod() == "GET")) {
+	|| strcmp(request.requestMethod(), "POST") == 0
+	|| strcmp(request.requestMethod(), "GET") == 0)) {
     handler.response()->setStatus(400); // Bad Request
     handler.flushResponse();
     return;
@@ -1585,7 +1591,7 @@ void WebSession::handleWebSocketRequest(Handler& handler)
   asyncResponse_->flush
     (WebRequest::ResponseFlush,
      boost::bind(&WebSession::webSocketReady,				    
-		 boost::weak_ptr<WebSession>(shared_from_this())));
+		 boost::weak_ptr<WebSession>(shared_from_this()), _1));
   canWriteAsyncResponse_ = false;
 
   asyncResponse_->readWebSocketMessage
@@ -1598,7 +1604,7 @@ void WebSession::handleWebSocketRequest(Handler& handler)
 }
 
 void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
-					WebRequest::ReadEvent event)
+					WebReadEvent event)
 {
   //LOG_DEBUG("handleWebSocketMessage: " << (int)event);
 
@@ -1610,11 +1616,21 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
     if (!lock->asyncResponse_ || !lock->asyncResponse_->isWebSocketRequest())
       return;
 
-    WebSocketMessage *message = new WebSocketMessage(lock.get());
-
     switch (event) {
-    case WebRequest::PingEvent:
+    case ReadError:
       {
+	if (lock->canWriteAsyncResponse_) {
+	  lock->asyncResponse_->flush();
+	  lock->asyncResponse_ = 0;
+	}
+
+	return;
+      }
+
+    case ReadPing:
+      {
+	WebSocketMessage *message = new WebSocketMessage(lock.get());
+
 	/* Copy message */
 	::int64_t len = message->contentLength();
 	char *buf = new char[len + 1];
@@ -1629,20 +1645,25 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	  lock->pongMessage_.clear();
 	  lock->asyncResponse_->flush
 	    (WebRequest::ResponseFlush,
-	     boost::bind(&WebSession::webSocketReady, session));
-	  lock->asyncResponse_->readWebSocketMessage
-	    (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
+	     boost::bind(&WebSession::webSocketReady, session, _1));
 	} else {
 	  // FIXME:
 	  //  We need to remember that we need to send the pong message
 	  //  in webSocketReady()
 	}
 
-      break;
+	delete message;
+
+	lock->asyncResponse_->readWebSocketMessage
+	  (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
+
+	break;
       }
 
-    case WebRequest::MessageEvent:
+    case ReadMessage:
       {
+	WebSocketMessage *message = new WebSocketMessage(lock.get());
+
 	bool closing = message->contentLength() == 0;
 
 	if (!closing) {
@@ -1654,31 +1675,31 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	    delete message;
 	    closing = true;
 	  }
-	}
 
-	const std::string *signalE = message->getParameter("signal");
+	  const std::string *signalE = message->getParameter("signal");
 
-	if (signalE && *signalE == "ping") {
-	  if (lock->canWriteAsyncResponse_) {
-	    lock->canWriteAsyncResponse_ = false;
-	    lock->asyncResponse_->out() << "{}";
-	    lock->asyncResponse_->flush
-	      (WebRequest::ResponseFlush,
-	       boost::bind(&WebSession::webSocketReady, session));
+	  if (signalE && *signalE == "ping") {
+	    if (lock->canWriteAsyncResponse_) {
+	      lock->canWriteAsyncResponse_ = false;
+	      lock->asyncResponse_->out() << "{}";
+	      lock->asyncResponse_->flush
+		(WebRequest::ResponseFlush,
+		 boost::bind(&WebSession::webSocketReady, session, _1));
+	    }
+
+	    lock->asyncResponse_->readWebSocketMessage
+	      (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
+	    
+	    delete message;
+
+	    return;
 	  }
 
-	  lock->asyncResponse_->readWebSocketMessage
-	    (boost::bind(&WebSession::handleWebSocketMessage, session, _1));
-
-	  delete message;
-
-	  return;
+	  const std::string *pageIdE = message->getParameter("pageId");
+	  if (pageIdE && *pageIdE
+	      != boost::lexical_cast<std::string>(lock->renderer_.pageId()))
+	    closing = true;
 	}
-
-	const std::string *pageIdE = message->getParameter("pageId");
-	if (pageIdE && *pageIdE
-	    != boost::lexical_cast<std::string>(lock->renderer_.pageId()))
-	  closing = true;
 
 	if (!closing) {
 	  handler.setRequest(message, (WebResponse *)(message));
@@ -1780,7 +1801,8 @@ void WebSession::pushUpdates()
       asyncResponse_->flush
 	(WebRequest::ResponseFlush,
 	 boost::bind(&WebSession::webSocketReady,
-		     boost::weak_ptr<WebSession>(shared_from_this())));
+		     boost::weak_ptr<WebSession>(shared_from_this()),
+		     _1));
 #endif // WT_TARGET_JAVA
     }
   } else {
@@ -1790,7 +1812,8 @@ void WebSession::pushUpdates()
   }
 }
 
-void WebSession::webSocketReady(boost::weak_ptr<WebSession> session)
+void WebSession::webSocketReady(boost::weak_ptr<WebSession> session,
+				WebWriteEvent event)
 {
   LOG_DEBUG("webSocketReady()");
 
@@ -1800,13 +1823,27 @@ void WebSession::webSocketReady(boost::weak_ptr<WebSession> session)
     Handler handler(lock, true);
 
     LOG_DEBUG("webSocketReady: asyncResponse_ = " << lock->asyncResponse_
-	      << " updatesPending = " << lock->updatesPending_);
+	      << " updatesPending = " << lock->updatesPending_
+	      << " event = " << (int)event);
 
-    if (lock->asyncResponse_) {
-      lock->canWriteAsyncResponse_ = true;
+    switch (event) {
+    case WriteCompleted:
+      if (lock->asyncResponse_) {
+	lock->canWriteAsyncResponse_ = true;
 
-      if (lock->updatesPending_)
-	lock->pushUpdates();
+	if (lock->updatesPending_)
+	  lock->pushUpdates();
+      }
+
+      break;
+    case WriteError:
+      if (lock->asyncResponse_) {
+	lock->asyncResponse_->flush();
+	lock->asyncResponse_ = 0;
+	lock->canWriteAsyncResponse_ = false;
+      }
+
+      break;
     }
   }
 #endif // WT_TARGET_JAVA
@@ -1918,11 +1955,12 @@ void WebSession::notify(const WEvent& event)
        *       persistent session configuration option
        */
       if (!env_->agentIsIE())
-	if (handler.request()->headerValue("User-Agent") != env_->userAgent()) {
+	if (str(handler.request()->headerValue("User-Agent")) 
+	    != env_->userAgent()) {
 	  LOG_SECURE("change of user-agent not allowed.");
 	  LOG_INFO("old user agent: " << env_->userAgent());
 	  LOG_INFO("new user agent: "
-		   << handler.request()->headerValue("User-Agent"));
+		   << str(handler.request()->headerValue("User-Agent")));
 	  serveError(403, handler, "Forbidden");
 	  return;
 	}
@@ -1934,7 +1972,7 @@ void WebSession::notify(const WEvent& event)
 	bool isInvalid = sessionIdCookie_.empty();
 
 	if (!isInvalid) {
-	  std::string cookie = request.headerValue("Cookie");
+	  std::string cookie = str(request.headerValue("Cookie"));
 	  if (cookie.find("Wt" + sessionIdCookie_) == std::string::npos)
 	    isInvalid = true;
 	}
@@ -1949,7 +1987,7 @@ void WebSession::notify(const WEvent& event)
     }
 
     if (sessionIdCookieChanged_) {
-      std::string cookie = request.headerValue("Cookie");
+      std::string cookie = str(request.headerValue("Cookie"));
       if (cookie.find("Wt" + sessionIdCookie_) == std::string::npos) {
 	sessionIdCookie_.clear();
 	LOG_INFO("session id cookie not working");
@@ -2043,7 +2081,7 @@ void WebSession::notify(const WEvent& event)
 	  }
 	}
       } else {
-	env_->urlScheme_ = request.urlScheme();
+	env_->urlScheme_ = str(request.urlScheme());
 
 	if (signalE) {
 	  /*
@@ -2353,7 +2391,7 @@ void WebSession::render(Handler& handler)
 	throw;
       }
 
-    if (app_->isQuited())
+    if (app_ && app_->isQuited())
       kill();
 
     if (handler.response()) // a recursive eventloop may remove it in kill()

@@ -40,6 +40,7 @@ WCalendar::WCalendar(WContainerWidget *parent)
     currentPageChanged_(this)
 {
   create();
+  impl_->addStyleClass("Wt-calendar");
 }
 
 void WCalendar::setMultipleSelection(bool multiple)
@@ -120,6 +121,7 @@ void WCalendar::create()
   nextMonth->clicked().connect(this, &WCalendar::browseToNextMonth);
 
   monthEdit_ = new WComboBox();
+  monthEdit_->setInline(true);
   for (unsigned i = 0; i < 12; ++i)
     monthEdit_->addItem(WDate::longMonthName(i+1));
   monthEdit_->activated().connect(this, &WCalendar::monthChanged);

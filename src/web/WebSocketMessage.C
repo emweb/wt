@@ -17,7 +17,9 @@ LOGGER("WebSocketMessage");
 
 WebSocketMessage::WebSocketMessage(WebSession *session)
   : session_(session)
-{ }
+{ 
+  queryString_ = "wtd=" + session_->sessionId() + "&request=jsupdate";
+}
 
 void WebSocketMessage::flush(ResponseState state,
 			     const WriteCallback& callback)
@@ -84,55 +86,60 @@ void WebSocketMessage::addHeader(const std::string& name,
     out() << "document.cookie=" << WWebWidget::jsStringLiteral(value) << ";";
 }
 
-std::string WebSocketMessage::envValue(const std::string& name) const
+const char *WebSocketMessage::envValue(const char *name) const
 {
-  if (name == "CONTENT_LENGTH") {
-    webSocket()->in().seekg(0, std::ios::end);
-    int length = webSocket()->in().tellg();
-    webSocket()->in().seekg(0, std::ios::beg);
-    return boost::lexical_cast<std::string>(length);
-  } else if (name == "CONTENT_TYPE")
-    return "application/x-www-form-urlencoded";
-  else  
-    return webSocket()->envValue(name);
+  return webSocket()->envValue(name);
 }
 
-std::string WebSocketMessage::serverName() const
+::int64_t WebSocketMessage::contentLength() const
+{
+  webSocket()->in().seekg(0, std::ios::end);
+  int length = webSocket()->in().tellg();
+  webSocket()->in().seekg(0, std::ios::beg);
+  return length;
+}
+
+const char *WebSocketMessage::contentType() const
+{
+  return "application/x-www-form-urlencoded";
+}
+
+const std::string& WebSocketMessage::serverName() const
 {
   return webSocket()->serverName();
 }
 
-std::string WebSocketMessage::serverPort() const
+const std::string& WebSocketMessage::serverPort() const
 {
   return webSocket()->serverPort();
 }
 
-std::string WebSocketMessage::scriptName() const
+const std::string& WebSocketMessage::scriptName() const
 {
   return webSocket()->scriptName();
 }
 
-std::string WebSocketMessage::requestMethod() const
+const char *WebSocketMessage::requestMethod() const
 {
   return "POST";
 }
 
-std::string WebSocketMessage::queryString() const
+const std::string& WebSocketMessage::queryString() const
 {
-  return "wtd=" + session_->sessionId() + "&request=jsupdate";
+  return queryString_;
 }
 
-std::string WebSocketMessage::pathInfo() const
+const std::string& WebSocketMessage::pathInfo() const
 {
   return webSocket()->pathInfo();
 }
 
-std::string WebSocketMessage::remoteAddr() const
+const std::string& WebSocketMessage::remoteAddr() const
 {
   return webSocket()->remoteAddr();
 }
 
-std::string WebSocketMessage::urlScheme() const
+const char *WebSocketMessage::urlScheme() const
 {
   return "http";
 }
@@ -142,7 +149,7 @@ Wt::WSslInfo *WebSocketMessage::sslInfo() const
   return webSocket()->sslInfo();
 }
 
-std::string WebSocketMessage::headerValue(const std::string& name) const
+const char *WebSocketMessage::headerValue(const char *name) const
 {
   return webSocket()->headerValue(name);
 }

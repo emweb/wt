@@ -20,7 +20,6 @@ popup->addItem("Button style")->setLink(Wt::WLink("#style"));
 
 Wt::WLineEdit *input = new Wt::WLineEdit();
 result->bindWidget("input", input);
-input->setStyleClass("span2");
 
 Wt::WPushButton *appendedDropdownButton = new Wt::WPushButton("Action");
 result->bindWidget("appendedButton", appendedDropdownButton);

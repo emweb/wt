@@ -6,6 +6,10 @@
 
 #include <cstring>
 #include <stdio.h>
+
+#include <boost/asio.hpp>
+namespace asio = boost::asio;
+
 #include "Wt/WStringStream"
 
 #include "WebUtils.h"
@@ -113,9 +117,6 @@ WStringStream& WStringStream::operator<< (char c)
 
 WStringStream& WStringStream::operator<< (char *s)
 {
-  if (s == std::string("var"))
-    std::cerr << "append: " << s << std::endl;
-
   append(s, std::strlen(s));
 
   return *this;
@@ -199,6 +200,16 @@ std::string WStringStream::str() const
   result.append(buf_, buf_i_);
 
   return result;
+}
+
+void WStringStream::asioBuffers(std::vector<asio::const_buffer>& result) const
+{
+  result.reserve(result.size() + bufs_.size() + 1);
+
+  for (unsigned int i = 0; i < bufs_.size(); ++i)
+    result.push_back(asio::buffer(bufs_[i].first, bufs_[i].second));
+
+  result.push_back(asio::buffer(buf_, buf_i_));
 }
 
 WStringStream::iterator WStringStream::back_inserter()

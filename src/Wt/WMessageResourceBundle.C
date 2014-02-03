@@ -35,7 +35,8 @@ void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
     if (messageResources_[i]->isBuiltin(xmlbundle))
       return;
 
-  messageResources_.push_back(new WMessageResources(xmlbundle));
+  messageResources_.insert(messageResources_.begin(),
+			   new WMessageResources(xmlbundle));
 }
 
 #ifndef WT_TARGET_JAVA

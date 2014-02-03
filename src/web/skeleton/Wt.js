@@ -1012,7 +1012,7 @@ this.vendorPrefix = function(attr) {
 };
 
 this.boxSizing = function(w) {
-  return (w.style[WT.styleAttribute('box-sizing')]) === 'border-box';
+  return (WT.css(w, 'box-sizing')) === 'border-box';
 };
 
 // Return if an element (or one of its ancestors) is hidden
@@ -1434,14 +1434,15 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     if (op == document.body)
       scrollY = (op.clientHeight - windowSize.y);
     bottomy = bottomy - offsetParent.y + scrollY;
-    y = op.clientHeight - (bottomy + WT.px(e, 'marginBottom'));
+    y = op.clientHeight - 
+	  (bottomy + WT.px(e, 'marginBottom') + WT.px(e, 'borderBottomWidth'));
     vside = 1;
   } else {
     var scrollY = op.scrollTop;
     if (op == document.body)
       scrollY = 0;
     y = y - offsetParent.y + scrollY;
-    y = y - WT.px(e, 'marginTop');
+    y = y - WT.px(e, 'marginTop') + WT.px(e, 'borderTopWidth');
     vside = 0;
   }
 

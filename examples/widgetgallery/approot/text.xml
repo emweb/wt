@@ -182,14 +182,14 @@
       named <strong>var</strong> which is substituted with a widget or string
       that is bound to that variable. Other syntactical constructs are:
       <dl class="dl-horizontal">
-	<dt>arguments</dt>
-	<dd><tt>$${<i>var arg1 arg2</i>}</tt></dd>
-	<dt>conditions</dt>
-	<dd><tt>$${&lt;<i>condition</i>&gt;} ...
-	$${&lt;/<i>condition</i>&gt;}</tt>
-	</dd>
-	<dt>functions</dt>
-	<dd><tt>$${<i>fun:arg1 arg2</i>}</tt></dd>
+        <dt>arguments</dt>
+        <dd><tt>$${<i>var arg1 arg2</i>}</tt></dd>
+        <dt>conditions</dt>
+        <dd><tt>$${&lt;<i>condition</i>&gt;} ...
+        $${&lt;/<i>condition</i>&gt;}</tt>
+        </dd>
+        <dt>functions</dt>
+        <dd><tt>$${<i>fun:arg1 arg2</i>}</tt></dd>
       </dl>
     </p>
     <p>
@@ -634,23 +634,23 @@
       There are different techniques and technologies available to
       determine the size (width and height) of a rendered widget.
       <dl class="dl-horizontal">
-	<dt>CSS</dt>
-	<dd>The browser uses CSS (Cascading Style Sheets) as a
-	technology for defining visual aspects, such as fonts, colors,
-	border styles, but also for geometry.</dd>
-	<dt>Layout Managers</dt>
-	<dd>Whereas CSS (and browsers) were originally designed for
-	the markup of documents, the requirements for web applications
-	are in many ways different. <a
-	href="#/layout/layout-managers">Layout Managers</a> are a
-	common technique in desktop applications to layout a UI, and
-	this is also available in Wt.</dd>
-	<dt>CSS Grids</dt>
-	<dd>A practical alternative to plain CSS, and to overcome some
-	of its deficiencies which, are CSS frameworks which allow one
-	to place widgets using a generic tag system. These typically
-	divide the page in a virtual grid. When using Wt with the Bootstrap
-	theme, such a CSS grid framework is included.</dd>
+        <dt>CSS</dt>
+        <dd>The browser uses CSS (Cascading Style Sheets) as a
+        technology for defining visual aspects, such as fonts, colors,
+        border styles, but also for geometry.</dd>
+        <dt>Layout Managers</dt>
+        <dd>Whereas CSS (and browsers) were originally designed for
+        the markup of documents, the requirements for web applications
+        are in many ways different. <a
+        href="#/layout/layout-managers">Layout Managers</a> are a
+        common technique in desktop applications to layout a UI, and
+        this is also available in Wt.</dd>
+        <dt>CSS Grids</dt>
+        <dd>A practical alternative to plain CSS, and to overcome some
+        of its deficiencies which, are CSS frameworks which allow one
+        to place widgets using a generic tag system. These typically
+        divide the page in a virtual grid. When using Wt with the Bootstrap
+        theme, such a CSS grid framework is included.</dd>
       </dl>
     </p>
 
@@ -671,19 +671,19 @@
     <p>
       Three ways to use CSS in Wt.
       <dl class="dl-horizontal">
-	<dt>Inline CSS</dt>
-	<dd>A single widget's style properties can be modified directly using
-	C++ API</dd>
+        <dt>Inline CSS</dt>
+        <dd>A single widget's style properties can be modified directly using
+        C++ API</dd>
 
-	<dt>Internal StyleSheet</dt>
-	<dd>The internal stylesheet allows to use a C++ API to create,
-	modify and remove CSS style rules that typically impact
-	multiple widgets.</dd>
+        <dt>Internal StyleSheet</dt>
+        <dd>The internal stylesheet allows to use a C++ API to create,
+        modify and remove CSS style rules that typically impact
+        multiple widgets.</dd>
 
-	<dt>External StyleSheets</dt>
-	<dd>By far the most practical approach is to use external CSS
-	stylesheets that define styling rules, and apply them to Wt widgets
-	using style classes.</dd>
+        <dt>External StyleSheets</dt>
+        <dd>By far the most practical approach is to use external CSS
+        stylesheets that define styling rules, and apply them to Wt widgets
+        using style classes.</dd>
       </dl>
     </p>
 
@@ -894,62 +894,6 @@
 
     <p><a href="#CSS">Top</a></p>
 
-    <h3>Bootstrap Grid System</h3>
-    <p>
-      When using the Bootstrap theme, there are many pre-defined CSS
-      style classes that you can use to impact the layout or visual
-      appearance of standard controls.
-    </p>
-
-    <h4>Block level inputs</h4>
-    <p>
-      In order to resize a control you can use relative sizing classes like
-      <tt>.input-medium</tt> and <tt>.input-large</tt> or match your inputs to
-      the grid column sizes using <tt>.span*</tt> (with * = 1..12) classes.
-      You can make any text input widget behave like a block level element.
-    </p>
-
-    <fieldset class="example">
-      <legend>Example</legend>
-      ${SizingBlock}
-      ${src SizingBlock}
-    </fieldset>
-
-    <p><a href="#CSS">Top</a></p>
-
-    <h4>Relative sizing</h4>
-    <p>
-      Relative sizing means that you use a qualitative scale to size a control.
-      In the future the use of these relative input classes will be altered to
-      match the button sizes. For example, <tt>.input-large</tt> will increase
-      the padding and font size of an input.
-    </p>
-
-    <fieldset class="example">
-      <legend>Example</legend>
-      ${SizingRelative}
-      ${src SizingRelative}
-    </fieldset>
-
-    <p><a href="#CSS">Top</a></p>
-
-    <h4>Grid sizing</h4>
-    <p>
-      In the following example the first line edit occupies the complete line.
-      The second line contains multiple grid inputs while the right side is
-      aligned with the first line. This is easily done using the
-      <tt>.controls-row</tt> modifier class which applies proper spacing. It
-      floats the inputs to collapse white-space and sets the proper margins.
-    </p>
-
-    <fieldset class="example">
-      <legend>Example</legend>
-      ${SizingGrid}
-      ${src SizingGrid}
-    </fieldset>
-
-    <p><a href="#CSS">Top</a></p>
-
   </message>
 
   <message id="layout-Themes">
@@ -968,7 +912,7 @@
         </dd>
         <dt>polished</dt>
         <dd>This theme is also implemented by the ${doc-link WCssTheme} class.
-	  You can change to this CSS theme with <tt>setCssTheme("polished")</tt>
+          You can change to this CSS theme with <tt>setCssTheme("polished")</tt>
           in your ${doc-link WApplication}.
         </dd>
         <dt>bootstrap</dt>
@@ -976,6 +920,10 @@
           This theme is implemented by the ${doc-link WBootstrapTheme}
           class, and relies on Twitter's Bootstrap CSS framework. Use
           <tt>setTheme(new WBootstrapTheme())</tt> to use this theme.
+          We support Bootstrap 2 and Bootstrap 3, so you may choose your
+          favorite Bootstrap version with WTheme::setVersion function. The
+          widget gallery is using Bootstrap 3.
+          <a href="http://getbootstrap.com/">Bootstrap documentation</a>
         </dd>
       </dl>
     </p>
@@ -1031,7 +979,7 @@
         target="blank">Bootstrap theme</a>.
         In order to apply validation style to any widget with invalid input,
         you should group the widgets in a div or span section and apply the
-        style <tt>control-group </tt> to it.
+        style <tt>form-group </tt> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -1151,68 +1099,115 @@
 
   <message id="simpleForm-template">
     <div class="form-inline">
-      <div class="control-group">
-	${name} ${button} ${out}
+      <div class="form-group">
+          ${name}
       </div>
+      <div class="form-group">
+          ${button}
+      </div>
+      <div class="form-group">
+           ${out}
+      </div>
+    </div>
+  </message>
+
+  <message id="form-field">
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="${id:{2}}"> ${1} </label>
+      <div class="col-sm-5"> ${2} </div>
+      <div class="help-block col-sm-5"> ${3} </div>
     </div>
   </message>
 
   <message id="userForm-template">
     <legend>${title}</legend>
     <div class="form-horizontal">
-      <fieldset>
-	<div class="control-group">
-	  <label for="${id:first-name}" class="control-label">First name</label>
-	  <div class="controls">
-	    ${first-name} <span class="help-inline">${first-name-info}</span>
-	  </div>
-	</div>
-
-	<div class="control-group">
-          <label for="${id:last-name}" class="control-label">Last name</label>
-          <div class="controls">
-            ${last-name} <span class="help-inline">${last-name-info}</span>
-          </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2"  for="${id:first-name}">
+          First name
+        </label>
+        <div class="col-sm-5">
+          ${first-name}
         </div>
-
-        <div class="control-group">
-          <label for="${id:country}" class="control-label">Country</label>
-          <div class="controls">
-            ${country} <span class="help-inline">${country-info}</span>
-          </div>
+        <div class="help-block col-sm-5">
+          ${first-name-info}
         </div>
+      </div>
 
-        <div class="control-group">
-          <label for="${id:city}" class="control-label">City</label>
-          <div class="controls">
-            ${city} <span class="help-inline">${city-info}</span>
-          </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2"  for="${id:first-name}">
+          Last name
+        </label>
+        <div class="col-sm-5">
+          ${last-name}
         </div>
-
-        <div class="control-group">
-          <label for="${id:birth}" class="control-label">Birth date</label>
-          <div class="controls">
-            ${birth} <span class="help-inline">${birth-info}</span>
-          </div>
+        <div class="help-block col-sm-5">
+          ${last-name-info}
         </div>
+      </div>
 
-        <div class="control-group">
-          <label for="${id:children}" class="control-label">Children</label>
-          <div class="controls">
-            ${children} <span class="help-inline">${children-info}</span>
-          </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2"  for="${id:first-name}">
+          Country
+        </label>
+        <div class="col-sm-5">
+          ${country}
         </div>
-
-        <div class="control-group">
-          <label for="${id:remarks}" class="control-label">Remarks</label>
-          <div class="controls">
-            ${remarks} <span class="help-inline">${remarks-info}</span>
-          </div>
+        <div class="help-block col-sm-5">
+          ${country-info}
         </div>
-      </fieldset>
+      </div>
 
-      <div class="form-actions">
-        <div class="controls">
+      <div class="form-group">
+        <label class="control-label col-sm-2"  for="${id:first-name}">
+          City
+        </label>
+        <div class="col-sm-5">
+          ${city}
+        </div>
+        <div class="help-block col-sm-5">
+          ${city-info}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2"  for="${id:first-name}">
+          Birth date
+        </label>
+        <div class="col-sm-5">
+          ${birth}
+        </div>
+        <div class="help-block col-sm-5">
+          ${birth-info}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2"  for="${id:first-name}">
+          Children
+        </label>
+        <div class="col-sm-5">
+          ${children}
+        </div>
+        <div class="help-block col-sm-5">
+          ${children-info}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2"  for="${id:first-name}">
+          Remarks
+        </label>
+        <div class="col-sm-5">
+          ${remarks}
+        </div>
+        <div class="help-block col-sm-5">
+          ${remarks-info}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
           ${submit-button} <span class="help-inline">${submit-info}</span>
         </div>
       </div>
@@ -1221,7 +1216,7 @@
 
   <message id="form-field">
     ${<if:field>}
-      <label for="${id:field}">${field-label}</label>
+      <label class="control-label col-sm-2"  for="${id:field}">${field-label}</label>
       ${field} ${field-info}
     ${</if:field>}
   </message>
@@ -1387,30 +1382,61 @@
 
   </message>
 
+  <message id="dateEdit-template">
+    <p>When do you want to take your holiday?</p>
+
+    <div class="form-horizontal">
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="${id:from}">From</label>
+        <div class="col-sm-4">${from}</div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="${id:to}">
+          To (format dd MM yyyy)
+        </label>
+        <div class="col-sm-4">${to}</div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-4">
+          ${save}
+        </div>
+      </div>
+    </div>
+
+    ${out class="help-block"}
+
+  </message>
+
   <message id="lineEdit-template">
     <div class="form-inline">
-      <div class="control-group">
-        <label class="control-label" for="${id:edit}">${label}</label>
-        <span class="controls">
-          ${edit}
-        </span>
+      <div class="form-group">
+        <label for="${id:edit}">${label}</label>
+        ${edit}
       </div>
     </div>
   </message>
 
   <message id="editSide-template">
-    <div class="input-prepend">
-      <span class="add-on">@</span>
-      ${name}
-    </div>
-    <div class="input-append">
-      ${amount1}
-      <span class="add-on">.00</span>
-    </div>
-    <div class="input-prepend input-append">
-      <span class="add-on">$</span>
-      ${amount2}
-      <span class="add-on">.00</span>
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-addon">@</span>
+        ${name}
+      </div>
+    </div>      
+    <div class="form-group">
+      <div class="input-group">
+        ${amount1}
+        <span class="input-group-addon">.00</span>
+      </div>
+    </div>      
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-addon">$</span>
+        ${amount2}
+        <span class="input-group-addon">.00</span>
+        </div>
     </div>
   </message>
 
@@ -2078,12 +2104,6 @@
       extend a line edit with possible actions on the input. Usually the menu
       items are links.
     </p>
-    <p>
-      You can add buttons before and/or after any text control using the
-      <tt>.input-prepend</tt> and <tt>.input-prepend</tt> classes respectively.
-      You could also use both classes and two instances of <tt>.add-on</tt> to
-      prepend and append an input at once.
-    </p>
 
     <fieldset class="example">
       <legend>Example</legend>
@@ -2099,23 +2119,6 @@
       <fieldset class="src">
         <legend>source</legend>
         <pre>${appendedDropdownButton-template}</pre>
-      </fieldset>
-    </fieldset>
-
-    <fieldset class="example">
-      <legend>Example</legend>
-      ${PushButtonDropdownPrepended}
-      ${src PushButtonDropdownPrepended}
-      <p>
-        Here is the corresponding XML template (with
-        <tt>message id= "prependedDropdownButton-template"</tt>) using style
-        classes from the
-        <a href= "http://twitter.github.com/bootstrap/base-css.html"
-        target="blank">Bootstrap theme</a>.
-      </p>
-      <fieldset class="src">
-        <legend>source</legend>
-        <pre>${prependedDropdownButton-template}</pre>
       </fieldset>
     </fieldset>
 
@@ -2234,21 +2237,14 @@
   </message>
 
   <message id="appendedDropdownButton-template">
-    <div class="input-append">
+  <div class="form-inline">
+    <div class="form-group">
       ${input}
-      <div class="btn-group">
+    </div>
+    <div class="form-group">
         ${appendedButton}
-      </div>
     </div>
-  </message>
-
-  <message id="prependedDropdownButton-template">
-    <div class="input-prepend">
-      <div class="btn-group">
-        ${prependedButton}
-      </div>
-      ${input}
-    </div>
+  </div>
   </message>
 
   <message id="pushButtonColor-template">
@@ -2369,7 +2365,7 @@
         target="blank">Bootstrap theme</a>.
         In order to apply validation style if the input is not valid, you
         should surround the input widget in a div or span section and apply the
-        style <tt>control-group </tt> to it.
+        style <tt>form-group </tt> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -2379,11 +2375,12 @@
 
     <p><a href="#validation">Top</a></p>
 
-    <h3>Validation with a date picker</h3>
+    <h3>Date validation</h3>
     <p>
-      The input of a date picker widget is validated through the line edit
-      assigned to it. You can limit the date range of the calendar using <tt>
-      setBottom()</tt> and <tt>setTop()</tt>.
+      In entirely the same way, a date validator can be used to
+      validate date input with a <tt>WDateEdit</tt> or
+      <tt>WDatePicker</tt>. You can limit the date range of the
+      calendar using <tt> setBottom()</tt> and <tt>setTop()</tt>.
     </p>
 
     <fieldset class="example">
@@ -2444,15 +2441,36 @@
   </message>
 
   <message id="validation-template">
-    <div class="form-inline">
-      <span class="control-group">
-        <label class="control-label" for="${id:age}">
-          Please enter your age
+    <div class="form-horizontal">
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="${id:age}">
+          Please enter your age:
         </label>
-        <span class="controls">
-          ${age} ${button} <span class="help-inline">${age-info}</span>
-        </span>
-      </span>
+        <div class="col-sm-2">${age}</div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-7">
+          ${button}
+        </div>
+      </div>
+      ${age-info}
+    </div>
+  </message>
+
+  <message id="date-template">
+    <div class="form-horizontal">
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="${id:birth-date}">
+          Enter your birth-date:
+        </label>
+        <div class="col-sm-2">${birth-date}</div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-7">
+          ${button}
+        </div>
+      </div>
+      ${info}
     </div>
   </message>
 
@@ -2478,7 +2496,7 @@
         target="blank">Bootstrap theme</a>.
         In order to apply validation style to any widget with invalid input,
         you should group the widgets in a div or span section and apply the
-        style <tt>control-group </tt> to it.
+        style <tt>form-group </tt> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -2522,53 +2540,53 @@
     <p>Single page appliations have a number of draw-backs:
 
       <dl>
-	<dt>Usability</dt>
-	<dd><p>The usability of your web application may suffer because
-	users lose the ability to use browser history to navigate
-	through the application, and bookmarks to bookmark particular
-	content (or application state). Whether this is an actual
-	usability problem will depend on the type of application: only
-	when a user's intuition is deceived in trying to use browser
-	navigation buttons to navigate through the pages in your
-	application, you should be concerned.</p>
+        <dt>Usability</dt>
+        <dd><p>The usability of your web application may suffer because
+        users lose the ability to use browser history to navigate
+        through the application, and bookmarks to bookmark particular
+        content (or application state). Whether this is an actual
+        usability problem will depend on the type of application: only
+        when a user's intuition is deceived in trying to use browser
+        navigation buttons to navigate through the pages in your
+        application, you should be concerned.</p>
 
-	<p>
-	  For example, an interactive web application that mimicks a
-	  desktop application with a single window whose content is
-	  manipulated might be conceptually considered a single page for
-	  the user.
-	</p>
+        <p>
+          For example, an interactive web application that mimicks a
+          desktop application with a single window whose content is
+          manipulated might be conceptually considered a single page for
+          the user.
+        </p>
 
-	<p>
-	  On the other hand, applications such as web shops, CMS systems, or
-	  online email readers, all have a need for the user to be able to
-	  bookmark certain content pages.
-	</p>
-	</dd>
+        <p>
+          On the other hand, applications such as web shops, CMS systems, or
+          online email readers, all have a need for the user to be able to
+          bookmark certain content pages.
+        </p>
+        </dd>
 
-	<dt>Deep linking</dt>
-	<dd>
-	  <p>There is no possibility for deep linking to content within
-	  your application from other websites. This is to some extent
-	  related to the previous point. For example a web shop will
-	  want its products pages to be linked to from product review
-	  websites. But for other applications which have no public
-	  information such as email applications, this might not be a
-	  motivation for internal paths.</p>
-	</dd>
+        <dt>Deep linking</dt>
+        <dd>
+          <p>There is no possibility for deep linking to content within
+          your application from other websites. This is to some extent
+          related to the previous point. For example a web shop will
+          want its products pages to be linked to from product review
+          websites. But for other applications which have no public
+          information such as email applications, this might not be a
+          motivation for internal paths.</p>
+        </dd>
 
-	<dt>Search engine indexing</dt>
-	<dd>
-	  <p>Content in your web application cannot be indexed properly
-	  by search engines. A related problem, which might be more
-	  serious for certain types of applications, is how search
-	  engines will perceive your web application. Web robots index
-	  the web by retrieving pages and following anchors to other
-	  pages. When your application is presented as only a single
-	  page, only the content on your initial page is accessible to
-	  these search engines.
-	  </p>
-	</dd>
+        <dt>Search engine indexing</dt>
+        <dd>
+          <p>Content in your web application cannot be indexed properly
+          by search engines. A related problem, which might be more
+          serious for certain types of applications, is how search
+          engines will perceive your web application. Web robots index
+          the web by retrieving pages and following anchors to other
+          pages. When your application is presented as only a single
+          page, only the content on your initial page is accessible to
+          these search engines.
+          </p>
+        </dd>
       </dl>
     </p>
 
@@ -2588,8 +2606,8 @@
 
     <blockquote>
       <p>
-	With the help of HTML5's History API, Wt provides a perfect
-	illusion of a multi-page application, but within a single page!
+        With the help of HTML5's History API, Wt provides a perfect
+        illusion of a multi-page application, but within a single page!
       </p>
     </blockquote>
 
@@ -2629,7 +2647,7 @@
       with the method <tt>setLink()</tt>:
       <ul>
         <li>an <a href="#/navigation/anchor">anchor</a> (${doc-link WAnchor})
-	or a pushbutton (${doc-link WPushButton}), or</li>
+        or a pushbutton (${doc-link WPushButton}), or</li>
         <li>a menu item (${doc-link WMenuItem}) from within menus or
         popup menus,</li>
         <li>any ${doc-link WAbstractArea} implementation (like a rectangle,
@@ -3337,7 +3355,7 @@
 
     <div>
       <img src="/pics/modelview.png"
-	   style="max-width: none; margin: 5px auto; display: block"/>
+           style="max-width: none; margin: 5px auto; display: block"/>
     </div>
 
     <h3>The model</h3>
@@ -3377,18 +3395,18 @@
       subsets of this data to render a single item. In particular, the
       following data roles are commonly supported:
       <dl class="dl-horizontal">
-	<dt>DisplayRole</dt>
-	<dd>Rendered as text</dd>
-	<dt>DecorationRole</dt>
-	<dd>Rendered as icons</dd>
-	<dt>CheckStateRole</dt>
-	<dd>Rendered as check box state</dd>
-	<dt>LinkRole</dt>
-	<dd>Rendered as links</dd>
-	<dt>ToolTipRole</dt>
-	<dd>Rendered as tool tips</dd>
-	<dt>StyleClassRole</dt>
-	<dd>Rendered as style classes</dd>
+        <dt>DisplayRole</dt>
+        <dd>Rendered as text</dd>
+        <dt>DecorationRole</dt>
+        <dd>Rendered as icons</dd>
+        <dt>CheckStateRole</dt>
+        <dd>Rendered as check box state</dd>
+        <dt>LinkRole</dt>
+        <dd>Rendered as links</dd>
+        <dt>ToolTipRole</dt>
+        <dd>Rendered as tool tips</dd>
+        <dt>StyleClassRole</dt>
+        <dd>Rendered as style classes</dd>
       </dl>
 
       See the <a
@@ -3420,12 +3438,12 @@
       index is a data structucre containing:
 
       <dl class="dl-horizontal no-clear">
-	<dt>row</dt>
-	<dd>The row number</dd>
-	<dt>column</dt>
-	<dd>The column number</dd>
-	<dt>parent</dt>
-	<dd>The parent model index</dd>
+        <dt>row</dt>
+        <dd>The row number</dd>
+        <dt>column</dt>
+        <dd>The column number</dd>
+        <dt>parent</dt>
+        <dd>The parent model index</dd>
       </dl>
     </p>
 
@@ -3462,13 +3480,13 @@
       library provides a number of standard and generic models, which
       store the data in memory.
       <ul>
-	<li>${doc-link WStandardItemModel} can implement any kind of
-	item model, being composed of a table of ${doc-link
-	WStandardItem}'s, which each can contain itself a nested table
-	of <tt>WStandardItem</tt> items.</li>
-	<li>${doc-link WStringListModel} only supports lists with a
-	single column, and is thus optimized for list-oriented widgets
-	(combo-boxes and the like).</li>
+        <li>${doc-link WStandardItemModel} can implement any kind of
+        item model, being composed of a table of ${doc-link
+        WStandardItem}'s, which each can contain itself a nested table
+        of <tt>WStandardItem</tt> items.</li>
+        <li>${doc-link WStringListModel} only supports lists with a
+        single column, and is thus optimized for list-oriented widgets
+        (combo-boxes and the like).</li>
       </ul>
 
       One particarly useful standard model is the ${doc-link
@@ -3493,14 +3511,14 @@
       As a minimum, a custom table model should reimplement the
       following methods from ${doc-link WAbstractTableModel}:
       <dl class="dl-horizontal">
-	<dt>int rowCount()</dt>
-	<dd>Returns the table row count (only for the invalid parent!)</dd>
-	<dt>int columnCount()</dt>
-	<dd>Returns the table column count (only for the invalid parent!)</dd>
-	<dt>boost::any data()</dt>
-	<dd>Returns the data for an item, and a particular role</dd>
-	<dt>boost::any headerData()</dt>
-	<dd>Returns the header data for a column</dd>
+        <dt>int rowCount()</dt>
+        <dd>Returns the table row count (only for the invalid parent!)</dd>
+        <dt>int columnCount()</dt>
+        <dd>Returns the table column count (only for the invalid parent!)</dd>
+        <dt>boost::any data()</dt>
+        <dd>Returns the data for an item, and a particular role</dd>
+        <dt>boost::any headerData()</dt>
+        <dd>Returns the header data for a column</dd>
       </dl>
     </p>
 
@@ -3538,19 +3556,19 @@
       The following methods must be implemented for a minimally
       compliant hierarchical model:
       <dl class="dl-horizontal">
-	<dt>int rowCount()</dt>
-	<dd>Returns the item children count</dd>
-	<dt>int columnCount()</dt>
-	<dd>Returns the column count (which is usually the same for
-	  each item in the first column)</dd>
-	<dt>boost::any data()</dt>
-	<dd>Returns the data for an item, and a particular role</dd>
-	<dt>boost::any headerData()</dt>
-	<dd>Returns the header data for a column</dd>
-	<dt>WModelIndex child()</dt>
-	<dd>Creates a child index</dd>
-	<dt>WModelIndex parent()</dt>
-	<dd>Creates a parent index</dd>
+        <dt>int rowCount()</dt>
+        <dd>Returns the item children count</dd>
+        <dt>int columnCount()</dt>
+        <dd>Returns the column count (which is usually the same for
+          each item in the first column)</dd>
+        <dt>boost::any data()</dt>
+        <dd>Returns the data for an item, and a particular role</dd>
+        <dt>boost::any headerData()</dt>
+        <dd>Returns the header data for a column</dd>
+        <dt>WModelIndex child()</dt>
+        <dd>Creates a child index</dd>
+        <dt>WModelIndex parent()</dt>
+        <dd>Creates a parent index</dd>
       </dl>
     </p>
 
@@ -3617,17 +3635,17 @@
       If a custom wants to support this editing API, it needs to reimplement the
       following methods from ${doc-link WAbstractTableModel}:
       <dl class="dl-horizontal">
-	<dt>bool setData()</dt>
-	<dd>Updates data. Views typically use the <tt>EditRole</tt>
-	for the data used in editing</dd>
-	<dt>bool insertColumns()</dt>
-	<dd>Inserts one or more columns</dd>
-	<dt>bool insertRows()</dt>
-	<dd>Inserts one or more rows</dd>
-	<dt>bool removeColumns()</dt>
-	<dd>Removes one or more columns</dd>
-	<dt>bool removeRows()</dt>
-	<dd>Removes one or more rows</dd>
+        <dt>bool setData()</dt>
+        <dd>Updates data. Views typically use the <tt>EditRole</tt>
+        for the data used in editing</dd>
+        <dt>bool insertColumns()</dt>
+        <dd>Inserts one or more columns</dd>
+        <dt>bool insertRows()</dt>
+        <dd>Inserts one or more rows</dd>
+        <dt>bool removeColumns()</dt>
+        <dd>Removes one or more columns</dd>
+        <dt>bool removeRows()</dt>
+        <dd>Removes one or more rows</dd>
       </dl>
     </p>
 
@@ -3761,7 +3779,7 @@
     </p>
     <p class="centered">
       <img alt="The device coordinate system for a 6x5 pixel device"
-	   src="/pics/WPainter.png"></img> <br/>
+           src="/pics/WPainter.png"></img> <br/>
       <strong>The device coordinate system for a 6x5 pixel device</strong>
     </p>
     <p>
@@ -3894,9 +3912,9 @@
           <strong>transparency</strong> - drawing semi-transparent shapes using
           a color with lower opacity
         </li>
-	<li>
-	  painting with a <strong>gradient brush</strong>
-	</li>
+        <li>
+          painting with a <strong>gradient brush</strong>
+        </li>
         <li>
           rendering <strong>line ends</strong> with the line style
           <tt>PenCapStyle</tt> (flat, square or round)
@@ -4303,8 +4321,8 @@
     <p>
       Based on the sort of data that will be shown, a chart is one of two types (the same as for 2D charts):
       <ul>
-	<li>a <strong>CategoryChart</strong> for categorized data</li>
-	<li>a <strong>ScatterPlot</strong> for numerical data</li>
+        <li>a <strong>CategoryChart</strong> for categorized data</li>
+        <li>a <strong>ScatterPlot</strong> for numerical data</li>
       </ul>
     </p>
 
@@ -4315,9 +4333,9 @@
     <p>
       Wt provides three built-in classes representing data:
       <ul>
-	<li><strong>WGridData</strong>: data lying on a grid specified by an x- and y-axis</li>
-	<li><strong>WEquidistantGridData</strong>: data lying on a grid with an equidistant x- and y-axis</li>
-	<li><strong>WScatterData</strong>: data containing a collection of unconstrained points</li>
+        <li><strong>WGridData</strong>: data lying on a grid specified by an x- and y-axis</li>
+        <li><strong>WEquidistantGridData</strong>: data lying on a grid with an equidistant x- and y-axis</li>
+        <li><strong>WScatterData</strong>: data containing a collection of unconstrained points</li>
       </ul>
     </p>
     <p>
@@ -4329,9 +4347,9 @@
     <p>
       <tt>WGridData</tt> (and the deriving class <tt>WEquidistantGridData</tt>) has the additional feature that the visualization of the data is determined by its <tt>Series3DType</tt>, which can be either of three values:
       <ul>
-	<li>PointSeries3D</li>
-	<li>SurfaceSeries3D</li>
-	<li>BarSeries3D</li>
+        <li>PointSeries3D</li>
+        <li>SurfaceSeries3D</li>
+        <li>BarSeries3D</li>
       </ul>
       Note that PointSeries3D and SurfaceSeries3D only apply to a chart of type ScatterPlot and BarSeries3D only applies to a CategoryChart.
     </p>
@@ -4364,10 +4382,10 @@
   <message id="dataconfig.typeSelection">Chart type:</message>
 
   <message id="bs-controlgroup">
-    <div class="control-group">
+    <div class="form-group">
       <label class="control-label" for="${id:{1}}">${tr:dataconfig.{1}}</label>
       <div class="controls">
-	${{1}}
+        ${{1}}
       </div>
     </div>
   </message>
@@ -4385,9 +4403,9 @@
       <tr><td>X range min/max</td><td>${x-axisMin}</td><td>${x-axisMax}</td></tr>
       <tr><td>Y range min/max</td><td>${y-axisMin}</td><td>${y-axisMax}</td></tr>
       <tr><td>number of points X/Y</td><td>
-      <div class="control-group"><div class="controls">${nbXPoints}</div></div>
+      <div class="form-group"><div class="controls">${nbXPoints}</div></div>
       </td><td>
-      <div class="control-group"><div class="controls">${nbYPoints}</div></div>
+      <div class="form-group"><div class="controls">${nbYPoints}</div></div>
       </td></tr>
       <tr><td>pointsize</td><td>${pointSize}</td><td></td></tr>
     </table>
@@ -4823,7 +4841,7 @@
         output of the painting (which could e.g. be a chart or your
         own painted widget), or</li>
         <li>it can be used to embed Wt-generated contents into a larger PDF
-	document, e.g. to generate a report</li>
+        document, e.g. to generate a report</li>
       </ul>
     </p>
     <p>
@@ -4833,17 +4851,17 @@
     </p>
     ${<if:cpp>}
       <p>
-	The PDF is generated using
-	<a href="http://libharu.org/">The Haru Free PDF Library</a>. This class
-	is included in the library only if <tt>libharu</tt> was found during the
-	build of the library.
+        The PDF is generated using
+        <a href="http://libharu.org/">The Haru Free PDF Library</a>. This class
+        is included in the library only if <tt>libharu</tt> was found during the
+        build of the library.
       </p>
     ${</if:cpp>}
     ${<if:java>}
       <p>
-	The PDF is generated using the <a
-	href="http://pdfjet.com">PDFjet library</a>, and Wt can use
-	either the open source or commercial version.
+        The PDF is generated using the <a
+        href="http://pdfjet.com">PDFjet library</a>, and Wt can use
+        either the open source or commercial version.
       </p>
     ${</if:java>}
 
@@ -4862,7 +4880,7 @@
       </p>
 
       <fieldset class="example">
-	${src pdfImageWrite}
+        ${src pdfImageWrite}
       </fieldset>
     ${</if:cpp>}
 

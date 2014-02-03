@@ -186,6 +186,20 @@ EscapeOStream& EscapeOStream::operator<< (const std::string& s)
   return *this;
 }
 
+EscapeOStream& EscapeOStream::operator<< (int i)
+{
+  stream_ << i;
+
+  return *this;
+}
+
+EscapeOStream& EscapeOStream::operator<< (long long i)
+{
+  stream_ << i;
+
+  return *this;
+}
+
 void EscapeOStream::put(const char *s, const EscapeOStream& rules)
 {
   for (;s;) {
@@ -209,13 +223,6 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
       s = 0;
     }
   }
-}
-
-EscapeOStream& EscapeOStream::operator<< (int arg)
-{
-  stream_ << arg;
-
-  return *this;
 }
 
 EscapeOStream& EscapeOStream::operator<< (bool b)

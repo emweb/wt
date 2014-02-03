@@ -92,7 +92,7 @@ Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
   */
 
   Wt::WMenu *subMenu = new Wt::WMenu(subStack);
-  subMenu->addStyleClass("nav-pills nav-stacked");
+  subMenu->addStyleClass("nav-pills nav-stacked submenu");
   subMenu->setWidth(200);
 
   hLayout->addWidget(subMenu);

@@ -10,11 +10,12 @@ Wt::WCalendar *c2 = new Wt::WCalendar(container);
 c2->setSelectionMode(Wt::ExtendedSelection);
 
 Wt::WText* out = new Wt::WText(container);
+out->addStyleClass("help-block");
 
 c2->selectionChanged().connect(std::bind([=] () {
     Wt::WString selected;
-
     std::set<Wt::WDate> selection = c2->selection();
+
     for (std::set<Wt::WDate>::const_iterator it = selection.begin();
 	 it != selection.end(); ++it) {
 	if (!selected.empty())

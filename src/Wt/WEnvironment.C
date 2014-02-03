@@ -19,6 +19,12 @@
 
 #include <boost/lexical_cast.hpp>
 
+namespace {
+  inline std::string str(const char *s) {
+    return s ? std::string(s) : std::string();
+  }
+}
+
 namespace Wt {
 
 LOGGER("WEnvironment");
@@ -81,18 +87,18 @@ void WEnvironment::init(const WebRequest& request)
   queryString_ = request.queryString();
   parameters_ = request.getParameterMap();
 
-  urlScheme_       = request.urlScheme();
-  referer_         = request.headerValue("Referer");
-  accept_          = request.headerValue("Accept");
-  serverSignature_ = request.envValue("SERVER_SIGNATURE");
-  serverSoftware_  = request.envValue("SERVER_SOFTWARE");
-  serverAdmin_     = request.envValue("SERVER_ADMIN");
+  urlScheme_       = str(request.urlScheme());
+  referer_         = str(request.headerValue("Referer"));
+  accept_          = str(request.headerValue("Accept"));
+  serverSignature_ = str(request.envValue("SERVER_SIGNATURE"));
+  serverSoftware_  = str(request.envValue("SERVER_SOFTWARE"));
+  serverAdmin_     = str(request.envValue("SERVER_ADMIN"));
   pathInfo_        = request.pathInfo();
 #ifndef WT_TARGET_JAVA
   sslInfo_         = request.sslInfo();
 #endif
 
-  setUserAgent(request.headerValue("User-Agent"));
+  setUserAgent(str(request.headerValue("User-Agent")));
 
   LOG_INFO("UserAgent: " << userAgent_);
 
@@ -104,7 +110,7 @@ void WEnvironment::init(const WebRequest& request)
      * Take the last entry in X-Forwarded-Host, assuming that we are only
      * behind 1 proxy
      */
-    std::string forwardedHost = request.headerValue("X-Forwarded-Host");
+    std::string forwardedHost = str(request.headerValue("X-Forwarded-Host"));
 
     if (!forwardedHost.empty()) {
       std::string::size_type i = forwardedHost.rfind(',');
@@ -113,9 +119,9 @@ void WEnvironment::init(const WebRequest& request)
       else
 	host_ = forwardedHost.substr(i+1);
     } else
-      host_ = request.headerValue("Host");
+      host_ = str(request.headerValue("Host"));
   } else
-    host_ = request.headerValue("Host");
+    host_ = str(request.headerValue("Host"));
 
   if (host_.empty()) {
     /*
@@ -128,10 +134,10 @@ void WEnvironment::init(const WebRequest& request)
 
   clientAddress_ = getClientAddress(request, conf);
 
-  std::string cookie = request.headerValue("Cookie");
-  doesCookies_ = !cookie.empty();
+  const char *cookie = request.headerValue("Cookie");
+  doesCookies_ = cookie;
 
-  if (doesCookies_)
+  if (cookie)
     parseCookies(cookie, cookies_);
 
   locale_ = request.parseLocale();
@@ -146,14 +152,14 @@ std::string WEnvironment::getClientAddress(const WebRequest& request,
    * Determine client address, taking into account proxies
    */
   if (conf.behindReverseProxy()) {
-    std::string clientIp = request.headerValue("Client-IP");
+    std::string clientIp = str(request.headerValue("Client-IP"));
     boost::trim(clientIp);
 
     std::vector<std::string> ips;
     if (!clientIp.empty())
       boost::split(ips, clientIp, boost::is_any_of(","));
 
-    std::string forwardedFor = request.headerValue("X-Forwarded-For"); 
+    std::string forwardedFor = str(request.headerValue("X-Forwarded-For"));
     boost::trim(forwardedFor);
 
     std::vector<std::string> forwardedIps;
@@ -177,7 +183,7 @@ std::string WEnvironment::getClientAddress(const WebRequest& request,
   }
 
   if (result.empty())
-    result = request.envValue("REMOTE_ADDR");
+    result = str(request.envValue("REMOTE_ADDR"));
 
   return result;
 }
@@ -187,7 +193,7 @@ void WEnvironment::enableAjax(const WebRequest& request)
   doesAjax_ = true;
   session_->controller()->newAjaxSession();
 
-  doesCookies_ = !request.headerValue("Cookie").empty();
+  doesCookies_ = request.headerValue("Cookie") != 0;
 
   if (!request.getParameter("htmlHistory"))
     hashInternalPaths_ = true;

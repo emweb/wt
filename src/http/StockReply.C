@@ -247,14 +247,14 @@ void buildOriginalURL(const Request &req, std::string &url)
 {
   if (url.empty()) {
     url = "http://";
-    for (std::size_t i = 0; i < req.headerOrder.size(); ++i) {
-      Request::HeaderMap::const_iterator it = req.headerOrder[i];
-      if (it->first == "Host") {
-	url += it->second;
+    for (Request::HeaderList::const_iterator i = req.headers.begin();
+	 i != req.headers.end(); ++i) {
+      if (i->name == "Host") {
+	url += i->value.str();
 	break;
       }
     }
-    url += req.uri;
+    url += req.uri.str();
   }
 }
 
@@ -278,6 +278,11 @@ StockReply::StockReply(const Request& request,
     transmitted_(false)
 {
   setStatus(status);
+}
+
+void StockReply::reset(const Wt::EntryPoint *ep)
+{
+  assert(false);
 }
 
 void StockReply::consumeData(Buffer::const_iterator begin,
@@ -353,12 +358,13 @@ std::string StockReply::contentType()
   return content_.length();
 }
 
-void StockReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
+bool StockReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
   if (!transmitted_) {
     transmitted_ = true;
     result.push_back(asio::buffer(content_));
   }
+  return true;
 }
 
 

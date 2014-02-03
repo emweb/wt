@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
 #endif //MYSQL
 
   a1.wstring = "Hello";
-  a1.wstring2 = "Kitty";
+  a1.wstring2 = Wt::WString::fromUTF8("Kitty euro\xe2\x82\xac greek \xc6\x94");
   a1.string = "There";
   a1.string2 = "Big Owl";
   a1.ptime = boost::posix_time::ptime

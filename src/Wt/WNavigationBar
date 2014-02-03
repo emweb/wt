@@ -11,6 +11,7 @@
 
 #include <Wt/WLink>
 #include <Wt/WTemplate>
+#include <Wt/WBootstrapTheme>
 
 namespace Wt {
 
@@ -79,12 +80,15 @@ protected:
   WInteractWidget *createExpandButton();
 
 private:
+
   void expandContents();
   void collapseContents();
   void undoExpandContents();
 
   void addWrapped(WWidget *widget, AlignmentFlag alignment,
 		  const char *wrapClass);
+  void addWrapped(WWidget *widget, WWidget* parent, int role,
+                  AlignmentFlag alignment);
   void align(WWidget *widget, AlignmentFlag alignment);
 
   bool animatedResponsive() const;

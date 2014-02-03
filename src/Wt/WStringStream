@@ -12,6 +12,12 @@
 #include <string>
 #include <vector>
 
+namespace boost {
+  namespace asio {
+class const_buffer;
+  }
+}
+
 namespace Wt {
 
 /*! \class WStringStream Wt/WStringStream Wt/WStringStream
@@ -157,6 +163,8 @@ public:
    * buffering.
    */
   std::string str() const;
+
+  void asioBuffers(std::vector<boost::asio::const_buffer>& result) const;
 
   /*! \brief Returns whether the contents is empty.
    *

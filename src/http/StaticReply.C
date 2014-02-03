@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
+#include "Configuration.h"
 #include "StaticReply.h"
 #include "Request.h"
 #include "StockReply.h"
@@ -25,15 +26,46 @@ namespace Wt {
 namespace http {
 namespace server {
 
-StaticReply::StaticReply(const std::string &full_path,
-			 const std::string &extension,
-			 const Request& request,
-			 const Configuration& config)
-  : Reply(request, config),
-    path_(full_path),
-    extension_(extension)
+StaticReply::StaticReply(const Request& request, const Configuration& config)
+  : Reply(request, config)
 {
-  bool stockReply = false;
+  reset(0);
+}
+
+void StaticReply::reset(const Wt::EntryPoint *ep)
+{
+  Reply::reset(ep);
+
+  stream_.close();
+  stream_.clear();
+
+  hasRange_ = false;
+
+  std::string request_path = request_.request_path;
+
+  // Request path for a static file must be absolute and not contain "..".
+  if (request_path.empty() || request_path[0] != '/'
+      || request_path.find("..") != std::string::npos) {
+    setRelay(ReplyPtr(new StockReply(request_, StockReply::not_found,
+				     "", configuration())));
+    return;
+  }
+
+  // If path ends in slash (i.e. is a directory) then add "index.html".
+  if (request_path[request_path.size() - 1] == '/')
+    request_path += "index.html";
+
+  // Determine the file extension.
+  std::size_t last_slash_pos = request_path.find_last_of("/");
+  std::size_t last_dot_pos = request_path.find_last_of(".");
+
+  if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos)
+    extension_ = request_path.substr(last_dot_pos + 1);
+  else
+    extension_.clear();
+
+  path_ = configuration().docRoot() + request_path;
+
   bool gzipReply = false;
   std::string modifiedDate, etag;
 
@@ -41,7 +73,7 @@ StaticReply::StaticReply(const std::string &full_path,
 
   // Do not consider .gz files if we will respond with a range, as we cannot
   // stream partial data from a .gz file
-  if (request.acceptGzipEncoding() && !hasRange_) {
+  if (request_.acceptGzipEncoding() && !hasRange_) {
     std::string gzipPath = path_ + ".gz";
     stream_.open(gzipPath.c_str(), std::ios::in | std::ios::binary);
 
@@ -52,13 +84,14 @@ StaticReply::StaticReply(const std::string &full_path,
       stream_.clear();
       stream_.open(path_.c_str(), std::ios::in | std::ios::binary);
     }
-  } else
+  } else {
     stream_.open(path_.c_str(), std::ios::in | std::ios::binary);
+  }
 
   if (!stream_) {
-    stockReply = true;
-    setRelay(ReplyPtr(new StockReply(request, StockReply::not_found,
-				     "", config)));
+    setRelay(ReplyPtr(new StockReply(request_, StockReply::not_found,
+				     "", configuration())));
+    return;
   } else {
     try {
       fileSize_ = Wt::FileUtils::size(path_);
@@ -72,18 +105,17 @@ StaticReply::StaticReply(const std::string &full_path,
   // Can't specify zero-length Content-Range headers. But for zero-length
   // files, we just ignore the Range header and send the full file instead of
   // a 416 Requested Range Not Satisfiable error
-  if (stockReply || (fileSize_ == 0))
+  if (fileSize_ == 0)
     hasRange_ = false;
 
-  if ((!stockReply) && hasRange_) {
+  if (hasRange_) {
     stream_.seekg((std::streamoff)rangeBegin_, std::ios_base::cur);
     std::streamoff curpos = stream_.tellg();
     if (curpos != rangeBegin_) {
       // Won't be able to send even a single byte -> error 416
-      stockReply = true;
       ReplyPtr sr(new StockReply
-		  (request, StockReply::requested_range_not_satisfiable,
-		   "", config));
+		  (request_, StockReply::requested_range_not_satisfiable,
+		   "", configuration()));
       if (fileSize_ != -1) {
         // 416 SHOULD include a Content-Range with byte-range-resp-spec * and
         // instance-length set to current lenght
@@ -91,6 +123,7 @@ StaticReply::StaticReply(const std::string &full_path,
           "bytes */" + boost::lexical_cast<std::string>(fileSize_));
       }
       setRelay(sr);
+      return;
     } else {
       ::int64_t last = rangeEnd_;
       if (fileSize_ != -1 && last >= fileSize_) {
@@ -114,58 +147,47 @@ StaticReply::StaticReply(const std::string &full_path,
     }
   }
 
-  if (!stockReply) {
-    /*
-     * Check if can send a 304 not modified reply
-     */
-    Request::HeaderMap::const_iterator ims
-      = request.headerMap.find("If-Modified-Since");
-    Request::HeaderMap::const_iterator inm
-      = request.headerMap.find("If-None-Match");
+  /*
+   * Check if can send a 304 not modified reply
+   */
+  const Request::Header *ims = request_.getHeader("If-Modified-Since");
+  const Request::Header *inm = request_.getHeader("If-None-Match");
 
-    if ((ims != request.headerMap.end() && ims->second == modifiedDate)
-	|| (inm != request.headerMap.end() && inm->second == etag)) {
-      stockReply = true;
-      setRelay(ReplyPtr(new StockReply(request, StockReply::not_modified,
-				       config)));
-    }
+  if ((ims && ims->value == modifiedDate) || (inm && inm->value == etag)) {
+    setRelay(ReplyPtr(new StockReply(request_, StockReply::not_modified,
+				     configuration())));
+    return;
   }
 
-  if (!stockReply) {
-    /*
-     * Add headers for caching, but not for IE since it in fact makes it
-     * cache less (images)
-     */
-    Request::HeaderMap::const_iterator ua=request.headerMap.find("User-Agent");
+  /*
+   * Add headers for caching, but not for IE since it in fact makes it
+   * cache less (images)
+   */
+  const Request::Header *ua = request_.getHeader("User-Agent");
 
-    if (ua == request.headerMap.end()
-	|| ua->second.find("MSIE") == std::string::npos) {
-      addHeader("Cache-Control", "max-age=3600");
-      if (!etag.empty())
-	addHeader("ETag", etag);
+  if (!ua || !ua->value.contains("MSIE")) {
+    addHeader("Cache-Control", "max-age=3600");
+    if (!etag.empty())
+      addHeader("ETag", etag);
 
-      addHeader("Expires", computeExpires());
-    } else {
-      // We experienced problems with some swf files if they are cached in IE.
-      // Therefore, don't cache swf files on IE.
-      if (boost::iequals(extension_, "swf")) {
-        addHeader("Cache-Control", "no-cache");
-      }
-    }
-
-    if (!modifiedDate.empty())
-      addHeader("Last-Modified", modifiedDate);
+    addHeader("Expires", computeExpires());
+  } else {
+    // We experienced problems with some swf files if they are cached in IE.
+    // Therefore, don't cache swf files on IE.
+    if (boost::iequals(extension_, "swf"))
+      addHeader("Cache-Control", "no-cache");
   }
+
+  if (!modifiedDate.empty())
+    addHeader("Last-Modified", modifiedDate);
  
-  if (!stockReply) {
-    if (gzipReply)
-      addHeader("Content-Encoding", "gzip");
+  if (gzipReply)
+    addHeader("Content-Encoding", "gzip");
 
-    if (hasRange_)
-      setStatus(partial_content);
-    else
-      setStatus(ok);
-  }
+  if (hasRange_)
+    setStatus(partial_content);
+  else
+    setStatus(ok);
 }
 
 std::string StaticReply::computeModifiedDate() const
@@ -218,11 +240,10 @@ std::string StaticReply::contentType()
   }
 }
 
-void StaticReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
+bool StaticReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
   if (request_.method != "HEAD") {
-    boost::uintmax_t rangeRemainder
-      = (std::numeric_limits< ::int64_t>::max)();
+    boost::uintmax_t rangeRemainder = (std::numeric_limits< ::int64_t>::max)();
 
     if (hasRange_)
       rangeRemainder = rangeEnd_ - stream_.tellg() + 1;
@@ -230,9 +251,15 @@ void StaticReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
     stream_.read(buf_, (std::streamsize)
 		 (std::min<boost::uintmax_t>)(rangeRemainder, sizeof(buf_)));
 
-    if (stream_.gcount() > 0)
+    if (stream_.gcount() > 0) {
       result.push_back(asio::buffer(buf_, stream_.gcount()));
-  }
+      return false;
+    } else {
+      stream_.close();
+      return true;
+    }
+  } else
+    return true;
 }
 
 void StaticReply::parseRangeHeader()
@@ -244,14 +271,13 @@ void StaticReply::parseRangeHeader()
   // NOT SUPPORTED: multiple ranges, and the suffix-byte-range-spec:
   // Range: bytes=10-20,30-40
   // Range: bytes=-500 // 'last 500 bytes'
-  Request::HeaderMap::const_iterator range
-    = request_.headerMap.find("Range");
+  const Request::Header *range = request_.getHeader("Range");
 
   hasRange_ = false;
   rangeBegin_ = (std::numeric_limits< ::int64_t>::max)();
   rangeEnd_ = (std::numeric_limits< ::int64_t>::max)();
-  if (range != request_.headerMap.end()) {
-    std::string rangeHeader = range->second;
+  if (range) {
+    std::string rangeHeader = range->value.str();
 
     uint_parser< ::int64_t> const uint_max_p = uint_parser< ::int64_t>();
     hasRange_ = parse(rangeHeader.c_str(),

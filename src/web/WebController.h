@@ -108,8 +108,8 @@ public:
   void start();
   void shutdown();
 
-  static std::string sessionFromCookie(std::string cookies,
-				       std::string scriptName,
+  static std::string sessionFromCookie(const char *cookies,
+				       const std::string& scriptName,
 				       int sessionIdLength);
 
   typedef std::map<int, WSocketNotifier *> SocketNotifierMap;
@@ -166,7 +166,7 @@ private:
 
   const EntryPoint *getEntryPoint(WebRequest *request);
 
-  static std::string appSessionCookie(std::string url);
+  static std::string appSessionCookie(const std::string& url);
 
 #endif // WT_TARGET_JAVA
 

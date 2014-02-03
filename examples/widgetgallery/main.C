@@ -8,6 +8,7 @@
 #include <Wt/WEnvironment>
 #include <Wt/WHBoxLayout>
 #include <Wt/WBootstrapTheme>
+
 #include <Wt/WCssTheme>
 
 #include "WidgetGallery.h"
@@ -23,11 +24,23 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 	      << "!!!!!!!!!!" << std::endl;
   }
 
-  const std::string *theme = env.getParameter("theme");
-  if (theme)
-    app->setTheme(new Wt::WCssTheme(*theme));
-  else 
-    app->setTheme(new Wt::WBootstrapTheme(app));
+  const std::string *themePtr = env.getParameter("theme");
+  std::string theme;
+  if (!themePtr)
+    theme = "bootstrap3";
+  else
+    theme = *themePtr;
+
+  if (theme == "bootstrap3"){
+    Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
+    bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
+    app->setTheme(bootstrapTheme);
+  } else if (theme == "bootstrap2"){
+    Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
+    app->setTheme(bootstrapTheme);
+  } else
+    app->setTheme(new Wt::WCssTheme(theme));
+
 
   // load text bundles (for the tr() function)
   app->messageResourceBundle().use(app->appRoot() + "report");

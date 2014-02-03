@@ -212,7 +212,7 @@ WT_DECLARE_WT_MEMBER
      if (asSet)
        return [scrollSize, scrollBar];
 
-     if (!WT.isOpera)
+     if (!WT.boxSizing(element) && !WT.isOpera)
        scrollSize += border;
 
      scrollSize +=
@@ -863,16 +863,19 @@ WT_DECLARE_WT_MEMBER
 	     }
 
 	     if (debug)
-	       console.log('cSize : ' + cSize + ', ieCSize : ' + ieCSize
+	       console.log('cSize : ' + cSize
+			   + (cClientSize ? '(clientSize)' : '') + ', ieCSize : '
+			   + ieCSize
 			   + ', minSize : ' + minSize + ', padding: '
-			   + padding(container, dir));
+			   + padding(container, dir) + ', sizePadding: '
+			   + sizePadding(container, dir));
 
-	     function epsEqual(a, b) {
-	       return Math.abs(a - b) <= 1;
+	     function epsNotLarger(a, b) {
+	       return a - b <= 1;
 	     }
 
 	     if ((WT.isIElt9 && epsEqual(cSize, ieCSize))
-		 || (epsEqual(cSize, minSize + padding(container, dir)))) {
+		 || (epsNotLarger(cSize, minSize + padding(container, dir)))) {
 	       if (debug)
 		 console.log('switching to managed container size '
 			     + dir + ' ' + id);

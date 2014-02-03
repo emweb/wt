@@ -14,6 +14,7 @@
 #include "Wt/WLogger"
 #include "Wt/WTemplate"
 
+#include "EscapeOStream.h"
 #include "WebUtils.h"
 #include "DomElement.h"
 #include "RefEncoder.h"
@@ -52,6 +53,19 @@ bool WTemplate::_block(const std::vector<WString>& args,
   return true;
 }
 
+bool WTemplate::_while(const std::vector<WString>& args,
+			      std::ostream& result)
+{
+  if (args.size() < 2)
+    return false;
+
+  WString tblock = WString::tr(args[1].toUTF8());
+  while (conditionValue(args[0].toUTF8()))
+    this->renderTemplateText(result, tblock);
+
+  return true;
+}
+
 bool WTemplate::_id(const std::vector<WString>& args,
 		    std::ostream& result)
 {
@@ -79,6 +93,12 @@ bool WTemplate::Functions::block(WTemplate *t, const std::vector<WString>& args,
                               std::ostream& result)
 {
   return t->_block(args, result);
+}
+
+bool WTemplate::Functions::while_f(WTemplate *t, const std::vector<WString>& args,
+			      std::ostream& result)
+{
+  return t->_while(args, result);
 }
 
 bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
@@ -111,6 +131,17 @@ bool WTemplate::BlockFunction::evaluate(WTemplate *t,
   }
 }
 
+bool WTemplate::WhileFunction::evaluate(WTemplate *t,
+				    const std::vector<WString>& args,
+				    std::ostream& result) const
+{
+  try {
+    return t->_while(args, result);
+  } catch (std::io_exception ioe) {
+    return false;
+  }
+}
+
 bool WTemplate::IdFunction::evaluate(WTemplate *t, 
 				     const std::vector<WString>& args,
 				     std::ostream& result) const
@@ -131,6 +162,8 @@ WTemplate::WTemplate(WContainerWidget *parent)
     encodeInternalPaths_(false),
     changed_(false)
 {
+  plainTextNewLineEscStream_ = new EscapeOStream();
+  plainTextNewLineEscStream_->pushEscape(EscapeOStream::PlainTextNewLines);
   setInline(false);
 }
 
@@ -141,8 +174,15 @@ WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
     encodeInternalPaths_(false),
     changed_(false)
 {
+  plainTextNewLineEscStream_ = new EscapeOStream();
+  plainTextNewLineEscStream_->pushEscape(EscapeOStream::PlainTextNewLines);
   setInline(false);
   setTemplateText(text);
+}
+
+WTemplate::~WTemplate()
+{
+  delete plainTextNewLineEscStream_;
 }
 
 void WTemplate::clear()
@@ -622,15 +662,23 @@ void WTemplate::format(std::ostream& result, const std::string& s,
 void WTemplate::format(std::ostream& result, const WString& s,
 		       TextFormat textFormat)
 {
-  WString v = s;
-
   if (textFormat == XHTMLText) {
-    if (!removeScript(v))
-      v = escapeText(v, true);
-  } else if (textFormat == PlainText)
-    v = escapeText(v, true);
+    WString v = s;
+    if (removeScript(v)) {
+      result << v.toUTF8();
+      return;
+    } else {
+      EscapeOStream sout(result);
+      sout.append(v.toUTF8(), *plainTextNewLineEscStream_);
+      return;
+    }
+  } else if (textFormat == PlainText) {
+    EscapeOStream sout(result);
+    sout.append(s.toUTF8(), *plainTextNewLineEscStream_);
+    return;
+  }
 
-  result << v.toUTF8();
+  result << s.toUTF8();
 }
 
 void WTemplate::removeChild(WWidget *child)

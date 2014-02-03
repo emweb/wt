@@ -26,7 +26,7 @@
 #include "HelloApplication.h"
 #include "QtObject.h"
 
-QtObject::QtObject(HelloApplication *wt, QObject *parent)
+QtObject::QtObject(Dictionary *wt, QObject *parent)
   : QObject(parent),
     wt_(wt)
 { }

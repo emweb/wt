@@ -43,10 +43,10 @@ namespace Wt {
  * 
  * A sample application that uses objects from the QtCore library.
  */
-class HelloApplication : public WQApplication
+class Dictionary : public WQApplication
 {
 public:
-  HelloApplication(const WEnvironment& env);
+  Dictionary(const WEnvironment& env);
 
   void doGreet(const QString&);
 

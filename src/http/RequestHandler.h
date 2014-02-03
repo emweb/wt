@@ -23,7 +23,7 @@
 #include "Wt/WLogger"
 
 #include "Configuration.h"
-#include "Reply.h"
+#include "WtReply.h"
 #include "../web/Configuration.h"
 
 namespace http {
@@ -43,7 +43,8 @@ public:
 			  Wt::WLogger& logger);
 
   /// Handle a request and produce a reply.
-  ReplyPtr handleRequest(Request& req);
+  ReplyPtr handleRequest(Request& req, ReplyPtr& lastWtReply,
+			 ReplyPtr& lastStaticReply);
 
   const std::string getErrorRoot() const
   {
@@ -62,13 +63,12 @@ private:
 
   /// Perform URL-decoding on a string and separates in path and
   /// query. Returns false if the encoding was invalid.
-  static bool url_decode(const std::string& in, std::string& path,
+  static bool url_decode(const buffer_string& in, std::string& path,
 			 std::string& query);
 
   static bool matchesPath(const std::string& path,
 			  const std::string& prefix,
-			  bool matchAfterSlash,
-			  std::string& rest);
+			  bool matchAfterSlash);
 
 };
 

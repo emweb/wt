@@ -308,6 +308,11 @@ void WLogger::configure(const std::string& config)
 
 bool WLogger::logging(const std::string& type) const
 {
+  return logging(type.c_str());
+}
+
+bool WLogger::logging(const char *type) const
+{
   bool result = false;
 
   for (unsigned i = 0; i < rules_.size(); ++i)
@@ -331,6 +336,22 @@ bool WLogger::logging(const std::string& type, const std::string& scope) const
 	result = rules_[i].include;
 
   return result;
+}
+
+WLogger& logInstance()
+{ 
+  WebSession *session = WebSession::instance();
+
+  if (session)
+    return session->logInstance();
+  else {
+    WServer *server = WServer::instance();
+
+    if (server)
+      return server->logger();
+    else
+      return defaultLogger;
+  }
 }
 
 WLogEntry log(const std::string& type)

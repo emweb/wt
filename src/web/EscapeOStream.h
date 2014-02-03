@@ -39,7 +39,7 @@ public:
    * for string literals !
    */
   template <typename T>
-    inline EscapeOStream& operator<< (T t);
+  inline EscapeOStream& operator<< (T t);
 
   template <std::size_t N>
     EscapeOStream& operator<< (const char (&s)[N]) {
@@ -51,6 +51,7 @@ public:
   EscapeOStream& operator<< (char *s);
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
+  EscapeOStream& operator<< (long long);
   EscapeOStream& operator<< (bool);
   EscapeOStream& operator<< (const EscapeOStream& other);
 

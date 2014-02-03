@@ -1677,8 +1677,7 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
 	for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
 	  if (i != 0)
 	    tmp << ',';
-	  //preloadingStream << '\'' << resolveRelativeUrl(preloadBufferResources_[i].second) << '\'';
-	  tmp << '\'' << wApp->makeAbsoluteUrl(preloadArrayBuffers_[i].url) << '\'';
+	  tmp << '\'' << preloadArrayBuffers_[i].url << '\'';
 	}
 	tmp <<
 	  "],function(bufferResources){\n"

@@ -25,6 +25,23 @@
 #include "StockReply.h"
 #include "WtReply.h"
 
+namespace {
+  unsigned char fromHex(char b)
+  {
+    if (b <= '9')
+      return b - '0';
+    else if (b <= 'F')
+      return (b - 'A') + 0x0A;
+    else 
+      return (b - 'a') + 0x0A;
+  }
+
+  unsigned char fromHex(char msb, char lsb)
+  {
+    return (fromHex(msb) << 4) + fromHex(lsb);
+  }
+}
+
 namespace http {
 namespace server {
 
@@ -38,8 +55,7 @@ RequestHandler::RequestHandler(const Configuration &config,
 
 bool RequestHandler::matchesPath(const std::string& path,
 				 const std::string& prefix,
-				 bool matchAfterSlash,
-				 std::string& rest)
+				 bool matchAfterSlash)
 {
   if (boost::starts_with(path, prefix)) {
     unsigned prefixLength = prefix.length();
@@ -47,21 +63,16 @@ bool RequestHandler::matchesPath(const std::string& path,
     if (path.length() > prefixLength) {
       char next = path[prefixLength];
 
-      if (next == '/') {
-	rest = path.substr(prefixLength);
+      if (next == '/')
 	return true; 
-      } else if (matchAfterSlash) {
+      else if (matchAfterSlash) {
 	char last = prefix[prefixLength - 1];
 
-	if (last == '/') {
-	  rest = path.substr(prefixLength);
+	if (last == '/')
 	  return true;
-	}
       }
-    } else {
-      rest = std::string();
+    } else
       return true;
-    }
   }
 
   return false;
@@ -71,7 +82,9 @@ bool RequestHandler::matchesPath(const std::string& path,
  * Determine what to do with the request (based on the header),
  * and do it and create a Reply object which will do it.
  */
-ReplyPtr RequestHandler::handleRequest(Request& req)
+ReplyPtr RequestHandler::handleRequest(Request& req,
+				       ReplyPtr& lastWtReply,
+				       ReplyPtr& lastStaticReply)
 {
   if ((req.method != "GET")
       && (req.method != "HEAD")
@@ -102,10 +115,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
 
   if (!config_.defaultStatic()) {
     for (unsigned i = 0; i < config_.staticPaths().size(); ++i) {
-      std::string notused;
-
-      if (matchesPath(req.request_path, config_.staticPaths()[i],
-		     true, notused)) {
+      if (matchesPath(req.request_path, config_.staticPaths()[i], true)) {
 	isStaticFile = true;
 	break;
       }
@@ -114,21 +124,18 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
 
   if (!isStaticFile) {
     int bestMatch = -1;
-    std::string bestPathInfo = req.request_path;
+    std::size_t bestLength = std::string::npos;
 
     for (unsigned i = 0; i < entryPoints_.size(); ++i) {
       const Wt::EntryPoint& ep = entryPoints_[i];
 
-      std::string pathInfo;
-
       bool matchesApp = matchesPath(req.request_path,
 				    ep.path(),
-				    !config_.defaultStatic(),
-				    pathInfo);
+				    !config_.defaultStatic());
 
       if (matchesApp) {
-	if (pathInfo.length() < bestPathInfo.length()) {
-	  bestPathInfo = pathInfo;
+	if (ep.path().length() < bestLength) {
+	  bestLength = ep.path().length();
 	  bestMatch = i;
 	}
       }
@@ -137,79 +144,66 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
     if (bestMatch != -1) {
       const Wt::EntryPoint& ep = entryPoints_[bestMatch];
 
-      req.request_extra_path = bestPathInfo;
-      if (!bestPathInfo.empty())
-	req.request_path = ep.path();
+      if (bestLength != std::string::npos)
+	req.request_extra_path = req.request_path.substr(bestLength);
 
-      return ReplyPtr(new WtReply(req, ep, config_));
+      req.request_path = ep.path();
+
+      if (!lastWtReply)
+	lastWtReply.reset(new WtReply(req, ep, config_));
+      else 
+	lastWtReply->reset(&ep);
+
+      return lastWtReply;
+
+      // return ReplyPtr(new WtReply(req, ep, config_));
     }
   }
 
-  // Request path for a static file must be absolute and not contain "..".
-  if (req.request_path.empty() || req.request_path[0] != '/'
-      || req.request_path.find("..") != std::string::npos) {
-    return ReplyPtr(new StockReply(req, Reply::bad_request, "", config_));
-  }
+  if (!lastStaticReply)
+    lastStaticReply.reset(new StaticReply(req, config_));
+  else
+    lastStaticReply->reset(0);
 
-  // If path ends in slash (i.e. is a directory) then add "index.html".
-  if (req.request_path[req.request_path.size() - 1] == '/') {
-    req.request_path += "index.html";
-  }
+  return lastStaticReply;
 
-  // Determine the file extension.
-  std::size_t last_slash_pos = req.request_path.find_last_of("/");
-  std::size_t last_dot_pos = req.request_path.find_last_of(".");
-  std::string extension;
-  if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos) {
-    extension = req.request_path.substr(last_dot_pos + 1);
-  }
-
-  std::string full_path = config_.docRoot() + req.request_path;
-  return ReplyPtr(new StaticReply(full_path, extension, req, config_));
+  // return ReplyPtr(new StaticReply(req, config_));
 }
 
-bool RequestHandler::url_decode(const std::string& in,
-				std::string& path,
+bool RequestHandler::url_decode(const buffer_string& in, std::string& path,
 				std::string& query)
 {
-  std::string *out = &path;
+  path.clear();
 
-  out->clear();
-  out->reserve(in.size());
+  std::string sin;
+  const char *d;
+  unsigned int len;
 
-  for (std::size_t i = 0; i < in.size(); ++i)
-  {
-    if (in[i] == '%')
-    {
-      if (i + 2 < in.size())
-      {
-        int value;
-        std::istringstream is(in.substr(i + 1, 2));
-        if (is >> std::hex >> value)
-        {
-          (*out) += static_cast<char>(value);
-	  i += 2;
-        }
-        else
-        {
-          return false;
-        }
-      }
-      else
-      {
-        return false;
-      }
-    }
-    else if ((in[i] == '?') && (out == &path))
-    {
-      query = in.substr(i + 1);
-      return true;
-    }
-    else
-    {
-      (*out) += in[i];
-    }
+  if (in.next) {
+    sin = in.str();
+    d = sin.c_str();
+    len = sin.length();
+  } else {
+    d = in.data;
+    len = in.len;
   }
+
+  path.reserve(len);
+
+  for (unsigned i = 0; i < len; ++i) {
+    if (d[i] == '%') {
+      if (i + 2 < len) {
+	path += fromHex(d[i + 1], d[i + 2]);
+	i += 2;	
+      } else
+        return false;
+    } else if (d[i] == '?') {
+      query = std::string(d + i + 1, len - (i + 1));
+      return true;
+    } else
+      path += d[i];
+  }
+
   return true;
 }
 

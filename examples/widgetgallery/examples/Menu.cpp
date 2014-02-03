@@ -11,7 +11,7 @@ Wt::WContainerWidget *container = new Wt::WContainerWidget();
 Wt::WStackedWidget *contents = new Wt::WStackedWidget();
 
 Wt::WMenu *menu = new Wt::WMenu(contents, Wt::Vertical, container);
-menu->setStyleClass("nav-tabs nav-stacked");
+menu->setStyleClass("nav nav-pills nav-stacked");
 menu->setWidth(150);
 
 // Add menu items using the default lazy loading policy.

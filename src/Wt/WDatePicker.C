@@ -57,7 +57,7 @@ void WDatePicker::createDefault(WLineEdit *forEdit)
   if (!forEdit) {
     forEdit = new WLineEdit();
     create(icon, forEdit);
-    layout_->insertWidget(0, forEdit);
+    layout_->bindWidget("edit", forEdit);
   } else
     create(icon, forEdit);
 }
@@ -65,7 +65,8 @@ void WDatePicker::createDefault(WLineEdit *forEdit)
 void WDatePicker::create(WInteractWidget *displayWidget,
 			 WLineEdit *forEdit)
 {
-  setImplementation(layout_ = new WContainerWidget());
+  setImplementation(layout_ = new WTemplate(tr("Wt.DatePicker.template")));
+  layout_->addFunction("id", &WTemplate::Functions::id);
 
   displayWidget_ = displayWidget;
   forEdit_ = forEdit;
@@ -75,7 +76,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   format_ = "dd/MM/yyyy";
 
   layout_->setInline(true);
-  layout_->addWidget(displayWidget);
+  layout_->bindWidget("img", displayWidget);
   layout_->setAttributeValue("style", "white-space: nowrap");
 
   const char *TEMPLATE = "${calendar}";

@@ -1008,6 +1008,17 @@ enum LayoutDirection {
   RightToLeft  //!< Right-to-Left (Many Middle Eastern and Arabic languages)
 };
 
+enum WebWriteEvent {
+  WriteCompleted, // Write was successful
+  WriteError      // Write failed
+};
+
+enum WebReadEvent {
+  ReadError,   // Read failed
+  ReadMessage, // Read a WebSocket message
+  ReadPing     // Read Ping message
+};
+
 }
 
 #endif // WGLOBALS_H_

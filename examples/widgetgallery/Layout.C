@@ -161,9 +161,6 @@ Wt::WWidget *Layout::images()
 }
 
 
-#include "examples/SizingBlock.cpp"
-#include "examples/SizingRelative.cpp"
-#include "examples/SizingGrid.cpp"
 #include "examples/CSS.cpp"
 
 Wt::WWidget *Layout::css()
@@ -171,9 +168,6 @@ Wt::WWidget *Layout::css()
   Wt::WTemplate *result = new TopicTemplate("layout-CSS");
 
   result->bindWidget("CSS", CSS());
-  result->bindWidget("SizingBlock", SizingBlock());
-  result->bindWidget("SizingRelative", SizingRelative());
-  result->bindWidget("SizingGrid", SizingGrid());
 
   // Show the style sheet as text
   result->bindString("CSS-example-style", reindent(tr("CSS-example-style")),

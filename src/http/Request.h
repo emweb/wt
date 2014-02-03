@@ -38,17 +38,30 @@ namespace http {
 namespace server {
 
 /*
- * boost::is_iless throws bad_cast -- here is my ad hoc version.
+ * string that references data in our connection receive buffers,
+ * taking into account that a string may span several buffer
+ * boundaries
  */
-struct my_iless
+struct buffer_string 
 {
-  bool operator()(const std::string& a, const std::string& b) const {
-#if defined(WIN32) && !defined(__CYGWIN__)
-    return _stricmp(a.c_str(), b.c_str()) < 0;
-#else
-    return strcasecmp(a.c_str(), b.c_str()) < 0;
-#endif
-  }
+  char *data;
+  unsigned int len;
+  buffer_string *next;
+
+  buffer_string() : data(0), len(0), next(0) { }
+
+  bool empty() const { return len == 0 && (!next || next->empty()); }
+  void clear() { data = 0; len = 0; next = 0; }
+  std::string str() const;
+  unsigned length() const;
+  bool contains(const char *s) const;
+  bool icontains(const char *s) const;
+  bool iequals(const char *s) const;
+
+  bool operator==(const buffer_string& other) const;
+  bool operator==(const std::string& other) const;
+  bool operator==(const char *other) const;
+  bool operator!=(const char *other) const;
 };
 
 /// A request received from a client.
@@ -56,19 +69,23 @@ struct my_iless
 class Request
 {
 public:
+  struct Header {
+    buffer_string name;
+    buffer_string value;
+  };
+
   enum State { Partial, Complete, Error };
 
-  std::string method;
-  std::string uri;
-  std::string urlScheme;
+  buffer_string method;
+  buffer_string uri;
+  char urlScheme[10];
   std::string remoteIP;
   short port;
   int http_version_major;
   int http_version_minor;
 
-  typedef std::map<std::string, std::string, my_iless> HeaderMap;
-  HeaderMap headerMap;
-  std::vector<HeaderMap::iterator> headerOrder;
+  typedef std::list<Header> HeaderList;
+  HeaderList headers;
   ::int64_t contentLength;
   int webSocketVersion;
 
@@ -82,13 +99,13 @@ public:
   Wt::WSslInfo *sslInfo() const;
 
   void reset();
+  void process();
 
   bool closeConnection() const;
   bool acceptGzipEncoding() const;
   void enableWebSocket();
-  std::string getHeader(const std::string& name) const;
-
-  void transmitHeaders(std::ostream& out) const;
+  const Header *getHeader(const std::string& name) const;
+  const Header *getHeader(const char *name) const;
 };
 
 } // namespace server

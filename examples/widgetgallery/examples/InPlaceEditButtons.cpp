@@ -5,14 +5,6 @@
 SAMPLE_BEGIN(InPlaceEditButtons)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-Wt::WText *out = new Wt::WText(container);
-out->setMargin(10, Wt::Right);
-
 Wt::WInPlaceEdit *ipe = new Wt::WInPlaceEdit("This is editable text", container);
-ipe->setEmptyText("You deleted the text!");
-
-ipe->valueChanged().connect(std::bind([=] () {
-    out->setText("In-place edit is set to... ");
-}));
-
+ipe->setPlaceholderText("Enter something");
 SAMPLE_END(return container)

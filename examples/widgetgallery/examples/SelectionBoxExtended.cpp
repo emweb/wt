@@ -23,6 +23,7 @@ sb2->setSelectedIndexes(selection);
 sb2->setMargin(10, Wt::Right);
 
 Wt::WText *out = new Wt::WText(container);
+out->addStyleClass("help-block");
 
 sb2->activated().connect(std::bind([=] () {
     Wt::WString selected;

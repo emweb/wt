@@ -6,8 +6,6 @@
 SAMPLE_BEGIN(SimpleForm)
 Wt::WTemplate *result =
     new Wt::WTemplate(Wt::WString::tr("simpleForm-template"));
-result->addFunction("tr", &Wt::WTemplate::Functions::tr);
-result->addFunction("id", &Wt::WTemplate::Functions::id);
 
 Wt::WLineEdit *name = new Wt::WLineEdit();
 result->bindWidget("name", name);

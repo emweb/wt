@@ -13,6 +13,7 @@ cb->setCurrentIndex(1); // Show 'Medium' initially.
 cb->setMargin(10, Wt::Right);
 
 Wt::WText *out = new Wt::WText(container);
+out->addStyleClass("help-block");
 
 cb->changed().connect(std::bind([=] () {
     out->setText(Wt::WString::fromUTF8("You selected {1}.")

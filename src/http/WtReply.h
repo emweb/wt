@@ -32,6 +32,10 @@ class WtReply : public Reply
 public:
   WtReply(const Request& request, const Wt::EntryPoint& ep,
 	  const Configuration &config);
+
+  virtual void reset(const Wt::EntryPoint *ep);
+  virtual void writeDone(bool success);
+
   ~WtReply();
 
   virtual void consumeData(Buffer::const_iterator begin,
@@ -59,9 +63,9 @@ public:
   std::string urlScheme() const { return urlScheme_; }
 
 protected:
-  const Wt::EntryPoint& entryPoint_;
-  std::iostream *in_;
+  const Wt::EntryPoint *entryPoint_;
   std::stringstream in_mem_;
+  std::iostream *in_;
   std::string requestFileName_;
   boost::asio::streambuf out_buf_;
   std::ostream out_;
@@ -81,7 +85,7 @@ protected:
   virtual std::string location();
   virtual ::int64_t contentLength();
 
-  virtual void nextContentBuffers(std::vector<asio::const_buffer>& result);
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result);
 
 private:
   void readRestWebSocketHandshake();

@@ -45,25 +45,25 @@ public:
 
   virtual void setRedirect(const std::string& url);
 
-  virtual std::string headerValue(const std::string& name) const;
+  virtual const char *headerValue(const char *name) const;
 
-  virtual std::string envValue(const std::string& name) const;
+  virtual const char *envValue(const char *name) const;
 
-  virtual std::string scriptName() const;
+  virtual const std::string &scriptName() const;
 
-  virtual std::string serverName() const;
+  virtual const std::string &serverName() const;
 
-  virtual std::string requestMethod() const;
+  virtual const char *requestMethod() const;
 
-  virtual std::string queryString() const;
+  virtual const std::string &queryString() const;
 
-  virtual std::string serverPort() const;
+  virtual const std::string &serverPort() const;
 
-  virtual std::string pathInfo() const;
+  virtual const std::string &pathInfo() const;
 
-  virtual std::string remoteAddr() const;
+  virtual const std::string &remoteAddr() const;
 
-  virtual std::string urlScheme() const;
+  virtual const char *urlScheme() const;
 
   virtual WSslInfo *sslInfo() const;
 
@@ -102,6 +102,15 @@ private:
   bool headerSent_;
   void sendHeader();
   enum {HTTP_1_0, HTTP_1_1} version_;
+
+  // Returns a reference to a string that's safe to use until this object is
+  // deleted (we used to return by value but the built-in httpd optimizations
+  // required a different approach)
+  std::string *persistentEnvValue(const char *name) const;
+
+  // storage used by persistentEnvValue
+  mutable std::vector<std::string *> strings_;
+  std::string emptyString_;
 };
 
 }

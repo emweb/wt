@@ -69,7 +69,7 @@ Wt::WContainerWidget *container = new Wt::WContainerWidget();
 Wt::WPushButton *button = new Wt::WPushButton("Jump", container);
 
 Wt::WText *out = new Wt::WText(container);
-out->setStyleClass("help-inline");
+out->setStyleClass("help-block");
 
 button->clicked().connect(std::bind([=] () {
       showDialog(out);

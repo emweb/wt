@@ -264,7 +264,6 @@ int Configuration::maxNumSessions() const
 
 ::int64_t Configuration::maxRequestSize() const
 {
-  READ_LOCK;
   return maxRequestSize_;
 }
 
@@ -372,7 +371,6 @@ bool Configuration::serializedEvents() const
 
 bool Configuration::webSockets() const
 {
-  READ_LOCK;
   return webSockets_;
 }
 

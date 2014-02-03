@@ -5,18 +5,16 @@
 #include <Wt/WToolBar>
 
 namespace {
-
-extern 
-Wt::WPushButton *createColorButton(const char *className,
-				   const Wt::WString& text)
-{
-    Wt::WPushButton *button = new Wt::WPushButton();
-    button->setTextFormat(Wt::XHTMLText);
-    button->setText(text);
-    button->addStyleClass(className);
-    return button;
-}
-
+    extern 
+    Wt::WPushButton *createColorButton(const char *className,
+				       const Wt::WString& text)
+    {
+        Wt::WPushButton *button = new Wt::WPushButton();
+	button->setTextFormat(Wt::XHTMLText);
+	button->setText(text);
+	button->addStyleClass(className);
+	return button;
+    }
 }
 
 SAMPLE_BEGIN(ToolBar)

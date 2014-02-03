@@ -159,6 +159,7 @@
 }
 
 .modal .Wt-msgbox-text {
+    overflow: auto;
 }
 
 /*
@@ -177,11 +178,11 @@
 }
 
 .Wt-hrh2 {
-    background: url(splitter-v.png) no-repeat 50% 50% #EEE;
+    background: url(../splitter-v.png) no-repeat 50% 50% #EEE;
 }
 
 .Wt-vrh2 {
-    background: url(splitter-h.png) no-repeat 50% 50% #EEE;
+    background: url(../splitter-h.png) no-repeat 50% 50% #EEE;
 }
 
 .Wt-hsh2, .Wt-vsh2, 
@@ -210,6 +211,10 @@
 
     .Wt-cal-navbutton {
         display: block;
+    }
+
+    .Wt-cal-now {
+	background-color: lightgray;
     }
 
     .days.d1 td {
@@ -502,7 +507,7 @@
     border: 1px solid @tableBorder;
 
     .Wt-spacer {
-	background: url(../../loading.png);
+	background: url(../../../loading.png);
     }
 
     /* header */
@@ -567,15 +572,15 @@
     }
 
     .Wt-tv-sh-none {
-	background: url(sort-arrow-none.gif) no-repeat 0 6px;
+	background: url(../sort-arrow-none.gif) no-repeat 0 6px;
     }
 
     .Wt-tv-sh-up {
-	background: url(sort-arrow-up.gif) no-repeat 0 6px;
+	background: url(../sort-arrow-up.gif) no-repeat 0 6px;
     }
 
     .Wt-tv-sh-down {
-	background: url(sort-arrow-down.gif) no-repeat 0 6px;
+	background: url(../sort-arrow-down.gif) no-repeat 0 6px;
     }
 
     .active {
@@ -719,7 +724,7 @@ body.Wt-rtl {
     }
 
     &.Wt-trunk, .Wt-item.Wt-trunk {
-	background-image: url(../../line-trunk.gif);
+	background-image: url(../../../line-trunk.gif);
 	background-repeat: repeat-y;
     }
 
@@ -728,7 +733,7 @@ body.Wt-rtl {
     }
 
     .Wt-item.Wt-end {
-	background-image: url(../../line-last.gif);
+	background-image: url(../../../line-last.gif);
 	background-repeat: no-repeat;
 	background-position: 0 0;
     }
@@ -747,7 +752,7 @@ body.Wt-rtl {
 	height: 19px;
 
 	&.Wt-noexpand {
-	    background: url(../../line-middle.gif) no-repeat 0 0;
+	    background: url(../../../line-middle.gif) no-repeat 0 0;
 	}
 
 	img {
@@ -845,12 +850,12 @@ body.Wt-rtl {
 
     /* nodes */
     .Wt-trunk {
-	background-image: url(../../line-trunk.gif);
+	background-image: url(../../../line-trunk.gif);
 	background-repeat: repeat-y;
     }
 
     .Wt-end {
-	background-image: url(../../tv-line-last.gif);
+	background-image: url(../../../tv-line-last.gif);
 	background-repeat: no-repeat;
 	background-position: 0 center;
     }
@@ -860,15 +865,15 @@ body.Wt-rtl {
 	width: 19px;
 
 	&.expand {
-	    background: url(nav-plus.gif) no-repeat 0 center;
+	    background: url(../nav-plus.gif) no-repeat 0 center;
 	}
 
 	&.collapse {
-	    background: url(nav-minus.gif) no-repeat 0 center;
+	    background: url(../nav-minus.gif) no-repeat 0 center;
 	}
 
 	&.noexpand {
-	    background: url(../../line-middle.gif) no-repeat 0 center;
+	    background: url(../../../line-middle.gif) no-repeat 0 center;
 	}
     }
 }
@@ -906,20 +911,20 @@ body.Wt-rtl {
 	}
 
 	.Wt-end {
-	    background-image: url(../../tv-line-last-rtl.gif);
+	    background-image: url(../../../tv-line-last-rtl.gif);
 	}
 
 	.Wt-ctrl {
 	    &.expand {
-		background: url(nav-plus-rtl.gif) no-repeat 0 center;
+		background: url(../nav-plus-rtl.gif) no-repeat 0 center;
 	    }
 
 	    &.collapse {
-		background: url(nav-minus-rtl.gif) no-repeat 0 center;
+		background: url(../nav-minus-rtl.gif) no-repeat 0 center;
 	    }
 
 	    &.noexpand {
-		background: url(../../line-middle-rtl.gif) no-repeat 0 center;
+		background: url(../../../line-middle-rtl.gif) no-repeat 0 center;
 	    }
 	}
     }

@@ -62,7 +62,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
     return;
   }
 
-  event_ = &e;
+  event_ = &event;
 
   done_ = false;
   {

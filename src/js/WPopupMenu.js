@@ -50,8 +50,12 @@ WT_DECLARE_WT_MEMBER
        menu.parentNode.removeChild(menu);
        el.parentNode.appendChild(menu);
      }
-     WT.positionAtWidget(menu.id, menu.parentItem.id, WT.Horizontal,
-			 - WT.px(menu, 'paddingTop'));
+     /*
+      * we actually want to align the first item, so we need to adjust
+      * for the menu padding and border
+      */
+     var margin =  WT.px(menu, 'paddingTop') + WT.px(menu, 'borderTopWidth')
+     WT.positionAtWidget(menu.id, menu.parentItem.id, WT.Horizontal, -margin);
      setOthersInactive(menu, null);
    }
 

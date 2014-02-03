@@ -28,7 +28,7 @@
 
 #include <QThread>
 
-class HelloApplication;
+class Dictionary;
 
 /*! \class QtObject
  *  \brief A simple Qt object with sample signal and slot.
@@ -41,7 +41,7 @@ class QtObject : public QObject
   Q_OBJECT;
 
 public:
-  QtObject(HelloApplication *wt_, QObject *parent = 0);
+  QtObject(Dictionary *wt_, QObject *parent = 0);
 
   void passGreet(const QString&);
 
@@ -52,7 +52,7 @@ public slots:
   void doGreet(const QString&);
 
 private:
-  HelloApplication *wt_;
+  Dictionary *wt_;
 };
 
 #endif // QTOBJECT_H_

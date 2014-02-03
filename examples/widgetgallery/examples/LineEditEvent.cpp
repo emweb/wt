@@ -6,13 +6,13 @@ SAMPLE_BEGIN(LineEditEvent)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WLineEdit *edit = new Wt::WLineEdit(container);
-edit->setEmptyText("Edit me");
-edit->setMargin(10, Wt::Right);
+edit->setPlaceholderText("Edit me");
 
 Wt::WText *out = new Wt::WText("", container);
+out->addStyleClass("help-block");
 
 edit->keyPressed().connect(std::bind([=] (const Wt::WKeyEvent& e) {
-    out->setText("Line edit: You pressed the '" + e.text() + "' key.");
+    out->setText("You pressed the '" + e.text() + "' key.");
 }, std::placeholders::_1));
 
 SAMPLE_END(return container)

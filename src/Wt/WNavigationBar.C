@@ -10,6 +10,10 @@
 #include "Wt/WMenu"
 #include "Wt/WNavigationBar"
 #include "Wt/WPushButton"
+#include "Wt/WBootstrapTheme"
+#include "Wt/WTheme"
+
+#include <exception>
 
 namespace Wt {
 
@@ -41,8 +45,6 @@ public:
 WNavigationBar::WNavigationBar(WContainerWidget *parent)
   : WTemplate(tr("Wt.WNavigationBar.template"), parent)
 {
-  setStyleClass("navbar");
-
   bindEmpty("collapse-button");
   bindEmpty("expand-button");
   bindEmpty("title-link");
@@ -61,7 +63,7 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
 
   if (!titleLink) {
     bindWidget("title-link", titleLink = new WAnchor());
-    titleLink->addStyleClass("brand");
+    wApp->theme()->apply(this, titleLink, NavBrandRole);
   }
   
   titleLink->setText(title);
@@ -90,7 +92,8 @@ void WNavigationBar::setResponsive(bool responsive)
 				      &WNavigationBar::expandContents);
     }
 
-    contents->addStyleClass("nav-collapse");
+    wApp->theme()->apply(this, contents, NavCollapseRole);
+
     contents->hide();
 
     /* Comply with bootstrap responsive CSS assumptions */
@@ -102,13 +105,13 @@ void WNavigationBar::setResponsive(bool responsive)
        "}");
   } else {
     bindEmpty("collapse-button");
-    contents->removeStyleClass("nav-collapse");
   }
 }
 
 void WNavigationBar::addMenu(WMenu *menu, AlignmentFlag alignment)
 {
-  addWidget((WWidget *)menu, alignment);
+  addWidget((WWidget *)menu, alignment);  
+  wApp->theme()->apply(this, menu, NavbarMenuRole);
 }
 
 void WNavigationBar::addFormField(WWidget *widget, AlignmentFlag alignment)
@@ -139,11 +142,21 @@ void WNavigationBar::addWrapped(WWidget *widget, AlignmentFlag alignment,
   wrap->addWidget(widget);
 }
 
+void WNavigationBar::addWrapped(WWidget *widget, WWidget* parent, int role,
+                AlignmentFlag alignment)
+{
+  WContainerWidget *contents = resolve<WContainerWidget *>("contents");
+
+  WContainerWidget *wrap = new WContainerWidget(contents);
+  wApp->theme()->apply(widget, parent, role);
+  align(wrap, alignment);
+  wrap->addWidget(widget);
+}
+
 void WNavigationBar::addSearch(WLineEdit *field, AlignmentFlag alignment)
 {
-  field->addStyleClass("search-query");
-
-  addWrapped(field, alignment, "navbar-search");
+  wApp->theme()->apply(this, field, NavbarSearchRole);
+  addWrapped(field, alignment, "navbar-form");
 }
 
 void WNavigationBar::align(WWidget *widget, AlignmentFlag alignment)
@@ -225,7 +238,7 @@ WInteractWidget *WNavigationBar::createExpandButton()
 {
   WPushButton *result = new WPushButton(tr("Wt.WNavigationBar.expand-button"));
   result->setTextFormat(XHTMLText);
-  result->setStyleClass("btn-navbar");
+  wApp->theme()->apply(this, result, NavbarBtn);
   return result;
 }
 

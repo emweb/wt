@@ -18,21 +18,6 @@ TreesTables::TreesTables():
   TopicWidget()
 {
   addText(tr("mvc-intro"), this);
-
-#if 0
-  stringList_ = new WStringListModel(this);
-  std::vector<WString> strings;
-  strings.push_back("Alfa");
-  strings.push_back("Bravo");
-  strings.push_back("Charly");
-  strings.push_back("Delta");
-  strings.push_back("Echo");
-  strings.push_back("Foxtrot");
-  strings.push_back("Golf");
-  strings.push_back("Hotel");
-  strings.push_back("Indiana Jones");
-  stringList_->setStringList(strings);
-#endif
 }
 
 void TreesTables::populateSubMenu(Wt::WMenu *menu)
@@ -107,10 +92,12 @@ Wt::WWidget *TreesTables::tableViews()
   return result;  
 }
 
+#ifndef GIT_REPOSITORY
 #ifndef WT_TARGET_JAVA
 #define GIT_REPOSITORY "../../.git"
 #else
 #define GIT_REPOSITORY "/home/koen/git/jwt"
+#endif
 #endif
 
 #ifndef _WIN32

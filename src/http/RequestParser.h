@@ -57,7 +57,7 @@ public:
 
 private:
   /// Handle the next character of input.
-  boost::tribool& consume(Request& req, char input);
+  boost::tribool& consume(Request& req, Buffer::iterator input);
 
   /// Check if a byte is an HTTP character.
   static bool is_char(int c);
@@ -71,9 +71,9 @@ private:
   /// Check if a byte is a digit.
   static bool is_digit(int c);
 
-  bool consumeChar(char input);
-  void consumeToString(std::string& result, int maxSize);
-  void consumeComplete();
+  bool consumeChar(Buffer::iterator d);
+  void consumeToString(buffer_string& result, int maxSize);
+  void consumeComplete(Buffer::iterator d);
 
   Request::State parseWebSocketMessage(Request& req, ReplyPtr reply,
 				       Buffer::iterator& begin,
@@ -81,9 +81,7 @@ private:
 
   bool doWebSocketHandshake00(const Request& req);
   std::string doWebSocketHandshake13(const Request& req);
-  bool parseCrazyWebSocketKey(const std::string& key, ::uint32_t& number);
-
-  Server *server_;
+  bool parseCrazyWebSocketKey(const buffer_string& key, ::uint32_t& number);
 
   /// The current state of the request parser.
   enum http_state
@@ -131,18 +129,18 @@ private:
   unsigned char wsCount_;
   unsigned wsMask_;
 
-  std::string  headerName_;
-  std::string  headerValue_;
+  // used for ws00 handshake
+  char ws00_buf_[16];
 
-  ::uint64_t   requestSize_;
+  ::uint64_t requestSize_;
 
   // used for HTTP POST body and ws frame/payload length
-  ::int64_t    remainder_;
+  ::int64_t remainder_;
 
-  char         buf_[4096];
-  unsigned     buf_ptr_;
-  std::string *dest_;
-  unsigned     maxSize_;
+  // used for HTTP preamble + header parsing
+  buffer_string *currentString_;
+  unsigned maxSize_;
+  bool haveHeader_;
 };
 
 } // namespace server

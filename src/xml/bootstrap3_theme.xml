@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+  <message id="Wt.Auth.field">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group">
+      <label for="${id:{1}}" class="control-label col-sm-2">
+        ${tr:Wt.Auth.{1}}
+      </label>
+      <div class="col-sm-5">
+	${{1}}
+      </div>
+      <div class="help-block col-sm-5">
+        ${{1}-info}
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.WNavigationBar.template">
+    <div>
+      ${collapse-button}
+      <div class="navbar-header">
+	${expand-button}
+	${title-link}
+      </div>
+      ${contents}
+    </div>
+  </message>
+
+</messages>

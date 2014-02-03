@@ -25,6 +25,10 @@ tt {
     color: #528B12;
 }
 
+.submenu {
+    overflow: auto;
+}
+
 .trhead {
     font-family: sans-serif;
     font-size: 10pt;
@@ -193,9 +197,9 @@ div.contents {
 }
 
 .example {
-    border: 1px solid #E5E5E5;
+    border: 1px solid #A9D2F5;
     padding: 10px;
-    margin: 14px 0px;
+    margin: 14px 14px;
 }
 
 .example > legend {
@@ -214,13 +218,13 @@ div.contents {
     font-size: 85%;
     line-height: 24px;
     border-bottom: 0px;
-    border-top: 1px solid #E5E5E5;
+    border-top: 1px solid #A9D2F5;
     margin-bottom: 0px;
 }
 
 .src pre {
     border: 0px;
-    background-color: whiteSmoke;
+    background-color: #fcfcfc;
     margin-bottom: 0px;
 }
 

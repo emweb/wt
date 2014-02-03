@@ -168,4 +168,10 @@
       <b>${user-name}</b> ${logout}
     </div>
   </message>
+
+  <message id="Wt.DatePicker.template">
+    ${edit}
+    ${img}
+  </message>
+
 </messages>

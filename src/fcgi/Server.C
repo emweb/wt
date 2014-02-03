@@ -414,8 +414,6 @@ bool Server::writeToSocket(int socket, const unsigned char *buf, int bufsize)
 void Server::handleRequest(int serverSocket)
 {
   int clientSocket = -1;
-  bool debug = false;
-
   try {
     /*
      * handle a new request
@@ -473,7 +471,7 @@ void Server::handleRequest(int serverSocket)
 	&& !cookies.empty() && !scriptName.empty()
 	&& !conf.reloadIsNewSession()) {
       std::string cookieSessionId
-	= WebController::sessionFromCookie(cookies, scriptName,
+	= WebController::sessionFromCookie(cookies.c_str(), scriptName,
 					   conf.sessionIdLength());
       if (!cookieSessionId.empty()) {
 	sessionId = cookieSessionId;
@@ -532,7 +530,7 @@ void Server::handleRequest(int serverSocket)
 	  exit(1);
 	} else if (pid == 0) {
 	  /* the child process */
-	  execChild(debug, sessionId);
+	  execChild(true, sessionId);
 	  exit(1);
 	} else {
 	  LOG_INFO_S(&wt_, "spawned dedicated process for " << sessionId

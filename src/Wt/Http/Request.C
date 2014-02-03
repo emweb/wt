@@ -22,6 +22,12 @@
 
 namespace {
   std::stringstream emptyStream;
+
+  namespace {
+    inline std::string str(const char *s) {
+      return s ? std::string(s) : std::string();
+    }
+  }
 }
 
 namespace Wt {
@@ -125,7 +131,7 @@ const UploadedFile *Request::getUploadedFile(const std::string& name) const
 
 std::string Request::method() const
 {
-  return request_ ? request_->requestMethod() : "GET";
+  return request_ ? str(request_->requestMethod()) : str("GET");
 }
 
 std::string Request::serverName() const
@@ -160,7 +166,7 @@ std::string Request::urlScheme() const
 
 std::string Request::headerValue(const std::string& field) const
 {
-  return request_ ? request_->headerValue(field) : std::string();
+  return request_ ? str(request_->headerValue(field.c_str())) : std::string();
 }
 
 ::int64_t Request::tooLarge() const
@@ -180,7 +186,7 @@ std::istream& Request::in() const
 
 std::string Request::contentType() const
 {
-  return request_ ? request_->contentType() : std::string();
+  return request_ ? str(request_->contentType()) : std::string();
 }
 
 int Request::contentLength() const
@@ -190,7 +196,7 @@ int Request::contentLength() const
 
 std::string Request::userAgent() const
 {
-  return request_ ? request_->userAgent() : std::string();
+  return request_ ? str(request_->userAgent()) : std::string();
 }
 
 std::string Request::clientAddress() const
@@ -331,9 +337,9 @@ Request::Request(const WebRequest& request, ResponseContinuation *continuation)
     files_(request.uploadedFiles()),
     continuation_(continuation),
     sslInfo_(0)
-{ 
-  std::string cookie = headerValue("Cookie");
-  if (!cookie.empty())
+{
+  const char *cookie = request_->headerValue("Cookie");
+  if (cookie)
     parseCookies(cookie, cookies_);
 }
 
@@ -343,11 +349,7 @@ Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)
     files_(files),
     continuation_(0),
     sslInfo_(0)
-{
-  std::string cookie = headerValue("Cookie");
-  if (!cookie.empty())
-    parseCookies(cookie, cookies_);
-}
+{ }
 
 Request::~Request()
 {

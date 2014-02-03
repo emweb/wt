@@ -91,6 +91,7 @@ public:
   void setApplication(WApplication *app);
 
 #ifndef WT_TARGET_JAVA
+  WLogger& logInstance() const;
   WLogEntry log(const std::string& type) const;
 #endif // WT_TARGET_JAVA
 
@@ -246,8 +247,9 @@ public:
 private:
   void handleWebSocketRequest(Handler& handler);
   static void handleWebSocketMessage(boost::weak_ptr<WebSession> session,
-				     WebRequest::ReadEvent event);
-  static void webSocketReady(boost::weak_ptr<WebSession> session);
+				     WebReadEvent event);
+  static void webSocketReady(boost::weak_ptr<WebSession> session,
+			     WebWriteEvent event);
 
   void checkTimers();
   void hibernate();

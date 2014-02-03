@@ -156,6 +156,9 @@
   width: 25px;
   height: 35px;
 }
+.modal .Wt-msgbox-text {
+  overflow: auto;
+}
 /*
  * Non-bootstrap widgets
  */
@@ -171,10 +174,10 @@
   cursor: col-resize;
 }
 .Wt-hrh2 {
-  background: url(splitter-v.png) no-repeat 50% 50% #eeeeee;
+  background: url(../splitter-v.png) no-repeat 50% 50% #eeeeee;
 }
 .Wt-vrh2 {
-  background: url(splitter-h.png) no-repeat 50% 50% #eeeeee;
+  background: url(../splitter-h.png) no-repeat 50% 50% #eeeeee;
 }
 .Wt-hsh2,
 .Wt-vsh2,
@@ -196,6 +199,9 @@
 }
 .Wt-cal .Wt-cal-navbutton {
   display: block;
+}
+.Wt-cal .Wt-cal-now {
+  background-color: lightgray;
 }
 .Wt-cal .days.d1 td {
   width: 20px;
@@ -246,6 +252,7 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
@@ -552,7 +559,7 @@
 
 }
 .Wt-itemview .Wt-spacer {
-  background: url(../../loading.png);
+  background: url(../../../loading.png);
 }
 .Wt-itemview .Wt-headerdiv {
   -moz-user-select: none;
@@ -603,13 +610,13 @@
   background-color: #999999;
 }
 .Wt-itemview .Wt-tv-sh-none {
-  background: url(sort-arrow-none.gif) no-repeat 0 6px;
+  background: url(../sort-arrow-none.gif) no-repeat 0 6px;
 }
 .Wt-itemview .Wt-tv-sh-up {
-  background: url(sort-arrow-up.gif) no-repeat 0 6px;
+  background: url(../sort-arrow-up.gif) no-repeat 0 6px;
 }
 .Wt-itemview .Wt-tv-sh-down {
-  background: url(sort-arrow-down.gif) no-repeat 0 6px;
+  background: url(../sort-arrow-down.gif) no-repeat 0 6px;
 }
 .Wt-itemview .active {
   color: #ffffff;
@@ -725,14 +732,14 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
 }
 .Wt-tree.Wt-trunk,
 .Wt-tree .Wt-item.Wt-trunk {
-  background-image: url(../../line-trunk.gif);
+  background-image: url(../../../line-trunk.gif);
   background-repeat: repeat-y;
 }
 .Wt-tree .Wt-item {
   *zoom: 1;
 }
 .Wt-tree .Wt-item.Wt-end {
-  background-image: url(../../line-last.gif);
+  background-image: url(../../../line-last.gif);
   background-repeat: no-repeat;
   background-position: 0 0;
 }
@@ -749,7 +756,7 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
   height: 19px;
 }
 .Wt-tree .Wt-ctrl.Wt-noexpand {
-  background: url(../../line-middle.gif) no-repeat 0 0;
+  background: url(../../../line-middle.gif) no-repeat 0 0;
 }
 .Wt-tree .Wt-ctrl img {
   vertical-align: top;
@@ -829,11 +836,11 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
   *zoom: 1;
 }
 .Wt-treeview .Wt-trunk {
-  background-image: url(../../line-trunk.gif);
+  background-image: url(../../../line-trunk.gif);
   background-repeat: repeat-y;
 }
 .Wt-treeview .Wt-end {
-  background-image: url(../../tv-line-last.gif);
+  background-image: url(../../../tv-line-last.gif);
   background-repeat: no-repeat;
   background-position: 0 center;
 }
@@ -842,13 +849,13 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
   width: 19px;
 }
 .Wt-treeview .Wt-ctrl.expand {
-  background: url(nav-plus.gif) no-repeat 0 center;
+  background: url(../nav-plus.gif) no-repeat 0 center;
 }
 .Wt-treeview .Wt-ctrl.collapse {
-  background: url(nav-minus.gif) no-repeat 0 center;
+  background: url(../nav-minus.gif) no-repeat 0 center;
 }
 .Wt-treeview .Wt-ctrl.noexpand {
-  background: url(../../line-middle.gif) no-repeat 0 center;
+  background: url(../../../line-middle.gif) no-repeat 0 center;
 }
 body.Wt-rtl .Wt-treeview .Wt-tv-row {
   float: left;
@@ -875,16 +882,16 @@ body.Wt-rtl .Wt-treeview ul .Wt-tv-row .Wt-tv-c {
   border-left: 1px solid #dddddd;
 }
 body.Wt-rtl .Wt-treeview .Wt-end {
-  background-image: url(../../tv-line-last-rtl.gif);
+  background-image: url(../../../tv-line-last-rtl.gif);
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
-  background: url(nav-plus-rtl.gif) no-repeat 0 center;
+  background: url(../nav-plus-rtl.gif) no-repeat 0 center;
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
-  background: url(nav-minus-rtl.gif) no-repeat 0 center;
+  background: url(../nav-minus-rtl.gif) no-repeat 0 center;
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
-  background: url(../../line-middle-rtl.gif) no-repeat 0 center;
+  background: url(../../../line-middle-rtl.gif) no-repeat 0 center;
 }
 /*
  * WTreeView and WTableView default paging bar

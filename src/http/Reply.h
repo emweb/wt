@@ -34,7 +34,9 @@ namespace asio = boost::asio;
 #include <zlib.h>
 #endif
 
+#include "Wt/WStringStream"
 #include "Wt/WLogger"
+#include "../web/Configuration.h"
 
 #include "Buffer.h"
 #include "WHttpDllDefs.h"
@@ -50,13 +52,13 @@ class Reply;
 typedef boost::shared_ptr<Connection> ConnectionPtr;
 typedef boost::shared_ptr<Reply> ReplyPtr;
 
-typedef boost::weak_ptr<Connection> ConnectionWeakPtr;
-
 class WTHTTP_API Reply : public boost::enable_shared_from_this<Reply>
 {
 public:
   Reply(const Request& request, const Configuration& config);
   virtual ~Reply();
+
+  virtual void reset(const Wt::EntryPoint *ep);
 
   enum status_type
   {
@@ -94,6 +96,8 @@ public:
     pong = 0xA,
   };
 
+  virtual void writeDone(bool success);
+
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
 			   Request::State state) = 0;
@@ -104,6 +108,7 @@ public:
 				       Request::State state);
 
   void setConnection(ConnectionPtr connection);
+  bool nextWrappedContentBuffers(std::vector<asio::const_buffer>& result);
   bool nextBuffers(std::vector<asio::const_buffer>& result);
   bool closeConnection() const;
   void setCloseConnection() { closeConnection_ = true; }
@@ -122,28 +127,25 @@ public:
 protected:
   const Request& request_;
   const Configuration& configuration_;
-  std::string remoteAddress_;
-  std::string requestMethod_;
-  std::string requestUri_;
-  int requestMajor_, requestMinor_;
 
   virtual std::string contentType() = 0;
   virtual std::string location();
   virtual ::int64_t contentLength() = 0;
 
-  virtual void nextContentBuffers(std::vector<asio::const_buffer>& result) = 0;
+  virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result)
+    = 0;
 
   void setRelay(ReplyPtr reply);
 
   static std::string httpDate(time_t t);
 
-  ConnectionPtr getConnection() { return connection_.lock(); }
+  ConnectionPtr connection() const { return connection_; }
   bool transmitting() const { return transmitting_; }
 
 private:
   std::vector<std::pair<std::string, std::string> > headers_;
 
-  ConnectionWeakPtr connection_;
+  ConnectionPtr connection_;
 
   status_type status_;
   bool transmitting_;
@@ -155,13 +157,14 @@ private:
   ::int64_t contentOriginalSize_;
 
   ReplyPtr relay_;
-  std::list<std::string> bufs_;
 
-  char gather_buf_[100];
+  Wt::WStringStream buf_;
+  Wt::WStringStream postBuf_;
+  std::vector<std::string> bufs_;
 
   asio::const_buffer buf(const std::string s);
 
-  void encodeNextContentBuffer(std::vector<asio::const_buffer>& result,
+  bool encodeNextContentBuffer(std::vector<asio::const_buffer>& result,
 			       int& originalSize, int& encodedSize);
 #ifdef WTHTTP_WITH_ZLIB
   void initGzip();

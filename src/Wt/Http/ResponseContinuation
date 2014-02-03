@@ -7,7 +7,7 @@
 #ifndef HTTP_RESPONSE_CONTINUATION_H_
 #define HTTP_RESPONSE_CONTINUATION_H_
 
-#include <Wt/WDllDefs.h>
+#include <Wt/WGlobal>
 #include <boost/any.hpp>
 
 namespace Wt {
@@ -79,7 +79,7 @@ public:
   /*
    * Only useful for server-side events: force continuation.
    */
-  void doContinue();
+  void doContinue(WebWriteEvent event);
 
 private:
   WResource *resource_;
@@ -92,7 +92,7 @@ private:
   ~ResponseContinuation();
 
   void stop();
-  void flagReadyToContinue();
+  void flagReadyToContinue(WebWriteEvent);
   WebResponse *response() { return response_; }
 
   friend class Wt::WResource;

@@ -186,8 +186,8 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
   request_ = &request;
 
   ::int64_t len = request.contentLength();
-  std::string type = request.contentType();
-  std::string meth = request.requestMethod();
+  const char *type = request.contentType();
+  const char *meth = request.requestMethod();
 
   request.postDataExceeded_ = (len > maxPostData_ ? len : 0);
 
@@ -195,10 +195,11 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
 
   // XDomainRequest cannot set a contentType header, we therefore pass it
   // as a request parameter
-  if (readOption != ReadHeadersOnly && meth == "POST"
-      && (type.find("application/x-www-form-urlencoded") == 0
-	  || queryString.find("&contentType=x-www-form-urlencoded")
-	  != std::string::npos)) {
+  if (readOption != ReadHeadersOnly &&
+      strcmp(meth, "POST") == 0 &&
+      ((type && strstr(type, "application/x-www-form-urlencoded") == type) ||
+       (queryString.find("&contentType=x-www-form-urlencoded") != 
+	std::string::npos))) {
     /*
      * TODO: parse this stream-based to avoid the malloc here. For now
      * we protect the maximum that can be POST'ed as form data.
@@ -232,9 +233,11 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
   if (!queryString.empty())
     Http::Request::parseFormUrlEncoded(queryString, request_->parameters_);
 
-  if (readOption != ReadHeadersOnly && type.find("multipart/form-data") == 0) {
-    if (meth != "POST") {
-      throw WException("Invalid method for multipart/form-data: " + meth);
+  if (readOption != ReadHeadersOnly &&
+      type && strstr(type, "multipart/form-data") == type) {
+    if (strcmp(meth, "POST") != 0) {
+      throw WException("Invalid method for multipart/form-data: "
+		       + std::string(meth));
     }
 
     if (!request.postDataExceeded_)
