@@ -1,0 +1,215 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2014 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_JSON_H_
+#define WT_DBO_JSON_H_
+
+#include <ostream>
+#include <sstream>
+
+#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/collection>
+#include <Wt/Dbo/Field>
+
+#include <boost/type_traits/is_enum.hpp>
+#include <boost/utility/enable_if.hpp>
+
+namespace Wt {
+  namespace Dbo {
+    namespace Wt {
+      class EscapeOStream;
+    }
+
+/*! \class JsonSerializer Wt/Dbo/Json Wt/Dbo/Json
+ *  \brief An action to serialize Dbo objects.
+ *
+ *  This class is an action that serializes Dbo objects, that is:
+ *  objects that have the persist method.
+ *
+ *  Currently only the serializer exists. The plan is to have
+ *  a corresponding deserializer in the future.
+ *
+ * \ingroup dbo
+ */
+class JsonSerializer
+{
+public:
+    /*! \brief Creates a %JsonSerializer that writes to an ostream
+     *
+     * Creates a %JsonSerializer that writes to the given ostream.
+     * Note that the ostream is not flushed to automatically, only
+     * when the serializer is destructed, it will be flushed to.
+     */
+    JsonSerializer(std::ostream& out);
+
+    /*! \brief Destructor
+     */
+    virtual ~JsonSerializer();
+
+    template<typename T>
+    typename boost::disable_if< boost::is_enum<T>, void>::type
+    act(FieldRef<T> field);
+
+    template<typename T>
+    typename boost::enable_if< boost::is_enum<T>, void>::type
+    act(FieldRef<T> field) {
+      writeFieldName(field.name());
+      out(static_cast<int>(field.value()));
+    }
+
+    void act(FieldRef<std::string> field);
+    void act(FieldRef<int> field);
+    void act(FieldRef<long long> field);
+    void act(FieldRef<bool> field);
+
+    template<typename T>
+    void actPtr(const PtrRef<T>& field) {
+    }
+
+    template<typename T>
+    void actWeakPtr(const WeakPtrRef<T>& field) {
+    }
+
+    template<typename T>
+    void actCollection(const CollectionRef<T>& collec) {
+    }
+
+    /*! \brief Serialize the given object.
+     *
+     * Serializes a plain object that implements the persist
+     * method.
+     */
+    template<typename T>
+    void serialize(const T& t) {
+      out('{');
+      const_cast<T&>(t).persist(*this);
+      out('}');
+    }
+
+    /*! \brief Serialize the object that is pointed to by the given pointer.
+     *
+     * Serializes a Dbo object pointed to by the given pointer.
+     * This method does the same as the plain object serializer, but
+     * also adds an extra id field.
+     */
+    template<typename T>
+    void serialize(const ptr<T>& t) {
+      out('{');
+      out("\"id\":");
+      outputId(t.id());
+      first_ = false;
+      const_cast<T&>(*t).persist(*this);
+      out('}');
+    }
+
+    /*! \brief Serialize a vector of Dbo pointers.
+     *
+     * Serializes each pointer in the vector individually,
+     * and puts it in an Array.
+     */
+    template<typename T>
+    void serialize(std::vector<ptr<T> >& v) {
+      out('[');
+      for (typename std::vector<ptr<T> >::const_iterator i = v.begin(); i != v.end(); ++i) {
+	if (i != v.begin())
+	  out(',');
+	serialize(*i);
+      }
+      out(']');
+    }
+
+    /*! \brief Serialize a collection of Dbo pointers.
+     *
+     * Serializes each pointer in the collection individually,
+     * and puts it in an Array.
+     *
+     * The typical usage scenario of this method is to serialize
+     * the results of a query to JSON.
+     */
+    template<typename T>
+    void serialize(collection<ptr<T> >& c) {
+      out('[');
+      bool first = true;
+      for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
+	if (first)
+	  first = false;
+	else
+	  out(',');
+	serialize(*i);
+      }
+      out(']');
+    }
+
+private:
+    std::ostream &out_;
+    Wt::EscapeOStream *escapeOut_, *stringLiteral_;
+    bool first_;
+
+    template<typename T>
+    void out(T t);
+
+    template<typename T>
+    void outputId(T id) {
+      std::stringstream ss;
+      ss << id;
+      fastJsStringLiteral(ss.str());
+    }
+    void outputId(long long id) {
+      out(id);
+    }
+
+    void writeFieldName(const std::string& fieldName);
+
+    void fastJsStringLiteral(const std::string& s);
+};
+
+  /*! \brief Serialize the given object to the given ostream.
+   *
+   * \sa JsonSerializer::serialize()
+   */
+  template<typename C>
+  void jsonSerialize(const C& c, std::ostream& out) {
+    JsonSerializer serializer(out);
+    serializer.serialize(c);
+  }
+
+  /*! \brief Serialize the object pointed to by the given pointer
+   * to the given ostream.
+   *
+   * \sa JsonSerializer::serialize()
+   */
+  template<typename C>
+  void jsonSerialize(const ptr<C>& c, std::ostream& out) {
+    JsonSerializer serializer(out);
+    serializer.serialize(c);
+  }
+
+  /*! \brief Serialize a vector of Dbo pointers to the given
+   * ostream.
+   *
+   * \sa JsonSerializer::serialize()
+   */
+  template<typename C>
+  void jsonSerialize(std::vector<ptr<C> >& v, std::ostream& out) {
+    JsonSerializer serializer(out);
+    serializer.serialize(v);
+  }
+
+  /*! \brief Serialize a collection of Dbo pointers to the given
+   * ostream.
+   *
+   * \sa JsonSerializer::serialize()
+   */
+  template<typename C>
+  void jsonSerialize(collection<C>& c, std::ostream& out) {
+    JsonSerializer serializer(out);
+    serializer.serialize(c);
+  }
+
+  }
+}
+
+#endif // WT_DBO_JSON_H_

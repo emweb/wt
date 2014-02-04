@@ -23,10 +23,8 @@
 namespace {
   std::stringstream emptyStream;
 
-  namespace {
-    inline std::string str(const char *s) {
-      return s ? std::string(s) : std::string();
-    }
+  inline std::string str(const char *s) {
+    return s ? std::string(s) : std::string();
   }
 }
 

@@ -4,6 +4,7 @@ ADD_LIBRARY(wtdbo
   DbAction.C
   Exception.C
   FixedSqlConnectionPool.C
+  Json.C
   Query.C
   QueryColumn.C
   SqlQueryParse.C
@@ -15,6 +16,8 @@ ADD_LIBRARY(wtdbo
   StdSqlTraits.C
   Transaction.C
   WtSqlTraits.C
+  EscapeOStream.C
+  StringStream.C
 )
 
 IF(MSVC)

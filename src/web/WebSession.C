@@ -68,6 +68,14 @@ namespace {
   inline std::string str(const char *v) {
     return v ? std::string(v) : std::string();
   }
+
+  inline bool isEqual(const char *s1, const char *s2) {
+#ifdef WT_TARGET_JAVA
+    return s1 == s2;
+#else
+    return strcmp(s1, s2) == 0;
+#endif
+  }
 }
 
 namespace Wt {
@@ -1145,12 +1153,12 @@ void WebSession::handleRequest(Handler& handler)
      * not for a new session.
      */
     if ((wtdE && *wtdE == sessionId_) || state_ == JustCreated) {
-      if (strcmp(origin, "null") == 0)
+      if (isEqual(origin, "null"))
 	origin = "*";
       handler.response()->addHeader("Access-Control-Allow-Origin", origin);
       handler.response()->addHeader("Access-Control-Allow-Credentials", "true");
 
-      if (strcmp(request.requestMethod(), "OPTIONS") == 0) {
+      if (isEqual(request.requestMethod(), "OPTIONS")) {
 	WebResponse *response = handler.response();
 
 	response->setStatus(200);
@@ -1209,8 +1217,8 @@ void WebSession::handleRequest(Handler& handler)
    * listening.
    */
   if (!((requestE && *requestE == "resource")
-	|| strcmp(request.requestMethod(), "POST") == 0
-	|| strcmp(request.requestMethod(), "GET") == 0)) {
+	|| isEqual(request.requestMethod(), "POST")
+	|| isEqual(request.requestMethod(), "GET"))) {
     handler.response()->setStatus(400); // Bad Request
     handler.flushResponse();
     return;

@@ -220,6 +220,9 @@ namespace {
 
 std::string WebRequest::parsePreferredAcceptValue(const char *str) const
 {
+  if (!str)
+    return std::string();
+
   std::vector<ValueListParser::Value> values;
 
   ValueListParser valueListParser(values);
@@ -236,11 +239,11 @@ std::string WebRequest::parsePreferredAcceptValue(const char *str) const
     if (best < values.size())
       return values[best].value;
     else
-      return "";
+      return std::string();
   } else {
     LOG_ERROR("Could not parse 'Accept-Language: " << str
 	      << "', stopped at: '" << info.stop << '\'');
-    return "";
+    return std::string();
   }
 }
 #else

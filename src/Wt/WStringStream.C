@@ -7,8 +7,10 @@
 #include <cstring>
 #include <stdio.h>
 
+#ifndef NO_ASIO
 #include <boost/asio.hpp>
 namespace asio = boost::asio;
+#endif
 
 #include "Wt/WStringStream"
 
@@ -202,6 +204,7 @@ std::string WStringStream::str() const
   return result;
 }
 
+#ifndef NO_ASIO
 void WStringStream::asioBuffers(std::vector<asio::const_buffer>& result) const
 {
   result.reserve(result.size() + bufs_.size() + 1);
@@ -211,6 +214,7 @@ void WStringStream::asioBuffers(std::vector<asio::const_buffer>& result) const
 
   result.push_back(asio::buffer(buf_, buf_i_));
 }
+#endif
 
 WStringStream::iterator WStringStream::back_inserter()
 {

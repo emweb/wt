@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-class WT_API EscapeOStream
+class EscapeOStream
 {
 public:
   enum RuleSet { Empty = 0, HtmlAttribute = 1,

@@ -36,7 +36,7 @@ public:
   { }
 };
 
-AbstractUserDatabase::Transaction::~Transaction()
+AbstractUserDatabase::Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
 { }
 
 AbstractUserDatabase::AbstractUserDatabase()

@@ -40,7 +40,8 @@ std::string buffer_string::str() const
   result.reserve(length());
 
   for (const buffer_string *s = this; s; s = s->next)
-    result.append(s->data, s->len);
+    if (s->data)
+      result.append(s->data, s->len);
 
   return result;
 }
@@ -59,24 +60,30 @@ bool buffer_string::contains(const char *s) const
 {
   if (next)
     return strstr(str().c_str(), s) != 0;
-  else
+  else if (data)
     return strstr(data, s) != 0;
+  else
+    return false;
 }
 
 bool buffer_string::icontains(const char *s) const
 {
   if (next)
     return strcasestr(str().c_str(), s) != 0;
-  else
+  else if (data)
     return strcasestr(data, s) != 0;
+  else
+    return false;
 }
 
 bool buffer_string::iequals(const char *s) const
 {
   if (next)
     return strcasecmp(s, str().c_str()) == 0;
-  else
+  else if (data)
     return strcasecmp(s, data) == 0;
+  else
+    return false;
 }
 
 bool buffer_string::operator==(const buffer_string& other) const
@@ -84,23 +91,30 @@ bool buffer_string::operator==(const buffer_string& other) const
   if (next || other.next)
     return str() == other.str();
   else
-    return strcmp(data, other.data) == 0;
+    if (data && other.data)
+      return strcmp(data, other.data) == 0;
+    else
+      return data == other.data;
 }
 
 bool buffer_string::operator==(const std::string& other) const
 {
   if (next)
     return str() == other;
-  else
+  else if (data)
     return data == other;
+  else
+    return false;
 }
 
 bool buffer_string::operator==(const char *other) const
 {
   if (next)
     return str() == other;
-  else
+  else if (data)
     return strcmp(data, other) == 0;
+  else
+    return false;
 }
 
 bool buffer_string::operator!=(const char *other) const

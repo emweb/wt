@@ -84,7 +84,8 @@ private:
 	std::string id = userInfo.get("id");
 	WT_USTRING userName = userInfo.get("name");
 	std::string email = userInfo.get("email").orIfNull("");
-	bool emailVerified = userInfo.get("verified_email").orIfNull(false);
+	bool emailVerified = userInfo.get("verified_email")
+	  .toBool().orIfNull(false);
 	authenticated().emit(Identity(service().name(), id, userName,
 				      email, emailVerified));
       }

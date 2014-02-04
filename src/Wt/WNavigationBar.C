@@ -10,7 +10,6 @@
 #include "Wt/WMenu"
 #include "Wt/WNavigationBar"
 #include "Wt/WPushButton"
-#include "Wt/WBootstrapTheme"
 #include "Wt/WTheme"
 
 #include <exception>

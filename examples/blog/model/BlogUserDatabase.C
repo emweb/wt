@@ -29,7 +29,7 @@ public:
     : dbo::Transaction(session)
   { }
 
-  virtual ~TransactionImpl()
+  virtual ~TransactionImpl() WT_CXX11ONLY(noexcept(false))
   { }
 
   virtual void commit()
