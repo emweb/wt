@@ -71,7 +71,8 @@ Connection::Connection(asio::io_service& io_service, Server *server,
     request_parser_(server),
     server_(server),
     waitingResponse_(false),
-    haveResponse_(false)
+    haveResponse_(false),
+    responseDone_(false)
 { }
 
 Connection::~Connection()
@@ -222,7 +223,6 @@ void Connection::handleReadRequest0()
 	reply = request_handler_.handleRequest
 	  (request_, lastWtReply_, lastStaticReply_);
 	reply->setConnection(shared_from_this());
-	moreDataToSendNow_ = true;
       } catch (asio_system_error& e) {
 	LOG_ERROR("Error in handleRequest0(): " << e.what());
 	handleError(e.code());
@@ -250,7 +250,6 @@ void Connection::sendStockReply(StockReply::status_type status)
 
   reply->setConnection(shared_from_this());
   reply->setCloseConnection();
-  moreDataToSendNow_ = true;
 
   startWriteResponse(reply);
 }
@@ -297,6 +296,7 @@ void Connection::handleError(const asio_error_code& e)
 
 void Connection::handleReadBody(ReplyPtr reply)
 {
+  haveResponse_ = false;
   waitingResponse_ = true;
 
   bool result = request_parser_
@@ -311,10 +311,8 @@ void Connection::handleReadBody(ReplyPtr reply)
       rcv_buffers_.push_back(Buffer());
     }
     startAsyncReadBody(reply, rcv_buffers_.back(), CONNECTION_TIMEOUT);
-  } else if (haveResponse_) {
-    haveResponse_ = false;
+  } else if (haveResponse_)
     startWriteResponse(reply);
-  }
 }
 
 bool Connection::readAvailable()
@@ -348,6 +346,8 @@ void Connection::handleReadBody(ReplyPtr reply,
 
 void Connection::startWriteResponse(ReplyPtr reply)
 {
+  haveResponse_ = false;
+
   if (state_ != Idle) {
     LOG_ERROR("Connection::startWriteResponse(): connection not idle");
     close();
@@ -357,7 +357,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
   }
 
   std::vector<asio::const_buffer> buffers;
-  moreDataToSendNow_ = !reply->nextBuffers(buffers);
+  responseDone_ = reply->nextBuffers(buffers);
 
   unsigned s = 0;
 #ifdef DEBUG
@@ -386,13 +386,13 @@ void Connection::startWriteResponse(ReplyPtr reply)
 void Connection::handleWriteResponse(ReplyPtr reply)
 {
   LOG_DEBUG(socket().native() << ": handleWriteResponse() " <<
-	    moreDataToSendNow_ << " " << reply->waitMoreData());
-  if (moreDataToSendNow_)
+	    haveResponse_ << " " << responseDone_);
+  if (haveResponse_)
     startWriteResponse(reply);
   else {
-    if (reply->waitMoreData()) {
+    if (!responseDone_) {
       /*
-       * Keep connection open and wait for more data.
+       * Keep reply open and wait for more data.
        */
     } else {
       reply->logReply(request_handler_.logger());
@@ -402,6 +402,7 @@ void Connection::handleWriteResponse(ReplyPtr reply)
       else {
 	request_parser_.reset();
 	request_.reset();
+	responseDone_ = false;
 
 	while (rcv_buffers_.size() > 1)
 	  rcv_buffers_.pop_front();
@@ -424,7 +425,10 @@ void Connection::handleWriteResponse(ReplyPtr reply,
 
   cancelWriteTimer();
 
+  haveResponse_ = false;
+  waitingResponse_ = true;
   reply->writeDone(!e);
+  waitingResponse_ = false;
 
   if (!e) {
     handleWriteResponse(reply);

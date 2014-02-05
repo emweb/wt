@@ -69,7 +69,9 @@ enum AxisScale {
   /*! A category scale is set as the scale for the X axis in a \link
    * Chart::CategoryChart CategoryChart\endlink, and is only
    * applicable there. It lists all values, evenly spaced, and
-   * consecutively in the order of the model.
+   * consecutively in the order of the model. The categories are
+   * converted to numbers using their ordinal (first category = 0,
+   * second = 1, ...).
    */
   CategoryScale = 0,
 
@@ -357,6 +359,9 @@ public:
    * Specifies the interval for displaying labels (and ticks) on the axis.
    * The default value is 0.0, and indicates that the interval should be
    * computed automatically.
+   *
+   * The unit for the label interval is in logical units (i.e. the same as
+   * minimum or maximum).
    *
    * \sa setLabelFormat()
    */

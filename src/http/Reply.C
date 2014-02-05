@@ -280,10 +280,8 @@ bool Reply::nextWrappedContentBuffers(std::vector<asio::const_buffer>& result) {
   int originalSize;
   int encodedSize;
 
-  bool finished = encodeNextContentBuffer(contentBuffers, originalSize,
+  bool lastData = encodeNextContentBuffer(contentBuffers, originalSize,
 					  encodedSize);
-
-  bool lastData = (finished || (originalSize == 0)) && !waitMoreData();
 
   contentSent_ += encodedSize;
   contentOriginalSize_ += originalSize;
@@ -308,14 +306,14 @@ bool Reply::nextWrappedContentBuffers(std::vector<asio::const_buffer>& result) {
       }
 
       postBuf_.asioBuffers(result);
-    }
+    } else
+      buf_.asioBuffers(result);
 
-    return finished || originalSize == 0;
+    return lastData;
   } else {
     buf_.asioBuffers(result);
     result.insert(result.end(), contentBuffers.begin(), contentBuffers.end());
-
-    return finished || originalSize == 0;
+    return lastData;
   }
 }
 
@@ -468,7 +466,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
   assert(false);
 
-  return false;
+  return true;
 }
 
 bool Reply::closeConnection() const
@@ -572,8 +570,7 @@ bool Reply::encodeNextContentBuffer(
        int& encodedSize)
 {
   std::vector<asio::const_buffer> buffers;
-  bool finished = nextContentBuffers(buffers);
-  bool lastData = finished && !waitMoreData();
+  bool lastData = nextContentBuffers(buffers);
 
   originalSize = 0;
 
@@ -630,11 +627,11 @@ bool Reply::encodeNextContentBuffer(
 
     encodedSize = originalSize;
 #ifdef WTHTTP_WITH_ZLIB
-    return finished;
+    return lastData;
   }
 #endif
 
-  return finished;
+  return lastData;
 }
 
 } // namespace server

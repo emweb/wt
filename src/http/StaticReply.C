@@ -123,6 +123,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
           "bytes */" + boost::lexical_cast<std::string>(fileSize_));
       }
       setRelay(sr);
+      stream_.close();
       return;
     } else {
       ::int64_t last = rangeEnd_;
@@ -156,6 +157,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
   if ((ims && ims->value == modifiedDate) || (inm && inm->value == etag)) {
     setRelay(ReplyPtr(new StockReply(request_, StockReply::not_modified,
 				     configuration())));
+    stream_.close();
     return;
   }
 
@@ -240,6 +242,17 @@ std::string StaticReply::contentType()
   }
 }
 
+void StaticReply::writeDone(bool success)
+{
+  if (relay()) {
+    relay()->writeDone(success);
+    return;
+  }
+
+  if (success && stream_.is_open())
+    send();
+}
+
 bool StaticReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
   if (request_.method != "HEAD") {
@@ -258,8 +271,10 @@ bool StaticReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
       stream_.close();
       return true;
     }
-  } else
+  } else {
+    stream_.close();
     return true;
+  }
 }
 
 void StaticReply::parseRangeHeader()

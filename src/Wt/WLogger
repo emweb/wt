@@ -334,7 +334,7 @@ private:
   friend class WLogger;
 };
 
-WLogger& logInstance();
+WLogger& WT_API logInstance();
 
 #ifdef DOXYGEN_ONLY
 /*! \file */

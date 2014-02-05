@@ -55,8 +55,6 @@ public:
   void readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack);
   bool readAvailable();
 
-  virtual bool waitMoreData() const;
-
   std::istream& in() { return *in_; }
   std::ostream& out() { return out_; }
   const Request& request() const { return request_; }

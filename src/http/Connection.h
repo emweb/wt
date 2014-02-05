@@ -166,14 +166,20 @@ private:
   /// Recycled reply pointers
   ReplyPtr lastWtReply_, lastStaticReply_;
 
-  /// The reply is complete.
-  bool moreDataToSendNow_;
-
   /// The server that owns this connection
   Server *server_;
 
-  /// To send response direction in rcv completion handler
-  bool waitingResponse_, haveResponse_;
+  /// Indicates that we're waiting for a response while invoking a
+  /// Reply function and thus that Reply function should not start a
+  /// write response but simply indicate haveResponse_
+  bool waitingResponse_;
+
+  /// Indicates that we can send a response
+  bool haveResponse_;
+
+  /// Indicates that the current response is finished (after the
+  /// current write operation)
+  bool responseDone_;
 };
 
 typedef boost::shared_ptr<Connection> ConnectionPtr;

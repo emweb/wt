@@ -305,6 +305,7 @@ WMessageResources::WMessageResources(const char *builtin)
 {
   std::istringstream s(builtin,  std::ios::in | std::ios::binary);
   readResourceStream(s, defaults_, "<internal resource bundle>");
+  loaded_ = true;
 }
 
 std::set<std::string> 

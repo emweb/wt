@@ -403,22 +403,21 @@ void WtReply::setLocation(const std::string& location)
     setStatus(found);
 }
 
-bool WtReply::waitMoreData() const
-{
-  return httpRequest_ != 0 && !httpRequest_->done();
-}
-
 void WtReply::writeDone(bool success)
 {
+  if (relay()) {
+    relay()->writeDone(success);
+    return;
+  }
+
   LOG_DEBUG("writeDone() success:" << success << ", sent: " << sending_);
   out_buf_.consume(sending_);
+  sending_ = 0;
 
-  if (!success) {
-    if (fetchMoreDataCallback_) {
-      Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
-      fetchMoreDataCallback_ = 0;
-      f(Wt::WriteError);
-    }
+  if (fetchMoreDataCallback_) {
+    Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
+    fetchMoreDataCallback_ = 0;
+    f(success ? Wt::WriteCompleted : Wt::WriteError);
   }
 }
 
@@ -427,35 +426,38 @@ void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
 {
   LOG_DEBUG("WtReply::send(): " << sending_);
 
+  if (sending_ != 0) {
+    LOG_ERROR("WtReply::send() called while still busy sending...");
+    return;
+  }
+
   fetchMoreDataCallback_ = callBack;
 
-  if (sending_ == 0) {
-    if (status() == no_status) {
-      if (!transmitting() && fetchMoreDataCallback_) {
-	/*
-	 * We haven't got a response status, so we can't send anything really.
-	 * Instead, we immediately invoke the fetchMoreDataCallback_
-	 *
-	 * This is used in a resource continuation which indicates to wait
-	 * for more data before sending anything at all.
-	 */
-	LOG_DEBUG("Invoking callback (no status)");
+  if (status() == no_status) {
+    if (!transmitting() && fetchMoreDataCallback_) {
+      /*
+       * We haven't got a response status, so we can't send anything really.
+       * Instead, we immediately invoke the fetchMoreDataCallback_
+       *
+       * This is used in a resource continuation which indicates to wait
+       * for more data before sending anything at all.
+       */
+      LOG_DEBUG("Invoking callback (no status)");
 
-	Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
-	fetchMoreDataCallback_ = 0;
-	f(Wt::WriteCompleted);
+      Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
+      fetchMoreDataCallback_ = 0;
+      f(Wt::WriteCompleted);
 
-	return;
-      } else {
-	/*
-	 * The old behaviour was to assume 200 ok by default.
-	 */
-	setStatus(ok);
-      }
+      return;
+    } else {
+      /*
+       * The old behaviour was to assume 200 ok by default.
+       */
+      setStatus(ok);
     }
-
-    Reply::send();
   }
+
+  Reply::send();
 }
 
 void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
@@ -592,20 +594,7 @@ bool WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
     formatResponse(result);
   }
 
-  if (sending_ == 0) {
-    while (sending_ == 0 && fetchMoreDataCallback_) {
-      sending_ = 1;
-      LOG_DEBUG("Invoking callback (nextContentBuffers)");
-      Wt::WebRequest::WriteCallback f = fetchMoreDataCallback_;
-      fetchMoreDataCallback_ = 0;
-      f(Wt::WriteCompleted);
-      sending_ = out_buf_.size();
-    }
- 
-    if (sending_ > 0)
-      formatResponse(result);
-  }
-  return fetchMoreDataCallback_ == 0;
+  return httpRequest_->done();
 }
 
   }

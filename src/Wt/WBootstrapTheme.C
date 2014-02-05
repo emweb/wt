@@ -51,7 +51,12 @@ WBootstrapTheme::WBootstrapTheme(WObject *parent)
     version_(Version2),
     responsive_(false),
     formControlStyle_(true)
-{ }
+{ 
+  WApplication *app = WApplication::instance();
+
+  if (app)
+    app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
+}
 
 WBootstrapTheme::~WBootstrapTheme()
 { }
@@ -86,13 +91,6 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
   }
 
   result.push_back(WCssStyleSheet(WLink(themeVersionDir.str() + "wt.css")));
-
-  if (app) {
-    app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
-    if (version_ >= Version3)
-      app->builtinLocalizedStrings().useBuiltin
-	(skeletons::Bootstrap3Theme_xml1);
-  }
 
   return result;
 }
@@ -491,6 +489,13 @@ bool WBootstrapTheme::canBorderBoxElement(const DomElement& element) const
 void WBootstrapTheme::setVersion(Version version)
 {
   version_ = version;
+
+  if (version_ >= Version3) {
+    WApplication *app = WApplication::instance();
+    if (app)
+      app->builtinLocalizedStrings().useBuiltin
+	(skeletons::Bootstrap3Theme_xml1);
+  }
 }
 
 void WBootstrapTheme::setFormControlStyleEnabled(bool enabled)

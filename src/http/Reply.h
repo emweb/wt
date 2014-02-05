@@ -96,6 +96,12 @@ public:
     pong = 0xA,
   };
 
+  /*
+   * Called after writing data.
+   *
+   * In case the write was successful, this may call send() again if
+   * more data is immediately available.
+   */
   virtual void writeDone(bool success);
 
   virtual void consumeData(Buffer::const_iterator begin,
@@ -115,7 +121,6 @@ public:
 
   void addHeader(const std::string name, const std::string value);
 
-  virtual bool waitMoreData() const { return false; }
   void send();
 
   const Configuration& configuration() { return configuration_; }
@@ -132,10 +137,15 @@ protected:
   virtual std::string location();
   virtual ::int64_t contentLength() = 0;
 
+  /*
+   * Provides next data to send. Will be called after send() has been called.
+   * Returns whether this is the last data for this request.
+   */
   virtual bool nextContentBuffers(std::vector<asio::const_buffer>& result)
     = 0;
 
   void setRelay(ReplyPtr reply);
+  ReplyPtr relay() const { return relay_; }
 
   static std::string httpDate(time_t t);
 

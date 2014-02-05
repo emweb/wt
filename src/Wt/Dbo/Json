@@ -11,8 +11,10 @@
 #include <sstream>
 
 #include <Wt/Dbo/ptr>
+#include <Wt/Dbo/weak_ptr>
 #include <Wt/Dbo/collection>
 #include <Wt/Dbo/Field>
+#include <Wt/Dbo/Session>
 
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -24,30 +26,43 @@ namespace Wt {
     }
 
 /*! \class JsonSerializer Wt/Dbo/Json Wt/Dbo/Json
- *  \brief An action to serialize Dbo objects.
+ *  \brief An action to serialize objects to JSON.
  *
- *  This class is an action that serializes Dbo objects, that is:
- *  objects that have the persist method.
+ *  This class is an \p Action that serializes objects to an ostream.
+ *  These objects must implement the \p persist() method. It also has
+ *  support for serializing \link ptr ptrs\endlink to these objects,
+ *  std::vectors of \link ptr ptrs\endlink, and
+ *  \link collection collections\endlink of \link ptr ptrs\endlink.
  *
- *  Currently only the serializer exists. The plan is to have
- *  a corresponding deserializer in the future.
+ *  It will follow one-to-one and \link Wt::Dbo::ManyToOne ManyToOne\endlink
+ *  relations in one way: weak_ptr and \ref collection fields are followed
+ *  and serialized, for \ref ptr fields only the \link Wt::Dbo::ptr::id() id\endlink
+ *  is output.
+ *
+ *  No extraneous whitespace is output.
  *
  * \ingroup dbo
  */
 class JsonSerializer
 {
 public:
-    /*! \brief Creates a %JsonSerializer that writes to an ostream
+    /*! \brief Creates a JsonSerializer that writes to an std::ostream.
      *
-     * Creates a %JsonSerializer that writes to the given ostream.
-     * Note that the ostream is not flushed to automatically, only
-     * when the serializer is destructed, it will be flushed to.
+     * Note that the std::ostream is not flushed to automatically. The
+     * flush will happen automatically when this JsonSerializer is
+     * destructed.
+     *
+     * A Session is not necessary for flat objects, but it is
+     * necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
+     * and one-to-one relations.
      */
-    JsonSerializer(std::ostream& out);
+    JsonSerializer(std::ostream& out, Session *s = NULL);
 
     /*! \brief Destructor
      */
     virtual ~JsonSerializer();
+
+    Session *session() { return session_; }
 
     template<typename T>
     typename boost::disable_if< boost::is_enum<T>, void>::type
@@ -67,20 +82,43 @@ public:
 
     template<typename T>
     void actPtr(const PtrRef<T>& field) {
+      writeFieldName(field.name());
+      outputId(field.id());
     }
 
     template<typename T>
     void actWeakPtr(const WeakPtrRef<T>& field) {
+      if (session_) {
+	  writeFieldName(session_->tableName<T>() + std::string("_") + field.joinName());
+	  if (field.value()) {
+	    serialize(field.value().query());
+	  } else {
+	    out("null");
+	  }
+      }
     }
 
     template<typename T>
     void actCollection(const CollectionRef<T>& collec) {
+      if (session_ && collec.type() == ManyToOne) {
+	writeFieldName(session_->tableName<T>() + std::string("s_")  + collec.joinName());
+	out('[');
+	collection<ptr<T> > c = collec.value();
+	bool first = true;
+	for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
+	  if (first)
+	    first = false;
+	  else
+	    out(',');
+	  serialize(*i);
+	}
+	out(']');
+      }
     }
 
     /*! \brief Serialize the given object.
      *
-     * Serializes a plain object that implements the persist
-     * method.
+     * Serializes a plain object that implements the \p persist() method.
      */
     template<typename T>
     void serialize(const T& t) {
@@ -89,29 +127,29 @@ public:
       out('}');
     }
 
-    /*! \brief Serialize the object that is pointed to by the given pointer.
+    /*! \brief Serialize the object that is pointed to by the given \ref ptr.
      *
-     * Serializes a Dbo object pointed to by the given pointer.
      * This method does the same as the plain object serializer, but
-     * also adds an extra id field.
+     * also adds an extra \link Wt::Dbo::ptr::id() id\endlink field.
      */
     template<typename T>
     void serialize(const ptr<T>& t) {
       out('{');
-      out("\"id\":");
+      fastJsStringLiteral(dbo_traits<T>::surrogateIdField());
+      out(':');
       outputId(t.id());
       first_ = false;
       const_cast<T&>(*t).persist(*this);
       out('}');
     }
 
-    /*! \brief Serialize a vector of Dbo pointers.
+    /*! \brief Serialize an std::vector of \link ptr ptrs\endlink.
      *
-     * Serializes each pointer in the vector individually,
-     * and puts it in an Array.
+     * Serializes each \ref ptr in the vector individually,
+     * and puts it in an \p Array.
      */
     template<typename T>
-    void serialize(std::vector<ptr<T> >& v) {
+    void serialize(const std::vector<ptr<T> >& v) {
       out('[');
       for (typename std::vector<ptr<T> >::const_iterator i = v.begin(); i != v.end(); ++i) {
 	if (i != v.begin())
@@ -121,16 +159,16 @@ public:
       out(']');
     }
 
-    /*! \brief Serialize a collection of Dbo pointers.
+    /*! \brief Serialize a \ref collection of \link ptr ptrs\endlink.
      *
-     * Serializes each pointer in the collection individually,
-     * and puts it in an Array.
+     * Serializes each \ref ptr in the \ref collection individually,
+     * and puts it in an \p Array.
      *
      * The typical usage scenario of this method is to serialize
      * the results of a query to JSON.
      */
     template<typename T>
-    void serialize(collection<ptr<T> >& c) {
+    void serialize(const collection<ptr<T> >& c) {
       out('[');
       bool first = true;
       for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
@@ -147,6 +185,7 @@ private:
     std::ostream &out_;
     Wt::EscapeOStream *escapeOut_, *stringLiteral_;
     bool first_;
+    Session* session_;
 
     template<typename T>
     void out(T t);
@@ -166,48 +205,64 @@ private:
     void fastJsStringLiteral(const std::string& s);
 };
 
-  /*! \brief Serialize the given object to the given ostream.
-   *
-   * \sa JsonSerializer::serialize()
-   */
-  template<typename C>
-  void jsonSerialize(const C& c, std::ostream& out) {
-    JsonSerializer serializer(out);
-    serializer.serialize(c);
-  }
+/*! \brief Serialize the given object to the given ostream.
+ *
+ * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
+ * and one-to-one relations, but can be omitted
+ * if such relations are not present.
+ *
+ * \sa JsonSerializer::serialize()
+ */
+template<typename C>
+void jsonSerialize(const C& c, std::ostream& out, Session *session = NULL) {
+  JsonSerializer serializer(out, session);
+  serializer.serialize(c);
+}
 
-  /*! \brief Serialize the object pointed to by the given pointer
-   * to the given ostream.
-   *
-   * \sa JsonSerializer::serialize()
-   */
-  template<typename C>
-  void jsonSerialize(const ptr<C>& c, std::ostream& out) {
-    JsonSerializer serializer(out);
-    serializer.serialize(c);
-  }
+/*! \brief Serialize the object pointed to by the given \ref ptr
+ * to the given ostream.
+ *
+ * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
+ * and one-to-one relations, but can be omitted
+ * if such relations are not present.
+ *
+ * \sa JsonSerializer::serialize()
+ */
+template<typename C>
+void jsonSerialize(const ptr<C>& c, std::ostream& out, Session *session = NULL) {
+  JsonSerializer serializer(out, session);
+  serializer.serialize(c);
+}
 
-  /*! \brief Serialize a vector of Dbo pointers to the given
-   * ostream.
-   *
-   * \sa JsonSerializer::serialize()
-   */
-  template<typename C>
-  void jsonSerialize(std::vector<ptr<C> >& v, std::ostream& out) {
-    JsonSerializer serializer(out);
-    serializer.serialize(v);
-  }
+/*! \brief Serialize a vector of \link ptr ptrs\endlink to the given
+ * ostream.
+ *
+ * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
+ * and one-to-one relations, but can be omitted
+ * if such relations are not present.
+ *
+ * \sa JsonSerializer::serialize()
+ */
+template<typename C>
+void jsonSerialize(const std::vector<ptr<C> >& v, std::ostream& out, Session *session = NULL) {
+  JsonSerializer serializer(out, session);
+  serializer.serialize(v);
+}
 
-  /*! \brief Serialize a collection of Dbo pointers to the given
-   * ostream.
-   *
-   * \sa JsonSerializer::serialize()
-   */
-  template<typename C>
-  void jsonSerialize(collection<C>& c, std::ostream& out) {
-    JsonSerializer serializer(out);
-    serializer.serialize(c);
-  }
+/*! \brief Serialize a \ref collection of \link ptr ptrs\endlink to the given
+ * ostream.
+ *
+ * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
+ * and one-to-one relations, but can be omitted
+ * if such relations are not present.
+ *
+ * \sa JsonSerializer::serialize()
+ */
+template<typename C>
+void jsonSerialize(const collection<C>& c, std::ostream& out, Session *session = NULL) {
+  JsonSerializer serializer(out, session);
+  serializer.serialize(c);
+}
 
   }
 }
