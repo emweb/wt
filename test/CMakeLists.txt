@@ -48,6 +48,7 @@ SET(DBO_TEST_SOURCES
   dbo/DboTest2.C
   dbo/DboTest3.C
   dbo/Benchmark.C
+  dbo/JsonTest.C
   private/DboImplTest.C
 )
 

@@ -32,6 +32,16 @@ CategoryExample::CategoryExample(WContainerWidget *parent)
 {
   setContentAlignment(AlignCenter);
   chart_ = new WCartesian3DChart(this);
+  if (chart_->isAlternative()) {
+    xPlaneModelColor_ = 0;
+    xPlaneModel_ = 0;
+    yPlaneModel_ = 0;
+    randomModel_ = 0;
+    planeModel_ = 0;
+    isotopeModel_ = 0;
+    
+    return;
+  }
   chart_->setType(CategoryChart);
 
   Wt::WCssDecorationStyle style;
@@ -41,7 +51,7 @@ CategoryExample::CategoryExample(WContainerWidget *parent)
   chart_->resize(600, 600);
   
   // **** Dataset
-  WStandardItemModel *isotopeModel_ = readCsvFile(WApplication::appRoot() + "isotope_decay.csv");
+  isotopeModel_ = readCsvFile(WApplication::appRoot() + "isotope_decay.csv");
   // add some color-roles
   for (int i=1; i<isotopeModel_->rowCount(); i++) {
     for (int j=1; j<isotopeModel_->columnCount(); j++) {
@@ -51,11 +61,13 @@ CategoryExample::CategoryExample(WContainerWidget *parent)
     }
   }
   WGridData *isotopes = new WGridData(isotopeModel_);
+  series_.push_back(isotopes);
   isotopes->setType(BarSeries3D);
   
   // **** Dataset
   planeModel_ = readCsvFile(WApplication::appRoot() + "hor_plane.csv");
   WGridData *horPlane = new WGridData(planeModel_);
+  series_.push_back(horPlane);
   horPlane->setType(BarSeries3D);
 
   // **** Dataset
@@ -66,24 +78,27 @@ CategoryExample::CategoryExample(WContainerWidget *parent)
     }
   }
   WGridData *randomPlane = new WGridData(randomModel_);
+  series_.push_back(randomPlane);
   randomPlane->setType(BarSeries3D);
 
   // **** Dataset
   yPlaneModel_ = new PlaneData(20, 20, 0, 1, 0, 1, true, 100, 100);
   WEquidistantGridData *yPlaneFunc = new WEquidistantGridData(yPlaneModel_,
-							       0, 1, 0, 1);
+							      0, 1, 0, 1);
+  series_.push_back(yPlaneFunc);
   yPlaneFunc->setType(BarSeries3D);
 
   // **** Dataset
   xPlaneModel_ = new PlaneData(20, 20, 0, 1, 0, 1, false, 100, 100);
   WEquidistantGridData *xPlaneFunc = new WEquidistantGridData(xPlaneModel_,
-							       0, 1, 0, 1);
+							      0, 1, 0, 1);
+  series_.push_back(xPlaneFunc);
   xPlaneFunc->setType(BarSeries3D);
 
   // **** Dataset
   xPlaneModelColor_ = new PlaneData(20, 20, 0, 1, 0, 1, false, 5, 100);
-  WEquidistantGridData *xPlaneFuncColor = new WEquidistantGridData(xPlaneModelColor_,
-							       0, 1, 0, 1);
+  WEquidistantGridData *xPlaneFuncColor = new WEquidistantGridData(xPlaneModelColor_, 0, 1, 0, 1);
+  series_.push_back(xPlaneFuncColor);
   xPlaneFuncColor->setType(BarSeries3D);
   
 
@@ -102,4 +117,17 @@ CategoryExample::CategoryExample(WContainerWidget *parent)
   WTabWidget *configuration_ = new WTabWidget(this);
   configuration_->addTab(new ChartSettings(chart_), "General Chart Settings", Wt::WTabWidget::PreLoading);
   configuration_->addTab(dataconfig, "Data selection and configuration", Wt::WTabWidget::PreLoading);
+}
+
+CategoryExample::~CategoryExample()
+{
+  delete xPlaneModelColor_;
+  delete xPlaneModel_;
+  delete yPlaneModel_;
+  delete randomModel_;
+  delete planeModel_;
+  delete isotopeModel_;
+
+  for (unsigned i=0; i < series_.size(); i++)
+    delete series_[i];
 }

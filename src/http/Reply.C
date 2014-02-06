@@ -537,7 +537,7 @@ void Reply::logReply(Wt::WLogger& logger)
   }
 }
 
-asio::const_buffer Reply::buf(const std::string s)
+asio::const_buffer Reply::buf(const std::string &s)
 {
   bufs_.push_back(s);
   return asio::buffer(bufs_.back());

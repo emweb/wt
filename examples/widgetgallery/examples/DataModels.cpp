@@ -6,46 +6,25 @@
 
 using namespace Wt;
 
-SombreroData::SombreroData(int nbXPts, int nbYPts,
-			   double xStart, double xEnd,
-			   double yStart, double yEnd,
-			   WObject *parent)
-  : EquidistantGrid(parent),
-    nbXPts_(nbXPts), nbYPts_(nbYPts),
-    xStart_(xStart), xEnd_(xEnd), yStart_(yStart), yEnd_(yEnd)
+SombreroData::SombreroData(unsigned nbXpts, unsigned nbYpts, WObject *parent)
+  : WStandardItemModel(nbXpts+1, nbYpts+1, parent),
+    xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-int SombreroData::rowCount(const Wt::WModelIndex& parent) const
-{
-  return nbXPts_+1;
-}
-
-int SombreroData::columnCount(const Wt::WModelIndex& parent) const
-{
-  return nbYPts_+1;
-}
-
-boost::any SombreroData::data(int row, int column, int role,
-			      const WModelIndex &parent) const
-{
-  return data(createIndex(row, column, (void*)0), role);
-}
-
-boost::any SombreroData::data(const Wt::WModelIndex& index,
-			      int role) const
+boost::any SombreroData::data(const Wt::WModelIndex& index, int role) const
 {
   if (role != DisplayRole) {
-    return boost::any();
+    return WStandardItemModel::data(index, role);
   }
 
-  double delta_y = (yEnd_ - yStart_)/(nbYPts_-1);
+  double delta_y = (yEnd_ - yStart_)/(columnCount()-2);
   if (index.row() == 0) { // give back y-abscis
     if (index.column() == 0)
       return 0.0;
     return yStart_ + (index.column()-1)*delta_y;
   }
   
-  double delta_x = (xEnd_ - xStart_)/(nbXPts_-1);
+  double delta_x = (xEnd_ - xStart_)/(rowCount()-2);
   if (index.column() == 0) { // give back x-abscis
     if (index.row() == 0)
       return 0.0;
@@ -59,106 +38,46 @@ boost::any SombreroData::data(const Wt::WModelIndex& index,
     / (std::sqrt (std::pow(x,2) + std::pow(y,2)));
 }
 
-boost::any SombreroData::headerData(int section,
-				 Wt::Orientation orientation,
-				 int role) const
-{
-  return 0.0; // unimplemented
-}
-
-PlaneData::PlaneData(int nbXPts, int nbYPts,
-		     double xStart, double xDelta,
-		     double yStart, double yDelta,
-		     WObject *parent)
-  : EquidistantGrid(parent),
-    nbXPts_(nbXPts), nbYPts_(nbYPts),
-    xStart_(xStart), xDelta_(xDelta), yStart_(yStart), yDelta_(yDelta)
+PlaneData::PlaneData(unsigned nbXpts, unsigned nbYpts, WObject *parent)
+  : WStandardItemModel(nbXpts+1, nbYpts+1, parent),
+    xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
 {}
 
-int PlaneData::rowCount(const Wt::WModelIndex& parent) const
-{
-  return nbXPts_;
-}
-
-int PlaneData::columnCount(const Wt::WModelIndex& parent) const
-{
-  return nbYPts_;
-}
-
-boost::any PlaneData::data(int row, int column, int role,
-			   const WModelIndex &parent) const
-{
-  return data(createIndex(row, column, (void*)0), role);
-}
-
-boost::any PlaneData::data(const Wt::WModelIndex& index,
-			   int role) const
+boost::any PlaneData::data(const Wt::WModelIndex& index, int role) const
 {
   if (role != DisplayRole) {
-    return boost::any();
+    return WStandardItemModel::data(index, role);
   }
 
-  double x, y;
-  y = yStart_ + index.column() * yDelta_;
-  x = xStart_ + index.row() * xDelta_;
-  return 0.5*y;
+  double delta_x = (xEnd_ - xStart_)/(rowCount()-2);
+  double delta_y = (yEnd_ - yStart_)/(columnCount()-2);
+  double x = xStart_ + index.row() * delta_x;
+  double y = yStart_ + index.column() * delta_y;
+
+  return 0.2*x - 0.2*y;
 }
 
-boost::any PlaneData::headerData(int section,
-				 Wt::Orientation orientation,
-				 int role) const
-{
-  return 0.0; // unimplemented
-}
-
-PointsData::PointsData(int nbPts, WObject *parent)
-  : nbPts_(nbPts)
+SpiralData::SpiralData(unsigned nbPts, WObject *parent)
+  : WStandardItemModel(nbPts, 3, parent), nbPts_(nbPts)
 {}
 
-int PointsData::rowCount(const Wt::WModelIndex& parent) const
+boost::any SpiralData::data(const Wt::WModelIndex& index, int role) const
 {
-  return nbPts_;
-}
-
-int PointsData::columnCount(const Wt::WModelIndex& parent) const
-{
-  return 3;
-}
-
-boost::any PointsData::data(int row, int column, int role,
-			    const WModelIndex &parent) const
-{
-  return data(createIndex(row, column, (void*)0), role);
-}
-
-boost::any PointsData::data(const Wt::WModelIndex& index,
-			    int role) const
-{
-  if (role == MarkerBrushColorRole) {
-    //return WColor(rand()%256, rand()%256, rand()%256);
-    return WColor(0, 255, 0);
-  } else if (role != DisplayRole) {
-    return boost::any();
+  if (role != DisplayRole) {
+    return WStandardItemModel::data(index, role);
   }
-
 
   const double pi = 3.141592;
   double XYangle = index.row() * (8*pi/nbPts_);
+  double heightRatio = (float)index.row() / rowCount();
+  double radius = 1.0 + heightRatio * 5.0;
   if (index.column() == 0) {
-    return std::cos(XYangle);
+    return radius * std::cos(XYangle);
+  } else if (index.column() == 1) {
+    return radius * std::sin(XYangle);
+  } else if (index.column() == 2) {
+    return 5.0 - index.row() * (10.0/nbPts_);
+  } else {
+    return boost::any();
   }
-  if (index.column() == 1) {
-    return std::sin(XYangle);
-  }
-  if (index.column() == 2) {
-    return -5.0 + index.row() * (10.0/nbPts_);
-  }
-  return boost::any();
-}
-
-boost::any PointsData::headerData(int section,
-				  Wt::Orientation orientation,
-				  int role) const
-{
-  return 0.0; // unimplemented
 }

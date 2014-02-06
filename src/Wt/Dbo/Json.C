@@ -15,12 +15,12 @@
 namespace Wt {
   namespace Dbo {
 
-JsonSerializer::JsonSerializer(std::ostream& out, Session* s)
+JsonSerializer::JsonSerializer(std::ostream& out)
   : out_(out),
     escapeOut_(new Wt::EscapeOStream(out)),
     stringLiteral_(new Wt::EscapeOStream(*escapeOut_)),
     first_(true),
-    session_(s)
+    session_(NULL)
 {
   stringLiteral_->pushEscape(Wt::EscapeOStream::JsStringLiteralDQuote);
 }

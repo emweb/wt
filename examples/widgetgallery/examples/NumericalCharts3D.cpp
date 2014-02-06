@@ -1,16 +1,13 @@
-#include "Tabs.h"
 #include "DataModels.h"
 
-#include "Wt/WAbstractTableModel"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WBorder"
-#include "Wt/WContainerWidget"
-#include "Wt/WTabWidget"
-#include "Wt/Chart/WCartesian3DChart"
-#include "Wt/Chart/WGridData"
-#include "Wt/Chart/WEquidistantGridData"
-#include "Wt/Chart/WScatterData"
-#include "Wt/Chart/WStandardColorMap"
+#include <Wt/WCssDecorationStyle>
+#include <Wt/WBorder>
+#include <Wt/WContainerWidget>
+#include <Wt/Chart/WCartesian3DChart>
+#include <Wt/Chart/WGridData>
+#include <Wt/Chart/WEquidistantGridData>
+#include <Wt/Chart/WScatterData>
+#include <Wt/Chart/WStandardColorMap>
 
 SAMPLE_BEGIN(NumChart3d)
 
@@ -23,9 +20,6 @@ Wt::WCssDecorationStyle style;
 style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium, Wt::black));
 chart->setDecorationStyle(style);
 chart->resize(600, 600);
-// WPen pen;
-// pen.setWidth(5);
-// chart->setGridLinesPen(pen);
 chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::XAxis_3D, true);
 chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::YAxis_3D, true);
 chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::XAxis_3D, true);
@@ -33,36 +27,49 @@ chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::ZAxis_3D, true);
 chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::YAxis_3D, true);
 chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::ZAxis_3D, true);
 
+chart->axis(Wt::Chart::XAxis_3D).setTitle("X");
+chart->axis(Wt::Chart::YAxis_3D).setTitle("Y");
+chart->axis(Wt::Chart::ZAxis_3D).setTitle("Z");
 
 // make first dataset (WGridData)
-WAbstractTableModel *model1 = new SombreroData(40, 40, -10, 10, -10, 10, container);
+Wt::WStandardItemModel *model1 = new SombreroData(40, 40, container);
 Wt::Chart::WGridData *dataset1 = new Wt::Chart::WGridData(model1);
-dataset1->setColorMap(new Wt::Chart::WStandardColorMap(dataset1->minimum(ZAxis_3D),
-						       dataset1->maximum(ZAxis_3D),
-						       true));
-GridDataSettings *datasettings1 = new GridDataSettings(chart, dataset1, container);
+dataset1->setType(Wt::Chart::SurfaceSeries3D);
+dataset1->setSurfaceMeshEnabled(true);
+Wt::Chart::WStandardColorMap *colormap =
+  new Wt::Chart::WStandardColorMap(dataset1->minimum(Wt::Chart::ZAxis_3D),
+				   dataset1->maximum(Wt::Chart::ZAxis_3D), true);
+dataset1->setColorMap(colormap);
 
 // make second dataset (WEquidistantGridData)
-WAbstractTableModel *model2 = new PlaneData(40, 40, -10, 0.5f, -10, 0.5f, container);
-Wt::Chart::WEquidistantGridData *dataset2 = new Wt::Chart::WEquidistantGridData
-  (model2, -10, 0.5f, -10, 0.5f);
-GridDataSettings *datasettings2 = new GridDataSettings(chart, dataset2, container);
+Wt::WStandardItemModel *model2 = new PlaneData(40, 40, container);
+for (unsigned i=0; i < model2->rowCount(); i++) { // set a few size-roles
+  model2->setData(i, 0, 5, Wt::MarkerScaleFactorRole);
+  model2->setData(i, model2->columnCount()-1, 5, Wt::MarkerScaleFactorRole);
+}
+for (unsigned i=0; i < model2->columnCount(); i++) {
+  model2->setData(0, i, 5, Wt::MarkerScaleFactorRole);
+  model2->setData(model2->rowCount()-1, i, 5, Wt::MarkerScaleFactorRole);
+}
+for (unsigned i=0; i < model2->rowCount(); i++) { // set a few color-roles
+  model2->setData(i, 5, Wt::WColor(0,255,0), Wt::MarkerBrushColorRole);
+  model2->setData(i, 6, Wt::WColor(0,0,255), Wt::MarkerBrushColorRole);
+  model2->setData(i, 7, Wt::WColor(0,255,0), Wt::MarkerBrushColorRole);
+  model2->setData(i, 8, Wt::WColor(0,0,255), Wt::MarkerBrushColorRole);
+ }
+Wt::Chart::WEquidistantGridData *dataset2 =
+  new Wt::Chart::WEquidistantGridData(model2, -10, 0.5f, -10, 0.5f);
 
 // make third dataset (WScatterData)
-WAbstractTableModel *model3 = new PointsData(100, container);
+Wt::WStandardItemModel *model3 = new SpiralData(100, container);
 Wt::Chart::WScatterData *dataset3 = new Wt::Chart::WScatterData(model3);
-ScatterDataSettings *datasettings3 = new ScatterDataSettings(dataset3, container);
+dataset3->setPointSize(5);
 
 // add the data to the chart
 chart->addDataSeries(dataset1);
 chart->addDataSeries(dataset2);
 chart->addDataSeries(dataset3);
 
-Wt::WTabWidget *configuration = new Wt::WTabWidget(container);
-configuration->addTab(new ChartSettings(chart), "General Chart Settings",
-		      Wt::WTabWidget::PreLoading);
-configuration->addTab(datasettings1, "Dataset 1", Wt::WTabWidget::PreLoading);
-configuration->addTab(datasettings2, "Dataset 2", Wt::WTabWidget::PreLoading);
-configuration->addTab(datasettings3, "Dataset 3", Wt::WTabWidget::PreLoading);
+chart->setAlternativeContent(new Wt::WImage("pics/numericalChartScreenshot.png", container));
 
 SAMPLE_END(return container)

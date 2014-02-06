@@ -33,9 +33,9 @@ enum Axis {
   Y1Axis = YAxis,       //!< First Y axis (== YAxis).
   Y2Axis = 2,           //!< Second Y Axis.
   OrdinateAxis = YAxis,  //!< Ordinate axis (== Y1Axis for a 2D plot).
-  XAxis_3D = 0,
-  YAxis_3D = 3,
-  ZAxis_3D = 1 // = Y
+  XAxis_3D = 0,         //!< X axis on 3D chart.
+  YAxis_3D = 3,         //!< Y axis on 3D chart.
+  ZAxis_3D = 1 // = Y   //!< Z axis on 3D chart.
 };
 
 /*! \brief Enumeration that indicates a logical location for an axis.

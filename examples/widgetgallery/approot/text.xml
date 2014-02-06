@@ -4292,31 +4292,31 @@
 
   <message id="graphics-Painting3D">
     <h2 id="painting3D">3D Graphics</h2>
-    <h3></h3>
+    <h3>WebGL</h3>
     <p>
-
+      Wt uses WebGL to render 3D graphics in the browser. The class ${doc-link WGLWidget} provides an interface for a 3D widget. Most of the functions provided by this class are a simple one-to-one map of the WebGL functions available in the browser.
     </p>
-
-    <h3></h3>
     <p>
-
+      The rendering process consists of four major parts, which should be implemented by overriding four virtual functions:
     </p>
+    <ul>
+      <li><tt>initializeGL()</tt>: This function is executed only once, when the widget is created.</li>
+      <li><tt>resizeGL()</tt>: This function is called whenever the widget is resized</li>
+      <li><tt>updateGL()</tt>: This function allows you to make state changes (e.g. to VBO's, shaders ...).</li>
+      <li><tt>paintGL()</tt>: This function contains all necessary calls to do the actual painting. The effect of <tt>paintGL()</tt> is recorded on the server, but the generated JavaScript is repeatedly executed on the client without requiring client/server requests. This is for example used to rerender a scene client-side after changing the camera position</li>
+    </ul>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      ${Painting3D}
-      ${src Painting3D}
-    </fieldset>
-
-    <p><a href="#painting3D">Top</a></p>
-
+    <h3>Server-side Fallback</h3>
+    <p>
+      When a browser does not support WebGL (e.g. IE10 or less, mobile browsers ...), ${doc-link WGLWidget} provides a server-side fall-back. The image will then be rendered in the server an sent to the browser as an PNG. Interaction is still possible, but the performance will be determined by the network latency. Also note that for practical scenarios this requires a server with hardware 3D acceleration.
+    </p>
   </message>
 
   <message id="graphics-NumCharts3D">
     <h2>3D Numerical Chart</h2>
     <h3>The chart</h3>
     <p>
-      The 3D charting API is built on top of Wt's 3D painting API. A chart is represented by a <tt>WCartesian3DChart</tt>, which derives from <tt>WGLWidget</tt>.
+      The 3D charting API is built on top of Wt's 3D painting API. A chart is represented by a ${doc-link WCartesian3DChart}, which derives from ${doc-link WGLWidget}.
     </p>
     <p>
       Based on the sort of data that will be shown, a chart is one of two types (the same as for 2D charts):
@@ -4328,7 +4328,7 @@
 
     <h3>Types of data</h3>
     <p>
-      All data that can be shown in a 3D chart, has to derive from <tt>WAbstractdataSeries3D</tt>. Instances of this class include a model containing the actual data and all logic to draw themselves on the chart. This means all graphical features of the data (color, pointsize ...) are also part of this class.
+      All data that can be shown in a 3D chart, has to derive from ${doc-link WAbstractdataSeries3D}. Instances of this class include a model containing the actual data and all logic to draw themselves on the chart. This means all graphical features of the data (color, pointsize ...) are also part of this class.
     </p>
     <p>
       Wt provides three built-in classes representing data:
@@ -4339,13 +4339,13 @@
       </ul>
     </p>
     <p>
-      Each instance of these dataseries has a <tt>WAbstractItemModel</tt> backing them. The model for all these dataseries has to be provided as a table. <br />
-      In <tt>WGridData</tt>, the table must contain one column representing the x-axis values and one row for the y-axis values. All other values then specify the z-axis value belonging to the corresponding (x, y) pair. <br />
-      The backing model for <tt>WEquidistantGridData</tt> is similar, with the difference that no x- and y-axis values are required. These can be specified directly to the class instance using <tt>setXAbscis(double XMinimum, double deltaX)</tt> and <tt>setYAbscis(double YMinimum, double deltaY)</tt>. <br />
-      The model for <tt>WScatterData</tt> must have three columns containing (x, y, z) values for every point.
+      Each instance of these dataseries has a ${doc-link WAbstractItemModel} backing them. The model for all these dataseries has to be provided as a table. <br />
+      In ${doc-link WGridData}, the table must contain one column representing the x-axis values and one row representing the y-axis values. All other values then specify the z-axis value belonging to the corresponding (x, y) pair. <br />
+      The backing model for ${doc-link WEquidistantGridData} is similar, with the difference that no x- and y-axis values are required. These can be specified directly to the class instance using <tt>setXAbscis(double XMinimum, double deltaX)</tt> and <tt>setYAbscis(double YMinimum, double deltaY)</tt>. <br />
+      The model for ${doc-link WScatterData} must have three columns containing (x, y, z) values for every point.
     </p>
     <p>
-      <tt>WGridData</tt> (and the deriving class <tt>WEquidistantGridData</tt>) has the additional feature that the visualization of the data is determined by its <tt>Series3DType</tt>, which can be either of three values:
+      All grid-based data has the additional feature that the visualization of the data is determined by its <tt>Series3DType</tt>, which can be either of three values:
       <ul>
         <li>PointSeries3D</li>
         <li>SurfaceSeries3D</li>
@@ -4363,7 +4363,14 @@
   <message id="graphics-CatCharts3D">
     <h2>3D Category Chart</h2>
     <p>
-      Tadaa!
+      General info on how to use the 3D Charting API can be found under '3D numerical chart'.
+    </p>
+    <h3>The data</h3>
+    <p>
+      A categorical representation is only possible for grid-based data. In terms of the API this means any class deriving ${doc-link WAbstractGridData}. Wt already provides two implementations: ${doc-link WGridData} and ${doc-link WEquidistantGridData}. To create a categorical chart, the chart must be configured as such (by setting the type to <tt>CategoryChart</tt>) and the data which is added to this chart must be of the type <tt>BarSeries3D</tt>.
+    </p>
+    <p>
+      A categorical chart also allows multiple dataseries to be shown if the dimensions are the same. The different bar-series are then stacked on top of each other.
     </p>
     <fieldset class="example">
       ${CategoryCharts3D}

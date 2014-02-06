@@ -1,50 +1,49 @@
-#include "Tabs.h"
-
-#include "Wt/WApplication"
-#include "Wt/WContainerWidget"
-#include "Wt/WStandardItemModel"
-#include "Wt/WTabWidget"
-#include "Wt/WCssDecorationStyle"
-#include "Wt/WBorder"
-#include "Wt/Chart/WCartesian3DChart"
-#include "Wt/Chart/WGridData"
+#include <Wt/WContainerWidget>
+#include <Wt/WStandardItemModel>
+#include <Wt/WCssDecorationStyle>
+#include <Wt/WBorder>
+#include <Wt/Chart/WCartesian3DChart>
+#include <Wt/Chart/WGridData>
 
 #include "../treeview-dragdrop/CsvUtil.h"
-#include <fstream>
 
 SAMPLE_BEGIN(CatChart3d)
 
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
-// create the chart and add a border to the widget
+// create the chart
 Wt::Chart::WCartesian3DChart *chart = new Wt::Chart::WCartesian3DChart(container);
 chart->setType(Wt::Chart::CategoryChart);
 Wt::WCssDecorationStyle style;
 style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium, Wt::black));
 chart->setDecorationStyle(style);
-chart->resize(600, 600);
+chart->resize(800, 600);
+chart->setTitle("Fish consumption in western Europe");
+chart->axis(Wt::Chart::ZAxis_3D).setTitle("Consumption (pcs/year)");
+chart->setLegendStyle(Wt::WFont(), Wt::WPen(),
+		      Wt::WBrush(Wt::WColor(Wt::lightGray)));
+chart->setLegendEnabled(true);
+chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::ZAxis_3D, true);
+chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::ZAxis_3D, true);
 
-// load first set of data (horizontal plane)
-Wt::WStandardItemModel *model1 = 
-  csvToModel(Wt::WApplication::appRoot() + "hor_plane.csv", container, false);
-Wt::Chart::WGridData *horPlane = new Wt::Chart::WGridData(model1);
-horPlane->setType(Wt::Chart::BarSeries3D);
-
-// load second set of data (stability of isotopes)
-Wt::WStandardItemModel *model2 = 
-  csvToModel(Wt::WApplication::appRoot() + "isotope_decay.csv", container, false);
-Wt::Chart::WGridData *isotopes = new Wt::Chart::WGridData(model2);
+// load data
+Wt::WStandardItemModel *model = 
+  csvToModel(Wt::WApplication::appRoot() + "fish_consumption.csv", container, false);
+// highlight Belgian codfish consumption
+for (unsigned i=0; i < model->rowCount(); i++) {
+  for (unsigned j=0; j < model->columnCount(); j++) {
+    if (Wt::asString(model->data(0, j)) == Wt::WString("codfish") &&
+	Wt::asString(model->data(i, 0)) == Wt::WString("Belgium"))
+      model->setData(i, j, Wt::WColor(Wt::cyan), Wt::MarkerBrushColorRole);
+  }
+ }
+Wt::Chart::WGridData *isotopes = new Wt::Chart::WGridData(model);
+isotopes->setTitle("made-up data");
 isotopes->setType(Wt::Chart::BarSeries3D);
 
 // add the dataseries to the chart
-
 chart->addDataSeries(isotopes);
-chart->addDataSeries(horPlane);
-// Set up the WTabWidget for configuring the charts
-CategoryDataSettings *settings1 = new CategoryDataSettings(horPlane, container);
-CategoryDataSettings *settings2 = new CategoryDataSettings(isotopes, container);
-Wt::WTabWidget *configuration = new Wt::WTabWidget(container);
-configuration->addTab(settings1, "horizontal plane", Wt::WTabWidget::PreLoading);
-configuration->addTab(settings2, "isotope data", Wt::WTabWidget::PreLoading);
+
+chart->setAlternativeContent(new Wt::WImage("pics/categoricalChartScreenshot.png", container));
 
 SAMPLE_END(return container)

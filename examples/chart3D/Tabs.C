@@ -107,7 +107,9 @@ ChartSettings::ChartSettings(WCartesian3DChart *chart,
   WCheckBox *enableGridLines = new WCheckBox(this);
   template_->bindWidget("gridlines", enableGridLines);
   WLineEdit *widgetWidth = new WLineEdit(Wt::asString(chart_->width().value()), this);
+  widgetWidth->setValidator(new Wt::WIntValidator(1, 2000));
   WLineEdit *widgetHeight = new WLineEdit(Wt::asString(chart_->height().value()), this);
+  widgetHeight->setValidator(new Wt::WIntValidator(1, 2000));
   template_->bindWidget("width", widgetWidth);
   template_->bindWidget("height", widgetHeight);
 

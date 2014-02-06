@@ -1,19 +1,21 @@
 #include "DataSettings.h"
 
-#include "Wt/WLineEdit"
-#include "Wt/WComboBox"
-#include "Wt/WCheckBox"
-#include "Wt/WTemplate"
-#include "Wt/Chart/WAbstractDataSeries3D"
-#include "Wt/Chart/WGridData"
-#include "Wt/Chart/WScatterData"
-#include "Wt/Chart/WStandardColorMap"
+#include <Wt/WLineEdit>
+#include <Wt/WComboBox>
+#include <Wt/WCheckBox>
+#include <Wt/WTemplate>
+#include <Wt/WIntValidator>
+#include <Wt/Chart/WAbstractDataSeries3D>
+#include <Wt/Chart/WGridData>
+#include <Wt/Chart/WScatterData>
+#include <Wt/Chart/WStandardColorMap>
 
 DataSettings::DataSettings()
   : data_(0)
 {
   setName_ = new WLineEdit(this);
   pointsize_ = new WLineEdit(this);
+  pointsize_->setValidator(new WIntValidator(1, 10));
   colormap_ = new WComboBox(this);
   colormap_->addItem("None");
   colormap_->addItem("Continuous");
@@ -135,6 +137,7 @@ NumGridDataSettings::NumGridDataSettings()
   enableMesh_ = new WCheckBox(this);
   template_->bindWidget("enablemesh", enableMesh_);
   penSize_ = new WLineEdit(this);
+  penSize_->setValidator(new WIntValidator(1, 10));
   template_->bindWidget("pensize", penSize_);
   penColor_ = new WComboBox(this);
   penColor_->addItem("black");

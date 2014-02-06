@@ -51,12 +51,8 @@ public:
      * Note that the std::ostream is not flushed to automatically. The
      * flush will happen automatically when this JsonSerializer is
      * destructed.
-     *
-     * A Session is not necessary for flat objects, but it is
-     * necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
-     * and one-to-one relations.
      */
-    JsonSerializer(std::ostream& out, Session *s = NULL);
+    JsonSerializer(std::ostream& out);
 
     /*! \brief Destructor
      */
@@ -81,29 +77,41 @@ public:
     void act(FieldRef<bool> field);
 
     template<typename T>
+    void actId(T& value, const std::string& name, int size) {
+      field(*this, value, name, size);
+    }
+
+    template<typename T>
+    void actId(ptr<T>& value, const std::string& name, int size, int fkConstraints) {
+      field(*this, value, name, size);
+    }
+
+    template<typename T>
     void actPtr(const PtrRef<T>& field) {
       writeFieldName(field.name());
-      outputId(field.id());
+      if (field.value())
+	outputId(field.id());
+      else
+	out("null");
     }
 
     template<typename T>
     void actWeakPtr(const WeakPtrRef<T>& field) {
-      if (session_) {
-	  writeFieldName(session_->tableName<T>() + std::string("_") + field.joinName());
-	  if (field.value()) {
-	    serialize(field.value().query());
-	  } else {
-	    out("null");
-	  }
+      writeFieldName(session_->tableName<T>() + std::string("_") + field.joinName());
+      ptr<T> v = field.value().query();
+      if (v) {
+	serialize(v);
+      } else {
+	out("null");
       }
     }
 
     template<typename T>
     void actCollection(const CollectionRef<T>& collec) {
-      if (session_ && collec.type() == ManyToOne) {
+      if (collec.type() == ManyToOne) {
+	collection<ptr<T> > c = collec.value();
 	writeFieldName(session_->tableName<T>() + std::string("s_")  + collec.joinName());
 	out('[');
-	collection<ptr<T> > c = collec.value();
 	bool first = true;
 	for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
 	  if (first)
@@ -116,12 +124,25 @@ public:
       }
     }
 
+    bool getsValue() const {
+      return true;
+    }
+
+    bool setsValue() const {
+      return false;
+    }
+
+    bool isSchema() const {
+      return false;
+    }
+
     /*! \brief Serialize the given object.
      *
      * Serializes a plain object that implements the \p persist() method.
      */
     template<typename T>
     void serialize(const T& t) {
+      session_ = NULL;
       out('{');
       const_cast<T&>(t).persist(*this);
       out('}');
@@ -134,11 +155,16 @@ public:
      */
     template<typename T>
     void serialize(const ptr<T>& t) {
+      session_ = t.session();
       out('{');
-      fastJsStringLiteral(dbo_traits<T>::surrogateIdField());
-      out(':');
-      outputId(t.id());
-      first_ = false;
+      first_ = true;
+      if (dbo_traits<T>::surrogateIdField()) {
+	out('"');
+	out(dbo_traits<T>::surrogateIdField());
+	out("\":");
+	outputId(t.id());
+	first_ = false;
+      }
       const_cast<T&>(*t).persist(*this);
       out('}');
     }
@@ -154,6 +180,8 @@ public:
       for (typename std::vector<ptr<T> >::const_iterator i = v.begin(); i != v.end(); ++i) {
 	if (i != v.begin())
 	  out(',');
+	else
+	  session_ = (*i).session();
 	serialize(*i);
       }
       out(']');
@@ -169,6 +197,7 @@ public:
      */
     template<typename T>
     void serialize(const collection<ptr<T> >& c) {
+      session_ = c.session();
       out('[');
       bool first = true;
       for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
@@ -179,13 +208,14 @@ public:
 	serialize(*i);
       }
       out(']');
+      session_ = NULL;
     }
 
 private:
     std::ostream &out_;
     Wt::EscapeOStream *escapeOut_, *stringLiteral_;
     bool first_;
-    Session* session_;
+    Session *session_;
 
     template<typename T>
     void out(T t);
@@ -207,60 +237,44 @@ private:
 
 /*! \brief Serialize the given object to the given ostream.
  *
- * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
- * and one-to-one relations, but can be omitted
- * if such relations are not present.
- *
  * \sa JsonSerializer::serialize()
  */
 template<typename C>
-void jsonSerialize(const C& c, std::ostream& out, Session *session = NULL) {
-  JsonSerializer serializer(out, session);
+void jsonSerialize(const C& c, std::ostream& out) {
+  JsonSerializer serializer(out);
   serializer.serialize(c);
 }
 
 /*! \brief Serialize the object pointed to by the given \ref ptr
  * to the given ostream.
  *
- * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
- * and one-to-one relations, but can be omitted
- * if such relations are not present.
- *
  * \sa JsonSerializer::serialize()
  */
 template<typename C>
-void jsonSerialize(const ptr<C>& c, std::ostream& out, Session *session = NULL) {
-  JsonSerializer serializer(out, session);
+void jsonSerialize(const ptr<C>& c, std::ostream& out) {
+  JsonSerializer serializer(out);
   serializer.serialize(c);
 }
 
 /*! \brief Serialize a vector of \link ptr ptrs\endlink to the given
  * ostream.
  *
- * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
- * and one-to-one relations, but can be omitted
- * if such relations are not present.
- *
  * \sa JsonSerializer::serialize()
  */
 template<typename C>
-void jsonSerialize(const std::vector<ptr<C> >& v, std::ostream& out, Session *session = NULL) {
-  JsonSerializer serializer(out, session);
+void jsonSerialize(const std::vector<ptr<C> >& v, std::ostream& out) {
+  JsonSerializer serializer(out);
   serializer.serialize(v);
 }
 
 /*! \brief Serialize a \ref collection of \link ptr ptrs\endlink to the given
  * ostream.
  *
- * A Session is necessary to follow \link Wt::Dbo::ManyToOne ManyToOne\endlink
- * and one-to-one relations, but can be omitted
- * if such relations are not present.
- *
  * \sa JsonSerializer::serialize()
  */
 template<typename C>
-void jsonSerialize(const collection<C>& c, std::ostream& out, Session *session = NULL) {
-  JsonSerializer serializer(out, session);
+void jsonSerialize(const collection<C>& c, std::ostream& out) {
+  JsonSerializer serializer(out);
   serializer.serialize(c);
 }
 

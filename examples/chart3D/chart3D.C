@@ -32,24 +32,25 @@ TestApp::TestApp(const WEnvironment& env)
 {
   setTitle("3D Charts Demo");
 
-  setTheme(new WBootstrapTheme());
+  setTheme(new WBootstrapTheme(this));
   //require("WebGL-Inspector/core/embed.js");
 
   messageResourceBundle().use(appRoot() + "configTemplates");
 
   WContainerWidget *wrapper = new WContainerWidget(root());
   wrapper->setContentAlignment(AlignCenter);
+  wrapper->addWidget(new WText("<h1>3D Charts Demo</h1>", wrapper));
   chartExPicker_ = new WComboBox(wrapper);
   chartExPicker_->addItem("Numerical Grid-Based Data");
   chartExPicker_->addItem("Categorical Data");
   chartExPicker_->addItem("Colormap Example");
   chartExPicker_->changed().connect(this, &TestApp::switchExamples);
-
-  stack_ = new WStackedWidget(root());
+  
+  stack_ = new WStackedWidget(wrapper);
   numEx_ = new NumericalExample(stack_);
   categoryEx_ = new CategoryExample(stack_);
   colormap_ = new ColorMapTest(stack_);
-
+  
   chartExPicker_->setCurrentIndex(0);
   stack_->setCurrentWidget(numEx_);
 }

@@ -19,6 +19,19 @@ NumericalExample::NumericalExample(WContainerWidget *parent)
   setContentAlignment(AlignCenter);
   
   chart_ = new WCartesian3DChart(this);
+  if (chart_->isAlternative()) {
+    
+    sombrModel_ = 0;
+    xPlaneModel_ = 0;
+    yPlaneModel_ = 0;
+    xPlaneModelSize_ = 0;
+    yPlaneModelColor_ = 0;
+    spiralModel_ = 0;
+    para1Model_ = 0;
+    para2Model_ = 0;
+    return;
+  }
+    
   chart_->setLegendStyle(WFont(), WPen(), WBrush(WColor(lightGray)));
 
   Wt::WCssDecorationStyle style;
@@ -29,38 +42,48 @@ NumericalExample::NumericalExample(WContainerWidget *parent)
   // first dataset
   sombrModel_ = new SombreroData(40, 40, -10, 10, -10, 10);
   WGridData *sombreroFunc_ = new WGridData(sombrModel_);
+  series_.push_back(sombreroFunc_);
 
   // second dataset
   yPlaneModel_ = new PlaneData(21, 21, -10, 1, -10, 1, true, 100, 100);
   WEquidistantGridData *yPlaneFunc_ = new WEquidistantGridData(yPlaneModel_,
 							       -10, 1, -10, 1);
+  series_.push_back(yPlaneFunc_);
+
   // third dataset
   xPlaneModel_ = new PlaneData(21, 21, -10, 1, -10, 1, false, 100, 100);
   WEquidistantGridData *xPlaneFunc_ = new WEquidistantGridData(xPlaneModel_,
 							       -10, 1, -10, 1);
+  series_.push_back(xPlaneFunc_);
 
   // dataset
   yPlaneModelColor_ = new PlaneData(21, 21, -10, 1, -10, 1, true, 1, 100);
   WEquidistantGridData *yPlaneFuncColor_ = new WEquidistantGridData(yPlaneModelColor_,
 							       -10, 1, -10, 1);
+  series_.push_back(yPlaneFuncColor_);
+
   // dataset
   xPlaneModelSize_ = new PlaneData(21, 21, -10, 1, -10, 1, false, 100, 1);
   WEquidistantGridData *xPlaneFuncSize_ = new WEquidistantGridData(xPlaneModelSize_,
 							       -10, 1, -10, 1);
+  series_.push_back(xPlaneFuncSize_);
   
   // dataset
   spiralModel_ = new PointsData(100);
   WScatterData *spiral_ = new WScatterData(spiralModel_);
+  series_.push_back(spiral_);
 
   // dataset
   para1Model_ = new Parabola(-20, 1, -20, 1, 0.01, 0, false, 0);
   WEquidistantGridData *parabola1 = new WEquidistantGridData(para1Model_,
 							     -20, 1, -20, 1);
+  series_.push_back(parabola1);
 
   // dataset
   para2Model_ = new Parabola(-10, 0.5, -10, 0.5, 0.1, -4, true, 0);
   WEquidistantGridData *parabola2 = new WEquidistantGridData(para2Model_,
 							     -10, 0.5, -10, 0.5);
+  series_.push_back(parabola2);
 
   chart_->resize(600,600);
 
@@ -140,4 +163,7 @@ NumericalExample::~NumericalExample()
   delete spiralModel_;
   delete para1Model_;
   delete para2Model_;
+
+  for (unsigned i=0; i < series_.size(); i++)
+    delete series_[i];
 }

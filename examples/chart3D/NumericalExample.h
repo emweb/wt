@@ -46,6 +46,8 @@ private:
   PointsData *spiralModel_;
   Parabola *para1Model_;
   Parabola *para2Model_;
+
+  std::vector<WAbstractDataSeries3D*> series_;
 };
 
 

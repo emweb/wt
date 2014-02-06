@@ -13,7 +13,6 @@ SET(WIDGETGALLERY_SOURCES
   TreesTables.C
   WidgetGallery.C
   ../treeview-dragdrop/CsvUtil.C
-  examples/Tabs.cpp
   examples/DataModels.cpp
   # ../charts/ChartsExample.C
   # ../charts/ChartConfig.C

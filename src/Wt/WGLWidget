@@ -443,7 +443,7 @@ public:
    * /code
    * /endcode
    */
-  WGLWidget(WContainerWidget *parent);
+  WGLWidget(WContainerWidget *parent, bool disableServerFallback = false);
 
   /*! \brief Destructor
    */
@@ -2572,6 +2572,14 @@ void uniform2iv(const UniformLocation &location,
    * WebGL support.
    */
   void setAlternativeContent(WWidget *alternative);
+
+  /*! \brief Return whether the alternative content is shown.
+   *
+   * If the alternative content is being rendered on the user's screen, this
+   * function will return true. This is the case is the browser does not have
+   * WebGL support and the server-side fallback failed (or is not present).
+   */
+  bool isAlternative();
 
   /*! \brief A JavaScript slot that repaints the widget when triggered.
    *

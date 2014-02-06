@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-//#define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT
 
 #include "Wt/WFontMetrics"
 #include "Wt/WLogger"
@@ -1386,7 +1386,7 @@ void Block::layoutTable(PageState &ps,
       rWidth = width - totalSpacing;
       rTotalMaxWidth = totalMaxWidth - totalSpacing;
 
-      for (unsigned i = 0; i < setColumnWidths[i]; ++i)
+      for (unsigned i = 0; i < widths.size(); ++i)
 	setColumnWidths[i] = -1.0;
     }
 
@@ -3141,6 +3141,14 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
 	      painter.drawText(WRectF(x, rect.top(),
 				      wordWidth, rect.height()),
 			       AlignLeft | AlignTop, word);
+
+#ifdef DEBUG_LAYOUT
+	      painter.save();
+	      painter.setPen(WPen(cyan));
+	      painter.drawRect(WRectF(x, rect.top(),
+				      wordWidth, rect.height()));
+	      painter.restore();
+#endif // DEBUG_LAYOUT
 
 	      x += wordWidth;
 	    }

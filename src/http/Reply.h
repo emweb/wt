@@ -170,9 +170,11 @@ private:
 
   Wt::WStringStream buf_;
   Wt::WStringStream postBuf_;
-  std::vector<std::string> bufs_;
+  // don't use vector; on resize the strings in bufs_ are copied, causing the
+  // pointers in the asio buffer lists to become invalid
+  std::list<std::string> bufs_;
 
-  asio::const_buffer buf(const std::string s);
+  asio::const_buffer buf(const std::string &s);
 
   bool encodeNextContentBuffer(std::vector<asio::const_buffer>& result,
 			       int& originalSize, int& encodedSize);

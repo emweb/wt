@@ -61,7 +61,7 @@ using namespace Wt;
 //       an extra array.
 // TODO: allow VBO's to be served from a file
 
-WGLWidget::WGLWidget(WContainerWidget *parent):
+WGLWidget::WGLWidget(WContainerWidget *parent, bool disableServerFallback):
   WInteractWidget(parent),
   pImpl_(0),
   repaintSignal_(this, "repaintSignal"),
@@ -86,16 +86,24 @@ WGLWidget::WGLWidget(WContainerWidget *parent):
   } else {
 #ifndef WT_TARGET_JAVA
 #ifdef WT_USE_OPENGL
-    try {
-      pImpl_ = new WServerGLWidget(this);
-    } catch (WException& e) {
+    if (!disableServerFallback) {
+      try {
+	pImpl_ = new WServerGLWidget(this);
+      } catch (WException& e) {
+	pImpl_ = 0;
+      }
+    } else {
       pImpl_ = 0;
     }
 #else
     pImpl_ = 0;
 #endif
 #else
-    pImpl_ = new WServerGLWidget(this);
+    if (!disableServerFallback) {
+      pImpl_ = new WServerGLWidget(this);
+    } else {
+      pImpl_ = 0;
+    }
 #endif
   }
 
@@ -127,6 +135,11 @@ void WGLWidget::setAlternativeContent(WWidget *alternative)
   alternative_ = alternative;
   if (alternative_)
     addChild(alternative_);
+}
+
+bool WGLWidget::isAlternative()
+{
+  return pImpl_ == 0;
 }
 
 void WGLWidget::enableClientErrorChecks(bool enable) {

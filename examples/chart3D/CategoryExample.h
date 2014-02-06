@@ -26,7 +26,7 @@ class CategoryExample: public WContainerWidget
 {
 public:
   CategoryExample(WContainerWidget *parent = 0);
-  ~CategoryExample() {}
+  ~CategoryExample();
   
 private:
   void setUpData();
@@ -41,6 +41,8 @@ private:
   WAbstractItemModel *yPlaneModel_;
   WAbstractItemModel *xPlaneModel_;
   WAbstractItemModel *xPlaneModelColor_;
+
+  std::vector<WAbstractDataSeries3D*> series_;
 };
 
 #endif

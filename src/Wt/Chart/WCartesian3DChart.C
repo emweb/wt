@@ -294,6 +294,8 @@ void WCartesian3DChart::initializeGL()
     worldTransform_.translate(0.5, 0.5, 0.5);
     worldTransform_.rotate(45.0, 0.0, 1.0, 0.0);
     worldTransform_.rotate(20.0, 1.0, 0.0, 1.0);
+    worldTransform_.rotate(5.0, 0.0, 1.0, 0.0);
+    worldTransform_.scale(1.8);
     worldTransform_.translate(-0.5, -0.5, -0.5);
   }
 
