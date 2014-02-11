@@ -429,7 +429,8 @@ void WDialog::setClosable(bool closable)
 {
   if (closable) {
     if (!closeIcon_) {
-      closeIcon_ = new WText(titleBar_);
+      closeIcon_ = new WText();
+      titleBar_->insertWidget(0, closeIcon_);
       WApplication::instance()->theme()->apply(this, closeIcon_,
 					       DialogCloseIconRole);
       closeIcon_->clicked().connect(this, &WDialog::reject);
@@ -505,7 +506,7 @@ void WDialog::setModal(bool modal)
 void WDialog::onDefaultPressed()
 {
   DialogCover *c = cover();
-  if (c && c->isTopDialogRendered(this)) {
+  if (footer_ && c && c->isTopDialogRendered(this)) {
     for (int i = 0; i < footer()->count(); ++i) {
       WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));
       if (b && b->isDefault()) {
@@ -531,15 +532,17 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
     if (!hidden) {
       WApplication *app = WApplication::instance();
 
-      for (int i = 0; i < footer()->count(); ++i) {
-	WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));
-	if (b && b->isDefault()) {
-	  enterConnection1_ = app->globalEnterPressed()
-	    .connect(this, &WDialog::onDefaultPressed);
+      if (footer_) {
+	for (int i = 0; i < footer()->count(); ++i) {
+	  WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));
+	  if (b && b->isDefault()) {
+	    enterConnection1_ = app->globalEnterPressed()
+	      .connect(this, &WDialog::onDefaultPressed);
 
-	  enterConnection2_ = impl_->enterPressed()
-	    .connect(this, &WDialog::onDefaultPressed);
-	  break;
+	    enterConnection2_ = impl_->enterPressed()
+	      .connect(this, &WDialog::onDefaultPressed);
+	    break;
+	  }
 	}
       }
 

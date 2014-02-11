@@ -419,6 +419,8 @@ private:
 
   static const char* imagePlus_;
   static const char* imageMin_;
+  static const char* imagePlusRtl_;
+  static const char* imageMinRtl_;
 
   Wt::Signals::connection clickedConnection_;
   friend class WTree;

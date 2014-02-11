@@ -167,6 +167,8 @@ void collection<C>::iterator::shared_impl::fetchNextRow()
     posPastQuery_++;
     if (posPastQuery_ == collection_.manualModeInsertions().size())
       ended_ = true;
+    else
+      current_ = collection_.manualModeInsertions()[posPastQuery_];
     return;
   }
 
@@ -190,10 +192,7 @@ void collection<C>::iterator::shared_impl::fetchNextRow()
 template <class C>
 typename collection<C>::value_type& collection<C>::iterator::shared_impl::current()
 {
-  if (!queryEnded_)
-    return current_;
-  else
-    return const_cast<collection<C>&>(collection_).manualModeInsertions()[posPastQuery_];
+  return current_;
 }
 
 template <class C>

@@ -83,6 +83,23 @@ public:
    */
   int autoHideDelay() const { return autoHideDelay_; }
 
+  /*! \brief Lets the popup delete itself when hidden.
+   *
+   * When this is enabled, the popup will delete itself when
+   * hidden. You need to take care that when overriding setHidden(),
+   * the popup may thus be deleted from within
+   * WPopupWidget::setHidden().
+   *
+   * The default value is \c false.
+   */
+  void setDeleteWhenHidden(bool enabled);
+
+  /*! \brief Returns whether auto delete is enabled.
+   *
+   * \sa setDeleteWhenHidden()
+   */
+  bool isDeleteWhenHidden() const { return deleteWhenHidden_; }
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
@@ -110,6 +127,7 @@ private:
   Orientation orientation_;
   bool transient_;
   int autoHideDelay_;
+  bool deleteWhenHidden_;
   Signal<> hidden_, shown_;
   JSignal<> jsHidden_, jsShown_;
 

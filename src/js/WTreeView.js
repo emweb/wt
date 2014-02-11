@@ -342,9 +342,8 @@ WT_DECLARE_WT_MEMBER
 
 	contentsContainer.style.width = (tw + scrollwidth) + 'px';
 
-	// IE moves the scrollbar left in rtl mode.
 	var rtl = $(document.body).hasClass('Wt-rtl');
-	if (!rtl || !WT.isIElt9) {
+	if (!rtl) {
 	  headerContainer.style.marginRight = scrollwidth + 'px';
 	  $('#' + el.id + ' .Wt-scroll').css('marginRight', scrollwidth + 'px');
 	}

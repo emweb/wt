@@ -390,6 +390,12 @@ public:
    */
   WModelIndex decodeFromRawIndex() const;
 
+  /*! \brief Returns the depth (in a hierarchical model).
+   *
+   * A top level index has depth 0.
+   */
+  int depth() const;
+
   /*! \brief Utility method for converting an entire set of indexes to raw.
    *
    * \sa encodeAsRawIndex()
@@ -423,7 +429,6 @@ private:
   friend class WAbstractItemModel;
 
   WModelIndex ancestor(int depth) const;
-  int depth() const;
 
   bool isRawIndex() const;
 };

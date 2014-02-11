@@ -1443,9 +1443,10 @@ void Block::layoutTable(PageState &ps,
       // Note: should actually interpret CSS 'table-header-group' value for
       // display
       repeatHead = children_[i];
-    } else
-      if (children_[i]->type_ != DomElement_UNKNOWN)
-	break;
+      break;
+    } else if (children_[i]->type_ == DomElement_TBODY ||
+	       children_[i]->type_ == DomElement_TR)
+      break;
   }
   bool protectRows = repeatHead != 0;
 
@@ -2173,7 +2174,12 @@ double Block::layoutBlock(PageState &ps,
 	     * This layout computes the 'hypothetical' static layout
 	     * properties
 	     */
-	    PageState absolutePs = ps;
+	    PageState absolutePs;
+	    absolutePs.y = ps.y;
+	    absolutePs.page = ps.page;
+	    absolutePs.minX = ps.minX;
+	    absolutePs.maxX = ps.maxX;
+	    absolutePs.floats = ps.floats;
 	    c->layoutBlock(absolutePs, false, renderer, 0, 0);
 	  } else {
 	    double copyMinX = ps.minX;

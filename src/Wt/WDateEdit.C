@@ -40,6 +40,7 @@ WDateEdit::WDateEdit(WContainerWidget *parent)
   popup_->setTransient(true);
 
   calendar_ = new WCalendar();
+  calendar_->setSingleClickSelect(true);
   calendar_->activated().connect(popup_, &WPopupWidget::hide);
   calendar_->activated().connect(this, &WDateEdit::setFocus);
   calendar_->selectionChanged().connect(this, &WDateEdit::setFromCalendar);

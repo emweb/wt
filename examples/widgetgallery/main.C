@@ -24,6 +24,8 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 	      << "!!!!!!!!!!" << std::endl;
   }
 
+  // Choice of theme: defaults to bootstrap3 but can be overridden using
+  // a theme parameter (for testing)
   const std::string *themePtr = env.getParameter("theme");
   std::string theme;
   if (!themePtr)
@@ -31,11 +33,14 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   else
     theme = *themePtr;
 
-  if (theme == "bootstrap3"){
+  if (theme == "bootstrap3") {
     Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
     bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
     app->setTheme(bootstrapTheme);
-  } else if (theme == "bootstrap2"){
+
+    // load the default bootstrap3 (sub-)theme
+    app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
+  } else if (theme == "bootstrap2") {
     Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
     app->setTheme(bootstrapTheme);
   } else

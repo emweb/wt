@@ -187,6 +187,10 @@ public:
    *
    * By default, a button does not link to an URL and you should
    * listen to the clicked() signal to react to a click event.
+   *
+   * \warning In Bootstrap theme, you should set a link before it's rendered
+   *          since it commit's the button to be rendered as an anchor.
+   *          (see also http://redmine.emweb.be/issues/1802).
    */
   void setLink(const WLink& link);
 

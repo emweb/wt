@@ -43,7 +43,7 @@ namespace Wt {
  *
  * \ingroup dbo
  */
-class JsonSerializer
+class WTDBO_API JsonSerializer
 {
 public:
     /*! \brief Creates a JsonSerializer that writes to an std::ostream.

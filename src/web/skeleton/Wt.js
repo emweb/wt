@@ -1012,7 +1012,7 @@ this.vendorPrefix = function(attr) {
 };
 
 this.boxSizing = function(w) {
-  return (WT.css(w, 'box-sizing')) === 'border-box';
+  return (WT.css(w, WT.styleAttribute('box-sizing'))) === 'border-box';
 };
 
 // Return if an element (or one of its ancestors) is hidden
@@ -2697,8 +2697,18 @@ _$_$endif_$_();
 var updateTimeoutStart;
 
 function scheduleUpdate() {
-  if (quited)
-    return;
+  if (quited) {
+    if (norestart)
+      return;
+    if (confirm("The application was quited, do you want to restart?")) {
+      document.location = document.location;
+      norestart = true;
+      return;
+    } else {
+      norestart = true;
+      return;
+    }
+  }
 
 _$_$if_WEB_SOCKETS_$_();
   if (websocket.state != WebSocketsUnavailable) {
@@ -2713,9 +2723,12 @@ _$_$if_WEB_SOCKETS_$_();
 	  websocket.state = WebSocketsUnavailable;
 	else {
 	  function reconnect() {
-	    ++websocket.reconnectTries;
-	    var ms = Math.min(120000, Math.exp(websocket.reconnectTries) * 500);
-	    setTimeout(function() { scheduleUpdate(); }, ms);
+	    if (!quited) {
+	      ++websocket.reconnectTries;
+	      var ms = Math.min(120000, Math.exp(websocket.reconnectTries)
+				* 500);
+	      setTimeout(function() { scheduleUpdate(); }, ms);
+	    }
 	  }
 
 	  var protocolEnd = sessionUrl.indexOf("://"), wsurl;
@@ -2851,18 +2864,8 @@ function sendUpdate() {
 
   if (WT.isIEMobile) feedback = false;
 
-  if (quited) {
-    if (norestart)
-      return;
-    if (confirm("The application was quited, do you want to restart?")) {
-      document.location = document.location;
-      norestart = true;
-      return;
-    } else {
-      norestart = true;
-      return;
-    }
-  }
+  if (quited)
+    return;
 
   var data, tm, poll;
 

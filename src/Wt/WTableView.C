@@ -1411,6 +1411,7 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
 {
   assert(ajaxMode());
 
+  
   viewportLeft_ = left;
   viewportWidth_ = width;
   viewportTop_ = top;
@@ -1797,8 +1798,9 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
       if (isRendered()) {
 	WStringStream s;
 
-	s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
-	  << rowY << "," << (int)hint << ");";
+	s << "setTimeout(function() { jQuery.data("
+	  << jsRef() << ", 'obj').scrollTo(-1, "
+	  << rowY << "," << (int)hint << "); }, 0);";
 
 	doJavaScript(s.str());
       }
@@ -1812,7 +1814,7 @@ void WTableView::scrollTo(int x, int y) {
     if (isRendered()) {
       WStringStream s;
 
-      s << "debugger; jQuery.data(" << jsRef() << ", 'obj').scrollToPx(" << x << ", "
+      s << "jQuery.data(" << jsRef() << ", 'obj').scrollToPx(" << x << ", "
         << y << ");";
 
       doJavaScript(s.str());

@@ -238,8 +238,6 @@ WApplication::WApplication(const WEnvironment& env
 		      "-khtml-user-select: normal;"
 		      "-webkit-user-select: text;"
 		      "user-select: text;");
-  styleSheet_.addRule(".Wt-sbspacer", "float: right; width: 16px; height: 1px;"
-		      "border: 0px; display: none;");
   styleSheet_.addRule(".Wt-domRoot", "position: relative;");
   styleSheet_.addRule("body.Wt-layout", std::string() +
 		      "height: 100%; width: 100%;"

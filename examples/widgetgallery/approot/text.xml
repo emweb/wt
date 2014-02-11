@@ -917,13 +917,26 @@
         </dd>
         <dt>bootstrap</dt>
         <dd>
-          This theme is implemented by the ${doc-link WBootstrapTheme}
-          class, and relies on Twitter's Bootstrap CSS framework. Use
-          <tt>setTheme(new WBootstrapTheme())</tt> to use this theme.
-          We support Bootstrap 2 and Bootstrap 3, so you may choose your
-          favorite Bootstrap version with WTheme::setVersion function. The
-          widget gallery is using Bootstrap 3.
-          <a href="http://getbootstrap.com/">Bootstrap documentation</a>
+	  <p>
+	    This theme is implemented by the ${doc-link WBootstrapTheme}
+	    class, and relies on <a
+	    href="http://getbootstrap.com/">Twitter's Bootstrap CSS
+	    framework</a>. Use <tt>setTheme(new WBootstrapTheme())</tt>
+	    to use this theme.
+	  </p>
+	  <p>
+	    As of version 3.3.2, Bootstrap 2 and Bootstrap 3 versions
+	    are supported. The widget gallery has been restyled to use
+	    Bootstrap 3. While the theme makes sure that Wt's widgets
+	    are rendered with the markup expected by bootstrap, there
+	    are many features that are particular to the layout system
+	    of bootstrap (and chaned from version 2 to version
+	    3). Thus you need to know how bootstrap expects you to
+	    layout widgets in order to effectivily use this theme, for
+	    which we refer to the <a
+	    href="http://getbootstrap.com/">Bootstrap
+	    documentation</a>.
+	  </p>
         </dd>
       </dl>
     </p>

@@ -419,16 +419,7 @@ WString Home::tr(const char *key)
 
 void Home::googleAnalyticsLogger()
 {
-  std::string googleCmd = 
-    "if (window.pageTracker) {"
-    """try {"
-    ""  "setTimeout(function() {"
-    ""  "window.pageTracker._trackPageview(\""
-    + environment().deploymentPath() + internalPath() + "\");"
-    ""  "}, 1000);"
-    """} catch (e) { }"
-    "}";
-
-  doJavaScript(googleCmd);
+  doJavaScript("ga('send','pageview','"
+	       + environment().deploymentPath() + internalPath() + "');");
 }
 

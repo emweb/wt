@@ -1,7 +1,9 @@
+#include <Wt/WApplication>
 #include <Wt/WContainerWidget>
 #include <Wt/WStandardItemModel>
 #include <Wt/WCssDecorationStyle>
 #include <Wt/WBorder>
+#include <Wt/WImage>
 #include <Wt/Chart/WCartesian3DChart>
 #include <Wt/Chart/WGridData>
 
@@ -44,6 +46,6 @@ isotopes->setType(Wt::Chart::BarSeries3D);
 // add the dataseries to the chart
 chart->addDataSeries(isotopes);
 
-chart->setAlternativeContent(new Wt::WImage("pics/categoricalChartScreenshot.png", container));
+chart->setAlternativeContent(new Wt::WImage(Wt::WLink("pics/categoricalChartScreenshot.png"), container));
 
 SAMPLE_END(return container)

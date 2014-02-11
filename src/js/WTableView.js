@@ -14,11 +14,23 @@ WT_DECLARE_WT_MEMBER
 
    var self = this;
    var WT = APP.WT;
+   var rtl = $(document.body).hasClass('Wt-rtl');
 
    /** @const */ var EnsureVisible = 0;
    /** @const */ var PositionAtTop = 1;
    /** @const */ var PositionAtBottom = 2;
    /** @const */ var PositionAtCenter = 3;
+
+   function rtlScrollLeft(o) {
+     console.log(o.scrollWidth, o.clientWidth, o.scrollLeft);
+     if (rtl) {
+       if (WT.isGecko)
+	 return -o.scrollLeft;
+       else
+	 return o.scrollWidth - o.clientWidth - o.scrollLeft;
+     } else
+       return o.scrollLeft;
+   }
 
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
 
@@ -26,13 +38,15 @@ WT_DECLARE_WT_MEMBER
     * We need to remember this for when going through a hide()
     * show() cycle.
     */
-   var scrollTop = 0, scrollLeft = 0, currentWidth = 0, currentHeight = 0;
+   var scrollTop = 0, scrollLeft, currentWidth = 0, currentHeight = 0;
 
    this.onContentsContainerScroll = function() {
      scrollLeft = headerContainer.scrollLeft
 		   = contentsContainer.scrollLeft;
      scrollTop = headerColumnsContainer.scrollTop
 		    = contentsContainer.scrollTop;
+
+     console.log(scrollLeft, scrollTop);
 
      if (contentsContainer.scrollTop == 0 && WT.isAndroid)
        return;
@@ -41,10 +55,11 @@ WT_DECLARE_WT_MEMBER
          && (contentsContainer.scrollTop < scrollY1
 	 || contentsContainer.scrollTop > scrollY2
 	 || contentsContainer.scrollLeft < scrollX1
-	 || contentsContainer.scrollLeft > scrollX2))
-       APP.emit(el, 'scrolled', contentsContainer.scrollLeft,
+	 || contentsContainer.scrollLeft > scrollX2)) {
+       APP.emit(el, 'scrolled', rtlScrollLeft(contentsContainer),
 	        contentsContainer.scrollTop, contentsContainer.clientWidth,
-	        contentsContainer.clientHeight);
+	        contentsContainer.clientHeight);       
+     }
    };
 
    contentsContainer.wtResize = function(o, w, h) {
@@ -54,7 +69,7 @@ WT_DECLARE_WT_MEMBER
        var height = o.clientHeight == o.firstChild.clientHeight
          ? -1
          : o.clientHeight;
-       APP.emit(el, 'scrolled', o.scrollLeft, o.scrollTop,
+       APP.emit(el, 'scrolled', rtlScrollLeft(o), o.scrollTop,
 		o.clientWidth, height);
      }
    };
@@ -187,6 +202,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.resetScroll = function() {
+     debugger;
      headerContainer.scrollLeft = scrollLeft;
      contentsContainer.scrollLeft = scrollLeft;
      contentsContainer.scrollTop = scrollTop;
@@ -378,10 +394,19 @@ WT_DECLARE_WT_MEMBER
 
      if (!WT.isIE && (scrollTop != contentsContainer.scrollTop
          || scrollLeft != contentsContainer.scrollLeft)) {
-       headerContainer.scrollLeft = contentsContainer.scrollLeft
-				      = scrollLeft;
+       if (typeof scrollLeft === 'undefined') {
+	 if (rtl && WT.isGecko) {	   
+	   headerContainer.scrollLeft = contentsContainer.scrollLeft
+	     = scrollLeft = 0;
+	 } else {
+	   scrollLeft = contentsContainer.scrollLeft;
+	 }
+       } else {
+	 headerContainer.scrollLeft = contentsContainer.scrollLeft
+	   = scrollLeft;
+       }
        headerColumnsContainer.scrollTop = contentsContainer.scrollTop
-					    = scrollTop;
+	 = scrollTop;	 
      }
 
      var tw = el.offsetWidth - WT.px(el, 'borderLeftWidth')
@@ -398,10 +423,6 @@ WT_DECLARE_WT_MEMBER
 
        contentsContainer.style.width = (tw + scrollwidth) + 'px';
        headerContainer.style.width = tw + 'px';
-
-       // IE moves the scrollbar left in rtl mode.
-       if (!WT.isIE)
-	 headerContainer.style.marginRight = scrollwidth + 'px';
      }
 
      var scrollheight = contentsContainer.offsetHeight

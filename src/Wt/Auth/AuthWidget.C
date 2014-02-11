@@ -484,7 +484,12 @@ void AuthWidget::processEnvironment()
       login_.login(result.user());
     }
 
-    WApplication::instance()->setInternalPath("/");
+    /*
+     * In progressive bootstrap mode, this would cause a redirect w/o
+     * session ID, losing the dialog.
+     */
+    if (WApplication::instance()->environment().ajax())
+      WApplication::instance()->setInternalPath("/");
 
     return;
   }

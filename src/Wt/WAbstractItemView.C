@@ -906,16 +906,17 @@ void WAbstractItemView::selectionHandleClick(const WModelIndex& index,
       extendSelection(index);
     else {
       if (!(modifiers & (ControlModifier | MetaModifier))) {
-	//if (isSelected(index)) -> strange MacOS X behavor
-	//  return;
-	//else {
 	select(index, ClearAndSelect);
-	//}
       } else
 	select(index, ToggleSelect);
     }
-  } else
-    select(index, Select);
+  } else {
+    if ((modifiers & (ControlModifier | MetaModifier)) &&
+	isSelected(index))
+      clearSelection();
+    else
+      select(index, Select);
+  }
 }
 
 WModelIndexSet WAbstractItemView::selectedIndexes() const

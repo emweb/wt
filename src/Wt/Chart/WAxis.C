@@ -536,7 +536,7 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 		max = max.addSecs(interval * 60 * 60);
 	      }
 	    }
-	  } else if (minutes > 2) {
+	  } else if (minutes > 0.8) {
 	    s.dateTimeRenderUnit = Minutes;
 
 	    if (minutes < 1.3)

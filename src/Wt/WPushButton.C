@@ -220,6 +220,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
     image->setId("im" + formName());
     element.insertChildAt(image, 0);
     flags_.set(BIT_ICON_RENDERED);
+    flags_.reset(BIT_ICON_CHANGED);
   }
 
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
@@ -308,7 +309,7 @@ void WPushButton::getDomChanges(std::vector<DomElement *>& result,
       image->removeFromParent();
       flags_.reset(BIT_ICON_RENDERED);
     } else
-      image->setProperty(PropertySrc, icon_.url());
+      image->setProperty(PropertySrc, icon_.resolveUrl(app));
 
     result.push_back(image);
 

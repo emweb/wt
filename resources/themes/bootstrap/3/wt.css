@@ -158,19 +158,11 @@
   font-size: 18px;
 }
 
-.modal-dialog .modal-header div {
-  float: left;
-}
-
 .modal-dialog .modal-body .modal-footer {
   margin: 0 -15px -15px;
 }
 
-/*
- * Message box
- */
-
-.modal .Wt-msgbox-icon {
+.modal-dialog .modal-body .Wt-msgbox-icon {
   display: block;
   float: left;
   width: 25px;
@@ -178,7 +170,7 @@
   margin: -5px 15px 0 0px;
 }
 
-.modal .Wt-msgbox-text {
+.modal-dialog .modal-body .Wt-msgbox-text {
   overflow: auto;
 }
 
@@ -435,6 +427,7 @@
 
 .Wt-slider-h .handle {
   top: 50% !important;
+  z-index: 2;
   height: 18px !important;
   margin-top: -10px;
   color: #333333;
@@ -518,6 +511,7 @@ fieldset[disabled] .Wt-slider-h .handle.active {
 
 .Wt-slider-v .handle {
   left: 50% !important;
+  z-index: 2;
   width: 18px !important;
   margin-left: -10px;
   color: #333333;
@@ -709,6 +703,11 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
   float: left;
 }
 
+body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
+  margin-right: 4px;
+  margin-left: 0;
+}
+
 /*
  * WTableView
  */
@@ -718,15 +717,6 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
   /* header */
 
   /* borders */
-
-  /*
-      This breaks row headers ...
-
-      .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
-      .Wt-tv-contents > div:last-child .Wt-tv-c {
-    	border-right: 0;
-      }
-   */
 
 }
 
@@ -793,15 +783,19 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
 
 body.Wt-rtl .Wt-tableview .Wt-header .Wt-tv-c {
   padding-right: 6px;
+  padding-left: 0;
+  margin-right: 6px;
+  margin-left: 0;
 }
 
 body.Wt-rtl .Wt-tableview .Wt-tv-br {
-  border-left: 1px solid transparent;
+  border-right: 0;
+  border-left: 1px solid #dddddd;
 }
 
 body.Wt-rtl .Wt-tableview .Wt-tv-contents .Wt-tv-c,
 body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
-  border-bottom: 1px solid #dddddd;
+  border-right: 0;
   border-left: 1px solid #dddddd;
 }
 
@@ -874,10 +868,55 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
   line-height: 150%;
 }
 
+body.Wt-rtl .Wt-tree ul {
+  padding-right: 20px;
+  padding-left: 0;
+  margin: 0;
+}
+
+body.Wt-rtl .Wt-tree ul.Wt-root {
+  padding-right: 0;
+}
+
+body.Wt-rtl .Wt-tree.Wt-trunk,
+body.Wt-rtl .Wt-tree .Wt-item.Wt-trunk {
+  background-position: top right;
+}
+
+body.Wt-rtl .Wt-tree .Wt-item.Wt-end {
+  background-image: url(../../../line-last-rtl.gif);
+  background-position: top right;
+}
+
+body.Wt-rtl .Wt-tree .Wt-ctrl {
+  float: right;
+}
+
+body.Wt-rtl .Wt-tree .Wt-ctrl.Wt-noexpand {
+  background-image: url(../../../line-middle-rtl.gif);
+  background-position: top right;
+}
+
+body.Wt-rtl .Wt-tree .cols-row {
+  float: left;
+}
+
 .Wt-treetable .Wt-header {
   font-weight: bold;
   line-height: 28px;
   border-bottom: 1px solid transparent;
+}
+
+.Wt-sbspacer {
+  display: none;
+  float: right;
+  width: 16px;
+  height: 1px;
+  border: 0;
+}
+
+body.Wt-rtl .Wt-sbspacer {
+  float: left;
 }
 
 /*
@@ -987,12 +1026,13 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
   background: url(../../../line-middle.gif) no-repeat 0 center;
 }
 
-body.Wt-rtl .Wt-treeview .Wt-tv-row {
-  float: left;
+body.Wt-rtl .Wt-treeview ul {
+  padding-right: 20px;
+  padding-left: 0;
 }
 
-body.Wt-rtl .Wt-treeview .Wt-tv-row .Wt-tv-c {
-  float: right;
+body.Wt-rtl .Wt-treeview ul.Wt-tv-root {
+  padding-right: 0;
 }
 
 body.Wt-rtl .Wt-treeview img.icon,
@@ -1001,33 +1041,48 @@ body.Wt-rtl .Wt-treeview input.icon {
 }
 
 body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
-  padding: 0;
   margin-right: 7px;
   margin-left: 0;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-tv-br,
-body.Wt-rtl .Wt-treeview ul .Wt-tv-row .Wt-tv-c {
-  margin-right: 1px;
+body.Wt-rtl .Wt-treeview ul .Wt-tv-c {
   margin-left: 0;
   border-right: 0;
   border-left: 1px solid transparent;
 }
 
+body.Wt-rtl .Wt-treeview .Wt-tv-row {
+  float: left;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-tv-row .Wt-tv-c {
+  float: right;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-trunk {
+  background-position: top right;
+}
+
 body.Wt-rtl .Wt-treeview .Wt-end {
   background-image: url(../../../tv-line-last-rtl.gif);
+  background-position: right center;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-ctrl {
+  float: right;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
-  background: url(../nav-plus-rtl.gif) no-repeat 0 center;
+  background-image: url(../nav-plus-rtl.gif);
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
-  background: url(../nav-minus-rtl.gif) no-repeat 0 center;
+  background-image: url(../nav-minus-rtl.gif);
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
-  background: url(../../../line-middle-rtl.gif) no-repeat 0 center;
+  background-image: url(../../../line-middle-rtl.gif);
 }
 
 /*

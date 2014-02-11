@@ -3,6 +3,7 @@
 #include <Wt/WCssDecorationStyle>
 #include <Wt/WBorder>
 #include <Wt/WContainerWidget>
+#include <Wt/WImage>
 #include <Wt/Chart/WCartesian3DChart>
 #include <Wt/Chart/WGridData>
 #include <Wt/Chart/WEquidistantGridData>
@@ -70,6 +71,6 @@ chart->addDataSeries(dataset1);
 chart->addDataSeries(dataset2);
 chart->addDataSeries(dataset3);
 
-chart->setAlternativeContent(new Wt::WImage("pics/numericalChartScreenshot.png", container));
+chart->setAlternativeContent(new Wt::WImage(Wt::WLink("pics/numericalChartScreenshot.png"), container));
 
 SAMPLE_END(return container)

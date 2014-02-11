@@ -21,6 +21,7 @@ WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
     orientation_(Vertical),
     transient_(false),
     autoHideDelay_(0),
+    deleteWhenHidden_(false),
     hidden_(this),
     shown_(this),
     jsHidden_(impl, "hidden"),
@@ -82,6 +83,11 @@ void WPopupWidget::setTransient(bool isTransient, int autoHideDelay)
   }
 }
 
+void WPopupWidget::setDeleteWhenHidden(bool enable)
+{
+  deleteWhenHidden_ = enable;
+}
+
 void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
 {
   if (WWebWidget::canOptimizeUpdates() && hidden == isHidden())
@@ -105,6 +111,9 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
       doJavaScript("var o = jQuery.data(" + jsRef() + ", 'popup');"
 		   "if (o) o.shown();");
   }
+
+  if (!WWebWidget::canOptimizeUpdates() && hidden && deleteWhenHidden_)
+    delete this;
 }
 
 void WPopupWidget::defineJavaScript()

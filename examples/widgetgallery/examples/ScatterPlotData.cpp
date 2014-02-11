@@ -42,10 +42,10 @@ table->setColumnAlignment(0, Wt::AlignCenter);
 table->setHeaderAlignment(0, Wt::AlignCenter);
 table->setRowHeight(28);
 table->setHeaderHeight(28);
-table->resize(800, 200);
 table->setColumnWidth(0, 80);
 for (int column = 1; column < model->columnCount(); ++column)
     table->setColumnWidth(column, 90);
+table->resize(780, 200);
 
 /*
  * Use a delegate for the numeric data which rounds values sensibly.

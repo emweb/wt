@@ -61,7 +61,7 @@ using namespace Wt;
 //       an extra array.
 // TODO: allow VBO's to be served from a file
 
-WGLWidget::WGLWidget(WContainerWidget *parent, bool disableServerFallback):
+WGLWidget::WGLWidget(WFlags<RenderOption> options, WContainerWidget *parent):
   WInteractWidget(parent),
   pImpl_(0),
   repaintSignal_(this, "repaintSignal"),
@@ -81,12 +81,40 @@ WGLWidget::WGLWidget(WContainerWidget *parent, bool disableServerFallback):
     "}", this)
 
 {
-  if (WApplication::instance()->environment().webGL()) {
+  init(options);
+}
+
+WGLWidget::WGLWidget(WContainerWidget *parent)
+  : WInteractWidget(parent),
+    pImpl_(0),
+    repaintSignal_(this, "repaintSignal"),
+    alternative_(0),
+    webglNotAvailable_(this, "webglNotAvailable"),
+    webGlNotAvailable_(false),
+    mouseWentDownSlot_("function(){}", this),
+    mouseWentUpSlot_("function(){}", this),
+    mouseDraggedSlot_("function(){}", this),
+    mouseWheelSlot_("function(){}", this),
+    touchStarted_("function(){}", this),
+    touchEnded_("function(){}", this),
+    touchMoved_("function(){}", this),
+    repaintSlot_("function() {"
+		 "var o = " + this->glObjJsRef() + ";"
+		 "if(o.ctx) o.paintGL();"
+		 "}", this)
+{
+  init(ClientSideRendering | ServerSideRendering);
+}
+
+void WGLWidget::init(WFlags<RenderOption> options)
+{
+  if (options & ClientSideRendering &&
+      WApplication::instance()->environment().webGL()) {
     pImpl_ = new WClientGLWidget(this);
   } else {
 #ifndef WT_TARGET_JAVA
 #ifdef WT_USE_OPENGL
-    if (!disableServerFallback) {
+    if (options & ServerSideRendering) {
       try {
 	pImpl_ = new WServerGLWidget(this);
       } catch (WException& e) {
@@ -99,7 +127,7 @@ WGLWidget::WGLWidget(WContainerWidget *parent, bool disableServerFallback):
     pImpl_ = 0;
 #endif
 #else
-    if (!disableServerFallback) {
+    if (options & ServerSideRendering) {
       pImpl_ = new WServerGLWidget(this);
     } else {
       pImpl_ = 0;

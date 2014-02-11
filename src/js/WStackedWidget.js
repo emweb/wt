@@ -212,6 +212,8 @@ WT_DECLARE_WT_MEMBER
        to.style.width = '';
        to.style.top = '';
        to.style.height = '';
+       if (WT.isGecko && (effects & Fade))
+         to.style.opacity = '1';
        to.style[WT.styleAttribute('animation-duration')] = '';
        to.style[WT.styleAttribute('animation-timing-function')] = '';
      }
@@ -225,10 +227,19 @@ WT_DECLARE_WT_MEMBER
 
      /*
       * If an animation is already busy, then wait until it is done
+      * FIXME: Ideally, accelerate existing animation to completion
+      * For now, reduce duration of any queued animations so that
+      * backlogs are minimized for faster resync.
       */
      if ($from.hasClass("in")) {
        $from.one(animationEventEnd, function() {
-	   doAnimateChild(WT, child, effects, timing, duration, style);
+	   doAnimateChild(WT, child, effects, timing, 1, style);
+	 });
+       return;
+     }
+     else if ($to.hasClass("out")) {
+       $to.one(animationEventEnd, function() {
+	   doAnimateChild(WT, child, effects, timing, 1, style);
 	 });
        return;
      }
@@ -256,7 +267,7 @@ WT_DECLARE_WT_MEMBER
      to.style.width = w + 'px';
      to.style.height = h + 'px';
      to.style.position = 'absolute';
-     if (WT.isGecko)
+     if (WT.isGecko && (effects & Fade))
         to.style.opacity = '0';
      to.style.display = style.display;
 
@@ -288,8 +299,6 @@ WT_DECLARE_WT_MEMBER
 
      $to.addClass(anim + ' in');
      $to.one(animationEventEnd, restoreTo);
-     if (WT.isGecko)
-       to.style.opacity = '';
   };
 
   doAnimateChild(WT, child, effects, timing, duration, style);

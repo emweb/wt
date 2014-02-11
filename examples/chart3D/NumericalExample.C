@@ -164,6 +164,9 @@ NumericalExample::~NumericalExample()
   delete para1Model_;
   delete para2Model_;
 
+  std::vector<WAbstractDataSeries3D*> onChart = chart_->dataSeries();
+  for (unsigned i=0; i < onChart.size(); i++)
+    chart_->removeDataSeries(onChart[i]);
   for (unsigned i=0; i < series_.size(); i++)
     delete series_[i];
 }

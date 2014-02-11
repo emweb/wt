@@ -436,6 +436,11 @@ public:
     friend class WClientGLWidget;
   };
 
+  enum RenderOption {
+    ClientSideRendering = 0x1,
+    ServerSideRendering = 0x2
+  };
+
   /*! \brief Construct a WebGL widget.
    *
    * Before the first rendering, you must apply a size to the WGLWidget.
@@ -443,7 +448,16 @@ public:
    * /code
    * /endcode
    */
-  WGLWidget(WContainerWidget *parent, bool disableServerFallback = false);
+  WGLWidget(WFlags<RenderOption> options, WContainerWidget *parent = 0);
+
+  /*! \brief Construct a WebGL widget.
+   *
+   * Before the first rendering, you must apply a size to the WGLWidget.
+   *
+   * /code
+   * /endcode
+   */
+  WGLWidget(WContainerWidget *parent = 0);
 
   /*! \brief Destructor
    */
@@ -2629,6 +2643,8 @@ protected:
   virtual void setFormData(const FormData& formData);
 
 private:
+  void init(WFlags<RenderOption> options);
+
   WAbstractGLImplementation *pImpl_;
   struct jsMatrixMap {
     int id;
@@ -2673,6 +2689,7 @@ static void renderfv(std::ostream &os, WGenericMatrix<MatrixType, 4, 4> t,
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::GLenum)
 W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::ClientSideRenderer)
+W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::RenderOption)
 }
 
 #undef WT_WGL_TEMPLATE

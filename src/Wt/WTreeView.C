@@ -432,6 +432,7 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
   if (index_.parent() == view_->rootIndex() && !view_->rootIsDecorated()) {
     bindEmpty("expand");
     bindEmpty("no-expand");
+    bindEmpty("trunk-class");
     return;
   }
 
@@ -2782,9 +2783,10 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
     WStringStream s;
 
-    s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
+    s << "setTimeout(function() { jQuery.data(" << jsRef()
+      << ", 'obj').scrollTo(-1, "
       << row << "," << static_cast<int>(rowHeight().toPixels())
-      << "," << (int)hint << ");";
+      << "," << (int)hint << ");});";
 
     doJavaScript(s.str());
   } else

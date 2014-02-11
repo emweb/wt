@@ -252,9 +252,8 @@ public:
    * deprecated selected() method). This only applies to a
    * single-selection calendar.
    *
-   * \deprecated listen to the clicked() signal if you want to react
-   * to a single click, or activated() signal if you want to react to
-   * a double click.
+   * Instead of enabling single click, you can also listen to the clicked()
+   * signal to process a single click.
    *
    * \sa setMultipleSelection()
    */

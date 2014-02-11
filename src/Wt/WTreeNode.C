@@ -20,6 +20,8 @@ namespace Wt {
 
 const char *WTreeNode::imagePlus_ = "nav-plus.gif";
 const char *WTreeNode::imageMin_ = "nav-minus.gif";
+const char *WTreeNode::imagePlusRtl_ = "nav-plus-rtl.gif";
+const char *WTreeNode::imageMinRtl_ = "nav-minus-rtl.gif";
 
 WTreeNode::WTreeNode(const WString& labelText,
 		     WIconPair *labelIcon, WTreeNode *parent)
@@ -182,9 +184,14 @@ void WTreeNode::create()
   /*
    * Expand icon
    */
-  expandIcon_
-    = new WIconPair(app->theme()->resourcesUrl() + imagePlus_,
-		    app->theme()->resourcesUrl() + imageMin_);
+  if (WApplication::instance()->layoutDirection() == RightToLeft)
+    expandIcon_
+      = new WIconPair(app->theme()->resourcesUrl() + imagePlusRtl_,
+		      app->theme()->resourcesUrl() + imageMinRtl_);
+  else
+    expandIcon_
+      = new WIconPair(app->theme()->resourcesUrl() + imagePlus_,
+		      app->theme()->resourcesUrl() + imageMin_);
   expandIcon_->setStyleClass("Wt-ctrl Wt-expand");
   noExpandIcon_ = new WText();
   noExpandIcon_->setStyleClass("Wt-ctrl Wt-noexpand");

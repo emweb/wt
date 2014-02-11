@@ -57,6 +57,14 @@ public:
 
 };
 
+namespace {
+  struct LibraryInitializer {
+    LibraryInitializer() {
+      mysql_library_init(0, NULL, NULL);
+    }
+  } libraryInitializer;
+}
+
 /*!
  * \brief MySQL prepared statement.
  * @todo should the getResult requests all be type checked...

@@ -238,7 +238,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     }
 
     if (change) {
-      if (change->needsUpdate(all))
+      if (change->isConnected())
 	changeActions.push_back
 	  (DomElement::EventAction(std::string(),
 				   change->javaScript(),

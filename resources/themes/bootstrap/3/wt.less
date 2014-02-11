@@ -144,31 +144,25 @@
 	h3 {
 	    font-size: 18px;	
 	}
+    }
 
-	div {
+    .modal-body {
+        .modal-footer {
+       	    margin: 0px -15px -15px;
+        }
+
+	.Wt-msgbox-icon {
+	    display: block;
 	    float: left;
+	    margin: -5px 15px 0px 0px;
+	    width: 25px;
+	    height: 35px;
+	}
+
+	.Wt-msgbox-text {
+	    overflow: auto;
 	}
     }
-
-    .modal-body .modal-footer {
-       margin: 0px -15px -15px;
-    }
-}
-
-/*
- * Message box
- */
-
-.modal .Wt-msgbox-icon {
-    display: block;
-    float: left;
-    margin: -5px 15px 0px 0px;
-    width: 25px;
-    height: 35px;
-}
-
-.modal .Wt-msgbox-text {
-    overflow: auto;
 }
 
 /*
@@ -419,6 +413,7 @@
         border: 1px solid @btn-default-border;
 	border-radius: @border-radius-base;
 	.button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
+	z-index: 2;
 
 	&:hover {
 	    background-color: darken(white, 10%);
@@ -467,6 +462,7 @@
         border: 1px solid @btn-default-border;
 	border-radius: @border-radius-base;
 	.button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
+	z-index: 2;
 
 	&:hover {
 	    background-color: darken(white, 10%);
@@ -622,6 +618,11 @@ body.Wt-rtl {
 	.Wt-tv-rh, .Wt-tv-sh {
 	    float: left;
 	}
+
+	.Wt-tv-no-rh {
+	    margin-left: 0px;
+	    margin-right: 4px;
+	}
     }
 }
 
@@ -689,30 +690,25 @@ body.Wt-rtl {
     .Wt-header {
         border-bottom: 1px solid @table-border-color;
     }
-
-    /*
-      This breaks row headers ...
-
-      .Wt-header .Wt-tv-c:last-child .Wt-tv-br,
-      .Wt-tv-contents > div:last-child .Wt-tv-c {
-    	border-right: 0;
-      }
-   */
 }
 
 body.Wt-rtl {
     .Wt-tableview {
 	.Wt-header .Wt-tv-c {
+	    padding-left: 0px;
+	    margin-left: 0px;
 	    padding-right: 6px;
+	    margin-right: 6px;
 	}
 
 	.Wt-tv-br {
-	    border-left: 1px solid @table-bg;
+	    border-right: 0px;
+	    border-left: 1px solid @table-border-color;
 	}
 
 	.Wt-tv-contents .Wt-tv-c, .Wt-plaintable tbody .Wt-tv-c {
+	    border-right: 0px;
 	    border-left: 1px solid @table-border-color;
-	    border-bottom: 1px solid @table-border-color;
 	}
     }
 }
@@ -785,12 +781,61 @@ body.Wt-rtl {
     }
 }
 
+body.Wt-rtl {
+    .Wt-tree {
+	ul {
+	    margin: 0;
+	    padding-left: 0px;
+	    padding-right: 20px;
+	}
+
+	ul.Wt-root {
+	    padding-right: 0px;
+	}
+
+	&.Wt-trunk, .Wt-item.Wt-trunk {
+	    background-position: top right;
+	}
+
+	.Wt-item.Wt-end {
+	    background-image: url(../../../line-last-rtl.gif);
+	    background-position: top right;
+	}
+
+	.Wt-ctrl {
+	    float: right;
+
+	    &.Wt-noexpand {
+		background-image: url(../../../line-middle-rtl.gif);
+		background-position: top right;
+	    }
+
+	}
+
+	.cols-row {
+	    float: left;
+	}
+    }
+}
+
 .Wt-treetable {
     .Wt-header {
 	font-weight: bold;
         border-bottom: 1px solid @table-bg;
 	line-height: 28px;
     }
+}
+
+.Wt-sbspacer {
+    float: right;
+    width: 16px;
+    height: 1px;
+    border: 0px;
+    display: none;
+}
+
+body.Wt-rtl .Wt-sbspacer {
+    float: left;
 }
 
 /*
@@ -895,8 +940,33 @@ body.Wt-rtl {
 }
 
 body.Wt-rtl {
-
     .Wt-treeview {
+	ul {
+	    padding-left: 0px;
+	    padding-right: 20px;
+
+	    &.Wt-tv-root {
+		padding-right: 0px;
+	    }
+	}
+	
+	img.icon, input.icon {
+	    margin: 0px 0px 2px 3px;
+	}
+
+	.Wt-header {
+	    .Wt-tv-c {
+		margin-left: 0px;
+		margin-right: 7px;
+	    }
+	}
+ 
+	.Wt-tv-br,    /* header */
+	ul .Wt-tv-c { /* data */
+	    border-right: 0px;
+	    margin-left: 0px;
+	    border-left: 1px solid @table-bg;
+	}
 
 	.Wt-tv-row {
 	    float: left;
@@ -906,41 +976,28 @@ body.Wt-rtl {
 	    }
 	}
 
-	img.icon, input.icon {
-	    margin: 0px 0px 2px 3px;
-	}
-
-	.Wt-header {
-	    .Wt-tv-c {
-		padding: 0px;
-		margin-left: 0px;
-		margin-right: 7px;
-	    }
-	}
- 
-	.Wt-tv-br,               /* header */
-	ul .Wt-tv-row .Wt-tv-c { /* data */
-	    margin-right: 1px;
-	    border-right: 0px;
-	    margin-left: 0px;
-	    border-left: 1px solid @table-bg;
+	.Wt-trunk {
+	    background-position: top right;
 	}
 
 	.Wt-end {
 	    background-image: url(../../../tv-line-last-rtl.gif);
+	    background-position: right center;
 	}
 
 	.Wt-ctrl {
+	    float: right;
+
 	    &.expand {
-		background: url(../nav-plus-rtl.gif) no-repeat 0 center;
+		background-image: url(../nav-plus-rtl.gif);
 	    }
 
 	    &.collapse {
-		background: url(../nav-minus-rtl.gif) no-repeat 0 center;
+		background-image: url(../nav-minus-rtl.gif);
 	    }
 
 	    &.noexpand {
-		background: url(../../../line-middle-rtl.gif) no-repeat 0 center;
+		background-image: url(../../../line-middle-rtl.gif);
 	    }
 	}
     }

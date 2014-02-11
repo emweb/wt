@@ -53,14 +53,12 @@ table->setModel(model);
 table->setColumnWidth(1, 100);
 table->setRowHeight(28);
 table->setHeaderHeight(28);
+table->setWidth(150 + 100 + 14 + 2);
 
-if (Wt::WApplication::instance()->environment().ajax()) {
-    table->resize(150 + 100 + 14, 7 * 28);
+if (Wt::WApplication::instance()->environment().ajax())
     table->setEditTriggers(Wt::WAbstractItemView::SingleClicked);
-} else {
-    table->resize(150 + 100 + 14, Wt::WLength::Auto);
+else
     table->setEditTriggers(Wt::WAbstractItemView::NoEditTrigger);
-}
 
 /*
  * Create the pie chart.
