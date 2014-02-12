@@ -50,9 +50,9 @@ button->clicked().connect(std::bind([=] () {
 	    out->setText("It's fine to take holiday just for one day!");
 	else if (days > 1) 
 	    out->setText(Wt::WString("So, you want to take holiday for a period of "
-				     "{1} days?...</p>").arg(days));
+				     "{1} days?...").arg(days));
 	else
-	    out->setText("<p>Invalid period!</p>");
+	    out->setText("Invalid period!");
     }
 }));
 

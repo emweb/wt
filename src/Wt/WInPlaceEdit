@@ -66,6 +66,10 @@ class WPushButton;
 class WT_API WInPlaceEdit : public WCompositeWidget
 {
 public:
+  /*! \brief Creates an in-place edit.
+   */
+  WInPlaceEdit(WContainerWidget *parent = 0);
+
   /*! \brief Creates an in-place edit with the given text.
    */
   WInPlaceEdit(const WString& text, WContainerWidget *parent = 0);
@@ -157,6 +161,7 @@ protected:
   virtual void render(WFlags<RenderFlag> flags);
 
 private:
+  void create();
   void save();
   void cancel();
 

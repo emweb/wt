@@ -1291,21 +1291,22 @@ void WebSession::handleRequest(Handler& handler)
 	  /*
 	   * We can simply bootstrap.
 	   */
+	  try {
+	    std::string internalPath = env_->getCookie("WtInternalPath");
+	    env_->setInternalPath(internalPath);
+	  } catch (std::exception& e) {
+	  }
+
 	  bool forcePlain
 	    = env_->agentIsSpiderBot() || !env_->agentSupportsAjax();
 
-	  progressiveBoot_ = !forcePlain && conf.progressiveBoot();
+	  progressiveBoot_ =
+	    !forcePlain && conf.progressiveBoot(env_->internalPath());
 
 	  if (forcePlain || progressiveBoot_) {
 	    /*
 	     * First start the application
 	     */
-	    try {
-	      std::string internalPath = env_->getCookie("WtInternalPath");
-	      env_->setInternalPath(internalPath);
-	    } catch (std::exception& e) {
-	    }
-
 	    if (!start(handler.response()))
 	      throw WException("Could not start application.");
 

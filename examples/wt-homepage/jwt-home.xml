@@ -47,8 +47,13 @@
 	</div>
 
 	<div id="chat"></div>
-	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
-
+	<script type="text/javascript">
+	    /*<![CDATA[*/
+	  setTimeout(function() {
+	    loadScript("http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
+	  }, 0);
+            /* ]]> */
+	</script>
 	<div class="clearall"></div>
       </div>
       <script type="text/javascript">
@@ -114,64 +119,59 @@ ga('send', 'pageview');
 
 <p>The API is <b>widget-centric</b> and uses well-tested patterns of
 desktop GUI development tailored to the web. To the developer, it offers
-abstraction of web-specific implementation details, including client-server
-protocols, event handling, graphics support, graceful degradation (or
-progressive enhancement) and URL handling.</p>
+abstraction of many web-specific implementation details and frees
+the developer from tedious JavaScript manipulations of HTML and
+dealing with cross-browser issues. Instead, with JWt, you can focus on
+actual functionality with a rich set of feature-complete widgets.</p>
 
-<p>Unlike many page-based frameworks, JWt was designed for creating
-stateful applications that are at the same time highly interactive
-(leveraging techinques such as Ajax to their fullest) and accessible
-(supporting plain HTML browsers), using automatic <b>graceful
-degradation or progressive enhancement</b>. Things that are natural
-and simple with JWt would require an impractical amount of effort
-otherwise: switching widgets using animations, while being perfectly
-indexed by search robots with clean URLs, or having a persistent chat
-widget open throughout, that even works in legacy browsers like
-Microsoft Internet Explorer 6.</p>
+<p>Unlike old-school page-based frameworks or current-day single-page
+JavaScript "frameworks", JWt allows you to create stateful
+applications that are at the same time highly interactive (using
+WebSockets and Ajax for everything) but still support plain HTML
+browsers or web crawlers using automatic <b>graceful degradation or
+progressive enhancement</b>. Things that are natural and simple with
+JWt would require an impractical amount of development effort
+otherwise: switching widgets using animations, while retaining clean
+URLs and browser navigation functions, or having a persistent chat
+widget open throughout the entire application, that even works in
+legacy browsers like Microsoft Internet Explorer 6.</p>
 
 <p>JWt applications can be deployed in a standard Java Servlet
 container.</p>
 
-<h4>Interactive, secure and accessible</h4>
+<h4>Feature rich</h4>
 
-<p>Page-based web frameworks (JSP/JSF, Struts, Spring MVC, etc...)  do not
-attempt to abstract underlying technologies (HTML/XHTML, JavaScript,
-CSS, Ajax, WebSockets, Comet, Forms, DHTML, SVG/VML/Canvas). As a
-consequence, a web developer needs to be familiar with all of these
-evolving technologies and is also responsible for graceful degradation
-when browser support is lacking. The structure of many web
-applications still follows mostly the page-centric paradigm of early
-day HTML. This means that not only will you need to implement a
-controller to indicate how a user moves from page to page, but when
-using advanced Ajax, you will need to design and maintain your
-client-server communication.</p>
-
-<p>Pure Ajax frameworks on the other hand require tedious JavaScript
-programming to deal with browser quirks, and client-server programming
-to interact securely with server resources. These applications usually
-are not compliant with accessibility guidelines and cannot be indexed
-by a search robot.</p>
-
-<p>In either case, generating HTML code or filling HTML templates is
-prone to security problems such as <a
-href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS
-(Cross-Site-Scripting)</a> by unwillingly allowing JavaScript to be
-inserted in the page, and <a
+<ul>
+<li>Layout using <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/layout/html-templates">HTML
+templates</a> or intelligent <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/layout/layout-managers">layout
+managers</a> and themable look-and-feel, including support for <a
+href="http://getbootstrap.com">Twitter Bootstrap</a> versions 2 or 3.</li>
+<li>Create and maintain complexity by using and building reusable and
+self-contained widgets.</li>
+<li>Comes with a large set of feature-rich widgets that include <a href="http://jwt.emweb.be/jwt-gallery/gallery/forms/">form
+widgets</a>, <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/trees-tables/mvc-table-views">table</a>
+and <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/trees-tables/mvc-tree-views">tree
+views</a>, <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/layout/dialogs">dialogs</a>, <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/navigation/popup-menu">popup
+menu's</a>, etc...</li>
+<li>Unified <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/graphics-charts">graphics</a>
+APIs, 2D (SVG, HTML5 Canvas, VML, PNG, and PDF) &amp; 3D (client side
+WebGL and server-side OpenGL).</li>
+<li>Feature rich <a
+href="http://jwt.emweb.be/jwt-gallery/gallery/media/pdf-output">HTML
+to PDF renderer</a> for dynamic report generation.</li>
+<li>Built-in security against common vulnerabiliets such as <a
+href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS(Cross-Site-Scripting)</a> or <a
 href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
-(Cross-Site Request Forgery)</a> by trusting cookies for
-authentication. These security problems are hard to avoid by a
-framework when as a developer you need to implement JavaScript
-functionality thus the framework cannot filter it out.</p>
-
-<p>In contrast, a web application developed with JWt is developed
-against a Java API, and the library provides the necessary HTML/XHTML,
-Javascript, CGI, SVG/VML/Canvas and Ajax code. The responsibility of
-writing secure and browser-portable web applications is carried by
-JWt. For example, if available, JWt will maximally use JavaScript and
-Ajax, but applications developed using JWt will also function correctly
-when JavaScript is not available. JWt will start with a plain HTML/CGI
-application and progressively enhance to a rich Ajax application if
-possible. With JWt, security is built-in and by default.</p>
+(Cross-Site Request Forgery)</a></li>
+<li>Open-source or commercial license model.</li>
+</ul>
 
 <p>By using standard Java and JVMs, JWt applications can benefit from
 any existing Java libraries and JVM features including its support for
@@ -193,38 +193,6 @@ your favourite scripting language.</p>
   <li>Porting of <b>Java desktop applications</b> to the web.</li>
 </ul>
 
-<h4>Some benefits of using JWt</h4>
-
-<ul>
-  <li>The library allows you to develop web applications much like you
-    develop Java desktop applications, using your favourite JVM
-    programming language, while benefitting fully from the powerful
-    tools available for (Java) development such as flexible debugging
-    and source code refactoring.</li>
-  <li>There are no fragile string-based bindings of parameters in
-    templates or XML files, nor do you need to implement tedious (and
-    security critical) request/response controller logic.</li>
-  <li>Just a library: no need for new conventions which imply behavior
-    or requirements for organizing your source code.</li>
-  <li>JWt applications have automatic fall-back for non-JavaScript
-    browsers where possible, allowing you to create fully accessible
-    applications, which benefit from Ajax where available.</li>
-  <li>Optionally, use XHTML and CSS for layout and decoration.</li>
-  <li>Generates standards compliant HTML or XHTML code.</li>
-  <li>Portable, anti-aliased graphics optimized for web usage (using
-    inline VML, inline SVG, HTML5 canvas or PNG images).</li>
-  <li>Avoid common security problems since Wt has complete control
-    over the presentation layer and proactively filters out
-  <i>active</i> tags and attributes, does not expose business logic,
-    and simplifies authentication using a stateful design.</li>
-  <li>Ultra-fast load time and low bandwidth usage, which are affected
-    only by screen complexity, not application size. Wt implements all
-    the common tips and tricks for optimizing application
-    responsiveness and even optimizes per browser.</li>
-  <li>Integrates well with modern object relational mapping techniques such
-    as the Java Persistence API (e.g. Hibernate).</li>
-</ul>
-
   </message>
   <message id="home.features">
 
@@ -235,7 +203,7 @@ your favourite scripting language.</p>
 <ul>
   <li>Supports major browsers (Firefox/Gecko, Internet Explorer,
     Safari, Chrome, Konqueror, and Opera) but also plain HTML browsers
-    (Links, Lynx).</li>
+    and web crawlers.</li>
   <li>Simple deployment in standard Java Servlet 2.4 or 3.0 containers. </li>
   <li>No need for IDE plugins: it's plain old Java.</li>
   <li>Equal behavior with or without support for JavaScript or Ajax,
@@ -255,15 +223,13 @@ your favourite scripting language.</p>
 <ul>
   <li>Uses an event listener system for server-side event handling, 
     comparable to Java GUI frameworks (SWT, Swing).</li>
-  <li>Listen for keyboard, mouse, focus and scroll events, and get
-    event details (such as mouse position, modifier buttons, or
+  <li>Listen for keyboard, mouse, focus, scroll or drag&amp;drop events,
+    and get event details (such as mouse position, modifier buttons, or
     keyboard key).</li>
-  <li>Automatic synchronization of form field data between browser and
-    server.</li>
-  <li>Possibility to hook in custom JavaScript (e.g. for client-side
-    only event handling), and <i>emit</i> Java signals from this
-    custom JavaScript.</li>
-  <li>Flexible Drag&amp;Drop API.</li>
+  <li>Automatic synchronization Automatically synchronizes form field data
+    from browser to server and tracks server-side changes to be rendered
+    in browser.</li>
+  <li>Integrate with JavaScript libraries</li>
   <li>Timed events and server-initiated updates ("server push"), the
     latter using Servlet 3.0 async features when deployed in a Servlet
     3.0 container.</li>
@@ -272,16 +238,13 @@ your favourite scripting language.</p>
 <h4>Native painting system</h4>
 
 <ul>
-  <li>Unified painting API which uses the browsers native (vector)
-    graphics support (inline VML, inline SVG, or HTML5 canvas).</li>
-  <li>Supports arbitrary painter paths, clipping, text, images,
-    transformations, drop shadow.</li>
+  <li>Unified 2D painting API which uses the browsers native (vector)
+    graphics support (inline VML, inline SVG, or HTML5 canvas), or
+    renders to common image formats (PNG, GIF, ...) or vector formats
+    (SVG, PDF).</li>
+  <li>Unified GL-based 3D painting API which leverages WebGL in the browser
+    or server-side OpenGL (fallback).</li>
 </ul>
-
-<h4>GUI components</h4>
-
-See also the <a href="http://jwt.emweb.be/jwt-gallery/gallery">Widget
-gallery</a> for an interactive overview of built-in functionality.
 
 <h4>Built-in security</h4>
 

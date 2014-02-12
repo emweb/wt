@@ -101,6 +101,7 @@ private:
   Wt::WSound* messageReceived_;
 
   void login();
+  void changeName(const Wt::WString& name);
   void send();
   void updateUser();
 

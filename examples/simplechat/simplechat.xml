@@ -34,4 +34,9 @@ the current session, but also of all other sessions is updated and
 
  <message id="serverpushwarning">Note, you do not have JavaScript and this chat will have degraded functionality</message>
 
+
+ <message id="join-msg.template">
+   <span class='chat-info'>You are joining as ${name}.</span>
+ </message>
+
 </messages>

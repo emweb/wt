@@ -19,7 +19,15 @@
         </user-agents>
 
         <!-- <web-sockets>true</web-sockets> -->
-	<progressive-bootstrap>false</progressive-bootstrap>
+	<bootstrap-method>
+	  <for path="*">progressive</for>
+	  <for path="/trees-tables/mvc-table-views">default</for>
+	  <for path="/trees-tables/mvc-tree-views">default</for>
+	  <for path="/trees-tables/mvc-item-models">default</for>
+	  <for path="/layout/layout-managers">default</for>
+	  <for path="/graphics-charts/*">default</for>
+	</bootstrap-method>
+
 	<!-- <log-config>debug:wthttp/async</log-config> -->
 	<UA-Compatible>IE8=IE7</UA-Compatible>
     </application-settings>

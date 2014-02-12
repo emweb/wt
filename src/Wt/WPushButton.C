@@ -357,6 +357,7 @@ void WPushButton::enableAjax()
     WApplication *app = WApplication::instance();
     if (app->theme()->canStyleAnchorAsButton()) {
       flags_.set(BIT_LINK_CHANGED);
+      repaint();
     }
   }
 

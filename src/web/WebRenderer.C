@@ -1249,7 +1249,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
     app->oldInternalPath_ = app->newInternalPath_;
 
     if (session_.state() == WebSession::JustCreated &&
-	conf.progressiveBoot()) {
+	conf.progressiveBoot(app->environment().internalPath())) {
       session_.redirect
 	(session_.fixRelativeUrl
 	 (session_.bookmarkUrl(app->newInternalPath_)));

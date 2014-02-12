@@ -51,7 +51,13 @@
 	</div>
 
 	<div id="chat"></div>
-	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
+	<script type="text/javascript">
+	    /*<![CDATA[*/
+	  setTimeout(function() {
+	    loadScript("http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
+	  }, 0);
+            /* ]]> */
+	</script>
 
 	<div class="clearall"></div>
       </div>
@@ -118,67 +124,59 @@ web applications.</p>
 
 <p>The API is <b>widget-centric</b> and uses well-tested patterns of
 desktop GUI development tailored to the web. To the developer, it
-offers abstraction of web-specific implementation details, including
-client-server protocols, event handling, graphics support, graceful
-degradation (or progressive enhancement), and URL handling.</p>
+offers abstraction of many web-specific implementation details,
+including client-server protocols (HTTP, Ajax, WebSockets), and frees
+the developer from tedious JavaScript manipulations of HTML and
+dealing with cross-browser issues. Instead, with Wt, you can focus on
+actual functionality with a rich set of feature-complete widgets.</p>
 
-<p>Unlike many page-based frameworks, Wt was designed for creating
-stateful applications that are at the same time highly interactive
-(leveraging techinques such as WebSockets and Ajax to their fullest)
-and accessible (supporting plain HTML browsers), using automatic
-<b>graceful degradation or progressive enhancement</b>. Things that
-are natural and simple with Wt would require an impractical amount of
-effort otherwise: switching widgets using animations, while being
-perfectly indexed by search robots with clean URLs, or having a
-persistent chat widget open throughout, that even works in legacy
-browsers like Microsoft Internet Explorer 6.</p>
+<p>Unlike old-school page-based frameworks or current-day single-page
+JavaScript "frameworks", Wt allows you to create stateful applications
+that are at the same time highly interactive (using WebSockets and
+Ajax for everything) but still support plain HTML browsers or web
+crawlers using automatic <b>graceful degradation or progressive
+enhancement</b>. Things that are natural and simple with Wt would
+require an impractical amount of development effort otherwise:
+switching widgets using animations, while retaining clean URLs and
+browser navigation functions, or having a persistent chat widget open
+throughout the entire application, that even works in legacy browsers
+like Microsoft Internet Explorer 6.</p>
 
 <p>The library comes with an application server that acts as a
 stand-alone Http(s)/WebSocket server or integrates through FastCGI
 with other web servers.</p>
 
-<h4>Interactive, secure and accessible</h4>
+<h4>Feature rich</h4>
 
-<p>Page-based web frameworks (Django, Ruby on Rails, PHP, etc...) do
-not attempt to abstract underlying technologies (HTML/XHTML,
-JavaScript, CSS, Ajax, WebSockets, Comet, Forms, DHTML,
-SVG/VML/Canvas). As a consequence, a web developer needs to be
-familiar with all of these evolving technologies and is also
-responsible for graceful degradation when browser support is
-lacking. The structure of many web applications still follows mostly
-the page-centric paradigm of early day HTML. This means that not only
-will you need to implement a controller to indicate how a user moves
-from page to page, but when using advanced Ajax or WebSockets, you
-will need to design and maintain your client-server communication.</p>
-
-<p>Pure Ajax frameworks on the other hand require tedious JavaScript
-programming to deal with browser quirks, and client-server programming
-to interact securely with server resources. These applications usually
-are not compliant with accessibility guidelines and cannot be indexed
-by a search robot.</p>
-
-<p>Generating HTML code or filling HTML templates is prone to security
-problems such as <a
-href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS
-(Cross-Site-Scripting)</a> by unwillingly allowing JavaScript to be
-inserted in the page, and <a
+<ul>
+<li>Layout using <a
+href="http://www.webtoolkit.eu/widgets/layout/html-templates">HTML
+templates</a> or intelligent <a
+href="http://www.webtoolkit.eu/widgets/layout/layout-managers">layout
+managers</a> and themable look-and-feel, including support for <a
+href="http://getbootstrap.com">Twitter Bootstrap</a> versions 2 or 3.</li>
+<li>Create and maintain complexity by using and building reusable and
+self-contained widgets.</li>
+<li>Comes with a large set of feature-rich widgets that include <a href="http://www.webtoolkit.eu/widgets/forms/">form
+widgets</a>, <a href="http://www.webtoolkit.eu/widgets/trees-tables/mvc-table-views">table</a> and <a
+href="http://www.webtoolkit.eu/widgets/trees-tables/mvc-tree-views">tree
+views</a>, <a
+href="http://www.webtoolkit.eu/widgets/layout/dialogs">dialogs</a>, <a
+href="http://www.webtoolkit.eu/widgets/navigation/popup-menu">popup
+menu's</a>, etc...</li>
+<li>Unified <a
+href="http://www.webtoolkit.eu/widgets/graphics-charts">graphics</a>
+APIs, 2D (SVG, HTML5 Canvas, VML, PNG, and PDF) &amp; 3D (client side
+WebGL and server-side OpenGL).</li>
+<li>Feature rich <a
+href="http://www.webtoolkit.eu/widgets/media/pdf-output">HTML
+to PDF renderer</a> for dynamic report generation.</li>
+<li>Elegant template-based C++ Database abstraction layer (Wt::Dbo)</li>
+<li>Built-in security against common vulnerabiliets such as <a
+href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS(Cross-Site-Scripting)</a> or <a
 href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
-(Cross-Site Request Forgery)</a> by trusting cookies for
-authentication. These security problems are hard to avoid in
-traditional frameworks when as a developer you need to implement
-JavaScript functionality and thus the framework cannot filter it
-out.</p>
-
-<p>In contrast, a web application developed with Wt is developed
-against a C++ API, and the library provides the necessary HTML, CSS,
-Javascript, CGI, SVG/VML/Canvas and Ajax code. The responsibility of
-writing secure and browser-portable web applications is carried by
-Wt. For example, if available, Wt will maximally use JavaScript, Ajax
-and even WebSockets, but applications developed using Wt will also
-function correctly when JavaScript is not available. Wt will start
-with a plain HTML/CGI application and progressively enhance to a rich
-Ajax application if possible. With Wt, security is built-in and by
-default.</p>
+(Cross-Site Request Forgery)</a></li>
+</ul>
 
 <h4>Typical use scenarios:</h4>
 
@@ -193,38 +191,6 @@ default.</p>
   libraries</b>, for example for scientific or engineering
   applications, or <b>existing C++ desktop applications</b>.</li>
 </ul>
-
-<h4>Other benefits of using Wt</h4>
-
-<ul>
-  <li>Develop web applications using familiar desktop GUI
-  patterns.</li>
-  <li>Provides an extensive set of widgets, which work regardless of
-  JavaScript availability (but benefit from JavaScript
-  availability).</li>
-  <li>A single specification for both client- and server-side
-  validation and event handling.</li>
-  <li>Optionally, use XHTML and CSS for layout and decoration.</li>
-  <li>Generates standards compliant HTML or XHTML code.</li>
-  <li>Portable, anti-aliased graphics optimized for web usage (using
-  inline VML, inline SVG, HTML5 canvas or PNG images), which can also
-  be used to render to PDF.</li>
-  <li>Avoid common security problems since Wt has complete control
-  over the presentation layer and proactively filters out
-  <i>active</i> tags and attributes, does not expose business logic,
-  and simplifies authentication using a stateful design.</li>
-  <li>Ultra-fast load time and low bandwidth usage, which are affected
-  only by screen complexity, not application size. Wt implements all
-  the common tips and tricks for optimizing application
-  responsiveness and even optimizes per browser.</li>
-  <li>A simple API with a robust cross-browser implementation for
-  server-initiated events aka <i>server push</i> (using <i>comet</i>
-  or WebSockets).</li>
-  <li>Use the built-in httpd for easy development and deployment, or
-  use the FastCGI/ISAPI connectors to deploy in existing web
-  servers.</li>
-</ul>
-
   </message>
   <message id="home.features">
 
@@ -234,46 +200,39 @@ default.</p>
 
 <ul>
   <li>Supports major browsers (Firefox/Gecko, Internet Explorer,
-    Safari, Chrome, Konqueror, and Opera) but also plain HTML browsers
-    (Links, Lynx).</li>
+    Safari, Chrome, Konqueror, and Opera) but also plain HTML
+    browsers and web crawlers.</li>
   <li>Develop and deploy on Unix/GNU Linux or Microsoft Windows
     (Visual Studio) environments.</li>
   <li>Equal behavior with or without support for JavaScript or Ajax,
     as far as possible, by using graceful degradation or progressive
     enhancement.</li>
+  <li>Efficient rendering and (sub-) millisecond latency.</li>
   <li>Integrated Unicode support and pervasive localization.</li>
-  <li>Efficient rendering and (very) low latency.</li>
   <li>Support for browser history navigation (back/forward buttons and
-    bookmarks), pretty URLs with HTML5 History if available, and
+    bookmarks), clean URLs with HTML5 History if available, and
     search engine optimization with a unified behavior for plain HTML
     or Ajax sessions.</li>
-  <li>Configurable session tracking options that include URL rewriting
-    and cookies.</li>
-  <li>High performance, allowing deployment on low-end embedded
-    devices, or energy-, space- and budget-friendly deployment of
-    Internet or extranet web sites.</li>
-  <li>Completely based on event-driven async I/O: sessions are not
+  <li>High performance, suitable for embedded (Linux) devices, or
+    energy-, space- and budget-friendly (virtual private) server
+    deployments.</li>
+  <li>Based on event-driven async I/O: sessions are not
     tied to threads, and neither do open connections block threads.
-    Instead, threads are needed only to improve concurrent request
-    handling or for reentrant event loops.</li>
+    Instead, threads are used only to improve concurrent request
+    handling (or for reentrant event loops).</li>
 </ul>
 
 <h4>Event handling</h4>
 
 <ul>
-  <li>Uses a modern typesafe signal/slot API for responding to events.</li>
-  <li>Listen for keyboard, mouse and focus events, and get event
-    details (such as mouse position, modifier buttons, or keyboard
-    key).</li>
-  <li>Automatic synchronization of form field data between browser and
-    server.</li>
-  <li>Dynamic C++-to-JavaScript translation, by specifying
-    <i>stateless slot</i> implementations. A single C++ slot implementation
-    provides both client-side and server-side event handling: visual changes
-    at client-side and application state at server side.</li>
-  <li>Possibility to hook in custom JavaScript (e.g. for client-side only event
-    handling), and <i>emit</i> C++ signals from this custom JavaScript.</li>
-  <li>Drag&amp;Drop API.</li> 
+  <li>Typesafe signal/slot API for responding to events.</li>
+  <li>Listen for keyboard, mouse, focus, scroll or drag&amp;drop events,
+    and get event details (such as mouse position, modifier buttons, or
+    keyboard key).</li>
+  <li>Automatic synchronization Automatically synchronizes form field data
+    from browser to server and tracks server-side changes to be rendered
+    in browser.</li>
+  <li>Integrate with JavaScript libraries</li>
   <li>Timed events and server-initiated updates ("server push")</li>
   <li>Uses plain HTML CGI, Ajax or WebSockets</li>
 </ul>
@@ -281,18 +240,13 @@ default.</p>
 <h4>Native painting system</h4>
 
 <ul>
-  <li>Unified painting API which uses the browsers native (vector)
+  <li>Unified 2D painting API which uses the browsers native (vector)
     graphics support (inline VML, inline SVG, or HTML5 canvas), or
     renders to common image formats (PNG, GIF, ...) or vector formats
     (SVG, PDF).</li>
-  <li>Supports arbitrary painter paths, clipping, text, images,
-    transformations, drop shadow.</li>
+  <li>Unified GL-based 3D painting API which leverages WebGL in the browser
+    or server-side OpenGL (fallback).</li>
 </ul>
-
-<h4>GUI components</h4>
-
-See the <a href="http://www.webtoolkit.eu/widgets">Widget
-gallery</a> for an interactive overview of built-in functionality.
 
 <h4>Built-in security</h4>
 
@@ -317,8 +271,8 @@ gallery</a> for an interactive overview of built-in functionality.
   <li>Session hijacking mitigation and risk prevention</li>
   <li>DoS mitigation</li>
   <li>A built-in authentication module implements best practices for
-   authentication, and supports third party identity providers using
-   OAuth 2.0, and (later) OpenID Connect</li>
+    authentication, and supports third party identity providers using
+    OAuth 2.0, and (later) OpenID Connect</li>
 </ul>
 
 <h4>Object Relational Mapping library</h4>

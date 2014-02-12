@@ -33,6 +33,8 @@ WT_DECLARE_WT_MEMBER
 	 }
 	 $(el).addClass(emptyTextStyle);
 	 el.value = emptyText;
+       } else {
+	 $(el).removeClass(emptyTextStyle);
        }
      }
    };

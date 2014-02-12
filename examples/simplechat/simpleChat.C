@@ -112,6 +112,8 @@ ChatWidget::ChatWidget(const WEnvironment& env, SimpleChatServer& server)
   useStyleSheet("chatwidget.css");
   useStyleSheet("chatwidget_ie6.css", "lt IE 7");
 
+  messageResourceBundle().use(appRoot() + "simplechat");
+
   const std::string *div = env.getParameter("div");
   std::string defaultDiv = "div";
   if (!div)

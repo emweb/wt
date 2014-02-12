@@ -15,9 +15,22 @@
 
 namespace Wt {
 
+WInPlaceEdit::WInPlaceEdit(WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    valueChanged_(this)
+{
+  create();
+}
+
 WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   : WCompositeWidget(parent),
     valueChanged_(this)
+{
+  create();
+  setText(text);
+}
+
+void WInPlaceEdit::create()
 {
   setImplementation(impl_ = new WContainerWidget());
   setInline(true);
@@ -55,8 +68,6 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   buttons_->addStyleClass("input-group-btn"); // FIXME !!!!
 
   setButtonsEnabled();
-
-  setText(text);
 }
 
 const WString& WInPlaceEdit::text() const

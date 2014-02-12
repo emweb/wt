@@ -10,10 +10,12 @@
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
 #include <Wt/WEnvironment>
+#include <Wt/WInPlaceEdit>
 #include <Wt/WHBoxLayout>
 #include <Wt/WVBoxLayout>
 #include <Wt/WLabel>
 #include <Wt/WLineEdit>
+#include <Wt/WTemplate>
 #include <Wt/WText>
 #include <Wt/WTextArea>
 #include <Wt/WPushButton>
@@ -245,11 +247,15 @@ bool SimpleChatWidget::startChat(const WString& user)
 
     logoutButton->clicked().connect(this, &SimpleChatWidget::logout);
 
-    WText *msg = new WText
-      ("<div><span class='chat-info'>You are joining as "
-       + escapeText(user_) + ".</span></div>",
-       messages_);
-    msg->setStyleClass("chat-msg");
+    WInPlaceEdit *nameEdit = new WInPlaceEdit();
+    nameEdit->addStyleClass("name-edit");
+    nameEdit->setButtonsEnabled(false);
+    nameEdit->setText(user_);
+    nameEdit->valueChanged().connect(this, &SimpleChatWidget::changeName);
+
+    WTemplate *joinMsg = new WTemplate(tr("join-msg.template"), messages_);
+    joinMsg->bindWidget("name", nameEdit);
+    joinMsg->setStyleClass("chat-msg");
 
     if (!userList_->parent()) {
       delete userList_;
@@ -269,6 +275,14 @@ bool SimpleChatWidget::startChat(const WString& user)
     return true;
   } else
     return false;
+}
+
+void SimpleChatWidget::changeName(const WString& name)
+{
+  if (!name.empty()) {
+    if (server_.changeName(user_, name))
+      user_ = name;
+  }
 }
 
 void SimpleChatWidget::send()
