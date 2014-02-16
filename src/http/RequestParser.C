@@ -825,7 +825,7 @@ boost::tribool& RequestParser::consume(Request& req, Buffer::iterator it)
   case space_before_header_value:
     if (input == ' ')
     {
-      consumeToString(req.headers.back().value, MAX_FIELD_NAME_SIZE);
+      consumeToString(req.headers.back().value, MAX_FIELD_VALUE_SIZE);
       httpState_ = header_value;
 
       return Indeterminate;

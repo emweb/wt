@@ -1,4 +1,13 @@
+IF(WIN32)
+  IF(SHARED_LIBS)
+    CONFIGURE_FILE(wtdbo-version.rc.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/wtdbo-version.rc)
+    SET(wtdboversionrc ${CMAKE_CURRENT_BINARY_DIR}/wtdbo-version.rc)
+  ENDIF(SHARED_LIBS)
+ENDIF(WIN32)
+
 ADD_LIBRARY(wtdbo
+  ${wtdboversionrc}
   ptr.C
   Call.C
   DbAction.C

@@ -111,8 +111,8 @@ PaintedSlider::PaintedSlider(WSlider *slider)
     slider_->setOffsets(0, Left | Top);
   }
 
-  addChild(handle_ = slider_->createHandle());
   addChild(fill_ = new WContainerWidget());
+  addChild(handle_ = slider_->createHandle());
 
   fill_->setPositionScheme(Absolute);
   fill_->setStyleClass("fill");
@@ -268,8 +268,8 @@ void PaintedSlider::doUpdateDom(DomElement& element, bool all)
     element.addChild(east);
 
     element.addChild(createSDomElement(app));
-    element.addChild(((WWebWidget *)handle_)->createSDomElement(app));
     element.addChild(((WWebWidget *)fill_)->createSDomElement(app));
+    element.addChild(((WWebWidget *)handle_)->createSDomElement(app));
   }
 }
 

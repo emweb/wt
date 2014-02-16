@@ -60,7 +60,9 @@ public:
 namespace {
   struct LibraryInitializer {
     LibraryInitializer() {
+#if !defined(MYSQL_NO_LIBRARY_INIT)
       mysql_library_init(0, NULL, NULL);
+#endif
     }
   } libraryInitializer;
 }

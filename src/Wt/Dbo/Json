@@ -217,8 +217,10 @@ private:
     bool first_;
     Session *session_;
 
-    template<typename T>
-    void out(T t);
+    void out(char);
+    void out(const char *);
+    void out(int);
+    void out(long long);
 
     template<typename T>
     void outputId(T id) {

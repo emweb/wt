@@ -59,17 +59,18 @@ void JsonSerializer::fastJsStringLiteral(const std::string &s) {
   *escapeOut_ << '"';
 }
 
-template<typename T>
-void JsonSerializer::out(T t) {
+void JsonSerializer::out(char t) {
   *escapeOut_ << t;
 }
-
-template void JsonSerializer::out<char>(char t);
-template<> void JsonSerializer::out<const char*>(const char *t) {
+void JsonSerializer::out(const char *t) {
   escapeOut_->append(t, strlen(t));
 }
-template void JsonSerializer::out<int>(int t);
-template void JsonSerializer::out<long long>(long long t);
+void JsonSerializer::out(int t) {
+  *escapeOut_ << t;
+}
+void JsonSerializer::out(long long t) {
+  *escapeOut_ << t;
+}
 
 void JsonSerializer::writeFieldName(const std::string& fieldName) {
   if (!first_)

@@ -2,9 +2,9 @@
 #define WCONFIG_H
 
 // Version defines
-#define WT_SERIES 0x${VERSION_SERIES}
-#define WT_MAJOR  0x${VERSION_MAJOR}
-#define WT_MINOR  0x${VERSION_MINOR}
+#define WT_SERIES ${VERSION_SERIES}
+#define WT_MAJOR  ${VERSION_MAJOR}
+#define WT_MINOR  ${VERSION_MINOR}
 
 /*! \brief A constant that encodes the library version of %Wt
  *

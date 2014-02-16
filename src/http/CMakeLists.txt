@@ -24,6 +24,13 @@ IF(CONNECTOR_HTTP)
  OPTION(HTTP_WITH_ZLIB "Support for zlib (http compression)" ${ZLIB_FOUND})
 
  IF(WIN32)
+   IF(SHARED_LIBS)
+     CONFIGURE_FILE(wthttp-version.rc.in
+                    ${CMAKE_CURRENT_BINARY_DIR}/wthttp-version.rc)
+     SET(libhttpsources ${libhttpsources}
+         ${CMAKE_CURRENT_BINARY_DIR}/wthttp-version.rc)
+   ENDIF(SHARED_LIBS)
+
    # windows does not have strcasestr, but it does have StrStrI, which does
    # the same thing, but is in some weird library
    SET(WIN32_STRSTRI_LIB Shlwapi.lib)

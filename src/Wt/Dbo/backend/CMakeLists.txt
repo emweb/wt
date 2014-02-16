@@ -28,6 +28,15 @@ IF(ENABLE_SQLITE)
 
   SET(HAVE_SQLITE ON CACHE INTERNAL "building sqlite3 backend" FORCE)
 
+  IF(WIN32)
+    IF(SHARED_LIBS)
+      CONFIGURE_FILE(wtdbosqlite3-version.rc.in
+                     ${CMAKE_CURRENT_BINARY_DIR}/wtdbosqlite3-version.rc)
+      SET(Sqlite3_SRCS ${Sqlite3_SRCS} 
+          ${CMAKE_CURRENT_BINARY_DIR}/wtdbosqlite3-version.rc)
+    ENDIF(SHARED_LIBS)
+  ENDIF(WIN32)
+
   ADD_LIBRARY(wtdbosqlite3
     Sqlite3.C
     ${Sqlite3_SRCS}
@@ -86,8 +95,19 @@ IF(ENABLE_POSTGRES AND POSTGRES_FOUND)
   SET(HAVE_POSTGRES ON CACHE INTERNAL "building postgres backend" FORCE)
 
   MESSAGE("** Wt::Dbo: building Postgres backend.")
+
+  IF(WIN32)
+    IF(SHARED_LIBS)
+      CONFIGURE_FILE(wtdbopostgres-version.rc.in
+                     ${CMAKE_CURRENT_BINARY_DIR}/wtdbopostgres-version.rc)
+      SET(postgres_SRCS ${postgres_SRCS} 
+          ${CMAKE_CURRENT_BINARY_DIR}/wtdbopostgres-version.rc)
+    ENDIF(SHARED_LIBS)
+  ENDIF(WIN32)
+
   ADD_LIBRARY(wtdbopostgres
     Postgres.C
+    ${postgres_SRCS}
     )
   TARGET_LINK_LIBRARIES(wtdbopostgres wtdbo ${POSTGRES_LIBRARIES} ${BOOST_DT_LIB})
 
@@ -145,9 +165,20 @@ IF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
   INCLUDE_DIRECTORIES(${FIREBIRD_INCLUDE_DIRS})
 
   MESSAGE("** Wt::Dbo: building FirebirdSQL backend.")
+
+  IF(WIN32)
+    IF(SHARED_LIBS)
+      CONFIGURE_FILE(wtdbofirebird-version.rc.in
+                     ${CMAKE_CURRENT_BINARY_DIR}/wtdbofirebird-version.rc)
+      SET(firebird_SRCS ${firebird_SRCS} 
+          ${CMAKE_CURRENT_BINARY_DIR}/wtdbofirebird-version.rc)
+    ENDIF(SHARED_LIBS)
+  ENDIF(WIN32)
+
   ADD_LIBRARY(wtdbofirebird
     Firebird.C
     ${IBPP_ALL_IN_ONE_FILE}
+    ${firebird_SRCS}
   )
   TARGET_LINK_LIBRARIES(wtdbofirebird
     wtdbo
@@ -194,8 +225,20 @@ IF(ENABLE_MYSQL AND MYSQL_FOUND)
   SET(HAVE_MYSQL ON CACHE INTERNAL "building mysql backend" FORCE)
 
   MESSAGE("** Wt::Dbo: building MySQL backend.")
+  ADD_DEFINITIONS(${MYSQL_DEFINITIONS})
+
+  IF(WIN32)
+    IF(SHARED_LIBS)
+      CONFIGURE_FILE(wtdbomysql-version.rc.in
+                     ${CMAKE_CURRENT_BINARY_DIR}/wtdbomysql-version.rc)
+      SET(mysql_SRCS ${mysql_SRCS} 
+          ${CMAKE_CURRENT_BINARY_DIR}/wtdbomysql-version.rc)
+    ENDIF(SHARED_LIBS)
+  ENDIF(WIN32)
+
   ADD_LIBRARY(wtdbomysql
     MySQL.C
+    ${mysql_SRCS}
     )
   TARGET_LINK_LIBRARIES(wtdbomysql wtdbo ${MYSQL_LIBRARIES} ${BOOST_DT_LIB})
 

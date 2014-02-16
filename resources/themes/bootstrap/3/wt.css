@@ -427,7 +427,6 @@
 
 .Wt-slider-h .handle {
   top: 50% !important;
-  z-index: 2;
   height: 18px !important;
   margin-top: -10px;
   color: #333333;
@@ -511,7 +510,6 @@ fieldset[disabled] .Wt-slider-h .handle.active {
 
 .Wt-slider-v .handle {
   left: 50% !important;
-  z-index: 2;
   width: 18px !important;
   margin-left: -10px;
   color: #333333;

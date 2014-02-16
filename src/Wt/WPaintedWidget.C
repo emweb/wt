@@ -427,7 +427,6 @@ void WPaintedWidget::createAreaImage()
     areaImage_->setOffsets(0, Left | Top);
     areaImage_->setMargin(0, Top);
     areaImage_->resize(renderWidth_, renderHeight_);
-    areaImage_->setPopup(true);
 
     areaImageAdded_ = true;
   }

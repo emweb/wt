@@ -22,7 +22,6 @@ WT_DECLARE_WT_MEMBER
    /** @const */ var PositionAtCenter = 3;
 
    function rtlScrollLeft(o) {
-     console.log(o.scrollWidth, o.clientWidth, o.scrollLeft);
      if (rtl) {
        if (WT.isGecko)
 	 return -o.scrollLeft;
@@ -45,8 +44,6 @@ WT_DECLARE_WT_MEMBER
 		   = contentsContainer.scrollLeft;
      scrollTop = headerColumnsContainer.scrollTop
 		    = contentsContainer.scrollTop;
-
-     console.log(scrollLeft, scrollTop);
 
      if (contentsContainer.scrollTop == 0 && WT.isAndroid)
        return;
@@ -202,7 +199,6 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.resetScroll = function() {
-     debugger;
      headerContainer.scrollLeft = scrollLeft;
      contentsContainer.scrollLeft = scrollLeft;
      contentsContainer.scrollTop = scrollTop;

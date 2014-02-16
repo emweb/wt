@@ -1977,7 +1977,7 @@ _$_$endif_$_();
 
 if (window._$_APP_CLASS_$_ && window._$_APP_CLASS_$_._p_) {
   try {
-    window._$_APP_CLASS_$_._p_.quit();
+    window._$_APP_CLASS_$_._p_.quit(true);
   } catch (e) {
   }
 }
@@ -2452,8 +2452,10 @@ var sessionUrl,
   serverPush = false,
   updateTimeout = null;
 
-function quit() {
+function quit(silent) {
   quited = true;
+  if (silent)
+    norestart = true;
   if (keepAliveTimer) {
     clearInterval(keepAliveTimer);
     keepAliveTimer = null;
@@ -2852,7 +2854,7 @@ function setPage(id)
 
 function sendUpdate() {
   if (self != window._$_APP_CLASS_$_) {
-    quit();
+    quit(true);
     return;
   }
 
@@ -3048,7 +3050,7 @@ function loadScript(uri, symbol, tries)
 	loadScript(uri, symbol, t - 1);
       } else {
 	alert('Fatal error: failed loading ' + uri);
-	quit();
+	quit(true);
       }      
     }
   }

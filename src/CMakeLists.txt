@@ -418,6 +418,14 @@ IF(RT_required)
   SET(RT_LIBRARY "rt")
 ENDIF(RT_required)
 
+IF(WIN32)
+  IF(SHARED_LIBS)
+    CONFIGURE_FILE(Wt/wt-version.rc.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/wt-version.rc)
+    SET(libsources ${libsources} ${CMAKE_CURRENT_BINARY_DIR}/wt-version.rc)
+  ENDIF(SHARED_LIBS)
+ENDIF(WIN32)
+
 ADD_LIBRARY(wt ${libsources})
 TARGET_LINK_LIBRARIES(wt
     ${BOOST_WT_LIBRARIES}
