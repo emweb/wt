@@ -22,6 +22,109 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.2 (February, 2014)</h2>
+
+<p>
+ This release has a focus on bug fixes and a few larger new developments.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1Chart_1_1WCartesian3DChart.html">3D Charts
+    (Chart::WCartesian3DChart, ...)</a>
+  </dt>
+  <dd>
+    A 3D charting library was added, based on
+    <a href="classWt_1_1WGLWidget.html">WGLWidget</a>, and integrated
+    with the existing 2D charting framework.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1JSonSerializer.html">Dbo::JSonSerializer</a>
+  </dt>
+  <dd>
+    This is a utility which serializes Dbo objects (including
+    relations) to JSon, leveraging the same persist() function used
+    for serialization to the database.
+  </dd>
+
+</dl>
+
+<h3>B) Main improvements:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WBootstrapTheme.html">WBootstrapTheme</a>
+    </dt>
+  <dd>
+    Support for bootstrap version 3 was added, so now you have the
+    choice between botstrap version 2 or 3. Needless to say, you
+    should probably target version 3 for new development work if you
+    can live with its restricted browser support.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WGLWidget.html">WGLWidget</a>
+    </dt>
+  <dd>
+    Next to the existing client-side WebGL-based implementation, a
+    server-side OpenGL-based implementation was added for fallback
+    scenarios where WebGL is not available, or when scene complexity
+    is so big that a server-side solution is simply better performing
+    because of lower bandwidth needed.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WRasterImage.html">WRasterImage</a>
+    </dt>
+  <dd>
+    Next to the GraphicsMagick-based implementation, a skia-based
+    implementation has been added (which provides much higher
+    performance most notably on Windows platforms).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WString.html">WString</a>
+    </dt>
+  <dd>
+    Until now, Wt defaults to the C++ global locale for conversion
+    between a string literal (std::string, const char *) and
+    WString. In practice, UTF-8 is an (increasingly) better choice
+    since UTF-8 is a pragmatic encoding covering the entire Unicode
+    range, and the encoding used by the library throughout. We've now
+    added a setDefaultEncoding() function which can be used to
+    configure the default encoding as UTF-8.
+  </dd>
+
+  <dt>
+    wthttp HTTP/WebSockets front-end server
+  </dt>
+  <dd>
+    We've given the http front-end a much needed overhaul, making it
+    deal better with long-lived connections typical for WebSockets
+    applications, and fix some nasty issues at the same time.
+    We also took the opportunity to optimize its performance by
+    reducing the number of system calls for writing request
+    responses, and by avoiding memory allocations during request parsing.
+  </dd>
+</dl>
+
+<h3>C) Non-backwards compatible changes</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WDatePicker.html">WDatePicker</a>,
+    <a href="classWt_1_1WDateEdit.html">WDateEdit</a>
+  </dt>
+  <dd>
+    The date pickers will now default to interpreting a single click
+    as a date selection and also closing the calendar.
+  </dd>
+</dl>
+<hr>
+
 <h2>Release 3.3.1 (October, 16 2013)</h2>
 
 <p>

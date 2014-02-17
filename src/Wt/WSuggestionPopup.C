@@ -139,7 +139,7 @@ void WSuggestionPopup::render(WFlags<RenderFlag> flags)
   if (flags & RenderFull)
     defineJavaScript();
 
-  WCompositeWidget::render(flags);
+  WPopupWidget::render(flags);
 }
 
 void WSuggestionPopup::connectObjJS(EventSignalBase& s, 

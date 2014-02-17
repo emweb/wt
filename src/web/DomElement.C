@@ -764,12 +764,6 @@ void DomElement::asHTML(EscapeOStream& out,
     }
   }
 
-  if (needButtonWrap) {
-    PropertyMap::const_iterator i = properties_.find(PropertyStyleDisplay);
-    if (i != properties_.end() && i->second == "none")
-      return;
-  }
-
   /*
    * We also should not wrap anchors, map area elements and form elements.
    */

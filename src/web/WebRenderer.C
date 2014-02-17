@@ -1802,6 +1802,10 @@ std::string WebRenderer::headDeclarations() const
     }
   } else
     if (session_.env().agentIsIE()) {
+      /*
+       * WARNING: Similar code in WApplication.C must be kept in sync for 
+       *          progressive boot.
+       */
       if (session_.env().agent() < WEnvironment::IE9) {
 	const Configuration& conf = session_.env().server()->configuration(); 
 	bool selectIE7 = conf.uaCompatible().find("IE8=IE7")

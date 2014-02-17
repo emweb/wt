@@ -116,7 +116,7 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
     delete this;
 }
 
-void WPopupWidget::defineJavaScript()
+void WPopupWidget::defineJS()
 {
   WApplication *app = WApplication::instance();
 
@@ -134,7 +134,7 @@ void WPopupWidget::defineJavaScript()
 void WPopupWidget::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull)
-    defineJavaScript();
+    defineJS();
 
   WCompositeWidget::render(flags);
 }

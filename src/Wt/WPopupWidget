@@ -132,7 +132,7 @@ private:
   JSignal<> jsHidden_, jsShown_;
 
   void create(WWidget *parent);
-  void defineJavaScript();
+  void defineJS();
 };
 
 }

@@ -140,7 +140,11 @@ WApplication::WApplication(const WEnvironment& env
   setLocalizedStrings(0);
 #endif // !WT_TARGET_JAVA
 
-  if (environment().agentIsIE()) {
+  if (!environment().javaScript() && environment().agentIsIE()) {
+    /*
+     * WARNING: Similar code in WebRenderer.C must be kept in sync for 
+     *          plain boot.
+     */
     if (environment().agent() < WEnvironment::IE9) {
       const Configuration& conf = environment().server()->configuration(); 
       bool selectIE7 = conf.uaCompatible().find("IE8=IE7")
@@ -148,8 +152,13 @@ WApplication::WApplication(const WEnvironment& env
 
       if (selectIE7)
 	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=7");
-    } else
-      addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=9");
+    } else if (environment().agent() == WEnvironment::IE9) {
+	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=9");
+    } else if (environment().agent() == WEnvironment::IE10) {
+	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=10");
+    } else {
+	addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=11");
+    }
   }
 
   domRoot_ = new WContainerWidget();

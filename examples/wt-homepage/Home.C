@@ -48,11 +48,11 @@ Home::Home(const WEnvironment& env,
   messageResourceBundle().use(appRoot() + resourceBundle, false);
 
   useStyleSheet(cssPath + "/wt.css");
-  useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7");
+  useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7", "all");
   useStyleSheet("css/home.css");
   useStyleSheet("css/sourceview.css");
   useStyleSheet("css/chatwidget.css");
-  useStyleSheet("css/chatwidget_ie6.css", "lt IE 7");
+  useStyleSheet("css/chatwidget_ie6.css", "lt IE 7", "all");
   setTitle(title);
 
   setLocale("");

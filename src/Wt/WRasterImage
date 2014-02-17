@@ -141,7 +141,7 @@ public:
    */
   WColor getPixel(int x, int y);
 
-  /*! \brief Low-level pixel retrievaer
+  /*! \brief Low-level pixel retrieval
    *
    * This is a more efficient alternative than calling getPixel() for every
    * pixel.
