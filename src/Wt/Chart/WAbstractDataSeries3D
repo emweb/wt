@@ -82,6 +82,8 @@ namespace Wt {
  * make GL-delete calls to all resources initialized in updateGL() in the 
  * function deleteAllGLResources(). It is also best to check isNull() on each 
  * of your GL-resources when deleting them.
+ *
+ * \ingroup charts
  */
 class WT_API WAbstractDataSeries3D : public WObject {
 public:

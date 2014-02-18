@@ -73,6 +73,8 @@ enum ChartType {
 };
 
 /*! \brief Enumeration that specifies a property of the axes.
+ *
+ * \ingroup charts
  */
 enum AxisProperty {
   Labels = 0x1,  //<! Axis Labels.

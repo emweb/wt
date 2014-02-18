@@ -23,6 +23,8 @@ namespace Wt {
  * model itself is structured as a table, where every value represents the 
  * z-value of a data-point. The corresponding x- and y-values are calculated 
  * by adding delta times the row/column-index to the axis-minimum.
+ *
+ * \ingroup charts
  */
 class WT_API WEquidistantGridData : public WAbstractGridData {
 public:

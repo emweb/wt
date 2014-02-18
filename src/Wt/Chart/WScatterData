@@ -36,6 +36,8 @@ class WMemoryResource;
  * and a pointsize of 5 pixels.
  *
  * \image html spiral.png "An example of WScatterData"
+ *
+ * \ingroup charts
  */
 class WT_API WScatterData : public WAbstractDataSeries3D {
 public:

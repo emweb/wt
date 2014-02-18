@@ -20,11 +20,13 @@ class WMemoryResource;
   class WCartesian3DChart;
 
 /*! \brief Enumeration with the possible representations of WAbstractGridData
+ *
+ * \ingroup charts
  */
 enum Series3DType {
-  PointSeries3D, //!< Series rendered as points
+  PointSeries3D,   //!< Series rendered as points
   SurfaceSeries3D, //!< Series rendered as a surface
-  BarSeries3D //!< Series rendered as bars
+  BarSeries3D      //!< Series rendered as bars
 };
 
 /*! \class WAbstractGridData
@@ -45,6 +47,8 @@ enum Series3DType {
  * The three types of data-representation are illustrated below.
  *
  * \image html gridDataTypes.png "The three representation types of grid-based data"
+ *
+ * \ingroup charts
  */
 class WT_API WAbstractGridData : public WAbstractDataSeries3D {
 public:

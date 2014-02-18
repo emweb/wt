@@ -444,24 +444,24 @@ public:
   /*! \brief Construct a WebGL widget.
    *
    * Before the first rendering, you must apply a size to the WGLWidget.
-   *
-   * /code
-   * /endcode
-   */
-  WGLWidget(WFlags<RenderOption> options, WContainerWidget *parent = 0);
-
-  /*! \brief Construct a WebGL widget.
-   *
-   * Before the first rendering, you must apply a size to the WGLWidget.
-   *
-   * /code
-   * /endcode
    */
   WGLWidget(WContainerWidget *parent = 0);
 
   /*! \brief Destructor
    */
   ~WGLWidget();
+
+  /*! \brief Sets the rendering option.
+   *
+   * Use this method to configure whether client-side and/or
+   * server-side rendering can be used. The actual choice is also based
+   * on availability (respectively client-side or server-side).
+   *
+   * The default value is to try both ClientSide or ServerSide rendering.
+   *
+   * \note Options must be set before the widget is being rendered.
+   */
+  void setRenderOptions(WFlags<RenderOption> options);
 
   /*! \brief Initialize the WebGL state when the widget is first shown.
    *
@@ -2645,6 +2645,7 @@ protected:
 private:
   void init(WFlags<RenderOption> options);
 
+  WFlags<RenderOption> renderOptions_;
   WAbstractGLImplementation *pImpl_;
   struct jsMatrixMap {
     int id;

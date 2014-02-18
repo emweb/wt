@@ -16,9 +16,13 @@ Wt::WContainerWidget *container = new Wt::WContainerWidget();
 // create the chart
 Wt::Chart::WCartesian3DChart *chart = new Wt::Chart::WCartesian3DChart(container);
 chart->setType(Wt::Chart::CategoryChart);
+// disable server-side rendering fallback; our VPSes don't have that
+chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering);
+
 Wt::WCssDecorationStyle style;
 style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium, Wt::black));
 chart->setDecorationStyle(style);
+
 chart->resize(800, 600);
 chart->setTitle("Fish consumption in western Europe");
 chart->axis(Wt::Chart::ZAxis_3D).setTitle("Consumption (pcs/year)");

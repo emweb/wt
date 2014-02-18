@@ -26,6 +26,8 @@ class WChart3DImplementation;
 
 /*! \enum Plane
  *  \brief Lists the three orthogonal planes in 3D
+ *
+ * \ingroup charts
  */
 enum Plane {
   XY_Plane, //!< X/Y Plane
@@ -62,6 +64,8 @@ enum Plane {
  * a colormap enabled and indicates that it should be displayed on the chart.
  *
  * \image html Chart3DCombo.png "A scatterplot on the left, a category-chart on the right."
+ *
+ * \ingroup charts
  */
 class WT_API WCartesian3DChart : public WGLWidget {
 public:

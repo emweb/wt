@@ -26,6 +26,8 @@ namespace Wt {
  * A colormap has a certain numerical range. When a colormap is painted as a 
  * colored strip or as a legend, this range is what will be presented, even if 
  * the colormap has the ability to convert values outside this range.
+ *
+ * \ingroup charts
  */
 class WT_API WAbstractColorMap {
 public:

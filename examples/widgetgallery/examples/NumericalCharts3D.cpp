@@ -17,9 +17,13 @@ Wt::WContainerWidget *container = new Wt::WContainerWidget();
 // create the chart and add a border to the widget
 Wt::Chart::WCartesian3DChart *chart = new Wt::Chart::WCartesian3DChart(container);
 chart->setType(Wt::Chart::ScatterPlot);
+// disable server-side rendering fallback; our VPSes don't have that
+chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering);
+
 Wt::WCssDecorationStyle style;
 style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium, Wt::black));
 chart->setDecorationStyle(style);
+
 chart->resize(600, 600);
 chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::XAxis_3D, true);
 chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::YAxis_3D, true);

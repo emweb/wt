@@ -61,8 +61,9 @@ using namespace Wt;
 //       an extra array.
 // TODO: allow VBO's to be served from a file
 
-WGLWidget::WGLWidget(WFlags<RenderOption> options, WContainerWidget *parent):
-  WInteractWidget(parent),
+WGLWidget::WGLWidget(WContainerWidget *parent)
+: WInteractWidget(parent),
+  renderOptions_(ClientSideRendering | ServerSideRendering),
   pImpl_(0),
   repaintSignal_(this, "repaintSignal"),
   alternative_(0),
@@ -79,62 +80,7 @@ WGLWidget::WGLWidget(WFlags<RenderOption> options, WContainerWidget *parent):
     "var o = " + this->glObjJsRef() + ";"
     "if(o.ctx) o.paintGL();"
     "}", this)
-
 {
-  init(options);
-}
-
-WGLWidget::WGLWidget(WContainerWidget *parent)
-  : WInteractWidget(parent),
-    pImpl_(0),
-    repaintSignal_(this, "repaintSignal"),
-    alternative_(0),
-    webglNotAvailable_(this, "webglNotAvailable"),
-    webGlNotAvailable_(false),
-    mouseWentDownSlot_("function(){}", this),
-    mouseWentUpSlot_("function(){}", this),
-    mouseDraggedSlot_("function(){}", this),
-    mouseWheelSlot_("function(){}", this),
-    touchStarted_("function(){}", this),
-    touchEnded_("function(){}", this),
-    touchMoved_("function(){}", this),
-    repaintSlot_("function() {"
-		 "var o = " + this->glObjJsRef() + ";"
-		 "if(o.ctx) o.paintGL();"
-		 "}", this)
-{
-  init(ClientSideRendering | ServerSideRendering);
-}
-
-void WGLWidget::init(WFlags<RenderOption> options)
-{
-  if (options & ClientSideRendering &&
-      WApplication::instance()->environment().webGL()) {
-    pImpl_ = new WClientGLWidget(this);
-  } else {
-#ifndef WT_TARGET_JAVA
-#ifdef WT_USE_OPENGL
-    if (options & ServerSideRendering) {
-      try {
-	pImpl_ = new WServerGLWidget(this);
-      } catch (WException& e) {
-	pImpl_ = 0;
-      }
-    } else {
-      pImpl_ = 0;
-    }
-#else
-    pImpl_ = 0;
-#endif
-#else
-    if (options & ServerSideRendering) {
-      pImpl_ = new WServerGLWidget(this);
-    } else {
-      pImpl_ = 0;
-    }
-#endif
-  }
-
   setInline(false);
   setLayoutSizeAware(true);
   webglNotAvailable_.connect(this, &WGLWidget::webglNotAvailable);
@@ -154,6 +100,11 @@ void WGLWidget::init(WFlags<RenderOption> options)
 WGLWidget::~WGLWidget()
 {
   delete pImpl_;
+}
+
+void WGLWidget::setRenderOptions(WFlags<RenderOption> options)
+{
+  renderOptions_ = options;
 }
 
 void WGLWidget::setAlternativeContent(WWidget *alternative)
@@ -287,6 +238,35 @@ void WGLWidget::defineJavaScript()
 void WGLWidget::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull) {
+    if (!pImpl_) {
+      if (renderOptions_ & ClientSideRendering &&
+	  WApplication::instance()->environment().webGL()) {
+	pImpl_ = new WClientGLWidget(this);
+      } else {
+#ifndef WT_TARGET_JAVA
+#ifdef WT_USE_OPENGL
+	if (renderOptions_ & ServerSideRendering) {
+	  try {
+	    pImpl_ = new WServerGLWidget(this);
+	  } catch (WException& e) {
+	    pImpl_ = 0;
+	  }
+	} else {
+	  pImpl_ = 0;
+	}
+#else
+	pImpl_ = 0;
+#endif
+#else
+	if (renderOptions_ & ServerSideRendering) {
+	  pImpl_ = new WServerGLWidget(this);
+	} else {
+	  pImpl_ = 0;
+	}
+#endif
+      }
+    }
+
     defineJavaScript();
   }
 

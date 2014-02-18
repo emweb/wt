@@ -28,6 +28,8 @@ class WMemoryResource;
  * contains the y-axis values. All other values in the table contain the 
  * z-value corresponding to the x- and y-values with the same column- and 
  * row-index.
+ *
+ * \ingroup charts
  */
 class WT_API WGridData : public WAbstractGridData {
 public:
