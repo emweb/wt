@@ -165,19 +165,24 @@ void WTextEdit::initTinyMCE()
     if (app->environment().ajax())
       app->doJavaScript("window.tinyMCE_GZ = { loaded: true };", false);
 
-    int version = getTinyMCEVersion();
+    std::string tinyMCEURL;
+    WApplication::readConfigurationProperty("tinyMCEURL", tinyMCEURL);
+    if (tinyMCEURL.empty()) {
+      int version = getTinyMCEVersion();
 
-    std::string folder = version == 3 ? "tiny_mce/" : "tinymce/";
-    std::string jsFile = version == 3 ? "tiny_mce.js" : "tinymce.js";
+      std::string folder = version == 3 ? "tiny_mce/" : "tinymce/";
+      std::string jsFile = version == 3 ? "tiny_mce.js" : "tinymce.js";
 
-    std::string tinyMCEBaseURL = WApplication::relativeResourcesUrl() + folder;
-    WApplication::readConfigurationProperty("tinyMCEBaseURL", tinyMCEBaseURL);
+      std::string tinyMCEBaseURL = WApplication::relativeResourcesUrl() + folder;
+      WApplication::readConfigurationProperty("tinyMCEBaseURL", tinyMCEBaseURL);
 
-    if (!tinyMCEBaseURL.empty()
-	&& tinyMCEBaseURL[tinyMCEBaseURL.length()-1] != '/')
-      tinyMCEBaseURL += '/';
+      if (!tinyMCEBaseURL.empty()
+          && tinyMCEBaseURL[tinyMCEBaseURL.length()-1] != '/')
+        tinyMCEBaseURL += '/';
+      tinyMCEURL = tinyMCEBaseURL + jsFile;
+    }
 
-    app->require(tinyMCEBaseURL + jsFile, "window['tinyMCE']");
+    app->require(tinyMCEURL, "window['tinyMCE']");
     app->styleSheet().addRule(".mceEditor",
 			      "display: block; position: absolute;");
 
