@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WTRANSITION_H_
-#define WTRANSITION_H_
+#ifndef WANIMATION_H_
+#define WANIMATION_H_
 
 #include <Wt/WGlobal>
 
@@ -179,4 +179,4 @@ W_DECLARE_OPERATORS_FOR_FLAGS(WAnimation::AnimationEffect);
 
 }
 
-#endif // WTRANSITION_H_
+#endif // WANIMATION_H_
