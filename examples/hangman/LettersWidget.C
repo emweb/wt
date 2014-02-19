@@ -8,6 +8,8 @@
 
 #include <Wt/WPushButton>
 #include <Wt/WTable>
+#include <Wt/WApplication>
+#include <Wt/WEvent>
 
 using namespace Wt;
 
@@ -27,6 +29,9 @@ LettersWidget::LettersWidget(WContainerWidget *parent)
 
     character->clicked().connect
       (boost::bind(&LettersWidget::processButton, this, character));
+
+	WApplication::instance()->globalKeyPressed().connect
+	  (boost::bind(&LettersWidget::processButtonPushed, this, _1, character));
   }
 }
 
@@ -34,6 +39,15 @@ void LettersWidget::processButton(WPushButton *b)
 {
   b->disable();
   letterPushed_.emit(b->text().toUTF8()[0]);
+}
+
+void LettersWidget::processButtonPushed(WKeyEvent &e, WPushButton *b)
+{
+  if(isHidden())
+	  return;
+
+  if(e.key() == b->text().toUTF8()[0])
+    processButton(b);
 }
 
 void LettersWidget::reset()
