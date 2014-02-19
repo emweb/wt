@@ -88,8 +88,8 @@ class MySQLStatement : public SqlStatement
       stmt_ =  mysql_stmt_init(conn_.connection()->mysql);
       mysql_stmt_attr_set(stmt_, STMT_ATTR_UPDATE_MAX_LENGTH, &mysqltrue_);
       if(mysql_stmt_prepare(stmt_, sql_.c_str(), sql_.length()) != 0) {
-        throw  MySQLException(std::string("error creating prepared statement ")+
-                              mysql_stmt_error(stmt_));
+        throw MySQLException("error creating prepared statement: '"
+			      + sql + "': " + mysql_stmt_error(stmt_));
       }
       if(mysql_stmt_param_count(stmt_)> 0)
       {
@@ -940,8 +940,8 @@ void MySQL::executeSql(const std::string &sql)
     std::cerr << sql << std::endl;
 
   if( mysql_query(impl_->mysql, sql.c_str()) != 0 ){
-    throw MySQLException(std::string("MySQL error performing query: ")
-                         + mysql_error(impl_->mysql));
+    throw MySQLException("MySQL error performing query: '" +
+			 sql + "': " + mysql_error(impl_->mysql));
   }
   //use any results up
   MYSQL_RES* res = mysql_store_result(impl_->mysql);

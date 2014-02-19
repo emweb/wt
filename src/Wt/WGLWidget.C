@@ -267,6 +267,11 @@ void WGLWidget::render(WFlags<RenderFlag> flags)
       }
     }
 
+    if (pImpl_ && !width().isAuto() && !height().isAuto()) {
+      layoutSizeChanged(static_cast<int>(width().toPixels()),
+			static_cast<int>(height().toPixels()));
+    }
+
     defineJavaScript();
   }
 

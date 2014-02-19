@@ -436,9 +436,13 @@ public:
     friend class WClientGLWidget;
   };
 
+  /*! \brief Enumeration for render options
+   *
+   * \sa setRenderOptions()
+   */
   enum RenderOption {
-    ClientSideRendering = 0x1,
-    ServerSideRendering = 0x2
+    ClientSideRendering = 0x1, //<! Enables client-side rendering
+    ServerSideRendering = 0x2  //<! Enables server-side rendering
   };
 
   /*! \brief Construct a WebGL widget.
@@ -2643,8 +2647,6 @@ protected:
   virtual void setFormData(const FormData& formData);
 
 private:
-  void init(WFlags<RenderOption> options);
-
   WFlags<RenderOption> renderOptions_;
   WAbstractGLImplementation *pImpl_;
   struct jsMatrixMap {

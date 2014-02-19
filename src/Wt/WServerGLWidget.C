@@ -449,6 +449,20 @@ WServerGLWidgetImpl::~WServerGLWidgetImpl()
   DestroyWindow(wnd_);
 }
 
+void WServerGLWidgetImpl::makeCurrent()
+{
+  if (!wglMakeCurrent(hdc_, ctx_))
+    throw WException("WServerGLWidget: makeCurrent() failed");
+}
+
+void WServerGLWidgetImpl::unmakeCurrent()
+{
+  if (!wglMakeCurrent(NULL,NULL))
+    throw WException("WServerGLWidget: unmakeCurrent() failed");
+
+}
+#endif
+
 #ifdef FRAMEBUFFER_RENDERING
 void WServerGLWidgetImpl::initializeRenderbuffers()
 {
@@ -509,20 +523,6 @@ void WServerGLWidgetImpl::initReadBuffer()
 void WServerGLWidgetImpl::setDrawBuffer()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-}
-#endif
-
-void WServerGLWidgetImpl::makeCurrent()
-{
-  if (!wglMakeCurrent(hdc_, ctx_))
-    throw WException("WServerGLWidget: makeCurrent() failed");
-}
-
-void WServerGLWidgetImpl::unmakeCurrent()
-{
-  if (!wglMakeCurrent(NULL,NULL))
-    throw WException("WServerGLWidget: unmakeCurrent() failed");
-
 }
 #endif
 

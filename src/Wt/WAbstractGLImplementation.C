@@ -11,6 +11,8 @@ WAbstractGLImplementation::WAbstractGLImplementation(WGLWidget *glInterface)
     updateGL_(false),
     updateResizeGL_(false),
     updatePaintGL_(false),
+    renderWidth_(0),
+    renderHeight_(0),
     webglNotAvailable_(this, "webglNotAvailable")
 {
   webglNotAvailable_.connect(glInterface_, &WGLWidget::webglNotAvailable);
