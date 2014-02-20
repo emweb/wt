@@ -18,14 +18,14 @@ namespace Wt {
     namespace Dbo {
 
 /*! \class UserDatabase Wt/Auth/Dbo/UserDatabase
- *  \brief A default implementation for a authentication data in %Wt::%Dbo.
+ *  \brief A default implementation for an authentication user database.
  * 
  * This is a template class, and needs as parameter the Dbo type which
- * models holds the authentication information. A suitable
- * implementation, which stores authentication information outside the
- * "user" class, is provided by AuthInfo.
+ * models the authentication information. A suitable implementation,
+ * which stores authentication information outside the "user" class,
+ * is provided by AuthInfo.
  *
- * \sa UserDatabase
+ * \sa AuthInfo
  *
  * \ingroup auth
  */
@@ -274,7 +274,7 @@ public:
     /*
      * Prevent a user from piling up the database with tokens
      */
-    int tokens_number = user_->authTokens().size();
+    size_t tokens_number = user_->authTokens().size();
     if (tokens_number >= maxAuthTokensPerUser_) {
       // remove so many tokens, that their number
       // would be (maxAuthTokensPerUser_ - 1)
