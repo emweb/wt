@@ -528,7 +528,7 @@ public:
    * files that are used to lookup localized strings.
    *
    * The default localizedStrings() is a WMessageResourceBundle
-   * object, and this method returns localizedStrings() upcasted to
+   * object, and this method returns localizedStrings() downcasted to
    * this type.
    *
    * \sa WString::tr(const char *key)

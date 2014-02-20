@@ -171,7 +171,7 @@ std::vector<User> Session::topUsers(int limit)
 {
   dbo::Transaction transaction(session_);
 
-  Users top = session_.find<User>().orderBy("score desc").limit(20);
+  Users top = session_.find<User>().orderBy("score desc").limit(limit);
 
   std::vector<User> result;
   for (Users::const_iterator i = top.begin(); i != top.end(); ++i) {
