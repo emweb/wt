@@ -106,7 +106,7 @@ OPTION(ENABLE_MYSQL "Build mariadb/mysql backend for Wt::Dbo" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
-OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" OFF)
+OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
 
 # C++11 vs C++98
 # Binary compatibility is not guaranteed. We give our users the choice on
