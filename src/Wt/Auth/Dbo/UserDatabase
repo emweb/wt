@@ -274,7 +274,7 @@ public:
     /*
      * Prevent a user from piling up the database with tokens
      */
-    int tokens_number = user_->authTokens().size();
+    size_t tokens_number = user_->authTokens().size();
     if (tokens_number >= maxAuthTokensPerUser_) {
       // remove so many tokens, that their number
       // would be (maxAuthTokensPerUser_ - 1)
