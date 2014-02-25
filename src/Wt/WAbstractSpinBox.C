@@ -120,7 +120,9 @@ void WAbstractSpinBox::defineJavaScript()
     + boost::lexical_cast<std::string>(decimals()) + ","
     + prefix().jsStringLiteral() + ","
     + suffix().jsStringLiteral() + ","
-    + jsMinMaxStep() + ");";
+    + jsMinMaxStep() + ","
+    + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
+    + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");";
 
   setJavaScriptMember(" WSpinBox", jsObj);
 }
@@ -194,6 +196,14 @@ void WAbstractSpinBox::setup()
 WValidator::State WAbstractSpinBox::validate()
 {
   return WLineEdit::validate();
+}
+
+void WAbstractSpinBox::refresh()
+{
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+      ".setLocale(" + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
+      + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");");
+  WLineEdit::refresh();
 }
 
 int WAbstractSpinBox::boxPadding(Orientation orientation) const

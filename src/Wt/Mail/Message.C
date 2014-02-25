@@ -11,10 +11,10 @@
 #include "Wt/WStringStream"
 #include "base64.h"
 
-#ifndef WIN32
+#ifndef WT_WIN32
 #include <unistd.h>
 #endif
-#ifdef WIN32
+#ifdef WT_WIN32
 #include <process.h>
 #endif
 

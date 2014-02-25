@@ -18,7 +18,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/time_parsers.hpp> 
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #define snprintf _snprintf
 #define strcasecmp _stricmp
 #endif

@@ -216,6 +216,15 @@ public:
    */
   boost::any configurationSetting(const std::string& name) const;
 
+  /*! \brief Sets the placeholder text.
+   *
+   * This method is not supported on WTextEdit and will thrown an exception
+   * instead.
+   */
+  virtual void setPlaceholderText(const WString& placeholder);
+
+  virtual void setReadOnly(bool readOnly);
+  virtual void propagateSetEnabled(bool enabled);
   virtual void resize(const WLength& width, const WLength& height);
 
 protected:

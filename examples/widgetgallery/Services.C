@@ -21,7 +21,7 @@
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 #include <boost/thread.hpp>
 #else
-#if defined(WIN32)
+#if WT_WIN32
 #include <windows.h>
 #endif
 #endif
@@ -85,7 +85,7 @@ void StyleLayout::load(Wt::WMouseEvent) {
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 #else
-#ifdef WIN32
+#ifdef WT_WIN32
         Sleep(2000);
 #else
         sleep(2);

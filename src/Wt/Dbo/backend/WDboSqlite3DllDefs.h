@@ -11,7 +11,7 @@
 
 // Source: http://www.nedprod.com/programs/gccvisibility.html
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #define WTDBOSQLITE3_IMPORT __declspec(dllimport)
   #define WTDBOSQLITE3_EXPORT __declspec(dllexport)
   #define WTDBOSQLITE3_DLLLOCAL
@@ -31,7 +31,7 @@
 #endif
 
 // Define wt_EXPORTS for DLL builds
-#ifdef WIN32
+#ifdef WT_WIN32
   #ifdef wtdbosqlite3_EXPORTS
     #define WTDBOSQLITE3_API WTDBOSQLITE3_EXPORT
   #else

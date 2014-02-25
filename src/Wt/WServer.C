@@ -3,7 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-#if !defined(_WIN32)
+#include "Wt/WConfig.h"
+
+#if !defined(WT_WIN32)
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -229,7 +231,7 @@ void WServer::removeEntryPoint(const std::string& path){
 
 void WServer::restart(int argc, char **argv, char **envp)
 {
-#ifndef WIN32
+#ifndef WT_WIN32
   char *path = realpath(argv[0], 0);
 
   // Try a few times since this may fail because we have an incomplete
@@ -249,7 +251,7 @@ void WServer::setCatchSignals(bool catchSignals)
   CatchSignals = catchSignals;
 }
 
-#if defined(_WIN32) && defined(WT_THREADED)
+#if defined(WT_WIN32) && defined(WT_THREADED)
 
 boost::mutex     terminationMutex;
 bool             terminationRequested = false;
@@ -277,7 +279,7 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 
 int WServer::waitForShutdown(const char *restartWatchFile)
 {
-#if !defined(WIN32)
+#if !defined(WT_WIN32)
   if (!CatchSignals) {
     for(;;)
       sleep(0x1<<16);
@@ -286,7 +288,7 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 
 #ifdef WT_THREADED
 
-#if !defined(_WIN32)
+#if !defined(WT_WIN32)
   sigset_t wait_mask;
   sigemptyset(&wait_mask);
 

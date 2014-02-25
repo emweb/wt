@@ -5,9 +5,37 @@
 
 #include <Wt/WAbstractItemModel>
 #include <Wt/WStandardItemModel>
+#include <Wt/WStandardItem>
 #include <Wt/WString>
 
 #include "CsvUtil.h"
+
+/*
+ * A standard item which converts text edits to numbers
+ */
+class NumericItem : public Wt::WStandardItem {
+public:
+  virtual NumericItem *clone() const {
+    return new NumericItem();
+  }
+
+  virtual void setData(const boost::any &data, int role = Wt::UserRole) {
+    boost::any dt;
+
+    if (role == Wt::EditRole) {
+      std::string s = Wt::asString(data).toUTF8();
+
+      char *end;
+      double d = std::strtod(s.c_str(), &end);
+      if (*end == 0)
+	dt = boost::any(d);
+      else
+	dt = data;
+    }
+
+    Wt::WStandardItem::setData(dt, role);
+  }
+};
 
 Wt::WStandardItemModel *csvToModel(const std::string& csvFile,
 				   Wt::WObject *parent,
@@ -17,6 +45,7 @@ Wt::WStandardItemModel *csvToModel(const std::string& csvFile,
 
   if (f) {
     Wt::WStandardItemModel *result = new Wt::WStandardItemModel(0, 0, parent);
+    result->setItemPrototype(new NumericItem());
     readFromCsv(f, result, -1, firstLineIsHeaders);
     return result;
   } else
@@ -57,22 +86,7 @@ void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 	    model->insertRows(model->rowCount(),
 			      dataRow + 1 - model->rowCount());
 
-	  std::string s = *i;
-
-	  boost::any data;
-
-	  char *end;
-	  int i = std::strtol(s.c_str(), &end, 10);
-	  if (*end == 0)
-	    data = boost::any(i);
-	  else {
-	    double d = std::strtod(s.c_str(), &end);
-	    if (*end == 0)
-	      data = boost::any(d);
-	    else
-	      data = boost::any(Wt::WString::fromUTF8(s));
-	  }
-
+	  boost::any data(Wt::WString::fromUTF8(*i));
 	  model->setData(dataRow, col, data);
 	}
       }

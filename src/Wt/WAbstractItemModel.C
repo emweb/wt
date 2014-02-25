@@ -11,7 +11,7 @@
 
 #include "WebUtils.h"
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #define snprintf _snprintf
 #endif
 

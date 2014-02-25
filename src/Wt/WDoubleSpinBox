@@ -115,6 +115,8 @@ public:
    */
   Signal<double>& valueChanged() { return valueChanged_; }
 
+  virtual void refresh();
+
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual void signalConnectionsChanged();

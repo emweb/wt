@@ -9,7 +9,7 @@
 
 #include <fstream>
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #define WIN32_GL
 #define FRAMEBUFFER_RENDERING
 #elif defined(__APPLE__)
@@ -45,8 +45,6 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 #include <OpenGL/CGLTypes.h>
 #include <OpenGL/OpenGL.h>
 #endif
-
-#include <boost/timer/timer.hpp>
 
 namespace {
   GLenum serverGLenum(Wt::WGLWidget::GLenum e);

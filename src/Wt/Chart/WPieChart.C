@@ -29,7 +29,7 @@
 /*
  * So, snprintf is not a std in c++03. It's a c++11 feature.
  */
-#ifdef WIN32
+#ifdef WT_WIN32
 #define snprintf _snprintf
 #else
 #ifdef WT_CNOR

@@ -190,6 +190,28 @@ void WTextEdit::initTinyMCE()
   }
 }
 
+void WTextEdit::setReadOnly(bool readOnly)
+{
+  WTextArea::setReadOnly(readOnly);
+
+  if (readOnly)
+    setConfigurationSetting("readonly", std::string("1"));
+  else
+    setConfigurationSetting("readonly", boost::any());
+}
+
+void WTextEdit::propagateSetEnabled(bool enabled)
+{
+  WTextArea::propagateSetEnabled(enabled);
+
+  setReadOnly(!enabled);
+}
+
+void WTextEdit::setPlaceholderText(const WString& placeholder)
+{
+  throw WException("WTextEdit::setPlaceholderText() is not implemented.");
+}
+
 void WTextEdit::resize(const WLength& width, const WLength& height)
 {
   WTextArea::resize(width, height);
@@ -317,7 +339,10 @@ int WTextEdit::boxBorder(Orientation orientation) const
 void WTextEdit::setConfigurationSetting(const std::string& name, 
 					const boost::any& value)
 {
-  configurationSettings_[name] = value;
+  if (!value.empty())
+    configurationSettings_[name] = value;
+  else
+    configurationSettings_.erase(name);
 }
 
 boost::any WTextEdit::configurationSetting(const std::string& name) const

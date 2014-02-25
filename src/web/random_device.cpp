@@ -12,7 +12,7 @@
  *
  */
 
-#if WIN32
+#if WT_WIN32
 // Don't link to boost_random
 #define BOOST_RANDOM_NO_LIB
 // And when compiling, don't add declspec to the classnames.
@@ -31,13 +31,13 @@
 #include <string>
 #include <cassert>
 
-#ifndef WIN32
+#ifndef WT_WIN32
 #  ifndef __CYGWIN__
 #    define USE_URANDOM
 #  endif
 #endif
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WT_WIN32) || defined(__CYGWIN__)
 #  define USE_WIN32_CRYPT
 #endif
 

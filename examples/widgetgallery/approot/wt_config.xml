@@ -21,6 +21,7 @@
         <!-- <web-sockets>true</web-sockets> -->
 	<bootstrap-method>
 	  <for path="*">progressive</for>
+	  <for path="/forms/line_text-editor">default</for>
 	  <for path="/trees-tables/mvc-table-views">default</for>
 	  <for path="/trees-tables/mvc-tree-views">default</for>
 	  <for path="/trees-tables/mvc-item-models">default</for>

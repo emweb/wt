@@ -126,21 +126,7 @@ WValidator *WDoubleSpinBox::createValidator()
 
 WString WDoubleSpinBox::textFromValue() const
 {
-  // FIXME, need to use WLocale here somehow !!
-
-#ifndef WT_TARGET_JAVA
-  // can't use round_str, because (1) precision is only a hint, and
-  // (2) precision is limited to values < 7
-  std::stringstream ss;
-  ss.precision(precision_);
-  ss << std::fixed << std::showpoint << value_;
-
-  std::string result = ss.str();
-#else
-  char buf[30];
-
-  std::string result = Utils::round_js_str(value_, precision_, buf);
-#endif // WT_TARGET_JAVA
+  std::string result = WLocale::currentLocale().toFixedString(value_, precision_).toUTF8();
 
   if (!nativeControl())
     result = prefix().toUTF8() + result + suffix().toUTF8();
@@ -153,16 +139,19 @@ bool WDoubleSpinBox::parseNumberValue(const std::string& text)
   try {
     char buf[30];
 
-    // ??
-    std::string currentV = Utils::round_css_str(value_, precision_, buf);
-
-    if (currentV != text) // to prevent loss of precision
-      value_ = WLocale::currentLocale().toDouble(text);
+    if (textFromValue().toUTF8() != text) // to prevent loss of precision
+      value_ = WLocale::currentLocale().toDouble(WString::fromUTF8(text));
 
     return true;
   } catch (boost::bad_lexical_cast &e) {
     return false;
   }
+}
+
+void WDoubleSpinBox::refresh()
+{
+  setText(textFromValue());
+  WAbstractSpinBox::refresh();
 }
 
 WValidator::Result WDoubleSpinBox::validateRange() const

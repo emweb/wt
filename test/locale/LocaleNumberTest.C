@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( formatGrouping )
 
   s = l.toString(d * 1E30);
 
-#ifdef WIN32
+#ifdef WT_WIN32
   BOOST_REQUIRE(s == "1.23456782345e+037");
 #else
   BOOST_REQUIRE(s == "1.23456782345e+37");
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( formatGrouping )
 
   s = l.toString(d * -1E30);
 
-#ifdef WIN32
+#ifdef WT_WIN32
   BOOST_REQUIRE(s == "-1.23456782345e+037");
 #else
   BOOST_REQUIRE(s == "-1.23456782345e+37");

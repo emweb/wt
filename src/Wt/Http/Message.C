@@ -6,6 +6,12 @@
 
 #include "Wt/Http/Message"
 
+#include <cstring>
+
+#ifdef WT_WIN32
+#define strcasecmp _stricmp
+#endif
+
 namespace Wt {
   namespace Http {
 
@@ -73,7 +79,7 @@ void Message::addHeader(const std::string& name, const std::string& value)
 const std::string *Message::getHeader(const std::string& name) const
 {
   for (unsigned i = 0; i < headers_.size(); ++i)
-    if (headers_[i].name() == name)
+    if (strcasecmp(headers_[i].name().c_str(),name.c_str()) == 0)
       return &headers_[i].value();
 
   return 0;

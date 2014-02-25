@@ -2992,13 +2992,13 @@
           <tt>WMenuItem::setData()</tt>.
         </li>
         <li>
-          You can bind a separate method to each item's
-          <tt>WMenuItem::triggered</tt> signal.
+          You can use a lambda function to connect to each of the listeners.
+          In C++, you can use boost::bind() to bind parameters that identify the
+          selected item.
         </li>
         <li>
-          You can use a ${doc-link WSignalMapper} to bind extra data with an
-          item's <tt>WMenuItem::triggered</tt> signal, and handle them in a
-          single slot.
+          You can bind a separate method to each item's
+          <tt>WMenuItem::triggered</tt> signal.
         </li>
       </ul>
     </p>

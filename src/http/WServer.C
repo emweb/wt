@@ -18,7 +18,7 @@
 #include "../web/Configuration.h"
 #include "WebController.h"
 
-#if !defined(_WIN32)
+#if !defined(WT_WIN32)
 #include <signal.h>
 #endif
 
@@ -127,7 +127,7 @@ bool WServer::start()
 
   LOG_INFO("initializing built-in wthttpd");
 
-#ifndef WIN32
+#ifndef WT_WIN32
   srand48(getpid());
 #endif
 
@@ -255,7 +255,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 	server.stop();
 
 #ifdef WT_THREADED
-#ifndef WIN32
+#ifndef WT_WIN32
 	if (sig == SIGHUP)
 	  // Mac OSX: _NSGetEnviron()
 	  WServer::restart(argc, argv, 0);

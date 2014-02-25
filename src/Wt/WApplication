@@ -35,7 +35,6 @@ namespace boost {
 namespace Wt {
 
 #ifndef WT_TARGET_JAVA
-#define WT_INCLUDED_VERSION Wt##WT_VERSION
 /*
  * Symbols used to check that included version matches library version
  * against which you link.
@@ -559,7 +558,7 @@ public:
 
   /*! \brief Returns the current locale.
    *
-   * \sa setLocale(const std::string&)
+   * \sa setLocale(const WLocale&)
    */
   const WLocale& locale() const { return locale_; }
 

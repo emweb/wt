@@ -18,6 +18,8 @@ namespace Wt {
 
 class WApplication;
 
+typedef EscapeOStream EStream;
+
 /*! \brief Enumeration for a DOM property.
  *
  * This is an internal API, subject to change.
@@ -381,14 +383,14 @@ public:
    * deleting existing elements, then creating new elements, and
    * finally updates to existing elements.
    */
-  std::string asJavaScript(EscapeOStream& out, Priority priority) const;
+  std::string asJavaScript(EStream& out, Priority priority) const;
 
   /*! \brief Renders the element as HTML.
    *
    * Anything that cannot be rendered as HTML is rendered as
    * javaScript as a by-product.
    */
-  void asHTML(EscapeOStream& out, EscapeOStream& javaScript,
+  void asHTML(EStream& out, EStream& javaScript,
 	      TimeoutList& timeouts, bool openingTagOnly = false) const;
 
   /*! \brief Creates the JavaScript statements for timer rendering.
@@ -408,7 +410,7 @@ public:
    * Only after the element has been declared, var() returns a useful
    * JavaScript reference.
    */
-  void declare(EscapeOStream& out) const;
+  void declare(EStream& out) const;
 
   /*! \brief Renders properties and attributes into CSS.
    */
@@ -418,13 +420,13 @@ public:
    *
    * It uses pre-computed mixing rules for escaping of the string.
    */
-  static void fastJsStringLiteral(EscapeOStream& outRaw,
-				  const EscapeOStream& outEscaped,
+  static void fastJsStringLiteral(EStream& outRaw,
+				  const EStream& outEscaped,
 				  const std::string& s);
 
   /*! \brief Utility that renders a string as JavaScript literal.
    */
-  static void jsStringLiteral(EscapeOStream& out, const std::string& s,
+  static void jsStringLiteral(EStream& out, const std::string& s,
 			      char delimiter);
 
   /*! \brief Utility that renders a string as JavaScript literal.
@@ -437,8 +439,8 @@ public:
    * It uses pre-computed mixing rules for escaping of the attribute
    * value.
    */
-  static void fastHtmlAttributeValue(EscapeOStream& outRaw,
-				     const EscapeOStream& outEscaped,
+  static void fastHtmlAttributeValue(EStream& outRaw,
+				     const EStream& outEscaped,
 				     const std::string& s);
 
   /*! \brief Utility that renders a string as HTML attribute.
@@ -512,19 +514,19 @@ private:
   bool containsElement(DomElementType type) const;
   void processEvents(WApplication *app) const;
   void processProperties(WApplication *app) const;
-  void setJavaScriptProperties(EscapeOStream& out, WApplication *app) const;
-  void setJavaScriptAttributes(EscapeOStream& out) const;
-  void setJavaScriptEvent(EscapeOStream& out, const char *eventName,
+  void setJavaScriptProperties(EStream& out, WApplication *app) const;
+  void setJavaScriptAttributes(EStream& out) const;
+  void setJavaScriptEvent(EStream& out, const char *eventName,
 			  const EventHandler& handler, WApplication *app) const;
-  void createElement(EscapeOStream& out, WApplication *app,
+  void createElement(EStream& out, WApplication *app,
 		     const std::string& domInsertJS);
-  std::string addToParent(EscapeOStream& out, const std::string& parentVar,
+  std::string addToParent(EStream& out, const std::string& parentVar,
 			  int pos, WApplication *app);
-  std::string createAsJavaScript(EscapeOStream& out,
+  std::string createAsJavaScript(EStream& out,
 				 const std::string& parentVar, int pos,
 				 WApplication *app);
-  void renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const;
-  void renderDeferredJavaScript(EscapeOStream& out) const;
+  void renderInnerHtmlJS(EStream& out, WApplication *app) const;
+  void renderDeferredJavaScript(EStream& out) const;
 
   Mode         mode_;
   bool         wasEmpty_;
@@ -540,7 +542,7 @@ private:
   int          numManipulations_;
   int          timeOut_;
   bool         timeOutJSRepeat_;
-  EscapeOStream javaScript_;
+  EStream      javaScript_;
   std::string  javaScriptEvenWhenDeleted_;
   mutable std::string var_;
   mutable bool declared_;
@@ -560,7 +562,7 @@ private:
   std::vector<ChildInsertion> childrenToAdd_;
   std::vector<std::string> childrenToSave_;
   std::vector<DomElement *> updatedChildren_;
-  EscapeOStream childrenHtml_;
+  EStream childrenHtml_;
   TimeoutList timeouts_;
 
   static int nextId_;

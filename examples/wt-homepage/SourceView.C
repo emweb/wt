@@ -47,7 +47,7 @@ bool SourceView::setIndex(const WModelIndex& index)
 
 std::string tempFileName() 
 {
-#ifndef WIN32
+#ifndef WT_WIN32
   char spool[20];
   strcpy(spool, "/tmp/wtXXXXXX");
 

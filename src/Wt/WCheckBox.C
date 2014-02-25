@@ -15,16 +15,14 @@ namespace Wt {
 
 WCheckBox::WCheckBox(WContainerWidget *parent)
   : WAbstractToggleButton(parent),
-    triState_(false),
-    safariWorkaround_(false)
+    triState_(false)
 {
   setFormObject(true);
 }
 
 WCheckBox::WCheckBox(const WString& text, WContainerWidget *parent)
   : WAbstractToggleButton(text, parent),
-    triState_(false),
-    safariWorkaround_(false)
+    triState_(false)
 {
   setFormObject(true);
 }
@@ -36,11 +34,6 @@ void WCheckBox::setTristate(bool tristate)
   if (triState_) {
     if (!supportsIndeterminate(WApplication::instance()->environment()))
       changed().connect("function(obj, e) { obj.style.opacity=''; }");
-    else if (WApplication::instance()->environment().agentIsSafari()
-	     && !safariWorkaround_) {
-      clicked().connect("function(obj, e) { obj.onchange(); }");
-      safariWorkaround_ = true;
-    }
   }
 }
 

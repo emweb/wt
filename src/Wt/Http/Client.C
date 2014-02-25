@@ -503,14 +503,20 @@ Client::Client(WObject *parent)
   : WObject(parent),
     ioService_(0),
     timeout_(10),
-    maximumResponseSize_(64*1024)
+    maximumResponseSize_(64*1024),
+    followRedirect_(false),
+    redirectCount_(0),
+    maxRedirects_(20)
 { }
 
 Client::Client(WIOService& ioService, WObject *parent)
   : WObject(parent),
     ioService_(&ioService),
     timeout_(10),
-    maximumResponseSize_(64*1024)
+    maximumResponseSize_(64*1024),
+    followRedirect_(false),
+    redirectCount_(0),
+    maxRedirects_(20)
 { }
 
 Client::~Client()
@@ -524,6 +530,7 @@ void Client::abort()
     impl_->stop();
 
   impl_.reset();
+  redirectCount_ = 0;
 }
 
 void Client::setTimeout(int seconds)
@@ -631,7 +638,11 @@ bool Client::request(Http::Method method, const std::string& url,
     return false;
   }
 
-  impl_->done().connect(this, &Client::emitDone);
+  if (followRedirect()) {
+    impl_->done().connect(boost::bind(&Client::handleRedirect, this, method, _1, _2));
+  } else {
+    impl_->done().connect(this, &Client::emitDone);
+  }
   impl_->setTimeout(timeout_);
   impl_->setMaximumResponseSize(maximumResponseSize_);
 
@@ -649,8 +660,49 @@ bool Client::request(Http::Method method, const std::string& url,
   return true;
 }
 
+bool Client::followRedirect() const
+{
+  return followRedirect_;
+}
+
+void Client::setFollowRedirect(bool followRedirect)
+{
+  followRedirect_ = followRedirect;
+}
+
+int Client::maxRedirects() const
+{
+  return maxRedirects_;
+}
+
+void Client::setMaxRedirects(int maxRedirects)
+{
+  maxRedirects_ = maxRedirects;
+}
+
+void Client::handleRedirect(Http::Method method, boost::system::error_code err, const Message& response)
+{
+  int status = response.status();
+  // Status codes 303 and 307 are implemented, although this should not
+  // occur when using HTTP/1.0
+  if (!err && (((status == 301 || status == 302 || status == 307) && method == Get) || status == 303)) {
+    const std::string *newUrl = response.getHeader("Location");
+    ++ redirectCount_;
+    if (newUrl) {
+      if (redirectCount_ <= maxRedirects_) {
+	get(*newUrl);
+	return;
+      } else {
+	LOG_WARN("Redirect count of " << maxRedirects_ << " exceeded! Redirect URL: " << *newUrl);
+      }
+    }
+  }
+  emitDone(err, response);
+}
+
 void Client::emitDone(boost::system::error_code err, const Message& response)
 {
+  redirectCount_ = 0;
   done_.emit(err, response);
 }
 
@@ -675,9 +727,10 @@ bool Client::parseUrl(const std::string &url, URL &parsedUrl)
   // find host
   std::size_t j = rest.find('/');
 
-  if (j == std::string::npos)
+  if (j == std::string::npos) {
     parsedUrl.host = rest;
-  else {
+    parsedUrl.path = "/";
+  } else {
     parsedUrl.host = rest.substr(0, j);
     parsedUrl.path = rest.substr(j);
   }

@@ -26,7 +26,7 @@
 #include "WebSession.h"
 #include "WebUtils.h"
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #include <process.h> // for getpid()
 #ifdef min
 #undef min

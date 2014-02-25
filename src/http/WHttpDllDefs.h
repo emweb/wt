@@ -11,7 +11,7 @@
 
 // Source: http://www.nedprod.com/programs/gccvisibility.html
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #define WTHTTP_IMPORT __declspec(dllimport)
   #define WTHTTP_EXPORT __declspec(dllexport)
   #define WTHTTP_DLLLOCAL
@@ -32,7 +32,7 @@
 #endif
 
 // Define wthttp_EXPORTS for DLL builds
-#ifdef WIN32
+#ifdef WT_WIN32
   #ifdef wthttp_EXPORTS
     #define WTHTTP_API WTHTTP_EXPORT
   #else

@@ -134,7 +134,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
 				    !config_.defaultStatic());
 
       if (matchesApp) {
-	if (ep.path().length() < bestLength) {
+	if (bestLength == std::string::npos || ep.path().length() > bestLength) {
 	  bestLength = ep.path().length();
 	  bestMatch = i;
 	}

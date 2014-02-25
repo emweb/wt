@@ -35,13 +35,11 @@ void EditUsers::limitList()
   dbo::Transaction t(session_);
   UserList users = session_.find<User>().where("name like ?").bind("%"+limitEdit_->text()+"%").orderBy("name");
 
-  WSignalMapper<dbo::dbo_traits<User>::IdType >* userLinkMap = new WSignalMapper<dbo::dbo_traits<User>::IdType >(this);
-  userLinkMap->mapped().connect(this,&EditUsers::onUserClicked);
   for (UserList::const_iterator i = users.begin(); i != users.end(); ++i) {
     WText* t = new WText((*i)->name, list);
     t->setStyleClass("link");
     new WBreak(list);
-    userLinkMap->mapConnect(t->clicked(), (*i).id());
+    t->clicked().connect(boost::bind(&EditUsers::onUserClicked, this, (*i).id()));
   }
   if (!users.size())
     new WText(tr("no-users-found"),list);

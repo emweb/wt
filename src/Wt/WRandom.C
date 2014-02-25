@@ -10,7 +10,7 @@
 #include "Wt/WRandom"
 
 #ifdef WT_NO_BOOST_RANDOM
-#if WIN32
+#if WT_WIN32
 
 // Don't link to boost_random
 #define BOOST_RANDOM_NO_LIB
@@ -34,7 +34,7 @@
 #define USE_NDT_RANDOM_DEVICE
 #endif
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WT_WIN32) || defined(__CYGWIN__)
 #define USE_NDT_RANDOM_DEVICE
 #include <process.h> // for getpid()
 #include <stdlib.h>

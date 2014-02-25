@@ -132,7 +132,7 @@ public:
    *
    * \sa setEnabled()
    */
-  void setReadOnly(bool readOnly);
+  virtual void setReadOnly(bool readOnly);
 
   /*! \brief Returns whether the form element is read-only.
    *
@@ -158,7 +158,7 @@ public:
    *
    * This sets the text that is shown when the field is empty.
    */
-  void setPlaceholderText(const WString& placeholder);
+  virtual void setPlaceholderText(const WString& placeholder);
 
   /*! \brief Returns the placeholder text.
    *
@@ -196,6 +196,8 @@ public:
 
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText);
+
+  virtual bool setFirstFocous();
 
 protected:
   WLabel     *label_;

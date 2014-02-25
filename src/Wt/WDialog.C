@@ -190,6 +190,7 @@ void WDialog::create()
   resizable_ = false;
   recursiveEventLoop_ = false;
   escapeIsReject_ = false;
+  autoFocus_ = true;
   impl_ = dynamic_cast<WTemplate *>(implementation());
 
   const char *CSS_RULES_NAME = "Wt::WDialog";
@@ -385,6 +386,9 @@ void WDialog::render(WFlags<RenderFlag> flags)
   }
 
   WPopupWidget::render(flags);
+
+  if (autoFocus_)
+    impl_->setFirstFocous();
 }
 
 void WDialog::rejectWhenEscapePressed(bool enable)

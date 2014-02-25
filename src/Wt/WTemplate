@@ -629,8 +629,16 @@ public:
    * You may want to reimplement this method to manage resources that are
    * needed to load content on-demand (e.g. database objects), or support
    * a custom template language.
+   *
+   * Return: true if rendered successfully.
+   * \sa getErrorText()
    */
-  void renderTemplateText(std::ostream& result, const WString& templateText);
+  bool renderTemplateText(std::ostream& result, const WString& templateText);
+
+  /*! \brief Renders the errors during renderring.
+   *  \sa renderTemplateText()
+   */
+  std::string getErrorText() {return errorText_;}
 
 protected:
   /*! \brief Applies arguments to a resolved widget.
@@ -684,6 +692,7 @@ private:
   ConditionSet conditions_;
 
   WString text_;
+  std::string errorText_;
 
   bool encodeInternalPaths_, changed_;
 

@@ -9,8 +9,9 @@
 
 #include <string.h>
 
+#include "Wt/WConfig.h" // WT_WIN32
 // for htonl():
-#ifndef WIN32
+#ifndef WT_WIN32
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>

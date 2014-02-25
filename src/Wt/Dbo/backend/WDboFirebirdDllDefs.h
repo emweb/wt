@@ -11,7 +11,7 @@
 
 // Source: http://www.nedprod.com/programs/gccvisibility.html
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #define WTDBOFIREBIRD_IMPORT __declspec(dllimport)
   #define WTDBOFIREBIRD_EXPORT __declspec(dllexport)
   #define WTDBOFIREBIRD_DLLLOCAL
@@ -30,7 +30,7 @@
   #endif
 #endif
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #ifdef wtdbofirebird_EXPORTS
     #define WTDBOFIREBIRD_API WTDBOFIREBIRD_EXPORT
   #else

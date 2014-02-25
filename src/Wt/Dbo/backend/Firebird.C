@@ -14,7 +14,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #define snprintf _snprintf
 #endif
 

@@ -204,6 +204,10 @@ public:
    */
   WT_USTRING toString(double value) const;
 
+  /*! \brief Formats a floating point number with given precision.
+   */
+  WT_USTRING toFixedString(double value, int precision) const;
+
   boost::local_time::time_zone_ptr time_zone_ptr() const { return time_zone_; }
 
 private:
@@ -216,6 +220,7 @@ private:
   bool isDefaultNumberLocale() const;
 
   WT_USTRING integerToString(const std::string& v) const;
+  WT_USTRING doubleToString(std::string v) const;
   std::string addGrouping(const std::string& v, unsigned decimalPoint) const;
 };
 

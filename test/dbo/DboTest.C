@@ -409,7 +409,7 @@ struct DboFixture
     // isql.exe
     // create database 'C:\opt\db\firebird\wt_test.fdb' user 'test_user' password 'test_pwd'
     std::string file;
-#ifdef WIN32
+#ifdef WT_WIN32
     file = "C:\\opt\\db\\firebird\\wt_test.fdb";
 #else
     file = "/opt/db/firebird/wt_test.fdb";

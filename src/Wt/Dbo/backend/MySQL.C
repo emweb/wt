@@ -15,7 +15,7 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #define snprintf _snprintf
 #include <winsock2.h>
 #endif

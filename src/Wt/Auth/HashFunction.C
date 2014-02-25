@@ -12,7 +12,7 @@
 
 #ifndef WT_TARGET_JAVA
 // for htonl():
-#ifndef WIN32
+#ifndef WT_WIN32
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>

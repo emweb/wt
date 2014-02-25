@@ -962,6 +962,12 @@ public:
 
   virtual bool isExposed(WWidget *widget);
 
+  /*! \brief Set focuse on the widget first descendant.
+  *
+  * Set focuse on the widget first descendant or itself if possible.
+  */
+  virtual bool setFirstFocous() {return false;}
+
 protected:
   static const char *WT_RESIZE_JS;
   static const char *WT_GETPS_JS;

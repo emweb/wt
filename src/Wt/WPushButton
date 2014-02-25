@@ -302,6 +302,8 @@ public:
    */
   EventSignal<>& unChecked();
 
+  virtual bool setFirstFocous() {return false;}
+
 private:
   static const char *CHECKED_SIGNAL;
   static const char *UNCHECKED_SIGNAL;

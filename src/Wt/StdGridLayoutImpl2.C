@@ -23,7 +23,7 @@
 #include "js/WtResize.min.js"
 #endif
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #define snprintf _snprintf
 #endif
 

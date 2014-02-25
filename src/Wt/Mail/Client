@@ -103,8 +103,11 @@ public:
   /*! \brief Sends a message.
    *
    * The client must be connected before messages can be sent.
+   *
+   * The function returns true on success, false on error. The
+   * reason for the error is logged in the log file.
    */
-  void send(const Message& message);
+  bool send(const Message& message);
 
 private:
   Client(const Client&);

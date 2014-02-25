@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WSpinBox",
  function(APP, edit, precision, prefix, suffix, minValue, maxValue,
-	  stepValue) {
+	  stepValue, decimalPoint, groupSeparator) {
    /** @const */ var TYPE_INTEGER = 0;
    /** @const */ var TYPE_FLOAT = 1;
 
@@ -33,6 +33,14 @@ WT_DECLARE_WT_MEMBER
      return !!edit.getAttribute("readonly");
    }
 
+   function addGrouping(input) {
+     var result = "";
+
+     for (var i = 0; i < input.length(); i++) {
+       result += input.charAt(i);
+     }
+   }
+
    function getValue() {
      var v = edit.value;
      if (v.substr(0, prefix.length) == prefix) {
@@ -40,6 +48,10 @@ WT_DECLARE_WT_MEMBER
        if (v.length > suffix.length
 	   && v.substr(v.length - suffix.length, suffix.length) == suffix) {
 	 v = v.substr(0, v.length - suffix.length);
+	 if (groupSeparator) {
+	   v = v.split(groupSeparator).join("");
+	 }
+	 v = v.replace(decimalPoint, ".");
 	 return Number(v);
        }
      }
@@ -52,8 +64,24 @@ WT_DECLARE_WT_MEMBER
        v = maxValue;
      else if (v < minValue)
        v = minValue;
+    
+     var newValue = v.toFixed(precision);
+     newValue = newValue.replace(".", decimalPoint);
+     var dotPos = newValue.indexOf(decimalPoint);
+     var result = "";
+     if (dotPos !== -1) {
+       for (var i = 0; i < dotPos; i++) {
+	 result += newValue.charAt(i);
+	 if (i < dotPos - 1 && ((dotPos - i - 1) % 3 === 0)) {
+	   result += groupSeparator;
+	 }
+       }
+       result += newValue.substr(dotPos);
+     } else {
+       result = newValue;
+     }
 
-     edit.value = prefix + v.toFixed(precision) + suffix;
+     edit.value = prefix + result + suffix;
 
      changed = true;
    }
@@ -190,6 +218,11 @@ WT_DECLARE_WT_MEMBER
 
      WT.stopRepeat();
    };
+
+   this.setLocale = function(point, separator) {
+     decimalPoint = point;
+     groupSeparator = separator;
+   }
 
    /*
     * Customized validation function, called from WFormWidget

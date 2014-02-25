@@ -20,7 +20,7 @@
 #include <openssl/ssl.h>
 #endif
 
-#ifdef WIN32
+#ifdef WT_WIN32
 // strcasecmp -> StrStrI
 #include <shlwapi.h>
 #define strcasestr StrStrIA

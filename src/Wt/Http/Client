@@ -90,7 +90,7 @@ class WIOService;
  * context of the application that created the client. WServer::post()
  * is used for this.
  *
- * <h3>Basic acces authentication</h3>
+ * <h3>Basic access authentication</h3>
  * When you want to add authentication information in the %URL, this can be done
  * as <tt>https://username:password@www.example.com/</tt>. When doing this,
  * make sure that the username and password string are URL-encoded
@@ -331,6 +331,31 @@ public:
    */
   static bool parseUrl(const std::string &url, URL &parsedUrl);
 
+  /*! \brief Returns whether the client will follow redirects.
+   *
+   * \sa setFollowRedirect
+   */
+  bool followRedirect() const;
+
+  /*! \brief Set whether the client will follow redirects.
+   *
+   * If set and the request method is GET, redirects are automatically
+   * followed.
+   */
+  void setFollowRedirect(bool followRedirect);
+
+  /*! \brief Returns the maximum number of redirects that are followed when followRedirect() is enabled.
+   *
+   * \sa setMaxRedirects
+   */
+  int maxRedirects() const;
+
+  /*! \brief Set the maximum number of redirects to follow when followRedirect() is enabled.
+   *
+   * This defaults to 20.
+   */
+  void setMaxRedirects(int maxRedirects);
+
 private:
   WIOService *ioService_;
   class Impl;
@@ -339,10 +364,14 @@ private:
   std::size_t maximumResponseSize_;
   std::string verifyFile_, verifyPath_;
   Signal<boost::system::error_code, Message> done_;
+  bool followRedirect_;
+  int redirectCount_;
+  int maxRedirects_;
 
   class TcpImpl;
   class SslImpl;
 
+  void handleRedirect(Http::Method method, boost::system::error_code err, const Message& response);
   void emitDone(boost::system::error_code err, const Message& response);
 };
 

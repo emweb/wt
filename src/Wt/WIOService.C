@@ -12,7 +12,7 @@
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
-#if !defined(_WIN32)
+#if !defined(WT_WIN32)
 #include <pthread.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -73,7 +73,7 @@ void WIOService::start()
 
 #ifdef WT_THREADED
 
-#if !defined(_WIN32)
+#if !defined(WT_WIN32)
     // Block all signals for background threads.
     sigset_t new_mask;
     sigfillset(&new_mask);
@@ -86,7 +86,7 @@ void WIOService::start()
 	(new boost::thread(boost::bind(&WIOService::run, this)));
     }
 
-#if !defined(_WIN32)
+#if !defined(WT_WIN32)
     // Restore previous signals.
     pthread_sigmask(SIG_SETMASK, &old_mask, 0);
 #endif // _WIN32

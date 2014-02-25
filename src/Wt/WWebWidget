@@ -258,6 +258,8 @@ public:
 
   bool isRendered() const;
 
+  virtual bool setFirstFocous();
+
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
 

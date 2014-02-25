@@ -1778,6 +1778,14 @@ bool WWebWidget::needsToBeRendered() const
     || !WApplication::instance()->session()->renderer().visibleOnly();
 }
 
+bool WWebWidget::setFirstFocous() {
+  for (int i = 0; i < children().size(); i++)
+    if ( children()[i]->setFirstFocous())
+      return true;
+
+  return false;
+}
+
 void WWebWidget::getSFormObjects(FormObjectsMap& result)
 {
   if (!flags_.test(BIT_STUBBED) && !flags_.test(BIT_HIDDEN)

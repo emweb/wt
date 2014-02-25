@@ -463,8 +463,9 @@ void WTemplate::renderTemplate(std::ostream& result)
   renderTemplateText(result, text_);
 }
 
-void WTemplate::renderTemplateText(std::ostream& result, const WString& templateText)
+bool WTemplate::renderTemplateText(std::ostream& result, const WString& templateText)
 {
+  errorText_ = "";
   std::string text;
 
   WApplication *app = WApplication::instance();
@@ -504,16 +505,19 @@ void WTemplate::renderTemplateText(std::ostream& result, const WString& template
 	std::size_t startName = pos + 2;
 	std::size_t endName = text.find_first_of(" \r\n\t}", startName);
 
-	args.clear();
-	std::size_t endVar = parseArgs(text, endName, args);
+        args.clear();
+        std::size_t endVar = parseArgs(text, endName, args);
 
-	if (endVar == std::string::npos) {
-	  LOG_ERROR("variable syntax error near \"" << text.substr(pos)
-		    << "\"");
-	  return;
-	}
+        if (endVar == std::string::npos) {
+          std::stringstream errorStream;
+          errorStream << "variable syntax error near \"" << text.substr(pos)
+                      << "\"";
+          errorText_ = errorStream.str();
+          LOG_ERROR(errorText_);
+          return false;
+        }
 
-	std::string name = text.substr(startName, endName - startName);
+        std::string name = text.substr(startName, endName - startName);
 	std::size_t nl = name.length();
 
 	if (nl > 2 && name[0] == '<' && name[nl - 1] == '>') {
@@ -525,8 +529,11 @@ void WTemplate::renderTemplateText(std::ostream& result, const WString& template
 	  } else {
 	    std::string cond = name.substr(2, nl - 3);
 	    if (conditions.empty() || conditions.back() != cond) {
-	      LOG_ERROR("mismatching condition block end: " << cond);
-	      return;
+              std::stringstream errorStream;
+              errorStream << "mismatching condition block end: " << cond;
+              errorText_ = errorStream.str();
+              LOG_ERROR(errorText_);
+              return false;
 	    }
 	    conditions.pop_back();
 
@@ -569,6 +576,7 @@ void WTemplate::renderTemplateText(std::ostream& result, const WString& template
   }
 
   result << text.substr(lastPos);
+  return true;
 }
 
 std::size_t WTemplate::parseArgs(const std::string& text,

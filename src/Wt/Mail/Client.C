@@ -90,7 +90,7 @@ public:
     }
   }
 
-  void send(const Message& message)
+  bool send(const Message& message)
   {
     try {
       send("MAIL FROM:<" + message.from().address() + ">\r\n");
@@ -116,8 +116,9 @@ public:
     } catch (std::exception& e) {
       socket_.close();
       LOG_ERROR(e.what());
-      return;
+      return false;
     }
+    return true;
   }
 
 private:
@@ -234,9 +235,9 @@ void Client::disconnect()
   impl_ = 0;
 }
 
-void Client::send(const Message& message)
+bool Client::send(const Message& message)
 {
-  impl_->send(message);
+  return impl_->send(message);
 }
 
   }

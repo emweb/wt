@@ -10,7 +10,7 @@
 #include "Wt/WSocketNotifier"
 #include <set>
 
-#if WIN32
+#if WT_WIN32
 #include <winsock2.h>
 typedef int socklen_t;
 #else
@@ -53,7 +53,7 @@ public:
 
   void reportError(const char *msg)
   {
-#ifdef WIN32
+#ifdef WT_WIN32
     int error = GetLastError();
 #else
     int error = errno;
@@ -65,7 +65,7 @@ public:
 namespace {
   void Close(int s)
   {
-#ifdef WIN32
+#ifdef WT_WIN32
     ::closesocket(s);
 #else
     ::close(s);
@@ -226,7 +226,7 @@ void SocketNotifier::createSocketPair()
 
   // Set both sockets to non-blockin so that they won't be the cause
   // of deadlocks
-#ifndef WIN32
+#ifndef WT_WIN32
   {
     int flags = ::fcntl(impl_->socket1_, F_GETFL, 0);
     flags |= O_NONBLOCK;

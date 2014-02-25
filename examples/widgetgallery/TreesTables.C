@@ -100,7 +100,7 @@ Wt::WWidget *TreesTables::tableViews()
 #endif
 #endif
 
-#ifndef _WIN32
+#ifndef WT_WIN32
 #include "examples/GitModel.cpp"
 #include "examples/TreeView.cpp"
 #endif
@@ -108,7 +108,7 @@ Wt::WWidget *TreesTables::tableViews()
 Wt::WWidget *TreesTables::treeViews()
 {
   Wt::WTemplate *result = new TopicTemplate("treestables-TreeViews");
-#ifndef _WIN32
+#ifndef WT_WIN32
   result->bindWidget("TreeView", TreeView());
 #else
   result->bindString("TreeView", "Example not available on windows");
@@ -121,7 +121,7 @@ Wt::WWidget *TreesTables::itemModels()
   Wt::WTemplate *result = new TopicTemplate("treestables-ItemModels");
 
   result->bindWidget("LargeTableView", LargeTableView());
-#ifndef _WIN32
+#ifndef WT_WIN32
   result->bindWidget("TreeView", TreeView());
 #else
   result->bindString("TreeView", "Example not available on windows");

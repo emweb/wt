@@ -52,7 +52,7 @@ void ConnectionManager::stop(ConnectionPtr c)
   if(i != connections_.end()) {
     connections_.erase(i);
   } else {
-#ifndef WIN32
+#ifndef WT_WIN32
     /*
      * Error you may get when multiple transmitMore() were outstanding
      * during server push, and the last one indicated that the connection

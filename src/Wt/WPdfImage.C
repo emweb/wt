@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <hpdf.h>
-#ifdef WIN32
+#ifdef WT_WIN32
 // Disable warnings about conversions from double to real (data loss)
 #pragma warning(disable: 4244)
 #define snprintf _snprintf

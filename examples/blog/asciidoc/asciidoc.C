@@ -14,7 +14,7 @@ namespace {
 
 std::string tempFileName() 
 {
-#ifndef WIN32
+#ifndef WT_WIN32
   char spool[20];
   strcpy(spool, "/tmp/wtXXXXXX");
 
@@ -64,7 +64,7 @@ WString asciidoc(const Wt::WString& src)
 #endif
   std::string command = cmd + " -o " + htmlFileName + " -s " + srcFileName;
 
-#ifndef WIN32
+#ifndef WT_WIN32
   /*
    * So, asciidoc apparently sends a SIGINT which is caught by its parent
    * process.. So we have to temporarily ignore it.
@@ -76,7 +76,7 @@ WString asciidoc(const Wt::WString& src)
   sigaction(SIGINT, &newAction, &oldAction);
 #endif
   bool ok = system(command.c_str()) == 0;
-#ifndef WIN32
+#ifndef WT_WIN32
   sigaction(SIGINT, &oldAction, 0);
 #endif
 

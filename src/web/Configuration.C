@@ -23,7 +23,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #include <io.h>
 #include <process.h>
 #endif
@@ -486,7 +486,7 @@ std::string Configuration::appRoot() const
   }
 
   if (!approot.empty() && approot[approot.length() - 1] != '/'
-#ifdef WIN32
+#ifdef WT_WIN32
       && approot[approot.length() - 1] != '\\'
 #endif
      ) {

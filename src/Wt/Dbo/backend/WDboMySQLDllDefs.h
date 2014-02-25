@@ -11,7 +11,7 @@
 
 // Source: http://www.nedprod.com/programs/gccvisibility.html
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #define WTDBOMYSQL_IMPORT __declspec(dllimport)
   #define WTDBOMYSQL_EXPORT __declspec(dllexport)
   #define WTDBOMYSQL_DLLLOCAL
@@ -30,7 +30,7 @@
   #endif
 #endif
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #ifdef wtdbomysql_EXPORTS
     #define WTDBOMYSQL_API WTDBOMYSQL_EXPORT
   #else

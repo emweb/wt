@@ -11,7 +11,7 @@
 
 // Source: http://www.nedprod.com/programs/gccvisibility.html
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #define WTDBOPOSTGRES_IMPORT __declspec(dllimport)
   #define WTDBOPOSTGRES_EXPORT __declspec(dllexport)
   #define WTDBOPOSTGRES_DLLLOCAL
@@ -30,7 +30,7 @@
   #endif
 #endif
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #ifdef wtdbopostgres_EXPORTS
     #define WTDBOPOSTGRES_API WTDBOPOSTGRES_EXPORT
   #else

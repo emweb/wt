@@ -29,7 +29,34 @@
 
 using namespace Wt;
 using namespace Wt::Chart;
+
 namespace {
+
+  /*
+   * A standard item which converts text edits to numbers
+   */
+  class NumericItem : public WStandardItem {
+  public:
+    virtual NumericItem *clone() const {
+      return new NumericItem();
+    }
+
+    virtual void setData(const boost::any &data, int role = UserRole) {
+      boost::any dt;
+
+      if (role == EditRole) {
+	std::string s = Wt::asString(data).toUTF8();
+	char *endptr;
+	double d = strtod(s.c_str(), &endptr);
+	if (*endptr == 0)
+	  dt = boost::any(d);
+	else
+	  dt = data;
+      }
+
+      WStandardItem::setData(data, role);
+    }
+  };
 
   /*
    * Reads a CSV file as an (editable) standard item model.
@@ -38,6 +65,7 @@ namespace {
 				  WContainerWidget *parent)
   {
     WStandardItemModel *model = new WStandardItemModel(0, 0, parent);
+    model->setItemPrototype(new NumericItem());
     std::ifstream f(fname.c_str());
 
     if (f) {
@@ -255,6 +283,7 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   new WText(WString::tr("scatter plot 2"), this);
 
   WStandardItemModel *model = new WStandardItemModel(40, 2, this);
+  model->setItemPrototype(new NumericItem());
   model->setHeaderData(0, WString("X"));
   model->setHeaderData(1, WString("Y = sin(X)"));
 
@@ -304,6 +333,7 @@ PieExample::PieExample(WContainerWidget *parent):
   new WText(WString::tr("pie chart"), this);
 
   WStandardItemModel *model = new WStandardItemModel(this);
+  model->setItemPrototype(new NumericItem());
   
   //headers
   model->insertColumns(model->columnCount(), 2);

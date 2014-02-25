@@ -86,6 +86,8 @@ public:
 
   virtual WValidator::State validate();
 
+  virtual void refresh();
+
 protected:
   /*! \brief Constructor.
    */

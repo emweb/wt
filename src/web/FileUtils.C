@@ -18,7 +18,7 @@
 #include "web/WebUtils.h"
 #include "Wt/WLogger"
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #include <windows.h>
 #endif // WIN32
 
@@ -163,7 +163,7 @@ namespace Wt {
       if (wtTmpDir)
       tempDir = wtTmpDir;
       else {
-#ifdef WIN32
+#ifdef WT_WIN32
 	char winTmpDir[MAX_PATH];
 	if(GetTempPathA(sizeof(winTmpDir), winTmpDir) != 0)
 	  tempDir = winTmpDir;
@@ -179,7 +179,7 @@ namespace Wt {
     {
       std::string tempDir = getTempDir();
       
-#ifdef WIN32
+#ifdef WT_WIN32
       char tmpName[MAX_PATH];
       
       if(tempDir == "" 
@@ -202,7 +202,7 @@ namespace Wt {
 
     std::string leaf(const std::string &file)
     {
-      #ifdef WIN32
+      #ifdef WT_WIN32
       char separator = '\\';
       #else
       char separator = '/';

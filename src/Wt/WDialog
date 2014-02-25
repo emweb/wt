@@ -330,6 +330,10 @@ public:
    */
   bool closable() const { return closeIcon_ != 0; }
 
+  /*! \brief Set focus on the first widget in the dialog.
+   */
+  void setAutoFocus(bool enable){ autoFocus_ = enable;}
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
@@ -349,7 +353,7 @@ private:
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
   mutable WContainerWidget *footer_;
-  bool modal_, resizable_, escapeIsReject_;
+  bool modal_, resizable_, escapeIsReject_, autoFocus_;
 
   Signal<DialogCode> finished_;
   DialogCode result_;

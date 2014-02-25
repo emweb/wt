@@ -34,7 +34,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef WIN32
+#ifdef WT_WIN32
 #include <process.h>
 #endif
 

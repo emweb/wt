@@ -281,6 +281,11 @@ void WFormWidget::validatorChanged()
   validate();
 }
 
+bool WFormWidget::setFirstFocous() {
+  setFocus();
+  return true;
+}
+
 void WFormWidget::updateDom(DomElement& element, bool all)
 {
   const WEnvironment& env = WApplication::instance()->environment();

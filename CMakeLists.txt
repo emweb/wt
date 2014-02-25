@@ -497,7 +497,19 @@ IF (DOXYGEN_FOUND)
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/examples
     COMMENT "Doxygen for examples ...")
   ADD_DEPENDENCIES(doc doxygen-examples)
- ENDIF (DOXYGEN_FOUND)
+ENDIF (DOXYGEN_FOUND)
+
+# we enable rpath support for APPLE, this probably goes against policy
+# linux distributions?
+IF(APPLE)
+  SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  IF("${isSystemDir}" STREQUAL "-1")
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  ENDIF("${isSystemDir}" STREQUAL "-1")
+  SET(CMAKE_MACOSX_RPATH TRUE)
+ENDIF(APPLE)
 
 SUBDIRS(src)
 

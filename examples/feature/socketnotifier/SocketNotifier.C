@@ -12,7 +12,7 @@
 #include <iostream>
 #include <boost/thread.hpp>
 
-#if WIN32
+#if WT_WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 typedef int socklen_t;
@@ -120,7 +120,7 @@ private:
       writeNotifier_->activated().connect(this, &RssReader::write);
 
       // Set sockets to non-blocking
-#ifndef WIN32
+#ifndef WT_WIN32
       int flags = ::fcntl(socket_, F_GETFL, 0);
       flags |= O_NONBLOCK;
       ::fcntl(socket_, F_SETFL, flags);
@@ -131,7 +131,7 @@ private:
       // Perform a non-blocking connect. POSIX specifies that the socket
       // will be marked as ready for write when the connect call completes.
       int err = ::connect(socket_, info->ai_addr, info->ai_addrlen);
-#ifndef WIN32
+#ifndef WT_WIN32
       int err2 = errno;
 #else
       int err2 = GetLastError();
@@ -146,7 +146,7 @@ private:
         state_ = WRITE;
         // write() will be invoked automatically by the notifier.
       } else if (err == -1) {
-#ifndef WIN32
+#ifndef WT_WIN32
         if (err2 == EINPROGRESS) {
 #else
         if (err2 == WSAEWOULDBLOCK) {
@@ -202,7 +202,7 @@ private:
             readNotifier_->setEnabled(true);
           }
         } else {
-#ifndef WIN32
+#ifndef WT_WIN32
           if (errno != EAGAIN) {
 #else
           if (GetLastError() == WSAEWOULDBLOCK) {
@@ -228,7 +228,7 @@ private:
       addText(" Done! (Remote end closed connection)<br/>");
       cleanup();
     } else if (retval < 0) {
-#ifndef WIN32
+#ifndef WT_WIN32
       if (errno != EAGAIN) {
 #else
       if (GetLastError() == WSAEWOULDBLOCK) {
@@ -252,7 +252,7 @@ private:
     delete readNotifier_;
     delete writeNotifier_;
     readNotifier_ = writeNotifier_ = 0;
-#ifdef WIN32
+#ifdef WT_WIN32
     closesocket(socket_);
 #else
     close(socket_);

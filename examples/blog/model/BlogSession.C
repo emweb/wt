@@ -22,11 +22,11 @@
 
 #include <Wt/Dbo/FixedSqlConnectionPool>
 
-#ifndef WIN32
+#ifndef WT_WIN32
 #include <unistd.h>
 #endif
 
-#if !defined(WIN32) && !defined(__CYGWIN__) && !defined(ANDROID)
+#if !defined(WT_WIN32) && !defined(__CYGWIN__) && !defined(ANDROID)
 #define HAVE_CRYPT
 #endif
 

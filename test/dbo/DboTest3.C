@@ -94,7 +94,7 @@ struct Dbo3Fixture
 #endif // MYSQL
 #ifdef FIREBIRD
     std::string file;
-#ifdef WIN32
+#ifdef WT_WIN32
     file = "C:\\opt\\db\\firebird\\wt_test.fdb";
 #else
     file = "/opt/db/firebird/wt_test.fdb";

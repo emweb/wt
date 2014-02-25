@@ -11,7 +11,7 @@
 
 // Source: http://www.nedprod.com/programs/gccvisibility.html
 
-#ifdef WIN32
+#ifdef WT_WIN32
   #define WT_EXT_IMPORT __declspec(dllimport)
   #define WT_EXT_EXPORT __declspec(dllexport)
   #define WT_EXT_DLLLOCAL
@@ -32,7 +32,7 @@
 #endif
 
 // Define wtext_EXPORTS for DLL builds
-#ifdef WIN32
+#ifdef WT_WIN32
   #ifdef wtext_EXPORTS
     #define WT_EXT_API WT_EXT_EXPORT
   #else

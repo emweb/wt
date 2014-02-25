@@ -480,8 +480,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
     else if (m1 == 0xFF && m2 == 0xFE)
       encoding = UTF16LE;
     else {
-      s.unget();
-      s.unget();
+      s.seekg(0, std::ios::beg);
     }
   }
 

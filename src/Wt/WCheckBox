@@ -120,7 +120,6 @@ protected:
 
 private:
   bool triState_;
-  bool safariWorkaround_;
 };
 
 }

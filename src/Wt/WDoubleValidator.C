@@ -117,10 +117,8 @@ WValidator::Result WDoubleValidator::validate(const WT_USTRING& input) const
   if (input.empty())
     return WValidator::validate(input);
 
-  std::string text = input.toUTF8();
-
   try {
-    double i = WLocale::currentLocale().toDouble(text);
+    double i = WLocale::currentLocale().toDouble(input);
 
     if (i < bottom_)
       return Result(Invalid, invalidTooSmallText());

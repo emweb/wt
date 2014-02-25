@@ -23,7 +23,7 @@
 #include <string>
 #include <boost/lexical_cast.hpp>
 
-#ifdef WIN32
+#ifdef WT_WIN32
 // gmtime_r can be defined by mingw
 #ifndef gmtime_r
 static struct tm* gmtime_r(const time_t* t, struct tm* r)
