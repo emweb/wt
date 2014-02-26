@@ -519,6 +519,7 @@
     white-space: nowrap;
     background: white;
     border: 1px solid @table-border-color;
+    overflow: auto;
 
     .Wt-spacer {
 	background: url(../../../loading.png);
@@ -646,7 +647,7 @@ body.Wt-rtl {
 	background-color: @link-color;
     }
 
-    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable .Wt-tv-c {
+    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
 	padding: 0px 3px;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -679,7 +680,11 @@ body.Wt-rtl {
 	border-right: 1px solid @table-border-color;
     }
 
-    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable tbody .Wt-tv-c {
+    .Wt-plaintable .Wt-tv-br {
+        border-right: 0;
+    }
+
+    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
 	border-right: 1px solid @table-border-color;
 	border-bottom: 1px solid @table-border-color;
     }
@@ -816,6 +821,8 @@ body.Wt-rtl {
 }
 
 .Wt-treetable {
+    overflow: auto;
+
     .Wt-header {
 	font-weight: bold;
         border-bottom: 1px solid @table-bg;
@@ -857,7 +864,7 @@ body.Wt-rtl .Wt-sbspacer {
     }
 
     .Wt-header {
-	border-bottom: 1px solid @table-bg;
+	border-bottom: 1px solid @table-border-color;
 
 	.Wt-tv-c {
 	    padding: 0px;
@@ -868,11 +875,16 @@ body.Wt-rtl .Wt-sbspacer {
     .Wt-tv-br,    /* header */
     ul .Wt-tv-c { /* data */
 	margin-right: 0px;
-	border-right: 1px solid @table-bg;
+	border-right: 1px solid @table-border-color;
+    }
+
+    button.Wt-tv-c {
+        border-right-color: transparent; /* doesn't work */
     }
 
     .Wt-tv-c {
 	padding: 0px 3px;
+	.box-sizing(content-box);
     }
 
     .Wt-tv-row {
@@ -962,7 +974,7 @@ body.Wt-rtl {
 	ul .Wt-tv-c { /* data */
 	    border-right: 0px;
 	    margin-left: 0px;
-	    border-left: 1px solid @table-bg;
+	    border-left: 1px solid @table-border-color;
 	}
 
 	.Wt-tv-row {
@@ -1006,8 +1018,8 @@ body.Wt-rtl {
 .Wt-pagingbar {
     text-align: center;
     padding: 2px;
-    height: 25px;
-    line-height: 25px;
+    height: 35px;
+    line-height: 35px;
 
     span {
 	margin: 0px 4px;

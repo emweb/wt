@@ -1442,6 +1442,19 @@
 		<span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
 	    <span class="k">else</span> <span class="k">return</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">other</span><span class="p">.</span><span class="n">index</span><span class="p">;</span>
 	<span class="p">}</span>
+
+        <span class="kt">bool</span> <span class="n">equals</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">any</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+	    <span class="n">ChildIndex</span> <span class="o">*</span><span class="n">other</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">any_cast</span><span class="o">&lt;</span><span class="n">ChildIndex</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">o</span><span class="p">);</span>
+	    <span class="k">return</span> <span class="n">parentId</span> <span class="o">==</span> <span class="n">other</span><span class="o">-&gt;</span><span class="n">parentId</span> <span class="o">&amp;&amp;</span>
+	        <span class="n">index</span> <span class="o">==</span> <span class="n">other</span><span class="o">-&gt;</span><span class="n">index</span><span class="p">;</span>
+	<span class="p">}</span>
+
+        <span class="kt">int</span> <span class="n">hashCode</span><span class="p">()</span> <span class="p">{</span>
+	    <span class="kt">int</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	    <span class="n">hash</span> <span class="o">=</span> <span class="n">hash</span> <span class="o">*</span> <span class="mi">31</span> <span class="o">+</span> <span class="n">parentId</span><span class="p">;</span>
+	    <span class="n">hash</span> <span class="o">=</span> <span class="n">hash</span> <span class="o">*</span> <span class="mi">31</span> <span class="o">+</span> <span class="n">index</span><span class="p">;</span>
+	    <span class="k">return</span> <span class="n">hash</span><span class="p">;</span>
+	<span class="p">}</span>
     <span class="p">};</span>
 
     <span class="cm">/*</span>
@@ -3457,9 +3470,37 @@
 <span class="cp">#include &lt;Wt/WStandardItem&gt;</span>
 <span class="cp">#include &lt;Wt/WTableView&gt;</span>
 
+<span class="k">namespace</span> <span class="p">{</span>
+    <span class="cm">/*</span>
+<span class="cm">     * A standard item which converts text edits to numbers</span>
+<span class="cm">     */</span>
+    <span class="k">class</span> <span class="nc">NumericItem</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItem</span> <span class="p">{</span>
+    <span class="k">public</span><span class="o">:</span>
+	<span class="k">virtual</span> <span class="n">NumericItem</span> <span class="o">*</span><span class="n">clone</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+	    <span class="k">return</span> <span class="k">new</span> <span class="n">NumericItem</span><span class="p">();</span>
+	<span class="p">}</span>
+
+	<span class="k">virtual</span> <span class="kt">void</span> <span class="n">setData</span><span class="p">(</span><span class="k">const</span> <span class="n">boost</span><span class="o">::</span><span class="n">any</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="kt">int</span> <span class="n">role</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">UserRole</span><span class="p">)</span> <span class="p">{</span>
+	    <span class="n">boost</span><span class="o">::</span><span class="n">any</span> <span class="n">dt</span><span class="p">;</span>
+
+	    <span class="k">if</span> <span class="p">(</span><span class="n">role</span> <span class="o">==</span> <span class="n">Wt</span><span class="o">::</span><span class="n">EditRole</span><span class="p">)</span> <span class="p">{</span>
+		<span class="kt">double</span> <span class="n">d</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asNumber</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">!=</span> <span class="n">d</span><span class="p">)</span>
+		    <span class="n">dt</span> <span class="o">=</span> <span class="n">data</span><span class="p">;</span>
+		<span class="k">else</span>
+		    <span class="n">dt</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">any</span><span class="p">(</span><span class="n">d</span><span class="p">);</span>
+	    <span class="p">}</span>
+
+	    <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItem</span><span class="o">::</span><span class="n">setData</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">role</span><span class="p">);</span>
+	<span class="p">}</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+
 <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+<span class="n">model</span><span class="o">-&gt;</span><span class="n">setItemPrototype</span><span class="p">(</span><span class="k">new</span> <span class="n">NumericItem</span><span class="p">());</span>
 
 <span class="c1">// Configure the header.</span>
 <span class="n">model</span><span class="o">-&gt;</span><span class="n">insertColumns</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">columnCount</span><span class="p">(),</span> <span class="mi">2</span><span class="p">);</span>

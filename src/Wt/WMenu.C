@@ -150,7 +150,7 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
 
 void WMenu::handleInternalPathChange(const std::string& path)
 {
-  if (!parentItem_)
+  if (!parentItem_ || !parentItem_->internalPathEnabled())
     internalPathChanged(path);
 }
 

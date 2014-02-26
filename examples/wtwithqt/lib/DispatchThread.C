@@ -51,8 +51,10 @@ DispatchThread::DispatchThread(WQApplication *app,
     qtEventLoop_(withEventLoop),
     dispatchObject_(0),
     event_(0),
+    exception_(false),
     done_(false),
-    newEvent_(false)
+    newEvent_(false),
+    eventLock_(0)
 { }
 
 void DispatchThread::run()
@@ -75,10 +77,13 @@ void DispatchThread::run()
 void DispatchThread::myExec()
 {
   boost::mutex::scoped_lock lock(newEventMutex_);
+  eventLock_ = &lock;
 
   for (;;) {
-    if (!newEvent_)
+    if (!newEvent_) {
+      log("debug") << "WQApplication: [thread] waiting for event";
       newEventCondition_.wait(lock);
+    }
 
     doEvent();
 
@@ -98,6 +103,7 @@ void DispatchThread::myPropagateEvent()
 
 void DispatchThread::signalDone()
 {
+  log("debug") << "WQApplication: [thread] signaling event done";
   boost::mutex::scoped_lock lock(doneMutex_);
   done_ = true;
   doneCondition_.notify_one();
@@ -133,14 +139,28 @@ void DispatchThread::destroy()
     QThread::exit();
 }
 
+void DispatchThread::resetException()
+{
+  exception_ = false;
+}
+
 void DispatchThread::doEvent()
 {
+  log("debug") << "WQApplication: [thread] handling event";
   app_->attachThread(true);
 
-  app_->realNotify(*event_);
-  signalDone();
-
+  try {
+    app_->realNotify(*event_);
+  } catch (std::exception& e) {
+    log("error") << "WQApplication: [thread] Caught exception: " << e.what();
+    exception_ = true;
+  } catch (...) {
+    log("error") << "WQApplication: [thread] Caught exception";
+    exception_ = true;
+  }
   app_->attachThread(false);
+
+  signalDone();
 }
 
 }

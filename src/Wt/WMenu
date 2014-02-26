@@ -624,8 +624,16 @@ protected:
   WContainerWidget *ul() const { return ul_; }
 
   virtual void renderSelected(WMenuItem *item, bool selected);
-
   virtual void setCurrent(int index);
+
+  /*! \brief Selects an item.
+   *
+   * This is the internal function that implements the selection
+   * logic, including optional internal path change (if \p changePath
+   * is \c true). The latter may be \c false in case an internal path
+   * change itself is the reason for selection.
+   */
+  virtual void select(int index, bool changePath);
 
 private:
   WContainerWidget *ul_;
@@ -652,7 +660,6 @@ private:
   void undoSelectVisual();
   void selectVisual(int item, bool changePath, bool showContents);
   void onItemHidden(int index, bool hidden);
-  void select(int index, bool changePath);
 
   friend class WMenuItem;
 

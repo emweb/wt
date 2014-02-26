@@ -1301,7 +1301,8 @@ void WTreeView::resize(const WLength& width, const WLength& height)
   WApplication *app = WApplication::instance();
   WLength w = app->environment().ajax() ? WLength::Auto : width;
 
-  contentsContainer_->setWidth(w);
+  if (app->environment().ajax())
+    contentsContainer_->setWidth(w);
   
   if (headerContainer_)
     headerContainer_->setWidth(w);
@@ -1311,11 +1312,11 @@ void WTreeView::resize(const WLength& width, const WLength& height)
       if (impl_->count() < 3)
 	impl_->addWidget(createPageNavigationBar());
 
-      double navigationBarHeight = 25;
+      double navigationBarHeight = 35;
       double headerHeight = this->headerHeight().toPixels();
 
       int h = (int)(height.toPixels() - navigationBarHeight - headerHeight);
-      contentsContainer_->resize(width, std::max(h, (int)rowHeight().value()));
+      contentsContainer_->setHeight(std::max(h, (int)rowHeight().value()));
 
       viewportHeight_
 	= static_cast<int>(contentsContainer_->height().toPixels()

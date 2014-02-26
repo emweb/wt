@@ -1137,8 +1137,8 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 .Wt-pagingbar {
     text-align: center;
     padding: 2px;
-    height: 25px;
-    line-height: 25px;
+    height: 35px;
+    line-height: 35px;
 }
 
 .Wt-pagingbar span {

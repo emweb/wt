@@ -444,7 +444,7 @@ WT_DECLARE_WT_MEMBER
 	     if (item.dirty) {
 	       var wMinimum;
 	       if (item.dirty > 1) {
-		 calcMinimumSize(item.w, dir);
+		 wMinimum = calcMinimumSize(item.w, dir);
 		 item.ms[dir] = wMinimum;
 	       } else
 		 wMinimum = item.ms[dir];
@@ -600,51 +600,60 @@ WT_DECLARE_WT_MEMBER
        if (debug)
 	 console.log("(before spanned) "
 		     + id + ': ' + dir + " ps " + preferredSize);
-       for (di = 0; di < dirCount; ++di) {
-	 for (oi = 0; oi < otherCount; ++oi) {
-	   var item = DC.getItem(di, oi);
 
-	   if (item && item.span && item.span[dir] > 1) {
-	     var ps = item.ps[dir], count = 0, stretch = 0, si;
+       function handleOverspanned(getItemSize, sizes) {
+	 for (di = 0; di < dirCount; ++di) {
+	   for (oi = 0; oi < otherCount; ++oi) {
+	     var item = DC.getItem(di, oi);
 
-	     for (si = 0; si < item.span[dir]; ++si) {
-	       var cps = preferredSize[di + si];
+	     if (item && item.span && item.span[dir] > 1) {
+	       var ps = getItemSize(item), count = 0, stretch = 0, si;
 
-	       if (cps != -1) {
-		 ps -= cps;
-		 ++count;
-		 if (DC.config[di + si][STRETCH] > 0)
-		   stretch += DC.config[di + si][STRETCH];
+	       for (si = 0; si < item.span[dir]; ++si) {
+		 var cps = sizes[di + si];
+
+		 if (cps != -1) {
+		   ps -= cps;
+		   ++count;
+		   if (DC.config[di + si][STRETCH] > 0)
+		     stretch += DC.config[di + si][STRETCH];
+		 }
 	       }
-	     }
 
-	     if (ps > 0) {
-	       if (count > 0) {
-		 if (stretch > 0)
-		   count = stretch;
+	       if (ps >= 0) {
+		 if (count > 0) {
+		   if (stretch > 0)
+		     count = stretch;
 
-		 for (si = 0; si < item.span[dir]; ++si) {
-		   var cps = preferredSize[di + si];
-		   if (cps != -1) {
-		     var portion;
-		     if (stretch > 0)
-		       portion = DC.config[di + si][STRETCH];
-		     else
-		       portion = 1;
+		   for (si = 0; si < item.span[dir]; ++si) {
+		     var cps = sizes[di + si];
+		     if (cps != -1) {
+		       var portion;
+		       if (stretch > 0)
+			 portion = DC.config[di + si][STRETCH];
+		       else
+			 portion = 1;
 
-		     if (portion > 0) {
-		       var fract = Math.round(ps / portion);
-		       ps -= fract; count -= portion;
-		       preferredSize[di + si] += fract;
+		       if (portion > 0) {
+			 var fract = Math.round(ps / portion);
+			 ps -= fract; count -= portion;
+			 sizes[di + si] += fract;
+		       }
 		     }
 		   }
-		 }
-	       } else
-		 preferredSize[di] = ps;
+		 } else
+		   sizes[di] = ps;
+	       }
 	     }
 	   }
 	 }
        }
+	 
+       handleOverspanned(function(item) { return item.ps[dir]; },
+			 preferredSize);
+
+       handleOverspanned(function(item) { return item.ms[dir]; },
+			 minimumSize);
      }
 
      var totalMargin = 0, first = true, rh = false;
@@ -1542,7 +1551,8 @@ WT_DECLARE_APP_MEMBER
     var measureVertical = false;
 
     this.find = function(id) {
-      return jQuery.data(document.getElementById(id), 'layout');
+      var el = document.getElementById(id);
+      return el ? jQuery.data(el, 'layout') : null;
     };
 
     this.setDirty = function(id) {

@@ -544,6 +544,7 @@
   white-space: nowrap;
   background: white;
   border: 1px solid #dddddd;
+  overflow: auto;
   /* header */
 
   /* resize handles */
@@ -641,9 +642,6 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
   /* borders */
 
 }
-.Wt-tableview .tcontainer {
-  margin-top: -1px;
-}
 .Wt-tableview .Wt-header .Wt-tv-c {
   padding-left: 6px;
 }
@@ -657,7 +655,8 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
   background-color: #0088cc;
 }
 .Wt-tableview .Wt-tv-contents .Wt-tv-c,
-.Wt-tableview .Wt-plaintable .Wt-tv-c {
+.Wt-tableview .Wt-plaintable td,
+.Wt-tableview .Wt-plaintable th {
   padding: 0px 3px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -682,11 +681,14 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
 .Wt-tableview .Wt-tv-br {
   border-right: 1px solid #dddddd;
 }
+.Wt-tableview .Wt-plaintable .Wt-tv-br {
+  border-right: 0;
+}
 .Wt-tableview .Wt-tv-contents .Wt-tv-c,
-.Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
+.Wt-tableview .Wt-plaintable td,
+.Wt-tableview .Wt-plaintable th {
   border-right: 1px solid #dddddd;
-  border-top: 1px solid #dddddd;
-  margin-top: -1px;
+  border-bottom: 1px solid #dddddd;
 }
 .Wt-tableview .Wt-header {
   border-bottom: 1px solid #dddddd;
@@ -798,6 +800,9 @@ body.Wt-rtl .Wt-tree .Wt-ctrl.Wt-noexpand {
 body.Wt-rtl .Wt-tree .cols-row {
   float: left;
 }
+.Wt-treetable {
+  overflow: auto;
+}
 .Wt-treetable .Wt-header {
   font-weight: bold;
   border-bottom: 1px solid #dddddd;
@@ -846,6 +851,11 @@ body.Wt-rtl .Wt-sbspacer {
 
   margin-right: 0px;
   border-right: 1px solid #dddddd;
+}
+.Wt-treeview button.Wt-tv-c {
+  border-right-color: transparent;
+  /* doesn't work */
+
 }
 .Wt-treeview .Wt-tv-c {
   padding: 0px 3px;
@@ -944,15 +954,12 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl {
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
   background-image: url(../nav-plus-rtl.gif);
-  background-position: right center;
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
   background-image: url(../nav-minus-rtl.gif);
-  background-position: right center;
 }
 body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
   background-image: url(../../../line-middle-rtl.gif);
-  background-position: right center;
 }
 /*
  * WTreeView and WTableView default paging bar
@@ -960,8 +967,8 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 .Wt-pagingbar {
   text-align: center;
   padding: 2px;
-  height: 25px;
-  line-height: 25px;
+  height: 35px;
+  line-height: 35px;
 }
 .Wt-pagingbar span {
   margin: 0px 4px;

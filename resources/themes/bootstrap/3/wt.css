@@ -607,6 +607,7 @@ fieldset[disabled] .Wt-slider-v .handle.active {
  */
 
 .Wt-itemview {
+  overflow: auto;
   white-space: nowrap;
   cursor: default;
   background: white;
@@ -738,7 +739,8 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
 }
 
 .Wt-tableview .Wt-tv-contents .Wt-tv-c,
-.Wt-tableview .Wt-plaintable .Wt-tv-c {
+.Wt-tableview .Wt-plaintable td,
+.Wt-tableview .Wt-plaintable th {
   padding: 0 3px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -769,8 +771,13 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
   border-right: 1px solid #dddddd;
 }
 
+.Wt-tableview .Wt-plaintable .Wt-tv-br {
+  border-right: 0;
+}
+
 .Wt-tableview .Wt-tv-contents .Wt-tv-c,
-.Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
+.Wt-tableview .Wt-plaintable td,
+.Wt-tableview .Wt-plaintable th {
   border-right: 1px solid #dddddd;
   border-bottom: 1px solid #dddddd;
 }
@@ -899,6 +906,10 @@ body.Wt-rtl .Wt-tree .cols-row {
   float: left;
 }
 
+.Wt-treetable {
+  overflow: auto;
+}
+
 .Wt-treetable .Wt-header {
   font-weight: bold;
   line-height: 28px;
@@ -944,7 +955,7 @@ body.Wt-rtl .Wt-sbspacer {
 }
 
 .Wt-treeview .Wt-header {
-  border-bottom: 1px solid transparent;
+  border-bottom: 1px solid #dddddd;
 }
 
 .Wt-treeview .Wt-header .Wt-tv-c {
@@ -957,11 +968,20 @@ body.Wt-rtl .Wt-sbspacer {
   /* data */
 
   margin-right: 0;
-  border-right: 1px solid transparent;
+  border-right: 1px solid #dddddd;
 }
 
 .Wt-treeview .Wt-tv-c {
   padding: 0 3px;
+  -webkit-box-sizing: content-box;
+     -moz-box-sizing: content-box;
+          box-sizing: content-box;
+}
+
+.Wt-treeview button.Wt-tv-c {
+  border-right-color: transparent;
+  /* doesn't work */
+
 }
 
 .Wt-treeview .Wt-tv-row {
@@ -1047,7 +1067,7 @@ body.Wt-rtl .Wt-treeview .Wt-tv-br,
 body.Wt-rtl .Wt-treeview ul .Wt-tv-c {
   margin-left: 0;
   border-right: 0;
-  border-left: 1px solid transparent;
+  border-left: 1px solid #dddddd;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-tv-row {
@@ -1088,9 +1108,9 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
  */
 
 .Wt-pagingbar {
-  height: 25px;
+  height: 35px;
   padding: 2px;
-  line-height: 25px;
+  line-height: 35px;
   text-align: center;
 }
 

@@ -129,14 +129,15 @@ protected:
   virtual void realNotify(const WEvent& e);
 
   virtual void notify(const WEvent& e);
-
   virtual void initialize();
   virtual void finalize();
+  virtual void waitForEvent();
 
 private:
   bool            withEventLoop_;
   DispatchThread *thread_;
   bool            finalized_;
+  bool            recursiveEvent_;
 
   friend class DispatchThread;
 };

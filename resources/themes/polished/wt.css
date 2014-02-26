@@ -1171,8 +1171,8 @@ body.Wt-rtl .Wt-treeview li .Wt-tv-row .Wt-tv-c {
  */
 .Wt-pagingbar {
     text-align: center;
-    height: 25px;
-    line-height: 25px;
+    height: 35px;
+    line-height: 35px;
 }
 
 .Wt-pagingbar span {

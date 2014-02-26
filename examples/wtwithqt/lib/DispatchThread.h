@@ -73,8 +73,12 @@ public:
 
   virtual void run();
 
+  boost::mutex::scoped_lock *eventLock() { return eventLock_; }
+
   void notify(const WEvent& event);
   void destroy();
+  bool exception() const { return exception_; }
+  void resetException();
 
   void waitDone();
 
@@ -83,14 +87,16 @@ private:
   bool              qtEventLoop_;
   DispatchObject   *dispatchObject_;
   const WEvent     *event_;
+  bool              exception_;
 
   boost::mutex      doneMutex_;
   bool              done_;
   boost::condition  doneCondition_;
 
-  boost::mutex      newEventMutex_;
-  bool              newEvent_;
-  boost::condition  newEventCondition_;
+  boost::mutex               newEventMutex_;
+  bool                       newEvent_;
+  boost::condition           newEventCondition_;
+  boost::mutex::scoped_lock *eventLock_;
 
   void doEvent();
 

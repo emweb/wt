@@ -169,6 +169,21 @@ private:
 		return false;
 	    else return index < other.index;
 	}
+
+#ifdef WT_TARGET_JAVA
+        bool equals(boost::any o) {
+	    ChildIndex *other = boost::any_cast<ChildIndex *>(o);
+	    return parentId == other->parentId &&
+	        index == other->index;
+	}
+
+        int hashCode() {
+	    int hash = 1;
+	    hash = hash * 31 + parentId;
+	    hash = hash * 31 + index;
+	    return hash;
+	}
+#endif // WT_TARGET_JAVA
     };
 
     /*

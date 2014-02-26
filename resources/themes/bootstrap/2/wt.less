@@ -501,6 +501,7 @@
     white-space: nowrap;
     background: white;
     border: 1px solid @tableBorder;
+    overflow: auto;
 
     .Wt-spacer {
 	background: url(../../../loading.png);
@@ -612,10 +613,6 @@ body.Wt-rtl {
 .Wt-tableview {
     white-space: nowrap;
 
-    .tcontainer {
-	margin-top: -1px;
-    }
-
     .Wt-header .Wt-tv-c {
 	padding-left: 6px;
     }
@@ -632,7 +629,7 @@ body.Wt-rtl {
 	background-color: @linkColor;
     }
 
-    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable .Wt-tv-c {
+    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
 	padding: 0px 3px;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -665,10 +662,13 @@ body.Wt-rtl {
 	border-right: 1px solid @tableBorder;
     }
 
-    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable tbody .Wt-tv-c {
+    .Wt-plaintable .Wt-tv-br {
+        border-right: 0;
+    }  
+
+    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
 	border-right: 1px solid @tableBorder;
-	border-top: 1px solid @tableBorder;
-	margin-top: -1px;
+	border-bottom: 1px solid @tableBorder;
     }
 
     .Wt-header {
@@ -813,6 +813,8 @@ body.Wt-rtl {
 }
 
 .Wt-treetable {
+    overflow: auto;
+
     .Wt-header {
 	font-weight: bold;
         border-bottom: 1px solid @tableBorder;
@@ -866,6 +868,10 @@ body.Wt-rtl .Wt-sbspacer {
     ul .Wt-tv-c { /* data */
 	margin-right: 0px;
 	border-right: 1px solid @tableBorder;
+    }
+
+    button.Wt-tv-c {
+        border-right-color: transparent; /* doesn't work */
     }
 
     .Wt-tv-c {
@@ -1008,8 +1014,8 @@ body.Wt-rtl {
 .Wt-pagingbar {
     text-align: center;
     padding: 2px;
-    height: 25px;
-    line-height: 25px;
+    height: 35px;
+    line-height: 35px;
 
     span {
 	margin: 0px 4px;
