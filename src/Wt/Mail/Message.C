@@ -209,13 +209,13 @@ void Message::write(std::ostream& out) const
 
   if (mimeMultiPartMixed) {
     out << "Content-Type: multipart/mixed; boundary=\""
-	<< mixedBoundary << "\"\r\n"
+	<< mixedBoundary << "\"\r\n\r\n"
 	<< "--" << mixedBoundary << "\r\n";
   }
 
   if (mimeMultiPartAlternative) {
     out << "Content-Type: multipart/alternative; boundary=\""
-	<< altBoundary << "\"\r\n"
+	<< altBoundary << "\"\r\n\r\n"
 	<< "--" << altBoundary << "\r\n";
   }
 

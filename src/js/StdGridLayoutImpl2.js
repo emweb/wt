@@ -1628,13 +1628,21 @@ WT_DECLARE_APP_MEMBER
       self.scheduleAdjust();
     };
 
-    var adjustScheduled = false;
+    var adjustScheduled = false, adjustLoop = 0;
 
     this.scheduleAdjust = function(forceMeasureVertical) {
       if (forceMeasureVertical)
 	measureVertical = true;
 
       if (adjustScheduled)
+	return;
+
+      if (adjusting)
+	++adjustLoop;
+      else
+	adjustLoop = 0;
+
+      if (adjustLoop >= 6)
 	return;
 
       adjustScheduled = true;

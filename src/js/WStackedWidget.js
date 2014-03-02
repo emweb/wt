@@ -63,7 +63,7 @@ WT_DECLARE_WT_MEMBER
       if (isProperChild(c)) {
 	if (!WT.isHidden(c)) {
 	  if (hdefined) {
-	    var ch = h - marginV(c);
+	    var ch = h - Math.max(marginV(c), c.offsetTop);
 	    if (ch > 0) {
 	      if (c.wtResize)
 		c.wtResize(c, w, ch, layout);
