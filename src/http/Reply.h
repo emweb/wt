@@ -125,7 +125,7 @@ public:
 
   const Configuration& configuration() { return configuration_; }
 
-  void logReply(Wt::WLogger& logger);
+  virtual void logReply(Wt::WLogger& logger);
   void setStatus(status_type status);
   status_type status() const { return status_; }
 

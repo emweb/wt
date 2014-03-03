@@ -30,6 +30,8 @@ class WT_API WebRequest
 public:
   WebRequest();
 
+  void log();
+
   enum ResponseState {
     ResponseDone,
     ResponseFlush

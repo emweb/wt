@@ -114,6 +114,14 @@ void WtReply::reset(const Wt::EntryPoint *ep)
   }
 }
 
+void WtReply::logReply(Wt::WLogger& logger)
+{
+  Reply::logReply(logger);
+
+  if (httpRequest_)
+    httpRequest_->log();
+}
+
 void WtReply::consumeData(Buffer::const_iterator begin,
 			  Buffer::const_iterator end,
 			  Request::State state)

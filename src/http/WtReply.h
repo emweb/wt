@@ -35,6 +35,7 @@ public:
 
   virtual void reset(const Wt::EntryPoint *ep);
   virtual void writeDone(bool success);
+  virtual void logReply(Wt::WLogger& logger);
 
   ~WtReply();
 

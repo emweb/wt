@@ -44,21 +44,28 @@ WebRequest::WebRequest()
 }
 
 WebRequest::~WebRequest()
+{ 
+  log();
+}
+
+void WebRequest::log()
 {
 #ifndef BENCH
-  boost::posix_time::ptime
-    end = boost::posix_time::microsec_clock::local_time();
+  if (!start_.is_not_a_date_time()) {
+    boost::posix_time::ptime
+      end = boost::posix_time::microsec_clock::local_time();
 
-  boost::posix_time::time_duration d = end - start_;
+    boost::posix_time::time_duration d = end - start_;
 
-  LOG_INFO("took " << (double)d.total_microseconds() / 1000  << "ms");
+    LOG_INFO("took " << (double)d.total_microseconds() / 1000  << "ms");
+
+    start_ = boost::posix_time::ptime();
+  }
 #endif
 }
 
 void WebRequest::reset()
 {
-  // FIXME: logging of time took?
-
 #ifndef BENCH
   start_ = boost::posix_time::microsec_clock::local_time();
 #endif
@@ -100,7 +107,7 @@ const char *WebRequest::contentType() const
 {
   const char *lenstr = envValue("CONTENT_LENGTH");
 
-  if (!lenstr)
+  if (!lenstr || strlen(lenstr) == 0)
     return 0;
   else {
     try {
