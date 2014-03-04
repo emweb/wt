@@ -34,7 +34,7 @@ void ExtremesIterator::newValue(const WDataSeries& series, double x, double y,
     
 WChart2DImplementation::WChart2DImplementation(WCartesianChart *chart)
   : chart_(chart)
-{}
+{ }
 
 ChartType WChart2DImplementation::chartType() const
 {

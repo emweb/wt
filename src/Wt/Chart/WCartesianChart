@@ -200,6 +200,8 @@ public:
    */
   WCartesianChart(ChartType type, WContainerWidget *parent = 0);
 
+  ~WCartesianChart();
+
   /*! \brief Sets the chart type.
    *
    * The chart type determines how (x,y) data are interpreted. In a

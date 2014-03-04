@@ -771,6 +771,11 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
   init();
 }
 
+WCartesianChart::~WCartesianChart()
+{
+  delete interface_;
+}
+
 void WCartesianChart::init()
 {
   setPalette(new WStandardPalette(WStandardPalette::Muted));
