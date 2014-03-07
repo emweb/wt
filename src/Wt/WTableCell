@@ -90,6 +90,8 @@ public:
    */
   WTableColumn *tableColumn() const;
 
+  virtual bool isVisible() const;
+
 private:
   WTableCell(WTableRow *row, int column);
 

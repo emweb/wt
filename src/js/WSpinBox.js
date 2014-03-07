@@ -28,6 +28,7 @@ WT_DECLARE_WT_MEMBER
 
    var dragStartXY = null, dragStartValue, changed = false;
    var validator = null;
+   var isDoubleSpinBox = false;
 
    function isReadOnly() {
      return !!edit.getAttribute("readonly");
@@ -102,13 +103,19 @@ WT_DECLARE_WT_MEMBER
      }
    }
 
+   this.setIsDoubleSpinBox = function(isDouble) {
+     isDoubleSpinBox = isDouble;
+
+     this.update(minValue, maxValue, stepValue, precision);
+   }
+
    this.update = function(aMin, aMax, aStep, aPrecision) {
      minValue = aMin;
      maxValue = aMax;
      stepValue = aStep;
      precision = aPrecision;
 
-     var Validator = precision == 0 ? WT.WIntValidator : WT.WDoubleValidator;
+     var Validator = isDoubleSpinBox ? WT.WDoubleValidator : WT.WIntValidator;
 
      validator = new Validator(true, minValue, maxValue,
 			       NaNError, NaNError,

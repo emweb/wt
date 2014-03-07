@@ -119,6 +119,7 @@ public:
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
+  virtual void render(WFlags<RenderFlag> flags);
   virtual void signalConnectionsChanged();
 
   virtual std::string jsMinMaxStep() const;
@@ -128,11 +129,13 @@ protected:
   virtual WValidator::Result validateRange() const;
 
 private:
+  bool setup_;
   double value_, min_, max_, step_;
   int precision_;
 
   Signal<double> valueChanged_;
 
+  void setup();
   void onChange();
 };
 

@@ -725,7 +725,7 @@ void WVmlImage::processClipping()
      * We can only deal with rectangles.
      */
     if (painter()->hasClipping()) {
-      WRectF rect;
+      WRectF rect(0, 0, 0, 0);
       if (painter()->clipPath().asRect(rect)) {
 	WTransform t = painter()->clipPathTransform();
 

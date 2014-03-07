@@ -156,7 +156,7 @@ WT_USTRING WLocale::toFixedString(double value, int precision) const
 {
   std::stringstream ss;
   ss.precision(precision);
-  ss << std::fixed << std::showpoint << value;
+  ss << std::fixed << ((precision > 0) ? std::showpoint : std::noshowpoint) << value;
 
   return doubleToString(ss.str());
 }

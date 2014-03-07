@@ -883,7 +883,7 @@ WT_DECLARE_WT_MEMBER
 	       return a - b <= 1;
 	     }
 
-	     if ((WT.isIElt9 && epsEqual(cSize, ieCSize))
+	     if ((WT.isIElt9 && epsNotLarger(cSize, ieCSize))
 		 || (epsNotLarger(cSize, minSize + padding(container, dir)))) {
 	       if (debug)
 		 console.log('switching to managed container size '

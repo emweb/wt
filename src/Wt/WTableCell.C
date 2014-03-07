@@ -103,4 +103,13 @@ void WTableCell::propagateRenderOk(bool deep)
   WContainerWidget::propagateRenderOk(deep);
 }
 
+bool WTableCell::isVisible() const
+{
+  if (row_)
+    if (row_->isHidden())
+      return false;
+
+  return WContainerWidget::isVisible();
+}
+
 }

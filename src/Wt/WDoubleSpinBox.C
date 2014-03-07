@@ -161,4 +161,20 @@ WValidator::Result WDoubleSpinBox::validateRange() const
   return validator.validate(WString("{1}").arg(value_));
 }
 
+void WDoubleSpinBox::render(WFlags<RenderFlag> flags)
+{
+  WAbstractSpinBox::render(flags);
+
+  if (!setup_ && flags & RenderFull) {
+    setup();
+  }
+}
+
+void WDoubleSpinBox::setup()
+{
+  setup_ = true;
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+      ".setIsDoubleSpinBox(true);");
+}
+
 }

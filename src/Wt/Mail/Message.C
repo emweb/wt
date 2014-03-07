@@ -277,34 +277,31 @@ void Message::encodeQuotedPrintable(const WString& text, std::ostream& out)
   std::string msg = text.toUTF8();
 
   WStringStream line;
-  bool lastIsSpace = false;
   for (unsigned i = 0; i < msg.length(); ++i) {
     unsigned char d = msg[i];
+    unsigned char peek = 0;
+    if (i + 1 < msg.length())
+      peek = msg[i + 1];
 
     /* skip '\r' if followed by '\n' */
-    if (d == '\r' && i < msg.length() - 1 && msg[i + 1] == '\n') {
+    if (d == '\r' && peek == '\n') {
       ++i;
       d = msg[i];
     }
 
     if (d >= 33 && d <= 126 && d != 61) {
       line << (char)d;
-      lastIsSpace = false;
-    } else if (d == '\t' || d == ' ') {
+    } else if (peek != '\n' && (d == '\t' || d == ' ')) {
       line << (char)d;
-      lastIsSpace = true;
     } else if (d != '\n') {
       encodeChar(line, d);
-      lastIsSpace = false;
     }
 
     bool eol = false;
 
-    if (d == '\n') {
-      if (lastIsSpace)
-	line << '=';
+    if (d == '\n')
       eol = true;
-    } else if (line.length() >= 72) {
+    else if (line.length() >= 72) {
       line << '=';
       eol = true;
     }
@@ -314,7 +311,6 @@ void Message::encodeQuotedPrintable(const WString& text, std::ostream& out)
 	out << '.';
       out << line.c_str() << "\r\n";
       line.clear();
-      lastIsSpace = false;
     }
   }
 

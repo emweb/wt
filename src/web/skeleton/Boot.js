@@ -47,6 +47,11 @@ function loadScript(url, callback) {
 _$_$if_PROGRESS_$_();
 var delayedClicks = [];
 function delayClick(e) {
+  /* IE8 does not actually do detachEvent() in progressed() ? */
+  var form = document.getElementById('Wt-form');
+  if (form == null)
+    return true;
+
   var ec = {
     bubbles: e.bubbles,
     cancelable: e.cancelable,
