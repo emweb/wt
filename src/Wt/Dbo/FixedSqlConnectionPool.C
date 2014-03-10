@@ -16,9 +16,8 @@
 
 namespace Wt {
   namespace Dbo {
-    namespace Impl {
 
-struct FixedSqlConnectionPoolImpl {
+struct FixedSqlConnectionPool::Impl {
 #ifdef WT_THREADED
   boost::mutex mutex;
   boost::condition connectionAvailable;
@@ -27,12 +26,10 @@ struct FixedSqlConnectionPoolImpl {
   std::vector<SqlConnection *> freeList;
 };
 
-    }
-
 FixedSqlConnectionPool::FixedSqlConnectionPool(SqlConnection *connection,
 					       int size)
 {
-  impl_ = new Impl::FixedSqlConnectionPoolImpl();
+  impl_ = new Impl();
   
   impl_->freeList.push_back(connection);
 

@@ -95,6 +95,7 @@ private:
 				      email, emailVerified));
       }
     } else {
+      LOG_ERROR(ERROR_MSG("badresponse"));
       setError(ERROR_MSG("badresponse"));
 
       if (!err) {

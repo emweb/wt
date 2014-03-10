@@ -33,9 +33,17 @@ LOGGER("WebRequest");
 
 Http::ParameterValues WebRequest::emptyValues_;
 
+struct WebRequest::AsyncEmulation {
+  bool done;
+
+  AsyncEmulation()
+    : done(false)
+  { }
+};
+
 WebRequest::WebRequest()
   : entryPoint_(0),
-    doingAsyncCallbacks_(false),
+    async_(0),
     webSocketRequest_(false)
 {
 #ifndef BENCH
@@ -44,7 +52,8 @@ WebRequest::WebRequest()
 }
 
 WebRequest::~WebRequest()
-{ 
+{
+  delete async_;
   log();
 }
 
@@ -71,7 +80,8 @@ void WebRequest::reset()
 #endif
 
   entryPoint_ = 0;
-  doingAsyncCallbacks_ = false;
+  delete async_;
+  async_ = 0;
   webSocketRequest_ = false;
 
   parameters_.clear();
@@ -277,36 +287,36 @@ const WebRequest::WriteCallback& WebRequest::getAsyncCallback()
 
 void WebRequest::emulateAsync(ResponseState state)
 {
-  /*
-   * This prevents stack build-up while emulating asynchronous callbacks
-   * for a synchronous connector.
-   */
+  if (async_) {
+    if (state == ResponseDone)
+      async_->done = true;
+
+    return;
+  }
 
   if (state == ResponseFlush) {
-    if (doingAsyncCallbacks_) {
-      // Do nothing. emulateAsync() was already called on this stack frame.
-      // Unwind the stack and let the toplevel emulateAsync() call the cb.
-    } else {
-      doingAsyncCallbacks_ = true;
+    async_ = new AsyncEmulation();
 
-      while (asyncCallback_) {
-	WriteCallback fn = asyncCallback_;
-	asyncCallback_.clear();
-	fn(WriteCompleted);
-      };
+    /*
+     * Invoke callback immediately and keep doing so until we get a
+     * flush(ResponseDone). If we do not have a callback then the application
+     * is waiting for some event to finish te request (e.g. a resource
+     * continuation) and thus we exit now and wait for more flush()ing.
+     */
+    while (!async_->done) {
+      if (!asyncCallback_) {
+	delete async_;
+	async_ = 0;
+	return;
+      }
 
-      doingAsyncCallbacks_ = false;
-
-      delete this;
-    }
-  } else {
-    if (!doingAsyncCallbacks_)
-      delete this;
-    else {
-      // we should in fact signal that we can delete after stopping the
-      // asynccallbacks (e.g. by setting doingAsyncCallbacks_ = false
+      WriteCallback fn = asyncCallback_;
+      asyncCallback_.clear();
+      fn(WriteCompleted);
     }
   }
+    
+  delete this;
 }
 
 void WebRequest::setResponseType(ResponseType responseType)

@@ -551,10 +551,16 @@ public:
   // FIXME document later
   virtual std::string redirectInternalPath() const;
 
+  /*! \brief Configures the static resource implementing the redirect endpoint.
+   *
+   * By default, this endpoint is configured whenever it's necessary,
+   * but one may also configure it in advance, for example in a
+   * multi-process deployment (FastCGI).
+   */
+  void configureRedirectEndpoint() const;
+
 protected:
   static std::string configurationProperty(const std::string& property);
-
-  void configureRedirectEndpoint() const;
 
 private:
   OAuthService(const OAuthService&);

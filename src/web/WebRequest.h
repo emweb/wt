@@ -46,8 +46,6 @@ public:
   typedef boost::function<void(WebWriteEvent)> WriteCallback;
   typedef boost::function<void(WebReadEvent)> ReadCallback;
 
-  void startAsync() { }
-
   /*
    * Signal that the response should be flushed.
    *
@@ -185,14 +183,15 @@ public:
 
 protected:
   const EntryPoint *entryPoint_;
-  bool doingAsyncCallbacks_;
-
-  void emulateAsync(ResponseState state);
 
   virtual ~WebRequest();
   void reset();
 
 #ifndef WT_CNOR
+  struct AsyncEmulation;
+  AsyncEmulation *async_;
+
+  void emulateAsync(ResponseState state);
   void setAsyncCallback(const WriteCallback& cb);
   const WriteCallback& getAsyncCallback();
 #endif // WT_CNOR

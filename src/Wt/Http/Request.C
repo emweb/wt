@@ -336,9 +336,11 @@ Request::Request(const WebRequest& request, ResponseContinuation *continuation)
     continuation_(continuation),
     sslInfo_(0)
 {
-  const char *cookie = request_->headerValue("Cookie");
-  if (cookie)
-    parseCookies(cookie, cookies_);
+  if (!continuation) {
+    const char *cookie = request_->headerValue("Cookie");
+    if (cookie)
+      parseCookies(cookie, cookies_);
+  }
 }
 
 Request::Request(const ParameterMap& parameters, const UploadedFileMap& files)

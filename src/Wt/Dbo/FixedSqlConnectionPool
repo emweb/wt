@@ -13,9 +13,6 @@
 
 namespace Wt {
   namespace Dbo {
-    namespace Impl {
-      struct FixedSqlConnectionPoolImpl;
-    }
 
 /*! \class FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool
  *  \brief A connection pool of fixed size.
@@ -50,7 +47,8 @@ public:
   virtual void prepareForDropTables() const;
 
 private:
-  Impl::FixedSqlConnectionPoolImpl *impl_;
+  struct Impl;
+  Impl *impl_;
 };
 
   }

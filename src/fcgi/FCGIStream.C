@@ -74,7 +74,6 @@ namespace {
     }
 
     virtual void flush(ResponseState state, const WriteCallback& callback) {
-
       out().flush();
 
       if (state == ResponseFlush) {
@@ -82,6 +81,7 @@ namespace {
       } else {
         setAsyncCallback(0);
       }
+
       emulateAsync(state);
     }
 
@@ -187,8 +187,9 @@ namespace {
       if (pathInfo_.empty()) {
 	pathInfo_ = str(envValue("PATH_INFO"));
 	if (entryPoint_) {
-	  if (pathInfo_.size() >= entryPoint_->path().size()) {
-	    pathInfo_ = pathInfo_.substr(entryPoint_->path().size());
+	  /* Do we actually know what this is supposed to do? */
+	  if (pathInfo_.length() >= entryPoint_->path().length()) {
+	    pathInfo_ = pathInfo_.substr(entryPoint_->path().length());
 	  }
 	}
       }

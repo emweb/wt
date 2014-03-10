@@ -44,6 +44,27 @@
 #include <boost/filesystem.hpp>
 #endif
 
+namespace {
+
+bool matchesPath(const std::string& path, const std::string& prefix)
+{
+  if (boost::starts_with(path, prefix)) {
+    unsigned prefixLength = prefix.length();
+
+    if (path.length() > prefixLength) {
+      char next = path[prefixLength];
+
+      if (next == '/')
+	return true; 
+    } else
+      return true;
+  }
+
+  return false;
+}
+
+}
+
 namespace Wt {
 
 LOGGER("WebController");
@@ -692,8 +713,7 @@ WApplication *WebController::doCreateApplication(WebSession *session)
   return ep->appCallback()(session->env());
 }
 
-const EntryPoint *
-WebController::getEntryPoint(WebRequest *request)
+const EntryPoint *WebController::getEntryPoint(WebRequest *request)
 {
   const std::string& scriptName = request->scriptName();
   const std::string& pathInfo = request->pathInfo();
@@ -703,31 +723,31 @@ WebController::getEntryPoint(WebRequest *request)
       && conf_.entryPoints()[0].path().empty())
     return &conf_.entryPoints()[0];
 
-  // Multiple entry points. This case probably only happens with built-in http
-  for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
-    const Wt::EntryPoint& ep = conf_.entryPoints()[i];
-    if (scriptName == ep.path())
-      return &ep;
-  }
+  // Multiple entry points.
+  int bestMatch = -1;
+  std::size_t bestLength = 0;
 
-  // Multiple entry points: also recognized when prefixed with
-  // scriptName. For FCGI/ISAPI connectors, we only receive URLs
-  // that are subdirs of the scriptname.
   for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
     const Wt::EntryPoint& ep = conf_.entryPoints()[i];
-    if (boost::starts_with(pathInfo, ep.path())) {
-      if (pathInfo.length() > ep.path().length()) {
-        char next = pathInfo[ep.path().length()];
-        if (next == '/') {
-          return &ep;
-        }
-      } else {
-        return &ep;
+
+    if (ep.path().empty()) {
+      if (bestLength == 0)
+	bestMatch = i;
+    } else {
+      if (ep.path().length() > bestLength) {
+	if (matchesPath(scriptName + pathInfo, ep.path()) ||
+	    matchesPath(pathInfo, ep.path())) {
+	  bestLength = ep.path().length();
+	  bestMatch = i;
+	}
       }
     }
   }
-  
-  return 0;
+
+  if (bestMatch >= 0)
+    return &conf_.entryPoints()[bestMatch];
+  else
+    return 0;
 }
 
 std::string
