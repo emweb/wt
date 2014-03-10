@@ -55,6 +55,10 @@ namespace Wt {
  * See also: http://developers.facebook.com/docs/authentication/
  * \endif
  *
+ * \if cpp
+ * \note For FastCGI, see also additional configuration in OAuthService
+ * \endif
+ *
  * \ingroup auth
  */
 class WT_API FacebookService : public OAuthService

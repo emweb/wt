@@ -55,6 +55,10 @@ namespace Wt {
  * See also: http://code.google.com/apis/accounts/docs/OAuth2.html
  * \endif
  *
+ * \if cpp
+ * \note For FastCGI, see also additional configuration in OAuthService
+ * \endif
+ *
  * \ingroup auth
  */
 class WT_API GoogleService : public OAuthService

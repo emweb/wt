@@ -111,6 +111,27 @@ private:
  * to inform the user of the kind of operations he needs to
  * authorize for your application to make with his protected data.
  *
+ * \if cpp
+ * The configuration of the service is done using properties which are
+ * specific to the 3rd party provider and discussed in sub classes of
+ * this class. There is one property, which is optional, which can be
+ * configured here which is a secret used for creating the OAuth2
+ * 'state' hash. By default, the library will create this secret from a
+ * random generator, and this is sufficient for single-process deployments.
+ * For multi-process deployments (e.g. FastCGI), however the same value
+ * must be used in all processes and thus needs to be pre-configured.
+ *
+ * - <tt>oauth2-secret</tt>: a secret used for creating a state hashes.
+ *
+ * For example:
+ * \code
+ * <properties>
+ *   ...
+ *   <property name="oauth2-secret">U6EKaj5QurAJCWwBonvkM4i4pi7Wro2z9lEJRAKY</property>
+ * </properties>
+ * \endcode
+ * \endif
+ *
  * \sa OAuthService::createProcess()
  *
  * \ingroup auth
