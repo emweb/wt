@@ -29,6 +29,7 @@ public:
   DefaultPagingBar(WAbstractItemView *view)
     : view_(view)
   {
+    view_->addStyleClass("Wt-itemview-paged");
     setStyleClass("Wt-pagingbar");
 
     firstButton_ = new WPushButton(tr("Wt.WAbstractItemView.PageBar.First"),

@@ -607,11 +607,14 @@ fieldset[disabled] .Wt-slider-v .handle.active {
  */
 
 .Wt-itemview {
-  overflow: auto;
   white-space: nowrap;
   cursor: default;
   background: white;
   border: 1px solid #dddddd;
+}
+
+.Wt-itemview.Wt-itemview-paged {
+  overflow: auto;
 }
 
 .Wt-itemview .Wt-spacer {
@@ -971,17 +974,17 @@ body.Wt-rtl .Wt-sbspacer {
   border-right: 1px solid #dddddd;
 }
 
+.Wt-treeview button.Wt-tv-c {
+  border-right-color: transparent;
+  /* doesn't work */
+
+}
+
 .Wt-treeview .Wt-tv-c {
   padding: 0 3px;
   -webkit-box-sizing: content-box;
      -moz-box-sizing: content-box;
           box-sizing: content-box;
-}
-
-.Wt-treeview button.Wt-tv-c {
-  border-right-color: transparent;
-  /* doesn't work */
-
 }
 
 .Wt-treeview .Wt-tv-row {

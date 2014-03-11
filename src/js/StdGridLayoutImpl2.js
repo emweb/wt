@@ -48,9 +48,9 @@ WT_DECLARE_WT_MEMBER
    var itemDirty = true;   /* one or more items (with .dirty=true) need to
 			      be remeasured */
    var layoutDirty = true; /* the parent size may have changed */
-   var topLevel = false, parent = null, parentItemWidget = null,
-     propagateSizeToParent = false, parentInitialized = false,
-     parentMargin = [], parentWithWtPS = false;
+
+   var topLevel, parent, parentItemWidget, propagateSizeToParent,
+     parentInitialized = false, parentMargin, parentWithWtPS;
 
    var rtl = $(document.body).hasClass('Wt-rtl');
 
@@ -723,6 +723,26 @@ WT_DECLARE_WT_MEMBER
       * mark the corresponding cell as dirty if the TOTAL_PREFERRED_SIZE
       * has changed (or force).
       */
+
+     if (parent) {
+       var piw = WT.$(parentItemWidget.id);
+       if (piw) {
+	 if (parentItemWidget != piw) {
+	   parent = jQuery.data(piw.parentNode, 'layout');
+	   if (!parent) {
+	     /* The parent item widget is no longer in the DOM. Need a test
+	      * case for that. */
+	     initializeParent();
+	   } else
+	     parentItemWidget = piw;
+	 }
+       } else {
+	 /* The parent item widget is no longer in the DOM. Need a test case
+	  * for that. */
+	 initializeParent();
+       }
+     }
+
      if (parent) {
        if (propagateSizeToParent) {
 	 var DC = DirConfig[dir],
@@ -1447,19 +1467,16 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
-   this.measure = function(dir) {
-     var widget = WT.getElement(id);
+   function initializeParent() {
+       var widget = WT.getElement(id);
 
-     if (!widget)
-       return;
-
-     if (WT.isHidden(widget))
-       return;
-
-     if (!parentInitialized) {
-       parentInitialized = true;
        topLevel = parentId == null;
+       parent = null;
+       parentItemWidget = null;
        propagateSizeToParent = true;
+       parentInitialized = true;
+       parentMargin = [];
+       parentWithWtPS = false;
 
        if (!topLevel) {
 	 parent = jQuery.data(document.getElementById(parentId), 'layout');
@@ -1484,8 +1501,8 @@ WT_DECLARE_WT_MEMBER
 
 	   var l = jQuery.data(p.parentNode, 'layout');
 	   if (l) {
-	     parent = l;
 	     parentItemWidget = p;
+	     parent = l;
 	     break;
 	   }
 
@@ -1500,7 +1517,19 @@ WT_DECLARE_WT_MEMBER
 	 for (var i = 0; i < 2; ++i)
 	   DirConfig[i].sizeSet = WT.pxself(container, DirConfig[i].size) != 0;
        }
-     }
+   }
+
+   this.measure = function(dir) {
+     var widget = WT.getElement(id);
+
+     if (!widget)
+       return;
+
+     if (WT.isHidden(widget))
+       return;
+
+     if (!parentInitialized)
+       initializeParent();
 
      if (itemDirty || layoutDirty) {
        var container = topLevel ? widget.parentNode : null;

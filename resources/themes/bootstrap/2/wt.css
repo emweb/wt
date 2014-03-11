@@ -544,7 +544,6 @@
   white-space: nowrap;
   background: white;
   border: 1px solid #dddddd;
-  overflow: auto;
   /* header */
 
   /* resize handles */
@@ -553,6 +552,9 @@
 
   /* item drag & drop */
 
+}
+.Wt-itemview.Wt-itemview-paged {
+  overflow: auto;
 }
 .Wt-itemview .Wt-spacer {
   background: url(../../../loading.png);

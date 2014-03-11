@@ -519,7 +519,10 @@
     white-space: nowrap;
     background: white;
     border: 1px solid @table-border-color;
-    overflow: auto;
+
+    &.Wt-itemview-paged {
+       overflow: auto;
+    }
 
     .Wt-spacer {
 	background: url(../../../loading.png);

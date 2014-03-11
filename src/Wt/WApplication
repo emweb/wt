@@ -1330,7 +1330,10 @@ public:
    * returns immediately. The JavaScript will be run after the normal
    * event handling, unless \p afterLoaded is set to \c false.
    *
-   * \sa addAutoJavaScript(), declareJavaScriptFunction()
+   * In most situations, it's more robust to use
+   * WWidget::doJavaScript() however.
+   *
+   * \sa WWidget::doJavaScript(), declareJavaScriptFunction()
    */
   void doJavaScript(const std::string& javascript, bool afterLoaded = true);
 
