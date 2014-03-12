@@ -109,13 +109,12 @@ boost::tuple<boost::tribool, Buffer::iterator>
 RequestParser::parse(Request& req, Buffer::iterator begin,
 		     Buffer::iterator end)
 {
-  boost::tribool Indeterminate = boost::indeterminate;
-  boost::tribool& result(Indeterminate);
+  boost::tribool result = boost::indeterminate;
 
   while (boost::indeterminate(result) && (begin != end))
     result = consume(req, begin++);
 
-  if (result == Indeterminate && currentString_) {
+  if (boost::indeterminate(result) && currentString_) {
     req.headers.push_back(Request::Header());
     currentString_->next = &req.headers.back().value;
     currentString_ = currentString_->next;

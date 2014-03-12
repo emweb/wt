@@ -132,11 +132,10 @@ enum AxisScale {
  *
  * The labels are shown using a "%.4g" format string for numbers, and
  * a suitable format for \link Chart::DateScale DateScale\endlink or
- * \link Chart::DateTimeScale DateTimeScale\endlink formats, which
- * uses heuristics to choose a suitable format. The format may be
- * customized using setLabelFormat(). The angle of the label text may
- * be changed using setLabelAngle(). By default, all labels are
- * printed horizontally.
+ * \link Chart::DateTimeScale DateTimeScale\endlink scales, based on
+ * heuristics. The format may be customized using
+ * setLabelFormat(). The angle of the label text may be changed using
+ * setLabelAngle(). By default, all labels are printed horizontally.
  * 
  * \sa WCartesianChart
  *
@@ -383,20 +382,22 @@ public:
    * or \link Chart::LogScale LogScale\endlink scale, the format string
    * must be a format string that is accepted by snprintf() and which
    * formats one double. If the format string is an empty string,
-   * "%.4g" is used.
+   * then WLocale::toString() is used.
    *
    * For an axis with a \link Chart::DateScale DateScale\endlink
    * scale, the format string must be a format string accepted by
    * WDate::toString(), to format a date. If the format string is an
    * empty string, a suitable format is chosen based on heuristics.
    *
-   * For an axis with a
-   * \link Chart::DateTimeScale DateTimeScale\endlink scale, the format
-   * string must be a format string accepted by WDateTime::toString(),
-   * to format a date. If the format string is an empty string, a suitable
-   * format is chosen based on heuristics.
+   * For an axis with a \link Chart::DateTimeScale
+   * DateTimeScale\endlink scale, the format string must be a format
+   * string accepted by WDateTime::toString(), to format a date. If
+   * the format string is an empty string, a suitable format is chosen
+   * based on heuristics.
    *
-   * The default value is an empty string ("").
+   * The default value is "%.4g" for a numeric axis, and a suitable
+   * format for date(time) scales based on a heuristic taking into
+   * account the current axis range.
    *
    * \sa labelFormat()
    */
@@ -406,7 +407,7 @@ public:
    *
    * \sa setLabelFormat()
    */
-  const WString& labelFormat() const { return labelFormat_; }
+  WString labelFormat() const;
 
   /*! \brief Sets the label angle.
    *
@@ -589,6 +590,7 @@ private:
   double           resolution_;
   double           labelInterval_;
   WString          labelFormat_;
+  bool             defaultLabelFormat_;
   bool             gridLines_;
   WPen             pen_, gridLinesPen_;
   int              margin_;
@@ -629,6 +631,7 @@ private:
   static double getDateValue(const boost::any& value);
 
   double calcAutoNumLabels(Orientation orientation, const Segment& s) const;
+  WString defaultDateTimeFormat(const Segment& s) const;
 
   double mapFromDevice(double d) const;
   double mapToDevice(const boost::any& value, int segment = 0) const;

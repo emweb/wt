@@ -127,6 +127,7 @@ WAxis::WAxis()
     scale_(LinearScale),
     resolution_(0.0),
     labelInterval_(0),
+    defaultLabelFormat_(true),
     gridLines_(false),
     gridLinesPen_(gray),
     margin_(0),
@@ -291,6 +292,28 @@ void WAxis::setLabelInterval(double labelInterval)
 void WAxis::setLabelFormat(const WString& format)
 {
   set(labelFormat_, format);
+  defaultLabelFormat_ = false;
+}
+
+WString WAxis::labelFormat() const
+{
+  switch (scale_) {
+  case CategoryScale:
+    return WString();
+  case DateScale:
+  case DateTimeScale:
+    if (defaultLabelFormat_) {
+      if (!segments_.empty()) {
+	const Segment& s = segments_[0];
+	return defaultDateTimeFormat(s);
+      } else {
+	return labelFormat_;
+      }
+    } else
+      return labelFormat_;
+  default:
+    return defaultLabelFormat_ ? WString::fromUTF8("%.4g") : labelFormat_;
+  }
 }
 
 void WAxis::setLabelAngle(double angle)
@@ -896,33 +919,25 @@ WString WAxis::label(double u) const
 
   if (scale_ == CategoryScale) {
     text = chart_->categoryLabel((int)u, axis_);
-    if (text.empty()) {
+    if (text.empty())
+      text = WLocale::currentLocale().toString(u);
+  } else if (scale_ == DateScale) {
+    WDate d = WDate::fromJulianDay(static_cast<int>(u));
+    WString format = labelFormat();
+    return d.toString(format);
+  } else {
+    std::string format = labelFormat().toUTF8();
+
+    if (format.empty())
+      text = WLocale::currentLocale().toString(u);
+    else {
 #ifdef WT_TARGET_JAVA
       buf =
 #endif // WT_TARGET_JAVA
-	std::sprintf(buf, "%.4g", u+1);
+	std::sprintf(buf, format.c_str(), u);
+
       text = WString::fromUTF8(buf);
     }
-  } else if (scale_ == DateScale) {
-    WDate d = WDate::fromJulianDay(static_cast<int>(u));
-    WString format = labelFormat_;
-
-    if (format.empty()) {
-      return d.toString("dd/MM/yyyy");
-    } else
-      return d.toString(format);
-  } else {
-    std::string format = labelFormat_.toUTF8();
-
-    if (format.empty())
-      format = "%.4g";
-
-#ifdef WT_TARGET_JAVA
-    buf =
-#endif // WT_TARGET_JAVA
-      std::sprintf(buf, format.c_str(), u);
-
-    text = WString::fromUTF8(buf);
   }
 
   return text;
@@ -1000,6 +1015,8 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
   }
   case DateTimeScale:
   case DateScale: {
+    WString format = labelFormat();
+
     WDateTime dt;
 
     if (scale_ == DateScale) {
@@ -1014,67 +1031,9 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
 
     int interval = s.dateTimeRenderInterval;
     DateTimeUnit unit = s.dateTimeRenderUnit;
-
     bool atTick = (interval > 1) ||
       (unit <= Days) || 
       !(roundLimits_ & MinimumValue);
-
-    WString format = labelFormat_;
-
-    if (format.empty()) {
-      if (atTick) {
-	switch (unit) {
-	case Months:
-	case Years:
-	case Days:
-	  if (dt.time().second() != 0)
-	    format = WString::fromUTF8("dd/MM/yy hh:mm:ss");
-	  else if (dt.time().hour() != 0)
-	    format = WString::fromUTF8("dd/MM/yy hh:mm");
-	  else
-	    format = WString::fromUTF8("dd/MM/yy");
-
-	  break;
-	case Hours:
-	  if (dt.time().second() != 0)
-	    format = WString::fromUTF8("dd/MM hh:mm:ss");
-	  else if (dt.time().minute() != 0)
-	    format = WString::fromUTF8("dd/MM hh:mm");
-	  else
-	    format = WString::fromUTF8("h'h' dd/MM");
-
-	  break;
-	case Minutes:
-	  if (dt.time().second() != 0)
-	    format = WString::fromUTF8("hh:mm:ss");
-	  else
-	    format = WString::fromUTF8("hh:mm");
-
-	  break;
-	case Seconds:
-	  format = WString::fromUTF8("hh:mm:ss");
-
-	  break;
-	}
-      } else {
-	switch (unit) {
-	case Years:
-	  format = WString::fromUTF8("yyyy"); break;
-	case Months:
-	  format = WString::fromUTF8("MMM yy"); break;
-	case Days:
-	  format = WString::fromUTF8("dd/MM/yy"); break;
-	case Hours:
-	  format = WString::fromUTF8("h'h' dd/MM"); break;
-	case Minutes:
-	  format = WString::fromUTF8("hh:mm"); break;
-	case Seconds:
-	  format = WString::fromUTF8("hh:mm:ss"); break;
-	default:
-	  break;
-	}
-      }
-    }
 
     for (;;) {
       long dl = getDateNumber(dt);
@@ -1120,6 +1079,75 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
     break;
   }
   }
+}
+
+WString WAxis::defaultDateTimeFormat(const Segment& s) const
+{
+  WDateTime dt;
+
+  if (scale_ == DateScale) {
+    dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
+    if (!dt.isValid()) {
+      std::string exception = "Invalid julian day: "
+	+ boost::lexical_cast<std::string>(s.renderMinimum);
+      throw WException(exception);
+    }
+  } else
+    dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
+
+  int interval = s.dateTimeRenderInterval;
+  DateTimeUnit unit = s.dateTimeRenderUnit;
+
+  bool atTick = (interval > 1) ||
+    (unit <= Days) || 
+    !(roundLimits_ & MinimumValue);
+
+  if (atTick) {
+    switch (unit) {
+    case Months:
+    case Years:
+    case Days:
+      if (dt.time().second() != 0)
+	return WString::fromUTF8("dd/MM/yy hh:mm:ss");
+      else if (dt.time().hour() != 0)
+	return WString::fromUTF8("dd/MM/yy hh:mm");
+      else
+	return WString::fromUTF8("dd/MM/yy");
+    case Hours:
+      if (dt.time().second() != 0)
+	return WString::fromUTF8("dd/MM hh:mm:ss");
+      else if (dt.time().minute() != 0)
+	return WString::fromUTF8("dd/MM hh:mm");
+      else
+	return WString::fromUTF8("h'h' dd/MM");
+    case Minutes:
+      if (dt.time().second() != 0)
+	return WString::fromUTF8("hh:mm:ss");
+      else
+	return WString::fromUTF8("hh:mm");
+    case Seconds:
+      return WString::fromUTF8("hh:mm:ss");
+    }
+  } else {
+    switch (unit) {
+    case Years:
+      return WString::fromUTF8("yyyy");
+    case Months:
+      return WString::fromUTF8("MMM yy");
+    case Days:
+      return WString::fromUTF8("dd/MM/yy");
+    case Hours:
+      return WString::fromUTF8("h'h' dd/MM");
+    case Minutes:
+      return WString::fromUTF8("hh:mm");
+    case Seconds:
+      return WString::fromUTF8("hh:mm:ss");
+    default:
+      break;
+    }
+  }
+
+  return WString::Empty;
 }
 
 long WAxis::getDateNumber(WDateTime dt) const

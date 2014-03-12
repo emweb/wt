@@ -10,6 +10,7 @@ FIND_LIBRARY(POSTGRES_LIBRARIES
     pq libpq
   PATHS
     ${POSTGRES_PREFIX}/lib
+    ${POSTGRES_PREFIX}
     /usr/lib
     /usr/lib64
     /usr/local/lib
