@@ -903,9 +903,21 @@ can be used only in conjunction with a Commercial License for Wt::Dbo.
   <message id="home.download.other">
 
 <p>
-  If you are on Ubuntu, you can install a reasonably recent version of
-  Wt from official packages. The wiki contains more details on
-  <a href="http://redmine.emweb.be/projects/wt/wiki/Installing_Wt_on_Ubuntu">installing Wt on Ubuntu</a>
+  If you are looking to use Wt using <b>MSVC on Windows platforms</b>,
+  then you can save yourself some hassle to build Wt with its optional
+  dependencies from source, and download one of the <a
+  href="http://sourceforge.net/projects/witty/files/wt/">binary builds
+  instead</a> which allow you to quickly experiment with the examples
+  that ship with Wt.
+</p>
+
+<p>
+  Similarly, if you are on <b>Ubuntu</b>, you can install a reasonably
+  recent version of Wt from official packages. The wiki contains more
+  details on <a
+  href="http://redmine.emweb.be/projects/wt/wiki/Installing_Wt_on_Ubuntu">installing
+  Wt on Ubuntu</a>, including instructions on how to build Wt from
+  source or getting packages for the most recent Wt releases.
 </p>
 
 <div class="fragment">
@@ -923,7 +935,7 @@ $ sudo apt-get install witty witty-dev witty-doc witty-dbg witty-examples</pre>
 </div>
 
 <p>Older releases are still available at
-<a href="http://sourceforge.net/project/showfiles.php?group_id=153710#files">sourceforge.net</a>.
+<a href="http://sourceforge.net/projects/witty/files/wt/">sourceforge.net</a>.
 </p>
 
 <h4>The Wt installer: winst</h4>

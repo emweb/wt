@@ -434,12 +434,12 @@ void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
 {
   LOG_DEBUG("WtReply::send(): " << sending_);
 
+  fetchMoreDataCallback_ = callBack;
+
   if (sending_ != 0) {
-    LOG_ERROR("WtReply::send() called while still busy sending...");
+    LOG_DEBUG("WtReply::send(): still busy sending... ignoring");
     return;
   }
-
-  fetchMoreDataCallback_ = callBack;
 
   if (status() == no_status) {
     if (!transmitting() && fetchMoreDataCallback_) {

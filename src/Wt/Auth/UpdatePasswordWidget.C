@@ -30,6 +30,9 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 			       user.identity(Identity::LoginName));
   registrationModel_->setReadOnly(RegistrationModel::LoginNameField, true);
 
+  if (user.password().empty())
+    authModel_ = 0;
+
   if (authModel_ && authModel_->baseAuth()->emailVerificationEnabled()) {
     /*
      * This is set in the model so that the password checker can take

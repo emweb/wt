@@ -171,7 +171,7 @@ private:
   WText *text_;
   WLineEdit *edit_;
   WPushButton *save_, *cancel_;
-  Wt::Signals::connection c1_, c2_;
+  Wt::Signals::connection c2_;
   bool empty_;
 };
 

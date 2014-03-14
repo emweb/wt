@@ -92,7 +92,7 @@
   <message id="Wt.Auth.oauth-registration">Register with an identity provider:</message>
   <message id="Wt.Auth.or-oauth-registration">Or, register with an identity provider:</message>
   <message id="Wt.Auth.valid">Valid</message>
-  <message id="Wt.Auth.choose-password">Password</message>
+  <message id="Wt.Auth.choose-password">Choose Password</message>
   <message id="Wt.Auth.choose-password-info">Choose a password</message>
   <message id="Wt.Auth.repeat-password">Repeat password</message>
   <message id="Wt.Auth.repeat-password-info">Re-enter your password</message>
@@ -121,11 +121,6 @@
   <message id="Wt.Auth.updatepassword">Update password</message>
   <message id="Wt.Auth.update-password-form-title">Update password</message>
   <message id="Wt.Auth.update-password-form-info">Enter a new password below</message>
-  <message id="Wt.Auth.old-password">Current password</message>
-  <message id="Wt.Auth.old-password-info">Enter your current password</message>
-  <message id="Wt.Auth.new-password">New password</message>
-  <message id="Wt.Auth.repeat-new-password">Repeat new password</message>
-  <message id="Wt.Auth.repeat-new-password-info">Re-enter your new password</message>
 
   <!-- LostPasswordDialog -->
 

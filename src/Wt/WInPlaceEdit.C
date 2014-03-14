@@ -130,12 +130,10 @@ void WInPlaceEdit::cancel()
 
 void WInPlaceEdit::setButtonsEnabled(bool enabled)
 {
-  if (c1_.connected())
-    c1_.disconnect();
-  if (c2_.connected())
-    c2_.disconnect();
+  if (enabled && !save_) {
+    if (c2_.connected())
+      c2_.disconnect();
 
-  if (enabled) {
     save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"), buttons_);
     cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"), buttons_);
 
@@ -147,12 +145,11 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     cancel_->clicked().connect(editing_, &WWidget::hide);
     cancel_->clicked().connect(text_, &WWidget::show);
     cancel_->clicked().connect(this, &WInPlaceEdit::cancel);
-  } else {
+  } else if (!enabled && save_) {
     delete save_;
     save_ = 0;
     delete cancel_;
     cancel_ = 0;
-    c1_ = edit_->blurred().connect(edit_, &WFormWidget::disable);
     c2_ = edit_->blurred().connect(this, &WInPlaceEdit::save);
   }
 }
