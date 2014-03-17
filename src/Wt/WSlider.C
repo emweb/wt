@@ -357,7 +357,7 @@ WSlider::WSlider(WContainerWidget *parent)
     maximum_(99),
     value_(0),
     valueChanged_(this),
-    sliderMoved_(this, "moved"),
+    sliderMoved_(this, "moved", true),
     paintedSlider_(0)
 { 
   resize(150, 50);
@@ -376,7 +376,7 @@ WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
     maximum_(99),
     value_(0),
     valueChanged_(this),
-    sliderMoved_(this, "moved"),
+    sliderMoved_(this, "moved", true),
     paintedSlider_(0)
 { 
   if (orientation == Horizontal)
