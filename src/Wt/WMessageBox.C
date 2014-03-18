@@ -132,7 +132,7 @@ void WMessageBox::setIcon(Icon icon)
     iconW_->setName("info");
     break;
   case Warning:
-    iconW_->setName("warning-sign");
+    iconW_->setName("warning");
     break;
   case Critical:
     iconW_->setName("exclamation");
