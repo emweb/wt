@@ -143,15 +143,6 @@ public:
    */
   WString invalidBlankText() const;
 
-  /*! \brief This function attempts to change input to be valid according to
-   *         the validator's rules.
-   *
-   * In general the function needs not to change the input into a
-   * valid input. The default implementation does nothing. But it may
-   * help the user in getting its input right.
-   */
-  virtual void fixup(WString& input) const;
-
   /*! \brief Validates the given input.
    *
    * \note The signature for this method changed in %Wt 3.2.0.

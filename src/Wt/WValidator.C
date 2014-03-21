@@ -63,9 +63,6 @@ WString WValidator::invalidBlankText() const
     return WString::tr("Wt.WValidator.Invalid");
 }
 
-void WValidator::fixup(WString& input) const
-{ }
-
 WValidator::Result WValidator::validate(const WT_USTRING& input) const
 {
   if (isMandatory()) {

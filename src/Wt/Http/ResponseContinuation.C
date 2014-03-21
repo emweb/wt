@@ -63,7 +63,10 @@ ResponseContinuation::ResponseContinuation(WResource *resource,
 
 void ResponseContinuation::stop()
 {
-  response_->flush(WebResponse::ResponseDone);
+  if (response_) {
+    response_->flush(WebResponse::ResponseDone);
+    response_ = 0;
+  }
 }
 
 void ResponseContinuation::waitForMoreData()
