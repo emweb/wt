@@ -18,7 +18,7 @@ SingleThreadedApplication(const Wt::WEnvironment& env)
 
 void SingleThreadedApplication::initialize()
 {
-  log("debug") << "STA: initialize()";
+  log("debug") << "STA" << ": initialize()";
   Wt::WApplication::initialize();
 
   create();
@@ -26,7 +26,7 @@ void SingleThreadedApplication::initialize()
 
 void SingleThreadedApplication::finalize()
 {
-  log("debug") << "STA: finalize()";
+  log("debug") << "STA" << ": finalize()";
   Wt::WApplication::finalize();
 
   destroy();
@@ -38,7 +38,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
 {
   if (appThread_.get_id() == boost::thread::id()) { // not-a-thread
     done_ = false;
-    log("debug") << "STA: starting thread";
+    log("debug") << "STA" << ": starting thread";
     appThread_ = boost::thread(boost::bind(&SingleThreadedApplication::run,
 					   this));
     waitDone();
@@ -46,7 +46,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
 
   if (boost::this_thread::get_id() == appThread_.get_id()) {
     /* This could be from within a recursive event loop */
-    log("debug") << "STA: notify() called within app thread";
+    log("debug") << "STA" << ": notify() called within app thread";
     threadNotify(event);
     return;
   }
@@ -57,7 +57,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
      * a recursive event loop and thus we cannot communicate with the
      * private thread when it's blocked in a recursive event loop
      */
-    log("debug") << "STA: notify() for resource, handling in thread pool.";
+    log("debug") << "STA" << ": notify() for resource, handling in thread pool.";
     threadNotify(event);
     return;
   }
@@ -66,7 +66,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
 
   done_ = false;
   {
-    log("debug") << "STA: notifying thread";
+    log("debug") << "STA" << ": notifying thread";
     boost::mutex::scoped_lock lock(newEventMutex_);
     newEvent_ = true;
     newEventCondition_.notify_one();
@@ -80,7 +80,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
   }
 
   if (finalized_) {
-    log("debug") << "STA: joining thread";
+    log("debug") << "STA" << ": joining thread";
     appThread_.join();
     appThread_ = boost::thread();
   }
@@ -88,7 +88,7 @@ void SingleThreadedApplication::notify(const Wt::WEvent& event)
 
 void SingleThreadedApplication::waitDone()
 {
-  log("debug") << "STA: waiting for event done";
+  log("debug") << "STA" << ": waiting for event done";
   boost::mutex::scoped_lock lock(doneMutex_);
 
   while (!done_)
@@ -104,19 +104,19 @@ void SingleThreadedApplication::run()
 
   for (;;) {
     if (!newEvent_) {
-      log("debug") << "STA: [thread] waiting for event";
+      log("debug") << "STA" << ": [thread] waiting for event";
       newEventCondition_.wait(lock);
     }
 
-    log("debug") << "STA: [thread] handling event";
+    log("debug") << "STA" << ": [thread] handling event";
     attachThread(true);
     try {
       threadNotify(*event_);
     } catch (std::exception& e) {
-      log("error") << "STA: [thread] Caught exception: " << e.what();
+      log("error") << "STA" << ": [thread] Caught exception: " << e.what();
       exception_ = true;
     } catch (...) {
-      log("error") << "STA: [thread] Caught exception";
+      log("error") << "STA" << ": [thread] Caught exception";
       exception_ = true;
     }
     attachThread(false);
@@ -138,7 +138,7 @@ void SingleThreadedApplication::threadNotify(const Wt::WEvent& event)
 
 void SingleThreadedApplication::waitForEvent()
 {
-  log("debug") << "STA: [thread] waitForEvent()";
+  log("debug") << "STA" << ": [thread] waitForEvent()";
 
   eventLock_->unlock();
   try {
@@ -150,12 +150,12 @@ void SingleThreadedApplication::waitForEvent()
 
   eventLock_->lock();
 
-  log("debug") << "STA: [thread] returning from waitForEvent()";
+  log("debug") << "STA" << ": [thread] returning from waitForEvent()";
 }
 
 void SingleThreadedApplication::signalDone()
 {
-  log("debug") << "STA: [thread] signaling event done";
+  log("debug") << "STA" << ": [thread] signaling event done";
   boost::mutex::scoped_lock lock(doneMutex_);
   done_ = true;
   doneCondition_.notify_one();

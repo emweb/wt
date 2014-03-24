@@ -95,6 +95,7 @@ public:
   WLogEntry log(const std::string& type) const;
 #endif // WT_TARGET_JAVA
 
+  void externalNotify(const WEvent::Impl& e);
   void notify(const WEvent& e);
   void pushUpdates();
 
@@ -291,9 +292,9 @@ private:
 #endif
 
 #ifdef WT_BOOST_THREADS
-  boost::condition recursiveEvent_;
+  boost::condition recursiveEvent_, recursiveEventDone_;
 #endif
-  bool             newRecursiveEvent_;
+  WEvent::Impl *newRecursiveEvent_;
 
   /* For synchronous handling */
 #ifdef WT_BOOST_THREADS
@@ -309,7 +310,7 @@ private:
   std::vector<Handler *> handlers_;
   std::vector<WObject *> emitStack_;
 
-  Handler *recursiveEventLoop_;
+  Handler *recursiveEventHandler_;
 
   WResource *decodeResource(const std::string& resourceId);
   EventSignalBase *decodeSignal(const std::string& signalId,
@@ -367,6 +368,14 @@ struct WEvent::Impl {
       renderOnly(false)
   { }
 #endif
+
+  Impl(const Impl& other)
+    : handler(other.handler),
+#ifndef WT_CNOR
+      function(other.function),
+#endif // WT_CNOR
+      renderOnly(other.renderOnly)
+  { }
 
   Impl()
     : handler(0)

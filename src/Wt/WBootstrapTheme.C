@@ -498,6 +498,11 @@ void WBootstrapTheme::setVersion(Version version)
   }
 }
 
+void WBootstrapTheme::setResponsive(bool enabled)
+{
+  responsive_ = enabled;
+}
+
 void WBootstrapTheme::setFormControlStyleEnabled(bool enabled)
 {
   formControlStyle_ = enabled;

@@ -305,6 +305,11 @@ public:
    *
    * The accept attribute may be specified to provide user agents with a hint
    * of what file types will be accepted.
+   * Use html input accept attributes as input.
+   *
+   * \code
+   *  WFileUpload *fu = new WFileUpload(root());
+   *  fu->setFilters("image/*");
    */
   void setFilters(std::string acceptAttributes);
 

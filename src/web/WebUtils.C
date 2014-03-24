@@ -42,8 +42,8 @@
 #ifdef isnan
 #undef isnan
 #endif
-#ifdef isfin
-#undef isfun
+#ifdef isinf
+#undef isinf
 #endif
 
 namespace Wt {

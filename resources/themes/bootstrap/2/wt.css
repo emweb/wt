@@ -249,6 +249,7 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
@@ -690,6 +691,10 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
 .Wt-tableview .Wt-plaintable td,
 .Wt-tableview .Wt-plaintable th {
   border-right: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
+  margin-top: -1px;
+}
+.Wt-tableview .Wt-spacer {
   border-bottom: 1px solid #dddddd;
 }
 .Wt-tableview .Wt-header {

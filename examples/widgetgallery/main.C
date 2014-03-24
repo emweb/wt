@@ -36,12 +36,14 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   if (theme == "bootstrap3") {
     Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
     bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
+    bootstrapTheme->setResponsive(true);
     app->setTheme(bootstrapTheme);
 
     // load the default bootstrap3 (sub-)theme
     app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
   } else if (theme == "bootstrap2") {
     Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
+    bootstrapTheme->setResponsive(true);
     app->setTheme(bootstrapTheme);
   } else
     app->setTheme(new Wt::WCssTheme(theme));

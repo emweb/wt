@@ -34,6 +34,35 @@ namespace Wt {
 namespace http {
 namespace server {
 
+#ifdef __QNXNTO__
+#define IS_ALPHA(c) (((c) >= 'A' && (c) <= 'Z') || ((c) >= 'a' && (c) <= 'z'))
+#define TO_UPPER(c) ((c) & 0xDF)
+
+#define strcasecmp stricmp
+
+char *strcasestr (const char * str1, const char * str2){
+        char *cp = (char *) str1;
+        char *s1, *s2;
+
+        if ( !*str2 )
+            return((char *)str1);
+
+        while (*cp){
+                s1 = cp;
+                s2 = (char *) str2;
+
+                while ( *s1 && *s2 && (IS_ALPHA(*s1) && IS_ALPHA(*s2))?!(TO_UPPER(*s1) - TO_UPPER(*s2)):!(*s1-*s2))
+                        ++s1, ++s2;
+
+                if (!*s2)
+                        return(cp);
+
+                ++cp;
+        }
+        return(NULL);
+}
+#endif
+
 std::string buffer_string::str() const
 {
   std::string result;

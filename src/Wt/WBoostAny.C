@@ -385,7 +385,7 @@ WString asString(const boost::any& v, const WT_USTRING& format)
     const boost::posix_time::time_duration& dt
       = boost::any_cast<boost::posix_time::time_duration>(v);
     int millis = dt.fractional_seconds() *
-      ::pow(10.0, 3 - boost::posix_time::time_duration::num_fractional_digits()); 
+      std::pow(10.0, 3 - boost::posix_time::time_duration::num_fractional_digits()); 
     return WTime(dt.hours(), dt.minutes(), dt.seconds(), millis)
       .toString(format.empty() ? "HH:mm:ss" : format);
   }

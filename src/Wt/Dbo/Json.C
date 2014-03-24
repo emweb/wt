@@ -63,7 +63,7 @@ void JsonSerializer::out(char t) {
   *escapeOut_ << t;
 }
 void JsonSerializer::out(const char *t) {
-  escapeOut_->append(t, strlen(t));
+  escapeOut_->append(t, std::strlen(t));
 }
 void JsonSerializer::out(int t) {
   *escapeOut_ << t;

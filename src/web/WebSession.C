@@ -115,17 +115,18 @@ WebSession::WebSession(WebController *controller,
     deferCount_(0),
 #ifdef WT_TARGET_JAVA
     recursiveEvent_(mutex_.newCondition()),
-    newRecursiveEvent_(false),
+    recursiveEventDone_(mutex_.newCondition()),
+    newRecursiveEvent_(0),
     updatesPendingEvent_(mutex_.newCondition()),
 #else
-    newRecursiveEvent_(false),
+    newRecursiveEvent_(0),
 #endif
     updatesPending_(false),
     triggerUpdate_(false),
     embeddedEnv_(this),
     app_(0),
     debug_(controller_->configuration().debug()),
-    recursiveEventLoop_(0)
+    recursiveEventHandler_(0)
 {
   env_ = env ? env : &embeddedEnv_;
 
@@ -1045,7 +1046,7 @@ void WebSession::doRecursiveEventLoop()
     handler->session()->render(*handler);
 
   if (state_ == Dead) {
-    recursiveEventLoop_ = 0;
+    recursiveEventHandler_ = 0;
     throw WException("doRecursiveEventLoop(): session was killed");
   }
 
@@ -1054,9 +1055,9 @@ void WebSession::doRecursiveEventLoop()
    * handleRequest() to let the recursive event loop do the actual
    * notification.
    */
-  Handler *prevRecursiveEventLoop = recursiveEventLoop_;
-  recursiveEventLoop_ = handler;
-  newRecursiveEvent_ = false;
+  Handler *prevRecursiveEventHandler = recursiveEventHandler_;
+  recursiveEventHandler_ = handler;
+  newRecursiveEvent_ = 0;
 
   /*
    * Release session mutex lock, wait for recursive event, and retake
@@ -1091,19 +1092,24 @@ void WebSession::doRecursiveEventLoop()
 #endif
 
   if (state_ == Dead) {
-    recursiveEventLoop_ = 0;
+    recursiveEventHandler_ = 0;
+    delete newRecursiveEvent_;
+    newRecursiveEvent_ = 0;
     throw WException("doRecursiveEventLoop(): session was killed");
   }
 
   setLoaded();
 
   /*
-   * We use recursiveEventLoop_ != null to postpone rendering: we only want
+   * We use recursiveEventHandler_ != 0 to postpone rendering: we only want
    * the event handling part.
    */
-  app_->notify(WEvent(WEvent::Impl(handler)));
+  app_->notify(WEvent(*newRecursiveEvent_));
+  delete newRecursiveEvent_;
+  newRecursiveEvent_ = 0;
+  recursiveEventDone_.notify_one();
 
-  recursiveEventLoop_ = prevRecursiveEventLoop;
+  recursiveEventHandler_ = prevRecursiveEventHandler;
 #endif // WT_BOOST_THREADS
 }
 
@@ -1114,19 +1120,18 @@ void WebSession::expire()
 
 bool WebSession::unlockRecursiveEventLoop()
 {
-  if (!recursiveEventLoop_)
+  if (!recursiveEventHandler_)
     return false;
 
   /*
-   * Locate both the current and previous event loop handler.
+   * Pass on the handler to the recursive event loop.
    */
   Handler *handler = WebSession::Handler::instance();
 
-  recursiveEventLoop_->setRequest(handler->request(), handler->response());
-  // handler->response()->startAsync();
+  recursiveEventHandler_->setRequest(handler->request(), handler->response());
   handler->setRequest(0, 0);
 
-  newRecursiveEvent_ = true;
+  newRecursiveEvent_ = new WEvent::Impl(recursiveEventHandler_);
 
 #ifdef WT_BOOST_THREADS
   recursiveEvent_.notify_one();
@@ -1890,6 +1895,30 @@ const std::string *WebSession::getSignal(const WebRequest& request,
   return signalE;
 }
 
+void WebSession::externalNotify(const WEvent::Impl& event)
+{
+#ifndef WT_TARGET_JAVA
+  if (recursiveEventHandler_) {
+#ifdef WT_BOOST_THREADS
+    newRecursiveEvent_ = new WEvent::Impl(event);
+    recursiveEvent_.notify_one();
+    while (newRecursiveEvent_) {
+#ifdef WT_TARGET_JAVA
+      recursiveEventDone_.wait();
+#else
+      recursiveEventDone_.wait(event.handler->lock());
+#endif
+#endif
+    }
+  } else {
+    if (app_)
+      app_->notify(WEvent(event));
+    else
+      notify(WEvent(event));
+  }
+#endif // WT_TARGET_JAVA
+}
+
 void WebSession::notify(const WEvent& event)
 {
   Handler& handler = *event.impl_.handler;
@@ -1905,8 +1934,8 @@ void WebSession::notify(const WEvent& event)
   }
 
   if (!app_->initialized_) {
-    app_->initialize();
     app_->initialized_ = true;
+    app_->initialize();
   }
 
   if (!handler.response())
@@ -2278,7 +2307,7 @@ void WebSession::notify(const WEvent& event)
 #endif // WT_TARGET_JAVA
 	}
 
-	if (handler.response() && !recursiveEventLoop_)
+	if (handler.response() && !recursiveEventHandler_)
 	  render(handler);
       }
     }

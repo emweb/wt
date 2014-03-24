@@ -491,10 +491,7 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
     WebSession::Handler handler(session, true);
 
     if (!session->dead()) {
-      if (session->app())
-	session->app()->notify(WEvent(WEvent::Impl(&handler, event.function)));
-      else
-	session->notify(WEvent(WEvent::Impl(&handler, event.function)));
+      session->externalNotify(WEvent::Impl(&handler, event.function));
 
       if (session->app() && session->app()->isQuited())
 	session->kill();
