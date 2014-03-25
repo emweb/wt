@@ -12,13 +12,12 @@
 #include <Wt/Dbo/collection>
 #include <Wt/Dbo/Call>
 #include <Wt/Dbo/DbAction>
+#include <Wt/Dbo/Exception>
 #include <Wt/Dbo/Field>
 #include <Wt/Dbo/Query>
 #include <Wt/Dbo/Session>
 #include <Wt/Dbo/StdSqlTraits>
 #include <Wt/Dbo/ptr_tuple>
-
-#include <Wt/Dbo/Query_impl.h>
 
 #if !defined(_MSC_VER) && !defined(__SUNPRO_C)
 #define DBO_EXTERN_TEMPLATES(C)						\

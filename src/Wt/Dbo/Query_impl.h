@@ -397,16 +397,6 @@ Query<Result, DynamicBinding>::~Query()
 }
 
 template <class Result>
-template <typename T>
-Query<Result, DynamicBinding>&
-Query<Result, DynamicBinding>::bind(const T& value)
-{
-  parameters_.push_back(new Impl::Parameter<T>(value));
-
-  return *this;
-}
-
-template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::where(const std::string& where)
 {
