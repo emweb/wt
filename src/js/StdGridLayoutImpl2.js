@@ -118,7 +118,7 @@ WT_DECLARE_WT_MEMBER
 
      /* Allow accurate width measurement for widget with offset */
      if (dir == HORIZONTAL &&
-	 (scrollSize + WT.pxself(element, DC.left) >= widget.clientWidth)) {
+	 (scrollSize + WT.pxself(element, DC.left) > widget.clientWidth)) {
        l = element.style[DC.left];
        setCss(element, DC.left, NA_px);
        
@@ -211,6 +211,12 @@ WT_DECLARE_WT_MEMBER
 
      if (asSet)
        return [scrollSize, scrollBar];
+
+     if (WT.isGecko && 
+	 dir == HORIZONTAL && 
+	 element.getBoundingClientRect().width != 
+	 Math.ceil(element.getBoundingClientRect().width))
+       scrollSize += 1;
 
      if (!WT.boxSizing(element) && !WT.isOpera)
        scrollSize += border;

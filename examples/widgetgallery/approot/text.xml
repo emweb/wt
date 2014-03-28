@@ -3536,12 +3536,9 @@
     </p>
 
     <p>
-      As an example of a tree table model, consider the following
-      model that loads information from a git repository (in this
-      case, Wt's git). Only a minimum of information is kept in
-      memory: we allocate a data structure only for folders that are
-      being expanded, for use as internal pointer data in model
-      indexes.
+      As an example of a custom table model, consider the following
+      (non-sensical) model that simply displays row/column information
+      for each item.
     </p>
 
     <fieldset class="example">
@@ -3586,9 +3583,12 @@
     </p>
 
     <p>
-      As an example of a custom table model, consider the following
-      (non-sensical) model that simply displays row/column information
-      for each item.
+      As an example of a tree table model, consider the following
+      model that loads information from a git repository (in this
+      case, Wt's git). Only a minimum of information is kept in
+      memory: we allocate a data structure only for folders that are
+      being expanded, for use as internal pointer data in model
+      indexes.
     </p>
 
     <fieldset class="example">
