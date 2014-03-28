@@ -149,13 +149,7 @@ void WSortFilterProxyModel::setFilterRegExp(const WT_USTRING& pattern)
   else
     regex_->setPattern(pattern, regex_->flags());
 
-  if (sourceModel()) {
-    layoutAboutToBeChanged().emit();
-
-    resetMappings();
-
-    layoutChanged().emit();
-  }
+  invalidate();
 }
 
 WT_USTRING WSortFilterProxyModel::filterRegExp() const
@@ -188,11 +182,14 @@ void WSortFilterProxyModel::sort(int column, SortOrder order)
   sortKeyColumn_ = column;
   sortOrder_ = order;
 
+  invalidate();
+}
+
+void WSortFilterProxyModel::invalidate()
+{
   if (sourceModel()) {
     layoutAboutToBeChanged().emit();
-
     resetMappings();
-
     layoutChanged().emit();
   }
 }

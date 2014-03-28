@@ -145,7 +145,7 @@ protected:
  * This class provides the default traits. It is convenient (and
  * future proof) to inherit these default traits when customizing the
  * traits for one particular class.
-*
+ *
  * \ingroup dbo
  */
 struct dbo_default_traits 
@@ -195,7 +195,7 @@ struct dbo_default_traits
  *   namespace Dbo {
  *
  *     template<>
- *     struct dbo_traits<Foo>
+ *     struct dbo_traits<Foo> : dbo_default_traits
  *     {
  *        static const char *surrogateIdField() { return "foo_id"; }
  *     };
@@ -203,8 +203,25 @@ struct dbo_default_traits
  * }
  * \endcode
  *
+ * \note The safe pattern to define traits before the class definition,
+ *       based on a forward declaration.
+ *       This is necessary since the persist() function relies on the
+ *       this specialization:
+ * \code
+ * class Foo;
+ *
+ * namespace Wt {
+ *   namespace Dbo {
+ *     template<> struct dbo_traits<Foo> : ... { };
+ *   }
+ * }
+ *
+ * class Foo {
+ *   // definition here, including the persist() function
+ * };
+ * \endcode
  * \ingroup dbo
-*/
+ */
 template <class C>
 struct dbo_traits : public dbo_default_traits
 {

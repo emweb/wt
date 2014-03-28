@@ -448,7 +448,16 @@ void WTemplate::updateDom(DomElement& element, bool all)
     for (std::set<WWidget *>::const_iterator i = previouslyRendered.begin();
 	 i != previouslyRendered.end(); ++i) {
       WWidget *w = *i;
-      w->webWidget()->setRendered(false);
+      // it could be that the widget was removed/deleted in the mean time
+      // as a side-effect of rendering some of the widgets; thus we check
+      // that the widget is still a child
+      for (WidgetMap::const_iterator j = widgets_.begin();
+	   j != widgets_.end(); ++j) {
+	if (j->second == w) {
+	  w->webWidget()->setRendered(false);
+	  break;
+	}
+      }
     }
 
     WApplication::instance()->session()->renderer()

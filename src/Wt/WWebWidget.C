@@ -1778,9 +1778,9 @@ bool WWebWidget::needsToBeRendered() const
     || !WApplication::instance()->session()->renderer().visibleOnly();
 }
 
-bool WWebWidget::setFirstFocous() {
+bool WWebWidget::setFirstFocus() {
   for (int i = 0; i < children().size(); i++)
-    if ( children()[i]->setFirstFocous())
+    if (children()[i]->setFirstFocus())
       return true;
 
   return false;

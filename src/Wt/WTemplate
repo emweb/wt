@@ -106,7 +106,6 @@ class EscapeOStream;
  * - \link Functions::block\endlink : recursively renders another string as
  *   macro block optional arguments substituted before processing template
  *   substitution.
- * \endif
  *
  * For example, the following template uses the "tr" function to translate
  * the age-label using the "age-label" internationalized key.

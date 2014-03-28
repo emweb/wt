@@ -22,11 +22,6 @@ class UserFormModel : public Wt::WFormModel
 {
 public:
     // Associate each field with a unique string literal.
-    // With C++11 you can actually put these directly inside the
-    // UserFormModel class like this:
-    //
-    //   static constexpr Field FirstNameField = "first-name";
-  
     static const Field FirstNameField;
     static const Field LastNameField;
     static const Field CountryField;

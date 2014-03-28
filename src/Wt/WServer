@@ -386,16 +386,26 @@ public:
    *
    * The default value is 0.
    */
-  void setLocalizedStrings(WLocalizedStrings *stringResolver);
+  WT_API void setLocalizedStrings(WLocalizedStrings *stringResolver);
   
   /*! \brief Sets the resource object that provides localized strings.
    *
    * \sa setLocalizedStrings()
    */
-  WLocalizedStrings *localizedStrings() { return localizedStrings_; }
+  WT_API WLocalizedStrings *localizedStrings() { return localizedStrings_; }
 
 #ifndef WT_TARGET_JAVA
-  WLogger& logger() { return logger_; }
+  /*! \brief Returns the logger instance.
+   *
+   * This is the logger class used in WApplication::log() and
+   * Wt::log() functions.
+   */
+  WT_API WLogger& logger() { return logger_; }
+
+  /*! \brief Adds an entry to the log.
+   *
+   * \sa Wt::log(), WApplication::log()
+   */
   WT_API WLogEntry log(const std::string& type) const;
 
   WT_API void initLogger(const std::string& logFile,
@@ -406,7 +416,7 @@ public:
 
   WT_API Configuration& configuration();
 
-  WebController *controller() { return webController_; }
+  WT_API WebController *controller() { return webController_; }
 
 private:
   WebController *webController_;

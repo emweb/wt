@@ -119,8 +119,6 @@ public:
 
   virtual void refresh();
 
-  virtual bool setFirstFocous() {return false;}
-
 protected:
   CheckState state_;
 

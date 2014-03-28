@@ -678,7 +678,7 @@ protected:
 #endif
 
   WEnvironment();
-  ~WEnvironment();
+  virtual ~WEnvironment();
 
   void setUserAgent(const std::string& agent);
   void setInternalPath(const std::string& path);

@@ -7,8 +7,6 @@
 #ifndef WT_DBO_FIELD_IMPL_H_
 #define WT_DBO_FIELD_IMPL_H_
 
-#include <boost/lexical_cast.hpp>
-
 #include <Wt/Dbo/Session>
 #include <Wt/Dbo/Exception>
 #include <Wt/Dbo/SqlStatement>

@@ -214,6 +214,13 @@ public:
    */
   bool dynamicSortFilter() const { return dynamic_; }
 
+  /*! \brief Invalidates the current filter.
+   *
+   * This refilters and resorts the model, and is useful only if you
+   * have reimplemented filterAcceptRow() and/or lessThan()
+   */
+  void invalidate();
+
   virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
   virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
 

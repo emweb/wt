@@ -8,7 +8,13 @@
 #define WT_AUTH_DBO_AUTH_INFO_H_
 
 #include <Wt/Auth/User>
+
+#ifndef WT_AUTH_DBO_EXTERN_TEMPLATES
 #include <Wt/Dbo/Dbo>
+#else
+#include <Wt/Dbo/Types>
+#endif
+
 #include <Wt/Dbo/WtSqlTraits>
 
 namespace Wt {

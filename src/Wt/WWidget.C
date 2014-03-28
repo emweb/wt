@@ -518,6 +518,11 @@ bool WWidget::isExposed(WWidget *w)
   return false;
 }
 
+bool WWidget::setFirstFocus()
+{
+  return false;
+}
+
 WCssTextRule *WWidget::addCssRule(const std::string& selector,
 				  const std::string& declarations,
 				  const std::string& ruleName)

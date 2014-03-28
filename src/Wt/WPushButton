@@ -302,7 +302,7 @@ public:
    */
   EventSignal<>& unChecked();
 
-  virtual bool setFirstFocous() {return false;}
+  virtual bool setFirstFocus();
 
 private:
   static const char *CHECKED_SIGNAL;

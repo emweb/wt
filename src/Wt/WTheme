@@ -50,7 +50,9 @@ enum WidgetThemeRole {
   NavBrandRole = 802,
   NavbarSearchRole = 803,
   NavbarMenuRole = 804,
-  NavbarBtn = 805
+  NavbarBtn = 805,
+  NavbarAlignLeftRole = 806,
+  NavbarAlignRightRole = 807
 };
 
 /*! \brief Enumeration for the role of a DOM element (for theme support)

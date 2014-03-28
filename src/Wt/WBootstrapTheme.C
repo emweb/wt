@@ -178,6 +178,12 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
   case NavbarSearchRole:
     child->addStyleClass(classNavbarSearch());
     break;
+  case NavbarAlignLeftRole:
+    child->addStyleClass(classNavbarLeft());
+    break;
+  case NavbarAlignRightRole:
+    child->addStyleClass(classNavbarRight());
+    break;
   case NavbarMenuRole:
     child->addStyleClass(classNavbarMenu());
     break;
@@ -561,6 +567,16 @@ std::string WBootstrapTheme::classBrand() const
 std::string WBootstrapTheme::classNavbarSearch() const
 {
   return version_ == Version2 ? "search-query" : "navbar-search";
+}
+
+std::string WBootstrapTheme::classNavbarLeft() const
+{
+  return version_ == Version2 ? "pull-left" : "navbar-left";
+}
+
+std::string WBootstrapTheme::classNavbarRight() const
+{
+  return version_ == Version2 ? "pull-right" : "navbar-right";
 }
 
 std::string WBootstrapTheme::classNavbarBtn() const

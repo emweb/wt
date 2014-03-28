@@ -86,6 +86,7 @@
 @media (max-width: 979px) {
   .nav-collapse .dropdown-menu {
     display: block !important;
+    position: static !important;
   }
   .nav-collapse .dropdown-menu li > a:hover {
     color: #555555;

@@ -1908,8 +1908,8 @@ void WebSession::externalNotify(const WEvent::Impl& event)
 #else
       recursiveEventDone_.wait(event.handler->lock());
 #endif
-#endif
     }
+#endif
   } else {
     if (app_)
       app_->notify(WEvent(event));

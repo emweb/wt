@@ -25,16 +25,22 @@ public:
     : WContainerWidget(parent) 
   { }
 
+  bool isBootstrap2Responsive() const {
+    return styleClass().toUTF8().find("nav-collapse") != std::string::npos;
+  }
+
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation())
   {
-    if (animation.empty()) {
-      /* Comply with bootstrap responsive CSS assumptions */
-      /* When animations are used, this is actually done in wtAnimatedHidden */
-      if (hidden)
-	setHeight(0);
-      else
-	setHeight(WLength::Auto);
+    if (isBootstrap2Responsive()) {
+      if (animation.empty()) {
+	/* Comply with bootstrap responsive CSS assumptions */
+	/* When animations are used, this is actually done in wtAnimatedHidden */
+	if (hidden)
+	  setHeight(0);
+	else
+	  setHeight(WLength::Auto);
+      }
     }
 
     WContainerWidget::setHidden(hidden, animation);
@@ -71,7 +77,7 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
 
 void WNavigationBar::setResponsive(bool responsive)
 {
-  WContainerWidget *contents = resolve<WContainerWidget *>("contents");
+  NavContainer *contents = resolve<NavContainer *>("contents");
 
   if (responsive) {
     WInteractWidget *collapseButton
@@ -95,13 +101,15 @@ void WNavigationBar::setResponsive(bool responsive)
 
     contents->hide();
 
-    /* Comply with bootstrap responsive CSS assumptions */
-    contents->setJavaScriptMember
-      ("wtAnimatedHidden",
-       "function(hidden) {"
-       """if (hidden) "
-       ""  "this.style.height=''; this.style.display='';"
-       "}");
+    if (contents->isBootstrap2Responsive()) {
+      /* Comply with bootstrap responsive CSS assumptions */
+      contents->setJavaScriptMember
+	("wtAnimatedHidden",
+	 "function(hidden) {"
+	 """if (hidden) "
+	 ""  "this.style.height=''; this.style.display='';"
+	 "}");
+    }
   } else {
     bindEmpty("collapse-button");
   }
@@ -162,10 +170,10 @@ void WNavigationBar::align(WWidget *widget, AlignmentFlag alignment)
 {
   switch (alignment) {
   case AlignLeft:
-    widget->addStyleClass("pull-left");
+    wApp->theme()->apply(this, widget, NavbarAlignLeftRole);
     break;
   case AlignRight:
-    widget->addStyleClass("pull-right");
+    wApp->theme()->apply(this, widget, NavbarAlignRightRole);
     break;
   default:
     LOG_ERROR("addWidget(...): unsupported alignment " << alignment);

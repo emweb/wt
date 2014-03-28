@@ -140,6 +140,8 @@ private:
   std::string classNavbar() const;
   std::string classBrand() const;
   std::string classNavbarSearch() const;
+  std::string classNavbarLeft() const;
+  std::string classNavbarRight() const;
   std::string classNavbarMenu() const;
   std::string classNavbarBtn() const;
 };

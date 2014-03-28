@@ -281,9 +281,13 @@ void WFormWidget::validatorChanged()
   validate();
 }
 
-bool WFormWidget::setFirstFocous() {
-  setFocus();
-  return true;
+bool WFormWidget::setFirstFocus()
+{
+  if (isVisible() && isEnabled()) {
+    setFocus();
+    return true;
+  } else
+    return false;
 }
 
 void WFormWidget::updateDom(DomElement& element, bool all)

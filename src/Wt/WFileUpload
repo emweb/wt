@@ -308,8 +308,9 @@ public:
    * Use html input accept attributes as input.
    *
    * \code
-   *  WFileUpload *fu = new WFileUpload(root());
-   *  fu->setFilters("image/*");
+   * WFileUpload *fu = new WFileUpload(root());
+   * fu->setFilters("image/*");
+   * \endcode
    */
   void setFilters(std::string acceptAttributes);
 

@@ -27,6 +27,15 @@ namespace Wt {
  * model. In addition, you will typically specialize the class to customize
  * the validation and application logic.
  *
+ * \if cpp
+ * \warning The Field type is 'const char *, and instead of string
+ *          comparisons to identify fields, pointer comparisons are used.
+ *          Thus you really should use the same field constant throughout
+ *          your code to refer to a given field, and you cannot use C++11
+ *          constexpr for the field constant since that does not have a unique
+ *          value (since it has no storage).
+ * \endif
+ *
  * Although it can be setup to use WValidator objects for individual
  * fields, also other validation where more entered information needs
  * to be considered simultaneously can be implemented.
@@ -38,8 +47,8 @@ namespace Wt {
  * Example (a bit contrived since you will usually not use the model directly):
  * \if cpp
  * \code
- * const char *NameField = "name";
- * const char *TelField = "telephone";
+ * Wt::WFormModel::Field NameField = "name";
+ * Wt::WFormModel::Field TelField = "telephone";
  *
  * Wt::WFormModel *model = new Wt::WFormModel();
  * model->addField(NameField, "Enter your name");
@@ -86,6 +95,15 @@ public:
   /*! \brief A type to identify a field.
    *
    * Fields are identified by a string literal constant.
+   *
+   * \if cpp
+   * \warning Instead of string comparisons to identify fields, pointer
+   *          comparisons are used.
+   *          Thus you really should use the same field constant throughout
+   *          your code to refer to a given field, and you cannot use C++11
+   *          constexpr for the field constant since that does not have a unique
+   *          value (since it has no storage).
+   * \endif
    */
   typedef const char *Field;
 

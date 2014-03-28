@@ -65,27 +65,16 @@
      display: inline;
 }
 
-/*
- * Custom collapse nav support
- */
-.navbar .navbar-collapse {
-    display: block !important; 
+@media (min-width: 768px) {
+     .navbar .navbar-collapse {
+           display: block !important;
+     }
 }
 
 @media (max-width: 768px) {
-    .navbar-collapse .dropdown-menu {
-       display: block !important;
-    }
-
-    .navbar-collapse .dropdown-menu li > a:hover {
-       color: @navbar-default-link-hover-color;
-       background: #f2f2f2;
-    }
-
-    .navbar-collapse .dropdown-menu .active >a {
-       color: inherit;
-       background: inherit;
-    }
+     .navbar-nav .open .dropdown-menu {
+           position: static !important;
+     }
 }
 
 .navbar .navbar-inner .container {

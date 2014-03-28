@@ -388,7 +388,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
   WPopupWidget::render(flags);
 
   if (autoFocus_)
-    impl_->setFirstFocous();
+    impl_->setFirstFocus();
 }
 
 void WDialog::rejectWhenEscapePressed(bool enable)

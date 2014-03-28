@@ -319,19 +319,15 @@ public:
 
     const char *v = PQgetvalue(result_, row_, column);
 
-    try {
-      *value = boost::lexical_cast<int>(v);
-    } catch (boost::bad_lexical_cast) {
-      /*
-       * This is for bools, which we map to int values
-       */
-      if (strcasecmp(v, "f") == 0)
+    /*
+     * booleans are mapped to int values
+     */
+    if (*v == 'f')
 	*value = 0;
-      else if (strcasecmp(v, "t") == 0)
+    else if (*v == 't')
 	*value = 1;
-      else
-	throw;
-    }
+    else
+      *value = boost::lexical_cast<int>(v);
 
     DEBUG(std::cerr << this 
 	  << " result int " << column << " " << *value << std::endl);

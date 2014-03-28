@@ -197,7 +197,7 @@ public:
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText);
 
-  virtual bool setFirstFocous();
+  virtual bool setFirstFocus();
 
 protected:
   WLabel     *label_;

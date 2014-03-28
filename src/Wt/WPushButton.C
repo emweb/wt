@@ -128,6 +128,11 @@ bool WPushButton::setTextFormat(TextFormat textFormat)
   return text_.setFormat(textFormat);
 }
 
+bool WPushButton::setFirstFocus()
+{
+  return false;
+}
+
 void WPushButton::setIcon(const WLink& link)
 {
   if (canOptimizeUpdates() && (link == icon_))

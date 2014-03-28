@@ -75,6 +75,8 @@ void WPopupMenu::popupAtButton()
 
   if (!topLevel_ || topLevel_ == this) {
     button_->addStyleClass("active", true);
+    if (parentItem())
+      parentItem()->addStyleClass("open");
 
     popup(button_);
   }
@@ -109,8 +111,11 @@ void WPopupMenu::done(WMenuItem *result)
   if (isHidden())
     return;
 
-  if (location_ && location_ == button_)
+  if (location_ && location_ == button_) {
     button_->removeStyleClass("active", true);
+    if (parentItem())
+      parentItem()->removeStyleClass("open");
+  }
 
   location_ = 0;
   result_ = result;
