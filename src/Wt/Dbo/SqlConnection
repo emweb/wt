@@ -23,6 +23,17 @@ enum SqlDateTimeType {
   SqlTime     //!< Time duration
 };
 
+/*! \brief Enum that defines a limit query type.
+ *
+ * Oracle is using Rownum and Firebeard is using RowsFromTo instead of limit and
+ * offset in sql
+ */
+enum LimitQuery{
+      Limit,
+      RowsFromTo,
+      Rownum
+};
+
 class SqlStatement;
 
 /*! \class SqlConnection Wt/Dbo/SqlConnection Wt/Dbo/SqlConnection
@@ -34,6 +45,8 @@ class SqlStatement;
  *
  * This class is part of Wt::Dbo's backend API, and should not be used
  * directly.
+ *
+ * All methods will throw an exception if they could not be completed.
  *
  * \ingroup dbo
  */
@@ -161,7 +174,7 @@ public:
    * This is appended to the <tt>insert</tt> statement, since some back-ends
    * need to be indicated that they should return the autoincrement id.
    */
-  virtual std::string autoincrementInsertSuffix() const = 0;
+  virtual std::string autoincrementInsertSuffix(const std::string& id) const = 0;
 
   /*! \brief Execute code before dropping the tables.
    *
@@ -169,7 +182,7 @@ public:
    * The default implementation is empty.
    */
   virtual void prepareForDropTables();
-  
+
   /*! \brief Returns the date/time type.
    *
    * \sa SqlStatement::bind(int, const boost::posix_time::ptime&, SqlDateTimeType)
@@ -184,11 +197,24 @@ public:
 
   /*! \brief Returns the text type.
    *
-   * This method will return "text" by default.
+   * This is the text type for a string. If \p size = -1, then a type
+   * should be returned which does not require size information, otherwise
+   * a type should be returned that limits the size of the stored string
+   * to \p size.
+   *
+   * This method will return "text" by default if size = -1, and
+   * "varchar(size)" otherwise.
    *
    * \sa SqlStatement::bind(int column, const std::string& value)
    */
-  virtual const char *textType() const;
+  virtual std::string textType(int size) const;
+
+  /*! \brief Returns the 64-bit integer type.
+   *
+   * This method will return "bigint" by default.
+   *
+   */
+   virtual std::string longLongType() const;
 
   /*! \brief Returns the boolean type.
    *
@@ -196,13 +222,28 @@ public:
    */
   virtual const char *booleanType() const;
 
-  /*! \brief Returns whether the SQL dialect uses 'ROWS ? TO ?' for partial
-   *         select results.
+  /*! \brief Returns the true if the database supports Update Cascade.
+   *
+   * This method will return true by default.
+   * Was created for the oracle database which does not support
+   * Update Cascade.
+   */
+  virtual bool supportUpdateCascade() const;
+  /*! \brief Returns the true if the database require subquery alias.
+   *
+   * This method will return false by default.
+   */
+  virtual bool requireSubqueryAlias() const;
+
+  virtual LimitQuery limitQueryMethod() const;
+
+  /*! \brief Returns whether the SQL dialect uses 'ROWS ? TO ?', limit or
+   *         rownum for partial select results.
    *
    * This is an alternative SQL dialect option to the (non-standard) 'OFFSET ?
    * LIMIT ?' syntax.
    *
-   * The default implementation returns \c false.
+   * The default implementation returns \c Limit.
    */
   virtual bool usesRowsFromTo() const;
 

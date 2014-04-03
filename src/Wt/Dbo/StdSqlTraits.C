@@ -8,6 +8,7 @@
 #include "Wt/Dbo/SqlStatement"
 
 #include <boost/lexical_cast.hpp>
+#include <string>
 
 #ifndef DOXYGEN_ONLY
 
@@ -19,10 +20,7 @@ namespace Wt {
    */
 std::string sql_value_traits<std::string>::type(SqlConnection *conn, int size)
 {
-  if (size == -1)
-    return std::string(conn->textType()) + " not null";
-  else
-    return "varchar(" + boost::lexical_cast<std::string>(size) + ") not null";
+  return std::string(conn->textType(size)) + " not null";
 }
 
 void sql_value_traits<std::string>::bind(const std::string& v,
@@ -47,9 +45,9 @@ bool sql_value_traits<std::string>::read(std::string& v,
    * long long 
    */
 
-const char *sql_value_traits<long long>::type(SqlConnection *conn, int size)
+std::string sql_value_traits<long long>::type(SqlConnection *conn, int size)
 {
-  return "bigint not null";
+  return conn->longLongType() + " not null";
 }
 
 void sql_value_traits<long long>::bind(long long v,
@@ -71,12 +69,12 @@ bool sql_value_traits<long long>::read(long long& v,
    * long
    */
 
-const char *sql_value_traits<long>::type(SqlConnection *conn, int size)
+std::string sql_value_traits<long>::type(SqlConnection *conn, int size)
 {
   if (sizeof(long) == 4)
     return "integer not null";
   else
-    return "bigint not null";
+    return conn->longLongType() + " not null";
 }
 
 void sql_value_traits<long>::bind(long v,

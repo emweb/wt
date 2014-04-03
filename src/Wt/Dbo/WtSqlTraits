@@ -193,10 +193,7 @@ inline bool sql_value_traits<WDateTime, void>
 inline std::string sql_value_traits<WString, void>::type(SqlConnection *conn,
 							 int size)
 {
-  if (size == -1)
-    return std::string(conn->textType()) + " not null";
-  else
-    return "varchar(" + boost::lexical_cast<std::string>(size) + ") not null";
+    return conn->textType(size) + " not null";
 }
 
 inline void sql_value_traits<WString, void>

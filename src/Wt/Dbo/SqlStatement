@@ -123,6 +123,8 @@ public:
   /*! \brief Fetches a result value.
    *
    * Returns \c true when the value was not \c null.
+   * The size is the expected size of sql string type and can be used to
+   * dimension buffers but the return string may be bigger.
    */
   virtual bool getResult(int column, std::string *value, int size) = 0;
 

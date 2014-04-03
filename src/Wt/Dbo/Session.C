@@ -107,7 +107,8 @@ std::string Session::MappingInfo::primaryKeys() const
 
 Session::Session()
   : schemaInitialized_(false),
-    useRowsFromTo_(false),
+    //useRowsFromTo_(false),
+    requireSubqueryAlias_(false),
     connection_(0),
     connectionPool_(0),
     transaction_(0),
@@ -195,6 +196,13 @@ void Session::initSchema() const
 
   Transaction t(*self);
 
+  SqlConnection *conn = self->connection(false);
+  longlongType_ = sql_value_traits<long long>::type(conn, 0);
+  intType_ = sql_value_traits<int>::type(conn, 0);
+  haveSupportUpdateCascade_ = conn->supportUpdateCascade();
+  limitQueryMethod_ = conn->limitQueryMethod();
+  requireSubqueryAlias_ = conn->requireSubqueryAlias();
+
   for (ClassRegistry::const_iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
     i->second->init(*self);
@@ -259,14 +267,8 @@ void Session::prepareStatements(MappingInfo *mapping)
     conn = useConnection();
 
   if (mapping->surrogateIdFieldName) {
-    std::string autoIncrementSuffix = conn->autoincrementInsertSuffix();
-
-    if (!autoIncrementSuffix.empty())
-      sql << conn->autoincrementInsertSuffix()
-	  << "\"" << mapping->surrogateIdFieldName << "\"";
+    sql << conn->autoincrementInsertSuffix(mapping->surrogateIdFieldName);
   }
-
-  useRowsFromTo_ = conn->usesRowsFromTo();
 
   if (!transaction_)
     returnConnection(conn);
@@ -752,7 +754,6 @@ void Session::createTable(MappingInfo *mapping,
       sql << "  " << constraintString(mapping, field, firstI, i);
 
       createTable(mapping, tablesCreated, sout, false);
-
     } else
       ++i;
   }
@@ -837,9 +838,11 @@ std::string Session::constraintString(MappingInfo *mapping,
   sql << ") references \"" << Impl::quoteSchemaDot(field.foreignKeyTable())
       << "\" (" << otherMapping->primaryKeys() << ")";
 
-  if (field.fkConstraints() & Impl::FKOnUpdateCascade)
+  if (field.fkConstraints() & Impl::FKOnUpdateCascade
+      && haveSupportUpdateCascade_)
     sql << " on update cascade";
-  else if (field.fkConstraints() & Impl::FKOnUpdateSetNull)
+  else if (field.fkConstraints() & Impl::FKOnUpdateSetNull
+	   && haveSupportUpdateCascade_)
     sql << " on update set null";
 
   if (field.fkConstraints() & Impl::FKOnDeleteCascade)
@@ -941,8 +944,8 @@ Session::getJoinIds(MappingInfo *mapping, const std::string& joinId)
     else
       idName = joinId;
 
-    result.push_back(JoinId(idName, mapping->surrogateIdFieldName,
-			    sql_value_traits<long long>::type(0, 0)));
+    result.push_back
+      (JoinId(idName, mapping->surrogateIdFieldName, longlongType_));
 
   } else {
     std::string foreignKeyName;
@@ -1160,13 +1163,13 @@ void Session::getFields(const char *tableName,
   if (mapping->surrogateIdFieldName)
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,
 			       &typeid(long long),
-			       sql_value_traits<long long>::type(0, 0),
+			       longlongType_,
 			       FieldInfo::SurrogateId |
 			       FieldInfo::NeedsQuotes));
 
   if (mapping->versionFieldName)
     result.push_back(FieldInfo(mapping->versionFieldName, &typeid(int),
-			       sql_value_traits<int>::type(0, 0),
+			       intType_,
 			       FieldInfo::Version | FieldInfo::NeedsQuotes));
 
   result.insert(result.end(), mapping->fields.begin(), mapping->fields.end());

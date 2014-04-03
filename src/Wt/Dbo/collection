@@ -38,6 +38,14 @@ namespace Wt {
    * you can only iterate the results just once: i.e. you can have
    * only one begin() call.
    *
+   * \code
+   * typedef dbo::collection< dbo::ptr<User> > Users;
+   * Users allUsers = session.find<User> ();
+   * for (Users::const_iterator i = allUsers.begin();
+   *     i != allUsers.end(); ++i){
+   *   dbo::ptr<User> user = *i;
+   * }
+   *
    * The container is read only when it reflects results of a query.
    * Otherwise, when involved in a Many-to-One or Many-to-Many
    * relation, you may also insert() and erase() objects in it.

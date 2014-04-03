@@ -37,7 +37,7 @@ struct WTDBO_API sql_value_traits<long long, void>
 {
   static const bool specialized = true;
 
-  static const char *type(SqlConnection *conn, int size);
+  static std::string type(SqlConnection *conn, int size);
   static void bind(long long v, SqlStatement *statement, int column, int size);
   static bool read(long long& v, SqlStatement *statement, int column, int size);
 };
@@ -57,7 +57,7 @@ struct WTDBO_API sql_value_traits<long, void>
 {
   static const bool specialized = true;
 
-  static const char *type(SqlConnection *conn, int size);
+  static std::string type(SqlConnection *conn, int size);
   static void bind(long v, SqlStatement *statement, int column, int size);
   static bool read(long& v, SqlStatement *statement, int column, int size);
 };

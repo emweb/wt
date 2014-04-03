@@ -143,27 +143,6 @@ div.contents {
     margin-right: auto;
 }
 
-.yellow-box {
-    background-color: #ffffb4;
-    border: 1px solid black;
-    margin-top: 1ex;
-    margin-bottom: 1ex;
-}
-
-.green-box {
-    background-color: #c4ffb4;
-    min-height: 30px;
-    text-align: center;
-    padding: 3px;
-}
-
-.blue-box {
-    background-color: #65dae8;
-    min-height: 30px;
-    text-align: center;
-    padding: 3px;
-}
-
 .events {
     border: 4px solid #528B12;
     padding: 5px;
@@ -207,6 +186,11 @@ div.contents {
     border-bottom: 0px;
     padding: 0px 5px;
     margin-bottom: -5px;
+}
+
+.example > p {
+    margin: 10px 0px;
+    padding-top: 10px;
 }
 
 .src {

@@ -144,10 +144,10 @@ namespace Wt
 	  
 	  time_duration::fractional_seconds_type ticks_per_msec =
 	    time_duration::ticks_per_second() / 1000;
-	  time_duration::fractional_seconds_type msec =
+          time_duration::fractional_seconds_type ticks =
 	    d.fractional_seconds();
 	  
-	  return (int)(msec / ticks_per_msec);
+	  return (int)(ticks / ticks_per_msec);
 	}
 
 	virtual void bind(int column, 
@@ -228,7 +228,7 @@ namespace Wt
 	  }
 
 	  if (affectedRows_ == 0) {
-	    const std::string returning = conn_.autoincrementInsertSuffix();
+	    const std::string returning = " returning ";
 	    std::size_t j = sql_.rfind(returning);
 	    if (j != std::string::npos && 
 		sql_.find(' ', j + returning.length()) == std::string::npos) {
@@ -574,9 +574,9 @@ namespace Wt
 	return sql;
       }
       
-      std::string Firebird::autoincrementInsertSuffix() const
+      std::string Firebird::autoincrementInsertSuffix(const std::string& id) const
       {
-	return " returning ";
+	return " returning \"" + id + "\"";
       }
 
       const char *Firebird::dateTimeType(SqlDateTimeType type) const
@@ -653,9 +653,9 @@ namespace Wt
 	clearStatementCache();
       }
       
-      bool Firebird::usesRowsFromTo() const
+      LimitQuery Firebird::limitQueryMethod() const
       {
-	return true;
+	return RowsFromTo;
       }
 
       bool Firebird::supportAlterTable() const

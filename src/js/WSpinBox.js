@@ -43,7 +43,16 @@ WT_DECLARE_WT_MEMBER
    }
 
    function getValue() {
-     var v = edit.value;
+     var lineEdit = $edit.data("lobj");
+     var v = "";
+     if (lineEdit !== undefined) {
+       v = lineEdit.getValue();
+       if (v === "") {
+	 v = prefix + "0" + suffix;
+       }
+     } else {
+       v = edit.value;
+     }
      if (v.substr(0, prefix.length) == prefix) {
        v = v.substr(prefix.length);
        if (v.length > suffix.length
@@ -61,6 +70,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function setValue(v) {
+     var lineEdit = $edit.data("lobj");
      if (v > maxValue)
        v = maxValue;
      else if (v < minValue)
@@ -82,7 +92,11 @@ WT_DECLARE_WT_MEMBER
        result = newValue;
      }
 
-     edit.value = prefix + result + suffix;
+     if (lineEdit !== undefined) {
+       lineEdit.setValue(prefix + result + suffix);
+     } else {
+       edit.value = prefix + result + suffix;
+     }
 
      changed = true;
    }

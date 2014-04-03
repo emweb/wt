@@ -7,12 +7,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Postgres>
-#include <Wt/Dbo/backend/MySQL>
-#include <Wt/Dbo/backend/Sqlite3>
-#include <Wt/Dbo/backend/Firebird>
 #include <Wt/WDateTime>
 #include <Wt/Dbo/WtSqlTraits>
+
+#include "DboFixture.h"
 
 namespace dbo = Wt::Dbo;
 
@@ -45,7 +43,7 @@ public:
      */
     static const char *counterFields[]
       = { "counter1", "counter2", "counter3", "counter4", "counter5",
-	  "counter6", "counter7", "counter8", "counter9", "counter10" };
+          "counter6", "counter7", "counter8", "counter9", "counter10" };
 
     dbo::id(a, id, "id");
     dbo::field(a, text, "text");
@@ -58,6 +56,22 @@ public:
 };
 
 }
+
+struct DboBenchmarkFixture : DboFixtureBase
+{
+  DboBenchmarkFixture() :
+    DboFixtureBase(false)
+  {
+    session_->mapClass<Perf::Post>("post");
+
+    try {
+      session_->dropTables();
+    } catch (...) {
+    }
+
+    session_->createTables();
+  }
+};
 
 namespace Wt {
   namespace Dbo {
@@ -76,53 +90,11 @@ namespace Wt {
   }
 }
 
-
 BOOST_AUTO_TEST_CASE( performance_test )
 {
-#ifdef SQLITE3
-  dbo::backend::Sqlite3 connection(":memory:");
-  connection.setDateTimeStorage(dbo::SqlDateTime,
-				dbo::backend::Sqlite3::UnixTimeAsInteger);
-#endif // SQLITE3
+  DboBenchmarkFixture f;
 
-#ifdef POSTGRES
-  dbo::backend::Postgres connection
-    ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
-#endif // POSTGRES
-
-
-#ifdef MYSQL
-    dbo::backend::MySQL connection("wt_test_db", "test_user",
-                                   "test_pw", "localhost", 3306);
-#endif // MYSQL
-
-#ifdef FIREBIRD
-    std::string file;
-#ifdef WT_WIN32
-    file = "C:\\opt\\db\\firebird\\wt_test.fdb";
-#else
-    file = "/opt/db/firebird/wt_test.fdb";
-#endif
-
-  dbo::backend::Firebird connection("localhost", 
-				    file, 
-				    "test_user", "test_pwd", 
-				    "", "", "");
-#endif // FIREBIRD
-
-  // connection.setProperty("show-queries", "true");
-
-  dbo::Session session;
-  session.setConnection(connection);
-
-  session.mapClass<Perf::Post>("post");
-
-  try {
-    session.dropTables();
-  } catch (...) {
-  }
-
-  session.createTables();
+  dbo::Session &session = *(f.session_);
 
   dbo::Transaction t(session);
 
@@ -130,7 +102,7 @@ BOOST_AUTO_TEST_CASE( performance_test )
   const std::string text = "some text?";
 
   std::cerr << "Loading " << total_objects << " objects in database."
-	    << std::endl;
+            << std::endl;
   for (unsigned i = 0; i < total_objects; ++i) {
     Perf::Post *p = new Perf::Post();
 
@@ -172,8 +144,8 @@ BOOST_AUTO_TEST_CASE( performance_test )
   boost::posix_time::time_duration d = end - start;
 
   std::cerr << "Took: " << (double)d.total_microseconds() / 1000 / times
-	    << " ms per 500 selects." << std::endl;
+            << " ms per 500 selects." << std::endl;
 
-  session.dropTables();
+  //session.dropTables();
 }
 

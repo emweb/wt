@@ -335,6 +335,15 @@
       <legend>Example</legend>
       ${HBoxLayout}
       ${src HBoxLayout}
+      <p>
+	The coloring for this and the following examples are provided
+	by a stylesheet that you need to load using
+	<tt>WApplication::useStyleSheet()</tt>:
+      </p>
+      <fieldset class="src">
+	<legend>CSS</legend>
+	${tr:src-layout}
+      </fieldset>
     </fieldset>
 
     <p>
@@ -1350,6 +1359,23 @@
     </fieldset>
 
     <p><a href="#text-editors">Top</a></p>
+
+    <h3 id="spin-box">Input masks</h3>
+    <p>
+      A user may be steered to providing correct input by providing an
+      input mask. The input mask indicates the expected format and
+      constrains the user to provide data only in the expected format.
+    </p>
+    <p>
+      In the example below we use an input mask to ask the user to
+      enter an IP address.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${InputMask}
+      ${src InputMask}
+    </fieldset>
 
     <h3 id="edit-options">Prepended and appended inputs</h3>
     <p>

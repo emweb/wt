@@ -20,6 +20,7 @@
 #include <Wt/Dbo/Field>
 #include <Wt/Dbo/Query>
 #include <Wt/Dbo/Transaction>
+#include <Wt/Dbo/SqlConnection>
 
 namespace Wt {
   namespace Dbo {
@@ -42,7 +43,7 @@ enum FlushMode {
 };
 
 class Call;
-class SqlConnection;
+//class SqlConnection;
 class SqlConnectionPool;
 class SqlStatement;
 template <typename Result, typename BindStrategy> class Query;
@@ -404,6 +405,10 @@ public:
   void setFlushMode(FlushMode mode) { flush(); flushMode_ = mode; }
 
 private:
+
+  mutable std::string longlongType_;
+  mutable std::string intType_;
+  mutable bool haveSupportUpdateCascade_;
   Session(const Session& s);
 
   typedef boost::multi_index::multi_index_container<
@@ -498,7 +503,8 @@ private:
   ClassRegistry classRegistry_;
   TableRegistry tableRegistry_;
   bool schemaInitialized_;
-  bool useRowsFromTo_;
+  mutable  LimitQuery limitQueryMethod_;
+  mutable bool requireSubqueryAlias_;
 
   MetaDboBaseSet dirtyObjects_;
   std::vector<MetaDboBase*> objectsToAdd_;

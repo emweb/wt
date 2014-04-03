@@ -6,10 +6,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Postgres>
-#include <Wt/Dbo/backend/MySQL>
-#include <Wt/Dbo/backend/Sqlite3>
-#include <Wt/Dbo/backend/Firebird>
 #include <Wt/Dbo/FixedSqlConnectionPool>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
@@ -20,11 +16,13 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
+#include "DboFixture.h"
+
 //#define SCHEMA "test."
 #define SCHEMA ""
 
-//#define DEBUG(x) x
-#define DEBUG(x)
+#define DEBUG(x) x
+//#define DEBUG(x)
 
 namespace dbo = Wt::Dbo;
 
@@ -70,11 +68,38 @@ namespace Wt {
     void field(Action& action, Coordinate& coordinate, const std::string& name,
 	       int size = -1)
     {
-      field(action, coordinate.x, name + "_x");
-      field(action, coordinate.y, name + "_y");
+      field(action, coordinate.x, name + "_x", 1000);
+      field(action, coordinate.y, name + "_y", 1000);
     }
   }
 }
+
+struct DboFixture : DboFixtureBase
+{
+  DboFixture() :
+    DboFixtureBase()
+  {
+    session_->mapClass<A>(SCHEMA "table_a");
+    session_->mapClass<B>(SCHEMA "table_b");
+    session_->mapClass<C>(SCHEMA "table_c");
+    session_->mapClass<D>(SCHEMA "table_d");
+
+    try {
+      session_->dropTables();
+    } catch (...) {
+    }
+
+    std::cout << "   -------------end of droping ---------------*****--------- ---   -----  ---**" << std::endl;
+
+    std::cerr << session_->tableCreationSql() << std::endl;
+
+    //session_->dropTables();
+
+    session_->createTables();
+
+    Wt::registerType<Coordinate>();
+  }
+};
 
 namespace Wt {
   namespace Dbo {
@@ -205,6 +230,20 @@ public:
             << std::endl);
     }
 
+    std::cout << "time = " << time.toString("hh:mm:ss.zzz") << " ; " << other.time.toString("hh:mm:ss.zzz") << std::endl;
+    std::cout << "string = " << string << " ; " << other.string << std::endl;
+    std::cout << "wstring = " << wstring.toUTF8() << " ; " << other.wstring.toUTF8() << std::endl;
+    std::cout << "date = " << date.toString() << " ; " << other.date.toString() << std::endl;
+    std::cout << "datetime = " << datetime.toString() << " ; " << other.datetime.toString() << std::endl;
+    std::cout << "i = " << i << " ; " << other.i << std::endl;
+    std::cout << "i64 = " << i64 << " ; " << other.i64 << std::endl;
+    std::cout << "ll = " << ll << " ; " << other.ll << std::endl;
+    std::cout << "f = " << f << " ; " << other.f << std::endl;
+    std::cout << "d = " << d << " ; " << other.d << std::endl;
+    std::cout << "b = " << b << " ; " << other.b << std::endl;
+    std::cout << "dthing = " << dthing << " ; " << other.dthing << std::endl;
+    std::cout << "parent = " << parent << " ; " << other.parent << std::endl;
+
     return date == other.date
       && (time == other.time || !fractionalSeconds)
       && datetime == other.datetime
@@ -291,7 +330,7 @@ public:
   void persist(Action& a)
   {
     dbo::field(a, state, "state");
-    dbo::field(a, name, "name");
+    dbo::field(a, name, "name", 1000);
 
     dbo::hasMany(a, asManyToOne, dbo::ManyToOne, "b");
     dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_b",
@@ -325,7 +364,7 @@ public:
   template <class Action>
   void persist(Action& a)
   {
-    dbo::field(a, name, "name");
+    dbo::field(a, name, "name", 1000);
 
     dbo::belongsTo(a, b, "b2");
 
@@ -356,108 +395,11 @@ public:
   void persist(Action& a)
   {
     dbo::id(a, id, "id");
-    dbo::field(a, name, "name");
+    dbo::field(a, name, "name", 1000);
 
     dbo::hasMany(a, asManyToOne, dbo::ManyToOne);
     dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "c_d");
   }
-};
-
-struct DboFixture
-{
-  DboFixture()
-  {
-    static bool logged = false;
-    dbo::SqlConnection *connection;
-
-#ifdef SQLITE3
-    if (!logged) {
-      std::cerr << "DboTest.C created a Sqlite3 connector" << std::endl;
-      logged = true;
-    }
-
-    dbo::backend::Sqlite3 *sqlite3 = new dbo::backend::Sqlite3(":memory:");
-    sqlite3->setDateTimeStorage(dbo::SqlDate,
-				dbo::backend::Sqlite3::JulianDaysAsReal);
-    connection = sqlite3;
-#endif // SQLITE3
-
-#ifdef POSTGRES
-    if (!logged) {
-      std::cerr << "DboTest.C created a Postgres connector" << std::endl;
-      logged = true;
-    }
-
-    connection = new dbo::backend::Postgres
-      ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
-#endif // POSTGRES
-
-#ifdef MYSQL
-    if (!logged) {
-      std::cerr << "DboTest.C created a MySQL connector" << std::endl;
-      logged = true;
-    }
-
-    fractionalSeconds = false;
-    connection = new dbo::backend::MySQL("wt_test_db", "test_user",
-                                            "test_pw", "localhost", 3306);
-#endif // MYSQL
-
-#ifdef FIREBIRD
-    // gsec.exe -user sysdba -pass masterkey
-    // add test_user -pw test_pwd
-    // isql.exe
-    // create database 'C:\opt\db\firebird\wt_test.fdb' user 'test_user' password 'test_pwd'
-    std::string file;
-#ifdef WT_WIN32
-    file = "C:\\opt\\db\\firebird\\wt_test.fdb";
-#else
-    file = "/opt/db/firebird/wt_test.fdb";
-#endif
-
-    if (!logged) {
-      std::cerr << "DboTest.C created a Firebird connector" << std::endl;
-      logged = true;
-    }
-
-    connection = new dbo::backend::Firebird ("localhost", 
-					     file, 
-					     "test_user", "test_pwd", 
-					     "", "", "");
-#endif // FIREBIRD
-
-    connection->setProperty("show-queries", "true");
-
-    connectionPool_ = new dbo::FixedSqlConnectionPool(connection, 5);
-
-    session_ = new dbo::Session();
-    session_->setConnectionPool(*connectionPool_);
-
-
-    session_->mapClass<A>(SCHEMA "table_a");
-    session_->mapClass<B>(SCHEMA "table_b");
-    session_->mapClass<C>(SCHEMA "table_c");
-    session_->mapClass<D>(SCHEMA "table_d");
-
-    std::cerr << session_->tableCreationSql() << std::endl;
-
-    //session_->dropTables();
-
-    session_->createTables();
-
-    Wt::registerType<Coordinate>();
-  }
-
-  ~DboFixture()
-  {
-    session_->dropTables();
-
-    delete session_;
-    delete connectionPool_;
-  }
-
-  dbo::SqlConnectionPool *connectionPool_;
-  dbo::Session *session_;
 };
 
 BOOST_AUTO_TEST_CASE( dbo_test1 )
@@ -479,6 +421,7 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
 #endif //MYSQL
 
   a1.wstring = "Hello";
+
   a1.wstring2 = Wt::WString::fromUTF8("Kitty euro\xe2\x82\xac greek \xc6\x94");
   a1.string = "There";
   a1.string2 = "Big Owl";
@@ -900,7 +843,8 @@ BOOST_AUTO_TEST_CASE( dbo_test4b )
 #if !defined(FIREBIRD) && !defined(MYSQL)
     dbo::Query<ABC> q = session_->query<ABC>
       ("select A, B, C " 
-       "from \"table_a\" A join \"table_b\" B on (A.\"b_id\" = B.\"id\") join \"table_c\" C on (C.\"b2_id\" = B.\"id\")").orderBy("A.\"wstring\", B.\"name\", C.\"name\"");
+       "from \"table_a\" A join \"table_b\" B on (A.\"b_id\" = B.\"id\") join \"table_c\" C on (C.\"b2_id\" = B.\"id\")")
+        .orderBy("A.\"id\"");
 
     C_ABCs c_abcs = q.resultList();
     ABCs abcs(c_abcs.begin(), c_abcs.end());
@@ -1019,9 +963,9 @@ BOOST_AUTO_TEST_CASE( dbo_test4c )
     dbo::Query<ABC> q = session_->query<ABC>
       ("select A, B, C "
        "from \"table_a\" A "
-       "left join \"table_b\" as B on A.\"b_id\" = B.\"id\" "
-       "left join \"table_c\" as C on A.\"table_c_id\" = C.\"id\"")
-      .orderBy("A.\"wstring\"");
+       "left join \"table_b\" B on A.\"b_id\" = B.\"id\" "
+       "left join \"table_c\" C on A.\"table_c_id\" = C.\"id\"")
+      .orderBy("A.\"id\"");
 
     C_ABCs c_abcs = q.resultList();
     ABCs abcs(c_abcs.begin(), c_abcs.end());
@@ -1169,13 +1113,15 @@ BOOST_AUTO_TEST_CASE( dbo_test7 )
   dbo::Session *session_ = f.session_;
 
 #ifndef FIREBIRD
+#ifndef ORACLE //todo: ask koen http://stackoverflow.com/questions/1881853/oracle-select-without-from
   {
     dbo::Transaction t(*session_);
 
-    std::string result = session_->query<std::string>("select 'dima '' ? '");
+    std::string result = session_->query<std::string > ("select 'dima '' ? '");
     BOOST_REQUIRE(result == "dima ' ? ");
   }
-#endif //FIREBIRD
+#endif // ORACLE
+#endif //FIREBIRD 
 
   int aId = -1;
   {
@@ -1345,6 +1291,8 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
 
     bool caught = false;
     try {
+      std::cerr << "The test was - check that we fail gracefully when inserting "
+	"an object with a duplicate ID (search try{)."<< std::endl;
       t.commit();
     } catch (std::exception& e) {
       std::cerr << "Catching exception: " << e.what() << std::endl;
@@ -1352,6 +1300,15 @@ BOOST_AUTO_TEST_CASE( dbo_test10 )
     }
 
     BOOST_REQUIRE(caught);
+
+    t.rollback();
+
+    {
+      dbo::Transaction t2(*session_);
+
+      dbo::ptr<D> d3 = session_->find<D>();
+      BOOST_REQUIRE(d3.id() == Coordinate(42, 43));
+    }
   }
 
   bool caught = false;
@@ -1769,8 +1726,8 @@ BOOST_AUTO_TEST_CASE( dbo_test17 )
 
     dbo::ptr<B> b = a->b;
     a.modify()->b.reset(); // 1
+    a.remove(); // 3 (a belongs to b)
     b.remove(); // 2
-    a.remove(); // 3
   }
 #endif //!FIREBIRD && !MYSQL
 }
@@ -1839,7 +1796,8 @@ BOOST_AUTO_TEST_CASE( dbo_test20 )
 {
   DboFixture f;
 
-#ifndef FIREBIRD
+  // Oracle does not support: " select 1 " (must have from)
+#if !defined(FIREBIRD) && !defined(ORACLE)
   {
     dbo::Session *session_ = f.session_;
 
@@ -1850,7 +1808,7 @@ BOOST_AUTO_TEST_CASE( dbo_test20 )
     model->addAllFieldsAsColumns();
 
     std::cerr << model->columnCount() << std::endl
-	      << model->rowCount() << std::endl;
+              << model->rowCount() << std::endl;
     std::cerr << Wt::asString(model->data(0, 0)) << std::endl;
 
     delete model;

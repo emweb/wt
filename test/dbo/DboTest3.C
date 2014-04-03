@@ -7,15 +7,13 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Postgres>
-#include <Wt/Dbo/backend/MySQL>
-#include <Wt/Dbo/backend/Sqlite3>
-#include <Wt/Dbo/backend/Firebird>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
 #include <Wt/WTime>
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/Dbo/ptr_tuple>
+
+#include "DboFixture.h"
 
 #include <string>
 namespace dbo = Wt::Dbo;
@@ -74,62 +72,23 @@ public:
         }
 };
 
-
-struct Dbo3Fixture
+struct Dbo3Fixture : DboFixtureBase
 {
-  Dbo3Fixture()
+  Dbo3Fixture() :
+    DboFixtureBase()
   {
-#ifdef SQLITE3
-    connection_ = new dbo::backend::Sqlite3(":memory:");
-#endif // SQLITE3
-
-#ifdef POSTGRES
-    connection_ = new dbo::backend::Postgres
-        ("user=postgres_test password=postgres_test port=5432 dbname=wt_test");
-#endif // POSTGRES
-
-#ifdef MYSQL
-    connection_ = new dbo::backend::MySQL("wt_test_db", "test_user",
-                                          "test_pw", "localhost", 3306);
-#endif // MYSQL
-#ifdef FIREBIRD
-    std::string file;
-#ifdef WT_WIN32
-    file = "C:\\opt\\db\\firebird\\wt_test.fdb";
-#else
-    file = "/opt/db/firebird/wt_test.fdb";
-#endif
-
-    connection_ = new dbo::backend::Firebird ("localhost",
-                                              file,
-                                              "test_user", "test_pwd",
-                                              "", "", "");
-#endif // FIREBIRD
-
-    connection_->setProperty("show-queries", "true");
-
-    session_ = new dbo::Session();
-    session_->setConnection(*connection_);
-
-    // Really short names required here to make firebird test
-    // succeed (max 31 char identifiers)
     session_->mapClass<Customer>("c");
     session_->mapClass<CustomerAddress>("ca");
     session_->mapClass<FuncTest>(FuncTest::TableName());
 
+    try {
+      session_->dropTables(); //todo:remove
+    } catch (...) {
+    }
+    std::cout << "-------------------------- end of drop ----------------------*********" << std::endl;
+
     session_->createTables();
   }
-
-  ~Dbo3Fixture()
-  {
-    session_->dropTables();
-
-    delete session_;
-    delete connection_;
-  }
-
-  dbo::SqlConnection *connection_;
-  dbo::Session *session_;
 };
 
 BOOST_AUTO_TEST_CASE( dbo3_test2 )
@@ -183,7 +142,7 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
   BOOST_REQUIRE(tupe.get<0>() == 6);
 
   // NOTE: can fail w/valgrind due to precision of emulated floating point
-  BOOST_REQUIRE(tupe.get<1>() == 6.6);
+  BOOST_REQUIRE(std::abs(tupe.get<1>() - 6.6) < 0.001);
 
   double d = session.query<double>(std::string(
           "SELECT SUM(\"doubleC\" * \"intC\") as sc FROM \"") +

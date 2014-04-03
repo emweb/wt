@@ -7,6 +7,8 @@
 #include "Wt/Dbo/SqlConnection"
 #include "Wt/Dbo/SqlStatement"
 #include "Wt/Dbo/Exception"
+#include "SqlConnection"
+#include <boost/lexical_cast.hpp>
 
 #include <cassert>
 
@@ -86,6 +88,11 @@ bool SqlConnection::usesRowsFromTo() const
   return false;
 }
 
+LimitQuery SqlConnection::limitQueryMethod() const
+{
+  return Limit;
+}
+
 bool SqlConnection::supportAlterTable() const
 {
   return false;
@@ -106,14 +113,33 @@ bool SqlConnection::showQueries() const
   return property("show-queries") == "true";
 }
 
-const char *SqlConnection::textType() const
+std::string SqlConnection::textType(int size) const
 {
-  return "text";
+  if (size == -1)
+    return "text";
+  else{
+    return "varchar(" + boost::lexical_cast<std::string>(size) + ")";
+  }
+}
+
+std::string SqlConnection::longLongType() const
+{
+  return "bigint";
 }
 
 const char *SqlConnection::booleanType() const
 {
   return "boolean";
+}
+
+bool SqlConnection::supportUpdateCascade() const
+{
+  return true;
+}
+
+bool SqlConnection::requireSubqueryAlias() const
+{
+  return false;
 }
 
 void SqlConnection::prepareForDropTables()

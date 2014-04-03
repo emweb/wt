@@ -303,7 +303,15 @@ std::string WMediaPlayer::jsPlayerRef() const
 
 void WMediaPlayer::play()
 {
-  playerDo("play");
+  if (isRendered()) {
+    /*
+     * play is being delayed so that other changes (e.g. addSource() are
+     * reflected first, see #2819
+     */
+    doJavaScript("setTimeout(function(){" + jsPlayerRef() 
+		 + ".jPlayer('play'); }, 0);");
+  } else
+    playerDo("play");
 }
 
 void WMediaPlayer::pause()

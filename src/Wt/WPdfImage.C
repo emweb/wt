@@ -20,6 +20,7 @@
 #include "ImageUtils.h"
 #include "WebUtils.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <hpdf.h>
 #ifdef WT_WIN32

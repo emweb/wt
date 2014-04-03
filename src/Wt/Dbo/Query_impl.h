@@ -29,7 +29,7 @@ completeQuerySelectSql(const std::string& sql,
 		       const std::string& orderBy,
 		       int limit, int offset,
 		       const std::vector<FieldInfo>& fields,
-		       bool useRowsFromTo);
+		       LimitQuery useRowsFromTo);
 
 extern std::string WTDBO_API
 createQuerySelectSql(const std::string& from,
@@ -38,10 +38,10 @@ createQuerySelectSql(const std::string& from,
 		     const std::string& orderBy,
 		     int limit, int offset,
 		     const std::vector<FieldInfo>& fields,
-		     bool useRowsFromTo);
+		     LimitQuery useRowsFromTo);
 
 extern std::string WTDBO_API
-createWrappedQueryCountSql(const std::string& query);
+createWrappedQueryCountSql(const std::string& query, bool requireSubqueryAlias);
 
 extern std::string WTDBO_API
 createQueryCountSql(const std::string& query,
@@ -50,7 +50,8 @@ createQueryCountSql(const std::string& query,
 		    const std::string& groupBy,
 		    const std::string& orderBy,
 		    int limit, int offset,
-		    bool useRowsFromTo);
+		    LimitQuery useRowsFromTo,
+                    bool requireSubqueryAlias);
 
 extern void WTDBO_API
 substituteFields(const SelectFieldList& list,
@@ -132,15 +133,17 @@ QueryBase<Result>::statements(const std::string& where,
     std::vector<FieldInfo> fs = this->fields();
     sql = Impl::createQuerySelectSql(sql_, where, groupBy, orderBy,
 				     limit, offset, fs,
-				     this->session_->useRowsFromTo_);
+				     this->session_->limitQueryMethod_);
     statement = this->session_->getOrPrepareStatement(sql);
 
     if (simpleCount_)
       sql = Impl::createQueryCountSql(sql, sql_, where, groupBy, orderBy,
 				      limit, offset,
-				      this->session_->useRowsFromTo_);
+				      this->session_->limitQueryMethod_,
+                                      this->session_->requireSubqueryAlias_);
     else
-      sql = Impl::createWrappedQueryCountSql(sql);
+      sql = Impl::createWrappedQueryCountSql(sql,
+                                          this->session_->requireSubqueryAlias_);
 
     countStatement = this->session_->getOrPrepareStatement(sql);
   } else {
@@ -162,7 +165,7 @@ QueryBase<Result>::statements(const std::string& where,
 
     sql = Impl::completeQuerySelectSql(sql, where, groupBy, orderBy,
 				       limit, offset, fs,
-				       this->session_->useRowsFromTo_);
+				       this->session_->limitQueryMethod_);
 
     statement = this->session_->getOrPrepareStatement(sql);
 
@@ -170,9 +173,11 @@ QueryBase<Result>::statements(const std::string& where,
       std::string from = sql_.substr(selectFieldLists_.front().back().end);
       sql = Impl::createQueryCountSql(sql, from, where, groupBy, orderBy,
 				      limit, offset,
-				      this->session_->useRowsFromTo_);
+				      this->session_->limitQueryMethod_,
+                                      this->session_->requireSubqueryAlias_);
     } else
-      sql = Impl::createWrappedQueryCountSql(sql);
+      sql = Impl::createWrappedQueryCountSql(sql,
+                                         this->session_->requireSubqueryAlias_);
 
     countStatement = this->session_->getOrPrepareStatement(sql);
   }
@@ -504,7 +509,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
   for (unsigned i = 0; i < parameters_.size(); ++i)
     parameters_[i]->bind(binder);
 
-  if (!this->session_->useRowsFromTo_) {
+  if (this->session_->limitQueryMethod_ == Limit) {
     if (limit_ != -1) {
       int v = limit_;
       field(binder, v, "limit");
@@ -514,13 +519,23 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
       int v = offset_;
       field(binder, v, "offset");
     }
-  } else {
+  } else if (this->session_->limitQueryMethod_ == RowsFromTo){
     if (limit_ != -1 || offset_ != -1) {
       int from = offset_ == -1 ? 1 : offset_ + 1;
       field(binder, from, "from");
 
       int to = (limit_ == -1) ? (1 << 30) : (from + limit_ - 1);
       field(binder, to, "to");
+    }
+  } else {//this->session_->limitQueryMethod_ == Rownum
+    if (limit_ != -1){
+      int v = limit_;
+      field(binder, v, "rownum");
+    }
+
+    if (offset_ != -1){
+      int v = offset_;
+      field(binder, v, "rownum2");
     }
   }
 }

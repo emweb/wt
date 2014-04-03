@@ -101,7 +101,7 @@ protected:
   virtual std::string jsMinMaxStep() const = 0;
   virtual int decimals() const = 0;
   virtual bool parseNumberValue(const std::string& text) = 0;
-  virtual WString textFromValue() const = 0;
+  virtual WT_USTRING textFromValue() const = 0;
   virtual WValidator *createValidator() = 0; // for nativeControl
   virtual WValidator::Result validateRange() const = 0;
 

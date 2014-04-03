@@ -14,6 +14,7 @@ TopicTemplate::TopicTemplate(const char *trKey)
   : Wt::WTemplate(tr(trKey))
 {
   setInternalPathEncoding(true);
+  addFunction("tr", &Functions::tr);
 
 #ifndef WT_TARGET_JAVA
   setCondition("if:cpp", true);

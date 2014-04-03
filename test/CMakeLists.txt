@@ -66,6 +66,13 @@ IF(HAVE_MYSQL)
   MESSAGE("** Testing Wt::Dbo using Mysql backend")
 ENDIF(HAVE_MYSQL)
 
+IF(HAVE_ORACLE)
+  ADD_EXECUTABLE(       test.oracle ${DBO_TEST_SOURCES})
+  TARGET_LINK_LIBRARIES(test.oracle wt wttest wtdbo wtdbooracle)
+  SET_TARGET_PROPERTIES(test.oracle PROPERTIES COMPILE_FLAGS "-DORACLE")
+  MESSAGE("** Testing Wt::Dbo using Oracle backend")
+ENDIF(HAVE_ORACLE)
+
 IF(HAVE_FIREBIRD)
   ADD_EXECUTABLE(       test.firebird ${DBO_TEST_SOURCES})
   TARGET_LINK_LIBRARIES(test.firebird wt wttest wtdbo wtdbofirebird)

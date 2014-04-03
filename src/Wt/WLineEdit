@@ -187,6 +187,87 @@ public:
    */
   virtual void setValueText(const WT_USTRING& value);
 
+  /*! \brief Returns the input mask.
+   *
+   * \sa setInputMask()
+   */
+  WT_USTRING inputMask() const;
+
+  /*! \brief Sets the input mask.
+   *
+   * If no input mask is supplied, or the given input mask
+   * is empty, no input mask is applied.
+   *
+   * The following characters can be used in the input mask:
+   * <table>
+   *  <tr><th>Character</th>  <th>Description</th></tr>
+   *  <tr><td>A</td>
+   *      <td>ASCII alphabetic character: A-Z, a-z (required)</td></tr>
+   *  <tr><td>a</td>
+   *      <td>ASCII alphabetic character: A-Z, a-z (optional)</td></tr>
+   *  <tr><td>N</td>
+   *      <td>ASCII alphanumeric character: A-Z, a-z, 0-9 (required)</td></tr>
+   *  <tr><td>n</td>
+   *      <td>ASCII alphanumeric character: A-Z, a-z, 0-9 (optional)</td></tr>
+   *  <tr><td>X</td><td>Any character (required)</td></tr>
+   *  <tr><td>x</td><td>Any character (optional)</td></tr>
+   *  <tr><td>9</td><td>Digit: 0-9 (required)</td></tr>
+   *  <tr><td>0</td><td>Digit: 0-9 (optional)</td></tr>
+   *  <tr><td>D</td><td>Nonzero digit: 1-9 (required)</td></tr>
+   *  <tr><td>d</td><td>Nonzero digit: 1-9 (optional)</td></tr>
+   *  <tr><td>#</td><td>Digit or sign: 0-9, -, + (required)</td></tr>
+   *  <tr><td>H</td>
+   *      <td>Hexadecimal character: A-F, a-f, 0-9 (required)</td></tr>
+   *  <tr><td>h</td>
+   *      <td>Hexadecimal character: A-F, a-f, 0-9 (optional)</td></tr>
+   *  <tr><td>B</td><td>Binary digit: 0-1 (required)</td></tr>
+   *  <tr><td>b</td><td>Binary digit: 0-1 (optional)</td></tr>
+   * </table>
+   * The distinction between required and optional characters won't be
+   * apparent on the client side, but will affect the result of validate().
+   *
+   * There are also a few special characters, that won't be checked against,
+   * but modify the value in some way:
+   * <table>
+   *  <tr><th>Character</th><th>Description</th></tr>
+   *  <tr><td>&gt;</td><td>The following characters are uppercased</td></tr>
+   *  <tr><td>&lt;</td><td>The following characters are lowercased</td></tr>
+   *  <tr><td>!</td>
+   *      <td>The casing of the following characters remains the same</td></tr>
+   * </table>
+   * A backslash ('\\') can be used to escape any of the mask characters
+   * or modifiers, so that they can be used verbatim in the input mask.
+   *
+   * If the mask ends with a semicolon (';') followed by a character,
+   * this character will be used on the client side to display spaces.
+   * This defaults to the space (' ') character. The space character will be
+   * removed from the value of this %WLineEdit.
+   *
+   * Examples:
+   * <table>
+   *  <tr><th>Input mask</th><th>Notes</th></tr>
+   *  <tr><td><pre>009.009.009.009;_</pre></td>
+   *      <td>IP address. Spaces are denoted by '_'. Will validate if there
+   *          is at least one digit per segment.</td></tr>
+   *  <tr><td><pre>9999-99-99</pre></td>
+   *      <td>Date, in yyyy-MM-dd notation. Spaces are denoted by ' '.
+   *          Will validate if all digits are filled in.</td></tr>
+   *  <tr><td><pre>>HH:HH:HH:HH:HH:HH;_</pre></td>
+   *      <td>MAC address. Spaces are denoted by '_'. Will validate if all
+   *          hexadecimal characters are filled in. All characters will be
+   *          formatted in uppercase.</td></tr>
+   * </table>
+   *
+   * Input masks are enforced by JavaScript on the client side.
+   * Without JavaScript or using setText(), however, non-compliant
+   * strings can be entered. This does not result in an error: any
+   * non-compliant characters will be removed from the input and this
+   * action will be logged.
+   */
+  void setInputMask(const WT_USTRING &mask = "");
+
+  virtual WValidator::State validate();
+
 private:
   WT_USTRING content_;
   int        textSize_;
@@ -201,6 +282,33 @@ private:
   static const int BIT_AUTOCOMPLETE_CHANGED  = 4;
 
   std::bitset<5> flags_;
+  
+  static const std::string SKIPPABLE_MASK_CHARS;
+
+  bool maskChanged_;
+  std::string  mask_;
+#if !defined(WT_NO_STD_WSTRING) && !defined(WT_TARGET_JAVA)
+  std::wstring inputMask_;
+  std::wstring raw_;
+  wchar_t      spaceChar_;
+#else
+  std::string inputMask_;
+  std::string raw_;
+  char	       spaceChar_;
+#endif
+  std::string  case_;
+  bool javaScriptDefined_;
+
+  WT_USTRING inputText(const WT_USTRING& text) const;
+  void processInputMask();
+#if !defined(WT_NO_STD_WSTRING) && !defined(WT_TARGET_JAVA)
+  bool acceptChar(wchar_t chr, size_t position) const;
+#else
+  bool acceptChar(char chr, size_t position) const;
+#endif
+  void defineJavaScript();
+  void connectJavaScript(Wt::EventSignalBase&s, const std::string& methodName);
+  bool validateInputMask() const;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);
@@ -212,6 +320,8 @@ protected:
 
   virtual int boxPadding(Orientation orientation) const;
   virtual int boxBorder(Orientation orientation) const;
+
+  virtual void render(WFlags<RenderFlag> flags);
 };
 
 }

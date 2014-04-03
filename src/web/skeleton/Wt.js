@@ -1512,7 +1512,12 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
 	break;
       }
 
+      // e.g. a layout widget has clientHeight=0 since it's relative
+      // with only absolutely positioned children. We are a bit more liberal
+      // here to catch other simular situations, and 100px seems like space
+      // needed anyway?
       if (WT.css(p, 'display') != 'inline' &&
+	  p.clientHeight > 100 &&
 	  (p.scrollHeight > p.clientHeight ||
 	   p.scrollWidth > p.clientWidth)) {
 	break;

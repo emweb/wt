@@ -70,7 +70,6 @@ struct DirectBinding { };
 struct DynamicBinding { };
 
 class Session;
-class SqlConnection;
 
 /*! \class Query Wt/Dbo/Query Wt/Dbo/Query
  *  \brief A database query.

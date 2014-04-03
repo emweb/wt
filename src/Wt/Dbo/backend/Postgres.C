@@ -612,9 +612,9 @@ Postgres::autoincrementDropSequenceSql(const std::string &table,
   return std::vector<std::string>();
 }
 
-std::string Postgres::autoincrementInsertSuffix() const
+std::string Postgres::autoincrementInsertSuffix(const std::string& id) const
 {
-  return " returning ";
+  return " returning \"" + id + "\"";
 }
   
 const char *Postgres::dateTimeType(SqlDateTimeType type) const

@@ -104,7 +104,7 @@ protected:
   virtual std::string jsMinMaxStep() const;
   virtual int decimals() const;
   virtual bool parseNumberValue(const std::string& text);
-  virtual WString textFromValue() const;
+  virtual WT_USTRING textFromValue() const;
   virtual WValidator *createValidator();
   virtual WValidator::Result validateRange() const;
 

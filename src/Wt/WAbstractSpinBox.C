@@ -58,6 +58,10 @@ void WAbstractSpinBox::setNativeControl(bool nativeControl)
 bool WAbstractSpinBox::nativeControl() const
 {
   if (preferNative_) {
+    if (!WLineEdit::inputMask().empty()) {
+      return false;
+    }
+
     const WEnvironment& env = WApplication::instance()->environment();
     if ((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
 	|| (env.agentIsSafari() && env.agent() >= WEnvironment::Safari4)

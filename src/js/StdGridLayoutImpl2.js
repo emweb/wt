@@ -117,12 +117,20 @@ WT_DECLARE_WT_MEMBER
      var l, p;
 
      /* Allow accurate width measurement for widget with offset */
-     if (dir == HORIZONTAL &&
-	 (scrollSize + WT.pxself(element, DC.left) > widget.clientWidth)) {
-       l = element.style[DC.left];
-       setCss(element, DC.left, NA_px);
+     if (dir == HORIZONTAL) {
+       /*
+	* Somehow, Firefox more correctly does not ignore parent width...
+	*/
+       var offLeft = WT.pxself(element, DC.left);
+       if (scrollSize + offLeft > widget.clientWidth ||
+	   (scrollSize + offLeft == widget.clientWidth &&
+	    WT.isGecko &&
+	    widget.parentNode.parentNode.style.visibility === 'hidden')) {
+	 l = element.style[DC.left];
+	 setCss(element, DC.left, NA_px);
        
-       scrollSize = dir ? element.scrollHeight : element.scrollWidth;
+	 scrollSize = dir ? element.scrollHeight : element.scrollWidth;
+       }
      }
 
      var clientSize = dir ? element.clientHeight : element.clientWidth;
@@ -730,7 +738,7 @@ WT_DECLARE_WT_MEMBER
       * has changed (or force).
       */
 
-     if (parent) {
+     if (parent && parentItemWidget.id) {
        var piw = WT.$(parentItemWidget.id);
        if (piw) {
 	 if (parentItemWidget != piw) {

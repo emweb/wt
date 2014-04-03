@@ -23,8 +23,8 @@
 
 #define BYTEAOID 17
 
-//#define DEBUG(x) x
 #define DEBUG(x)
+//#define DEBUG(x) x
 
 namespace Wt {
   namespace Dbo {
@@ -136,6 +136,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, const std::string& value)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " "
             << value << std::endl);
 
@@ -158,6 +161,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, short value)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " "
             << value << std::endl);
       short * data = (short *)malloc(sizeof(short));
@@ -172,6 +178,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, int value)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " "
             << value << std::endl);
       int * data = (int *)malloc(sizeof(int));
@@ -185,6 +194,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, long long value)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " "
             << value << std::endl);
       long long * data = (long long *)malloc(sizeof(long long));
@@ -211,6 +223,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, double value)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " "
             << value << std::endl);
       double * data = (double *)malloc(sizeof(double));
@@ -225,6 +240,9 @@ class MySQLStatement : public SqlStatement
     virtual void bind(int column, const boost::posix_time::ptime& value,
                       SqlDateTimeType type)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " "
             << boost::posix_time::to_simple_string(value) << std::endl);
 
@@ -264,6 +282,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, const boost::posix_time::time_duration& value)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " "
             << boost::posix_time::to_simple_string(value) << std::endl);
 
@@ -292,6 +313,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, const std::vector<unsigned char>& value)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
             value.size() << ")" << std::endl);
 
@@ -317,6 +341,9 @@ class MySQLStatement : public SqlStatement
 
     virtual void bindNull(int column)
     {
+      if (in_pars_ == 0)
+        throw MySQLException(std::string("Try to bind too much?"));
+
       DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
 
       freeColumn(column);
@@ -959,7 +986,7 @@ std::string MySQL::autoincrementSql() const
   return "AUTO_INCREMENT";
 }
 
-std::string MySQL::autoincrementInsertSuffix() const
+std::string MySQL::autoincrementInsertSuffix(const std::string &id) const
 {
   return std::string();
 }

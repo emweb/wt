@@ -107,14 +107,13 @@ namespace Wt {
 	  autoincrementDropSequenceSql(const std::string &table,
 				       const std::string &id) const;
         virtual std::string autoincrementType() const;
-        virtual std::string autoincrementInsertSuffix() const;
+        virtual std::string autoincrementInsertSuffix(const std::string& id) const;
         virtual const char *dateTimeType(SqlDateTimeType type) const;
         virtual const char *blobType() const;
         virtual const char *textType() const;
 	virtual const char *booleanType() const;
-        virtual bool usesRowsFromTo() const;
+	virtual LimitQuery limitQueryMethod() const;
 	virtual bool supportAlterTable() const;
-
 	//@}
  
 	virtual void prepareForDropTables();

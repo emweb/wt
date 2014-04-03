@@ -115,7 +115,7 @@ WValidator *WSpinBox::createValidator()
   return validator;
 }
 
-WString WSpinBox::textFromValue() const
+WT_USTRING WSpinBox::textFromValue() const
 {
   if (nativeControl())    
     return WLocale::currentLocale().toString(value_);
@@ -124,7 +124,7 @@ WString WSpinBox::textFromValue() const
       + WLocale::currentLocale().toString(value_).toUTF8()
       + suffix().toUTF8();
 
-    return WString::fromUTF8(text);
+    return WT_USTRING::fromUTF8(text);
   }
 }
 

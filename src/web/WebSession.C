@@ -1718,7 +1718,8 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	if (!closing) {
 	  handler.setRequest(message, (WebResponse *)(message));
 	  lock->handleRequest(handler);
-	}
+	} else
+	  delete message;
 
 	if (lock->dead()) {
 	  closing = true;

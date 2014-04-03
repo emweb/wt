@@ -124,23 +124,21 @@ WValidator *WDoubleSpinBox::createValidator()
   return validator;
 }
 
-WString WDoubleSpinBox::textFromValue() const
+WT_USTRING WDoubleSpinBox::textFromValue() const
 {
   std::string result = WLocale::currentLocale().toFixedString(value_, precision_).toUTF8();
 
   if (!nativeControl())
     result = prefix().toUTF8() + result + suffix().toUTF8();
 
-  return WString::fromUTF8(result);
+  return WT_USTRING::fromUTF8(result);
 }
 
 bool WDoubleSpinBox::parseNumberValue(const std::string& text)
 {
   try {
-    char buf[30];
-
     if (textFromValue().toUTF8() != text) // to prevent loss of precision
-      value_ = WLocale::currentLocale().toDouble(WString::fromUTF8(text));
+      value_ = WLocale::currentLocale().toDouble(WT_USTRING::fromUTF8(text));
 
     return true;
   } catch (boost::bad_lexical_cast &e) {

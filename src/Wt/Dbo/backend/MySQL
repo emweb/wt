@@ -108,7 +108,7 @@ public:
   //@{
   virtual std::string autoincrementSql() const;
   virtual std::string autoincrementType() const;
-  virtual std::string autoincrementInsertSuffix() const;
+  virtual std::string autoincrementInsertSuffix(const std::string& id) const;
   virtual std::vector<std::string>
     autoincrementCreateSequenceSql(const std::string &table,
                                    const std::string &id) const;
@@ -120,6 +120,7 @@ public:
   virtual const char *blobType() const;
   virtual bool supportAlterTable() const;
   virtual const char *alterTableConstraintString() const;
+  virtual bool requireSubqueryAlias() const {return true;}
   //@}
 
   /*! \brief Returns the supported fractional seconds part
@@ -143,7 +144,6 @@ public:
   * \sa setFractionalSecondsPart()
   */
   void setFractionalSecondsPart(int fractionalSecondsPart);
-
 
 private:
   std::string dbname_;

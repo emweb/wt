@@ -83,6 +83,7 @@ Wt::WWidget *FormWidgets::introduction()
 
 
 #include "examples/LineEdit.cpp"
+#include "examples/InputMask.cpp"
 #include "examples/LineEditEvent.cpp"
 #include "examples/TextArea.cpp"
 #include "examples/TextEdit.cpp"
@@ -98,6 +99,7 @@ Wt::WWidget *FormWidgets::textEditors()
   result->bindWidget("TextEdit", TextEdit());
   result->bindWidget("SpinBox", SpinBox());
   result->bindWidget("TextSide", TextSide());
+  result->bindWidget("InputMask", InputMask());
 
   // Show the XML-template as text
   result->bindString("lineEdit-template", reindent(tr("lineEdit-template")),
