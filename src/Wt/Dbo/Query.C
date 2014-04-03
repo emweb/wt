@@ -144,7 +144,7 @@ std::string createWrappedQueryCountSql(const std::string& query,
 				       bool requireSubqueryAlias)
 {
   if (requireSubqueryAlias)
-    return "select count(1) from (" + query + ") as dbocount";
+    return "select count(1) from (" + query + ") dbocount";
   else
     return "select count(1) from (" + query + ")";
 }

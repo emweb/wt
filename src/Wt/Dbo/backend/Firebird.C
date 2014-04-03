@@ -638,9 +638,9 @@ namespace Wt
 	impl_->m_tra->Rollback();
       }
       
-      const char *Firebird::textType() const
+      std::string Firebird::textType(int size) const
       {
-	return "blob sub_type text";
+        return std::string("blob sub_type text");
       }
 
       const char *Firebird::booleanType() const
@@ -655,7 +655,7 @@ namespace Wt
       
       LimitQuery Firebird::limitQueryMethod() const
       {
-	return RowsFromTo;
+        return RowsFromTo;
       }
 
       bool Firebird::supportAlterTable() const

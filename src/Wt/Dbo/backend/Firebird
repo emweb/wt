@@ -110,10 +110,11 @@ namespace Wt {
         virtual std::string autoincrementInsertSuffix(const std::string& id) const;
         virtual const char *dateTimeType(SqlDateTimeType type) const;
         virtual const char *blobType() const;
-        virtual const char *textType() const;
-	virtual const char *booleanType() const;
+        virtual std::string textType(int size) const;
+        virtual const char *booleanType() const;
 	virtual LimitQuery limitQueryMethod() const;
 	virtual bool supportAlterTable() const;
+        virtual bool usesRowsFromTo() const {return false;}
 	//@}
  
 	virtual void prepareForDropTables();

@@ -527,7 +527,7 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
       int to = (limit_ == -1) ? (1 << 30) : (from + limit_ - 1);
       field(binder, to, "to");
     }
-  } else {//this->session_->limitQueryMethod_ == Rownum
+  } else if (this->session_->limitQueryMethod_ == Rownum){
     if (limit_ != -1){
       int v = limit_;
       field(binder, v, "rownum");

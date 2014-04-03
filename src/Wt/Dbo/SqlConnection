@@ -31,7 +31,8 @@ enum SqlDateTimeType {
 enum LimitQuery{
       Limit,
       RowsFromTo,
-      Rownum
+      Rownum,
+      NotSupported
 };
 
 class SqlStatement;

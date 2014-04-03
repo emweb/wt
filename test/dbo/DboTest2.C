@@ -217,6 +217,9 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
       userNum--;
     }
 
+#ifndef FIREBIRD
+
+
     Users usersOffset =
       session.find<User > ().orderBy("\"name\" desc").limit(7).offset(3);
 
@@ -229,21 +232,20 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
       BOOST_REQUIRE(user->name.compare(os.str()) == 0);
       userNum--;
     }
-  }
+#endif //FIREBIRD
 
+  }
   /*
    * Check that we fail gracefully when tying to bind too much
    */
   {
     dbo::Session& session = *f.session_;
-    dbo::Transaction transactionBindToMach(session);
+    dbo::Transaction transactionBindTooMuch(session);
     
     bool caught = false;
     try {
-      std::cerr << "The test was - check that we fail gracefully when tying to "
-        "bind to mach (search try{)" << std::endl;
-      Users allUsers2 = session.find<User > ().bind("Joe");
-      transactionBindToMach.commit();
+      Users allUsers2 = session.find<User>().bind("Joe");
+      transactionBindTooMuch.commit();
     } catch (std::exception& e) {
       std::cerr << "Catching exception: " << std::endl;
       std::cerr << "Catching exception: " << e.what() << std::endl;
@@ -254,11 +256,11 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
   }
 
   /*
-   *Test bind 2 strings with different size
+   * Test bind 2 strings with different size
    */
   {
     dbo::Session& session = *f.session_;
-    dbo::Transaction transactionBindToMach(session);
+    dbo::Transaction transactionBindTooMuch(session);
 
     User *sn = new User();
     sn->name = "sn";
@@ -270,11 +272,9 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
       s+="longname";
     ln->name = s;
     session.add(ln);
-
   }
 
   //test OnDeleteCascade
-
   {
     dbo::Transaction transaction2(session);
 

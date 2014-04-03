@@ -89,8 +89,6 @@ struct DboFixture : DboFixtureBase
     } catch (...) {
     }
 
-    std::cout << "   -------------end of droping ---------------*****--------- ---   -----  ---**" << std::endl;
-
     std::cerr << session_->tableCreationSql() << std::endl;
 
     //session_->dropTables();
@@ -1834,4 +1832,124 @@ BOOST_AUTO_TEST_CASE( dbo_test21 )
 
     delete model;
   }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test22a )
+{
+#ifdef POSTGRES
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  Wt::WDateTime datetime1 = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+                                          Wt::WTime(12, 11, 31));
+
+  {
+    dbo::Transaction t(*session_);
+    session_->execute("SET TIME ZONE \"America/New_York\"");
+
+    dbo::ptr<A> a1(new A());
+    a1.modify()->datetime = datetime1;
+
+    session_->add(a1);
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a2 = session_->find<A>();
+
+    BOOST_REQUIRE(a2->datetime == datetime1);
+  }
+#endif //POSTGRES
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test22b )
+{
+#ifdef POSTGRES
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  Wt::WDateTime datetime1 = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+                                          Wt::WTime(12, 11, 31));
+
+  {
+    dbo::Transaction t(*session_);
+    session_->execute("SET TIME ZONE \"Europe/Brussels\"");
+
+    dbo::ptr<A> a1(new A());
+    a1.modify()->datetime = datetime1;
+
+    session_->add(a1);
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a2 = session_->find<A>();
+
+    BOOST_REQUIRE(a2->datetime == datetime1);
+  }
+#endif //POSTGRES
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test22c )
+{
+#ifdef POSTGRES
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  Wt::WDateTime datetime1 = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+                                          Wt::WTime(12, 11, 31));
+
+  {
+    dbo::Transaction t(*session_);
+    session_->execute("ALTER TABLE table_a ALTER COLUMN datetime "
+        "TYPE TIMESTAMP WITH TIME ZONE" );
+    session_->execute("SET TIME ZONE \"America/New_York\"");
+
+    dbo::ptr<A> a1(new A());
+    a1.modify()->datetime = datetime1;
+
+    session_->add(a1);
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a2 = session_->find<A>();
+
+    BOOST_REQUIRE(a2->datetime == datetime1);
+  }
+#endif //POSTGRES
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test22d )
+{
+#ifdef POSTGRES
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  Wt::WDateTime datetime1 = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+                                          Wt::WTime(12, 11, 31));
+
+  {
+    dbo::Transaction t(*session_);
+    session_->execute("ALTER TABLE table_a ALTER COLUMN datetime "
+        "TYPE TIMESTAMP WITH TIME ZONE" );
+    session_->execute("SET TIME ZONE \"Europe/Brussels\"");
+
+    dbo::ptr<A> a1(new A());
+    a1.modify()->datetime = datetime1;
+
+    session_->add(a1);
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<A> a2 = session_->find<A>();
+
+    BOOST_REQUIRE(a2->datetime == datetime1);
+  }
+#endif //POSTGRES
 }

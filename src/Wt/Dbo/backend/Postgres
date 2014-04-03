@@ -101,6 +101,7 @@ public:
   virtual const char *blobType() const;
   virtual bool supportAlterTable() const;
   virtual bool supportDeferrableFKConstraint() const;
+  virtual bool requireSubqueryAlias() const;
   //@}
 
 private:

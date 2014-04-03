@@ -78,7 +78,7 @@ struct DboFixtureBase
       logged = true;
     }
 
-    connection = new dbo::backend::Firebird ("localhost", 
+    connection = new dbo::backend::Firebird ("vendetta",
 					     file, 
 					     "test_user", "test_pwd", 
 					     "", "", "");
@@ -94,7 +94,11 @@ struct DboFixtureBase
 
   ~DboFixtureBase()
   {
-    session_->dropTables();
+    try {
+      session_->dropTables();
+    } catch (...) {
+
+    }
 
     delete session_;
     delete connectionPool_;
