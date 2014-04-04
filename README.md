@@ -1,7 +1,3 @@
-Status
-------
-Currently has build issues on NetBsd and I cannot find any way to report bugs.
-
 What is Wt ?
 ------------
 
@@ -57,6 +53,11 @@ Generic instructions for [Unix-like
 platforms](http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html)
 or [Windows
 platforms](http://www.webtoolkit.eu/wt/doc/reference/html/InstallationWindows.html).
+
+Bug Reporting
+-------------
+Bugs can be reported here
+http://redmine.webtoolkit.eu/projects/wt/issues/new
 
 Demos, examples
 ---------------
