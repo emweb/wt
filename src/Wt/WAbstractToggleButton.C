@@ -180,6 +180,8 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
    * kept on the interior element.
    */
   if (&element != input) {
+    if (element.properties().find(PropertyClass) != element.properties().end())
+      input->addPropertyWord(PropertyClass, element.getProperty(PropertyClass));
     element.setProperties(input->properties());
     input->clearProperties();
 

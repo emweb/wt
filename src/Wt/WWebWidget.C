@@ -1245,15 +1245,12 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       if (layoutImpl_->zIndex_ > 0) {
 	element.setProperty(PropertyStyleZIndex,
 		    boost::lexical_cast<std::string>(layoutImpl_->zIndex_));
-	element.setProperty(PropertyClass,
-			    Utils::addWord(element.getProperty(PropertyClass),
-					   "Wt-popup"));
+	element.addPropertyWord(PropertyClass, "Wt-popup");
 	if (!all &&
 	    !flags_.test(BIT_STYLECLASS_CHANGED) &&
 	    lookImpl_ && !lookImpl_->styleClass_.empty())
-	  element.setProperty(PropertyClass,
-			      Utils::addWord(element.getProperty(PropertyClass),
-					     lookImpl_->styleClass_.toUTF8()));
+	  element.addPropertyWord(PropertyClass,
+				  lookImpl_->styleClass_.toUTF8());
 
 	if (!app) app = WApplication::instance();
 	if (all && app->environment().agent() == WEnvironment::IE6
@@ -1484,9 +1481,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
     if (all || flags_.test(BIT_STYLECLASS_CHANGED))
       if (!all || !lookImpl_->styleClass_.empty())
-	element.setProperty(PropertyClass,
-			    Utils::addWord(element.getProperty(PropertyClass),
-					   lookImpl_->styleClass_.toUTF8()));
+	element.addPropertyWord(PropertyClass, lookImpl_->styleClass_.toUTF8());
 
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
@@ -1525,15 +1520,11 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   if (all || flags_.test(BIT_SELECTABLE_CHANGED)) {
     if (flags_.test(BIT_SET_UNSELECTABLE)) {
-      element.setProperty(PropertyClass,
-			  Utils::addWord(element.getProperty(PropertyClass),
-					 "unselectable"));
+      element.addPropertyWord(PropertyClass, "unselectable");
       element.setAttribute("unselectable", "on");
       element.setAttribute("onselectstart", "return false;");
     } else if (flags_.test(BIT_SET_SELECTABLE)) {
-      element.setProperty(PropertyClass,
-			  Utils::addWord(element.getProperty(PropertyClass),
-					 "selectable"));
+      element.addPropertyWord(PropertyClass, "selectable");
       element.setAttribute("unselectable", "off");
       element.setAttribute("onselectstart",
 			   "event.cancelBubble=true; return true;");
