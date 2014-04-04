@@ -1,3 +1,7 @@
+Status
+------
+Currently has build issues on NetBsd and I cannot find any way to report bugs.
+
 What is Wt ?
 ------------
 
