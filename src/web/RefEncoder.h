@@ -4,7 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef REF_ENCODER_H
+#ifndef REF_ENCODER_H_
 #define REF_ENCODER_H_
 
 #include <Wt/WFlags>
