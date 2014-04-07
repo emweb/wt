@@ -4,7 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef XSS_FILTER_H
+#ifndef XSS_FILTER_H_
 #define XSS_FILTER_H_
 
 namespace Wt {
