@@ -129,7 +129,7 @@ WT_DECLARE_WT_MEMBER
      stepValue = aStep;
      precision = aPrecision;
 
-     var Validator = isDoubleSpinBox ? WT.WDoubleValidator : WT.WIntValidator;
+     var Validator = isDoubleSpinBox || WT.WIntValidator === undefined ? WT.WDoubleValidator : WT.WIntValidator;
 
      validator = new Validator(true, minValue, maxValue,
 			       NaNError, NaNError,

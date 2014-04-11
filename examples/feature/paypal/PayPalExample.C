@@ -67,7 +67,6 @@ private:
   Wt::WDialog *dialog_;
   Wt::WText *dialogText_;
   Wt::WPushButton *dialogCancelButton_;
-  Wt::WGridLayout *outputTable_;
 
   void reviewOrder()
   {

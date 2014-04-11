@@ -22,6 +22,8 @@ public:
   void addPanel(Wt::WPanel *panel);
   void removePanel(Wt::WPanel *panel);
 
+  using WContainerWidget::addWidget;
+
 private:
   void onExpand(bool notUndo);
 

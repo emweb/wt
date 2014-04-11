@@ -398,7 +398,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       /*
        * Connection
        */
-      if (closeConnection_) {
+      if (closeConnection_ && request_.webSocketVersion < 0) {
 	buf_ << "Connection: close\r\n";
       } else {
 	if (http10) {

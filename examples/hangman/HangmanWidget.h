@@ -12,8 +12,6 @@
 
 #include <Wt/WContainerWidget>
 
-#include "Dictionary.h"
-
 class Session;
 class WordWidget;
 class ImagesWidget;
@@ -40,7 +38,6 @@ private:
   Wt::Signal<int>                scoreUpdated_;
 
   std::string                    name_;
-  Dictionary                     dictionary_;
 
   int                            badGuesses_;
   

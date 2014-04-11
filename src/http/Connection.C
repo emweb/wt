@@ -25,31 +25,6 @@
 #include "Server.h"
 #include "WebController.h"
 
-/*
- * We need a re-design:
- *   Connection has a request parser and a read-callback
- *   After each read operation:
- *    - request parser is used to determine state
- *    - read-callback is cleared, and called with state.
- *      this may update read-callback and write callback
- *    - when a read or write callback is set:
- *      start write operation -> request parser -> write callback
- *      start write operation -> write callback
- *      these may update read-callback and write callback
- *    - when not reading or writing: we may finish the request or wait for more
- *      new events may be posted out of the blue by setting a callback (and data)
- *   Most important change: callbacks are set to the Connection, and the
- *   request parser is no longer in charge.
- */
-
-/*
- * Reply holds Connection shared_ptr
- *   When we get an error during read body / write response
- *      we indicate that to the reply which should result in a ~HttpRequest
- *   I/O to a closed connection:
- *      we indicate that to the reply which should result in a ~HttpRequest
- */
-
 namespace Wt {
   LOGGER("wthttp/async");
 }

@@ -14,13 +14,14 @@ namespace Wt {
 
 WDoubleSpinBox::WDoubleSpinBox(WContainerWidget *parent)
   : WAbstractSpinBox(parent),
+    setup_(false),
     value_(-1),
     min_(0.0),
     max_(99.99),
     step_(1.0),
     precision_(2),
     valueChanged_(this)
-{ 
+{
   setValidator(createValidator());
   setValue(0.0);
 }
@@ -78,7 +79,7 @@ void WDoubleSpinBox::setDecimals(int decimals)
   setText(textFromValue());
 }
 
-std::string WDoubleSpinBox::jsMinMaxStep() const 
+std::string WDoubleSpinBox::jsMinMaxStep() const
 {
   return boost::lexical_cast<std::string>(min_) + ","
     + boost::lexical_cast<std::string>(max_) + ","

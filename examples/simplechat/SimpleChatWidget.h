@@ -93,7 +93,6 @@ private:
   Wt::WText            *statusMsg_;
 
   Wt::WContainerWidget *messages_;
-  Wt::WContainerWidget *messageEditArea_;
   Wt::WTextArea        *messageEdit_;
   Wt::WPushButton      *sendButton_;
   Wt::WContainerWidget *userList_;

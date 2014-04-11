@@ -93,7 +93,10 @@ const std::vector<unsigned char> WMemoryResource::data() const
     data = data_;
   }
 
-  return *data;
+  if (!data)
+    return std::vector<unsigned char>();
+  else
+    return *data;
 }
 
 void WMemoryResource::handleRequest(const Http::Request& request,
@@ -106,6 +109,9 @@ void WMemoryResource::handleRequest(const Http::Request& request,
 #endif
     data = data_;
   }
+
+  if (!data)
+    return;
 
   response.setMimeType(mimeType_);
 

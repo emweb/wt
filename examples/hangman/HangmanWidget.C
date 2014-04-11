@@ -13,6 +13,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Session.h"
+#include "Dictionary.h"
 #include "WordWidget.h"
 #include "ImagesWidget.h"
 #include "LettersWidget.h"

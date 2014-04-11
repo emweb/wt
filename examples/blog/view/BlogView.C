@@ -47,7 +47,6 @@ public:
     : basePath_(basePath),
       rssFeedUrl_(rssFeedUrl),
       session_(connectionPool),
-      blogView_(blogView),
       panel_(0),
       authorPanel_(0),
       users_(0),
@@ -117,7 +116,6 @@ public:
 private:
   std::string basePath_, rssFeedUrl_;
   BlogSession session_;
-  BlogView   *blogView_;
   BlogLoginWidget *loginWidget_;
 
   WStackedWidget* panel_;

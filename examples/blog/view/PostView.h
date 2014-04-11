@@ -56,6 +56,8 @@ private:
   void rm();
 
   void setState(Post::State state);
+
+  using WWebWidget::render;
 };
 
 #endif // POST_VIEW_H_

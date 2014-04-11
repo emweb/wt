@@ -45,7 +45,6 @@ private:
   Wt::Signal<void> done_;
   int start_;
   int stop_;
-  unsigned msec_;
 
   int current_;
 
