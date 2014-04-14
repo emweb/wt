@@ -1770,7 +1770,7 @@ bool WWebWidget::needsToBeRendered() const
 }
 
 bool WWebWidget::setFirstFocus() {
-  for (int i = 0; i < children().size(); i++)
+  for (unsigned i = 0; i < children().size(); i++)
     if (children()[i]->setFirstFocus())
       return true;
 

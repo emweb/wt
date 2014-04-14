@@ -123,6 +123,7 @@ public:
   void setNumThreads(int threads);
 #endif // WT_TARGET_JAVA
 
+  const std::vector<MetaHeader>& metaHeaders() const { return metaHeaders_; }
   SessionPolicy sessionPolicy() const;
   int numProcesses() const;
   int numThreads() const;
@@ -239,6 +240,7 @@ private:
   bool            webglDetection_;
 
   std::vector<BootstrapEntry> bootstrapConfig_;
+  std::vector<MetaHeader> metaHeaders_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

@@ -100,7 +100,6 @@ void WDatePicker::create(WInteractWidget *displayWidget,
 
   displayWidget->clicked().connect(popup_, &WWidget::show);
   displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
-  displayWidget->clicked().preventPropagation();
 
   if (!forEdit_->validator())
     forEdit_->setValidator(new WDateValidator(format_, this));

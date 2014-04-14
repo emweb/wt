@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <set>
+
 #include "Wt/WDateTime"
 #include "Wt/WEnvironment"
 #include "Wt/WStatelessSlot"
@@ -20,7 +21,9 @@ class WebRequest;
 class WebResponse;
 class WebStream;
 class DomElement;
+class EscapeOStream;
 class FileServe;
+class MetaHeader;
 
 class WApplication;
 class WWidget;

@@ -499,8 +499,20 @@
          By default, Wt will test for cookie support using JavaScript.
 	 Because cookie manipulation from JavaScript is a common security
 	 risk vector, some prefer to disable these checks.
-	-->
+
+	 -->
 	<cookie-checks>true</cookie-checks>
+
+	<!-- Configure meta headers
+
+         The user-agent allows optional filtering based on the
+         user-agent, using a regular expression. You can have multiple
+         set-meta-headers definitions.
+
+	 -->
+	<meta-headers user-agent=".*MSIE.*">
+	  <meta name="robots" content="noindex" />
+	</meta-headers>
 
 	<!-- Runtime Properties
      

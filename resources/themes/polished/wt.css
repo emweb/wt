@@ -474,6 +474,12 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     border: 1px inset #CCC;
 }
 
+.Wt-btn[disabled] {
+    border: 1px outset #CCC;
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
 .Wt-btn-default {
     font-weight: bold;
     border: 1px outset #37E;

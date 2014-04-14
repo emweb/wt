@@ -30,12 +30,6 @@
 #endif
 
 namespace {
-  std::string toUpper(const std::string& s) {
-    std::string result = s;
-    std::transform(result.begin(), result.end(), result.begin(), toupper);
-    return result;
-  }
-
   void HPDF_STDCALL error_handler(HPDF_STATUS   error_no,
 		                  HPDF_STATUS   detail_no,
 		                  void         *user_data) {

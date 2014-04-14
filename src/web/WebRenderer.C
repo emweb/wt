@@ -11,6 +11,7 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WRandom"
+#include "Wt/WRegExp"
 #include "Wt/WWebWidget"
 #include "Wt/WStringStream"
 #include "Wt/WTheme"
@@ -1754,32 +1755,75 @@ void WebRenderer::learningIncomplete()
 std::string WebRenderer::headDeclarations() const
 {
   EscapeOStream result;
+ 
+  const Configuration& conf = session_.env().server()->configuration();
+
+  const std::vector<MetaHeader>& confMetaHeaders = conf.metaHeaders();
+  std::vector<MetaHeader> metaHeaders;
+
+  for (unsigned i = 0; i < confMetaHeaders.size(); ++i) {
+    const MetaHeader& m = confMetaHeaders[i];
+
+    bool add = true;
+    if (!m.userAgent.empty()) {
+      WT_USTRING s = WT_USTRING::fromUTF8(session_.env().userAgent());
+      WRegExp expr(WT_USTRING::fromUTF8(m.userAgent));
+      if (!expr.exactMatch(s))
+	add = false;
+    }
+
+    if (add)
+      metaHeaders.push_back(confMetaHeaders[i]);
+  }
 
   if (session_.app()) {
-    for (unsigned i = 0; i < session_.app()->metaHeaders_.size(); ++i) {
-      const WApplication::MetaHeader& m = session_.app()->metaHeaders_[i];
+    const std::vector<MetaHeader>& appMetaHeaders
+      = session_.app()->metaHeaders_;
 
-      result << "<meta";
+    for (unsigned i = 0; i < appMetaHeaders.size(); ++i) {
+      const MetaHeader& m = appMetaHeaders[i];
 
-      if (!m.name.empty()) {
-	std::string attribute;
-	switch (m.type) {
-	case MetaName: attribute = "name"; break;
-	case MetaProperty: attribute = "property"; break;
-	case MetaHttpHeader: attribute = "http-equiv"; break;
+      bool add = true;
+      for (unsigned j = 0; j < metaHeaders.size(); ++j) {
+	MetaHeader& m2 = metaHeaders[j];
+
+	if (m.type == m2.type && m.name == m2.name) {
+	  m2.content = m.content;
+	  add = false;
+	  break;
 	}
-
-	appendAttribute(result, attribute, m.name);
       }
 
-      if (!m.lang.empty())
-	appendAttribute(result, "lang", m.lang);
-
-      appendAttribute(result, "content", m.content.toUTF8());
-
-      closeSpecial(result);
+      if (add)
+	metaHeaders.push_back(m);
     }
-    
+  }
+
+  for (unsigned i = 0; i < metaHeaders.size(); ++i) {
+    const MetaHeader& m = metaHeaders[i];
+
+    result << "<meta";
+
+    if (!m.name.empty()) {
+      std::string attribute;
+      switch (m.type) {
+      case MetaName: attribute = "name"; break;
+      case MetaProperty: attribute = "property"; break;
+      case MetaHttpHeader: attribute = "http-equiv"; break;
+      }
+
+      appendAttribute(result, attribute, m.name);
+    }
+
+    if (!m.lang.empty())
+      appendAttribute(result, "lang", m.lang);
+
+    appendAttribute(result, "content", m.content.toUTF8());
+
+    closeSpecial(result);
+  }
+
+  if (session_.app()) {
     for (unsigned i = 0; i < session_.app()->metaLinks_.size(); ++i) {
       const WApplication::MetaLink& ml = session_.app()->metaLinks_[i];
 
@@ -1807,7 +1851,6 @@ std::string WebRenderer::headDeclarations() const
        *          progressive boot.
        */
       if (session_.env().agent() < WEnvironment::IE9) {
-	const Configuration& conf = session_.env().server()->configuration(); 
 	bool selectIE7 = conf.uaCompatible().find("IE8=IE7")
 	  != std::string::npos;
 

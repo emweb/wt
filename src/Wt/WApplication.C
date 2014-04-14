@@ -44,16 +44,18 @@ const WtLibVersion WT_INCLUDED_VERSION = WtLibVersion();
 
 const char *WApplication::RESOURCES_URL = "resourcesURL";
 
+MetaHeader::MetaHeader(MetaHeaderType aType,
+		       const std::string& aName,
+		       const WString& aContent,
+		       const std::string& aLang,
+		       const std::string& aUserAgent)
+  : type(aType), name(aName), lang(aLang), userAgent(aUserAgent),
+    content(aContent)
+{ }
+
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
 					   const std::string& aSymbol)
   : uri(anUri), symbol(aSymbol)
-{ }
-
-WApplication::MetaHeader::MetaHeader(MetaHeaderType aType,
-				     const std::string& aName,
-				     const WString& aContent,
-				     const std::string& aLang)
-  : type(aType), name(aName), lang(aLang), content(aContent)
 { }
 
 WApplication::MetaLink::MetaLink(const std::string &aHref,
@@ -1103,7 +1105,8 @@ void WApplication::addMetaHeader(MetaHeaderType type,
   }
 
   if (!content.empty())
-    metaHeaders_.push_back(MetaHeader(type, name, content, lang));
+    metaHeaders_.push_back(MetaHeader(type, name, content, lang,
+				      std::string()));
 }
 
 void WApplication::removeMetaHeader(MetaHeaderType type,

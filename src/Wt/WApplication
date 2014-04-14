@@ -72,6 +72,25 @@ class SoundManager;
 typedef boost::function<WApplication* (const WEnvironment&)> ApplicationCreator;
 #endif // !WT_TARGET_JAVA
 
+#ifdef WT_TARGET_JAVA
+/*! \brief An HTML Meta Header
+ */
+#endif // WT_TARGET_JAVA
+struct MetaHeader {
+  /*! \brief Constructor
+   *
+   * Creates a meta header. The lang and user agents are optional, and should
+   * be an empty string if not used.
+   */
+  MetaHeader(MetaHeaderType type, const std::string& name,
+	     const WString& content, const std::string& lang,
+	     const std::string& userAgent);
+  
+  MetaHeaderType type;
+  std::string name, lang, userAgent;
+  WString content;
+};
+
 /*! \class WApplication Wt/WApplication Wt/WApplication
  *  \brief Represents an application instance for a single session.
  *
@@ -1642,33 +1661,36 @@ public:
 
   /*! \brief Adds an HTML meta header.
    *
-   * A meta header can only be added in the following situations:
-   *
-   * - when a plain HTML session is used (including when the user agent is a
-   *   bot), you can add meta headers at any time.
-   *
-   * - or, when \ref progressive_bootstrap "progressive bootstrap" is
-   *   used, you can set meta headers for any type of session, from
-   *   within the application constructor (which corresponds to the
-   *   initial request).
-   *
-   * - but never for a Wt::WidgetSet mode application since then the
-   *   application is hosted within a foreign HTML page.
-   *
-   * When a header was previously set for the same \p name, its
-   * contents is replaced.
-   *
-   * These situations coincide with WEnvironment::ajax()
-   * returning \c false (see environment()).
+   * \sa addMetaHeader(MetaHeaderType, const std::string&, const WString&, const std::string&)
    */
   void addMetaHeader(const std::string& name, const WString& content,
 		     const std::string& lang = "");
 
   /*! \brief Adds an HTML meta header.
    *
-   * This overloaded method allows to define both "name" meta headers,
-   * relating to document properties as well as "http-equiv" meta
-   * headers, which define HTTP headers.
+   * This method sets either a "name" meta headers, which configures a
+   * document property, or a "http-equiv" meta headers, which defines
+   * a HTTP headers (but these latter headers are being deprecated).
+   *
+   * A meta header can however only be added in the following situations:
+   *
+   * - when a plain HTML session is used (including when the user agent is a
+   *   bot), you can add meta headers at any time.
+   * - or, when \ref progressive_bootstrap "progressive bootstrap" is
+   *   used, you can set meta headers for any type of session, from
+   *   within the application constructor (which corresponds to the
+   *   initial request).
+   * - but never for a Wt::WidgetSet mode application since then the
+   *   application is hosted within a foreign HTML page.
+   *
+   * These situations coincide with WEnvironment::ajax() returning \c
+   * false (see environment()). The reason that it other cases the
+   * HTML page has already been rendered, and will not be rerendered
+   * since all updates are done dynamically.
+   *
+   * As an alternative, you can use the &lt;meta-headers&gt;
+   * configuration property in the configuration file, which will be
+   * applied in all circumstances.
    *
    * \sa removeMetaHeader()
    */
@@ -2101,15 +2123,6 @@ private:
     std::string uri, symbol, beforeLoadJS;
     bool operator< (const ScriptLibrary& other) const;
     bool operator== (const ScriptLibrary& other) const;
-  };
-
-  struct MetaHeader {
-    MetaHeader(MetaHeaderType type, const std::string& name,
-	       const WString& content, const std::string& lang);
-
-    MetaHeaderType type;
-    std::string name, lang;
-    WString content;
   };
 
   struct MetaLink {

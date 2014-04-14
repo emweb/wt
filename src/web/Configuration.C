@@ -813,6 +813,41 @@ void Configuration::readApplicationSettings(xml_node<> *app)
         properties_[name] = value;
     }
   }
+
+  std::vector<xml_node<> *> metaHeaders = childElements(app, "meta-headers");
+  for (unsigned i = 0; i < metaHeaders.size(); ++i) {
+    xml_node<> *metaHeader = metaHeaders[i];
+
+    std::string userAgent;
+    attributeValue(metaHeader, "user-agent", userAgent);
+
+    std::vector<xml_node<> *> metas = childElements(metaHeader, "meta");
+    for (unsigned j = 0; j < metas.size(); ++j) {
+      xml_node<> *meta = metas[j];
+      
+      std::string name, property, httpEquiv, content;
+      attributeValue(meta, "name", name);
+      attributeValue(meta, "http-equiv", httpEquiv);
+      attributeValue(meta, "property", property);
+      attributeValue(meta, "content", content);
+
+      MetaHeaderType type;
+      if (!name.empty())
+	type = MetaName;
+      else if (!httpEquiv.empty()) {
+	type = MetaHttpHeader;
+	name = httpEquiv;
+      } else if (!property.empty()) {
+	type = MetaProperty;
+	name = property;
+      } else {
+	throw WServer::Exception
+	  ("<meta> requires attribute 'name', 'property' or 'http-equiv'");
+      }
+
+      metaHeaders_.push_back(MetaHeader(type, name, content, "", userAgent));
+    }
+  }
 }
 
 void Configuration::rereadConfiguration()
