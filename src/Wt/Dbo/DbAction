@@ -232,7 +232,6 @@ public:
 private:
   Session& session_;
   bool success_;
-  int dummy_;
 };
 
 class WTDBO_API SessionAddAction : public DboAction

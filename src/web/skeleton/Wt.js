@@ -419,8 +419,10 @@ this.setHtml = function (el, html, add) {
   if (WT.isIE || (_$_INNER_HTML_$_ && !add)) {
     if (add)
       el.innerHTML += html;
-    else
+    else {
+      WT.saveReparented(el);
       el.innerHTML = html;
+    }
   } else {
     var d, b;
     d = new DOMParser();
@@ -429,8 +431,10 @@ this.setHtml = function (el, html, add) {
     if (d.nodeType != 1) // element
       d = d.nextSibling;
 
-    if (!add)
+    if (!add) {
+      WT.saveReparented(el);
       el.innerHTML = '';
+    }
 
     for (var i = 0, il = d.childNodes.length; i < il;)
       el.appendChild(myImportNode(d.childNodes[i++], true));

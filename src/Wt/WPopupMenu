@@ -36,7 +36,8 @@ namespace Wt {
  *
  * Alternatively, you can use one of the popup() methods to show the
  * menu and listen to the \link WPopupMenu::triggered
- * triggered\endlink signal where you read the result().
+ * triggered\endlink signal where you read the result(), or associate the
+ * menu with a button using WPushButton::setMenu().
  *
  * You have several options to react to the selection of an item:
  * - Either you use the WMenuItem itself to identify the action,

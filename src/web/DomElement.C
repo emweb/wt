@@ -1228,7 +1228,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       if (removeAllChildren_ >= 0) {
 	declare(out);
 	if (removeAllChildren_ == 0)
-	  out << var_ << ".innerHTML='';\n";
+	  out << WT_CLASS << ".setHtml(" << var_ << ", '');\n";
 	else {
 	  out << "$(" << var_ << ").children(':gt(" << (removeAllChildren_ - 1)
 	      << ")').remove();";

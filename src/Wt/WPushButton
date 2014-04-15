@@ -275,7 +275,16 @@ public:
    */
   AnchorTarget linkTarget() const { return linkState_.target; }
 
+  /*! \brief Links a popup menu to the button.
+   *
+   * When the button is clicked, the linked popup menu is shown.
+   */
   void setMenu(WPopupMenu *menu);
+
+  /*! \brief Returns an associated popup menu.
+   *
+   * \sa setMenu()
+   */
   WPopupMenu *menu() const { return popupMenu_; }
 
   virtual void refresh();
