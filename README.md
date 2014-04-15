@@ -54,6 +54,11 @@ platforms](http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html)
 or [Windows
 platforms](http://www.webtoolkit.eu/wt/doc/reference/html/InstallationWindows.html).
 
+Bug Reporting
+-------------
+Bugs can be reported here
+http://redmine.webtoolkit.eu/projects/wt/issues/new
+
 Demos, examples
 ---------------
 
