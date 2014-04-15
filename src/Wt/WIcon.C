@@ -58,7 +58,7 @@ void WIcon::updateDom(DomElement& element, bool all)
       sc = styleClass().toUTF8();
 
     if (!name_.empty())
-      sc = Utils::addWord(sc, "icon-" + name_);
+      sc = Utils::addWord(sc, "fa fa-" + name_);
 
     element.setProperty(PropertyClass, sc);
 
@@ -88,8 +88,6 @@ void WIcon::loadIconFont()
     + "font-awesome/";
   
   app->useStyleSheet(fontDir + "css/font-awesome.min.css");
-  if (app->environment().agentIsIElt(8))
-    app->useStyleSheet(fontDir + "css/font-awesome-ie7.min.css");      
 }
 
 }
