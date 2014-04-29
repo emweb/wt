@@ -393,6 +393,8 @@ private:
   void connectSignals();
   void setItemPadding(bool padding);
   void contentsDestroyed();
+  void setCheckBox();
+  void setUnCheckBox();
 
   friend class WMenu;
   friend class WPopupMenu;

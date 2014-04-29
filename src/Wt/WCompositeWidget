@@ -121,7 +121,9 @@ public:
   virtual WWebWidget *webWidget();
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText);
-  virtual const WString& toolTip() const;
+  virtual WString toolTip() const;
+  virtual void setDeferredToolTip(bool enable,
+                                  TextFormat textFormat = PlainText);
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);

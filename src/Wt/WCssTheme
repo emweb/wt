@@ -416,6 +416,8 @@ public:
    */
   virtual std::string activeClass() const;
 
+  virtual std::string utilityCssClass(int utilityCssClassRole) const;
+
   /*! \brief Returns whether the theme allows for an anchor to be styled
    *         as a button.
    *

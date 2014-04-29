@@ -679,13 +679,32 @@ public:
    *
    * When \p textFormat is XHTMLText, the tooltip may contain any valid
    * XHTML snippet. The tooltip will then be rendered using JavaScript.
+   *
+   * Note: This will set deferred tooltip to false.
+   *
+   * \sa setDeferredTooltip()
    */
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText) = 0;
 
   /*! \brief Returns the tooltip.
    */
-  virtual const WString& toolTip() const = 0;
+  virtual WString toolTip() const = 0;
+
+  /*! \brief Enable deferred tooltip.
+   *
+   *  You may override toolTip() to read data only when the user hovers over
+   *  the widget.
+   *
+   *  When \p textFormat is XHTMLText, the tooltip may contain any valid
+   *  XHTML snippet. The tooltip will then be rendered using JavaScript.
+   *
+   *  Note: To change existing toolTip call setDeferredToolTip() again.
+   *
+   *  \sa toolTip
+   */
+  virtual void setDeferredToolTip(bool enable,
+                                  TextFormat textFormat = PlainText) = 0;
 
   /*! \brief Refresh the widget.
    *

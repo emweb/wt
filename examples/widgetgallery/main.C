@@ -24,6 +24,8 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 	      << "!!!!!!!!!!" << std::endl;
   }
 
+  // app->setLayoutDirection(Wt::RightToLeft);
+
   // Choice of theme: defaults to bootstrap3 but can be overridden using
   // a theme parameter (for testing)
   const std::string *themePtr = env.getParameter("theme");

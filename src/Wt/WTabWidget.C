@@ -162,7 +162,7 @@ void WTabWidget::setTabToolTip(int index, const WString& tip)
   item->setToolTip(tip);
 }
 
-const WString& WTabWidget::tabToolTip(int index) const
+WString WTabWidget::tabToolTip(int index) const
 {
   WMenuItem *item = menu_->itemAt(index);
   return item->toolTip();

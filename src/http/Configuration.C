@@ -272,6 +272,11 @@ void Configuration::readOptions(const po::variables_map& vm)
   if (vm.count("docroot")) {
     docRoot_ = vm["docroot"].as<std::string>();
 
+    if (docRoot_ == "") {
+      throw Wt::WServer::Exception(
+        "Document root was not set, or was set to the empty path. "
+        "Use --docroot to set the HTML root directory.");
+    }
     Wt::Utils::SplitVector parts;
     boost::split(parts, docRoot_, boost::is_any_of(";"));
 

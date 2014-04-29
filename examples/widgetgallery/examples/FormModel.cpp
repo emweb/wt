@@ -375,7 +375,6 @@ private:
     }
 
     UserFormModel *model;
-    Wt::WComboBox *cityCB;
 };
 
 SAMPLE_BEGIN(FormModel)

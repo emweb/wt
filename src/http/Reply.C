@@ -170,13 +170,6 @@ void toText(S& stream, Reply::status_type status)
 
 } // namespace status_strings
 
-namespace misc_strings {
-
-const char name_value_separator[] = { ':', ' ' };
-const char crlf[] = { '\r', '\n' };
-
-} // namespace misc_strings
-
 Reply::Reply(const Request& request, const Configuration& config)
   : request_(request),
     configuration_(config),

@@ -11,6 +11,17 @@
 
 namespace Wt {
 
+WTableCell::WTableCell()
+  : WContainerWidget(0),
+    row_(0),
+    column_(0),
+    rowSpan_(1),
+    columnSpan_(1),
+    spanChanged_(false)
+{
+  contentAlignment_ = AlignLeft | AlignTop;
+}
+
 WTableCell::WTableCell(WTableRow *row, int column)
   : WContainerWidget(0),
     row_(row),

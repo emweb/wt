@@ -10,7 +10,7 @@
 #include "WebStream.h"
 #include "WebRequest.h"
 
-class FCGX_Request;
+struct FCGX_Request;
 
 namespace Wt {
 

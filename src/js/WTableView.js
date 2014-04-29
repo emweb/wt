@@ -410,15 +410,20 @@ WT_DECLARE_WT_MEMBER
 
      var scrollwidth = contentsContainer.offsetWidth
        - contentsContainer.clientWidth;
-     tw -= scrollwidth;
      tw -= headerColumnsContainer.clientWidth;
 
      if (tw > 200  // XXX: IE's incremental rendering foobars completely
          && (tw != contentsContainer.tw)) {
        contentsContainer.tw = tw;
 
-       contentsContainer.style.width = (tw + scrollwidth) + 'px';
+       contentsContainer.style.width = tw + 'px';
        headerContainer.style.width = tw + 'px';
+
+       var rtl = $(document.body).hasClass('Wt-rtl');
+       if (!rtl)
+	 headerContainer.style.marginRight = scrollwidth + 'px';
+       else
+	 headerContainer.style.marginLeft = scrollwidth + 'px';
      }
 
      var scrollheight = contentsContainer.offsetHeight

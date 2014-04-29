@@ -120,16 +120,21 @@ WT_DECLARE_WT_MEMBER
    this.setIsDoubleSpinBox = function(isDouble) {
      isDoubleSpinBox = isDouble;
 
-     this.update(minValue, maxValue, stepValue, precision);
-   }
+     this.configure(precision, prefix, suffix, minValue, maxValue, stepValue);
+   };
 
-   this.update = function(aMin, aMax, aStep, aPrecision) {
-     minValue = aMin;
-     maxValue = aMax;
-     stepValue = aStep;
-     precision = aPrecision;
+   this.configure = function(newPrecision, newPrefix, newSuffix,
+			     newMinValue, newMaxValue, newStepValue) {
+     precision = newPrecision;
+     prefix = newPrefix;
+     suffix = newSuffix;
+     minValue = newMinValue;
+     maxValue = newMaxValue;
+     stepValue = newStepValue;
 
-     var Validator = isDoubleSpinBox || WT.WIntValidator === undefined ? WT.WDoubleValidator : WT.WIntValidator;
+     var Validator = (isDoubleSpinBox || 
+		      typeof WT.WIntValidator === 'undefined') ? 
+       WT.WDoubleValidator : WT.WIntValidator;
 
      validator = new Validator(true, minValue, maxValue,
 			       NaNError, NaNError,
@@ -243,7 +248,7 @@ WT_DECLARE_WT_MEMBER
    this.setLocale = function(point, separator) {
      decimalPoint = point;
      groupSeparator = separator;
-   }
+   };
 
    /*
     * Customized validation function, called from WFormWidget
@@ -257,5 +262,5 @@ WT_DECLARE_WT_MEMBER
      return validator.validate(v);
    };
 
-   this.update(minValue, maxValue, stepValue, precision);
+   this.setIsDoubleSpinBox(isDoubleSpinBox);
  });

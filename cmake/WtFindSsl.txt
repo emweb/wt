@@ -10,11 +10,14 @@
 # with /MDd, and release with /MD. Apparently that is what CMake uses for
 # these modes; it is currently unclear to me if cmake ever uses /MT variants.
 
-FIND_PATH(SSL_INCLUDE_DIRS openssl/ssl.h
-  ${SSL_PREFIX}/include
-  /usr/include
-  /usr/local/include
-  c:/openssl/include
+FIND_PATH(SSL_INCLUDE_DIRS
+    openssl/ssl.h
+  PATHS
+    ${SSL_PREFIX}/include/
+    /usr/include/
+    /usr/local/include/
+    c:/openssl/include/
+  NO_DEFAULT_PATH
 )
 
 IF(WIN32)
@@ -99,10 +102,11 @@ ELSE (WIN32)
     NAMES
       ssl
     PATHS
-      /usr/lib
-      /usr/local/lib
       ${SSL_PREFIX}/lib
       ${SSL_PREFIX}/lib/VC
+      /usr/lib
+      /usr/local/lib
+    NO_DEFAULT_PATH
   )
 ENDIF (WIN32)
 

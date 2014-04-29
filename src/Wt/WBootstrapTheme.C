@@ -449,6 +449,18 @@ std::string WBootstrapTheme::activeClass() const
   return "active";
 }
 
+std::string WBootstrapTheme::utilityCssClass(int utilityCssClassRole) const
+{
+  switch (utilityCssClassRole) {
+  case ToolTipInner:
+    return "tooltip-inner";
+  case ToolTipOuter:
+    return "tooltip fade top in";
+  default:
+    return "";
+  }
+}
+
 bool WBootstrapTheme::canStyleAnchorAsButton() const
 {
   return true;
@@ -465,13 +477,11 @@ void WBootstrapTheme
   LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "setValidationState", wtjs2);
 
   if (app->environment().ajax()) {
-    int version = version_;
     WStringStream js;
     js << WT_CLASS ".setValidationState(" << widget->jsRef() << ","
        << (validation.state() == WValidator::Valid ? 1 : 0) << ","
        << validation.message().jsStringLiteral() << ","
-       << styles.value() << ","
-       << version<< ");";
+       << styles.value() << ");";
 
     widget->doJavaScript(js.str());
   } else {

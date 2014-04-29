@@ -75,6 +75,8 @@ Wt::WWidget *Layout::templates()
 #include "examples/TextXHTML.cpp"
 #include "examples/TextXSS.cpp"
 #include "examples/TextEvents.cpp"
+#include "examples/TextToolTip.cpp"
+#include "examples/TextDeferredToolTip.cpp"
 
 Wt::WWidget *Layout::text()
 {
@@ -84,6 +86,8 @@ Wt::WWidget *Layout::text()
   result->bindWidget("TextXHTML", TextXHTML());
   result->bindWidget("TextXSS", TextXSS());
   result->bindWidget("TextEvents", TextEvents());
+  result->bindWidget("TextToolTip", TextToolTip());
+  result->bindWidget("TextDeferredToolTip", TextDeferredToolTip());
 
   return result;
 }

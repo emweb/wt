@@ -136,7 +136,9 @@ public:
   virtual WLength verticalAlignmentLength() const;
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText);
-  virtual const WString& toolTip() const;
+  virtual void setDeferredToolTip(bool enable,
+                                  TextFormat textFormat=PlainText);
+  virtual WString toolTip() const;
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);
@@ -321,15 +323,18 @@ private:
   static const int BIT_DISABLED_CHANGED = 25;
   static const int BIT_CONTAINS_LAYOUT = 26;
   static const int BIT_ZINDEX_CHANGED = 27;
+  static const int BIT_TOOLTIP_DEFERRED = 28;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<28> AllChangeFlags;
+  static const std::bitset<29> AllChangeFlags;
 #endif // WT_TARGET_JAVA
+
+  void loadToolTip();
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<28> flags_;
+  std::bitset<29> flags_;
   WLength *width_;
   WLength *height_;
 
@@ -376,8 +381,9 @@ private:
     WT_USTRING              styleClass_;
     WString                *toolTip_;
     TextFormat              toolTipTextFormat_;
+    JSignal<>               loadToolTip_;
 
-    LookImpl();
+    LookImpl(WWebWidget *w);
     ~LookImpl();
   };
 
@@ -464,6 +470,7 @@ private:
   void declareJavaScriptMember(DomElement& element,
 			       const std::string& name,
 			       const std::string& value);
+  WString storedToolTip() const;
 
 protected:
   void setRendered(bool rendered);

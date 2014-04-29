@@ -182,7 +182,7 @@ public:
    *
    * \sa setTabToolTip()
    */
-  const WString& tabToolTip(int index) const;
+  WString tabToolTip(int index) const;
 
   /*! \brief Enables internal paths for items.
    *

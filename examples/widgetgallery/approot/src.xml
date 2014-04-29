@@ -4800,6 +4800,33 @@
 <span class="p">}));</span>
 </pre></div>
   </message>
+  <message id="src-TextDeferredToolTip">
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WText&gt;</span>
+<span class="cp">#include &lt;Wt/WString&gt;</span>
+<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+
+<span class="k">class</span> <span class="nc">Text</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">Text</span><span class="p">()</span> <span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(){}</span>
+
+  <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span> <span class="n">calculateToolTip</span><span class="p">()</span> <span class="k">const</span>
+  <span class="p">{</span>
+    <span class="k">return</span> <span class="s">&quot;Deferred tooltip&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">virtual</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span> <span class="n">toolTip</span><span class="p">()</span> <span class="k">const</span>
+  <span class="p">{</span>
+    <span class="k">return</span> <span class="n">calculateToolTip</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+
+<span class="n">Text</span> <span class="o">*</span><span class="n">text</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="p">();</span>
+<span class="n">text</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Text&quot;</span><span class="p">);</span>
+<span class="n">text</span><span class="o">-&gt;</span><span class="n">setDeferredToolTip</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</pre></div>
+  </message>
   <message id="src-TextEdit">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/Utils&gt;</span>
 <span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
@@ -4933,6 +4960,15 @@
 <span class="n">edit</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="p">();</span>
 <span class="n">edit</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;span2&quot;</span><span class="p">);</span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;amount2&quot;</span><span class="p">,</span> <span class="n">edit</span><span class="p">);</span>
+</pre></div>
+  </message>
+  <message id="src-TextToolTip">
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/WText&gt;</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span> <span class="o">*</span><span class="n">text</span>
+  <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="s">&quot;Some text&quot;</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">PlainText</span><span class="p">);</span>
+
+<span class="n">text</span><span class="o">-&gt;</span><span class="n">setToolTip</span><span class="p">(</span><span class="s">&quot;ToolTip&quot;</span><span class="p">,</span>  <span class="n">Wt</span><span class="o">::</span><span class="n">XHTMLText</span><span class="p">);</span>
 </pre></div>
   </message>
   <message id="src-TextXHTML">
@@ -5836,6 +5872,11 @@
     <span class="k">border-bottom</span><span class="o">:</span> <span class="m">0px</span><span class="p">;</span>
     <span class="k">padding</span><span class="o">:</span> <span class="m">0px</span> <span class="m">5px</span><span class="p">;</span>
     <span class="k">margin-bottom</span><span class="o">:</span> <span class="m">-5px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.example</span> <span class="o">&gt;</span> <span class="nt">p</span> <span class="p">{</span>
+    <span class="k">margin</span><span class="o">:</span> <span class="m">10px</span> <span class="m">0px</span><span class="p">;</span>
+    <span class="k">padding-top</span><span class="o">:</span> <span class="m">10px</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="nc">.src</span> <span class="p">{</span>

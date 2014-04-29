@@ -55,6 +55,15 @@ enum WidgetThemeRole {
   NavbarAlignRightRole = 807
 };
 
+/*! \brief Enumeration for the role of a css class (for theme support)
+ *
+ * \sa WTheme::utilityCssClass()
+ */
+enum UtilityCssClassRole {
+  ToolTipInner = 100,
+  ToolTipOuter = 101
+};
+
 /*! \brief Enumeration for the role of a DOM element (for theme support)
  *
  * \sa WTheme::apply()
@@ -155,6 +164,12 @@ public:
   /*! \brief Returns a generic CSS class name for an active element.
    */
   virtual std::string activeClass() const = 0;
+
+  /*! \brief Returns a generic CSS class name for the chosen role.
+   *
+   * \sa WTheme::utilityCssClassRole
+   */
+  virtual std::string utilityCssClass(int utilityCssClassRole) const = 0;
 
   /*! \brief Returns whether the theme allows for an anchor to be styled
    *         as a button.

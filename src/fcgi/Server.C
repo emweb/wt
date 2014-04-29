@@ -44,8 +44,8 @@ namespace Wt {
 /*
  * From the FCGI Specifaction
  */
-const int FCGI_BEGIN_REQUEST = 1;
-const int FCGI_ABORT_REQUEST = 2;
+// const int FCGI_BEGIN_REQUEST = 1; // unused
+// const int FCGI_ABORT_REQUEST = 2; // unused
 const int FCGI_END_REQUEST   = 3;
 const int FCGI_PARAMS        = 4;
 

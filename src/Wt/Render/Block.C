@@ -845,14 +845,16 @@ int Block::cssFontWeight() const
 			&& type_ <= DomElement_H6)))
     v = "bolder";
 
-  if (!v.empty()) {
-    try {
-      return boost::lexical_cast<int>(v);
-    } catch (boost::bad_lexical_cast& blc) {
-      if (v == "normal")
-	return 400;
-      else if (v == "bold")
-	return 700;
+  if (!v.empty() && v != "bolder" && v != "lighter") {
+    if (v == "normal")
+      return 400;
+    else if (v == "bold")
+      return 700;
+    else {
+      try {
+	return boost::lexical_cast<int>(v);
+      } catch (boost::bad_lexical_cast& blc) {
+      }
     }
   }
 

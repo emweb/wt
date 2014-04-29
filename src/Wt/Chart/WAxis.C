@@ -26,8 +26,6 @@
 #include "WebUtils.h"
 
 namespace {
-  const int TICK_LENGTH = 5;
-  const int AXIS_MARGIN = 4;
   const int AUTO_V_LABEL_PIXELS = 25;
   const int AUTO_H_LABEL_PIXELS = 80;
 

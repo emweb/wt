@@ -8,56 +8,86 @@
 
 WT_DECLARE_WT_MEMBER
 (10, JavaScriptFunction, "toolTip",
- function(WT, id, text) {
-   var $el = $("#" + id), el = $el.get(0);
-   var eventsBound = el.toolTip;
-   el.toolTip = text;
+ function(APP, id, text, deferred, ToolTipInnerStyle, ToolTipOuterStyle) {
 
-   if (!eventsBound) {
-     (new (function() {
-        var showTimer = null, checkInt = null, coords = null, toolTipEl = null;
-	/* const */ var MouseDistance = 10;
-	/* const */ var Delay = 500;
 
-	function checkIsOver() {
-	  if (!$('#' + id + ':hover').length)
-	    hideToolTip();
-	}
+     var $el = $("#" + id), el = $el.get(0);
+     var WT = APP.WT;
 
-	function showToolTip() {
-	  toolTipEl = document.createElement('div');
-	  toolTipEl.className = 'Wt-tooltip';
-	  toolTipEl.innerHTML = el.toolTip;
-	  document.body.appendChild(toolTipEl);
-	  var x = coords.x, y = coords.y;
-	  WT.fitToWindow(toolTipEl, x + MouseDistance, y + MouseDistance,
-			 x - MouseDistance, y - MouseDistance);
+     var obj = el.toolTip;
 
-	  checkInt = setInterval(function() { checkIsOver(); }, 200); 
-	}
+     if (!obj) {
+         el.toolTip = new function() {
+             var showTimer = null, checkInt = null, coords = null, toolTipEl = null;
+             /* const */ var MouseDistance = 10;
+             /* const */ var Delay = 500;
+             var waitingForText = false, toolTipText = text;
 
-	function hideToolTip() {
-	  clearTimeout(showTimer);
-	  if (toolTipEl) {
-	    $(toolTipEl).remove();
-	    toolTipEl = null;
-	    clearInterval(checkInt);
-	    checkInt = null;
-	  }
-	}
+             function checkIsOver() {
+                 if (!$('#' + id + ':hover').length)
+                     hideToolTip();
+             }
 
-	function resetTimer(e) {
-	  clearTimeout(showTimer);
-	  coords = WT.pageCoordinates(e);
+             function loadToolTipText() {
+                 waitingForText = true;
+                 APP.emit(el, "Wt-loadToolTip");
+             }
 
-	  if (!toolTipEl)
-	    showTimer = setTimeout(function() { showToolTip(); }, Delay);
-	}
+             this.setToolTipText = function(text) {
+                 toolTipText = text;
+                 if (waitingForText) {
+                     this.showToolTip();
+                     waitingforText = false;
+                 }
+             }
 
-	$el.mouseenter(resetTimer);
-	$el.mousemove(resetTimer);
-	$el.mouseleave(hideToolTip);
-      })());
-   }
- }
-);
+             this.showToolTip = function() {
+                 if (deferred && !toolTipText && !waitingForText)
+                     loadToolTipText();
+
+                 if (toolTipText){
+                     toolTipEl = document.createElement('div');
+                     toolTipEl.className = ToolTipInnerStyle;
+                     toolTipEl.innerHTML = toolTipText;
+
+                     outerDiv = document.createElement('div');
+                     outerDiv.className = ToolTipOuterStyle;
+
+                     document.body.appendChild(outerDiv);
+                     outerDiv.appendChild(toolTipEl);
+
+                     var x = coords.x, y = coords.y;
+                     WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance,
+                                    x - MouseDistance, y - MouseDistance);
+                 }
+
+                 checkInt = setInterval(function() { checkIsOver(); }, 200);
+             }
+
+             function hideToolTip() {
+                 clearTimeout(showTimer);
+                 if (toolTipEl) {
+                     $(toolTipEl).remove();
+                     toolTipEl = null;
+                     clearInterval(checkInt);
+                     checkInt = null;
+                 }
+             }
+
+             function resetTimer(e) {
+                 clearTimeout(showTimer);
+                 coords = WT.pageCoordinates(e);
+
+                 if (!toolTipEl)
+                     showTimer = setTimeout(function() { el.toolTip.showToolTip(); }, Delay);
+             }
+
+             $el.mouseenter(resetTimer);
+             $el.mousemove(resetTimer);
+             $el.mouseleave(hideToolTip);
+         };
+     }
+
+     if (obj)
+         obj.setToolTipText(text);
+ });

@@ -351,9 +351,14 @@ void WCompositeWidget::setToolTip(const WString& text, TextFormat textFormat)
   impl_->setToolTip(text, textFormat);
 }
 
-const WString& WCompositeWidget::toolTip() const
+WString WCompositeWidget::toolTip() const
 {
   return impl_->toolTip();
+}
+
+void WCompositeWidget::setDeferredToolTip(bool enable, TextFormat textFormat)
+{
+  impl_->setDeferredToolTip(enable, textFormat);
 }
 
 void WCompositeWidget::refresh()

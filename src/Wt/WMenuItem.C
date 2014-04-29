@@ -411,10 +411,18 @@ void WMenuItem::connectSignals()
 
     if (a) {
       SignalBase *as;
+      bool selectFromCheckbox = false;
 
-      if (checkBox_ && !checkBox_->clicked().propagationPrevented())
+      if (checkBox_ && !checkBox_->clicked().propagationPrevented()) {
 	as = &checkBox_->changed();
-      else
+	/*
+	 * Because the checkbox is not a properly exposed form object,
+	 * we need to relay its value ourselves
+	 */
+	checkBox_->checked().connect(this, &WMenuItem::setCheckBox);
+	checkBox_->unChecked().connect(this, &WMenuItem::setUnCheckBox);
+	selectFromCheckbox = true;
+      } else
 	as = &a->clicked();
 
       if (checkBox_)
@@ -424,10 +432,23 @@ void WMenuItem::connectSignals()
 	as->connect(this, &WMenuItem::selectNotLoaded);
       else {
 	as->connect(this, &WMenuItem::selectVisual);
-	as->connect(this, &WMenuItem::select);
+	if (!selectFromCheckbox)
+	  as->connect(this, &WMenuItem::select);
       }
     }
   }
+}
+
+void WMenuItem::setCheckBox()
+{
+  setChecked(true);
+  select();
+}
+
+void WMenuItem::setUnCheckBox()
+{
+  setChecked(false);
+  select();
 }
 
 void WMenuItem::setParentMenu(WMenu *menu)

@@ -197,6 +197,10 @@ private:
   friend class WTableRow;
 
 protected:
+  virtual WTableCell* createCell(int row, int column);
+  virtual WTableRow* createRow(int row);
+  virtual WTableColumn* createColumn(int column);
+
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual DomElement    *createDomElement(WApplication *app);
@@ -205,7 +209,7 @@ protected:
   virtual void           propagateRenderOk(bool deep);
 
 private:
-  DomElement *createRow(int row, bool withIds, WApplication *app);
+  DomElement *createRowDomElement(int row, bool withIds, WApplication *app);
 };
 
 }

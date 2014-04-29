@@ -419,7 +419,7 @@ WString Home::tr(const char *key)
 
 void Home::googleAnalyticsLogger()
 {
-  doJavaScript("ga('send','pageview','"
+  doJavaScript("if (window.ga) ga('send','pageview','"
 	       + environment().deploymentPath() + internalPath() + "');");
 }
 

@@ -76,7 +76,8 @@ typedef boost::function<WApplication* (const WEnvironment&)> ApplicationCreator;
 /*! \brief An HTML Meta Header
  */
 #endif // WT_TARGET_JAVA
-struct MetaHeader {
+class MetaHeader {
+public:
   /*! \brief Constructor
    *
    * Creates a meta header. The lang and user agents are optional, and should

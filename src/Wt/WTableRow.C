@@ -35,20 +35,33 @@ WTableRow::TableData::TableData()
     overSpanned(false)
 { }
 
+WTableCell *WTableRow::createCell(int column)
+{
+  return table_->createCell(rowNum(), column);
+}
+
 void WTableRow::expand(int numCells)
 {
   int cursize = cells_.size();
 
   for (int col = cursize; col < numCells; ++col) {
     cells_.push_back(TableData());
-    cells_.back().cell = new WTableCell(this, col);
+    WTableCell *cell = createCell(col);
+    cell->row_ = this;
+    cell->column_ = col;
+    cell->setParentWidget(table_);
+    cells_.back().cell = cell;
   }
 }
 
 void WTableRow::insertColumn(int column)
 {
   cells_.insert(cells_.begin() + column, TableData());
-  cells_[column].cell = new WTableCell(this, column);
+  WTableCell *cell = createCell(column);
+  cell->row_ = this;
+  cell->column_ = column;
+  cell->setParentWidget(table_);
+  cells_.back().cell = cell;
 
   for (unsigned i = column; i < cells_.size(); ++i)
     cells_[i].cell->column_ = i;

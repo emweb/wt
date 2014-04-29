@@ -71,7 +71,7 @@ void WTable::removeCell(int row, int column)
   WTableRow::TableData& d = itemAt(row, column);
 
   delete d.cell;
-  d.cell = new WTableCell(rows_[row], column);
+  d.cell = rows_[row]->createCell(column);
 }
 
 void WTable::expand(int row, int column, int rowSpan, int columnSpan)
@@ -109,7 +109,7 @@ WTableRow* WTable::insertRow(int row, WTableRow *tableRow)
     flags_.set(BIT_GRID_CHANGED);
 
   if (!tableRow)
-    tableRow = new WTableRow();
+    tableRow = createRow(row);
   tableRow->table_ = this;
   tableRow->expand(columnCount());
   rows_.insert(rows_.begin() + row, tableRow);
@@ -125,7 +125,7 @@ WTableColumn* WTable::insertColumn(int column, WTableColumn *tableColumn)
 
   if ((unsigned)column <= columns_.size()) {
     if(!tableColumn){
-      tableColumn = new WTableColumn();
+      tableColumn = createColumn(column);
       tableColumn->table_ = this;
     }
 
@@ -221,6 +221,21 @@ int WTable::headerCount(Orientation orientation)
     return headerColumnCount_;
 }
 
+WTableCell* WTable::createCell(int row, int column)
+{
+  return new WTableCell();
+}
+
+WTableRow* WTable::createRow(int row)
+{
+  return new WTableRow();
+}
+
+WTableColumn* WTable::createColumn(int column)
+{
+  return new WTableColumn();
+}
+
 void WTable::updateDom(DomElement& element, bool all)
 {
   WInteractWidget::updateDom(element, all);
@@ -281,7 +296,7 @@ DomElement *WTable::createDomElement(WApplication *app)
       itemAt(row, col).overSpanned = false;
   
   for (unsigned row = 0; row < (unsigned)rowCount(); ++row) {
-    DomElement *tr = createRow(row, withIds, app);
+    DomElement *tr = createRowDomElement(row, withIds, app);
     if (row < static_cast<unsigned>(headerRowCount_))
       thead->addChild(tr);
     else
@@ -302,7 +317,7 @@ DomElement *WTable::createDomElement(WApplication *app)
   return table;
 }
 
-DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
+DomElement *WTable::createRowDomElement(int row, bool withIds, WApplication *app)
 {
   DomElement *tr = DomElement::createNew(DomElement_TR);
   if (withIds)
@@ -368,7 +383,7 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
       DomElement *etb = DomElement::getForUpdate(id() + "tb",
 						 DomElement_TBODY);
       for (unsigned i = 0; i < static_cast<unsigned>(rowsAdded_); ++i) {
-	DomElement *tr = createRow(rowCount() - rowsAdded_ + i, true, app);
+        DomElement *tr = createRowDomElement(rowCount() - rowsAdded_ + i, true, app);
 	etb->addChild(tr);
       }
 

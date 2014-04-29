@@ -63,8 +63,19 @@ WT_DECLARE_WT_MEMBER
       if (isProperChild(c)) {
 	if (!WT.isHidden(c)) {
 	  if (hdefined) {
-	    var ch = h - Math.max(marginV(c), c.offsetTop);
+	    var ch = h - marginV(c);
 	    if (ch > 0) {
+	      /*
+		to prevent that the first child widget's top margin bleeds
+		to shift this child down, we set overflow. See also #2809
+		and the original work-around 548948b63
+	      */
+	      if (c.offsetTop > 0) {
+		var of = WT.css(c, 'overflow');
+		if (of === 'visible' || of === '')
+		  c.style.overflow = 'auto';
+	      }
+
 	      if (c.wtResize)
 		c.wtResize(c, w, ch, layout);
 	      else {

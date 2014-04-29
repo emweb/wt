@@ -2097,7 +2097,7 @@ function dragStart(obj, e) {
 
   ds.object.parentNode.removeChild(ds.object);
   ds.object.style.position = 'absolute';
-  ds.object.className = '';
+  ds.object.className = ds.objectPrevStyle.className + '';
   ds.object.style.zIndex = '1000';
   document.body.appendChild(ds.object);
 
@@ -2184,9 +2184,9 @@ function dragDrag(e) {
       if (ds.dropTarget.handleDragDrop)
 	ds.dropTarget.handleDragDrop('drag', ds.object, e, '', mimeType);
       else
-	ds.object.className = 'Wt-valid-drop';
+	ds.object.className = ds.objectPrevStyle.className + ' Wt-valid-drop';
     } else
-      ds.object.className = '';
+      ds.object.className = ds.objectPrevStyle.className + '';
 
     return false;
   }

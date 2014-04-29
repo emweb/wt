@@ -254,6 +254,16 @@ std::string WCssTheme::activeClass() const
   return "Wt-selected";
 }
 
+std::string WCssTheme::utilityCssClass(int utilityCssClassRole) const
+{
+  switch (utilityCssClassRole) {
+  case ToolTipInner:
+    return "Wt-tooltip";
+  default:
+    return "";
+  }
+}
+
 std::string WCssTheme::name() const
 {
   return name_;

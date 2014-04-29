@@ -125,10 +125,10 @@ enum ItemDataRole {
    * should be of type Wt::CheckState.
    */
   CheckStateRole = 4,   
-  ToolTipRole = 5,       //!< Role for a (plain) tooltip
-  LinkRole = 6,          //!< Role for a link
-  MimeTypeRole = 7,      //!< Role for mime type information
-  LevelRole = 8,         //!< Level in aggregation, for header data.
+  ToolTipRole = 5,         //!< Role for a (plain) tooltip
+  LinkRole = 6,            //!< Role for a link
+  MimeTypeRole = 7,        //!< Role for mime type information
+  LevelRole = 8,           //!< Level in aggregation, for header data.
 
   MarkerPenColorRole = 16,    //!< Marker pen color (for Chart::WCartesianChart)
   MarkerBrushColorRole = 17,  //!< Marker brush color (for Chart::WCartesianChart)
@@ -157,8 +157,9 @@ enum ItemFlag {
    * Wt::CheckState
    */
   ItemIsTristate = 0x20,
-  ItemIsXHTMLText = 0x40,    //!< Item's text (DisplayRole, ToolTipRole) is HTML
-  ItemIsDirty = 0x80         //!< Item's value has been modified
+  ItemIsXHTMLText = 0x40,       //!< Item's text (DisplayRole, ToolTipRole) is HTML
+  ItemHasDeferredTooltip = 0x60, //!< Item's tooltip is deferred
+  ItemIsDirty = 0x80            //!< Item's value has been modified
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ItemFlag)

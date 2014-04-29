@@ -23,8 +23,14 @@ namespace Wt {
 #ifndef WT_CNOR
   template <class Widget> class IndexEdit;
   typedef IndexEdit<WCheckBox> IndexCheckBox;
+  typedef IndexEdit<WContainerWidget> IndexContainerWidget;
+  typedef IndexEdit<WAnchor> IndexAnchor;
+  typedef IndexEdit<WText> IndexText;
 #else
   class IndexCheckBox;
+  class IndexContainerWidget;
+  class IndexAnchor;
+  class IndexText;
 #endif // WT_CNOR
 
 /*! \class WItemDelegate Wt/WItemDelegate Wt/WItemDelegate
@@ -276,9 +282,9 @@ private:
   IndexCheckBox *checkBox(WidgetRef& w, const WModelIndex& index,
 			 bool autoCreate, bool triState = false);
 
-  WText *textWidget(WidgetRef& w);
-  WImage *iconWidget(WidgetRef& w, bool autoCreate = false);
-  WAnchor *anchorWidget(WidgetRef& w);
+  IndexText *textWidget(WidgetRef& w, const WModelIndex& index);
+  WImage *iconWidget(WidgetRef& w, const WModelIndex& index, bool autoCreate = false);
+  IndexAnchor *anchorWidget(WidgetRef& w, const WModelIndex& index);
 
   void onCheckedChange(IndexCheckBox *checkBox) const;
   void doCloseEditor(WWidget *editor, bool save) const;

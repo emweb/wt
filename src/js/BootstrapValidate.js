@@ -22,7 +22,8 @@ WT_DECLARE_WT_MEMBER
 
 WT_DECLARE_WT_MEMBER
 (2, JavaScriptFunction, "setValidationState",
- function(edit, state, message, styles, bootstrapVersion) {
+ function(edit, state, message, styles) {
+
      /* const */ var ValidationInvalidStyle = 0x1;
      /* const */ var ValidationValidStyle = 0x2;
 
@@ -41,20 +42,32 @@ WT_DECLARE_WT_MEMBER
      var success;
      var error;
 
-     if ( bootstrapVersion === 2 ){
-       controlGroup = $edit.closest(".control-group");
+     controlGroup = $edit.closest(".control-group");
+       
+     if (controlGroup.length > 0) { // bootstrapVersion === 2
        success = "success";
        error = "error";
-     } else {//bootstrapVersion === 3
+     } else {
        controlGroup = $edit.closest(".form-group");
-       success = "has-success";
-       error = "has-error";
+       if (controlGroup.length > 0) { // bootstrapVersion === 3
+         success = "has-success";
+         error = "has-error";
+       }
      }
 
-     if (controlGroup)
+     if (controlGroup.length > 0) {
+       var validationMsg = controlGroup.find(".Wt-validation-message");
+       if (validationMsg) {
+	 if (state)
+	   validationMsg.text(edit.defaultTT);
+	 else
+	   validationMsg.text(message);
+       }
+
        controlGroup
-     .toggleClass(success, validStyle)
-     .toggleClass(error, invalidStyle);
+	 .toggleClass(success, validStyle)
+	 .toggleClass(error, invalidStyle);
+     }
 
      if (typeof edit.defaultTT === 'undefined')
        edit.defaultTT = edit.getAttribute('title') || '';

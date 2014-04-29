@@ -164,6 +164,23 @@
       ${src TextEvents}
     </fieldset>
 
+    <h3>ToolTip</h3>
+    <p>
+      You may add a tooltip or deferred tooltip to <tt>WText</tt> 
+    </p>
+
+    <fieldset class="example">
+      <legend>Tooltip example</legend>
+      ${TextToolTip}
+      ${src TextToolTip}
+    </fieldset>
+
+    <fieldset class="example">
+      <legend>Deferred tooltip example</legend>
+      ${TextDeferredToolTip}
+      ${src TextDeferredToolTip}
+    </fieldset>
+
     <p><a href="#text">Top</a></p>
 
   </message>

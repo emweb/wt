@@ -77,6 +77,8 @@ void WAbstractSpinBox::setPrefix(const WString& prefix)
   if (prefix_ != prefix) {
     prefix_ = prefix;
     setText(textFromValue());
+    changed_ = true;
+    repaint();
   }
 }
 
@@ -85,6 +87,8 @@ void WAbstractSpinBox::setSuffix(const WString& suffix)
   if (suffix_ != suffix) {
     suffix_ = suffix;
     setText(textFromValue());
+    changed_ = true;
+    repaint();
   }
 }
 
@@ -151,8 +155,11 @@ void WAbstractSpinBox::updateDom(DomElement& element, bool all)
     if (!all) {
       if (!nativeControl())
 	doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
-		     ".update(" + jsMinMaxStep() + ","
-		     + boost::lexical_cast<std::string>(decimals()) + ");");
+		     ".configure("
+		     + boost::lexical_cast<std::string>(decimals()) + ","
+		     + prefix().jsStringLiteral() + ","
+		     + suffix().jsStringLiteral() + ","
+		     + jsMinMaxStep()+ ");");
       else
 	setValidator(createValidator());
     }
@@ -204,9 +211,12 @@ WValidator::State WAbstractSpinBox::validate()
 
 void WAbstractSpinBox::refresh()
 {
-  doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
-      ".setLocale(" + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
-      + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");");
+  doJavaScript
+    ("jQuery.data(" + jsRef() + ", 'obj')"
+     ".setLocale(" 
+     + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
+     + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");");
+
   WLineEdit::refresh();
 }
 

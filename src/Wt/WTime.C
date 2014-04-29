@@ -19,10 +19,6 @@ namespace Wt {
 
 LOGGER("WTime");
 
-  namespace {
-    const int MSECS_PER_DAY = 24 * 60 * 60 * 1000;
-  }
-
 InvalidTimeException::InvalidTimeException()
 { }
 

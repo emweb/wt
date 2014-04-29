@@ -36,6 +36,13 @@ public:
     return index_;
   }
 
+  virtual WString toolTip() const {
+    if (index_.flags() & ItemHasDeferredTooltip)
+      return asString(index_.data(ToolTipRole));
+    else
+      return Widget::toolTip();
+  }
+
 private:
   WModelIndex index_;
 };
@@ -48,6 +55,37 @@ public:
 
   void setIndex(const WModelIndex& index);
   const WModelIndex& index();
+  virtual WString toolTip() const;
+};
+
+class IndexContainerWidget : public IndexEdit<WContainerWidget>
+{
+public:
+  IndexContainerWidget(const WModelIndex& index);
+
+  void setIndex(const WModelIndex& index);
+  const WModelIndex& index();
+  virtual WString toolTip() const;
+};
+
+class IndexAnchor : public IndexEdit<WAnchor>
+{
+public:
+  IndexAnchor(const WModelIndex& index);
+
+  void setIndex(const WModelIndex& index);
+  const WModelIndex& index();
+  virtual WString toolTip() const;
+};
+
+class IndexText : public IndexEdit<WText>
+{
+public:
+  IndexText(const WModelIndex& index);
+
+  void setIndex(const WModelIndex& index);
+  const WModelIndex& index();
+  virtual WString toolTip() const;
 };
 #endif // WT_CNOR
 
@@ -87,7 +125,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
   if (!(flags & RenderEditing)) {
     if (!widgetRef.w) {
       isNew = true;
-      WText *t = new WText();
+      IndexText *t = new IndexText(index);
       t->setObjectName("t");
       if (index.isValid() && !(index.flags() & ItemIsXHTMLText))
 	t->setTextFormat(PlainText);
@@ -118,13 +156,13 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     boost::any linkData = index.data(LinkRole);
     if (!linkData.empty()) {
       WLink link = boost::any_cast<WLink>(linkData);
-      WAnchor *a = anchorWidget(widgetRef);
+      IndexAnchor *a = anchorWidget(widgetRef, index);
       a->setLink(link);
       if (link.type() == WLink::Resource)
 	a->setTarget(TargetNewWindow);
     }
 
-    WText *t = textWidget(widgetRef);
+    IndexText *t = textWidget(widgetRef, index);
 
     WString label = asString(index.data(), textFormat_);
     if (label.empty() && haveCheckBox)
@@ -133,16 +171,21 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
     std::string iconUrl = asString(index.data(DecorationRole)).toUTF8();
     if (!iconUrl.empty()) {
-      iconWidget(widgetRef, true)->setImageLink(WLink(iconUrl));
+      iconWidget(widgetRef, index, true)->setImageLink(WLink(iconUrl));
     } else if (!isNew)
-      delete iconWidget(widgetRef, false);
+      delete iconWidget(widgetRef, index, false);
   }
 
+  if (index.flags() & ItemHasDeferredTooltip){
+    widgetRef.w->setDeferredToolTip(true, (index.flags() & ItemIsXHTMLText) ?
+                                      XHTMLText : PlainText);
+  } else {
   WString tooltip = asString(index.data(ToolTipRole));
   if (!tooltip.empty() || !isNew)
     widgetRef.w->setToolTip(tooltip,
 			    (index.flags() & ItemIsXHTMLText) ? 
 			    XHTMLText : PlainText);
+  }
 
   WT_USTRING sc = asString(index.data(StyleClassRole));
 
@@ -187,15 +230,17 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
       checkBox->setObjectName("c");
       checkBox->clicked().preventPropagation();
 
-      WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w.w->find("o"));
+      IndexContainerWidget *wc =
+          dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
       if (!wc) {
-	wc = new WContainerWidget();
+        wc = new IndexContainerWidget(index);
 	wc->setObjectName("o");
 	w.w->setInline(true);
 	w.w->setStyleClass(WString::Empty);
 
 	/* We first remove to avoid reparenting warnings */
-	WContainerWidget *p = dynamic_cast<WContainerWidget *>(w.w->parent());
+        IndexContainerWidget *p =
+            dynamic_cast<IndexContainerWidget *>(w.w->parent());
 	if (p)
 	  p->removeWidget(w.w);
 
@@ -215,24 +260,26 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
   return checkBox;
 }
 
-WText *WItemDelegate::textWidget(WidgetRef& w)
+IndexText *WItemDelegate::textWidget(WidgetRef& w, const WModelIndex &index)
 {
-  return dynamic_cast<WText *>(w.w->find("t"));
+  return dynamic_cast<IndexText *>(w.w->find("t"));
 }
 
-WImage *WItemDelegate::iconWidget(WidgetRef& w, bool autoCreate)
+WImage *WItemDelegate::iconWidget(WidgetRef& w,
+                                  const WModelIndex& index, bool autoCreate)
 {
   WImage *image = dynamic_cast<WImage *>(w.w->find("i"));
   if (image || !autoCreate)
     return image;
 
-  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w.w->find("a"));
+  IndexContainerWidget *wc =
+      dynamic_cast<IndexContainerWidget *>(w.w->find("a"));
 
   if (!wc)
-    wc = dynamic_cast<WContainerWidget *>(w.w->find("o"));
+    wc = dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
 
   if (!wc) {
-    wc = new WContainerWidget();
+    wc = new IndexContainerWidget(index);
     wc->setObjectName("o");
     wc->addWidget(w.w);
     w.w = wc;
@@ -254,16 +301,18 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w, bool autoCreate)
   return image;
 }
 
-WAnchor *WItemDelegate::anchorWidget(WidgetRef& w)
+IndexAnchor *WItemDelegate::anchorWidget(WidgetRef& w, const WModelIndex &index)
 {
-  WAnchor *anchor = dynamic_cast<WAnchor *>(w.w->find("a"));
+  IndexAnchor *anchor =
+      dynamic_cast<IndexAnchor *>(w.w->find("a"));
   if (anchor)
     return anchor;
 
-  anchor = new WAnchor();
+  anchor = new IndexAnchor(index);
   anchor->setObjectName("a");
 
-  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w.w->find("o"));
+  IndexContainerWidget *wc =
+      dynamic_cast<IndexContainerWidget *>(w.w->find("o"));
   if (wc) {
     /*
      * Convert (2) -> (4)
@@ -301,6 +350,20 @@ void WItemDelegate::updateModelIndex(WWidget *widget, const WModelIndex& index)
     if (cb)
       cb->setIndex(index);
   }
+
+  if (index.flags() & ItemHasDeferredTooltip) {
+    IndexText *text = dynamic_cast<IndexText *>(widget);
+    if (text)
+      text->setIndex(index);
+
+    IndexAnchor *anchor = dynamic_cast<IndexAnchor *>(widget);
+    if (anchor)
+      anchor->setIndex(index);
+
+    IndexContainerWidget *c = dynamic_cast<IndexContainerWidget *>(widget);
+    if (c)
+      c->setIndex(index);
+  }
 }
 
 void WItemDelegate::onCheckedChange(IndexCheckBox *cb) const
@@ -317,7 +380,8 @@ void WItemDelegate::onCheckedChange(IndexCheckBox *cb) const
 WWidget *WItemDelegate::createEditor(const WModelIndex& index,
 				     WFlags<ViewItemRenderFlag> flags) const
 {
-  WContainerWidget *const result = new WContainerWidget();
+  IndexContainerWidget *const result =
+      new IndexContainerWidget(index);
   result->setSelectable(true);
 
   WLineEdit *lineEdit = new WLineEdit();
@@ -355,7 +419,8 @@ void WItemDelegate::doCloseEditor(WWidget *editor, bool save) const
 
 boost::any WItemDelegate::editState(WWidget *editor) const
 {
-  WContainerWidget *w = dynamic_cast<WContainerWidget *>(editor);
+  IndexContainerWidget *w =
+      dynamic_cast<IndexContainerWidget *>(editor);
   WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
 
   return boost::any(lineEdit->text());
@@ -363,7 +428,8 @@ boost::any WItemDelegate::editState(WWidget *editor) const
 
 void WItemDelegate::setEditState(WWidget *editor, const boost::any& value) const
 {
-  WContainerWidget *w = dynamic_cast<WContainerWidget *>(editor);
+  IndexContainerWidget *w =
+      dynamic_cast<IndexContainerWidget *>(editor);
   WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
 
   lineEdit->setText(boost::any_cast<WT_USTRING>(value));

@@ -135,6 +135,9 @@ public:
 
   virtual const std::string id() const;
 
+protected:
+  virtual WTableCell* createCell(int column);
+
 private:
   void expand(int numCells);
 

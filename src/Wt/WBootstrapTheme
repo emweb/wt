@@ -119,6 +119,7 @@ public:
     const;
   virtual std::string disabledClass() const;
   virtual std::string activeClass() const;
+  virtual std::string utilityCssClass(int utilityCssClassRole) const;
   virtual bool canStyleAnchorAsButton() const;
   virtual void applyValidationStyle(WWidget *widget,
 				    const Wt::WValidator::Result& validation,
