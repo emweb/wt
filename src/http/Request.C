@@ -21,10 +21,8 @@
 #endif
 
 #ifdef WT_WIN32
-// strcasecmp -> StrStrI
-#include <shlwapi.h>
-#define strcasestr StrStrIA
 #define strcasecmp _stricmp
+#define HAVE_STRCASECMP
 #endif
 
 namespace Wt {
@@ -35,32 +33,8 @@ namespace http {
 namespace server {
 
 #ifdef __QNXNTO__
-#define IS_ALPHA(c) (((c) >= 'A' && (c) <= 'Z') || ((c) >= 'a' && (c) <= 'z'))
-#define TO_UPPER(c) ((c) & 0xDF)
-
+#define HAVE_STRCASECMP
 #define strcasecmp stricmp
-
-char *strcasestr (const char * str1, const char * str2){
-        char *cp = (char *) str1;
-        char *s1, *s2;
-
-        if ( !*str2 )
-            return((char *)str1);
-
-        while (*cp){
-                s1 = cp;
-                s2 = (char *) str2;
-
-                while ( *s1 && *s2 && (IS_ALPHA(*s1) && IS_ALPHA(*s2))?!(TO_UPPER(*s1) - TO_UPPER(*s2)):!(*s1-*s2))
-                        ++s1, ++s2;
-
-                if (!*s2)
-                        return(cp);
-
-                ++cp;
-        }
-        return(NULL);
-}
 #endif
 
 std::string buffer_string::str() const
@@ -97,22 +71,40 @@ bool buffer_string::contains(const char *s) const
 
 bool buffer_string::icontains(const char *s) const
 {
+#ifdef HAVE_STRCASESTR
   if (next)
     return strcasestr(str().c_str(), s) != 0;
   else if (data)
     return strcasestr(data, s) != 0;
   else
     return false;
+#else
+  if (next)
+    return boost::icontains(str().c_str(), s);
+  else if (data)
+    return boost::icontains(data, s);
+  else
+    return false;
+#endif
 }
 
 bool buffer_string::iequals(const char *s) const
 {
+#ifdef HAVE_STRCASECMP
   if (next)
     return strcasecmp(s, str().c_str()) == 0;
   else if (data)
     return strcasecmp(s, data) == 0;
   else
     return false;
+#else
+  if (next)
+    return boost::iequals(s, str().c_str());
+  else if (data)
+    return boost::iequals(s, data);
+  else
+    return false;
+#endif
 }
 
 bool buffer_string::operator==(const buffer_string& other) const

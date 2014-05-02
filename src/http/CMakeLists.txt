@@ -1,6 +1,19 @@
 IF(CONNECTOR_HTTP)
   MESSAGE("** Enabling built-in httpd.")
 
+  # Wt uses strstrcase for case insensitive ASCII string
+  # comparisons on Linux for performance reasons. This function is however
+  # not supported on many platforms (windows, solaris)
+  INCLUDE(CheckFunctionExists)
+  CHECK_FUNCTION_EXISTS(strcasestr HAVE_STRCASESTR)
+  IF (HAVE_STRCASESTR)
+    ADD_DEFINITIONS(-DHAVE_STRCASESTR)
+  ENDIF (HAVE_STRCASESTR)
+  CHECK_FUNCTION_EXISTS(strcasecmp HAVE_STRCASECMP)
+  IF (HAVE_STRCASECMP)
+    ADD_DEFINITIONS(-DHAVE_STRCASECMP)
+  ENDIF (HAVE_STRCASECMP)
+
   SET(libhttpsources
     Android.C
     Configuration.C
@@ -30,10 +43,6 @@ IF(CONNECTOR_HTTP)
      SET(libhttpsources ${libhttpsources}
          ${CMAKE_CURRENT_BINARY_DIR}/wthttp-version.rc)
    ENDIF(SHARED_LIBS)
-
-   # windows does not have strcasestr, but it does have StrStrI, which does
-   # the same thing, but is in some weird library
-   SET(WIN32_STRSTRI_LIB Shlwapi.lib)
 
 # boost asio has a serious bug causing subtle data corruption
 # https://svn.boost.org/trac/boost/ticket/8935

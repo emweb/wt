@@ -8,6 +8,7 @@
 
 FIND_PATH(MYSQL_INCLUDE mysql.h
     ${MYSQL_PREFIX}/mariadbclient/include
+    ${MYSQL_PREFIX}/include/mariadb
     ${MYSQL_PREFIX}/include
     ${MYSQL_PREFIX}/include/mysql
     /usr/include
