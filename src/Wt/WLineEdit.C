@@ -343,7 +343,7 @@ WT_USTRING WLineEdit::inputText(const WT_USTRING& text) const
 #endif
     bool hadIgnoredChar = false;
     std::size_t j = 0, i = 0;
-    
+
     for (i = 0; i < newText.length(); ++i) {
       std::size_t previousJ = j;
       chr = newText[i];
@@ -355,24 +355,24 @@ WT_USTRING WLineEdit::inputText(const WT_USTRING& text) const
       }
       if (j == mask_.length()) {
 	j = previousJ;
-      } else if (raw_[j] != chr) {
-	if (case_[j] == '>') {
-	  chr = toupper(chr);
-	} else if (case_[j] == '<') {
-	  chr = tolower(chr);
-	}
-      }
-      result[j] = chr;
-      ++j;
-
-      if (j == previousJ) {
 	hadIgnoredChar = true;
+      } else {
+	if (raw_[j] != chr) {
+	  if (case_[j] == '>') {
+	    chr = toupper(chr);
+	  } else if (case_[j] == '<') {
+	    chr = tolower(chr);
+	  }
+	  result[j] = chr;
+	}
+	++j;
       }
     }
+    // Remove spaces by moving everything that is not a space forward.
     i = 0;
     for (j = 0; j < raw_.length(); ++i, ++j) {
-      while (j < raw_.length() && 
-	     result[j] == spaceChar_ && 
+      while (j < raw_.length() &&
+	     result[j] == spaceChar_ &&
 	     mask_[j] != '_') {
 	++j;
       }
@@ -393,6 +393,7 @@ WT_USTRING WLineEdit::inputText(const WT_USTRING& text) const
   }
   return text;
 }
+
 void WLineEdit::processInputMask() {
   if (inputMask_[inputMask_.length() - 2] == ';') {
     spaceChar_ = inputMask_[inputMask_.length() - 1];
