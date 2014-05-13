@@ -1,3 +1,8 @@
+WARNING! This file is no longer used.
+
+Please refer to the ReleaseNotes for major changes, and the git log for
+more fine-grained information on changes.
+
 28-11-2013:
 	* WRasterImage: now also support skia as backend. Cmake option
 	ENABLE_GM is replaced by WT_RASTERIMAGE_IMPLEMENTATION, which has

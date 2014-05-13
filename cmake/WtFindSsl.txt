@@ -10,15 +10,27 @@
 # with /MDd, and release with /MD. Apparently that is what CMake uses for
 # these modes; it is currently unclear to me if cmake ever uses /MT variants.
 
-FIND_PATH(SSL_INCLUDE_DIRS
-    openssl/ssl.h
-  PATHS
-    ${SSL_PREFIX}/include/
-    /usr/include/
-    /usr/local/include/
-    c:/openssl/include/
-  NO_DEFAULT_PATH
-)
+# default OSX SSL library is not OK, does not work with asio
+IF(APPLE)
+  FIND_PATH(SSL_INCLUDE_DIRS
+      openssl/ssl.h
+    PATHS
+      ${SSL_PREFIX}/include/
+      /usr/include/
+      /usr/local/include/
+      c:/openssl/include/
+    NO_DEFAULT_PATH
+  )
+ELSE(APPLE)
+  FIND_PATH(SSL_INCLUDE_DIRS
+      openssl/ssl.h
+    PATHS
+      ${SSL_PREFIX}/include/
+      /usr/include/
+      /usr/local/include/
+      c:/openssl/include/
+  )
+ENDIF(APPLE)
 
 IF(WIN32)
   IF(NOT SSL_LIB_NAMES)
@@ -97,7 +109,7 @@ IF(WIN32)
       AND SSL_LIB_DEBUG
       AND SSL_TOO_LIB_RELEASE
       AND SSL_TOO_LIB_DEBUG)
-ELSE (WIN32)
+ELSEIF(APPLE)
   FIND_LIBRARY(SSL_LIB
     NAMES
       ssl
@@ -107,6 +119,16 @@ ELSE (WIN32)
       /usr/lib
       /usr/local/lib
     NO_DEFAULT_PATH
+  )
+ELSE (WIN32)
+  FIND_LIBRARY(SSL_LIB
+    NAMES
+      ssl
+    PATHS
+      ${SSL_PREFIX}/lib
+      ${SSL_PREFIX}/lib/VC
+      /usr/lib
+      /usr/local/lib
   )
 ENDIF (WIN32)
 

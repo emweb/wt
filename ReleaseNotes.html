@@ -22,6 +22,47 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.3 (May x, 2014)</h2>
+
+<p>
+ This release has a focus on bug fixes but also one or two new new features:
+</p>
+
+<dl>
+  <dt>
+    Improved Meta header support.
+  </dt>
+  <dd>
+    Because WApplication meta header API was restricted to only work
+    in certain circumstances, we have now added the ability to define
+    meta headers (with the option to apply them to specific user agents)
+    also in the configuration file.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WWidget.html#ab4086c221a56e81dd067be47303b5862">WWidget::setDeferredToolTip()</a>
+    </dt>
+  <dd>
+    This function is an alternative to setToolTip(), useful when a
+    tooltip text is not trivial to fetch or create. Using this
+    function, the tool tip (HTML) text can now be loaded on-demand
+    instead of needing to be preset on (each) widget. This also works
+    for tooltips set from a WAbstractItemModel using the
+    new <a href="group__modelview.html#ga1d77c4de293aebfacbdde124de06b8b0">ItemHasDeferredTooltip</a>
+    item flag.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WLineEdit.html#ae599502e317ed79d5a1a54dae12d3d10">WLineEdit::setInputMask()</a>
+    </dt>
+  <dd>
+    Support for input masks was added, which guides the user to enter
+    data in the correct format.
+  </dd>
+</dl>
+
+<hr>
+
 <h2>Release 3.3.2 (March 12, 2014)</h2>
 
 <p>

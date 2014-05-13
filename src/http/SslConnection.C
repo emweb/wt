@@ -35,7 +35,16 @@ SslConnection::SslConnection(asio::io_service& io_service, Server *server,
   : Connection(io_service, server, manager, handler),
     socket_(io_service, context),
     sslShutdownTimer_(io_service)
-{ }
+{
+  // avoid CRIME attack, get A rating on SSL analysis tools
+#ifdef SSL_OP_NO_COMPRESSION
+#if BOOST_VERSION >= 104700
+  SSL_set_options(socket_.native_handle(), SSL_OP_NO_COMPRESSION);
+#else
+  SSL_set_options(socket_.impl(), SSL_OP_NO_COMPRESSION);
+#endif
+#endif
+}
 
 asio::ip::tcp::socket& SslConnection::socket()
 {
