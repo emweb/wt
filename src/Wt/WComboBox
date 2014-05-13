@@ -85,7 +85,9 @@ public:
    *
    * If no item is currently selected, the method returns -1.
    *
-   * The default value is 0, unless the combo box is empty.
+   * By default, for a combo box, the first item is selected,
+   * and thus currentIndex() = 0, while for a selection box no item is
+   * selected.
    */
   int currentIndex() const;
 
@@ -110,6 +112,8 @@ public:
   /*! \brief Changes the current selection.
    *
    * Specify a value of -1 for \p index to clear the selection.
+   *
+   * \note Setting a value of -1 works only if JavaScript is available.
    */
   void setCurrentIndex(int index);
 

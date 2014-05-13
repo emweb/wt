@@ -917,7 +917,7 @@ WebSession::Handler::~Handler()
   if (haveLock()) {
     if (session_->triggerUpdate_)
       session_->pushUpdates();
-    else if (response_)
+    else if (response_ && session_->state_ != Dead)
       session()->render(*this);
   }
 

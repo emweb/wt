@@ -935,6 +935,12 @@ void DomElement::asHTML(EscapeOStream& out,
       if (i->second == "true")
 	out << " selected=\"selected\"";
       break;
+    case PropertySelectedIndex:
+      if (i->second == "-1") {
+	DomElement *self = const_cast<DomElement *>(this);
+	self->callMethod("selectedIndex=-1");
+      }
+      break;
     case PropertyMultiple:
       if (i->second == "true")
 	out << " multiple=\"multiple\"";

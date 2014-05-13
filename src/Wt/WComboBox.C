@@ -24,7 +24,7 @@ WComboBox::WComboBox(WContainerWidget *parent)
     currentIndex_(-1),
     currentIndexRaw_(0),
     itemsChanged_(false),
-    selectionChanged_(false),
+    selectionChanged_(true),
     currentlyConnected_(false),
     activated_(this),
     sactivated_(this)
@@ -94,12 +94,13 @@ void WComboBox::rowsInserted(const WModelIndex &index, int from, int to)
   itemsChanged_ = true;
   repaint(RepaintSizeAffected);
 
-  if (currentIndex_ < from && currentIndex_ != -1) // selection is not affected
-    return;
-  else {
-    int count = to - from + 1;
+  int count = to - from + 1;
+
+  if (currentIndex_ == -1) {
+    if (model_->rowCount() == count && !supportsNoSelection())
+      setCurrentIndex(0);
+  } else if (currentIndex_ >= from)
     currentIndex_ += count;
-  }
 }
 
 void WComboBox::setModelColumn(int index)
@@ -134,7 +135,9 @@ void WComboBox::insertItem(int index, const WString& text)
 {
   if (model_->insertRow(index)) {
     setItemText(index, text);
-    if (currentIndex_ == -1 && !supportsNoSelection())
+    if (model_->rowCount() == 1 && 
+	currentIndex_ == -1 && 
+	!supportsNoSelection())
       setCurrentIndex(0);
   }
 }
@@ -210,6 +213,14 @@ bool WComboBox::isSelected(int index) const
 
 bool WComboBox::supportsNoSelection() const
 {
+  /*
+   * Actually, these days, all browsers support 'no selection' for
+   * combo-boxes, but we keep it like this to avoid breaking our
+   * behavior
+   *
+   * See http://stackoverflow.com/questions/6223865/blank-html-select-without-blank-item-in-dropdown-list
+   */
+
   return false;
 }
 
@@ -284,7 +295,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
 	currentGroup->addChild(item);
 
       // last loop and there's still an open group
-      if (i == count()-1 && currentGroup) {
+      if (i == count() - 1 && currentGroup) {
 	if (groupDisabled)
 	  currentGroup->setProperty(PropertyDisabled, "true");
 	element.addChild(currentGroup);
@@ -292,9 +303,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
       }
     }
 
-
     itemsChanged_ = false;
-    selectionChanged_ = false;
   }
 
   if (selectionChanged_) {

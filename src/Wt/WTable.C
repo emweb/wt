@@ -451,6 +451,9 @@ void WTable::moveColumn(int from, int to)
     WTableRow::TableData cell = cells[from];
     cells.erase(cells.begin() + from);
     cells.insert(cells.begin() + to, cell);
+
+    for (unsigned j = std::min(from, to); j < cells.size(); ++j)
+      cells[j].cell->column_ = j;
   }
 
   flags_.set(BIT_GRID_CHANGED);
