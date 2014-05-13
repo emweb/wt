@@ -204,7 +204,7 @@ void WFileUpload::enableAjax()
   WWebWidget::enableAjax();
 }
 
-void WFileUpload::setFilters(std::string acceptAttributes)
+void WFileUpload::setFilters(const std::string& acceptAttributes)
 {
   acceptAttributes_ = acceptAttributes;
 }

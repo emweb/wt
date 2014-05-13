@@ -15,13 +15,16 @@ SAMPLE_BEGIN(NumChart3d)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 // create the chart and add a border to the widget
-Wt::Chart::WCartesian3DChart *chart = new Wt::Chart::WCartesian3DChart(container);
+Wt::Chart::WCartesian3DChart *chart
+    = new Wt::Chart::WCartesian3DChart(container);
 chart->setType(Wt::Chart::ScatterPlot);
+
 // disable server-side rendering fallback; our VPSes don't have that
 chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering);
 
 Wt::WCssDecorationStyle style;
-style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium, Wt::black));
+style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium,
+			    Wt::black));
 chart->setDecorationStyle(style);
 
 chart->resize(600, 600);
@@ -42,28 +45,32 @@ Wt::Chart::WGridData *dataset1 = new Wt::Chart::WGridData(model1);
 dataset1->setType(Wt::Chart::SurfaceSeries3D);
 dataset1->setSurfaceMeshEnabled(true);
 Wt::Chart::WStandardColorMap *colormap =
-  new Wt::Chart::WStandardColorMap(dataset1->minimum(Wt::Chart::ZAxis_3D),
-				   dataset1->maximum(Wt::Chart::ZAxis_3D), true);
+    new Wt::Chart::WStandardColorMap(dataset1->minimum(Wt::Chart::ZAxis_3D),
+				     dataset1->maximum(Wt::Chart::ZAxis_3D),
+				     true);
 dataset1->setColorMap(colormap);
 
 // make second dataset (WEquidistantGridData)
 Wt::WStandardItemModel *model2 = new PlaneData(40, 40, container);
-for (unsigned i=0; i < model2->rowCount(); i++) { // set a few size-roles
-  model2->setData(i, 0, 5, Wt::MarkerScaleFactorRole);
-  model2->setData(i, model2->columnCount()-1, 5, Wt::MarkerScaleFactorRole);
+for (int i=0; i < model2->rowCount(); i++) { // set a few size-roles
+    model2->setData(i, 0, 5, Wt::MarkerScaleFactorRole);
+    model2->setData(i, model2->columnCount()-1, 5, Wt::MarkerScaleFactorRole);
 }
-for (unsigned i=0; i < model2->columnCount(); i++) {
-  model2->setData(0, i, 5, Wt::MarkerScaleFactorRole);
-  model2->setData(model2->rowCount()-1, i, 5, Wt::MarkerScaleFactorRole);
+
+for (int i=0; i < model2->columnCount(); i++) {
+    model2->setData(0, i, 5, Wt::MarkerScaleFactorRole);
+    model2->setData(model2->rowCount()-1, i, 5, Wt::MarkerScaleFactorRole);
 }
-for (unsigned i=0; i < model2->rowCount(); i++) { // set a few color-roles
-  model2->setData(i, 5, Wt::WColor(0,255,0), Wt::MarkerBrushColorRole);
-  model2->setData(i, 6, Wt::WColor(0,0,255), Wt::MarkerBrushColorRole);
-  model2->setData(i, 7, Wt::WColor(0,255,0), Wt::MarkerBrushColorRole);
-  model2->setData(i, 8, Wt::WColor(0,0,255), Wt::MarkerBrushColorRole);
- }
+
+for (int i=0; i < model2->rowCount(); i++) { // set a few color-roles
+    model2->setData(i, 5, Wt::WColor(0,255,0), Wt::MarkerBrushColorRole);
+    model2->setData(i, 6, Wt::WColor(0,0,255), Wt::MarkerBrushColorRole);
+    model2->setData(i, 7, Wt::WColor(0,255,0), Wt::MarkerBrushColorRole);
+    model2->setData(i, 8, Wt::WColor(0,0,255), Wt::MarkerBrushColorRole);
+}
+
 Wt::Chart::WEquidistantGridData *dataset2 =
-  new Wt::Chart::WEquidistantGridData(model2, -10, 0.5f, -10, 0.5f);
+    new Wt::Chart::WEquidistantGridData(model2, -10, 0.5f, -10, 0.5f);
 
 // make third dataset (WScatterData)
 Wt::WStandardItemModel *model3 = new SpiralData(100, container);
@@ -75,6 +82,7 @@ chart->addDataSeries(dataset1);
 chart->addDataSeries(dataset2);
 chart->addDataSeries(dataset3);
 
-chart->setAlternativeContent(new Wt::WImage(Wt::WLink("pics/numericalChartScreenshot.png"), container));
+chart->setAlternativeContent
+    (new Wt::WImage(Wt::WLink("pics/numericalChartScreenshot.png")));
 
 SAMPLE_END(return container)

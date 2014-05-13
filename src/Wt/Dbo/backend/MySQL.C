@@ -576,6 +576,12 @@ class MySQLStatement : public SqlStatement
           *value = *static_cast<long long*>(out_pars_[column].buffer);
           break;
 
+        default:
+
+	  throw MySQLException("MySQL: getResult(long long): unknown type: "
+			       + boost::lexical_cast<int>
+			       (out_pars_[column].buffer_type ));
+	  break;
       }
 
       DEBUG(std::cerr << this

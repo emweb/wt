@@ -95,7 +95,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   }
 
   if (!separator_) {
-    WAnchor *anchor = new WAnchor(this);
+    new WAnchor(this);
     updateInternalPath();
   }
 

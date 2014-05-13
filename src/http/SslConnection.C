@@ -41,7 +41,7 @@ SslConnection::SslConnection(asio::io_service& io_service, Server *server,
 #if BOOST_VERSION >= 104700
   SSL_set_options(socket_.native_handle(), SSL_OP_NO_COMPRESSION);
 #else
-  SSL_set_options(socket_.impl(), SSL_OP_NO_COMPRESSION);
+  SSL_set_options(socket_.impl()->ssl, SSL_OP_NO_COMPRESSION);
 #endif
 #endif
 }

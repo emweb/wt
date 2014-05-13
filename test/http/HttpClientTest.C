@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( http_client_test2 )
 
   std::string verifyFail = "pause.perl.org/";
 
-  /* Should fail but doesn't ! */
+  /* Does no longer fail! Too bad */
   if (c->get("https://" + verifyFail)) {
     environment.endRequest();
     app.waitDone();
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( http_client_test3 )
 
   std::string asioFail = "www.google.be/";
 
-  /* Should not fail but does ! */
+  /* Asio no longer fails. Good! */
   if (c->get("https://" + asioFail)) {
     environment.endRequest();
     app.waitDone();
@@ -159,4 +159,5 @@ BOOST_AUTO_TEST_CASE( http_client_test4 )
     environment.startRequest();
   }
 }
+
 #endif // WT_THREADED
