@@ -43,7 +43,8 @@ public:
    */
   WInteractWidget *item() { return option_; }
 
-  virtual void setHidden(bool);
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
 
 private:
   //! The option command text.

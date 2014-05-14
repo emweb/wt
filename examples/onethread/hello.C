@@ -70,8 +70,7 @@ void HelloApplication::greet()
    * You can even functions that block the event loop (and start a recursive
    * event loop).
    */
-  StandardButton result 
-    = WMessageBox::show("Welcome", "Hello there, " + nameEdit_->text(), Ok);
+  WMessageBox::show("Welcome", "Hello there, " + nameEdit_->text(), Ok);
 }
 
 WApplication *createApplication(const WEnvironment& env)

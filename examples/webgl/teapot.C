@@ -104,7 +104,7 @@ WebGLDemo::WebGLDemo(const WEnvironment& env)
   fragmentShaderText_ = new WTextArea;
   fragmentShaderText_->resize(750, 250);
   tabs->addTab(fragmentShaderText_, "Fragment Shader");
-  WText *shaderInfo = new WText(root());
+
   vertexShaderText_ = new WTextArea;
   vertexShaderText_->resize(750, 250);
   tabs->addTab(vertexShaderText_, "Vertex Shader");
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 
     server.addEntryPoint(Wt::Application, createApplication);
     if (server.start()) {
-      int sig = WServer::waitForShutdown();
+      WServer::waitForShutdown();
 
       server.stop();
     }

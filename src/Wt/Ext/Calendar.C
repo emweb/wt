@@ -21,7 +21,6 @@ Calendar::Calendar(bool i18n, WContainerWidget *parent)
   : Component(parent),
     selectionChanged_(this),
     selected_(this),
-    i18n_(i18n),
     extDateSelected_(this, "select", false)
 { }
 

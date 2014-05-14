@@ -29,7 +29,6 @@ private:
   Wt::WWidget *themes();
   Wt::WWidget *loadingIndicator();
   void loadingIndicatorSelected(Wt::WString indicator);
-  void load(Wt::WMouseEvent);
 };
 
 #endif // LAYOUT_H_

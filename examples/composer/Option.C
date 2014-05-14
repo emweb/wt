@@ -46,9 +46,9 @@ void Option::showSeparator()
   sep_->show();
 }
 
-void Option::setHidden(bool hidden)
+void Option::setHidden(bool hidden, const WAnimation& animation)
 {
-  WContainerWidget::setHidden(hidden);
+  WContainerWidget::setHidden(hidden, animation);
 
   if (list_)
     list_->optionVisibilityChanged(this, hidden);

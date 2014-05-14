@@ -33,9 +33,6 @@ class ChartSettings : public WContainerWidget
 public:
   ChartSettings(WCartesian3DChart *chart,
 		WContainerWidget *parent = 0);
-
-private:
-  WCartesian3DChart *chart_;
 };
 
 
@@ -48,8 +45,6 @@ public:
   Signal<WAbstractDataSeries3D*>& selectionChanged() { return selectionChange_; }
 
 private:
-  WCartesian3DChart *chart_;
-
   typedef std::pair<WString, WAbstractDataSeries3D*> DataSelectionItem;
   std::vector<DataSelectionItem> dataCollection_;
   Signal<WAbstractDataSeries3D*> selectionChange_;
@@ -66,7 +61,6 @@ public:
   void addDataToCollection(WString name, WAbstractDataSeries3D *data);
 
 private:
-  WCartesian3DChart* chart_;
   DataSelection* dataselection_;
 
   NumGridDataSettings *numgriddatasettings_;

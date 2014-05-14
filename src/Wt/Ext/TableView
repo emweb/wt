@@ -479,7 +479,6 @@ private:
   bool columnMove_;
   bool alternatingRowColors_;
   bool highlightMouseOver_;
-  bool haveEditor_;
 
   DataStore *dataStore_;
 
