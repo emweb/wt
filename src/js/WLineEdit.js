@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WLineEdit",
-  function(APP, edit, mask, raw, caseMap, spaceChar) {
+   function(APP, edit, mask, raw, displayValue, caseMap, spaceChar, flags) {
     /** @const */ var BACKSPACE_KEY = 8;
     /** @const */ var DELETE_KEY = 46;
     /** @const */ var RIGHT_KEY = 39;
@@ -28,6 +28,7 @@ WT_DECLARE_WT_MEMBER
     /** @const */ var ZERO_CHAR = '0'.charCodeAt(0);
     /** @const */ var ONE_CHAR = '1'.charCodeAt(0);
     /** @const */ var NINE_CHAR = '9'.charCodeAt(0);
+    /** @const */ var KEEP_MASK_WHEN_BLURRED_FLAG = 0x1;
 
     jQuery.data(edit, 'lobj', this);
 
@@ -57,7 +58,10 @@ WT_DECLARE_WT_MEMBER
     };
 
     this.setValue = function(newValue) {
-      if (mask === "" || !WT.hasFocus(edit)) {
+      displayValue = newValue;
+
+      if (mask === "" || 
+	  (!(flags & KEEP_MASK_WHEN_BLURRED_FLAG) && !WT.hasFocus(edit))) {
 	edit.value = newValue;
 	return;
       }
@@ -77,22 +81,26 @@ WT_DECLARE_WT_MEMBER
 	j = insertChar(charToInsert, j, true);
       }
 
-      if (newCursor !== -1)
-	setCursor(newCursor);
-      else if (newValue.length == 0)
-        setCursor(0);
+      if (WT.hasFocus(edit)) {
+	if (newCursor !== -1)
+	  setCursor(newCursor);
+	else if (newValue.length == 0)
+	  setCursor(0);
+      }
     };
 
-    this.setInputMask = function(newMask, newRaw, newCaseMap, newSpaceChar) {
+    this.setInputMask = function(newMask, newRaw, newDisplayValue,
+				 newCaseMap, newSpaceChar) {
       mask = newMask;
       raw = newRaw;
       caseMap = newCaseMap;
       spaceChar = newSpaceChar;
+      displayValue = newDisplayValue;
     };
 
     if (mask !== "") {
-      this.setInputMask(mask, raw, caseMap, spaceChar);
-      this.setValue(this.getValue());
+      this.setInputMask(mask, raw, displayValue, caseMap, spaceChar);
+      this.setValue(displayValue);
     }
 
     function skippable(position) {
@@ -280,15 +288,16 @@ WT_DECLARE_WT_MEMBER
     var previousValue = this.getValue();
 
     this.focussed = function(o, event) {
-      if (mask === "") return;
+      if (mask === "" || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) return;
       previousValue = this.getValue();
       setTimeout(function() {
-		   self.setValue(edit.value);
+	           edit.value = displayValue;
 		 }, 0);
     };
 
     this.blurred = function(o, event) {
-      if (mask === "") return;
+      if (mask === "" || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) return;
+      displayValue = edit.value;
       edit.value = this.getValue();
       if (edit.value !== previousValue)
 	$edit.change();

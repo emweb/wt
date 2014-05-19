@@ -62,8 +62,17 @@ public:
    *
    * \sa setEchoMode(EchoMode)
    */
-  enum EchoMode { Normal,   //!< Characters are shown.
-		  Password  //!< Hide the contents as for a password.
+  enum EchoMode {
+    Normal,   //!< Characters are shown.
+    Password  //!< Hide the contents as for a password.
+  };
+
+  /*! \brief Enumeration that describes options for input masks.
+   *
+   * \sa setInputMask()
+   */
+  enum InputMaskFlag {
+    KeepMaskWhileBlurred = 0x1 //!< Keep the input mask when blurred
   };
 
   /*! \brief Creates a line edit with empty content and optional parent.
@@ -104,6 +113,20 @@ public:
    * \sa setText()
    */
   const WT_USTRING& text() const { return content_; }
+
+  /*! \brief Returns the displayed text.
+   *
+   * If echoMode() is set to Normal, and no input mask is defined, this returns the same as
+   * text().
+   *
+   * If an input mask is defined, then the text is returned including space characters.
+   *
+   * If echoMode() is set to Password, then a string of asterisks is returned equal to the length
+   * of the text.
+   *
+   * \sa setText()
+   */
+  WT_USTRING displayText() const;
 
   /*! \brief Specifies the maximum length of text that can be entered.
    *
@@ -264,12 +287,14 @@ public:
    * non-compliant characters will be removed from the input and this
    * action will be logged.
    */
-  void setInputMask(const WT_USTRING &mask = "");
+  void setInputMask(const WT_USTRING &mask = "",
+		    WFlags<InputMaskFlag> flags = 0);
 
   virtual WValidator::State validate();
 
 private:
   WT_USTRING content_;
+  WT_USTRING displayContent_;
   int        textSize_;
   int        maxLength_;
   EchoMode   echoMode_;
@@ -296,9 +321,11 @@ private:
   std::string raw_;
   char	       spaceChar_;
 #endif
+  WFlags<InputMaskFlag> inputMaskFlags_;
   std::string  case_;
   bool javaScriptDefined_;
 
+  WT_USTRING removeSpaces(const WT_USTRING& text) const;
   WT_USTRING inputText(const WT_USTRING& text) const;
   void processInputMask();
 #if !defined(WT_NO_STD_WSTRING) && !defined(WT_TARGET_JAVA)

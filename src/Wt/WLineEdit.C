@@ -44,7 +44,6 @@ WLineEdit::WLineEdit(WContainerWidget *parent)
 
 WLineEdit::WLineEdit(const WT_USTRING& text, WContainerWidget *parent)
   : WFormWidget(parent),
-    content_(text),
     textSize_(10),
     maxLength_(-1),
     echoMode_(Normal),
@@ -52,20 +51,24 @@ WLineEdit::WLineEdit(const WT_USTRING& text, WContainerWidget *parent)
     maskChanged_(false),
     spaceChar_(' '),
     javaScriptDefined_(false)
-{ 
+{
   setInline(true);
   setFormObject(true);
+  setText(text);
 }
 
 void WLineEdit::setText(const WT_USTRING& text)
 {
-  WT_USTRING myText = inputText(text);
-  if (maskChanged_ || content_ != myText) {
-    content_ = myText;
+  WT_USTRING newDisplayText = inputText(text);
+  WT_USTRING newText = removeSpaces(newDisplayText);
+  if (maskChanged_ || content_ != newText || 
+      displayContent_ != newDisplayText) {
+    content_ = newText;
+    displayContent_ = newDisplayText;
 
     if (isRendered() && !inputMask_.empty()) {
       doJavaScript("jQuery.data(" + jsRef() + ", 'lobj')"
-	 ".setValue(" + WWebWidget::jsStringLiteral(myText) + ");");
+	 ".setValue(" + WWebWidget::jsStringLiteral(newDisplayText) + ");");
     }
 
     flags_.set(BIT_CONTENT_CHANGED);
@@ -74,6 +77,28 @@ void WLineEdit::setText(const WT_USTRING& text)
     validate();
 
     applyEmptyText();
+  }
+}
+
+WT_USTRING WLineEdit::displayText() const
+{
+  if (echoMode_ == Normal) {
+    return displayContent_;
+  } else { // echoMode_ == Password
+#ifndef WT_NO_STD_WSTRING
+    std::wstring text = displayContent_;
+#else
+    std::string text = displayContent_.toUTF8();
+#endif
+#ifndef WT_TARGET_JAVA
+    return WT_USTRING::fromUTF8(std::string(text.length(),'*'));
+#else
+    std::stringstream result;
+    for (int i = 0; i < result.length(); i++) {
+      result << '*';
+    }
+    return WT_USTRING::fromUTF8(result.str());
+#endif
   }
 }
 
@@ -116,7 +141,10 @@ void WLineEdit::setAutoComplete(bool enabled)
 void WLineEdit::updateDom(DomElement& element, bool all)
 {
   if (all || flags_.test(BIT_CONTENT_CHANGED)) {
-    element.setProperty(Wt::PropertyValue, content_.toUTF8());
+    WT_USTRING t = content_;
+    if (!mask_.empty() && (inputMaskFlags_ & KeepMaskWhileBlurred))
+      t = displayContent_;
+    element.setProperty(Wt::PropertyValue, t.toUTF8());
     flags_.reset(BIT_CONTENT_CHANGED);
   }
 
@@ -187,7 +215,8 @@ void WLineEdit::setFormData(const FormData& formData)
 
   if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
-    content_ = inputText(WT_USTRING::fromUTF8(value, true));
+    displayContent_ = inputText(WT_USTRING::fromUTF8(value, true));
+    content_ = removeSpaces(displayContent_);
   }
 }
 
@@ -276,10 +305,12 @@ WT_USTRING WLineEdit::inputMask() const
   return inputMask_;
 }
 
-void WLineEdit::setInputMask(const WT_USTRING &mask)
+void WLineEdit::setInputMask(const WT_USTRING &mask,
+			     WFlags<InputMaskFlag> flags)
 {
+  inputMaskFlags_ = flags;
+
   if (inputMask_ != mask) {
-    maskChanged_ = true;
 #ifndef WT_NO_STD_WSTRING
     inputMask_ = mask;
 #else
@@ -291,39 +322,67 @@ void WLineEdit::setInputMask(const WT_USTRING &mask)
     spaceChar_ = ' ';
     WT_USTRING textBefore;
     if (!inputMask_.empty()) {
-      textBefore = text();
-
+      textBefore = displayText();
       processInputMask();
+      setText(textBefore);
     }
-#ifndef WT_NO_STD_WSTRING
-    std::wstring space;
-#else
-    std::string space;
-#endif
-    space += spaceChar_;
+
     if (isRendered() && javaScriptDefined_) {
+#ifndef WT_NO_STD_WSTRING
+      std::wstring space;
+#else
+      std::string space;
+#endif
+      space += spaceChar_;
+
       doJavaScript("jQuery.data(" + jsRef() + ", 'lobj')"
         ".setInputMask(" + WWebWidget::jsStringLiteral(mask_) + "," +
 			   WWebWidget::jsStringLiteral(raw_) +  "," +
+			   WWebWidget::jsStringLiteral(displayContent_) + "," +
 			   WWebWidget::jsStringLiteral(case_) + "," +
 			   WWebWidget::jsStringLiteral(space) + ", true);");
-    }
-    if (!inputMask_.empty()) {
-      defineJavaScript();
-      setText(textBefore);
-    }
-    maskChanged_ = false;
+    } else if (!inputMask_.empty())
+      repaint();
   }
 }
 
 void WLineEdit::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
-    if (!mask_.empty())
-      defineJavaScript();
-  }
+  if (!mask_.empty() && !javaScriptDefined_)
+    defineJavaScript();
 
   WFormWidget::render(flags);
+}
+
+// Remove spaces, only for input masks
+WT_USTRING WLineEdit::removeSpaces(const WT_USTRING& text) const
+{
+  if (!raw_.empty() && !text.empty()) {
+#ifndef WT_NO_STD_WSTRING
+    std::wstring result = text;
+#else
+    std::string result = text.toUTF8();
+#endif
+    std::size_t i = 0;
+    for (std::size_t j = 0; j < raw_.length(); ++i, ++j) {
+      while (j < raw_.length() &&
+	     result[j] == spaceChar_ &&
+	     mask_[j] != '_') {
+	++j;
+      }
+      if (j < raw_.length()) {
+	if (i != j) {
+	  result[i] = result[j];
+	}
+      } else {
+	--i;
+      }
+    }
+    result = result.substr(0, i);
+    return WT_USTRING(result);
+  } else {
+    return text;
+  }
 }
 
 // Unless the given text is empty, input the text as if it was
@@ -368,23 +427,6 @@ WT_USTRING WLineEdit::inputText(const WT_USTRING& text) const
 	++j;
       }
     }
-    // Remove spaces by moving everything that is not a space forward.
-    i = 0;
-    for (j = 0; j < raw_.length(); ++i, ++j) {
-      while (j < raw_.length() &&
-	     result[j] == spaceChar_ &&
-	     mask_[j] != '_') {
-	++j;
-      }
-      if (j < raw_.length()) {
-	if (i != j) {
-	  result[i] = result[j];
-	}
-      } else {
-	--i;
-      }
-    }
-    result = result.substr(0, i);
     if (hadIgnoredChar) {
       LOG_INFO("Input mask: not all characters in input '" + text + "' complied with "
 	  "input mask " + inputMask_  + " and were ignored. Result is '" + result + "'.");
@@ -497,8 +539,10 @@ void WLineEdit::defineJavaScript()
     + app->javaScriptClass() + "," + jsRef() + "," +
       WWebWidget::jsStringLiteral(mask_) + "," +
       WWebWidget::jsStringLiteral(raw_) +  "," +
+      WWebWidget::jsStringLiteral(displayContent_) +  "," +
       WWebWidget::jsStringLiteral(case_) + "," +
-      WWebWidget::jsStringLiteral(space) + ");";
+      WWebWidget::jsStringLiteral(space) + "," +
+      (inputMaskFlags_ & KeepMaskWhileBlurred ? "0x1" : "0x0") + ");";
 
   setJavaScriptMember(" WLineEdit", jsObj);
 

@@ -418,13 +418,13 @@ WT_DECLARE_WT_MEMBER
 
        contentsContainer.style.width = tw + 'px';
        headerContainer.style.width = tw + 'px';
-
-       var rtl = $(document.body).hasClass('Wt-rtl');
-       if (!rtl)
-	 headerContainer.style.marginRight = scrollwidth + 'px';
-       else
-	 headerContainer.style.marginLeft = scrollwidth + 'px';
      }
+
+     var rtl = $(document.body).hasClass('Wt-rtl');
+     if (!rtl)
+       headerContainer.style.marginRight = scrollwidth + 'px';
+     else
+       headerContainer.style.marginLeft = scrollwidth + 'px';
 
      var scrollheight = contentsContainer.offsetHeight
        - contentsContainer.clientHeight;

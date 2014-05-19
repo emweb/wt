@@ -144,7 +144,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	std::fstream *f_in = dynamic_cast<std::fstream *>(in_);
         if (f_in) {
           f_in->open(requestFileName_.c_str(),
-            std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
+            std::ios::out | std::ios::binary | std::ios::app);
           if (!*f_in) {
             LOG_ERROR("error opening spool file for request that exceeds "
               "max-memory-request-size: " << requestFileName_);
@@ -200,7 +200,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
       } else {
         if (dynamic_cast<std::fstream *>(in_)) {
           dynamic_cast<std::fstream *>(in_)->open(requestFileName_.c_str(),
-            std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
+            std::ios::in | std::ios::binary );
           if (!*in_) {
             LOG_ERROR("error opening spooled request " << requestFileName_);
             setStatus(internal_server_error);
