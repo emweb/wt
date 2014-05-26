@@ -100,7 +100,7 @@ WT_DECLARE_WT_MEMBER
 
     if (mask !== "") {
       this.setInputMask(mask, raw, displayValue, caseMap, spaceChar);
-      this.setValue(displayValue);
+      this.setValue(this.getValue());
     }
 
     function skippable(position) {
@@ -204,7 +204,7 @@ WT_DECLARE_WT_MEMBER
     }
 
     this.keyDown = function(o, event) {
-      if (mask === "") return;
+      if (mask === "" || edit.readOnly) return;
       var selection;
       switch(event.keyCode) {
       case RIGHT_KEY:
@@ -271,7 +271,7 @@ WT_DECLARE_WT_MEMBER
     };
 
     this.keyPressed = function(o, event) {
-      if (mask === "") return;
+      if (mask === "" || edit.readOnly) return;
       var charCode = event.charCode || event.keyCode;
       if (charCode === 0 || charCode === CR_CHAR || charCode === LF_CHAR)
 	return;
@@ -288,15 +288,15 @@ WT_DECLARE_WT_MEMBER
     var previousValue = this.getValue();
 
     this.focussed = function(o, event) {
-      if (mask === "" || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) return;
+      if (mask === "" || edit.readOnly || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) return;
       previousValue = this.getValue();
       setTimeout(function() {
-	           edit.value = displayValue;
+		   self.setValue(displayValue);
 		 }, 0);
     };
 
     this.blurred = function(o, event) {
-      if (mask === "" || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) return;
+      if (mask === "" || edit.readOnly || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) return;
       displayValue = edit.value;
       edit.value = this.getValue();
       if (edit.value !== previousValue)
@@ -304,14 +304,14 @@ WT_DECLARE_WT_MEMBER
     };
 
     this.clicked = function(o, event) {
-      if (mask === "") return;
+      if (mask === "" || edit.readOnly) return;
       var selection = WT.getSelectionRange(edit);
       if (selection.start === selection.end)
 	setCursor(selection.start);
     };
 
     function paste(event) {
-      if (mask === "") return;
+      if (mask === "" || edit.readOnly) return;
       WT.cancelEvent(event, WT.CancelDefaultAction);
       var selection = WT.getSelectionRange(edit);
       if (selection.start !== selection.end) {
@@ -342,7 +342,7 @@ WT_DECLARE_WT_MEMBER
     }
 
     function cut(event) {
-      if (mask === "") return;
+      if (mask === "" || edit.readOnly) return;
       WT.cancelEvent(event, WT.CancelDefaultAction);
       var selection = WT.getSelectionRange(edit);
       if (selection.start !== selection.end) {
@@ -363,7 +363,7 @@ WT_DECLARE_WT_MEMBER
     }
 
     function input(event) {
-      if (mask === "") return;
+      if (mask === "" || edit.readOnly) return;
       // When the value was cleared, reset it to "raw".
       // e.g. IE does this when the X button is clicked.
       if (edit.value === "") {
