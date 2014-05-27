@@ -216,7 +216,7 @@ void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 
   // FIXME: we should foresee something independent of app->javaScriptClass()
   response.out() <<
-    "if (window.Wt) window.Wt._p_.quit(); window.location.reload(true);";
+    "if (window.Wt) window.Wt._p_.quit(null); window.location.reload(true);";
 }
 
 void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
@@ -434,7 +434,7 @@ void WebRenderer::serveError(int status, WebResponse& response,
       << '\n';
   } else {
     response.out() << app->javaScriptClass()
-		   << "._p_.quit();"
+		   << "._p_.quit(null);"
 		   << "document.title = 'Error occurred.';"
 		   << "document.body.innerHtml='<h2>Error occurred.</h2>' +"
 		   <<  WWebWidget::jsStringLiteral(message)
@@ -887,6 +887,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setVar("INNER_HTML", innerHtml);
     script.setVar("ACK_UPDATE_ID", expectedAckId_);
     script.setVar("SESSION_URL", WWebWidget::jsStringLiteral(sessionUrl()));
+    script.setVar("QUITTED_STR",
+		  WString::tr("Wt.QuittedMessage").jsStringLiteral());
 
     std::string deployPath = session_.env().publicDeploymentPath_;
     if (deployPath.empty())
@@ -1111,8 +1113,10 @@ void WebRenderer::serveMainAjax(WStringStream& out)
 
   addResponseAckPuzzle(s);
 
-  if (app->isQuited())
-    s << app->javaScriptClass() << "._p_.quit();";
+  if (app->hasQuit())
+    s << app->javaScriptClass() << "._p_.quit("
+      << (app->quittedMessage_.empty() ? "null" :
+	  app->quittedMessage_.jsStringLiteral()) + ");";
 
   if (widgetset)
     app->domRoot2_->rootAsJavaScript(app, s, true);
@@ -1559,7 +1563,9 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
   app->streamAfterLoadJavaScript(out);
 
   if (app->isQuited())
-    out << app->javaScriptClass() << "._p_.quit();";
+    out << app->javaScriptClass() << "._p_.quit("
+	<< (app->quittedMessage_.empty() ? "null" :
+	    app->quittedMessage_.jsStringLiteral()) + ");";
 
   if (updateLayout_) {
     out << "window.onresize();";

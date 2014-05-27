@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages>
+  <message id="Wt.QuittedMessage">
+    The application has stopped running, would you like to restart?
+  </message>
+
   <message id="Wt.WAbstractItemView.PageIOfN"><b>{1}</b> of <b>{2}</b></message>
   <message id="Wt.WAbstractItemView.PageBar.First">&#x00ab; First</message>
   <message id="Wt.WAbstractItemView.PageBar.Previous">&#x2039; Previous</message>

@@ -98,7 +98,7 @@ WApplication::WApplication(const WEnvironment& env
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
 #endif // WT_CNOR
     javaScriptClass_("Wt"),
-    quited_(false),
+    quitted_(false),
     internalPathsEnabled_(false),
     exposedOnly_(0),
     loadingIndicator_(0),
@@ -673,7 +673,13 @@ std::string WApplication::resolveRelativeUrl(const std::string& url) const
 
 void WApplication::quit()
 {
-  quited_ = true;
+  quit(WString::tr("Wt.QuittedMessage"));
+}
+
+void WApplication::quit(const WString& restartMessage)
+{
+  quitted_ = true;
+  quittedMessage_ = restartMessage;
 }
 
 WWidget *WApplication::findWidget(const std::string& name)
@@ -928,7 +934,7 @@ void WApplication::refresh()
   if (domRoot2_) {
     domRoot2_->refresh();
   } else {
-    widgetRoot_->refresh();
+    domRoot_->refresh();
   }
 
   if (title_.refresh())

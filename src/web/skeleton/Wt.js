@@ -1986,7 +1986,7 @@ _$_$endif_$_();
 
 if (window._$_APP_CLASS_$_ && window._$_APP_CLASS_$_._p_) {
   try {
-    window._$_APP_CLASS_$_._p_.quit(true);
+    window._$_APP_CLASS_$_._p_.quit(null);
   } catch (e) {
   }
 }
@@ -2451,8 +2451,8 @@ function encodePendingEvents() {
 }
 
 var sessionUrl,
-  quited = false,
-  norestart = false,
+  quitted = false,
+  quittedStr = _$_QUITTED_STR_$_,
   loaded = false,
   responsePending = null,
   pollTimer = null,
@@ -2461,10 +2461,9 @@ var sessionUrl,
   serverPush = false,
   updateTimeout = null;
 
-function quit(silent) {
-  quited = true;
-  if (silent)
-    norestart = true;
+function quit(quittedMessage) {
+  quitted = true;
+  quittedStr = quittedMessage;
   if (keepAliveTimer) {
     clearInterval(keepAliveTimer);
     keepAliveTimer = null;
@@ -2525,7 +2524,7 @@ function load(fullapp) {
   if (fullapp)
     window._$_APP_CLASS_$_LoadWidgetTree();
 
-  if (!quited) {
+  if (!quitted) {
     if (!keepAliveTimer) {
       keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
     }
@@ -2586,7 +2585,7 @@ function doJavaScript(js) {
 }
 
 function handleResponse(status, msg, timer) {
-  if (quited)
+  if (quitted)
     return;
 
   if (waitingForJavaScript) {
@@ -2633,7 +2632,7 @@ _$_$endif_$_();
   else
     commErrors = 0;
 
-  if (quited)
+  if (quitted)
     return;
 
   if (serverPush || pendingEvents.length > 0) {
@@ -2664,7 +2663,7 @@ function doPollTimeout() {
   responsePending = null;
   pollTimer = null;
 
-  if (!quited)
+  if (!quitted)
     sendUpdate();
 }
 
@@ -2708,15 +2707,15 @@ _$_$endif_$_();
 var updateTimeoutStart;
 
 function scheduleUpdate() {
-  if (quited) {
-    if (norestart)
+  if (quitted) {
+    if (!quittedStr)
       return;
-    if (confirm("The application was quited, do you want to restart?")) {
+    if (confirm(quittedStr)) {
       document.location = document.location;
-      norestart = true;
+      quittedStr = null;
       return;
     } else {
-      norestart = true;
+      quittedStr = null;
       return;
     }
   }
@@ -2734,7 +2733,7 @@ _$_$if_WEB_SOCKETS_$_();
 	  websocket.state = WebSocketsUnavailable;
 	else {
 	  function reconnect() {
-	    if (!quited) {
+	    if (!quitted) {
 	      ++websocket.reconnectTries;
 	      var ms = Math.min(120000, Math.exp(websocket.reconnectTries)
 				* 500);
@@ -2863,7 +2862,7 @@ function setPage(id)
 
 function sendUpdate() {
   if (self != window._$_APP_CLASS_$_) {
-    quit(true);
+    quit(null);
     return;
   }
 
@@ -2875,7 +2874,7 @@ function sendUpdate() {
 
   if (WT.isIEMobile) feedback = false;
 
-  if (quited)
+  if (quitted)
     return;
 
   var data, tm, poll;
@@ -3059,7 +3058,7 @@ function loadScript(uri, symbol, tries)
 	loadScript(uri, symbol, t - 1);
       } else {
 	alert('Fatal error: failed loading ' + uri);
-	quit(true);
+	quit(null);
       }      
     }
   }
@@ -3213,7 +3212,7 @@ function ieAlternative(d)
 
 window.onunload = function()
 {
-  if (!quited) {
+  if (!quitted) {
     self.emit(self, "Wt-unload");
     scheduleUpdate();
     sendUpdate();
@@ -3266,7 +3265,7 @@ this._p_ = {
   response : responseReceived,
   setPage : setPage,
   setCloseMessage : setCloseMessage,
-  
+
   propagateSize : propagateSize
 };
 

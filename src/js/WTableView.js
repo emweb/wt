@@ -32,6 +32,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
+   var scrollToPending = false;
 
    /*
     * We need to remember this for when going through a hide()
@@ -49,6 +50,7 @@ WT_DECLARE_WT_MEMBER
        return;
 
      if (contentsContainer.clientWidth && contentsContainer.clientHeight
+         && (!scrollToPending)
          && (contentsContainer.scrollTop < scrollY1
 	 || contentsContainer.scrollTop > scrollY2
 	 || contentsContainer.scrollLeft < scrollX1
@@ -205,6 +207,10 @@ WT_DECLARE_WT_MEMBER
      headerColumnsContainer.scrollTop = scrollTop;
    };
 
+   this.setScrollToPending = function() {
+     scrollToPending = true;
+   };
+
    this.scrollToPx = function(x, y) {
      scrollTop = y;
      scrollLeft = x;
@@ -212,6 +218,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.scrollTo = function(x, y, hint) {
+     scrollToPending = false;
      if (y != -1) {
        var top = contentsContainer.scrollTop,
 	   height = contentsContainer.clientHeight;

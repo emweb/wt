@@ -491,6 +491,8 @@ public:
    *
    * The default column width is 150 pixels.
    *
+   * \note The height must be specified in WLength::Pixel units.
+   *
    * \note The actual space occupied by each column is the column width
    *       augmented by 7 pixels for internal padding and a border.
    */

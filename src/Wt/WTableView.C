@@ -1798,7 +1798,9 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
       if (isRendered()) {
 	WStringStream s;
 
-	s << "setTimeout(function() { jQuery.data("
+	s << "jQuery.data("
+	  << jsRef() << ", 'obj').setScrollToPending();"
+	  << "setTimeout(function() { jQuery.data("
 	  << jsRef() << ", 'obj').scrollTo(-1, "
 	  << rowY << "," << (int)hint << "); }, 0);";
 

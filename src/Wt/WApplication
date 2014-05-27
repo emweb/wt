@@ -165,7 +165,7 @@ public:
  *
  * Throughout the session, the instance is available through
  * WApplication::instance() (or through #wApp). The application may be
- * quited either using the method quit(), or because of a timeout
+ * exited either using the method quit(), or because of a timeout
  * after the user has closed the window, but not because the user does
  * not interact: keep-alive messages in the background will keep the
  * session around as long as the user has the page opened. In either
@@ -177,7 +177,7 @@ public:
  * Throughout the session, the instance is available through the
  * static method WApplication::instance(), which uses thread-specific
  * storage to keep track of the current session. The application may
- * be quited either using the method quit(), or because of a timeout
+ * be exited either using the method quit(), or because of a timeout
  * after the user has closed the window, but not because the user does
  * not interact: keep-alive messages in the background will keep the
  * session around as long as the user has the page opened.
@@ -1764,6 +1764,15 @@ public:
 
   /*! \brief Quits the application.
    *
+   * This quits the application with a default restart message resolved
+   * as WString::tr("Wt.QuittedMessage").
+   *
+   * \sa quit(const WString&)
+   */
+  void quit();
+
+  /*! \brief Quits the application.
+   *
    * The method returns immediately, but has as effect that the
    * application will be terminated after the current event is
    * completed.
@@ -1772,14 +1781,13 @@ public:
    * pending and applied during the current event handling) will still
    * be rendered, after which the application is terminated.
    *
-   * You might want to make sure no more events can be received from
-   * the user, by not having anything clickable, for example by
-   * displaying only text. Even better is to redirect() the user to
-   * another, static, page in conjunction with %quit().
+   * If the restart message is not empty, then the user will be
+   * offered to restart the application (using the provided message)
+   * when further interacting with the application.
    *
    * \sa redirect()
    */
-  void quit();
+  void quit(const WString& restartMessage);
 
   /*! \brief Returns whether the application has quit. (<b>deprecated</b>)
    *
@@ -1787,13 +1795,13 @@ public:
    *
    * \deprecated hasQuit() is proper English
    */
-  bool isQuited() const { return quited_; }
+  bool isQuited() const { return quitted_; }
 
   /*! \brief Returns whether the application has quit.
    *
    * \sa quit()
    */
-  bool hasQuit() const { return quited_; }
+  bool hasQuit() const { return quitted_; }
 
   /*! \brief Returns the current maximum size of a request to the
    *         application.
@@ -1921,6 +1929,8 @@ public:
    */
   void setConfirmCloseMessage(const WString& message);
 
+  /*! \brief Sets the message for the user when the application was .
+   */
   void enableInternalPaths();
 
   // should we move this into an InternalPaths utility class / namespace ?
@@ -2180,7 +2190,8 @@ private:
 #endif // WT_TARGET_JAVA
   std::string            javaScriptClass_;
   AjaxMethod             ajaxMethod_;
-  bool                   quited_;
+  bool                   quitted_;
+  WString                quittedMessage_;
   std::string            onePixelGifUrl_;
   bool                   internalPathsEnabled_;
   WWidget               *exposedOnly_;

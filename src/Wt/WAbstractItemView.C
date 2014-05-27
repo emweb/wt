@@ -809,11 +809,21 @@ bool WAbstractItemView::internalSelect(const WModelIndex& index,
 
   if (option == ToggleSelect)
     option = isSelected(index) ? Deselect : Select;
-  else if (option == ClearAndSelect) {
+
+  if (selectionMode() == SingleSelection && option == Select)
+    option = ClearAndSelect;
+
+  if ((option == ClearAndSelect || option == Select) &&
+      selectionModel()->selection_.size() == 1 &&
+      isSelected(index))
+    return false;
+  else if (option == Deselect && !isSelected(index))
+    return false;
+
+  if (option == ClearAndSelect) {
     clearSelection();
     option = Select;
-  } else if (selectionMode() == SingleSelection && option == Select)
-    clearSelection();
+  }
 
   /*
    * now option is either Select or Deselect and we only need to do
@@ -822,8 +832,7 @@ bool WAbstractItemView::internalSelect(const WModelIndex& index,
   if (option == Select)
     selectionModel()->selection_.insert(index);
   else
-    if (!selectionModel()->selection_.erase(index))
-      return false;
+    selectionModel()->selection_.erase(index);
 
   return true;
 }
@@ -913,9 +922,10 @@ void WAbstractItemView::selectionHandleClick(const WModelIndex& index,
     }
   } else {
     if ((modifiers & (ControlModifier | MetaModifier)) &&
-	isSelected(index))
+	isSelected(index)) {
       clearSelection();
-    else
+      selectionChanged_.emit();
+    } else
       select(index, Select);
   }
 }
