@@ -108,6 +108,13 @@
   <message id="Wt.Auth.registration">Registration</message>
   <message id="Wt.Auth.register">Register</message>
   <message id="Wt.Auth.error-user-invalid">Registration failed.</message>
+  <message id="Wt.Auth.email-unverified">Please confirm your email first.</message>
+  <message id="Wt.Auth.confirm-email-first">
+    <h5>Welcome!</h5>
+
+    You will be able to login after confirming your email address using the
+    email we've just sent you.
+  </message>
 
   <!-- PasswordPromptDialog -->
 

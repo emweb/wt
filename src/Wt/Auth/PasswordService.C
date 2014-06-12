@@ -5,6 +5,7 @@
  */
 
 #include "Wt/Auth/AbstractUserDatabase"
+#include "Wt/Auth/AuthService"
 #include "Wt/Auth/PasswordService"
 #include "Wt/Auth/User"
 

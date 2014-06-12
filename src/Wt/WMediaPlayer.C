@@ -420,6 +420,15 @@ void WMediaPlayer::playerDoRaw(const std::string& jqueryMethod)
     initialJs_ += ss.str();
 }
 
+
+void WMediaPlayer::refresh()
+{
+  WCompositeWidget::refresh();
+
+  // rerender so that the jPlayer constructor is executed on the new HTML
+  render(RenderFull);
+}
+
 void WMediaPlayer::render(WFlags<RenderFlag> flags)
 {
   // XXX subtitles, chapters, stream ?

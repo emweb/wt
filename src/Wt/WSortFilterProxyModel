@@ -277,6 +277,7 @@ protected:
   virtual bool filterAcceptRow(int sourceRow, const WModelIndex& sourceParent)
     const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Compares two indexes.
    *
    * The default implementation uses sortRole() and an ordering using
@@ -288,6 +289,20 @@ protected:
    */
   virtual bool lessThan(const WModelIndex& lhs, const WModelIndex& rhs)
     const;
+#endif
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Compares two indexes.
+   *
+   * The default implementation uses sortRole() and an ordering using
+   * the operator< when the data is of the same type or compares
+   * lexicographically otherwise.
+   *
+   * You may want to reimplement this method to provide specialized
+   * sorting.
+   */
+  virtual int compare(const WModelIndex& lhs, const WModelIndex& rhs) const;
+#endif
 
 private:
   /*
@@ -311,6 +326,7 @@ private:
     bool operator()(int sourceRow1, int sourceRow2) const;
 
     bool lessThan(int sourceRow1, int sourceRow2) const;
+    //int compare(const WModelIndex& lhs, const WModelIndex& rhs) const;
 #endif // WT_TARGET_JAVA
 
     int compare(int sourceRow1, int sourceRow2) const;
@@ -362,7 +378,9 @@ private:
   void rebuildSourceRowMap(Item *item) const;
 
   int mappedInsertionPoint(int sourceRow, Item *item) const;
+#ifndef WT_TARGET_JAVA
   int compare(const WModelIndex& lhs, const WModelIndex& rhs) const;
+#endif
 };
 
 }

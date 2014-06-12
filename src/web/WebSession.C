@@ -1240,6 +1240,7 @@ void WebSession::handleRequest(Handler& handler)
   if ((!wtdE || (*wtdE != sessionId_))
 	   && state_ != JustCreated
 	   && (requestE && (*requestE == "jsupdate" ||
+			    *requestE == "jserror" ||
 			    *requestE == "resource"))) {
     LOG_DEBUG("CSRF: " << (wtdE ? *wtdE : "no wtd") << " != " << sessionId_ <<
 	      ", requestE: " << (requestE ? *requestE : "none"));
@@ -1275,7 +1276,9 @@ void WebSession::handleRequest(Handler& handler)
 	  // In other cases we can simply start
 
 	  if (requestE) {
-	    if (*requestE == "jsupdate" || *requestE == "script") {
+	    if (*requestE == "jsupdate" || 
+		*requestE == "jserror" || 
+		*requestE == "script") {
 	      handler.response()->setResponseType(WebResponse::Update);
 	      LOG_INFO("signal from dead session, sending reload.");
 	      renderer_.letReloadJS(*handler.response(), true);
@@ -1376,7 +1379,8 @@ void WebSession::handleRequest(Handler& handler)
       case ExpectLoad:
       case Loaded: {
 	if (requestE) {
-	  if (*requestE == "jsupdate")
+	  if (*requestE == "jsupdate" ||
+	      *requestE == "jserror")
 	    handler.response()->setResponseType(WebResponse::Update);
 	  else if (*requestE == "script") {
 	    handler.response()->setResponseType(WebResponse::Script);
@@ -1956,6 +1960,16 @@ void WebSession::notify(const WEvent& event)
   }
 
   const std::string *requestE = request.getParameter("request");
+
+  /*
+   * Capture JavaScript error server-side.
+   */
+  if (requestE && *requestE == "jserror") {
+    app_->handleJavaScriptError(*request.getParameter("err"));
+    renderer_.setJSSynced(false);
+    render(handler);
+    return;
+  }
 
   const std::string *pageIdE = request.getParameter("pageId");
   if (pageIdE &&

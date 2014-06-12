@@ -255,9 +255,10 @@ this.initAjaxComm = function(url, handler) {
 
 	  clearTimeout(timer);
 
-	  if (good)
+	  if (good) {
+	    handled = true;
 	    handler(0, request.responseText, userData);
-	  else
+	  } else
 	    handler(1, null, userData);
 
 	  if (request) {
@@ -2601,14 +2602,16 @@ _$_$endif_$_();
       doJavaScript(msg);
 _$_$if_CATCH_ERROR_$_();
     } catch (e) {
-      var stack = null;
-
-_$_$if_SHOW_STACK_$_();
-      stack = e.stack || e.stacktrace;
-_$_$endif_$_();
-      alert("Wt internal error: " + e + ", code: " +  e.code
-	    + ", description: " + e.description
-	    + (stack ? (", stack:\n" + stack) : ""));
+      var stack = e.stack || e.stacktrace;
+      var description = e.description || e.message;
+      var err = { "exception_code": e.code,
+		  "exception_description": description,
+		  "exception_js": msg };
+      err.stack = stack;
+      sendError(err,
+		"Wt internal error; code: " +  e.code
+		+ ", description: " + description);
+      throw e;
     }
 _$_$endif_$_();
 
@@ -2855,9 +2858,17 @@ function responseReceived(updateId, puzzle) {
 }
 
 var pageId = 0;
-function setPage(id)
-{
+function setPage(id) {
   pageId = id;
+}
+
+function sendError(err, errMsg) {
+  responsePending = comm.sendUpdate
+    ('request=jserror&err=' + encodeURIComponent(JSON.stringify(err)),
+     false, ackUpdateId, -1);
+_$_$if_SHOW_ERROR_$_();
+  alert(errMsg);
+_$_$endif_$_();
 }
 
 function sendUpdate() {
@@ -3057,9 +3068,12 @@ function loadScript(uri, symbol, tries)
       if (t > 1) {
 	loadScript(uri, symbol, t - 1);
       } else {
-	alert('Fatal error: failed loading ' + uri);
+	var err = {
+	  "error-description" : 'Fatal error: failed loading ' + uri
+	};
+	sendError(err, err["error-description"]);
 	quit(null);
-      }      
+      }     
     }
   }
 

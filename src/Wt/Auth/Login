@@ -29,7 +29,9 @@ enum LoginState {
 
   /*! \brief The identified user was refused to login.
    *
-   * This is caused by User::status() returning User::Disabled
+   * This is caused by for example User::status() returning
+   * User::Disabled, or if email verification is required but the
+   * email hasn't been verified yet.
    */
   DisabledLogin,
 
@@ -124,7 +126,7 @@ private:
   Signal<> changed_;
 
   User user_;
-  bool weakLogin_;
+  LoginState state_;
 };
 
   }

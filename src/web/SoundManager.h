@@ -26,6 +26,7 @@ public:
   void stop(WSound *sound);
 
   bool isFinished(WSound *sound) const;
+  virtual void refresh();
 };
 
 }

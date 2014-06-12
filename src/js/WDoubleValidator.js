@@ -17,6 +17,10 @@ WT_DECLARE_WT_MEMBER
      this.validate = function(text) {
        text = String(text);
 
+       function toRegexp(value) {
+	  return value.replace(new RegExp("([\\^\\\\\\][\\-.$*+?()|{}])","g"), "\\$1");
+       }
+
        if (text.length == 0)
 	 if (mandatory)
 	   return { valid: false, message: blankError };
@@ -24,7 +28,7 @@ WT_DECLARE_WT_MEMBER
 	   return { valid: true };
 
        if (groupSeparator != '')
-	 text = text.replace(new RegExp(groupSeparator, 'g'), '');
+	 text = text.replace(new RegExp(toRegexp(groupSeparator), 'g'), '');
        if (decimalPoint != '.')
 	 text = text.replace(decimalPoint, '.');
 

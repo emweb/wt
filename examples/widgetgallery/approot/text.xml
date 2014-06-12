@@ -3300,7 +3300,7 @@
 
     <p><a href="#mvc-table-view">Top</a></p>
 
-    <h3>Editing</h3>
+    <h3>Editing + Combo box editor example</h3>
     <p>
       MVC Views will automaticlly react to changes to the underlying
       model, be it in the form of data updates, or the insertion of
@@ -3314,6 +3314,21 @@
       use a line edit for editing, but this can be customized by
       providing your own item delegate implementation.
     </p>
+    <p>
+      The example below illustrates how to override the editing behaviour of 
+      ${doc-link WItemDelegate}. It uses a combo box to allow the user to edit 
+      the cell values.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${ComboDelegateTable}
+      <p>
+      ${src ComboDelegateTable}
+      </p>
+    </fieldset>
+
+    <p><a href="#mvc-table-view">Top</a></p>
 
     <h3>Row headers</h3>
     <p>

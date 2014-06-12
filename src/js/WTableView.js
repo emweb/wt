@@ -38,7 +38,12 @@ WT_DECLARE_WT_MEMBER
     * We need to remember this for when going through a hide()
     * show() cycle.
     */
-   var scrollTop = 0, scrollLeft, currentWidth = 0, currentHeight = 0;
+   var scrollTop = 0, scrollLeft = 0, currentWidth = 0, currentHeight = 0;
+
+   headerContainer.onscroll = function(obj, event) {
+       contentsContainer.scrollLeft = headerContainer.scrollLeft;
+       this.onContentsContainerScroll();
+   };
 
    this.onContentsContainerScroll = function() {
      scrollLeft = headerContainer.scrollLeft
@@ -315,7 +320,7 @@ WT_DECLARE_WT_MEMBER
 	     var elij = col.childNodes[i];
 	     var inputs = $(elij).find(":input");
 	     if (inputs.size() > 0) {
-	       setTimeout(function() { inputs.focus(); }, 0);
+	       setTimeout(function() { inputs.focus(); inputs.select();}, 0);
 	       return;
 	     }
 	   }

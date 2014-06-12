@@ -869,8 +869,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setCondition
       ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors);
     script.setCondition
-      ("SHOW_STACK",
-       conf.errorReporting() == Configuration::ErrorMessageWithStack);
+      ("SHOW_ERROR", conf.errorReporting() == Configuration::ErrorMessage);
     script.setCondition
       ("UGLY_INTERNAL_PATHS", session_.useUglyInternalPaths());
 

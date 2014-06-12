@@ -83,9 +83,9 @@ public:
   };
 
   enum ErrorReporting {
-    NoErrors,
-    ErrorMessage,
-    ErrorMessageWithStack
+    NoErrors, /* do not even catch them */
+    ServerSideOnly,
+    ErrorMessage
   };
 
   enum BootstrapMethod {

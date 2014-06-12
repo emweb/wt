@@ -23,6 +23,8 @@ namespace Wt {
     static WPoint getSize(const std::string& fileName);
 
     static WPoint getSize(const std::vector<unsigned char>& header);
+    static WPoint getJpegSize(const std::string& fileName);
+
   };
 }
 

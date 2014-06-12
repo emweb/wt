@@ -71,4 +71,8 @@ bool SoundManager::isFinished(WSound *sound) const
     return true;
 }
 
+// There are no visible elements, so ignore refresh
+void SoundManager::refresh()
+{ }
+
 }

@@ -717,6 +717,12 @@ void WApplication::unload()
   quit();
 }
 
+void WApplication::handleJavaScriptError(const std::string& errorText)
+{
+  LOG_ERROR("JavaScript error: " << errorText);
+  quit();
+}
+
 void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
 {
   std::string s = signal->encodeCmd();

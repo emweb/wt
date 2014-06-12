@@ -10,22 +10,27 @@ namespace Wt {
   namespace Auth {
 
 Login::Login()
-   : changed_(this)
+  : changed_(this),
+    state_(LoggedOut)
 { }
 
 void Login::login(const User& user, LoginState state)
 {
-  bool weakLogin = state == WeakLogin;
+  if (state == LoggedOut || !user.isValid()) {
+    logout();
+    return;
+  } else {
+    if (state != DisabledLogin && user.status() == User::Disabled)
+      state = DisabledLogin;
 
-  if (user != user_) {
-    user_ = user;
-    weakLogin_ = weakLogin;
-
-    changed_.emit();
-  } else if (user_.isValid() && weakLogin != weakLogin_) {
-    weakLogin_ = weakLogin;
-
-    changed_.emit();
+    if (user != user_) {
+      user_ = user;
+      state_ = state;
+      changed_.emit();
+    } else if (state != state_) {
+      state_ = state;
+      changed_.emit();
+    }
   }
 }
 
@@ -33,28 +38,19 @@ void Login::logout()
 {
   if (user_.isValid()) {
     user_ = User();
-
+    state_ = LoggedOut;
     changed_.emit();
   }
 }
 
 LoginState Login::state() const
 {
-  if (user_.isValid()) {
-    if (user_.status() == User::Normal)
-      if (weakLogin_)
-	return WeakLogin;
-      else
-	return StrongLogin;
-    else
-      return DisabledLogin;
-  } else
-    return LoggedOut;
+  return state_;
 }
 
 bool Login::loggedIn() const
 {
-  return user_.isValid() && user_.status() == User::Normal;
+  return user_.isValid() && state_ != DisabledLogin;
 }
 
 const User& Login::user() const

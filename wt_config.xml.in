@@ -210,12 +210,15 @@
         <!-- Javascript debug options
 
 	     Values:
-	     - true: JavaScript errors are not caught but the browser
-	             built-in debug options are used
-	     - stack: JavaScript errors are caught but also a stack trace
-                      is printed, useful for diagnosing a problem in production
+	     - naked: JavaScript errors are not caught at all
 	     - false: JavaScript errors are caught and a simple error message
 	              is printed to indicate that something is terribly wrong
+	     - stack: equivalent to 'false'
+	     - true: JavaScript errors are rethrown after server-side logging
+
+             Unless the value is 'naked',
+	     WApplication::handleJavaScriptError() is called which by
+	     default logs the error and terminates the session.
 	  -->
 	<debug>false</debug>
 

@@ -184,6 +184,7 @@ WRasterImage::~WRasterImage()
 
   delete impl_->fontSupport_;
 
+  delete impl_;
   // DestroyMagick(); apparently should be called only once ?
 }
 

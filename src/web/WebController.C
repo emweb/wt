@@ -260,8 +260,8 @@ std::string WebController::sessionFromCookie(const char *cookies,
 		    + "})\"?.*");
 
   boost::smatch what;
-
-  if (boost::regex_match(std::string(cookies), what, cookieSession_e))
+  std::string cookiesAsStdString(cookies);
+  if (boost::regex_match(cookiesAsStdString, what, cookieSession_e))
     return what[1];
   else
     return std::string();

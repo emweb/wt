@@ -231,7 +231,15 @@ void RegistrationWidget::doRegister()
     User user = model_->doRegister();
     if (user.isValid()) {
       registerUserDetails(user);
-      model_->login().login(user);
+      if (!model_->baseAuth()->emailVerificationRequired())
+	model_->loginUser(model_->login(), user);
+      else {
+	if (authWidget_)
+	  authWidget_->displayInfo
+	    (WString::tr("Wt.Auth.confirm-email-first"));
+
+	close();
+      }
     } else
       update();
   } else

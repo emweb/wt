@@ -451,6 +451,8 @@ public:
 
   std::string jsPlayerRef() const;
 
+  virtual void refresh();
+
 protected:
   virtual void setFormData(const FormData& formData);
   virtual void render(WFlags<RenderFlag> flags);

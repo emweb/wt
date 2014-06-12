@@ -940,6 +940,8 @@ public:
    */
   Signal<std::string>& internalPathChanged();
 
+  /*! \brief %Signal which indicates that an invalid internal path is navigated.
+   */
   Signal<std::string>& internalPathInvalid() { return internalPathInvalid_; }
 
   /*! \brief Redirects the application to another location.
@@ -2125,6 +2127,13 @@ protected:
    */
   virtual void unload();
 
+  /**
+   * @brief handleJavaScriptError print javaScript errors to log file.
+   * You may want to overwrite it to render error page for example.
+   *
+   * @param errorText the error will usually be in json format.
+   */
+  virtual void handleJavaScriptError(const std::string& errorText);
 private:
   Signal< ::int64_t > requestTooLarge_;
 

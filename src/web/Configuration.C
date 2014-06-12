@@ -637,15 +637,15 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   std::string debugStr = singleChildElementValue(app, "debug", "");
 
   if (!debugStr.empty()) {
-    if (debugStr == "stack")
-      errorReporting_ = ErrorMessageWithStack;
-    else if (debugStr == "true")
-      errorReporting_ = NoErrors;
-    else if (debugStr == "false")
+    if (debugStr == "stack" || debugStr == "false")
       errorReporting_ = ErrorMessage;
+    else if (debugStr == "naked")
+      errorReporting_ = NoErrors;
+    else if (debugStr == "true")
+      errorReporting_ = ServerSideOnly;
     else
       throw WServer::Exception("<debug>: expecting 'true', 'false',"
-			       "or 'stack'");
+			       "'naked', or 'stack'");
   }
 
   setInt(app, "num-threads", numThreads_);

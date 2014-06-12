@@ -377,4 +377,8 @@ WT_DECLARE_WT_MEMBER
     } else if (edit.attachEvent) {
       edit.attachEvent("oninput", input);
     }
+
+    edit.wtEncodeValue = function() {
+      return displayValue;
+    };
 });

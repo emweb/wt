@@ -364,11 +364,14 @@ bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
     return true;
 }
 
+#ifndef WT_TARGET_JAVA
 bool WSortFilterProxyModel::lessThan(const WModelIndex& lhs,
 				     const WModelIndex& rhs) const
 {
-  return compare(lhs, rhs) < 0;
+  return WSortFilterProxyModel::compare(lhs, rhs) < 0;
 }
+#endif // WT_TARGET_JAVA
+
 
 int WSortFilterProxyModel::compare(const WModelIndex& lhs,
 				   const WModelIndex& rhs) const

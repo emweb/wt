@@ -19,19 +19,6 @@ NumericalExample::NumericalExample(WContainerWidget *parent)
   setContentAlignment(AlignCenter);
   
   chart_ = new WCartesian3DChart(this);
-  if (chart_->isAlternative()) {
-    
-    sombrModel_ = 0;
-    xPlaneModel_ = 0;
-    yPlaneModel_ = 0;
-    xPlaneModelSize_ = 0;
-    yPlaneModelColor_ = 0;
-    spiralModel_ = 0;
-    para1Model_ = 0;
-    para2Model_ = 0;
-    return;
-  }
-    
   chart_->setLegendStyle(WFont(), WPen(), WBrush(WColor(lightGray)));
 
   Wt::WCssDecorationStyle style;
