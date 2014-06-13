@@ -366,6 +366,7 @@ public:
    * External stylesheets are inserted after the internal style sheet,
    * and can therefore override default styles set by widgets in the
    * internal style sheet.
+   * External stylesheets must have valid link.
    *
    * If not empty, \p condition is a string that is used to apply the
    * stylesheet to specific versions of IE. Only a limited subset of

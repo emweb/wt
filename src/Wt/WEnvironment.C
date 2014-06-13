@@ -231,6 +231,10 @@ void WEnvironment::enableAjax(const WebRequest& request)
     if (s != 0)
       publicDeploymentPath_.clear(); // looks invalid
   }
+
+
+  screenWidth_=boost::lexical_cast<int>(*request.getParameter("scrW"));
+  screenHeight_=boost::lexical_cast<int>(*request.getParameter("scrH"));
 }
 
 void WEnvironment::setUserAgent(const std::string& userAgent)

@@ -96,11 +96,12 @@ WT_DECLARE_WT_MEMBER
       caseMap = newCaseMap;
       spaceChar = newSpaceChar;
       displayValue = newDisplayValue;
+      this.setValue(displayValue);
+      edit.value = this.getValue();
     };
 
     if (mask !== "") {
       this.setInputMask(mask, raw, displayValue, caseMap, spaceChar);
-      this.setValue(this.getValue());
     }
 
     function skippable(position) {

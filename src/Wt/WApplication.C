@@ -553,6 +553,11 @@ void WApplication::useStyleSheet(const WLink& link,
 void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
 				 const std::string& condition)
 {
+
+  if (styleSheet.link().isNull())
+    throw WException(
+        "WApplication::useStyleSheet stylesheet must have valid link!");
+
   bool display = true;
 
   if (!condition.empty()) {

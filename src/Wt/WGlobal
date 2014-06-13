@@ -291,6 +291,18 @@ namespace Wt {
     class Message;
   }
 
+  namespace Payment {
+    class Address;
+    class Customer;
+    class Money;
+    class Order;
+    class OrderItem;
+    class PayPalExpressCheckout;
+    class PayPalService;
+    class Result;
+    class Approval;
+  }
+
   namespace Render {
     class WPdfRenderer;
   }

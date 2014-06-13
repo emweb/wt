@@ -335,4 +335,10 @@ void WCssStyleSheet::clear()
     delete rules_.back();
 }
 
+bool WCssStyleSheet::isDirty()
+{
+  return !rulesAdded_.empty() || !rulesModified_.empty() ||
+      !rulesRemoved_.empty();
+}
+
 } // namespace Wt

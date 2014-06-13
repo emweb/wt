@@ -254,6 +254,18 @@ public:
 
   bool webGL() const { return webGLsupported_; }
 
+  /*! \brief Returns the horizontal resolution of the client's screen.
+   *
+   * \sa screenHeight()
+   */
+  int screenWidth() const { return screenWidth_; }
+
+  /*! \brief Returns the vertical resolution of the client's screen.
+   *
+   * \sa screenWidth()
+   */
+  int screenHeight() const { return screenHeight_; }
+
   /*! \brief Returns the browser-side DPI scaling factor
    *
    * Internet Explorer scales all graphics, fonts and other elements
@@ -651,6 +663,8 @@ protected:
   bool        doesCookies_;
   bool        hashInternalPaths_;
   UserAgent   agent_;
+  int         screenWidth_;
+  int         screenHeight_;
   double      dpiScale_;
   std::string queryString_;
   bool        webGLsupported_;

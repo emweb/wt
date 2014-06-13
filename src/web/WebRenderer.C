@@ -141,6 +141,7 @@ bool WebRenderer::isDirty() const
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
     || session_.app()->styleSheetsAdded_
+    || session_.app()->styleSheet().isDirty()
     || session_.app()->internalPathIsChanged_
     || !collectedJS1_.empty()
     || !collectedJS2_.empty()

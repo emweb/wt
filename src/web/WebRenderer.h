@@ -84,6 +84,8 @@ public:
 
   bool checkResponsePuzzle(const WebRequest& request);
 
+  void setJSSynced(bool invisibleToo);
+
 private:
   struct CookieValue {
     std::string value;
@@ -131,7 +133,6 @@ private:
 			  int count = -1);
   void updateLoadIndicator(WStringStream& out, WApplication *app, bool all);
   void renderSetServerPush(WStringStream& out);
-  void setJSSynced(bool invisibleToo);
   void renderStyleSheet(WStringStream& out, const WCssStyleSheet& sheet,
 			WApplication *app);
 

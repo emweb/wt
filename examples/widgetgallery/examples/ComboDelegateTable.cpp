@@ -19,61 +19,62 @@
  */
 class ComboDelegate : public Wt::WItemDelegate {
 public:
-  ComboDelegate(Wt::WStringListModel* items)
-    : items_(items)
-  {}
+    ComboDelegate(Wt::WAbstractItemModel* items)
+	: items_(items)
+    { }
 
-  void setModelData(const boost::any &editState, Wt::WAbstractItemModel* model,
-		    const Wt::WModelIndex &index) const
-  {
-    int stringIdx = Wt::asNumber(editState);
-    model->setData(index, stringIdx, Wt::UserRole);
-    model->setData(index, items_->stringList()[stringIdx], Wt::DisplayRole);
-  }
+    void setModelData(const boost::any &editState, Wt::WAbstractItemModel* model,
+		      const Wt::WModelIndex &index) const
+    {
+	int stringIdx = Wt::asNumber(editState);
+	model->setData(index, stringIdx, Wt::UserRole);
+	model->setData(index, items_->data(stringIdx, 0), Wt::DisplayRole);
+    }
 
-  boost::any editState(Wt::WWidget* editor) const
-  {
-    Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
-      (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
-    return combo->currentIndex();
-  }
+    boost::any editState(Wt::WWidget* editor) const
+    {
+	Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
+	    (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
+	return combo->currentIndex();
+    }
 
-  void setEditState(Wt::WWidget* editor, const boost::any &value) const
-  {
-    Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
-      (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
-    combo->setCurrentIndex(Wt::asNumber(value));
-  }
+    void setEditState(Wt::WWidget* editor, const boost::any &value) const
+    {
+	Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
+	    (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
+	combo->setCurrentIndex(Wt::asNumber(value));
+    }
 
 protected:
-  virtual Wt::WWidget* createEditor(const Wt::WModelIndex &index,
-				    Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
-  {
-    Wt::WContainerWidget* container = new Wt::WContainerWidget();
-    Wt::WComboBox* combo = new Wt::WComboBox(container);
-    combo->setModel(items_);
-    combo->setCurrentIndex(Wt::asNumber(index.data(Wt::UserRole)));
+    virtual Wt::WWidget* createEditor(const Wt::WModelIndex &index,
+				      Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
+    {
+	Wt::WContainerWidget* container = new Wt::WContainerWidget();
+	Wt::WComboBox* combo = new Wt::WComboBox(container);
+	combo->setModel(items_);
+	combo->setCurrentIndex(Wt::asNumber(index.data(Wt::UserRole)));
 
-    combo->changed().connect(boost::bind(&ComboDelegate::doCloseEditor, this,
-    					 container, true));
-    combo->enterPressed().connect(boost::bind(&ComboDelegate::doCloseEditor,
+	combo->changed().connect(boost::bind(&ComboDelegate::doCloseEditor, this,
+					     container, true));
+	combo->enterPressed().connect(boost::bind(&ComboDelegate::doCloseEditor,
     					      this, container, true));
-    combo->escapePressed().connect(boost::bind(&ComboDelegate::doCloseEditor,
-    					      this, container, false));
+	combo->escapePressed().connect(boost::bind(&ComboDelegate::doCloseEditor,
+						   this, container, false));
 
-    return container;
-  }
+	return container;
+    }
 
 private:
-  Wt::WStringListModel* items_;
+    Wt::WAbstractItemModel* items_;
 
-  void doCloseEditor(Wt::WWidget *editor, bool save) const
-  {
-    closeEditor().emit(editor, save);
-  }
+    void doCloseEditor(Wt::WWidget *editor, bool save) const
+    {
+	closeEditor().emit(editor, save);
+    }
 };
 
 SAMPLE_BEGIN(ComboDelegateTable)
+
 Wt::WTableView *table = new Wt::WTableView();
 
 // create model
