@@ -71,7 +71,7 @@ struct WServer::Impl
     } catch (...) {
       LOG_ERROR_S(&server_,
 		  "fatal: dedicated session process for " << sessionId_ <<
-		  ": caught unkown, unhandled exception.");
+		  ": caught unknown, unhandled exception.");
 
       throw;
     }

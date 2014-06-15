@@ -612,7 +612,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   if (cImage == 0) {
     LOG_ERROR("drawImage failed: "
 	      << (exception.reason ? exception.reason :
-		  "(unkown reason)") << ", "
+		  "(unknown reason)") << ", "
 	      << (exception.description ? exception.description :
 		  "(unknown description)") );
     return;
