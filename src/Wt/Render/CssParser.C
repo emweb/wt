@@ -34,7 +34,11 @@ using namespace Wt::Render;
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/variant/recursive_variant.hpp>
 #include <boost/spirit/home/support/context.hpp>
+#if BOOST_VERSION < 105600
 #include <boost/spirit/home/phoenix.hpp>
+#else
+#include <boost/phoenix.hpp>
+#endif
 #include <boost/spirit/include/classic_file_iterator.hpp>
 
 #include <map>

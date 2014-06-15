@@ -146,6 +146,9 @@ namespace Wt {
   }
 }
 
+// see https://svn.boost.org/trac/boost/ticket/10100
+#define TRACKABLE_BROKEN
+
 #endif
 
 #include <cassert>
@@ -454,8 +457,12 @@ public:
     bool deleted() const;
   private:
 #ifndef WT_TARGET_JAVA
+#ifndef TRACKABLE_BROKEN
     Wt::Signals::signal<void()> signal_;
     Wt::Signals::connection connection_;
+#else
+    boost::weak_ptr<int> ptr;
+#endif
 #endif
   };
 
@@ -527,6 +534,10 @@ private:
   template <typename A1, typename A2, typename A3,
             typename A4, typename A5, typename A6> friend class JSignal;
 #endif // WT_CNOR
+
+#ifdef TRACKABLE_BROKEN
+  boost::shared_ptr<int> trackable_ptr_;
+#endif
 
   friend class EventSignalBase;
   friend class WebSession;

@@ -60,9 +60,13 @@ WT_DECLARE_WT_MEMBER
     this.setValue = function(newValue) {
       displayValue = newValue;
 
-      if (mask === "" || 
-	  (!(flags & KEEP_MASK_WHEN_BLURRED_FLAG) && !WT.hasFocus(edit))) {
+      if (mask === "") {
 	edit.value = newValue;
+	return;
+      }
+
+      if (!(flags & KEEP_MASK_WHEN_BLURRED_FLAG) && !WT.hasFocus(edit)) {
+	edit.value = this.getValue();
 	return;
       }
 
@@ -95,9 +99,7 @@ WT_DECLARE_WT_MEMBER
       raw = newRaw;
       caseMap = newCaseMap;
       spaceChar = newSpaceChar;
-      displayValue = newDisplayValue;
       this.setValue(displayValue);
-      edit.value = this.getValue();
     };
 
     if (mask !== "") {

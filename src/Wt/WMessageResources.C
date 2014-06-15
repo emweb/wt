@@ -36,8 +36,6 @@ using namespace rapidxml;
 #endif
 
 #include <boost/bind.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 
 namespace {
 

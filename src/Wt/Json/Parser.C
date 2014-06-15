@@ -24,7 +24,11 @@
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_object.hpp>
+#if BOOST_VERSION < 105600
 #include <boost/spirit/home/phoenix/statement/throw.hpp>
+#else
+#include <boost/phoenix.hpp>
+#endif
 #include <boost/bind.hpp>
 
 #endif // JSON_PARSER
