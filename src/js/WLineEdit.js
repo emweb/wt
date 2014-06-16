@@ -99,7 +99,7 @@ WT_DECLARE_WT_MEMBER
       raw = newRaw;
       caseMap = newCaseMap;
       spaceChar = newSpaceChar;
-      this.setValue(displayValue);
+      this.setValue(newDisplayValue);
     };
 
     if (mask !== "") {
@@ -382,6 +382,10 @@ WT_DECLARE_WT_MEMBER
     }
 
     edit.wtEncodeValue = function() {
-      return displayValue;
+      if (mask === "" || (flags & KEEP_MASK_WHEN_BLURRED_FLAG) || WT.hasFocus(edit)) {
+	return edit.value;
+      } else {
+	return displayValue;
+      }
     };
 });
