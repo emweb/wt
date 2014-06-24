@@ -306,6 +306,9 @@ void WFileUpload::updateDom(DomElement& element, bool all)
   // change order of javaScript_ and properties rendering in DomElement
 
   if (fileUploadTarget_ && flags_.test(BIT_DO_UPLOAD)) {
+    // Reset the action and generate a new URL for the target,
+    // because the session id may have changed in the meantime
+    element.setAttribute("action", fileUploadTarget_->generateUrl());
     element.callMethod("submit()");
     flags_.reset(BIT_DO_UPLOAD);
 

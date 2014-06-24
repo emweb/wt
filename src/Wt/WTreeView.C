@@ -1440,6 +1440,14 @@ void WTreeView::render(WFlags<RenderFlag> flags)
     renderedNodesAdded_ = false;
   }
 
+  // update the rowHeight (needed for scrolling fix)
+  WStringStream s;
+  s << "jQuery.data(" << jsRef()
+    << ", 'obj').setRowHeight("
+    <<  static_cast<int>(this->rowHeight().toPixels())
+    << ");";
+  doJavaScript(s.str());
+
   WAbstractItemView::render(flags);
 }
 

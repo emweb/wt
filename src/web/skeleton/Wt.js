@@ -780,7 +780,7 @@ this.wheelDelta = function(e) {
 };
 
 this.scrollIntoView = function(id) {
-  setTimeout(function() { 
+  setTimeout(function() {
       var hashI = id.indexOf('#');
       if (hashI != -1)
 	id = id.substr(hashI + 1);

@@ -11,6 +11,7 @@
 #include <Wt/WModelIndex>
 #include <Wt/Chart/WAbstractDataSeries3D>
 #include <Wt/Chart/WCartesian3DChart>
+#include <Wt/Chart/WSelection>
 
 namespace Wt {
 class WMemoryResource;
@@ -153,6 +154,22 @@ public:
   void setSizeColumn(int columnNumber, int role = DisplayRole);
 #endif
 
+  /*! \brief Pick points on this WScatterData using a single pixel.
+   *
+   * x,y are the screen coordinates of the pixel from the top left of
+   * the chart, and radius is the radius in pixels around that pixel.
+   * All points around the ray projected through the pixel within the
+   * given radius will be returned.
+   */
+  std::vector<WPointSelection> pickPoints(int x, int y, int radius) const;
+
+  /*! \brief Pick points on this WScatterData inside of a rectangle.
+   *
+   * The screen coordinates (x1, y1) and (x2, y2) from the top left of
+   * the chart define a rectangle within which the points should be selected.
+   */
+  std::vector<WPointSelection> pickPoints(int x1, int y1, int x2, int y2) const;
+
   virtual double minimum(Axis axis) const;
 
   virtual double maximum(Axis axis) const;
@@ -206,6 +223,7 @@ private:
   int vertexBufferSize_, vertexBuffer2Size_, lineVertBufferSize_;
 
   WGLWidget::Texture colormapTexture_;
+  WGLWidget::Texture pointSpriteTexture_;
 
   WGLWidget::Shader vertexShader_;
   WGLWidget::Shader colVertexShader_;
@@ -235,6 +253,10 @@ private:
   WGLWidget::UniformLocation cMatrixUniform3_;
   WGLWidget::UniformLocation lineColorUniform_;
   WGLWidget::UniformLocation samplerUniform_;
+  WGLWidget::UniformLocation pointSpriteUniform_;
+  WGLWidget::UniformLocation pointSpriteUniform2_;
+  WGLWidget::UniformLocation vpHeightUniform_;
+  WGLWidget::UniformLocation vpHeightUniform2_;
   WGLWidget::UniformLocation offsetUniform_;
   WGLWidget::UniformLocation scaleFactorUniform_;
 };

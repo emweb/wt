@@ -1,5 +1,6 @@
 #include "DataModels.h"
 
+#include <Wt/WApplication>
 #include <Wt/WCssDecorationStyle>
 #include <Wt/WBorder>
 #include <Wt/WContainerWidget>
@@ -20,7 +21,8 @@ Wt::Chart::WCartesian3DChart *chart
 chart->setType(Wt::Chart::ScatterPlot);
 
 // disable server-side rendering fallback; our VPSes don't have that
-chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering);
+// TODO(ROEL): CNOR doesn't like |? Even with using statement...
+// chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering | Wt::WGLWidget::AntiAliasing);
 
 Wt::WCssDecorationStyle style;
 style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium,
@@ -38,6 +40,9 @@ chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::ZAxis_3D, true);
 chart->axis(Wt::Chart::XAxis_3D).setTitle("X");
 chart->axis(Wt::Chart::YAxis_3D).setTitle("Y");
 chart->axis(Wt::Chart::ZAxis_3D).setTitle("Z");
+
+chart->setIntersectionLinesEnabled(true);
+chart->setIntersectionLinesColor(Wt::WColor(0, 255, 255));
 
 // make first dataset (WGridData)
 Wt::WStandardItemModel *model1 = new SombreroData(40, 40, container);
@@ -77,10 +82,18 @@ Wt::WStandardItemModel *model3 = new SpiralData(100, container);
 Wt::Chart::WScatterData *dataset3 = new Wt::Chart::WScatterData(model3);
 dataset3->setPointSize(5);
 
+// make fourth dataset (WEquidistantGridData, intersecting with dataset1)
+Wt::WStandardItemModel *model4 = new HorizontalPlaneData(20, 20, container);
+Wt::Chart::WEquidistantGridData *dataset4 =
+  new Wt::Chart::WEquidistantGridData(model4, -10, 1.0f, -10, 1.0f);
+dataset4->setType(Wt::Chart::SurfaceSeries3D);
+dataset4->setSurfaceMeshEnabled(true);
+
 // add the data to the chart
 chart->addDataSeries(dataset1);
 chart->addDataSeries(dataset2);
 chart->addDataSeries(dataset3);
+chart->addDataSeries(dataset4);
 
 chart->setAlternativeContent
     (new Wt::WImage(Wt::WLink("pics/numericalChartScreenshot.png")));

@@ -487,6 +487,10 @@ public:
   void setNotExposed();
   void disconnect(Wt::Signals::connection& conn);
 
+  /*! \brief Disconnects a JSlot.
+   */
+  void disconnect(JSlot& slot);
+
   /*! \brief Prevents the default browser action.
    *
    * Use this method to prevent the default browser action associated

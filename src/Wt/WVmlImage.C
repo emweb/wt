@@ -38,6 +38,7 @@
 
 #include "EscapeOStream.h"
 #include "WebUtils.h"
+#include "ServerSideFontMetrics.h"
 
 #include <cmath>
 
@@ -76,12 +77,21 @@ WVmlImage::WVmlImage(const WLength& width, const WLength& height,
     height_(height),
     painter_(0),
     paintUpdate_(paintUpdate),
-    clippingChanged_(false)
+    clippingChanged_(false),
+    fontMetrics_(0)
 { }
+
+WVmlImage::~WVmlImage()
+{
+  delete fontMetrics_;
+}
 
 WFlags<WPaintDevice::FeatureFlag> WVmlImage::features() const
 {
-  return 0; // Pretty low on features here ...
+  if (ServerSideFontMetrics::available())
+    return HasFontMetrics;
+  else
+    return 0;
 }
 
 void WVmlImage::init()
@@ -166,27 +176,6 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
 	    << "\"/></v:group>";
 }
 
-static WRectF transformBbox(const WTransform& t, const WRectF& r)
-{
-  double minX, minY, maxX, maxY;
-
-  WPointF p = t.map(r.topLeft());
-  minX = maxX = p.x();
-  minY = maxY = p.y();
-
-  for (unsigned i = 0; i < 3; ++i) {
-    WPointF p2 = t.map(i == 0 ? r.bottomLeft()
-		      : i == 1 ? r.topRight()
-		      : r.bottomRight());
-    minX = std::min(minX, p2.x());
-    maxX = std::max(maxX, p2.x());
-    minY = std::min(minY, p2.y());
-    maxY = std::max(maxY, p2.y());
-  }
-
-  return WRectF(minX, minY, maxX - minX, maxY - minY);
-}
-
 void WVmlImage::drawPath(const WPainterPath& path)
 {
   if (penBrushShadowChanged_)
@@ -202,7 +191,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
   }
 
   WTransform transform = painter()->combinedTransform();
-  WRectF bbox = transformBbox(transform, path.controlPointRect());
+  WRectF bbox = transform.map(path.controlPointRect());
 
   int thisPath = -1;
   if (!activePaths_.empty())
@@ -573,12 +562,18 @@ void WVmlImage::drawText(const WRectF& rect,
 WTextItem WVmlImage::measureText(const WString& text, double maxWidth,
 				 bool wordWrap)
 {
-  throw WException("WVmlImage::measureText() not supported");
+  if (!fontMetrics_)
+    fontMetrics_ = new ServerSideFontMetrics();
+
+  return fontMetrics_->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
 
 WFontMetrics WVmlImage::fontMetrics()
 {
-  throw WException("WVmlImage::fontMetrics() not supported");
+  if (!fontMetrics_)
+    fontMetrics_ = new ServerSideFontMetrics();
+
+  return fontMetrics_->fontMetrics(painter()->font());
 }
 
 std::string WVmlImage::quote(const std::string& s)

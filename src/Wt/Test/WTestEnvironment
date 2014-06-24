@@ -299,7 +299,6 @@ private:
   WServer *server_;
 #endif
 
-  Configuration *configuration_;
   WebController *controller_;
 
   mutable Signal<WDialog *> dialogExecuted_;

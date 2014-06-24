@@ -19,7 +19,7 @@
 
 namespace Wt {
 
-class WColor;
+class ServerSideFontMetrics;
 
 /*! \class WVmlImage Wt/WVmlImage Wt/WVmlImage
  *  \brief A paint device for rendering using the VML pseudo-standard.
@@ -44,6 +44,7 @@ public:
    * image, instead of a full VML image.
    */
   WVmlImage(const WLength& width, const WLength& height, bool paintUpdate);
+  virtual ~WVmlImage();
 
   virtual WFlags<FeatureFlag> features() const;
   virtual void setChanged(WFlags<ChangeFlag> flags);
@@ -83,6 +84,7 @@ private:
   WBrush     currentBrush_;
   WPen       currentPen_;
   WShadow    currentShadow_;
+  ServerSideFontMetrics *fontMetrics_;
 
   struct ActivePath {
     std::string path;

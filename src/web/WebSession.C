@@ -71,7 +71,11 @@ namespace {
 
   inline bool isEqual(const char *s1, const char *s2) {
 #ifdef WT_TARGET_JAVA
-    return s1 == s2;
+    if (s1 == 0) {
+      return s2 == 0;
+    } else {
+      return std::string(s1) == s2;
+    }
 #else
     return strcmp(s1, s2) == 0;
 #endif
@@ -723,7 +727,7 @@ WebSession::Handler::Handler()
 }
 
 WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
-			     bool takeLock)
+			     LockOption lockOption)
   : nextSignal(-1),
 #ifdef WT_THREADED
     lock_(session->mutex_, boost::defer_lock),
@@ -737,14 +741,27 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
     response_(0),
     killed_(false)
 {
-  if (takeLock) {
+  switch (lockOption) {
+  case NoLock:
+    break;
+  case TakeLock:
 #ifdef WT_THREADED
     lockOwner_ = boost::this_thread::get_id();
     lock_.lock();
 #endif
 #ifdef WT_TARGET_JAVA
     session->mutex().lock();
-#endif // WT_TARGET_JAVA
+#endif
+    break;
+  case TryLock:
+#ifdef WT_THREADED
+    if (lock_.try_lock())
+      lockOwner_ = boost::this_thread::get_id();
+#endif
+#ifdef WT_TARGET_JAVA
+    session->mutex().try_lock();
+#endif
+    break;
   }
 
   init();
@@ -859,7 +876,7 @@ bool WebSession::attachThreadToLockedHandler()
 
   return false;
 #else
-  Handler::attachThreadToHandler(new Handler(this, false));
+  Handler::attachThreadToHandler(new Handler(this, Handler::NoLock));
   return true;
 #endif
 }
@@ -891,17 +908,83 @@ void WebSession
     LOG_WARN_S(session,
 	       "attachThread(): no thread is holding this application's "
 	       "lock ?");
-    WebSession::Handler::attachThreadToHandler(new Handler(session, false));
+    WebSession::Handler::attachThreadToHandler
+      (new Handler(session, Handler::NoLock));
   }
 #else
   LOG_ERROR_S(session, "attachThread(): needs Wt built with threading enabled");
 #endif
 }
 
+ApplicationEvent WebSession::popQueuedEvent()
+{
+#ifdef WT_BOOST_THREADS
+#ifndef WT_TARGET_JAVA
+  boost::mutex::scoped_lock lock(eventQueueMutex_);
+#else
+  eventQueueMutex_.lock();
+#endif // WT_TARGET_JAVA
+#endif // WT_BOOST_THREADS
+
+  ApplicationEvent result;
+
+  if (!eventQueue_.empty()) {
+    result = eventQueue_.front();
+    eventQueue_.pop_front();
+  }
+
+#ifdef WT_TARGET_JAVA
+  eventQueueMutex_.unlock();
+#endif // WT_TARGET_JAVA
+
+  return result;
+}
+
+void WebSession::queueEvent(const ApplicationEvent& event)
+{
+#ifdef WT_BOOST_THREADS
+#ifndef WT_TARGET_JAVA
+  boost::mutex::scoped_lock lock(eventQueueMutex_);
+#else
+  eventQueueMutex_.lock();
+#endif // WT_TARGET_JAVA
+#endif // WT_BOOST_THREADS
+
+  eventQueue_.push_back(event);
+
+#ifdef WT_TARGET_JAVA
+  eventQueueMutex_.unlock();
+#endif // WT_TARGET_JAVA
+}
+
+void WebSession::processQueuedEvents(WebSession::Handler& handler)
+{
+  for (;;) {
+    ApplicationEvent event = popQueuedEvent();
+
+    if (!event.empty()) {
+      if (!dead()) {
+	externalNotify(WEvent::Impl(&handler, event.function));
+
+	if (app() && app()->isQuited())
+	  kill();
+
+	// if (dead())
+	//   controller.removeSession(event.sessionId);
+      } else {
+	if (event.fallbackFunction)
+	  WT_CALL_FUNCTION(event.fallbackFunction);
+      }
+    } else
+      break;
+  }
+}
+
 #ifdef WT_TARGET_JAVA
 void WebSession::Handler::release()
 {
   if (haveLock()) {
+    session_->processQueuedEvents(*this);
     if (session_->triggerUpdate_)
       session_->pushUpdates();
     session_->mutex().unlock();
@@ -915,6 +998,7 @@ WebSession::Handler::~Handler()
 {
 #ifndef WT_TARGET_JAVA
   if (haveLock()) {
+    session_->processQueuedEvents(*this);
     if (session_->triggerUpdate_)
       session_->pushUpdates();
     else if (response_ && session_->state_ != Dead)
@@ -1629,7 +1713,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
-    Handler handler(lock, true);
+    Handler handler(lock, Handler::TakeLock);
 
     if (!lock->asyncResponse_ || !lock->asyncResponse_->isWebSocketRequest())
       return;
@@ -1839,7 +1923,7 @@ void WebSession::webSocketReady(boost::weak_ptr<WebSession> session,
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
-    Handler handler(lock, true);
+    Handler handler(lock, Handler::TakeLock);
 
     LOG_DEBUG("webSocketReady: asyncResponse_ = " << lock->asyncResponse_
 	      << " updatesPending = " << lock->updatesPending_
@@ -1902,7 +1986,6 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 
 void WebSession::externalNotify(const WEvent::Impl& event)
 {
-#ifndef WT_TARGET_JAVA
   if (recursiveEventHandler_) {
 #ifdef WT_BOOST_THREADS
     newRecursiveEvent_ = new WEvent::Impl(event);
@@ -1921,16 +2004,14 @@ void WebSession::externalNotify(const WEvent::Impl& event)
     else
       notify(WEvent(event));
   }
-#endif // WT_TARGET_JAVA
 }
 
 void WebSession::notify(const WEvent& event)
 {
   Handler& handler = *event.impl_.handler;
 
-#ifndef WT_TARGET_JAVA
   if (event.impl_.function) {
-    event.impl_.function();
+    WT_CALL_FUNCTION(event.impl_.function);
 
     if (event.impl_.handler->request())
       render(*event.impl_.handler);
@@ -1938,14 +2019,15 @@ void WebSession::notify(const WEvent& event)
     return;
   }
 
+#ifndef WT_TARGET_JAVA
   if (!app_->initialized_) {
     app_->initialized_ = true;
     app_->initialize();
   }
+#endif
 
   if (!handler.response())
     return;
-#endif // WT_TARGET_JAVA
 
   WebRequest& request = *handler.request();
   WebResponse& response = *handler.response();

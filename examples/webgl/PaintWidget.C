@@ -38,10 +38,12 @@ void centerpoint(double &x, double &y, double &z)
 }
 
 PaintWidget::PaintWidget(WContainerWidget *root, const bool & useBinaryBuffers):
-  WGLWidget(root), useBinaryBuffers_(useBinaryBuffers)
+  WGLWidget(root), initialized_(false), useBinaryBuffers_(useBinaryBuffers)
 {
+  jsMatrix_ = JavaScriptMatrix4x4();
+  addJavaScriptMatrix4(jsMatrix_);
 }
-  
+
 // The initializeGL() captures all JS commands that are to be executed
 // before the scene is rendered for the first time. It is executed only
 // once. It is re-executed when the WebGL context is restored after it
@@ -65,20 +67,23 @@ void PaintWidget::initializeGL()
   // We want to be able to change the camera position client-side. In
   // order to do so, the world transformation matrix must be stored in
   // a matrix that can be manipulated from JavaScript.
-  jsMatrix_ = createJavaScriptMatrix4();
-  setJavaScriptMatrix4(jsMatrix_, worldTransform);
+  if (!initialized_) {
+    initJavaScriptMatrix4(jsMatrix_);
+    setJavaScriptMatrix4(jsMatrix_, worldTransform);
 
-  // This installs a client-side mouse handler that modifies the
-  // world transformation matrix. Like WMatrix4x4::lookAt, this works
-  // by specifying a center point and an up direction; mouse movements
-  // will allow the camera to be moved around the center point.
-  setClientSideLookAtHandler(jsMatrix_, // the name of the JS matrix
-      cx, cy, cz,                       // the center point
-      0, 1, 0,                          // the up direction
-      0.005, 0.005);                    // 'speed' factors
-  // Alternative: this installs a client-side mouse handler that allows
-  // to 'walk' around: go forward, backward, turn left, turn right, ...
-  //setClientSideWalkHandler(jsMatrix_, 0.05, 0.005);
+    // This installs a client-side mouse handler that modifies the
+    // world transformation matrix. Like WMatrix4x4::lookAt, this works
+    // by specifying a center point and an up direction; mouse movements
+    // will allow the camera to be moved around the center point.
+    setClientSideLookAtHandler(jsMatrix_, // the name of the JS matrix
+	cx, cy, cz,                       // the center point
+	0, 1, 0,                          // the up direction
+	0.005, 0.005);                    // 'speed' factors
+    // Alternative: this installs a client-side mouse handler that allows
+    // to 'walk' around: go forward, backward, turn left, turn right, ...
+    //setClientSideWalkHandler(jsMatrix_, 0.05, 0.005);
+    initialized_ = true;
+  }
 
   // First, load a simple shader
   Shader fragmentShader = createShader(FRAGMENT_SHADER);

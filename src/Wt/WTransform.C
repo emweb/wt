@@ -8,6 +8,7 @@
 
 #include "Wt/WLogger"
 #include "Wt/WPointF"
+#include "Wt/WRectF"
 #include "Wt/WTransform"
 
 namespace Wt {
@@ -90,6 +91,27 @@ void WTransform::map(double x, double y, double *tx, double *ty) const
 {
   *tx = m_[M11] * x + m_[M12] * y + m_[M13];
   *ty = m_[M21] * x + m_[M22] * y + m_[M23];
+}
+
+WRectF WTransform::map(const WRectF& rect) const
+{
+  double minX, minY, maxX, maxY;
+
+  WPointF p = map(rect.topLeft());
+  minX = maxX = p.x();
+  minY = maxY = p.y();
+
+  for (unsigned i = 0; i < 3; ++i) {
+    WPointF p2 = map(i == 0 ? rect.bottomLeft()
+		     : i == 1 ? rect.topRight()
+		     : rect.bottomRight());
+    minX = std::min(minX, p2.x());
+    maxX = std::max(maxX, p2.x());
+    minY = std::min(minY, p2.y());
+    maxY = std::max(maxY, p2.y());
+  }
+
+  return WRectF(minX, minY, maxX - minX, maxY - minY);
 }
 
 WTransform& WTransform::rotateRadians(double angle)

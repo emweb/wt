@@ -18,7 +18,8 @@ WAbstractChart::WAbstractChart(WContainerWidget *parent)
   : WPaintedWidget(parent),
     model_(0),
     background_(white),
-    palette_(0)
+    palette_(0),
+    autoPadding_(false)
 {
   titleFont_.setFamily(WFont::SansSerif);
   titleFont_.setSize(WFont::FixedSize, WLength(15, WLength::Point));
@@ -67,6 +68,11 @@ int WAbstractChart::plotAreaPadding(Side side) const
     LOG_ERROR("plotAreaPadding(): improper side.");
     return 0;
   }
+}
+
+void WAbstractChart::setAutoLayoutEnabled(bool enabled)
+{
+  autoPadding_ = enabled;
 }
 
 void WAbstractChart::setBackground(const WBrush& background)

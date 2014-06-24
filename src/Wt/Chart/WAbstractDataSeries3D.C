@@ -7,7 +7,9 @@
 #include "Wt/Chart/WAbstractDataSeries3D"
 
 #include "Wt/WAbstractItemModel"
+#include "Wt/WApplication"
 #include "Wt/WCanvasPaintDevice"
+#include "Wt/WEnvironment"
 #include "Wt/WPainter"
 #include "Wt/Chart/WAbstractColorMap"
 #include "Wt/Chart/WCartesian3DChart"
@@ -61,11 +63,13 @@ void WAbstractDataSeries3D::setModel(WAbstractItemModel *model)
     model_ = model;
 
     if (model_ && chart_) {
-      chart_->updateChart(WCartesian3DChart::GLContext);
-      connections_.push_back(model_->modelReset().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
-      connections_.push_back(model_->dataChanged().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
-      connections_.push_back(model_->rowsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
-      connections_.push_back(model_->columnsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
+      chart_->updateChart(GLContext);
+      connections_.push_back(model_->modelReset().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+      connections_.push_back(model_->dataChanged().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+      connections_.push_back(model_->rowsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+      connections_.push_back(model_->columnsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+      connections_.push_back(model_->rowsRemoved().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+      connections_.push_back(model_->columnsRemoved().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
     }
   }
 }
@@ -74,7 +78,7 @@ void WAbstractDataSeries3D::setTitle(const WString& name)
 {
   name_ = name;
   if (chart_)
-    chart_->updateChart(WCartesian3DChart::GLTextures);
+    chart_->updateChart(GLTextures);
 }
 
 void WAbstractDataSeries3D::setPointSize(double size)
@@ -82,19 +86,31 @@ void WAbstractDataSeries3D::setPointSize(double size)
   if (size != pointSize_) {
     pointSize_ = size;
     if (chart_)
-      chart_->updateChart(WCartesian3DChart::GLContext);
+      chart_->updateChart(GLContext);
+  }
+}
+
+void WAbstractDataSeries3D::setPointSprite(const std::string &image)
+{
+  if (image != pointSprite_) {
+    pointSprite_ = image;
+    if (chart_)
+      chart_->updateChart(GLContext);
   }
 }
 
 void WAbstractDataSeries3D::setColorMap(WAbstractColorMap* colormap)
 {
-  if (colormap != colormap_)
-    delete colormap_;
-
   colormap_ = colormap;
+  if (colormap_) {
+#ifndef WT_TARGET_JAVA
+    if (!colormap_->parent())
+      WObject::addChild(colormap_);
+#endif // WT_TARGET_JAVA
+  }
   if (chart_)
-    chart_->updateChart(WCartesian3DChart::GLContext |
-			WCartesian3DChart::GLTextures);
+    chart_->updateChart(GLContext |
+			GLTextures);
 }
 
 void WAbstractDataSeries3D::setColorMapVisible(bool enabled)
@@ -104,7 +120,7 @@ void WAbstractDataSeries3D::setColorMapVisible(bool enabled)
 
   showColorMap_ = enabled;
   if (chart_)
-    chart_->updateChart(WCartesian3DChart::GLTextures);
+    chart_->updateChart(GLTextures);
 }
 
 void WAbstractDataSeries3D::setColorMapSide(Side side)
@@ -114,7 +130,7 @@ void WAbstractDataSeries3D::setColorMapSide(Side side)
 
   colorMapSide_ = side;
   if (chart_)
-    chart_->updateChart(WCartesian3DChart::GLTextures);
+    chart_->updateChart(GLTextures);
 }
 
 void WAbstractDataSeries3D::setHidden(bool enabled)
@@ -122,7 +138,7 @@ void WAbstractDataSeries3D::setHidden(bool enabled)
   if (enabled != hidden_) {
     hidden_ = enabled;
     if (chart_)
-      chart_->updateChart(WCartesian3DChart::GLContext);
+      chart_->updateChart(GLContext);
   }
 }
 
@@ -147,6 +163,25 @@ WGLWidget::Texture WAbstractDataSeries3D::colorTexture()
   chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
   chart_->pixelStorei(WGLWidget::UNPACK_FLIP_Y_WEBGL, 1);
   chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, cpd);
+
+  return tex;
+}
+
+WGLWidget::Texture WAbstractDataSeries3D::pointSpriteTexture()
+{
+  WGLWidget::Texture tex = chart_->createTexture();
+  chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
+  if (!pointSprite_.empty() && !wApp->environment().agentIsIE()) {
+    chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, pointSprite_);
+  } else {
+    WPaintDevice *cpd = chart_->createPaintDevice(WLength(1),WLength(1));
+    WColor color = WColor(255, 255, 255, 255);
+    WPainter painter(cpd);
+    painter.setPen(WPen(color));
+    painter.drawLine(0,0,1,1);
+    painter.end();
+    chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, cpd);
+  }
 
   return tex;
 }
@@ -187,10 +222,12 @@ void WAbstractDataSeries3D::setChart(WCartesian3DChart *chart)
   chart_ = chart;
 
   if (chart_ && model_) {
-    connections_.push_back(model_->modelReset().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
-    connections_.push_back(model_->dataChanged().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
-      connections_.push_back(model_->rowsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
-      connections_.push_back(model_->columnsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, WCartesian3DChart::GLTextures | WCartesian3DChart::GLContext)));
+    connections_.push_back(model_->modelReset().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+    connections_.push_back(model_->dataChanged().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+    connections_.push_back(model_->rowsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+    connections_.push_back(model_->columnsInserted().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+    connections_.push_back(model_->rowsRemoved().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
+    connections_.push_back(model_->columnsRemoved().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
   }
 }
 

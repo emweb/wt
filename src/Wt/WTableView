@@ -119,6 +119,14 @@ public:
  protected:
   virtual void render(WFlags<RenderFlag> flags);
 
+  /*! \brief Called when rows or columns are inserted/removed.
+   *
+   * Override this method when you want to adjust the table's size when
+   * columns or rows are inserted or removed. The method is also called when
+   * the model is reset. The default implementation does nothing.
+   */
+  virtual void adjustSize() {}
+
 private:
   class ColumnWidget : public WContainerWidget
   {

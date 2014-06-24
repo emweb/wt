@@ -469,7 +469,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
 
 void WTemplate::renderTemplate(std::ostream& result)
 {
-  renderTemplateText(result, text_);
+  renderTemplateText(result, templateText());
 }
 
 bool WTemplate::renderTemplateText(std::ostream& result, const WString& templateText)

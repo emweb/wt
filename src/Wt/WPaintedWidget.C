@@ -35,6 +35,7 @@ public:
 
 public:
   virtual ~WWidgetPainter();
+  virtual WPaintDevice *createPaintDevice(bool paintUpdate) = 0;
   virtual WPaintDevice *getPaintDevice(bool paintUpdate) = 0;
   virtual void createContents(DomElement *element, WPaintDevice *device) = 0;
   virtual void updateContents(std::vector<DomElement *>& result,
@@ -51,6 +52,7 @@ class WWidgetVectorPainter : public WWidgetPainter
 {
 public:
   WWidgetVectorPainter(WPaintedWidget *widget, RenderType renderType);
+  virtual WVectorImage *createPaintDevice(bool paintUpdate);
   virtual WPaintDevice *getPaintDevice(bool paintUpdate);
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
@@ -65,6 +67,7 @@ class WWidgetCanvasPainter : public WWidgetPainter
 {
 public:
   WWidgetCanvasPainter(WPaintedWidget *widget);
+  virtual WCanvasPaintDevice *createPaintDevice(bool paintUpdate);
   virtual WPaintDevice *getPaintDevice(bool paintUpdate);
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
@@ -77,6 +80,13 @@ class WWidgetRasterPainter : public WWidgetPainter
 public:
   WWidgetRasterPainter(WPaintedWidget *widget);
   ~WWidgetRasterPainter();
+  virtual
+#ifdef WT_HAS_WRASTERIMAGE
+  WRasterImage
+#else
+  WPaintDevice
+#endif
+ *createPaintDevice(bool paintUpdate);
   virtual WPaintDevice *getPaintDevice(bool paintUpdate);
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
@@ -257,6 +267,16 @@ bool WPaintedWidget::createPainter()
     painter_ = new WWidgetCanvasPainter(this);
 
   return true;
+}
+
+WPaintDevice *WPaintedWidget::createPaintDevice() const
+{
+  const_cast<WPaintedWidget *>(this)->createPainter();
+
+  if (painter_)
+    return painter_->createPaintDevice(true);
+  else
+    return 0;
 }
 
 DomElementType WPaintedWidget::domElementType() const
@@ -453,7 +473,7 @@ WWidgetVectorPainter::WWidgetVectorPainter(WPaintedWidget *widget,
     renderType_(renderType)
 { }
 
-WPaintDevice *WWidgetVectorPainter::getPaintDevice(bool paintUpdate)
+WVectorImage *WWidgetVectorPainter::createPaintDevice(bool paintUpdate)
 {
   if (renderType_ == InlineSvg)
     return new WSvgImage(widget_->renderWidth_, widget_->renderHeight_, 0,
@@ -461,6 +481,11 @@ WPaintDevice *WWidgetVectorPainter::getPaintDevice(bool paintUpdate)
   else
     return new WVmlImage(widget_->renderWidth_, widget_->renderHeight_,
 			 paintUpdate);
+}
+
+WPaintDevice *WWidgetVectorPainter::getPaintDevice(bool paintUpdate)
+{
+  return createPaintDevice(paintUpdate);
 }
 
 void WWidgetVectorPainter::createContents(DomElement *canvas,
@@ -514,10 +539,15 @@ WWidgetCanvasPainter::WWidgetCanvasPainter(WPaintedWidget *widget)
   : WWidgetPainter(widget)
 { }
 
-WPaintDevice *WWidgetCanvasPainter::getPaintDevice(bool paintUpdate)
+WCanvasPaintDevice *WWidgetCanvasPainter::createPaintDevice(bool paintUpdate)
 {
   return new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_,
 				0, paintUpdate);
+}
+
+WPaintDevice *WWidgetCanvasPainter::getPaintDevice(bool paintUpdate)
+{
+  return createPaintDevice(paintUpdate);
 }
 
 void WWidgetCanvasPainter::createContents(DomElement *result,
@@ -606,13 +636,26 @@ WWidgetRasterPainter::~WWidgetRasterPainter()
 #endif
 }
 
+#ifdef WT_HAS_WRASTERIMAGE
+WRasterImage
+#else
+WPaintDevice
+#endif
+*WWidgetRasterPainter::createPaintDevice(bool paintUpdate)
+{
+#ifdef WT_HAS_WRASTERIMAGE
+  return new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
+#else
+  throw WException("Wt was built without WRasterImage (graphicsmagick)");
+#endif
+}
+
 WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
 {
   if (!device_ || widget_->sizeChanged_) {
 #ifdef WT_HAS_WRASTERIMAGE
     delete device_;
-    device_
-      = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
+    device_ = createPaintDevice(paintUpdate);
 #else
     throw WException("Wt was built without WRasterImage (graphicsmagick)");
 #endif

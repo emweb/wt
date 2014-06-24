@@ -480,7 +480,12 @@ public:
    * Multiple columns are typically useful when placing the legend at
    * the top or at the bottom of the chart.
    *
-   * The default value is a single column, 100 pixels wide. 
+   * The default value is a single column, 100 pixels wide.
+   *
+   * When automatic chart layout is enabled, then the legend column width
+   * is computed automatically, and this setting is ignored.
+   *
+   * \sa setAutoLayoutEnabled()
    */
   void setLegendColumns(int columns, const WLength& width);
   
@@ -577,7 +582,8 @@ public:
    * Unless a specific chart rectangle is specified, the entire widget
    * area is assumed.
    */
-  bool initLayout(const WRectF& rectangle = WRectF()) const;
+  bool initLayout(const WRectF& rectangle = WRectF(), WPaintDevice *device = 0)
+    const;
 
   /*! \brief Creates a widget which renders the a legend item.
    * 

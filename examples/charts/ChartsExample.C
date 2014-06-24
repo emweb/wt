@@ -164,9 +164,8 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   chart->setXSeriesColumn(0);    // set the column that holds the categories
   chart->setLegendEnabled(true); // enable the legend
 
-  // Provide space for the X and Y axis and title. 
-  chart->setPlotAreaPadding(80, Left);
-  chart->setPlotAreaPadding(40, Top | Bottom);
+  // Automatically layout chart (space for axes, legend, ...)
+  chart->setAutoLayoutEnabled(true);
 
   /*
    * Add all (but first) column as bar series
@@ -256,9 +255,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   chart->setType(ScatterPlot);            // set type to ScatterPlot
   chart->axis(XAxis).setScale(DateScale); // set scale of X axis to DateScale
 
-  // Provide space for the X and Y axis and title. 
-  chart->setPlotAreaPadding(80, Left);
-  chart->setPlotAreaPadding(40, Top | Bottom);
+  // Automatically layout chart (space for axes, legend, ...)
+  chart->setAutoLayoutEnabled();
 
   /*
    * Add first two columns as line series
@@ -309,9 +307,8 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   chart->axis(XAxis).setLocation(ZeroValue);
   chart->axis(YAxis).setLocation(ZeroValue);
 
-  // Provide space for the X and Y axis and title. 
-  chart->setPlotAreaPadding(80, Left);
-  chart->setPlotAreaPadding(40, Top | Bottom);
+  // Automatically layout chart (space for axes, legend, ...)
+  chart->setAutoLayoutEnabled();
 
   // Add the curves
   WDataSeries s(1, CurveSeries);

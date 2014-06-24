@@ -239,6 +239,18 @@ protected:
    */
   virtual void paintEvent(WPaintDevice *paintDevice) = 0;
 
+  /*! \brief Creates a paint device.
+   *
+   * Although it's usually not necessary to call this function, you may
+   * want to reimplement this function to customize or specialize the
+   * device used for painting the widget.
+   *
+   * \if cpp
+   * Ownership of the device is transferred to the caller.
+   * \endif
+   */
+  virtual WPaintDevice *createPaintDevice() const;
+
   virtual DomElementType domElementType() const;
   virtual void        updateDom(DomElement& element, bool all);
   virtual DomElement *createDomElement(WApplication *app);

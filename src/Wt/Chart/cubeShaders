@@ -170,6 +170,111 @@ const std::string vertexShaderSrc2D =
   "  vTextureCo = aTextureCo;\n"
   "}";
 
+const std::string intersectionLinesFragmentShaderSrc =
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "varying vec2 vTextureCo;\n"
+  "\n"
+  "uniform mat4 uCamera;\n"
+  "uniform vec4 uColor;\n"
+  "uniform float uVPwidth;\n"
+  "uniform float uVPheight;\n"
+  "uniform sampler2D uPositionSampler;\n"
+  "uniform sampler2D uMeshIndexSampler;\n"
+  "\n"
+  "void main(void) {\n"
+  "  float dx = 1.0/uVPwidth;\n"
+  "  float dy = 1.0/uVPheight;\n"
+  // p: position, i: index
+  // t: top, b: bottom, l: left, r: right
+  "  vec3 pt  = texture2D(uPositionSampler, vTextureCo+vec2(-dx,0.0)).xyz;\n"
+  "  vec3 pl  = texture2D(uPositionSampler, vTextureCo+vec2(0.0,dy)).xyz;\n"
+  "  vec3 pr  = texture2D(uPositionSampler, vTextureCo+vec2(0.0,-dy)).xyz;\n"
+  "  vec3 pb  = texture2D(uPositionSampler, vTextureCo+vec2(dx,0.0)).xyz;\n"
+  "  vec3 it  = texture2D(uMeshIndexSampler, vTextureCo+vec2(-dx,0.0)).xyz;\n"
+  "  vec3 il  = texture2D(uMeshIndexSampler, vTextureCo+vec2(0.0,dy)).xyz;\n"
+  "  vec3 ir  = texture2D(uMeshIndexSampler, vTextureCo+vec2(0.0,-dy)).xyz;\n"
+  "  vec3 ib  = texture2D(uMeshIndexSampler, vTextureCo+vec2(dx,0.0)).xyz;\n"
+  // Determine the scale factor by the zoom factor. This is so that the lines
+  // remain visible, even at a distance.
+  // NOTE: When zoomed way out, edges where charts are close to eachother, but not
+  // touching will start getting colored, as this is a limitation of the position heuristic.
+  "  float scale = length(vec3(uCamera[0][0], uCamera[1][0], uCamera[2][0]));\n"
+  // Limit the scale, so that lines don't start disappearing at very high zoom
+  // levels.
+  "  scale = scale > 5.0 ? 5.0 : scale;\n"
+  // Check if neighboring pixels in the index texture are the same, or if there is a change.
+  // If there is a change, check how close those pixels are from eachother.
+  // Take the average of those differences.
+  // 1.0 is the maximum, as 1.0 - 1.0 is 0.0 and we cap factor to 0.0
+  "  float totalDistance = 0.0;\n"
+  "  int count = 0;\n"
+  "  vec3 white = vec3(1.0);\n"
+  "  if (il != ir && il != white && ir != white) {\n"
+  "    count ++;\n"
+  "    totalDistance += length(pl - pr) * scale;\n"
+  "  }\n"
+  "  if (it != ib && it != white && ib != white) {\n"
+  "    count ++;\n"
+  "    totalDistance += length(pt - pb) * scale;\n"
+  "  }\n"
+  "  float factor = count == 0 ? 0.0 : 1.0 - totalDistance / float(count);\n"
+  "  factor = smoothstep(0.9, 1.0, factor);\n"
+  "  gl_FragColor = factor * uColor;\n"
+  "}";
+
+const std::string clippingPlaneFragShaderSrc =
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform bool uDrawPosition;\n"
+  "uniform lowp int uClippingAxis;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (uClippingAxis == 0 && (vPos.x <= 0.0 || vPos.x >= 1.0) ||"
+  "      uClippingAxis == 1 && (vPos.y <= 0.0 || vPos.y >= 1.0) ||"
+  "      uClippingAxis == 2 && (vPos.z <= 0.0 || vPos.z >= 1.0)) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  if (uDrawPosition) {\n"
+  "    gl_FragColor = vec4(vPos, 1.0);\n"
+  "  } else {\n"
+  "    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
+  "  }\n"
+  "}\n";
+
+const std::string clippingPlaneVertexShaderSrc =
+  "attribute vec2 aVertexPosition;\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform vec3 uClipPt;\n"
+  "uniform vec3 uDataMinPt;\n"
+  "uniform vec3 uDataMaxPt;\n"
+  "uniform lowp int uClippingAxis;\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "void main(void) {\n"
+  "  vec3 pos;\n"
+  "  vec3 clipPt = clamp((uClipPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), 0.0, 1.0);\n"
+  "  if (uClippingAxis == 0) {\n"
+  "    pos = vec3(clipPt.x, aVertexPosition);\n"
+  "  } else if (uClippingAxis == 1) {\n"
+  "    pos = vec3(aVertexPosition.x, clipPt.y, aVertexPosition.y);\n"
+  "  } else if (uClippingAxis == 2) {\n"
+  "    pos = vec3(aVertexPosition, clipPt.z);\n"
+  "  }\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(pos, 1.0);\n"
+  "  vPos = pos;\n"
+  "}\n";
+
 #if PERSPECTIVE
 // Vertex shader for the axis-flaps
 const std::string axisVertexShaderSrc = 

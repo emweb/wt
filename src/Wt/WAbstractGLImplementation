@@ -261,6 +261,9 @@ public:
   virtual void uniform1fv(const WGLWidget::UniformLocation &location,
 			  const WT_ARRAY float *value) = 0;
 
+  virtual void uniform1fv(const WGLWidget::UniformLocation &location,
+			  const WGLWidget::JavaScriptVector &v) = 0;
+
   virtual void uniform1i(const WGLWidget::UniformLocation &location,
 			 int x) = 0;
 
@@ -272,6 +275,9 @@ public:
 
   virtual void uniform2fv(const WGLWidget::UniformLocation &location,
 			  const WT_ARRAY float *value) = 0;
+
+  virtual void uniform2fv(const WGLWidget::UniformLocation &location,
+			  const WGLWidget::JavaScriptVector &v) = 0;
 
   virtual void uniform2i(const WGLWidget::UniformLocation &location,
 			 int x, int y) = 0;
@@ -285,6 +291,9 @@ public:
   virtual void uniform3fv(const WGLWidget::UniformLocation &location,
 			  const WT_ARRAY float *value) = 0;
 
+  virtual void uniform3fv(const WGLWidget::UniformLocation &location,
+			  const WGLWidget::JavaScriptVector &v) = 0;
+
   virtual void uniform3i(const WGLWidget::UniformLocation &location,
 			 int x, int y, int z) = 0;
 
@@ -296,6 +305,9 @@ public:
 
   virtual void uniform4fv(const WGLWidget::UniformLocation &location,
 			  const WT_ARRAY float *value) = 0;
+
+  virtual void uniform4fv(const WGLWidget::UniformLocation &location,
+			  const WGLWidget::JavaScriptVector &v) = 0;
 
   virtual void uniform4i(const WGLWidget::UniformLocation &location,
 			 int x, int y, int z, int w) = 0;
@@ -348,10 +360,17 @@ public:
 
   virtual void viewport(int x, int y, unsigned width, unsigned height) = 0;
 
-  virtual WGLWidget::JavaScriptMatrix4x4 createJavaScriptMatrix4() = 0;
+  virtual void initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm) = 0;
 
   virtual void setJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm,
 				    const WGenericMatrix<double, 4, 4> &m) = 0;
+
+  virtual void initJavaScriptVector(WGLWidget::JavaScriptVector &jsv) = 0;
+
+  virtual void setJavaScriptVector(WGLWidget::JavaScriptVector &jsv,
+				   const std::vector<float> &v) = 0;
+
+  virtual void setClientSideMouseHandler(const std::string& handlerCode) = 0;
 
   virtual void setClientSideLookAtHandler(const WGLWidget::JavaScriptMatrix4x4 &m,
 					  double ctrX, double ctrY, double ctrZ,
@@ -370,13 +389,15 @@ public:
   // void mouseDragHandler(WMouseEvent e);
   // void mouseWheelHandler(WMouseEvent e);
 
-  static void enableClientErrorChecks(bool enable) {
+  void enableClientErrorChecks(bool enable) {
 #ifdef WT_WGLWIDGET_DEBUG
     debugging_ = enable;
 #endif
   }
 
   virtual void injectJS(const std::string & jsString) = 0;
+
+  virtual void restoreContext(const std::string &jsRef) = 0;
 
   virtual void render(const std::string& jsRef, WFlags<RenderFlag> flags)  = 0;
 
@@ -398,7 +419,7 @@ protected:
   int renderHeight_;
   bool sizeChanged_;
 #ifdef WT_WGLWIDGET_DEBUG
-  static bool debugging_;
+  bool debugging_;
 #endif
 
   JSignal<void> webglNotAvailable_;

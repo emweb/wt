@@ -30,7 +30,7 @@ namespace Wt {
 #endif
 
 #ifdef WT_WGLWIDGET_DEBUG
-#define GLDEBUG do {if (debugging_) {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";}} while(false)
+#define GLDEBUG do {if (debugging_) {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR && err != ctx.CONTEXT_LOST_WEBGL) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";}} while(false)
   //if (glGetError() != GL_NO_ERROR){}
 #define SERVERGLDEBUG do {if (debugging_) {int err = glGetError(); if (err != GL_NO_ERROR){std::cerr << "gl error occured in " << __FUNCTION__ << ": " << err << std::endl;}} } while(false)
 //#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {debugger;}}\n";} while(false)
@@ -55,25 +55,16 @@ enum JsArrayType {
   Float32Array
 };
 
-// Incomplete implementation of the new webgl standard. This is to be
-// considered as a technology preview, and we welcome comments regarding
-// this interface.
-// Expect this interface to change.
-// TODO: provide a mechanism to write your own JavaScript
-
 /*! \class WGLWidget Wt/WGLWidget Wt/WGLWidget
- *  \brief WebGL support class
+ *  \brief GL support class
  *
- * The WGLWidget class is an interface to the HTML5 WebGL infrastructure. Its
- * implementation started based on the working drafts of the Khronos group, and
- * will be updated as the standard stabilizes. To fully understand WebGL, it is
+ * The WGLWidget class is an interface to the HTML5 WebGL infrastructure
+ * for client-side rendering, and OpenGL for server-side rendering.
+ * Its API is based on the WebGL API. To fully understand WebGL, it is
  * recommended to read the WebGL standard in addition to this documentation.
  *
  * The most recent version of the WebGL specification can be found here:
- * https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/doc/spec/WebGL-spec.html
- *
- * This widget is work in progress. The API may change in the future because
- * of new features, reorganizations or changes in the WebGL draft.
+ * http://www.khronos.org/registry/webgl/specs/latest/1.0/
  *
  * The goal of the WGLWidget class is to provide a method to render 3D
  * structures in the browser, where rendering and rerendering is normally
@@ -114,11 +105,11 @@ enum JsArrayType {
  * Wt records the JavaScript calls that have to be invoked in the
  * browser.
  * <ul>
- * <li><b>initializeGL()</b>: this function is executed only once, right
- *     after the successful detection of WebGL in the browser. (note: in
- *     future versions, it may be re-executed when the webglcontextlost
- *     signal is fired, but this is currently not yet implemented). This
- *     is the ideal location to compose shader programs, send VBO's to
+ * <li><b>initializeGL()</b>: this function is executed after the GL
+ *     context has been initialized. It is also executed when the
+ *     \c webglcontextrestored signal is fired. You can distinguish between
+ *     the first initialization and restoration of context using restoringContext().
+ *     This is the ideal location to compose shader programs, send VBO's to
  *     the client, extract uniform and attribute locations, ... Due to
  *     the presence of VBO's, this function may generate a large amount
  *     of data to the client.
@@ -137,7 +128,7 @@ enum JsArrayType {
  *     can use the VBO's and shaders prepared in the initializeGL() phase.
  *     Usually, this function sets uniforms and attributes, links
  *     attributes to VBO's, applies textures, and draws primitives.
- *     You may also create local programs, buffers, ... Remeber that this
+ *     You may also create local programs, buffers, ... Remember that this
  *     function is executed a lot of times, so every buffer/program created
  *     in this function should also be destroyed to avoid memory leaks.
  *     This function is transmitted once to the client, and is executed
@@ -157,7 +148,7 @@ enum JsArrayType {
  *     the PAINT_GL flag of repaintGL().
  * </ul>
  *
- * The WebGL functions are intended to be used exclusively from within the
+ * The GL functions are intended to be used exclusively from within the
  * invocation of the four callback functions mentioned above. In order to
  * manually trigger the execution of these function, use the repaintGL().
  *
@@ -168,13 +159,13 @@ enum JsArrayType {
  * <h3>Binary buffer transfers</h3>
  *
  * In bufferDatafv(), there is an additional boolean argument where you
- * can indicate that you want the data to be transferred to the client in 
- * binary form. A WMemoryResource is created for each of these buffers. If 
+ * can indicate that you want the data to be transferred to the client in
+ * binary form. A WMemoryResource is created for each of these buffers. If
  * you know all previous resources are not required in the client anymore,
  * you can free memory with the method clearBinaryResources() (the memory
  * is also managed, so this is not neccesary). If you want to manage these
  * resources entirely by yourself, the following method can be used.
- * 
+ *
  * Using createAndLoadArrayBuffer(), you can load an array buffer in
  * binary format from an URL. This will cause the client to fetch the
  * given URL, and make the contents of the file available in an
@@ -186,7 +177,7 @@ enum JsArrayType {
  * vertices to the client. Note that using ArrayBuffer is not possible when
  * you want a fall-back in the form of server-side rendering.
  *
- * <h3>Client side matrices.</h3>
+ * <h3>Client side matrices and vectors.</h3>
  *
  * The WGLWidget provides the WGLWidget::JavaScriptMatrix4x4 class as
  * a mechanism to use client-side modifiable matrices in the render
@@ -196,8 +187,8 @@ enum JsArrayType {
  * As such, they are ideal for mouse-based camera manipulations, timer
  * triggered animations, or object manipulations.
  *
- * Note: the client side matrices are currently not yet communicated back
- * to the server, but that is an implementation idea for the future.
+ * There's also support for client-side modifiable vectors, with
+ * WGLWidget::JavaScriptVector.
  */
 class WT_API WGLWidget: public WInteractWidget
 {
@@ -309,8 +300,10 @@ public:
       GlObject(i) {}
 
     virtual std::string jsRef() const {
-      if (isNull())
-	throw WException("Texture: is null");
+      if (isNull()) {
+	// throw WException("Texture: is null");
+	return "null";
+      }
       return std::string("ctx.WtTexture") + boost::lexical_cast<std::string>(getId());
     }
 
@@ -334,8 +327,10 @@ public:
       GlObject(i) {}
 
     std::string jsRef() const { 
-      if (isNull())
-	throw WException("FrameBuffer: is null");
+      if (isNull()) {
+	//throw WException("FrameBuffer: is null");
+	return "null";
+      }
       return "ctx.WtFramebuffer" + boost::lexical_cast<std::string>(getId());
     }
   };
@@ -348,8 +343,10 @@ public:
       GlObject(i) {}
 
     std::string jsRef() const {
-      if (isNull())
-	throw WException("RenderBuffer: is null");
+      if (isNull()) {
+	//throw WException("RenderBuffer: is null");
+	return "null";
+      }
       return "ctx.WtRenderbuffer" + boost::lexical_cast<std::string>(getId());
     }
   };
@@ -370,33 +367,145 @@ public:
     }
   };
 
+  /*! \brief A client-side JavaScript vector
+   *
+   * Using a JavaScriptVector, GL parameters can be modified without
+   * communication with the server. The value of the JavaScriptMatrix4x4
+   * is updated server-side whenever an event is sent to the server.
+   *
+   * The JavaScriptVector is represented in JavaScript as an array, either
+   * as a Float32Array or as a plain JavaScript array.
+   */
+  class WT_API JavaScriptVector {
+  public:
+    /** \brief Create a temporarily invalid JavaScriptVector.
+     *
+     *  Should be added to a %WGLWidget with
+     *  WGLWidget::addJavaScriptVector(), and initialized with
+     *  WGLWidget::initJavaScriptVector().
+     */
+    JavaScriptVector(unsigned length);
+
+#ifndef WT_TARGET_JAVA
+    JavaScriptVector(const JavaScriptVector &other);
+
+    JavaScriptVector &operator=(const JavaScriptVector &rhs);
+#endif
+
+    int id() const { return id_; }
+
+    /** \brief Returns whether this %JavaScriptVector has been initialized.
+     */
+    bool initialized() const { return initialized_; }
+
+    /** \brief Returns whether this %JavaScriptVector has been assigned
+     *         to a WGLWidget.
+     */
+    bool hasContext() const { return context_ != 0; }
+
+    /** \brief Returns the length (number of items) of this JavaScriptVector.
+     */
+    unsigned length() const { return length_; }
+
+    /** \brief Returns the JavaScript reference to this JavaScriptVector.
+     *
+     * In order to get a valid JavaScript reference, this vector
+     * should have been added to a WGLWidget.
+     */
+    std::string jsRef() const {
+      if (!hasContext())
+	throw WException("JavaScriptVector: does not belong to a "
+			 "WGLWidget yet");
+      return jsRef_;
+    }
+
+    /** \brief Returns the current server-side value.
+     *
+     * Client-side changes to the JavaScriptVector are automatically
+     * synchronized.
+     */
+    std::vector<float> value() const;
+
+#ifdef WT_TARGET_JAVA
+    JavaScriptVector clone() const;
+#endif
+  private:
+    void assignToContext(int id, const WGLWidget* context);
+    void initialize() { initialized_ = true; }
+    int id_;
+    unsigned length_;
+    std::string jsRef_;
+    const WGLWidget* context_;
+    bool initialized_;
+
+    friend class WGLWidget;
+    friend class WServerGLWidget;
+    friend class WClientGLWidget;
+  };
+
   /*! \brief A client-side JavaScript matrix
    *
    * A JavaScriptMatrix has methods that make it possible to do client-side
    * calculations on matrices.
    *
+   * Using a JavaScriptMatrix4x4, GL parameters can be modified without
+   * communication with the server. The value of the JavaScriptMatrix4x4
+   * is updated server-side whenever an event is sent to the server.
+   *
    * Important: only the jsRef() of the return value from a call to
-   * WGLWidget::createJavaScriptMatrix() is a variable name that can be used 
+   * WGLWidget::createJavaScriptMatrix() is a variable name that can be used
    * in custom JavaScript to modify a matrix from external scripts.
    * The jsRef() of return values of operations refer to unnamed temporary
    * objects - rvalues in C++-lingo.
+   *
+   * The JavaScriptMatrix4x4 is represented in JavaScript as an array of 16
+   * elements. This array represents the values of the matrix in column-major
+   * order. It is either a Float32Array or a plain JavaScript array.
    */
   class WT_API JavaScriptMatrix4x4 {
   public:
-    // Create temporarily invalid JSMatrix4x4, should be initialized
-    // later with createJavaScriptMatrix()
+    /** \brief Creates a temporarily invalid JavaScriptMatrix4x4.
+     *
+     *  Should be added to a %WGLWidget with
+     *  WGLWidget::addJavaScriptMatrix4, and initialized with
+     *  WGLWidget::initJavaScriptMatrix4.
+     */
     JavaScriptMatrix4x4();
+
 #ifndef WT_TARGET_JAVA
     JavaScriptMatrix4x4(const JavaScriptMatrix4x4 &other);
 
     JavaScriptMatrix4x4 &operator=(const JavaScriptMatrix4x4 &rhs);
 #endif
+
     int id() const { return id_; }
+
+    /** \brief Returns whether this JavaScriptMatrix4x4 has been initialized.
+     */
+    bool initialized() const { return initialized_; }
+
+    /** \brief Retuns whether this JavaScriptMatrix4x4 has been assigned
+     *         to a WGLWidget.
+     */
+    bool hasContext() const { return context_ != 0; }
+
+    /** \brief Returns the JavaScript reference to this JavaScriptMatrix4x4.
+     *
+     * In order to get a valid JavaScript reference, this matrix should
+     * have been added to a WGLWidget.
+     */
     std::string jsRef() const {
-      if (id() == -1)
-	throw WException("JavaScriptMatrix4x4: matrix not initialized");
+      if (!hasContext())
+	throw WException("JavaScriptMatrix4x4: does not belong to a WGLWidget yet");
       return jsRef_;
     }
+
+    /** \brief Returns the current server-side value.
+     *
+     * Client-side changes to the JavaScriptMatrix4x4 are automatically
+     * synchronized.
+     */
+    WMatrix4x4 value() const;
 
     JavaScriptMatrix4x4 inverted() const;
     JavaScriptMatrix4x4 transposed() const;
@@ -407,14 +516,13 @@ public:
     JavaScriptMatrix4x4 multiply(const WGenericMatrix<MatrixType, 4, 4> &m) const;
 #endif
 
-    WMatrix4x4 value() const;
-
 #ifdef WT_TARGET_JAVA
     JavaScriptMatrix4x4 clone() const;
 #endif
 
   private:
-    JavaScriptMatrix4x4(int i, JsArrayType type, const WGLWidget* context);
+    void assignToContext(int i, JsArrayType type, const WGLWidget* context);
+    void initialize() { initialized_ = true; }
     bool hasOperations() const { return operations_.size() > 0;}
 
     // void invert();
@@ -431,6 +539,8 @@ public:
     std::vector<op> operations_;
     std::vector< WGenericMatrix<double, 4, 4> > matrices_;
 
+    bool initialized_;
+
     friend class WGLWidget;
     friend class WServerGLWidget;
     friend class WClientGLWidget;
@@ -441,11 +551,12 @@ public:
    * \sa setRenderOptions()
    */
   enum RenderOption {
-    ClientSideRendering = 0x1, //<! Enables client-side rendering
-    ServerSideRendering = 0x2  //<! Enables server-side rendering
+    ClientSideRendering = 0x1, //!< Enables client-side rendering
+    ServerSideRendering = 0x2, //!< Enables server-side rendering
+    AntiAliasing        = 0x4  //!< Enables anti-aliasing
   };
 
-  /*! \brief Construct a WebGL widget.
+  /*! \brief Construct a GL widget.
    *
    * Before the first rendering, you must apply a size to the WGLWidget.
    */
@@ -458,26 +569,28 @@ public:
   /*! \brief Sets the rendering option.
    *
    * Use this method to configure whether client-side and/or
-   * server-side rendering can be used. The actual choice is also based
+   * server-side rendering can be used, and whether anti-aliasing
+   * should be enabled. The actual choice is also based
    * on availability (respectively client-side or server-side).
    *
-   * The default value is to try both ClientSide or ServerSide rendering.
+   * The default value is to try both ClientSide or ServerSide rendering,
+   * and to enable anti-aliasing if available.
    *
    * \note Options must be set before the widget is being rendered.
    */
   void setRenderOptions(WFlags<RenderOption> options);
 
-  /*! \brief Initialize the WebGL state when the widget is first shown.
+  /*! \brief Initialize the GL state when the widget is first shown.
    *
-   * initializeGL() is called once, when the widget is first rendered. It
-   * usually creates most of the WebGL related state: shaders, VBOs,
+   * initializeGL() is called when the widget is first rendered, and
+   * when the webglcontextrestored signal is fired. You can distinguish
+   * between the first initialization and context restoration using
+   * restoringContext().
+   * It usually creates most of the GL related state: shaders, VBOs,
    * uniform locations, ...
    *
    * If this state is to be updated during the lifetime of the widget,
    * you should specialize the updateGL() to accomodate for this.
-   *
-   * Note: in a future version, this method will probably also be invoked
-   * on contextrestore events.
    */
   virtual void initializeGL();
 
@@ -502,7 +615,7 @@ public:
    * an animation event, ... In many cases, this function will be
    * executed client-side many many times.
    *
-   * Using the WebGL functions from this class, you construct a scene.
+   * Using the GL functions from this class, you construct a scene.
    * The implementation tracks all JavaScript calls that need to be
    * performed to draw the scenes, and will replay them verbatim on
    * every trigger of the repaintSlot(). There are a few mechanisms
@@ -540,7 +653,7 @@ public:
    */
   virtual void updateGL();
 
-  /*! \brief Specifies what WebGL function needs to be updated
+  /*! \brief Specifies what GL function needs to be updated
    */
   enum ClientSideRenderer {PAINT_GL = 0x1,  //!< refresh paintGL()
                            RESIZE_GL = 0x2, //!< refresh resizeGL()
@@ -558,13 +671,20 @@ public:
    */
   void repaintGL(WFlags<ClientSideRenderer> which);
 
+  /*! \brief Returns whether a lost context is in the process of being restored.
+   *
+   * You can check for this in initializeGL(), to handle the first
+   * initialization and restoration of context differently.
+   */
+  bool restoringContext() const { return restoringContext_; }
+
   void resize(const WLength &width, const WLength &height);
 
-
-
-  /*! \brief The enourmous GLenum
+  /*! \brief The enormous GLenum
    *
-   * This enum contains all numeric constants defined by the WebGL standard.
+   * This enum contains all numeric constants defined by the WebGL
+   * standard, see:
+   * http://www.khronos.org/registry/webgl/specs/latest/1.0/#WEBGLRENDERINGCONTEXT
    */
   enum GLenum {
     /* ClearBufferMask */
@@ -990,12 +1110,14 @@ public:
   
   void debugger();  
 
-  /*! @name WebGL methods
-   * The WebGL methods are mostly 1-on-1 translated to the identical
-   * JavaScript call. You can use the WebGL methods in your resizeGL(),
+  /*! @name GL methods
+   * The GL methods are mostly 1-on-1 translated to the identical
+   * JavaScript call in WebGL. You can use the GL methods in your resizeGL(),
    * paintGL() and updateGL() specializations. Wt takes care that data,
    * arguments, ... are transfered to the client side and that the equivalent
-   * JavaScript WebGL funtion is executed.
+   * JavaScript WebGL funtion is executed when using client-side rendering.
+   * When using server-side rendering, the appropriate OpenGL functions
+   * are called.
    * @{
    */
 
@@ -1161,7 +1283,6 @@ public:
    */
   void bufferSubData(GLenum target, unsigned offset, ArrayBuffer res,
                      unsigned arrayBufferOffset, unsigned size);
-
 
 #if !defined(WT_TARGET_JAVA)
   /*! \brief GL function that loads float or double data in a VBO
@@ -1923,6 +2044,15 @@ public:
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glUniform.xml">
    * glUniform() OpenGL ES manpage</a>
    */
+  void uniform1fv(const UniformLocation &location,
+		  const JavaScriptVector &v);
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform1i(const UniformLocation &location, int x);
 
   /*! \brief GL function to set the value of a uniform variable of the current
@@ -1986,6 +2116,15 @@ void uniform2fv(const UniformLocation &location,
 #else
 ;
 #endif
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
+  void uniform2fv(const UniformLocation &location,
+		  const JavaScriptVector &v);
 
   /*! \brief GL function to set the value of a uniform variable of the current
    * program
@@ -2064,6 +2203,15 @@ void uniform2iv(const UniformLocation &location,
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glUniform.xml">
    * glUniform() OpenGL ES manpage</a>
    */
+  void uniform3fv(const UniformLocation &location,
+		  const JavaScriptVector &v);
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform3i(const UniformLocation &location, int x, int y, int z);
 
   /*! \brief GL function to set the value of a uniform variable of the current
@@ -2128,6 +2276,15 @@ void uniform2iv(const UniformLocation &location,
 #else
 ;
 #endif
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
+  void uniform4fv(const UniformLocation &location,
+		  const JavaScriptVector &v);
 
   /*! \brief GL function to set the value of a uniform variable of the current
    * program
@@ -2478,23 +2635,55 @@ void uniform2iv(const UniformLocation &location,
   /*! @}
    */
 
-  /*! @name Additional WebGL methods
+  /*! @name Client-side vectors and matrices
    *
-   * These methods are used to render WebGL content, but have no equivalent
-   * in WebGL.
-   *
-   * Like the WebGL methods, you can use the WebGL methods in your resizeGL(),
-   * paintGL() and updateGL() specializations. It makes no sense to call these
-   * methods outside those functions.
+   * These methods can be used to modify
+   * vectors and matrices client-side, to change
+   * the GL uniforms without a roundtrip to the server.
    * @{
    */
+
   /*! \brief Create a matrix that can be manipulated in client-side
    * JavaScript
+   *
+   * This is a shorthand for creating a JavaScriptMatrix4x4,
+   * then adding it to a WGLWidget with addJavaScriptMatrix4,
+   * and initializing it with initJavaScriptMatrix4.
+   *
+   * This method should only be called in initializeGL(),
+   * updateGL() or resizeGL().
    */
   JavaScriptMatrix4x4 createJavaScriptMatrix4();
 
+  /*! \brief Register a matrix with this WGLWidget.
+   *
+   * You can call this outside of resizeGL(), paintGL(), updateGL()
+   * or initializeGL() methods. After a JavaScriptMatrix4x4 is
+   * added to a WGLWidget, its jsRef() becomes valid, and can be
+   * used in a JSlot, for example.
+   */
+  void addJavaScriptMatrix4(JavaScriptMatrix4x4 &m);
+
+  /*! \brief Initialize the client-side JavaScript for the
+   * given JavaScriptMatrix4x4
+   *
+   * If the given matrix is not associated with a widget yet,
+   * it will be added to this widget.
+   *
+   * If the given matrix has already been added to a WGLWidget,
+   * then this WGLWidget should be the same as the one you call
+   * initJavaScriptMatrix4 on.
+   *
+   * This method should only be called in initializeGL(),
+   * updateGL() or resizeGL().
+   */
+  void initJavaScriptMatrix4(JavaScriptMatrix4x4 &m);
+
   /*! \brief Set the value of a client-side JavaScript matrix created by
    * createJavaScriptMatrix4x4()
+   *
+   * This method should only be called in initializeGL(),
+   * updateGL() or resizeGL().
    */
   WT_WGL_TEMPLATE(typename MatrixType)
   void setJavaScriptMatrix4(JavaScriptMatrix4x4 &jsm,
@@ -2518,12 +2707,125 @@ void uniform2iv(const UniformLocation &location,
 ;
 #endif
 
+  /*! \brief Create a vector of a certain length that can be manipulated
+   * in client-side JavaScript
+   *
+   * This is a shorthand for creating a JavaScriptVector,
+   * then adding it to a WGLWidget with addJavaScriptVector,
+   * and initializing it with initJavaScriptVector.
+   *
+   * This method should only be called in initializeGL(),
+   * updateGL() or resizeGL().
+   */
+  JavaScriptVector createJavaScriptVector(unsigned length);
+
+  /*! \brief Register a vector with this WGLWidget.
+   *
+   * You can call this outside of resizeGL(), paintGL(), updateGL()
+   * or initializeGL() methods. After a JavaScriptVector is
+   * added to a WGLWidget, its jsRef() becomes valid, and can be
+   * used in a JSlot, for example.
+   */
+  void addJavaScriptVector(JavaScriptVector &v);
+
+  /*! \brief Initialize the client-side JavaScript for the
+   * given JavaScriptVector
+   *
+   * If the given vector is not associated with a widget yet,
+   * it will be added to this widget.
+   *
+   * If the given vector has already been added to a WGLWidget,
+   * then this WGLWidget should be the same as the one you call
+   * initJavaScriptVector on.
+   *
+   * This method should only be called in initializeGL(),
+   * updateGL() or resizeGL().
+   */
+  void initJavaScriptVector(JavaScriptVector &v);
+
+  /*! \brief Set the value of a client-side JavaScript vector created by
+   * createJavaScriptVector()
+   *
+   * This method should only be called in initializeGL(),
+   * updateGL() or resizeGL().
+   */
+  void setJavaScriptVector(JavaScriptVector &jsv,
+			   const std::vector<float> &v);
+
   /*! @}
    */
 
-  // Todo:
-  // Get the current client-side value of a JavaScriptMatrix
-  //WMatrix4x4 getJavaScriptMatrix4();
+  /*! \brief Set a custom mouse handler based on the given JavaScript code.
+   *
+   * The handler code should be JavaScript code that produces an object when evaluated.
+   *
+   * A mouse handler is an object that can implement one or more of the following functions:
+   *
+   * - <b>setTarget(target)</b>: This is called immediately when the mouse handler is added with an
+   *                       object that uniquely identifies the WGLWidget, and a paintGL() method.
+   * - <b>mouseDown(o, event)</b>: To handle the \c mousedown event. \c o is the \c &lt;canvas> (client-side rendering)
+   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *			    the \c MouseEvent.
+   * - <b>mouseUp(o, event)</b>: To handle the \c mouseup event. \c o is the \c &lt;canvas> (client-side rendering)
+   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *			    the \c MouseEvent.
+   * - <b>mouseDrag(o, event)</b>: Called when the mouse is dragged. \c o is the \c &lt;canvas> (client-side rendering)
+   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *			    the \c MouseEvent.
+   * - <b>mouseWheel(o, event)</b>: Called when the mouse wheel is used. \c o is the \c &lt;canvas> (client-side rendering)
+   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *			    the \c MouseEvent.
+   * - <b>touchStart(o, event)</b>: To handle the \c touchstart event. \c o is the \c &lt;canvas> (client-side rendering)
+   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *			    the \c TouchEvent.
+   * - <b>touchEnd(o, event)</b>: To handle the \c touchend event. \c o is this \c &lt;canvas> (client-side rendering)
+   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *			    the \c TouchEvent.
+   * - <b>touchMoved(o, event)</b>: To handle the \c touchmove event. \c o is this \c &lt;canvas> (client-side rendering)
+   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *			    the \c TouchEvent.
+   *
+   *   Example:
+   *   If the variable <code>mouseHandler</code> contains the following JavaScript,
+   *   and uses the <a href="glmatrix.net">glMatrix</a> library:
+   *  \code
+function(cameraMatrix) {
+  var target = null;
+
+  this.setTarget = function(newTarget) {
+    target = newTarget;
+  };
+
+  this.mouseWheel = function(o, event) {
+    var fix = jQuery.event.fix(event);
+    fix.preventDefault();
+    fix.stopPropagation();
+    var d = wheelDelta(event);
+    var s = Math.pow(1.2, delta);
+    mat4.scale(cameraMatrix, cameraMatrix, [s, s, s]);
+    target.paintGL();
+  };
+
+  function wheelDelta(e) {
+    var delta = 0;
+    if (e.wheelDelta) {
+      delta = e.wheelDelta > 0 ? 1 : -1;
+    } else if (e.detail) {
+      delta = e.detail < 0 ? 1 : -1;
+    }
+    return delta;
+  }
+}
+      \endcode
+   *
+   *  This mouse handler can be set as such:
+   *  \code
+setClientSideMouseHandler("new " + mouseHandler + "(" + cameraMatrix.jsRef() + ")");
+      \endcode
+   *  where \c mouseHandler is the code of the mouse handler, and \c cameraMatrix is a
+   *  WGLWidget::JavaScriptMatrix4x4.
+   */
+  void setClientSideMouseHandler(const std::string& handlerCode);
 
   /*! \brief Add a mouse handler to the widget that looks at a given point
    *
@@ -2571,11 +2873,6 @@ void uniform2iv(const UniformLocation &location,
    *
    * frontStep and rotStep control how much the camera will move per mouse
    * pixel.
-   *
-   * Usually this method is called after setting a camera transformation
-   * with a client-side matrix in initializeGL(). However, this function
-   * may also be called from outside the intializeGL()/paintGL()/updateGL()
-   * methods (but not before m was initialized).
    */
   void setClientSideWalkHandler(const JavaScriptMatrix4x4 &m,
                                 double frontStep, double rotStep);
@@ -2590,14 +2887,6 @@ void uniform2iv(const UniformLocation &location,
    * WebGL support.
    */
   void setAlternativeContent(WWidget *alternative);
-
-  /*! \brief Return whether the alternative content is shown.
-   *
-   * If the alternative content is being rendered on the user's screen, this
-   * function will return true. This is the case is the browser does not have
-   * WebGL support and the server-side fallback failed (or is not present).
-   */
-  bool isAlternative();
 
   /*! \brief A JavaScript slot that repaints the widget when triggered.
    *
@@ -2614,9 +2903,6 @@ void uniform2iv(const UniformLocation &location,
    * an error. The JavaScript then invokes the client-side debugger. This
    * code is intended to test your application, and should not be used in
    * production.
-   *
-   * Note that this option will not have any effect unless both Wt and your
-   * application is built with WT_WGLWIDGET_DEBUG defined.
    */
   void enableClientErrorChecks(bool enable = true);
 
@@ -2631,8 +2917,6 @@ void uniform2iv(const UniformLocation &location,
 
   void webglNotAvailable();
 
-  bool isWebGLAvailable() { return webGlNotAvailable_; }
-  
 protected:
   virtual DomElementType domElementType() const;
   virtual DomElement *createDomElement(WApplication *app);
@@ -2646,7 +2930,10 @@ protected:
 
   virtual void setFormData(const FormData& formData);
 
+  virtual void contextRestored();
+
 private:
+
   WFlags<RenderOption> renderOptions_;
   WAbstractGLImplementation *pImpl_;
   struct jsMatrixMap {
@@ -2657,10 +2944,21 @@ private:
       : id(matId), serverSideCopy(ssCopy)
     {}
   };
+  struct jsVectorMap {
+    int id;
+    std::vector<float> serverSideCopy;
+
+    jsVectorMap(int vecId, const std::vector<float> &ssCopy)
+      : id(vecId), serverSideCopy(ssCopy)
+    {}
+  };
   std::vector<jsMatrixMap> jsMatrixList_;
+  std::vector<jsVectorMap> jsVectorList_;
+  unsigned jsValues_;
+  std::stringstream js_;
   JSignal<> repaintSignal_;
 
-  std::string glObjJsRef();
+  std::string glObjJsRef() const;
 
   WWidget *alternative_;
 
@@ -2669,6 +2967,11 @@ private:
   // the client side will have deleted the canvas widget.
   JSignal<void> webglNotAvailable_;
   bool webGlNotAvailable_;
+
+  JSignal<void> contextRestored_;
+  bool restoringContext_;
+
+  bool valueChanged_;
 
   JSlot mouseWentDownSlot_;
   JSlot mouseWentUpSlot_;
@@ -2687,7 +2990,8 @@ static void renderfv(std::ostream &os, WGenericMatrix<MatrixType, 4, 4> t,
 #endif
 
   friend class WGLWidget::JavaScriptMatrix4x4;
-
+  friend class WClientGLWidget;
+  friend class WServerGLWidget;
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::GLenum)

@@ -57,6 +57,20 @@ boost::any PlaneData::data(const Wt::WModelIndex& index, int role) const
   return 0.2*x - 0.2*y;
 }
 
+HorizontalPlaneData::HorizontalPlaneData(unsigned nbXpts, unsigned nbYpts, WObject *parent)
+  : WStandardItemModel(nbXpts+1, nbYpts+1, parent),
+    xStart_(-10.0), xEnd_(10.0), yStart_(-10.0), yEnd_(10.0)
+{}
+
+boost::any HorizontalPlaneData::data(const Wt::WModelIndex& index, int role) const
+{
+  if (role != DisplayRole) {
+    return WStandardItemModel::data(index, role);
+  }
+
+  return 0.0;
+}
+
 SpiralData::SpiralData(unsigned nbPts, WObject *parent)
   : WStandardItemModel(nbPts, 3, parent), nbPts_(nbPts)
 {}

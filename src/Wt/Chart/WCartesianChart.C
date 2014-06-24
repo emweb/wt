@@ -15,6 +15,7 @@
 #include "Wt/WAbstractArea"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WException"
+#include "Wt/WMeasurePaintDevice"
 #include "Wt/WPainter"
 #include "Wt/WCircleArea"
 #include "Wt/WPolygonArea"
@@ -912,7 +913,8 @@ void WCartesianChart::setLegendLocation(LegendLocation location,
 
 void WCartesianChart::setLegendColumns(int columns, const WLength& columnWidth)
 {
-  legend_.setLegendColumns(columns, columnWidth);
+  legend_.setLegendColumns(columns);
+  legend_.setLegendColumnWidth(columnWidth);
 
   update();
 }
@@ -1370,7 +1372,7 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
   painter.save();
   painter.translate(rectangle.topLeft());
 
-  if (initLayout(rectangle)) {
+  if (initLayout(rectangle, painter.device())) {
     renderBackground(painter);
     renderGrid(painter, axis(XAxis));
     renderGrid(painter, axis(Y1Axis));
@@ -1383,7 +1385,8 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
   painter.restore();
 }
 
-bool WCartesianChart::initLayout(const WRectF& rectangle) const
+bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
+  const
 {
   WRectF rect = rectangle;
   if (rect.isNull() || rect.isEmpty())
@@ -1400,14 +1403,51 @@ bool WCartesianChart::initLayout(const WRectF& rectangle) const
   for (int i = 0; i < 3; ++i)
     location_[i] = MinimumValue;
 
+  if (isAutoLayoutEnabled()) {
+    WCartesianChart *self = const_cast<WCartesianChart *>(this);
+    self->setPlotAreaPadding(40, Left | Right);
+    self->setPlotAreaPadding(30, Top | Bottom);
+
+    calcChartArea();
+
+    if (chartArea_.width() <= 5 || chartArea_.height() <= 5 || !prepareAxes())
+      return false;
+
+    WPaintDevice *d = device;
+    if (!d)
+      d = createPaintDevice();
+    WMeasurePaintDevice md(d);
+    WPainter painter(&md);
+
+    renderAxes(painter, Line | Labels);
+    renderLegend(painter);
+
+    WRectF bounds = md.boundingRect();
+
+    /* bounds should be within rect with a 5 pixel margin */
+    const int MARGIN = 5;
+    int corrLeft = (int)std::max(0.0, rect.left() - bounds.left() + MARGIN);
+    int corrRight = (int)std::max(0.0, bounds.right() - rect.right() + MARGIN);
+    int corrTop = (int)std::max(0.0, rect.top() - bounds.top() + MARGIN);
+    int corrBottom = (int)std::max(0.0, bounds.bottom() - rect.bottom()
+				   + MARGIN);
+
+    self->setPlotAreaPadding(plotAreaPadding(Left) + corrLeft, Left);
+    self->setPlotAreaPadding(plotAreaPadding(Right) + corrRight, Right);
+    self->setPlotAreaPadding(plotAreaPadding(Top) + corrTop, Top);
+    self->setPlotAreaPadding(plotAreaPadding(Bottom) + corrBottom, Bottom);
+
+    if (!device)
+      delete d;
+  }
+
   calcChartArea();
 
   return chartArea_.width() > 5 && chartArea_.height() > 5 && prepareAxes();
 }
 
 void WCartesianChart::drawMarker(const WDataSeries& series,
-				 WPainterPath& result)
-  const
+				 WPainterPath& result) const
 {
   const double size = 6.0;
   const double hsize = size/2;
@@ -1934,13 +1974,29 @@ void WCartesianChart::renderLegend(WPainter& painter) const
   const int margin = 10;
 
   if (isLegendEnabled()) {
+    painter.save();
+
     int numSeriesWithLegend = 0;
 
     for (unsigned i = 0; i < series().size(); ++i)
       if (series()[i].isLegendEnabled())
 	++numSeriesWithLegend;
 
+    painter.setFont(legendFont());
     WFont f = painter.font();
+
+    if (isAutoLayoutEnabled()) {
+      int columnWidth = 0;
+      for (unsigned i = 0; i < series().size(); ++i)
+	if (series()[i].isLegendEnabled()) {
+	  WString s = asString(model()->headerData(series()[i].modelColumn()));
+	  WTextItem t = painter.device()->measureText(s);
+	  columnWidth = std::max(columnWidth, (int)t.width());
+	}
+
+      WCartesianChart *self = const_cast<WCartesianChart *>(this);
+      self->legend_.setLegendColumnWidth(columnWidth + 25);
+    }
 
     int numLegendRows = (numSeriesWithLegend - 1) / legendColumns() + 1;
     double lineHeight = f.sizeLength().toPixels() * 1.5;
@@ -2041,7 +2097,6 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 
     painter.setPen(WPen());
 
-    painter.save();
     painter.setFont(legendFont());
 
     int item = 0;

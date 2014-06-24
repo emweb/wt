@@ -164,6 +164,28 @@ public:
    */
   double pointSize() const { return pointSize_; }
 
+  /*! \brief Set the point sprite used for drawing this dataseries.
+   *
+   * This should be a local path to an image, such as a PNG or GIF.
+   * Only the alpha channel of this image is used: the sprite only
+   * decides if a pixel in the point appears or not. If the alpha
+   * value is 1, the pixel is drawn, otherwise it isn't.
+   *
+   * For best effect, the point sprite's width and height should be
+   * the same as the pointSize(), and the chart's antialiasing should
+   * be disabled.
+   *
+   * Defaults to the empty string, meaning that every pixel of the
+   * point will be drawn.
+   */
+  void setPointSprite(const std::string &image);
+
+  /*! \brief Returns the point sprite used for drawing this dataseries.
+   *
+   * \sa setPointSprite()
+   */
+  const std::string &pointSprite() const { return pointSprite_; }
+
   /*! \brief Sets the colormap for this dataseries.
    *
    * Ownership of the WAbstractColorMap is transferred to this class.
@@ -173,6 +195,12 @@ public:
    * for this series. The colormap associates a color to the data based on the 
    * z-value of the data. If the colormap is set to 0, the value of the palette 
    * will be used again.
+   *
+   * \if cpp
+   * If the colormap has no parent yet, then ownership is transferred to this
+   * %WAbstractDataSeries3D, and thus the validator will be deleted together with
+   * the %WAbstractDataSeries3D.
+   * \endif
    *
    * \sa setColorMapVisible(), setColorMapSide()
    */
@@ -201,7 +229,7 @@ public:
    * \sa setColorMap(), setColorMapVisible(), setColorMapSide()
    */
   bool colorMapVisible() const { return showColorMap_; }
-  
+
   /*! \brief Sets whether the colormap is shown on the left or right.
    *
    * The default side is Right.
@@ -251,7 +279,7 @@ public:
   WColor chartpaletteColor() const;
 
   // internal api: only for use in WCartesian3DChart::addDataSeries
-  void setChart(WCartesian3DChart *chart);
+  virtual void setChart(WCartesian3DChart *chart);
 
   /*! \brief Initialize GL resources
    *
@@ -293,6 +321,7 @@ public:
 
 protected:
   WGLWidget::Texture colorTexture();
+  WGLWidget::Texture pointSpriteTexture();
 
   WString name_;
 
@@ -303,6 +332,8 @@ protected:
   mutable bool rangeCached_;
 
   double pointSize_;
+
+  std::string pointSprite_;
 
   WAbstractColorMap* colormap_;
   bool showColorMap_;

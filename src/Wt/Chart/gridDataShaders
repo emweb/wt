@@ -7,7 +7,7 @@
 
 namespace {
 
-const std::string barFragShaderSrc = 
+const std::string barFragShaderSrc =
   "#ifdef GL_ES\n"
   "precision highp float;\n"
   "#endif\n"
@@ -17,12 +17,11 @@ const std::string barFragShaderSrc =
   "uniform sampler2D uSampler;\n"
   "\n"
   "void main(void) {\n"
-  "  if (vPos.x < 0.0 || vPos.x > 1.0 ||"
-  "      vPos.y < 0.0 || vPos.y > 1.0 ||"
-  "      vPos.z < 0.0 || vPos.z > 1.0) {\n"
+  "  if (any(lessThan(vPos, vec3(0.0, 0.0, 0.0))) ||"
+  "      any(greaterThan(vPos, vec3(1.0, 1.0, 1.0)))) {\n"
   "    discard;\n"
   "  }\n"
-  "  gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t) );\n"  
+  "  gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t) );\n"
   "}\n";
 
 const std::string barVertexShaderSrc =
@@ -42,7 +41,7 @@ const std::string barVertexShaderSrc =
   "  vPos = aVertexPosition;\n"
   "}\n";
 
-const std::string colBarFragShaderSrc = 
+const std::string colBarFragShaderSrc =
   "#ifdef GL_ES\n"
   "precision highp float;\n"
   "#endif\n"
@@ -50,12 +49,11 @@ const std::string colBarFragShaderSrc =
   "varying vec4 vColor;\n"
   "\n"
   "void main(void) {\n"
-  "  if (vPos.x < 0.0 || vPos.x > 1.0 ||"
-  "      vPos.y < 0.0 || vPos.y > 1.0 ||"
-  "      vPos.z < 0.0 || vPos.z > 1.0) {\n"
+  "  if (any(lessThan(vPos, vec3(0.0, 0.0, 0.0))) ||"
+  "      any(greaterThan(vPos, vec3(1.0, 1.0, 1.0)))) {\n"
   "    discard;\n"
   "  }\n"
-  "  gl_FragColor = vColor;\n"  
+  "  gl_FragColor = vColor;\n"
   "}\n";
 
 const std::string colBarVertexShaderSrc =
@@ -75,24 +73,30 @@ const std::string colBarVertexShaderSrc =
   "  vPos = aVertexPosition;\n"
   "}\n";
 
-const std::string ptFragShaderSrc = 
+const std::string ptFragShaderSrc =
   "#ifdef GL_ES\n"
   "precision highp float;\n"
   "#endif\n"
   "\n"
-  "varying float x, y, z;\n"
+  "varying vec3 vPos;\n"
   "\n"
   "uniform sampler2D uSampler;\n"
+  "uniform sampler2D uPointSprite;\n"
   "uniform float uOffset;\n"
   "uniform float uScaleFactor;\n"
+  "uniform float uVPHeight;\n"
   "\n"
   "void main(void) {\n"
-  "  if (x < 0.0 || x > 1.0 ||"
-  "      y < 0.0 || y > 1.0 ||"
-  "      z < 0.0 || z > 1.0) {\n"
+  "  if (any(lessThan(vPos, vec3(0.0, 0.0, 0.0))) ||"
+  "      any(greaterThan(vPos, vec3(1.0, 1.0, 1.0)))) {\n"
   "    discard;\n"
   "  }\n"
-  "  gl_FragColor = texture2D(uSampler, vec2(0.0, uScaleFactor * (z - uOffset) ) );\n"
+  "  vec2 texCoord = gl_PointCoord - vec2(0.0, 1.0 / uVPHeight) * 0.50;\n"
+  "  texCoord.y = 1.0 - texCoord.y;\n"
+  "  if (texture2D(uPointSprite, texCoord).w < 0.5) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = texture2D(uSampler, vec2(0.0, uScaleFactor * (vPos.z - uOffset) ) );\n"
   "}\n";
 
 // // make round points (z-buffer issues)
@@ -106,28 +110,32 @@ const std::string ptVertexShaderSrc =
   "uniform mat4 uPMatrix;\n"
   "uniform mat4 uCMatrix;\n"
   "\n"
-  "varying float x, y, z;\n"
+  "varying vec3 vPos;\n"
   "\n"
   "void main(void) {\n"
   "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
-  "  x = aVertexPosition.x;\n"
-  "  y = aVertexPosition.y;\n"
-  "  z = aVertexPosition.z;\n"
+  "  vPos = aVertexPosition;\n"
   "  gl_PointSize = aPointSize;\n"
   "}\n";
 
-const std::string colPtFragShaderSrc = 
+const std::string colPtFragShaderSrc =
   "#ifdef GL_ES\n"
   "precision highp float;\n"
   "#endif"
   "\n"
+  "uniform sampler2D uPointSprite;\n"
   "varying vec4 vColor;\n"
-  "varying float x, y, z;\n"
+  "varying vec3 vPos;\n"
+  "uniform float uVPHeight;\n"
   "\n"
   "void main(void) {\n"
-  "  if (x < 0.0 || x > 1.0 ||"
-  "      y < 0.0 || y > 1.0 ||"
-  "      z < 0.0 || z > 1.0) {\n"
+  "  if (any(lessThan(vPos, vec3(0.0, 0.0, 0.0))) ||"
+  "      any(greaterThan(vPos, vec3(1.0, 1.0, 1.0)))) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  vec2 texCoord = gl_PointCoord - vec2(0.0, 1.0 / uVPHeight) * 0.25;\n"
+  "  texCoord.y = 1.0 - texCoord.y;\n"
+  "  if (texture2D(uPointSprite, texCoord).w < 0.5) {\n"
   "    discard;\n"
   "  }\n"
   "  gl_FragColor = vColor;\n"
@@ -143,35 +151,94 @@ const std::string colPtVertexShaderSrc =
   "uniform mat4 uCMatrix;\n"
   "\n"
   "varying vec4 vColor;\n"
-  "varying float x, y, z;\n"
+  "varying vec3 vPos;\n"
   "\n"
   "void main(void) {\n"
   "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
   "  vColor = aColor/255.0;\n"
-  "  x = aVertexPosition.x;\n"
-  "  y = aVertexPosition.y;\n"
-  "  z = aVertexPosition.z;\n"
+  "  vPos = aVertexPosition;\n"
   "  gl_PointSize = aPointSize;\n"
   "}\n";
 
-const std::string surfFragShaderSrc = 
+const std::string surfFragShaderSrc =
   "#ifdef GL_ES\n"
   "precision highp float;\n"
   "#endif\n"
   "\n"
-  "varying float x, y, z;\n"
+  "varying vec3 vPos;\n"
   "\n"
   "uniform sampler2D uSampler;\n"
   "uniform float uOffset;\n"
   "uniform float uScaleFactor;\n"
+  "uniform vec3 uMinPt;\n"
+  "uniform vec3 uMaxPt;\n"
+  "uniform vec3 uDataMinPt;\n"
+  "uniform vec3 uDataMaxPt;\n"
   "\n"
   "void main(void) {\n"
-  "  if (x < 0.0 || x > 1.0 ||"
-  "      y < 0.0 || y > 1.0 ||"
-  "      z < 0.0 || z > 1.0) {\n"
+  "  vec3 minPt = max((uMinPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(0.0));\n"
+  "  vec3 maxPt = min((uMaxPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(1.0));\n"
+  "  if (any(lessThan(vPos, minPt)) ||"
+  "      any(greaterThan(vPos, maxPt))) {\n"
   "    discard;\n"
   "  }\n"
-  "  gl_FragColor = texture2D(uSampler, vec2(0.0, uScaleFactor * (z - uOffset) ) );\n"  
+  "  gl_FragColor = texture2D(uSampler, vec2(0.0, uScaleFactor * (vPos.z - uOffset) ) );\n"
+  "}\n";
+
+const std::string surfFragSingleColorShaderSrc =
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform vec3 uMargin;\n"
+  "uniform vec3 uColor;\n"
+  "uniform vec3 uMinPt;\n"
+  "uniform vec3 uMaxPt;\n"
+  "uniform vec3 uDataMinPt;\n"
+  "uniform vec3 uDataMaxPt;\n"
+  "\n"
+  "void main(void) {\n"
+  "  vec3 minPt = max((uMinPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(0.0));\n"
+  "  vec3 maxPt = min((uMaxPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(1.0));\n"
+  "  minPt = minPt - uMargin;\n"
+  "  maxPt = maxPt + uMargin;\n"
+  "  if (any(lessThan(vPos, minPt)) ||"
+  "      any(greaterThan(vPos, maxPt))) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  if (any(lessThan(vPos, minPt + uMargin / 2.0)) ||"
+  "        any(greaterThan(vPos, maxPt - uMargin / 2.0))) {\n"
+  "      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+  "  } else {\n"
+  "    gl_FragColor = vec4(uColor, 1.0);\n"
+  "  }\n"
+  "}\n";
+
+const std::string surfFragPosShaderSrc =
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform vec3 uMargin;\n"
+  "uniform vec3 uMinPt;\n"
+  "uniform vec3 uMaxPt;\n"
+  "uniform vec3 uDataMinPt;\n"
+  "uniform vec3 uDataMaxPt;\n"
+  "\n"
+  "void main(void) {\n"
+  "  vec3 minPt = max((uMinPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(0.0));\n"
+  "  vec3 maxPt = min((uMaxPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(1.0));\n"
+  "  minPt = minPt - uMargin;\n"
+  "  maxPt = maxPt + uMargin;\n"
+  "  if (any(lessThan(vPos, minPt)) ||"
+  "      any(greaterThan(vPos, maxPt))) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = vec4(vPos, 1.0);\n"
   "}\n";
 
 const std::string surfVertexShaderSrc =
@@ -181,16 +248,14 @@ const std::string surfVertexShaderSrc =
   "uniform mat4 uPMatrix;\n"
   "uniform mat4 uCMatrix;\n"
   "\n"
-  "varying float x, y, z;\n"
+  "varying vec3 vPos;\n"
   "\n"
   "void main(void) {\n"
   "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
-  "  x = aVertexPosition.x;\n"
-  "  y = aVertexPosition.y;\n"
-  "  z = aVertexPosition.z;\n"
+  "  vPos = aVertexPosition;\n"
   "}\n";
 
-const std::string meshFragShaderSrc = 
+const std::string meshFragShaderSrc =
   "#ifdef GL_ES\n"
   "precision highp float;\n"
   "#endif\n"
@@ -198,17 +263,22 @@ const std::string meshFragShaderSrc =
   "varying vec3 vPos;\n"
   "\n"
   "uniform vec4 uColor;\n"
+  "uniform vec3 uMinPt;\n"
+  "uniform vec3 uMaxPt;\n"
+  "uniform vec3 uDataMinPt;\n"
+  "uniform vec3 uDataMaxPt;\n"
   "\n"
   "void main(void) {\n"
-  "  if (vPos.x < 0.0 || vPos.x > 1.0 ||"
-  "      vPos.y < 0.0 || vPos.y > 1.0 ||"
-  "      vPos.z < 0.0 || vPos.z > 1.0) {\n"
+  "  vec3 minPt = max((uMinPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(0.0));\n"
+  "  vec3 maxPt = min((uMaxPt - uDataMinPt) / (uDataMaxPt - uDataMinPt), vec3(1.0));\n"
+  "  if (any(lessThan(vPos, minPt)) ||"
+  "      any(greaterThan(vPos, maxPt))) {\n"
   "    discard;\n"
   "  }\n"
-  "  gl_FragColor = uColor/255.0;\n"  
+  "  gl_FragColor = uColor/255.0;\n"
   "}\n";
 
-const std::string meshVertexShaderSrc = 
+const std::string meshVertexShaderSrc =
   "attribute vec3 aVertexPosition;\n"
   "\n"
   "varying vec3 vPos;\n"
@@ -219,6 +289,41 @@ const std::string meshVertexShaderSrc =
   "\n"
   "void main(void) {\n"
   "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n"
+  "  vPos = aVertexPosition;\n"
+  "}\n";
+
+const std::string isoLineFragShaderSrc =
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
+  "\n"
+  "uniform sampler2D uSampler;\n"
+  "uniform float uOffset;\n"
+  "uniform float uScaleFactor;\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "void main(void) {\n"
+  "  if (any(lessThan(vPos.xy, vec2(0.0, 0.0))) ||"
+  "      any(greaterThan(vPos.xy, vec2(1.0, 1.0)))) {\n"
+  "    discard;\n"
+  "  }\n"
+  "  gl_FragColor = texture2D(uSampler, vec2(0.0, uScaleFactor * (vPos.z - uOffset) ) );\n"
+  "}\n";
+
+const std::string isoLineVertexShaderSrc =
+  "attribute vec3 aVertexPosition;\n"
+  "\n"
+  "varying vec3 vPos;\n"
+  "\n"
+  "uniform mat4 uMVMatrix;\n"
+  "uniform mat4 uPMatrix;\n"
+  "uniform mat4 uCMatrix;\n"
+  "\n"
+  "void main(void) {\n"
+  // uCMatrix[1][2] is sine of pitch (times scale, but we're only checking the sign)
+  "  float z = (uCMatrix[1][2] > 0.0) ? 0.0 : 1.0;\n"
+  "  gl_Position = uPMatrix * uCMatrix * uMVMatrix * vec4(aVertexPosition.xy, z, 1.0);\n"
   "  vPos = aVertexPosition;\n"
   "}\n";
 

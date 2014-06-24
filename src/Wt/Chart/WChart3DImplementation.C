@@ -142,8 +142,8 @@ WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderR
 
 void WChart3DImplementation::update()
 {
-  chart_->updateChart(WCartesian3DChart::GLContext |
-		      WCartesian3DChart::GLTextures);
+  chart_->updateChart(GLContext |
+		      GLTextures);
 }
 
 

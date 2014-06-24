@@ -14,6 +14,7 @@ namespace Wt {
 class WLineEdit;
 class WComboBox;
 class WCheckBox;
+class WSlider;
 class WTemplate;
 class WText;
   namespace Chart {
@@ -39,6 +40,7 @@ public:
 private:
   WLineEdit *setName_;
   WLineEdit *pointsize_;
+  WComboBox *pointSprite_;
   WComboBox *colormap_;
   WCheckBox *showColormap_;
   WComboBox *colormapSide_;
@@ -60,6 +62,28 @@ private:
   WCheckBox *enableMesh_;
   WLineEdit *penSize_;
   WComboBox *penColor_;
+
+  WSlider *xClippingMin_;
+  WSlider *xClippingMax_;
+  WSlider *yClippingMin_;
+  WSlider *yClippingMax_;
+  WSlider *zClippingMin_;
+  WSlider *zClippingMax_;
+
+  WCheckBox *showClippingLines_;
+  WComboBox *clippingLinesColor_;
+
+  WCheckBox *showIsolines_;
+  WComboBox *isolineColormap_;
+
+  JSlot changeXClippingMin_;
+  JSlot changeXClippingMax_;
+  JSlot changeYClippingMin_;
+  JSlot changeYClippingMax_;
+  JSlot changeZClippingMin_;
+  JSlot changeZClippingMax_;
+
+  std::vector<Signals::connection> clippingConnections_;
 
   WAbstractGridData *gridData_;
 };

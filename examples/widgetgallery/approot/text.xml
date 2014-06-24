@@ -3302,7 +3302,7 @@
 
     <h3>Editing + Combo box editor example</h3>
     <p>
-      MVC Views will automaticlly react to changes to the underlying
+      MVC Views will automatically react to changes to the underlying
       model, be it in the form of data updates, or the insertion of
       new rows or columns.
     </p>
@@ -4387,7 +4387,7 @@
     <h2>3D Numerical Chart</h2>
     <h3>The chart</h3>
     <p>
-      The 3D charting API is built on top of Wt's 3D painting API. A chart is represented by a ${doc-link WCartesian3DChart}, which derives from ${doc-link WGLWidget}.
+      The 3D charting API is built on top of Wt's 3D painting API. A chart is represented by a ${doc-link Chart-WCartesian3DChart}, which derives from ${doc-link WGLWidget}.
     </p>
     <p>
       Based on the sort of data that will be shown, a chart is one of two types (the same as for 2D charts):
@@ -4399,7 +4399,7 @@
 
     <h3>Types of data</h3>
     <p>
-      All data that can be shown in a 3D chart, has to derive from ${doc-link WAbstractdataSeries3D}. Instances of this class include a model containing the actual data and all logic to draw themselves on the chart. This means all graphical features of the data (color, pointsize ...) are also part of this class.
+      All data that can be shown in a 3D chart, has to derive from ${doc-link Chart-WAbstractDataSeries3D}. Instances of this class include a model containing the actual data and all logic to draw themselves on the chart. This means all graphical features of the data (color, pointsize ...) are also part of this class.
     </p>
     <p>
       Wt provides three built-in classes representing data:
@@ -4411,9 +4411,9 @@
     </p>
     <p>
       Each instance of these dataseries has a ${doc-link WAbstractItemModel} backing them. The model for all these dataseries has to be provided as a table. <br />
-      In ${doc-link WGridData}, the table must contain one column representing the x-axis values and one row representing the y-axis values. All other values then specify the z-axis value belonging to the corresponding (x, y) pair. <br />
-      The backing model for ${doc-link WEquidistantGridData} is similar, with the difference that no x- and y-axis values are required. These can be specified directly to the class instance using <tt>setXAbscis(double XMinimum, double deltaX)</tt> and <tt>setYAbscis(double YMinimum, double deltaY)</tt>. <br />
-      The model for ${doc-link WScatterData} must have three columns containing (x, y, z) values for every point.
+      In ${doc-link Chart-WGridData}, the table must contain one column representing the x-axis values and one row representing the y-axis values. All other values then specify the z-axis value belonging to the corresponding (x, y) pair. <br />
+      The backing model for ${doc-link Chart-WEquidistantGridData} is similar, with the difference that no x- and y-axis values are required. These can be specified directly to the class instance using <tt>setXAbscis(double XMinimum, double deltaX)</tt> and <tt>setYAbscis(double YMinimum, double deltaY)</tt>. <br />
+      The model for ${doc-link Chart-WScatterData} must have three columns containing (x, y, z) values for every point.
     </p>
     <p>
       All grid-based data has the additional feature that the visualization of the data is determined by its <tt>Series3DType</tt>, which can be either of three values:

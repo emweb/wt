@@ -251,6 +251,7 @@ void DomElement::updateInnerHtmlOnly()
   assert(insertBefore_ == 0);
 
   attributes_.clear();
+  removedAttributes_.clear();
   eventHandlers_.clear();
 
   for (PropertyMap::iterator i = properties_.begin(); i != properties_.end();) {
@@ -288,6 +289,7 @@ void DomElement::setAttribute(const std::string& attribute,
 {
   ++numManipulations_;
   attributes_[attribute] = value;
+  removedAttributes_.erase(attribute);
 }
 
 std::string DomElement::getAttribute(const std::string& attribute) const
@@ -301,7 +303,9 @@ std::string DomElement::getAttribute(const std::string& attribute) const
 
 void DomElement::removeAttribute(const std::string& attribute)
 {
+  ++numManipulations_;
   attributes_.erase(attribute);
+  removedAttributes_.insert(attribute);
 }
 
 void DomElement::setEventSignal(const char *eventName,
@@ -325,6 +329,7 @@ void DomElement::setEvent(const char *eventName,
   if (isExposed || anchorClick || !jsCode.empty()) {
     js << "var e=event||window.event,";
     js << "o=this;";
+    js << "var a1 = null, a2 = null, a3 = null, a4 = null, a5 = null, a6 = null;";
 
     if (anchorClick)
       js << "if(e.ctrlKey||e.metaKey||(" WT_CLASS ".button(e) > 1))"
@@ -377,6 +382,8 @@ void DomElement::setEvent(const char *eventName,
   for (unsigned i = 0; i < actions.size(); ++i) {
     if (!actions[i].jsCondition.empty())
       code << "if(" << actions[i].jsCondition << "){";
+
+    code << "var a1 = null, a2 = null, a3 = null, a4 = null, a5 = null, a6 = null;";
 
     /*
      * This order, first JavaScript and then event propagation is important
@@ -1599,6 +1606,13 @@ void DomElement::setJavaScriptAttributes(EscapeOStream& out) const
       jsStringLiteral(out, i->second, '\'');
       out << ");\n";
     }
+  }
+
+  for (AttributeSet::const_iterator i = removedAttributes_.begin();
+      i != removedAttributes_.end(); ++i) {
+    declare(out);
+
+    out << var_ << ".removeAttribute('" << *i << "');\n";
   }
 }
 

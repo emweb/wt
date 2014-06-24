@@ -28,12 +28,12 @@ void WGridData::setYSeriesRow(int modelRow)
   rangeCached_ = false;
 }
 
-int WGridData::nbXPoints()
+int WGridData::nbXPoints() const
 {
   return model_->rowCount() - 1;
 }
 
-int WGridData::nbYPoints()
+int WGridData::nbYPoints() const
 {
   return model_->columnCount() - 1;
 }
@@ -173,7 +173,7 @@ void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
 				   FloatBuffer& simplePtsSize,
 				   FloatBuffer& coloredPtsArray,
 				   FloatBuffer& coloredPtsSize,
-				   FloatBuffer& coloredPtsColor) {
+				   FloatBuffer& coloredPtsColor) const {
   int nbModelRows = model_->rowCount();
   int nbModelCols = model_->columnCount();
 
@@ -243,7 +243,7 @@ void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
   }
 }
 
-void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) {
+void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const {
   int nbModelRows = model_->rowCount();
   int nbModelCols = model_->columnCount();
 
@@ -370,9 +370,91 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
   }
 }
 
+void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const
+{
+  // search for previously initialized barSeries data
+  const std::vector<WAbstractDataSeries3D*> dataseries = chart_->dataSeries();
+  std::vector<WAbstractGridData*> prevDataseries;
+  bool first = true;
+  int xDim = 0, yDim = 0;
+  for (unsigned i = 0; i < dataseries.size(); i++) {
+    if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
+      WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
+      if (griddata == this ||
+	  griddata->type() != BarSeries3D) {
+	break;
+      }
+      if (first) {
+	xDim = griddata->nbXPoints();
+	yDim = griddata->nbYPoints();
+	first = false;
+      }
+      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim 
+	   || griddata->isHidden()) {
+	continue;
+      }
+      prevDataseries.push_back( griddata );
+    }
+  }
+  if ( !prevDataseries.empty() &&
+       (xDim != nbXPoints() || yDim != nbYPoints()) ) {
+    throw WException("WGridData.C: Dimensions of multiple bar-series data do not match");
+  }
+
+  // scale the x- and y-axis to the plotbox
+  int nbModelRows = model_->rowCount();
+  int nbModelCols = model_->columnCount();
+  FloatBuffer scaledXAxis = Utils::createFloatBuffer(nbModelRows-1);
+  FloatBuffer scaledYAxis = Utils::createFloatBuffer(nbModelCols-1);
+
+  double xMin = chart_->axis(XAxis_3D).minimum();
+  double xMax = chart_->axis(XAxis_3D).maximum();
+  double yMin = chart_->axis(YAxis_3D).minimum();
+  double yMax = chart_->axis(YAxis_3D).maximum();
+  double zMin = chart_->axis(ZAxis_3D).minimum();
+  double zMax = chart_->axis(ZAxis_3D).maximum();
+
+  for (int i=0; i<nbModelRows-1; i++) {
+    scaledXAxis.push_back((float)((xMin + 0.5 + i - xMin)/(xMax-xMin)));
+  }
+  for (int j=0; j<nbModelCols-1; j++) {
+    scaledYAxis.push_back((float)((yMin + 0.5 + j - yMin)/(yMax-yMin)));
+  }
+
+  // fill the buffers
+  int rowOffset = 0, colOffset = 0;
+  int simpleBufferIndex = 0;
+  int simpleCount = 0;
+  for (int i=0; i < nbModelRows - 1; i++) {
+    if (i >= YAbscisRow_) {
+      rowOffset = 1;
+    }
+    colOffset = 0;
+    for (int j=0; j < nbModelCols - 1; j++) {
+      if (j >= XAbscisColumn_) {
+	colOffset = 1;
+      }
+      float z0 = stackAllValues(prevDataseries, i,j);
+
+      if (simpleCount == BAR_BUFFER_LIMIT) {
+	simpleBufferIndex++;
+	simpleCount = 0;
+      }
+      simplePtsArrays[simpleBufferIndex].push_back(scaledXAxis[i]);
+      simplePtsArrays[simpleBufferIndex].push_back(scaledYAxis[j]);
+      // first the value of all previous series stacked,then the current value
+      simplePtsArrays[simpleBufferIndex].push_back(z0);
+      double modelVal = Wt::asNumber(model_->data(i+rowOffset,j+colOffset));
+      float delta = (modelVal <= 0) ? zeroBarCompensation : 0;
+      simplePtsArrays[simpleBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin))+delta);
+      simpleCount++;
+    }
+  }
+}
+
 void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
 				 std::vector<FloatBuffer>& coloredPtsArrays,
-				 std::vector<FloatBuffer>& coloredPtsColors)
+				 std::vector<FloatBuffer>& coloredPtsColors) const
 {
   // search for previously initialized barSeries data
   const std::vector<WAbstractDataSeries3D*> dataseries = chart_->dataSeries();
@@ -436,9 +518,7 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
       if (j >= XAbscisColumn_) {
 	colOffset = 1;
       }
-      float z0 = (float)chart_->toPlotCubeCoords(stackAllValues(prevDataseries,
-								i,j),
-						 ZAxis_3D);
+      float z0 = stackAllValues(prevDataseries, i,j);
 
       if (model_->data(i+rowOffset,j+colOffset,MarkerBrushColorRole).empty()) {
 	if (simpleCount == BAR_BUFFER_LIMIT) {

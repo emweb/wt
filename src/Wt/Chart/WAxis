@@ -28,14 +28,14 @@ class WAbstractChartImplementation;
  * \ingroup charts
  */
 enum Axis {
-  XAxis = 0,            //!< X axis.
-  YAxis = 1,            //!< First Y axis (== Y1Axis).
-  Y1Axis = YAxis,       //!< First Y axis (== YAxis).
-  Y2Axis = 2,           //!< Second Y Axis.
+  XAxis = 0,             //!< X axis.
+  YAxis = 1,             //!< First Y axis (== Y1Axis).
+  Y1Axis = YAxis,        //!< First Y axis (== YAxis).
+  Y2Axis = 2,            //!< Second Y Axis.
   OrdinateAxis = YAxis,  //!< Ordinate axis (== Y1Axis for a 2D plot).
-  XAxis_3D = 0,         //!< X axis on 3D chart.
-  YAxis_3D = 3,         //!< Y axis on 3D chart.
-  ZAxis_3D = 1 // = Y   //!< Z axis on 3D chart.
+  XAxis_3D = 0,          //!< X axis on 3D chart.
+  YAxis_3D = 3,          //!< Y axis on 3D chart.
+  ZAxis_3D = 1 /* = Y */ //!< Z axis on 3D chart.
 };
 
 /*! \brief Enumeration that indicates a logical location for an axis.
@@ -372,6 +372,24 @@ public:
    */
   double labelInterval() const { return labelInterval_; }
 
+  /*! \brief Sets a point to be included as one of the labels (if possible).
+   *
+   * The given point will be included as one of the labels, by adjusting
+   * the minimum value on the axis, if that minimum is auto-computed. This
+   * is only applicable to a Linear scale axis.
+   *
+   * The default value is 0.0.
+   *
+   * \sa setRoundLimits()
+   */
+  void setLabelBasePoint(double point);
+
+  /*! \brief Returns the base point for labels.
+   *
+   * \sa setLabelBasePoint()
+   */
+  double labelBasePoint() const { return labelBasePoint_; }
+
   /*! \brief Sets the label format.
    *
    * Sets a format string which is used to format values, both for the
@@ -589,6 +607,7 @@ private:
   AxisScale        scale_;
   double           resolution_;
   double           labelInterval_;
+  double           labelBasePoint_;
   WString          labelFormat_;
   bool             defaultLabelFormat_;
   bool             gridLines_;

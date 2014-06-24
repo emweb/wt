@@ -27,6 +27,8 @@
 	<tr><td>Legend side:</td><td>${legendside}</td></tr>
 	<tr><td>Legend alignment:</td><td>${legendalignment}</td></tr>
 	<tr><td>Enable gridlines:</td><td>${gridlines}</td></tr>
+	<tr><td>Enable intersection lines:</td><td>${intersectionlines}</td></tr>
+	<tr><td>Intersection line color:</td><td>${intersectionlinecolor}</td></tr>
 	<tr><td>Width:</td><td>${width}</td></tr>
 	<tr><td>Height:</td><td>${height}</td></tr>
 	<tr><td>X-axis title:</td><td>${xTitle}</td></tr>
@@ -110,6 +112,7 @@
     <tr><td>Dataset name:</td><td>${setname}</td></tr>
     <tr><td>Hide data:</td><td>${hide}</td></tr>
     <tr><td>Point-size:</td><td>${ptsize}</td></tr>
+    <tr><td>Point sprite:</td><td>${ptsprite}</td></tr>
     <tr><td>Colormap:</td><td>${colormap}</td></tr>
     <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
     <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
@@ -118,6 +121,16 @@
     <tr><td>Enable mesh:</td><td>${enablemesh}</td></tr>
     <tr><td>Mesh pen-width:</td><td>${pensize}</td></tr>
     <tr><td>Mesh pen-color:</td><td>${pencolor}</td></tr>
+    <tr><td>X clipping minimum:</td><td>${x-clipping-min}</td></tr>
+    <tr><td>X clipping maximum:</td><td>${x-clipping-max}</td></tr>
+    <tr><td>Y clipping minimum:</td><td>${y-clipping-min}</td></tr>
+    <tr><td>Y clipping maximum:</td><td>${y-clipping-max}</td></tr>
+    <tr><td>Z clipping minimum:</td><td>${z-clipping-min}</td></tr>
+    <tr><td>Z clipping maximum:</td><td>${z-clipping-max}</td></tr>
+    <tr><td>Show clipping lines:</td><td>${clippinglines}</td></tr>
+    <tr><td>Clipping lines color:</td><td>${clippinglines-color}</td></tr>
+    <tr><td>Show isolines:</td><td>${isolines}</td></tr>
+    <tr><td>Isoline colormap:</td><td>${isoline-colormap}</td></tr>
   </table>
 </message>
 
@@ -125,7 +138,6 @@
   <table class="table table-bordered table-condensed">
     <tr><td>Dataset name:</td><td>${setname}</td></tr>
     <tr><td>Hide data:</td><td>${hide}</td></tr>
-    <tr><td>Point-size:</td><td>${ptsize}</td></tr>
     <tr><td>Colormap:</td><td>${colormap}</td></tr>
     <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
     <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
@@ -139,6 +151,7 @@
     <tr><td>Dataset name:</td><td>${setname}</td></tr>
     <tr><td>Hide data:</td><td>${hide}</td></tr>
     <tr><td>Point-size:</td><td>${ptsize}</td></tr>
+    <tr><td>Point sprite:</td><td>${ptsprite}</td></tr>
     <tr><td>Colormap:</td><td>${colormap}</td></tr>
     <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
     <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>

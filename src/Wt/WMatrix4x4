@@ -267,7 +267,7 @@ public:
 
   /*! \brief Multiply two matrices
    */
-  WMatrix4x4 operator*(const WGenericMatrix<double, 4, 4> &r)
+  WMatrix4x4 operator*(const WGenericMatrix<double, 4, 4> &r) const
   {
     using namespace boost::numeric::ublas;
     return 

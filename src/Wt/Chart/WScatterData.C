@@ -11,6 +11,8 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WMemoryResource"
+#include "Wt/WPainter"
+#include "Wt/WVector4"
 #include "Wt/Chart/WAbstractColorMap"
 #include "WebUtils.h"
 
@@ -65,7 +67,7 @@ void WScatterData::setDroplinesEnabled(bool enabled)
   if (droplinesEnabled_ != enabled) {
     droplinesEnabled_ = enabled;
     if (chart_) {
-      chart_->updateChart(WCartesian3DChart::GLContext);
+      chart_->updateChart(GLContext);
     }
   }
 }
@@ -75,7 +77,7 @@ void WScatterData::setDroplinesPen(const WPen &pen)
   droplinesPen_ = pen;
 
   if (chart_) {
-    chart_->updateChart(WCartesian3DChart::GLContext);
+    chart_->updateChart(GLContext);
   }
 }
 
@@ -158,6 +160,13 @@ void WScatterData::updateGL()
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
 
+  pointSpriteTexture_ = pointSpriteTexture();
+
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
+
   initShaders();
 
   chart_->useProgram(shaderProgram_);
@@ -215,15 +224,18 @@ void WScatterData::initShaders()
 
   posAttr_ =
     chart_->getAttribLocation(shaderProgram_, "aVertexPosition");
-  if (!wApp->environment().agentIsIE())
+  if (!wApp->environment().agentIsIE()) {
     sizeAttr_ = chart_->getAttribLocation(shaderProgram_, "aPointSize");
+  }
   mvMatrixUniform_ = chart_->getUniformLocation(shaderProgram_, "uMVMatrix");
   pMatrixUniform_ = chart_->getUniformLocation(shaderProgram_, "uPMatrix");
   cMatrixUniform_ = chart_->getUniformLocation(shaderProgram_, "uCMatrix");
   samplerUniform_ = chart_->getUniformLocation(shaderProgram_, "uSampler");
+  pointSpriteUniform_ = chart_->getUniformLocation(shaderProgram_, "uPointSprite");
   offsetUniform_ = chart_->getUniformLocation(shaderProgram_, "uOffset");
   scaleFactorUniform_ =
     chart_->getUniformLocation(shaderProgram_, "uScaleFactor");
+  vpHeightUniform_ = chart_->getUniformLocation(shaderProgram_, "uVPHeight");
 
   // shader for colored points
   colFragmentShader_ = chart_->createShader(WGLWidget::FRAGMENT_SHADER);
@@ -239,13 +251,16 @@ void WScatterData::initShaders()
   chart_->linkProgram(colShaderProgram_);
 
   posAttr2_ = chart_->getAttribLocation(colShaderProgram_, "aVertexPosition");
-  if (!wApp->environment().agentIsIE())
+  if (!wApp->environment().agentIsIE()) {
     sizeAttr2_ = chart_->getAttribLocation(colShaderProgram_, "aPointSize");
+  }
   colorAttr2_ = chart_->getAttribLocation(colShaderProgram_, "aColor");
   mvMatrixUniform2_ = chart_->
     getUniformLocation(colShaderProgram_, "uMVMatrix");
   pMatrixUniform2_ = chart_->getUniformLocation(colShaderProgram_, "uPMatrix");
   cMatrixUniform2_ = chart_->getUniformLocation(colShaderProgram_, "uCMatrix");
+  pointSpriteUniform2_ = chart_->getUniformLocation(colShaderProgram_, "uPointSprite");
+  vpHeightUniform2_ = chart_->getUniformLocation(colShaderProgram_, "uVPHeight");
 
   // shader for droplines
   linesFragShader_ = chart_->createShader(WGLWidget::FRAGMENT_SHADER);
@@ -501,6 +516,12 @@ void WScatterData::paintGL() const
     chart_->bindTexture(WGLWidget::TEXTURE_2D, colormapTexture_);
     chart_->uniform1i(samplerUniform_,0);
 
+    chart_->activeTexture(WGLWidget::TEXTURE1);
+    chart_->bindTexture(WGLWidget::TEXTURE_2D, pointSpriteTexture_);
+    chart_->uniform1i(pointSpriteUniform_,1);
+
+    chart_->uniform1f(vpHeightUniform_, chart_->height().value());
+
     chart_->drawArrays(WGLWidget::POINTS,
 		       0,
 		       vertexBufferSize_/3);
@@ -540,6 +561,12 @@ void WScatterData::paintGL() const
 				0,
 				0);
     chart_->enableVertexAttribArray(colorAttr2_);
+
+    chart_->activeTexture(WGLWidget::TEXTURE0);
+    chart_->bindTexture(WGLWidget::TEXTURE_2D, pointSpriteTexture_);
+    chart_->uniform1i(pointSpriteUniform2_,0);
+
+    chart_->uniform1f(vpHeightUniform2_, chart_->height().value());
 
     chart_->drawArrays(WGLWidget::POINTS,
 		       0,
@@ -627,6 +654,98 @@ void WScatterData::deleteAllGLResources()
     chart_->deleteTexture(colormapTexture_);
     colormapTexture_.clear();
   }
+
+  if (!pointSpriteTexture_.isNull()) {
+    chart_->deleteTexture(pointSpriteTexture_);
+    pointSpriteTexture_.clear();
+  }
+}
+
+std::vector<WPointSelection> WScatterData::pickPoints(int x, int y, int radius) const
+{
+  double otherY = chart_->height().value() - y;
+
+  double xMin = chart_->axis(XAxis_3D).minimum();
+  double xMax = chart_->axis(XAxis_3D).maximum();
+  double yMin = chart_->axis(YAxis_3D).minimum();
+  double yMax = chart_->axis(YAxis_3D).maximum();
+  double zMin = chart_->axis(ZAxis_3D).minimum();
+  double zMax = chart_->axis(ZAxis_3D).maximum();
+  WMatrix4x4 transform = chart_->cameraMatrix() * mvMatrix_;
+#ifndef WT_TARGET_JAVA
+  WMatrix4x4 invTransform = transform.inverted();
+#else
+  WMatrix4x4 invTransform = WMatrix4x4(transform);
+  invTransform.inverted();
+#endif
+  WVector4 camera;
+  camera = invTransform * camera;
+  transform = chart_->pMatrix() * transform;
+  std::vector<WPointSelection> result;
+  for (int r = 0; r < model_->rowCount(); ++r) {
+    WVector4 v(
+      (Wt::asNumber(model_->data(r,XSeriesColumn_)) - xMin)/(xMax - xMin),
+      (Wt::asNumber(model_->data(r,YSeriesColumn_)) - yMin)/(yMax - yMin),
+      (Wt::asNumber(model_->data(r,ZSeriesColumn_)) - zMin)/(zMax - zMin),
+      1.0);
+    WVector4 tv = transform * v;
+    tv = tv / tv.w();
+    double vx = ((tv.x() + 1) / 2) * chart_->width().value();
+    double vy = ((tv.y() + 1) / 2) * chart_->height().value();
+
+    double dx = x - vx;
+    double dy = otherY - vy;
+    if (dx * dx + dy * dy <= radius * radius) {
+      double d = WVector4(v - camera).length();
+      result.push_back(WPointSelection(d, r));
+    }
+  }
+  return result;
+}
+
+std::vector<WPointSelection> WScatterData::pickPoints(int x1, int y1, int x2, int y2) const
+{
+  double otherY1 = chart_->height().value() - y1;
+  double otherY2 = chart_->height().value() - y2;
+  int leftX = std::min(x1, x2);
+  int rightX = std::max(x1, x2);
+  double bottomY = std::min(otherY1, otherY2);
+  double topY = std::max(otherY1, otherY2);
+
+  double xMin = chart_->axis(XAxis_3D).minimum();
+  double xMax = chart_->axis(XAxis_3D).maximum();
+  double yMin = chart_->axis(YAxis_3D).minimum();
+  double yMax = chart_->axis(YAxis_3D).maximum();
+  double zMin = chart_->axis(ZAxis_3D).minimum();
+  double zMax = chart_->axis(ZAxis_3D).maximum();
+  WMatrix4x4 transform = chart_->cameraMatrix() * mvMatrix_;
+#ifndef WT_TARGET_JAVA
+  WMatrix4x4 invTransform = transform.inverted();
+#else
+  WMatrix4x4 invTransform = WMatrix4x4(transform);
+  invTransform.inverted();
+#endif
+  WVector4 camera;
+  camera = invTransform * camera;
+  transform = chart_->pMatrix() * transform;
+  std::vector<WPointSelection> result;
+  for (int r = 0; r < model_->rowCount(); ++r) {
+    WVector4 v(
+      (Wt::asNumber(model_->data(r,XSeriesColumn_)) - xMin)/(xMax - xMin),
+      (Wt::asNumber(model_->data(r,YSeriesColumn_)) - yMin)/(yMax - yMin),
+      (Wt::asNumber(model_->data(r,ZSeriesColumn_)) - zMin)/(zMax - zMin),
+      1.0);
+    WVector4 tv = transform * v;
+    tv = tv / tv.w();
+    double vx = ((tv.x() + 1) / 2) * chart_->width().value();
+    double vy = ((tv.y() + 1) / 2) * chart_->height().value();
+
+    if (leftX <= vx && vx <= rightX && bottomY <= vy && vy <= topY) {
+      double d = WVector4(v - camera).length();
+      result.push_back(WPointSelection(d, r));
+    }
+  }
+  return result;
 }
 
   }

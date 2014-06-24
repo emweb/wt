@@ -347,6 +347,14 @@ WT_DECLARE_WT_MEMBER
        return false;
    }
 
+   /*
+    * Only checks the single widget -- already assumes the ancestors are visible
+    */
+   function isHidden(w) {
+     // XXX second condition is a hack for WTextEdit
+     return (w.style.display === 'none' && !w.ed) || $(w).hasClass('Wt-hidden');
+   }
+
    function measure(dir, widget, container)
    {
      var DC = DirConfig[dir],
@@ -436,7 +444,7 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.margin)
 	     item.margin = [];
 
-	   if ($(item.w).hasClass('Wt-hidden')) {
+	   if (isHidden(item.w)) {
 	     item.ps[dir] = item.ms[dir] = 0;
 	     continue;
 	   }
@@ -583,8 +591,7 @@ WT_DECLARE_WT_MEMBER
 	       console.log(" ->" + item.id + ': ' + item.ps[0] + ","
 			   + item.ps[1]);
 
-	     // XXX second condition is a hack for WTextEdit
-	     var hidden = item.w.style.display === 'none' && !item.w.ed;
+	     var hidden = isHidden(item.w);
 
 	     if (!hidden && (!item.span || item.span[dir] == 1)) {
 	       allHidden = false;
@@ -1269,7 +1276,7 @@ WT_DECLARE_WT_MEMBER
 	      */
 	     var setSize = dir == 0 && item.sc[dir];
 
-	     var hidden = w.style.display === 'none' && !w.ed;
+	     var hidden = isHidden(w);
 
 	     if (!hidden && (setSize || ts != ps || item.layout)) {
 	       if (setCss(w, DC.size, tsm + 'px')) {
@@ -1289,7 +1296,8 @@ WT_DECLARE_WT_MEMBER
 	       if (!item.fs[dir]) {
 		 if (setCss(w, DC.size, ''))
 		   setItemDirty(item, 1);
-		 item.set[dir] = false;
+		 if (item.set)
+		   item.set[dir] = false;
 	       } else if (dir == HORIZONTAL)
 		 setCss(w, DC.size, item.fs[dir] + 'px');
 	     }

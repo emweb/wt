@@ -161,6 +161,8 @@ public:
    */
   void map(double x, double y, double *tx, double *ty) const;
 
+  WRectF map(const WRectF& rect) const;
+
   /*! \brief Resets the transformation to the identity.
    *
    * \sa isIdentity(), WTransform()

@@ -480,7 +480,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
        * We have a resolved true type font.
        */
       name = impl_->fontSupport_->drawingFontPath();
-    } else {
+    } else if (font.genericFamily() != WFont::Default) {
       FontSupport::FontMatch match = impl_->fontSupport_->matchFont(font);
 
       if (match.matched())
@@ -937,9 +937,10 @@ void WRasterImage::drawText(const WRectF& rect,
 
     FontSupport::Bitmap bitmap(w, h);
     impl_->fontSupport_->drawText(painter_->font(), renderRect,
-			   t, bitmap, flags, text);
+				  t, bitmap, flags, text);
 
-    PixelPacket *pixels = GetImagePixels(impl_->image_, 0, 0, impl_->w_, impl_->h_);
+    PixelPacket *pixels = GetImagePixels(impl_->image_, 0, 0,
+					 impl_->w_, impl_->h_);
 
     WColor c = painter()->pen().color();
     PixelPacket pc;
@@ -980,7 +981,7 @@ WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
     throw WException("WRasterImage::measureText() not supported");
   else
     return impl_->fontSupport_->measureText(painter_->font(), text, maxWidth,
-				     wordWrap);
+					    wordWrap);
 }
 
 WFontMetrics WRasterImage::fontMetrics()

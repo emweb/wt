@@ -247,6 +247,7 @@ protected:
 
   friend class WPainter;
   friend class WPaintedWidget;
+  friend class WMeasurePaintDevice;
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::ChangeFlag)

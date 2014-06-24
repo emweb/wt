@@ -52,6 +52,7 @@ FILE_TO_STRING(xml/auth_css_theme.xml
 SET(libsources
 Wt/PopupWindow.C
 Wt/Resizable.C
+Wt/ServerSideFontMetrics.C
 Wt/SizeHandle.C
 Wt/StdGridLayoutImpl2.C
 Wt/StdLayoutImpl.C
@@ -151,6 +152,7 @@ Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.C
 Wt/WLogger.C
 Wt/WMatrix4x4.C
+Wt/WMeasurePaintDevice.C
 Wt/WMediaPlayer.C
 Wt/WMemoryResource.C
 Wt/WMenu.C
@@ -233,6 +235,8 @@ Wt/WTreeView.C
 Wt/WValidationStatus.C
 Wt/WValidator.C
 Wt/WVBoxLayout.C
+Wt/WVector3.C
+Wt/WVector4.C
 Wt/WVectorImage.C
 Wt/WVideo.C
 Wt/WVmlImage.C
@@ -286,6 +290,7 @@ Wt/Chart/WAbstractGridData.C
 Wt/Chart/WGridData.C
 Wt/Chart/WEquidistantGridData.C
 Wt/Chart/WScatterData.C
+Wt/Chart/WSelection.C
 Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C

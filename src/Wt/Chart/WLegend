@@ -32,7 +32,8 @@ public:
   WFont legendFont() const { return legendFont_; }
   WPen legendBorder() const { return legendBorder_; }
   WBrush legendBackground() const { return legendBackground_; }
-  void setLegendColumns(int columns, const WLength &columnWidth);
+  void setLegendColumns(int columns);
+  void setLegendColumnWidth(const WLength &columnWidth);
 
 protected:
   bool legendEnabled_;

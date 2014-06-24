@@ -15,6 +15,7 @@
 
 #include "DomElement.h"
 #include "WebUtils.h"
+#include "ServerSideFontMetrics.h"
 
 #include <cmath>
 #include <sstream>
@@ -89,7 +90,8 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
     height_(height),
     painter_(0),
     paintUpdate_(paintUpdate),
-    busyWithPath_(false)
+    busyWithPath_(false),
+    fontMetrics_(0)
 { 
   textMethod_ = DomText;
 
@@ -116,7 +118,10 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
 
 WFlags<WPaintDevice::FeatureFlag> WCanvasPaintDevice::features() const
 {
-  return 0; // We could implement wordwrap
+  if (ServerSideFontMetrics::available())
+    return HasFontMetrics;
+  else
+    return 0;
 }
 
 void WCanvasPaintDevice::render(const std::string& canvasId,
@@ -605,12 +610,18 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 WTextItem WCanvasPaintDevice::measureText(const WString& text, double maxWidth,
 					  bool wordWrap)
 {
-  throw WException("WCanvasPaintDevice::measureText() not supported");
+  if (!fontMetrics_)
+    fontMetrics_ = new ServerSideFontMetrics();
+
+  return fontMetrics_->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
 
 WFontMetrics WCanvasPaintDevice::fontMetrics()
 {
-  throw WException("WCanvasPaintDevice::fontMetrics() not (yet?) supported");
+  if (!fontMetrics_)
+    fontMetrics_ = new ServerSideFontMetrics();
+
+  return fontMetrics_->fontMetrics(painter()->font());
 }
 
 void WCanvasPaintDevice::setChanged(WFlags<ChangeFlag> flags)

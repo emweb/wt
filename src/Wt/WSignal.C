@@ -153,6 +153,26 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
 
   std::stringstream result;
 
+  if (!arg1.empty()) {
+    result << "var a1=" << arg1;
+    if (!arg2.empty()) {
+      result << ",a2=" << arg2;
+      if (!arg3.empty()) {
+	result << ",a3=" << arg3;
+	if (!arg4.empty()) {
+	  result << ",a4=" << arg4;
+	  if (!arg5.empty()) {
+	    result << ",a5=" << arg5;
+	    if (!arg6.empty()) {
+	      result << ",a6=" << arg6;
+	    }
+	  }
+	}
+      }
+    }
+    result << ";";
+  }
+
   result << javaScript();
 
   if (flags_.test(BIT_SERVER_EVENT)) {
@@ -224,6 +244,13 @@ void EventSignalBase::setNotExposed()
   flags_.reset(BIT_SERVER_EVENT);
   flags_.reset(BIT_SIGNAL_SERVER_ANYWAY);
 }
+
+#ifndef WT_TARGET_JAVA
+void EventSignalBase::disconnect(JSlot &slot)
+{
+  slot.disconnectFrom(this);
+}
+#endif
 
 void EventSignalBase::disconnect(Wt::Signals::connection& conn)
 {
@@ -331,7 +358,7 @@ void EventSignalBase::connect(const std::string& javaScript)
   Wt::Signals::connection c;
   connections_.push_back
     (StatelessConnection(c, 0,
-			 new WStatelessSlot("(" + javaScript  + ")(o,e);")));
+			 new WStatelessSlot("(" + javaScript  + ")(o,e,a1,a2,a3,a4,a5,a6);")));
 
   senderRepaint();
 }

@@ -42,11 +42,11 @@ public:
 			WGLWidget::Renderbuffer buffer);
 
   void bindTexture(WGLWidget::GLenum target, WGLWidget::Texture texture);
-  
+
   void blendColor(double red, double green, double blue, double alpha);
 
   void blendEquation(WGLWidget::GLenum mode);
-  
+
   void blendEquationSeparate(WGLWidget::GLenum modeRGB,
 			     WGLWidget::GLenum modeAlpha);
 
@@ -119,7 +119,7 @@ public:
   WGLWidget::Framebuffer createFramebuffer();
 
   WGLWidget::Program createProgram();
-  
+
   WGLWidget::Renderbuffer createRenderbuffer();
 
   WGLWidget::Shader createShader(WGLWidget::GLenum shader);
@@ -199,7 +199,7 @@ public:
   void polygonOffset(double factor, double units);
 
   void renderbufferStorage(WGLWidget::GLenum target,
-			   WGLWidget::GLenum internalformat, 
+			   WGLWidget::GLenum internalformat,
 			   unsigned width, unsigned height);
 
   void sampleCoverage(double value, bool invert);
@@ -225,7 +225,7 @@ public:
 			 WGLWidget::GLenum zfail, WGLWidget::GLenum zpass);
 
   void texImage2D(WGLWidget::GLenum target, int level,
-		  WGLWidget::GLenum internalformat, 
+		  WGLWidget::GLenum internalformat,
 		  unsigned width, unsigned height, int border,
 		  WGLWidget::GLenum format);
 
@@ -262,6 +262,9 @@ public:
   void uniform1fv(const WGLWidget::UniformLocation &location,
 		  const WT_ARRAY float *value);
 
+  void uniform1fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
+
   void uniform1i(const WGLWidget::UniformLocation &location,
 		 int x);
 
@@ -273,18 +276,24 @@ public:
 
   void uniform2fv(const WGLWidget::UniformLocation &location,
 		  const WT_ARRAY float *value);
-  
+
+  void uniform2fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
+
   void uniform2i(const WGLWidget::UniformLocation &location,
 		 int x, int y);
-  
+
   void uniform2iv(const WGLWidget::UniformLocation &location,
 		  const WT_ARRAY int *value);
-  
+
   void uniform3f(const WGLWidget::UniformLocation &location,
 		 double x, double y, double z);
-  
+
   void uniform3fv(const WGLWidget::UniformLocation &location,
 		  const WT_ARRAY float *value);
+
+  void uniform3fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
 
   void uniform3i(const WGLWidget::UniformLocation &location,
 		 int x, int y, int z);
@@ -298,9 +307,12 @@ public:
   void uniform4fv(const WGLWidget::UniformLocation &location,
 		  const WT_ARRAY float *value);
 
+  void uniform4fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
+
   void uniform4i(const WGLWidget::UniformLocation &location,
 		 int x, int y, int z, int w);
-  
+
   void uniform4iv(const WGLWidget::UniformLocation &location,
 		  const WT_ARRAY int *value);
 
@@ -318,13 +330,13 @@ public:
 
   void uniformMatrix4fv(const WGLWidget::UniformLocation &location,
 			bool transpose, const WT_ARRAY double *value);
-  
-  void uniformMatrix4(const WGLWidget::UniformLocation &location, 
+
+  void uniformMatrix4(const WGLWidget::UniformLocation &location,
 		      const WGenericMatrix<double, 4, 4> &m);
 
   void uniformMatrix4(const WGLWidget::UniformLocation &location,
 		      const WGLWidget::JavaScriptMatrix4x4 &m);
-  
+
   void useProgram(WGLWidget::Program program);
 
   void validateProgram(WGLWidget::Program program);
@@ -345,10 +357,17 @@ public:
 
   void viewport(int x, int y, unsigned width, unsigned height);
 
-  WGLWidget::JavaScriptMatrix4x4 createJavaScriptMatrix4();
+  void initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm);
 
   void setJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm,
 			    const WGenericMatrix<double, 4, 4> &m);
+
+  void initJavaScriptVector(WGLWidget::JavaScriptVector &jsv);
+
+  void setJavaScriptVector(WGLWidget::JavaScriptVector &jsv,
+			   const std::vector<float> &v);
+
+  void setClientSideMouseHandler(const std::string& handlerCode);
 
   void setClientSideLookAtHandler(const WGLWidget::JavaScriptMatrix4x4 &m,
 				  double ctrX, double ctrY, double ctrZ,
@@ -359,6 +378,8 @@ public:
 				double frontStep, double rotStep);
 
   void injectJS(const std::string & jsString);
+
+  void restoreContext(const std::string &jsRef);
 
   void render(const std::string& jsRef, WFlags<RenderFlag> flags);
 
@@ -377,7 +398,6 @@ private:
   unsigned textures_;
   unsigned images_;
   unsigned canvas_;
-  unsigned matrices_;
 
   WGLWidget::Buffer currentlyBoundBuffer_;
   WGLWidget::Texture currentlyBoundTexture_;
@@ -549,9 +569,7 @@ private:
 
   std::string glObjJsRef(const std::string& jsRef);
 
-#ifdef WT_WGLWIDGET_DEBUG
-  static bool debugging_;
-#endif
+  void initializeGL(const std::string &jsRef, std::stringstream &ss);
 
   friend class WGLWidget;
   friend class WServerGLWidget;

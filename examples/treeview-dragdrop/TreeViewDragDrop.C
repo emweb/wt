@@ -577,6 +577,7 @@ private:
       item->setData(boost::any(folderId), UserRole);
       item->setText(folderNameMap_[folderId]);
 
+      convertToNumber(fileModel_->item(i, 3));
       convertToDate(fileModel_->item(i, 4));
       convertToDate(fileModel_->item(i, 5));
     }
@@ -587,6 +588,13 @@ private:
   void convertToDate(WStandardItem *item) {
     WDate d = WDate::fromString(item->text(), FileModel::dateEditFormat);
     item->setData(boost::any(d), DisplayRole);
+  }
+
+  /*! \brief Convert a string to a number.
+   */
+  void convertToNumber(WStandardItem *item) {
+    int i = boost::lexical_cast<int>(item->text());
+    item->setData(boost::any(i), EditRole);
   }
 
   /*! \brief Populate the folders model.

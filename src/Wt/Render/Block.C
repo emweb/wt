@@ -455,6 +455,10 @@ double Block::cssMargin(Side side, double fontScale) const
 	return 0.75 * cssFontSize(fontScale);
       else if (type_ == DomElement_H3)
 	return 0.83 * cssFontSize(fontScale);
+      else if (type_ == DomElement_H5)
+	return 1.5 * cssFontSize(fontScale);
+      else if (type_ == DomElement_H6)
+	return 1.67 * cssFontSize(fontScale);
       else if (type_ == DomElement_HR)
 	return 0.5 * cssFontSize(fontScale);
     }

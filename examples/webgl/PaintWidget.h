@@ -29,6 +29,8 @@ public:
       const std::string &fragmentShader);
 
 private:
+  bool initialized_;
+
   // The shaders, in plain text format
   std::string vertexShader_;
   std::string fragmentShader_;

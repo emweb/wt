@@ -12,8 +12,11 @@
 #include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WMemoryResource"
+#include "Wt/WPainter"
 #include "Wt/WStandardItemModel"
 #include "Wt/WStandardItem"
+#include "Wt/WVector3"
+#include "Wt/WVector4"
 #include "WebUtils.h"
 
 #include <cmath>
@@ -39,6 +42,21 @@ namespace {
     vec.push_back(z);
   }
 
+  using namespace Wt::Chart;
+
+  inline std::size_t axisToIndex(Axis axis)
+  {
+    if (axis == XAxis_3D) {
+      return 0;
+    } else if (axis == YAxis_3D) {
+      return 1;
+    } else if (axis == ZAxis_3D) {
+      return 2;
+    } else {
+      throw WException("Invalid axis for 3D chart");
+    }
+  }
+
 }
 
 namespace Wt {
@@ -52,8 +70,20 @@ WAbstractGridData::WAbstractGridData(WAbstractItemModel *model)
     surfaceMeshEnabled_(false),
     colorRoleEnabled_(false),
     barWidthX_(0.5f),
-    barWidthY_(0.5f)
-{}
+    barWidthY_(0.5f),
+    isoLineColorMap_(0),
+    jsMinPt_(3),
+    jsMaxPt_(3),
+    minPtChanged_(true),
+    maxPtChanged_(true),
+    clippingLinesEnabled_(false),
+    clippingLinesColor_(0, 0, 0)
+{
+  for (unsigned i = 0; i < 3; ++i) {
+    minPt_.push_back(-std::numeric_limits<float>::infinity());
+    maxPt_.push_back(std::numeric_limits<float>::infinity());
+  }
+}
 
 WAbstractGridData::~WAbstractGridData()
 {
@@ -69,7 +99,7 @@ void WAbstractGridData::setType(Series3DType type)
   if (seriesType_ != type) {
     seriesType_ = type;
     if (chart_)
-      chart_->updateChart(WCartesian3DChart::GLContext);
+      chart_->updateChart(GLContext);
   }
 }
 
@@ -81,7 +111,7 @@ void WAbstractGridData::setSurfaceMeshEnabled(bool enabled)
     surfaceMeshEnabled_ = enabled;
     if (seriesType_ == SurfaceSeries3D)
       if (chart_)
-	chart_->updateChart(WCartesian3DChart::GLContext);
+	chart_->updateChart(GLContext);
   }
 }
 
@@ -93,7 +123,7 @@ void WAbstractGridData::setBarWidth(double xWidth, double yWidth)
     barWidthX_ = xWidth;
     barWidthY_ = yWidth;
     if (chart_)
-      chart_->updateChart(WCartesian3DChart::GLContext);
+      chart_->updateChart(GLContext);
   }
 }
 
@@ -104,7 +134,7 @@ void WAbstractGridData::setPen(const WPen &pen)
   meshPen_ = pen;
 
   if (chart_)
-    chart_->updateChart(WCartesian3DChart::GLContext);
+    chart_->updateChart(GLContext);
 }
 
 float WAbstractGridData::stackAllValues(std::vector<WAbstractGridData*> dataseries,
@@ -112,13 +142,27 @@ float WAbstractGridData::stackAllValues(std::vector<WAbstractGridData*> dataseri
 {
   float value = 0;
   for (unsigned k = 0; k<dataseries.size(); k++) {
-    float modelVal = (float)Wt::asNumber(dataseries[k]->data(i, j));
-    if (modelVal <= 0)
-      modelVal = zeroBarCompensation;
-    value += modelVal;
+    float plotCubeVal = (float)chart_->toPlotCubeCoords(Wt::asNumber(dataseries[k]->data(i, j)), ZAxis_3D);
+    if (plotCubeVal <= 0)
+      plotCubeVal = zeroBarCompensation;
+    value += plotCubeVal;
   }
 
   return value;
+}
+
+void WAbstractGridData::setClippingLinesEnabled(bool clippingLinesEnabled)
+{
+  clippingLinesEnabled_ = clippingLinesEnabled;
+  if (chart_)
+    chart_->updateChart(GLContext);
+}
+
+void WAbstractGridData::setClippingLinesColor(WColor clippingLinesColor)
+{
+  clippingLinesColor_ = clippingLinesColor;
+  if (chart_)
+    chart_->updateChart(GLContext);
 }
 
 void WAbstractGridData::updateGL()
@@ -150,7 +194,35 @@ void WAbstractGridData::updateGL()
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
 
+  isoLineColorMapTexture_ = isoLineColorMapTexture();
+
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
+
+  pointSpriteTexture_ = pointSpriteTexture();
+
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
+
   initShaders();
+
+  if (!jsMinPt_.initialized()) {
+    chart_->initJavaScriptVector(jsMinPt_);
+    chart_->initJavaScriptVector(jsMaxPt_);
+  }
+
+  if (minPtChanged_) {
+    chart_->setJavaScriptVector(jsMinPt_, minPt_);
+    minPtChanged_ = false;
+  }
+  if (maxPtChanged_) {
+    chart_->setJavaScriptVector(jsMaxPt_, maxPt_);
+    maxPtChanged_ = false;
+  }
 
   // initialize colormap settings
   double min, max;
@@ -165,9 +237,19 @@ void WAbstractGridData::updateGL()
       max = chart_->toPlotCubeCoords(colormap_->maximum(), ZAxis_3D);
       chart_->uniform1f(offset_, min);
       chart_->uniform1f(scaleFactor_, 1.0/(max-min));
+      if (seriesType_ == SurfaceSeries3D && isoLineHeights_.size() > 0) {
+	chart_->useProgram(isoLineProgram_);
+	chart_->uniform1f(isoLine_offset_, min);
+	chart_->uniform1f(isoLine_scaleFactor_, 1.0/(max-min));
+      }
     } else {
       chart_->uniform1f(offset_, 0.0);
       chart_->uniform1f(scaleFactor_, 1.0);
+      if (seriesType_ == SurfaceSeries3D && isoLineHeights_.size() > 0) {
+	chart_->useProgram(isoLineProgram_);
+	chart_->uniform1f(isoLine_offset_, 0.0);
+	chart_->uniform1f(isoLine_scaleFactor_, 1.0);
+      }
     }
     break;
   };
@@ -191,6 +273,20 @@ void WAbstractGridData::updateGL()
       chart_->useProgram(meshProgram_);
       chart_->uniformMatrix4(mesh_mvMatrixUniform_, mvMatrix_);
       chart_->uniformMatrix4(mesh_pMatrix_, chart_->pMatrix());
+    }
+    if (isoLineHeights_.size() > 0) {
+      chart_->useProgram(isoLineProgram_);
+      chart_->uniformMatrix4(isoLine_mvMatrixUniform_, mvMatrix_);
+      chart_->uniformMatrix4(isoLine_pMatrix_, chart_->pMatrix());
+    }
+    if (chart_->isIntersectionLinesEnabled() || clippingLinesEnabled() ||
+	!chart_->intersectionPlanes_.empty()) {
+      chart_->useProgram(singleColorProgram_);
+      chart_->uniformMatrix4(singleColor_mvMatrixUniform_, mvMatrix_);
+      chart_->uniformMatrix4(singleColor_pMatrix_, chart_->pMatrix());
+      chart_->useProgram(positionProgram_);
+      chart_->uniformMatrix4(position_mvMatrixUniform_, mvMatrix_);
+      chart_->uniformMatrix4(position_pMatrix_, chart_->pMatrix());
     }
     break;
   };
@@ -240,7 +336,7 @@ void WAbstractGridData::initializePointSeriesBuffers()
       // sizes of simple points
       loadBinaryResource(simplePtsSizes[i], vertexSizeBuffers_);
     }
-    
+
     if (coloredPtsArrays[i].size() != 0) {
       // pos of colored points
       loadBinaryResource(coloredPtsArrays[i], vertexPosBuffers2_);
@@ -252,6 +348,380 @@ void WAbstractGridData::initializePointSeriesBuffers()
     }
   }
 
+}
+
+std::vector<WSurfaceSelection> WAbstractGridData::pickSurface(int x, int y) const
+{
+  WVector3 re;
+  WVector3 rd;
+  chart_->createRay(x, y, re, rd);
+
+  WMatrix4x4 invTransform = chart_->cameraMatrix() * mvMatrix_;
+#ifndef WT_TARGET_JAVA
+  invTransform =
+#endif
+    invTransform.inverted();
+  WVector4 camera;
+  camera = invTransform * camera;
+  WVector3 camera3 = WVector3(camera);
+
+  int Nx = nbXPoints();
+  int Ny = nbYPoints();
+
+  std::vector<FloatBuffer> simplePtsArrays;
+  int nbXaxisBuffers;
+  int nbYaxisBuffers;
+
+  nbXaxisBuffers = Nx/(SURFACE_SIDE_LIMIT-1);
+  nbYaxisBuffers = Ny/(SURFACE_SIDE_LIMIT-1);
+  if (Nx % (SURFACE_SIDE_LIMIT-1) != 0) {
+    nbXaxisBuffers++;
+  }
+  if (Ny % (SURFACE_SIDE_LIMIT-1) != 0) {
+    nbYaxisBuffers++;
+  }
+
+  for (int i=0; i < nbXaxisBuffers-1; i++) {
+    for (int j=0; j < nbYaxisBuffers-1; j++) {
+      simplePtsArrays.push_back(Utils::createFloatBuffer(3*SURFACE_SIDE_LIMIT*SURFACE_SIDE_LIMIT));
+    };
+    simplePtsArrays.push_back(Utils::createFloatBuffer(3*SURFACE_SIDE_LIMIT*(Ny - (nbYaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))));
+  }
+  for (int j=0; j < nbYaxisBuffers-1; j++) {
+    simplePtsArrays.push_back(Utils::createFloatBuffer(3*(Nx - (nbXaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))*SURFACE_SIDE_LIMIT));
+  }
+  simplePtsArrays.push_back(Utils::createFloatBuffer(3*(Nx - (nbXaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))*(Ny - (nbYaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))));
+
+  surfaceDataFromModel(simplePtsArrays);
+
+  std::vector<WSurfaceSelection> result;
+
+  for (unsigned i = 0; i < simplePtsArrays.size(); i++) {
+    int Nx_patch = SURFACE_SIDE_LIMIT, Ny_patch = SURFACE_SIDE_LIMIT;
+    if ( (i+1) % nbYaxisBuffers == 0) {
+      Ny_patch = Ny - (nbYaxisBuffers - 1)*(SURFACE_SIDE_LIMIT-1);
+    }
+    if ((int)i >= (nbXaxisBuffers-1)*nbYaxisBuffers) {
+      Nx_patch = Nx - (nbXaxisBuffers - 1)*(SURFACE_SIDE_LIMIT-1);
+    }
+    IntBuffer vertexIndices = Utils::createIntBuffer((Nx_patch-1)*(Ny_patch+1)*2);
+    generateVertexIndices(vertexIndices, Nx_patch, Ny_patch);
+
+    for (size_t j = 0; j < vertexIndices.size() - 2; ++j) {
+      if (vertexIndices[j] == vertexIndices[j+1] || vertexIndices[j+1] == vertexIndices[j+2]
+	  || vertexIndices[j] == vertexIndices[j+2]) {
+	// Not a triangle, skip it.
+	continue;
+      }
+      WVector3 point;
+      double distance = rayTriangleIntersect(re, rd, camera3,
+				   WVector3(simplePtsArrays[i][vertexIndices[j] * 3],
+					    simplePtsArrays[i][vertexIndices[j] * 3 + 1],
+					    simplePtsArrays[i][vertexIndices[j] * 3 + 2]),
+				   WVector3(simplePtsArrays[i][vertexIndices[j + 1] * 3],
+					    simplePtsArrays[i][vertexIndices[j + 1] * 3 + 1],
+					    simplePtsArrays[i][vertexIndices[j + 1] * 3 + 2]),
+				   WVector3(simplePtsArrays[i][vertexIndices[j + 2] * 3],
+					    simplePtsArrays[i][vertexIndices[j + 2] * 3 + 1],
+					    simplePtsArrays[i][vertexIndices[j + 2] * 3 + 2]),
+				   point);
+      if (distance != std::numeric_limits<double>::infinity()) {
+	double resX = point.x() * (chart_->axis(XAxis_3D).maximum() - chart_->axis(XAxis_3D).minimum()) + chart_->axis(XAxis_3D).minimum();
+	double resY = point.y() * (chart_->axis(YAxis_3D).maximum() - chart_->axis(YAxis_3D).minimum()) + chart_->axis(YAxis_3D).minimum();
+	double resZ = point.z() * (chart_->axis(ZAxis_3D).maximum() - chart_->axis(ZAxis_3D).minimum()) + chart_->axis(ZAxis_3D).minimum();
+	result.push_back(WSurfaceSelection(distance, resX, resY, resZ));
+      }
+    }
+  }
+  return result;
+}
+
+void WAbstractGridData::drawIsoLines() const
+{
+  chart_->useProgram(isoLineProgram_);
+  chart_->depthFunc(WGLWidget::LEQUAL);
+  chart_->uniformMatrix4(isoLine_cMatrix_, chart_->jsMatrix());
+  chart_->lineWidth(1.0);
+  chart_->activeTexture(WGLWidget::TEXTURE0);
+  chart_->bindTexture(WGLWidget::TEXTURE_2D, isoLineColorMapTexture_);
+  chart_->uniform1i(isoLine_TexSampler_,0);
+  for (size_t i = 0; i < isoLineHeights_.size(); ++i) {
+    if (isoLineBufferSizes_[i] == 0)
+      continue;
+    chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, isoLineBuffers_[i]);
+    chart_->vertexAttribPointer(isoLineVertexPosAttr_,
+			  3,
+			  WGLWidget::FLOAT,
+			  false,
+			  0,
+			  0);
+    chart_->enableVertexAttribArray(isoLineVertexPosAttr_);
+    chart_->drawArrays(WGLWidget::LINES, 0, isoLineBufferSizes_[i] / 3);
+    chart_->disableVertexAttribArray(isoLineVertexPosAttr_);
+  }
+}
+
+void WAbstractGridData::linesForIsoLevel(double z, std::vector<float> &result) const
+{
+  int Nx = nbXPoints();
+  int Ny = nbYPoints();
+
+  double minZ = chart_->axis(ZAxis_3D).minimum();
+  double maxZ = chart_->axis(ZAxis_3D).maximum();
+  double scaledZ = (z - minZ) / (maxZ - minZ);
+
+  std::vector<FloatBuffer> simplePtsArrays;
+  int nbXaxisBuffers;
+  int nbYaxisBuffers;
+
+  nbXaxisBuffers = Nx/(SURFACE_SIDE_LIMIT-1);
+  nbYaxisBuffers = Ny/(SURFACE_SIDE_LIMIT-1);
+  if (Nx % (SURFACE_SIDE_LIMIT-1) != 0) {
+    nbXaxisBuffers++;
+  }
+  if (Ny % (SURFACE_SIDE_LIMIT-1) != 0) {
+    nbYaxisBuffers++;
+  }
+
+  for (int i=0; i < nbXaxisBuffers-1; i++) {
+    for (int j=0; j < nbYaxisBuffers-1; j++) {
+      simplePtsArrays.push_back(Utils::createFloatBuffer(3*SURFACE_SIDE_LIMIT*SURFACE_SIDE_LIMIT));
+    };
+    simplePtsArrays.push_back(Utils::createFloatBuffer(3*SURFACE_SIDE_LIMIT*(Ny - (nbYaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))));
+  }
+  for (int j=0; j < nbYaxisBuffers-1; j++) {
+    simplePtsArrays.push_back(Utils::createFloatBuffer(3*(Nx - (nbXaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))*SURFACE_SIDE_LIMIT));
+  }
+  simplePtsArrays.push_back(Utils::createFloatBuffer(3*(Nx - (nbXaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))*(Ny - (nbYaxisBuffers-1)*(SURFACE_SIDE_LIMIT-1))));
+
+  surfaceDataFromModel(simplePtsArrays);
+
+  for (unsigned i = 0; i < simplePtsArrays.size(); i++) {
+    int Nx_patch = SURFACE_SIDE_LIMIT, Ny_patch = SURFACE_SIDE_LIMIT;
+    if ( (i+1) % nbYaxisBuffers == 0) {
+      Ny_patch = Ny - (nbYaxisBuffers - 1)*(SURFACE_SIDE_LIMIT-1);
+    }
+    if ((int)i >= (nbXaxisBuffers-1)*nbYaxisBuffers) {
+      Nx_patch = Nx - (nbXaxisBuffers - 1)*(SURFACE_SIDE_LIMIT-1);
+    }
+    IntBuffer vertexIndices = Utils::createIntBuffer((Nx_patch-1)*(Ny_patch+1)*2);
+    generateVertexIndices(vertexIndices, Nx_patch, Ny_patch);
+
+    for (size_t j = 0; j < vertexIndices.size() - 2; ++j) {
+      if (vertexIndices[j] == vertexIndices[j+1] || vertexIndices[j+1] == vertexIndices[j+2]
+	  || vertexIndices[j] == vertexIndices[j+2]) {
+	// Not a triangle, skip it.
+	continue;
+      }
+      WVector3 a = WVector3(simplePtsArrays[i][vertexIndices[j] * 3],
+			    simplePtsArrays[i][vertexIndices[j] * 3 + 1],
+			    simplePtsArrays[i][vertexIndices[j] * 3 + 2]);
+      WVector3 b = WVector3(simplePtsArrays[i][vertexIndices[j + 1] * 3],
+			    simplePtsArrays[i][vertexIndices[j + 1] * 3 + 1],
+			    simplePtsArrays[i][vertexIndices[j + 1] * 3 + 2]);
+      WVector3 c = WVector3(simplePtsArrays[i][vertexIndices[j + 2] * 3],
+			    simplePtsArrays[i][vertexIndices[j + 2] * 3 + 1],
+			    simplePtsArrays[i][vertexIndices[j + 2] * 3 + 2]);
+      std::vector<WVector3> intersections;
+      if ((a.z() >= scaledZ && b.z() < scaledZ) || 
+	  (a.z() < scaledZ && b.z() >= scaledZ)) {
+	double factor = (scaledZ - a.z()) / (b.z() - a.z());
+	WVector3 d = b - a;
+	WVector3 e = d * factor;
+	WVector3 f = a + e;
+	intersections.push_back(f);
+      }
+      if ((b.z() >= scaledZ && c.z() < scaledZ) ||
+	  (b.z() < scaledZ && c.z() >= scaledZ)) {
+	double factor = (scaledZ - b.z()) / (c.z() - b.z());
+	WVector3 d = c - b;
+	WVector3 e = d * factor;
+	WVector3 f = b + e;
+	intersections.push_back(f);
+      }
+      if (intersections.size() < 2 &&
+	  ((c.z() >= scaledZ && a.z() < scaledZ) ||
+	   (c.z() < scaledZ && a.z() >= scaledZ))) {
+	double factor = (scaledZ - c.z()) / (a.z() - c.z());
+	WVector3 d = a - c;
+	WVector3 e = d * factor;
+	WVector3 f = c + e;
+	intersections.push_back(f);
+      }
+      if (intersections.size() == 2) {
+	result.push_back((float)intersections[0].x());
+	result.push_back((float)intersections[0].y());
+	result.push_back((float)intersections[0].z());
+	result.push_back((float)intersections[1].x());
+	result.push_back((float)intersections[1].y());
+	result.push_back((float)intersections[1].z());
+      }
+    }
+  }
+}
+
+WGLWidget::Texture WAbstractGridData::isoLineColorMapTexture()
+{
+  WPaintDevice *cpd = 0;
+  if (isoLineColorMap_ == 0) {
+    return colorTexture();
+  } else {
+    cpd = chart_->createPaintDevice(WLength(1),WLength(1024));
+    WPainter painter(cpd);
+    isoLineColorMap_->createStrip(&painter);
+    painter.end();
+  }
+
+  WGLWidget::Texture tex = chart_->createTexture();
+  chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
+  chart_->pixelStorei(WGLWidget::UNPACK_FLIP_Y_WEBGL, 1);
+  chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, cpd);
+
+  return tex;
+}
+
+WBarSelection WAbstractGridData::pickBar(int x, int y) const
+{
+  WVector3 re;
+  WVector3 rd;
+  chart_->createRay(x, y, re, rd);
+
+  double closestDistance = std::numeric_limits<double>::infinity();
+  size_t closestI = 0;
+  size_t closestJ = 0;
+
+  WMatrix4x4 invTransform = chart_->cameraMatrix() * mvMatrix_;
+#ifndef WT_TARGET_JAVA
+  invTransform =
+#endif
+    invTransform.inverted();
+  WVector4 camera;
+  camera = invTransform * camera;
+  WVector3 camera3 = WVector3(camera);
+
+  int Nx = nbXPoints();
+  int Ny = nbYPoints();
+
+  int cnt = Nx*Ny;
+  std::vector<FloatBuffer> simplePtsArrays;
+  std::vector<FloatBuffer> barVertexArrays;
+
+  int nbSimpleBarBuffers = cnt/BAR_BUFFER_LIMIT + 1;
+
+  int PT_INFO_SIZE = 4;
+  int PTS_PER_BAR = 8;
+  for (int i = 0; i < nbSimpleBarBuffers - 1; ++i) {
+    simplePtsArrays.push_back(Utils::createFloatBuffer(PT_INFO_SIZE*BAR_BUFFER_LIMIT));
+    barVertexArrays.push_back(Utils::createFloatBuffer(PTS_PER_BAR*3*BAR_BUFFER_LIMIT));
+  }
+  simplePtsArrays.push_back(Utils::createFloatBuffer(PT_INFO_SIZE*(cnt - BAR_BUFFER_LIMIT*(nbSimpleBarBuffers-1))));
+  barVertexArrays.push_back(Utils::createFloatBuffer(PTS_PER_BAR*3*(cnt - BAR_BUFFER_LIMIT*(nbSimpleBarBuffers-1))));
+
+  barDataFromModel(simplePtsArrays);
+  for (size_t i = 0; i < simplePtsArrays.size(); ++i) {
+    barSeriesVertexData(simplePtsArrays[i], barVertexArrays[i]);
+  }
+
+  for (size_t i = 0; i < simplePtsArrays.size(); ++i) {
+    IntBuffer vertexIndices =
+      Utils::createIntBuffer(12*3*(simplePtsArrays[i].size()/PT_INFO_SIZE));
+    generateVertexIndices(vertexIndices, 0, 0, simplePtsArrays[i].size()/PT_INFO_SIZE);
+
+    for (size_t j = 0; j < vertexIndices.size(); j += 3) {
+      WVector3 point;
+      double distance = rayTriangleIntersect(re, rd, WVector3(camera),
+				   WVector3(barVertexArrays[i][vertexIndices[j] * 3],
+					    barVertexArrays[i][vertexIndices[j] * 3 + 1],
+					    barVertexArrays[i][vertexIndices[j] * 3 + 2]),
+				   WVector3(barVertexArrays[i][vertexIndices[j + 1] * 3],
+					    barVertexArrays[i][vertexIndices[j + 1] * 3 + 1],
+					    barVertexArrays[i][vertexIndices[j + 1] * 3 + 2]),
+				   WVector3(barVertexArrays[i][vertexIndices[j + 2] * 3],
+					    barVertexArrays[i][vertexIndices[j + 2] * 3 + 1],
+					    barVertexArrays[i][vertexIndices[j + 2] * 3 + 2]),
+				   point);
+      if (distance < closestDistance) {
+	closestDistance = distance;
+	closestI = i;
+	closestJ = j;
+      }
+    }
+  }
+
+  if (closestDistance != std::numeric_limits<double>::infinity()) {
+    size_t tmp = BAR_BUFFER_LIMIT * closestI + closestJ / (12*3);
+    return WBarSelection(
+	closestDistance,
+	model_->index(tmp / Ny + 1, tmp % Ny + 1)
+    );
+  } else {
+    return WBarSelection(
+	std::numeric_limits<double>::infinity(),
+	WModelIndex()
+    );
+  }
+}
+
+void WAbstractGridData::setIsoLevels(const std::vector<double> &isoLevels)
+{
+  isoLineHeights_ = isoLevels;
+  if (chart_)
+    chart_->updateChart(GLContext);
+}
+
+const std::vector<double> &WAbstractGridData::isoLevels() const
+{
+  return isoLineHeights_;
+}
+
+void WAbstractGridData::setIsoColorMap(WAbstractColorMap *colormap)
+{
+  isoLineColorMap_ = colormap;
+  if (isoLineColorMap_) {
+#ifndef WT_TARGET_JAVA
+    if (!isoLineColorMap_->parent())
+      WObject::addChild(isoLineColorMap_);
+#endif // WT_TARGET_JAVA
+  }
+  if (chart_)
+    chart_->updateChart(GLContext | GLTextures);
+}
+
+double WAbstractGridData::rayTriangleIntersect(const WVector3& re, const WVector3& rd, const WVector3 &camera, const WVector3& v0, const WVector3& v1, const WVector3& v2, WVector3 &point) const
+{
+  // Ray-triangle intersection
+  //
+  // Uses formula 6 from:
+  // Möller, Tomas, and Ben Trumbore. "Fast, minimum storage ray/triangle intersection."
+  // ACM SIGGRAPH 2005 Courses. ACM, 2005.
+  // URL: http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
+  WVector3 e1 = v1 - v0;
+  WVector3 e2 = v2 - v0;
+  WVector3 tr = re - v0;
+  WVector3 P = rd.cross(e2);
+  WVector3 Q = tr.cross(e1);
+  double m = P.dot(e1);
+  double t = Q.dot(e2) / m;
+  if (t < 0) {
+    return std::numeric_limits<double>::infinity();
+  }
+  double gamma = Q.dot(rd) / m;
+  if (gamma < 0 || gamma > 1) {
+    return std::numeric_limits<double>::infinity();
+  }
+  double beta = P.dot(tr) / m;
+  if (beta < 0 || beta > 1 - gamma) {
+    return std::numeric_limits<double>::infinity();
+  }
+#ifndef WT_TARGET_JAVA
+  point = WVector3(re.x() + rd.x() * t, re.y() + rd.y() * t, re.z() + rd.z() * t);
+#else
+  point.setElement(0, re.x() + rd.x() * t);
+  point.setElement(1, re.y() + rd.y() * t);
+  point.setElement(2, re.z() + rd.z() * t);
+#endif
+  double distance = WVector3(point - camera).length();
+  return distance;
 }
 
 void WAbstractGridData::initializeSurfaceSeriesBuffers()
@@ -271,7 +741,7 @@ void WAbstractGridData::initializeSurfaceSeriesBuffers()
   if (Ny % (SURFACE_SIDE_LIMIT-1) != 0) {
     nbYaxisBuffers++;
   }
-  
+
   for (int i=0; i < nbXaxisBuffers-1; i++) {
     for (int j=0; j < nbYaxisBuffers-1; j++) {
       simplePtsArrays.push_back(Utils::createFloatBuffer(3*SURFACE_SIDE_LIMIT*SURFACE_SIDE_LIMIT));
@@ -290,6 +760,21 @@ void WAbstractGridData::initializeSurfaceSeriesBuffers()
     vertexPosBufferSizes_.push_back(simplePtsArrays[i].size());
   }
 
+  for (size_t i = 0; i < isoLineHeights_.size(); ++i) {
+    std::vector<float> lines;
+    linesForIsoLevel(isoLineHeights_[i], lines);
+#ifdef WT_TARGET_JAVA
+    FloatBuffer buff = Utils::createFloatBuffer(lines.size());
+    for (size_t j = 0; j < lines.size(); ++j) {
+      buff.push_back(lines[j]);
+    }
+    loadBinaryResource(buff, isoLineBuffers_);
+#else
+    loadBinaryResource(lines, isoLineBuffers_);
+#endif
+    isoLineBufferSizes_.push_back(lines.size());
+  }
+
   for (unsigned i = 0; i < simplePtsArrays.size(); i++) {
     // initialize vertex-index-buffer
     indexBuffers_.push_back(chart_->createBuffer());
@@ -302,14 +787,14 @@ void WAbstractGridData::initializeSurfaceSeriesBuffers()
     }
     IntBuffer vertexIndices = Utils::createIntBuffer((Nx_patch-1)*(Ny_patch+1)*2);
     generateVertexIndices(vertexIndices, Nx_patch, Ny_patch);
-    
+
     chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, indexBuffers_[i]);
     chart_->bufferDataiv(WGLWidget::ELEMENT_ARRAY_BUFFER,
 			 vertexIndices,
 			 WGLWidget::STATIC_DRAW,
 			 WGLWidget::UNSIGNED_SHORT);
     indexBufferSizes_.push_back(vertexIndices.size());
-  
+
     // initialize mesh-index-buffer
     overlayLinesBuffers_.push_back(chart_->createBuffer());
     IntBuffer lineIndices = Utils::createIntBuffer(2*Nx_patch*Ny_patch);
@@ -338,7 +823,7 @@ void WAbstractGridData::initializeBarSeriesBuffers()
 
   int nbSimpleBarBuffers = cnt/BAR_BUFFER_LIMIT + 1;
   int nbColoredBarBuffers = (Nx*Ny - cnt)/BAR_BUFFER_LIMIT + 1;
-  
+
   // construct buffers
   // Structure: PtsArrays-buffer contains (x, y, z_0, z_1), ... where z_0 is the value to stack onto, and z_1 is the heigth of the bar itself
   //            barVertexArrays contain de vertex data for the actual bars
@@ -391,10 +876,10 @@ void WAbstractGridData::initializeBarSeriesBuffers()
 			 WGLWidget::STATIC_DRAW,
 			 WGLWidget::UNSIGNED_SHORT);
     indexBufferSizes_.push_back(vertexIndices.size());
-  
+
     // initialize mesh-index-buffer
     overlayLinesBuffers_.push_back(chart_->createBuffer());
-    
+
     IntBuffer lineIndices = Utils::createIntBuffer(24*(simplePtsArrays[i].size()/PT_INFO_SIZE));
     generateMeshIndices(lineIndices, 0, 0, simplePtsArrays[i].size()/PT_INFO_SIZE);
     chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, overlayLinesBuffers_[i]);
@@ -426,10 +911,10 @@ void WAbstractGridData::initializeBarSeriesBuffers()
 			 WGLWidget::STATIC_DRAW,
 			 WGLWidget::UNSIGNED_SHORT);
     indexBufferSizes2_.push_back(vertexIndices.size());
-  
+
     // initialize mesh-index-buffer
     overlayLinesBuffers2_.push_back(chart_->createBuffer());
-    IntBuffer lineIndices = 
+    IntBuffer lineIndices =
       Utils::createIntBuffer(24*(coloredPtsArrays[i].size()/PT_INFO_SIZE));
     generateMeshIndices(lineIndices, 0, 0,
 			coloredPtsArrays[i].size()/PT_INFO_SIZE);
@@ -444,12 +929,12 @@ void WAbstractGridData::initializeBarSeriesBuffers()
 }
 
 void WAbstractGridData::barSeriesVertexData(FloatBuffer& verticesIN,
-				    FloatBuffer& verticesOUT)
+				    FloatBuffer& verticesOUT) const
 {
   float x, y, z0, z;
   for (unsigned i = 0; i < verticesIN.size()/4; i++) {
     int index = i*4;
-    
+
     x = verticesIN[index];
     y = verticesIN[index + 1];
     z0 = verticesIN[index + 2];
@@ -472,7 +957,7 @@ void WAbstractGridData::barSeriesVertexData(FloatBuffer& verticesIN,
 }
 
 void WAbstractGridData::generateVertexIndices(IntBuffer& indicesOUT,
-				      int Nx, int Ny, int size)
+				      int Nx, int Ny, int size) const
 {
   bool forward = true;
 
@@ -653,6 +1138,64 @@ void WAbstractGridData::generateTextureCoords(FloatBuffer& coordsOUT,
   };
 }
 
+void WAbstractGridData::setClippingMin(Axis axis, float v)
+{
+  minPtChanged_ = true;
+  if (jsMinPt_.initialized())
+    minPt_ = jsMinPt_.value();
+  minPt_[axisToIndex(axis)] = v;
+  if (chart_)
+    chart_->updateChart(GLContext);
+}
+
+float WAbstractGridData::clippingMin(Axis axis) const
+{
+  std::size_t idx = axisToIndex(axis);
+  return jsMinPt_.initialized() ? jsMinPt_.value()[idx] : minPt_[idx];
+}
+
+JSlot &WAbstractGridData::changeClippingMin(Axis axis)
+{
+  if (axis == XAxis_3D) {
+    return changeClippingMinX_;
+  } else if (axis == YAxis_3D) {
+    return changeClippingMinY_;
+  } else if (axis == ZAxis_3D) {
+    return changeClippingMinZ_;
+  } else {
+    throw WException("Invalid axis for 3D chart");
+  }
+}
+
+void WAbstractGridData::setClippingMax(Axis axis, float v)
+{
+  maxPtChanged_ = true;
+  if (jsMaxPt_.initialized())
+    maxPt_ = jsMaxPt_.value();
+  maxPt_[axisToIndex(axis)] = v;
+  if (chart_)
+    chart_->updateChart(GLContext);
+}
+
+float WAbstractGridData::clippingMax(Axis axis) const
+{
+  std::size_t idx = axisToIndex(axis);
+  return jsMaxPt_.initialized() ? jsMaxPt_.value()[idx] : maxPt_[idx];
+}
+
+JSlot &WAbstractGridData::changeClippingMax(Axis axis)
+{
+  if (axis == XAxis_3D) {
+    return changeClippingMaxX_;
+  } else if (axis == YAxis_3D) {
+    return changeClippingMaxY_;
+  } else if (axis == ZAxis_3D) {
+    return changeClippingMaxZ_;
+  } else {
+    throw WException("Invalid axis for 3D chart");
+  }
+}
+
 void WAbstractGridData::initShaders()
 {
   switch (seriesType_) {
@@ -661,7 +1204,7 @@ void WAbstractGridData::initShaders()
     fragShader_ = chart_->createShader(WGLWidget::FRAGMENT_SHADER);
     chart_->shaderSource(fragShader_, barFragShaderSrc);
     chart_->compileShader(fragShader_);
-    vertShader_ = 
+    vertShader_ =
       chart_->createShader(WGLWidget::VERTEX_SHADER);
     chart_->shaderSource(vertShader_, barVertexShaderSrc);
     chart_->compileShader(vertShader_);
@@ -671,7 +1214,7 @@ void WAbstractGridData::initShaders()
     chart_->attachShader(seriesProgram_, fragShader_);
     chart_->linkProgram(seriesProgram_);
 
-    vertexPosAttr_ = chart_->getAttribLocation(seriesProgram_, 
+    vertexPosAttr_ = chart_->getAttribLocation(seriesProgram_,
 						  "aVertexPosition");
     barTexCoordAttr_ = chart_->getAttribLocation(seriesProgram_,
   						 "aTextureCoord");
@@ -707,7 +1250,7 @@ void WAbstractGridData::initShaders()
       chart_->createShader(WGLWidget::FRAGMENT_SHADER);
     chart_->shaderSource(fragShader_, ptFragShaderSrc);
     chart_->compileShader(fragShader_);
-    vertShader_ = 
+    vertShader_ =
       chart_->createShader(WGLWidget::VERTEX_SHADER);
     chart_->shaderSource(vertShader_, ptVertexShaderSrc);
     chart_->compileShader(vertShader_);
@@ -725,6 +1268,8 @@ void WAbstractGridData::initShaders()
     pMatrix_ = chart_->getUniformLocation(seriesProgram_, "uPMatrix");
     cMatrix_ = chart_->getUniformLocation(seriesProgram_, "uCMatrix");
     TexSampler_ = chart_->getUniformLocation(seriesProgram_, "uSampler");
+    pointSpriteUniform_ = chart_->getUniformLocation(seriesProgram_, "uPointSprite");
+    vpHeightUniform_ = chart_->getUniformLocation(seriesProgram_, "uVPHeight");
     offset_ = chart_->getUniformLocation(seriesProgram_, "uOffset");
     scaleFactor_ = chart_->getUniformLocation(seriesProgram_,
 						 "uScaleFactor");
@@ -733,7 +1278,7 @@ void WAbstractGridData::initShaders()
       chart_->createShader(WGLWidget::FRAGMENT_SHADER);
     chart_->shaderSource(colFragShader_, colPtFragShaderSrc);
     chart_->compileShader(colFragShader_);
-    colVertShader_ = 
+    colVertShader_ =
       chart_->createShader(WGLWidget::VERTEX_SHADER);
     chart_->shaderSource(colVertShader_, colPtVertexShaderSrc);
     chart_->compileShader(colVertShader_);
@@ -753,6 +1298,8 @@ void WAbstractGridData::initShaders()
 						  "uMVMatrix");
     pMatrix2_ = chart_->getUniformLocation(colSeriesProgram_, "uPMatrix");
     cMatrix2_ = chart_->getUniformLocation(colSeriesProgram_, "uCMatrix");
+    pointSpriteUniform2_ = chart_->getUniformLocation(colSeriesProgram_, "uPointSprite");
+    vpHeightUniform2_ = chart_->getUniformLocation(colSeriesProgram_, "uVPHeight");
     break;
   case SurfaceSeries3D:
     // shaders for the surface series data
@@ -760,7 +1307,7 @@ void WAbstractGridData::initShaders()
       chart_->createShader(WGLWidget::FRAGMENT_SHADER);
     chart_->shaderSource(fragShader_, surfFragShaderSrc);
     chart_->compileShader(fragShader_);
-    vertShader_ = 
+    vertShader_ =
       chart_->createShader(WGLWidget::VERTEX_SHADER);
     chart_->shaderSource(vertShader_, surfVertexShaderSrc);
     chart_->compileShader(vertShader_);
@@ -779,17 +1326,67 @@ void WAbstractGridData::initShaders()
     offset_ = chart_->getUniformLocation(seriesProgram_, "uOffset");
     scaleFactor_ = chart_->getUniformLocation(seriesProgram_,
 						   "uScaleFactor");
+    minPtUniform_ = chart_->getUniformLocation(seriesProgram_, "uMinPt");
+    maxPtUniform_ = chart_->getUniformLocation(seriesProgram_, "uMaxPt");
+    dataMinPtUniform_ = chart_->getUniformLocation(seriesProgram_, "uDataMinPt");
+    dataMaxPtUniform_ = chart_->getUniformLocation(seriesProgram_, "uDataMaxPt");
+
+    if (chart_->isIntersectionLinesEnabled() || clippingLinesEnabled() ||
+	!chart_->intersectionPlanes_.empty()) {
+      singleColorFragShader_ =
+	chart_->createShader(WGLWidget::FRAGMENT_SHADER);
+      chart_->shaderSource(singleColorFragShader_, surfFragSingleColorShaderSrc);
+      chart_->compileShader(singleColorFragShader_);
+
+      singleColorProgram_ = chart_->createProgram();
+      chart_->attachShader(singleColorProgram_, vertShader_);
+      chart_->attachShader(singleColorProgram_, singleColorFragShader_);
+      chart_->linkProgram(singleColorProgram_);
+
+      chart_->useProgram(singleColorProgram_);
+      singleColor_vertexPosAttr_ = chart_->getAttribLocation(singleColorProgram_, "aVertexPosition");
+      singleColor_mvMatrixUniform_ = chart_->getUniformLocation(singleColorProgram_, "uMVMatrix");
+      singleColor_pMatrix_ = chart_->getUniformLocation(singleColorProgram_, "uPMatrix");
+      singleColor_cMatrix_ = chart_->getUniformLocation(singleColorProgram_, "uCMatrix");
+      singleColorUniform_ = chart_->getUniformLocation(singleColorProgram_, "uColor");
+      singleColor_minPtUniform_ = chart_->getUniformLocation(singleColorProgram_, "uMinPt");
+      singleColor_maxPtUniform_ = chart_->getUniformLocation(singleColorProgram_, "uMaxPt");
+      singleColor_dataMinPtUniform_ = chart_->getUniformLocation(singleColorProgram_, "uDataMinPt");
+      singleColor_dataMaxPtUniform_ = chart_->getUniformLocation(singleColorProgram_, "uDataMaxPt");
+      singleColor_marginUniform_ = chart_->getUniformLocation(singleColorProgram_, "uMargin");
+
+      positionFragShader_ =
+	chart_->createShader(WGLWidget::FRAGMENT_SHADER);
+      chart_->shaderSource(positionFragShader_, surfFragPosShaderSrc);
+      chart_->compileShader(positionFragShader_);
+
+      positionProgram_ = chart_->createProgram();
+      chart_->attachShader(positionProgram_, vertShader_);
+      chart_->attachShader(positionProgram_, positionFragShader_);
+      chart_->linkProgram(positionProgram_);
+
+      chart_->useProgram(positionProgram_);
+      position_vertexPosAttr_ = chart_->getAttribLocation(positionProgram_, "aVertexPosition");
+      position_mvMatrixUniform_ = chart_->getUniformLocation(positionProgram_, "uMVMatrix");
+      position_pMatrix_ = chart_->getUniformLocation(positionProgram_, "uPMatrix");
+      position_cMatrix_ = chart_->getUniformLocation(positionProgram_, "uCMatrix");
+      position_marginUniform_ = chart_->getUniformLocation(positionProgram_, "uMargin");
+      position_minPtUniform_ = chart_->getUniformLocation(positionProgram_, "uMinPt");
+      position_maxPtUniform_ = chart_->getUniformLocation(positionProgram_, "uMaxPt");
+      position_dataMinPtUniform_ = chart_->getUniformLocation(positionProgram_, "uDataMinPt");
+      position_dataMaxPtUniform_ = chart_->getUniformLocation(positionProgram_, "uDataMaxPt");
+    }
     break;
   };
-  
+
   if (seriesType_ == BarSeries3D ||
       (seriesType_ == SurfaceSeries3D && surfaceMeshEnabled_)) {
     // shaders for the overlay lines
-    meshFragShader_ = 
+    meshFragShader_ =
       chart_->createShader(WGLWidget::FRAGMENT_SHADER);
     chart_->shaderSource(meshFragShader_, meshFragShaderSrc);
     chart_->compileShader(meshFragShader_);
-    meshVertShader_ = 
+    meshVertShader_ =
       chart_->createShader(WGLWidget::VERTEX_SHADER);
     chart_->shaderSource(meshVertShader_, meshVertexShaderSrc);
     chart_->compileShader(meshVertShader_);
@@ -799,12 +1396,41 @@ void WAbstractGridData::initShaders()
     chart_->attachShader(meshProgram_, meshFragShader_);
     chart_->linkProgram(meshProgram_);
 
-    meshVertexPosAttr_ = chart_->getAttribLocation(meshProgram_, 
+    meshVertexPosAttr_ = chart_->getAttribLocation(meshProgram_,
 						   "aVertexPosition");
     mesh_mvMatrixUniform_ = chart_->getUniformLocation(meshProgram_, "uMVMatrix");
     mesh_pMatrix_ = chart_->getUniformLocation(meshProgram_, "uPMatrix");
     mesh_cMatrix_ = chart_->getUniformLocation(meshProgram_, "uCMatrix");
     mesh_colorUniform_ = chart_->getUniformLocation(meshProgram_, "uColor");
+    mesh_minPtUniform_ = chart_->getUniformLocation(meshProgram_, "uMinPt");
+    mesh_maxPtUniform_ = chart_->getUniformLocation(meshProgram_, "uMaxPt");
+    mesh_dataMinPtUniform_ = chart_->getUniformLocation(meshProgram_, "uDataMinPt");
+    mesh_dataMaxPtUniform_ = chart_->getUniformLocation(meshProgram_, "uDataMaxPt");
+  }
+
+  if (seriesType_ == SurfaceSeries3D && isoLineHeights_.size() > 0) {
+    isoLineFragShader_ =
+      chart_->createShader(WGLWidget::FRAGMENT_SHADER);
+    chart_->shaderSource(isoLineFragShader_, isoLineFragShaderSrc);
+    chart_->compileShader(isoLineFragShader_);
+
+    isoLineVertexShader_ =
+      chart_->createShader(WGLWidget::VERTEX_SHADER);
+    chart_->shaderSource(isoLineVertexShader_, isoLineVertexShaderSrc);
+    chart_->compileShader(isoLineVertexShader_);
+
+    isoLineProgram_ = chart_->createProgram();
+    chart_->attachShader(isoLineProgram_, isoLineVertexShader_);
+    chart_->attachShader(isoLineProgram_, isoLineFragShader_);
+    chart_->linkProgram(isoLineProgram_);
+
+    isoLineVertexPosAttr_ = chart_->getAttribLocation(isoLineProgram_, "aVertexPosition");
+    isoLine_mvMatrixUniform_ = chart_->getUniformLocation(isoLineProgram_, "uMVMatrix");
+    isoLine_pMatrix_ = chart_->getUniformLocation(isoLineProgram_, "uPMatrix");
+    isoLine_cMatrix_ = chart_->getUniformLocation(isoLineProgram_, "uCMatrix");
+    isoLine_TexSampler_ = chart_->getUniformLocation(isoLineProgram_, "uSampler");
+    isoLine_offset_ = chart_->getUniformLocation(isoLineProgram_, "uOffset");
+    isoLine_scaleFactor_ = chart_->getUniformLocation(isoLineProgram_, "uScaleFactor");
   }
 }
 
@@ -833,7 +1459,7 @@ void WAbstractGridData::paintGL() const
   chart_->enable(WGLWidget::DEPTH_TEST);
 
   for (unsigned i = 0; i < vertexPosBuffers_.size(); i++) {
-  
+
   chart_->useProgram(seriesProgram_);
   chart_->uniformMatrix4(cMatrix_, chart_->jsMatrix());
   chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexPosBuffers_[i]);
@@ -856,16 +1482,29 @@ void WAbstractGridData::paintGL() const
     chart_->enableVertexAttribArray(barTexCoordAttr_);
   }
 
+  double xMin = chart_->axis(XAxis_3D).minimum();
+  double xMax = chart_->axis(XAxis_3D).maximum();
+  double yMin = chart_->axis(YAxis_3D).minimum();
+  double yMax = chart_->axis(YAxis_3D).maximum();
+  double zMin = chart_->axis(ZAxis_3D).minimum();
+  double zMax = chart_->axis(ZAxis_3D).maximum();
+
   chart_->activeTexture(WGLWidget::TEXTURE0);
   chart_->bindTexture(WGLWidget::TEXTURE_2D, colormapTexture_);
   chart_->uniform1i(TexSampler_,0);
+  if (!minPtUniform_.isNull()) {
+    chart_->uniform3fv(minPtUniform_, jsMinPt_);
+    chart_->uniform3fv(maxPtUniform_, jsMaxPt_);
+    chart_->uniform3f(dataMinPtUniform_, xMin, yMin, zMin);
+    chart_->uniform3f(dataMaxPtUniform_, xMax, yMax, zMax);
+  }
 
   if (seriesType_ == BarSeries3D) {
     chart_->enable(WGLWidget::POLYGON_OFFSET_FILL);
     float unitOffset = (float) (std::pow(5,meshPen_.width().value()) < 10000 ? std::pow(5,meshPen_.width().value()) : 10000);
     chart_->polygonOffset(1, unitOffset);
     chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, indexBuffers_[i]);
-    chart_->drawElements(WGLWidget::TRIANGLES, indexBufferSizes_[i], 
+    chart_->drawElements(WGLWidget::TRIANGLES, indexBufferSizes_[i],
 			 WGLWidget::UNSIGNED_SHORT, 0);
     chart_->disableVertexAttribArray(vertexPosAttr_);
     chart_->disableVertexAttribArray(barTexCoordAttr_);
@@ -890,6 +1529,12 @@ void WAbstractGridData::paintGL() const
 				  0);
       chart_->enableVertexAttribArray(vertexSizeAttr_);
     }
+    chart_->activeTexture(WGLWidget::TEXTURE1);
+    chart_->bindTexture(WGLWidget::TEXTURE_2D, pointSpriteTexture_);
+    chart_->uniform1i(pointSpriteUniform_,1);
+
+    chart_->uniform1f(vpHeightUniform_,chart_->height().value());
+
     chart_->drawArrays(WGLWidget::POINTS,
 		       0,
 		       vertexPosBufferSizes_[i]/3);
@@ -897,13 +1542,17 @@ void WAbstractGridData::paintGL() const
     if (!wApp->environment().agentIsIE())
       chart_->disableVertexAttribArray(vertexSizeAttr_);
   }
-  
+
   // draw mesh
   if ( seriesType_ == BarSeries3D ||
        (seriesType_ == SurfaceSeries3D && surfaceMeshEnabled_) ) {
     chart_->useProgram(meshProgram_);
     chart_->depthFunc(WGLWidget::LEQUAL);
     chart_->uniformMatrix4(mesh_cMatrix_, chart_->jsMatrix());
+    chart_->uniform3fv(mesh_minPtUniform_, jsMinPt_);
+    chart_->uniform3fv(mesh_maxPtUniform_, jsMaxPt_);
+    chart_->uniform3f(mesh_dataMinPtUniform_, xMin, yMin, zMin);
+    chart_->uniform3f(mesh_dataMaxPtUniform_, xMax, yMax, zMax);
     chart_->uniform4f(mesh_colorUniform_,
 		      (float)meshPen_.color().red(),
 		      (float)meshPen_.color().green(),
@@ -919,14 +1568,14 @@ void WAbstractGridData::paintGL() const
     chart_->enableVertexAttribArray(meshVertexPosAttr_);
     chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, overlayLinesBuffers_[i]);
     if (seriesType_ == SurfaceSeries3D) {
-      chart_->lineWidth(meshPen_.width().value() == 0 ? 
-			1.0 : 
+      chart_->lineWidth(meshPen_.width().value() == 0 ?
+			1.0 :
 			meshPen_.width().value());
       chart_->drawElements(WGLWidget::LINE_STRIP, lineBufferSizes_[i],
 			   WGLWidget::UNSIGNED_SHORT, 0);
     } else if (seriesType_ == BarSeries3D) {
-      chart_->lineWidth(meshPen_.width().value() == 0 ? 
-			1.0 : 
+      chart_->lineWidth(meshPen_.width().value() == 0 ?
+			1.0 :
 			meshPen_.width().value());
       chart_->drawElements(WGLWidget::LINES, lineBufferSizes_[i],
 			   WGLWidget::UNSIGNED_SHORT, 0);
@@ -965,6 +1614,12 @@ void WAbstractGridData::paintGL() const
 				    0);
 	chart_->enableVertexAttribArray(vertexSizeAttr2_);
       }
+      chart_->activeTexture(WGLWidget::TEXTURE0);
+      chart_->bindTexture(WGLWidget::TEXTURE_2D, pointSpriteTexture_);
+      chart_->uniform1i(pointSpriteUniform2_,0);
+
+      chart_->uniform1f(vpHeightUniform2_,chart_->height().value());
+
       chart_->drawArrays(WGLWidget::POINTS,
 			 0,
 			 vertexPosBuffer2Sizes_[i]/3);
@@ -972,7 +1627,7 @@ void WAbstractGridData::paintGL() const
 	chart_->disableVertexAttribArray(vertexSizeAttr2_);
     } else if (seriesType_ == BarSeries3D) {
       chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, indexBuffers2_[i]);
-      chart_->drawElements(WGLWidget::TRIANGLES, indexBufferSizes2_[i], 
+      chart_->drawElements(WGLWidget::TRIANGLES, indexBufferSizes2_[i],
 			   WGLWidget::UNSIGNED_SHORT, 0);
     }
     chart_->disableVertexAttribArray(vertexPosAttr2_);
@@ -998,8 +1653,156 @@ void WAbstractGridData::paintGL() const
       chart_->disableVertexAttribArray(meshVertexPosAttr_);
     }
   }
+
+  if (seriesType_ == SurfaceSeries3D && isoLineHeights_.size() > 0) {
+    drawIsoLines();
+  }
+
   chart_->enable(WGLWidget::CULL_FACE);
   chart_->disable(WGLWidget::DEPTH_TEST);
+}
+
+void WAbstractGridData::paintGLIndex(unsigned index) const
+{
+  paintGLIndex(index, 0.0, 0.0, 0.0);
+}
+
+void WAbstractGridData::paintGLIndex(unsigned index, double marginX, double marginY, double marginZ) const
+{
+  if (hidden_)
+    return;
+
+  if (seriesType_ != SurfaceSeries3D || chart_->type() != ScatterPlot)
+    return;
+
+  double xMin = chart_->axis(XAxis_3D).minimum();
+  double xMax = chart_->axis(XAxis_3D).maximum();
+  double yMin = chart_->axis(YAxis_3D).minimum();
+  double yMax = chart_->axis(YAxis_3D).maximum();
+  double zMin = chart_->axis(ZAxis_3D).minimum();
+  double zMax = chart_->axis(ZAxis_3D).maximum();
+
+  chart_->disable(WGLWidget::CULL_FACE);
+  chart_->enable(WGLWidget::DEPTH_TEST);
+
+  for (unsigned i = 0; i < vertexPosBuffers_.size(); i++) {
+    chart_->useProgram(singleColorProgram_);
+    chart_->uniformMatrix4(singleColor_cMatrix_, chart_->jsMatrix());
+    chart_->uniform3fv(singleColor_minPtUniform_, jsMinPt_);
+    chart_->uniform3fv(singleColor_maxPtUniform_, jsMaxPt_);
+    chart_->uniform3f(singleColor_dataMinPtUniform_, xMin, yMin, zMin);
+    chart_->uniform3f(singleColor_dataMaxPtUniform_, xMax, yMax, zMax);
+    chart_->uniform3f(singleColor_marginUniform_, marginX, marginY, marginZ);
+    chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexPosBuffers_[i]);
+    chart_->vertexAttribPointer(singleColor_vertexPosAttr_,
+				3,
+				WGLWidget::FLOAT,
+				false,
+				0,
+				0);
+    chart_->enableVertexAttribArray(singleColor_vertexPosAttr_);
+
+    // Encoding the index as a color value.
+    //
+    // Since white is the clear color of the index texture,
+    // this allows for 16777215 meshes. That should be enough,
+    // or is even a tad excessive.
+    float r = ((index >> 16) & 0xff) / 255.0f;
+    float g = ((index >> 8) & 0xff) / 255.0f;
+    float b = (index & 0xff) / 255.0f;
+    chart_->uniform3f(singleColorUniform_, r, g, b);
+
+    chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, indexBuffers_[i]);
+    chart_->drawElements(WGLWidget::TRIANGLE_STRIP, indexBufferSizes_[i],
+        	   WGLWidget::UNSIGNED_SHORT, 0);
+    chart_->disableVertexAttribArray(singleColor_vertexPosAttr_);
+  }
+  chart_->enable(WGLWidget::CULL_FACE);
+  chart_->disable(WGLWidget::DEPTH_TEST);
+}
+
+void WAbstractGridData::paintGLPositions() const
+{
+  paintGLPositions(0.0, 0.0, 0.0);
+}
+
+void WAbstractGridData::paintGLPositions(double marginX, double marginY, double marginZ) const
+{
+  if (hidden_)
+    return;
+
+  if (seriesType_ != SurfaceSeries3D || chart_->type() != ScatterPlot)
+    return;
+
+  double xMin = chart_->axis(XAxis_3D).minimum();
+  double xMax = chart_->axis(XAxis_3D).maximum();
+  double yMin = chart_->axis(YAxis_3D).minimum();
+  double yMax = chart_->axis(YAxis_3D).maximum();
+  double zMin = chart_->axis(ZAxis_3D).minimum();
+  double zMax = chart_->axis(ZAxis_3D).maximum();
+
+  chart_->disable(WGLWidget::CULL_FACE);
+  chart_->enable(WGLWidget::DEPTH_TEST);
+
+  for (unsigned i = 0; i < vertexPosBuffers_.size(); i++) {
+    chart_->useProgram(positionProgram_);
+    chart_->uniformMatrix4(position_cMatrix_, chart_->jsMatrix());
+    chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexPosBuffers_[i]);
+    chart_->uniform3fv(position_minPtUniform_, jsMinPt_);
+    chart_->uniform3fv(position_maxPtUniform_, jsMaxPt_);
+    chart_->uniform3f(position_dataMinPtUniform_, xMin, yMin, zMin);
+    chart_->uniform3f(position_dataMaxPtUniform_, xMax, yMax, zMax);
+    chart_->uniform3f(position_marginUniform_, marginX, marginY, marginZ);
+    chart_->vertexAttribPointer(position_vertexPosAttr_,
+				3,
+				WGLWidget::FLOAT,
+				false,
+				0,
+				0);
+    chart_->enableVertexAttribArray(position_vertexPosAttr_);
+
+    chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, indexBuffers_[i]);
+    chart_->drawElements(WGLWidget::TRIANGLE_STRIP, indexBufferSizes_[i],
+        	   WGLWidget::UNSIGNED_SHORT, 0);
+    chart_->disableVertexAttribArray(position_vertexPosAttr_);
+  }
+  chart_->enable(WGLWidget::CULL_FACE);
+  chart_->disable(WGLWidget::DEPTH_TEST);
+}
+
+void WAbstractGridData::setChart(WCartesian3DChart *chart)
+{
+  WAbstractDataSeries3D::setChart(chart);
+  jsMinPt_ = WGLWidget::JavaScriptVector(3);
+  jsMaxPt_ = WGLWidget::JavaScriptVector(3);
+  chart->addJavaScriptVector(jsMinPt_);
+  chart->addJavaScriptVector(jsMaxPt_);
+  minPtChanged_ = true;
+  maxPtChanged_ = true;
+  changeClippingMinX_.setJavaScript("function(o,e,pos) {"
+      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      jsMinPt_.jsRef() + "[0] = pos;" +
+      chart->repaintSlot().execJs() + " }", 1);
+  changeClippingMaxX_.setJavaScript("function(o,e,pos) {"
+      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      jsMaxPt_.jsRef() + "[0] = pos;" +
+      chart->repaintSlot().execJs() + " }", 1);
+  changeClippingMinY_.setJavaScript("function(o,e,pos) {"
+      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      jsMinPt_.jsRef() + "[1] = pos;" +
+      chart->repaintSlot().execJs() + " }", 1);
+  changeClippingMaxY_.setJavaScript("function(o,e,pos) {"
+      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      jsMaxPt_.jsRef() + "[1] = pos;" +
+      chart->repaintSlot().execJs() + " }", 1);
+  changeClippingMinZ_.setJavaScript("function(o,e,pos) {"
+      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      jsMinPt_.jsRef() + "[2] = pos;" +
+      chart->repaintSlot().execJs() + " }", 1);
+  changeClippingMaxZ_.setJavaScript("function(o,e,pos) {"
+      "var obj = $('#" + chart_->id() + "').data('obj');" +
+      jsMaxPt_.jsRef() + "[2] = pos;" +
+      chart->repaintSlot().execJs() + " }", 1);
 }
 
 void WAbstractGridData::initializeGL()
@@ -1016,9 +1819,21 @@ void WAbstractGridData::resizeGL()
     chart_->useProgram(colSeriesProgram_);
     chart_->uniformMatrix4(pMatrix2_, chart_->pMatrix());
   }
+  if (!singleColorProgram_.isNull()) {
+    chart_->useProgram(singleColorProgram_);
+    chart_->uniformMatrix4(singleColor_pMatrix_, chart_->pMatrix());
+  }
+  if (!positionProgram_.isNull()) {
+    chart_->useProgram(positionProgram_);
+    chart_->uniformMatrix4(position_pMatrix_, chart_->pMatrix());
+  }
   if (!meshProgram_.isNull()) {
     chart_->useProgram(meshProgram_);
     chart_->uniformMatrix4(mesh_pMatrix_, chart_->pMatrix());
+  }
+  if (!isoLineProgram_.isNull()) {
+    chart_->useProgram(isoLineProgram_);
+    chart_->uniformMatrix4(isoLine_pMatrix_, chart_->pMatrix());
   }
 }
 
@@ -1026,6 +1841,20 @@ void WAbstractGridData::deleteAllGLResources()
 {
   if (seriesProgram_.isNull()) { // never been painted
     return;
+  }
+  if (!singleColorProgram_.isNull()) {
+    chart_->detachShader(singleColorProgram_, singleColorFragShader_);
+    chart_->detachShader(singleColorProgram_, vertShader_);
+    chart_->deleteShader(singleColorFragShader_);
+    chart_->deleteProgram(singleColorProgram_);
+    singleColorProgram_.clear();
+  }
+  if (!positionProgram_.isNull()) {
+    chart_->detachShader(positionProgram_, positionFragShader_);
+    chart_->detachShader(positionProgram_, vertShader_);
+    chart_->deleteShader(positionFragShader_);
+    chart_->deleteProgram(positionProgram_);
+    positionProgram_.clear();
   }
   chart_->detachShader(seriesProgram_, fragShader_);
   chart_->detachShader(seriesProgram_, vertShader_);
@@ -1049,21 +1878,29 @@ void WAbstractGridData::deleteAllGLResources()
     chart_->deleteProgram(meshProgram_);
     meshProgram_.clear();
   }
+  if (!isoLineProgram_.isNull()) {
+    chart_->detachShader(isoLineProgram_, isoLineFragShader_);
+    chart_->detachShader(isoLineProgram_, isoLineVertexShader_);
+    chart_->deleteShader(isoLineFragShader_);
+    chart_->deleteShader(isoLineVertexShader_);
+    chart_->deleteProgram(isoLineProgram_);
+    isoLineProgram_.clear();
+  }
 
   for (unsigned i = 0; i < vertexPosBuffers_.size(); i++) {
-    if (vertexPosBuffers_[i].jsRef() != "") {
+    if (!vertexPosBuffers_[i].isNull()) {
       chart_->deleteBuffer(vertexPosBuffers_[i]);
       vertexPosBuffers_[i].clear();
     }
   }
   for (unsigned i = 0; i < vertexSizeBuffers_.size(); i++) {
-    if (vertexSizeBuffers_[i].isNull()) {
+    if (!vertexSizeBuffers_[i].isNull()) {
       chart_->deleteBuffer(vertexSizeBuffers_[i]);
       vertexSizeBuffers_[i].clear();
     }
   }
   for (unsigned i = 0; i < vertexPosBuffers2_.size(); i++) {
-    if (vertexPosBuffers2_[i].isNull()) {
+    if (!vertexPosBuffers2_[i].isNull()) {
       chart_->deleteBuffer(vertexPosBuffers2_[i]);
       vertexPosBuffers2_[i].clear();
       chart_->deleteBuffer(vertexColorBuffers2_[i]);
@@ -1071,25 +1908,31 @@ void WAbstractGridData::deleteAllGLResources()
     }
   }
   for (unsigned i = 0; i < vertexSizeBuffers2_.size(); i++) {
-    if (vertexSizeBuffers2_[i].isNull()) {
+    if (!vertexSizeBuffers2_[i].isNull()) {
       chart_->deleteBuffer(vertexSizeBuffers2_[i]);
       vertexSizeBuffers2_[i].clear();
     }
   }
+  for (size_t i = 0; i < isoLineBuffers_.size(); ++i) {
+    if (!isoLineBuffers_[i].isNull()) {
+      chart_->deleteBuffer(isoLineBuffers_[i]);
+      isoLineBuffers_[i].clear();
+    }
+  }
   for (unsigned i = 0; i < indexBuffers_.size(); i++) {
-    if (indexBuffers_[i].isNull()) {
+    if (!indexBuffers_[i].isNull()) {
       chart_->deleteBuffer(indexBuffers_[i]);
       indexBuffers_[i].clear();
     }
   }
   for (unsigned i = 0; i < overlayLinesBuffers_.size(); i++) {
-    if (overlayLinesBuffers_[i].isNull()) {
+    if (!overlayLinesBuffers_[i].isNull()) {
       chart_->deleteBuffer(overlayLinesBuffers_[i]);
       overlayLinesBuffers_[i].clear();
     }
   }
   for (unsigned i = 0; i < colormapTexBuffers_.size(); i++) {
-    if (colormapTexBuffers_[i].isNull()) {
+    if (!colormapTexBuffers_[i].isNull()) {
       chart_->deleteBuffer(colormapTexBuffers_[i]);
       colormapTexBuffers_[i].clear();
     }
@@ -1103,15 +1946,29 @@ void WAbstractGridData::deleteAllGLResources()
   vertexColorBuffers2_.clear();
   indexBuffers_.clear();
   indexBufferSizes_.clear();
+  indexBufferSizes2_.clear();
   overlayLinesBuffers_.clear();
+  overlayLinesBuffers2_.clear();
   lineBufferSizes_.clear();
+  lineBufferSizes2_.clear();
   colormapTexBuffers_.clear();
-  
-  if (colormapTexture_.isNull()) {
+  isoLineBuffers_.clear();
+  isoLineBufferSizes_.clear();
+
+  if (!colormapTexture_.isNull()) {
     chart_->deleteTexture(colormapTexture_);
     colormapTexture_.clear();
   }
 
+  if (!isoLineColorMapTexture_.isNull()) {
+    chart_->deleteTexture(isoLineColorMapTexture_);
+    isoLineColorMapTexture_.clear();
+  }
+
+  if (!pointSpriteTexture_.isNull()) {
+    chart_->deleteTexture(pointSpriteTexture_);
+    pointSpriteTexture_.clear();
+  }
 }
 
 

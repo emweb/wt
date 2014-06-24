@@ -10,6 +10,7 @@
 #include "Wt/WAbstractGLImplementation"
 #include "Wt/WCanvasPaintDevice"
 #include "Wt/WClientGLWidget"
+#include "Wt/WLogger"
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_USE_OPENGL
@@ -29,12 +30,18 @@
 #include "DomElement.h"
 #include "WebUtils.h"
 
+#include "Wt/Json/Array"
+#include "Wt/Json/Object"
+#include "Wt/Json/Parser"
+
 #ifndef WT_DEBUG_JS
 #include "js/WGLWidget.min.js"
 #include "js/WtGlMatrix.min.js"
 #endif
 
-using namespace Wt;
+namespace Wt {
+
+LOGGER("WGLWidget");
 
 // TODO: for uniform*v, attribute8v, generate the non-v version in js. We
 //       will probably end up with less bw and there's no use in allocating
@@ -43,19 +50,23 @@ using namespace Wt;
 
 WGLWidget::WGLWidget(WContainerWidget *parent)
 : WInteractWidget(parent),
-  renderOptions_(ClientSideRendering | ServerSideRendering),
+  renderOptions_(ClientSideRendering | ServerSideRendering | AntiAliasing),
   pImpl_(0),
+  jsValues_(0),
   repaintSignal_(this, "repaintSignal"),
   alternative_(0),
   webglNotAvailable_(this, "webglNotAvailable"),
   webGlNotAvailable_(false),
-  mouseWentDownSlot_("function(){}", this),
-  mouseWentUpSlot_("function(){}", this),
-  mouseDraggedSlot_("function(){}", this),
-  mouseWheelSlot_("function(){}", this),
-  touchStarted_("function(){}", this),
-  touchEnded_("function(){}", this),
-  touchMoved_("function(){}", this),
+  contextRestored_(this, "contextRestored"),
+  restoringContext_(false),
+  valueChanged_(false),
+  mouseWentDownSlot_("function(o, e){" + this->glObjJsRef() + ".mouseDown(o, e);}", this),
+  mouseWentUpSlot_("function(o, e){" + this->glObjJsRef() + ".mouseUp(o, e);}", this),
+  mouseDraggedSlot_("function(o, e){" + this->glObjJsRef() + ".mouseDrag(o, e);}", this),
+  mouseWheelSlot_("function(o, e){" + this->glObjJsRef() + ".mouseWheel(o, e);}", this),
+  touchStarted_("function(o, e){" + this->glObjJsRef() + ".touchStart(o, e);}", this),
+  touchEnded_("function(o, e){" + this->glObjJsRef() + ".touchEnd(o, e);}", this),
+  touchMoved_("function(o, e){" + this->glObjJsRef() + ".touchMoved(o, e);}", this),
   repaintSlot_("function() {"
     "var o = " + this->glObjJsRef() + ";"
     "if(o.ctx) o.paintGL();"
@@ -65,6 +76,7 @@ WGLWidget::WGLWidget(WContainerWidget *parent)
   setLayoutSizeAware(true);
   webglNotAvailable_.connect(this, &WGLWidget::webglNotAvailable);
   repaintSignal_.connect(boost::bind(&WGLWidget::repaintGL, this, PAINT_GL));
+  contextRestored_.connect(boost::bind(&WGLWidget::contextRestored, this));
   mouseWentDown().connect(mouseWentDownSlot_);
   mouseWentUp().connect(mouseWentUpSlot_);
   mouseDragged().connect(mouseDraggedSlot_);
@@ -96,11 +108,6 @@ void WGLWidget::setAlternativeContent(WWidget *alternative)
     addChild(alternative_);
 }
 
-bool WGLWidget::isAlternative()
-{
-  return pImpl_ == 0;
-}
-
 void WGLWidget::enableClientErrorChecks(bool enable) {
   pImpl_->enableClientErrorChecks(enable);
 }
@@ -127,7 +134,7 @@ std::string WGLWidget::renderRemoveJs()
   }
 }
 
-std::string WGLWidget::glObjJsRef()
+std::string WGLWidget::glObjJsRef() const
 {
   return "(function(){"
     "var r = " + jsRef() + ";"
@@ -168,6 +175,9 @@ void WGLWidget::repaintGL(WFlags<ClientSideRenderer> which)
 
 void WGLWidget::updateDom(DomElement &element, bool all)
 {
+  if (all || valueChanged_) {
+    valueChanged_ = false;
+  }
   if (webGlNotAvailable_)
     return;
 
@@ -207,6 +217,15 @@ void WGLWidget::layoutSizeChanged(int width, int height)
   repaintGL(RESIZE_GL);
 }
 
+void WGLWidget::contextRestored()
+{
+  restoringContext_ = true;
+  pImpl_->restoreContext(jsRef());
+
+  repaintGL(UPDATE_GL | RESIZE_GL | PAINT_GL);
+  restoringContext_ = false;
+}
+
 void WGLWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
@@ -229,6 +248,7 @@ void WGLWidget::render(WFlags<RenderFlag> flags)
 	  try {
 	    pImpl_ = new WServerGLWidget(this);
 	  } catch (WException& e) {
+	    LOG_WARN("Failed to initialize server rendering fallback: " << e.what());
 	    pImpl_ = 0;
 	  }
 	} else {
@@ -783,6 +803,12 @@ void WGLWidget::uniform1fv(const UniformLocation &location,
   pImpl_->uniform1fv(location, value);
 }
 
+void WGLWidget::uniform1fv(const UniformLocation &location,
+			   const JavaScriptVector &v)
+{
+  pImpl_->uniform1fv(location, v);
+}
+
 void WGLWidget::uniform1i(const UniformLocation &location, int x)
 {
   pImpl_->uniform1i(location, x);
@@ -803,6 +829,12 @@ void WGLWidget::uniform2fv(const UniformLocation &location,
 			   const WT_ARRAY float *value)
 {
   pImpl_->uniform2fv(location, value);
+}
+
+void WGLWidget::uniform2fv(const UniformLocation &location, 
+			   const JavaScriptVector &v)
+{
+  pImpl_->uniform2fv(location, v);
 }
 
 void WGLWidget::uniform2i(const UniformLocation &location, int x, int y)
@@ -828,6 +860,12 @@ void WGLWidget::uniform3fv(const UniformLocation &location,
   pImpl_->uniform3fv(location, value);
 }
 
+void WGLWidget::uniform3fv(const UniformLocation &location,
+			   const JavaScriptVector &v)
+{
+  pImpl_->uniform3fv(location, v);
+}
+
 void WGLWidget::uniform3i(const UniformLocation &location, int x, int y, int z)
 {
   pImpl_->uniform3i(location, x, y, z);
@@ -849,6 +887,12 @@ void WGLWidget::uniform4fv(const UniformLocation &location,
 			   const WT_ARRAY float *value)
 {
   pImpl_->uniform4fv(location, value);
+}
+
+void WGLWidget::uniform4fv(const UniformLocation &location,
+			   const JavaScriptVector &v)
+{
+  pImpl_->uniform4fv(location, v);
 }
 
 void WGLWidget::uniform4i(const UniformLocation &location, int x, int y, 
@@ -905,7 +949,7 @@ void WGLWidget::uniformMatrix4(const UniformLocation &location,
 void WGLWidget::uniformMatrix4(const UniformLocation &location,
 			       const JavaScriptMatrix4x4 &jsm)
 {
-  if (jsm.id() == -1)
+  if (!jsm.initialized())
     throw WException("JavaScriptMatrix4x4: matrix not initialized");
 
   pImpl_->uniformMatrix4(location, jsm);
@@ -958,19 +1002,63 @@ void WGLWidget::clearBinaryResources()
 
 WGLWidget::JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
 {
-  WGLWidget::JavaScriptMatrix4x4 mat = pImpl_->createJavaScriptMatrix4();
-  jsMatrixList_.push_back(jsMatrixMap(mat.id(), WMatrix4x4()));
+  WGLWidget::JavaScriptMatrix4x4 mat;
+  addJavaScriptMatrix4(mat);
+  initJavaScriptMatrix4(mat);
 
   return mat;
+}
+
+void WGLWidget::addJavaScriptMatrix4(JavaScriptMatrix4x4 &mat)
+{
+  if (mat.hasContext())
+    throw WException("The given matrix is already associated with a WGLWidget!");
+  mat.assignToContext(jsValues_++, Float32Array, this);
+
+  jsMatrixList_.push_back(jsMatrixMap(mat.id(), WMatrix4x4()));
+}
+
+void WGLWidget::initJavaScriptMatrix4(JavaScriptMatrix4x4 &mat)
+{
+  pImpl_->initJavaScriptMatrix4(mat);
+}
+
+WGLWidget::JavaScriptVector WGLWidget::createJavaScriptVector(unsigned length)
+{
+  WGLWidget::JavaScriptVector vec(length);
+  addJavaScriptVector(vec);
+  initJavaScriptVector(vec);
+
+  return vec;
+}
+
+void WGLWidget::addJavaScriptVector(JavaScriptVector &vec)
+{
+  if (vec.hasContext())
+    throw WException("The given matrix is already associated with a WGLWidget!");
+  vec.assignToContext(jsValues_++, this);
+
+  std::vector<float> values;
+  for (unsigned i = 0; i < vec.length(); ++i) {
+    values.push_back(0.0f);
+  }
+  jsVectorList_.push_back(jsVectorMap(vec.id(), values));
+}
+
+void WGLWidget::initJavaScriptVector(JavaScriptVector &vec)
+{
+  pImpl_->initJavaScriptVector(vec);
 }
 
 void WGLWidget::setJavaScriptMatrix4(JavaScriptMatrix4x4 &jsm,
 				     const WGenericMatrix<double, 4, 4> &m)
 {
-  if (jsm.id() == -1)
+  if (!jsm.initialized())
     throw WException("JavaScriptMatrix4x4: matrix not initialized");
   if (jsm.hasOperations())
-    throw WException("JavaScriptMatrix4x4: matrix was allready operated on");
+    throw WException("JavaScriptMatrix4x4: matrix was already operated on");
+
+  valueChanged_ = true;
 
   // set the server-side copy
   for (unsigned i = 0; i < jsMatrixList_.size(); i++)
@@ -980,35 +1068,46 @@ void WGLWidget::setJavaScriptMatrix4(JavaScriptMatrix4x4 &jsm,
   pImpl_->setJavaScriptMatrix4(jsm, m);
 }
 
+void WGLWidget::setJavaScriptVector(JavaScriptVector &jsv,
+				    const std::vector<float> &v)
+{
+  if (!jsv.initialized())
+    throw WException("JavaScriptVector: vector not initialized");
+
+  valueChanged_ = true;
+
+  // set the server-side copy
+  for (unsigned i = 0; i < jsVectorList_.size(); i++)
+    if (jsVectorList_[i].id == jsv.id())
+      jsVectorList_[i].serverSideCopy = v;
+
+  pImpl_->setJavaScriptVector(jsv, v);
+}
+
+void WGLWidget::setClientSideMouseHandler(const std::string& handlerCode)
+{
+  pImpl_->setClientSideMouseHandler(handlerCode);
+}
+
 void WGLWidget::setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
                                            double centerX, double centerY, double centerZ,
                                            double uX, double uY, double uZ,
                                            double pitchRate, double yawRate)
 {
-  mouseWentDownSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDown(o, e);}");
-  mouseWentUpSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseUp(o, e);}");
-  mouseDraggedSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDragLookAt(o, e);}");
-  mouseWheelSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseWheelLookAt(o, e);}");
-  touchStarted_.setJavaScript("function(o, e){" + glObjJsRef() + ".touchStart(o, e);}");
-  touchEnded_.setJavaScript("function(o, e){" + glObjJsRef() + ".touchEnd(o, e);}");
-  touchMoved_.setJavaScript("function(o, e){" + glObjJsRef() + ".touchMoved(o, e);}");
-  
   pImpl_->setClientSideLookAtHandler(m, centerX, centerY, centerZ, uX, uY, uZ,
 				     pitchRate, yawRate);
 }
 
 void WGLWidget::setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double frontStep, double rotStep)
 {
-  mouseWentDownSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDown(o, e);}");
-  mouseWentUpSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseUp(o, e);}");
-  mouseDraggedSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDragWalk(o, e);}");
-  mouseWheelSlot_.setJavaScript("function(o, e){}");
-
   pImpl_->setClientSideWalkHandler(m, frontStep, rotStep);
 }
 
 void WGLWidget::setFormData(const FormData& formData)
 {
+  if (valueChanged_)
+    return;
+
   Http::ParameterValues parVals = formData.values;
   if (Utils::isEmpty(parVals))
     return;
@@ -1025,37 +1124,107 @@ void WGLWidget::setFormData(const FormData& formData)
     int id = (int)Wt::asNumber(idAndData[0]);
 
     unsigned j = 0;
-    for (j = 0; i < jsMatrixList_.size(); i++)
+    for (j = 0; j < jsMatrixList_.size(); j++)
       if (jsMatrixList_[j].id == id)
 	break;
-    if (j == jsMatrixList_.size())
-      continue;
-    WMatrix4x4& mat = jsMatrixList_[j].serverSideCopy;
-    std::vector<std::string> mData;
-    boost::split(mData, idAndData[1], boost::is_any_of(","));
-    for (int i1 = 0; i1 < 4; i1++) {
-      for (int i2 = 0; i2 < 4; i2++) {
+    if (j == jsMatrixList_.size()) {
+      for (j = 0; j < jsVectorList_.size(); j++)
+	if (jsVectorList_[j].id == id)
+	  break;
+      std::vector<float>& vec = jsVectorList_[j].serverSideCopy;
+      std::vector<std::string> mData;
+      boost::split(mData, idAndData[1], boost::is_any_of(","));
+      for (unsigned i1 = 0; i1 < vec.size(); i1++) {
+	if (mData[i1] == "Infinity") {
+	  vec[i1] = std::numeric_limits<float>::infinity();
+	} else if (mData[i1] == "-Infinity") {
+	  vec[i1] = -std::numeric_limits<float>::infinity();
+	} else {
+	  vec[i1] = boost::lexical_cast<float>(mData[i1]);
+	}
+      }
+    } else {
+      WMatrix4x4& mat = jsMatrixList_[j].serverSideCopy;
+      std::vector<std::string> mData;
+      boost::split(mData, idAndData[1], boost::is_any_of(","));
+      for (int i1 = 0; i1 < 4; i1++) {
+	for (int i2 = 0; i2 < 4; i2++) {
 #ifndef WT_TARGET_JAVA
-	mat(i2, i1) = (float)Wt::asNumber(mData[i1*4+i2]);
+	  mat(i2, i1) = (float)Wt::asNumber(mData[i1*4+i2]);
 #else
-	mat.setElement(i2, i1, boost::lexical_cast<float>(mData[i1*4+i2]));
+	  mat.setElement(i2, i1, boost::lexical_cast<float>(mData[i1*4+i2]));
 #endif
+	}
       }
     }
   }
 }
 
-WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4()
-  : id_(-1)
+WGLWidget::JavaScriptVector::JavaScriptVector(unsigned length)
+  : id_(-1), length_(length), context_(0), initialized_(false)
 {}
 
-WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4(int id, JsArrayType type,
-						    const WGLWidget* context)
-  : id_(id),
-    jsRef_("ctx.WtMatrix" + boost::lexical_cast<std::string>(id_)),
-    context_(context),
-    arrayType_(type)
+void WGLWidget::JavaScriptVector
+::assignToContext(int id, const WGLWidget *context)
+{
+  id_ = id;
+  jsRef_ = context->glObjJsRef() + ".jsValues[" + 
+    boost::lexical_cast<std::string>(id_) + "]";
+  context_ = context;
+}
+
+#ifndef WT_TARGET_JAVA
+WGLWidget::JavaScriptVector
+::JavaScriptVector(const WGLWidget::JavaScriptVector &other)
+  : id_(other.id()),
+    length_(other.length()),
+    jsRef_(other.jsRef()),
+    context_(other.context_),
+    initialized_(other.initialized())
+{
+}
+
+WGLWidget::JavaScriptVector &
+WGLWidget::JavaScriptVector::operator=(const WGLWidget::JavaScriptVector &rhs)
+{
+  id_ = rhs.id_;
+  length_ = rhs.length_;
+  jsRef_ = rhs.jsRef_;
+  context_ = rhs.context_;
+  initialized_ = rhs.initialized_;
+  return *this;
+}
+#endif
+
+std::vector<float> WGLWidget::JavaScriptVector::value() const
+{
+  if (!hasContext())
+    throw WException("JavaScriptVector: vector not assigned to a WGLWidget");
+
+  for (unsigned i = 0; i < context_->jsVectorList_.size(); i++) {
+    if (context_->jsVectorList_[i].id == id_) {
+      return context_->jsVectorList_[i].serverSideCopy;
+    }
+  }
+
+  std::vector<float> result;
+  for (unsigned i = 0; i < length(); ++i) {
+    result.push_back(0.0f);
+  }
+  return result;
+}
+
+WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4()
+  : id_(-1), context_(0), initialized_(false)
 {}
+
+void WGLWidget::JavaScriptMatrix4x4::assignToContext(int id, JsArrayType type, const WGLWidget* context)
+{
+  id_ = id;
+  jsRef_ = context->glObjJsRef() + ".jsValues[" + boost::lexical_cast<std::string>(id_) + "]";
+  context_ = context;
+  arrayType_ = type;
+}
 
 #ifndef WT_TARGET_JAVA
 WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4(const WGLWidget::JavaScriptMatrix4x4 &other)
@@ -1064,7 +1233,8 @@ WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4(const WGLWidget::JavaScriptM
     context_(other.context_),
     arrayType_(other.arrayType_),
     operations_(other.operations_),
-    matrices_(other.matrices_)
+    matrices_(other.matrices_),
+    initialized_(other.initialized_)
 {
 }
 
@@ -1077,14 +1247,15 @@ WGLWidget::JavaScriptMatrix4x4::operator=(const WGLWidget::JavaScriptMatrix4x4 &
   arrayType_ = rhs.arrayType_;
   operations_ = rhs.operations_;
   matrices_ = rhs.matrices_;
+  initialized_ = rhs.initialized_;
   return *this;
 }
 #endif
 
 WMatrix4x4 WGLWidget::JavaScriptMatrix4x4::value() const
 {
-  if (id() == -1)
-    throw WException("JavaScriptMatrix4x4: matrix not initialized");
+  if (!hasContext())
+    throw WException("JavaScriptMatrix4x4: matrix not assigned to a WGLWidget");
 
   WMatrix4x4 originalCpy;
   for (unsigned i = 0; i<context_->jsMatrixList_.size(); i++)
@@ -1120,7 +1291,7 @@ WMatrix4x4 WGLWidget::JavaScriptMatrix4x4::value() const
 
 WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::inverted() const
 {
-  if (id() == -1)
+  if (!initialized())
     throw WException("JavaScriptMatrix4x4: matrix not initialized");
   WGLWidget::JavaScriptMatrix4x4 copy = WGLWidget::JavaScriptMatrix4x4(*this);
   copy.jsRef_ = WT_CLASS ".glMatrix.mat4.inverse(" +
@@ -1131,7 +1302,7 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::inverted() const
 
 WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::transposed() const
 {
-  if (id() == -1)
+  if (!initialized())
     throw WException("JavaScriptMatrix4x4: matrix not initialized");
   WGLWidget::JavaScriptMatrix4x4 copy = WGLWidget::JavaScriptMatrix4x4(*this);
   copy.jsRef_ = WT_CLASS ".glMatrix.mat4.transpose(" +
@@ -1146,7 +1317,7 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::operator*(const W
 WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::multiply(const WGenericMatrix<double, 4, 4> &m) const
 #endif 
 {
-  if (id() == -1)
+  if (!initialized())
     throw WException("JavaScriptMatrix4x4: matrix not initialized");
   WGLWidget::JavaScriptMatrix4x4 copy = WGLWidget::JavaScriptMatrix4x4(*this);
   std::stringstream ss;
@@ -1172,6 +1343,7 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::clone() const
   copy.jsRef_ = jsRef_;
   copy.context_ = context_;
   copy.arrayType_ = arrayType_;
+  copy.initialized_ = initialized_;
 
   copy.operations_ = operations_;
   copy.matrices_ = matrices_;
@@ -1179,3 +1351,5 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::clone() const
   return copy;
 }
 #endif
+
+}

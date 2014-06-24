@@ -48,9 +48,13 @@ void WLegend::setLegendStyle(const WFont &font,
   legendBackground_ = background;  
 }
 
-void WLegend::setLegendColumns(int columns, const WLength &columnWidth)
+void WLegend::setLegendColumns(int columns)
 {
   legendColumns_ = columns;
+}
+
+void WLegend::setLegendColumnWidth(const WLength &columnWidth)
+{
   legendColumnWidth_ = columnWidth;
 }
 

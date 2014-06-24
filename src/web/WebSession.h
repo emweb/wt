@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 #define WT_BOOST_THREADS
@@ -25,6 +26,7 @@
 #include "TimeUtil.h"
 #include "WebRenderer.h"
 #include "WebRequest.h"
+#include "WebController.h"
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
@@ -175,10 +177,16 @@ public:
 
   class WT_API Handler {
   public:
+    enum LockOption {
+      NoLock,
+      TryLock,
+      TakeLock
+    };
+
     Handler();
     Handler(boost::shared_ptr<WebSession> session,
 	    WebRequest& request, WebResponse& response);
-    Handler(boost::shared_ptr<WebSession> session, bool takeLock);
+    Handler(boost::shared_ptr<WebSession> session, LockOption lockOption);
     Handler(WebSession *session);
     ~Handler();
 
@@ -244,6 +252,7 @@ public:
   void setLoaded();
 
   void generateNewSessionId();
+  void queueEvent(const ApplicationEvent& event);
 
 private:
   void handleWebSocketRequest(Handler& handler);
@@ -257,10 +266,13 @@ private:
 
 #ifdef WT_BOOST_THREADS
   boost::mutex mutex_;
+  boost::mutex eventQueueMutex_;
   static boost::thread_specific_ptr<Handler> threadHandler_;
 #else
   static Handler *threadHandler_;
 #endif
+
+  std::deque<ApplicationEvent> eventQueue_;
 
   EntryPointType type_;
   std::string favicon_;
@@ -345,15 +357,16 @@ private:
   void flushBootStyleResponse();
   void changeInternalPath(const std::string& path, WebResponse *response);
 
+  void processQueuedEvents(WebSession::Handler& handler);
+  ApplicationEvent popQueuedEvent();
+
   friend class WebSocketMessage;
   friend class WebRenderer;
 };
 
 struct WEvent::Impl {
   WebSession::Handler *handler;
-#ifndef WT_CNOR
-  boost::function<void ()> function;
-#endif
+  Function function;
   bool renderOnly;
 
   Impl(WebSession::Handler *aHandler, bool doRenderOnly = false)
@@ -361,19 +374,15 @@ struct WEvent::Impl {
       renderOnly(doRenderOnly)
   { }
 
-#ifndef WT_CNOR
-  Impl(WebSession::Handler *aHandler, const boost::function<void ()>& aFunction)
+  Impl(WebSession::Handler *aHandler, const Function& aFunction)
     : handler(aHandler),
       function(aFunction),
       renderOnly(false)
   { }
-#endif
 
   Impl(const Impl& other)
     : handler(other.handler),
-#ifndef WT_CNOR
       function(other.function),
-#endif // WT_CNOR
       renderOnly(other.renderOnly)
   { }
 

@@ -146,7 +146,7 @@ void WebController::shutdown()
 
   for (unsigned i = 0; i < sessionList.size(); ++i) {
     boost::shared_ptr<WebSession> session = sessionList[i];
-    WebSession::Handler handler(session, true);
+    WebSession::Handler handler(session, WebSession::Handler::TakeLock);
     session->expire();
   }
 }
@@ -206,7 +206,7 @@ bool WebController::expireSessions()
     boost::shared_ptr<WebSession> session = toExpire[i];
 
     LOG_INFO_S(session, "timeout: expiring");
-    WebSession::Handler handler(session, true);
+    WebSession::Handler handler(session, WebSession::Handler::TakeLock);
     session->expire();
   }
 
@@ -478,34 +478,26 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
 
     SessionMap::iterator i = sessions_.find(event.sessionId);
 
-    if (i == sessions_.end() || i->second->dead())
-      return false;
-    else
+    if (i != sessions_.end() && !i->second->dead())
       session = i->second;
   }
 
+  if (!session) {
+    if (event.fallbackFunction)
+      event.fallbackFunction();
+    return false;
+  } else
+    session->queueEvent(event);
+
   /*
-   * Take session lock and propagate event to the application.
+   * Try to take the session lock now to propagate the event to the
+   * application.
    */
   {
-    WebSession::Handler handler(session, true);
-
-    if (!session->dead()) {
-      session->externalNotify(WEvent::Impl(&handler, event.function));
-
-      if (session->app() && session->app()->isQuited())
-	session->kill();
-
-      if (session->dead())
-	removeSession(event.sessionId);
-
-      return true;
-    } else {
-      if (!event.fallbackFunction.empty())
-        event.fallbackFunction();
-      return false;
-    }
+    WebSession::Handler handler(session, WebSession::Handler::TryLock);
   }
+
+  return true;
 }
 
 void WebController::addUploadProgressUrl(const std::string& url)

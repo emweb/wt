@@ -11,6 +11,7 @@
 #include <Wt/Chart/WChartGlobal>
 #include <Wt/WColor>
 #include <Wt/WFont>
+#include <Wt/WObject>
 #include <Wt/WRectF>
 #include <limits>
 
@@ -29,23 +30,24 @@ namespace Wt {
  *
  * \ingroup charts
  */
-class WT_API WAbstractColorMap {
+class WT_API WAbstractColorMap : public WObject {
 public:
   /*! \brief Constructor
-   * 
-   * Constructor taking a minimum and maximum value, determining the active 
-   * range of the colormap. The default value for tickSpacing is 2 and the 
+   *
+   * Constructor taking a minimum and maximum value, determining the active
+   * range of the colormap. The default value for tickSpacing is 2 and the
    * default label format is 2 decimal points.
    */
   WAbstractColorMap(double min,
-		    double max)
-    : min_(min), max_(max), tickSpacing_(2)
+		    double max,
+		    WObject *parent = 0)
+    : WObject(parent), min_(min), max_(max), tickSpacing_(2)
 #ifndef WT_TARGET_JAVA
     , format_("%.2f")
 #else
     , format_("0.00")
 #endif
-  {}
+  { }
 
   virtual ~WAbstractColorMap() {}
 
@@ -93,7 +95,7 @@ public:
    * \sa paintLegend()
    */
   void setTickSpacing(int spacing) { tickSpacing_ = spacing; }
-  
+
   /*! \brief Returns the tickspacing for the legend.
    *
    * \sa setTickSpacing()
@@ -102,7 +104,7 @@ public:
 
   /*! \brief Sets the format for the labels on the colormap-legend.
    *
-   * The format string is interpreted by snprintf(). The default is a float 
+   * The format string is interpreted by snprintf(). The default is a float
    * with two decimal places.
    *
    * \sa paintLegend()
@@ -131,7 +133,7 @@ public:
 
 protected:
   double min_, max_;
-  
+
   int tickSpacing_;
   WString format_;
   WFont labelFont_;

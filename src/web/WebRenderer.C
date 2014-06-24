@@ -1138,7 +1138,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
   LOG_DEBUG("js: " << collectedJS1_.str());
 
   out << collectedJS1_.str();
-  collectedJS1_.clear();  
+  collectedJS1_.clear();
 
   updateLoadIndicator(out, app, true);
 

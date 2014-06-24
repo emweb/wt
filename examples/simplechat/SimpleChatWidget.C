@@ -41,7 +41,6 @@ SimpleChatWidget::~SimpleChatWidget()
 {
   delete messageReceived_;
   logout();
-  disconnect();
 }
 
 void SimpleChatWidget::connect()
@@ -59,8 +58,6 @@ void SimpleChatWidget::disconnect()
 
 void SimpleChatWidget::letLogin()
 {
-  disconnect();
-
   clear();
 
   WVBoxLayout *vLayout = new WVBoxLayout();
@@ -102,6 +99,7 @@ void SimpleChatWidget::logout()
   if (loggedIn()) {
     loggedIn_ = false;
     server_.logout(user_);
+    disconnect();
 
     letLogin();
   }
@@ -358,15 +356,21 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
     updateUsers();
   }
 
+  /*
+   * This is the server call: we (schedule to) propagate the updated UI to
+   * the client.
+   *
+   * This schedules an update and returns immediately
+   */
+  app->triggerUpdate();
+
   newMessage();
 
   /*
    * Anything else doesn't matter if we are not logged in.
    */
-  if (!loggedIn()) {
-    app->triggerUpdate();
+  if (!loggedIn())
     return;
-  }
 
   bool display = event.type() != ChatEvent::Message
     || !userList_
@@ -402,10 +406,4 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
     if (event.user() != user_ && messageReceived_)
       messageReceived_->play();
   }
-
-  /*
-   * This is the server push action: we propagate the updated UI to the client,
-   * (when the event was triggered by another user)
-   */
-  app->triggerUpdate();
 }

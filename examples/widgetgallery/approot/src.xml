@@ -383,7 +383,8 @@
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">CategoryChart</span><span class="p">);</span>
 
 <span class="c1">// disable server-side rendering fallback; our VPSes don&#39;t have that</span>
-<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setRenderOptions</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WGLWidget</span><span class="o">::</span><span class="n">ClientSideRendering</span><span class="p">);</span>
+<span class="c1">// TODO(ROEL): CNOR doesn&#39;t like |?</span>
+<span class="c1">// chart-&gt;setRenderOptions(Wt::WGLWidget::ClientSideRendering | Wt::WGLWidget::AntiAliasing);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WCssDecorationStyle</span> <span class="n">style</span><span class="p">;</span>
 <span class="n">style</span><span class="p">.</span><span class="n">setBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="o">::</span><span class="n">Solid</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="o">::</span><span class="n">Medium</span><span class="p">,</span>
@@ -721,6 +722,20 @@
   <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="n">yStart_</span> <span class="o">+</span> <span class="n">index</span><span class="p">.</span><span class="n">column</span><span class="p">()</span> <span class="o">*</span> <span class="n">delta_y</span><span class="p">;</span>
 
   <span class="k">return</span> <span class="mf">0.2</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.2</span><span class="o">*</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">HorizontalPlaneData</span><span class="o">::</span><span class="n">HorizontalPlaneData</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">nbXpts</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">nbYpts</span><span class="p">,</span> <span class="n">WObject</span> <span class="o">*</span><span class="n">parent</span><span class="p">)</span>
+  <span class="o">:</span> <span class="n">WStandardItemModel</span><span class="p">(</span><span class="n">nbXpts</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">nbYpts</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span>
+    <span class="n">xStart_</span><span class="p">(</span><span class="o">-</span><span class="mf">10.0</span><span class="p">),</span> <span class="n">xEnd_</span><span class="p">(</span><span class="mf">10.0</span><span class="p">),</span> <span class="n">yStart_</span><span class="p">(</span><span class="o">-</span><span class="mf">10.0</span><span class="p">),</span> <span class="n">yEnd_</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="p">{}</span>
+
+<span class="n">boost</span><span class="o">::</span><span class="n">any</span> <span class="n">HorizontalPlaneData</span><span class="o">::</span><span class="n">data</span><span class="p">(</span><span class="k">const</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WModelIndex</span><span class="o">&amp;</span> <span class="n">index</span><span class="p">,</span> <span class="kt">int</span> <span class="n">role</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">role</span> <span class="o">!=</span> <span class="n">DisplayRole</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">WStandardItemModel</span><span class="o">::</span><span class="n">data</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">role</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="mf">0.0</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="n">SpiralData</span><span class="o">::</span><span class="n">SpiralData</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">nbPts</span><span class="p">,</span> <span class="n">WObject</span> <span class="o">*</span><span class="n">parent</span><span class="p">)</span>
@@ -2497,6 +2512,7 @@
   <message id="src-NumericalCharts3D">
 <div class="highlight"><pre><span class="cp">#include &quot;DataModels.h&quot;</span>
 
+<span class="cp">#include &lt;Wt/WApplication&gt;</span>
 <span class="cp">#include &lt;Wt/WCssDecorationStyle&gt;</span>
 <span class="cp">#include &lt;Wt/WBorder&gt;</span>
 <span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
@@ -2516,7 +2532,8 @@
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">ScatterPlot</span><span class="p">);</span>
 
 <span class="c1">// disable server-side rendering fallback; our VPSes don&#39;t have that</span>
-<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setRenderOptions</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WGLWidget</span><span class="o">::</span><span class="n">ClientSideRendering</span><span class="p">);</span>
+<span class="c1">// TODO(ROEL): CNOR doesn&#39;t like |? Even with using statement...</span>
+<span class="c1">// chart-&gt;setRenderOptions(Wt::WGLWidget::ClientSideRendering | Wt::WGLWidget::AntiAliasing);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WCssDecorationStyle</span> <span class="n">style</span><span class="p">;</span>
 <span class="n">style</span><span class="p">.</span><span class="n">setBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="o">::</span><span class="n">Solid</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WBorder</span><span class="o">::</span><span class="n">Medium</span><span class="p">,</span>
@@ -2534,6 +2551,9 @@
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis_3D</span><span class="p">).</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;X&quot;</span><span class="p">);</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">YAxis_3D</span><span class="p">).</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;Y&quot;</span><span class="p">);</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">ZAxis_3D</span><span class="p">).</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;Z&quot;</span><span class="p">);</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setIntersectionLinesEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setIntersectionLinesColor</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">));</span>
 
 <span class="c1">// make first dataset (WGridData)</span>
 <span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span> <span class="o">*</span><span class="n">model1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SombreroData</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
@@ -2573,10 +2593,18 @@
 <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WScatterData</span> <span class="o">*</span><span class="n">dataset3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WScatterData</span><span class="p">(</span><span class="n">model3</span><span class="p">);</span>
 <span class="n">dataset3</span><span class="o">-&gt;</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
 
+<span class="c1">// make fourth dataset (WEquidistantGridData, intersecting with dataset1)</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span> <span class="o">*</span><span class="n">model4</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HorizontalPlaneData</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WEquidistantGridData</span> <span class="o">*</span><span class="n">dataset4</span> <span class="o">=</span>
+  <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WEquidistantGridData</span><span class="p">(</span><span class="n">model4</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mf">1.0f</span><span class="p">);</span>
+<span class="n">dataset4</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">SurfaceSeries3D</span><span class="p">);</span>
+<span class="n">dataset4</span><span class="o">-&gt;</span><span class="n">setSurfaceMeshEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+
 <span class="c1">// add the data to the chart</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">dataset1</span><span class="p">);</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">dataset2</span><span class="p">);</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">dataset3</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addDataSeries</span><span class="p">(</span><span class="n">dataset4</span><span class="p">);</span>
 
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setAlternativeContent</span>
     <span class="p">(</span><span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;pics/numericalChartScreenshot.png&quot;</span><span class="p">)));</span>

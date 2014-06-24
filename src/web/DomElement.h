@@ -508,6 +508,7 @@ private:
   };
 
   typedef std::map<std::string, std::string> AttributeMap;
+  typedef std::set<std::string> AttributeSet;
   typedef std::map<const char *, EventHandler> EventHandlerMap;
 
   bool canWriteInnerHTML(WApplication *app) const;
@@ -548,6 +549,7 @@ private:
   mutable bool declared_;
 
   AttributeMap    attributes_;
+  AttributeSet    removedAttributes_;
   PropertyMap     properties_;
   EventHandlerMap eventHandlers_;
 

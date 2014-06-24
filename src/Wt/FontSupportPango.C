@@ -32,10 +32,6 @@ bool isEpsilonMore(double x, double limit) {
   return x - EPSILON > limit;
 }
 
-bool isEpsilonLess(double x, double limit) {
-  return x + EPSILON < limit;
-}
-
 double pangoUnitsToDouble(const int u) 
 {
   return ((double)u) / PANGO_SCALE;

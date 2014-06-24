@@ -125,6 +125,7 @@ WAxis::WAxis()
     scale_(LinearScale),
     resolution_(0.0),
     labelInterval_(0),
+    labelBasePoint_(0),
     defaultLabelFormat_(true),
     gridLines_(false),
     gridLinesPen_(gray),
@@ -287,6 +288,11 @@ void WAxis::setLabelInterval(double labelInterval)
   set(labelInterval_, labelInterval);
 }
 
+void WAxis::setLabelBasePoint(double labelBasePoint)
+{
+  set(labelBasePoint_, labelBasePoint);
+}
+
 void WAxis::setLabelFormat(const WString& format)
 {
   set(labelFormat_, format);
@@ -433,9 +439,18 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 
       if (scale_ == LinearScale) {
 	if (it == 0) {
-	  if (roundLimits_ & MinimumValue)
+	  if (roundLimits_ & MinimumValue) {
 	    s.renderMinimum
 	      = roundDown125(s.renderMinimum, renderInterval_);
+
+	    if (s.renderMinimum <= labelBasePoint_ &&
+		s.renderMaximum >= labelBasePoint_) {
+	      double interv = labelBasePoint_ - s.renderMinimum;
+	      interv = renderInterval_ * 2
+		* std::ceil(interv / (renderInterval_ * 2));
+	      s.renderMinimum = labelBasePoint_ - interv;
+	    }
+	  }
 	  
 	  if (roundLimits_ & MaximumValue)
 	    s.renderMaximum

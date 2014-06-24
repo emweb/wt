@@ -348,7 +348,7 @@ public:
    *
    * \sa setTemplateText()
    */
-  const WString& templateText() const { return text_; }
+  virtual WString templateText() const { return text_; }
 
   /*! \brief Sets the template text.
    *

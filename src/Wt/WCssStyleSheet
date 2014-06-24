@@ -44,7 +44,7 @@ public:
 
   /*! \brief Returns the selector.
    */
-  const std::string& selector() const { return selector_; }
+  virtual std::string selector() const { return selector_; }
 
   /*! \brief Returns the style sheet to which this rule belongs.
    */
@@ -58,7 +58,7 @@ public:
    *
    * This is a semi-colon separated list of CSS declarations.
    */
-  virtual const std::string declarations() = 0;
+  virtual std::string declarations() = 0;
 
   virtual bool updateDomElement(DomElement& cssRuleElement, bool all);
 
@@ -129,7 +129,7 @@ public:
    */
   WWidget *templateWidget();
 
-  const std::string declarations();
+  std::string declarations();
 
   bool updateDomElement(DomElement& cssRuleElement, bool all);
 
@@ -161,7 +161,7 @@ public:
 	       const WT_USTRING& declarations,
 	       WObject* parent = 0);
 
-  const std::string declarations();
+  std::string declarations();
 
 private:
   WT_USTRING declarations_;

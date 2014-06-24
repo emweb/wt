@@ -258,6 +258,9 @@ public:
   void uniform1fv(const WGLWidget::UniformLocation &location,
 		  const WT_ARRAY float *value);
 
+  void uniform1fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
+
   void uniform1i(const WGLWidget::UniformLocation &location, int x);
 
   void uniform1iv(const WGLWidget::UniformLocation &location, 
@@ -267,6 +270,9 @@ public:
 
   void uniform2fv(const WGLWidget::UniformLocation &location, 
 		  const WT_ARRAY float *value);
+
+  void uniform2fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
 
   void uniform2i(const WGLWidget::UniformLocation &location, int x, int y);
 
@@ -279,6 +285,9 @@ public:
   void uniform3fv(const WGLWidget::UniformLocation &location, 
 		  const WT_ARRAY float *value);
 
+  void uniform3fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
+
   void uniform3i(const WGLWidget::UniformLocation &location, int x, int y, int z);
 
   void uniform3iv(const WGLWidget::UniformLocation &location, 
@@ -289,6 +298,9 @@ public:
 
   void uniform4fv(const WGLWidget::UniformLocation &location, 
 		  const WT_ARRAY float *value);
+
+  void uniform4fv(const WGLWidget::UniformLocation &location,
+		  const WGLWidget::JavaScriptVector &v);
 
   void uniform4i(const WGLWidget::UniformLocation &location, int x, int y, 
 		 int z, int w);
@@ -342,10 +354,17 @@ public:
 
   void clearBinaryResources();
 
-  WGLWidget::JavaScriptMatrix4x4 createJavaScriptMatrix4();
+  void initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm);
 
   void setJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm,
 			    const WGenericMatrix<double, 4, 4> &m);
+
+  void initJavaScriptVector(WGLWidget::JavaScriptVector &jsv);
+
+  void setJavaScriptVector(WGLWidget::JavaScriptVector &jsv,
+			   const std::vector<float> &v);
+
+  void setClientSideMouseHandler(const std::string& handlerCode);
 
   void setClientSideLookAtHandler(const WGLWidget::JavaScriptMatrix4x4 &m,
 				  double centerX, double centerY, double centerZ,
@@ -359,6 +378,8 @@ public:
 
   std::string glObjJsRef(const std::string& jsRef);
 
+  void restoreContext(const std::string &jsRef) {}
+
   void render(const std::string& jsRef, WFlags<RenderFlag> flags);
 
 private:
@@ -367,11 +388,6 @@ private:
   WMemoryResource *memres_;
 
   std::stringstream js_;
-  unsigned int jsMatrices_;
-
-#ifdef WT_WGLWIDGET_DEBUG
-  static bool debugging_;
-#endif
 
 };
 

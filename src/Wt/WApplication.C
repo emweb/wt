@@ -1345,7 +1345,8 @@ public:
     : handler_(0)
   {
 #ifdef WT_THREADED
-    handler_ = new WebSession::Handler(app->weakSession_.lock(), true);
+    handler_ = new WebSession::Handler(app->weakSession_.lock(),
+				       WebSession::Handler::TakeLock);
 #endif // WT_THREADED
   }
 
@@ -1407,7 +1408,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
   if (handler && handler->haveLock() && handler->session() == app->session_)
     return;
 
-  new WebSession::Handler(app->session_, true);
+  new WebSession::Handler(app->session_, WebSession::Handler::TakeLock);
 
   createdHandler_ = true;
 }

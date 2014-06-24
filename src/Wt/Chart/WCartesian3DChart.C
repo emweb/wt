@@ -8,6 +8,7 @@
 
 #include "Wt/Chart/WChart3DImplementation"
 #include "Wt/Chart/WAbstractColorMap"
+#include "Wt/Chart/WAbstractGridData"
 #include "Wt/WCanvasPaintDevice"
 #include "Wt/WException"
 #include "Wt/WFont"
@@ -19,6 +20,8 @@
 #include "Wt/WPen"
 #include "Wt/WRasterImage"
 #include "Wt/WRectF"
+#include "Wt/WVector3"
+#include "Wt/WVector4"
 #include "Wt/Chart/WStandardPalette"
 #include "WebUtils.h"
 
@@ -59,10 +62,11 @@ WCartesian3DChart::WCartesian3DChart(WContainerWidget* parent)
     currentBottomOffset_(0),
     currentLeftOffset_(0),
     currentRightOffset_(0),
-    updates_(0)
+    updates_(0),
+    intersectionLinesEnabled_(false)
 {
-  XYGridEnabled_[0] = false; XYGridEnabled_[1] = false; 
-  XZGridEnabled_[0] = false; XZGridEnabled_[1] = false; 
+  XYGridEnabled_[0] = false; XYGridEnabled_[1] = false;
+  XZGridEnabled_[0] = false; XZGridEnabled_[1] = false;
   YZGridEnabled_[0] = false; YZGridEnabled_[1] = false;
 
   WPen pen; pen.setWidth(WLength(1.0));
@@ -75,6 +79,8 @@ WCartesian3DChart::WCartesian3DChart(WContainerWidget* parent)
 
   titleFont_.setFamily(WFont::SansSerif);
   titleFont_.setSize(WFont::FixedSize, WLength(15, WLength::Point));
+
+  addJavaScriptMatrix4(jsMatrix_);
 }
 
 WCartesian3DChart::WCartesian3DChart(ChartType type, WContainerWidget *parent)
@@ -91,10 +97,11 @@ WCartesian3DChart::WCartesian3DChart(ChartType type, WContainerWidget *parent)
     currentTopOffset_(0),
     currentBottomOffset_(0),
     currentLeftOffset_(0),
-    currentRightOffset_(0)
+    currentRightOffset_(0),
+    intersectionLinesEnabled_(false)
 {
-  XYGridEnabled_[0] = false; XYGridEnabled_[1] = false; 
-  XZGridEnabled_[0] = false; XZGridEnabled_[1] = false; 
+  XYGridEnabled_[0] = false; XYGridEnabled_[1] = false;
+  XZGridEnabled_[0] = false; XZGridEnabled_[1] = false;
   YZGridEnabled_[0] = false; YZGridEnabled_[1] = false;
 
   XAxis_.init(interface_, XAxis_3D);
@@ -103,6 +110,8 @@ WCartesian3DChart::WCartesian3DChart(ChartType type, WContainerWidget *parent)
 
   titleFont_.setFamily(WFont::SansSerif);
   titleFont_.setSize(WFont::FixedSize, WLength(15, WLength::Point));
+
+  addJavaScriptMatrix4(jsMatrix_);
 }
 
 WCartesian3DChart::~WCartesian3DChart()
@@ -183,8 +192,31 @@ void WCartesian3DChart::setGridEnabled(Plane plane, Axis axis, bool enabled)
 void WCartesian3DChart::setGridLinesPen(const WPen &pen)
 {
   gridLinesPen_ = pen;
-  
+
   updateChart(GLContext);
+}
+
+void WCartesian3DChart::setIntersectionLinesEnabled(bool enabled)
+{
+  intersectionLinesEnabled_ = enabled;
+  updateChart(GLContext);
+}
+
+void WCartesian3DChart::setIntersectionLinesColor(WColor color)
+{
+  intersectionLinesColor_ = color;
+  repaintGL(PAINT_GL);
+}
+
+void WCartesian3DChart::setIntersectionPlanes(const std::vector<WCartesian3DChart::IntersectionPlane> &intersectionPlanes)
+{
+  intersectionPlanes_ = intersectionPlanes;
+  updateChart(GLContext);
+}
+
+const std::vector<WCartesian3DChart::IntersectionPlane> &WCartesian3DChart::intersectionPlanes() const
+{
+  return intersectionPlanes_;
 }
 
 void WCartesian3DChart::setTitle(const WString &title)
@@ -210,7 +242,7 @@ void WCartesian3DChart::setPalette(WChartPalette * palette)
 {
   if (palette == chartPalette_ || palette == 0)
     return;
-  
+
   delete chartPalette_;
   chartPalette_ = palette;
 
@@ -220,7 +252,7 @@ void WCartesian3DChart::setPalette(WChartPalette * palette)
 void WCartesian3DChart::setType(ChartType type)
 {
   chartType_ = type;
-  
+
   XAxis_.init(interface_, XAxis_3D);
   YAxis_.init(interface_, YAxis_3D);
   ZAxis_.init(interface_, ZAxis_3D);
@@ -248,7 +280,8 @@ void WCartesian3DChart::setLegendStyle(const WFont &font, const WPen &border,
 void WCartesian3DChart::setLegendColumns(int columns,
 					 const WLength &columnWidth)
 {
-  legend_.setLegendColumns(columns, columnWidth);
+  legend_.setLegendColumns(columns);
+  legend_.setLegendColumnWidth(columnWidth);
   updateChart(GLTextures);
 }
 
@@ -256,7 +289,7 @@ void WCartesian3DChart::initLayout()
 {
   textureScaling_ = 1;
   int widgetWidth = (int)(width().value());
-  while ( widgetWidth < 1024 ) {
+  while ( widgetWidth > 0 && widgetWidth < 1024 ) {
     textureScaling_ *= 2;
     widgetWidth *= 2;
   }
@@ -281,6 +314,44 @@ void WCartesian3DChart::setCameraMatrix(const WMatrix4x4& matrix)
   updateChart(CameraMatrix);
 }
 
+void WCartesian3DChart::createRay(double x, double y, WVector3 &eye, WVector3 &direction) const {
+  WMatrix4x4 transform = pMatrix_ * cameraMatrix();
+  WMatrix4x4 invTransform = transform;
+#ifndef WT_TARGET_JAVA
+  invTransform =
+#endif
+    invTransform.inverted();
+  WVector4 near(
+      x / width().value() * 2 - 1,
+      y / height().value() * (-2) + 1,
+      -1.0,
+      1.0
+    );
+   WVector4 far(
+      near.x(),
+      near.y(),
+      1.0,
+      1.0
+    );
+  near = invTransform * near;
+  far =  invTransform * far;
+  near = near / near.w();
+  far = far / far.w();
+  WVector4 ray = far - near;
+  ray.normalize();
+#ifndef WT_TARGET_JAVA
+  direction = WVector3(ray.x(), ray.z(), ray.y());
+  eye = WVector3(near.x(), near.z(), near.y());
+#else
+  direction.setElement(0, ray.x());
+  direction.setElement(1, ray.z());
+  direction.setElement(2, ray.y());
+  eye.setElement(0, near.x());
+  eye.setElement(1, near.z());
+  eye.setElement(2, near.y());
+#endif
+}
+
 void WCartesian3DChart::initializeGL()
 {
   // code for client-side interaction (rotation through mouse movement)
@@ -289,7 +360,7 @@ void WCartesian3DChart::initializeGL()
 			  0.5, 0.5, 5, // camera position
 			  0.5, 0.5, 0.5,      // looking at
 			  0, 1, 0);        // 'up' vector
-    
+
     // set up a angle-view at the scene
     worldTransform_.translate(0.5, 0.5, 0.5);
     worldTransform_.rotate(45.0, 0.0, 1.0, 0.0);
@@ -297,14 +368,16 @@ void WCartesian3DChart::initializeGL()
     worldTransform_.rotate(5.0, 0.0, 1.0, 0.0);
     worldTransform_.scale(1.8);
     worldTransform_.translate(-0.5, -0.5, -0.5);
-  }
 
-  jsMatrix_ = createJavaScriptMatrix4();
-    
-  setClientSideLookAtHandler(jsMatrix_, // the name of the JS matrix
-      0.5, 0.5, 0.5,                       // the center point
-      0, 1, 0,                          // the up direction
-      0.005, 0.005);                    // 'speed' factors
+    initJavaScriptMatrix4(jsMatrix_);
+
+    setClientSideLookAtHandler(jsMatrix_, // the name of the JS matrix
+	0.5, 0.5, 0.5,                       // the center point
+	0, 1, 0,                          // the up direction
+	0.005, 0.005);                    // 'speed' factors
+
+    isViewSet_ = true;
+  }
 
   // perspective matrix
   // pMatrix_.perspective(45.0, 1.0, 0.1, 100);
@@ -315,13 +388,15 @@ void WCartesian3DChart::initializeGL()
   cullFace(BACK);
   enable(CULL_FACE);
 
-  viewport(0, 0, (int)width().value(), (int)height().value());
+  int w = (int)width().value();
+  int h = (int)height().value();
+  viewport(0, 0, w < 0 ? 0 : w, h < 0 ? 0 : h);
 
-  
+
   // Do some things related to the textures that overlay the entire scene
   // (eg. title, legend, colormaps ...)
   init2DShaders();
-  
+
   // vertex data
   const float vertexPos[12] = {
     -1, 1, 0,
@@ -363,11 +438,28 @@ void WCartesian3DChart::initializeGL()
   }
   bufferDatafv(ARRAY_BUFFER, texCoBuf, STATIC_DRAW);
 
+  clippingPlaneVertBuffer_ = createBuffer();
+  bindBuffer(ARRAY_BUFFER, clippingPlaneVertBuffer_);
+  FloatBuffer clippingPlaneBuf = Utils::createFloatBuffer(8);
+  clippingPlaneBuf.push_back(-1.0f);
+  clippingPlaneBuf.push_back(-1.0f);
+  clippingPlaneBuf.push_back(-1.0f);
+  clippingPlaneBuf.push_back(2.0f);
+  clippingPlaneBuf.push_back(2.0f);
+  clippingPlaneBuf.push_back(-1.0f);
+  clippingPlaneBuf.push_back(2.0f);
+  clippingPlaneBuf.push_back(2.0f);
+  bufferDatafv(ARRAY_BUFFER, clippingPlaneBuf, STATIC_DRAW);
+
   for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
     dataSeriesVector_[i]->initializeGL();
   }
 
-  updateChart(GLContext | GLTextures | CameraMatrix);
+  if (restoringContext()) {
+    updateChart(GLContext | GLTextures);
+  } else {
+    updateChart(GLContext | GLTextures | CameraMatrix);
+  }
 }
 
 void WCartesian3DChart::initializePlotCube()
@@ -496,7 +588,7 @@ void WCartesian3DChart::initializePlotCube()
     axisOutOfPlaneNormal_.push_back(axisOutOfPlaneNormal[i]);
   }
   bufferDatafv(ARRAY_BUFFER, axisOutOfPlaneNormal_, STATIC_DRAW);
-  
+
   // vertical axis flaps
   axisVertBuffer_ = createBuffer(); // vertices
   bindBuffer(ARRAY_BUFFER, axisVertBuffer_);
@@ -596,19 +688,19 @@ void WCartesian3DChart::initializePlotCube()
   // get attributes and uniform variables from shaders
   cube_vertexPositionAttribute_ =
     getAttribLocation(cubeProgram_, "aVertexPosition");
-  cube_planeNormalAttribute_ = 
+  cube_planeNormalAttribute_ =
     getAttribLocation(cubeProgram_, "aPlaneNormal");
-  cube_textureCoordAttribute_ = 
+  cube_textureCoordAttribute_ =
     getAttribLocation(cubeProgram_, "aTextureCo");
 
-  cubeLine_vertexPositionAttribute_ = 
+  cubeLine_vertexPositionAttribute_ =
     getAttribLocation(cubeLineProgram_, "aVertexPosition");
-  cubeLine_normalAttribute_ = 
+  cubeLine_normalAttribute_ =
     getAttribLocation(cubeLineProgram_, "aNormal");
 
   axis_vertexPositionAttribute_ =
     getAttribLocation(axisProgram_, "aVertexPosition");
-  axis_textureCoordAttribute_ = 
+  axis_textureCoordAttribute_ =
     getAttribLocation(axisProgram_, "aTextureCo");
   axis_inPlaneAttribute_ =
     getAttribLocation(axisProgram_, "aInPlane");
@@ -688,6 +780,72 @@ void WCartesian3DChart::initializePlotCube()
   uniformMatrix4(cubeLine_pMatrixUniform_, pMatrix_);
   useProgram(axisProgram_);
   uniformMatrix4(axis_pMatrixUniform_, pMatrix_);
+}
+
+void WCartesian3DChart::initializeIntersectionLinesProgram()
+{
+  intersectionLinesFragmentShader_ = createShader(FRAGMENT_SHADER);
+  shaderSource(intersectionLinesFragmentShader_, intersectionLinesFragmentShaderSrc);
+  compileShader(intersectionLinesFragmentShader_);
+
+  intersectionLinesProgram_ = createProgram();
+  attachShader(intersectionLinesProgram_, vertexShader2D_);
+  attachShader(intersectionLinesProgram_, intersectionLinesFragmentShader_);
+  linkProgram(intersectionLinesProgram_);
+
+  useProgram(intersectionLinesProgram_);
+  intersectionLines_vertexPositionAttribute_ =
+    getAttribLocation(intersectionLinesProgram_, "aVertexPosition");
+  intersectionLines_vertexTextureCoAttribute_ =
+    getAttribLocation(intersectionLinesProgram_, "aTextureCo");
+  intersectionLines_viewportWidthUniform_ =
+    getUniformLocation(intersectionLinesProgram_, "uVPwidth");
+  intersectionLines_viewportHeightUniform_ =
+    getUniformLocation(intersectionLinesProgram_, "uVPheight");
+  intersectionLines_cameraUniform_ =
+    getUniformLocation(intersectionLinesProgram_, "uCamera");
+  intersectionLines_colorUniform_ =
+    getUniformLocation(intersectionLinesProgram_, "uColor");
+  intersectionLines_positionSamplerUniform_ =
+    getUniformLocation(intersectionLinesProgram_, "uPositionSampler");
+  intersectionLines_meshIndexSamplerUniform_ =
+    getUniformLocation(intersectionLinesProgram_, "uMeshIndexSampler");
+}
+
+void WCartesian3DChart::initializeClippingPlaneProgram()
+{
+  clippingPlaneFragShader_ = createShader(FRAGMENT_SHADER);
+  shaderSource(clippingPlaneFragShader_, clippingPlaneFragShaderSrc);
+  compileShader(clippingPlaneFragShader_);
+
+  clippingPlaneVertexShader_ = createShader(VERTEX_SHADER);
+  shaderSource(clippingPlaneVertexShader_, clippingPlaneVertexShaderSrc);
+  compileShader(clippingPlaneVertexShader_);
+
+  clippingPlaneProgram_ = createProgram();
+  attachShader(clippingPlaneProgram_, clippingPlaneVertexShader_);
+  attachShader(clippingPlaneProgram_, clippingPlaneFragShader_);
+  linkProgram(clippingPlaneProgram_);
+
+  useProgram(clippingPlaneProgram_);
+  clippingPlane_vertexPositionAttribute_ =
+    getAttribLocation(clippingPlaneProgram_, "aVertexPosition");
+  clippingPlane_mvMatrixUniform_ =
+    getUniformLocation(clippingPlaneProgram_, "uMVMatrix");
+  clippingPlane_pMatrixUniform_ =
+    getUniformLocation(clippingPlaneProgram_, "uPMatrix");
+  clippingPlane_cMatrixUniform_ =
+    getUniformLocation(clippingPlaneProgram_, "uCMatrix");
+  clippingPlane_clipPtUniform_ =
+    getUniformLocation(clippingPlaneProgram_, "uClipPt");
+  clippingPlane_dataMinPtUniform_ =
+    getUniformLocation(clippingPlaneProgram_, "uDataMinPt");
+  clippingPlane_dataMaxPtUniform_ =
+    getUniformLocation(clippingPlaneProgram_, "uDataMaxPt");
+  clippingPlane_clippingAxis_ =
+    getUniformLocation(clippingPlaneProgram_, "uClippingAxis");
+  clippingPlane_drawPositionUniform_ =
+    getUniformLocation(clippingPlaneProgram_, "uDrawPosition");
 }
 
 void WCartesian3DChart::loadCubeTextures()
@@ -796,7 +954,7 @@ void WCartesian3DChart::initTitle()
     return;
 
   float pixelHeight = (float)(titleFont_.sizeLength().toPixels() * 1.5);
-  
+
   // paint texture
   WPaintDevice* titlePaintDev = createPaintDevice(width(), height());
   WPainter painter(titlePaintDev);
@@ -805,7 +963,7 @@ void WCartesian3DChart::initTitle()
 		   AlignCenter | AlignMiddle,
 		   title_);
   painter.end();
-  
+
   titleTexture_ = createTexture();
   bindTexture(TEXTURE_2D, titleTexture_);
   pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
@@ -826,7 +984,7 @@ void WCartesian3DChart::initColorMaps()
   WPainter painter(colorMapPaintDev);
   painter.translate(0, currentTopOffset_);
   const int WIDTH = 100;
-  int space = (int)(height().value()) 
+  int space = (int)(height().value())
     - currentTopOffset_ - currentBottomOffset_;
   const int VERT_MARGIN = (int)(space * 0.1);
   const int LEFT_OFFSET = 4;
@@ -957,6 +1115,8 @@ void WCartesian3DChart::paintGL()
 {
   using Wt::operator|;
 
+  clearColor(background_.red()/255.0, background_.green()/255.0,
+	     background_.blue()/255.0, background_.alpha()/255.0);
   clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
   enable(BLEND);
   blendFunc(SRC_ALPHA,ONE_MINUS_SRC_ALPHA);
@@ -969,7 +1129,7 @@ void WCartesian3DChart::paintGL()
   //uniformMatrix4(cube_pMatrixUniform_, pMatrix_);
   uniformMatrix4(cube_mvMatrixUniform_, mvMatrix);
   uniformMatrix4(cube_cMatrixUniform_, jsMatrix_);
- 
+
   bindBuffer(ARRAY_BUFFER, cubeBuffer_);
   vertexAttribPointer(cube_vertexPositionAttribute_,
   		      3,
@@ -1018,10 +1178,10 @@ void WCartesian3DChart::paintGL()
   uniformMatrix4(cubeLine_mvMatrixUniform_, mvMatrix);
   uniformMatrix4(cubeLine_cMatrixUniform_, jsMatrix_);
 #ifndef WT_TARGET_JAVA
-  uniformMatrix4(cubeLine_nMatrixUniform_, 
+  uniformMatrix4(cubeLine_nMatrixUniform_,
   		 (jsMatrix_ * mvMatrix)); //.inverted().transposed()
 #else
-  uniformMatrix4(cubeLine_nMatrixUniform_, 
+  uniformMatrix4(cubeLine_nMatrixUniform_,
 		 jsMatrix_.multiply(mvMatrix));
 #endif
   uniform4f(cubeLine_colorUniform_,
@@ -1045,24 +1205,24 @@ void WCartesian3DChart::paintGL()
   		      0,
   		      0);
   enableVertexAttribArray(cubeLine_normalAttribute_);
-  lineWidth(cubeLinesPen_.width().value() == 0 ? 
-	    1.0 : 
+  lineWidth(cubeLinesPen_.width().value() == 0 ?
+	    1.0 :
 	    cubeLinesPen_.width().value());
   bindBuffer(ELEMENT_ARRAY_BUFFER, cubeLineIndicesBuffer_);
   drawElements(LINES, cubeLineIndices_.size(), UNSIGNED_SHORT, 0);
   disableVertexAttribArray(cubeLine_vertexPositionAttribute_);
   disableVertexAttribArray(cubeLine_normalAttribute_);
-  
+
   // Draw the axis-slabs
   useProgram(axisProgram_);
   //  uniformMatrix4(axis_pMatrixUniform_, pMatrix_);
   uniformMatrix4(axis_mvMatrixUniform_, mvMatrix);
   uniformMatrix4(axis_cMatrixUniform_, jsMatrix_);
 #ifndef WT_TARGET_JAVA
-  uniformMatrix4(axis_nMatrixUniform_, 
+  uniformMatrix4(axis_nMatrixUniform_,
 		 (jsMatrix_ * mvMatrix)); // .inverted().transposed()
 #else
-  uniformMatrix4(axis_nMatrixUniform_, 
+  uniformMatrix4(axis_nMatrixUniform_,
 		 jsMatrix_.multiply(mvMatrix));
 #endif
 
@@ -1184,17 +1344,81 @@ void WCartesian3DChart::paintGL()
   disableVertexAttribArray(axis_outOfPlaneNormalAttribute_);
 
   disable(BLEND);
+  // Paint all grid data with clipping lines
   for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
-    dataSeriesVector_[i]->paintGL();
+    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
+    if (gridData && gridData->type() == SurfaceSeries3D && gridData->clippingLinesEnabled()) {
+      gridData->paintGL();
+      renderClippingLines(gridData);
+      enable(BLEND);
+      disable(CULL_FACE);
+      disable(DEPTH_TEST);
+      depthMask(false);
+      if (!intersectionLinesTexture_.isNull())
+	paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_, intersectionLinesTexture_);
+      depthMask(true);
+      disable(BLEND);
+      enable(CULL_FACE);
+      enable(DEPTH_TEST);
+    }
+  }
+  // Paint all grid data without clipping lines
+  for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
+    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
+    if (gridData && gridData->type() == SurfaceSeries3D && !gridData->clippingLinesEnabled()) {
+      gridData->paintGL();
+    }
+  }
+  // Paint all other data, if intersection lines are not enabled
+  if (!intersectionLinesEnabled_ && intersectionPlanes_.empty()) {
+    for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
+      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
+      if (!(gridData && gridData->type() == SurfaceSeries3D)) {
+	dataSeriesVector_[i]->paintGL();
+      }
+    }
   }
 
-  // draw peripheral textures
+  if (intersectionLinesEnabled_ || !intersectionPlanes_.empty()) {
+    bindFramebuffer(FRAMEBUFFER, intersectionLinesFramebuffer_);
+    clearColor(0.0, 0.0, 0.0, 0.0);
+    clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+    bindFramebuffer(FRAMEBUFFER, Framebuffer());
+
+    if (intersectionLinesEnabled_)
+      renderIntersectionLines();
+    if (!intersectionPlanes_.empty())
+      renderIntersectionLinesWithInvisiblePlanes();
+
+    enable(BLEND);
+    disable(CULL_FACE);
+    disable(DEPTH_TEST);
+
+    depthMask(false);
+    if (!intersectionLinesTexture_.isNull())
+      paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_, intersectionLinesTexture_);
+    depthMask(true);
+
+    disable(BLEND);
+    enable(CULL_FACE);
+    enable(DEPTH_TEST);
+
+    // Paint all other data
+    for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
+      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
+      if (!gridData || gridData->type() != SurfaceSeries3D) {
+	dataSeriesVector_[i]->paintGL();
+      }
+    }
+  }
+
   enable(BLEND);
   disable(CULL_FACE);
-  
+
+  // draw peripheral textures
   if (!titleTexture_.isNull())
     paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_, titleTexture_);
-  
+
   if (!legendTexture_.isNull())
     paintPeripheralTexture(overlayPosBuffer_, overlayTexCoBuffer_,
 			   legendTexture_);
@@ -1242,10 +1466,27 @@ void WCartesian3DChart::updateGL()
     for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
       dataSeriesVector_[i]->deleteAllGLResources();
     }
-  
+
     clearColor(background_.red()/255.0, background_.green()/255.0,
 	       background_.blue()/255.0, background_.alpha()/255.0);
     initializePlotCube();
+    if (intersectionLinesEnabled_ || !intersectionPlanes_.empty()) {
+      initializeIntersectionLinesProgram();
+      initOffscreenBuffer();
+    }
+    for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
+      WAbstractGridData *data = dynamic_cast<WAbstractGridData *>(dataSeriesVector_[i]);
+      if (data) {
+	initializeClippingPlaneProgram();
+	// NOTE: the ! is not an error, if intersectionLinesEnabled_ is true,
+	//       the program was already initialized.
+	if (!intersectionLinesEnabled_ && intersectionPlanes_.empty()) {
+	  initializeIntersectionLinesProgram();
+	  initOffscreenBuffer();
+	}
+	break;
+      }
+    }
     for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
       dataSeriesVector_[i]->updateGL();
     }
@@ -1297,9 +1538,502 @@ void WCartesian3DChart::resizeGL(int width, int height)
   useProgram(axisProgram_);
   uniformMatrix4(axis_pMatrixUniform_, pMatrix_);
 
+  bool clippingLinesEnabled = false;
+  for (std::size_t i = 0; i < dataSeriesVector_.size(); i++) {
+    WAbstractGridData *data = dynamic_cast<WAbstractGridData *>(dataSeriesVector_[i]);
+    if (data && data->clippingLinesEnabled()) {
+      clippingLinesEnabled = true;
+      break;
+    }
+  }
+  if (intersectionLinesEnabled_ || clippingLinesEnabled || !intersectionPlanes_.empty())
+    resizeOffscreenBuffer();
+
   // + change the projection matrices for all dataseries
   for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
     dataSeriesVector_[i]->resizeGL();
+  }
+}
+
+void WCartesian3DChart::initOffscreenBuffer()
+{
+  offscreenDepthbuffer_ = createRenderbuffer();
+
+  intersectionLinesFramebuffer_ = createFramebuffer();
+  intersectionLinesTexture_ = createTexture();
+
+  bindTexture(TEXTURE_2D, intersectionLinesTexture_);
+  texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
+  texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
+  texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
+  texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
+
+  meshIndexFramebuffer_ = createFramebuffer();
+  meshIndexTexture_ = createTexture();
+
+  bindTexture(TEXTURE_2D, meshIndexTexture_);
+  texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
+  texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
+  texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
+  texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
+
+  positionFramebuffer_ = createFramebuffer();
+  positionTexture_ = createTexture();
+
+  bindTexture(TEXTURE_2D, positionTexture_);
+  texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
+  texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
+  texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
+  texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
+
+  resizeOffscreenBuffer();
+}
+
+void WCartesian3DChart::resizeOffscreenBuffer()
+{
+  int w = (int) width().value();
+  int h = (int) height().value();
+
+  bindTexture(TEXTURE_2D, intersectionLinesTexture_);
+  texImage2D(TEXTURE_2D, 0, RGBA, w, h, 0, RGBA);
+
+  bindTexture(TEXTURE_2D, meshIndexTexture_);
+  texImage2D(TEXTURE_2D, 0, RGB, w, h, 0, RGB);
+
+  bindTexture(TEXTURE_2D, positionTexture_);
+  texImage2D(TEXTURE_2D, 0, RGB, w, h, 0, RGB);
+
+  bindRenderbuffer(RENDERBUFFER, offscreenDepthbuffer_);
+  renderbufferStorage(RENDERBUFFER, DEPTH_COMPONENT16, w, h);
+
+  bindFramebuffer(FRAMEBUFFER, intersectionLinesFramebuffer_);
+  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, intersectionLinesTexture_, 0);
+  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, offscreenDepthbuffer_);
+
+  bindFramebuffer(FRAMEBUFFER, meshIndexFramebuffer_);
+  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, meshIndexTexture_, 0);
+  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, offscreenDepthbuffer_);
+
+  bindFramebuffer(FRAMEBUFFER, positionFramebuffer_);
+  framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, positionTexture_, 0);
+  framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, offscreenDepthbuffer_);
+
+  bindRenderbuffer(RENDERBUFFER, Renderbuffer());
+  bindFramebuffer(FRAMEBUFFER, Framebuffer());
+}
+
+void WCartesian3DChart::deleteOffscreenBuffer()
+{
+  if (!offscreenDepthbuffer_.isNull())
+    deleteRenderbuffer(offscreenDepthbuffer_); offscreenDepthbuffer_.clear();
+  if (!intersectionLinesFramebuffer_.isNull())
+    deleteFramebuffer(intersectionLinesFramebuffer_); intersectionLinesFramebuffer_.clear();
+  if (!positionFramebuffer_.isNull())
+    deleteFramebuffer(positionFramebuffer_); positionFramebuffer_.clear();
+  if (!meshIndexFramebuffer_.isNull())
+    deleteFramebuffer(meshIndexFramebuffer_); meshIndexFramebuffer_.clear();
+  if (!intersectionLinesTexture_.isNull())
+    deleteTexture(intersectionLinesTexture_); intersectionLinesTexture_.clear();
+  if (!meshIndexTexture_.isNull())
+    deleteTexture(meshIndexTexture_); meshIndexTexture_.clear();
+  if (!positionTexture_.isNull())
+    deleteTexture(positionTexture_); positionTexture_.clear();
+}
+
+void WCartesian3DChart::renderIntersectionLines()
+{
+  using Wt::operator|;
+
+  bindFramebuffer(FRAMEBUFFER, meshIndexFramebuffer_);
+
+  clearColor(1.0, 1.0, 1.0, 1.0);
+  clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+
+  for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
+    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
+    if (gridData && gridData->type() == SurfaceSeries3D) {
+      gridData->paintGLIndex(i);
+    }
+  }
+
+  bindFramebuffer(FRAMEBUFFER, positionFramebuffer_);
+
+  clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+
+  for (unsigned i = 0; i < dataSeriesVector_.size(); i++) {
+    WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[i]);
+    if (gridData && gridData->type() == SurfaceSeries3D) {
+      gridData->paintGLPositions();
+    }
+  }
+
+  bindFramebuffer(FRAMEBUFFER, intersectionLinesFramebuffer_);
+
+  disable(CULL_FACE);
+  disable(DEPTH_TEST);
+  enable(BLEND);
+
+  useProgram(intersectionLinesProgram_);
+  bindBuffer(ARRAY_BUFFER, overlayPosBuffer_);
+  vertexAttribPointer(intersectionLines_vertexPositionAttribute_,
+  		      3,
+  		      FLOAT,
+  		      false,
+  		      0,
+  		      0);
+  enableVertexAttribArray(intersectionLines_vertexPositionAttribute_);
+  bindBuffer(ARRAY_BUFFER, overlayTexCoBuffer_);
+  vertexAttribPointer(intersectionLines_vertexTextureCoAttribute_,
+  		      2,
+  		      FLOAT,
+  		      false,
+  		      0,
+  		      0);
+  enableVertexAttribArray(intersectionLines_vertexTextureCoAttribute_);
+
+  uniformMatrix4(intersectionLines_cameraUniform_, jsMatrix_);
+  uniform1f(intersectionLines_viewportWidthUniform_, width().value());
+  uniform1f(intersectionLines_viewportHeightUniform_, height().value());
+  uniform4f(intersectionLines_colorUniform_,
+      intersectionLinesColor_.red() / 255.0,
+      intersectionLinesColor_.green() / 255.0,
+      intersectionLinesColor_.blue() / 255.0,
+      intersectionLinesColor_.alpha() / 255.0);
+
+  activeTexture(TEXTURE0);
+  bindTexture(TEXTURE_2D, positionTexture_);
+  uniform1i(intersectionLines_positionSamplerUniform_, 0);
+  activeTexture(TEXTURE1);
+  bindTexture(TEXTURE_2D, meshIndexTexture_);
+  uniform1i(intersectionLines_meshIndexSamplerUniform_, 1);
+  drawArrays(TRIANGLE_STRIP, 0, 4);
+  disableVertexAttribArray(intersectionLines_vertexPositionAttribute_);
+  disableVertexAttribArray(intersectionLines_vertexTextureCoAttribute_);
+
+  bindFramebuffer(FRAMEBUFFER, Framebuffer());
+
+  enable(CULL_FACE);
+  enable(DEPTH_TEST);
+  disable(BLEND);
+}
+
+void WCartesian3DChart::renderIntersectionLinesWithInvisiblePlanes()
+{
+  using Wt::operator|;
+
+  for (std::size_t i = 0; i < intersectionPlanes_.size(); ++i) {
+    bindFramebuffer(FRAMEBUFFER, meshIndexFramebuffer_);
+
+    clearColor(1.0, 1.0, 1.0, 1.0);
+    clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+
+    for (unsigned j = 0; j < dataSeriesVector_.size(); j++) {
+      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
+      if (gridData && gridData->type() == SurfaceSeries3D) {
+	gridData->paintGLIndex(1);
+      }
+    }
+
+    disable(CULL_FACE);
+    enable(DEPTH_TEST);
+
+    useProgram(clippingPlaneProgram_);
+
+    double minX = XAxis_.minimum();
+    double maxX = XAxis_.maximum();
+    double minY = YAxis_.minimum();
+    double maxY = YAxis_.maximum();
+    double minZ = ZAxis_.minimum();
+    double maxZ = ZAxis_.maximum();
+
+    IntersectionPlane plane = intersectionPlanes_[i];
+    if (plane.axis == XAxis_3D) {
+      uniform1i(clippingPlane_clippingAxis_, 0);
+    } else if (plane.axis == YAxis_3D) {
+      uniform1i(clippingPlane_clippingAxis_, 1);
+    } else {
+      uniform1i(clippingPlane_clippingAxis_, 2);
+    }
+    uniform3f(clippingPlane_clipPtUniform_, plane.position, plane.position, plane.position);
+    uniform3f(clippingPlane_dataMinPtUniform_, minX, minY, minZ);
+    uniform3f(clippingPlane_dataMaxPtUniform_, maxX, maxY, maxZ);
+    uniform1i(clippingPlane_drawPositionUniform_, 0);
+
+    WMatrix4x4 mvMatrix(1.0f, 0.0f, 0.0f, 0.0f,
+		  0.0f, 0.0f, 1.0f, 0.0f,
+		  0.0f, 1.0f, 0.0f, 0.0f,
+		  0.0f, 0.0f, 0.0f, 1.0f);
+
+    uniformMatrix4(clippingPlane_pMatrixUniform_, pMatrix_);
+    uniformMatrix4(clippingPlane_mvMatrixUniform_, mvMatrix);
+    uniformMatrix4(clippingPlane_cMatrixUniform_, jsMatrix_);
+
+    bindBuffer(ARRAY_BUFFER, clippingPlaneVertBuffer_);
+    vertexAttribPointer(clippingPlane_vertexPositionAttribute_,
+		  2,
+		  FLOAT,
+		  false,
+		  0,
+		  0);
+    enableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    drawArrays(TRIANGLE_STRIP, 0, 4);
+
+    enable(CULL_FACE);
+    disable(DEPTH_TEST);
+
+    disableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    bindFramebuffer(FRAMEBUFFER, positionFramebuffer_);
+
+    clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+
+    for (unsigned j = 0; j < dataSeriesVector_.size(); j++) {
+      WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
+      if (gridData && gridData->type() == SurfaceSeries3D) {
+	gridData->paintGLPositions();
+      }
+    }
+
+    disable(CULL_FACE);
+    enable(DEPTH_TEST);
+
+    useProgram(clippingPlaneProgram_);
+
+    uniform1i(clippingPlane_drawPositionUniform_, 1);
+
+    uniformMatrix4(clippingPlane_pMatrixUniform_, pMatrix_);
+    uniformMatrix4(clippingPlane_mvMatrixUniform_, mvMatrix);
+    uniformMatrix4(clippingPlane_cMatrixUniform_, jsMatrix_);
+
+    bindBuffer(ARRAY_BUFFER, clippingPlaneVertBuffer_);
+    vertexAttribPointer(clippingPlane_vertexPositionAttribute_,
+		  2,
+		  FLOAT,
+		  false,
+		  0,
+		  0);
+    enableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    drawArrays(TRIANGLE_STRIP, 0, 4);
+
+    enable(CULL_FACE);
+    disable(DEPTH_TEST);
+
+    disableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    bindFramebuffer(FRAMEBUFFER, intersectionLinesFramebuffer_);
+
+    disable(CULL_FACE);
+    disable(DEPTH_TEST);
+    enable(BLEND);
+
+    useProgram(intersectionLinesProgram_);
+    bindBuffer(ARRAY_BUFFER, overlayPosBuffer_);
+    vertexAttribPointer(intersectionLines_vertexPositionAttribute_,
+			3,
+			FLOAT,
+			false,
+			0,
+			0);
+    enableVertexAttribArray(intersectionLines_vertexPositionAttribute_);
+    bindBuffer(ARRAY_BUFFER, overlayTexCoBuffer_);
+    vertexAttribPointer(intersectionLines_vertexTextureCoAttribute_,
+			2,
+			FLOAT,
+			false,
+			0,
+			0);
+    enableVertexAttribArray(intersectionLines_vertexTextureCoAttribute_);
+
+    uniformMatrix4(intersectionLines_cameraUniform_, jsMatrix_);
+    uniform1f(intersectionLines_viewportWidthUniform_, width().value());
+    uniform1f(intersectionLines_viewportHeightUniform_, height().value());
+    uniform4f(intersectionLines_colorUniform_,
+	plane.color.red() / 255.0,
+	plane.color.green() / 255.0,
+	plane.color.blue() / 255.0,
+	plane.color.alpha() / 255.0);
+
+    activeTexture(TEXTURE0);
+    bindTexture(TEXTURE_2D, positionTexture_);
+    uniform1i(intersectionLines_positionSamplerUniform_, 0);
+    activeTexture(TEXTURE1);
+    bindTexture(TEXTURE_2D, meshIndexTexture_);
+    uniform1i(intersectionLines_meshIndexSamplerUniform_, 1);
+    drawArrays(TRIANGLE_STRIP, 0, 4);
+    disableVertexAttribArray(intersectionLines_vertexPositionAttribute_);
+    disableVertexAttribArray(intersectionLines_vertexTextureCoAttribute_);
+
+    bindFramebuffer(FRAMEBUFFER, Framebuffer());
+
+    enable(CULL_FACE);
+    enable(DEPTH_TEST);
+    disable(BLEND);
+  }
+}
+
+void WCartesian3DChart::renderClippingLines(WAbstractGridData *data)
+{
+  using Wt::operator|;
+
+  bindFramebuffer(FRAMEBUFFER, intersectionLinesFramebuffer_);
+
+  clearColor(0.0, 0.0, 0.0, 0.0);
+  clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+  bindFramebuffer(FRAMEBUFFER, Framebuffer());
+
+  for (int i = 0; i < 6; ++i) {
+    bindFramebuffer(FRAMEBUFFER, meshIndexFramebuffer_);
+
+    clearColor(1.0, 1.0, 1.0, 1.0);
+    clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+
+    disable(CULL_FACE);
+    enable(DEPTH_TEST);
+
+    double minX = XAxis_.minimum();
+    double maxX = XAxis_.maximum();
+    double minY = YAxis_.minimum();
+    double maxY = YAxis_.maximum();
+    double minZ = ZAxis_.minimum();
+    double maxZ = ZAxis_.maximum();
+
+    useProgram(clippingPlaneProgram_);
+
+    int clippingAxis = i / 2;
+    uniform1i(clippingPlane_clippingAxis_, clippingAxis);
+    if (i % 2 == 0) {
+      uniform3fv(clippingPlane_clipPtUniform_, data->jsMaxPt_);
+    } else {
+      uniform3fv(clippingPlane_clipPtUniform_, data->jsMinPt_);
+    }
+    uniform3f(clippingPlane_dataMinPtUniform_, minX, minY, minZ);
+    uniform3f(clippingPlane_dataMaxPtUniform_, maxX, maxY, maxZ);
+    uniform1i(clippingPlane_drawPositionUniform_, 0);
+
+    WMatrix4x4 mvMatrix(1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f);
+
+    uniformMatrix4(clippingPlane_pMatrixUniform_, pMatrix_);
+    uniformMatrix4(clippingPlane_mvMatrixUniform_, mvMatrix);
+    uniformMatrix4(clippingPlane_cMatrixUniform_, jsMatrix_);
+
+    bindBuffer(ARRAY_BUFFER, clippingPlaneVertBuffer_);
+    vertexAttribPointer(clippingPlane_vertexPositionAttribute_,
+			2,
+			FLOAT,
+			false,
+			0,
+			0);
+    enableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    drawArrays(TRIANGLE_STRIP, 0, 4);
+
+    disableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    data->paintGLIndex(1,
+	clippingAxis == 0 ? 0.01 : 0.0,
+	clippingAxis == 1 ? 0.01 : 0.0,
+	clippingAxis == 2 ? 0.01 : 0.0);
+    // NOTE: This loop makes the number of draw calls quadratic in the number
+    //       of surfaces. This will affect performance and may be undesirable
+    //       when using more and larger surfaces.
+    for (size_t j = 0; j < dataSeriesVector_.size(); ++j) {
+      if (dataSeriesVector_[j] != data) {
+	WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
+	if (gridData && gridData->type() == SurfaceSeries3D && gridData->clippingLinesEnabled()) {
+	  gridData->paintGLIndex(0xffffff);
+	}
+      }
+    }
+
+    bindFramebuffer(FRAMEBUFFER, positionFramebuffer_);
+
+    clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+
+    disable(WGLWidget::CULL_FACE);
+    enable(WGLWidget::DEPTH_TEST);
+
+    useProgram(clippingPlaneProgram_);
+
+    uniform1i(clippingPlane_drawPositionUniform_, 1);
+
+    bindBuffer(ARRAY_BUFFER, clippingPlaneVertBuffer_);
+    vertexAttribPointer(clippingPlane_vertexPositionAttribute_,
+			2,
+			FLOAT,
+			false,
+			0,
+			0);
+    enableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    drawArrays(TRIANGLE_STRIP, 0, 4);
+
+    disableVertexAttribArray(clippingPlane_vertexPositionAttribute_);
+
+    data->paintGLPositions(clippingAxis == 0 ? 0.01 : 0.0,
+	clippingAxis == 1 ? 0.01 : 0.0,
+	clippingAxis == 2 ? 0.01 : 0.0);
+    for (size_t j = 0; j < dataSeriesVector_.size(); ++j) {
+      if (dataSeriesVector_[j] != data) {
+	WAbstractGridData *gridData = dynamic_cast<WAbstractGridData*>(dataSeriesVector_[j]);
+	if (gridData && gridData->type() == SurfaceSeries3D && gridData->clippingLinesEnabled()) {
+	  gridData->paintGLPositions();
+	}
+      }
+    }
+
+    bindFramebuffer(FRAMEBUFFER, intersectionLinesFramebuffer_);
+
+    disable(CULL_FACE);
+    disable(DEPTH_TEST);
+    enable(BLEND);
+
+    useProgram(intersectionLinesProgram_);
+    bindBuffer(ARRAY_BUFFER, overlayPosBuffer_);
+    vertexAttribPointer(intersectionLines_vertexPositionAttribute_,
+			3,
+			FLOAT,
+			false,
+			0,
+			0);
+    enableVertexAttribArray(intersectionLines_vertexPositionAttribute_);
+    bindBuffer(ARRAY_BUFFER, overlayTexCoBuffer_);
+    vertexAttribPointer(intersectionLines_vertexTextureCoAttribute_,
+			2,
+			FLOAT,
+			false,
+			0,
+			0);
+    enableVertexAttribArray(intersectionLines_vertexTextureCoAttribute_);
+
+    uniformMatrix4(intersectionLines_cameraUniform_, jsMatrix_);
+    uniform1f(intersectionLines_viewportWidthUniform_, width().value());
+    uniform1f(intersectionLines_viewportHeightUniform_, height().value());
+    uniform4f(intersectionLines_colorUniform_,
+	data->clippingLinesColor().red() / 255.0,
+	data->clippingLinesColor().green() / 255.0,
+	data->clippingLinesColor().blue() / 255.0,
+	data->clippingLinesColor().alpha() / 255.0);
+
+    activeTexture(TEXTURE0);
+    bindTexture(TEXTURE_2D, positionTexture_);
+    uniform1i(intersectionLines_positionSamplerUniform_, 0);
+    activeTexture(TEXTURE1);
+    bindTexture(TEXTURE_2D, meshIndexTexture_);
+    uniform1i(intersectionLines_meshIndexSamplerUniform_, 1);
+    drawArrays(TRIANGLE_STRIP, 0, 4);
+    disableVertexAttribArray(intersectionLines_vertexPositionAttribute_);
+    disableVertexAttribArray(intersectionLines_vertexTextureCoAttribute_);
+
+    bindFramebuffer(FRAMEBUFFER, Framebuffer());
+
+    enable(CULL_FACE);
+    enable(DEPTH_TEST);
+    disable(BLEND);
   }
 }
 
@@ -1308,17 +2042,21 @@ void WCartesian3DChart::deleteAllGLResources()
   if (cubeProgram_.isNull()) { // never been painted
     return;
   }
-  detachShader(cubeProgram_, fragmentShader_);
-  detachShader(cubeProgram_, vertexShader_);
-  detachShader(axisProgram_, fragmentShader2_);
-  detachShader(axisProgram_, vertexShader2_);
-  deleteShader(fragmentShader_);
-  deleteShader(vertexShader_);
-  deleteShader(fragmentShader2_);
-  deleteShader(vertexShader2_);
-  deleteProgram(cubeProgram_);cubeProgram_.clear();
-  deleteProgram(axisProgram_);axisProgram_.clear();
-  
+  if (!intersectionLinesProgram_.isNull()) {
+    detachShader(intersectionLinesProgram_, intersectionLinesFragmentShader_);
+    detachShader(intersectionLinesProgram_, vertexShader2D_);
+    deleteShader(intersectionLinesFragmentShader_);
+    deleteProgram(intersectionLinesProgram_);
+    intersectionLinesProgram_.clear();
+  }
+  if (!clippingPlaneProgram_.isNull()) {
+    detachShader(clippingPlaneProgram_, clippingPlaneFragShader_);
+    detachShader(clippingPlaneProgram_, clippingPlaneVertexShader_);
+    deleteShader(clippingPlaneFragShader_);
+    deleteShader(clippingPlaneVertexShader_);
+    deleteProgram(clippingPlaneProgram_);
+    clippingPlaneProgram_.clear();
+  }
   deleteBuffer(cubeBuffer_);
   deleteBuffer(cubeNormalsBuffer_);
   deleteBuffer(cubeIndicesBuffer_);
@@ -1336,6 +2074,19 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteGLTextures();
   deleteBuffer(cubeTexCoords_);cubeTexCoords_.clear();
   deleteBuffer(axisTexCoordsHoriz_);axisTexCoordsHoriz_.clear();
+
+  detachShader(cubeProgram_, fragmentShader_);
+  detachShader(cubeProgram_, vertexShader_);
+  detachShader(axisProgram_, fragmentShader2_);
+  detachShader(axisProgram_, vertexShader2_);
+  deleteShader(fragmentShader_);
+  deleteShader(vertexShader_);
+  deleteShader(fragmentShader2_);
+  deleteShader(vertexShader2_);
+  deleteProgram(cubeProgram_);cubeProgram_.clear();
+  deleteProgram(axisProgram_);axisProgram_.clear();
+
+  deleteOffscreenBuffer();
 
   clearBinaryResources();
 }
@@ -1490,7 +2241,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
 		   AlignCenter | AlignBottom, XAxis_.title());
-  
+
   // draw X-axis( RTL, labels above)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
   painter.translate(0, axisRenderHeight_);
@@ -1641,7 +2392,7 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   int axisHeight = axisRenderHeight_/textureScaling_;
 
   WPainter painter(paintDevice);
-  
+
   // draw Z-axis (labels left)
   painter.scale(textureScaling_, textureScaling_);
   WPointF axisStart = WPointF(axisHeight, axisWidth-axisOffset);
@@ -1788,7 +2539,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
 double WCartesian3DChart::toPlotCubeCoords(double value, Axis axis)
 {
   double min = 0.0, max = 1.0;
-  
+
   if (axis == XAxis_3D) {
     min = XAxis_.minimum();
     max = XAxis_.maximum();
@@ -1801,7 +2552,7 @@ double WCartesian3DChart::toPlotCubeCoords(double value, Axis axis)
   } else {
     throw WException("WCartesian3DChart: don't know this type of axis");
   }
-  
+
   return (value - min)/(max - min);
 }
 

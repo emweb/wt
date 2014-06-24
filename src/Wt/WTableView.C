@@ -265,6 +265,7 @@ void WTableView::setModel(WAbstractItemModel* model)
 			      (this, &Self::modelReset));
 
   firstColumn_ = lastColumn_ = -1;
+  adjustSize();
 }
 
 WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index) 
@@ -1229,6 +1230,7 @@ void WTableView::modelColumnsInserted(const WModelIndex& parent,
     return;
 
   scheduleRerender(NeedRerenderData);
+  adjustSize();
 }
 
 void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent, 
@@ -1273,6 +1275,7 @@ void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
   resetGeometry();
 
   scheduleRerender(NeedRerenderData);
+  adjustSize();
 }
 
 void WTableView::modelRowsInserted(const WModelIndex& parent, 
@@ -1297,6 +1300,8 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
       scheduleRerender(NeedRerenderData);
   } else if (start <= lastRow())
     scheduleRerender(NeedRerenderData);
+
+  adjustSize();
 }
 
 void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
@@ -1340,6 +1345,7 @@ void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
     scheduleRerender(NeedRerenderData);
 
   computeRenderedArea();
+  adjustSize();
 }
 
 
