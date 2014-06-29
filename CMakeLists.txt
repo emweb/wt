@@ -324,6 +324,7 @@ INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
 INCLUDE(cmake/WtFindGL.txt)
 INCLUDE(cmake/WtFindSkia.txt)
+INCLUDE(cmake/CheckLargeFileSupport.cmake)
 
 IF (ENABLE_PANGO)
   INCLUDE(cmake/WtFindPangoFt2.txt)
@@ -572,6 +573,21 @@ IF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
   SET(WT_USE_OPENGL TRUE)
   SET(HAVE_GL TRUE)
 ENDIF(ENABLE_OPENGL AND GL_FOUND AND WT_HAS_WRASTERIMAGE)
+
+check_large_file_support()
+
+if(_FILE_OFFSET_BITS)
+  add_definitions(-D_FILE_OFFSET_BITS=${_FILE_OFFSET_BITS})
+endif(_FILE_OFFSET_BITS)
+
+if(_LARGE_FILES)
+  add_definitions(-D_LARGE_FILES=${_LARGE_FILES})
+endif(_LARGE_FILES)
+
+if(_LARGEFILE_SOURCE)
+  add_definitions(-D_LARGEFILE_SOURCE=${_LARGEFILE_SOURCE})
+endif(_LARGEFILE_SOURCE)
+
 
 # Compile time constants & make sure our build finds it
 FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)
