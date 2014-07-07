@@ -9,6 +9,8 @@
 
 #include "../treeview-dragdrop/CsvUtil.h"
 
+#include "DataModels.h"
+
 SAMPLE_BEGIN(CatChart3d)
 
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
@@ -19,8 +21,7 @@ Wt::Chart::WCartesian3DChart *chart
 chart->setType(Wt::Chart::CategoryChart);
 
 // disable server-side rendering fallback; our VPSes don't have that
-// TODO(ROEL): CNOR doesn't like |?
-// chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering | Wt::WGLWidget::AntiAliasing);
+chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering | Wt::WGLWidget::AntiAliasing);
 
 Wt::WCssDecorationStyle style;
 style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium,

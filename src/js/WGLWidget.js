@@ -38,7 +38,7 @@ WT_DECLARE_WT_MEMBER
        } catch (e) {}
        if (this.ctx === null) {
          try {
-           this.ctx = canvas.getContext('experimental-webgl');
+           this.ctx = canvas.getContext('experimental-webgl', {antialias: antialiasingEnabled});
          } catch (e) {}
        }
        if (this.ctx === null) {

@@ -57,8 +57,8 @@ PasswordPromptDialog::PasswordPromptDialog(Login& login, AuthModel *model)
      * try to center it better, we need to set the half width and
      * height as negative margins.
      */
-     setMargin("-21em", Left); // .Wt-form width
-     setMargin("-200px", Top); // ???
+     setMargin(WLength("-21em"), Left); // .Wt-form width
+     setMargin(WLength("-200px"), Top); // ???
   }
 }
 

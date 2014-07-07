@@ -145,6 +145,7 @@ public:
   virtual void doJavaScript(const std::string& js);
 
   virtual void propagateSetEnabled(bool enabled);
+  virtual bool setFirstFocus();
 
 protected:
   virtual void addChild(WWidget *child);

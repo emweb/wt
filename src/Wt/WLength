@@ -48,11 +48,25 @@ public:
    */
   WLength();
 
+#ifndef WT_TARGET_JAVA
+  /*! \brief Creates a length by parsing the argument as a css length string.
+  *
+  * This supports all CSS length formats that have an API counterpart.
+  *
+  * This is an overload for the std::string version that accepts a string
+  * literal.
+  */
+  template<std::size_t N>
+  WLength(const char(&str)[N]) {
+    parseCssString(str);
+  }
+#endif // WT_TARGET_JAVA
+
   /*! \brief Creates a length by parsing the argument as a css length string.
    *
    * This supports all CSS length formats that have an API counterpart.
    */
-  WLength(const char* c);
+  WLength(const std::string &str);
 
   /*! \brief Creates a length with value and unit.
    *
@@ -60,34 +74,6 @@ public:
    * double to a WLength, assuming a pixel unit.
    */
   WLength(double value, Unit unit = Pixel);
-
-  /*! \brief Creates a length with value and unit.
-   *
-   * This constructor is also used for the implicit conversion of a
-   * int to a WLength, assuming a pixel unit.
-   */
-  WLength(int value, Unit unit = Pixel);
-  
-  /*! \brief Creates a length with value and unit.
-   *
-   * This constructor is also used for the implicit conversion of a
-   * long to a WLength, assuming a pixel unit.
-   */
-  WLength(long value, Unit unit = Pixel);
-  
-  /*! \brief Creates a length with value and unit.
-   *
-   * This constructor is also used for the implicit conversion of an
-   * unsigned to a WLength, assuming a pixel unit.
-   */
-  WLength(unsigned value, Unit unit = Pixel);
-
-  /*! \brief Creates a length with value and unit.
-   *
-   * This constructor is also used for the implicit conversion of an
-   * unsigned long to a WLength, assuming a pixel unit.
-   */
-  WLength(unsigned long value, Unit unit = Pixel);
 
   /*! \brief Returns whether the length is 'auto'.
    *
@@ -132,6 +118,7 @@ private:
   double value_;
 
   void setUnit(Unit unit);
+  void parseCssString(const char *str);
 };
 
 inline Wt::WLength operator*(const Wt::WLength &l, double s)

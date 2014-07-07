@@ -377,6 +377,8 @@ public:
   void setClientSideWalkHandler(const WGLWidget::JavaScriptMatrix4x4 &m,
 				double frontStep, double rotStep);
 
+  JsArrayType arrayType() const;
+
   void injectJS(const std::string & jsString);
 
   void restoreContext(const std::string &jsRef);

@@ -545,4 +545,8 @@ void WCompositeWidget::propagateSetEnabled(bool enabled)
   impl_->webWidget()->propagateSetEnabled(enabled);
 }
 
+bool WCompositeWidget::setFirstFocus() {
+  return impl_->webWidget()->setFirstFocus();
+}
+
 }

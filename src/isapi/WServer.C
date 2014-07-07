@@ -24,6 +24,34 @@ struct WServer::Impl {
     : running_(false)
   { }
 
+  void init(WServer *server, const std::string& applicationPath, const std::string& configurationFile)
+  {
+    if (!isapi::IsapiServer::instance()->addServer(server))
+      throw Exception("WServer::WServer(): "
+		      "Only one simultaneous WServer supported");
+    server->instance_ = server;
+
+    std::stringstream approotLog;
+    std::string approot;
+    {
+      std::string inifile = applicationPath + ".ini";
+      char buffer[1024];
+      GetPrivateProfileString("isapi", "approot", "",
+	buffer, sizeof(buffer), inifile.c_str());
+      approot = buffer;
+      if (approot != "") {
+	approotLog << "ISAPI: read approot (" << approot
+	  << ") from ini file " << inifile;
+      }
+    }
+
+    server->setAppRoot(approot);
+    server->setConfiguration(configurationFile);
+    if (approotLog.str() != "") {
+      server->log("info") << approotLog.str();
+    }
+  }
+
   bool running_;
 };
 
@@ -32,30 +60,17 @@ WServer::WServer(const std::string& applicationPath,
   : impl_(new Impl())
 {
   init(applicationPath, configurationFile);
-  if (!isapi::IsapiServer::instance()->addServer(this))
-    throw Exception("WServer::WServer(): "
-		    "Only one simultaneous WServer supported");
-  instance_ = this;
+  impl_->init(this, applicationPath, configurationFile);
+}
 
-  std::stringstream approotLog;
-  std::string approot;
-  {
-    std::string inifile = applicationPath + ".ini";
-    char buffer[1024];
-    GetPrivateProfileString("isapi", "approot", "",
-      buffer, sizeof(buffer), inifile.c_str());
-    approot = buffer;
-    if (approot != "") {
-      approotLog << "ISAPI: read approot (" << approot
-        << ") from ini file " << inifile;
-    }
-  }
-
-  setAppRoot(approot);
-  setConfiguration(configurationFile);
-  if (approotLog.str() != "") {
-    log("info") << approotLog.str();
-  }
+WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
+  : impl_(new Impl())
+{
+  init(argv[0], wtConfigurationFile);
+  impl_->init(this, argv[0], wtConfigurationFile);
+  // setServerConfiguration doesn't actually do anything, but I'll
+  // just call it here just in case it starts doing anything.
+  setServerConfiguration(argc, argv, wtConfigurationFile);
 }
 
 WServer::~WServer()
@@ -129,6 +144,14 @@ void WServer::stop()
     return;
   }
   webMain->shutdown();
+}
+
+void WServer::run()
+{
+  if (start()) {
+    waitForShutdown();
+    stop();
+  }
 }
 
 //int WServer::waitForShutdown(const char *restartWatchFile)

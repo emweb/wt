@@ -120,6 +120,7 @@ public:
   bool handleApplicationEvent(const ApplicationEvent& event);
 #endif // WT_CNOR
 
+  std::vector<std::string> sessions();
   bool expireSessions();
   void start();
   void shutdown();

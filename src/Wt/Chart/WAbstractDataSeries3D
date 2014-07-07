@@ -166,17 +166,17 @@ public:
 
   /*! \brief Set the point sprite used for drawing this dataseries.
    *
-   * This should be a local path to an image, such as a PNG or GIF.
+   * This should be a local (server side) path to an image, such as a PNG or GIF.
    * Only the alpha channel of this image is used: the sprite only
    * decides if a pixel in the point appears or not. If the alpha
-   * value is 1, the pixel is drawn, otherwise it isn't.
+   * value is below 0.5, the pixel is discarded.
    *
    * For best effect, the point sprite's width and height should be
    * the same as the pointSize(), and the chart's antialiasing should
    * be disabled.
    *
    * Defaults to the empty string, meaning that every pixel of the
-   * point will be drawn.
+   * point will be drawn, yielding a square.
    */
   void setPointSprite(const std::string &image);
 

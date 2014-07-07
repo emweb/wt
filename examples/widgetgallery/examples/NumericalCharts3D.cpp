@@ -1,5 +1,3 @@
-#include "DataModels.h"
-
 #include <Wt/WApplication>
 #include <Wt/WCssDecorationStyle>
 #include <Wt/WBorder>
@@ -11,6 +9,8 @@
 #include <Wt/Chart/WScatterData>
 #include <Wt/Chart/WStandardColorMap>
 
+#include "DataModels.h"
+
 SAMPLE_BEGIN(NumChart3d)
 
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
@@ -21,8 +21,7 @@ Wt::Chart::WCartesian3DChart *chart
 chart->setType(Wt::Chart::ScatterPlot);
 
 // disable server-side rendering fallback; our VPSes don't have that
-// TODO(ROEL): CNOR doesn't like |? Even with using statement...
-// chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering | Wt::WGLWidget::AntiAliasing);
+chart->setRenderOptions(Wt::WGLWidget::ClientSideRendering | Wt::WGLWidget::AntiAliasing);
 
 Wt::WCssDecorationStyle style;
 style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium,

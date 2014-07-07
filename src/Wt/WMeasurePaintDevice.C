@@ -10,6 +10,8 @@
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
 
+#include <algorithm>
+
 namespace Wt {
 
 WMeasurePaintDevice::WMeasurePaintDevice(WPaintDevice *paintDevice)

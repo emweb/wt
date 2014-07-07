@@ -378,11 +378,19 @@ public:
    * - "!IE gte 6": only for IE versions prior to IE6.
    * - "IE lte 7": only for IE versions prior to IE7.
    *
-   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&)
+   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&),
+   *  removeStyleSheet(const WLink& link)
    * \sa WWidget::setStyleClass()
    */
   void useStyleSheet(const WCssStyleSheet& styleSheet,
 		     const std::string& condition = "");
+
+  /*! \brief Removes an external stylesheet.
+   *
+   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&)
+   * \sa WWidget::setStyleClass()
+   */
+  void removeStyleSheet(const WLink& link);
 
   /*! \brief Sets the theme.
    *
@@ -2223,6 +2231,8 @@ private:
 
   const WTheme *theme_;
   std::vector<WCssStyleSheet> styleSheets_;
+  std::vector<WCssStyleSheet> styleSheetsToRemove_;
+
   int styleSheetsAdded_;
 
   std::vector<MetaHeader> metaHeaders_;
@@ -2319,6 +2329,7 @@ private:
   JSlot hideLoadJS;
 #endif
 
+  friend class WCssStyleSheet;
   friend class WebRenderer;
   friend class WebSession;
   friend class WebController;

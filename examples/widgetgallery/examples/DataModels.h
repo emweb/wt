@@ -3,6 +3,11 @@
 
 #include <Wt/WStandardItemModel>
 
+#ifdef WT_TARGET_JAVA
+// Smuggling a using namespace into NumericalCharts3D.cpp to make operator | work.
+using namespace Wt;
+#endif
+
 class SombreroData : public Wt::WStandardItemModel {
 public:
   SombreroData(unsigned nbXpts, unsigned nbYpts, Wt::WObject *parent = 0);

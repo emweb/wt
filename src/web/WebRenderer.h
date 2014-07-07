@@ -129,6 +129,7 @@ private:
   void loadStyleSheet(WStringStream& out, WApplication *app,
 		      const WCssStyleSheet& sheet);
   void loadStyleSheets(WStringStream& out, WApplication *app);
+  void removeStyleSheets(WStringStream& out, WApplication *app);
   int loadScriptLibraries(WStringStream& out, WApplication *app,
 			  int count = -1);
   void updateLoadIndicator(WStringStream& out, WApplication *app, bool all);

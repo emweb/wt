@@ -1651,6 +1651,11 @@ void WClientGLWidget::setClientSideWalkHandler(const WGLWidget::JavaScriptMatrix
       << frontStep << "," << rotStep << "));";
 }
 
+JsArrayType WClientGLWidget::arrayType() const
+{
+  return Float32Array;
+}
+
 void WClientGLWidget::injectJS(const std::string & jsString)
 {
   js_ << jsString;

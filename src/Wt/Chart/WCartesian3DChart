@@ -483,6 +483,8 @@ public:
   WMatrix4x4 pMatrix() const { return pMatrix_; }
   double toPlotCubeCoords(double value, Axis axis);
 
+protected:
+
   /*! \brief Initialize the WebGL state when the widget is first shown.
    *
    * Specialized for chart rendering.
@@ -506,6 +508,8 @@ public:
    * Specialized for chart rendering.
    */
   void resizeGL(int width, int height);
+
+public:
 
   /*! \brief Update the chart.
    */

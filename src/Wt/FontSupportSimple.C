@@ -219,7 +219,7 @@ void FontSupport::matchFont(const WFont& font,
   FileUtils::listFiles(path, files);
   
   for (unsigned i = 0; i < files.size(); ++i) {
-    std::string f = Utils::lowerCase(files[i]);
+    std::string f = files[i];
     if (FileUtils::isDirectory(f)) {
       if (recursive) {
 	matchFont(font, fontNames, f, recursive, match);
@@ -241,7 +241,7 @@ void FontSupport::matchFont(const WFont& font,
 {
   if (boost::ends_with(path, ".ttf")
       || boost::ends_with(path, ".ttc")) {
-    std::string name = FileUtils::leaf(path);
+    std::string name = Utils::lowerCase(FileUtils::leaf(path));
     name = name.substr(0, name.length() - 4);
     Utils::replace(name, ' ', std::string());
 

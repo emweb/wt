@@ -23,11 +23,17 @@ WLength::WLength()
     value_(-1)
 { }
 
-WLength::WLength(const char *s)
-  : auto_(false),
-    unit_(Pixel),
-    value_(-1)
+WLength::WLength(const std::string &str)
 {
+  parseCssString(str.c_str());
+}
+
+void WLength::parseCssString(const char *s)
+{
+  auto_ = false;
+  unit_ = Pixel;
+  value_ = -1;
+
   if (std::string("auto") == s) {
     auto_ = true;
     return;
@@ -79,36 +85,6 @@ WLength::WLength(double value, Unit unit)
   : auto_(false),
     value_(value)
 { 
-  setUnit(unit);
-}
-
-#ifndef DOXYGEN_ONLY
-WLength::WLength(int value, Unit unit)
-  : auto_(false),
-    value_((double)value)
-{
-  setUnit(unit);
-}
-#endif
-
-WLength::WLength(long value, Unit unit)
-  : auto_(false),
-    value_((double)value)
-{
-  setUnit(unit);
-}
-
-WLength::WLength(unsigned int value, Unit unit)
-  : auto_(false),
-    value_((double)value)
-{
-  setUnit(unit);
-}
-
-WLength::WLength(unsigned long value, Unit unit)
-  : auto_(false),
-    value_((double)value)
-{
   setUnit(unit);
 }
 

@@ -26,7 +26,7 @@ public:
     void setModelData(const boost::any &editState, Wt::WAbstractItemModel* model,
 		      const Wt::WModelIndex &index) const
     {
-	int stringIdx = Wt::asNumber(editState);
+      int stringIdx = (int)Wt::asNumber(editState);
 	model->setData(index, stringIdx, Wt::UserRole);
 	model->setData(index, items_->data(stringIdx, 0), Wt::DisplayRole);
     }
@@ -42,17 +42,17 @@ public:
     {
 	Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
 	    (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
-	combo->setCurrentIndex(Wt::asNumber(value));
+	combo->setCurrentIndex((int)Wt::asNumber(value));
     }
 
 protected:
     virtual Wt::WWidget* createEditor(const Wt::WModelIndex &index,
 				      Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
     {
-	Wt::WContainerWidget* container = new Wt::WContainerWidget();
+	Wt::WContainerWidget *const container = new Wt::WContainerWidget();
 	Wt::WComboBox* combo = new Wt::WComboBox(container);
 	combo->setModel(items_);
-	combo->setCurrentIndex(Wt::asNumber(index.data(Wt::UserRole)));
+	combo->setCurrentIndex((int)Wt::asNumber(index.data(Wt::UserRole)));
 
 	combo->changed().connect(boost::bind(&ComboDelegate::doCloseEditor, this,
 					     container, true));

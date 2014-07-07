@@ -138,8 +138,10 @@ public:
 
   /*! \brief Draws an arc.
    *
-   * The arc is defined as in 
-   * WPainter::drawArc(const WRectF& rectangle, int startAngle, int spanAngle)
+   * The arc describes the segment of an ellipse enclosed by the
+   * rect. The segment starts at \p startAngle, and spans an angle
+   * given by \p spanAngle. These angles have as unit degree, and are
+   * measured counter-clockwise starting from the 3 o'clock position.
    *
    * The arc must be stroked, filled, and transformed using the
    * current painter settings.

@@ -224,9 +224,7 @@ void WScatterData::initShaders()
 
   posAttr_ =
     chart_->getAttribLocation(shaderProgram_, "aVertexPosition");
-  if (!wApp->environment().agentIsIE()) {
-    sizeAttr_ = chart_->getAttribLocation(shaderProgram_, "aPointSize");
-  }
+  sizeAttr_ = chart_->getAttribLocation(shaderProgram_, "aPointSize");
   mvMatrixUniform_ = chart_->getUniformLocation(shaderProgram_, "uMVMatrix");
   pMatrixUniform_ = chart_->getUniformLocation(shaderProgram_, "uPMatrix");
   cMatrixUniform_ = chart_->getUniformLocation(shaderProgram_, "uCMatrix");
@@ -251,9 +249,7 @@ void WScatterData::initShaders()
   chart_->linkProgram(colShaderProgram_);
 
   posAttr2_ = chart_->getAttribLocation(colShaderProgram_, "aVertexPosition");
-  if (!wApp->environment().agentIsIE()) {
-    sizeAttr2_ = chart_->getAttribLocation(colShaderProgram_, "aPointSize");
-  }
+  sizeAttr2_ = chart_->getAttribLocation(colShaderProgram_, "aPointSize");
   colorAttr2_ = chart_->getAttribLocation(colShaderProgram_, "aColor");
   mvMatrixUniform2_ = chart_->
     getUniformLocation(colShaderProgram_, "uMVMatrix");
@@ -501,16 +497,14 @@ void WScatterData::paintGL() const
 				0,
 				0);
     chart_->enableVertexAttribArray(posAttr_);
-    if (!wApp->environment().agentIsIE()) {
-      chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer_);
-      chart_->vertexAttribPointer(sizeAttr_,
-				  1,
-				  WGLWidget::FLOAT,
-				  false,
-				  0,
-				  0);
-      chart_->enableVertexAttribArray(sizeAttr_);
-    }
+    chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer_);
+    chart_->vertexAttribPointer(sizeAttr_,
+				1,
+				WGLWidget::FLOAT,
+				false,
+				0,
+				0);
+    chart_->enableVertexAttribArray(sizeAttr_);
 
     chart_->activeTexture(WGLWidget::TEXTURE0);
     chart_->bindTexture(WGLWidget::TEXTURE_2D, colormapTexture_);
@@ -526,8 +520,7 @@ void WScatterData::paintGL() const
 		       0,
 		       vertexBufferSize_/3);
     chart_->disableVertexAttribArray(posAttr_);
-    if (!wApp->environment().agentIsIE())
-      chart_->disableVertexAttribArray(sizeAttr_);
+    chart_->disableVertexAttribArray(sizeAttr_);
   }
 
   if (!vertexPosBuffer2_.isNull()) {
@@ -543,16 +536,14 @@ void WScatterData::paintGL() const
 				0,
 				0);
     chart_->enableVertexAttribArray(posAttr2_);
-    if (!wApp->environment().agentIsIE()) {
-      chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer2_);
-      chart_->vertexAttribPointer(sizeAttr2_,
-				  1,
-				  WGLWidget::FLOAT,
-				  false,
-				  0,
-				  0);
-      chart_->enableVertexAttribArray(sizeAttr2_);
-    }
+    chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer2_);
+    chart_->vertexAttribPointer(sizeAttr2_,
+				1,
+				WGLWidget::FLOAT,
+				false,
+				0,
+				0);
+    chart_->enableVertexAttribArray(sizeAttr2_);
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexColorBuffer2_);
     chart_->vertexAttribPointer(colorAttr2_,
 				4,
@@ -572,8 +563,7 @@ void WScatterData::paintGL() const
 		       0,
 		       vertexBuffer2Size_/3);
     chart_->disableVertexAttribArray(posAttr2_);
-    if (!wApp->environment().agentIsIE())
-      chart_->disableVertexAttribArray(sizeAttr2_);
+    chart_->disableVertexAttribArray(sizeAttr2_);
     chart_->disableVertexAttribArray(colorAttr2_);
   }
 
@@ -636,14 +626,23 @@ void WScatterData::deleteAllGLResources()
 
   if (!vertexPosBuffer_.isNull()) {
     chart_->deleteBuffer(vertexPosBuffer_);
+    vertexSizeBuffer_.clear();
+  }
+  if (!vertexSizeBuffer_.isNull()) {
     chart_->deleteBuffer(vertexSizeBuffer_);
-    vertexPosBuffer_.clear();
+    vertexSizeBuffer_.clear();
   }
   if (!vertexPosBuffer2_.isNull()) {
     chart_->deleteBuffer(vertexPosBuffer2_);
-    chart_->deleteBuffer(vertexSizeBuffer2_);
-    chart_->deleteBuffer(vertexColorBuffer2_);
     vertexPosBuffer2_.clear();
+  }
+  if (!vertexSizeBuffer2_.isNull()) {
+    chart_->deleteBuffer(vertexSizeBuffer2_);
+    vertexSizeBuffer2_.clear();
+  }
+  if (!vertexColorBuffer2_.isNull()) {
+    chart_->deleteBuffer(vertexColorBuffer2_);
+    vertexColorBuffer2_.clear();
   }
   if (!lineVertBuffer_.isNull()) {
     chart_->deleteBuffer(lineVertBuffer_);

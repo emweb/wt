@@ -1708,6 +1708,11 @@ void WServerGLWidget::setClientSideWalkHandler(const WGLWidget::JavaScriptMatrix
       << m.jsRef() << "," << frontStep << "," << rotStep << "));\n";
 }
 
+JsArrayType WServerGLWidget::arrayType() const
+{
+  return Array;
+}
+
 std::string WServerGLWidget::glObjJsRef(const std::string& jsRef)
 {
   return "(function(){"

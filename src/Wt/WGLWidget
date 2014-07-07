@@ -521,7 +521,7 @@ public:
 #endif
 
   private:
-    void assignToContext(int i, JsArrayType type, const WGLWidget* context);
+    void assignToContext(int i, const WGLWidget* context);
     void initialize() { initialized_ = true; }
     bool hasOperations() const { return operations_.size() > 0;}
 
@@ -532,8 +532,6 @@ public:
     int id_;
     std::string jsRef_;
     const WGLWidget* context_;
-
-    JsArrayType arrayType_;
 
     enum op {TRANSPOSE, INVERT, MULTIPLY};
     std::vector<op> operations_;
@@ -579,6 +577,8 @@ public:
    * \note Options must be set before the widget is being rendered.
    */
   void setRenderOptions(WFlags<RenderOption> options);
+
+protected:
 
   /*! \brief Initialize the GL state when the widget is first shown.
    *
@@ -652,6 +652,8 @@ public:
    * the result will be rendered client-side exactly once.
    */
   virtual void updateGL();
+
+public:
 
   /*! \brief Specifies what GL function needs to be updated
    */

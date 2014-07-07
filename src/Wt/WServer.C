@@ -182,6 +182,15 @@ void WServer::post(const std::string& sessionId,
   schedule(0, sessionId, function, fallbackFunction);
 }
 
+void WServer::postAll(const boost::function<void ()>& function)
+{
+  std::vector<std::string> sessions = webController_->sessions();
+  for (std::vector<std::string>::const_iterator i = sessions.begin();
+      i != sessions.end(); ++i) {
+    schedule(0, *i, function);
+  }
+}
+
 void WServer::schedule(int milliSeconds,
 		       const std::string& sessionId,
 		       const boost::function<void ()>& function,

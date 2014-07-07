@@ -635,6 +635,20 @@ void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
   }
 }
 
+void WApplication::removeStyleSheet(const WLink& link)
+{
+  for (int i = (int)styleSheets_.size() - 1; i > -1; --i) {
+    if (styleSheets_[i].link() == link) {
+      WCssStyleSheet &sheet = styleSheets_[i];
+      styleSheetsToRemove_.push_back(sheet);
+      if (i > (int)styleSheets_.size() + styleSheetsAdded_ - 1)
+        styleSheetsAdded_--;
+      styleSheets_.erase(styleSheets_.begin() + i);
+      break;
+    }
+  }
+}
+
 const WEnvironment& WApplication::environment() const
 {
   return session_->env();

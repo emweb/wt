@@ -20,13 +20,16 @@ public:
   SoundManager(WContainerWidget *parent = 0);
 
   void add(WSound *sound);
-  void remove(WSound *sound);
-
   void play(WSound *sound, int loops);
   void stop(WSound *sound);
 
   bool isFinished(WSound *sound) const;
   virtual void refresh();
+
+private:
+  WSound *current_;
+
+  void setup(WSound *sound);
 };
 
 }

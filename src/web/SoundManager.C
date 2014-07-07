@@ -34,26 +34,34 @@ SoundManager::SoundManager(WContainerWidget *parent)
   ended().setNotExposed();
 }
 
-void SoundManager::add(WSound *sound)
+void SoundManager::setup(WSound *sound)
 {
-  if (getSource(MP3) != sound->url()) {
-    clearSources();
-    addSource(MP3, WLink(sound->url()));
+  for (unsigned i = 0; i < sound->media_.size(); ++i) {
+    const WSound::Source& m = sound->media_[i];
+    if (getSource(m.encoding) != m.link) {      
+      clearSources();
+      for (unsigned j = 0; j < sound->media_.size(); ++j) {
+	const WSound::Source& m2 = sound->media_[j];
+	addSource(m2.encoding, m2.link);
+      }
+      break;
+    }
   }
 }
 
-void SoundManager::remove(WSound *sound)
-{ }
+void SoundManager::add(WSound *sound)
+{
+  setup(sound);
+}
 
 void SoundManager::play(WSound *sound, int loops)
 {
-  if (getSource(MP3) != sound->url()) {
-    clearSources();
-    addSource(MP3, WLink(sound->url()));
-  }
+  setup(sound);
 
   setAttributeValue("loops", std::string());
   setAttributeValue("loops", boost::lexical_cast<std::string>(loops - 1));
+
+  current_ = sound;
 
   WMediaPlayer::play();
 }
@@ -61,11 +69,13 @@ void SoundManager::play(WSound *sound, int loops)
 void SoundManager::stop(WSound *sound)
 {
   WMediaPlayer::stop();
+
+  current_ = 0;
 }
 
 bool SoundManager::isFinished(WSound *sound) const
 {
-  if (getSource(MP3) == sound->url())
+  if (current_ == sound)
     return !playing();
   else
     return true;

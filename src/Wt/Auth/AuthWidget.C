@@ -137,8 +137,8 @@ WDialog *AuthWidget::showDialog(const WString& title, WWidget *contents)
        * try to center it better, we need to set the half width and
        * height as negative margins.
        */
-      dialog_->setMargin("-21em", Left); // .Wt-form width
-      dialog_->setMargin("-200px", Top); // ???
+      dialog_->setMargin(WLength("-21em"), Left); // .Wt-form width
+      dialog_->setMargin(WLength("-200px"), Top); // ???
     }
 
     dialog_->show();

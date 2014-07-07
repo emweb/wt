@@ -76,6 +76,14 @@ WServer::WServer(const std::string& applicationPath,
   init(applicationPath, wtConfigurationFile);
 }
 
+WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
+  : impl_(new Impl())
+{
+  init(argv[0], "");
+
+  setServerConfiguration(argc, argv, wtConfigurationFile);
+}
+
 WServer::~WServer()
 {
   if (impl_->server_) {
@@ -223,6 +231,14 @@ void WServer::stop()
   webController_->shutdown();
   impl_->server_->stop();
 #endif // WT_THREADED
+}
+
+void WServer::run()
+{
+  if (start()) {
+    waitForShutdown();
+    stop();
+  }
 }
 
 int WServer::httpPort() const

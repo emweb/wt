@@ -35,8 +35,7 @@ int main(int, char **)
     argv1[3] = (char *) "--deploy-path=/";
     argv1[4] = (char *) "--docroot=.";
 
-    WServer server1(argv1[0]);
-    server1.setServerConfiguration(argc, argv1, WTHTTP_CONFIGURATION);
+    WServer server1(argc, argv1, WTHTTP_CONFIGURATION);
 
     char** argv2 = new char*[argc];
 
@@ -46,8 +45,7 @@ int main(int, char **)
     argv2[3] = (char *) "--deploy-path=/";
     argv2[4] = (char *) "--docroot=.";
 
-    WServer server2(argv2[0]);
-    server2.setServerConfiguration(argc, argv2, WTHTTP_CONFIGURATION);
+    WServer server2(argc, argv2, WTHTTP_CONFIGURATION);
 
     server1.addEntryPoint(Application, createApplication);
     server2.addEntryPoint(Application, createApplication);

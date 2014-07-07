@@ -79,7 +79,8 @@ WT_DECLARE_WT_MEMBER
 	 handleClass: 'Wt-vrh2',
 	 resizeDir: 'h',
 	 resizerClass: 'Wt-hsh2',
-	 fitSize: fitWidth
+	 fitSize: fitWidth,
+         resizeHandles: []
        }, {
          initialized: false,
 	 config: config.rows,
@@ -104,7 +105,8 @@ WT_DECLARE_WT_MEMBER
 	 handleClass: 'Wt-hrh2',
 	 resizeDir: 'v',
 	 resizerClass: 'Wt-vsh2',
-	 fitSize: fitHeight
+	 fitSize: fitHeight,
+         resizeHandles: []
        }];
 
    jQuery.data(document.getElementById(id), 'layout', this);
@@ -857,6 +859,16 @@ WT_DECLARE_WT_MEMBER
 		       }, handle, widget, event, 0, 0);
    }
 
+   // does this column/row have an adjacent handle?
+   function hasResizeHandle(config, di) {
+     if (di == 0) {
+       return (config[di][RESIZABLE] !== 0);
+     } else {
+       return (config[di-1][RESIZABLE] !== 0 ||
+	       config[di][RESIZABLE] !== 0);
+     }
+   }
+
    function apply(dir, widget) {
      var DC = DirConfig[dir],
        OC = DirConfig[dir ^ 1],
@@ -1051,6 +1063,13 @@ WT_DECLARE_WT_MEMBER
 
 	   var fs = -1;
 
+	   /* if resizable was disabled, remove fixedSize and go back to 
+	    * using the preferred size
+	    */
+	   if (typeof DC.fixedSize[di] !== "undefined"
+	       && ! hasResizeHandle(DC.config, di) ) {
+	     DC.fixedSize[di] = undefined;
+	   }
 	   /*
 	    * If we have a fixedSize (set by resizing) then we should
 	    * take it into account only if the resizer is still visible.
@@ -1093,6 +1112,9 @@ WT_DECLARE_WT_MEMBER
 	   targetSize[di] = -1;
 	 }
        }
+
+       if (DC.fixedSize.length > dirCount)
+	 DC.fixedSize.length = dirCount;
 
        if (totalStretch == 0) {
 	 for (di = 0; di < dirCount; ++di)
@@ -1199,6 +1221,7 @@ WT_DECLARE_WT_MEMBER
 	   var hid = id + "-rs" + dir + "-" + di;
 	   var handle = WT.getElement(hid);
 	   if (!handle) {
+	     DC.resizeHandles[di] = hid;
 	     handle = document.createElement('div');
 	     handle.setAttribute('id', hid);
 	     handle.di = di;
@@ -1220,6 +1243,12 @@ WT_DECLARE_WT_MEMBER
 	   left += RESIZE_HANDLE_MARGIN;
 	   setCss(handle, DC.left, left + 'px');
 	   left += RESIZE_HANDLE_MARGIN;
+	 } else {
+	   if (DC.resizeHandles[di]) {
+	     var handle = WT.getElement(DC.resizeHandles[di]);
+	     handle.parentNode.removeChild(handle);
+	     DC.resizeHandles[di] = undefined;
+	   }
 	 }
 
 	 resizeHandle = DC.config[di][RESIZABLE] !== 0;
@@ -1355,6 +1384,16 @@ WT_DECLARE_WT_MEMBER
 
        if (targetSize[di] > -1)
 	 left += targetSize[di];
+     }
+
+     if (DC.resizeHandles.length > dirCount) {
+       for (var i=dirCount; i < DC.resizeHandles.length; i++) {
+	 if (DC.resizeHandles[i]) {
+	   var handle = WT.getElement(DC.resizeHandles[i]);
+	   handle.parentNode.removeChild(handle);
+	 }
+       }
+       DC.resizeHandles.length = dirCount;
      }
 
      $(widget).children("." + OC.handleClass)

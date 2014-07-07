@@ -148,17 +148,11 @@ WApplication *createApplication(const WEnvironment& env)
 int main(int argc, char **argv)
 {
   try {
-    WServer server(argv[0]);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
     readObj(WApplication::appRoot() + "teapot.obj", data);
 
-    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-
     server.addEntryPoint(Wt::Application, createApplication);
-    if (server.start()) {
-      WServer::waitForShutdown();
-
-      server.stop();
-    }
+    server.run();
   } catch (WServer::Exception& e) {
     std::cerr << e.what() << "\n";
     return 1;

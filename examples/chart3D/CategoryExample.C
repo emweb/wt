@@ -32,6 +32,8 @@ CategoryExample::CategoryExample(WContainerWidget *parent)
 {
   setContentAlignment(AlignCenter);
   chart_ = new WCartesian3DChart(this);
+  // Disabling server side rendering for Wt website.
+  chart_->setRenderOptions(WGLWidget::ClientSideRendering | WGLWidget::AntiAliasing);
   chart_->setType(CategoryChart);
 
   Wt::WCssDecorationStyle style;

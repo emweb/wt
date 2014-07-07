@@ -2183,6 +2183,8 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 
   // draw title
   double addOffset = XAxis_.titleOffset();
+  WFont oldFont = painter.font();
+  painter.setFont(XAxis_.titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
 		   AlignCenter | AlignTop, XAxis_.title());
@@ -2263,6 +2265,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
 		   AlignCenter | AlignBottom, XAxis_.title());
+  painter.setFont(oldFont);
 
   // draw Y-axis (LTR, label underneath)
   painter.scale(1.0/textureScaling_, 1.0/textureScaling_);
@@ -2294,6 +2297,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
 
   // draw title
   addOffset = YAxis_.titleOffset();
+  painter.setFont(YAxis_.titleFont());
   painter.drawText(WRectF(0, TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
 		   AlignCenter | AlignTop, YAxis_.title());
@@ -2374,6 +2378,7 @@ void WCartesian3DChart::paintHorizAxisTextures(WPaintDevice *paintDevice,
   // draw title
   painter.drawText(WRectF(0, 0, axisWidth, axisHeight-TITLEOFFSET-addOffset),
 		   AlignCenter | AlignBottom, YAxis_.title());
+  painter.setFont(oldFont);
 
   if (labelAngleMirrored) {
     XAxis_.setLabelAngle(oldLabelAngleX);
@@ -2421,6 +2426,8 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   // draw title
   double addOffset = ZAxis_.titleOffset();
   painter.rotate(-90);
+  WFont oldFont = ZAxis_.titleFont();
+  painter.setFont(ZAxis_.titleFont());
   painter.drawText(WRectF(-axisWidth, 0,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
 		   AlignCenter | AlignBottom, ZAxis_.title());
@@ -2454,6 +2461,7 @@ void WCartesian3DChart::paintVertAxisTextures(WPaintDevice *paintDevice)
   painter.drawText(WRectF(-axisWidth, axisHeight+TITLEOFFSET+addOffset,
 			  axisWidth, axisHeight-TITLEOFFSET-addOffset),
 			  AlignCenter | AlignTop, ZAxis_.title());
+  painter.setFont(oldFont);
   painter.rotate(90);
   painter.end();
 }

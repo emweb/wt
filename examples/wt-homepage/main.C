@@ -17,9 +17,7 @@
 int main(int argc, char **argv)
 {
   try {
-    WServer server(argv[0]);
-
-    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
     BlogSession::configureAuth();
 
@@ -39,10 +37,7 @@ int main(int argc, char **argv)
 			 boost::bind(&createWtHomeApplication, _1, blogDb),
 			 "", "/css/wt/favicon.ico");
 
-    if (server.start()) {
-      WServer::waitForShutdown();
-      server.stop();
-    }
+    server.run();
 
     delete blogDb;
   } catch (Wt::WServer::Exception& e) {

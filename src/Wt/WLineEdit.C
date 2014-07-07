@@ -454,7 +454,7 @@ void WLineEdit::processInputMask() {
     char currentChar = inputMask_[i];
 #endif
     if (currentChar == '>' || currentChar == '<' || currentChar == '!') {
-      mode = currentChar;
+      mode = static_cast<char>(currentChar);
 #ifndef WT_NO_STD_WSTRING
     } else if (std::wstring(L"AaNnXx90Dd#HhBb").find(currentChar) 
 	       != std::wstring::npos) {

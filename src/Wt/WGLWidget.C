@@ -1013,7 +1013,7 @@ void WGLWidget::addJavaScriptMatrix4(JavaScriptMatrix4x4 &mat)
 {
   if (mat.hasContext())
     throw WException("The given matrix is already associated with a WGLWidget!");
-  mat.assignToContext(jsValues_++, Float32Array, this);
+  mat.assignToContext(jsValues_++, this);
 
   jsMatrixList_.push_back(jsMatrixMap(mat.id(), WMatrix4x4()));
 }
@@ -1218,12 +1218,11 @@ WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4()
   : id_(-1), context_(0), initialized_(false)
 {}
 
-void WGLWidget::JavaScriptMatrix4x4::assignToContext(int id, JsArrayType type, const WGLWidget* context)
+void WGLWidget::JavaScriptMatrix4x4::assignToContext(int id, const WGLWidget* context)
 {
   id_ = id;
   jsRef_ = context->glObjJsRef() + ".jsValues[" + boost::lexical_cast<std::string>(id_) + "]";
   context_ = context;
-  arrayType_ = type;
 }
 
 #ifndef WT_TARGET_JAVA
@@ -1231,7 +1230,6 @@ WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4(const WGLWidget::JavaScriptM
   : id_(other.id()),
     jsRef_(other.jsRef()),
     context_(other.context_),
-    arrayType_(other.arrayType_),
     operations_(other.operations_),
     matrices_(other.matrices_),
     initialized_(other.initialized_)
@@ -1244,7 +1242,6 @@ WGLWidget::JavaScriptMatrix4x4::operator=(const WGLWidget::JavaScriptMatrix4x4 &
   id_ = rhs.id_;
   jsRef_ = rhs.jsRef_;
   context_ = rhs.context_;
-  arrayType_ = rhs.arrayType_;
   operations_ = rhs.operations_;
   matrices_ = rhs.matrices_;
   initialized_ = rhs.initialized_;
@@ -1324,9 +1321,9 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::multiply(const WG
   ss << WT_CLASS ".glMatrix.mat4.multiply(" << jsRef_ << ",";
   WGenericMatrix<double, 4, 4> t(m.transposed());
 #ifndef WT_TARGET_JAVA
-  WClientGLWidget::renderfv(ss, t, arrayType_);
+  WClientGLWidget::renderfv(ss, t, context_->pImpl_->arrayType());
 #else
-  renderfv(ss, t, arrayType_);
+  renderfv(ss, t, context_->pImpl_->arrayType());
 #endif
   ss << ", " WT_CLASS ".glMatrix.mat4.create())";
   copy.jsRef_ = ss.str();
@@ -1342,7 +1339,6 @@ WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::clone() const
   copy.id_ = id_;
   copy.jsRef_ = jsRef_;
   copy.context_ = context_;
-  copy.arrayType_ = arrayType_;
   copy.initialized_ = initialized_;
 
   copy.operations_ = operations_;

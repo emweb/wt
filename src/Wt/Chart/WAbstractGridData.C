@@ -237,16 +237,23 @@ void WAbstractGridData::updateGL()
       max = chart_->toPlotCubeCoords(colormap_->maximum(), ZAxis_3D);
       chart_->uniform1f(offset_, min);
       chart_->uniform1f(scaleFactor_, 1.0/(max-min));
-      if (seriesType_ == SurfaceSeries3D && isoLineHeights_.size() > 0) {
-	chart_->useProgram(isoLineProgram_);
-	chart_->uniform1f(isoLine_offset_, min);
-	chart_->uniform1f(isoLine_scaleFactor_, 1.0/(max-min));
-      }
     } else {
       chart_->uniform1f(offset_, 0.0);
       chart_->uniform1f(scaleFactor_, 1.0);
-      if (seriesType_ == SurfaceSeries3D && isoLineHeights_.size() > 0) {
-	chart_->useProgram(isoLineProgram_);
+    }
+    if (isoLineHeights_.size() > 0) {
+      chart_->useProgram(isoLineProgram_);
+      if (isoLineColorMap_ != 0) {
+	min = chart_->toPlotCubeCoords(isoLineColorMap_->minimum(), ZAxis_3D);
+	max = chart_->toPlotCubeCoords(isoLineColorMap_->maximum(), ZAxis_3D);
+	chart_->uniform1f(isoLine_offset_, min);
+	chart_->uniform1f(isoLine_scaleFactor_, 1.0/(max-min));
+      } else if (colormap_ != 0) {
+	min = chart_->toPlotCubeCoords(colormap_->minimum(), ZAxis_3D);
+	max = chart_->toPlotCubeCoords(colormap_->maximum(), ZAxis_3D);
+	chart_->uniform1f(isoLine_offset_, min);
+	chart_->uniform1f(isoLine_scaleFactor_, 1.0/(max-min));
+      } else {
 	chart_->uniform1f(isoLine_offset_, 0.0);
 	chart_->uniform1f(isoLine_scaleFactor_, 1.0);
       }
@@ -1262,7 +1269,6 @@ void WAbstractGridData::initShaders()
 
     vertexPosAttr_ = chart_->getAttribLocation(seriesProgram_,
 					       "aVertexPosition");
-    if (!wApp->environment().agentIsIE())
       vertexSizeAttr_ = chart_->getAttribLocation(seriesProgram_, "aPointSize");
     mvMatrixUniform_ = chart_->getUniformLocation(seriesProgram_, "uMVMatrix");
     pMatrix_ = chart_->getUniformLocation(seriesProgram_, "uPMatrix");
@@ -1290,9 +1296,8 @@ void WAbstractGridData::initShaders()
 
     vertexPosAttr2_ = chart_->getAttribLocation(colSeriesProgram_,
 					       "aVertexPosition");
-    if (!wApp->environment().agentIsIE())
-      vertexSizeAttr2_ = chart_->getAttribLocation(colSeriesProgram_,
-						 "aPointSize");
+    vertexSizeAttr2_ = chart_->getAttribLocation(colSeriesProgram_,
+					       "aPointSize");
     vertexColAttr2_ = chart_->getAttribLocation(colSeriesProgram_, "aColor");
     mvMatrixUniform2_ = chart_->getUniformLocation(colSeriesProgram_,
 						  "uMVMatrix");
@@ -1519,16 +1524,14 @@ void WAbstractGridData::paintGL() const
     chart_->disableVertexAttribArray(vertexPosAttr_);
   } else {
     // draw simple points
-    if (!wApp->environment().agentIsIE()) {
-      chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffers_[i]);
-      chart_->vertexAttribPointer(vertexSizeAttr_,
-				  1,
-				  WGLWidget::FLOAT,
-				  false,
-				  0,
-				  0);
-      chart_->enableVertexAttribArray(vertexSizeAttr_);
-    }
+    chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffers_[i]);
+    chart_->vertexAttribPointer(vertexSizeAttr_,
+				1,
+				WGLWidget::FLOAT,
+				false,
+				0,
+				0);
+    chart_->enableVertexAttribArray(vertexSizeAttr_);
     chart_->activeTexture(WGLWidget::TEXTURE1);
     chart_->bindTexture(WGLWidget::TEXTURE_2D, pointSpriteTexture_);
     chart_->uniform1i(pointSpriteUniform_,1);
@@ -1539,8 +1542,7 @@ void WAbstractGridData::paintGL() const
 		       0,
 		       vertexPosBufferSizes_[i]/3);
     chart_->disableVertexAttribArray(vertexPosAttr_);
-    if (!wApp->environment().agentIsIE())
-      chart_->disableVertexAttribArray(vertexSizeAttr_);
+    chart_->disableVertexAttribArray(vertexSizeAttr_);
   }
 
   // draw mesh
@@ -1604,16 +1606,14 @@ void WAbstractGridData::paintGL() const
 				0);
     chart_->enableVertexAttribArray(vertexColAttr2_);
     if (seriesType_ == PointSeries3D) {
-      if (!wApp->environment().agentIsIE()) {
-	chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffers2_[i]);
-	chart_->vertexAttribPointer(vertexSizeAttr2_,
-				    1,
-				    WGLWidget::FLOAT,
-				    false,
-				    0,
-				    0);
-	chart_->enableVertexAttribArray(vertexSizeAttr2_);
-      }
+      chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffers2_[i]);
+      chart_->vertexAttribPointer(vertexSizeAttr2_,
+				  1,
+				  WGLWidget::FLOAT,
+				  false,
+				  0,
+				  0);
+      chart_->enableVertexAttribArray(vertexSizeAttr2_);
       chart_->activeTexture(WGLWidget::TEXTURE0);
       chart_->bindTexture(WGLWidget::TEXTURE_2D, pointSpriteTexture_);
       chart_->uniform1i(pointSpriteUniform2_,0);
@@ -1623,8 +1623,7 @@ void WAbstractGridData::paintGL() const
       chart_->drawArrays(WGLWidget::POINTS,
 			 0,
 			 vertexPosBuffer2Sizes_[i]/3);
-      if (!wApp->environment().agentIsIE())
-	chart_->disableVertexAttribArray(vertexSizeAttr2_);
+      chart_->disableVertexAttribArray(vertexSizeAttr2_);
     } else if (seriesType_ == BarSeries3D) {
       chart_->bindBuffer(WGLWidget::ELEMENT_ARRAY_BUFFER, indexBuffers2_[i]);
       chart_->drawElements(WGLWidget::TRIANGLES, indexBufferSizes2_[i],
@@ -1903,6 +1902,10 @@ void WAbstractGridData::deleteAllGLResources()
     if (!vertexPosBuffers2_[i].isNull()) {
       chart_->deleteBuffer(vertexPosBuffers2_[i]);
       vertexPosBuffers2_[i].clear();
+    }
+  }
+  for (unsigned i = 0; i < vertexColorBuffers2_.size(); i++) {
+    if (!vertexColorBuffers2_[i].isNull()) {
       chart_->deleteBuffer(vertexColorBuffers2_[i]);
       vertexColorBuffers2_[i].clear();
     }
@@ -1925,10 +1928,22 @@ void WAbstractGridData::deleteAllGLResources()
       indexBuffers_[i].clear();
     }
   }
+  for (unsigned i = 0; i < indexBuffers2_.size(); i++) {
+    if (!indexBuffers2_[i].isNull()) {
+      chart_->deleteBuffer(indexBuffers2_[i]);
+      indexBuffers2_[i].clear();
+    }
+  }
   for (unsigned i = 0; i < overlayLinesBuffers_.size(); i++) {
     if (!overlayLinesBuffers_[i].isNull()) {
       chart_->deleteBuffer(overlayLinesBuffers_[i]);
       overlayLinesBuffers_[i].clear();
+    }
+  }
+  for (unsigned i = 0; i < overlayLinesBuffers2_.size(); i++) {
+    if (!overlayLinesBuffers2_[i].isNull()) {
+      chart_->deleteBuffer(overlayLinesBuffers2_[i]);
+      overlayLinesBuffers2_[i].clear();
     }
   }
   for (unsigned i = 0; i < colormapTexBuffers_.size(); i++) {
@@ -1945,6 +1960,7 @@ void WAbstractGridData::deleteAllGLResources()
   vertexSizeBuffers2_.clear();
   vertexColorBuffers2_.clear();
   indexBuffers_.clear();
+  indexBuffers2_.clear();
   indexBufferSizes_.clear();
   indexBufferSizes2_.clear();
   overlayLinesBuffers_.clear();

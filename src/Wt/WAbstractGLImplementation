@@ -395,6 +395,8 @@ public:
 #endif
   }
 
+  virtual JsArrayType arrayType() const = 0;
+
   virtual void injectJS(const std::string & jsString) = 0;
 
   virtual void restoreContext(const std::string &jsRef) = 0;

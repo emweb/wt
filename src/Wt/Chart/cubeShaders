@@ -222,7 +222,7 @@ const std::string intersectionLinesFragmentShaderSrc =
   "  }\n"
   "  float factor = count == 0 ? 0.0 : 1.0 - totalDistance / float(count);\n"
   "  factor = smoothstep(0.9, 1.0, factor);\n"
-  "  gl_FragColor = factor * uColor;\n"
+  "  gl_FragColor = vec4(uColor.rgb, factor);\n"
   "}";
 
 const std::string clippingPlaneFragShaderSrc =

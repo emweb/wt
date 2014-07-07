@@ -150,7 +150,7 @@ WGLWidget::Texture WAbstractDataSeries3D::colorTexture()
     WColor seriesColor = chartpaletteColor();
     WPainter painter(cpd);
     painter.setPen(WPen(seriesColor));
-    painter.drawLine(0,0,1,1);
+    painter.drawLine(0,0.5,1,0.5);
     painter.end();
   } else {
     cpd = chart_->createPaintDevice(WLength(1),WLength(1024));
@@ -171,14 +171,14 @@ WGLWidget::Texture WAbstractDataSeries3D::pointSpriteTexture()
 {
   WGLWidget::Texture tex = chart_->createTexture();
   chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
-  if (!pointSprite_.empty() && !wApp->environment().agentIsIE()) {
+  if (!pointSprite_.empty()) {
     chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, pointSprite_);
   } else {
     WPaintDevice *cpd = chart_->createPaintDevice(WLength(1),WLength(1));
     WColor color = WColor(255, 255, 255, 255);
     WPainter painter(cpd);
     painter.setPen(WPen(color));
-    painter.drawLine(0,0,1,1);
+    painter.drawLine(0,0.5,1,0.5);
     painter.end();
     chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, cpd);
   }

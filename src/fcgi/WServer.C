@@ -148,6 +148,14 @@ WServer::WServer(const std::string& applicationPath,
   init(applicationPath, wtConfigurationFile);
 }
 
+WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
+  : impl_(new Impl(*this))
+{
+  init(argv[0], "");
+
+  setServerConfiguration(argc, argv, wtConfigurationFile);
+}
+
 WServer::~WServer()
 {
   delete impl_;
@@ -218,6 +226,14 @@ void WServer::stop()
   if (!isRunning()) {
     LOG_ERROR_S(this, "stop(): server not yet started!");
     return;
+  }
+}
+
+void WServer::run()
+{
+  if (start()) {
+    waitForShutdown();
+    stop();
   }
 }
 

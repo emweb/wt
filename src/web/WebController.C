@@ -161,6 +161,18 @@ int WebController::sessionCount() const
   return sessions_.size();
 }
 
+std::vector<std::string> WebController::sessions()
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif
+  std::vector<std::string> sessionIds;
+  for (SessionMap::const_iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
+    sessionIds.push_back(i->first);
+  }
+  return sessionIds;
+}
+
 bool WebController::expireSessions()
 {
   std::vector<boost::shared_ptr<WebSession> > toExpire;

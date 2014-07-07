@@ -339,6 +339,12 @@ public:
    */
   bool isSectionHeader() const;
 
+  /*! \brief Returns the anchor of this menu item.
+   *
+   *  Can be used to add widgets to the menu.
+   */
+  WAnchor *anchor() const;
+
   /*! \brief Renders the item as selected or unselected.
    *
    * The default implementation sets the styleclass for itemWidget()
@@ -380,7 +386,6 @@ private:
 
   void create(const std::string& iconPath, const WString& text,
 	      WWidget *contents, LoadPolicy policy);
-  WAnchor *anchor() const;
   void purgeContents();
   void updateInternalPath();
   bool contentsLoaded() const;

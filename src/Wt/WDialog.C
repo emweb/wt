@@ -385,10 +385,10 @@ void WDialog::render(WFlags<RenderFlag> flags)
       impl_->bindEmpty("center-script");
   }
 
-  WPopupWidget::render(flags);
-
-  if (autoFocus_)
+  if ( (flags & RenderFull) && autoFocus_)
     impl_->setFirstFocus();
+
+  WPopupWidget::render(flags);
 }
 
 void WDialog::rejectWhenEscapePressed(bool enable)

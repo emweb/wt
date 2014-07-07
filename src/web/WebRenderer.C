@@ -141,6 +141,7 @@ bool WebRenderer::isDirty() const
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
     || session_.app()->styleSheetsAdded_
+    || !session_.app()->styleSheetsToRemove_.empty()
     || session_.app()->styleSheet().isDirty()
     || session_.app()->internalPathIsChanged_
     || !collectedJS1_.empty()
@@ -1432,7 +1433,16 @@ void WebRenderer::loadStyleSheet(WStringStream& out, WApplication *app,
 {
   out << WT_CLASS << ".addStyleSheet('"
       << sheet.link().resolveUrl(app) << "', '"
-      << sheet.media() << "');\n";
+      << sheet.media() << "');\n ";
+}
+
+void WebRenderer::removeStyleSheets(WStringStream& out, WApplication *app)
+{
+  for (int i = (int)app->styleSheetsToRemove_.size() - 1; i > -1; --i){
+    out << WT_CLASS << ".removeStyleSheet('"
+        << app->styleSheetsToRemove_[i].link().resolveUrl(app) << "');\n ";
+    app->styleSheetsToRemove_.erase(app->styleSheetsToRemove_.begin() + i);
+  }
 }
 
 void WebRenderer::loadStyleSheets(WStringStream& out, WApplication *app)
@@ -1441,6 +1451,8 @@ void WebRenderer::loadStyleSheets(WStringStream& out, WApplication *app)
 
   for (unsigned i = first; i < app->styleSheets_.size(); ++i)
     loadStyleSheet(out, app, app->styleSheets_[i]);
+
+  removeStyleSheets(out, app);
 
   app->styleSheetsAdded_ = 0;
 }
