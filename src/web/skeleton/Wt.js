@@ -2114,7 +2114,7 @@ function initDragDrop() {
 }
 
 function dragStart(obj, e) {
-  if (button(e) === 2) //Ignore drags with rith click.
+  if (WT.button(e) === 2) //Ignore drags with rith click.
       return true;
   var t = WT.target(e);
   if (t) {
