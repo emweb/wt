@@ -499,7 +499,7 @@ void SaveDbAction<C>::visit(C& obj)
 
     if (!isInsert_) {
       int modifiedCount = statement_->affectedRowCount();
-      if (modifiedCount != 1) {
+      if (modifiedCount != 1 && mapping().versionFieldName) {
 	MetaDbo<C>& dbo = static_cast< MetaDbo<C>& >(dbo_);
 	std::string idString = boost::lexical_cast<std::string>(dbo.id());
 

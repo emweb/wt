@@ -129,7 +129,7 @@ WApplication::WApplication(const WEnvironment& env
   session_->setApplication(this);
   locale_ = environment().locale();
 
-  newInternalPath_ = environment().internalPath();
+  renderedInternalPath_ = newInternalPath_ = environment().internalPath();
   internalPathIsChanged_ = false;
   internalPathDefaultValid_ = true;
   internalPathValid_ = true;
@@ -1184,7 +1184,7 @@ void WApplication::enableInternalPaths()
 
     doJavaScript
       (javaScriptClass() + "._p_.enableInternalPaths("
-       + WWebWidget::jsStringLiteral(newInternalPath_)
+       + WWebWidget::jsStringLiteral(renderedInternalPath_)
        + ");");
 
     if (session_->useUglyInternalPaths())
@@ -1255,9 +1255,6 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
 {
   enableInternalPaths();
 
-  if (!internalPathIsChanged_)
-    oldInternalPath_ = newInternalPath_;
-
   if (!session_->renderer().preLearning() && emitChange)
     changeInternalPath(path);
   else
@@ -1282,7 +1279,7 @@ bool WApplication::changeInternalPath(const std::string& aPath)
   std::string path = Utils::prepend(aPath, '/');
 
   if (path != internalPath()) {
-    newInternalPath_ = path;
+    renderedInternalPath_ = newInternalPath_ = path;
     internalPathValid_ = internalPathDefaultValid_;
     internalPathChanged_.emit(newInternalPath_);
 

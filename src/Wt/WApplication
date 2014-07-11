@@ -2197,7 +2197,7 @@ private:
   WCssStyleSheet         styleSheet_;  // internal stylesheet
   WCombinedLocalizedStrings *localizedStrings_;
   WLocale                locale_;
-  std::string            oldInternalPath_, newInternalPath_;
+  std::string            renderedInternalPath_, newInternalPath_;
   Signal<std::string>    internalPathChanged_, internalPathInvalid_;
   bool                   internalPathIsChanged_;
   bool                   internalPathDefaultValid_, internalPathValid_;

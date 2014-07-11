@@ -983,17 +983,17 @@ void WebRenderer::serveMainscript(WebResponse& response)
     out << "window." << app->javaScriptClass()
 	<< "LoadWidgetTree = function(){\n";
 
+    if (app->internalPathsEnabled_)
+      out << app->javaScriptClass() << "._p_.enableInternalPaths("
+	  << WWebWidget::jsStringLiteral(app->renderedInternalPath_)
+	  << ");\n";
+
     visibleOnly_ = false;
 
     formObjectsChanged_ = true;
     currentFormObjectsList_.clear();
     collectJavaScript();
     updateLoadIndicator(collectedJS1_, app, true);
-
-    if (app->internalPathsEnabled_)
-      out << app->javaScriptClass() << "._p_.enableInternalPaths("
-	  << WWebWidget::jsStringLiteral(app->internalPath())
-	  << ");\n";
 
     LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
@@ -1251,8 +1251,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
   if (!app->environment().ajax()
       && (/*response.requestMethod() == "POST"
 	  || */(app->internalPathIsChanged_
-		&& app->oldInternalPath_ != app->newInternalPath_))) {
-    app->oldInternalPath_ = app->newInternalPath_;
+		&& app->renderedInternalPath_ != app->newInternalPath_))) {
+    app->renderedInternalPath_ = app->newInternalPath_;
 
     if (session_.state() == WebSession::JustCreated &&
 	conf.progressiveBoot(app->environment().internalPath())) {
@@ -1584,6 +1584,8 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
     updateLayout_ = false;
   }
 
+  app->renderedInternalPath_ = app->newInternalPath_;
+
   updateLoadIndicator(out, app, false);
 
   out << '}';
@@ -1689,6 +1691,7 @@ void WebRenderer::collectJS(WStringStream* js)
     app->afterLoadJavaScript_.clear();
 
   app->internalPathIsChanged_ = false;
+  app->renderedInternalPath_ = app->newInternalPath_;
 }
 
 void WebRenderer::preLearnStateless(WApplication *app, WStringStream& out)
