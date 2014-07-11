@@ -356,9 +356,18 @@ void EventSignalBase::connect(JSlot& slot)
 void EventSignalBase::connect(const std::string& javaScript)
 {
   Wt::Signals::connection c;
+
+  int argc = argumentCount(); // user arguments, excluding 'e'
+
+  WStringStream ss;
+  ss << "(" << javaScript << ")(o,e";
+  for (int i = 0; i < argc; ++i)
+    ss << ",a" << (i+1);
+  ss << ");";
+
   connections_.push_back
     (StatelessConnection(c, 0,
-			 new WStatelessSlot("(" + javaScript  + ")(o,e,a1,a2,a3,a4,a5,a6);")));
+			 new WStatelessSlot(ss.str())));
 
   senderRepaint();
 }

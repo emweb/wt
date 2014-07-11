@@ -352,6 +352,9 @@ public:
   virtual Wt::Signals::connection connect(WObject *target,
 					     void (WObject::*method)());
 
+protected:
+  virtual int argumentCount() const;
+
 private:
   JSignal(const JSignal<A1, A2, A3, A4, A5, A6>&);
 
@@ -651,6 +654,26 @@ template <typename A1, typename A2, typename A3,
 bool JSignal<A1, A2, A3, A4, A5, A6>::isConnected() const
 {
   return impl_ ? impl_->num_slots() > 0 : EventSignalBase::isConnected();
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+int JSignal<A1, A2, A3, A4, A5, A6>::argumentCount() const
+{
+  if (typeid(A6) != typeid(NoClass))
+    return 6;
+  else if (typeid(A5) != typeid(NoClass))
+    return 5;
+  else if (typeid(A4) != typeid(NoClass))
+    return 4;
+  else if (typeid(A3) != typeid(NoClass))
+    return 3;
+  else if (typeid(A2) != typeid(NoClass))
+    return 2;
+  else if (typeid(A1) != typeid(NoClass))
+    return 1;
+  else
+    return 0;
 }
 
 template <typename T>

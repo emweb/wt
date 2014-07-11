@@ -133,6 +133,8 @@ protected:
   static void pushSender(WObject *sender);
   static void popSender();
 
+  virtual int argumentCount() const = 0;
+
 private:
   SignalBase(const SignalBase& other);
 
@@ -406,6 +408,9 @@ public:
 		  A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
 
   virtual bool isConnected() const;
+
+protected:
+  virtual int argumentCount() const;
 
 private:
   Signal(const Signal<A1, A2, A3, A4, A5, A6>&);
@@ -751,6 +756,9 @@ public:
   virtual Wt::Signals::connection connect(WObject *target,
 					     WObject::Method method);
 
+protected:
+  virtual int argumentCount() const;
+
 private:
 #ifndef WT_CNOR
   typedef Wt::Signals::signal<void(E)> BoostSignalType;
@@ -1004,6 +1012,26 @@ bool Signal<A1, A2, A3, A4, A5, A6>::isConnected() const
   return impl_ ? impl_->num_slots() > 0 : false;
 }
 
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+int Signal<A1, A2, A3, A4, A5, A6>::argumentCount() const
+{
+  if (typeid(A6) != typeid(NoClass))
+    return 6;
+  else if (typeid(A5) != typeid(NoClass))
+    return 5;
+  else if (typeid(A4) != typeid(NoClass))
+    return 4;
+  else if (typeid(A3) != typeid(NoClass))
+    return 3;
+  else if (typeid(A2) != typeid(NoClass))
+    return 2;
+  else if (typeid(A1) != typeid(NoClass))
+    return 1;
+  else
+    return 0;
+}
+
 #ifndef __clang__
 template <typename E>
 void *EventSignal<E>::operator new(std::size_t) {
@@ -1028,6 +1056,12 @@ bool EventSignal<E>::isConnected() const
     return true;
 
   return dynamic_.num_slots() > 0;
+}
+
+template <typename E>
+int EventSignal<E>::argumentCount() const
+{
+  return 0; // excluding the event 'e'
 }
 
 template <typename E>
