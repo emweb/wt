@@ -14,10 +14,16 @@
 namespace Wt {
   namespace Dbo {
 
-Transaction::Transaction(Session& session)
+boost::mutex Transaction::mutex_;
+
+Transaction::Transaction(Session& session, const bool locked)
   : committed_(false),
-    session_(session)
-{ 
+    session_(session),
+    locked_(locked)
+{
+  if(locked_)
+    mutex_.lock();
+
   if (!session_.transaction_)
     session_.transaction_ = new Impl(session_);
 
@@ -63,6 +69,9 @@ Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
   }
 
   release();
+
+  if(locked_)
+    mutex_.unlock();
 }
 
 void Transaction::release()
