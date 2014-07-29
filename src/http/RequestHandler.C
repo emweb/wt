@@ -24,6 +24,7 @@
 #include "StaticReply.h"
 #include "StockReply.h"
 #include "WtReply.h"
+#include "ProxyReply.h"
 
 namespace {
   unsigned char fromHex(char b)
@@ -46,12 +47,18 @@ namespace http {
 namespace server {
 
 RequestHandler::RequestHandler(const Configuration &config,
-			       const Wt::EntryPointList& entryPoints,
+			       const Wt::Configuration& wtConfig,
 			       Wt::WLogger& logger)
   : config_(config),
-    entryPoints_(entryPoints),
-    logger_(logger)
+    wtConfig_(wtConfig),
+    logger_(logger),
+    sessionManager_(0)
 { }
+
+void RequestHandler::setSessionManager(SessionProcessManager *sessionManager)
+{
+  sessionManager_ = sessionManager;
+}
 
 bool RequestHandler::matchesPath(const std::string& path,
 				 const std::string& prefix,
@@ -84,6 +91,7 @@ bool RequestHandler::matchesPath(const std::string& path,
  */
 ReplyPtr RequestHandler::handleRequest(Request& req,
 				       ReplyPtr& lastWtReply,
+				       ReplyPtr& lastProxyReply,
 				       ReplyPtr& lastStaticReply)
 {
   if ((req.method != "GET")
@@ -126,8 +134,9 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
     int bestMatch = -1;
     std::size_t bestLength = std::string::npos;
 
-    for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-      const Wt::EntryPoint& ep = entryPoints_[i];
+    const Wt::EntryPointList& entryPoints = wtConfig_.entryPoints();
+    for (unsigned i = 0; i < entryPoints.size(); ++i) {
+      const Wt::EntryPoint& ep = entryPoints[i];
 
       bool matchesApp = matchesPath(req.request_path,
 				    ep.path(),
@@ -143,19 +152,29 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
     }
 
     if (bestMatch != -1) {
-      const Wt::EntryPoint& ep = entryPoints_[bestMatch];
+      const Wt::EntryPoint& ep = entryPoints[bestMatch];
 
       if (bestLength != std::string::npos)
 	req.request_extra_path = req.request_path.substr(bestLength);
 
       req.request_path = ep.path();
 
-      if (!lastWtReply)
-	lastWtReply.reset(new WtReply(req, ep, config_));
-      else 
-	lastWtReply->reset(&ep);
+      if (wtConfig_.sessionPolicy() != Wt::Configuration::DedicatedProcess ||
+	  ep.type() == Wt::StaticResource || config_.parentPort() != -1) {
+	if (!lastWtReply)
+	  lastWtReply.reset(new WtReply(req, ep, config_));
+	else
+	  lastWtReply->reset(&ep);
 
-      return lastWtReply;
+	return lastWtReply;
+      } else {
+	if (!lastProxyReply)
+	  lastProxyReply.reset(new ProxyReply(req, config_, *sessionManager_));
+	else
+	  lastProxyReply->reset(0);
+
+	return lastProxyReply;
+      }
 
       // return ReplyPtr(new WtReply(req, ep, config_));
     }

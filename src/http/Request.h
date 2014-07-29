@@ -89,6 +89,12 @@ public:
   ::int64_t contentLength;
   int webSocketVersion;
 
+  enum Type {
+    HTTP, // HTTP request
+    WebSocket, // WebSocket request
+    TCP // Raw TCP request (not interpreted by parser, e.g. for proxying)
+  } type;
+
   std::string request_path;
   std::string request_query;
   std::string request_extra_path;

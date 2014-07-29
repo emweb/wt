@@ -455,6 +455,14 @@ public:
 
   WT_API WebController *controller() { return webController_; }
 
+#ifndef WT_TARGET_JAVA
+  WT_API void scheduleStop();
+#endif // WT_TARGET_JAVA
+
+#ifdef WT_WIN32
+  WT_API static void terminate();
+#endif // WT_WIN32
+
 private:
   WebController *webController_;
 
@@ -487,6 +495,9 @@ private:
 
   WT_API static WServer *instance_;
   boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
+#ifndef WT_TARGET_JAVA
+  boost::function<void ()> stopCallback_;
+#endif // WT_TARGET_JAVA
 };
 
 }

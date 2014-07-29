@@ -26,7 +26,7 @@ namespace Wt {
 namespace http {
 namespace server {
 
-StaticReply::StaticReply(const Request& request, const Configuration& config)
+StaticReply::StaticReply(Request& request, const Configuration& config)
   : Reply(request, config)
 {
   reset(0);
@@ -210,12 +210,13 @@ std::string StaticReply::computeExpires()
   return httpDate(t);
 }
 
-void StaticReply::consumeData(Buffer::const_iterator begin,
+bool StaticReply::consumeData(Buffer::const_iterator begin,
 			      Buffer::const_iterator end,
 			      Request::State state)
 {
   if (state != Request::Partial)
     send();
+  return true;
 }
 
 std::string StaticReply::contentType()

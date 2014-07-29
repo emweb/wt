@@ -93,6 +93,7 @@ void Connection::start()
 void Connection::stop()
 {
   lastWtReply_.reset();
+  lastProxyReply_.reset();
   lastStaticReply_.reset();
 }
 
@@ -100,8 +101,7 @@ void Connection::setReadTimeout(int seconds)
 {
   LOG_DEBUG(socket().native() << " setting read timeout (ws: "
 	    << request_.webSocketVersion << ")");
-  if (request_.webSocketVersion <= 0)
-    state_ = Reading;
+  state_ |= Reading;
 
   readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
   readTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
@@ -112,8 +112,7 @@ void Connection::setWriteTimeout(int seconds)
 {
   LOG_DEBUG(socket().native() << " setting write timeout (ws: "
 	    << request_.webSocketVersion << ")");
-  if (request_.webSocketVersion <= 0)
-    state_ = Writing;
+  state_ |= Writing;
 
   writeTimer_.expires_from_now(boost::posix_time::seconds(seconds));
   writeTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
@@ -123,7 +122,7 @@ void Connection::setWriteTimeout(int seconds)
 void Connection::cancelReadTimer()
 {
   LOG_DEBUG(socket().native() << " cancel read timeout");
-  state_ = Idle;
+  state_.clear(Reading);
 
   readTimer_.cancel();
 }
@@ -131,7 +130,7 @@ void Connection::cancelReadTimer()
 void Connection::cancelWriteTimer()
 {
   LOG_DEBUG(socket().native() << " cancel write timeout");
-  state_ = Idle;
+  state_.clear(Writing);
 
   writeTimer_.cancel();
 }
@@ -174,7 +173,10 @@ void Connection::handleReadRequest0()
 
   if (result) {
     Reply::status_type status = request_parser_.validate(request_);
-    bool doWebSockets = server_->controller()->configuration().webSockets();
+    // FIXME: Let the reply decide whether we're doing websockets, move this logic to WtReply
+    bool doWebSockets = server_->controller()->configuration().webSockets() &&
+			(server_->controller()->configuration().sessionPolicy() != Wt::Configuration::DedicatedProcess ||
+			 server_->configuration().parentPort() != -1);
 
     if (doWebSockets)
       request_.enableWebSocket();
@@ -196,7 +198,7 @@ void Connection::handleReadRequest0()
       ReplyPtr reply;
       try {
 	reply = request_handler_.handleRequest
-	  (request_, lastWtReply_, lastStaticReply_);
+	  (request_, lastWtReply_, lastProxyReply_, lastStaticReply_);
 	reply->setConnection(shared_from_this());
       } catch (asio_system_error& e) {
 	LOG_ERROR("Error in handleRequest0(): " << e.what());
@@ -274,20 +276,25 @@ void Connection::handleReadBody(ReplyPtr reply)
   haveResponse_ = false;
   waitingResponse_ = true;
 
-  bool result = request_parser_
+  RequestParser::ParseResult result = request_parser_
     .parseBody(request_, reply, rcv_remaining_,
 	       rcv_buffers_.back().data() + rcv_buffer_size_);
 
   waitingResponse_ = false;
 
-  if (!result) {
-    if (!rcv_body_buffer_) {
-      rcv_body_buffer_ = true;
-      rcv_buffers_.push_back(Buffer());
-    }
-    startAsyncReadBody(reply, rcv_buffers_.back(), CONNECTION_TIMEOUT);
-  } else if (haveResponse_)
+  if (result == RequestParser::ReadMore) {
+    readMore(reply);
+  } else if (result == RequestParser::Done && haveResponse_)
     startWriteResponse(reply);
+}
+
+void Connection::readMore(ReplyPtr reply)
+{
+  if (!rcv_body_buffer_) {
+    rcv_body_buffer_ = true;
+    rcv_buffers_.push_back(Buffer());
+  }
+  startAsyncReadBody(reply, rcv_buffers_.back(), CONNECTION_TIMEOUT);
 }
 
 bool Connection::readAvailable()
@@ -323,8 +330,8 @@ void Connection::startWriteResponse(ReplyPtr reply)
 {
   haveResponse_ = false;
 
-  if (state_ != Idle) {
-    LOG_ERROR("Connection::startWriteResponse(): connection not idle");
+  if (state_ & Writing) {
+    LOG_ERROR("Connection::startWriteResponse(): connection already writing");
     close();
     server_->service()
       .post(strand_.wrap(boost::bind(&Reply::writeDone, reply, false)));

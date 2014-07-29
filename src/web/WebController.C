@@ -44,6 +44,8 @@
 #include <boost/filesystem.hpp>
 #endif
 
+#include <csignal>
+
 namespace {
 
 bool matchesPath(const std::string& path, const std::string& prefix)
@@ -222,6 +224,17 @@ bool WebController::expireSessions()
     session->expire();
   }
 
+  toExpire.clear();
+
+  if (configuration().singleSession()) {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+    if (sessions_.size() == 0) {
+      server_.scheduleStop();
+    }
+  }
+
   return result;
 }
 
@@ -240,6 +253,8 @@ void WebController::removeSession(const std::string& sessionId)
   boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
+  LOG_INFO("Removing session " << sessionId);
+
   SessionMap::iterator i = sessions_.find(sessionId);
   if (i != sessions_.end()) {
     if (i->second->env().ajax())
@@ -247,6 +262,10 @@ void WebController::removeSession(const std::string& sessionId)
     else
       --plainHtmlSessions_;
     sessions_.erase(i);
+  }
+
+  if (configuration().singleSession() && sessions_.size() == 0) {
+    server_.scheduleStop();
   }
 }
 

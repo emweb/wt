@@ -128,6 +128,8 @@ bool WServer::start()
 {
   setCatchSignals(!impl_->serverConfiguration_->gdb());
 
+  stopCallback_ = boost::bind(&WServer::stop, this);
+
   if (isRunning()) {
     LOG_ERROR("start(): server already started!");
     return false;
@@ -154,6 +156,11 @@ bool WServer::start()
 
   if (impl_->serverConfiguration_->threads() != -1)
     configuration().setNumThreads(impl_->serverConfiguration_->threads());
+
+  if (impl_->serverConfiguration_->parentPort() != -1) {
+    configuration().setBehindReverseProxy(true);
+    configuration().setSingleSession(true);
+  }
 
   try {
     impl_->server_ = new http::server::Server(*impl_->serverConfiguration_,
@@ -230,6 +237,7 @@ void WServer::stop()
 #else // WT_THREADED
   webController_->shutdown();
   impl_->server_->stop();
+  ioService().stop();
 #endif // WT_THREADED
 }
 

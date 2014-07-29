@@ -167,6 +167,9 @@ public:
   bool useSlashExceptionForInternalPaths() const;
   bool needReadBodyBeforeResponse() const;
   bool webglDetect() const;
+#ifndef WT_TARGET_JAVA
+  bool singleSession() const; // Only applicable for wthttp connector
+#endif // WT_TARGET_JAVA
 
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;
@@ -178,6 +181,10 @@ public:
   void setRunDirectory(const std::string& path);
   void setUseSlashExceptionForInternalPaths(bool enabled);
   void setNeedReadBodyBeforeResponse(bool needed);
+  void setBehindReverseProxy(bool enabled);
+#ifndef  WT_TARGET_JAVA
+  void setSingleSession(bool singleSession);
+#endif
 
   std::string generateSessionId();
   bool registerSessionId(const std::string& oldId, const std::string& newId);
@@ -238,6 +245,9 @@ private:
   bool            sessionIdCookie_;
   bool            cookieChecks_;
   bool            webglDetection_;
+#ifndef WT_TARGET_JAVA
+  bool            singleSession_;
+#endif // WT_TARGET_JAVA
 
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;

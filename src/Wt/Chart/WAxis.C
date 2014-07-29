@@ -1177,8 +1177,13 @@ long WAxis::getDateNumber(WDateTime dt) const
 
 double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
 {
-  return s.renderLength
-    / (orientation == Vertical ? AUTO_V_LABEL_PIXELS : AUTO_H_LABEL_PIXELS);
+  if (orientation == Horizontal)
+    return s.renderLength
+      / std::max((double)AUTO_H_LABEL_PIXELS,
+		 WLength(defaultDateTimeFormat(s).value().size(),
+			 WLength::FontEm).toPixels());
+  else
+    return s.renderLength / AUTO_V_LABEL_PIXELS;
 }
 
 void WAxis::render(WPainter& painter,

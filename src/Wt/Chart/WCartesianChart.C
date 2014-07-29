@@ -650,7 +650,6 @@ public:
     if (series.marker() != NoMarker) {
       chart_.drawMarker(series, marker_);
       painter_.save();
-      painter_.setShadow(series.shadow());
       needRestore_ = true;
     } else
       needRestore_ = false;
@@ -680,15 +679,15 @@ public:
 	WPen pen = WPen(series.markerPen());
 	setPenColor(pen, xIndex, yIndex, MarkerPenColorRole);
 
-	painter_.setPen(pen);
-
 	WBrush brush = WBrush(series.markerBrush());
 	setBrushColor(brush, xIndex, yIndex, MarkerBrushColorRole);
-	painter_.setBrush(brush);
-
 	setMarkerSize(painter_, xIndex, yIndex, series.markerSize());
 
-	painter_.drawPath(marker_);
+	painter_.setShadow(series.shadow());
+	painter_.fillPath(marker_, brush);
+	painter_.setShadow(WShadow());
+	painter_.strokePath(marker_, pen);
+
 	painter_.restore();
       }
 
@@ -1490,6 +1489,7 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
 				       const WPointF& pos,
 				       const WDataSeries& series) const
 {
+  WShadow shadow = painter.shadow();
   switch (series.type()) {
   case BarSeries: {
     WPainterPath path;
@@ -1497,10 +1497,11 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
     path.lineTo(-6, -8);
     path.lineTo(6, -8);
     path.lineTo(6, 8);
-    painter.setPen(series.pen());
-    painter.setBrush(series.brush());
     painter.translate(pos.x() + 7.5, pos.y());  
-    painter.drawPath(path);
+    painter.setShadow(series.shadow());
+    painter.fillPath(path, series.brush());
+    painter.setShadow(shadow);
+    painter.strokePath(path, series.pen());
     painter.translate(-(pos.x() + 7.5), -pos.y());
     break;
   }
@@ -1508,7 +1509,9 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
   case CurveSeries: {
     painter.setPen(series.pen());
     double offset = (series.pen().width() == 0 ? 0.5 : 0);
+    painter.setShadow(series.shadow());
     painter.drawLine(pos.x(), pos.y() + offset, pos.x() + 16, pos.y() + offset);
+    painter.setShadow(shadow);
   }
     // no break;
   case PointSeries: {
@@ -1516,9 +1519,10 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
     drawMarker(series, path);
     if (!path.isEmpty()) {
       painter.translate(pos.x() + 8, pos.y());  
-      painter.setPen(series.markerPen());
-      painter.setBrush(series.markerBrush());
-      painter.drawPath(path);
+      painter.setShadow(series.shadow());
+      painter.fillPath(path, series.markerBrush());
+      painter.setShadow(shadow);
+      painter.strokePath(path, series.markerPen());
       painter.translate(- (pos.x() + 8), -pos.y());
     }
 
@@ -1536,7 +1540,7 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
   renderLegendIcon(painter, pos, series);
 
   painter.setPen(fontPen);
-  painter.drawText(pos.x() + 17, pos.y() - 10, 100, 20,
+  painter.drawText(pos.x() + 23, pos.y() - 9, 100, 20,
 		   AlignLeft | AlignMiddle,
 		   asString(model()->headerData(series.modelColumn())));
 }

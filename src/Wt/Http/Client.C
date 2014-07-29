@@ -41,6 +41,13 @@ LOGGER("Http.Client");
 class Client::Impl : public boost::enable_shared_from_this<Client::Impl>
 {
 public:
+  struct ChunkState {
+    enum State { Size, Data, Complete, Error } state;
+    std::string data;
+    std::size_t size;
+    int parsePos;
+  };
+
   Impl(WIOService& ioService, WServer *server, const std::string& sessionId)
     : ioService_(ioService),
       resolver_(ioService_),
@@ -312,9 +319,10 @@ private:
 	  if (boost::iequals(name, "Transfer-Encoding") &&
 	      boost::iequals(value, "chunked")) {
 	    chunkedResponse_ = true;
-	    currentChunkSize_ = 0;
-	    chunkSizeParsePos_ = 0;
-	    chunkState_ = ChunkSize;
+	    chunkState_.size = 0;
+	    chunkState_.parsePos = 0;
+	    chunkState_.state = ChunkState::Size;
+	    chunkState_.data = std::string();
 	  }
 	}
       }
@@ -373,85 +381,100 @@ private:
   void addBodyText(const std::string& text)
   {
     if (chunkedResponse_) {
-      std::string::const_iterator pos = text.begin();
-      while (pos != text.end()) {
-	switch (chunkState_) {
-	case ChunkSize: {
-	  unsigned char ch = *(pos++);
-
-	  switch (chunkSizeParsePos_) {
-	  case -2:
-	    if (ch != '\r') {
-	      protocolError(); return;
-	    }
-
-	    chunkSizeParsePos_ = -1;
-
-	    break;
-	  case -1:
-	    if (ch != '\n') {
-	      protocolError(); return;
-	    }
-
-	    chunkSizeParsePos_ = 0;
-	    
-	    break;
-	  case 0:
-	    if (ch >= '0' && ch <= '9') {
-	      currentChunkSize_ <<= 4;
-	      currentChunkSize_ |= (ch - '0');
-	    } else if (ch >= 'a' && ch <= 'f') {
-	      currentChunkSize_ <<= 4;
-	      currentChunkSize_ |= (10 + ch - 'a');
-	    } else if (ch >= 'A' && ch <= 'F') {
-	      currentChunkSize_ <<= 4;
-	      currentChunkSize_ |= (10 + ch - 'A');
-	    } else if (ch == '\r') {
-	      chunkSizeParsePos_ = 2;
-	    } else if (ch == ';') {
-	      chunkSizeParsePos_ = 1;
-	    } else {
-	       protocolError(); return;
-	    }
-
-	    break;
-	  case 1:
-	    /* Ignoring extensions and syntax for now */
-	    if (ch == '\r')
-	      chunkSizeParsePos_ = 2;
-
-	    break;
-	  case 2:
-	    if (ch != '\n') {
-	      protocolError(); return;
-	    }
-
-	    if (currentChunkSize_ == 0) {
-	      complete();
-	      return;
-	    }
-	      
-	    chunkState_ = ChunkData;
-	  }
-
-	  break;
-	}
-	case ChunkData:
-
-	  std::size_t thisChunk
-	    = std::min(std::size_t(text.end() - pos), currentChunkSize_);
-	  response_.addBodyText(std::string(pos, pos + thisChunk));
-	  currentChunkSize_ -= thisChunk;
-	  pos += thisChunk;
-
-	  if (currentChunkSize_ == 0) {
-	    chunkSizeParsePos_ = -2;
-	    chunkState_ = ChunkSize;
-	  }
-	}
+      chunkedDecode(chunkState_, text);
+      if (chunkState_.state == ChunkState::Error) {
+	protocolError(); return;
+      } else if (chunkState_.state == ChunkState::Complete) {
+	complete(); return;
+      } else {
+	response_.addBodyText(chunkState_.data);
       }
     } else
       response_.addBodyText(text);
+  }
+
+  static void chunkedDecode(ChunkState& chunkState, const std::string& text)
+  {
+    std::string::const_iterator pos = text.begin();
+    while (pos != text.end()) {
+      switch (chunkState.state) {
+      case ChunkState::Size: {
+	unsigned char ch = *(pos++);
+
+	switch (chunkState.parsePos) {
+	case -2:
+	  if (ch != '\r') {
+	    chunkState.state = ChunkState::Error; return;
+	  }
+
+	  chunkState.parsePos = -1;
+
+	  break;
+	case -1:
+	  if (ch != '\n') {
+	    chunkState.state = ChunkState::Error; return;
+	  }
+
+	  chunkState.parsePos = 0;
+	  
+	  break;
+	case 0:
+	  if (ch >= '0' && ch <= '9') {
+	    chunkState.size <<= 4;
+	    chunkState.size |= (ch - '0');
+	  } else if (ch >= 'a' && ch <= 'f') {
+	    chunkState.size <<= 4;
+	    chunkState.size |= (10 + ch - 'a');
+	  } else if (ch >= 'A' && ch <= 'F') {
+	    chunkState.size <<= 4;
+	    chunkState.size |= (10 + ch - 'A');
+	  } else if (ch == '\r') {
+	    chunkState.parsePos = 2;
+	  } else if (ch == ';') {
+	    chunkState.parsePos = 1;
+	  } else {
+	     chunkState.state = ChunkState::Error; return;
+	  }
+
+	  break;
+	case 1:
+	  /* Ignoring extensions and syntax for now */
+	  if (ch == '\r')
+	    chunkState.parsePos = 2;
+
+	  break;
+	case 2:
+	  if (ch != '\n') {
+	    chunkState.state = ChunkState::Error; return;
+	  }
+
+	  if (chunkState.size == 0) {
+	    chunkState.state = ChunkState::Complete; return;
+	    return;
+	  }
+	    
+	  chunkState.state = ChunkState::Data;
+	}
+
+	break;
+      }
+      case ChunkState::Data: {
+	std::size_t thisChunk
+	  = std::min(std::size_t(text.end() - pos), chunkState.size);
+	chunkState.data = std::string(pos, pos + thisChunk);
+	chunkState.size -= thisChunk;
+	pos += thisChunk;
+
+	if (chunkState.size == 0) {
+	  chunkState.parsePos = -2;
+	  chunkState.state = ChunkState::Size;
+	}
+	break;
+      }
+      default:
+	assert(false); // Illegal state
+      }
+    }
   }
 
   void protocolError()
@@ -488,9 +511,7 @@ private:
   int timeout_;
   std::size_t maximumResponseSize_, responseSize_;
   bool chunkedResponse_;
-  enum ChunkState { ChunkSize, ChunkData } chunkState_;
-  std::size_t currentChunkSize_;
-  int chunkSizeParsePos_;
+  ChunkState chunkState_;
   boost::system::error_code err_;
   Message response_;
   Signal<boost::system::error_code, Message> done_;

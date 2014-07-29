@@ -9,7 +9,7 @@
 
     The path should be as configured in the Wt build process, where it
     defaults to /etc/wt/wt_config.xml. It can be overridden in the environment
-    variable WT_CONFIG_XML, or with the -c startup option of wthttpd.
+    variable WT_CONFIG_XML, or with the -c startup option of wthttp.
 
     The values listed here are the default values, which are used when the
     declaration is missing or no configuration file is used.
@@ -32,11 +32,8 @@
 	       session requires a seperate process, it is also an easy target
 	       for DoS attacks if not shielded by access control.
 
-               It is also a convenient mode during development, as it is easy
-	       to enable disable debugging using valgrind, and it always starts
-	       the latest deployed executable for a new session.
-	   
-	       Note: currently only supported using the FastCGI connector
+	       Note: currently only supported by the wtfcgi and wthttp
+	       connectors.
               -->
 
 	    <!--
@@ -62,7 +59,8 @@
 	       suffers far less from DoS attacks than dedicated-process mode.
 	       Use it for non-critical and well-debugged web applications.
 
-	       Note: wthttpd always uses exactly one process
+	       Note: the wthttp connector will ignore the num-processes
+	       setting and use only process.
               -->
 	    <shared-process>
 	        <num-processes>1</num-processes>
@@ -73,6 +71,11 @@
 	       Possible values:
 		 Auto: cookies is available, otherwise URL rewriting
 		 URL:  only URL rewriting
+
+               It is recommended to stick to URL rewriting for session
+	       tracking as this is more secure (it avoids the risk of attacks
+	       like CSRF or BREACH), and also provides proper support for
+	       concurrent sessions in a single browser.
 	      -->
 	    <tracking>URL</tracking>
 
@@ -106,7 +109,7 @@
 
 	<!-- Settings that apply only to the FastCGI connector.
 
-	   To configure the wthttpd connector, use command line options, or
+	   To configure the wthttp connector, use command line options, or
 	   configure default options in /etc/wt/wthttpd
 	  -->
 	<connector-fcgi>
@@ -152,7 +155,7 @@
 
 	<!-- Settings that apply only to the MS IIS ISAPI connector.
 
-	   To configure the wthttpd connector, use command line options, or
+	   To configure the wthttp connector, use command line options, or
 	   configure default options in /etc/wt/wthttpd
 	  -->
 	<connector-isapi>
@@ -375,6 +378,9 @@
 	   When deployed behind a reverse proxy (such as Apache or Squid),
 	   the server location is not read from the "Host" header,
 	   but from the X-Forwarded-For header, if present.
+
+           This option is required to make e.g. clientAddress() return the
+           correct address.
 	  -->
 	<behind-reverse-proxy>false</behind-reverse-proxy>
 

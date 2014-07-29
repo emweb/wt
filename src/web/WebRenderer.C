@@ -511,6 +511,13 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
   }
   cookiesToSet_.clear();
 
+#ifndef WT_TARGET_JAVA
+  Configuration& conf = session_.controller()->configuration();
+  if (conf.behindReverseProxy() && conf.singleSession()) {
+    response.addHeader("X-Wt-Session", session_.sessionId());
+  }
+#endif // WT_TARGET_JAVA
+
   response.setContentType(mimeType);
 }
 

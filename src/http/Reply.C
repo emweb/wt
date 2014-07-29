@@ -170,7 +170,7 @@ void toText(S& stream, Reply::status_type status)
 
 } // namespace status_strings
 
-Reply::Reply(const Request& request, const Configuration& config)
+Reply::Reply(Request& request, const Configuration& config)
   : request_(request),
     configuration_(config),
     status_(no_status),
@@ -391,7 +391,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       /*
        * Connection
        */
-      if (closeConnection_ && request_.webSocketVersion < 0) {
+      if (closeConnection_ && request_.type == Request::HTTP) {
 	buf_ << "Connection: close\r\n";
       } else {
 	if (http10) {
@@ -479,6 +479,11 @@ void Reply::setConnection(ConnectionPtr connection)
 
   if (relay_.get())
     relay_->setConnection(connection);
+}
+
+void Reply::receive()
+{
+  connection_->strand().post(boost::bind(&Connection::readMore, connection_, shared_from_this()));
 }
 
 void Reply::send()

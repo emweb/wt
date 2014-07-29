@@ -123,16 +123,33 @@ RequestParser::parse(Request& req, Buffer::iterator begin,
   return boost::make_tuple(result, begin);
 }
 
-bool RequestParser::parseBody(Request& req, ReplyPtr reply,
+RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply,
 			      Buffer::iterator& begin, Buffer::iterator end)
 {
-  if (req.webSocketVersion >= 0) {
+  if (req.type == Request::WebSocket) {
     Request::State state = parseWebSocketMessage(req, reply, begin, end);
 
     if (state == Request::Error)
       reply->consumeData(begin, begin, Request::Error);
 
-    return state != Request::Partial;
+    return state == Request::Partial ? ReadMore : Done;
+  } else if (req.type == Request::TCP) {
+    ::int64_t thisSize = (::int64_t)(end - begin);
+
+    Buffer::iterator thisBegin = begin;
+    Buffer::iterator thisEnd = begin + thisSize;
+
+    begin = thisEnd;
+
+    bool canReadMore = reply->consumeData(thisBegin, thisEnd,
+	Request::Partial);
+
+    if (reply->status() == Reply::request_entity_too_large)
+      return Done;
+    else if (canReadMore)
+      return ReadMore;
+    else
+      return NotReady;
   } else {
     ::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
 
@@ -144,13 +161,17 @@ bool RequestParser::parseBody(Request& req, ReplyPtr reply,
 
     bool endOfRequest = remainder_ == 0;
 
-    reply->consumeData(thisBegin, thisEnd,
-		       endOfRequest ? Request::Complete : Request::Partial);
+    bool canReadMore = reply->consumeData(thisBegin, thisEnd,
+			 endOfRequest ? Request::Complete : Request::Partial);
 
     if (reply->status() == Reply::request_entity_too_large)
-      return true;
+      return Done;
+    else if (endOfRequest)
+      return Done;
+    else if (canReadMore)
+      return ReadMore;
     else
-      return endOfRequest;
+      return NotReady;
   }
 }
 

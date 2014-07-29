@@ -243,7 +243,7 @@ const std::string& toName(Reply::status_type status)
   }
 }
 
-void buildOriginalURL(const Request &req, std::string &url)
+void buildOriginalURL(Request &req, std::string &url)
 {
   if (url.empty()) {
     url = "http://";
@@ -260,7 +260,7 @@ void buildOriginalURL(const Request &req, std::string &url)
 
 } // namespace stock_replies
 
-StockReply::StockReply(const Request& request,
+StockReply::StockReply(Request& request,
 		       status_type status,
 		       const Configuration& configuration)
   : Reply(request, configuration),
@@ -269,7 +269,7 @@ StockReply::StockReply(const Request& request,
   setStatus(status);
 }
 
-StockReply::StockReply(const Request& request,
+StockReply::StockReply(Request& request,
 		       status_type status,
 		       std::string extraContent,
 		       const Configuration& configuration)
@@ -285,12 +285,13 @@ void StockReply::reset(const Wt::EntryPoint *ep)
   assert(false);
 }
 
-void StockReply::consumeData(Buffer::const_iterator begin,
+bool StockReply::consumeData(Buffer::const_iterator begin,
 			     Buffer::const_iterator end,
 			     Request::State state)
 {
   if (state != Request::Partial)
     send();
+  return true;
 }
 
 std::string StockReply::contentType()

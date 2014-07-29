@@ -519,7 +519,7 @@ GLuint WServerGLWidgetImpl::renderbuffer() const
   return renderbuffer_;
 }
 
-Gluint WServerGLWidgetImpl::depthbuffer() const
+GLuint WServerGLWidgetImpl::depthbuffer() const
 {
   return depthbuffer_;
 }
@@ -640,7 +640,7 @@ void WServerGLWidget::bindRenderbuffer(WGLWidget::GLenum target, WGLWidget::Rend
 {
   if (buffer.isNull()) {
 #ifdef FRAMEBUFFER_RENDERING
-    glBindRenderbuffer(serverGLenum(target), impl_->renderbuffer();
+    glBindRenderbuffer(serverGLenum(target), impl_->renderbuffer());
 #else
     glBindRenderbuffer(serverGLenum(target), 0);
 #endif
