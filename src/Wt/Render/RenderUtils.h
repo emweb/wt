@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 
 #ifdef WT_TARGET_JAVA
 #include <hpdf.h>
@@ -21,14 +21,14 @@ namespace Wt {
     class Block;
     namespace Utils {
       bool normalizeWhitespace(Wt::Render::Block *block,
-			       rapidxml::xml_node<> *node,
+			       Wt::rapidxml::xml_node<> *node,
 			       bool haveWhitespace, 
-			       rapidxml::xml_document<>& doc);
-      bool isXMLElement(rapidxml::xml_node<> *node);
-      void fetchBlockChildren(rapidxml::xml_node<> *node, 
+			       Wt::rapidxml::xml_document<>& doc);
+      bool isXMLElement(Wt::rapidxml::xml_node<> *node);
+      void fetchBlockChildren(Wt::rapidxml::xml_node<> *node, 
 			      Wt::Render::Block *block, 
 			      std::vector<Wt::Render::Block *> &children);
-      std::string nodeValueToString(rapidxml::xml_node<> *node);
+      std::string nodeValueToString(Wt::rapidxml::xml_node<> *node);
 
 #ifdef WT_TARGET_JAVA
       HPDF_Page createPage(HPDF_Doc pdf, double width, double height);

@@ -25,10 +25,6 @@
 #include "WebSession.h"
 #include "Wt/WRandom"
 
-namespace rapidxml {
-  template<class Ch> class xml_node;
-}
-
 namespace boost {
   namespace program_options {
     class variables_map;
@@ -36,6 +32,10 @@ namespace boost {
 }
 
 namespace Wt {
+  namespace rapidxml {
+    template<class Ch> class xml_node;
+  }
+
   class WLogger;
   class WServer;
 
@@ -258,7 +258,7 @@ private:
   std::string connectorSessionIdPrefix_;
 
   void reset();
-  void readApplicationSettings(rapidxml::xml_node<char> *app);
+  void readApplicationSettings(Wt::rapidxml::xml_node<char> *app);
   void readConfiguration(bool silent);
   WLogEntry log(const std::string& type) const;
 };

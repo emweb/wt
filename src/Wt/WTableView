@@ -67,6 +67,10 @@ namespace Wt {
  * You may also react to mouse click events on any item, by connecting
  * to one of the clicked() or doubleClicked() signals.
  *
+ * If a WTableView is not constrained in height (either by
+ * a layout manager or by setHeight()), then it will grow according
+ * to the size of the model.
+ *
  * \ingroup modelview
  */
 class WT_API WTableView : public WAbstractItemView

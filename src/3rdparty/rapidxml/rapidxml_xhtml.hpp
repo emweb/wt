@@ -56,6 +56,7 @@
 #include <cstddef>
 #include <cstring>
 
+namespace Wt {
 namespace rapidxml
 {
     namespace internal
@@ -382,6 +383,7 @@ namespace rapidxml
 
       return true;
     }
+}
 }
 
 #endif

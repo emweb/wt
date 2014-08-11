@@ -14,7 +14,7 @@
 
 #include "web/DomElement.h"
 #include "LayoutBox.h"
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 #include "Wt/Render/Specificity.h"
 
 namespace Wt {
@@ -59,14 +59,14 @@ struct Range
 class WT_API Block
 {
 public:
-  Block(rapidxml::xml_node<> *node, Block *parent);
+  Block(Wt::rapidxml::xml_node<> *node, Block *parent);
   virtual ~Block();
 
   const Block* parent() const { return parent_; }
   BlockList children() const { return children_; }
   void determineDisplay();
   bool normalizeWhitespace(bool haveWhitespace,
-			   rapidxml::xml_document<> &doc);
+			   Wt::rapidxml::xml_document<> &doc);
 
   bool isFloat() const { return float_ != 0; }
   bool isInline() const { return inline_; }
@@ -157,7 +157,7 @@ private:
       : block(aBlock), side(aSide) { }
   };
 
-  rapidxml::xml_node<> *node_;
+  Wt::rapidxml::xml_node<> *node_;
   Block *parent_;
   BlockList offsetChildren_;
   Block *offsetParent_;

@@ -684,8 +684,11 @@ public:
 	setMarkerSize(painter_, xIndex, yIndex, series.markerSize());
 
 	painter_.setShadow(series.shadow());
-	painter_.fillPath(marker_, brush);
-	painter_.setShadow(WShadow());
+	if (series.marker() != CrossMarker &&
+	    series.marker() != XCrossMarker) {
+	  painter_.fillPath(marker_, brush);
+	  painter_.setShadow(WShadow());
+	}
 	painter_.strokePath(marker_, pen);
 
 	painter_.restore();
@@ -1415,26 +1418,28 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
     WPaintDevice *d = device;
     if (!d)
       d = createPaintDevice();
-    WMeasurePaintDevice md(d);
-    WPainter painter(&md);
+    {
+      WMeasurePaintDevice md(d);
+      WPainter painter(&md);
 
-    renderAxes(painter, Line | Labels);
-    renderLegend(painter);
+      renderAxes(painter, Line | Labels);
+      renderLegend(painter);
 
-    WRectF bounds = md.boundingRect();
+      WRectF bounds = md.boundingRect();
 
-    /* bounds should be within rect with a 5 pixel margin */
-    const int MARGIN = 5;
-    int corrLeft = (int)std::max(0.0, rect.left() - bounds.left() + MARGIN);
-    int corrRight = (int)std::max(0.0, bounds.right() - rect.right() + MARGIN);
-    int corrTop = (int)std::max(0.0, rect.top() - bounds.top() + MARGIN);
-    int corrBottom = (int)std::max(0.0, bounds.bottom() - rect.bottom()
-				   + MARGIN);
+      /* bounds should be within rect with a 5 pixel margin */
+      const int MARGIN = 5;
+      int corrLeft = (int)std::max(0.0, rect.left() - bounds.left() + MARGIN);
+      int corrRight = (int)std::max(0.0, bounds.right() - rect.right() + MARGIN);
+      int corrTop = (int)std::max(0.0, rect.top() - bounds.top() + MARGIN);
+      int corrBottom = (int)std::max(0.0, bounds.bottom() - rect.bottom()
+				     + MARGIN);
 
-    self->setPlotAreaPadding(plotAreaPadding(Left) + corrLeft, Left);
-    self->setPlotAreaPadding(plotAreaPadding(Right) + corrRight, Right);
-    self->setPlotAreaPadding(plotAreaPadding(Top) + corrTop, Top);
-    self->setPlotAreaPadding(plotAreaPadding(Bottom) + corrBottom, Bottom);
+      self->setPlotAreaPadding(plotAreaPadding(Left) + corrLeft, Left);
+      self->setPlotAreaPadding(plotAreaPadding(Right) + corrRight, Right);
+      self->setPlotAreaPadding(plotAreaPadding(Top) + corrTop, Top);
+      self->setPlotAreaPadding(plotAreaPadding(Bottom) + corrBottom, Bottom);
+    }
 
     if (!device)
       delete d;
@@ -2121,10 +2126,15 @@ void WCartesianChart::renderLegend(WPainter& painter) const
   }
 
   if (!title().empty()) {
-    int x = w / 2;
+    int x = plotAreaPadding(Left) 
+      + (w - plotAreaPadding(Left) - plotAreaPadding(Right)) / 2 ;
     painter.save();
     painter.setFont(titleFont());
-    painter.drawText(x - 500, 5, 1000, 50, AlignCenter | AlignTop, title());
+    const int TITLE_HEIGHT = 50;
+    const int TITLE_PADDING = 20;
+    painter.drawText(x - 500,
+		     plotAreaPadding(Top) - TITLE_HEIGHT - TITLE_PADDING,
+		     1000, TITLE_HEIGHT, AlignCenter | AlignBottom, title());
     painter.restore();
   }
 }

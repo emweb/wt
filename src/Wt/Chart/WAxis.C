@@ -114,7 +114,8 @@ WAxis::Segment::Segment()
     renderMinimum(AUTO_MINIMUM),
     renderMaximum(AUTO_MAXIMUM),
     renderLength(AUTO_MAXIMUM),
-    renderStart(AUTO_MAXIMUM)
+    renderStart(AUTO_MAXIMUM),
+    dateTimeRenderUnit(Days)
 { }
 
 WAxis::WAxis()
@@ -1096,6 +1097,9 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
 
 WString WAxis::defaultDateTimeFormat(const Segment& s) const
 {
+  if (scale_ != DateScale && scale_ != DateTimeScale)
+    return WString::Empty;
+
   WDateTime dt;
 
   if (scale_ == DateScale) {

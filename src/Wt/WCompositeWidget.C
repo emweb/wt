@@ -218,7 +218,7 @@ bool WCompositeWidget::isVisible() const
   else if (parent())
     return parent()->isVisible();
   else
-    return impl_->isRendered();
+    return false;
 }
 
 void WCompositeWidget::setDisabled(bool disabled)

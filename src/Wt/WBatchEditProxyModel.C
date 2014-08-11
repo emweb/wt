@@ -759,7 +759,7 @@ WFlags<ItemFlag> WBatchEditProxyModel::flags(const WModelIndex& index) const
   WModelIndex sourceIndex = mapToSource(index);
 
   if (sourceIndex.isValid())
-    return sourceModel()->flags(index);
+    return sourceModel()->flags(sourceIndex);
   else {
     std::map<int, WFlags<ItemFlag> >::const_iterator i
       = newRowFlags_.find(index.column());

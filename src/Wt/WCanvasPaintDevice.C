@@ -183,7 +183,9 @@ void WCanvasPaintDevice::renderPaintCommands(std::stringstream& js_target,
 void WCanvasPaintDevice::init()
 {
   currentBrush_ = WBrush();
+  currentNoBrush_ = false;
   currentPen_ = WPen();
+  currentNoPen_ = false;
   currentPen_.setCapStyle(FlatCap);
   currentShadow_ = WShadow();
   currentFont_ = WFont();
@@ -248,11 +250,11 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   // this temporary coordinate system
   js_ << "ctx.restore();";
 
-  if (currentBrush_.style() != NoBrush) {
+  if (painter_->brush().style() != NoBrush) {
     js_ << "ctx.fill();";
   }
 
-  if (currentPen_.style() != NoPen) {
+  if (painter_->pen().style() != NoPen) {
     js_ << "ctx.stroke();";
   }
 }
@@ -391,10 +393,10 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 void WCanvasPaintDevice::finishPath()
 {
   if (busyWithPath_) {
-    if (currentBrush_.style() != NoBrush)
+    if (!currentNoBrush_)
       js_ << "ctx.fill();";
 
-    if (currentPen_.style() != NoPen)
+    if (!currentNoPen_)
       js_ << "ctx.stroke();";
 
     js_ << '\n';
@@ -408,8 +410,8 @@ void WCanvasPaintDevice::drawPath(const WPainterPath& path)
   renderStateChanges(false);
 
   drawPlainPath(js_, path);
-  if (currentBrush_.color().alpha() != 255 ||
-      currentPen_.color().alpha() != 255)
+  if (painter_->brush().color().alpha() != 255 ||
+      painter_->pen().color().alpha() != 255)
     finishPath();
 }
 
@@ -684,17 +686,38 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
   if (!changeFlags_)
     return;
 
-  bool brushChanged
-    = (changeFlags_ & Brush) && (currentBrush_ != painter()->brush());
-  bool penChanged
-    = (changeFlags_ & Pen) && (currentPen_ != painter()->pen());
-  bool penColorChanged
-    = penChanged && (currentPen_.color() != painter()->pen().color() ||
-		     currentPen_.gradient() != painter()->pen().gradient());
-  bool shadowChanged
-    = (changeFlags_ & Shadow) && (currentShadow_ != painter()->shadow());
-  bool fontChanged
-    = (changeFlags_ & Font) && (currentFont_ != painter()->font());
+  /*
+   * For unclear reasons, Firefox on Linux reacts badly against very
+   * long painter paths (e.g. when drawing markers in charts) and by
+   * more prematurely rendering pen/brush changes we avoid that.
+   */
+  WApplication *app = WApplication::instance();
+  bool slowFirefox = app && app->environment().agentIsGecko();
+  if (slowFirefox &&
+      app->environment().userAgent().find("Linux") == std::string::npos)
+    slowFirefox = false;
+
+  bool brushChanged =
+    (changeFlags_ & Brush) &&
+    (currentBrush_ != painter()->brush()) &&
+    (slowFirefox || painter()->brush().style() != NoBrush);
+
+  bool penChanged =
+    (changeFlags_ & Pen) &&
+    (currentPen_ != painter()->pen()) &&
+    (slowFirefox || painter()->pen().style() != NoPen);
+
+  bool penColorChanged = 
+    penChanged && 
+    (currentPen_.color() != painter()->pen().color() ||
+     currentPen_.gradient() != painter()->pen().gradient());
+
+  bool shadowChanged =
+    (changeFlags_ & Shadow)
+    && (currentShadow_ != painter()->shadow());
+
+  bool fontChanged = (changeFlags_ & Font)
+    && (currentFont_ != painter()->font());
 
   if (changeFlags_ & (Transform | Clipping)) {
     bool resetTransform = false;
@@ -789,8 +812,16 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
     }
   }
 
-  if (penChanged || brushChanged || shadowChanged)
+  bool newNoPen = painter()->pen().style() == NoPen;
+  bool newNoBrush = painter()->brush().style() == NoBrush;
+
+  if (penChanged || brushChanged || shadowChanged ||
+      newNoBrush != currentNoBrush_ ||
+      newNoPen != currentNoPen_)
     finishPath();
+
+  currentNoPen_ = painter()->pen().style() == NoPen;
+  currentNoBrush_ = painter()->brush().style() == NoBrush;
 
   if (penChanged) {
     if (penColorChanged) {

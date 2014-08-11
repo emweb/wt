@@ -13,6 +13,7 @@ SUBDIRS(
   serverpush
   socketnotifier
   suggestionpopup
+  template-fun
   video
   widgetset
 )

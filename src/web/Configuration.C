@@ -21,7 +21,7 @@
 #include <fstream>
 #include <stdlib.h>
 
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 
 #ifdef WT_WIN32
 #include <io.h>
@@ -36,7 +36,7 @@
 #define WRITE_LOCK
 #endif // WT_CONF_LOCK
 
-using namespace rapidxml;
+using namespace Wt::rapidxml;
 
 namespace {
 

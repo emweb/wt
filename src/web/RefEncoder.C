@@ -16,10 +16,10 @@
 
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include "rapidxml/rapidxml.hpp"
-#include "rapidxml/rapidxml_print.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml_print.hpp"
 
-using namespace rapidxml;
+using namespace Wt::rapidxml;
 
 namespace Wt {
 

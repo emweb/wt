@@ -37,10 +37,10 @@ RegistrationModel::RegistrationModel(const AuthService& baseAuth,
     emailPolicy_(EmailDisabled)
 {
   if (baseAuth.identityPolicy() != EmailAddressIdentity) {
-    if (baseAuth.emailVerificationEnabled())
-      emailPolicy_ = EmailOptional;
-    else if (baseAuth.emailVerificationRequired())
+    if (baseAuth.emailVerificationRequired())
       emailPolicy_ = EmailMandatory;
+    else if (baseAuth.emailVerificationEnabled())
+      emailPolicy_ = EmailOptional;
     else
       emailPolicy_ = EmailDisabled;
   }

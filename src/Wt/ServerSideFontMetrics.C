@@ -52,11 +52,14 @@ ServerSideFontMetrics::measureText(const WFont& font,
 {
 #ifdef WT_HAS_WPDFIMAGE
   painter_->setFont(font);
-  return painter_->device()->measureText(text, maxWidth, wordWrap);
+  WTextItem t = painter_->device()->measureText(text, maxWidth, wordWrap);
+  const double REL_ERROR = 1.02;
+  return WTextItem(t.text(), t.width() * REL_ERROR,
+		   t.nextWidth() > 0 ? t.nextWidth() * REL_ERROR : t.nextWidth());
 #else
   throw WException("ServerSideFontMetrics not available");
 #endif // WT_HAS_WPDFIMAGE
-}
+} 
 
 bool ServerSideFontMetrics::available()
 {

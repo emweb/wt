@@ -1098,7 +1098,7 @@ bool WWebWidget::isVisible() const
     if (parent())
       return parent()->isVisible();
     else
-      return isRendered();
+      return loaded();
 }
 
 void WWebWidget::setDisabled(bool disabled)

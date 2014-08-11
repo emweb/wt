@@ -163,6 +163,11 @@ WServer::~WServer()
   destroy();
 }
 
+std::vector<WServer::SessionInfo> WServer::sessions() const
+{
+  return std::vector<WServer::SessionInfo>();
+}
+
 void WServer::setServerConfiguration(int argc, char *argv[],
 				     const std::string&)
 {

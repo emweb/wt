@@ -13,6 +13,7 @@
 
 #include "../web/Configuration.h"
 #include "SessionProcess.h"
+#include "Wt/WServer"
 
 namespace http {
 namespace server {
@@ -31,6 +32,8 @@ public:
   bool tryToIncrementSessionCount();
   const boost::shared_ptr<SessionProcess>& sessionProcess(std::string sessionId);
   void addSessionProcess(std::string sessionId, const boost::shared_ptr<SessionProcess>& connection);
+
+  std::vector<Wt::WServer::SessionInfo> sessions() const;
 
 private:
   void processDeadChildren(boost::system::error_code ec);

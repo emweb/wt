@@ -21,7 +21,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-using namespace rapidxml;
+using namespace Wt::rapidxml;
 
 namespace {
   const double MARGINX = -1;
@@ -256,7 +256,7 @@ void Block::determineDisplay()
  * Normalizes whitespace inbetween nodes.
  */
 bool Block::normalizeWhitespace(bool haveWhitespace, 
-				rapidxml::xml_document<> &doc)
+				Wt::rapidxml::xml_document<> &doc)
 {
   bool whitespaceIn = haveWhitespace;
 
@@ -1613,6 +1613,12 @@ void Block::tableRowDoLayout(double x, PageState &ps,
   PageState rowEnd;
   rowEnd.y = ps.y;
   rowEnd.page = ps.page;
+
+  if (rowHeight == -1) {
+    double height = cssHeight(renderer.fontScale());
+    if (height > 0)
+      advance(rowEnd, height, renderer);
+  }
 
   x += cellSpacing;
 

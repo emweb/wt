@@ -12,7 +12,7 @@
 
 #include "WebRequest.h"
 #include "WebSession.h"
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 
 namespace Wt {
   LOGGER("WEvent");
@@ -286,8 +286,8 @@ WString WKeyEvent::text() const
     char buf[10]; // 4 is enough
     char *ptr = buf;
     try {
-      rapidxml::xml_document<>::insert_coded_character<0>(ptr, charCode());
-    } catch (rapidxml::parse_error& e) {
+      Wt::rapidxml::xml_document<>::insert_coded_character<0>(ptr, charCode());
+    } catch (Wt::rapidxml::parse_error& e) {
       LOG_ERROR("charcode: " << e.what());
       return WString();
     }

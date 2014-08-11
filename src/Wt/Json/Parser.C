@@ -18,7 +18,7 @@
 
 #ifdef JSON_PARSER
 
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
@@ -205,7 +205,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
   {
     char buf[4];
     char *end = buf;
-    rapidxml::xml_document<>::insert_coded_character<0>(end, code);
+    Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, code);
     for (char *b = buf; b != end; ++b)
       s_ << *b;
   }

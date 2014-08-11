@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -210,9 +210,9 @@ void WString::checkUTF8Encoding(std::string& value)
     const char *c = c_start;
     try {
       char *dest = 0;
-      rapidxml::xml_document<>::copy_check_utf8(c, dest);
+      Wt::rapidxml::xml_document<>::copy_check_utf8(c, dest);
       pos += c - c_start;
-    } catch (rapidxml::parse_error& e) {
+    } catch (Wt::rapidxml::parse_error& e) {
       pos += c - c_start;
       for (unsigned i = at; i < pos && i < value.length();
         ++i)

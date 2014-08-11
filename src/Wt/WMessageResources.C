@@ -17,11 +17,11 @@
 
 #include "DomElement.h"
 
-#include "rapidxml/rapidxml.hpp"
-#include "rapidxml/rapidxml_print.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml_print.hpp"
 
 using namespace Wt;
-using namespace rapidxml;
+using namespace Wt::rapidxml;
 
 #ifndef WT_NO_SPIRIT
 
@@ -519,7 +519,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
 	  unsigned long cp = 0x10000 + (((firstWord & 0x3FF) << 10)
 					| (ch & 0x3FF));
 
-	  rapidxml::xml_document<>::insert_coded_character<0>(out, cp);
+	  Wt::rapidxml::xml_document<>::insert_coded_character<0>(out, cp);
 
 	  firstWord = 0;
 	} else if (ch >= 0xD800 && ch <= 0xDBFF) {
@@ -527,7 +527,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
 	  firstWord = ch;
 	} else {
 	  // single-word
-	  rapidxml::xml_document<>::insert_coded_character<0>(out, ch);
+	  Wt::rapidxml::xml_document<>::insert_coded_character<0>(out, ch);
 
 	  firstWord = 0;
 	}

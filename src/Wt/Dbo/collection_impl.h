@@ -591,8 +591,18 @@ void collection<C>::clear()
 
   if (relation.dbo) {
     const std::string *sql = relation.sql;
-    std::size_t f = Impl::ifind(*sql, " from ");
-    std::string deleteSql = "delete" + sql->substr(f);
+    std::string deleteSql;
+
+    if (relation.setInfo->type == ManyToMany) {
+      std::size_t o = Impl::ifind(*sql, " on ");
+      std::size_t j = Impl::ifind(*sql, " join ");
+      std::size_t w = Impl::ifind(*sql, " where ");
+      deleteSql = "delete from " + sql->substr(j + 5, o - j - 5)
+	+ sql->substr(w);
+    } else {
+      std::size_t f = Impl::ifind(*sql, " from ");
+      deleteSql = "delete" + sql->substr(f);
+    }
 
     Call call = session_->execute(deleteSql);
     int column = 0;

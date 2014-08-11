@@ -73,11 +73,13 @@ SqlStatement *Session::getStatement(int statementIdx)
 template <class C>
 const char *Session::tableName() const
 {
-  ClassRegistry::const_iterator i = classRegistry_.find(&typeid(C));
+  typedef typename boost::remove_const<C>::type MutC;
+
+  ClassRegistry::const_iterator i = classRegistry_.find(&typeid(MutC));
   if (i != classRegistry_.end())
-    return dynamic_cast< Mapping<C> *>(i->second)->tableName;
+    return dynamic_cast< Mapping<MutC> *>(i->second)->tableName;
   else
-    throw Exception(std::string("Class ") + typeid(C).name()
+    throw Exception(std::string("Class ") + typeid(MutC).name()
 		    + " was not mapped.");
 }
 
@@ -101,27 +103,31 @@ Session::Mapping<C> *Session::getMapping() const
 template <class C>
 ptr<C> Session::load(SqlStatement *statement, int& column)
 {
-  return Impl::LoadHelper<C, typename dbo_traits<C>::IdType>
+  typedef typename boost::remove_const<C>::type MutC;
+
+  return Impl::LoadHelper<C, typename dbo_traits<MutC>::IdType>
     ::load(this, statement, column);
 }
 
 template <class C>
 ptr<C> Session::loadWithNaturalId(SqlStatement *statement, int& column)
 {
-  Mapping<C> *mapping = getMapping<C>();
+  typedef typename boost::remove_const<C>::type MutC;
+
+  Mapping<MutC> *mapping = getMapping<MutC>();
 
   /* Natural id is possibly multiple fields anywhere */
-  MetaDbo<C> *dbo = new MetaDbo<C>(dbo_traits<C>::invalidId(), -1,
+  MetaDbo<MutC> *dbo = new MetaDbo<MutC>(dbo_traits<C>::invalidId(), -1,
 				   MetaDboBase::Persisted, *this, 0);
-  implLoad<C>(*dbo, statement, column);
+  implLoad<MutC>(*dbo, statement, column);
 
-  if (dbo->id() == dbo_traits<C>::invalidId()) {
+  if (dbo->id() == dbo_traits<MutC>::invalidId()) {
     dbo->setSession(0);
     delete dbo;
     return ptr<C>();
   }
 
-  typename Mapping<C>::Registry::iterator i = mapping->registry_.find(dbo->id());
+  typename Mapping<MutC>::Registry::iterator i = mapping->registry_.find(dbo->id());
 
   if (i == mapping->registry_.end()) {
     mapping->registry_[dbo->id()] = dbo;
@@ -136,7 +142,9 @@ ptr<C> Session::loadWithNaturalId(SqlStatement *statement, int& column)
 template <class C>
 ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
 {
-  Mapping<C> *mapping = getMapping<C>();
+  typedef typename boost::remove_const<C>::type MutC;
+
+  Mapping<MutC> *mapping = getMapping<MutC>();
 
   if (mapping->surrogateIdFieldName) {
     /*
@@ -160,19 +168,19 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
       return ptr<C>();
     }
 
-    typename Mapping<C>::Registry::iterator i = mapping->registry_.find(id);
+    typename Mapping<MutC>::Registry::iterator i = mapping->registry_.find(id);
 
     if (i == mapping->registry_.end()) {
-      MetaDbo<C> *dbo
-	= new MetaDbo<C>(id, -1, MetaDboBase::Persisted, *this, 0);
-      implLoad<C>(*dbo, statement, column);
+      MetaDbo<MutC> *dbo
+	= new MetaDbo<MutC>(id, -1, MetaDboBase::Persisted, *this, 0);
+      implLoad<MutC>(*dbo, statement, column);
 
       mapping->registry_[id] = dbo;
 
       return ptr<C>(dbo);
     } else {
       if (!i->second->isLoaded())
-	implLoad<C>(*i->second, statement, column);
+	implLoad<MutC>(*i->second, statement, column);
       else
 	column += (int)mapping->fields.size() + 1; // + version
 
@@ -185,9 +193,11 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
 template <class C>
 ptr<C> Session::add(ptr<C>& obj)
 {
+  typedef typename boost::remove_const<C>::type MutC;
+
   initSchema();
 
-  MetaDbo<C> *dbo = obj.obj();
+  MetaDbo<MutC> *dbo = obj.obj();
   if (dbo && !dbo->session()) {
     dbo->setSession(this);
     if (flushMode() == Auto)
@@ -195,7 +205,7 @@ ptr<C> Session::add(ptr<C>& obj)
     else
       objectsToAdd_.push_back(dbo);
 
-    SessionAddAction act(*dbo, *getMapping<C>());
+    SessionAddAction act(*dbo, *getMapping<MutC>());
     act.visit(*dbo->obj());
   }
 
@@ -386,11 +396,13 @@ void Session::Mapping<C>::rereadAll()
 template <class C>
 void Session::Mapping<C>::init(Session& session)
 {
+  typedef typename boost::remove_const<C>::type MutC;
+
   if (!initialized_) {
     initialized_ = true;
 
     InitSchema action(session, *this);
-    C dummy;
+    MutC dummy;
     action.visit(dummy);
   }
 }

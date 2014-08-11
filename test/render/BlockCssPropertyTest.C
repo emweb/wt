@@ -25,18 +25,18 @@ const Wt::Render::Block* childBlock2(const Wt::Render::Block* parent,
   return block;
 }
 
-rapidxml::xml_document<>* createXHtml2(const char * xhtml)
+Wt::rapidxml::xml_document<>* createXHtml2(const char * xhtml)
 {
-  rapidxml::xml_document<>* doc = new rapidxml::xml_document<>();
+  Wt::rapidxml::xml_document<>* doc = new Wt::rapidxml::xml_document<>();
   char *cxhtml = doc->allocate_string(xhtml);
-  doc->parse<rapidxml::parse_xhtml_entity_translation>(cxhtml);
+  doc->parse<Wt::rapidxml::parse_xhtml_entity_translation>(cxhtml);
 
   return doc;
 }
 
 BOOST_AUTO_TEST_CASE( BlockCssProperty_test1 )
 {
-  rapidxml::xml_document<>* doc = createXHtml2(
+  Wt::rapidxml::xml_document<>* doc = createXHtml2(
         "<h2>"
           "<h3>"
           "</h3>"

@@ -72,9 +72,20 @@ weak_ptr<C>::weak_ptr(const weak_ptr<C>& other)
 { }
 
 template <class C>
+template <class D>
+weak_ptr<C>::weak_ptr(const weak_ptr<D>& other)
+  : collection_(other.collection_)
+{
+  // Check if we can convert D* to C*
+  D *d = 0;
+  C *c = d;
+  (void)(c);
+}
+
+template <class C>
 void weak_ptr<C>::reset(C *obj)
 {
-  *this = ptr<C>(obj);
+  *this = ptr<MutC>(const_cast<MutC*>(obj));
 }
 
 template <class C>
@@ -84,8 +95,37 @@ weak_ptr<C>& weak_ptr<C>::operator= (const weak_ptr<C>& other)
 }
 
 template <class C>
+template <class D>
+weak_ptr<C>& weak_ptr<C>::operator= (const weak_ptr<D>& other)
+{
+  // Check if we can convert D* to C*
+  D *d = 0;
+  C *c = d;
+  (void)(c);
+
+  return *this = other.query();
+}
+
+template <class C>
 weak_ptr<C>& weak_ptr<C>::operator= (const ptr<C>& other)
 {
+  collection_.clear();
+
+  if (other)
+    collection_.insert(other);
+
+  return *this;
+}
+
+template <class C>
+template <class D>
+weak_ptr<C>& weak_ptr<C>::operator= (const ptr<D>& other)
+{
+  // Check if we can convert D* to C*
+  D *d = 0;
+  C *c = d;
+  (void)(c);
+
   collection_.clear();
 
   if (other)
@@ -117,25 +157,49 @@ typename weak_ptr<C>::mutator weak_ptr<C>::modify() const
 }
 
 template <class C>
-bool weak_ptr<C>::operator== (const weak_ptr<C>& other) const
+bool weak_ptr<C>::operator== (const weak_ptr<MutC>& other) const
 {
   return query() == other.query();
 }
 
 template <class C>
-bool weak_ptr<C>::operator== (const ptr<C>& other) const
+bool weak_ptr<C>::operator== (const weak_ptr<const C>& other) const
+{
+  return query() == other.query();
+}
+
+template <class C>
+bool weak_ptr<C>::operator== (const ptr<MutC>& other) const
 {
   return query() == other;
 }
 
 template <class C>
-bool weak_ptr<C>::operator!= (const weak_ptr<C>& other) const
+bool weak_ptr<C>::operator== (const ptr<const C>& other) const
+{
+  return query() == other;
+}
+
+template <class C>
+bool weak_ptr<C>::operator!= (const weak_ptr<MutC>& other) const
 {
   return !(*this == other);
 }
 
 template <class C>
-bool weak_ptr<C>::operator!= (const ptr<C>& other) const
+bool weak_ptr<C>::operator!= (const weak_ptr<const C>& other) const
+{
+  return !(*this == other);
+}
+
+template <class C>
+bool weak_ptr<C>::operator!= (const ptr<MutC>& other) const
+{
+  return !(*this == other);
+}
+
+template <class C>
+bool weak_ptr<C>::operator!= (const ptr<const C>& other) const
 {
   return !(*this == other);
 }
@@ -143,7 +207,7 @@ bool weak_ptr<C>::operator!= (const ptr<C>& other) const
 template <class C>
 weak_ptr<C>::operator bool() const
 {
-  return query();
+  return bool(query());
 }
 
 template <class C>
@@ -153,9 +217,26 @@ weak_ptr<C>::operator ptr<C>() const
 }
 
 template <class C>
+template <class D>
+weak_ptr<C>::operator ptr<D>() const
+{
+  return query();
+}
+
+template <class C>
 ptr<C> weak_ptr<C>::query() const
 {
-  typename collection< ptr<C> >::const_iterator i = collection_.begin();
+  typename collection< ptr<MutC> >::const_iterator i = collection_.begin();
+  if (i == collection_.end())
+    return ptr<C>();
+  else
+    return *i;
+}
+
+template <class C>
+ptr<C> weak_ptr<C>::lock() const
+{
+  typename collection< ptr<MutC> >::const_iterator i = collection_.begin();
   if (i == collection_.end())
     return ptr<C>();
   else

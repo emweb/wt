@@ -73,6 +73,8 @@ public:
 
   asio::io_service &service();
 
+  SessionProcessManager *sessionManager() { return sessionManager_; }
+
 private:
   /// Starts accepting http/https connections
   void startAccept();

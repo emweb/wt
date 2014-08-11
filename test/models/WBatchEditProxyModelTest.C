@@ -286,3 +286,27 @@ BOOST_AUTO_TEST_CASE( batchedit_test2 )
   BOOST_REQUIRE(d(pm, 0, 0) == "sm(2, 0)");
   BOOST_REQUIRE(d(pm, 1, 0) == "sm(3, 0)");
 }
+
+BOOST_AUTO_TEST_CASE( batchedit_test3 )
+{
+  // Test flags
+  BatchEditFixture f;
+
+  WStandardItemModel *sm = f.sourceModel_;
+  WBatchEditProxyModel *pm = f.proxyModel_;
+
+  pm->insertRows(0, 3);
+  pm->commitAll();
+
+  sm->item(0)->setFlags(ItemIsSelectable);
+  sm->item(1)->setFlags(ItemIsEditable);
+  sm->item(2)->setFlags(ItemIsUserCheckable);
+
+  pm->setNewRowFlags(0, ItemIsDragEnabled);
+  pm->insertRows(1, 1);
+
+  BOOST_REQUIRE(pm->flags(pm->index(0, 0)) == ItemIsSelectable);
+  BOOST_REQUIRE(pm->flags(pm->index(1, 0)) == ItemIsDragEnabled);
+  BOOST_REQUIRE(pm->flags(pm->index(2, 0)) == ItemIsEditable);
+  BOOST_REQUIRE(pm->flags(pm->index(3, 0)) == ItemIsUserCheckable);
+}

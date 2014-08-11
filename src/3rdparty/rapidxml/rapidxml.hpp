@@ -31,6 +31,7 @@
 
 #define RAPIDXML_PARSE_ERROR(what, where) { parse_error_handler(what, where); assert(0); }
 
+namespace Wt {
 namespace rapidxml
 {
     //! When exceptions are disabled by defining RAPIDXML_NO_EXCEPTIONS, 
@@ -51,6 +52,7 @@ namespace rapidxml
     //! \param where Pointer to character data where error was detected.
     void parse_error_handler(const char *what, void *where);
 }
+}
 
 #else
     
@@ -58,6 +60,7 @@ namespace rapidxml
 
 #define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)
 
+namespace Wt {
 namespace rapidxml
 {
 
@@ -107,6 +110,7 @@ namespace rapidxml
 
     };
 }
+}
 
 #endif
 
@@ -135,6 +139,7 @@ namespace rapidxml
     #define RAPIDXML_ALIGNMENT sizeof(void *)
 #endif
 
+namespace Wt {
 namespace rapidxml
 {
     // Forward declarations
@@ -2737,6 +2742,7 @@ namespace rapidxml
     }
     //! \endcond
 
+}
 }
 
 // Undefine internal macros

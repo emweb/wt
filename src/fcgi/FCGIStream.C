@@ -22,6 +22,8 @@
 #include "fcgio.h"
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
 
+#include <boost/array.hpp>
+
 #ifdef WT_WITH_SSL
 #include <openssl/ssl.h>
 #endif
@@ -52,7 +54,7 @@ namespace {
       : request_(request),
 	headersCommitted_(false)
     { 
-      in_streambuf_ = new fcgi_streambuf(request_->in);
+      in_streambuf_ = new fcgi_streambuf(request_->in, &buf_[0], buf_.size());
       out_streambuf_ = new fcgi_streambuf(request_->out);
       err_streambuf_ = new fcgi_streambuf(request_->err);
 
@@ -269,6 +271,7 @@ namespace {
   private:
     FCGX_Request *request_;
     fcgi_streambuf *in_streambuf_, *out_streambuf_, *err_streambuf_;
+    boost::array<char, 8> buf_; // Workaround for bug with fcgi_streambuf::underflow()
     std::istream *in_;
     std::ostream *out_, *err_;
     bool headersCommitted_;

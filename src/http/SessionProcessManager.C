@@ -106,6 +106,23 @@ void SessionProcessManager::addSessionProcess(std::string sessionId, const boost
   sessions_[sessionId] = process;
 }
 
+std::vector<Wt::WServer::SessionInfo> SessionProcessManager::sessions() const
+{
+  std::vector<Wt::WServer::SessionInfo> result;
+  for (SessionMap::const_iterator it = sessions_.begin();
+       it != sessions_.end(); ++it) {
+    Wt::WServer::SessionInfo sessionInfo;
+#ifndef WT_WIN32
+    sessionInfo.processId = it->second->pid();
+#else // WT_WIN32
+    sessionInfo.processId = it->second->processInfo().dwProcessId;
+#endif // WT_WIN32
+    sessionInfo.sessionId = it->first;
+    result.push_back(sessionInfo);
+  }
+  return result;
+}
+
 void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
 {
   if (ec) {

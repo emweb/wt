@@ -147,6 +147,7 @@ void SessionProcess::exec(const Configuration& config,
 #endif // WT_THREADED
 
     execv(c_options[0], const_cast<char *const *>(c_options));
+    // An error occurred, this should not be reached
     exit(1);
   }
 

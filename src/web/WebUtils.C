@@ -6,7 +6,7 @@
 
 #include "WebUtils.h"
 #include "DomElement.h"
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 #include "Wt/WException"
 #include "Wt/WString"
 #include "Wt/Utils"
@@ -106,7 +106,7 @@ void sanitizeUnicode(EscapeOStream& sout, const std::string& text)
     // but copy_check_utf8() does not declare the following ranges illegal:
     //  U+D800-U+DFFF
     //  U+FFFE-U+FFFF
-    rapidxml::xml_document<>::copy_check_utf8(c, b);
+    Wt::rapidxml::xml_document<>::copy_check_utf8(c, b);
     for (char *i = buf; i < b; ++i)
       sout << *i;
   }

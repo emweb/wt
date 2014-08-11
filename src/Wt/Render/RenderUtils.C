@@ -8,17 +8,17 @@
 
 #include "Block.h"
 
-using namespace rapidxml;
+using namespace Wt::rapidxml;
 
 namespace Wt {
   namespace Render {
     namespace Utils {
       bool normalizeWhitespace(Wt::Render::Block *block, 
-			       rapidxml::xml_node<> *node,
+			       Wt::rapidxml::xml_node<> *node,
 			       bool haveWhitespace, 
-			       rapidxml::xml_document<>& doc)
+			       Wt::rapidxml::xml_document<>& doc)
       {
-	rapidxml::memory_pool<>& pool = doc;
+	Wt::rapidxml::memory_pool<>& pool = doc;
       
 	char *v = node->value();
       
@@ -68,7 +68,7 @@ namespace Wt {
 	  children.push_back(new Wt::Render::Block(child, block));
       }
 
-      std::string nodeValueToString(rapidxml::xml_node<> *node)
+      std::string nodeValueToString(Wt::rapidxml::xml_node<> *node)
       {
 	return std::string(node->value(), node->value_size());
       }

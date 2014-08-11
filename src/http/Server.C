@@ -312,9 +312,8 @@ void Server::handleConnected(const boost::shared_ptr<asio::ip::tcp::socket>& soc
 			     const asio_error_code& err)
 {
   if (!err) {
-    char portStr[6];
-    Wt::Utils::itoa(tcp_acceptor_.local_endpoint().port(), portStr);
-    boost::shared_ptr<std::string> buf(new std::string(portStr));
+    boost::shared_ptr<std::string> buf(new std::string(
+      boost::lexical_cast<std::string>(tcp_acceptor_.local_endpoint().port())));
     socket->async_send(asio::buffer(*buf),
       boost::bind(&Server::handlePortSent, this, socket, err, buf));
   } else {
