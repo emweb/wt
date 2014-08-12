@@ -332,11 +332,12 @@ protected:
   virtual WFormWidget *createFormWidget(AuthModel::Field field);
 
   virtual void render(WFlags<RenderFlag> flags);
-
-private:
+  
   AuthModel *model_;
   RegistrationModel *registrationModel_;
   Login& login_;
+
+private:
   std::string basePath_;
   bool registrationEnabled_;
 
