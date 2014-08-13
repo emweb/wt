@@ -164,7 +164,7 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
      * dbo_test4c.
      */
     if (!statement->getResult(column++, &id)) {
-      column += (int)mapping->fields.size() + 1; // + version
+      column += (int)mapping->fields.size() + (mapping->versionFieldName ? 1 : 0);
       return ptr<C>();
     }
 
@@ -182,7 +182,7 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
       if (!i->second->isLoaded())
 	implLoad<MutC>(*i->second, statement, column);
       else
-	column += (int)mapping->fields.size() + 1; // + version
+	column += (int)mapping->fields.size() + (mapping->versionFieldName ? 1 : 0);
 
       return ptr<C>(i->second);
     }

@@ -100,6 +100,16 @@ public:
   virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
   virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
 
+  /*! \brief Sets the source model.
+   *
+   * The source model provides the actual data for the proxy
+   * model.
+   *
+   * Ownership of the source model is <i>not</i> transferred.
+   *
+   * All signals of the source model are propagated to the
+   * proxy model.
+   */
   virtual void setSourceModel(WAbstractItemModel *sourceModel);
 
   virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;

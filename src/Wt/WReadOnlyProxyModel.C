@@ -45,4 +45,33 @@ WModelIndex WReadOnlyProxyModel::index(int row, int column,
   return sourceModel()->index(row, column, parent);
 }
 
+bool WReadOnlyProxyModel::setData(const WModelIndex& index, const boost::any& value, int role)
+{
+  return false;
+}
+
+bool WReadOnlyProxyModel::setItemData(const WModelIndex& index, const DataMap& values)
+{
+  return false;
+}
+
+bool WReadOnlyProxyModel::setHeaderData(int section, Orientation orientation, const boost::any& value, int role)
+{
+  return false;
+}
+
+bool WReadOnlyProxyModel::insertColumns(int column, int count, const WModelIndex& parent)
+{
+  return false;
+}
+
+bool WReadOnlyProxyModel::removeColumns(int column, int count, const WModelIndex& parent)
+{
+  return false;
+}
+
+void WReadOnlyProxyModel::dropEvent(const WDropEvent& e, DropAction action,
+				    int row, int column, const WModelIndex& parent)
+{ }
+
 }

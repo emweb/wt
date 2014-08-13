@@ -36,7 +36,7 @@ WT_DECLARE_WT_MEMBER
   var transformPrefix = WT.vendorPrefix(WT.styleAttribute('transform'));
   var $el = $("#" + id), el = $el.get(0),
     animationEventEnd = animationPrefix == "Webkit"
-	  ? "webkitAnimationEnd": "animationend";
+	  ? "webkitAnimationEnd": "animationend",
     transitionEventEnd = transitionPrefix == "Webkit"
       ? "webkitTransitionEnd" : "transitionend";
 
@@ -237,7 +237,16 @@ WT_DECLARE_WT_MEMBER
     function animateTransition() {
       set(el, { animationDuration: duration + 'ms' }, elStyle);
 
-      var cl = (effect == Pop ? "pop " : "") + (hide ? "out" : "in");
+      var cl;
+
+      switch (effect) {
+      case Pop: cl = "pop"; break;
+      case SlideInFromLeft: cl = hide ? "slide" : "slide reverse"; break;
+      case SlideInFromRight: cl = hide ? "slide reverse" : "slide"; break;
+      }
+
+      cl += hide ? " out" : " in";
+
       if (effects & Fade)
 	cl += " fade";
 

@@ -134,6 +134,7 @@ Wt/WInteractWidget.C
 Wt/WIOService.C
 Wt/WLocale.C
 Wt/WLocalDateTime.C
+Wt/WIdentityProxyModel.C
 Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C

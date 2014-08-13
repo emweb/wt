@@ -487,7 +487,7 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 	      min = WDateTime(WDate(min.date().year(), 1, 1));
 
 	  if (roundLimits_ & MaximumValue)
-	    if (max.date().day() != 1 && max.date().day() != 1)
+	    if (max.date().day() != 1 && max.date().month() != 1)
 	      max = WDateTime(WDate(max.date().year() + 1, 1, 1));
 	} else if (daysInterval > 20) {
 	  s.dateTimeRenderUnit = Months;

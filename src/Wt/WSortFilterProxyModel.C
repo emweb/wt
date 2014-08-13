@@ -555,6 +555,9 @@ void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 					      const WModelIndex& bottomRight)
 {
+  if (!topLeft.isValid() || !bottomRight.isValid())
+    return;
+
   bool refilter
     = dynamic_ && (filterKeyColumn_ >= topLeft.column() 
 		   && filterKeyColumn_ <= bottomRight.column());

@@ -102,6 +102,16 @@ public:
   virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
   virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
 
+  /*! \brief Sets the source model.
+   *
+   * The source model provides the actual data for the proxy
+   * model.
+   *
+   * Ownership of the source model is <i>not</i> transferred.
+   *
+   * All signals of the source model are forwarded to the
+   * proxy model.
+   */
   virtual void setSourceModel(WAbstractItemModel *sourceModel);
 
   /*! \brief Specify the column on which the filtering is applied.

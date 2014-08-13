@@ -173,7 +173,7 @@ double WTextRenderer::render(const WString& text, double y)
     Wt::rapidxml::xml_document<> doc;
     doc.parse<Wt::rapidxml::parse_xhtml_entity_translation>(cxhtml.get());
 #else
-    rapidxml::xml_document<> doc = rapidxml::parseXHTML(xhtml);
+    Wt::rapidxml::xml_document<> doc = Wt::rapidxml::parseXHTML(xhtml);
 #endif
 
     Block docBlock(&doc, (Block*)0);
