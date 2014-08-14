@@ -43,7 +43,7 @@ class Client::Impl : public boost::enable_shared_from_this<Client::Impl>
 public:
   struct ChunkState {
     enum State { Size, Data, Complete, Error } state;
-    std::string data;
+    WStringStream *data;
     std::size_t size;
     int parsePos;
   };
@@ -322,7 +322,7 @@ private:
 	    chunkState_.size = 0;
 	    chunkState_.parsePos = 0;
 	    chunkState_.state = ChunkState::Size;
-	    chunkState_.data = std::string();
+	    chunkState_.data = &response_.body_;
 	  }
 	}
       }
@@ -386,8 +386,6 @@ private:
 	protocolError(); return;
       } else if (chunkState_.state == ChunkState::Complete) {
 	complete(); return;
-      } else {
-	response_.addBodyText(chunkState_.data);
       }
     } else
       response_.addBodyText(text);
@@ -450,7 +448,6 @@ private:
 
 	  if (chunkState.size == 0) {
 	    chunkState.state = ChunkState::Complete; return;
-	    return;
 	  }
 	    
 	  chunkState.state = ChunkState::Data;
@@ -461,7 +458,7 @@ private:
       case ChunkState::Data: {
 	std::size_t thisChunk
 	  = std::min(std::size_t(text.end() - pos), chunkState.size);
-	chunkState.data = std::string(pos, pos + thisChunk);
+	*chunkState.data << std::string(pos, pos + thisChunk);
 	chunkState.size -= thisChunk;
 	pos += thisChunk;
 
