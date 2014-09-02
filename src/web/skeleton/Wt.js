@@ -3280,7 +3280,7 @@ function enableInternalPaths(initialHash) {
 function ieAlternative(d)
 {
   if (d.ieAlternativeExecuted) return '0';
-  self.emit(d.parentNode, 'IeAltnernative');
+  self.emit(d.parentNode, 'IeAlternative');
   d.style.width = '';
   d.ieAlternativeExecuted = true;
   return '0';
