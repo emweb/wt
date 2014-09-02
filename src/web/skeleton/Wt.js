@@ -1,4 +1,4 @@
-
+/*jshint bitwise:false */
 /**
  * @preserve Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
@@ -11,11 +11,11 @@ window.JavaScriptObject = 3;
 window.JavaScriptPrototype = 4;
 window.WT_DECLARE_WT_MEMBER = function(i, type, name, fn)
 {
-  if (type == JavaScriptPrototype) {
+  if (type === JavaScriptPrototype) {
     var proto = name.indexOf('.prototype');
     _$_WT_CLASS_$_[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
-  } else if (type == JavaScriptFunction) {
+  } else if (type === JavaScriptFunction) {
     _$_WT_CLASS_$_[name] = function() {
 	return fn.apply(_$_WT_CLASS_$_, arguments);
     };
@@ -27,11 +27,11 @@ window.WT_DECLARE_WT_MEMBER = function(i, type, name, fn)
 window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
 {
   var app = window.currentApp;
-  if (type == JavaScriptPrototype) {
+  if (type === JavaScriptPrototype) {
     var proto = name.indexOf('.prototype');
     app[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
-  } else if (type == JavaScriptFunction) {
+  } else if (type === JavaScriptFunction) {
     app[name] = function() { return fn.apply(app, arguments); };
   } else {
     app[name] = fn;
@@ -41,7 +41,7 @@ window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
 _$_$endif_$_();
 
 if (!window._$_WT_CLASS_$_)
-  window._$_WT_CLASS_$_ = new (function()
+  window._$_WT_CLASS_$_ = (function()
 {
 var WT = this;
 /** @const */ var UNDEFINED = 'undefined';
@@ -64,10 +64,10 @@ this.button = function(e)
   try {
     var t = e.type;
 
-    if (WT.isIE && (t == "click" || t == "dblclick"))
+    if (WT.isIE && (t === "click" || t === "dblclick"))
       return lastButtonUp; // IE does not provide button information then
 
-    if (t != "mouseup" && t != "mousedown" && t != "click" && t != "dblclick")
+    if (t !== "mouseup" && t !== "mousedown" && t !== "click" && t !== "dblclick")
       return 0;
   } catch (e) {
     return 0;
@@ -76,30 +76,30 @@ this.button = function(e)
   if (!WT.isGecko && 
       typeof e.which !== UNDEFINED && 
       typeof e.which !== UNKNOWN) {
-    if (e.which == 3)
+    if (e.which === 3)
       return 4;
-    else if (e.which == 2)
+    else if (e.which === 2)
       return 2;
-    else if (e.which == 1)
+    else if (e.which === 1)
       return 1;
     else
       return 0;
   } else if (WT.isIE && 
 	     typeof e.which !== UNDEFINED &&
 	     typeof e.which !== UNKNOWN) {
-    if (e.button == 2)
+    if (e.button === 2)
       return 4;
-    else if (e.button == 4)
+    else if (e.button === 4)
       return 2;
-    else if (e.button == 1)
+    else if (e.button === 1)
       return 1;
     else
       return 0;
   } else if (typeof e.which !== UNDEFINED &&
 	     typeof e.which !== UNKNOWN) {
-    if (e.button == 2)
+    if (e.button === 2)
       return 4;
-    else if (e.button == 1)
+    else if (e.button === 1)
       return 2;
     else
       return 1;
@@ -141,7 +141,7 @@ var ie = (function(){
     while (
         div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
         all[0]
-    ) {}
+    );
 
     return v > 4 ? v : undef;
 }());
@@ -152,12 +152,12 @@ this.isIE = ie !== undefined;
 this.isIE6 = ie === 6;
 this.isIE8 = ie === 8;
 this.isIElt9 = ie < 9;
-this.isIEMobile = agent.indexOf("msie 4")!=-1 || agent.indexOf("msie 5")!=-1;
+this.isIEMobile = agent.indexOf("msie 4") !== -1 || agent.indexOf("msie 5") !== -1;
 this.isOpera = typeof window.opera !== UNDEFINED;
-this.isAndroid = (agent.indexOf("safari") != -1)
-		  && (agent.indexOf("android") != -1);
-this.isWebKit = (agent.indexOf("applewebkit") != -1);
-this.isGecko = agent.indexOf("gecko") != -1 && !this.isWebKit;
+this.isAndroid = (agent.indexOf("safari") !== -1)
+		  && (agent.indexOf("android") !== -1);
+this.isWebKit = (agent.indexOf("applewebkit") !== -1);
+this.isGecko = agent.indexOf("gecko") !== -1 && !this.isWebKit;
 
 this.updateDelay = this.isIE ? 10 : 51;
 
@@ -189,8 +189,8 @@ function host(url) {
 
 this.initAjaxComm = function(url, handler) {
   var crossDomain = 
-    (url.indexOf("://") != -1 || url.indexOf("//") == 0) &&
-    host(url) != window.location.host;
+    (url.indexOf("://") !== -1 || url.indexOf("//") === 0) &&
+    host(url) !== window.location.host;
 
   function createRequest(method, url) {
     var request = null;
@@ -203,7 +203,7 @@ this.initAjaxComm = function(url, handler) {
 	    request.open(method, url, true);
 	    request.withCredentials = "true";
 	  }
-	} else if (typeof XDomainRequest != "undefined") {
+	} else if (typeof XDomainRequest !== "undefined") {
 	  request = new XDomainRequest();
 	  if (url) {
 	    supportsRequestHeader = false;
@@ -240,8 +240,8 @@ this.initAjaxComm = function(url, handler) {
 
   var req = createRequest('POST', url);
 
-  if (req != null) {
-    return new (function() {
+  if (req !== null) {
+    return (function() {
       var sessionUrl = url;
 
       function Request(data, userData, id, timeout) {
@@ -262,7 +262,7 @@ this.initAjaxComm = function(url, handler) {
 	    handler(1, null, userData);
 
 	  if (request) {
-	    request.onreadystatechange = new Function;
+	    request.onreadystatechange = new Function();
 	    try {
 	      request.onload = request.onreadystatechange;
 	    } catch (e) {
@@ -277,26 +277,26 @@ this.initAjaxComm = function(url, handler) {
 	}
 
 	function recvCallback() {
-	  if (request.readyState == 4) {
-	    var good = request.status == 200
+	  if (request.readyState === 4) {
+	    var good = request.status === 200
 	      && request.getResponseHeader("Content-Type")
 	      && request.getResponseHeader("Content-Type")
-		.indexOf("text/javascript") == 0;
+		.indexOf("text/javascript") === 0;
 
 	    handleResponse(good);
 	  }
 	}
 
 	function handleTimeout() {
-	  request.onreadystatechange = new Function;
+	  request.onreadystatechange = new Function();
 	  request = null;
 	  handled = true;
 	  handler(2, null, userData);
 	}
 
 	this.abort = function() {
-	  if(request != null){
-	    request.onreadystatechange = new Function;
+	    if (request !== null) {
+	    request.onreadystatechange = new Function();
 	    handled = true;
 	    request.abort();
 	    request = null;
@@ -336,7 +336,7 @@ this.initAjaxComm = function(url, handler) {
       };
     })();
   } else {
-    return new (function() {
+    return (function() {
       var sessionUrl = url;
       var request = null;
 
@@ -365,7 +365,7 @@ this.initAjaxComm = function(url, handler) {
       }
 
       this.responseReceived = function(updateId) {
-        if (request != null) {
+        if (request !== null) {
           var req = request;
 	  request.script.parentNode.removeChild(request.script);
           request = null;
@@ -406,12 +406,10 @@ this.setHtml = function (el, html, add) {
 	    newNode.appendChild(c);
 	}
       return newNode;
-      break;
     case 3: // text
     case 4: // cdata
     case 5: // comment
       return document.createTextNode(e.nodeValue);
-      break;
     }
 
     return null;
@@ -429,7 +427,7 @@ this.setHtml = function (el, html, add) {
     d = new DOMParser();
     b = d.parseFromString('<div>'+html+'<\/div>','application/xhtml+xml');
     d = b.documentElement;
-    if (d.nodeType != 1) // element
+    if (d.nodeType !== 1) // element
       d = d.nextSibling;
 
     if (!add) {
@@ -443,7 +441,7 @@ this.setHtml = function (el, html, add) {
 };
 
 this.hasTag = function(e, s) {
-  return e.nodeType == 1 && e.tagName && e.tagName.toUpperCase() === s;
+  return e.nodeType === 1 && e.tagName && e.tagName.toUpperCase() === s;
 };
 
 this.insertAt = function(p, c, pos) {
@@ -475,7 +473,7 @@ this.contains = function(w1, w2) {
   var p = w2.parentNode;
 
   while (p && !WT.hasTag(p, "BODY")) {
-    if (p == w1)
+    if (p === w1)
       return true;
     p = p.parentNode;
   }
@@ -484,8 +482,8 @@ this.contains = function(w1, w2) {
 };
 
 this.unstub = function(from, to, methodDisplay) {
-  if (methodDisplay == 1) {
-    if (from.style.display != 'none')
+  if (methodDisplay === 1) {
+    if (from.style.display !== 'none')
       to.style.display = from.style.display;
   } else {
     to.style.position = from.style.position;
@@ -517,7 +515,7 @@ this.changeTag = function(e, type)
   var n = document.createElement(type);
 
    /* For some reason fails on 'a' */
-  if (type == 'img' && n.mergeAttributes) {
+  if (type === 'img' && n.mergeAttributes) {
     n.mergeAttributes(e, false);
     n.src = e.src;
   } else {
@@ -525,7 +523,7 @@ this.changeTag = function(e, type)
       var i, il;
       for (i = 0, il = e.attributes.length; i < il; i++) {
 	var nn = e.attributes[i].nodeName;
-	if (nn != 'type' && nn != 'name')
+	if (nn !== 'type' && nn !== 'name')
 	  n.setAttribute(nn, e.getAttribute(nn));
       }
     }
@@ -553,12 +551,12 @@ this.unwrap = function(e) {
     }
     e.parentNode.replaceChild(wrapped, e);
   } else {
-    if (e.getAttribute('type') == 'submit') {
+    if (e.getAttribute('type') === 'submit') {
       e.setAttribute('type', 'button');
       e.removeAttribute('name');
-    } else if (WT.hasTag(e, 'A') && e.href.indexOf('&signal=') != -1) {
+    } else if (WT.hasTag(e, 'A') && e.href.indexOf('&signal=') !== -1) {
         e.href = 'javascript:void(0)';
-    } if (WT.hasTag(e, 'INPUT') && e.getAttribute('type') == 'image') {
+    } if (WT.hasTag(e, 'INPUT') && e.getAttribute('type') === 'image') {
       WT.changeTag(e, 'img');
     }
   }
@@ -569,7 +567,7 @@ this.navigateInternalPath = function(event, path) {
   if (!e.ctrlKey && !e.metaKey && WT.button(e) <= 1) {
     WT.history.navigate(path, true);
     WT.cancelEvent(e, WT.CancelDefaultAction);
-  };
+  }
 };
 
 this.ajaxInternalPaths = function(basePath) {
@@ -586,22 +584,22 @@ this.ajaxInternalPaths = function(basePath) {
        * On IE < 8, an absolute URL is read from href. In that case we
        * also turn the basePath into an absolute URL.
        */
-      if (href.indexOf("://") != -1) {
+      if (href.indexOf("://") !== -1) {
 	var el= document.createElement('div');
 	el.innerHTML= '<a href="' + basePath +'">x</a>';
 	var absBase = el.firstChild.href;
 	internalPath = href.substr(absBase.length - 1);
       } else {
-	while (href.substr(0, 3) == "../")
+	while (href.substr(0, 3) === "../")
 	  href = href.substr(3);
-	if (href.charAt(0) != '/')
+	if (href.charAt(0) !== '/')
 	  href = '/' + href;
 	internalPath = href.substr(basePath.length);
       }
 
-      if (internalPath.length == 0 || internalPath.charAt(0) != '/')
+      if (internalPath.length === 0 || internalPath.charAt(0) !== '/')
 	internalPath = '/' + internalPath;
-      if (internalPath.substr(0, 4) == "/?_=")
+      if (internalPath.substr(0, 4) === "/?_=")
 	internalPath = internalPath.substr(4);
       this.setAttribute('href', href); // computes this.href
       this.setAttribute('href', this.href);
@@ -693,7 +691,7 @@ this.widgetPageCoordinates = function(obj, reference) {
     objY += obj.offsetTop;
 
     var f = WT.css(obj, 'position');
-    if (f == 'fixed') {
+    if (f === 'fixed') {
       objX += document.body.scrollLeft
 	+ document.documentElement.scrollLeft;
       objY += document.body.scrollTop
@@ -703,7 +701,7 @@ this.widgetPageCoordinates = function(obj, reference) {
 
     op = obj.offsetParent;
 
-    if (op == null)
+    if (op === null)
       obj = null;
     else {
       do {
@@ -723,7 +721,7 @@ this.widgetPageCoordinates = function(obj, reference) {
 	    objX -= obj.scrollLeft;
 	  objY -= obj.scrollTop;
 	}
-      } while (obj != null && obj != op);
+      } while (obj !== null && obj !== op);
     }
   }
 
@@ -743,12 +741,10 @@ this.pageCoordinates = function(e) {
 
   var posX = 0, posY = 0;
 
-  var target = e.target || e.srcElement;
-
   // if this is an iframe, offset against the frame's position
-  if (target.ownerDocument != document)
+  if (e.target.ownerDocument !== document)
     for (var i=0; i < window.frames.length; i++) {
-      if (target.ownerDocument == window.frames[i].document) {
+      if (e.target.ownerDocument === window.frames[i].document) {
 	var rect = window.frames[i].frameElement.getBoundingClientRect();
 	posX = rect.left;
 	posY = rect.top;
@@ -795,16 +791,16 @@ this.wheelDelta = function(e) {
 this.scrollIntoView = function(id) {
   setTimeout(function() {
       var hashI = id.indexOf('#');
-      if (hashI != -1)
+      if (hashI !== -1)
 	id = id.substr(hashI + 1);
 
       var obj = document.getElementById(id);
       if (obj) {
 	/* Locate a suitable ancestor to scroll */
 	var p;
-	for (p = obj.parentNode; p != document.body; p = p.parentNode) {
+	for (p = obj.parentNode; p !== document.body; p = p.parentNode) {
 	  if (p.scrollHeight > p.clientHeight &&
-	      WT.css(p, 'overflow-y') == 'auto') {
+	      WT.css(p, 'overflow-y') === 'auto') {
 	    var xy = WT.widgetPageCoordinates(obj, p);
 	    p.scrollTop += xy.y;
 	    return;
@@ -851,7 +847,7 @@ this.getSelectionRange = function(elem) {
         var range = document.selection.createRange().duplicate();
 
         range.moveEnd("character", val.length);
-        start = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+        start = (range.text === "" ? val.length : val.lastIndexOf(range.text));
 
         range = document.selection.createRange().duplicate();
         range.moveStart("character", -val.length);
@@ -860,7 +856,7 @@ this.getSelectionRange = function(elem) {
 
       return {start: start, end: end};
     }
-  } else if (elem.selectionStart || elem.selectionStart == 0) {
+  } else if (elem.selectionStart || elem.selectionStart === 0) {
     return {start: elem.selectionStart, end: elem.selectionEnd};
   } else
     return {start: -1, end: -1};
@@ -874,8 +870,8 @@ this.setSelectionRange = function(elem, start, end) {
    */
   var val = $(elem).val();
 
-  if (typeof start != "number") start = -1;
-  if (typeof end != "number") end = -1;
+  if (typeof start !== "number") start = -1;
+  if (typeof end !== "number") end = -1;
   if (start < 0) start = 0;
   if (end > val.length) end = val.length;
   if (end < start) end = start;
@@ -908,10 +904,10 @@ this.isKeyPress = function(e) {
     return true;
   else {
     if (WT.isOpera)
-      return (e.keyCode == 13 || e.keyCode == 27
+      return (e.keyCode === 13 || e.keyCode === 27
 	      || (e.keyCode >= 32 && e.keyCode < 125));
     else
-      return (e.keyCode == 13 || e.keyCode == 27 || e.keyCode == 32
+      return (e.keyCode === 13 || e.keyCode === 27 || e.keyCode === 32
 	      || (e.keyCode > 46 && e.keyCode < 112));
 
   }
@@ -968,10 +964,10 @@ this.css = function(c, s) {
 };
 
 function parseCss(value, regex, defaultvalue) {
-  if (value == 'auto' || value == null)
+  if (value === 'auto' || value === null)
     return defaultvalue;
   var m = regex.exec(value),
-      v = m && m.length == 2 ? m[1] : null;
+      v = m && m.length === 2 ? m[1] : null;
   return v ? parseFloat(v) : defaultvalue;
 }
 
@@ -1001,7 +997,7 @@ this.pctself = function(c, s) {
 this.styleAttribute = function(cssProp) {
     function toCamelCase(str) {
 	var n=str.search(/-./);
-	while (n != -1) {
+	while (n !== -1) {
 	    var letter = (str.charAt(n+1)).toUpperCase();
 	    str = str.replace(/-./, letter);
 	    n=str.search(/-./);
@@ -1023,7 +1019,7 @@ this.styleAttribute = function(cssProp) {
 this.vendorPrefix = function(attr) {
     var prefixes = ['Moz', 'Webkit', 'O', 'Ms'];
     for (i = 0, il = prefixes.length; i < il; ++i) {
-	if (attr.search(prefixes[i]) != -1)
+	if (attr.search(prefixes[i]) !== -1)
 	    return prefixes[i];
     }
     return '';
@@ -1035,7 +1031,7 @@ this.boxSizing = function(w) {
 
 // Return if an element (or one of its ancestors) is hidden
 this.isHidden = function(w) {
-  if (w.style.display == 'none')
+  if (w.style.display === 'none')
     return true;
   else {
     w = w.parentNode;
@@ -1081,7 +1077,7 @@ this.IEwidth = function(c, min, max) {
       return min-1;
     else if (r > max)
       return max+1;
-    else if (c.style["styleFloat"] != "")
+    else if (c.style.styleFloat !== "")
       return min-1;
     else
       return "auto";
@@ -1106,7 +1102,7 @@ this.target = function(event) {
 };
 
 function delegateCapture(e) {
-  if (captureElement == null)
+  if (captureElement === null)
     return null;
 
   if (!e) e = window.event;
@@ -1114,7 +1110,7 @@ function delegateCapture(e) {
   if (e) {
     var t = WT.target(e), p = t;
 
-    while (p && p != captureElement)
+    while (p && p !== captureElement)
       p = p.parentNode;
 
     /*
@@ -1125,7 +1121,7 @@ function delegateCapture(e) {
      * On IE this means that we need to delegate the event to the event
      * target; on other browsers we can just rely on event bubbling.
      */
-    if (p == captureElement)
+    if (p === captureElement)
       return WT.isIElt9 ? t : null;
     else
       return captureElement;
@@ -1219,12 +1215,12 @@ this.capture = function(obj) {
 
   var db = document.body;
   if (!document.body.addEventListener)
-    if (obj != null)
+    if (obj !== null)
       db.setCapture();
     else
       db.releaseCapture();
 
-  if (obj != null) {
+  if (obj !== null) {
     $(db).addClass('unselectable');
     db.setAttribute('unselectable', 'on');
     db.onselectstart = 'return false;';
@@ -1236,7 +1232,7 @@ this.capture = function(obj) {
 };
 
 this.checkReleaseCapture = function(obj, e) {
-  if (e && captureElement && (obj == captureElement) && e.type == "mouseup")
+  if (e && captureElement && (obj === captureElement) && e.type === "mouseup")
     this.capture(null);
 };
 
@@ -1248,7 +1244,7 @@ this.getElementsByClassName = function(className, parentElement) {
     var els = [], c;
     for (var i = 0, length = cc.length; i < length; i++) {
       c = cc[i];
-      if (c.className.indexOf(className) != -1)
+      if (c.className.indexOf(className) !== -1)
 	els.push(c);
     }
     return els;
@@ -1259,10 +1255,11 @@ this.getElementsByClassName = function(className, parentElement) {
 var inlineStyleSheet = null;
 
 function getInlineStyleSheet() {
+  var s;
   if (!inlineStyleSheet) {
     var i, il, ds = document.styleSheets;
     for (i = 0, il = ds.length; i < il; ++i) {
-      var s = ds[i];
+      s = ds[i];
       if (WT.hasTag(ds[i].ownerNode, 'STYLE')) {
 	inlineStyleSheet = s;
 	break;
@@ -1270,7 +1267,7 @@ function getInlineStyleSheet() {
     }
 
     if (!inlineStyleSheet) {
-      var s = document.createElement('style');
+      s = document.createElement('style');
       document.getElementsByTagName('head')[0].appendChild(s);
 
       inlineStyleSheet = s.sheet;
@@ -1332,8 +1329,8 @@ this.getCssRule = function(selector, deleteFlag) {
 	  else if (styleSheet.rules)
 	    cssRule = styleSheet.rules[ii];
 	  if (cssRule && cssRule.selectorText) {
-	    if (cssRule.selectorText.toLowerCase()==selector) {
-	      if (deleteFlag == 'delete') {
+	    if (cssRule.selectorText.toLowerCase()===selector) {
+	      if (deleteFlag === 'delete') {
 		if (styleSheet.cssRules)
 		  styleSheet.deleteRule(ii);
 		else
@@ -1370,7 +1367,7 @@ this.addStyleSheet = function(uri, media) {
     s.setAttribute('href', uri);
     s.setAttribute('type','text/css');
     s.setAttribute('rel','stylesheet');
-    if (media != '' && media != 'all')
+    if (media !== '' && media !== 'all')
       s.setAttribute('media', media);
     var ll = document.getElementsByTagName('link');
     if (ll.length > 0) {
@@ -1413,7 +1410,7 @@ this.removeStyleSheet = function(uri) {
         */
         }
         ++j;
-      } while(rule)
+      } while(rule);
     }
   }
 };
@@ -1466,21 +1463,22 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 
   var offsetParent = WT.widgetPageCoordinates(op);
 
+  var scrollX, scrollY;
   if (reserveWidth > windowSize.x) {
     // wider than window
     x = windowX;
     hside = 0;
   } else if (x + reserveWidth > windowX + windowSize.x) {
     // too far right, chose other side
-    var scrollX = op.scrollLeft;
-    if (op == document.body)
+    scrollX = op.scrollLeft;
+    if (op === document.body)
       scrollX = (op.clientWidth - windowSize.x);
     rightx = rightx - offsetParent.x + scrollX;
     x = op.clientWidth - (rightx + WT.px(e, 'marginRight'));
     hside = 1;
   } else {
-    var scrollX = op.scrollLeft;
-    if (op == document.body)
+    scrollX = op.scrollLeft;
+    if (op === document.body)
       scrollX = 0;
     x = x - offsetParent.x + scrollX;
     x = x - WT.px(e, 'marginLeft');
@@ -1495,16 +1493,16 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     // too far below, chose other side
     if (bottomy > windowY + windowSize.y)
       bottomy = windowY + windowSize.y;
-    var scrollY = op.scrollTop;
-    if (op == document.body)
+    scrollY = op.scrollTop;
+    if (op === document.body)
       scrollY = (op.clientHeight - windowSize.y);
     bottomy = bottomy - offsetParent.y + scrollY;
     y = op.clientHeight - 
 	  (bottomy + WT.px(e, 'marginBottom') + WT.px(e, 'borderBottomWidth'));
     vside = 1;
   } else {
-    var scrollY = op.scrollTop;
-    if (op == document.body)
+    scrollY = op.scrollTop;
+    if (op === document.body)
       scrollY = 0;
     y = y - offsetParent.y + scrollY;
     y = y - WT.px(e, 'marginTop') + WT.px(e, 'borderTopWidth');
@@ -1548,7 +1546,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
     x, y, rightx, bottomy;
 
   w.style.position = 'absolute';
-  if (WT.css(w, 'display') == 'none')
+  if (WT.css(w, 'display') === 'none')
     w.style.display = 'block';
 
   if (orientation === WT.Horizontal) {
@@ -1571,7 +1569,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
     var p, pp = atw, domRoot = $('.Wt-domRoot').get(0);
     w.parentNode.removeChild(w);
   
-    for (p = pp.parentNode; p != domRoot; p = p.parentNode) {
+    for (p = pp.parentNode; p !== domRoot; p = p.parentNode) {
       if (p.wtResize) {
 	p = pp;
 	break;
@@ -1581,7 +1579,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
       // with only absolutely positioned children. We are a bit more liberal
       // here to catch other simular situations, and 100px seems like space
       // needed anyway?
-      if (WT.css(p, 'display') != 'inline' &&
+      if (WT.css(p, 'display') !== 'inline' &&
 	  p.clientHeight > 100 &&
 	  (p.scrollHeight > p.clientHeight ||
 	   p.scrollWidth > p.clientWidth)) {
@@ -1592,7 +1590,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
     }
 
     var posP = WT.css(p, 'position');
-    if (posP != 'absolute' && posP != 'relative')
+    if (posP !== 'absolute' && posP !== 'relative')
       p.style.position = 'relative';
     
     p.appendChild(w);
@@ -1625,24 +1623,24 @@ this.progressed = function(domRoot) {
     db.detachEvent('click', delayClick);
 
   setTimeout(function() {
-      var i, il;
+      var i, il, e, ec, el;
       for (i = 0, il = delayedClicks.length; i < il; ++i) {
 	if (doc.createEvent) {
-	  var e = delayedClicks[i];
-	  var ec = doc.createEvent('MouseEvents');
+	  e = delayedClicks[i];
+	  ec = doc.createEvent('MouseEvents');
 	  ec.initMouseEvent('click', e.bubbles, e.cancelable, window,
 			    e.detail, e.screenX, e.screenY,
 			    e.clientX, e.clientY, e.ctrlKey, e.altKey,
 			    e.shiftKey, e.metaKey, e.button, null);
-	  var el = WT.getElement(e.targetId);
+	  el = WT.getElement(e.targetId);
 	  if (el)
 	    el.dispatchEvent(ec);
 	} else {
-	  var e = delayedClicks[i];
-	  var ec = doc.createEventObject();
+	  e = delayedClicks[i];
+	  ec = doc.createEventObject();
 	  for (i in e)
 	    ec[i] = e[i];
-	  var el = WT.getElement(e.targetId);
+	  el = WT.getElement(e.targetId);
 	  if (el)
 	    el.fireEvent('onclick', ec);
 	}
@@ -1687,13 +1685,13 @@ if (html5History) {
       function onPopState(event) {
 	var newState = event.state;
 
-	if (newState == null)
+	if (newState === null)
 	  newState = stateMap[w.location.pathname + w.location.search];
 
-	if (newState == null) {
+	if (newState === null) {
 	  var endw = w.location.pathname.lastIndexOf(currentState);
-	  if (endw != -1 &&
-	      endw == w.location.pathname.length - currentState.length) {
+	  if (endw !== -1 &&
+	      endw === w.location.pathname.length - currentState.length) {
 	    saveState(currentState);
 	    return;
 	  } else {
@@ -1701,9 +1699,9 @@ if (html5History) {
 	  }
 	}
 
-	if (newState != currentState) {
+	if (newState !== currentState) {
 	  currentState = newState;
-	  onStateChange(currentState != "" ? currentState : "/");
+	  onStateChange(currentState !== "" ? currentState : "/");
 	}
       }
 
@@ -1714,7 +1712,7 @@ if (html5History) {
       WT.resolveRelativeAnchors();
 
       baseUrl = deployUrl;
-      if (baseUrl.length >= 1 && baseUrl[baseUrl.length - 1] == '/') {
+      if (baseUrl.length >= 1 && baseUrl[baseUrl.length - 1] === '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
 	ugly = true;
 _$_$endif_$_();
@@ -1725,38 +1723,37 @@ _$_$endif_$_();
     },
 
     navigate: function (state, generateEvent) {
+      function stripHashParameter(q) {
+	    if (q.length > 1)
+	      q = q.substr(1);
+
+	    var qp = q.split("&"), i, il;
+	    q = "";
+
+	    for (i = 0, il = qp.length; i < il; ++i)
+	      if (qp[i].split("=")[0] !== '_')
+	        q += (q.length ? '&' : '?') + qp[i];
+	    return q;
+	  }
       WT.resolveRelativeAnchors();
 
       currentState = state;
 
       var ip = gentleURIEncode(state), url = baseUrl;
 
-      if (ip.length != 0)
+      if (ip.length !== 0)
 	url += (ugly ? "?_=" : "") + ip;
 
       if (!ugly) {
 	url += window.location.search;
       } else {
-	function stripHashParameter(q) {
-	  if (q.length > 1)
-	    q = q.substr(1);
-
-	  var qp = q.split("&"), i, il;
-	  q = "";
-
-	  for (i=0, il = qp.length; i<il; ++i)
-	    if (qp[i].split("=")[0] != '_')
-	      q += (q.length ? '&' : '?') + qp[i];
-
-	  return q;
-	}
 
 	var q = stripHashParameter(window.location.search);
 
 	if (q.length > 1) {
-	  if (q.length > 2 && q[0] == '?' && q[1] == '&')
+	  if (q.length > 2 && q[0] === '?' && q[1] === '&')
 	    q = q.substr(1);
-	  if (url.indexOf('?') == -1)
+	  if (url.indexOf('?') === -1)
 	    url += '?' + q.substr(1);
 	  else
 	    url += '&' + q.substr(1);
@@ -1799,7 +1796,7 @@ _$_$endif_$_();
       cb = onStateChange;
 
       function onHashChange() {
-	if (currentState != w.location.hash) {
+	if (currentState !== w.location.hash) {
 	  currentState = w.location.hash.substring(1);
 	  cb(currentState);
 	}
@@ -1914,8 +1911,8 @@ _$_$endif_$_();
 	  } else {
 	    newHash = fqstate;
 	  }
-	  if (location.hash != newHash && 
-	      location.hash.substring(1) != newHash)
+	  if (location.hash !== newHash &&
+	      location.hash.substring(1) !== newHash)
 	    location.hash = newHash;
 	  hash = newHash;
 	  _storeStates();
@@ -1925,7 +1922,7 @@ _$_$endif_$_();
 	}
       }, 50);
     _initialized = true;
-    if (_onLoadFn != null)
+    if (_onLoadFn !== null)
       _onLoadFn();
   }
 
@@ -1967,13 +1964,13 @@ _$_$endif_$_();
     } else {
       _initTimeout();
       _initialized = true;
-      if (_onLoadFn != null)
+      if (_onLoadFn !== null)
 	_onLoadFn();
     }
   }
   return {
   _initialize: function() {
-    if (_stateField != null)
+    if (_stateField !== null)
       _initialize();
   },
   _initTimeout: function() {
@@ -2052,7 +2049,7 @@ if (window._$_APP_CLASS_$_ && window._$_APP_CLASS_$_._p_) {
   }
 }
 
-window._$_APP_CLASS_$_ = new (function() {
+window._$_APP_CLASS_$_ = (function() {
 
 var self = this;
 var WT = _$_WT_CLASS_$_;
@@ -2068,35 +2065,35 @@ function saveDownPos(e) {
   var coords = WT.pageCoordinates(e);
   downX = coords.x;
   downY = coords.y;
-};
+}
 
 var currentHash = null;
 
 function onHashChange() {
   var newLocation = _$_WT_CLASS_$_.history.getCurrentState();
 
-  if (newLocation != null &&
+  if (newLocation !== null &&
       newLocation.length > 0 &&
-      newLocation.substr(0, 1) != '/')
+      newLocation.substr(0, 1) !== '/')
     return;
 
-  if (currentHash == newLocation)
+  if (currentHash === newLocation)
     return;
 
   currentHash = newLocation;
 
   setTimeout(function() { update(null, 'hash', null, true); }, 1);
-};
+}
 
 function setHash(newLocation, generateEvent) {
-  if (currentHash == newLocation || (!currentHash && newLocation == '/'))
+  if (currentHash === newLocation || (!currentHash && newLocation === '/'))
     return;
 
   if (!generateEvent)
     currentHash = newLocation;
 
   WT.history.navigate(newLocation, generateEvent);
-};
+}
 
 var dragState = {
   object: null,
@@ -2146,7 +2143,7 @@ function dragStart(obj, e) {
   var ds = dragState;
 
   ds.object = WT.getElement(obj.getAttribute("dwid"));
-  if (ds.object == null)
+  if (ds.object === null)
     return true;
 
   ds.sourceId = obj.getAttribute("dsid");
@@ -2179,7 +2176,7 @@ function dragStart(obj, e) {
   WT.cancelEvent(e, WT.CancelPropagate);
 
   return false;
-};
+}
 
 function dragDrag(e) {
   e = e || window.event;
@@ -2197,11 +2194,11 @@ function dragDrag(e) {
 
     var prevDropTarget = ds.dropTarget;
     var t = WT.target(e);
-    if (t == ds.object) {
+    if (t === ds.object) {
       if (document.elementFromPoint) {
-	ds.object.style['display']='none';
+	ds.object.style.display='none';
 	t = document.elementFromPoint(e.clientX, e.clientY);
-	ds.object.style['display']='';
+	ds.object.style.display='';
       }
     }
 
@@ -2212,7 +2209,7 @@ function dragDrag(e) {
 
     while (t) {
       amts = t.getAttribute("amts");
-      if ((amts != null) && (amts.indexOf(mimeType) != -1)) {
+      if ((amts !== null) && (amts.indexOf(mimeType) !== -1)) {
 	ds.dropTarget = t;
 	break;
       }
@@ -2221,12 +2218,12 @@ function dragDrag(e) {
 	break;
     }
 
-    if (ds.dropTarget != prevDropTarget) {
+    if (ds.dropTarget !== prevDropTarget) {
       if (ds.dropTarget) {
         var s = amts.indexOf(mimeType) + mimeType.length;
 	var se = amts.indexOf("}", s);
 	var style = amts.substring(s, se);
-	if (style.length != 0) {
+	if (style.length !== 0) {
           ds.dropTarget.setAttribute("dos", ds.dropTarget.className);
 	  ds.dropTarget.className = ds.dropTarget.className + " " + style;
         }
@@ -2234,11 +2231,11 @@ function dragDrag(e) {
         ds.object.styleClass = '';
       }
 
-      if (prevDropTarget != null) {
+      if (prevDropTarget !== null) {
 	if (prevDropTarget.handleDragDrop)
 	  prevDropTarget.handleDragDrop('end', ds.object, e, '', mimeType);
 	var dos = prevDropTarget.getAttribute("dos");
-        if (dos != null)
+        if (dos !== null)
 	  prevDropTarget.className = dos;
       }
     }
@@ -2255,7 +2252,7 @@ function dragDrag(e) {
   }
 
   return true;
-};
+}
 
 function dragEnd(e) {
   e = e || window.event;
@@ -2266,7 +2263,7 @@ function dragEnd(e) {
   if (ds.object) {
     if (ds.dropTarget) {
       var dos = ds.dropTarget.getAttribute("dos");
-      if (dos != null)
+      if (dos !== null)
 	  ds.dropTarget.className = dos;
       if (ds.dropTarget.handleDragDrop)
 	ds.dropTarget.handleDragDrop('drop', ds.object, e,
@@ -2286,7 +2283,7 @@ function dragEnd(e) {
 
     ds.object = null;
   }
-};
+}
 
 function encodeTouches(s, touches, widgetCoords) {
   var i, il, result;
@@ -2294,7 +2291,7 @@ function encodeTouches(s, touches, widgetCoords) {
   result = s + "=";
   for (i = 0, il = touches.length; i < il; ++i) {
     var t = touches[i];
-    if (i != 0)
+    if (i !== 0)
       result += ';';
     result += [ t.identifier,
 		t.clientX, t.clientY,
@@ -2309,7 +2306,7 @@ function encodeTouches(s, touches, widgetCoords) {
 var formObjects = [];
 
 function encodeEvent(event, i) {
-  var se, result, e;
+  var se, result, e, j;
 
   e = event.event;
   se = i > 0 ? '&e' + i : '&';
@@ -2320,30 +2317,30 @@ function encodeEvent(event, i) {
         + se + 'name=' + encodeURIComponent(event.name)
         + se + 'an=' + event.args.length;
 
-    for (var j = 0; j < event.args.length; ++j)
+    for (j = 0; j < event.args.length; ++j)
       result += se + 'a' + j + '=' + encodeURIComponent(event.args[j]);
   }
 
   for (var x = 0; x < formObjects.length; ++x) {
-    var el = WT.getElement(formObjects[x]), v = null, j, jl;
+    var el = WT.getElement(formObjects[x]), v = null, jl;
 
-    if (el == null)
+    if (el === null)
       continue;
 
     if (el.wtEncodeValue)
       v = el.wtEncodeValue(el);
-    else if (el.type == 'select-multiple') {
+    else if (el.type === 'select-multiple') {
       for (j = 0, jl = el.options.length; j < jl; j++)
 	if (el.options[j].selected) {
 	  result += se + formObjects[x] + '='
 	    + encodeURIComponent(el.options[j].value);
 	}
-    } else if (el.type == 'checkbox' || el.type == 'radio') {
-      if (el.indeterminate || el.style.opacity == '0.5')
+    } else if (el.type === 'checkbox' || el.type === 'radio') {
+      if (el.indeterminate || el.style.opacity === '0.5')
 	v = 'i';
       else if (el.checked)
 	v = el.value;
-    } else if (el.type != 'file') {
+    } else if (el.type !== 'file') {
       if ($(el).hasClass('Wt-edit-emptyText'))
 	v = '';
       else {
@@ -2360,7 +2357,7 @@ function encodeEvent(event, i) {
       }
     }
 
-    if (v != null)
+    if (v !== null)
       result += se + formObjects[x] + '=' + encodeURIComponent(v);
   }
 
@@ -2370,7 +2367,7 @@ function encodeEvent(event, i) {
       result += se + "focus=" + document.activeElement.id;
   } catch (e) { }
 
-  if (currentHash != null)
+  if (currentHash !== null)
     result += se + '_=' + encodeURIComponent(currentHash);
 
   if (!e) {
@@ -2416,7 +2413,7 @@ function encodeEvent(event, i) {
 
   var widgetCoords = { x: 0, y: 0 };
 
-  if (event.object && event.object.nodeType != 9) {
+  if (event.object && event.object.nodeType !== 9) {
     widgetCoords = WT.widgetPageCoordinates(event.object);
     var objX = widgetCoords.x;
     var objY = widgetCoords.y;
@@ -2495,7 +2492,7 @@ function encodeEvent(event, i) {
 
   event.data = result;
   return event;
-};
+}
 
 var sentEvents = [], pendingEvents = [];
 
@@ -2538,7 +2535,7 @@ function quit(quittedMessage) {
 
 function doKeepAlive() {
   WT.history._initTimeout();
-  if (commErrors == 0)
+  if (commErrors === 0)
     update(null, 'none', null, false);
 }
 
@@ -2552,7 +2549,17 @@ function setTitle(title) {
 }
 
 function load(fullapp) {
-  if (loaded)
+    function trackActiveElement(evt) {
+        if (evt && evt.target) {
+            document.activeElement = evt.target === document ? null : evt.target;
+        }
+    }
+
+    function trackActiveElementLost(evt) {
+        document.activeElement = null;
+    }
+
+    if (loaded)
     return;
 
   if (fullapp) {
@@ -2563,16 +2570,6 @@ function load(fullapp) {
   }
 
   if (!("activeElement" in document)) {
-    function trackActiveElement(evt) {
-      if (evt && evt.target) {
-	document.activeElement = evt.target == document ? null : evt.target;
-      }
-    }
-
-    function trackActiveElementLost(evt) {
-      document.activeElement = null;
-    }
-
     document.addEventListener("focus", trackActiveElement, true);
     document.addEventListener("blur", trackActiveElementLost, true);
   }
@@ -2600,7 +2597,7 @@ function cancelFeedback(timer) {
   clearTimeout(timer);
   document.body.style.cursor = 'auto';
 
-  if (currentHideLoadingIndicator != null) {
+  if (currentHideLoadingIndicator !== null) {
     try {
       currentHideLoadingIndicator();
     } catch (e) {
@@ -2643,7 +2640,7 @@ function doJavaScript(js) {
       window.eval(js);
   }
 
-  if (self == window._$_APP_CLASS_$_)
+  if (self === window._$_APP_CLASS_$_)
     doAutoJavaScript();
 }
 
@@ -2656,7 +2653,7 @@ function handleResponse(status, msg, timer) {
     return;
   }
 
-  if (status == 0) {
+  if (status === 0) {
     WT.resolveRelativeAnchors();
 _$_$if_CATCH_ERROR_$_();
     try {
@@ -2701,16 +2698,16 @@ _$_$endif_$_();
     return;
 
   if (serverPush || pendingEvents.length > 0) {
-    if (status == 1) {
+    if (status === 1) {
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
       updateTimeout = setTimeout(function() { sendUpdate(); }, ms);
     } else
       sendUpdate();
   }
-};
+}
 
 function setSessionUrl(url) {
-  if (url.indexOf("://") != -1 || url[0] == '/')
+  if (url.indexOf("://") !== -1 || url[0] === '/')
     sessionUrl = url;
   else
     sessionUrl = deployUrl + url;
@@ -2750,7 +2747,7 @@ _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
   if (!responsePending) {
 _$_$endif_$_();
 
-  var pendingEvent = new Object(), i = pendingEvents.length;
+  var pendingEvent = {}, i = pendingEvents.length;
   pendingEvent.object = el;
   pendingEvent.signal = signalName;
   pendingEvent.event = window.fakeEvent || e;
@@ -2772,7 +2769,15 @@ _$_$endif_$_();
 var updateTimeoutStart;
 
 function scheduleUpdate() {
-  if (quitted) {
+    function reconnect() {
+        if (!quitted) {
+            ++websocket.reconnectTries;
+            var ms = Math.min(120000, Math.exp(websocket.reconnectTries)
+                  * 500);
+            setTimeout(function () { scheduleUpdate(); }, ms);
+        }
+    }
+    if (quitted) {
     if (!quittedStr)
       return;
     if (confirm(quittedStr)) {
@@ -2786,28 +2791,20 @@ function scheduleUpdate() {
   }
 
 _$_$if_WEB_SOCKETS_$_();
-  if (websocket.state != WebSocketsUnavailable) {
+  if (websocket.state !== WebSocketsUnavailable) {
     if (typeof window.WebSocket === UNDEFINED
         && typeof window.MozWebSocket === UNDEFINED)
       websocket.state = WebSocketsUnavailable;
     else {
       var ws = websocket.socket;
 
-      if ((ws == null || ws.readyState > 1)) {
-	if (ws != null && websocket.state == WebSocketsUnknown)
+      if ((ws === null || ws.readyState > 1)) {
+	if (ws !== null && websocket.state === WebSocketsUnknown)
 	  websocket.state = WebSocketsUnavailable;
 	else {
-	  function reconnect() {
-	    if (!quitted) {
-	      ++websocket.reconnectTries;
-	      var ms = Math.min(120000, Math.exp(websocket.reconnectTries)
-				* 500);
-	      setTimeout(function() { scheduleUpdate(); }, ms);
-	    }
-	  }
 
 	  var protocolEnd = sessionUrl.indexOf("://"), wsurl;
-	  if (protocolEnd != -1) {
+	  if (protocolEnd !== -1) {
 	    wsurl = "ws" + sessionUrl.substr(4);
 	  } else {
 	    var query = sessionUrl.substr(sessionUrl.indexOf('?'));
@@ -2836,8 +2833,8 @@ _$_$if_WEB_SOCKETS_$_();
 	    /*
 	     * Sometimes, we can connect but cannot send data
 	     */
-	    if (websocket.reconnectTries == 3 &&
-		websocket.state == WebSocketsUnknown)
+	    if (websocket.reconnectTries === 3 &&
+		websocket.state === WebSocketsUnknown)
 	      websocket.state = WebSocketsUnavailable;
 	    reconnect();
 	  };
@@ -2846,8 +2843,8 @@ _$_$if_WEB_SOCKETS_$_();
 	    /*
 	     * Sometimes, we can connect but cannot send data
 	     */
-	    if (websocket.reconnectTries == 3 &&
-		websocket.state == WebSocketsUnknown)
+	    if (websocket.reconnectTries === 3 &&
+		websocket.state === WebSocketsUnknown)
 	      websocket.state = WebSocketsUnavailable;
 	    reconnect();
 	  };
@@ -2870,7 +2867,7 @@ _$_$if_WEB_SOCKETS_$_();
 
 	    websocket.keepAlive = setInterval
 	      (function() {
-		if (ws.readyState == 1)
+		if (ws.readyState === 1)
 		  ws.send('&signal=ping');
 		else {
 		  clearInterval(websocket.keepAlive);
@@ -2881,7 +2878,7 @@ _$_$if_WEB_SOCKETS_$_();
 	}
       }
 
-      if (ws.readyState == 1) {
+      if (ws.readyState === 1) {
 	sendUpdate();
 	return;
       }
@@ -2889,21 +2886,21 @@ _$_$if_WEB_SOCKETS_$_();
   }
 _$_$endif_$_();
 
-  if (responsePending != null && pollTimer != null) {
+  if (responsePending !== null && pollTimer !== null) {
     clearTimeout(pollTimer);
     responsePending.abort();
     responsePending = null;
   }
 
-  if (responsePending == null) {
-    if (updateTimeout == null) {
+  if (responsePending === null) {
+    if (updateTimeout === null) {
       updateTimeout = setTimeout(function() { sendUpdate(); }, WT.updateDelay);
-      updateTimeoutStart = (new Date).getTime();
+      updateTimeoutStart = (new Date()).getTime();
     } else if (commErrors) {
       clearTimeout(updateTimeout);
       sendUpdate();
     } else {
-      var diff = (new Date).getTime() - updateTimeoutStart;
+      var diff = (new Date()).getTime() - updateTimeoutStart;
       if (diff > WT.updateDelay) {
 	clearTimeout(updateTimeout);
 	sendUpdate();
@@ -2934,7 +2931,7 @@ _$_$endif_$_();
 }
 
 function sendUpdate() {
-  if (self != window._$_APP_CLASS_$_) {
+  if (self !== window._$_APP_CLASS_$_) {
     quit(null);
     return;
   }
@@ -2973,7 +2970,7 @@ function sendUpdate() {
 
       for (; !WT.hasTag(d, 'BODY'); d = d.parentNode) {
 	if (d.id) {
-	  if (solution != '') solution += ',';
+	  if (solution !== '') solution += ',';
 	  solution += d.id;
 	}
       }
@@ -2986,10 +2983,10 @@ function sendUpdate() {
   if (params.length > 0)
     data.result += '&' + params;
 
-  if (websocket.socket != null && websocket.socket.readyState == 1) {
+  if (websocket.socket !== null && websocket.socket.readyState === 1) {
     responsePending = null;
 
-    if (tm != null) {
+    if (tm !== null) {
       clearTimeout(tm);
       tm = null;
     }
@@ -3010,15 +3007,15 @@ function propagateSize(element, width, height) {
   /*
    * Propagate the size, even if it's the elements unconstrained size.
    */
-  if (width == -1)
+  if (width === -1)
     width = element.offsetWidth;
-  if (height == -1)
+  if (height === -1)
     height = element.offsetHeight;
 
   if ((typeof element.wtWidth === UNDEFINED)
-      || (element.wtWidth != width)
+      || (element.wtWidth !== width)
       || (typeof element.wtHeight === UNDEFINED)
-      || (element.wtHeight != height)) {
+      || (element.wtHeight !== height)) {
     element.wtWidth = width;
     element.wtHeight = height;
 
@@ -3028,12 +3025,12 @@ function propagateSize(element, width, height) {
 }
 
 function emit(object, config) {
-  var userEvent = new Object(), ei = pendingEvents.length;
+  var userEvent = {}, ei = pendingEvents.length;
   userEvent.signal = "user";
 
   if (typeof object === "string")
     userEvent.id = object;
-  else if (object == self)
+  else if (object === self)
     userEvent.id = "app";
   else
     userEvent.id = object.id;
@@ -3103,7 +3100,7 @@ function onJsLoad(path, f) {
     }, 20);
 
   waitingForJavaScript = true;
-};
+}
 
 function jsLoaded(path)
 {
@@ -3116,7 +3113,7 @@ function jsLoaded(path)
     }
     jsLibsLoaded[path] = true;
   }
-};
+}
 
 function loadScript(uri, symbol, tries)
 {
@@ -3146,7 +3143,7 @@ function loadScript(uri, symbol, tries)
     }
   }
 
-  if (symbol != "") {
+  if (symbol !== "") {
     try {
       loaded = !eval("typeof " + symbol + " === 'undefined'");
     } catch (e) {
@@ -3161,12 +3158,12 @@ function loadScript(uri, symbol, tries)
     s.onerror = onerror;
     s.onreadystatechange = function() {
       var rs = s.readyState;
-      if (rs == 'loaded') { // may still be 404 in IE<=8; too bad!
+      if (rs === 'loaded') { // may still be 404 in IE<=8; too bad!
 	if (WT.isOpera || WT.isIE) {
 	  onload();
 	} else
 	  onerror();
-      } else if (rs == 'complete') {
+      } else if (rs === 'complete') {
 	onload();
       }
     };
@@ -3175,22 +3172,22 @@ function loadScript(uri, symbol, tries)
   } else {
     jsLoaded(uri);
   }
-};
+}
 
 function ImagePreloader(uris, callback) {
   this.callback = callback;
   this.work = uris.length;
   this.images = [];
 
-  if (uris.length == 0)
+  if (uris.length === 0)
     callback(this.images);
   else
     for (var i = 0; i < uris.length; i++)
       this.preload(uris[i]);
-};
+}
 
 ImagePreloader.prototype.preload = function(uri) {
-  var image = new Image;
+  var image = new Image();
   this.images.push(image);
   image.onload = ImagePreloader.prototype.onload;
   image.onerror = ImagePreloader.prototype.onload;
@@ -3202,7 +3199,7 @@ ImagePreloader.prototype.preload = function(uri) {
 
 ImagePreloader.prototype.onload = function() {
   var preloader = this.imagePreloader;
-  if (--preloader.work == 0)
+  if (--preloader.work === 0)
     preloader.callback(preloader.images);
 };
 
@@ -3220,7 +3217,7 @@ function ArrayBufferPreloader(uris, callback) {
   this.arrayBuffers = [];
   
   // if urls are missing, call callback without buffers
-  if (uris.length == 0)
+  if (uris.length === 0)
     callback(this.arrayBuffers);
   else 
   {
@@ -3228,7 +3225,7 @@ function ArrayBufferPreloader(uris, callback) {
     for (var i = 0; i < uris.length; i++)
       this.preload(uris[i], i);
   }
-};
+}
 
 // preload function: downloads buffer at the given URI
 ArrayBufferPreloader.prototype.preload = function(uri, index) {
@@ -3261,7 +3258,7 @@ ArrayBufferPreloader.prototype.preload = function(uri, index) {
 };
 
 ArrayBufferPreloader.prototype.afterLoad = function() {
-  if (--this.work == 0)
+  if (--this.work === 0)
     // last request finished -> call callback
     this.callback(this.arrayBuffers);
 };
@@ -3297,7 +3294,7 @@ window.onunload = function()
 
 function setCloseMessage(m)
 {
-  if (m && m != '') {
+  if (m && m !== '') {
     window.onbeforeunload = function(event) {
       var e = event || window.event;
 
@@ -3308,7 +3305,7 @@ function setCloseMessage(m)
     };
   } else
     window.onbeforeunload = null;
-};
+}
 
 this._p_ = {
   ieAlternative : ieAlternative,
