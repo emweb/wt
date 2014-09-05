@@ -369,8 +369,9 @@ public:
    * Each occurrence of the variable within the template will be
    * substituted by its value.
    *
-   * Depending on the \p textFormat, the \p value is validated according
-   * as for a WText.
+   * \note Depending on the \p textFormat, the \p value is validated according
+   * as for a WText. The default (XHTMLText) filters "active" content, to avoid
+   * XSS-based security risks.
    *
    * \sa bindWidget(), bindInt()
    * \sa resolveString()

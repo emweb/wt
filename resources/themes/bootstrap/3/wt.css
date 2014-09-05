@@ -630,14 +630,14 @@ fieldset[disabled] .Wt-slider-v .handle.active {
   overflow: hidden;
 }
 
-.Wt-itemview Wt-header .Wt-label {
+.Wt-itemview .Wt-header .Wt-label {
   overflow: hidden;
   font-weight: bold;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.Wt-itemview Wt-header .Wt-wwrap .Wt-label {
+.Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
   overflow: visible;
   white-space: normal;
 }

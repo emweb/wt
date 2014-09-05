@@ -115,7 +115,7 @@ const std::string axisVertexShaderSrc =
   "  "
   "  float xOrientation = (transformedOutOfPlaneNormal + transformedPlaneNormal).x;\n"
   "  bool correctTexture = (xOrientation > 0.0) == uNormalAngleTexture;\n"
-  "  bool cull = (zProjInPlane < 0.0 || zProjOutOfPlane < 0.0 || correctTexture );\n"
+  "  bool cull = (zProjInPlane <= 0.0 || zProjOutOfPlane < 0.0 || correctTexture );\n"
   "  if ( showInPlane != inPlane || cull ) {\n"
   "    gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n"
   "  }\n"

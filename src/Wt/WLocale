@@ -48,14 +48,14 @@ public:
 
   /*! \brief Creates a locale by name.
    *
-   * The locale name is a string such as "en" (for English) or "en_UK"
+   * The locale name is a string such as "en" (for English) or "en_GB"
    * (for UK English).
    */
   WLocale(const std::string& locale);
 
   /*! \brief Creates a locale by name.
    *
-   * The locale name is a string such as "en" (for English) or "en_UK"
+   * The locale name is a string such as "en" (for English) or "en_GB"
    * (for UK English).
    */
   WLocale(const char *locale);

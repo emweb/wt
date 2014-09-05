@@ -111,6 +111,17 @@ WT_DECLARE_WT_MEMBER
 
    jQuery.data(document.getElementById(id), 'layout', this);
 
+   function getItem(id) {
+     var i, il;
+     for (i = 0, il = config.items.length; i < il; ++i) {
+       var item = config.items[i];
+       if (item && item.id == id)
+	  return item;
+     }
+
+     return null;
+   }
+
    function calcPreferredSize(element, dir, asSet, widget) {
      var DC = DirConfig[dir];
 
@@ -463,7 +474,8 @@ WT_DECLARE_WT_MEMBER
 	     if (debug)
 	       console.log("measure " + dir + " "
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]
-			   + ',' + item.dirty);
+			   + ',' + item.dirty + ', set: ['
+			   + item.set[0] + ',' + item.set[1] + ']');
 
 	     if (item.dirty) {
 	       var wMinimum;
@@ -1417,19 +1429,27 @@ WT_DECLARE_WT_MEMBER
 
      var i, il, childLayouts = {};
      for (i = 0, il = oldConfig.items.length; i < il; ++i) {
-       var item = oldConfig.items[i];
+       var oldItem = oldConfig.items[i];
 
-       if (item) {
-	 if (item.set) {
-	   if (item.set[HORIZONTAL])
-	     setCss(item.w, DirConfig[HORIZONTAL].size, '');
-	   if (item.set[VERTICAL])
-	     setCss(item.w, DirConfig[VERTICAL].size, '');
-	 }
+       if (oldItem) {
+	 var newItem = getItem(oldItem.id);
 
-	 if (item.layout) {
-	   self.setChildSize(item.w, HORIZONTAL, item.ps[HORIZONTAL]);
-	   self.setChildSize(item.w, VERTICAL, item.ps[VERTICAL]);
+	 if (newItem) {
+	   newItem.ps = oldItem.ps;
+	   newItem.sc = oldItem.sc;
+	   newItem.ms = oldItem.ms;
+	   newItem.size = oldItem.size;
+	   newItem.psize = oldItem.psize;
+	   newItem.fs = oldItem.fs;
+	   newItem.margin = oldItem.margin;
+	   newItem.set = oldItem.set;
+	 } else {
+	   if (oldItem.set) {
+	     if (oldItem.set[HORIZONTAL])
+	       setCss(oldItem.w, DirConfig[HORIZONTAL].size, '');
+	     if (oldItem.set[VERTICAL])
+	       setCss(oldItem.w, DirConfig[VERTICAL].size, '');
+	   }
 	 }
        }
      }
@@ -1445,17 +1465,11 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setElDirty = function(el) {
-     var i, il;
-
-     for (i = 0, il = config.items.length; i < il; ++i) {
-       var item = config.items[i];
-       if (item && item.id == el.id) {
-	 item.dirty = 2;
-	 itemDirty = true;
-	 APP.layouts2.scheduleAdjust();
-
-	 return;
-       }
+     var item = getItem(el.id);
+     if (item) {
+       item.dirty = 2;
+       itemDirty = true;
+       APP.layouts2.scheduleAdjust();
      }
    };
 
@@ -1508,23 +1522,20 @@ WT_DECLARE_WT_MEMBER
          DC = DirConfig[dir],
          i, il;
 
-     for (i = 0, il = config.items.length; i < il; ++i) {
-       var item = config.items[i];
-       if (item && item.id == widget.id) {
-	 var di = (dir === HORIZONTAL ? i % colCount : i / colCount);
-	 var alignment = (item.align >> DC.alignBits) & 0xF;
+     var item = getItem(widget.id);
+     if (item) {
+       var di = (dir === HORIZONTAL ? i % colCount : i / colCount);
+       var alignment = (item.align >> DC.alignBits) & 0xF;
 
-	 if (alignment || !DC.stretched[di]) {
-	   if (!item.ps)
-	     item.ps = [];
-	   item.ps[dir] = preferredSize;
-	 }
-
-	 item.layout = true;
-
-	 setItemDirty(item, 1);
-	 break;
+       if (alignment || !DC.stretched[di]) {
+	 if (!item.ps)
+	   item.ps = [];
+	 item.ps[dir] = preferredSize;
        }
+
+       item.layout = true;
+
+       setItemDirty(item, 1);
      }
    };
 

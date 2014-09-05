@@ -161,8 +161,12 @@ struct fs_error_tag {};
 template< typename Iterator >
 struct ErrorReporting
 {
+#if BOOST_VERSION < 105600
   template< typename, typename, typename, typename, typename > // Phoenix v2
   struct result { typedef void type;};
+#else
+  typedef void result_type;
+#endif
 
   ErrorReporting(CssGrammer< Iterator >* grammer)
     : grammer_(grammer)

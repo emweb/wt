@@ -702,18 +702,20 @@ void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
 
 void WAxis::computeRange(const Segment& segment) const
 {
+  segment.renderMinimum = segment.minimum;
+  segment.renderMaximum = segment.maximum;
+
+  const bool findMinimum = segment.renderMinimum == AUTO_MINIMUM;
+  const bool findMaximum = segment.renderMaximum == AUTO_MAXIMUM;
+
   if (scale_ == CategoryScale) {
     int rc = chart_->numberOfCategories(axis_);
     rc = std::max(1, rc);
-    segment.renderMinimum = -0.5;
-    segment.renderMaximum = rc - 0.5;
+    if (findMinimum)
+      segment.renderMinimum = -0.5;
+    if (findMaximum)
+      segment.renderMaximum = rc - 0.5;
   } else {
-    segment.renderMinimum = segment.minimum;
-    segment.renderMaximum = segment.maximum;
-
-    const bool findMinimum = segment.renderMinimum == AUTO_MINIMUM;
-    const bool findMaximum = segment.renderMaximum == AUTO_MAXIMUM;
-
     if (findMinimum || findMaximum) {
       double minimum = std::numeric_limits<double>::max();
       double maximum = -std::numeric_limits<double>::max();
@@ -969,8 +971,8 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
     rc = chart_->numberOfCategories(axis_);
     int renderInterval = std::max(1, static_cast<int>(renderInterval_));
     if (renderInterval == 1) {
-      ticks.push_back(TickLabel(-0.5, TickLabel::Long));
-      for (int i = 0; i < rc; ++i) {
+      ticks.push_back(TickLabel(s.renderMinimum, TickLabel::Long));
+      for (int i = s.renderMinimum + 0.5; i < s.renderMaximum; ++i) {
 	ticks.push_back(TickLabel(i + 0.5, TickLabel::Long));
 	ticks.push_back(TickLabel(i, TickLabel::Zero,
 				  label(static_cast<double>(i))));
@@ -979,7 +981,8 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
       /*
        * We could do a special effort for date X series here...
        */
-      for (int i = 0; i < rc; i += renderInterval) {
+      for (int i = s.renderMinimum + 0.5; i < s.renderMaximum;
+	   i += renderInterval) {
 	ticks.push_back(TickLabel(i, TickLabel::Long,
 				  label(static_cast<double>(i))));
       }

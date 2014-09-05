@@ -12,6 +12,7 @@
 namespace Wt {
 
 class WPointF;
+class WRectF;
 
 /*! \class WTransform Wt/WTransform Wt/WTransform
  *  \brief A value class that defines a 2D affine transformation matrix.

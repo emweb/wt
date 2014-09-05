@@ -250,7 +250,6 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
@@ -577,7 +576,7 @@
 .Wt-itemview th .Wt-tv-br {
   overflow: hidden;
 }
-.Wt-itemview Wt-header .Wt-label {
+.Wt-itemview .Wt-header .Wt-label {
   font-weight: bold;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -585,7 +584,7 @@
 
   white-space: nowrap;
 }
-.Wt-itemview Wt-header .Wt-wwrap .Wt-label {
+.Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
   overflow: visible;
   white-space: normal;
 }

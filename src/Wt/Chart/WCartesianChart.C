@@ -1348,6 +1348,10 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 
 void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 {
+
+  while (!areas().empty())
+    delete const_cast<WCartesianChart *>(this)->areas().front();
+
   if (!painter.isActive())
     throw WException("WCartesianChart::paint(): painter is not active.");
 
@@ -1361,9 +1365,6 @@ void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 
 void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
 {
-  while (!areas().empty())
-    delete areas().front();
-
   WPainter painter(paintDevice);
   painter.setRenderHint(WPainter::Antialiasing);
   paint(painter);
