@@ -27,7 +27,6 @@ WFlags<WPaintDevice::FeatureFlag> WMeasurePaintDevice::features() const
 void WMeasurePaintDevice::init()
 {
   if (!device_->painter()) {
-    painter_ = new WPainter();
     device_->setPainter(painter_);
   } else
     device_->painter()->save();
@@ -37,7 +36,6 @@ void WMeasurePaintDevice::done()
 {
   if (painter_ == device_->painter()) {
     device_->setPainter(0);
-    delete painter_;
   } else
     device_->painter()->restore();
 }

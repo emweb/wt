@@ -5,7 +5,7 @@
 namespace Wt {
   namespace Dbo {
 
-Call::~Call()
+Call::~Call() WT_CXX11ONLY(noexcept(false))
 {
   if (!copied_ && !run_)
     run();

@@ -33,7 +33,7 @@ public:
    * This executes the call if it wasn't run() yet, and the call has not
    * been copied.
    */
-  ~Call();
+  ~Call() WT_CXX11ONLY(noexcept(false));
 
   /*! \brief Copy constructor.
    *
@@ -47,6 +47,11 @@ public:
    */
   template<typename T> Call& bind(const T& value);
 
+  /*! \brief Runs the database call.
+   *
+   * This may throw an exception if there was a problem with the SQL
+   * command.
+   */
   void run();
 
 private:
