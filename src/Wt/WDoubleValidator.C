@@ -146,14 +146,16 @@ std::string WDoubleValidator::javaScriptValidate() const
      << isMandatory()
      << ',';
 
-  if (bottom_ != -std::numeric_limits<double>::max())
+  if (bottom_ != -std::numeric_limits<double>::max() &&
+      bottom_ != -std::numeric_limits<double>::infinity())
     js << bottom_;
   else
     js << "null";
 
   js << ',';
 
-  if (top_ != std::numeric_limits<double>::max())
+  if (top_ != std::numeric_limits<double>::max() &&
+      top_ != std::numeric_limits<double>::infinity())
     js << top_;
   else
     js << "null";

@@ -28,6 +28,7 @@ void WMeasurePaintDevice::init()
 {
   if (!device_->painter()) {
     device_->setPainter(painter_);
+    device_->init();
   } else
     device_->painter()->save();
 }
@@ -35,6 +36,7 @@ void WMeasurePaintDevice::init()
 void WMeasurePaintDevice::done()
 {
   if (painter_ == device_->painter()) {
+    device_->done();
     device_->setPainter(0);
   } else
     device_->painter()->restore();
