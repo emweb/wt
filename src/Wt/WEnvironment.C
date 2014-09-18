@@ -3,9 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WEnvironment"
 
 #include "Wt/Utils"
-#include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WSslInfo"
@@ -34,6 +34,8 @@ WEnvironment::WEnvironment()
     doesAjax_(false),
     doesCookies_(false),
     hashInternalPaths_(false),
+    screenWidth_(-1),
+    screenHeight_(-1),
     dpiScale_(1),
     webGLsupported_(false),
     timeZoneOffset_(0)
@@ -47,6 +49,8 @@ WEnvironment::WEnvironment(WebSession *session)
     doesAjax_(false),
     doesCookies_(false),
     hashInternalPaths_(false),
+    screenWidth_(-1),
+    screenHeight_(-1),
     dpiScale_(1),
     webGLsupported_(false),
     timeZoneOffset_(0)
@@ -233,8 +237,20 @@ void WEnvironment::enableAjax(const WebRequest& request)
   }
 
 
-  screenWidth_=boost::lexical_cast<int>(*request.getParameter("scrW"));
-  screenHeight_=boost::lexical_cast<int>(*request.getParameter("scrH"));
+  const std::string *scrWE = request.getParameter("scrW");
+  if (scrWE) {
+    try {
+      screenWidth_ = boost::lexical_cast<int>(*scrWE);
+    } catch (boost::bad_lexical_cast &) {
+    }
+  }
+  const std::string *scrHE = request.getParameter("scrH");
+  if (scrHE) {
+    try {
+      screenHeight_ = boost::lexical_cast<int>(*scrHE);
+    } catch (boost::bad_lexical_cast &) {
+    }
+  }
 }
 
 void WEnvironment::setUserAgent(const std::string& userAgent)

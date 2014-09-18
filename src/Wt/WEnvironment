@@ -256,11 +256,15 @@ public:
 
   /*! \brief Returns the horizontal resolution of the client's screen.
    *
+   * Returns -1 if screen width is not known.
+   *
    * \sa screenHeight()
    */
   int screenWidth() const { return screenWidth_; }
 
   /*! \brief Returns the vertical resolution of the client's screen.
+   *
+   * Returns -1 if screen height is not known.
    *
    * \sa screenWidth()
    */

@@ -776,20 +776,21 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
 
 WCartesianChart::~WCartesianChart()
 {
+  for (int i = 2; i > -1; i--)
+    delete axes_[i];
   delete interface_;
 }
 
 void WCartesianChart::init()
 {
   setPalette(new WStandardPalette(WStandardPalette::Muted));
-	
-#ifdef WT_TARGET_JAVA
+
   for (int i = 0; i < 3; ++i)
-    axes_[i] = WAxis();
-#endif //WT_TARGET_JAVA
-  axes_[XAxis].init(interface_, XAxis);
-  axes_[YAxis].init(interface_, YAxis);
-  axes_[Y2Axis].init(interface_, Y2Axis);
+    axes_[i] = new WAxis();
+
+  axes_[XAxis]->init(interface_, XAxis);
+  axes_[YAxis]->init(interface_, YAxis);
+  axes_[Y2Axis]->init(interface_, Y2Axis);
   
   setPlotAreaPadding(40, Left | Right);
   setPlotAreaPadding(30, Top | Bottom);
@@ -815,7 +816,7 @@ void WCartesianChart::setType(ChartType type)
 {
   if (type_ != type) {
     type_ = type;
-    axes_[XAxis].init(interface_, XAxis);
+    axes_[XAxis]->init(interface_, XAxis);
     update();
   }
 }
@@ -880,12 +881,18 @@ void WCartesianChart::setSeries(const std::vector<WDataSeries>& series)
 
 WAxis& WCartesianChart::axis(Axis axis)
 {
-  return axes_[axis];
+  return *axes_[axis];
 }
 
 const WAxis& WCartesianChart::axis(Axis axis) const
 {
-  return axes_[axis];
+  return *axes_[axis];
+}
+
+void WCartesianChart::setAxis(WAxis *waxis, Axis axis)
+{
+  axes_[axis] = waxis;
+  axes_[axis]->init(interface_, axis);
 }
 
 void WCartesianChart::setBarMargin(double margin)

@@ -342,6 +342,14 @@ public:
    */
   const WAxis& axis(Axis axis) const;
 
+  /*! \brief set and init axis
+   *
+   * Will replace the existing (default axis) with user axis.
+   *
+   * \sa axis(Axis axis)
+   */
+  void setAxis(WAxis *waxis, Axis axis);
+
   /*! \brief Sets the margin between bars of different series.
    *
    * Use this method to change the margin that is set between bars of
@@ -625,7 +633,7 @@ private:
   int XSeriesColumn_;
   ChartType type_;
   std::vector<WDataSeries> series_;
-  WAxis axes_[3];
+  WAxis *axes_[3];
   double barMargin_;
   WLegend legend_;
   int axisPadding_;

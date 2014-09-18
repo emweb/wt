@@ -144,6 +144,9 @@ WAxis::WAxis()
   segments_.push_back(Segment());
 }
 
+WAxis::~WAxis()
+{ }
+
 void WAxis::init(WAbstractChartImplementation* chart,
 		 Axis axis)
 {
@@ -965,14 +968,12 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
 
   const Segment& s = segments_[segment];
 
-  int rc;
   switch (scale_) {
   case CategoryScale: {
-    rc = chart_->numberOfCategories(axis_);
     int renderInterval = std::max(1, static_cast<int>(renderInterval_));
     if (renderInterval == 1) {
       ticks.push_back(TickLabel(s.renderMinimum, TickLabel::Long));
-      for (int i = s.renderMinimum + 0.5; i < s.renderMaximum; ++i) {
+      for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum; ++i) {
 	ticks.push_back(TickLabel(i + 0.5, TickLabel::Long));
 	ticks.push_back(TickLabel(i, TickLabel::Zero,
 				  label(static_cast<double>(i))));
@@ -981,7 +982,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
       /*
        * We could do a special effort for date X series here...
        */
-      for (int i = s.renderMinimum + 0.5; i < s.renderMaximum;
+      for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum;
 	   i += renderInterval) {
 	ticks.push_back(TickLabel(i, TickLabel::Long,
 				  label(static_cast<double>(i))));

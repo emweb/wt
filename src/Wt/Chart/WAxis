@@ -156,6 +156,10 @@ public:
    */
   static const double AUTO_MAXIMUM;
 
+  /*! \brief Destructor
+   */
+  virtual ~WAxis();
+
   /*! \brief Returns the axis id.
    *
    * \sa chart(), WCartesianChart::axis()
@@ -553,7 +557,7 @@ public:
    */
   const WFont& labelFont() const { return labelFont_; }
 
-  WString label(double u) const;
+  virtual WString label(double u) const;
 
   /*! \brief Returns the chart to which this axis belongs.
    *
@@ -594,6 +598,8 @@ protected:
 
     TickLabel(double v, TickLength length, const WString& l = WString());
   };
+
+  WAxis();
 
   virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment) const;
 
@@ -636,7 +642,6 @@ private:
 
   mutable double renderInterval_;
 
-  WAxis();
   void init(WAbstractChartImplementation* chart, Axis axis);
   void update();
 
