@@ -151,6 +151,8 @@ public:
    */
   std::vector<FieldInfo> fields() const;
 
+  /*! \brief Returns the session.
+   */
   Session& session() const;
 
   /*! \brief Binds a value to the next positional marker.
