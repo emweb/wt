@@ -22,6 +22,7 @@ IF(ENABLE_LIBWTTEST)
     utf8/XmlTest.C
     utils/Base64Test.C
     wdatetime/WDateTimeTest.C
+    widgets/WSpinBoxTest.C
     length/WLengthTest.C
     color/WColorTest.C
     paintdevice/WSvgTest.C
@@ -50,7 +51,9 @@ IF(ENABLE_LIBWTTEST)
       dbo/DboTest2.C
       dbo/DboTest3.C
       dbo/Benchmark.C
+      dbo/Benchmark2.C
       dbo/JsonTest.C
+      dbo/AuthDboTest.C
       private/DboImplTest.C
     )
 

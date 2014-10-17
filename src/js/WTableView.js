@@ -42,7 +42,7 @@ WT_DECLARE_WT_MEMBER
 
    headerContainer.onscroll = function(obj, event) {
        contentsContainer.scrollLeft = headerContainer.scrollLeft;
-       this.onContentsContainerScroll();
+       self.onContentsContainerScroll();
    };
 
    this.onContentsContainerScroll = function() {

@@ -263,19 +263,19 @@ WT_DECLARE_WT_MEMBER
        mouseHandler.mouseUp(o, event);
    };
    this.mouseWheel = function(o, event) {
-     if ((this.initialized || !this.ctx) && mouseHandler.mouseWheel)
+     if ((this.initialized || !this.ctx) && mouseHandler && mouseHandler.mouseWheel)
        mouseHandler.mouseWheel(o, event);
    };
    this.touchStart = function(o, event) {
-     if ((this.initialized || !this.ctx) && mouseHandler.touchStart)
+     if ((this.initialized || !this.ctx) && mouseHandler && mouseHandler.touchStart)
        mouseHandler.touchStart(o, event);
    };
    this.touchEnd = function(o, event) {
-     if ((this.initialized || !this.ctx) && mouseWheel.touchEnd)
+     if ((this.initialized || !this.ctx) && mouseHandler && mouseWheel.touchEnd)
        mouseWheel.touchEnd(o, event);
    };
    this.touchMoved = function(o, event) {
-     if ((this.initialized || !this.ctx) && mouseWheel.touchMoved)
+     if ((this.initialized || !this.ctx) && mouseHandler && mouseWheel.touchMoved)
        mouseWheel.touchMoved(o, event);
    };
 

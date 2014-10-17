@@ -169,6 +169,8 @@ private:
 
 WDialog::WDialog(WObject *parent)
   : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
+    moved_(this, "moved"),
+    resized_(this, "resized"),
     finished_(this)
 {
   create();
@@ -176,6 +178,8 @@ WDialog::WDialog(WObject *parent)
 
 WDialog::WDialog(const WString& windowTitle, WObject *parent)
   : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
+    moved_(this, "moved"),
+    resized_(this, "resized"),
     finished_(this)
 {
   create();
@@ -318,9 +322,9 @@ void WDialog::setResizable(bool resizable)
       setJavaScriptMember
 	(" Resizable",
 	 "(new " WT_CLASS ".Resizable("
-	 WT_CLASS "," + jsRef() + ")).onresize(function(w, h) {"
+	 WT_CLASS "," + jsRef() + ")).onresize(function(w, h, done) {"
 	 "var obj = $('#" + id() + "').data('obj');"
-	 "if (obj) obj.onresize(w, h);"
+	 "if (obj) obj.onresize(w, h, done);"
 	 " });");
     }
   }
@@ -366,7 +370,14 @@ void WDialog::render(WFlags<RenderFlag> flags)
 		 + app->javaScriptClass() + "," + jsRef()
 		 + "," + titleBar_->jsRef()
 		 + "," + (centerX ? "1" : "0")
-		 + "," + (centerY ? "1" : "0") + ");");
+		 + "," + (centerY ? "1" : "0") 
+		 + "," + (moved_.isConnected()
+			  ? '"' + moved_.name() + '"' 
+			  : "null")
+		 + "," + (resized_.isConnected()
+			  ? '"' + resized_.name() + '"' 
+			  : "null")
+		 + ");");
 
     /*
      * When a dialog is shown immediately for a new session, the recentering

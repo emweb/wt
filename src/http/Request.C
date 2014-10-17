@@ -155,10 +155,6 @@ void Request::reset()
   contentLength = -1;
   webSocketVersion = -1;
   type = HTTP;
-
-#ifdef HTTP_WITH_SSL
-  ssl = 0;
-#endif
 }
 
 void Request::process()

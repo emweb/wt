@@ -159,6 +159,27 @@ public:
    */
   std::size_t maximumResponseSize() const { return maximumResponseSize_; }
 
+  /*! \brief Enables SSL certificate verification.
+   *
+   * For https requests, it is (very strongly!) recommended to perform
+   * certificate verification: this verifies that you are indeed connected
+   * to the server you intended (and not to a man-in-the-middle). Without
+   * such a check, encryption simply isn't very useful.
+   *
+   * Nevertheless, there may be situations in which you will want to
+   * disable this functionality.
+   *
+   * The default configuration is to have certificate verification
+   * enabled.
+   */
+  void setSslCertificateVerificationEnabled(bool enabled);
+
+  /*! \brief Returns whether SSL certificate verification is enabled.
+   *
+   * \sa setSslCertificateVerificationEnabled()
+   */
+  bool isSslCertificateVerificationEnabled() const { return verifyEnabled_; }
+
   /*! \brief Sets a SSL certificate used for server identity verification.
    *
    * This setting only affects a https request: it configures a certificate
@@ -362,6 +383,7 @@ private:
   boost::shared_ptr<Impl> impl_;
   int timeout_;
   std::size_t maximumResponseSize_;
+  bool verifyEnabled_;
   std::string verifyFile_, verifyPath_;
   Signal<boost::system::error_code, Message> done_;
   bool followRedirect_;

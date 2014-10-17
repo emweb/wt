@@ -241,14 +241,14 @@ void WEnvironment::enableAjax(const WebRequest& request)
   if (scrWE) {
     try {
       screenWidth_ = boost::lexical_cast<int>(*scrWE);
-    } catch (boost::bad_lexical_cast &) {
+    } catch (boost::bad_lexical_cast &e) {
     }
   }
   const std::string *scrHE = request.getParameter("scrH");
   if (scrHE) {
     try {
       screenHeight_ = boost::lexical_cast<int>(*scrHE);
-    } catch (boost::bad_lexical_cast &) {
+    } catch (boost::bad_lexical_cast &e) {
     }
   }
 }
@@ -304,7 +304,9 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
   }
 
   if (userAgent_.find("Chrome") != std::string::npos) {
-    if (userAgent_.find("Chrome/0.") != std::string::npos)
+    if (userAgent_.find("Android") != std::string::npos)
+      agent_ = MobileWebKitAndroid;
+    else if (userAgent_.find("Chrome/0.") != std::string::npos)
       agent_ = Chrome0;
     else if (userAgent_.find("Chrome/1.") != std::string::npos)
       agent_ = Chrome1;

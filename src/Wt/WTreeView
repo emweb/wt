@@ -261,8 +261,8 @@ private:
   bool                 renderedNodesAdded_;
   WTreeViewNode       *rootNode_;
   WCssTemplateRule    *rowHeightRule_, *rowWidthRule_, 
-                      *rowContentsWidthRule_, *c0WidthRule_;
-  WCssRule            *borderColorRule_;
+                      *rowContentsWidthRule_;
+  WCssRule            *borderColorRule_, *c0StyleRule_;
 
   bool                 rootIsDecorated_;
   bool                 column1Fixed_;

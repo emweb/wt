@@ -45,7 +45,6 @@ private:
   boost::mutex sessionsMutex_;
 #endif // WT_THREADED
   SessionMap sessions_;
-  boost::asio::io_service &ioService_;
 #if !defined(WT_WIN32) && BOOST_VERSION >= 104700
   boost::asio::signal_set signals_;
 #else

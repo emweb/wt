@@ -521,6 +521,8 @@ Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
 
   map["PAYMENTREQUEST_0_PAYMENTACTION"] = toString(impl_->paymentAction_);
   map["PAYMENTREQUEST_0_AMT"] = impl_->order_.totalOrderCost().toString();
+  map["PAYMENTREQUEST_0_CURRENCYCODE"] = impl_->order_.totalOrderCost()
+    .currency();
   map["PAYERID"] = impl_->customer_.payerId();
   map["TOKEN"] = impl_->token_;
   map["METHOD"] = "DoExpressCheckoutPayment";

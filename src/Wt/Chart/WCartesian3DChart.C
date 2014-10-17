@@ -369,14 +369,16 @@ void WCartesian3DChart::initializeGL()
     worldTransform_.scale(1.8);
     worldTransform_.translate(-0.5, -0.5, -0.5);
 
+    isViewSet_ = true;
+  }
+
+  if (!restoringContext()) {
     initJavaScriptMatrix4(jsMatrix_);
 
     setClientSideLookAtHandler(jsMatrix_, // the name of the JS matrix
 	0.5, 0.5, 0.5,                       // the center point
 	0, 1, 0,                          // the up direction
 	0.005, 0.005);                    // 'speed' factors
-
-    isViewSet_ = true;
   }
 
   // perspective matrix
@@ -2075,10 +2077,14 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteBuffer(cubeTexCoords_);cubeTexCoords_.clear();
   deleteBuffer(axisTexCoordsHoriz_);axisTexCoordsHoriz_.clear();
 
-  detachShader(cubeProgram_, fragmentShader_);
-  detachShader(cubeProgram_, vertexShader_);
-  detachShader(axisProgram_, fragmentShader2_);
-  detachShader(axisProgram_, vertexShader2_);
+  if (!cubeProgram_.isNull()) {
+    detachShader(cubeProgram_, fragmentShader_);
+    detachShader(cubeProgram_, vertexShader_);
+  }
+  if (!axisProgram_.isNull()) {
+    detachShader(axisProgram_, fragmentShader2_);
+    detachShader(axisProgram_, vertexShader2_);
+  }
   deleteShader(fragmentShader_);
   deleteShader(vertexShader_);
   deleteShader(fragmentShader2_);

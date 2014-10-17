@@ -287,6 +287,18 @@ WAbstractItemView::~WAbstractItemView()
     delete columns_[i].styleRule;
 }
 
+void WAbstractItemView::setObjectName(const std::string& name)
+{
+  WCompositeWidget::setObjectName(name);
+
+  headerHeightRule_->setSelector("#" + id() + " .headerrh");
+
+  for (unsigned i = 0; i < columns_.size(); ++i) {
+    ColumnInfo& ci = columns_[i];
+    ci.styleRule->setSelector("#" + id() + " ." + ci.styleClass());
+  }
+}
+
 void WAbstractItemView::setModel(WAbstractItemModel *model)
 {
   bool isReset = false;

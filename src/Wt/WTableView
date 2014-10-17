@@ -236,6 +236,9 @@ private:
   bool isRowRendered(const int row) const;
   bool isColumnRendered(const int column) const;
   void updateColumnOffsets();
+  void updateModelIndexes();
+  void updateModelIndex(const WModelIndex& index,
+			int renderedRow, int renderedColumn);
 
   void onDropEvent(int renderedRow, int columnId,
 		   std::string sourceId, std::string mimeType,

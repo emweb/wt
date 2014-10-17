@@ -228,7 +228,8 @@ public:
    * 
    * This is the reverse of WLocalDateTime::toUTC()
    */
-  WLocalDateTime toLocalTime(const WLocale& locale = WLocale::currentLocale());
+  WLocalDateTime toLocalTime(const WLocale& locale = WLocale::currentLocale())
+    const;
 
   /*! \brief Returns the difference between two datetime values (in seconds).
    *

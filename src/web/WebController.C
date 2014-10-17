@@ -814,7 +814,7 @@ bool WebController::limitPlainHtmlSessions()
 
     if (plainHtmlSessions_ + ajaxSessions_ > 20)
       return plainHtmlSessions_ > conf_.maxPlainSessionsRatio()
-	* ajaxSessions_;
+	* (ajaxSessions_ + plainHtmlSessions_);
     else
       return false;
   } else

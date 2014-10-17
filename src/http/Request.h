@@ -74,6 +74,11 @@ public:
     buffer_string value;
   };
 
+  Request() {
+#ifdef HTTP_WITH_SSL
+    ssl = 0;
+#endif
+  }
   enum State { Partial, Complete, Error };
 
   buffer_string method;

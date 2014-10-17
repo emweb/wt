@@ -9,8 +9,8 @@
 
 using namespace Wt;
 
-WAudio::WAudio(WContainerWidget *parent):
-  WAbstractMedia(parent)
+WAudio::WAudio(WContainerWidget *parent)
+  : WAbstractMedia(parent)
 { }
 
 DomElement *WAudio::createMediaDomElement()

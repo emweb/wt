@@ -746,7 +746,7 @@ this.pageCoordinates = function(e) {
   var target = e.target || e.srcElement;
 
   // if this is an iframe, offset against the frame's position
-  if (target.ownerDocument != document)
+  if (target && (target.ownerDocument != document))
     for (var i=0; i < window.frames.length; i++) {
       if (target.ownerDocument == window.frames[i].document) {
 	var rect = window.frames[i].frameElement.getBoundingClientRect();
@@ -2116,8 +2116,8 @@ function initDragDrop() {
 }
 
 function dragStart(obj, e) {
-  if (WT.button(e) === 2) //Ignore drags with rith click.
-      return true;
+  if (e.ctrlKey || WT.button(e) > 1) //Ignore drags with rigth click.
+    return true;
   var t = WT.target(e);
   if (t) {
     /*

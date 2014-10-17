@@ -135,7 +135,7 @@ std::string cssCamelNames_[] =
     "boxSizing" 
   };
 
-const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
+const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`/";
 
 inline char hexLookup(int n) {
   return "0123456789abcdef"[(n & 0xF)];
@@ -328,7 +328,6 @@ void DomElement::setEvent(const char *eventName,
   if (isExposed || anchorClick || !jsCode.empty()) {
     js << "var e=event||window.event,";
     js << "o=this;";
-    js << "var a1 = null, a2 = null, a3 = null, a4 = null, a5 = null, a6 = null;";
 
     if (anchorClick)
       js << "if(e.ctrlKey||e.metaKey||(" WT_CLASS ".button(e) > 1))"
@@ -381,8 +380,6 @@ void DomElement::setEvent(const char *eventName,
   for (unsigned i = 0; i < actions.size(); ++i) {
     if (!actions[i].jsCondition.empty())
       code << "if(" << actions[i].jsCondition << "){";
-
-    code << "var a1 = null, a2 = null, a3 = null, a4 = null, a5 = null, a6 = null;";
 
     /*
      * This order, first JavaScript and then event propagation is important
@@ -733,7 +730,7 @@ void DomElement::asHTML(EscapeOStream& out,
   bool needButtonWrap
     = (!app->environment().ajax()
        && (clickEvent != eventHandlers_.end())
-       && (!clickEvent->second.jsCode.empty())
+       && (!clickEvent->second.signalName.empty())
        && (!app->environment().agentIsSpiderBot()));
 
   bool isSubmit = needButtonWrap;

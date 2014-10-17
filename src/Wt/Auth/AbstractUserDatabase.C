@@ -55,6 +55,11 @@ User::Status AbstractUserDatabase::status(const User& user) const
   return User::Normal;
 }
 
+void AbstractUserDatabase::setStatus(const User& user, User::Status status)
+{
+  LOG_ERROR(Require("setStatus()").what());
+}
+
 PasswordHash AbstractUserDatabase::password(const User& user) const
 {
   LOG_ERROR(Require("password()", PASSWORDS).what());

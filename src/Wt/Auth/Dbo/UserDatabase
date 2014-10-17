@@ -43,8 +43,20 @@ public:
    */
   UserDatabase(Wt::Dbo::Session& session)
     : session_(session),
+      newUserStatus_(User::Normal),
       maxAuthTokensPerUser_(50)
   { }
+
+  /*! \brief Sets the initial status for a new user.
+   *
+   * This status is set on a user that just registered.
+   *
+   * The default value is User::Normal.
+   */
+  void setNewUserStatus(User::Status status)
+  {
+    newUserStatus_ = status;
+  }
 
   virtual Transaction *startTransaction() {
     return new TransactionImpl(session_);
@@ -79,9 +91,9 @@ public:
       Wt::Dbo::Transaction t(session_);
       setUser(session_.query< Wt::Dbo::ptr<DboType> >
 	      (std::string() +
-	       "select u from \"" + session_.tableName<DboType>() + "\" u "
-	       "join \"" + session_.tableName<AuthIdentityType>() + "\" i "
-	       "on u.id = i." + session_.tableName<DboType>() + "_id")
+	       "select u from " + session_.tableNameQuoted<DboType>() + " u "
+	       "join " + session_.tableNameQuoted<AuthIdentityType>() + " i "
+	       "on u.id = i.\"" + session_.tableName<DboType>() + "_id\"")
 	      .where("i.provider = ?").bind(provider)
 	      .where("i.identity = ?").bind(identity));
       t.commit();
@@ -116,8 +128,8 @@ public:
 
     session_.execute
       (std::string() +
-       "delete from \"" + session_.tableName<AuthIdentityType>() +
-       "\" where " + session_.tableName<DboType>() + "_id = ?"
+       "delete from " + session_.tableNameQuoted<AuthIdentityType>() +
+       " where \"" + session_.tableName<DboType>() + "_id\" = ?"
        " and provider = ?").bind(user.id()).bind(provider);
 
     t.commit();
@@ -125,6 +137,7 @@ public:
 
   virtual User registerNew() {
     DboType *user = new DboType();
+    user->setStatus(newUserStatus_);
     setUser(session_.add(user));
     user_.flush();
     return User(boost::lexical_cast<std::string>(user_.id()), *this);
@@ -140,6 +153,11 @@ public:
   virtual User::Status status(const User& user) const {
     WithUser find(*this, user);
     return user_->status();
+  }
+
+  virtual void setStatus(const User& user, User::Status status) {
+    WithUser find(*this, user);
+    user_.modify()->setStatus(status);
   }
 
   virtual void setPassword(const User& user, const PasswordHash& password) {
@@ -327,9 +345,9 @@ public:
     Wt::Dbo::Transaction t(session_);
     setUser(session_.query< Wt::Dbo::ptr<DboType> >
 	    (std::string() +
-	     "select u from \"" + session_.tableName<DboType>() + "\" u "
-	     "join \"" + session_.tableName<AuthTokenType>() + "\" t "
-	     "on u.id = t." + session_.tableName<DboType>() + "_id")
+	     "select u from " + session_.tableNameQuoted<DboType>() + " u "
+	     "join " + session_.tableNameQuoted<AuthTokenType>() + " t "
+	     "on u.id = t.\"" + session_.tableName<DboType>() + "_id\"")
 	    .where("t.value = ?").bind(hash)
 	    .where("t.expires > ?").bind(WDateTime::currentDateTime()));
     t.commit();
@@ -376,6 +394,7 @@ public:
 
 private:
   Wt::Dbo::Session& session_;
+  User::Status newUserStatus_;
   mutable Wt::Dbo::ptr<DboType> user_;
   mutable std::string userProvider_;
   mutable Wt::WString userIdentity_;

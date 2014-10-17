@@ -26,7 +26,7 @@ public:
   enum Unit { FontEm,     //!< The relative font size
 	      FontEx,     //!< The height of an 'x' in the font
 	      Pixel,      //!< Pixel, relative to canvas resolution
-	      Inch,       //!< Inche
+	      Inch,       //!< Inch
 	      Centimeter, //!< Centimeter
 	      Millimeter, //!< Millimeter
 	      Point,      //!< Point (1/72 Inch)

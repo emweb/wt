@@ -38,11 +38,13 @@ Transaction::~Transaction() WT_CXX11ONLY(noexcept(false))
     // A commit attempt failed (and thus we need to rollback) or we
     // are unwinding a stack while an exception is thrown
     if (impl_->needsRollback_ || std::uncaught_exception()) {
+      bool canThrow = !std::uncaught_exception();
       try {
 	rollback();
       } catch (std::exception&) {
 	release();
-	throw;
+	if (canThrow)
+	  throw;
       }
     } else {
       try {

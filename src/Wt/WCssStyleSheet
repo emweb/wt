@@ -42,6 +42,13 @@ public:
    */
   virtual ~WCssRule();
 
+  /*! \brief Sets the selector.
+   *
+   * \note The selector can only be changed as long as the rule hasn't
+   *       been rendered.
+   */
+  void setSelector(const std::string& selector) { selector_ = selector; }
+
   /*! \brief Returns the selector.
    */
   virtual std::string selector() const { return selector_; }

@@ -343,6 +343,21 @@ public:
   virtual void setMinimumSize(const WLength& width, const WLength& height);
   virtual void setMaximumSize(const WLength& width, const WLength& height);
 
+  /*! \brief %Signal emitted when the dialog is being resized by the user.
+   *
+   * The information passed are the new width and height.
+   *
+   * \sa setResizable()
+   */
+  JSignal<int, int>& resized() { return resized_; }
+
+  /*! \brief %Signal emitted when the dialog is being moved by the user.
+   *
+   * The information passed are the new x and y position
+   * (relative to the window).
+   */
+  JSignal<int, int>& moved() { return moved_; }
+
 protected:
   virtual void render(WFlags<RenderFlag> flags);
 
@@ -354,6 +369,7 @@ private:
   WContainerWidget *contents_;
   mutable WContainerWidget *footer_;
   bool modal_, resizable_, escapeIsReject_, autoFocus_;
+  JSignal<int,int> moved_, resized_;
 
   Signal<DialogCode> finished_;
   DialogCode result_;

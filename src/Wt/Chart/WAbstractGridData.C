@@ -209,9 +209,12 @@ void WAbstractGridData::updateGL()
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
 
   initShaders();
-
+  
   if (!jsMinPt_.initialized()) {
     chart_->initJavaScriptVector(jsMinPt_);
+  }
+
+  if (!jsMaxPt_.initialized()) {
     chart_->initJavaScriptVector(jsMaxPt_);
   }
 
@@ -1806,6 +1809,8 @@ void WAbstractGridData::setChart(WCartesian3DChart *chart)
 
 void WAbstractGridData::initializeGL()
 {
+  chart_->initJavaScriptVector(jsMinPt_);
+  chart_->initJavaScriptVector(jsMaxPt_);
 }
 
 void WAbstractGridData::resizeGL()
@@ -1855,8 +1860,10 @@ void WAbstractGridData::deleteAllGLResources()
     chart_->deleteProgram(positionProgram_);
     positionProgram_.clear();
   }
-  chart_->detachShader(seriesProgram_, fragShader_);
-  chart_->detachShader(seriesProgram_, vertShader_);
+  if (!seriesProgram_.isNull()) {
+    chart_->detachShader(seriesProgram_, fragShader_);
+    chart_->detachShader(seriesProgram_, vertShader_);
+  }
   chart_->deleteShader(fragShader_);
   chart_->deleteShader(vertShader_);
   chart_->deleteProgram(seriesProgram_);

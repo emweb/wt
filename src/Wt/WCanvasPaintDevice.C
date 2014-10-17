@@ -825,6 +825,9 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 
   if (penChanged) {
     if (penColorChanged) {
+      // prevent infinite recursion by applying new color to old pen
+      currentPen_.setColor(painter()->pen().color());
+      currentPen_.setGradient(painter()->pen().gradient());
       if (!painter()->pen().gradient().isEmpty()) {
 	std::string gradientName = defineGradient(painter()->pen().gradient(),
 						  js_);

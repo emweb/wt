@@ -60,6 +60,13 @@ class QueryColumn;
  *  - rowCount()
  *  - a batch of data, controlled by setBatchSize()
  *
+ * Moreover, the model will try to fetch a batch of data even if you
+ * ask for the rowCount(), which may provide the row count as a
+ * side-effect if the query returns less results than a single batch
+ * size. If you do not want this behaviour (which might be the case if
+ * you are only interested in rowCount(), not the actual data) then
+ * you can avoid this behaviour by setting batchSize to 0.
+ *
  * \ingroup dbo modelview
  */
 template <class Result>
@@ -368,6 +375,8 @@ protected:
   virtual Result resultById(long long id) const;
 
 private:
+  void cacheRow(int row) const;
+
   typedef std::vector<boost::any> AnyList;
   typedef std::map<int, long long> StableResultIdMap;
 

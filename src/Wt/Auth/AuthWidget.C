@@ -158,12 +158,10 @@ void AuthWidget::closeDialog()
   }
 }
 
-RegistrationModel *AuthWidget::createRegistrationModel()
+RegistrationModel *AuthWidget::registrationModel()
 {
   if (!registrationModel_) {
-    registrationModel_ = new RegistrationModel(*model_->baseAuth(),
-					       model_->users(),
-					       login_, this);
+    registrationModel_ = createRegistrationModel();
 
     if (model_->passwordAuth())
       registrationModel_->addPasswordAuth(model_->passwordAuth());
@@ -175,15 +173,29 @@ RegistrationModel *AuthWidget::createRegistrationModel()
   return registrationModel_;
 }
 
+RegistrationModel *AuthWidget::createRegistrationModel()
+{
+  RegistrationModel *result
+    = new RegistrationModel(*model_->baseAuth(), model_->users(),
+			    login_, this);
+
+  if (model_->passwordAuth())
+    result->addPasswordAuth(model_->passwordAuth());
+
+  result->addOAuth(model_->oAuth());
+
+  return result;
+}
+
 WWidget *AuthWidget::createRegistrationView(const Identity& id)
 {
-  registrationModel_ = createRegistrationModel();
+  RegistrationModel *model = registrationModel();
 
   if (id.isValid())
-    registrationModel_->registerIdentified(id);
+    model->registerIdentified(id);
 
   RegistrationWidget *w = new RegistrationWidget(this);
-  w->setModel(registrationModel_);
+  w->setModel(model);
 
   return w;
 }
@@ -207,7 +219,7 @@ void AuthWidget::letUpdatePassword(const User& user, bool promptPassword)
 WWidget *AuthWidget::createUpdatePasswordView(const User& user,
 					      bool promptPassword)
 {
-  return new UpdatePasswordWidget(user, createRegistrationModel(),
+  return new UpdatePasswordWidget(user, registrationModel(),
 				  promptPassword ? model_ : 0);
 }
 

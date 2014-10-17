@@ -927,7 +927,11 @@ WTreeView::WTreeView(WContainerWidget *parent)
   : WAbstractItemView(parent),
     renderedNodesAdded_(false),
     rootNode_(0),
+    rowHeightRule_(0),
+    rowWidthRule_(0),
+    rowContentsWidthRule_(0),
     borderColorRule_(0),
+    c0StyleRule_(0),
     rootIsDecorated_(true),
     collapsed_(this),
     expanded_(this),
@@ -959,18 +963,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
 	(".Wt-treeview .Wt-tv-rowc", "position: relative;", CSS_RULES_NAME);
 
   setColumnBorder(white);
-
-  addCssRule("#" + id() + " .cwidth", "");
-
-  rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh", this);
-  app->styleSheet().addRule(rowHeightRule_);
-
-  rowWidthRule_ = new WCssTemplateRule("#" + id() + " .Wt-tv-row", this);
-  app->styleSheet().addRule(rowWidthRule_);
-
-  rowContentsWidthRule_ 
-    = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc", this);
-  app->styleSheet().addRule(rowContentsWidthRule_);
 
   if (parent)
     parent->addWidget(this);
@@ -1017,22 +1009,6 @@ void WTreeView::setup()
     contentsContainer_->setStyleClass("cwidth");
     contentsContainer_->setOverflow(WContainerWidget::OverflowAuto);
     contentsContainer_->scrolled().connect(this, &WTreeView::onViewportChange);
-    contentsContainer_->scrolled().connect
-      ("function(obj, event) {"
-       /*
-	* obj.sb: workaround for Konqueror to prevent recursive
-	* invocation because reading scrollLeft triggers onscroll()
-	*/
-       """if (obj.sb) return;"
-       """obj.sb = true;"
-       "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
-       /* the following is a workaround for IE7 */
-       """var t = " + contents_->jsRef() + ".firstChild;"
-       """var h = " + headers_->jsRef() + ";"
-       """h.style.width = (t.offsetWidth - 1) + 'px';"
-       """h.style.width = t.offsetWidth + 'px';"
-       """obj.sb = false;"
-       "}");
     contentsContainer_->addWidget(contents_);
 
     layout->addWidget(headerContainer_);
@@ -1279,8 +1255,10 @@ void WTreeView::setRowHeight(const WLength& rowHeight)
 {
   WAbstractItemView::setRowHeight(rowHeight);
 
-  rowHeightRule_->templateWidget()->setHeight(rowHeight);
-  rowHeightRule_->templateWidget()->setLineHeight(rowHeight);
+  if (rowHeightRule_) {
+    rowHeightRule_->templateWidget()->setHeight(rowHeight);
+    rowHeightRule_->templateWidget()->setLineHeight(rowHeight);
+  }
 
   if (!WApplication::instance()->environment().ajax() && !height().isAuto())
     viewportHeight_ = static_cast<int>(contentsContainer_->height().toPixels()
@@ -1405,8 +1383,55 @@ void WTreeView::render(WFlags<RenderFlag> flags)
   if (flags & RenderFull) {
     defineJavaScript();
 
-    if (!itemEvent_.isConnected())
+    if (!itemEvent_.isConnected()) {
       itemEvent_.connect(this, &WTreeView::onItemEvent);
+
+      addCssRule("#" + id() + " .cwidth", "");
+
+      WApplication *app = WApplication::instance();
+
+      rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh", this);
+      app->styleSheet().addRule(rowHeightRule_);
+
+      rowHeightRule_->templateWidget()->setHeight(rowHeight());
+      rowHeightRule_->templateWidget()->setLineHeight(rowHeight());
+
+      rowWidthRule_ = new WCssTemplateRule("#" + id() + " .Wt-tv-row", this);
+      app->styleSheet().addRule(rowWidthRule_);
+
+      rowContentsWidthRule_ 
+	= new WCssTemplateRule("#" + id() +" .Wt-tv-rowc", this);
+      app->styleSheet().addRule(rowContentsWidthRule_);
+
+      if (app->environment().ajax()) {
+	contentsContainer_->scrolled().connect
+	  ("function(obj, event) {"
+	   /*
+	    * obj.sb: workaround for Konqueror to prevent recursive
+	    * invocation because reading scrollLeft triggers onscroll()
+	    */
+	   """if (obj.sb) return;"
+	   """obj.sb = true;"
+	   "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
+	   /* the following is a workaround for IE7 */
+	   """var t = " + contents_->jsRef() + ".firstChild;"
+	   """var h = " + headers_->jsRef() + ";"
+	   """h.style.width = (t.offsetWidth - 1) + 'px';"
+	   """h.style.width = t.offsetWidth + 'px';"
+	   """obj.sb = false;"
+	   "}");	
+      }
+
+      c0StyleRule_ = addCssRule("#" + id() + " li .none",
+				"width: auto;"
+				"text-overflow: ellipsis;"
+				"overflow: hidden");
+   
+      if (columns_.size() > 0) {
+	ColumnInfo& ci = columnInfo(0);
+	c0StyleRule_->setSelector("#" + id() + " li ." + ci.styleClass());
+      }
+    }
   }
 
   while (renderState_ != RenderOk) {
@@ -1431,7 +1456,6 @@ void WTreeView::render(WFlags<RenderFlag> flags)
       break;
     }
   }
-
 
   if (rowHeaderCount() && renderedNodesAdded_) {
     doJavaScript("{var s=" + scrollBarC_->jsRef() + ";"
@@ -1489,10 +1513,9 @@ void WTreeView::enableAjax()
   setup();
   defineJavaScript();
 
-  rerenderHeader();
-  rerenderTree();
+  scheduleRerender(NeedRerender);
 
-  WCompositeWidget::enableAjax();
+  WAbstractItemView::enableAjax();
 }
 
 void WTreeView::rerenderTree()
@@ -1693,6 +1716,8 @@ void WTreeView::setExpanded(const WModelIndex& index, bool expanded)
       else
 	node->doCollapse();
     } else {
+      int height = subTreeHeight(index);
+
       if (expanded)
 	expandedSet_.insert(index);
       else
@@ -1701,7 +1726,6 @@ void WTreeView::setExpanded(const WModelIndex& index, bool expanded)
       if (w) {
 	RowSpacer *spacer = dynamic_cast<RowSpacer *>(w);
 
-	int height = subTreeHeight(index);
 	int diff = subTreeHeight(index) - height;
 
 	spacer->setRows(spacer->rows() + diff);
@@ -2719,11 +2743,8 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(int column) const
     ci.width = WLength::Auto;
     ci.styleRule->templateWidget()->resize(WLength::Auto, WLength::Auto);
 
-    const_cast<WTreeView*>(this)->addCssRule("#" + this->id() + " li"
-					     " ." + ci.styleClass(),
-					     "width: auto;"
-					     "text-overflow: ellipsis;"
-					     "overflow: hidden");
+    if (c0StyleRule_)
+      c0StyleRule_->setSelector("#" + id() + " li ." + ci.styleClass());
   }
 
   return ci;

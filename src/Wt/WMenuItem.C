@@ -61,17 +61,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
 		       WWidget *contents, LoadPolicy policy)
 {
   contentsContainer_ = 0;
-  contents_ = contents;
-
-#ifndef WT_CNOR
-  if (contents_) {
-    // contents' ownership will be moved to a containerwidget once
-    // it is in the widget tree (contentsLoaded). In any case, if
-    // contents_ is destroyed elsewhere, we want to know about it.
-    contentsDestroyedConnection_ =
-      contents_->destroyed().connect(this, &WMenuItem::contentsDestroyed);
-  }
-#endif // WT_CNOR
+  contents_ = 0;
 
   menu_ = 0;
   customPathComponent_ = false;
@@ -85,14 +75,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   subMenu_ = 0;
   data_ = 0;
 
-  if (contents_ && policy != PreLoading) {
-    contentsContainer_ = new WContainerWidget();
-    contentsContainer_
-      ->setJavaScriptMember("wtResize", StdWidgetItemImpl::childrenResizeJS());
-
-    contentsContainer_->resize(WLength::Auto,
-			       WLength(100, WLength::Percentage));
-  }
+  setContents(contents);
 
   if (!separator_) {
     new WAnchor(this);
@@ -114,6 +97,37 @@ WMenuItem::~WMenuItem()
     delete contents_;
 
   delete subMenu_;
+}
+
+void WMenuItem::setContents(WWidget *contents, LoadPolicy policy)
+{
+  delete contents_;
+
+  contents_ = contents;
+
+#ifndef WT_CNOR
+  if (contents) {
+    // contents' ownership will be moved to a containerwidget once
+    // it is in the widget tree (contentsLoaded). In any case, if
+    // contents_ is destroyed elsewhere, we want to know about it.
+    contentsDestroyedConnection_ =
+      contents_->destroyed().connect(this, &WMenuItem::contentsDestroyed);
+  }
+#endif // WT_CNOR
+
+  if (contents && policy != PreLoading) {
+    contents_ = contents;
+
+    if (!contentsContainer_) {
+      contentsContainer_ = new WContainerWidget();
+      contentsContainer_
+	->setJavaScriptMember("wtResize",
+			      StdWidgetItemImpl::childrenResizeJS());
+
+      contentsContainer_->resize(WLength::Auto,
+				 WLength(100, WLength::Percentage));
+    }
+  }
 }
 
 bool WMenuItem::isSectionHeader() const
@@ -403,7 +417,7 @@ void WMenuItem::connectSignals()
   if (!signalsConnected_) {
     signalsConnected_ = true;
 
-    if (contentsLoaded())
+    if (!contents_ || contentsLoaded())
       implementStateless(&WMenuItem::selectVisual,
 			 &WMenuItem::undoSelectVisual);
 

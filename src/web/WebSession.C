@@ -969,8 +969,8 @@ void WebSession::processQueuedEvents(WebSession::Handler& handler)
 	if (app() && app()->isQuited())
 	  kill();
 
-	// if (dead())
-	//   controller.removeSession(event.sessionId);
+	if (dead())
+	  controller()->removeSession(event.sessionId);
       } else {
 	if (event.fallbackFunction)
 	  WT_CALL_FUNCTION(event.fallbackFunction);

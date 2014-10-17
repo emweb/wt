@@ -41,9 +41,9 @@ public:
    *
    * The optional contents is a widget that will be shown in the WMenu
    * contents stack when the item is selected. For this widget, a load
-   * \p policy can be indicated which specifies whether the contents
-   * widgets is transmitted only when it the item is activated for the
-   * first time (LazyLoading) or transmitted prior to first rendering.
+   * \p policy specifies whether the contents widgets is transmitted
+   * only when it the item is activated for the first time
+   * (LazyLoading) or transmitted prior to first rendering.
    *
    * If the menu supports internal path navigation, then a default
    * pathComponent() will be derived from the \p label, and can be
@@ -293,10 +293,19 @@ public:
 
   WMenu *parentMenu() const { return menu_; }
 
+  /*! \brief Sets the contents widget for this item.
+   *
+   * The contents is a widget that will be shown in the WMenu contents
+   * stack when the item is selected. For this widget, the load \p
+   * policy specifies whether the contents widgets is transmitted only
+   * when it the item is activated for the first time (LazyLoading) or
+   * transmitted prior to first rendering.
+   */
+  void setContents(WWidget *contents, LoadPolicy policy = LazyLoading);
+
   /*! \brief Returns the contents widget for this item.
    *
-   * The contents widget is the widget in the WStackedWidget associated with
-   * this item.
+   * \sa setContents()
    */
   WWidget *contents() const;
 

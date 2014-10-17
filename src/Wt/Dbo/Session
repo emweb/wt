@@ -115,9 +115,17 @@ public:
 
   /*! \brief Returns the mapped table name for a class.
    *
-   * \sa mapClass()
+   * \sa mapClass(), tableNameQuoted()
    */
   template <class C> const char *tableName() const;
+
+  /*! \brief Returns the mapped quoted table name for a class.
+   *
+   * This will quote schemas, as necessary.
+   *
+   * \sa mapClass(), tableName()
+   */
+  template <class C> const std::string tableNameQuoted() const;
 
   /*! \brief Persists a transient object.
    *

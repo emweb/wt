@@ -532,24 +532,24 @@ public:
    * Usage example:
    * \if cpp
    * \code
-   * if (Wt::Widget *known = WTemplate::resolveWidget(varName)) {
+   * if (Wt::WWidget *known = WTemplate::resolveWidget(varName)) {
    *   return known;
    * } else {
    *   if (varName == "age-input") {
    *     Wt::WWidget *w = new Wt::WLineEdit(); // widget only created when used
-   *     bind(varName, w);
+   *     bindWidget(varName, w);
    *     return w;
    *   }
    * }
    * \endcode
    * \elseif java
    * \code
-   * if (Widget known = super.resolveWidget(varName)) {
+   * if (WWidget known = super.resolveWidget(varName)) {
    *   return known;
    * } else {
    *   if (varName == "age-input") {
-   *     WWidget *w = new WLineEdit(); // widget only created when used
-   *     bind(varName, w);
+   *     WWidget w = new WLineEdit(); // widget only created when used
+   *     bindWidget(varName, w);
    *     return w;
    *   }
    * }
@@ -678,7 +678,6 @@ protected:
 private:
   typedef std::map<std::string, Function> FunctionMap;
   typedef std::map<std::string, std::string> StringMap;
-  typedef std::map<std::string, WString> TemplateMap;
   typedef std::map<std::string, WWidget *> WidgetMap;
   typedef std::set<std::string> ConditionSet;
 
@@ -687,7 +686,6 @@ private:
 
   FunctionMap functions_;
   StringMap strings_;
-  TemplateMap nestedTemplates_;
   WidgetMap widgets_;
   ConditionSet conditions_;
 

@@ -36,7 +36,7 @@ namespace {
 
 SessionProcessManager::SessionProcessManager(boost::asio::io_service &ioService,
 					     const Wt::Configuration &configuration)
-  : ioService_(ioService),
+  : 
 #ifdef SIGNAL_SET
     signals_(ioService, SIGCHLD),
 #else // !SIGNAL_SET

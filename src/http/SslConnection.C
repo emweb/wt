@@ -85,8 +85,7 @@ void SslConnection::handleHandshake(const asio_error_code& error)
 	       << X509_verify_cert_error_string(sslState));
     }
 
-    LOG_DEBUG(socket().native() << "handleHandshake error: "
-      << error.message() << "\n");
+    LOG_INFO("SSL handshake error: " << error.message());
     ConnectionManager_.stop(shared_from_this());
   }
 }

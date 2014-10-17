@@ -37,12 +37,13 @@ void FormBaseModel::addPasswordAuth(const AbstractPasswordService *auth)
 
 void FormBaseModel::addOAuth(const OAuthService *auth)
 {
-  oAuth_.push_back(auth);
+  Utils::add(oAuth_, auth);
 }
 
 void FormBaseModel::addOAuth(const std::vector<const OAuthService *>& auth)
 {
-  Utils::insert(oAuth_, auth);
+  for (unsigned i = 0; i < auth.size(); ++i)
+    addOAuth(auth);
 }
 
 WString FormBaseModel::label(Field field) const

@@ -18,6 +18,8 @@ WT_DECLARE_WT_MEMBER
        current = null;
 
    function doHide() {
+     setOthersInactive(el, null);
+     el.style.display = 'none';
      APP.emit(el.id, 'cancel');
    }
 

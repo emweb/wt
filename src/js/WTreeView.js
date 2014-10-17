@@ -210,6 +210,9 @@ WT_DECLARE_WT_MEMBER
 	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
      }
 
+     if (c0r.style['width'] == 'auto')
+	 return;
+
      /*
       * IE6 is still not entirely right. It seems to be caused by a padding
       * of 7 pixels in the first column which gets added to the width.

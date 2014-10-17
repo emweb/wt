@@ -38,6 +38,10 @@ void WDoubleSpinBox::setMinimum(double minimum)
 {
   min_ = minimum;
 
+  WDoubleValidator *v = dynamic_cast<WDoubleValidator *>(validator());
+  if (v)
+    v->setBottom(min_);
+
   changed_ = true;
   repaint();
 }
@@ -46,17 +50,18 @@ void WDoubleSpinBox::setMaximum(double maximum)
 {
   max_ = maximum;
 
+  WDoubleValidator *v = dynamic_cast<WDoubleValidator *>(validator());
+  if (v)
+    v->setTop(max_);
+
   changed_ = true;
   repaint();
 }
 
 void WDoubleSpinBox::setRange(double minimum, double maximum)
 {
-  min_ = minimum;
-  max_ = maximum;
-
-  changed_ = true;
-  repaint();
+  setMinimum(minimum);
+  setMaximum(maximum);
 }
 
 void WDoubleSpinBox::setSingleStep(double step)

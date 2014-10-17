@@ -565,11 +565,12 @@ private:
 class Client::SslImpl : public Client::Impl
 {
 public:
-  SslImpl(WIOService& ioService, WServer *server,
+  SslImpl(WIOService& ioService, bool verifyEnabled, WServer *server,
 	  boost::asio::ssl::context& context, const std::string& sessionId,
 	  const std::string& hostName)
     : Impl(ioService, server, sessionId),
       socket_(ioService_, context),
+      verifyEnabled_(verifyEnabled),
       hostName_(hostName)
   { }
 
@@ -587,12 +588,12 @@ protected:
 
   virtual void asyncHandshake(const ConnectHandler& handler)
   {
-#ifdef VERIFY_CERTIFICATE
-    socket_.set_verify_mode(boost::asio::ssl::verify_peer);
-    LOG_DEBUG("verifying that peer is " << hostName_);
-    socket_.set_verify_callback
-      (boost::asio::ssl::rfc2818_verification(hostName_));
-#endif
+    if (verifyEnabled_) {
+      socket_.set_verify_mode(boost::asio::ssl::verify_peer);
+      LOG_DEBUG("verifying that peer is " << hostName_);
+      socket_.set_verify_callback
+	(boost::asio::ssl::rfc2818_verification(hostName_));
+    }
 
     socket_.async_handshake(boost::asio::ssl::stream_base::client, handler);
   }
@@ -618,6 +619,7 @@ private:
   typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
 
   ssl_socket socket_;
+  bool verifyEnabled_;
   std::string hostName_;
 };
 #endif // WT_WITH_SSL
@@ -627,6 +629,11 @@ Client::Client(WObject *parent)
     ioService_(0),
     timeout_(10),
     maximumResponseSize_(64*1024),
+#ifdef VERIFY_CERTIFICATE
+    verifyEnabled_(true),
+#else
+    verifyEnabled_(false),
+#endif
     followRedirect_(false),
     redirectCount_(0),
     maxRedirects_(20)
@@ -637,6 +644,11 @@ Client::Client(WIOService& ioService, WObject *parent)
     ioService_(&ioService),
     timeout_(10),
     maximumResponseSize_(64*1024),
+#ifdef VERIFY_CERTIFICATE
+    verifyEnabled_(true),
+#else
+    verifyEnabled_(false),
+#endif
     followRedirect_(false),
     redirectCount_(0),
     maxRedirects_(20)
@@ -645,6 +657,11 @@ Client::Client(WIOService& ioService, WObject *parent)
 Client::~Client()
 {
   abort();
+}
+
+void Client::setSslCertificateVerificationEnabled(bool enabled)
+{
+  verifyEnabled_ = enabled;
 }
 
 void Client::abort()
@@ -669,6 +686,11 @@ void Client::setMaximumResponseSize(std::size_t bytes)
 void Client::setSslVerifyFile(const std::string& file)
 {
   verifyFile_ = file;
+}
+
+void Client::setSslVerifyPath(const std::string& path)
+{
+  verifyPath_ = path;
 }
 
 bool Client::get(const std::string& url)
@@ -738,9 +760,8 @@ bool Client::request(Http::Method method, const std::string& url,
     boost::asio::ssl::context context
       (*ioService, boost::asio::ssl::context::sslv23);
 
-#ifdef VERIFY_CERTIFICATE
-    context.set_default_verify_paths();
-#endif
+    if (verifyEnabled_)
+      context.set_default_verify_paths();
 
     if (!verifyFile_.empty() || !verifyPath_.empty()) {
       if (!verifyFile_.empty())
@@ -748,8 +769,8 @@ bool Client::request(Http::Method method, const std::string& url,
       if (!verifyPath_.empty())
 	context.add_verify_path(verifyPath_);
     }
-
-    impl_.reset(new SslImpl(*ioService, 
+    
+    impl_.reset(new SslImpl(*ioService, verifyEnabled_,
 			    server, 
 			    context, 
 			    sessionId, 

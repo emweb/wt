@@ -84,6 +84,12 @@ const char *Session::tableName() const
 }
 
 template <class C>
+const std::string Session::tableNameQuoted() const
+{
+  return std::string("\"") + Impl::quoteSchemaDot(tableName<C>()) + '"';
+}
+
+template <class C>
 Session::Mapping<C> *Session::getMapping() const
 {
   if (!schemaInitialized_)

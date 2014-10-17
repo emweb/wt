@@ -152,6 +152,8 @@ WT_DECLARE_WT_MEMBER
       if (effects & Fade)
 	set(el, { opacity: (hide ? 1 : 0) }, elStyle);
 
+      var currentHeight = el.clientHeight; // force 'absorbing' set height
+
       setTimeout(function() {
 	  set(el,
 	      { transition: "all " + duration + "ms " + cssTiming,

@@ -848,7 +848,7 @@ void WClientGLWidget::detachShader(WGLWidget::Program program,
   if ((unsigned)program.getId() >= programs_ ||
       (unsigned)shader.getId() >= shaders_)
     return;
-  js_ << "ctx.detachShader(" << program.jsRef() << "," << shader.jsRef() << ");";
+  js_ << "if (" << program.jsRef() << " && " << shader.jsRef() << ") { ctx.detachShader(" << program.jsRef() << "," << shader.jsRef() << "); }";
   GLDEBUG;
 }
 
@@ -1558,8 +1558,6 @@ void WClientGLWidget::initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &mat)
     glInterface_->addJavaScriptMatrix4(mat);
   else if (mat.context_ != glInterface_)
     throw WException("JavaScriptMatrix4x4: associated WGLWidget is not equal to the WGLWidget it's being initialized in");
-  if (mat.initialized())
-    throw WException("JavaScriptMatrix4x4: matrix already initialized");
 
   WGenericMatrix<double, 4, 4> m = mat.value();
   js_ << mat.jsRef() << "=";
@@ -1584,8 +1582,6 @@ void WClientGLWidget::initJavaScriptVector(WGLWidget::JavaScriptVector &vec)
     glInterface_->addJavaScriptVector(vec);
   else if (vec.context_ != glInterface_)
     throw WException("JavaScriptVector: associated WGLWidget is not equal to the WGLWidget it's being initialized in");
-  if (vec.initialized())
-    throw WException("JavaScriptVector: vector already initialized");
 
   std::vector<float> v = vec.value();
   js_ << vec.jsRef() << "= new Float32Array([";

@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WCalendar"
 
 using namespace boost::gregorian;
@@ -73,8 +75,6 @@ void WCalendar::create()
   cellClickMapper_ = 0;
   cellDblClickMapper_ = 0;
 
-  clicked().connect(this, &WCalendar::selectInCurrentMonth);
-
   WDate currentDay = WDate::currentDate();
 
   currentYear_ = currentDay.year();
@@ -125,6 +125,7 @@ void WCalendar::create()
   for (unsigned i = 0; i < 12; ++i)
     monthEdit_->addItem(WDate::longMonthName(i+1));
   monthEdit_->activated().connect(this, &WCalendar::monthChanged);
+  monthEdit_->setDisabled(!WApplication::instance()->environment().ajax());
 
   yearEdit_ = new WInPlaceEdit("");
   yearEdit_->setButtonsEnabled(false);
@@ -139,6 +140,12 @@ void WCalendar::create()
 
   setHorizontalHeaderFormat(horizontalHeaderFormat_);
   setFirstDayOfWeek(firstDayOfWeek_);
+}
+
+void WCalendar::enableAjax()
+{
+  WCompositeWidget::enableAjax();
+  monthEdit_->enable();
 }
 
 void WCalendar::setFirstDayOfWeek(int dayOfWeek)
@@ -263,14 +270,16 @@ void WCalendar::render(WFlags<RenderFlag> flags)
 	WInteractWidget* iw = dynamic_cast<WInteractWidget*>(rw->webWidget());
 
 	if (iw && iw != w) {
-	  if (clicked().isConnected() 
+	  if (clicked().isConnected()
+	      || (selectionMode_ == ExtendedSelection)
 	      || (selectionMode_ != ExtendedSelection && singleClickSelect_
 		  && activated().isConnected()))
 	    cellClickMapper_
 	      ->mapConnect(iw->clicked(), Coordinate(i, j));
 
 	  if ((selectionMode_ != ExtendedSelection && !singleClickSelect_
-	       && activated().isConnected()))
+	       && (activated().isConnected() ||
+		   selectionChanged().isConnected())))
 	    cellDblClickMapper_
 	      ->mapConnect(iw->doubleClicked(), Coordinate(i, j));
 	}
@@ -388,17 +397,13 @@ void WCalendar::selectInCurrentMonth(const WDate& d)
 	selection_.erase(d);
       else
 	selection_.insert(d);
-
-      selectionChanged().emit();
-      renderMonth();
-
     } else {
       selection_.clear();
       selection_.insert(d);
-
-      selectionChanged().emit();
-      renderMonth();
     }
+
+    renderMonth();
+    selectionChanged().emit();
   }
 }
 
@@ -415,6 +420,7 @@ void WCalendar::cellClicked(Coordinate weekday)
   if (isInvalid(d))
     return;
 
+  selectInCurrentMonth(d);
   clicked().emit(d);
   
   if (selectionMode_ != ExtendedSelection && singleClickSelect_)

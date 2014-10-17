@@ -322,10 +322,10 @@ void WFileUpload::updateDom(DomElement& element, bool all)
     if (!inputE)
       inputE = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
 
-    if (isDisabled())
-      inputE->callMethod("disabled=true");
-    else
+    if (isEnabled())
       inputE->callMethod("disabled=false");
+    else
+      inputE->callMethod("disabled=true");
 
     inputE->setAttribute("accept", acceptAttributes_);
 

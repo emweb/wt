@@ -320,6 +320,8 @@ protected:
    */
   bool isSelected(const WDate& date) const;
 
+  virtual void enableAjax();
+
 private:
   SelectionMode     selectionMode_;
   bool              singleClickSelect_;

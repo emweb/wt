@@ -31,19 +31,18 @@ namespace {
   static const std::string localhost_key
     = "ABQIAAAAWqrN5o4-ISwj0Up_depYvhTwM0brOpm-"
     "All5BF6PoaKBxRWWERS-S9gPtCri-B6BZeXV8KpT4F80DQ";
+
+  void write(std::stringstream& os, const Wt::WGoogleMap::Coordinate &c)
+  {
+    char b1[35];
+    char b2[35];
+    os << "new google.maps.LatLng("
+       << Wt::Utils::round_js_str(c.latitude(), 15, b1)
+       << "," << Wt::Utils::round_js_str(c.longitude(), 15, b2) << ")";
+  }
 }
 
 namespace Wt {
-std::ostream &operator<< (std::ostream &os, const Wt::WGoogleMap::Coordinate &c)
-{
-  char b1[35];
-  char b2[35];
-  os << "new google.maps.LatLng("
-    << Wt::Utils::round_js_str(c.latitude(), 15, b1)
-    << "," << Wt::Utils::round_js_str(c.longitude(), 15, b2) << ")";
-  return os;
-}
-
 
 WGoogleMap::Coordinate::Coordinate()
   : lat_(0), lon_(0)
@@ -298,10 +297,14 @@ void WGoogleMap::addMarker(const Coordinate& pos)
   std::stringstream strm;
 
   if (apiVersion_ == Version2) {
-    strm << "var marker = " << pos << ";"
+    strm << "var marker = ";
+    write(strm, pos);
+    strm << ";"
 	 << jsRef() << ".map.addOverlay(marker);";
   } else {
-    strm << "var position = " << pos << ";"
+    strm << "var position = ";
+    write(strm, pos);
+    strm << ";"
 	 << "var marker = new google.maps.Marker({"
 	 << "position: position,"
 	 << "map: " << jsRef() << ".map"
@@ -321,7 +324,9 @@ void WGoogleMap::addIconMarker(const Coordinate &pos,
     throw std::logic_error("WGoogleMap::addIconMarker is not supported "
                            "in the Google Maps API v2.");
   } else {
-    strm << "var position = " << pos << ";"
+    strm << "var position = ";
+    write(strm, pos);
+    strm << ";"
          << "var marker = new google.maps.Marker({"
 	 << "position: position,"
 	 << "icon: \"" <<  iconURL << "\","
@@ -351,7 +356,9 @@ void WGoogleMap::addCircle(const Coordinate& center, double radius,
     double fillOpacity = fillColor.alpha() / 255.0;
     
     strm << "var mapLocal = " << jsRef() + ".map;"
-	 << "var latLng  = " << center << ";"
+	 << "var latLng = ";
+    write(strm, center);
+    strm << ";"
 	 << "var circle = new google.maps.Circle( "
             "{ "
             "  map: mapLocal, "
@@ -380,8 +387,11 @@ void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
 
   std::stringstream strm;
   strm << "var waypoints = [];";
-  for (size_t i = 0; i < points.size(); ++i)
-    strm << "waypoints[" << i << "] = " << points[i] << ";";
+  for (size_t i = 0; i < points.size(); ++i) {
+    strm << "waypoints[" << i << "] = ";
+    write(strm, points[i]);
+    strm << ";";
+  }
 
   if (apiVersion_ == Version2) {
     strm << "var poly = new google.maps.Polyline(waypoints, \""
@@ -406,7 +416,9 @@ void WGoogleMap::openInfoWindow(const Coordinate& pos,
 				const WString& myHtml)
 {
   std::stringstream strm;
-  strm << "var pos = " << pos << ";";
+  strm << "var pos = ";
+  write(strm, pos);
+  strm << ";";
   
   if (apiVersion_ == Version2) {
     strm << jsRef() << ".map.openInfoWindow(pos, "
@@ -426,15 +438,18 @@ void WGoogleMap::openInfoWindow(const Coordinate& pos,
 void WGoogleMap::setCenter(const Coordinate& center)
 {
   std::stringstream strm;
-  strm << jsRef() << ".map.setCenter(" << center << ");";
-
+  strm << jsRef() << ".map.setCenter(";
+  write(strm, center);
+  strm << ");";
   doGmJavaScript(strm.str());
 }
 
 void WGoogleMap::setCenter(const Coordinate& center, int zoom)
 {
   std::stringstream strm;
-  strm << jsRef() << ".map.setCenter(" << center << "); "
+  strm << jsRef() << ".map.setCenter(";
+  write(strm, center);
+  strm << "); "
        << jsRef() << ".map.setZoom(" << zoom << ");";
 
   doGmJavaScript(strm.str());
@@ -443,7 +458,9 @@ void WGoogleMap::setCenter(const Coordinate& center, int zoom)
 void WGoogleMap::panTo(const Coordinate& center)
 {
   std::stringstream strm;
-  strm << jsRef() << ".map.panTo(" << center << ");";
+  strm << jsRef() << ".map.panTo(";
+  write (strm, center);
+  strm << ");";
 
   doGmJavaScript(strm.str());
 }
@@ -603,13 +620,18 @@ void WGoogleMap::zoomWindow(const Coordinate& topLeft,
     Coordinate(std::max(topLeft.latitude(), rightBottom.latitude()),
 	       std::max(topLeft.longitude(), rightBottom.longitude()));
   std::stringstream strm;
-  strm << "var bbox = new google.maps.LatLngBounds(" << topLeftC << ", "
-       << rightBottomC << ");";
+  strm << "var bbox = new google.maps.LatLngBounds(";
+  write(strm, topLeftC);
+  strm << ", ";
+  write(strm, rightBottomC);
+  strm << ");";
 
   if (apiVersion_ == Version2) {
     strm 
       << "var zooml = " << jsRef() << ".map.getBoundsZoomLevel(bbox);"
-      << jsRef() << ".map.setCenter(" << center << ", zooml);";
+      << jsRef() << ".map.setCenter(";
+    write (strm, center);
+    strm << ", zooml);";
   } else {
     strm 
       << jsRef() << ".map.fitBounds(bbox);";

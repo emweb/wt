@@ -491,7 +491,7 @@ public:
    *
    * The default column width is 150 pixels.
    *
-   * \note The height must be specified in WLength::Pixel units.
+   * \note The width must be specified in WLength::Pixel units.
    *
    * \note The actual space occupied by each column is the column width
    *       augmented by 7 pixels for internal padding and a border.
@@ -537,6 +537,8 @@ public:
   /*! \brief Sets the header height.
    *
    * The default value is 20 pixels.
+   *
+   * \note The height must be specified in WLength::Pixel units.
    */
   virtual void setHeaderHeight(const WLength& height);
 
@@ -832,6 +834,8 @@ public:
    */
   bool column1Fixed() const { return rowHeaderCount_ == 1; }
 
+  virtual void setObjectName(const std::string& name);
+
 protected:
   /*! \brief Creates a new item view.
    */
@@ -896,7 +900,6 @@ protected:
    */
   virtual WWidget *createPageNavigationBar();
 
-
 protected:
   struct ColumnInfo {
     WCssTemplateRule *styleRule;
@@ -918,9 +921,10 @@ protected:
   enum RenderState {
     RenderOk = 0,
     NeedAdjustViewPort = 1,
-    NeedRerenderData = 2,
-    NeedRerenderHeader = 3,
-    NeedRerender = 4
+    NeedUpdateModelIndexes = 2,
+    NeedRerenderData = 3,
+    NeedRerenderHeader = 4,
+    NeedRerender = 5
   };
 
   WContainerWidget *impl_;
