@@ -96,16 +96,20 @@ void DispatchThread::myExec()
 
 void DispatchThread::myPropagateEvent()
 {
-  boost::mutex::scoped_lock lock(newEventMutex_);
-  newEvent_ = true;
+  {
+    boost::mutex::scoped_lock lock(newEventMutex_);
+    newEvent_ = true;
+  }
   newEventCondition_.notify_one();
 }
 
 void DispatchThread::signalDone()
 {
   log("debug") << "WQApplication: [thread] signaling event done";
-  boost::mutex::scoped_lock lock(doneMutex_);
-  done_ = true;
+  {
+    boost::mutex::scoped_lock lock(doneMutex_);
+    done_ = true;
+  }
   doneCondition_.notify_one();
 }
 

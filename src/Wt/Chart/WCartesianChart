@@ -342,9 +342,12 @@ public:
    */
   const WAxis& axis(Axis axis) const;
 
-  /*! \brief set and init axis
+  /*! \brief Sets an axis
    *
-   * Will replace the existing (default axis) with user axis.
+   * \if cpp
+   * Ownership is transferred and a previously set (default) axis is deleted
+   * first.
+   * \endif
    *
    * \sa axis(Axis axis)
    */

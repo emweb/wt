@@ -252,6 +252,11 @@ public:
    */
   bool ajax() const { return doesAjax_; }
 
+  /*! \brief Returns whether the browser has support for WebGL.
+   *
+   * Support for WebGL is required for client-side rendering of
+   * WGLWidget.
+   */
   bool webGL() const { return webGLsupported_; }
 
   /*! \brief Returns the horizontal resolution of the client's screen.
@@ -648,7 +653,14 @@ public:
   }
 #endif
 
-  bool hashInternalPaths() const { return hashInternalPaths_; }
+  /*! \brief Returns whether internal paths are implemented using URI fragments.
+   *
+   * This may be the case for older non-HTML5 browsers which do not support
+   * HTML5 History APIs.
+   */
+  bool internalPathUsingFragments() const { 
+    return internalPathUsingFragments_; 
+  }
 
   /*! \brief Returns whether this agent supports CSS3 animations.
    */
@@ -665,7 +677,7 @@ protected:
   WebSession *session_;
   bool        doesAjax_;
   bool        doesCookies_;
-  bool        hashInternalPaths_;
+  bool        internalPathUsingFragments_;
   UserAgent   agent_;
   int         screenWidth_;
   int         screenHeight_;

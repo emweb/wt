@@ -92,7 +92,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
   t->escapePressed().connect(popup_, &WTemplate::hide);
-  t->escapePressed().connect(forEdit_, &WLineEdit::setFocus);
+  t->escapePressed().connect(forEdit_, &WWidget::setFocus);
 
   t->bindWidget("calendar", calendar_);
 
@@ -112,7 +112,7 @@ void WDatePicker::setPopupVisible(bool visible)
 
 void WDatePicker::onPopupHidden()
 {
-  forEdit_->setFocus();
+  forEdit_->setFocus(true);
   popupClosed();
 }
 

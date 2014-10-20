@@ -446,6 +446,31 @@ bool WCompositeWidget::loaded() const
   return impl_ ? impl_->loaded() : true;
 }
 
+void WCompositeWidget::setCanReceiveFocus(bool enabled)
+{
+  impl_->setCanReceiveFocus(enabled);
+}
+
+bool WCompositeWidget::canReceiveFocus() const
+{
+  return impl_->canReceiveFocus();
+}
+
+void WCompositeWidget::setFocus(bool focus)
+{
+  impl_->setFocus(true);
+}
+
+bool WCompositeWidget::hasFocus() const
+{
+  return impl_->hasFocus();
+}
+
+bool WCompositeWidget::setFirstFocus()
+{
+  return impl_->webWidget()->setFirstFocus();
+}
+
 void WCompositeWidget::setTabIndex(int index)
 {
   impl_->setTabIndex(index);
@@ -543,10 +568,6 @@ int WCompositeWidget::boxBorder(Orientation orientation) const
 void WCompositeWidget::propagateSetEnabled(bool enabled)
 {
   impl_->webWidget()->propagateSetEnabled(enabled);
-}
-
-bool WCompositeWidget::setFirstFocus() {
-  return impl_->webWidget()->setFirstFocus();
 }
 
 }

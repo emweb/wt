@@ -94,8 +94,8 @@ public:
 	       "select u from " + session_.tableNameQuoted<DboType>() + " u "
 	       "join " + session_.tableNameQuoted<AuthIdentityType>() + " i "
 	       "on u.id = i.\"" + session_.tableName<DboType>() + "_id\"")
-	      .where("i.provider = ?").bind(provider)
-	      .where("i.identity = ?").bind(identity));
+	      .where("i.\"provider\" = ?").bind(provider)
+	      .where("i.\"identity\" = ?").bind(identity));
       t.commit();
     }
 
@@ -112,7 +112,7 @@ public:
     WithUser find(*this, user);
 
     AuthIdentities c
-      = user_->authIdentities().find().where("provider = ?").bind(provider);
+      = user_->authIdentities().find().where("\"provider\" = ?").bind(provider);
 
     typename AuthIdentities::const_iterator i = c.begin();
 
@@ -130,7 +130,7 @@ public:
       (std::string() +
        "delete from " + session_.tableNameQuoted<AuthIdentityType>() +
        " where \"" + session_.tableName<DboType>() + "_id\" = ?"
-       " and provider = ?").bind(user.id()).bind(provider);
+       " and \"provider\" = ?").bind(user.id()).bind(provider);
 
     t.commit();
   }
@@ -178,8 +178,8 @@ public:
     WithUser find(*this, user);
 
     if (session_.find<AuthIdentityType>()
-	.where("identity = ?").bind(identity)
-	.where("provider = ?").bind(provider).resultList().size() != 0) {
+	.where("\"identity\" = ?").bind(identity)
+	.where("\"provider\" = ?").bind(provider).resultList().size() != 0) {
       Wt::log("error") << "cannot add identity " << provider
 		       << ":'" << identity << "': already exists";
       return;
@@ -198,7 +198,7 @@ public:
     WithUser find(*this, user);
 
     AuthIdentities c
-      = user_->authIdentities().find().where("provider = ?").bind(provider);
+      = user_->authIdentities().find().where("\"provider\" = ?").bind(provider);
 
     typename AuthIdentities::const_iterator i = c.begin();
 
@@ -213,7 +213,7 @@ public:
   virtual bool setEmail(const User& user, const std::string& address) {
     WithUser find(*this, user);
 
-    if (session_.find<DboType>().where("email = ?")
+    if (session_.find<DboType>().where("\"email\" = ?")
 	.bind(address).resultList().size() != 0)
       return false;
 
@@ -240,7 +240,7 @@ public:
 
   virtual User findWithEmail(const std::string& address) const {
     Wt::Dbo::Transaction t(session_);
-    setUser(session_.find<DboType>().where("email = ?").bind(address));
+    setUser(session_.find<DboType>().where("\"email\" = ?").bind(address));
     t.commit();
 
     if (user_)
@@ -268,7 +268,7 @@ public:
   virtual User findWithEmailToken(const std::string& hash) const {
     Wt::Dbo::Transaction t(session_);
     setUser(session_.find<DboType>()
-	    .where("email_token = ?").bind(hash));
+	    .where("\"email_token\" = ?").bind(hash));
     t.commit();
 
     if (user_)
@@ -284,7 +284,7 @@ public:
      * This should be statistically very unlikely but also a big
      * security problem if we do not detect it ...
      */
-    if (session_.find<AuthTokenType>().where("value = ?")
+    if (session_.find<AuthTokenType>().where("\"value\" = ?")
 	.bind(token.hash())
 	.resultList().size() > 0)
       throw std::runtime_error("Token hash collision");
@@ -348,8 +348,8 @@ public:
 	     "select u from " + session_.tableNameQuoted<DboType>() + " u "
 	     "join " + session_.tableNameQuoted<AuthTokenType>() + " t "
 	     "on u.id = t.\"" + session_.tableName<DboType>() + "_id\"")
-	    .where("t.value = ?").bind(hash)
-	    .where("t.expires > ?").bind(WDateTime::currentDateTime()));
+	    .where("t.\"value\" = ?").bind(hash)
+	    .where("t.\"expires\" > ?").bind(WDateTime::currentDateTime()));
     t.commit();
 
     if (user_)

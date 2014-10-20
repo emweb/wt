@@ -268,6 +268,10 @@ public:
    */
   void *data() const { return data_; }
 
+  /*! \brief Returns the checkbox for a checkable item.
+   *
+   * \sa setCheckable()
+   */
   WCheckBox *checkBox() const { return checkBox_; }
 
   /*! \brief Make it possible to close this item interactively or by close().
@@ -291,6 +295,8 @@ public:
    */
   void close();
 
+  /*! \brief Returns the menu that contains this item.
+   */
   WMenu *parentMenu() const { return menu_; }
 
   /*! \brief Sets the contents widget for this item.
@@ -384,7 +390,7 @@ private:
   WLabel *text_;
   WCheckBox *checkBox_;
   void *data_;
-  bool separator_, selectable_, signalsConnected_;
+  bool separator_, selectable_, signalsConnected_, customLink_;
 
   Signal<WMenuItem *> triggered_;
   Wt::Signals::connection contentsDestroyedConnection_;

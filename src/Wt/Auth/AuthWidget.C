@@ -319,7 +319,7 @@ WFormWidget *AuthWidget::createFormWidget(WFormModel::Field field)
 
   if (field == AuthModel::LoginNameField) {
     result = new WLineEdit();
-    result->setFocus();
+    result->setFocus(true);
   } else if (field == AuthModel::PasswordField) {
     WLineEdit *p = new WLineEdit();
     p->enterPressed().connect(this, &AuthWidget::attemptPasswordLogin);

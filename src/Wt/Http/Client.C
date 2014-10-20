@@ -588,12 +588,14 @@ protected:
 
   virtual void asyncHandshake(const ConnectHandler& handler)
   {
+#ifdef VERIFY_CERTIFICATE
     if (verifyEnabled_) {
       socket_.set_verify_mode(boost::asio::ssl::verify_peer);
       LOG_DEBUG("verifying that peer is " << hostName_);
       socket_.set_verify_callback
 	(boost::asio::ssl::rfc2818_verification(hostName_));
     }
+#endif // VERIFY_CERTIFICATE
 
     socket_.async_handshake(boost::asio::ssl::stream_base::client, handler);
   }
@@ -760,6 +762,7 @@ bool Client::request(Http::Method method, const std::string& url,
     boost::asio::ssl::context context
       (*ioService, boost::asio::ssl::context::sslv23);
 
+#ifdef VERIFY_CERTIFICATE
     if (verifyEnabled_)
       context.set_default_verify_paths();
 
@@ -769,7 +772,8 @@ bool Client::request(Http::Method method, const std::string& url,
       if (!verifyPath_.empty())
 	context.add_verify_path(verifyPath_);
     }
-    
+#endif // VERIFY_CERTIFICATE
+
     impl_.reset(new SslImpl(*ioService, verifyEnabled_,
 			    server, 
 			    context, 

@@ -26,7 +26,7 @@ LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
   addFunction("block", &Functions::block);
 
   WLineEdit *email = new WLineEdit();
-  email->setFocus();
+  email->setFocus(true);
 
   WPushButton *okButton = new WPushButton(tr("Wt.Auth.send"));
   WPushButton *cancelButton = new WPushButton(tr("Wt.WMessageBox.Cancel"));

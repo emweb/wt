@@ -1292,7 +1292,7 @@ bool WApplication::changeInternalPath(const std::string& aPath)
 
 bool WApplication::changedInternalPath(const std::string& path)
 {
-  if (!environment().hashInternalPaths())
+  if (!environment().internalPathUsingFragments())
     session_->setPagePathInfo(path);
 
   return changeInternalPath(path);

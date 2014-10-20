@@ -26,17 +26,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-/*
- * So, snprintf is not a std in c++03. It's a c++11 feature.
- */
-#ifdef WT_WIN32
-#define snprintf _snprintf
-#else
-#ifdef WT_CNOR
-#define snprintf std::snprintf
-#endif
-#endif
-
 namespace Wt {
   namespace Chart {
 
@@ -53,7 +42,8 @@ WPieChart::WPieChart(WContainerWidget *parent)
     startAngle_(45),
     avoidLabelRendering_(0.0),
     labelOptions_(0),
-    shadow_(false)
+    shadow_(false),
+    labelFormat_(WString::fromUTF8("%.3g%%"))
 {
   setPalette(new WStandardPalette(WStandardPalette::Neutral));
   setPlotAreaPadding(5);
@@ -65,6 +55,17 @@ void WPieChart::setLabelsColumn(int modelColumn)
     labelsColumn_ = modelColumn;
     update();
   }
+}
+
+void WPieChart::setLabelFormat(const WString& format)
+{
+  labelFormat_ = format;
+  update();
+}
+
+WString WPieChart::labelFormat() const
+{
+  return labelFormat_;
 }
 
 void WPieChart::setDataColumn(int modelColumn)
@@ -318,17 +319,29 @@ WString WPieChart::labelText(int index, double v, double total,
       text = asString(model()->data(index, labelsColumn_));
 
   if (options & TextPercentage) {
+    std::string label;
+    double u = v / total * 100;
+
+    std::string format = labelFormat().toUTF8();
+    if (format.empty())
+      label = WLocale::currentLocale().toString(u).toUTF8() + "%";
+    else {
 #ifndef WT_TARGET_JAVA
-    char buf[20];
+      char buf[30];
 #else
-    text = WString(text.toUTF8());
-    char *buf = 0;
-    buf =
+      char *buf = 0;
+#endif
+
+#ifdef WT_TARGET_JAVA
+      buf =
 #endif // WT_TARGET_JAVA
-      snprintf(buf, 20, "%.3g%%", v / total * 100);
+	std::sprintf(buf, format.c_str(), u);
+      label = buf;
+    }
+
     if (!text.empty())
       text += ": ";
-    text += buf;
+    text += WString::fromUTF8(label);
   }
 
   return text;

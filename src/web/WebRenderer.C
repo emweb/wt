@@ -1013,7 +1013,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< WWebWidget::jsStringLiteral(app->newInternalPath_)
 	<< ", false);\n";
 
-    if (!app->environment().hashInternalPaths())
+    if (!app->environment().internalPathUsingFragments())
       session_.setPagePathInfo(app->newInternalPath_);
 
     out << app->javaScriptClass()
@@ -1542,7 +1542,7 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
   if (session_.sessionIdChanged_) {
     if (session_.hasSessionIdInUrl()) {
       if (app->environment().ajax() &&
-	  !app->environment().hashInternalPaths()) {
+	  !app->environment().internalPathUsingFragments()) {
 	streamRedirectJS(out, app->url(app->internalPath()));
 	// better would be to use HTML5 history in this case but that would
 	// need some minor JavaScript reorganizations
@@ -1689,7 +1689,7 @@ void WebRenderer::collectJS(WStringStream* js)
 	  << "._p_.setHash("
 	  << WWebWidget::jsStringLiteral(app->newInternalPath_)
 	  << ", false);\n";
-      if (!preLearning() && !app->environment().hashInternalPaths())
+      if (!preLearning() && !app->environment().internalPathUsingFragments())
 	session_.setPagePathInfo(app->newInternalPath_);
     }
 

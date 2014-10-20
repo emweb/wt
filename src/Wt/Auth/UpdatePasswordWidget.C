@@ -59,7 +59,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
     authModel_->configureThrottling(okButton);
 
     WLineEdit *password = resolve<WLineEdit *>(AuthModel::PasswordField);
-    password->setFocus();
+    password->setFocus(true);
   }
 
   updateView(registrationModel_);
@@ -75,7 +75,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 					       password2, password2Info);
 
   if (!authModel_)
-    password->setFocus();
+    password->setFocus(true);
 
   okButton->clicked().connect(this, &UpdatePasswordWidget::doUpdate);
   cancelButton->clicked().connect(this, &UpdatePasswordWidget::close);

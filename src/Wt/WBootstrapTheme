@@ -51,8 +51,8 @@ public:
    * \sa setVersion()
    */
   enum Version {
-    Version2 = 2, // Bootstrap 2
-    Version3 = 3  // Bootstrap 3
+    Version2 = 2, //!< Bootstrap 2
+    Version3 = 3  //!< Bootstrap 3
   };
 
   /*! \brief Constructor.

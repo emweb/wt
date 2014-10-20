@@ -318,6 +318,11 @@ WString WWidget::tr(const std::string& key)
   return WString::tr(key);
 }
 
+void WWidget::setFocus()
+{
+  setFocus(true);
+}
+
 void WWidget::acceptDrops(const std::string& mimeType,
 			  const WT_USTRING& hoverStyleClass)
 {
@@ -515,11 +520,6 @@ bool WWidget::isExposed(WWidget *w)
     if (p == this)
       return true;
 
-  return false;
-}
-
-bool WWidget::setFirstFocus()
-{
   return false;
 }
 

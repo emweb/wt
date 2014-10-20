@@ -203,9 +203,6 @@ void WComboBox::propagateChange()
 
 }
 
-void WComboBox::dummy()
-{ }
-
 bool WComboBox::isSelected(int index) const
 {
   return index == currentIndex_;

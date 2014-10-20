@@ -539,8 +539,12 @@ public:
    */
   const WFont& titleFont() const { return titleFont_; }
 
+  /*! \brief Sets the offset from the axis for the title label.
+   */
   void setTitleOffset(double offset) { titleOffset_ = offset; }
 
+  /*! \brief Returns the title offset.
+   */
   double titleOffset() const { return titleOffset_; }
 
   /*! \brief Sets the axis label font.
@@ -557,6 +561,13 @@ public:
    */
   const WFont& labelFont() const { return labelFont_; }
 
+  /*! \brief Returns the label for a value.
+   *
+   * This returns the label text that corresponds to a given value.
+   *
+   * The default implementation uses the labelFormat() to properly represent
+   * the value.
+   */
   virtual WString label(double u) const;
 
   /*! \brief Returns the chart to which this axis belongs.
@@ -578,7 +589,12 @@ public:
 	      double tickStart, double tickEnd, double labelPos,
 	      WFlags<AlignmentFlag> labelFlags) const;
 
-  std::vector<double> gridLinePositions() const;
+  /*! \brief Returns the positions for grid lines on this axis.
+   *
+   * This returns a list of logical values at which a grid line should
+   * be drawn on this axis.
+   */
+  virtual std::vector<double> gridLinePositions() const;
 
   void renderLabel(WPainter& painter,
 		   const WString& text, const WPointF& p,
@@ -589,18 +605,29 @@ public:
   void setRenderMirror(bool enable) { renderingMirror_ = enable; }
 
 protected:
+  /*! \brief Represents a label/tick on the axis.
+   */
   struct TickLabel {
+    /*! \brief Enumeration for a tick type */
     enum TickLength { Zero, Short, Long };
 
+    /*! \brief Position on the axis. */
     double u;
+
+    /*! \brief Tick length */
     TickLength tickLength;
+
+    /*! \brief Label text */
     WString    label;
 
+    /*! \brief Creates a label tick. */
     TickLabel(double v, TickLength length, const WString& l = WString());
   };
 
   WAxis();
 
+  /*! \brief Returns the label (and ticks) information for this axis.
+   */
   virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment) const;
 
 private:

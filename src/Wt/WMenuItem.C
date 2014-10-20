@@ -60,6 +60,7 @@ WMenuItem::WMenuItem(bool separator, const WString& text)
 void WMenuItem::create(const std::string& iconPath, const WString& text,
 		       WWidget *contents, LoadPolicy policy)
 {
+  customLink_ = false;
   contentsContainer_ = 0;
   contents_ = 0;
 
@@ -237,6 +238,8 @@ void WMenuItem::setLink(const WLink& link)
   WAnchor *a = anchor();
   if (a)
     a->setLink(link);
+
+  customLink_ = true;
 }
 
 WLink WMenuItem::link() const
@@ -274,7 +277,7 @@ void WMenuItem::updateInternalPath()
       a->setLink(link);
   } else {
     WAnchor *a = anchor();
-    if (a) {
+    if (a && !customLink_) {
       if (WApplication::instance()->environment().agent() == WEnvironment::IE6)
 	a->setLink(WLink("#"));
       else

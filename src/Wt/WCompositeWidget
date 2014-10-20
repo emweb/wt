@@ -135,6 +135,11 @@ public:
 				    const std::string& args);
   virtual void load();
   virtual bool loaded() const;
+  virtual void setCanReceiveFocus(bool enabled);
+  virtual bool canReceiveFocus() const;
+  virtual void setFocus(bool focus);
+  virtual bool setFirstFocus();
+  virtual bool hasFocus() const;
   virtual void setTabIndex(int index);
   virtual int tabIndex() const;
   virtual int zIndex() const;
@@ -143,9 +148,11 @@ public:
   virtual WWidget *findById(const std::string& name);
   virtual void setSelectable(bool selectable);  
   virtual void doJavaScript(const std::string& js);
-
   virtual void propagateSetEnabled(bool enabled);
-  virtual bool setFirstFocus();
+
+#ifndef WT_TARGET_JAVA
+  using WWidget::setFocus;
+#endif
 
 protected:
   virtual void addChild(WWidget *child);

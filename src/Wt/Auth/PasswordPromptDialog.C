@@ -35,7 +35,7 @@ PasswordPromptDialog::PasswordPromptDialog(Login& login, AuthModel *model)
 
   WLineEdit *passwordEdit = new WLineEdit();
   passwordEdit->setEchoMode(WLineEdit::Password);
-  passwordEdit->setFocus();
+  passwordEdit->setFocus(true);
   impl_->bindWidget(AuthModel::PasswordField, passwordEdit);
   impl_->updateViewField(model_, AuthModel::PasswordField);
 

@@ -530,7 +530,7 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
        *  - we are a plain HTML session. but then we are not hashing internal
        *    paths, so first condition should never be met
        */
-      if (env_->hashInternalPaths())
+      if (env_->internalPathUsingFragments())
 	return url;
       else {
 	std::string rel = "";

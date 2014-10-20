@@ -42,7 +42,7 @@ WDateEdit::WDateEdit(WContainerWidget *parent)
   calendar_ = new WCalendar();
   calendar_->setSingleClickSelect(true);
   calendar_->activated().connect(popup_, &WPopupWidget::hide);
-  calendar_->activated().connect(this, &WDateEdit::setFocus);
+  calendar_->activated().connect(this, &WWidget::setFocus);
   calendar_->selectionChanged().connect(this, &WDateEdit::setFromCalendar);
 
   t->bindWidget("calendar", calendar_);
@@ -50,7 +50,7 @@ WDateEdit::WDateEdit(WContainerWidget *parent)
   WApplication::instance()->theme()->apply(this, popup_, DatePickerPopupRole);
 
   escapePressed().connect(popup_, &WPopupWidget::hide);
-  escapePressed().connect(this, &WDateEdit::setFocus);
+  escapePressed().connect(this, &WWidget::setFocus);
 
   setValidator(new WDateValidator("dd/MM/yyyy", this));
 }

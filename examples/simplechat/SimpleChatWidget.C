@@ -236,8 +236,10 @@ bool SimpleChatWidget::startChat(const WString& user)
     messageEdit_->enterPressed().connect(this, &SimpleChatWidget::send);
     sendButton_->clicked().connect(clearInput_);
     messageEdit_->enterPressed().connect(clearInput_);
-    sendButton_->clicked().connect(messageEdit_, &WLineEdit::setFocus);
-    messageEdit_->enterPressed().connect(messageEdit_, &WLineEdit::setFocus);
+    sendButton_->clicked().connect((WWidget *)messageEdit_,
+				   &WWidget::setFocus);
+    messageEdit_->enterPressed().connect((WWidget *)messageEdit_,
+					 &WWidget::setFocus);
 
     // Prevent the enter from generating a new line, which is its default
     // action

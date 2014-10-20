@@ -221,6 +221,27 @@ public:
    */
   WFlags<LabelOption> displayLabels() const { return labelOptions_; }
 
+  /*! \brief Sets the label format.
+   *
+   * Sets a format string which is used to format label (percentage)
+   * values.
+   *
+   * The format string must be a format string that is accepted by
+   * snprintf() and which formats one double. If the format string is
+   * an empty string, then WLocale::toString() is used.
+   *
+   * The default value is "%.3g%%".
+   *
+   * \sa labelFormat()
+   */
+  void setLabelFormat(const WString& format);
+
+  /*! \brief Returns the label format string.
+   * 
+   * \sa setLabelFormat()
+   */
+  WString labelFormat() const;
+
   /*! \brief Creates a widget which renders the a legend item.
    * 
    * Depending on the passed LabelOption flags, the legend item widget,
@@ -231,14 +252,17 @@ public:
 
   /*! \brief Adds a data point area (used for displaying e.g. tooltips).
    *
-   * You may want to specialize this is if you wish to modify (or delete) the area.
+   * You may want to specialize this is if you wish to modify (or delete)
+   * the area.
    *
    * \note Currently, an area is only created if the ToolTipRole data at the
    *       data point is not empty.
    */
-  virtual void addDataPointArea(const WModelIndex& index, WAbstractArea *area) const;
+  virtual void addDataPointArea(const WModelIndex& index, WAbstractArea *area)
+    const;
 
-  virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF()) const;
+  virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
+    const;
 
 protected:
   void paintEvent(Wt::WPaintDevice *paintDevice);
@@ -249,8 +273,9 @@ private:
   double               height_;
   double               startAngle_;
   double               avoidLabelRendering_;
-  WFlags<LabelOption> labelOptions_;
+  WFlags<LabelOption>  labelOptions_;
   bool                 shadow_;
+  WString              labelFormat_;
 
   struct PieData {
     bool customBrush;

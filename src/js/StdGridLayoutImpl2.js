@@ -457,15 +457,15 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.margin)
 	     item.margin = [];
 
-	   if (isHidden(item.w)) {
-	     item.ps[dir] = item.ms[dir] = 0;
-	     continue;
-	   }
-
 	   var first = !item.set;
 
 	   if (!item.set)
 	     item.set = [false, false];
+
+	   if (isHidden(item.w)) {
+	     item.ps[dir] = item.ms[dir] = 0;
+	     continue;
+	   }
 
 	   if (item.w) {
 	     if (WT.isIE)

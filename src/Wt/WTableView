@@ -116,6 +116,11 @@ public:
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
+  /*! \brief Returns the model index corresponding to a widget.
+   *
+   * This returns the model index for the item that is or contains the
+   * given widget.
+   */
   WModelIndex modelIndexAt(WWidget *widget) const;
 
   virtual EventSignal<WScrollEvent>& scrolled();

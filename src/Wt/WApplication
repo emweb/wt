@@ -2339,7 +2339,6 @@ private:
   friend class WContainerWidget;
   friend class WDialog;
   friend class WFileUpload;
-  friend class WFormWidget;
   friend class WInteractWidget;
   friend class WLineEdit;
   friend class WMenu;
@@ -2350,6 +2349,7 @@ private:
   friend class WTimer;
   friend class WViewWidget;
   friend class WWidget;
+  friend class WWebWidget;
   friend class Ext::Dialog;
   friend class Ext::MessageBox;
 };

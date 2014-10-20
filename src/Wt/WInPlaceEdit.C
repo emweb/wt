@@ -52,7 +52,7 @@ void WInPlaceEdit::create()
    */
   text_->clicked().connect(text_, &WWidget::hide);
   text_->clicked().connect(editing_, &WWidget::show);
-  text_->clicked().connect(edit_, &WFormWidget::setFocus);
+  text_->clicked().connect(edit_, &WWidget::setFocus);
 
   edit_->enterPressed().connect(edit_, &WFormWidget::disable);
   edit_->enterPressed().connect(this, &WInPlaceEdit::save);

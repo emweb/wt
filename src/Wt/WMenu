@@ -584,10 +584,27 @@ public:
    */
   WStackedWidget *contentsStack() const { return contentsStack_; }
 
+  /*! \brief Returns the item count.
+   */
   int count() const;
+
+  /*! \brief Returns the item by index.
+   *
+   * \sa indexOf()
+   */
   WMenuItem *itemAt(int index) const;
+
+  /*! \brief Returns the index of an item.
+   *
+   * \sa itemAt()
+   */
   int indexOf(WMenuItem *item) const;
 
+  /*! \brief Returns the parent item (for a submenu)
+   *
+   * This is the item with which this menu is associated as a submenu
+   * (if any).
+   */
   WMenuItem *parentItem() const { return parentItem_; }
 
 protected:

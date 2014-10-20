@@ -33,7 +33,7 @@ WEnvironment::WEnvironment()
   : session_(0),
     doesAjax_(false),
     doesCookies_(false),
-    hashInternalPaths_(false),
+    internalPathUsingFragments_(false),
     screenWidth_(-1),
     screenHeight_(-1),
     dpiScale_(1),
@@ -48,7 +48,7 @@ WEnvironment::WEnvironment(WebSession *session)
   : session_(session),
     doesAjax_(false),
     doesCookies_(false),
-    hashInternalPaths_(false),
+    internalPathUsingFragments_(false),
     screenWidth_(-1),
     screenHeight_(-1),
     dpiScale_(1),
@@ -200,7 +200,7 @@ void WEnvironment::enableAjax(const WebRequest& request)
   doesCookies_ = request.headerValue("Cookie") != 0;
 
   if (!request.getParameter("htmlHistory"))
-    hashInternalPaths_ = true;
+    internalPathUsingFragments_ = true;
 
   const std::string *scaleE = request.getParameter("scale");
 
