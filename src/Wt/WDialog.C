@@ -396,6 +396,10 @@ void WDialog::render(WFlags<RenderFlag> flags)
       impl_->bindEmpty("center-script");
   }
 
+  if (!isModal())
+    titleBar()->clicked()
+      .connect("jQuery.data(" + jsRef() + ", 'obj').bringToFront");
+
   if ( (flags & RenderFull) && autoFocus_)
     impl_->setFirstFocus();
 

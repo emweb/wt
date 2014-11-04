@@ -33,6 +33,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function onDocumentClick(event) {
+
      function isAncestor(a, b) {
        for (b = b.parentNode; b; b = b.parentNode)
 	 if (a == b)
@@ -41,8 +42,8 @@ WT_DECLARE_WT_MEMBER
        return false;
      }
 
-     if (WT.target(event) == document)
-	 return;
+     if (WT.target(event) == document && WT.WPopupWidget.popupClicked == el)
+       return;
 
      if (!isAncestor(el, WT.target(event)))
        self.hide();
@@ -59,7 +60,7 @@ WT_DECLARE_WT_MEMBER
    this.shown = function(f) {
      if (isTransient) {
        setTimeout(function() {
-		    $(document).bind('click', onDocumentClick);
+ 		    $(document).bind('click', onDocumentClick);
 		  }, 0);
      }
 

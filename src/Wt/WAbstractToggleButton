@@ -140,7 +140,7 @@ private:
 
   WText::RichText text_;
 
-  bool stateChanged_, textChanged_;
+  bool naked_, stateChanged_, textChanged_;
   CheckState prevState_;
 
   void undoSetChecked();

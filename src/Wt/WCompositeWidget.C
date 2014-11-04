@@ -538,7 +538,8 @@ void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
 				      WApplication *app)
 {
   if (needsToBeRendered())
-    render(impl_->isRendered() ? RenderUpdate : RenderFull);
+    render(impl_->isRendered() || !WWebWidget::canOptimizeUpdates()
+	   ? RenderUpdate : RenderFull);
 
   impl_->getSDomChanges(result, app);
 }

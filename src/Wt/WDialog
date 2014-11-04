@@ -45,15 +45,19 @@ class DialogCover;
  * will be connected to accept(), and in some cases a Cancel button to
  * reject(). This solution has the drawback that it is not scalable to
  * many concurrent sessions, since for every session with a recursive
- * event loop, a thread is locked until exec() returns. A thread that is
- * locked by a recursive event loop cannot be used to process requests
- * from another sessions. When all threads in the threadpool are locked in
- * recursive event loops, the server will be unresponsive to requests
- * from any other session. In practical terms, this means you must not
- * use exec(), unless your application will never be used by more
- * concurrent users than the amount of threads in your threadpool (like on
- * some intranets or extranets).  \if java This functionality is only
- * available on Servlet 3.0 compatible servlet containers.  \endif
+ * event loop, a thread is locked until exec() returns. A thread that
+ * is locked by a recursive event loop cannot be used to process
+ * requests from another sessions. When all threads in the threadpool
+ * are locked in recursive event loops, the server will be
+ * unresponsive to requests from any other session. In practical
+ * terms, this means you must not use exec(), unless your application
+ * will never be used by more concurrent users than the amount of
+ * threads in your threadpool (like on some intranets or
+ * extranets). Using exec() is not supported from outside the regular
+ * event loop (i.e. when taking a lock on a session using
+ * WApplication::getUpdateLock() or by posting an event using
+ * WServer::post()). \if java This functionality is only available on
+ * Servlet 3.0 compatible servlet containers. \endif
  *
  * Use \link setModal() setModal(false)\endlink  to create a non-modal
  * dialog. A non-modal dialog does not block the underlying user interface:

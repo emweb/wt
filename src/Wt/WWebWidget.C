@@ -2003,10 +2003,11 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	flags_.reset(BIT_STUBBED);
 
 	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
+	WWidget *self = selfWidget();
 	setRendered(true);
-	render(RenderFull);
+	self->render(RenderFull);
 	DomElement *realElement = createDomElement(app);
-	app->theme()->apply(selfWidget(), *realElement, 0);
+	app->theme()->apply(self, *realElement, 0);
 	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
 	result.push_back(stub);
       }

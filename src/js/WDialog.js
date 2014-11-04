@@ -139,6 +139,19 @@ WT_DECLARE_WT_MEMBER
      APP.layouts2.adjust();
    }
 
+   this.bringToFront = function() {
+     var maxz = 0;
+     $('.Wt-dialog, .modal, .modal-dialog').each
+       (function(index, value)
+       {
+	 maxz = Math.max(maxz,$(value).css('z-index'));
+       }
+     );
+
+     if (maxz > el.style['zIndex'])
+       el.style['zIndex'] = maxz + 1;
+   };
+
    this.onresize = function(w, h, done) {
      centerX = centerY = false;
 

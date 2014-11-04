@@ -19,6 +19,7 @@ const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),
+    naked_(true),
     stateChanged_(false),
     textChanged_(false)
 {
@@ -29,6 +30,7 @@ WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),
+    naked_(false),
     stateChanged_(false),
     textChanged_(false)
 { 
@@ -298,7 +300,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
 DomElementType WAbstractToggleButton::domElementType() const
 {
-  if (!text_.text.empty())
+  if (!naked_)
     return DomElement_LABEL;
   else
     return DomElement_INPUT;

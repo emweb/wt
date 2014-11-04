@@ -851,6 +851,13 @@ void DomElement::asHTML(EscapeOStream& out,
       if ((i != properties_.end()) && (i->second=="true"))
 	out << " disabled=\"disabled\"";
 
+      for (AttributeMap::const_iterator j = attributes_.begin();
+	   j != attributes_.end(); ++j)
+	if (j->first == "title") {
+	  out << ' ' << j->first << '=';
+	  fastHtmlAttributeValue(out, attributeValues, j->second);
+	}
+
       if (app->environment().agent() != WEnvironment::Konqueror
 	  && !app->environment().agentIsWebKit()
 	  && !app->environment().agentIsIE())
