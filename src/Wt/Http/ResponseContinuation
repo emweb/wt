@@ -65,10 +65,17 @@ public:
   /*! \brief Wait for more data.
    *
    * This suspends the handling of this request until more data is
-   * available, which is indicated to a resource using
-   * WResource::haveMoreData().
+   * available, indicated with a call to haveMoreData(), or to a
+   * resource globally using WResource::haveMoreData().
    */
   void waitForMoreData();
+
+  /*! \brief Indicates that we have more data.
+   *
+   * This will allow the response to be resumed with a new call to
+   * WResource::handleRequest().
+   */
+  void haveMoreData();
 
   /*! \brief Returns whether this continuation is waiting for data.
    *
@@ -91,7 +98,7 @@ private:
   ResponseContinuation(const ResponseContinuation&);
   ~ResponseContinuation();
 
-  void stop();
+  void cancel();
   void flagReadyToContinue(WebWriteEvent);
   WebResponse *response() { return response_; }
 

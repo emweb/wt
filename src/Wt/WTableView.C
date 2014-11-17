@@ -163,6 +163,7 @@ WTableView::WTableView(WContainerWidget *parent)
   } else {
     plainTable_ = new WTable();
     plainTable_->setStyleClass("Wt-plaintable");
+    plainTable_->setAttributeValue("style", "table-layout: fixed;");
     plainTable_->setHeaderCount(1);
 
     impl_->addWidget(plainTable_);
@@ -1120,11 +1121,9 @@ void WTableView::setRowHeight(const WLength& rowHeight)
 
   WAbstractItemView::setRowHeight(rowHeight);
 
-  std::string lh = "line-height: " + rowHeight.cssText();
-
   if (ajaxMode()) {
-    canvas_->setAttributeValue("style", lh);
-    headerColumnsCanvas_->setAttributeValue("style", lh);
+    canvas_->setLineHeight(rowHeight);
+    headerColumnsCanvas_->setLineHeight(rowHeight);
 
     if (model()) {
       double ch = canvasHeight();
@@ -1134,7 +1133,7 @@ void WTableView::setRowHeight(const WLength& rowHeight)
       setRenderedHeight(th);
     }
   } else { // Plain HTML mode
-    plainTable_->setAttributeValue("style", lh + ";table-layout: fixed;");
+    plainTable_->setLineHeight(rowHeight);
     resize(width(), height());
   }
 

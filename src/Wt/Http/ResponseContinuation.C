@@ -21,12 +21,17 @@ void ResponseContinuation::setData(const boost::any& data)
   data_ = data;
 }
 
+void ResponseContinuation::haveMoreData()
+{
+  if (isWaitingForMoreData())
+    doContinue(WriteCompleted);
+}
+
 void ResponseContinuation::doContinue(WebWriteEvent event)
 {
   if (event == WriteError) {
-    // FIXME provide API to process event == WriteError
     LOG_ERROR("WriteError");
-    stop();
+    cancel();
     return;
   }
 
@@ -44,9 +49,9 @@ void ResponseContinuation::doContinue(WebWriteEvent event)
 
   // We are certain that the continuation is still "alive" because it is
   // protected by a mutex, and thus a simultaneous change with
-  // WebResponse::flush() is not possible: ResponseContinuation::stop(),
-  // called before destruction together with the resource, will thus
-  // block while we are here.
+  // WebResponse::flush() is not possible: ResponseContinuation::cancel(),
+  // called from beingDeleted() and protected by the same mutex
+  // will not be called while we are here.
   resource_->doContinue(this);
 }
 
@@ -61,12 +66,15 @@ ResponseContinuation::ResponseContinuation(WResource *resource,
   resource_->continuations_.push_back(this);
 }
 
-void ResponseContinuation::stop()
+void ResponseContinuation::cancel()
 {
-  if (response_) {
-    response_->flush(WebResponse::ResponseDone);
-    response_ = 0;
-  }
+  Http::Request request(*response_, this);
+  resource_->handleAbort(request);
+  resource_->removeContinuation(this);
+
+  response_->flush(WebResponse::ResponseDone);
+
+  delete this;
 }
 
 void ResponseContinuation::waitForMoreData()
@@ -79,9 +87,8 @@ void ResponseContinuation::waitForMoreData()
 void ResponseContinuation::flagReadyToContinue(WebWriteEvent event)
 {
   if (event == WriteError) {
-    // FIXME provide API to process event == WriteError
     LOG_ERROR("WriteError");
-    stop();
+    cancel();
     return;
   }
 

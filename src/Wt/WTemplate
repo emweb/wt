@@ -677,7 +677,7 @@ protected:
 
 private:
   typedef std::map<std::string, Function> FunctionMap;
-  typedef std::map<std::string, std::string> StringMap;
+  typedef std::map<std::string, WString> StringMap;
   typedef std::map<std::string, WWidget *> WidgetMap;
   typedef std::set<std::string> ConditionSet;
 

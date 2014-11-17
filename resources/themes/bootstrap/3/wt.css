@@ -138,6 +138,7 @@
 
 .modal-dialog {
   display: block;
+  width: auto;
 }
 
 .modal-dialog .modal-header {
@@ -1143,4 +1144,15 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 
 .Wt-calendar .form-control {
   display: initial;
+}
+
+/*
+ * WResizable
+ */
+
+.modal-dialog.Wt-resizable .modal-content {
+  background-attachment: scroll;
+  background-image: url(../../../resizable.png);
+  background-position: right bottom;
+  background-repeat: no-repeat;
 }

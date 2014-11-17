@@ -450,7 +450,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 
     if (useUglyInternalPaths()) {
       if (internalPath.length() > 1)
-	url = "?_=" + DomElement::urlEncodeS(internalPath, "#");
+	url = "?_=" + DomElement::urlEncodeS(internalPath, "#/");
 
       if (isAbsoluteUrl(applicationUrl_))
 	url = applicationUrl_ + url;
@@ -620,12 +620,12 @@ std::string WebSession::appendInternalPath(const std::string& baseUrl,
       return baseUrl;
   else {
     if (useUglyInternalPaths())
-      return baseUrl + "?_=" + DomElement::urlEncodeS(internalPath, "#");
+      return baseUrl + "?_=" + DomElement::urlEncodeS(internalPath, "#/");
     else {
       if (applicationName_.empty())
-	return baseUrl + DomElement::urlEncodeS(internalPath.substr(1), "#");
+	return baseUrl + DomElement::urlEncodeS(internalPath.substr(1), "#/");
       else
-	return baseUrl + DomElement::urlEncodeS(internalPath, "#");
+	return baseUrl + DomElement::urlEncodeS(internalPath, "#/");
     }
   }
 }

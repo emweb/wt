@@ -247,7 +247,7 @@ public:
 
   /* \brief Destructor.
    */
-  ~PayPalService();
+  virtual ~PayPalService();
 
   /*! \brief Configures the service using properties.
    *
@@ -347,6 +347,9 @@ public:
   PayPalExpressCheckout *createExpressCheckout(const Customer& customer,
 					       const Order& order);
 
+protected:
+  virtual Http::Client *createHttpClient(WObject *parent);
+
 private:
   std::string user_;
   std::string password_;
@@ -355,6 +358,8 @@ private:
   std::string apiServerUrl_, payServerUrl_;
 
   std::string configurationProperty(const std::string& property);
+
+  friend class PayPalExpressCheckout;
 };
 
   }

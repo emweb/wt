@@ -64,7 +64,7 @@
 #ifndef WT_TARGET_JAVA
 #define WT_ARRAY
 #define W_JAVA_COMPARATOR(type)
-#define WT_USTRING WString
+#define WT_USTRING Wt::WString
 #define WT_UCHAR std::string
 #define WT_BOSTREAM std::ostream
 #else

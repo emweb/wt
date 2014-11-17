@@ -94,12 +94,22 @@ IF(ENABLE_LIBWTTEST)
     ENDIF(HAVE_SQLITE)
   ENDIF(ENABLE_LIBWTDBO)
 
-
   INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
   IF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/interactive)
     SUBDIRS(interactive)
   ENDIF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/interactive)
+
+  IF(CONNECTOR_HTTP)
+    SET(HTTP_TEST_SOURCES
+      test.C
+      http/HttpClientServerTest.C
+    )
+
+    ADD_EXECUTABLE(test.http ${HTTP_TEST_SOURCES})
+    TARGET_LINK_LIBRARIES(test.http wt wthttp)    
+  ENDIF(CONNECTOR_HTTP)
+
 ELSE (ENABLE_LIBWTTEST)
   MESSAGE("** libwttest disabled, not building tests")
 ENDIF (ENABLE_LIBWTTEST)

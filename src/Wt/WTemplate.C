@@ -260,7 +260,7 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
     StringMap::const_iterator j = strings_.find(varName);
     if (j != strings_.end() && j->second.empty())
       return;
-    strings_[varName] = std::string();
+    strings_[varName] = WString();
   }
 
   changed_ = true;
@@ -301,8 +301,8 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
 
   StringMap::const_iterator i = strings_.find(varName);
 
-  if (i == strings_.end() || i->second != v.toUTF8()) {
-    strings_[varName] = v.toUTF8();
+  if (i == strings_.end() || i->second != v) {
+    strings_[varName] = v;
 
     changed_ = true;
     repaint(RepaintSizeAffected);  

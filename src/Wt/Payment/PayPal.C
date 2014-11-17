@@ -187,8 +187,7 @@ void PayPalExpressCheckout::setParameter( const std::string& name,
 
 Signal<Result>& PayPalExpressCheckout::setup()
 {
-  Http::Client *client = new Http::Client(this);
-  client->setTimeout(15);
+  Http::Client *client = impl_->service_.createHttpClient(this);
   client->done().connect
     (boost::bind(&PayPalExpressCheckout::handleSetup, this, _1, _2));
 
@@ -422,8 +421,7 @@ void PayPalExpressCheckout::onRedirect(int result)
 
 Signal<Result>& PayPalExpressCheckout::updateCustomerDetails()
 {
-  Http::Client *client = new Http::Client(this);
-  client->setTimeout(15);
+  Http::Client *client = impl_->service_.createHttpClient(this);
   client->done().connect
     (boost::bind(&PayPalExpressCheckout::handleCustomerDetails, this, _1, _2));
 
@@ -506,12 +504,9 @@ void PayPalExpressCheckout::saveCustomerDetails(Http::ParameterMap &params)
   impl_->customer_.setShippingAddress(adderss);
 }
 
-
-
 Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
 {
-  Http::Client *client = new Http::Client(this);
-  client->setTimeout(15);
+  Http::Client *client = impl_->service_.createHttpClient(this);
   client->done().connect
     (boost::bind(&PayPalExpressCheckout::handleCompletePayment, this, _1, _2));
 
@@ -756,6 +751,13 @@ int PayPalService::popupWidth() const
 int PayPalService::popupHeight() const
 {
   return 600;
+}
+
+Http::Client *PayPalService::createHttpClient(WObject *parent)
+{
+  Http::Client *result = new Http::Client(parent);
+  result->setTimeout(15);
+  return result;
 }
 
 PayPalExpressCheckout *

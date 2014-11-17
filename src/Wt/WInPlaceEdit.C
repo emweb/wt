@@ -30,6 +30,16 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   setText(text);
 }
 
+WInPlaceEdit::WInPlaceEdit(bool buttons, 
+			   const WString& text, WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    valueChanged_(this)
+{
+  create();
+  setText(text);
+  setButtonsEnabled(buttons);
+}
+
 void WInPlaceEdit::create()
 {
   setImplementation(impl_ = new WContainerWidget());

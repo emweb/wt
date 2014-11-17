@@ -197,9 +197,11 @@ WMenuItem *WMenu::addMenu(const std::string& iconPath,
   return item;
 }
 
-void WMenu::addSeparator()
+WMenuItem *WMenu::addSeparator()
 {
-  addItem(new WMenuItem(true, WString::Empty));
+  WMenuItem *item = new WMenuItem(true, WString::Empty);
+  addItem(item);
+  return item;
 }
 
 WMenuItem *WMenu::addSectionHeader(const WString& text)

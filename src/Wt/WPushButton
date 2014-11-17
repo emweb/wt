@@ -49,6 +49,10 @@ public:
    */
   WPushButton(const WString& text, WContainerWidget *parent = 0);
 
+  /*! \brief Creates a push button with given label text.
+   */
+  WPushButton(const WString& text, TextFormat textFormat, WContainerWidget *parent = 0);
+
   virtual ~WPushButton();
 
   /*! \brief Sets the default property.

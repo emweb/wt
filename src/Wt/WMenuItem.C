@@ -76,6 +76,12 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   subMenu_ = 0;
   data_ = 0;
 
+  if (contents && contents->parent()) {
+    WContainerWidget *cw = dynamic_cast<WContainerWidget *>(contents->parent());
+    if (cw)
+      cw->removeWidget(contents);
+  }
+
   setContents(contents);
 
   if (!separator_) {

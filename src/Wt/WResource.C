@@ -41,16 +41,14 @@ void WResource::beingDeleted()
   boost::recursive_mutex::scoped_lock lock(*mutex_);
   beingDeleted_ = true;
 #endif // WT_THREADED
+
+  while (!continuations_.empty())
+    continuations_.back()->cancel();
 }
 
 WResource::~WResource()
 {
   beingDeleted();
-
-  for (unsigned i = 0; i < continuations_.size(); ++i) {
-    continuations_[i]->stop();
-    delete continuations_[i];
-  }
 
   WApplication *app = WApplication::instance();
   if (app) {
@@ -82,12 +80,15 @@ void WResource::haveMoreData()
   std::vector<Http::ResponseContinuation *> cs = continuations_;
 
   for (unsigned i = 0; i < cs.size(); ++i)
-    if (cs[i]->isWaitingForMoreData())
-      cs[i]->doContinue(WriteCompleted);
+    cs[i]->haveMoreData();
 }
 
 void WResource::doContinue(Http::ResponseContinuation *continuation)
 {
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(*mutex_);
+#endif // WT_THREADED
+
   WebResponse *webResponse = continuation->response();
   WebRequest *webRequest = webResponse;
 
@@ -98,6 +99,15 @@ void WResource::doContinue(Http::ResponseContinuation *continuation)
   } catch (...) {
     LOG_ERROR("exception while handling resource continuation");
   }
+}
+
+void WResource::removeContinuation(Http::ResponseContinuation *continuation)
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(*mutex_);
+#endif
+
+  Utils::erase(continuations_, continuation);
 }
 
 void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
@@ -172,6 +182,9 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 #endif // WT_THREADED
   }
 }
+
+void WResource::handleAbort(const Http::Request& request)
+{ }
 
 void WResource::suggestFileName(const WString& name,
                                 DispositionType dispositionType)

@@ -250,6 +250,7 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
@@ -993,4 +994,14 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 .Wt-stack.Wt-animated {
   overflow: hidden;
   position: relative;
+}
+/*
+ * WResizable
+ */
+.Wt-resizable,
+.Wt-resizable.modal .modal-footer {
+  background-image: url(../../../resizable.png);
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: right bottom;
 }

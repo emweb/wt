@@ -385,6 +385,7 @@ private:
   void create();
   void onEscapePressed();
   void onDefaultPressed();
+  void bringToFront();
 
   DialogCover *cover();
 };

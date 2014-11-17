@@ -307,7 +307,7 @@ public:
    *
    * This method is convenient if you want to customize how the server
    * is started (by instantiating a WServer object yourself, instead
-   * of using Wt::Wrun()), but still want to use %Wt as a standalone
+   * of using Wt::WRun()), but still want to use %Wt as a standalone
    * server that cleanly terminates on interruption.
    *
    * This will also catch SIGHUP, to reread the configuration file.

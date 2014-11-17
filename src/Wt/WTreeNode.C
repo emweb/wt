@@ -419,7 +419,6 @@ void WTreeNode::expand()
     if (parentNode() && childNodes_.empty()) {
       parentNode()->resetLearnedSlots();
       update();
-      return;
     }
 
     if (loadPolicy_ == NextLevelLoading)
@@ -442,14 +441,12 @@ void WTreeNode::doExpand()
   wasCollapsed_ = !isExpanded();
   collapsed_ = false;
 
-  if (!childNodes_.empty()) {
-    expandIcon_->setState(1);
+  expandIcon_->setState(1);
 
-    childContainer()->show();
+  childContainer()->show();
 
-    if (labelIcon_)
-      labelIcon_->setState(1);
-  }
+  if (labelIcon_)
+    labelIcon_->setState(1);
 
   /*
    * collapse all children

@@ -55,7 +55,7 @@ public:
    * This updates the user-interface to reflect the current state of the
    * model.
    */
-  void update();
+  virtual void update();
 
 protected:
   /*! \brief Validates the current information.

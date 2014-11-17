@@ -1127,10 +1127,17 @@ void WWebWidget::setDisabled(bool disabled)
   if (canOptimizeUpdates() && (disabled == flags_.test(BIT_DISABLED)))
     return;
 
+  bool wasEnabled = isEnabled();
+
   flags_.set(BIT_DISABLED, disabled);
   flags_.set(BIT_DISABLED_CHANGED);
 
-  propagateSetEnabled(!disabled);
+  bool shouldBeEnabled = !disabled;
+  if (shouldBeEnabled && parent())
+    shouldBeEnabled = parent()->isEnabled();
+
+  if (shouldBeEnabled != wasEnabled)
+    propagateSetEnabled(shouldBeEnabled);
 
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, true);

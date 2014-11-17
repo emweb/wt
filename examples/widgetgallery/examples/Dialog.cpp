@@ -1,6 +1,8 @@
+#include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
 #include <Wt/WDialog>
+#include <Wt/WEnvironment>
 #include <Wt/WLabel>
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
@@ -25,7 +27,8 @@ extern void showDialog(Wt::WText *out)
 
     Wt::WPushButton *ok = new Wt::WPushButton("OK", dialog->footer());
     ok->setDefault(true);
-    ok->disable();
+    if (wApp->environment().ajax())
+      ok->disable();
 
     Wt::WPushButton *cancel = new Wt::WPushButton("Cancel", dialog->footer());
     dialog->rejectWhenEscapePressed();

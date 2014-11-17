@@ -331,7 +331,7 @@ public:
    *
    * Adds a separator the menu.
    */
-  void addSeparator();
+  WMenuItem *addSeparator();
 
   /*! \brief Adds a section header to the menu.
    */

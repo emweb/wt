@@ -57,7 +57,7 @@ WInteractWidget::~WInteractWidget()
 
 void WInteractWidget::setPopup(bool popup)
 {
-  if (popup) {
+  if (popup && wApp->environment().ajax()) {
     clicked().connect
       ("function(o,e) { "
        WT_CLASS ".WPopupWidget.popupClicked = o;"
