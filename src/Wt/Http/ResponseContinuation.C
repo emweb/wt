@@ -10,6 +10,10 @@
 
 #include "WebRequest.h"
 
+#ifdef WT_THREADED
+#include <boost/thread.hpp>
+#endif
+
 namespace Wt {
 
 LOGGER("Http::ResponseContinuation");
@@ -23,79 +27,106 @@ void ResponseContinuation::setData(const boost::any& data)
 
 void ResponseContinuation::haveMoreData()
 {
-  if (isWaitingForMoreData())
-    doContinue(WriteCompleted);
+  WResource::UseLock useLock;
+  WResource *resource = 0;
+
+  {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(*mutex_);
+#endif // WT_THREADED
+
+    if (!useLock.use(resource_))
+      return;
+
+    if (waiting_) {
+      waiting_ = false;
+      if (readyToContinue_) {
+        readyToContinue_ = false;
+	resource = resource_;
+	resource_ = 0;
+      }
+    }
+  }
+
+  if (resource)
+    resource->doContinue(shared_from_this());
 }
 
-void ResponseContinuation::doContinue(WebWriteEvent event)
+void ResponseContinuation::readyToContinue(WebWriteEvent event)
 {
   if (event == WriteError) {
     LOG_ERROR("WriteError");
-    cancel();
+    cancel(false);
     return;
   }
 
-  /*
-   * Although we are waiting for more data, we're not yet ready to continue
-   * We'll remember to continue as soon as we become ready.
-   */
-  if (waiting_ && !readyToContinue_) { 
-    needsContinue_ = true;
-    return;
+  WResource::UseLock useLock;
+  WResource *resource = 0;
+
+  {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(*mutex_);
+#endif // WT_THREADED
+
+    if (!useLock.use(resource_))
+      return;
+
+    readyToContinue_ = true;
+
+    if (!waiting_) {
+      readyToContinue_ = false;
+      resource = resource_;
+      resource_ = 0;
+    }
   }
 
-  waiting_ = false;
-  needsContinue_ = false;
-
-  // We are certain that the continuation is still "alive" because it is
-  // protected by a mutex, and thus a simultaneous change with
-  // WebResponse::flush() is not possible: ResponseContinuation::cancel(),
-  // called from beingDeleted() and protected by the same mutex
-  // will not be called while we are here.
-  resource_->doContinue(this);
+  if (resource)
+    resource->doContinue(shared_from_this());
 }
 
 ResponseContinuation::ResponseContinuation(WResource *resource,
 					   WebResponse *response)
-  : resource_(resource),
+  : 
+#ifdef WT_THREADED
+    mutex_(resource->mutex_),
+#endif
+    resource_(resource),
     response_(response),
     waiting_(false),
-    readyToContinue_(false),
-    needsContinue_(false)
+    readyToContinue_(false)
+{ }
+
+void ResponseContinuation::cancel(bool resourceIsBeingDeleted)
 {
-  resource_->continuations_.push_back(this);
-}
+  WResource::UseLock useLock;
+  WResource *resource = 0;
 
-void ResponseContinuation::cancel()
-{
-  Http::Request request(*response_, this);
-  resource_->handleAbort(request);
-  resource_->removeContinuation(this);
+  {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(*mutex_);
+#endif // WT_THREADED
 
-  response_->flush(WebResponse::ResponseDone);
+    if (resourceIsBeingDeleted) {
+      if (!resource_)
+	return;
+    } else if (!useLock.use(resource_))
+      return;
 
-  delete this;
+    resource = resource_;
+    resource_ = 0;
+  }
+
+  if (resource) {
+    Http::Request request(*response_, this);
+    resource->handleAbort(request);
+    resource->removeContinuation(shared_from_this());
+    response_->flush(WebResponse::ResponseDone);
+  }
 }
 
 void ResponseContinuation::waitForMoreData()
 {
   waiting_ = true;
-  needsContinue_ = false;
-  readyToContinue_ = false;
-}
-
-void ResponseContinuation::flagReadyToContinue(WebWriteEvent event)
-{
-  if (event == WriteError) {
-    LOG_ERROR("WriteError");
-    cancel();
-    return;
-  }
-
-  readyToContinue_ = true;
-
-  if (needsContinue_)
-    doContinue(event);
 }
 
 ResponseContinuation::~ResponseContinuation()

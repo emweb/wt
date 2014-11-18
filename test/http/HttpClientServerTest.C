@@ -29,6 +29,7 @@ namespace {
       : continuation_(false),
 	delaySendingBody_(false),
 	haveEverMoreData_(false),
+	haveRandomMoreData_(false),
 	aborted_(0)
     { }
 
@@ -46,6 +47,10 @@ namespace {
 
     void haveEverMoreData() {
       haveEverMoreData_ = true;
+    }
+
+    void haveRandomMoreData() {
+      haveRandomMoreData_ = true;
     }
 
     int abortedCount() const {
@@ -70,6 +75,7 @@ namespace {
     bool continuation_;
     bool delaySendingBody_;
     bool haveEverMoreData_;
+    bool haveRandomMoreData_;
     int aborted_;
 
     void handleSimple(const Http::Request& request,
@@ -84,7 +90,8 @@ namespace {
     {
       if (request.continuation()) {
 	response.out() << "Hello";
-	if (haveEverMoreData_)
+	if (haveEverMoreData_ ||
+	    (haveRandomMoreData_ && (rand() % 10 != 0)))
 	  response.createContinuation();
       } else {
 	response.setStatus(200);
@@ -149,6 +156,11 @@ namespace {
     void reset() 
     {
       done_ = false;
+    }
+
+    bool isDone()
+    {
+      return done_;
     }
 
     void onDone(boost::system::error_code err, const Http::Message& m)
@@ -241,4 +253,56 @@ BOOST_AUTO_TEST_CASE( http_client_server_test3 )
   BOOST_REQUIRE(server.resource().abortedCount() == 1);
 }
 
+BOOST_AUTO_TEST_CASE( http_client_server_test4 )
+{
+  Server server;
+
+  server.resource().useContinuation();
+  server.resource().delaySendingBody();
+  server.resource().haveRandomMoreData();
+
+  int abortedCount = 0;
+
+  if (server.start()) {
+    std::vector<Client *> clients;
+
+    for (unsigned i = 0; i < 1000; ++i) {
+      Client *client = new Client();
+      client->get("http://" + server.address() + "/test");
+      clients.push_back(client);
+    }
+
+    for (;;) {
+      bool alldone = true;
+
+      for (unsigned i = 0; i < clients.size(); ++i) {	
+	if (!clients[i]->isDone()) {
+	  if (i % 100 == 0) {
+	    clients[i]->abort();
+	    ++abortedCount;
+	  }
+	  alldone = false;
+	  break;
+	}
+      }
+
+      if (!alldone)
+	server.resource().haveMoreData();
+      else
+	break;
+    }
+
+    for (unsigned i = 0; i < 1000; ++i) {
+      delete clients[i];
+    }
+  }
+}
+
 #endif // WT_THREADED
+
+
+
+
+
+
+

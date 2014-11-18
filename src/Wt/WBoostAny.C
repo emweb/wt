@@ -6,7 +6,7 @@
 #include <map>
 #include <boost/lexical_cast.hpp>
 #include <stdio.h>
-
+#include "Wt/WConfig.h"
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>

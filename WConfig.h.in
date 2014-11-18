@@ -40,6 +40,7 @@
 #cmakedefine WT_NO_STD_WSTRING
 #cmakedefine WT_USE_OPENGL
 #cmakedefine WT_DEBUG_ENABLED
+#cmakedefine WT_THREADED
 
 #cmakedefine WT_USE_BOOST_SIGNALS
 #cmakedefine WT_USE_BOOST_SIGNALS2

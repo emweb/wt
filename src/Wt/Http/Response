@@ -112,14 +112,14 @@ public:
   WT_BOSTREAM& bout() { return out(); }
 
 private:
-  WResource            *resource_;
-  WebResponse          *response_;
-  ResponseContinuation *continuation_;
-  WT_BOSTREAM          *out_;
-  bool                 headersCommitted_;
+  WResource *resource_;
+  WebResponse *response_;
+  ResponseContinuationPtr continuation_;
+  WT_BOSTREAM *out_;
+  bool headersCommitted_;
 
   Response(WResource *resource, WebResponse *response,
-	   ResponseContinuation *continuation);
+	   ResponseContinuationPtr continuation);
   Response(WResource *resource, WT_BOSTREAM& out);
 
   friend class Wt::WResource;

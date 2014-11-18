@@ -127,8 +127,7 @@ void WAbstractMedia::setFormData(const FormData& formData)
       try {
         readyState_ = intToReadyState(boost::lexical_cast<int>(attributes[5]));
       } catch (const std::exception& e) {
-	throw WException("WAbstractMedia: error parsing: " + formData.values[0]
-			 + ": " + e.what());
+        readyState_ = HaveNothing;
       }
     } else
       throw WException("WAbstractMedia: error parsing: " + formData.values[0]);

@@ -591,7 +591,8 @@ void WebController::handleRequest(WebRequest *request)
   }
 
   if (request->entryPoint_->type() == StaticResource) {
-    request->entryPoint_->resource()->handle(request, (WebResponse *)request);
+    request
+      ->entryPoint_->resource()->handle(request, (WebResponse *)request);
     return;
   }
 
