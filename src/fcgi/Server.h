@@ -41,10 +41,16 @@ private:
   int argc_;
   char **argv_;
 
+  int childrenDied_;
+  volatile sig_atomic_t handleSigChld_;
+
 #ifdef WT_THREADED
   // mutex to protect access to the sessions map
   boost::recursive_mutex mutex_;
 #endif
+
+  void checkAndQueueSigChld();
+  void doHandleSigChld();
 
   void spawnSharedProcess();
   void execChild(bool debug, const std::string& extraArg);

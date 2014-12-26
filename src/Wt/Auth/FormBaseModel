@@ -8,6 +8,7 @@
 #define WT_AUTH_FORM_BASE_MODEL_H_
 
 #include <Wt/WFormModel>
+#include <Wt/Auth/Login>
 
 namespace Wt {
   namespace Auth {
@@ -86,6 +87,18 @@ public:
   std::vector<const OAuthService *> oAuth() const { return oAuth_; }
 
   virtual WString label(Field field) const;
+
+  /*! \brief Logs the user in.
+   *
+   * Logs in the user, after checking whether the user can actually be
+   * logged in. A valid user may be refused to login if its account is
+   * disabled (see User::status()) or if it's email address is unconfirmed
+   * and email confirmation is required.
+   *
+   * Returns whether the user could be logged in.
+   */
+  virtual bool loginUser(Login& login, User& user, 
+			 LoginState state = StrongLogin);
 
 protected:
   void setValid(Field field);

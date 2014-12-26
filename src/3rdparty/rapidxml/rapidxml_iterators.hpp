@@ -8,6 +8,7 @@
 
 #include "rapidxml.hpp"
 
+namespace Wt {
 namespace rapidxml
 {
 
@@ -169,6 +170,7 @@ namespace rapidxml
 
     };
 
+}
 }
 
 #endif

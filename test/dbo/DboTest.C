@@ -30,6 +30,7 @@ class A;
 class B;
 class C;
 class D;
+class E;
 
 bool fractionalSeconds = true;
 
@@ -83,6 +84,7 @@ struct DboFixture : DboFixtureBase
     session_->mapClass<B>(SCHEMA "table_b");
     session_->mapClass<C>(SCHEMA "table_c");
     session_->mapClass<D>(SCHEMA "table_d");
+    session_->mapClass<E>(SCHEMA "table_e");
 
     try {
       session_->dropTables();
@@ -110,6 +112,16 @@ struct dbo_traits<D> : public dbo_default_traits
   static const char *surrogateIdField() { return 0; }
   static const char *versionField() { return 0; }
 };
+
+template<> struct dbo_traits<const D> : dbo_traits<D> {};
+
+template<>
+struct dbo_traits<E> : public dbo_default_traits
+{
+  static const char *versionField() { return 0; }
+};
+
+template<> struct dbo_traits<const E> : dbo_traits<E> {};
 
   }
 }
@@ -345,6 +357,7 @@ public:
   
   dbo::weak_ptr<A> aOneToOne;
   dbo::ptr<B> b;
+  dbo::weak_ptr<D> dOneToOne;
 
   Bs    bsManyToMany;
   Ds    dsManyToMany;
@@ -372,6 +385,7 @@ public:
 		 | dbo::OnUpdateCascade );
     dbo::hasMany(a, dsManyToMany, dbo::ManyToMany, SCHEMA "c_d");
     dbo::hasOne(a, aOneToOne);
+    dbo::hasOne(a, dOneToOne, "c_d2");
   }
 };
 
@@ -379,6 +393,8 @@ class D {
 public:
   Coordinate id;
   std::string name;
+
+  dbo::ptr<C> c;
 
   As    asManyToOne;
   Cs    csManyToMany;
@@ -395,8 +411,30 @@ public:
     dbo::id(a, id, "id");
     dbo::field(a, name, "name", 1000);
 
+    dbo::belongsTo(a, c, "c_d2");
     dbo::hasMany(a, asManyToOne, dbo::ManyToOne);
     dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "c_d");
+  }
+};
+
+class E {
+public:
+  std::string name;
+
+  E() { }
+
+  E(const std::string& aName)
+    : name(aName)
+  { }
+
+  bool operator== (const E& other) const {
+    return name == other.name;
+  }
+
+  template <class Action>
+  void persist(Action& a)
+  {
+    dbo::field(a, name, "name", 1000);
   }
 };
 
@@ -1952,4 +1990,184 @@ BOOST_AUTO_TEST_CASE( dbo_test22d )
     BOOST_REQUIRE(a2->datetime == datetime1);
   }
 #endif //POSTGRES
+}
+
+// dbo_test23x tests are dbo::ptr<const C> tests
+// the main test is to make sure they compile
+BOOST_AUTO_TEST_CASE( dbo_test23a )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    A *a1 = new A();
+    a1->ll = 123456L;
+    dbo::ptr<const A> aPtr(a1);
+
+    session_->add(aPtr);
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<const A> a1 = session_->find<const A>();
+    dbo::ptr<A> a2 = session_->find<A>();
+    dbo::collection<dbo::ptr<const A> > as1 = session_->find<const A>();
+    dbo::ptr<const A> a3 = as1.front();
+
+    BOOST_REQUIRE(a1 == a2);
+    BOOST_REQUIRE(a2 == a3);
+    BOOST_REQUIRE(a3 == a2);
+    BOOST_REQUIRE(a2 == a1);
+    BOOST_REQUIRE(a1 == a3);
+    BOOST_REQUIRE(a3 == a1);
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test23b )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    A *a1 = new A();
+    a1->ll = 123456L;
+    dbo::ptr<A> aPtr1(a1);
+
+    C *c1 = new C();
+    c1->name = "Jos";
+    dbo::ptr<C> cPtr1(c1);
+
+    aPtr1.modify()->c = cPtr1;
+
+    session_->add(aPtr1);
+    session_->add(cPtr1);
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<const C> c1 = session_->find<const C>();
+
+    dbo::weak_ptr<A> a1 = c1->aOneToOne;
+    dbo::weak_ptr<const A> a2 = a1;
+    dbo::ptr<A> a3 = a1;
+    dbo::ptr<const A> a4 = a1;
+
+    BOOST_REQUIRE(a1 == a2);
+    BOOST_REQUIRE(a2 == a1);
+    BOOST_REQUIRE(a2 == a3);
+    BOOST_REQUIRE(a3 == a2);
+    BOOST_REQUIRE(a3 == a4);
+    BOOST_REQUIRE(a4 == a3);
+    BOOST_REQUIRE(a1 == a4);
+    BOOST_REQUIRE(a4 == a1);
+    BOOST_REQUIRE(a1 == a3);
+    BOOST_REQUIRE(a3 == a1);
+    BOOST_REQUIRE(a2 == a4);
+    BOOST_REQUIRE(a4 == a2);
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test23c )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    D *d = new D();
+    d->id = Coordinate(2, 4);
+
+    dbo::ptr<D> dPtr = session_->add(d);
+    dbo::ptr<C> cPtr = session_->add(new C());
+
+    dPtr.modify()->c = cPtr;
+
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<const D> d = session_->find<const D>();
+
+    BOOST_REQUIRE(d.id() == Coordinate(2, 4));
+
+    dbo::ptr<const C> c = session_->find<const C>();
+
+    dbo::weak_ptr<const D> d2 = c->dOneToOne;
+
+    BOOST_REQUIRE(c->dOneToOne.id() == Coordinate(2, 4));
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test24a )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<E> e1(new E("e1"));
+    dbo::ptr<C> c1(new C("c1"));
+    session_->add(e1);
+    session_->add(c1);
+
+    typedef dbo::ptr_tuple<E, C>::type EC;
+    EC ec = session_->query< EC >
+      ("select E, C from \"table_e\" E, \"table_c\" C");
+
+    BOOST_REQUIRE(ec.get<0>()->name == "e1");
+    BOOST_REQUIRE(ec.get<1>()->name == "c1");
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test24b )
+{
+#ifndef SQLITE3
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<E> e1(new E("e1"));
+    session_->add(e1);
+
+    typedef dbo::ptr_tuple<E, E>::type EE;
+    EE ee = session_->query< EE >
+      ("select \"E1\", \"E2\" from \"table_e\" \"E1\" "
+       "right join \"table_e\" \"E2\" on \"E1\".\"id\" != \"E2\".\"id\"");
+
+    BOOST_REQUIRE(ee.get<1>()->name == "e1");
+  }
+#endif // SQLITE3
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test24c )
+{
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<D> d1(new D(Coordinate(42, 43), "d1"));
+    dbo::ptr<C> c1(new C("c1"));
+    session_->add(d1);
+    session_->add(c1);
+
+    typedef dbo::ptr_tuple<D, C>::type DC;
+    DC dc = session_->query< DC >
+      ("select D, C from \"table_d\" D, \"table_c\" C");
+
+    BOOST_REQUIRE(dc.get<0>()->name == "d1");
+    BOOST_REQUIRE(dc.get<1>()->name == "c1");
+  }
 }

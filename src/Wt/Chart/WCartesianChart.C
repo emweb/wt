@@ -15,6 +15,7 @@
 #include "Wt/WAbstractArea"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WException"
+#include "Wt/WMeasurePaintDevice"
 #include "Wt/WPainter"
 #include "Wt/WCircleArea"
 #include "Wt/WPolygonArea"
@@ -649,7 +650,6 @@ public:
     if (series.marker() != NoMarker) {
       chart_.drawMarker(series, marker_);
       painter_.save();
-      painter_.setShadow(series.shadow());
       needRestore_ = true;
     } else
       needRestore_ = false;
@@ -679,15 +679,18 @@ public:
 	WPen pen = WPen(series.markerPen());
 	setPenColor(pen, xIndex, yIndex, MarkerPenColorRole);
 
-	painter_.setPen(pen);
-
 	WBrush brush = WBrush(series.markerBrush());
 	setBrushColor(brush, xIndex, yIndex, MarkerBrushColorRole);
-	painter_.setBrush(brush);
-
 	setMarkerSize(painter_, xIndex, yIndex, series.markerSize());
 
-	painter_.drawPath(marker_);
+	painter_.setShadow(series.shadow());
+	if (series.marker() != CrossMarker &&
+	    series.marker() != XCrossMarker) {
+	  painter_.fillPath(marker_, brush);
+	  painter_.setShadow(WShadow());
+	}
+	painter_.strokePath(marker_, pen);
+
 	painter_.restore();
       }
 
@@ -773,20 +776,21 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
 
 WCartesianChart::~WCartesianChart()
 {
+  for (int i = 2; i > -1; i--)
+    delete axes_[i];
   delete interface_;
 }
 
 void WCartesianChart::init()
 {
   setPalette(new WStandardPalette(WStandardPalette::Muted));
-	
-#ifdef WT_TARGET_JAVA
+
   for (int i = 0; i < 3; ++i)
-    axes_[i] = WAxis();
-#endif //WT_TARGET_JAVA
-  axes_[XAxis].init(interface_, XAxis);
-  axes_[YAxis].init(interface_, YAxis);
-  axes_[Y2Axis].init(interface_, Y2Axis);
+    axes_[i] = new WAxis();
+
+  axes_[XAxis]->init(interface_, XAxis);
+  axes_[YAxis]->init(interface_, YAxis);
+  axes_[Y2Axis]->init(interface_, Y2Axis);
   
   setPlotAreaPadding(40, Left | Right);
   setPlotAreaPadding(30, Top | Bottom);
@@ -812,7 +816,7 @@ void WCartesianChart::setType(ChartType type)
 {
   if (type_ != type) {
     type_ = type;
-    axes_[XAxis].init(interface_, XAxis);
+    axes_[XAxis]->init(interface_, XAxis);
     update();
   }
 }
@@ -877,12 +881,18 @@ void WCartesianChart::setSeries(const std::vector<WDataSeries>& series)
 
 WAxis& WCartesianChart::axis(Axis axis)
 {
-  return axes_[axis];
+  return *axes_[axis];
 }
 
 const WAxis& WCartesianChart::axis(Axis axis) const
 {
-  return axes_[axis];
+  return *axes_[axis];
+}
+
+void WCartesianChart::setAxis(WAxis *waxis, Axis axis)
+{
+  axes_[axis] = waxis;
+  axes_[axis]->init(interface_, axis);
 }
 
 void WCartesianChart::setBarMargin(double margin)
@@ -912,7 +922,8 @@ void WCartesianChart::setLegendLocation(LegendLocation location,
 
 void WCartesianChart::setLegendColumns(int columns, const WLength& columnWidth)
 {
-  legend_.setLegendColumns(columns, columnWidth);
+  legend_.setLegendColumns(columns);
+  legend_.setLegendColumnWidth(columnWidth);
 
   update();
 }
@@ -1344,6 +1355,10 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 
 void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 {
+
+  while (!areas().empty())
+    delete const_cast<WCartesianChart *>(this)->areas().front();
+
   if (!painter.isActive())
     throw WException("WCartesianChart::paint(): painter is not active.");
 
@@ -1357,9 +1372,6 @@ void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 
 void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
 {
-  while (!areas().empty())
-    delete areas().front();
-
   WPainter painter(paintDevice);
   painter.setRenderHint(WPainter::Antialiasing);
   paint(painter);
@@ -1370,7 +1382,7 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
   painter.save();
   painter.translate(rectangle.topLeft());
 
-  if (initLayout(rectangle)) {
+  if (initLayout(rectangle, painter.device())) {
     renderBackground(painter);
     renderGrid(painter, axis(XAxis));
     renderGrid(painter, axis(Y1Axis));
@@ -1383,7 +1395,8 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
   painter.restore();
 }
 
-bool WCartesianChart::initLayout(const WRectF& rectangle) const
+bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
+  const
 {
   WRectF rect = rectangle;
   if (rect.isNull() || rect.isEmpty())
@@ -1400,14 +1413,53 @@ bool WCartesianChart::initLayout(const WRectF& rectangle) const
   for (int i = 0; i < 3; ++i)
     location_[i] = MinimumValue;
 
+  if (isAutoLayoutEnabled()) {
+    WCartesianChart *self = const_cast<WCartesianChart *>(this);
+    self->setPlotAreaPadding(40, Left | Right);
+    self->setPlotAreaPadding(30, Top | Bottom);
+
+    calcChartArea();
+
+    if (chartArea_.width() <= 5 || chartArea_.height() <= 5 || !prepareAxes())
+      return false;
+
+    WPaintDevice *d = device;
+    if (!d)
+      d = createPaintDevice();
+    {
+      WMeasurePaintDevice md(d);
+      WPainter painter(&md);
+
+      renderAxes(painter, Line | Labels);
+      renderLegend(painter);
+
+      WRectF bounds = md.boundingRect();
+
+      /* bounds should be within rect with a 5 pixel margin */
+      const int MARGIN = 5;
+      int corrLeft = (int)std::max(0.0, rect.left() - bounds.left() + MARGIN);
+      int corrRight = (int)std::max(0.0, bounds.right() - rect.right() + MARGIN);
+      int corrTop = (int)std::max(0.0, rect.top() - bounds.top() + MARGIN);
+      int corrBottom = (int)std::max(0.0, bounds.bottom() - rect.bottom()
+				     + MARGIN);
+
+      self->setPlotAreaPadding(plotAreaPadding(Left) + corrLeft, Left);
+      self->setPlotAreaPadding(plotAreaPadding(Right) + corrRight, Right);
+      self->setPlotAreaPadding(plotAreaPadding(Top) + corrTop, Top);
+      self->setPlotAreaPadding(plotAreaPadding(Bottom) + corrBottom, Bottom);
+    }
+
+    if (!device)
+      delete d;
+  }
+
   calcChartArea();
 
   return chartArea_.width() > 5 && chartArea_.height() > 5 && prepareAxes();
 }
 
 void WCartesianChart::drawMarker(const WDataSeries& series,
-				 WPainterPath& result)
-  const
+				 WPainterPath& result) const
 {
   const double size = 6.0;
   const double hsize = size/2;
@@ -1450,6 +1502,7 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
 				       const WPointF& pos,
 				       const WDataSeries& series) const
 {
+  WShadow shadow = painter.shadow();
   switch (series.type()) {
   case BarSeries: {
     WPainterPath path;
@@ -1457,10 +1510,11 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
     path.lineTo(-6, -8);
     path.lineTo(6, -8);
     path.lineTo(6, 8);
-    painter.setPen(series.pen());
-    painter.setBrush(series.brush());
     painter.translate(pos.x() + 7.5, pos.y());  
-    painter.drawPath(path);
+    painter.setShadow(series.shadow());
+    painter.fillPath(path, series.brush());
+    painter.setShadow(shadow);
+    painter.strokePath(path, series.pen());
     painter.translate(-(pos.x() + 7.5), -pos.y());
     break;
   }
@@ -1468,7 +1522,9 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
   case CurveSeries: {
     painter.setPen(series.pen());
     double offset = (series.pen().width() == 0 ? 0.5 : 0);
+    painter.setShadow(series.shadow());
     painter.drawLine(pos.x(), pos.y() + offset, pos.x() + 16, pos.y() + offset);
+    painter.setShadow(shadow);
   }
     // no break;
   case PointSeries: {
@@ -1476,9 +1532,10 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
     drawMarker(series, path);
     if (!path.isEmpty()) {
       painter.translate(pos.x() + 8, pos.y());  
-      painter.setPen(series.markerPen());
-      painter.setBrush(series.markerBrush());
-      painter.drawPath(path);
+      painter.setShadow(series.shadow());
+      painter.fillPath(path, series.markerBrush());
+      painter.setShadow(shadow);
+      painter.strokePath(path, series.markerPen());
       painter.translate(- (pos.x() + 8), -pos.y());
     }
 
@@ -1496,7 +1553,7 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
   renderLegendIcon(painter, pos, series);
 
   painter.setPen(fontPen);
-  painter.drawText(pos.x() + 17, pos.y() - 10, 100, 20,
+  painter.drawText(pos.x() + 23, pos.y() - 9, 100, 20,
 		   AlignLeft | AlignMiddle,
 		   asString(model()->headerData(series.modelColumn())));
 }
@@ -1934,13 +1991,29 @@ void WCartesianChart::renderLegend(WPainter& painter) const
   const int margin = 10;
 
   if (isLegendEnabled()) {
+    painter.save();
+
     int numSeriesWithLegend = 0;
 
     for (unsigned i = 0; i < series().size(); ++i)
       if (series()[i].isLegendEnabled())
 	++numSeriesWithLegend;
 
+    painter.setFont(legendFont());
     WFont f = painter.font();
+
+    if (isAutoLayoutEnabled()) {
+      int columnWidth = 0;
+      for (unsigned i = 0; i < series().size(); ++i)
+	if (series()[i].isLegendEnabled()) {
+	  WString s = asString(model()->headerData(series()[i].modelColumn()));
+	  WTextItem t = painter.device()->measureText(s);
+	  columnWidth = std::max(columnWidth, (int)t.width());
+	}
+
+      WCartesianChart *self = const_cast<WCartesianChart *>(this);
+      self->legend_.setLegendColumnWidth(columnWidth + 25);
+    }
 
     int numLegendRows = (numSeriesWithLegend - 1) / legendColumns() + 1;
     double lineHeight = f.sizeLength().toPixels() * 1.5;
@@ -2041,7 +2114,6 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 
     painter.setPen(WPen());
 
-    painter.save();
     painter.setFont(legendFont());
 
     int item = 0;
@@ -2062,10 +2134,15 @@ void WCartesianChart::renderLegend(WPainter& painter) const
   }
 
   if (!title().empty()) {
-    int x = w / 2;
+    int x = plotAreaPadding(Left) 
+      + (w - plotAreaPadding(Left) - plotAreaPadding(Right)) / 2 ;
     painter.save();
     painter.setFont(titleFont());
-    painter.drawText(x - 500, 5, 1000, 50, AlignCenter | AlignTop, title());
+    const int TITLE_HEIGHT = 50;
+    const int TITLE_PADDING = 20;
+    painter.drawText(x - 500,
+		     plotAreaPadding(Top) - TITLE_HEIGHT - TITLE_PADDING,
+		     1000, TITLE_HEIGHT, AlignCenter | AlignBottom, title());
     painter.restore();
   }
 }

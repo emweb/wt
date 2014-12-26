@@ -182,6 +182,15 @@ void WServer::post(const std::string& sessionId,
   schedule(0, sessionId, function, fallbackFunction);
 }
 
+void WServer::postAll(const boost::function<void ()>& function)
+{
+  std::vector<std::string> sessions = webController_->sessions();
+  for (std::vector<std::string>::const_iterator i = sessions.begin();
+      i != sessions.end(); ++i) {
+    schedule(0, *i, function);
+  }
+}
+
 void WServer::schedule(int milliSeconds,
 		       const std::string& sessionId,
 		       const boost::function<void ()>& function,
@@ -257,6 +266,13 @@ boost::mutex     terminationMutex;
 bool             terminationRequested = false;
 boost::condition terminationCondition;
 
+void WServer::terminate()
+{
+  boost::mutex::scoped_lock terminationLock(terminationMutex);
+  terminationRequested = true;
+  terminationCondition.notify_all(); // should be just 1
+}
+
 BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 {
   switch (ctrl_type)
@@ -266,15 +282,14 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
   case CTRL_CLOSE_EVENT:
   case CTRL_SHUTDOWN_EVENT:
     {
-      boost::mutex::scoped_lock terminationLock(terminationMutex);
-      terminationRequested = true;
-      terminationCondition.notify_all(); // should be just 1
+      WServer::terminate();
       return TRUE;
     }
   default:
     return FALSE;
   }
 }
+
 #endif
 
 int WServer::waitForShutdown(const char *restartWatchFile)
@@ -352,6 +367,20 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 void WServer::expireSessions()
 {
   webController_->expireSessions();
+}
+
+void WServer::scheduleStop()
+{
+#ifdef WT_THREADED
+  #ifndef WT_WIN32
+    kill(getpid(), SIGTERM);
+  #else // WT_WIN32
+    terminate();
+  #endif // WT_WIN32
+#else // !WT_THREADED
+  if (!stopCallback_.empty())
+    stopCallback_();
+#endif // WT_THREADED
 }
 
 }

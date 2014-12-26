@@ -79,7 +79,8 @@ WT_DECLARE_WT_MEMBER
 	 handleClass: 'Wt-vrh2',
 	 resizeDir: 'h',
 	 resizerClass: 'Wt-hsh2',
-	 fitSize: fitWidth
+	 fitSize: fitWidth,
+         resizeHandles: []
        }, {
          initialized: false,
 	 config: config.rows,
@@ -104,10 +105,22 @@ WT_DECLARE_WT_MEMBER
 	 handleClass: 'Wt-hrh2',
 	 resizeDir: 'v',
 	 resizerClass: 'Wt-vsh2',
-	 fitSize: fitHeight
+	 fitSize: fitHeight,
+         resizeHandles: []
        }];
 
    jQuery.data(document.getElementById(id), 'layout', this);
+
+   function getItem(id) {
+     var i, il;
+     for (i = 0, il = config.items.length; i < il; ++i) {
+       var item = config.items[i];
+       if (item && item.id == id)
+	  return item;
+     }
+
+     return null;
+   }
 
    function calcPreferredSize(element, dir, asSet, widget) {
      var DC = DirConfig[dir];
@@ -347,6 +360,14 @@ WT_DECLARE_WT_MEMBER
        return false;
    }
 
+   /*
+    * Only checks the single widget -- already assumes the ancestors are visible
+    */
+   function isHidden(w) {
+     // XXX second condition is a hack for WTextEdit
+     return (w.style.display === 'none' && !w.ed) || $(w).hasClass('Wt-hidden');
+   }
+
    function measure(dir, widget, container)
    {
      var DC = DirConfig[dir],
@@ -436,15 +457,15 @@ WT_DECLARE_WT_MEMBER
 	   if (!item.margin)
 	     item.margin = [];
 
-	   if ($(item.w).hasClass('Wt-hidden')) {
-	     item.ps[dir] = item.ms[dir] = 0;
-	     continue;
-	   }
-
 	   var first = !item.set;
 
 	   if (!item.set)
 	     item.set = [false, false];
+
+	   if (isHidden(item.w)) {
+	     item.ps[dir] = item.ms[dir] = 0;
+	     continue;
+	   }
 
 	   if (item.w) {
 	     if (WT.isIE)
@@ -453,7 +474,8 @@ WT_DECLARE_WT_MEMBER
 	     if (debug)
 	       console.log("measure " + dir + " "
 	 		   + item.id + ': ' + item.ps[0] + ',' + item.ps[1]
-			   + ',' + item.dirty);
+			   + ',' + item.dirty + ', set: ['
+			   + item.set[0] + ',' + item.set[1] + ']');
 
 	     if (item.dirty) {
 	       var wMinimum;
@@ -583,8 +605,7 @@ WT_DECLARE_WT_MEMBER
 	       console.log(" ->" + item.id + ': ' + item.ps[0] + ","
 			   + item.ps[1]);
 
-	     // XXX second condition is a hack for WTextEdit
-	     var hidden = item.w.style.display === 'none' && !item.w.ed;
+	     var hidden = isHidden(item.w);
 
 	     if (!hidden && (!item.span || item.span[dir] == 1)) {
 	       allHidden = false;
@@ -850,6 +871,16 @@ WT_DECLARE_WT_MEMBER
 		       }, handle, widget, event, 0, 0);
    }
 
+   // does this column/row have an adjacent handle?
+   function hasResizeHandle(config, di) {
+     if (di == 0) {
+       return (config[di][RESIZABLE] !== 0);
+     } else {
+       return (config[di-1][RESIZABLE] !== 0 ||
+	       config[di][RESIZABLE] !== 0);
+     }
+   }
+
    function apply(dir, widget) {
      var DC = DirConfig[dir],
        OC = DirConfig[dir ^ 1],
@@ -1044,6 +1075,13 @@ WT_DECLARE_WT_MEMBER
 
 	   var fs = -1;
 
+	   /* if resizable was disabled, remove fixedSize and go back to 
+	    * using the preferred size
+	    */
+	   if (typeof DC.fixedSize[di] !== "undefined"
+	       && ! hasResizeHandle(DC.config, di) ) {
+	     DC.fixedSize[di] = undefined;
+	   }
 	   /*
 	    * If we have a fixedSize (set by resizing) then we should
 	    * take it into account only if the resizer is still visible.
@@ -1086,6 +1124,9 @@ WT_DECLARE_WT_MEMBER
 	   targetSize[di] = -1;
 	 }
        }
+
+       if (DC.fixedSize.length > dirCount)
+	 DC.fixedSize.length = dirCount;
 
        if (totalStretch == 0) {
 	 for (di = 0; di < dirCount; ++di)
@@ -1192,6 +1233,7 @@ WT_DECLARE_WT_MEMBER
 	   var hid = id + "-rs" + dir + "-" + di;
 	   var handle = WT.getElement(hid);
 	   if (!handle) {
+	     DC.resizeHandles[di] = hid;
 	     handle = document.createElement('div');
 	     handle.setAttribute('id', hid);
 	     handle.di = di;
@@ -1213,6 +1255,12 @@ WT_DECLARE_WT_MEMBER
 	   left += RESIZE_HANDLE_MARGIN;
 	   setCss(handle, DC.left, left + 'px');
 	   left += RESIZE_HANDLE_MARGIN;
+	 } else {
+	   if (DC.resizeHandles[di]) {
+	     var handle = WT.getElement(DC.resizeHandles[di]);
+	     handle.parentNode.removeChild(handle);
+	     DC.resizeHandles[di] = undefined;
+	   }
 	 }
 
 	 resizeHandle = DC.config[di][RESIZABLE] !== 0;
@@ -1269,7 +1317,7 @@ WT_DECLARE_WT_MEMBER
 	      */
 	     var setSize = dir == 0 && item.sc[dir];
 
-	     var hidden = w.style.display === 'none' && !w.ed;
+	     var hidden = isHidden(w);
 
 	     if (!hidden && (setSize || ts != ps || item.layout)) {
 	       if (setCss(w, DC.size, tsm + 'px')) {
@@ -1289,7 +1337,8 @@ WT_DECLARE_WT_MEMBER
 	       if (!item.fs[dir]) {
 		 if (setCss(w, DC.size, ''))
 		   setItemDirty(item, 1);
-		 item.set[dir] = false;
+		 if (item.set)
+		   item.set[dir] = false;
 	       } else if (dir == HORIZONTAL)
 		 setCss(w, DC.size, item.fs[dir] + 'px');
 	     }
@@ -1349,6 +1398,16 @@ WT_DECLARE_WT_MEMBER
 	 left += targetSize[di];
      }
 
+     if (DC.resizeHandles.length > dirCount) {
+       for (var i=dirCount; i < DC.resizeHandles.length; i++) {
+	 if (DC.resizeHandles[i]) {
+	   var handle = WT.getElement(DC.resizeHandles[i]);
+	   handle.parentNode.removeChild(handle);
+	 }
+       }
+       DC.resizeHandles.length = dirCount;
+     }
+
      $(widget).children("." + OC.handleClass)
        .css(DC.size,
 	    (cSize - DC.margins[MARGIN_RIGHT] - DC.margins[MARGIN_LEFT])
@@ -1370,19 +1429,27 @@ WT_DECLARE_WT_MEMBER
 
      var i, il, childLayouts = {};
      for (i = 0, il = oldConfig.items.length; i < il; ++i) {
-       var item = oldConfig.items[i];
+       var oldItem = oldConfig.items[i];
 
-       if (item) {
-	 if (item.set) {
-	   if (item.set[HORIZONTAL])
-	     setCss(item.w, DirConfig[HORIZONTAL].size, '');
-	   if (item.set[VERTICAL])
-	     setCss(item.w, DirConfig[VERTICAL].size, '');
-	 }
+       if (oldItem) {
+	 var newItem = getItem(oldItem.id);
 
-	 if (item.layout) {
-	   self.setChildSize(item.w, HORIZONTAL, item.ps[HORIZONTAL]);
-	   self.setChildSize(item.w, VERTICAL, item.ps[VERTICAL]);
+	 if (newItem) {
+	   newItem.ps = oldItem.ps;
+	   newItem.sc = oldItem.sc;
+	   newItem.ms = oldItem.ms;
+	   newItem.size = oldItem.size;
+	   newItem.psize = oldItem.psize;
+	   newItem.fs = oldItem.fs;
+	   newItem.margin = oldItem.margin;
+	   newItem.set = oldItem.set;
+	 } else {
+	   if (oldItem.set) {
+	     if (oldItem.set[HORIZONTAL])
+	       setCss(oldItem.w, DirConfig[HORIZONTAL].size, '');
+	     if (oldItem.set[VERTICAL])
+	       setCss(oldItem.w, DirConfig[VERTICAL].size, '');
+	   }
 	 }
        }
      }
@@ -1398,17 +1465,11 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.setElDirty = function(el) {
-     var i, il;
-
-     for (i = 0, il = config.items.length; i < il; ++i) {
-       var item = config.items[i];
-       if (item && item.id == el.id) {
-	 item.dirty = 2;
-	 itemDirty = true;
-	 APP.layouts2.scheduleAdjust();
-
-	 return;
-       }
+     var item = getItem(el.id);
+     if (item) {
+       item.dirty = 2;
+       itemDirty = true;
+       APP.layouts2.scheduleAdjust();
      }
    };
 
@@ -1418,23 +1479,23 @@ WT_DECLARE_WT_MEMBER
      var colCount = DirConfig[HORIZONTAL].config.length;
      for (i = 0, il = items.length; i < il; ++i) {
        var row = items[i][0], col = items[i][1];
-
        var item = config.items[row * colCount + col];
 
-       item.dirty = 2;
+       if (item) {
+	 item.dirty = 2;
+	 /*
+	  * When the item contains a layout, a change may also impact this:
+	  * it could become a different layout (e.g. WStackedWidget) or
+	  * a hidden layout (e.g. WPanel). Assume in general that it could
+	  * be the case that we need to reset the layout-based size, but don't
+	  * do it yet since it causes flicker when nothing drastic changed.
+	  */
+	 if (item.layout) {
+	   item.layout = false;
+	   item.wasLayout = true;
 
-       /*
-	* When the item contains a layout, a change may also impact this:
-	* it could become a different layout (e.g. WStackedWidget) or
-	* a hidden layout (e.g. WPanel). Assume in general that it could
-	* be the case that we need to reset the layout-based size, but don't
-	* do it yet since it causes flicker when nothing drastic changed.
-	*/
-       if (item.layout) {
-	 item.layout = false;
-	 item.wasLayout = true;
-
-	 APP.layouts2.setChildLayoutsDirty(self, item.w);
+	   APP.layouts2.setChildLayoutsDirty(self, item.w);
+	 }
        }
      }
 
@@ -1461,23 +1522,20 @@ WT_DECLARE_WT_MEMBER
          DC = DirConfig[dir],
          i, il;
 
-     for (i = 0, il = config.items.length; i < il; ++i) {
-       var item = config.items[i];
-       if (item && item.id == widget.id) {
-	 var di = (dir === HORIZONTAL ? i % colCount : i / colCount);
-	 var alignment = (item.align >> DC.alignBits) & 0xF;
+     var item = getItem(widget.id);
+     if (item) {
+       var di = (dir === HORIZONTAL ? i % colCount : i / colCount);
+       var alignment = (item.align >> DC.alignBits) & 0xF;
 
-	 if (alignment || !DC.stretched[di]) {
-	   if (!item.ps)
-	     item.ps = [];
-	   item.ps[dir] = preferredSize;
-	 }
-
-	 item.layout = true;
-
-	 setItemDirty(item, 1);
-	 break;
+       if (alignment || !DC.stretched[di]) {
+	 if (!item.ps)
+	   item.ps = [];
+	 item.ps[dir] = preferredSize;
        }
+
+       item.layout = true;
+
+       setItemDirty(item, 1);
      }
    };
 

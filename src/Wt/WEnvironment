@@ -252,7 +252,28 @@ public:
    */
   bool ajax() const { return doesAjax_; }
 
+  /*! \brief Returns whether the browser has support for WebGL.
+   *
+   * Support for WebGL is required for client-side rendering of
+   * WGLWidget.
+   */
   bool webGL() const { return webGLsupported_; }
+
+  /*! \brief Returns the horizontal resolution of the client's screen.
+   *
+   * Returns -1 if screen width is not known.
+   *
+   * \sa screenHeight()
+   */
+  int screenWidth() const { return screenWidth_; }
+
+  /*! \brief Returns the vertical resolution of the client's screen.
+   *
+   * Returns -1 if screen height is not known.
+   *
+   * \sa screenWidth()
+   */
+  int screenHeight() const { return screenHeight_; }
 
   /*! \brief Returns the browser-side DPI scaling factor
    *
@@ -632,7 +653,14 @@ public:
   }
 #endif
 
-  bool hashInternalPaths() const { return hashInternalPaths_; }
+  /*! \brief Returns whether internal paths are implemented using URI fragments.
+   *
+   * This may be the case for older non-HTML5 browsers which do not support
+   * HTML5 History APIs.
+   */
+  bool internalPathUsingFragments() const { 
+    return internalPathUsingFragments_; 
+  }
 
   /*! \brief Returns whether this agent supports CSS3 animations.
    */
@@ -649,8 +677,10 @@ protected:
   WebSession *session_;
   bool        doesAjax_;
   bool        doesCookies_;
-  bool        hashInternalPaths_;
+  bool        internalPathUsingFragments_;
   UserAgent   agent_;
+  int         screenWidth_;
+  int         screenHeight_;
   double      dpiScale_;
   std::string queryString_;
   bool        webGLsupported_;

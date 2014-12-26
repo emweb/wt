@@ -66,6 +66,8 @@ public:
 
     if (dialogs_.empty())
       delete this;
+    else
+      scheduleRender();
   }
 
   virtual bool isExposed(WWidget *w) {
@@ -84,6 +86,13 @@ public:
 
   bool isTopDialogRendered(WDialog *dialog) const {
     return dialog->id() == topDialogId_;
+  }
+
+  void bringToFront(WDialog *dialog) {
+    if (Utils::erase(dialogs_, dialog)) {
+      dialogs_.push_back(dialog);
+      scheduleRender();
+    }
   }
 
 protected:
@@ -169,6 +178,8 @@ private:
 
 WDialog::WDialog(WObject *parent)
   : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
+    moved_(this, "moved"),
+    resized_(this, "resized"),
     finished_(this)
 {
   create();
@@ -176,6 +187,8 @@ WDialog::WDialog(WObject *parent)
 
 WDialog::WDialog(const WString& windowTitle, WObject *parent)
   : WPopupWidget(new WTemplate(tr("Wt.WDialog.template")), parent),
+    moved_(this, "moved"),
+    resized_(this, "resized"),
     finished_(this)
 {
   create();
@@ -318,9 +331,9 @@ void WDialog::setResizable(bool resizable)
       setJavaScriptMember
 	(" Resizable",
 	 "(new " WT_CLASS ".Resizable("
-	 WT_CLASS "," + jsRef() + ")).onresize(function(w, h) {"
+	 WT_CLASS "," + jsRef() + ")).onresize(function(w, h, done) {"
 	 "var obj = $('#" + id() + "').data('obj');"
-	 "if (obj) obj.onresize(w, h);"
+	 "if (obj) obj.onresize(w, h, done);"
 	 " });");
     }
   }
@@ -366,7 +379,14 @@ void WDialog::render(WFlags<RenderFlag> flags)
 		 + app->javaScriptClass() + "," + jsRef()
 		 + "," + titleBar_->jsRef()
 		 + "," + (centerX ? "1" : "0")
-		 + "," + (centerY ? "1" : "0") + ");");
+		 + "," + (centerY ? "1" : "0") 
+		 + "," + (moved_.isConnected()
+			  ? '"' + moved_.name() + '"' 
+			  : "null")
+		 + "," + (resized_.isConnected()
+			  ? '"' + resized_.name() + '"' 
+			  : "null")
+		 + ");");
 
     /*
      * When a dialog is shown immediately for a new session, the recentering
@@ -385,10 +405,13 @@ void WDialog::render(WFlags<RenderFlag> flags)
       impl_->bindEmpty("center-script");
   }
 
-  WPopupWidget::render(flags);
+  if (!isModal())
+    titleBar()->clicked().connect(this, &WDialog::bringToFront);
 
-  if (autoFocus_)
+  if ( (flags & RenderFull) && autoFocus_)
     impl_->setFirstFocus();
+
+  WPopupWidget::render(flags);
 }
 
 void WDialog::rejectWhenEscapePressed(bool enable)
@@ -610,6 +633,13 @@ DialogCover *WDialog::cover()
       return new DialogCover();
   } else
     return 0;
+}
+
+void WDialog::bringToFront()
+{
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').bringToFront()");
+  DialogCover *c = cover();
+  c->bringToFront(this);
 }
 
 }

@@ -6,7 +6,7 @@
 
 #include "WebUtils.h"
 #include "DomElement.h"
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 #include "Wt/WException"
 #include "Wt/WString"
 #include "Wt/Utils"
@@ -106,7 +106,7 @@ void sanitizeUnicode(EscapeOStream& sout, const std::string& text)
     // but copy_check_utf8() does not declare the following ranges illegal:
     //  U+D800-U+DFFF
     //  U+FFFE-U+FFFF
-    rapidxml::xml_document<>::copy_check_utf8(c, b);
+    Wt::rapidxml::xml_document<>::copy_check_utf8(c, b);
     for (char *i = buf; i < b; ++i)
       sout << *i;
   }
@@ -205,7 +205,7 @@ namespace {
   using namespace boost::spirit::karma;
 
   // adjust rendering for JS flaots
-  template <typename T>
+  template <typename T, int Precision>
   struct JavaScriptPolicy : karma::real_policies<T>
   {
     // not 'nan', but 'NaN'
@@ -230,21 +230,28 @@ namespace {
     }
 
     // 7 significant numbers; about float precision
-    static unsigned precision(T) { return 7; }
+    static unsigned precision(T) { return Precision; }
+
   };
 
-  typedef real_generator<double, JavaScriptPolicy<double> >
+  typedef real_generator<double, JavaScriptPolicy<double, 7> >
+    KarmaJavaScriptReal;
+  typedef real_generator<double, JavaScriptPolicy<double, 15> >
     KarmaJavaScriptDouble;
+
 }
 
-static inline char *generic_double_to_str(double d, char *buf)
+static inline char *generic_double_to_str(double d, int precision, char *buf)
 {
   using namespace boost::spirit;
   using namespace boost::spirit::karma;
   char *p = buf;
-  if (d != 0)
-    generate(p, KarmaJavaScriptDouble(), d);
-  else
+  if (d != 0) {
+    if (precision <= 7)
+      generate(p, KarmaJavaScriptReal(), d);
+    else
+      generate(p, KarmaJavaScriptDouble(), d);
+  }  else
     *p++ = '0';
   *p = '\0';
   return buf;
@@ -306,7 +313,7 @@ char *round_css_str(double d, int digits, char *buf)
 
 char *round_js_str(double d, int digits, char *buf) {
 #ifdef SPIRIT_FLOAT_FORMAT
-  return generic_double_to_str(d, buf);
+  return generic_double_to_str(d, digits, buf);
 #else
   return generic_double_to_str(d, buf);
 #endif

@@ -255,9 +255,10 @@ this.initAjaxComm = function(url, handler) {
 
 	  clearTimeout(timer);
 
-	  if (good)
+	  if (good) {
+	    handled = true;
 	    handler(0, request.responseText, userData);
-	  else
+	  } else
 	    handler(1, null, userData);
 
 	  if (request) {
@@ -739,19 +740,35 @@ this.widgetCoordinates = function(obj, e) {
 // Get coordinates of (mouse) event relative to page origin.
 this.pageCoordinates = function(e) {
   if (!e) e = window.event;
+
   var posX = 0, posY = 0;
+
+  var target = e.target || e.srcElement;
+
+  // if this is an iframe, offset against the frame's position
+  if (target && (target.ownerDocument != document))
+    for (var i=0; i < window.frames.length; i++) {
+      if (target.ownerDocument == window.frames[i].document) {
+        try{
+          var rect = window.frames[i].frameElement.getBoundingClientRect();
+          posX = rect.left;
+          posY = rect.top;
+        }catch (e) {
+        }
+      }
+    }
   
   if (e.touches && e.touches[0]) {
     return WT.pageCoordinates(e.touches[0]);
   } else if (!WT.isIE && e.changedTouches && e.changedTouches[0]) {
-    posX = e.changedTouches[0].pageX;
-    posY = e.changedTouches[0].pageY;
+    posX += e.changedTouches[0].pageX;
+    posY += e.changedTouches[0].pageY;
   } else if (typeof e.pageX === 'number') {
-    posX = e.pageX; posY = e.pageY;
+    posX += e.pageX; posY = e.pageY;
   } else if (typeof e.clientX === 'number') {
-    posX = e.clientX + document.body.scrollLeft
+    posX += e.clientX + document.body.scrollLeft
       + document.documentElement.scrollLeft;
-    posY = e.clientY + document.body.scrollTop
+    posY += e.clientY + document.body.scrollTop
       + document.documentElement.scrollTop;
   }
 
@@ -779,7 +796,7 @@ this.wheelDelta = function(e) {
 };
 
 this.scrollIntoView = function(id) {
-  setTimeout(function() { 
+  setTimeout(function() {
       var hashI = id.indexOf('#');
       if (hashI != -1)
 	id = id.substr(hashI + 1);
@@ -1160,16 +1177,10 @@ function mouseUp(e) {
 
 var captureInitialized = false;
 
-function initCapture() {
-  if (captureInitialized)
-    return;
-
-  captureInitialized = true;
-
-  var db = document.body;
-  if (db.addEventListener) {
-    db.addEventListener('mousemove', mouseMove, true);
-    db.addEventListener('mouseup', mouseUp, true);
+function attachMouseHandlers(el) {
+  if (el.addEventListener) {
+    el.addEventListener('mousemove', mouseMove, true);
+    el.addEventListener('mouseup', mouseUp, true);
 
     if (WT.isGecko) {
       window.addEventListener('mouseout', function(e) {
@@ -1179,9 +1190,19 @@ function initCapture() {
 			      }, true);
     }
   } else {
-    db.attachEvent('onmousemove', mouseMove);
-    db.attachEvent('onmouseup', mouseUp);
+    el.attachEvent('onmousemove', mouseMove);
+    el.attachEvent('onmouseup', mouseUp);
   }
+}
+
+function initCapture() {
+  if (captureInitialized)
+    return;
+
+  captureInitialized = true;
+
+  var db = document.body;
+  attachMouseHandlers(db);
 }
 
 this.capture = function(obj) {
@@ -1189,6 +1210,16 @@ this.capture = function(obj) {
 
   if (captureElement && obj)
     return;
+
+  // attach to possible iframes
+  for (var i=0; i < window.frames.length; i++)
+    try{
+      if (! window.frames[i].document.body.hasMouseHandlers) {
+        attachMouseHandlers(window.frames[i].document.body);
+        window.frames[i].document.body.hasMouseHandlers = true;
+      }
+    }catch (e) {
+    }
 
   captureElement = obj;
 
@@ -1353,6 +1384,42 @@ this.addStyleSheet = function(uri, media) {
       l.parentNode.insertBefore(s, l.nextSibling);
     } else {
       document.body.appendChild(s);
+    }
+  }
+};
+
+this.removeStyleSheet = function(uri) {
+  if ($('link[rel=stylesheet][href~="' + uri + '"]'))
+    $('link[rel=stylesheet][href~="' + uri + '"]').remove();
+  var sheets = document.styleSheets;
+  for (var i=0; i<sheets.length; ++i) {
+    var sheet = sheets[i];
+    j = 0;
+    if (sheet) {
+      var rule = null;
+      do {
+        try {
+          if (sheet.cssRules)
+            rule = sheet.cssRules[j]; // firefox
+          else
+            rule = sheet.rules[j];    // IE
+
+          if (rule && rule.cssText ===
+              "@import url(\"" + uri +  "\");") {
+            if (sheet.cssRules)
+              sheet.deleteRule(j);// firfox
+            else
+              sheet.removeRule(j);//IE
+            break; // only remove 1 rule !!!!
+          }
+        } catch (err) {
+          /*
+        * firefox security error 1000 when access a stylesheet.cssRules
+        * hosted from another domain
+        */
+        }
+        ++j;
+      } while(rule)
     }
   }
 };
@@ -2055,6 +2122,8 @@ function initDragDrop() {
 }
 
 function dragStart(obj, e) {
+  if (e.ctrlKey || WT.button(e) > 1) //Ignore drags with rigth click.
+    return true;
   var t = WT.target(e);
   if (t) {
     /*
@@ -2601,14 +2670,16 @@ _$_$endif_$_();
       doJavaScript(msg);
 _$_$if_CATCH_ERROR_$_();
     } catch (e) {
-      var stack = null;
-
-_$_$if_SHOW_STACK_$_();
-      stack = e.stack || e.stacktrace;
-_$_$endif_$_();
-      alert("Wt internal error: " + e + ", code: " +  e.code
-	    + ", description: " + e.description
-	    + (stack ? (", stack:\n" + stack) : ""));
+      var stack = e.stack || e.stacktrace;
+      var description = e.description || e.message;
+      var err = { "exception_code": e.code,
+		  "exception_description": description,
+		  "exception_js": msg };
+      err.stack = stack;
+      sendError(err,
+		"Wt internal error; code: " +  e.code
+		+ ", description: " + description);
+      throw e;
     }
 _$_$endif_$_();
 
@@ -2855,9 +2926,17 @@ function responseReceived(updateId, puzzle) {
 }
 
 var pageId = 0;
-function setPage(id)
-{
+function setPage(id) {
   pageId = id;
+}
+
+function sendError(err, errMsg) {
+  responsePending = comm.sendUpdate
+    ('request=jserror&err=' + encodeURIComponent(JSON.stringify(err)),
+     false, ackUpdateId, -1);
+_$_$if_SHOW_ERROR_$_();
+  alert(errMsg);
+_$_$endif_$_();
 }
 
 function sendUpdate() {
@@ -3057,9 +3136,12 @@ function loadScript(uri, symbol, tries)
       if (t > 1) {
 	loadScript(uri, symbol, t - 1);
       } else {
-	alert('Fatal error: failed loading ' + uri);
+	var err = {
+	  "error-description" : 'Fatal error: failed loading ' + uri
+	};
+	sendError(err, err["error-description"]);
 	quit(null);
-      }      
+      }     
     }
   }
 

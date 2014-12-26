@@ -17,9 +17,10 @@ class WLabel;
 /*! \class WFormWidget Wt/WFormWidget Wt/WFormWidget
  *  \brief An abstract widget that corresponds to an HTML form element.
  *
- * A %WFormWidget may receive focus, can be disabled, and can have a
- * label that acts as proxy for getting focus. It provides signals
- * which reflect changes to its value, or changes to its focus.
+ * A %WFormWidget may receive focus (see canReceiveFocus()), can be
+ * disabled, and can have a label that acts as proxy for getting
+ * focus. It provides signals which reflect changes to its value, or
+ * changes to its focus.
  *
  * Form widgets also have built-in support for validation, using
  * setValidator(WValidator *). If the validator provide client-side
@@ -104,25 +105,6 @@ public:
    */
   void setEnabled(bool enabled);
 
-  /*! \brief Gives focus.
-   *
-   * Giving focus to an input element only works when JavaScript is enabled.
-   */
-  void setFocus();
-
-  /*! \brief Changes focus.
-   *
-   * When using \p focus = \c false, you can undo a previous setFocus() call.
-   */
-  void setFocus(bool focus);
-
-  /*! \brief Returns whether this widget has focus.
-   */
-  bool hasFocus() const;
-
-  virtual void setTabIndex(int index);
-  virtual int tabIndex() const;
-
   /*! \brief Sets the element read-only.
    *
    * A read-only form element cannot be edited, but the contents can
@@ -176,14 +158,6 @@ public:
    */
   EventSignal<>& selected();
 
-  /*! \brief %Signal emitted when the widget lost focus.
-   */
-  EventSignal<>& blurred();
-
-  /*! \brief %Signal emitted when the widget recieved focus.
-   */
-  EventSignal<>& focussed();
-
   /*! \brief %Signal emitted when the widget is being validated.
    *
    * This signal may be useful to react to a changed validation state.
@@ -197,7 +171,8 @@ public:
   virtual void setToolTip(const WString& text,
 			  TextFormat textFormat = PlainText);
 
-  virtual bool setFirstFocus();
+  virtual bool canReceiveFocus() const;
+  virtual int tabIndex() const;
 
 protected:
   WLabel     *label_;
@@ -214,23 +189,16 @@ protected:
 
 private:
   static const char *SELECT_SIGNAL;
-  static const char *FOCUS_SIGNAL;
-  static const char *BLUR_SIGNAL;
 
   static const int BIT_ENABLED_CHANGED  = 0;
-  static const int BIT_GOT_FOCUS        = 1;
-  static const int BIT_READONLY         = 2;
-  static const int BIT_READONLY_CHANGED = 3;
-  static const int BIT_TABINDEX_CHANGED = 4;
-  static const int BIT_JS_OBJECT        = 5;
-  static const int BIT_VALIDATION_CHANGED = 6;
+  static const int BIT_READONLY         = 1;
+  static const int BIT_READONLY_CHANGED = 2;
+  static const int BIT_JS_OBJECT        = 3;
+  static const int BIT_VALIDATION_CHANGED = 4;
 
-  std::bitset<7> flags_;
-  int tabIndex_;
+  std::bitset<5> flags_;
   Signal<WValidator::Result> validated_;
   WString validationToolTip_;
-
-  void undoSetFocus();
 
   void setLabel(WLabel *label);
 
@@ -241,7 +209,6 @@ private:
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual void propagateRenderOk(bool deep);
-  virtual WStatelessSlot *getStateless(Method method);
 
   virtual void render(WFlags<RenderFlag> flags);
 

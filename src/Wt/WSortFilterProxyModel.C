@@ -331,6 +331,9 @@ void WSortFilterProxyModel::updateItem(Item *item) const
 
 void WSortFilterProxyModel::rebuildSourceRowMap(Item *item) const
 {
+  for (unsigned i = 0; i < item->sourceRowMap_.size(); ++i)
+    item->sourceRowMap_[i] = -1;
+
   for (unsigned i = 0; i < item->proxyRowMap_.size(); ++i)
     item->sourceRowMap_[item->proxyRowMap_[i]] = i;
 }
@@ -364,11 +367,14 @@ bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
     return true;
 }
 
+#ifndef WT_TARGET_JAVA
 bool WSortFilterProxyModel::lessThan(const WModelIndex& lhs,
 				     const WModelIndex& rhs) const
 {
-  return compare(lhs, rhs) < 0;
+  return WSortFilterProxyModel::compare(lhs, rhs) < 0;
 }
+#endif // WT_TARGET_JAVA
+
 
 int WSortFilterProxyModel::compare(const WModelIndex& lhs,
 				   const WModelIndex& rhs) const
@@ -552,6 +558,9 @@ void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 					      const WModelIndex& bottomRight)
 {
+  if (!topLeft.isValid() || !bottomRight.isValid())
+    return;
+
   bool refilter
     = dynamic_ && (filterKeyColumn_ >= topLeft.column() 
 		   && filterKeyColumn_ <= bottomRight.column());

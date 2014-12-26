@@ -52,6 +52,7 @@ FILE_TO_STRING(xml/auth_css_theme.xml
 SET(libsources
 Wt/PopupWindow.C
 Wt/Resizable.C
+Wt/ServerSideFontMetrics.C
 Wt/SizeHandle.C
 Wt/StdGridLayoutImpl2.C
 Wt/StdLayoutImpl.C
@@ -133,6 +134,7 @@ Wt/WInteractWidget.C
 Wt/WIOService.C
 Wt/WLocale.C
 Wt/WLocalDateTime.C
+Wt/WIdentityProxyModel.C
 Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C
@@ -151,6 +153,7 @@ Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.C
 Wt/WLogger.C
 Wt/WMatrix4x4.C
+Wt/WMeasurePaintDevice.C
 Wt/WMediaPlayer.C
 Wt/WMemoryResource.C
 Wt/WMenu.C
@@ -233,6 +236,8 @@ Wt/WTreeView.C
 Wt/WValidationStatus.C
 Wt/WValidator.C
 Wt/WVBoxLayout.C
+Wt/WVector3.C
+Wt/WVector4.C
 Wt/WVectorImage.C
 Wt/WVideo.C
 Wt/WVmlImage.C
@@ -286,6 +291,7 @@ Wt/Chart/WAbstractGridData.C
 Wt/Chart/WGridData.C
 Wt/Chart/WEquidistantGridData.C
 Wt/Chart/WScatterData.C
+Wt/Chart/WSelection.C
 Wt/Json/Array.C
 Wt/Json/Object.C
 Wt/Json/Parser.C
@@ -434,28 +440,32 @@ TARGET_LINK_LIBRARIES(wt
     ${RT_LIBRARY}
     )
 
-ADD_LIBRARY(wttest
-  Wt/Test/WTestEnvironment.C
-)
+IF(ENABLE_LIBWTTEST)
+  ADD_LIBRARY(wttest
+    Wt/Test/WTestEnvironment.C
+  )
 
-TARGET_LINK_LIBRARIES(wttest wt)
+  TARGET_LINK_LIBRARIES(wttest wt)
 
-INSTALL(TARGETS wttest
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+  INSTALL(TARGETS wttest
+	  RUNTIME DESTINATION bin
+	  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+	  ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-IF(MSVC)
-  SET_TARGET_PROPERTIES(wttest PROPERTIES COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101 /wd4267")
-ENDIF(MSVC)
+  IF(MSVC)
+    SET_TARGET_PROPERTIES(wttest PROPERTIES COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101 /wd4267")
+  ENDIF(MSVC)
 
-SET_TARGET_PROPERTIES(
-  wttest
-PROPERTIES
-  VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
-  SOVERSION ${WTTEST_SOVERSION}
-  DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
-)
+  SET_TARGET_PROPERTIES(
+    wttest
+  PROPERTIES
+    VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
+    SOVERSION ${WTTEST_SOVERSION}
+    DEBUG_POSTFIX ${DEBUG_LIB_POSTFIX}
+  )
+ELSE(ENABLE_LIBWTTEST)
+  MESSAGE("** Not building libwttest")
+ENDIF(ENABLE_LIBWTTEST)
 
 IF(HAVE_SSL)
   TARGET_LINK_LIBRARIES(wt ${SSL_LIBRARIES})

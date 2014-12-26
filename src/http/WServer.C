@@ -22,6 +22,10 @@
 #include <signal.h>
 #endif
 
+#if defined(WT_WIN32)
+#include <process.h>
+#endif
+
 #ifdef ANDROID
 #include "Android.h"
 #endif
@@ -76,6 +80,14 @@ WServer::WServer(const std::string& applicationPath,
   init(applicationPath, wtConfigurationFile);
 }
 
+WServer::WServer(int argc, char *argv[], const std::string& wtConfigurationFile)
+  : impl_(new Impl())
+{
+  init(argv[0], "");
+
+  setServerConfiguration(argc, argv, wtConfigurationFile);
+}
+
 WServer::~WServer()
 {
   if (impl_->server_) {
@@ -120,6 +132,8 @@ bool WServer::start()
 {
   setCatchSignals(!impl_->serverConfiguration_->gdb());
 
+  stopCallback_ = boost::bind(&WServer::stop, this);
+
   if (isRunning()) {
     LOG_ERROR("start(): server already started!");
     return false;
@@ -146,6 +160,11 @@ bool WServer::start()
 
   if (impl_->serverConfiguration_->threads() != -1)
     configuration().setNumThreads(impl_->serverConfiguration_->threads());
+
+  if (impl_->serverConfiguration_->parentPort() != -1) {
+    configuration().setBehindReverseProxy(true);
+    configuration().setSingleSession(true);
+  }
 
   try {
     impl_->server_ = new http::server::Server(*impl_->serverConfiguration_,
@@ -222,12 +241,44 @@ void WServer::stop()
 #else // WT_THREADED
   webController_->shutdown();
   impl_->server_->stop();
+  ioService().stop();
 #endif // WT_THREADED
+}
+
+void WServer::run()
+{
+  if (start()) {
+    waitForShutdown();
+    stop();
+  }
 }
 
 int WServer::httpPort() const
 {
   return impl_->server_->httpPort();
+}
+
+std::vector<WServer::SessionInfo> WServer::sessions() const
+{
+  if (configuration_->sessionPolicy() == Wt::Configuration::DedicatedProcess &&
+      impl_->serverConfiguration_->parentPort() == -1) {
+    return impl_->server_->sessionManager()->sessions();
+  } else {
+#ifndef WT_WIN32
+    int64_t pid = getpid();
+#else // WT_WIN32
+    int64_t pid = _getpid();
+#endif // WT_WIN32
+    std::vector<std::string> sessionIds = webController_->sessions();
+    std::vector<WServer::SessionInfo> result;
+    for (std::size_t i = 0; i < sessionIds.size(); ++i) {
+      SessionInfo sessionInfo;
+      sessionInfo.processId = pid;
+      sessionInfo.sessionId = sessionIds[i];
+      result.push_back(sessionInfo);
+    }
+    return result;
+  }
 }
 
 void WServer::setSslPasswordCallback(

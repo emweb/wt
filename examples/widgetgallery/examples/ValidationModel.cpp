@@ -64,7 +64,7 @@ private:
             // Set the focus on the line edit.
             Wt::WLineEdit *viewField =
                        resolve<Wt::WLineEdit*>(AgeFormModel::AgeField);
-            viewField->setFocus();
+            viewField->setFocus(true);
         }
     }
 

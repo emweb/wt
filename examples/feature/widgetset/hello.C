@@ -104,11 +104,9 @@ Wt::WApplication *createWidgetSet(const Wt::WEnvironment& env)
 
 int main(int argc, char **argv)
 {
-  Wt::WServer server(argv[0]);
-
   // Use default server configuration: command line arguments and the
   // wthttpd configuration file.
-  server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+  Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
   // Application entry points. Each entry point binds an URL with an
   // application (with a callback function used to bootstrap a new
@@ -124,12 +122,8 @@ int main(int argc, char **argv)
   server.addEntryPoint(Wt::WidgetSet, createWidgetSet, "/hello.js");
 
   // Start the server (in the background if there is threading support)
-  // and wait for a shutdown signal (e.g. Ctrl C, SIGKILL)
-  if (server.start()) {
-    Wt::WServer::waitForShutdown();
-
-    // Cleanly terminate all sessions
-    server.stop();
-  }
+  // and wait for a shutdown signal (e.g. Ctrl C, SIGKILL), then cleanly
+  // terminate all sessions
+  server.run();
 }
 

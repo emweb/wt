@@ -230,6 +230,8 @@ private:
 
   void rowsInserted(const WModelIndex &index, int from, int to);
   void rowsRemoved(const WModelIndex &index, int from, int to);
+  void saveSelection();
+  void restoreSelection();
 
   virtual bool supportsNoSelection() const;
 
@@ -241,9 +243,6 @@ protected:
   virtual void setFormData(const FormData& formData);
 
   virtual bool isSelected(int index) const;
-  virtual void dummy();
-  virtual void saveSelection();
-  virtual void restoreSelection();
 
   friend class WSelectionBox;
 };

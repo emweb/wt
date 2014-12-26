@@ -3,9 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WEnvironment"
 
 #include "Wt/Utils"
-#include "Wt/WEnvironment"
 #include "Wt/WException"
 #include "Wt/WLogger"
 #include "Wt/WSslInfo"
@@ -33,7 +33,9 @@ WEnvironment::WEnvironment()
   : session_(0),
     doesAjax_(false),
     doesCookies_(false),
-    hashInternalPaths_(false),
+    internalPathUsingFragments_(false),
+    screenWidth_(-1),
+    screenHeight_(-1),
     dpiScale_(1),
     webGLsupported_(false),
     timeZoneOffset_(0)
@@ -46,7 +48,9 @@ WEnvironment::WEnvironment(WebSession *session)
   : session_(session),
     doesAjax_(false),
     doesCookies_(false),
-    hashInternalPaths_(false),
+    internalPathUsingFragments_(false),
+    screenWidth_(-1),
+    screenHeight_(-1),
     dpiScale_(1),
     webGLsupported_(false),
     timeZoneOffset_(0)
@@ -196,7 +200,7 @@ void WEnvironment::enableAjax(const WebRequest& request)
   doesCookies_ = request.headerValue("Cookie") != 0;
 
   if (!request.getParameter("htmlHistory"))
-    hashInternalPaths_ = true;
+    internalPathUsingFragments_ = true;
 
   const std::string *scaleE = request.getParameter("scale");
 
@@ -230,6 +234,22 @@ void WEnvironment::enableAjax(const WebRequest& request)
     std::size_t s = publicDeploymentPath_.find('/');
     if (s != 0)
       publicDeploymentPath_.clear(); // looks invalid
+  }
+
+
+  const std::string *scrWE = request.getParameter("scrW");
+  if (scrWE) {
+    try {
+      screenWidth_ = boost::lexical_cast<int>(*scrWE);
+    } catch (boost::bad_lexical_cast &e) {
+    }
+  }
+  const std::string *scrHE = request.getParameter("scrH");
+  if (scrHE) {
+    try {
+      screenHeight_ = boost::lexical_cast<int>(*scrHE);
+    } catch (boost::bad_lexical_cast &e) {
+    }
   }
 }
 
@@ -284,7 +304,9 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
   }
 
   if (userAgent_.find("Chrome") != std::string::npos) {
-    if (userAgent_.find("Chrome/0.") != std::string::npos)
+    if (userAgent_.find("Android") != std::string::npos)
+      agent_ = MobileWebKitAndroid;
+    else if (userAgent_.find("Chrome/0.") != std::string::npos)
       agent_ = Chrome0;
     else if (userAgent_.find("Chrome/1.") != std::string::npos)
       agent_ = Chrome1;

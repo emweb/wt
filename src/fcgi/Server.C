@@ -92,7 +92,9 @@ bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
 Server::Server(WServer& wt, int argc, char *argv[])
   : wt_(wt),
     argc_(argc),
-    argv_(argv)
+    argv_(argv),
+    childrenDied_(0),
+    handleSigChld_(0)
 {
   instance = this;
 
@@ -139,6 +141,13 @@ void Server::execChild(bool debug, const std::string& extraArg)
     LOG_DEBUG("argv[" << i << "]: " << argv[i]);
   }
 
+#ifdef WT_THREADED
+  // Unblocking all signals before exec
+  sigset_t mask;
+  sigfillset(&mask);
+  pthread_sigmask(SIG_UNBLOCK, &mask, 0);
+#endif // WT_THREADED
+
   execv(argv[0], const_cast<char *const *>(argv));
 
   delete[] argv;
@@ -156,6 +165,9 @@ void Server::spawnSharedProcess()
     exit(1);
   } else {
     LOG_INFO_S(&wt_, "spawned session process: pid = " << pid);
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+#endif
     sessionProcessPids_.push_back(pid);
   }
 }
@@ -217,6 +229,11 @@ void Server::handleSignal(const char *signal)
 
 void Server::handleSigChld()
 {
+  handleSigChld_ = 1;
+}
+
+void Server::doHandleSigChld()
+{
   pid_t cpid;
   int stat;
 
@@ -226,8 +243,10 @@ void Server::handleSigChld()
     Configuration& conf = wt_.configuration();
 
     if (conf.sessionPolicy() == Configuration::DedicatedProcess) {
-      for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
-	   ++i)
+#ifdef WT_THREADED
+      boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+#endif
+      for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
 	if (i->second->childPId() == cpid) {
 	  LOG_INFO_S(&wt_, "deleting session: " << i->second->sessionId());
 
@@ -237,7 +256,11 @@ void Server::handleSigChld()
 
 	  break;
 	}
+      }
     } else {
+#ifdef WT_THREADED
+      boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+#endif
       for (unsigned i = 0; i < sessionProcessPids_.size(); ++i) {
 	if (sessionProcessPids_[i] == cpid) {
 	  sessionProcessPids_.erase(sessionProcessPids_.begin() + i);
@@ -246,13 +269,11 @@ void Server::handleSigChld()
 	   * TODO: cleanup all sessions that pointed to this pid
 	   */
 
-	  static int childrenDied = 0;
+	  ++childrenDied_;
 
-	  ++childrenDied;
-
-	  if (childrenDied < 5)
+	  if (childrenDied_ < 5) {
 	    spawnSharedProcess();
-	  else
+	  } else
 	    LOG_ERROR_S(&wt_, "sessions process restart limit (5) reached");
 
 	  break;
@@ -381,10 +402,40 @@ int Server::run()
       exit (1);
     }
 
+    checkAndQueueSigChld();
+
     handleRequestThreaded(serverSocket);
   }
 
   return 0;
+}
+
+void Server::checkAndQueueSigChld()
+{
+  if (handleSigChld_ == 1) {
+    sigset_t new_mask;
+    sigemptyset(&new_mask);
+    sigaddset(&new_mask, SIGCHLD);
+    sigset_t old_mask;
+#ifdef WT_THREADED
+    pthread_sigmask(SIG_BLOCK, &new_mask, &old_mask);
+#else
+    sigprocmask(SIG_BLOCK, &new_mask, &old_mask);
+#endif // WT_THREADED
+    if (handleSigChld_ == 1) {
+      handleSigChld_ = 0;
+#ifdef WT_THREADED
+      wt_.ioService().post(boost::bind(&Server::doHandleSigChld, this));
+#else
+      doHandleSigChld();
+#endif // WT_THREADED
+    }
+#ifdef WT_THREADED
+    pthread_sigmask(SIG_SETMASK, &old_mask, 0);
+#else
+    sigprocmask(SIG_SETMASK, &old_mask, 0);
+#endif // WT_THREADED
+  }
 }
 
 void Server::handleRequestThreaded(int serverSocket)

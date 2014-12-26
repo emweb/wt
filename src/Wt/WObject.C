@@ -23,14 +23,25 @@ void WObject::seedId(unsigned id)
 WObject::DeletionTracker::DeletionTracker(WObject *object)
 {
 #ifndef WT_TARGET_JAVA
+#ifndef TRACKABLE_BROKEN
   // any signal would do, we just take one that already exists.
   connection_ = signal_.connect(boost::bind(&WObject::parent, object));
+#else
+  if (object->trackable_ptr_.use_count() == 0)
+    object->trackable_ptr_.reset((int *)0);
+  ptr = object->trackable_ptr_;
+#endif
 #endif
 }
 bool WObject::DeletionTracker::deleted() const
 {
 #ifndef WT_TARGET_JAVA
-  return !connection_.connected();
+#ifndef TRACKABLE_BROKEN
+  signal_();
+  return !(connection_.connected() && !connection_.blocked());
+#else
+  return ptr.use_count() == 0;
+#endif
 #else
   return false;
 #endif

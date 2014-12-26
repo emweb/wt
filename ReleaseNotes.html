@@ -22,6 +22,97 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.4 (Oct ?, 2014)</h2>
+
+<p>
+ This release has a focus on bug fixes but also one or two new new features,
+ of which the following are the most notable:
+</p>
+
+<dl>
+  <dt>
+    Support for dedicated session processes with wthttp connector.
+  </dt>
+  <dd>
+    Until now, only the FastCGI connector allowed the use of dedicated
+    processes for individual sessions, by spawning a new process for
+    each new session. This functionality has also been added to the
+    wthttp connector. In this implementation, the manager process will
+    act as a reverse proxy to the dedicated session processes.
+
+    This has as major benefit that there is no longer a choice between
+    dedicated session processes on the one hand (supported by FastCGI)
+    and support for WebSockets on the other hand (supported by the
+    built-in httpd). In fact, there remains little reason to prefer
+    FastCGI over the built-in httpd: in those situations where you
+    want a proper http server as a front-end, you can still use
+    HAproxy or NGINX (or Apache, if you must) as a reverse proxy to
+    wthttp.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WIdentityProxyModel.html">WIdentityProxyModel</a>
+  </dt>
+  <dd>
+    This new proxy model simply forwards the structure of the source
+    model, without any transformation, and can be used for
+    implementing proxy models that reimplement data(), but retain all
+    other characteristics of the source model.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WAbstractChart.html#ac895fb1d1437f51629b49246eda66e3d">Chart::WAbstractChart::setAutoLayoutEnabled()</a>
+  </dt>
+  <dd>
+    Until now, you were responsible for configuring the padding around
+    the chart area to accomodate for axis labels, titles, and
+    legend. While this is still the default behaviour, we added an
+    option to let the chart derive the required padding (using
+    approximate font-metrics available server-side).
+  </dd>
+
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html#a1c97590b1bd4ee9324822967d6e72333">Chart::WCartesianChart::setAxis()</a>
+  </dt>
+  <dd>
+    Whereas previously a chart axis was a "value class", it is now a
+    proper polyymorphic class, and you can provide your own
+    implementation. In this way you can customize things like for
+    example label strings.
+  </dd>  
+
+  <dt>
+    Several new features in the 3D charts library.
+  </dt>
+  <dd>
+    <ul>
+      <li><a href="classWt_1_1Chart_1_1WAbstractDataSeries3D.html#a0ac582c98fe58f36e0d60f11b5627656">
+	  setPointSprite()</a>: ability to define sprites for drawing
+	  a data series</li>
+      <li><a href="classWt_1_1Chart_1_1WAbstractGridData.html#a8f99da2ab56c80de400c90992c35f882">pickSurface()</a>:
+	find out which points on a surface are under a given pixel</li>
+      <li><a href="classWt_1_1Chart_1_1WAbstractGridData.html#afc0509b2dff1fa8dbb970266de21f7db">pickBar()</a>:
+	find out which points on a bar on are under a given pixel.</li>
+      <li><a href="classWt_1_1Chart_1_1WAbstractGridData.html#a09c065c802ff9b21d3c2a543e48f58b2">
+	  setIsoLevels()</a>:
+	draw iso lines (on the ground plane of the chart) corresponding
+	to selected z values.</li>
+      <li><a href="classWt_1_1Chart_1_1WAbstractGridData.html#ad74945761f9bfcc2ced42487468c5480">
+	  setClippingLinesEnabled()</a>:
+	ability to clip and optionally draw clipping planes
+      </li>
+      <li>
+	<a href="classWt_1_1Chart_1_1WCartesian3DChart.html#a8adb0ca981382e3e1435fe8e7fcf1d6e">
+	  setIntersectionsEnabled()</a>:
+	ability to draw surface-surface intersection lines.
+      </li>
+    </ul>
+  </dd>
+</dl>
+
+<hr>
+
 <h2>Release 3.3.3 (May 27, 2014)</h2>
 
 <p>

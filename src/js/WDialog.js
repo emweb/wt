@@ -8,13 +8,37 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WDialog",
- function(APP, el, titlebar, centerX, centerY) {
+ function(APP, el, titlebar, centerX, centerY, movedSignal, resizedSignal) {
    jQuery.data(el, 'obj', this);
 
    var self = this;
    var layoutContainer = $(el).find(".dialog-layout").get(0);
    var WT = APP.WT;
    var dsx, dsy;
+   var x=-1, y=-1, w=-1, h=-1;
+   var resizeBusy = false;
+
+   function newPos() {
+     if (movedSignal) {
+       var newx = WT.pxself(el, 'left');
+       var newy = WT.pxself(el, 'top');
+       if (newx != x || newy != y) {
+	 x = newx;
+	 y = newy;
+	 APP.emit(el, movedSignal, x, y);
+       }
+     }
+   }
+
+   function newSize(neww, newh) {
+     if (!resizeBusy && resizedSignal) {
+       if (neww != w || newh != h) {
+	 w = neww;
+	 h = newh;
+	 APP.emit(el, resizedSignal, w, h);
+       }
+     }
+   }
 
    function handleMove(event) {
      var e = event||window.event;
@@ -48,6 +72,8 @@ WT_DECLARE_WT_MEMBER
      titlebar.onmouseup = function(event) {
        titlebar.onmousemove = null;
 
+       newPos();
+
        WT.capture(null);
      };
    }
@@ -77,6 +103,8 @@ WT_DECLARE_WT_MEMBER
        if (el.style.position != '') {
 	 el.style.visibility = 'visible';
        }
+
+       newPos();
      }
    };
 
@@ -89,6 +117,8 @@ WT_DECLARE_WT_MEMBER
 
      el.style.height = Math.max(0, h) + 'px';
      el.style.width = Math.max(0, w) + 'px';
+
+     newSize(w, h);
 
      self.centerDialog();
    }
@@ -109,14 +139,32 @@ WT_DECLARE_WT_MEMBER
      APP.layouts2.adjust();
    }
 
-   this.onresize = function(w, h) {
+   this.bringToFront = function() {
+     var maxz = 0;
+     $('.Wt-dialog, .modal, .modal-dialog').each
+       (function(index, value)
+       {
+	 maxz = Math.max(maxz,$(value).css('z-index'));
+       }
+     );
+
+     if (maxz > el.style['zIndex'])
+       el.style['zIndex'] = maxz + 1;
+   };
+
+   this.onresize = function(w, h, done) {
      centerX = centerY = false;
+
+     resizeBusy = !done;
      wtResize(el, w, h);
 
      var layout = jQuery.data(layoutContainer.firstChild, 'layout');
      layout.setMaxSize(0, 0);
 
      APP.layouts2.scheduleAdjust();
+
+     if (done)
+       newSize(w, h);
    };
 
    layoutContainer.wtResize = layoutResize;

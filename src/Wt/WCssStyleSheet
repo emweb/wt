@@ -42,9 +42,16 @@ public:
    */
   virtual ~WCssRule();
 
+  /*! \brief Sets the selector.
+   *
+   * \note The selector can only be changed as long as the rule hasn't
+   *       been rendered.
+   */
+  void setSelector(const std::string& selector) { selector_ = selector; }
+
   /*! \brief Returns the selector.
    */
-  const std::string& selector() const { return selector_; }
+  virtual std::string selector() const { return selector_; }
 
   /*! \brief Returns the style sheet to which this rule belongs.
    */
@@ -58,7 +65,7 @@ public:
    *
    * This is a semi-colon separated list of CSS declarations.
    */
-  virtual const std::string declarations() = 0;
+  virtual std::string declarations() = 0;
 
   virtual bool updateDomElement(DomElement& cssRuleElement, bool all);
 
@@ -129,7 +136,7 @@ public:
    */
   WWidget *templateWidget();
 
-  const std::string declarations();
+  std::string declarations();
 
   bool updateDomElement(DomElement& cssRuleElement, bool all);
 
@@ -161,7 +168,7 @@ public:
 	       const WT_USTRING& declarations,
 	       WObject* parent = 0);
 
-  const std::string declarations();
+  std::string declarations();
 
 private:
   WT_USTRING declarations_;
@@ -244,6 +251,7 @@ public:
    *
    * Optionally, you may give a \p ruleName, which may later be
    * used to check if the rule was already defined.
+   * Note: you may not pass the same rule to 2 diffrent applications.
    *
    * \sa isDefined()
    */
@@ -284,6 +292,10 @@ private:
   std::vector<std::string> rulesRemoved_;
 
   std::set<std::string> defined_;
+
+  bool isDirty();
+
+  friend class WebRenderer;
 };
 
 }

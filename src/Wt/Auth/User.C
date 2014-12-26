@@ -77,6 +77,13 @@ User::Status User::status() const
   return db_->status(*this);
 }
 
+void User::setStatus(Status status)
+{
+  checkValid();
+
+  db_->setStatus(*this, status);
+}
+
 void User::addIdentity(const std::string& provider, const WT_USTRING& identity)
 {
   checkValid();

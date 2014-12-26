@@ -42,9 +42,7 @@ WApplication *createApplication(const WEnvironment& env,
 int main(int argc, char **argv)
 {
   try {
-    WServer server(argv[0]);
-
-    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+    WServer server(argc, argv, WTHTTP_CONFIGURATION);
 
     BlogSession::configureAuth();
 
@@ -62,10 +60,7 @@ int main(int argc, char **argv)
     std::cerr << "\n\n -- Warning: Example is deployed at '"
       << BlogUrl << "'\n\n";
 
-    if (server.start()) {
-      WServer::waitForShutdown();
-      server.stop();
-    }
+    server.run();
 
     delete blogDb;
   } catch (WServer::Exception& e) {

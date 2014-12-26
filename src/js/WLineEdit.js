@@ -60,9 +60,13 @@ WT_DECLARE_WT_MEMBER
     this.setValue = function(newValue) {
       displayValue = newValue;
 
-      if (mask === "" || 
-	  (!(flags & KEEP_MASK_WHEN_BLURRED_FLAG) && !WT.hasFocus(edit))) {
+      if (mask === "") {
 	edit.value = newValue;
+	return;
+      }
+
+      if (!(flags & KEEP_MASK_WHEN_BLURRED_FLAG) && !WT.hasFocus(edit)) {
+	edit.value = this.getValue();
 	return;
       }
 
@@ -95,12 +99,11 @@ WT_DECLARE_WT_MEMBER
       raw = newRaw;
       caseMap = newCaseMap;
       spaceChar = newSpaceChar;
-      displayValue = newDisplayValue;
+      this.setValue(newDisplayValue);
     };
 
     if (mask !== "") {
       this.setInputMask(mask, raw, displayValue, caseMap, spaceChar);
-      this.setValue(this.getValue());
     }
 
     function skippable(position) {
@@ -377,4 +380,12 @@ WT_DECLARE_WT_MEMBER
     } else if (edit.attachEvent) {
       edit.attachEvent("oninput", input);
     }
+
+    edit.wtEncodeValue = function() {
+      if (mask === "" || (flags & KEEP_MASK_WHEN_BLURRED_FLAG) || WT.hasFocus(edit)) {
+	return edit.value;
+      } else {
+	return displayValue;
+      }
+    };
 });

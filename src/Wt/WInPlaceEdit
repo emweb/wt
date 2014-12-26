@@ -74,6 +74,15 @@ public:
    */
   WInPlaceEdit(const WString& text, WContainerWidget *parent = 0);
 
+  /*! \brief Creates an in-place edit with the given text.
+   *
+   * The first parameter configures whether buttons are available in edit
+   * mode.
+   *
+   * \sa setButtonsEnabled()
+   */
+  WInPlaceEdit(bool buttons, const WString& text, WContainerWidget *parent = 0);
+
   /*! \brief Returns the current value.
    *
    * \sa setText()

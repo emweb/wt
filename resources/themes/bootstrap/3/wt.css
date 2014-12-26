@@ -138,6 +138,7 @@
 
 .modal-dialog {
   display: block;
+  width: auto;
 }
 
 .modal-dialog .modal-header {
@@ -630,14 +631,14 @@ fieldset[disabled] .Wt-slider-v .handle.active {
   overflow: hidden;
 }
 
-.Wt-itemview Wt-header .Wt-label {
+.Wt-itemview .Wt-header .Wt-label {
   overflow: hidden;
   font-weight: bold;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.Wt-itemview Wt-header .Wt-wwrap .Wt-label {
+.Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
   overflow: visible;
   white-space: normal;
 }
@@ -1143,4 +1144,15 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 
 .Wt-calendar .form-control {
   display: initial;
+}
+
+/*
+ * WResizable
+ */
+
+.modal-dialog.Wt-resizable .modal-content {
+  background-attachment: scroll;
+  background-image: url(../../../resizable.png);
+  background-position: right bottom;
+  background-repeat: no-repeat;
 }

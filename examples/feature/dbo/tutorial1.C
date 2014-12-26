@@ -65,7 +65,7 @@ void run()
    * Try to create the schema (will fail if already exists).
    */
   session.createTables();
-  
+
   {
     dbo::Transaction transaction(session);
 

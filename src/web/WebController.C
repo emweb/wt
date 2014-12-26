@@ -44,6 +44,8 @@
 #include <boost/filesystem.hpp>
 #endif
 
+#include <csignal>
+
 namespace {
 
 bool matchesPath(const std::string& path, const std::string& prefix)
@@ -146,7 +148,7 @@ void WebController::shutdown()
 
   for (unsigned i = 0; i < sessionList.size(); ++i) {
     boost::shared_ptr<WebSession> session = sessionList[i];
-    WebSession::Handler handler(session, true);
+    WebSession::Handler handler(session, WebSession::Handler::TakeLock);
     session->expire();
   }
 }
@@ -159,6 +161,18 @@ Configuration& WebController::configuration()
 int WebController::sessionCount() const
 {
   return sessions_.size();
+}
+
+std::vector<std::string> WebController::sessions()
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif
+  std::vector<std::string> sessionIds;
+  for (SessionMap::const_iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
+    sessionIds.push_back(i->first);
+  }
+  return sessionIds;
 }
 
 bool WebController::expireSessions()
@@ -206,8 +220,19 @@ bool WebController::expireSessions()
     boost::shared_ptr<WebSession> session = toExpire[i];
 
     LOG_INFO_S(session, "timeout: expiring");
-    WebSession::Handler handler(session, true);
+    WebSession::Handler handler(session, WebSession::Handler::TakeLock);
     session->expire();
+  }
+
+  toExpire.clear();
+
+  if (configuration().singleSession()) {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+    if (sessions_.size() == 0) {
+      server_.scheduleStop();
+    }
   }
 
   return result;
@@ -228,6 +253,8 @@ void WebController::removeSession(const std::string& sessionId)
   boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
+  LOG_INFO("Removing session " << sessionId);
+
   SessionMap::iterator i = sessions_.find(sessionId);
   if (i != sessions_.end()) {
     if (i->second->env().ajax())
@@ -235,6 +262,10 @@ void WebController::removeSession(const std::string& sessionId)
     else
       --plainHtmlSessions_;
     sessions_.erase(i);
+  }
+
+  if (configuration().singleSession() && sessions_.size() == 0) {
+    server_.scheduleStop();
   }
 }
 
@@ -260,8 +291,8 @@ std::string WebController::sessionFromCookie(const char *cookies,
 		    + "})\"?.*");
 
   boost::smatch what;
-
-  if (boost::regex_match(std::string(cookies), what, cookieSession_e))
+  std::string cookiesAsStdString(cookies);
+  if (boost::regex_match(cookiesAsStdString, what, cookieSession_e))
     return what[1];
   else
     return std::string();
@@ -478,34 +509,26 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
 
     SessionMap::iterator i = sessions_.find(event.sessionId);
 
-    if (i == sessions_.end() || i->second->dead())
-      return false;
-    else
+    if (i != sessions_.end() && !i->second->dead())
       session = i->second;
   }
 
+  if (!session) {
+    if (event.fallbackFunction)
+      event.fallbackFunction();
+    return false;
+  } else
+    session->queueEvent(event);
+
   /*
-   * Take session lock and propagate event to the application.
+   * Try to take the session lock now to propagate the event to the
+   * application.
    */
   {
-    WebSession::Handler handler(session, true);
-
-    if (!session->dead()) {
-      session->externalNotify(WEvent::Impl(&handler, event.function));
-
-      if (session->app() && session->app()->isQuited())
-	session->kill();
-
-      if (session->dead())
-	removeSession(event.sessionId);
-
-      return true;
-    } else {
-      if (!event.fallbackFunction.empty())
-        event.fallbackFunction();
-      return false;
-    }
+    WebSession::Handler handler(session, WebSession::Handler::TryLock);
   }
+
+  return true;
 }
 
 void WebController::addUploadProgressUrl(const std::string& url)
@@ -568,7 +591,8 @@ void WebController::handleRequest(WebRequest *request)
   }
 
   if (request->entryPoint_->type() == StaticResource) {
-    request->entryPoint_->resource()->handle(request, (WebResponse *)request);
+    request
+      ->entryPoint_->resource()->handle(request, (WebResponse *)request);
     return;
   }
 
@@ -791,7 +815,7 @@ bool WebController::limitPlainHtmlSessions()
 
     if (plainHtmlSessions_ + ajaxSessions_ > 20)
       return plainHtmlSessions_ > conf_.maxPlainSessionsRatio()
-	* ajaxSessions_;
+	* (ajaxSessions_ + plainHtmlSessions_);
     else
       return false;
   } else

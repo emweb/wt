@@ -24,8 +24,9 @@ WT_DECLARE_WT_MEMBER
              var waitingForText = false, toolTipText = text;
 
              function checkIsOver() {
-                 if (!$('#' + id + ':hover').length)
+                 if (!$('#' + id + ':hover').length) {
                      hideToolTip();
+		 }
              }
 
              function loadToolTipText() {
@@ -37,6 +38,7 @@ WT_DECLARE_WT_MEMBER
                  toolTipText = text;
                  if (waitingForText) {
                      this.showToolTip();
+                     clearTimeout(showTimer);
                      waitingforText = false;
                  }
              }
@@ -67,7 +69,7 @@ WT_DECLARE_WT_MEMBER
              function hideToolTip() {
                  clearTimeout(showTimer);
                  if (toolTipEl) {
-                     $(toolTipEl).remove();
+                     $(toolTipEl).parent().remove();
                      toolTipEl = null;
                      clearInterval(checkInt);
                      checkInt = null;

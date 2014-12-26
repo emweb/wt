@@ -141,6 +141,8 @@ bool WebRenderer::isDirty() const
     || !session_.app()->afterLoadJavaScript_.empty()
     || session_.app()->serverPushChanged_
     || session_.app()->styleSheetsAdded_
+    || !session_.app()->styleSheetsToRemove_.empty()
+    || session_.app()->styleSheet().isDirty()
     || session_.app()->internalPathIsChanged_
     || !collectedJS1_.empty()
     || !collectedJS2_.empty()
@@ -509,6 +511,13 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
   }
   cookiesToSet_.clear();
 
+#ifndef WT_TARGET_JAVA
+  Configuration& conf = session_.controller()->configuration();
+  if (conf.behindReverseProxy() && conf.singleSession()) {
+    response.addHeader("X-Wt-Session", session_.sessionId());
+  }
+#endif // WT_TARGET_JAVA
+
   response.setContentType(mimeType);
 }
 
@@ -869,8 +878,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setCondition
       ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors);
     script.setCondition
-      ("SHOW_STACK",
-       conf.errorReporting() == Configuration::ErrorMessageWithStack);
+      ("SHOW_ERROR", conf.errorReporting() == Configuration::ErrorMessage);
     script.setCondition
       ("UGLY_INTERNAL_PATHS", session_.useUglyInternalPaths());
 
@@ -982,17 +990,17 @@ void WebRenderer::serveMainscript(WebResponse& response)
     out << "window." << app->javaScriptClass()
 	<< "LoadWidgetTree = function(){\n";
 
+    if (app->internalPathsEnabled_)
+      out << app->javaScriptClass() << "._p_.enableInternalPaths("
+	  << WWebWidget::jsStringLiteral(app->renderedInternalPath_)
+	  << ");\n";
+
     visibleOnly_ = false;
 
     formObjectsChanged_ = true;
     currentFormObjectsList_.clear();
     collectJavaScript();
     updateLoadIndicator(collectedJS1_, app, true);
-
-    if (app->internalPathsEnabled_)
-      out << app->javaScriptClass() << "._p_.enableInternalPaths("
-	  << WWebWidget::jsStringLiteral(app->internalPath())
-	  << ");\n";
 
     LOG_DEBUG("js: " << collectedJS1_.str() << collectedJS2_.str());
 
@@ -1005,7 +1013,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< WWebWidget::jsStringLiteral(app->newInternalPath_)
 	<< ", false);\n";
 
-    if (!app->environment().hashInternalPaths())
+    if (!app->environment().internalPathUsingFragments())
       session_.setPagePathInfo(app->newInternalPath_);
 
     out << app->javaScriptClass()
@@ -1138,7 +1146,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
   LOG_DEBUG("js: " << collectedJS1_.str());
 
   out << collectedJS1_.str();
-  collectedJS1_.clear();  
+  collectedJS1_.clear();
 
   updateLoadIndicator(out, app, true);
 
@@ -1250,8 +1258,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
   if (!app->environment().ajax()
       && (/*response.requestMethod() == "POST"
 	  || */(app->internalPathIsChanged_
-		&& app->oldInternalPath_ != app->newInternalPath_))) {
-    app->oldInternalPath_ = app->newInternalPath_;
+		&& app->renderedInternalPath_ != app->newInternalPath_))) {
+    app->renderedInternalPath_ = app->newInternalPath_;
 
     if (session_.state() == WebSession::JustCreated &&
 	conf.progressiveBoot(app->environment().internalPath())) {
@@ -1432,7 +1440,16 @@ void WebRenderer::loadStyleSheet(WStringStream& out, WApplication *app,
 {
   out << WT_CLASS << ".addStyleSheet('"
       << sheet.link().resolveUrl(app) << "', '"
-      << sheet.media() << "');\n";
+      << sheet.media() << "');\n ";
+}
+
+void WebRenderer::removeStyleSheets(WStringStream& out, WApplication *app)
+{
+  for (int i = (int)app->styleSheetsToRemove_.size() - 1; i > -1; --i){
+    out << WT_CLASS << ".removeStyleSheet('"
+        << app->styleSheetsToRemove_[i].link().resolveUrl(app) << "');\n ";
+    app->styleSheetsToRemove_.erase(app->styleSheetsToRemove_.begin() + i);
+  }
 }
 
 void WebRenderer::loadStyleSheets(WStringStream& out, WApplication *app)
@@ -1441,6 +1458,8 @@ void WebRenderer::loadStyleSheets(WStringStream& out, WApplication *app)
 
   for (unsigned i = first; i < app->styleSheets_.size(); ++i)
     loadStyleSheet(out, app, app->styleSheets_[i]);
+
+  removeStyleSheets(out, app);
 
   app->styleSheetsAdded_ = 0;
 }
@@ -1523,7 +1542,7 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
   if (session_.sessionIdChanged_) {
     if (session_.hasSessionIdInUrl()) {
       if (app->environment().ajax() &&
-	  !app->environment().hashInternalPaths()) {
+	  !app->environment().internalPathUsingFragments()) {
 	streamRedirectJS(out, app->url(app->internalPath()));
 	// better would be to use HTML5 history in this case but that would
 	// need some minor JavaScript reorganizations
@@ -1571,6 +1590,8 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
     out << "window.onresize();";
     updateLayout_ = false;
   }
+
+  app->renderedInternalPath_ = app->newInternalPath_;
 
   updateLoadIndicator(out, app, false);
 
@@ -1668,7 +1689,7 @@ void WebRenderer::collectJS(WStringStream* js)
 	  << "._p_.setHash("
 	  << WWebWidget::jsStringLiteral(app->newInternalPath_)
 	  << ", false);\n";
-      if (!preLearning() && !app->environment().hashInternalPaths())
+      if (!preLearning() && !app->environment().internalPathUsingFragments())
 	session_.setPagePathInfo(app->newInternalPath_);
     }
 
@@ -1677,6 +1698,7 @@ void WebRenderer::collectJS(WStringStream* js)
     app->afterLoadJavaScript_.clear();
 
   app->internalPathIsChanged_ = false;
+  app->renderedInternalPath_ = app->newInternalPath_;
 }
 
 void WebRenderer::preLearnStateless(WApplication *app, WStringStream& out)

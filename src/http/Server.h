@@ -73,9 +73,23 @@ public:
 
   asio::io_service &service();
 
+  SessionProcessManager *sessionManager() { return sessionManager_; }
+
 private:
   /// Starts accepting http/https connections
   void startAccept();
+
+  /// Start to connect to a listening TCP socket of the parent
+  /// Used for dedicated processes.
+  void startConnect(const boost::shared_ptr<asio::ip::tcp::socket>& socket);
+
+  /// Connected to the parent, sends the listening port back
+  void handleConnected(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
+		       const asio_error_code& e);
+
+  /// The port has been sent to the parent, close the socket.
+  void handlePortSent(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
+		      const asio_error_code& e, const boost::shared_ptr<std::string>& /* buf */);
 
   /// Handle completion of an asynchronous accept operation.
   void handleTcpAccept(const asio_error_code& e);
@@ -85,6 +99,9 @@ private:
 
   /// Handle a request to resume the server.
   void handleResume();
+
+  /// Expire sessions periodically for dedicated processes
+  void expireSessions(boost::system::error_code ec);
 
   /// The server's configuration
   Configuration config_;
@@ -125,8 +142,15 @@ void handleTimeout(asio::deadline_timer *timer,
   /// The next TCP connection to be accepted.
   TcpConnectionPtr new_tcpconnection_;
 
+  /// Session process manager for DedicatedProcess option
+  SessionProcessManager *sessionManager_;
+
   /// The handler for all incoming requests.
   RequestHandler request_handler_;
+
+  /// For dedicated process deployment: timer to periodically
+  /// call WebController::expireSessions()
+  asio::deadline_timer expireSessionsTimer_;
 };
 
 } // namespace server

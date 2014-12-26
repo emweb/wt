@@ -19,6 +19,8 @@ class WTable;
 
 /*! \class WNavigationBar Wt/WNavigationBar Wt/WNavigationBar
  *  \brief A navigation bar
+ *
+ * \note WNavigationBar is currently only styled in the Bootstrap themes.
  */
 class WT_API WNavigationBar : public WTemplate
 {

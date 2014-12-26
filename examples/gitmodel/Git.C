@@ -55,7 +55,9 @@ namespace {
   class POpenWrapper
   {
   public:
-    POpenWrapper(const std::string& s, Git::Cache& cache) {
+    POpenWrapper(const std::string& cmd, Git::Cache& cache) {
+      std::string s = sanitize(cmd);
+
       bool cached = false;
 
       for (Git::Cache::iterator i = cache.begin(); i != cache.end(); ++i)
@@ -126,6 +128,23 @@ namespace {
     std::string content_;
     unsigned int idx_;
     int status_;
+
+
+    std::string sanitize(const std::string& cmd) {
+      /*
+       * Sanitize cmd to not include any dangerous tokens that could allow
+       * execution of shell commands: <>&;|[$`
+       */
+      std::string result;
+      std::string unsafe = "<>&;|[$`";
+ 
+      for (unsigned i = 0; i < cmd.size(); ++i) {
+	if (unsafe.find(cmd[i]) == std::string::npos)
+	  result += cmd[i];
+      }
+
+      return result;
+    }
   };
 }
 

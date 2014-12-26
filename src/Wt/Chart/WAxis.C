@@ -114,7 +114,8 @@ WAxis::Segment::Segment()
     renderMinimum(AUTO_MINIMUM),
     renderMaximum(AUTO_MAXIMUM),
     renderLength(AUTO_MAXIMUM),
-    renderStart(AUTO_MAXIMUM)
+    renderStart(AUTO_MAXIMUM),
+    dateTimeRenderUnit(Days)
 { }
 
 WAxis::WAxis()
@@ -125,6 +126,7 @@ WAxis::WAxis()
     scale_(LinearScale),
     resolution_(0.0),
     labelInterval_(0),
+    labelBasePoint_(0),
     defaultLabelFormat_(true),
     gridLines_(false),
     gridLinesPen_(gray),
@@ -141,6 +143,9 @@ WAxis::WAxis()
 
   segments_.push_back(Segment());
 }
+
+WAxis::~WAxis()
+{ }
 
 void WAxis::init(WAbstractChartImplementation* chart,
 		 Axis axis)
@@ -285,6 +290,11 @@ void WAxis::setBreak(double minimum, double maximum)
 void WAxis::setLabelInterval(double labelInterval)
 {
   set(labelInterval_, labelInterval);
+}
+
+void WAxis::setLabelBasePoint(double labelBasePoint)
+{
+  set(labelBasePoint_, labelBasePoint);
 }
 
 void WAxis::setLabelFormat(const WString& format)
@@ -433,9 +443,18 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 
       if (scale_ == LinearScale) {
 	if (it == 0) {
-	  if (roundLimits_ & MinimumValue)
+	  if (roundLimits_ & MinimumValue) {
 	    s.renderMinimum
 	      = roundDown125(s.renderMinimum, renderInterval_);
+
+	    if (s.renderMinimum <= labelBasePoint_ &&
+		s.renderMaximum >= labelBasePoint_) {
+	      double interv = labelBasePoint_ - s.renderMinimum;
+	      interv = renderInterval_ * 2
+		* std::ceil(interv / (renderInterval_ * 2));
+	      s.renderMinimum = labelBasePoint_ - interv;
+	    }
+	  }
 	  
 	  if (roundLimits_ & MaximumValue)
 	    s.renderMaximum
@@ -471,7 +490,7 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 	      min = WDateTime(WDate(min.date().year(), 1, 1));
 
 	  if (roundLimits_ & MaximumValue)
-	    if (max.date().day() != 1 && max.date().day() != 1)
+	    if (max.date().day() != 1 && max.date().month() != 1)
 	      max = WDateTime(WDate(max.date().year() + 1, 1, 1));
 	} else if (daysInterval > 20) {
 	  s.dateTimeRenderUnit = Months;
@@ -686,18 +705,20 @@ void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
 
 void WAxis::computeRange(const Segment& segment) const
 {
+  segment.renderMinimum = segment.minimum;
+  segment.renderMaximum = segment.maximum;
+
+  const bool findMinimum = segment.renderMinimum == AUTO_MINIMUM;
+  const bool findMaximum = segment.renderMaximum == AUTO_MAXIMUM;
+
   if (scale_ == CategoryScale) {
     int rc = chart_->numberOfCategories(axis_);
     rc = std::max(1, rc);
-    segment.renderMinimum = -0.5;
-    segment.renderMaximum = rc - 0.5;
+    if (findMinimum)
+      segment.renderMinimum = -0.5;
+    if (findMaximum)
+      segment.renderMaximum = rc - 0.5;
   } else {
-    segment.renderMinimum = segment.minimum;
-    segment.renderMaximum = segment.maximum;
-
-    const bool findMinimum = segment.renderMinimum == AUTO_MINIMUM;
-    const bool findMaximum = segment.renderMaximum == AUTO_MAXIMUM;
-
     if (findMinimum || findMaximum) {
       double minimum = std::numeric_limits<double>::max();
       double maximum = -std::numeric_limits<double>::max();
@@ -947,14 +968,12 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
 
   const Segment& s = segments_[segment];
 
-  int rc;
   switch (scale_) {
   case CategoryScale: {
-    rc = chart_->numberOfCategories(axis_);
     int renderInterval = std::max(1, static_cast<int>(renderInterval_));
     if (renderInterval == 1) {
-      ticks.push_back(TickLabel(-0.5, TickLabel::Long));
-      for (int i = 0; i < rc; ++i) {
+      ticks.push_back(TickLabel(s.renderMinimum, TickLabel::Long));
+      for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum; ++i) {
 	ticks.push_back(TickLabel(i + 0.5, TickLabel::Long));
 	ticks.push_back(TickLabel(i, TickLabel::Zero,
 				  label(static_cast<double>(i))));
@@ -963,7 +982,8 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
       /*
        * We could do a special effort for date X series here...
        */
-      for (int i = 0; i < rc; i += renderInterval) {
+      for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum;
+	   i += renderInterval) {
 	ticks.push_back(TickLabel(i, TickLabel::Long,
 				  label(static_cast<double>(i))));
       }
@@ -1081,6 +1101,9 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
 
 WString WAxis::defaultDateTimeFormat(const Segment& s) const
 {
+  if (scale_ != DateScale && scale_ != DateTimeScale)
+    return WString::Empty;
+
   WDateTime dt;
 
   if (scale_ == DateScale) {
@@ -1162,8 +1185,13 @@ long WAxis::getDateNumber(WDateTime dt) const
 
 double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
 {
-  return s.renderLength
-    / (orientation == Vertical ? AUTO_V_LABEL_PIXELS : AUTO_H_LABEL_PIXELS);
+  if (orientation == Horizontal)
+    return s.renderLength
+      / std::max((double)AUTO_H_LABEL_PIXELS,
+		 WLength(defaultDateTimeFormat(s).value().size(),
+			 WLength::FontEm).toPixels());
+  else
+    return s.renderLength / AUTO_V_LABEL_PIXELS;
 }
 
 void WAxis::render(WPainter& painter,

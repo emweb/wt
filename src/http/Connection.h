@@ -33,6 +33,8 @@ typedef boost::system::system_error asio_system_error;
 #include "RequestHandler.h"
 #include "RequestParser.h"
 
+#include "Wt/WFlags"
+
 namespace http {
 namespace server {
 
@@ -78,6 +80,7 @@ public:
   void startWriteResponse(ReplyPtr reply);
 
   void handleReadBody(ReplyPtr reply);
+  void readMore(ReplyPtr reply);
   bool readAvailable();
 
 protected:
@@ -104,12 +107,12 @@ protected:
   void finishReply();
 
   enum State {
-    Idle,
-    Reading,
-    Writing
+    Idle = 0x0,
+    Reading = 0x1,
+    Writing = 0x2
   };
 
-  State state_;
+  Wt::WFlags<State> state_;
 
   virtual void stop();
 
@@ -164,7 +167,7 @@ private:
   RequestParser request_parser_;
 
   /// Recycled reply pointers
-  ReplyPtr lastWtReply_, lastStaticReply_;
+  ReplyPtr lastWtReply_, lastProxyReply_, lastStaticReply_;
 
   /// The server that owns this connection
   Server *server_;

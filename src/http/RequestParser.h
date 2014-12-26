@@ -33,6 +33,12 @@ class Server;
 class RequestParser
 {
 public:
+  enum ParseResult {
+    ReadMore, // The parser is ready to read more
+    Done,     // The parser is done
+    NotReady  // The parser is not ready to read more
+  };
+
   /// Construct ready to parse the request method.
   RequestParser(Server *server);
 
@@ -49,7 +55,7 @@ public:
   /// Validate
   Reply::status_type validate(Request& req);
 
-  bool parseBody(Request& req, ReplyPtr reply,
+  ParseResult parseBody(Request& req, ReplyPtr reply,
 		 Buffer::iterator& begin, Buffer::iterator end);
 
   bool initialState() const;

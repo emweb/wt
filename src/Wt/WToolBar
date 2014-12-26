@@ -57,6 +57,8 @@ public:
    */
   void addWidget(WWidget *widget, AlignmentFlag alignmentFlag = AlignLeft);
 
+  void removeWidget(WWidget *widget);
+
   /*! \brief Adds a separator.
    *
    * The toolbar automatically becomes non-compact.

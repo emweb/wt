@@ -151,6 +151,15 @@ AuthService::~AuthService()
 void AuthService::setEmailVerificationEnabled(bool enabled)
 {
   emailVerification_ = enabled;
+  if (!enabled)
+    emailVerificationReq_ = false;
+}
+
+void AuthService::setEmailVerificationRequired(bool enabled)
+{
+  emailVerificationReq_ = enabled;
+  if (enabled)
+    emailVerification_ = true;
 }
 
 void AuthService::setEmailRedirectInternalPath(const std::string& internalPath)

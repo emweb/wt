@@ -19,11 +19,15 @@ namespace Wt {
  *
  * This class provides localization support for an application.
  *
- * It's functionality is currently limited to date and number
- * formatting, and the formatting properties need to be configured
- * here, we plan to leverage standard C++ locale functionality to
- * obtain these configurations. The locale also provides client-side
- * support, and thus cannot solely rely on C++'s locale support.
+ * It can be used to determine the formatting of dates and numbers,
+ * and by WLocalDateTime to determine the time zone.
+ *
+ * Note that only the name() parameter is automatically retrieved
+ * from the browser, if possible, and message resources are deduced
+ * based on that. All other parameters have to be configured.
+ *
+ * We plan to leverage the C++ std::locale to deduce these parameters,
+ * but this is currently not implemented.
  *
  * \sa WApplication::locale()
  */
@@ -42,16 +46,16 @@ public:
    */
   WLocale(const Wt::WLocale& locale);
 
-  /* \brief Creates a locale by name.
+  /*! \brief Creates a locale by name.
    *
-   * The locale name is a string such as "en" (for English) or "en_UK"
+   * The locale name is a string such as "en" (for English) or "en_GB"
    * (for UK English).
    */
   WLocale(const std::string& locale);
 
-  /* \brief Creates a locale by name.
+  /*! \brief Creates a locale by name.
    *
-   * The locale name is a string such as "en" (for English) or "en_UK"
+   * The locale name is a string such as "en" (for English) or "en_GB"
    * (for UK English).
    */
   WLocale(const char *locale);

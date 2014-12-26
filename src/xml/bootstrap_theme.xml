@@ -15,6 +15,40 @@
     ]]>
   </message>
 
+  <message id="Wt.Auth.field2">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="control-group">
+      <label for="${id:{1}}" class="control-label">
+        ${{2}}
+      </label>
+      <div class="controls">
+	${{1}} <span class="help-inline">
+	  ${{1}-info}
+	</span>
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field3">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="control-group">
+      <label for="${id:{1}}" class="control-label">
+        ${{2}}
+      </label>
+      <div class="controls">
+	${{1}} <span class="help-inline">
+	  ${{1}-info} ${{3} class="btn-link"}
+	</span>
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
   <message id="Wt.Auth.template.login">
     <div class="span8 offset2 Wt-auth-login">
       <legend>${tr:Wt.Auth.login-form-title}</legend>
@@ -22,15 +56,7 @@
 
       <div class="form-horizontal">
 	${<if:passwords>}
-          <div class="control-group">
-	    <label for="${id:user-name}" class="control-label">
-	      ${user-name-label}
-	    </label>
-	    <div class="controls">
-	      ${user-name} <span class="help-inline">${user-name-info}</span>
-	    </div>
-	  </div>
-
+	  ${block:Wt.Auth.field2 user-name user-name-label}
 	  ${block:Wt.Auth.field password}
 	  ${block:Wt.Auth.field remember-me}
 	${</if:passwords>}
@@ -60,20 +86,7 @@
       </p>
 
       <div class="form-horizontal">
-        ${<if:user-name>}
-	  <div class="control-group">
-	    <label for="${id:user-name}" class="control-label">
-	      ${user-name-label}
-	    </label>
-	    <div class="controls">
-	      ${user-name}
-	      <span class="help-inline">
-		${user-name-info} ${confirm-is-you class="btn-link"}
-	      </span>
-	    </div>
-	  </div>
-	${</if:user-name>}
-
+	${block:Wt.Auth.field3 user-name user-name-label confirm-is-you}
 	${block:Wt.Auth.field choose-password}
 	${block:Wt.Auth.field repeat-password}
 	${block:Wt.Auth.field email}
@@ -100,15 +113,7 @@
   <message id="Wt.Auth.template.update-password">
     <div class="Wt-auth-update-password">
       <div class="form-horizontal">
-	<div class="control-group">
-	  <label for="${id:user-name}" class="control-label">
-	    ${tr:Wt.Auth.user-name}
-	  </label>
-	  <div class="controls">
-	    ${user-name}
-	  </div>
-	</div>
-
+	${block:Wt.Auth.field2 user-name user-name-label}
 	${block:Wt.Auth.field password}
 	${block:Wt.Auth.field choose-password}
 	${block:Wt.Auth.field repeat-password}
@@ -145,15 +150,7 @@
   <message id="Wt.Auth.template.password-prompt">
     <div class="Wt-form Wt-auth-password-prompt">
       <div class="form-horizontal">
-	<div class="control-group">
-	  <label for="${id:user-name}" class="control-label">
-	    ${tr:Wt.Auth.user-name}
-	  </label>
-	  <div class="controls">
-	    ${user-name}
-	  </div>
-	</div>
-
+	${block:Wt.Auth.field2 user-name user-name-label}
 	${block:Wt.Auth.field password}
       </div>
 

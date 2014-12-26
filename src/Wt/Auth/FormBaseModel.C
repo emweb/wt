@@ -37,12 +37,13 @@ void FormBaseModel::addPasswordAuth(const AbstractPasswordService *auth)
 
 void FormBaseModel::addOAuth(const OAuthService *auth)
 {
-  oAuth_.push_back(auth);
+  Utils::add(oAuth_, auth);
 }
 
 void FormBaseModel::addOAuth(const std::vector<const OAuthService *>& auth)
 {
-  Utils::insert(oAuth_, auth);
+  for (unsigned i = 0; i < auth.size(); ++i)
+    addOAuth(auth);
 }
 
 WString FormBaseModel::label(Field field) const
@@ -65,6 +66,37 @@ void FormBaseModel::setValid(Field field, const Wt::WString& message)
 		WValidator::Result(WValidator::Valid,
 				   message.empty() ? 
 				   WString::tr("Wt.Auth.valid") : message));
+}
+
+bool FormBaseModel::loginUser(Login& login, User& user, LoginState state)
+{
+  if (!user.isValid())
+    return false;
+
+  if (user.status() == User::Disabled) {
+    setValidation
+      (LoginNameField,
+       WValidator::Result(WValidator::Invalid,
+			  WString::tr("Wt.Auth.account-disabled")));
+
+    login.login(user, DisabledLogin);
+
+    return false;
+  } else if (baseAuth()->emailVerificationRequired() &&
+	     user.email().empty()) {
+    setValidation
+      (LoginNameField,
+       WValidator::Result(WValidator::Invalid,
+			  WString::tr("Wt.Auth.email-unverified")));
+
+    login.login(user, DisabledLogin);
+
+    return false;
+  } else {
+    login.login(user, state);
+
+    return true;
+  }  
 }
 
   }

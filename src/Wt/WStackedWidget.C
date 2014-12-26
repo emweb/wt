@@ -42,8 +42,8 @@ int WStackedWidget::currentIndex() const
 
 WWidget *WStackedWidget::currentWidget() const
 {
-  if (currentIndex() >= 0)
-    return widget(currentIndex());
+  if (currentIndex_ >= 0 && currentIndex_ < count())
+    return widget(currentIndex_);
   else
     return 0;
 }
@@ -63,9 +63,10 @@ void WStackedWidget::removeChild(WWidget *child)
   WContainerWidget::removeChild(child);
 
   if (currentIndex_ >= count()) {
-    currentIndex_ = -1;
     if (count() > 0)
       setCurrentIndex(count() - 1);
+    else
+      currentIndex_ = -1;
   }
 }
 
@@ -101,12 +102,15 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
 
     WWidget *previous = currentWidget();
 
-    doJavaScript("$('#" + id() + "').data('obj').adjustScroll("
-		 + widget(currentIndex_)->jsRef() + ");");
+    if (previous)
+      doJavaScript("$('#" + id() + "').data('obj').adjustScroll("
+		   + previous->jsRef() + ");");
+
     setJavaScriptMember("wtAutoReverse", autoReverse ? "true" : "false");
 
     if (previous)
       previous->animateHide(animation);
+
     widget(index)->animateShow(animation);
 
     currentIndex_ = index;

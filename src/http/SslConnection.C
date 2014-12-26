@@ -85,8 +85,7 @@ void SslConnection::handleHandshake(const asio_error_code& error)
 	       << X509_verify_cert_error_string(sslState));
     }
 
-    LOG_DEBUG(socket().native() << "handleHandshake error: "
-      << error.message() << "\n");
+    LOG_INFO("SSL handshake error: " << error.message());
     ConnectionManager_.stop(shared_from_this());
   }
 }
@@ -138,7 +137,7 @@ void SslConnection::stopNextLayer(const boost::system::error_code& ec)
 
 void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
-  if (state_ != Idle) {
+  if (state_ & Reading) {
     stop();
     return;
   }
@@ -171,7 +170,7 @@ void SslConnection::handleReadRequestSsl(const asio_error_code& e,
 void SslConnection::startAsyncReadBody(ReplyPtr reply,
 				       Buffer& buffer, int timeout)
 {
-  if (state_ != Idle) {
+  if (state_ & Reading) {
     LOG_DEBUG(socket().native() << ": state_ = " << state_);
     stop();
     return;
@@ -206,7 +205,7 @@ void SslConnection::startAsyncWriteResponse
      const std::vector<asio::const_buffer>& buffers,
      int timeout)
 {
-  if (state_ != Idle) {
+  if (state_ & Writing) {
     LOG_DEBUG(socket().native() << ": state_ = " << state_);
     stop();
     return;

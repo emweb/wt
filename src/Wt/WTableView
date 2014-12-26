@@ -67,6 +67,10 @@ namespace Wt {
  * You may also react to mouse click events on any item, by connecting
  * to one of the clicked() or doubleClicked() signals.
  *
+ * If a WTableView is not constrained in height (either by
+ * a layout manager or by setHeight()), then it will grow according
+ * to the size of the model.
+ *
  * \ingroup modelview
  */
 class WT_API WTableView : public WAbstractItemView
@@ -112,12 +116,25 @@ public:
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());
 
+  /*! \brief Returns the model index corresponding to a widget.
+   *
+   * This returns the model index for the item that is or contains the
+   * given widget.
+   */
   WModelIndex modelIndexAt(WWidget *widget) const;
 
   virtual EventSignal<WScrollEvent>& scrolled();
 
  protected:
   virtual void render(WFlags<RenderFlag> flags);
+
+  /*! \brief Called when rows or columns are inserted/removed.
+   *
+   * Override this method when you want to adjust the table's size when
+   * columns or rows are inserted or removed. The method is also called when
+   * the model is reset. The default implementation does nothing.
+   */
+  virtual void adjustSize() {}
 
 private:
   class ColumnWidget : public WContainerWidget
@@ -224,6 +241,9 @@ private:
   bool isRowRendered(const int row) const;
   bool isColumnRendered(const int column) const;
   void updateColumnOffsets();
+  void updateModelIndexes();
+  void updateModelIndex(const WModelIndex& index,
+			int renderedRow, int renderedColumn);
 
   void onDropEvent(int renderedRow, int columnId,
 		   std::string sourceId, std::string mimeType,

@@ -577,7 +577,7 @@
 .Wt-itemview th .Wt-tv-br {
   overflow: hidden;
 }
-.Wt-itemview Wt-header .Wt-label {
+.Wt-itemview .Wt-header .Wt-label {
   font-weight: bold;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -585,7 +585,7 @@
 
   white-space: nowrap;
 }
-.Wt-itemview Wt-header .Wt-wwrap .Wt-label {
+.Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
   overflow: visible;
   white-space: normal;
 }
@@ -994,4 +994,14 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 .Wt-stack.Wt-animated {
   overflow: hidden;
   position: relative;
+}
+/*
+ * WResizable
+ */
+.Wt-resizable,
+.Wt-resizable.modal .modal-footer {
+  background-image: url(../../../resizable.png);
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: right bottom;
 }

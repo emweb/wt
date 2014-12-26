@@ -18,6 +18,42 @@
     ]]>
   </message>
 
+  <message id="Wt.Auth.field2">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group">
+      <label for="${id:{1}}" class="control-label col-sm-2">
+        ${{2}}
+      </label>
+      <div class="col-sm-5">
+	${{1}}
+      </div>
+      <div class="help-block col-sm-5">
+        ${{1}-info}
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field3">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group">
+      <label for="${id:{1}}" class="control-label col-sm-2">
+        ${{2}}
+      </label>
+      <div class="col-sm-5">
+	${{1}}
+      </div>
+      <div class="help-block col-sm-5">
+        ${{1}-info} ${{3} class="btn-link"}
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
   <message id="Wt.WNavigationBar.template">
     <div>
       ${collapse-button}

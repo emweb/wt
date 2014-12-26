@@ -150,8 +150,6 @@ public:
 				    const std::string& args);
   virtual void load();
   virtual bool loaded() const;
-  virtual void setTabIndex(int index);
-  virtual int tabIndex() const;
   virtual int zIndex() const;
 
   virtual void setId(const std::string& id);
@@ -260,7 +258,29 @@ public:
 
   bool isRendered() const;
 
+  virtual void setCanReceiveFocus(bool enabled);
+  virtual bool canReceiveFocus() const;
   virtual bool setFirstFocus();
+  virtual void setFocus(bool focus);
+  virtual bool hasFocus() const;
+  virtual void setTabIndex(int index);
+  virtual int tabIndex() const;
+
+  /*! \brief %Signal emitted when the widget lost focus.
+   *
+   * This signals is only emitted for a widget that canReceiveFocus()
+   */
+  EventSignal<>& blurred();
+
+  /*! \brief %Signal emitted when the widget recieved focus.
+   *
+   * This signals is only emitted for a widget that canReceiveFocus()
+   */
+  EventSignal<>& focussed();
+
+#ifndef WT_TARGET_JAVA
+  using WWidget::setFocus;
+#endif
 
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
@@ -281,6 +301,7 @@ protected:
   virtual void addChild(WWidget *child);
   virtual void removeChild(WWidget *child);
   virtual void setHideWithOffsets(bool how = true);
+  virtual WStatelessSlot *getStateless(Method method);
 
   WWidget *selfWidget();
 
@@ -324,9 +345,14 @@ private:
   static const int BIT_CONTAINS_LAYOUT = 26;
   static const int BIT_ZINDEX_CHANGED = 27;
   static const int BIT_TOOLTIP_DEFERRED = 28;
+  static const int BIT_GOT_FOCUS        = 29;
+  static const int BIT_TABINDEX_CHANGED = 30;
+
+  static const char *FOCUS_SIGNAL;
+  static const char *BLUR_SIGNAL;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<29> AllChangeFlags;
+  static const std::bitset<31> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -334,7 +360,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<29> flags_;
+  std::bitset<31> flags_;
   WLength *width_;
   WLength *height_;
 
@@ -422,6 +448,7 @@ private:
     std::vector<Member>                 *jsMembers_;
     std::vector<JavaScriptStatement>    *jsStatements_;
     JSignal<int, int>                   *resized_;
+    int                                  tabIndex_;
 
     // drag source id, drag mime type
     JSignal<std::string, std::string, WMouseEvent,
@@ -471,6 +498,7 @@ private:
 			       const std::string& name,
 			       const std::string& value);
   WString storedToolTip() const;
+  void undoSetFocus();
 
 protected:
   void setRendered(bool rendered);

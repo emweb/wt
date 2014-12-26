@@ -13,6 +13,7 @@
 #include <fstream>
 #include <stdexcept>
 
+namespace Wt {
 namespace rapidxml
 {
 
@@ -117,6 +118,7 @@ namespace rapidxml
         return count;
     }
 
+}
 }
 
 #endif

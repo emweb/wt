@@ -28,7 +28,7 @@ enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyValue, PropertyDisabled,
 		PropertyChecked, PropertySelected, PropertySelectedIndex,
 		PropertyMultiple, PropertyTarget, PropertyIndeterminate,
-		PropertySrc, PropertyText, PropertyScript,
+		PropertySrc,
 		PropertyColSpan, PropertyRowSpan, PropertyReadOnly,
 		PropertyTabIndex, PropertyLabel,
 		PropertyClass,
@@ -508,6 +508,7 @@ private:
   };
 
   typedef std::map<std::string, std::string> AttributeMap;
+  typedef std::set<std::string> AttributeSet;
   typedef std::map<const char *, EventHandler> EventHandlerMap;
 
   bool canWriteInnerHTML(WApplication *app) const;
@@ -548,6 +549,7 @@ private:
   mutable bool declared_;
 
   AttributeMap    attributes_;
+  AttributeSet    removedAttributes_;
   PropertyMap     properties_;
   EventHandlerMap eventHandlers_;
 

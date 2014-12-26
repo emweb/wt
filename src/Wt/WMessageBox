@@ -35,8 +35,8 @@ class WText;
  * The synchronous use of a messagebox involves the use of the static
  * show() method, which blocks the current thread until the user has
  * processed the messabebox. Since this uses the WDialog::exec(), it
- * suffers from the same scalability issues. See documentation of
- * WDialog for more details.
+ * suffers from the same scalability issues as well as
+ * limitations. See documentation of WDialog for more details.
  * 
  * \if cpp
  * Example code (using the exec() method, not recommended):

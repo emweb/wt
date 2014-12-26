@@ -32,16 +32,8 @@ CategoryExample::CategoryExample(WContainerWidget *parent)
 {
   setContentAlignment(AlignCenter);
   chart_ = new WCartesian3DChart(this);
-  if (chart_->isAlternative()) {
-    xPlaneModelColor_ = 0;
-    xPlaneModel_ = 0;
-    yPlaneModel_ = 0;
-    randomModel_ = 0;
-    planeModel_ = 0;
-    isotopeModel_ = 0;
-    
-    return;
-  }
+  // Disabling server side rendering for Wt website.
+  chart_->setRenderOptions(WGLWidget::ClientSideRendering | WGLWidget::AntiAliasing);
   chart_->setType(CategoryChart);
 
   Wt::WCssDecorationStyle style;

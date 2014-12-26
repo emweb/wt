@@ -248,6 +248,7 @@ private:
   static const char *TIMEUPDATED_SIGNAL;
   static const char *VOLUMECHANGED_SIGNAL;
 
+  void loadJavaScript();
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractMedia::Options);

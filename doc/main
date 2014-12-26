@@ -233,8 +233,8 @@ namespace Wt {
    widgets or application in the destructors of these objects.
   
    The library offers two different mechanisms to map sessions onto
-   processes: <b>dedicated processes</b> (only with FastCGI
-   deployment) and <b>shared processes</b>. The first mechanisms forks
+   processes: <b>dedicated processes</b> (not with ISAPI
+   deployment) and <b>shared processes</b>. The first mechanism forks
    a dedicated process for every distinct session. This provides the
    kernel-level isolation of different sessions, which may be useful
    for highly security sensitive applications. The second mechanism
@@ -554,14 +554,16 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dt><strong>dedicated-process</strong></dt>
 
     <dd>Every session is mapped a dedicated process, allowing maximal
-      session isolation, but at an increased session cost. <br>
-      This is currently only supported using the FastCGI connector.</dd>
+      session isolation, but at an increased session cost. This is
+	  not supported by the ISAPI connector. Note: when using the
+	  <tt>wthttp</tt> adapter, this will create a listening socket
+	  on the loopback interface (<tt>127.0.0.1</tt>) for every session,
+	  with the parent process acting as a proxy.</dd>
 
     <dt><strong>shared-process</strong></dt>
 
     <dd>Sessions share a fixed number of processes, yielding a lower
-      session cost. <br>
-      This is the only option for the Wthttpd connector.</dd>
+      session cost.</dd>
 
     <dt><strong>tracking</strong></dt>
 

@@ -21,8 +21,6 @@ namespace Wt {
 
 const char *WFormWidget::CHANGE_SIGNAL = "M_change";
 const char *WFormWidget::SELECT_SIGNAL = "select";
-const char *WFormWidget::FOCUS_SIGNAL = "focus";
-const char *WFormWidget::BLUR_SIGNAL = "blur";
 
 WFormWidget::WFormWidget(WContainerWidget *parent)
   : WInteractWidget(parent),
@@ -30,24 +28,8 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
     validator_(0),
     validateJs_(0),
     filterInput_(0),
-    removeEmptyText_(0),
-    tabIndex_(0)
+    removeEmptyText_(0)
 { }
-
-#ifndef WT_TARGET_JAVA
-WStatelessSlot *WFormWidget::getStateless(Method method)
-{
-  typedef void (WFormWidget::*Type)();
-
-  Type focusMethod = &WFormWidget::setFocus;
-
-  if (method == static_cast<WObject::Method>(focusMethod))
-    return implementStateless(&WFormWidget::setFocus,
-			      &WFormWidget::undoSetFocus);
-  else
-    return WInteractWidget::getStateless(method);
-}
-#endif
 
 WFormWidget::~WFormWidget()
 {
@@ -72,44 +54,24 @@ EventSignal<>& WFormWidget::selected()
   return *voidEventSignal(SELECT_SIGNAL, true);
 }
 
-EventSignal<>& WFormWidget::blurred()
-{
-  return *voidEventSignal(BLUR_SIGNAL, true);
-}
-
-EventSignal<>& WFormWidget::focussed()
-{
-  return *voidEventSignal(FOCUS_SIGNAL, true);
-}
-
-void WFormWidget::setFocus(bool focus)
-{
-  flags_.set(BIT_GOT_FOCUS, focus);
-  repaint();
-
-  WApplication *app = WApplication::instance();
-  if (focus)
-    app->setFocus(id(), -1, -1);
-  else if (app->focus() == id())
-    app->setFocus(std::string(), -1, -1);
-}
-
-void WFormWidget::setFocus()
-{
-  setFocus(true);
-}
-
-void WFormWidget::undoSetFocus()
-{ }
-
-bool WFormWidget::hasFocus() const
-{
-  return WApplication::instance()->focus() == id();
-}
-
 void WFormWidget::setEnabled(bool enabled)
 {
   setDisabled(!enabled);
+}
+
+bool WFormWidget::canReceiveFocus() const
+{
+  return true;
+}
+
+int WFormWidget::tabIndex() const
+{
+  int result = WInteractWidget::tabIndex();
+
+  if (result == std::numeric_limits<int>::min())
+    return 0;
+  else
+    return result;
 }
 
 void WFormWidget::propagateSetEnabled(bool enabled)
@@ -281,15 +243,6 @@ void WFormWidget::validatorChanged()
   validate();
 }
 
-bool WFormWidget::setFirstFocus()
-{
-  if (isVisible() && isEnabled()) {
-    setFocus();
-    return true;
-  } else
-    return false;
-}
-
 void WFormWidget::updateDom(DomElement& element, bool all)
 {
   const WEnvironment& env = WApplication::instance()->environment();
@@ -323,31 +276,6 @@ void WFormWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_READONLY_CHANGED);
   }
 
-  if (flags_.test(BIT_TABINDEX_CHANGED) || all) {
-    if (!all || tabIndex_)
-      element.setProperty(PropertyTabIndex,
-			  boost::lexical_cast<std::string>(tabIndex_));
-    flags_.reset(BIT_TABINDEX_CHANGED);
-  }
-
-  if (flags_.test(BIT_GOT_FOCUS)) {
-    WApplication *app = WApplication::instance();
-
-    element.callJavaScript("setTimeout(function() {"
-			   """var o = " + jsRef() + ";"
-			   """if (o) {"
-			   ""   "if (!$(o).hasClass('" +
-			         app->theme()->disabledClass() + "')) {"
-			   ""      "try { "
-			   ""          "o.focus();"
-			   ""      "} catch (e) {}"
-			   ""   "}"
-			   """}"
-			   "}, " + (env.agentIsIElt(9) ? "500" : "10") + ");");
-
-    flags_.reset(BIT_GOT_FOCUS);
-  }
-
   WInteractWidget::updateDom(element, all);
 
   if (flags_.test(BIT_VALIDATION_CHANGED)) {
@@ -361,7 +289,6 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 void WFormWidget::propagateRenderOk(bool deep)
 {
   flags_.reset(BIT_ENABLED_CHANGED);
-  flags_.reset(BIT_TABINDEX_CHANGED);
   flags_.reset(BIT_VALIDATION_CHANGED);
 
   WInteractWidget::propagateRenderOk(deep);
@@ -460,19 +387,6 @@ WValidator::State WFormWidget::validate()
 std::string WFormWidget::formName() const
 {
   return id();
-}
-
-void WFormWidget::setTabIndex(int index)
-{
-  tabIndex_ = index;
-
-  flags_.set(BIT_TABINDEX_CHANGED);
-  repaint();
-}
-
-int WFormWidget::tabIndex() const
-{
-  return tabIndex_;
 }
 
 }

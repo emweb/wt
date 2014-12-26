@@ -33,9 +33,14 @@ public:
     else
       return Result(Invalid);
   }
-
+ 
   virtual std::string javaScriptValidate() const {
-    return "new function() { this.validate = function(t) { return jQuery.data(" + spinBox_->jsRef() + ", 'obj').validate(t); }; }";
+    return 
+      "new function() { "
+      """this.validate = function(t) {"
+      ""  "return jQuery.data(" + spinBox_->jsRef() + ", 'obj').validate(t);"
+      """};"
+      "}";
   }
 
 private:
@@ -200,7 +205,8 @@ void WAbstractSpinBox::setup()
     connectJavaScript(keyWentDown(), "keyDown");
     connectJavaScript(keyWentUp(), "keyUp");
 
-    setValidator(new SpinBoxValidator(this));
+    if (!prefix_.empty() || !suffix_.empty())
+      setValidator(new SpinBoxValidator(this));
   }
 }
 

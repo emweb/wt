@@ -258,7 +258,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
         if (version_ == Version2)
           element.addPropertyWord(PropertyClass, "modal");
         else
-          element.addPropertyWord(PropertyClass, "modal-dialog");
+          element.addPropertyWord(PropertyClass, "modal-dialog Wt-dialog");
 	return;
       }
 

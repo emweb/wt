@@ -81,6 +81,7 @@ Wt::WWidget *TreesTables::treeTables()
 #include "examples/VirtualModel.cpp"
 #include "examples/SmallTableView.cpp"
 #include "examples/LargeTableView.cpp"
+#include "examples/ComboDelegateTable.cpp"
 
 Wt::WWidget *TreesTables::tableViews()
 {
@@ -88,6 +89,7 @@ Wt::WWidget *TreesTables::tableViews()
 
   result->bindWidget("SmallTableView", SmallTableView());
   result->bindWidget("LargeTableView", LargeTableView());
+  result->bindWidget("ComboDelegateTable", ComboDelegateTable());
 
   return result;  
 }

@@ -11,12 +11,6 @@
 
 namespace Wt {
 
-/*
- * Size is like font size.
- *
- * height = leading + ascent + descent
- */
-
 /*! \class WFontMetrics Wt/WFontMetrics Wt/WFontMetrics
  *  \brief A value class that describes font metrics for a font.
  *

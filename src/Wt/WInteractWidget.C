@@ -57,8 +57,13 @@ WInteractWidget::~WInteractWidget()
 
 void WInteractWidget::setPopup(bool popup)
 {
-  if (popup) {
-    clicked().connect("function(o,e) { $(document).trigger('click', e); }");
+  if (popup && wApp->environment().ajax()) {
+    clicked().connect
+      ("function(o,e) { "
+       WT_CLASS ".WPopupWidget.popupClicked = o;"
+       "$(document).trigger('click', e);"
+       WT_CLASS ".WPopupWidget.popupClicked = null;"
+       "}");
     clicked().preventPropagation();
   }
 

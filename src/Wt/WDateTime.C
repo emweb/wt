@@ -194,7 +194,7 @@ posix::ptime WDateTime::toPosixTime() const
   return datetime_;
 }
 
-WLocalDateTime WDateTime::toLocalTime(const WLocale& locale)
+WLocalDateTime WDateTime::toLocalTime(const WLocale& locale) const
 {
   return WLocalDateTime
     (boost::local_time::local_date_time(datetime_, locale.time_zone_ptr()),

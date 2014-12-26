@@ -257,7 +257,7 @@ std::string WCssTheme::activeClass() const
 std::string WCssTheme::utilityCssClass(int utilityCssClassRole) const
 {
   switch (utilityCssClassRole) {
-  case ToolTipInner:
+  case ToolTipOuter:
     return "Wt-tooltip";
   default:
     return "";

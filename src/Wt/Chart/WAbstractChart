@@ -115,18 +115,42 @@ public:
   /*! \brief Set an internal margin for the main plot area.
    *
    * This configures the area (in pixels) around the plot area that is
-   * available for axes, labels, and titles. You need to set this
-   * appropriately so that labels fit inside these margins.
+   * available for axes, labels, and titles.
    *
    * The default is dependent on the chart type.
+   *
+   * Alternatively, you can configure the chart layout to be computed
+   * automatically using setAutoLayoutEnabled().
+   *
+   * \sa setPlotAreaAuto()
    */
   void setPlotAreaPadding(int padding, WFlags<Side> sides = All);
 
   /*! \brief Returns the internal margin for the main plot area.
    *
+   * This is either the paddings set through setPlotAreaPadding() or computed
+   * using setAutoLayoutEnabled()
+   *
    * \sa setPlotAreaPadding(int, WFlags<Side>)
    */
   int plotAreaPadding(Side side) const;
+
+  /*! \brief Configures the chart layout to be automatic.
+   *
+   * This configures the plot area so that the space around it is
+   * suited for the text that is rendered (axis labels and text, the
+   * title, and legend).
+   *
+   * The default value is \c false, and the chart layout is set manually
+   * using values set in setPlotAreaPadding().
+   */
+  void setAutoLayoutEnabled(bool enabled = true);
+
+  /*! \brief Returns whether chart layout is computed automatically.
+   *
+   * \sa setAutoLayoutEnabled()
+   */
+  bool isAutoLayoutEnabled() const { return autoPadding_; }
 
   /*! \brief Set a chart title.
    *
@@ -180,6 +204,7 @@ private:
   WAbstractItemModel *model_;
   WBrush              background_;
   WChartPalette      *palette_;
+  bool                autoPadding_;
   int                 padding_[4];
   WString             title_;
   WFont               titleFont_;

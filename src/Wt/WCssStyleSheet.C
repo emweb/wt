@@ -141,7 +141,7 @@ WWidget *WCssTemplateRule::templateWidget()
   return widget_;
 }
 
-const std::string WCssTemplateRule::declarations()
+std::string WCssTemplateRule::declarations()
 {
   DomElement e(DomElement::ModeUpdate, widget_->domElementType());
   updateDomElement(e, true);
@@ -161,7 +161,7 @@ WCssTextRule::WCssTextRule(const std::string& selector,
     declarations_(declarations)
 { }
 
-const std::string WCssTextRule::declarations()
+std::string WCssTextRule::declarations()
 {
   return declarations_.toUTF8(); 
 }
@@ -333,6 +333,12 @@ void WCssStyleSheet::clear()
 {
   while (!rules_.empty())
     delete rules_.back();
+}
+
+bool WCssStyleSheet::isDirty()
+{
+  return !rulesAdded_.empty() || !rulesModified_.empty() ||
+      !rulesRemoved_.empty();
 }
 
 } // namespace Wt

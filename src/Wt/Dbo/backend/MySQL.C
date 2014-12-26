@@ -472,8 +472,9 @@ class MySQLStatement : public SqlStatement
         mysql_stmt_fetch_column(stmt_,  &out_pars_[column], column, 0);
 
         if (has_truncation_ && *out_pars_[column].error)
-	  throw MySQLException("MySQL: getResult(): truncated result for column "
-	    + boost::lexical_cast<int>(column));
+	  throw MySQLException("MySQL: getResult(): truncated result for "
+			       "column "
+			       + boost::lexical_cast<std::string>(column));
 
 
 	str = static_cast<char*>( out_pars_[column].buffer);
@@ -491,8 +492,9 @@ class MySQLStatement : public SqlStatement
     virtual bool getResult(int column, short *value)
     {
       if (has_truncation_ && *out_pars_[column].error)
-	throw MySQLException("MySQL: getResult(): truncated result for column "
-	  + boost::lexical_cast<int>(column));
+	throw MySQLException("MySQL: getResult(): truncated result for "
+			     "column " 
+			     + boost::lexical_cast<std::string>(column));
 
       if (*(out_pars_[column].is_null) == 1)
          return false;
@@ -510,21 +512,24 @@ class MySQLStatement : public SqlStatement
       switch (out_pars_[column].buffer_type ){
       case MYSQL_TYPE_TINY:
         if (has_truncation_ && *out_pars_[column].error)
-	  throw MySQLException("MySQL: getResult(): truncated result for column "
-	    + boost::lexical_cast<int>(column));
+	  throw MySQLException("MySQL: getResult(): truncated result for "
+			       "column "
+			       + boost::lexical_cast<std::string>(column));
         *value = (int)*static_cast<bool*>(out_pars_[column].buffer);
         break;
       case MYSQL_TYPE_LONG:
         if (has_truncation_ && *out_pars_[column].error)
-	  throw MySQLException("MySQL: getResult(): truncated result for column "
-	    + boost::lexical_cast<int>(column));
+	  throw MySQLException("MySQL: getResult(): truncated result for "
+			       "column "
+			       + boost::lexical_cast<std::string>(column));
         *value = *static_cast<int*>(out_pars_[column].buffer);
         break;
 
       case MYSQL_TYPE_LONGLONG:
         if (has_truncation_ && *out_pars_[column].error)
-	  throw MySQLException("MySQL: getResult(): truncated result for column "
-	    + boost::lexical_cast<int>(column));
+	  throw MySQLException("MySQL: getResult(): truncated result for "
+			       "column "
+			       + boost::lexical_cast<std::string>(column));
         *value = (int)*static_cast<long long*>(out_pars_[column].buffer);
         break;
 
@@ -561,7 +566,7 @@ class MySQLStatement : public SqlStatement
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
-	  + boost::lexical_cast<int>(column));
+			     + boost::lexical_cast<std::string>(column));
 
       if (*(out_pars_[column].is_null) == 1)
         return false;
@@ -579,7 +584,7 @@ class MySQLStatement : public SqlStatement
         default:
 
 	  throw MySQLException("MySQL: getResult(long long): unknown type: "
-			       + boost::lexical_cast<int>
+			       + boost::lexical_cast<std::string>
 			       (out_pars_[column].buffer_type ));
 	  break;
       }
@@ -594,7 +599,7 @@ class MySQLStatement : public SqlStatement
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
-	  + boost::lexical_cast<int>(column));
+			     + boost::lexical_cast<std::string>(column));
 
       if (*(out_pars_[column].is_null) == 1)
          return false;
@@ -615,14 +620,16 @@ class MySQLStatement : public SqlStatement
       switch (out_pars_[column].buffer_type ){
       case MYSQL_TYPE_DOUBLE:
         if (has_truncation_ && *out_pars_[column].error)
-	  throw MySQLException("MySQL: getResult(): truncated result for column "
-	    + boost::lexical_cast<int>(column));
+	  throw MySQLException("MySQL: getResult(): truncated result for "
+			       "column "
+			       + boost::lexical_cast<std::string>(column));
         *value = *static_cast<double*>(out_pars_[column].buffer);
         break;
       case MYSQL_TYPE_FLOAT:
         if (has_truncation_ && *out_pars_[column].error)
-	  throw MySQLException("MySQL: getResult(): truncated result for column "
-	    + boost::lexical_cast<int>(column));
+	  throw MySQLException("MySQL: getResult(): truncated result for "
+			       "column "
+			       + boost::lexical_cast<std::string>(column));
         *value = *static_cast<float*>(out_pars_[column].buffer);
         break;
       case MYSQL_TYPE_NEWDECIMAL:
@@ -635,7 +642,7 @@ class MySQLStatement : public SqlStatement
 	    *value = boost::lexical_cast<double>(strValue);
 	  } catch( boost::bad_lexical_cast const& ) {
 	    std::cout << "Error: MYSQL_TYPE_NEWDECIMAL " << strValue
-	      << "could not be casted to double" << std::endl;
+		      << "could not be casted to double" << std::endl;
 	    return false;
 	  }
 	}
@@ -655,7 +662,7 @@ class MySQLStatement : public SqlStatement
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
-	  + boost::lexical_cast<int>(column));
+	  + boost::lexical_cast<std::string>(column));
 
       if (*(out_pars_[column].is_null) == 1)
          return false;
@@ -683,7 +690,7 @@ class MySQLStatement : public SqlStatement
     {
       if (has_truncation_ && *out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
-	  + boost::lexical_cast<int>(column));
+	  + boost::lexical_cast<std::string>(column));
 
       if (*(out_pars_[column].is_null) == 1)
          return false;
@@ -714,7 +721,7 @@ class MySQLStatement : public SqlStatement
 
       if (*out_pars_[column].error)
 	throw MySQLException("MySQL: getResult(): truncated result for column "
-	  + boost::lexical_cast<int>(column));
+	  + boost::lexical_cast<std::string>(column));
 
 
 	std::size_t vlength = *(out_pars_[column].length);

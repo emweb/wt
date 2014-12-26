@@ -66,30 +66,32 @@ namespace Wt {
 	  || boost::iequals(name, "href")
 	  || boost::iequals(name, "formaction")
 	  || boost::iequals(name, "poster")
-	  || boost::iequals(name, "src"))
-	return (boost::istarts_with(value, "javascript:")
-		|| boost::istarts_with(value, "vbscript:")
-		|| boost::istarts_with(value, "about:")
-		|| boost::istarts_with(value, "chrome:")
-		|| boost::istarts_with(value, "data:")
-		|| boost::istarts_with(value, "disk:")
-		|| boost::istarts_with(value, "hcp:")
-		|| boost::istarts_with(value, "help:")
-		|| boost::istarts_with(value, "livescript")
-		|| boost::istarts_with(value, "lynxcgi:")
-		|| boost::istarts_with(value, "lynxexec:")
-		|| boost::istarts_with(value, "ms-help:")
-		|| boost::istarts_with(value, "ms-its:")
-		|| boost::istarts_with(value, "mhtml:")
-		|| boost::istarts_with(value, "mocha:")
-		|| boost::istarts_with(value, "opera:")
-		|| boost::istarts_with(value, "res:")
-		|| boost::istarts_with(value, "resource:")
-		|| boost::istarts_with(value, "shell:")
-		|| boost::istarts_with(value, "view-source:")
-		|| boost::istarts_with(value, "vnd.ms.radio:")
-		|| boost::istarts_with(value, "wysiwyg:"));
-      else
+	  || boost::iequals(name, "src")) {
+	std::string v = boost::trim_copy(value);
+
+	return (boost::istarts_with(v, "javascript:")
+		|| boost::istarts_with(v, "vbscript:")
+		|| boost::istarts_with(v, "about:")
+		|| boost::istarts_with(v, "chrome:")
+		|| boost::istarts_with(v, "data:")
+		|| boost::istarts_with(v, "disk:")
+		|| boost::istarts_with(v, "hcp:")
+		|| boost::istarts_with(v, "help:")
+		|| boost::istarts_with(v, "livescript")
+		|| boost::istarts_with(v, "lynxcgi:")
+		|| boost::istarts_with(v, "lynxexec:")
+		|| boost::istarts_with(v, "ms-help:")
+		|| boost::istarts_with(v, "ms-its:")
+		|| boost::istarts_with(v, "mhtml:")
+		|| boost::istarts_with(v, "mocha:")
+		|| boost::istarts_with(v, "opera:")
+		|| boost::istarts_with(v, "res:")
+		|| boost::istarts_with(v, "resource:")
+		|| boost::istarts_with(v, "shell:")
+		|| boost::istarts_with(v, "view-source:")
+		|| boost::istarts_with(v, "vnd.ms.radio:")
+		|| boost::istarts_with(v, "wysiwyg:"));
+      } else
 	if (boost::iequals(name, "style")) {
 	  /*
 	   * FIXME: implement CSS 2.1 backslash decoding before doing

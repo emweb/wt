@@ -170,10 +170,10 @@ double WTextRenderer::render(const WString& text, double y)
 
   try {
 #ifndef WT_TARGET_JAVA
-    rapidxml::xml_document<> doc;
-    doc.parse<rapidxml::parse_xhtml_entity_translation>(cxhtml.get());
+    Wt::rapidxml::xml_document<> doc;
+    doc.parse<Wt::rapidxml::parse_xhtml_entity_translation>(cxhtml.get());
 #else
-    rapidxml::xml_document<> doc = rapidxml::parseXHTML(xhtml);
+    Wt::rapidxml::xml_document<> doc = Wt::rapidxml::parseXHTML(xhtml);
 #endif
 
     Block docBlock(&doc, (Block*)0);
@@ -257,7 +257,7 @@ double WTextRenderer::render(const WString& text, double y)
     }
 
     return currentPs.y;
-  } catch (rapidxml::parse_error& e) {
+  } catch (Wt::rapidxml::parse_error& e) {
     throw e;
   }
 }

@@ -21,7 +21,7 @@
 #include <fstream>
 #include <stdlib.h>
 
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 
 #ifdef WT_WIN32
 #include <io.h>
@@ -36,7 +36,7 @@
 #define WRITE_LOCK
 #endif // WT_CONF_LOCK
 
-using namespace rapidxml;
+using namespace Wt::rapidxml;
 
 namespace {
 
@@ -187,6 +187,7 @@ Configuration::Configuration(const std::string& applicationPath,
     appRoot_(appRoot),
     configurationFile_(configurationFile),
     runDirectory_(RUNDIR),
+    singleSession_(false),
     connectorSlashException_(false), // need to use ?_=
     connectorNeedReadBody_(false),
     connectorWebSockets_(true)
@@ -457,6 +458,11 @@ bool Configuration::webglDetect() const
   return webglDetection_;
 }
 
+bool Configuration::singleSession() const
+{
+  return singleSession_;
+}
+
 bool Configuration::agentIsBot(const std::string& agent) const
 {
   READ_LOCK;
@@ -588,6 +594,16 @@ void Configuration::setNumThreads(int threads)
   numThreads_ = threads;
 }
 
+void Configuration::setBehindReverseProxy(bool enabled)
+{
+  behindReverseProxy_ = enabled;
+}
+
+void Configuration::setSingleSession(bool singleSession)
+{
+  singleSession_ = singleSession;
+}
+
 void Configuration::readApplicationSettings(xml_node<> *app)
 {
   xml_node<> *sess = singleChildElement(app, "session-management");
@@ -637,15 +653,15 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   std::string debugStr = singleChildElementValue(app, "debug", "");
 
   if (!debugStr.empty()) {
-    if (debugStr == "stack")
-      errorReporting_ = ErrorMessageWithStack;
-    else if (debugStr == "true")
-      errorReporting_ = NoErrors;
-    else if (debugStr == "false")
+    if (debugStr == "stack" || debugStr == "false")
       errorReporting_ = ErrorMessage;
+    else if (debugStr == "naked")
+      errorReporting_ = NoErrors;
+    else if (debugStr == "true")
+      errorReporting_ = ServerSideOnly;
     else
       throw WServer::Exception("<debug>: expecting 'true', 'false',"
-			       "or 'stack'");
+			       "'naked', or 'stack'");
   }
 
   setInt(app, "num-threads", numThreads_);

@@ -107,7 +107,6 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   if (!synchronous_) {
     processAsyncRead(0, 0, true);
   } else {
-    // TODO: store in tmp file if too big
     while (bytesToRead_ != 0 && !done) {
       bufferSize_ = sizeof(buffer_);
       if (bytesToRead_ != 0xffffffff && bytesToRead_ < bufferSize_) {
@@ -163,13 +162,21 @@ void WINAPI IsapiRequest::completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
 
 void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
 {
-  // TODO: spool to a file if the stringstream becomes to big
   // First, queue up the bytes received
   if (bytesToRead_ != 0xffffffff) {
     bytesToRead_ -= cbIO;
   }
   if (cbIO != 0) {
     in_->write(buffer_, cbIO);
+  }
+
+  if (!server_->server()->controller()->requestDataReceived(this,
+    ecb_->cbTotalBytes - bytesToRead_, ecb_->cbTotalBytes)) {
+    setStatus(/*request_entity_too_large*/ 413);
+    good_ = false;
+    in_->seekg(0);
+    server_->pushRequest(this);
+    return;
   }
 
   // Then, read more, if applicable

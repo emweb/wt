@@ -122,6 +122,18 @@ public:
   void setState(double minimum, double maximum, double value);
 
 protected:
+  /*! \brief Update the progress bar itself.
+   *
+   * Will be called whenever the value changes, and changes
+   * the width of the progress bar accordingly.
+   *
+   * You can reimplement this method to apply certain
+   * style changes to the progress bar according to the
+   * value. Don't forget to call WProgressBar::updateBar
+   * if you still want the width to change.
+   */
+  virtual void updateBar(DomElement& bar);
+
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);

@@ -47,6 +47,10 @@ public:
 
   bool implementsMethod(WObjectMethod method) const;
 
+#ifndef WT_TARGET_JAVA
+  void disconnectFrom(EventSignalBase *);
+#endif
+
 protected:
   WStatelessSlot(WObject *target, WObjectMethod method);
   WStatelessSlot(WObject *target, WObjectMethod method,

@@ -1279,7 +1279,7 @@ the "Hello World!" program in Jython in <a href="http://www.nan-tic.com/en/from-
 <p>
 Generic installation instructions (UNIX)
 are <a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">here</a>, which
-is also included in the source package (INSTALL or INSTALL.html).</p>
+are also included in the source package (INSTALL or INSTALL.html).</p>
 <p>
 In addition, the <a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt
 Wiki</a> has a section dedicated
@@ -1313,7 +1313,7 @@ introductary article on Wt</a> (February 2008).</li>
 
 <li>The reference manual contains a <a
 href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html">library
-overview</a> which is recommended reading with information on
+overview</a> which is recommended reading with information about
 configuration and deployment options.</li>
 
 <li>Victor Venkman wrote a

@@ -19,6 +19,7 @@ const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),
+    naked_(true),
     stateChanged_(false),
     textChanged_(false)
 {
@@ -29,6 +30,7 @@ WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),
+    naked_(false),
     stateChanged_(false),
     textChanged_(false)
 { 
@@ -173,8 +175,8 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   /*
    * Copy all properties to the exterior element, as they relate to style,
-   * etc... We ignore here attributes, see WWebWidget: there seems not to
-   * be attributes that sensibly need to be moved.
+   * etc... We ignore here attributes (except for tooltip),
+   * see WWebWidget: other attributes need not be moved.
    *
    * But -- bug #423, disabled and readonly are properties that should be
    * kept on the interior element.
@@ -196,6 +198,10 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
       input->setProperty(Wt::PropertyReadOnly, v);
       element.removeProperty(Wt::PropertyReadOnly);
     }
+
+    v = input->getAttribute("title");
+    if (!v.empty())
+      element.setAttribute("title", v);
   }
 
   if (stateChanged_ || all) {
@@ -294,7 +300,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
 DomElementType WAbstractToggleButton::domElementType() const
 {
-  if (!text_.text.empty())
+  if (!naked_)
     return DomElement_LABEL;
   else
     return DomElement_INPUT;

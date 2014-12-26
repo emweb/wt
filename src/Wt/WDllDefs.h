@@ -64,7 +64,7 @@
 #ifndef WT_TARGET_JAVA
 #define WT_ARRAY
 #define W_JAVA_COMPARATOR(type)
-#define WT_USTRING WString
+#define WT_USTRING Wt::WString
 #define WT_UCHAR std::string
 #define WT_BOSTREAM std::ostream
 #else
@@ -83,5 +83,19 @@ typedef unsigned __int32 uint32_t;  /* 32 bit unsigned */
 #else // _MSC_VER
 #include <stdint.h>
 #endif // _MSC_VER
+
+#ifndef WT_CXX11
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+#define WT_CXX11
+#endif
+
+#ifdef WT_CXX11
+#define WT_CXX11ONLY(x) x
+#else
+#define WT_CXX11ONLY(x)
+#endif
+
+#endif
 
 #endif // DLLDEFS_H_

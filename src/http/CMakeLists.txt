@@ -21,11 +21,14 @@ IF(CONNECTOR_HTTP)
     ConnectionManager.C
     HTTPRequest.C
     MimeTypes.C
+    ProxyReply.C
     Reply.C
     Request.C
     RequestHandler.C
     RequestParser.C
     Server.C
+    SessionProcess.C
+    SessionProcessManager.C
     SslConnection.C
     StaticReply.C
     StockReply.C

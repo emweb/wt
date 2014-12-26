@@ -75,11 +75,13 @@ public:
   PaintWidget(WContainerWidget *root):
     WGLWidget(root)
   {
+    jsMatrix_ = JavaScriptMatrix4x4();
+    addJavaScriptMatrix4(jsMatrix_);
   }
-  
+
   void initializeGL()
   {
-    jsMatrix_ = createJavaScriptMatrix4();
+    initJavaScriptMatrix4(jsMatrix_);
     WMatrix4x4 worldTransform;
     worldTransform.lookAt(0, 0, 5, 0, 0, -1, 0, 1, 0);
     setJavaScriptMatrix4(jsMatrix_, worldTransform);

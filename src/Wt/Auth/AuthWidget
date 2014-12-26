@@ -321,9 +321,20 @@ protected:
    */
   virtual WDialog *showDialog(const WString& title, WWidget *contents);
 
+  /*! \brief Returns the registration model.
+   *
+   * Calls createRegistrationModel() or resets a previously created one.
+   *
+   * \sa registerNewUser()
+   */
+  RegistrationModel *registrationModel();
+
   /*! \brief Creates a registration model.
    *
-   * This method creates a registration model.
+   * This method creates a registration model. The default
+   * implementation creates a RegistrationModel() but you may want to
+   * reimplement this function to return a specialized registration
+   * model (complementing a specialized registration view).
    *
    * \sa registerNewUser()
    */

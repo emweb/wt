@@ -366,6 +366,7 @@ public:
    * External stylesheets are inserted after the internal style sheet,
    * and can therefore override default styles set by widgets in the
    * internal style sheet.
+   * External stylesheets must have valid link.
    *
    * If not empty, \p condition is a string that is used to apply the
    * stylesheet to specific versions of IE. Only a limited subset of
@@ -377,11 +378,19 @@ public:
    * - "!IE gte 6": only for IE versions prior to IE6.
    * - "IE lte 7": only for IE versions prior to IE7.
    *
-   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&)
+   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&),
+   *  removeStyleSheet(const WLink& link)
    * \sa WWidget::setStyleClass()
    */
   void useStyleSheet(const WCssStyleSheet& styleSheet,
 		     const std::string& condition = "");
+
+  /*! \brief Removes an external stylesheet.
+   *
+   * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&)
+   * \sa WWidget::setStyleClass()
+   */
+  void removeStyleSheet(const WLink& link);
 
   /*! \brief Sets the theme.
    *
@@ -940,6 +949,8 @@ public:
    */
   Signal<std::string>& internalPathChanged();
 
+  /*! \brief %Signal which indicates that an invalid internal path is navigated.
+   */
   Signal<std::string>& internalPathInvalid() { return internalPathInvalid_; }
 
   /*! \brief Redirects the application to another location.
@@ -2125,6 +2136,13 @@ protected:
    */
   virtual void unload();
 
+  /**
+   * @brief handleJavaScriptError print javaScript errors to log file.
+   * You may want to overwrite it to render error page for example.
+   *
+   * @param errorText the error will usually be in json format.
+   */
+  virtual void handleJavaScriptError(const std::string& errorText);
 private:
   Signal< ::int64_t > requestTooLarge_;
 
@@ -2179,7 +2197,7 @@ private:
   WCssStyleSheet         styleSheet_;  // internal stylesheet
   WCombinedLocalizedStrings *localizedStrings_;
   WLocale                locale_;
-  std::string            oldInternalPath_, newInternalPath_;
+  std::string            renderedInternalPath_, newInternalPath_;
   Signal<std::string>    internalPathChanged_, internalPathInvalid_;
   bool                   internalPathIsChanged_;
   bool                   internalPathDefaultValid_, internalPathValid_;
@@ -2213,6 +2231,8 @@ private:
 
   const WTheme *theme_;
   std::vector<WCssStyleSheet> styleSheets_;
+  std::vector<WCssStyleSheet> styleSheetsToRemove_;
+
   int styleSheetsAdded_;
 
   std::vector<MetaHeader> metaHeaders_;
@@ -2309,6 +2329,7 @@ private:
   JSlot hideLoadJS;
 #endif
 
+  friend class WCssStyleSheet;
   friend class WebRenderer;
   friend class WebSession;
   friend class WebController;
@@ -2318,7 +2339,6 @@ private:
   friend class WContainerWidget;
   friend class WDialog;
   friend class WFileUpload;
-  friend class WFormWidget;
   friend class WInteractWidget;
   friend class WLineEdit;
   friend class WMenu;
@@ -2329,6 +2349,7 @@ private:
   friend class WTimer;
   friend class WViewWidget;
   friend class WWidget;
+  friend class WWebWidget;
   friend class Ext::Dialog;
   friend class Ext::MessageBox;
 };

@@ -9,24 +9,50 @@
 
 namespace Wt {
 
+WSound::WSound(WObject *parent)
+  : WObject(parent),
+    loops_(1)
+{ }
+
 WSound::WSound(const std::string &url, WObject *parent)
   : WObject(parent),
-  url_(url),
-  loops_(1)
+    loops_(1)
 {
-  sm_ = wApp->getSoundManager();
-  sm_->add(this);
+  addSource(WMediaPlayer::MP3, WLink(url));
+}
+
+WSound::WSound(WMediaPlayer::Encoding encoding, const WLink& link, WObject *parent)
+  : WObject(parent),
+    loops_(1)
+{
+  addSource(encoding, link);
 }
 
 WSound::~WSound()
 {
   stop();
-  sm_->remove(this);
 }
 
-const std::string &WSound::url() const
+void WSound::addSource(WMediaPlayer::Encoding encoding, const WLink& link)
 {
-  return url_;
+  media_.push_back(Source(encoding, link));
+
+  wApp->getSoundManager()->add(this);
+}
+
+WLink WSound::getSource(WMediaPlayer::Encoding encoding) const
+{
+  for (unsigned i = 0; i < media_.size(); ++i) {
+    if (media_[i].encoding == encoding)
+      return media_[i].link;
+  }
+
+  return WLink();
+}
+
+std::string WSound::url() const
+{
+  return getSource(WMediaPlayer::MP3).url();
 }
 
 //bool isFinished() const;
@@ -44,13 +70,13 @@ void WSound::setLoops(int number)
 }
 
 void WSound::play()
-{
-  sm_->play(this, loops_);
+{  
+  wApp->getSoundManager()->play(this, loops_);
 }
 
 void WSound::stop()
 {
-  sm_->stop(this);
+  wApp->getSoundManager()->stop(this);
 }
 
 }

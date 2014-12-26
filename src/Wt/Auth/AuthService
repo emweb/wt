@@ -392,11 +392,24 @@ public:
    */
   void setEmailVerificationEnabled(bool enabled);
 
-  /*! \brief Returns wheter email verification is configured.
+  /*! \brief Returns whether email verification is configured.
    *
    * \sa setEmailVerificationEnabled()
    */
   bool emailVerificationEnabled() const { return emailVerification_; }
+
+  /*! \brief Configure email verificiation to be required for login.
+   *
+   * When enabled, a user will not be able to login if the email-address was
+   * not verified.
+   */
+  void setEmailVerificationRequired(bool enabled);
+
+  /*! \ Returns whether email verification is required for login.
+   *
+   * \sa setEmailVerificationRequired()
+   */
+  bool emailVerificationRequired() const { return emailVerificationReq_; }
 
   /*! \brief Sets the internal path used to present tokens in emails.
    *
@@ -548,6 +561,7 @@ private:
   int tokenLength_;
 
   bool emailVerification_;
+  bool emailVerificationReq_;
   int emailTokenValidity_; // minutes
   std::string redirectInternalPath_;
 

@@ -123,6 +123,7 @@ void WPopupWidget::defineJS()
   LOAD_JAVASCRIPT(app, "js/WPopupWidget.js", "WPopupWidget", wtjs1);
 
   WStringStream jsObj;
+
   jsObj << "new " WT_CLASS ".WPopupWidget("
 	<< app->javaScriptClass() << ',' << jsRef() << ','
 	<< transient_ << ',' << autoHideDelay_ << ','

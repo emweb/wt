@@ -12,6 +12,7 @@
 namespace Wt {
 
 class WPointF;
+class WRectF;
 
 /*! \class WTransform Wt/WTransform Wt/WTransform
  *  \brief A value class that defines a 2D affine transformation matrix.
@@ -160,6 +161,14 @@ public:
    * \sa map(const WPointF&) const
    */
   void map(double x, double y, double *tx, double *ty) const;
+
+  /*! \brief Applies the transformation to a rectangle.
+   *
+   * Since the rectangle is aligned with X and Y axes, this may
+   * increase the size of the rectangle even for a transformation that
+   * only rotates.
+   */
+  WRectF map(const WRectF& rect) const;
 
   /*! \brief Resets the transformation to the identity.
    *

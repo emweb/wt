@@ -40,18 +40,19 @@ void Response::addHeader(const std::string& name, const std::string& value)
 
 ResponseContinuation *Response::createContinuation()
 {
-  if (!continuation_)
-    continuation_ = new ResponseContinuation(resource_, response_);
-  else
+  if (!continuation_) {
+    ResponseContinuation *c = new ResponseContinuation(resource_, response_);
+    continuation_ = resource_->addContinuation(c);
+  } else
     continuation_->resource_ = resource_;
 
-  return continuation_;
+  return continuation_.get();
 }
 
 ResponseContinuation *Response::continuation() const
 {
   if (continuation_ && continuation_->resource_)
-    return continuation_;
+    return continuation_.get();
   else
     return 0;
 }
@@ -126,7 +127,7 @@ WT_BOSTREAM& Response::out()
 }
 
 Response::Response(WResource *resource, WebResponse *response,
-		   ResponseContinuation *continuation)
+		   ResponseContinuationPtr continuation)
   : resource_(resource),
     response_(response),
     continuation_(continuation),
@@ -137,7 +138,6 @@ Response::Response(WResource *resource, WebResponse *response,
 Response::Response(WResource *resource, WT_BOSTREAM& out)
   : resource_(resource),
     response_(0),
-    continuation_(0),
     out_(&out),
     headersCommitted_(false)
 { }

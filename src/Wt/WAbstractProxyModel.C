@@ -34,6 +34,12 @@ bool WAbstractProxyModel::setData(const WModelIndex& index,
   return sourceModel_->setData(mapToSource(index), value, role);
 }
 
+bool WAbstractProxyModel::setItemData(const WModelIndex& index,
+				      const DataMap& values)
+{
+  return sourceModel_->setItemData(mapToSource(index), values);
+}
+
 WFlags<ItemFlag> WAbstractProxyModel::flags(const WModelIndex& index) const
 {
   return sourceModel_->flags(mapToSource(index));
@@ -84,6 +90,26 @@ void *WAbstractProxyModel::toRawIndex(const WModelIndex& index) const
 WModelIndex WAbstractProxyModel::fromRawIndex(void *rawIndex) const
 {
   return mapFromSource(sourceModel_->fromRawIndex(rawIndex));
+}
+
+WFlags<HeaderFlag> WAbstractProxyModel::headerFlags(int section, Orientation orientation) const
+{
+  if (orientation == Wt::Horizontal) {
+    section = mapToSource(index(0, section, Wt::WModelIndex())).column();
+  } else {
+    section = mapToSource(index(section, 0, Wt::WModelIndex())).row();
+  }
+  return sourceModel_->headerFlags(section, orientation);
+}
+
+boost::any WAbstractProxyModel::headerData(int section, Orientation orientation, int role) const
+{
+  if (orientation == Wt::Horizontal) {
+    section = mapToSource(index(0, section, Wt::WModelIndex())).column();
+  } else {
+    section = mapToSource(index(section, 0, Wt::WModelIndex())).row();
+  }
+  return sourceModel_->headerData(section, orientation, role);
 }
 
 WModelIndex WAbstractProxyModel::createSourceIndex(int row, int column,

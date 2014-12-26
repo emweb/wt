@@ -129,7 +129,7 @@ WApplication::WApplication(const WEnvironment& env
   session_->setApplication(this);
   locale_ = environment().locale();
 
-  newInternalPath_ = environment().internalPath();
+  renderedInternalPath_ = newInternalPath_ = environment().internalPath();
   internalPathIsChanged_ = false;
   internalPathDefaultValid_ = true;
   internalPathValid_ = true;
@@ -553,6 +553,11 @@ void WApplication::useStyleSheet(const WLink& link,
 void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
 				 const std::string& condition)
 {
+
+  if (styleSheet.link().isNull())
+    throw WException(
+        "WApplication::useStyleSheet stylesheet must have valid link!");
+
   bool display = true;
 
   if (!condition.empty()) {
@@ -627,6 +632,20 @@ void WApplication::useStyleSheet(const WCssStyleSheet& styleSheet,
 
     styleSheets_.push_back(styleSheet);
     ++styleSheetsAdded_;
+  }
+}
+
+void WApplication::removeStyleSheet(const WLink& link)
+{
+  for (int i = (int)styleSheets_.size() - 1; i > -1; --i) {
+    if (styleSheets_[i].link() == link) {
+      WCssStyleSheet &sheet = styleSheets_[i];
+      styleSheetsToRemove_.push_back(sheet);
+      if (i > (int)styleSheets_.size() + styleSheetsAdded_ - 1)
+        styleSheetsAdded_--;
+      styleSheets_.erase(styleSheets_.begin() + i);
+      break;
+    }
   }
 }
 
@@ -714,6 +733,12 @@ void WApplication::unload()
   }
 #endif // WT_TARGET_JAVA
 
+  quit();
+}
+
+void WApplication::handleJavaScriptError(const std::string& errorText)
+{
+  LOG_ERROR("JavaScript error: " << errorText);
   quit();
 }
 
@@ -1159,7 +1184,7 @@ void WApplication::enableInternalPaths()
 
     doJavaScript
       (javaScriptClass() + "._p_.enableInternalPaths("
-       + WWebWidget::jsStringLiteral(newInternalPath_)
+       + WWebWidget::jsStringLiteral(renderedInternalPath_)
        + ");");
 
     if (session_->useUglyInternalPaths())
@@ -1230,9 +1255,6 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
 {
   enableInternalPaths();
 
-  if (!internalPathIsChanged_)
-    oldInternalPath_ = newInternalPath_;
-
   if (!session_->renderer().preLearning() && emitChange)
     changeInternalPath(path);
   else
@@ -1257,7 +1279,7 @@ bool WApplication::changeInternalPath(const std::string& aPath)
   std::string path = Utils::prepend(aPath, '/');
 
   if (path != internalPath()) {
-    newInternalPath_ = path;
+    renderedInternalPath_ = newInternalPath_ = path;
     internalPathValid_ = internalPathDefaultValid_;
     internalPathChanged_.emit(newInternalPath_);
 
@@ -1270,7 +1292,7 @@ bool WApplication::changeInternalPath(const std::string& aPath)
 
 bool WApplication::changedInternalPath(const std::string& path)
 {
-  if (!environment().hashInternalPaths())
+  if (!environment().internalPathUsingFragments())
     session_->setPagePathInfo(path);
 
   return changeInternalPath(path);
@@ -1334,7 +1356,8 @@ public:
     : handler_(0)
   {
 #ifdef WT_THREADED
-    handler_ = new WebSession::Handler(app->weakSession_.lock(), true);
+    handler_ = new WebSession::Handler(app->weakSession_.lock(),
+				       WebSession::Handler::TakeLock);
 #endif // WT_THREADED
   }
 
@@ -1396,7 +1419,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
   if (handler && handler->haveLock() && handler->session() == app->session_)
     return;
 
-  new WebSession::Handler(app->session_, true);
+  new WebSession::Handler(app->session_, WebSession::Handler::TakeLock);
 
   createdHandler_ = true;
 }

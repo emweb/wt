@@ -14,9 +14,13 @@
 
 #include <iostream>
 
+#ifdef WT_THREADED
+#include <boost/thread/condition.hpp>
+
 namespace boost {
   class recursive_mutex;
 }
+#endif // WT_THREADED
 
 namespace Wt {
 
@@ -28,6 +32,8 @@ namespace Wt {
     class Request;
     class Response;
     class ResponseContinuation;
+
+    typedef boost::shared_ptr<ResponseContinuation> ResponseContinuationPtr;
   }
 
 /*! \class WResource Wt/WResource Wt/WResource
@@ -351,6 +357,23 @@ public:
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) = 0;
 
+  /*! \brief Handles a continued request being aborted.
+   *
+   * This function is only applicable to a request for which a
+   * response continuation was created, and indicates that the client
+   * has been closed (or the resource is being deleted) before the
+   * response was completed. This function may be reimplemented so
+   * that you can close any resources associated with the response
+   * continuation.
+   *
+   * The base implementation is empty.
+   *
+   * Note that because this function could be called from within the
+   * destructor, you should not forget to call beginDeleted() from the
+   * specialized destructor of your resource.
+   */
+  virtual void handleAbort(const Http::Request& request);
+
   /*! \brief Indicate that more data is available.
    *
    * In some occasions, data may be requested for a resource which is
@@ -378,20 +401,36 @@ protected:
   void beingDeleted();
 
 private:
-#ifndef WT_TARGET_JAVA
+  struct UseLock {
+    UseLock();
+    ~UseLock();
+
+    bool use(WResource *resource);
+
+  private:
+    WResource *resource_;
+  };
+
+#ifdef WT_THREADED
   boost::shared_ptr<boost::recursive_mutex> mutex_;
-#endif // WT_TARGET_JAVA
+  bool beingDeleted_;
+  int useCount_;
+  boost::condition useDone_;
+#endif
 
   Signal<void> dataChanged_;
   Signal< ::uint64_t, ::uint64_t > dataReceived_;
 
-  bool beingDeleted_, trackUploadProgress_;
+  bool trackUploadProgress_;
 
-  std::vector<Http::ResponseContinuation *> continuations_;
+  std::vector<Http::ResponseContinuationPtr> continuations_;
 
-  void doContinue(Http::ResponseContinuation *continuation);
+  void removeContinuation(Http::ResponseContinuationPtr continuation);
+  Http::ResponseContinuationPtr addContinuation(Http::ResponseContinuation *c);
+  void doContinue(Http::ResponseContinuationPtr continuation);
   void handle(WebRequest *webRequest, WebResponse *webResponse,
-	      Http::ResponseContinuation *continuation = 0);
+	      Http::ResponseContinuationPtr continuation
+	        = Http::ResponseContinuationPtr());
 
   Wt::WString suggestedFileName_;
   DispositionType dispositionType_;
@@ -399,6 +438,7 @@ private:
   std::string internalPath_;
 
   friend class Http::ResponseContinuation;
+  friend class Http::Response;
   friend class WebSession;
   friend class WebController;
   friend class Configuration;

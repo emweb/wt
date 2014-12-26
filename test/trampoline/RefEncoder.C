@@ -28,8 +28,9 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
     std::stringstream s;
     t.htmlText(s);
 
+    std::cerr << s.str() << std::endl;
     std::size_t red = s.str().find
-      ("?request=redirect&amp;url=http%3a//www.google.be&amp;hash=");
+      ("?request=redirect&amp;url=http%3a%2f%2fwww.google.be&amp;hash=");
 
     BOOST_REQUIRE(red != std::string::npos);
   }
@@ -41,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
     t.htmlText(s);
 
     std::size_t red = s.str().find
-      ("?request=redirect&amp;url=http%3a//www.google.be&amp;hash=");
+      ("?request=redirect&amp;url=http%3a%2f%2fwww.google.be&amp;hash=");
 
     BOOST_REQUIRE(red != std::string::npos);
   }
@@ -55,12 +56,12 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
     t.htmlText(s);
 
     std::size_t red = s.str().find
-      ("?request=redirect&amp;url=http%3a//www.google.be&amp;hash=");
+      ("?request=redirect&amp;url=http%3a%2f%2fwww.google.be&amp;hash=");
 
     BOOST_REQUIRE(red != std::string::npos);
 
     red = s.str().find
-      ("?request=redirect&amp;url=http%3a//www.webtoolkit.eu&amp;hash=");
+      ("?request=redirect&amp;url=http%3a%2f%2fwww.webtoolkit.eu&amp;hash=");
 
     BOOST_REQUIRE(red != std::string::npos);
   }
@@ -72,7 +73,7 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
     img.htmlText(s);
 
     std::size_t red = s.str().find
-      ("?request=redirect&amp;url=http%3a//www.google.be&amp;hash=");
+      ("?request=redirect&amp;url=http%3a%2f%2fwww.google.be&amp;hash=");
 
     BOOST_REQUIRE(red != std::string::npos);
   }
@@ -84,7 +85,7 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
     img.htmlText(s);
 
     std::size_t red = s.str().find
-      ("?request=redirect&amp;url=http%3a//www.google.be&amp;hash=");
+      ("?request=redirect&amp;url=http%3a%2f%2fwww.google.be&amp;hash=");
 
     BOOST_REQUIRE(red != std::string::npos);
   }
@@ -99,7 +100,7 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
     std::cerr << s.str() << std::endl;
 
     std::size_t red = s.str().find
-      ("?request=redirect&amp;url=http%3a//www.google.be&amp;hash=");
+      ("?request=redirect&amp;url=http%3a%2f%2fwww.google.be&amp;hash=");
 
     BOOST_REQUIRE(red != std::string::npos);
   }    

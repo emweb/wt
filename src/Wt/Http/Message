@@ -147,6 +147,8 @@ private:
   int status_;
   std::vector<Header> headers_;
   WStringStream body_;
+
+  friend class Client;
 };
 
   }

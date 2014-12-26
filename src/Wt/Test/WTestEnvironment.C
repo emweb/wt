@@ -79,7 +79,6 @@ WTestEnvironment::WTestEnvironment(Configuration *configuration,
 {
   std::vector<std::string> dummy;
 
-  configuration_ = configuration;
   controller_ = new TestController(configuration);
 
   init(type);
@@ -95,7 +94,7 @@ void WTestEnvironment::init(EntryPointType type)
   controller_->addSession(theSession_);
 #endif // WT_TARGET_JAVA
 
-  new WebSession::Handler(theSession_, true);
+  new WebSession::Handler(theSession_, WebSession::Handler::TakeLock);
 
   doesAjax_ = true;
   doesCookies_ = true;
@@ -124,7 +123,7 @@ void WTestEnvironment::endRequest()
 
 void WTestEnvironment::startRequest()
 {
-  new WebSession::Handler(theSession_, true);
+  new WebSession::Handler(theSession_, WebSession::Handler::TakeLock);
 }
 
 WTestEnvironment::~WTestEnvironment()

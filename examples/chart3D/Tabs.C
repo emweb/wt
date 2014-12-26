@@ -105,6 +105,18 @@ ChartSettings::ChartSettings(WCartesian3DChart *chart,
   }
   WCheckBox *enableGridLines = new WCheckBox(this);
   template_->bindWidget("gridlines", enableGridLines);
+  WCheckBox *enableIntersectionLines = new WCheckBox(this);
+  template_->bindWidget("intersectionlines", enableIntersectionLines);
+  WComboBox *intersectionLineColor = new WComboBox(this);
+  intersectionLineColor->addItem("red");
+  intersectionLineColor->addItem("green");
+  intersectionLineColor->addItem("blue");
+  intersectionLineColor->addItem("black");
+  intersectionLineColor->addItem("cyan");
+  intersectionLineColor->addItem("magenta");
+  intersectionLineColor->addItem("yellow");
+  intersectionLineColor->setCurrentIndex(intersectionLineColor->count() - 1);
+  template_->bindWidget("intersectionlinecolor", intersectionLineColor);
   WLineEdit *widgetWidth = new WLineEdit(Wt::asString(chart->width().value()), this);
   widgetWidth->setValidator(new Wt::WIntValidator(1, 2000));
   WLineEdit *widgetHeight = new WLineEdit(Wt::asString(chart->height().value()), this);
@@ -193,6 +205,35 @@ ChartSettings::ChartSettings(WCartesian3DChart *chart,
 	chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::YAxis_3D, false);
 	chart->setGridEnabled(Wt::Chart::YZ_Plane, Wt::Chart::ZAxis_3D, false);
       }));
+
+  auto changeIntersectionLinesColor = [=]() {
+	switch (intersectionLineColor->currentIndex()) {
+	case 0:
+	  chart->setIntersectionLinesColor(WColor(255,0,0)); break;
+	case 1:
+	  chart->setIntersectionLinesColor(WColor(0,255,0)); break;
+	case 2:
+	  chart->setIntersectionLinesColor(WColor(0,0,255)); break;
+	case 3:
+	  chart->setIntersectionLinesColor(WColor(0,0,0)); break;
+	case 4:
+	  chart->setIntersectionLinesColor(WColor(0,255,255)); break;
+	case 5:
+	  chart->setIntersectionLinesColor(WColor(255,0,255)); break;
+	case 6:
+	  chart->setIntersectionLinesColor(WColor(255,255,0)); break;
+	}
+      };
+
+  enableIntersectionLines->checked().connect(std::bind([=]() {
+	chart->setIntersectionLinesEnabled(true);
+	changeIntersectionLinesColor();
+      }));
+  enableIntersectionLines->unChecked().connect(std::bind([=]() {
+	chart->setIntersectionLinesEnabled(false);
+      }));
+
+  intersectionLineColor->changed().connect(std::bind(changeIntersectionLinesColor));
 
   enableLegend->checked().connect(std::bind([=]() {
 	chart->setLegendEnabled(true);

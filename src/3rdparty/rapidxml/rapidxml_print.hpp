@@ -14,6 +14,7 @@
     #include <iterator>
 #endif
 
+namespace Wt {
 namespace rapidxml
 {
 
@@ -446,6 +447,7 @@ namespace rapidxml
 
 #endif
 
+}
 }
 
 #endif

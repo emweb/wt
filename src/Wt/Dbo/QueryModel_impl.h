@@ -103,13 +103,18 @@ int QueryModel<Result>::rowCount(const WModelIndex& parent) const
     return 0;
 
   if (cachedRowCount_ == -1) {
-    Transaction transaction(query_.session());
+    if (batchSize_)
+      cacheRow(0);
 
-    query_.limit(queryLimit_);
-    query_.offset(queryOffset_);
-    cachedRowCount_ = static_cast<int>(query_.resultList().size());
+    if (cachedRowCount_ == -1) {
+      Transaction transaction(query_.session());
 
-    transaction.commit();
+      query_.limit(queryLimit_);
+      query_.offset(queryOffset_);
+      cachedRowCount_ = static_cast<int>(query_.resultList().size());
+
+      transaction.commit();
+    }
   }
 
   return cachedRowCount_;
@@ -222,6 +227,17 @@ Result QueryModel<Result>::stableResultRow(int row) const
 template <class Result>
 Result& QueryModel<Result>::resultRow(int row)
 {
+  cacheRow(row);
+
+  if (row >= cacheStart_ + static_cast<int>(cache_.size()))
+    throw Exception("QueryModel: geometry inconsistent with database");
+
+  return cache_[row - cacheStart_];
+}
+
+template <class Result>
+void QueryModel<Result>::cacheRow(int row) const
+{
   if (row < cacheStart_
       || row >= cacheStart_ + static_cast<int>(cache_.size())) {
     cacheStart_ = std::max(row - batchSize_ / 4, 0);
@@ -247,14 +263,12 @@ Result& QueryModel<Result>::resultRow(int row)
       if (id != -1)
 	stableIds_[cacheStart_ + i] = id;
     }
-
-    if (row >= cacheStart_ + static_cast<int>(cache_.size()))
-      throw Exception("QueryModel: geometry inconsistent with database");
+    if (static_cast<int>(cache_.size()) < qLimit
+        && qOffset == 0 && cachedRowCount_ == -1)
+      cachedRowCount_ = cache_.size();
 
     transaction.commit();
   }
-
-  return cache_[row - cacheStart_];
 }
 
 template <class Result>

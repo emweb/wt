@@ -323,6 +323,10 @@ public:
    */
   AnchorTarget target() const { return linkState_.target; }
 
+  virtual bool canReceiveFocus() const;
+  virtual int tabIndex() const;
+  virtual bool setFirstFocus();
+
 private:
   static const int BIT_LINK_CHANGED = 0;
   static const int BIT_TARGET_CHANGED = 1;

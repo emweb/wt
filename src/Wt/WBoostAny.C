@@ -6,7 +6,7 @@
 #include <map>
 #include <boost/lexical_cast.hpp>
 #include <stdio.h>
-
+#include "Wt/WConfig.h"
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
@@ -384,8 +384,8 @@ WString asString(const boost::any& v, const WT_USTRING& format)
   } else if (v.type() == typeid(boost::posix_time::time_duration)) {
     const boost::posix_time::time_duration& dt
       = boost::any_cast<boost::posix_time::time_duration>(v);
-    int millis = dt.fractional_seconds() *
-      std::pow(10.0, 3 - boost::posix_time::time_duration::num_fractional_digits()); 
+    int millis = (int)(dt.fractional_seconds() *
+      std::pow(10.0, 3 - boost::posix_time::time_duration::num_fractional_digits())); 
     return WTime(dt.hours(), dt.minutes(), dt.seconds(), millis)
       .toString(format.empty() ? "HH:mm:ss" : format);
   }
@@ -515,7 +515,7 @@ double asNumber(const boost::any& v)
   } else if (v.type() == typeid(boost::posix_time::time_duration)) {
     const boost::posix_time::time_duration& dt
       = boost::any_cast<boost::posix_time::time_duration>(v);
-    return dt.total_milliseconds();
+    return static_cast<double>(dt.total_milliseconds());
   }
 
 #define ELSE_NUMERICAL_ANY(TYPE) \

@@ -67,7 +67,6 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 {
   chart_->setLegendStyle(chart_->legendFont(), WPen(black),
 			 WBrush(WColor(0xFF, 0xFA, 0xE5)));
-  chart->initLayout();
 
   PanelList *list = new PanelList(this);
 
@@ -166,9 +165,6 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   p->setMargin(WLength::Auto, Left | Right);
   p->resize(880, WLength::Auto);
   p->setMargin(20, Top | Bottom);
-
-  if (chart_->isLegendEnabled())
-    chart_->setPlotAreaPadding(200, Right);
 
   // ---- Series properties ----
 
@@ -627,24 +623,6 @@ void ChartConfig::update()
 
     chart_->setLegendColumns((side == Top || side == Bottom ) ? 2 : 1,
 			     WLength(100));
-  }
-
-  for (unsigned i = 0; i < 4; ++i) {
-    Side sides[] = { Top, Right, Bottom, Left };
-
-    bool legendRoom =
-      haveLegend
-      && chart_->legendLocation() == LegendOutside
-      && chart_->legendSide() == sides[i];
-
-    int padding;
-
-    if (i % 2 == 0)
-      padding = legendRoom ? 80 : 40;
-    else
-      padding = legendRoom ? 200 : 80;
-
-    chart_->setPlotAreaPadding(padding, sides[i]);
   }
 }
 

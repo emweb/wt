@@ -367,7 +367,7 @@ private:
             // Set the focus on the first field in the form.
             Wt::WLineEdit *viewField =
                     resolve<Wt::WLineEdit*>(UserFormModel::FirstNameField);
-            viewField->setFocus();
+            viewField->setFocus(true);
         } else {
             bindEmpty("submit-info"); // Delete the previous user data.
             updateView(model);

@@ -68,8 +68,8 @@ public:
   int YSeriesRow() const { return YAbscisRow_; }
   
   // below = internal API
-  virtual int nbXPoints();
-  virtual int nbYPoints();
+  virtual int nbXPoints() const;
+  virtual int nbYPoints() const;
   virtual WString axisLabel(int u, Axis axis) const;
   virtual boost::any data(int i, int j) const;
 
@@ -79,11 +79,12 @@ protected:
 				  FloatBuffer& simplePtsSize,
 				  FloatBuffer& coloredPtsArray,
 				  FloatBuffer& coloredPtsSize,
-				  FloatBuffer& coloredPtsColor);
-  virtual void surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays);
+				  FloatBuffer& coloredPtsColor) const;
+  virtual void surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const;
+  virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const;
   virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
 				std::vector<FloatBuffer>& coloredPtsArrays,
-				std::vector<FloatBuffer>& coloredPtsColors);
+				std::vector<FloatBuffer>& coloredPtsColors) const;
 
 private:
   void findRange() const;

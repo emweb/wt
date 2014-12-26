@@ -197,8 +197,25 @@ private:
   friend class WTableRow;
 
 protected:
+  /*! \brief Creates a table cell.
+   *
+   * You may want to override this method if you want your table to
+   * contain specialized cells.
+   */
   virtual WTableCell* createCell(int row, int column);
-  virtual WTableRow* createRow(int row);
+
+  /*! \brief Creates a table row.
+   *
+   * You may want to override this method if you want your table to
+   * contain specialized rows.
+   */
+  virtual WTableRow*    createRow(int row);
+
+  /*! \brief Creates a table column.
+   *
+   * You may want to override this method if you want your table to
+   * contain specialized columns.
+   */
   virtual WTableColumn* createColumn(int column);
 
   virtual void           updateDom(DomElement& element, bool all);

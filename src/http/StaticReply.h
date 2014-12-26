@@ -34,12 +34,12 @@ class Request;
 class StaticReply : public Reply
 {
 public:
-  StaticReply(const Request& request, const Configuration& config);
+  StaticReply(Request& request, const Configuration& config);
 
   virtual void reset(const Wt::EntryPoint *ep);
   virtual void writeDone(bool success);
 
-  virtual void consumeData(Buffer::const_iterator begin,
+  virtual bool consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
 			   Request::State state);
 

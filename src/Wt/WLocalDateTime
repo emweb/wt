@@ -162,9 +162,11 @@ public:
   /*! \brief Reports the current datetime.
    *
    * This method returns the current datetime in the given
-   * locale. Note that this is usually accurate even if one does not
-   * know exactly the user's time zone, since this can be based on the
-   * timeZoneOffset reported in the WEnvironment.
+   * locale.
+   *
+   * If no time zone has been configured for the given locale
+   * (locale.timeZone() is empty), then the
+   * offset is based on WEnvironment::timeZoneOffset().
    */
   static WLocalDateTime currentDateTime(const WLocale& locale = WLocale::currentLocale());
 

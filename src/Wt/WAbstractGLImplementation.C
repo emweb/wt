@@ -2,10 +2,6 @@
 
 namespace Wt {
 
-#ifdef WT_WGLWIDGET_DEBUG
-  bool WAbstractGLImplementation::debugging_ = true;
-#endif
-
 WAbstractGLImplementation::WAbstractGLImplementation(WGLWidget *glInterface)
   : glInterface_(glInterface),
     updateGL_(false),
@@ -13,6 +9,7 @@ WAbstractGLImplementation::WAbstractGLImplementation(WGLWidget *glInterface)
     updatePaintGL_(false),
     renderWidth_(0),
     renderHeight_(0),
+    debugging_(false),
     webglNotAvailable_(this, "webglNotAvailable")
 {
   webglNotAvailable_.connect(glInterface_, &WGLWidget::webglNotAvailable);

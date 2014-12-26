@@ -30,7 +30,7 @@ typedef boost::shared_ptr<WtReply> WtReplyPtr;
 class WtReply : public Reply
 {
 public:
-  WtReply(const Request& request, const Wt::EntryPoint& ep,
+  WtReply(Request& request, const Wt::EntryPoint& ep,
 	  const Configuration &config);
 
   virtual void reset(const Wt::EntryPoint *ep);
@@ -39,7 +39,7 @@ public:
 
   ~WtReply();
 
-  virtual void consumeData(Buffer::const_iterator begin,
+  virtual bool consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
 			   Request::State state);
 
@@ -58,7 +58,7 @@ public:
 
   std::istream& in() { return *in_; }
   std::ostream& out() { return out_; }
-  const Request& request() const { return request_; }
+  Request& request() { return request_; }
   std::string urlScheme() const { return urlScheme_; }
 
 protected:

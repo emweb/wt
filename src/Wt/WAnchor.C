@@ -281,6 +281,26 @@ void WAnchor::enableAjax()
   WContainerWidget::enableAjax();
 }
 
+bool WAnchor::canReceiveFocus() const
+{
+  return true;
+}
+
+int WAnchor::tabIndex() const
+{
+  int result = WContainerWidget::tabIndex();
+
+  if (result == std::numeric_limits<int>::min())
+    return 0;
+  else
+    return result;
+}
+
+bool WAnchor::setFirstFocus()
+{
+  return false;
+}
+
 void WAnchor::updateDom(DomElement& element, bool all)
 {
   bool needsUrlResolution = false;
@@ -328,7 +348,7 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
 
     std::string href = url;
     element.setAttribute("href", href);
-    return !app->environment().hashInternalPaths()
+    return !app->environment().internalPathUsingFragments()
       && href.find("://") == std::string::npos && href[0] != '/';
   }
 

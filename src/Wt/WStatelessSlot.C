@@ -44,6 +44,19 @@ WStatelessSlot::~WStatelessSlot()
     connectingSignals_[i]->removeSlot(this);
 }
 
+#ifndef WT_TARGET_JAVA
+void WStatelessSlot::disconnectFrom(EventSignalBase *signal)
+{
+  for (std::vector<EventSignalBase *>::iterator it = connectingSignals_.begin(); it != connectingSignals_.end(); ++it) {
+    if (signal == *it) {
+      connectingSignals_.erase(it);
+      signal->removeSlot(this);
+      break;
+    }
+  }
+}
+#endif
+
 bool WStatelessSlot::implementsMethod(WObjectMethod method) const
 {
   return method_ == method;

@@ -178,6 +178,12 @@ public:
    */
   Status status() const;
 
+  /*! \brief Sets the account status.
+   *
+   * \sa AbstractUserDatabase::setStatus()
+   */
+  void setStatus(Status status);
+
   /*! \brief Returns the email token.
    *
    * \sa AbstractUserDatabase::emailToken()

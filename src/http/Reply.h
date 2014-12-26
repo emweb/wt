@@ -55,7 +55,7 @@ typedef boost::shared_ptr<Reply> ReplyPtr;
 class WTHTTP_API Reply : public boost::enable_shared_from_this<Reply>
 {
 public:
-  Reply(const Request& request, const Configuration& config);
+  Reply(Request& request, const Configuration& config);
   virtual ~Reply();
 
   virtual void reset(const Wt::EntryPoint *ep);
@@ -104,7 +104,10 @@ public:
    */
   virtual void writeDone(bool success);
 
-  virtual void consumeData(Buffer::const_iterator begin,
+  /*
+   * Returns true if ready to read more.
+   */
+  virtual bool consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
 			   Request::State state) = 0;
 
@@ -121,6 +124,7 @@ public:
 
   void addHeader(const std::string name, const std::string value);
 
+  void receive();
   void send();
 
   const Configuration& configuration() { return configuration_; }
@@ -130,7 +134,7 @@ public:
   status_type status() const { return status_; }
 
 protected:
-  const Request& request_;
+  Request& request_;
   const Configuration& configuration_;
 
   virtual std::string contentType() = 0;
@@ -153,6 +157,7 @@ protected:
   bool transmitting() const { return transmitting_; }
 
 private:
+
   std::vector<std::pair<std::string, std::string> > headers_;
 
   ConnectionPtr connection_;

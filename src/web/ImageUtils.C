@@ -96,12 +96,42 @@ std::string ImageUtils::identifyMimeType(const std::vector<unsigned char>&
 
 WPoint ImageUtils::getSize(const std::string& fileName)
 {
-  std::vector<unsigned char> header = FileUtils::fileHeader(fileName, 25);
+  std::vector<unsigned char> header =
+      FileUtils::fileHeader(fileName, 25);
  
   if (header.empty())
     return WPoint();
-  else
-    return getSize(header);
+  else{
+    std::string mimeType = identifyMimeType(header);
+    if (mimeType == "image/jpeg")
+      return getJpegSize(fileName);
+    else
+      return getSize(header);
+  }
+}
+
+WPoint ImageUtils::getJpegSize(const std::string& fileName){
+  std::vector<unsigned char> header =
+      FileUtils::fileHeader(fileName, 1000);
+
+  int pos = 2;
+  while (toUnsigned(header[pos])==0xFF) {
+    if (toUnsigned(header[pos + 1])==0xC0 ||
+        toUnsigned(header[pos + 1])==0xC1 ||
+        toUnsigned(header[pos + 1])==0xC2 ||
+        toUnsigned(header[pos + 1])==0xC3 ||
+        toUnsigned(header[pos + 1])==0xC9 ||
+        toUnsigned(header[pos + 1])==0xCA ||
+        toUnsigned(header[pos + 1])==0xCB)
+      break;
+    pos += 2+(toUnsigned(header[pos + 2])<<8) + toUnsigned(header[pos + 3]);
+    if (pos+12>header.size())
+      break;
+  }
+
+  int height = (toUnsigned(header[pos + 5] << 8)) + toUnsigned(header[pos + 6]);
+  int width = (toUnsigned(header[pos + 7] << 8)) + toUnsigned(header[pos + 8]);
+  return WPoint(width, height);
 }
 
 WPoint ImageUtils::getSize(const std::vector<unsigned char>& header)

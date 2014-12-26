@@ -37,7 +37,9 @@ RegistrationModel::RegistrationModel(const AuthService& baseAuth,
     emailPolicy_(EmailDisabled)
 {
   if (baseAuth.identityPolicy() != EmailAddressIdentity) {
-    if (baseAuth.emailVerificationEnabled())
+    if (baseAuth.emailVerificationRequired())
+      emailPolicy_ = EmailMandatory;
+    else if (baseAuth.emailVerificationEnabled())
       emailPolicy_ = EmailOptional;
     else
       emailPolicy_ = EmailDisabled;
@@ -85,8 +87,7 @@ bool RegistrationModel::registerIdentified(const Identity& identity)
     User user = baseAuth()->identifyUser(idpIdentity_, users());
 
     if (user.isValid()) {
-      login_.login(user);
-      return true;
+      return loginUser(login_, user);
     } else {
       switch (baseAuth()->identityPolicy()) {
       case LoginNameIdentity:
@@ -289,7 +290,7 @@ void RegistrationModel::existingUserConfirmed()
     existingUser_.addIdentity(idpIdentity_.provider(),
 			      WT_USTRING::fromUTF8(idpIdentity_.id()));
 
-  login_.login(existingUser_);
+  loginUser(login_, existingUser_);
 }
 
 void RegistrationModel::validatePasswordsMatchJS(WLineEdit *password,

@@ -41,9 +41,9 @@ public:
    *
    * The optional contents is a widget that will be shown in the WMenu
    * contents stack when the item is selected. For this widget, a load
-   * \p policy can be indicated which specifies whether the contents
-   * widgets is transmitted only when it the item is activated for the
-   * first time (LazyLoading) or transmitted prior to first rendering.
+   * \p policy specifies whether the contents widgets is transmitted
+   * only when it the item is activated for the first time
+   * (LazyLoading) or transmitted prior to first rendering.
    *
    * If the menu supports internal path navigation, then a default
    * pathComponent() will be derived from the \p label, and can be
@@ -268,6 +268,10 @@ public:
    */
   void *data() const { return data_; }
 
+  /*! \brief Returns the checkbox for a checkable item.
+   *
+   * \sa setCheckable()
+   */
   WCheckBox *checkBox() const { return checkBox_; }
 
   /*! \brief Make it possible to close this item interactively or by close().
@@ -291,12 +295,23 @@ public:
    */
   void close();
 
+  /*! \brief Returns the menu that contains this item.
+   */
   WMenu *parentMenu() const { return menu_; }
+
+  /*! \brief Sets the contents widget for this item.
+   *
+   * The contents is a widget that will be shown in the WMenu contents
+   * stack when the item is selected. For this widget, the load \p
+   * policy specifies whether the contents widgets is transmitted only
+   * when it the item is activated for the first time (LazyLoading) or
+   * transmitted prior to first rendering.
+   */
+  void setContents(WWidget *contents, LoadPolicy policy = LazyLoading);
 
   /*! \brief Returns the contents widget for this item.
    *
-   * The contents widget is the widget in the WStackedWidget associated with
-   * this item.
+   * \sa setContents()
    */
   WWidget *contents() const;
 
@@ -339,6 +354,12 @@ public:
    */
   bool isSectionHeader() const;
 
+  /*! \brief Returns the anchor of this menu item.
+   *
+   *  Can be used to add widgets to the menu.
+   */
+  WAnchor *anchor() const;
+
   /*! \brief Renders the item as selected or unselected.
    *
    * The default implementation sets the styleclass for itemWidget()
@@ -369,7 +390,7 @@ private:
   WLabel *text_;
   WCheckBox *checkBox_;
   void *data_;
-  bool separator_, selectable_, signalsConnected_;
+  bool separator_, selectable_, signalsConnected_, customLink_;
 
   Signal<WMenuItem *> triggered_;
   Wt::Signals::connection contentsDestroyedConnection_;
@@ -380,7 +401,6 @@ private:
 
   void create(const std::string& iconPath, const WString& text,
 	      WWidget *contents, LoadPolicy policy);
-  WAnchor *anchor() const;
   void purgeContents();
   void updateInternalPath();
   bool contentsLoaded() const;

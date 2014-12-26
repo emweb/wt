@@ -23,6 +23,7 @@
 #include "Wt/WLogger"
 
 #include "Configuration.h"
+#include "SessionProcessManager.h"
 #include "WtReply.h"
 #include "../web/Configuration.h"
 
@@ -39,11 +40,12 @@ class RequestHandler
 public:
   /// Construct with a directory containing files to be served.
   explicit RequestHandler(const Configuration &config,
-			  const Wt::EntryPointList& entryPoints,
+			  const Wt::Configuration& wtConfig,
 			  Wt::WLogger& logger);
 
   /// Handle a request and produce a reply.
   ReplyPtr handleRequest(Request& req, ReplyPtr& lastWtReply,
+			 ReplyPtr& lastProxyReply,
 			 ReplyPtr& lastStaticReply);
 
   const std::string getErrorRoot() const
@@ -53,13 +55,17 @@ public:
 
   Wt::WLogger& logger() const { return logger_; }
 
+  void setSessionManager(SessionProcessManager *sessionManager);
+
 private:
   /// The server configuration
   const Configuration &config_;
-  /// The paths that match applications
-  const Wt::EntryPointList& entryPoints_;
+  /// The Wt configuration
+  const Wt::Configuration &wtConfig_;
   /// The logger
   Wt::WLogger& logger_;
+  /// The session manager for dedicated processes
+  SessionProcessManager *sessionManager_;
 
   /// Perform URL-decoding on a string and separates in path and
   /// query. Returns false if the encoding was invalid.

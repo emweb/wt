@@ -241,6 +241,7 @@
     <div class="Wt-item ${trunk-class} ${selected}">
       ${cols-row}${expand}${label-area}
     </div>
+    <div style="clear: both"></div>
     ${children}
   </message>
 </messages>

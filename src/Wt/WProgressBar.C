@@ -119,6 +119,12 @@ void WProgressBar::resize(const WLength& width, const WLength& height)
     setAttributeValue("style", "line-height: " + height.cssText());
 }
 
+void WProgressBar::updateBar(DomElement& bar)
+{
+    bar.setProperty(PropertyStyleWidth,
+		     boost::lexical_cast<std::string>(percentage()) + "%");
+}
+
 void WProgressBar::updateDom(DomElement& element, bool all)
 {
   DomElement *bar = 0, *label = 0;
@@ -142,8 +148,7 @@ void WProgressBar::updateDom(DomElement& element, bool all)
     if (!label)
       label = DomElement::getForUpdate("lbl" + id(), DomElement_DIV);
 
-    bar->setProperty(PropertyStyleWidth,
-		     boost::lexical_cast<std::string>(percentage()) + "%");
+    updateBar(*bar);
 
     WString s = text();
     removeScript(s);

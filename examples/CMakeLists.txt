@@ -1,3 +1,61 @@
+# Normally, this is not a toplevel CMakeLists.txt file. Except when it is
+# used in combination with the Windows SDK, then it is prefixed with the
+# required configuration settings to allow building the examples of the
+# binary Wt distribution as a standalone project.
+#
+# This CMakeLists.txt is complex because it supports all different modes
+# of building Wt on all supported platforms. Your own CMakeLists.txt can
+# be much simpler. For example (for Windows):
+#
+# CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+# Project(myproject)
+#
+# INCLUDE_DIRECTORIES(c:/wt-installation-path/include)
+# LINK_DIRECTORIES(c:/wt-installation-path/lib)
+#
+# ADD_DEFINITIONS(-DHPDF_DLL)
+#
+# ADD_EXECUTABLE(myprog.wt
+#   MyProg1.cpp
+#   OtherFile.cpp
+#   AndEvenMoreCode.cpp
+# )
+#
+# TARGET_LINK_LIBRARIES(myprog.wt
+#   debug wtd      optimized wt
+#   debug wthttpd  optimized wthttp
+#   debug libhpdfd optimized libhpdf # only required for if you write pdfs
+# )
+
+IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+  IF(WIN32)
+    # preamble to make this a toplevel CMakeLists.txt for Windows, intended
+    # for being used 
+    CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+
+    Project(WtExamples)
+
+    # build widgetgallery, if supported
+    IF(MSVC_VERSION GREATER 1600)
+      SET(HAS_CXX11 ON)
+    ENDIF(MSVC_VERSION GREATER 1600)
+
+    SET(EXAMPLES_CONNECTOR
+      debug wthttpd optimized wthttp
+      debug libhpdfd optimized libhpdf
+    )
+
+    INCLUDE_DIRECTORIES($(CMAKE_SOURCE_DIR)/../../../include)
+    LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/../../../lib)
+
+    # We ship libharu as DLL. Compiling/linking against libharu DLL requires
+    # this definition to be set.
+    ADD_DEFINITIONS(-DHPDF_DLL)
+  ENDIF(WIN32)
+ENDIF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+  
+
+# Normal example CMakeLists.txt starts here
 IF(BOOST_WT_MT_FOUND)
   IF(MULTI_THREADED)
     ADD_DEFINITIONS(-DWT_THREADED -D_REENTRANT -DBOOST_SPIRIT_THREADSAFE)

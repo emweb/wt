@@ -192,10 +192,13 @@ boost::any WStandardItemModel::headerData(int section, Orientation orientation,
   if (role == LevelRole)
     return 0;
 
-  const HeaderData& d = (orientation == Horizontal)
-    ? columnHeaderData_[section]
-    : rowHeaderData_[section];
+  const std::vector<HeaderData>& headerData
+    = (orientation == Horizontal) ? columnHeaderData_ : rowHeaderData_;
 
+  if (section >= (int)headerData.size())
+    return boost::any();
+
+  const HeaderData& d = headerData[section];
   HeaderData::const_iterator i = d.find(role);
 
   if (i != d.end()) {
@@ -385,8 +388,11 @@ WFlags<HeaderFlag> WStandardItemModel::headerFlags(int section,
 {
   const std::vector<WFlags<HeaderFlag> >& fl
     = (orientation == Horizontal) ? columnHeaderFlags_ : rowHeaderFlags_;
- 
-  return fl[section];
+
+  if (section >= (int)fl.size())
+    return WFlags<HeaderFlag>();
+  else
+    return fl[section];
 }
 
 void *WStandardItemModel::toRawIndex(const WModelIndex& index) const

@@ -10,6 +10,13 @@
 #include <Wt/WGlobal>
 #include <boost/any.hpp>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
+namespace boost {
+  class recursive_mutex;
+}
+
 namespace Wt {
 
   class WResource;
@@ -42,9 +49,12 @@ namespace Wt {
  *
  * \ingroup http
  */
-class WT_API ResponseContinuation
+class WT_API ResponseContinuation 
+  : public boost::enable_shared_from_this<ResponseContinuation>
 {
 public:
+  ~ResponseContinuation();
+
   /*! \brief Set data associated with the continuation.
    *
    * You could do this to keep track of the state of sending the data
@@ -65,10 +75,17 @@ public:
   /*! \brief Wait for more data.
    *
    * This suspends the handling of this request until more data is
-   * available, which is indicated to a resource using
-   * WResource::haveMoreData().
+   * available, indicated with a call to haveMoreData(), or to a
+   * resource globally using WResource::haveMoreData().
    */
   void waitForMoreData();
+
+  /*! \brief Indicates that we have more data.
+   *
+   * This will allow the response to be resumed with a new call to
+   * WResource::handleRequest().
+   */
+  void haveMoreData();
 
   /*! \brief Returns whether this continuation is waiting for data.
    *
@@ -76,29 +93,30 @@ public:
    */
   bool isWaitingForMoreData() const { return waiting_; }
 
-  /*
-   * Only useful for server-side events: force continuation.
-   */
-  void doContinue(WebWriteEvent event);
-
 private:
+#ifdef WT_THREADED
+  boost::shared_ptr<boost::recursive_mutex> mutex_;
+#endif
+
   WResource *resource_;
   WebResponse *response_;
   boost::any data_;
-  bool waiting_, readyToContinue_, needsContinue_;
+  bool waiting_, readyToContinue_;
 
   ResponseContinuation(WResource *resource, WebResponse *response);
   ResponseContinuation(const ResponseContinuation&);
-  ~ResponseContinuation();
 
-  void stop();
-  void flagReadyToContinue(WebWriteEvent);
+  void cancel(bool resourceIsBeingDeleted);
+  void readyToContinue(WebWriteEvent writeResult);
+
   WebResponse *response() { return response_; }
 
   friend class Wt::WResource;
   friend class Wt::WebSession;
   friend class Response;
 };
+
+typedef boost::shared_ptr<ResponseContinuation> ResponseContinuationPtr;
 
   }
 }

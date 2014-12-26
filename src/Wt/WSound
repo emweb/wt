@@ -7,9 +7,10 @@
 #ifndef WSOUND_H_
 #define WSOUND_H_
 
-#include <Wt/WObject>
+#include <Wt/WMediaPlayer>
 
 namespace Wt {
+
 class SoundManager;
 
 /*! \class WSound Wt/WSound Wt/WSound
@@ -36,11 +37,25 @@ class SoundManager;
 class WT_API WSound : public WObject
 {
 public:
-  /*! \brief Constructs a sound object that will play the given URL.
+  /*! \brief Constructs a sound object.
    *
-   * \note As of %Wt 3.1.10, the \p url must specify an MP3 file.
+   * \sa addSource()
    */
-  WSound(const std::string &url, WObject *parent = 0);
+  WSound(WObject *parent = 0);
+
+  /*! \brief Constructs a sound object for an MP3 media source.
+   *
+   * The \p url will be assumed to be an MP3 file.
+   *
+   * \sa addSource()
+   */
+  WSound(const std::string& url, WObject *parent = 0);
+
+  /*! \brief Constructs a sound object.
+   *
+   * \sa addSource()
+   */
+  WSound(WMediaPlayer::Encoding encoding, const WLink& link, WObject *parent = 0);
 
   /*! \brief Destructor.
    *
@@ -48,11 +63,25 @@ public:
    */
   ~WSound();
 
-  /*! \brief Returns the sound url.
+  /*! \brief Adds a media source.
    *
-   * \sa WSound()
+   * You may add multiple media sources (with different encodings) to allow the
+   * file to be played in more browsers without needing Flash plugins.
    */
-  const std::string &url() const;
+  void addSource(WMediaPlayer::Encoding encoding, const WLink& link);
+
+  /*! \brief Returns the media source (<b>deprecated</b>).
+   *
+   * \deprecated use getSource(WMediaPlayer::Encoding) instead.
+   */
+  std::string url() const;
+
+  /*! \brief Returns the media source.
+   *
+   * This returns the link set for a specific encoding, or an empty link if no URL
+   * was set for that encoding.
+   */
+  WLink getSource(WMediaPlayer::Encoding encoding) const;
 
   /*! \brief Sets the amount of times the sound has to be repeated.
    *
@@ -88,9 +117,17 @@ public:
   void stop();
 
 private:
-  std::string   url_;
-  int           loops_;
-  SoundManager *sm_;
+  struct Source {
+    Source(WMediaPlayer::Encoding anEncoding, WLink aLink) : encoding(anEncoding), link(aLink) { }
+
+    WMediaPlayer::Encoding encoding;
+    WLink link;
+  };
+
+  std::vector<Source> media_;
+  int loops_;
+
+  friend class SoundManager;
 };
 
 }

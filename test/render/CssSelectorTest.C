@@ -4,7 +4,7 @@
 #include <Wt/Render/Block.h>
 #include <Wt/Render/CssParser.h>
 #include <iostream>
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 using namespace boost::assign;
 using namespace Wt::Render;
 
@@ -28,19 +28,19 @@ const Wt::Render::Block* childBlock(const Wt::Render::Block* parent,
   return block;
 }
 
-rapidxml::xml_document<>* createXHtml(const char *xhtml)
+Wt::rapidxml::xml_document<>* createXHtml(const char *xhtml)
 {
-  rapidxml::xml_document<>* doc = new rapidxml::xml_document<>();
+  Wt::rapidxml::xml_document<>* doc = new Wt::rapidxml::xml_document<>();
 
   char *cxhtml = doc->allocate_string(xhtml);
-  doc->parse<rapidxml::parse_xhtml_entity_translation>(cxhtml);
+  doc->parse<Wt::rapidxml::parse_xhtml_entity_translation>(cxhtml);
 
   return doc;
 }
 
 BOOST_AUTO_TEST_CASE( CssSelector_test1 )
 {
-  rapidxml::xml_document<>* doc = createXHtml(
+  Wt::rapidxml::xml_document<>* doc = createXHtml(
         "<ul><li></li></ul><li><h1><h2><h1></h1></h2></h1></li>");
 
 
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( CssSelector_test1 )
 
 BOOST_AUTO_TEST_CASE( CssSelector_test2 )
 {
-  rapidxml::xml_document<>* doc = createXHtml(
+  Wt::rapidxml::xml_document<>* doc = createXHtml(
         "<h1><h2 id=\"two\"><h3><h4 id=\"four\"></h4></h3></h2></h1>");
 
   Wt::Render::StyleSheet* style = Wt::Render::CssParser().parse(
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( CssSelector_test2 )
 
 BOOST_AUTO_TEST_CASE( CssSelector_test3 )
 {
-  rapidxml::xml_document<>* doc = createXHtml(
+  Wt::rapidxml::xml_document<>* doc = createXHtml(
  "<h1><h2 class=\"b\"><h3 class=\"c e\"><h4 class=\"d\"></h4></h3></h2></h1>");
 
   Wt::Render::StyleSheet* style = Wt::Render::CssParser().parse(
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( CssSelector_test3 )
 
 BOOST_AUTO_TEST_CASE( CssSelector_test4 )
 {
-  rapidxml::xml_document<>* doc = createXHtml(
+  Wt::rapidxml::xml_document<>* doc = createXHtml(
  "<h1 class=\"a1 a2\" id=\"one\"><h2><h3 class=\"c\" id=\"two\"></h3></h2></h1>"
         );
 
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( CssSelector_testSpecificity )
 
 BOOST_AUTO_TEST_CASE( CssSelector_test5 )
 {
-  rapidxml::xml_document<>* doc = createXHtml(
+  Wt::rapidxml::xml_document<>* doc = createXHtml(
         "<h1><h1><h1></h1></h1></h1>");
 
   Wt::Render::StyleSheet* style = Wt::Render::CssParser().parse(

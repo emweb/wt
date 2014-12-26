@@ -7,6 +7,7 @@
 #ifndef WTIMER_H_
 #define WTIMER_H_
 
+#include <Wt/WApplication>
 #include <Wt/WObject>
 #include <Wt/WSignal>
 #include <Wt/WEvent>
@@ -179,7 +180,7 @@ void WTimer::singleShot(int msec, T *receiver, void (V::*method)())
 template <class F>
 void WTimer::singleShot(int msec, const F& f)
 {
-  WTimer *timer = new WTimer();
+  WTimer *timer = new WTimer(WApplication::instance());
   timer->setSingleShot(true);
   timer->setInterval(msec);
   timer->setSelfDestruct();

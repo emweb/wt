@@ -17,28 +17,17 @@ NumericalExample::NumericalExample(WContainerWidget *parent)
   : WContainerWidget(parent)
 {
   setContentAlignment(AlignCenter);
-  
+
   chart_ = new WCartesian3DChart(this);
-  if (chart_->isAlternative()) {
-    
-    sombrModel_ = 0;
-    xPlaneModel_ = 0;
-    yPlaneModel_ = 0;
-    xPlaneModelSize_ = 0;
-    yPlaneModelColor_ = 0;
-    spiralModel_ = 0;
-    para1Model_ = 0;
-    para2Model_ = 0;
-    return;
-  }
-    
+  // Disabling server side rendering for Wt website.
+  chart_->setRenderOptions(WGLWidget::ClientSideRendering | WGLWidget::AntiAliasing);
   chart_->setLegendStyle(WFont(), WPen(), WBrush(WColor(lightGray)));
 
   Wt::WCssDecorationStyle style;
   style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium, Wt::black));
   chart_->setDecorationStyle(style);
 
-  
+
   // first dataset
   sombrModel_ = new SombreroData(40, 40, -10, 10, -10, 10);
   WGridData *sombreroFunc_ = new WGridData(sombrModel_);
@@ -67,7 +56,7 @@ NumericalExample::NumericalExample(WContainerWidget *parent)
   WEquidistantGridData *xPlaneFuncSize_ = new WEquidistantGridData(xPlaneModelSize_,
 							       -10, 1, -10, 1);
   series_.push_back(xPlaneFuncSize_);
-  
+
   // dataset
   spiralModel_ = new PointsData(100);
   WScatterData *spiral_ = new WScatterData(spiralModel_);
@@ -90,10 +79,10 @@ NumericalExample::NumericalExample(WContainerWidget *parent)
   // Data configuration widget
   DataConfig *dataconfig = new DataConfig(chart_);
   dataconfig->addDataToCollection("Sombrero data", sombreroFunc_);
-  dataconfig->addDataToCollection("Plane titled along x", xPlaneFunc_);  
-  dataconfig->addDataToCollection("Plane titled along y", yPlaneFunc_);
-  dataconfig->addDataToCollection("Plane titled along x (with sizeRoles)", xPlaneFuncSize_);
-  dataconfig->addDataToCollection("Plane titled along y (with colorRoles)", yPlaneFuncColor_);
+  dataconfig->addDataToCollection("Plane tilted along x", xPlaneFunc_);
+  dataconfig->addDataToCollection("Plane tilted along y", yPlaneFunc_);
+  dataconfig->addDataToCollection("Plane tilted along x (with sizeRoles)", xPlaneFuncSize_);
+  dataconfig->addDataToCollection("Plane tilted along y (with colorRoles)", yPlaneFuncColor_);
   dataconfig->addDataToCollection("spiral", spiral_);
   dataconfig->addDataToCollection("parabola", parabola1);
   dataconfig->addDataToCollection("parabola (with colorRoles)", parabola2);

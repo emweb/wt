@@ -21,6 +21,7 @@
 #include "Server.h"
 #include "Configuration.h"
 #include "WebController.h"
+#include "WebUtils.h"
 
 #include <boost/bind.hpp>
 
@@ -53,6 +54,10 @@ namespace {
 #endif //BOOST_VERSION >= 104700
   }
 #endif //HTTP_WITH_SSL
+
+  // The interval to run WebController::expireSessions(),
+  // when running as a dedicated process.
+  static const int SESSION_EXPIRE_INTERVAL = 5;
 }
 
 namespace Wt {
@@ -73,14 +78,24 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
     ssl_acceptor_(wt_.ioService()),
 #endif // HTTP_WITH_SSL
     connection_manager_(),
-    request_handler_(config, wt_.configuration().entryPoints(), accessLogger_)
+    sessionManager_(0),
+    request_handler_(config, wt_.configuration(), accessLogger_),
+    expireSessionsTimer_(wt_.ioService())
 {
-  if (config.accessLog().empty())
+  if (config.parentPort() != -1)
+    accessLogger_.configure(std::string("-*"));
+  else if (config.accessLog().empty())
     accessLogger_.setStream(std::cout);
   else if (config.accessLog() == "-")
     accessLogger_.configure(std::string("-*"));
   else
     accessLogger_.setFile(config.accessLog());
+
+  if (wt_.configuration().sessionPolicy() == Wt::Configuration::DedicatedProcess &&
+      config.parentPort() == -1) {
+    sessionManager_ = new SessionProcessManager(wt_.ioService(), wt_.configuration());
+    request_handler_.setSessionManager(sessionManager_);
+  }
 
   accessLogger_.addField("remotehost", false);
   accessLogger_.addField("rfc931", false);
@@ -105,27 +120,38 @@ Wt::WebController *Server::controller()
 
 void Server::start()
 {
+  if (config_.parentPort() != -1) {
+    expireSessionsTimer_.expires_from_now(boost::posix_time::seconds(SESSION_EXPIRE_INTERVAL));
+    expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
+	  asio::placeholders::error));
+  }
+
   asio::ip::tcp::resolver resolver(wt_.ioService());
 
   // HTTP
-  if (!config_.httpAddress().empty()) {
-    std::string httpPort = config_.httpPort();
-
+  if (!config_.httpAddress().empty() || config_.parentPort() != -1) {
     asio::ip::tcp::endpoint tcp_endpoint;
 
-    if (httpPort == "0")
-      tcp_endpoint.address(asio::ip::address::from_string
-			   (config_.httpAddress()));
-    else {
+    if (config_.parentPort() == -1) {
+      std::string httpPort = config_.httpPort();
+
+      if (httpPort == "0")
+	tcp_endpoint.address(asio::ip::address::from_string
+			     (config_.httpAddress()));
+      else {
 #ifndef NO_RESOLVE_ACCEPT_ADDRESS
-      asio::ip::tcp::resolver::query tcp_query(config_.httpAddress(),
-					       config_.httpPort());
-      tcp_endpoint = *resolver.resolve(tcp_query);
+	asio::ip::tcp::resolver::query tcp_query(config_.httpAddress(),
+						 config_.httpPort());
+	tcp_endpoint = *resolver.resolve(tcp_query);
 #else // !NO_RESOLVE_ACCEPT_ADDRESS
-      tcp_endpoint.address
-	(asio::ip::address::from_string(config_.httpAddress()));
-      tcp_endpoint.port(atoi(httpPort.c_str()));
+	tcp_endpoint.address
+	  (asio::ip::address::from_string(config_.httpAddress()));
+	tcp_endpoint.port(atoi(httpPort.c_str()));
 #endif // NO_RESOLVE_ACCEPT_ADDRESS
+      }
+    } else {
+      tcp_endpoint = asio::ip::tcp::endpoint(
+	  asio::ip::address_v4::loopback(), 0);
     }
 
     tcp_acceptor_.open(tcp_endpoint.protocol());
@@ -147,7 +173,7 @@ void Server::start()
   }
 
   // HTTPS
-  if (!config_.httpsAddress().empty()) {
+  if (!config_.httpsAddress().empty() && config_.parentPort() == -1) {
 #ifdef HTTP_WITH_SSL
     LOG_INFO_S(&wt_, "starting server: https://" <<
 	       config_.httpsAddress() << ":" << config_.httpsPort());
@@ -230,6 +256,14 @@ void Server::start()
   // WServer context, we post the action of calling accept to one of
   // the threads in the threadpool.
   wt_.ioService().post(boost::bind(&Server::startAccept, this));
+
+  if (config_.parentPort() != -1) {
+    // This is a child process, connect to parent to
+    // announce the listening port.
+    boost::shared_ptr<asio::ip::tcp::socket> parentSocketPtr
+      (new asio::ip::tcp::socket(wt_.ioService()));
+    wt_.ioService().post(boost::bind(&Server::startConnect, this, parentSocketPtr));
+  }
 }
 
 int Server::httpPort() const
@@ -265,8 +299,41 @@ void Server::startAccept()
 #endif // HTTP_WITH_SSL
 }
 
+void Server::startConnect(const boost::shared_ptr<asio::ip::tcp::socket>& socket)
+{
+  socket->async_connect(
+      asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), config_.parentPort()),
+	boost::bind(&Server::handleConnected, this,
+		    socket,
+		    asio::placeholders::error));
+}
+
+void Server::handleConnected(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
+			     const asio_error_code& err)
+{
+  if (!err) {
+    boost::shared_ptr<std::string> buf(new std::string(
+      boost::lexical_cast<std::string>(tcp_acceptor_.local_endpoint().port())));
+    socket->async_send(asio::buffer(*buf),
+      boost::bind(&Server::handlePortSent, this, socket, err, buf));
+  } else {
+    LOG_ERROR_S(&wt_, "child process couldn't connect to parent to send listening port: " << err.message());
+  }
+}
+
+void Server::handlePortSent(const boost::shared_ptr<asio::ip::tcp::socket>& socket,
+			    const asio_error_code& err, const boost::shared_ptr<std::string>& /*buf*/)
+{
+  if (err) {
+    LOG_ERROR_S(&wt_, "child process couldn't send listening port: " << err.message());
+  }
+}
+
 Server::~Server()
-{ }
+{
+  if (sessionManager_)
+    delete sessionManager_;
+}
 
 void Server::stop()
 {
@@ -298,10 +365,10 @@ void Server::handleTcpAccept(const asio_error_code& e)
   if (!e) {
     connection_manager_.start(new_tcpconnection_);
     new_tcpconnection_.reset(new TcpConnection(wt_.ioService(), this,
-          connection_manager_, request_handler_));
+	  connection_manager_, request_handler_));
     tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
-	                accept_strand_.wrap(
-                    boost::bind(&Server::handleTcpAccept, this,
+			accept_strand_.wrap(
+		    boost::bind(&Server::handleTcpAccept, this,
 				asio::placeholders::error)));
   }
 }
@@ -324,6 +391,11 @@ void Server::handleSslAccept(const asio_error_code& e)
 
 void Server::handleStop()
 {
+  if (sessionManager_)
+    sessionManager_->stop();
+
+  expireSessionsTimer_.cancel();
+
   // The server is stopped by cancelling all outstanding asynchronous
   // operations. Once all operations have finished the io_service::run() call
   // will exit.
@@ -334,6 +406,18 @@ void Server::handleStop()
 #endif // HTTP_WITH_SSL
 
   connection_manager_.stopAll();
+}
+
+void Server::expireSessions(boost::system::error_code ec)
+{
+  if (!ec) {
+    wt_.expireSessions();
+    expireSessionsTimer_.expires_from_now(boost::posix_time::seconds(SESSION_EXPIRE_INTERVAL));
+    expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
+	  asio::placeholders::error));
+  } else if (ec != asio::error::operation_aborted) {
+    LOG_ERROR_S(&wt_, "session expiration timer got an error: " << ec.message());
+  }
 }
 
 } // namespace server

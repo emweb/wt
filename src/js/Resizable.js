@@ -60,6 +60,9 @@ WT_DECLARE_WT_MEMBER
   function onMouseUp(event) {
     el.onmousemove = null;
     el.onmouseup = null;
+
+    if (handler)
+      handler(WT.pxself(el, 'width'), WT.pxself(el, 'height'), true);
   }
 
   function onMouseDown(event) {

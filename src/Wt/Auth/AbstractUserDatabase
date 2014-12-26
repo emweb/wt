@@ -199,6 +199,12 @@ public:
    */
   virtual User::Status status(const User& user) const;
 
+  /*! \brief Sets the user status.
+   *
+   * This sets the status for a user (if supported).
+   */
+  virtual void setStatus(const User& user, User::Status status);
+
   /** @name Password authentication
    */
   //@{

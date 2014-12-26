@@ -35,7 +35,7 @@ namespace misc_strings {
   const char char0x81 = (char)0x81;
 }
 
-WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
+WtReply::WtReply(Request& request, const Wt::EntryPoint& entryPoint,
                  const Configuration &config)
   : Reply(request, config),
     entryPoint_(&entryPoint),
@@ -77,7 +77,6 @@ void WtReply::reset(const Wt::EntryPoint *ep)
   sending_ = 0;
   contentType_.clear();
   location_.clear();
-  sending_ = false;
   contentLength_ = -1;
   bodyReceived_ = 0;
   sendingMessages_ = false;
@@ -122,18 +121,19 @@ void WtReply::logReply(Wt::WLogger& logger)
     httpRequest_->log();
 }
 
-void WtReply::consumeData(Buffer::const_iterator begin,
+bool WtReply::consumeData(Buffer::const_iterator begin,
 			  Buffer::const_iterator end,
 			  Request::State state)
 {
   consumeRequestBody(begin, end, state);
+  return true;
 }
 
 void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 				 Buffer::const_iterator end,
 				 Request::State state)
 {
-  if (request().webSocketVersion < 0) {
+  if (request().type != Request::WebSocket) {
     /*
      * A normal HTTP request
      */
@@ -473,7 +473,7 @@ void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
   LOG_DEBUG("readWebSocketMessage(): " << readMessageCallback_
 	    << ", " << callBack);
 
-  assert(request().webSocketVersion >= 0);
+  assert(request().type == Request::WebSocket);
 
   if (readMessageCallback_)
     return;
@@ -518,7 +518,7 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
 {
   assert(sending_ > 0);
 
-  bool webSocket = request().webSocketVersion >= 0;
+  bool webSocket = request().type == Request::WebSocket;
   if (webSocket) {
     std::size_t size = sending_;
 
@@ -584,7 +584,7 @@ bool WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 
   LOG_DEBUG("avail now: " << sending_);
 
-  bool webSocket = request().webSocketVersion >= 0;
+  bool webSocket = request().type == Request::WebSocket;
 
   if (webSocket && !sendingMessages_) {
     /*

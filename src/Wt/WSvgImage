@@ -19,6 +19,8 @@
 
 namespace Wt {
 
+class ServerSideFontMetrics;
+
 /*! \class WSvgImage Wt/WSvgImage Wt/WSvgImage
  *  \brief A paint device for rendering using Scalable Vector Graphics (SVG).
  *
@@ -114,6 +116,7 @@ private:
   WPointF     pathTranslation_;
 
   WStringStream shapes_;
+  ServerSideFontMetrics *fontMetrics_;
 
   void finishPath();
   void makeNewGroup();

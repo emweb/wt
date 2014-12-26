@@ -39,11 +39,18 @@ namespace Wt {
  * query, and thus you may want to first convert the weak_ptr into a
  * plain ptr when needing multiple operations.
  *
+ * A Wt::Dbo::ptr<C> can be converted to a Wt::Dbo::ptr<const C>
+ * when extracting data from Dbo objects.
+ * There are overloads for the copy constructor, copy assignment,
+ * and comparison operators to make this work as expected.
+ *
  * \ingroup dbo
  */
 template <class C>
 class weak_ptr
 {
+private:
+  typedef typename boost::remove_const<C>::type MutC;
 public:
   typedef C pointed;
 
@@ -84,6 +91,9 @@ public:
    */
   weak_ptr(const weak_ptr<C>& other);
 
+  template <class D>
+  weak_ptr(const weak_ptr<D>& other);
+
   /*! \brief Sets the value.
    *
    * This is assigns a new value, and:
@@ -107,12 +117,18 @@ public:
    */
   weak_ptr<C>& operator= (const weak_ptr<C>& other);
 
+  template <class D>
+  weak_ptr<C>& operator= (const weak_ptr<D>& other);
+
   /*! \brief Assignment operator.
    *
    * Since this needs to query the previous value, you should have an
    * active transaction.
    */
   weak_ptr<C>& operator= (const ptr<C>& other);
+
+  template <class D>
+  weak_ptr<C>& operator= (const ptr<D>& other);
 
 #ifdef DOXYGEN_ONLY
   /*! \brief Dereference operator.
@@ -155,7 +171,12 @@ public:
    * Since this needs to query the value, you should have an active
    * transaction.
    */
+#ifdef DOXYGEN_ONLY
   bool operator== (const weak_ptr<C>& other) const;
+#else
+  bool operator== (const weak_ptr<MutC>& other) const;
+  bool operator== (const weak_ptr<const C>& other) const;
+#endif // DOXYGEN_ONLY
 
   /*! \brief Comparison operator.
    *
@@ -165,7 +186,12 @@ public:
    * Since this needs to query the value, you should have an active
    * transaction.
    */
+#ifdef DOXYGEN_ONLY
   bool operator== (const ptr<C>& other) const;
+#else
+  bool operator== (const ptr<MutC>& other) const;
+  bool operator== (const ptr<const C>& other) const;
+#endif // DOXYGEN_ONLY
 
   /*! \brief Comparison operator.
    *
@@ -175,7 +201,12 @@ public:
    * Since this needs to query the value, you should have an active
    * transaction.
    */
+#ifdef DOXYGEN_ONLY
   bool operator!= (const weak_ptr<C>& other) const;
+#else
+  bool operator!= (const weak_ptr<MutC>& other) const;
+  bool operator!= (const weak_ptr<const C>& other) const;
+#endif // DOXYGEN_ONLY
 
   /*! \brief Comparison operator.
    *
@@ -185,7 +216,12 @@ public:
    * Since this needs to query the value, you should have an active
    * transaction.
    */
+#ifdef DOXYGEN_ONLY
   bool operator!= (const ptr<C>& other) const;
+#else
+  bool operator!= (const ptr<MutC>& other) const;
+  bool operator!= (const ptr<const C>& other) const;
+#endif // DOXYGEN_ONLY
 
   /*! \brief Checks for null.
    *
@@ -194,7 +230,11 @@ public:
    * Since this needs to query the value, you should have an active
    * transaction.
    */
-  operator bool() const;
+#ifdef DOXYGEN_ONLY
+  explicit operator bool() const;
+#else
+  WT_CXX11ONLY(explicit) operator bool() const;
+#endif
 
   /*! \brief Casting operator to a ptr.
    *
@@ -204,6 +244,9 @@ public:
    * transaction.
    */
   operator ptr<C>() const;
+
+  template <class D>
+  operator ptr<D>() const; // for conversion to ptr<const C>
 
   /*! \brief Promotes to a ptr.
    *
@@ -235,7 +278,7 @@ public:
   typename dbo_traits<C>::IdType id() const;
 
 private:
-  collection< ptr<C> > collection_;
+  collection< ptr<MutC> > collection_;
 
   void setRelationData(MetaDboBase *dbo, const std::string *sql,
 		       Session::SetInfo *info);
@@ -243,6 +286,8 @@ private:
   friend class DboAction;
   friend class SaveBaseAction;
   friend class SetReciproceAction;
+  friend class weak_ptr<MutC>;
+  friend class weak_ptr<const C>;
 };
 
   }

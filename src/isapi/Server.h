@@ -47,6 +47,9 @@ public:
   // will delete it on destruction. Once set, it must not be changed.
   //void setConfiguration(Configuration *c) { configuration_ = c; }
 
+  // Provide access to the WServer object
+  WServer *server() { return server_; }
+
 private:
   static IsapiServer *instance_;
 

@@ -531,7 +531,7 @@
 	overflow: hidden;
     }
 
-    Wt-header {
+    .Wt-header {
 	.Wt-label {
 	    font-weight: bold;
 	    text-overflow: ellipsis;
@@ -1048,4 +1048,14 @@ body.Wt-rtl {
 .Wt-stack.Wt-animated {
     overflow: hidden;
     position: relative;
+}
+
+/*
+ * WResizable
+ */
+.Wt-resizable, .Wt-resizable.modal .modal-footer {
+    background-image: url(../../../resizable.png);
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: right bottom;
 }

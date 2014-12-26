@@ -74,6 +74,11 @@ public:
     buffer_string value;
   };
 
+  Request() {
+#ifdef HTTP_WITH_SSL
+    ssl = 0;
+#endif
+  }
   enum State { Partial, Complete, Error };
 
   buffer_string method;
@@ -88,6 +93,12 @@ public:
   HeaderList headers;
   ::int64_t contentLength;
   int webSocketVersion;
+
+  enum Type {
+    HTTP, // HTTP request
+    WebSocket, // WebSocket request
+    TCP // Raw TCP request (not interpreted by parser, e.g. for proxying)
+  } type;
 
   std::string request_path;
   std::string request_query;

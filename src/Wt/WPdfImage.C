@@ -344,7 +344,10 @@ void WPdfImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
   if (end < start)
     std::swap(start, end);
 
-  HPDF_Page_Arc(page_, 0, 0, rect.width()/1, start + 90, end + 90);
+  if (spanAngle < (360 - EPSILON) )
+    HPDF_Page_Arc(page_, 0, 0, rect.width() / 2, start + 90, end + 90);
+  else
+    HPDF_Page_Circle(page_, 0, 0, rect.width() / 2);
 
   paintPath();
 

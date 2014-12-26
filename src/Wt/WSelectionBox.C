@@ -100,14 +100,15 @@ void WSelectionBox::updateDom(DomElement& element, bool all)
     configChanged_ = false;
   }
 
-  if (selectionMode_ == ExtendedSelection)
+  if (selectionMode_ == ExtendedSelection) {
     if (selectionChanged_ && !all) {
       for (int i = 0; i < count(); ++i) {
 	element.callMethod("options[" + boost::lexical_cast<std::string>(i)
 			+ "].selected=" + (isSelected(i) ? "true" : "false"));
       }
-      selectionChanged_ = false;
     }
+    selectionChanged_ = false;
+  }
 
   WComboBox::updateDom(element, all);
 }

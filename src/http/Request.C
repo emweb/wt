@@ -154,10 +154,7 @@ void Request::reset()
 
   contentLength = -1;
   webSocketVersion = -1;
-
-#ifdef HTTP_WITH_SSL
-  ssl = 0;
-#endif
+  type = HTTP;
 }
 
 void Request::process()
@@ -190,6 +187,7 @@ void Request::enableWebSocket()
     const Header *j = getHeader("Upgrade");
     if (j && j->value.iequals("WebSocket")) {
       webSocketVersion = 0;
+      type = WebSocket;
 
       const Header *k = getHeader("Sec-WebSocket-Version");
       if (k) {

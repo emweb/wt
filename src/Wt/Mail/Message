@@ -149,6 +149,12 @@ public:
    */
   void setBody(const WString& text);
 
+  /*! \brief Returns the plain text body.
+   *
+   * \sa setBody()
+   */
+  const WString& body() const { return body_; }
+
   /*! \brief Adds a recipient.
    *
    * A mail can have multiple recipients.
@@ -194,6 +200,12 @@ public:
    * The \p text should be an HTML version of the plain text body.
    */
   void addHtmlBody(const WString& text);
+
+  /*! \brief Returns the HTML body.
+   *
+   * \sa setHtmlBody()
+   */
+  const WString& htmlBody() const { return htmlBody_; }
 
   /*! \brief Adds an attachment.
    *

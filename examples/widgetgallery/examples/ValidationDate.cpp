@@ -53,7 +53,7 @@ button->clicked().connect(std::bind([=] () {
 		     " days, we will be celebrating your next anniversary!</p>");
 	out->setStyleClass("alert alert-success");
     } else {
-	dateEdit->setFocus();
+	dateEdit->setFocus(true);
 	out->setText(result.message());
 	out->setStyleClass("alert alert-danger");
     }

@@ -48,8 +48,11 @@ namespace {
 
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
+const char *WWebWidget::FOCUS_SIGNAL = "focus";
+const char *WWebWidget::BLUR_SIGNAL = "blur";
+
 #ifndef WT_TARGET_JAVA
-const std::bitset<29> WWebWidget::AllChangeFlags = std::bitset<29>()
+const std::bitset<31> WWebWidget::AllChangeFlags = std::bitset<31>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -60,7 +63,8 @@ const std::bitset<29> WWebWidget::AllChangeFlags = std::bitset<29>()
   .set(BIT_WIDTH_CHANGED)
   .set(BIT_HEIGHT_CHANGED)
   .set(BIT_DISABLED_CHANGED)
-  .set(BIT_ZINDEX_CHANGED);
+  .set(BIT_ZINDEX_CHANGED)
+  .set(BIT_TABINDEX_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -112,6 +116,7 @@ WWebWidget::OtherImpl::OtherImpl(WWebWidget *self)
     jsMembers_(0),
     jsStatements_(0),
     resized_(0),
+    tabIndex_(std::numeric_limits<int>::min()),
     dropSignal_(0),
     acceptedDropMimeTypes_(0),
     childrenChanged_(self)
@@ -144,6 +149,22 @@ WWebWidget::WWebWidget(WContainerWidget *parent)
   if (parent)
     parent->addWidget(this);
 }
+
+
+#ifndef WT_TARGET_JAVA
+WStatelessSlot *WWebWidget::getStateless(Method method)
+{
+  typedef void (WWebWidget::*Type)();
+
+  Type focusMethod = &WWebWidget::setFocus;
+
+  if (method == static_cast<WObject::Method>(focusMethod))
+    return implementStateless(focusMethod,
+			      &WWebWidget::undoSetFocus);
+  else
+    return WWidget::getStateless(method);
+}
+#endif
 
 void WWebWidget::setFormObject(bool how)
 {
@@ -1098,7 +1119,7 @@ bool WWebWidget::isVisible() const
     if (parent())
       return parent()->isVisible();
     else
-      return isRendered();
+      return loaded();
 }
 
 void WWebWidget::setDisabled(bool disabled)
@@ -1106,10 +1127,17 @@ void WWebWidget::setDisabled(bool disabled)
   if (canOptimizeUpdates() && (disabled == flags_.test(BIT_DISABLED)))
     return;
 
+  bool wasEnabled = isEnabled();
+
   flags_.set(BIT_DISABLED, disabled);
   flags_.set(BIT_DISABLED_CHANGED);
 
-  propagateSetEnabled(!disabled);
+  bool shouldBeEnabled = !disabled;
+  if (shouldBeEnabled && parent())
+    shouldBeEnabled = parent()->isEnabled();
+
+  if (shouldBeEnabled != wasEnabled)
+    propagateSetEnabled(shouldBeEnabled);
 
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, true);
@@ -1771,6 +1799,36 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   flags_.reset(BIT_HIDDEN_CHANGED);
 
+  if (flags_.test(BIT_GOT_FOCUS)) {
+    if (!app) app = WApplication::instance();
+    const WEnvironment& env = app->environment();
+
+    element.callJavaScript("setTimeout(function() {"
+			   """var o = " + jsRef() + ";"
+			   """if (o) {"
+			   ""   "if (!$(o).hasClass('" +
+			         app->theme()->disabledClass() + "')) {"
+			   ""      "try { "
+			   ""          "o.focus();"
+			   ""      "} catch (e) {}"
+			   ""   "}"
+			   """}"
+			   "}, " + (env.agentIsIElt(9) ? "500" : "10") + ");");
+
+    flags_.reset(BIT_GOT_FOCUS);
+  }
+
+  if (flags_.test(BIT_TABINDEX_CHANGED) || all) {
+    if (otherImpl_ && otherImpl_->tabIndex_ != std::numeric_limits<int>::min())
+      element.setProperty(PropertyTabIndex,
+			  boost::lexical_cast<std::string>
+			  (otherImpl_->tabIndex_));
+    else if (!all)
+      element.removeAttribute("tabindex");
+
+    flags_.reset(BIT_TABINDEX_CHANGED);
+  }
+  
   renderOk();
 
   delete transientImpl_;
@@ -1827,12 +1885,83 @@ bool WWebWidget::needsToBeRendered() const
     || !WApplication::instance()->session()->renderer().visibleOnly();
 }
 
-bool WWebWidget::setFirstFocus() {
-  for (unsigned i = 0; i < children().size(); i++)
-    if (children()[i]->setFirstFocus())
-      return true;
+void WWebWidget::setCanReceiveFocus(bool enabled)
+{
+  setTabIndex(enabled ? 0 : std::numeric_limits<int>::min());
+}
 
-  return false;
+bool WWebWidget::canReceiveFocus() const
+{
+  if (otherImpl_)
+    return otherImpl_->tabIndex_ != std::numeric_limits<int>::min();
+  else
+    return false;
+}
+
+void WWebWidget::setTabIndex(int index)
+{
+  if (!otherImpl_)
+    otherImpl_ = new OtherImpl(this);
+    
+  otherImpl_->tabIndex_ = index;
+
+  flags_.set(BIT_TABINDEX_CHANGED);
+  repaint();
+}
+
+int WWebWidget::tabIndex() const
+{
+  if (!otherImpl_)
+    return canReceiveFocus() ? 0 : std::numeric_limits<int>::min();
+  else
+    return otherImpl_->tabIndex_;
+}
+
+bool WWebWidget::setFirstFocus()
+{
+  if (isVisible() && isEnabled()) {
+    if (canReceiveFocus()) {
+      setFocus(true);
+      return true;
+    }
+
+    for (unsigned i = 0; i < children().size(); i++)
+      if (children()[i]->setFirstFocus())
+	return true;
+
+    return false;
+  } else
+    return false;
+}
+
+EventSignal<>& WWebWidget::blurred()
+{
+  return *voidEventSignal(BLUR_SIGNAL, true);
+}
+
+EventSignal<>& WWebWidget::focussed()
+{
+  return *voidEventSignal(FOCUS_SIGNAL, true);
+}
+
+void WWebWidget::setFocus(bool focus)
+{
+  flags_.set(BIT_GOT_FOCUS, focus);
+  repaint();
+
+  WApplication *app = WApplication::instance();
+  if (focus)
+    app->setFocus(id(), -1, -1);
+  else if (app->focus() == id())
+    app->setFocus(std::string(), -1, -1);
+}
+
+void WWebWidget::undoSetFocus()
+{ }
+
+bool WWebWidget::hasFocus() const
+{
+  return WApplication::instance()->focus() == id();
 }
 
 void WWebWidget::getSFormObjects(FormObjectsMap& result)
@@ -1881,10 +2010,11 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	flags_.reset(BIT_STUBBED);
 
 	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
+	WWidget *self = selfWidget();
 	setRendered(true);
-	render(RenderFull);
+	self->render(RenderFull);
 	DomElement *realElement = createDomElement(app);
-	app->theme()->apply(selfWidget(), *realElement, 0);
+	app->theme()->apply(self, *realElement, 0);
 	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
 	result.push_back(stub);
       }
@@ -1919,6 +2049,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_HEIGHT_CHANGED);
   flags_.reset(BIT_DISABLED_CHANGED);
   flags_.reset(BIT_ZINDEX_CHANGED);
+  flags_.reset(BIT_TABINDEX_CHANGED);
 #endif
 
   renderOk();
@@ -2195,30 +2326,6 @@ void WWebWidget::doJavaScript(const std::string& javascript)
 bool WWebWidget::loaded() const
 {
   return flags_.test(BIT_LOADED);
-}
-
-void WWebWidget::setTabIndex(int index)
-{
-  if (children_)
-    for (unsigned i = 0; i < children_->size(); ++i) {
-      WWidget *c = (*children_)[i];
-      c->setTabIndex(index);
-    }
-}
-
-int WWebWidget::tabIndex() const
-{
-  if (children_) {
-    int result = 0;
-
-    for (unsigned i = 0; i < children_->size(); ++i) {
-      WWidget *c = (*children_)[i];
-      result = std::max(result, c->tabIndex());
-    }
-
-    return result;
-  } else
-    return 0;
 }
 
 WWebWidget::DropMimeType::DropMimeType(const WT_USTRING& aHoverStyleClass)

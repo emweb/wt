@@ -32,7 +32,7 @@ PROJECT_NAME           = Wt
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 3.3.3
+PROJECT_NUMBER         = 3.3.4
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
@@ -666,7 +666,8 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = src/Wt \
-                         doc/main
+                         doc/main \
+                         src/web
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is

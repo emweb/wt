@@ -40,6 +40,10 @@ public:
 
   void setOptions(int argc, char **argv, const std::string& configurationFile);
 
+#ifndef WT_WIN32
+  std::vector<std::string> options() const;
+#endif // !WT_WIN32
+
   int threads() const { return threads_; }
   const std::string& docRoot() const { return docRoot_; }
   const std::string& appRoot() const { return appRoot_; }
@@ -73,6 +77,8 @@ public:
   const std::string& sessionIdPrefix() const { return sessionIdPrefix_; }
   const std::string& accessLog() const { return accessLog_; }
 
+  int parentPort() const { return parentPort_; }
+
   ::int64_t maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
 
   // ssl Password callback is not configurable from a file but we store it
@@ -86,6 +92,10 @@ public:
   { return sslPasswordCallback_; }
 
 private:
+#ifndef WT_WIN32
+  std::vector<std::string> options_;
+#endif // WT_WIN32
+
   Wt::WLogger& logger_;
   bool silent_;
 
@@ -118,11 +128,13 @@ private:
   std::string sessionIdPrefix_;
   std::string accessLog_;
 
+  int parentPort_;
+
   ::int64_t maxMemoryRequestSize_;
 
   boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 
-  void createOptions(po::options_description& options);
+  void createOptions(po::options_description& options, po::options_description& visible_options);
   void readOptions(const po::variables_map& vm);
 
   void checkPath(const boost::program_options::variables_map& vm,

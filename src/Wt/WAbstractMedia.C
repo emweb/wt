@@ -64,13 +64,6 @@ WAbstractMedia::WAbstractMedia(WContainerWidget *parent)
   setInline(false);
   setFormObject(true);
 
-  WApplication *app = wApp;
-  LOAD_JAVASCRIPT(app, "js/WAbstractMedia.js", "WAbstractMedia", wtjs1);
-
-  setJavaScriptMember(" WAbstractMedia",
-		      "new " WT_CLASS ".WAbstractMedia("
-		      + app->javaScriptClass() + "," + jsRef() + ");");
-
 #ifndef WT_TARGET_JAVA
   implementStateless(&WAbstractMedia::play, &WAbstractMedia::play);
   implementStateless(&WAbstractMedia::pause, &WAbstractMedia::pause);
@@ -134,8 +127,7 @@ void WAbstractMedia::setFormData(const FormData& formData)
       try {
         readyState_ = intToReadyState(boost::lexical_cast<int>(attributes[5]));
       } catch (const std::exception& e) {
-	throw WException("WAbstractMedia: error parsing: " + formData.values[0]
-			 + ": " + e.what());
+        readyState_ = HaveNothing;
       }
     } else
       throw WException("WAbstractMedia: error parsing: " + formData.values[0]);
@@ -144,11 +136,13 @@ void WAbstractMedia::setFormData(const FormData& formData)
 
 void WAbstractMedia::play()
 {
+  loadJavaScript();
   doJavaScript("jQuery.data(" + jsRef() + ", 'obj').play();");
 }
 
 void WAbstractMedia::pause()
 {
+  loadJavaScript();
   doJavaScript("jQuery.data(" + jsRef() + ", 'obj').pause();");
 }
 
@@ -232,8 +226,23 @@ void WAbstractMedia::updateMediaDom(DomElement& element, bool all)
   flagsChanged_ = preloadChanged_ = false;
 }
 
+void WAbstractMedia::loadJavaScript()
+{
+  if (javaScriptMember(" WAbstractMedia").empty()) {
+    WApplication *app = WApplication::instance();
+
+    LOAD_JAVASCRIPT(app, "js/WAbstractMedia.js", "WAbstractMedia", wtjs1);
+
+    setJavaScriptMember(" WAbstractMedia",
+			"new " WT_CLASS ".WAbstractMedia("
+			+ app->javaScriptClass() + "," + jsRef() + ");");
+  }
+}
+
 DomElement *WAbstractMedia::createDomElement(WApplication *app)
 {
+  loadJavaScript();
+
   DomElement *result = 0;
 
   if (isInLayout()) {

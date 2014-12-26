@@ -30,6 +30,16 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   setText(text);
 }
 
+WInPlaceEdit::WInPlaceEdit(bool buttons, 
+			   const WString& text, WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    valueChanged_(this)
+{
+  create();
+  setText(text);
+  setButtonsEnabled(buttons);
+}
+
 void WInPlaceEdit::create()
 {
   setImplementation(impl_ = new WContainerWidget());
@@ -52,7 +62,7 @@ void WInPlaceEdit::create()
    */
   text_->clicked().connect(text_, &WWidget::hide);
   text_->clicked().connect(editing_, &WWidget::show);
-  text_->clicked().connect(edit_, &WFormWidget::setFocus);
+  text_->clicked().connect(edit_, &WWidget::setFocus);
 
   edit_->enterPressed().connect(edit_, &WFormWidget::disable);
   edit_->enterPressed().connect(this, &WInPlaceEdit::save);

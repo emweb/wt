@@ -238,6 +238,9 @@ if (window.WebGLRenderingContext) {
 }
 _$_$endif_$_();
 
+// info about screen resolution
+otherInfo += "&scrW=" + screen.width + "&scrH=" + screen.height;
+
 // determine url
 var selfUrl = _$_SELF_URL_$_ + '&sid=' + _$_SCRIPT_ID_$_;
 

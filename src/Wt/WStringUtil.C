@@ -7,7 +7,7 @@
 #include "Wt/WLogger"
 #include "Wt/WStringUtil"
 
-#include "rapidxml/rapidxml.hpp"
+#include "3rdparty/rapidxml/rapidxml.hpp"
 
 #ifndef WT_NO_STD_LOCALE
 #include <locale>
@@ -158,10 +158,10 @@ std::string toUTF8(const std::wstring& s)
   for (std::wstring::const_iterator i = s.begin(); i != s.end(); ++i) {
     char *end = buf;
     try {
-      rapidxml::xml_document<>::insert_coded_character<0>(end, *i);
+      Wt::rapidxml::xml_document<>::insert_coded_character<0>(end, *i);
       for (char *b = buf; b != end; ++b)
 	result += *b;
-    } catch (rapidxml::parse_error& e) {
+    } catch (Wt::rapidxml::parse_error& e) {
       LOG_ERROR("toUTF8(): " << e.what());
     }
   }

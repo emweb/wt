@@ -97,9 +97,9 @@ public:
    *
    * When \p autoReverse is set to \c true, then the reverse animation
    * is chosen when the new index precedes the current index. This
-   * only applies to WAnimation::SlideLeft, WAnimation::SlideRight,
-   * WAnimation::SlideUp or WAnimation::SlideDown transition
-   * effects.
+   * only applies to WAnimation::SlideInFromLeft,
+   * WAnimation::SlideInFromRight, WAnimation::SlideInFromUp or
+   * WAnimation::SlideInFromDown transition effects.
    *
    * \sa setCurrentIndex()
    */

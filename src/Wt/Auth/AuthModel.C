@@ -143,7 +143,6 @@ bool AuthModel::validateField(Field field)
 	return false;
       case PasswordValid:
 	setValid(PasswordField);
-
 	return true;
       }
 
@@ -173,8 +172,9 @@ bool AuthModel::login(Login& login)
   if (valid()) {
     User user = users().findWithIdentity(Identity::LoginName,
 					 valueText(LoginNameField));
-    if (user.isValid()) {
+    if (loginUser(login, user)) {
       boost::any v = value(RememberMeField);
+
       if (!v.empty() && boost::any_cast<bool>(v) == true) {
 	WApplication *app = WApplication::instance();
 	app->setCookie(baseAuth()->authTokenCookieName(),
@@ -182,13 +182,11 @@ bool AuthModel::login(Login& login)
 		       baseAuth()->authTokenValidity() * 60);
       }
 
-      login.login(user);
-
       return true;
-    }
-  }
-
-  return false;
+    } else
+      return false;
+  } else
+    return false;
 }
 
 void AuthModel::logout(Login& login)

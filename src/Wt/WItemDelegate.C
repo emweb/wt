@@ -393,7 +393,7 @@ WWidget *WItemDelegate::createEditor(const WModelIndex& index,
   lineEdit->escapePressed().preventPropagation();
 
   if (flags & RenderFocused)
-    lineEdit->setFocus();
+    lineEdit->setFocus(true);
 
   // We use a layout so that the line edit fills the entire cell.
   // Somehow, this does not work with konqueror, but it does respond

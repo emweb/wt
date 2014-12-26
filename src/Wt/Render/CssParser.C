@@ -34,7 +34,11 @@ using namespace Wt::Render;
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/variant/recursive_variant.hpp>
 #include <boost/spirit/home/support/context.hpp>
+#if BOOST_VERSION < 105600
 #include <boost/spirit/home/phoenix.hpp>
+#else
+#include <boost/phoenix.hpp>
+#endif
 #include <boost/spirit/include/classic_file_iterator.hpp>
 
 #include <map>
@@ -157,8 +161,12 @@ struct fs_error_tag {};
 template< typename Iterator >
 struct ErrorReporting
 {
+#if BOOST_VERSION < 105600
   template< typename, typename, typename, typename, typename > // Phoenix v2
   struct result { typedef void type;};
+#else
+  typedef void result_type;
+#endif
 
   ErrorReporting(CssGrammer< Iterator >* grammer)
     : grammer_(grammer)

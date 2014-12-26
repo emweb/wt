@@ -384,8 +384,8 @@ public:
   /*! \brief Creates a standard replacer JavaScript function.
    *
    * This returns a JavaScript function that provides a standard
-   * implementation for the matching input, based on the given \p
-   * options.
+   * implementation for reacting to a match activation, editing the
+   * line edit text.
    */
   static std::string generateReplacerJS(const Options& options);
 

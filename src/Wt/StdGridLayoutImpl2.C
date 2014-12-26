@@ -166,6 +166,9 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
     js << ");";
 
     app->doJavaScript(js.str());
+
+    needRemeasure_ = false;
+    needAdjust_ = false;
   }
 
   if (needRemeasure_) {
@@ -439,8 +442,11 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
 	  js << "align:" << (int)align << ",";
 	}
 
-	js << "dirty:2,id:'" << id << "'"
+	js << "dirty:" << (grid_.items_[row][col].update_ ? 2 : 0)
+	   << ",id:'" << id << "'"
 	   << "}";
+
+	grid_.items_[row][col].update_ = 0;
       } else
 	js << "null";
     }

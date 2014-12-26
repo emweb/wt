@@ -810,23 +810,62 @@ public:
    */
   virtual bool loaded() const = 0;
 
+  /*! \brief Sets whether the widget can receive focus.
+   *
+   * By default, only form widgets (descendants of WFormWidget),
+   * anchors (WAnchor) and buttons (WPushButton) can receive focus.
+   *
+   * Any other widget can be configured to receive focus however.
+   */
+  virtual void setCanReceiveFocus(bool enabled) = 0;
+
+  /*! \brief Returns whether the widget can receive focus.
+   *
+   * \sa setCanReceiveFocus()
+   */
+  virtual bool canReceiveFocus() const = 0;
+
+  /*! \brief Sets focus.
+   *
+   * This only has an effect for a widget which can receive focus, and
+   * is equivalent to setFocus(true).
+   *
+   * \sa setCanReceiveFocus()
+   */
+  void setFocus();
+
+  /*! \brief Sets focus.
+   *
+   * When using \p focus = \c false, you can undo a previous setFocus() call.
+   */
+  virtual void setFocus(bool focus) = 0;
+
+  /*! \brief Set focus on the widget's first descendant.
+   *
+   * Set focus on the widget itself, or on a first descendant which can
+   * receive focus.
+   *
+   * Returns whether focus could be set.
+   */
+  virtual bool setFirstFocus() = 0;
+
+  /*! \brief Returns whether the widget currently has the focus.
+   */
+  virtual bool hasFocus() const = 0;
+
   /*! \brief Sets the tab index.
    *
-   * For widgets that receive focus, focus is passed on to the next
-   * widget in the <i>tabbing chain</i> based on their tab index. When
-   * the user navigates through form widgets using the keyboard,
-   * widgets receive focus starting from the element with the lowest
-   * tab index to elements with the highest tab index.
-   *
-   * A tab index only applies to widgets than can receive focus (which
-   * are WFormWidget, WAnchor, WPushButton), but setting a tab index
-   * on any other type of widget will propagate to its contained form
-   * widgets.
+   * For widgets that receive focus (canReceiveFocus()), focus is
+   * passed on to the next widget in the <i>tabbing chain</i> based on
+   * their tab index. When the user navigates through form widgets
+   * using the keyboard, widgets receive focus starting from the
+   * element with the lowest tab index to elements with the highest
+   * tab index.
    *
    * Widgets with a same tab index will receive focus in the same order
    * as they are inserted in the widget tree.
    *
-   * The default tab index is 0.
+   * The default tab index is 0 (for a widget that can receive focus).
    *
    * \sa setTabOrder()
    */
@@ -879,6 +918,8 @@ public:
    */
   virtual WWidget *find(const std::string& name) = 0;
 
+  /*! \brief Finds a descendent widget by id.
+   */
   virtual WWidget *findById(const std::string& id) = 0;
 
   /*! \brief Streams the (X)HTML representation.
@@ -980,15 +1021,6 @@ public:
   static void setTabOrder(WWidget *first, WWidget *second);
 
   virtual bool isExposed(WWidget *widget);
-
-  /*! \brief Set focus on the widget's first descendant.
-   *
-   * Set focus on the widget itself, or on a first descendant, which ever is
-   * applicable.
-   *
-   * Returns whether focus could be set.
-   */
-  virtual bool setFirstFocus();
 
 protected:
   static const char *WT_RESIZE_JS;

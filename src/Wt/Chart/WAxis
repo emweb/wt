@@ -28,14 +28,14 @@ class WAbstractChartImplementation;
  * \ingroup charts
  */
 enum Axis {
-  XAxis = 0,            //!< X axis.
-  YAxis = 1,            //!< First Y axis (== Y1Axis).
-  Y1Axis = YAxis,       //!< First Y axis (== YAxis).
-  Y2Axis = 2,           //!< Second Y Axis.
+  XAxis = 0,             //!< X axis.
+  YAxis = 1,             //!< First Y axis (== Y1Axis).
+  Y1Axis = YAxis,        //!< First Y axis (== YAxis).
+  Y2Axis = 2,            //!< Second Y Axis.
   OrdinateAxis = YAxis,  //!< Ordinate axis (== Y1Axis for a 2D plot).
-  XAxis_3D = 0,         //!< X axis on 3D chart.
-  YAxis_3D = 3,         //!< Y axis on 3D chart.
-  ZAxis_3D = 1 // = Y   //!< Z axis on 3D chart.
+  XAxis_3D = 0,          //!< X axis on 3D chart.
+  YAxis_3D = 3,          //!< Y axis on 3D chart.
+  ZAxis_3D = 1 /* = Y */ //!< Z axis on 3D chart.
 };
 
 /*! \brief Enumeration that indicates a logical location for an axis.
@@ -155,6 +155,10 @@ public:
    * \sa setMaximum()
    */
   static const double AUTO_MAXIMUM;
+
+  /*! \brief Destructor
+   */
+  virtual ~WAxis();
 
   /*! \brief Returns the axis id.
    *
@@ -372,6 +376,24 @@ public:
    */
   double labelInterval() const { return labelInterval_; }
 
+  /*! \brief Sets a point to be included as one of the labels (if possible).
+   *
+   * The given point will be included as one of the labels, by adjusting
+   * the minimum value on the axis, if that minimum is auto-computed. This
+   * is only applicable to a Linear scale axis.
+   *
+   * The default value is 0.0.
+   *
+   * \sa setRoundLimits()
+   */
+  void setLabelBasePoint(double point);
+
+  /*! \brief Returns the base point for labels.
+   *
+   * \sa setLabelBasePoint()
+   */
+  double labelBasePoint() const { return labelBasePoint_; }
+
   /*! \brief Sets the label format.
    *
    * Sets a format string which is used to format values, both for the
@@ -517,8 +539,12 @@ public:
    */
   const WFont& titleFont() const { return titleFont_; }
 
+  /*! \brief Sets the offset from the axis for the title label.
+   */
   void setTitleOffset(double offset) { titleOffset_ = offset; }
 
+  /*! \brief Returns the title offset.
+   */
   double titleOffset() const { return titleOffset_; }
 
   /*! \brief Sets the axis label font.
@@ -535,7 +561,14 @@ public:
    */
   const WFont& labelFont() const { return labelFont_; }
 
-  WString label(double u) const;
+  /*! \brief Returns the label for a value.
+   *
+   * This returns the label text that corresponds to a given value.
+   *
+   * The default implementation uses the labelFormat() to properly represent
+   * the value.
+   */
+  virtual WString label(double u) const;
 
   /*! \brief Returns the chart to which this axis belongs.
    *
@@ -556,7 +589,12 @@ public:
 	      double tickStart, double tickEnd, double labelPos,
 	      WFlags<AlignmentFlag> labelFlags) const;
 
-  std::vector<double> gridLinePositions() const;
+  /*! \brief Returns the positions for grid lines on this axis.
+   *
+   * This returns a list of logical values at which a grid line should
+   * be drawn on this axis.
+   */
+  virtual std::vector<double> gridLinePositions() const;
 
   void renderLabel(WPainter& painter,
 		   const WString& text, const WPointF& p,
@@ -567,16 +605,29 @@ public:
   void setRenderMirror(bool enable) { renderingMirror_ = enable; }
 
 protected:
+  /*! \brief Represents a label/tick on the axis.
+   */
   struct TickLabel {
+    /*! \brief Enumeration for a tick type */
     enum TickLength { Zero, Short, Long };
 
+    /*! \brief Position on the axis. */
     double u;
+
+    /*! \brief Tick length */
     TickLength tickLength;
+
+    /*! \brief Label text */
     WString    label;
 
+    /*! \brief Creates a label tick. */
     TickLabel(double v, TickLength length, const WString& l = WString());
   };
 
+  WAxis();
+
+  /*! \brief Returns the label (and ticks) information for this axis.
+   */
   virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment) const;
 
 private:
@@ -589,6 +640,7 @@ private:
   AxisScale        scale_;
   double           resolution_;
   double           labelInterval_;
+  double           labelBasePoint_;
   WString          labelFormat_;
   bool             defaultLabelFormat_;
   bool             gridLines_;
@@ -617,7 +669,6 @@ private:
 
   mutable double renderInterval_;
 
-  WAxis();
   void init(WAbstractChartImplementation* chart, Axis axis);
   void update();
 

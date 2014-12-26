@@ -210,6 +210,9 @@ WT_DECLARE_WT_MEMBER
 	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
      }
 
+     if (c0r.style['width'] == 'auto')
+	 return;
+
      /*
       * IE6 is still not entirely right. It seems to be caused by a padding
       * of 7 pixels in the first column which gets added to the width.
@@ -414,6 +417,29 @@ WT_DECLARE_WT_MEMBER
        window.fakeEvent = null;
      }
   };
+
+  var rowHeight;
+  this.setRowHeight = function(height) {
+    rowHeight = height;
+  };
+
+  // bug #1352: when the browser is zoomed the alternating rowcolors get
+  //   out of sync when scrolling down. fix = offset the alternating colors
+  //   image to repeat starting from the current scrolled position.
+  var offsetRowColorImg = function() {
+    if (rowHeight == 0)
+      return;
+    
+    var scrollPos = contentsContainer.scrollTop;
+    var rootNode = contents.children[0].children[0];
+    rootNode.style.backgroundPosition = "0px " + Math.floor(scrollPos/(2*rowHeight)) * (2*rowHeight) + "px";
+  };
+  
+  if (contentsContainer.addEventListener) {
+    contentsContainer.addEventListener("scroll", offsetRowColorImg);
+  } else if (contentsContainer.attachEvent) {
+    contentsContainer.attachEvent("onscroll", offsetRowColorImg);
+  }
 
   self.adjustColumns();
 

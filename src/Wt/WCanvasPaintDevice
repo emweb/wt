@@ -22,6 +22,7 @@ namespace Wt {
 
 class DomElement;
 class WTransform;
+class ServerSideFontMetrics;
 
 /*! \class WCanvasPaintDevice Wt/WCanvasPaintDevice Wt/WCanvasPaintDevice
  *  \brief A paint device for rendering using the HTML 5 &lt;canvas&gt; element.
@@ -87,7 +88,7 @@ private:
 
   TextMethod  textMethod_;
 
-  bool        busyWithPath_;
+  bool        busyWithPath_, currentNoPen_, currentNoBrush_;
 
   WTransform  currentTransform_;
   WBrush      currentBrush_;
@@ -96,6 +97,7 @@ private:
   WFont       currentFont_;
   WPointF     pathTranslation_;
   AlignmentFlag currentTextHAlign_, currentTextVAlign_;
+  ServerSideFontMetrics *fontMetrics_;
 
   std::stringstream js_;
   std::vector<DomElement *> textElements_;

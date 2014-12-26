@@ -32,6 +32,16 @@ WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
   text_.text = text;
 }
 
+WPushButton::WPushButton(const WString& text, TextFormat format,
+			 WContainerWidget *parent)
+  : WFormWidget(parent),
+    popupMenu_(0)
+{ 
+  text_.format = PlainText;
+  text_.text = text;
+  setTextFormat(format);
+}
+
 WPushButton::~WPushButton()
 {
   if (popupMenu_)
