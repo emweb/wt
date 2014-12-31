@@ -343,7 +343,7 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case WPainterPath::Segment::ArcR:
-      out << ',' << Utils::round_js_str(s.x(), 3, buf);
+      out << ',' << Utils::round_js_str(std::max(0.0, s.x()), 3, buf);
       break;
     case WPainterPath::Segment::ArcAngleSweep:
       {

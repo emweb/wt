@@ -165,10 +165,29 @@ public:
    *
    * Throws an ObjectNotFoundException when the object was not found.
    *
-   * \sa ptr::id()
+   * \sa ptr::id(), loadLazy()
    */
   template <class C> ptr<C> load(const typename dbo_traits<C>::IdType& id,
 				 bool forceReread = false);
+
+  /*! \brief Lazy loads a persisted object.
+   *
+   * This method returns a database object with the given object id
+   * without directly accessing the database.
+   *
+   * If the object data is already available in the session, then it will
+   * be available upon return. Otherwise, the object data will be retrieved
+   * from the database on first access. Note: This will result in an
+   * ObjectNotFoundException if the object id is not valid.
+   *
+   * lazyLoad can be used to obtain a ptr<C> from a known id when a ptr<C>
+   * is required, but access to the C object is not anticipated. For
+   * instance, a ptr<C> may be required to add an object of class X that
+   * is in a belongsTo relationship with C.
+   *
+   * \sa ptr::id(), load()
+   */
+  template <class C> ptr<C> loadLazy(const typename dbo_traits<C>::IdType& id);
 
 #ifndef DOXYGEN_ONLY
   template <class C>
@@ -567,7 +586,6 @@ private:
 
   template <class C> Mapping<C> *getMapping() const;
   MappingInfo *getMapping(const char *tableName) const;
-  template <class C> ptr<C> loadLazy(const typename dbo_traits<C>::IdType& id);
   template <class C> ptr<C> load(SqlStatement *statement, int& column);
 
   template <class C>

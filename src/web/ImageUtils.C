@@ -125,7 +125,7 @@ WPoint ImageUtils::getJpegSize(const std::string& fileName){
         toUnsigned(header[pos + 1])==0xCB)
       break;
     pos += 2+(toUnsigned(header[pos + 2])<<8) + toUnsigned(header[pos + 3]);
-    if (pos+12>header.size())
+    if (pos +12 > (int)header.size())
       break;
   }
 
