@@ -40,7 +40,7 @@ public:
    *
    * This must be configured before the server is started using start().
    *
-   * The default thread count is 10 (or is configured by WServer from
+   * The default thread count is 5 (or is configured by WServer from
    * information in the configuration file).
    */
   void setThreadCount(int number);

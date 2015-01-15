@@ -515,8 +515,18 @@ class MySQLStatement : public SqlStatement
 	  throw MySQLException("MySQL: getResult(): truncated result for "
 			       "column "
 			       + boost::lexical_cast<std::string>(column));
-        *value = (int)*static_cast<bool*>(out_pars_[column].buffer);
+        *value = *static_cast<char*>(out_pars_[column].buffer);
         break;
+
+      case MYSQL_TYPE_SHORT:
+        if (has_truncation_ && *out_pars_[column].error)
+	  throw MySQLException("MySQL: getResult(): truncated result for "
+			       "column "
+			       + boost::lexical_cast<std::string>(column));
+        *value = *static_cast<short*>(out_pars_[column].buffer);
+        break;
+
+      case MYSQL_TYPE_INT24:
       case MYSQL_TYPE_LONG:
         if (has_truncation_ && *out_pars_[column].error)
 	  throw MySQLException("MySQL: getResult(): truncated result for "

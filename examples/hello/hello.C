@@ -71,7 +71,7 @@ HelloApplication::HelloApplication(const WEnvironment& env)
   /*
    * - using a c++0x lambda:
    */
-  // b->clicked().connect(std::bind([=]() { 
+  // button->clicked().connect(std::bind([=]() { 
   //       greeting_->setText("Hello there, " + nameEdit_->text());
   // }));
 }

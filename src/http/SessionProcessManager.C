@@ -94,11 +94,26 @@ const boost::shared_ptr<SessionProcess>& SessionProcessManager::sessionProcess(s
   return nullProcessPtr;
 }
 
+void SessionProcessManager::addPendingSessionProcess(const boost::shared_ptr<SessionProcess>& process)
+{
+#ifdef WT_THREADED
+  boost::mutex::scoped_lock lock(sessionsMutex_);
+#endif // WT_THREADED
+  pendingProcesses_.push_back(process);
+}
+
 void SessionProcessManager::addSessionProcess(std::string sessionId, const boost::shared_ptr<SessionProcess>& process)
 {
 #ifdef WT_THREADED
   boost::mutex::scoped_lock lock(sessionsMutex_);
 #endif // WT_THREADED
+  for (SessionProcessList::iterator it = pendingProcesses_.begin();
+       it != pendingProcesses_.end(); ++it) {
+    if (process == *it) {
+      pendingProcesses_.erase(it);
+      break;
+    }
+  }
   if (!process->sessionId().empty()) {
     sessions_.erase(process->sessionId());
   }
@@ -146,7 +161,7 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
   std::vector<std::string> toErase;
   for (SessionMap::iterator it = sessions_.begin();
         it != sessions_.end(); ++it) {
-          DWORD result = WaitForSingleObject(it->second->processInfo().hProcess, 0);
+    DWORD result = WaitForSingleObject(it->second->processInfo().hProcess, 0);
     if (result == WAIT_OBJECT_0) {
       toErase.push_back(it->first);
     }
@@ -158,6 +173,25 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
 	<< " (#sessions: " << (sessions_.size() - 1) << ")");
     sessions_[*it]->stop();
     sessions_.erase(*it);
+    -- numSessions_;
+  }
+
+  SessionProcessList processesToErase;
+
+  for (SessionProcessList::iterator it = pendingProcesses_.begin();
+       it != pendingProcesses_.end(); ++it) {
+    DWORD result = WaitForSingleObject((*it)->processInfo().hProcess, 0);
+    if (result == WAIT_OBJECT_0) {
+      processesToErase.push_back(*it);
+    }
+  }
+
+  for (SessionProcessList::iterator it = processesToErase.begin();
+	   it != processesToErase.end(); ++it) {
+    LOG_INFO("Child process " << (*it)->processInfo().dwProcessId << " died before a session could be assigned");
+    (*it)->stop();
+	SessionProcessList::iterator it2 = std::find(pendingProcesses_.begin(), pendingProcesses_.end(), *it);
+	pendingProcesses_.erase(it2);
     -- numSessions_;
   }
 #endif // WT_WIN32
@@ -184,6 +218,16 @@ void SessionProcessManager::removeSessionForPid(pid_t cpid)
 	  << " (#sessions: " << (sessions_.size() - 1) << ")");
       it->second->stop();
       sessions_.erase(it);
+      -- numSessions_;
+      return;
+    }
+  }
+  for (SessionProcessList::iterator it = pendingProcesses_.begin();
+       it != pendingProcesses_.end(); ++it) {
+    if ((*it)->pid() == cpid) {
+      LOG_INFO("Child process " << cpid << " died before a session could be assigned");
+      (*it)->stop();
+      pendingProcesses_.erase(it);
       -- numSessions_;
       return;
     }

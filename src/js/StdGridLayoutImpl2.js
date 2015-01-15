@@ -1340,7 +1340,7 @@ WT_DECLARE_WT_MEMBER
 		 if (item.set)
 		   item.set[dir] = false;
 	       } else if (dir == HORIZONTAL)
-		 setCss(w, DC.size, item.fs[dir] + 'px');
+		 setCss(w, DC.size, (item.fs[dir] - m) + 'px');
 	     }
 
 	     off = left;

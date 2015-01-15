@@ -103,7 +103,8 @@ public:
 
     startTimer();
     resolver_.async_resolve(query,
-			    boost::bind(&Impl::handleResolve, this,
+			    boost::bind(&Impl::handleResolve,
+					shared_from_this(),
 					boost::asio::placeholders::error,
 					boost::asio::placeholders::iterator));
   }

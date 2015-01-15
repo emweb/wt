@@ -56,7 +56,7 @@ this.condCall = function(o, f, a) {
 this.buttons = 0;
 
 // button last released (for reporting in IE's click event)
-var lastButtonUp = 0;
+var lastButtonUp = 0, mouseDragging = false;
 
 // returns the button associated with the event (0 if none)
 this.button = function(e)
@@ -115,7 +115,18 @@ this.mouseDown = function(e) {
 
 this.mouseUp = function(e) {
   lastButtonUp = WT.button(e);
-  WT.buttons &= ~lastButtonUp;
+  setTimeout(function() {
+    mouseDragging = false;
+    WT.buttons &= ~lastButtonUp;
+  }, 5);
+};
+
+this.dragged = function(e) {
+  return mouseDragging;
+};
+
+this.drag = function(e) {
+  mouseDragging = true;
 };
 
 /**

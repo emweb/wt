@@ -117,6 +117,7 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 	    configuration(),
 	    boost::bind(&ProxyReply::connectToChild,
 	      boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()), _1));
+	sessionManager_.addPendingSessionProcess(sessionProcess_);
       } else {
 	LOG_ERROR("maximum amount of sessions reached!");
 	error(service_unavailable);

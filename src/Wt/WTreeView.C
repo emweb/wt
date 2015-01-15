@@ -2137,7 +2137,8 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 				 int start, int end)
 {
-  renderedRowsChanged(firstRemovedRow_, -removedHeight_);
+  if (renderState_ != NeedRerender && renderState_ != NeedRerenderData)
+    renderedRowsChanged(firstRemovedRow_, -removedHeight_);
 }
 
 void WTreeView::modelDataChanged(const WModelIndex& topLeft,

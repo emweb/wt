@@ -146,6 +146,7 @@ public:
   Wt::WString wstring2;
   std::string string;
   std::string string2;
+  boost::optional<std::string> string3;
   boost::posix_time::ptime ptime;
   boost::posix_time::time_duration pduration;
   bool checked;
@@ -196,6 +197,10 @@ public:
     if (string2  != other.string2) {
       DEBUG(std::cerr << "ERROR: string2 = " << string2 << " | "
             << other.string2 << std::endl);
+    }
+    if (string3  != other.string3) {
+      DEBUG(std::cerr << "ERROR: string3 = " << string3 << " | "
+            << other.string3 << std::endl);
     }
     if (ptime  != other.ptime) {
       DEBUG(std::cerr << "ERROR: ptime = " <<  ptime<< " | " << other.ptime
@@ -261,6 +266,7 @@ public:
       && wstring2 == other.wstring2
       && string == other.string
       && string2 == other.string2
+      && string3 == other.string3
       && ptime == other.ptime
       && pduration == pduration
       && i == other.i
@@ -287,6 +293,7 @@ public:
     dbo::field(a, wstring2, "wstring2", 30);
     dbo::field(a, string, "string");
     dbo::field(a, string2, "string2", 50);
+    dbo::field(a, string3, "string3");
     dbo::field(a, ptime, "ptime");
     dbo::field(a, pduration, "pduration");
     dbo::field(a, i, "i");

@@ -261,6 +261,7 @@ WT_DECLARE_WT_MEMBER
 	  if (hide)
 	    el.style.display = display;
 	  restore(el, elStyle);
+	  onEnd();
 	});
     }
 
