@@ -240,7 +240,7 @@ void PaintedSlider::updateState()
 	    << "if (down != null && down != '') {"
 	    <<    computeD.str()
 	    <<   "d += " << (slider_->handleWidth() / 2) << ";"
-	    <<    sliderReleased_.createCall("d")
+	    <<    sliderReleased_.createCall("Math.round(d)")
 	    <<   "obj.removeAttribute('down');"
 	    << "}";
 

@@ -1377,10 +1377,24 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 {
   if (!childrenHtml_.empty() || (wasEmpty_ && canWriteInnerHTML(app))) {
+    std::string innerHTML;
+
+    if (!properties_.empty()) {
+      PropertyMap::const_iterator i = properties_.find(PropertyInnerHTML);
+      if (i != properties_.end()) {
+	innerHTML += i->second;
+      }
+      i = properties_.find(PropertyAddedInnerHTML);
+      if (i != properties_.end()) {
+	innerHTML += i->second;
+      }
+    }
+
     // IE6: write &nbsp; inside a empty <div></div>
     if ((type_ == DomElement_DIV
 	 && app->environment().agent() == WEnvironment::IE6)
-	|| !childrenToAdd_.empty() || !childrenHtml_.empty()) {
+	|| !childrenToAdd_.empty() || !childrenHtml_.empty()
+	|| !innerHTML.empty()) {
       declare(out);
 
       out << WT_CLASS ".setHtml(" << var_ << ",'";
@@ -1391,18 +1405,6 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
 	childrenToAdd_[i].child->asHTML(out, js, timeouts);
-
-      std::string innerHTML;
-      {
-	PropertyMap::const_iterator i = properties_.find(PropertyInnerHTML);
-	if (i != properties_.end()) {
-	  innerHTML += i->second;
-	}
-	i = properties_.find(PropertyAddedInnerHTML);
-	if (i != properties_.end()) {
-	  innerHTML += i->second;
-	}
-      }
 
       out << innerHTML;
 

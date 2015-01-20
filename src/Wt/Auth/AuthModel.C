@@ -172,14 +172,14 @@ bool AuthModel::login(Login& login)
   if (valid()) {
     User user = users().findWithIdentity(Identity::LoginName,
 					 valueText(LoginNameField));
+    boost::any v = value(RememberMeField);
+    const AuthService *s = baseAuth();
     if (loginUser(login, user)) {
-      boost::any v = value(RememberMeField);
-
       if (!v.empty() && boost::any_cast<bool>(v) == true) {
 	WApplication *app = WApplication::instance();
-	app->setCookie(baseAuth()->authTokenCookieName(),
-		       baseAuth()->createAuthToken(user),
-		       baseAuth()->authTokenValidity() * 60);
+	app->setCookie(s->authTokenCookieName(),
+		       s->createAuthToken(user),
+		       s->authTokenValidity() * 60);
       }
 
       return true;
