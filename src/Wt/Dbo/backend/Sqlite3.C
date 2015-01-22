@@ -199,7 +199,7 @@ public:
       err = sqlite3_bind_blob(st_, column + 1, "", 0, SQLITE_TRANSIENT);
     else 
       err = sqlite3_bind_blob(st_, column + 1, &(*(value.begin())),
-			      static_cast<int>(value.size()), SQLITE_STATIC);
+			      static_cast<int>(value.size()), SQLITE_TRANSIENT);
 
     handleErr(err);
   }
