@@ -77,8 +77,23 @@ void ConnectionManager::stop(ConnectionPtr c)
 
 void ConnectionManager::stopAll()
 {
-  while(connections_.size())
-    stop(*connections_.begin());
+  for (;;) {
+    ConnectionPtr ptr;
+
+    {
+#ifdef WT_THREADED
+      boost::mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+
+      if (connections_.size())
+	ptr = *connections_.begin();
+    }
+
+    if (ptr)
+      stop(ptr);
+    else
+      break;
+  }
 }
 
 } // namespace server

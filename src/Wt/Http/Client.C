@@ -111,10 +111,14 @@ public:
 
   void stop()
   {
-    if (socket().is_open()) {
-      boost::system::error_code ignored_ec;
-      socket().shutdown(tcp::socket::shutdown_both, ignored_ec);
-      socket().close();
+    try {
+      if (socket().is_open()) {
+	boost::system::error_code ignored_ec;
+	socket().shutdown(tcp::socket::shutdown_both, ignored_ec);
+	socket().close();
+      }
+    } catch (std::exception& e) {
+      LOG_INFO("Client::abort(), stop(), ignoring error: " << e.what());
     }
   }
 
