@@ -28,6 +28,7 @@ FIND_LIBRARY(MYSQL_LIB
 	${MYSQL_LIBRARY}
     PATHS
     ${MYSQL_PREFIX}/lib
+    ${MYSQL_PREFIX}/lib/mariadb
     ${MYSQL_PREFIX}/lib/opt
     ${MYSQL_PREFIX}/lib/mysql
     ${MYSQL_PREFIX}/lib64/mysql
