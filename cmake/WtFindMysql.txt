@@ -34,6 +34,7 @@ FIND_LIBRARY(MYSQL_LIB
     /usr/lib
     /usr/local/lib
     /opt/local/lib
+    ${MYSQL_PREFIX}/lib/mariadb
 )
 
 FIND_LIBRARY(MYSQL_DEBUG_LIB
