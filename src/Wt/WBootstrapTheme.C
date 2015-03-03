@@ -13,6 +13,7 @@
 #include "Wt/WComboBox"
 #include "Wt/WDateEdit"
 #include "Wt/WDatePicker"
+#include "Wt/WTimeEdit"
 #include "Wt/WDialog"
 #include "Wt/WEnvironment"
 #include "Wt/WGoogleMap"
@@ -149,6 +150,10 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
 
   case DatePickerPopupRole:
     child->addStyleClass("Wt-datepicker");
+    break;
+
+  case TimePickerPopupRole:
+    child->addStyleClass("Wt-timepicker");
     break;
 
   case PanelTitleBarRole:
@@ -381,6 +386,11 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
         return;
       }
 
+      WTimeEdit *timeEdit = dynamic_cast<WTimeEdit *>(widget);
+      if (timeEdit) {
+        element.addPropertyWord(PropertyClass, "Wt-timeedit");
+        return;
+      }
 
     }
     break;
@@ -499,7 +509,8 @@ void WBootstrapTheme
 
 bool WBootstrapTheme::canBorderBoxElement(const DomElement& element) const
 {
-  return true; // The issue reported in #1937 no longer troubles browsers
+  // confuses the CSS for it, see #1937
+  return element.type() != DomElement_INPUT;
 }
 
 void WBootstrapTheme::setVersion(Version version)

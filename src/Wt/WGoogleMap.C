@@ -183,7 +183,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
     Wt::WApplication::readConfigurationProperty("google_api_key", googlekey);
       
     // init the google javascript api
-    const std::string gmuri = "http://www.google.com/jsapi?key=" + googlekey;
+    const std::string gmuri = "//www.google.com/jsapi?key=" + googlekey;
     app->require(gmuri, "google");
 
     std::string initFunction = 

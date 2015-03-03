@@ -449,6 +449,22 @@ public:
    */
   double labelAngle() const { return labelAngle_; }
 
+  /*! \brief Sets the title orientation
+   *
+   * Sets the orientation used for displaying the title.
+   *
+   * The default value is Horizontal
+   *
+   * \sa titleOrientation()
+   */
+  void setTitleOrientation(const Orientation& orientation);
+
+  /*! \brief Returns the title orientation.
+   *
+   * \sa setTitleOrientation()
+   */
+  const Orientation& titleOrientation() const { return titleOrientation_; }
+
   /*! \brief Sets whether gridlines are displayed for this axis.
    *
    * When <i>enabled</i>, gird lines are drawn for each tick on this axis,
@@ -474,6 +490,16 @@ public:
    * \sa setGridLinesPen().
    */
   void setPen(const WPen& pen);
+
+  /*! \brief Changes the pen used for rendering labels for this axis
+   *
+   * The default value is a black pen of 0 width.
+   *
+   * \sa setGridLinesPen().
+   * \sa setPen().
+   * \sa WCartesianChart::setTextPen()
+   */
+  void setTextPen(const WPen& pen);
 
   /*! \brief Returns the pen used for rendering the axis and ticks.
    *
@@ -598,7 +624,6 @@ public:
 
   void renderLabel(WPainter& painter,
 		   const WString& text, const WPointF& p,
-		   const WColor& color,
 		   WFlags<AlignmentFlag> flags,
 		   double angle, int margin) const;
 
@@ -652,6 +677,8 @@ private:
   WFlags<AxisValue> roundLimits_;
   double           segmentMargin_;
   double           titleOffset_;
+  WPen             textPen_;
+  Orientation      titleOrientation_;
 
   // for 3D charts, don't call update when the labelangle is tempor. changed
   bool             renderingMirror_;

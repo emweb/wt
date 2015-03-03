@@ -100,8 +100,7 @@ public:
   WString();
 
 #ifndef WT_NO_STD_WSTRING
-  /*! \brief Creates a %WString from a wide C string
-   *
+  /*! \brief Creates a %WString from a wide C strinnarrow();
    * The wide string is implicitly converted to proper unicode. Note
    * that there are known issues with the portability of wchar_t since
    * its width and encoding are platform dependent.
@@ -356,6 +355,8 @@ public:
    * Argument place holders are substitued with actual arguments.
    */
   std::wstring value() const;
+#else 
+  std::string value() const;
 #endif
 
   /*! \brief Returns the value as a narrow C++ string.

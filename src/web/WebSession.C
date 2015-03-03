@@ -729,14 +729,14 @@ WebSession::Handler::Handler()
 WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 			     LockOption lockOption)
   : nextSignal(-1),
+#ifndef WT_TARGET_JAVA
+    sessionPtr_(session),
+#endif // WT_TARGET_JAVA
 #ifdef WT_THREADED
     lock_(session->mutex_, boost::defer_lock),
 #endif // WT_THREADED
     prevHandler_(0),
     session_(session.get()),
-#ifndef WT_TARGET_JAVA
-    sessionPtr_(session),
-#endif // WT_TARGET_JAVA
     request_(0),
     response_(0),
     killed_(false)
@@ -791,14 +791,14 @@ WebSession::Handler::Handler(WebSession *session)
 WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 			     WebRequest& request, WebResponse& response)
   : nextSignal(-1),  
+#ifndef WT_TARGET_JAVA
+    sessionPtr_(session),
+#endif // WT_TARGET_JAVA
 #ifdef WT_THREADED
     lock_(session->mutex_),
 #endif // WT_THREADED
     prevHandler_(0),
     session_(session.get()),
-#ifndef WT_TARGET_JAVA
-    sessionPtr_(session),
-#endif // WT_TARGET_JAVA
     request_(&request),
     response_(&response),
     killed_(false)
@@ -998,6 +998,7 @@ WebSession::Handler::~Handler()
 {
 #ifndef WT_TARGET_JAVA
   if (haveLock()) {
+    /* We should check that the session state is not dead ? */
     session_->processQueuedEvents(*this);
     if (session_->triggerUpdate_)
       session_->pushUpdates();
@@ -1781,6 +1782,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	  const std::string *signalE = message->getParameter("signal");
 
 	  if (signalE && *signalE == "ping") {
+	    LOG_DEBUG("ws: handle ping");
 	    if (lock->canWriteAsyncResponse_) {
 	      lock->canWriteAsyncResponse_ = false;
 	      lock->asyncResponse_->out() << "{}";
@@ -1865,6 +1867,8 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
 
 void WebSession::pushUpdates()
 {
+  LOG_DEBUG("pushUpdates()");
+
   triggerUpdate_ = false;
 
   if (!app_ || !renderer_.isDirty()) {
@@ -1885,11 +1889,11 @@ void WebSession::pushUpdates()
 #ifndef WT_TARGET_JAVA
       WebSocketMessage m(this);
       m.setResponseType(WebResponse::Update);
-      renderer_.serveResponse((WebResponse&)m);
+      app_->notify(WEvent(WEvent::Impl((WebResponse *)&m)));
 #endif
     } else {
       asyncResponse_->setResponseType(WebResponse::Update);
-      renderer_.serveResponse(*asyncResponse_);
+      app_->notify(WEvent(WEvent::Impl(asyncResponse_)));
     }
 
     updatesPending_ = false;
@@ -2008,7 +2012,13 @@ void WebSession::externalNotify(const WEvent::Impl& event)
 
 void WebSession::notify(const WEvent& event)
 {
-  Handler& handler = *event.impl_.handler;
+  if (event.impl_.response) {
+    try {
+      renderer_.serveResponse(*event.impl_.response);
+    } catch (...) {
+    }
+    return;
+  }
 
   if (event.impl_.function) {
     WT_CALL_FUNCTION(event.impl_.function);
@@ -2018,6 +2028,8 @@ void WebSession::notify(const WEvent& event)
 
     return;
   }
+
+  Handler& handler = *event.impl_.handler;
 
 #ifndef WT_TARGET_JAVA
   if (!app_->initialized_) {

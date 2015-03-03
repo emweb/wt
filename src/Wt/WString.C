@@ -299,6 +299,11 @@ std::wstring WString::value() const
 {
   return Wt::fromUTF8(toUTF8());
 }
+#else
+  std::string WString::value() const
+{
+	return narrow();
+}
 #endif
 
 #ifndef WT_NO_STD_LOCALE

@@ -540,6 +540,11 @@ void WAbstractItemView::setItemDelegate(WAbstractItemDelegate *delegate)
   itemDelegate_ = delegate;
   itemDelegate_->closeEditor()
     .connect(this, &WAbstractItemView::closeEditorWidget);
+
+#ifndef WT_TARGET_JAVA
+  if (!delegate->parent())
+    WObject::addChild(delegate);
+#endif // WT_TARGET_JAVA
 }
 
 void WAbstractItemView::setItemDelegateForColumn(int column,

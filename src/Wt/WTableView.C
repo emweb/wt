@@ -657,7 +657,7 @@ void WTableView::setHidden(bool hidden, const WAnimation& animation)
      * 'none' to ''
      */
     WApplication *app = WApplication::instance();
-    if (app->environment().ajax()
+    if (app->environment().ajax() && isRendered()
 	&& app->environment().agentIsIE()
 	&& !app->environment().agentIsIElt(9)) {
       WStringStream s;
@@ -1882,9 +1882,9 @@ void WTableView::scrollTo(int x, int y) {
   }
 }
 
-void WTableView::setOverflow(WContainerWidget::Overflow overflow){
+void WTableView::setOverflow(WContainerWidget::Overflow overflow, WFlags< Orientation > orientation){
   if (contentsContainer_)
-    contentsContainer_->setOverflow(overflow);
+    contentsContainer_->setOverflow(overflow, orientation);
 }
 
 void WTableView::setRowHeaderCount(int count)

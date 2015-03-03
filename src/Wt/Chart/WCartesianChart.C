@@ -621,7 +621,7 @@ public:
 	p.setY(p.y() - 3);
       }
 
-      chart_.renderLabel(painter_, text, p, c, alignment, 0, 3);
+      chart_.renderLabel(painter_, text, p, alignment, 0, 3);
     }
   }
 
@@ -819,6 +819,17 @@ void WCartesianChart::setType(ChartType type)
     axes_[XAxis]->init(interface_, XAxis);
     update();
   }
+}
+
+void WCartesianChart::setTextPen(const WPen& pen)
+{
+  if(pen == textPen_)
+    return;
+  
+  textPen_ = pen;
+
+  for(int i = 0; i < 3; ++i) 
+    axes_[i]->setTextPen(pen); 
 }
 
 void WCartesianChart::addSeries(const WDataSeries& series)
@@ -1849,29 +1860,45 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     bool chartVertical = orientation() == Vertical;
 
     if (vertical) {
+      /* Y Axes */
       double u = axisStart.x();
-      if (chartVertical)
-	renderLabel(painter, axis.title(),
-		    WPointF(u + (labelHFlag == AlignRight ? 15 : -15),
-			    chartArea_.top() - 8),
-		    black, labelHFlag | AlignBottom, 0, 0);
-      else
-	renderLabel(painter, axis.title(),
-		    WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
-			    chartArea_.center().y()),
-		    black,
-		    (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
-		    AlignMiddle, 0, 0);
+      if (chartVertical) {
+        if(axis.titleOrientation() == Horizontal) {
+          renderLabel(painter, axis.title(),
+              WPointF(u + (labelHFlag == AlignRight ? 15 : -15),
+                chartArea_.top() - 8),
+              labelHFlag | AlignBottom, 0, 10);
+        } else {
+          if(axis.id() == YAxis) {
+            renderLabel(painter, axis.title(),
+                WPointF( axisStart.x() - 40 ,
+                  ((chartArea_.bottom() + chartArea_.top()) / 2)),
+                AlignLeft | AlignBottom, 90, 0);
+          }else {
+            renderLabel(painter, axis.title(),
+                WPointF(axisEnd.x() + 50,
+                  ((chartArea_.bottom() + chartArea_.top()) / 2)),
+                AlignLeft | AlignBottom, 90, 0);
+          }
+        }
+      } else {
+        renderLabel(painter, axis.title(),
+            WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
+              chartArea_.center().y()),
+            (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
+            AlignMiddle, 0, 20);
+         }
     } else {
+      /* X Axes */
       double u = axisStart.y();
       if (chartVertical)
 	renderLabel(painter, axis.title(),
 		    WPointF(chartArea_.center().x(), u + 22),
-		    black, AlignTop | AlignCenter, 0, 0);
+		    AlignTop | AlignCenter, 0, 10);
       else
 	renderLabel(painter, axis.title(),
 		    WPointF(chartArea_.right(), u),
-		    black, AlignTop | AlignLeft, 0, 8);
+        AlignTop | AlignLeft, 0, 8);
     }
 
     painter.setFont(oldFont2);
@@ -2148,7 +2175,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 }
 
 void WCartesianChart::renderLabel(WPainter& painter, const WString& text,
-				  const WPointF& p, const WColor& color,
+				  const WPointF& p, 
 				  WFlags<AlignmentFlag> flags,
 				  double angle, int margin) const
 {
@@ -2212,9 +2239,8 @@ void WCartesianChart::renderLabel(WPainter& painter, const WString& text,
     break;
   }
 
-  WPen pen(color);
   WPen oldPen = painter.pen();
-  painter.setPen(pen);
+  painter.setPen(textPen_);
 
   if (angle == 0)
     painter.drawText(WRectF(left, top, width, height),

@@ -199,8 +199,8 @@ public:
             << other.string2 << std::endl);
     }
     if (string3  != other.string3) {
-      DEBUG(std::cerr << "ERROR: string3 = " << string3 << " | "
-            << other.string3 << std::endl);
+      DEBUG(std::cerr << "ERROR: string3 = " << (string3 ? *string3 : "<optional empty>") << " | "
+        << (other.string3 ? *other.string3 : "<optional empty>") << std::endl);
     }
     if (ptime  != other.ptime) {
       DEBUG(std::cerr << "ERROR: ptime = " <<  ptime<< " | " << other.ptime

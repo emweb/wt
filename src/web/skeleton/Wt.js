@@ -933,6 +933,17 @@ this.isKeyPress = function(e) {
 
 var repeatT = null, repeatI = null;
 
+this.isDblClick = function(o, e) {
+  if (o.wtClickTimeout &&
+      Math.abs(o.wtE1.clientX - e.clientX) < 2 &&
+      Math.abs(o.wtE1.clientY - e.clientY) < 2) {
+      clearTimeout(o.wtClickTimeout);
+      o.wtClickTimeout = null; o.wtE1 = null;
+      return true;
+  } else
+      return false;
+};
+
 this.eventRepeat = function(fun, startDelay, repeatInterval) {
   WT.stopRepeat();
 
@@ -2788,6 +2799,22 @@ _$_$endif_$_();
 
 var updateTimeoutStart;
 
+function schedulePing() {
+  if (websocket.keepAlive)
+    clearInterval(websocket.keepAlive);
+
+  websocket.keepAlive = setInterval
+    (function() {
+      var ws = websocket.socket;
+      if (ws.readyState == 1)
+	ws.send('&signal=ping');
+      else {
+	clearInterval(websocket.keepAlive);
+	websocket.keepAlive = null;
+      }
+    }, _$_SERVER_PUSH_TIMEOUT_$_);
+}
+
 function scheduleUpdate() {
   if (quitted) {
     if (!quittedStr)
@@ -2878,27 +2905,17 @@ _$_$if_WEB_SOCKETS_$_();
 	     * motivate proxies to keep connections open, but we've never
 	     * seen a browser pinging us ?
 	     *
-	     * So, we ping pong ourselves. It costs virtually nothing.
+	     * So, we ping pong ourselves.
 	     */
 	    ws.send('&signal=ping'); // to get our first onmessage
 
-	    if (websocket.keepAlive)
-	      clearInterval(websocket.keepAlive);
-
-	    websocket.keepAlive = setInterval
-	      (function() {
-		if (ws.readyState == 1)
-		  ws.send('&signal=ping');
-		else {
-		  clearInterval(websocket.keepAlive);
-		  websocket.keepAlive = null;
-		}
-	      }, _$_SERVER_PUSH_TIMEOUT_$_);
+	    schedulePing();
 	  };
 	}
       }
 
       if (ws.readyState == 1) {
+	schedulePing();
 	sendUpdate();
 	return;
       }

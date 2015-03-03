@@ -413,7 +413,7 @@ select id, version, "name", "password", "role", "karma" from "user"
 ===============================
 A query uses a prepared statement to execute, and prepares a new
 statement if no statement was yet prepared for that query. Because a
-prepared statement is usually not reentrant and at the same time a
+prepared statement is not reentrant and at the same time a
 query will use an existing statement if one exists, you need to be
 careful to not have two collections with the same statement busy at
 the same time. Thus while iterating the results of a query you cannot
@@ -607,7 +607,7 @@ post is reflected in the _posts_ collection of _joe_, and vice-versa.
 ===============================
 The collection uses a prepared statement to execute. Collections will
 try to share a single prepared statement, but prepared statements are
-usually not reentrant. As a result, you need to be careful to not have
+not reentrant. As a result, you need to be careful to not have
 two collections with the same statement busy at the same time. Thus
 while iterating a collection, you need to be sure you will not
 reentrantly iterate the same collection (of the same or another

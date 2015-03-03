@@ -237,7 +237,7 @@ private:
     handlePathChange(wApp->internalPath());
   }
 
-  void handlePathChange(const std::string& path) {
+  void handlePathChange(const std::string& p) {
     WApplication *app = wApp;
 
     if (app->internalPathMatches(basePath_)) {

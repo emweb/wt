@@ -1,0 +1,23 @@
+.navbar{
+  margin : 0;
+}
+
+.btn-group .btn {
+  height : 30px;
+}
+
+.barCombo{
+  margin : 0px;
+  height : 30px;
+  border-radius :0;
+}
+
+.barSpin{
+  margin-bottom : 0px !important;
+  height : 30px;
+  border-radius :0 !important;
+}
+
+
+
+

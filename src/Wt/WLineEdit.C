@@ -289,6 +289,13 @@ bool WLineEdit::hasSelectedText() const
 {
   return selectionStart() != -1;
 }
+  
+void WLineEdit::setSelection(int start, int length)
+{
+  std::string s = boost::lexical_cast<std::string>(start);
+  std::string e = boost::lexical_cast<std::string>(start + length);
+  doJavaScript(WT_CLASS".setSelectionRange(" + jsRef() + "," + s + "," + e + ")" );
+}
 
 int WLineEdit::cursorPosition() const
 {

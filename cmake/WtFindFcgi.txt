@@ -9,6 +9,7 @@
 FIND_PATH(FCGI_INCLUDE_DIR
     fcgio.h
   PATHS
+    ${FCGI_PREFIX}/include
     /usr/include
     /usr/local/include
     /usr/include/fastcgi

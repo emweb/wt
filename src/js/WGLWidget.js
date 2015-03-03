@@ -254,6 +254,10 @@ WT_DECLARE_WT_MEMBER
      if ((this.initialized || !this.ctx) && mouseHandler && mouseHandler.mouseDrag)
        mouseHandler.mouseDrag(o, event);
    };
+   this.mouseMove = function(o, event) {
+     if ((this.initialized || !this.ctx) && mouseHandler && mouseHandler.mouseMove)
+       mouseHandler.mouseMove(o, event);
+   };
    this.mouseDown = function(o, event) {
      if ((this.initialized || !this.ctx) && mouseHandler && mouseHandler.mouseDown)
        mouseHandler.mouseDown(o, event);

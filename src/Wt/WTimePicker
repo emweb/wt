@@ -1,0 +1,46 @@
+
+#ifndef WTIME_PICKER_H_
+#define WTIME_PICKER_H_
+
+#include "WCompositeWidget"
+#include "WContainerWidget"
+#include "WTime"
+
+namespace Wt {
+
+class WT_API WTimePicker : public WCompositeWidget
+{
+public:
+    WTimePicker(WContainerWidget *parent = 0);
+    WTimePicker(const WTime &time, WContainerWidget *parent = 0);
+
+    WTime time();
+    void setTime(const WTime& time);
+
+    int minuteStep() const { return minuteStep_; }
+    void setMinuteStep(int step) { minuteStep_ = step; }
+
+    Signal<>& selectionChanged() { return selectionChanged_; }
+
+private:
+
+    int minuteStep_;
+
+    void init(const WTime &time = WTime());
+
+    WText *hourText_;
+    WText *minuteText_;
+
+    void incrementMinutes();
+    void decrementMinutes();
+    void incrementHours();
+    void decrementHours();
+
+    Signal<> selectionChanged_;
+
+};
+
+
+} // end namespace Wt
+
+#endif // WTIME_PICKER_H_

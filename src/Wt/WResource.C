@@ -84,6 +84,8 @@ void WResource::beingDeleted()
 {
   std::vector<Http::ResponseContinuationPtr> cs;
 
+  LOG_DEBUG("beingDeleted()");
+
   {
 #ifdef WT_THREADED
     boost::recursive_mutex::scoped_lock lock(*mutex_);
@@ -188,7 +190,6 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
    * If we come from a continuation, then the continuation increased the
    * use count and we are thus protected against deletion.
    */
-  bool retakeHandlerLock = false;
   WebSession::Handler *handler = WebSession::Handler::instance();
   UseLock useLock;
 
@@ -201,7 +202,6 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
     if (handler->haveLock() && 
 	handler->lockOwner() == boost::this_thread::get_id()) {
-      retakeHandlerLock = true;
       handler->lock().unlock();
     }
 #endif // WT_THREADED
@@ -227,13 +227,6 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
       (WebResponse::ResponseFlush,
        boost::bind(&Http::ResponseContinuation::readyToContinue,
 		   response.continuation_, _1));
-  }
-
-  if (retakeHandlerLock) {
-#ifdef WT_THREADED
-    if (!handler->haveLock())
-      handler->lock().lock();
-#endif // WT_THREADED
   }
 }
 

@@ -403,11 +403,8 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	}
       }
 
-      js << "if(o.wtClickTimeout) {"
-	       << "clearTimeout(o.wtClickTimeout);"
-	       << "o.wtClickTimeout = null;";
-
-      js << mouseDblClick->javaScript();
+      js << "if(" WT_CLASS ".isDblClick(o, e)) {"
+	 << mouseDblClick->javaScript();
 
       if (mouseDblClick->isExposedSignal())
 	js << app->javaScriptClass()
@@ -420,8 +417,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	"}else{"
 	"""if (" WT_CLASS ".isIElt9 && document.createEventObject) "
 	""  "e = document.createEventObject(e);"
+	"""o.wtE1 = e;"
 	"""o.wtClickTimeout = setTimeout(function() {"
-	""   "o.wtClickTimeout = null;";
+	""   "o.wtClickTimeout = null; o.wtE1 = null;";
 
       if (mouseClick) {
 	js << mouseClick->javaScript();

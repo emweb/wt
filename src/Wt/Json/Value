@@ -595,6 +595,9 @@ public:
    *
    * The value is lexically casted to a string. For an object or array
    * value, this coercion is not defined and #Null is returned.
+   *
+   * \throws WException if the Value is a number initialized to NaN
+   *
    */
   Value toString() const;
 

@@ -126,6 +126,7 @@ void Block::collectStyles(WStringStream& ss)
   for (unsigned int i = 0; i < children_.size(); ++i) {
     if (children_[i]->type_ == DomElement_STYLE) {
       ss << Render::Utils::nodeValueToString(children_[i]->node_);
+      delete children_[i];
       children_.erase(children_.begin() + i);
       --i;
     } else

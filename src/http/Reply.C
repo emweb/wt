@@ -38,8 +38,6 @@ static struct tm* gmtime_r(const time_t* t, struct tm* r)
   }
 }
 #endif // gmtime_r
-#else
-extern struct tm* gmtime_r(const time_t* t, struct tm* r);
 #endif
 
 namespace Wt {

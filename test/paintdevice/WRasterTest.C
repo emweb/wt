@@ -3,6 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
+
+#include <Wt/WConfig.h>
+
 #ifdef WT_HAS_WRASTERIMAGE
 
 #include <boost/test/unit_test.hpp>
@@ -82,6 +85,30 @@ BOOST_AUTO_TEST_CASE( raster_test_textRenderer )
   }
 
   std::ofstream f("text_render_image_1.png");
+  rasterImage.write(f);
+}
+
+BOOST_AUTO_TEST_CASE( raster_test_text_embedded_stylesheet )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::WRasterImage rasterImage("png", 357, 193);
+  {
+    Wt::WPainter p(&rasterImage);
+    std::string text =
+      "<style>"
+        "table {width:357px;}"
+        "td {padding: 0px; height: 193px; color: #f71175;"
+            "text-align: left; vertical-align: top; font-family: Arial;"
+            "font-size: 60.0pt; font-weight: normal;}"
+      "</style>"
+      "<table><tr><td>xxx</td></tr></table>";
+    MultiLineTextRenderer renderer(p, WRectF(0, 0, 357, 193));
+    renderer.render(text);
+  }
+
+  std::ofstream f("text_render_image_2.png");
   rasterImage.write(f);
 }
 

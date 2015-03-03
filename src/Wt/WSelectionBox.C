@@ -62,6 +62,15 @@ void WSelectionBox::setSelectedIndexes(const std::set<int>& selection)
   repaint();
 }
 
+const std::set<int>& WSelectionBox::selectedIndexes() const
+{
+  if (selectionMode_ != ExtendedSelection)
+    throw WException("WSelectionBox::setSelectedIndexes() can only be used "
+		     "for an ExtendedSelection mode");
+
+  return selection_;
+}
+
 void WSelectionBox::clearSelection()
 {
   if (selectionMode_ == ExtendedSelection)

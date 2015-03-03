@@ -111,7 +111,7 @@ public:
 
   /*! \brief set css overflow
    */
-  void setOverflow(WContainerWidget::Overflow overflow);
+  void setOverflow(WContainerWidget::Overflow overflow, WFlags< Orientation > orientation=(Horizontal|Vertical));
 
   virtual void setHidden(bool hidden,
 			 const WAnimation& animation = WAnimation());

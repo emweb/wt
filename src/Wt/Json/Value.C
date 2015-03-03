@@ -337,8 +337,13 @@ Value Value::toString() const
     return Null;
   else if (t == typeid(WT_USTRING))
     return *this;
-  else
-    return Value(asString(v_));
+  else if(type() == NumberType) {
+	WString str = asString(v_);
+	std::string sstr = str.narrow();
+	if(sstr.find("nan") != std::string::npos || sstr.find("inf") != std::string::npos)
+	  throw WException(std::string("Value::toString(): Not a Number"));
+	return Value(str);
+  }else return Value(asString(v_));
 }
 
 Value Value::toBool() const

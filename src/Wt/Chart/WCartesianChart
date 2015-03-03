@@ -267,6 +267,14 @@ public:
    */
   void setXSeriesColumn(int modelColumn);
 
+  /*! \brief set the pen used to render the labels
+   *
+   * This method overwrites the pen for all axes
+   *
+   * \sa WAxis::setTextPen()
+   */
+  void setTextPen(const WPen& pen);
+
   /*! \brief Returns the model column for the X series.
    *
    * \sa setXSeriesColumn()
@@ -640,6 +648,7 @@ private:
   double barMargin_;
   WLegend legend_;
   int axisPadding_;
+  WPen textPen_;
 
   /* render state */
   mutable int width_, height_;
@@ -723,7 +732,7 @@ private:
    * horizontal text, regardless of the chart orientation.
    */
   virtual void renderLabel(WPainter& painter, const WString& text,
-			   const WPointF& pos, const WColor& color,
+			   const WPointF& pos,
 			   WFlags<AlignmentFlag> flags, double angle,
 			   int margin) const;
 

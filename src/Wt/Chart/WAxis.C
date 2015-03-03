@@ -134,7 +134,9 @@ WAxis::WAxis()
     labelAngle_(0),
     roundLimits_(MinimumValue | MaximumValue),
     segmentMargin_(40),
-    titleOffset_(0)
+    titleOffset_(0),
+    textPen_(black),
+    titleOrientation_(Horizontal)
 {
   titleFont_.setFamily(WFont::SansSerif);
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
@@ -154,9 +156,9 @@ void WAxis::init(WAbstractChartImplementation* chart,
   axis_ = axis;
 
   if (axis == XAxis || axis_ == XAxis_3D || axis_ == YAxis_3D) {
-    if (chart_->chartType() == CategoryChart)
+    if (chart_->chartType() == CategoryChart) {
       scale_ = CategoryScale;
-    else if (scale_ != DateScale)
+    } else if (scale_ == CategoryScale)
       scale_ = LinearScale;
   }
 
@@ -331,6 +333,11 @@ void WAxis::setLabelAngle(double angle)
   else
     set(labelAngle_, angle);
 }
+  
+void WAxis::setTitleOrientation(const Orientation& orientation)
+{
+  set(titleOrientation_, orientation);
+}
 
 void WAxis::setGridLinesEnabled(bool enabled)
 {
@@ -340,6 +347,11 @@ void WAxis::setGridLinesEnabled(bool enabled)
 void WAxis::setPen(const WPen& pen)
 {
   set(pen_, pen);
+}
+
+void WAxis::setTextPen(const WPen& pen)
+{
+  set(textPen_, pen);
 }
 
 void WAxis::setGridLinesPen(const WPen& pen)
@@ -1090,7 +1102,6 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
 				    text));
 	}
       }
-
       dt = next;
     }
 
@@ -1182,6 +1193,7 @@ long WAxis::getDateNumber(WDateTime dt) const
     return 1;
   }
 }
+
 
 double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
 {
@@ -1277,7 +1289,7 @@ void WAxis::render(WPainter& painter,
 	  labelP = WPointF(p.x(), p.y() + labelPos);
 
 	renderLabel(painter, ticks[i].label, labelP,
-		    black, labelFlags, labelAngle(), 3);
+		     labelFlags, labelAngle(), 3);
       }
     }
 
@@ -1290,7 +1302,6 @@ void WAxis::render(WPainter& painter,
 
 void WAxis::renderLabel(WPainter& painter,
 			const WString& text, const WPointF& p,
-			const WColor& color,
 			WFlags<AlignmentFlag> flags,
 			double angle, int margin) const
 {
@@ -1327,9 +1338,8 @@ void WAxis::renderLabel(WPainter& painter,
     break;
   }
 
-  WPen pen(color);
   WPen oldPen = painter.pen();
-  painter.setPen(pen);
+  painter.setPen(textPen_);
 
   if (angle == 0)
     painter.drawText(WRectF(left, top, width, height),

@@ -192,6 +192,12 @@ public:
    */
   bool hasSelectedText() const;
 
+  /*! \brief Selects length characters starting from the start position
+   *
+   * \sa selectedtext()
+   */
+  void setSelection(int start, int length);
+
   /*! \brief Returns the current cursor position.
    *
    * Returns -1 if the widget does not have the focus.

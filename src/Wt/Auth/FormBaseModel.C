@@ -43,7 +43,7 @@ void FormBaseModel::addOAuth(const OAuthService *auth)
 void FormBaseModel::addOAuth(const std::vector<const OAuthService *>& auth)
 {
   for (unsigned i = 0; i < auth.size(); ++i)
-    addOAuth(auth);
+    addOAuth(auth[i]);
 }
 
 WString FormBaseModel::label(Field field) const

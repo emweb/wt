@@ -28,7 +28,7 @@ style.setBorder(Wt::WBorder(Wt::WBorder::Solid, Wt::WBorder::Medium,
 			    Wt::black));
 chart->setDecorationStyle(style);
 
-chart->resize(600, 600);
+chart->resize(900, 700);
 chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::XAxis_3D, true);
 chart->setGridEnabled(Wt::Chart::XY_Plane, Wt::Chart::YAxis_3D, true);
 chart->setGridEnabled(Wt::Chart::XZ_Plane, Wt::Chart::XAxis_3D, true);

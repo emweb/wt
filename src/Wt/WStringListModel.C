@@ -153,6 +153,7 @@ void WStringListModel::setFlags(int row, WFlags<ItemFlag> flags)
 		  ItemIsSelectable | ItemIsEditable);
 
   flags_[row] = flags;
+  dataChanged().emit(index(row, 0), index(row, 0));
 }
 
 WFlags<ItemFlag> WStringListModel::flags(const WModelIndex& index) const

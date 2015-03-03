@@ -1,0 +1,29 @@
+
+#ifndef WTIME_VALIDATOR_H_
+#define WTIME_VALIDATOR_H_
+
+#include "Wt/WRegExpValidator"
+
+namespace Wt {
+
+class WT_API WTimeValidator : public WRegExpValidator
+{
+public:
+    WTimeValidator(WObject *parent = 0);
+
+    WTimeValidator(const WT_USTRING &format, WObject *parent = 0);
+
+    void setFormat(const WT_USTRING &format);
+
+    virtual WT_USTRING format() const { return format_; }
+
+
+private:
+
+    WT_USTRING format_;
+
+};
+
+}
+
+#endif // WTIME_VALIDATOR_H_

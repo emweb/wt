@@ -471,6 +471,10 @@ public:
    */
   virtual bool conditionValue(const std::string& name) const;
 
+  /*! \brief Returns the set of conditions set to true.
+   */
+  std::set<std::string> conditionsSet() { return conditions_; }
+
   /*! \brief Resolves the string value for a variable name.
    *
    * This is the main method used to resolve variables in the template

@@ -99,7 +99,6 @@ public:
 
   void externalNotify(const WEvent::Impl& e);
   void notify(const WEvent& e);
-  void pushUpdates();
 
   void doRecursiveEventLoop();
 
@@ -218,6 +217,9 @@ public:
   private:
     void init();
 
+#ifndef WT_TARGET_JAVA
+    boost::shared_ptr<WebSession> sessionPtr_;
+#endif
 #ifdef WT_THREADED
     boost::mutex::scoped_lock lock_;
     boost::thread::id lockOwner_;
@@ -228,9 +230,6 @@ public:
     Handler *prevHandler_;
 
     WebSession *session_;
-#ifndef WT_TARGET_JAVA
-    boost::shared_ptr<WebSession> sessionPtr_;
-#endif
 
     WebRequest *request_;
     WebResponse *response_;
@@ -324,6 +323,7 @@ private:
 
   Handler *recursiveEventHandler_;
 
+  void pushUpdates();
   WResource *decodeResource(const std::string& resourceId);
   EventSignalBase *decodeSignal(const std::string& signalId,
 				bool checkExposed) const;
@@ -366,28 +366,39 @@ private:
 
 struct WEvent::Impl {
   WebSession::Handler *handler;
+  WebResponse *response;
   Function function;
   bool renderOnly;
 
   Impl(WebSession::Handler *aHandler, bool doRenderOnly = false)
     : handler(aHandler),
+      response(0),
       renderOnly(doRenderOnly)
   { }
 
   Impl(WebSession::Handler *aHandler, const Function& aFunction)
     : handler(aHandler),
+      response(0),
       function(aFunction),
       renderOnly(false)
   { }
 
   Impl(const Impl& other)
     : handler(other.handler),
+      response(other.response),
       function(other.function),
       renderOnly(other.renderOnly)
   { }
 
+  Impl(WebResponse *aResponse)
+    : handler(0),
+      response(aResponse),
+      renderOnly(true)
+  { }
+
   Impl()
-    : handler(0)
+    : handler(0),
+      response(0)
   { }
 };
 

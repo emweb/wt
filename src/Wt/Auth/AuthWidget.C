@@ -99,7 +99,7 @@ bool AuthWidget::handleRegistrationPath(const std::string& path)
     if (app->internalPathMatches(basePath_)) {
       std::string ap = app->internalSubPath(basePath_);
 
-      if (ap == "register") {
+      if (ap == "register/") {
 	registerNewUser();
 	return true;
       }
@@ -155,6 +155,18 @@ void AuthWidget::closeDialog()
   } else {
     delete messageBox_;
     messageBox_ = 0;
+  }
+  
+  /* Reset internal path */
+  if(!basePath_.empty()) {
+    WApplication *app = WApplication::instance();
+    if (app->internalPathMatches(basePath_)) {
+      std::string ap = app->internalSubPath(basePath_);
+
+      if (ap == "register/") {
+        app->setInternalPath(basePath_, false);
+      }
+    }
   }
 }
 

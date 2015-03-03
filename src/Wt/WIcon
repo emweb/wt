@@ -23,6 +23,8 @@ public:
   void setSize(double factor);
   double size() const;
 
+  static void loadIconFont();
+
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
@@ -31,7 +33,6 @@ protected:
 private:
   std::string name_;
   bool iconChanged_;
-  void loadIconFont();
 };
 
 }

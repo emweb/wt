@@ -37,10 +37,18 @@ class CombinedStyleSheet : public StyleSheet
 {
 public:
   CombinedStyleSheet() { }
-  virtual ~CombinedStyleSheet() { }
+  virtual ~CombinedStyleSheet() {
+#ifndef WT_TARGET_JAVA
+    for (unsigned i = 0; i < sheets_.size(); ++i)
+      if (!sheets_not_owned_.count(sheets_[i]))
+        delete sheets_[i];
+#endif //WT_TARGET_JAVA
+  }
 
-  void use(StyleSheet *sh) {
+  void use(StyleSheet *sh, bool noFree = false) {
     sheets_.push_back(sh);
+    if (noFree)
+      sheets_not_owned_.insert(sh);
   }
 
   virtual unsigned int rulesetSize() const {
@@ -62,6 +70,7 @@ public:
 
 private:
   std::vector<StyleSheet *> sheets_;
+  std::set<StyleSheet *> sheets_not_owned_;
 };
 
 WTextRenderer::Node::Node(Block& block, LayoutBox& lb,
@@ -180,7 +189,7 @@ double WTextRenderer::render(const WString& text, double y)
 
     CombinedStyleSheet styles;
     if (styleSheet_)
-      styles.use(styleSheet_);
+      styles.use(styleSheet_, true);
 
     WStringStream ss;
     docBlock.collectStyles(ss);

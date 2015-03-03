@@ -27,7 +27,7 @@ std::string serialize(const Value& val, int indentation)
       return "false";
     break;
   case NumberType:
-    return val.toString();
+	return val.toString();
     break;
   case ObjectType:
     return serialize((Object)val, indentation+1);

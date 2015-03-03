@@ -1506,17 +1506,18 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   }
 
   if (layoutImpl_) {
-    if (flags_.test(BIT_MARGINS_CHANGED) || all) {
-      if (!all || (layoutImpl_->margin_[0].value() != 0))
+    bool changed = flags_.test(BIT_MARGINS_CHANGED);
+    if (changed || all) {
+      if (changed || (layoutImpl_->margin_[0].value() != 0))
 	element.setProperty(PropertyStyleMarginTop,
 			    layoutImpl_->margin_[0].cssText());
-      if (!all || (layoutImpl_->margin_[1].value() != 0))
+      if (changed || (layoutImpl_->margin_[1].value() != 0))
 	element.setProperty(PropertyStyleMarginRight,
 			    layoutImpl_->margin_[1].cssText());
-      if (!all || (layoutImpl_->margin_[2].value() != 0))
+      if (changed || (layoutImpl_->margin_[2].value() != 0))
 	element.setProperty(PropertyStyleMarginBottom,
 			    layoutImpl_->margin_[2].cssText());
-      if (!all || (layoutImpl_->margin_[3].value() != 0))
+      if (changed || (layoutImpl_->margin_[3].value() != 0))
 	element.setProperty(PropertyStyleMarginLeft,
 			    layoutImpl_->margin_[3].cssText());
 

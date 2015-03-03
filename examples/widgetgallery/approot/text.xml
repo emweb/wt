@@ -1464,6 +1464,33 @@
     ${out class="help-block"}
 
   </message>
+  
+  <message id="timeEdit-template">
+    <p>When do you want to be delivered?</p>
+
+    <div class="form-horizontal">
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="${id:from}">From</label>
+        <div class="col-sm-4">${from}</div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="${id:to}">
+          To (format HH:mm::ss)
+        </label>
+        <div class="col-sm-4">${to}</div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-4">
+          ${save}
+        </div>
+      </div>
+    </div>
+
+    ${out class="help-block"}
+
+  </message>
 
   <message id="lineEdit-template">
     <div class="form-inline">
@@ -1904,6 +1931,24 @@
         <legend>Example</legend>
         ${DateEdit}
         ${src DateEdit}
+    </fieldset>
+    <p><a href="#date-entry">Top</a></p>
+    
+    <h3 id="time-picker">Time entry using a time edit</h3>
+    <p>
+      The ${doc-link WTimeEdit} widget is a line edit with support for
+      time entry.
+    </p>
+    <p>
+      By default the selected time is shown in the format "HH:mm" as in
+      the first example. In the second example the format is set to
+      "HH:mm::ss".
+    </p>
+
+    <fieldset class="example">
+        <legend>Example</legend>
+        ${TimeEdit}
+        ${src TimeEdit}
     </fieldset>
     <p><a href="#date-entry">Top</a></p>
 

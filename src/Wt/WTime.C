@@ -26,7 +26,7 @@ InvalidTimeException::~InvalidTimeException() throw()
 { }
 
 const char *InvalidTimeException::what() const throw()
-{ 
+{
   return "Error: Attempted operation on an invalid WTime";
 }
 
@@ -49,13 +49,16 @@ bool WTime::setHMS(int h, int m, int s, int ms)
   null_ = false;
 
   if (   m >= 0 && m <= 59
-      && s >= 0 && s <= 59
-      && ms >= 0 && ms <= 999) {
+         && s >= 0 && s <= 59
+         && ms >= 0 && ms <= 999) {
     valid_ = true;
     bool negative = h < 0;
+
     if (negative)
       h = -h;
+
     time_ = ((h * 60 + m) * 60 + s) * 1000 + ms;
+
     if (negative)
       time_ = -time_;
   } else {
@@ -68,9 +71,9 @@ bool WTime::setHMS(int h, int m, int s, int ms)
 
 WTime WTime::addMSecs(int ms) const
 {
-  if (valid_) {
+  if (valid_)
     return WTime(time_ + ms);
-  } else
+  else
     return *this;
 }
 
@@ -148,12 +151,12 @@ bool WTime::operator>= (const WTime& other) const
 WTime WTime::currentServerTime()
 {
   return WTime((long)boost::posix_time::microsec_clock::universal_time()
-	       .time_of_day().total_milliseconds());
+               .time_of_day().total_milliseconds());
 }
 
 WString WTime::defaultFormat()
 {
-  return WString::fromUTF8("HH:mm:ss"); 
+  return WString::fromUTF8("HH:mm:ss");
 }
 
 WTime WTime::fromString(const WString& s)
@@ -171,96 +174,88 @@ WTime::ParseState::ParseState()
 WTime WTime::fromString(const WString& s, const WString& format)
 {
   WTime result;
-
   WDateTime::fromString(0, &result, s, format);
-
   return result;
 }
 
 WDateTime::CharState WTime::handleSpecial(char c, const std::string& v,
-					  unsigned& vi, ParseState& parse,
-					  const WString& format)
+    unsigned& vi, ParseState& parse,
+    const WString& format)
 {
   switch (c) {
-  case 'H':
-  case 'h':
-    parse.parseAMPM = c == 'h';
+    case 'H':
+    case 'h':
+      parse.parseAMPM = c == 'h';
 
-    if (parse.h == 0)
-      if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
+      if (parse.h == 0)
+        if (!parseLast(v, vi, parse, format))
+          return WDateTime::CharInvalid;
 
-    ++parse.h;
-
-    return WDateTime::CharHandled;
-
-  case 'm':
-    if (parse.m == 0)
-      if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
-
-    ++parse.m;
-
-    return WDateTime::CharHandled;
-
-  case 's':
-    if (parse.s == 0)
-      if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
-
-    ++parse.s;
-
-    return WDateTime::CharHandled;
-
-  case 'z':
-    if (parse.z == 0)
-      if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
-
-    ++parse.z;
-
-    return WDateTime::CharHandled;
-
-  case 'A':
-  case 'a':
-    if (!parseLast(v, vi, parse, format))
-      return WDateTime::CharInvalid;
-
-    parse.a = 1;
-
-    return WDateTime::CharHandled;
-
-  case 'P':
-  case 'p':
-    if (parse.a == 1) {
-      if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharInvalid;
-
+      ++parse.h;
       return WDateTime::CharHandled;
-    }
+
+    case 'm':
+      if (parse.m == 0)
+        if (!parseLast(v, vi, parse, format))
+          return WDateTime::CharInvalid;
+
+      ++parse.m;
+      return WDateTime::CharHandled;
+
+    case 's':
+      if (parse.s == 0)
+        if (!parseLast(v, vi, parse, format))
+          return WDateTime::CharInvalid;
+
+      ++parse.s;
+      return WDateTime::CharHandled;
+
+    case 'z':
+      if (parse.z == 0)
+        if (!parseLast(v, vi, parse, format))
+          return WDateTime::CharInvalid;
+
+      ++parse.z;
+      return WDateTime::CharHandled;
+
+    case 'A':
+    case 'a':
+      if (!parseLast(v, vi, parse, format))
+        return WDateTime::CharInvalid;
+
+      parse.a = 1;
+      return WDateTime::CharHandled;
+
+    case 'P':
+    case 'p':
+      if (parse.a == 1) {
+        if (!parseLast(v, vi, parse, format))
+          return WDateTime::CharInvalid;
+
+        return WDateTime::CharHandled;
+      }
 
     /* fall through */
 
-  default:
-    if (!parseLast(v, vi, parse, format))
-      return WDateTime::CharInvalid;
+    default:
+      if (!parseLast(v, vi, parse, format))
+        return WDateTime::CharInvalid;
 
-    return WDateTime::CharUnhandled;
+      return WDateTime::CharUnhandled;
   }
 }
 
-static void fatalFormatError(const WString& format, int c, const char* cs)
+static void fatalFormatError(const WString& format, int c, const char *cs)
 {
   std::stringstream s;
   s << "WTime format syntax error (for \"" << format.toUTF8()
     << "\"): Cannot handle " << c << " consecutive " << cs;
-
   throw WException(s.str());
 }
 
 bool WTime::parseLast(const std::string& v, unsigned& vi,
-		      ParseState& parse,
-		      const WString& format)
+                      ParseState& parse,
+                      const WString& format)
 {
   const char *letter[] = { "h's", "m's", "s'es", "z's" };
 
@@ -270,64 +265,67 @@ bool WTime::parseLast(const std::string& v, unsigned& vi,
     int maxCount = 2;
 
     switch (i) {
-    case 0:
-      count = &parse.h;
-      value = &parse.hour;
-      break;
-    case 1:
-      count = &parse.m;
-      value = &parse.minute;
-      break;
-    case 2:
-      count = &parse.s;
-      value = &parse.sec;
-      break;
-    case 3:
-      count = &parse.z;
-      value = &parse.msec;
-      maxCount = 3;
+      case 0:
+        count = &parse.h;
+        value = &parse.hour;
+        break;
+
+      case 1:
+        count = &parse.m;
+        value = &parse.minute;
+        break;
+
+      case 2:
+        count = &parse.s;
+        value = &parse.sec;
+        break;
+
+      case 3:
+        count = &parse.z;
+        value = &parse.msec;
+        maxCount = 3;
     }
 
     if (*count != 0) {
       if (*count == 1) {
-	std::string str;
+        std::string str;
 
-	if (vi >= v.length())
-	  return false;
+        if (vi >= v.length())
+          return false;
 
-	if ((i == 0) && (v[vi] == '-' || v[vi] == '+')) {
-	  str += v[vi++];
+        if ((i == 0) && (v[vi] == '-' || v[vi] == '+')) {
+          str += v[vi++];
 
-	  if (vi >= v.length())
-	    return false;
-	}
+          if (vi >= v.length())
+            return false;
+        }
 
-	str += v[vi++];
+        str += v[vi++];
 
-	for (int j = 0; j < maxCount - 1; ++j)
-	  if (vi < v.length())
-	    if ('0' <= v[vi] && v[vi] <= '9')
-	      str += v[vi++];
-	try {
-	  *value = boost::lexical_cast<int>(str);
-	} catch (boost::bad_lexical_cast&) {
-	  return false;
-	}
+        for (int j = 0; j < maxCount - 1; ++j)
+          if (vi < v.length())
+            if ('0' <= v[vi] && v[vi] <= '9')
+              str += v[vi++];
 
+        try {
+          *value = boost::lexical_cast<int>(str);
+        } catch (boost::bad_lexical_cast&) {
+          return false;
+        }
       } else if (*count == maxCount) {
-	if (vi + (maxCount - 1) >= v.length())
-	  return false;
+        if (vi + (maxCount - 1) >= v.length())
+          return false;
 
-	std::string str = v.substr(vi, maxCount);
-	vi += maxCount;
+        std::string str = v.substr(vi, maxCount);
+        vi += maxCount;
 
-	try {
-	  *value = boost::lexical_cast<int>(str);
-	} catch (boost::bad_lexical_cast&) {
-	  return false;
-	}
-      } else 
-	fatalFormatError(format, *count, letter[i]);
+        try {
+          *value = boost::lexical_cast<int>(str);
+        } catch (boost::bad_lexical_cast&) {
+          return false;
+        }
+      } else
+        fatalFormatError(format, *count, letter[i]);
     }
 
     *count = 0;
@@ -339,14 +337,13 @@ bool WTime::parseLast(const std::string& v, unsigned& vi,
 
     std::string str = v.substr(vi, 2);
     vi += 2;
-
     parse.haveAMPM = true;
 
-    if (str == "am" || str == "AM") {
+    if (str == "am" || str == "AM")
       parse.pm = false;
-    } else if (str == "pm" || str == "PM") {
+    else if (str == "pm" || str == "PM")
       parse.pm = true;
-    } else
+    else
       return false;
 
     parse.a = 0;
@@ -371,8 +368,8 @@ boost::posix_time::time_duration WTime::toTimeDuration() const
     boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
       boost::posix_time::time_duration::ticks_per_second() / 1000;
     return boost::posix_time::time_duration(hour(), minute(),
-					    second(),
-					    msec() * ticks_per_msec);
+                                            second(),
+                                            msec() * ticks_per_msec);
   } else
     return boost::posix_time::time_duration(boost::date_time::not_a_date_time);
 }
@@ -384,87 +381,96 @@ int WTime::pmhour() const
 }
 
 bool WTime::writeSpecial(const std::string& f, unsigned& i,
-			 std::stringstream& result, bool useAMPM,
-			 int zoneOffset) const
+                         std::stringstream& result, bool useAMPM,
+                         int zoneOffset) const
 {
   char buf[30];
 
   switch (f[i]) {
-  case '+':
-    if (f[i + 1] == 'h' || f[i + 1] == 'H') {
-      result << ((hour() >= 0) ? '+' : '-');
+    case '+':
+      if (f[i + 1] == 'h' || f[i + 1] == 'H') {
+        result << ((hour() >= 0) ? '+' : '-');
+        return true;
+      }
+
+      return false;
+
+    case 'h':
+      if (f[i + 1] == 'h') {
+        ++i;
+        result << Utils::pad_itoa(std::abs(useAMPM ? pmhour() : hour()), 2, buf);
+      } else
+        result << Utils::itoa(std::abs(useAMPM ? pmhour() : hour()), buf);
+
       return true;
-    }
 
-    return false;
-  case 'h':
-    if (f[i + 1] == 'h') {
-      ++i;
-      result << Utils::pad_itoa(std::abs(useAMPM ? pmhour() : hour()), 2, buf);
-    } else
-      result << Utils::itoa(std::abs(useAMPM ? pmhour() : hour()), buf);
+    case 'H':
+      if (f[i + 1] == 'H') {
+        ++i;
+        result << Utils::pad_itoa(std::abs(hour()), 2, buf);
+      } else
+        result << Utils::itoa(std::abs(hour()), buf);
 
-    return true;
-  case 'H':
-    if (f[i + 1] == 'H') {
-      ++i;
-      result << Utils::pad_itoa(std::abs(hour()), 2, buf);
-    } else
-      result << Utils::itoa(std::abs(hour()), buf);
+      return true;
 
-    return true;
-  case 'm':
-    if (f[i + 1] == 'm') {
-      ++i;
-      result << Utils::pad_itoa(minute(), 2, buf);
-    } else
-      result << Utils::itoa(minute(), buf);
+    case 'm':
+      if (f[i + 1] == 'm') {
+        ++i;
+        result << Utils::pad_itoa(minute(), 2, buf);
+      } else
+        result << Utils::itoa(minute(), buf);
 
-    return true;
-  case 's':
-    if (f[i + 1] == 's') {
-      ++i;
-      result << Utils::pad_itoa(second(), 2, buf);
-    } else
-      result << Utils::itoa(second(), buf);
+      return true;
 
-    return true;
-  case 'Z': {
-    bool negate = zoneOffset < 0;
-    if (!negate)
-      result << '+';
-    else {
-      result << '-';
-      zoneOffset = -zoneOffset;
-    }
-    int hours = zoneOffset / 60;
-    int minutes = zoneOffset % 60;
-    result << Utils::pad_itoa(hours, 2, buf);
-    result << Utils::pad_itoa(minutes, 2, buf);
+    case 's':
+      if (f[i + 1] == 's') {
+        ++i;
+        result << Utils::pad_itoa(second(), 2, buf);
+      } else
+        result << Utils::itoa(second(), buf);
 
-    return true;
-  }
-  case 'z':
-    if (f.substr(i + 1, 2) == "zz") {
-      i += 2;
-      result << Utils::pad_itoa(msec(), 3, buf);
-    } else
-      result << Utils::itoa(msec(), buf);
+      return true;
 
-    return true;
-  case 'a':
-  case 'A':
-    if (hour() < 12)
-      result << ((f[i] == 'a') ? "am" : "AM");
-    else
-      result << ((f[i] == 'a') ? "pm" : "PM");
- 
-    if (f[i + 1] == 'p' || f[i + 1] == 'P')
-      ++i;
+    case 'Z': {
+        bool negate = zoneOffset < 0;
 
-    return true;
-  default:
-    return false;
+        if (!negate)
+          result << '+';
+        else {
+          result << '-';
+          zoneOffset = -zoneOffset;
+        }
+
+        int hours = zoneOffset / 60;
+        int minutes = zoneOffset % 60;
+        result << Utils::pad_itoa(hours, 2, buf);
+        result << Utils::pad_itoa(minutes, 2, buf);
+        return true;
+      }
+
+    case 'z':
+      if (f.substr(i + 1, 2) == "zz") {
+        i += 2;
+        result << Utils::pad_itoa(msec(), 3, buf);
+      } else
+        result << Utils::itoa(msec(), buf);
+
+      return true;
+
+    case 'a':
+    case 'A':
+      if (hour() < 12)
+        result << ((f[i] == 'a') ? "am" : "AM");
+      else
+        result << ((f[i] == 'a') ? "pm" : "PM");
+
+      if (f[i + 1] == 'p' || f[i + 1] == 'P')
+        ++i;
+
+      return true;
+
+    default:
+      return false;
   }
 }
 
@@ -473,5 +479,167 @@ WTime::WTime(long t)
     null_(false),
     time_(t)
 { }
+
+WTime::RegExpInfo WTime::formatHourToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+{
+  /* Possible values */
+  /* h, hh, H, HH */
+  char next = -1;
+  bool ap = (format.find("AP") != std::string::npos ) || (format.find("ap") != std::string::npos); //AM-PM
+  std::string sf;
+  sf+=format[i];
+
+  if(i < format.size() - 1) next = format[i + 1];
+  if(next == 'h' || next == 'H') {
+    sf+= next;
+    i++;
+  } else{
+    next = -1;
+    sf = format[i];
+  }
+  
+  if(sf == "HH" || (sf == "hh" && !ap)) { //Hour with leading 0 0-23
+    result.regexp+="(([0-1]?[0-9])|([2][0-3]))";
+  } else if(sf == "hh" && ap) {          //Hour with leading 0 01-12
+    result.regexp+="(0|[1-9]|[1][012])";
+  } else if(sf == "H" || sf == "h" && !ap) { //Hour without leading 0 0-23
+    result.regexp+="(0|[1-9]|[1][012])";
+  } else if(sf == "h" && ap){                  //Hour without leading 0 0-12
+    result.regexp+="([1-9]|1[012])";
+  }
+  
+  return result;
+}
+
+
+WTime::RegExpInfo WTime::formatMinuteToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+{
+  char next = -1;
+  std::string sf;
+  if(i < format.size() - 1) next = format[i + 1];
+  
+  if( next == 'm'){
+    sf == "mm";
+    i++;
+  } else {
+    sf="m";
+    next = -1;
+  }
+  
+  if( sf == "m") /* Minutes without leading 0 */
+    result.regexp+="(0|[1-5]?[0-9])";
+  else  /* Minutes with leading 0 */
+    result.regexp+="([0-5]?[0-9])";
+  return result;
+}
+
+WTime::RegExpInfo WTime::formatSecondToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+{
+  char next = -1;
+  std::string sf;
+  if(i < format.size() - 1) next = format[i + 1];
+  
+  if( next == 's'){
+    sf == "ss";
+    i++;
+  } else {
+    sf="s";
+    next = -1;
+  }
+  
+  if( sf == "s") /* Seconds without leading 0 */
+    result.regexp+="(0|[1-5]?[0-9])";
+  else  /* Seconds with leading 0 */
+    result.regexp+="([0-5]?[0-9])";
+  return result;
+}
+
+WTime::RegExpInfo WTime::formatMSecondToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+{
+  char next = -1;
+  std::string sf;
+  sf+=format[i];
+  for(int k = 0; k < 2; ++k) {
+    if(i < format.size() - 1) next = format[i + 1];
+
+    if( next == 'z'){
+      sf+="z";
+      next = -1;
+      i++;
+    } else {
+        next = -1;
+        break;
+      }
+  }
+
+  if( sf == "z") /* The Ms without trailing 0 */
+    result.regexp+="([0-9]{3})";
+  else if( sf == "zzz") 
+    result.regexp+="([1-9][0-9]{2}";
+
+  return result;
+}
+
+WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
+{
+  RegExpInfo result;
+  std::string f = format.toUTF8();
+
+  result.regexp = "^";
+  int d= 0;
+  bool inQuote = false;
+
+  for(unsigned i = 0; i < f.size(); ++i)
+  { 
+    if(inQuote && f[i] != '\'') {
+      result.regexp+=f[i];
+      continue;
+    }
+
+    switch(f[i]) {
+    case '\'':
+      if(i < f.size() - 2 && f[i+1] == f[i+2] && f[i+1] == '\'')
+        result.regexp+=f[i];
+      else 
+        inQuote=!inQuote;
+    case 'h':
+    case 'H':
+      formatHourToRegExp(result, f, i);
+      break;
+    case 'm':
+      formatMinuteToRegExp(result,f, i);
+      break;
+    case 's':
+      formatSecondToRegExp(result, f, i);
+      break;
+    case 'z':
+      formatMSecondToRegExp(result, f, i);
+      break;
+    case 'Z':
+      result.regexp+="(\\+[0-9]{4})";
+      break;
+    case 'A':
+    case 'P':
+    case 'a':
+    case 'p':
+    case '+':
+      if(i < f.size() - 1 && f[i+1] == 'h' || f[i+1] == 'H')
+        result.regexp+="\\+";
+      break;
+    default:
+      result.regexp+=f[i];
+    }
+
+  }
+
+  if(f.find("AP") != std::string::npos )
+    result.regexp+="([AP]M)";
+  else if(f.find("ap") != std::string::npos) //AM-PM
+    result.regexp+="([ap]m)";
+
+  result.regexp+="$";
+
+  return result;
+}
 
 }

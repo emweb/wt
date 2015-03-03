@@ -97,7 +97,7 @@ public:
    *
    * \sa currentIndex()
    */
-  const std::set<int>& selectedIndexes() const { return selection_; }
+  const std::set<int>& selectedIndexes() const;
 
   /*! \brief Sets the selection (in Wt::ExtendedSelection mode).
    *

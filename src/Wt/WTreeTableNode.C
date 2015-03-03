@@ -47,6 +47,7 @@ void WTreeTableNode::setColumnWidget(int column, WWidget *widget)
   widget->setInline(false);
   widget->setFloatSide(Left);
   widget->resize(columnWidth(column + 1), WLength::Auto);
+  widget->setMinimumSize(WLength::Auto, 1);
   if (column == static_cast<int>(columnWidgets_.size()) - 1)
     row_->addWidget(widget);
   else

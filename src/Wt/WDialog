@@ -385,7 +385,7 @@ private:
   void create();
   void onEscapePressed();
   void onDefaultPressed();
-  void bringToFront();
+  void bringToFront(const WMouseEvent &e);
 
   DialogCover *cover();
 };

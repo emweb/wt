@@ -77,7 +77,9 @@ BOOST_AUTO_TEST_CASE( json_parse_strings_test )
   const WString& s2 = result.get("s2");
   BOOST_REQUIRE(s2 == "escaped: \\ \t \n \b \r");
   const WString& s3 = result.get("s3");
+#ifndef WT_NO_STD_WSTRING
   BOOST_REQUIRE(s3 == L"unicode: \x0194");
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( json_structure_test )
@@ -153,6 +155,8 @@ BOOST_AUTO_TEST_CASE( json_utf8_test )
   WString s9 = result.get("U-0000E000 = ee 80 80");
   WString s10 = result.get("U-0000FFFD = ef bf bd");
   WString s11 = result.get("U-0010FFFF = f4 8f bf bf");
+
+#ifndef WT_NO_STD_WSTRING
   std::wstring ws1 = s1.value();
   std::wstring ws2 = s2.value();
   std::wstring ws3 = s3.value();
@@ -182,6 +186,7 @@ BOOST_AUTO_TEST_CASE( json_utf8_test )
   BOOST_REQUIRE(ws11[0] == '?'); // should this really be rejected?
 
   BOOST_REQUIRE(result.size() == 11);
+#endif
 }
 
 

@@ -27,6 +27,7 @@
 #include "Wt/Auth/AuthUtils.h"
 #include "Wt/PopupWindow.h"
 
+#include "WebUtils.h"
 #include "WebSession.h"
 #include "WebRequest.h"
 
@@ -559,15 +560,31 @@ std::string OAuthService::generateRedirectEndpoint() const
 std::string OAuthService::encodeState(const std::string& url) const
 {
   std::string msg = impl_->secret_ + url;
-  std::string hash = Wt::Utils::base64Encode(Wt::Utils::md5(msg));
-  return hash + "|" + url;
+  std::string hash = Wt::Utils::sha1(msg);
+  
+  std::string b = Wt::Utils::base64Encode(hash + "|" + url);
+
+  /* Variant of base64 encoding which is resistant to broken OAuth2 peers
+   * that do not properly re-encode the state */
+  b = Wt::Utils::replace(b, '+', "-");
+  b = Wt::Utils::replace(b, '/', "_");  
+  b = Wt::Utils::replace(b, '=', ".");
+
+  return b;
 }
 
 std::string OAuthService::decodeState(const std::string& state) const
 {
-  std::size_t i = state.find('|');
+  std::string s = state;
+  s = Wt::Utils::replace(s, '-', "+");
+  s = Wt::Utils::replace(s, '_', "/");
+  s = Wt::Utils::replace(s, '.', "=");
+
+  s = Wt::Utils::base64Decode(s);
+
+  std::size_t i = s.find('|');
   if (i != std::string::npos) {
-    std::string url = state.substr(i + 1);
+    std::string url = s.substr(i + 1);
 
     std::string check = encodeState(url);
     if (check == state)

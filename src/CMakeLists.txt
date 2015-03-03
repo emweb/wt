@@ -12,13 +12,13 @@ LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 
 MACRO (FILE_TO_STRING infile outfile var)
 ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
-	           COMMAND ${CMAKE_COMMAND}
+               COMMAND ${CMAKE_COMMAND}
                    ARGS -Dinfile:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/${infile}
                         -Doutfile:FILEPATH=${CMAKE_CURRENT_BINARY_DIR}/${outfile}
                         -Dvar:STRING=${var}
                         -P ${CMAKE_CURRENT_SOURCE_DIR}/filetostring.cmake
-		   MAIN_DEPENDENCY
-		        ${CMAKE_CURRENT_SOURCE_DIR}/${infile}
+           MAIN_DEPENDENCY
+                ${CMAKE_CURRENT_SOURCE_DIR}/${infile}
 )
 ENDMACRO (FILE_TO_STRING)
 
@@ -43,11 +43,11 @@ FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C JQuery_js)
 FILE_TO_STRING(xml/wt.xml Wt_xml.C Wt_xml)
 FILE_TO_STRING(xml/auth_strings.xml AuthStrings_xml.C AuthStrings_xml)
 FILE_TO_STRING(xml/bootstrap_theme.xml
-	BootstrapTheme_xml.C BootstrapTheme_xml)
+    BootstrapTheme_xml.C BootstrapTheme_xml)
 FILE_TO_STRING(xml/bootstrap3_theme.xml
-	Bootstrap3Theme_xml.C Bootstrap3Theme_xml)
+    Bootstrap3Theme_xml.C Bootstrap3Theme_xml)
 FILE_TO_STRING(xml/auth_css_theme.xml
-	AuthCssTheme_xml.C AuthCssTheme_xml)
+    AuthCssTheme_xml.C AuthCssTheme_xml)
 
 SET(libsources
 Wt/PopupWindow.C
@@ -224,8 +224,11 @@ Wt/WTextArea.C
 Wt/WTextEdit.C
 Wt/WTheme.C
 Wt/WTime.C
+Wt/WTimeEdit.C
 Wt/WTimer.C
 Wt/WTimerWidget.C
+Wt/WTimePicker.C
+Wt/WTimeValidator.C
 Wt/WToolBar.C
 Wt/WTransform.C
 Wt/WTree.C

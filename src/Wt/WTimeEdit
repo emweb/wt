@@ -1,0 +1,75 @@
+
+#ifndef WTIME_EDIT_H_
+#define WTIME_EDIT_H_
+
+#include <Wt/WLineEdit>
+#include <Wt/WTime>
+#include <Wt/WTimeValidator>
+#include <Wt/WTimePicker>
+
+namespace Wt {
+
+class WT_API WTimeEdit : public WLineEdit
+{
+public:
+    /*! \brief Creates a new time edit.
+     */
+    WTimeEdit(WContainerWidget *parent = 0);
+
+    /*! \brief Sets the time
+     *
+     *  Does nothing if the current time is \p Null.
+     *
+     * \sa time()
+     */
+    void setTime(const WTime& time);
+
+    /*! \brief Returns the time.
+     *
+     * Returns an invalid time (for which WTime::isValid() returns
+     * \c false) if the time coult not be parsed using the current format(). <br>
+     *
+     * \sa setTime(), WTime::fromString(), WLineEdit::text()
+     */
+    WTime time() const;
+
+    virtual WTimeValidator *validator() const;
+
+    void setFormat(const WT_USTRING& format);
+
+    WT_USTRING format() const;
+
+    virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
+
+    int minuteStep() const { return timePicker_->minuteStep(); }
+    void setMinuteStep(int step) { timePicker_->setMinuteStep(step); }
+
+protected:
+
+    virtual void render(WFlags<RenderFlag> flags);
+    virtual void propagateSetEnabled(bool enabled);
+
+    /*! \brief Sets the value from the time scroller to the line edit.
+     */
+    virtual void setFromTimePicker();
+
+    /*! \brief Sets the value from the line edit to the time scroller.
+     */
+    virtual void setFromLineEdit();
+
+    virtual void setText(const WString &text) { WLineEdit::setText(text); }
+
+
+private:
+
+    WPopupWidget *popup_;
+    WTimePicker *timePicker_;
+
+    void defineJavaScript();
+    void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
+
+};
+
+}
+
+#endif // WTIME_EDIT_H_

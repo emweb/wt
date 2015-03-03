@@ -503,6 +503,7 @@ private:
 
   void complete()
   {
+    stop();
     if (server_)
       server_->post(sessionId_,
 		    boost::bind(&Impl::emitDone, shared_from_this()));
