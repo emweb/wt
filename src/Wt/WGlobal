@@ -825,7 +825,17 @@ enum Key {
   Key_W = 'W',         //!< 'W' key
   Key_X = 'X',         //!< 'X' key
   Key_Y = 'Y',         //!< 'Y' key
-  Key_Z = 'Z'          //!< 'Z' key
+  Key_Z = 'Z',         //!< 'Z' key
+  Key_1 = '1',         //!< '1' key
+  Key_2 = '2',         //!< '2' key
+  Key_3 = '3',         //!< '3' key
+  Key_4 = '4',         //!< '4' key
+  Key_5 = '5',         //!< '5' key
+  Key_6 = '6',         //!< '6' key
+  Key_7 = '7',         //!< '7' key
+  Key_8 = '8',         //!< '8' key
+  Key_9 = '9',         //!< '9' key
+  Key_0 = '0',         //!< '0' key
 };
 
 /*! \brief Enumeration for the check state of a check box.

@@ -28,6 +28,8 @@ namespace Wt {
 
 LOGGER("WLineEdit");
 
+const char *WLineEdit::INPUT_SIGNAL = "input";
+
 WLineEdit::WLineEdit(WContainerWidget *parent)
   : WFormWidget(parent),
     textSize_(10),
@@ -525,6 +527,11 @@ bool WLineEdit::acceptChar(char chr, std::size_t position) const {
       return (chr == '0' || chr == '1');
   }
   return false;
+}
+
+EventSignal<>& WLineEdit::textInput()
+{
+  return *voidEventSignal(INPUT_SIGNAL, true);
 }
 
 void WLineEdit::defineJavaScript()

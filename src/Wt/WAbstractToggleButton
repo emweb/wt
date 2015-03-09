@@ -118,6 +118,26 @@ public:
   EventSignal<>& unChecked();
 
   virtual void refresh();
+  
+  /*! \brief Configures word wrapping.
+   *
+   * When \p wordWrap is \c true, the widget may break lines, creating a
+   * multi-line text. When \p wordWrap is \c false, the text will displayed
+   * on a single line, unless the text contains end-of-lines (for
+   * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
+   * (for Wt::XHTMLText).
+   *
+   * The default value is \c false.
+   *
+   * \sa wordWrap()
+   */
+  void setWordWrap(bool wordWrap);
+
+  /*! \brief Returns whether word wrapping is on.
+   *
+   * \sa setWordWrap()
+   */
+  bool wordWrap() const;
 
 protected:
   CheckState state_;
@@ -140,7 +160,14 @@ private:
 
   WText::RichText text_;
 
-  bool naked_, stateChanged_, textChanged_;
+  static const int BIT_NAKED = 0;
+  static const int BIT_STATE_CHANGED = 1;
+  static const int BIT_TEXT_CHANGED = 2;
+  static const int BIT_WORD_WRAP_CHANGED = 3;
+  static const int BIT_WORD_WRAP = 4;
+
+  std::bitset<5> flags_;
+
   CheckState prevState_;
 
   void undoSetChecked();

@@ -1674,10 +1674,17 @@ void WebRenderer::collectJS(WStringStream* js)
 	  << "._p_.setCloseMessage(" << app->closeMessage().jsStringLiteral()
 	  << ");\n";
     }
+    
+	if (app->localeChanged_) {
+      *js << app->javaScriptClass()
+	  << "._p_.setLocale(" << WString(app->locale().name()).jsStringLiteral()
+	  << ");\n";
+    }
   }
 
   app->titleChanged_ = false;
   app->closeMessageChanged_ = false;
+  app->localeChanged_ = false;
 
   if (js) {
     int librariesLoaded = loadScriptLibraries(*js, app);

@@ -2189,7 +2189,7 @@ private:
 #endif // WT_CNOR
   WString                title_;
   WString                closeMessage_;
-  bool                   titleChanged_, closeMessageChanged_;
+  bool                   titleChanged_, closeMessageChanged_, localeChanged_;
   WContainerWidget      *widgetRoot_;  // widgets in main DOM root
   WContainerWidget      *domRoot_;     // main DOM root
   WContainerWidget      *domRoot2_;    // other virtual root for WidgetSet mode

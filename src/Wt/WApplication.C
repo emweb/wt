@@ -89,6 +89,7 @@ WApplication::WApplication(const WEnvironment& env
     weakSession_(session_->shared_from_this()),
 #endif // WT_CNOR
     titleChanged_(false),
+	localeChanged_(false),
     closeMessageChanged_(false),
     localizedStrings_(0),
     internalPathChanged_(this),
@@ -869,6 +870,7 @@ WObject *WApplication::decodeObject(const std::string& objectId) const
 void WApplication::setLocale(const WLocale& locale)
 {
   locale_ = locale;
+  localeChanged_ = true;
   refresh();
 }
 

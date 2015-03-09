@@ -263,7 +263,8 @@ Key WKeyEvent::key() const
   else if (key == 8 || key == 9 || key == 13 || key == 27 || key == 32
 	   || (key >= 16 && key <= 18)
 	   || (key >= 33 && key <= 40)
-	   || (key >= 45 && key <= 46))
+	   || (key >= 45 && key <= 46)
+	   || (key >= 48 && key <= 57))
     return static_cast<Key>(key);
   else
     return Key_unknown;

@@ -835,6 +835,39 @@ public:
   bool column1Fixed() const { return rowHeaderCount_ == 1; }
 
   virtual void setObjectName(const std::string& name);
+  
+  /*! \brief Event signal emitted when a keyboard key is pushed down.
+   *
+   * The keyWentDown signal is the first signal emitted when a key is
+   * pressed (before the keyPressed signal). Unlike keyPressed()
+   * however it is also emitted for modifier keys (such as "shift",
+   * "control", ...) or keyboard navigation keys that do not have a
+   * corresponding character.
+   *
+   *
+   * \sa keyPressed(), keyWentUp()
+   */
+  EventSignal<WKeyEvent>& keyWentDown();
+
+  /*! \brief Event signal emitted when a "character" was entered.
+   *
+   * The keyPressed signal is emitted when a key is pressed, and a
+   * character is entered. Unlike keyWentDown(), it is emitted only
+   * for key presses that result in a character being entered, and
+   * thus not for modifier keys or keyboard navigation keys.
+   *
+   * \sa keyWentDown()
+   */
+  EventSignal<WKeyEvent>& keyPressed();
+    
+  /*! \brief Event signal emitted when a keyboard key is released.
+   *
+   * This is the counter-part of the keyWentDown() event. Every
+   * key-down has its corresponding key-up.
+   *
+   * \sa keyWentDown()
+   */
+  EventSignal<WKeyEvent>& keyWentUp();
 
 protected:
   /*! \brief Creates a new item view.
@@ -899,6 +932,7 @@ protected:
    * listen to the pageChanged() signal to react to changes.
    */
   virtual WWidget *createPageNavigationBar();
+  
 
 protected:
   struct ColumnInfo {
@@ -996,6 +1030,7 @@ protected:
    */
   virtual void handleMouseUp(const WModelIndex& index,
 			     const WMouseEvent& event);
+  
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
 

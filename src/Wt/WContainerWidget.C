@@ -10,6 +10,7 @@
 #include "Wt/WBorderLayout"
 #include "Wt/WBoxLayout"
 #include "Wt/WContainerWidget"
+#include "Wt/WFitLayout"
 #include "Wt/WGridLayout"
 #include "Wt/WWidgetItem"
 #include "WebUtils.h"
@@ -163,6 +164,12 @@ WLayoutItemImpl *WContainerWidget::createLayoutItemImpl(WLayoutItem *item)
 
   {
     WGridLayout *l = dynamic_cast<WGridLayout *>(item);
+    if (l)
+      return new StdGridLayoutImpl2(l, l->grid());
+  }
+
+  {
+    WFitLayout *l = dynamic_cast<WFitLayout *>(item);
     if (l)
       return new StdGridLayoutImpl2(l, l->grid());
   }

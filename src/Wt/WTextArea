@@ -128,7 +128,21 @@ public:
    */
   virtual void setValueText(const WT_USTRING& text);
 
+  /*! \brief Event signal emitted when the text in the input field changed.
+   *
+   * This signal is emitted whenever the text contents has
+   * changed. Unlike the changed() signal, the signal is fired on
+   * every change, not only when the focus is lost. Unlike the
+   * keyPressed() signal, this signal is fired also for other events
+   * that change the text, such as paste actions.
+   *
+   * \sa keyPressed(), changed()
+   */
+  EventSignal<>& textInput();
+
 private:
+  static const char *INPUT_SIGNAL;
+
   WT_USTRING content_;
   int      cols_, rows_;
 

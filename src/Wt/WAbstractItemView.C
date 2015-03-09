@@ -247,6 +247,7 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     editOptions_(SingleEditor)
 {
   setImplementation(impl_);
+  impl_->setCanReceiveFocus(true);
 
   setItemDelegate(new WItemDelegate(this));
   setHeaderItemDelegate(new WItemDelegate(this));
@@ -271,8 +272,6 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
   }
 
   bindObjJS(resizeHandleMDownJS_, "resizeHandleMDown");
-
-  columnWidthChanged_.connect(this, &Self::updateColumnWidth);
 
   headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh", this);
   app->styleSheet().addRule(headerHeightRule_);
@@ -301,6 +300,9 @@ void WAbstractItemView::setObjectName(const std::string& name)
 
 void WAbstractItemView::setModel(WAbstractItemModel *model)
 {
+  if (!columnWidthChanged_.isConnected())
+    columnWidthChanged_.connect(this, &WAbstractItemView::updateColumnWidth);
+
   bool isReset = false;
   if (model_) {
     /* disconnect slots from previous model */
@@ -1650,4 +1652,20 @@ boost::any WAbstractItemView::editState(const WModelIndex& index) const
     return boost::any();
 }
 
+EventSignal<WKeyEvent>& WAbstractItemView::keyWentDown()
+{
+  return impl_->keyWentDown();
 }
+
+EventSignal<WKeyEvent>& WAbstractItemView::keyPressed()
+{
+  return impl_->keyPressed();
+}
+
+EventSignal<WKeyEvent>& WAbstractItemView::keyWentUp()
+{
+  return impl_->keyWentUp();
+}
+
+}
+

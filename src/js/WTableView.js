@@ -429,7 +429,7 @@ WT_DECLARE_WT_MEMBER
        contentsContainer.tw = tw;
 
        contentsContainer.style.width = tw + 'px';
-       headerContainer.style.width = tw + 'px';
+       headerContainer.style.width = (tw - scrollwidth) + 'px';
      }
 
      var rtl = $(document.body).hasClass('Wt-rtl');

@@ -93,7 +93,7 @@ WWidget *WTreeTable::headerWidget() const
 void WTreeTable::setTreeRoot(WTreeTableNode *root, const WString& h)
 {
   tree_->setTreeRoot(root);
-  header(0)->setText(h);
+  header(0)->setText(h.empty() ? "&nbsp;" : h);
   root->setTable(this);
 }
 

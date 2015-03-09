@@ -462,6 +462,13 @@ public:
    */
   void setDropDownIconUnfiltered(bool isUnfiltered);
 
+  /*!
+   * \brief return the last activated index
+   * \return -1 if never activated
+   * \sa activated()
+   */
+  int currentItem() const { return currentItem_; }
+
 private:
   WContainerWidget   *impl_;
   WAbstractItemModel *model_;
@@ -470,6 +477,7 @@ private:
   bool filtering_;
   int defaultValue_;
   bool isDropDownIconUnfiltered_;
+  int currentItem_;
 
   std::string       matcherJS_;
   std::string       replacerJS_;

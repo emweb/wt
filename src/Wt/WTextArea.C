@@ -15,6 +15,8 @@
 
 namespace Wt {
 
+const char *WTextArea::INPUT_SIGNAL = "input";
+
 WTextArea::WTextArea(WContainerWidget *parent)
   : WFormWidget(parent),
     cols_(20),
@@ -198,6 +200,11 @@ int WTextArea::cursorPosition() const
     return app->selectionEnd();
   else
     return -1;
+}
+
+EventSignal<>& WTextArea::textInput()
+{
+  return *voidEventSignal(INPUT_SIGNAL, true);
 }
 
 }

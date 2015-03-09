@@ -18,37 +18,34 @@
   Transitions from jQtouch (with small modifications): http://www.jqtouch.com/
   Built by David Kaneda and maintained by Jonathan Stark.
 */
-.in, .out.reverse {
-	z-index: 10;
-}
-
-.out, .in.reverse {
-	z-index: 0;
-}
-
 .slide.in {
 	-moz-transform: translate(0,0);
 	-moz-animation-name: slideinfromright;
+	z-index: 10;
 }
 
 .slide.out {
 	-moz-transform: translate(-100%,0);
 	-moz-animation-name: slideouttoleft;
+	z-index: 0;
 }
 
 .slide.in.reverse {
 	-moz-transform: translate(0,0);
 	-moz-animation-name: slideinfromleft;
+	z-index: 0;
 }
 
 .slide.out.reverse {
 	-moz-transform: translate(100%,0);
 	-moz-animation-name: slideouttoright;
+	z-index: 10;
 }
 
 .slideup.in {
 	-moz-transform: translate(0,0);
 	-moz-animation-name: slideinfrombottom;
+	z-index: 10;
 }
 
 .slideup.out {
@@ -59,27 +56,34 @@
 .slideup.out.reverse {
 	-moz-transform: translate(0,100%);
 	-moz-animation-name: slideouttobottom;
+	z-index: 10;
 }
 
 .slideup.in.reverse {
 	-moz-animation-name: dontmove;
+	z-index: 0;
 }
+
 .slidedown.in {
 	-moz-transform: translate(0,0);
 	-moz-animation-name: slideinfromtop;
+	z-index: 10;
 }
 
 .slidedown.out {
 	-moz-animation-name: dontmove;
+	z-index: 0;
 }
 
 .slidedown.out.reverse {
 	-moz-transform: translate(0,-100%);
 	-moz-animation-name: slideouttotop;
+	z-index: 10;
 }
 
 .slidedown.in.reverse {
 	-moz-animation-name: dontmove;
+	z-index: 0;
 }
 
 @-moz-keyframes slideinfromright {
@@ -101,7 +105,6 @@
     from { -moz-transform: translate(0,0); }
     to { -moz-transform: translate(100%,0); }
 }
-
 
 @-moz-keyframes slideinfromtop {
     from { -moz-transform: translate(0,-100%); }
@@ -134,9 +137,10 @@
 }
 
 .fade.in {
-	opacity: 1;
+        opacity: 1;
 	-moz-animation-name: fadein;
 }
+
 .fade.out {
 	-moz-animation-name: fadeout;
 }
@@ -167,11 +171,13 @@
 .flip.in {
 	-moz-transform: rotateY(0) scale(1);
 	-moz-animation-name: flipinfromleft;
+	z-index: 10;
 }
 
 .flip.out {
 	-moz-transform: rotateY(-180deg) scale(.8);
 	-moz-animation-name: flipouttoleft;
+	z-index: 0;
 }
 
 /* Shake it all about */
@@ -179,11 +185,13 @@
 .flip.in.reverse {
 	-moz-transform: rotateY(0) scale(1);
 	-moz-animation-name: flipinfromright;
+	z-index: 0;
 }
 
 .flip.out.reverse {
 	-moz-transform: rotateY(180deg) scale(.8);
 	-moz-animation-name: flipouttoright;
+	z-index: 10;
 }
 
 @-moz-keyframes flipinfromright {
@@ -231,8 +239,8 @@
 }
 
 .pop.in.reverse {
-	z-index: 0;
 	-moz-animation-name: dontmove;
+	z-index: 0;
 }
 
 @-moz-keyframes popin {
@@ -256,16 +264,20 @@
 
 .slide.in.fade {
 	-moz-animation-name: slideinfromright, fadein;
+	z-index: 10;
 }
 
 .slide.out.fade {
 	-moz-animation-name: slideinfromright, fadeout;
+	z-index: 0;
 }
 
 .pop.fade.in {
         -moz-animation-name: popin, fadein;
+	z-index: 10;
 }
 
 .pop.fade.out {
         -moz-animation-name: popout, fadeout;
+	z-index: 0;
 }

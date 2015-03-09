@@ -18,24 +18,21 @@ const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
 
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
-    state_(Unchecked),
-    naked_(true),
-    stateChanged_(false),
-    textChanged_(false)
+    state_(Unchecked)
 {
+  flags_.set(BIT_NAKED);
+  flags_.set(BIT_WORD_WRAP);
   text_.format = PlainText;
 }
 
 WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
-    state_(Unchecked),
-    naked_(false),
-    stateChanged_(false),
-    textChanged_(false)
+    state_(Unchecked)
 { 
   text_.format = PlainText;
   text_.text = text;
+  flags_.set(BIT_WORD_WRAP);
 }
 
 WAbstractToggleButton::~WAbstractToggleButton()
@@ -73,7 +70,7 @@ void WAbstractToggleButton::setText(const WString& text)
     return;
 
   text_.setText(text);
-  textChanged_ = true;
+  flags_.set(BIT_TEXT_CHANGED);
   repaint(RepaintSizeAffected);
 }
 
@@ -88,7 +85,7 @@ void WAbstractToggleButton::setCheckState(CheckState state)
     return;
 
   state_ = state;
-  stateChanged_ = true;
+  flags_.set(BIT_STATE_CHANGED);
   repaint();
 }
 
@@ -204,7 +201,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
       element.setAttribute("title", v);
   }
 
-  if (stateChanged_ || all) {
+  if (flags_.test(BIT_STATE_CHANGED) || all) {
     input->setProperty(Wt::PropertyChecked,
 		       state_ == Unchecked ? "false" : "true");
 
@@ -215,7 +212,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
       input->setProperty(Wt::PropertyStyleOpacity,
 			 state_ == PartiallyChecked ? "0.5" : "");
 
-    stateChanged_ = false;
+	flags_.reset(BIT_STATE_CHANGED);
   }
 
   std::vector<DomElement::EventAction> changeActions;
@@ -280,9 +277,13 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   }
 
   if (span) {
-    if (all || textChanged_) {
+    if (all || flags_.test(BIT_TEXT_CHANGED)) {
       span->setProperty(PropertyInnerHTML, text_.formattedText());
-      textChanged_ = false;
+	  if(all || flags_.test(BIT_WORD_WRAP_CHANGED)) {
+		span->setProperty(PropertyStyleWhiteSpace, flags_.test(BIT_WORD_WRAP) ? "normal" : "nowrap");
+		flags_.reset(BIT_WORD_WRAP_CHANGED);
+	  }
+	  flags_.reset(BIT_TEXT_CHANGED);
     }
   }
 
@@ -300,7 +301,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
 DomElementType WAbstractToggleButton::domElementType() const
 {
-  if (!naked_)
+  if (!flags_.test(BIT_NAKED))
     return DomElement_LABEL;
   else
     return DomElement_INPUT;
@@ -308,7 +309,7 @@ DomElementType WAbstractToggleButton::domElementType() const
 
 void WAbstractToggleButton::propagateRenderOk(bool deep)
 {
-  stateChanged_ = false;
+  flags_.reset(BIT_STATE_CHANGED);
 
   EventSignal<> *check = voidEventSignal(CHECKED_SIGNAL, false);
   if (check)
@@ -323,7 +324,7 @@ void WAbstractToggleButton::propagateRenderOk(bool deep)
 
 void WAbstractToggleButton::setFormData(const FormData& formData)
 {
-  if (stateChanged_ || isReadOnly())
+  if (flags_.test(BIT_STATE_CHANGED) || isReadOnly())
     return;
 
   if (!Utils::isEmpty(formData.values))
@@ -367,6 +368,20 @@ WT_USTRING WAbstractToggleButton::valueText() const
   }
 }
 
+void WAbstractToggleButton::setWordWrap(bool wordWrap)
+{
+  if (flags_.test(BIT_WORD_WRAP) != wordWrap) {
+    flags_.set(BIT_WORD_WRAP, wordWrap);
+    flags_.set(BIT_WORD_WRAP_CHANGED);
+    repaint(RepaintSizeAffected);
+  }
+}
+
+bool WAbstractToggleButton::wordWrap() const
+{
+  return flags_.test(BIT_WORD_WRAP);
+}
+
 void WAbstractToggleButton::setValueText(const WT_USTRING& text)
 {
   if (text == "yes")
@@ -380,7 +395,7 @@ void WAbstractToggleButton::setValueText(const WT_USTRING& text)
 void WAbstractToggleButton::refresh()
 {
   if (text_.text.refresh()) {
-    textChanged_ = true;
+	flags_.set(BIT_TEXT_CHANGED);
     repaint(RepaintSizeAffected);
   }
 

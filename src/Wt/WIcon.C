@@ -16,7 +16,8 @@
 namespace Wt {
 
 WIcon::WIcon(WContainerWidget *parent)
-  : WInteractWidget(parent)
+  : WInteractWidget(parent),
+	iconChanged_(false)
 { }
 
 WIcon::WIcon(const std::string& name, WContainerWidget *parent)

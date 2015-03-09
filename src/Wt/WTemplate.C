@@ -160,7 +160,8 @@ WTemplate::WTemplate(WContainerWidget *parent)
     previouslyRendered_(0),
     newlyRendered_(0),
     encodeInternalPaths_(false),
-    changed_(false)
+    changed_(false),
+    widgetIdMode_(SetNoWidgetId)
 {
   plainTextNewLineEscStream_ = new EscapeOStream();
   plainTextNewLineEscStream_->pushEscape(EscapeOStream::PlainTextNewLines);
@@ -172,7 +173,8 @@ WTemplate::WTemplate(const WString& text, WContainerWidget *parent)
     previouslyRendered_(0),
     newlyRendered_(0),
     encodeInternalPaths_(false),
-    changed_(false)
+    changed_(false),
+    widgetIdMode_(SetNoWidgetId)
 {
   plainTextNewLineEscStream_ = new EscapeOStream();
   plainTextNewLineEscStream_->pushEscape(EscapeOStream::PlainTextNewLines);
@@ -256,6 +258,16 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
     widget->setParentWidget(this);
     widgets_[varName] = widget;
     strings_.erase(varName);
+
+    switch (widgetIdMode_) {
+    case SetNoWidgetId:
+      break;
+    case SetWidgetObjectName:
+      widget->setObjectName(varName);
+      break;
+    case SetWidgetId:
+      widget->setId(varName);
+    }
   } else {
     StringMap::const_iterator j = strings_.find(varName);
     if (j != strings_.end() && j->second.empty())

@@ -203,4 +203,10 @@ WStackedWidget *WTabWidget::contentsStack() const
   return menu_->contentsStack();
 }
 
+void WTabWidget::setOverflow(WContainerWidget::Overflow value,
+	WFlags<Orientation> orientation)
+{
+  layout_->setOverflow(value, orientation);
+}
+
 }

@@ -329,6 +329,32 @@ public:
 #endif // WT_TARGET_JAVA
   };
 
+  /*! \brief Enumeration that indicates how a widget's ID may be set.
+   *
+   * \sa setWidgetIdMode()
+   */
+  enum WidgetIdMode {
+    /*!
+     * Do not set the widget ID.
+     */
+    SetNoWidgetId,
+
+    /*!
+     * Use setObjectName() to prefix the ID with the varName. This is
+     * a safe choice since Wt still guarantees that the IDs are
+     * unique.
+     */
+    SetWidgetObjectName,
+
+    /*!
+     * Use setId() to set the ID as the varName.
+     *
+     * \warning You must be careful that there are no two widgets with
+     *          the same ID in yor application.
+     */
+    SetWidgetId
+  };
+
   /*! \brief Creates a template widget.
    */
   WTemplate(WContainerWidget *parent = 0);
@@ -363,6 +389,23 @@ public:
    * \sa clear()
    */
   void setTemplateText(const WString& text, TextFormat textFormat = XHTMLText);
+
+  /*! \brief Sets how the varName should be reflected on bound widgets.
+   *
+   * To easily identify a widget in the browser, it may be convenient
+   * to reflect the varName to the widget's ID. This options allows
+   * you to choose from two methods.
+   *
+   * The default value is SetNoWidgetId which does not reflect the
+   * varName on the bound widget.
+   */
+  void setWidgetIdMode(WidgetIdMode mode);
+
+  /*! \brief Returns how the varName is reflected on a bound widget.
+   *
+   * \sa setWidgetIdMode()
+   */
+  WidgetIdMode widgetIdMode() const { return widgetIdMode_; }
 
   /*! \brief Binds a string value to a variable.
    *
@@ -697,6 +740,7 @@ private:
   std::string errorText_;
 
   bool encodeInternalPaths_, changed_;
+  WidgetIdMode widgetIdMode_;
 
   static std::size_t parseArgs(const std::string& text,
 			       std::size_t pos,

@@ -64,8 +64,6 @@ WTableView::WTableView(WContainerWidget *parent)
 {
   setSelectable(false);
 
-  dropEvent_.connect(this, &WTableView::onDropEvent);
-
   setStyleClass("Wt-itemview Wt-tableview");
 
   WApplication *app = WApplication::instance();
@@ -114,8 +112,6 @@ WTableView::WTableView(WContainerWidget *parent)
       .connect(boost::bind(&WTableView::handleRootSingleClick, this, 0, _1));
     contentsContainer_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleRootMouseWentUp, this, 0, _1));
-
-    scrolled_.connect(this, &WTableView::onViewportChange);
 
     headerColumnsHeaderContainer_ = new WContainerWidget();
     headerColumnsHeaderContainer_->setStyleClass("Wt-header Wt-headerdiv "
@@ -732,6 +728,12 @@ void WTableView::defineJavaScript()
 		      + WApplication::instance()->theme()->activeClass()
 		      + "');");
 
+  if (!dropEvent_.isConnected())
+    dropEvent_.connect(this, &WTableView::onDropEvent);
+
+  if (!scrolled_.isConnected())
+    scrolled_.connect(this, &WTableView::onViewportChange);
+
   if (viewportTop_ != 0) {
     WStringStream s;
     s << "function(o, w, h) {"
@@ -1003,6 +1005,7 @@ void WTableView::setColumnWidth(int column, const WLength& width)
   else
     hc = headers_->widget(column - rowHeaderCount());
 
+  hc->setWidth(0);
   hc->setWidth(rWidth.toPixels() + 1);
   if (!ajaxMode())
     hc->parent()->resize(rWidth.toPixels() + 1, hc->height());
@@ -1067,7 +1070,9 @@ void WTableView::updateColumnOffsets()
     ColumnInfo ci = columnInfo(i);
 
     ColumnWidget *w = columnContainer(i);
+    w->setOffsets(0, Left);
     w->setOffsets(totalRendered, Left);
+    w->setWidth(0);
     w->setWidth(ci.width.toPixels() + 7);
 
     if (!columnInfo(i).hidden)
@@ -1095,7 +1100,9 @@ void WTableView::updateColumnOffsets()
     if (i >= fc && i <= lc) {
       ColumnWidget *w = columnContainer(rowHeaderCount() + i - fc);
 
+      w->setOffsets(0, Left);
       w->setOffsets(totalRendered, Left);
+      w->setWidth(0);
       w->setWidth(ci.width.toPixels() + 7);
 
       if (!columnInfo(i).hidden)

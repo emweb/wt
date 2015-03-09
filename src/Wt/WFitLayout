@@ -8,6 +8,7 @@
 #define WFIT_LAYOUT_H_
 
 #include <Wt/WLayout>
+#include <Wt/WGridLayout>
 
 namespace Wt {
 
@@ -16,10 +17,6 @@ namespace Wt {
  *
  * This layout manager may manage only a single child widget, and sizes that
  * widget so that it uses all space available in the parent.
- *
- * \note This layout manager is applicable only to Ext::Container
- * container widgets. If you wish to fit widgets within a container
- * widgets, use a WBoxLayout instead (with a single child).
  */
 class WT_API WFitLayout : public WLayout
 {
@@ -36,8 +33,10 @@ public:
   virtual int count() const;
   virtual void clear();
 
+  Impl::Grid& grid() { return grid_; }
+
 private:
-  WLayoutItem *item_;
+  Impl::Grid grid_;
 };
 
 }

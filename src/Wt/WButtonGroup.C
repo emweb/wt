@@ -129,7 +129,7 @@ void WButtonGroup::setFormData(const FormData& formData)
 
     for (unsigned i = 0; i < buttons_.size(); ++i) {
       if (value == buttons_[i].button->id()) {
-	if (buttons_[i].button->stateChanged_)
+	if (buttons_[i].button->flags_.test(WAbstractToggleButton::BIT_STATE_CHANGED))
 	  return;
 
 	uncheckOthers(buttons_[i].button);

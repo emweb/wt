@@ -18,37 +18,34 @@
   Transitions from jQtouch (with small modifications): http://www.jqtouch.com/
   Built by David Kaneda and maintained by Jonathan Stark.
 */
-.in, .out.reverse {
-	z-index: 10;
-}
-
-.out, .in.reverse {
-	z-index: 0;
-}
-
 .slide.in {
 	transform: translate3d(0,0,0);
 	animation-name: slideinfromright;
+	z-index: 10;
 }
 
 .slide.out {
 	transform: translate3d(-100%,0,0);
 	animation-name: slideouttoleft;
+	z-index: 0;
 }
 
 .slide.in.reverse {
 	transform: translate3d(0,0,0);
 	animation-name: slideinfromleft;
+	z-index: 0;
 }
 
 .slide.out.reverse {
 	transform: translate3d(100%,0,0);
 	animation-name: slideouttoright;
+	z-index: 10;
 }
 
 .slideup.in {
 	transform: translate3d(0,0,0);
 	animation-name: slideinfrombottom;
+	z-index: 10;
 }
 
 .slideup.out {
@@ -59,27 +56,34 @@
 .slideup.out.reverse {
 	transform: translate3d(0,100%,0);
 	animation-name: slideouttobottom;
+	z-index: 10;
 }
 
 .slideup.in.reverse {
 	animation-name: dontmove;
+	z-index: 0;
 }
+
 .slidedown.in {
 	transform: translate3d(0,0,0);
 	animation-name: slideinfromtop;
+	z-index: 10;
 }
 
 .slidedown.out {
 	animation-name: dontmove;
+	z-index: 0;
 }
 
 .slidedown.out.reverse {
 	transform: translate3d(0,-100%,0);
 	animation-name: slideouttotop;
+	z-index: 10;
 }
 
 .slidedown.in.reverse {
 	animation-name: dontmove;
+	z-index: 0;
 }
 
 @keyframes slideinfromright {
@@ -102,7 +106,6 @@
     to { transform: translate3d(100%,0,0); }
 }
 
-
 @keyframes slideinfromtop {
     from { transform: translate3d(0,-100%,); }
     to { transform: translate3d(0,0,0); }
@@ -122,6 +125,7 @@
     from { transform: translate3d(0,0,0); }
     to { transform: translate3d(0,-100%,0); }
 }
+
 @keyframes fadein {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -136,6 +140,7 @@
 	opacity: 1;
 	animation-name: fadein;
 }
+
 .fade.out {
 	animation-name: fadeout;
 }
@@ -167,11 +172,13 @@
 .flip.in {
 	transform: rotateY(0) scale(1);
 	animation-name: flipinfromleft;
+	z-index: 10;
 }
 
 .flip.out {
 	transform: rotateY(-180deg) scale(.8);
 	animation-name: flipouttoleft;
+	z-index: 0;
 }
 
 /* Shake it all about */
@@ -179,11 +186,13 @@
 .flip.in.reverse {
 	transform: rotateY(0) scale(1);
 	animation-name: flipinfromright;
+	z-index: 0;
 }
 
 .flip.out.reverse {
 	transform: rotateY(180deg) scale(.8);
 	animation-name: flipouttoright;
+	z-index: 10;
 }
 
 @keyframes flipinfromright {
@@ -231,8 +240,8 @@
 }
 
 .pop.in.reverse {
-	z-index: 0;
 	animation-name: dontmove;
+	z-index: 0;
 }
 
 @keyframes popin {
@@ -256,16 +265,20 @@
 
 .slide.in.fade {
 	animation-name: slideinfromright, fadein;
+	z-index: 10;
 }
 
 .slide.out.fade {
 	animation-name: slideinfromright, fadeout;
+	z-index: 0;
 }
 
 .pop.fade.in {
         animation-name: popin, fadein;
+	z-index: 10;
 }
 
 .pop.fade.out {
         animation-name: popout, fadeout;
+	z-index: 0;
 }

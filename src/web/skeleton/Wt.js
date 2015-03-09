@@ -608,6 +608,9 @@ this.ajaxInternalPaths = function(basePath) {
 	if (href.charAt(0) != '/')
 	  href = '/' + href;
 	internalPath = href.substr(basePath.length);
+	if (internalPath.substr(0, 2) == "_=" &&
+	    basePath.charAt(basePath.length - 1) == '?')
+	  internalPath = '?' + internalPath;  /* eaten one too much */
       }
 
       if (internalPath.length == 0 || internalPath.charAt(0) != '/')
@@ -3057,7 +3060,7 @@ function propagateSize(element, width, height) {
     element.wtHeight = height;
 
     if (width >= 0 && height >= 0)
-      emit(element, 'resized', width, height);
+      emit(element, 'resized', Math.round(width), Math.round(height));
   }
 }
 
@@ -3329,6 +3332,12 @@ window.onunload = function()
   }
 };
 
+function setLocale(m)
+{	
+  if (WT.isIEMobile || m == '') return;
+  document.documentElement.lang = m
+}
+
 function setCloseMessage(m)
 {
   if (m && m != '') {
@@ -3349,6 +3358,7 @@ this._p_ = {
   loadScript : loadScript,
   onJsLoad : onJsLoad,
   setTitle : setTitle,
+  setLocale : setLocale,
   update : update,
   quit : quit,
   setSessionUrl : setSessionUrl,

@@ -238,6 +238,22 @@ public:
    * contents stack.
    */
   WStackedWidget *contentsStack() const;
+  
+  /*! \brief Sets how overflow of contained children must be handled.
+   *
+   * This is an alternative (CSS-ish) way to configure scroll bars on
+   * a container widget, compared to wrapping inside a WScrollArea.
+   *
+   * Unlike WScrollArea, horizontal scrolling does not work reliably
+   * when the container widget is inserted in a layout manager: the
+   * layout manager will overflow rather than use scrollbars for this
+   * this widget. A solution then is to use WScrollArea instead.
+   *
+   * \sa WScrollArea
+   */
+  void setOverflow(WContainerWidget::Overflow overflow,
+		   WFlags<Orientation> orientation = (Horizontal | Vertical));
+
 
 private:
   Signal<int> currentChanged_;
