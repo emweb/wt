@@ -111,6 +111,14 @@ WebRenderer::WebRenderer(WebSession& session)
     learning_(false)
 { }
 
+void WebRenderer::setRendered(bool how)
+{
+  if (rendered_ != how) {
+    LOG_DEBUG("setRendered: " << how);
+    rendered_ = how;
+  }
+}
+
 void WebRenderer::setTwoPhaseThreshold(int bytes)
 {
   twoPhaseThreshold_ = bytes;
@@ -263,6 +271,9 @@ void WebRenderer::serveResponse(WebResponse& response)
       serveBootstrap(response);
     break;
   case WebResponse::Script:
+    bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
+    if (!hybridPage)
+      setRendered(false);
     serveMainscript(response);
     break;
   }
@@ -415,7 +426,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   streamBootContent(response, boot, false);
   boot.stream(out);
 
-  rendered_ = false;
+  setRendered(false);
 
   out.spool(response.out());
 }
@@ -1139,6 +1150,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);\n";
   formObjectsChanged_ = false;
 
+  setRendered(true);
   setJSSynced(true);
 
   preLearnStateless(app, collectedJS1_);
@@ -1181,7 +1193,8 @@ void WebRenderer::serveMainAjax(WStringStream& out)
 
 void WebRenderer::setJSSynced(bool invisibleToo)
 {
-  //LOG_DEBUG("setJSSynced: " << invisibleToo);
+  LOG_DEBUG("setJSSynced: " << invisibleToo);
+
   collectedJS1_.clear();
   collectedJS2_.clear();
 
@@ -1292,8 +1305,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
    * non-JavaScript versions.
    */
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
-  rendered_ = true;
-
+  setRendered(true);
   setJSSynced(true);
 
   WStringStream styleSheets;

@@ -165,6 +165,11 @@ void WPanel::setCollapsible(bool on)
 void WPanel::toggleCollapse()
 {
   setCollapsed(!isCollapsed());
+
+  if(isCollapsed())
+    collapsed_.emit();
+  else
+    expanded_.emit();
 }
 
 void WPanel::setCollapsed(bool on)
