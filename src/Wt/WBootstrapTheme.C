@@ -13,7 +13,9 @@
 #include "Wt/WComboBox"
 #include "Wt/WDateEdit"
 #include "Wt/WDatePicker"
+#ifndef WT_TARGET_JAVA
 #include "Wt/WTimeEdit"
+#endif
 #include "Wt/WDialog"
 #include "Wt/WEnvironment"
 #include "Wt/WGoogleMap"
@@ -385,12 +387,13 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
         element.addPropertyWord(PropertyClass, "Wt-dateedit");
         return;
       }
-
+#ifndef WT_TARGET_JAVA
       WTimeEdit *timeEdit = dynamic_cast<WTimeEdit *>(widget);
       if (timeEdit) {
         element.addPropertyWord(PropertyClass, "Wt-timeedit");
         return;
       }
+#endif
 
     }
     break;

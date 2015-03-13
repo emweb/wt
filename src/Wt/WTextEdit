@@ -227,6 +227,15 @@ public:
   virtual void propagateSetEnabled(bool enabled);
   virtual void resize(const WLength& width, const WLength& height);
 
+  /*! \brief %Signal emitted when rendered.
+   *
+   * A text edit is instantiated asynchronously as it depends on
+   * additional JavaScript libraries and initialization. This signal
+   * is emitted when the component is initialized. The underlying
+   * TinyMCE editor component is accessible as jsRef() + ".ed".
+   */
+  JSignal<>& rendered() { return onRender_; }
+
 protected:
   virtual std::string renderRemoveJs();
   virtual void updateDom(DomElement& element, bool all);
@@ -239,6 +248,7 @@ protected:
 
 private:
   JSignal<> onChange_;
+  JSignal<> onRender_;
   int version_;
   bool contentChanged_;
   std::map<std::string, boost::any> configurationSettings_;

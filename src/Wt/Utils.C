@@ -207,3 +207,4 @@ std::string guessImageMimeType(const std::string& file)
   
   }
 }
+

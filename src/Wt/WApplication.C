@@ -89,8 +89,8 @@ WApplication::WApplication(const WEnvironment& env
     weakSession_(session_->shared_from_this()),
 #endif // WT_CNOR
     titleChanged_(false),
-	localeChanged_(false),
     closeMessageChanged_(false),
+    localeChanged_(false),
     localizedStrings_(0),
     internalPathChanged_(this),
     serverPush_(0),

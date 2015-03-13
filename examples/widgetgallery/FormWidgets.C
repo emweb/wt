@@ -182,7 +182,9 @@ Wt::WWidget *FormWidgets::autoComplete()
 #include "examples/CalendarSimple.cpp"
 #include "examples/CalendarExtended.cpp"
 #include "examples/DateEdit.cpp"
+#ifndef WT_TARGET_JAVA
 #include "examples/TimeEdit.cpp"
+#endif
 #include "examples/DatePicker.cpp"
 
 Wt::WWidget *FormWidgets::dateEntry()
@@ -191,7 +193,9 @@ Wt::WWidget *FormWidgets::dateEntry()
   result->bindWidget("CalendarSimple", CalendarSimple());
   result->bindWidget("CalendarExtended", CalendarExtended());
   result->bindWidget("DateEdit", DateEdit());
+#ifndef WT_TARGET_JAVA
   result->bindWidget("TimeEdit", TimeEdit());
+#endif
   result->bindWidget("DatePicker", DatePicker());
 
   return result;

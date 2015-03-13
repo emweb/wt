@@ -111,6 +111,14 @@ WebRenderer::WebRenderer(WebSession& session)
     learning_(false)
 { }
 
+void WebRenderer::setRendered(bool how)
+{
+  if (rendered_ != how) {
+    LOG_DEBUG("setRendered: " << how);
+    rendered_ = how;
+  }
+}
+
 void WebRenderer::setTwoPhaseThreshold(int bytes)
 {
   twoPhaseThreshold_ = bytes;
@@ -263,6 +271,9 @@ void WebRenderer::serveResponse(WebResponse& response)
       serveBootstrap(response);
     break;
   case WebResponse::Script:
+    bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
+    if (!hybridPage)
+      setRendered(false);
     serveMainscript(response);
     break;
   }
@@ -415,7 +426,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   streamBootContent(response, boot, false);
   boot.stream(out);
 
-  rendered_ = false;
+  setRendered(false);
 
   out.spool(response.out());
 }
@@ -715,9 +726,12 @@ void WebRenderer::collectJavaScript()
   Configuration& conf = session_.controller()->configuration();
 
   /*
-   * Pending invisible changes are also collected into JS1.
-   * This is also done in ackUpdate(), but just in case an update was not
-   * acknowledged:
+   * Pending invisible changes are also collected into JS1. This is
+   * also done in ackUpdate(), but just in case an update was not
+   * acknowledged.
+   *
+   * This is also used to render JavaScript that was rendered in asHtml()
+   * in a hybrid page.
    */
   collectedJS1_ << invisibleJS_.str();
   invisibleJS_.clear();
@@ -1139,6 +1153,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);\n";
   formObjectsChanged_ = false;
 
+  setRendered(true);
   setJSSynced(true);
 
   preLearnStateless(app, collectedJS1_);
@@ -1181,7 +1196,8 @@ void WebRenderer::serveMainAjax(WStringStream& out)
 
 void WebRenderer::setJSSynced(bool invisibleToo)
 {
-  //LOG_DEBUG("setJSSynced: " << invisibleToo);
+  LOG_DEBUG("setJSSynced: " << invisibleToo);
+
   collectedJS1_.clear();
   collectedJS2_.clear();
 
@@ -1292,8 +1308,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
    * non-JavaScript versions.
    */
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
-  rendered_ = true;
-
+  setRendered(true);
   setJSSynced(true);
 
   WStringStream styleSheets;
@@ -1372,7 +1387,14 @@ void WebRenderer::serveMainpage(WebResponse& response)
     EscapeOStream js;
     EscapeOStream eout(out);
     mainElement->asHTML(eout, js, timeouts);
-    app->afterLoadJavaScript_ = js.str() + app->afterLoadJavaScript_;
+
+    /*
+     * invisibleJS_ is being streamed as the first JavaScript inside
+     * collectJavaScript(). This is where this belongs since between
+     * the HTML and the script there may already be changes (because
+     * of server push) that delete elements that were rendered.
+     */
+    invisibleJS_ << js.str();
     delete mainElement;
 
     app->domRoot_->doneRerender();

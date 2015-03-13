@@ -48,7 +48,12 @@ WT_API extern std::string md5(const std::string& data);
  *
  * \sa md5()
  */
+#ifndef WT_TARGET_JAVA
 WT_API extern std::string sha1(const std::string& data);
+#else
+WT_API extern std::vector<unsigned char> sha1(const std::string& data);
+#endif
+
 
 /*! \brief Performs Base64-encoding of data.
  *
@@ -74,6 +79,7 @@ WT_API extern std::string base64Encode(const std::string& data,
 WT_API extern std::string base64Decode(const std::string& data);
 #else
 WT_API extern std::vector<unsigned char> base64Decode(const std::string& data);
+WT_API extern std::string base64DecodeS(const std::string& data);
 #endif
 
 /*! \brief Performs Hex-encoding of data.
@@ -179,7 +185,8 @@ guessImageMimeTypeData(const std::vector<unsigned char>& header);
  */
 WT_API extern std::string guessImageMimeType(const std::string& file);
 
-  }
+}
+
 }
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Wt::Utils::HtmlEncodingFlag)

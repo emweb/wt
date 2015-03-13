@@ -31,6 +31,7 @@ WT_DECLARE_WT_MEMBER
 	   APP.emit(el, 'change');
        });
      }
+     APP.emit(el, 'render');
    };
 
    this.init = function() {

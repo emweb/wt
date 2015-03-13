@@ -560,15 +560,16 @@ std::string OAuthService::generateRedirectEndpoint() const
 std::string OAuthService::encodeState(const std::string& url) const
 {
   std::string msg = impl_->secret_ + url;
-  std::string hash = Wt::Utils::sha1(msg);
+
+  std::string hash(Wt::Utils::sha1(msg));
   
   std::string b = Wt::Utils::base64Encode(hash + "|" + url);
 
   /* Variant of base64 encoding which is resistant to broken OAuth2 peers
    * that do not properly re-encode the state */
-  b = Wt::Utils::replace(b, '+', "-");
-  b = Wt::Utils::replace(b, '/', "_");  
-  b = Wt::Utils::replace(b, '=', ".");
+  b = Wt::Utils::replace(b, "+", "-");
+  b = Wt::Utils::replace(b, "/", "_");  
+  b = Wt::Utils::replace(b, "=", ".");
 
   return b;
 }
@@ -576,11 +577,15 @@ std::string OAuthService::encodeState(const std::string& url) const
 std::string OAuthService::decodeState(const std::string& state) const
 {
   std::string s = state;
-  s = Wt::Utils::replace(s, '-', "+");
-  s = Wt::Utils::replace(s, '_', "/");
-  s = Wt::Utils::replace(s, '.', "=");
+  s = Wt::Utils::replace(s, "-", "+");
+  s = Wt::Utils::replace(s, "_", "/");
+  s = Wt::Utils::replace(s, ".", "=");
 
+#ifndef WT_TARGET_JAVA
   s = Wt::Utils::base64Decode(s);
+#else
+  s = Wt::Utils::base64DecodeS(s);
+#endif
 
   std::size_t i = s.find('|');
   if (i != std::string::npos) {

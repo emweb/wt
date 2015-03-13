@@ -45,7 +45,7 @@ public:
   bool visibleOnly() const { return visibleOnly_; }
   void setVisibleOnly(bool how) { visibleOnly_ = how; }
   bool isRendered() const { return rendered_; }
-  void setRendered(bool how) { rendered_ = how; }
+  void setRendered(bool how);
 
   void needUpdate(WWidget *w, bool laterOnly);
   void doneUpdate(WWidget *w);

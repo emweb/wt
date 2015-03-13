@@ -22,6 +22,7 @@ typedef std::map<std::string, boost::any> SettingsMapType;
 WTextEdit::WTextEdit(WContainerWidget *parent)
   : WTextArea(parent),
     onChange_(this, "change"),
+    onRender_(this, "render"),
     contentChanged_(false)
 {
   init();
@@ -30,6 +31,7 @@ WTextEdit::WTextEdit(WContainerWidget *parent)
 WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
   : WTextArea(text, parent),
     onChange_(this, "change"),
+    onRender_(this, "render"),
     contentChanged_(false)
 {
   init();

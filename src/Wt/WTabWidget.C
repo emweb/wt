@@ -51,9 +51,9 @@ WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
 
   WMenuItem *result = new WMenuItem(label, child, policy);
 
-  menu_->addItem(result);
-
   contentsWidgets_.push_back(child);
+
+  menu_->addItem(result);
 
   return result;
 }

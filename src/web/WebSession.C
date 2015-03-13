@@ -2015,6 +2015,8 @@ void WebSession::notify(const WEvent& event)
   if (event.impl_.response) {
     try {
       renderer_.serveResponse(*event.impl_.response);
+    } catch (std::exception& e) {
+      LOG_ERROR("Exception in WApplication::notify()" << e.what());
     } catch (...) {
     }
     return;
@@ -2244,6 +2246,9 @@ void WebSession::notify(const WEvent& event)
 	    } catch (const boost::bad_lexical_cast& e) {
 	    }
 	  }
+
+	  if (request.isWebSocketMessage())
+	    renderer_.setJSSynced(false);
 
 	  if (invalidAckId) {
 	    if (!ackIdE)
