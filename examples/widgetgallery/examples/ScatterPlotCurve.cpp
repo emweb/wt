@@ -48,21 +48,4 @@ chart->resize(800, 300); // WPaintedWidget must be given explicit size.
 chart->setMargin(10, Wt::Top | Wt::Bottom);            // Add margin vertically
 chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right); // Center horizontally
 
-Wt::WTimer *t = new Wt::WTimer(chart);
-t->setInterval(25);
-t->start();
-
-double *phi = new double(0);
-
-t->timeout().connect(std::bind([=] () {
-  *phi += 0.1;
-
-  for (unsigned i = 0; i < 40; ++i) {
-    double x = (static_cast<double>(i) - 20) / 4;
-
-    model->setData(i, 0, x);
-    model->setData(i, 1, std::sin(x + *phi));
-  }      
-    }));
-
 SAMPLE_END(return container)

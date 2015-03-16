@@ -250,7 +250,6 @@
 .Wt-cal .days td .Wt-cal-sel,
 .Wt-cal .days td .Wt-cal-sel:hover {
   color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #006dcc;
   background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
@@ -287,6 +286,26 @@
 .Wt-cal .days td .Wt-cal-sel.active,
 .Wt-cal .days td .Wt-cal-sel:hover.active {
   background-color: #003399 \9;
+}
+/*
+ * WTimeEdit
+ */
+.Wt-timeedit {
+  background-image: url('time-edit-button.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
+}
+.Wt-timeedit:hover {
+  cursor: default;
+  background-position: right -34px;
+}
+.Wt-timeedit:active {
+  cursor: default;
+  background-position: right -68px;
+}
+.Wt-timeedit::-ms-clear {
+  display: none;
 }
 /*
  * WDateEdit

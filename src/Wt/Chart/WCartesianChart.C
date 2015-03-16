@@ -1870,15 +1870,17 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
               labelHFlag | AlignBottom, 0, 10);
         } else {
           if(axis.id() == YAxis) {
-            renderLabel(painter, axis.title(),
-                WPointF( axisStart.x() - 40 ,
-                  ((chartArea_.bottom() + chartArea_.top()) / 2)),
-                AlignLeft | AlignBottom, 90, 0);
+			renderLabel(painter, axis.title(),
+            WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
+              chartArea_.center().y() + axis.title().toUTF8().size() * titleFont.size()),
+            (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
+            AlignMiddle, 90, 20);
           }else {
-            renderLabel(painter, axis.title(),
-                WPointF(axisEnd.x() + 50,
-                  ((chartArea_.bottom() + chartArea_.top()) / 2)),
-                AlignLeft | AlignBottom, 90, 0);
+			renderLabel(painter, axis.title(),
+            WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
+              chartArea_.center().y() + axis.title().toUTF8().size() * titleFont.size()),
+            (labelHFlag == AlignRight ? AlignRight : AlignLeft) |
+            AlignMiddle, 90, 20);
           }
         }
       } else {

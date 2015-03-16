@@ -505,11 +505,11 @@ WTime::RegExpInfo WTime::formatHourToRegExp(WTime::RegExpInfo& result,
   }
   
   if (sf == "HH" || (sf == "hh" && !ap)) { //Hour with leading 0 0-23
-    result.regexp += "(([0-1]?[0-9])|([2][0-3]))";
+    result.regexp += "(([0-1][0-9])|([2][0-3]))";
   } else if (sf == "hh" && ap) {          //Hour with leading 0 01-12
-    result.regexp += "(0|[1-9]|[1][012])";
+    result.regexp += "(0[1-9]|[1][012])";
   } else if (sf == "H" || (sf == "h" && !ap)) { //Hour without leading 0 0-23
-    result.regexp += "(0|[1-9]|[1][012])";
+	result.regexp += "(0|[1-9]|[1][0-9]|2[0-3])";
   } else if (sf == "h" && ap) {                  //Hour without leading 0 0-12
     result.regexp += "([1-9]|1[012])";
   }

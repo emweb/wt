@@ -316,7 +316,7 @@ WString WPieChart::labelText(int index, double v, double total,
 
   if (options & TextLabel)
     if (labelsColumn_ != -1)
-      text = asString(model()->data(index, labelsColumn_));
+      text += asString(model()->data(index, labelsColumn_));
 
   if (options & TextPercentage) {
     std::string label;
