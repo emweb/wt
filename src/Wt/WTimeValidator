@@ -6,15 +6,32 @@
 
 namespace Wt {
 
+/*! \class WTimeValidator Wt/WTimeValidator Wt/WTimeValidator
+ *  \brief A time validator
+ *
+ *  \sa WTimeEdit
+ *  \sa WTime
+ *  \sa WTimePicker
+ *
+ */
 class WT_API WTimeValidator : public WRegExpValidator
 {
 public:
+	/*! \brief Creates a new WTimeValidator
+	 */
     WTimeValidator(WObject *parent = 0);
 
+	/*! \brief Creates a new WTimeValidator
+	 */
     WTimeValidator(const WT_USTRING &format, WObject *parent = 0);
 
+	/*! \brief sets the validator format
+	 * \sa WTime::toString()
+	 */
     void setFormat(const WT_USTRING &format);
 
+	/*! \brief Returns the Validator current format
+	 */
     virtual WT_USTRING format() const { return format_; }
 
 

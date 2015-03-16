@@ -588,9 +588,28 @@ WTime::RegExpInfo WTime::formatMSecondToRegExp(WTime::RegExpInfo& result,
   }
 
   if (sf == "z") /* The Ms without trailing 0 */
-    result.regexp += "([0-9]{3})";
+    result.regexp += "(0|[1-9][0-9]{0,2})";
   else if (sf == "zzz") 
-    result.regexp += "([1-9][0-9]{2}";
+    result.regexp += "([0-9]{3})";
+
+  return result;
+}
+
+WTime::RegExpInfo WTime::formatAPToRegExp(WTime::RegExpInfo& result,
+					       const std::string& format,
+					       unsigned& i)
+{
+  if(i < format.size() - 1) {
+	if(format[i] ==  'A' && format[i+1] == 'P') {
+	  result.regexp += "([AP]M)";
+	  i++;
+	}
+	else if(format[i]  == 'a' && format[i+1] == 'p'){
+	  result.regexp += "([ap]m)";
+	  i++;
+	}
+  } else 
+	result.regexp += format[i];
 
   return result;
 }
@@ -606,6 +625,7 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
 
   for (unsigned i = 0; i < f.size(); ++i) { 
     if (inQuote && f[i] != '\'') {
+      result.regexp += "\\";
       result.regexp+=f[i];
       continue;
     }
@@ -633,23 +653,21 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
       result.regexp+="(\\+[0-9]{4})";
       break;
     case 'A':
-    case 'P':
     case 'a':
-    case 'p':
+	  formatAPToRegExp(result, f, i);
+	  break;
     case '+':
       if (i < f.size() - 1 && (f[i+1] == 'h' || f[i+1] == 'H'))
         result.regexp += "\\+";
       break;
     default:
-      result.regexp += f[i];
+      result.regexp += "\\";
+	  result.regexp += f[i];
+	  break;
     }
 
   }
 
-  if (f.find("AP") != std::string::npos )
-    result.regexp += "([AP]M)";
-  else if (f.find("ap") != std::string::npos) //AM-PM
-    result.regexp += "([ap]m)";
 
   result.regexp += "$";
 

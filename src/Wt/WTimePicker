@@ -8,18 +8,43 @@
 
 namespace Wt {
 
+/*! \class WTimePicker Wt/WTimePicker Wt/WTimePicker
+ *  \brief A Time Picker
+ *
+ *  \sa WTimeEdit
+ *  \sa WTime
+ *  \sa WTimeValidator
+ *
+ * Styling through CSS is not applicable.
+ *
+ */
 class WT_API WTimePicker : public WCompositeWidget
 {
 public:
+    /*! \brief Creates a new time picker.
+     */
     WTimePicker(WContainerWidget *parent = 0);
+    
+	/*! \brief Creates a new time picker.
+     */
     WTimePicker(const WTime &time, WContainerWidget *parent = 0);
 
     WTime time();
+
+	/*! \brief sets the time
+	 */
     void setTime(const WTime& time);
 
+	/*! \brief returns the minutes step
+	 */
     int minuteStep() const { return minuteStep_; }
+	
+	/*! \brief sets the minute step
+	 */
     void setMinuteStep(int step) { minuteStep_ = step; }
 
+	/*! \brief Signal emitted when the value is changed
+	 */
     Signal<>& selectionChanged() { return selectionChanged_; }
 
 private:
