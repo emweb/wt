@@ -581,7 +581,7 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 
     out << collectedJS1_.str() << collectedJS2_.str();
 
-    if (response.isWebSocketRequest() || response.isWebSocketMessage())
+    if (response.isWebSocketMessage())
       setJSSynced(false);
   }
 

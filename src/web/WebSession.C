@@ -1691,6 +1691,8 @@ void WebSession::handleWebSocketRequest(Handler& handler)
 
   asyncResponse_ = handler.response();
 
+  renderer_.setJSSynced(false);
+
   asyncResponse_->flush
     (WebRequest::ResponseFlush,
      boost::bind(&WebSession::webSocketReady,				    
@@ -1913,6 +1915,7 @@ void WebSession::pushUpdates()
 #endif // WT_TARGET_JAVA
     }
   } else {
+    LOG_DEBUG("pushUpdates(): cannot write now");
 #ifdef WT_BOOST_THREADS
     updatesPendingEvent_.notify_one();
 #endif
@@ -2247,10 +2250,7 @@ void WebSession::notify(const WEvent& event)
 	    }
 	  }
 
-	  if (request.isWebSocketMessage())
-	    renderer_.setJSSynced(false);
-
-	  if (invalidAckId) {
+ 	  if (invalidAckId) {
 	    if (!ackIdE)
 	      LOG_SECURE("missing ackId");
 	    else
@@ -2525,6 +2525,7 @@ EventType WebSession::getEventType(const WEvent& event) const
 
 void WebSession::render(Handler& handler)
 {
+  LOG_DEBUG("render()");
   /*
    * In any case, render() will flush the response, even if an error
    * occurred. Since we are already rendering the response, we can no longer
@@ -2546,8 +2547,11 @@ void WebSession::render(Handler& handler)
     if (app_ && app_->isQuited())
       kill();
 
-    if (handler.response()) // a recursive eventloop may remove it in kill()
+    if (handler.response()) { // a recursive eventloop may remove it in kill()
+      updatesPending_ = false;
       serveResponse(handler);
+    }
+
   } catch (std::exception& e) {
     handler.flushResponse();
 
@@ -2557,8 +2561,6 @@ void WebSession::render(Handler& handler)
 
     throw;
   }
-
-  updatesPending_ = false;
 }
 
 void WebSession::serveError(int status, Handler& handler, const std::string& e)

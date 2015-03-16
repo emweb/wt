@@ -98,7 +98,7 @@ WTime WTimePicker::time()
     }
     catch(const boost::bad_lexical_cast& ex)
     {
-        LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ")");
+        LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
     }
 
     return WTime(hours, minutes);
@@ -123,7 +123,7 @@ void WTimePicker::setTime(const WTime& time)
     }
     catch(const boost::bad_lexical_cast& ex)
     {
-        LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+        LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
     }
 
     hourText_->setText(hoursStr);
@@ -142,7 +142,7 @@ void WTimePicker::incrementMinutes()
         }
         catch(const boost::bad_lexical_cast& ex)
         {
-            LOG_ERROR( "boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+		  LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
         }
     }
 
@@ -158,7 +158,7 @@ void WTimePicker::incrementMinutes()
     }
     catch(const boost::bad_lexical_cast& ex)
     {
-        LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+        LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
     }
 
     minuteText_->setText(str);
@@ -178,7 +178,7 @@ void WTimePicker::decrementMinutes()
         }
         catch(const boost::bad_lexical_cast& ex)
         {
-            LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+		  LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
         }
     }
 
@@ -194,7 +194,7 @@ void WTimePicker::decrementMinutes()
     }
     catch(const boost::bad_lexical_cast& ex)
     {
-        LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+	  LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
     }
 
     minuteText_->setText(str);
@@ -214,7 +214,7 @@ void WTimePicker::incrementHours()
         }
         catch(const boost::bad_lexical_cast& ex)
         {
-           LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+		  LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
         }
     }
 
@@ -234,7 +234,7 @@ void WTimePicker::incrementHours()
     }
     catch(const boost::bad_lexical_cast& ex)
     {
-        LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+		  LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
     }
 
 
@@ -255,7 +255,7 @@ void WTimePicker::decrementHours()
         }
         catch(const boost::bad_lexical_cast& ex)
         {
-            LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") ");
+		  LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
         }
     }
 
@@ -275,7 +275,7 @@ void WTimePicker::decrementHours()
     }
     catch(const boost::bad_lexical_cast& ex)
     {
-        LOG_ERROR("boost::bad_lexical_cast caught in " << __FUNCTION__ << " (" << __FILE__ << ":" << __LINE__ << ") "); 
+		  LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
     }
 
     hourText_->setText(str);

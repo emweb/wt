@@ -480,17 +480,23 @@ WTime::WTime(long t)
     time_(t)
 { }
 
-WTime::RegExpInfo WTime::formatHourToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+WTime::RegExpInfo WTime::formatHourToRegExp(WTime::RegExpInfo& result,
+					    const std::string& format,
+					    unsigned& i)
 {
   /* Possible values */
   /* h, hh, H, HH */
   char next = -1;
-  bool ap = (format.find("AP") != std::string::npos ) || (format.find("ap") != std::string::npos); //AM-PM
-  std::string sf;
-  sf+=format[i];
 
-  if(i < format.size() - 1) next = format[i + 1];
-  if(next == 'h' || next == 'H') {
+  bool ap = (format.find("AP") != std::string::npos)
+    || (format.find("ap") != std::string::npos); //AM-PM
+  std::string sf;
+  sf += format[i];
+
+  if (i < format.size() - 1)
+    next = format[i + 1];
+
+  if (next == 'h' || next == 'H') {
     sf+= next;
     i++;
   } else{
@@ -498,84 +504,93 @@ WTime::RegExpInfo WTime::formatHourToRegExp(WTime::RegExpInfo& result, const std
     sf = format[i];
   }
   
-  if(sf == "HH" || (sf == "hh" && !ap)) { //Hour with leading 0 0-23
-    result.regexp+="(([0-1]?[0-9])|([2][0-3]))";
-  } else if(sf == "hh" && ap) {          //Hour with leading 0 01-12
-    result.regexp+="(0|[1-9]|[1][012])";
-  } else if(sf == "H" || sf == "h" && !ap) { //Hour without leading 0 0-23
-    result.regexp+="(0|[1-9]|[1][012])";
-  } else if(sf == "h" && ap){                  //Hour without leading 0 0-12
-    result.regexp+="([1-9]|1[012])";
+  if (sf == "HH" || (sf == "hh" && !ap)) { //Hour with leading 0 0-23
+    result.regexp += "(([0-1]?[0-9])|([2][0-3]))";
+  } else if (sf == "hh" && ap) {          //Hour with leading 0 01-12
+    result.regexp += "(0|[1-9]|[1][012])";
+  } else if (sf == "H" || (sf == "h" && !ap)) { //Hour without leading 0 0-23
+    result.regexp += "(0|[1-9]|[1][012])";
+  } else if (sf == "h" && ap) {                  //Hour without leading 0 0-12
+    result.regexp += "([1-9]|1[012])";
   }
-  
+
   return result;
 }
 
-
-WTime::RegExpInfo WTime::formatMinuteToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+WTime::RegExpInfo WTime::formatMinuteToRegExp(WTime::RegExpInfo& result,
+					      const std::string& format,
+					      unsigned& i)
 {
   char next = -1;
   std::string sf;
-  if(i < format.size() - 1) next = format[i + 1];
+  if (i < format.size() - 1) next = format[i + 1];
   
-  if( next == 'm'){
-    sf == "mm";
+  if (next == 'm') {
+    sf = "mm";
     i++;
   } else {
-    sf="m";
+    sf = "m";
     next = -1;
   }
   
-  if( sf == "m") /* Minutes without leading 0 */
-    result.regexp+="(0|[1-5]?[0-9])";
-  else  /* Minutes with leading 0 */
-    result.regexp+="([0-5]?[0-9])";
+  if (sf == "m") /* Minutes without leading 0 */
+    result.regexp += "(0|[1-5]?[0-9])";
+  else /* Minutes with leading 0 */
+    result.regexp += "([0-5]?[0-9])";
+
   return result;
 }
 
-WTime::RegExpInfo WTime::formatSecondToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+WTime::RegExpInfo WTime::formatSecondToRegExp(WTime::RegExpInfo& result,
+					      const std::string& format,
+					      unsigned& i)
 {
   char next = -1;
   std::string sf;
-  if(i < format.size() - 1) next = format[i + 1];
+
+  if (i < format.size() - 1) next = format[i + 1];
   
-  if( next == 's'){
-    sf == "ss";
+  if (next == 's') {
+    sf = "ss";
     i++;
   } else {
-    sf="s";
+    sf = "s";
     next = -1;
   }
   
-  if( sf == "s") /* Seconds without leading 0 */
-    result.regexp+="(0|[1-5]?[0-9])";
-  else  /* Seconds with leading 0 */
-    result.regexp+="([0-5]?[0-9])";
+  if (sf == "s") /* Seconds without leading 0 */
+    result.regexp += "(0|[1-5]?[0-9])";
+  else /* Seconds with leading 0 */
+    result.regexp += "([0-5]?[0-9])";
+
   return result;
 }
 
-WTime::RegExpInfo WTime::formatMSecondToRegExp(WTime::RegExpInfo& result, const std::string& format, unsigned& i)
+WTime::RegExpInfo WTime::formatMSecondToRegExp(WTime::RegExpInfo& result,
+					       const std::string& format,
+					       unsigned& i)
 {
   char next = -1;
   std::string sf;
-  sf+=format[i];
-  for(int k = 0; k < 2; ++k) {
-    if(i < format.size() - 1) next = format[i + 1];
+  sf += format[i];
 
-    if( next == 'z'){
-      sf+="z";
+  for (int k = 0; k < 2; ++k) {
+    if (i < format.size() - 1) next = format[i + 1];
+
+    if (next == 'z'){
+      sf += "z";
       next = -1;
       i++;
     } else {
-        next = -1;
-        break;
-      }
+      next = -1;
+      break;
+    }
   }
 
-  if( sf == "z") /* The Ms without trailing 0 */
-    result.regexp+="([0-9]{3})";
-  else if( sf == "zzz") 
-    result.regexp+="([1-9][0-9]{2}";
+  if (sf == "z") /* The Ms without trailing 0 */
+    result.regexp += "([0-9]{3})";
+  else if (sf == "zzz") 
+    result.regexp += "([1-9][0-9]{2}";
 
   return result;
 }
@@ -586,22 +601,21 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
   std::string f = format.toUTF8();
 
   result.regexp = "^";
-  int d= 0;
+  int d = 0;
   bool inQuote = false;
 
-  for(unsigned i = 0; i < f.size(); ++i)
-  { 
-    if(inQuote && f[i] != '\'') {
+  for (unsigned i = 0; i < f.size(); ++i) { 
+    if (inQuote && f[i] != '\'') {
       result.regexp+=f[i];
       continue;
     }
 
-    switch(f[i]) {
+    switch (f[i]) {
     case '\'':
-      if(i < f.size() - 2 && f[i+1] == f[i+2] && f[i+1] == '\'')
-        result.regexp+=f[i];
+      if (i < f.size() - 2 && f[i+1] == f[i+2] && f[i+1] == '\'')
+        result.regexp += f[i];
       else 
-        inQuote=!inQuote;
+        inQuote = !inQuote;
     case 'h':
     case 'H':
       formatHourToRegExp(result, f, i);
@@ -623,21 +637,21 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
     case 'a':
     case 'p':
     case '+':
-      if(i < f.size() - 1 && f[i+1] == 'h' || f[i+1] == 'H')
-        result.regexp+="\\+";
+      if (i < f.size() - 1 && (f[i+1] == 'h' || f[i+1] == 'H'))
+        result.regexp += "\\+";
       break;
     default:
-      result.regexp+=f[i];
+      result.regexp += f[i];
     }
 
   }
 
-  if(f.find("AP") != std::string::npos )
-    result.regexp+="([AP]M)";
-  else if(f.find("ap") != std::string::npos) //AM-PM
-    result.regexp+="([ap]m)";
+  if (f.find("AP") != std::string::npos )
+    result.regexp += "([AP]M)";
+  else if (f.find("ap") != std::string::npos) //AM-PM
+    result.regexp += "([ap]m)";
 
-  result.regexp+="$";
+  result.regexp += "$";
 
   return result;
 }

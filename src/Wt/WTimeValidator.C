@@ -15,7 +15,11 @@ LOGGER("WTimeValidator");
 WTimeValidator::WTimeValidator(WObject *parent)
   : WRegExpValidator(parent)
 {
+#ifndef WT_TARGET_JAVA
   setFormat(WLocale::currentLocale().timeFormat());
+#else
+  setFormat(WTime::defaultFormat());
+#endif
 }
 
 WTimeValidator::WTimeValidator(const WT_USTRING& format, WObject *parent)
