@@ -151,6 +151,8 @@ public:
   }
 
   /*! \brief %Signal emitted when the value was changed.
+   *
+   * For a keyboard input, the signal is only emitted when the focus is lost
    */
   EventSignal<>& changed();
 

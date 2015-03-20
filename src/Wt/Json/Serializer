@@ -11,6 +11,7 @@
 #include <string>
 
 namespace Wt {
+class EscapeOStream;
   namespace Json {
 
 class Object;
@@ -28,6 +29,7 @@ class Array;
  * \ingroup json
  */
 std::string WT_API serialize(const Object& obj, int indentation = 1);
+void serialize(const Object& obj, int indentation, EscapeOStream& result);
 
 /*! \brief Serialization function for an Array.
  *
@@ -41,6 +43,7 @@ std::string WT_API serialize(const Object& obj, int indentation = 1);
  * \ingroup json
  */
 std::string WT_API serialize(const Array& arr, int indentation = 1);
+void serialize(const Array& arr, int indentation, EscapeOStream& result);
 
   }
 }

@@ -296,6 +296,7 @@ private:
   static RegExpInfo formatSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
   static RegExpInfo formatMSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
   static RegExpInfo formatAPToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
+  static RegExpInfo processChar(RegExpInfo &result, const std::string& format, unsigned& i);
 
   friend class WDateTime;
 };

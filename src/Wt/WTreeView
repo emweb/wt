@@ -165,6 +165,10 @@ public:
   /*! \brief Collapses a node.
    *
    * \sa setExpanded(), expand()
+   *
+   * \note until 3.3.4, selection was removed from within nodes that
+   *       were collapsed. This (inconsistent) behavior has been
+   *       removed in 3.3.4.
    */
   void collapse(const WModelIndex& index);
 

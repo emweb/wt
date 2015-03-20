@@ -49,10 +49,24 @@ WT_DECLARE_WT_MEMBER
      if (wxy.x > 0 && wxy.x < wsize.x && wxy.y > 0 && wxy.y < wsize.y) {
        centerX = centerY = false;
 
-       el.style.left = (WT.px(el, 'left') + nowxy.x - dsx) + 'px';
-       el.style.top = (WT.px(el, 'top') + nowxy.y - dsy) + 'px';
-       el.style.right = '';
-       el.style.bottom = '';
+       if (el.style.right === 'auto' || el.style.right === '') {
+         el.style.left = (WT.px(el, 'left') + nowxy.x - dsx) + 'px';
+         el.style.right = '';
+       }
+       else {
+         el.style.right = (WT.px(el, 'right') + dsx - nowxy.x) + 'px';
+         el.style.left = 'auto';
+       }
+
+       if (el.style.bottom === 'auto' || el.style.bottom === '') {
+         el.style.top = (WT.px(el, 'top') + nowxy.y - dsy) + 'px';
+         el.style.bottom = '';
+       }
+       else {
+         el.style.bottom = (WT.px(el, 'bottom') + dsy - nowxy.y) + 'px';
+         el.style.top = 'auto';
+       }
+
        dsx = nowxy.x;
        dsy = nowxy.y;
      }
@@ -125,9 +139,13 @@ WT_DECLARE_WT_MEMBER
 
    function wtResize(ignored, w, h) {
      if (w > 0)
-       layoutContainer.style.width = w + 'px';
+       layoutContainer.style.width = w +
+           WT.parsePx($(layoutContainer).css('borderLeftWidth')) +
+           WT.parsePx($(layoutContainer).css('borderRightWidth')) + 'px';
      if (h > 0)
-       layoutContainer.style.height = h + 'px';
+       layoutContainer.style.height = h +
+           WT.parsePx($(layoutContainer).css('borderTopWidth')) +
+           WT.parsePx($(layoutContainer).css('borderBottomWidth')) + 'px';
 
      self.centerDialog();
 

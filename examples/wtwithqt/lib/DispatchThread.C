@@ -125,16 +125,22 @@ void DispatchThread::waitDone()
 
 void DispatchThread::notify(const WEvent& event)
 {
-  event_ = &event;
+  if (event_) {
+    app_->realNotify(event);
+  } else {
+    event_ = &event;
 
-  done_ = false;
+    done_ = false;
 
-  if (dispatchObject_)
-    dispatchObject_->propagateEvent();
-  else
-    myPropagateEvent();
+    if (dispatchObject_)
+      dispatchObject_->propagateEvent();
+    else
+      myPropagateEvent();
 
-  waitDone();
+    waitDone();
+
+    event_ = 0;
+  }
 }
 
 void DispatchThread::destroy()
@@ -163,6 +169,7 @@ void DispatchThread::doEvent()
     exception_ = true;
   }
   app_->attachThread(false);
+  log("debug") << "WQApplication: [thread] done handling event";
 
   signalDone();
 }

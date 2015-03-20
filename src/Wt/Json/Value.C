@@ -221,7 +221,7 @@ Value::operator long long() const
   else if (t == typeid(long long))
     return boost::any_cast<long long>(v_);
   else if (t == typeid(int))
-    return boost::any_cast<long long>(boost::any_cast<int>(v_));
+    return static_cast<long long>(boost::any_cast<int>(v_));
   else
     throw TypeException(type(), NumberType);
 }
@@ -235,7 +235,7 @@ Value::operator double() const
   else if (t == typeid(long long))
     return static_cast<double>(boost::any_cast<long long>(v_));
   else if (t == typeid(int))
-    return boost::any_cast<double>(boost::any_cast<int>(v_));
+    return static_cast<double>(boost::any_cast<int>(v_));
   else
     throw TypeException(type(), NumberType);
 }
@@ -339,7 +339,7 @@ Value Value::toString() const
     return *this;
   else if(type() == NumberType) {
 	WString str = asString(v_);
-	std::string sstr = str.narrow();
+	std::string sstr = str.toUTF8();
 	if(sstr.find("nan") != std::string::npos || sstr.find("inf") != std::string::npos)
 	  throw WException(std::string("Value::toString(): Not a Number"));
 	return Value(str);

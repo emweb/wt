@@ -614,19 +614,41 @@ WTime::RegExpInfo WTime::formatAPToRegExp(WTime::RegExpInfo& result,
   return result;
 }
 
+WTime::RegExpInfo WTime::processChar(WTime::RegExpInfo &result, const std::string& format, unsigned& i)
+{
+  switch(format[i])
+  {
+	case '.':
+	case '+':
+	case '$':
+	case '^':
+	case '*':
+	case '[':
+	case ']':
+	case '{':
+	case '}':
+	case '(':
+	case ')':
+	case '?':
+	case '!':
+	  result.regexp += "\\";
+	  break;
+  }
+  result.regexp += format[i];
+  return result;
+}
+
 WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
 {
   RegExpInfo result;
   std::string f = format.toUTF8();
 
   result.regexp = "^";
-  int d = 0;
   bool inQuote = false;
 
   for (unsigned i = 0; i < f.size(); ++i) { 
     if (inQuote && f[i] != '\'') {
-      result.regexp += "\\";
-      result.regexp+=f[i];
+	  processChar(result, f, i);
       continue;
     }
 
@@ -661,13 +683,11 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
         result.regexp += "\\+";
       break;
     default:
-      result.regexp += "\\";
-	  result.regexp += f[i];
+	  processChar(result, f, i);
 	  break;
     }
 
   }
-
 
   result.regexp += "$";
 

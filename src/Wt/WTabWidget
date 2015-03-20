@@ -8,6 +8,7 @@
 #define WTABWIDGET_H_
 
 #include <Wt/WCompositeWidget>
+#include <Wt/WContainerWidget>
 
 namespace Wt {
 

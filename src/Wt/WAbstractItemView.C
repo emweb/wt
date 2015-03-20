@@ -247,7 +247,6 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     editOptions_(SingleEditor)
 {
   setImplementation(impl_);
-  impl_->setCanReceiveFocus(true);
 
   setItemDelegate(new WItemDelegate(this));
   setHeaderItemDelegate(new WItemDelegate(this));
@@ -1654,16 +1653,19 @@ boost::any WAbstractItemView::editState(const WModelIndex& index) const
 
 EventSignal<WKeyEvent>& WAbstractItemView::keyWentDown()
 {
+  impl_->setCanReceiveFocus(true);
   return impl_->keyWentDown();
 }
 
 EventSignal<WKeyEvent>& WAbstractItemView::keyPressed()
 {
+  impl_->setCanReceiveFocus(true);
   return impl_->keyPressed();
 }
 
 EventSignal<WKeyEvent>& WAbstractItemView::keyWentUp()
 {
+  impl_->setCanReceiveFocus(true);
   return impl_->keyWentUp();
 }
 

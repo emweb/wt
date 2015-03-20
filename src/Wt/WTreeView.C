@@ -1680,6 +1680,12 @@ void WTreeView::setCollapsed(const WModelIndex& index)
 {
   expandedSet_.erase(index);
 
+  /*
+   * Deselecting everything that is collapsed is not consistent with
+   * the allowed initial state. If the user wants this, he can implement
+   * this himself.
+   */
+#if 0
   bool selectionHasChanged = false;
   WModelIndexSet& selection = selectionModel()->selection_;
 
@@ -1701,6 +1707,7 @@ void WTreeView::setCollapsed(const WModelIndex& index)
 
   if (selectionHasChanged)
     selectionChanged().emit();
+#endif
 }
 
 void WTreeView::setExpanded(const WModelIndex& index, bool expanded)
