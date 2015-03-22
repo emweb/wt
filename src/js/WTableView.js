@@ -60,9 +60,11 @@ WT_DECLARE_WT_MEMBER
 	 || contentsContainer.scrollTop > scrollY2
 	 || contentsContainer.scrollLeft < scrollX1
 	 || contentsContainer.scrollLeft > scrollX2)) {
-       APP.emit(el, 'scrolled', rtlScrollLeft(contentsContainer),
-	        contentsContainer.scrollTop, contentsContainer.clientWidth,
-	        contentsContainer.clientHeight);       
+       APP.emit(el, 'scrolled',
+		Math.round(rtlScrollLeft(contentsContainer)),
+	        Math.round(contentsContainer.scrollTop),
+		Math.round(contentsContainer.clientWidth),
+	        Math.round(contentsContainer.clientHeight));
      }
    };
 
@@ -73,8 +75,11 @@ WT_DECLARE_WT_MEMBER
        var height = o.clientHeight == o.firstChild.clientHeight
          ? -1
          : o.clientHeight;
-       APP.emit(el, 'scrolled', rtlScrollLeft(o), o.scrollTop,
-		o.clientWidth, height);
+       APP.emit(el, 'scrolled',
+		Math.round(rtlScrollLeft(o)),
+		Math.round(o.scrollTop),
+		Math.round(o.clientWidth),
+		Math.round(height));
      }
    };
 
