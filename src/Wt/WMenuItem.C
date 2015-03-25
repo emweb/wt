@@ -82,7 +82,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
       cw->removeWidget(contents);
   }
 
-  setContents(contents);
+  setContents(contents, policy);
 
   if (!separator_) {
     new WAnchor(this);

@@ -269,6 +269,8 @@
 }
 .Wt-cal .days td .Wt-cal-sel:hover,
 .Wt-cal .days td .Wt-cal-sel:hover:hover,
+.Wt-cal .days td .Wt-cal-sel:focus,
+.Wt-cal .days td .Wt-cal-sel:hover:focus,
 .Wt-cal .days td .Wt-cal-sel:active,
 .Wt-cal .days td .Wt-cal-sel:hover:active,
 .Wt-cal .days td .Wt-cal-sel.active,
@@ -437,6 +439,7 @@
   border-radius: 4px;
 }
 .Wt-slider-h .handle:hover,
+.Wt-slider-h .handle:focus,
 .Wt-slider-h .handle:active,
 .Wt-slider-h .handle.active,
 .Wt-slider-h .handle.disabled,
@@ -511,6 +514,7 @@
   border-radius: 4px;
 }
 .Wt-slider-v .handle:hover,
+.Wt-slider-v .handle:focus,
 .Wt-slider-v .handle:active,
 .Wt-slider-v .handle.active,
 .Wt-slider-v .handle.disabled,

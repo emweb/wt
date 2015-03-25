@@ -624,6 +624,15 @@ void WDialog::positionAt(const WWidget *widget, Orientation orientation)
   WPopupWidget::positionAt(widget, orientation);
 }
 
+void WDialog::positionAt(const Wt::WMouseEvent& ev)
+{
+  setPositionScheme(Fixed);
+  if (wApp->environment().javaScript()) {
+	setOffsets(ev.window().x, Left);
+	setOffsets(ev.window().y, Top);
+  }
+}
+
 DialogCover *WDialog::cover() 
 {
   WApplication *app = WApplication::instance();

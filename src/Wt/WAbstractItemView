@@ -402,6 +402,12 @@ public:
    */
   void setSelectedIndexes(const WModelIndexSet& indexes);
 
+  /*! \brief Clears the selection.
+   *
+   * \sa setSelectedIndexes()
+   */
+  void clearSelection();
+
   /*! \brief Selects a single item.
    *
    * \sa setSelectedIndexes(), selectionModel()
@@ -1116,7 +1122,6 @@ private:
 
   void selectionHandleClick(const WModelIndex& index,
 			    WFlags<KeyboardModifier> modifiers);
-  void clearSelection();
   void extendSelection(const WModelIndex& index);
   virtual void selectRange(const WModelIndex& first, const WModelIndex& last)
     = 0;

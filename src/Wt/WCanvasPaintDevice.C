@@ -113,6 +113,11 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
   }
 }
 
+WCanvasPaintDevice::~WCanvasPaintDevice()
+{
+  delete fontMetrics_;
+}
+
 WFlags<WPaintDevice::FeatureFlag> WCanvasPaintDevice::features() const
 {
   if (ServerSideFontMetrics::available())

@@ -536,10 +536,9 @@ void WTreeViewNode::setCellWidget(int column, WWidget *newW)
     if (view_->rowHeaderCount())
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
-    if (current)
-      row->removeWidget(current);
-
-    row->insertWidget(column - 1, newW);
+	delete current;
+    
+	row->insertWidget(column - 1, newW);
   }
 
   if (!WApplication::instance()->environment().ajax()) {

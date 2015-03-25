@@ -151,6 +151,8 @@ WFontMetrics WMeasurePaintDevice::fontMetrics()
 
 void WMeasurePaintDevice::setChanged(WFlags<ChangeFlag> flags)
 {
+  if (device_->painter() != painter_ && (flags & Font))
+	  device_->painter()->setFont(painter_->font());
   device_->setChanged(flags);
 }
 

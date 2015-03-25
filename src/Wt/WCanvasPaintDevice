@@ -49,6 +49,7 @@ public:
   WCanvasPaintDevice(const WLength& width, const WLength& height,
 		     WObject *parent = 0,
 		     bool paintUpdate = false);
+  virtual ~WCanvasPaintDevice();
 
   virtual WFlags<FeatureFlag> features() const;
   virtual void setChanged(WFlags<ChangeFlag> flags);
