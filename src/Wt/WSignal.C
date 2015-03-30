@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/boost-xtime.hpp"
 #include <boost/pool/pool.hpp>
 
 #include "Wt/WSignal"

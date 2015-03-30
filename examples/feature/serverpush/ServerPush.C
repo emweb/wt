@@ -9,6 +9,7 @@
 #include <Wt/WProgressBar>
 
 #include <iostream>
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 
 /*

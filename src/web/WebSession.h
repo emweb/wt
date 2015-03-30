@@ -16,6 +16,7 @@
 #endif
 
 #ifdef WT_BOOST_THREADS
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 #endif

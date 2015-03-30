@@ -21,6 +21,7 @@
 #include <boost/noncopyable.hpp>
 #include "Connection.h" // On WIN32, must be before thread stuff
 #ifdef WT_THREADED
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread/mutex.hpp>
 #endif // WT_THREADED
 

@@ -19,6 +19,7 @@
 #include "EmwebLoadingIndicator.h"
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #else
 #if WT_WIN32

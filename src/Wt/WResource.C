@@ -16,6 +16,7 @@
 #include "WebUtils.h"
 
 #ifdef WT_THREADED
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread/recursive_mutex.hpp>
 #endif // WT_THREADED
 

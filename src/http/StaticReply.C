@@ -5,6 +5,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include "Wt/boost-xtime.hpp"
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "Configuration.h"

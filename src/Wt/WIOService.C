@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 
 #ifdef WT_THREADED
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 #if !defined(WT_WIN32)
 #include <pthread.h>

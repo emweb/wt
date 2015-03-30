@@ -15,6 +15,7 @@
 #include <iostream>
 
 #ifdef WT_THREADED
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread/condition.hpp>
 
 namespace boost {

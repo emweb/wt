@@ -11,6 +11,7 @@
 #include <Wt/WSignal>
 
 #include <vector>
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 
 class CodeSession

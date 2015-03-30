@@ -10,6 +10,7 @@
 #include <Wt/WText>
 
 #include <iostream>
+#include "Wt/boost-xtime.hpp"
 #include <boost/thread.hpp>
 
 #if WT_WIN32
