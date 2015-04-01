@@ -835,6 +835,16 @@ bool WebSession::Handler::haveLock() const
 #endif
 }
 
+void WebSession::Handler::unlock()
+{
+#ifndef WT_TARGET_JAVA
+  if (haveLock()) {
+    Utils::erase(session_->handlers_, this);
+    lock_.unlock();
+  }
+#endif
+}
+
 void WebSession::Handler::init()
 {
   prevHandler_ = attachThreadToHandler(this);
@@ -1004,9 +1014,9 @@ WebSession::Handler::~Handler()
       session_->pushUpdates();
     else if (response_ && session_->state_ != Dead)
       session()->render(*this);
-  }
 
-  Utils::erase(session_->handlers_, this);
+    Utils::erase(session_->handlers_, this);
+  }
 
   if (session_->handlers_.empty())
     session_->hibernate();

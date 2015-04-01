@@ -336,7 +336,10 @@ void WPushButton::getDomChanges(std::vector<DomElement *>& result,
 
 void WPushButton::propagateRenderOk(bool deep)
 {
-  flags_.reset();
+  flags_.reset(BIT_TEXT_CHANGED);
+  flags_.reset(BIT_ICON_CHANGED);
+  flags_.reset(BIT_LINK_CHANGED);
+  flags_.reset(BIT_CHECKED_CHANGED);
 
   WFormWidget::propagateRenderOk(deep);
 }

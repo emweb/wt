@@ -202,7 +202,7 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
     if (handler->haveLock() && 
 	handler->lockOwner() == boost::this_thread::get_id()) {
-      handler->lock().unlock();
+      handler->unlock();
     }
 #endif // WT_THREADED
   }

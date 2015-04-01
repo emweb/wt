@@ -196,6 +196,7 @@ public:
     static Handler *instance();
 
     bool haveLock() const;
+    void unlock();
 
     void flushResponse();
     WebResponse *response() { return response_; }
