@@ -840,9 +840,11 @@ void WebSession::Handler::unlock()
 #ifndef WT_TARGET_JAVA
   if (haveLock()) {
     Utils::erase(session_->handlers_, this);
+#ifdef WT_THREADED
     lock_.unlock();
+#endif // WT_THREADED
   }
-#endif
+#endif // WT_TARGET_JAVA
 }
 
 void WebSession::Handler::init()
@@ -1484,6 +1486,8 @@ void WebSession::handleRequest(Handler& handler)
 	  } else if (*requestE == "style") {
 	    flushBootStyleResponse();
 
+	    const std::string *page = request.getParameter("page");
+
 	    // See:
 	    // http://www.blaze.io/mobile/ios5-top10-performance-changes/
 	    // Mozilla/5.0 (iPad; CPU OS 5_1_1 like Mac OS X) 
@@ -1499,7 +1503,10 @@ void WebSession::handleRequest(Handler& handler)
 	    const std::string *jsE = request.getParameter("js");
 	    bool nojs = jsE && *jsE == "no";
 
-	    bootStyle_ = bootStyle_ && (app_ || (!ios5 && !nojs));
+	    bootStyle_ = bootStyle_ &&
+	      (app_ || (!ios5 && !nojs)) /* &&
+	      page && 
+	      *page == boost::lexical_cast<std::string>(renderer_.pageId()) */;
 
 	    if (!bootStyle_) {
 	      handler.response()->setContentType("text/css");

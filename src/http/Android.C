@@ -60,14 +60,14 @@ void preventRemoveOfSymbolsDuringLinking() {
       }
 
       try {
-	if (http::server::Server::instance()) 
-	  return http::server::Server::instance()->httpPort();
+	if (Wt::WServer::instance())
+	  return Wt::WServer::instance()->httpPort();
 	boost::thread mainThread(&main, argc, argv);
 	while (true) {
-	  if (http::server::Server::instance()) {
-	    int httpPort = http::server::Server::instance()->httpPort();
+	  if (Wt::WServer::instance()) {
+	    int httpPort = Wt::WServer::instance()->httpPort();
 	    if (httpPort != 0) {
-	      http::server::Server::instance()->controller()->configuration()
+	      Wt::WServer::instance()->controller()->configuration()
 		.setSessionTimeout(-1);
 	      return httpPort;
 	    }

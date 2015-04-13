@@ -265,6 +265,7 @@ void WebRenderer::serveResponse(WebResponse& response)
     break;
   case WebResponse::Page:
     initialStyleRendered_ = false;
+    ++pageId_;
     if (session_.app())
       serveMainpage(response);
     else
@@ -412,7 +413,8 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   DomElement::htmlAttributeValue
     (bootStyleUrl,
      session_.bootstrapUrl(response, WebSession::ClearInternalPath)
-     + "&request=style");
+     + "&request=style&page="
+     + boost::lexical_cast<std::string>(pageId_));
 
   boot.setVar("BOOT_STYLE_URL", bootStyleUrl.str());
 
@@ -1256,8 +1258,6 @@ void WebRenderer::renderStyleSheet(WStringStream& out,
 void WebRenderer::serveMainpage(WebResponse& response)
 {
   ++expectedAckId_;
-  ++pageId_;
-
   session_.sessionIdChanged_ = false;
 
   Configuration& conf = session_.controller()->configuration();
