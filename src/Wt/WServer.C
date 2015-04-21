@@ -78,6 +78,11 @@ void WServer::setLocalizedStrings(WLocalizedStrings *stringResolver)
   localizedStrings_ = stringResolver;
 }
 
+WLocalizedStrings *WServer::localizedStrings()
+{
+  return localizedStrings_;
+}
+
 void WServer::setIOService(WIOService& ioService)
 {
   if (ioService_) {
@@ -128,6 +133,11 @@ void WServer::setConfiguration(const std::string& file,
   application_ = application;
 }
 
+WLogger& WServer::logger()
+{
+  return logger_;
+}
+
 WLogEntry WServer::log(const std::string& type) const
 {
   WLogEntry e = logger_.entry(type);
@@ -166,6 +176,11 @@ Configuration& WServer::configuration()
   }
 
   return *configuration_;
+}
+
+WebController *WServer::controller()
+{
+  return webController_;
 }
 
 bool WServer::readConfigurationProperty(const std::string& name,

@@ -51,6 +51,8 @@ private:
   void handleHeadersRead(const boost::system::error_code& ec);
   void handleResponseRead(const boost::system::error_code& ec);
 
+  bool sendReload();
+
   SessionProcessManager &sessionManager_;
   boost::shared_ptr<SessionProcess> sessionProcess_;
   boost::shared_ptr<asio::ip::tcp::socket> socket_;

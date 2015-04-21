@@ -38,7 +38,7 @@ class WTemplate;
  * %WSuggestionPopup is an MVC view class, using a simple
  * WStringListModel by default. You can set a custom model using
  * setModel(). The model can provide different text for the suggestion
- * text (Wt::DisplayRole) and value (Wt::UserRole). The member methods
+ * text (Wt::DisplayRole) and value (editRole()). The member methods
  * clearSuggestions() and addSuggestion() manipulate this model.
  *
  * By default, the popup implements all filtering client-side. To
@@ -313,8 +313,7 @@ public:
    *
    * This adds an entry to the underlying model. The \p suggestionText
    * is set as Wt::DisplayRole and the \p suggestionValue (which is
-   * inserted into the edit field on selection) is set as
-   * Wt::UserRole.
+   * inserted into the edit field on selection) is set as editRole().
    *
    * \sa clearSuggestions(), setModel()
    */
@@ -330,13 +329,8 @@ public:
    * suggestion popup.
    *
    * The Wt::DisplayRole is used for the suggestion text. The
-   * Wt::UserRole is used for the suggestion value, unless empty, in
+   * editRole() is used for the suggestion value, unless empty, in
    * which case the suggestion text is used as value.
-   *
-   * Note that since the default %WStringListModel does not support
-   * UserRole data, you will want to change it to a more general model
-   * (e.g. WStandardItemModel) if you want suggestion values that are
-   * different from display values.
    *
    * \sa setModelColumn(int)
    */
@@ -462,12 +456,25 @@ public:
    */
   void setDropDownIconUnfiltered(bool isUnfiltered);
 
-  /*!
-   * \brief return the last activated index
-   * \return -1 if never activated
+  /*! \brief Returns the last activated index
+   * 
+   * Returns -1 if the popup hasn't been activated yet.
+   *
    * \sa activated()
    */
   int currentItem() const { return currentItem_; }
+
+  /*! \brief Sets the role used for editing the line edit with a chosen item.
+   *
+   * The default value is UserRole.
+   */
+  void setEditRole(int role) { editRole_ = role; }
+
+  /*! Returns the role used for editing the line edit.
+   *
+   * \a setEditRole()
+   */
+  int editRole() const { return editRole_; }
 
 private:
   WContainerWidget   *impl_;
@@ -478,6 +485,7 @@ private:
   int defaultValue_;
   bool isDropDownIconUnfiltered_;
   int currentItem_;
+  int editRole_;
 
   std::string       matcherJS_;
   std::string       replacerJS_;

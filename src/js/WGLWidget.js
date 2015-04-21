@@ -275,12 +275,12 @@ WT_DECLARE_WT_MEMBER
        mouseHandler.touchStart(o, event);
    };
    this.touchEnd = function(o, event) {
-     if ((this.initialized || !this.ctx) && mouseHandler && mouseWheel.touchEnd)
-       mouseWheel.touchEnd(o, event);
+     if ((this.initialized || !this.ctx) && mouseHandler && mouseHandler.touchEnd)
+       mouseHandler.touchEnd(o, event);
    };
    this.touchMoved = function(o, event) {
-     if ((this.initialized || !this.ctx) && mouseHandler && mouseWheel.touchMoved)
-       mouseWheel.touchMoved(o, event);
+     if ((this.initialized || !this.ctx) && mouseHandler && mouseHandler.touchMoved)
+       mouseHandler.touchMoved(o, event);
    };
 
    // To be called after a load of buffer/texture completes; will

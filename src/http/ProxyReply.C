@@ -216,7 +216,8 @@ void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
     }
   } else {
     LOG_ERROR("error sending data to child: " << ec.message());
-    error(service_unavailable);
+    if (!sendReload())
+      error(service_unavailable);
   }
 }
 
@@ -233,7 +234,8 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
     std::getline(response_stream, status_message);
     if (!response_stream || http_version.substr(0, 5) != "HTTP/") {
       LOG_ERROR("got malformed response!");
-      error(internal_server_error);
+      if (!sendReload())
+	error(internal_server_error);
       return;
     }
 
@@ -243,7 +245,8 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
 	  asio::placeholders::error));
   } else {
     LOG_ERROR("error reading status line: " << ec.message());
-    error(service_unavailable);
+    if (!sendReload())
+      error(service_unavailable);
   }
 }
 
@@ -251,7 +254,8 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
 {
   if (ec) {
     LOG_ERROR("error reading headers: " << ec.message());
-    error(service_unavailable);
+    if (!sendReload())
+      error(service_unavailable);
     return;
   }
 
@@ -296,7 +300,8 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
 	//	 we sent Connection: close.
 	// If decoding is needed, look in Wt::Http::Client
 	LOG_ERROR("unexpected chunked encoding!");
-	error(internal_server_error);
+	if (!sendReload())
+	  error(internal_server_error);
 	return;
       }
     }
@@ -335,7 +340,8 @@ void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
     }
   } else {
     LOG_ERROR("error reading response: " << ec.message());
-    error(service_unavailable);
+    if (!sendReload()) 
+      error(service_unavailable);
   }
 }
 
@@ -397,5 +403,25 @@ void ProxyReply::error(status_type status)
   }
 }
 
-} // namespace server
+bool ProxyReply::sendReload()
+{
+  // If the method is POST and the request contains
+  // only the wtd then we are almost sure that it's a jsupdate
+
+  if ((request_.method.icontains("POST") &&
+       request_.request_query.find("&") == std::string::npos) ||
+      request_.request_query.find("request=script") != std::string::npos) {
+    LOG_INFO("signal from dead session, sending reload.");
+    addHeader("Content-Type", "text/javascript; charset=UTF-8");
+    out_ <<
+      "if (window.Wt) window.Wt._p_.quit(null); window.location.reload(true);";
+    send();
+
+    return true;
+  }
+
+  return false;
+}
+
+  } // namespace server
 } // namespace http

@@ -876,13 +876,28 @@ WT_DECLARE_WT_MEMBER
    }
 
    // does this column/row have an adjacent handle?
-   function hasResizeHandle(config, di) {
-     if (di == 0) {
-       return (config[di][RESIZABLE] !== 0);
-     } else {
-       return (config[di-1][RESIZABLE] !== 0 ||
-	       config[di][RESIZABLE] !== 0);
+   function hasResizeHandle(DC, di) {
+     var dirCount = DC.config.length;
+
+     var isResizable = DC.config[di][RESIZABLE] !== 0;
+     var i;
+
+     if (isResizable) {
+       /* Check that we are not the last column/row */
+       for (i = di + 1; i < dirCount; ++i) {
+	 if (DC.measures[MINIMUM_SIZE][i] > -1)
+	   return true;
+       }
      }
+
+     /* See if preceding column/row has a resize handle */
+     for (i = di - 1; i >= 0; --i) {
+       if (DC.measures[MINIMUM_SIZE][i] > -1) {
+	 return DC.config[i][RESIZABLE] !== 0;
+       }
+     }
+
+     return false;
    }
 
    function apply(dir, widget) {
@@ -1080,25 +1095,23 @@ WT_DECLARE_WT_MEMBER
 
 	   var fs = -1;
 
-	   /* if resizable was disabled, remove fixedSize and go back to 
+	   /*
+	    * if resizable was disabled, remove fixedSize and go back to 
 	    * using the preferred size
 	    */
-	   if (typeof DC.fixedSize[di] !== "undefined"
-	       && ! hasResizeHandle(DC.config, di) ) {
+	   if (!hasResizeHandle(DC, di))
 	     DC.fixedSize[di] = undefined;
-	   }
+
 	   /*
 	    * If we have a fixedSize (set by resizing) then we should
 	    * take it into account only if the resizer is still visible.
-	    *
-	    * This probably isn't entirely accurate, but neither is resizers
-	    * when hiding/showing widgets ?
 	    */
 	   if (typeof DC.fixedSize[di] !== "undefined"
 	       && (di + 1 == dirCount || measures[MINIMUM_SIZE][di + 1] > -1))
 	     fs = DC.fixedSize[di];
-	   else if ((DC.config[di][RESIZABLE] !== 0)
-		    && (DC.config[di][RESIZABLE][RS_INITIAL_SIZE] >= 0)) {
+	   else if (hasResizeHandle(DC, di) &&
+		    DC.config[di][RESIZABLE] !== 0 &&
+		    (DC.config[di][RESIZABLE][RS_INITIAL_SIZE] >= 0)) {
 	     fs = DC.config[di][RESIZABLE][RS_INITIAL_SIZE];
 	     if (DC.config[di][RESIZABLE][RS_PCT])
 	       fs = (cSize - measures[TOTAL_MARGIN]) * fs / 100;
@@ -1274,6 +1287,12 @@ WT_DECLARE_WT_MEMBER
 	   first = false;
 	 else
 	   left += DC.margins[SPACING];
+       } else {
+	 if (DC.resizeHandles[di]) {
+	   var handle = WT.getElement(DC.resizeHandles[di]);
+	   handle.parentNode.removeChild(handle);
+	   DC.resizeHandles[di] = undefined;
+	 }
        }
 
        for (oi = 0; oi < otherCount; ++oi) {

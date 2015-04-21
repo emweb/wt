@@ -441,7 +441,7 @@ public:
    *
    * \sa setLocalizedStrings()
    */
-  WT_API WLocalizedStrings *localizedStrings() { return localizedStrings_; }
+  WT_API WLocalizedStrings *localizedStrings();
 
 #ifndef WT_TARGET_JAVA
 
@@ -461,7 +461,7 @@ public:
    * This is the logger class used in WApplication::log() and
    * Wt::log() functions.
    */
-  WT_API WLogger& logger() { return logger_; }
+  WT_API WLogger& logger();
 
   /*! \brief Adds an entry to the log.
    *
@@ -477,7 +477,7 @@ public:
 
   WT_API Configuration& configuration();
 
-  WT_API WebController *controller() { return webController_; }
+  WT_API WebController *controller();
 
 #ifndef WT_TARGET_JAVA
   WT_API void scheduleStop();
