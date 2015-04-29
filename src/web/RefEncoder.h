@@ -20,7 +20,8 @@ enum RefEncoderOption {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RefEncoderOption)
 
-extern void EncodeRefs(WString& text, WFlags<RefEncoderOption> options);
+extern WString EncodeRefs(const WString& text,
+			  WFlags<RefEncoderOption> options);
 
 }
 

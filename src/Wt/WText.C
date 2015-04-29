@@ -277,9 +277,7 @@ std::string WText::formattedText() const
 	options |= EncodeInternalPaths;
       if (app->session()->hasSessionIdInUrl())
 	options |= EncodeRedirectTrampoline;
-      WString result = text_.text;
-      EncodeRefs(result, options);
-      return result.toUTF8();
+      return EncodeRefs(text_.text, options).toUTF8();
     } else
       return text_.text.toUTF8();
   }

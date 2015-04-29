@@ -428,6 +428,13 @@ void WTable::moveRow(int from, int to)
     rowAt(to);
   rows_.insert(rows_.begin() + to, from_tr);
 
+  // make sure spans don't cause segmentation faults during rendering
+  std::vector<WTableRow::TableData>& cells = rows_[to]->cells_;
+  for (unsigned i = 0; i < cells.size(); ++i) {
+    if (cells[i].cell->rowSpan() > 1)
+      rowAt(to + cells[i].cell->rowSpan() - 1);
+  }
+
   flags_.set(BIT_GRID_CHANGED);
   repaint(RepaintSizeAffected);
 }
@@ -451,6 +458,9 @@ void WTable::moveColumn(int from, int to)
     WTableRow::TableData cell = cells[from];
     cells.erase(cells.begin() + from);
     cells.insert(cells.begin() + to, cell);
+    // make sure spans don't cause segmentation faults during rendering
+    if (cell.cell->columnSpan() - 1)
+      columnAt(to + cell.cell->columnSpan() - 1);
 
     for (unsigned j = std::min(from, to); j < cells.size(); ++j)
       cells[j].cell->column_ = j;

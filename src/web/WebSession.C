@@ -1504,9 +1504,9 @@ void WebSession::handleRequest(Handler& handler)
 	    bool nojs = jsE && *jsE == "no";
 
 	    bootStyle_ = bootStyle_ &&
-	      (app_ || (!ios5 && !nojs)) /* &&
+	      (app_ || (!ios5 && !nojs)) &&
 	      page && 
-	      *page == boost::lexical_cast<std::string>(renderer_.pageId()) */;
+	      *page == boost::lexical_cast<std::string>(renderer_.pageId());
 
 	    if (!bootStyle_) {
 	      handler.response()->setContentType("text/css");

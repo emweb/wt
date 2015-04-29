@@ -32,7 +32,7 @@ private:
   Wt::Signal<char>                letterPushed_;
 
   void processButton(Wt::WPushButton *b);
-  void processButtonPushed(Wt::WKeyEvent &e, Wt::WPushButton *b);
+  void processButtonPushed(const Wt::WKeyEvent &e, Wt::WPushButton *b);
 };
 
 #endif //LETTERS_WIDGET_H_

@@ -185,6 +185,8 @@ guessImageMimeTypeData(const std::vector<unsigned char>& header);
  */
 WT_API extern std::string guessImageMimeType(const std::string& file);
 
+WT_API extern std::string createDataUrl(std::vector<unsigned char>& data, std::string mimeType);
+
 }
 
 }

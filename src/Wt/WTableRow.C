@@ -61,7 +61,7 @@ void WTableRow::insertColumn(int column)
   cell->row_ = this;
   cell->column_ = column;
   cell->setParentWidget(table_);
-  cells_.back().cell = cell;
+  cells_[column].cell = cell;
 
   for (unsigned i = column; i < cells_.size(); ++i)
     cells_[i].cell->column_ = i;

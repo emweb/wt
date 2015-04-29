@@ -65,14 +65,14 @@ WSuggestionPopup::WSuggestionPopup(const Options& options, WObject *parent)
     filtering_(false),
     defaultValue_(-1),
     isDropDownIconUnfiltered_(false),
+    currentItem_(-1),
+    editRole_(UserRole),
     matcherJS_(generateMatcherJS(options)),
     replacerJS_(generateReplacerJS(options)),
     filterModel_(this),
     activated_(this),
     filter_(implementation(), "filter"),
-    jactivated_(implementation(), "select"),
-    currentItem_(-1),
-    editRole_(UserRole)
+    jactivated_(implementation(), "select")
 {
   init();
 }
@@ -87,12 +87,12 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
     filtering_(false),
     defaultValue_(-1),
     isDropDownIconUnfiltered_(false),
+    currentItem_(-1),
+    editRole_(UserRole),
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
     filter_(implementation(), "filter"),
-    jactivated_(implementation(), "select"),
-    currentItem_(-1),
-    editRole_(UserRole)
+    jactivated_(implementation(), "select")
 {
   init();
 }

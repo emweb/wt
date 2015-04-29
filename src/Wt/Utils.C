@@ -205,6 +205,13 @@ std::string guessImageMimeType(const std::string& file)
   return Wt::ImageUtils::identifyMimeType(file);
 }
   
-  }
+
+std::string createDataUrl(std::vector<unsigned char>& data, std::string mimeType){
+  std::string url = "data:"+mimeType+";"+"base64,";
+  std::string datab64 = base64Encode(std::string(data.begin(), data.end()));
+  return url+datab64;
 }
 
+}
+
+}

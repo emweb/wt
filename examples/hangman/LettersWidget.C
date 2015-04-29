@@ -41,7 +41,7 @@ void LettersWidget::processButton(WPushButton *b)
   letterPushed_.emit(b->text().toUTF8()[0]);
 }
 
-void LettersWidget::processButtonPushed(WKeyEvent &e, WPushButton *b)
+void LettersWidget::processButtonPushed(const WKeyEvent &e, WPushButton *b)
 {
   if(isHidden())
 	  return;

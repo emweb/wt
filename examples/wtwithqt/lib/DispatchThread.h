@@ -27,8 +27,10 @@
 #define DISPATCH_THREAD_H_
 
 #include <QThread>
+#ifndef Q_MOC_RUN // https://bugreports.qt.io/browse/QTBUG-22829
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
+#endif
 
 namespace Wt {
 

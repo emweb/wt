@@ -155,10 +155,10 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
   }
 }
 
-void EncodeRefs(WString& text, WFlags<RefEncoderOption> options)
+WString EncodeRefs(const WString& text, WFlags<RefEncoderOption> options)
 {
   if (text.empty())
-    return;
+    return text;
 
   std::string result = "<span>" + text.toUTF8() + "</span>";
   char *ctext = const_cast<char *>(result.c_str()); // Shhht it's okay !
@@ -180,7 +180,7 @@ void EncodeRefs(WString& text, WFlags<RefEncoderOption> options)
     result = out.str();
   } catch (parse_error& e) {
     LOG_ERROR("Error reading XHTML string: " << e.what());
-    return;
+    return text;
   }
 
   if (result.length() < 13)
@@ -188,7 +188,7 @@ void EncodeRefs(WString& text, WFlags<RefEncoderOption> options)
   else
     result = result.substr(6, result.length() - 13);
 
-  text = WString::fromUTF8(result);
+  return WString::fromUTF8(result);
 }
 
 }

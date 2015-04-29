@@ -454,7 +454,21 @@ void WTemplate::updateDom(DomElement& element, bool all)
       }
     }
 
-    element.setProperty(Wt::PropertyInnerHTML, html.str());
+    std::string text;
+
+    WApplication *app = WApplication::instance();
+
+    if (app && (encodeInternalPaths_ || app->session()->hasSessionIdInUrl())) {
+      WFlags<RefEncoderOption> options;
+      if (encodeInternalPaths_)
+	options |= EncodeInternalPaths;
+      if (app->session()->hasSessionIdInUrl())
+	options |= EncodeRedirectTrampoline;
+      text = EncodeRefs(WString::fromUTF8(html.str()), options).toUTF8();
+    } else
+      text = html.str();
+
+    element.setProperty(Wt::PropertyInnerHTML, text);
     changed_ = false;
 
     for (std::set<WWidget *>::const_iterator i = previouslyRendered.begin();
@@ -487,21 +501,7 @@ void WTemplate::renderTemplate(std::ostream& result)
 bool WTemplate::renderTemplateText(std::ostream& result, const WString& templateText)
 {
   errorText_ = "";
-  std::string text;
-
-  WApplication *app = WApplication::instance();
-
-  if (app && (encodeInternalPaths_ || app->session()->hasSessionIdInUrl())) {
-    WFlags<RefEncoderOption> options;
-    if (encodeInternalPaths_)
-      options |= EncodeInternalPaths;
-    if (app->session()->hasSessionIdInUrl())
-      options |= EncodeRedirectTrampoline;
-    WString t = templateText;
-    EncodeRefs(t, options);
-    text = t.toUTF8();
-  } else
-    text = templateText.toUTF8();
+  std::string text = templateText.toUTF8();
 
   std::size_t lastPos = 0;
   std::vector<WString> args;
