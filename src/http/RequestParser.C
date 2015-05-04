@@ -115,8 +115,12 @@ RequestParser::parse(Request& req, Buffer::iterator begin,
     result = consume(req, begin++);
 
   if (boost::indeterminate(result) && currentString_) {
-    req.headers.push_back(Request::Header());
-    currentString_->next = &req.headers.back().value;
+    /*
+     * push at front since we may be relying on back() for the current
+     * name/value
+     */
+    req.headers.insert(req.headers.begin(), Request::Header());
+    currentString_->next = &req.headers.front().value;
     currentString_ = currentString_->next;
   }
 
