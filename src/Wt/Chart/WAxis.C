@@ -55,6 +55,10 @@ namespace {
     return (v / factor) * factor;
   }
 
+  int roundUp(int v, int factor) {
+    return ((v - 1) / factor + 1) * factor;
+  }
+
   Wt::WPointF interpolate(const Wt::WPointF& p1, const Wt::WPointF& p2,
 			  double u) {
     double x = p1.x();
@@ -542,11 +546,42 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 	} else if (daysInterval > 0.6) {
 	  s.dateTimeRenderUnit = Days;
 
-	  if (daysInterval < 1.3)
+	  if (daysInterval < 1.3) {
 	    interval = 1;
-	  else
+
+	    /* push min and max to midnight */
+	    if (roundLimits_ & MinimumValue)
+	      min.setTime(WTime(0, 0));
+
+	    if (roundLimits_ & MaximumValue) {
+	      if (max.time() != WTime(0, 0))
+		max = WDateTime(max.date().addDays(1));
+	    }
+	  } else {
 	    interval = 7 * std::max(1,
 				    static_cast<int>((daysInterval + 5) / 7));
+	   
+	    /* push min to midnight start of the week */
+	    if (roundLimits_ & MinimumValue) {
+	      int dw = min.date().dayOfWeek();
+	      min = WDateTime(min.date().addDays(-(dw - 1)));
+	    }
+
+	    /*
+	      push max to midgnight start of the week, at interval days
+	      from min
+	     */
+	    if (roundLimits_ & MaximumValue) {	
+	      int days = min.date().daysTo(max.date());
+	      if (max.time() != WTime(0, 0))
+		++days;
+
+	      days = roundUp(days, interval);
+	      
+	      max = WDateTime(min.addDays(days));
+	    }	    
+	  }
+
 	} else {
 	  double minutes = daysInterval * 24 * 60;
 
