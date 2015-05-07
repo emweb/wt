@@ -402,7 +402,8 @@ void WDialog::render(WFlags<RenderFlag> flags)
       Utils::replace(js, "$centerY", centerY ? "1" : "0");
 
       impl_->bindString
-	("center-script", "<script>" + js + "</script>", XHTMLUnsafeText);
+	("center-script", "<script>" + Utils::htmlEncode(js)
+	 + "</script>", XHTMLUnsafeText);
     } else
       impl_->bindEmpty("center-script");
   }
