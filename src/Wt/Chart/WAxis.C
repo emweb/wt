@@ -1101,7 +1101,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
       !(roundLimits_ & MinimumValue);
 
     for (;;) {
-      long dl = getDateNumber(dt);
+      long long dl = getDateNumber(dt);
 
       if (dl > s.renderMaximum)
 	break;
@@ -1217,13 +1217,13 @@ WString WAxis::defaultDateTimeFormat(const Segment& s) const
   return WString::Empty;
 }
 
-long WAxis::getDateNumber(WDateTime dt) const
+long long WAxis::getDateNumber(WDateTime dt) const
 {
   switch (scale_) {
   case DateScale:
-    return static_cast<long>(dt.date().toJulianDay());
+    return static_cast<long long>(dt.date().toJulianDay());
   case DateTimeScale:
-    return static_cast<long>(dt.toTime_t());
+    return static_cast<long long>(dt.toTime_t());
   default:
     return 1;
   }
