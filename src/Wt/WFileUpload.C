@@ -27,6 +27,20 @@ namespace Wt {
 
 LOGGER("WFileUpload");
 
+  namespace {
+    std::string host(const std::string& url) {
+      std::size_t pos = 0;
+      for (unsigned i = 0; i < 3; ++i) { 
+	pos = url.find('/', pos);
+	if (pos == std::string::npos)
+	  return url;
+	else
+	  ++pos;
+      }
+      return url.substr(0, pos - 1);
+    }
+  }
+
 class WFileUploadResource : public WResource {
 public:
   WFileUploadResource(WFileUpload *fileUpload)
@@ -65,23 +79,16 @@ protected:
       "function load() { ";
 
     if (triggerUpdate || request.tooLarge()) {
-      o << "if (window.parent."
-	<< WApplication::instance()->javaScriptClass() << ") ";
-
       if (triggerUpdate) {
 	LOG_DEBUG("Resource handleRequest(): signaling uploaded");
 
-	o << "window.parent."
-	  << WApplication::instance()->javaScriptClass()
-	  << "._p_.update(null, '"
-	  << fileUpload_->uploaded().encodeCmd() << "', null, true);";
+	o << "window.parent.postMessage('"
+	  << fileUpload_->uploaded().encodeCmd() << "', '*');";
       } else if (request.tooLarge()) {
 	LOG_DEBUG("Resource handleRequest(): signaling file-too-large");
 
-	o << "window.parent."
-	  << WApplication::instance()->javaScriptClass()
-	  << "._p_.update(null, '"
-	  << fileUpload_->fileTooLargeImpl().encodeCmd() << "', null, true);";
+	o << "window.parent.postMessage('"
+	  << fileUpload_->fileTooLargeImpl().encodeCmd() << "', '*');";
       }
     } else {
       LOG_DEBUG("Resource handleRequest(): no signal");
@@ -428,6 +435,13 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
     form->addChild(input);
 
+    doJavaScript("window.addEventListener('message', function(event) {"
+		 """if (event.origin === '" + host(fileUploadTarget_->url())
+		 + "') {" 
+		 +    WApplication::instance()->javaScriptClass()
+		 +    "._p_.update(null, event.data, null, true);"
+		 """}"
+		 "}, false);");
   } else {
     result->setAttribute("type", "file");
     if (flags_.test(BIT_MULTIPLE))
