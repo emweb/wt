@@ -33,12 +33,13 @@ namespace Wt {
 	std::vector<FieldInfo> fields() const;
 	void fieldsForSelect(const SelectFieldList& list,
 			     std::vector<FieldInfo>& result) const;
-	std::pair<SqlStatement *, SqlStatement *>
-	statements(const std::string& where, const std::string& groupBy,
-		   const std::string& orderBy, int limit, int offset) const;
-	Session& session() const;
+        std::pair<SqlStatement *, SqlStatement *>
+        statements(const std::string &where, const std::string &groupBy,
+                   const std::string &having, const std::string &orderBy,
+                   int limit, int offset) const;
+        Session &session() const;
 
-	QueryBase();
+        QueryBase();
 	QueryBase(Session& session, const std::string& sql);
 	QueryBase(Session& session, const std::string& table,
 		  const std::string& where);
@@ -106,14 +107,14 @@ class Session;
  * When using DynamicBinding (which is the default), parameter binding
  * to an actual sql statement is deferred until the query is run. This
  * has the advantage that you can compose the query definition using
- * helper methods provided in the query object (where(), orderBy() and
- * groupBy()), possibly intermixing this with parameter binding, and
- * you can keep the query around and run the query multiple times,
- * perhaps with different parameter values or to scroll through the
- * query results. The where(), orderBy() and groupBy() are merely
- * convenience methods which you may use to compose the query
- * incrementally, but you may just as well specify the entire SQL as a
- * single string.
+ * helper methods provided in the query object (where(), groupBy(),
+ * having() and orderBy()), possibly intermixing this with parameter
+ * binding, and you can keep the query around and run the query
+ * multiple times, perhaps with different parameter values or to scroll
+ * through the query results. The where(), groupBy(), having(), and
+ * orderBy() are merely convenience methods which you may use to
+ * compose the querys incrementally, but you may just as well 
+ * specify the entire SQL as a single string.
  *
  * When using DirectBinding, parameters are directly bound to an
  * underlying sql statement. Therefore, the query must be specified
@@ -257,6 +258,31 @@ public:
    */
   Query<Result, BindStrategy>& groupBy(const std::string& fields);
 
+  /*! \brief Sets the grouping filter(s).
+   *
+   * It's like where(), but for aggregate fields.
+   *
+   * For example you can't go:
+   *
+   *   select department.name, count(employees) from department
+   *    where count(employees) > 5
+   *    group by count(employees);
+   *          
+   * Because you can't have aggregate fields in a where clause, but you can go:
+   *
+   *   select department.name, count(employees) from department
+   *    group by count(employees)
+   *   having count(employees) > 5;
+   *          
+   * This will of course return all the departments with more than 5 employees
+   * (and their employee count).
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   * \note You must have a group by clause, in order to have a 'having' clause
+   */
+  Query<Result, BindStrategy>& having(const std::string& fields);
+
   /*! \brief Sets a result offset.
    *
    * Sets a result offset. This has the effect that the next
@@ -348,6 +374,7 @@ public:
   Query<Result, DynamicBinding>& where(const std::string& condition);
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);
   Query<Result, DynamicBinding>& groupBy(const std::string& fields);
+  Query<Result, DynamicBinding>& having(const std::string& fields);
   Query<Result, DynamicBinding>& offset(int count);
   int offset() const;
   Query<Result, DynamicBinding>& limit(int count);
@@ -361,7 +388,7 @@ private:
   Query(Session& session, const std::string& sql);
   Query(Session& session, const std::string& table, const std::string& where);
 
-  std::string where_, groupBy_, orderBy_;
+  std::string where_, groupBy_, having_, orderBy_;
   int limit_, offset_;
 
   std::vector<Impl::ParameterBase *> parameters_;
