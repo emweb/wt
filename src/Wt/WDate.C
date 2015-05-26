@@ -592,7 +592,7 @@ WString WDate::toString() const
 
 WString WDate::toString(const WString& format) const
 {
-  return WDateTime::toString(this, 0, format, 0, true);
+  return WDateTime::toString(this, 0, format, true, 0);
 }
 
 bool WDate::writeSpecial(const std::string& f, unsigned& i,
