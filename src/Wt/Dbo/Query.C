@@ -70,6 +70,7 @@ void addGroupBy(std::string& result, const std::string& groupBy,
     result += groupByFields[i];
   }
 }
+
 std::string addLimitQuery(const std::string& sql, int limit, int offset,
 			  LimitQuery limitQueryMethod)
 {
@@ -99,6 +100,7 @@ std::string addLimitQuery(const std::string& sql, int limit, int offset,
 std::string completeQuerySelectSql(const std::string& sql,
 				   const std::string& where,
 				   const std::string& groupBy,
+				   const std::string& having,
 				   const std::string& orderBy,
 				   int limit, int offset,
 				   const std::vector<FieldInfo>& fields,
@@ -112,6 +114,9 @@ std::string completeQuerySelectSql(const std::string& sql,
   if (!groupBy.empty())
     addGroupBy(result, groupBy, fields);
 
+  if (!having.empty())
+    result += " having " + having;
+
   if (!orderBy.empty())
     result += " order by " + orderBy;
 
@@ -121,6 +126,7 @@ std::string completeQuerySelectSql(const std::string& sql,
 std::string createQuerySelectSql(const std::string& from,
 				 const std::string& where,
 				 const std::string& groupBy,
+				 const std::string& having,
 				 const std::string& orderBy,
 				 int limit, int offset,
 				 const std::vector<FieldInfo>& fields,
@@ -133,6 +139,9 @@ std::string createQuerySelectSql(const std::string& from,
 
   if (!groupBy.empty())
     addGroupBy(result, groupBy, fields);
+
+  if (!having.empty())
+    result += " having " + having;
 
   if (!orderBy.empty())
     result += " order by " + orderBy;
@@ -153,6 +162,7 @@ std::string createQueryCountSql(const std::string& query,
 				const std::string& from,
 				const std::string& where,
 				const std::string& groupBy,
+				const std::string& having,
 				const std::string& orderBy,
 				int limit, int offset,
 				LimitQuery limitQueryMethod,
@@ -175,6 +185,7 @@ std::string createQueryCountSql(const std::string& query,
    * parameter.
    */
   if (!groupBy.empty() || ifind(from, "group by") != std::string::npos
+      || !having.empty() || ifind(from, "having") != std::string::npos
       || !orderBy.empty() || ifind(from, "order by") != std::string::npos
       || limit != -1 || offset != -1)
     return createWrappedQueryCountSql(query, requireSubqueryAlias);
