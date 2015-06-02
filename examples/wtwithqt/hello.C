@@ -34,13 +34,13 @@
 #include "HelloApplication.h"
 #include "QtObject.h"
 
-// Needed when using WQApplication with Qt eventloop = true
-//#include <QApplication>
+// Needed when using WQCoreApplication with Qt eventloop = true
+//#include <QCoreApplication>
 
 using namespace Wt;
 
 Dictionary::Dictionary(const WEnvironment& env)
-  : WQApplication(env /*, true */)
+  : WQApplication(env /*,  true */)
 {
   /*
    * Note: do not create any Qt objects from here. Initialize your
@@ -100,7 +100,7 @@ WApplication *createApplication(const WEnvironment& env)
 int main(int argc, char **argv)
 {
   // Needed for Qt's eventloop threads to work
-  //QApplication app(argc, argv);
+  //QCoreApplication app(argc, argv);
 
   return WRun(argc, argv, &createApplication);
 }

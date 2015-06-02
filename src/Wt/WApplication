@@ -1037,6 +1037,20 @@ public:
    * \sa appRoot()
    */
   std::string docRoot() const;
+
+  /*! \brief Sets the connection monitor which will receive client side information
+   * In order to be notified, the jsObject must define a function onChange(type, oldValue, newValue) which
+   * will be called every time the status changes.
+   * The status can be retrieved in the monitor by accessing the following variables:
+   * - monitor.status.connectionStatus : 
+   *	- 0 : disconnected from server
+   *	- 1 : connected to server
+   * - monitor.status.websocket :
+   *	- true: websocket is used
+   *	- false: websocket is not used
+   */
+  void setConnectionMonitor(const std::string& jsFunction);
+
 #else
   static std::string appRoot();
 #endif // WT_TARGET_JAVA

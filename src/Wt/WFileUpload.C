@@ -27,20 +27,6 @@ namespace Wt {
 
 LOGGER("WFileUpload");
 
-  namespace {
-    std::string host(const std::string& url) {
-      std::size_t pos = 0;
-      for (unsigned i = 0; i < 3; ++i) { 
-	pos = url.find('/', pos);
-	if (pos == std::string::npos)
-	  return url;
-	else
-	  ++pos;
-      }
-      return url.substr(0, pos - 1);
-    }
-  }
-
 class WFileUploadResource : public WResource {
 public:
   WFileUploadResource(WFileUpload *fileUpload)
@@ -436,9 +422,8 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     form->addChild(input);
 
     doJavaScript("window.addEventListener('message', function(event) {"
-		 """if (event.origin === '" + host(fileUploadTarget_->url())
-		 + "') {" 
-		 +    WApplication::instance()->javaScriptClass()
+		 """if (" + jsRef() + ".action.indexOf(event.origin) === 0) {" 
+		 +    app->javaScriptClass()
 		 +    "._p_.update(null, event.data, null, true);"
 		 """}"
 		 "}, false);");

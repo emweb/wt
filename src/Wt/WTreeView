@@ -260,6 +260,8 @@ protected:
 private:
   typedef boost::unordered_map<WModelIndex, WTreeViewNode *> NodeMap;
 
+  bool				   skipNextMouseEvent_;
+
   WModelIndexSet       expandedSet_;
   NodeMap              renderedNodes_;
   bool                 renderedNodesAdded_;

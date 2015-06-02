@@ -425,6 +425,12 @@ C collection<C>::front() const
 }
 
 template <class C>
+bool collection<C>::empty() const
+{
+  return size() == 0;
+}
+
+template <class C>
 typename collection<C>::size_type collection<C>::size() const
 {
   if (type_ == QueryCollection && data_.query->size != -1)
@@ -631,7 +637,7 @@ int collection<C>::count(C c) const
     return 0;
 
   const RelationData& relation = data_.relation;
-  Session::MappingInfo *mapping
+  Impl::MappingInfo *mapping
     = session_->getMapping(relation.setInfo->tableName); 
 
   Query<C, DynamicBinding> q = find().where(mapping->idCondition);
@@ -656,7 +662,7 @@ void collection<C>::resetActivity()
 template <class C>
 void collection<C>::setRelationData(MetaDboBase *dbo,
 				    const std::string *sql,
-				    Session::SetInfo *setInfo)
+				    Impl::SetInfo *setInfo)
 {
   session_ = dbo->session();
 

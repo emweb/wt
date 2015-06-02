@@ -171,7 +171,7 @@ void WPushButton::setLink(const WLink& link)
 
 void WPushButton::setLinkTarget(AnchorTarget target)
 {
-  linkState_.target = target;
+  linkState_.link.setTarget(target);
 }
 
 void WPushButton::setRef(const std::string& url)
@@ -295,7 +295,7 @@ void WPushButton::renderHRef(DomElement& element)
     else {
       std::string url = linkState_.link.resolveUrl(app);
 
-      if (linkState_.target == TargetNewWindow)
+      if (linkState_.link.target() == TargetNewWindow)
 	linkState_.clickJS->setJavaScript
 	  ("function(){"
 	   "window.open(" + jsStringLiteral(url) + ");"

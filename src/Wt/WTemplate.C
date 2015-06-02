@@ -360,7 +360,7 @@ void WTemplate::resolveString(const std::string& varName,
 
   StringMap::const_iterator i = strings_.find(varName);
   if (i != strings_.end())
-    result << i->second;
+    result << i->second.toUTF8();
   else {
     WWidget *w = resolveWidget(varName);
     if (w) {
@@ -404,6 +404,27 @@ WWidget *WTemplate::resolveWidget(const std::string& varName)
     return j->second;
   else
     return 0;
+}
+
+std::vector<WWidget *> WTemplate::widgets() const
+{
+  std::vector<WWidget *> result;
+
+  for (WidgetMap::const_iterator j = widgets_.begin();
+       j != widgets_.end(); ++j)
+    result.push_back(j->second);
+
+  return result;
+}
+
+std::string WTemplate::varName(WWidget *w) const
+{
+  for (WidgetMap::const_iterator j = widgets_.begin();
+       j != widgets_.end(); ++j)
+    if (j->second == w)
+      return j->first;
+
+  return std::string();
 }
 
 void WTemplate::setTemplateText(const WString& text, TextFormat textFormat)

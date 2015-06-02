@@ -11,6 +11,7 @@
 #include <Wt/Dbo/Exception>
 #include <Wt/Dbo/SqlStatement>
 #include <Wt/Dbo/SqlTraits>
+#include <Wt/Dbo/DbAction>
 
 namespace Wt {
   namespace Dbo {
@@ -78,6 +79,27 @@ PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name, int size,
     fkConstraints_(fkConstraints)
 { }
 
+template <class C, class A, class Enable = void>
+struct LoadLazyHelper
+{
+  static void loadLazy(ptr<C>& p, typename dbo_traits<C>::IdType id,
+		       Session *session) { }
+};
+
+template <class C, class A>
+struct LoadLazyHelper<C, A, typename boost::enable_if<action_sets_value<A> >::type>
+{
+  static void loadLazy(ptr<C>& p, typename dbo_traits<C>::IdType id,
+		       Session *session) {
+    if (!(id == dbo_traits<C>::invalidId())) {
+      if (session)
+	p = session->loadLazy<C>(id);
+      else
+	throw Exception("Could not load referenced Dbo::ptr, no session?");
+    }
+  }
+};
+
 template <class C>
 template <class A>
 void PtrRef<C>::visit(A& action, Session *session) const
@@ -93,7 +115,8 @@ void PtrRef<C>::visit(A& action, Session *session) const
   int size = size_;
 
   if (session) {
-    Session::MappingInfo *mapping = session->getMapping<C>();
+    Impl::MappingInfo *mapping = session->getMapping<C>();
+    action.actMapping(mapping);
     idFieldName = mapping->naturalIdFieldName;
     size = mapping->naturalIdFieldSize;
 
@@ -103,14 +126,7 @@ void PtrRef<C>::visit(A& action, Session *session) const
 
   field(action, id, name_ + "_" + idFieldName, size);
 
-  if (action.setsValue()) {
-    if (!(id == dbo_traits<C>::invalidId())) {
-      if (session)
-	value_ = session->loadLazy<C>(id);
-      else
-	throw Exception("Could not load referenced Dbo::ptr, no session?");
-    }
-  }
+  LoadLazyHelper<C, A>::loadLazy(value_, id, session);
 }
 
 template <class C>

@@ -36,6 +36,10 @@ SessionProcess::SessionProcess(asio::io_service &io_service)
 void SessionProcess::stop()
 {
   socket_.reset();
+  if(acceptor_.get()) {
+	acceptor_->cancel();
+	acceptor_->close();
+  }
   acceptor_.reset();
 #ifdef WT_WIN32
   if (processInfo_.hProcess != 0) {
@@ -95,6 +99,9 @@ void SessionProcess::readPortHandler(const boost::system::error_code& err,
 				     boost::function<void (bool)> onReady)
 {
   if (!err || err == asio::error::eof || err == asio::error::shut_down) {
+    boost::system::error_code ignored_ec;
+	socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+	socket_->close();
     socket_.reset();
     buf_[transferred] = '\0';
     port_ = atoi(buf_);
@@ -156,6 +163,7 @@ void SessionProcess::exec(const Configuration& config,
   STARTUPINFOW startupInfo;
   ZeroMemory(&startupInfo, sizeof(startupInfo));
   startupInfo.cb = sizeof(startupInfo);
+
 
   std::wstring commandLine = GetCommandLineW();
   commandLine += L" --parent-port=" + boost::lexical_cast<std::wstring>(acceptor_->local_endpoint().port());

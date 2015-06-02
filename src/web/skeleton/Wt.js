@@ -269,8 +269,13 @@ this.initAjaxComm = function(url, handler) {
 	  if (good) {
 	    handled = true;
 	    handler(0, request.responseText, userData);
-	  } else
-	    handler(1, null, userData);
+		if(monitor)
+		  monitor.onStatusChange('connectionStatus', 1);
+	  } else {
+	    handler(1, null, userData); 
+		if(monitor)
+		  monitor.onStatusChange('connectionStatus', 0);
+	  }
 
 	  if (request) {
 	    request.onreadystatechange = new Function;
@@ -341,6 +346,12 @@ this.initAjaxComm = function(url, handler) {
       this.sendUpdate = function(data, userData, id, timeout) {
 	return new Request(data, userData, id, timeout);
       };
+
+	  var monitor = null;
+
+	  this.setConnectionMonitor = function(aMonitor) {
+		monitor = aMonitor;
+	  }
 
       this.setUrl = function(url) {
 	sessionUrl = url;
@@ -2657,6 +2668,8 @@ var websocket = {
   reconnectTries: 0
 };
 
+var connectionMonitor = null;
+
 function setServerPush(how) {
   serverPush = how;
 }
@@ -2764,6 +2777,21 @@ function doPollTimeout() {
 }
 
 var updating = false;
+ function setConnectionMonitor(aMonitor)
+ {
+   comm.setConnectionMonitor(aMonitor);
+   connectionMonitor = aMonitor;
+   connectionMonitor.status = {};
+   connectionMonitor.status.connectionStatus = 0;
+   connectionMonitor.status.websocket = false;
+   connectionMonitor.onStatusChange = function(type, newS) {
+	var old = monitor.status[type];
+	if(old == newS) return;
+	monitor.status[type] = newS;
+	monitor.onChange(type, old, newS);
+   }
+ }
+
 
 function update(el, signalName, e, feedback) {
   /*
@@ -2877,12 +2905,16 @@ _$_$if_WEB_SOCKETS_$_();
 	    websocket.reconnectTries = 0;
 	    websocket.state = WebSocketsWorking;
 	    handleResponse(0, event.data, null);
+	    if(connectionMonitor)
+			 connectionMonitor.onStatusChange('websocket', true);
 	  };
 
 	  ws.onerror = function(event) {
 	    /*
 	     * Sometimes, we can connect but cannot send data
 	     */
+	    if(connectionMonitor)
+			 connectionMonitor.onStatusChange('websocket', false);
 	    if (websocket.reconnectTries == 3 &&
 		websocket.state == WebSocketsUnknown)
 	      websocket.state = WebSocketsUnavailable;
@@ -2893,6 +2925,8 @@ _$_$if_WEB_SOCKETS_$_();
 	    /*
 	     * Sometimes, we can connect but cannot send data
 	     */
+	    if(connectionMonitor)
+			 connectionMonitor.onStatusChange('websocket', false);
 	    if (websocket.reconnectTries == 3 &&
 		websocket.state == WebSocketsUnknown)
 	      websocket.state = WebSocketsUnavailable;
@@ -2910,8 +2944,12 @@ _$_$if_WEB_SOCKETS_$_();
 	     *
 	     * So, we ping pong ourselves.
 	     */
-	    ws.send('&signal=ping'); // to get our first onmessage
+	    if(connectionMonitor) {
+			 connectionMonitor.onStatusChange('websocket', true);
+			 connectionMonitor.onStatusChange('connectionStatus', 1);
+		}
 
+	    ws.send('&signal=ping'); // to get our first onmessage
 	    schedulePing();
 	  };
 	}
@@ -3385,6 +3423,7 @@ this._p_ = {
   response : responseReceived,
   setPage : setPage,
   setCloseMessage : setCloseMessage,
+  setConnectionMonitor : setConnectionMonitor,
 
   propagateSize : propagateSize
 };

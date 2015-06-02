@@ -5,11 +5,13 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WApplication"
 #include "Wt/WIntValidator"
 #include "Wt/WString"
 #include "Wt/WStringStream"
+
 
 #ifndef WT_DEBUG_JS
 #include "js/WIntValidator.min.js"
@@ -20,13 +22,15 @@ namespace Wt {
 WIntValidator::WIntValidator(WObject *parent)
   : WValidator(parent),
     bottom_(std::numeric_limits<int>::min()),
-    top_(std::numeric_limits<int>::max())
+    top_(std::numeric_limits<int>::max()),
+	ignoreTrailingSpaces_(false)
 { }
 
 WIntValidator::WIntValidator(int bottom, int top, WObject *parent)
   : WValidator(parent),
     bottom_(bottom),
-    top_(top)
+    top_(top),
+	ignoreTrailingSpaces_(false)
 { }
 
 void WIntValidator::setBottom(int bottom)
@@ -109,12 +113,23 @@ WString WIntValidator::invalidTooLargeText() const
 	return WString::tr("Wt.WIntValidator.BadRange").arg(bottom_).arg(top_);
 }
 
+void WIntValidator::setIgnoreTrailingSpaces(bool b) {
+  if(ignoreTrailingSpaces_ != b)  {
+	ignoreTrailingSpaces_ = b;
+	repaint();
+  }
+}
+
+
 WValidator::Result WIntValidator::validate(const WT_USTRING& input) const
 {
   if (input.empty())
     return WValidator::validate(input);
 
   std::string text = input.toUTF8();
+
+  if(ignoreTrailingSpaces_)
+	boost::trim(text);
 
   try {
     int i = WLocale::currentLocale().toInt(text);
@@ -146,7 +161,7 @@ std::string WIntValidator::javaScriptValidate() const
      << ',';
 
   if (bottom_ != std::numeric_limits<int>::min())
-    js << bottom_;
+	js << bottom_;
   else
     js << "null";
 

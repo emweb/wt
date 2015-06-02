@@ -18,7 +18,7 @@ WT_DECLARE_WT_MEMBER
    var self = this, WT = APP.WT, $edit = $(edit);
 
    function isReadOnly() {
-     return !!edit.getAttribute("readonly");
+	 return edit.readOnly;
    }
 
    function isPopupVisible() {

@@ -327,6 +327,12 @@ void Server::handlePortSent(const boost::shared_ptr<asio::ip::tcp::socket>& sock
   if (err) {
     LOG_ERROR_S(&wt_, "child process couldn't send listening port: " << err.message());
   }
+  boost::system::error_code ignored_ec;
+  if(socket.get()) {
+	socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+	socket->close();
+  }
+
 }
 
 Server::~Server()

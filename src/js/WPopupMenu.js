@@ -20,7 +20,9 @@ WT_DECLARE_WT_MEMBER
    function doHide() {
      setOthersInactive(el, null);
      el.style.display = 'none';
-     APP.emit(el.id, 'cancel');
+	 setTimeout(function() {
+       APP.emit(el.id, 'cancel');
+	 }, 0);
    }
 
    function setActive(item, active) {

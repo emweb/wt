@@ -32,11 +32,15 @@ void QueryModel<Result>::setQuery(const Query<Result>& query,
     query_ = query;
     fields_ = query_.fields();
     columns_.clear();
+    sortOrderBy_.clear();
     reset();
   } else {
     invalidateData();
     query_ = query;
     fields_ = query_.fields();
+    if (!sortOrderBy_.empty()) {
+      query_.orderBy(sortOrderBy_);
+    }
     dataReloaded();
   }
 }
@@ -206,11 +210,18 @@ void QueryModel<Result>::sort(int column, SortOrder order)
 
   invalidateData();
 
-  query_.orderBy(fields_[columns_[column].fieldIdx_].sql() + " "
-		 + (order == AscendingOrder ? "asc" : "desc"));
+  sortOrderBy_ = createOrderBy(column, order);
+  query_.orderBy(sortOrderBy_);
 
   cachedRowCount_ = rc;
   dataReloaded();
+}
+
+template <class Result>
+std::string QueryModel<Result>::createOrderBy(int column, SortOrder order)
+{
+  return fieldInfo(column).sql() + " "
+		 + (order == AscendingOrder ? "asc" : "desc");
 }
 
 template <class Result>
@@ -415,6 +426,8 @@ bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
       role = DisplayRole;
 
     columns_[section].headerData_[role] = value;
+
+    headerDataChanged().emit(orientation, section, section);
 
     return true;
   } else

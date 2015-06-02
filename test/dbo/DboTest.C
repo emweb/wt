@@ -31,6 +31,7 @@ class B;
 class C;
 class D;
 class E;
+class F;
 
 bool fractionalSeconds = true;
 
@@ -85,6 +86,7 @@ struct DboFixture : DboFixtureBase
     session_->mapClass<C>(SCHEMA "table_c");
     session_->mapClass<D>(SCHEMA "table_d");
     session_->mapClass<E>(SCHEMA "table_e");
+    session_->mapClass<F>(SCHEMA "table_f");
 
     try {
       session_->dropTables();
@@ -442,6 +444,27 @@ public:
   void persist(Action& a)
   {
     dbo::field(a, name, "name", 1000);
+  }
+};
+
+class F {
+public:
+  std::string firstName;
+  std::string lastName;
+  std::string gender;
+
+  F() { }
+
+  F(const std::string& aFirstName, const std::string& aLastName, const std::string& aGender)
+    : firstName(aFirstName), lastName(aLastName), gender(aGender)
+  { }
+
+  template <class Action>
+  void persist(Action& a)
+  {
+    dbo::field(a, firstName, "first_name", 64);
+    dbo::field(a, lastName,  "last_name",  64);
+    dbo::field(a, gender,  "gender",  64);
   }
 };
 
@@ -2177,4 +2200,119 @@ BOOST_AUTO_TEST_CASE( dbo_test24c )
     BOOST_REQUIRE(dc.get<0>()->name == "d1");
     BOOST_REQUIRE(dc.get<1>()->name == "c1");
   }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_test25 )
+{
+#ifndef FIREBIRD // Cannot order by on blobs in Firebird...
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<F> e1 = session_->add(new F("Alice",  "Kramden", "Female"));
+    dbo::ptr<F> e2 = session_->add(new F("Ralph",  "Kramden", "Male"));
+    dbo::ptr<F> e3 = session_->add(new F("Trixie", "Norton", "Female"));
+    dbo::ptr<F> e4 = session_->add(new F("Ed",     "Norton", "Male"));
+
+    t.commit();
+  }
+
+  {
+    dbo::Query< dbo::ptr<F> > query = session_->find<F>().orderBy("\"id\"");
+    dbo::QueryModel< dbo::ptr<F> > *model
+      = new dbo::QueryModel< dbo::ptr<F> >();
+
+    model->setQuery(query);
+    model->addAllFieldsAsColumns();
+
+    BOOST_REQUIRE(model->columnCount() == 5);
+    BOOST_REQUIRE(model->rowCount() == 4);
+    BOOST_REQUIRE(Wt::asString(model->headerData(0)) == "id");
+    BOOST_REQUIRE(Wt::asString(model->headerData(1)) == "version");
+    BOOST_REQUIRE(Wt::asString(model->headerData(2)) == "first_name");
+    BOOST_REQUIRE(Wt::asString(model->headerData(3)) == "last_name");
+    BOOST_REQUIRE(Wt::asString(model->headerData(4)) == "gender");
+
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
+    BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ralph");
+    BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Trixie");
+    BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Ed");
+
+    // sort on first name
+    model->sort(2, Wt::AscendingOrder);
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
+    BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ed");
+    BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ralph");
+    BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Trixie");
+
+    delete model;
+  }
+
+  {
+    class custom_sort_model : public dbo::QueryModel< dbo::ptr<F> > {
+    public:
+      custom_sort_model() : dbo::QueryModel< dbo::ptr<F> >() { }
+
+      virtual std::string createOrderBy(int column, Wt::SortOrder order)
+      {
+        std::string dir = (order == Wt::AscendingOrder ? "asc" : "desc");
+        return "\"" + fieldInfo(column).name() + "\" " + dir +
+          ((column != 3) ? ", \"last_name\"" : "") +
+          ((column != 2) ? ", \"first_name\"" : "");
+      }
+    };
+
+    dbo::Query< dbo::ptr<F> > query = session_->find<F>().orderBy("\"id\"");
+
+    custom_sort_model *model = new custom_sort_model();
+
+    model->setQuery(query);
+    model->addAllFieldsAsColumns();
+
+    BOOST_REQUIRE(model->columnCount() == 5);
+    BOOST_REQUIRE(model->rowCount() == 4);
+    BOOST_REQUIRE(Wt::asString(model->headerData(0)) == "id");
+    BOOST_REQUIRE(Wt::asString(model->headerData(1)) == "version");
+    BOOST_REQUIRE(Wt::asString(model->headerData(2)) == "first_name");
+    BOOST_REQUIRE(Wt::asString(model->headerData(3)) == "last_name");
+    BOOST_REQUIRE(Wt::asString(model->headerData(4)) == "gender");
+
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
+    BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ralph");
+    BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Trixie");
+    BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Ed");
+
+    // sort on last name ascending, then first name ascending
+    model->sort(3, Wt::AscendingOrder);
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
+    BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ralph");
+    BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ed");
+    BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Trixie");
+
+    // sort on last name descending, then first name ascending
+    model->sort(3, Wt::DescendingOrder);
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Ed");
+    BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Trixie");
+    BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Alice");
+    BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Ralph");
+
+    // sort on first name, then last name ascending
+    model->sort(2, Wt::AscendingOrder);
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
+    BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Ed");
+    BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ralph");
+    BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Trixie");
+
+    // sort on gender, then last name, then first name
+    model->sort(4, Wt::AscendingOrder);
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
+    BOOST_REQUIRE(Wt::asString(model->data(1, 2)) == "Trixie");
+    BOOST_REQUIRE(Wt::asString(model->data(2, 2)) == "Ralph");
+    BOOST_REQUIRE(Wt::asString(model->data(3, 2)) == "Ed");
+
+    delete model;
+  }
+#endif // FIREBIRD
 }

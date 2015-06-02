@@ -16,8 +16,7 @@
 namespace Wt {
 
 WAnchor::LinkState::LinkState()
-  : target(TargetSelf),
-    clickJS(0)
+  : clickJS(0)
 { }
 
 WAnchor::LinkState::~LinkState()
@@ -202,8 +201,8 @@ WResource *WAnchor::resource() const
 
 void WAnchor::setTarget(AnchorTarget target)
 {
-  if (linkState_.target != target) {
-    linkState_.target = target;
+  if (linkState_.link.target() != target) {
+    linkState_.link.setTarget(target);
     flags_.set(BIT_TARGET_CHANGED);
   }
 }
@@ -335,7 +334,7 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
      * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
      * does not work without the check below:
      */
-    if (linkState.target == TargetSelf) {
+    if (linkState.link.target() == TargetSelf) {
       linkState.clickJS
 	= linkState.link.manageInternalPathChange(app, widget,
 						  linkState.clickJS);
@@ -357,7 +356,7 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
 
 void WAnchor::renderHTarget(LinkState& linkState, DomElement& element, bool all)
 {
-  switch (linkState.target) {
+  switch (linkState.link.target()) {
   case TargetSelf:
     if (!all)
       element.setProperty(PropertyTarget, "_self");

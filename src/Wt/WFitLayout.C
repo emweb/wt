@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WContainerWidget"
 #include "Wt/WFitLayout"
 #include "Wt/WLogger"
 
@@ -14,19 +15,12 @@ LOGGER("WFitLayout");
 WFitLayout::WFitLayout(WWidget *parent)
   : WLayout()
 { 
-  grid_.columns_.insert(grid_.columns_.begin(), 1, Impl::Grid::Section(0));
-  grid_.rows_.insert(grid_.rows_.begin(), 1, Impl::Grid::Section(0));
+  grid_.columns_.push_back(Impl::Grid::Section(0));
+  grid_.rows_.push_back(Impl::Grid::Section(0));
 
-#ifndef WT_TARGET_JAVA
-  grid_.items_.insert(grid_.items_.begin(), 1,
-		      std::vector<Impl::Grid::Item>(1));
-#else
-  grid_.items_.insert(grid_.items_.begin(), 1, std::vector<Impl::Grid::Item>());
-  for (unsigned i = 0; i < 1; ++i) {
-    std::vector<Impl::Grid::Item>& items = grid_.items_[i];
-    items.insert(items.begin(), 1, Impl::Grid::Item());
-  }
-#endif // WT_TARGET_JAVA
+  std::vector<Impl::Grid::Item> items;
+  items.push_back(Impl::Grid::Item());
+  grid_.items_.push_back(items);
 
   if (parent)
     setLayoutInParent(parent);
@@ -34,6 +28,13 @@ WFitLayout::WFitLayout(WWidget *parent)
 
 WFitLayout::~WFitLayout()
 { }
+
+void WFitLayout::fitWidget(WContainerWidget *container, WWidget *widget)
+{
+  WFitLayout *l = new WFitLayout();
+  container->setLayout(l);
+  l->addWidget(widget);
+}
 
 void WFitLayout::addItem(WLayoutItem *item)
 {

@@ -18,8 +18,8 @@ namespace Wt {
       template <class C, typename T>
       struct LoadHelper
       {
-	static ptr<C> load(Session *session, SqlStatement *statement,
-			   int& column)
+	static MetaDbo<C> *load(Session *session, SqlStatement *statement,
+				 int& column)
 	{
 	  return session->loadWithNaturalId<C>(statement, column);
 	};
@@ -28,8 +28,8 @@ namespace Wt {
       template <class C>
       struct LoadHelper<C, long long>
       {
-	static ptr<C> load(Session *session, SqlStatement *statement,
-			   int& column)
+	static MetaDbo<C> *load(Session *session, SqlStatement *statement,
+				 int& column)
 	{
 	  return session->loadWithLongLongId<C>(statement, column);
 	}
@@ -58,7 +58,7 @@ SqlStatement *Session::getStatement(int statementIdx)
   initSchema();
 
   ClassRegistry::iterator i = classRegistry_.find(&typeid(C));
-  MappingInfo *mapping = i->second;
+  Impl::MappingInfo *mapping = i->second;
 
   std::string id = statementId(mapping->tableName, statementIdx);
 
@@ -98,8 +98,6 @@ Session::Mapping<C> *Session::getMapping() const
   ClassRegistry::const_iterator i = classRegistry_.find(&typeid(C));
   if (i != classRegistry_.end()) {
     Session::Mapping<C> *mapping = dynamic_cast< Mapping<C> *>(i->second);
-    if (!mapping->initialized_)
-      mapping->init(*const_cast<Session *>(this));
     return mapping;
   } else
     throw Exception(std::string("Class ") + typeid(C).name()
@@ -111,42 +109,49 @@ ptr<C> Session::load(SqlStatement *statement, int& column)
 {
   typedef typename boost::remove_const<C>::type MutC;
 
-  return Impl::LoadHelper<C, typename dbo_traits<MutC>::IdType>
-    ::load(this, statement, column);
+  Impl::MappingInfo *mapping = getMapping<MutC>();
+  MetaDboBase *dbob = mapping->load(*this, statement, column);
+
+  if (dbob) {
+    MetaDbo<MutC> *dbo = dynamic_cast<MetaDbo<MutC> *>(dbob);
+    return ptr<C>(dbo);
+  } else
+    return ptr<C>();
 }
 
 template <class C>
-ptr<C> Session::loadWithNaturalId(SqlStatement *statement, int& column)
+MetaDbo<C> *Session::loadWithNaturalId(SqlStatement *statement, int& column)
 {
   typedef typename boost::remove_const<C>::type MutC;
 
   Mapping<MutC> *mapping = getMapping<MutC>();
 
   /* Natural id is possibly multiple fields anywhere */
-  MetaDbo<MutC> *dbo = new MetaDbo<MutC>(dbo_traits<C>::invalidId(), -1,
-				   MetaDboBase::Persisted, *this, 0);
+  MetaDboBase *dbob = createDbo(mapping);
+  MetaDbo<MutC> *dbo = dynamic_cast<MetaDbo<MutC> *>(dbob);
   implLoad<MutC>(*dbo, statement, column);
 
   if (dbo->id() == dbo_traits<MutC>::invalidId()) {
     dbo->setSession(0);
-    delete dbo;
-    return ptr<C>();
+    delete dbob;
+    return 0;
   }
 
-  typename Mapping<MutC>::Registry::iterator i = mapping->registry_.find(dbo->id());
+  typename Mapping<MutC>::Registry::iterator
+    i = mapping->registry_.find(dbo->id());
 
   if (i == mapping->registry_.end()) {
     mapping->registry_[dbo->id()] = dbo;
-    return ptr<C>(dbo);
+    return dbo;
   } else {
     dbo->setSession(0);
-    delete dbo;
-    return ptr<C>(i->second);
+    delete dbob;
+    return i->second;
   }
 }
 
 template <class C>
-ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
+MetaDbo<C> *Session::loadWithLongLongId(SqlStatement *statement, int& column)
 {
   typedef typename boost::remove_const<C>::type MutC;
 
@@ -170,27 +175,29 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
      * dbo_test4c.
      */
     if (!statement->getResult(column++, &id)) {
-      column += (int)mapping->fields.size() + (mapping->versionFieldName ? 1 : 0);
-      return ptr<C>();
+      column += (int)mapping->fields.size()
+	+ (mapping->versionFieldName ? 1 : 0);
+      return 0;
     }
 
     typename Mapping<MutC>::Registry::iterator i = mapping->registry_.find(id);
 
     if (i == mapping->registry_.end()) {
-      MetaDbo<MutC> *dbo
-	= new MetaDbo<MutC>(id, -1, MetaDboBase::Persisted, *this, 0);
+      MetaDboBase *dbob = createDbo(mapping);
+      MetaDbo<MutC> *dbo = dynamic_cast<MetaDbo<MutC> *>(dbob);
+      dbo->setId(id);
       implLoad<MutC>(*dbo, statement, column);
 
       mapping->registry_[id] = dbo;
 
-      return ptr<C>(dbo);
+      return dbo;
     } else {
       if (!i->second->isLoaded())
 	implLoad<MutC>(*i->second, statement, column);
       else
 	column += (int)mapping->fields.size() + (mapping->versionFieldName ? 1 : 0);
 
-      return ptr<C>(i->second);
+      return i->second;
     }
   } else
     return loadWithNaturalId<C>(statement, column);
@@ -245,7 +252,9 @@ ptr<C> Session::loadLazy(const typename dbo_traits<C>::IdType& id)
   typename Mapping<C>::Registry::iterator i = mapping->registry_.find(id);
 
   if (i == mapping->registry_.end()) {
-    MetaDbo<C> *dbo = new MetaDbo<C>(id, -1, MetaDboBase::Persisted, *this, 0);
+    MetaDboBase *dbob = createDbo(mapping);
+    MetaDbo<C> *dbo = dynamic_cast<MetaDbo<C> *>(dbob);
+    dbo->setId(id);
     mapping->registry_[id] = dbo;
     return ptr<C>(dbo);
   } else
@@ -275,7 +284,7 @@ Query<Result, BindStrategy> Session::query(const std::string& sql)
   return Query<Result, BindStrategy>(*this, sql);
 }
 
-template<class C>
+template <class C>
 void Session::prune(MetaDbo<C> *obj)
 {
   getMapping<C>()->registry_.erase(obj->id());
@@ -397,6 +406,30 @@ void Session::Mapping<C>::rereadAll()
        i != objects.end(); ++i) {
     (*i).reread();
   }
+}
+
+template <class C>
+MetaDbo<C> *Session::Mapping<C>::create(Session& session)
+{
+  return new MetaDbo<C>(session);
+}
+
+template <class C>
+void Session::Mapping<C>::load(Session& session, MetaDboBase *obj)
+{
+  MetaDbo<C> *dbo = dynamic_cast<MetaDbo<C> *>(obj);
+  int column = 0;
+  session.template implLoad<C>(*dbo, 0, column);
+}
+
+template <class C>
+MetaDbo<C> *Session::Mapping<C>::load(Session& session, SqlStatement *statement,
+				      int& column)
+{
+  typedef typename boost::remove_const<C>::type MutC;
+
+  return Impl::LoadHelper<C, typename dbo_traits<MutC>::IdType>
+    ::load(&session, statement, column);
 }
 
 template <class C>

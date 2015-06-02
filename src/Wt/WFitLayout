@@ -26,6 +26,8 @@ public:
   WFitLayout(WWidget *parent = 0);
   ~WFitLayout();
 
+  static void fitWidget(WContainerWidget *container, WWidget *widget);
+
   virtual void addItem(WLayoutItem *);
   virtual void removeItem(WLayoutItem *);
   virtual WLayoutItem *itemAt(int index) const;

@@ -51,6 +51,8 @@ private:
   void handleHeadersRead(const boost::system::error_code& ec);
   void handleResponseRead(const boost::system::error_code& ec);
 
+  void appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os);
+
   bool sendReload();
 
   SessionProcessManager &sessionManager_;
@@ -70,6 +72,7 @@ private:
   std::size_t sending_;
   bool more_;
   bool receiving_;
+  bool fwCertificates_;
 
   Buffer::const_iterator beginRequestBuf_;
   Buffer::const_iterator endRequestBuf_;

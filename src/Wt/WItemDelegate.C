@@ -158,8 +158,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
       WLink link = boost::any_cast<WLink>(linkData);
       IndexAnchor *a = anchorWidget(widgetRef, index);
       a->setLink(link);
-      if (link.type() == WLink::Resource)
-	a->setTarget(TargetNewWindow);
+	  a->setTarget(link.target());
     }
 
     IndexText *t = textWidget(widgetRef, index);

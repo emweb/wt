@@ -9,9 +9,6 @@
 #include "../asciidoc/asciidoc.h"
 
 #include "../model/BlogSession.h"
-#include "../model/Comment.h"
-#include "../model/Tag.h"
-#include "../model/Token.h"
 #include "../model/User.h"
 
 #include <Wt/WAnchor>

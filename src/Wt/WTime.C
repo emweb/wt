@@ -536,7 +536,7 @@ WTime::RegExpInfo WTime::formatMinuteToRegExp(WTime::RegExpInfo& result,
   if (sf == "m") /* Minutes without leading 0 */
     result.regexp += "(0|[1-5]?[0-9])";
   else /* Minutes with leading 0 */
-    result.regexp += "([0-5]?[0-9])";
+    result.regexp += "([0-5][0-9])";
 
   return result;
 }
@@ -561,7 +561,7 @@ WTime::RegExpInfo WTime::formatSecondToRegExp(WTime::RegExpInfo& result,
   if (sf == "s") /* Seconds without leading 0 */
     result.regexp += "(0|[1-5]?[0-9])";
   else /* Seconds with leading 0 */
-    result.regexp += "([0-5]?[0-9])";
+    result.regexp += "([0-5][0-9])";
 
   return result;
 }

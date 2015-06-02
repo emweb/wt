@@ -145,6 +145,30 @@ public:
    * \sa setInternalPath().
    */
   WT_USTRING internalPath() const;
+  
+  /*! \brief Sets the location where the linked content should be
+   *         displayed.
+   *
+   * By default, the linked content is displayed in the application
+   * (Wt::TargetSelf). When the destination is an HTML document, the
+   * application is replaced with the new document. When the link is
+   * to a document that cannot be displayed in the browser, it is
+   * offered for download or opened using an external program,
+   * depending on browser settings.
+   *
+   * By setting \p target to Wt::TargetNewWindow, the destination
+   * is displayed in a new browser window or tab.
+   *
+   * \sa target()
+   */
+  void setTarget(AnchorTarget target);
+
+  /*! \brief Returns the location where the linked content should be
+   *         displayed.
+   *
+   * \sa setTarget()
+   */
+  AnchorTarget target() const { return target_; }
 
   /*! \brief Comparison operator.
    */
@@ -164,11 +188,14 @@ private:
   boost::any value_;
 #endif
 
+  AnchorTarget  target_;
+
   JSlot *manageInternalPathChange(WApplication *app, WInteractWidget *widget,
 				  JSlot *slot) const;
 
   friend class WAnchor;
   friend class WAbstractArea;
+  friend class WPushButton;
 };
 
 }

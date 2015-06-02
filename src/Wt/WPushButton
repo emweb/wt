@@ -277,7 +277,7 @@ public:
    *
    * \sa setLinkTarget()
    */
-  AnchorTarget linkTarget() const { return linkState_.target; }
+  AnchorTarget linkTarget() const { return linkState_.link.target(); }
 
   /*! \brief Links a popup menu to the button.
    *

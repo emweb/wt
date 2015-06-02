@@ -5,11 +5,13 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WDoubleValidator"
 #include "Wt/WString"
 #include "Wt/WStringStream"
 #include "Wt/WApplication"
+
 
 #ifndef WT_DEBUG_JS
 #include "js/WDoubleValidator.min.js"
@@ -20,13 +22,15 @@ namespace Wt {
 WDoubleValidator::WDoubleValidator(WObject *parent)
   : WValidator(parent),
     bottom_(-std::numeric_limits<double>::max()),
-    top_(std::numeric_limits<double>::max())
+    top_(std::numeric_limits<double>::max()),
+	ignoreTrailingSpaces_(false)
 { }
 
 WDoubleValidator::WDoubleValidator(double bottom, double top, WObject *parent)
   : WValidator(parent),
     bottom_(bottom),
-    top_(top)
+    top_(top),
+	ignoreTrailingSpaces_(false)
 { }
 
 void WDoubleValidator::setBottom(double bottom)
@@ -111,14 +115,25 @@ WString WDoubleValidator::invalidTooLargeText() const
           arg(bottom_).arg(top_);
 }
 
+void WDoubleValidator::setIgnoreTrailingSpaces(bool b) {
+  if(ignoreTrailingSpaces_ != b)  {
+	ignoreTrailingSpaces_ = b;
+	repaint();
+  }
+}
 
 WValidator::Result WDoubleValidator::validate(const WT_USTRING& input) const
 {
   if (input.empty())
     return WValidator::validate(input);
+  
+  std::string text = input.toUTF8();
+  
+  if(ignoreTrailingSpaces_)
+	boost::trim(text);
 
   try {
-    double i = WLocale::currentLocale().toDouble(input);
+    double i = WLocale::currentLocale().toDouble(text);
 
     if (i < bottom_)
       return Result(Invalid, invalidTooSmallText());
@@ -144,6 +159,8 @@ std::string WDoubleValidator::javaScriptValidate() const
 
   js << "new " WT_CLASS ".WDoubleValidator("
      << isMandatory()
+	 << ','
+	 << ignoreTrailingSpaces_
      << ',';
 
   if (bottom_ != -std::numeric_limits<double>::max() &&

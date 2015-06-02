@@ -287,6 +287,7 @@ private:
   std::string applicationName_;
   std::string bookmarkUrl_, basePath_, absoluteBaseUrl_;
   std::string applicationUrl_, deploymentPath_;
+  std::string docRoot_;
   std::string redirect_;
   std::string pagePathInfo_;
   std::string pongMessage_;

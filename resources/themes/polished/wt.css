@@ -367,12 +367,9 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     margin: 0;
 }
 
-.Wt-popupmenu li {
-    padding: 2px 10px;
-}
-
 .Wt-popupmenu li a {
     display: block;
+    padding: 2px 10px;
 }
 
 .Wt-popupmenu .Wt-padded {
@@ -930,6 +927,7 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
     text-overflow: ellipsis;
     overflow: hidden; /* needed for IE only */
     white-space: nowrap;
+	height: 20px;
 }
 
 .Wt-itemview .Wt-header .Wt-disabled .Wt-label {

@@ -462,6 +462,12 @@ std::string WApplication::docRoot() const
   return environment().getCgiValue("DOCUMENT_ROOT");
 }
 
+void WApplication::setConnectionMonitor(const std::string& jsFunction) {
+  doJavaScript(javaScriptClass_
+	       + "._p_.setConnectionMonitor("+ jsFunction + ")");
+
+}
+
 #endif // WT_TARGET_JAVA
 
 void WApplication::bindWidget(WWidget *widget, const std::string& domId)

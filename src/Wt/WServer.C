@@ -199,6 +199,8 @@ void WServer::post(const std::string& sessionId,
 
 void WServer::postAll(const boost::function<void ()>& function)
 {
+  if(!webController_) return;
+
   std::vector<std::string> sessions = webController_->sessions();
   for (std::vector<std::string>::const_iterator i = sessions.begin();
       i != sessions.end(); ++i) {

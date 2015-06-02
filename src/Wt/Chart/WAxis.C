@@ -119,7 +119,8 @@ WAxis::Segment::Segment()
     renderMaximum(AUTO_MAXIMUM),
     renderLength(AUTO_MAXIMUM),
     renderStart(AUTO_MAXIMUM),
-    dateTimeRenderUnit(Days)
+    dateTimeRenderUnit(Days),
+    dateTimeRenderInterval(0)
 { }
 
 WAxis::WAxis()

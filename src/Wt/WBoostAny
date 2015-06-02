@@ -70,12 +70,12 @@ struct boost_any_traits {
  *    format string with <i>snprintf()</i>, or with
  *    <i>boost::lexical_cast<></i> if the format string is empty.
  *  - Data of type WDate is converted with WDate::toString() using the indicated
- *    format string. If the format string is empty, "dd/MM/yy" is assumed.
+ *    format string. If the format string is empty, WLocalce::currentLocale().dateFormat() is assumed.
  *  - Data of type WTime is converted with WTime::toString() using the indicated
- *    format string. If the format string is emtpy, "HH:mm:ss" is assumed.
+ *    format string. If the format string is emtpy, WLocale::currentLocale().timeFormat() is assumed.
  *  - Data of type WDateTime is converted with WDateTime::toString() using the
  *    indicated format string. If the format string is empty,
- *    "dd/MM/yy HH:mm:ss" is assumed.
+ *    WLocale::currentLocale().dateTimeFormat() is assumed.
  *
  * Other types are converted according to
  * Wt::boost_any_traits<Type>::asString(). For these other types, you need

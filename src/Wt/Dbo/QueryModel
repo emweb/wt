@@ -286,8 +286,24 @@ public:
    *
    * This sorts the model by changing the query using
    * Query<BindStrategy>::orderBy().
+   *
+   * \sa createOrderBy()
    */
   virtual void sort(int column, SortOrder order = AscendingOrder);
+
+  /*! \brief Create specialized orderBy clause for sort
+   *
+   * The sort() method calls createOrderBy() to format a SQL
+   * clause for use in Query<BindStrategy>::orderBy().
+   * The default is to return a string that will sort on
+   * a single column in the specified order.
+   *
+   * Customize this method if you need a more complex orderBy
+   * clause, e.g. to break ties consistently.
+   *
+   * \sa sort()
+   */
+  virtual std::string createOrderBy(int column, SortOrder order);
 
   /*! \brief Inserts one or more rows.
    *
@@ -384,6 +400,7 @@ private:
 
   mutable Query<Result> query_;
   int queryLimit_, queryOffset_, batchSize_;
+  mutable std::string sortOrderBy_;
 
   mutable int cachedRowCount_;
   mutable int cacheStart_;

@@ -15,6 +15,11 @@ namespace Wt {
 MetaDboBase::~MetaDboBase()
 { }
 
+void MetaDboBase::transactionDone(bool success)
+{
+  doTransactionDone(success);
+}
+
 void MetaDboBase::incRef()
 {
   ++refCount_;

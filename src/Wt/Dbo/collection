@@ -312,6 +312,12 @@ namespace Wt {
      */
     size_type size() const;
 
+    /*! \brief Returns whether the collection is empty.
+     *
+     * Returns whether size() == 0
+     */
+    bool empty() const;
+
     /*! \brief Inserts an object.
      *
      * \note This is only implemented for %collections that are
@@ -387,7 +393,7 @@ namespace Wt {
     struct RelationData {
       const std::string *sql;
       MetaDboBase *dbo;
-      Session::SetInfo *setInfo;
+      Impl::SetInfo *setInfo;
       Activity *activity; // only for ManyToMany collections
     };
 
@@ -417,7 +423,7 @@ namespace Wt {
 	       SqlStatement *countStatement);
 
     void setRelationData(MetaDboBase *dbo, const std::string *sql,
-			 Session::SetInfo *info);
+			 Impl::SetInfo *info);
     Activity *activity() const { return data_.relation.activity; }
     void resetActivity();
     void releaseQuery();

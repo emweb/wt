@@ -40,21 +40,11 @@ std::string quoteSchemaDot(const std::string& table) {
   return result;
 }
 
-    } // end namespace Impl
-
-Session::JoinId::JoinId(const std::string& aJoinIdName,
-			const std::string& aTableIdName,
-			const std::string& aSqlType)
-  : joinIdName(aJoinIdName),
-    tableIdName(aTableIdName),
-    sqlType(aSqlType)
-{ }
-
-Session::SetInfo::SetInfo(const char *aTableName,
-			  RelationType aType,
-			  const std::string& aJoinName,
-			  const std::string& aJoinSelfId,
-			  int someFkConstraints)
+SetInfo::SetInfo(const char *aTableName,
+		 RelationType aType,
+		 const std::string& aJoinName,
+		 const std::string& aJoinSelfId,
+		 int someFkConstraints)
   : tableName(aTableName),
     joinName(aJoinName),
     joinSelfId(aJoinSelfId),
@@ -62,30 +52,46 @@ Session::SetInfo::SetInfo(const char *aTableName,
     fkConstraints(someFkConstraints)
 { }
 
-Session::MappingInfo::MappingInfo()
+Impl::MappingInfo::MappingInfo()
   : initialized_(false)
 { }
 
-Session::MappingInfo::~MappingInfo()
+MappingInfo::~MappingInfo()
 { }
 
-void Session::MappingInfo::init(Session& session)
+void MappingInfo::init(Session& session)
 { 
   throw Exception("Not to be done.");
 }
 
-void Session::MappingInfo::dropTable(Session& session,
+void MappingInfo::dropTable(Session& session,
 				     std::set<std::string>& tablesDropped)
 {
   throw Exception("Not to be done.");
 }
 
-void Session::MappingInfo::rereadAll()
+void MappingInfo::rereadAll()
 { 
   throw Exception("Not to be done.");
 }
 
-std::string Session::MappingInfo::primaryKeys() const
+MetaDboBase *MappingInfo::create(Session& session)
+{
+  throw Exception("Not to be done.");
+}
+
+void MappingInfo::load(Session& session, MetaDboBase *obj)
+{
+  throw Exception("Not to be done.");
+}
+
+MetaDboBase *MappingInfo::load(Session& session, SqlStatement *statement,
+			       int& column)
+{
+  throw Exception("Not to be done.");
+}
+
+std::string MappingInfo::primaryKeys() const
 {
   if (surrogateIdFieldName)
     return std::string("\"") + surrogateIdFieldName + "\"";
@@ -104,6 +110,16 @@ std::string Session::MappingInfo::primaryKeys() const
     return result.str();
   }
 }
+
+    } // end namespace Impl
+
+Session::JoinId::JoinId(const std::string& aJoinIdName,
+			const std::string& aTableIdName,
+			const std::string& aSqlType)
+  : joinIdName(aJoinIdName),
+    tableIdName(aTableIdName),
+    sqlType(aSqlType)
+{ }
 
 Session::Session()
   : schemaInitialized_(false),
@@ -218,7 +234,7 @@ void Session::initSchema() const
   t.commit();
 }
 
-void Session::prepareStatements(MappingInfo *mapping)
+void Session::prepareStatements(Impl::MappingInfo *mapping)
 {
   std::stringstream sql;
 
@@ -378,11 +394,11 @@ void Session::prepareStatements(MappingInfo *mapping)
    * Collections SQL
    */
   for (unsigned i = 0; i < mapping->sets.size(); ++i) {
-    const SetInfo& info = mapping->sets[i];
+    const Impl::SetInfo& info = mapping->sets[i];
 
     sql.str("");
 
-    MappingInfo *otherMapping = getMapping(info.tableName);
+    Impl::MappingInfo *otherMapping = getMapping(info.tableName);
 
     // select [surrogate id,] version, ... from other
 
@@ -584,7 +600,7 @@ std::string Session::constraintName(const char *tableName,
 
 
 /*
-void Session::mergeDuplicates(MappingInfo *mapping)
+void Session::mergeDuplicates(Impl::MappingInfo *mapping)
 {
   for (unsigned i = 0; i < mapping->fields.size(); ++i) {
     FieldInfo& f = mapping->fields[i];
@@ -603,16 +619,16 @@ void Session::mergeDuplicates(MappingInfo *mapping)
 }
 */
 
-void Session::resolveJoinIds(MappingInfo *mapping)
+void Session::resolveJoinIds(Impl::MappingInfo *mapping)
 {
   for (unsigned i = 0; i < mapping->sets.size(); ++i) {
-    SetInfo& set = mapping->sets[i];
+    Impl::SetInfo& set = mapping->sets[i];
 
     if (set.type == ManyToMany) {
-      MappingInfo *other = getMapping(set.tableName);
+      Impl::MappingInfo *other = getMapping(set.tableName);
 
       for (unsigned j = 0; j < other->sets.size(); ++j) {
-	const SetInfo& otherSet = other->sets[j];
+	const Impl::SetInfo& otherSet = other->sets[j];
 
 	if (otherSet.joinName == set.joinName) {
 	  // second check make sure we find the other id if Many-To-Many between
@@ -670,7 +686,7 @@ void Session::createTables()
   t.commit();
 }
 
-void Session::createTable(MappingInfo *mapping,
+void Session::createTable(Impl::MappingInfo *mapping,
 			  std::set<std::string>& tablesCreated,
                           std::ostream *sout,
                           bool createConstraints)
@@ -774,16 +790,16 @@ void Session::createTable(MappingInfo *mapping,
   }
 }
 
-void Session::createRelations(MappingInfo *mapping,
+void Session::createRelations(Impl::MappingInfo *mapping,
 			      std::set<std::string>& tablesCreated,
 			      std::ostream *sout)
 {
   for (unsigned i = 0; i < mapping->sets.size(); ++i) {
-    const SetInfo& set = mapping->sets[i];
+    const Impl::SetInfo& set = mapping->sets[i];
 
     if (set.type == ManyToMany) {
       if (tablesCreated.count(set.joinName) == 0) {
-	MappingInfo *other = getMapping(set.tableName);
+	Impl::MappingInfo *other = getMapping(set.tableName);
 
 	createJoinTable(set.joinName, mapping, other,
 			set.joinSelfId, set.joinOtherId,
@@ -817,7 +833,7 @@ void Session::createRelations(MappingInfo *mapping,
 }
 
 //constraint fk_... foreign key ( ..., .. , .. ) references (..)
-std::string Session::constraintString(MappingInfo *mapping,
+std::string Session::constraintString(Impl::MappingInfo *mapping,
                                       const FieldInfo& field,
                                       unsigned fromIndex,
                                       unsigned toIndex)
@@ -833,7 +849,7 @@ std::string Session::constraintString(MappingInfo *mapping,
     sql << ", \"" << nextField.name() << "\"";
   }
 
-  MappingInfo *otherMapping = getMapping(field.foreignKeyTable().c_str());
+  Impl::MappingInfo *otherMapping = getMapping(field.foreignKeyTable().c_str());
 
   sql << ") references \"" << Impl::quoteSchemaDot(field.foreignKeyTable())
       << "\" (" << otherMapping->primaryKeys() << ")";
@@ -856,7 +872,7 @@ std::string Session::constraintString(MappingInfo *mapping,
   return sql.str();
 }
 
-unsigned Session::findLastForeignKeyField(MappingInfo *mapping,
+unsigned Session::findLastForeignKeyField(Impl::MappingInfo *mapping,
                                  const FieldInfo& field,
                                  unsigned index)
 {
@@ -872,14 +888,15 @@ unsigned Session::findLastForeignKeyField(MappingInfo *mapping,
 }
 
 void Session::createJoinTable(const std::string& joinName,
-			      MappingInfo *mapping1, MappingInfo *mapping2,
+			      Impl::MappingInfo *mapping1,
+			      Impl::MappingInfo *mapping2,
 			      const std::string& joinId1,
 			      const std::string& joinId2,
 			      int fkConstraints1, int fkConstraints2,
 			      std::set<std::string>& tablesCreated,
 			      std::ostream *sout)
 {
-  MappingInfo joinTableMapping;
+  Impl::MappingInfo joinTableMapping;
 
   joinTableMapping.tableName = joinName.c_str();
   joinTableMapping.versionFieldName = 0;
@@ -896,8 +913,8 @@ void Session::createJoinTable(const std::string& joinName,
   createJoinIndex(joinTableMapping, mapping2, joinId2, "key2", sout);
 }
 
-void Session::createJoinIndex(MappingInfo& joinTableMapping,
-			      MappingInfo *mapping,
+void Session::createJoinIndex(Impl::MappingInfo& joinTableMapping,
+			      Impl::MappingInfo *mapping,
 			      const std::string& joinId,
 			      const std::string& foreignKeyName,
 			      std::ostream *sout)
@@ -931,7 +948,7 @@ void Session::createJoinIndex(MappingInfo& joinTableMapping,
 }
 
 std::vector<Session::JoinId> 
-Session::getJoinIds(MappingInfo *mapping, const std::string& joinId)
+Session::getJoinIds(Impl::MappingInfo *mapping, const std::string& joinId)
 {
   std::vector<Session::JoinId> result;
 
@@ -968,7 +985,8 @@ Session::getJoinIds(MappingInfo *mapping, const std::string& joinId)
   return result;
 }
 
-void Session::addJoinTableFields(MappingInfo& result, MappingInfo *mapping,
+void Session::addJoinTableFields(Impl::MappingInfo& result,
+				 Impl::MappingInfo *mapping,
 				 const std::string& joinId,
 				 const std::string& keyName,
 				 int fkConstraints)
@@ -1001,7 +1019,7 @@ void Session::dropTables()
   if (connection(false)->supportAlterTable()){
     for (ClassRegistry::iterator i = classRegistry_.begin();
          i != classRegistry_.end(); ++i){
-      MappingInfo *mapping = i->second;
+      Impl::MappingInfo *mapping = i->second;
       //find the constraint.
       //ALTER TABLE products DROP CONSTRAINT some_name
       for (unsigned j = 0; j < mapping->fields.size(); ++j) {
@@ -1031,7 +1049,7 @@ void Session::dropTables()
   t.commit();
 }
 
-Session::MappingInfo *Session::getMapping(const char *tableName) const
+Impl::MappingInfo *Session::getMapping(const char *tableName) const
 {
   TableRegistry::const_iterator i = tableRegistry_.find(tableName);
 
@@ -1156,7 +1174,7 @@ void Session::getFields(const char *tableName,
 {
   initSchema();
 
-  MappingInfo *mapping = getMapping(tableName);
+  Impl::MappingInfo *mapping = getMapping(tableName);
   if (!mapping)
     throw Exception(std::string("Table ") + tableName + " was not mapped.");
 
@@ -1175,5 +1193,15 @@ void Session::getFields(const char *tableName,
   result.insert(result.end(), mapping->fields.begin(), mapping->fields.end());
 }
 
+MetaDboBase *Session::createDbo(Impl::MappingInfo *mapping)
+{
+  return mapping->create(*this);
+}
+
+void Session::load(MetaDboBase *dbo)
+{
+  Impl::MappingInfo *mapping = dbo->getMapping();
+  mapping->load(*this, dbo);
+}
   }
 }

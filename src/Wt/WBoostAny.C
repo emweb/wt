@@ -368,26 +368,32 @@ WString asString(const boost::any& v, const WT_USTRING& format)
   } else if (v.type() == typeid(WDateTime)) {
     const WDateTime& dt = boost::any_cast<WDateTime>(v);
     return dt.toString(format.empty() ? 
-		       "dd/MM/yy HH:mm:ss" :
+			   WLocale::currentLocale().dateTimeFormat() : 
 		       format);
   } else if (v.type() == typeid(WLocalDateTime)) {
     const WLocalDateTime& dt = boost::any_cast<WLocalDateTime>(v);
     return dt.toString();
   } else if (v.type() == typeid(WTime)) {
     const WTime& t = boost::any_cast<WTime>(v);
-    return t.toString(format.empty() ? "HH:mm:ss" : format);
+    return t.toString(format.empty() ? 
+		WLocale::currentLocale().timeFormat() : 
+		format);
   } else if (v.type() == typeid(boost::posix_time::ptime)) {
     const boost::posix_time::ptime& d 
       = boost::any_cast<boost::posix_time::ptime>(v);
     return WDateTime::fromPosixTime(d)
-      .toString(format.empty() ? "dd/MM/yy HH:mm:ss" : format);
+      .toString(format.empty() ? 
+		  WLocale::currentLocale().dateTimeFormat() : 
+		  format);
   } else if (v.type() == typeid(boost::posix_time::time_duration)) {
     const boost::posix_time::time_duration& dt
       = boost::any_cast<boost::posix_time::time_duration>(v);
     int millis = (int)(dt.fractional_seconds() *
       std::pow(10.0, 3 - boost::posix_time::time_duration::num_fractional_digits())); 
     return WTime(dt.hours(), dt.minutes(), dt.seconds(), millis)
-      .toString(format.empty() ? "HH:mm:ss" : format);
+      .toString(format.empty() ? 
+		  WLocale::currentLocale().timeFormat() : 
+		  format);
   }
 
 #define ELSE_LEXICAL_ANY(TYPE, CAST_TYPE)				\
@@ -572,19 +578,22 @@ extern WT_API boost::any convertAnyToAny(const boost::any& v,
        format);
   } else if (type == typeid(WDateTime)) {
     return WDateTime::fromString
-      (s, format.empty() ? "dd/MM/yy HH:mm:ss" : format);
+      (s, format.empty() ? 
+	   WLocale::currentLocale().dateTimeFormat() : format);
   } else if (type == typeid(WLocalDateTime)) {
     return WLocalDateTime::fromString(s);
   } else if (type == typeid(WTime)) {
     return WTime::fromString
-      (s, format.empty() ? "HH:mm:ss" : format);
+      (s, format.empty() ? 
+	   WLocale::currentLocale().timeFormat() :  format);
   } else if (type == typeid(boost::posix_time::ptime)) {
     return WDateTime::fromString
-      (s, format.empty() ? "dd/MM/yy HH:mm:ss" : format).toPosixTime();
+      (s, format.empty() ? 
+	   WLocale::currentLocale().dateTimeFormat() : format).toPosixTime();
   } else if (type == typeid(boost::posix_time::time_duration)) {
     return boost::posix_time::milliseconds
       (WTime(0, 0).msecsTo(WTime::fromString
-			   (s, format.empty() ? "HH:mm:ss" : format)));
+			   (s, format.empty() ? WLocale::currentLocale().timeFormat() : format)));
   } else if (type == typeid(bool)) {
     std::string b = s.toUTF8();
     if (b == "true" || b == "1")

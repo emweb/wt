@@ -336,7 +336,6 @@ private:
     bool operator()(int sourceRow1, int sourceRow2) const;
 
     bool lessThan(int sourceRow1, int sourceRow2) const;
-    //int compare(const WModelIndex& lhs, const WModelIndex& rhs) const;
 #endif // WT_TARGET_JAVA
 
     int compare(int sourceRow1, int sourceRow2) const;

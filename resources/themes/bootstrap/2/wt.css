@@ -607,6 +607,7 @@
   /* needed for IE only */
 
   white-space: nowrap;
+  height: 20px;
 }
 .Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
   overflow: visible;

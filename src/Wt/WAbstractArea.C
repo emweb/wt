@@ -226,15 +226,14 @@ void WAbstractArea::setTarget(AnchorTarget target)
 {
   createAnchorImpl();
 
-  anchor_->linkState.target = target;
-
+  anchor_->linkState.link.setTarget(target);
   repaint();
 }
 
 AnchorTarget WAbstractArea::target() const
 {
   if (anchor_)
-    return anchor_->linkState.target;
+    return anchor_->linkState.link.target();
   else
     return TargetSelf;
 }

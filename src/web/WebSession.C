@@ -419,6 +419,9 @@ void WebSession::init(const WebRequest& request)
 
   env_->setInternalPath(path);
   pagePathInfo_ = request.pathInfo();
+
+  // Cache document root
+  docRoot_ = getCgiValue("DOCUMENT_ROOT");
 }
 
 bool WebSession::useUglyInternalPaths() const
@@ -657,7 +660,9 @@ std::string WebSession::getCgiValue(const std::string& varName) const
   WebRequest *request = WebSession::Handler::instance()->request();
   if (request)
     return str(request->envValue(varName.c_str()));
-  else
+  else if(varName == "DOCUMENT_ROOT")
+	return docRoot_;
+  else 
     return std::string();
 }
 
@@ -1728,9 +1733,9 @@ void WebSession::handleWebSocketRequest(Handler& handler)
 void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 					WebReadEvent event)
 {
-  //LOG_DEBUG("handleWebSocketMessage: " << (int)event);
 
 #ifndef WT_TARGET_JAVA
+  LOG_DEBUG("handleWebSocketMessage: " << (int)event);
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
     Handler handler(lock, Handler::TakeLock);
@@ -1744,6 +1749,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	if (lock->canWriteAsyncResponse_) {
 	  lock->asyncResponse_->flush();
 	  lock->asyncResponse_ = 0;
+
 	}
 
 	return;
@@ -1836,10 +1842,11 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	}
 
 	if (closing) {
-	  if (lock->asyncResponse_)
+	  if (lock->asyncResponse_ && lock->canWriteAsyncResponse_) {
 	    lock->asyncResponse_->flush();
 	  lock->asyncResponse_ = 0;
 	  lock->canWriteAsyncResponse_ = false;
+	  }
 	} else
 	  if (lock->asyncResponse_ &&
 	      lock->asyncResponse_->isWebSocketRequest())

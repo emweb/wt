@@ -40,8 +40,8 @@ weak_ptr<C>::mutator::mutator(const ptr<C>& p)
 
 template <class C>
 weak_ptr<C>::mutator::~mutator()
-{ 
-  p_.setDirty();
+{
+  p_.modify();
 }
 
 template <class C>
@@ -251,7 +251,7 @@ typename dbo_traits<C>::IdType weak_ptr<C>::id() const
 
 template <class C>
 void weak_ptr<C>::setRelationData(MetaDboBase *dbo, const std::string *sql,
-				  Session::SetInfo *info)
+				  Impl::SetInfo *info)
 {
   collection_.setRelationData(dbo, sql, info);
 }

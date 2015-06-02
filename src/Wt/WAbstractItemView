@@ -789,6 +789,22 @@ public:
    */
   Signal<int, WMouseEvent> &headerDoubleClicked() { return headerDblClicked_; }
 
+  /*! \brief %Signal emitted when a mouse button is pressed on a header item
+   *
+   * The argument that is passed is the column number.
+   *
+   * \sa headerMouseWentDownUp()
+   */
+  Signal<int, WMouseEvent>& headerMouseWentDown() { return headerMouseWentDown_; }
+
+  /*! \brief %Signal emitted when a mouse button is released on a header item
+   *
+   * The argument that is passed is the column number.
+   *
+   * \sa headerMouseWentDown()
+   */
+  Signal<int, WMouseEvent>& headerMouseWentUp() { return headerMouseWentUp_; }
+
   /*! \brief Signals when scrolling.
    *
    *  \note Works only if ajax is available.
@@ -1082,7 +1098,7 @@ private:
   WString computedDragMimeType_;
   bool sortEnabled_;
 
-  JSignal<int, int>    columnWidthChanged_;
+  JSignal<int, int> columnWidthChanged_;
   Signal<int, WLength> columnResized_;
 
   WCssTemplateRule *headerHeightRule_;
@@ -1091,8 +1107,6 @@ private:
   
   WSignalMapper<int> *clickedForExpandMapper_, *clickedForCollapseMapper_;
 
-//  WSignalMapper<int, WMouseEvent> *headerDblClickedMapper_,
-//    *headerClickedMapper_;
   bool alternatingRowColors_;
 
   JSlot resizeHandleMDownJS_;
@@ -1100,8 +1114,10 @@ private:
   typedef std::map<WModelIndex, Editor> EditorMap;
   EditorMap editedItems_;
 
-  Signal<int, WMouseEvent> headerDblClicked_;
   Signal<int, WMouseEvent> headerClicked_;
+  Signal<int, WMouseEvent> headerDblClicked_;
+  Signal<int, WMouseEvent> headerMouseWentDown_;
+  Signal<int, WMouseEvent> headerMouseWentUp_;
 
   Signal<WModelIndex, WMouseEvent> clicked_;
   Signal<WModelIndex, WMouseEvent> doubleClicked_;
@@ -1129,6 +1145,8 @@ private:
   void checkDragSelection();
   void configureModelDragDrop();
 
+  void handleHeaderMouseDown(int columnid, WMouseEvent event);
+  void handleHeaderMouseUp(int columnid, WMouseEvent event);
   void handleHeaderClicked(int columnid, WMouseEvent event);
   void handleHeaderDblClicked(int columnid, WMouseEvent event);
   void toggleSortColumn(int columnid);

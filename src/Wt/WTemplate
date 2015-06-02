@@ -605,6 +605,9 @@ public:
    */
   virtual WWidget *resolveWidget(const std::string& varName);
 
+  std::vector<WWidget *> widgets() const;
+  std::string varName(WWidget *w) const;
+
   /*! \brief Resolves a function call.
    *
    * This resolves a function with name \p name, and one or more arguments

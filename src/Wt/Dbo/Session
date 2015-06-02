@@ -27,6 +27,49 @@ namespace Wt {
     namespace Impl {
       extern WTDBO_API std::string quoteSchemaDot(const std::string& table);
       template <class C, typename T> struct LoadHelper;
+
+      struct WTDBO_API SetInfo {
+	const char *tableName;
+	std::string joinName;
+	std::string joinSelfId, joinOtherId;
+	RelationType type;
+	int fkConstraints, otherFkConstraints;
+
+	SetInfo(const char *aTableName, RelationType type,
+		const std::string& aJoinName,
+		const std::string& aJoinSelfId,
+		int someFkConstraints);
+      };
+
+      struct WTDBO_API MappingInfo {
+	bool initialized_;
+	const char *tableName;
+	const char *versionFieldName;
+	const char *surrogateIdFieldName;
+
+	std::string naturalIdFieldName; // for non-auto generated id
+	int naturalIdFieldSize;         // for non-auto generated id
+
+	std::string idCondition;
+
+	std::vector<FieldInfo> fields;
+	std::vector<SetInfo> sets;
+
+	std::vector<std::string> statements;
+
+	MappingInfo();
+	virtual ~MappingInfo();
+	virtual void init(Session& session);
+	virtual void dropTable(Session& session,
+			       std::set<std::string>& tablesDropped);
+	virtual void rereadAll();
+	virtual MetaDboBase *create(Session& session);
+	virtual void load(Session& session, MetaDboBase *obj);
+	virtual MetaDboBase *load(Session& session, SqlStatement *statement,
+				  int& column);
+
+	std::string primaryKeys() const;
+      };
     }
 
 struct NullType {
@@ -464,47 +507,8 @@ private:
 	   const std::string& aSqlType);
   };
 
-  struct WTDBO_API SetInfo {
-    const char *tableName;
-    std::string joinName;
-    std::string joinSelfId, joinOtherId;
-    RelationType type;
-    int fkConstraints, otherFkConstraints;
-
-    SetInfo(const char *aTableName, RelationType type,
-	    const std::string& aJoinName,
-	    const std::string& aJoinSelfId,
-	    int someFkConstraints);
-  };
-
-  struct WTDBO_API MappingInfo {
-    bool initialized_;
-    const char *tableName;
-    const char *versionFieldName;
-    const char *surrogateIdFieldName;
-
-    std::string naturalIdFieldName; // for non-auto generated id
-    int naturalIdFieldSize;         // for non-auto generated id
-
-    std::string idCondition;
-
-    std::vector<FieldInfo> fields;
-    std::vector<SetInfo> sets;
-
-    std::vector<std::string> statements;
-
-    MappingInfo();
-    virtual ~MappingInfo();
-    virtual void init(Session& session);
-    virtual void dropTable(Session& session,
-			   std::set<std::string>& tablesDropped);
-    virtual void rereadAll();
-
-    std::string primaryKeys() const;
-  };
-
   template <class C>
-  struct Mapping : public MappingInfo
+  struct Mapping : public Impl::MappingInfo
   {
     typedef std::map<typename dbo_traits<C>::IdType, MetaDbo<C> *> Registry;
     Registry registry_;
@@ -514,6 +518,10 @@ private:
     virtual void dropTable(Session& session,
 			   std::set<std::string>& tablesDropped);
     virtual void rereadAll();
+    virtual MetaDbo<C> *create(Session& session);
+    virtual void load(Session& session, MetaDboBase *obj);
+    virtual MetaDbo<C> *load(Session& session, SqlStatement *statement,
+			     int& column);
   };
   
   typedef const std::type_info * const_typeinfo_ptr;
@@ -524,8 +532,9 @@ private:
 	}
   };
   
-  typedef std::map<const_typeinfo_ptr, MappingInfo *, typecomp> ClassRegistry;
-  typedef std::map<std::string, MappingInfo *> TableRegistry;
+  typedef std::map<const_typeinfo_ptr,
+		   Impl::MappingInfo *, typecomp> ClassRegistry;
+  typedef std::map<std::string, Impl::MappingInfo *> TableRegistry;
 
   ClassRegistry classRegistry_;
   TableRegistry tableRegistry_;
@@ -541,43 +550,43 @@ private:
   FlushMode flushMode_;
 
   void initSchema() const;
-  void resolveJoinIds(MappingInfo *mapping);
-  void prepareStatements(MappingInfo *mapping);
+  void resolveJoinIds(Impl::MappingInfo *mapping);
+  void prepareStatements(Impl::MappingInfo *mapping);
 
   void executeSql(std::vector<std::string> &sql, std::ostream *sout);
   void executeSql(std::stringstream &sql, std::ostream *sout);
   std::string constraintName(const char *tableName,
                              std::string foreignKeyName);
 
-  std::vector<JoinId> getJoinIds(MappingInfo *mapping, 
+  std::vector<JoinId> getJoinIds(Impl::MappingInfo *mapping, 
 				 const std::string& joinId);
 
-  void createTable(MappingInfo *mapping,
+  void createTable(Impl::MappingInfo *mapping,
 		   std::set<std::string>& tablesCreated,
                    std::ostream *sout,
                    bool createConstraints);
-  void createRelations(MappingInfo *mapping,
+  void createRelations(Impl::MappingInfo *mapping,
 		       std::set<std::string>& tablesCreated,
 		       std::ostream *sout);
-  std::string constraintString(MappingInfo *mapping,
+  std::string constraintString(Impl::MappingInfo *mapping,
                                const FieldInfo& field,
                                unsigned fromIndex,
                                unsigned toIndex);
-  unsigned findLastForeignKeyField(MappingInfo *mapping,
+  unsigned findLastForeignKeyField(Impl::MappingInfo *mapping,
                                    const FieldInfo& field,
                                    unsigned index);
   void createJoinTable(const std::string& joinName,
-		       MappingInfo *mapping1, MappingInfo *mapping2,
+		       Impl::MappingInfo *mapping1, Impl::MappingInfo *mapping2,
 		       const std::string& joinId1,
 		       const std::string& joinId2,
 		       int fkConstraints1, int fkConstraints2,
 		       std::set<std::string>& tablesCreated,
 		       std::ostream *sout);
-  void addJoinTableFields(MappingInfo& joinTableMapping,
-			  MappingInfo *mapping, const std::string& joinId,
+  void addJoinTableFields(Impl::MappingInfo& joinTableMapping,
+			  Impl::MappingInfo *mapping, const std::string& joinId,
 			  const std::string& foreignKeyName, int fkConstraints);
-  void createJoinIndex(MappingInfo& joinTableMapping,
-		       MappingInfo *mapping,
+  void createJoinIndex(Impl::MappingInfo& joinTableMapping,
+		       Impl::MappingInfo *mapping,
 		       const std::string& joinId,
 		       const std::string& foreignKeyName,
 		       std::ostream *sout);
@@ -585,13 +594,15 @@ private:
   void needsFlush(MetaDboBase *dbo);
 
   template <class C> Mapping<C> *getMapping() const;
-  MappingInfo *getMapping(const char *tableName) const;
+  Impl::MappingInfo *getMapping(const char *tableName) const;
+
+  void load(MetaDboBase *obj);
   template <class C> ptr<C> load(SqlStatement *statement, int& column);
 
   template <class C>
-    ptr<C> loadWithNaturalId(SqlStatement *statement, int& column);
+    MetaDbo<C> *loadWithNaturalId(SqlStatement *statement, int& column);
   template <class C>
-    ptr<C> loadWithLongLongId(SqlStatement *statement, int& column);
+    MetaDbo<C> *loadWithLongLongId(SqlStatement *statement, int& column);
 
   void discardChanges(MetaDboBase *obj);
   template <class C> void prune(MetaDbo<C> *obj);
@@ -621,6 +632,8 @@ private:
   void returnConnection(SqlConnection *connection);
   SqlConnection *connection(bool openTransaction);
 
+  MetaDboBase *createDbo(Impl::MappingInfo *mapping);
+
   template <class C> friend class MetaDbo;
   template <class C> friend class collection;
   template <class C> friend class weak_ptr;
@@ -632,6 +645,9 @@ private:
   template <class C> friend class SaveDbAction;
   template <class C> friend class LoadDbAction;
   template <class C> friend class PtrRef;
+  friend class SetReciproceAction;
+  friend class ToAnysAction;
+  friend class FromAnysAction;
 
   friend class Call;
   friend class CollectionHelper;
@@ -643,7 +659,6 @@ private:
   friend class MetaDboBase;
   friend class SaveBaseAction;
   friend class SessionAddAction;
-  friend class ToAnysAction;
   friend class Transaction;
   friend class TransactionDoneAction;
 

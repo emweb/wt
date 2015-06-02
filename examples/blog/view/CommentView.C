@@ -8,10 +8,7 @@
 
 #include "../model/BlogSession.h"
 #include "../model/Comment.h"
-#include "../model/Tag.h"
-#include "../model/Token.h"
 #include "../model/User.h"
-#include "../model/Post.h"
 
 #include <Wt/WContainerWidget>
 #include <Wt/WPushButton>

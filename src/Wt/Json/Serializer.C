@@ -42,7 +42,7 @@ void serialize(const Value& val, int indentation, EscapeOStream &result)
 	return;
     break;
   case NumberType:
-	result << Utils::round_js_str(static_cast<double>(val), 7, buf);
+	result << Utils::round_js_str(static_cast<double>(val), 16, buf);
 	return;
     break;
   case ObjectType:

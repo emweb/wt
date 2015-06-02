@@ -924,6 +924,7 @@ void WTreeViewNode::selfCheck()
 
 WTreeView::WTreeView(WContainerWidget *parent)
   : WAbstractItemView(parent),
+	skipNextMouseEvent_(false),
     renderedNodesAdded_(false),
     rootNode_(0),
     rowHeightRule_(0),
@@ -1532,26 +1533,24 @@ void WTreeView::rerenderTree()
 
   if (WApplication::instance()->environment().ajax()) {
     connectObjJS(rootNode_->clicked(), "click");
-    rootNode_->clicked().preventPropagation();
+
     if (firstTime)
       connectObjJS(contentsContainer_->clicked(), "rootClick");
 
     if (editTriggers() & DoubleClicked || doubleClicked().isConnected()) {
       connectObjJS(rootNode_->doubleClicked(), "dblClick");
-      rootNode_->doubleClicked().preventPropagation();
       if (firstTime)
 	connectObjJS(contentsContainer_->doubleClicked(), "rootDblClick");
     }
 
     if (mouseWentDown().isConnected() || dragEnabled_) {
       connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
-      rootNode_->mouseWentDown().preventPropagation();
       if (firstTime)
 	connectObjJS(contentsContainer_->mouseWentDown(), "rootMouseDown");
     }
 
     if (mouseWentUp().isConnected()) { 
-      rootNode_->mouseWentUp().preventPropagation();
+	  // Do not stop propagation to avoid mouseDrag event being emitted 
       connectObjJS(rootNode_->mouseWentUp(), "mouseUp");
       if (firstTime)
 	connectObjJS(contentsContainer_->mouseWentUp(), "rootMouseUp");
@@ -1628,14 +1627,28 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
     }
   }
 
+  /*
+   * Every mouse event is emitted twice (because we don't prevent the propagation
+   * because it will block the mouseWentUp event and therefore result in mouseDragged
+   * being emitted (See #3879)
+   */
+  if(skipNextMouseEvent_) {
+	skipNextMouseEvent_ = false; 
+	return;
+  }
+
   if (type == "clicked") {
     handleClick(index, event);
+	skipNextMouseEvent_ = true;
   } else if (type == "dblclicked") {
     handleDoubleClick(index, event);
+	skipNextMouseEvent_ = true;
   } else if (type == "mousedown") {
     mouseWentDown().emit(index, event);
+	skipNextMouseEvent_ = true;
   } else if (type == "mouseup") {
     mouseWentUp().emit(index, event);
+	skipNextMouseEvent_ = true;
   } else if (type == "drop") {
     WDropEvent e(WApplication::instance()->decodeObject(extra1), extra2, event);
     dropEvent(e, index);
@@ -1967,7 +1980,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 
 	  int parentRowCount = model()->rowCount(parent);
 
-	  int nodesToAdd = std::min(count, maxRenderHeight);
+	  int nodesToAdd = std::max(0, std::min(count, maxRenderHeight));
 
 	  WTreeViewNode *first = 0;
 	  for (int i = 0; i < nodesToAdd; ++i) {

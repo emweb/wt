@@ -10,6 +10,15 @@
 #include "Connection.h"
 #include "Server.h"
 #include "StockReply.h"
+#include "Wt/Json/Serializer"
+#include "Wt/Json/Value"
+#include "Wt/Json/Array"
+#include "Wt/Json/Object"
+#include "Wt/WSslCertificate"
+#include "Wt/WSslInfo"
+#include "SslUtils.h"
+#include "Wt/WString"
+#include "Wt/Utils"
 
 namespace Wt {
   LOGGER("wthttp/proxy");
@@ -26,7 +35,8 @@ ProxyReply::ProxyReply(Request& request,
     out_(&out_buf_),
     sending_(0),
     more_(true),
-    receiving_(false)
+    receiving_(false),
+	fwCertificates_(false)
 {
   reset(0);
 }
@@ -36,6 +46,13 @@ ProxyReply::~ProxyReply()
   if (sessionProcess_ && sessionProcess_->sessionId().empty()) {
     sessionProcess_->stop();
   }
+  
+  boost::system::error_code ignored_ec;
+  if(socket_.get()) {
+	socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+	socket_->close();
+  }
+
 }
 
 void ProxyReply::reset(const Wt::EntryPoint *ep)
@@ -44,6 +61,11 @@ void ProxyReply::reset(const Wt::EntryPoint *ep)
     sessionProcess_->stop();
   }
   sessionProcess_.reset();
+  boost::system::error_code ignored_ec;
+  if(socket_.get()) {
+	socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+	socket_->close();
+  }
   socket_.reset();
   contentType_.clear();
   requestBuf_.consume(requestBuf_.size());
@@ -71,7 +93,6 @@ void ProxyReply::writeDone(bool success)
   }
 
   if (more_) {
-    // Get more data to send
     asio::async_read(*socket_, responseBuf_,
 	asio::transfer_at_least(1),
 	connection()->strand().wrap(
@@ -86,13 +107,13 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 			     Request::State state)
 {
   if (state == Request::Error) {
-    socket_.reset();
     return false;
   }
 
   beginRequestBuf_ = begin;
   endRequestBuf_ = end;
   state_ = state;
+
 
   if (sessionProcess_) {
     // Connection with child already established, send request data
@@ -109,6 +130,7 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 
     if (sessionId.empty() || !sessionProcess_) {
       if (sessionManager_.tryToIncrementSessionCount()) {
+		fwCertificates_ = true;
 	// Launch new child process
 	sessionProcess_.reset(
 	    new SessionProcess(connection()->server()->service()));
@@ -198,11 +220,43 @@ void ProxyReply::assembleRequestHeaders()
     os << "Connection: close\r\n";
   }
   os << "X-Forwarded-For: " << forwardedFor << request_.remoteIP << "\r\n";
+  // Forward SSL Certificate to session only for first request
+  if(request_.sslInfo() && fwCertificates_) {
+	appendSSLInfo(request_.sslInfo(), os);
+  }
   os << "\r\n";
+  fwCertificates_ = false;
+}
+
+void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
+#ifdef WT_WITH_SSL
+  os << "SSL-Client-Certificates: ";
+
+  Wt::Json::Value val(Wt::Json::ObjectType);
+  Wt::Json::Object &obj = val;
+
+  Wt::WSslCertificate clientCert = sslInfo->clientCertificate();
+  std::string pem = clientCert.toPem();
+
+  obj["client-certificate"] = Wt::WString(pem); 
+
+  Wt::Json::Value arrVal(Wt::Json::ArrayType);
+  Wt::Json::Array &sslCertsArr = arrVal;
+  for(unsigned int i = 0; i< sslInfo->clientPemCertificateChain().size(); ++i) {
+	sslCertsArr.push_back(Wt::WString(sslInfo->clientPemCertificateChain()[i].toPem()));
+  }
+
+  obj["client-pem-certification-chain"] = arrVal;
+  obj["client-verification-result-state"] = (int)sslInfo->clientVerificationResult().state();
+  obj["client-verification-result-message"] = sslInfo->clientVerificationResult().message();
+
+  os <<Wt::Utils::base64Encode(Wt::Json::serialize(obj), false);
+  os << "\r\n";
+#endif
 }
 
 void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
-				   std::size_t transferred)
+	std::size_t transferred)
 {
   if (!ec) {
     if (state_ == Request::Partial) {

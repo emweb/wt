@@ -10,6 +10,10 @@
 #include "Wt/WLogger"
 #include "Wt/WSslInfo"
 #include "Wt/Http/Request"
+#include "Wt/Json/Parser"
+#include "Wt/Json/Object"
+#include "Wt/Json/Array"
+#include "Wt/WString"
 
 #include "WebController.h"
 #include "WebRequest.h"
@@ -18,6 +22,13 @@
 #include "Configuration.h"
 
 #include <boost/lexical_cast.hpp>
+
+#ifndef WT_TARGET_JAVA
+#ifdef WT_WITH_SSL
+#include <openssl/ssl.h>
+#include "SslUtils.h"
+#endif //WT_TARGET_JAVA
+#endif //WT_WITH_SSL
 
 namespace {
   inline std::string str(const char *s) {
@@ -100,6 +111,9 @@ void WEnvironment::init(const WebRequest& request)
   pathInfo_        = request.pathInfo();
 #ifndef WT_TARGET_JAVA
   sslInfo_         = request.sslInfo();
+  if(!sslInfo_ && !str(request.headerValue("SSL-Client-Certificates")).empty()) {
+	parseSSLInfo(str(request.headerValue("SSL-Client-Certificates")));
+  }
 #endif
 
   setUserAgent(str(request.headerValue("User-Agent")));
@@ -146,6 +160,41 @@ void WEnvironment::init(const WebRequest& request)
 
   locale_ = request.parseLocale();
 }
+
+#ifndef WT_TARGET_JAVA
+void WEnvironment::parseSSLInfo(const std::string& json) {
+#ifdef WT_WITH_SSL
+	Wt::Json::Object obj;
+	Wt::Json::ParseError error;
+	if(!Wt::Json::parse(Wt::Utils::base64Decode(json), obj, error)) {
+	  LOG_ERROR("error while parsing client certificates");
+	  return;
+	}
+
+	std::string clientCertificatePem = obj["client-certificate"];
+  
+	X509* cert = Wt::Ssl::readFromPem(clientCertificatePem);
+
+	if(cert) {
+	  Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(cert);
+	  X509_free(cert);
+
+	  Wt::Json::Array arr = obj["client-pem-certification-chain"];
+
+	  std::vector<Wt::WSslCertificate> clientCertChain;
+
+	  for(unsigned int i = 0; i < arr.size(); ++i ) {
+		clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(Wt::Ssl::readFromPem(arr[i])));
+	  }
+
+	  Wt::WValidator::State state = static_cast<Wt::WValidator::State>((int)obj["client-verification-result-state"]);
+	  Wt::WString message = obj["client-verification-result-message"];
+
+	  sslInfo_ = new Wt::WSslInfo(clientCert, clientCertChain, Wt::WValidator::Result(state, message));
+	}
+#endif // WT_WITH_SSL
+}
+#endif // WT_TARGET_JAVA
 
 std::string WEnvironment::getClientAddress(const WebRequest& request,
 					   const Configuration& conf)

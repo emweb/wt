@@ -31,7 +31,7 @@ WT_DECLARE_WT_MEMBER
    var isDoubleSpinBox = false;
 
    function isReadOnly() {
-     return !!edit.getAttribute("readonly");
+	 return edit.readOnly;
    }
 
    function addGrouping(input) {

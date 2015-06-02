@@ -124,7 +124,7 @@ void InitSchema::actWeakPtr(const WeakPtrRef<C>& field)
     joinName = mapping_.tableName;
 
   mapping_.sets.push_back
-    (Session::SetInfo(joinTableName, ManyToOne, joinName, std::string(), 0));
+    (Impl::SetInfo(joinTableName, ManyToOne, joinName, std::string(), 0));
 }
 
 template<class C>
@@ -137,7 +137,7 @@ void InitSchema::actCollection(const CollectionRef<C>& field)
                                     mapping_.tableName, joinTableName);
 
   mapping_.sets.push_back
-    (Session::SetInfo(joinTableName, field.type(), joinName, field.joinId(),
+    (Impl::SetInfo(joinTableName, field.type(), joinName, field.joinId(),
 		      field.fkConstraints()));
 }
 
@@ -215,7 +215,7 @@ void DropSchema::actCollection(const CollectionRef<C>& field)
 template<class C>
 void DboAction::actWeakPtr(const WeakPtrRef<C>& field)
 {
-  Session::SetInfo *setInfo = &mapping_->sets[setIdx_++];
+  Impl::SetInfo *setInfo = &mapping_->sets[setIdx_++];
 
   if (dbo_->session()) {
     int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
@@ -233,7 +233,7 @@ void DboAction::actWeakPtr(const WeakPtrRef<C>& field)
 template<class C>
 void DboAction::actCollection(const CollectionRef<C>& field)
 {
-  Session::SetInfo *setInfo = &mapping_->sets[setIdx_++];
+  Impl::SetInfo *setInfo = &mapping_->sets[setIdx_++];
 
   if (dbo_->session()) {
     int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
@@ -287,7 +287,8 @@ void LoadDbAction<C>::visit(C& obj)
     statement_->reset();
 
     int column = 0;
-    dbo_.bindId(statement_, column);
+    MetaDboBase *dbo = dynamic_cast<MetaDboBase *>(&dbo_);
+    dbo->bindId(statement_, column);
 
     statement_->execute();
 
@@ -337,7 +338,11 @@ void SaveBaseAction::actPtr(const PtrRef<C>& field)
 {
   switch (pass_) {
   case Dependencies:
-    field.value().flush();
+    {
+      MetaDboBase *dbob = field.value().obj();
+      if (dbob)
+	dbob->flush();
+    }
 
     break;
   case Self:
@@ -400,14 +405,17 @@ void SaveBaseAction::actCollection(const CollectionRef<C>& field)
 
 	  for (typename std::set< ptr<C> >::iterator i = inserted.begin();
 	       i != inserted.end(); ++i) {
+	    MetaDboBase *dbo2 = dynamic_cast<MetaDboBase *>(i->obj());
+
 	    // Make sure it is saved
-	    i->flush();
+	    dbo2->flush();
 
 	    statement->reset();
 	    int column = 0;
 
-	    dbo().bindId(statement, column);
-	    i->obj()->bindId(statement, column);
+	    MetaDboBase *dbo1 = dynamic_cast<MetaDboBase *>(&dbo());
+	    dbo1->bindId(statement, column);
+	    dbo2->bindId(statement, column);
 
 	    statement->execute();
 	  }
@@ -424,14 +432,17 @@ void SaveBaseAction::actCollection(const CollectionRef<C>& field)
 	  ScopedStatementUse use(statement);
 	  for (typename std::set< ptr<C> >::iterator i = erased.begin();
 	       i != erased.end(); ++i) {
+	    MetaDboBase *dbo2 = dynamic_cast<MetaDboBase *>(i->obj());
+
 	    // Make sure it is saved (?)
-	    i->flush();
+	    dbo2->flush();
 
 	    statement->reset();
 	    int column = 0;
 
-	    dbo().bindId(statement, column);
-	    i->obj()->bindId(statement, column);
+	    MetaDboBase *dbo1 = dynamic_cast<MetaDboBase *>(&dbo());
+	    dbo1->bindId(statement, column);
+	    dbo2->bindId(statement, column);
 
 	    statement->execute();
 	  }
@@ -486,7 +497,8 @@ void SaveDbAction<C>::visit(C& obj)
     persist<C>::apply(obj, *this);
 
     if (!isInsert_) {
-      dbo_.bindId(statement_, column_);
+      MetaDboBase *dbo = dynamic_cast<MetaDboBase *>(&dbo_);
+      dbo->bindId(statement_, column_);
 
       if (mapping().versionFieldName) {
 	// when saved in the transaction, we will be at version() + 1

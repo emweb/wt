@@ -19,7 +19,8 @@
 namespace Wt {
 
 WLink::WLink()
-  : type_(Url)
+  : type_(Url),
+    target_(TargetSelf)
 { 
 #ifdef WT_TARGET_JAVA
   setUrl("");
@@ -27,16 +28,19 @@ WLink::WLink()
 }
 
 WLink::WLink(const char *url)
+  : target_(TargetSelf)
 { 
   setUrl(url);
 }
 
 WLink::WLink(const std::string& url)
+  : target_(TargetSelf)
 { 
   setUrl(url);
 }
 
 WLink::WLink(Type type, const std::string& value)
+  : target_(TargetSelf)
 {
   switch (type) {
   case Url: setUrl(value); break;
@@ -47,6 +51,7 @@ WLink::WLink(Type type, const std::string& value)
 }
 
 WLink::WLink(WResource *resource)
+  : target_(TargetSelf)
 {
   setResource(resource);
 }
@@ -124,6 +129,11 @@ WT_USTRING WLink::internalPath() const
     return std::string();
 #endif
   }
+}
+
+void WLink::setTarget(AnchorTarget target)
+{
+  target_ = target;
 }
 
 bool WLink::operator==(const WLink& other) const
