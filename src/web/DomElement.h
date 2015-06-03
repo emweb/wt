@@ -123,6 +123,10 @@ public:
    */
   ~DomElement();
 
+  /*! \brief set dom element custom tag name 
+   */
+  void setDomElementTagName(const std::string& name);
+
   /*! \brief Low-level URL encoding function.
    */
   static std::string urlEncodeS(const std::string& url);
@@ -566,6 +570,7 @@ private:
   std::vector<DomElement *> updatedChildren_;
   EStream childrenHtml_;
   TimeoutList timeouts_;
+  std::string elementTagName_;
 
   static int nextId_;
 

@@ -1146,30 +1146,8 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
   }
 }
 
-WString WAxis::defaultDateTimeFormat(const Segment& s) const
+WString WAxis::autoDateFormat(const WDateTime& dt, DateTimeUnit unit, bool atTick) const 
 {
-  if (scale_ != DateScale && scale_ != DateTimeScale)
-    return WString::Empty;
-
-  WDateTime dt;
-
-  if (scale_ == DateScale) {
-    dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
-    if (!dt.isValid()) {
-      std::string exception = "Invalid julian day: "
-	+ boost::lexical_cast<std::string>(s.renderMinimum);
-      throw WException(exception);
-    }
-  } else
-    dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
-
-  int interval = s.dateTimeRenderInterval;
-  DateTimeUnit unit = s.dateTimeRenderUnit;
-
-  bool atTick = (interval > 1) ||
-    (unit <= Days) || 
-    !(roundLimits_ & MinimumValue);
-
   if (atTick) {
     switch (unit) {
     case Months:
@@ -1214,8 +1192,34 @@ WString WAxis::defaultDateTimeFormat(const Segment& s) const
       break;
     }
   }
-
   return WString::Empty;
+}
+
+WString WAxis::defaultDateTimeFormat(const Segment& s) const
+{
+  if (scale_ != DateScale && scale_ != DateTimeScale)
+    return WString::Empty;
+
+  WDateTime dt;
+
+  if (scale_ == DateScale) {
+    dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
+    if (!dt.isValid()) {
+      std::string exception = "Invalid julian day: "
+	+ boost::lexical_cast<std::string>(s.renderMinimum);
+      throw WException(exception);
+    }
+  } else
+    dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
+
+  int interval = s.dateTimeRenderInterval;
+  DateTimeUnit unit = s.dateTimeRenderUnit;
+
+  bool atTick = (interval > 1) ||
+    (unit <= Days) || 
+    !(roundLimits_ & MinimumValue);
+
+  return autoDateFormat(dt, unit, atTick);
 }
 
 long long WAxis::getDateNumber(WDateTime dt) const

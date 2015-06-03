@@ -7,6 +7,13 @@
 #include "Wt/WLoadingIndicator"
 
 namespace Wt {
+#ifndef WT_TARGET_JAVA
+  WLoadingIndicator::WLoadingIndicator(WObject *parent):
+	WObject(parent) 
+  {
+
+  }
+#endif //WT_TARGET_JAVA
 
   WLoadingIndicator::~WLoadingIndicator() {
   }

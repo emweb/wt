@@ -113,7 +113,6 @@ WebSession::WebSession(WebController *controller,
     canWriteAsyncResponse_(false),
     pollRequestsIgnored_(0),
     progressiveBoot_(false),
-    bootStyle_(true),
     deferredRequest_(0),
     deferredResponse_(0),
     deferCount_(0),
@@ -1508,12 +1507,12 @@ void WebSession::handleRequest(Handler& handler)
 	    const std::string *jsE = request.getParameter("js");
 	    bool nojs = jsE && *jsE == "no";
 
-	    bootStyle_ = bootStyle_ &&
+	    bool bootStyle = 
 	      (app_ || (!ios5 && !nojs)) &&
 	      page && 
 	      *page == boost::lexical_cast<std::string>(renderer_.pageId());
 
-	    if (!bootStyle_) {
+	    if (!bootStyle) {
 	      handler.response()->setContentType("text/css");
 	      handler.flushResponse();
 	    } else {

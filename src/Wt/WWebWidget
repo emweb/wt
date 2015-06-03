@@ -50,7 +50,8 @@ enum DomElementType {
   DomElement_AUDIO, DomElement_VIDEO, DomElement_SOURCE,
 
   DomElement_B, DomElement_STRONG, DomElement_EM, DomElement_I, DomElement_HR,
-  DomElement_UNKNOWN
+  DomElement_UNKNOWN,
+  DomElement_OTHER
 };
 
 class WCssDecorationStyle;
@@ -186,6 +187,24 @@ public:
    * \sa WApplication::setTwoPhaseRenderingThreshold()
    */
   void setLoadLaterWhenInvisible(bool);
+  
+  /*!
+   * \brief returns the current custom html tag name if set
+   * 
+   * \sa setHtmlTagName()
+   */
+  const std::string& htmlTagName() const { return elementTagName_; } 
+
+  /*!
+   * \brief set the custom HTML tag name
+   * 
+   * The custom tag will replace the actual tag. 
+   * The tag is not tested to see if
+   * it is a valid one and a closing tag will always be added.
+   *
+   * \sa htmlTagName()
+   */
+  void setHtmlTagName(const std::string & tag);
 
   /*! \brief Escape HTML control characters in the text, to display literally (<b>deprecated</b>).
    *
@@ -350,6 +369,8 @@ private:
 
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
+
+  std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA
   static const std::bitset<31> AllChangeFlags;

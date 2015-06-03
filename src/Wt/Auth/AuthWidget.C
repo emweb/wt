@@ -308,7 +308,9 @@ void AuthWidget::onLoginChange()
       
       model_->reset();
       createLoginView();
-    }
+    } else {
+	  createLoginView();
+	}
   }
 }
 

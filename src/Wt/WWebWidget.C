@@ -2083,6 +2083,10 @@ void WWebWidget::setLoadLaterWhenInvisible(bool how)
   flags_.set(BIT_DONOT_STUB, !how);
 }
 
+void WWebWidget::setHtmlTagName(const std::string& tag) {
+  elementTagName_ = tag;
+}
+
 void WWebWidget::setId(DomElement *element, WApplication *app)
 {
   if (!app->environment().agentIsSpiderBot()
@@ -2129,8 +2133,12 @@ WWidget *WWebWidget::findById(const std::string& id)
 DomElement *WWebWidget::createDomElement(WApplication *app)
 {
   setRendered(true);
-
-  DomElement *result = DomElement::createNew(domElementType());
+  DomElement *result;
+  if(elementTagName_.size() > 0) {
+	result = DomElement::createNew(DomElement_OTHER);
+	result->setDomElementTagName(elementTagName_);
+  } else
+	result = DomElement::createNew(domElementType());
   setId(result, app);
   updateDom(*result, true);
 

@@ -206,6 +206,10 @@ DomElement::~DomElement()
   delete insertBefore_;
 }
 
+void DomElement::setDomElementTagName(const std::string& name) {
+  this->elementTagName_ = name;
+}
+
 std::string DomElement::urlEncodeS(const std::string& url,
                                    const std::string &allowed)
 {
@@ -885,7 +889,9 @@ void DomElement::asHTML(EscapeOStream& out,
     out << "<a href=\"#\" class=\"Wt-wrap\" onclick=";
     fastHtmlAttributeValue(out, attributeValues, clickEvent->second.jsCode);
     out << "><" << elementNames_[renderedType];
-  } else
+  } else if (renderedType == DomElement_OTHER)  // Custom tag name
+	out << '<' << elementTagName_;
+  else
     out << '<' << elementNames_[renderedType];
 
   if (!id_.empty()) {
@@ -1031,8 +1037,10 @@ void DomElement::asHTML(EscapeOStream& out,
 	  && childrenToAdd_.empty()
 	  && childrenHtml_.empty())
 	out << "&nbsp;";
-
-      out << "</" << elementNames_[renderedType] << ">";
+	  if( renderedType  == DomElement_OTHER) // Custom tag name
+		out << "</" << elementTagName_ << ">";
+	  else
+		out << "</" << elementNames_[renderedType] << ">";
     } else
       out << " />";
 
