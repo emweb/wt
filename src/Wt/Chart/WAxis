@@ -628,6 +628,8 @@ public:
 		   double angle, int margin) const;
 
   void setRenderMirror(bool enable) { renderingMirror_ = enable; }
+  double calcTitleSize(WPaintDevice *device, Orientation orientation) const;
+  double calcMaxTickLabelSize(WPaintDevice *device, Orientation orientation) const;
 
 protected:
   /*! \brief Represents a Date time unit

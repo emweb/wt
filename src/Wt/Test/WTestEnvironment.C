@@ -116,6 +116,13 @@ void WTestEnvironment::init(EntryPointType type)
   locale_ = WLocale("en");
 }
 
+#ifdef WT_TARGET_JAVA
+void WTestEnvironment::close()
+{
+  WebSession::Handler::instance()->release();
+}
+#endif // WTextEnvironment
+
 void WTestEnvironment::endRequest()
 {
   delete WebSession::Handler::instance();

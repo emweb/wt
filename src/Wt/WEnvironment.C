@@ -311,7 +311,13 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
   agent_ = Unknown;
 
   /* detecting MSIE is as messy as their browser */
-  if (userAgent_.find("MSIE 2.") != std::string::npos
+  if (userAgent_.find("Trident/5.0") != std::string::npos) {
+    agent_ = IE9; return;
+  } else if (userAgent_.find("Trident/6.0") != std::string::npos) {
+    agent_ = IE10; return;
+  } else if (userAgent_.find("Trident/") != std::string::npos) {
+    agent_ = IE11; return;
+  } else if (userAgent_.find("MSIE 2.") != std::string::npos
       || userAgent_.find("MSIE 3.") != std::string::npos
       || userAgent_.find("MSIE 4.") != std::string::npos
       || userAgent_.find("MSIE 5.") != std::string::npos
@@ -327,13 +333,6 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = IE9;
   else if (userAgent_.find("MSIE") != std::string::npos)
     agent_ = IE10;
-  else if (userAgent_.find("Trident/5.0") != std::string::npos) {
-    agent_ = IE9; return;
-  } else if (userAgent_.find("Trident/6.0") != std::string::npos) {
-    agent_ = IE10; return;
-  } else if (userAgent_.find("Trident/") != std::string::npos) {
-    agent_ = IE11; return;
-  }
 
   if (userAgent_.find("Opera") != std::string::npos) {
     agent_ = Opera;

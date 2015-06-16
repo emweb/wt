@@ -348,6 +348,7 @@ bool WAbstractToggleButton::supportsIndeterminate(const WEnvironment& env)
   return env.javaScript()
     && (env.agentIsIE()
 	|| env.agentIsSafari()
+	|| env.agentIsChrome()
 	|| (env.agentIsGecko() && (env.agent() >= WEnvironment::Firefox3_6)));
 }
 

@@ -8,6 +8,7 @@
 #include <Wt/WLocale>
 
 #include "DomElement.h"
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -147,6 +148,11 @@ WValidator::Result WSpinBox::validateRange() const
 {
   WIntValidator validator;
   validator.setRange(min_, max_);
+  std::string badRangeText = WString::tr("Wt.WIntValidator.BadRange").toUTF8();
+  Wt::Utils::replace(badRangeText, "{1}", "{1}" + suffix().toUTF8());
+  Wt::Utils::replace(badRangeText, "{2}", "{2}" + suffix().toUTF8());
+  validator.setInvalidTooLargeText(WString(badRangeText));
+  validator.setInvalidTooSmallText(WString(badRangeText));
   return validator.validate(WString("{1}").arg(value_));
 }
 

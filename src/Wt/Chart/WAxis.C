@@ -19,6 +19,7 @@
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
 #include "Wt/WTime"
+#include "Wt/WMeasurePaintDevice"
 
 #include "Wt/Chart/WAxis"
 #include "Wt/Chart/WAbstractChartImplementation"
@@ -143,9 +144,9 @@ WAxis::WAxis()
     textPen_(black),
     titleOrientation_(Horizontal)
 {
-  titleFont_.setFamily(WFont::SansSerif);
+  titleFont_.setFamily(WFont::SansSerif, "Arial");
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
-  labelFont_.setFamily(WFont::SansSerif);
+  labelFont_.setFamily(WFont::SansSerif, "Arial");
   labelFont_.setSize(WFont::FixedSize, WLength(10, WLength::Point));
 
   segments_.push_back(Segment());
@@ -382,6 +383,44 @@ void WAxis::setTitleFont(const WFont& titleFont)
 void WAxis::setLabelFont(const WFont& labelFont)
 {
   set(labelFont_, labelFont);
+}
+
+double WAxis::calcTitleSize(WPaintDevice *d, Orientation orientation) const {
+  WMeasurePaintDevice device(d);
+
+  WPainter painter(&device);
+
+  // Set Painter props
+  painter.setFont(titleFont_);
+
+  painter.drawText( 0, 0, 100, 100, AlignCenter, title());
+  
+  return orientation == Vertical ? device.boundingRect().height() : device.boundingRect().width();
+
+
+}
+
+double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation) const {
+  WMeasurePaintDevice device(d);
+
+  WPainter painter(&device);
+
+  // Set Painter props
+  painter.setFont(labelFont_);
+
+  std::vector<TickLabel> ticks;
+
+  // Get all the ticks for the axis
+  for(int i = 0; i< segmentCount(); ++i) {
+   getLabelTicks(ticks, i);
+  }
+
+  for(unsigned int i = 0; i< ticks.size(); ++i) {
+	painter.drawText(0, 0, 100, 100, AlignRight, ticks[i].label);
+  }
+
+  return orientation == Vertical ? device.boundingRect().height() : device.boundingRect().width();
+
 }
 
 void WAxis::update()

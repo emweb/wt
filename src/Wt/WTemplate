@@ -662,6 +662,23 @@ public:
    */
   bool hasInternalPathEncoding() const { return encodeInternalPaths_; }
 
+  /*! \brief Configures when internal path encoding is done.
+   *
+   * By default, the internal path encoding (if enabled) is done on
+   * the template text before placeholders are being resolved. In some
+   * rare situations, you may want to postpone the internal path
+   * encoding until after placeholders have been resolved, e.g. if a
+   * placeholder was used to provide the string for an anchor href.
+   *
+   * The default value is \c true
+   */
+  void setEncodeTemplateText(bool on);
+
+  /*! \brief Returns whether internal path encoding is done on the template text.
+   * \sa setEncodeTemplateText()
+   */
+  bool encodeTemplateText() const { return encodeTemplateText_; }
+
   virtual void refresh();
 
   /*! \brief Renders the template into the given result stream.
@@ -742,9 +759,10 @@ private:
   WString text_;
   std::string errorText_;
 
-  bool encodeInternalPaths_, changed_;
+  bool encodeInternalPaths_, encodeTemplateText_, changed_;
   WidgetIdMode widgetIdMode_;
 
+  std::string encode(const std::string& text) const;
   static std::size_t parseArgs(const std::string& text,
 			       std::size_t pos,
 			       std::vector<WString>& result);

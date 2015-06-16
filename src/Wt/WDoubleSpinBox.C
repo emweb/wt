@@ -100,7 +100,7 @@ void WDoubleSpinBox::updateDom(DomElement& element, bool all)
       element.setAttribute("step", boost::lexical_cast<std::string>(step_));
     } else {
       /* Make sure the JavaScript validator is loaded */
-      WDoubleValidator v;
+      WDoubleValidator v ;
       v.javaScriptValidate();
     }
   }
@@ -162,6 +162,11 @@ WValidator::Result WDoubleSpinBox::validateRange() const
 {
   WDoubleValidator validator;
   validator.setRange(min_, max_);
+  std::string badRangeText = WString::tr("Wt.WDoubleValidator.BadRange").toUTF8();
+  Wt::Utils::replace(badRangeText, "{1}", "{1}" + suffix().toUTF8());
+  Wt::Utils::replace(badRangeText, "{2}", "{2}" + suffix().toUTF8());
+  validator.setInvalidTooLargeText(WString(badRangeText));
+  validator.setInvalidTooSmallText(WString(badRangeText));
   return validator.validate(WString("{1}").arg(value_));
 }
 

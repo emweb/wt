@@ -422,6 +422,8 @@ private:
 		      boost::asio::placeholders::bytes_transferred)));
     } else if (err != boost::asio::error::eof
 	       && err != boost::asio::error::shut_down
+	       && err != boost::asio::error::bad_descriptor
+	       && err != boost::asio::error::operation_aborted
 	       && err.value() != 335544539) {
       err_ = err;
       complete();
@@ -870,7 +872,7 @@ bool Client::request(Http::Method method, const std::string& url,
 
   if (followRedirect()) {
     impl_->done().connect(boost::bind(&Client::handleRedirect,
-				      this, method, _1, _2));
+				      this, method, _1, _2, message));
   } else {
     impl_->done().connect(this, &Client::emitDone);
   }
@@ -918,7 +920,7 @@ void Client::setMaxRedirects(int maxRedirects)
   maxRedirects_ = maxRedirects;
 }
 
-void Client::handleRedirect(Http::Method method, boost::system::error_code err, const Message& response)
+void Client::handleRedirect(Http::Method method, boost::system::error_code err, const Message& response, const Message& request)
 {
   int status = response.status();
   // Status codes 303 and 307 are implemented, although this should not
@@ -928,7 +930,7 @@ void Client::handleRedirect(Http::Method method, boost::system::error_code err, 
     ++ redirectCount_;
     if (newUrl) {
       if (redirectCount_ <= maxRedirects_) {
-	get(*newUrl);
+	get(*newUrl, request.headers());
 	return;
       } else {
 	LOG_WARN("Redirect count of " << maxRedirects_ << " exceeded! Redirect URL: " << *newUrl);

@@ -356,10 +356,11 @@ void Configuration::readOptions(const po::variables_map& vm)
 	      "Client authentication SSL CA certificates file",
 	      sslCaCertificates_, RegularFile);
 
-    if (sslClientVerification_ != "optional" &&
+    if (sslClientVerification_ != "optional" && 
+	sslClientVerification_ != "once" && 
 	sslClientVerification_ != "required") {
       throw Wt::WServer::Exception(
-	      "ssl-client-verification must be \"none\", \"optional\" or "
+	      "ssl-client-verification must be \"none\", \"optional\", \"once\" or "
 	      "\"required\"");
     }
   }

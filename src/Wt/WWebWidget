@@ -189,11 +189,11 @@ public:
   void setLoadLaterWhenInvisible(bool);
   
   /*!
-   * \brief returns the current custom html tag name if set
+   * \brief returns the current html tag name
    * 
    * \sa setHtmlTagName()
    */
-  const std::string& htmlTagName() const { return elementTagName_; } 
+  std::string htmlTagName() const;
 
   /*!
    * \brief set the custom HTML tag name

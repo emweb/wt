@@ -96,6 +96,18 @@ public:
    */
   void setTristate(bool tristate = true);
 
+  /*! \brief enable or disable cycling throught partial state 
+   *
+   * \sa isPartialStateSelectable()
+   */
+  void setPartialStateSelectable(bool b);
+
+  /*! \brief return partial state cycling
+   *
+   * \sa setPartialStateSelectable();
+   */
+  bool isPartialStateSelectable() { return partialStateSelectable_; };
+
   /*! \brief Returns whether the checkbox is tristate.
    *
    * \sa setTristate()
@@ -117,9 +129,12 @@ public:
 
 protected:
   virtual void updateInput(DomElement& input, bool all);
+  void updateJSlot();
+  void updateNextState();
 
 private:
   bool triState_;
+  bool partialStateSelectable_;
 };
 
 }

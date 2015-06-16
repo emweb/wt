@@ -1870,22 +1870,35 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
               labelHFlag | AlignBottom, 0, 10);
         } else {
           if(axis.id() == YAxis) {
+			WPaintDevice *device = painter.device();
+			double size = axis.calcMaxTickLabelSize(device, Horizontal);
+			double titleSize = axis.calcTitleSize(device, Horizontal);
+			double titleSizeW = axis.calcTitleSize(device, Vertical);
+
 			renderLabel(painter, axis.title(),
-            WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
-              chartArea_.center().y() + axis.title().toUTF8().size() * titleFont.size()),
+            WPointF(u + (labelHFlag == AlignRight ? -(size + titleSizeW) : +(size + titleSizeW)),
+              chartArea_.center().y() + titleSize  / 2),
             (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
-            AlignMiddle, 90, 20);
-          }else {
+            AlignMiddle, 90, 10);
+          }else { // Y2 Axis
+			WPaintDevice *device = painter.device();
+			double size = axis.calcMaxTickLabelSize(device, Horizontal);
+			double titleSize = axis.calcTitleSize(device, Horizontal);
+			double titleSizeW = axis.calcTitleSize(device, Vertical);
+
 			renderLabel(painter, axis.title(),
-            WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
-              chartArea_.center().y() + axis.title().toUTF8().size() * titleFont.size()),
+            WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
+              chartArea_.center().y() + titleSize / 2),
             (labelHFlag == AlignRight ? AlignRight : AlignLeft) |
-            AlignMiddle, 90, 20);
+            AlignMiddle, 90, 10);
           }
         }
       } else {
+		WPaintDevice *device = painter.device();
+		double titleSize = axis.calcTitleSize(device, Vertical);
+		double size = axis.calcMaxTickLabelSize(device, Vertical);
         renderLabel(painter, axis.title(),
-            WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
+			WPointF(u + (labelHFlag == AlignRight ? -(20 + size + titleSize) : +(20 + size + titleSize)),
               chartArea_.center().y()),
             (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
             AlignMiddle, 0, 20);
@@ -1897,7 +1910,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	renderLabel(painter, axis.title(),
 		    WPointF(chartArea_.center().x(), u + 22),
 		    AlignTop | AlignCenter, 0, 10);
-      else
+      else 
 	renderLabel(painter, axis.title(),
 		    WPointF(chartArea_.right(), u),
         AlignTop | AlignLeft, 0, 8);
@@ -2009,6 +2022,7 @@ int WCartesianChart::calcNumBarGroups()
 
   return numBarGroups;
 }
+  
 
 void WCartesianChart::renderLegend(WPainter& painter) const
 {
@@ -2017,10 +2031,33 @@ void WCartesianChart::renderLegend(WPainter& painter) const
   int w = vertical ? width_ : height_;
   int h = vertical ? height_ : width_;
 
-  const int margin = 10;
-
+  // Calculate margin based on layout
+  int margin;
   if (isLegendEnabled()) {
-    painter.save();
+	painter.save();
+
+	WPaintDevice  *device = painter.device();
+	WAxis *caxis = 0;
+	Orientation titleOrientation = Horizontal;
+	if(legendSide() == Right && axes_[Y2Axis]->isVisible()) {
+	  caxis = axes_[Y2Axis];
+	  if(caxis->titleOrientation() == Vertical) 
+		titleOrientation = Vertical;
+	} else if(legendSide() == Left) {
+	  caxis =  axes_[YAxis];
+	  if(caxis->titleOrientation() == Vertical) 
+		titleOrientation = Vertical;
+	} 
+
+	if (titleOrientation == Vertical && caxis) {
+	  margin 
+	    = (int)(caxis->calcTitleSize(device, Vertical)
+		    + axes_[Y2Axis]->calcMaxTickLabelSize(device, Horizontal));
+	} else
+	  margin = 20;
+
+	if(caxis && titleOrientation == Horizontal)
+	  margin+= caxis->calcMaxTickLabelSize(device, Horizontal);
 
     int numSeriesWithLegend = 0;
 
@@ -2138,8 +2175,8 @@ void WCartesianChart::renderLegend(WPainter& painter) const
     painter.setPen(legendBorder());
     painter.setBrush(legendBackground());
 
-    painter.drawRect(x - margin/2, y - margin/2, legendWidth + margin,
-		      legendHeight + margin);
+	painter.drawRect(x - margin/2, y - margin/2, legendWidth + margin,
+		legendHeight + margin);
 
     painter.setPen(WPen());
 
@@ -2168,10 +2205,10 @@ void WCartesianChart::renderLegend(WPainter& painter) const
     painter.save();
     painter.setFont(titleFont());
     const int TITLE_HEIGHT = 50;
-    const int TITLE_PADDING = 20;
+    const int TITLE_PADDING = 10;
     painter.drawText(x - 500,
 		     plotAreaPadding(Top) - TITLE_HEIGHT - TITLE_PADDING,
-		     1000, TITLE_HEIGHT, AlignCenter | AlignBottom, title());
+		     1000, TITLE_HEIGHT, AlignCenter | AlignTop, title());
     painter.restore();
   }
 }

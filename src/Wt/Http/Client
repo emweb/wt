@@ -431,7 +431,7 @@ private:
   class SslImpl;
 
   void handleRedirect(Http::Method method, boost::system::error_code err,
-		      const Message& response);
+		      const Message& response, const Message& request);
 
   void emitDone(boost::system::error_code err, const Message& response);
   void emitHeadersReceived(const Message& response);

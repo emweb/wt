@@ -2087,6 +2087,13 @@ void WWebWidget::setHtmlTagName(const std::string& tag) {
   elementTagName_ = tag;
 }
 
+std::string WWebWidget::htmlTagName() const {
+  if(elementTagName_.size() > 0)
+	return elementTagName_;
+  DomElementType type =   domElementType();
+  return DomElement::tagName(type);
+}
+
 void WWebWidget::setId(DomElement *element, WApplication *app)
 {
   if (!app->environment().agentIsSpiderBot()

@@ -92,6 +92,13 @@ public:
    */
   WTestEnvironment(Configuration *configuration,
 		   EntryPointType type = Application);
+
+  /*! \brief Closes the test environment.
+   *
+   * Destroys the test environment. This will allow the environment and the
+   * application under test to be garbage collected.
+   */
+  void close();
 #endif // WT_TARGET_JAVA
 
   /*! \brief Destructor.

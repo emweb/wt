@@ -34,7 +34,7 @@
 #include "HelloApplication.h"
 #include "QtObject.h"
 
-// Needed when using WQCoreApplication with Qt eventloop = true
+// Needed when using WQApplication with Qt eventloop = true
 //#include <QCoreApplication>
 
 using namespace Wt;

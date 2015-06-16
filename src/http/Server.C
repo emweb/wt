@@ -192,6 +192,9 @@ void Server::start()
 
     if (config_.sslClientVerification() == "none") {
       ssl_context_.set_verify_mode(asio::ssl::context::verify_none);
+	} else if (config_.sslClientVerification() == "once") {
+	  ssl_context_.set_verify_mode(asio::ssl::context::verify_client_once);
+      ssl_context_.load_verify_file(config_.sslCaCertificates());
     } else if (config_.sslClientVerification() == "optional") {
       ssl_context_.set_verify_mode(asio::ssl::context::verify_peer);
       ssl_context_.load_verify_file(config_.sslCaCertificates());

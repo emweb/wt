@@ -11,6 +11,7 @@
 #include "Wt/WRectF"
 
 #include <algorithm>
+#include <iostream>
 
 namespace Wt {
 

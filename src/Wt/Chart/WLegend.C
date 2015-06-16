@@ -20,7 +20,7 @@ WLegend::WLegend()
     legendBorder_(NoPen),
     legendBackground_(NoBrush)
 {
-  legendFont_.setFamily(WFont::SansSerif);
+  legendFont_.setFamily(WFont::SansSerif, "Arial");
   legendFont_.setSize(WFont::FixedSize, WLength(10, WLength::Point));
 }
     

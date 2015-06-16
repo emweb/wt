@@ -859,6 +859,8 @@ HTTPS/Secure WebSocket server options:
                           e.g. "/etc/ssl/private/company.pem"
   --ssl-tmp-dh arg        File for temporary Diffie-Hellman parameters
                           e.g. "/etc/ssl/dh512.pem"
+  --ssl-client-verification arg (=none)	Enable SSL Client Certificate verification.
+										Can be required, once, optional or none
 
 Settings may be set in the configuration file /etc/wt/wthttpd
 \endcode
