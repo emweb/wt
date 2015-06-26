@@ -4,12 +4,17 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <cassert>
 #include <cmath>
 
 #include "Wt/WLogger"
+#include "Wt/WPainterPath"
 #include "Wt/WPointF"
 #include "Wt/WRectF"
+#include "Wt/WString"
 #include "Wt/WTransform"
+
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -33,8 +38,21 @@ WTransform::WTransform(double m11, double m12, double m21, double m22,
   m_[M23] = dy;
 }
 
+WTransform::WTransform(const WTransform &other)
+  : WJavaScriptExposableObject(other)
+{
+  for (unsigned i = 0; i < 6; ++i)
+    m_[i] = other.m_[i];
+}
+
 WTransform& WTransform::operator= (const WTransform& rhs)
 {
+#ifndef WT_TARGET_JAVA
+  WJavaScriptExposableObject::operator=(rhs);
+#else
+  if (rhs.isJavaScriptBound()) assignBinding(rhs);
+#endif
+
   for (unsigned i = 0; i < 6; ++i)
     m_[i] = rhs.m_[i];
 
@@ -52,6 +70,8 @@ WTransform WTransform::clone() const
 
 bool WTransform::operator== (const WTransform& rhs) const
 {
+  if (!sameBindingAs(rhs)) return false;
+
   for (unsigned i = 0; i < 6; ++i)
     if (m_[i] != rhs.m_[i])
       return false;
@@ -66,7 +86,7 @@ bool WTransform::operator!= (const WTransform& rhs) const
 
 bool WTransform::isIdentity() const
 {
-  return (m_[M11] == 1.0)
+  return !isJavaScriptBound() && (m_[M11] == 1.0)
     && (m_[M22] == 1.0)
     && (m_[M21] == 0.0)
     && (m_[M12] == 0.0)
@@ -82,9 +102,20 @@ void WTransform::reset()
 
 WPointF WTransform::map(const WPointF& p) const
 {
+  if (isIdentity()) return p;
+
   double x, y;
   map(p.x(), p.y(), &x, &y);
-  return WPointF(x, y);
+  WPointF result(x, y);
+
+  if (isJavaScriptBound() || p.isJavaScriptBound()) {
+    const WJavaScriptExposableObject *o = this;
+    if (p.isJavaScriptBound()) o = &p;
+    result.assignBinding(*o,
+	WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + p.jsRef() + ')');
+  }
+
+  return result;
 }
 
 void WTransform::map(double x, double y, double *tx, double *ty) const
@@ -95,6 +126,8 @@ void WTransform::map(double x, double y, double *tx, double *ty) const
 
 WRectF WTransform::map(const WRectF& rect) const
 {
+  if (isIdentity()) return rect;
+
   double minX, minY, maxX, maxY;
 
   WPointF p = map(rect.topLeft());
@@ -111,7 +144,45 @@ WRectF WTransform::map(const WRectF& rect) const
     maxY = std::max(maxY, p2.y());
   }
 
-  return WRectF(minX, minY, maxX - minX, maxY - minY);
+  WRectF result(minX, minY, maxX - minX, maxY - minY);
+
+  if (isJavaScriptBound() || rect.isJavaScriptBound()) {
+    const WJavaScriptExposableObject *o = this;
+    if (rect.isJavaScriptBound()) o = &rect;
+    result.assignBinding(*o,
+	WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + rect.jsRef() + ')');
+  }
+
+  return result;
+}
+
+WPainterPath WTransform::map(const WPainterPath& path) const
+{
+  if (isIdentity()) return path;
+
+  WPainterPath result;
+
+  if (isJavaScriptBound() || path.isJavaScriptBound()) {
+    const WJavaScriptExposableObject *o = this;
+    if (!isJavaScriptBound()) o = &path;
+    result.assignBinding(*o,
+	WT_CLASS ".gfxUtils.transform_apply(" + jsRef() + ',' + path.jsRef() + ')');
+  }
+
+  const std::vector<WPainterPath::Segment> &sourceSegments = path.segments();
+
+  for (std::size_t i = 0; i < sourceSegments.size(); ++i) {
+    double tx, ty;
+    if (sourceSegments[i].type() == WPainterPath::Segment::ArcR ||
+	sourceSegments[i].type() == WPainterPath::Segment::ArcAngleSweep) {
+      result.segments_.push_back(sourceSegments[i]);
+    } else {
+      map(sourceSegments[i].x(), sourceSegments[i].y(), &tx, &ty);
+      result.segments_.push_back(WPainterPath::Segment(tx, ty, sourceSegments[i].type()));
+    }
+  }
+
+  return result;
 }
 
 WTransform& WTransform::rotateRadians(double angle)
@@ -155,6 +226,25 @@ WTransform& WTransform::translate(double dx, double dy)
   return *this *= WTransform(1, 0, 0, 1, dx, dy);
 }
 
+WTransform& WTransform::translate(const WPointF& p)
+{
+  std::string refBefore = jsRef();
+  translate(p.x(), p.y());
+
+  if (isJavaScriptBound() || p.isJavaScriptBound()) {
+    const WJavaScriptExposableObject *o = this;
+    if (!isJavaScriptBound()) o = &p;
+    assignBinding(*o,
+	WT_CLASS ".gfxUtils.transform_mult((function(){"
+	  "var p="
+	  + p.jsRef() + ";"
+	  "return [1,0,0,1,p[0],p[1]];"
+	"})(),(" + refBefore + "))");
+  }
+
+  return *this;
+}
+
 static double norm(double x1, double x2)
 {
   return std::sqrt(x1 * x1 + x2 * x2);
@@ -169,12 +259,19 @@ double WTransform::determinant() const
 
 WTransform WTransform::adjoint() const
 {
-  return WTransform(m33() * m22() - m32() * m23(),
+  WTransform res = WTransform(m33() * m22() - m32() * m23(),
 		    - (m33() * m12() - m32() * m13()),
 		    - (m33() * m21() - m31() * m23()),
 		    m33() * m11() - m31() * m13(),
 		    m32() * m21() - m31() * m22(),
 		    - (m32() * m11() - m31() * m12()));
+
+  if (isJavaScriptBound()) {
+    res.assignBinding(*this,
+	WT_CLASS ".gfxUtils.transform_adjoint(" + jsRef() + ")");
+  }
+
+  return res;
 }
 
 WTransform WTransform::inverted() const
@@ -184,9 +281,14 @@ WTransform WTransform::inverted() const
   if (det != 0) {
     WTransform adj = adjoint();
 
-    return WTransform(adj.m11() / det, adj.m12() / det,
-		      adj.m21() / det, adj.m22() / det,
-		      adj.m31() / det, adj.m32() / det);
+    WTransform res(adj.m11() / det, adj.m12() / det,
+		   adj.m21() / det, adj.m22() / det,
+		   adj.m31() / det, adj.m32() / det);
+    if (isJavaScriptBound()) {
+      res.assignBinding(*this,
+	  WT_CLASS ".gfxUtils.transform_inverted(" + jsRef() + ")");
+    }
+    return res;
   } else {
     LOG_ERROR("inverted(): oops, determinant == 0");
 
@@ -370,10 +472,20 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
 
 WTransform& WTransform::operator*= (const WTransform& Y)
 {
+  if (isIdentity()) return operator=(Y);
+  if (Y.isIdentity()) return *this;
+
   // conceptually:                  Z = Y * X
   // our transposed representation: Z = X * Y
 
   const WTransform& X = *this;
+
+  if (isJavaScriptBound() || Y.isJavaScriptBound()) {
+    const WJavaScriptExposableObject *o = this;
+    if (!isJavaScriptBound()) o = &Y;
+    assignBinding(*o,
+	WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + Y.jsRef() + ')');
+  }
 
   double z11 = X.m_[M11] * Y.m_[M11]
              + X.m_[M12] * Y.m_[M21]
@@ -414,6 +526,21 @@ WTransform WTransform::operator* (const WTransform& rhs) const
   WTransform result;
   result = *this;
   return result *= rhs;
+}
+
+std::string WTransform::jsValue() const
+{
+  char buf[30];
+
+  WStringStream ss;
+  ss << '[';
+  ss << Utils::round_js_str(m_[0], 3, buf) << ',';
+  ss << Utils::round_js_str(m_[2], 3, buf) << ',';
+  ss << Utils::round_js_str(m_[1], 3, buf) << ',';
+  ss << Utils::round_js_str(m_[3], 3, buf) << ',';
+  ss << Utils::round_js_str(m_[4], 3, buf) << ',';
+  ss << Utils::round_js_str(m_[5], 3, buf) << ']';
+  return ss.str();
 }
 
 }

@@ -176,6 +176,10 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
+   * If you connect also the mouseWentDown() signal, then a subsequent
+   * mouseWentUp() will be received by the same widget, even if mouse is
+   * no longer over the original widget.
+   *
    * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentUp();
@@ -362,6 +366,7 @@ private:
   static const char *MOUSE_MOVE_SIGNAL;
   static const char *MOUSE_DRAG_SIGNAL;
   static const char *MOUSE_WHEEL_SIGNAL;
+  static const char *WHEEL_SIGNAL;
   static const char *TOUCH_START_SIGNAL;
   static const char *TOUCH_MOVE_SIGNAL;
   static const char *TOUCH_END_SIGNAL;

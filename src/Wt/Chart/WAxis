@@ -8,10 +8,12 @@
 #define CHART_WAXIS_H_
 
 #include <Wt/Chart/WChartGlobal>
+#include <Wt/WDateTime>
 #include <Wt/WFont>
 #include <Wt/WPen>
 #include <Wt/WString>
-#include <Wt/WDateTime>
+#include <Wt/WTransform>
+
 #include <boost/any.hpp>
 #include <cfloat>
 
@@ -491,6 +493,12 @@ public:
    */
   void setPen(const WPen& pen);
 
+  /*! \brief Returns the pen used for rendering the axis and ticks.
+   *
+   * \sa setPen()
+   */
+  const WPen& pen() const { return pen_; }
+
   /*! \brief Changes the pen used for rendering labels for this axis
    *
    * The default value is a black pen of 0 width.
@@ -501,11 +509,11 @@ public:
    */
   void setTextPen(const WPen& pen);
 
-  /*! \brief Returns the pen used for rendering the axis and ticks.
+  /*! \brief Returns the pen used for rendering labels for this axis
    *
-   * \sa setPen()
+   * \sa setTextPen()
    */
-  const WPen& pen() const { return pen_; }
+  const WPen& textPen() const { return textPen_; }
 
   /*! \brief Changes the pen used for rendering the grid lines.
    *
@@ -596,11 +604,56 @@ public:
    */
   virtual WString label(double u) const;
 
-  /*! \brief Returns the chart to which this axis belongs.
+  /*! \brief Sets the initial zoom level for this axis.
    *
-   * \sa WCartesianChart::axis()
+   * Only applies to a WCartesianChart in interactive mode.
+   * The zoom level should be >= 1 and smaller than maxZoom()
+   *
+   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
    */
-  //  WCartesianChart *chart() const { return chart_; }
+  void setInitialZoom(double initialZoom);
+
+  /*! \brief Get the initial zoom level for this axis.
+   *
+   * \see setInitialZoom()
+   */
+  double initialZoom() const;
+  
+  /*! \brief Sets the maximum zoom level for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   * The zoom level should be >= 1 (no zoom).
+   *
+   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
+   */
+  void setMaxZoom(double maxZoom);
+
+  /*! \brief Get the maximum zoom level for this axis.
+   *
+   * \see setMaxZoom()
+   */
+  double maxZoom() const;
+
+  /*! \brief Sets the initial value to pan to for this axis.
+   *
+   * This sets the leftmost (horizontal axis)
+   * or bottom (vertical axis) value to be displayed on the chart.
+   *
+   * Note that if this would cause the chart to go out of bounds,
+   * the panning of the chart will be automatically adjusted.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   * The zoom level should be >= 1 and smaller than maxZoom()
+   *
+   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
+   */
+  void setInitialPan(double initialPan);
+
+  /*! \brief Get the initial value to pan to for this axis, when pan is enabled on the chart.
+   *
+   *  \see setInitialPan()
+   */
+  double initialPan() const;
 
   int segmentCount() const { return (int)segments_.size(); }
 
@@ -613,7 +666,22 @@ public:
 	      const WPointF& axisStart,
 	      const WPointF& axisEnd,
 	      double tickStart, double tickEnd, double labelPos,
-	      WFlags<AlignmentFlag> labelFlags) const;
+	      WFlags<AlignmentFlag> labelFlags,
+	      const WTransform &transform = WTransform()) const {
+    std::vector<WPen> pens;
+    std::vector<WPen> textPens;
+    render(painter, properties, axisStart, axisEnd, tickStart, tickEnd, labelPos, labelFlags, transform, pens, textPens);
+  }
+
+  void render(WPainter& painter,
+	      WFlags<AxisProperty> properties,
+	      const WPointF& axisStart,
+	      const WPointF& axisEnd,
+	      double tickStart, double tickEnd, double labelPos,
+	      WFlags<AlignmentFlag> labelFlags,
+	      const WTransform &transform,
+	      std::vector<WPen> pens,
+	      std::vector<WPen> textPens) const;
 
   /*! \brief Returns the positions for grid lines on this axis.
    *
@@ -625,7 +693,8 @@ public:
   void renderLabel(WPainter& painter,
 		   const WString& text, const WPointF& p,
 		   WFlags<AlignmentFlag> flags,
-		   double angle, int margin) const;
+		   double angle, int margin, WTransform transform,
+		   const WPen& pen) const;
 
   void setRenderMirror(bool enable) { renderingMirror_ = enable; }
   double calcTitleSize(WPaintDevice *device, Orientation orientation) const;
@@ -659,7 +728,7 @@ protected:
 
   /*! \brief Returns the label (and ticks) information for this axis.
    */
-  virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment) const;
+  virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment, int zoomLevel) const;
 
   /*! \brief Returns the Date format 
    */
@@ -688,6 +757,9 @@ private:
   double           titleOffset_;
   WPen             textPen_;
   Orientation      titleOrientation_;
+  double	   maxZoom_;
+  double	   initialZoom_;
+  double           initialPan_;
 
   // for 3D charts, don't call update when the labelangle is tempor. changed
   bool             renderingMirror_;

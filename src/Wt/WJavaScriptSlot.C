@@ -64,14 +64,19 @@ JSlot::JSlot(const std::string& javaScript, int nbArgs, WWidget *parent)
 void JSlot::create()
 {
   std::stringstream ss;
+
   if (widget_) {
-    ss << WApplication::instance()->javaScriptClass() << "."
-      << jsFunctionName() << "(o,e";
-    for (int i = 1; i <= nbArgs_; ++i) {
-      ss << ",a" << i;
+    WApplication *app = WApplication::instance();
+    if (app) {
+      ss << WApplication::instance()->javaScriptClass() << "."
+	 << jsFunctionName() << "(o,e";
+      for (int i = 1; i <= nbArgs_; ++i) {
+	ss << ",a" << i;
+      }
+      ss << ");";
     }
-    ss << ");";
   }
+
   imp_ = new WStatelessSlotImpl(widget_, 0, ss.str());
 }
 
@@ -91,7 +96,8 @@ void JSlot::setJavaScript(const std::string& js, int nbArgs)
     throw WException("The number of arguments given must be between 0 and 6.");
   }
   nbArgs_ = nbArgs;
-  if (widget_)
+  WApplication *app = WApplication::instance();
+  if (widget_ && app)
     WApplication::instance()->declareJavaScriptFunction(jsFunctionName(), js);
   else {
     std::stringstream ss;

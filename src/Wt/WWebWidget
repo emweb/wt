@@ -160,7 +160,21 @@ public:
   virtual void doJavaScript(const std::string& javascript);
   virtual const std::string id() const;
 
+#ifdef WT_TARGET_JAVA
+  /*! \brief Create DOM element for widget
+   *
+   * This is an internal function, and should not be called directly,
+   * or be overridden!
+   */
+#endif
   virtual DomElement *createDomElement(WApplication *app);
+#ifdef WT_TARGET_JAVA
+  /*! \brief Get DOM changes for this widget
+   *
+   * This is an internal function, and should not be called directly,
+   * or be overridden!
+   */
+#endif
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
   virtual DomElementType domElementType() const = 0;

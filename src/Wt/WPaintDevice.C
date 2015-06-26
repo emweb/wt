@@ -6,6 +6,10 @@
 
 #include "Wt/WPaintDevice"
 
+#include "Wt/WPainterPath"
+#include "Wt/WRectF"
+#include "Wt/WPointF"
+
 namespace Wt {
 
 WTextItem::WTextItem(const WString& text, double width, double nextWidth)

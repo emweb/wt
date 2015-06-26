@@ -24,6 +24,8 @@
 #include "Wt/WTransform"
 #include "Wt/WWebWidget"
 
+#include "Wt/WCanvasPaintDevice" // TODO(Roel): It's quite unfortunate that we should do this
+
 #include "FileUtils.h"
 #include "ImageUtils.h"
 #include "UriUtils.h"
@@ -462,7 +464,12 @@ void WPainter::drawPolyline(const WT_ARRAY WPointF *points, int pointCount)
 
 void WPainter::drawRect(const WRectF& rectangle)
 {
-  drawRect(rectangle.x(), rectangle.y(), rectangle.width(), rectangle.height());
+  WCanvasPaintDevice *cDevice = dynamic_cast<WCanvasPaintDevice*>(device_);
+  if (cDevice && rectangle.isJavaScriptBound()) {
+    cDevice->drawRect(rectangle);
+  } else {
+    drawRect(rectangle.x(), rectangle.y(), rectangle.width(), rectangle.height());
+  }
 }
 
 void WPainter::drawRect(double x, double y, double width, double height)
@@ -696,15 +703,15 @@ void WPainter::scale(double sx, double sy)
 
 void WPainter::translate(double dx, double dy)
 {
-  s().worldTransform_.translate(dx, dy);
-
-  if (device_)
-    device_->setChanged(WPaintDevice::Transform);
+  translate(WPointF(dx, dy));
 }
 
 void WPainter::translate(const WPointF& p)
 {
-  translate(p.x(), p.y());
+  s().worldTransform_.translate(p);
+
+  if (device_)
+    device_->setChanged(WPaintDevice::Transform);
 }
 
 void WPainter::setWorldTransform(const WTransform& matrix, bool combine)

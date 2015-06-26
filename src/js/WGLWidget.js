@@ -84,6 +84,8 @@ WT_DECLARE_WT_MEMBER
      var doubleTouch = null;
      var dragPreviousXY = null;
 
+     var thisHandler = this;
+
      this.mouseDown = function(o, event) {
        WT.capture(null);
        WT.capture(canvas);
@@ -177,9 +179,9 @@ WT_DECLARE_WT_MEMBER
        doubleTouch = event.touches.length === 2 ? true : false;
 
        if (noTouch)
-	 this.mouseUp(null, null);
+	 thisHandler.mouseUp(null, null);
        if (singleTouch || doubleTouch)
-	 this.touchStart(o, event);
+	 thisHandler.touchStart(o, event);
      };
 
      this.touchMoved = function(o, event) {
@@ -187,8 +189,12 @@ WT_DECLARE_WT_MEMBER
 	 return;
 
        event.preventDefault();
-       if (singleTouch)
-	 this.mouseDrag(o, event.touches[0]);
+       if (singleTouch) {
+	 if (dragPreviousXY === null)
+	    return;
+	 var c = WT.pageCoordinates(event);
+	 rotate(c);
+       }
        if (doubleTouch) {
 	 var c0 = WT.pageCoordinates(event.touches[0]);
 	 var c1 = WT.pageCoordinates(event.touches[1]);
@@ -212,6 +218,8 @@ WT_DECLARE_WT_MEMBER
      var walkFrontRate = frontRate;
      var walkYawRate = yawRate;
      var dragPreviousXY = null;
+
+     var thisHandler = this;
 
      this.mouseDown = function(o, event) {
        WT.capture(null);

@@ -7,9 +7,11 @@
 #ifndef WPAINTERPATH_H_
 #define WPAINTERPATH_H_
 
+#include <Wt/WJavaScriptExposableObject>
 #include <Wt/WPointF>
 #include <Wt/WRectF>
 #include <Wt/WTransform>
+
 #include <vector>
 
 namespace Wt {
@@ -68,7 +70,7 @@ namespace Wt {
  *
  * \ingroup painting
  */
-class WT_API WPainterPath
+class WT_API WPainterPath : public WJavaScriptExposableObject
 {
 public:
   /*! \brief Default constructor.
@@ -91,6 +93,10 @@ public:
   /*! \brief Assignment operator.
    */
   WPainterPath& operator= (const WPainterPath& path);
+
+#ifdef WT_TARGET_JAVA
+  WPainterPath clone() const;
+#endif
 
   /*! \brief Returns the current position.
    *
@@ -338,6 +344,7 @@ public:
     Type   type_;
 
     friend class WPainterPath;
+    friend WPainterPath WTransform::map(const WPainterPath& path) const;
   };
 
   const std::vector<Segment>& segments() const { return segments_; }
@@ -356,6 +363,10 @@ public:
    */
   WRectF controlPointRect(const WTransform& transform = WTransform::Identity)
     const;
+
+  WPainterPath crisp() const;
+
+  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 
 private:
   bool isRect_;
@@ -382,6 +393,7 @@ private:
 	     double startAngle, double sweepLength);
 
   friend class WSvgImage;
+  friend WPainterPath WTransform::map(const WPainterPath& path) const;
 };
 
 }

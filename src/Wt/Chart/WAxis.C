@@ -21,8 +21,9 @@
 #include "Wt/WTime"
 #include "Wt/WMeasurePaintDevice"
 
-#include "Wt/Chart/WAxis"
 #include "Wt/Chart/WAbstractChartImplementation"
+#include "Wt/Chart/WAxis"
+#include "Wt/Chart/WCartesianChart"
 
 #include "WebUtils.h"
 
@@ -142,7 +143,10 @@ WAxis::WAxis()
     segmentMargin_(40),
     titleOffset_(0),
     textPen_(black),
-    titleOrientation_(Horizontal)
+    titleOrientation_(Horizontal),
+    maxZoom_(4),
+    initialZoom_(1),
+    initialPan_(0)
 {
   titleFont_.setFamily(WFont::SansSerif, "Arial");
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
@@ -412,7 +416,7 @@ double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation) con
 
   // Get all the ticks for the axis
   for(int i = 0; i< segmentCount(); ++i) {
-   getLabelTicks(ticks, i);
+   getLabelTicks(ticks, i, 1);
   }
 
   for(unsigned int i = 0; i< ticks.size(); ++i) {
@@ -1049,9 +1053,41 @@ WString WAxis::label(double u) const
   return text;
 }
 
-void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
+void WAxis::setInitialZoom(double initialZoom)
+{
+  initialZoom_ = initialZoom;
+}
+
+double WAxis::initialZoom() const
+{
+  return initialZoom_;
+}
+
+void WAxis::setInitialPan(double initialPan)
+{
+  initialPan_ = initialPan;
+}
+
+double WAxis::initialPan() const
+{
+  return initialPan_;
+}
+
+void WAxis::setMaxZoom(double maxZoom)
+{
+  maxZoom_ = maxZoom < 1 ? 1 : maxZoom;
+  update();
+}
+
+double WAxis::maxZoom() const
+{
+  return maxZoom_;
+}
+
+void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, int zoomLevel) const
 {
   static double EPSILON = 1E-3;
+  double divisor = std::pow(2.0, zoomLevel - 1);
 
   const Segment& s = segments_[segment];
 
@@ -1069,7 +1105,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
       /*
        * We could do a special effort for date X series here...
        */
-      for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum;
+      for (int i = (int)(s.renderMinimum); i < s.renderMaximum;
 	   i += renderInterval) {
 	ticks.push_back(TickLabel(i, TickLabel::Long,
 				  label(static_cast<double>(i))));
@@ -1078,10 +1114,11 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
     break;
   }
   case LinearScale: {
+    double interval = renderInterval_ / divisor;
     for (int i = 0;; ++i) {
-      double v = s.renderMinimum + renderInterval_ * i;
+      double v = s.renderMinimum + interval * i;
 
-      if (v - s.renderMaximum > EPSILON * renderInterval_)
+      if (v - s.renderMaximum > EPSILON * interval)
 	break;
 
       WString t;
@@ -1134,7 +1171,11 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment) const
     } else
       dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
 
-    int interval = s.dateTimeRenderInterval;
+#ifdef WT_TARGET_JAVA
+    int interval = (int)(s.dateTimeRenderInterval / divisor);
+#else
+    int interval = s.dateTimeRenderInterval / divisor;
+#endif
     DateTimeUnit unit = s.dateTimeRenderUnit;
     bool atTick = (interval > 1) ||
       (unit <= Days) || 
@@ -1290,7 +1331,10 @@ void WAxis::render(WPainter& painter,
 		   const WPointF& axisStart,
 		   const WPointF& axisEnd,
 		   double tickStart, double tickEnd, double labelPos,
-		   WFlags<AlignmentFlag> labelFlags) const
+		   WFlags<AlignmentFlag> labelFlags,
+		   const WTransform& transform,
+		   std::vector<WPen> pens,
+		   std::vector<WPen> textPens) const
 {
   WFont oldFont1 = painter.font();
   painter.setFont(labelFont_);
@@ -1302,13 +1346,22 @@ void WAxis::render(WPainter& painter,
     const WAxis::Segment& s = segments_[segment];
 
     if (properties & Line) { 
+#ifdef WT_TARGET_JAVA
+      painter.setPen(WPen(pen()));
+#else
       painter.setPen(pen());
+#endif
 
       WPointF begin = interpolate(axisStart, axisEnd, s.renderStart);
       WPointF end = interpolate(axisStart, axisEnd, s.renderStart +
 				s.renderLength);
 
-      painter.drawLine(begin, end);
+      {
+	WPainterPath path;
+	path.moveTo(begin);
+	path.lineTo(end);
+	painter.drawPath(transform.map(path).crisp());
+      }
 
       bool rotate = vertical;
 
@@ -1331,49 +1384,55 @@ void WAxis::render(WPainter& painter,
       }
     }
 
-    WPainterPath ticksPath;
+    if (pens.empty()) {
+      pens.push_back(pen());
+      textPens.push_back(textPen());
+    }
+    for (unsigned level = 1; level <= pens.size(); ++level) {
+      WPainterPath ticksPath;
 
-    std::vector<WAxis::TickLabel> ticks;
-    getLabelTicks(ticks, segment);
+      std::vector<WAxis::TickLabel> ticks;
+      getLabelTicks(ticks, segment, level);
 
-    for (unsigned i = 0; i < ticks.size(); ++i) {
-      double u = mapToDevice(ticks[i].u, segment);
-      WPointF p = interpolate(axisStart, axisEnd, std::floor(u));
+      for (unsigned i = 0; i < ticks.size(); ++i) {
+	double u = mapToDevice(ticks[i].u, segment);
+	WPointF p = interpolate(axisStart, axisEnd, u);
 
-      if ((properties & Line) &&
-	  ticks[i].tickLength != WAxis::TickLabel::Zero) {
-	double ts = tickStart;
-	double te = tickEnd;
+	if ((properties & Line) &&
+	    ticks[i].tickLength != WAxis::TickLabel::Zero) {
+	  double ts = tickStart;
+	  double te = tickEnd;
 
-	if (ticks[i].tickLength == WAxis::TickLabel::Short) {
-	  ts = tickStart / 2;
-	  te = tickEnd / 2;
+	  if (ticks[i].tickLength == WAxis::TickLabel::Short) {
+	    ts = tickStart / 2;
+	    te = tickEnd / 2;
+	  }
+
+	  if (vertical) {
+	    ticksPath.moveTo(WPointF(p.x() + ts, p.y()));
+	    ticksPath.lineTo(WPointF(p.x() + te, p.y()));
+	  } else {
+	    ticksPath.moveTo(WPointF(p.x(), p.y() + ts));
+	    ticksPath.lineTo(WPointF(p.x(), p.y() + te));
+	  }
 	}
 
-  	if (vertical) {
-	  ticksPath.moveTo(WPointF(p.x() + ts, p.y()));
-	  ticksPath.lineTo(WPointF(p.x() + te, p.y()));
-  	} else {
-	  ticksPath.moveTo(WPointF(p.x(), p.y() + ts));
-	  ticksPath.lineTo(WPointF(p.x(), p.y() + te));
-  	}
+	if ((properties & Labels) && !ticks[i].label.empty()) {
+	  WPointF labelP;
+
+	  if (vertical)
+	    labelP = WPointF(p.x() + labelPos, p.y());
+	  else
+	    labelP = WPointF(p.x(), p.y() + labelPos);
+
+	  renderLabel(painter, ticks[i].label, labelP,
+		       labelFlags, labelAngle(), 3, transform, textPens[level-1]);
+	}
       }
 
-      if ((properties & Labels) && !ticks[i].label.empty()) {
-	WPointF labelP;
-
-	if (vertical)
-	  labelP = WPointF(p.x() + labelPos, p.y());
-	else
-	  labelP = WPointF(p.x(), p.y() + labelPos);
-
-	renderLabel(painter, ticks[i].label, labelP,
-		     labelFlags, labelAngle(), 3);
-      }
+      if (!ticksPath.isEmpty())
+	painter.strokePath(transform.map(ticksPath).crisp(), pens[level-1]);
     }
-
-    if (!ticksPath.isEmpty())
-      painter.strokePath(ticksPath, pen());
   }
 
   painter.setFont(oldFont1);
@@ -1382,7 +1441,9 @@ void WAxis::render(WPainter& painter,
 void WAxis::renderLabel(WPainter& painter,
 			const WString& text, const WPointF& p,
 			WFlags<AlignmentFlag> flags,
-			double angle, int margin) const
+			double angle, int margin,
+			WTransform transform,
+			const WPen& pen) const
 {
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
@@ -1417,15 +1478,20 @@ void WAxis::renderLabel(WPainter& painter,
     break;
   }
 
+#ifdef WT_TARGET_JAVA
+  WPen oldPen = WPen(painter.pen());
+  painter.setPen(WPen(pen));
+#else
   WPen oldPen = painter.pen();
-  painter.setPen(textPen_);
+  painter.setPen(pen);
+#endif
 
   if (angle == 0)
-    painter.drawText(WRectF(left, top, width, height),
+    painter.drawText(transform.map(WRectF(left, top, width, height)),
 		      horizontalAlign | verticalAlign, text);
   else {
     painter.save();
-    painter.translate(pos);
+    painter.translate(transform.map(pos));
     painter.rotate(-angle);
     painter.drawText(WRectF(left - pos.x(), top - pos.y(), width, height),
 		     horizontalAlign | verticalAlign, text);
@@ -1441,7 +1507,7 @@ std::vector<double> WAxis::gridLinePositions() const
 
   for (unsigned segment = 0; segment < segments_.size(); ++segment) {
     std::vector<WAxis::TickLabel> ticks;
-    getLabelTicks(ticks, segment);
+    getLabelTicks(ticks, segment, 1);
 
     for (unsigned i = 0; i < ticks.size(); ++i)
       if (ticks[i].tickLength == WAxis::TickLabel::Long)

@@ -118,7 +118,10 @@ public:
 
   /*! \brief %Signal that indicates login changes.
    *
-   * This signal is emitted as a result of login() or logout().
+   * This signal is emitted as a result of login() or logout(). If no
+   * user was logged in, then a changed() signal does not necessarily
+   * mean that user is loggedIn() as the user may have been identified
+   * correctly but have a DisabledLogin state() for example.
    */
   Signal<>& changed() { return changed_; }
 

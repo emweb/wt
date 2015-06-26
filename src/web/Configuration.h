@@ -151,6 +151,7 @@ public:
   const std::string *property(const std::string& name) const;
 #endif
 
+  void setAppRoot(const std::string& path);
   std::string appRoot() const;
   bool behindReverseProxy() const;
   std::string redirectMessage() const;

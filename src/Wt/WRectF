@@ -8,6 +8,7 @@
 #define WRECTF_H_
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WJavaScriptExposableObject>
 
 namespace Wt {
 
@@ -20,7 +21,7 @@ class WPointF;
  *
  * \ingroup painting
  */
-class WT_API WRectF
+class WT_API WRectF : public WJavaScriptExposableObject
 {
 public:
   /*! \brief Default constructor.
@@ -37,6 +38,8 @@ public:
    * and size \p width x \p height.
    */
   WRectF(double x, double y, double width, double height);
+
+  WRectF(const WRectF& other);
 
   /*! \brief Creates a rectangle.
    *
@@ -55,12 +58,20 @@ public:
   WRectF& operator= (const WRectF& rhs);
 #endif // WT_TARGET_JAVA
 
+#ifdef WT_TARGET_JAVA
+  WRectF clone() const;
+#endif
+
+  virtual ~WRectF();
+
   /*! \brief Comparison operator.
    */
   bool operator== (const WRectF& rhs) const;
   bool operator!= (const WRectF& rhs) const;
 
   /*! \brief Checks for a <i>null</i> rectangle.
+   *
+   * A rectangle that isJavaScriptBound() is never null.
    *
    * \sa WRectF()
    */
@@ -69,6 +80,8 @@ public:
   /*! \brief Determines whether or not this rectangle is empty. 
    *
    * A rectangle is empty if its width and height are zero.
+   *
+   * A rectangle that isJavaScriptBound() is JavaScript bound\endlink is never empty.
    */
   bool isEmpty() const;
 
@@ -76,6 +89,8 @@ public:
    *
    * The right side of the rectangle does not move, and as a result,
    * the rectangle may be resized.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   void setX(double x);
 
@@ -83,6 +98,8 @@ public:
    *
    * The bottom side of the rectangle does not move, and as a result,
    * the rectangle may be resized.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   void setY(double y);
 
@@ -90,6 +107,8 @@ public:
    *
    * The right side of the rectangle may move, but this does not
    * affect the left side.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   void setWidth(double width) { width_ = width; }
 
@@ -97,6 +116,8 @@ public:
    *
    * The bottom side of the rectangle may move, but this does not
    * affect the Y position of the top side.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   void setHeight(double height) { height_ = height; }
 
@@ -181,18 +202,26 @@ public:
   WPointF bottomRight() const;
 
   /*! \brief Tests if a rectangle contains a point.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   bool contains(const WPointF& p) const;
 
   /*! \brief Tests if a rectangle contains a point.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   bool contains(double x, double y) const;
 
   /*! \brief Tests if two rectangles intersect.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   bool intersects(const WRectF& other) const;
 
   /*! \brief Makes the union of to rectangles.
+   *
+   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   WRectF united(const WRectF& other) const;
 
@@ -202,8 +231,12 @@ public:
    */
   WRectF normalized() const;
 
+  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+
 private:
   double x_, y_, width_, height_;
+
+  friend class WTransform;
 };
 
 }

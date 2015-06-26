@@ -9,6 +9,7 @@
 
 #include <Wt/WDllDefs.h>
 #include <Wt/WEvent>
+#include <Wt/WJavaScriptExposableObject>
 
 namespace Wt {
 
@@ -17,7 +18,7 @@ namespace Wt {
  *
  * \ingroup painting
  */
-class WT_API WPointF
+class WT_API WPointF : public WJavaScriptExposableObject
 {
 public:
   /*! \brief Creates point (0, 0).
@@ -32,12 +33,21 @@ public:
   /*! \brief Copy constructor.
    */
   WPointF(const WPointF& other)
-    : x_(other.x()), y_(other.y()) { }
+    : WJavaScriptExposableObject(other),
+      x_(other.x()), y_(other.y()) { }
 
   /*! \brief Creates a point from mouse coordinates.
    */
   WPointF(const WMouseEvent::Coordinates& other)
     : x_(other.x), y_(other.y) { }
+
+  WPointF& operator= (const WPointF& rhs);
+
+#ifdef WT_TARGET_JAVA
+  WPointF clone() const;
+#endif
+
+  virtual ~WPointF() {}
 
   /*! \brief Sets the X coordinate.
    */
@@ -65,8 +75,14 @@ public:
 
   WPointF& operator+= (const WPointF& other);
 
+  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
+
+  WPointF swapXY() const;
+
 private:
   double x_, y_;
+
+  friend class WTransform;
 };
 
 }

@@ -1,0 +1,120 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2015 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef CHART_WAXIS_SLIDER_WIDGET_H_
+#define CHART_WAXIS_SLIDER_WIDGET_H_
+
+#include <Wt/WBrush>
+#include <Wt/WJavaScriptHandle>
+#include <Wt/WPaintedWidget>
+#include <Wt/WPen>
+#include <Wt/WRectF>
+
+namespace Wt {
+
+  class WRectF;
+
+  namespace Chart {
+
+/*! \class WAxisSliderWidget Wt/Chart/WAxisSliderWidget Wt/Chart/WAxisSliderWidget
+ *  \brief A widget for selecting an X axis range to display on an associated WCartesianChart.
+ *
+ *  \note This widget currently only works with the HtmlCanvas rendering method.
+ *
+ *  \ingroup charts
+ */
+class WT_API WAxisSliderWidget : public WPaintedWidget {
+public:
+  /*! \brief Creates an axis slider widget.
+   *
+   * Creates an axis slider widget that is not associated with a chart.
+   * Before it is used, a chart should be assigned with setChart(),
+   * and a series column chosen with setSeriesColumn().
+   */
+  WAxisSliderWidget(WContainerWidget *parent = 0);
+
+  /*! \brief Creates an axis slider widget.
+   *
+   * Creates an axis slider widget associated with the given data series
+   * of the given chart.
+   */
+  WAxisSliderWidget(WCartesianChart *chart, int seriesColumn, WContainerWidget *parent = 0);
+  
+  /*! \brief Destructor
+   */
+  virtual ~WAxisSliderWidget();
+
+  /*! \brief Set the associated chart.
+   */
+  void setChart(WCartesianChart *chart);
+
+  /*! \brief Set the associated data series column.
+   *
+   * Only LineSeries and CurveSeries are supported.
+   */
+  void setSeriesColumn(int seriesColumn);
+
+  /*! \brief Returns the associated data series column.
+   */
+  int seriesColumn() const { return seriesColumn_; }
+
+  /*! \brief Set the pen to draw the data series with.
+   */
+  void setSeriesPen(const WPen& pen);
+
+  /*! \brief Returns the pen to draw the data series with.
+   */
+  const WPen& seriesPen() const { return seriesPen_; }
+
+  /*! \brief Set the pen to draw the selected part of the data series with.
+   *
+   * If not set, this defaults to seriesPen().
+   */
+  void setSelectedSeriesPen(const WPen& pen);
+
+  /*! \brief Returns the pen to draw the selected part of the data series with.
+   */
+  WPen selectedSeriesPen() const { return *selectedSeriesPen_; }
+
+  /*! \brief Set the brush to draw the handles left and right of the selected area with.
+   */
+  void setHandleBrush(const WBrush& brush);
+
+  /*! \brief Returns the brush to draw the handles left and right of the selected area with.
+   */
+  const WBrush& handleBrush() const { return handleBrush_; }
+
+  /*! \brief Set the background brush.
+   */
+  void setBackground(const WBrush& background);
+  
+  /*! \brief Returns the background brush.
+   */
+  const WBrush& background() const { return background_; }
+
+protected:
+  virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
+  virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override) ;
+
+private:
+  void init();
+  std::string sObjJsRef() const;
+
+  WCartesianChart *chart_;
+  int seriesColumn_;
+  int margin_;
+  WPen seriesPen_;
+  WPen *selectedSeriesPen_;
+  WBrush handleBrush_;
+  WBrush background_;
+
+  WJavaScriptHandle<WTransform> transform_;
+};
+
+  }
+}
+
+#endif // CHART_WAXIS_SLIDER_WIDGET_H_

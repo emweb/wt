@@ -1,0 +1,76 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2015 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WJAVASCRIPT_HANDLE_H_
+#define WJAVASCRIPT_HANDLE_H_
+
+#include <cassert>
+
+#include <Wt/WJavaScriptExposableObject>
+
+namespace Wt {
+
+// T must be a WJavaScriptExposableObject!
+template <typename T>
+class WJavaScriptHandle
+{
+public:
+  WJavaScriptHandle()
+    : value_(0), id_(0)
+  { }
+
+  WJavaScriptHandle(const WJavaScriptHandle &handle)
+    : value_(handle.value_), id_(handle.id_)
+  {
+    assert(value_ == 0 || value_->clientBinding_ != 0);
+  }
+
+  WJavaScriptHandle &operator=(const WJavaScriptHandle &handle)
+  {
+    assert(handle.value_ == 0 || handle.value_->clientBinding_ != 0);
+
+    value_ = handle.value_;
+    id_ = handle.id_;
+
+    return (*this);
+  }
+  
+  std::string jsRef() const {
+    return value_->clientBinding_->jsRef_;
+  }
+
+  void setValue(const T& v)
+  {
+    // Rescue the binding from being overridden by the assignment, and deleted
+    WJavaScriptExposableObject::JSInfo *binding = value_->clientBinding_;
+    value_->clientBinding_ = 0;
+
+    (*value_) = v;
+
+    value_->clientBinding_ = binding;
+    value_->clientBinding_->context_->dirty[id_] = true;
+  }
+
+  const T& value() const {
+    return *value_;
+  }
+
+private:
+  friend class WJavaScriptObjectStorage;
+
+  WJavaScriptHandle(int id, T *t)
+    : value_(t), id_(id)
+  {
+    assert(t != 0 && t->clientBinding_ != 0);
+  }
+
+  T *value_;
+  int id_;
+};
+
+}
+
+#endif // WJAVASCRIPT_HANDLE_H_

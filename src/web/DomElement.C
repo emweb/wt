@@ -709,9 +709,9 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
     out << var_;
   }
 
-  if (eventName == WInteractWidget::MOUSE_WHEEL_SIGNAL
-      && app->environment().agentIsGecko())
-    out << ".addEventListener('DOMMouseScroll', f" << fid << ", false);\n";
+  if (eventName == WInteractWidget::WHEEL_SIGNAL
+      && app->environment().agentIsIE() && app->environment().agent() >= WEnvironment::IE9)
+    out << ".addEventListener('wheel', f" << fid << ", false);\n";
   else
     out << ".on" << const_cast<char *>(eventName) << "=f" << fid << ";\n";
 }
@@ -911,8 +911,8 @@ void DomElement::asHTML(EscapeOStream& out,
 	 i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
 	if (id_ == app->domRoot()->id()
-	    || (i->first == WInteractWidget::MOUSE_WHEEL_SIGNAL
-		&& app->environment().agentIsGecko()))
+	    || (i->first == WInteractWidget::WHEEL_SIGNAL
+		&& app->environment().agentIsIE() && app->environment().agent() >= WEnvironment::IE9))
 	  setJavaScriptEvent(javaScript, i->first, i->second, app);
 	else {
 	  out << " on" << const_cast<char *>(i->first) << '=';

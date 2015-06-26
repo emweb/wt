@@ -93,10 +93,14 @@ WText::~WText()
 
 bool WText::setText(const WString& text)
 {
-  if (canOptimizeUpdates() && (text == text_.text))
-    return true;
+  bool unChanged = canOptimizeUpdates() && (text == text_.text);
 
+  // Even if the current text is the same, it may be a tr() one which
+  // may get other content in a different locale
   bool ok = text_.setText(text);
+
+  if (canOptimizeUpdates() && unChanged)
+    return true;
 
   flags_.set(BIT_TEXT_CHANGED);
   repaint(RepaintSizeAffected);

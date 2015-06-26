@@ -18,7 +18,7 @@
   #define WT_DLLLOCAL
   #define WT_DLLPUBLIC
 #else
-  #ifdef GCC_HASCLASSVISIBILITY
+  #if __GNUC__ >= 4
     #define WT_IMPORT __attribute__ ((visibility("default")))
     #define WT_EXPORT __attribute__ ((visibility("default")))
     #define WT_DLLLOCAL __attribute__ ((visibility("hidden")))
@@ -32,34 +32,25 @@
 #endif
 
 // Define wt_EXPORTS for DLL builds
-#ifdef WT_WIN32
-  #ifdef wt_EXPORTS
-    #define WT_API WT_EXPORT
-  #else
-    #ifdef WT_STATIC
-      #define WT_API
-    #else
-      #define WT_API WT_IMPORT
-    #endif
-  #endif
+#ifdef wt_EXPORTS
+  #define WT_API WT_EXPORT
 #else
-  #define WT_API
+  #ifdef WT_STATIC
+    #define WT_API
+  #else
+    #define WT_API WT_IMPORT
+  #endif
 #endif
 
-#ifdef WT_WIN32
+#if defined(wthttp_EXPORTS) || defined(wttest_EXPORTS)
+  #define WTCONNECTOR_API WT_EXPORT
+#else
   #ifdef WTHTTP_STATIC
-    #define WTCONNECTOR_API
+    #define WTCONNECTOR_API 
   #else
-    #if defined(wthttp_EXPORTS) || defined(wttest_EXPORTS)
-      #define WTCONNECTOR_API __declspec(dllexport)
-    #else
-      #define WTCONNECTOR_API __declspec(dllimport)
-    #endif
+    #define WTCONNECTOR_API WT_IMPORT
   #endif
-#else
-  #define WTCONNECTOR_API
 #endif
-
 
 #ifndef WT_TARGET_JAVA
 #define WT_ARRAY

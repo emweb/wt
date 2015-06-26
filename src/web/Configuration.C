@@ -236,7 +236,13 @@ void Configuration::reset()
   bootstrapConfig_.clear();
 
   if (!appRoot_.empty())
-    properties_["appRoot"] = appRoot_;
+    setAppRoot(appRoot_);
+}
+
+void Configuration::setAppRoot(const std::string& path)
+{
+  appRoot_ = path;
+  properties_["appRoot"] = appRoot_;
 }
 
 Configuration::SessionPolicy Configuration::sessionPolicy() const

@@ -138,6 +138,9 @@ Wt/WIdentityProxyModel.C
 Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C
+Wt/WJavaScriptExposableObject.C
+Wt/WJavaScriptHandle.C
+Wt/WJavaScriptObjectStorage.C
 Wt/WJavaScriptPreamble.C
 Wt/WJavaScriptSlot.C
 Wt/WLabel.C
@@ -277,6 +280,7 @@ Wt/Auth/AuthUtils.C
 Wt/Auth/MailUtils.C
 Wt/Chart/WAbstractChart.C
 Wt/Chart/WAxis.C
+Wt/Chart/WAxisSliderWidget.C
 Wt/Chart/WDataSeries.C
 Wt/Chart/WPieChart.C
 Wt/Chart/WCartesianChart.C

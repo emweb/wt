@@ -10,6 +10,7 @@
 #include <Wt/WLength>
 #include <Wt/WColor>
 #include <Wt/WGradient>
+#include <Wt/WJavaScriptExposableObject>
 
 namespace Wt {
 
@@ -28,7 +29,7 @@ namespace Wt {
  *
  * \ingroup painting
  */
-class WT_API WPen
+class WT_API WPen : public WJavaScriptExposableObject
 {
 public:
   /*! \brief Creates a black cosmetic pen.
@@ -86,6 +87,8 @@ public:
    */
   WPen clone() const;
 #endif
+
+  WPen& operator=(const WPen& rhs);
 
   /*! \brief Comparison operator.
    *
@@ -172,6 +175,8 @@ public:
    * \sa setGradient()
    */
   const WGradient& gradient() const { return gradient_; }
+
+  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 
 private:
   PenStyle penStyle_;

@@ -6,14 +6,37 @@
 
 #include "Wt/WPointF"
 
+#include "Wt/WStringStream"
+
+#include "web/WebUtils.h"
+
 namespace Wt {
 
 WPointF::WPointF()
   : x_(0), y_(0)
 { }
 
+WPointF& WPointF::operator= (const WPointF& rhs)
+{
+  WJavaScriptExposableObject::operator=(rhs);
+
+  x_ = rhs.x();
+  y_ = rhs.y();
+
+  return *this;
+}
+
+#ifdef WT_TARGET_JAVA
+WPointF WPointF::clone() const
+{
+  return WPointF(*this);
+}
+#endif
+
 bool WPointF::operator== (const WPointF& other) const
 {
+  if (!sameBindingAs(other)) return false;
+
   return (x_ == other.x_) && (y_ == other.y_);
 }
 
@@ -28,6 +51,28 @@ WPointF& WPointF::operator+= (const WPointF& other)
   y_ += other.y_;
 
   return *this;
+}
+
+std::string WPointF::jsValue() const
+{
+  char buf[30];
+  WStringStream ss;
+  ss << '[';
+  ss << Utils::round_js_str(x_, 3, buf) << ',';
+  ss << Utils::round_js_str(y_, 3, buf) << ']';
+  return ss.str();
+}
+
+WPointF WPointF::swapXY() const
+{
+  WPointF result(y(), x());
+  
+  if (isJavaScriptBound()) {
+    result.assignBinding(*this,
+	"((function(p){return [p[1],p[0]];})(" + jsRef() + "))");
+  }
+
+  return result;
 }
 
 }

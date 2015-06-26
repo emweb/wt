@@ -8,6 +8,7 @@
 #define WTRANSFORM_H_
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WJavaScriptExposableObject>
 
 namespace Wt {
 
@@ -45,7 +46,7 @@ class WRectF;
  *
  * \ingroup painting
  */
-class WT_API WTransform
+class WT_API WTransform : public WJavaScriptExposableObject
 {
 public:
   /*! \brief Default constructor.
@@ -60,6 +61,14 @@ public:
    */
   WTransform(double m11, double m12, double m21, double m22,
 	     double dx, double dy);
+
+  /*! \brief Copy constructor.
+   */
+  WTransform(const WTransform &other);
+
+#ifdef WT_TARGET_JAVA
+  WTransform& operator=(const WJavaScriptExposableObject& rhs);
+#endif
 
   /*! \brief Assignment operator.
    *
@@ -170,6 +179,13 @@ public:
    */
   WRectF map(const WRectF& rect) const;
 
+  /*! \brief Applies the transformation to a painter path.
+   *
+   * This will transform all individual points according to
+   * the transformation. The radius of arcs will be unaffected.
+   */
+  WPainterPath map(const WPainterPath& path) const;
+
   /*! \brief Resets the transformation to the identity.
    *
    * \sa isIdentity(), WTransform()
@@ -215,6 +231,8 @@ public:
    * Translates the current transformation.
    */
   WTransform& translate(double dx, double dy);
+  
+  WTransform& translate(const WPointF& p);
 
   /*! \brief Adds a transform that is conceptually applied after this transform.
    */
@@ -302,6 +320,8 @@ public:
    * \sa isIdentity()
    */
   static const WTransform Identity;
+
+  virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 
 private:
   // we use row,column indices; prepend transformations to the left,

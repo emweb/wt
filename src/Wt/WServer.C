@@ -106,10 +106,10 @@ WIOService& WServer::ioService()
 
 void WServer::setAppRoot(const std::string& path)
 {
-  if (configuration_)
-    LOG_ERROR("setAppRoot(): too late, already configured");
-
   appRoot_ = path;
+
+  if (configuration_)
+    configuration_->setAppRoot(path);
 }
 
 std::string WServer::appRoot() const

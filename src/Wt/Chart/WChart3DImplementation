@@ -11,6 +11,9 @@
 #include <Wt/Chart/WAbstractChartImplementation>
 
 namespace Wt {
+
+class WTransform;
+
   namespace Chart {
 
 class WCartesian3DChart;

@@ -82,7 +82,6 @@ WT_DECLARE_WT_MEMBER
    var keyDownFun = null;
 
    this.showPopup = function(edit) {
-	 debugger;
      el.style.display = 'block';
      selId = null;
      lastFilterValue = null;

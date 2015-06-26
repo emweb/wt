@@ -9,6 +9,10 @@
 
 #include <Wt/WInteractWidget>
 #include <Wt/WJavaScript>
+#include <Wt/WJavaScriptExposableObject>
+#include <Wt/WJavaScriptHandle>
+
+#include <Wt/WJavaScriptObjectStorage>
 
 namespace Wt {
 
@@ -220,6 +224,38 @@ public:
    */
   const std::vector<WAbstractArea *> areas() const;
 
+  /*! \brief Create a WTransform that is accessible from JavaScript,
+   *         associated with this WPaintedWidget
+   */
+  WJavaScriptHandle<WTransform> createJSTransform();
+
+  /*! \brief Create a WBrush that is accessible from JavaScript,
+   *         associated with this WPaintedWidget
+   */
+  WJavaScriptHandle<WBrush> createJSBrush();
+
+  /*! \brief Create a WPen that is accessible from JavaScript,
+   *         associated with this WPaintedWidget
+   */
+  WJavaScriptHandle<WPen> createJSPen();
+
+  /*! \brief Create a WPainterPath that is accessible from JavaScript,
+   *	     associated with this WPaintedWidget
+   */
+  WJavaScriptHandle<WPainterPath> createJSPainterPath();
+
+  /*! \brief Create a WRectF that is accessible from JavaScript,
+   *	     associated with this WPaintedWidget
+   */
+  WJavaScriptHandle<WRectF> createJSRect();
+
+  /*! \brief A JavaScript slot that repaints the widget when triggered.
+   *
+   * This is useful for client-side initiated repaints. You may want to use this
+   * if you want to add interaction or animation to your WPaintedWidget.
+   */
+  JSlot &repaintSlot() { return repaintSlot_; }
+
 protected:
   virtual void layoutSizeChanged(int width, int height);
 
@@ -260,7 +296,16 @@ protected:
 
   virtual void enableAjax();
 
+  virtual void render(WFlags<RenderFlag> flags);
+
+protected:
+  virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override) ;
+
+  std::string objJsRef() const;
+
 private:
+  void defineJavaScript();
+
   Method            preferredMethod_;
   WWidgetPainter   *painter_;
   bool              needRepaint_;
@@ -269,6 +314,9 @@ private:
   WFlags<PaintFlag> repaintFlags_;
   WImage           *areaImage_;
   int               renderWidth_, renderHeight_;
+
+  JSlot           repaintSlot_;
+  WJavaScriptObjectStorage jsObjects_;
 
   void resizeCanvas(int width, int height);
   bool createPainter();

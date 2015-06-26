@@ -246,7 +246,8 @@ void WCssStyleSheet::removeRule(WCssRule *rule)
 
 void WCssStyleSheet::ruleModified(WCssRule *rule)
 {
-  rulesModified_.insert(rule);
+  if (Utils::indexOf(rulesAdded_, rule) == -1)
+    rulesModified_.insert(rule);
 }
 
 void WCssStyleSheet::cssText(WStringStream& out, bool all)

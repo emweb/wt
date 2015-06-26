@@ -11,6 +11,7 @@
 #include "Wt/Chart/WGridData"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WBoostAny"
+#include "Wt/WTransform"
 
 namespace Wt {
   namespace Chart {

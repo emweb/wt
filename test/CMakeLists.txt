@@ -29,6 +29,7 @@ IF(ENABLE_LIBWTTEST)
     payment/MoneyTest.C
     locale/LocaleNumberTest.C
     trampoline/RefEncoder.C
+    testenvironment/TestEnvironmentTest.C
   )
 
   IF (WT_HAS_WRASTERIMAGE)

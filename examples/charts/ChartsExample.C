@@ -163,9 +163,14 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
   chart->setLegendEnabled(true); // enable the legend
+  chart->setZoomEnabled(true);
+  chart->setPanEnabled(true);
+  chart->setCrosshairEnabled(true);
 
   // Automatically layout chart (space for axes, legend, ...)
   chart->setAutoLayoutEnabled(true);
+
+  chart->setBackground(WColor(200,200,200));
 
   /*
    * Add all (but first) column as bar series
@@ -251,6 +256,9 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the X data
   chart->setLegendEnabled(true); // enable the legend
+  chart->setZoomEnabled(true);
+  chart->setPanEnabled(true);
+  chart->setCrosshairEnabled(true);
 
   chart->setType(ScatterPlot);            // set type to ScatterPlot
   chart->axis(XAxis).setScale(DateScale); // set scale of X axis to DateScale
@@ -258,7 +266,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   // Automatically layout chart (space for axes, legend, ...)
   chart->setAutoLayoutEnabled();
 
-  /*
+  chart->setBackground(WColor(200,200,200));
+ /*
    * Add first two columns as line series
    */
   for (int i = 1; i < 3; ++i) {
@@ -299,6 +308,9 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the X data
   chart->setLegendEnabled(true); // enable the legend
+  chart->setZoomEnabled(true);
+  chart->setPanEnabled(true);
+  chart->setCrosshairEnabled(true);
 
   chart->setType(ScatterPlot);   // set type to ScatterPlot
 

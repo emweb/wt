@@ -17,7 +17,7 @@
   #define WTDBO_DLLLOCAL
   #define WTDBO_DLLPUBLIC
 #else
-  #ifdef GCC_HASCLASSVISIBILITY
+  #if __GNUC__ >= 4
     #define WTDBO_IMPORT __attribute__ ((visibility("default")))
     #define WTDBO_EXPORT __attribute__ ((visibility("default")))
     #define WTDBO_DLLLOCAL __attribute__ ((visibility("hidden")))
@@ -31,18 +31,14 @@
 #endif
 
 // Define wt_EXPORTS for DLL builds
-#ifdef WT_WIN32
-  #ifdef wtdbo_EXPORTS
-    #define WTDBO_API WTDBO_EXPORT
-  #else
-    #ifdef WTDBO_STATIC
-      #define WTDBO_API
-    #else
-      #define WTDBO_API WTDBO_IMPORT
-    #endif
-  #endif
+#ifdef wtdbo_EXPORTS
+  #define WTDBO_API WTDBO_EXPORT
 #else
-  #define WTDBO_API
+  #ifdef WTDBO_STATIC
+    #define WTDBO_API
+  #else
+    #define WTDBO_API WTDBO_IMPORT
+  #endif
 #endif
 
 #ifndef WT_CXX11

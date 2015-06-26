@@ -3,13 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WPainterPath"
 
 #include <limits>
 
 #include <cmath>
 #include <cassert>
 
-#include "Wt/WPainterPath"
+#include "Wt/WStringStream"
 
 #include "WebUtils.h"
 
@@ -52,17 +53,37 @@ WPainterPath::WPainterPath(const WPointF& startPoint)
 }
 
 WPainterPath::WPainterPath(const WPainterPath& path)
-  : isRect_(path.isRect_),
-    segments_(path.segments_)
-{ }
+  : WJavaScriptExposableObject(path),
+    isRect_(path.isRect_)
+#ifndef WT_TARGET_JAVA
+    ,segments_(path.segments_)
+#endif
+{
+  #ifdef WT_TARGET_JAVA
+  segments_ = path.segments_;
+  #endif
+}
 
 WPainterPath& WPainterPath::operator= (const WPainterPath& path)
 {
+#ifndef WT_TARGET_JAVA
+  WJavaScriptExposableObject::operator=(path);
+#else
+  if (path.isJavaScriptBound()) assignBinding(path);
+#endif
+
   segments_ = path.segments_;
   isRect_ = path.isRect_;
 
   return *this;
 }
+
+#ifdef WT_TARGET_JAVA
+WPainterPath WPainterPath::clone() const
+{
+  return WPainterPath(*this);
+}
+#endif
 
 WPointF WPainterPath::getArcPosition(double cx, double cy,
 				     double rx, double ry,
@@ -398,6 +419,43 @@ WRectF WPainterPath::controlPointRect(const WTransform& transform) const
 
     return WRectF(minX, minY, maxX - minX, maxY - minY);
   }
+}
+
+std::string WPainterPath::jsValue() const
+{
+  char buf[30];
+  WStringStream ss;
+  ss << '[';
+  for (std::size_t i = 0; i < segments_.size(); ++i) {
+    const Segment &s = segments_[i];
+    if (i != 0) ss << ',';
+    ss << '[';
+    ss << Utils::round_js_str(s.x(), 3, buf) << ',';
+    ss << Utils::round_js_str(s.y(), 3, buf) << ',';
+    ss << (int)s.type()
+       << ']';
+  }
+  ss << ']';
+  return ss.str();
+}
+
+WPainterPath WPainterPath::crisp() const
+{
+  WPainterPath result;
+
+  if (isJavaScriptBound()) {
+    result.assignBinding(*this,
+	WT_CLASS ".gfxUtils.path_crisp(" + jsRef() + ')');
+  }
+
+  for (std::size_t i = 0; i < segments_.size(); ++i) {
+    const Segment &segment = segments_[i];
+    double hx = std::floor(segment.x()) + 0.5;
+    double hy = std::floor(segment.y()) + 0.5;
+    result.segments_.push_back(Segment(hx, hy, segment.type()));
+  }
+
+  return result;
 }
 
 }

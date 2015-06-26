@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WConfig.h>
+
 #ifdef WT_THREADED
 
 #include <boost/test/unit_test.hpp>

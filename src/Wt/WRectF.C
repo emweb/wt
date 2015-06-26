@@ -8,6 +8,9 @@
 
 #include "Wt/WRectF"
 #include "Wt/WPointF"
+#include "Wt/WStringStream"
+
+#include "web/WebUtils.h"
 
 namespace Wt {
 
@@ -26,9 +29,19 @@ WRectF::WRectF(const WPointF& topLeft, const WPointF& bottomRight)
     height_(bottomRight.y() - topLeft.y())
 { }
 
+WRectF::WRectF(const WRectF& other)
+  : WJavaScriptExposableObject(other),
+    x_(other.x()),
+    y_(other.y()),
+    width_(other.width()),
+    height_(other.height())
+{ }
+
 #ifdef WT_TARGET_JAVA
 WRectF& WRectF::operator=(const WRectF& rhs)
 {
+  WJavaScriptExposableObject::operator=(rhs);
+
   x_ = rhs.x_;
   y_ = rhs.y_;
   width_ = rhs.width_;
@@ -38,8 +51,20 @@ WRectF& WRectF::operator=(const WRectF& rhs)
 }
 #endif // WT_TARGET_JAVA
 
+#ifdef WT_TARGET_JAVA
+WRectF WRectF::clone() const
+{
+  return WRectF(*this);
+}
+#endif
+
+WRectF::~WRectF()
+{ }
+
 bool WRectF::operator==(const WRectF& rhs) const
 {
+  if (!sameBindingAs(rhs)) return false;
+
   return 
        x_ == rhs.x_
     && y_ == rhs.y_
@@ -55,12 +80,16 @@ bool WRectF::operator!=(const WRectF& rhs) const
 #ifndef WT_TARGET_JAVA
 bool WRectF::isNull() const
 {
+  if (isJavaScriptBound()) return false;
+
   return x_ == 0 && y_ == 0 && width_ == 0 && height_ == 0;
 }
 #endif //WT_TARGET_JAVA
 
 bool WRectF::isEmpty() const
 {
+  if (isJavaScriptBound()) return false;
+
   return width_ == 0 && height_ == 0;
 }
 
@@ -168,7 +197,24 @@ WRectF WRectF::normalized() const
     h = -height_;
   }
 
-  return WRectF(x, y, w, h);
+  WRectF result(x, y, w, h);
+  if (isJavaScriptBound()) {
+    result.assignBinding(*this,
+	WT_CLASS ".gfxUtils.rect_normalized(" + jsRef() + ')');
+  }
+  return result;
+}
+
+std::string WRectF::jsValue() const
+{
+  char buf[30];
+  WStringStream ss;
+  ss << '[';
+  ss << Utils::round_js_str(x_, 3, buf) << ',';
+  ss << Utils::round_js_str(y_, 3, buf) << ',';
+  ss << Utils::round_js_str(width_, 3, buf) << ',';
+  ss << Utils::round_js_str(height_, 3, buf) << ']';
+  return ss.str();
 }
 
 }

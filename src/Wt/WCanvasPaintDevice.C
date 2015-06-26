@@ -131,7 +131,8 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
 {
   std::string canvasVar = WT_CLASS ".getElement('" + canvasId + "')";
 
-  std::stringstream tmp;
+  recordedJs_.str("");
+  std::stringstream &tmp = recordedJs_;
 
   tmp <<
     "if(" << canvasVar << ".getContext){";
@@ -360,27 +361,11 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
       }
       break;
     case WPainterPath::Segment::QuadC: {
-      /*
-       * quadraticCurveTo() is broken in Firefox 1.5.
-       * Therefore, we convert to a bezier Curve instead.
-       */
-      WPointF current = path.positionAtSegment(i);
       const double cpx = s.x();
       const double cpy = s.y();
-      const double x = segments[i+1].x();
-      const double y = segments[i+1].y();
-      
-      const double cp1x = current.x() + 2.0/3.0*(cpx - current.x());
-      const double cp1y = current.y() + 2.0/3.0*(cpy - current.y());
-      const double cp2x = cp1x + (x - current.x())/3.0;
-      const double cp2y = cp1y + (y - current.y())/3.0;
-
-      // and now call cubic Bezier curve to function 
-      out << "ctx.bezierCurveTo("
-	  << Utils::round_js_str(cp1x + pathTranslation_.x(), 3, buf) << ',';
-      out << Utils::round_js_str(cp1y + pathTranslation_.y(), 3, buf) << ',';
-      out << Utils::round_js_str(cp2x + pathTranslation_.x(), 3, buf) << ',';
-      out << Utils::round_js_str(cp2y + pathTranslation_.y(), 3, buf);
+      out << "ctx.quadraticCurveTo("
+          << Utils::round_js_str(cpx + pathTranslation_.x(), 3, buf) << ',';
+      out << Utils::round_js_str(cpy + pathTranslation_.y(), 3, buf);
 
       break;
     }
@@ -410,11 +395,25 @@ void WCanvasPaintDevice::finishPath()
 void WCanvasPaintDevice::drawPath(const WPainterPath& path)
 {
   renderStateChanges(false);
-
-  drawPlainPath(js_, path);
-  if (painter_->brush().color().alpha() != 255 ||
-      painter_->pen().color().alpha() != 255)
+  if (path.isJavaScriptBound()) {
     finishPath();
+    js_ << WT_CLASS ".gfxUtils.drawPath(ctx," << path.jsRef() << ","
+      << (currentNoBrush_ ? "false" : "true") << ","
+      << (currentNoPen_ ? "false" : "true") << ");";
+  } else {
+    drawPlainPath(js_, path);
+    if (painter_->brush().color().alpha() != 255 || painter_->brush().isJavaScriptBound() ||
+	painter_->pen().color().alpha() != 255 || painter_->pen().isJavaScriptBound())
+      finishPath();
+  }
+}
+
+void WCanvasPaintDevice::drawRect(const WRectF& rectangle)
+{
+  renderStateChanges(false);
+  js_ << WT_CLASS << ".gfxUtils.drawRect(ctx," << rectangle.jsRef() << ","
+    << (currentNoBrush_ ? "false" : "true") << ","
+    << (currentNoPen_ ? "false" : "true") << ");";
 }
 
 void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
@@ -459,13 +458,6 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 	currentTextHAlign_ = horizontalAlign;
       }
 
-      switch (horizontalAlign) {
-      case AlignLeft: x = rect.left(); break;
-      case AlignRight: x = rect.right(); break;
-      case AlignCenter: x = rect.center().x(); break;
-      default: break;
-      }
-
       if (verticalAlign != currentTextVAlign_) {
 	js_ << "ctx.textBaseline='";
 	switch (verticalAlign) {
@@ -478,25 +470,58 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 	currentTextVAlign_ = verticalAlign;
       }
 
-      switch (verticalAlign) {
-      case AlignTop: y = rect.top(); break;
-      case AlignBottom: y = rect.bottom(); break;
-      case AlignMiddle: y = rect.center().y(); break;
-      default: break;
-      }
-
-      if (currentBrush_.color() != currentPen_.color())
+      // Set fillstyle to pen color for text
+      if (currentPen_.isJavaScriptBound()) {
+	js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text(" << currentPen_.jsRef() << ".color);";
+      } else if (currentBrush_.color() != currentPen_.color() || currentBrush_.isJavaScriptBound())
 	js_ << "ctx.fillStyle="
 	    << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
 	    << ";";
 
       char buf[30];
+      
+      if (rect.isJavaScriptBound()) {
+	std::string s_x, s_y;
+	switch (horizontalAlign) {
+	case AlignLeft: s_x = WT_CLASS ".gfxUtils.rect_left(" + rect.jsRef() + ')'; break;
+	case AlignRight: s_x = WT_CLASS ".gfxUtils.rect_right(" + rect.jsRef() + ')'; break;
+	case AlignCenter: s_x = WT_CLASS ".gfxUtils.rect_center(" + rect.jsRef() + ").x"; break;
+	default: break;
+	}
 
-      js_ << "ctx.fillText(" << text.jsStringLiteral()
-	  << ',' << Utils::round_js_str(x, 3, buf) << ',';
-      js_ << Utils::round_js_str(y, 3, buf) << ");";
+	switch (verticalAlign) {
+	case AlignTop: s_y = WT_CLASS ".gfxUtils.rect_top(" + rect.jsRef() + ')'; break;
+	case AlignBottom: s_y = WT_CLASS ".gfxUtils.rect_bottom(" + rect.jsRef() + ')'; break;
+	case AlignMiddle: s_y = WT_CLASS ".gfxUtils.rect_center(" + rect.jsRef() + ").y"; break;
+	default: break;
+	}
 
-      if (currentBrush_.color() != currentPen_.color())
+	js_ << "ctx.fillText(" << text.jsStringLiteral()
+	    << ',' << s_x << ',' << s_y << ");";
+      } else {
+	switch (horizontalAlign) {
+	case AlignLeft: x = rect.left(); break;
+	case AlignRight: x = rect.right(); break;
+	case AlignCenter: x = rect.center().x(); break;
+	default: break;
+	}
+
+	switch (verticalAlign) {
+	case AlignTop: y = rect.top(); break;
+	case AlignBottom: y = rect.bottom(); break;
+	case AlignMiddle: y = rect.center().y(); break;
+	default: break;
+	}
+
+	js_ << "ctx.fillText(" << text.jsStringLiteral()
+	    << ',' << Utils::round_js_str(x, 3, buf) << ',';
+	js_ << Utils::round_js_str(y, 3, buf) << ");";
+      }
+
+      // Restore fillstyle to brush color
+      if (currentBrush_.isJavaScriptBound()) {
+	js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text(" << currentBrush_.jsRef() << ".color);";
+      } else if (currentBrush_.color() != currentPen_.color() || currentPen_.isJavaScriptBound())
 	js_ << "ctx.fillStyle="
 	    << WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
 	    << ";";
@@ -545,7 +570,9 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 
       js_ << "ctx.save();";
       js_ << "ctx.translate(" << x << ", " << y << ");";
-      if (currentBrush_.color() != currentPen_.color())
+      if (currentPen_.isJavaScriptBound()) {
+	js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text(" << currentPen_.jsRef() << ".color);";
+      } else if (currentBrush_.color() != currentPen_.color() || currentBrush_.isJavaScriptBound())
 	js_ << "ctx.fillStyle="
 	    << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
 	    << ";";
@@ -634,47 +661,18 @@ void WCanvasPaintDevice::setChanged(WFlags<ChangeFlag> flags)
 }
 
 void WCanvasPaintDevice::renderTransform(std::stringstream& s,
-					 const WTransform& t, bool invert)
+					 const WTransform& t)
 {
-  if (!t.isIdentity()) {
+  if (t.isJavaScriptBound()) {
+    s << "ctx.transform.apply(ctx, " << t.jsRef() << ");";
+  } else if (!t.isIdentity()) {
     char buf[30];
-    WTransform::TRSRDecomposition d;
-
-    t.decomposeTranslateRotateScaleRotate(d);
-
-    if (!invert) {
-      if (std::fabs(d.dx) > EPSILON || std::fabs(d.dy) > EPSILON) {
-	s << "ctx.translate(" << Utils::round_js_str(d.dx, 3, buf) << ',';
-	s << Utils::round_js_str(d.dy, 3, buf) << ");";
-      }
-
-      if (std::fabs(d.alpha1) > EPSILON)
-	s << "ctx.rotate(" << d.alpha1 << ");";
-
-      if (std::fabs(d.sx - 1) > EPSILON || std::fabs(d.sy - 1) > EPSILON) {
-	s << "ctx.scale(" << Utils::round_js_str(d.sx, 3, buf) << ',';
-	s << Utils::round_js_str(d.sy, 3, buf) << ");";
-      }
-
-      if (std::fabs(d.alpha2) > EPSILON)
-	s << "ctx.rotate(" << d.alpha2 << ");";
-    } else {
-      if (std::fabs(d.alpha2) > EPSILON)
-	s << "ctx.rotate(" << -d.alpha2 << ");";
-
-      if (std::fabs(d.sx - 1) > EPSILON || std::fabs(d.sy - 1) > EPSILON) {
-	s << "ctx.scale(" << Utils::round_js_str(1/d.sx, 3, buf) << ',';
-	s << Utils::round_js_str(1/d.sy, 3, buf) << ");";
-      }
-
-      if (std::fabs(d.alpha1) > EPSILON)
-	s << "ctx.rotate(" << -d.alpha1 << ");";
-
-      if (std::fabs(d.dx) > EPSILON || std::fabs(d.dy) > EPSILON) {
-	s << "ctx.translate(" << Utils::round_js_str(-d.dx, 3, buf) << ',';
-	s << Utils::round_js_str(-d.dy, 3, buf) << ");";
-      }
-    }
+    s << "ctx.transform(" << Utils::round_js_str(t.m11(), 3, buf) << ",";
+    s			  << Utils::round_js_str(t.m12(), 3, buf) << ",";
+    s			  << Utils::round_js_str(t.m21(), 3, buf) << ",";
+    s			  << Utils::round_js_str(t.m22(), 3, buf) << ",";
+    s			  << Utils::round_js_str(t.m31(), 3, buf) << ",";
+    s                     << Utils::round_js_str(t.m32(), 3, buf) << ");";
   }
 }
 
@@ -711,7 +709,8 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 
   bool penColorChanged = 
     penChanged && 
-    (currentPen_.color() != painter()->pen().color() ||
+    (painter()->pen().isJavaScriptBound() ||
+     currentPen_.color() != painter()->pen().color() ||
      currentPen_.gradient() != painter()->pen().gradient());
 
   bool shadowChanged =
@@ -736,11 +735,16 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 	pathTranslation_.setX(0);
 	pathTranslation_.setY(0);
 
-	drawPlainPath(js_, painter()->clipPath());
-	js_ << "ctx.clip();";
+	if (painter()->clipPath().isJavaScriptBound()) {
+	  js_ << WT_CLASS << ".gfxUtils.drawPath(ctx," << painter()->clipPath().jsRef() << ","
+	    "false,false,true);";
+	} else {
+	  drawPlainPath(js_, painter()->clipPath());
+	  js_ << "ctx.clip();";
+	}
 	busyWithPath_ = false;
       }
-      renderTransform(js_, t, true);
+      renderTransform(js_, t.inverted());
 
       js_ << "ctx.save();";
 
@@ -754,7 +758,9 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 	if (!painter()->brush().gradient().isEmpty() ||
 	    !painter()->pen().gradient().isEmpty()) {
 	  resetTransform = true;
-	} else if (fequal(f.m11(), currentTransform_.m11())
+	} else if (!currentTransform_.isJavaScriptBound()
+	    && !f.isJavaScriptBound()
+	    && fequal(f.m11(), currentTransform_.m11())
 	    && fequal(f.m12(), currentTransform_.m12())
 	    && fequal(f.m21(), currentTransform_.m21())
 	    && fequal(f.m22(), currentTransform_.m22())) {
@@ -762,6 +768,10 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 	   * Invert scale/rotate to compute the delta needed
 	   * before applying these transformations to get the
 	   * same as the global translation.
+	   *
+	   * (This is an optimization that prevents the rendering from
+	   * involving many ctx.transform calls, when only moves
+	   * are performed.)
 	   */
 	  double det = f.m11() * f.m22() - f.m12() * f.m21();
 	  double a11 = f.m22() / det;
@@ -836,10 +846,14 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 	js_ << "ctx.strokeStyle=" << gradientName << ";";
 	renderStateChanges(true);
       } else {
-	js_ << "ctx.strokeStyle="
-	    << WWebWidget::jsStringLiteral
-	  (painter()->pen().color().cssText(true))
-	    << ";";
+	if (painter()->pen().isJavaScriptBound()) {
+	  js_ << "ctx.strokeStyle=" WT_CLASS ".gfxUtils.css_text(" << painter()->pen().jsRef() << ".color);";
+	} else {
+	  js_ << "ctx.strokeStyle="
+	      << WWebWidget::jsStringLiteral
+	    (painter()->pen().color().cssText(true))
+	      << ";";
+	}
       }
     }
 
@@ -901,9 +915,13 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       js_ << "ctx.fillStyle=" << gradientName << ";";
       renderStateChanges(true);
     } else {
-      js_ << "ctx.fillStyle=" 
-	  << WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
-	  << ";";
+      if (currentBrush_.isJavaScriptBound()) {
+	js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text(" << currentBrush_.jsRef() << ".color);";
+      } else {
+	js_ << "ctx.fillStyle=" 
+	    << WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
+	    << ";";
+      }
     }
   }
 
