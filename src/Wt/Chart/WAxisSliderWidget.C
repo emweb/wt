@@ -30,7 +30,8 @@ WAxisSliderWidget::WAxisSliderWidget(WContainerWidget *parent)
     margin_(10),
     selectedSeriesPen_(&seriesPen_),
     handleBrush_(WColor(0,0,200)),
-    background_(WColor(230, 230, 230))
+    background_(WColor(230, 230, 230)),
+    selectedAreaBrush_(WColor(255, 255, 255))
 {
   init();
 }
@@ -42,7 +43,8 @@ WAxisSliderWidget::WAxisSliderWidget(WCartesianChart *chart, int seriesColumn, W
     margin_(10),
     selectedSeriesPen_(&seriesPen_),
     handleBrush_(WColor(0,0,200)),
-    background_(WColor(230, 230, 230))
+    background_(WColor(230, 230, 230)),
+    selectedAreaBrush_(WColor(255, 255, 255))
 {
   init();
 }
@@ -125,6 +127,14 @@ void WAxisSliderWidget::setBackground(const WBrush& brush)
   }
 }
 
+void WAxisSliderWidget::setSelectedAreaBrush(const WBrush& brush)
+{
+  if (brush != selectedAreaBrush_) {
+    selectedAreaBrush_ = brush;
+    update();
+  }
+}
+
 void WAxisSliderWidget::render(WFlags<RenderFlag> flags)
 {
   WPaintedWidget::render(flags);
@@ -160,7 +170,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   WRectF rect = selectionTransform.map(selectionRect);
 
   painter.fillRect(WRectF(margin_, 0, w - 2 * margin_, h - 25), background_);
-  painter.fillRect(rect, WBrush(WColor(255,255,255)));
+  painter.fillRect(rect, selectedAreaBrush_);
 
   chart_->axis(XAxis).prepareRender(Horizontal, drawArea.width());
   chart_->axis(XAxis).render(

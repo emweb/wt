@@ -95,6 +95,14 @@ public:
    */
   const WBrush& background() const { return background_; }
 
+  /*! \brief Set the brush for the selected area.
+   */
+  void setSelectedAreaBrush(const WBrush& brush);
+
+  /*! \brief Returns the brush for the selected area.
+   */
+  const WBrush& selectedAreaBrush() const { return selectedAreaBrush_; }
+
 protected:
   virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
   virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override) ;
@@ -110,6 +118,7 @@ private:
   WPen *selectedSeriesPen_;
   WBrush handleBrush_;
   WBrush background_;
+  WBrush selectedAreaBrush_;
 
   WJavaScriptHandle<WTransform> transform_;
 };

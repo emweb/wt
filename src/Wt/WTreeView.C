@@ -1642,7 +1642,6 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
 	skipNextMouseEvent_ = true;
   } else if (type == "dblclicked") {
     handleDoubleClick(index, event);
-	skipNextMouseEvent_ = true;
   } else if (type == "mousedown") {
     mouseWentDown().emit(index, event);
 	skipNextMouseEvent_ = true;

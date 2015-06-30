@@ -10,9 +10,9 @@
 #include <Wt/Dbo/Types>
 
 #include "Post.h"
+#include "Token.h"
 
 class Comment;
-class Token;
 
 namespace dbo = Wt::Dbo;
 

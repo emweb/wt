@@ -51,7 +51,17 @@ enum Axis {
 enum AxisValue {
   MinimumValue = 0x1,  //!< At the minimum value.
   MaximumValue = 0x2,  //!< At the maximum value.
-  ZeroValue = 0x4      //!< At the zero value (if displayed).
+  ZeroValue = 0x4,     //!< At the zero value (if displayed).
+  BothSides = 0x8      //!< At both sides (MinimumValue and MaximumValue).
+};
+
+/*! \brief Enumeration that indicates which way the axis ticks point.
+ *
+ * \sa WAxis::setTickDirection(TickDirection)
+ */
+enum TickDirection {
+  Outwards, //!< Towards of the outside of the chart.
+  Inwards   //!< Pointing inwards to the chart.
 };
 
 // for < 3.0.1 compatibility
@@ -655,6 +665,38 @@ public:
    */
   double initialPan() const;
 
+  /*! \brief Sets the padding between the chart area and this axis.
+   *
+   * \sa padding()
+   */
+  void setPadding(int padding);
+
+  /*! \brief Returns the padding between the chart area and this axis.
+   * 
+   * \sa setPadding()
+   */
+  int padding() const { return padding_; }
+
+  /*! \brief Sets the direction that the axis ticks should point to.
+   *
+   * If set to Outwards, the axis ticks will point outside of
+   * the chart, and the labels will be on the outside.
+   *
+   * If set to Inwards, the axis ticks will point inside of
+   * the chart, and the labels will be on the inside. Also,
+   * the padding() will be set to 25.
+   *
+   * \sa tickDirection()
+   * \sa setPadding()
+   */
+  void setTickDirection(TickDirection direction);
+
+  /*! \brief Gets the direction that the axis ticks point to.
+   *
+   * \sa setTickDirection()
+   */
+  TickDirection tickDirection() const { return tickDirection_; }
+
   int segmentCount() const { return (int)segments_.size(); }
 
   double segmentMargin() const { return segmentMargin_; }
@@ -760,6 +802,8 @@ private:
   double	   maxZoom_;
   double	   initialZoom_;
   double           initialPan_;
+  int              padding_;
+  TickDirection    tickDirection_;
 
   // for 3D charts, don't call update when the labelangle is tempor. changed
   bool             renderingMirror_;

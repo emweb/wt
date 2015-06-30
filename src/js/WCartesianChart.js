@@ -337,7 +337,11 @@ WT_DECLARE_WT_MEMBER
       ctx.font = '16px sans-serif';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
-      ctx.fillText("("+p[0].toFixed(2)+","+p[1].toFixed(2)+")", right(config.area) - 5, top(config.area) + 5);
+      var textX = p[0].toFixed(2);
+      var textY = p[1].toFixed(2);
+      if (textX == '-0.00') textX = '0.00';
+      if (textY == '-0.00') textY = '0.00';
+      ctx.fillText("("+textX+","+textY+")", right(config.area) - 5, top(config.area) + 5);
       
       if (ctx.setLineDash) {
 	 ctx.setLineDash([1,2]);

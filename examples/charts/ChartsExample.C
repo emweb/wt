@@ -165,7 +165,6 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   chart->setLegendEnabled(true); // enable the legend
   chart->setZoomEnabled(true);
   chart->setPanEnabled(true);
-  chart->setCrosshairEnabled(true);
 
   // Automatically layout chart (space for axes, legend, ...)
   chart->setAutoLayoutEnabled(true);
@@ -258,7 +257,6 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   chart->setLegendEnabled(true); // enable the legend
   chart->setZoomEnabled(true);
   chart->setPanEnabled(true);
-  chart->setCrosshairEnabled(true);
 
   chart->setType(ScatterPlot);            // set type to ScatterPlot
   chart->axis(XAxis).setScale(DateScale); // set scale of X axis to DateScale
@@ -311,6 +309,8 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   chart->setZoomEnabled(true);
   chart->setPanEnabled(true);
   chart->setCrosshairEnabled(true);
+
+  chart->setBackground(WColor(200,200,200));
 
   chart->setType(ScatterPlot);   // set type to ScatterPlot
 

@@ -626,15 +626,34 @@ public:
 				WAbstractArea *area);
   /*! \brief Sets the padding between the chart area and the axes.
    *
+   * This calls WAxes::setPadding() on all axes.
+   *
    * \sa axisPadding()
    */
   void setAxisPadding(int axisPadding);
 
   /*! \brief Returns the padding between the chart area and the axes.
    *
+   * This number may not reflect the actual padding of the individual axes,
+   * if another padding has been applied on the individual axes.
+   *
    * \sa setAxisPadding()
    */
   int axisPadding() const { return axisPadding_; }
+
+  /*! \brief Set the pen of the border to be drawn around the chart area.
+   *
+   * \sa borderPen()
+   */
+  void setBorderPen(const WPen& pen);
+
+  /*! \brief The pen of the border to be drawn around the chart area.
+   *
+   * Defaults to NoPen.
+   *
+   * \sa setBorderPen()
+   */
+  const WPen& borderPen() const { return borderPen_; }
 
   /*! \brief Enables zoom functionality.
    *
@@ -755,6 +774,7 @@ private:
   double barMargin_;
   WLegend legend_;
   int axisPadding_;
+  WPen borderPen_;
   WPen textPen_;
 
   /* render state */
@@ -810,6 +830,7 @@ private:
    *   renderGrid(painter, axis(Y2Axis));
    *   renderSeries(painter);
    *   renderAxes(painter, Line | Labels);
+   *   renderBorder(painter);
    *   renderLegend(painter);
    * }
    *
@@ -906,6 +927,13 @@ private:
    */
   virtual void renderAxes(WPainter& painter,
 			  WFlags<AxisProperty> properties) const;
+
+  /*! \brief Renders the border of the chart area.
+   *
+   * \sa render()
+   * \sa setBorderPen()
+   */
+  virtual void renderBorder(WPainter& painter) const;
 
   /*! \brief Renders all series data, including value labels.
    *

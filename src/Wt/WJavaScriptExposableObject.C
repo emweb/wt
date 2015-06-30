@@ -74,9 +74,9 @@ bool WJavaScriptExposableObject::sameBindingAs(const WJavaScriptExposableObject 
 
 void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject &rhs)
 {
-  assert(clientBinding_ == 0 || &rhs == this);
   assert(rhs.clientBinding_ != 0);
   if (&rhs != this) {
+    if (clientBinding_) delete clientBinding_;
 #ifndef WT_TARGET_JAVA
     clientBinding_ = new WJavaScriptExposableObject::JSInfo(*rhs.clientBinding_);
 #else
@@ -88,9 +88,9 @@ void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject 
 void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject &rhs,
 					       const std::string &jsRef)
 {
-  assert(clientBinding_ == 0 || &rhs == this);
   assert(rhs.clientBinding_ != 0);
   if (&rhs != this) {
+    if (clientBinding_) delete clientBinding_;
     clientBinding_ = new WJavaScriptExposableObject::JSInfo(*rhs.clientBinding_);
   }
   clientBinding_->jsRef_ = jsRef;

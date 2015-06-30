@@ -146,7 +146,9 @@ WAxis::WAxis()
     titleOrientation_(Horizontal),
     maxZoom_(4),
     initialZoom_(1),
-    initialPan_(0)
+    initialPan_(0),
+    padding_(0),
+    tickDirection_(Outwards)
 {
   titleFont_.setFamily(WFont::SansSerif, "Arial");
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
@@ -444,9 +446,9 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
   }
 
   double clipMin = segments_.front().renderMinimum == 0 ?
-    0 : chart_->axisPadding();
+    0 : padding();
   double clipMax = segments_.back().renderMaximum == 0 ?
-    0 : chart_->axisPadding();
+    0 : padding();
 
   double totalRenderLength = length;
   double totalRenderStart = clipMin;
@@ -780,12 +782,12 @@ void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
       int borderMin, borderMax;
 
       if (scale_ == CategoryScale){
-	borderMax = borderMin = chart_->axisPadding();
+	borderMax = borderMin = padding();
       }else {
 	borderMin = (s.renderMinimum == 0 && otherLocation == ZeroValue)
-	  ? 0 : chart_->axisPadding();
+	  ? 0 : padding();
 	borderMax = (s.renderMinimum == 0 && otherLocation == ZeroValue)
-	  ? 0 : chart_->axisPadding();
+	  ? 0 : padding();
       }
 
       s.renderLength -= (borderMin + borderMax);
@@ -1055,7 +1057,7 @@ WString WAxis::label(double u) const
 
 void WAxis::setInitialZoom(double initialZoom)
 {
-  initialZoom_ = initialZoom;
+  set(initialZoom_, initialZoom);
 }
 
 double WAxis::initialZoom() const
@@ -1065,7 +1067,7 @@ double WAxis::initialZoom() const
 
 void WAxis::setInitialPan(double initialPan)
 {
-  initialPan_ = initialPan;
+  set(initialPan_, initialPan);
 }
 
 double WAxis::initialPan() const
@@ -1073,10 +1075,23 @@ double WAxis::initialPan() const
   return initialPan_;
 }
 
+void WAxis::setPadding(int padding)
+{
+  set(padding_, padding);
+}
+
+void WAxis::setTickDirection(TickDirection direction)
+{
+  if (direction == Inwards) {
+    setPadding(25);
+  }
+  set(tickDirection_, direction);
+}
+
 void WAxis::setMaxZoom(double maxZoom)
 {
-  maxZoom_ = maxZoom < 1 ? 1 : maxZoom;
-  update();
+  maxZoom = maxZoom < 1 ? 1 : maxZoom;
+  set(maxZoom_, maxZoom);
 }
 
 double WAxis::maxZoom() const

@@ -784,6 +784,7 @@ WCartesianChart::WCartesianChart(WContainerWidget *parent)
     type_(CategoryChart),
     barMargin_(0),
     axisPadding_(5),
+    borderPen_(NoPen),
     zoomEnabled_(false),
     panEnabled_(false),
     rubberBandEnabled_(true),
@@ -802,6 +803,7 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
     type_(type),
     barMargin_(0),
     axisPadding_(5),
+    borderPen_(NoPen),
     zoomEnabled_(false),
     panEnabled_(false),
     rubberBandEnabled_(true),
@@ -834,6 +836,10 @@ void WCartesianChart::init()
   axes_[XAxis]->init(interface_, XAxis);
   axes_[YAxis]->init(interface_, YAxis);
   axes_[Y2Axis]->init(interface_, Y2Axis);
+
+  axes_[XAxis]->setPadding(axisPadding_);
+  axes_[YAxis]->setPadding(axisPadding_);
+  axes_[Y2Axis]->setPadding(axisPadding_);
   
   setPlotAreaPadding(40, Left | Right);
   setPlotAreaPadding(30, Top | Bottom);
@@ -841,14 +847,16 @@ void WCartesianChart::init()
   xTransform_ = createJSTransform();
   yTransform_ = createJSTransform();
 
-  mouseWentDown().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDown(o, e);}}");
-  mouseWentUp().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseUp(o, e);}}");
-  mouseDragged().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDrag(o, e);}}");
-  mouseMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseMove(o, e);}}");
-  mouseWheel().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseWheel(o, e);}}");
-  touchStarted().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchStart(o, e);}}");
-  touchEnded().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchEnd(o, e);}}");
-  touchMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchMoved(o, e);}}");
+  if (WApplication::instance() != 0) {
+    mouseWentDown().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDown(o, e);}}");
+    mouseWentUp().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseUp(o, e);}}");
+    mouseDragged().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDrag(o, e);}}");
+    mouseMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseMove(o, e);}}");
+    mouseWheel().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseWheel(o, e);}}");
+    touchStarted().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchStart(o, e);}}");
+    touchEnded().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchEnd(o, e);}}");
+    touchMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchMoved(o, e);}}");
+  }
 }
 
 void WCartesianChart::setOrientation(Orientation orientation)
@@ -1233,6 +1241,17 @@ void WCartesianChart::IconWidget::paintEvent(Wt::WPaintDevice *paintDevice)
 void WCartesianChart::setAxisPadding(int padding)
 {
   axisPadding_ = padding;
+  for (int i = 0; i < 2; ++i) {
+    axes_[i]->setPadding(padding);
+  }
+}
+
+void WCartesianChart::setBorderPen(const WPen& pen)
+{
+  if (borderPen_ != pen) {
+    borderPen_ = pen;
+    update();
+  }
 }
 
 bool WCartesianChart::isInteractive() const
@@ -1679,6 +1698,7 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
     renderGrid(painter, axis(Y2Axis));
     renderSeries(painter);              // render the data series
     renderAxes(painter, Line | Labels); // render the axes (lines & labels)
+    renderBorder(painter);
     renderLegend(painter);
   }
 
@@ -1882,6 +1902,9 @@ bool WCartesianChart::prepareAxes() const
       break;
     case MaximumValue:
       location_[XAxis] = MaximumValue;
+      break;
+    case BothSides:
+      location_[XAxis] = BothSides;
     }
   }
 
@@ -1898,16 +1921,21 @@ bool WCartesianChart::prepareAxes() const
     } else if (location == MinimumValue) {
       if (other.segments_.front().renderMinimum == 0)
 	location = ZeroValue;
-    } else
+    } else if (location != BothSides) {
       if (other.segments_.front().renderMaximum == 0)
 	location = MaximumValue;
+    }
 
     location_[axis.id()] = location;
   }
 
   // force Y axes to the sides when dual Y axes
   if (y2Axis.isVisible()) {
-    if (!(location_[Y1Axis] == ZeroValue
+    if (location_[Y1Axis] == BothSides &&
+	xAxis.segments_.front().renderMinimum == 0)
+      location_[Y1Axis] = ZeroValue;
+    if (location_[Y1Axis] == BothSides ||
+	!(location_[Y1Axis] == ZeroValue
 	  && (xAxis.segments_.front().renderMinimum == 0)))
       location_[Y1Axis] = MinimumValue;
 
@@ -2006,6 +2034,17 @@ void WCartesianChart::renderGrid(WPainter& painter, const WAxis& ax) const
 
   double ou0 = s0.renderStart;
   double oun = sn.renderStart + sn.renderLength;
+
+  // Adjust for potentially different axis padding on second Y-axis
+  if (!vertical && axis(Y2Axis).isGridLinesEnabled()) {
+    const WAxis& other2 = axis(Y2Axis);
+    const WAxis::Segment& s0_2 = other2.segments_.front();
+    const WAxis::Segment& sn_2 = other2.segments_.back();
+    if (!axis(YAxis).isGridLinesEnabled() || s0_2.renderStart < ou0)
+      ou0 = s0_2.renderStart;
+    if (!axis(YAxis).isGridLinesEnabled() || sn_2.renderStart + sn_2.renderLength > oun)
+      oun = sn_2.renderStart + sn_2.renderLength;
+  }
   
   bool otherVertical = !vertical;
 
@@ -2058,7 +2097,9 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 
   if (isInteractive()) {
     WRectF clipRect;
-    if (vertical) {
+    if (axis.location() == ZeroValue) {
+      clipRect = chartArea_;
+    } else if (vertical) {
       clipRect = WRectF(0.0, chartArea_.top(), width().toPixels(), chartArea_.height());
     } else {
       clipRect = WRectF(chartArea_.left(), 0.0, chartArea_.width(), height().toPixels());
@@ -2084,238 +2125,309 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     axisEnd.setX(chartArea_.right());
   }
 
-  switch (location_[axis.id()]) {
-  case MinimumValue:
-    if (vertical) {
-      tickStart = -TICK_LENGTH;
-      tickEnd = 0;
-      labelPos = -TICK_LENGTH;
-      labelHFlag = AlignRight;
+  std::vector<AxisValue> locations;
+  if (location_[axis.id()] == BothSides) {
+    locations.push_back(MinimumValue);
+    locations.push_back(MaximumValue);
+  } else
+    locations.push_back(location_[axis.id()]);
 
-      double x = chartArea_.left() - axis.margin();
-      axisStart.setX(x);
-      axisEnd.setX(x);
-    } else {
-      tickStart = 0;
-      tickEnd = TICK_LENGTH;
-      labelPos = TICK_LENGTH;
-      labelVFlag = AlignTop;
+  for (std::size_t l = 0; l < locations.size(); ++l) {
+    switch (locations[l]) {
+    case MinimumValue:
+      if (vertical) {
+	if (axis.tickDirection() == Inwards) {
+	  tickStart = 0;
+	  tickEnd = TICK_LENGTH;
+	  labelPos = TICK_LENGTH;
+	  labelHFlag = AlignLeft;
 
-      double y = chartArea_.bottom() + axis.margin();
-      axisStart.setY(y);
-      axisEnd.setY(y);
-    }
+	  double x = chartArea_.left();
+	  axisStart.setX(x);
+	  axisEnd.setX(x);
+	} else {
+	  tickStart = -TICK_LENGTH;
+	  tickEnd = 0;
+	  labelPos = -TICK_LENGTH;
+	  labelHFlag = AlignRight;
 
-    break;
-  case MaximumValue:
-    if (vertical) {
-      tickStart = 0;
-      tickEnd = TICK_LENGTH;
-      labelPos = TICK_LENGTH;
-      labelHFlag = AlignLeft;
-
-      double x = chartArea_.right() + axis.margin();
-      axisStart.setX(x);
-      axisEnd.setX(x);
-    } else {
-      tickStart = -TICK_LENGTH;
-      tickEnd = 0;
-      labelPos = -TICK_LENGTH;
-      labelVFlag = AlignBottom;
-
-      double y = chartArea_.top() - axis.margin();
-      axisStart.setY(y);
-      axisEnd.setY(y);
-    }
-
-    break;
-  case ZeroValue:
-    tickStart = -TICK_LENGTH;
-    tickEnd = TICK_LENGTH;
-
-    if (vertical) {
-      double x = std::floor(map(0, 0, YAxis).x());
-      axisStart.setX(x);
-      axisEnd.setX(x);
-
-      labelHFlag = AlignRight;
-
-      /* force labels left even if axis is in middle */
-      if (type() == CategoryChart)
-	labelPos = chartArea_.left() - axisStart.x() - TICK_LENGTH;
-      else
-	labelPos = -TICK_LENGTH;
-
-    } else {
-      double y = std::floor(map(0, 0, YAxis).y());
-      axisStart.setY(y);
-      axisEnd.setY(y);
-
-      labelVFlag = AlignTop;
-
-      /* force labels bottom even if axis is in middle */
-      if (type() == CategoryChart)
-	labelPos = chartArea_.bottom() - axisStart.y() + TICK_LENGTH;
-      else
-	labelPos = TICK_LENGTH;
-    }
-
-    break;
-  }
-
-  if ((properties & Labels) && !axis.title().empty()) {
-    if (isInteractive()) painter.setClipping(false);
-
-    WFont oldFont2 = painter.font();
-    WFont titleFont = axis.titleFont();
-    painter.setFont(titleFont);
-
-    bool chartVertical = orientation() == Vertical;
-
-    if (vertical) {
-      /* Y Axes */
-      double u = axisStart.x();
-      if (chartVertical) {
-        if(axis.titleOrientation() == Horizontal) {
-          renderLabel(painter, axis.title(),
-              WPointF(u + (labelHFlag == AlignRight ? 15 : -15),
-                chartArea_.top() - 8),
-              labelHFlag | AlignBottom, 0, 10);
-        } else {
-          if(axis.id() == YAxis) {
-			WPaintDevice *device = painter.device();
-			double size = axis.calcMaxTickLabelSize(device, Horizontal);
-			double titleSize = axis.calcTitleSize(device, Horizontal);
-			double titleSizeW = axis.calcTitleSize(device, Vertical);
-
-			renderLabel(painter, axis.title(),
-            WPointF(u + (labelHFlag == AlignRight ? -(size + titleSizeW) : +(size + titleSizeW)),
-              chartArea_.center().y() + titleSize  / 2),
-            (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
-            AlignMiddle, 90, 10);
-          }else { // Y2 Axis
-			WPaintDevice *device = painter.device();
-			double size = axis.calcMaxTickLabelSize(device, Horizontal);
-			double titleSize = axis.calcTitleSize(device, Horizontal);
-			double titleSizeW = axis.calcTitleSize(device, Vertical);
-
-			renderLabel(painter, axis.title(),
-            WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
-              chartArea_.center().y() + titleSize / 2),
-            (labelHFlag == AlignRight ? AlignRight : AlignLeft) |
-            AlignMiddle, 90, 10);
-          }
-        }
+	  double x = chartArea_.left() - axis.margin();
+	  axisStart.setX(x);
+	  axisEnd.setX(x);
+	}
       } else {
-		WPaintDevice *device = painter.device();
-		double titleSize = axis.calcTitleSize(device, Vertical);
-		double size = axis.calcMaxTickLabelSize(device, Vertical);
-        renderLabel(painter, axis.title(),
-			WPointF(u + (labelHFlag == AlignRight ? -(20 + size + titleSize) : +(20 + size + titleSize)),
-              chartArea_.center().y()),
-            (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
-            AlignMiddle, 0, 20);
-         }
+	if (axis.tickDirection() == Inwards) {
+	  tickStart = -TICK_LENGTH;
+	  tickEnd = 0;
+	  labelPos = -TICK_LENGTH;
+	  labelVFlag = AlignBottom;
+
+	  double y = chartArea_.bottom() - 1;
+	  axisStart.setY(y);
+	  axisEnd.setY(y);
+	} else {
+	  tickStart = 0;
+	  tickEnd = TICK_LENGTH;
+	  labelPos = TICK_LENGTH;
+	  labelVFlag = AlignTop;
+
+	  double y = chartArea_.bottom() + axis.margin();
+	  axisStart.setY(y);
+	  axisEnd.setY(y);
+	}
+      }
+
+      break;
+    case MaximumValue:
+      if (vertical) {
+	if (axis.tickDirection() == Inwards) {
+	  tickStart = -TICK_LENGTH;
+	  tickEnd = 0;
+	  labelPos = -TICK_LENGTH;
+	  labelHFlag = AlignRight;
+
+	  double x = chartArea_.right() - 1;
+	  axisStart.setX(x);
+	  axisEnd.setX(x);
+	} else {
+	  tickStart = 0;
+	  tickEnd = TICK_LENGTH;
+	  labelPos = TICK_LENGTH;
+	  labelHFlag = AlignLeft;
+
+	  double x = chartArea_.right() + axis.margin();
+	  axisStart.setX(x);
+	  axisEnd.setX(x);
+	}
+      } else {
+	if (axis.tickDirection() == Inwards) {
+	  tickStart = 0;
+	  tickEnd = TICK_LENGTH;
+	  labelPos = TICK_LENGTH;
+	  labelVFlag = AlignTop;
+
+	  double y = chartArea_.top();
+	  axisStart.setY(y);
+	  axisEnd.setY(y);
+	} else {
+	  tickStart = -TICK_LENGTH;
+	  tickEnd = 0;
+	  labelPos = -TICK_LENGTH;
+	  labelVFlag = AlignBottom;
+
+	  double y = chartArea_.top() - axis.margin();
+	  axisStart.setY(y);
+	  axisEnd.setY(y);
+	}
+      }
+
+      break;
+    case ZeroValue:
+      tickStart = -TICK_LENGTH;
+      tickEnd = TICK_LENGTH;
+
+      if (vertical) {
+	double x = map(0, 0, YAxis).x();
+	axisStart.setX(x);
+	axisEnd.setX(x);
+
+	labelHFlag = AlignRight;
+
+	/* force labels left even if axis is in middle */
+	if (type() == CategoryChart)
+	  labelPos = chartArea_.left() - axisStart.x() - TICK_LENGTH;
+	else
+	  labelPos = -TICK_LENGTH;
+
+      } else {
+	double y = map(0, 0, YAxis).y();
+	axisStart.setY(y);
+	axisEnd.setY(y);
+
+	labelVFlag = AlignTop;
+
+	/* force labels bottom even if axis is in middle */
+	if (type() == CategoryChart)
+	  labelPos = chartArea_.bottom() - axisStart.y() + TICK_LENGTH;
+	else
+	  labelPos = TICK_LENGTH;
+      }
+
+      break;
+    case BothSides:
+      assert(false);
+      break;
+    }
+
+    if ((properties & Labels) && !axis.title().empty()) {
+      if (isInteractive()) painter.setClipping(false);
+
+      WFont oldFont2 = painter.font();
+      WFont titleFont = axis.titleFont();
+      painter.setFont(titleFont);
+
+      bool chartVertical = orientation() == Vertical;
+
+      if (vertical) {
+	/* Y Axes */
+	double u = axisStart.x();
+	if (chartVertical) {
+	  if(axis.titleOrientation() == Horizontal) {
+	    renderLabel(painter, axis.title(),
+		WPointF(u + (labelHFlag == AlignRight ? 15 : -15),
+		  chartArea_.top() - 8),
+		labelHFlag | AlignBottom, 0, 10);
+	  } else {
+	    if(axis.id() == YAxis) {
+	      WPaintDevice *device = painter.device();
+	      double size = 0;
+	      if (axis.tickDirection() == Outwards) size = axis.calcMaxTickLabelSize(device, Horizontal);
+	      double titleSize = axis.calcTitleSize(device, Horizontal);
+	      double titleSizeW = axis.calcTitleSize(device, Vertical);
+	      if (axis.tickDirection() == Inwards) titleSizeW = -titleSizeW;
+
+	      AlignmentFlag alignment;
+	      if ((locations[l] == MaximumValue) != /*XOR*/ (axis.tickDirection() == Inwards)) {
+		alignment = (labelHFlag == AlignRight ? AlignRight : AlignLeft) | AlignMiddle;
+	      } else {
+		alignment = (labelHFlag == AlignRight ? AlignLeft : AlignRight) | AlignMiddle;
+	      }
+	      renderLabel(painter, axis.title(),
+		  WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
+		    chartArea_.center().y() + titleSize / 2), alignment, 90, 10);
+	    } else { // Y2 Axis
+	      WPaintDevice *device = painter.device();
+	      double size = axis.calcMaxTickLabelSize(device, Horizontal);
+	      double titleSize = axis.calcTitleSize(device, Horizontal);
+	      double titleSizeW = axis.calcTitleSize(device, Vertical);
+
+	      renderLabel(painter, axis.title(),
+		WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
+		  chartArea_.center().y() + titleSize / 2),
+		(labelHFlag == AlignRight ? AlignRight : AlignLeft) |
+		AlignMiddle, 90, 10);
+	    }
+	  }
+	} else {
+		  WPaintDevice *device = painter.device();
+		  double titleSize = axis.calcTitleSize(device, Vertical);
+		  double size = axis.calcMaxTickLabelSize(device, Vertical);
+	  renderLabel(painter, axis.title(),
+			  WPointF(u + (labelHFlag == AlignRight ? -(20 + size + titleSize) : +(20 + size + titleSize)),
+		chartArea_.center().y()),
+	      (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
+	      AlignMiddle, 0, 20);
+	   }
+      } else {
+	/* X Axes */
+	double u = axisStart.y();
+	if (chartVertical) {
+	  double extraMargin = 22;
+	  if (axis.tickDirection() == Inwards) extraMargin = 0;
+	  if (locations[l] == MaximumValue) {
+	    renderLabel(painter, axis.title(),
+			WPointF(chartArea_.center().x(), u - extraMargin),
+			AlignBottom | AlignCenter, 0, 10);
+	  } else {
+	    renderLabel(painter, axis.title(),
+			WPointF(chartArea_.center().x(), u + extraMargin),
+			AlignTop | AlignCenter, 0, 10);
+	  }
+	} else {
+	  renderLabel(painter, axis.title(),
+		      WPointF(chartArea_.right(), u),
+	  AlignTop | AlignLeft, 0, 8);
+	}
+      }
+
+      painter.setFont(oldFont2);
+
+      if (isInteractive()) painter.setClipping(true);
+    }
+
+    const double ANGLE1 = 15;
+    const double ANGLE2 = 80;
+
+    /* Adjust alignment when rotating the labels */
+    if (vertical) {
+      if (axis.labelAngle() > ANGLE1) {
+	labelVFlag = labelPos < 0 ? AlignBottom : AlignTop;
+	if (axis.labelAngle() > ANGLE2)
+	  labelHFlag = AlignCenter;
+      } else if (axis.labelAngle() < -ANGLE1) {
+	labelVFlag = labelPos < 0 ? AlignTop : AlignBottom;
+	if (axis.labelAngle() < -ANGLE2)
+	  labelHFlag = AlignCenter;
+      }
     } else {
-      /* X Axes */
-      double u = axisStart.y();
-      if (chartVertical)
-	renderLabel(painter, axis.title(),
-		    WPointF(chartArea_.center().x(), u + 22),
-		    AlignTop | AlignCenter, 0, 10);
-      else 
-	renderLabel(painter, axis.title(),
-		    WPointF(chartArea_.right(), u),
-        AlignTop | AlignLeft, 0, 8);
+      if (axis.labelAngle() > ANGLE1) {
+	labelHFlag = labelPos > 0 ? AlignRight : AlignLeft;
+	if (axis.labelAngle() > ANGLE2)
+	  labelVFlag = AlignMiddle;
+      } else if (axis.labelAngle() < -ANGLE1) {
+	labelHFlag = labelPos > 0 ? AlignLeft : AlignRight;
+	if (axis.labelAngle() < -ANGLE2)
+	  labelVFlag = AlignMiddle;
+      }
     }
 
-    painter.setFont(oldFont2);
+    /* perform hv() if necessary */
+    if (orientation() == Horizontal) {
+      axisStart = hv(axisStart);
+      axisEnd = hv(axisEnd);
 
-    if (isInteractive()) painter.setClipping(true);
+      AlignmentFlag rHFlag = AlignCenter, rVFlag = AlignMiddle;
+
+      switch (labelHFlag) {
+      case AlignLeft: rVFlag = AlignTop; break;
+      case AlignCenter: rVFlag = AlignMiddle; break;
+      case AlignRight: rVFlag = AlignBottom; break;
+      default: break;
+      }
+
+      switch (labelVFlag) {
+      case AlignTop: rHFlag = AlignRight; break;
+      case AlignMiddle: rHFlag = AlignCenter; break;
+      case AlignBottom: rHFlag = AlignLeft; break;
+      default: break;
+      }
+
+      labelHFlag = rHFlag;
+      labelVFlag = rVFlag;
+
+      bool invertTicks = !vertical;
+      if (invertTicks) {
+	tickStart = -tickStart;
+	tickEnd = -tickEnd;
+	labelPos = -labelPos;
+      }
+    }
+
+    std::vector<WPen> pens;
+    std::vector<WPen> textPens;
+    PenMap& penMap = const_cast<PenMap&>(pens_);
+    if (isInteractive() && (axis.id() == XAxis || axis.id() == YAxis)) {
+      for (std::size_t i = 0; i < penMap[axis.id()].size(); ++i) {
+	pens.push_back(penMap[axis.id()][i].pen.value());
+	textPens.push_back(penMap[axis.id()][i].textPen.value());
+      }
+    }
+
+    WTransform transform;
+    if (axis.location() == ZeroValue) {
+      transform =
+	WTransform(1,0,0,-1,chartArea_.left(),chartArea_.bottom()) *
+	  xTransform_.value() * yTransform_.value() *
+	WTransform(1,0,0,-1,-chartArea_.left(),chartArea_.bottom());
+    } else if (vertical) {
+      transform = WTransform(1,0,0,-1,0,chartArea_.bottom()) * yTransform_.value() * WTransform(1,0,0,-1,0,chartArea_.bottom());
+    } else {
+      transform = WTransform(1,0,0,1,chartArea_.left(),0) * xTransform_.value() * WTransform(1,0,0,1,-chartArea_.left(),0);
+    }
+
+    axis.render(painter, properties, axisStart, axisEnd, tickStart, tickEnd,
+		labelPos, labelHFlag | labelVFlag, transform, pens, textPens);
   }
-
-  const double ANGLE1 = 15;
-  const double ANGLE2 = 80;
-
-  /* Adjust alignment when rotating the labels */
-  if (vertical) {
-    if (axis.labelAngle() > ANGLE1) {
-      labelVFlag = labelPos < 0 ? AlignBottom : AlignTop;
-      if (axis.labelAngle() > ANGLE2)
-	labelHFlag = AlignCenter;
-    } else if (axis.labelAngle() < -ANGLE1) {
-      labelVFlag = labelPos < 0 ? AlignTop : AlignBottom;
-      if (axis.labelAngle() < -ANGLE2)
-	labelHFlag = AlignCenter;
-    }
-  } else {
-    if (axis.labelAngle() > ANGLE1) {
-      labelHFlag = labelPos > 0 ? AlignRight : AlignLeft;
-      if (axis.labelAngle() > ANGLE2)
-	labelVFlag = AlignMiddle;
-    } else if (axis.labelAngle() < -ANGLE1) {
-      labelHFlag = labelPos > 0 ? AlignLeft : AlignRight;
-      if (axis.labelAngle() < -ANGLE2)
-	labelVFlag = AlignMiddle;
-    }
-  }
-
-  /* perform hv() if necessary */
-  if (orientation() == Horizontal) {
-    axisStart = hv(axisStart);
-    axisEnd = hv(axisEnd);
-
-    AlignmentFlag rHFlag = AlignCenter, rVFlag = AlignMiddle;
-
-    switch (labelHFlag) {
-    case AlignLeft: rVFlag = AlignTop; break;
-    case AlignCenter: rVFlag = AlignMiddle; break;
-    case AlignRight: rVFlag = AlignBottom; break;
-    default: break;
-    }
-
-    switch (labelVFlag) {
-    case AlignTop: rHFlag = AlignRight; break;
-    case AlignMiddle: rHFlag = AlignCenter; break;
-    case AlignBottom: rHFlag = AlignLeft; break;
-    default: break;
-    }
-
-    labelHFlag = rHFlag;
-    labelVFlag = rVFlag;
-
-    bool invertTicks = !vertical;
-    if (invertTicks) {
-      tickStart = -tickStart;
-      tickEnd = -tickEnd;
-      labelPos = -labelPos;
-    }
-  }
-
-  std::vector<WPen> pens;
-  std::vector<WPen> textPens;
-  PenMap& penMap = const_cast<PenMap&>(pens_);
-  if (isInteractive() && (axis.id() == XAxis || axis.id() == YAxis)) {
-    for (std::size_t i = 0; i < penMap[axis.id()].size(); ++i) {
-      pens.push_back(penMap[axis.id()][i].pen.value());
-      textPens.push_back(penMap[axis.id()][i].textPen.value());
-    }
-  }
-
-  WTransform transform;
-  if (axis.location() == ZeroValue) {
-    transform =
-      WTransform(1,0,0,-1,chartArea_.left(),chartArea_.bottom()) *
-	xTransform_.value() * yTransform_.value() *
-      WTransform(1,0,0,-1,-chartArea_.left(),chartArea_.bottom());
-  } else if (vertical) {
-    transform = WTransform(1,0,0,-1,0,chartArea_.bottom()) * yTransform_.value() * WTransform(1,0,0,-1,0,chartArea_.bottom());
-  } else {
-    transform = WTransform(1,0,0,1,chartArea_.left(),0) * xTransform_.value() * WTransform(1,0,0,1,-chartArea_.left(),0);
-  }
-
-  axis.render(painter, properties, axisStart, axisEnd, tickStart, tickEnd,
-	      labelPos, labelHFlag | labelVFlag, transform, pens, textPens);
 
   if (isInteractive()) {
     painter.restore();
@@ -2328,6 +2440,20 @@ void WCartesianChart::renderAxes(WPainter& painter,
   renderAxis(painter, axis(XAxis), properties);
   renderAxis(painter, axis(Y1Axis), properties);
   renderAxis(painter, axis(Y2Axis), properties);
+}
+
+void WCartesianChart::renderBorder(WPainter& painter) const
+{
+  WPainterPath area;
+  int horizontalShift = 0,
+      verticalShift = 0;
+  if ((axis(Y1Axis).isVisible() && axis(Y1Axis).tickDirection() == Inwards && (location_[Y1Axis] == BothSides || location_[Y1Axis] == MaximumValue)) ||
+      (axis(Y2Axis).isVisible() && axis(Y2Axis).tickDirection() == Inwards))
+    horizontalShift = -1;
+  if (axis(XAxis).isVisible() && axis(XAxis).tickDirection() == Inwards)
+    verticalShift = -1;
+  area.addRect(WRectF(chartArea_.left(), chartArea_.top(), chartArea_.width() + horizontalShift, chartArea_.height() + verticalShift));
+  painter.strokePath(area.crisp(), borderPen_);
 }
 
 void WCartesianChart::renderSeries(WPainter& painter) const
@@ -2390,10 +2516,14 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 	WPaintDevice  *device = painter.device();
 	WAxis *caxis = 0;
 	Orientation titleOrientation = Horizontal;
-	if(legendSide() == Right && axes_[Y2Axis]->isVisible()) {
-	  caxis = axes_[Y2Axis];
-	  if(caxis->titleOrientation() == Vertical) 
-		titleOrientation = Vertical;
+	if(legendSide() == Right) {
+	  if (axes_[Y2Axis]->isVisible()) {
+	    caxis = axes_[Y2Axis];
+	  } else if (axes_[Y1Axis]->isVisible() && (axes_[Y1Axis]->location() == BothSides || axes_[Y1Axis]->location() == MaximumValue)) {
+	    caxis = axes_[Y1Axis];
+	  }
+	  if (caxis && caxis->titleOrientation() == Vertical)
+	    titleOrientation = Vertical;
 	} else if(legendSide() == Left) {
 	  caxis =  axes_[YAxis];
 	  if(caxis->titleOrientation() == Vertical) 
@@ -2509,12 +2639,14 @@ void WCartesianChart::renderLegend(WPainter& painter) const
       if (legendSide() == Top && !vertical && axis(Y1Axis).isVisible())
 	y -= 16;
 
-      if (legendSide() == Right && vertical && axis(Y2Axis).isVisible())
+      if (legendSide() == Right && vertical && (axis(Y2Axis).isVisible() ||
+	    (axis(Y1Axis).isVisible() && (axis(Y1Axis).location() == BothSides || axis(Y1Axis).location() == MaximumValue))))
 	x += 40;
 
       if (legendSide() == Bottom
 	  && ((vertical && axis(XAxis).isVisible()) ||
-	      (!vertical && axis(Y2Axis).isVisible())))
+	      (!vertical && (axis(Y2Axis).isVisible() ||
+			     (axis(Y1Axis).isVisible() && (axis(Y1Axis).location() == BothSides || axis(Y1Axis).location() == MaximumValue))))))
 	y += 16;
 
       if (legendSide() == Left
