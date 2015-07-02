@@ -1601,22 +1601,34 @@ void WCartesianChart::setInitialZoomAndPan()
     WRectF transformedArea = combinedTransform(xTransform, yTransform).map(chartArea_);
     if (transformedArea.left() > chartArea_.left()) {
       double diff = chartArea_.left() - transformedArea.left();
-      xTransform = WTransform(1, 0, 0, 1, diff, 0) * xTransform;
+      if (orientation() == Vertical)
+	xTransform = WTransform(1, 0, 0, 1, diff, 0) * xTransform;
+      else
+	yTransform = WTransform(1, 0, 0, 1, 0, diff) * yTransform;
       transformedArea = combinedTransform(xTransform, yTransform).map(chartArea_);
     }
     if (transformedArea.right() < chartArea_.right()) {
       double diff = chartArea_.right() - transformedArea.right();
-      xTransform = WTransform(1, 0, 0, 1, diff, 0) * xTransform;
+      if (orientation() == Vertical)
+	xTransform = WTransform(1, 0, 0, 1, diff, 0) * xTransform;
+      else
+	yTransform = WTransform(1, 0, 0, 1, 0, diff) * yTransform;
       transformedArea = combinedTransform(xTransform, yTransform).map(chartArea_);
     }
     if (transformedArea.top() > chartArea_.top()) {
       double diff = chartArea_.top() - transformedArea.top();
-      yTransform = WTransform(1, 0, 0, 1, 0, -diff) * yTransform;
+      if (orientation() == Vertical)
+	yTransform = WTransform(1, 0, 0, 1, 0, -diff) * yTransform;
+      else
+	xTransform = WTransform(1, 0, 0, 1, diff, 0) * xTransform;
       transformedArea = combinedTransform(xTransform, yTransform).map(chartArea_);
     }
     if (transformedArea.bottom() < chartArea_.bottom()) {
       double diff = chartArea_.bottom() - transformedArea.bottom();
-      yTransform = WTransform(1, 0, 0, 1, 0, -diff) * yTransform;
+      if (orientation() == Vertical)
+	yTransform = WTransform(1, 0, 0, 1, 0, -diff) * yTransform;
+      else
+	xTransform = WTransform(1, 0, 0, 1, diff, 0) * xTransform;
       transformedArea = combinedTransform(xTransform, yTransform).map(chartArea_);
     }
 
@@ -1648,13 +1660,14 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
        << jsRef() << ","
        << objJsRef() << ","
 	"{"
+	  "isHorizontal:" << asString(orientation() == Horizontal).toUTF8() << ","
 	  "zoom:" << asString(zoomEnabled_).toUTF8() << ","
 	  "pan:" << asString(panEnabled_).toUTF8() << ","
 	  "crosshair:" << asString(crosshairEnabled_).toUTF8() << ","
 	  "followCurve:" << followCurve_ << ","
 	  "xTransform:" << xTransform_.jsRef() << ","
 	  "yTransform:" << yTransform_.jsRef() << ","
-	  "area:" << chartArea_.jsRef() << ","
+	  "area:" << hv(chartArea_).jsRef() << ","
 	  "modelArea:" << modelArea.jsRef() << ",";
     updateJSPens(ss);
     ss << "series:{";
@@ -1919,7 +1932,7 @@ bool WCartesianChart::prepareAxes() const
       else if (other.segments_.front().renderMinimum > 0)
 	location = MinimumValue;
     } else if (location == MinimumValue) {
-      if (other.segments_.front().renderMinimum == 0)
+      if (other.segments_.front().renderMinimum == 0 && axis.tickDirection() == Outwards)
 	location = ZeroValue;
     } else if (location != BothSides) {
       if (other.segments_.front().renderMaximum == 0)
@@ -2077,7 +2090,7 @@ void WCartesianChart::renderGrid(WPainter& painter, const WAxis& ax) const
   if (isInteractive()) {
     painter.save();
     WPainterPath clipPath;
-    clipPath.addRect(chartArea_);
+    clipPath.addRect(hv(chartArea_));
     painter.setClipPath(clipPath);
     painter.setClipping(true);
   }
@@ -2097,32 +2110,19 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 
   if (isInteractive()) {
     WRectF clipRect;
+    WRectF area = hv(chartArea_);
     if (axis.location() == ZeroValue) {
-      clipRect = chartArea_;
-    } else if (vertical) {
-      clipRect = WRectF(0.0, chartArea_.top(), width().toPixels(), chartArea_.height());
+      clipRect = area;
+    } else if (vertical != /*XOR*/ (orientation() == Horizontal)) {
+      clipRect = WRectF(0.0, area.top(), width().toPixels(), area.height());
     } else {
-      clipRect = WRectF(chartArea_.left(), 0.0, chartArea_.width(), height().toPixels());
+      clipRect = WRectF(area.left(), 0.0, area.width(), height().toPixels());
     }
     WPainterPath clipPath;
     clipPath.addRect(clipRect);
     painter.save();
     painter.setClipPath(clipPath);
     painter.setClipping(true);
-  }
-
-  WPointF axisStart, axisEnd;
-  double tickStart = 0.0, tickEnd = 0.0, labelPos = 0.0;
-  AlignmentFlag labelHFlag = AlignCenter, labelVFlag = AlignMiddle;
-
-  if (vertical) {
-    labelVFlag = AlignMiddle;
-    axisStart.setY(chartArea_.bottom());
-    axisEnd.setY(chartArea_.top());
-  } else {
-    labelHFlag = AlignCenter;
-    axisStart.setX(chartArea_.left());
-    axisEnd.setX(chartArea_.right());
   }
 
   std::vector<AxisValue> locations;
@@ -2133,6 +2133,20 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     locations.push_back(location_[axis.id()]);
 
   for (std::size_t l = 0; l < locations.size(); ++l) {
+    WPointF axisStart, axisEnd;
+    double tickStart = 0.0, tickEnd = 0.0, labelPos = 0.0;
+    AlignmentFlag labelHFlag = AlignCenter, labelVFlag = AlignMiddle;
+
+    if (vertical) {
+      labelVFlag = AlignMiddle;
+      axisStart.setY(chartArea_.bottom());
+      axisEnd.setY(chartArea_.top());
+    } else {
+      labelHFlag = AlignCenter;
+      axisStart.setX(chartArea_.left());
+      axisEnd.setX(chartArea_.right());
+    }
+
     switch (locations[l]) {
     case MinimumValue:
       if (vertical) {
@@ -2414,15 +2428,20 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     }
 
     WTransform transform;
+    WRectF area = hv(chartArea_);
     if (axis.location() == ZeroValue) {
       transform =
-	WTransform(1,0,0,-1,chartArea_.left(),chartArea_.bottom()) *
+	WTransform(1,0,0,-1,area.left(),area.bottom()) *
 	  xTransform_.value() * yTransform_.value() *
-	WTransform(1,0,0,-1,-chartArea_.left(),chartArea_.bottom());
-    } else if (vertical) {
-      transform = WTransform(1,0,0,-1,0,chartArea_.bottom()) * yTransform_.value() * WTransform(1,0,0,-1,0,chartArea_.bottom());
+	WTransform(1,0,0,-1,-area.left(),area.bottom());
+    } else if (vertical && orientation() == Vertical) {
+      transform = WTransform(1,0,0,-1,0,area.bottom()) * yTransform_.value() * WTransform(1,0,0,-1,0,area.bottom());
+    } else if (vertical && orientation() == Horizontal) {
+      transform = WTransform(0,1,1,0,area.left(),0) * yTransform_.value() * WTransform(0,1,1,0,0,-area.left());
+    } else if (orientation() == Horizontal) {
+      transform = WTransform(0,1,1,0,0,area.top()) * xTransform_.value() * WTransform(0,1,1,0,-area.top(),0);
     } else {
-      transform = WTransform(1,0,0,1,chartArea_.left(),0) * xTransform_.value() * WTransform(1,0,0,1,-chartArea_.left(),0);
+      transform = WTransform(1,0,0,1,area.left(),0) * xTransform_.value() * WTransform(1,0,0,1,-area.left(),0);
     }
 
     axis.render(painter, properties, axisStart, axisEnd, tickStart, tickEnd,
@@ -2452,7 +2471,7 @@ void WCartesianChart::renderBorder(WPainter& painter) const
     horizontalShift = -1;
   if (axis(XAxis).isVisible() && axis(XAxis).tickDirection() == Inwards)
     verticalShift = -1;
-  area.addRect(WRectF(chartArea_.left(), chartArea_.top(), chartArea_.width() + horizontalShift, chartArea_.height() + verticalShift));
+  area.addRect(hv(WRectF(chartArea_.left(), chartArea_.top(), chartArea_.width() + horizontalShift, chartArea_.height() + verticalShift)));
   painter.strokePath(area.crisp(), borderPen_);
 }
 
@@ -2461,7 +2480,7 @@ void WCartesianChart::renderSeries(WPainter& painter) const
   if (isInteractive()) {
     painter.save();
     WPainterPath clipPath;
-    clipPath.addRect(chartArea_);
+    clipPath.addRect(hv(chartArea_));
     painter.setClipPath(clipPath);
     painter.setClipping(true);
   }
@@ -2958,9 +2977,16 @@ WTransform WCartesianChart::combinedTransform() const
 
 WTransform WCartesianChart::combinedTransform(WTransform xTransform, WTransform yTransform) const
 {
-  return WTransform(1,0,0,-1,chartArea_.left(),chartArea_.bottom()) *
-      xTransform * yTransform *
-    WTransform(1,0,0,-1,-chartArea_.left(),chartArea_.bottom());
+  if (orientation() == Vertical) {
+    return WTransform(1,0,0,-1,chartArea_.left(),chartArea_.bottom()) *
+	xTransform * yTransform *
+      WTransform(1,0,0,-1,-chartArea_.left(),chartArea_.bottom());
+  } else {
+    WRectF area = hv(chartArea_);
+    return WTransform(0,1,1,0,area.left(),area.top()) *
+	xTransform * yTransform *
+      WTransform(0,1,1,0,-area.top(),-area.left());
+  }
 }
 
 std::string WCartesianChart::cObjJsRef() const

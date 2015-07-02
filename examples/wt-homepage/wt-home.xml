@@ -993,7 +993,7 @@ features in Wt:
     then the HTTPS protocol will be supported by the web client
     (<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Http_1_1Client.html">Http::Client</a>) and web server (wthttp connector)
   </li>
-  <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>: if
+  <li><a href="https://github.com/libharu/libharu/wiki">libharu</a>: if
     available, a
     <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
     paint device will be included, which provides rendering support for PDF

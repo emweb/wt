@@ -253,8 +253,7 @@ DomElement *WAbstractMedia::createDomElement(WApplication *app)
     setJavaScriptMember(WT_RESIZE_JS, "function() {}");
   }
 
-  if (app->environment().agentIsIElt(9) ||
-      app->environment().agent() == WEnvironment::MobileWebKitAndroid) {
+  if (app->environment().agentIsIElt(9)) {
     // Shortcut: IE misbehaves when it encounters a media element
     result = DomElement::createNew(DomElement_DIV);
     if (alternative_)

@@ -1024,7 +1024,7 @@ Wt дополнительными возможностями:
     <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">коннектор postgres</a> для ORM библиотеки
     (<a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>).
    </li>
-  <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>: если
+  <li><a href="https://github.com/libharu/libharu/wiki">libharu</a>: если
     доступен, то будет доступен и класс
     <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>,
     который позволяет формировать данные в PDF. Для более полной

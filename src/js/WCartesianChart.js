@@ -12,6 +12,7 @@ WT_DECLARE_WT_MEMBER
  //   repaint
  //   canvas
  // config: the initial configuration (can be overridden with updateConfig)
+ //     isHorizontal (if orientation() == Horizontal)
  //	xTransform
  //	yTransform
  //	area (WRectF describing render area)
@@ -177,9 +178,15 @@ WT_DECLARE_WT_MEMBER
    }
 
    function combinedTransform() {
-      var l = left(config.area);
-      var b = bottom(config.area);
-      return mult([1,0,0,-1,l,b], mult(transform(X), mult(transform(Y), [1,0,0,-1,-l,b])));
+      if (config.isHorizontal) {
+	 var l = left(config.area);
+	 var t = top(config.area);
+	 return mult([0,1,1,0,l,t], mult(transform(X), mult(transform(Y), [0,1,1,0,-t,-l])));
+      } else {
+	 var l = left(config.area);
+	 var b = bottom(config.area);
+	 return mult([1,0,0,-1,l,b], mult(transform(X), mult(transform(Y), [1,0,0,-1,-l,b])));
+      }
    }
 
    function transformedChartArea() {
@@ -214,14 +221,18 @@ WT_DECLARE_WT_MEMBER
    }
 
    function findClosestPoint(x, series) {
+      var axis = X;
+      if (config.isHorizontal) {
+	 axis = Y;
+      }
       var i = binarySearch(x, series);
       if (i < 0) i = 0;
       if (i >= series.length) i = series.length - 2;
-      if (series[i][X] === x) return [x,series[i][Y]];
+      if (series[i][axis] === x) return [series[i][X],series[i][Y]];
       var next_i = i+1;
       if (series[next_i][2] == CUBIC_C1) next_i += 2;
-      var d1 = x - series[i][X];
-      var d2 = series[next_i][X] - x;
+      var d1 = x - series[i][axis];
+      var d2 = series[next_i][axis] - x;
       if (d1 < d2) {
 	 return [series[i][X],series[i][Y]];
       } else {
@@ -234,6 +245,8 @@ WT_DECLARE_WT_MEMBER
    // and smaller than the given x, and return
    // its index in the given series.
    function binarySearch(x, series) {
+      var axis = X;
+      if (config.isHorizontal) axis = Y;
       // Move back to a non-control point.
       function moveBack(i) {
 	 if (series[i][2] === CUBIC_C2) --i;
@@ -246,24 +259,24 @@ WT_DECLARE_WT_MEMBER
       var lower_bound = 0;
       var upper_bound = len;
       var found = false;
-      if (series[0][X] > x) return -1;
-      if (series[len-1][X] < x) return len;
+      if (series[0][axis] > x) return -1;
+      if (series[len-1][axis] < x) return len;
       while (!found) {
 	 var next_i = i + 1;
 	 if (series[next_i][2] === CUBIC_C1) {
 	    next_i += 2;
 	 }
-	 if (series[i][X] > x) {
+	 if (series[i][axis] > x) {
 	    upper_bound = i;
 	    i = Math.floor((upper_bound + lower_bound) / 2);
 	    i = moveBack(i);
 	 } else {
-	    if (series[i][X] === x) {
+	    if (series[i][axis] === x) {
 	       found = true;
 	    } else {
-	       if (series[next_i][X] > x) {
+	       if (series[next_i][axis] > x) {
 		  found = true;
-	       } else if (series[next_i][X] === x) {
+	       } else if (series[next_i][axis] === x) {
 		  i = next_i;
 		  found = true;
 	       } else {
@@ -322,15 +335,21 @@ WT_DECLARE_WT_MEMBER
       var x = crosshair[X];
       var y = crosshair[Y];
       if (config.followCurve !== -1) {
-	 p = findClosestPoint(p[X], config.series[config.followCurve]);
+	 p = findClosestPoint(config.isHorizontal ? p[Y] : p[X], config.series[config.followCurve]);
 	 var tp = mult(combinedTransform(), p);
 	 x = tp[X];
 	 y = tp[Y];
 	 crosshair[X] = x;
 	 crosshair[Y] = y;
       }
-      var u = [(p[X] - config.area[0]) / config.area[2],
+      var u;
+      if (config.isHorizontal) {
+	 u = [(p[Y] - config.area[1]) / config.area[3],
+	       (p[X] - config.area[0]) / config.area[2]];
+      } else {
+	 u = [(p[X] - config.area[0]) / config.area[2],
 	       1 - (p[Y] - config.area[1]) / config.area[3]];
+      }
       p = [config.modelArea[0] + u[X] * config.modelArea[2],
 	   config.modelArea[1] + u[Y] * config.modelArea[3]];
 
@@ -380,6 +399,10 @@ WT_DECLARE_WT_MEMBER
 
    function enforceLimits(flags) {
      var newChartArea = transformedChartArea();
+     if (config.isHorizontal) {
+	if (flags === X_ONLY) flags = Y_ONLY;
+	else if (flags === Y_ONLY) flags = X_ONLY;
+     }
      var diff;
      if (flags === undefined || flags === X_ONLY) {
 	if (transform(X)[0] < 1) {
@@ -396,24 +419,36 @@ WT_DECLARE_WT_MEMBER
      if (flags === undefined || flags === X_ONLY) {
 	if (left(newChartArea) > left(config.area)) {
 	   diff = left(config.area) - left(newChartArea);
-	   transform(X)[4] = transform(X)[4] + diff;
+	   if (config.isHorizontal)
+	      transform(Y)[5] = transform(Y)[5] + diff;
+	   else
+	      transform(X)[4] = transform(X)[4] + diff;
 	   newChartArea = transformedChartArea();
 	}
 	if (right(newChartArea) < right(config.area)) {
 	   diff = right(config.area) - right(newChartArea);
-	   transform(X)[4] = transform(X)[4] + diff;
+	   if (config.isHorizontal)
+	      transform(Y)[5] = transform(Y)[5] + diff;
+	   else
+	      transform(X)[4] = transform(X)[4] + diff;
 	   newChartArea = transformedChartArea();
 	}
      }
      if (flags === undefined || flags === Y_ONLY) {
 	if (top(newChartArea) > top(config.area)) {
 	   diff = top(config.area) - top(newChartArea);
-	   transform(Y)[5] = transform(Y)[5] - diff;
+	   if (config.isHorizontal)
+	      transform(X)[4] = transform(X)[4] + diff;
+	   else
+	      transform(Y)[5] = transform(Y)[5] - diff;
 	   newChartArea = transformedChartArea();
 	}
 	if (bottom(newChartArea) < bottom(config.area)) {
 	   diff = bottom(config.area) - bottom(newChartArea);
-	   transform(Y)[5] = transform(Y)[5] - diff;
+	   if (config.isHorizontal)
+	      transform(X)[4] = transform(X)[4] + diff;
+	   else
+	      transform(Y)[5] = transform(Y)[5] - diff;
 	   newChartArea = transformedChartArea();
 	}
      }
@@ -821,9 +856,6 @@ WT_DECLARE_WT_MEMBER
 	if (dxAfter === dxBefore || zoomAngle === Math.PI / 2) {
 	   xScale = 1;
 	}
-	if (transform(X)[0] * xScale > config.maxZoom[X]) {
-	   xScale = config.maxZoom[X] / transform(X)[0];
-	}
 	var mxAfter = (newTouches[0][0] + newTouches[1][0]) / 2;
 	var dyBefore = Math.abs(touches[1][1] - touches[0][1]);
 	var dyAfter = Math.abs(newTouches[1][1] - newTouches[0][1]);
@@ -831,11 +863,29 @@ WT_DECLARE_WT_MEMBER
 	if (dyAfter === dyBefore || zoomAngle === 0) {
 	   yScale = 1;
 	}
+	var myAfter = (newTouches[0][1] + newTouches[1][1]) / 2;
+
+	if (config.isHorizontal) {
+	   (function() {
+	     var tmp = xScale;
+	     xScale = yScale;
+	     yScale = tmp;
+	     tmp = mxAfter;
+	     mxAfter = myAfter;
+	     myAfter = tmp;
+	     tmp = mxBefore;
+	     mxBefore = myBefore;
+	     myBefore = tmp;
+	   })();
+	}
+
+	if (transform(X)[0] * xScale > config.maxZoom[X]) {
+	   xScale = config.maxZoom[X] / transform(X)[0];
+	}
 	if (transform(Y)[3] * yScale > config.maxZoom[Y]) {
 	   yScale = config.maxZoom[Y] / transform(Y)[3];
 	}
-	var myAfter = (newTouches[0][1] + newTouches[1][1]) / 2;
-	if (dxAfter != dxBefore &&
+	if (xScale !== 1 &&
 	      (xScale < 1.0 || transform(X)[0] !== config.maxZoom[X])) {
 	   assign(transform(X),
 	     mult(
@@ -844,7 +894,7 @@ WT_DECLARE_WT_MEMBER
 	      )
 	   );
 	}
-	if (dyAfter != dyBefore &&
+	if (yScale !== 1 &&
 	      (yScale < 1.0 || transform(Y)[3] !== config.maxZoom[Y])) {
 	   assign(transform(Y),
 	     mult(
@@ -903,6 +953,10 @@ WT_DECLARE_WT_MEMBER
    function translate(d, flags) {
       var crosshairBefore = toModelCoord(crosshair);
 
+      if (config.isHorizontal) {
+	 d = {x:d.y,y:-d.x};
+      }
+
       if (flags & NO_LIMIT) {
 	 transform(X)[4] = transform(X)[4] + d.x;
 	 transform(Y)[5] = transform(Y)[5] - d.y;
@@ -950,12 +1004,17 @@ WT_DECLARE_WT_MEMBER
 
    function zoom(coords, xDelta, yDelta) {
       var crosshairBefore = toModelCoord(crosshair);
-      var xy = mult(
+      var xy;
+      if (config.isHorizontal) {
+	 xy = [coords.y - top(config.area), coords.x - left(config.area)];
+      } else {
+	 xy = mult(
 	    inverted([1,0,0,-1,left(config.area),bottom(config.area)]), [coords.x, coords.y]);
+      }
       var x = xy[0];
       var y = xy[1];
-      var s_x = Math.pow(1.2, xDelta);
-      var s_y = Math.pow(1.2, yDelta);
+      var s_x = Math.pow(1.2, config.isHorizontal ? yDelta : xDelta);
+      var s_y = Math.pow(1.2, config.isHorizontal ? xDelta : yDelta);
       if (transform(X)[0] * s_x > config.maxZoom[X]) {
 	 s_x = config.maxZoom[X] / transform(X)[0];
       }

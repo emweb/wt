@@ -764,7 +764,7 @@ Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>w
     <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
     连接器</a>将会为实现ORM库（<a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>）
 	而被编译；</li>
-  <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>：如果安装上，那么
+  <li><a href="https://github.com/libharu/libharu/wiki">libharu</a>：如果安装上，那么
 	<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>绘图设备
 	将被编译，这样就能够将图片整合进PDF文件或作为PDF文件处理；</li>
   <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>：如果安装上，那么
