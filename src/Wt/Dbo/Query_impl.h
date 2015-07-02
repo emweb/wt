@@ -528,7 +528,8 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
   for (unsigned i = 0; i < parameters_.size(); ++i)
     parameters_[i]->bind(binder);
 
-  if (this->session_->limitQueryMethod_ == Limit) {
+  switch (this->session_->limitQueryMethod_) {
+  case Limit:
     if (limit_ != -1) {
       int v = limit_;
       field(binder, v, "limit");
@@ -538,7 +539,10 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
       int v = offset_;
       field(binder, v, "offset");
     }
-  } else if (this->session_->limitQueryMethod_ == RowsFromTo){
+
+    break;
+
+  case RowsFromTo:
     if (limit_ != -1 || offset_ != -1) {
       int from = offset_ == -1 ? 1 : offset_ + 1;
       field(binder, from, "from");
@@ -546,7 +550,10 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
       int to = (limit_ == -1) ? (1 << 30) : (from + limit_ - 1);
       field(binder, to, "to");
     }
-  } else if (this->session_->limitQueryMethod_ == Rownum){
+
+    break;
+
+  case Rownum:
     if (limit_ != -1){
       int v = limit_;
       field(binder, v, "rownum");
@@ -556,6 +563,10 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
       int v = offset_;
       field(binder, v, "rownum2");
     }
+
+    break;
+  case NotSupported:
+    break;
   }
 }
 

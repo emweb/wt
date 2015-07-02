@@ -75,24 +75,33 @@ std::string addLimitQuery(const std::string& sql, int limit, int offset,
 			  LimitQuery limitQueryMethod)
 {
   std::string result = sql;
-  
-  if (limitQueryMethod == Limit) {
+
+  switch (limitQueryMethod) {
+  case Limit:
     if (limit != -1)
       result += " limit ?";
 
     if (offset != -1)
       result += " offset ?";
-  }
-  else if (( limitQueryMethod == RowsFromTo )&&
-    ( limit != -1 || offset != -1) ){
-    result += " rows ? to ?";
-  }
-  else { // useRowsFromTo == Rownum
+
+    break;
+
+  case RowsFromTo:
+    if (limit != -1 || offset != -1) {
+      result += " rows ? to ?";
+    }
+
+    break;
+
+  case Rownum:
     if (limit != -1 && offset == -1)
       result = " select * from ( " + result + " ) where rownum <= ?";
     else if (limit != -1 && offset != -1)
       result = " select * from ( select row_.*, rownum rownum2 from ( " +
 	result + " ) row_ where rownum <= ?) where rownum2 > ?";
+
+  case NotSupported:
+    break;
   }
 
   return result;

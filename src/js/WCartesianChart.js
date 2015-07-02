@@ -201,18 +201,32 @@ WT_DECLARE_WT_MEMBER
       } else {
 	 res = mult(inverted(combinedTransform()), p);
       }
-      var u = [(res[X] - config.area[0]) / config.area[2],
+      var u;
+      if (config.isHorizontal) {
+	 u = [(res[Y] - config.area[1]) / config.area[3],
+	      (res[X] - config.area[0]) / config.area[2]];
+      } else {
+         u = [(res[X] - config.area[0]) / config.area[2],
 	       1 - (res[Y] - config.area[1]) / config.area[3]];
+      }
       return [config.modelArea[0] + u[X] * config.modelArea[2],
 	      config.modelArea[1] + u[Y] * config.modelArea[3]];
    }
 
    function toDisplayCoord(p, noTransform) {
       if (noTransform === undefined) noTransform = false;
-      var u = [(p[X] - config.modelArea[0]) / config.modelArea[2],
+      var u, res;
+      if (config.isHorizontal) {
+	 u = [(p[X] - config.modelArea[0]) / config.modelArea[2],
+	      (p[Y] - config.modelArea[1]) / config.modelArea[3]];
+	 res = [config.area[0] + u[Y] * config.area[2],
+	        config.area[1] + u[X] * config.area[3]];
+      } else {
+	 u = [(p[X] - config.modelArea[0]) / config.modelArea[2],
 	       1 - (p[Y] - config.modelArea[1]) / config.modelArea[3]];
-      var res = [config.area[0] + u[X] * config.area[2],
-	         config.area[1] + u[Y] * config.area[3]];
+	 res = [config.area[0] + u[X] * config.area[2],
+	        config.area[1] + u[Y] * config.area[3]];
+      }
       if (noTransform) {
 	 return res;
       } else {
@@ -291,8 +305,14 @@ WT_DECLARE_WT_MEMBER
    }
 
    function notifyAreaChanged() {
-      var u = (toModelCoord([left(config.area), 0])[0] - config.modelArea[0]) / config.modelArea[2];
-      var v = (toModelCoord([right(config.area), 0])[0] - config.modelArea[0]) / config.modelArea[2];
+      var u,v;
+      if (config.isHorizontal) {
+	 u = (toModelCoord([0, top(config.area)])[0] - config.modelArea[0]) / config.modelArea[2];
+	 v = (toModelCoord([0, bottom(config.area)])[0] - config.modelArea[0]) / config.modelArea[2];
+      } else {
+	 u = (toModelCoord([left(config.area), 0])[0] - config.modelArea[0]) / config.modelArea[2];
+	 v = (toModelCoord([right(config.area), 0])[0] - config.modelArea[0]) / config.modelArea[2];
+      }
       var i;
       for (i = 0; i < config.sliders.length; ++i) {
 	 var o = $('#' + config.sliders[i]);
@@ -1055,29 +1075,31 @@ WT_DECLARE_WT_MEMBER
       if (series.length === 0) return; // This would be weird?
       var p0 = toDisplayCoord([lowerBound, 0], true);
       var p1 = toDisplayCoord([upperBound, 0], true);
-      var i0 = binarySearch(p0[X], series);
+      var axis = config.isHorizontal ? Y : X;
+      var otherAxis = config.isHorizontal ? X : Y;
+      var i0 = binarySearch(p0[axis], series);
       if (i0 < 0) {
 	 i0 = 0;
       } else {
 	 i0 ++;
 	 if (series[i0][2] === CUBIC_C1) i0 += 2;
       }
-      var i_n = binarySearch(p1[X], series);
+      var i_n = binarySearch(p1[axis], series);
       var i, u, y, before_i0, after_i_n;
       var min_y = Infinity;
       var max_y = -Infinity;
       for (i = i0; i <= i_n && i < series.length; ++i) {
 	 if (series[i][2] !== CUBIC_C1 && series[i][2] !== CUBIC_C2) {
-	    if (series[i][Y] < min_y) min_y = series[i][Y];
-	    if (series[i][Y] > max_y) max_y = series[i][Y];
+	    if (series[i][otherAxis] < min_y) min_y = series[i][otherAxis];
+	    if (series[i][otherAxis] > max_y) max_y = series[i][otherAxis];
 	 }
       }
       if (i0 > 0) {
 	 // Interpolate on the lower X end
 	 before_i0 = i0 - 1;
 	 if (series[before_i0][2] === CUBIC_C2) before_i0 -= 2;
-	 u = (p0[X] - series[before_i0][X]) / (series[i0][X] - series[before_i0][X]);
-	 y = series[before_i0][Y] + u * (series[i0][Y] - series[before_i0][Y]);
+	 u = (p0[axis] - series[before_i0][axis]) / (series[i0][axis] - series[before_i0][axis]);
+	 y = series[before_i0][otherAxis] + u * (series[i0][otherAxis] - series[before_i0][otherAxis]);
 	 if (y < min_y) min_y = y;
 	 if (y > max_y) max_y = y;
       }
@@ -1085,17 +1107,22 @@ WT_DECLARE_WT_MEMBER
 	 // Interpolate on the upper X end
 	 after_i_n = i_n + 1;
 	 if (series[after_i_n][2] === CUBIC_C1) after_i_n += 2;
-	 u = (p1[X] - series[i_n][X]) / (series[after_i_n][X] - series[i_n][X]);
-	 y = series[i_n][Y] + u * (series[after_i_n][Y] - series[i_n][Y]);
+	 u = (p1[axis] - series[i_n][axis]) / (series[after_i_n][axis] - series[i_n][axis]);
+	 y = series[i_n][otherAxis] + u * (series[after_i_n][otherAxis] - series[i_n][otherAxis]);
 	 if (y < min_y) min_y = y;
 	 if (y > max_y) max_y = y;
       }
       var xZoom = config.modelArea[2] / (upperBound - lowerBound);
-      var yZoom = config.area[3] / (max_y - min_y);
+      var H = config.isHorizontal ? 2 : 3;
+      var yZoom = config.area[H] / (max_y - min_y);
       var yMargin = 10;
-      yZoom = config.area[3] / (config.area[3] / yZoom + yMargin * 2); // Give it 10 px extra on each side
-      if (yZoom > config.maxZoom[Y]) yZoom = config.maxZoom[Y];
-      var panPoint = [p0[X] - left(config.area), -((min_y + max_y) / 2 + (config.area[3] / yZoom) / 2 - bottom(config.area))];
+      yZoom = config.area[H] / (config.area[H] / yZoom + yMargin * 2); // Give it 10 px extra on each side
+      if (yZoom > config.maxZoom[otherAxis]) yZoom = config.maxZoom[otherAxis];
+      var panPoint;
+      if (config.isHorizontal)
+	 panPoint = [p0[Y] - top(config.area), ((min_y + max_y) / 2 - (config.area[2] / yZoom) / 2 - left(config.area))];
+      else
+	 panPoint = [p0[X] - left(config.area), -((min_y + max_y) / 2 + (config.area[3] / yZoom) / 2 - bottom(config.area))];
 
       var crosshairBefore = toModelCoord(crosshair);
 

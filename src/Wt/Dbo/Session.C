@@ -190,6 +190,8 @@ void Session::discardChanges(MetaDboBase *obj)
 
   if (setIndex.erase(obj) > 0)
     obj->decRef();
+
+  // FIXME what about Transaction.objects_ ?
 }
 
 Call Session::execute(const std::string& sql)

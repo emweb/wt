@@ -206,6 +206,7 @@ bool WebRenderer::ackUpdate(int updateId)
    * delivered ?
    */
   if (updateId == expectedAckId_) {
+    LOG_DEBUG("jsSynced(false) after ackUpdate okay");
     setJSSynced(false);
     ++expectedAckId_;
     return true;
@@ -583,8 +584,10 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 
     out << collectedJS1_.str() << collectedJS2_.str();
 
-    if (response.isWebSocketMessage())
+    if (response.isWebSocketMessage()) {
+      LOG_DEBUG("jsSynced(false) after rendering websocket message");
       setJSSynced(false);
+    }
   }
 
   out.spool(response.out());
@@ -735,6 +738,8 @@ void WebRenderer::collectJavaScript()
    * This is also used to render JavaScript that was rendered in asHtml()
    * in a hybrid page.
    */
+  LOG_DEBUG("Rendering invisible: " << invisibleJS_.str());
+  
   collectedJS1_ << invisibleJS_.str();
   invisibleJS_.clear();
 

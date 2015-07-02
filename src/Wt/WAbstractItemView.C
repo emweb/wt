@@ -274,7 +274,7 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
 
   bindObjJS(resizeHandleMDownJS_, "resizeHandleMDown");
 
-  headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh", this);
+  headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
   app->styleSheet().addRule(headerHeightRule_);
   setHeaderHeight(headerLineHeight_);
 }
