@@ -110,6 +110,8 @@ protected:
 private:
   void init();
   std::string sObjJsRef() const;
+  WRectF hv(const WRectF& rect) const;
+  WTransform hv(const WTransform& t) const;
 
   WCartesianChart *chart_;
   int seriesColumn_;

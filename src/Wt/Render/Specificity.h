@@ -17,6 +17,8 @@ namespace Render {
 class WT_API Specificity
 {
 public:
+  static const int SPECIFICITY_LEN = 5;
+
   explicit Specificity(bool valid = true);
   Specificity(int a, int b, int c, int d);
 
@@ -37,7 +39,7 @@ public:
 #endif
 
 private:
-  std::string value_;
+  char value_[SPECIFICITY_LEN];
 };
 
   }

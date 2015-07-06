@@ -328,7 +328,9 @@ void WMessageResources::refresh()
 {
   if (!path_.empty()) {
     defaults_.map_.clear();
-    readResourceFile("", defaults_);
+
+    if (!readResourceFile("", defaults_))
+      LOG_ERROR("Could not read: " << path_ << ".xml");
 
     local_.map_.clear();
     std::string locale = WLocale::currentLocale().name();

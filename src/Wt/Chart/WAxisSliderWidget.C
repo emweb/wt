@@ -144,6 +144,28 @@ void WAxisSliderWidget::render(WFlags<RenderFlag> flags)
   LOAD_JAVASCRIPT(app, "js/WAxisSliderWidget.js", "WAxisSliderWidget", wtjs1);
 }
 
+WRectF WAxisSliderWidget::hv(const WRectF& rect) const
+{
+  bool horizontal = chart_->orientation() == Vertical; // yes, vertical chart means horizontal X axis slider
+
+  if (horizontal) {
+    return rect;
+  } else {
+    return WRectF(width().value() - rect.y() - rect.height(), rect.x(), rect.height(), rect.width());
+  }
+}
+
+WTransform WAxisSliderWidget::hv(const WTransform& t) const
+{
+  bool horizontal = chart_->orientation() == Vertical; // yes, vertical chart means horizontal X axis slider
+
+  if (horizontal) {
+    return t;
+  } else {
+    return WTransform(0,1,1,0,0,0) * t * WTransform(0,1,1,0,0,0);
+  }
+}
+
 void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 {
   // Don't paint anything, unless we're associated to a chart,
@@ -152,57 +174,85 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 
   WPainter painter(paintDevice);
 
-  double w = width().value(),
-	 h = height().value();
+  bool horizontal = chart_->orientation() == Vertical; // yes, vertical chart means horizontal X axis slider
 
-  WRectF chartArea = chart_->chartArea_;
+  double w = horizontal ? width().value() : height().value(),
+	 h = horizontal ? height().value() : width().value();
+
+  const double axisMargin = 25; // TODO(Roel): autodetermine this? Make it configurable?
+
+  const WRectF& chartArea = chart_->chartArea_;
   WRectF selectionRect;
   {
     // Determine initial position based on xTransform of chart
     double maxW = w - 2 * margin_;
     double u = -chart_->xTransform_.value().dx() / (chartArea.width() * chart_->xTransform_.value().m11());
-    selectionRect = WRectF(0, 0, maxW, h - 25);
+    selectionRect = WRectF(0, 0, maxW, h - axisMargin);
     transform_.setValue(WTransform(1 / chart_->xTransform_.value().m11(), 0, 0, 1, u * maxW, 0));
   }
   WRectF drawArea(margin_, 0, w - 2 * margin_, h);
-  WRectF seriesArea(margin_, 5, w - 2 * margin_, h - 30);
-  WTransform selectionTransform = WTransform(1,0,0,1,margin_,0) * transform_.value();
-  WRectF rect = selectionTransform.map(selectionRect);
+  WRectF seriesArea(margin_, 5, w - 2 * margin_, h - (axisMargin + 5));
+  WTransform selectionTransform = hv(WTransform(1,0,0,1,margin_,0) * transform_.value());
+  WRectF rect = selectionTransform.map(hv(selectionRect));
 
-  painter.fillRect(WRectF(margin_, 0, w - 2 * margin_, h - 25), background_);
+  painter.fillRect(hv(WRectF(margin_, 0, w - 2 * margin_, h - axisMargin)), background_);
   painter.fillRect(rect, selectedAreaBrush_);
 
-  chart_->axis(XAxis).prepareRender(Horizontal, drawArea.width());
-  chart_->axis(XAxis).render(
-      painter,
-      Labels | Line,
-      WPointF(drawArea.left(), h - 25),
-      WPointF(drawArea.right(), h - 25),
-      0, 5, 5,
-      AlignCenter | AlignTop);
-  WPainterPath line;
-  line.moveTo(drawArea.left() + 0.5, h - 24.5);
-  line.lineTo(drawArea.right(), h - 24.5);
-  painter.strokePath(line, chart_->axis(XAxis).pen());
+  chart_->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
+  if (horizontal) {
+    chart_->axis(XAxis).render(
+	painter,
+	Labels | Line,
+	WPointF(drawArea.left(), h - axisMargin),
+	WPointF(drawArea.right(), h - axisMargin),
+	0, 5, 5,
+	AlignCenter | AlignTop);
+    WPainterPath line;
+    line.moveTo(drawArea.left() + 0.5, h - (axisMargin - 0.5));
+    line.lineTo(drawArea.right(), h - (axisMargin - 0.5));
+    painter.strokePath(line, chart_->axis(XAxis).pen());
+  } else {
+    chart_->axis(XAxis).render(
+	painter,
+	Labels | Line,
+	WPointF(axisMargin - 1, drawArea.left()),
+	WPointF(axisMargin - 1, drawArea.right()),
+	-5, 0, -5,
+	AlignRight | AlignMiddle);
+    WPainterPath line;
+    line.moveTo(axisMargin - 0.5, drawArea.left() + 0.5);
+    line.lineTo(axisMargin - 0.5, drawArea.right());
+    painter.strokePath(line, chart_->axis(XAxis).pen());
+  }
 
-  WTransform t = WTransform(1,0,0,1,seriesArea.left(),seriesArea.top()) *
-    WTransform(seriesArea.width() / chartArea.width(), 0, 0, seriesArea.height() / chartArea.height(), 0, 0) *
-    WTransform(1,0,0,1,-chartArea.left(),-chartArea.top());
-  WPainterPath curve = t.map(chart_->pathForSeries(seriesColumn_));
+  WPainterPath curve;
+  {
+    WTransform t = WTransform(1,0,0,1,seriesArea.left(),seriesArea.top()) *
+      WTransform(seriesArea.width() / chartArea.width(), 0, 0, seriesArea.height() / chartArea.height(), 0, 0) *
+      WTransform(1,0,0,1,-chartArea.left(),-chartArea.top());
+    if (!horizontal) {
+      t = WTransform(0,1,1,0,axisMargin,0) * t * WTransform(0,1,1,0,0,0);
+    }
+    curve = t.map(chart_->pathForSeries(seriesColumn_));
+  }
 
-  WRectF leftHandle = WRectF(-5, 0, 5, h - 25);
-  painter.fillRect((WTransform(1,0,0,1,margin_,0) * (WTransform().translate(transform_.value().map(selectionRect.topLeft())))).map(leftHandle), handleBrush_);
+  {
+    WRectF leftHandle = hv(WRectF(-5, 0, 5, h - axisMargin));
+    WTransform t = (WTransform(1,0,0,1,margin_,0) *
+	(WTransform().translate(transform_.value().map(selectionRect.topLeft()))));
+    painter.fillRect(hv(t).map(leftHandle), handleBrush_);
+  }
 
-  WRectF rightHandle = WRectF(0, 0, 5, h - 25);
-  painter.fillRect(
-      (WTransform(1,0,0,1,margin_,0) *
-      (WTransform().translate(transform_.value().map(selectionRect.topRight())))).map(rightHandle),
-      handleBrush_
-  );
+  {
+    WRectF rightHandle = hv(WRectF(0, 0, 5, h - axisMargin));
+    WTransform t = (WTransform(1,0,0,1,margin_,0) *
+	(WTransform().translate(transform_.value().map(selectionRect.topRight()))));
+    painter.fillRect(hv(t).map(rightHandle), handleBrush_);
+  }
 
   if (selectedSeriesPen_ != &seriesPen_ && *selectedSeriesPen_ != seriesPen_) {
     WPainterPath clipPath;
-    clipPath.addRect(selectionRect);
+    clipPath.addRect(hv(selectionRect));
     painter.setClipPath(selectionTransform.map(clipPath));
     painter.setClipping(true);
 
@@ -210,8 +260,8 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     painter.drawPath(curve);
 
     WPainterPath leftClipPath;
-    leftClipPath.addRect(WTransform(1,0,0,1,-selectionRect.width(),0).map(selectionRect));
-    painter.setClipPath((
+    leftClipPath.addRect(hv(WTransform(1,0,0,1,-selectionRect.width(),0).map(selectionRect)));
+    painter.setClipPath(hv(
 	  WTransform(1,0,0,1,margin_,0) *
 	  (WTransform().translate(transform_.value().map(selectionRect.topLeft())))
 	).map(leftClipPath));
@@ -220,8 +270,8 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     painter.drawPath(curve);
 
     WPainterPath rightClipPath;
-    rightClipPath.addRect(WTransform(1,0,0,1,selectionRect.width(),0).map(selectionRect));
-    painter.setClipPath((
+    rightClipPath.addRect(hv(WTransform(1,0,0,1,selectionRect.width(),0).map(selectionRect)));
+    painter.setClipPath(hv(
 	  WTransform(1,0,0,1,margin_ - selectionRect.right(),0) *
 	  (WTransform().translate(transform_.value().map(selectionRect.topRight())))
 	).map(rightClipPath));
@@ -246,7 +296,6 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
        "transform:" << transform_.jsRef() << ","
        "rect:function(){return " << rect.jsRef() << "},"
        "drawArea:" << drawArea.jsRef() << ","
-       "seriesArea:" << seriesArea.jsRef() << ","
        "series:" << seriesColumn_ <<
        "});";
     doJavaScript(ss.str());

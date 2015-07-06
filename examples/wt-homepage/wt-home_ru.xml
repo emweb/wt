@@ -1097,7 +1097,7 @@ href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">инстр�
 <p>
 Для получения wt выполните команду:
 <div class="fragment">
-  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/wt.git</pre>
+  <pre class="fragment">$ git clone git://github.com/kdeforche/wt.git</pre>
 </div>
 </p>
   </message>

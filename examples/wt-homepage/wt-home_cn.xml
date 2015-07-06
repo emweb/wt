@@ -818,7 +818,7 @@ href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">安�
 <p>
 检出操作：
 <div class="fragment">
-  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/wt.git</pre>
+  <pre class="fragment">$ git clone git://github.com/kdeforche/wt.git</pre>
 </div>
 </p>
   </message>

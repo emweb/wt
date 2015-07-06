@@ -629,23 +629,22 @@ public:
 	p = WPointF(left + width/2, p.y());
       }
 
-      WColor c(black);
-
       WFlags<AlignmentFlag> alignment;
       if (series.type() == BarSeries) {
 	if (y < 0)
 	  alignment = AlignCenter | AlignBottom;
 	else
 	  alignment = AlignCenter | AlignTop;
-
-	c = series.labelColor();
       } else {
 	alignment = AlignCenter | AlignBottom;
 	p.setY(p.y() - 3);
       }
 
       WCartesianChart &chart = const_cast<WCartesianChart &>(chart_);
-      chart_.renderLabel(painter_, text, chart.combinedTransform().map(p), alignment, 0, 3);
+      WPen oldPen = WPen(chart.textPen_);
+      chart.textPen_.setColor(series.labelColor());
+      chart.renderLabel(painter_, text, chart.hv(chart.combinedTransform().map(chart.hv(p))), alignment, 0, 3);
+      chart.textPen_ = oldPen;
     }
   }
 
@@ -1736,7 +1735,15 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   for (int i = 0; i < 3; ++i)
     location_[i] = MinimumValue;
 
-  if (isAutoLayoutEnabled()) {
+  bool autoLayout = isAutoLayoutEnabled();
+  if (autoLayout && 
+      ((device->features() & WPaintDevice::HasFontMetrics) == 0)) {
+    Wt::log("error") << "setAutoLayout(): device does not have font metrics "
+      "(not even server-side font metrics).";
+    autoLayout = false;
+  }
+
+  if (autoLayout) {
     WCartesianChart *self = const_cast<WCartesianChart *>(this);
     self->setPlotAreaPadding(40, Left | Right);
     self->setPlotAreaPadding(30, Top | Bottom);
@@ -2568,7 +2575,8 @@ void WCartesianChart::renderLegend(WPainter& painter) const
     painter.setFont(legendFont());
     WFont f = painter.font();
 
-    if (isAutoLayoutEnabled()) {
+    if (isAutoLayoutEnabled() &&
+	((painter.device()->features() & WPaintDevice::HasFontMetrics) != 0)) {
       int columnWidth = 0;
       for (unsigned i = 0; i < series().size(); ++i)
 	if (series()[i].isLegendEnabled()) {
@@ -2790,7 +2798,7 @@ void WCartesianChart::renderLabel(WPainter& painter, const WString& text,
 #else
   painter.setPen(textPen_);
 #endif
-  WTransform oldTransform = painter.worldTransform();
+  WTransform oldTransform = WTransform(painter.worldTransform());
   painter.translate(pos);
 
   if (angle == 0) {

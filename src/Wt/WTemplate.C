@@ -803,7 +803,7 @@ void WTemplate::setEncodeTemplateText(bool on)
 
 void WTemplate::refresh()
 {
-  if (text_.refresh()) {
+  if (text_.refresh() || !strings_.empty()) {
     changed_ = true;
     repaint(RepaintSizeAffected);
   }

@@ -41,9 +41,16 @@ void serialize(const Value& val, int indentation, EscapeOStream &result)
       result << ("false");
 	return;
     break;
-  case NumberType:
-	result << Utils::round_js_str(static_cast<double>(val), 16, buf);
+  case NumberType: 
+	{
+	double d = static_cast<double>(val);
+	int i = static_cast<int>(val);
+	if(d - i > 0.0)
+	  result << Utils::round_js_str(static_cast<double>(val), 16, buf);
+	else 
+	  result << i;
 	return;
+	}
     break;
   case ObjectType:
     serialize((const Object&)val, indentation + 1, result);

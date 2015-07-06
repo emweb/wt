@@ -32,6 +32,8 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 
   if (user.password().empty())
     authModel_ = 0;
+  else if (authModel_)
+    authModel_->reset();
 
   if (authModel_ && authModel_->baseAuth()->emailVerificationEnabled()) {
     /*

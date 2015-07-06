@@ -109,7 +109,11 @@ void WEnvironment::init(const WebRequest& request)
   serverSoftware_  = str(request.envValue("SERVER_SOFTWARE"));
   serverAdmin_     = str(request.envValue("SERVER_ADMIN"));
   pathInfo_        = request.pathInfo();
+
 #ifndef WT_TARGET_JAVA
+  if(!str(request.headerValue("Redirect-Secret")).empty())
+	session_->controller()->redirectSecret_ = str(request.headerValue("Redirect-Secret"));
+
   sslInfo_         = request.sslInfo();
   if(!sslInfo_ && !str(request.headerValue("SSL-Client-Certificates")).empty()) {
 	parseSSLInfo(str(request.headerValue("SSL-Client-Certificates")));

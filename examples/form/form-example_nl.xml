@@ -21,26 +21,28 @@
 
   <message id="quit">Afsluiten</message>
 
-  <message id="January">Januari</message>
-  <message id="February">Februari</message>
-  <message id="March">Maart</message>
-  <message id="April">April</message>
-  <message id="May">Mei</message>
-  <message id="June">Juni</message>
-  <message id="July">Juli</message>
-  <message id="August">Augustus</message>
-  <message id="September">September</message>
-  <message id="October">Oktober</message>
-  <message id="November">November</message>
-  <message id="December">December</message>
+  <message id="Wt.WCalendar.today">Vandaag</message>
 
-  <message id="Mon">Maa</message>
-  <message id="Tue">Din</message>
-  <message id="Wed">Woe</message>
-  <message id="Thu">Don</message>
-  <message id="Fri">Vri</message>
-  <message id="Sat">Zat</message>
-  <message id="Sun">Zon</message>
+  <message id="Wt.WDate.January">Januari</message>
+  <message id="Wt.WDate.February">Februari</message>
+  <message id="Wt.WDate.March">Maart</message>
+  <message id="Wt.WDate.April">April</message>
+  <message id="Wt.WDate.May">Mei</message>
+  <message id="Wt.WDate.June">Juni</message>
+  <message id="Wt.WDate.July">Juli</message>
+  <message id="Wt.WDate.August">Augustus</message>
+  <message id="Wt.WDate.September">September</message>
+  <message id="Wt.WDate.October">Oktober</message>
+  <message id="Wt.WDate.November">November</message>
+  <message id="Wt.WDate.December">December</message>
+
+  <message id="Wt.WDate.3.Mon">Maa</message>
+  <message id="Wt.WDate.3.Tue">Din</message>
+  <message id="Wt.WDate.3.Wed">Woe</message>
+  <message id="Wt.WDate.3.Thu">Don</message>
+  <message id="Wt.WDate.3.Fri">Vri</message>
+  <message id="Wt.WDate.3.Sat">Zat</message>
+  <message id="Wt.WDate.3.Sun">Zon</message>
 
   <message id="Close">Venster Sluiten</message>
 

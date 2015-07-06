@@ -224,6 +224,10 @@ void ProxyReply::assembleRequestHeaders()
   if(request_.sslInfo() && fwCertificates_) {
 	appendSSLInfo(request_.sslInfo(), os);
   }
+
+  // Append redirect secret
+  os << "Redirect-Secret: " <<  Wt::WServer::instance()->controller()->redirectSecret_ << "\r\n";
+
   os << "\r\n";
   fwCertificates_ = false;
 }

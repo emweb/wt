@@ -22,6 +22,12 @@
 #include <boost/thread.hpp>
 #endif
 
+namespace http {
+  namespace server {
+	class ProxyReply;
+  }
+}
+
 namespace Wt {
 
 class Configuration;
@@ -188,6 +194,9 @@ private:
 #endif // WT_TARGET_JAVA
 
   WServer& server_;
+
+  friend class http::server::ProxyReply;
+  friend class WEnvironment;
 };
 
 }

@@ -12,6 +12,7 @@
 
   <message id="Wt.WCalendar.PrevMonth">&#x00ab;</message>
   <message id="Wt.WCalendar.NextMonth">&#x00bb;</message>
+  <message id="Wt.WCalendar.today">Today</message>
 
   <message id="Wt.WDate.Monday">Monday</message>
   <message id="Wt.WDate.Tuesday">Tuesday</message>

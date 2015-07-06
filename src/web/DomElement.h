@@ -77,7 +77,10 @@ enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyStyleVisibility, PropertyStyleDisplay,
 
 		/* CSS 3 */
-		PropertyStyleBoxSizing };
+		PropertyStyleBoxSizing,
+
+		/* Keep as last, e.g. for bitset sizing. Otherwise, unused. */
+		PropertyLastPlusOne };
 
 /*! \class DomElement web/DomElement web/DomElement
  *  \brief Class to represent a client-side DOM element (proxy).

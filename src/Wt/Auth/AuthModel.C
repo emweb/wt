@@ -175,6 +175,8 @@ bool AuthModel::login(Login& login)
     boost::any v = value(RememberMeField);
     const AuthService *s = baseAuth();
     if (loginUser(login, user)) {
+      reset();
+
       if (!v.empty() && boost::any_cast<bool>(v) == true) {
 	WApplication *app = WApplication::instance();
 	app->setCookie(s->authTokenCookieName(),

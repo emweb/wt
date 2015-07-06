@@ -136,16 +136,29 @@ WT_DECLARE_WT_MEMBER
       config.chart.setXRange(config.series, u, v);
    }
 
+   function isHorizontal() {
+      return !config.chart.config.isHorizontal;
+   }
+
    function onLeftBorder(p, rect, borderSize) {
-      return p.y >= top(rect) && p.y <= bottom(rect) && p.x > left(rect) - borderSize / 2 && p.x < left(rect) + borderSize / 2;
+      if (isHorizontal())
+	 return p.y >= top(rect) && p.y <= bottom(rect) && p.x > left(rect) - borderSize / 2 && p.x < left(rect) + borderSize / 2;
+      else
+	 return p.x >= left(rect) && p.x <= right(rect) && p.y > top(rect) - borderSize / 2 && p.y < top(rect) + borderSize / 2;
    }
    
    function onRightBorder(p, rect, borderSize) {
-      return p.y >= top(rect) && p.y <= bottom(rect) && p.x > right(rect) - borderSize / 2 && p.x < right(rect) + borderSize / 2;
+      if (isHorizontal())
+	 return p.y >= top(rect) && p.y <= bottom(rect) && p.x > right(rect) - borderSize / 2 && p.x < right(rect) + borderSize / 2;
+      else
+	 return p.x >= left(rect) && p.x <= right(rect) && p.y > bottom(rect) - borderSize / 2 && p.y < bottom(rect) + borderSize / 2;
    }
 
    function isInside(p, rect) {
-      return p.y >= top(rect) && p.y <= bottom(rect) && p.x > left(rect) && p.x < right(rect);
+      if (isHorizontal())
+	 return p.y >= top(rect) && p.y <= bottom(rect) && p.x > left(rect) && p.x < right(rect);
+      else
+	 return p.x >= left(rect) && p.x <= right(rect) && p.y > top(rect) && p.y < bottom(rect);
    }
 
    this.mouseDown = function(o, event) {
@@ -241,7 +254,11 @@ WT_DECLARE_WT_MEMBER
 	 previousXY = pos;
 	 return;
       }
-      var dx = pos.x - previousXY.x;
+      var dx;
+      if (isHorizontal())
+	 dx = pos.x - previousXY.x;
+      else
+	 dx = pos.y - previousXY.y;
       switch (position) {
       case LEFT_OF_RECT:
 	 dragLeft(dx);
@@ -264,7 +281,10 @@ WT_DECLARE_WT_MEMBER
 	 var pos = WT.widgetCoordinates(widget, event);
 	 var rect = config.rect();
 	 if (onLeftBorder(pos, rect, 10) || onRightBorder(pos, rect, 10)) {
-	    target.canvas.style.cursor = 'col-resize';
+	    if (isHorizontal())
+	       target.canvas.style.cursor = 'col-resize';
+	    else
+	       target.canvas.style.cursor = 'row-resize';
 	 } else if (isInside(pos,rect)) {
 	    target.canvas.style.cursor = 'move';
 	 } else {
@@ -306,7 +326,10 @@ WT_DECLARE_WT_MEMBER
 	 var rect = config.rect();
 	 if (!isInside(touches[0], rect) ||
 	     !isInside(touches[1], rect)) return;
-	 touchDelta = Math.abs(touches[0].x - touches[1].x);
+	 if (isHorizontal())
+	    touchDelta = Math.abs(touches[0].x - touches[1].x);
+	 else
+	    touchDelta = Math.abs(touches[0].y - touches[1].y);
 	 WT.capture(null);
 	 WT.capture(target.canvas);
 	 if (event.preventDefault) event.preventDefault();
@@ -370,7 +393,11 @@ WT_DECLARE_WT_MEMBER
 	    previousXY = pos;
 	    return;
 	 }
-	 var dx = pos.x - previousXY.x;
+	 var dx;
+	 if (isHorizontal())
+	    dx = pos.x - previousXY.x;
+	 else
+	    dx = pos.y - previousXY.y;
 	 switch (position) {
 	 case LEFT_OF_RECT:
 	    dragLeft(dx);
@@ -390,7 +417,11 @@ WT_DECLARE_WT_MEMBER
 	    WT.widgetCoordinates(target.canvas,event.touches[1])
 	 ];
 	 var rect = config.rect();
-	 var newDelta = Math.abs(touches[0].x - touches[1].x);
+	 var newDelta;
+	 if (isHorizontal())
+	    newDelta = Math.abs(touches[0].x - touches[1].x);
+	 else
+	    newDelta = Math.abs(touches[0].y - touches[1].y);
 	 var d = newDelta - touchDelta;
 	 dragLeft(-d/2);
 	 dragRight(d/2);
@@ -404,7 +435,7 @@ WT_DECLARE_WT_MEMBER
 	    config[key] = newConfig[key];
 	 }
       }
-      target.repaint();
+      repaint();
    }
 
    self.updateConfig({});

@@ -327,7 +327,7 @@ WWidget* WCalendar::renderCell(WWidget* widget, const WDate& date)
       date.year() == currentDate.year()) {
     if (!isSelected(date))
       styleClass += " Wt-cal-now";
-    t->setToolTip("Today");
+    t->setToolTip(WString::tr("Wt.WCalendar.today"));
   } else
     t->setToolTip("");
 

@@ -138,6 +138,7 @@ void Block::setStyleSheet(StyleSheet* styleSheet)
 {
   styleSheet_ = styleSheet;
   css_.clear();
+  noPropertyCache_.reset();
   for (unsigned int i = 0; i < children_.size(); ++i)
     children_[i]->setStyleSheet(styleSheet);
 }
@@ -3517,6 +3518,9 @@ std::string Block::cssProperty(Property property) const
   if (!node_)
     return std::string();
 
+  if (noPropertyCache_[property])
+    return std::string();
+
   if (css_.empty()) {
     if (styleSheet_) {
       for (unsigned int i = 0; i < styleSheet_->rulesetSize(); ++i) {
@@ -3539,8 +3543,10 @@ std::string Block::cssProperty(Property property) const
 
   if (i != css_.end())
     return i->second.value_;
-  else
+  else {
+    noPropertyCache_.set(property);
     return std::string();
+  }
 }
 
 std::string Block::attributeValue(const char *attribute) const
