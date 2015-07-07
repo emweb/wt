@@ -43,6 +43,9 @@ inline int toZoomLevel(double zoomFactor)
 }
 
 namespace Wt {
+
+LOGGER("WCartesianChart");
+
   namespace Chart {
 
 SeriesIterator::~SeriesIterator()
@@ -643,7 +646,10 @@ public:
       WCartesianChart &chart = const_cast<WCartesianChart &>(chart_);
       WPen oldPen = WPen(chart.textPen_);
       chart.textPen_.setColor(series.labelColor());
-      chart.renderLabel(painter_, text, chart.hv(chart.combinedTransform().map(chart.hv(p))), alignment, 0, 3);
+      WTransform t = WTransform(1,0,0,-1,chart.chartArea_.left(),chart.chartArea_.bottom()) *
+	chart.xTransform_.value() * chart.yTransform_.value() *
+	WTransform(1,0,0,-1,-chart.chartArea_.left(),chart.chartArea_.bottom());
+      chart.renderLabel(painter_, text, t.map(p), alignment, 0, 3);
       chart.textPen_ = oldPen;
     }
   }
@@ -1738,8 +1744,8 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
   bool autoLayout = isAutoLayoutEnabled();
   if (autoLayout && 
       ((device->features() & WPaintDevice::HasFontMetrics) == 0)) {
-    Wt::log("error") << "setAutoLayout(): device does not have font metrics "
-      "(not even server-side font metrics).";
+    LOG_ERROR("setAutoLayout(): device does not have font metrics "
+      "(not even server-side font metrics).");
     autoLayout = false;
   }
 
@@ -2307,57 +2313,73 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	      double titleSizeW = axis.calcTitleSize(device, Vertical);
 	      if (axis.tickDirection() == Inwards) titleSizeW = -titleSizeW;
 
-	      AlignmentFlag alignment;
-	      if ((locations[l] == MaximumValue) != /*XOR*/ (axis.tickDirection() == Inwards)) {
-		alignment = (labelHFlag == AlignRight ? AlignRight : AlignLeft) | AlignMiddle;
-	      } else {
-		alignment = (labelHFlag == AlignRight ? AlignLeft : AlignRight) | AlignMiddle;
-	      }
+	      AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignLeft : AlignRight) | AlignMiddle;
 	      renderLabel(painter, axis.title(),
 		  WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
-		    chartArea_.center().y() + titleSize / 2), alignment, 90, 10);
+		    chartArea_.center().y() - titleSize / 2), alignment, locations[l] == MaximumValue ? -90 : 90, 10);
 	    } else { // Y2 Axis
 	      WPaintDevice *device = painter.device();
-	      double size = axis.calcMaxTickLabelSize(device, Horizontal);
+	      double size = 0;
+	      if (axis.tickDirection() == Outwards) size = axis.calcMaxTickLabelSize(device, Horizontal);
 	      double titleSize = axis.calcTitleSize(device, Horizontal);
 	      double titleSizeW = axis.calcTitleSize(device, Vertical);
+	      if (axis.tickDirection() == Inwards) titleSizeW = -titleSizeW;
 
 	      renderLabel(painter, axis.title(),
 		WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
-		  chartArea_.center().y() + titleSize / 2),
-		(labelHFlag == AlignRight ? AlignRight : AlignLeft) |
-		AlignMiddle, 90, 10);
+		  chartArea_.center().y() - titleSize / 2),
+		AlignLeft | AlignMiddle, -90, 10);
 	    }
 	  }
 	} else {
-		  WPaintDevice *device = painter.device();
-		  double titleSize = axis.calcTitleSize(device, Vertical);
-		  double size = axis.calcMaxTickLabelSize(device, Vertical);
+	  double extraMargin = 0;
+	  WPaintDevice *device = painter.device();
+	  if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Vertical);
+	  if (locations[l] != MaximumValue) extraMargin = -extraMargin;
+	  AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignLeft : AlignRight) | AlignMiddle;
 	  renderLabel(painter, axis.title(),
-			  WPointF(u + (labelHFlag == AlignRight ? -(20 + size + titleSize) : +(20 + size + titleSize)),
-		chartArea_.center().y()),
-	      (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
-	      AlignMiddle, 0, 20);
-	   }
+		      WPointF(u + extraMargin, chartArea_.center().y()), alignment, 0, 10);
+        }
       } else {
 	/* X Axes */
 	double u = axisStart.y();
 	if (chartVertical) {
-	  double extraMargin = 22;
-	  if (axis.tickDirection() == Inwards) extraMargin = 0;
-	  if (locations[l] == MaximumValue) {
-	    renderLabel(painter, axis.title(),
-			WPointF(chartArea_.center().x(), u - extraMargin),
-			AlignBottom | AlignCenter, 0, 10);
-	  } else {
-	    renderLabel(painter, axis.title(),
-			WPointF(chartArea_.center().x(), u + extraMargin),
-			AlignTop | AlignCenter, 0, 10);
-	  }
-	} else {
+	  double extraMargin = 0;
+	  WPaintDevice *device = painter.device();
+	  if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Vertical);
+	  if (locations[l] == MaximumValue) extraMargin = -extraMargin;
+	  AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignBottom : AlignTop) | AlignCenter;
 	  renderLabel(painter, axis.title(),
-		      WPointF(chartArea_.right(), u),
-	  AlignTop | AlignLeft, 0, 8);
+		      WPointF(chartArea_.center().x(), u + extraMargin),
+		      alignment, 0, 10);
+	} else {
+	  if (axis.titleOrientation() == Vertical) {
+	    WPaintDevice *device = painter.device();
+	    double extraMargin = 0;
+	    if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Horizontal);
+	    double titleSize = axis.calcTitleSize(device, Horizontal);
+	    double titleSizeW = axis.calcTitleSize(device, Vertical);
+
+	    if (locations[l] == MaximumValue) {
+	      renderLabel(painter, axis.title(),
+			  WPointF(chartArea_.center().x() - titleSize / 2, u - extraMargin - titleSizeW),
+			  AlignBottom | AlignCenter, -90, 10);
+	    } else {
+	      renderLabel(painter, axis.title(),
+			  WPointF(chartArea_.center().x() - titleSize / 2, u + extraMargin + titleSizeW),
+			  AlignTop | AlignCenter, 90, 10);
+	    }
+	  } else {
+	    if (locations[l] == MaximumValue) {
+	      renderLabel(painter, axis.title(),
+			  WPointF(chartArea_.right(), u),
+	      AlignBottom | AlignLeft, 0, 8);
+	    } else {
+	      renderLabel(painter, axis.title(),
+			  WPointF(chartArea_.right(), u),
+	      AlignTop | AlignLeft, 0, 8);
+	    }
+	  }
 	}
       }
 
@@ -2662,12 +2684,16 @@ void WCartesianChart::renderLegend(WPainter& painter) const
       break;
     }
 
+    // FIXME: Actually calculate the proper size of these shifts?
     if (legendLocation() == LegendOutside) {
       if (legendSide() == Top && !vertical && axis(Y1Axis).isVisible())
 	y -= 16;
 
       if (legendSide() == Right && vertical && (axis(Y2Axis).isVisible() ||
 	    (axis(Y1Axis).isVisible() && (axis(Y1Axis).location() == BothSides || axis(Y1Axis).location() == MaximumValue))))
+	x += 40;
+
+      if (legendSide() == Right && !vertical && axis(XAxis).isVisible() && (axis(XAxis).location() == MaximumValue || axis(XAxis).location() == BothSides))
 	x += 40;
 
       if (legendSide() == Bottom
@@ -2820,7 +2846,7 @@ WPointF WCartesianChart::hv(const WPointF& p) const
     if (orientation() == Vertical) {
       return p;
     } else {
-      return p.swapXY();
+      return p.swapHV(height_);
     }
   }
   return hv(p.x(), p.y());

@@ -159,7 +159,6 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
    * Create the category chart.
    */
   WCartesianChart *chart = new WCartesianChart(this);
-  // chart->setPreferredMethod(WPaintedWidget::PngImage);
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
   chart->setLegendEnabled(true); // enable the legend

@@ -70,6 +70,10 @@ private:
     Wt::WLineEdit *maximumEdit;
     Wt::WCheckBox *gridLinesEdit;
     Wt::WLineEdit *labelAngleEdit;
+    Wt::WLineEdit *titleEdit;
+    Wt::WComboBox *titleOrientationEdit;
+    Wt::WComboBox *tickDirectionEdit;
+    Wt::WComboBox *locationEdit;
   };
 
   //! Controls for axes
@@ -82,6 +86,7 @@ private:
   Wt::WComboBox *legendLocationEdit_;
   Wt::WComboBox *legendSideEdit_;
   Wt::WComboBox *legendAlignmentEdit_;
+  Wt::WCheckBox *borderEdit_;
 
   void connectSignals(Wt::WFormWidget *w);
   void update();

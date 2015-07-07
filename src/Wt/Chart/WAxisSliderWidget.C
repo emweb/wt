@@ -31,7 +31,8 @@ WAxisSliderWidget::WAxisSliderWidget(WContainerWidget *parent)
     selectedSeriesPen_(&seriesPen_),
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
-    selectedAreaBrush_(WColor(255, 255, 255))
+    selectedAreaBrush_(WColor(255, 255, 255)),
+    axisMargin_(-1)
 {
   init();
 }
@@ -44,7 +45,8 @@ WAxisSliderWidget::WAxisSliderWidget(WCartesianChart *chart, int seriesColumn, W
     selectedSeriesPen_(&seriesPen_),
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
-    selectedAreaBrush_(WColor(255, 255, 255))
+    selectedAreaBrush_(WColor(255, 255, 255)),
+    axisMargin_(-1)
 {
   init();
 }
@@ -135,6 +137,14 @@ void WAxisSliderWidget::setSelectedAreaBrush(const WBrush& brush)
   }
 }
 
+void WAxisSliderWidget::setAxisMargin(double margin)
+{
+  if (margin != axisMargin_) {
+    axisMargin_ = margin;
+    update();
+  }
+}
+
 void WAxisSliderWidget::render(WFlags<RenderFlag> flags)
 {
   WPaintedWidget::render(flags);
@@ -179,7 +189,14 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   double w = horizontal ? width().value() : height().value(),
 	 h = horizontal ? height().value() : width().value();
 
-  const double axisMargin = 25; // TODO(Roel): autodetermine this? Make it configurable?
+  WRectF drawArea(margin_, 0, w - 2 * margin_, h);
+  chart_->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
+  double axisMargin = axisMargin_;
+  if (axisMargin == -1 && paintDevice->features() & WPaintDevice::HasFontMetrics) {
+    axisMargin = chart_->axis(XAxis).calcMaxTickLabelSize(paintDevice, horizontal ? Vertical : Horizontal) + 10;
+  } else {
+    axisMargin = 25;
+  }
 
   const WRectF& chartArea = chart_->chartArea_;
   WRectF selectionRect;
@@ -190,7 +207,6 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     selectionRect = WRectF(0, 0, maxW, h - axisMargin);
     transform_.setValue(WTransform(1 / chart_->xTransform_.value().m11(), 0, 0, 1, u * maxW, 0));
   }
-  WRectF drawArea(margin_, 0, w - 2 * margin_, h);
   WRectF seriesArea(margin_, 5, w - 2 * margin_, h - (axisMargin + 5));
   WTransform selectionTransform = hv(WTransform(1,0,0,1,margin_,0) * transform_.value());
   WRectF rect = selectionTransform.map(hv(selectionRect));
@@ -198,7 +214,6 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   painter.fillRect(hv(WRectF(margin_, 0, w - 2 * margin_, h - axisMargin)), background_);
   painter.fillRect(rect, selectedAreaBrush_);
 
-  chart_->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
   if (horizontal) {
     chart_->axis(XAxis).render(
 	painter,

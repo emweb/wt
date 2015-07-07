@@ -156,6 +156,12 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   connectSignals(legendAlignmentEdit_);
   ++row;
 
+  chartConfig->elementAt(row, 0)->addWidget(new WText("Border:"));
+  borderEdit_ = new WCheckBox(chartConfig->elementAt(row, 1));
+  borderEdit_->setChecked(false);
+  connectSignals(borderEdit_);
+  ++row;
+
   for (int i = 0; i < chartConfig->rowCount(); ++i) {
     chartConfig->elementAt(i, 0)->setStyleClass("tdhead");
     chartConfig->elementAt(i, 1)->setStyleClass("tddata");
@@ -163,7 +169,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   WPanel *p = list->addWidget("Chart properties", chartConfig);
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(880, WLength::Auto);
+  p->resize(1080, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   // ---- Series properties ----
@@ -274,7 +280,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   p = list->addWidget("Series properties", seriesConfig);
   p->expand();
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(880, WLength::Auto);
+  p->resize(1080, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   // ---- Axis properties ----
@@ -300,6 +306,10 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   ::addHeader(axisConfig, "Maximum");
   ::addHeader(axisConfig, "Gridlines");
   ::addHeader(axisConfig, "Label angle");
+  ::addHeader(axisConfig, "Title");
+  ::addHeader(axisConfig, "Title orientation");
+  ::addHeader(axisConfig, "Tick direction");
+  ::addHeader(axisConfig, "Location");
 
   axisConfig->rowAt(0)->setStyleClass("trhead");
 
@@ -362,6 +372,30 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     sc.labelAngleEdit->setValidator(angleValidator);
     connectSignals(sc.labelAngleEdit);
 
+    sc.titleEdit = new WLineEdit(axisConfig->elementAt(j, 8));
+    sc.titleEdit->setText("");
+    connectSignals(sc.titleEdit);
+
+    sc.titleOrientationEdit = new WComboBox(axisConfig->elementAt(j, 9));
+    sc.titleOrientationEdit->addItem("Horizontal");
+    sc.titleOrientationEdit->addItem("Vertical");
+    connectSignals(sc.titleOrientationEdit);
+
+    sc.tickDirectionEdit = new WComboBox(axisConfig->elementAt(j, 10));
+    sc.tickDirectionEdit->addItem("Outwards");
+    sc.tickDirectionEdit->addItem("Inwards");
+    connectSignals(sc.tickDirectionEdit);
+
+    sc.locationEdit = new WComboBox(axisConfig->elementAt(j, 11));
+    sc.locationEdit->addItem("Minimum value");
+    sc.locationEdit->addItem("Maximum value");
+    sc.locationEdit->addItem("Zero value");
+    sc.locationEdit->addItem("Both sides");
+    if (axis.location() == ZeroValue) {
+      sc.locationEdit->setCurrentIndex(2);
+    }
+    connectSignals(sc.locationEdit);
+
     axisConfig->rowAt(j)->setStyleClass("trdata");
 
     axisControls_.push_back(sc);
@@ -369,7 +403,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   p = list->addWidget("Axis properties", axisConfig);
   p->setMargin(WLength::Auto, Left | Right);
-  p->resize(880, WLength::Auto);
+  p->resize(1080, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   /*
@@ -565,6 +599,27 @@ void ChartConfig::update()
     }
 
     axis.setGridLinesEnabled(sc.gridLinesEdit->isChecked());
+
+    axis.setTitle(sc.titleEdit->text());
+
+    axis.setTitleOrientation(sc.titleOrientationEdit->currentIndex() == 0 ? Horizontal : Vertical);
+
+    axis.setTickDirection(sc.tickDirectionEdit->currentIndex() == 0 ? Outwards : Inwards);
+
+    switch (sc.locationEdit->currentIndex()) {
+      case 0:
+	axis.setLocation(MinimumValue);
+	break;
+      case 1:
+	axis.setLocation(MaximumValue);
+	break;
+      case 2:
+	axis.setLocation(ZeroValue);
+	break;
+      case 3:
+	axis.setLocation(BothSides);
+	break;
+    }
   }
 
   chart_->setTitle(titleEdit_->text());
@@ -623,6 +678,12 @@ void ChartConfig::update()
 
     chart_->setLegendColumns((side == Top || side == Bottom ) ? 2 : 1,
 			     WLength(100));
+
+    if (borderEdit_->isChecked()) {
+      chart_->setBorderPen(WPen());
+    } else {
+      chart_->setBorderPen(NoPen);
+    }
   }
 }
 

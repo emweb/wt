@@ -103,6 +103,19 @@ public:
    */
   const WBrush& selectedAreaBrush() const { return selectedAreaBrush_; }
 
+  /*! \brief Set the margin for the axis to be drawn in.
+   *
+   * If set to -1, the margin will be calculated automatically, if possible.
+   * If this is not possible (no font metrics support), the margin will be set to 25.
+   */
+  void setAxisMargin(double axisMargin);
+
+  /*! \brief Return the margin for the axis to be drawn in.
+   * 
+   * \sa setAxisMargin()
+   */
+  double axisMargin() const { return axisMargin_; }
+
 protected:
   virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
   virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override) ;
@@ -121,6 +134,7 @@ private:
   WBrush handleBrush_;
   WBrush background_;
   WBrush selectedAreaBrush_;
+  double axisMargin_;
 
   WJavaScriptHandle<WTransform> transform_;
 };

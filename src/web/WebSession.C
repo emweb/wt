@@ -2264,19 +2264,23 @@ void WebSession::notify(const WEvent& event)
 	   * Check the ackIdE. This is required for a request carrying a signal.
 	   */
 	  const std::string *ackIdE = request.getParameter("ackId");
-	  bool invalidAckId = env_->ajax() && !request.isWebSocketMessage(); 
+
+	  /*
+	   * If we have a reliable transport (websockets) already
+	   * established (i.e. we are doing a switchover from Ajax to
+	   * WebSockets) then the JS response is actually being
+	   * flushed immediately, and we should not flush again (as
+	   * that flushes invisible changes) see test-case
+	   * serverPushWebSocketInvisibleRace.C
+	   */
+	  bool invalidAckId = env_->ajax() 
+	    && !request.isWebSocketMessage()
+	    && (!asyncResponse_ || !asyncResponse_->isWebSocketRequest());
 
 	  if (invalidAckId && ackIdE) {
 	    try {
-	      /*
-	       * If we have a reliable transport (websockets), then the JS
-	       * response is actually being flushed immediately, and we
-	       * should not flush again (as that flushes invisible changes)
-	       * see test-case serverPushWebSocketInvisibleRace.C
-	       */
-	      if (!asyncResponse_ || !asyncResponse_->isWebSocketRequest())
-		if (renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE)))
-		  invalidAckId = false;
+	      if (renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE)))
+		invalidAckId = false;
 	    } catch (const boost::bad_lexical_cast& e) {
 	    }
 	  }

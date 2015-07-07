@@ -77,7 +77,7 @@ public:
 
   virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 
-  WPointF swapXY() const;
+  WPointF swapHV(double width) const;
 
 private:
   double x_, y_;

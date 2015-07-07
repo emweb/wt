@@ -63,13 +63,16 @@ std::string WPointF::jsValue() const
   return ss.str();
 }
 
-WPointF WPointF::swapXY() const
+WPointF WPointF::swapHV(double width) const
 {
-  WPointF result(y(), x());
+  WPointF result(width - y(), x());
   
   if (isJavaScriptBound()) {
-    result.assignBinding(*this,
-	"((function(p){return [p[1],p[0]];})(" + jsRef() + "))");
+    WStringStream ss;
+    char buf[30];
+    ss << "((function(p){return [";
+    ss << Utils::round_js_str(width, 3, buf) << " - p[1],p[0]];})(" << jsRef() + "))";
+    result.assignBinding(*this, ss.str());
   }
 
   return result;
