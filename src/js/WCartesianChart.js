@@ -520,7 +520,12 @@ WT_DECLARE_WT_MEMBER
    };
 
    function init() {
-      if (overlay === undefined && showCrosshair()) {
+      if (showCrosshair && (overlay === undefined || target.canvas.width !== overlay.width || target.canvas.height !== overlay.height)) {
+	 if (overlay) {
+	    overlay.parentNode.removeChild(overlay);
+	    jQuery.removeData(widget, 'oobj');
+	    overlay = undefined;
+	 }
 	 c = document.createElement("canvas");
 	 c.setAttribute("width", target.canvas.width);
 	 c.setAttribute("height", target.canvas.height);

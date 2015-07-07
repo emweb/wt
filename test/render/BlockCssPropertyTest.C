@@ -65,6 +65,7 @@ BOOST_AUTO_TEST_CASE( BlockCssProperty_test1 )
   Wt::Render::Block b(doc, 0);
   b.setStyleSheet(style);
   // h1 color == "blue"
+
   BOOST_REQUIRE(childBlock2(&b, list_of(1))
                 ->cssProperty(Wt::PropertyStyleColor) == "blue");
   // h1 border-left == 1px

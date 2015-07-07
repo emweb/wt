@@ -172,7 +172,7 @@ private:
   mutable std::map<std::string, PropertyValue> css_;
   mutable WFont font_;
   StyleSheet* styleSheet_;
-  mutable std::bitset<PropertyLastPlusOne> noPropertyCache_;
+  mutable std::set<Property> noPropertyCache_;
 
   /* For table */
   int tableRowCount_, tableColCount_;

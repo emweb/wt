@@ -2127,9 +2127,9 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     if (axis.location() == ZeroValue) {
       clipRect = area;
     } else if (vertical != /*XOR*/ (orientation() == Horizontal)) {
-      clipRect = WRectF(0.0, area.top(), width().toPixels(), area.height());
+      clipRect = WRectF(0.0, area.top(), vertical ? width_ : height_, area.height());
     } else {
-      clipRect = WRectF(area.left(), 0.0, area.width(), height().toPixels());
+      clipRect = WRectF(area.left(), 0.0, area.width(), vertical ? height_ : width_);
     }
     WPainterPath clipPath;
     clipPath.addRect(clipRect);
@@ -2305,31 +2305,20 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 		  chartArea_.top() - 8),
 		labelHFlag | AlignBottom, 0, 10);
 	  } else {
-	    if(axis.id() == YAxis) {
-	      WPaintDevice *device = painter.device();
-	      double size = 0;
+	    WPaintDevice *device = painter.device();
+	    double size = 0, titleSizeW = 0;
+	    if (device->features() & WPaintDevice::HasFontMetrics) {
 	      if (axis.tickDirection() == Outwards) size = axis.calcMaxTickLabelSize(device, Horizontal);
-	      double titleSize = axis.calcTitleSize(device, Horizontal);
-	      double titleSizeW = axis.calcTitleSize(device, Vertical);
+	      titleSizeW = axis.calcTitleSize(device, Vertical);
 	      if (axis.tickDirection() == Inwards) titleSizeW = -titleSizeW;
-
-	      AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignLeft : AlignRight) | AlignMiddle;
-	      renderLabel(painter, axis.title(),
-		  WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
-		    chartArea_.center().y() - titleSize / 2), alignment, locations[l] == MaximumValue ? -90 : 90, 10);
-	    } else { // Y2 Axis
-	      WPaintDevice *device = painter.device();
-	      double size = 0;
-	      if (axis.tickDirection() == Outwards) size = axis.calcMaxTickLabelSize(device, Horizontal);
-	      double titleSize = axis.calcTitleSize(device, Horizontal);
-	      double titleSizeW = axis.calcTitleSize(device, Vertical);
-	      if (axis.tickDirection() == Inwards) titleSizeW = -titleSizeW;
-
-	      renderLabel(painter, axis.title(),
-		WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW)  : +( size + titleSizeW)),
-		  chartArea_.center().y() - titleSize / 2),
-		AlignLeft | AlignMiddle, -90, 10);
+	    } else {
+	      size = 35;
+	      if (axis.tickDirection() == Inwards) size = -20;
 	    }
+
+	    renderLabel(painter, axis.title(),
+		WPointF(u + (labelHFlag == AlignRight ? -( size + titleSizeW + 5)  : +( size + titleSizeW + 5)),
+		  chartArea_.center().y()), AlignCenter | AlignMiddle, locations[l] == MaximumValue ? -90 : 90, 10);
 	  }
 	} else {
 	  double extraMargin = 0;
@@ -2346,7 +2335,11 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	if (chartVertical) {
 	  double extraMargin = 0;
 	  WPaintDevice *device = painter.device();
-	  if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Vertical);
+	  if (device->features() & WPaintDevice::HasFontMetrics) {
+	    if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Vertical);
+	  } else {
+	    if (axis.tickDirection() == Outwards) extraMargin = 15;
+	  }
 	  if (locations[l] == MaximumValue) extraMargin = -extraMargin;
 	  AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignBottom : AlignTop) | AlignCenter;
 	  renderLabel(painter, axis.title(),
@@ -2354,31 +2347,23 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 		      alignment, 0, 10);
 	} else {
 	  if (axis.titleOrientation() == Vertical) {
+	    // Vertical X axis
 	    WPaintDevice *device = painter.device();
 	    double extraMargin = 0;
-	    if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Horizontal);
-	    double titleSize = axis.calcTitleSize(device, Horizontal);
-	    double titleSizeW = axis.calcTitleSize(device, Vertical);
+	    if (device->features() & WPaintDevice::HasFontMetrics) {
+	      if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Horizontal);
+	      extraMargin += axis.calcTitleSize(device, Vertical);
+	    } else {
+	      extraMargin = 40;
+	    }
+	    if (locations[l] == MaximumValue) extraMargin = -extraMargin;
 
-	    if (locations[l] == MaximumValue) {
-	      renderLabel(painter, axis.title(),
-			  WPointF(chartArea_.center().x() - titleSize / 2, u - extraMargin - titleSizeW),
-			  AlignBottom | AlignCenter, -90, 10);
-	    } else {
-	      renderLabel(painter, axis.title(),
-			  WPointF(chartArea_.center().x() - titleSize / 2, u + extraMargin + titleSizeW),
-			  AlignTop | AlignCenter, 90, 10);
-	    }
+	    renderLabel(painter, axis.title(),
+			WPointF(chartArea_.center().x(), u + extraMargin),
+			AlignMiddle | AlignCenter, locations[l] == MaximumValue ? -90 : 90, 10);
 	  } else {
-	    if (locations[l] == MaximumValue) {
-	      renderLabel(painter, axis.title(),
-			  WPointF(chartArea_.right(), u),
-	      AlignBottom | AlignLeft, 0, 8);
-	    } else {
-	      renderLabel(painter, axis.title(),
-			  WPointF(chartArea_.right(), u),
-	      AlignTop | AlignLeft, 0, 8);
-	    }
+	    AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignBottom : AlignTop) | AlignLeft;
+	    renderLabel(painter, axis.title(), WPointF(chartArea_.right(), u), alignment, 0, 8);
 	  }
 	}
       }
@@ -2578,15 +2563,27 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 		titleOrientation = Vertical;
 	} 
 
+	bool fontMetrics = device->features() & WPaintDevice::HasFontMetrics;
+
 	if (titleOrientation == Vertical && caxis) {
-	  margin 
-	    = (int)(caxis->calcTitleSize(device, Vertical)
-		    + axes_[Y2Axis]->calcMaxTickLabelSize(device, Horizontal));
+	  if (fontMetrics) {
+	    margin 
+	      = (int)(caxis->calcTitleSize(device, Vertical)
+		      + axes_[Y2Axis]->calcMaxTickLabelSize(device, Horizontal));
+	  } else {
+	    margin = 30;
+	  }
 	} else
 	  margin = 20;
 
-	if(caxis && titleOrientation == Horizontal)
-	  margin+= caxis->calcMaxTickLabelSize(device, Horizontal);
+	if(caxis && titleOrientation == Horizontal) {
+	  if (fontMetrics) {
+	    margin += caxis->calcMaxTickLabelSize(device, Horizontal);
+	  } else {
+	    margin += 20;
+	  }
+	}
+
 
     int numSeriesWithLegend = 0;
 

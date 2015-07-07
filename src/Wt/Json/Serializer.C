@@ -45,7 +45,7 @@ void serialize(const Value& val, int indentation, EscapeOStream &result)
 	{
 	double d = static_cast<double>(val);
 	int i = static_cast<int>(val);
-	if(d - i > 0.0)
+	if(fabs(d - i) > 0.0)
 	  result << Utils::round_js_str(static_cast<double>(val), 16, buf);
 	else 
 	  result << i;

@@ -17,29 +17,30 @@ namespace Render {
 class WT_API Specificity
 {
 public:
-  static const int SPECIFICITY_LEN = 5;
-
-  explicit Specificity(bool valid = true);
+  Specificity(bool valid = true);
   Specificity(int a, int b, int c, int d);
 
-  void setValid(bool b);
+  bool isValid() const { return valid_; }
+  bool operator==(const Specificity& other) const;
+
   void setA(int a);
   void setB(int b);
   void setC(int c);
   void setD(int d);
 
-  bool isValid() const;
   bool isSmallerThen(const Specificity& other) const;
   bool isGreaterThen(const Specificity& other) const;
   bool isSmallerOrEqualThen(const Specificity& other) const;
   bool isGreaterOrEqualThen(const Specificity& other) const;
 
+private:
 #ifndef WT_TARGET_JAVA
-  operator bool() const { return isValid(); }
+  unsigned value_; // using 4 LSB bytes only
+#else
+  long long value_;
 #endif
 
-private:
-  char value_[SPECIFICITY_LEN];
+  bool valid_;
 };
 
   }

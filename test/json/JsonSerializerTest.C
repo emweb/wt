@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( json_generate_array )
 	      "  false,"
 	      "  null,"
 	      "  10,"
-	      "  3.141592,"
+	      "  -3.141592,"
 	      "  0.0000369,"
 	      "  1.23e4,"
 	      "  {"
