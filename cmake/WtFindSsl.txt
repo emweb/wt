@@ -10,7 +10,9 @@
 # with /MDd, and release with /MD. Apparently that is what CMake uses for
 # these modes; it is currently unclear to me if cmake ever uses /MT variants.
 
-# default OSX SSL library is not OK, does not work with asio
+# Mac OS X: The system OpenSSL is deprecated since 10.7 (replaced by Common
+# Crypto). As such, it is rarely updated and is a security risk. You should
+# install a recent OpenSSL using either macports or brew.
 IF(APPLE)
   FIND_PATH(SSL_INCLUDE_DIRS
       openssl/ssl.h
@@ -18,7 +20,6 @@ IF(APPLE)
       ${SSL_PREFIX}/include/
       /usr/include/
       /usr/local/include/
-      c:/openssl/include/
     NO_DEFAULT_PATH
   )
 ELSE(APPLE)

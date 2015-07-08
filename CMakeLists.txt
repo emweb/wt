@@ -234,7 +234,13 @@ ELSE(WIN32)
     SET(CONFIGDIR "/etc/wt" CACHE STRING "Path for the configuration files")
   ENDIF( NOT DEFINED CONFIGDIR )
 
-  SET(USERLIB_PREFIX_DEFAULT "/usr")
+  # If the user specifies the standard CMAKE_PREFIX_PATH to find packages,
+  # honour it.
+  IF(CMAKE_PREFIX_PATH)
+    SET(USERLIB_PREFIX_DEFAULT ${CMAKE_PREFIX_PATH})
+  ELSE()
+    SET(USERLIB_PREFIX_DEFAULT "/usr")
+  ENDIF()
 
 ENDIF(WIN32)
 
