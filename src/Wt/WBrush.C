@@ -51,6 +51,7 @@ WBrush WBrush::clone() const
 
 void WBrush::setColor(const WColor& color)
 {
+  checkModifiable();
   color_ = color;
   if (style_ == GradientPattern)
     style_ = SolidPattern;
@@ -58,6 +59,7 @@ void WBrush::setColor(const WColor& color)
 
 void WBrush::setGradient(const WGradient& gradient)
 {
+  checkModifiable();
   if (!gradient_.isEmpty()) {
     gradient_ = gradient;
     style_ = GradientPattern;
@@ -66,6 +68,7 @@ void WBrush::setGradient(const WGradient& gradient)
 
 void WBrush::setStyle(BrushStyle style)
 {
+  checkModifiable();
   style_ = style;
 }
 

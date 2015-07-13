@@ -349,7 +349,7 @@ void Widget::getDomChanges(std::vector<DomElement *>& result,
   result.push_back(e);
 }
 
-std::string Widget::renderRemoveJs()
+std::string Widget::renderRemoveJs(bool recursive)
 {
   return elRef() + ".hide();" WT_CLASS ".remove('" + id() + "');";
 }

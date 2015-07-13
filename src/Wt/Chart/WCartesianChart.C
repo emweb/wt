@@ -543,7 +543,7 @@ bool SeriesRenderIterator::startSeries(const WDataSeries& series,
 
   series_ = &series;
 
-  painter_.save();
+  if (seriesRenderer_ != 0) painter_.save();
 
   return seriesRenderer_ != 0;
 }
@@ -705,7 +705,6 @@ public:
       
       if (!marker_.isEmpty()) {
 	painter_.save();
-	WTransform currentTransform = (WTransform()).translate(chart.combinedTransform().map(hv(p)));
 
 	WPen pen = WPen(series.markerPen());
 	setPenColor(pen, xIndex, yIndex, MarkerPenColorRole);
@@ -714,13 +713,16 @@ public:
 	setBrushColor(brush, xIndex, yIndex, MarkerBrushColorRole);
 	setMarkerSize(painter_, xIndex, yIndex, series.markerSize());
 
+	WTransform currentTransform = ((WTransform()).translate(chart.combinedTransform().map(hv(p)))) * scale_;
+	painter_.setWorldTransform(currentTransform, false);
+
 	painter_.setShadow(series.shadow());
 	if (series.marker() != CrossMarker &&
 	    series.marker() != XCrossMarker) {
-	  painter_.fillPath(currentTransform.map(marker_), brush);
+	  painter_.fillPath(marker_, brush);
 	  painter_.setShadow(WShadow());
 	}
-	painter_.strokePath(currentTransform.map(marker_), pen);
+	painter_.strokePath(marker_, pen);
 
 	painter_.restore();
       }
@@ -757,6 +759,7 @@ private:
   WPainter& painter_;
   WPainterPath marker_;
   bool needRestore_;
+  WTransform scale_;
 
   void setMarkerSize(WPainter& painter,
 	  	     const WModelIndex& xIndex,
@@ -776,7 +779,7 @@ private:
 
   dScale = markerSize / 6 * dScale;
 
-  painter.scale(dScale, dScale);
+  scale_ = WTransform(dScale, 0, 0, dScale, 0, 0);
 }
 
 };
@@ -1276,8 +1279,6 @@ WPainterPath WCartesianChart::pathForSeries(int modelColumn) const
   return WPainterPath();
 }
 
-// TODO(Roel): Maybe introduce some new methods akin to
-//	       updateGL, paintGL, initGL?
 DomElement *WCartesianChart::createDomElement(WApplication *app)
 {
   if (isInteractive()) {
@@ -2127,7 +2128,13 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     if (axis.location() == ZeroValue) {
       clipRect = area;
     } else if (vertical != /*XOR*/ (orientation() == Horizontal)) {
-      clipRect = WRectF(0.0, area.top(), vertical ? width_ : height_, area.height());
+      double h = area.height();
+      if (location_[XAxis] == ZeroValue &&
+	  this->axis(XAxis).location() == MinimumValue &&
+	  orientation() == Vertical) {
+	h += 1; // prevent clipping off of zero tick
+      }
+      clipRect = WRectF(0.0, area.top(), vertical ? width_ : height_, h);
     } else {
       clipRect = WRectF(area.left(), 0.0, area.width(), vertical ? height_ : width_);
     }
@@ -2325,7 +2332,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	  WPaintDevice *device = painter.device();
 	  if (axis.tickDirection() == Outwards) extraMargin = axis.calcMaxTickLabelSize(device, Vertical);
 	  if (locations[l] != MaximumValue) extraMargin = -extraMargin;
-	  AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignLeft : AlignRight) | AlignMiddle;
+	  WFlags<AlignmentFlag> alignment = (locations[l] == MaximumValue ? AlignLeft : AlignRight) | AlignMiddle;
 	  renderLabel(painter, axis.title(),
 		      WPointF(u + extraMargin, chartArea_.center().y()), alignment, 0, 10);
         }
@@ -2341,7 +2348,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 	    if (axis.tickDirection() == Outwards) extraMargin = 15;
 	  }
 	  if (locations[l] == MaximumValue) extraMargin = -extraMargin;
-	  AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignBottom : AlignTop) | AlignCenter;
+	  WFlags<AlignmentFlag> alignment = (locations[l] == MaximumValue ? AlignBottom : AlignTop) | AlignCenter;
 	  renderLabel(painter, axis.title(),
 		      WPointF(chartArea_.center().x(), u + extraMargin),
 		      alignment, 0, 10);
@@ -2362,7 +2369,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 			WPointF(chartArea_.center().x(), u + extraMargin),
 			AlignMiddle | AlignCenter, locations[l] == MaximumValue ? -90 : 90, 10);
 	  } else {
-	    AlignmentFlag alignment = (locations[l] == MaximumValue ? AlignBottom : AlignTop) | AlignLeft;
+	    WFlags<AlignmentFlag> alignment = (locations[l] == MaximumValue ? AlignBottom : AlignTop) | AlignLeft;
 	    renderLabel(painter, axis.title(), WPointF(chartArea_.right(), u), alignment, 0, 8);
 	  }
 	}

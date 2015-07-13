@@ -2929,7 +2929,7 @@ protected:
   virtual void updateDom(DomElement &element, bool all);
 
   virtual void render(WFlags<RenderFlag> flags);
-  virtual std::string renderRemoveJs();
+  virtual std::string renderRemoveJs(bool recursive);
 
   virtual void layoutSizeChanged(int width, int height);
 

@@ -66,7 +66,16 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * \sa WPainter::drawPath()
+ * <h3>JavaScript exposability</h3>
+ *
+ * A %WPainterPath is JavaScript exposable. If a %WPainterPath \link isJavaScriptBound()
+ * is JavaScript bound\endlink, it can be accessed in your custom JavaScript
+ * code through \link WJavaScriptHandle::jsRef() its handle's jsRef()\endlink.
+ *
+ * \warning A %WPainterPath that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
+ *	    Any attempt at modifying it will cause an exception to be thrown.
+ *
+ * \sa WPainter::drawPath(), WPaintedWidget::createJSPainterPath()
  *
  * \ingroup painting
  */
@@ -130,6 +139,8 @@ public:
    * Draws a line from the current position to the start position of
    * the last sub path (which is the end point of the last move
    * operation), and sets the current position to (0, 0).
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    */
   void closeSubPath();
   
@@ -137,6 +148,8 @@ public:
    *
    * Moves the current position to a new point, implicitly closing the last
    * sub path.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa closeSubPath(), moveTo(double, double)
    */
@@ -147,6 +160,8 @@ public:
    * Moves the current position to a new point, implicitly closing the last
    * sub path.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa closeSubPath(), moveTo(const WPointF&)
    */
   void moveTo(double x, double y);
@@ -156,6 +171,8 @@ public:
    * Draws a straight line from the current position to \p point,
    * which becomes the new current position.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa lineTo(double, double)
    */
   void lineTo(const WPointF& point);
@@ -164,6 +181,8 @@ public:
    *
    * Draws a straight line from the current position to (\p x,
    * \p y), which becomes the new current position.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa lineTo(const WPointF&)
    */
@@ -175,6 +194,8 @@ public:
    * \p endPoint, which becomes the new current position. The
    * bezier curve uses the two control points <i>c1</i> and \p c2.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa cubicTo(double, double, double, double, double, double)
    */
   void cubicTo(const WPointF& c1, const WPointF& c2, const WPointF& endPoint);
@@ -182,6 +203,8 @@ public:
   /*! \brief Draws a cubic bezier curve.
    *
    * This is an overloaded method provided for convenience.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa cubicTo(const WPointF&, const WPointF&, const WPointF&)
    */
@@ -199,6 +222,8 @@ public:
    * Implicitly draws a line from the current position to the start of
    * the arc, if the current position is different from the start.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa arcMoveTo()
    */
   void arcTo(double cx, double cy, double radius,
@@ -210,6 +235,8 @@ public:
    * (<i>cx</i>, <i>cy</i>) and \p radius, and the point is at
    * \p angle degrees measured counter-clockwise starting from the
    * 3 o'clock position.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa arcTo()
    */
@@ -223,6 +250,8 @@ public:
    * \p angle degrees measured counter-clockwise starting from the
    * 3 o'clock position.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa arcTo()
    */
   void arcMoveTo(double x, double y, double width, double height, double angle);
@@ -233,6 +262,8 @@ public:
    * \p endPoint, which becomes the new current position. The
    * bezier curve uses the single control point \p c.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa quadTo(double, double, double, double)
    */
   void quadTo(const WPointF& c, const WPointF& endPoint);
@@ -240,6 +271,8 @@ public:
   /*! \brief Draws a quadratic bezier curve.
    *
    * This is an overloaded method provided for convenience.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa quadTo(const WPointF&, const WPointF&)
    */
@@ -251,6 +284,8 @@ public:
    * bounded by the rectangle \p boundingRectangle.
    *
    * \p Note: some renderers only support circles (width == height)
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa addEllipse(double, double, double, double), arcTo()
    */
@@ -264,6 +299,8 @@ public:
    *
    * \note Some renderers only support circles (width == height)
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa addEllipse(const WRectF&), arcTo()
    */
   void addEllipse(double x, double y, double width, double height);
@@ -272,6 +309,8 @@ public:
    *
    * This method closes the current sub path, and adds a rectangle
    * that is defined by \p rectangle.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa addRect(double, double, double, double)
    */
@@ -283,6 +322,8 @@ public:
    * that is defined by top left position (<i>x</i>, \p y), and
    * size <i>width</i> x \p height.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa addRect(const WRectF&)
    */
   void addRect(double x, double y, double width, double height);
@@ -292,6 +333,8 @@ public:
    * If the first point is different from the current position, the last
    * sub path is first closed, otherwise the last sub path is extended
    * with the polygon.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa moveTo(), lineTo()
    */
@@ -304,6 +347,8 @@ public:
    * sub path is first closed, otherwise the last sub path is extended
    * with the path's first sub path.
    *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa connectPath(const WPainterPath&)
    */
   void addPath(const WPainterPath& path);
@@ -314,6 +359,8 @@ public:
    * begin position is different from the current position, the last
    * sub path is first closed, otherwise the last sub path is extended
    * with the path's first sub path.
+   *
+   * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa connectPath(const WPainterPath&)
    */
@@ -364,6 +411,14 @@ public:
   WRectF controlPointRect(const WTransform& transform = WTransform::Identity)
     const;
 
+  /*! \brief Returns a copy of the path where straight lines are moved to be rendered crisply.
+   *
+   * This is intended to be used on rectangles, or other paths consisting of only
+   * straight line, and will nudge every edge a little bit, so that 1px straight lines are
+   * rendered as a crisp line.
+   *
+   * This will also work if the path \link isJavaScriptBound() is JavaScript bound\endlink.
+   */
   WPainterPath crisp() const;
 
   virtual std::string jsValue() const WT_CXX11ONLY(override) ;

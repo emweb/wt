@@ -19,6 +19,22 @@ class WPointF;
  *
  * The rectangle is defined by a top-left point and a width and height.
  *
+ * <h3>JavaScript exposability</h3>
+ *
+ * A %WRectF is JavaScript exposable. If a %WRectF \link isJavaScriptBound()
+ * is JavaScript bound\endlink, it can be accessed in your custom JavaScript
+ * code through \link WJavaScriptHandle::jsRef() its handle's jsRef()\endlink.
+ * A rectangle is represented in JavaScript as an array of four elements (x,y,width,height), e.g. a rectangle
+ * WRectF(10,20,30,40) will be represented in JavaScript as:
+ * \code
+ * [10, 20, 30, 40]
+ * \endcode
+ *
+ * \warning A %WRectF that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
+ *	    Any attempt at modifying it will cause an exception to be thrown.
+ *
+ * \sa WPaintedWidget::createJSRect()
+ *
  * \ingroup painting
  */
 class WT_API WRectF : public WJavaScriptExposableObject
@@ -90,7 +106,7 @@ public:
    * The right side of the rectangle does not move, and as a result,
    * the rectangle may be resized.
    *
-   * \note This method is not supported if this rectangle isJavaScriptBound()
+   * \throws WException if the rectangle \link isJavaScriptBound() is JavaScript bound\endlink
    */
   void setX(double x);
 
@@ -99,7 +115,7 @@ public:
    * The bottom side of the rectangle does not move, and as a result,
    * the rectangle may be resized.
    *
-   * \note This method is not supported if this rectangle isJavaScriptBound()
+   * \throws WException if the rectangle \link isJavaScriptBound() is JavaScript bound\endlink
    */
   void setY(double y);
 
@@ -108,7 +124,7 @@ public:
    * The right side of the rectangle may move, but this does not
    * affect the left side.
    *
-   * \note This method is not supported if this rectangle isJavaScriptBound()
+   * \throws WException if the rectangle \link isJavaScriptBound() is JavaScript bound\endlink
    */
   void setWidth(double width) { width_ = width; }
 
@@ -117,7 +133,7 @@ public:
    * The bottom side of the rectangle may move, but this does not
    * affect the Y position of the top side.
    *
-   * \note This method is not supported if this rectangle isJavaScriptBound()
+   * \throws WException if the rectangle \link isJavaScriptBound() is JavaScript bound\endlink
    */
   void setHeight(double height) { height_ = height; }
 
@@ -214,20 +230,20 @@ public:
   bool contains(double x, double y) const;
 
   /*! \brief Tests if two rectangles intersect.
-   *
-   * \note This method is not supported if this rectangle isJavaScriptBound()
    */
   bool intersects(const WRectF& other) const;
 
   /*! \brief Makes the union of to rectangles.
    *
-   * \note This method is not supported if this rectangle isJavaScriptBound()
+   * \note This method is not supported if this rectangle \link isJavaScriptBound() is JavaScript bound\endlink.
    */
   WRectF united(const WRectF& other) const;
 
   /*! \brief Returns a normalized rectangle.
    *
    * A normalized rectangle has a positive width and height.
+   *
+   * This method supports JavaScript bound rectangles.
    */
   WRectF normalized() const;
 

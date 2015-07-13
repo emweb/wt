@@ -62,13 +62,17 @@ public:
   }
 
 protected:
-  virtual std::string renderRemoveJs()
+  virtual std::string renderRemoveJs(bool recursive)
   {
-    if (isRendered())
-      return player_->jsPlayerRef() + ".jPlayer('destroy');"
-	WT_CLASS ".remove('" + id() + "');";
-    else
-      return WTemplate::renderRemoveJs();
+    if (isRendered()) {
+      std::string result = player_->jsPlayerRef() + ".jPlayer('destroy');";
+
+      if (!recursive)
+	result += WT_CLASS ".remove('" + id() + "');";
+
+      return result;
+    } else
+      return WTemplate::renderRemoveJs(recursive);
   }
 
   virtual void setFormData(const FormData& formData)

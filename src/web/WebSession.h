@@ -258,6 +258,8 @@ private:
   void handleWebSocketRequest(Handler& handler);
   static void handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 				     WebReadEvent event);
+  static void webSocketConnect(boost::weak_ptr<WebSession> session,
+			       WebWriteEvent event);
   static void webSocketReady(boost::weak_ptr<WebSession> session,
 			     WebWriteEvent event);
 
@@ -291,8 +293,8 @@ private:
   std::string redirect_;
   std::string pagePathInfo_;
   std::string pongMessage_;
-  WebResponse *asyncResponse_, *bootStyleResponse_;
-  bool canWriteAsyncResponse_;
+  WebResponse *asyncResponse_, *webSocket_, *bootStyleResponse_;
+  bool canWriteWebSocket_, webSocketConnected_;
   int pollRequestsIgnored_;
   bool progressiveBoot_;
 

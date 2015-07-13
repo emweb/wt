@@ -296,9 +296,22 @@ void WWebWidget::setDecorationStyle(const WCssDecorationStyle& style)
 #endif // WT_TARGET_JAVA
 }
 
-std::string WWebWidget::renderRemoveJs()
+std::string WWebWidget::renderRemoveJs(bool recursive)
 {
-  return "_" + id();
+  std::string result;
+
+  if (children_)
+    for (unsigned i = 0; i < children_->size(); ++i)
+      result += (*children_)[i]->webWidget()->renderRemoveJs(true);
+
+  if (!recursive) {
+    if (result.empty())
+      result = "_" + id();
+    else
+      result += WT_CLASS ".remove('" + id() + "');";
+  }
+
+  return result;
 }
 
 void WWebWidget::removeChild(WWidget *child)
@@ -310,7 +323,7 @@ void WWebWidget::removeChild(WWidget *child)
   assert (i != -1);
 
   if (!flags_.test(BIT_IGNORE_CHILD_REMOVES)) {
-    std::string js = child->webWidget()->renderRemoveJs();
+    std::string js = child->webWidget()->renderRemoveJs(false);
 
     if (!transientImpl_)
       transientImpl_ = new TransientImpl();
@@ -321,29 +334,6 @@ void WWebWidget::removeChild(WWidget *child)
 
     repaint(RepaintSizeAffected);
   }
-
-  /*
-    -- does not work properly: should in reality propagate the render
-    remove to all grand children; but perhaps we don't need this
-
-    std::vector<DomElement *> *nestedRemoveChanges
-      = w->webWidget()->childRemoveChanges_;
-
-    if (nestedRemoveChanges_) {
-      for (unsigned k = 0; k < w->nestedRemoveChanges_->size(); ++k) {
-	DomElement *f = (*nestedRemoveChanges_)[k];
-
-	if (!f->discardWithParent()) {
-	  if (!childRemoveChanges_)
-	    childRemoveChanges_ = new std::vector<DomElement *>;
-	  childRemoveChanges_->push_back(f);
-
-	  nestedRemoveChanges_->erase(nestedRemoveChanges_->begin() + k);
-	  --k;
-	}
-      }
-    }
-    */
 
   child->setParent(0);
     

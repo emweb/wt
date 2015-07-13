@@ -44,6 +44,23 @@ class WRectF;
  *
  * with <i>T</i> a translation, <i>R</i> a rotation, <i>Sxx</i> a scale, and <i>Sxy</i> a skew component.
  *
+ * <h3>JavaScript exposability</h3>
+ *
+ * A %WTransform is JavaScript exposable. If a %WTransform \link isJavaScriptBound()
+ * is JavaScript bound\endlink, it can be accessed in your custom JavaScript
+ * code through \link WJavaScriptHandle::jsRef() its handle's jsRef()\endlink.
+ * A transform is represented as a JavaScript array, e.g. a WTransform(m11, m12, m21, m22, dx, dy)
+ * will be represented in JavaScript by:
+ * \code
+ * [m11, m12, m21, m22, dx, dy]
+ * \endcode
+ *
+ * As an exception to the general rule that \link isJavaScriptBound() JavaScript bound\endlink objects
+ *	 should not be modified, %WTransform does support many modifications. These modifications will then
+ *	 accumulate in the JavaScript representation of the transform.
+ *	 
+ * TODO(Roel): add an example?
+ *
  * \ingroup painting
  */
 class WT_API WTransform : public WJavaScriptExposableObject
@@ -99,6 +116,8 @@ public:
   /*! \brief Identity check.
    *
    * Returns true if the transform represents an identity transformation.
+   *
+   * \note This is always false if the transform is \link isJavaScriptBound() JavaScript bound\endlink.
    */
   bool isIdentity() const;
   
@@ -158,6 +177,10 @@ public:
    *
    * Returns the transformed point.
    *
+   * \note If this transform or the given point
+   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
+   * 	   the resulting point will also be JavaScript bound.
+   *
    * \sa map(double x, double y, double *tx, double *ty) const
    */
   WPointF map(const WPointF& p) const;
@@ -176,6 +199,10 @@ public:
    * Since the rectangle is aligned with X and Y axes, this may
    * increase the size of the rectangle even for a transformation that
    * only rotates.
+   *
+   * \note If this transform or the given rectangle
+   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
+   * 	   the resulting rectangle will also be JavaScript bound.
    */
   WRectF map(const WRectF& rect) const;
 
@@ -183,10 +210,16 @@ public:
    *
    * This will transform all individual points according to
    * the transformation. The radius of arcs will be unaffected.
+   *
+   * \note If this transform or the given path
+   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
+   * 	   the resulting path will also be JavaScript bound.
    */
   WPainterPath map(const WPainterPath& path) const;
 
   /*! \brief Resets the transformation to the identity.
+   *
+   * \throws WException if the transform \link isJavaScriptBound() is JavaScript bound\endlink
    *
    * \sa isIdentity(), WTransform()
    */
@@ -232,6 +265,14 @@ public:
    */
   WTransform& translate(double dx, double dy);
   
+  /*! \brief Translates the transformation.
+   *
+   * Translates the current transformation.
+   *
+   * \note If this transform or the given point
+   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
+   * 	   the resulting transform will also be JavaScript bound.
+   */
   WTransform& translate(const WPointF& p);
 
   /*! \brief Adds a transform that is conceptually applied after this transform.

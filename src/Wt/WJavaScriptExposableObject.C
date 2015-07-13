@@ -6,6 +6,7 @@
  */
 
 #include "WJavaScriptExposableObject"
+#include "Wt/WException"
 #include "Wt/WLogger"
 
 #include <cassert>
@@ -58,13 +59,6 @@ std::string WJavaScriptExposableObject::jsRef() const
   else return jsValue();
 }
 
-bool WJavaScriptExposableObject::sameContextAs(const WJavaScriptExposableObject &rhs) const
-{
-  if (!clientBinding_ && !rhs.clientBinding_) return true; // No binding
-  else if (clientBinding_ && rhs.clientBinding_) return clientBinding_->context_ == rhs.clientBinding_->context_;
-  else return false; // One is bound, the other is not
-}
-
 bool WJavaScriptExposableObject::sameBindingAs(const WJavaScriptExposableObject &rhs) const
 {
   if (!clientBinding_ && !rhs.clientBinding_) return true; // No binding
@@ -94,6 +88,13 @@ void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject 
     clientBinding_ = new WJavaScriptExposableObject::JSInfo(*rhs.clientBinding_);
   }
   clientBinding_->jsRef_ = jsRef;
+}
+
+void WJavaScriptExposableObject::checkModifiable()
+{
+  if (isJavaScriptBound()) {
+    throw WException("Trying to modify a JavaScript bound object!");
+  }
 }
 
 WJavaScriptExposableObject::JSInfo::JSInfo(WJavaScriptObjectStorage *context, const std::string &jsRef)

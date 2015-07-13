@@ -607,7 +607,7 @@
   /* needed for IE only */
 
   white-space: nowrap;
-  height: 20px;
+  height: 100%;
 }
 .Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
   overflow: visible;
@@ -669,6 +669,9 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
 
   /* borders */
 
+}
+.Wt-tableview select {
+  width: 100%;
 }
 .Wt-tableview .Wt-header .Wt-tv-c {
   padding-left: 6px;

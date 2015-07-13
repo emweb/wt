@@ -1398,7 +1398,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
   if (handler && handler->haveLock() && handler->session() == appSession.get())
     return;
 
-  if (appSession.get())
+  if (appSession.get() && !appSession->dead())
     impl_ = new UpdateLockImpl(app);
   else
     ok_ = false;

@@ -927,7 +927,7 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
     text-overflow: ellipsis;
     overflow: hidden; /* needed for IE only */
     white-space: nowrap;
-	height: 20px;
+	height: 100%;
 }
 
 .Wt-itemview .Wt-header .Wt-disabled .Wt-label {

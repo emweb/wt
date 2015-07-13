@@ -96,6 +96,7 @@ bool WTransform::isIdentity() const
 
 void WTransform::reset()
 {
+  checkModifiable();
   m_[M11] = m_[M22] = 1;
   m_[M21] = m_[M12] = m_[M13] = m_[M23] = 0;
 }

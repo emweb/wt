@@ -57,7 +57,7 @@ protected:
   virtual void           getDomChanges(std::vector<DomElement *>& result,
 				       WApplication *app);
   virtual void           propagateRenderOk(bool deep);
-  virtual std::string    renderRemoveJs();
+  virtual std::string    renderRemoveJs(bool recursive);
 
   virtual void createConfig(std::ostream& config);
   virtual void updateExt();

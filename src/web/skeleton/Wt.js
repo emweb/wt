@@ -2729,12 +2729,14 @@ function waitFeedback() {
   showLoadingIndicator();
 }
 
-/** @const */ var WebSocketsUnknown = 0;
-/** @const */ var WebSocketsWorking = 1;
-/** @const */ var WebSocketsUnavailable = 2;
+/** @const */ var WebSocketUnknown = 0;
+/** @const */ var WebSocketConnecting = 1;
+/** @const */ var WebSocketAckConnect = 2;
+/** @const */ var WebSocketWorking = 3;
+/** @const */ var WebSocketUnavailable = 4;
 
 var websocket = {
-  state: WebSocketsUnknown,
+  state: WebSocketUnknown,
   socket: null,
   keepAlive: null,
   reconnectTries: 0
@@ -2761,6 +2763,11 @@ function doJavaScript(js) {
 
   if (self == window._$_APP_CLASS_$_)
     doAutoJavaScript();
+}
+
+function webSocketAckConnect() {
+  websocket.socket.send('&signal=none&connected=' + ackUpdateId);
+  websocket.state = WebSocketWorking;
 }
 
 function handleResponse(status, msg, timer) {
@@ -2815,6 +2822,9 @@ _$_$endif_$_();
 
   if (quitted)
     return;
+
+  if (websocket.state == WebSocketAckConnect)
+    webSocketAckConnect();
 
   if (serverPush || pendingEvents.length > 0) {
     if (status == 1) {
@@ -2933,16 +2943,16 @@ function scheduleUpdate() {
   }
 
 _$_$if_WEB_SOCKETS_$_();
-  if (websocket.state != WebSocketsUnavailable) {
+  if (websocket.state != WebSocketUnavailable) {
     if (typeof window.WebSocket === UNDEFINED
         && typeof window.MozWebSocket === UNDEFINED)
-      websocket.state = WebSocketsUnavailable;
+      websocket.state = WebSocketUnavailable;
     else {
       var ws = websocket.socket;
 
       if ((ws == null || ws.readyState > 1)) {
-	if (ws != null && websocket.state == WebSocketsUnknown)
-	  websocket.state = WebSocketsUnavailable;
+	if (ws != null && websocket.state == WebSocketUnknown)
+	  websocket.state = WebSocketUnavailable;
 	else {
 	  function reconnect() {
 	    if (!quitted) {
@@ -2969,27 +2979,51 @@ _$_$if_WEB_SOCKETS_$_();
 	  else
 	    websocket.socket = ws = new MozWebSocket(wsurl);
 
+	  websocket.state = WebSocketConnecting;
+
 	  if (websocket.keepAlive)
 	    clearInterval(websocket.keepAlive);
 	  websocket.keepAlive = null;
 
 	  ws.onmessage = function(event) {
+	    var js = null;
+	    if (websocket.state == WebSocketConnecting) {
+	      if (event.data == "connect") {
+		if (responsePending != null && pollTimer != null) {
+		  clearTimeout(pollTimer);
+		  responsePending.abort();
+		  responsePending = null;
+		}
+
+		if (responsePending)
+		  websocket.state = WebSocketAckConnect;
+		else
+		  webSocketAckConnect();
+	      } else {
+		console.log("WebSocket: was expecting a connect?");
+		return;
+	      }
+	    } else {
+	      if (connectionMonitor)
+		connectionMonitor.onStatusChange('websocket', true);
+              websocket.state = WebSocketWorking;
+	      js = event.data;
+	    }
+
 	    websocket.reconnectTries = 0;
-	    websocket.state = WebSocketsWorking;
-	    handleResponse(0, event.data, null);
-	    if(connectionMonitor)
-			 connectionMonitor.onStatusChange('websocket', true);
+	    if (js != null)
+              handleResponse(0, js, null);
 	  };
 
 	  ws.onerror = function(event) {
 	    /*
 	     * Sometimes, we can connect but cannot send data
 	     */
-	    if(connectionMonitor)
-			 connectionMonitor.onStatusChange('websocket', false);
+	    if (connectionMonitor)
+		connectionMonitor.onStatusChange('websocket', false);
 	    if (websocket.reconnectTries == 3 &&
-		websocket.state == WebSocketsUnknown)
-	      websocket.state = WebSocketsUnavailable;
+		websocket.state == WebSocketUnknown)
+	      websocket.state = WebSocketUnavailable;
 	    reconnect();
 	  };
 
@@ -3000,8 +3034,8 @@ _$_$if_WEB_SOCKETS_$_();
 	    if(connectionMonitor)
 			 connectionMonitor.onStatusChange('websocket', false);
 	    if (websocket.reconnectTries == 3 &&
-		websocket.state == WebSocketsUnknown)
-	      websocket.state = WebSocketsUnavailable;
+		websocket.state == WebSocketUnknown)
+	      websocket.state = WebSocketUnavailable;
 	    reconnect();
 	  };
 
@@ -3016,18 +3050,20 @@ _$_$if_WEB_SOCKETS_$_();
 	     *
 	     * So, we ping pong ourselves.
 	     */
-	    if(connectionMonitor) {
-			 connectionMonitor.onStatusChange('websocket', true);
-			 connectionMonitor.onStatusChange('connectionStatus', 1);
-		}
+	    if (connectionMonitor) {
+		connectionMonitor.onStatusChange('websocket', true);
+		connectionMonitor.onStatusChange('connectionStatus', 1);
+	    }
 
-	    ws.send('&signal=ping'); // to get our first onmessage
+	    /*
+	      ws.send('&signal=ping'); // to get our first onmessage
+	     */
 	    schedulePing();
 	  };
 	}
       }
 
-      if (ws.readyState == 1) {
+      if ((ws.readyState == 1) && (ws.state == WebSocketWorking)) {
 	schedulePing();
 	sendUpdate();
 	return;
@@ -3133,7 +3169,9 @@ function sendUpdate() {
   if (params.length > 0)
     data.result += '&' + params;
 
-  if (websocket.socket != null && websocket.socket.readyState == 1) {
+  if ((websocket.socket != null) &&
+      (websocket.socket.readyState == 1) &&
+      (websocket.state == WebSocketWorking)) {
     responsePending = null;
 
     if (tm != null) {

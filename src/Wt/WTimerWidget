@@ -35,7 +35,7 @@ private:
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
-  virtual std::string renderRemoveJs();
+  virtual std::string renderRemoveJs(bool recursive);
 
   virtual void enableAjax();
 

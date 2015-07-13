@@ -67,32 +67,38 @@ WPen WPen::clone() const
 
 void WPen::setStyle(PenStyle style)
 {
+  checkModifiable();
   penStyle_ = style;
 }
 
 void WPen::setCapStyle(PenCapStyle style)
 {
+  checkModifiable();
   penCapStyle_ = style;
 }
 
 void WPen::setJoinStyle(PenJoinStyle style)
 {
+  checkModifiable();
   penJoinStyle_ = style;
 }
 
 void WPen::setWidth(const WLength& width)
 {
+  checkModifiable();
   width_ = width;
 }
 
 void WPen::setColor(const WColor& color)
 {
+  checkModifiable();
   color_ = color;
   gradient_ = WGradient();
 }
 
 void WPen::setGradient(const WGradient& gradient)
 {
+  checkModifiable();
   gradient_ = gradient;
 }
 

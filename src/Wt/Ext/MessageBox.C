@@ -202,7 +202,7 @@ void MessageBox::createConfig(std::ostream& config)
 	 << extButtonClicked_.createCall("b","v") << "}";
 }
 
-std::string MessageBox::renderRemoveJs()
+std::string MessageBox::renderRemoveJs(bool recursive)
 {
   throw WException("MessageBox::renderRemoveJs(): really?");
 }

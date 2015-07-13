@@ -237,7 +237,7 @@ public:
   JSignal<>& rendered() { return onRender_; }
 
 protected:
-  virtual std::string renderRemoveJs();
+  virtual std::string renderRemoveJs(bool recursive);
   virtual void updateDom(DomElement& element, bool all);
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);

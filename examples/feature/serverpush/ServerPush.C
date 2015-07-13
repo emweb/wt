@@ -43,7 +43,8 @@ public:
   }
 
   virtual ~BigWorkWidget() {
-    workThread_.join();
+    if (workThread_.get_id() != boost::this_thread::get_id())
+      workThread_.join();
   }
 
 private:
@@ -84,7 +85,8 @@ private:
       if (uiLock) {
 	progress_->setValue(i + 1);
 	app->triggerUpdate();
-      }
+      } else
+	return;
     }
 
     Wt::WApplication::UpdateLock uiLock(app);
@@ -97,7 +99,8 @@ private:
 
       // Disable server push
       app->enableUpdates(false);
-    }
+    } else
+      return;
   }
 };
 

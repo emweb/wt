@@ -159,6 +159,7 @@ WPointF WPainterPath::getSubPathStart() const
 
 void WPainterPath::closeSubPath()
 {
+  checkModifiable();
   moveTo(0, 0);
 }
 
@@ -195,6 +196,7 @@ void WPainterPath::moveTo(const WPointF& point)
 
 void WPainterPath::moveTo(double x, double y)
 {
+  checkModifiable();
   /*
    * first close previous sub path
    */
@@ -216,6 +218,7 @@ void WPainterPath::lineTo(const WPointF& point)
 
 void WPainterPath::lineTo(double x, double y)
 {
+  checkModifiable();
   segments_.push_back(Segment(x, y, Segment::LineTo));
 }
 
@@ -228,6 +231,7 @@ void WPainterPath::cubicTo(const WPointF& c1, const WPointF& c2,
 void WPainterPath::cubicTo(double c1x, double c1y, double c2x, double c2y,
 			   double endPointx, double endPointy)
 {
+  checkModifiable();
   segments_.push_back(Segment(c1x, c1y, Segment::CubicC1));
   segments_.push_back(Segment(c2x, c2y, Segment::CubicC2));
   segments_.push_back(Segment(endPointx, endPointy, Segment::CubicEnd));
@@ -243,6 +247,7 @@ void WPainterPath::arcTo(double cx, double cy, double radius,
 void WPainterPath::arcTo(double x, double y, double width, double height,
 			 double startAngle, double sweepLength)
 {
+  checkModifiable();
   segments_.push_back(Segment(x + width/2, y + height/2, Segment::ArcC));
   segments_.push_back(Segment(width/2, height/2, Segment::ArcR));
   segments_.push_back(Segment(startAngle, sweepLength, Segment::ArcAngleSweep));
@@ -262,6 +267,7 @@ void WPainterPath::arcMoveTo(double x, double y, double width, double height,
 void WPainterPath::quadTo(double cx, double cy,
 			  double endPointX, double endPointY)
 {
+  checkModifiable();
   segments_.push_back(Segment(cx, cy, Segment::QuadC));
   segments_.push_back(Segment(endPointX, endPointY, Segment::QuadEnd));
 }
@@ -284,6 +290,7 @@ void WPainterPath::addEllipse(const WRectF& rect)
 
 void WPainterPath::addRect(double x, double y, double width, double height)
 {
+  checkModifiable();
   if (isEmpty())
     isRect_ = true;
 
@@ -301,6 +308,7 @@ void WPainterPath::addRect(const WRectF& rectangle)
 
 void WPainterPath::addPolygon(const std::vector<WPointF>& points)
 {
+  checkModifiable();
   if (!points.empty()) {
     unsigned i = 0;
     if (currentPosition() != points[0]) 
@@ -313,6 +321,7 @@ void WPainterPath::addPolygon(const std::vector<WPointF>& points)
 
 void WPainterPath::addPath(const WPainterPath& path)
 {
+  checkModifiable();
   if (currentPosition() != path.beginPosition())
     moveTo(path.beginPosition());
 
@@ -321,6 +330,7 @@ void WPainterPath::addPath(const WPainterPath& path)
 
 void WPainterPath::connectPath(const WPainterPath& path)
 {
+  checkModifiable();
   if (currentPosition() != path.beginPosition())
     lineTo(path.beginPosition());
 

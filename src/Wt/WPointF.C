@@ -33,6 +33,18 @@ WPointF WPointF::clone() const
 }
 #endif
 
+void WPointF::setX(double x)
+{
+  checkModifiable();
+  x_ = x;
+}
+
+void WPointF::setY(double y)
+{
+  checkModifiable();
+  y_ = y;
+}
+
 bool WPointF::operator== (const WPointF& other) const
 {
   if (!sameBindingAs(other)) return false;
@@ -47,6 +59,8 @@ bool WPointF::operator!= (const WPointF& other) const
 
 WPointF& WPointF::operator+= (const WPointF& other)
 {
+  checkModifiable();
+
   x_ += other.x_;
   y_ += other.y_;
 

@@ -808,6 +808,11 @@ WJavaScriptHandle<WRectF> WPaintedWidget::createJSRect()
   return jsObjects_.addObject(new WRectF(0,0,0,0));
 }
 
+WJavaScriptHandle<WPointF> WPaintedWidget::createJSPoint()
+{
+  return jsObjects_.addObject(new WPointF(0,0));
+}
+
 void WPaintedWidget::setFormData(const FormData& formData)
 {
   Http::ParameterValues parVals = formData.values;

@@ -161,7 +161,7 @@ void WebSocketMessage::error(const std::string& msg) const
 
 WebRequest *WebSocketMessage::webSocket() const
 {
-  return session_->asyncResponse_;
+  return session_->webSocket_;
 }
 
 }

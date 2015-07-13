@@ -204,7 +204,7 @@ private:
 
   void createConfig(std::ostream& config);
   void onClick(std::string buttonId, std::string value);
-  virtual std::string renderRemoveJs();
+  virtual std::string renderRemoveJs(bool recursive);
 
   static const char *buttonText_[];
 };

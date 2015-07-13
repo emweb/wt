@@ -20,7 +20,23 @@ namespace Wt {
  * shapes) are filled. A brush is defined either as a solid color
  * or a gradient.
  *
- * \sa WPainter::setBrush(), WPen
+ * <h3>JavaScript exposability</h3>
+ *
+ * A %WBrush is JavaScript exposable. If a %WBrush \link isJavaScriptBound()
+ * is JavaScript bound\endlink, it can be accessed in your custom JavaScript
+ * code through \link WJavaScriptHandle::jsRef() its handle's jsRef()\endlink.
+ * At the moment, only the color() property is exposed, e.g. a brush
+ * with the color WColor(10,20,30,255) will be represented in JavaScript as:
+ * \code
+ * {
+ *   color: [10,20,30,255]
+ * }
+ * \endcode
+ *
+ * \warning A %WBrush that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
+ *	    Any attempt at modifying it will cause an exception to be thrown.
+ *
+ * \sa WPainter::setBrush(), WPen, WPaintedWidget::createJSBrush()
  *
  * \ingroup painting
  */
@@ -77,6 +93,8 @@ public:
 
   /*! \brief Sets the brush style.
    *
+   * \throws WException if the brush \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa style()
    */
   void setStyle(BrushStyle style);
@@ -92,6 +110,8 @@ public:
    * If the current style is a gradient style, then it is reset to
    * \link Wt::SolidPattern SolidPattern\endlink.
    *
+   * \throws WException if the brush \link isJavaScriptBound() is JavaScript bound\endlink
+   *
    * \sa color()
    */
   void setColor(const WColor& color);
@@ -106,6 +126,8 @@ public:
    *
    * This also sets the style to
    * \link Wt::GradientPattern GradientPattern\endlink.
+   *
+   * \throws WException if the brush \link isJavaScriptBound() is JavaScript bound\endlink
    */
   void setGradient(const WGradient& gradient);
 

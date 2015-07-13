@@ -655,6 +655,19 @@ public:
    */
   const WPen& borderPen() const { return borderPen_; }
 
+  /*! @name Client side interaction
+   *
+   * These methods allow to activate the client side interactive features of
+   * a %WCartesianChart.
+   * 
+   * \note Client side interaction is only available if the chart is drawn
+   *       on an HTML canvas. This is the default rendering method on modern browsers.
+   * \note Some features are currently not supported in interactive mode:
+   *	  - Tooltips are not zoomed or panned along with the chart
+   *
+   * @{
+   */
+
   /*! \brief Enables zoom functionality.
    *
    * When using the mouse, press the ctrl key while scrolling to zoom in/out a specific point
@@ -756,6 +769,9 @@ public:
    */
   bool rubberBandEffectEnabled() const;
 
+  /*! @}
+   */
+
   void iterateSeries(SeriesIterator *iterator,
 		     WPainter *painter, bool reverseStacked = false) const;
 
@@ -782,9 +798,37 @@ private:
   mutable WRectF chartArea_;
   mutable AxisValue location_[3];
 
+  bool zoomEnabled_;
+  bool panEnabled_;
+  bool rubberBandEnabled_;
+  bool crosshairEnabled_;
+  int followCurve_;
+  bool cObjCreated_;
+
+  typedef std::map<int, WJavaScriptHandle<WPainterPath> > PainterPathMap;
+  PainterPathMap curvePaths_;
+  std::vector<WJavaScriptHandle<WPainterPath> > freePainterPaths_;
+
+  WJavaScriptHandle<WTransform> xTransform_; // Scales and translates X axis
+  WJavaScriptHandle<WTransform> yTransform_; // Scales and translates Y axis
+
+  struct PenAssignment {
+    WJavaScriptHandle<WPen> pen;
+    WJavaScriptHandle<WPen> textPen;
+
+    PenAssignment(const WJavaScriptHandle<WPen>& pen, const WJavaScriptHandle<WPen>& textPen)
+      : pen(pen), textPen(textPen)
+    { }
+  };
+  typedef std::map<Axis,std::vector<PenAssignment> > PenMap;
+  PenMap pens_;
+  std::vector<WJavaScriptHandle<WPen> > freePens_;
+
+  std::vector<WAxisSliderWidget *> axisSliderWidgets_;
+
   void init();
 
- protected:
+protected:
   virtual void modelColumnsInserted(const WModelIndex& parent,
 				    int start, int end);
   virtual void modelColumnsRemoved(const WModelIndex& parent,
@@ -1006,34 +1050,6 @@ private:
     WCartesianChart* chart_;
     int index_;
   };
-
-  bool zoomEnabled_;
-  bool panEnabled_;
-  bool rubberBandEnabled_;
-  bool crosshairEnabled_;
-  int followCurve_;
-  bool cObjCreated_;
-
-  typedef std::map<int, WJavaScriptHandle<WPainterPath> > PainterPathMap;
-  PainterPathMap curvePaths_;
-  std::vector<WJavaScriptHandle<WPainterPath> > freePainterPaths_;
-
-  WJavaScriptHandle<WTransform> xTransform_; // Scales and translates X axis
-  WJavaScriptHandle<WTransform> yTransform_; // Scales and translates Y axis
-
-  struct PenAssignment {
-    WJavaScriptHandle<WPen> pen;
-    WJavaScriptHandle<WPen> textPen;
-
-    PenAssignment(const WJavaScriptHandle<WPen>& pen, const WJavaScriptHandle<WPen>& textPen)
-      : pen(pen), textPen(textPen)
-    { }
-  };
-  typedef std::map<Axis,std::vector<PenAssignment> > PenMap;
-  PenMap pens_;
-  std::vector<WJavaScriptHandle<WPen> > freePens_;
-
-  std::vector<WAxisSliderWidget *> axisSliderWidgets_;
 
   friend class WDataSeries;
   friend class SeriesRenderer;

@@ -95,12 +95,14 @@ bool WRectF::isEmpty() const
 
 void WRectF::setX(double x)
 {
+  checkModifiable();
   width_ += (x_ - x);
   x_ = x;
 }
 
 void WRectF::setY(double y)
 {
+  checkModifiable();
   height_ += (y_ - y);
   y_ = y;
 }

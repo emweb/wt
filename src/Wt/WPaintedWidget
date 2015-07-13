@@ -106,6 +106,16 @@ class WWidgetPainter;
  * \note A %WPaintedWidget requires that it is given a size using resize() or
  *       by a layout manager.
  *
+ * <h3>Client side interaction and repainting</h3>
+ *
+ * If the widget is drawn as an HTML canvas element, i.e. the \link getMethod() method\endlink
+ * is HtmlCanvas, a %WPaintedWidget can expose certain objects to be modified client side.
+ *
+ * \note Changes to client side objects are currently not synced back to the server,
+ *	 whereas changes to the handle on the server side <i>will</i> be synced to the client.
+ *
+ * \sa WJavaScriptHandle, WJavaScriptExposableObject
+ *
  * \sa WImage
  *
  * \ingroup painting
@@ -224,39 +234,52 @@ public:
    */
   const std::vector<WAbstractArea *> areas() const;
 
-  /*! \brief Create a WTransform that is accessible from JavaScript,
-   *         associated with this WPaintedWidget
-   */
-  WJavaScriptHandle<WTransform> createJSTransform();
-
-  /*! \brief Create a WBrush that is accessible from JavaScript,
-   *         associated with this WPaintedWidget
-   */
-  WJavaScriptHandle<WBrush> createJSBrush();
-
-  /*! \brief Create a WPen that is accessible from JavaScript,
-   *         associated with this WPaintedWidget
-   */
-  WJavaScriptHandle<WPen> createJSPen();
-
-  /*! \brief Create a WPainterPath that is accessible from JavaScript,
-   *	     associated with this WPaintedWidget
-   */
-  WJavaScriptHandle<WPainterPath> createJSPainterPath();
-
-  /*! \brief Create a WRectF that is accessible from JavaScript,
-   *	     associated with this WPaintedWidget
-   */
-  WJavaScriptHandle<WRectF> createJSRect();
-
   /*! \brief A JavaScript slot that repaints the widget when triggered.
    *
    * This is useful for client-side initiated repaints. You may want to use this
    * if you want to add interaction or animation to your WPaintedWidget.
+   *
+   * \note This feature is currently only supported if the
+   *	   \link getMethod() method\endlink is HtmlCanvas.
+   *	   This will not cause a server roundtrip. Instead, the
+   *	   resulting JavaScript of paintEvent() will be re-executed
+   *	   on the client side.
+   *
+   * \sa objJsRef()
    */
   JSlot &repaintSlot() { return repaintSlot_; }
 
 protected:
+  /*! \brief Create a WTransform that is accessible from JavaScript,
+   *         associated with this %WPaintedWidget
+   */
+  WJavaScriptHandle<WTransform> createJSTransform();
+
+  /*! \brief Create a WBrush that is accessible from JavaScript,
+   *         associated with this %WPaintedWidget
+   */
+  WJavaScriptHandle<WBrush> createJSBrush();
+
+  /*! \brief Create a WPen that is accessible from JavaScript,
+   *         associated with this %WPaintedWidget
+   */
+  WJavaScriptHandle<WPen> createJSPen();
+
+  /*! \brief Create a WPainterPath that is accessible from JavaScript,
+   *	     associated with this %WPaintedWidget
+   */
+  WJavaScriptHandle<WPainterPath> createJSPainterPath();
+
+  /*! \brief Create a WRectF that is accessible from JavaScript,
+   *	     associated with this %WPaintedWidget
+   */
+  WJavaScriptHandle<WRectF> createJSRect();
+
+  /*! \brief Create a WPointF that is accessible from JavaScript,
+   *	     associated with this %WPaintedWidget
+   */
+  WJavaScriptHandle<WPointF> createJSPoint();
+
   virtual void layoutSizeChanged(int width, int height);
 
   /*! \brief Returns the actual method used for rendering.
@@ -301,6 +324,20 @@ protected:
 protected:
   virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override) ;
 
+  /*! \brief Returns a JavaScript reference to the client side representation of the WPaintedWidget
+   *
+   * The client side representation exposes the following interface:
+   * \code
+   * {
+   *   canvas: exposes the underlying HTML canvas element
+   *   repaint: a function that, when called, will repaint the widget without a server roundtrip
+   * }
+   * \endcode
+   *
+   * \note The \link getMethod() method\endlink should be HtmlCanvas and
+   *	   there has to be at least one WJavaScriptHandle associated with
+   *	   this WPaintedWidget in order for this reference to be valid.
+   */
   std::string objJsRef() const;
 
 private:

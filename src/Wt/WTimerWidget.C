@@ -21,7 +21,7 @@ WTimerWidget::~WTimerWidget()
   timer_->timerWidget_ = 0;
 }
 
-std::string WTimerWidget::renderRemoveJs()
+std::string WTimerWidget::renderRemoveJs(bool recursive)
 {
  return "{"
    "var obj=" + jsRef() + ";"
