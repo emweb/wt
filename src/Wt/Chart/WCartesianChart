@@ -180,6 +180,22 @@ class WChartPalette;
  *
  * Styling through CSS is not applicable.
  *
+ * \if java
+ * <h3>Client-side interaction</h3>
+ *
+ * %WCartesianChart has several features that allow interaction with the
+ * chart without server roundtrips. These features include zoom, pan,
+ * crosshair and follow curve functionality.
+ * 
+ * \note Client side interaction is only available if the chart is drawn
+ *       on an HTML canvas. This is the default rendering method on modern browsers.
+ * \note Some features are currently not supported in interactive mode:
+ *	  - Tooltips are not zoomed or panned along with the chart
+ *	  - Axes set at ZeroValue position will not always be drawn correctly.
+ *	    They may be clipped off outside of the chart area, and when zooming,
+ *	    the axis ticks will change size.
+ * \endif
+ *
  * \sa WDataSeries, WAxis
  * \sa WPieChart
  *
@@ -664,6 +680,9 @@ public:
    *       on an HTML canvas. This is the default rendering method on modern browsers.
    * \note Some features are currently not supported in interactive mode:
    *	  - Tooltips are not zoomed or panned along with the chart
+   *	  - Axes set at ZeroValue position will not always be drawn correctly.
+   *	    They may be clipped off outside of the chart area, and when zooming,
+   *	    the axis ticks will change size.
    *
    * @{
    */
@@ -800,6 +819,7 @@ private:
 
   bool zoomEnabled_;
   bool panEnabled_;
+  bool initialZoomAndPanApplied_;
   bool rubberBandEnabled_;
   bool crosshairEnabled_;
   int followCurve_;

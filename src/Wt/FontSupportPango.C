@@ -331,7 +331,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
     device_->drawText(WRectF(x, rect.y(),
 			     1000, rect.height()),
 		      AlignLeft | vAlign, TextSingleLine,
-		      s);
+		      s, 0);
 
     WTextItem textItem = device_->measureText(s, -1, false);
 

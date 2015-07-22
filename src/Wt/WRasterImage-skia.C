@@ -530,7 +530,8 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
 void WRasterImage::drawText(const WRectF& rect, 
 			    WFlags<AlignmentFlag> flags,
 			    TextFlag textFlag,
-			    const WString& text)
+			    const WString& text,
+			    const WPointF *clipPoint)
 {
 #if 0
   SkRect r = SkRect::MakeLTRB(SkDoubleToScalar(rect.left()),
@@ -539,6 +540,12 @@ void WRasterImage::drawText(const WRectF& rect,
 			      SkDoubleToScalar(rect.bottom()));
   canvas_->drawRect(r, strokePaint_);
 #endif
+  if (clipPoint && painter()) {
+    if (!painter()->clipPathTransform().map(painter()->clipPath())
+	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+      return;
+  }
+
   std::string txt = text.toUTF8();
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;

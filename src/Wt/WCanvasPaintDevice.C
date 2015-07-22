@@ -427,7 +427,8 @@ void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
 void WCanvasPaintDevice::drawText(const WRectF& rect,
 				  WFlags<AlignmentFlag> flags,
 				  TextFlag textFlag,
-				  const WString& text)
+				  const WString& text,
+				  const WPointF *clipPoint)
 {
   if (textFlag == TextWordWrap)
     throw WException("WCanvasPaintDevice::drawText() "
@@ -496,8 +497,17 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 	default: break;
 	}
 
+	if (clipPoint && painter()) {
+	  js_ << "if (" WT_CLASS ".gfxUtils.pnpoly(" << painter()->worldTransform().map(*clipPoint).jsRef() << ","
+	    << painter()->clipPathTransform().map(painter()->clipPath()).jsRef() << ")) {";
+	}
+
 	js_ << "ctx.fillText(" << text.jsStringLiteral()
 	    << ',' << s_x << ',' << s_y << ");";
+
+	if (clipPoint && painter()) {
+	  js_ << "}";
+	}
       } else {
 	switch (horizontalAlign) {
 	case AlignLeft: x = rect.left(); break;
@@ -513,9 +523,18 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 	default: break;
 	}
 
+	if (clipPoint && painter()) {
+	  js_ << "if (" WT_CLASS ".gfxUtils.pnpoly(" << painter()->worldTransform().map(*clipPoint).jsRef() << ","
+	    << painter()->clipPathTransform().map(painter()->clipPath()).jsRef() << ")) {";
+	}
+
 	js_ << "ctx.fillText(" << text.jsStringLiteral()
 	    << ',' << Utils::round_js_str(x, 3, buf) << ',';
 	js_ << Utils::round_js_str(y, 3, buf) << ");";
+
+	if (clipPoint && painter()) {
+	  js_ << "}";
+	}
       }
 
       // Restore fillstyle to brush color

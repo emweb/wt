@@ -519,9 +519,16 @@ void WPdfImage::drawPlainPath(const WPainterPath& path)
 void WPdfImage::drawText(const WRectF& rect, 
 			 WFlags<AlignmentFlag> flags,
 			 TextFlag textFlag,
-			 const WString& text)
+			 const WString& text,
+			 const WPointF *clipPoint)
 {
   // FIXME: textFlag
+  
+  if (clipPoint && painter()) {
+    if (!painter()->clipPathTransform().map(painter()->clipPath())
+	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+      return;
+  }
 
   if (trueTypeFont_ && !trueTypeFonts_->busy())
     trueTypeFonts_->drawText(painter()->font(), rect, flags, text);

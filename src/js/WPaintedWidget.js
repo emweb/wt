@@ -151,6 +151,49 @@ WT_DECLARE_WT_MEMBER
 	 this.css_text = function(c) {
 	    return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + c[3] + ")";
 	 };
+	 this.arcPosition = function(cx, cy, rx, ry, angle) {
+	    var a = -angle / 180 * Math.PI;
+
+	    return [
+	       cx + rx * Math.cos(a),
+	       cy + ry * Math.sin(a)
+	    ];
+	 };
+	 this.pnpoly = function(p, path) {
+	    var res = false;
+	    var ax = 0.0, ay = 0.0;
+	    var px = p[0], py = p[1];
+	    var i, bx, by;
+	    for (i = 0; i < path.length; ++i) {
+	       bx = ax;
+	       by = ay;
+	       if (path[i][2] === ARC_C) {
+		  var arcPos = self.arcPosition(path[i][0], path[i][1],
+						path[i+1][0], path[i+1][1],
+						path[i+2][0]);
+		  bx = arcPos[0];
+		  by = arcPos[1];
+	       } else if (path[i][2] === ARC_ANGLE_SWEEP) {
+		  var arcPos = self.arcPosition(path[i-2][0], path[i-2][1],
+						path[i-1][0], path[i-1][1],
+						path[i][0] + path[i][1]);
+		  bx = arcPos[0];
+		  by = arcPos[1];
+	       } else if (path[i][2] !== ARC_R) {
+		  bx = path[i][0];
+		  by = path[i][1];
+	       }
+	       if (path[i][2] !== MOVE_TO) {
+		 if ( (ay > py) !== (by > py) &&
+		      (px < (bx - ax) * (py - ay) / (by - ay) + ax) ) {
+		   res = !res;
+		 }
+	       }
+	       ax = bx;
+	       ay = by;
+	    }
+	    return res;
+	 };
 	 this.drawRect = function(ctx, rect, fill, stroke) {
 	    rect = self.rect_normalized(rect);
 	    var t = self.rect_top(rect),

@@ -4090,6 +4090,22 @@
 
     <p><a href="#painting2D">Top</a></p>
 
+    <h3>Client side interaction and repainting</h3>
+    <p>
+      In order to avoid server roundtrips, it's possible to change some of the
+      properties of a ${doc-link WPaintedWidget} and redraw it entirely on the client side.
+      The interactive features of ${doc-link WCartesianChart} use this
+      functionality, for example.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${PaintingInteractive}
+      ${src PaintingInteractive}
+    </fieldset>
+
+    <p><a href="#painting2D">Top</a></p>
+
   </message>
 
   <message id="graphics-Paintbrush">
@@ -4296,6 +4312,24 @@
       Missing data in a model series Y values is interpreted as a break. For
       curve-like series, this breaks the curve (or line).
     </p>
+
+    <p><a href="#scatter-plot">Top</a></p>
+
+    <h3>Interactive features and axis slider widget</h3>
+    <p>
+      WCartesianChart supports some forms of interaction that do not require a server roundtrip.
+      You can zoom in on the chart below using ctrl+scroll, or with a pinch movement, and pan it
+      with the scrollwheel, click and drag, or touch and drag. If you have a long range of X values,
+      and want to easily focus on a particular range, you can use a WAxisSliderWidget. You can change
+      the size of the focused region by dragging the blue handles, and change the position by dragging
+      the selected area. When using touch, the size of this area can also be changed using a pinch movement.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${ScatterPlotInteractive}
+      ${src ScatterPlotInteractive}
+    </fieldset>
 
     <p><a href="#scatter-plot">Top</a></p>
 

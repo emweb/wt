@@ -578,8 +578,15 @@ void WSvgImage::drawLine(double x1, double y1, double x2, double y2)
 void WSvgImage::drawText(const WRectF& rect, 
 			 WFlags<AlignmentFlag> flags,
 			 TextFlag textFlag,
-			 const WString& text)
+			 const WString& text,
+			 const WPointF *clipPoint)
 {
+  if (clipPoint && painter()) {
+    if (!painter()->clipPathTransform().map(painter()->clipPath())
+	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+      return;
+  }
+
   finishPath();
   makeNewGroup();
 

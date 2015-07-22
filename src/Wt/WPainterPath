@@ -72,6 +72,21 @@ namespace Wt {
  * is JavaScript bound\endlink, it can be accessed in your custom JavaScript
  * code through \link WJavaScriptHandle::jsRef() its handle's jsRef()\endlink.
  *
+ * A %WPainterPath is represented in JavaScript as an array of segments, where each segment
+ * is defined by a three element array: [x,y,type], where type is the integer representation
+ * of the type of a segment.
+ *
+ * For example, a 10 by 10 square with the top left at (10,10) is represented as:
+ * \code
+ * [
+ *  [10,10,0], // move to (10,10)
+ *  [20,10,1], // line to (20,10)
+ *  [20,20,1], // line to (20,20)
+ *  [10,20,1], // line to (10,20)
+ *  [10,10,1]  // line to (10,10)
+ * ]
+ * \endcode
+ *
  * \warning A %WPainterPath that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
  *	    Any attempt at modifying it will cause an exception to be thrown.
  *
@@ -370,15 +385,39 @@ public:
    */
   class Segment {
   public:
+    /*! The segment type
+     */
     enum Type {
-      MoveTo, LineTo,
-      CubicC1, CubicC2, CubicEnd,
-      QuadC, QuadEnd,
-      ArcC, ArcR, ArcAngleSweep 
+      MoveTo = 0,  //!< moveTo segment
+      LineTo = 1,  //!< lineTo segment
+      CubicC1 = 2, //!< first control point of cubic bezier curve, always followed by a CubicC2 and CubicEnd segment
+      CubicC2 = 3, //!< second control point of cubic bezier curve, always followed by a CubicEnd segment
+      CubicEnd = 4, //!< end point of cubic bezier curve
+      QuadC = 5, //!< control point of quadratic bezier curve
+      QuadEnd = 6, //!< end point of quadratic bezier curve
+      ArcC = 7, //!< center of an arc, always followed by an ArcR and ArcAngleSweep segment
+      ArcR = 8, //!< radius of an arc, always followed by an ArcAngleSweep segment
+      ArcAngleSweep = 9 //!< the sweep of an arc, x = startAngle, y = spanAngle
     };
 
+    /*! The x parameter
+     *
+     * Depending on the type(), this is either
+     * the x position of the point, or something
+     * else.
+     */
     double x() const { return x_; }
+
+    /*! The y parameter
+     *
+     * Depending on the type(), this is either
+     * the y position of the point, or something
+     * else.
+     */
     double y() const { return y_; }
+    
+    /*! The type of the segment
+     */
     Type   type() const { return type_; }
 
     bool operator== (const Segment& other) const;
@@ -420,6 +459,8 @@ public:
    * This will also work if the path \link isJavaScriptBound() is JavaScript bound\endlink.
    */
   WPainterPath crisp() const;
+
+  bool isPointInPath(const WPointF &p) const;
 
   virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 

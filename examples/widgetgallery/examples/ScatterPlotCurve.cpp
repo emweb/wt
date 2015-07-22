@@ -35,7 +35,7 @@ chart->axis(Wt::Chart::XAxis).setLocation(Wt::Chart::ZeroValue);
 chart->axis(Wt::Chart::YAxis).setLocation(Wt::Chart::ZeroValue);
 
 // Provide space for the X and Y axis and title.
-chart->setPlotAreaPadding(80, Wt::Left);
+chart->setPlotAreaPadding(120, Wt::Right);
 chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
 
 // Add the curves

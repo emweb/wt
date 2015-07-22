@@ -145,6 +145,10 @@ void MetaDbo<C>::doTransactionDone(bool success)
       setState(Persisted);
     } 
   } else {
+    /*
+     * This undoing of the transaction isn't consistent with objects that
+     * haven't been flushed.
+     */
     if (deletedInTransaction()) {
       state_ |= NeedsDelete;
       session()->needsFlush(this);
@@ -585,6 +589,11 @@ std::ostream& operator<< (std::ostream& o, const ptr<C>& ptr)
 
 template <class C>
 Dbo<C>::Dbo()
+  : meta_(0)
+{ }
+
+template <class C>
+Dbo<C>::Dbo(const Dbo<C>& other)
   : meta_(0)
 { }
 

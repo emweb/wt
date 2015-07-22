@@ -795,6 +795,7 @@ WCartesianChart::WCartesianChart(WContainerWidget *parent)
     borderPen_(NoPen),
     zoomEnabled_(false),
     panEnabled_(false),
+    initialZoomAndPanApplied_(false),
     rubberBandEnabled_(true),
     crosshairEnabled_(false),
     followCurve_(-1),
@@ -814,6 +815,7 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
     borderPen_(NoPen),
     zoomEnabled_(false),
     panEnabled_(false),
+    initialZoomAndPanApplied_(false),
     rubberBandEnabled_(true),
     crosshairEnabled_(false),
     followCurve_(-1),
@@ -1649,7 +1651,10 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
   paint(painter);
 
   if (isInteractive()) {
-    setInitialZoomAndPan();
+    if (!initialZoomAndPanApplied_) {
+      setInitialZoomAndPan();
+      initialZoomAndPanApplied_ = true;
+    }
 
     double modelBottom = axis(Y1Axis).mapFromDevice(0);
     double modelTop = axis(Y1Axis).mapFromDevice(chartArea_.height());
@@ -1702,6 +1707,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
     for (std::size_t i = 0; i < axisSliderWidgets_.size(); ++i) {
       axisSliderWidgets_[i]->update();
     }
+  } else {
+    initialZoomAndPanApplied_ = false;
   }
 }
 
@@ -2125,12 +2132,11 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
   if (isInteractive()) {
     WRectF clipRect;
     WRectF area = hv(chartArea_);
-    if (axis.location() == ZeroValue) {
+    if (axis.location() == ZeroValue && location_[axis.id()] == ZeroValue) {
       clipRect = area;
     } else if (vertical != /*XOR*/ (orientation() == Horizontal)) {
       double h = area.height();
       if (location_[XAxis] == ZeroValue &&
-	  this->axis(XAxis).location() == MinimumValue &&
 	  orientation() == Vertical) {
 	h += 1; // prevent clipping off of zero tick
       }

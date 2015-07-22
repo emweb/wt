@@ -58,8 +58,6 @@ class WRectF;
  * As an exception to the general rule that \link isJavaScriptBound() JavaScript bound\endlink objects
  *	 should not be modified, %WTransform does support many modifications. These modifications will then
  *	 accumulate in the JavaScript representation of the transform.
- *	 
- * TODO(Roel): add an example?
  *
  * \ingroup painting
  */

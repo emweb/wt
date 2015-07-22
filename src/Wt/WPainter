@@ -554,6 +554,14 @@ public:
    * Text can be rendered on one line or by wrapping the words within the 
    * rectangle.
    *
+   * If a clipPoint is provided, the text will not be drawn
+   * if the point is outside of the clipPath().
+   *
+   * \note If the clip path is not a polygon, i.e. it has rounded segments
+   * in it, an approximation will be used instead by having the
+   * polygon pass through the control points, and the begin and
+   * end point of arcs.
+   *
    * \note HtmlCanvas: on older browsers implementing Html5 canvas,
    * text will be rendered horizontally (unaffected by rotation and
    * unaffected by the scaling component of the transformation
@@ -572,7 +580,8 @@ public:
   void drawText(const WRectF& rect, 
 		WFlags<AlignmentFlag> alignmentFlags,
 		TextFlag textFlag,
-		const WString& text);
+		const WString& text,
+		const WPointF *clipPoint = 0);
 
   /*! \brief Draws text.
    *

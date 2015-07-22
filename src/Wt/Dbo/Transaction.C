@@ -171,6 +171,7 @@ void Transaction::Impl::rollback()
 
   objects_.clear();
 
+
   session_.returnConnection(connection_);
   connection_ = 0;
   session_.transaction_ = 0;

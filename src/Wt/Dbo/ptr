@@ -433,6 +433,10 @@ public:
    */
   Dbo();
 
+  /*! \brief Copy constructor.
+   */
+  Dbo(const Dbo<C>& other);
+
   /*! \brief Returns the database id.
    *
    * Returns the database id of this object, or

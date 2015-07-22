@@ -322,8 +322,6 @@ protected:
   virtual void render(WFlags<RenderFlag> flags);
 
 protected:
-  virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override) ;
-
   /*! \brief Returns a JavaScript reference to the client side representation of the WPaintedWidget
    *
    * The client side representation exposes the following interface:

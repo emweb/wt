@@ -103,18 +103,36 @@ public:
    */
   const WBrush& selectedAreaBrush() const { return selectedAreaBrush_; }
 
-  /*! \brief Set the margin for the axis to be drawn in.
+  /*! \brief Sets an internal margin for the selection area.
    *
-   * If set to -1, the margin will be calculated automatically, if possible.
-   * If this is not possible (no font metrics support), the margin will be set to 25.
+   * This configures the area (in pixels) around the selection area that
+   * is available for the axes and labels, and the handles.
+   *
+   * Alternatively, you can configure the chart layout to be computed automatically using setAutoLayoutEnabled().
+   *
+   * \sa setAutoLayoutEnabled()
    */
-  void setAxisMargin(double axisMargin);
+  void setSelectionAreaPadding(int padding, WFlags<Side> sides = All);
 
-  /*! \brief Return the margin for the axis to be drawn in.
-   * 
-   * \sa setAxisMargin()
+  /*! \brief Returns the internal margin for the selection area.
+   *
+   * This is either the padding set through setSelectionAreaPadding() or computed using setAutoLayoutEnabled().
+   *
+   * \sa setPlotAreaPadding()
    */
-  double axisMargin() const { return axisMargin_; }
+  int selectionAreaPadding(Side side) const;
+
+  /*! \brief Configures the axis slider layout to be automatic.
+   *
+   * This configures the selection area so that the space around it is suited for the text that is rendered.
+   */
+  void setAutoLayoutEnabled(bool enabled = true);
+
+  /*! \brief Returns whether chart layout is computed automatically.
+   *
+   * \sa setAutoLayoutEnabled()
+   */
+  bool isAutoLayoutEnabled() const { return autoPadding_; }
 
 protected:
   virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
@@ -128,13 +146,13 @@ private:
 
   WCartesianChart *chart_;
   int seriesColumn_;
-  int margin_;
   WPen seriesPen_;
   WPen *selectedSeriesPen_;
   WBrush handleBrush_;
   WBrush background_;
   WBrush selectedAreaBrush_;
-  double axisMargin_;
+  bool autoPadding_;
+  int padding_[4];
 
   WJavaScriptHandle<WTransform> transform_;
 };

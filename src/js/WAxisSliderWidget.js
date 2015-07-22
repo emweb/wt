@@ -86,6 +86,25 @@ WT_DECLARE_WT_MEMBER
 	    self.touchMoved(widget, {touches:pointers.slice(0)});
 	 }
 
+	 var o = jQuery.data(widget, 'eobj');
+	 if (o) {
+	    if (!window.PointerEvent) {
+	       widget.removeEventListener('MSPointerDown', o.pointerDown);
+	       widget.removeEventListener('MSPointerUp', o.pointerUp);
+	       widget.removeEventListener('MSPointerOut', o.pointerUp);
+	       widget.removeEventListener('MSPointerMove', o.pointerMove);
+	    } else {
+	       widget.removeEventListener('pointerdown', o.pointerDown);
+	       widget.removeEventListener('pointerup', o.pointerUp);
+	       widget.removeEventListener('pointerout', o.pointerUp);
+	       widget.removeEventListener('pointermove', o.pointerMove);
+	    }
+	 }
+	 jQuery.data(widget, 'eobj', {
+	    pointerDown: pointerDown,
+	    pointerUp: pointerUp,
+	    pointerMove: pointerMove
+	 });
 	 if (!window.PointerEvent) {
 	    widget.addEventListener('MSPointerDown', pointerDown);
 	    widget.addEventListener('MSPointerUp', pointerUp);

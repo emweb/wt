@@ -25,5 +25,6 @@
 	      noreply-hangman@www.webtoolkit.eu
 	    </property>
 	</properties>
+	<progressive-bootstrap>true</progressive-bootstrap>
     </application-settings>
 </server>

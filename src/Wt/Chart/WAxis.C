@@ -1186,12 +1186,105 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, int zoomLe
     } else
       dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
 
-#ifdef WT_TARGET_JAVA
-    int interval = (int)(s.dateTimeRenderInterval / divisor);
-#else
-    int interval = s.dateTimeRenderInterval / divisor;
-#endif
-    DateTimeUnit unit = s.dateTimeRenderUnit;
+    DateTimeUnit unit;
+    int interval;
+    if (zoomLevel == 1) {
+      unit = s.dateTimeRenderUnit;
+      interval = s.dateTimeRenderInterval;
+    } else {
+      // FIXME: this duplicates code in prepareRender
+      double daysInterval = 0.0;
+      if (scale_ == DateScale) {
+	daysInterval = renderInterval_;
+      } else {
+	daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
+      }
+      daysInterval /= divisor;
+      if (daysInterval > 200) {
+	unit = Years;
+	interval = std::max(1,
+	    static_cast<int>(round125(daysInterval / 365)));
+      } else if (daysInterval > 20) {
+	unit = Months;
+	double d = daysInterval / 30;
+	if (d < 1.3)
+	  interval = 1;
+	else if (d < 2.3)
+	  interval = 2;
+	else if (d < 3.3)
+	  interval = 3;
+	else if (d < 4.3)
+	  interval = 4;
+	else
+	  interval = 6;
+      } else if (daysInterval > 0.6) {
+	unit = Days;
+
+	if (daysInterval < 1.3) {
+	  interval = 1;
+	} else {
+	  interval = 7 * std::max(1,
+				  static_cast<int>((daysInterval + 5) / 7));
+	}
+      } else {
+	double minutes = daysInterval * 24 * 60;
+
+	if (minutes > 40) {
+	  unit = Hours;
+
+	  double d = minutes / 60;
+	  if (d < 1.3)
+	    interval = 1;
+	  else if (d < 2.3)
+	    interval = 2;
+	  else if (d < 3.3)
+	    interval = 3;
+	  else if (d < 4.3)
+	    interval = 4;
+	  else if (d < 6.3)
+	    interval = 6;
+	  else
+	    interval = 12;
+	} else if (minutes > 0.8) {
+	  unit = Minutes;
+
+	  if (minutes < 1.3)
+	    interval = 1;
+	  else if (minutes < 2.3)
+	    interval = 2;
+	  else if (minutes < 5.3)
+	    interval = 5;
+	  else if (minutes < 10.3)
+	    interval = 10;
+	  else if (minutes < 15.3)
+	    interval = 15;
+	  else if (minutes < 20.3)
+	    interval = 20;
+	  else
+	    interval = 30;
+	} else {
+	  unit = Seconds;
+
+	  double seconds = minutes * 60;
+
+	  if (seconds < 1.3)
+	    interval = 1;
+	  else if (seconds < 2.3)
+	    interval = 2;
+	  else if (seconds < 5.3)
+	    interval = 5;
+	  else if (seconds < 10.3)
+	    interval = 10;
+	  else if (seconds < 15.3)
+	    interval = 15;
+	  else if (seconds < 20.3)
+	    interval = 20;
+	  else
+	    interval = 30;
+	}
+      }
+    }
+
     bool atTick = (interval > 1) ||
       (unit <= Days) || 
       !(roundLimits_ & MinimumValue);
@@ -1501,17 +1594,25 @@ void WAxis::renderLabel(WPainter& painter,
   painter.setPen(pen);
 #endif
 
-  if (angle == 0)
+  bool clipping = painter.hasClipping();
+  if (clipping && tickDirection() == Outwards && location() != ZeroValue) {
+    painter.setClipping(false);
+  }
+  WPointF transformedPoint = transform.map(pos);
+  if (angle == 0) {
     painter.drawText(transform.map(WRectF(left, top, width, height)),
-		      horizontalAlign | verticalAlign, text);
-  else {
+		      horizontalAlign | verticalAlign, TextSingleLine, text,
+		      clipping ? &transformedPoint : 0);
+  } else {
     painter.save();
     painter.translate(transform.map(pos));
     painter.rotate(-angle);
     painter.drawText(WRectF(left - pos.x(), top - pos.y(), width, height),
-		     horizontalAlign | verticalAlign, text);
+		     horizontalAlign | verticalAlign, TextSingleLine, text,
+		     clipping ? &transformedPoint : 0);
     painter.restore();
   }
+  painter.setClipping(clipping);
 
   painter.setPen(oldPen);
 }

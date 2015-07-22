@@ -146,7 +146,8 @@ void WLineEdit::updateDom(DomElement& element, bool all)
     WT_USTRING t = content_;
     if (!mask_.empty() && (inputMaskFlags_ & KeepMaskWhileBlurred))
       t = displayContent_;
-    element.setProperty(Wt::PropertyValue, t.toUTF8());
+    if (!all || !t.empty())
+      element.setProperty(Wt::PropertyValue, t.toUTF8());
     flags_.reset(BIT_CONTENT_CHANGED);
   }
 

@@ -24,7 +24,7 @@
 #include "Wt/WTransform"
 #include "Wt/WWebWidget"
 
-#include "Wt/WCanvasPaintDevice" // TODO(Roel): It's quite unfortunate that we should do this
+#include "Wt/WCanvasPaintDevice"
 
 #include "FileUtils.h"
 #include "ImageUtils.h"
@@ -504,24 +504,30 @@ void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
   if (!(flags & AlignHorizontalMask))
     flags |= AlignLeft;
 
-  device_->drawText(rectangle.normalized(), flags, TextSingleLine, text);
+  device_->drawText(rectangle.normalized(), flags, TextSingleLine, text, 0);
 }
 
 void WPainter::drawText(const WRectF& rectangle, 
 			WFlags<AlignmentFlag> alignmentFlags,
 			TextFlag textFlag,
-			const WString& text)
+			const WString& text,
+			const WPointF *clipPoint)
 {
-  if (textFlag == TextSingleLine)
-    drawText(rectangle, alignmentFlags, text);
-  else {
+  if (textFlag == TextSingleLine) {
+    if (!(alignmentFlags & AlignVerticalMask))
+      alignmentFlags |= AlignTop;
+    if (!(alignmentFlags & AlignHorizontalMask))
+      alignmentFlags |= AlignLeft;
+
+    device_->drawText(rectangle.normalized(), alignmentFlags, TextSingleLine, text, clipPoint);
+  } else {
     if (!(alignmentFlags & AlignVerticalMask))
       alignmentFlags |= AlignTop;
     if (!(alignmentFlags & AlignHorizontalMask))
       alignmentFlags |= AlignLeft;
 
     if (device_->features() & WPaintDevice::CanWordWrap)
-      device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, text);
+      device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, text, clipPoint);
     else if (device_->features() & WPaintDevice::HasFontMetrics) {
 #ifndef WT_TARGET_JAVA
       MultiLineTextRenderer renderer(*this, rectangle);

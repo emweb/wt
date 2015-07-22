@@ -57,6 +57,7 @@ void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
 #include "examples/PaintingClipping.cpp"
 #include "examples/PaintingStyle.cpp"
 #include "examples/PaintingImages.cpp"
+#include "examples/PaintingInteractive.cpp"
 
 Wt::WWidget *GraphicsWidgets::painting2d()
 {
@@ -68,6 +69,7 @@ Wt::WWidget *GraphicsWidgets::painting2d()
   result->bindWidget("PaintingClipping", PaintingClipping());
   result->bindWidget("PaintingStyle", PaintingStyle());
   result->bindWidget("PaintingImages", PaintingImages());
+  result->bindWidget("PaintingInteractive", PaintingInteractive());
 
   return result;
 }
@@ -99,6 +101,7 @@ Wt::WWidget *GraphicsWidgets::categoryChart()
 
 #include "examples/ScatterPlotData.cpp"
 #include "examples/ScatterPlotCurve.cpp"
+#include "examples/ScatterPlotInteractive.cpp"
 
 Wt::WWidget *GraphicsWidgets::scatterPlot()
 {
@@ -106,6 +109,7 @@ Wt::WWidget *GraphicsWidgets::scatterPlot()
 
   result->bindWidget("ScatterPlotData", ScatterPlotData());
   result->bindWidget("ScatterPlotCurve", ScatterPlotCurve());
+  result->bindWidget("ScatterPlotInteractive", ScatterPlotInteractive());
 
   return result;
 }

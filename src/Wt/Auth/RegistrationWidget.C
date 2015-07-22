@@ -34,6 +34,8 @@ RegistrationWidget::RegistrationWidget(AuthWidget *authWidget)
     created_(false),
     confirmPasswordLogin_(0)
 {
+  setWidgetIdMode(SetWidgetObjectName);
+
   WApplication *app = WApplication::instance();
   app->theme()->apply(this, this, AuthWidgets);
 }

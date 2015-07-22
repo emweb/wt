@@ -468,4 +468,40 @@ WPainterPath WPainterPath::crisp() const
   return result;
 }
 
+bool WPainterPath::isPointInPath(const WPointF &p) const
+{
+  bool res = false;
+  double ax = 0.0, ay = 0.0;
+  double px = p.x(), py = p.y();
+  for (std::size_t i = 0; i < segments_.size(); ++i) {
+    double bx = ax;
+    double by = ay;
+    if (segments_[i].type() == Segment::ArcC) {
+      WPointF arcPos = getArcPosition(segments_[i].x(), segments_[i].y(),
+				      segments_[i+1].x(), segments_[i+1].y(),
+				      segments_[i+2].x());
+      bx = arcPos.x();
+      by = arcPos.y();
+    } else if (segments_[i].type() == Segment::ArcAngleSweep) {
+      WPointF arcPos = getArcPosition(segments_[i-2].x(), segments_[i-2].y(),
+				      segments_[i-1].x(), segments_[i-1].y(),
+				      segments_[i].x() + segments_[i].y());
+      bx = arcPos.x();
+      by = arcPos.y();
+    } else if (segments_[i].type() != Segment::ArcR) {
+      bx = segments_[i].x();
+      by = segments_[i].y();
+    }
+    if (segments_[i].type() != Segment::MoveTo) {
+      if ( (ay > py) != (by > py) &&
+	   (px < (bx - ax) * (py - ay) / (by - ay) + ax) ) {
+	res = !res;
+      }
+    }
+    ax = bx;
+    ay = by;
+  }
+  return res;
+}
+
 }

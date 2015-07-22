@@ -152,7 +152,7 @@ public:
   virtual void drawPath(const WPainterPath& path);
   virtual void drawText(const WRectF& rect, 
 			WFlags<AlignmentFlag> alignmentFlags, TextFlag textFlag,
-			const WString& text);
+			const WString& text, const WPointF *clipPoint);
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
 				bool wordWrap = false);
   virtual WFontMetrics fontMetrics();

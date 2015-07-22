@@ -112,7 +112,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 			   WFlags<AlignmentFlag> flags, const WString& text)
 {
   font_ = &font;
-  device_->drawText(rect, flags, TextSingleLine, text);
+  device_->drawText(rect, flags, TextSingleLine, text, 0);
   font_ = 0;
 }
 

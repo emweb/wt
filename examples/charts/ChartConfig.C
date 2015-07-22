@@ -558,6 +558,12 @@ void ChartConfig::update()
     if (sc.autoEdit->isChecked())
       axis.setAutoLimits(MinimumValue | MaximumValue);
     else {
+      if (axis.autoLimits() & (MinimumValue | MaximumValue)) {
+	sc.minimumEdit->setText(WLocale::currentLocale()
+				.toString(axis.minimum()));
+	sc.maximumEdit->setText(WLocale::currentLocale()
+				.toString(axis.maximum()));
+      }
       if (validate(sc.minimumEdit) && validate(sc.maximumEdit)) {
           double min, max;
           getDouble(sc.minimumEdit, min);
@@ -678,12 +684,12 @@ void ChartConfig::update()
 
     chart_->setLegendColumns((side == Top || side == Bottom ) ? 2 : 1,
 			     WLength(100));
+  }
 
-    if (borderEdit_->isChecked()) {
-      chart_->setBorderPen(WPen());
-    } else {
-      chart_->setBorderPen(NoPen);
-    }
+  if (borderEdit_->isChecked()) {
+    chart_->setBorderPen(WPen());
+  } else {
+    chart_->setBorderPen(NoPen);
   }
 }
 

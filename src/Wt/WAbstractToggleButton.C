@@ -74,6 +74,11 @@ void WAbstractToggleButton::setText(const WString& text)
   repaint(RepaintSizeAffected);
 }
 
+bool WAbstractToggleButton::setTextFormat(TextFormat format)
+{
+  return text_.setFormat(format);
+}
+
 void WAbstractToggleButton::setChecked(bool how)
 {
   setCheckState(how ? Checked : Unchecked);

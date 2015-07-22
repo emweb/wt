@@ -21,18 +21,20 @@
 #endif
 
 namespace Wt {
+
+LOGGER("Chart.WAxisSliderWidget");
+
   namespace Chart {
 
 WAxisSliderWidget::WAxisSliderWidget(WContainerWidget *parent)
   : WPaintedWidget(parent),
     chart_(0),
     seriesColumn_(-1),
-    margin_(10),
     selectedSeriesPen_(&seriesPen_),
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
-    axisMargin_(-1)
+    autoPadding_(false)
 {
   init();
 }
@@ -41,12 +43,11 @@ WAxisSliderWidget::WAxisSliderWidget(WCartesianChart *chart, int seriesColumn, W
   : WPaintedWidget(parent),
     chart_(chart),
     seriesColumn_(seriesColumn),
-    margin_(10),
     selectedSeriesPen_(&seriesPen_),
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
-    axisMargin_(-1)
+    autoPadding_(false)
 {
   init();
 }
@@ -62,6 +63,10 @@ void WAxisSliderWidget::init()
   touchStarted().connect("function(o, e){var o=" + this->sObjJsRef() + ";if(o){o.touchStarted(o, e);}}");
   touchEnded().connect("function(o, e){var o=" + this->sObjJsRef() + ";if(o){o.touchEnded(o, e);}}");
   touchMoved().connect("function(o, e){var o=" + this->sObjJsRef() + ";if(o){o.touchMoved(o, e);}}");
+
+  setSelectionAreaPadding(0, Top);
+  setSelectionAreaPadding(20, Left | Right);
+  setSelectionAreaPadding(30, Bottom);
 
   if (chart_) chart_->addAxisSliderWidget(this);
 }
@@ -137,14 +142,6 @@ void WAxisSliderWidget::setSelectedAreaBrush(const WBrush& brush)
   }
 }
 
-void WAxisSliderWidget::setAxisMargin(double margin)
-{
-  if (margin != axisMargin_) {
-    axisMargin_ = margin;
-    update();
-  }
-}
-
 void WAxisSliderWidget::render(WFlags<RenderFlag> flags)
 {
   WPaintedWidget::render(flags);
@@ -152,6 +149,40 @@ void WAxisSliderWidget::render(WFlags<RenderFlag> flags)
   WApplication *app = WApplication::instance();
 
   LOAD_JAVASCRIPT(app, "js/WAxisSliderWidget.js", "WAxisSliderWidget", wtjs1);
+}
+
+void WAxisSliderWidget::setSelectionAreaPadding(int padding, WFlags<Side> sides)
+{
+  if (sides & Top)
+    padding_[0] = padding;
+  if (sides & Right)
+    padding_[1] = padding;
+  if (sides & Bottom)
+    padding_[2] = padding;
+  if (sides & Left)
+    padding_[3] = padding;
+}
+
+int WAxisSliderWidget::selectionAreaPadding(Side side) const
+{
+  switch (side) {
+  case Top:
+    return padding_[0];
+  case Right:
+    return padding_[1];
+  case Bottom:
+    return padding_[2];
+  case Left:
+    return padding_[3];
+  default:
+    LOG_ERROR("selectionAreaPadding(): improper side.");
+    return 0;
+  }
+}
+
+void WAxisSliderWidget::setAutoLayoutEnabled(bool enabled)
+{
+  autoPadding_ = enabled;
 }
 
 WRectF WAxisSliderWidget::hv(const WRectF& rect) const
@@ -189,54 +220,88 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   double w = horizontal ? width().value() : height().value(),
 	 h = horizontal ? height().value() : width().value();
 
-  WRectF drawArea(margin_, 0, w - 2 * margin_, h);
-  chart_->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
-  double axisMargin = axisMargin_;
-  if (axisMargin == -1 && paintDevice->features() & WPaintDevice::HasFontMetrics) {
-    axisMargin = chart_->axis(XAxis).calcMaxTickLabelSize(paintDevice, horizontal ? Vertical : Horizontal) + 10;
-  } else {
-    axisMargin = 25;
+  bool autoPadding = autoPadding_;
+  if (autoPadding && ((paintDevice->features() & WPaintDevice::HasFontMetrics) == 0)) {
+    LOG_ERROR("setAutoLayout(): device does not have font metrics "
+	"(not even server-side font metrics).");
+    autoPadding = false;
   }
+
+  if (autoPadding) {
+    if (horizontal) {
+      setSelectionAreaPadding(0, Top);
+      setSelectionAreaPadding(
+	  static_cast<int>(chart_->axis(XAxis).calcMaxTickLabelSize(
+	    paintDevice,
+	    Vertical
+	  ) + 10), Bottom);
+      setSelectionAreaPadding(
+	  static_cast<int>(std::max(chart_->axis(XAxis).calcMaxTickLabelSize(
+	    paintDevice,
+	    Horizontal
+	  ) / 2, 10.0)), Left | Right);
+    } else {
+      setSelectionAreaPadding(0, Right);
+      setSelectionAreaPadding(
+	  static_cast<int>(std::max(chart_->axis(XAxis).calcMaxTickLabelSize(
+	    paintDevice,
+	    Vertical
+	  ) / 2, 10.0)), Top | Bottom);
+      setSelectionAreaPadding(
+	  static_cast<int>(chart_->axis(XAxis).calcMaxTickLabelSize(
+	    paintDevice,
+	    Horizontal
+	  ) + 10), Left);
+    }
+  }
+
+  double left = horizontal ? selectionAreaPadding(Left) : selectionAreaPadding(Top);
+  double right = horizontal ? selectionAreaPadding(Right) : selectionAreaPadding(Bottom);
+  double top = horizontal ? selectionAreaPadding(Top) : selectionAreaPadding(Right);
+  double bottom = horizontal ? selectionAreaPadding(Bottom) : selectionAreaPadding(Left);
+
+  double maxW = w - left - right;
+  WRectF drawArea(left, 0, maxW, h);
+  chart_->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
 
   const WRectF& chartArea = chart_->chartArea_;
   WRectF selectionRect;
   {
     // Determine initial position based on xTransform of chart
-    double maxW = w - 2 * margin_;
     double u = -chart_->xTransform_.value().dx() / (chartArea.width() * chart_->xTransform_.value().m11());
-    selectionRect = WRectF(0, 0, maxW, h - axisMargin);
+    selectionRect = WRectF(0, top, maxW, h - (top + bottom));
     transform_.setValue(WTransform(1 / chart_->xTransform_.value().m11(), 0, 0, 1, u * maxW, 0));
   }
-  WRectF seriesArea(margin_, 5, w - 2 * margin_, h - (axisMargin + 5));
-  WTransform selectionTransform = hv(WTransform(1,0,0,1,margin_,0) * transform_.value());
+  WRectF seriesArea(left, top + 5, maxW, h - (top + bottom + 5));
+  WTransform selectionTransform = hv(WTransform(1,0,0,1,left,0) * transform_.value());
   WRectF rect = selectionTransform.map(hv(selectionRect));
 
-  painter.fillRect(hv(WRectF(margin_, 0, w - 2 * margin_, h - axisMargin)), background_);
+  painter.fillRect(hv(WRectF(left, top, maxW, h - top - bottom)), background_);
   painter.fillRect(rect, selectedAreaBrush_);
 
   if (horizontal) {
     chart_->axis(XAxis).render(
 	painter,
 	Labels | Line,
-	WPointF(drawArea.left(), h - axisMargin),
-	WPointF(drawArea.right(), h - axisMargin),
+	WPointF(drawArea.left(), h - bottom),
+	WPointF(drawArea.right(), h - bottom),
 	0, 5, 5,
 	AlignCenter | AlignTop);
     WPainterPath line;
-    line.moveTo(drawArea.left() + 0.5, h - (axisMargin - 0.5));
-    line.lineTo(drawArea.right(), h - (axisMargin - 0.5));
+    line.moveTo(drawArea.left() + 0.5, h - (bottom - 0.5));
+    line.lineTo(drawArea.right(), h - (bottom - 0.5));
     painter.strokePath(line, chart_->axis(XAxis).pen());
   } else {
     chart_->axis(XAxis).render(
 	painter,
 	Labels | Line,
-	WPointF(axisMargin - 1, drawArea.left()),
-	WPointF(axisMargin - 1, drawArea.right()),
+	WPointF(selectionAreaPadding(Left) - 1, drawArea.left()),
+	WPointF(selectionAreaPadding(Left) - 1, drawArea.right()),
 	-5, 0, -5,
 	AlignRight | AlignMiddle);
     WPainterPath line;
-    line.moveTo(axisMargin - 0.5, drawArea.left() + 0.5);
-    line.lineTo(axisMargin - 0.5, drawArea.right());
+    line.moveTo(selectionAreaPadding(Left) - 0.5, drawArea.left() + 0.5);
+    line.lineTo(selectionAreaPadding(Left) - 0.5, drawArea.right());
     painter.strokePath(line, chart_->axis(XAxis).pen());
   }
 
@@ -246,21 +311,21 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
       WTransform(seriesArea.width() / chartArea.width(), 0, 0, seriesArea.height() / chartArea.height(), 0, 0) *
       WTransform(1,0,0,1,-chartArea.left(),-chartArea.top());
     if (!horizontal) {
-      t = WTransform(0,1,1,0,axisMargin,0) * t * WTransform(0,1,1,0,0,0);
+      t = WTransform(0,1,1,0,selectionAreaPadding(Left) - selectionAreaPadding(Right) - 5,0) * t * WTransform(0,1,1,0,0,0);
     }
     curve = t.map(chart_->pathForSeries(seriesColumn_));
   }
 
   {
-    WRectF leftHandle = hv(WRectF(-5, 0, 5, h - axisMargin));
-    WTransform t = (WTransform(1,0,0,1,margin_,0) *
+    WRectF leftHandle = hv(WRectF(-5, top, 5, h - top - bottom));
+    WTransform t = (WTransform(1,0,0,1,left,-top) *
 	(WTransform().translate(transform_.value().map(selectionRect.topLeft()))));
     painter.fillRect(hv(t).map(leftHandle), handleBrush_);
   }
 
   {
-    WRectF rightHandle = hv(WRectF(0, 0, 5, h - axisMargin));
-    WTransform t = (WTransform(1,0,0,1,margin_,0) *
+    WRectF rightHandle = hv(WRectF(0, top, 5, h - top - bottom));
+    WTransform t = (WTransform(1,0,0,1,left,-top) *
 	(WTransform().translate(transform_.value().map(selectionRect.topRight()))));
     painter.fillRect(hv(t).map(rightHandle), handleBrush_);
   }
@@ -277,7 +342,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     WPainterPath leftClipPath;
     leftClipPath.addRect(hv(WTransform(1,0,0,1,-selectionRect.width(),0).map(selectionRect)));
     painter.setClipPath(hv(
-	  WTransform(1,0,0,1,margin_,0) *
+	  WTransform(1,0,0,1,left,-top) *
 	  (WTransform().translate(transform_.value().map(selectionRect.topLeft())))
 	).map(leftClipPath));
 
@@ -287,7 +352,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     WPainterPath rightClipPath;
     rightClipPath.addRect(hv(WTransform(1,0,0,1,selectionRect.width(),0).map(selectionRect)));
     painter.setClipPath(hv(
-	  WTransform(1,0,0,1,margin_ - selectionRect.right(),0) *
+	  WTransform(1,0,0,1,left - selectionRect.right(),-top) *
 	  (WTransform().translate(transform_.value().map(selectionRect.topRight())))
 	).map(rightClipPath));
 

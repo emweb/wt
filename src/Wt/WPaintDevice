@@ -179,11 +179,16 @@ public:
    *
    * The text must be rendered, stroked and transformed using the
    * current painter settings.
+   *
+   * If clipPoint is not null, a check is performed whether
+   * the point is inside of the current clip area. If not,
+   * the text is not drawn.
    */
   virtual void drawText(const WRectF& rect, 
 			WFlags<AlignmentFlag> alignmentFlags,
 			TextFlag textFlag,
-			const WString& text) = 0;
+			const WString& text,
+			const WPointF* clipPoint) = 0;
 
   /*! \brief Measures rendered text size.
    *
