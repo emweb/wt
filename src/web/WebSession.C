@@ -1802,25 +1802,12 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
       {
 	WebSocketMessage *message = new WebSocketMessage(lock.get());
 
-	/* Copy message */
-	::int64_t len = message->contentLength();
-	char *buf = new char[len + 1];
-	message->in().read(buf, len);
-	buf[message->in().gcount()] = 0;
-	lock->pongMessage_ = buf;
-	delete[] buf;
-
 	if (lock->canWriteWebSocket_) {
 	  lock->canWriteWebSocket_ = false;
-	  lock->webSocket_->out() << lock->pongMessage_;
-	  lock->pongMessage_.clear();
+	  lock->webSocket_->out() << "{}";
 	  lock->webSocket_->flush
 	    (WebRequest::ResponseFlush,
 	     boost::bind(&WebSession::webSocketReady, session, _1));
-	} else {
-	  // FIXME:
-	  //  We need to remember that we need to send the pong message
-	  //  in webSocketReady()
 	}
 
 	delete message;

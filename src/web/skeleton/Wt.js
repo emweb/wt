@@ -2987,6 +2987,7 @@ _$_$if_WEB_SOCKETS_$_();
 
 	  ws.onmessage = function(event) {
 	    var js = null;
+
 	    if (websocket.state == WebSocketConnecting) {
 	      if (event.data == "connect") {
 		if (responsePending != null && pollTimer != null) {

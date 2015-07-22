@@ -292,7 +292,6 @@ private:
   std::string docRoot_;
   std::string redirect_;
   std::string pagePathInfo_;
-  std::string pongMessage_;
   WebResponse *asyncResponse_, *webSocket_, *bootStyleResponse_;
   bool canWriteWebSocket_, webSocketConnected_;
   int pollRequestsIgnored_;
