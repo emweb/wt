@@ -8,6 +8,7 @@
 #define WT_DBO_TRANSACTION_H_
 
 #include <vector>
+#include <boost/thread/mutex.hpp>
 #include <Wt/Dbo/WDboDllDefs.h>
 
 namespace Wt {
@@ -76,7 +77,7 @@ public:
    * transactions must commit successfully for the entire transaction to
    * succeed.
    */
-  explicit Transaction(Session& session);
+  explicit Transaction(Session& session, const bool locked = false);
 
   /*! \brief Destructor.
    *
@@ -121,6 +122,8 @@ public:
    */
   Session& session() const;
 
+  static boost::mutex mutex_;
+
 private:
   struct Impl {
     Session& session_;
@@ -141,6 +144,7 @@ private:
     ~Impl();
   };
 
+  const bool locked_;
   bool committed_;
   Session& session_;
   Impl *impl_;
