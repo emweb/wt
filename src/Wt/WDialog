@@ -348,6 +348,10 @@ public:
    */
   void positionAt(const Wt::WMouseEvent& ev);
 
+  /*! \brief Raises this dialog to be the top-most dialog.
+   */
+  void raiseToFront();
+
   virtual void setMinimumSize(const WLength& width, const WLength& height);
   virtual void setMaximumSize(const WLength& width, const WLength& height);
 

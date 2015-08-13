@@ -652,10 +652,15 @@ void WDialog::bringToFront(const WMouseEvent &e)
 {
   if (e.button() == WMouseEvent::LeftButton &&
       e.modifiers() == NoModifier) {
-    doJavaScript("jQuery.data(" + jsRef() + ", 'obj').bringToFront()");
-    DialogCover *c = cover();
-    c->bringToFront(this);
+    raiseToFront();
   }
+}
+
+void WDialog::raiseToFront()
+{
+  doJavaScript("jQuery.data(" + jsRef() + ", 'obj').bringToFront()");
+  DialogCover *c = cover();
+  c->bringToFront(this);  
 }
 
 }

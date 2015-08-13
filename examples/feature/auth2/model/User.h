@@ -11,6 +11,7 @@
 #include <Wt/WDate>
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/WGlobal>
+#include <Wt/Auth/Dbo/AuthInfo>
 
 namespace dbo = Wt::Dbo;
 

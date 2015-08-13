@@ -1068,8 +1068,11 @@ EventSignalBase *WebSession::decodeSignal(const std::string& signalId,
       result = 0;
   }
 
-  if (!result && checkExposed)
-    LOG_ERROR("decodeSignal(): signal '" << signalId << "' not exposed");
+  if (!result && checkExposed) {
+    if (app_->justRemovedSignals().find(signalId) ==
+	app_->justRemovedSignals().end())
+      LOG_ERROR("decodeSignal(): signal '" << signalId << "' not exposed");
+  }
 
   return result;
 }
@@ -1078,19 +1081,9 @@ EventSignalBase *WebSession::decodeSignal(const std::string& objectId,
 					  const std::string& name,
 					  bool checkExposed) const
 {
-  EventSignalBase *result = app_->decodeExposedSignal(objectId, name);
+  std::string signalId = app_->encodeSignal(objectId, name);
 
-  if (result && checkExposed) {
-    WWidget *w = dynamic_cast<WWidget *>(result->sender());
-    if (w && !app_->isExposed(w) && name != "resized")
-      result = 0;
-  }
-
-  if (!result && checkExposed)
-    LOG_ERROR("decodeSignal(): signal '" << objectId << '.' << name
-	      << "' not exposed");
-
-  return result;
+  return decodeSignal(signalId, checkExposed && name != "resized");
 }
 
 WebSession *WebSession::instance()
@@ -2741,9 +2734,8 @@ WebSession::getSignalProcessingOrder(const WEvent& e) const
     std::string se = i > 0
       ? 'e' + boost::lexical_cast<std::string>(i) : std::string();
     const std::string *signalE = getSignal(request, se);
-    if (!signalE) {
+    if (!signalE)
       break;
-    }
     if (*signalE != "user" &&
         *signalE != "hash" &&
         *signalE != "none" &&
@@ -2856,6 +2848,8 @@ void WebSession::notifySignal(const WEvent& e)
       }
     }
   }
+
+  app_->justRemovedSignals().clear();
 }
 
 void WebSession::processSignal(EventSignalBase *s, const std::string& se,

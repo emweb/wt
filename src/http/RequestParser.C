@@ -356,7 +356,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
   }
 
   Buffer::iterator dataBegin = begin;
-  Buffer::iterator dataEnd = end;
+  Buffer::iterator dataEnd = begin; // Initially assume no data
 
   Request::State state = Request::Partial;
 
@@ -370,8 +370,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	remainder_ = 0;
       } else {
 	wsState_ = ws00_text_data;
-	dataBegin = begin;
-        ++dataBegin;
+	dataBegin = begin + 1;
 	remainder_ = 0;
       }
 

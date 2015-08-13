@@ -426,7 +426,7 @@ public:
    *
    * The event indicates that the currentTime() has changed.
    */
-  JSignal<>& timeUpdated();
+  JSignal<double>& timeUpdated();
 
   /*! \brief Event that indicates that playback started.
    *
@@ -447,7 +447,7 @@ public:
 
   /*! \brief Event that indicates that the volume has changed.
    */
-  JSignal<>& volumeChanged();
+  JSignal<double>& volumeChanged();
 
   std::string jsPlayerRef() const;
 
@@ -463,7 +463,13 @@ private:
     WLink link;
   };
 
+  struct SignalDouble {
+    JSignal<double> *signal;
+    std::string jsExprA1;
+  };
+
   std::vector<JSignal<> *> signals_;
+  std::vector<SignalDouble> signalsDouble_;
 
   MediaType mediaType_;
   int videoWidth_, videoHeight_;
@@ -477,7 +483,7 @@ private:
   WProgressBar *progressBar_[2];
 
   WWidget *gui_;
-  unsigned boundSignals_;
+  unsigned boundSignals_, boundSignalsDouble_;
 
   bool mediaUpdated_;
 
@@ -502,6 +508,7 @@ private:
 		      const std::string& styleClass,
 		      const std::string& valueStyleClass);
   JSignal<>& signal(const char *name);
+  JSignal<double>& signalDouble(const char *name, const std::string& expr);
 
   void updateProgressBarState(BarControlId id);
   void updateFromProgressBar(BarControlId id, double value);

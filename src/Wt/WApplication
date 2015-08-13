@@ -2188,10 +2188,11 @@ private:
 
 #ifndef WT_TARGET_JAVA
   typedef std::map<std::string, EventSignalBase *> SignalMap;
-#else
-  typedef std::map<std::string, WeakReference<EventSignalBase *> > SignalMap;
-#endif
   typedef std::map<std::string, WResource *> ResourceMap;
+#else
+  typedef std::weak_value_map<std::string, EventSignalBase *> SignalMap;
+  typedef std::weak_value_map<std::string, WResource *> ResourceMap;
+#endif
   typedef std::map<std::string, WObject *> ObjectMap;
 
   /*
@@ -2256,6 +2257,7 @@ private:
   ResourceMap exposedResources_; // resources that may be accessed
   ObjectMap   encodedObjects_;   // objects encoded for internal purposes
                                  // like 'virtual pointers' (see D&D)
+  std::set<std::string> justRemovedSignals_;
 
   bool exposeSignals_;           // if we are currently exposing signals
                                  // (see WViewWidget)
@@ -2288,9 +2290,11 @@ private:
   void              addExposedSignal(EventSignalBase* signal);
   void              removeExposedSignal(EventSignalBase* signal);
   EventSignalBase  *decodeExposedSignal(const std::string& signalName) const;
-  EventSignalBase  *decodeExposedSignal(const std::string& objectId,
-				       const std::string& name);
+  std::string       encodeSignal(const std::string& objectId,
+				 const std::string& name) const;
+
   SignalMap&  exposedSignals() { return exposedSignals_; }
+  std::set<std::string>& justRemovedSignals() { return justRemovedSignals_; }
 
   std::string resourceMapKey(WResource *resource);
   std::string addExposedResource(WResource *resource);

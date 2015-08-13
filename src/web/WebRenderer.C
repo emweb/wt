@@ -1749,16 +1749,7 @@ void WebRenderer::preLearnStateless(WApplication *app, WStringStream& out)
 
   for (WApplication::SignalMap::iterator i = ss.begin();
        i != ss.end(); ) {
-
-#ifdef WT_TARGET_JAVA
-    Wt::EventSignalBase *s = i->second.get();
-    if (!s) {
-      Utils::eraseAndNext(ss, i);
-      continue;
-    }
-#else
     Wt::EventSignalBase* s = i->second;
-#endif // WT_TARGET_JAVA
 
     if (s->sender() == app)
       s->processPreLearnStateless(this);

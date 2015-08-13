@@ -752,11 +752,7 @@ void WApplication::handleJavaScriptError(const std::string& errorText)
 void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
 {
   std::string s = signal->encodeCmd();
-#ifdef WT_TARGET_JAVA
-  Utils::insert(exposedSignals_, s, WeakReference<Wt::EventSignalBase*>(signal));
-#else
   Utils::insert(exposedSignals_, s, signal);
-#endif
 
   LOG_DEBUG("addExposedSignal: " << s);
 }
@@ -766,6 +762,7 @@ void WApplication::removeExposedSignal(Wt::EventSignalBase *signal)
   std::string s = signal->encodeCmd();
 
   if (exposedSignals_.erase(s)) {
+    justRemovedSignals_.insert(s);
     LOG_DEBUG("removeExposedSignal: " << s);
   } else {
     LOG_DEBUG("removeExposedSignal of non-exposed " << s << "??");
@@ -778,22 +775,15 @@ WApplication::decodeExposedSignal(const std::string& signalName) const
   SignalMap::const_iterator i = exposedSignals_.find(signalName);
 
   if (i != exposedSignals_.end()) {
-#ifndef WT_TARGET_JAVA
     return i->second;
-#else
-    return i->second.get();
-#endif //WT_TARGET_JAVA
   } else
     return 0;
 }
 
-EventSignalBase *
-WApplication::decodeExposedSignal(const std::string& objectId,
-				  const std::string& name)
+std::string WApplication::encodeSignal(const std::string& objectId,
+				       const std::string& name) const
 {
-  std::string signalName = (objectId == "app" ? id() : objectId) + '.' + name;
-
-  return decodeExposedSignal(signalName);
+  return (objectId == "app" ? id() : objectId) + '.' + name;
 }
 
 std::string WApplication::resourceMapKey(WResource *resource)

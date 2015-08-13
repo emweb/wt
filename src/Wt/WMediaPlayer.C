@@ -105,7 +105,8 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType, WContainerWidget *parent)
     videoWidth_(0),
     videoHeight_(0),
     gui_(this),
-    boundSignals_(0)
+    boundSignals_(0),
+    boundSignalsDouble_(0)
 {
   for (unsigned i = 0; i < 11; ++i)
     control_[i] = 0;
@@ -152,6 +153,9 @@ WMediaPlayer::~WMediaPlayer()
 
   for (unsigned i = 0; i < signals_.size(); ++i)
     delete signals_[i];
+
+  for (unsigned i = 0; i < signalsDouble_.size(); ++i)
+    delete signalsDouble_[i].signal;
 }
 
 void WMediaPlayer::clearSources()
@@ -579,6 +583,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     doJavaScript(ss.str());
 
     boundSignals_ = 0;
+    boundSignalsDouble_ = 0;
   }
 
   if (boundSignals_ < signals_.size()) {
@@ -587,6 +592,20 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
     for (unsigned i = boundSignals_; i < signals_.size(); ++i)
       ss << ".bind('" << signals_[i]->name() << "', function(o, e) { "
 	 << signals_[i]->createCall() << "})";
+    ss << ';';
+
+    doJavaScript(ss.str());
+    boundSignals_ = signals_.size();
+  }
+
+  if (boundSignalsDouble_ < signalsDouble_.size()) {
+    WStringStream ss;
+    ss << jsPlayerRef();
+    for (unsigned i = boundSignalsDouble_; i < signalsDouble_.size(); ++i)
+      ss << ".bind('" << signalsDouble_[i].signal->name()
+	 << "', function(o, e) { "
+	 << signalsDouble_[i].signal
+	     ->createCall(signalsDouble_[i].jsExprA1) << "})";
     ss << ';';
 
     doJavaScript(ss.str());
@@ -632,9 +651,10 @@ JSignal<>& WMediaPlayer::loadStarted()
 }
 */
 
-JSignal<>& WMediaPlayer::timeUpdated()
+JSignal<double>& WMediaPlayer::timeUpdated()
 {
-  return signal(TIME_UPDATED_SIGNAL);
+  return signalDouble(TIME_UPDATED_SIGNAL,
+		      jsPlayerRef() + ".data('jPlayer').status.currentTime");
 }
 
 JSignal<>& WMediaPlayer::playbackStarted()
@@ -652,9 +672,10 @@ JSignal<>& WMediaPlayer::ended()
   return signal(ENDED_SIGNAL);
 }
 
-JSignal<>& WMediaPlayer::volumeChanged()
+JSignal<double>& WMediaPlayer::volumeChanged()
 {
-  return signal(VOLUME_CHANGED_SIGNAL);
+  return signalDouble(VOLUME_CHANGED_SIGNAL,
+		      jsPlayerRef() + ".data('jPlayer').options.volume");
 }
 
 JSignal<>& WMediaPlayer::signal(const char *name)
@@ -670,6 +691,24 @@ JSignal<>& WMediaPlayer::signal(const char *name)
   scheduleRender();
 
   return *result;
+}
+
+JSignal<double>& WMediaPlayer::signalDouble(const char *name,
+					    const std::string& jsExpr)
+{
+  for (unsigned i = 0; i < signalsDouble_.size(); ++i) {
+    if (signalsDouble_[i].signal->name() == name)
+      return *signalsDouble_[i].signal;
+  }
+
+  SignalDouble sd;
+  sd.signal = new JSignal<double>(this, name, true);
+  sd.jsExprA1 = jsExpr;
+  signalsDouble_.push_back(sd);
+
+  scheduleRender();
+
+  return *sd.signal;
 }
 
 void WMediaPlayer::createDefaultGui()
