@@ -77,7 +77,7 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
 
   result.push_back(WCssStyleSheet
 		   (WLink(themeVersionDir.str() 
-			  + "bootstrap.css")));
+			  + "bootstrap.min.css")));
 
   WApplication *app = WApplication::instance();
  
@@ -85,7 +85,7 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
     if (version_ < Version3)
       result.push_back(WCssStyleSheet
 		       (WLink(themeVersionDir.str()
-			      + "bootstrap-responsive.css")));
+			      + "bootstrap-responsive.min.css")));
     else if (app)
       app->addMetaHeader("viewport",
 			 "width=device-width, initial-scale=1");
