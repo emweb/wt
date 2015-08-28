@@ -83,12 +83,15 @@ void WIcon::propagateRenderOk(bool deep)
 
 void WIcon::loadIconFont()
 {
+/*
   WApplication *app = WApplication::instance();
 
   std::string fontDir = WApplication::relativeResourcesUrl()
     + "font-awesome/";
   
   app->useStyleSheet(fontDir + "css/font-awesome.min.css");
+*/
+        wApp->useStyleSheet("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
 }
 
 }
