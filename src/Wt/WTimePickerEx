@@ -5,6 +5,7 @@
 #include "WCompositeWidget"
 #include "WContainerWidget"
 #include "WTime"
+#include "WInPlaceEdit"
 
 namespace Wt {
 
@@ -79,7 +80,7 @@ protected:
     void decrementHours();
 
 private:
-    void changeTime(WText* _timeText, int increment, int rollover);
+    void changeTime(WInPlaceEdit* _timeText, int increment, int rollover);
 
     int hourStep_;
     int minuteStep_;
@@ -88,11 +89,12 @@ private:
 
     void init(const WTime &time = WTime());
 
-    WText *hourText_;
-    WText *minuteText_;
-    WText *secondText_;
-    WText *millisecondText_;
+    WInPlaceEdit *hourText_;
+    WInPlaceEdit *minuteText_;
+    WInPlaceEdit *secondText_;
+    WInPlaceEdit *millisecondText_;
 
+    void fire();
     Signal<> selectionChanged_;
 
 };

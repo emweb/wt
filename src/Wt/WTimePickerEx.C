@@ -1,6 +1,8 @@
 #include "WTimePickerEx"
 
 #include "WStringStream"
+#include "WIntValidator"
+#include "WLineEdit"
 #include "WTemplate"
 #include "WPushButton"
 #include "WText"
@@ -39,13 +41,13 @@ void WTimePickerEx::init(const WTime &time)
             ""  "<th>${incrementMillisecond}</th>"
             """</tr>"
             """<tr>"
-            ""  "<td valign=\"middle\" align=\"center\">${hourText}</td>"
-            ""  "<td valign=\"middle\" align=\"center\">:</td>"
-            ""  "<td valign=\"middle\" align=\"center\">${minuteText}</td>"
-            ""  "<td valign=\"middle\" align=\"center\">:</td>"
-            ""  "<td valign=\"middle\" align=\"center\">${secondText}</td>"
-            ""  "<td valign=\"middle\" align=\"center\">.</td>"
-            ""  "<td valign=\"middle\" align=\"center\">${millisecondText}</td>"
+            ""  "<td valign=\"middle\" align=\"right\">${hourText}</td>"
+            ""  "<td valign=\"middle\" align=\"right\">:</td>"
+            ""  "<td valign=\"middle\" align=\"right\">${minuteText}</td>"
+            ""  "<td valign=\"middle\" align=\"right\">:</td>"
+            ""  "<td valign=\"middle\" align=\"right\">${secondText}</td>"
+            ""  "<td valign=\"middle\" align=\"right\">.</td>"
+            ""  "<td valign=\"middle\" align=\"right\">${millisecondText}</td>"
             """</tr>"
             """<tr>"
             ""  "<th>${decrementHour}</th>"
@@ -95,21 +97,33 @@ void WTimePickerEx::init(const WTime &time)
     decMillisecondButton->addStyleClass("fa fa-arrow-down");
     decMillisecondButton->setToolTip("Subtract Milliseconds");
 
-    hourText_ = new WText("0");
+    hourText_ = new WInPlaceEdit("0");
     hourText_->setInline(false);
-    hourText_->setTextAlignment(AlignCenter);
+    hourText_->textWidget()->setTextAlignment(AlignCenter);
+    hourText_->textWidget()->setInline(false);
+    hourText_->lineEdit()->setValidator(new WIntValidator(0, 24));
+    hourText_->valueChanged().connect(this, &WTimePickerEx::fire);
 
-    minuteText_ = new WText("00");
+    minuteText_ = new WInPlaceEdit("00");
     minuteText_->setInline(false);
-    minuteText_->setTextAlignment(AlignCenter);
+    minuteText_->textWidget()->setTextAlignment(AlignCenter);
+    minuteText_->textWidget()->setInline(false);
+    minuteText_->lineEdit()->setValidator(new WIntValidator(0, 60));
+    minuteText_->valueChanged().connect(this, &WTimePickerEx::fire);
 
-    secondText_ = new WText("00");
+    secondText_ = new WInPlaceEdit("00");
     secondText_->setInline(false);
-    secondText_->setTextAlignment(AlignCenter);
+    secondText_->textWidget()->setTextAlignment(AlignCenter);
+    secondText_->textWidget()->setInline(false);
+    secondText_->lineEdit()->setValidator(new WIntValidator(0, 60));
+    secondText_->valueChanged().connect(this, &WTimePickerEx::fire);
 
-    millisecondText_ = new WText("000");
+    millisecondText_ = new WInPlaceEdit("000");
     millisecondText_->setInline(false);
-    millisecondText_->setTextAlignment(AlignCenter);
+    millisecondText_->textWidget()->setTextAlignment(AlignCenter);
+    millisecondText_->textWidget()->setInline(false);
+    millisecondText_->lineEdit()->setValidator(new WIntValidator(0, 1000));
+    millisecondText_->valueChanged().connect(this, &WTimePickerEx::fire);
 
     impl->bindWidget("hourText", hourText_);
     impl->bindWidget("minuteText", minuteText_);
@@ -189,7 +203,7 @@ void WTimePickerEx::setTime(const WTime& time)
     millisecondText_->setText(millisecondsStr);
 }
 
-void WTimePickerEx::changeTime(WText* _timeText, int increment, int rollover)
+void WTimePickerEx::changeTime(WInPlaceEdit* _timeText, int increment, int rollover)
 {
     std::string str = _timeText->text().toUTF8();
     int curVal = 0;
@@ -234,6 +248,11 @@ void WTimePickerEx::changeTime(WText* _timeText, int increment, int rollover)
 
     _timeText->setText(str);
 
+    fire();
+}
+
+void WTimePickerEx::fire()
+{
     selectionChanged_.emit();
 }
 
