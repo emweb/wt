@@ -362,6 +362,9 @@ public:
 
   virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 
+protected:
+  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+
 private:
   // we use row,column indices; prepend transformations to the left,
   // and transform column point vectors: X' = M.X

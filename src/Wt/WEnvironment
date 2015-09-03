@@ -717,6 +717,7 @@ private:
   WEnvironment(WebSession *session);
 
   void init(const WebRequest& request);
+  void updateHostName(const WebRequest& request);
 #ifndef WT_TARGET_JAVA
   void parseSSLInfo(const std::string& json);
 #endif

@@ -19,6 +19,22 @@ WT_DECLARE_WT_MEMBER
 
    this.jsValues = []
    this.repaint = function() {};
+
+   function encodeJSValues() {
+      var res = [];
+      var value;
+      var i;
+      for (i = 0; i < self.jsValues.length; ++i) {
+	 value = self.jsValues[i];
+	 if (jQuery.isArray(value) && value.length > 6) {
+	    res.push([]); // Omit painter paths, FIXME: this is kind of hacky?
+	 } else {
+	    res.push(value);
+	 }
+      }
+      return JSON.stringify(res);
+   }
+   widget.wtEncodeValue = encodeJSValues;
  });
 
 // This should be refactored to something, somewhere?

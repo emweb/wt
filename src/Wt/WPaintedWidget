@@ -111,9 +111,6 @@ class WWidgetPainter;
  * If the widget is drawn as an HTML canvas element, i.e. the \link getMethod() method\endlink
  * is HtmlCanvas, a %WPaintedWidget can expose certain objects to be modified client side.
  *
- * \note Changes to client side objects are currently not synced back to the server,
- *	 whereas changes to the handle on the server side <i>will</i> be synced to the client.
- *
  * \sa WJavaScriptHandle, WJavaScriptExposableObject
  *
  * \sa WImage
@@ -320,6 +317,8 @@ protected:
   virtual void enableAjax();
 
   virtual void render(WFlags<RenderFlag> flags);
+
+  virtual void setFormData(const FormData& formData);
 
 protected:
   /*! \brief Returns a JavaScript reference to the client side representation of the WPaintedWidget

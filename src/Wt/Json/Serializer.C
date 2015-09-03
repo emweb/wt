@@ -42,15 +42,14 @@ void serialize(const Value& val, int indentation, EscapeOStream &result)
 	return;
     break;
   case NumberType: 
-	{
-	double d = static_cast<double>(val);
-	int i = static_cast<int>(val);
-	if(fabs(d - i) > 0.0)
-	  result << Utils::round_js_str(static_cast<double>(val), 16, buf);
-	else 
-	  result << i;
-	return;
-	}
+    {
+      double intpart;
+      if (fabs(std::modf(val, &intpart)) == 0.0 && fabs(intpart) < 9.22E18)
+	result << (long long)intpart;
+      else 
+	result << Utils::round_js_str(static_cast<double>(val), 16, buf);
+      return;
+    }
     break;
   case ObjectType:
     serialize((const Object&)val, indentation + 1, result);

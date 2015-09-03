@@ -27,7 +27,7 @@ typedef EscapeOStream EStream;
 enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyValue, PropertyDisabled,
 		PropertyChecked, PropertySelected, PropertySelectedIndex,
-		PropertyMultiple, PropertyTarget, PropertyIndeterminate,
+		PropertyMultiple, PropertyTarget, PropertyDownload, PropertyIndeterminate,
 		PropertySrc,
 		PropertyColSpan, PropertyRowSpan, PropertyReadOnly,
 		PropertyTabIndex, PropertyLabel,

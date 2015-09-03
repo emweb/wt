@@ -45,24 +45,25 @@ std::string WItemSelectionModel::mimeType()
 {
   std::string retval;
 
-   //Check that all selected mime types are the same
-    for (WModelIndexSet::const_iterator i = selection_.begin();
-         i != selection_.end(); ++i) {
-      WModelIndex mi = *i;
+  // Check that all selected mime types are the same
 
-      if (!(mi.flags() & ItemIsDragEnabled))
-        return std::string();
+  for (WModelIndexSet::const_iterator i = selection_.begin();
+       i != selection_.end(); ++i) {
+    WModelIndex mi = *i;
 
-      boost::any mimeTypeData = mi.data(MimeTypeRole);
-      if (!mimeTypeData.empty()) {
-        std::string currentMimeType = asString(mimeTypeData).toUTF8();
+    if (!(mi.flags() & ItemIsDragEnabled))
+      return std::string();
 
-        if (!currentMimeType.empty()) {
-          if (retval.empty())
-            retval = currentMimeType;
-          else if (currentMimeType != retval)
-            return model_->mimeType();
-       }
+    boost::any mimeTypeData = mi.data(MimeTypeRole);
+    if (!mimeTypeData.empty()) {
+      std::string currentMimeType = asString(mimeTypeData).toUTF8();
+
+      if (!currentMimeType.empty()) {
+	if (retval.empty())
+	  retval = currentMimeType;
+	else if (currentMimeType != retval)
+	  return model_->mimeType();
+      }
     }
   }
 

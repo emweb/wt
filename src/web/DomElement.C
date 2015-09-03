@@ -961,6 +961,9 @@ void DomElement::asHTML(EscapeOStream& out,
     case PropertyTarget:
       out << " target=\"" << i->second << "\"";
       break;
+	case PropertyDownload:
+	  out << " download=\"" << i->second << "\"";
+	  break;
     case PropertyIndeterminate:
       if (i->second == "true") {
 	DomElement *self = const_cast<DomElement *>(this);

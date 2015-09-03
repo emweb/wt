@@ -134,6 +134,18 @@ public:
    */
   bool isAutoLayoutEnabled() const { return autoPadding_; }
 
+  /*! \brief Set whether to draw the X axis tick labels on the slider widget.
+   *
+   * Labels are enabled by default.
+   */
+  void setLabelsEnabled(bool enabled = true);
+
+  /*! \brief Returns whether the X axis tick labels are drawn.
+   *
+   * \sa setLabelsEnabled()
+   */
+  bool isLabelsEnabled() const { return labelsEnabled_; }
+
 protected:
   virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
   virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override) ;
@@ -152,6 +164,7 @@ private:
   WBrush background_;
   WBrush selectedAreaBrush_;
   bool autoPadding_;
+  bool labelsEnabled_;
   int padding_[4];
 
   WJavaScriptHandle<WTransform> transform_;

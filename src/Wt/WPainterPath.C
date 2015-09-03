@@ -504,4 +504,6 @@ bool WPainterPath::isPointInPath(const WPointF &p) const
   return res;
 }
 
+void WPainterPath::assignFromJSON(const Json::Value &value) {}
+
 }

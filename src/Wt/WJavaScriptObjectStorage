@@ -36,6 +36,8 @@ public:
 
   std::size_t size() const;
 
+  void assignFromJSON(const std::string &json);
+
 private:
   template<typename T>
   friend class WJavaScriptHandle;

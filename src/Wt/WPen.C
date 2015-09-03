@@ -6,9 +6,16 @@
 
 #include "Wt/WPen"
 
+#include "Wt/WLogger"
 #include "Wt/WStringStream"
 
+#include "Wt/Json/Array"
+#include "Wt/Json/Object"
+#include "Wt/Json/Value"
+
 namespace Wt {
+
+LOGGER("WPen");
 
 WPen::WPen()
   : penStyle_(SolidLine),
@@ -133,6 +140,34 @@ bool WPen::operator!=(const WPen& other) const
   return !(*this == other);
 }
 
+void WPen::assignFromJSON(const Json::Value &value)
+{
+  try {
+#ifndef WT_TARGET_JAVA
+    const Json::Object &o = value;
+    const Json::Value &color = o.get("color");
+    const Json::Array &col = color;
+#else
+    const Json::Object &o = static_cast<const Json::Object &>(value);
+    const Json::Value &color = o.get("color");
+    const Json::Array &col = static_cast<const Json::Array &>(color);
+#endif
+    if (col.size() == 4 &&
+	!col[0].toNumber().isNull() &&
+	!col[1].toNumber().isNull() &&
+	!col[2].toNumber().isNull() &&
+	!col[3].toNumber().isNull()) {
+      color_ = WColor(col[0].toNumber().orIfNull(0),
+		      col[1].toNumber().orIfNull(0),
+		      col[2].toNumber().orIfNull(0),
+		      col[3].toNumber().orIfNull(255));
+    } else {
+      LOG_ERROR("Couldn't convert JSON to WPen");
+    }
+  } catch (std::exception &e) {
+    LOG_ERROR("Couldn't convert JSON to WPen: " + std::string(e.what()));
+  }
+}
 
 std::string WPen::jsValue() const
 {

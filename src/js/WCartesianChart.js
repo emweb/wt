@@ -36,7 +36,11 @@ WT_DECLARE_WT_MEMBER
 	     };
    })();
 
-   target.canvas.style.msTouchAction = 'none';
+   if (window.MSPointerEvent || window.PointerEvent) {
+      widget.style.touchAction = 'none';
+      target.canvas.style.msTouchAction = 'none';
+      target.canvas.style.touchAction = 'none';
+   }
 
    var MOVE_TO = 0, LINE_TO = 1, CUBIC_C1 = 2, CUBIC_C2 = 3, CUBIC_END = 4,
        QUAD_C = 5, QUAD_END = 6, ARC_C = 7, ARC_R = 8, ARC_ANGLE_SWEEP = 9;
@@ -44,6 +48,11 @@ WT_DECLARE_WT_MEMBER
    var X_ONLY = 1, Y_ONLY = 2; // bit flags
    var X = 0, Y = 1;
    var LOOK_MODE = 0, CROSSHAIR_MODE = 1;
+   var WHEEL_ZOOM_X = 0, WHEEL_ZOOM_Y = 1, WHEEL_ZOOM_XY = 2,
+       WHEEL_ZOOM_MATCHING = 3, WHEEL_PAN_X = 4, WHEEL_PAN_Y = 5,
+       WHEEL_PAN_MATCHING = 6;
+
+   var touchHandlers = {};
 
    function showCrosshair() {
       return config.crosshair || config.followCurve !== -1;
@@ -56,7 +65,7 @@ WT_DECLARE_WT_MEMBER
 
    var pointerActive = false;
 
-   if (!window.TouchEvent && (window.MSPointerEvent || window.PointerEvent)) {
+   if (window.MSPointerEvent || window.PointerEvent) {
       (function(){
 	 pointers = []
 
@@ -74,7 +83,7 @@ WT_DECLARE_WT_MEMBER
 	    pointers.push(event);
 
 	    updatePointerActive();
-	    self.touchStart(widget, {touches:pointers.slice(0)});
+	    touchHandlers.start(widget, {touches:pointers.slice(0)});
 	 }
 
 	 function pointerUp(event) {
@@ -90,7 +99,7 @@ WT_DECLARE_WT_MEMBER
 	    }
 
 	    updatePointerActive();
-	    self.touchEnd(widget, {touches:pointers.slice(0),changedTouches:[]});
+	    touchHandlers.end(widget, {touches:pointers.slice(0),changedTouches:[]});
 	 }
 
 	 function pointerMove(event) {
@@ -105,7 +114,7 @@ WT_DECLARE_WT_MEMBER
 	    }
 
 	    updatePointerActive();
-	    self.touchMoved(widget, {touches:pointers.slice(0)});
+	    touchHandlers.moved(widget, {touches:pointers.slice(0)});
 	 }
 
 	 var o = jQuery.data(widget, 'eobj');
@@ -205,6 +214,7 @@ WT_DECLARE_WT_MEMBER
 	 return mult([1,0,0,-1,l,b], mult(transform(X), mult(transform(Y), [1,0,0,-1,-l,b])));
       }
    }
+   target.combinedTransform = combinedTransform;
 
    function transformedChartArea() {
       return mult(combinedTransform(), config.area);
@@ -397,7 +407,8 @@ WT_DECLARE_WT_MEMBER
       var textY = p[1].toFixed(2);
       if (textX == '-0.00') textX = '0.00';
       if (textY == '-0.00') textY = '0.00';
-      ctx.fillText("("+textX+","+textY+")", right(config.area) - 5, top(config.area) + 5);
+      ctx.fillText("("+textX+","+textY+")", right(config.area) - config.coordinateOverlayPadding[0],
+	    top(config.area) + config.coordinateOverlayPadding[1]);
       
       if (ctx.setLineDash) {
 	 ctx.setLineDash([1,2]);
@@ -550,7 +561,10 @@ WT_DECLARE_WT_MEMBER
 	 c.style.display = 'block';
 	 c.style.left = '0';
 	 c.style.top = '0';
-	 c.style.msTouchAction = 'none';
+	 if (window.MSPointerEvent || window.PointerEvent) {
+	    c.style.msTouchAction = 'none';
+	    c.style.touchAction = 'none';
+	 }
 	 target.canvas.parentNode.appendChild(c);
 	 overlay = c;
 	 jQuery.data(widget, 'oobj', overlay);
@@ -568,28 +582,42 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.mouseWheel = function(o, event) {
+      var modifiers = (event.metaKey << 3) + (event.altKey << 2) + (event.ctrlKey << 1) + event.shiftKey;
+      var action = config.wheelActions[modifiers];
+      if (action === undefined) return;
+
       var c = WT.widgetCoordinates(target.canvas, event);
       if (!isPointInRect(c, config.area)) return;
       var w = WT.normalizeWheel(event);
-      if (!event.ctrlKey && config.pan) {
+      if ((action === WHEEL_PAN_X || action === WHEEL_PAN_Y || action === WHEEL_PAN_MATCHING) && config.pan) {
 	 var xBefore = transform(X)[4];
 	 var yBefore = transform(Y)[5];
-	 translate({x:-w.pixelX,y:-w.pixelY});
+	 if (action === WHEEL_PAN_MATCHING)
+	    translate({x:-w.pixelX,y:-w.pixelY});
+	 else if (action === WHEEL_PAN_Y)
+	    translate({x:0,y:-w.pixelX - w.pixelY});
+	 else if (action === WHEEL_PAN_X)
+	    translate({x:-w.pixelX - w.pixelY,y:0});
 	 if (xBefore !== transform(X)[4] ||
 	     yBefore !== transform(Y)[5]) {
 	    WT.cancelEvent(event);
 	 }
-      } else if (event.ctrlKey && config.zoom) {
+      } else if (config.zoom) {
 	 WT.cancelEvent(event);
 	 var d = -w.spinY;
 	 // Some browsers scroll horizontally when shift key pressed
 	 if (d === 0) d = -w.spinX;
-	 if (event.shiftKey && !event.altKey) {
+	 if (action === WHEEL_ZOOM_Y) {
 	    zoom(c, 0, d);
-	 } else if (event.altKey && !event.shiftKey) {
+	 } else if (action === WHEEL_ZOOM_X) {
 	    zoom(c, d, 0);
-	 } else {
+	 } else if (action === WHEEL_ZOOM_XY) {
 	    zoom(c, d, d);
+	 } else if (action === WHEEL_ZOOM_MATCHING) {
+	    if (w.pixelX !== 0)
+	       zoom(c, d, 0);
+	    else
+	       zoom(c, 0, d);
 	 }
       }
    };
@@ -614,7 +642,7 @@ WT_DECLARE_WT_MEMBER
 
    var CROSSHAIR_RADIUS = 30;
 
-   this.touchStart = function(o, event) {
+   touchHandlers.start = function(o, event) {
       singleTouch = event.touches.length === 1;
       doubleTouch = event.touches.length === 2;
 
@@ -789,7 +817,7 @@ WT_DECLARE_WT_MEMBER
       }
    }
 
-   this.touchEnd = function(o, event) {
+   touchHandlers.end = function(o, event) {
       var touches = Array.prototype.slice.call(event.touches);
 
       var noTouch = touches.length === 0;
@@ -835,10 +863,10 @@ WT_DECLARE_WT_MEMBER
 	 }
 	 mode = null;
       } else if (singleTouch || doubleTouch)
-	 self.touchStart(o, event);
+	 touchHandlers.start(o, event);
    };
 
-   this.touchMoved = function(o, event) {
+   touchHandlers.moved = function(o, event) {
      if ( (!singleTouch) && (!doubleTouch) ) {
        return;
      }
@@ -1182,4 +1210,15 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.updateConfig({});
+
+   if (window.TouchEvent && !window.MSPointerEvent && !window.PointerEvent) {
+      self.touchStart = touchHandlers.start;
+      self.touchEnd = touchHandlers.end;
+      self.touchMoved = touchHandlers.moved;
+   } else {
+      var nop = function(){};
+      self.touchStart = nop;
+      self.touchEnd = nop;
+      self.touchMoved = nop;
+   }
  });

@@ -42,6 +42,10 @@ public:
 	/*! \brief sets the minute step
 	 */
     void setMinuteStep(int step) { minuteStep_ = step; }
+	
+	/*! \brief sets the second step
+	 */
+    void setSecondStep(int step) { secondStep_ = step; }
 
 	/*! \brief Signal emitted when the value is changed
 	 */
@@ -50,16 +54,20 @@ public:
 private:
 
     int minuteStep_;
+	int secondStep_;
 
     void init(const WTime &time = WTime());
 
     WText *hourText_;
     WText *minuteText_;
+    WText *secondText_;
 
     void incrementMinutes();
     void decrementMinutes();
     void incrementHours();
     void decrementHours();
+	void incrementSeconds();
+	void decrementSeconds();
 
     Signal<> selectionChanged_;
 

@@ -316,8 +316,11 @@ void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
    * This causes fail when a text edit is progressively enhanced. The solution
    * is to listen for the onInit() event -> we should be able to add a
    * wrapping ... .onInit(function(ed) { .... }) around the changes
+   *
+   * New version of tinyMCE uses divs instead of table and removing the _tbl 
+   * makes it work on all version
    */
-  DomElement *e = DomElement::getForUpdate(formName() + "_tbl",
+  DomElement *e = DomElement::getForUpdate(formName()/* + "_tbl" */ ,
 					   DomElement_TABLE);
   updateDom(*e, false);
 

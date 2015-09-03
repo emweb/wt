@@ -224,9 +224,7 @@ bool WebController::expireSessions()
     session->expire();
   }
 
-  toExpire.clear();
-
-  if (configuration().singleSession()) {
+  if (toExpire.size() > 0 && configuration().singleSession()) {
 #ifdef WT_THREADED
     boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED

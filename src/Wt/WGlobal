@@ -666,7 +666,8 @@ enum GradientStyle {
 enum AnchorTarget {
   TargetSelf,      //!< Show Instead of the application
   TargetThisWindow,//!< Show in the top level frame of the application window
-  TargetNewWindow  //!< Show in a separate new tab or window
+  TargetNewWindow, //!< Show in a separate new tab or window
+  TargetDownload   //!< Targets an empty iframe and can only be used for downloadable items
 };
 
 /*! \brief Enumeration that indicates the text format.

@@ -27,9 +27,15 @@ WT_DECLARE_WT_MEMBER
      el.ed = new tinymce.Editor(el.id, config, tinymce.EditorManager);
      el.ed.render();
      if (connectOnChange) {
-       el.ed.onChange.add(function() {
-	   APP.emit(el, 'change');
-       });
+	   if (tinymce.EditorManager.majorVersion < 4) {
+		 el.ed.onChange.add(function() {
+		   APP.emit(el, 'change');
+		 });
+	   } else  {
+		 el.ed.on('change', function() {
+		   APP.emit(el, 'change');
+		 });
+	   }
      }
      APP.emit(el, 'render');
    };

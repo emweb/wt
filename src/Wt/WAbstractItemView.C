@@ -946,7 +946,8 @@ void WAbstractItemView::selectionHandleClick(const WModelIndex& index,
       extendSelection(index);
     else {
       if (!(modifiers & (ControlModifier | MetaModifier))) {
-	select(index, ClearAndSelect);
+	if (!isSelected(index))
+	  select(index, ClearAndSelect);
       } else
 	select(index, ToggleSelect);
     }
@@ -1312,9 +1313,6 @@ void WAbstractItemView::handleClick(const WModelIndex& index,
     (((editTriggers() & SelectedClicked) && isSelected(index)) ||
      (editTriggers() & SingleClicked));
 
-  if (index.isValid())
-    selectionHandleClick(index, event.modifiers());
-
   if (doEdit)
     edit(index);
 
@@ -1334,6 +1332,9 @@ void WAbstractItemView::handleDoubleClick(const WModelIndex& index,
 void WAbstractItemView::handleMouseDown(const WModelIndex& index,
 					const WMouseEvent& event)
 {
+  if (index.isValid())
+    selectionHandleClick(index, event.modifiers());
+
   mouseWentDown_.emit(index, event);
 }
 

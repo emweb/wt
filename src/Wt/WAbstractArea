@@ -55,6 +55,9 @@ public:
    */
   bool isHole() const { return hole_; }
 
+  void setTransformable(bool transformable);
+  bool isTransformable() const { return transformable_; }
+
   /*! \brief Sets a link.
    *
    * By setting a link, the area behaves like a WAnchor.
@@ -407,6 +410,7 @@ private:
   };
 
   bool hole_;
+  bool transformable_;
   AnchorImpl *anchor_;
 
   void createAnchorImpl();
@@ -416,7 +420,9 @@ protected:
   WAbstractArea();
 
   virtual bool updateDom(DomElement& element, bool all);
+  virtual std::string updateAreaCoordsJS() = 0;
   void repaint();
+  std::string jsRef() { return impl()->jsRef(); }
 
 private:
   WInteractWidget *impl();
@@ -426,6 +432,7 @@ private:
 
   friend class WImage;
   friend class Impl::AreaWidget;
+  friend class WPaintedWidget;
 };
 
 }

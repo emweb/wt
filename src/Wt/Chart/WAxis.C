@@ -145,8 +145,10 @@ WAxis::WAxis()
     textPen_(black),
     titleOrientation_(Horizontal),
     maxZoom_(4),
-    initialZoom_(1),
-    initialPan_(0),
+    zoom_(1),
+    pan_(0),
+    zoomDirty_(true),
+    panDirty_(true),
     padding_(0),
     tickDirection_(Outwards)
 {
@@ -1055,24 +1057,26 @@ WString WAxis::label(double u) const
   return text;
 }
 
-void WAxis::setInitialZoom(double initialZoom)
+void WAxis::setZoom(double zoom)
 {
-  set(initialZoom_, initialZoom);
+  set(zoom_, zoom);
+  zoomDirty_ = true;
 }
 
-double WAxis::initialZoom() const
+double WAxis::zoom() const
 {
-  return initialZoom_;
+  return zoom_;
 }
 
-void WAxis::setInitialPan(double initialPan)
+void WAxis::setPan(double pan)
 {
-  set(initialPan_, initialPan);
+  set(pan_, pan);
+  zoomDirty_ = true;
 }
 
-double WAxis::initialPan() const
+double WAxis::pan() const
 {
-  return initialPan_;
+  return pan_;
 }
 
 void WAxis::setPadding(int padding)
@@ -1607,6 +1611,7 @@ void WAxis::renderLabel(WPainter& painter,
     painter.save();
     painter.translate(transform.map(pos));
     painter.rotate(-angle);
+    transformedPoint = painter.worldTransform().inverted().map(transformedPoint);
     painter.drawText(WRectF(left - pos.x(), top - pos.y(), width, height),
 		     horizontalAlign | verticalAlign, TextSingleLine, text,
 		     clipping ? &transformedPoint : 0);

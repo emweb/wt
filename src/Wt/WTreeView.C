@@ -1532,10 +1532,12 @@ void WTreeView::rerenderTree()
   rootNode_ = new WTreeViewNode(this, rootIndex(), -1, true, 0);
 
   if (WApplication::instance()->environment().ajax()) {
-    connectObjJS(rootNode_->clicked(), "click");
 
-    if (firstTime)
-      connectObjJS(contentsContainer_->clicked(), "rootClick");
+    if (editTriggers() & SingleClicked || clicked().isConnected()) {
+      connectObjJS(rootNode_->clicked(), "click");
+      if (firstTime)
+	connectObjJS(contentsContainer_->clicked(), "rootClick");
+    }
 
     if (editTriggers() & DoubleClicked || doubleClicked().isConnected()) {
       connectObjJS(rootNode_->doubleClicked(), "dblClick");
@@ -1543,11 +1545,9 @@ void WTreeView::rerenderTree()
 	connectObjJS(contentsContainer_->doubleClicked(), "rootDblClick");
     }
 
-    if (mouseWentDown().isConnected() || dragEnabled_) {
-      connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
-      if (firstTime)
-	connectObjJS(contentsContainer_->mouseWentDown(), "rootMouseDown");
-    }
+    connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
+    if (firstTime)
+      connectObjJS(contentsContainer_->mouseWentDown(), "rootMouseDown");
 
     if (mouseWentUp().isConnected()) { 
 	  // Do not stop propagation to avoid mouseDrag event being emitted 
@@ -1628,26 +1628,26 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
   }
 
   /*
-   * Every mouse event is emitted twice (because we don't prevent the propagation
-   * because it will block the mouseWentUp event and therefore result in mouseDragged
-   * being emitted (See #3879)
+   * Every mouse event is emitted twice (because we don't prevent
+   * the propagation because it will block the mouseWentUp event
+   * and therefore result in mouseDragged being emitted (See #3879)
    */
-  if(skipNextMouseEvent_) {
-	skipNextMouseEvent_ = false; 
-	return;
+  if (skipNextMouseEvent_) {
+    skipNextMouseEvent_ = false; 
+    return;
   }
 
   if (type == "clicked") {
     handleClick(index, event);
-	skipNextMouseEvent_ = true;
+    skipNextMouseEvent_ = true;
   } else if (type == "dblclicked") {
     handleDoubleClick(index, event);
   } else if (type == "mousedown") {
-    mouseWentDown().emit(index, event);
-	skipNextMouseEvent_ = true;
+    handleMouseDown(index, event);
+    skipNextMouseEvent_ = true;
   } else if (type == "mouseup") {
-    mouseWentUp().emit(index, event);
-	skipNextMouseEvent_ = true;
+    handleMouseUp(index, event);
+    skipNextMouseEvent_ = true;
   } else if (type == "drop") {
     WDropEvent e(WApplication::instance()->decodeObject(extra1), extra2, event);
     dropEvent(e, index);

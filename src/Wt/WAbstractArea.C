@@ -65,6 +65,7 @@ namespace Wt {
 WAbstractArea::WAbstractArea()
   : impl_(new Impl::AreaWidget(this)),
     hole_(false),
+    transformable_(true),
     anchor_(0)
 { }
 
@@ -184,6 +185,13 @@ const std::string WAbstractArea::ref() const
 void WAbstractArea::setHole(bool hole)
 {
   hole_ = hole;
+
+  repaint();
+}
+
+void WAbstractArea::setTransformable(bool transformable)
+{
+  transformable_ = transformable;
 
   repaint();
 }

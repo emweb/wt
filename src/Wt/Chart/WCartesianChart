@@ -112,6 +112,32 @@ private:
 class WChart2DImplementation;
 class WChartPalette;
 
+/*! \brief Enumeration of mouse wheel actions for interactive charts.
+ *
+ * \sa WCartesianChart::WheelActions
+ * \sa WCartesianChart::setWheelActions(WheelActions)
+ *
+ * \ingroup charts
+ */
+enum InteractiveAction {
+  ZoomX,                //!< Zoom x-axis
+  ZoomY,                //!< Zoom y-axis
+  ZoomXY,               //!< Zoom along both x and y-axes
+  ZoomMatching,         //!< Zoom y-axis on vertical scroll, x-axis on horizontal scroll
+  PanX,                 //!< Pan x-axis
+  PanY,                 //!< Pan y-axis
+  PanMatching           //!< Pan y-axis on vertical scroll, x-axis on horizontal scroll
+};
+
+/*! \brief A map of mouse wheel actions for interactive charts, indexed by WFlags<KeyboardModifier>
+ *
+ * \sa WCartesianChart::setWheelActions(WheelActions)
+ * \sa WCartesianChart::wheelActions()
+ *
+ * \ingroup charts
+ */
+typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
+
 /*! \class WCartesianChart Wt/Chart/WCartesianChart Wt/Chart/WCartesianChart
  *  \brief A cartesian chart.
  *
@@ -190,7 +216,6 @@ class WChartPalette;
  * \note Client side interaction is only available if the chart is drawn
  *       on an HTML canvas. This is the default rendering method on modern browsers.
  * \note Some features are currently not supported in interactive mode:
- *	  - Tooltips are not zoomed or panned along with the chart
  *	  - Axes set at ZeroValue position will not always be drawn correctly.
  *	    They may be clipped off outside of the chart area, and when zooming,
  *	    the axis ticks will change size.
@@ -679,7 +704,6 @@ public:
    * \note Client side interaction is only available if the chart is drawn
    *       on an HTML canvas. This is the default rendering method on modern browsers.
    * \note Some features are currently not supported in interactive mode:
-   *	  - Tooltips are not zoomed or panned along with the chart
    *	  - Axes set at ZeroValue position will not always be drawn correctly.
    *	    They may be clipped off outside of the chart area, and when zooming,
    *	    the axis ticks will change size.
@@ -691,7 +715,7 @@ public:
    *
    * When using the mouse, press the ctrl key while scrolling to zoom in/out a specific point
    * on the chart. If you press shift+ctrl, it will only zoom vertically. If you press alt+ctrl,
-   * it will only zoom horizontally.
+   * it will only zoom horizontally. To change these default mappings, use setWheelActions().
    *
    * When using touch, you can use a pinch gesture to zoom in/out. If the pinch gesture is
    * vertical/horizontal, it will zoom only vertically/horizontally, otherwise it will zoom
@@ -700,6 +724,7 @@ public:
    * The default value is \c false.
    *
    * \sa zoomEnabled()
+   * \sa setWheelActions(WheelActions)
    */
   void setZoomEnabled(bool zoom = true);
 
@@ -788,6 +813,18 @@ public:
    */
   bool rubberBandEffectEnabled() const;
 
+  /*! \brief Set the mapping of mouse wheel actions for interactive charts.
+   *
+   * \sa wheelActions()
+   */
+  void setWheelActions(WheelActions wheelActions);
+
+  /*! \brief Return the current mapping of mouse wheel actions for interactive charts.
+   *
+   * \sa setWheelActions()
+   */
+  WheelActions wheelActions() const { return wheelActions_; }
+
   /*! @}
    */
 
@@ -819,7 +856,6 @@ private:
 
   bool zoomEnabled_;
   bool panEnabled_;
-  bool initialZoomAndPanApplied_;
   bool rubberBandEnabled_;
   bool crosshairEnabled_;
   int followCurve_;
@@ -829,8 +865,10 @@ private:
   PainterPathMap curvePaths_;
   std::vector<WJavaScriptHandle<WPainterPath> > freePainterPaths_;
 
-  WJavaScriptHandle<WTransform> xTransform_; // Scales and translates X axis
-  WJavaScriptHandle<WTransform> yTransform_; // Scales and translates Y axis
+  mutable WTransform xTransform_;
+  mutable WTransform yTransform_;
+  WJavaScriptHandle<WTransform> xTransformHandle_; // Scales and translates X axis
+  WJavaScriptHandle<WTransform> yTransformHandle_; // Scales and translates Y axis
 
   struct PenAssignment {
     WJavaScriptHandle<WPen> pen;
@@ -846,7 +884,10 @@ private:
 
   std::vector<WAxisSliderWidget *> axisSliderWidgets_;
 
+  WheelActions wheelActions_;
+
   void init();
+  static std::string wheelActionsToJson(WheelActions wheelActions);
 
 protected:
   virtual void modelColumnsInserted(const WModelIndex& parent,
@@ -1036,6 +1077,8 @@ protected:
 
   virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
 
+  virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override) ;
+
 private:
   int calcNumBarGroups() const;
   int seriesIndexOf(int modelColumn) const;
@@ -1052,7 +1095,8 @@ private:
   WPainterPath pathForSeries(int modelColumn) const; // For use in WAxisSliderWidget
   WTransform combinedTransform() const;
   WTransform combinedTransform(WTransform xTransform, WTransform yTransform) const;
-  void setInitialZoomAndPan();
+  void setZoomAndPan();
+  void addAreaMask();
 
   WPointF hv(double x, double y, double width) const;
   WPointF inverseHv(double x, double y, double width) const;

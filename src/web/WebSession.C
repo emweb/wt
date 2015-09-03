@@ -596,8 +596,15 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
 
   if (WebSession::Handler::instance()->response())
     return WebSession::Handler::instance()->response()->encodeURL(result);
-
-return url;
+  else {
+    /*
+     * This may happen if we are inside a WServer::posted() function.
+     * Unfortunately, then we cannot use Servlet API to URL encode.
+     */
+    questionPos = result.find('?');
+    return result.substr(0, questionPos) + ";jsessionid=" + sessionId()
+      + result.substr(questionPos);
+  }
 #endif // WT_TARGET_JAVA
 }
 
@@ -2465,8 +2472,10 @@ void WebSession::notify(const WEvent& event)
 	    }
 	  } else {
 #endif // WT_TARGET_JAVA
-	    if (handler.request())
+	    if (handler.request()) {
 	      env_->parameters_ = handler.request()->getParameterMap();
+		  env_->updateHostName(*handler.request());
+		}
 	    app_->refresh();
 #ifndef WT_TARGET_JAVA
 	  }

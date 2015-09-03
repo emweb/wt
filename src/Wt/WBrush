@@ -137,6 +137,9 @@ public:
 
   virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 
+protected:
+  void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;
+
 private:
   BrushStyle style_;
 

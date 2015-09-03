@@ -95,6 +95,27 @@ const std::string& WEnvironment::deploymentPath() const
     return session_->deploymentPath();
 }
 
+void WEnvironment::updateHostName(const WebRequest& request)
+{
+  Configuration& conf = session_->controller()->configuration();
+  std::string oldHost = host_;
+  host_ = str(request.headerValue("Host"));
+
+  if(conf.behindReverseProxy()) {
+	std::string forwardedHost = str(request.headerValue("X-Forwarded-Host"));
+
+	if (!forwardedHost.empty()) {
+	  std::string::size_type i = forwardedHost.rfind(',');
+	  if (i == std::string::npos)
+		host_ = forwardedHost;
+	  else
+		host_ = forwardedHost.substr(i+1);
+	}
+
+  }
+  if(host_.size() == 0) host_ = oldHost;
+}
+
 void WEnvironment::init(const WebRequest& request)
 {
   Configuration& conf = session_->controller()->configuration();
@@ -102,6 +123,7 @@ void WEnvironment::init(const WebRequest& request)
   queryString_ = request.queryString();
   parameters_ = request.getParameterMap();
 
+  host_            = str(request.headerValue("Host"));
   urlScheme_       = str(request.urlScheme());
   referer_         = str(request.headerValue("Referer"));
   accept_          = str(request.headerValue("Accept"));
@@ -125,13 +147,10 @@ void WEnvironment::init(const WebRequest& request)
   LOG_INFO("UserAgent: " << userAgent_);
 
   /*
-   * Determine server host name
+   * If behind a reverse proxy, use external host, schema as communicated using 'X-Forwarded'
+   * headers.
    */
   if (conf.behindReverseProxy()) {
-    /*
-     * Take the last entry in X-Forwarded-Host, assuming that we are only
-     * behind 1 proxy
-     */
     std::string forwardedHost = str(request.headerValue("X-Forwarded-Host"));
 
     if (!forwardedHost.empty()) {
@@ -140,10 +159,17 @@ void WEnvironment::init(const WebRequest& request)
 	host_ = forwardedHost;
       else
 	host_ = forwardedHost.substr(i+1);
-    } else
-      host_ = str(request.headerValue("Host"));
-  } else
-    host_ = str(request.headerValue("Host"));
+    }
+
+    std::string forwardedProto = str(request.headerValue("X-Forwarded-Proto"));
+    if (!forwardedProto.empty()) {
+      std::string::size_type i = forwardedProto.rfind(',');
+      if (i == std::string::npos)
+	urlScheme_ = forwardedProto;
+      else
+	urlScheme_ = forwardedProto.substr(i+1);
+    }
+  }
 
   if (host_.empty()) {
     /*
@@ -315,7 +341,9 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
   agent_ = Unknown;
 
   /* detecting MSIE is as messy as their browser */
-  if (userAgent_.find("Trident/5.0") != std::string::npos) {
+  if (userAgent_.find("Trident/4.0") != std::string::npos) {
+    agent_ = IE8; return;
+  } if (userAgent_.find("Trident/5.0") != std::string::npos) {
     agent_ = IE9; return;
   } else if (userAgent_.find("Trident/6.0") != std::string::npos) {
     agent_ = IE10; return;

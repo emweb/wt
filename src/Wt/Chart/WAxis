@@ -614,20 +614,22 @@ public:
    */
   virtual WString label(double u) const;
 
-  /*! \brief Sets the initial zoom level for this axis.
+  /*! \brief Sets the zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    * The zoom level should be >= 1 and smaller than maxZoom()
    *
    * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
    */
-  void setInitialZoom(double initialZoom);
+  void setZoom(double zoom);
 
-  /*! \brief Get the initial zoom level for this axis.
+  /*! \brief Get the zoom level for this axis.
    *
-   * \see setInitialZoom()
+   * \note If the zoom level has been changed on the client side, this may not reflect the actual zoom level.
+   *
+   * \see setZoom()
    */
-  double initialZoom() const;
+  double zoom() const;
   
   /*! \brief Sets the maximum zoom level for this axis.
    *
@@ -644,7 +646,7 @@ public:
    */
   double maxZoom() const;
 
-  /*! \brief Sets the initial value to pan to for this axis.
+  /*! \brief Sets the value to pan to for this axis.
    *
    * This sets the leftmost (horizontal axis)
    * or bottom (vertical axis) value to be displayed on the chart.
@@ -653,17 +655,20 @@ public:
    * the panning of the chart will be automatically adjusted.
    *
    * Only applies to a WCartesianChart in interactive mode.
-   * The zoom level should be >= 1 and smaller than maxZoom()
    *
    * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
-   */
-  void setInitialPan(double initialPan);
-
-  /*! \brief Get the initial value to pan to for this axis, when pan is enabled on the chart.
    *
-   *  \see setInitialPan()
+   * \note If the pan position has been changed on the client side, this may not reflect the actual pan position.
    */
-  double initialPan() const;
+  void setPan(double pan);
+
+  /*! \brief Get the value to pan to for this axis, when pan is enabled on the chart.
+   *
+   * \note 
+   *
+   *  \see setPan()
+   */
+  double pan() const;
 
   /*! \brief Sets the padding between the chart area and this axis.
    *
@@ -749,7 +754,7 @@ protected:
   
   /*! \brief Represents a label/tick on the axis.
    */
-  struct TickLabel {
+  struct WT_API TickLabel {
     /*! \brief Enumeration for a tick type */
     enum TickLength { Zero, Short, Long };
 
@@ -800,8 +805,10 @@ private:
   WPen             textPen_;
   Orientation      titleOrientation_;
   double	   maxZoom_;
-  double	   initialZoom_;
-  double           initialPan_;
+  double	   zoom_;
+  double           pan_;
+  bool		   zoomDirty_;
+  bool             panDirty_;
   int              padding_;
   TickDirection    tickDirection_;
 
@@ -845,6 +852,7 @@ private:
   friend class WCartesianChart;
   friend class WCartesian3DChart;
   friend class WChart2DRenderer;
+  friend class WAxisSliderWidget;
 };
 
 template <typename T>

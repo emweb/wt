@@ -4,15 +4,22 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WRectF"
+
 #include <algorithm>
 
-#include "Wt/WRectF"
+#include "Wt/WLogger"
 #include "Wt/WPointF"
 #include "Wt/WStringStream"
+
+#include "Wt/Json/Array"
+#include "Wt/Json/Value"
 
 #include "web/WebUtils.h"
 
 namespace Wt {
+
+LOGGER("WRectF");
 
 WRectF::WRectF()
   : x_(0), y_(0), width_(0), height_(0)
@@ -217,6 +224,31 @@ std::string WRectF::jsValue() const
   ss << Utils::round_js_str(width_, 3, buf) << ',';
   ss << Utils::round_js_str(height_, 3, buf) << ']';
   return ss.str();
+}
+
+void WRectF::assignFromJSON(const Json::Value &value)
+{
+  try {
+#ifndef WT_TARGET_JAVA
+    const Json::Array &ar = value;
+#else
+    const Json::Array &ar = static_cast<Json::Array&>(value);
+#endif
+    if (ar.size() == 4 &&
+	!ar[0].toNumber().isNull() &&
+	!ar[1].toNumber().isNull() &&
+	!ar[2].toNumber().isNull() &&
+	!ar[3].toNumber().isNull()) {
+      x_ = ar[0].toNumber().orIfNull(x_);
+      y_ = ar[1].toNumber().orIfNull(y_);
+      width_ = ar[2].toNumber().orIfNull(width_);
+      height_ = ar[3].toNumber().orIfNull(height_);
+    } else {
+      LOG_ERROR("Couldn't convert JSON to WRectF");
+    }
+  } catch (std::exception &e) {
+    LOG_ERROR("Couldn't convert JSON to WRectF: " + std::string(e.what()));
+  }
 }
 
 }
