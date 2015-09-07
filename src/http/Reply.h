@@ -121,6 +121,8 @@ public:
   bool nextBuffers(std::vector<asio::const_buffer>& result);
   bool closeConnection() const;
   void setCloseConnection() { closeConnection_ = true; }
+  void detectDisconnect(const boost::function<void()>& callback);
+
 
   void addHeader(const std::string name, const std::string value);
 

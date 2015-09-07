@@ -80,8 +80,10 @@ public:
   void startWriteResponse(ReplyPtr reply);
 
   void handleReadBody(ReplyPtr reply);
-  void readMore(ReplyPtr reply);
+  void readMore(ReplyPtr reply, int timeout);
   bool readAvailable();
+  void detectDisconnect(ReplyPtr reply,
+			const boost::function<void()>& callback);
 
 protected:
   void handleWriteResponse(ReplyPtr reply,
@@ -183,6 +185,8 @@ private:
   /// Indicates that the current response is finished (after the
   /// current write operation)
   bool responseDone_;
+
+  boost::function<void()> disconnectCallback_;
 };
 
 typedef boost::shared_ptr<Connection> ConnectionPtr;

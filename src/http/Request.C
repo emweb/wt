@@ -107,6 +107,19 @@ bool buffer_string::iequals(const char *s) const
 #endif
 }
 
+void buffer_string::write(std::ostream &os) const
+{
+  for (const buffer_string *s = this; s; s = s->next) {
+    os.write(s->data, s->len);
+  }
+}
+
+std::ostream& operator<< (std::ostream &os, const buffer_string &str)
+{
+  str.write(os);
+  return os;
+}
+
 bool buffer_string::operator==(const buffer_string& other) const
 {
   if (next || other.next)

@@ -192,7 +192,7 @@ void ProxyReply::handleChildConnected(const boost::system::error_code& ec)
 void ProxyReply::assembleRequestHeaders()
 {
   std::ostream os(&requestBuf_);
-  os << request_.method.data << " " << request_.uri.data << " HTTP/1.1\r\n";
+  os << request_.method << " " << request_.uri << " HTTP/1.1\r\n";
   bool establishWebSockets = false;
   std::string forwardedFor;
   for (Request::HeaderList::const_iterator it = request_.headers.begin();
@@ -203,14 +203,14 @@ void ProxyReply::assembleRequestHeaders()
     } else if (it->name.iequals("X-Forwarded-For") || it->name.iequals("Client-IP")) {
       const Wt::Configuration& wtConfiguration = connection()->server()->controller()->configuration();
       if (wtConfiguration.behindReverseProxy()) {
-	forwardedFor = std::string(it->value.data) + ", ";
+	forwardedFor = it->value.str() + ", ";
       }
     } else if (it->name.iequals("Upgrade")) {
       if (it->value.iequals("websocket")) {
 	establishWebSockets = true;
       }
-    } else {
-      os << it->name.data << ": " << it->value.data << "\r\n";
+    } else if (it->name.length() > 0) {
+      os << it->name << ": " << it->value << "\r\n";
     }
   }
   if (establishWebSockets) {
@@ -417,9 +417,10 @@ std::string ProxyReply::getSessionId() const
       && !wtConfiguration.reloadIsNewSession()) {
     const Request::Header *cookieHeader = request_.getHeader("Cookie");
     if (cookieHeader) {
-      sessionId = Wt::WebController::sessionFromCookie(cookieHeader->value.data,
-							 request_.request_path,
-							 wtConfiguration.sessionIdLength());
+      std::string cookie = cookieHeader->value.str();
+      sessionId = Wt::WebController::sessionFromCookie(cookie.c_str(),
+						       request_.request_path,
+						       wtConfiguration.sessionIdLength());
     }
   }
 

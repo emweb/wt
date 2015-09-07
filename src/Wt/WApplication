@@ -956,7 +956,7 @@ public:
   /*! \brief Redirects the application to another location.
    *
    * The client will be redirected to a new location identified by \p
-   * url. Use this in conjunction with quit() if you want to the
+   * url. Use this in conjunction with quit() if you want the
    * application to be terminated as well.
    *
    * Calling %redirect() does not imply %quit() since it may be useful

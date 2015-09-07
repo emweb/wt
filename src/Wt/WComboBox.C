@@ -303,7 +303,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
     itemsChanged_ = false;
   }
 
-  if (selectionChanged_ || all) {
+  if (selectionChanged_ || (all && (selectionMode() == SingleSelection))) {
     element.setProperty(PropertySelectedIndex,
 			boost::lexical_cast<std::string>(currentIndex_));
     selectionChanged_ = false;

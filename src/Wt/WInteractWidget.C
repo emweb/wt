@@ -630,11 +630,10 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
 void WInteractWidget::unsetDraggable()
 {
   if (dragSlot_) {
-	mouseWentDown().disconnect(*dragSlot_);
-	delete dragSlot_;
-	dragSlot_ = 0;
+    mouseWentDown().disconnect(*dragSlot_);
+    delete dragSlot_;
+    dragSlot_ = 0;
   }
 }
-
 
 }

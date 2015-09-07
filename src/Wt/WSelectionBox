@@ -87,7 +87,7 @@ public:
    *
    * \sa setSelectionMode(SelectionMode)
    */
-  SelectionMode selectionMode() const { return selectionMode_; }   
+  virtual SelectionMode selectionMode() const { return selectionMode_; }   
 
   /*! \brief Returns the current selection (in Wt::ExtendedSelection mode).
    *

@@ -214,8 +214,9 @@ bool SimpleChatWidget::startChat(const WString& user)
 
     createLayout(messages_, userList_, messageEdit_, sendButton_, logoutButton);
 
-    /*
-     * Connect event handlers:
+
+	/*
+	 * Connect event handlers:
      *  - click on button
      *  - enter in text area
      *
@@ -230,6 +231,22 @@ bool SimpleChatWidget::startChat(const WString& user)
       ("function(o, e) { setTimeout(function() {"
        "" + messageEdit_->jsRef() + ".value='';"
        "}, 0); }");
+
+	WApplication::instance()->setConnectionMonitor(
+		"window.monitor={ "
+		"'onChange':function(type, newV) {"
+		
+		"var connected = window.monitor.status.connectionStatus != 0;"
+		"if(connected) {"
+		" " + messageEdit_->jsRef() + ".disabled=false;"
+		" " + messageEdit_->jsRef() + ".placeholder='';"
+		"} else { "
+		" " + messageEdit_->jsRef() + ".disabled=true;"
+		" " + messageEdit_->jsRef() + ".placeholder='connection lost';"
+		"}"
+		"}"
+		"}"
+		);
 
     // Bind the C++ and JavaScript event handlers.
     sendButton_->clicked().connect(this, &SimpleChatWidget::send);

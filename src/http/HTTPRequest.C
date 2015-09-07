@@ -54,6 +54,12 @@ bool HTTPRequest::webSocketMessagePending() const
   return reply_->readAvailable();
 }
 
+bool HTTPRequest::detectDisconnect(const DisconnectCallback& callback)
+{
+  reply_->detectDisconnect(callback);
+  return true;
+}
+
 void HTTPRequest::setStatus(int status)
 {
   reply_->setStatus((Reply::status_type) status);

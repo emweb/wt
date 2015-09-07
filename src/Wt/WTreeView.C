@@ -1620,9 +1620,9 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
 	}
       }
 
-      if (c0index.isValid())
+      if (c0index.isValid()) {
 	index = model()->index(c0index.row(), column, c0index.parent());
-      else
+      } else
 	LOG_ERROR("WTreeView::onEventItem: illegal node id: " << nodeId);
     }
   }
@@ -1632,22 +1632,22 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
    * the propagation because it will block the mouseWentUp event
    * and therefore result in mouseDragged being emitted (See #3879)
    */
-  if (skipNextMouseEvent_) {
+
+  if (nodeAndColumnId.empty() && skipNextMouseEvent_) {
     skipNextMouseEvent_ = false; 
     return;
+  } else if (!nodeAndColumnId.empty()) {
+    skipNextMouseEvent_ = true;
   }
 
   if (type == "clicked") {
     handleClick(index, event);
-    skipNextMouseEvent_ = true;
   } else if (type == "dblclicked") {
     handleDoubleClick(index, event);
   } else if (type == "mousedown") {
     handleMouseDown(index, event);
-    skipNextMouseEvent_ = true;
   } else if (type == "mouseup") {
     handleMouseUp(index, event);
-    skipNextMouseEvent_ = true;
   } else if (type == "drop") {
     WDropEvent e(WApplication::instance()->decodeObject(extra1), extra2, event);
     dropEvent(e, index);

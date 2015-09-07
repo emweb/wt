@@ -99,13 +99,15 @@ void Connection::stop()
 
 void Connection::setReadTimeout(int seconds)
 {
-  LOG_DEBUG(socket().native() << " setting read timeout (ws: "
-	    << request_.webSocketVersion << ")");
-  state_ |= Reading;
+  if (seconds != 0) {
+    LOG_DEBUG(socket().native() << " setting read timeout (ws: "
+	      << request_.webSocketVersion << ")");
+    state_ |= Reading;
 
-  readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
-  readTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
-				    asio::placeholders::error));
+    readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
+    readTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
+				      asio::placeholders::error));
+  }
 }
 
 void Connection::setWriteTimeout(int seconds)
@@ -283,18 +285,18 @@ void Connection::handleReadBody(ReplyPtr reply)
   waitingResponse_ = false;
 
   if (result == RequestParser::ReadMore) {
-    readMore(reply);
+    readMore(reply, CONNECTION_TIMEOUT);
   } else if (result == RequestParser::Done && haveResponse_)
     startWriteResponse(reply);
 }
 
-void Connection::readMore(ReplyPtr reply)
+void Connection::readMore(ReplyPtr reply, int timeout)
 {
   if (!rcv_body_buffer_) {
     rcv_body_buffer_ = true;
     rcv_buffers_.push_back(Buffer());
   }
-  startAsyncReadBody(reply, rcv_buffers_.back(), CONNECTION_TIMEOUT);
+  startAsyncReadBody(reply, rcv_buffers_.back(), timeout);
 }
 
 bool Connection::readAvailable()
@@ -307,11 +309,34 @@ bool Connection::readAvailable()
   }
 }
 
+void Connection::detectDisconnect(ReplyPtr reply,
+				  const boost::function<void()>& callback)
+{
+  disconnectCallback_ = callback;
+
+  readMore(reply, 0);
+}
+
 void Connection::handleReadBody(ReplyPtr reply,
 				const asio_error_code& e,
 				std::size_t bytes_transferred)
 {
   LOG_DEBUG(socket().native() << ": handleReadBody(): " << e.message());
+
+  if (disconnectCallback_) {
+    if (e && e != asio::error::operation_aborted) {
+      boost::function<void()> f = disconnectCallback_;
+      disconnectCallback_ = boost::function<void()>();
+      f();
+    } else if (e != asio::error::operation_aborted) {
+      LOG_ERROR(socket().native()
+		<< ": handleReadBody(): while waiting for disconnect, "
+		"unexpected error code: " << e.message());
+      close();
+    }
+
+    return;
+  }
 
   cancelReadTimer();
 
@@ -329,6 +354,9 @@ void Connection::handleReadBody(ReplyPtr reply,
 void Connection::startWriteResponse(ReplyPtr reply)
 {
   haveResponse_ = false;
+
+  if (disconnectCallback_)
+    socket().cancel();
 
   if (state_ & Writing) {
     LOG_ERROR("Connection::startWriteResponse(): connection already writing");

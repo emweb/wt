@@ -585,7 +585,7 @@ target="_blank">item model</a>.</p>
   retrieved from for example a database. A draw-back is however that
   all data must be retrieved in advance and is kept in session
   memory. By reimplementing <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
   target="_blank">WAbstractItemModel</a>, you can however implement a
   model that reads (or computes) the data only when needed, and
   provides a trade-off between keeping data in memory or fetching it

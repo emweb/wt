@@ -172,6 +172,15 @@ public:
   int findText(const WString& text,
 	       WFlags<MatchFlag> flags = MatchExactly | MatchCaseSensitive);
 
+  /*! \brief Returns the selection mode.
+   *
+   * Always returns SingleSelection for a combo box, but may return
+   * ExtendedSelection for a selection box
+   *
+   * \sa WSelectionBox::setSelectionMode()
+   */
+  virtual SelectionMode selectionMode() const { return SingleSelection; }   
+
   /*! \brief Returns the current value.
    *
    * Returns currentText() converted from a WString to a string.
