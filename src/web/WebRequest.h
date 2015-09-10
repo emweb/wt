@@ -45,7 +45,7 @@ public:
 
   typedef boost::function<void(WebWriteEvent)> WriteCallback;
   typedef boost::function<void(WebReadEvent)> ReadCallback;
-  typedef boost::function<void()> DisconnectCallback;
+  typedef boost::function<void(void)> DisconnectCallback;
 
   /*
    * Signal that the response should be flushed.

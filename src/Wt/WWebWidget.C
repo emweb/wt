@@ -867,7 +867,7 @@ void WWebWidget::setAttributeValue(const std::string& name,
 
 WT_USTRING WWebWidget::attributeValue(const std::string& name) const
 {
-  if (otherImpl_) {
+  if (otherImpl_ && otherImpl_->attributes_) {
     std::map<std::string, WT_USTRING>::const_iterator i
       = otherImpl_->attributes_->find(name);
 

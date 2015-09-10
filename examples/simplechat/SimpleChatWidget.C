@@ -215,8 +215,8 @@ bool SimpleChatWidget::startChat(const WString& user)
     createLayout(messages_, userList_, messageEdit_, sendButton_, logoutButton);
 
 
-	/*
-	 * Connect event handlers:
+    /*
+     * Connect event handlers:
      *  - click on button
      *  - enter in text area
      *
@@ -232,18 +232,26 @@ bool SimpleChatWidget::startChat(const WString& user)
        "" + messageEdit_->jsRef() + ".value='';"
        "}, 0); }");
 
-	WApplication::instance()->setConnectionMonitor(
+    /*
+     * Set the connection monitor
+     *
+     * The connection monitor is a javascript monitor that will
+     * nootify the given object by calling the onChange method to
+     * inform of connection change (use of websockets, connection
+     * online/offline) Here we just disable the TextEdit when we are
+     * offline and enable it once we're back online
+     */
+    WApplication::instance()->setConnectionMonitor(
 		"window.monitor={ "
 		"'onChange':function(type, newV) {"
-		
-		"var connected = window.monitor.status.connectionStatus != 0;"
-		"if(connected) {"
-		" " + messageEdit_->jsRef() + ".disabled=false;"
-		" " + messageEdit_->jsRef() + ".placeholder='';"
-		"} else { "
-		" " + messageEdit_->jsRef() + ".disabled=true;"
-		" " + messageEdit_->jsRef() + ".placeholder='connection lost';"
-		"}"
+		  "var connected = window.monitor.status.connectionStatus != 0;"
+		  "if(connected) {"
+			+ messageEdit_->jsRef() + ".disabled=false;"
+			+ messageEdit_->jsRef() + ".placeholder='';"
+		  "} else { "
+			+ messageEdit_->jsRef() + ".disabled=true;"
+			+ messageEdit_->jsRef() + ".placeholder='connection lost';"
+		  "}"
 		"}"
 		"}"
 		);

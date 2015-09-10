@@ -3005,8 +3005,10 @@ _$_$if_WEB_SOCKETS_$_();
 		return;
 	      }
 	    } else {
-	      if (connectionMonitor)
+	      if (connectionMonitor) {
 		connectionMonitor.onStatusChange('websocket', true);
+	    connectionMonitor.onStatusChange('connectionStatus', 1);
+		  }
               websocket.state = WebSocketWorking;
 	      js = event.data;
 	    }

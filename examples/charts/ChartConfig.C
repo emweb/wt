@@ -133,12 +133,14 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   chartConfig->elementAt(row, 0)->addWidget(new WText("Orientation:"));
   chartOrientationEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
   chartOrientationEdit_->setModel(orientation);
+  chartOrientationEdit_->setCurrentIndex(0);
   connectSignals(chartOrientationEdit_);
   ++row;
 
   chartConfig->elementAt(row, 0)->addWidget(new WText("Legend location:"));
   legendLocationEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
   legendLocationEdit_->setModel(legendLocation);
+  legendLocationEdit_->setCurrentIndex(0);
   connectSignals(legendLocationEdit_);
   ++row;
 
@@ -146,6 +148,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   legendSideEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
   legendSideEdit_->setModel(legendSide);
   legendSideEdit_->setCurrentIndex(1);
+  legendSideEdit_->setCurrentIndex(0);
   connectSignals(legendSideEdit_);
   ++row;
 
@@ -153,6 +156,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   legendAlignmentEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
   legendAlignmentEdit_->setModel(legendAlignment);
   legendAlignmentEdit_->setCurrentIndex(4);
+  legendAlignmentEdit_->setCurrentIndex(0);
   connectSignals(legendAlignmentEdit_);
   ++row;
 
@@ -229,14 +233,17 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
     sc.typeEdit = new WComboBox(seriesConfig->elementAt(j, 2));
     sc.typeEdit->setModel(types);
+	sc.typeEdit->setCurrentIndex(0);
     connectSignals(sc.typeEdit);
 
     sc.markerEdit = new WComboBox(seriesConfig->elementAt(j, 3));
     sc.markerEdit->setModel(markers);
+	sc.markerEdit->setCurrentIndex(0);
     connectSignals(sc.markerEdit);
 
     sc.axisEdit = new WComboBox(seriesConfig->elementAt(j, 4));
     sc.axisEdit->setModel(axes);
+	sc.axisEdit->setCurrentIndex(0);
     connectSignals(sc.axisEdit);
 
     sc.legendEdit = new WCheckBox(seriesConfig->elementAt(j, 5));
@@ -247,6 +254,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
     sc.labelsEdit = new WComboBox(seriesConfig->elementAt(j, 7));
     sc.labelsEdit->setModel(labels);
+	sc.labelsEdit->setCurrentIndex(0);
     connectSignals(sc.labelsEdit);
 
     int si = seriesIndexOf(chart, j);
@@ -379,11 +387,13 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     sc.titleOrientationEdit = new WComboBox(axisConfig->elementAt(j, 9));
     sc.titleOrientationEdit->addItem("Horizontal");
     sc.titleOrientationEdit->addItem("Vertical");
+	sc.titleOrientationEdit->setCurrentIndex(0);
     connectSignals(sc.titleOrientationEdit);
 
     sc.tickDirectionEdit = new WComboBox(axisConfig->elementAt(j, 10));
     sc.tickDirectionEdit->addItem("Outwards");
     sc.tickDirectionEdit->addItem("Inwards");
+	sc.tickDirectionEdit->setCurrentIndex(0);
     connectSignals(sc.tickDirectionEdit);
 
     sc.locationEdit = new WComboBox(axisConfig->elementAt(j, 11));
@@ -391,6 +401,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     sc.locationEdit->addItem("Maximum value");
     sc.locationEdit->addItem("Zero value");
     sc.locationEdit->addItem("Both sides");
+	sc.locationEdit->setCurrentIndex(0);
     if (axis.location() == ZeroValue) {
       sc.locationEdit->setCurrentIndex(2);
     }
@@ -650,7 +661,6 @@ void ChartConfig::update()
     LegendLocation location = LegendOutside;
     Side side = Right;
     AlignmentFlag alignment = AlignMiddle;
-
     switch (legendLocationEdit_->currentIndex()) {
     case 0: location = LegendOutside; break;
     case 1: location = LegendInside; break;

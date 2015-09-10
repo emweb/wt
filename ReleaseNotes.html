@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
-<style type="text/css">
+<style type="text/css"> 
   dt { font-weight: bold; }
   h3 { text-decoration: underline; }
   dd { margin-top: 10px; margin-bottom: 10px; }
@@ -22,10 +22,84 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.5 (Sept X, 2015)</h2>
+<p>
+ This release has a focus on bug fixes but also one or two new features:
+</p>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html">Chart::WCartesianChart</a>
+  </dt>
+  <dd>
+	WCartesianChart has several new features that allow interaction with the
+	chart without server roundtrips. These features include zoom, pan,
+	crosshair and follow curve functionality.
+
+	This is only available if the chart is drawn
+	on an HTML canvas. This is the default rendering method on modern browsers.
+	
+	When enabled, the crosshair will follow mouse movement,
+	and show in the top right corner the coordinate
+	(according to X axis and the first Y axis)  corresponding to this position.
+  </dd>
+  <dt>
+  <a href="classWt_1_1Chart_1_1WAxisSliderWidget.html">Chart::WAxisSliderWidget</a>
+  </dt>
+  <dd>
+	WAxisSliderWidget lets you easily focus on a particular range by selecting an XAxis. It will create a sliding widget where you can change the size of the focused region by dragging the blue handles, and change the position by dragging the selected area. When using touch, the size of this area can also be changed using a pinch movement.
+  </dd>
+  <dt>
+  <a href="classWt_1_1WPainter.html">WPainter</a>, <a href="classWt_1_1WJavaScriptHandle.html">WJavascriptHandle</a>, <a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a>
+  </dt>
+  <dd>
+  The above functionality was implemented by making client-side interaction possible for a scene rendered
+  on WCanvasPaintDevice. For this purpose, for several primitives used to draw on a canvas, we provide
+  a JavaScript handle and complementary API to manipulate these objects in JavaScript code. In this way you
+  can keep the bulk of the painting code in C++, and allow manipulation from within JavaScript.
+  Such JavaScript handlers have been made available for <a href="classWt_1_1WTransform.html">WTransform</a>, <a href="classWt_1_1WPen.html">WPen</a>, <a href="classWt_1_1WBrush.html">WBrush</a>, <a href="classWt_1_1WPointF.html">WPointF</a>, <a href="classWt_1_1WRectF.html">WRectF</a> and <a href="classWt_1_1WPainterPath.html">WPainterPath</a>.
+  </dd>
+
+  <dt> <a href="classWt_1_1WAnchor.html">WAnchor</a> target (such as this window, or new window) moved to <a href="classWt_1_1WLink.html#afda591cd277562d5c8ea723733290790">WLink</a></dt>
+  <dd>As WLink is used in several places (including for example inside item data models), the target can now be specified in more places in the same consisten way. However, since until now a WAnchor was the owner of the TargetType, this may break existing code which calls WAnchor::setTarget() before WAnchor::setLink(), as the latter overrides the target.
+  </dd>
+
+  <dt>A new <a href="namespaceWt.html#a6c93a6e97016801a310275457e43f333">TargetDownload</a> target was added for links.</dt>
+  <dd>Until now it was recommended to use TargetNewWindow as otherwise this would interfere with the rendering of the current page (since browsers are unaware of the content-type and content-disposition of the target link until after it unloaded the current page. The new TargetDownload option is implemented using the new HTML5 download attribute or, if not supported, by targetting a hidden iFrame contained in the page.
+  </dd>
+
+  <dt>The included SQLite version was updated</dt>
+  <dd>
+  The SQLite version bundled with Wt::Dbo has been updated to version 3.8.10.1. The changelog can be found <a href="https://www.sqlite.org/news.html">here</a>
+  </dd>
+
+  <dt>Support for seconds editing in <a href="classWt_1_1WTimePicker.html#a4d19d3ad8bdf0a9a3e35d84f3d298994">WTimePicker</a></dt>
+  <dd>WTimePicker was missing the seconds, we've also added the setSecondStep() method.
+  </dd>
+
+  <dt><a href="classWt_1_1WCheckBox.html#a2d741874682e9a683d40527b03615d32">WCheckBox::setPartialStateSelectable()</a></dt>
+  <dd>Before it was only possible to set the partial state of the WCheckbox when creating the Widget.
+  We've added a method WCheckBox::setPartialStateSelectable(bool) which will allow the user to select indeterminate state. This is false by default;
+  </dd>
+
+  <dt>New client side connection monitor</dt>
+  <dd>The <a href="classWt_1_1WApplication.html#ab6ae1117e316f1a7b31449aaeb83c9cf">WApplication::setConnectionMonitor()</a> method will let the user register a Javascript object that will be notified on connection changes (connection, disconnection, websockets enabled/disabled..)
+  The monitor will trigger the onChange method of the provided Javascript object</dd>
+
+  <dt>Support for custom HTML tags for a widgets</dt>
+  <dd>We've added <a href="classWt_1_1WWebWidget.html#adf6034e0e715138cae479eae6e324ce6">WWebWidget::setHtmlTagName()</a> that will change the current html tag to the one chosen by Wt by default. This allows the user to create widgets that are not provided by Wt, such as for example semantic tags.
+  </dd>
+
+  <dt>Wt::Dbo: allow to forward declare related classes</dt>
+  <dd>It is now possible to forward declare all classes that are being referenced in a <a href="group__dbo.html#gaa3de862f9544c4d30b8cbcac4b50feba">belongsTo()</a>, <a href="group__dbo.html#ga00a060d5f4764f673948989f21837548">hasOne()</a> or <a href="group__dbo.html#ga570b71f937c991b000b9db01b327a363">hasMany()</a> relation, helping to reduce the compile time pain of Wt::Dbo.</dd>
+</dl>
+
+<hr>
+
 <h2>Release 3.3.4 (Mar 25, 2015)</h2>
 
 <p>
- This release has a focus on bug fixes but also one or two new new features,
+ This release has a focus on bug fixes but also one or two new features,
  of which the following are the most notable:
 </p>
 
@@ -116,7 +190,7 @@ behaviour.
 <h2>Release 3.3.3 (May 27, 2014)</h2>
 
 <p>
- This release has a focus on bug fixes but also one or two new new features:
+ This release has a focus on bug fixes but also one or two new features:
 </p>
 
 <dl>
