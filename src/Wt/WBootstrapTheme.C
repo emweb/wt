@@ -95,7 +95,7 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
 			 "width=device-width, initial-scale=1");
   }
 
-  result.push_back(WCssStyleSheet(WLink(themeVersionDir.str() + "wt.css")));
+  result.push_back(WCssStyleSheet(WLink(themeVersionDir.str() + "wt.min.css")));
 
   return result;
 }

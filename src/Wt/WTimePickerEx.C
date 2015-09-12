@@ -101,6 +101,7 @@ void WTimePickerEx::init(const WTime &time)
     hourText_->setInline(false);
     hourText_->textWidget()->setTextAlignment(AlignCenter);
     hourText_->textWidget()->setInline(false);
+    hourText_->lineEdit()->setTextSize(2);
     hourText_->lineEdit()->setValidator(new WIntValidator(0, 24));
     hourText_->valueChanged().connect(this, &WTimePickerEx::fire);
 
@@ -108,6 +109,7 @@ void WTimePickerEx::init(const WTime &time)
     minuteText_->setInline(false);
     minuteText_->textWidget()->setTextAlignment(AlignCenter);
     minuteText_->textWidget()->setInline(false);
+    minuteText_->lineEdit()->setTextSize(2);
     minuteText_->lineEdit()->setValidator(new WIntValidator(0, 60));
     minuteText_->valueChanged().connect(this, &WTimePickerEx::fire);
 
@@ -115,6 +117,7 @@ void WTimePickerEx::init(const WTime &time)
     secondText_->setInline(false);
     secondText_->textWidget()->setTextAlignment(AlignCenter);
     secondText_->textWidget()->setInline(false);
+    secondText_->lineEdit()->setTextSize(2);
     secondText_->lineEdit()->setValidator(new WIntValidator(0, 60));
     secondText_->valueChanged().connect(this, &WTimePickerEx::fire);
 
@@ -122,6 +125,7 @@ void WTimePickerEx::init(const WTime &time)
     millisecondText_->setInline(false);
     millisecondText_->textWidget()->setTextAlignment(AlignCenter);
     millisecondText_->textWidget()->setInline(false);
+    millisecondText_->lineEdit()->setTextSize(3);
     millisecondText_->lineEdit()->setValidator(new WIntValidator(0, 1000));
     millisecondText_->valueChanged().connect(this, &WTimePickerEx::fire);
 

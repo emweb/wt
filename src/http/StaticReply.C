@@ -168,7 +168,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
   const Request::Header *ua = request_.getHeader("User-Agent");
 
   if (!ua || !ua->value.contains("MSIE")) {
-    addHeader("Cache-Control", "max-age=3600");
+    addHeader("Cache-Control", "max-age=605000");
     if (!etag.empty())
       addHeader("ETag", etag);
 
