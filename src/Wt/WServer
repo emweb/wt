@@ -477,7 +477,10 @@ public:
   WT_API void initLogger(const std::string& logFile,
 			 const std::string& logConfig);
 
-  WT_API bool dedicatedProcessEnabled() const;
+  /*!
+   * \brief Reflects whether the current process is a dedicated session process
+   */
+  WT_API bool dedicatedSessionProcess() const;
 #endif // WT_TARGET_JAVA
 
   WT_API void expireSessions();

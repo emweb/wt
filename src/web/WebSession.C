@@ -263,6 +263,7 @@ WebSession::~WebSession()
   flushBootStyleResponse();
 
   controller_->configuration().registerSessionId(sessionId_, std::string());
+  controller_->sessionDeleted();
 
 #ifndef WT_TARGET_JAVA
   LOG_INFO("session destroyed (#sessions = " << controller_->sessionCount()

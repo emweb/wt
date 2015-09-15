@@ -151,7 +151,7 @@ WLogEntry WServer::log(const std::string& type) const
   return e;
 }
 
-bool WServer::dedicatedProcessEnabled() const {
+bool WServer::dedicatedSessionProcess() const {
   return dedicatedProcessEnabled_;
 }
 

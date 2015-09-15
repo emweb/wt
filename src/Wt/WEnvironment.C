@@ -121,7 +121,11 @@ void WEnvironment::updateUrlScheme(const WebRequest& request)
   urlScheme_       = str(request.urlScheme());
 
   Configuration& conf = session_->controller()->configuration();
-  if (conf.behindReverseProxy() || server()->dedicatedProcessEnabled()) {
+#ifndef WT_TARGET_JAVA
+  if (conf.behindReverseProxy() || server()->dedicatedSessionProcess()) {
+#else
+  if (conf.behindReverseProxy()){
+#endif
   std::string forwardedProto = str(request.headerValue("X-Forwarded-Proto"));
   if (!forwardedProto.empty()) {
 	std::string::size_type i = forwardedProto.rfind(',');
@@ -167,7 +171,11 @@ void WEnvironment::init(const WebRequest& request)
    * If behind a reverse proxy, use external host, schema as communicated using 'X-Forwarded'
    * headers.
    */
-  if (conf.behindReverseProxy() || server()->dedicatedProcessEnabled()) {
+#ifndef WT_TARGET_JAVA
+  if (conf.behindReverseProxy() || server()->dedicatedSessionProcess()) {
+#else
+	if (conf.behindReverseProxy()){
+#endif
     std::string forwardedHost = str(request.headerValue("X-Forwarded-Host"));
 
     if (!forwardedHost.empty()) {
