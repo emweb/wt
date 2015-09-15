@@ -82,9 +82,10 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
     request_handler_(config, wt_.configuration(), accessLogger_),
     expireSessionsTimer_(wt_.ioService())
 {
-  if (config.parentPort() != -1)
+  if (config.parentPort() != -1) {
     accessLogger_.configure(std::string("-*"));
-  else if (config.accessLog().empty())
+	wtServer.dedicatedProcessEnabled_ = true;
+  } else if (config.accessLog().empty())
     accessLogger_.setStream(std::cout);
   else if (config.accessLog() == "-")
     accessLogger_.configure(std::string("-*"));

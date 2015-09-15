@@ -11,12 +11,16 @@
 #include <Wt/WException>
 #include <Wt/WLogger>
 
+namespace http {
+  namespace server {
+	class Server;
+  }
+}
 namespace Wt {
 
 class Configuration;
 class WebController;
 class WIOService;
-
 /*! \class WServer Wt/WServer Wt/WServer
  *  \brief A class encapsulating a web application server.
  *
@@ -412,6 +416,7 @@ public:
    * session, e.g. from within the main() function.
    *
    * \sa WApplication::readConfigurationProperty()
+
    */
   WT_API bool readConfigurationProperty(const std::string& name,
 					std::string& value) const;
@@ -471,6 +476,8 @@ public:
 
   WT_API void initLogger(const std::string& logFile,
 			 const std::string& logConfig);
+
+  WT_API bool dedicatedProcessEnabled() const;
 #endif // WT_TARGET_JAVA
 
   WT_API void expireSessions();
@@ -501,6 +508,8 @@ private:
   bool ownsIOService_;
   WIOService *ioService_;
 
+  bool dedicatedProcessEnabled_;
+
   struct Impl;
   Impl *impl_;
 
@@ -521,9 +530,9 @@ private:
   boost::function<std::string (std::size_t max_length, int purpose)> sslPasswordCallback_;
 #ifndef WT_TARGET_JAVA
   boost::function<void ()> stopCallback_;
+  friend class http::server::Server;
 #endif // WT_TARGET_JAVA
 };
 
 }
-
 #endif // WSERVER_H_ 

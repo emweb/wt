@@ -85,6 +85,7 @@ class MySQLStatement : public SqlStatement
       errors_ = 0;
       lastOutCount_ = 0;
 
+      conn_.checkConnection();
       stmt_ =  mysql_stmt_init(conn_.connection()->mysql);
       mysql_stmt_attr_set(stmt_, STMT_ATTR_UPDATE_MAX_LENGTH, &mysqltrue_);
       if(mysql_stmt_prepare(stmt_, sql_.c_str(), sql_.length()) != 0) {
@@ -360,7 +361,7 @@ class MySQLStatement : public SqlStatement
       if (conn_.showQueries())
         std::cerr << sql_ << std::endl;
 
-
+      conn_.checkConnection();
       if(mysql_stmt_bind_param(stmt_, &in_pars_[0]) == 0){
         if (mysql_stmt_execute(stmt_) == 0) {
           if(mysql_stmt_field_count(stmt_) == 0) { // assume not select
@@ -956,6 +957,7 @@ bool MySQL::connect(const std::string &db,  const std::string &dbuser,
 	dbhost_ = dbhost;
 	dbsocket_ = dbsocket;
 	dbport_ = dbport;
+        mysqlId_ = mysql_thread_id(impl_->mysql);
       }
     } else {
       mysql_close(impl_->mysql);
@@ -979,6 +981,31 @@ void MySQL::init()
   executeSql("SET NAMES 'utf8';");
 }
 
+void MySQL::checkConnection()
+{
+  /*
+   * If MySQL connection is lost, it automatically reconnects, but it looses
+   * state. The statements in the 'init' class must be re-issued, and any
+   * saved prepared statement is lost. Here we check if we had been reconnected,
+   * and process the event appropriately.
+   *
+   * This function must be called *before* any interaction with the mysql
+   * server.
+   */
+  if (mysql_ping(impl_->mysql) != 0) {
+    throw MySQLException("checkConnection: MySQL ping error: " +
+      std::string(mysql_error(impl_->mysql)));
+  }
+  unsigned long oldId = mysqlId_;
+  mysqlId_ = mysql_thread_id(impl_->mysql);
+  if (mysqlId_ != oldId) {
+    std::cerr << "warning: checkConnection: MySQL reconnect " <<
+      mysql_thread_id(impl_->mysql) << std::endl;
+    clearStatementCache();
+    init();
+  }
+}
+
 SqlStatement *MySQL::prepareStatement(const std::string& sql)
 {
   return new MySQLStatement(*this, sql);
@@ -989,6 +1016,7 @@ void MySQL::executeSql(const std::string &sql)
   if (showQueries())
     std::cerr << sql << std::endl;
 
+  checkConnection();
   if( mysql_query(impl_->mysql, sql.c_str()) != 0 ){
     throw MySQLException("MySQL error performing query: '" +
 			 sql + "': " + mysql_error(impl_->mysql));
@@ -1087,6 +1115,8 @@ void MySQL::startTransaction()
 {
   if (showQueries())
      std::cerr << "start transaction" << std::endl;
+
+  checkConnection();
   if( mysql_query(impl_->mysql, "start transaction") != 0 ){
     throw MySQLException(std::string("MySQL error starting transaction: ") +
                          mysql_error(impl_->mysql));
@@ -1101,6 +1131,8 @@ void MySQL::commitTransaction()
   my_bool status;
   if (showQueries())
      std::cerr << "commit transaction" << std::endl;
+
+  checkConnection();
   if( (status = mysql_commit(impl_->mysql)) != 0 ){
     std::cerr << "error committing transaction: "
               << mysql_error(impl_->mysql) << std::endl;
@@ -1117,6 +1149,8 @@ void MySQL::rollbackTransaction()
   my_bool status;
   if (showQueries())
      std::cerr << "rollback" << std::endl;
+
+  checkConnection();
   if((status =  mysql_rollback(impl_->mysql)) != 0 ){
     throw MySQLException(std::string("MySQL error rolling back transaction: ") +
                          mysql_error(impl_->mysql));

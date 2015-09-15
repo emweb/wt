@@ -2293,7 +2293,7 @@ void WebSession::notify(const WEvent& event)
 	  }
 	}
       } else {
-	env_->urlScheme_ = str(request.urlScheme());
+		env_->updateUrlScheme(request);
 
 	if (signalE) {
 	  /*

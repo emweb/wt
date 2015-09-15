@@ -9,10 +9,9 @@
 
 #include <Wt/WAbstractArea>
 #include <Wt/WPoint>
+#include <Wt/WPointF>
 
 namespace Wt {
-
-class WPointF;
 
 /*! \class WPolygonArea Wt/WPolygonArea Wt/WPolygonArea
  *  \brief An interactive area in a widget, specified by a polygon.

@@ -116,15 +116,31 @@ void WEnvironment::updateHostName(const WebRequest& request)
   if(host_.size() == 0) host_ = oldHost;
 }
 
+void WEnvironment::updateUrlScheme(const WebRequest& request) 
+{
+  urlScheme_       = str(request.urlScheme());
+
+  Configuration& conf = session_->controller()->configuration();
+  if (conf.behindReverseProxy() || server()->dedicatedProcessEnabled()) {
+  std::string forwardedProto = str(request.headerValue("X-Forwarded-Proto"));
+  if (!forwardedProto.empty()) {
+	std::string::size_type i = forwardedProto.rfind(',');
+	if (i == std::string::npos)
+	  urlScheme_ = forwardedProto;
+	else
+	  urlScheme_ = forwardedProto.substr(i+1);
+  }
+  }
+}
+
+
 void WEnvironment::init(const WebRequest& request)
 {
   Configuration& conf = session_->controller()->configuration();
 
   queryString_ = request.queryString();
   parameters_ = request.getParameterMap();
-
   host_            = str(request.headerValue("Host"));
-  urlScheme_       = str(request.urlScheme());
   referer_         = str(request.headerValue("Referer"));
   accept_          = str(request.headerValue("Accept"));
   serverSignature_ = str(request.envValue("SERVER_SIGNATURE"));
@@ -143,6 +159,7 @@ void WEnvironment::init(const WebRequest& request)
 #endif
 
   setUserAgent(str(request.headerValue("User-Agent")));
+  updateUrlScheme(request);
 
   LOG_INFO("UserAgent: " << userAgent_);
 
@@ -150,7 +167,7 @@ void WEnvironment::init(const WebRequest& request)
    * If behind a reverse proxy, use external host, schema as communicated using 'X-Forwarded'
    * headers.
    */
-  if (conf.behindReverseProxy()) {
+  if (conf.behindReverseProxy() || server()->dedicatedProcessEnabled()) {
     std::string forwardedHost = str(request.headerValue("X-Forwarded-Host"));
 
     if (!forwardedHost.empty()) {
@@ -160,16 +177,9 @@ void WEnvironment::init(const WebRequest& request)
       else
 	host_ = forwardedHost.substr(i+1);
     }
-
-    std::string forwardedProto = str(request.headerValue("X-Forwarded-Proto"));
-    if (!forwardedProto.empty()) {
-      std::string::size_type i = forwardedProto.rfind(',');
-      if (i == std::string::npos)
-	urlScheme_ = forwardedProto;
-      else
-	urlScheme_ = forwardedProto.substr(i+1);
-    }
   }
+
+
 
   if (host_.empty()) {
     /*
