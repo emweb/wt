@@ -149,8 +149,6 @@ void WebController::shutdown()
       plainHtmlSessions_ = 0;
     }
 
-    zombieSessions_ = sessionList.size();
-
     for (unsigned i = 0; i < sessionList.size(); ++i) {
       boost::shared_ptr<WebSession> session = sessionList[i];
       WebSession::Handler handler(session, WebSession::Handler::TakeLock);
@@ -272,6 +270,7 @@ void WebController::removeSession(const std::string& sessionId)
 
   SessionMap::iterator i = sessions_.find(sessionId);
   if (i != sessions_.end()) {
+    ++zombieSessions_;
     if (i->second->env().ajax())
       --ajaxSessions_;
     else
