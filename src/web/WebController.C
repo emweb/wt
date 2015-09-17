@@ -137,7 +137,8 @@ void WebController::shutdown()
 
       running_ = false;
 
-      LOG_INFO_S(&server_, "shutdown: stopping sessions.");
+      LOG_INFO_S(&server_, "shutdown: stopping " << sessions_.size()
+		 << " sessions.");
 
       for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
 	   ++i)
@@ -223,6 +224,7 @@ bool WebController::expireSessions()
 	  else
 	    --plainHtmlSessions_;
 
+	  ++zombieSessions_;
 	  sessions_.erase(i++);
 	}
       } else
