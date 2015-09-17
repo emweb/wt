@@ -84,7 +84,7 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
 {
   if (config.parentPort() != -1) {
     accessLogger_.configure(std::string("-*"));
-	wtServer.dedicatedProcessEnabled_ = true;
+    wtServer.dedicatedProcessEnabled_ = true;
   } else if (config.accessLog().empty())
     accessLogger_.setStream(std::cout);
   else if (config.accessLog() == "-")

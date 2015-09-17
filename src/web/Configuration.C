@@ -187,7 +187,6 @@ Configuration::Configuration(const std::string& applicationPath,
     appRoot_(appRoot),
     configurationFile_(configurationFile),
     runDirectory_(RUNDIR),
-    singleSession_(false),
     connectorSlashException_(false), // need to use ?_=
     connectorNeedReadBody_(false),
     connectorWebSockets_(true)
@@ -464,11 +463,6 @@ bool Configuration::webglDetect() const
   return webglDetection_;
 }
 
-bool Configuration::singleSession() const
-{
-  return singleSession_;
-}
-
 bool Configuration::agentIsBot(const std::string& agent) const
 {
   READ_LOCK;
@@ -603,11 +597,6 @@ void Configuration::setNumThreads(int threads)
 void Configuration::setBehindReverseProxy(bool enabled)
 {
   behindReverseProxy_ = enabled;
-}
-
-void Configuration::setSingleSession(bool singleSession)
-{
-  singleSession_ = singleSession;
 }
 
 void Configuration::readApplicationSettings(xml_node<> *app)

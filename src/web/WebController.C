@@ -156,8 +156,9 @@ void WebController::shutdown()
     }
   }
 
-  while (zombieSessions_ > 0)
+  while (zombieSessions_ > 0) {
     boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+  }
 }
 
 void WebController::sessionDeleted()
@@ -239,7 +240,7 @@ bool WebController::expireSessions()
     session->expire();
   }
 
-  if (toExpire.size() > 0 && configuration().singleSession()) {
+  if (toExpire.size() > 0 && server_.dedicatedSessionProcess()) {
 #ifdef WT_THREADED
     boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
@@ -278,7 +279,7 @@ void WebController::removeSession(const std::string& sessionId)
     sessions_.erase(i);
   }
 
-  if (configuration().singleSession() && sessions_.size() == 0) {
+  if (server_.dedicatedSessionProcess() && sessions_.size() == 0) {
     server_.scheduleStop();
   }
 }
