@@ -321,34 +321,34 @@ void WCartesian3DChart::createRay(double x, double y, WVector3 &eye, WVector3 &d
   invTransform =
 #endif
     invTransform.inverted();
-  WVector4 near(
+  WVector4 near_(
       x / width().value() * 2 - 1,
       y / height().value() * (-2) + 1,
       -1.0,
       1.0
     );
-   WVector4 far(
-      near.x(),
-      near.y(),
+   WVector4 far_(
+      near_.x(),
+      near_.y(),
       1.0,
       1.0
     );
-  near = invTransform * near;
-  far =  invTransform * far;
-  near = near / near.w();
-  far = far / far.w();
-  WVector4 ray = far - near;
+  near_ = invTransform * near_;
+  far_ =  invTransform * far_;
+  near_ = near_ / near_.w();
+  far_ = far_ / far_.w();
+  WVector4 ray = far_ - near_;
   ray.normalize();
 #ifndef WT_TARGET_JAVA
   direction = WVector3(ray.x(), ray.z(), ray.y());
-  eye = WVector3(near.x(), near.z(), near.y());
+  eye = WVector3(near_.x(), near_.z(), near_.y());
 #else
   direction.setElement(0, ray.x());
   direction.setElement(1, ray.z());
   direction.setElement(2, ray.y());
-  eye.setElement(0, near.x());
-  eye.setElement(1, near.z());
-  eye.setElement(2, near.y());
+  eye.setElement(0, near_.x());
+  eye.setElement(1, near_.z());
+  eye.setElement(2, near_.y());
 #endif
 }
 
