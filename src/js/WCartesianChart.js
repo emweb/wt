@@ -28,13 +28,22 @@ WT_DECLARE_WT_MEMBER
  function(APP, widget, target, config) {
    var ANIMATION_INTERVAL = 17;
    var rqAnimFrame = (function(){
-      return window.requestAnimationFrame       ||
-	     window.webkitRequestAnimationFrame ||
-	     window.mozRequestAnimationFrame    ||
-             function(callback) {
-		window.setTimeout(callback, ANIMATION_INTERVAL);
-	     };
-   })();
+	 return window.requestAnimationFrame       ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame    ||
+		function(callback) {
+		   window.setTimeout(callback, ANIMATION_INTERVAL);
+		};
+      })();
+   var framePending = false;
+   var rqAnimFrameThrottled = function(cb) {
+      if (framePending) return;
+      framePending = true;
+      rqAnimFrame(function() {
+	 cb();
+	 framePending = false;
+      });
+   };
 
    if (window.MSPointerEvent || window.PointerEvent) {
       widget.style.touchAction = 'none';
@@ -354,7 +363,7 @@ WT_DECLARE_WT_MEMBER
 
    function repaint() {
       if (!paintEnabled) return;
-      rqAnimFrame(function(){
+      rqAnimFrameThrottled(function(){
 	 target.repaint();
 	 if (showCrosshair()) {
 	    repaintOverlay();
@@ -513,7 +522,7 @@ WT_DECLARE_WT_MEMBER
 
 	 if (showCrosshair() && paintEnabled) {
 	    crosshair = [c.x,c.y];
-	    rqAnimFrame(repaintOverlay);
+	    rqAnimFrameThrottled(repaintOverlay);
 	 }
       }, 0);
    }
@@ -846,6 +855,7 @@ WT_DECLARE_WT_MEMBER
       doubleTouch = touches.length === 2;
 
       if (noTouch) {
+	 moveTimeout = null;
 	 if (mode === LOOK_MODE && (isFinite(v.x) || isFinite(v.y)) && config.rubberBand) {
 	    lastDate = Date.now();
 	    animating = true;
@@ -866,124 +876,123 @@ WT_DECLARE_WT_MEMBER
 	 touchHandlers.start(o, event);
    };
 
+   var moveTimeout = null;
+   var c1 = null;
+   var c2 = null;
+
    touchHandlers.moved = function(o, event) {
-     if ( (!singleTouch) && (!doubleTouch) ) {
-       return;
-     }
-
-     if (singleTouch) {
-	if (dragPreviousXY === null) return;
-	var c = WT.widgetCoordinates(target.canvas, event.touches[0]);
-	var now = Date.now();
-	var d = {
-	   x: c.x - dragPreviousXY.x,
-	   y: c.y - dragPreviousXY.y
-	};
-	var dt = now - lastDate;
-	lastDate = now;
-	if (mode === CROSSHAIR_MODE) {
-	   crosshair[X] += d.x;
-	   crosshair[Y] += d.y;
-	   if (showCrosshair() && paintEnabled) {
-	      rqAnimFrame(repaintOverlay);
+      if ( (!singleTouch) && (!doubleTouch) ) {
+        return;
+      }
+      if (singleTouch && dragPreviousXY == null) return;
+      if (event.preventDefault) event.preventDefault();
+      c1 = WT.widgetCoordinates(target.canvas, event.touches[0]);
+      if (event.touches.length > 1)
+	 c2 = WT.widgetCoordinates(target.canvas, event.touches[1]);
+      // setTimeout prevents high animation velocity due to looking
+      // at events that are further apart.
+      if (!moveTimeout) moveTimeout = setTimeout(function(){
+	if (singleTouch) {
+	   var c = c1;
+	   var now = Date.now();
+	   var d = {
+	      x: c.x - dragPreviousXY.x,
+	      y: c.y - dragPreviousXY.y
+	   };
+	   var dt = now - lastDate;
+	   lastDate = now;
+	   if (mode === CROSSHAIR_MODE) {
+	      crosshair[X] += d.x;
+	      crosshair[Y] += d.y;
+	      if (showCrosshair() && paintEnabled) {
+		 rqAnimFrame(repaintOverlay);
+	      }
+	   } else if (config.pan) {
+	      v.x = d.x / dt;
+	      v.y = d.y / dt;
+	      translate(d, config.rubberBand ? DAMPEN : 0);
 	   }
-	} else if (config.pan) {
-	   if (c.x < config.area[0] || c.x > config.area[0] + config.area[2]) {
-	      v = {x:0,y:0};
-	      return;
+	   dragPreviousXY = c;
+	} else if (doubleTouch && config.zoom) {
+	   var crosshairBefore = toModelCoord(crosshair);
+	   var mxBefore = (touches[0][0] + touches[1][0]) / 2;
+	   var myBefore = (touches[0][1] + touches[1][1]) / 2;
+	   var newTouches = [ c1, c2 ].map(function(t){
+	      if (zoomAngle === 0) {
+		 return [t.x, myBefore];
+	      } else if (zoomAngle === Math.PI / 2) {
+		 return [mxBefore, t.y];
+	      } else {
+		 return mult(zoomProjection,[t.x,t.y]);
+	      }
+	   });
+
+	   var dxBefore = Math.abs(touches[1][0] - touches[0][0]);
+	   var dxAfter = Math.abs(newTouches[1][0] - newTouches[0][0]);
+	   var xScale = dxBefore > 0 ? dxAfter / dxBefore : 1;
+	   if (dxAfter === dxBefore || zoomAngle === Math.PI / 2) {
+	      xScale = 1;
 	   }
-	   if (c.y < config.area[1] || c.y > config.area[1] + config.area[3]) {
-	      v = {x:0,y:0};
-	      return;
+	   var mxAfter = (newTouches[0][0] + newTouches[1][0]) / 2;
+	   var dyBefore = Math.abs(touches[1][1] - touches[0][1]);
+	   var dyAfter = Math.abs(newTouches[1][1] - newTouches[0][1]);
+	   var yScale = dyBefore ? dyAfter / dyBefore : 1;
+	   if (dyAfter === dyBefore || zoomAngle === 0) {
+	      yScale = 1;
 	   }
-	   v.x = d.x / dt;
-	   v.y = d.y / dt;
-	   translate(d, config.rubberBand ? DAMPEN : 0);
-	}
-	if (event.preventDefault) event.preventDefault();
-	dragPreviousXY = c;
-     } else if (doubleTouch && config.zoom) {
-	if (event.preventDefault) event.preventDefault();
-	var crosshairBefore = toModelCoord(crosshair);
-	var mxBefore = (touches[0][0] + touches[1][0]) / 2;
-	var myBefore = (touches[0][1] + touches[1][1]) / 2;
-	var newTouches = [
-	   WT.widgetCoordinates(target.canvas,event.touches[0]),
-	   WT.widgetCoordinates(target.canvas,event.touches[1])
-	].map(function(t){
-	   if (zoomAngle === 0) {
-	      return [t.x, myBefore];
-	   } else if (zoomAngle === Math.PI / 2) {
-	      return [mxBefore, t.y];
-	   } else {
-	      return mult(zoomProjection,[t.x,t.y]);
+	   var myAfter = (newTouches[0][1] + newTouches[1][1]) / 2;
+
+	   if (config.isHorizontal) {
+	      (function() {
+		var tmp = xScale;
+		xScale = yScale;
+		yScale = tmp;
+		tmp = mxAfter;
+		mxAfter = myAfter;
+		myAfter = tmp;
+		tmp = mxBefore;
+		mxBefore = myBefore;
+		myBefore = tmp;
+	      })();
 	   }
-	});
 
-	var dxBefore = Math.abs(touches[1][0] - touches[0][0]);
-	var dxAfter = Math.abs(newTouches[1][0] - newTouches[0][0]);
-	var xScale = dxBefore > 0 ? dxAfter / dxBefore : 1;
-	if (dxAfter === dxBefore || zoomAngle === Math.PI / 2) {
-	   xScale = 1;
-	}
-	var mxAfter = (newTouches[0][0] + newTouches[1][0]) / 2;
-	var dyBefore = Math.abs(touches[1][1] - touches[0][1]);
-	var dyAfter = Math.abs(newTouches[1][1] - newTouches[0][1]);
-	var yScale = dyBefore ? dyAfter / dyBefore : 1;
-	if (dyAfter === dyBefore || zoomAngle === 0) {
-	   yScale = 1;
-	}
-	var myAfter = (newTouches[0][1] + newTouches[1][1]) / 2;
+	   if (transform(X)[0] * xScale > config.maxZoom[X]) {
+	      xScale = config.maxZoom[X] / transform(X)[0];
+	   }
+	   if (transform(Y)[3] * yScale > config.maxZoom[Y]) {
+	      yScale = config.maxZoom[Y] / transform(Y)[3];
+	   }
+	   if (xScale !== 1 &&
+		 (xScale < 1.0 || transform(X)[0] !== config.maxZoom[X])) {
+	      assign(transform(X),
+		mult(
+		   [xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
+		   transform(X)
+		 )
+	      );
+	   }
+	   if (yScale !== 1 &&
+		 (yScale < 1.0 || transform(Y)[3] !== config.maxZoom[Y])) {
+	      assign(transform(Y),
+		mult(
+		   [1,0,0,yScale,0,-yScale*myBefore+myAfter],
+		   transform(Y)
+		 )
+	      );
+	   }
+	   enforceLimits();
 
-	if (config.isHorizontal) {
-	   (function() {
-	     var tmp = xScale;
-	     xScale = yScale;
-	     yScale = tmp;
-	     tmp = mxAfter;
-	     mxAfter = myAfter;
-	     myAfter = tmp;
-	     tmp = mxBefore;
-	     mxBefore = myBefore;
-	     myBefore = tmp;
-	   })();
-	}
+	   var crosshairAfter = toDisplayCoord(crosshairBefore);
+	   crosshair[X] = crosshairAfter[X];
+	   crosshair[Y] = crosshairAfter[Y];
 
-	if (transform(X)[0] * xScale > config.maxZoom[X]) {
-	   xScale = config.maxZoom[X] / transform(X)[0];
+	   touches = newTouches;
+	   refreshPenColors();
+	   repaint();
+	   notifyAreaChanged();
 	}
-	if (transform(Y)[3] * yScale > config.maxZoom[Y]) {
-	   yScale = config.maxZoom[Y] / transform(Y)[3];
-	}
-	if (xScale !== 1 &&
-	      (xScale < 1.0 || transform(X)[0] !== config.maxZoom[X])) {
-	   assign(transform(X),
-	     mult(
-		[xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
-		transform(X)
-	      )
-	   );
-	}
-	if (yScale !== 1 &&
-	      (yScale < 1.0 || transform(Y)[3] !== config.maxZoom[Y])) {
-	   assign(transform(Y),
-	     mult(
-		[1,0,0,yScale,0,-yScale*myBefore+myAfter],
-		transform(Y)
-	      )
-	   );
-	}
-	enforceLimits();
-
-        var crosshairAfter = toDisplayCoord(crosshairBefore);
-	crosshair[X] = crosshairAfter[X];
-	crosshair[Y] = crosshairAfter[Y];
-
-	touches = newTouches;
-	refreshPenColors();
-	repaint();
-	notifyAreaChanged();
-     }
+	moveTimeout = null;
+      }, 1);
    };
 
    function toZoomLevel(zoomFactor) {

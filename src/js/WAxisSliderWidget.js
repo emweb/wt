@@ -19,6 +19,17 @@ WT_DECLARE_WT_MEMBER
 		window.setTimeout(callback, 0);
 	     };
    })();
+   var framePending = false;
+   var rqAnimFrameThrottled = function(cb) {
+      if (framePending) return;
+      framePending = true;
+      rqAnimFrame(function() {
+	 cb();
+	 framePending = false;
+      });
+   };
+
+   var touchHandlers = {};
 
    jQuery.data(widget, 'sobj', this);
 
@@ -34,7 +45,7 @@ WT_DECLARE_WT_MEMBER
 
    var pointerActive = false;
 
-   if (!window.TouchEvent && (window.MSPointerEvent || window.PointerEvent)) {
+   if (window.MSPointerEvent || window.PointerEvent) {
       (function(){
 	 pointers = []
 
@@ -52,7 +63,7 @@ WT_DECLARE_WT_MEMBER
 	    pointers.push(event);
 
 	    updatePointerActive();
-	    self.touchStarted(widget, {touches:pointers.slice(0)});
+	    touchHandlers.start(widget, {touches:pointers.slice(0)});
 	 }
 
 	 function pointerUp(event) {
@@ -68,7 +79,7 @@ WT_DECLARE_WT_MEMBER
 	    }
 
 	    updatePointerActive();
-	    self.touchEnded(widget, {touches:pointers.slice(0),changedTouches:[]});
+	    touchHandlers.end(widget, {touches:pointers.slice(0),changedTouches:[]});
 	 }
 
 	 function pointerMove(event) {
@@ -83,7 +94,7 @@ WT_DECLARE_WT_MEMBER
 	    }
 
 	    updatePointerActive();
-	    self.touchMoved(widget, {touches:pointers.slice(0)});
+	    touchHandlers.moved(widget, {touches:pointers.slice(0)});
 	 }
 
 	 var o = jQuery.data(widget, 'eobj');
@@ -134,7 +145,7 @@ WT_DECLARE_WT_MEMBER
    var position = null;
 
    function scheduleRepaint() {
-      rqAnimFrame(target.repaint);
+      rqAnimFrameThrottled(target.repaint);
    }
 
    this.changeRange = function(u, v) {
@@ -317,7 +328,7 @@ WT_DECLARE_WT_MEMBER
 
    var touchDelta = null;
 
-   this.touchStarted = function(o, event) {
+   touchHandlers.start = function(o, event) {
       singleTouch = event.touches.length === 1;
       doubleTouch = event.touches.length === 2;
       if (singleTouch) {
@@ -355,7 +366,7 @@ WT_DECLARE_WT_MEMBER
       }
    };
 
-   this.touchEnded = function(o, event) {
+   touchHandlers.end = function(o, event) {
       var touches = Array.prototype.slice.call(event.touches);
 
       var wasSingleTouch = singleTouch;
@@ -395,7 +406,7 @@ WT_DECLARE_WT_MEMBER
 	 doubleTouch = false;
 	 touchDelta = null;
 	 WT.cancelEvent(event);
-	 self.touchStarted(widget, event);
+	 touchHandlers.start(widget, event);
       }
       if (noTouch && wasDoubleTouch) {
 	 doubleTouch = false;
@@ -404,9 +415,9 @@ WT_DECLARE_WT_MEMBER
       }
    };
 
-   this.touchMoved = function(o, event) {
+   touchHandlers.moved = function(o, event) {
       if (position) {
-	 WT.cancelEvent(event);
+	 if (event.preventDefault) event.preventDefault();
 	 var pos = WT.widgetCoordinates(widget, event);
 	 if (previousXY === null) {
 	    previousXY = pos;
@@ -431,6 +442,7 @@ WT_DECLARE_WT_MEMBER
 	 previousXY = pos;
 	 repaint();
       } else if (doubleTouch) {
+	 if (event.preventDefault) event.preventDefault();
 	 touches = [
 	    WT.widgetCoordinates(target.canvas,event.touches[0]),
 	    WT.widgetCoordinates(target.canvas,event.touches[1])
@@ -445,6 +457,7 @@ WT_DECLARE_WT_MEMBER
 	 dragLeft(-d/2);
 	 dragRight(d/2);
 	 touchDelta = newDelta;
+	 repaint();
       }
    };
 
@@ -458,5 +471,16 @@ WT_DECLARE_WT_MEMBER
    }
 
    self.updateConfig({});
+
+   if (window.TouchEvent && !window.MSPointerEvent && !window.PointerEvent) {
+      self.touchStarted = touchHandlers.start;
+      self.touchEnded = touchHandlers.end;
+      self.touchMoved = touchHandlers.moved;
+   } else {
+      var nop = function(){};
+      self.touchStarted = nop;
+      self.touchEnded = nop;
+      self.touchMoved = nop;
+   }
  });
 

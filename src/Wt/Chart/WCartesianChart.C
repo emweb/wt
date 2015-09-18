@@ -1782,7 +1782,8 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
     renderGrid(painter, axis(Y1Axis));
     renderGrid(painter, axis(Y2Axis));
     renderSeries(painter);              // render the data series
-    renderAxes(painter, Line | Labels); // render the axes (lines & labels)
+    renderAxes(painter, Line); // render the axes (lines)
+    renderAxes(painter, Labels); // render the axes (labels)
     renderBorder(painter);
     renderLegend(painter);
   }
