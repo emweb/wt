@@ -2215,6 +2215,9 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
     } else {
       clipRect = WRectF(area.left(), 0.0, area.width(), vertical ? height_ : width_);
     }
+    if (properties == Labels) {
+      clipRect = WRectF(clipRect.left() - 1, clipRect.top() - 1, clipRect.width() + 2, clipRect.height() + 2);
+    }
     WPainterPath clipPath;
     clipPath.addRect(clipRect);
     painter.save();
@@ -2825,11 +2828,11 @@ void WCartesianChart::renderLegend(WPainter& painter) const
       + (w - plotAreaPadding(Left) - plotAreaPadding(Right)) / 2 ;
     painter.save();
     painter.setFont(titleFont());
-    const int TITLE_HEIGHT = 50;
+    int titleHeight = titleFont().sizeLength().toPixels();
     const int TITLE_PADDING = 10;
     painter.drawText(x - 500,
-		     plotAreaPadding(Top) - TITLE_HEIGHT - TITLE_PADDING,
-		     1000, TITLE_HEIGHT, AlignCenter | AlignTop, title());
+		     plotAreaPadding(Top) - titleHeight - TITLE_PADDING,
+		     1000, titleHeight, AlignCenter | AlignTop, title());
     painter.restore();
   }
 }
