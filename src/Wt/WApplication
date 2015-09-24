@@ -119,7 +119,7 @@ public:
  *
  * \if cpp
  * \code
- * WApplication *createApplication(const WEnvironment WEnvironment& env)
+ * WApplication *createApplication(const WEnvironment& env)
  * {
  *   //
  *   // Optionally, check the environment and redirect to an error page.
