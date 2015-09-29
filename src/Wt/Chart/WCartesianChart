@@ -552,7 +552,7 @@ public:
   void setLegendColumns(int columns, const WLength& width);
   
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
-    const;
+    const WT_CXX11ONLY(override);
 
   /*! \brief Draws the marker for a given data series.
    *
@@ -786,6 +786,9 @@ public:
    * follow curve functionality has priority over the crosshair functionality.
    *
    * Use column index -1 or disableFollowCurve() to disable the follow curve feature.
+   *
+   * \note The follow curve functionality requires that the X axis values of the data series
+   *       are strictly increasing or strictly decreasing.
    */
   void setFollowCurve(int modelColumn);
 
@@ -891,20 +894,20 @@ private:
 
 protected:
   virtual void modelColumnsInserted(const WModelIndex& parent,
-				    int start, int end);
+				    int start, int end) WT_CXX11ONLY(override);
   virtual void modelColumnsRemoved(const WModelIndex& parent,
-				   int start, int end);
+				   int start, int end) WT_CXX11ONLY(override);
   virtual void modelRowsInserted(const WModelIndex& parent,
-				 int start, int end);
+				 int start, int end) WT_CXX11ONLY(override);
   virtual void modelRowsRemoved(const WModelIndex& parent,
-				int start, int end);
+				int start, int end) WT_CXX11ONLY(override);
   virtual void modelDataChanged(const WModelIndex& topLeft,
-			        const WModelIndex& bottomRight);
+			        const WModelIndex& bottomRight) WT_CXX11ONLY(override);
   virtual void modelHeaderDataChanged(Orientation orientation,
-				      int start, int end);
+				      int start, int end) WT_CXX11ONLY(override);
 
-  virtual void modelChanged();
-  virtual void modelReset();
+  virtual void modelChanged() WT_CXX11ONLY(override);
+  virtual void modelReset() WT_CXX11ONLY(override);
 
   /** @name Rendering logic
    */
@@ -913,7 +916,7 @@ protected:
    *
    * This calls render() to paint on the paint device.
    */
-  void paintEvent(WPaintDevice *paintDevice);
+  virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override);
 
   /*! \brief Renders the chart.
    *

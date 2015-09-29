@@ -2225,7 +2225,7 @@ private:
   AjaxMethod             ajaxMethod_;
   bool                   quitted_;
   WString                quittedMessage_;
-  std::string            onePixelGifUrl_;
+  WResource             *onePixelGifR_;
   bool                   internalPathsEnabled_;
   WWidget               *exposedOnly_;
   WLoadingIndicator     *loadingIndicator_;

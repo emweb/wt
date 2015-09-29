@@ -167,22 +167,28 @@ bool AuthModel::validate()
   return result;
 }
 
+void AuthModel::setRememberMeCookie(const User& user)
+{
+  WApplication *app = WApplication::instance();
+  const AuthService *s = baseAuth();
+
+  app->setCookie(s->authTokenCookieName(),
+		 s->createAuthToken(user),
+		 s->authTokenValidity() * 60,
+		 s->authTokenCookieDomain());
+}
+
 bool AuthModel::login(Login& login)
 {
   if (valid()) {
     User user = users().findWithIdentity(Identity::LoginName,
 					 valueText(LoginNameField));
     boost::any v = value(RememberMeField);
-    const AuthService *s = baseAuth();
     if (loginUser(login, user)) {
       reset();
 
-      if (!v.empty() && boost::any_cast<bool>(v) == true) {
-	WApplication *app = WApplication::instance();
-	app->setCookie(s->authTokenCookieName(),
-		       s->createAuthToken(user),
-		       s->authTokenValidity() * 60);
-      }
+      if (!v.empty() && boost::any_cast<bool>(v) == true)
+	setRememberMeCookie(user);
 
       return true;
     } else

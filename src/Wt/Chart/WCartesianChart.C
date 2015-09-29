@@ -854,8 +854,8 @@ void WCartesianChart::init()
 
   xTransformHandle_ = createJSTransform();
   yTransformHandle_ = createJSTransform();
-  xTransform_ = xTransformHandle_.value();
-  yTransform_ = yTransformHandle_.value();
+  xTransform_ = WTransform();
+  yTransform_ = WTransform();
 
   if (WApplication::instance() != 0) {
     mouseWentDown().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDown(o, e);}}");
@@ -1776,6 +1776,11 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
   painter.save();
   painter.translate(rectangle.topLeft());
 
+  if (isInteractive()) {
+    xTransform_ = xTransformHandle_.value();
+    yTransform_ = yTransformHandle_.value();
+  }
+
   if (initLayout(rectangle, painter.device())) {
     renderBackground(painter);
     renderGrid(painter, axis(XAxis));
@@ -1786,6 +1791,11 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
     renderAxes(painter, Labels); // render the axes (labels)
     renderBorder(painter);
     renderLegend(painter);
+  }
+  
+  if (isInteractive()) {
+    xTransform_ = WTransform();
+    yTransform_ = WTransform();
   }
 
   painter.restore();
@@ -1828,8 +1838,10 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
     yTransform_ = WTransform();
 
     if (chartArea_.width() <= 5 || chartArea_.height() <= 5 || !prepareAxes()) {
-      xTransform_ = xTransformHandle_.value();
-      yTransform_ = yTransformHandle_.value();
+      if (isInteractive()) {
+	xTransform_ = xTransformHandle_.value();
+	yTransform_ = yTransformHandle_.value();
+      }
       return false;
     }
 
@@ -1867,8 +1879,10 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
 
   bool result = chartArea_.width() > 5 && chartArea_.height() > 5 && prepareAxes();
 
-  xTransform_ = xTransformHandle_.value();
-  yTransform_ = yTransformHandle_.value();
+  if (isInteractive()) {
+    xTransform_ = xTransformHandle_.value();
+    yTransform_ = yTransformHandle_.value();
+  }
 
   return result;
 }
@@ -2828,7 +2842,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
       + (w - plotAreaPadding(Left) - plotAreaPadding(Right)) / 2 ;
     painter.save();
     painter.setFont(titleFont());
-    int titleHeight = titleFont().sizeLength().toPixels();
+    double titleHeight = titleFont().sizeLength().toPixels();
     const int TITLE_PADDING = 10;
     painter.drawText(x - 500,
 		     plotAreaPadding(Top) - titleHeight - TITLE_PADDING,

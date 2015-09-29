@@ -157,9 +157,11 @@ void WebController::shutdown()
     }
   }
 
+#ifdef WT_THREADED
   while (zombieSessions_ > 0) {
     boost::this_thread::sleep(boost::posix_time::milliseconds(10));
   }
+#endif
 }
 
 void WebController::sessionDeleted()

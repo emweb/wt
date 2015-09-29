@@ -117,6 +117,12 @@ public:
    */
   virtual EmailTokenResult processEmailToken(const std::string& token);
 
+  /*! \brief Creates a token and stores it in a cookie.
+   *
+   * This enables automatic authentication in a next session.
+   */
+  virtual void setRememberMeCookie(const User& user);
+
   /*! \brief Detects and processes an authentication token.
    *
    * This returns a user that was identified with an authentication token

@@ -270,19 +270,27 @@ WT_DECLARE_WT_MEMBER
       }
    }
 
+   function isAscending(axis, series) {
+      return series[0][axis] < series[series.length-1][axis];
+   }
+
    function findClosestPoint(x, series) {
       var axis = X;
       if (config.isHorizontal) {
 	 axis = Y;
       }
-      var i = binarySearch(x, series);
+      var ascending = isAscending(axis, series);
+      var i = binarySearch(x, series, ascending);
       if (i < 0) i = 0;
+      if (i >= series.length) return [series[series.length-1][X], series[series.length-1][Y]];
       if (i >= series.length) i = series.length - 2;
       if (series[i][axis] === x) return [series[i][X],series[i][Y]];
-      var next_i = i+1;
-      if (series[next_i][2] == CUBIC_C1) next_i += 2;
-      var d1 = x - series[i][axis];
-      var d2 = series[next_i][axis] - x;
+      var next_i = ascending ? i+1 : i-1;
+      if (ascending && series[next_i][2] == CUBIC_C1) next_i += 2;
+      if (!ascending && next_i < 0) return [series[i][X],series[i][Y]];
+      if (!ascending && next_i > 0 && series[next_i][2] == CUBIC_C2) next_i -= 2;
+      var d1 = Math.abs(x - series[i][axis]);
+      var d2 = Math.abs(series[next_i][axis] - x);
       if (d1 < d2) {
 	 return [series[i][X],series[i][Y]];
       } else {
@@ -294,39 +302,42 @@ WT_DECLARE_WT_MEMBER
    // with X coordinate nearest to the given x,
    // and smaller than the given x, and return
    // its index in the given series.
-   function binarySearch(x, series) {
+   function binarySearch(x, series, ascending) {
       var axis = X;
       if (config.isHorizontal) axis = Y;
+      var len = series.length;
+      function s(i) {
+	 if (ascending) return series[i];
+	 else return series[len - 1 - i];
+      }
       // Move back to a non-control point.
       function moveBack(i) {
-	 if (series[i][2] === CUBIC_C2) --i;
-	 if (series[i][2] === CUBIC_C1) --i;
+	 while (s(i)[2] === CUBIC_C1 || s(i)[2] === CUBIC_C2) i --;
 	 return i;
       }
-      var len = series.length;
       var i = Math.floor(len / 2);
       i = moveBack(i);
       var lower_bound = 0;
       var upper_bound = len;
       var found = false;
-      if (series[0][axis] > x) return -1;
-      if (series[len-1][axis] < x) return len;
+      if (s(0)[axis] > x) return ascending ? -1 : len;
+      if (s(len-1)[axis] < x) return ascending ? len : -1;
       while (!found) {
 	 var next_i = i + 1;
-	 if (series[next_i][2] === CUBIC_C1) {
+	 if (s(next_i)[2] === CUBIC_C1 || s(next_i)[2] === CUBIC_C2) {
 	    next_i += 2;
 	 }
-	 if (series[i][axis] > x) {
+	 if (s(i)[axis] > x) {
 	    upper_bound = i;
 	    i = Math.floor((upper_bound + lower_bound) / 2);
 	    i = moveBack(i);
 	 } else {
-	    if (series[i][axis] === x) {
+	    if (s(i)[axis] === x) {
 	       found = true;
 	    } else {
-	       if (series[next_i][axis] > x) {
+	       if (s(next_i)[axis] > x) {
 		  found = true;
-	       } else if (series[next_i][axis] === x) {
+	       } else if (s(next_i)[axis] === x) {
 		  i = next_i;
 		  found = true;
 	       } else {
@@ -337,8 +348,9 @@ WT_DECLARE_WT_MEMBER
 	    }
 	 }
       }
-      return i;
+      return ascending ? i : len - 1 - i;
    }
+   this.bSearch = binarySearch;
 
    function notifyAreaChanged() {
       var u,v;
@@ -1136,36 +1148,54 @@ WT_DECLARE_WT_MEMBER
       var p1 = toDisplayCoord([upperBound, 0], true);
       var axis = config.isHorizontal ? Y : X;
       var otherAxis = config.isHorizontal ? X : Y;
-      var i0 = binarySearch(p0[axis], series);
-      if (i0 < 0) {
-	 i0 = 0;
-      } else {
-	 i0 ++;
-	 if (series[i0][2] === CUBIC_C1) i0 += 2;
+      var ascending = isAscending(axis, series);
+      var i0 = binarySearch(p0[axis], series, ascending);
+      if (ascending) {
+	 if (i0 < 0) {
+	    i0 = 0;
+	 } else {
+	    i0 ++;
+	    if (series[i0][2] === CUBIC_C1) i0 += 2;
+	 }
+      } else if (i0 >= series.length - 1) {
+	 i0 = series.length - 2;
       }
-      var i_n = binarySearch(p1[axis], series);
+      var i_n = binarySearch(p1[axis], series, ascending);
+      if (!ascending && i_n < 0) {
+	 i_n = 0;
+      }
       var i, u, y, before_i0, after_i_n;
       var min_y = Infinity;
       var max_y = -Infinity;
-      for (i = i0; i <= i_n && i < series.length; ++i) {
+      for (i = Math.min(i0,i_n); i <= Math.max(i0,i_n) && i < series.length; ++i) {
 	 if (series[i][2] !== CUBIC_C1 && series[i][2] !== CUBIC_C2) {
 	    if (series[i][otherAxis] < min_y) min_y = series[i][otherAxis];
 	    if (series[i][otherAxis] > max_y) max_y = series[i][otherAxis];
 	 }
       }
-      if (i0 > 0) {
+      if (ascending && i0 > 0 || !ascending && i0 < series.length - 1) {
 	 // Interpolate on the lower X end
-	 before_i0 = i0 - 1;
-	 if (series[before_i0][2] === CUBIC_C2) before_i0 -= 2;
+	 if (ascending) {
+	    before_i0 = i0 - 1;
+	    if (series[before_i0][2] === CUBIC_C2) before_i0 -= 2;
+	 } else {
+	    before_i0 = i0 + 1;
+	    if (series[before_i0][2] === CUBIC_C1) before_i0 += 2;
+	 }
 	 u = (p0[axis] - series[before_i0][axis]) / (series[i0][axis] - series[before_i0][axis]);
 	 y = series[before_i0][otherAxis] + u * (series[i0][otherAxis] - series[before_i0][otherAxis]);
 	 if (y < min_y) min_y = y;
 	 if (y > max_y) max_y = y;
       }
-      if (i_n < series.length - 1) {
+      if (ascending && i_n < series.length - 1 || !ascending && i_n > 0) {
 	 // Interpolate on the upper X end
-	 after_i_n = i_n + 1;
-	 if (series[after_i_n][2] === CUBIC_C1) after_i_n += 2;
+	 if (ascending) {
+	    after_i_n = i_n + 1;
+	    if (series[after_i_n][2] === CUBIC_C1) after_i_n += 2;
+	 } else {
+	    after_i_n = i_n - 1;
+	    if (series[after_i_n][2] === CUBIC_C2) after_i_n -= 2;
+	 }
 	 u = (p1[axis] - series[i_n][axis]) / (series[after_i_n][axis] - series[i_n][axis]);
 	 y = series[i_n][otherAxis] + u * (series[after_i_n][otherAxis] - series[i_n][otherAxis]);
 	 if (y < min_y) min_y = y;

@@ -652,6 +652,11 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
       ss << widget_->areaImage_->updateAreasJS();
     }
     ss << "};";
+    ss << widget_->objJsRef() << ".repaint();";
+    el->callJavaScript(ss.str());
+  } else {
+    WStringStream ss;
+    ss << canvasDevice->recordedJs_.str();
     el->callJavaScript(ss.str());
   }
 
@@ -705,6 +710,11 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
       ss << widget_->areaImage_->updateAreasJS();
     }
     ss << "};";
+    ss << widget_->objJsRef() << ".repaint();";
+    el->callJavaScript(ss.str());
+  } else {
+    WStringStream ss;
+    ss << canvasDevice->recordedJs_.str();
     el->callJavaScript(ss.str());
   }
 

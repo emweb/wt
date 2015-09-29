@@ -376,6 +376,10 @@ public:
 
   virtual void enableAjax();
 
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
+  virtual void setDisabled(bool disabled);
+
 protected:
   virtual void render(WFlags<RenderFlag> flags);
 

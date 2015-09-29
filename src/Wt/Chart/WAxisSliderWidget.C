@@ -297,7 +297,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 
   double maxW = w - left - right;
   WRectF drawArea(left, 0, maxW, h);
-  std::vector<WAxis::Segment> segmentsBak = chart_->axis(XAxis).segments_;
+  std::vector<WAxis::Segment> segmentsBak = std::vector<WAxis::Segment>(chart_->axis(XAxis).segments_);
   double renderIntervalBak = chart_->axis(XAxis).renderInterval_;
   chart_->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
 

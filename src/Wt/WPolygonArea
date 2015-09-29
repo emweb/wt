@@ -117,7 +117,7 @@ private:
   mutable std::vector<WPoint> pointsIntCompatibility_;
 
 protected:
-  virtual bool updateDom(DomElement& element, bool all);
+  virtual bool updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
   virtual std::string updateAreaCoordsJS() WT_CXX11ONLY(override);
 };
 
