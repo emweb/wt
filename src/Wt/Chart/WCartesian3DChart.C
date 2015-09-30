@@ -2062,6 +2062,8 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteBuffer(cubeBuffer_);
   deleteBuffer(cubeNormalsBuffer_);
   deleteBuffer(cubeIndicesBuffer_);
+  deleteBuffer(cubeLineNormalsBuffer_);
+  deleteBuffer(cubeLineIndicesBuffer_);
   deleteBuffer(axisBuffer_);
   deleteBuffer(axisIndicesBuffer_);
   deleteBuffer(axisInPlaneBuffer_);
@@ -2076,6 +2078,7 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteGLTextures();
   deleteBuffer(cubeTexCoords_);cubeTexCoords_.clear();
   deleteBuffer(axisTexCoordsHoriz_);axisTexCoordsHoriz_.clear();
+  deleteBuffer(axisTexCoordsVert_);axisTexCoordsVert_.clear();
 
   if (!cubeProgram_.isNull()) {
     detachShader(cubeProgram_, fragmentShader_);
@@ -2089,8 +2092,11 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteShader(vertexShader_);
   deleteShader(fragmentShader2_);
   deleteShader(vertexShader2_);
+  deleteShader(cubeLineFragShader_);
+  deleteShader(cubeLineVertShader_);
   deleteProgram(cubeProgram_);cubeProgram_.clear();
   deleteProgram(axisProgram_);axisProgram_.clear();
+  deleteProgram(cubeLineProgram_);cubeLineProgram_.clear();
 
   deleteOffscreenBuffer();
 

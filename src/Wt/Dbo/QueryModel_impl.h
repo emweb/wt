@@ -46,6 +46,15 @@ void QueryModel<Result>::setQuery(const Query<Result>& query,
 }
 
 template <class Result>
+Query<Result> QueryModel<Result>::query() const
+{
+  Query<Result> result = query_;
+  result.limit(queryLimit_);
+  result.offset(queryOffset_);
+  return result;
+}
+
+template <class Result>
 void QueryModel<Result>::setBatchSize(int count)
 {
   batchSize_ = count;

@@ -1385,9 +1385,18 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
   return var_;
 }
 
+bool DomElement::willRenderInnerHtmlJS(WApplication *app) const
+{
+  /*
+   * Returns whether we will (or at least can) write the
+   * innerHTML with setHtml(), combining children and literal innerHTML
+   */
+  return !childrenHtml_.empty() || (wasEmpty_ && canWriteInnerHTML(app));
+}
+
 void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 {
-  if (!childrenHtml_.empty() || (wasEmpty_ && canWriteInnerHTML(app))) {
+  if (willRenderInnerHtmlJS(app)) {
     std::string innerHTML;
 
     if (!properties_.empty()) {
@@ -1401,7 +1410,10 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
       }
     }
 
-    // IE6: write &nbsp; inside a empty <div></div>
+    /*
+     * Do we actually have anything to render ?
+     *   first condition: for IE6: write &nbsp; inside a empty <div></div>
+     */
     if ((type_ == DomElement_DIV
 	 && app->environment().agent() == WEnvironment::IE6)
 	|| !childrenToAdd_.empty() || !childrenHtml_.empty()
@@ -1484,9 +1496,15 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
     switch(i->first) {
     case PropertyInnerHTML:
     case PropertyAddedInnerHTML:
-      if (mode_ == ModeCreate && ((type_ == DomElement_DIV
-	   && app->environment().agent() == WEnvironment::IE6)
-	  || !childrenToAdd_.empty() || !childrenHtml_.empty()))
+      /*
+       * In all cases, setJavaScriptProperties() is followed by
+       * renderInnerHtmlJS() which also considers children.
+       *
+       * When there's 'AddedInnerHTML' then willRenderInnerHtmlJS() should
+       * return false, and that's necessary since then we need to pass 'true'
+       * as last argument to setHtml()
+       */
+      if (willRenderInnerHtmlJS(app))
 	break;
 
       out << WT_CLASS ".setHtml(" << var_ << ',';
@@ -1501,6 +1519,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
 	out << ",true";
 
       out << ");";
+
       break;
     case PropertyValue:
       out << var_ << ".value=";

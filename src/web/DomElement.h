@@ -518,6 +518,7 @@ private:
   typedef std::set<std::string> AttributeSet;
   typedef std::map<const char *, EventHandler> EventHandlerMap;
 
+  bool willRenderInnerHtmlJS(WApplication *app) const;
   bool canWriteInnerHTML(WApplication *app) const;
   bool containsElement(DomElementType type) const;
   void processEvents(WApplication *app) const;
