@@ -659,12 +659,13 @@ public:
    * You may want to specialize this is if you wish to modify (or
    * delete) the area.
    *
-   * \note Currently, an area is only created if the Wt::ToolTipRole data at the
-   *       data point is not empty.
+   * \note Currently, an area is only created if the Wt::ToolTipRole data
+   *       at the data point is not empty.
    */
   virtual void addDataPointArea(const WDataSeries& series,
 				const WModelIndex& xIndex,
 				WAbstractArea *area);
+
   /*! \brief Sets the padding between the chart area and the axes.
    *
    * This calls WAxes::setPadding() on all axes.
@@ -682,13 +683,13 @@ public:
    */
   int axisPadding() const { return axisPadding_; }
 
-  /*! \brief Set the pen of the border to be drawn around the chart area.
+  /*! \brief Sets the pen of the border to be drawn around the chart area.
    *
    * \sa borderPen()
    */
   void setBorderPen(const WPen& pen);
 
-  /*! \brief The pen of the border to be drawn around the chart area.
+  /*! \brief Returns the pen used to draw the border around the chart area.
    *
    * Defaults to NoPen.
    *
@@ -702,24 +703,29 @@ public:
    * a %WCartesianChart.
    * 
    * \note Client side interaction is only available if the chart is drawn
-   *       on an HTML canvas. This is the default rendering method on modern browsers.
+   *       on an HTML canvas. This is the default rendering method on
+   *       modern browsers, see WPaintedWidget::setPreferredMethod()
+   *
    * \note Some features are currently not supported in interactive mode:
-   *	  - Axes set at ZeroValue position will not always be drawn correctly.
-   *	    They may be clipped off outside of the chart area, and when zooming,
-   *	    the axis ticks will change size.
+   *       - Axes set at ZeroValue position will not always be drawn correctly.
+   *	     They may be clipped off outside of the chart area, and when
+   *         zooming, the axis ticks will change size.
    *
    * @{
    */
 
   /*! \brief Enables zoom functionality.
    *
-   * When using the mouse, press the ctrl key while scrolling to zoom in/out a specific point
-   * on the chart. If you press shift+ctrl, it will only zoom vertically. If you press alt+ctrl,
-   * it will only zoom horizontally. To change these default mappings, use setWheelActions().
+   * When using the mouse, press the ctrl key while scrolling to zoom
+   * in/out a specific point on the chart. If you press shift+ctrl, it
+   * will only zoom vertically. If you press alt+ctrl, it will only
+   * zoom horizontally. To change these default mappings, use
+   * setWheelActions().
    *
-   * When using touch, you can use a pinch gesture to zoom in/out. If the pinch gesture is
-   * vertical/horizontal, it will zoom only vertically/horizontally, otherwise it will zoom
-   * both axes equally.
+   * When using touch, you can use a pinch gesture to zoom in/out. If
+   * the pinch gesture is vertical/horizontal, it will zoom only
+   * vertically/horizontally, otherwise it will zoom both axes
+   * equally.
    *
    * The default value is \c false.
    *
@@ -736,12 +742,13 @@ public:
 
   /*! \brief Enables pan functionality.
    *
-   * When using the mouse, you can click and drag to pan the chart (if zoomed in),
-   * or use the scrollwheel.
+   * When using the mouse, you can click and drag to pan the chart (if
+   * zoomed in), or use the scrollwheel.
    *
-   * When using touch, you can drag to pan the chart. If the rubberband effect is
-   * enabled, this is intertial (it will keep scrolling after you let go) and there
-   * is an overscroll and bounce back effect on the sides.
+   * When using touch, you can drag to pan the chart. If the
+   * rubberband effect is enabled, this is intertial (it will keep
+   * scrolling after you let go) and there is an overscroll and bounce
+   * back effect on the sides.
    *
    * The default value is \c false.
    *
@@ -755,7 +762,7 @@ public:
    */
   bool panEnabled() const;
 
-  /*! \brief Enable the crosshair functionality.
+  /*! \brief Enables the crosshair functionality.
    *
    * When enabled, the crosshair will follow mouse movement,
    * and show in the top right corner the coordinate
@@ -774,21 +781,26 @@ public:
    */
   bool crosshairEnabled() const;
 
-  /*! \brief Enable the follow curve functionality for the data series corresponding to the given column.
+  /*! \brief Enables the follow curve functionality for a data series.
    *
-   * If the data series is of type LineSeries or CurveSeries, the crosshair can only be
-   * moved in the x direction. The y position of the crosshair will be determined by the
-   * value of the data series. The crosshair will snap to the nearest point that is defined
-   * in the data series.
+   * This enables follow curve functionality for the data series
+   * corresponding to the given column.
+   *
+   * If the data series is of type LineSeries or CurveSeries, the
+   * crosshair can only be moved in the x direction. The y position of
+   * the crosshair will be determined by the value of the data
+   * series. The crosshair will snap to the nearest point that is
+   * defined in the data series.
    *
    * When using the mouse, the x position will change on mouseover.
    * When using touch, the x position can be moved with a drag. The
    * follow curve functionality has priority over the crosshair functionality.
    *
-   * Use column index -1 or disableFollowCurve() to disable the follow curve feature.
+   * Use column index -1 or disableFollowCurve() to disable the follow
+   * curve feature.
    *
-   * \note The follow curve functionality requires that the X axis values of the data series
-   *       are strictly increasing or strictly decreasing.
+   * \note The follow curve functionality requires that the X axis values
+   *       of the data series are monotonically increasing or decreasing.
    */
   void setFollowCurve(int modelColumn);
 
@@ -798,7 +810,9 @@ public:
    */
   void disableFollowCurve();
 
-  /*! \brief Returns the curve that is to be followed, if the follow curve functionality is enabled, or -1 otherwise.
+  /*! \brief Returns the curve that is to be followed.
+   *
+   * If follow curve functionality is not enabled, returns -1.
    *
    * \sa setFollowCurve()
    */
@@ -810,23 +824,29 @@ public:
    */
   void setRubberBandEffectEnabled(bool rubberBand = true);
 
-  /*! \brief Check whether the rubberband effect is enabled.
+  /*! \brief Checks whether the rubberband effect is enabled.
    * 
    * \see setRubberBandEffect()
    */
   bool rubberBandEffectEnabled() const;
 
-  /*! \brief Set the mapping of mouse wheel actions for interactive charts.
+  /*! \brief Sets the mapping of mouse wheel actions for interactive charts.
    *
    * \sa wheelActions()
    */
   void setWheelActions(WheelActions wheelActions);
 
-  /*! \brief Return the current mapping of mouse wheel actions for interactive charts.
+  /*! \brief Returns the current mouse wheel actions for interactive charts.
    *
    * \sa setWheelActions()
    */
   WheelActions wheelActions() const { return wheelActions_; }
+  
+  /*! \brief Enables or disables soft label clipping on all axes.
+   *
+   * \sa WAxis::setSoftLabelClipping()
+   */
+  void setSoftLabelClipping(bool enabled);
 
   /*! @}
    */

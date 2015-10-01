@@ -848,6 +848,10 @@ void WCartesianChart::init()
   axes_[XAxis]->setPadding(axisPadding_);
   axes_[YAxis]->setPadding(axisPadding_);
   axes_[Y2Axis]->setPadding(axisPadding_);
+
+  axes_[XAxis]->setSoftLabelClipping(true);
+  axes_[YAxis]->setSoftLabelClipping(true);
+  axes_[Y2Axis]->setSoftLabelClipping(true);
   
   setPlotAreaPadding(40, Left | Right);
   setPlotAreaPadding(30, Top | Bottom);
@@ -1388,6 +1392,12 @@ int WCartesianChart::calcNumBarGroups() const
       newGroup = true;
 
   return numBarGroups;
+}
+
+void WCartesianChart::setSoftLabelClipping(bool enabled)
+{
+  for (int i = 0; i < 3; ++i)
+    axes_[i]->setSoftLabelClipping(enabled);
 }
 
 void WCartesianChart::iterateSeries(SeriesIterator *iterator,

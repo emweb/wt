@@ -150,7 +150,8 @@ WAxis::WAxis()
     zoomDirty_(true),
     panDirty_(true),
     padding_(0),
-    tickDirection_(Outwards)
+    tickDirection_(Outwards),
+    partialLabelClipping_(true)
 {
   titleFont_.setFamily(WFont::SansSerif, "Arial");
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
@@ -1092,6 +1093,11 @@ void WAxis::setTickDirection(TickDirection direction)
   set(tickDirection_, direction);
 }
 
+void WAxis::setSoftLabelClipping(bool enabled)
+{
+  set(partialLabelClipping_, !enabled);
+}
+
 void WAxis::setMaxZoom(double maxZoom)
 {
   maxZoom = maxZoom < 1 ? 1 : maxZoom;
@@ -1599,14 +1605,14 @@ void WAxis::renderLabel(WPainter& painter,
 #endif
 
   bool clipping = painter.hasClipping();
-  if (clipping && tickDirection() == Outwards && location() != ZeroValue) {
+  if (!partialLabelClipping_ && clipping && tickDirection() == Outwards && location() != ZeroValue) {
     painter.setClipping(false);
   }
   WPointF transformedPoint = transform.map(pos);
   if (angle == 0) {
     painter.drawText(transform.map(WRectF(left, top, width, height)),
 		      horizontalAlign | verticalAlign, TextSingleLine, text,
-		      clipping ? &transformedPoint : 0);
+		      clipping && !partialLabelClipping_ ? &transformedPoint : 0);
   } else {
     painter.save();
     painter.translate(transform.map(pos));
@@ -1614,7 +1620,7 @@ void WAxis::renderLabel(WPainter& painter,
     transformedPoint = painter.worldTransform().inverted().map(transformedPoint);
     painter.drawText(WRectF(left - pos.x(), top - pos.y(), width, height),
 		     horizontalAlign | verticalAlign, TextSingleLine, text,
-		     clipping ? &transformedPoint : 0);
+		     clipping && !partialLabelClipping_ ? &transformedPoint : 0);
     painter.restore();
   }
   painter.setClipping(clipping);

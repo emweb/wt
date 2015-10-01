@@ -106,6 +106,12 @@ Session& Transaction::session() const
   return session_;
 }
 
+SqlConnection *Transaction::connection() const
+{
+  impl_->open();
+  return impl_->connection_;
+}
+
 Transaction::Impl::Impl(Session& session)
   : session_(session),
     active_(true),

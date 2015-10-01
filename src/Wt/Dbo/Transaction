@@ -121,6 +121,10 @@ public:
    */
   Session& session() const;
 
+  /*! \brief Returns the connection used by this transaction
+   */
+  SqlConnection *connection() const;
+
 private:
   struct Impl {
     Session& session_;
