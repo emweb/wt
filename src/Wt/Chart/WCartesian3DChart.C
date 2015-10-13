@@ -146,6 +146,11 @@ void WCartesian3DChart::addDataSeries(WAbstractDataSeries3D * dataseries)
 void WCartesian3DChart::removeDataSeries(WAbstractDataSeries3D * dataseries)
 {
   Wt::Utils::erase(dataSeriesVector_, dataseries);
+  std::vector<boost::any> glObjects = dataseries->getGlObjects();
+  objectsToDelete.reserve(glObjects.size());
+  for (std::size_t i = 0; i < glObjects.size(); ++i) {
+    objectsToDelete.push_back(glObjects[i]);
+  }
 
   updateChart(GLContext);
 }
@@ -2121,6 +2126,32 @@ void WCartesian3DChart::deleteGLTextures() {
     deleteTexture(legendTexture_);legendTexture_.clear();
   if (!colorMapTexture_.isNull())
     deleteTexture(colorMapTexture_);colorMapTexture_.clear();
+
+  for (std::size_t i = 0; i < objectsToDelete.size(); ++i) {
+    boost::any o = objectsToDelete[i];
+    if (o.type() == typeid(WGLWidget::Buffer)) {
+      WGLWidget::Buffer buf = boost::any_cast<WGLWidget::Buffer>(objectsToDelete[i]);
+      if (!buf.isNull()) {
+	deleteBuffer(buf);
+      }
+    } else if (o.type() == typeid(WGLWidget::Texture)) {
+      WGLWidget::Texture tex = boost::any_cast<WGLWidget::Texture>(objectsToDelete[i]);
+      if (!tex.isNull()) {
+	deleteTexture(tex);
+      }
+    } else if (o.type() == typeid(WGLWidget::Shader)) {
+      WGLWidget::Shader shader = boost::any_cast<WGLWidget::Shader>(objectsToDelete[i]);
+      if (!shader.isNull()) {
+	deleteShader(shader);
+      }
+    } else if (o.type() == typeid(WGLWidget::Program)) {
+      WGLWidget::Program prog = boost::any_cast<WGLWidget::Program>(objectsToDelete[i]);
+      if (!prog.isNull()) {
+	deleteProgram(prog);
+      }
+    } else assert(false);
+  }
+  objectsToDelete.clear();
 }
 
 void WCartesian3DChart::updateChart(WFlags<ChartUpdates> flags)

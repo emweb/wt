@@ -141,7 +141,8 @@ EventSignal<WMouseEvent>& WInteractWidget::mouseDragged()
 
 EventSignal<WMouseEvent>& WInteractWidget::mouseWheel()
 {
-  if (WApplication::instance()->environment().agentIsIElt(9)) {
+  if (WApplication::instance()->environment().agentIsIElt(9) ||
+      WApplication::instance()->environment().agent() == WEnvironment::Edge) {
     return *mouseEventSignal(MOUSE_WHEEL_SIGNAL, true);
   } else {
     return *mouseEventSignal(WHEEL_SIGNAL, true);

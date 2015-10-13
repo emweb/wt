@@ -166,7 +166,6 @@ void WScatterData::updateGL()
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
   chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
-
   initShaders();
 
   chart_->useProgram(shaderProgram_);
@@ -476,10 +475,39 @@ void WScatterData::findZRange() const
   rangeCached_ = true;
 }
 
+std::vector<boost::any> WScatterData::getGlObjects()
+{
+  std::vector<boost::any> res;
+  res.push_back(vertexPosBuffer_);
+  res.push_back(vertexSizeBuffer_);
+  res.push_back(vertexPosBuffer2_);
+  res.push_back(vertexSizeBuffer2_);
+  res.push_back(vertexColorBuffer2_);
+  res.push_back(lineVertBuffer_);
+  res.push_back(colormapTexture_);
+  res.push_back(pointSpriteTexture_);
+  res.push_back(vertexShader_);
+  res.push_back(colVertexShader_);
+  res.push_back(linesVertShader_);
+  res.push_back(fragmentShader_);
+  res.push_back(colFragmentShader_);
+  res.push_back(linesFragShader_);
+  res.push_back(shaderProgram_);
+  res.push_back(colShaderProgram_);
+  res.push_back(linesProgram_);
+  return res;
+}
+
 void WScatterData::paintGL() const
 {
   if (hidden_)
     return;
+
+  loadPointSpriteTexture(pointSpriteTexture_);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
   
   chart_->disable(WGLWidget::CULL_FACE);
   chart_->enable(WGLWidget::DEPTH_TEST);

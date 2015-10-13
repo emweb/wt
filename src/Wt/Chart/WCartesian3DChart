@@ -728,6 +728,8 @@ private:
   Framebuffer intersectionLinesFramebuffer_;
   Renderbuffer offscreenDepthbuffer_;
 
+  std::vector<boost::any> objectsToDelete;
+
   friend class WAbstractGridData;
   friend class WGridData;
 };

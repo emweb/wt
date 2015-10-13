@@ -464,6 +464,12 @@ public:
    */
   void setDirty();
 
+  /*! \brief Returns whether this object is dirty.
+   *
+   * \sa setDirty()
+   */
+  bool isDirty() const;
+
   /*! \brief Returns a dbo::ptr to this object.
    *
    * The returned pointer points to the current object only if there
@@ -802,6 +808,13 @@ public:
    * This returns true for a transient object.
    */
   bool isTransient() const;
+
+  /*! \brief Returns whether the object is dirty.
+   *
+   * A dirty object will be flushed whenever a query is made or the current
+   * transaction ends.
+   */
+  bool isDirty() const;
 
   /*! \brief Returns the session with which this pointer is associated.
    *

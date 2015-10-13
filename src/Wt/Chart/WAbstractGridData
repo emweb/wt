@@ -282,6 +282,8 @@ public:
 
   virtual void setChart(WCartesian3DChart *chart);
 
+  virtual std::vector<boost::any> getGlObjects();
+
   virtual void initializeGL();
   virtual void paintGL() const;
   virtual void updateGL();

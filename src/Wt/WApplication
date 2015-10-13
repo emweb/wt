@@ -2298,7 +2298,7 @@ private:
 
   std::string resourceMapKey(WResource *resource);
   std::string addExposedResource(WResource *resource);
-  void removeExposedResource(WResource *resource);
+  bool removeExposedResource(WResource *resource);
   WResource *decodeExposedResource(const std::string& resourceMapKey) const;
 
   /*

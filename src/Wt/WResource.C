@@ -244,9 +244,15 @@ void WResource::suggestFileName(const WString& name,
 
 void WResource::setInternalPath(const std::string& path)
 {
-  internalPath_ = path;
+  WApplication *app = WApplication::instance();
 
+  bool wasExposed = app && app->removeExposedResource(this);
+
+  internalPath_ = path;
   currentUrl_.clear();
+
+  if (wasExposed)
+    app->addExposedResource(this);
 }
 
 void WResource::setDispositionType(DispositionType dispositionType)

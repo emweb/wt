@@ -196,7 +196,9 @@ std::string WLocale::addGrouping(const std::string& v, unsigned decimalPoint)
 
   for (unsigned i = 0; i < decimalPoint; ++i) {
     result.push_back(v[i]);
-    if (i < decimalPoint - 1 && ((decimalPoint - i - 1) % 3 == 0))
+    if (std::isdigit(v[i]) && /* avoid '-,123,456.99' */
+	i < decimalPoint - 1 && 
+	((decimalPoint - i - 1) % 3 == 0))
       result += groupSeparator_;
   }
 

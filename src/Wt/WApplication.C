@@ -819,7 +819,7 @@ std::string WApplication::addExposedResource(WResource *resource)
   }
 }
 
-void WApplication::removeExposedResource(WResource *resource)
+bool WApplication::removeExposedResource(WResource *resource)
 {
   std::string key = resourceMapKey(resource);
   ResourceMap::iterator i = exposedResources_.find(key);
@@ -830,7 +830,9 @@ void WApplication::removeExposedResource(WResource *resource)
 #else
     exposedResources_.erase(key);
 #endif
-  }
+    return true;
+  } else
+    return false;
 }
 
 WResource *WApplication::decodeExposedResource(const std::string& resourceKey) 

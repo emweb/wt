@@ -318,7 +318,10 @@ std::string WImage::updateAreasJS()
 {
   WStringStream ss;
   if (!targetJS_.empty()) {
-    ss << "jQuery.data(" << jsRef() << ", 'obj').updateAreas();";
+    ss << "(function(){"
+	  "var o = jQuery.data(" << jsRef() << ", 'obj');"
+	  "if (o) {o.updateAreas();}"
+	  "})();";
   }
   return ss.str();
 }

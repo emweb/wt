@@ -468,6 +468,10 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     }
   }
 
+  if (userAgent_.find("Edge/12") != std::string::npos) {
+    agent_ = Edge;
+  }
+
   if (conf.agentIsBot(userAgent_))
     agent_ = BotAgent;
 }

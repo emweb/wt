@@ -501,6 +501,15 @@ void ptr<C>::remove()
 }
 
 template <class C>
+bool ptr<C>::isDirty() const
+{
+  if (obj_)
+    return obj_->isDirty();
+  else
+    return false;
+}
+
+template <class C>
 typename dbo_traits<C>::IdType ptr<C>::id() const
 {
   typedef typename dbo_traits<C>::IdType IdType;
@@ -626,6 +635,15 @@ ptr<C> Dbo<C>::self() const
     return ptr<C>(meta_);
   else
     return ptr<C>();
+}
+
+template <class C>
+bool Dbo<C>::isDirty() const
+{
+  if (meta_)
+    return meta_->isDirty();
+  else
+    return false;
 }
 
 template <class C>
