@@ -210,13 +210,32 @@ void DomElement::setDomElementTagName(const std::string& name) {
   this->elementTagName_ = name;
 }
 
+#ifndef WT_TARGET_JAVA
+#define toChar(b) char(b)
+#else
+unsigned char toChar(int b) {
+  return (unsigned char)b;
+}
+#endif
+
 std::string DomElement::urlEncodeS(const std::string& url,
                                    const std::string &allowed)
 {
   WStringStream result;
 
-  for (unsigned i = 0; i < url.length(); ++i) {
-    unsigned char c = url[i];
+#ifdef WT_TARGET_JAVA
+  std::vector<unsigned char> bytes;
+  try {
+    bytes = url.getBytes("UTF-8");
+  } catch (UnsupportedEncodingException& e) {
+    // eat silly UnsupportedEncodingException
+  }
+#else
+  const std::string& bytes = url;
+#endif
+
+  for (unsigned i = 0; i < bytes.size(); ++i) {
+    unsigned char c = toChar(bytes[i]);
     if (c <= 31 || c >= 127 || unsafeChars_.find(c) != std::string::npos) {
       if (allowed.find(c) != std::string::npos) {
         result << (char)c;
