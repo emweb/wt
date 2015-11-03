@@ -111,12 +111,8 @@ void WAxisSliderWidget::setSelectedSeriesPen(const WPen& pen)
 {
   if (selectedSeriesPen_ != &seriesPen_) {
     delete selectedSeriesPen_;
-    if (*selectedSeriesPen_ != pen) {
-      selectedSeriesPen_ = new WPen(pen);
-    }
-  } else {
-    selectedSeriesPen_ = new WPen(pen);
   }
+  selectedSeriesPen_ = new WPen(pen);
   update();
 }
 

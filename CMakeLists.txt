@@ -227,11 +227,11 @@ IF(WIN32)
 
 ELSE(WIN32)
 
-  SET(RUNDIR "/var/run/wt" CACHE PATH
+  SET(RUNDIR "${CMAKE_INSTALL_PREFIX}/var/run/wt" CACHE PATH
     "Default path for wt session management (only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
 
   IF( NOT DEFINED CONFIGDIR )
-    SET(CONFIGDIR "/etc/wt" CACHE STRING "Path for the configuration files")
+    SET(CONFIGDIR "${CMAKE_INSTALL_PREFIX}/etc/wt" CACHE STRING "Path for the configuration files")
   ENDIF( NOT DEFINED CONFIGDIR )
 
   # If the user specifies the standard CMAKE_PREFIX_PATH to find packages,
@@ -306,7 +306,7 @@ ENDIF(CYGWIN)
 MARK_AS_ADVANCED( CONFIGDIR )
 
 SET(CONFIGURATION "${CONFIGDIR}/wt_config.xml" CACHE PATH "Path to the wt configuration file")
-SET(WTHTTP_CONFIGURATION ${CONFIGDIR}/wthttpd CACHE PATH "Path for the wthttpd configuration file")
+SET(WTHTTP_CONFIGURATION "${CONFIGDIR}/wthttpd" CACHE PATH "Path for the wthttpd configuration file")
 
 SET(WEBUSER apache CACHE STRING "Webserver username (e.g. apache or www)")
 SET(WEBGROUP apache CACHE STRING "Webserver groupname (e.g. apache or www or users)")
