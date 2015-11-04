@@ -318,10 +318,14 @@ std::string WImage::updateAreasJS()
 {
   WStringStream ss;
   if (!targetJS_.empty()) {
-    ss << "(function(){"
-	  "var o = jQuery.data(" << jsRef() << ", 'obj');"
-	  "if (o) {o.updateAreas();}"
-	  "})();";
+    ss <<
+      "(function(){"
+      """var w = " << jsRef() << ";"
+      """if (w) {"
+      ""  "var o = jQuery.data(" << jsRef() << ", 'obj');"
+      ""  "if (o) { o.updateAreas(); }"
+      """}"
+      "})();";
   }
   return ss.str();
 }
@@ -342,7 +346,7 @@ std::string WImage::updateAreaCoordsJSON() const
   const std::vector<WAbstractArea *> &areas = this->areas();
 
   if (!areas.empty()) {
-    for (int i = 0; i < areas.size(); ++i) {
+    for (unsigned i = 0; i < areas.size(); ++i) {
       if (areas[i]->isTransformable()) {
         if (js.empty())
           js << "[";

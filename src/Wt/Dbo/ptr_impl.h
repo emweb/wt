@@ -512,8 +512,6 @@ bool ptr<C>::isDirty() const
 template <class C>
 typename dbo_traits<C>::IdType ptr<C>::id() const
 {
-  typedef typename dbo_traits<C>::IdType IdType;
-
   if (obj_)
     return obj_->id();
   else
