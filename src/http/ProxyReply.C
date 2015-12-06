@@ -74,6 +74,7 @@ void ProxyReply::reset(const Wt::EntryPoint *ep)
   sending_ = 0;
   more_ = true;
   receiving_ = false;
+  contentLength_ = -1;
 
   Reply::reset(ep);
 }
@@ -192,9 +193,11 @@ void ProxyReply::handleChildConnected(const boost::system::error_code& ec)
 void ProxyReply::assembleRequestHeaders()
 {
   std::ostream os(&requestBuf_);
-  os << request_.method.data << " " << request_.uri.data << " HTTP/1.1\r\n";
+  os << request_.method << " " << request_.uri << " HTTP/1.1\r\n";
   bool establishWebSockets = false;
   std::string forwardedFor;
+  std::string forwardedProto = request_.urlScheme;
+  std::string forwardedPort;
   for (Request::HeaderList::const_iterator it = request_.headers.begin();
        it != request_.headers.end(); ++it) {
     if (it->name.iequals("Connection") || it->name.iequals("Keep-Alive") ||
@@ -203,15 +206,19 @@ void ProxyReply::assembleRequestHeaders()
     } else if (it->name.iequals("X-Forwarded-For") || it->name.iequals("Client-IP")) {
       const Wt::Configuration& wtConfiguration = connection()->server()->controller()->configuration();
       if (wtConfiguration.behindReverseProxy()) {
-	forwardedFor = std::string(it->value.data) + ", ";
+	forwardedFor = it->value.str() + ", ";
       }
     } else if (it->name.iequals("Upgrade")) {
       if (it->value.iequals("websocket")) {
 	establishWebSockets = true;
       }
-    } else {
-      os << it->name.data << ": " << it->value.data << "\r\n";
-    }
+    } else if (it->name.iequals("X-Forwarded-Proto")) { 
+		forwardedProto = it->value.str();
+	} else if(it->name.iequals("X-Forwarded-Port")) {
+		forwardedPort = it->value.str();
+    } else if (it->name.length() > 0) {
+      os << it->name << ": " << it->value << "\r\n";
+  }
   }
   if (establishWebSockets) {
     os << "Connection: Upgrade\r\n";
@@ -220,6 +227,11 @@ void ProxyReply::assembleRequestHeaders()
     os << "Connection: close\r\n";
   }
   os << "X-Forwarded-For: " << forwardedFor << request_.remoteIP << "\r\n";
+  os << "X-Forwarded-Proto: " <<  forwardedProto  << "\r\n";
+  if(forwardedPort.size() > 0)
+	os << "X-Forwarded-Port: " <<  forwardedPort << "\r\n";
+  else
+	os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
   // Forward SSL Certificate to session only for first request
   if(request_.sslInfo() && fwCertificates_) {
 	appendSSLInfo(request_.sslInfo(), os);
@@ -331,7 +343,9 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
       std::string value = boost::trim_copy(header.substr(i+1));
       if (boost::iequals(name, "Content-Type")) {
 	contentType_ = value;
-      } else if (boost::iequals(name, "Date")) {
+      } else if (boost::iequals(name, "Content-Length")) { 
+		contentLength_ = boost::lexical_cast<int64_t>(value);
+	  } else if (boost::iequals(name, "Date")) {
 	// Ignore, we're overriding it
       } else if (boost::iequals(name, "Transfer-Encoding") || boost::iequals(name, "Keep-Alive") ||
 	  boost::iequals(name, "TE")) {
@@ -417,9 +431,10 @@ std::string ProxyReply::getSessionId() const
       && !wtConfiguration.reloadIsNewSession()) {
     const Request::Header *cookieHeader = request_.getHeader("Cookie");
     if (cookieHeader) {
-      sessionId = Wt::WebController::sessionFromCookie(cookieHeader->value.data,
-							 request_.request_path,
-							 wtConfiguration.sessionIdLength());
+      std::string cookie = cookieHeader->value.str();
+      sessionId = Wt::WebController::sessionFromCookie(cookie.c_str(),
+						       request_.request_path,
+						       wtConfiguration.sessionIdLength());
     }
   }
 
@@ -436,7 +451,7 @@ std::string ProxyReply::contentType()
 
 ::int64_t ProxyReply::contentLength()
 {
-  return -1;
+  return contentLength_;
 }
 
 bool ProxyReply::nextContentBuffers(std::vector<asio::const_buffer>& result)

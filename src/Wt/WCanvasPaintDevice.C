@@ -168,8 +168,6 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
 
   tmp << "}";
 
-  text->callJavaScript(tmp.str());
-
   for (unsigned i = 0; i < textElements_.size(); ++i)
     text->addChild(textElements_[i]);
 }

@@ -281,6 +281,9 @@ public:
   // internal api: only for use in WCartesian3DChart::addDataSeries
   virtual void setChart(WCartesian3DChart *chart);
 
+  // internal api: only for use in WCartesian3DChart::removeDataSeries
+  virtual std::vector<boost::any> getGlObjects();
+
   /*! \brief Initialize GL resources
    *
    * This function is called by initializeGL() in the chart to which this 
@@ -322,6 +325,7 @@ public:
 protected:
   WGLWidget::Texture colorTexture();
   WGLWidget::Texture pointSpriteTexture();
+  void loadPointSpriteTexture(const WGLWidget::Texture &tex) const;
 
   WString name_;
 

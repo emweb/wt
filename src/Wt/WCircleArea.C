@@ -9,6 +9,7 @@
 #include "Wt/WPointF"
 
 #include "DomElement.h"
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -27,8 +28,10 @@ void WCircleArea::setCenter(const WPoint& point)
 
 void WCircleArea::setCenter(const WPointF& point)
 {
-  setCenter(static_cast<int>(point.x()),
-	    static_cast<int>(point.y()));
+  x_ = point.x();
+  y_ = point.y();
+
+  repaint();
 }
 
 void WCircleArea::setCenter(int x, int y)
@@ -51,10 +54,25 @@ bool WCircleArea::updateDom(DomElement& element, bool all)
   element.setAttribute("shape", "circle");
 
   std::stringstream coords;
-  coords << x_ << ',' << y_ << ',' << r_;
+  coords << static_cast<int>(x_) << ','
+         << static_cast<int>(y_) << ','
+         << static_cast<int>(r_);
   element.setAttribute("coords", coords.str());
 
   return WAbstractArea::updateDom(element, all);
+}
+
+std::string WCircleArea::updateAreaCoordsJS()
+{
+  std::stringstream coords;
+  char buf[30];
+
+  coords << "[" << jsRef() << ",[";
+  coords << Utils::round_js_str(x_, 2, buf) << ',';
+  coords << Utils::round_js_str(y_, 2, buf) << ',';
+  coords << Utils::round_js_str(r_, 2, buf) << "]]";
+
+  return coords.str();
 }
 
 }

@@ -77,6 +77,10 @@ void ResponseContinuation::readyToContinue(WebWriteEvent event)
       readyToContinue_ = false;
       resource = resource_;
       resource_ = 0;
+    } else {
+      response_->detectDisconnect
+	(boost::bind(&Http::ResponseContinuation::handleDisconnect,
+		     shared_from_this()));
     }
   }
 
@@ -110,6 +114,31 @@ void ResponseContinuation::cancel(bool resourceIsBeingDeleted)
       if (!resource_)
 	return;
     } else if (!useLock.use(resource_))
+      return;
+
+    resource = resource_;
+    resource_ = 0;
+  }
+
+  if (resource) {
+    Http::Request request(*response_, this);
+    resource->handleAbort(request);
+    resource->removeContinuation(shared_from_this());
+    response_->flush(WebResponse::ResponseDone);
+  }
+}
+
+void ResponseContinuation::handleDisconnect()
+{
+  WResource::UseLock useLock;
+  WResource *resource = 0;
+
+  {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(*mutex_);
+#endif // WT_THREADED
+
+    if (!resource_)
       return;
 
     resource = resource_;

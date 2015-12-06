@@ -6,11 +6,17 @@
 
 #include "Wt/WPointF"
 
+#include "Wt/WLogger"
 #include "Wt/WStringStream"
+
+#include "Wt/Json/Array"
+#include "Wt/Json/Value"
 
 #include "web/WebUtils.h"
 
 namespace Wt {
+
+LOGGER("WPointF");
 
 WPointF::WPointF()
   : x_(0), y_(0)
@@ -90,6 +96,27 @@ WPointF WPointF::swapHV(double width) const
   }
 
   return result;
+}
+
+void WPointF::assignFromJSON(const Json::Value &value)
+{
+  try {
+#ifndef WT_TARGET_JAVA
+    const Json::Array &ar = value;
+#else
+    const Json::Array &ar = static_cast<Json::Array&>(value);
+#endif
+    if (ar.size() == 2 &&
+	!ar[0].toNumber().isNull() &&
+	!ar[1].toNumber().isNull()) {
+      x_ = ar[0].toNumber().orIfNull(x_);
+      y_ = ar[1].toNumber().orIfNull(y_);
+    } else {
+      LOG_ERROR("Couldn't convert JSON to WPointF");
+    }
+  } catch (std::exception &e) {
+    LOG_ERROR("Couldn't convert JSON to WPointF: " + std::string(e.what()));
+  }
 }
 
 }

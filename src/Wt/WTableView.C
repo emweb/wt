@@ -758,6 +758,7 @@ void WTableView::defineJavaScript()
        "if (obj) obj.autoJavaScript();}");
   
     connectObjJS(canvas_->mouseWentDown(), "mouseDown");
+    connectObjJS(canvas_->mouseWentUp(), "mouseUp");
 
     /* Two-lines needed for WT_PORT */
     EventSignalBase& ccScrolled = contentsContainer_->scrolled();

@@ -65,7 +65,7 @@ public:
 
   /*! \brief Returns the top-left X coordinate.
    */
-  int x() const { return x_; }
+  int x() const { return static_cast<int>(x_); }
 
   /*! \brief Sets the top-left Y coordinate.
    */
@@ -73,7 +73,7 @@ public:
 
   /*! \brief Returns the top-left Y coordinate.
    */
-  int y() const { return y_; }
+  int y() const { return static_cast<int>(y_); }
 
   /*! \brief Sets the width.
    */
@@ -81,7 +81,7 @@ public:
 
   /*! \brief Returns the width.
    */
-  int width() const { return width_; }
+  int width() const { return static_cast<int>(width_); }
 
   /*! \brief Sets the height.
    */
@@ -89,13 +89,14 @@ public:
 
   /*! \brief Returns the height.
    */
-  int height() const { return height_; }
+  int height() const { return static_cast<int>(height_); }
 
 private:
-  int x_, y_, width_, height_;
+  double x_, y_, width_, height_;
 
 protected:
-  virtual bool updateDom(DomElement& element, bool all);
+  virtual bool updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
+  virtual std::string updateAreaCoordsJS() WT_CXX11ONLY(override);
 };
 
 }

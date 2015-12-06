@@ -20,6 +20,8 @@ extern void showDialog(Wt::WText *out)
     Wt::WLineEdit *edit = new Wt::WLineEdit(dialog->contents());
     label->setBuddy(edit);
 
+    dialog->contents()->addStyleClass("form-group");
+
     Wt::WRegExpValidator *validator = 
         new Wt::WRegExpValidator("[A-Za-z][1-9][0-9]{0,2}");
     validator->setMandatory(true);

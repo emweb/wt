@@ -31,7 +31,8 @@ public:
 	dt = boost::any(d);
       else
 	dt = data;
-    }
+    } else
+      dt = data;
 
     Wt::WStandardItem::setData(dt, role);
   }

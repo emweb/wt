@@ -29,7 +29,7 @@ LOGGER("Json.Value");
 
 TypeException::TypeException(const std::string& name,
 			     Type actualType, Type expectedType)
-  : WException("Type error: " + name_ + " is " + typeNames[actualType]
+  : WException("Type error: " + name + " is " + typeNames[actualType]
 	       + ", expected " + typeNames[expectedType]),
     name_(name),
     actualType_(actualType),

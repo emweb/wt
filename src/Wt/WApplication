@@ -956,7 +956,7 @@ public:
   /*! \brief Redirects the application to another location.
    *
    * The client will be redirected to a new location identified by \p
-   * url. Use this in conjunction with quit() if you want to the
+   * url. Use this in conjunction with quit() if you want the
    * application to be terminated as well.
    *
    * Calling %redirect() does not imply %quit() since it may be useful
@@ -2225,7 +2225,7 @@ private:
   AjaxMethod             ajaxMethod_;
   bool                   quitted_;
   WString                quittedMessage_;
-  std::string            onePixelGifUrl_;
+  WResource             *onePixelGifR_;
   bool                   internalPathsEnabled_;
   WWidget               *exposedOnly_;
   WLoadingIndicator     *loadingIndicator_;
@@ -2298,7 +2298,7 @@ private:
 
   std::string resourceMapKey(WResource *resource);
   std::string addExposedResource(WResource *resource);
-  void removeExposedResource(WResource *resource);
+  bool removeExposedResource(WResource *resource);
   WResource *decodeExposedResource(const std::string& resourceMapKey) const;
 
   /*

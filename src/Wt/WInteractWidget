@@ -317,6 +317,12 @@ public:
   void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
 		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);
 
+  /*! \brief Disable drag & drop for this widget.
+   *
+   * \sa setDraggable()
+   */
+  void unsetDraggable();
+
   /*! \brief Sets a delay for the mouse over event.
    *
    * This sets a delay (in milliseconds) before the mouse over event

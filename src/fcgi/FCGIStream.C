@@ -52,7 +52,8 @@ namespace {
   public:
     FCGIRequest(FCGX_Request *request)
       : request_(request),
-	headersCommitted_(false)
+	headersCommitted_(false),
+	status_(-1)
     { 
       in_streambuf_ = new fcgi_streambuf(request_->in, &buf_[0], buf_.size());
       out_streambuf_ = new fcgi_streambuf(request_->out);
@@ -91,6 +92,8 @@ namespace {
     virtual std::ostream& out() {
       if (!headersCommitted_) {
 	headersCommitted_ = true;
+	if(status_ > -1 ) 
+	  *out_ << "Status: " << status_ << "\r\n";
 	*out_ << "\r\n";
       }
       return *out_; 
@@ -99,7 +102,7 @@ namespace {
 
     virtual void setStatus(int status)
     {
-      *out_ << "Status: " << status << "\r\n";
+	  status_ = status;
     }
 
     virtual void setContentType(const std::string& value)
@@ -275,6 +278,7 @@ namespace {
     std::istream *in_;
     std::ostream *out_, *err_;
     bool headersCommitted_;
+	int status_;
   };
 }
 

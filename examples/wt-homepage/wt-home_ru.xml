@@ -657,7 +657,7 @@ target="_blank">модели элементов</a>.</p>
   полученными, например, из базы данных. Недостаток заключается в том, что все
   данные при этом должны быть получены заранее и находиться в памяти сессии.
   Однако, наследуя  <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
   target="_blank">WAbstractItemModel</a>, Вы можете реализовать модель
   которая получает (или вычисляет) данные только при необходимости,
   обеспечивая компромис между размещением данных в памяти или получением их

@@ -576,7 +576,7 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
   <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStandardItemModel"
   target="_blank">WStandardItemModel</a>，该类可以被填充以数据
   （如由数据库获得），其缺点是所有数据存储在内存中且须提前获取。但是，
-  通过重新实现<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
+  通过重新实现<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
   target="_blank">WAbstractItemModel</a>，我们可以实现另一类数据模型，即
   仅在需要时获取数据，这就提供了一种数据载入与数据存储的平衡。
   该示例中，我们实现了树模型，该树可在<a href="http://git-scm.com/">

@@ -108,6 +108,7 @@ private:
 
   void cancel(bool resourceIsBeingDeleted);
   void readyToContinue(WebWriteEvent writeResult);
+  void handleDisconnect();
 
   WebResponse *response() { return response_; }
 

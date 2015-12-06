@@ -34,7 +34,8 @@ WAxisSliderWidget::WAxisSliderWidget(WContainerWidget *parent)
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
-    autoPadding_(false)
+    autoPadding_(false),
+    labelsEnabled_(true)
 {
   init();
 }
@@ -47,7 +48,8 @@ WAxisSliderWidget::WAxisSliderWidget(WCartesianChart *chart, int seriesColumn, W
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
-    autoPadding_(false)
+    autoPadding_(false),
+    labelsEnabled_(true)
 {
   init();
 }
@@ -109,12 +111,8 @@ void WAxisSliderWidget::setSelectedSeriesPen(const WPen& pen)
 {
   if (selectedSeriesPen_ != &seriesPen_) {
     delete selectedSeriesPen_;
-    if (*selectedSeriesPen_ != pen) {
-      selectedSeriesPen_ = new WPen(pen);
-    }
-  } else {
-    selectedSeriesPen_ = new WPen(pen);
   }
+  selectedSeriesPen_ = new WPen(pen);
   update();
 }
 
@@ -185,6 +183,14 @@ void WAxisSliderWidget::setAutoLayoutEnabled(bool enabled)
   autoPadding_ = enabled;
 }
 
+void WAxisSliderWidget::setLabelsEnabled(bool enabled)
+{
+  if (enabled != labelsEnabled_) {
+    labelsEnabled_ = enabled;
+    update();
+  }
+}
+
 WRectF WAxisSliderWidget::hv(const WRectF& rect) const
 {
   bool horizontal = chart_->orientation() == Vertical; // yes, vertical chart means horizontal X axis slider
@@ -213,6 +219,21 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   // and the chart has been painted.
   if (!chart_ || !chart_->cObjCreated_) return;
 
+  if (chart_->series(seriesColumn_).type() != LineSeries &&
+      chart_->series(seriesColumn_).type() != CurveSeries) {
+    if (getMethod() == HtmlCanvas) {
+      WStringStream ss;
+      ss << "jQuery.removeData(" << jsRef() << ",'sobj');";
+      ss << "\nif (" << objJsRef() << ") {"
+	   << objJsRef() << ".canvas.style.cursor = 'auto';"
+	   << "setTimeout(" << objJsRef() << ".repaint,0);"
+	    "}\n";
+      doJavaScript(ss.str());
+    }
+    LOG_ERROR("WAxisSliderWidget is not associated with a line or curve series.");
+    return;
+  }
+
   WPainter painter(paintDevice);
 
   bool horizontal = chart_->orientation() == Vertical; // yes, vertical chart means horizontal X axis slider
@@ -221,7 +242,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 	 h = horizontal ? height().value() : width().value();
 
   bool autoPadding = autoPadding_;
-  if (autoPadding && ((paintDevice->features() & WPaintDevice::HasFontMetrics) == 0)) {
+  if (autoPadding && ((paintDevice->features() & WPaintDevice::HasFontMetrics) == 0) && labelsEnabled_) {
     LOG_ERROR("setAutoLayout(): device does not have font metrics "
 	"(not even server-side font metrics).");
     autoPadding = false;
@@ -229,29 +250,39 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 
   if (autoPadding) {
     if (horizontal) {
-      setSelectionAreaPadding(0, Top);
-      setSelectionAreaPadding(
-	  static_cast<int>(chart_->axis(XAxis).calcMaxTickLabelSize(
-	    paintDevice,
-	    Vertical
-	  ) + 10), Bottom);
-      setSelectionAreaPadding(
-	  static_cast<int>(std::max(chart_->axis(XAxis).calcMaxTickLabelSize(
-	    paintDevice,
-	    Horizontal
-	  ) / 2, 10.0)), Left | Right);
+      if (labelsEnabled_) {
+	setSelectionAreaPadding(0, Top);
+	setSelectionAreaPadding(
+	    static_cast<int>(chart_->axis(XAxis).calcMaxTickLabelSize(
+	      paintDevice,
+	      Vertical
+	    ) + 10), Bottom);
+	setSelectionAreaPadding(
+	    static_cast<int>(std::max(chart_->axis(XAxis).calcMaxTickLabelSize(
+	      paintDevice,
+	      Horizontal
+	    ) / 2, 10.0)), Left | Right);
+      } else {
+	setSelectionAreaPadding(0, Top);
+	setSelectionAreaPadding(5, Left | Right | Bottom);
+      }
     } else {
-      setSelectionAreaPadding(0, Right);
-      setSelectionAreaPadding(
-	  static_cast<int>(std::max(chart_->axis(XAxis).calcMaxTickLabelSize(
-	    paintDevice,
-	    Vertical
-	  ) / 2, 10.0)), Top | Bottom);
-      setSelectionAreaPadding(
-	  static_cast<int>(chart_->axis(XAxis).calcMaxTickLabelSize(
-	    paintDevice,
-	    Horizontal
-	  ) + 10), Left);
+      if (labelsEnabled_) {
+	setSelectionAreaPadding(0, Right);
+	setSelectionAreaPadding(
+	    static_cast<int>(std::max(chart_->axis(XAxis).calcMaxTickLabelSize(
+	      paintDevice,
+	      Vertical
+	    ) / 2, 10.0)), Top | Bottom);
+	setSelectionAreaPadding(
+	    static_cast<int>(chart_->axis(XAxis).calcMaxTickLabelSize(
+	      paintDevice,
+	      Horizontal
+	    ) + 10), Left);
+      } else {
+	setSelectionAreaPadding(0, Right);
+	setSelectionAreaPadding(5, Top | Bottom | Left);
+      }
     }
   }
 
@@ -262,15 +293,17 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 
   double maxW = w - left - right;
   WRectF drawArea(left, 0, maxW, h);
+  std::vector<WAxis::Segment> segmentsBak = std::vector<WAxis::Segment>(chart_->axis(XAxis).segments_);
+  double renderIntervalBak = chart_->axis(XAxis).renderInterval_;
   chart_->axis(XAxis).prepareRender(horizontal ? Horizontal : Vertical, drawArea.width());
 
   const WRectF& chartArea = chart_->chartArea_;
   WRectF selectionRect;
   {
     // Determine initial position based on xTransform of chart
-    double u = -chart_->xTransform_.value().dx() / (chartArea.width() * chart_->xTransform_.value().m11());
+    double u = -chart_->xTransformHandle_.value().dx() / (chartArea.width() * chart_->xTransformHandle_.value().m11());
     selectionRect = WRectF(0, top, maxW, h - (top + bottom));
-    transform_.setValue(WTransform(1 / chart_->xTransform_.value().m11(), 0, 0, 1, u * maxW, 0));
+    transform_.setValue(WTransform(1 / chart_->xTransformHandle_.value().m11(), 0, 0, 1, u * maxW, 0));
   }
   WRectF seriesArea(left, top + 5, maxW, h - (top + bottom + 5));
   WTransform selectionTransform = hv(WTransform(1,0,0,1,left,0) * transform_.value());
@@ -279,26 +312,76 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   painter.fillRect(hv(WRectF(left, top, maxW, h - top - bottom)), background_);
   painter.fillRect(rect, selectedAreaBrush_);
 
+  // FIXME: Refactor this code? We have very similar code now in WCartesianChart and
+  //	    WCartesian3DChart too.
+  const double TICK_LENGTH = 5;
+  const double ANGLE1 = 15;
+  const double ANGLE2 = 80;
+
+  double tickStart = 0.0, tickEnd = 0.0, labelPos = 0.0;
+  AlignmentFlag labelHFlag = AlignCenter, labelVFlag = AlignMiddle;
+
+  WAxis &axis = chart_->axis(XAxis);
+
   if (horizontal) {
-    chart_->axis(XAxis).render(
+    tickStart = 0;
+    tickEnd = TICK_LENGTH;
+    labelPos = TICK_LENGTH;
+    labelVFlag = AlignTop;
+  } else {
+    tickStart = -TICK_LENGTH;
+    tickEnd = 0;
+    labelPos = -TICK_LENGTH;
+    labelHFlag = AlignRight;
+  }
+
+  if (horizontal) {
+    if (axis.labelAngle() > ANGLE1) {
+      labelHFlag = AlignRight;
+      if (axis.labelAngle() > ANGLE2)
+	labelVFlag = AlignMiddle;
+    } else if (axis.labelAngle() < -ANGLE1) {
+      labelHFlag = AlignLeft;
+      if (axis.labelAngle() < -ANGLE2)
+	labelVFlag = AlignMiddle;
+    }
+  } else {
+    if (axis.labelAngle() > ANGLE1) {
+      labelVFlag = AlignBottom;
+      if (axis.labelAngle() > ANGLE2)
+	labelHFlag = AlignCenter;
+    } else if (axis.labelAngle() < -ANGLE1) {
+      labelVFlag = AlignTop;
+      if (axis.labelAngle() < -ANGLE2)
+	labelHFlag = AlignCenter;
+    }
+  }
+  
+  WFlags<AxisProperty> axisProperties = Line;
+  if (labelsEnabled_) {
+    axisProperties |= Labels;
+  }
+
+  if (horizontal) {
+    axis.render(
 	painter,
-	Labels | Line,
+	axisProperties,
 	WPointF(drawArea.left(), h - bottom),
 	WPointF(drawArea.right(), h - bottom),
-	0, 5, 5,
-	AlignCenter | AlignTop);
+	tickStart, tickEnd, labelPos,
+	labelHFlag | labelVFlag);
     WPainterPath line;
     line.moveTo(drawArea.left() + 0.5, h - (bottom - 0.5));
     line.lineTo(drawArea.right(), h - (bottom - 0.5));
     painter.strokePath(line, chart_->axis(XAxis).pen());
   } else {
-    chart_->axis(XAxis).render(
+    axis.render(
 	painter,
-	Labels | Line,
+	axisProperties,
 	WPointF(selectionAreaPadding(Left) - 1, drawArea.left()),
 	WPointF(selectionAreaPadding(Left) - 1, drawArea.right()),
-	-5, 0, -5,
-	AlignRight | AlignMiddle);
+	tickStart, tickEnd, labelPos,
+	labelHFlag | labelVFlag);
     WPainterPath line;
     line.moveTo(selectionAreaPadding(Left) - 0.5, drawArea.left() + 0.5);
     line.lineTo(selectionAreaPadding(Left) - 0.5, drawArea.right());
@@ -380,6 +463,9 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
        "});";
     doJavaScript(ss.str());
   }
+
+  chart_->axis(XAxis).segments_ = segmentsBak;
+  chart_->axis(XAxis).renderInterval_ = renderIntervalBak;
 }
 
 std::string WAxisSliderWidget::sObjJsRef() const

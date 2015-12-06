@@ -57,12 +57,15 @@ struct buffer_string
   bool contains(const char *s) const;
   bool icontains(const char *s) const;
   bool iequals(const char *s) const;
+  void write(std::ostream &os) const;
 
   bool operator==(const buffer_string& other) const;
   bool operator==(const std::string& other) const;
   bool operator==(const char *other) const;
   bool operator!=(const char *other) const;
 };
+
+std::ostream& operator<< (std::ostream &os, const buffer_string &str);
 
 /// A request received from a client.
 /// A request with a body will have a content-length.

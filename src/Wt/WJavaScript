@@ -80,7 +80,7 @@ namespace Wt {
  * internal slots to signal.
  *
  * It is also possible to propagate an original JavaScript event as a
- * last argument, of type WMouseEvent or WKeyEvent. In that case, the
+ * last argument, of type WMouseEvent, WKeyEvent or WTouchEvent. In that case, the
  * second argument in <tt>Wt.emit()</tt> must be an object which
  * indicates also the JavaScript event and event target.
  *
@@ -180,7 +180,7 @@ public:
    * In addition to information identifying the signal (\p element
    * and \p name) and the arguments, also information on the original
    * JavaScript event is transferred. In this way, you can propagate the
-   * corresponding event class (WMouseEvent or WKeyEvent) as an additional
+   * corresponding event class (WMouseEvent, WKeyEvent or WTouchEvent) as an additional
    * last argument in the slot.
    *
    * \note The method only takes into account JavaScript from slot
@@ -738,6 +738,14 @@ struct SignalArgTraits<WKeyEvent>
 {
   static WKeyEvent unMarshal(const JavaScriptEvent& jse, int) {
     return WKeyEvent(jse);
+  }
+};
+
+template<>
+struct SignalArgTraits<WTouchEvent>
+{
+  static WTouchEvent unMarshal(const JavaScriptEvent& jse, int) {
+    return WTouchEvent(jse);
   }
 };
 

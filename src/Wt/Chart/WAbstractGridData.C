@@ -1447,6 +1447,12 @@ void WAbstractGridData::paintGL() const
   if (hidden_)
     return;
 
+  loadPointSpriteTexture(pointSpriteTexture_);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
+  chart_->texParameteri(WGLWidget::TEXTURE_2D, WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
+
   // compatible chart-type check
   switch (seriesType_) {
   case PointSeries3D:
@@ -1805,6 +1811,47 @@ void WAbstractGridData::setChart(WCartesian3DChart *chart)
       "var obj = $('#" + chart_->id() + "').data('obj');" +
       jsMaxPt_.jsRef() + "[2] = pos;" +
       chart->repaintSlot().execJs() + " }", 1);
+}
+
+std::vector<boost::any> WAbstractGridData::getGlObjects()
+{
+  std::vector<boost::any> res;
+  std::vector<std::vector<WGLWidget::Buffer> *> buffers;
+  buffers.push_back(&vertexPosBuffers_);
+  buffers.push_back(&vertexPosBuffers2_);
+  buffers.push_back(&vertexSizeBuffers_);
+  buffers.push_back(&vertexSizeBuffers2_);
+  buffers.push_back(&vertexColorBuffers2_);
+  buffers.push_back(&indexBuffers_);
+  buffers.push_back(&indexBuffers2_);
+  buffers.push_back(&overlayLinesBuffers_);
+  buffers.push_back(&overlayLinesBuffers2_);
+  buffers.push_back(&colormapTexBuffers_);
+  buffers.push_back(&isoLineBuffers_);
+  for (std::size_t i = 0; i < buffers.size(); ++i) {
+    for (std::size_t j = 0; j < buffers[i]->size(); ++j) {
+      res.push_back((*buffers[i])[j]);
+    }
+  }
+  res.push_back(fragShader_);
+  res.push_back(colFragShader_);
+  res.push_back(meshFragShader_);
+  res.push_back(singleColorFragShader_);
+  res.push_back(positionFragShader_);
+  res.push_back(isoLineFragShader_);
+  res.push_back(vertShader_);
+  res.push_back(colVertShader_);
+  res.push_back(meshVertShader_);
+  res.push_back(isoLineVertexShader_);
+  res.push_back(seriesProgram_);
+  res.push_back(colSeriesProgram_);
+  res.push_back(meshProgram_);
+  res.push_back(singleColorProgram_);
+  res.push_back(isoLineProgram_);
+  res.push_back(colormapTexture_);
+  res.push_back(isoLineColorMapTexture_);
+  res.push_back(pointSpriteTexture_);
+  return res;
 }
 
 void WAbstractGridData::initializeGL()

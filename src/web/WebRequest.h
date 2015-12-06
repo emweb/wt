@@ -45,6 +45,7 @@ public:
 
   typedef boost::function<void(WebWriteEvent)> WriteCallback;
   typedef boost::function<void(WebReadEvent)> ReadCallback;
+  typedef boost::function<void(void)> DisconnectCallback;
 
   /*
    * Signal that the response should be flushed.
@@ -73,6 +74,13 @@ public:
    * for more incoming events.
    */
   virtual bool webSocketMessagePending() const;
+
+  /*
+   * Indicate that we're deferring to write a response, but in the mean-time
+   * we do want to know if there's a disconnect event (by reading from
+   * the socket).
+   */
+  virtual bool detectDisconnect(const DisconnectCallback& callback);
 
   /*
    * Access the stream that contains the request body (HTTP) or a

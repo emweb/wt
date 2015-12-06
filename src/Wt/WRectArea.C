@@ -7,6 +7,7 @@
 #include "Wt/WRectArea"
 
 #include "DomElement.h"
+#include "WebUtils.h"
 
 namespace Wt {
 
@@ -19,17 +20,17 @@ WRectArea::WRectArea(int x, int y, int width, int height)
 { }
 
 WRectArea::WRectArea(double x, double y, double width, double height)
-  : x_(static_cast<int>(x)),
-    y_(static_cast<int>(y)),
-    width_(static_cast<int>(width)),
-    height_(static_cast<int>(height))
+  : x_(x),
+    y_(y),
+    width_(width),
+    height_(height)
 { }
 
 WRectArea::WRectArea(const WRectF& rect)
-  : x_(static_cast<int>(rect.x())),
-    y_(static_cast<int>(rect.y())),
-    width_(static_cast<int>(rect.width())),
-    height_(static_cast<int>(rect.height()))
+  : x_(rect.x()),
+    y_(rect.y()),
+    width_(rect.width()),
+    height_(rect.height())
 { }
 
 void WRectArea::setX(int x)
@@ -66,13 +67,31 @@ bool WRectArea::updateDom(DomElement& element, bool all)
 
   std::stringstream coords;
 
-  if (x_ == 0 && y_ == 0 && width_ == 0 && height_ == 0)
+  int x = static_cast<int>(x_);
+  int y = static_cast<int>(y_);
+  int width = static_cast<int>(width_);
+  int height = static_cast<int>(height_);
+  if (x == 0 && y == 0 && width == 0 && height == 0)
     coords << "0%,0%,100%,100%";
   else
-    coords << x_ << ',' << y_ << ',' << (x_ + width_) << ',' << (y_ + height_);
+    coords << x << ',' << y << ',' << (x + width) << ',' << (y + height);
   element.setAttribute("coords", coords.str());
 
   return WAbstractArea::updateDom(element, all);
+}
+
+std::string WRectArea::updateAreaCoordsJS()
+{
+  std::stringstream coords;
+  char buf[30];
+
+  coords << "[" << jsRef() << ",[";
+  coords << Utils::round_js_str(x_, 2, buf) << ',';
+  coords << Utils::round_js_str(y_, 2, buf) << ',';
+  coords << Utils::round_js_str((x_ + width_), 2, buf) << ',';
+  coords << Utils::round_js_str((y_ + height_), 2, buf) << "]]";
+
+  return coords.str();
 }
 
 }

@@ -173,6 +173,8 @@ namespace Wt {
 class WT_API WAbstractItemModel : public WObject
 {
 public:
+  using WObject::parent;
+
   /*! \brief Data map.
    *
    * A map of data, indexed by a role.

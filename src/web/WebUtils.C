@@ -114,20 +114,27 @@ void sanitizeUnicode(EscapeOStream& sout, const std::string& text)
 
 std::string eraseWord(const std::string& s, const std::string& w)
 {
-  std::string ss = s;
   std::string::size_type p;
+  std::string::size_type pos = 0;
 
-  if ((p = ss.find(w)) != std::string::npos) {
-    ss.erase(ss.begin() + p, ss.begin() + p + w.length());
-    if (p > 1) {
-      if (ss[p-1] == ' ')
+  while ((p = s.find(w, pos)) != std::string::npos) {
+    std::string::size_type e = p + w.length();
+    if ((p == 0          || s[p-1] == ' ') &&
+	(e == s.length() || s[e] == ' ')) {
+      std::string ss = s;
+      ss.erase(ss.begin() + p, ss.begin() + e);
+      if (p > 1)
 	ss.erase(ss.begin() + (p - 1));
-    } else
-      if (p < ss.length() && ss[p] == ' ')
+      else if (e < ss.length())
 	ss.erase(ss.begin() + p);
+
+      return ss;
+    }
+
+    pos = p + 1;
   }
 
-  return ss;
+  return s;
 }
 
 std::string addWord(const std::string& s, const std::string& w)

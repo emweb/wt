@@ -100,7 +100,7 @@ public:
    *
    * \sa setQuery()
    */
-  const Query<Result>& query() const { return query_; }
+  Query<Result> query() const;
 
   /*! \brief Adds a column.
    *

@@ -98,6 +98,11 @@ bool WebRequest::webSocketMessagePending() const
   throw WException("should not get here");
 }
 
+bool WebRequest::detectDisconnect(const DisconnectCallback& callback)
+{
+  return false; /* Not implemented */
+}
+
 const char *WebRequest::userAgent() const
 {
   return headerValue("User-Agent");

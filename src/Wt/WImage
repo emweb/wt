@@ -222,6 +222,10 @@ public:
    */
   EventSignal<>& imageLoaded();
 
+  void setTargetJS(std::string targetJS);
+  virtual std::string updateAreasJS();
+  virtual std::string setAreaCoordsJS();
+
 private:
   static const char *LOAD_SIGNAL;
 
@@ -233,6 +237,7 @@ private:
   WLink            imageLink_;
   Impl::MapWidget *map_;
   std::bitset<3>   flags_;
+  std::string      targetJS_;
 
   void resourceChanged();
 
@@ -240,10 +245,14 @@ protected:
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
   virtual void updateDom(DomElement& element, bool all);
+  virtual void defineJavaScript();
+  virtual void render(WFlags<RenderFlag> flags);
   virtual DomElementType domElementType() const;
   virtual void propagateRenderOk(bool deep);
+  virtual std::string updateAreaCoordsJSON() const;
 
   friend class WLabel;
+  friend class Impl::MapWidget;
 
   static std::vector<WAbstractArea *> noAreas_;
 };

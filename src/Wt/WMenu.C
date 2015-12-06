@@ -407,12 +407,12 @@ int WMenu::nextAfterHide(int index)
   if (current_ == index) {
     // Try to find visible item to the right of the current.
     for (int i = current_ + 1; i < count(); ++i)
-      if (!isItemHidden(i))
+      if (!isItemHidden(i) && itemAt(i)->isEnabled())
         return i;
 
     // Try to find visible item to the left of the current.
     for (int i = current_ - 1; i >= 0; --i)
-      if (!isItemHidden(i))
+      if (!isItemHidden(i) && itemAt(i)->isEnabled())
         return i;
   }
 
@@ -477,6 +477,9 @@ void WMenu::internalPathChanged(const std::string& path)
     int bestI = -1, bestMatchLength = -1;
 
     for (int i = 0; i < count(); ++i) {
+      if (!itemAt(i)->isEnabled() || itemAt(i)->isHidden())
+	continue;
+
       int matchLength = match(subPath, itemAt(i)->pathComponent());
 
       if (matchLength > bestMatchLength) {

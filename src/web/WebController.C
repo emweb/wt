@@ -79,6 +79,7 @@ WebController::WebController(WServer& server,
     autoExpire_(autoExpire),
     plainHtmlSessions_(0),
     ajaxSessions_(0),
+    zombieSessions_(0),
 #ifdef WT_THREADED
     socketNotifier_(this),
 #endif // WT_THREADED
@@ -126,31 +127,49 @@ void WebController::start()
 
 void WebController::shutdown()
 {
-  std::vector<boost::shared_ptr<WebSession> > sessionList;
-
   {
+    std::vector<boost::shared_ptr<WebSession> > sessionList;
+
+    {
 #ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock lock(mutex_);
+      boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
-    running_ = false;
+      running_ = false;
 
-    LOG_INFO_S(&server_, "shutdown: stopping sessions.");
+      LOG_INFO_S(&server_, "shutdown: stopping " << sessions_.size()
+		 << " sessions.");
 
-    for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i)
-      sessionList.push_back(i->second);
+      for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
+	   ++i)
+	sessionList.push_back(i->second);
 
-    sessions_.clear();
+      sessions_.clear();
 
-    ajaxSessions_ = 0;
-    plainHtmlSessions_ = 0;
+      ajaxSessions_ = 0;
+      plainHtmlSessions_ = 0;
+    }
+
+    for (unsigned i = 0; i < sessionList.size(); ++i) {
+      boost::shared_ptr<WebSession> session = sessionList[i];
+      WebSession::Handler handler(session, WebSession::Handler::TakeLock);
+      session->expire();
+    }
   }
 
-  for (unsigned i = 0; i < sessionList.size(); ++i) {
-    boost::shared_ptr<WebSession> session = sessionList[i];
-    WebSession::Handler handler(session, WebSession::Handler::TakeLock);
-    session->expire();
+#ifdef WT_THREADED
+  while (zombieSessions_ > 0) {
+    boost::this_thread::sleep(boost::posix_time::milliseconds(10));
   }
+#endif
+}
+
+void WebController::sessionDeleted()
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+  --zombieSessions_;
 }
 
 Configuration& WebController::configuration()
@@ -207,6 +226,7 @@ bool WebController::expireSessions()
 	  else
 	    --plainHtmlSessions_;
 
+	  ++zombieSessions_;
 	  sessions_.erase(i++);
 	}
       } else
@@ -224,9 +244,7 @@ bool WebController::expireSessions()
     session->expire();
   }
 
-  toExpire.clear();
-
-  if (configuration().singleSession()) {
+  if (toExpire.size() > 0 && server_.dedicatedSessionProcess()) {
 #ifdef WT_THREADED
     boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
@@ -257,6 +275,7 @@ void WebController::removeSession(const std::string& sessionId)
 
   SessionMap::iterator i = sessions_.find(sessionId);
   if (i != sessions_.end()) {
+    ++zombieSessions_;
     if (i->second->env().ajax())
       --ajaxSessions_;
     else
@@ -264,7 +283,7 @@ void WebController::removeSession(const std::string& sessionId)
     sessions_.erase(i);
   }
 
-  if (configuration().singleSession() && sessions_.size() == 0) {
+  if (server_.dedicatedSessionProcess() && sessions_.size() == 0) {
     server_.scheduleStop();
   }
 }

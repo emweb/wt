@@ -6,6 +6,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WAbstractArea"
 #include "Wt/WApplication"
 #include "Wt/WCanvasPaintDevice"
 #include "Wt/WEnvironment"
@@ -16,6 +17,7 @@
 #include "Wt/WResource"
 #include "Wt/WSvgImage"
 #include "Wt/WVmlImage"
+#include "WebUtils.h"
 
 #ifdef WT_HAS_WRASTERIMAGE
 #include "Wt/WRasterImage"
@@ -127,6 +129,8 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   }
 
   setInline(false);
+  if (WApplication::instance())
+    setFormObject(true);
 }
 
 WPaintedWidget::~WPaintedWidget()
@@ -208,6 +212,17 @@ void WPaintedWidget::render(WFlags<RenderFlag> flags)
   }
 
   WInteractWidget::render(flags);
+}
+
+void WPaintedWidget::setFormData(const FormData& formData)
+{
+  Http::ParameterValues parVals = formData.values;
+  if (Utils::isEmpty(parVals))
+    return;
+  if (parVals[0] == "undefined")
+    return;
+
+  jsObjects_.assignFromJSON(parVals[0]);
 }
 
 WPaintedWidget::Method WPaintedWidget::getMethod() const
@@ -632,7 +647,16 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
     WStringStream ss;
     ss << widget_->objJsRef() << ".repaint=function(){";
     ss << canvasDevice->recordedJs_.str();
+    if (widget_->areaImage_) {
+      widget_->areaImage_->setTargetJS(widget_->objJsRef());
+      ss << widget_->areaImage_->updateAreasJS();
+    }
     ss << "};";
+    ss << widget_->objJsRef() << ".repaint();";
+    el->callJavaScript(ss.str());
+  } else {
+    WStringStream ss;
+    ss << canvasDevice->recordedJs_.str();
     el->callJavaScript(ss.str());
   }
 
@@ -681,7 +705,16 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
     WStringStream ss;
     ss << widget_->objJsRef() << ".repaint=function(){";
     ss << canvasDevice->recordedJs_.str();
+    if (widget_->areaImage_) {
+      widget_->areaImage_->setTargetJS(widget_->objJsRef());
+      ss << widget_->areaImage_->updateAreasJS();
+    }
     ss << "};";
+    ss << widget_->objJsRef() << ".repaint();";
+    el->callJavaScript(ss.str());
+  } else {
+    WStringStream ss;
+    ss << canvasDevice->recordedJs_.str();
     el->callJavaScript(ss.str());
   }
 

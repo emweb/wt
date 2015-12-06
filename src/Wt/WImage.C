@@ -11,6 +11,10 @@
 
 #include "DomElement.h"
 
+#ifndef WT_DEBUG_JS
+#include "js/WImage.min.js"
+#endif
+
 namespace Wt {
 
 LOGGER("WImage");
@@ -23,6 +27,15 @@ LOGGER("WImage");
       MapWidget() { }
 
     protected:
+      virtual void render(WFlags<RenderFlag> flags)
+      {
+	WContainerWidget::render(flags);
+
+	WImage *parent_img = dynamic_cast<WImage *>(parent());
+	if (!parent_img->targetJS_.empty())
+	  parent_img->doJavaScript(parent_img->setAreaCoordsJS());
+      }
+
       virtual void updateDom(DomElement& element, bool all)
       {
 	if (all)
@@ -269,9 +282,82 @@ void WImage::propagateRenderOk(bool deep)
   WInteractWidget::propagateRenderOk(deep);
 }
 
+void WImage::defineJavaScript()
+{
+  WApplication *app = WApplication::instance();
+
+  LOAD_JAVASCRIPT(app, "js/WImage.js", "WImage", wtjs1);
+
+  WStringStream ss;
+  ss << "new " WT_CLASS ".WImage("
+     << app->javaScriptClass() << "," << jsRef() << "," << targetJS_ << ");";
+  doJavaScript(ss.str());
+}
+
+void WImage::render(WFlags<RenderFlag> flags)
+{
+  if (flags & RenderFull) {
+    if (!targetJS_.empty())
+      defineJavaScript();
+  }
+
+  WInteractWidget::render(flags);
+}
+
 DomElementType WImage::domElementType() const
 {
   return map_ ? DomElement_SPAN : DomElement_IMG;
+}
+
+void WImage::setTargetJS(std::string targetJS)
+{
+  targetJS_ = targetJS;
+}
+
+std::string WImage::updateAreasJS()
+{
+  WStringStream ss;
+  if (!targetJS_.empty()) {
+    ss <<
+      "(function(){"
+      """var w = " << jsRef() << ";"
+      """if (w) {"
+      ""  "var o = jQuery.data(" << jsRef() << ", 'obj');"
+      ""  "if (o) { o.updateAreas(); }"
+      """}"
+      "})();";
+  }
+  return ss.str();
+}
+
+std::string WImage::setAreaCoordsJS()
+{
+  WStringStream ss;
+  if (!targetJS_.empty()) {
+    ss << "jQuery.data(" << jsRef() << ", 'obj').setAreaCoordsJSON("
+       << updateAreaCoordsJSON() << ");";
+  }
+  return ss.str();
+}
+
+std::string WImage::updateAreaCoordsJSON() const
+{
+  WStringStream js;
+  const std::vector<WAbstractArea *> &areas = this->areas();
+
+  if (!areas.empty()) {
+    for (unsigned i = 0; i < areas.size(); ++i) {
+      if (areas[i]->isTransformable()) {
+        if (js.empty())
+          js << "[";
+        else
+          js << ",";
+        js << areas[i]->updateAreaCoordsJS();
+      }
+    }
+    js << "]";
+  }
+  return js.str();
 }
 
 }

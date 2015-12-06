@@ -823,10 +823,11 @@ void WContainerWidget::layoutChanged(bool rerender, bool deleted)
   else
     flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
 
-  repaint(RepaintSizeAffected);
-
   if (deleted)
     layout_ = 0;
+
+  repaint(RepaintSizeAffected);
+
 #endif // WT_NO_LAYOUT
 }
 

@@ -44,6 +44,7 @@ void WServer::init(const std::string& wtApplicationPath,
   configurationFile_ = configurationFile; 
 
   ownsIOService_ = true;
+  dedicatedProcessEnabled_ = false;
   ioService_ = 0;
   webController_ = 0;
   configuration_ = 0;
@@ -148,6 +149,10 @@ WLogEntry WServer::log(const std::string& type) const
     << '[' << type << ']' << WLogger::sep;
 
   return e;
+}
+
+bool WServer::dedicatedSessionProcess() const {
+  return dedicatedProcessEnabled_;
 }
 
 void WServer::initLogger(const std::string& logFile,

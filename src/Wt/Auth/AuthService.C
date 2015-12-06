@@ -172,10 +172,12 @@ void AuthService::setIdentityPolicy(IdentityPolicy identityPolicy)
   identityPolicy_ = identityPolicy;
 }
 
-void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieName)
+void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieName,
+				       const std::string& cookieDomain)
 {
   authTokens_ = enabled;
   authTokenCookieName_ = cookieName;
+  authTokenCookieDomain_ = cookieDomain;
 }
 
 User AuthService::identifyUser(const Identity& identity,

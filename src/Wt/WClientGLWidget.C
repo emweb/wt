@@ -784,6 +784,7 @@ void WClientGLWidget::deleteBuffer(WGLWidget::Buffer buffer)
 {
   if ((unsigned)buffer.getId() >= buffers_) return;
   js_ << "ctx.deleteBuffer(" << buffer.jsRef() << ");";
+  js_ << "delete " << buffer.jsRef() << ";";
   GLDEBUG;
 }
 
@@ -791,6 +792,7 @@ void WClientGLWidget::deleteFramebuffer(WGLWidget::Framebuffer buffer)
 {
   if ((unsigned)buffer.getId() >= framebuffers_) return;
   js_ << "ctx.deleteFramebuffer(" << buffer.jsRef() << ");";
+  js_ << "delete " << buffer.jsRef() << ";";
   GLDEBUG;
 }
 
@@ -798,6 +800,7 @@ void WClientGLWidget::deleteProgram(WGLWidget::Program program)
 {
   if ((unsigned)program.getId() >= programs_) return;
   js_ << "ctx.deleteProgram(" << program.jsRef() << ");";
+  js_ << "delete " << program.jsRef() << ";";
   GLDEBUG;
 }
 
@@ -805,6 +808,7 @@ void WClientGLWidget::deleteRenderbuffer(WGLWidget::Renderbuffer buffer)
 {
   if ((unsigned)buffer.getId() >= renderbuffers_) return;
   js_ << "ctx.deleteRenderbuffer(" << buffer.jsRef() << ");";
+  js_ << "delete " << buffer.jsRef() << ";";
   GLDEBUG;
 }
 
@@ -812,6 +816,7 @@ void WClientGLWidget::deleteShader(WGLWidget::Shader shader)
 {
   if ((unsigned)shader.getId() >= shaders_) return;
   js_ << "ctx.deleteShader(" << shader.jsRef() << ");";
+  js_ << "delete " << shader.jsRef() << ";";
   GLDEBUG;
 }
 
@@ -819,6 +824,7 @@ void WClientGLWidget::deleteTexture(WGLWidget::Texture texture)
 {
   if ((unsigned)texture.getId() >= textures_) return;
   js_ << "ctx.deleteTexture(" << texture.jsRef() << ");";
+  js_ << "delete " << texture.jsRef() << ";";
   GLDEBUG;
 }
 
@@ -1166,6 +1172,7 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
     js_ << "};";
     js_ << "f(" << jsRef << ");";
     js_ << currentlyBoundTexture_.jsRef() << ".image" << imgNb << "=" << jsRef << ";";
+    js_ << "delete " << jsRef << ";";
   }
 #ifdef WT_HAS_WRASTERIMAGE
    else if (dynamic_cast<WRasterImage*>(paintdevice) != 0) {

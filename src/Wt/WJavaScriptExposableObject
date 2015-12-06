@@ -17,6 +17,10 @@ namespace Wt {
 class WJavaScriptObjectStorage;
 class WPaintedWidget;
 
+namespace Json {
+  class Value;
+}
+
 /*! \class WJavaScriptExposableObject Wt/WJavaScriptExposableObject
  *  \brief A JavaScript exposable object
  *
@@ -83,6 +87,8 @@ protected:
   // Checks if this object is JavaScript bound,
   // if it is, it will throw an exception.
   void checkModifiable();
+
+  virtual void assignFromJSON(const Json::Value &value) = 0;
 
 private:
   template<typename T> friend class WJavaScriptHandle;

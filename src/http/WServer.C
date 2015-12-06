@@ -163,7 +163,6 @@ bool WServer::start()
 
   if (impl_->serverConfiguration_->parentPort() != -1) {
     configuration().setBehindReverseProxy(true);
-    configuration().setSingleSession(true);
   }
 
   try {

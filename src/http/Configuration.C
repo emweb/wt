@@ -219,8 +219,8 @@ void Configuration::setOptions(int argc, char **argv,
     po::variables_map vm;
 
     if (argc)
-      po::store(po::parse_command_line(argc, argv, all_options), vm);
-
+      po::store(po::command_line_parser(argc, argv).options(all_options).allow_unregistered().run(), vm);
+      
     if (!configurationFile.empty()) {
       std::ifstream cfgFile(configurationFile.c_str(),
 	std::ios::in | std::ios::binary);

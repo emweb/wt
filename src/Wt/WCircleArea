@@ -64,11 +64,11 @@ public:
 
   /*! \brief Returns the center X coordinate.
    */
-  int centerX() const { return x_; }
+  int centerX() const { return static_cast<int>(x_); }
 
   /*! \brief Returns the center Y coordinate.
    */
-  int centerY() const { return y_; }
+  int centerY() const { return static_cast<int>(y_); }
 
   /*! \brief Sets the radius. 
    */
@@ -76,13 +76,14 @@ public:
 
   /*! \brief Returns the radius.
    */
-  int radius() const { return r_; }
+  int radius() const { return static_cast<int>(r_); }
 
 private:
-  int x_, y_, r_;
+  double x_, y_, r_;
 
 protected:
-  virtual bool updateDom(DomElement& element, bool all);
+  virtual bool updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
+  virtual std::string updateAreaCoordsJS() WT_CXX11ONLY(override);
 };
 
 }

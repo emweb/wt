@@ -316,7 +316,8 @@ public:
    * \sa setTokenHashFunction(), setAuthTokenValidity()
    */
   void setAuthTokensEnabled(bool enabled,
-			    const std::string& cookieName = "wtauth");
+			    const std::string& cookieName = "wtauth",
+			    const std::string& cookieDomain = std::string());
 
   /*! \brief Returns whether authentication tokens are enabled.
    *
@@ -332,6 +333,18 @@ public:
    * \sa setAuthTokensEnabled()
    */
   std::string authTokenCookieName() const { return authTokenCookieName_; }
+
+  /*! \brief Returns the authentication token cookie domain.
+   *
+   * This is the domain used for the authentication cookie. By default this
+   * is empty, which means that a cookie will be set for this application.
+   *
+   * You may want to set a more general domain if you are sharing the authentication
+   * with multiple applications.
+   *
+   * \sa setAuthTokensEnabled()
+   */
+  std::string authTokenCookieDomain() const { return authTokenCookieDomain_; }
 
   /*! \brief Sets the token hash function.
    *
@@ -568,6 +581,7 @@ private:
   bool authTokens_;
   int authTokenValidity_;  // minutes
   std::string authTokenCookieName_;
+  std::string authTokenCookieDomain_;
 };
 
   }

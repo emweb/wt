@@ -378,6 +378,8 @@ private:
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
   virtual void selectRange(const WModelIndex& first, const WModelIndex& last);
 
+  bool isExpandedRecursive(const WModelIndex& index) const;
+
   void expandChildrenToDepth(const WModelIndex& index, int depth);
 
   void updateColumnWidth(int columnId, int width);

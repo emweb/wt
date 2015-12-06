@@ -171,9 +171,7 @@ WGLWidget::Texture WAbstractDataSeries3D::pointSpriteTexture()
 {
   WGLWidget::Texture tex = chart_->createTexture();
   chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
-  if (!pointSprite_.empty()) {
-    chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, pointSprite_);
-  } else {
+  if (pointSprite_.empty()) {
     WPaintDevice *cpd = chart_->createPaintDevice(WLength(1),WLength(1));
     WColor color = WColor(255, 255, 255, 255);
     WPainter painter(cpd);
@@ -184,6 +182,14 @@ WGLWidget::Texture WAbstractDataSeries3D::pointSpriteTexture()
   }
 
   return tex;
+}
+
+void WAbstractDataSeries3D::loadPointSpriteTexture(const WGLWidget::Texture &tex) const
+{
+  chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
+  if (!pointSprite_.empty()) {
+    chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA, WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, pointSprite_);
+  }
 }
 
 void WAbstractDataSeries3D::setDefaultTitle(int i)
@@ -229,6 +235,11 @@ void WAbstractDataSeries3D::setChart(WCartesian3DChart *chart)
     connections_.push_back(model_->rowsRemoved().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
     connections_.push_back(model_->columnsRemoved().connect(boost::bind(&WCartesian3DChart::updateChart, chart_, GLTextures | GLContext)));
   }
+}
+
+std::vector<boost::any> WAbstractDataSeries3D::getGlObjects()
+{
+  return std::vector<boost::any>();
 }
 
   }

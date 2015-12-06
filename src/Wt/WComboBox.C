@@ -229,7 +229,9 @@ void WComboBox::updateDom(DomElement& element, bool all)
 
     DomElement *currentGroup = 0;
     bool groupDisabled = true;
-    for (int i = 0; i < count(); ++i) {
+
+    int size = count();
+    for (int i = 0; i < size; ++i) {
       // Make new option item
       DomElement *item = DomElement::createNew(DomElement_OPTION);
       item->setProperty(PropertyValue, boost::lexical_cast<std::string>(i));
@@ -292,7 +294,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
 	currentGroup->addChild(item);
 
       // last loop and there's still an open group
-      if (i == count() - 1 && currentGroup) {
+      if (i == size - 1 && currentGroup) {
 	if (groupDisabled)
 	  currentGroup->setProperty(PropertyDisabled, "true");
 	element.addChild(currentGroup);
@@ -303,7 +305,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
     itemsChanged_ = false;
   }
 
-  if (selectionChanged_) {
+  if (selectionChanged_ || (all && (selectionMode() == SingleSelection))) {
     element.setProperty(PropertySelectedIndex,
 			boost::lexical_cast<std::string>(currentIndex_));
     selectionChanged_ = false;
@@ -368,7 +370,8 @@ void WComboBox::setValueText(const WT_USTRING& value)
   int i = findText(value, MatchExactly);
   setCurrentIndex(i);
 #else
-  for (int i = 0; i < count(); ++i) {
+  int size = count();
+  for (int i = 0; i < size; ++i) {
     if (Wt::asString(model_->index(i, modelColumn_).data(DisplayRole))
 	== value) {
       setCurrentIndex(i);

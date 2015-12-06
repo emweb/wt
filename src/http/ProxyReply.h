@@ -70,6 +70,7 @@ private:
   std::ostream out_;
 
   std::size_t sending_;
+  ::int64_t contentLength_;
   bool more_;
   bool receiving_;
   bool fwCertificates_;

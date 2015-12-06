@@ -482,7 +482,9 @@ void Reply::setConnection(ConnectionPtr connection)
 
 void Reply::receive()
 {
-  connection_->strand().post(boost::bind(&Connection::readMore, connection_, shared_from_this()));
+  connection_->strand().post
+    (boost::bind(&Connection::readMore, connection_,
+		 shared_from_this(), 120));
 }
 
 void Reply::send()
@@ -498,6 +500,11 @@ void Reply::send()
        (boost::bind(&Connection::startWriteResponse, connection_,
 		    shared_from_this())));
   }
+}
+
+void Reply::detectDisconnect(const boost::function<void()>& callback)
+{
+  connection_->detectDisconnect(shared_from_this(), callback);
 }
 
 void Reply::setRelay(ReplyPtr reply)

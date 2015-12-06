@@ -146,6 +146,11 @@ void WCartesian3DChart::addDataSeries(WAbstractDataSeries3D * dataseries)
 void WCartesian3DChart::removeDataSeries(WAbstractDataSeries3D * dataseries)
 {
   Wt::Utils::erase(dataSeriesVector_, dataseries);
+  std::vector<boost::any> glObjects = dataseries->getGlObjects();
+  objectsToDelete.reserve(glObjects.size());
+  for (std::size_t i = 0; i < glObjects.size(); ++i) {
+    objectsToDelete.push_back(glObjects[i]);
+  }
 
   updateChart(GLContext);
 }
@@ -321,34 +326,34 @@ void WCartesian3DChart::createRay(double x, double y, WVector3 &eye, WVector3 &d
   invTransform =
 #endif
     invTransform.inverted();
-  WVector4 near(
+  WVector4 near_(
       x / width().value() * 2 - 1,
       y / height().value() * (-2) + 1,
       -1.0,
       1.0
     );
-   WVector4 far(
-      near.x(),
-      near.y(),
+   WVector4 far_(
+      near_.x(),
+      near_.y(),
       1.0,
       1.0
     );
-  near = invTransform * near;
-  far =  invTransform * far;
-  near = near / near.w();
-  far = far / far.w();
-  WVector4 ray = far - near;
+  near_ = invTransform * near_;
+  far_ =  invTransform * far_;
+  near_ = near_ / near_.w();
+  far_ = far_ / far_.w();
+  WVector4 ray = far_ - near_;
   ray.normalize();
 #ifndef WT_TARGET_JAVA
   direction = WVector3(ray.x(), ray.z(), ray.y());
-  eye = WVector3(near.x(), near.z(), near.y());
+  eye = WVector3(near_.x(), near_.z(), near_.y());
 #else
   direction.setElement(0, ray.x());
   direction.setElement(1, ray.z());
   direction.setElement(2, ray.y());
-  eye.setElement(0, near.x());
-  eye.setElement(1, near.z());
-  eye.setElement(2, near.y());
+  eye.setElement(0, near_.x());
+  eye.setElement(1, near_.z());
+  eye.setElement(2, near_.y());
 #endif
 }
 
@@ -2062,6 +2067,8 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteBuffer(cubeBuffer_);
   deleteBuffer(cubeNormalsBuffer_);
   deleteBuffer(cubeIndicesBuffer_);
+  deleteBuffer(cubeLineNormalsBuffer_);
+  deleteBuffer(cubeLineIndicesBuffer_);
   deleteBuffer(axisBuffer_);
   deleteBuffer(axisIndicesBuffer_);
   deleteBuffer(axisInPlaneBuffer_);
@@ -2076,6 +2083,7 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteGLTextures();
   deleteBuffer(cubeTexCoords_);cubeTexCoords_.clear();
   deleteBuffer(axisTexCoordsHoriz_);axisTexCoordsHoriz_.clear();
+  deleteBuffer(axisTexCoordsVert_);axisTexCoordsVert_.clear();
 
   if (!cubeProgram_.isNull()) {
     detachShader(cubeProgram_, fragmentShader_);
@@ -2089,8 +2097,11 @@ void WCartesian3DChart::deleteAllGLResources()
   deleteShader(vertexShader_);
   deleteShader(fragmentShader2_);
   deleteShader(vertexShader2_);
+  deleteShader(cubeLineFragShader_);
+  deleteShader(cubeLineVertShader_);
   deleteProgram(cubeProgram_);cubeProgram_.clear();
   deleteProgram(axisProgram_);axisProgram_.clear();
+  deleteProgram(cubeLineProgram_);cubeLineProgram_.clear();
 
   deleteOffscreenBuffer();
 
@@ -2115,6 +2126,32 @@ void WCartesian3DChart::deleteGLTextures() {
     deleteTexture(legendTexture_);legendTexture_.clear();
   if (!colorMapTexture_.isNull())
     deleteTexture(colorMapTexture_);colorMapTexture_.clear();
+
+  for (std::size_t i = 0; i < objectsToDelete.size(); ++i) {
+    boost::any o = objectsToDelete[i];
+    if (o.type() == typeid(WGLWidget::Buffer)) {
+      WGLWidget::Buffer buf = boost::any_cast<WGLWidget::Buffer>(objectsToDelete[i]);
+      if (!buf.isNull()) {
+	deleteBuffer(buf);
+      }
+    } else if (o.type() == typeid(WGLWidget::Texture)) {
+      WGLWidget::Texture tex = boost::any_cast<WGLWidget::Texture>(objectsToDelete[i]);
+      if (!tex.isNull()) {
+	deleteTexture(tex);
+      }
+    } else if (o.type() == typeid(WGLWidget::Shader)) {
+      WGLWidget::Shader shader = boost::any_cast<WGLWidget::Shader>(objectsToDelete[i]);
+      if (!shader.isNull()) {
+	deleteShader(shader);
+      }
+    } else if (o.type() == typeid(WGLWidget::Program)) {
+      WGLWidget::Program prog = boost::any_cast<WGLWidget::Program>(objectsToDelete[i]);
+      if (!prog.isNull()) {
+	deleteProgram(prog);
+      }
+    } else assert(false);
+  }
+  objectsToDelete.clear();
 }
 
 void WCartesian3DChart::updateChart(WFlags<ChartUpdates> flags)

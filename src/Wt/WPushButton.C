@@ -300,6 +300,12 @@ void WPushButton::renderHRef(DomElement& element)
 	  ("function(){"
 	   "window.open(" + jsStringLiteral(url) + ");"
 	   "}");
+	  else if (linkState_.link.target() == TargetDownload)
+		linkState_.clickJS->setJavaScript
+		  ("function(){"
+		   "var ifr = document.getElementById('wt_iframe_dl_id');"
+		   "ifr.src = "  + jsStringLiteral(url) + ";"
+		  "}");
       else
 	linkState_.clickJS->setJavaScript
 	  ("function(){"

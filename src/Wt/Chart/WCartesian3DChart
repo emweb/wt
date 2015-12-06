@@ -706,12 +706,6 @@ private:
   Buffer axisTexCoordsVert_;
   Buffer overlayPosBuffer_;
   Buffer overlayTexCoBuffer_;
-  Buffer titlePosBuffer_;
-  Buffer titleTexCoBuffer_;
-  Buffer legendPosBuffer_;
-  Buffer legendTexCoBuffer_;
-  Buffer colorMapPosBuffer_;
-  Buffer colorMapTexCoBuffer_;
   Buffer clippingPlaneVertBuffer_;
 
   // Textures
@@ -733,6 +727,8 @@ private:
   Framebuffer positionFramebuffer_;
   Framebuffer intersectionLinesFramebuffer_;
   Renderbuffer offscreenDepthbuffer_;
+
+  std::vector<boost::any> objectsToDelete;
 
   friend class WAbstractGridData;
   friend class WGridData;

@@ -14,6 +14,9 @@
 #include "Wt/WString"
 #include "Wt/WTransform"
 
+#include "Wt/Json/Array"
+#include "Wt/Json/Value"
+
 #include "WebUtils.h"
 
 namespace Wt {
@@ -542,6 +545,32 @@ std::string WTransform::jsValue() const
   ss << Utils::round_js_str(m_[4], 3, buf) << ',';
   ss << Utils::round_js_str(m_[5], 3, buf) << ']';
   return ss.str();
+}
+
+void WTransform::assignFromJSON(const Json::Value &value)
+{
+  try {
+#ifndef WT_TARGET_JAVA
+    const Json::Array &ar = value;
+#else
+    const Json::Array &ar = static_cast<Json::Array&>(value);
+#endif
+    if (ar.size() == 6 &&
+	!ar[0].toNumber().isNull() &&
+	!ar[1].toNumber().isNull() &&
+	!ar[2].toNumber().isNull() &&
+	!ar[3].toNumber().isNull() &&
+	!ar[4].toNumber().isNull() &&
+	!ar[5].toNumber().isNull()) {
+      for (std::size_t i = 0; i < 6; ++i) {
+	m_[i] = ar[i].toNumber().orIfNull(m_[i]);
+      }
+    } else {
+      LOG_ERROR("Couldn't convert JSON to WTransform");
+    }
+  } catch (std::exception &e) {
+    LOG_ERROR("Couldn't convert JSON to WTransform: " + std::string(e.what()));
+  }
 }
 
 }

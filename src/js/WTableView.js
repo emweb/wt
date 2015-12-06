@@ -83,6 +83,11 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
+   function isSelected(item) {
+     var $t = $(item.el);
+     return $t.hasClass(selectedClass);
+   }
+
    function getItem(event) {
      var columnId = -1, rowIdx = -1, selected = false,
          drop = false, ele = null;
@@ -175,13 +180,44 @@ WT_DECLARE_WT_MEMBER
      self.autoJavaScript();
    }
 
+   var startDrag = null;
+
    this.mouseDown = function(obj, event) {
      WT.capture(null);
 
      var item = getItem(event);
-     if (el.getAttribute('drag') === 'true' && item.selected)
-       APP._p_.dragStart(el, event);
+
+     if (!event.ctrlKey && !event.shiftKey) {
+       /*
+	* For IE, there is only global event object which does not survive
+	* the event lifetime
+	*/
+       var e = {
+         ctrlKey: event.ctrlKey,
+	 shiftKey: event.shiftKey,
+	 target: event.target,
+	 srcElement: event.srcElement,
+	 type: event.type,
+	 which: event.which,
+	 touches: event.touches,
+	 changedTouches: event.changedTouches,
+	 pageX: event.pageX,
+	 pageY: event.pageY,
+	 clientX: event.clientX,
+	 clientY: event.clientY
+       };
+
+       startDrag = setTimeout(function() {
+	 if (el.getAttribute('drag') === 'true' && isSelected(item)) {
+	   APP._p_.dragStart(el, e);
+	 }
+       }, 400);
+     }
    };
+
+   this.mouseUp = function(obj, event) {
+     clearTimeout(startDrag);
+   }
 
    this.resizeHandleMDown = function(obj, event) {
      var header = obj.parentNode,

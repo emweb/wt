@@ -425,6 +425,16 @@ void WAbstractMedia::setAlternativeContent(WWidget *alternative)
     addChild(alternative_);
 }
 
+void WAbstractMedia::enableAjax() 
+{
+  WWebWidget::enableAjax();
+  if(flags_ & Autoplay) {
+	// chrome stops playing as soon as the widget tree is changed
+	// We therefore restart the play manually
+	play();
+  }
+}	
+
 WAbstractMedia::Source::Source(WAbstractMedia *parent,
 			       const WLink& link, const std::string &type,
 			       const std::string &media)
@@ -448,3 +458,4 @@ void WAbstractMedia::Source::resourceChanged()
   parent->sourcesChanged_ = true;
   parent->repaint();
 }
+

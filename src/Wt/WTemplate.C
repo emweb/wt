@@ -482,7 +482,7 @@ void WTemplate::updateDom(DomElement& element, bool all)
       }
     }
 
-    if (!encodeTemplateText_)
+    if (encodeTemplateText_)
       element.setProperty(Wt::PropertyInnerHTML, html.str());
     else
       element.setProperty(Wt::PropertyInnerHTML, encode(html.str()));

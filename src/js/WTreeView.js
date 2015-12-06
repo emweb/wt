@@ -97,7 +97,7 @@ WT_DECLARE_WT_MEMBER
 	      '', 'clicked', '', '');
    };
 
-   this.rootDblclick = function(obj, event) {
+   this.rootDblClick = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
 	      '', 'dblclicked', '', '');
    };

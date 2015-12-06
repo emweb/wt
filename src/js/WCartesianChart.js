@@ -28,15 +28,28 @@ WT_DECLARE_WT_MEMBER
  function(APP, widget, target, config) {
    var ANIMATION_INTERVAL = 17;
    var rqAnimFrame = (function(){
-      return window.requestAnimationFrame       ||
-	     window.webkitRequestAnimationFrame ||
-	     window.mozRequestAnimationFrame    ||
-             function(callback) {
-		window.setTimeout(callback, ANIMATION_INTERVAL);
-	     };
-   })();
+	 return window.requestAnimationFrame       ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame    ||
+		function(callback) {
+		   window.setTimeout(callback, ANIMATION_INTERVAL);
+		};
+      })();
+   var framePending = false;
+   var rqAnimFrameThrottled = function(cb) {
+      if (framePending) return;
+      framePending = true;
+      rqAnimFrame(function() {
+	 cb();
+	 framePending = false;
+      });
+   };
 
-   target.canvas.style.msTouchAction = 'none';
+   if (window.MSPointerEvent || window.PointerEvent) {
+      widget.style.touchAction = 'none';
+      target.canvas.style.msTouchAction = 'none';
+      target.canvas.style.touchAction = 'none';
+   }
 
    var MOVE_TO = 0, LINE_TO = 1, CUBIC_C1 = 2, CUBIC_C2 = 3, CUBIC_END = 4,
        QUAD_C = 5, QUAD_END = 6, ARC_C = 7, ARC_R = 8, ARC_ANGLE_SWEEP = 9;
@@ -44,6 +57,11 @@ WT_DECLARE_WT_MEMBER
    var X_ONLY = 1, Y_ONLY = 2; // bit flags
    var X = 0, Y = 1;
    var LOOK_MODE = 0, CROSSHAIR_MODE = 1;
+   var WHEEL_ZOOM_X = 0, WHEEL_ZOOM_Y = 1, WHEEL_ZOOM_XY = 2,
+       WHEEL_ZOOM_MATCHING = 3, WHEEL_PAN_X = 4, WHEEL_PAN_Y = 5,
+       WHEEL_PAN_MATCHING = 6;
+
+   var touchHandlers = {};
 
    function showCrosshair() {
       return config.crosshair || config.followCurve !== -1;
@@ -56,7 +74,7 @@ WT_DECLARE_WT_MEMBER
 
    var pointerActive = false;
 
-   if (!window.TouchEvent && (window.MSPointerEvent || window.PointerEvent)) {
+   if (window.MSPointerEvent || window.PointerEvent) {
       (function(){
 	 pointers = []
 
@@ -74,7 +92,7 @@ WT_DECLARE_WT_MEMBER
 	    pointers.push(event);
 
 	    updatePointerActive();
-	    self.touchStart(widget, {touches:pointers.slice(0)});
+	    touchHandlers.start(widget, {touches:pointers.slice(0)});
 	 }
 
 	 function pointerUp(event) {
@@ -90,7 +108,7 @@ WT_DECLARE_WT_MEMBER
 	    }
 
 	    updatePointerActive();
-	    self.touchEnd(widget, {touches:pointers.slice(0),changedTouches:[]});
+	    touchHandlers.end(widget, {touches:pointers.slice(0),changedTouches:[]});
 	 }
 
 	 function pointerMove(event) {
@@ -105,7 +123,7 @@ WT_DECLARE_WT_MEMBER
 	    }
 
 	    updatePointerActive();
-	    self.touchMoved(widget, {touches:pointers.slice(0)});
+	    touchHandlers.moved(widget, {touches:pointers.slice(0)});
 	 }
 
 	 var o = jQuery.data(widget, 'eobj');
@@ -205,6 +223,7 @@ WT_DECLARE_WT_MEMBER
 	 return mult([1,0,0,-1,l,b], mult(transform(X), mult(transform(Y), [1,0,0,-1,-l,b])));
       }
    }
+   target.combinedTransform = combinedTransform;
 
    function transformedChartArea() {
       return mult(combinedTransform(), config.area);
@@ -251,19 +270,27 @@ WT_DECLARE_WT_MEMBER
       }
    }
 
+   function isAscending(axis, series) {
+      return series[0][axis] < series[series.length-1][axis];
+   }
+
    function findClosestPoint(x, series) {
       var axis = X;
       if (config.isHorizontal) {
 	 axis = Y;
       }
-      var i = binarySearch(x, series);
+      var ascending = isAscending(axis, series);
+      var i = binarySearch(x, series, ascending);
       if (i < 0) i = 0;
+      if (i >= series.length) return [series[series.length-1][X], series[series.length-1][Y]];
       if (i >= series.length) i = series.length - 2;
       if (series[i][axis] === x) return [series[i][X],series[i][Y]];
-      var next_i = i+1;
-      if (series[next_i][2] == CUBIC_C1) next_i += 2;
-      var d1 = x - series[i][axis];
-      var d2 = series[next_i][axis] - x;
+      var next_i = ascending ? i+1 : i-1;
+      if (ascending && series[next_i][2] == CUBIC_C1) next_i += 2;
+      if (!ascending && next_i < 0) return [series[i][X],series[i][Y]];
+      if (!ascending && next_i > 0 && series[next_i][2] == CUBIC_C2) next_i -= 2;
+      var d1 = Math.abs(x - series[i][axis]);
+      var d2 = Math.abs(series[next_i][axis] - x);
       if (d1 < d2) {
 	 return [series[i][X],series[i][Y]];
       } else {
@@ -275,39 +302,42 @@ WT_DECLARE_WT_MEMBER
    // with X coordinate nearest to the given x,
    // and smaller than the given x, and return
    // its index in the given series.
-   function binarySearch(x, series) {
+   function binarySearch(x, series, ascending) {
       var axis = X;
       if (config.isHorizontal) axis = Y;
+      var len = series.length;
+      function s(i) {
+	 if (ascending) return series[i];
+	 else return series[len - 1 - i];
+      }
       // Move back to a non-control point.
       function moveBack(i) {
-	 if (series[i][2] === CUBIC_C2) --i;
-	 if (series[i][2] === CUBIC_C1) --i;
+	 while (s(i)[2] === CUBIC_C1 || s(i)[2] === CUBIC_C2) i --;
 	 return i;
       }
-      var len = series.length;
       var i = Math.floor(len / 2);
       i = moveBack(i);
       var lower_bound = 0;
       var upper_bound = len;
       var found = false;
-      if (series[0][axis] > x) return -1;
-      if (series[len-1][axis] < x) return len;
+      if (s(0)[axis] > x) return ascending ? -1 : len;
+      if (s(len-1)[axis] < x) return ascending ? len : -1;
       while (!found) {
 	 var next_i = i + 1;
-	 if (series[next_i][2] === CUBIC_C1) {
+	 if (s(next_i)[2] === CUBIC_C1 || s(next_i)[2] === CUBIC_C2) {
 	    next_i += 2;
 	 }
-	 if (series[i][axis] > x) {
+	 if (s(i)[axis] > x) {
 	    upper_bound = i;
 	    i = Math.floor((upper_bound + lower_bound) / 2);
 	    i = moveBack(i);
 	 } else {
-	    if (series[i][axis] === x) {
+	    if (s(i)[axis] === x) {
 	       found = true;
 	    } else {
-	       if (series[next_i][axis] > x) {
+	       if (s(next_i)[axis] > x) {
 		  found = true;
-	       } else if (series[next_i][axis] === x) {
+	       } else if (s(next_i)[axis] === x) {
 		  i = next_i;
 		  found = true;
 	       } else {
@@ -318,8 +348,9 @@ WT_DECLARE_WT_MEMBER
 	    }
 	 }
       }
-      return i;
+      return ascending ? i : len - 1 - i;
    }
+   this.bSearch = binarySearch;
 
    function notifyAreaChanged() {
       var u,v;
@@ -344,7 +375,7 @@ WT_DECLARE_WT_MEMBER
 
    function repaint() {
       if (!paintEnabled) return;
-      rqAnimFrame(function(){
+      rqAnimFrameThrottled(function(){
 	 target.repaint();
 	 if (showCrosshair()) {
 	    repaintOverlay();
@@ -397,7 +428,8 @@ WT_DECLARE_WT_MEMBER
       var textY = p[1].toFixed(2);
       if (textX == '-0.00') textX = '0.00';
       if (textY == '-0.00') textY = '0.00';
-      ctx.fillText("("+textX+","+textY+")", right(config.area) - 5, top(config.area) + 5);
+      ctx.fillText("("+textX+","+textY+")", right(config.area) - config.coordinateOverlayPadding[0],
+	    top(config.area) + config.coordinateOverlayPadding[1]);
       
       if (ctx.setLineDash) {
 	 ctx.setLineDash([1,2]);
@@ -502,7 +534,7 @@ WT_DECLARE_WT_MEMBER
 
 	 if (showCrosshair() && paintEnabled) {
 	    crosshair = [c.x,c.y];
-	    rqAnimFrame(repaintOverlay);
+	    rqAnimFrameThrottled(repaintOverlay);
 	 }
       }, 0);
    }
@@ -550,7 +582,10 @@ WT_DECLARE_WT_MEMBER
 	 c.style.display = 'block';
 	 c.style.left = '0';
 	 c.style.top = '0';
-	 c.style.msTouchAction = 'none';
+	 if (window.MSPointerEvent || window.PointerEvent) {
+	    c.style.msTouchAction = 'none';
+	    c.style.touchAction = 'none';
+	 }
 	 target.canvas.parentNode.appendChild(c);
 	 overlay = c;
 	 jQuery.data(widget, 'oobj', overlay);
@@ -568,28 +603,42 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.mouseWheel = function(o, event) {
+      var modifiers = (event.metaKey << 3) + (event.altKey << 2) + (event.ctrlKey << 1) + event.shiftKey;
+      var action = config.wheelActions[modifiers];
+      if (action === undefined) return;
+
       var c = WT.widgetCoordinates(target.canvas, event);
       if (!isPointInRect(c, config.area)) return;
       var w = WT.normalizeWheel(event);
-      if (!event.ctrlKey && config.pan) {
+      if ((action === WHEEL_PAN_X || action === WHEEL_PAN_Y || action === WHEEL_PAN_MATCHING) && config.pan) {
 	 var xBefore = transform(X)[4];
 	 var yBefore = transform(Y)[5];
-	 translate({x:-w.pixelX,y:-w.pixelY});
+	 if (action === WHEEL_PAN_MATCHING)
+	    translate({x:-w.pixelX,y:-w.pixelY});
+	 else if (action === WHEEL_PAN_Y)
+	    translate({x:0,y:-w.pixelX - w.pixelY});
+	 else if (action === WHEEL_PAN_X)
+	    translate({x:-w.pixelX - w.pixelY,y:0});
 	 if (xBefore !== transform(X)[4] ||
 	     yBefore !== transform(Y)[5]) {
 	    WT.cancelEvent(event);
 	 }
-      } else if (event.ctrlKey && config.zoom) {
+      } else if (config.zoom) {
 	 WT.cancelEvent(event);
 	 var d = -w.spinY;
 	 // Some browsers scroll horizontally when shift key pressed
 	 if (d === 0) d = -w.spinX;
-	 if (event.shiftKey && !event.altKey) {
+	 if (action === WHEEL_ZOOM_Y) {
 	    zoom(c, 0, d);
-	 } else if (event.altKey && !event.shiftKey) {
+	 } else if (action === WHEEL_ZOOM_X) {
 	    zoom(c, d, 0);
-	 } else {
+	 } else if (action === WHEEL_ZOOM_XY) {
 	    zoom(c, d, d);
+	 } else if (action === WHEEL_ZOOM_MATCHING) {
+	    if (w.pixelX !== 0)
+	       zoom(c, d, 0);
+	    else
+	       zoom(c, 0, d);
 	 }
       }
    };
@@ -614,7 +663,7 @@ WT_DECLARE_WT_MEMBER
 
    var CROSSHAIR_RADIUS = 30;
 
-   this.touchStart = function(o, event) {
+   touchHandlers.start = function(o, event) {
       singleTouch = event.touches.length === 1;
       doubleTouch = event.touches.length === 2;
 
@@ -789,7 +838,7 @@ WT_DECLARE_WT_MEMBER
       }
    }
 
-   this.touchEnd = function(o, event) {
+   touchHandlers.end = function(o, event) {
       var touches = Array.prototype.slice.call(event.touches);
 
       var noTouch = touches.length === 0;
@@ -818,6 +867,7 @@ WT_DECLARE_WT_MEMBER
       doubleTouch = touches.length === 2;
 
       if (noTouch) {
+	 moveTimeout = null;
 	 if (mode === LOOK_MODE && (isFinite(v.x) || isFinite(v.y)) && config.rubberBand) {
 	    lastDate = Date.now();
 	    animating = true;
@@ -835,127 +885,126 @@ WT_DECLARE_WT_MEMBER
 	 }
 	 mode = null;
       } else if (singleTouch || doubleTouch)
-	 self.touchStart(o, event);
+	 touchHandlers.start(o, event);
    };
 
-   this.touchMoved = function(o, event) {
-     if ( (!singleTouch) && (!doubleTouch) ) {
-       return;
-     }
+   var moveTimeout = null;
+   var c1 = null;
+   var c2 = null;
 
-     if (singleTouch) {
-	if (dragPreviousXY === null) return;
-	var c = WT.widgetCoordinates(target.canvas, event.touches[0]);
-	var now = Date.now();
-	var d = {
-	   x: c.x - dragPreviousXY.x,
-	   y: c.y - dragPreviousXY.y
-	};
-	var dt = now - lastDate;
-	lastDate = now;
-	if (mode === CROSSHAIR_MODE) {
-	   crosshair[X] += d.x;
-	   crosshair[Y] += d.y;
-	   if (showCrosshair() && paintEnabled) {
-	      rqAnimFrame(repaintOverlay);
+   touchHandlers.moved = function(o, event) {
+      if ( (!singleTouch) && (!doubleTouch) ) {
+        return;
+      }
+      if (singleTouch && dragPreviousXY == null) return;
+      if (event.preventDefault) event.preventDefault();
+      c1 = WT.widgetCoordinates(target.canvas, event.touches[0]);
+      if (event.touches.length > 1)
+	 c2 = WT.widgetCoordinates(target.canvas, event.touches[1]);
+      // setTimeout prevents high animation velocity due to looking
+      // at events that are further apart.
+      if (!moveTimeout) moveTimeout = setTimeout(function(){
+	if (singleTouch) {
+	   var c = c1;
+	   var now = Date.now();
+	   var d = {
+	      x: c.x - dragPreviousXY.x,
+	      y: c.y - dragPreviousXY.y
+	   };
+	   var dt = now - lastDate;
+	   lastDate = now;
+	   if (mode === CROSSHAIR_MODE) {
+	      crosshair[X] += d.x;
+	      crosshair[Y] += d.y;
+	      if (showCrosshair() && paintEnabled) {
+		 rqAnimFrame(repaintOverlay);
+	      }
+	   } else if (config.pan) {
+	      v.x = d.x / dt;
+	      v.y = d.y / dt;
+	      translate(d, config.rubberBand ? DAMPEN : 0);
 	   }
-	} else if (config.pan) {
-	   if (c.x < config.area[0] || c.x > config.area[0] + config.area[2]) {
-	      v = {x:0,y:0};
-	      return;
+	   dragPreviousXY = c;
+	} else if (doubleTouch && config.zoom) {
+	   var crosshairBefore = toModelCoord(crosshair);
+	   var mxBefore = (touches[0][0] + touches[1][0]) / 2;
+	   var myBefore = (touches[0][1] + touches[1][1]) / 2;
+	   var newTouches = [ c1, c2 ].map(function(t){
+	      if (zoomAngle === 0) {
+		 return [t.x, myBefore];
+	      } else if (zoomAngle === Math.PI / 2) {
+		 return [mxBefore, t.y];
+	      } else {
+		 return mult(zoomProjection,[t.x,t.y]);
+	      }
+	   });
+
+	   var dxBefore = Math.abs(touches[1][0] - touches[0][0]);
+	   var dxAfter = Math.abs(newTouches[1][0] - newTouches[0][0]);
+	   var xScale = dxBefore > 0 ? dxAfter / dxBefore : 1;
+	   if (dxAfter === dxBefore || zoomAngle === Math.PI / 2) {
+	      xScale = 1;
 	   }
-	   if (c.y < config.area[1] || c.y > config.area[1] + config.area[3]) {
-	      v = {x:0,y:0};
-	      return;
+	   var mxAfter = (newTouches[0][0] + newTouches[1][0]) / 2;
+	   var dyBefore = Math.abs(touches[1][1] - touches[0][1]);
+	   var dyAfter = Math.abs(newTouches[1][1] - newTouches[0][1]);
+	   var yScale = dyBefore ? dyAfter / dyBefore : 1;
+	   if (dyAfter === dyBefore || zoomAngle === 0) {
+	      yScale = 1;
 	   }
-	   v.x = d.x / dt;
-	   v.y = d.y / dt;
-	   translate(d, config.rubberBand ? DAMPEN : 0);
-	}
-	if (event.preventDefault) event.preventDefault();
-	dragPreviousXY = c;
-     } else if (doubleTouch && config.zoom) {
-	if (event.preventDefault) event.preventDefault();
-	var crosshairBefore = toModelCoord(crosshair);
-	var mxBefore = (touches[0][0] + touches[1][0]) / 2;
-	var myBefore = (touches[0][1] + touches[1][1]) / 2;
-	var newTouches = [
-	   WT.widgetCoordinates(target.canvas,event.touches[0]),
-	   WT.widgetCoordinates(target.canvas,event.touches[1])
-	].map(function(t){
-	   if (zoomAngle === 0) {
-	      return [t.x, myBefore];
-	   } else if (zoomAngle === Math.PI / 2) {
-	      return [mxBefore, t.y];
-	   } else {
-	      return mult(zoomProjection,[t.x,t.y]);
+	   var myAfter = (newTouches[0][1] + newTouches[1][1]) / 2;
+
+	   if (config.isHorizontal) {
+	      (function() {
+		var tmp = xScale;
+		xScale = yScale;
+		yScale = tmp;
+		tmp = mxAfter;
+		mxAfter = myAfter;
+		myAfter = tmp;
+		tmp = mxBefore;
+		mxBefore = myBefore;
+		myBefore = tmp;
+	      })();
 	   }
-	});
 
-	var dxBefore = Math.abs(touches[1][0] - touches[0][0]);
-	var dxAfter = Math.abs(newTouches[1][0] - newTouches[0][0]);
-	var xScale = dxBefore > 0 ? dxAfter / dxBefore : 1;
-	if (dxAfter === dxBefore || zoomAngle === Math.PI / 2) {
-	   xScale = 1;
-	}
-	var mxAfter = (newTouches[0][0] + newTouches[1][0]) / 2;
-	var dyBefore = Math.abs(touches[1][1] - touches[0][1]);
-	var dyAfter = Math.abs(newTouches[1][1] - newTouches[0][1]);
-	var yScale = dyBefore ? dyAfter / dyBefore : 1;
-	if (dyAfter === dyBefore || zoomAngle === 0) {
-	   yScale = 1;
-	}
-	var myAfter = (newTouches[0][1] + newTouches[1][1]) / 2;
+	   if (transform(X)[0] * xScale > config.maxZoom[X]) {
+	      xScale = config.maxZoom[X] / transform(X)[0];
+	   }
+	   if (transform(Y)[3] * yScale > config.maxZoom[Y]) {
+	      yScale = config.maxZoom[Y] / transform(Y)[3];
+	   }
+	   if (xScale !== 1 &&
+		 (xScale < 1.0 || transform(X)[0] !== config.maxZoom[X])) {
+	      assign(transform(X),
+		mult(
+		   [xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
+		   transform(X)
+		 )
+	      );
+	   }
+	   if (yScale !== 1 &&
+		 (yScale < 1.0 || transform(Y)[3] !== config.maxZoom[Y])) {
+	      assign(transform(Y),
+		mult(
+		   [1,0,0,yScale,0,-yScale*myBefore+myAfter],
+		   transform(Y)
+		 )
+	      );
+	   }
+	   enforceLimits();
 
-	if (config.isHorizontal) {
-	   (function() {
-	     var tmp = xScale;
-	     xScale = yScale;
-	     yScale = tmp;
-	     tmp = mxAfter;
-	     mxAfter = myAfter;
-	     myAfter = tmp;
-	     tmp = mxBefore;
-	     mxBefore = myBefore;
-	     myBefore = tmp;
-	   })();
-	}
+	   var crosshairAfter = toDisplayCoord(crosshairBefore);
+	   crosshair[X] = crosshairAfter[X];
+	   crosshair[Y] = crosshairAfter[Y];
 
-	if (transform(X)[0] * xScale > config.maxZoom[X]) {
-	   xScale = config.maxZoom[X] / transform(X)[0];
+	   touches = newTouches;
+	   refreshPenColors();
+	   repaint();
+	   notifyAreaChanged();
 	}
-	if (transform(Y)[3] * yScale > config.maxZoom[Y]) {
-	   yScale = config.maxZoom[Y] / transform(Y)[3];
-	}
-	if (xScale !== 1 &&
-	      (xScale < 1.0 || transform(X)[0] !== config.maxZoom[X])) {
-	   assign(transform(X),
-	     mult(
-		[xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
-		transform(X)
-	      )
-	   );
-	}
-	if (yScale !== 1 &&
-	      (yScale < 1.0 || transform(Y)[3] !== config.maxZoom[Y])) {
-	   assign(transform(Y),
-	     mult(
-		[1,0,0,yScale,0,-yScale*myBefore+myAfter],
-		transform(Y)
-	      )
-	   );
-	}
-	enforceLimits();
-
-        var crosshairAfter = toDisplayCoord(crosshairBefore);
-	crosshair[X] = crosshairAfter[X];
-	crosshair[Y] = crosshairAfter[Y];
-
-	touches = newTouches;
-	refreshPenColors();
-	repaint();
-	notifyAreaChanged();
-     }
+	moveTimeout = null;
+      }, 1);
    };
 
    function toZoomLevel(zoomFactor) {
@@ -1099,36 +1148,54 @@ WT_DECLARE_WT_MEMBER
       var p1 = toDisplayCoord([upperBound, 0], true);
       var axis = config.isHorizontal ? Y : X;
       var otherAxis = config.isHorizontal ? X : Y;
-      var i0 = binarySearch(p0[axis], series);
-      if (i0 < 0) {
-	 i0 = 0;
-      } else {
-	 i0 ++;
-	 if (series[i0][2] === CUBIC_C1) i0 += 2;
+      var ascending = isAscending(axis, series);
+      var i0 = binarySearch(p0[axis], series, ascending);
+      if (ascending) {
+	 if (i0 < 0) {
+	    i0 = 0;
+	 } else {
+	    i0 ++;
+	    if (series[i0][2] === CUBIC_C1) i0 += 2;
+	 }
+      } else if (i0 >= series.length - 1) {
+	 i0 = series.length - 2;
       }
-      var i_n = binarySearch(p1[axis], series);
+      var i_n = binarySearch(p1[axis], series, ascending);
+      if (!ascending && i_n < 0) {
+	 i_n = 0;
+      }
       var i, u, y, before_i0, after_i_n;
       var min_y = Infinity;
       var max_y = -Infinity;
-      for (i = i0; i <= i_n && i < series.length; ++i) {
+      for (i = Math.min(i0,i_n); i <= Math.max(i0,i_n) && i < series.length; ++i) {
 	 if (series[i][2] !== CUBIC_C1 && series[i][2] !== CUBIC_C2) {
 	    if (series[i][otherAxis] < min_y) min_y = series[i][otherAxis];
 	    if (series[i][otherAxis] > max_y) max_y = series[i][otherAxis];
 	 }
       }
-      if (i0 > 0) {
+      if (ascending && i0 > 0 || !ascending && i0 < series.length - 1) {
 	 // Interpolate on the lower X end
-	 before_i0 = i0 - 1;
-	 if (series[before_i0][2] === CUBIC_C2) before_i0 -= 2;
+	 if (ascending) {
+	    before_i0 = i0 - 1;
+	    if (series[before_i0][2] === CUBIC_C2) before_i0 -= 2;
+	 } else {
+	    before_i0 = i0 + 1;
+	    if (series[before_i0][2] === CUBIC_C1) before_i0 += 2;
+	 }
 	 u = (p0[axis] - series[before_i0][axis]) / (series[i0][axis] - series[before_i0][axis]);
 	 y = series[before_i0][otherAxis] + u * (series[i0][otherAxis] - series[before_i0][otherAxis]);
 	 if (y < min_y) min_y = y;
 	 if (y > max_y) max_y = y;
       }
-      if (i_n < series.length - 1) {
+      if (ascending && i_n < series.length - 1 || !ascending && i_n > 0) {
 	 // Interpolate on the upper X end
-	 after_i_n = i_n + 1;
-	 if (series[after_i_n][2] === CUBIC_C1) after_i_n += 2;
+	 if (ascending) {
+	    after_i_n = i_n + 1;
+	    if (series[after_i_n][2] === CUBIC_C1) after_i_n += 2;
+	 } else {
+	    after_i_n = i_n - 1;
+	    if (series[after_i_n][2] === CUBIC_C2) after_i_n -= 2;
+	 }
 	 u = (p1[axis] - series[i_n][axis]) / (series[after_i_n][axis] - series[i_n][axis]);
 	 y = series[i_n][otherAxis] + u * (series[after_i_n][otherAxis] - series[i_n][otherAxis]);
 	 if (y < min_y) min_y = y;
@@ -1182,4 +1249,15 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.updateConfig({});
+
+   if (window.TouchEvent && !window.MSPointerEvent && !window.PointerEvent) {
+      self.touchStart = touchHandlers.start;
+      self.touchEnd = touchHandlers.end;
+      self.touchMoved = touchHandlers.moved;
+   } else {
+      var nop = function(){};
+      self.touchStart = nop;
+      self.touchEnd = nop;
+      self.touchMoved = nop;
+   }
  });

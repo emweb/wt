@@ -141,7 +141,8 @@ EventSignal<WMouseEvent>& WInteractWidget::mouseDragged()
 
 EventSignal<WMouseEvent>& WInteractWidget::mouseWheel()
 {
-  if (WApplication::instance()->environment().agentIsIElt(9)) {
+  if (WApplication::instance()->environment().agentIsIElt(9) ||
+      WApplication::instance()->environment().agent() == WEnvironment::Edge) {
     return *mouseEventSignal(MOUSE_WHEEL_SIGNAL, true);
   } else {
     return *mouseEventSignal(WHEEL_SIGNAL, true);
@@ -625,6 +626,15 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
   }
 
   mouseWentDown().connect(*dragSlot_);
+}
+
+void WInteractWidget::unsetDraggable()
+{
+  if (dragSlot_) {
+    mouseWentDown().disconnect(*dragSlot_);
+    delete dragSlot_;
+    dragSlot_ = 0;
+  }
 }
 
 }

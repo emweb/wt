@@ -29,9 +29,8 @@ namespace Wt {
  *
  *  You can access (and modify) the value of a handle on the client side using jsRef().
  *
- *  You can update the value from the server with setValue(). Currently, changes
- *  made to the value on the client side are not synced back to the server, but
- *  support may be added for this in the future.
+ *  You can update the value from the server with setValue(). Changes on the
+ *  client side will be synced back to the server.
  *
  *  Currently, only WPaintedWidget allows the use of \link WJavaScriptExposableObject
  *  JavaScript exposable objects\endlink.
@@ -85,9 +84,6 @@ public:
   /*! \brief Returns the JavaScript representation of the object.
    *
    * You can access and modify the value of this handle through its jsRef().
-   *
-   * Changes on the client side are currently not synced back to the
-   * server, but support for this may be added in the future.
    *
    * \throw WException The handle is \link isValid() invalid\endlink
    */

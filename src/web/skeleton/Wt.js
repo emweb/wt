@@ -56,7 +56,7 @@ this.condCall = function(o, f, a) {
 this.buttons = 0;
 
 // button last released (for reporting in IE's click event)
-var lastButtonUp = 0, mouseDragging = false;
+var lastButtonUp = 0, mouseDragging = 0;
 
 // returns the button associated with the event (0 if none)
 this.button = function(e)
@@ -116,17 +116,17 @@ this.mouseDown = function(e) {
 this.mouseUp = function(e) {
   lastButtonUp = WT.button(e);
   setTimeout(function() {
-    mouseDragging = false;
+    mouseDragging = 0;
     WT.buttons &= ~lastButtonUp;
   }, 5);
 };
 
 this.dragged = function(e) {
-  return mouseDragging;
+  return mouseDragging > 2;
 };
 
 this.drag = function(e) {
-  mouseDragging = true;
+  ++mouseDragging;
 };
 
 /**
@@ -1021,8 +1021,8 @@ var repeatT = null, repeatI = null;
 
 this.isDblClick = function(o, e) {
   if (o.wtClickTimeout &&
-      Math.abs(o.wtE1.clientX - e.clientX) < 2 &&
-      Math.abs(o.wtE1.clientY - e.clientY) < 2) {
+      Math.abs(o.wtE1.clientX - e.clientX) < 3 &&
+      Math.abs(o.wtE1.clientY - e.clientY) < 3) {
       clearTimeout(o.wtClickTimeout);
       o.wtClickTimeout = null; o.wtE1 = null;
       return true;
@@ -3005,8 +3005,10 @@ _$_$if_WEB_SOCKETS_$_();
 		return;
 	      }
 	    } else {
-	      if (connectionMonitor)
+	      if (connectionMonitor) {
 		connectionMonitor.onStatusChange('websocket', true);
+	    connectionMonitor.onStatusChange('connectionStatus', 1);
+		  }
               websocket.state = WebSocketWorking;
 	      js = event.data;
 	    }

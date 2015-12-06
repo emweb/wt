@@ -89,6 +89,7 @@ public:
     IE9 = 1004,                 //!< Internet Explorer 9
     IE10 = 1005,                //!< Internet Explorer 10
     IE11 = 1006,                //!< Internet Explorer 11
+    Edge = 1100,		//!< Edge
     Opera = 3000,               //!< Opera
     Opera10 = 3010,             //!< Opera 10 or later
     WebKit = 4000,              //!< WebKit
@@ -717,6 +718,8 @@ private:
   WEnvironment(WebSession *session);
 
   void init(const WebRequest& request);
+  void updateHostName(const WebRequest& request);
+  void updateUrlScheme(const WebRequest& request);
 #ifndef WT_TARGET_JAVA
   void parseSSLInfo(const std::string& json);
 #endif
