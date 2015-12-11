@@ -61,7 +61,7 @@ WT_DECLARE_WT_MEMBER
       c = self.childNodes[j];
 
       if (isProperChild(c)) {
-	if (!WT.isHidden(c)) {
+	if (!WT.isHidden(c) && !$(c).hasClass("out")) {
 	  if (hdefined) {
 	    var ch = h - marginV(c);
 	    if (ch > 0) {
@@ -216,13 +216,18 @@ WT_DECLARE_WT_MEMBER
        $to = $(to),
        h = stack.scrollHeight, w = stack.scrollWidth;
 
+     /* Remember original height, also used by layout managers to analyze
+      * the widget should it be a container with a layout manager */
+     to.nativeHeight = to.style.height;
+
      function restoreTo() {
        $to.removeClass(anim + ' in');
        to.style.position = '';
        to.style.left = '';
        to.style.width = '';
        to.style.top = '';
-       to.style.height = '';
+       to.style.height = to.nativeHeight;
+       to.nativeHeight = null;
        if (WT.isGecko && (effects & Fade))
          to.style.opacity = '1';
        to.style[WT.styleAttribute('animation-duration')] = '';

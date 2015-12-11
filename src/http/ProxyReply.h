@@ -31,6 +31,8 @@ public:
 			   Buffer::const_iterator end,
 			   Request::State state);
 
+  void closeClientSocket();
+
 protected:
   virtual std::string contentType();
   virtual ::int64_t contentLength();

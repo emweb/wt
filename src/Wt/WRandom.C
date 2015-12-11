@@ -45,6 +45,10 @@
 #include <boost/thread.hpp>
 #endif
 
+#ifndef USE_NDT_RANDOM_DEVICE
+#include <stdlib.h>
+#endif
+
 namespace {
   class RandomDevice
   {

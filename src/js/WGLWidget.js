@@ -29,7 +29,7 @@ WT_DECLARE_WT_MEMBER
    this.initialized = false;
    this.preloadingTextures = 0;
    this.preloadingBuffers = 0;
-   this.jsValues = [];
+   this.jsValues = {};
 
    this.discoverContext = function(noGLHandler, antialiasingEnabled) {
      if (canvas.getContext) {
@@ -317,16 +317,18 @@ WT_DECLARE_WT_MEMBER
    function encodeJSValues() {
      var obj = jQuery.data(canvas, 'obj');
      var str = '';
-     for (var index=0; index < obj.jsValues.length; index++) {
-       str += index + ':';
-       for (var i=0; i < obj.jsValues[index].length; i++) {
-	 str += obj.jsValues[index][i];
-	 if (i !== obj.jsValues[index].length - 1) {
-	   str += ',';
-	 } else {
-	   str += ';';
-	 }
-       }
+     for (var index in obj.jsValues) {
+	if (obj.jsValues.hasOwnProperty(index)) {
+	  str += index + ':';
+	  for (var i=0; i < obj.jsValues[index].length; i++) {
+	    str += obj.jsValues[index][i];
+	    if (i !== obj.jsValues[index].length - 1) {
+	      str += ',';
+	    } else {
+	      str += ';';
+	    }
+	  }
+        }
      }
      return str;
    }

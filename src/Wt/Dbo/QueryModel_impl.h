@@ -256,6 +256,17 @@ Result& QueryModel<Result>::resultRow(int row)
 }
 
 template <class Result>
+int QueryModel<Result>::indexOf(const Result& result) const
+{
+  for (int i = 0; i < rowCount(); ++i) {
+    if (resultRow(i) == result)
+      return i;
+  }
+
+  return -1;
+}
+
+template <class Result>
 void QueryModel<Result>::cacheRow(int row) const
 {
   if (row < cacheStart_

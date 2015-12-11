@@ -504,7 +504,7 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imgUri,
   makeNewGroup();
 
   WApplication *app = WApplication::instance();
-  std::string imageUri;
+  std::string imageUri = imgUri;
   if (app)
     imageUri = app->resolveRelativeUrl(imgUri);
 

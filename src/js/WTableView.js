@@ -317,7 +317,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    /* Handle TAB/SHIFT-TAB for cycling through editors in the right order */
-   el.onkeydown = function(e) {
+   this.onkeydown = function(e) {
      var event = e||window.event;
 
      var leftKey = 37,

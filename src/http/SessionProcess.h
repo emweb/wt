@@ -54,6 +54,8 @@ public:
   // Get the endpoint to connect to
   asio::ip::tcp::endpoint endpoint() const;
 
+  void closeClientSocket();
+
 private:
   void exec(const Configuration& config,
 	    boost::function<void (bool)> onReady);
@@ -64,6 +66,7 @@ private:
 		       boost::function<void (bool)> onReady);
 
   // Short-lived objects during startup
+  asio::io_service& io_service_;
   boost::shared_ptr<asio::ip::tcp::socket>   socket_;
   boost::shared_ptr<asio::ip::tcp::acceptor> acceptor_;
 

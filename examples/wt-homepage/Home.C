@@ -355,11 +355,17 @@ void Home::readReleases(WTable *releaseTable)
 
       std::string fileName = *i;
       std::string description = *(++i);
-      releaseTable->elementAt(row, 0)->addWidget
-	(new WText(href("http://prdownloads.sourceforge.net/witty/" 
-			+ fileName + "?download", description)));
       releaseTable->elementAt(row, 1)->addWidget(new WText(*(++i)));
       releaseTable->elementAt(row, 2)->addWidget(new WText(*(++i)));
+
+      ++i;
+      std::string url = "http://prdownloads.sourceforge.net/witty/" 
+	+ fileName + "?download";
+      if (i != tok.end())
+	url = *i;
+	
+      releaseTable->elementAt(row, 0)->addWidget
+	(new WText(href(url, description)));
 
       ++row;
     }

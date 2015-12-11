@@ -913,12 +913,18 @@ WT_DECLARE_WT_MEMBER
        if (container) {
 	 var pc = WT.css(container, 'position');
 
-	 if (pc === 'absolute')
-	   cSize = WT.pxself(container, DC.size);
+	 var sizedByAnimation = dir == 1 &&
+	       typeof container.nativeHeight !== 'undefined';
+
+	 if (pc === 'absolute') {
+	   if (sizedByAnimation) {
+	     cSize = WT.parsePx(container.nativeHeight);
+	   } else
+	     cSize = WT.pxself(container, DC.size);
+         }
 
 	 if (cSize === 0) {
 	   if (!DC.initialized) {
-
 	     if (dir === HORIZONTAL && (pc === 'absolute' || pc === 'fixed')) {
 	       /*
 		* On Chrome, somehow clientWidth is not reliable until
@@ -929,7 +935,8 @@ WT_DECLARE_WT_MEMBER
 	       container.style.display = '';
 	     }
 
-	     cSize = dir ? container.clientHeight : container.clientWidth;
+	     if (!sizedByAnimation)
+	       cSize = dir ? container.clientHeight : container.clientWidth;
 
 	     cClientSize = true;
 
@@ -1610,8 +1617,15 @@ WT_DECLARE_WT_MEMBER
 	 }
 
 	 var container = widget.parentNode;
-	 for (var i = 0; i < 2; ++i)
-	   DirConfig[i].sizeSet = WT.pxself(container, DirConfig[i].size) != 0;
+	 for (var i = 0; i < 2; ++i) {
+	    var sizedByAnimation = i == 1 &&
+	       typeof container.nativeHeight !== 'undefined';
+	   if (sizedByAnimation)
+	     DirConfig[i].sizeSet = WT.parsePx(container.nativeHeight) != 0;
+	   else
+	     DirConfig[i].sizeSet = WT.pxself(container, DirConfig[i].size)
+	       != 0;
+	 }
        }
    }
 

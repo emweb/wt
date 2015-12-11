@@ -7,6 +7,11 @@
 
 #include <boost/bind.hpp>
 
+#ifdef __linux__
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 #ifndef WT_WIN32
 #include <signal.h>
 #endif // WT_WIN32
@@ -21,7 +26,8 @@ namespace http {
 namespace server {
 
 SessionProcess::SessionProcess(asio::io_service &io_service)
-  : socket_(new asio::ip::tcp::socket(io_service)),
+  : io_service_(io_service),
+    socket_(new asio::ip::tcp::socket(io_service)),
     acceptor_(new asio::ip::tcp::acceptor(io_service)),
     port_(-1)
 #ifndef WT_WIN32
@@ -33,14 +39,24 @@ SessionProcess::SessionProcess(asio::io_service &io_service)
 #endif // WT_WIN32
 }
 
+void SessionProcess::closeClientSocket()
+{
+  if (socket_.get()) {
+    boost::system::error_code ignored_ec;
+    socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    socket_->close();
+    socket_.reset();
+  }
+  if (acceptor_.get()) {
+    acceptor_->cancel();
+    acceptor_->close();
+    acceptor_.reset();
+  }
+}
+
 void SessionProcess::stop()
 {
-  socket_.reset();
-  if(acceptor_.get()) {
-	acceptor_->cancel();
-	acceptor_->close();
-  }
-  acceptor_.reset();
+  closeClientSocket();
 #ifdef WT_WIN32
   if (processInfo_.hProcess != 0) {
     LOG_DEBUG("Closing handles to process " << processInfo_.dwProcessId);
@@ -99,10 +115,7 @@ void SessionProcess::readPortHandler(const boost::system::error_code& err,
 				     boost::function<void (bool)> onReady)
 {
   if (!err || err == asio::error::eof || err == asio::error::shut_down) {
-    boost::system::error_code ignored_ec;
-	socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-	socket_->close();
-    socket_.reset();
+    closeClientSocket();
     buf_[transferred] = '\0';
     port_ = atoi(buf_);
     LOG_DEBUG("Child is listening on port " << port_);
@@ -138,6 +151,8 @@ void SessionProcess::exec(const Configuration& config,
   ++i;
   c_options[i] = 0;
 
+  io_service_.notify_fork(boost::asio::io_service::fork_prepare);
+
   pid_ = fork();
   if (pid_ < 0) {
     LOG_ERROR("failed to fork dedicated session process, error code: " << errno);
@@ -147,15 +162,38 @@ void SessionProcess::exec(const Configuration& config,
     }
     return;
   } else if (pid_ == 0) {
+    /* child process */
+
+    /*
+     * CAREFUL! cannot use any library call here, since malloc(),
+     * etc... may dead-lock.
+     */
+
+#ifdef __linux__
+    /*
+     * Close all (possibly) open file descriptors.
+     * This could also work on other UNIX flavours...
+     */
+    struct rlimit l;
+    getrlimit(RLIMIT_NOFILE, &l);
+    for (unsigned i = 3; i < l.rlim_cur; ++i) {
+      close(i);
+    }
+#endif
+
 #ifdef WT_THREADED
     sigset_t mask;
     sigfillset(&mask);
     pthread_sigmask(SIG_UNBLOCK, &mask, 0);
 #endif // WT_THREADED
+    
 
     execv(c_options[0], const_cast<char *const *>(c_options));
     // An error occurred, this should not be reached
     exit(1);
+  } else {
+    /* parent process */
+    io_service_.notify_fork(boost::asio::io_service::fork_parent);
   }
 
   delete[] c_options;

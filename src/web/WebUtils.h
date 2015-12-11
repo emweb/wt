@@ -53,7 +53,7 @@ extern std::string lowerCase(const std::string& s);
 extern void sanitizeUnicode(EscapeOStream& sout, const std::string& text);
 
 // word manipulation (for style class editing)
-extern std::string eraseWord(const std::string& s, const std::string& w);
+extern std::string WT_API eraseWord(const std::string& s, const std::string& w);
 extern std::string addWord(const std::string& s, const std::string& w);
 
 // Fast integer to string in given buffer

@@ -763,6 +763,9 @@ void WTableView::defineJavaScript()
     /* Two-lines needed for WT_PORT */
     EventSignalBase& ccScrolled = contentsContainer_->scrolled();
     connectObjJS(ccScrolled, "onContentsContainerScroll");
+
+    EventSignalBase& cKeyDown = canvas_->keyWentDown();
+    connectObjJS(cKeyDown, "onkeydown");
   }
 }
 

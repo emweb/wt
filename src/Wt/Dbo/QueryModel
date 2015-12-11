@@ -195,6 +195,12 @@ public:
    */
   virtual Result& resultRow(int row);
 
+  /*! \brief Returns the index of row.
+   *
+   * If the row isn't contained in the model, returns -1.
+   */
+  int indexOf(const Result& row) const;
+
   /*! \brief Rereads the data from the database.
    *
    * This invalidates the current (cached) data and informs views that

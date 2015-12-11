@@ -227,11 +227,19 @@ IF(WIN32)
 
 ELSE(WIN32)
 
-  SET(RUNDIR "${CMAKE_INSTALL_PREFIX}/var/run/wt" CACHE PATH
-    "Default path for wt session management (only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
+  IF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
+    SET(CONFIG_PREFIX "")
+  ELSEIF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
+    SET(CONFIG_PREFIX "")
+  ELSE()
+    SET(CONFIG_PREFIX ${CMAKE_INSTALL_PREFIX})
+  ENDIF()
 
-  IF( NOT DEFINED CONFIGDIR )
-    SET(CONFIGDIR "${CMAKE_INSTALL_PREFIX}/etc/wt" CACHE STRING "Path for the configuration files")
+  SET(RUNDIR "${CONFIG_PREFIX}/var/run/wt" CACHE PATH
+    "Default path for wt session management (only used by FCGI connector)")
+
+  IF(NOT DEFINED CONFIGDIR)
+    SET(CONFIGDIR "${CONFIG_PREFIX}/etc/wt" CACHE STRING "Path for the configuration files")
   ENDIF( NOT DEFINED CONFIGDIR )
 
   # If the user specifies the standard CMAKE_PREFIX_PATH to find packages,
@@ -292,6 +300,7 @@ SET(SKIA_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Prefix of skia library (overrides USERLIB_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
+
 IF(CYGWIN)
   OPTION(BUILD_TESTS "Build Wt tests" OFF)
 ELSE(CYGWIN)

@@ -217,6 +217,14 @@ C *MetaDbo<C>::obj()
 }
 
 template <class C>
+int MetaDbo<C>::version() const
+{
+  const_cast<MetaDbo<C> *>(this)->obj(); // Load the object
+
+  return version_;
+}
+
+template <class C>
 MetaDbo<C>::MetaDbo(C *obj)
   : MetaDboBase(-1, New | NeedsSave, 0),
     obj_(obj),
