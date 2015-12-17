@@ -56,7 +56,8 @@ public:
       sessionId_(sessionId),
       timeout_(0),
       maximumResponseSize_(0),
-      responseSize_(0)
+      responseSize_(0),
+      aborted_(false)
   { }
 
   virtual ~Impl() { }
@@ -141,6 +142,8 @@ private:
   {
     /* Within strand */
 
+    aborted_ = true;
+
     try {
       if (socket().is_open()) {
 	boost::system::error_code ignored_ec;
@@ -187,7 +190,7 @@ private:
 
     cancelTimer();
 
-    if (!err) {
+    if (!err && !aborted_) {
       // Attempt a connection to the first endpoint in the list.
       // Each endpoint will be tried until we successfully establish
       // a connection.
@@ -212,7 +215,7 @@ private:
 
     cancelTimer();
 
-    if (!err) {
+    if (!err && !aborted_) {
       // The connection was successful. Do the handshake (SSL only)
       startTimer();
       asyncHandshake
@@ -236,7 +239,7 @@ private:
 
     cancelTimer();
 
-    if (!err) {
+    if (!err && !aborted_) {
       // The handshake was successful. Send the request.
       startTimer();
       asyncWriteRequest
@@ -596,6 +599,7 @@ private:
   Signal<boost::system::error_code, Message> done_;
   Signal<Message> headersReceived_;
   Signal<std::string> bodyDataReceived_;
+  bool aborted_;
 };
 
 class Client::TcpImpl : public Client::Impl
@@ -815,6 +819,11 @@ bool Client::request(Http::Method method, const std::string& url,
   WServer *server = 0;
 
   WApplication *app = WApplication::instance();
+
+  if(impl_.get()) {
+    LOG_ERROR("another request is in progress");
+    return false;
+  }
 
   if (app) {
     sessionId = app->sessionId();

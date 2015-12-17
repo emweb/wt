@@ -882,6 +882,8 @@ private:
   double mapToDevice(double value, int segment = 0) const;
 
   long long getDateNumber(Wt::WDateTime dt) const;
+  void setZoomFromClient(double zoom);
+  void setPanFromClient(double pan);
 
   friend class WCartesianChart;
   friend class WCartesian3DChart;

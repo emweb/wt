@@ -51,7 +51,7 @@ ProxyReply::~ProxyReply()
 
 void ProxyReply::closeClientSocket()
 {
-  if (socket_.get()) {
+  if (socket_) {
     boost::system::error_code ignored_ec;
     socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
     socket_->close();
@@ -92,7 +92,7 @@ void ProxyReply::writeDone(bool success)
     receive();
   }
 
-  if (more_) {
+  if (more_ && socket_) {
     asio::async_read(*socket_, responseBuf_,
 	asio::transfer_at_least(1),
 	connection()->strand().wrap(
@@ -114,16 +114,21 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
   endRequestBuf_ = end;
   state_ = state;
 
-
   if (sessionProcess_) {
-    // Connection with child already established, send request data
-    asio::async_write
-      (*socket_,
-       asio::buffer(beginRequestBuf_, endRequestBuf_ - beginRequestBuf_),
-       boost::bind(&ProxyReply::handleDataWritten,
-	    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	    asio::placeholders::error,
-	    asio::placeholders::bytes_transferred));
+    if (socket_) {
+      // Connection with child already established, send request data
+      asio::async_write
+	(*socket_,
+	 asio::buffer(beginRequestBuf_, endRequestBuf_ - beginRequestBuf_),
+	 boost::bind
+	 (&ProxyReply::handleDataWritten,
+	  boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+	  asio::placeholders::error,
+	  asio::placeholders::bytes_transferred));
+    } else {
+      /* Connection with child was closed */
+      error(service_unavailable);
+    }
   } else {
     // First connect to child process
     std::string sessionId = getSessionId();
@@ -160,11 +165,11 @@ void ProxyReply::connectToChild(bool success)
 {
   if (success) {
     socket_.reset(new asio::ip::tcp::socket(connection()->server()->service()));
-    socket_->async_connect(
-	sessionProcess_->endpoint(),
-	boost::bind(&ProxyReply::handleChildConnected,
-	    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	    asio::placeholders::error));
+    socket_->async_connect
+      (sessionProcess_->endpoint(),
+       boost::bind(&ProxyReply::handleChildConnected,
+		   boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+		   asio::placeholders::error));
   } else {
     error(service_unavailable);
   }
@@ -281,10 +286,11 @@ void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
       requestBuf_.consume(transferred);
       receive();
     } else {
-      asio::async_read_until(*socket_, responseBuf_, "\r\n",
-	  boost::bind(&ProxyReply::handleStatusRead,
-	    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	    asio::placeholders::error));
+      asio::async_read_until
+	(*socket_, responseBuf_, "\r\n", boost::bind
+	 (&ProxyReply::handleStatusRead,
+	  boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+	  asio::placeholders::error));
     }
   } else {
     LOG_ERROR("error sending data to child: " << ec.message());

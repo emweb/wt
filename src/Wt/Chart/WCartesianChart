@@ -956,8 +956,9 @@ protected:
    *   renderGrid(painter, axis(XAxis));
    *   renderGrid(painter, axis(Y1Axis));
    *   renderGrid(painter, axis(Y2Axis));
+   *   renderAxes(painter, Line);
    *   renderSeries(painter);
-   *   renderAxes(painter, Line | Labels);
+   *   renderAxes(painter, Labels);
    *   renderBorder(painter);
    *   renderLegend(painter);
    * }

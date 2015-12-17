@@ -1064,6 +1064,11 @@ void WAxis::setZoom(double zoom)
   zoomDirty_ = true;
 }
 
+void WAxis::setZoomFromClient(double zoom)
+{
+  zoom_ = zoom;
+}
+
 double WAxis::zoom() const
 {
   return zoom_;
@@ -1072,7 +1077,12 @@ double WAxis::zoom() const
 void WAxis::setPan(double pan)
 {
   set(pan_, pan);
-  zoomDirty_ = true;
+  panDirty_ = true;
+}
+
+void WAxis::setPanFromClient(double pan)
+{
+  pan_ = pan;
 }
 
 double WAxis::pan() const

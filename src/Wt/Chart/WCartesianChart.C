@@ -164,6 +164,10 @@ protected:
       it_(it)
   { }
 
+  static double crisp(double u) {
+    return std::floor(u) + 0.5;
+  }
+
   WPointF hv(const WPointF& p) {
     return chart_.hv(p);
   }
@@ -367,20 +371,28 @@ public:
     double left = topMid.x() - groupWidth_ / 2
       + group_ * width * (1 + chart_.barMargin());
 
+    bool nonZeroWidth = chart_.isInteractive() || crisp(left) != crisp(left + width);
+
     bar.moveTo(hv(left, topMid.y()));
-    bar.lineTo(hv(left + width, topMid.y()));
-    bar.lineTo(hv(left + width, bottomMid.y()));
+    if (nonZeroWidth) {
+      bar.lineTo(hv(left + width, topMid.y()));
+      bar.lineTo(hv(left + width, bottomMid.y()));
+    }
     bar.lineTo(hv(left, bottomMid.y()));
-    bar.closeSubPath();
+    if (nonZeroWidth) {
+      bar.closeSubPath();
+    }
 
     painter_.setShadow(series_.shadow());
 
     WCartesianChart &chart = const_cast<WCartesianChart &>(chart_);
     WTransform transform = chart.combinedTransform();
 
-    WBrush brush = WBrush(series_.brush());
-    SeriesIterator::setBrushColor(brush, xIndex, yIndex, BarBrushColorRole);
-    painter_.fillPath(transform.map(bar).crisp(), brush);
+    if (nonZeroWidth) {
+      WBrush brush = WBrush(series_.brush());
+      SeriesIterator::setBrushColor(brush, xIndex, yIndex, BarBrushColorRole);
+      painter_.fillPath(transform.map(bar), brush);
+    }
 
     painter_.setShadow(WShadow());
 
@@ -1153,11 +1165,11 @@ void WCartesianChart::setFormData(const FormData& formData)
 
   if (!axis(XAxis).zoomDirty_) {
     double z = xTransformHandle_.value().m11();
-    if (z != axis(XAxis).zoom()) axis(XAxis).setZoom(z);
+    if (z != axis(XAxis).zoom()) axis(XAxis).setZoomFromClient(z);
   }
   if (!axis(Y1Axis).zoomDirty_) {
     double z = yTransformHandle_.value().m22();
-    if (z != axis(Y1Axis).zoom()) axis(Y1Axis).setZoom(z);
+    if (z != axis(Y1Axis).zoom()) axis(Y1Axis).setZoomFromClient(z);
   }
   WPointF devicePan =
     WPointF(xTransformHandle_.value().dx() / xTransformHandle_.value().m11(),
@@ -1166,11 +1178,11 @@ void WCartesianChart::setFormData(const FormData& formData)
 		       axis(Y1Axis).mapFromDevice(-devicePan.y()));
   if (!axis(XAxis).panDirty_) {
     double x = modelPan.x();
-    if (x != axis(XAxis).pan()) axis(XAxis).setPan(x);
+    if (x != axis(XAxis).pan()) axis(XAxis).setPanFromClient(x);
   }
   if (!axis(Y1Axis).panDirty_) {
     double y = modelPan.y();
-    if (y != axis(Y1Axis).pan()) axis(Y1Axis).setPan(y);
+    if (y != axis(Y1Axis).pan()) axis(Y1Axis).setPanFromClient(y);
   }
 }
 
@@ -1636,7 +1648,17 @@ void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
   if (rect.isNull() || rect.isEmpty())
     rect = painter.window();
 
+  if (isInteractive()) {
+    xTransform_ = xTransformHandle_.value();
+    yTransform_ = yTransformHandle_.value();
+  }
+
   render(painter, rect);
+
+  if (isInteractive()) {
+    xTransform_ = WTransform();
+    yTransform_ = WTransform();
+  }
 }
 
 void WCartesianChart::setZoomAndPan()
@@ -1786,26 +1808,16 @@ void WCartesianChart::render(WPainter& painter, const WRectF& rectangle) const
   painter.save();
   painter.translate(rectangle.topLeft());
 
-  if (isInteractive()) {
-    xTransform_ = xTransformHandle_.value();
-    yTransform_ = yTransformHandle_.value();
-  }
-
   if (initLayout(rectangle, painter.device())) {
     renderBackground(painter);
     renderGrid(painter, axis(XAxis));
     renderGrid(painter, axis(Y1Axis));
     renderGrid(painter, axis(Y2Axis));
-    renderSeries(painter);              // render the data series
     renderAxes(painter, Line); // render the axes (lines)
+    renderSeries(painter);     // render the data series
     renderAxes(painter, Labels); // render the axes (labels)
     renderBorder(painter);
     renderLegend(painter);
-  }
-  
-  if (isInteractive()) {
-    xTransform_ = WTransform();
-    yTransform_ = WTransform();
   }
 
   painter.restore();
