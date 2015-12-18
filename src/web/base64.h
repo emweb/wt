@@ -59,9 +59,9 @@ namespace base64
   typedef unsigned uint32;
   typedef unsigned char uint8;
 
-  extern WT_API const char* to_table;
-  extern WT_API const char* to_table_end;
-  extern WT_API const char* from_table;
+  extern WT_API const unsigned char* to_table;
+  extern WT_API const unsigned char* to_table_end;
+  extern WT_API const unsigned char* from_table;
 
   template <class InputIterator, class OutputIterator>
   void encode(const InputIterator& begin, 
@@ -136,7 +136,7 @@ namespace base64
       chars=0;
       while((chars<4) && (it != end))
       {
-        uint8 c = static_cast<char>(*it);
+        uint8 c = static_cast<uint8>(*it);
         if (c == '=') break; // pad character marks the end of the stream
         ++it;
 
