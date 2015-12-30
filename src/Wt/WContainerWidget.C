@@ -741,31 +741,37 @@ void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
       parent.setWasEmpty(wasEmpty());
 
     if (transientImpl_) {
-      std::vector<int> orderedInserts;
-      std::vector<WWidget *>& ac = transientImpl_->addedChildren_;
+      for (;;) {
+	std::vector<int> orderedInserts;
+	std::vector<WWidget *>& ac = transientImpl_->addedChildren_;
 
-      for (unsigned i = 0; i < ac.size(); ++i)
-	orderedInserts.push_back(Utils::indexOf(*children_, ac[i]));
+	for (unsigned i = 0; i < ac.size(); ++i)
+	  orderedInserts.push_back(Utils::indexOf(*children_, ac[i]));
 
-      Utils::sort(orderedInserts);
+	Utils::sort(orderedInserts);
 
-      int addedCount = transientImpl_->addedChildren_.size();
-      int totalCount = children_->size();
-      int insertCount = 0;
-      for (unsigned i = 0; i < orderedInserts.size(); ++i) {
-	int pos = orderedInserts[i];
+	int addedCount = transientImpl_->addedChildren_.size();
+	int totalCount = children_->size();
+	int insertCount = 0;
+
+	transientImpl_->addedChildren_.clear();
+
+	for (unsigned i = 0; i < orderedInserts.size(); ++i) {
+	  int pos = orderedInserts[i];
 	
-	DomElement *c = (*children_)[pos]->createSDomElement(app);
+	  DomElement *c = (*children_)[pos]->createSDomElement(app);
 
-	if (pos + (addedCount - insertCount) == totalCount)
-	  parent.addChild(c);
-	else
-	  parent.insertChildAt(c, pos + firstChildIndex());
+	  if (pos + (addedCount - insertCount) == totalCount)
+	    parent.addChild(c);
+	  else
+	    parent.insertChildAt(c, pos + firstChildIndex());
 
-	++insertCount;
+	  ++insertCount;
+	}
+
+	if (transientImpl_->addedChildren_.empty())
+	  break;
       }
-
-      transientImpl_->addedChildren_.clear();
     }
   }
 

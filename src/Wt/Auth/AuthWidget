@@ -245,7 +245,7 @@ public:
 
   /*! \brief Creates a password prompt dialog.
    *
-   * This creates a dialog which prompts the user for his
+   * This creates a dialog 
    * password. The user is taken from the \p login object, which also
    * signals an eventual success using its Login::changed() signal.
    *
@@ -255,7 +255,16 @@ public:
 
   void attemptPasswordLogin();
 
+  /*! \brief Displays the error message.
+   *
+   * This method display an dialog showing the error
+   */
   virtual void displayError(const WString& error);
+  
+  /*! \brief Displays the info message.
+   *
+   * This method display an dialog showing the info
+   */
   virtual void displayInfo(const WString& message);
 
 protected:

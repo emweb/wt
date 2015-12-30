@@ -1309,9 +1309,7 @@ void WAbstractItemView::expandColumn(int columnid)
 void WAbstractItemView::handleClick(const WModelIndex& index,
 				    const WMouseEvent& event)
 {
-  bool doEdit = index.isValid() && 
-    (((editTriggers() & SelectedClicked) && isSelected(index)) ||
-     (editTriggers() & SingleClicked));
+  bool doEdit = index.isValid() && (editTriggers() & SingleClicked);
 
   if (doEdit)
     edit(index);
@@ -1332,8 +1330,14 @@ void WAbstractItemView::handleDoubleClick(const WModelIndex& index,
 void WAbstractItemView::handleMouseDown(const WModelIndex& index,
 					const WMouseEvent& event)
 {
+  bool doEdit = index.isValid() &&
+    (editTriggers() & SelectedClicked) && isSelected(index);
+
   if (index.isValid())
     selectionHandleClick(index, event.modifiers());
+
+  if (doEdit)
+    edit(index);
 
   mouseWentDown_.emit(index, event);
 }
