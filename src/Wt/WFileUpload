@@ -237,7 +237,7 @@ public:
    * \sa uploaded()
    * \sa WApplication::requestTooLarge()
    */
-  Signal< ::int64_t >& fileTooLarge() { return fileTooLarge_; }
+  JSignal< ::int64_t >& fileTooLarge() { return fileTooLarge_; }
 
   /*! \brief %Signal emitted when the user selected a new file.
    *
@@ -330,7 +330,7 @@ private:
 
   std::vector<Http::UploadedFile> uploadedFiles_;
 
-  Signal< ::int64_t > fileTooLarge_;
+  JSignal< ::int64_t > fileTooLarge_;
 
   Signal< ::uint64_t, ::uint64_t > dataReceived_;
 
@@ -354,9 +354,7 @@ protected:
   virtual void propagateSetEnabled(bool enabled);
 
 private:
-  void handleFileTooLarge(int fileSize);
-
-  JSignal< ::int64_t > tooLarge_;
+  void handleFileTooLarge(::int64_t fileSize);
 
 
   void onUploaded();

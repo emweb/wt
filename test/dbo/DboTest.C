@@ -2316,3 +2316,92 @@ BOOST_AUTO_TEST_CASE( dbo_test25 )
   }
 #endif // FIREBIRD
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test26 )
+{
+#ifndef SQLITE3  // sqlite3 ":memory:" does not share database between sessions
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  struct CheckExpected : Wt::WObject {
+    DboFixture& f_;
+    dbo::Session *session2_;
+
+    CheckExpected(DboFixture &f) : f_(f) {
+      session2_ = new dbo::Session();
+      session2_->setConnectionPool(*f_.connectionPool_);
+      session2_->mapClass<F>(SCHEMA "table_f");
+    }
+
+    virtual ~CheckExpected() {
+      delete session2_;
+    }
+
+    bool operator() (std::string &expected) {
+      {
+        dbo::Transaction t2(*session2_);
+        dbo::ptr<F> c = session2_->find<F>();
+        if (c->firstName != expected)
+          BOOST_ERROR(std::string("CheckExpected: firstName != expected, firstName: '") +
+              c->firstName + "', expected: '" + expected + "'");
+        else
+          BOOST_TEST_MESSAGE(std::string("CheckExpected OK: firstName: '") +
+              c->firstName + "', expected: '" + expected + "'");
+      }
+      return true;
+    }
+  } checkExpected(f);
+
+  {
+    dbo::Transaction t(*session_);
+
+    session_->add(new F("Alice",  "Kramden", "Female"));
+
+    dbo::Query< dbo::ptr<F> > query = session_->find<F>();
+    dbo::QueryModel< dbo::ptr<F> > *model
+      = new dbo::QueryModel< dbo::ptr<F> >();
+
+    model->setQuery(query);
+    model->addAllFieldsAsColumns();
+
+    BOOST_REQUIRE(model->columnCount() == 5);
+    BOOST_REQUIRE(model->rowCount() == 1);
+    t.commit();
+
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "Alice");
+
+    std::string ExpectedFirstName = "Alice";
+    BOOST_REQUIRE(checkExpected(ExpectedFirstName));
+
+    /*
+     * Set-up a handler to verify that updates are visible
+     * in a second session when model->dataChanged() is emitted
+     */
+    model->dataChanged().connect(boost::bind<bool>(boost::ref(checkExpected),
+          boost::ref(ExpectedFirstName)));
+
+    /*
+     * The setItemData() convenience method commits
+     * a transaction prior to emitting dataChanged()
+     */
+    ExpectedFirstName = "AliceTwo";
+    Wt::WAbstractItemModel::DataMap map;
+    map[Wt::EditRole] = ExpectedFirstName;
+    model->setItemData(model->index(0, 2), map);  // checkExpected() will be called
+
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == ExpectedFirstName);
+
+    /*
+     * The setData() should be equivalent to above setItemData() and
+     * commit a transaction prior to emitting dataChanged()
+     */
+    ExpectedFirstName = "AliceThree";
+    model->setData(0, 2, ExpectedFirstName);  // checkExpected() will be called
+
+    BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == ExpectedFirstName);
+
+    delete model;
+  }
+#endif // SQLITE3
+}

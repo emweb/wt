@@ -76,15 +76,16 @@ protected:
             << "._p_.update(null, '"
             << fileUpload_->uploaded().encodeCmd() << "', null, true);";
         } else {
-          o << "window.parent.postMessage("
-            << "{ fu: '" << fileUpload_->id() << "',"
+          o << " window.parent.postMessage("
+            << "JSON.stringify({ fu: '" << fileUpload_->id() << "',"
             << "  signal: '"
-            << fileUpload_->uploaded().encodeCmd() << "'}, '*');";
+            << fileUpload_->uploaded().encodeCmd() << "'}), '*');";
         }
       } else if (request.tooLarge()) {
         LOG_DEBUG("Resource handleRequest(): signaling file-too-large");
 
-        o << fileUpload_->tooLarge_.createCall();
+        std::string s = boost::lexical_cast<std::string>(request.tooLarge());
+        o << fileUpload_->fileTooLarge().createCall(s);
       }
     } else {
       LOG_DEBUG("Resource handleRequest(): no signal");
@@ -94,11 +95,8 @@ protected:
       "</script></head>"
       "<body onload=\"load();\"></body></html>";
 
-    if (request.tooLarge())
-      fileUpload_->tooLargeSize_ = request.tooLarge();
-    else
-      if (!files.empty())
-	fileUpload_->setFiles(files);
+    if (!request.tooLarge() && !files.empty())
+      fileUpload_->setFiles(files);
   }
 
 private:
@@ -118,14 +116,11 @@ const char *WFileUpload::UPLOADED_SIGNAL = "M_uploaded";
 WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
     textSize_(20),
-    fileTooLarge_(this),
+    fileTooLarge_(this, "fileTooLarge"),
     dataReceived_(this),
-    progressBar_(0),
-    tooLarge_(this, "tooLargeSignal"),
-    tooLargeSize_(0)
+    progressBar_(0)
 {
   setInline(true);
-  tooLarge_.connect(boost::bind(&WFileUpload::handleFileTooLarge, this, _1));
   create();
 }
 
@@ -181,7 +176,6 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
                   + fileUploadTarget_->url() + "';");
     if (flags_.test(BIT_UPLOADING)) {
       flags_.reset(BIT_UPLOADING);
-      tooLargeSize_ = dataExceeded;
       handleFileTooLarge(dataExceeded);
 
       WApplication *app = WApplication::instance();
@@ -237,7 +231,7 @@ EventSignal<>& WFileUpload::changed()
   return *voidEventSignal(CHANGE_SIGNAL, true);
 }
 
-void WFileUpload::handleFileTooLarge(int fileSize)
+void WFileUpload::handleFileTooLarge(::int64_t fileSize)
 {
   fileTooLarge().emit(fileSize);
 }
@@ -316,16 +310,19 @@ void WFileUpload::updateDom(DomElement& element, bool all)
 
     std::string command =
         "{"
-        "debugger; \n"
-        "var x = " WT_CLASS ".$('in" + id() + "') \n"
-        "  if (x.files != null) \n"
-        "    for (var i = 0; i < x.files.length; i++) { \n"
+        "var x = " WT_CLASS ".$('in" + id() + "');"
+        "  if (x.files != null) {"
+        "    for (var i = 0; i < x.files.length; i++) { "
         "      var f = x.files[i];"
-        "      if(f.size < " + maxFileSize + ") \n"
-        "         " + jsRef() + ".submit() \n"
-        "      else \n"
-        "         " + tooLarge_.createCall("f.size") +
-        " }};";
+        "      if(f.size < " + maxFileSize + ") { "
+        "         " + jsRef() + ".submit(); "
+        "      } else { "
+        "         " + fileTooLarge().createCall("f.size") +
+        "           }"
+        "    }"
+        "  } else "
+        "    " + jsRef() + ".submit(); "
+        " };";
 
     element.callJavaScript(command);
     flags_.reset(BIT_DO_UPLOAD);
@@ -446,13 +443,21 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
     form->addChild(input);
 
-    doJavaScript("window.addEventListener('message', function(event) {"
+    std::stringstream s;
+
+    doJavaScript("var f = function(event) {"
 		 """if (" + jsRef() + ".action.indexOf(event.origin) === 0) {"
-		 ""  "if (event.data.fu == '" + id() + "')"
+		 ""  "var data = JSON.parse(event.data);"
+		 ""  "if (data.fu == '" + id() + "')"
 		 +      app->javaScriptClass()
-		 +      "._p_.update(null, event.data.signal, null, true);"
+		 +      "._p_.update(null, data.signal, null, true);"
 		 """}"
-		 "}, false);");
+		 "};"
+		 "if (window.addEventListener) "
+		 """window.addEventListener('message', f, false);"
+		 "else "
+		 """window.attachEvent('onmessage', f);"
+		 );
   } else {
     result->setAttribute("type", "file");
     if (flags_.test(BIT_MULTIPLE))
