@@ -218,6 +218,24 @@ public:
    */
   Signal<WString>& sactivated() { return sactivated_; }
 
+  /*! \brief Enables the ability to have 'no currently selected' item.
+   *
+   * The setting may only be changed for a combo box (and not for a
+   * selection box). When enabled, the currentIndex() may be '-1' also
+   * when the combo box contains values. The user can however not
+   * select this option, it is thus only useful as a default value.
+   *
+   * By default, no selection is \c false for a combo-box and \c true
+   * for a selection box.
+   */
+  void setNoSelectionEnabled(bool enabled);
+
+  /*! \brief Returns whether 'no selection' is a valid state.
+   *
+   * \sa setNoSelectionEnabled()
+   */
+  bool noSelectionEnabled() const { return noSelectionEnabled_; }
+
 private:
   WAbstractItemModel *model_;
   int modelColumn_;
@@ -227,6 +245,7 @@ private:
   bool itemsChanged_;
   bool selectionChanged_;
   bool currentlyConnected_;
+  bool noSelectionEnabled_;
 
   std::vector<Wt::Signals::connection> modelConnections_;
 
@@ -254,6 +273,9 @@ protected:
   virtual bool isSelected(int index) const;
 
   friend class WSelectionBox;
+
+private:
+  void makeCurrentIndexValid();
 };
 
 }

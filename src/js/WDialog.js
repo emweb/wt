@@ -17,6 +17,11 @@ WT_DECLARE_WT_MEMBER
    var dsx, dsy;
    var x=-1, y=-1, w=-1, h=-1;
    var resizeBusy = false;
+   // Percentage size before it was recomputed by layout manager. (if it was
+   // set in %)
+   var percentageWidth = -1, percentageHeight = -1;
+   var calculatedPercentageWidth = -1, calculatedPercentageHeight = -1;
+   var width = -1;
 
    function newPos() {
      if (movedSignal) {
@@ -31,11 +36,12 @@ WT_DECLARE_WT_MEMBER
    }
 
    function newSize(neww, newh) {
-     if (!resizeBusy && resizedSignal) {
+     if (!resizeBusy) {
        if (neww != w || newh != h) {
-	 w = neww;
-	 h = newh;
-	 APP.emit(el, resizedSignal, w, h);
+         w = neww;
+         h = newh;
+         if (resizedSignal)
+          APP.emit(el, resizedSignal, w, h);
        }
      }
    }
@@ -101,6 +107,13 @@ WT_DECLARE_WT_MEMBER
      if ((el.style.display != 'none') && (el.style.visibility != 'hidden')) {
        var ws = WT.windowSize();
        var w = el.offsetWidth, h = el.offsetHeight;
+       if (percentageWidth != -1) {
+         centerX = true;
+       }
+
+       if (percentageHeight != -1) {
+         centerY = true;
+       }
 
        if (centerX) {
 	 el.style.left = Math.round((ws.x - w)/2
@@ -118,10 +131,13 @@ WT_DECLARE_WT_MEMBER
 	 el.style.visibility = 'visible';
        }
 
-       newPos();
+        newPos();
      }
    };
 
+   /*
+    * The dialog layout manager resizes the dialog
+    */
    function layoutResize(ignored, w, h) {
      if (el.style.position == '') {
        el.style.position = WT.isIE6 ? 'absolute' : 'fixed';
@@ -129,14 +145,50 @@ WT_DECLARE_WT_MEMBER
 
      el.style.visibility = 'visible';
 
+     var ws = WT.windowSize();
+
+     percentageHeight = WT.parsePct(el.style.height, percentageHeight);
+     percentageWidth = WT.parsePct(el.style.width, percentageWidth);
+
      el.style.height = Math.max(0, h) + 'px';
      el.style.width = Math.max(0, w) + 'px';
 
      newSize(w, h);
 
+
      self.centerDialog();
+
+     var precentWidthChanged = percentageWidth != -1;
+
+     var precentHeightChanged = percentageHeight != -1;
+
+     if (precentWidthChanged && precentHeightChanged) {
+       calculatedPercentageWidth = percentageWidthInPx();
+       calculatedPercentageHeight = percentageHeightInPx();
+       self.onresize(calculatedPercentageWidth,
+                     calculatedPercentageHeight, true);
+     } else if (precentWidthChanged) {
+       calculatedPercentageWidth = percentageWidthInPx();
+       self.onresize(calculatedPercentageWidth, h, true);
+     } else if (precentHeightChanged) {
+       calculatedPercentageHeight = percentageHeightInPx();
+       self.onresize(w, calculatedPercentageHeight, true);
+     }
    }
 
+   function percentageWidthInPx() {
+     var ws = WT.windowSize();
+     return (ws.x * percentageWidth / 100);
+   }
+
+   function percentageHeightInPx() {
+     var ws = WT.windowSize();
+     return (ws.y * percentageHeight / 100);
+   }
+
+   /*
+    * C++ dialog.resize() was called
+    */
    function wtResize(ignored, w, h) {
      if (w > 0)
        layoutContainer.style.width = w +
@@ -170,6 +222,9 @@ WT_DECLARE_WT_MEMBER
        el.style['zIndex'] = maxz + 1;
    };
 
+   /*
+    * The user resizes the dialog using the resize handle
+    */
    this.onresize = function(w, h, done) {
      centerX = centerY = false;
 

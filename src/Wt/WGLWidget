@@ -102,7 +102,7 @@ enum JsArrayType {
  * specialization of this class. The purpose of these functions is
  * to register what JavaScript code has to be executed to render a
  * scene. Through invocations of the WebGL functions documented below,
- * Wt records the JavaScript calls that have to be invoked in the
+ * %Wt records the JavaScript calls that have to be invoked in the
  * browser.
  * <ul>
  * <li><b>initializeGL()</b>: this function is executed after the GL
@@ -123,7 +123,7 @@ enum JsArrayType {
  *     and after the first initializeGL() invocation. Additional invocations
  *     may be triggered by calling repaint() with the RESIZE_GL flag.
  * <li><b>paintGL()</b>: this is the main scene drawing function. Through
- *     its execution, Wt records what has to be done to render a scene,
+ *     its execution, %Wt records what has to be done to render a scene,
  *     and it is executed every time that the scene is to be redrawn. You
  *     can use the VBO's and shaders prepared in the initializeGL() phase.
  *     Usually, this function sets uniforms and attributes, links
@@ -1564,8 +1564,16 @@ public:
   /*! \brief returns an paintdevice that can be used to paint a GL texture
    * 
    * If the client has a webGL enabled browser this function returns a
-   * WCanvasPaintDevice. If server-side rendering is used as fallback then
-   * this function returns a WRasterImage
+   * WCanvasPaintDevice.
+   *
+   * \if cpp
+   * If server-side rendering is used as fallback then
+   * this function returns a WRasterImage.
+   * \endif
+   * \if java
+   * If server-side rendering is used as fallback then
+   * this function returns a {@link WRasterPaintDevice}.
+   * \endif
    */
   WPaintDevice *createPaintDevice(const WLength& width,
 				  const WLength& height);
@@ -2884,7 +2892,7 @@ setClientSideMouseHandler("new " + mouseHandler + "(" + cameraMatrix.jsRef() + "
 
   /*! \brief Sets the content to be displayed when WebGL is not available.
    *
-   * If Wt cannot create a working WebGL context, this content will be
+   * If %Wt cannot create a working WebGL context, this content will be
    * shown to the user. This may be a text explanation, or a pre-rendered
    * image, or a video, a flash movie, ...
    *

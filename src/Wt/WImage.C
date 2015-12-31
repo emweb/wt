@@ -356,7 +356,9 @@ std::string WImage::updateAreaCoordsJSON() const
       }
     }
     js << "]";
-  }
+  } else
+    js << "null";
+
   return js.str();
 }
 

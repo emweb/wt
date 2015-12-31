@@ -66,19 +66,25 @@ protected:
 
     if (triggerUpdate || request.tooLarge()) {
       if (triggerUpdate) {
-	LOG_DEBUG("Resource handleRequest(): signaling uploaded");
+        LOG_DEBUG("Resource handleRequest(): signaling uploaded");
 
-	o << "window.parent.postMessage("
-	  << "{ fu: '" << fileUpload_->id() << "',"
-	  << "  signal: '"
-	  << fileUpload_->uploaded().encodeCmd() << "'}, '*');";
+        WEnvironment::UserAgent agent =
+            WApplication::instance()->environment().agent();
+        if (agent == WEnvironment::IE6 || agent == WEnvironment::IE7){
+          o << "window.parent."
+            << WApplication::instance()->javaScriptClass()
+            << "._p_.update(null, '"
+            << fileUpload_->uploaded().encodeCmd() << "', null, true);";
+        } else {
+          o << "window.parent.postMessage("
+            << "{ fu: '" << fileUpload_->id() << "',"
+            << "  signal: '"
+            << fileUpload_->uploaded().encodeCmd() << "'}, '*');";
+        }
       } else if (request.tooLarge()) {
-	LOG_DEBUG("Resource handleRequest(): signaling file-too-large");
+        LOG_DEBUG("Resource handleRequest(): signaling file-too-large");
 
-	o << "window.parent.postMessage("
-	  << "{ fu: '" << fileUpload_->id() << "',"
-	  << "  signal: '"
-	  << fileUpload_->fileTooLargeImpl().encodeCmd() << "'}, '*');";
+        o << fileUpload_->tooLarge_.createCall();
       }
     } else {
       LOG_DEBUG("Resource handleRequest(): no signal");
@@ -101,7 +107,6 @@ private:
 
 const char *WFileUpload::CHANGE_SIGNAL = "M_change";
 const char *WFileUpload::UPLOADED_SIGNAL = "M_uploaded";
-const char *WFileUpload::FILETOOLARGE_SIGNAL = "M_filetoolarge";
 
 /*
  * Supporting the file API:
@@ -116,10 +121,11 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
     fileTooLarge_(this),
     dataReceived_(this),
     progressBar_(0),
+    tooLarge_(this, "tooLargeSignal"),
     tooLargeSize_(0)
 {
   setInline(true);
-  fileTooLargeImpl().connect(this, &WFileUpload::handleFileTooLargeImpl);
+  tooLarge_.connect(boost::bind(&WFileUpload::handleFileTooLarge, this, _1));
   create();
 }
 
@@ -171,10 +177,12 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
   h->setRequest(0, 0); // so that triggerUpdate() will work
 
   if (dataExceeded) {
+    doJavaScript(WT_CLASS ".$('if" + id() + "').src='"
+                  + fileUploadTarget_->url() + "';");
     if (flags_.test(BIT_UPLOADING)) {
       flags_.reset(BIT_UPLOADING);
       tooLargeSize_ = dataExceeded;
-      handleFileTooLargeImpl();
+      handleFileTooLarge(dataExceeded);
 
       WApplication *app = WApplication::instance();
       app->triggerUpdate();
@@ -229,14 +237,9 @@ EventSignal<>& WFileUpload::changed()
   return *voidEventSignal(CHANGE_SIGNAL, true);
 }
 
-EventSignal<>& WFileUpload::fileTooLargeImpl()
+void WFileUpload::handleFileTooLarge(int fileSize)
 {
-  return *voidEventSignal(FILETOOLARGE_SIGNAL, true);
-}
-
-void WFileUpload::handleFileTooLargeImpl()
-{
-  fileTooLarge().emit(tooLargeSize_);
+  fileTooLarge().emit(fileSize);
 }
 
 void WFileUpload::setFileTextSize(int chars)
@@ -306,7 +309,25 @@ void WFileUpload::updateDom(DomElement& element, bool all)
     // Reset the action and generate a new URL for the target,
     // because the session id may have changed in the meantime
     element.setAttribute("action", fileUploadTarget_->generateUrl());
-    element.callMethod("submit()");
+
+    std::string maxFileSize =
+        boost::lexical_cast<std::string>(
+          WApplication::instance()->maximumRequestSize());
+
+    std::string command =
+        "{"
+        "debugger; \n"
+        "var x = " WT_CLASS ".$('in" + id() + "') \n"
+        "  if (x.files != null) \n"
+        "    for (var i = 0; i < x.files.length; i++) { \n"
+        "      var f = x.files[i];"
+        "      if(f.size < " + maxFileSize + ") \n"
+        "         " + jsRef() + ".submit() \n"
+        "      else \n"
+        "         " + tooLarge_.createCall("f.size") +
+        " }};";
+
+    element.callJavaScript(command);
     flags_.reset(BIT_DO_UPLOAD);
 
     if (containsProgress) {
@@ -480,13 +501,14 @@ void WFileUpload::upload()
 {
   if (fileUploadTarget_ && !flags_.test(BIT_UPLOADING)) {
     flags_.set(BIT_DO_UPLOAD);
+
     repaint();
 
     if (progressBar_) {
       if (progressBar_->parent() != this)
-	hide();
+  hide();
       else
-	progressBar_->show();
+  progressBar_->show();
     }
 
     WApplication::instance()->enableUpdates();

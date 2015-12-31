@@ -19,10 +19,10 @@ namespace Wt {
  * This validator accepts input in the given date format, and
  * optionally checks if the date is within a given range.
  *
+ * \if cpp
  * The format string used for validating user input are the same as
  * those used by WDate::fromString().
  *
- * \if cpp
  * Usage example:
  * \code
  * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
@@ -32,6 +32,10 @@ namespace Wt {
  * lineEdit->setText("01-03-2008");
  * \endcode
  * \endif 
+ *
+ * \if java
+ * The format string used are the ones accepted by java.text.SimpleDateFormat
+ * \endif
  *
  * <h3>i18n</h3>
  *
@@ -66,7 +70,9 @@ public:
    *
    * The validator will accept dates in the date format \p format.
    *
+   * \if cpp
    * The syntax for \p format is as in WDate::fromString()
+   * \endif
    */
   WDateValidator(const WT_USTRING& format, WObject *parent = 0);
 
@@ -75,7 +81,9 @@ public:
    * The validator will accept only dates within the indicated range
    * <i>bottom</i> to <i>top</i>, in the date format \p format.
    *
+   * \if cpp
    * The syntax for \p format is as in WDate::fromString()
+   * \endif
    */
   WDateValidator(const WT_USTRING& format,
 		 const WDate& bottom,

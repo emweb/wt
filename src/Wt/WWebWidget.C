@@ -1846,7 +1846,7 @@ void WWebWidget::declareJavaScriptMember(DomElement& element,
 
       element.callMethod(combined.str());
     } else {
-      if (value.length() > 1)
+      if (value.length() > 0)
 	element.callMethod(name + "=" + value);
       else
 	element.callMethod(name + "=null");

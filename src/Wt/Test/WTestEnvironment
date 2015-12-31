@@ -155,7 +155,13 @@ public:
 
   /*! \brief Sets the locale.
    *
+   * \if cpp
    * The default value is WLocale("en").
+   * \endif
+   *
+   * \if java
+   * The default value is the English locale ("en").
+   * \endif
    *
    * \sa locale()
    */

@@ -805,7 +805,7 @@ public:
    */
   Signal<int, WMouseEvent>& headerMouseWentUp() { return headerMouseWentUp_; }
 
-  /*! \brief Signals when scrolling.
+  /*! \brief %Signal emitted when scrolling.
    *
    *  \note Works only if ajax is available.
    */

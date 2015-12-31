@@ -15,7 +15,7 @@ namespace Wt {
 #ifdef WT_TARGET_JAVA
 /*! \brief Enumeration for a JavaScript object type.
  *
- * This is an internal Wt type.
+ * This is an internal %Wt type.
  */
 #endif
 enum JavaScriptObjectType {
@@ -28,7 +28,7 @@ enum JavaScriptObjectType {
 #ifdef WT_TARGET_JAVA
 /*! \brief Enumeration for a JavaScript object scope.
  *
- * This is an internal Wt type.
+ * This is an internal %Wt type.
  */
 #endif
 enum JavaScriptScope {
@@ -39,7 +39,7 @@ enum JavaScriptScope {
 #ifdef WT_TARGET_JAVA
 /*! \brief Javascript preamble.
  *
- * This is an internal Wt type.
+ * This is an internal %Wt type.
  */
 #endif
 class WT_API WJavaScriptPreamble 

@@ -341,7 +341,7 @@ public:
 
     /*!
      * Use setObjectName() to prefix the ID with the varName. This is
-     * a safe choice since Wt still guarantees that the IDs are
+     * a safe choice since %Wt still guarantees that the IDs are
      * unique.
      */
     SetWidgetObjectName,

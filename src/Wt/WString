@@ -520,7 +520,7 @@ public:
    */
   bool operator!= (const WString& rhs) const { return !(*this == rhs); }
 
-  /** \brief An empty string.
+  /*! \brief An empty string.
    */
   static const WString Empty;
 
@@ -714,6 +714,12 @@ extern WT_API std::ostream& operator<< (std::ostream& lhs, const WString& rhs);
  */
 typedef WString WMessage;
 #endif // WT_DEPRECATED_3_0_0
+
+#ifdef WT_TARGET_JAVA
+/* To emit javadoc links */
+const WString WString::Empty;
+WString WString::tr(const char *key) { }
+#endif
 
 }
 

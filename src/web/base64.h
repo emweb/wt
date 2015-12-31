@@ -61,7 +61,7 @@ namespace base64
 
   extern WT_API const char* to_table;
   extern WT_API const char* to_table_end;
-  extern WT_API const char* from_table;
+  extern WT_API const signed char* from_table;
 
   template <class InputIterator, class OutputIterator>
   void encode(const InputIterator& begin, 

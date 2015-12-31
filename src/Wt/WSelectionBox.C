@@ -21,7 +21,9 @@ WSelectionBox::WSelectionBox(WContainerWidget *parent)
     verticalSize_(5),
     selectionMode_(SingleSelection),
     configChanged_(false)
-{ }
+{ 
+  noSelectionEnabled_ = true;
+}
 
 void WSelectionBox::setVerticalSize(int items)
 {

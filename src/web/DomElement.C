@@ -1577,7 +1577,8 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       out << var_ << ".selected=" << i->second << ';';
       break;
     case PropertySelectedIndex:
-      out << var_ << ".selectedIndex=" << i->second << ';';
+      out << "setTimeout(function() { "
+	  << var_ << ".selectedIndex=" << i->second << ";}, 0);";
       break;
     case PropertyMultiple:
       out << var_ << ".multiple=" << i->second << ';';

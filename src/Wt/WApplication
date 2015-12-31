@@ -2033,7 +2033,7 @@ public:
    * in the current URL, this session ID does not leak to the refenced
    * URL.
    *
-   * Wt will safely handle URLs in the API (in WImage and WAnchor) but
+   * %Wt will safely handle URLs in the API (in WImage and WAnchor) but
    * you may want to use this function to encode URLs which you use in
    * WTemplate texts.
    */

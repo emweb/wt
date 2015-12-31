@@ -317,7 +317,6 @@ public:
 private:
   static const char *CHANGE_SIGNAL;
   static const char *UPLOADED_SIGNAL;
-  static const char *FILETOOLARGE_SIGNAL;
 
   static const int BIT_DO_UPLOAD        = 0;
   static const int BIT_ENABLE_AJAX      = 1;
@@ -355,8 +354,11 @@ protected:
   virtual void propagateSetEnabled(bool enabled);
 
 private:
-  EventSignal<>& fileTooLargeImpl();
-  void handleFileTooLargeImpl();
+  void handleFileTooLarge(int fileSize);
+
+  JSignal< ::int64_t > tooLarge_;
+
+
   void onUploaded();
   ::int64_t tooLargeSize_;
 

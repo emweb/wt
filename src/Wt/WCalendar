@@ -186,9 +186,7 @@ public:
 
   /*! \brief Sets the first day of the week.
    *
-   * Possible values or 1 to 7, as accepted by WDate::shortDayName().
-   *
-   * The default value is 1 ("Monday").
+   * Possible values are 1 to 7. The default value is 1 ("Monday").
    */
   void setFirstDayOfWeek(int dayOfWeek);
 

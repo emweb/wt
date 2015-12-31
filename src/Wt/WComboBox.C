@@ -26,6 +26,7 @@ WComboBox::WComboBox(WContainerWidget *parent)
     itemsChanged_(false),
     selectionChanged_(true),
     currentlyConnected_(false),
+    noSelectionEnabled_(false),
     activated_(this),
     sactivated_(this)
 { 
@@ -82,10 +83,8 @@ void WComboBox::rowsRemoved(const WModelIndex &index, int from, int to)
   if (currentIndex_ > to) // shift up the selection by amount of removed rows
     currentIndex_ -= count; 
   else if (currentIndex_ >= from) {
-    if (supportsNoSelection())
-      currentIndex_ = -1;
-    else
-      currentIndex_ = model_->rowCount() > 0 ? 0 : -1;
+    currentIndex_ = -1;
+    makeCurrentIndexValid();
   }
 }
 
@@ -96,10 +95,9 @@ void WComboBox::rowsInserted(const WModelIndex &index, int from, int to)
 
   int count = to - from + 1;
 
-  if (currentIndex_ == -1) {
-    if (model_->rowCount() == count && !supportsNoSelection())
-      setCurrentIndex(0);
-  } else if (currentIndex_ >= from)
+  if (currentIndex_ == -1)
+    makeCurrentIndexValid();
+  else if (currentIndex_ >= from)
     currentIndex_ += count;
 }
 
@@ -135,10 +133,7 @@ void WComboBox::insertItem(int index, const WString& text)
 {
   if (model_->insertRow(index)) {
     setItemText(index, text);
-    if (model_->rowCount() == 1 && 
-	currentIndex_ == -1 && 
-	!supportsNoSelection())
-      setCurrentIndex(0);
+    makeCurrentIndexValid();
   }
 }
 
@@ -151,7 +146,7 @@ void WComboBox::removeItem(int index)
 {
   model_->removeRow(index);
 
-  setCurrentIndex(currentIndex_);
+  makeCurrentIndexValid();
 }
 
 void WComboBox::setCurrentIndex(int index)
@@ -160,6 +155,7 @@ void WComboBox::setCurrentIndex(int index)
 
   if (currentIndex_ != newIndex) {
     currentIndex_ = newIndex;
+    makeCurrentIndexValid();
 
     validate();
 
@@ -177,7 +173,7 @@ void WComboBox::clear()
 {
   model_->removeRows(0, count());
 
-  setCurrentIndex(currentIndex_);
+  makeCurrentIndexValid();
 }
 
 void WComboBox::propagateChange()
@@ -196,11 +192,9 @@ void WComboBox::propagateChange()
   activated_.emit(currentIndex_);
 
   if (!guard.deleted()) {
-
     if (myCurrentIndex != - 1)
       sactivated_.emit(myCurrentValue);
   }
-
 }
 
 bool WComboBox::isSelected(int index) const
@@ -208,17 +202,28 @@ bool WComboBox::isSelected(int index) const
   return index == currentIndex_;
 }
 
+void WComboBox::setNoSelectionEnabled(bool enabled)
+{
+  if (noSelectionEnabled_ != enabled) {
+    noSelectionEnabled_ = enabled;
+
+    makeCurrentIndexValid();
+  }
+}
+
+void WComboBox::makeCurrentIndexValid()
+{
+  int c = count();
+
+  if (currentIndex_ > c - 1)
+    setCurrentIndex(c - 1);
+  else if (c > 0 && currentIndex_ == -1 && !supportsNoSelection())
+    setCurrentIndex(0);
+}
+
 bool WComboBox::supportsNoSelection() const
 {
-  /*
-   * Actually, these days, all browsers support 'no selection' for
-   * combo-boxes, but we keep it like this to avoid breaking our
-   * behavior
-   *
-   * See http://stackoverflow.com/questions/6223865/blank-html-select-without-blank-item-in-dropdown-list
-   */
-
-  return false;
+  return noSelectionEnabled_;
 }
 
 void WComboBox::updateDom(DomElement& element, bool all)
@@ -349,6 +354,8 @@ void WComboBox::setFormData(const FormData& formData)
       }
     } else
       currentIndex_ = -1;
+
+    makeCurrentIndexValid();
   }
 }
 
@@ -388,8 +395,7 @@ void WComboBox::itemsChanged()
   itemsChanged_ = true;
   repaint(RepaintSizeAffected);
 
-  if (currentIndex_ > count() - 1)
-    currentIndex_ = count() - 1;
+  makeCurrentIndexValid();
 }
 
 void WComboBox::saveSelection()
@@ -411,6 +417,8 @@ void WComboBox::restoreSelection()
       currentIndex_ = -1;
   } else
     currentIndex_ = -1;
+
+  makeCurrentIndexValid();
 
   currentIndexRaw_ = 0;
 }

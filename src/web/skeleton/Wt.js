@@ -1098,7 +1098,7 @@ this.parsePx = function(v) {
   return parseCss(v, /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/i, 0);
 };
 
-function parsePct(v, defaultValue) {
+this.parsePct = function(v, defaultValue) {
   return parseCss(v, /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/i, defaultValue);
 }
 
@@ -1113,7 +1113,7 @@ this.pxself = function(c, s) {
 };
 
 this.pctself = function(c, s) {
-  return parsePct(c.style[s], 0);
+  return WT.parsePct(c.style[s], 0);
 };
 
 // Convert from css property to element attribute (possibly a vendor name)
@@ -1193,8 +1193,8 @@ this.IEwidth = function(c, min, max) {
     - WT.px(c.parentNode, 'paddingLeft')
     - WT.px(c.parentNode, 'paddingRight');
 
-    min = parsePct(min, 0);
-    max = parsePct(max, 100000);
+    min = WT.parsePct(min, 0);
+    max = WT.parsePct(max, 100000);
 
     if (r < min)
       return min-1;

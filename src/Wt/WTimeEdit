@@ -1,3 +1,9 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2015 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
 #ifndef WTIME_EDIT_H_
 #define WTIME_EDIT_H_
 
@@ -9,14 +15,13 @@
 namespace Wt {
 
 /*! \class WTimeEdit Wt/WTimeEdit Wt/WTimeEdit
- *  \brief  A Time field editor
+ *  \brief A Time field editor
  *
  *  \sa WTimePicker
  *  \sa WTime
  *  \sa WTimeValidator
  *
  * Styling through CSS is not applicable.
- *
  */
 class WT_API WTimeEdit : public WLineEdit
 {
@@ -36,48 +41,48 @@ public:
     /*! \brief Returns the time.
      *
      * Returns an invalid time (for which WTime::isValid() returns
-     * \c false) if the time coult not be parsed using the current format(). <br>
+     * \c false) if the time could not be parsed using the current
+     * format().
      *
      * \sa setTime(), WTime::fromString(), WLineEdit::text()
      */
     WTime time() const;
 
-	/*! \brief Returns the validator
-	 *
-	 * \sa WTimeValidator
-	 */
+    /*! \brief Returns the validator
+     *
+     * \sa WTimeValidator
+     */
     virtual WTimeValidator *validator() const;
 
-	/*! \brief Sets the format of the Time
-	 */
+    /*! \brief Sets the format of the Time
+     */
     void setFormat(const WT_USTRING& format);
 
-	/*! \brief returns the format
-	 */
+    /*! \brief Returns the format.
+     */
     WT_USTRING format() const;
 
-	/*! \brief set the hidden status
-	 */
+    /*! \brief set the hidden status
+     */
     virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
 
-	/*! \brief returns the minutes step
-	 */
+    /*! \brief returns the minutes step
+     */
     int minuteStep() const { return timePicker_->minuteStep(); }
 
-	/*! \brief sets the minute step
-	 */
+    /*! \brief sets the minute step
+     */
     void setMinuteStep(int step) { timePicker_->setMinuteStep(step); }
 
 protected:
-
-	/*!
-	 * \brief render the widget
-	 */
+    /*!
+     * \brief render the widget
+     */
     virtual void render(WFlags<RenderFlag> flags);
 
-	/*!
-	 * \brief enable or disable propagation
-	 */
+    /*!
+     * \brief enable or disable propagation
+     */
     virtual void propagateSetEnabled(bool enabled);
 
     /*! \brief Sets the value from the time scroller to the line edit.
@@ -88,10 +93,9 @@ protected:
      */
     virtual void setFromLineEdit();
 
-	/*! \brief sets the text
-	 */
+    /*! \brief sets the text
+     */
     virtual void setText(const WString &text) { WLineEdit::setText(text); }
-
 
 private:
     WPopupWidget *popup_;

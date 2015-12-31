@@ -21,6 +21,7 @@ model->addString("United States");
 model->setData(3, 0, std::string("US"), Wt::UserRole);
 model->setFlags(3, 0);
 
+cb->setNoSelectionEnabled(true);
 cb->setModel(model);
 
 Wt::WText *out = new Wt::WText(container);

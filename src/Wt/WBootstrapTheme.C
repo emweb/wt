@@ -297,7 +297,7 @@ void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
 
       WAbstractItemView *itemView = dynamic_cast<WAbstractItemView *>(widget);
       if (itemView) {
-	element.addPropertyWord(PropertyClass, "form-horizontal");
+	element.addPropertyWord(PropertyClass, "form-inline");
 	return;
       }
 

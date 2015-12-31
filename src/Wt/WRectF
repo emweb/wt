@@ -42,9 +42,17 @@ class WT_API WRectF : public WJavaScriptExposableObject
 public:
   /*! \brief Default constructor.
    *
+   * \if cpp
    * Constructs a \p null rectangle.
    * 
    * \sa isNull()
+   * \endif
+   *
+   * \if java
+   * Constructs an empty rectangle.
+   *
+   * \sa isEmpty()
+   * \endif
    */
   WRectF();
 

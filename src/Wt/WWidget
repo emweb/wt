@@ -732,9 +732,9 @@ public:
    *
    * Sets the value for an HTML attribute.
    *
-   * This is only useful for HTML features that are not supported directly in
-   * Wt (and beware that browsers have non-consisten support for many more
-   * exotic HTML features).
+   * This is only useful for HTML features that are not supported
+   * directly in %Wt (and beware that browsers have non-consistent
+   * support for many more exotic HTML features).
    *
    * \sa JSlot, doJavaScript()
    */

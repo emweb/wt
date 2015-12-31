@@ -1353,14 +1353,8 @@ WT_DECLARE_WT_MEMBER
 	     if (!hidden && (setSize || ts != ps || item.layout)) {
 	       if (setCss(w, DC.size, tsm + 'px')) {
 		 /*
-		  * Setting a size cancels the built-in margin!
+		  * Setting a size no longer cancels the built-in margin!
 		  */
-		 if (!WT.isIE && (WT.hasTag(w, 'TEXTAREA') ||
-				  WT.hasTag(w, 'INPUT'))) {
-		   setCss(w, 'margin-' + DC.left, item.margin[dir]/2 + 'px');
-		   setCss(w, 'margin-' + OC.left, item.margin[!dir]/2 + 'px');
-		 }
-
 		 setItemDirty(item, 1);
 		 item.set[dir] = true;
 	       }
