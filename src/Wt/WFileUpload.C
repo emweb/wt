@@ -84,6 +84,8 @@ protected:
       } else if (request.tooLarge()) {
         LOG_DEBUG("Resource handleRequest(): signaling file-too-large");
 
+	// FIXME this should use postMessage() all the same
+
         std::string s = boost::lexical_cast<std::string>(request.tooLarge());
         o << fileUpload_->fileTooLarge().createCall(s);
       }
@@ -445,8 +447,9 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
     std::stringstream s;
 
-    doJavaScript("var f = function(event) {"
-		 """if (" + jsRef() + ".action.indexOf(event.origin) === 0) {"
+    doJavaScript("var a" + id() + "=" + jsRef() + ".action;"
+		 "var f = function(event) {"
+		 """if (a" + id() + ".indexOf(event.origin) === 0) {"
 		 ""  "var data = JSON.parse(event.data);"
 		 ""  "if (data.fu == '" + id() + "')"
 		 +      app->javaScriptClass()

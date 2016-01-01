@@ -40,6 +40,8 @@ WPopupWidget::WPopupWidget(WWidget *impl, WObject *parent)
 
   jsHidden_.connect(this, &WWidget::hide);
   jsShown_.connect(this, &WWidget::show);
+
+  WApplication::instance()->internalPathChanged().connect(this, &WWidget::hide);
 }
 
 WPopupWidget::~WPopupWidget()

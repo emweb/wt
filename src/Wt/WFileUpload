@@ -356,9 +356,7 @@ protected:
 private:
   void handleFileTooLarge(::int64_t fileSize);
 
-
   void onUploaded();
-  ::int64_t tooLargeSize_;
 
   virtual void setFormData(const FormData& formData);
   void setFiles(const std::vector<Http::UploadedFile>& files);
