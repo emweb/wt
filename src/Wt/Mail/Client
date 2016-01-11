@@ -30,14 +30,14 @@ class Message;
  * \code
  * #include <Wt/Mail/Client>
  * #include <Wt/Mail/Message>
- * 
+ *
  * Mail::Message message;
- * message.setFrom(Mail::Mailbox("kudos@corp.org", "Kudos Dukos");
- * message.addRecipient(Mail::To, Mail::Mailbox("koen@emweb.be", "Koen Deforche");
+ * message.setFrom(Mail::Mailbox("kudos@corp.org", "Kudos Dukos"));
+ * message.addRecipient(Mail::To, Mail::Mailbox("koen@emweb.be", "Koen Deforche"));
  * message.setSubject("Hey there, koen!");
  * message.setBody("That mail client seems to be working.");
- * message.addHtmlBody ("<p>" 
- *      "<a href=\"http://www.webtoolkit.eu/wt\">That mail client</a>" 
+ * message.addHtmlBody ("<p>"
+ *      "<a href=\"http://www.webtoolkit.eu/wt\">That mail client</a>"
  *      " seems to be working just great!</p>");
  *
  * Mail::Client client;
