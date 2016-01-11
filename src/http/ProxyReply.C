@@ -81,6 +81,7 @@ void ProxyReply::reset(const Wt::EntryPoint *ep)
 void ProxyReply::writeDone(bool success)
 {
   if (!success) {
+    closeClientSocket();
     return;
   }
 

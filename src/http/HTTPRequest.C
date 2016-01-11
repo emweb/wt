@@ -37,6 +37,9 @@ bool HTTPRequest::done() const
 void HTTPRequest::flush(ResponseState state, const WriteCallback& callback)
 {
   WtReplyPtr ptr = reply_;
+  
+  if (done()) 
+    return;
 
   if (state == ResponseDone)
     reply_.reset();

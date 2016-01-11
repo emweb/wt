@@ -1038,18 +1038,31 @@ public:
    */
   std::string docRoot() const;
 
-  /*! \brief Sets the connection monitor which will receive client side information
-   * In order to be notified, the jsObject must define a function onChange(type, oldValue, newValue) which
-   * will be called every time the status changes.
-   * The status can be retrieved in the monitor by accessing the following variables:
-   * - monitor.status.connectionStatus : 
-   *	- 0 : disconnected from server
-   *	- 1 : connected to server
-   * - monitor.status.websocket :
-   *	- true: websocket is used
-   *	- false: websocket is not used
+  /*! \brief Sets a client-side connection monitor
+   *
+   * This can be used to be notified, in the browser, of changes in
+   * connection state between the browser and the server. The passed
+   * \p jsObject should be an object that has the following prototype:
+   * \code
+   *  {
+   *     onChange: function(type, oldValue, newValue) { ... }
+   *  }
+   * \endcode
+   *
+   * The 'onChange' function will be called on an connection status change
+   * event. The following types are defined:
+   *  - "connectionStatus": 0 = disconnected, 1 = connected
+   *  - "websocket": true = websocket is used, false = websocket is not used
+   *
+   * The current state is also stored in a 'status' object inside the
+   * connection monitor.
+   *
+   * Example usage:
+   * \code
+   * app.setConnectionMonitor("{ onChange: function(type, ov, nv) { console.log(type, ov, nv); } }");
+   * \endcode
    */
-  void setConnectionMonitor(const std::string& jsFunction);
+  void setConnectionMonitor(const std::string& jsObject);
 
 #else
   static std::string appRoot();

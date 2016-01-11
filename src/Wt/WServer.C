@@ -386,9 +386,9 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 #endif // WT_THREADED
 }
 
-void WServer::expireSessions()
+bool WServer::expireSessions()
 {
-  webController_->expireSessions();
+  return webController_->expireSessions();
 }
 
 void WServer::scheduleStop()

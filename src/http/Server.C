@@ -420,11 +420,16 @@ void Server::handleStop()
 
 void Server::expireSessions(boost::system::error_code ec)
 {
+  LOG_DEBUG_S(&wt_, "expireSession()" << ec.message());
+
   if (!ec) {
-    wt_.expireSessions();
-    expireSessionsTimer_.expires_from_now(boost::posix_time::seconds(SESSION_EXPIRE_INTERVAL));
-    expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
-	  asio::placeholders::error));
+    if (!wt_.expireSessions())
+      wt_.scheduleStop();
+    else {
+      expireSessionsTimer_.expires_from_now(boost::posix_time::seconds(SESSION_EXPIRE_INTERVAL));
+      expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
+						  asio::placeholders::error));
+    }
   } else if (ec != asio::error::operation_aborted) {
     LOG_ERROR_S(&wt_, "session expiration timer got an error: " << ec.message());
   }

@@ -1385,6 +1385,8 @@ void WTreeView::scheduleRerender(RenderState what)
 
 void WTreeView::render(WFlags<RenderFlag> flags)
 {
+  WApplication *app = WApplication::instance();
+
   if (flags & RenderFull) {
     defineJavaScript();
 
@@ -1392,8 +1394,6 @@ void WTreeView::render(WFlags<RenderFlag> flags)
       itemEvent_.connect(this, &WTreeView::onItemEvent);
 
       addCssRule("#" + id() + " .cwidth", "");
-
-      WApplication *app = WApplication::instance();
 
       rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh", this);
       app->styleSheet().addRule(rowHeightRule_);
@@ -1462,7 +1462,7 @@ void WTreeView::render(WFlags<RenderFlag> flags)
     }
   }
 
-  if (rowHeaderCount() && renderedNodesAdded_) {
+  if (app->environment().ajax() && rowHeaderCount() && renderedNodesAdded_) {
     doJavaScript("{var s=" + scrollBarC_->jsRef() + ";"
 		 """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
 		 "}");
@@ -1475,7 +1475,9 @@ void WTreeView::render(WFlags<RenderFlag> flags)
     << ", 'obj').setRowHeight("
     <<  static_cast<int>(this->rowHeight().toPixels())
     << ");";
-  doJavaScript(s.str());
+
+  if (app->environment().ajax()) 
+    doJavaScript(s.str());
 
   WAbstractItemView::render(flags);
 }

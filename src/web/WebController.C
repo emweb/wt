@@ -244,15 +244,6 @@ bool WebController::expireSessions()
     session->expire();
   }
 
-  if (toExpire.size() > 0 && server_.dedicatedSessionProcess()) {
-#ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock lock(mutex_);
-#endif // WT_THREADED
-    if (sessions_.size() == 0) {
-      server_.scheduleStop();
-    }
-  }
-
   return result;
 }
 

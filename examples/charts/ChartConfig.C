@@ -148,7 +148,6 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   legendSideEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
   legendSideEdit_->setModel(legendSide);
   legendSideEdit_->setCurrentIndex(1);
-  legendSideEdit_->setCurrentIndex(0);
   connectSignals(legendSideEdit_);
   ++row;
 
@@ -156,7 +155,6 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   legendAlignmentEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
   legendAlignmentEdit_->setModel(legendAlignment);
   legendAlignmentEdit_->setCurrentIndex(4);
-  legendAlignmentEdit_->setCurrentIndex(0);
   connectSignals(legendAlignmentEdit_);
   ++row;
 

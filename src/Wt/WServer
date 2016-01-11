@@ -483,7 +483,7 @@ public:
   WT_API bool dedicatedSessionProcess() const;
 #endif // WT_TARGET_JAVA
 
-  WT_API void expireSessions();
+  WT_API bool expireSessions();
 
   WT_API Configuration& configuration();
 
