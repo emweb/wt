@@ -36,7 +36,7 @@ ProxyReply::ProxyReply(Request& request,
     sending_(0),
     more_(true),
     receiving_(false),
-	fwCertificates_(false)
+    fwCertificates_(false)
 {
   reset(0);
 }
@@ -90,16 +90,19 @@ void ProxyReply::writeDone(bool success)
   if (request_.type == Request::TCP && !receiving_) {
     // Sent 101 response, start receiving more data from the client
     receiving_ = true;
+    LOG_DEBUG(this << ": receive() upstream");
     receive();
   }
 
   if (more_ && socket_) {
-    asio::async_read(*socket_, responseBuf_,
-	asio::transfer_at_least(1),
-	connection()->strand().wrap(
-	  boost::bind(&ProxyReply::handleResponseRead,
-	    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	    asio::placeholders::error)));
+    LOG_DEBUG(this << ": async_read downstream");
+    asio::async_read
+      (*socket_, responseBuf_,
+       asio::transfer_at_least(1),
+       connection()->strand().wrap
+       (boost::bind(&ProxyReply::handleResponseRead,
+		    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+		    asio::placeholders::error)));
   }
 }
 
@@ -107,6 +110,8 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 			     Buffer::const_iterator end,
 			     Request::State state)
 {
+  LOG_DEBUG(this << ": consumeData()");
+
   if (state == Request::Error) {
     return false;
   }
@@ -116,16 +121,18 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
   state_ = state;
 
   if (sessionProcess_) {
-    if (socket_) {
+   if (socket_) {
+      LOG_DEBUG(this << ": sending to child");
       // Connection with child already established, send request data
       asio::async_write
 	(*socket_,
 	 asio::buffer(beginRequestBuf_, endRequestBuf_ - beginRequestBuf_),
-	 boost::bind
-	 (&ProxyReply::handleDataWritten,
-	  boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	  asio::placeholders::error,
-	  asio::placeholders::bytes_transferred));
+	 connection()->strand().wrap
+	 (boost::bind
+	  (&ProxyReply::handleDataWritten,
+	   boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+	   asio::placeholders::error,
+	   asio::placeholders::bytes_transferred)));
     } else {
       /* Connection with child was closed */
       error(service_unavailable);
@@ -145,8 +152,11 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 
 	sessionProcess_->asyncExec(
 	    configuration(),
-	    boost::bind(&ProxyReply::connectToChild,
-	      boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()), _1));
+	    connection()->strand().wrap
+	    (boost::bind
+	     (&ProxyReply::connectToChild,
+	      boost::dynamic_pointer_cast<ProxyReply>(shared_from_this())
+	      , _1)));
 	sessionManager_.addPendingSessionProcess(sessionProcess_);
       } else {
 	LOG_ERROR("maximum amount of sessions reached!");
@@ -168,9 +178,10 @@ void ProxyReply::connectToChild(bool success)
     socket_.reset(new asio::ip::tcp::socket(connection()->server()->service()));
     socket_->async_connect
       (sessionProcess_->endpoint(),
-       boost::bind(&ProxyReply::handleChildConnected,
-		   boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-		   asio::placeholders::error));
+       connection()->strand().wrap
+       (boost::bind(&ProxyReply::handleChildConnected,
+		    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+		    asio::placeholders::error)));
   } else {
     error(service_unavailable);
   }
@@ -191,11 +202,14 @@ void ProxyReply::handleChildConnected(const boost::system::error_code& ec)
   std::ostream os(&requestBuf_);
   os.write(beginRequestBuf_, static_cast<std::streamsize>(endRequestBuf_ - beginRequestBuf_));
 
-  asio::async_write(*socket_, requestBuf_,
-      boost::bind(&ProxyReply::handleDataWritten,
-	boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	asio::placeholders::error,
-	asio::placeholders::bytes_transferred));
+  asio::async_write
+    (*socket_, requestBuf_,
+     connection()->strand().wrap
+     (boost::bind
+      (&ProxyReply::handleDataWritten,
+       boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+       asio::placeholders::error,
+       asio::placeholders::bytes_transferred)));
 }
 
 void ProxyReply::assembleRequestHeaders()
@@ -211,8 +225,10 @@ void ProxyReply::assembleRequestHeaders()
     if (it->name.iequals("Connection") || it->name.iequals("Keep-Alive") ||
 	it->name.iequals("TE") || it->name.iequals("Transfer-Encoding")) {
       // Remove hop-by-hop header
-    } else if (it->name.iequals("X-Forwarded-For") || it->name.iequals("Client-IP")) {
-      const Wt::Configuration& wtConfiguration = connection()->server()->controller()->configuration();
+    } else if (it->name.iequals("X-Forwarded-For") ||
+	       it->name.iequals("Client-IP")) {
+      const Wt::Configuration& wtConfiguration
+	= connection()->server()->controller()->configuration();
       if (wtConfiguration.behindReverseProxy()) {
 	forwardedFor = it->value.str() + ", ";
       }
@@ -221,9 +237,9 @@ void ProxyReply::assembleRequestHeaders()
 	establishWebSockets = true;
       }
     } else if (it->name.iequals("X-Forwarded-Proto")) { 
-		forwardedProto = it->value.str();
-	} else if(it->name.iequals("X-Forwarded-Port")) {
-		forwardedPort = it->value.str();
+      forwardedProto = it->value.str();
+    } else if(it->name.iequals("X-Forwarded-Port")) {
+      forwardedPort = it->value.str();
     } else if (it->name.length() > 0) {
       os << it->name << ": " << it->value << "\r\n";
   }
@@ -241,14 +257,15 @@ void ProxyReply::assembleRequestHeaders()
   else
 	os << "X-Forwarded-Port: " <<  request_.port << "\r\n";
   // Forward SSL Certificate to session only for first request
-  if(request_.sslInfo() && fwCertificates_) {
-	appendSSLInfo(request_.sslInfo(), os);
+  if (request_.sslInfo() && fwCertificates_) {
+    appendSSLInfo(request_.sslInfo(), os);
   }
 
   // Append redirect secret
-  os << "Redirect-Secret: " <<  Wt::WServer::instance()->controller()->redirectSecret_ << "\r\n";
-
+  os << "Redirect-Secret: "
+     <<  Wt::WServer::instance()->controller()->redirectSecret_ << "\r\n";
   os << "\r\n";
+
   fwCertificates_ = false;
 }
 
@@ -280,18 +297,21 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
 }
 
 void ProxyReply::handleDataWritten(const boost::system::error_code &ec,
-	std::size_t transferred)
+				   std::size_t transferred)
 {
   if (!ec) {
     if (state_ == Request::Partial) {
       requestBuf_.consume(transferred);
+      LOG_DEBUG(this << ": receive() upstream");
       receive();
     } else {
       asio::async_read_until
-	(*socket_, responseBuf_, "\r\n", boost::bind
-	 (&ProxyReply::handleStatusRead,
-	  boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	  asio::placeholders::error));
+	(*socket_, responseBuf_, "\r\n",
+	 connection()->strand().wrap
+	 (boost::bind
+	  (&ProxyReply::handleStatusRead,
+	   boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+	   asio::placeholders::error)));
     }
   } else {
     LOG_ERROR("error sending data to child: " << ec.message());
@@ -318,10 +338,12 @@ void ProxyReply::handleStatusRead(const boost::system::error_code &ec)
       return;
     }
 
-    asio::async_read_until(*socket_, responseBuf_, "\r\n\r\n",
-	boost::bind(&ProxyReply::handleHeadersRead,
-	  boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
-	  asio::placeholders::error));
+    asio::async_read_until
+      (*socket_, responseBuf_, "\r\n\r\n",
+       connection()->strand().wrap
+       (boost::bind(&ProxyReply::handleHeadersRead,
+		    boost::dynamic_pointer_cast<ProxyReply>(shared_from_this()),
+		    asio::placeholders::error)));
   } else {
     LOG_ERROR("error reading status line: " << ec.message());
     if (!sendReload())
@@ -393,6 +415,7 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
     addHeader("Upgrade", "websocket");
     setCloseConnection();
     request_.type = Request::TCP;
+
   }
 
   if (responseBuf_.size() > 0) {
@@ -404,6 +427,8 @@ void ProxyReply::handleHeadersRead(const boost::system::error_code &ec)
 
 void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
 {
+  LOG_DEBUG(this << ": async_read done.");
+
   if (!ec) {
     if (responseBuf_.size() > 0) {
       out_ << &responseBuf_;

@@ -65,21 +65,25 @@ protected:
       "function load() { ";
 
     if (triggerUpdate || request.tooLarge()) {
+      WEnvironment::UserAgent agent =
+          WApplication::instance()->environment().agent();
+
       if (triggerUpdate) {
         LOG_DEBUG("Resource handleRequest(): signaling uploaded");
 
-        WEnvironment::UserAgent agent =
-            WApplication::instance()->environment().agent();
+        // postMessage does not work for IE6,7
         if (agent == WEnvironment::IE6 || agent == WEnvironment::IE7){
           o << "window.parent."
             << WApplication::instance()->javaScriptClass()
             << "._p_.update(null, '"
             << fileUpload_->uploaded().encodeCmd() << "', null, true);";
         } else {
-          o << " window.parent.postMessage("
+          o << "window.parent.postMessage("
             << "JSON.stringify({ fu: '" << fileUpload_->id() << "',"
             << "  signal: '"
-            << fileUpload_->uploaded().encodeCmd() << "'}), '*');";
+            << fileUpload_->uploaded().encodeCmd()
+            << "',type: 'upload'"
+            << "}), '*');";
         }
       } else if (request.tooLarge()) {
         LOG_DEBUG("Resource handleRequest(): signaling file-too-large");
@@ -87,7 +91,14 @@ protected:
 	// FIXME this should use postMessage() all the same
 
         std::string s = boost::lexical_cast<std::string>(request.tooLarge());
-        o << fileUpload_->fileTooLarge().createCall(s);
+
+        // postMessage does not work for IE6,7
+        if (agent == WEnvironment::IE6 || agent == WEnvironment::IE7)
+          o << fileUpload_->fileTooLarge().createCall(s);
+        else
+          o << " window.parent.postMessage("
+            << "JSON.stringify({" << "fileTooLargeSize: '" << s
+            << "',type: 'file_too_large'" << "'}), '*');";
       }
     } else {
       LOG_DEBUG("Resource handleRequest(): no signal");
@@ -312,17 +323,22 @@ void WFileUpload::updateDom(DomElement& element, bool all)
 
     std::string command =
         "{"
+        "var submit = false; "
         "var x = " WT_CLASS ".$('in" + id() + "');"
         "  if (x.files != null) {"
         "    for (var i = 0; i < x.files.length; i++) { "
         "      var f = x.files[i];"
         "      if(f.size < " + maxFileSize + ") { "
-        "         " + jsRef() + ".submit(); "
+        "         submit = true;"
         "      } else { "
-        "         " + fileTooLarge().createCall("f.size") +
+        "         submit = false;"
+        "         " + fileTooLarge().createCall("f.size") + ";"
+        "         break;"
         "           }"
         "    }"
         "  } else "
+        "    submit = true;"
+        "  if (submit)"
         "    " + jsRef() + ".submit(); "
         " };";
 
@@ -445,15 +461,16 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
     form->addChild(input);
 
-    std::stringstream s;
-
     doJavaScript("var a" + id() + "=" + jsRef() + ".action;"
 		 "var f = function(event) {"
 		 """if (a" + id() + ".indexOf(event.origin) === 0) {"
 		 ""  "var data = JSON.parse(event.data);"
-		 ""  "if (data.fu == '" + id() + "')"
-		 +      app->javaScriptClass()
-		 +      "._p_.update(null, data.signal, null, true);"
+     ""  "if (data.type === 'upload') {"
+     ""    "if (data.fu == '" + id() + "')"
+     +        app->javaScriptClass()
+     +        "._p_.update(null, data.signal, null, true);"
+     ""  "} else if (data.type === 'file_too_large')"
+     ""    + fileTooLarge().createCall("data.fileTooLargeSize") +
 		 """}"
 		 "};"
 		 "if (window.addEventListener) "

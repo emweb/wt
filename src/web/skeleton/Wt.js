@@ -2415,10 +2415,11 @@ function encodeTouches(s, touches, widgetCoords) {
     if (i != 0)
       result += ';';
     result += [ t.identifier,
-		t.clientX, t.clientY,
-		t.pageX, t.pageY,
-		t.screenX, t.screenY,
-		t.pageX - widgetCoords.x, t.pageY - widgetCoords.y ].join(';');
+		Math.round(t.clientX), Math.round(t.clientY),
+		Math.round(t.pageX), Math.round(t.pageY),
+		Math.round(t.screenX), Math.round(t.screenY),
+		Math.round(t.pageX - widgetCoords.x),
+		Math.round(t.pageY - widgetCoords.y) ].join(';');
   }
 
   return result;
@@ -2578,7 +2579,6 @@ function encodeEvent(event, i) {
     result += se + 'charCode=' + charCode;
   }
 
-    
   if (typeof e.altKey !== UNDEFINED && 
       typeof e.altKey !== UNKNOWN &&
       e.altKey)

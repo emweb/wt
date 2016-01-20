@@ -146,6 +146,8 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
     return;
   }
 
+  LOG_DEBUG("SessionProcessManager::processDeadChildren()");
+
 #ifndef WT_WIN32
   pid_t cpid;
   int status;
