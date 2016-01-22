@@ -106,6 +106,7 @@ WebRenderer::WebRenderer(WebSession& session)
     pageId_(0),
     expectedAckId_(0),
     scriptId_(0),
+    linkedCssCount_(-1),
     formObjectsChanged_(true),
     updateLayout_(false),
     learning_(false)
@@ -387,6 +388,26 @@ void WebRenderer::serveLinkedCss(WebResponse& response)
     app->styleSheetsAdded_ = 0;
 
     initialStyleRendered_ = true;
+    linkedCssCount_ = app->styleSheets_.size();
+
+    out.spool(response.out());
+  } else if (linkedCssCount_ > -1) {
+    /*
+     * Make sure we serve the same response again, since a 'GET' must be
+     *idempotent. This is used by e.g. browser-side tools like 'usersnap'
+     */
+    WApplication *app = session_.app();
+
+    WStringStream out(response.out());
+
+    if (app->theme())
+      app->theme()->serveCss(out);
+
+    unsigned count
+      = std::min((std::size_t)linkedCssCount_, app->styleSheets_.size());
+
+    for (unsigned i = 0; i < count; ++i)
+      app->styleSheets_[i].cssText(out, true);
 
     out.spool(response.out());
   }

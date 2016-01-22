@@ -103,6 +103,7 @@ private:
 
   bool visibleOnly_, rendered_, initialStyleRendered_;
   int twoPhaseThreshold_, pageId_, expectedAckId_, scriptId_;
+  int linkedCssCount_;
   std::string solution_;
 
   std::map<std::string, CookieValue> cookiesToSet_;
