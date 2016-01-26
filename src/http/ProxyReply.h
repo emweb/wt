@@ -80,6 +80,8 @@ private:
   Buffer::const_iterator beginRequestBuf_;
   Buffer::const_iterator endRequestBuf_;
   Request::State state_;
+
+  Wt::Http::ParameterMap queryParams_;
 };
 
 } // namespace server

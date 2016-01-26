@@ -74,6 +74,7 @@ void ProxyReply::reset(const Wt::EntryPoint *ep)
   more_ = true;
   receiving_ = false;
   contentLength_ = -1;
+  queryParams_.clear();
 
   Reply::reset(ep);
 }
@@ -138,14 +139,41 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
       error(service_unavailable);
     }
   } else {
+    queryParams_.clear();
+    Wt::Http::Request::parseFormUrlEncoded(request_.request_query,
+					   queryParams_);
+
     // First connect to child process
     std::string sessionId = getSessionId();
 
     sessionProcess_ = sessionManager_.sessionProcess(sessionId);
 
     if (sessionId.empty() || !sessionProcess_) {
+      if (!sessionId.empty()) {
+	/*
+	 * Do not spawn a new process only to indicate that the request
+	 * is illegal. We also handle obvious 'reload' indications here.
+	 */
+	Wt::Http::ParameterMap::const_iterator i = queryParams_.find("request");
+	if (i != queryParams_.end()) {
+	  if (i->second[0] == "resource" || i->second[0] == "style") {
+	    LOG_INFO("resource request from dead session, not responding.");
+	    error(not_found);
+	    return true;
+	  } else if (i->second[0] == "ws") {
+	    LOG_INFO("websocket request from dead session, not responding.");
+	    error(service_unavailable);
+	    return true;
+	  }
+	} else if (request_.method.icontains("POST") &&
+		   queryParams_.size() == 1) {
+	  sendReload();
+	  return true;
+	}
+      }
+
       if (sessionManager_.tryToIncrementSessionCount()) {
-		fwCertificates_ = true;
+	fwCertificates_ = true;
 	// Launch new child process
 	sessionProcess_.reset(
 	    new SessionProcess(connection()->server()->service()));
@@ -456,25 +484,27 @@ void ProxyReply::handleResponseRead(const boost::system::error_code &ec)
 std::string ProxyReply::getSessionId() const
 {
   std::string sessionId;
-  Wt::Http::ParameterMap params;
-  Wt::Http::Request::parseFormUrlEncoded(request_.request_query, params);
+
   std::string wtd;
-  if (params.find("wtd") != params.end()) {
-    wtd = params["wtd"][0];
-  }
-  const Wt::Configuration& wtConfiguration = connection()->server()->controller()->configuration();
-  if (wtConfiguration.sessionTracking() == Wt::Configuration::CookiesURL
-      && !wtConfiguration.reloadIsNewSession()) {
+  Wt::Http::ParameterMap::const_iterator i = queryParams_.find("wtd");
+  if (i != queryParams_.end())
+    wtd = i->second[0];
+
+  const Wt::Configuration& wtConfiguration
+    = connection()->server()->controller()->configuration();
+
+  if (wtConfiguration.sessionTracking() == Wt::Configuration::CookiesURL &&
+      !wtConfiguration.reloadIsNewSession()) {
     const Request::Header *cookieHeader = request_.getHeader("Cookie");
     if (cookieHeader) {
       std::string cookie = cookieHeader->value.str();
-      sessionId = Wt::WebController::sessionFromCookie(cookie.c_str(),
-						       request_.request_path,
-						       wtConfiguration.sessionIdLength());
+      sessionId = Wt::WebController::sessionFromCookie
+	(cookie.c_str(), request_.request_path,
+	 wtConfiguration.sessionIdLength());
     }
   }
 
-  if (sessionId.empty() && !wtd.empty())
+  if (sessionId.empty())
     sessionId = wtd;
 
   return sessionId;
@@ -516,18 +546,23 @@ void ProxyReply::error(status_type status)
 
 bool ProxyReply::sendReload()
 {
-  // If the method is POST and the request contains
-  // only the wtd then we are almost sure that it's a jsupdate
+  bool jsRequest
+    = request_.method.icontains("POST") && queryParams_.size() == 1;
 
-  if ((request_.method.icontains("POST") &&
-       request_.request_query.find("&") == std::string::npos) ||
-      request_.request_query.find("request=script") != std::string::npos) {
+  if (!jsRequest) {
+    Wt::Http::ParameterMap::const_iterator i = queryParams_.find("request");
+    if (i != queryParams_.end())
+      jsRequest = i->second[0] == "script";
+  }
+
+  if (jsRequest) {
     LOG_INFO("signal from dead session, sending reload.");
-    addHeader("Content-Type", "text/javascript; charset=UTF-8");
+    setStatus(ok);
+    contentType_ = "text/javascript; charset=UTF-8";
     out_ <<
       "if (window.Wt) window.Wt._p_.quit(null); window.location.reload(true);";
+    more_ = false;
     send();
-
     closeClientSocket();
 
     return true;
