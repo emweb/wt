@@ -1424,10 +1424,11 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
   int currentBarGroup;
 
 #ifndef WT_TARGET_JAVA
-  std::vector<double> stackedValuesInit(rows);
+  std::vector<double> posStackedValuesInit(rows), minStackedValuesInit(rows);
 #else
-  std::vector<double> stackedValuesInit;
-  stackedValuesInit.insert(stackedValuesInit.begin(), rows, 0.0);
+  std::vector<double> posStackedValuesInit, minStackedValuesInit;
+  posStackedValuesInit.insert(posStackedValuesInit.begin(), rows, 0.0);
+  minStackedValuesInit.insert(minStackedValuesInit.begin(), rows, 0.0);
 #endif // WT_TARGET_JAVA
 
   const bool scatterPlot = type_ == ScatterPlot;
@@ -1458,7 +1459,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
       startSeries = endSeries = g;
     } else {
       for (unsigned i = 0; i < rows; ++i)
-	stackedValuesInit[i] = 0.0;
+	posStackedValuesInit[i] = minStackedValuesInit[i] = 0.0;
 
       if (reverseStacked) {
 	endSeries = g;
@@ -1476,8 +1477,12 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	      double y
 		= asNumber(chart_model->data(row, series_[g].modelColumn()));
 
-	      if (!Utils::isNaN(y))
-		stackedValuesInit[row] += y;
+	      if (!Utils::isNaN(y)) {
+		if (y > 0)
+		  posStackedValuesInit[row] += y;
+		else
+		  minStackedValuesInit[row] += y;
+	      }
 	    }
 
 	    ++g;
@@ -1518,7 +1523,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	iterator->startSeries(series_[i], groupWidth, numBarGroups,
 			      currentBarGroup);
 
-      std::vector<double> stackedValues;
+      std::vector<double> posStackedValues, minStackedValues;
 
       if (doSeries ||
 	  (!scatterPlot && i != endSeries)) {
@@ -1531,8 +1536,10 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	       currentYSegment < axis(series_[i].axis()).segmentCount();
 	       ++currentYSegment) {
 
-	    stackedValues.clear();
-	    Utils::insert(stackedValues, stackedValuesInit);
+	    posStackedValues.clear();
+	    Utils::insert(posStackedValues, posStackedValuesInit);
+	    minStackedValues.clear();
+	    Utils::insert(minStackedValues, minStackedValuesInit);
 
 	    if (painter) {
 	      WRectF csa = chartSegmentArea(axis(series_[i].axis()),
@@ -1573,25 +1580,29 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	      yIndex = chart_model->index(row, series_[i].modelColumn());
 	      double y = asNumber(chart_model->data(yIndex));
 
-	      double prevStack;
-
 	      if (scatterPlot)
 		iterator->newValue(series_[i], x, y, 0, xIndex, yIndex);
 	      else {
-		prevStack = stackedValues[row];
-
-		double nextStack = stackedValues[row];
+		double prevStack = 0, nextStack = 0;
 
 		bool hasValue = !Utils::isNaN(y);
 
 		if (hasValue) {
+		  if (y > 0)
+		    prevStack = nextStack = posStackedValues[row];
+		  else
+		    prevStack = nextStack = minStackedValues[row];
+
 		  if (reverseStacked)
 		    nextStack -= y;
 		  else
 		    nextStack += y;
-		}
 
-		stackedValues[row] = nextStack;
+		  if (y > 0)
+		    posStackedValues[row] = nextStack;
+		  else
+		    minStackedValues[row] = nextStack;
+		}
 
 		if (doSeries) {
 		  if (reverseStacked)
@@ -1611,8 +1622,10 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	  }
 	}
 
-	stackedValuesInit.clear();
-	Utils::insert(stackedValuesInit, stackedValues);
+	posStackedValuesInit.clear();
+	Utils::insert(posStackedValuesInit, posStackedValues);
+	minStackedValuesInit.clear();
+	Utils::insert(minStackedValuesInit, minStackedValues);
       }
 
       if (doSeries)
