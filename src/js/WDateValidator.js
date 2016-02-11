@@ -6,10 +6,6 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-/*
- * We could merge this with WIntValidator ...
- */
-
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WDateValidator",
    function(mandatory, formats, bottom, top, blankError,

@@ -1526,12 +1526,20 @@ void WWebWidget::updateDom(DomElement& element, bool all)
             && app->environment().ajax()) {
           LOAD_JAVASCRIPT(app, "js/ToolTip.js", "toolTip", wtjs10);
 
+	  WString tooltipText = *lookImpl_->toolTip_;
+	  if (lookImpl_->toolTipTextFormat_ != XHTMLUnsafeText) {
+	    bool res = removeScript(tooltipText);
+	    if (!res) {
+	      tooltipText = escapeText(*lookImpl_->toolTip_);
+	    }
+	  }
+
           std::string deferred = flags_.test(BIT_TOOLTIP_DEFERRED) ?
                 "true" : "false";
           element.callJavaScript(WT_CLASS ".toolTip(" +
                                  app->javaScriptClass() + ","
                                  + jsStringLiteral(id()) + ","
-                                 + lookImpl_->toolTip_->jsStringLiteral()
+                                 + tooltipText.jsStringLiteral()
                                  + ", " + deferred
                                  + ", " +
                                  jsStringLiteral(app->theme()->

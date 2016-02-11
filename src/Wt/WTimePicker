@@ -5,6 +5,7 @@
 #include "WCompositeWidget"
 #include "WContainerWidget"
 #include "WTime"
+#include "WSpinBox"
 
 namespace Wt {
 
@@ -51,23 +52,45 @@ public:
 	 */
     Signal<>& selectionChanged() { return selectionChanged_; }
 
+    /*! \brief Sets the format used for parsing or writing the time
+     * The default format is <tt>'HH:mm'</tt>
+     */
+    void setFormat(const WT_USTRING& format);
+
+    /*! \brief Returns the format
+     */
+    const WT_USTRING& format() const { return format_;}
+
 private:
 
-    int minuteStep_;
-	int secondStep_;
-
     void init(const WTime &time = WTime());
+    void hoursValueChanged();
+    void minutesValueChanged();
+    void secondsValueChanged();
+    void msecondsValueChanged();
+    
+    int minuteStep_;
+    int secondStep_;
+
+
+    WT_USTRING format_;
 
     WText *hourText_;
     WText *minuteText_;
     WText *secondText_;
+    WText *millisecondText_;
+
+    WSpinBox *sbhour_;
+    WSpinBox *sbminute_;
+    WSpinBox *sbsecond_;
+    WSpinBox *sbmillisecond_;
 
     void incrementMinutes();
     void decrementMinutes();
     void incrementHours();
     void decrementHours();
-	void incrementSeconds();
-	void decrementSeconds();
+    void incrementSeconds();
+    void decrementSeconds();
 
     Signal<> selectionChanged_;
 

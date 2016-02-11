@@ -333,7 +333,6 @@ void WEnvironment::enableAjax(const WebRequest& request)
       publicDeploymentPath_.clear(); // looks invalid
   }
 
-
   const std::string *scrWE = request.getParameter("scrW");
   if (scrWE) {
     try {

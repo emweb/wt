@@ -33,6 +33,7 @@ namespace http {
 namespace server {
 
 static const int CONNECTION_TIMEOUT = 120; // 2 minutes
+static const int BODY_TIMEOUT = 600;       // 10 minutes
 static const int KEEPALIVE_TIMEOUT  = 10;  // 10 seconds
 
 Connection::Connection(asio::io_service& io_service, Server *server,
@@ -285,7 +286,7 @@ void Connection::handleReadBody(ReplyPtr reply)
   waitingResponse_ = false;
 
   if (result == RequestParser::ReadMore) {
-    readMore(reply, CONNECTION_TIMEOUT);
+    readMore(reply, BODY_TIMEOUT);
   } else if (result == RequestParser::Done && haveResponse_)
     startWriteResponse(reply);
 }
@@ -386,7 +387,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
 	    << buffers.size() << ")");
 
   if (!buffers.empty()) {
-    startAsyncWriteResponse(reply, buffers, CONNECTION_TIMEOUT);
+    startAsyncWriteResponse(reply, buffers, BODY_TIMEOUT);
   } else {
     cancelWriteTimer();
     handleWriteResponse(reply);

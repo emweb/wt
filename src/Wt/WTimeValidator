@@ -25,6 +25,14 @@ public:
 	 */
     WTimeValidator(const WT_USTRING &format, WObject *parent = 0);
 
+    /*! \brief Creates a new WTimeValidator
+     *
+     * The validator zill accept only dates within the indicated range
+     * <i>bottom</i> to <i>top</i>, in the time formate \p format
+     */
+    WTimeValidator(const WT_USTRING &format, const WTime &bottom,
+                   const WTime &top, WObject *parent = 0);
+
 	/*! \brief sets the validator format
 	 * \sa WTime::toString()
 	 */
@@ -34,10 +42,60 @@ public:
 	 */
     virtual WT_USTRING format() const { return format_; }
 
+    /*! \brief Sets the bottom of the valid time range
+     *
+     * The default is a null time constructed using WTime()
+     */
+    void setBottom(const WTime &bottom);
+
+    /*! \brief Returns the bottom time of the valid range
+     */
+    const WTime& bottom() const { return bottom_;}
+
+    /*! \brief Sets the top of the valid time range
+     *
+     * The default is a null time constructed using WTime()
+     */
+    void setTop(const WTime &top);
+
+    /*! \brief Returns the top time of the valid range
+     */
+    const WTime& top() const { return top_;}
+
+    /*! \brief Sets the message to display when the input is not a time
+     */
+    void setInvalidNotATimeText(const WString &text);
+
+    /*! \brief Returns the message displayed when the input is not a time
+     */
+    WString invalidNotATimeText() const;
+
+    /*! \brief Sets the message to display when the time is earlier than bottom
+     */
+    void setInvalidTooEarlyText(const WString &text);
+
+    /*! \brief Returns the message displayed when time is too early
+     */
+    WString invalidTooEarlyText() const;
+
+    /*! \brief Sets the message to display when the time is later than top
+     */
+    void setInvalidTooLateText(const WString &text);
+
+    /*! \brief Returns the message displayed when time is too late
+     */
+    WString invalidTooLateText() const;
+
+    virtual Result validate(const WString &input) const;
 
 private:
 
     WT_USTRING format_;
+    WTime bottom_, top_;
+
+    WString tooEarlyText_;
+    WString tooLateText_;
+    WString notATimeText_;
 
 };
 

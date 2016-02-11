@@ -13,6 +13,8 @@
 
 namespace Wt {
 
+LOGGER("WAbstractToggleButton");
+
 const char *WAbstractToggleButton::CHECKED_SIGNAL = "M_checked";
 const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
 
@@ -69,7 +71,12 @@ void WAbstractToggleButton::setText(const WString& text)
   if (canOptimizeUpdates() && (text == text_.text))
     return;
 
+  if (isRendered() && flags_.test(BIT_NAKED))
+    LOG_ERROR("setText() has no effect when already rendered as a naked "
+	      "checkbox (without label)");
+
   text_.setText(text);
+  flags_.reset(BIT_NAKED);
   flags_.set(BIT_TEXT_CHANGED);
   repaint(RepaintSizeAffected);
 }

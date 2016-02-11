@@ -145,6 +145,7 @@ private:
 class SeriesRenderer {
 public:
   virtual ~SeriesRenderer() { }
+  virtual void addBreak() = 0;
   virtual void addValue(double x, double y, double stacky,
 			const WModelIndex& xIndex, const WModelIndex& yIndex)
     = 0;
@@ -184,7 +185,9 @@ public:
 		     SeriesRenderIterator& it)
     : SeriesRenderer(chart, painter, series, it),
       curveLength_(0)
-  { }
+  {
+    curve_.setOpenSubPathsEnabled(true);
+  }
 
   virtual void addValue(double x, double y, double stacky,
 			const WModelIndex& xIndex, const WModelIndex& yIndex) {
@@ -220,6 +223,25 @@ public:
     p0 = p;
     lastX_ = x;
     ++curveLength_;
+  }
+
+  virtual void addBreak()
+  {
+    if (curveLength_ > 1) {
+      if (series_.type() == CurveSeries) {
+	WPointF c1;
+	computeC(p0, p_1, c1);
+	curve_.cubicTo(hv(c_), hv(c1), hv(p0));
+	fill_.cubicTo(hv(c_), hv(c1), hv(p0));
+      }
+
+      if (series_.fillRange() != NoFill
+	  && series_.brush() != NoBrush) {
+	fill_.lineTo(hv(fillOtherPoint(lastX_)));
+	fill_.closeSubPath();
+      }
+    }
+    curveLength_ = 0;
   }
 
   virtual void paint() {
@@ -481,6 +503,7 @@ public:
     }
   }
 
+  void addBreak() { }
   void paint() { }
 
 private:
@@ -576,7 +599,7 @@ void SeriesRenderIterator::newValue(const WDataSeries& series,
 				    const WModelIndex& yIndex)
 {
   if (Utils::isNaN(x) || Utils::isNaN(y))
-    seriesRenderer_->paint();
+    seriesRenderer_->addBreak();
   else
     seriesRenderer_->addValue(x, y, stackY, xIndex, yIndex);
 }

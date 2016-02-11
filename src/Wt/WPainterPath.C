@@ -43,18 +43,21 @@ bool WPainterPath::Segment::operator!= (const Segment& other) const
 }
 
 WPainterPath::WPainterPath()
-  : isRect_(false)
+  : isRect_(false),
+    openSubPathsEnabled_(false)
 { }
 
 WPainterPath::WPainterPath(const WPointF& startPoint)
-  : isRect_(false)
+  : isRect_(false),
+    openSubPathsEnabled_(false)
 {
   moveTo(startPoint);
 }
 
 WPainterPath::WPainterPath(const WPainterPath& path)
   : WJavaScriptExposableObject(path),
-    isRect_(path.isRect_)
+    isRect_(path.isRect_),
+    openSubPathsEnabled_(path.openSubPathsEnabled_)
 #ifndef WT_TARGET_JAVA
     ,segments_(path.segments_)
 #endif
@@ -200,7 +203,7 @@ void WPainterPath::moveTo(double x, double y)
   /*
    * first close previous sub path
    */
-  if (!segments_.empty() && segments_.back().type() != Segment::MoveTo) {
+  if (!openSubPathsEnabled_ && !segments_.empty() && segments_.back().type() != Segment::MoveTo) {
     WPointF startP = getSubPathStart();
     WPointF currentP = currentPosition();
 
@@ -466,6 +469,11 @@ WPainterPath WPainterPath::crisp() const
   }
 
   return result;
+}
+
+void WPainterPath::setOpenSubPathsEnabled(bool enabled)
+{
+  openSubPathsEnabled_ = enabled;
 }
 
 bool WPainterPath::isPointInPath(const WPointF &p) const
