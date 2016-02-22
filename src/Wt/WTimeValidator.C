@@ -6,6 +6,11 @@
 #include "Wt/WLocale"
 #include "Wt/WLogger"
 #include "Wt/WStringStream"
+#include "Wt/WWebWidget"
+
+#ifndef WT_DEBUG_JS
+#include "js/WTimeValidator.min.js"
+#endif
 
 
 namespace Wt {
@@ -39,11 +44,17 @@ WTimeValidator::WTimeValidator(const WT_USTRING &format, const WTime &bottom,
 
 void WTimeValidator::setFormat(const WT_USTRING& format)
 {
-  if (format_ != format) {
-    format_ = format;
-    setRegExp(WTime::formatToRegExp(format).regexp);
-    repaint();
+  if(formats_.empty() || formats_[0] != format){
+      formats_.clear();
+      formats_.push_back(format);
+      repaint();
   }
+}
+
+void WTimeValidator::setFormats(const std::vector<WT_USTRING> &formats)
+{
+    formats_ = formats;
+    repaint();
 }
 
 void WTimeValidator::setBottom(const WTime &bottom)
@@ -71,10 +82,10 @@ WString WTimeValidator::invalidNotATimeText() const
 {
     if(!notATimeText_.empty()){
         WString s = notATimeText_;
-        s.arg(format_);
+        s.arg(formats_[0]);
         return s;
     } else
-        return WString::tr("Wt.WTimeValidator.WrongFormat").arg(format_);
+        return WString::tr("Wt.WTimeValidator.WrongFormat").arg(formats_[0]);
 }
 
 void WTimeValidator::setInvalidTooEarlyText(const WString &text)
@@ -87,17 +98,17 @@ WString WTimeValidator::invalidTooEarlyText() const
 {
     if(!tooEarlyText_.empty()){
         WString s = tooEarlyText_;
-        s.arg(bottom_.toString(format_)).arg(top_.toString(format_));
+        s.arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
         return s;
     } else{
         if(bottom_.isNull())
             return WString();
         else{
             if(top_.isNull())
-                return WString::tr("Wt.WTimeValidator.TimeTooEarly").arg(bottom_.toString(format_));
+                return WString::tr("Wt.WTimeValidator.TimeTooEarly").arg(bottom_.toString(formats_[0]));
             else
-                return WString::tr("Wt.WTimeValidator.WrongTimeRange").arg(bottom_.toString(format_))
-                        .arg(top_.toString(format_));
+                return WString::tr("Wt.WTimeValidator.WrongTimeRange").arg(bottom_.toString(formats_[0]))
+                        .arg(top_.toString(formats_[0]));
         }
     }
 }
@@ -112,39 +123,98 @@ WString WTimeValidator::invalidTooLateText() const
 {
     if(!tooLateText_.empty()){
         WString s = tooLateText_;
-        s.arg(bottom_.toString(format_)).arg(top_.toString(format_));
+        s.arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
         return s;
     } else{
         if(top_.isNull())
             return WString();
         else{
             if(bottom_.isNull())
-                return WString::tr("Wt.WTimeValidator.TimeTooLate").arg(top_.toString(format_));
+                return WString::tr("Wt.WTimeValidator.TimeTooLate").arg(top_.toString(formats_[0]));
             else
-                return WString::tr("Wt.WTimeValidator.WrongTimeRange").arg(bottom_.toString(format_))
-                        .arg(top_.toString(format_));
+                return WString::tr("Wt.WTimeValidator.WrongTimeRange").arg(bottom_.toString(formats_[0]))
+                        .arg(top_.toString(formats_[0]));
         }
     }
 
 }
 
-WRegExpValidator::Result WTimeValidator::validate(const WString &input) const
+WValidator::Result WTimeValidator::validate(const WT_USTRING &input) const
 {
     if(input.empty())
-        return WRegExpValidator::validate(input);
-    try{
-        WTime t = WTime::fromString(input, format_);
-        if(t.isValid()){
-            if(!bottom_.isNull() && t < bottom_)
-                return Result(Invalid, invalidTooEarlyText());
-            if(!top_.isNull() && t > top_)
-                return Result(Invalid, invalidTooLateText());
-            return Result(Valid);
+        return WValidator::validate(input);
+    for(unsigned i = 0; i < formats_.size(); i++){
+        try{
+            WTime t = WTime::fromString(input, formats_[i]);
+            if(t.isValid()){
+                if(!bottom_.isNull() && t < bottom_)
+                    return Result(Invalid, invalidTooEarlyText());
+                if(!top_.isNull() && t > top_)
+                    return Result(Invalid, invalidTooLateText());
+                return Result(Valid);
+            }
+        } catch(std::exception &e){
+                LOG_WARN("validate(): " << e.what());
         }
-    } catch(std::exception &e){
-            LOG_WARN("validate(): " << e.what());
     }
     return Result(Invalid, invalidNotATimeText());
 }
+
+void WTimeValidator::loadJavaScript(WApplication *app)
+{
+    LOAD_JAVASCRIPT(app, "js/WTimeValidator.js", "WTimeValidator", wtjs1);
+}
+
+std::string WTimeValidator::javaScriptValidate() const
+{
+    loadJavaScript(WApplication::instance());
+
+    WStringStream js;
+
+    js << "new " WT_CLASS ".WTimeValidator("
+       << isMandatory()
+       << ",[";
+
+    for(unsigned i = 0; i < formats_.size(); ++i){
+        WTime::RegExpInfo r = WTime::formatToRegExp(formats_[i]);
+
+        if(i != 0)
+            js << ',';
+        js << "{"
+           << "regexp:" << WWebWidget::jsStringLiteral(r.regexp) << ','
+           << "getHour:function(results){" << r.hourGetJS << ";},"
+           << "getMinutes:function(results){" << r.minuteGetJS << ";},"
+           << "getSeconds:function(results){" << r.secGetJS << ";},"
+           << "getMilliseconds:function(results){" << r.msecGetJS << ";},"
+           << "}";
+    }
+    js << "],";
+
+    if(!bottom_.isNull())
+        js << "new Date(0,0,0,"
+           << bottom_.hour() << "," << bottom_.minute() << ","
+           << bottom_.second() << "," << bottom_.msec()
+           << ")";
+    else
+        js << "null";
+    js << ',';
+
+    if(!top_.isNull())
+        js << "new Date(0,0,0,"
+           << top_.hour() << "," << top_.minute() << ","
+           << top_.second() << "," << top_.msec()
+           << ")";
+    else
+        js << "null";
+
+    js << ',' << invalidBlankText().jsStringLiteral()
+       << ',' << invalidNotATimeText().jsStringLiteral()
+       << ',' << invalidTooEarlyText().jsStringLiteral()
+       << ',' << invalidTooLateText().jsStringLiteral()
+       << ");";
+
+    return js.str();
+}
+
 
 }

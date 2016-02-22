@@ -27,38 +27,46 @@ public:
 
     /*! \brief Creates a new WTimeValidator
      *
-     * The validator zill accept only dates within the indicated range
+     * The validator will accept only times within the indicated range
      * <i>bottom</i> to <i>top</i>, in the time formate \p format
      */
     WTimeValidator(const WT_USTRING &format, const WTime &bottom,
                    const WTime &top, WObject *parent = 0);
 
-	/*! \brief sets the validator format
+    /*! \brief Sets the validator format
 	 * \sa WTime::toString()
 	 */
     void setFormat(const WT_USTRING &format);
 
-	/*! \brief Returns the Validator current format
+    /*! \brief Returns the validator current format
 	 */
-    virtual WT_USTRING format() const { return format_; }
+    virtual WT_USTRING format() const { return formats_[0]; }
 
-    /*! \brief Sets the bottom of the valid time range
+    /*! \brief Sets the time formats used to parse time strings
+     */
+    void setFormats(const std::vector<WT_USTRING> &formats);
+
+    /*! \brief Returns the time formats used to parse time strings
+     */
+    const std::vector<WT_USTRING>& formats() const { return formats_;}
+
+    /*! \brief Sets the lower limit of the valid time range
      *
      * The default is a null time constructed using WTime()
      */
     void setBottom(const WTime &bottom);
 
-    /*! \brief Returns the bottom time of the valid range
+    /*! \brief Returns the lower limit of the valid time range
      */
     const WTime& bottom() const { return bottom_;}
 
-    /*! \brief Sets the top of the valid time range
+    /*! \brief Sets the upper limit of the valid time range
      *
      * The default is a null time constructed using WTime()
      */
     void setTop(const WTime &top);
 
-    /*! \brief Returns the top time of the valid range
+    /*! \brief Returns the upper limit of the valid time range
      */
     const WTime& top() const { return top_;}
 
@@ -86,16 +94,26 @@ public:
      */
     WString invalidTooLateText() const;
 
-    virtual Result validate(const WString &input) const;
+    /*! \brief Validates the given input
+     *
+     * The input is considered valid only when it is blank for a
+     * non-mandatory field, or represents a time in the given format,
+     * and within the valid range.
+     */
+    virtual Result validate(const WT_USTRING &input) const;
+
+    virtual std::string javaScriptValidate() const;
 
 private:
 
-    WT_USTRING format_;
+    std::vector<WT_USTRING> formats_;
     WTime bottom_, top_;
 
     WString tooEarlyText_;
     WString tooLateText_;
     WString notATimeText_;
+
+    static void loadJavaScript(WApplication *app);
 
 };
 

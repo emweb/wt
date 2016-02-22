@@ -41,11 +41,11 @@ button->clicked().connect(std::bind([=] () {
     if (de1->text().empty() || de2->text().empty())
 	out->setText("You should enter two time!");
     else {
-	int secs = de1->time().secsTo(de2->time()) + 1;
+    long secs = de1->time().secsTo(de2->time()) + 1;
 	if (secs <= 3600)
 	    out->setText("This is a really small range of time");
 	else if (secs > 3600) 
-	    out->setText(Wt::WString("So, you want to be delivered between "
+        out->setText(Wt::WString("So, you want your package to be delivered between "
 				     "{1} and {2} ?...").arg(de1->time().toString()).arg(de2->time().toString()));
 	else
 	    out->setText("Invalid period!");

@@ -77,6 +77,11 @@
   <message id="Wt.WDateValidator.WrongDateRange">The date must be between {1} and {2}</message>
   <message id="Wt.WDateValidator.WrongFormat">Must be a date in the format '{1}'</message>
 
+  <message id="Wt.WTimeValidator.TimeTooEarly">The time must be after {1}</message>
+  <message id="Wt.WTimeValidator.TimeTooLate">The time must be before {1}</message>
+  <message id="Wt.WTimeValidator.WrongTimeRange">The time must be between {1} and {2}</message>
+  <message id="Wt.WTimeValidator.WrongFormat">Must be a time in the format '{1}'</message>
+
   <message id="Wt.WDefaultLoadingIndicator.Loading">Loading...</message>
 
   <message id="Wt.WDialog.template">
@@ -229,6 +234,10 @@
     <span class="icon-bar"></span>
     <span class="icon-bar"></span>
     <span class="icon-bar"></span>
+  </message>
+
+  <message id="Wt.WTimePicker.template">
+    ${hour}${minute}${second}${millisecond}${ampm}
   </message>
 
   <message id="Wt.WTreeViewNode.template">

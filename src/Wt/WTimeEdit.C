@@ -23,13 +23,15 @@ LOGGER("WTimeEdit");
 WTimeEdit::WTimeEdit(WContainerWidget *parent)
   : WLineEdit(parent)
 {
+  setValidator(new WTimeValidator("hh:mm AP", this));
   changed().connect(this, &WTimeEdit::setFromLineEdit);
   const char *TEMPLATE = "${timePicker}";
   WTemplate *t = new WTemplate(WString::fromUTF8(TEMPLATE));
   popup_ = new WPopupWidget(t, this);
   popup_->setAnchorWidget(this);
-  popup_->setTransient(true, 2);
-  timePicker_ = new WTimePicker();
+  popup_->setTransient(true);
+
+  timePicker_ = new WTimePicker(this);
   timePicker_->selectionChanged().connect(this, &WTimeEdit::setFromTimePicker);
   t->bindWidget("timePicker", timePicker_);
 
@@ -37,13 +39,34 @@ WTimeEdit::WTimeEdit(WContainerWidget *parent)
 
   escapePressed().connect(popup_, &WPopupWidget::hide);
   escapePressed().connect(this, &WWidget::setFocus);
-  setValidator(new WTimeValidator("HH:mm", this));
+
 }
 
 void WTimeEdit::setTime(const WTime& time)
 {
-  setText(time.toString(format()));
-  timePicker_->setTime(time);
+  if(!time.isNull()){
+      setText(time.toString(format()));
+      std::string ampm = checkFormat();
+      if(ampm.empty()){
+          timePicker_->setTime(time);
+      }
+      else{
+          if(!init_){
+              WString timeStr = time.toString(format());
+              ampm = timePicker_->ampm();
+              if(timeStr.toUTF8().find(timePicker_->ampm()) == std::string::npos){
+                  std::string newTime = timeStr.toUTF8();
+                  if(timePicker_->ampm() == "AM")
+                      newTime = Wt::Utils::replace(newTime, "PM", "AM");
+                  else
+                      newTime = Wt::Utils::replace(newTime, "AM", "PM");
+                  setText(newTime);
+              } else
+                  setText(timeStr);
+          }
+          timePicker_->setTime(time, ampm);
+      }
+  }
 }
 
 WTime WTimeEdit::time() const
@@ -63,9 +86,11 @@ void WTimeEdit::setFormat(const WT_USTRING& format)
   if (tv) {
     WTime t = this->time();
     tv->setFormat(format);
+    timePicker_->configure();
+    init_ = false;
     setTime(t);
   } else
-    LOG_WARN("setFormaT() ignored since validator is not WTimeValidator");
+    LOG_WARN("setFormat() ignored since validator is not WTimeValidator");
 }
 
 WT_USTRING WTimeEdit::format() const
@@ -78,6 +103,36 @@ WT_USTRING WTimeEdit::format() const
     LOG_WARN("format() is bogus since validator is not WTimeValidator.");
     return WT_USTRING();
   }
+}
+
+void WTimeEdit::setBottom(const WTime &bottom)
+{
+    WTimeValidator *tv = validator();
+    if(tv)
+        tv->setBottom(bottom);
+}
+
+WTime WTimeEdit::bottom() const
+{
+    WTimeValidator *tv = validator();
+    if(tv)
+        return tv->bottom();
+    return WTime();
+}
+
+void WTimeEdit::setTop(const WTime &top)
+{
+    WTimeValidator *tv = validator();
+    if(tv)
+        tv->setTop(top);
+}
+
+WTime WTimeEdit::top() const
+{
+    WTimeValidator *tv = validator();
+    if(tv)
+        return tv->top();
+    return WTime();
 }
 
 void WTimeEdit::setHidden(bool hidden, const WAnimation& animation)
@@ -101,15 +156,32 @@ void WTimeEdit::propagateSetEnabled(bool enabled)
 
 void WTimeEdit::setFromTimePicker()
 {
+  init_ = false;
   setTime(timePicker_->time());
 }
 
 void WTimeEdit::setFromLineEdit()
 {
   WTime t = WTime::fromString(text(), format());
+  if(t.isValid()){
+      std::string ampm = checkFormat();
+      if(ampm.empty())
+          timePicker_->setTime(t);
+      else
+          timePicker_->setTime(t, ampm);
+  }
+}
 
-  if (t.isValid())
-    timePicker_->setTime(t);
+std::string WTimeEdit::checkFormat() const
+{
+    std::string str;
+    if(format().toUTF8().find("A") != std::string::npos || format().toUTF8().find("a") != std::string::npos){
+        if(text().toUTF8().find("P") != std::string::npos)
+            str = "PM";
+        else
+            str = "AM";
+    }
+    return str;
 }
 
 void WTimeEdit::defineJavaScript()

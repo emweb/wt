@@ -291,10 +291,10 @@ private:
 
   int pmhour() const;
 
-  static RegExpInfo formatHourToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
-  static RegExpInfo formatMinuteToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
-  static RegExpInfo formatSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
-  static RegExpInfo formatMSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
+  static RegExpInfo formatHourToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
+  static RegExpInfo formatMinuteToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
+  static RegExpInfo formatSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
+  static RegExpInfo formatMSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
   static RegExpInfo formatAPToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
   static RegExpInfo processChar(RegExpInfo &result, const std::string& format, unsigned& i);
 

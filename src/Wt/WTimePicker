@@ -1,4 +1,9 @@
-
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2016 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
 #ifndef WTIME_PICKER_H_
 #define WTIME_PICKER_H_
 
@@ -6,8 +11,12 @@
 #include "WContainerWidget"
 #include "WTime"
 #include "WSpinBox"
+#include "WStringStream"
+#include "WComboBox"
 
 namespace Wt {
+
+class WTimeEdit;
 
 /*! \class WTimePicker Wt/WTimePicker Wt/WTimePicker
  *  \brief A Time Picker
@@ -30,70 +39,60 @@ public:
      */
     WTimePicker(const WTime &time, WContainerWidget *parent = 0);
 
+    /*! \brief Creates a new time picker.
+     */
+    WTimePicker(WTimeEdit *timeEdit, WContainerWidget *parent = 0);
+
+    /*! \brief Creates a new time picker.
+     */
+    WTimePicker(const WTime &time, WTimeEdit *timeEdit, WContainerWidget *parent = 0);
+
+    /*! \brief Returns the time
+     */
     WTime time();
 
-	/*! \brief sets the time
+    /*! \brief Sets the time
 	 */
     void setTime(const WTime& time);
 
-	/*! \brief returns the minutes step
-	 */
-    int minuteStep() const { return minuteStep_; }
-	
-	/*! \brief sets the minute step
-	 */
-    void setMinuteStep(int step) { minuteStep_ = step; }
-	
-	/*! \brief sets the second step
-	 */
-    void setSecondStep(int step) { secondStep_ = step; }
+    /*! \brief Sets the time
+     *
+     * Used when format is 'AP' format. In this case string must contain the AM or PM value.
+     */
+    void setTime(const WTime &time, std::string &ampm);
 
 	/*! \brief Signal emitted when the value is changed
 	 */
     Signal<>& selectionChanged() { return selectionChanged_; }
 
-    /*! \brief Sets the format used for parsing or writing the time
-     * The default format is <tt>'HH:mm'</tt>
-     */
-    void setFormat(const WT_USTRING& format);
+    void configure();
 
-    /*! \brief Returns the format
-     */
-    const WT_USTRING& format() const { return format_;}
+    std::string ampm() const;
 
 private:
 
     void init(const WTime &time = WTime());
-    void hoursValueChanged();
-    void minutesValueChanged();
-    void secondsValueChanged();
-    void msecondsValueChanged();
-    
-    int minuteStep_;
-    int secondStep_;
-
 
     WT_USTRING format_;
-
-    WText *hourText_;
-    WText *minuteText_;
-    WText *secondText_;
-    WText *millisecondText_;
 
     WSpinBox *sbhour_;
     WSpinBox *sbminute_;
     WSpinBox *sbsecond_;
     WSpinBox *sbmillisecond_;
+    WComboBox *cbAP_;
 
-    void incrementMinutes();
-    void decrementMinutes();
-    void incrementHours();
-    void decrementHours();
-    void incrementSeconds();
-    void decrementSeconds();
+    WTimeEdit *timeEdit_;
+
+    void createWidgets();
+    void hourValueChanged();
+    void minuteValueChanged();
+    void secondValueChanged();
+    void msecValueChanged();
+    void ampmValueChanged();
+    bool formatAp();
+    bool formatMs();
 
     Signal<> selectionChanged_;
-
 };
 
 

@@ -1466,7 +1466,7 @@
   </message>
   
   <message id="timeEdit-template">
-    <p>When do you want to be delivered?</p>
+    <p>When do you want your package to be delivered?</p>
 
     <div class="form-horizontal">
       <div class="form-group">

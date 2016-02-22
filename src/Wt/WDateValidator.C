@@ -192,7 +192,6 @@ std::string WDateValidator::javaScriptValidate() const
 
   for (unsigned i = 0; i < formats_.size(); ++i) {
     WDate::RegExpInfo r = WDate::formatToRegExp(formats_[i]);
-
     if (i != 0)
       js << ',';
 

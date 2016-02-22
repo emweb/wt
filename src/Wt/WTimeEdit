@@ -62,27 +62,26 @@ public:
      */
     WT_USTRING format() const;
 
-    /*! \brief set the hidden status
-     */
     virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
 
-    /*! \brief returns the minutes step
+    /*! \brief Sets the lower limit of the valid time range
      */
-    int minuteStep() const { return timePicker_->minuteStep(); }
+    void setBottom(const WTime &bottom);
 
-    /*! \brief sets the minute step
+    /*! \brief Returns the lower limit of the valid time range
      */
-    void setMinuteStep(int step) { timePicker_->setMinuteStep(step); }
+    WTime bottom() const;
+
+    /*! \brief Sets the upper limit of the valid time range
+     */
+    void setTop(const WTime &top);
+
+    /*! \brief Returns the upper limit of the valid time range
+     */
+    WTime top() const;
 
 protected:
-    /*!
-     * \brief render the widget
-     */
     virtual void render(WFlags<RenderFlag> flags);
-
-    /*!
-     * \brief enable or disable propagation
-     */
     virtual void propagateSetEnabled(bool enabled);
 
     /*! \brief Sets the value from the time scroller to the line edit.
@@ -93,17 +92,16 @@ protected:
      */
     virtual void setFromLineEdit();
 
-    /*! \brief sets the text
-     */
-    virtual void setText(const WString &text) { WLineEdit::setText(text); }
-
 private:
     WPopupWidget *popup_;
     WTimePicker *timePicker_;
 
+    bool init_ = true;
+
+    std::string checkFormat() const;
+
     void defineJavaScript();
     void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
-
 };
 
 }
