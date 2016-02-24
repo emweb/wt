@@ -1097,6 +1097,7 @@ private:
   int rowHeaderCount_;
   WString computedDragMimeType_;
   bool sortEnabled_;
+  WModelIndex delayedClearAndSelectIndex_;
 
   JSignal<int, int> columnWidthChanged_;
   Signal<int, WLength> columnResized_;

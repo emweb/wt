@@ -174,6 +174,7 @@ std::string createQueryCountSql(const std::string& query,
 				const std::string& having,
 				const std::string& orderBy,
 				int limit, int offset,
+				const SelectFieldLists& fields,
 				LimitQuery limitQueryMethod,
 				bool requireSubqueryAlias)
 {
@@ -191,9 +192,22 @@ std::string createQueryCountSql(const std::string& query,
    * a performance loss so we do not take any risk here.
    *
    * Also, we cannot count like this when we have a limit or offset
-   * parameter.
+   * parameter, or when we need to bind something in the select part.
    */
-  if (!groupBy.empty() || ifind(from, "group by") != std::string::npos
+  bool selectBoundParameter = false;
+  for (unsigned i = 0; i < fields.size(); ++i) {
+    for (unsigned j = 0; j < fields[i].size(); ++j) {
+      const SelectField& sf = fields[i][j];
+      if (query.substr(sf.begin, sf.end-sf.begin).find("?")
+	  != std::string::npos) {
+	selectBoundParameter = true;
+	break;
+      }
+    }
+  }
+
+  if (selectBoundParameter ||
+      !groupBy.empty() || ifind(from, "group by") != std::string::npos
       || !having.empty() || ifind(from, "having") != std::string::npos
       || !orderBy.empty() || ifind(from, "order by") != std::string::npos
       || limit != -1 || offset != -1)

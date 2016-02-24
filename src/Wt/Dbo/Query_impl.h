@@ -53,6 +53,7 @@ createQueryCountSql(const std::string& query,
 		    const std::string& having,
 		    const std::string& orderBy,
 		    int limit, int offset,
+		    const SelectFieldLists& fields,
 		    LimitQuery useRowsFromTo,
                     bool requireSubqueryAlias);
 
@@ -143,11 +144,12 @@ QueryBase<Result>::statements(const std::string& where,
     if (simpleCount_)
       sql = Impl::createQueryCountSql(sql, sql_, where, groupBy, having,
                                       orderBy, limit, offset,
+				      selectFieldLists_,
                                       this->session_->limitQueryMethod_,
                                       this->session_->requireSubqueryAlias_);
     else
-      sql = Impl::createWrappedQueryCountSql(sql,
-                                          this->session_->requireSubqueryAlias_);
+      sql = Impl::createWrappedQueryCountSql
+	(sql, this->session_->requireSubqueryAlias_);
 
     countStatement = this->session_->getOrPrepareStatement(sql);
   } else {
@@ -177,6 +179,7 @@ QueryBase<Result>::statements(const std::string& where,
       std::string from = sql_.substr(selectFieldLists_.front().back().end);
       sql = Impl::createQueryCountSql(sql, from, where, groupBy, having,
                                       orderBy, limit, offset,
+				      selectFieldLists_,
                                       this->session_->limitQueryMethod_,
                                       this->session_->requireSubqueryAlias_);
     } else

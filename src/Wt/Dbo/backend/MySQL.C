@@ -92,18 +92,16 @@ class MySQLStatement : public SqlStatement
         throw MySQLException("error creating prepared statement: '"
 			      + sql + "': " + mysql_stmt_error(stmt_));
       }
-      if(mysql_stmt_param_count(stmt_)> 0)
-      {
-          in_pars_ = (MYSQL_BIND *)malloc(
-                sizeof(struct st_mysql_bind) * mysql_stmt_param_count(stmt_));
-          memset(in_pars_, 0,
-                 sizeof(struct st_mysql_bind)*mysql_stmt_param_count(stmt_));
-      }
-      else{
+
+      paramCount_ = mysql_stmt_param_count(stmt_);
+
+      if (paramCount_ > 0) {
+          in_pars_ =
+	    (MYSQL_BIND *)malloc(sizeof(struct st_mysql_bind) * paramCount_);
+          memset(in_pars_, 0, sizeof(struct st_mysql_bind) * paramCount_);
+      } else {
         in_pars_ = 0;
       }
-//      snprintf(name_, 64, "SQL%p%08X", this, rand());
-
 
       DEBUG(std::cerr <<  " new SQLStatement for: " << sql_ << std::endl);
 
@@ -137,7 +135,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, const std::string& value)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -162,7 +160,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, short value)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -179,7 +177,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, int value)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -195,7 +193,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, long long value)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -224,7 +222,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, double value)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -241,7 +239,7 @@ class MySQLStatement : public SqlStatement
     virtual void bind(int column, const boost::posix_time::ptime& value,
                       SqlDateTimeType type)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -283,7 +281,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, const boost::posix_time::time_duration& value)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " "
@@ -314,7 +312,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bind(int column, const std::vector<unsigned char>& value)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
@@ -342,7 +340,7 @@ class MySQLStatement : public SqlStatement
 
     virtual void bindNull(int column)
     {
-      if (in_pars_ == 0)
+      if (column >= paramCount_)
         throw MySQLException(std::string("Try to bind too much?"));
 
       DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
@@ -757,7 +755,6 @@ class MySQLStatement : public SqlStatement
     }
 
   private:
-
     MySQL& conn_;
     std::string sql_;
     char name_[64];
@@ -766,6 +763,7 @@ class MySQLStatement : public SqlStatement
     MYSQL_STMT* stmt_;
     MYSQL_BIND* in_pars_;
     MYSQL_BIND* out_pars_;
+    int paramCount_;
     my_bool* errors_;
     unsigned int lastOutCount_;
     // true value to use because mysql specifies that pointer to the boolean

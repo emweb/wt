@@ -2405,3 +2405,31 @@ BOOST_AUTO_TEST_CASE( dbo_test26 )
   }
 #endif // SQLITE3
 }
+
+BOOST_AUTO_TEST_CASE( dbo_test27 )
+{
+#ifdef MYSQL
+  /* Allegedly fails, see #4734 */
+  DboFixture f;
+
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+
+    dbo::ptr<B> b(new B());
+    b.modify()->name = "b";
+    session_->add(b);
+  }
+
+  {
+    dbo::Transaction t(*session_);
+
+    /* The count fails ! */
+
+    std::string auth = session_->query<std::string>
+      ("select sha1(?) from " SCHEMA "\"table_b\" where \"name\"=?")
+      .bind("shhhh").bind("b");
+  }
+#endif
+}

@@ -1592,6 +1592,15 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
     case PropertyRowSpan:
       out << var_ << ".rowSpan=" << i->second << ";";
       break;
+    case PropertyLabel:
+      out << var_ << ".label=";
+      if (!pushed) {
+	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+	pushed = true;
+      }
+      fastJsStringLiteral(out, escaped, i->second);
+      out << ';';
+      break;
     case PropertyClass:
       out << var_ << ".className=";
       if (!pushed) {

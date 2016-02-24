@@ -105,7 +105,7 @@ long benchmarkQuery(
 
   long sum;
   dbo::ptr<Perf2::Post> post;
-  for (unsigned i = 0; i < total_objects; i++) {
+  for (int i = 0; i < total_objects; i++) {
     boost::tie(post, sum) = model.resultRow(i);
     total_sum += sum;
   }
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( performance_test2 )
     std::cerr << "Loading " << total_objects << " objects in database."
               << std::endl;
 
-    for (unsigned i = 0; i < total_objects - current_objects; ++i) {
+    for (int i = 0; i < total_objects - current_objects; ++i) {
       Perf2::Post *p = new Perf2::Post();
       p->counter = 1;
       session.add(p);
