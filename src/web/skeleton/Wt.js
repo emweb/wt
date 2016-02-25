@@ -487,8 +487,10 @@ this.insertAt = function(p, c, pos) {
 this.remove = function(id)
 {
   var e = WT.getElement(id);
-  if (e)
+  if (e) {
+    WT.saveReparented(e);
     e.parentNode.removeChild(e);
+  }
 };
 
 this.contains = function(w1, w2) {
