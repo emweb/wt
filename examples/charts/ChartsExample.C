@@ -174,8 +174,8 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
    * Add all (but first) column as bar series
    */
   for (int i = 1; i < model->columnCount(); ++i) {
-    WDataSeries s(i, BarSeries);
-    s.setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+    WDataSeries *s = new WDataSeries(i, BarSeries);
+    s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(s);
   }
 
@@ -268,8 +268,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
    * Add first two columns as line series
    */
   for (int i = 1; i < 3; ++i) {
-    WDataSeries s(i, LineSeries);
-    s.setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+    WDataSeries *s = new WDataSeries(i, LineSeries);
+    s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(s);
   }
 
@@ -322,8 +322,8 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   chart->setAutoLayoutEnabled();
 
   // Add the curves
-  WDataSeries s(1, CurveSeries);
-  s.setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+  WDataSeries *s = new WDataSeries(1, CurveSeries);
+  s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
   chart->addSeries(s);
 
   chart->resize(800, 300); // WPaintedWidget must be given explicit size

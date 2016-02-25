@@ -279,6 +279,7 @@ Wt/Auth/User.C
 Wt/Auth/AuthUtils.C
 Wt/Auth/MailUtils.C
 Wt/Chart/WAbstractChart.C
+Wt/Chart/WAbstractChartModel.C
 Wt/Chart/WAxis.C
 Wt/Chart/WAxisSliderWidget.C
 Wt/Chart/WDataSeries.C
@@ -289,6 +290,7 @@ Wt/Chart/WAbstractChartImplementation.C
 Wt/Chart/WChart2DImplementation.C
 Wt/Chart/WChart3DImplementation.C
 Wt/Chart/WChartPalette.C
+Wt/Chart/WStandardChartProxyModel.C
 Wt/Chart/WStandardPalette.C
 Wt/Chart/WStandardColorMap.C
 Wt/Chart/WLegend.C

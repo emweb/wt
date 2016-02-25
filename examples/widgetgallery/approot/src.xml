@@ -96,6 +96,211 @@
 <span class="n">sp</span><span class="o">-&gt;</span><span class="n">addSuggestion</span><span class="p">(</span><span class="s">&quot;Johanna Tree &lt;johanna@mycompany.com&gt;&quot;</span><span class="p">);</span>
 </pre></div>
   </message>
+  <message id="src-AxisSliderWidget">
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/Chart/WAxisSliderWidget&gt;</span>
+<span class="cp">#include &lt;Wt/Chart/WCartesianChart&gt;</span>
+<span class="cp">#include &lt;Wt/Chart/WDataSeries&gt;</span>
+<span class="cp">#include &lt;Wt/WAbstractItemModel&gt;</span>
+<span class="cp">#include &lt;Wt/WAbstractItemView&gt;</span>
+<span class="cp">#include &lt;Wt/WApplication&gt;</span>
+<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WDate&gt;</span>
+<span class="cp">#include &lt;Wt/WEnvironment&gt;</span>
+<span class="cp">#include &lt;Wt/WPaintedWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WItemDelegate&gt;</span>
+<span class="cp">#include &lt;Wt/WShadow&gt;</span>
+<span class="cp">#include &lt;Wt/WStandardItemModel&gt;</span>
+
+<span class="cp">#include &quot;../treeview-dragdrop/CsvUtil.h&quot;</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WStandardItemModel</span> <span class="o">*</span><span class="n">model</span>
+    <span class="o">=</span> <span class="n">csvToModel</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">appRoot</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;timeseries.csv&quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">container</span><span class="p">;</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Parses the first column as dates, to be able to use a date scale</span>
+<span class="cm"> */</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">model</span><span class="o">-&gt;</span><span class="n">rowCount</span><span class="p">();</span> <span class="o">++</span><span class="n">row</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asString</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+    <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span> <span class="n">date</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span><span class="o">::</span><span class="n">fromString</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;dd/MM/yy&quot;</span><span class="p">);</span>
+    <span class="n">model</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">date</span><span class="p">);</span>
+  <span class="p">}</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Creates the scatter plot.</span>
+<span class="cm"> */</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span> <span class="o">*</span><span class="n">chart</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setBackground</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">220</span><span class="p">));</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setXSeriesColumn</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">ScatterPlot</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setScale</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">DateScale</span><span class="p">);</span>
+<span class="kt">double</span> <span class="n">min</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asNumber</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+<span class="kt">double</span> <span class="n">max</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asNumber</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">rowCount</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+<span class="c1">// Set maximum X zoom level to 16x zoom</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setMinimumZoomRange</span><span class="p">((</span><span class="n">max</span> <span class="o">-</span> <span class="n">min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">16.0</span><span class="p">);</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Add the second and the third column as line series.</span>
+<span class="cm"> */</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
+<span class="n">s</span><span class="o">-&gt;</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">);</span>
+
+<span class="c1">// Enable pan and zoom</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setPanEnabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setZoomEnabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLength</span><span class="o">::</span><span class="n">Auto</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span> <span class="c1">// Center horizontally</span>
+
+<span class="c1">// Add a WAxisSliderWidget for the chart using the data series for column 2</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAxisSliderWidget</span> <span class="o">*</span><span class="n">sliderWidget</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAxisSliderWidget</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">80</span><span class="p">);</span>
+<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">setSelectionAreaPadding</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
+<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLength</span><span class="o">::</span><span class="n">Auto</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span> <span class="c1">// Center horizontally</span>
+</pre></div>
+  </message>
+  <message id="src-AxisSliderWidgetDifferentDataSeries">
+<div class="highlight"><pre><span class="cp">#include &lt;Wt/Chart/WAbstractChartModel&gt;</span>
+<span class="cp">#include &lt;Wt/Chart/WAxisSliderWidget&gt;</span>
+<span class="cp">#include &lt;Wt/Chart/WCartesianChart&gt;</span>
+<span class="cp">#include &lt;Wt/Chart/WDataSeries&gt;</span>
+<span class="cp">#include &lt;Wt/WApplication&gt;</span>
+<span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
+<span class="cp">#include &lt;Wt/WObject&gt;</span>
+<span class="cp">#include &lt;Wt/WShadow&gt;</span>
+
+<span class="cp">#include &lt;cmath&gt;</span>
+
+<span class="cp">#define M_PI 3.14159265358979323846</span>
+
+<span class="k">class</span> <span class="nc">SinModel</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAbstractChartModel</span> <span class="p">{</span>
+<span class="nl">public:</span>
+  <span class="n">SinModel</span><span class="p">(</span><span class="kt">double</span> <span class="n">minimum</span><span class="p">,</span> <span class="kt">double</span> <span class="n">maximum</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span> <span class="o">*</span><span class="n">parent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAbstractChartModel</span><span class="p">(</span><span class="n">parent</span><span class="p">),</span>
+      <span class="n">minimum_</span><span class="p">(</span><span class="n">minimum</span><span class="p">),</span>
+      <span class="n">maximum_</span><span class="p">(</span><span class="n">maximum</span><span class="p">)</span>
+  <span class="p">{</span> <span class="p">}</span>
+
+  <span class="k">virtual</span> <span class="kt">double</span> <span class="n">data</span><span class="p">(</span><span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="kt">int</span> <span class="n">column</span><span class="p">)</span> <span class="k">const</span>
+  <span class="p">{</span>
+    <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="n">minimum_</span> <span class="o">+</span> <span class="n">row</span> <span class="o">*</span> <span class="p">(</span><span class="n">maximum_</span> <span class="o">-</span> <span class="n">minimum_</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">rowCount</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">column</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">40.0</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">virtual</span> <span class="kt">int</span> <span class="n">columnCount</span><span class="p">()</span> <span class="k">const</span>
+  <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">virtual</span> <span class="kt">int</span> <span class="n">rowCount</span><span class="p">()</span> <span class="k">const</span>
+  <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">100</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">double</span> <span class="n">minimum</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">minimum_</span><span class="p">;</span> <span class="p">}</span>
+  <span class="kt">double</span> <span class="n">maximum</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">maximum_</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="nl">private:</span>
+  <span class="kt">double</span> <span class="n">minimum_</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">maximum_</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">ChartState</span> <span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span> <span class="p">{</span>
+  <span class="n">ChartState</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span> <span class="o">*</span><span class="n">parent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+  <span class="p">{</span> <span class="p">}</span>
+
+  <span class="n">SinModel</span> <span class="o">*</span><span class="n">model</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span> <span class="o">*</span><span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="p">();</span>
+
+<span class="n">ChartState</span> <span class="o">*</span><span class="n">state</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ChartState</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Start with a rough model for the fully zoomed out position.</span>
+<span class="cm"> */</span>
+<span class="n">state</span><span class="o">-&gt;</span><span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SinModel</span><span class="p">(</span><span class="o">-</span><span class="n">M_PI</span><span class="p">,</span> <span class="n">M_PI</span><span class="p">);</span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span> <span class="o">*</span><span class="n">chart</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setBackground</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">220</span><span class="p">));</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">ScatterPlot</span><span class="p">);</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Create a rough model to use for the WAxisSliderWidget</span>
+<span class="cm"> */</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAbstractChartModel</span> <span class="o">*</span><span class="n">roughModel</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SinModel</span><span class="p">(</span><span class="o">-</span><span class="n">M_PI</span><span class="p">,</span> <span class="n">M_PI</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">roughSeries</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
+<span class="n">roughSeries</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">roughModel</span><span class="p">);</span>
+<span class="n">roughSeries</span><span class="o">-&gt;</span><span class="n">setXSeriesColumn</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="c1">// Add the rough series to the chart, but hide it!</span>
+<span class="n">roughSeries</span><span class="o">-&gt;</span><span class="n">setHidden</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">roughSeries</span><span class="p">);</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Add the second and the third column as line series.</span>
+<span class="cm"> */</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">series</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
+<span class="n">series</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">state</span><span class="o">-&gt;</span><span class="n">model</span><span class="p">);</span>
+<span class="n">series</span><span class="o">-&gt;</span><span class="n">setXSeriesColumn</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">series</span><span class="o">-&gt;</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">series</span><span class="p">);</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">zoomRangeChanged</span><span class="p">().</span><span class="n">connect</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">([</span><span class="o">=</span><span class="p">]</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="kt">double</span> <span class="n">minX</span> <span class="o">=</span> <span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">zoomMinimum</span><span class="p">();</span>
+  <span class="kt">double</span> <span class="n">maxX</span> <span class="o">=</span> <span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">zoomMaximum</span><span class="p">();</span>
+  <span class="cm">/*</span>
+<span class="cm">   * Determine the range of the model.</span>
+<span class="cm">   */</span>
+  <span class="kt">double</span> <span class="n">dX</span> <span class="o">=</span> <span class="n">maxX</span> <span class="o">-</span> <span class="n">minX</span><span class="p">;</span>
+  <span class="n">minX</span> <span class="o">=</span> <span class="n">minX</span> <span class="o">-</span> <span class="n">dX</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">minX</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">M_PI</span><span class="p">)</span>
+    <span class="n">minX</span> <span class="o">=</span> <span class="o">-</span><span class="n">M_PI</span><span class="p">;</span>
+  <span class="n">maxX</span> <span class="o">=</span> <span class="n">maxX</span> <span class="o">+</span> <span class="n">dX</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">maxX</span> <span class="o">&gt;</span> <span class="n">M_PI</span><span class="p">)</span>
+    <span class="n">maxX</span> <span class="o">=</span> <span class="n">M_PI</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">state</span><span class="o">-&gt;</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">minimum</span><span class="p">()</span> <span class="o">!=</span> <span class="n">minX</span> <span class="o">||</span> <span class="n">state</span><span class="o">-&gt;</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">maximum</span><span class="p">()</span> <span class="o">!=</span> <span class="n">maxX</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Change the model</span>
+    <span class="k">delete</span> <span class="n">state</span><span class="o">-&gt;</span><span class="n">model</span><span class="p">;</span>
+    <span class="n">state</span><span class="o">-&gt;</span><span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SinModel</span><span class="p">(</span><span class="n">minX</span><span class="p">,</span> <span class="n">maxX</span><span class="p">);</span>
+    <span class="n">series</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">state</span><span class="o">-&gt;</span><span class="n">model</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}));</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setMinimumZoomRange</span><span class="p">(</span><span class="n">M_PI</span> <span class="o">/</span> <span class="mf">8.0</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setMinimum</span><span class="p">(</span><span class="o">-</span><span class="mf">3.5</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setMaximum</span><span class="p">(</span><span class="mf">3.5</span><span class="p">);</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">YAxis</span><span class="p">).</span><span class="n">setMinimumZoomRange</span><span class="p">(</span><span class="mf">0.1</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">YAxis</span><span class="p">).</span><span class="n">setMinimum</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">YAxis</span><span class="p">).</span><span class="n">setMaximum</span><span class="p">(</span><span class="mf">1.5</span><span class="p">);</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">);</span>
+
+<span class="c1">// Enable pan and zoom</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setPanEnabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setZoomEnabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLength</span><span class="o">::</span><span class="n">Auto</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span> <span class="c1">// Center horizontally</span>
+
+<span class="c1">// Add a WAxisSliderWidget for the chart using the data series for column 2</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAxisSliderWidget</span> <span class="o">*</span><span class="n">sliderWidget</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAxisSliderWidget</span><span class="p">(</span><span class="n">roughSeries</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
+<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">80</span><span class="p">);</span>
+<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">setSelectionAreaPadding</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
+<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLength</span><span class="o">::</span><span class="n">Auto</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span> <span class="c1">// Center horizontally</span>
+</pre></div>
+  </message>
   <message id="src-BorderLayout">
 <div class="highlight"><pre><span class="cp">#include &lt;Wt/WContainerWidget&gt;</span>
 <span class="cp">#include &lt;Wt/WBorderLayout&gt;</span>
@@ -276,8 +481,8 @@
 <span class="cm"> * Add all (but first) column as bar series.</span>
 <span class="cm"> */</span>
 <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">column</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="n">model</span><span class="o">-&gt;</span><span class="n">columnCount</span><span class="p">();</span> <span class="o">++</span><span class="n">column</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="n">series</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">BarSeries</span><span class="p">);</span>
-    <span class="n">series</span><span class="p">.</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
+    <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">series</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">BarSeries</span><span class="p">);</span>
+    <span class="n">series</span><span class="o">-&gt;</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
     <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">series</span><span class="p">);</span>
 <span class="p">}</span>
 
@@ -442,6 +647,7 @@
 <span class="n">model</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;US&quot;</span><span class="p">),</span> <span class="n">Wt</span><span class="o">::</span><span class="n">UserRole</span><span class="p">);</span>
 <span class="n">model</span><span class="o">-&gt;</span><span class="n">setFlags</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 
+<span class="n">cb</span><span class="o">-&gt;</span><span class="n">setNoSelectionEnabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
 <span class="n">cb</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span> <span class="o">*</span><span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="p">(</span><span class="n">container</span><span class="p">);</span>
@@ -902,6 +1108,8 @@
 				       <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">contents</span><span class="p">());</span>
     <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span> <span class="o">*</span><span class="n">edit</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WLineEdit</span><span class="p">(</span><span class="n">dialog</span><span class="o">-&gt;</span><span class="n">contents</span><span class="p">());</span>
     <span class="n">label</span><span class="o">-&gt;</span><span class="n">setBuddy</span><span class="p">(</span><span class="n">edit</span><span class="p">);</span>
+
+    <span class="n">dialog</span><span class="o">-&gt;</span><span class="n">contents</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;form-group&quot;</span><span class="p">);</span>
 
     <span class="n">Wt</span><span class="o">::</span><span class="n">WRegExpValidator</span> <span class="o">*</span><span class="n">validator</span> <span class="o">=</span> 
         <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WRegExpValidator</span><span class="p">(</span><span class="s">&quot;[A-Za-z][1-9][0-9]{0,2}&quot;</span><span class="p">);</span>
@@ -2977,7 +3185,6 @@
 
 <span class="cp">#include &lt;cmath&gt;</span>
 
-<span class="cp">#ifndef M_PI</span>
 <span class="cp">#define M_PI 3.14159265358979323846</span>
 
 <span class="k">class</span> <span class="nc">PaintingInteractiveWidget</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WPaintedWidget</span>
@@ -4465,8 +4672,8 @@
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setPlotAreaPadding</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Top</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Bottom</span><span class="p">);</span>
 
 <span class="c1">// Add the curves</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="n">s</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">CurveSeries</span><span class="p">);</span>
-<span class="n">s</span><span class="p">.</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">CurveSeries</span><span class="p">);</span>
+<span class="n">s</span><span class="o">-&gt;</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
 
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">300</span><span class="p">);</span> <span class="c1">// WPaintedWidget must be given explicit size.</span>
@@ -4553,8 +4760,8 @@
 <span class="cm"> * Add the second and the third column as line series.</span>
 <span class="cm"> */</span>
 <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="n">s</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
-    <span class="n">s</span><span class="p">.</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
+    <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
+    <span class="n">s</span><span class="o">-&gt;</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
     <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
 <span class="p">}</span>
 
@@ -4585,16 +4792,16 @@
     <span class="o">=</span> <span class="n">csvToModel</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">appRoot</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;timeseries.csv&quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">model</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">container</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">container</span><span class="p">;</span>
 
 <span class="cm">/*</span>
 <span class="cm"> * Parses the first column as dates, to be able to use a date scale</span>
 <span class="cm"> */</span>
 <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">model</span><span class="o">-&gt;</span><span class="n">rowCount</span><span class="p">();</span> <span class="o">++</span><span class="n">row</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asString</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
-    <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span> <span class="n">date</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span><span class="o">::</span><span class="n">fromString</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;dd/MM/yy&quot;</span><span class="p">);</span>
-    <span class="n">model</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">date</span><span class="p">);</span>
-  <span class="p">}</span>
+  <span class="n">Wt</span><span class="o">::</span><span class="n">WString</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asString</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+  <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span> <span class="n">date</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WDate</span><span class="o">::</span><span class="n">fromString</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;dd/MM/yy&quot;</span><span class="p">);</span>
+  <span class="n">model</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">date</span><span class="p">);</span>
+<span class="p">}</span>
 
 <span class="cm">/*</span>
 <span class="cm"> * Creates the scatter plot.</span>
@@ -4605,15 +4812,24 @@
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setXSeriesColumn</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setType</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">ScatterPlot</span><span class="p">);</span>
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setScale</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">DateScale</span><span class="p">);</span>
+<span class="kt">double</span> <span class="n">min</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asNumber</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+<span class="kt">double</span> <span class="n">max</span> <span class="o">=</span> <span class="n">Wt</span><span class="o">::</span><span class="n">asNumber</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">rowCount</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
 <span class="c1">// Set maximum X zoom level to 16x zoom</span>
-<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setMaxZoom</span><span class="p">(</span><span class="mf">16.0</span><span class="p">);</span>
+<span class="n">chart</span><span class="o">-&gt;</span><span class="n">axis</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">XAxis</span><span class="p">).</span><span class="n">setMinimumZoomRange</span><span class="p">((</span><span class="n">max</span> <span class="o">-</span> <span class="n">min</span><span class="p">)</span> <span class="o">/</span> <span class="mf">16.0</span><span class="p">);</span>
 
 <span class="cm">/*</span>
 <span class="cm"> * Add the second and the third column as line series.</span>
 <span class="cm"> */</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="n">s</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
-<span class="n">s</span><span class="p">.</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
-<span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">{</span>
+  <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
+  <span class="n">s</span><span class="o">-&gt;</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
+  <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">{</span>
+  <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WDataSeries</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">LineSeries</span><span class="p">);</span>
+  <span class="n">s</span><span class="o">-&gt;</span><span class="n">setShadow</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WShadow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="mi">3</span><span class="p">));</span>
+  <span class="n">chart</span><span class="o">-&gt;</span><span class="n">addSeries</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
 
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">);</span>
 
@@ -4622,12 +4838,6 @@
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setZoomEnabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
 
 <span class="n">chart</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLength</span><span class="o">::</span><span class="n">Auto</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span> <span class="c1">// Center horizontally</span>
-
-<span class="c1">// Add a WAxisSliderWidget for the chart using the data series for column 2</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAxisSliderWidget</span> <span class="o">*</span><span class="n">sliderWidget</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Chart</span><span class="o">::</span><span class="n">WAxisSliderWidget</span><span class="p">(</span><span class="n">chart</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">container</span><span class="p">);</span>
-<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">80</span><span class="p">);</span>
-<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">setPlotAreaPadding</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span>
-<span class="n">sliderWidget</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLength</span><span class="o">::</span><span class="n">Auto</span><span class="p">,</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Left</span> <span class="o">|</span> <span class="n">Wt</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span> <span class="c1">// Center horizontally</span>
 </pre></div>
   </message>
   <message id="src-SelectionBoxExtended">
@@ -5405,11 +5615,11 @@
     <span class="k">if</span> <span class="p">(</span><span class="n">de1</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">().</span><span class="n">empty</span><span class="p">()</span> <span class="o">||</span> <span class="n">de2</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">().</span><span class="n">empty</span><span class="p">())</span>
 	<span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;You should enter two time!&quot;</span><span class="p">);</span>
     <span class="k">else</span> <span class="p">{</span>
-	<span class="kt">int</span> <span class="n">secs</span> <span class="o">=</span> <span class="n">de1</span><span class="o">-&gt;</span><span class="n">time</span><span class="p">().</span><span class="n">secsTo</span><span class="p">(</span><span class="n">de2</span><span class="o">-&gt;</span><span class="n">time</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">secs</span> <span class="o">=</span> <span class="n">de1</span><span class="o">-&gt;</span><span class="n">time</span><span class="p">().</span><span class="n">secsTo</span><span class="p">(</span><span class="n">de2</span><span class="o">-&gt;</span><span class="n">time</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
 	<span class="k">if</span> <span class="p">(</span><span class="n">secs</span> <span class="o">&lt;=</span> <span class="mi">3600</span><span class="p">)</span>
 	    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;This is a really small range of time&quot;</span><span class="p">);</span>
 	<span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">secs</span> <span class="o">&gt;</span> <span class="mi">3600</span><span class="p">)</span> 
-	    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;So, you want your package to be delivered between &quot;</span>
+        <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;So, you want your package to be delivered between &quot;</span>
 				     <span class="s">&quot;{1} and {2} ?...&quot;</span><span class="p">).</span><span class="n">arg</span><span class="p">(</span><span class="n">de1</span><span class="o">-&gt;</span><span class="n">time</span><span class="p">().</span><span class="n">toString</span><span class="p">()).</span><span class="n">arg</span><span class="p">(</span><span class="n">de2</span><span class="o">-&gt;</span><span class="n">time</span><span class="p">().</span><span class="n">toString</span><span class="p">()));</span>
 	<span class="k">else</span>
 	    <span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Invalid period!&quot;</span><span class="p">);</span>

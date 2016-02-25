@@ -6,7 +6,7 @@
 
 #include "Wt/Chart/WChart2DImplementation"
 #include "Wt/Chart/WCartesianChart"
-#include "Wt/WAbstractItemModel"
+#include "Wt/Chart/WAbstractChartModel"
 #include "Wt/WPainter"
 
 #include "WebUtils.h"
@@ -21,8 +21,8 @@ bool ExtremesIterator::startSeries(const WDataSeries& series, double groupWidth,
 }
 
 void ExtremesIterator::newValue(const WDataSeries& series, double x, double y,
-				double stackY, const WModelIndex& xIndex,
-				const WModelIndex& yIndex)
+				double stackY, int xRow, int xColumn,
+				int yRow, int yColumn)
 {
   double v = axis_ == XAxis ? x : y;
   
@@ -67,7 +67,7 @@ Orientation WChart2DImplementation::orientation() const
 WString WChart2DImplementation::categoryLabel(int u, Axis axis) const
 {
   if (chart_->XSeriesColumn() != -1) {
-    return asString(chart_->model()->data(u, chart_->XSeriesColumn()));
+    return chart_->model()->displayData(u, chart_->XSeriesColumn());
   } else {
     return WString();
   }

@@ -129,8 +129,12 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   }
 
   setInline(false);
-  if (WApplication::instance())
+  if (WApplication::instance()) {
     setFormObject(true);
+
+    WApplication *app = WApplication::instance();
+    LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs2);
+  }
 }
 
 WPaintedWidget::~WPaintedWidget()
@@ -201,7 +205,6 @@ void WPaintedWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs2);
   LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs1);
 }
 

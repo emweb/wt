@@ -12,10 +12,14 @@ WT_DECLARE_WT_MEMBER
  //   repaint
  //   canvas
  // config: the initial configuration (can be overridden with updateConfig)
+ //     curveManipulation (determines whether series manipulation is enabled)
+ //     seriesSelection (determines whether series selection is enabled)
+ //     selectedCurve (the curve that is currently selected)
  //     isHorizontal (if orientation() == Horizontal)
  //	xTransform
  //	yTransform
  //	area (WRectF describing render area)
+ //	insideArea (WRectF describing render area without axis margins)
  //	modelArea (WRectF describing model area)
  //	maxZoom
  //	rubberBand
@@ -23,10 +27,116 @@ WT_DECLARE_WT_MEMBER
  //	pan (bool)
  //	crosshair (bool)
  //	followCurve (int, -1 for disabled)
- //	series {modelColumn: series ref,...}
+ //	notifyTransform {x: bool, y: bool} // Whether we should emit a signal on X or Y transform change
+ //	series {modelColumn: {curve: curve ref, transform: transform ref},...}
+ //	ToolTipInnerStyle // Style for the tooltip
+ //	ToolTipOuterStyle // Style for the tooltip
+ //     hasToolTips // whether there are any tooltips
  //
  function(APP, widget, target, config) {
-   var ANIMATION_INTERVAL = 17;
+
+   jQuery.data(widget, 'cobj', this);
+
+   var self = this;
+   var WT = APP.WT;
+
+   self.config = config;
+
+   var utils = WT.gfxUtils;
+   var mult = utils.transform_mult;
+   var inverted = utils.transform_inverted;
+   var assign = utils.transform_assign;
+   var equal = utils.transform_equal;
+   var apply = utils.transform_apply;
+   var top = utils.rect_top;
+   var bottom = utils.rect_bottom;
+   var left = utils.rect_left;
+   var right = utils.rect_right;
+
+   var chartCommon = WT.chartCommon;
+   var minMaxY = chartCommon.minMaxY;
+   var findClosestPoint = chartCommon.findClosestPoint;
+   var projection = chartCommon.projection;
+   var distanceLessThanRadius = chartCommon.distanceLessThanRadius;
+   var toZoomLevel = chartCommon.toZoomLevel;
+   var isPointInRect = chartCommon.isPointInRect;
+   var findYRange = chartCommon.findYRange;
+
+   // Functions that help in making minification more effective
+   function isUndefined(x) {
+      return x === undefined;
+   }
+   function modelArea() { return config.modelArea; }
+   function followCurve() { return config.followCurve; }
+   function showCrosshair() {
+      return config.crosshair || followCurve() !== -1;
+   }
+   function isHorizontal() { return config.isHorizontal; }
+   function transform(ax) {
+      if (ax === X) return config.xTransform;
+      if (ax === Y) return config.yTransform;
+   }
+   function configArea() { return config.area; }
+   function insideArea() { return config.insideArea; }
+   function configSeries(seriesNb) {
+      if (!isUndefined(seriesNb)) {
+	 return config.series[seriesNb];
+      } else {
+	 return config.series;
+      }
+   }
+   function seriesTransform(seriesNb) {
+      return configSeries(seriesNb).transform;
+   }
+   function curveTransform(seriesNb) {
+      if (isHorizontal()) {
+	 return mult([0,1,1,0,0,0], mult(seriesTransform(seriesNb), [0,1,1,0,0,0]));
+      } else {
+	 return seriesTransform(seriesNb);
+      }
+   }
+   function seriesCurve(seriesNb) {
+      return configSeries(seriesNb).curve;
+   }
+   function seriesSelection() {
+      return config.seriesSelection;
+   }
+   function sliders() {
+      return config.sliders;
+   }
+   function hasToolTips() {
+      return config.hasToolTips;
+   }
+   function coordinateOverlayPadding() {
+      return config.coordinateOverlayPadding;
+   }
+   function curveManipulation() {
+      return config.curveManipulation;
+   }
+   function maxZoom() {
+      return config.maxZoom;
+   }
+   function pens() {
+      return config.pens;
+   }
+   function configSelectedCurve() {
+      return config.selectedCurve;
+   }
+   function preventDefault(e) {
+      if (e.preventDefault)
+	 e.preventDefault();
+   }
+   function addEventListener(e,l) {
+      widget.addEventListener(e,l);
+   }
+   function removeEventListener(e,l) {
+      widget.removeEventListener(e,l);
+   }
+   function len(ar) {
+      return ar.length;
+   }
+
+   /* const */ var ANIMATION_INTERVAL = 17;
    var rqAnimFrame = (function(){
 	 return window.requestAnimationFrame       ||
 		window.webkitRequestAnimationFrame ||
@@ -51,21 +161,43 @@ WT_DECLARE_WT_MEMBER
       target.canvas.style.touchAction = 'none';
    }
 
-   var MOVE_TO = 0, LINE_TO = 1, CUBIC_C1 = 2, CUBIC_C2 = 3, CUBIC_END = 4,
+   /*const*/ var MOVE_TO = 0, LINE_TO = 1, CUBIC_C1 = 2, CUBIC_C2 = 3, CUBIC_END = 4,
        QUAD_C = 5, QUAD_END = 6, ARC_C = 7, ARC_R = 8, ARC_ANGLE_SWEEP = 9;
-   var NO_LIMIT = 1, DAMPEN = 2; // bit flags
-   var X_ONLY = 1, Y_ONLY = 2; // bit flags
-   var X = 0, Y = 1;
-   var LOOK_MODE = 0, CROSSHAIR_MODE = 1;
-   var WHEEL_ZOOM_X = 0, WHEEL_ZOOM_Y = 1, WHEEL_ZOOM_XY = 2,
+   /*const*/ var NO_LIMIT = 1, DAMPEN = 2; // bit flags
+   /*const*/ var X_ONLY = 1, Y_ONLY = 2; // bit flags
+   /*const*/ var X = 0, Y = 1;
+   /*const*/ var LOOK_MODE = 0, CROSSHAIR_MODE = 1;
+   /*const*/ var WHEEL_ZOOM_X = 0, WHEEL_ZOOM_Y = 1, WHEEL_ZOOM_XY = 2,
        WHEEL_ZOOM_MATCHING = 3, WHEEL_PAN_X = 4, WHEEL_PAN_Y = 5,
        WHEEL_PAN_MATCHING = 6;
 
-   var touchHandlers = {};
+   /*const*/ var SERIES_SELECTION_TIMEOUT = 200; // ms
+   /*const*/ var TRANSFORM_CHANGED_TIMEOUT = 250; // ms
+   /*const*/ var TOOLTIP_TIMEOUT = 500; // ms
+   
+   /*const*/ var FRICTION_FACTOR = 0.003, // Determines how strongly the speed decreases, when animating
+       SPRING_CONSTANT = 0.0002, // How strongly the spring pulls, relative to how extended it is
+       RESISTANCE_FACTOR = 0.07, // How strongly the spring resists movement, when dragging
+       BOUNDS_SLACK = 3, // The amount of slack to apply to determine whether an area is within bounds
+       MIN_SPEED = 0.001, // The minimum speed that the animation should pan at when out of bounds,
+			  // ensures that the animation does not stop prematurely.
+       MAX_SPEED = 1.5, // The maximum speed that we should cap to, to prevent glitchy stuff
+       STOPPING_SPEED = 0.02; // If the speed is below the stopping speed, and we're inside of bounds,
+			      // then we can stop the animation.
 
-   function showCrosshair() {
-      return config.crosshair || config.followCurve !== -1;
+   // eobj2: an object to hold the context menu listener, that simply prevents the default behaviour,
+   //        so that a long press in order to select a series is not interpreted as a right click
+   var eobj2 = jQuery.data(widget, 'eobj2');
+   if (!eobj2) {
+      eobj2 = {};
+      eobj2.contextmenuListener = function(e) {
+	 preventDefault(e);
+	 removeEventListener('contextmenu', eobj2.contextmenuListener);
+      };
    }
+   jQuery.data(widget, 'eobj2', eobj2);
+
+   var touchHandlers = {};
 
    function isTouchEvent(event) {
       return event.pointerType === 2 || event.pointerType === 3 ||
@@ -76,19 +208,15 @@ WT_DECLARE_WT_MEMBER
 
    if (window.MSPointerEvent || window.PointerEvent) {
       (function(){
-	 pointers = []
+	 var pointers = []
 
 	 function updatePointerActive() {
-	    if (pointers.length > 0 && !pointerActive) {
-	       pointerActive = true;
-	    } else if (pointers.length <= 0 && pointerActive) {
-	       pointerActive = false;
-	    }
+            pointerActive = len(pointers) > 0;
 	 }
 
 	 function pointerDown(event) {
 	    if (!isTouchEvent(event)) return;
-	    event.preventDefault();
+	    preventDefault(event);
 	    pointers.push(event);
 
 	    updatePointerActive();
@@ -98,9 +226,9 @@ WT_DECLARE_WT_MEMBER
 	 function pointerUp(event) {
 	    if (!pointerActive) return;
 	    if (!isTouchEvent(event)) return;
-	    event.preventDefault();
+	    preventDefault(event);
 	    var i;
-	    for (i = 0; i < pointers.length; ++i) {
+	    for (i = 0; i < len(pointers); ++i) {
 	       if (pointers[i].pointerId === event.pointerId) {
 		  pointers.splice(i, 1);
 		  break;
@@ -113,9 +241,9 @@ WT_DECLARE_WT_MEMBER
 
 	 function pointerMove(event) {
 	    if (!isTouchEvent(event)) return;
-	    event.preventDefault();
+	    preventDefault(event);
 	    var i;
-	    for (i = 0; i < pointers.length; ++i) {
+	    for (i = 0; i < len(pointers); ++i) {
 	       if (pointers[i].pointerId === event.pointerId) {
 		  pointers[i] = event;
 		  break;
@@ -126,18 +254,20 @@ WT_DECLARE_WT_MEMBER
 	    touchHandlers.moved(widget, {touches:pointers.slice(0)});
 	 }
 
+         // eobj: an object for holding the handlers so we can properly register/unregister them,
+         //       even when the chart gets updated
 	 var o = jQuery.data(widget, 'eobj');
 	 if (o) {
 	    if (!window.PointerEvent) {
-	       widget.removeEventListener('MSPointerDown', o.pointerDown);
-	       widget.removeEventListener('MSPointerUp', o.pointerUp);
-	       widget.removeEventListener('MSPointerOut', o.pointerUp);
-	       widget.removeEventListener('MSPointerMove', o.pointerMove);
+	       removeEventListener('MSPointerDown', o.pointerDown);
+	       removeEventListener('MSPointerUp', o.pointerUp);
+	       removeEventListener('MSPointerOut', o.pointerUp);
+	       removeEventListener('MSPointerMove', o.pointerMove);
 	    } else {
-	       widget.removeEventListener('pointerdown', o.pointerDown);
-	       widget.removeEventListener('pointerup', o.pointerUp);
-	       widget.removeEventListener('pointerout', o.pointerUp);
-	       widget.removeEventListener('pointermove', o.pointerMove);
+	       removeEventListener('pointerdown', o.pointerDown);
+	       removeEventListener('pointerup', o.pointerUp);
+	       removeEventListener('pointerout', o.pointerUp);
+	       removeEventListener('pointermove', o.pointerMove);
 	    }
 	 }
 	 jQuery.data(widget, 'eobj', {
@@ -146,37 +276,20 @@ WT_DECLARE_WT_MEMBER
 	    pointerMove: pointerMove
 	 });
 	 if (!window.PointerEvent) {
-	    widget.addEventListener('MSPointerDown', pointerDown);
-	    widget.addEventListener('MSPointerUp', pointerUp);
-	    widget.addEventListener('MSPointerOut', pointerUp);
-	    widget.addEventListener('MSPointerMove', pointerMove);
+	    addEventListener('MSPointerDown', pointerDown);
+	    addEventListener('MSPointerUp', pointerUp);
+	    addEventListener('MSPointerOut', pointerUp);
+	    addEventListener('MSPointerMove', pointerMove);
 	 } else {
-	    widget.addEventListener('pointerdown', pointerDown);
-	    widget.addEventListener('pointerup', pointerUp);
-	    widget.addEventListener('pointerout', pointerUp);
-	    widget.addEventListener('pointermove', pointerMove);
+	    addEventListener('pointerdown', pointerDown);
+	    addEventListener('pointerup', pointerUp);
+	    addEventListener('pointerout', pointerUp);
+	    addEventListener('pointermove', pointerMove);
 	 }
       })();
    }
 
-   // Constants
-   var FRICTION_FACTOR = 0.003, // Determines how strongly the speed decreases, when animating
-       SPRING_CONSTANT = 0.0002, // How strongly the spring pulls, relative to how extended it is
-       RESISTANCE_FACTOR = 0.07, // How strongly the spring resists movement, when dragging
-       BOUNDS_SLACK = 3, // The amount of slack to apply to determine whether an area is within bounds
-       MIN_SPEED = 0.001, // The minimum speed that the animation should pan at when out of bounds,
-			  // ensures that the animation does not stop prematurely.
-       MAX_SPEED = 1.5, // The maximum speed that we should cap to, to prevent glitchy stuff
-       STOPPING_SPEED = 0.02; // If the speed is below the stopping speed, and we're inside of bounds,
-			      // then we can stop the animation.
-
-   jQuery.data(widget, 'cobj', this);
-
-   var self = this;
-   var WT = APP.WT;
-
-   self.config = config;
-
+   // oobj: the <canvas> for drawing the crosshair
    var overlay = jQuery.data(widget, 'oobj');
 
    var crosshair = null;
@@ -192,45 +305,82 @@ WT_DECLARE_WT_MEMBER
 
    var v = {x: 0, y: 0};
 
+   var seriesSelectionTimeout = null;
    var lastDate = null;
+
+   var tooltipTimeout = null;
+   var tooltipPosition = null;
+   var tooltipOuterDiv = null;
+   var tooltipEl = null;
+
+   function hideTooltip() {
+      if (tooltipTimeout) {
+	 clearTimeout(tooltipTimeout);
+	 tooltipTimeout = null;
+      }
+      if (tooltipOuterDiv) {
+	 document.body.removeChild(tooltipOuterDiv);
+	 tooltipEl = null;
+	 tooltipOuterDiv = null;
+      }
+   }
 
    var mode = null;
 
-   var utils = WT.gfxUtils;
-   var mult = utils.transform_mult;
-   var inverted = utils.transform_inverted;
-   var assign = utils.transform_assign;
-   var top = utils.rect_top;
-   var bottom = utils.rect_bottom;
-   var left = utils.rect_left;
-   var right = utils.rect_right;
 
    var animating = false;
 
-   function transform(ax) {
-      if (ax === X) return config.xTransform;
-      if (ax === Y) return config.yTransform;
+   var transformChangedTimeout = null;
+   var oldXTransform = [0,0,0,0,0,0];
+   assign(oldXTransform, transform(X));
+   var oldYTransform = [0,0,0,0,0,0];
+   assign(oldYTransform, transform(Y));
+   function setTransformChangedTimeout() {
+      if (!config.notifyTransform.x &&
+	  !config.notifyTransform.y)
+	 return;
+       if (transformChangedTimeout) {
+           window.clearTimeout(transformChangedTimeout);
+           transformChangedTimeout = null;
+       }
+       transformChangedTimeout = setTimeout(function(){
+	   if (config.notifyTransform.x && !equal(oldXTransform, transform(X))) {
+             APP.emit(target.widget, "xTransformChanged");
+	     assign(oldXTransform, transform(X));
+	   }
+	   if (config.notifyTransform.y && !equal(oldYTransform, transform(Y))) {
+             APP.emit(target.widget, "yTransformChanged");
+	     assign(oldYTransform, transform(Y));
+	   }
+         }, TRANSFORM_CHANGED_TIMEOUT);
+   }
+   var tAssign = function(a, b) {
+       assign(a,b);
+       setTransformChangedTimeout();
    }
 
+
    function combinedTransform() {
-      if (config.isHorizontal) {
-	 var l = left(config.area);
-	 var t = top(config.area);
+      var l, b, t;
+      if (isHorizontal()) {
+	 l = left(configArea());
+	 t = top(configArea());
 	 return mult([0,1,1,0,l,t], mult(transform(X), mult(transform(Y), [0,1,1,0,-t,-l])));
       } else {
-	 var l = left(config.area);
-	 var b = bottom(config.area);
+	 l = left(configArea());
+	 b = bottom(configArea());
 	 return mult([1,0,0,-1,l,b], mult(transform(X), mult(transform(Y), [1,0,0,-1,-l,b])));
       }
    }
    target.combinedTransform = combinedTransform;
 
-   function transformedChartArea() {
-      return mult(combinedTransform(), config.area);
+   function transformedInsideChartArea() {
+      return mult(combinedTransform(), insideArea());
    }
+   
 
    function toModelCoord(p, noTransform) {
-      if (noTransform === undefined) noTransform = false;
+      if (isUndefined(noTransform)) noTransform = false;
       var res;
       if (noTransform) {
 	 res = p;
@@ -238,132 +388,35 @@ WT_DECLARE_WT_MEMBER
 	 res = mult(inverted(combinedTransform()), p);
       }
       var u;
-      if (config.isHorizontal) {
-	 u = [(res[Y] - config.area[1]) / config.area[3],
-	      (res[X] - config.area[0]) / config.area[2]];
+      if (isHorizontal()) {
+	 u = [(res[Y] - configArea()[1]) / configArea()[3],
+	      (res[X] - configArea()[0]) / configArea()[2]];
       } else {
-         u = [(res[X] - config.area[0]) / config.area[2],
-	       1 - (res[Y] - config.area[1]) / config.area[3]];
+         u = [(res[X] - configArea()[0]) / configArea()[2],
+	       1 - (res[Y] - configArea()[1]) / configArea()[3]];
       }
-      return [config.modelArea[0] + u[X] * config.modelArea[2],
-	      config.modelArea[1] + u[Y] * config.modelArea[3]];
+      return [modelArea()[0] + u[X] * modelArea()[2],
+	      modelArea()[1] + u[Y] * modelArea()[3]];
    }
-
+   
    function toDisplayCoord(p, noTransform) {
-      if (noTransform === undefined) noTransform = false;
-      var u, res;
-      if (config.isHorizontal) {
-	 u = [(p[X] - config.modelArea[0]) / config.modelArea[2],
-	      (p[Y] - config.modelArea[1]) / config.modelArea[3]];
-	 res = [config.area[0] + u[Y] * config.area[2],
-	        config.area[1] + u[X] * config.area[3]];
-      } else {
-	 u = [(p[X] - config.modelArea[0]) / config.modelArea[2],
-	       1 - (p[Y] - config.modelArea[1]) / config.modelArea[3]];
-	 res = [config.area[0] + u[X] * config.area[2],
-	        config.area[1] + u[Y] * config.area[3]];
-      }
-      if (noTransform) {
-	 return res;
-      } else {
-	 return mult(combinedTransform(), res);
-      }
+     if (isUndefined(noTransform))
+        noTransform = false;
+     return chartCommon.toDisplayCoord(p, noTransform ? [1,0,0,1,0,0] : combinedTransform(), isHorizontal(), configArea(), modelArea());
    }
-
-   function isAscending(axis, series) {
-      return series[0][axis] < series[series.length-1][axis];
-   }
-
-   function findClosestPoint(x, series) {
-      var axis = X;
-      if (config.isHorizontal) {
-	 axis = Y;
-      }
-      var ascending = isAscending(axis, series);
-      var i = binarySearch(x, series, ascending);
-      if (i < 0) i = 0;
-      if (i >= series.length) return [series[series.length-1][X], series[series.length-1][Y]];
-      if (i >= series.length) i = series.length - 2;
-      if (series[i][axis] === x) return [series[i][X],series[i][Y]];
-      var next_i = ascending ? i+1 : i-1;
-      if (ascending && series[next_i][2] == CUBIC_C1) next_i += 2;
-      if (!ascending && next_i < 0) return [series[i][X],series[i][Y]];
-      if (!ascending && next_i > 0 && series[next_i][2] == CUBIC_C2) next_i -= 2;
-      var d1 = Math.abs(x - series[i][axis]);
-      var d2 = Math.abs(series[next_i][axis] - x);
-      if (d1 < d2) {
-	 return [series[i][X],series[i][Y]];
-      } else {
-	 return [series[next_i][X],series[next_i][Y]];
-      }
-   }
-
-   // Find the anchor point (not a curve control point!)
-   // with X coordinate nearest to the given x,
-   // and smaller than the given x, and return
-   // its index in the given series.
-   function binarySearch(x, series, ascending) {
-      var axis = X;
-      if (config.isHorizontal) axis = Y;
-      var len = series.length;
-      function s(i) {
-	 if (ascending) return series[i];
-	 else return series[len - 1 - i];
-      }
-      // Move back to a non-control point.
-      function moveBack(i) {
-	 while (s(i)[2] === CUBIC_C1 || s(i)[2] === CUBIC_C2) i --;
-	 return i;
-      }
-      var i = Math.floor(len / 2);
-      i = moveBack(i);
-      var lower_bound = 0;
-      var upper_bound = len;
-      var found = false;
-      if (s(0)[axis] > x) return ascending ? -1 : len;
-      if (s(len-1)[axis] < x) return ascending ? len : -1;
-      while (!found) {
-	 var next_i = i + 1;
-	 if (s(next_i)[2] === CUBIC_C1 || s(next_i)[2] === CUBIC_C2) {
-	    next_i += 2;
-	 }
-	 if (s(i)[axis] > x) {
-	    upper_bound = i;
-	    i = Math.floor((upper_bound + lower_bound) / 2);
-	    i = moveBack(i);
-	 } else {
-	    if (s(i)[axis] === x) {
-	       found = true;
-	    } else {
-	       if (s(next_i)[axis] > x) {
-		  found = true;
-	       } else if (s(next_i)[axis] === x) {
-		  i = next_i;
-		  found = true;
-	       } else {
-		  lower_bound = i;
-		  i = Math.floor((upper_bound + lower_bound) / 2);
-		  i = moveBack(i);
-	       }
-	    }
-	 }
-      }
-      return ascending ? i : len - 1 - i;
-   }
-   this.bSearch = binarySearch;
 
    function notifyAreaChanged() {
       var u,v;
-      if (config.isHorizontal) {
-	 u = (toModelCoord([0, top(config.area)])[0] - config.modelArea[0]) / config.modelArea[2];
-	 v = (toModelCoord([0, bottom(config.area)])[0] - config.modelArea[0]) / config.modelArea[2];
+      if (isHorizontal()) {
+	 u = (toModelCoord([0, top(configArea())])[0] - modelArea()[0]) / modelArea()[2];
+	 v = (toModelCoord([0, bottom(configArea())])[0] - modelArea()[0]) / modelArea()[2];
       } else {
-	 u = (toModelCoord([left(config.area), 0])[0] - config.modelArea[0]) / config.modelArea[2];
-	 v = (toModelCoord([right(config.area), 0])[0] - config.modelArea[0]) / config.modelArea[2];
+	 u = (toModelCoord([left(configArea()), 0])[0] - modelArea()[0]) / modelArea()[2];
+	 v = (toModelCoord([right(configArea()), 0])[0] - modelArea()[0]) / modelArea()[2];
       }
       var i;
-      for (i = 0; i < config.sliders.length; ++i) {
-	 var o = $('#' + config.sliders[i]);
+      for (i = 0; i < len(sliders()); ++i) {
+	 var o = $('#' + sliders()[i]);
 	 if (o) {
 	    var sobj = o.data('sobj');
 	    if (sobj) {
@@ -374,6 +427,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function repaint() {
+      hideTooltip();
       if (!paintEnabled) return;
       rqAnimFrameThrottled(function(){
 	 target.repaint();
@@ -392,135 +446,150 @@ WT_DECLARE_WT_MEMBER
       ctx.save();
 
       ctx.beginPath();
-      ctx.moveTo(left(config.area), top(config.area));
-      ctx.lineTo(right(config.area), top(config.area));
-      ctx.lineTo(right(config.area), bottom(config.area));
-      ctx.lineTo(left(config.area), bottom(config.area));
+      ctx.moveTo(left(configArea()), top(configArea()));
+      ctx.lineTo(right(configArea()), top(configArea()));
+      ctx.lineTo(right(configArea()), bottom(configArea()));
+      ctx.lineTo(left(configArea()), bottom(configArea()));
       ctx.closePath();
       ctx.clip();
 
       var p = mult(inverted(combinedTransform()), crosshair);
       var x = crosshair[X];
       var y = crosshair[Y];
-      if (config.followCurve !== -1) {
-	 p = findClosestPoint(config.isHorizontal ? p[Y] : p[X], config.series[config.followCurve]);
-	 var tp = mult(combinedTransform(), p);
+      if (followCurve() !== -1) {
+	 p = findClosestPoint(isHorizontal() ? p[Y] : p[X],
+	       seriesCurve(followCurve()), isHorizontal());
+	 var tp = mult(combinedTransform(), mult(curveTransform(followCurve()), p));
 	 x = tp[X];
 	 y = tp[Y];
 	 crosshair[X] = x;
 	 crosshair[Y] = y;
       }
       var u;
-      if (config.isHorizontal) {
-	 u = [(p[Y] - config.area[1]) / config.area[3],
-	       (p[X] - config.area[0]) / config.area[2]];
+      if (isHorizontal()) {
+	 u = [(p[Y] - configArea()[1]) / configArea()[3],
+	       (p[X] - configArea()[0]) / configArea()[2]];
       } else {
-	 u = [(p[X] - config.area[0]) / config.area[2],
-	       1 - (p[Y] - config.area[1]) / config.area[3]];
+	 u = [(p[X] - configArea()[0]) / configArea()[2],
+	       1 - (p[Y] - configArea()[1]) / configArea()[3]];
       }
-      p = [config.modelArea[0] + u[X] * config.modelArea[2],
-	   config.modelArea[1] + u[Y] * config.modelArea[3]];
+      p = [modelArea()[0] + u[X] * modelArea()[2],
+	   modelArea()[1] + u[Y] * modelArea()[3]];
 
       ctx.font = '16px sans-serif';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
       var textX = p[0].toFixed(2);
       var textY = p[1].toFixed(2);
-      if (textX == '-0.00') textX = '0.00';
-      if (textY == '-0.00') textY = '0.00';
-      ctx.fillText("("+textX+","+textY+")", right(config.area) - config.coordinateOverlayPadding[0],
-	    top(config.area) + config.coordinateOverlayPadding[1]);
+      if (textX === '-0.00') textX = '0.00';
+      if (textY === '-0.00') textY = '0.00';
+      ctx.fillText("("+textX+","+textY+")", right(configArea()) - coordinateOverlayPadding()[0],
+	    top(configArea()) + coordinateOverlayPadding()[1]);
       
       if (ctx.setLineDash) {
 	 ctx.setLineDash([1,2]);
       }
       ctx.beginPath();
-      ctx.moveTo(Math.floor(x) + 0.5, Math.floor(top(config.area)) + 0.5);
-      ctx.lineTo(Math.floor(x) + 0.5, Math.floor(bottom(config.area)) + 0.5);
-      ctx.moveTo(Math.floor(left(config.area)) + 0.5, Math.floor(y) + 0.5);
-      ctx.lineTo(Math.floor(right(config.area)) + 0.5, Math.floor(y) + 0.5);
+      ctx.moveTo(Math.floor(x) + 0.5, Math.floor(top(configArea())) + 0.5);
+      ctx.lineTo(Math.floor(x) + 0.5, Math.floor(bottom(configArea())) + 0.5);
+      ctx.moveTo(Math.floor(left(configArea())) + 0.5, Math.floor(y) + 0.5);
+      ctx.lineTo(Math.floor(right(configArea())) + 0.5, Math.floor(y) + 0.5);
       ctx.stroke();
 
       ctx.restore();
    }
 
-   // Check if a point is inside of the given rect
-   function isPointInRect(point, rect) {
-     var x,y;
-     if (point.x !== undefined) {
-       x = point.x;
-       y = point.y;
-     } else {
-       x = point[0];
-       y = point[1];
-     }
-     return x >= left(rect) && x <= right(rect) &&
-	    y >= top(rect) && y <= bottom(rect);
-   }
-
    // Check if the given area is within the bounds of the chart's area + some slack.
    function isWithinBounds(area) {
-     return top(area) <= top(config.area) + BOUNDS_SLACK &&
-	    bottom(area) >= bottom(config.area) - BOUNDS_SLACK &&
-	    left(area) <= left(config.area) + BOUNDS_SLACK &&
-	    right(area) >= right(config.area) - BOUNDS_SLACK;
+     return top(area) <= top(configArea()) + BOUNDS_SLACK &&
+	    bottom(area) >= bottom(configArea()) - BOUNDS_SLACK &&
+	    left(area) <= left(configArea()) + BOUNDS_SLACK &&
+	    right(area) >= right(configArea()) - BOUNDS_SLACK;
    }
 
    function enforceLimits(flags) {
-     var newChartArea = transformedChartArea();
-     if (config.isHorizontal) {
+     var newChartArea = transformedInsideChartArea();
+     if (isHorizontal()) {
 	if (flags === X_ONLY) flags = Y_ONLY;
 	else if (flags === Y_ONLY) flags = X_ONLY;
      }
      var diff;
-     if (flags === undefined || flags === X_ONLY) {
+     if (isUndefined(flags) || flags === X_ONLY) {
 	if (transform(X)[0] < 1) {
 	   transform(X)[0] = 1;
-	   newChartArea = transformedChartArea();
+	   newChartArea = transformedInsideChartArea();
 	}
      }
-     if (flags === undefined || flags === Y_ONLY) {
+     if (isUndefined(flags) || flags === Y_ONLY) {
 	if (transform(Y)[3] < 1) {
 	   transform(Y)[3] = 1;
-	   newChartArea = transformedChartArea();
+	   newChartArea = transformedInsideChartArea();
 	}
      }
-     if (flags === undefined || flags === X_ONLY) {
-	if (left(newChartArea) > left(config.area)) {
-	   diff = left(config.area) - left(newChartArea);
-	   if (config.isHorizontal)
+     if (isUndefined(flags) || flags === X_ONLY) {
+	if (left(newChartArea) > left(insideArea())) {
+	   diff = left(insideArea()) - left(newChartArea);
+	   if (isHorizontal())
 	      transform(Y)[5] = transform(Y)[5] + diff;
 	   else
 	      transform(X)[4] = transform(X)[4] + diff;
-	   newChartArea = transformedChartArea();
+	   newChartArea = transformedInsideChartArea();
 	}
-	if (right(newChartArea) < right(config.area)) {
-	   diff = right(config.area) - right(newChartArea);
-	   if (config.isHorizontal)
+	if (right(newChartArea) < right(insideArea())) {
+	   diff = right(insideArea()) - right(newChartArea);
+	   if (isHorizontal())
 	      transform(Y)[5] = transform(Y)[5] + diff;
 	   else
 	      transform(X)[4] = transform(X)[4] + diff;
-	   newChartArea = transformedChartArea();
+	   newChartArea = transformedInsideChartArea();
 	}
      }
-     if (flags === undefined || flags === Y_ONLY) {
-	if (top(newChartArea) > top(config.area)) {
-	   diff = top(config.area) - top(newChartArea);
-	   if (config.isHorizontal)
+     if (isUndefined(flags) || flags === Y_ONLY) {
+	if (top(newChartArea) > top(insideArea())) {
+	   diff = top(insideArea()) - top(newChartArea);
+	   if (isHorizontal())
 	      transform(X)[4] = transform(X)[4] + diff;
 	   else
 	      transform(Y)[5] = transform(Y)[5] - diff;
-	   newChartArea = transformedChartArea();
+	   newChartArea = transformedInsideChartArea();
 	}
-	if (bottom(newChartArea) < bottom(config.area)) {
-	   diff = bottom(config.area) - bottom(newChartArea);
-	   if (config.isHorizontal)
+	if (bottom(newChartArea) < bottom(insideArea())) {
+	   diff = bottom(insideArea()) - bottom(newChartArea);
+	   if (isHorizontal())
 	      transform(X)[4] = transform(X)[4] + diff;
 	   else
 	      transform(Y)[5] = transform(Y)[5] - diff;
-	   newChartArea = transformedChartArea();
+	   newChartArea = transformedInsideChartArea();
 	}
      }
+     setTransformChangedTimeout();
+   }
+
+   function loadTooltip() {
+      APP.emit(target.widget, "loadTooltip", tooltipPosition[X], tooltipPosition[Y]);
+   }
+   
+   /* const */ var MouseDistance = 10;
+
+   this.updateTooltip = function(contents) {
+      hideTooltip();
+      if (contents) {
+	 var toolTipEl = document.createElement('div');
+	 toolTipEl.className = config.ToolTipInnerStyle;
+	 toolTipEl.innerHTML = contents;
+
+	 tooltipOuterDiv = document.createElement('div');
+	 tooltipOuterDiv.className = config.ToolTipOuterStyle;
+
+	 document.body.appendChild(tooltipOuterDiv);
+	 tooltipOuterDiv.appendChild(toolTipEl);
+	 var c = WT.widgetPageCoordinates(target.canvas);
+
+	 var x = tooltipPosition[X] + c.x;
+	 var y = tooltipPosition[Y] + c.y;
+	 WT.fitToWindow(tooltipOuterDiv, x + MouseDistance, y + MouseDistance,
+	       x - MouseDistance, y - MouseDistance);
+      }
    }
 
    this.mouseMove = function(o, event) {
@@ -528,9 +597,17 @@ WT_DECLARE_WT_MEMBER
       // mousemove first, but we actually want to
       // handle it after pointer events.
       setTimeout(function() {
-	 if (pointerActive) return;
+         hideTooltip();
+         if (pointerActive) return;
 	 var c = WT.widgetCoordinates(target.canvas, event);
-	 if (!isPointInRect(c, config.area)) return;
+	 if (!isPointInRect(c, configArea())) return;
+
+	 if (hasToolTips()) {
+	    tooltipPosition = [c.x,c.y];
+	    tooltipTimeout = setTimeout(function() {
+	       loadTooltip();
+	    }, TOOLTIP_TIMEOUT);
+	 }
 
 	 if (showCrosshair() && paintEnabled) {
 	    crosshair = [c.x,c.y];
@@ -539,10 +616,14 @@ WT_DECLARE_WT_MEMBER
       }, 0);
    }
 
+   this.mouseOut = function(o, event) {
+      hideTooltip();
+   }
+
    this.mouseDown = function(o, event) {
       if (pointerActive) return;
       var c = WT.widgetCoordinates(target.canvas, event);
-      if (!isPointInRect(c, config.area)) return;
+      if (!isPointInRect(c, configArea())) return;
 
       dragPreviousXY = c;
    };
@@ -556,9 +637,23 @@ WT_DECLARE_WT_MEMBER
       if (pointerActive) return;
       if (dragPreviousXY === null) return;
       var c = WT.widgetCoordinates(target.canvas, event);
-      if (!isPointInRect(c, config.area)) return;
+      if (!isPointInRect(c, configArea())) return;
       if (WT.buttons === 1) {
-	 if (config.pan) {
+	 if (curveManipulation()) {
+	    var curve = configSelectedCurve();
+	    if (configSeries(curve)) {
+	       var dy;
+	       if (isHorizontal()) {
+		  dy = c.x - dragPreviousXY.x;
+	       } else {
+		  dy = c.y - dragPreviousXY.y;
+	       }
+           assign(seriesTransform(curve),
+		     mult([1,0,0,1,0,dy / transform(Y)[3]],
+			  seriesTransform(curve)));
+	       repaint();
+	    }
+	 } else if (config.pan) {
 	    translate({
 	       x: c.x - dragPreviousXY.x,
 	       y: c.y - dragPreviousXY.y
@@ -568,14 +663,22 @@ WT_DECLARE_WT_MEMBER
       dragPreviousXY = c;
    };
 
+   this.clicked = function(o, event) {
+      if (pointerActive) return;
+      if (dragPreviousXY !== null) return;
+      if (!seriesSelection()) return;
+      var c = WT.widgetCoordinates(target.canvas, event);
+      APP.emit(target.widget, 'seriesSelected', c.x, c.y);
+   };
+
    function init() {
-      if (showCrosshair && (overlay === undefined || target.canvas.width !== overlay.width || target.canvas.height !== overlay.height)) {
+      if (showCrosshair() && (isUndefined(overlay) || target.canvas.width !== overlay.width || target.canvas.height !== overlay.height)) {
 	 if (overlay) {
 	    overlay.parentNode.removeChild(overlay);
 	    jQuery.removeData(widget, 'oobj');
 	    overlay = undefined;
 	 }
-	 c = document.createElement("canvas");
+	 var c = document.createElement("canvas");
 	 c.setAttribute("width", target.canvas.width);
 	 c.setAttribute("height", target.canvas.height);
 	 c.style.position = 'absolute';
@@ -589,27 +692,45 @@ WT_DECLARE_WT_MEMBER
 	 target.canvas.parentNode.appendChild(c);
 	 overlay = c;
 	 jQuery.data(widget, 'oobj', overlay);
-      } else if (overlay !== undefined && !showCrosshair()) {
+      } else if (!isUndefined(overlay) && !showCrosshair()) {
 	 // If the mouse handler is not reinitialized, we don't actually get here!
 	 overlay.parentNode.removeChild(overlay);
 	 jQuery.removeData(widget, 'oobj');
 	 overlay = undefined;
       }
 
-      if (crosshair === null) {
-	 crosshair = toDisplayCoord([(left(config.modelArea) + right(config.modelArea)) / 2,
-				     (top(config.modelArea) + bottom(config.modelArea)) / 2]);
+      if (!crosshair) {
+	 crosshair = toDisplayCoord([(left(modelArea()) + right(modelArea())) / 2,
+				     (top(modelArea()) + bottom(modelArea())) / 2]);
       }
    }
 
    this.mouseWheel = function(o, event) {
       var modifiers = (event.metaKey << 3) + (event.altKey << 2) + (event.ctrlKey << 1) + event.shiftKey;
       var action = config.wheelActions[modifiers];
-      if (action === undefined) return;
+      if (isUndefined(action)) return;
 
       var c = WT.widgetCoordinates(target.canvas, event);
-      if (!isPointInRect(c, config.area)) return;
+      if (!isPointInRect(c, configArea())) return;
       var w = WT.normalizeWheel(event);
+      if (modifiers === 0 && curveManipulation()) {
+	 // Scale the curve around its middle
+	 var curve = configSelectedCurve();
+	 var d = -w.spinY;
+	 if (configSeries(curve)) {
+	    var t = curveTransform(curve);
+	    var s = apply(t,seriesCurve(curve));
+	    var minMax = minMaxY(s, isHorizontal());
+	    var middle = (minMax[0] + minMax[1]) / 2;
+	    WT.cancelEvent(event);
+	    var s_y = Math.pow(1.2, d);
+	    assign(seriesTransform(curve),
+	       mult([1,0,0,s_y,0,middle-s_y*middle],
+	       seriesTransform(curve)));
+	    repaint();
+	 }
+	 return;
+      }
       if ((action === WHEEL_PAN_X || action === WHEEL_PAN_Y || action === WHEEL_PAN_MATCHING) && config.pan) {
 	 var xBefore = transform(X)[4];
 	 var yBefore = transform(Y)[5];
@@ -643,34 +764,22 @@ WT_DECLARE_WT_MEMBER
       }
    };
 
-   // Get projection matrix to project any point
-   // to a line through m at angle theta
-   function projection(theta, m) {
-      var c = Math.cos(theta);
-      var s = Math.sin(theta);
-      var c2 = c*c;
-      var s2 = s*s;
-      var cs = c*s;
-      var h = -m[0]*c - m[1]*s;
-      return [c2, cs, cs, s2, c*h+m[0], s*h+m[1]];
-   }
-
-   function distanceLessThanRadius(p1, p2, radius) {
-      var d = [p2[X] - p1[X],
-	       p2[Y] - p1[Y]];
-      return radius * radius >= d[X] * d[X] + d[Y] * d[Y];
-   }
-
    var CROSSHAIR_RADIUS = 30;
 
+   var seriesSelected = function() {
+      if (!seriesSelection())
+        return;
+      APP.emit(target.widget, 'seriesSelected', dragPreviousXY.x, dragPreviousXY.y);
+   }
+
    touchHandlers.start = function(o, event) {
-      singleTouch = event.touches.length === 1;
-      doubleTouch = event.touches.length === 2;
+      singleTouch = len(event.touches) === 1;
+      doubleTouch = len(event.touches) === 2;
 
       if (singleTouch) {
 	 animating = false;
 	 var c = WT.widgetCoordinates(target.canvas, event.touches[0]);
-	 if (!isPointInRect(c, config.area)) return;
+	 if (!isPointInRect(c, configArea())) return;
 	 if (showCrosshair() && distanceLessThanRadius(crosshair, [c.x,c.y], CROSSHAIR_RADIUS)) {
 	    mode = CROSSHAIR_MODE;
 	 } else {
@@ -678,15 +787,19 @@ WT_DECLARE_WT_MEMBER
 	 }
 	 lastDate = Date.now();
 	 dragPreviousXY = c;
+	 if (mode !== CROSSHAIR_MODE) {
+	    seriesSelectionTimeout = window.setTimeout(seriesSelected, SERIES_SELECTION_TIMEOUT);
+	    addEventListener('contextmenu', eobj2.contextmenuListener);
+	 }
 	 WT.capture(null);
 	 WT.capture(target.canvas);
-      } else if (doubleTouch && config.zoom) {
+      } else if (doubleTouch && (config.zoom || curveManipulation())) {
 	 animating = false;
 	touches = [
 	   WT.widgetCoordinates(target.canvas,event.touches[0]),
 	   WT.widgetCoordinates(target.canvas,event.touches[1])
 	].map(function(t){return [t.x,t.y];});
-	if (!touches.every(function(p){return isPointInRect(p,config.area);})) {
+	if (!touches.every(function(p){return isPointInRect(p,configArea());})) {
 	   doubleTouch = null;
 	   return;
 	}
@@ -711,17 +824,17 @@ WT_DECLARE_WT_MEMBER
       } else {
 	 return;
       }
-      if (event.preventDefault) event.preventDefault();
+      preventDefault(event);
    };
 
    function animate(ts, dt) {
       if (!animating) return;
       var now = Date.now();
-      if (dt === undefined) {
+      if (isUndefined(dt)) {
 	 dt = now - lastDate;
       }
       var d = {x: 0, y: 0};
-      var area = transformedChartArea();
+      var area = transformedInsideChartArea();
       var k = SPRING_CONSTANT;
 
       if (dt > 2 * ANIMATION_INTERVAL) {
@@ -748,17 +861,17 @@ WT_DECLARE_WT_MEMBER
       if (isFinite(v.x)) {
 	 v.x = v.x / (1 + FRICTION_FACTOR * dt);
 	 area[0] += v.x * dt;
-	 if (left(area) > left(config.area)) {
-	    v.x = v.x + (-k) * (left(area) - left(config.area)) * dt;
+	 if (left(area) > left(insideArea())) {
+	    v.x = v.x + (-k) * (left(area) - left(insideArea())) * dt;
 	    v.x *= 0.7;
-	 } else if (right(area) < right(config.area)) {
-	    v.x = v.x + (-k) * (right(area) - right(config.area)) * dt;
+	 } else if (right(area) < right(insideArea())) {
+	    v.x = v.x + (-k) * (right(area) - right(insideArea())) * dt;
 	    v.x *= 0.7;
 	 }
 	 if (Math.abs(v.x) < MIN_SPEED) {
-	    if (left(area) > left(config.area)) {
+	    if (left(area) > left(insideArea())) {
 	       v.x = MIN_SPEED;
-	    } else if (right(area) < right(config.area)) {
+	    } else if (right(area) < right(insideArea())) {
 	       v.x = -MIN_SPEED;
 	    }
 	 }
@@ -773,17 +886,17 @@ WT_DECLARE_WT_MEMBER
       if (isFinite(v.y)) {
 	 v.y = v.y / (1 + FRICTION_FACTOR * dt);
 	 area[1] += v.y * dt;
-	 if (top(area) > top(config.area)) {
-	    v.y = v.y + (-k) * (top(area) - top(config.area)) * dt;
+	 if (top(area) > top(insideArea())) {
+	    v.y = v.y + (-k) * (top(area) - top(insideArea())) * dt;
 	    v.y *= 0.7;
-	 } else if (bottom(area) < bottom(config.area)) {
-	    v.y = v.y + (-k) * (bottom(area) - bottom(config.area)) * dt;
+	 } else if (bottom(area) < bottom(insideArea())) {
+	    v.y = v.y + (-k) * (bottom(area) - bottom(insideArea())) * dt;
 	    v.y *= 0.7;
 	 }
 	 if (Math.abs(v.y) < 0.001) {
-	    if (top(area) > top(config.area)) {
+	    if (top(area) > top(insideArea())) {
 	       v.y = 0.001;
-	    } else if (bottom(area) < bottom(config.area)) {
+	    } else if (bottom(area) < bottom(insideArea())) {
 	       v.y = -0.001;
 	    }
 	 }
@@ -792,29 +905,29 @@ WT_DECLARE_WT_MEMBER
 	 d.y = v.y * dt;
       }
 
-      area = transformedChartArea();
+      area = transformedInsideChartArea();
       translate(d, NO_LIMIT);
-      var newArea = transformedChartArea();
-      if (left(area) > left(config.area) &&
-	  left(newArea) <= left(config.area)) {
+      var newArea = transformedInsideChartArea();
+      if (left(area) > left(insideArea()) &&
+	  left(newArea) <= left(insideArea())) {
 	v.x = 0;
 	translate({x:-d.x,y:0}, NO_LIMIT);
 	enforceLimits(X_ONLY);
       }
-      if (right(area) < right(config.area) &&
-	  right(newArea) >= right(config.area)) {
+      if (right(area) < right(insideArea()) &&
+	  right(newArea) >= right(insideArea())) {
 	v.x = 0;
 	translate({x:-d.x,y:0}, NO_LIMIT);
 	enforceLimits(X_ONLY);
       }
-      if (top(area) > top(config.area) &&
-	  top(newArea) <= top(config.area)) {
+      if (top(area) > top(insideArea()) &&
+	  top(newArea) <= top(insideArea())) {
 	v.y = 0;
 	translate({x:0,y:-d.y}, NO_LIMIT);
 	enforceLimits(Y_ONLY);
       }
-      if (bottom(area) < bottom(config.area) &&
-	  bottom(newArea) >= bottom(config.area)) {
+      if (bottom(area) < bottom(insideArea()) &&
+	  bottom(newArea) >= bottom(insideArea())) {
 	v.y = 0;
 	translate({x:0,y:-d.y}, NO_LIMIT);
 	enforceLimits(Y_ONLY);
@@ -839,19 +952,24 @@ WT_DECLARE_WT_MEMBER
    }
 
    touchHandlers.end = function(o, event) {
+      if (seriesSelectionTimeout) {
+	 window.clearTimeout(seriesSelectionTimeout);
+	 seriesSelectionTimeout = null;
+      }
+      window.setTimeout(function() {
+            removeEventListener('contextmenu', eobj2.contextmenuListener);
+         }, 0);
       var touches = Array.prototype.slice.call(event.touches);
 
-      var noTouch = touches.length === 0;
-      singleTouch = touches.length === 1;
-      doubleTouch = touches.length === 2;
+      var noTouch = len(touches) === 0;
 
       if (!noTouch) {
 	 (function(){
 	    var i;
-	    for (i = 0; i < event.changedTouches.length; ++i) {
+	    for (i = 0; i < len(event.changedTouches); ++i) {
 	       (function(){
 		  var id = event.changedTouches[i].identifier;
-		  for (var j = 0; j < touches.length; ++j) {
+		  for (var j = 0; j < len(touches); ++j) {
 		     if (touches[j].identifier === id) {
 			touches.splice(j, 1);
 			return;
@@ -862,9 +980,9 @@ WT_DECLARE_WT_MEMBER
 	 })();
       }
 
-      noTouch = touches.length === 0;
-      singleTouch = touches.length === 1;
-      doubleTouch = touches.length === 2;
+      noTouch     = len(touches) === 0;
+      singleTouch = len(touches) === 1;
+      doubleTouch = len(touches) === 2;
 
       if (noTouch) {
 	 moveTimeout = null;
@@ -897,14 +1015,33 @@ WT_DECLARE_WT_MEMBER
         return;
       }
       if (singleTouch && dragPreviousXY == null) return;
-      if (event.preventDefault) event.preventDefault();
+      preventDefault(event);
       c1 = WT.widgetCoordinates(target.canvas, event.touches[0]);
-      if (event.touches.length > 1)
+      // kind of breaks pinch-to-zoom?
+      if (len(event.touches) > 1)
 	 c2 = WT.widgetCoordinates(target.canvas, event.touches[1]);
+      if (singleTouch && seriesSelectionTimeout && !distanceLessThanRadius([c1.x,c1.y],[dragPreviousXY.x,dragPreviousXY.y],3)) {
+	 window.clearTimeout(seriesSelectionTimeout);
+	 seriesSelectionTimeout = null;
+      }
       // setTimeout prevents high animation velocity due to looking
       // at events that are further apart.
       if (!moveTimeout) moveTimeout = setTimeout(function(){
-	if (singleTouch) {
+        if (singleTouch && curveManipulation()) {
+	   var curve = configSelectedCurve();
+	   if (configSeries(curve)) {
+	      var c = c1;
+	      var dy;
+	      if (isHorizontal()) {
+		 dy = (c.x - dragPreviousXY.x) / transform(Y)[3];
+	      } else {
+		 dy = (c.y - dragPreviousXY.y) / transform(Y)[3];
+	      }
+	      seriesTransform(curve)[5] += dy;
+	      dragPreviousXY = c;
+	      repaint();
+	   }
+	} else if (singleTouch) {
 	   var c = c1;
 	   var now = Date.now();
 	   var d = {
@@ -925,6 +1062,35 @@ WT_DECLARE_WT_MEMBER
 	      translate(d, config.rubberBand ? DAMPEN : 0);
 	   }
 	   dragPreviousXY = c;
+	} else if (doubleTouch && curveManipulation()) {
+	   var yAxis = isHorizontal() ? X : Y;
+	   var newTouches = [ c1, c2 ].map(function(t){
+	      if (isHorizontal()) {
+		 return [t.x, myBefore];
+	      } else {
+		 return [mxBefore, t.y];
+	      }
+	   });
+	   var dyBefore = Math.abs(touches[1][yAxis] - touches[0][yAxis]);
+	   var dyAfter = Math.abs(newTouches[1][yAxis] - newTouches[0][yAxis]);
+	   var yScale = dyBefore > 0 ? dyAfter / dyBefore : 1;
+	   if (dyAfter === dyBefore) {
+	      yScale = 1;
+	   }
+	   var myBefore = mult(inverted(combinedTransform()), [0, (touches[0][yAxis] + touches[1][yAxis]) / 2])[1];
+	   var myAfter = mult(inverted(combinedTransform()), [0, (newTouches[0][yAxis] + newTouches[1][yAxis]) / 2])[1];
+	   var curve = configSelectedCurve();
+	   if (configSeries(curve)) {
+	      assign(seriesTransform(curve),
+		 mult(
+		     [1,0,0,yScale,0,-yScale*myBefore+myAfter],
+		     seriesTransform(curve)
+	         )
+	      );
+	      dragPreviousXY = c;
+	      repaint();
+	      touches = newTouches;
+	   }
 	} else if (doubleTouch && config.zoom) {
 	   var crosshairBefore = toModelCoord(crosshair);
 	   var mxBefore = (touches[0][0] + touches[1][0]) / 2;
@@ -948,13 +1114,13 @@ WT_DECLARE_WT_MEMBER
 	   var mxAfter = (newTouches[0][0] + newTouches[1][0]) / 2;
 	   var dyBefore = Math.abs(touches[1][1] - touches[0][1]);
 	   var dyAfter = Math.abs(newTouches[1][1] - newTouches[0][1]);
-	   var yScale = dyBefore ? dyAfter / dyBefore : 1;
+	   var yScale = dyBefore > 0 ? dyAfter / dyBefore : 1;
 	   if (dyAfter === dyBefore || zoomAngle === 0) {
 	      yScale = 1;
 	   }
 	   var myAfter = (newTouches[0][1] + newTouches[1][1]) / 2;
 
-	   if (config.isHorizontal) {
+	   if (isHorizontal()) {
 	      (function() {
 		var tmp = xScale;
 		xScale = yScale;
@@ -968,15 +1134,15 @@ WT_DECLARE_WT_MEMBER
 	      })();
 	   }
 
-	   if (transform(X)[0] * xScale > config.maxZoom[X]) {
-	      xScale = config.maxZoom[X] / transform(X)[0];
+	   if (transform(X)[0] * xScale > maxZoom()[X]) {
+	      xScale = maxZoom()[X] / transform(X)[0];
 	   }
-	   if (transform(Y)[3] * yScale > config.maxZoom[Y]) {
-	      yScale = config.maxZoom[Y] / transform(Y)[3];
+	   if (transform(Y)[3] * yScale > maxZoom()[Y]) {
+	      yScale = maxZoom()[Y] / transform(Y)[3];
 	   }
 	   if (xScale !== 1 &&
-		 (xScale < 1.0 || transform(X)[0] !== config.maxZoom[X])) {
-	      assign(transform(X),
+		 (xScale < 1.0 || transform(X)[0] !== maxZoom()[X])) {
+          tAssign(transform(X),
 		mult(
 		   [xScale,0,0,1,-xScale*mxBefore+mxAfter,0],
 		   transform(X)
@@ -984,12 +1150,12 @@ WT_DECLARE_WT_MEMBER
 	      );
 	   }
 	   if (yScale !== 1 &&
-		 (yScale < 1.0 || transform(Y)[3] !== config.maxZoom[Y])) {
-	      assign(transform(Y),
+		 (yScale < 1.0 || transform(Y)[3] !== maxZoom()[Y])) {
+          tAssign(transform(Y),
 		mult(
-		   [1,0,0,yScale,0,-yScale*myBefore+myAfter],
-		   transform(Y)
-		 )
+		  [1,0,0,yScale,0,-yScale*myBefore+myAfter],
+		  transform(Y)
+		)
 	      );
 	   }
 	   enforceLimits();
@@ -1007,74 +1173,76 @@ WT_DECLARE_WT_MEMBER
       }, 1);
    };
 
-   function toZoomLevel(zoomFactor) {
-      return Math.floor(Math.log(zoomFactor) / Math.LN2 + 0.5) + 1;
-   }
-
    function refreshPenColors() {
       var i, j;
       var xLevel = toZoomLevel(transform(X)[0]) - 1;
-      if (xLevel >= config.pens.x.length) xLevel = config.pens.x.length - 1;
-      for (i = 0; i < config.pens.x.length; ++i) {
+      if (xLevel >= len(pens().x))
+	 xLevel = len(pens().x) - 1;
+      for (i = 0; i < len(pens().x); ++i) {
 	 if (xLevel === i) {
-	    for (j = 0; j < config.pens.x[i].length; ++j) {
-	       config.pens.x[i][j].color[3] = config.penAlpha.x[j];
+	    for (j = 0; j < len(pens().x[i]); ++j) {
+	       pens().x[i][j].color[3] = config.penAlpha.x[j];
 	    }
 	 } else {
-	    for (j = 0; j < config.pens.x[i].length; ++j) {
-	       config.pens.x[i][j].color[3] = 0;
+	    for (j = 0; j < len(pens().x[i]); ++j) {
+	       pens().x[i][j].color[3] = 0;
 	    }
 	 }
       }
       var yLevel = toZoomLevel(transform(Y)[3]) - 1;
-      if (yLevel >= config.pens.y.length) yLevel = config.pens.y.length - 1;
-      for (i = 0; i < config.pens.y.length; ++i) {
+      if (yLevel >= len(pens().y))
+	 yLevel = len(pens().y) - 1;
+      for (i = 0; i < len(pens().y); ++i) {
 	 if (yLevel === i) {
-	    for (j = 0; j < config.pens.y[i].length; ++j) {
-	       config.pens.y[i][j].color[3] = config.penAlpha.y[j];
+	    for (j = 0; j < len(pens().y[i]); ++j) {
+	       pens().y[i][j].color[3] = config.penAlpha.y[j];
 	    }
 	 } else {
-	    for (j = 0; j < config.pens.y[i].length; ++j) {
-	       config.pens.y[i][j].color[3] = 0;
+	    for (j = 0; j < len(pens().y[i]); ++j) {
+	       pens().y[i][j].color[3] = 0;
 	    }
 	 }
       }
    }
 
    function translate(d, flags) {
+      if (isUndefined(flags))
+        flags = 0;
       var crosshairBefore = toModelCoord(crosshair);
 
-      if (config.isHorizontal) {
+      if (isHorizontal()) {
 	 d = {x:d.y,y:-d.x};
       }
 
       if (flags & NO_LIMIT) {
 	 transform(X)[4] = transform(X)[4] + d.x;
 	 transform(Y)[5] = transform(Y)[5] - d.y;
+          setTransformChangedTimeout();
       } else if (flags & DAMPEN) {
-	 var area = transformedChartArea();
-	 if (left(area) > left(config.area)) {
+	 var area = transformedInsideChartArea();
+	 if (left(area) > left(insideArea())) {
 	    if (d.x > 0) {
-	       d.x = d.x / (1 + ((left(area) - left(config.area)) * RESISTANCE_FACTOR));
+	       d.x = d.x / (1 + ((left(area) - left(insideArea())) * RESISTANCE_FACTOR));
 	    }
-	 } else if (right(area) < right(config.area)) {
+	 } else if (right(area) < right(insideArea())) {
 	    if (d.x < 0) {
-	       d.x = d.x / (1 + ((right(config.area) - right(area)) * RESISTANCE_FACTOR));
+	       d.x = d.x / (1 + ((right(insideArea()) - right(area)) * RESISTANCE_FACTOR));
 	    }
 	 }
-	 if (top(area) > top(config.area)) {
+	 if (top(area) > top(insideArea())) {
 	    if (d.y > 0) {
-	       d.y = d.y / (1 + ((top(area) - top(config.area)) * RESISTANCE_FACTOR));
+	       d.y = d.y / (1 + ((top(area) - top(insideArea())) * RESISTANCE_FACTOR));
 	    }
-	 } else if (bottom(area) < bottom(config.area)) {
+	 } else if (bottom(area) < bottom(insideArea())) {
 	    if (d.y < 0) {
-	       d.y = d.y / (1 + ((bottom(config.area) - bottom(area)) * RESISTANCE_FACTOR));
+	       d.y = d.y / (1 + ((bottom(insideArea()) - bottom(area)) * RESISTANCE_FACTOR));
 	    }
 	 }
 	 transform(X)[4] = transform(X)[4] + d.x;
 	 transform(Y)[5] = transform(Y)[5] - d.y;
 	 crosshair[X] = crosshair[X] + d.x;
 	 crosshair[Y] = crosshair[Y] + d.y;
+         setTransformChangedTimeout();
       } else {
 	 transform(X)[4] = transform(X)[4] + d.x;
 	 transform(Y)[5] = transform(Y)[5] - d.y;
@@ -1096,30 +1264,30 @@ WT_DECLARE_WT_MEMBER
    function zoom(coords, xDelta, yDelta) {
       var crosshairBefore = toModelCoord(crosshair);
       var xy;
-      if (config.isHorizontal) {
-	 xy = [coords.y - top(config.area), coords.x - left(config.area)];
+      if (isHorizontal()) {
+	 xy = [coords.y - top(configArea()), coords.x - left(configArea())];
       } else {
 	 xy = mult(
-	    inverted([1,0,0,-1,left(config.area),bottom(config.area)]), [coords.x, coords.y]);
+	    inverted([1,0,0,-1,left(configArea()),bottom(configArea())]), [coords.x, coords.y]);
       }
       var x = xy[0];
       var y = xy[1];
-      var s_x = Math.pow(1.2, config.isHorizontal ? yDelta : xDelta);
-      var s_y = Math.pow(1.2, config.isHorizontal ? xDelta : yDelta);
-      if (transform(X)[0] * s_x > config.maxZoom[X]) {
-	 s_x = config.maxZoom[X] / transform(X)[0];
+      var s_x = Math.pow(1.2, isHorizontal() ? yDelta : xDelta);
+      var s_y = Math.pow(1.2, isHorizontal() ? xDelta : yDelta);
+      if (transform(X)[0] * s_x > maxZoom()[X]) {
+	 s_x = maxZoom()[X] / transform(X)[0];
       }
-      if (s_x < 1.0 || transform(X)[0] !== config.maxZoom[X]) {
-	 assign(transform(X),
+      if (s_x < 1.0 || transform(X)[0] !== maxZoom()[X]) {
+     tAssign(transform(X),
 	       mult(
 		  [s_x,0,0,1,x-s_x*x,0],
 		  transform(X)));
       }
-      if (transform(Y)[3] * s_y > config.maxZoom[Y]) {
-	 s_y = config.maxZoom[Y] / transform(Y)[3];
+      if (transform(Y)[3] * s_y > maxZoom()[Y]) {
+	 s_y = maxZoom()[Y] / transform(Y)[3];
       }
-      if (s_y < 1.0 || transform(Y)[3] !== config.maxZoom[Y]) {
-	 assign(transform(Y),
+      if (s_y < 1.0 || transform(Y)[3] !== maxZoom()[Y]) {
+     tAssign(transform(Y),
 	       mult(
 		  [1,0,0,s_y,0,y-s_y*y],
 		  transform(Y)));
@@ -1137,88 +1305,37 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.setXRange = function(seriesNb, lowerBound, upperBound) {
-      lowerBound = config.modelArea[0] + config.modelArea[2] * lowerBound;
-      upperBound = config.modelArea[0] + config.modelArea[2] * upperBound;
-      if (lowerBound < left(config.modelArea)) lowerBound = left(config.modelArea);
-      if (upperBound > right(config.modelArea)) upperBound = right(config.modelArea);
+      lowerBound = modelArea()[0] + modelArea()[2] * lowerBound;
+      upperBound = modelArea()[0] + modelArea()[2] * upperBound;
+      //Constrain given range
+      if (left(modelArea()) > right(modelArea())) {
+	 if (lowerBound > left(modelArea()))
+           lowerBound = left(modelArea());
+	 if (upperBound < right(modelArea()))
+           upperBound = right(modelArea());
+      } else {
+	 if (lowerBound < left(modelArea()))
+           lowerBound = left(modelArea());
+	 if (upperBound > right(modelArea()))
+           upperBound = right(modelArea());
+      }
       // Set X range, and adjust Y!
-      var series = config.series[seriesNb];
-      if (series.length === 0) return; // This would be weird?
-      var p0 = toDisplayCoord([lowerBound, 0], true);
-      var p1 = toDisplayCoord([upperBound, 0], true);
-      var axis = config.isHorizontal ? Y : X;
-      var otherAxis = config.isHorizontal ? X : Y;
-      var ascending = isAscending(axis, series);
-      var i0 = binarySearch(p0[axis], series, ascending);
-      if (ascending) {
-	 if (i0 < 0) {
-	    i0 = 0;
-	 } else {
-	    i0 ++;
-	    if (series[i0][2] === CUBIC_C1) i0 += 2;
-	 }
-      } else if (i0 >= series.length - 1) {
-	 i0 = series.length - 2;
-      }
-      var i_n = binarySearch(p1[axis], series, ascending);
-      if (!ascending && i_n < 0) {
-	 i_n = 0;
-      }
-      var i, u, y, before_i0, after_i_n;
-      var min_y = Infinity;
-      var max_y = -Infinity;
-      for (i = Math.min(i0,i_n); i <= Math.max(i0,i_n) && i < series.length; ++i) {
-	 if (series[i][2] !== CUBIC_C1 && series[i][2] !== CUBIC_C2) {
-	    if (series[i][otherAxis] < min_y) min_y = series[i][otherAxis];
-	    if (series[i][otherAxis] > max_y) max_y = series[i][otherAxis];
-	 }
-      }
-      if (ascending && i0 > 0 || !ascending && i0 < series.length - 1) {
-	 // Interpolate on the lower X end
-	 if (ascending) {
-	    before_i0 = i0 - 1;
-	    if (series[before_i0][2] === CUBIC_C2) before_i0 -= 2;
-	 } else {
-	    before_i0 = i0 + 1;
-	    if (series[before_i0][2] === CUBIC_C1) before_i0 += 2;
-	 }
-	 u = (p0[axis] - series[before_i0][axis]) / (series[i0][axis] - series[before_i0][axis]);
-	 y = series[before_i0][otherAxis] + u * (series[i0][otherAxis] - series[before_i0][otherAxis]);
-	 if (y < min_y) min_y = y;
-	 if (y > max_y) max_y = y;
-      }
-      if (ascending && i_n < series.length - 1 || !ascending && i_n > 0) {
-	 // Interpolate on the upper X end
-	 if (ascending) {
-	    after_i_n = i_n + 1;
-	    if (series[after_i_n][2] === CUBIC_C1) after_i_n += 2;
-	 } else {
-	    after_i_n = i_n - 1;
-	    if (series[after_i_n][2] === CUBIC_C2) after_i_n -= 2;
-	 }
-	 u = (p1[axis] - series[i_n][axis]) / (series[after_i_n][axis] - series[i_n][axis]);
-	 y = series[i_n][otherAxis] + u * (series[after_i_n][otherAxis] - series[i_n][otherAxis]);
-	 if (y < min_y) min_y = y;
-	 if (y > max_y) max_y = y;
-      }
-      var xZoom = config.modelArea[2] / (upperBound - lowerBound);
-      var H = config.isHorizontal ? 2 : 3;
-      var yZoom = config.area[H] / (max_y - min_y);
-      var yMargin = 10;
-      yZoom = config.area[H] / (config.area[H] / yZoom + yMargin * 2); // Give it 10 px extra on each side
-      if (yZoom > config.maxZoom[otherAxis]) yZoom = config.maxZoom[otherAxis];
-      var panPoint;
-      if (config.isHorizontal)
-	 panPoint = [p0[Y] - top(config.area), ((min_y + max_y) / 2 - (config.area[2] / yZoom) / 2 - left(config.area))];
-      else
-	 panPoint = [p0[X] - left(config.area), -((min_y + max_y) / 2 + (config.area[3] / yZoom) / 2 - bottom(config.area))];
+      var series = seriesCurve(seriesNb);
+      
+      var res = findYRange(series, lowerBound, upperBound, isHorizontal(), configArea(), modelArea(), maxZoom());
+      var xZoom = res.xZoom;
+      var yZoom = res.yZoom;
+      var panPoint = res.panPoint;
 
       var crosshairBefore = toModelCoord(crosshair);
 
       transform(X)[0] = xZoom;
-      transform(Y)[3] = yZoom;
+      if (yZoom)
+          transform(Y)[3] = yZoom;
       transform(X)[4] = -panPoint[X] * xZoom;
-      transform(Y)[5] = -panPoint[Y] * yZoom;
+      if (yZoom)
+          transform(Y)[5] = -panPoint[Y] * yZoom;
+      setTransformChangedTimeout();
 
       var crosshairAfter = toDisplayCoord(crosshairBefore);
       crosshair[X] = crosshairAfter[X];
@@ -1231,7 +1348,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.getSeries = function(seriesNb) {
-      return config.series[seriesNb];
+      return seriesCurve(seriesNb);
    }
 
    this.rangeChangedCallbacks = [];

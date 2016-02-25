@@ -14,23 +14,23 @@
 
 #include "../treeview-dragdrop/CsvUtil.h"
 
-SAMPLE_BEGIN(ScatterPlotInteractive)
+SAMPLE_BEGIN(AxisSliderWidget)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WStandardItemModel *model
     = csvToModel(Wt::WApplication::appRoot() + "timeseries.csv", container);
 
 if (!model)
-  return container;
+    return container;
 
 /*
  * Parses the first column as dates, to be able to use a date scale
  */
 for (int row = 0; row < model->rowCount(); ++row) {
-  Wt::WString s = Wt::asString(model->data(row, 0));
-  Wt::WDate date = Wt::WDate::fromString(s, "dd/MM/yy");
-  model->setData(row, 0, date);
-}
+    Wt::WString s = Wt::asString(model->data(row, 0));
+    Wt::WDate date = Wt::WDate::fromString(s, "dd/MM/yy");
+    model->setData(row, 0, date);
+  }
 
 /*
  * Creates the scatter plot.
@@ -49,16 +49,9 @@ chart->axis(Wt::Chart::XAxis).setMinimumZoomRange((max - min) / 16.0);
 /*
  * Add the second and the third column as line series.
  */
-{
-  Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(2, Wt::Chart::LineSeries);
-  s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-  chart->addSeries(s);
-}
-{
-  Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(3, Wt::Chart::LineSeries);
-  s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
-  chart->addSeries(s);
-}
+Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(2, Wt::Chart::LineSeries);
+s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+chart->addSeries(s);
 
 chart->resize(800, 400);
 
@@ -67,5 +60,11 @@ chart->setPanEnabled(true);
 chart->setZoomEnabled(true);
 
 chart->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right); // Center horizontally
+
+// Add a WAxisSliderWidget for the chart using the data series for column 2
+Wt::Chart::WAxisSliderWidget *sliderWidget = new Wt::Chart::WAxisSliderWidget(s, container);
+sliderWidget->resize(800, 80);
+sliderWidget->setSelectionAreaPadding(40, Wt::Left | Wt::Right);
+sliderWidget->setMargin(Wt::WLength::Auto, Wt::Left | Wt::Right); // Center horizontally
 
 SAMPLE_END(return container)

@@ -76,6 +76,14 @@ public:
     buffer_string name;
     buffer_string value;
   };
+  
+#ifdef WTHTTP_WITH_ZLIB
+  struct PerMessageDeflateState {
+	bool enabled;
+	int client_max_window_bits; // -1 means no context takeover
+	int server_max_window_bits; // -1 means no context takeover
+  };
+#endif
 
   Request() {
 #ifdef HTTP_WITH_SSL
@@ -96,6 +104,9 @@ public:
   HeaderList headers;
   ::int64_t contentLength;
   int webSocketVersion;
+#ifdef WTHTTP_WITH_ZLIB
+  mutable PerMessageDeflateState pmdState_;
+#endif
 
   enum Type {
     HTTP, // HTTP request

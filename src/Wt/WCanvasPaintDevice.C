@@ -855,7 +855,11 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
   if (penChanged) {
     if (penColorChanged) {
       // prevent infinite recursion by applying new color to a temporary pen
+      PenCapStyle capStyle = currentPen_.capStyle();
+      PenJoinStyle joinStyle = currentPen_.joinStyle();
       WPen tmpPen;
+      tmpPen.setCapStyle(capStyle);
+      tmpPen.setJoinStyle(joinStyle);
       tmpPen.setColor(painter()->pen().color());
       tmpPen.setGradient(painter()->pen().gradient());
       currentPen_ = tmpPen;

@@ -87,7 +87,9 @@ public:
    * \throw WException The handle is \link isValid() invalid\endlink
    */
   std::string jsRef() const {
-    if (!value_) throw WException("Can't retrieve the value of an invalid handle!");
+    if (!value_) {
+      throw WException("Can't retrieve the value of an invalid handle!");
+    }
     return value_->clientBinding_->jsRef_;
   }
 
@@ -101,7 +103,9 @@ public:
    */
   void setValue(const T& v)
   {
-    if (!value_) throw WException("Can't assign a value to an invalid handle!");
+    if (!value_) {
+      throw WException("Can't assign a value to an invalid handle!");
+    }
     if (v.isJavaScriptBound()) throw WException("Can not assign a JavaScript bound value to a WJavaScriptHandle!");
     // Rescue the binding from being overridden by the assignment, and deleted
     WJavaScriptExposableObject::JSInfo *binding = value_->clientBinding_;
@@ -121,7 +125,9 @@ public:
    * \throw WException The handle is \link isValid() invalid\endlink
    */
   const T& value() const {
-    if (!value_) throw WException("Can't retrieve the value from an invalid handle!");
+    if (!value_) {
+      throw WException("Can't retrieve the value from an invalid handle!");
+    }
     return *value_;
   }
 

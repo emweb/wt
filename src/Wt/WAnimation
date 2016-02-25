@@ -175,7 +175,7 @@ private:
   int                     duration_;
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WAnimation::AnimationEffect);
+W_DECLARE_OPERATORS_FOR_FLAGS(WAnimation::AnimationEffect)
 
 }
 

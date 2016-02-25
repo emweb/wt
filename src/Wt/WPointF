@@ -99,6 +99,7 @@ public:
   virtual std::string jsValue() const WT_CXX11ONLY(override) ;
 
   WPointF swapHV(double width) const;
+  WPointF inverseSwapHV(double width) const;
 
 protected:
   void assignFromJSON(const Json::Value &value) WT_CXX11ONLY(override) ;

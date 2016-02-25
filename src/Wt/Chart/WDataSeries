@@ -20,6 +20,8 @@ namespace Wt {
 
   namespace Chart {
 
+    class WAbstractChartModel;
+
 /*! \class WDataSeries Wt/Chart/WDataSeries Wt/Chart/WDataSeries
  *  \brief A single data series in a cartesian chart.
  *
@@ -88,6 +90,22 @@ public:
    */
   WDataSeries(int modelColumn, SeriesType seriesType = PointSeries,
 	      Axis axis = Y1Axis);
+
+  /*! \brief Copy constructor
+   *
+   * This does not copy over the associated chart.
+   *
+   * \deprecated
+   */
+  WDataSeries(const WDataSeries &other);
+
+  /*! \brief Copy assignment operator
+   *
+   * This does not copy over the associated chart.
+   *
+   * \deprecated
+   */
+  WDataSeries &operator=(const WDataSeries &other);
 
   /*! \brief Sets the bar width.
    *
@@ -459,8 +477,84 @@ public:
   WPointF mapToDevice(const boost::any& xValue, const boost::any& yValue,
 		      int segment = 0) const;
 
+  /*! \brief Set an offset to draw the data series at.
+   *
+   * The Y position of the data series will be drawn at an offset,
+   * expressed in model coordinates. The axis labels won't follow
+   * the same offset.
+   *
+   * The offset can be manipulated client side using a mouse or touch
+   * drag if WCartesianChart::curveManipulationEnabled() is enabled.
+   *
+   * \note This is only supported for axes with linear scale.
+   *
+   * \sa setScale()
+   * \sa WCartesianChart::setCurveManipulationEnabled()
+   */
+  void setOffset(double offset);
+
+  /*! \brief Get the offset for this data series.
+   *
+   * \sa setOffset()
+   */
+  double offset() const { return offset_; }
+
+
+  /*! \brief Set the scale to draw the data series at.
+   *
+   * The Y position of the data series will be scaled around the zero
+   * position, and offset by offset().
+   *
+   * The scale can be manipulated client side using the scroll wheel
+   * or a pinch motion if WCartesianChart::curveManipulationEnabled()
+   * is enabled.
+   *
+   * \note This is only supported for axes with linear scale.
+   *
+   * \sa setOffset()
+   * \sa WCartesianChart::setCurveManipulationEnabled()
+   */
+  void setScale(double scale);
+
+  /*! \brief Get the scale for this data series.
+   *
+   * \sa setScale()
+   */
+  double scale() const { return scale_; }
+
+  /*! \brief Set a model for this data series.
+   *
+   * If no model is set for this data series, the model of
+   * the chart will be used.
+   *
+   * \note Individual models per data series are only supported for
+   * ScatterPlot type charts.
+   *
+   * \sa WCartesianChart::setModel()
+   */
+  void setModel(const WAbstractChartModel *model);
+
+  /*! \brief Get the model for this data series.
+   *
+   * This will return the model set for this data series,
+   * if it is set.
+   *
+   * If no model is set for this data series, and the series
+   * is associated with  a chart, the model of the chart is returned.
+   *
+   * If no model is set for this data series, and the series is
+   * not associated with any data series, this will return null.
+   *
+   * \sa setModel()
+   * \sa WCartesianChart::setModel()
+   */
+  const WAbstractChartModel *model() const;
+
+  WCartesianChart *chart() { return chart_; }
+
 private:
   WCartesianChart   *chart_;
+  const WAbstractChartModel *model_;
   int                modelColumn_;
   int                XSeriesColumn_;
   bool               stacked_;
@@ -480,6 +574,10 @@ private:
   double             barWidth_;
   bool               hidden_;
   WPainterPath       customMarker_;
+  double             offset_;
+  double             scale_;
+  mutable bool       offsetDirty_;
+  mutable bool       scaleDirty_;
 
   template <typename T>
   bool set(T& m, const T& v);
@@ -488,6 +586,7 @@ private:
   void update();
 
   friend class WCartesianChart;
+  friend class LineSeriesRenderer;
 };
 
 template <typename T>

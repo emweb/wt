@@ -19,6 +19,8 @@ namespace Wt {
 
   namespace Chart {
 
+    class WDataSeries;
+
 /*! \class WAxisSliderWidget Wt/Chart/WAxisSliderWidget Wt/Chart/WAxisSliderWidget
  *  \brief A widget for selecting an X axis range to display on an associated WCartesianChart.
  *
@@ -41,25 +43,13 @@ public:
    * Creates an axis slider widget associated with the given data series
    * of the given chart.
    */
-  WAxisSliderWidget(WCartesianChart *chart, int seriesColumn, WContainerWidget *parent = 0);
+  WAxisSliderWidget(WDataSeries *series, WContainerWidget *parent = 0);
   
   /*! \brief Destructor
    */
   virtual ~WAxisSliderWidget();
 
-  /*! \brief Set the associated chart.
-   */
-  void setChart(WCartesianChart *chart);
-
-  /*! \brief Set the associated data series column.
-   *
-   * Only LineSeries and CurveSeries are supported.
-   */
-  void setSeriesColumn(int seriesColumn);
-
-  /*! \brief Returns the associated data series column.
-   */
-  int seriesColumn() const { return seriesColumn_; }
+  void setSeries(WDataSeries *series);
 
   /*! \brief Set the pen to draw the data series with.
    */
@@ -146,6 +136,9 @@ public:
    */
   bool isLabelsEnabled() const { return labelsEnabled_; }
 
+  WDataSeries *series() { return series_; }
+  const WDataSeries *series() const { return series_; }
+
 protected:
   virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
   virtual void paintEvent(WPaintDevice *paintDevice) WT_CXX11ONLY(override) ;
@@ -156,8 +149,10 @@ private:
   WRectF hv(const WRectF& rect) const;
   WTransform hv(const WTransform& t) const;
 
-  WCartesianChart *chart_;
-  int seriesColumn_;
+  WCartesianChart *chart();
+  const WCartesianChart *chart() const;
+
+  WDataSeries *series_;
   WPen seriesPen_;
   WPen *selectedSeriesPen_;
   WBrush handleBrush_;

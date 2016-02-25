@@ -22,6 +22,7 @@ private:
   Wt::WWidget *paintbrush();
   Wt::WWidget *categoryChart();
   Wt::WWidget *scatterPlot();
+  Wt::WWidget *axisSliderWidget();
   Wt::WWidget *pieChart();
   Wt::WWidget *googleMap();
   Wt::WWidget *painting3d();

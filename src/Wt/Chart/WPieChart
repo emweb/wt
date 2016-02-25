@@ -13,7 +13,6 @@
 
 namespace Wt {
 
-  class WModelIndex;
   class WPainter;
 
   namespace Chart {
@@ -258,7 +257,7 @@ public:
    * \note Currently, an area is only created if the ToolTipRole data at the
    *       data point is not empty.
    */
-  virtual void addDataPointArea(const WModelIndex& index, WAbstractArea *area)
+  virtual void addDataPointArea(int row, int column, WAbstractArea *area)
     const;
 
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
@@ -290,18 +289,6 @@ private:
 protected:
   virtual void modelChanged();
   virtual void modelReset();
-  virtual void modelColumnsInserted(const WModelIndex& parent,
-				    int start, int end);
-  virtual void modelColumnsRemoved(const WModelIndex& parent,
-				   int start, int end);
-  virtual void modelRowsInserted(const WModelIndex& parent,
-				 int start, int end);
-  virtual void modelRowsRemoved(const WModelIndex& parent,
-				int start, int end);
-  virtual void modelDataChanged(const WModelIndex& topLeft,
-				const WModelIndex& bottomRight);
-  virtual void modelHeaderDataChanged(Orientation orientation,
-				      int start, int end);
 
 private:
   void drawPie(WPainter& painter, double cx, double cy, double r, double h,

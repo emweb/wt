@@ -2525,7 +2525,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
   switch (plane) {
   case XY_Plane:
     if (XYGridEnabled_[0]) {
-      std::vector<double> pos = XAxis_.gridLinePositions();
+      std::vector<double> pos = XAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2534,7 +2534,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       }
     }
     if (XYGridEnabled_[1]) {
-      std::vector<double> pos = YAxis_.gridLinePositions();
+      std::vector<double> pos = YAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2545,7 +2545,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
     break;
   case XZ_Plane:
     if (XZGridEnabled_[0]) {
-      std::vector<double> pos = XAxis_.gridLinePositions();
+      std::vector<double> pos = XAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2554,7 +2554,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       }
     }
     if (XZGridEnabled_[1]) {
-      std::vector<double> pos = ZAxis_.gridLinePositions();
+      std::vector<double> pos = ZAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2565,7 +2565,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
     break;
   case YZ_Plane:
     if (YZGridEnabled_[0]) {
-      std::vector<double> pos = YAxis_.gridLinePositions();
+      std::vector<double> pos = YAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;
@@ -2574,7 +2574,7 @@ void WCartesian3DChart::paintGridLines(WPaintDevice *paintDevice, Plane plane)
       }
     }
     if (YZGridEnabled_[1]) {
-      std::vector<double> pos = ZAxis_.gridLinePositions();
+      std::vector<double> pos = ZAxis_.gridLinePositions(AxisConfig());
       for (unsigned i = 0; i < pos.size(); i++) {
 	if (pos[i] == 0 || pos[i] == gridRenderWidth_)
 	  continue;

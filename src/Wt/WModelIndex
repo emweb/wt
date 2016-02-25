@@ -19,6 +19,11 @@ namespace Wt {
 class WAbstractItemModel;
 class WModelIndex;
 
+  namespace Chart {
+    class WCartesianChart;
+    class WPieChart;
+  }
+
 #ifndef WT_TARGET_JAVA
 typedef std::set<WModelIndex> WModelIndexSet;
 

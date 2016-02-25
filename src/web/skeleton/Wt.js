@@ -3008,6 +3008,7 @@ _$_$if_WEB_SOCKETS_$_();
 		  webSocketAckConnect();
 	      } else {
 		console.log("WebSocket: was expecting a connect?");
+		console.log(event.data);
 		return;
 	      }
 	    } else {

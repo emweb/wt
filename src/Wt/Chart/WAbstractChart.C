@@ -6,7 +6,9 @@
 #include "Wt/WAbstractItemModel"
 #include "Wt/WLogger"
 #include "Wt/Chart/WAbstractChart"
+#include "Wt/Chart/WAbstractChartModel"
 #include "Wt/Chart/WChartPalette"
+#include "Wt/Chart/WStandardChartProxyModel"
 
 namespace Wt {
 
@@ -95,7 +97,7 @@ void WAbstractChart::setAxisTitleFont(const WFont& titleFont)
   set(axisTitleFont_, titleFont);
 }
 
-void WAbstractChart::setModel(WAbstractItemModel *model)
+void WAbstractChart::setModel(WAbstractChartModel *model)
 {
   if (model_) {
     /* disconnect slots from previous model */
@@ -103,29 +105,40 @@ void WAbstractChart::setModel(WAbstractItemModel *model)
       modelConnections_[i].disconnect();
 
     modelConnections_.clear();
+
+#ifndef WT_TARGET_JAVA
+    if (model_->parent() == this) {
+      WObject::removeChild(model_);
+      delete model_;
+    }
+#endif
   }
 
   model_ = model;
 
-  /* connect slots to new model */
-  modelConnections_.push_back(model_->columnsInserted().connect
-		      (this, &WAbstractChart::modelColumnsInserted));
-  modelConnections_.push_back(model_->columnsRemoved().connect
-		      (this, &WAbstractChart::modelColumnsRemoved));
-  modelConnections_.push_back(model_->rowsInserted().connect
-		      (this, &WAbstractChart::modelRowsInserted));
-  modelConnections_.push_back(model_->rowsRemoved().connect
-		      (this, &WAbstractChart::modelRowsRemoved));
-  modelConnections_.push_back(model_->dataChanged().connect
-		      (this, &WAbstractChart::modelDataChanged));
-  modelConnections_.push_back(model_->layoutChanged().connect
+  modelConnections_.push_back(model_->changed().connect
 		      (this, &WAbstractChart::modelReset));
-  modelConnections_.push_back(model_->modelReset().connect
-		      (this, &WAbstractChart::modelReset));
-  modelConnections_.push_back(model_->headerDataChanged().connect
-		      (this, &WAbstractChart::modelHeaderDataChanged));
 
   modelChanged();
+}
+
+void WAbstractChart::setModel(WAbstractItemModel *model)
+{
+#ifndef WT_TARGET_JAVA
+  setModel(new WStandardChartProxyModel(model, this));
+#else
+  setModel(new WStandardChartProxyModel(model));
+#endif
+}
+
+WAbstractItemModel *WAbstractChart::itemModel() const
+{
+  WStandardChartProxyModel *proxy
+    = dynamic_cast<WStandardChartProxyModel *>(model_);
+  if (proxy)
+    return proxy->sourceModel();
+  else
+    return 0;
 }
 
 void WAbstractChart::modelChanged()

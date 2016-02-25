@@ -15,7 +15,6 @@
 namespace Wt {
 
   class WAbstractItemModel;
-  class WModelIndex;
   class WPainter;
   class WRectF;
 
@@ -23,6 +22,7 @@ namespace Wt {
    */
   namespace Chart {
 
+    class WAbstractChartModel;
     class WChartPalette;
 
 /*! \defgroup charts Charts (Wt::Chart)
@@ -61,23 +61,49 @@ public:
    */
   virtual ~WAbstractChart();
 
-  /*! \brief Set the model.
+  /*! \brief Sets the model.
    *
    * The model is used by the chart to get its data. Ownership of the
    * model is not transferred, and if a previous model was set it is
    * not deleted.
    *
-   * The default model is a 0 model.
+   * The default model is a \c 0 model.
+   *
+   * This creates an internal proxy model that presents the
+   * WAbstractItemModel as a WAbstractChartModel. Use
+   * setModel(WAbstractChartModel *) directly for highest performance
+   * (avoiding the overhead of boost::any for numeric data).
    *
    * \sa model()
    */
   void setModel(WAbstractItemModel *model);
 
+  /*! \brief Sets the model.
+   *
+   * The model is used by the chart to get its data. Ownership of the
+   * model is not transferred, and if a previous model was set it is
+   * not deleted.
+   *
+   * The default model is a \c 0 model.
+   *
+   * \sa model()
+   */
+  void setModel(WAbstractChartModel *model);
+
   /*! \brief Returns the model.
    *
-   * \sa setModel(WAbstractItemModel *)
+   * \sa setModel(WAbstractChartModel *)
    */
-  WAbstractItemModel *model() const { return model_; }
+  WAbstractChartModel *model() const { return model_; }
+
+  /*! \brief Returns the model.
+   *
+   * If a model was set using setModel(WAbstractItemModel *), then this
+   * model will be returned by this call.
+   *
+   * \sa setModel(WAbstractChartModel *)
+   */
+  WAbstractItemModel *itemModel() const;
 
   /*! \brief Sets a background for the chart.
    *
@@ -201,7 +227,7 @@ protected:
   WAbstractChart(WContainerWidget *parent);
 
 private:
-  WAbstractItemModel *model_;
+  WAbstractChartModel *model_;
   WBrush              background_;
   WChartPalette      *palette_;
   bool                autoPadding_;
@@ -215,64 +241,15 @@ private:
   std::vector<Wt::Signals::connection> modelConnections_;
 
 protected:
-  /*! \brief Method called whenever the entire model was changed.
-   *
-   * \sa setModel(WAbstractItemModel *)
-   */
   virtual void modelChanged();
 
-  /*! \brief Method called whenever the entire model was reset.
-   *
-   * Bound to the WAbstractItemModel::modelReset() and
-   * WAbstractItemModel::layoutChanged() signals.
-   */
   virtual void modelReset();
-
-  /*! \brief Method called when colums have been inserted in the model.
-   *
-   * \sa WAbstractItemModel::columnsInserted
-   */
-  virtual void modelColumnsInserted(const WModelIndex& parent,
-				    int start, int end) = 0;
-
-  /*! \brief Method called when colums have been removed from the model.
-   *
-   * \sa WAbstractItemModel::columnsRemoved
-   */
-  virtual void modelColumnsRemoved(const WModelIndex& parent,
-				   int start, int end) = 0;
-
-  /*! \brief Method called when rows have been inserted from the model.
-   *
-   * \sa WAbstractItemModel::rowsInserted
-   */
-  virtual void modelRowsInserted(const WModelIndex& parent,
-				 int start, int end) = 0;
-
-  /*! \brief Method called when rows have been removed from the model.
-   *
-   * \sa WAbstractItemModel::rowsRemoved
-   */
-  virtual void modelRowsRemoved(const WModelIndex& parent,
-				int start, int end) = 0;
-
-  /*! \brief Method called when data has been changed in the model.
-   *
-   * \sa WAbstractItemModel::dataChanged
-   */
-  virtual void modelDataChanged(const WModelIndex& topLeft,
-				const WModelIndex& bottomRight) = 0;
-
-  /*! \brief Method called when header data has been changed in the model.
-   *
-   * \sa WAbstractItemModel::headerDataChanged
-   */
-  virtual void modelHeaderDataChanged(Orientation orientation,
-				      int start, int end) = 0;
 
 private:
   template <typename T>
   void set(T& m, const T& v);
+
+  void modelDataChanged(int row1, int column1, int row2, int column2);
 };
 
 template <typename T>

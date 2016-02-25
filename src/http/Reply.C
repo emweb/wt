@@ -223,8 +223,8 @@ void Reply::setStatus(status_type status)
 }
 
 void Reply::consumeWebSocketMessage(ws_opcode opcode,
-				    Buffer::const_iterator begin,
-				    Buffer::const_iterator end,
+				    const char* begin,
+				    const char* end,
 				    Request::State state)
 {
   LOG_ERROR("Reply::consumeWebSocketMessage() is pure virtual");

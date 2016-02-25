@@ -77,8 +77,8 @@ WPen WStandardPalette::strokePen(int index) const
 {
   WPen p(color(index));
   p.setWidth(2);
-  p.setJoinStyle(BevelJoin);
-  p.setCapStyle(SquareCap);
+  p.setJoinStyle(RoundJoin);
+  p.setCapStyle(RoundCap);
   return p;
 }
 

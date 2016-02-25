@@ -41,6 +41,7 @@
  * Any request URI greater than 10k bytes.
  */
 
+
 static std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
 static int MAX_URI_SIZE = 10*1024;
 static int MAX_FIELD_VALUE_SIZE = 80*1024;
@@ -49,6 +50,12 @@ static int MAX_METHOD_SIZE = 16;
 
 static int MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
 
+#ifdef WTHTTP_WITH_ZLIB
+static int SERVER_DEFAULT_WINDOW_BITS = 15;
+static int CLIENT_MAX_WINDOW_BITS = 15;
+static int SERVER_MAX_WINDOW_BITS = 15;
+#endif
+
 namespace Wt {
   LOGGER("wthttp");
 }
@@ -56,9 +63,18 @@ namespace Wt {
 namespace http {
 namespace server {
 
-RequestParser::RequestParser(Server *)
+RequestParser::RequestParser(Server *):
+  inflateInitialized_(false)
 {
   reset();
+}
+
+RequestParser::~RequestParser() 
+{
+#ifdef WTHTTP_WITH_ZLIB
+  if(inflateInitialized_)
+	inflateEnd(&zInState_);
+#endif
 }
 
 void RequestParser::reset()
@@ -72,7 +88,32 @@ void RequestParser::reset()
   currentString_ = 0;
   maxSize_ = 0;
   haveHeader_ = false;
+#ifdef WTHTTP_WITH_ZLIB
+  if(inflateInitialized_) 
+	inflateEnd(&zInState_);	
+
+  inflateInitialized_ = false;
+  frameCompressed_ = false;
+#endif
 }
+
+#ifdef WTHTTP_WITH_ZLIB
+bool RequestParser::initInflate() {
+  zInState_.zalloc = Z_NULL;
+  zInState_.zfree = Z_NULL;
+  zInState_.opaque = Z_NULL;
+  zInState_.avail_in = 0;
+  zInState_.avail_out = Z_NULL;
+
+  int ret = inflateInit2(&zInState_, -1 *  SERVER_DEFAULT_WINDOW_BITS); //15 bits
+  if(ret != Z_OK) {
+	LOG_ERROR("Cannot init inflate");
+	return false;
+  }	
+  inflateInitialized_ = true;
+  return true;
+}
+#endif
 
 bool RequestParser::consumeChar(Buffer::iterator d)
 {
@@ -257,6 +298,90 @@ std::string RequestParser::doWebSocketHandshake13(const Request& req)
     return std::string();
 }
 
+#ifdef WTHTTP_WITH_ZLIB
+bool RequestParser::doWebSocketPerMessageDeflateNegociation(const Request& req, std::string& response) 
+{
+  req.pmdState_.enabled = false;
+  response = "";
+  const Request::Header *k = req.getHeader("Sec-WebSocket-Extensions");
+  if(k) {
+	std::string key = k->value.str();
+	std::vector<std::string> negociatedHeaders;
+	boost::split(negociatedHeaders, key, boost::is_any_of(";"));
+
+	if(key.find("permessage-deflate") != std::string::npos)  {
+	  req.pmdState_.enabled = true;
+	  response = "permessage-deflate";
+	} else return false;
+  
+	bool hasClientWBit = false;
+	bool hasServerWBit = false;
+	bool hasClientNoCtx = false;
+	bool hasServerNoCtx = false;
+	
+	req.pmdState_.server_max_window_bits = SERVER_MAX_WINDOW_BITS;
+	req.pmdState_.client_max_window_bits = CLIENT_MAX_WINDOW_BITS;
+
+	for(unsigned int i = 0; i < negociatedHeaders.size(); ++i) {
+	  std::string key = negociatedHeaders[i];
+	  if(key.find("permessage-deflate") != std::string::npos)  {
+		continue; // already parsed
+	  } else if(key.find("client_no_context_takeover") != std::string::npos) {
+
+		if(hasClientWBit) return false;
+
+		hasClientNoCtx = true;
+
+		req.pmdState_.client_max_window_bits = -1;
+		response+="; client_no_context_takeover";
+	  } else if(key.find("server_no_context_takeover") != std::string::npos) {
+
+		if(hasServerWBit) return false;
+
+		hasServerNoCtx = true;
+
+		req.pmdState_.server_max_window_bits = -1;
+		response+="; server_no_context_takeover";
+	  } else if (key.find("server_max_window_bits") != std::string::npos) {
+
+		if( hasServerNoCtx ) return false;
+
+		boost::trim(key);
+		size_t pos = key.find("=");
+		if( pos != std::string::npos) {
+		  hasServerWBit = true; 
+		  int ws = boost::lexical_cast<int>(key.substr(pos + 1));
+		  
+		  if(ws < 8 || ws > 15) return false;
+
+		  req.pmdState_.server_max_window_bits  = ws;
+		  response+="; server_max_window_bits = " + key.substr(pos + 1);
+		} else return false;
+	  } else if (key.find("client_max_window_bits") != std::string::npos) {
+
+		if( hasClientNoCtx) return false;
+
+		boost::trim(key);
+		size_t pos = key.find("=");
+		if( pos != std::string::npos) {
+		  hasClientWBit = true; 
+		  int ws = boost::lexical_cast<int>(key.substr(pos + 1));
+		  
+		  if(ws < 8 || ws > 15) return false;
+
+		  req.pmdState_.client_max_window_bits = ws;
+		  response+="; client_max_window_bits = " + key.substr(pos + 1);
+		} else response+="; client_max_window_bits = " + boost::lexical_cast<std::string>(CLIENT_MAX_WINDOW_BITS);
+
+	  }
+	}
+  } else {
+	  return false; // 400 bad request
+  }
+  return true;
+}
+#endif
+
 Request::State
 RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 				     Buffer::iterator& begin,
@@ -319,6 +444,23 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  reply->addHeader("Connection", "Upgrade");
 	  reply->addHeader("Upgrade", "WebSocket");
 	  reply->addHeader("Sec-WebSocket-Accept", accept);
+#ifdef WTHTTP_WITH_ZLIB
+	  std::string compressHeader;
+	  if(!doWebSocketPerMessageDeflateNegociation(req, compressHeader))
+		return Request::Error;
+	  
+	  if(!compressHeader.empty())  {
+		// We can use per message deflate
+		if(initInflate()) {
+		  LOG_DEBUG("Extension per_message_deflate requested");
+		  reply->addHeader("Sec-WebSocket-Extensions", compressHeader);
+		}else {
+		  // Decompress not available disable
+		  req.pmdState_.enabled = false;
+		}
+	  }
+#endif
+
 	  reply->consumeData(begin, begin, Request::Complete);
 
 	  return Request::Complete;
@@ -429,9 +571,17 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
 	LOG_DEBUG("ws: new frame, opcode byte=" << (int)frameType);
 
+#ifdef WTHTTP_WITH_ZLIB
 	/* RSV1-3 must be 0 */
-	if (frameType & 0x70)
+	if (frameType & 0x70 && (!req.pmdState_.enabled && frameType & 0x30)) 
 	  return Request::Error;
+	
+	frameCompressed_ = frameType & 0x40;
+#else
+	if(frameType & 0x70)
+	  return Request::Error;
+#endif
+
 
 	switch (frameType & 0x0F) {
 	case 0x0: // Continuation frame of a fragmented message
@@ -562,18 +712,85 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
   LOG_DEBUG("ws: " << (dataEnd - dataBegin) << "," << state);
 
   if (dataBegin < dataEnd || state == Request::Complete) {
-    if (wsState_ < ws13_frame_start) {
-      if (wsFrameType_ == 0x00)
-	reply->consumeWebSocketMessage(Reply::text_frame,
-				       dataBegin, dataEnd, state);
-    } else {
-      Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
-      reply->consumeWebSocketMessage(opcode, dataBegin, dataEnd, state);
-    }
+	char* beg = &*dataBegin;
+	char* end = &*dataEnd;
+#ifdef WTHTTP_WITH_ZLIB
+	if(frameCompressed_) {
+	  Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
+	  if (wsState_ < ws13_frame_start) {
+		if (wsFrameType_ == 0x00)
+		  opcode = Reply::text_frame;
+	  }
+	  unsigned char appendBlock[] = { 0x00, 0x00, 0xff, 0xff };
+	  bool hasMore = false;
+	  char buffer[16384];
+	  do {
+		read_ = 0;
+		bool ret1 =  inflate(reinterpret_cast<unsigned char*>(&*beg), 
+			end - beg, reinterpret_cast<unsigned char*>(buffer), hasMore);
+
+		if(!ret1) return Request::Error;
+		
+		reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
+
+	  } while (hasMore);
+	  
+	  bool ret2 = inflate(appendBlock, 4, reinterpret_cast<unsigned char*>(buffer), hasMore);
+
+	  if(!ret2) return Request::Error;
+
+	  return state;
+	}
+#endif
+
+	// handle uncompressed frame
+	if (wsState_ < ws13_frame_start) {
+	  if (wsFrameType_ == 0x00)
+		reply->consumeWebSocketMessage(Reply::text_frame,
+			beg, end, state);
+	} else {
+	  Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
+	  reply->consumeWebSocketMessage(opcode, beg, end, state);
+	}
   }
 
   return state;
 }
+
+#ifdef WTHTTP_WITH_ZLIB
+
+bool RequestParser::inflate(unsigned char* in, size_t size, unsigned char out[], bool& hasMore)
+{
+  LOG_DEBUG("wthttp: ws: inflate frame");
+  if( !hasMore) {
+	zInState_.avail_in = size;
+	zInState_.next_in = in;
+  }
+
+  do {
+	zInState_.avail_out = 16384;;
+	zInState_.next_out = out;
+	int ret = ::inflate(&zInState_, Z_FINISH);
+	switch(ret) {
+	  case Z_NEED_DICT:
+		LOG_ERROR("inflate : no dictionary found in frame");
+		return false;
+	  case Z_DATA_ERROR:
+		LOG_ERROR("inflate : data error");
+		return false;
+	  case Z_MEM_ERROR:
+		LOG_ERROR("inflate : memory error");
+		return false;
+	  default:
+		break;
+	}
+	read_ += 16384 - zInState_.avail_out;
+	LOG_DEBUG("wthttp: ws: inflate - Size before " << size << " size after " << 16384 - zInState_.avail_out);
+  }while(zInState_.avail_out == 0);
+  return true;
+}
+
+#endif
 
 boost::tribool& RequestParser::consume(Request& req, Buffer::iterator it)
 {

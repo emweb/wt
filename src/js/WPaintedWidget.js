@@ -19,6 +19,7 @@ WT_DECLARE_WT_MEMBER
 
    this.jsValues = []
    this.repaint = function() {};
+   this.widget = widget;
 
    function encodeJSValues() {
       var res = [];
@@ -163,6 +164,14 @@ WT_DECLARE_WT_MEMBER
 	    t1[3] = t2[3];
 	    t1[4] = t2[4];
 	    t1[5] = t2[5];
+	 };
+	 this.transform_equal = function(t1, t2) {
+	    return t1[0] == t2[0] &&
+	           t1[1] == t2[1] &&
+	           t1[2] == t2[2] &&
+	           t1[3] == t2[3] &&
+	           t1[4] == t2[4] &&
+	           t1[5] == t2[5];
 	 };
 	 this.css_text = function(c) {
 	    return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + c[3] + ")";

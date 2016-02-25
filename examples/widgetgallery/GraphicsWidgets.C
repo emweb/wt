@@ -33,6 +33,9 @@ void GraphicsWidgets::populateSubMenu(Wt::WMenu *menu)
   menu->addItem("Scatter plot", 
 		deferCreate(boost::bind
 			    (&GraphicsWidgets::scatterPlot, this)));
+  menu->addItem("Axis slider widget",
+		deferCreate(boost::bind
+			    (&GraphicsWidgets::axisSliderWidget, this)));
   menu->addItem("Pie chart", 
 		deferCreate(boost::bind
 			    (&GraphicsWidgets::pieChart, this)));
@@ -110,6 +113,19 @@ Wt::WWidget *GraphicsWidgets::scatterPlot()
   result->bindWidget("ScatterPlotData", ScatterPlotData());
   result->bindWidget("ScatterPlotCurve", ScatterPlotCurve());
   result->bindWidget("ScatterPlotInteractive", ScatterPlotInteractive());
+
+  return result;
+}
+
+#include "examples/AxisSliderWidget.cpp"
+#include "examples/AxisSliderWidgetDifferentDataSeries.cpp"
+
+Wt::WWidget *GraphicsWidgets::axisSliderWidget()
+{
+  Wt::WTemplate *result = new TopicTemplate("graphics-AxisSliderWidget");
+
+  result->bindWidget("AxisSliderWidget", AxisSliderWidget());
+  result->bindWidget("AxisSliderWidgetDifferentDataSeries", AxisSliderWidgetDifferentDataSeries());
 
   return result;
 }

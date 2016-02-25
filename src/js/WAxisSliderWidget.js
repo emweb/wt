@@ -46,6 +46,12 @@ WT_DECLARE_WT_MEMBER
    var pointerActive = false;
 
    if (window.MSPointerEvent || window.PointerEvent) {
+      widget.style.touchAction = 'none';
+      target.canvas.style.msTouchAction = 'none';
+      target.canvas.style.touchAction = 'none';
+   }
+
+   if (window.MSPointerEvent || window.PointerEvent) {
       (function(){
 	 pointers = []
 
@@ -157,13 +163,22 @@ WT_DECLARE_WT_MEMBER
       scheduleRepaint();
    }
 
-   function repaint() {
-      scheduleRepaint();
-      var transform = config.transform;
+   function transformToUV() {
       var drawArea = config.drawArea;
-      var u = transform[4] / drawArea[2];
-      var v = transform[0] + u;
-      config.chart.setXRange(config.series, u, v);
+      var u = config.transform[4] / drawArea[2];
+      var v = config.transform[0] + u;
+      return [u,v];
+   }
+
+   function repaint(setRange) {
+     scheduleRepaint();
+     if (setRange) {
+       var transform = config.transform;
+       var drawArea = config.drawArea;
+       var u = transform[4] / drawArea[2];
+       var v = transform[0] + u;
+       config.chart.setXRange(config.series, u, v);
+     }
    }
 
    function isHorizontal() {
@@ -224,13 +239,23 @@ WT_DECLARE_WT_MEMBER
       var xBefore = u * drawArea[2];
       var xAfter = xBefore + dx;
       var uAfter = xAfter / drawArea[2];
+      if (v <= uAfter) {
+	 return;
+      }
       if (1 / (v - uAfter) > config.chart.config.maxZoom[0]) {
 	 return;
       }
-      if (uAfter < 0) uAfter = 0;
-      if (uAfter > 1) uAfter = 1;
+      if (uAfter < 0)
+	 uAfter = 0;
+      if (uAfter > 1)
+	 uAfter = 1;
       self.changeRange(uAfter, v);
-      repaint();
+      repaint(true);
+      var uv = transformToUV();
+      if (Math.abs(uv[1] - v) > Math.abs(uv[0] - u)) {
+	 self.changeRange(u, v);
+	 repaint(true);
+      }
    }
 
    function dragRight(dx) {
@@ -241,13 +266,21 @@ WT_DECLARE_WT_MEMBER
       var xBefore = v * drawArea[2];
       var xAfter = xBefore + dx;
       var vAfter = xAfter / drawArea[2];
+      if (vAfter <= u) {
+	 return;
+      }
       if (1 / (vAfter - u) > config.chart.config.maxZoom[0]) {
 	 return;
       }
       if (vAfter < 0) vAfter = 0;
       if (vAfter > 1) vAfter = 1;
       self.changeRange(u, vAfter);
-      repaint();
+      repaint(true);
+      var uv = transformToUV();
+      if (Math.abs(uv[0] - u) > Math.abs(uv[1] - v)) {
+         self.changeRange(u, v);
+	 repaint(true);
+      }
    }
 
    function move(dx) {
@@ -272,7 +305,7 @@ WT_DECLARE_WT_MEMBER
       }
       var vAfter = rightAfter / drawArea[2];
       self.changeRange(uAfter, vAfter);
-      repaint();
+      repaint(true);
    }
 
    this.mouseDrag = function(o, event) {
@@ -301,7 +334,7 @@ WT_DECLARE_WT_MEMBER
 	 break;
       }
       previousXY = pos;
-      repaint();
+      repaint(true);
    };
 
    this.mouseMoved = function(o, event) {
@@ -440,7 +473,7 @@ WT_DECLARE_WT_MEMBER
 	    break;
 	 }
 	 previousXY = pos;
-	 repaint();
+     repaint(true);
       } else if (doubleTouch) {
 	 if (event.preventDefault) event.preventDefault();
 	 touches = [
@@ -457,7 +490,7 @@ WT_DECLARE_WT_MEMBER
 	 dragLeft(-d/2);
 	 dragRight(d/2);
 	 touchDelta = newDelta;
-	 repaint();
+     repaint(true);
       }
    };
 
@@ -467,7 +500,7 @@ WT_DECLARE_WT_MEMBER
 	    config[key] = newConfig[key];
 	 }
       }
-      repaint();
+      repaint(false);
    }
 
    self.updateConfig({});

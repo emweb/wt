@@ -33,7 +33,12 @@ namespace misc_strings {
   const char char0x0 = 0x0;
   const char char0xFF = (char)0xFF;
   const char char0x81 = (char)0x81;
+  const char char0xC1 = (char)0xC1;
 }
+
+#ifdef WTHTTP_WITH_ZLIB
+static int SERVER_MAX_WINDOW_BITS = 15;
+#endif
 
 WtReply::WtReply(Request& request, const Wt::EntryPoint& entryPoint,
                  const Configuration &config)
@@ -46,6 +51,9 @@ WtReply::WtReply(Request& request, const Wt::EntryPoint& entryPoint,
     contentLength_(-1),
     bodyReceived_(0),
     sendingMessages_(false),
+#ifdef WTHTTP_WITH_ZLIB
+	deflateInitialized_(false),
+#endif
     httpRequest_(0)
 {
   reset(&entryPoint);
@@ -62,6 +70,11 @@ WtReply::~WtReply()
 
   if (!requestFileName_.empty())
     unlink(requestFileName_.c_str());
+
+#ifdef WTHTTP_WITH_ZLIB
+  if(deflateInitialized_)
+	deflateEnd(&zOutState_);
+#endif
 }
 
 void WtReply::reset(const Wt::EntryPoint *ep)
@@ -111,6 +124,10 @@ void WtReply::reset(const Wt::EntryPoint *ep)
   } else {
     in_ = &in_mem_;
   }
+#ifdef WTHTTP_WITH_ZLIB
+  if(deflateInitialized_)
+	deflateReset(&zOutState_);
+#endif
 }
 
 void WtReply::logReply(Wt::WLogger& logger)
@@ -306,8 +323,8 @@ void WtReply::readRestWebSocketHandshake()
 }
 
 void WtReply::consumeWebSocketMessage(ws_opcode opcode,
-				      Buffer::const_iterator begin,
-				      Buffer::const_iterator end,
+				      const char* begin,
+				      const char* end,
 				      Request::State state)
 {
   in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
@@ -521,6 +538,7 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
   bool webSocket = request().type == Request::WebSocket;
   if (webSocket) {
     std::size_t size = sending_;
+	std::vector<boost::asio::const_buffer> buffers;
 
     LOG_DEBUG("ws: sending a message, length = " << size);
 
@@ -535,9 +553,36 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
     case 8:
     case 13:
       {
-	result.push_back(asio::buffer(&misc_strings::char0x81, 1));
-
-	std::size_t payloadLength = size;
+	std::size_t payloadLength;
+#ifdef WTHTTP_WITH_ZLIB
+	if(!request_.pmdState_.enabled ) {
+#endif
+	  result.push_back(asio::buffer(&misc_strings::char0x81, 1)); // RSV1 = 0
+	  payloadLength = size;
+#ifdef WTHTTP_WITH_ZLIB
+	} else  {
+	  result.push_back(asio::buffer(&misc_strings::char0xC1, 1)); // RSV1 = 1
+	  const unsigned char* data = boost::asio::buffer_cast<const unsigned char*>(out_buf_.data());
+	  int size = boost::asio::buffer_size(out_buf_.data());
+	  bool hasMore = false;
+	  payloadLength = 0;
+	  do {
+		unsigned char buffer[16384];
+		int bs = deflate(data, size, buffer, hasMore);
+		if(!hasMore) bs = bs-4;
+		buffers.push_back(boost::asio::const_buffer(buffer, bs));
+		payloadLength+=bs;
+	  } while (hasMore);
+	  //TODO need to free out_buf
+	  if(request_.pmdState_.server_max_window_bits < 0) // context_takeover
+		deflateReset(&zOutState_);
+	  if(payloadLength <= 0) {
+		LOG_ERROR("ws: deflate failed");
+		sending_ = 0;
+		return;
+	  }
+	}
+#endif
 
 	if (payloadLength < 126) {
 	  gatherBuf_[0] = (char)payloadLength;
@@ -563,7 +608,15 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
 	  result.push_back(asio::buffer(gatherBuf_, 9));
 	}
 
-	result.push_back(out_buf_.data());
+#ifdef WTHTTP_WITH_ZLIB
+	// Compress frame if compression is enabled
+	if(request_.pmdState_.enabled) 
+	  for(int i = 0; i < buffers.size() ; ++i) 
+		result.push_back(buffers[i]);
+	else 
+#endif
+	  result.push_back(out_buf_.data());
+
       }
       break;
     default:
@@ -605,5 +658,66 @@ bool WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
   return httpRequest_->done();
 }
 
+
+#ifdef WTHTTP_WITH_ZLIB
+
+bool WtReply::initDeflate() 
+{
+  zOutState_.zalloc = Z_NULL;
+  zOutState_.zfree = Z_NULL;
+  zOutState_.opaque = Z_NULL;
+
+  int wsize = request_.pmdState_.server_max_window_bits != -1 ?
+	request_.pmdState_.server_max_window_bits : SERVER_MAX_WINDOW_BITS;
+
+  int ret = deflateInit2(
+	  &zOutState_,
+	  Z_DEFAULT_COMPRESSION,
+	  Z_DEFLATED,
+	  -1* wsize,
+	  8, // memory level 1-9
+	  Z_FIXED
+	  );
+  if(ret != Z_OK) return false;
+  deflateInitialized_ = true;
+  return true;
+}
+  
+int WtReply::deflate(const unsigned char* in, size_t size, unsigned char out[], bool& hasMore)
+{
+  size_t output = 0;
+  const int bufferSize = 16384;
+
+  LOG_DEBUG("wthttp: wt: deflate frame");
+
+  if(!deflateInitialized_) {
+	if(!initDeflate())
+	  return -1;
   }
+  
+  // If it's the first iteration init the data
+  if(!hasMore) {
+	zOutState_.avail_in = size;
+	zOutState_.next_in = const_cast<unsigned char *>(in);
+  }
+
+  hasMore = true;
+
+  // Output to local buffer
+  zOutState_.avail_out = bufferSize;
+  zOutState_.next_out = out;
+
+  ::deflate(&zOutState_, Z_SYNC_FLUSH);
+
+  output = bufferSize - zOutState_.avail_out;
+
+  if(zOutState_.avail_out != 0) hasMore = false;
+  
+  LOG_DEBUG("wthttp: ws: deflate - Size before " << size << " size after " << output);
+
+  return output; 
+}
+#endif
+  
+}
 }

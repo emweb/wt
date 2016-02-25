@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include "Wt/WException"
+#include "Wt/WLocalDateTime"
 #include "Wt/WTime"
 #include "Wt/WLogger"
 
@@ -148,9 +149,14 @@ bool WTime::operator>= (const WTime& other) const
   return other <= *this;
 }
 
+WTime WTime::currentTime()
+{
+  return WLocalDateTime::currentDateTime().time();
+}
+
 WTime WTime::currentServerTime()
 {
-  return WTime((long)boost::posix_time::microsec_clock::universal_time()
+  return WTime((long)boost::posix_time::microsec_clock::local_time()
                .time_of_day().total_milliseconds());
 }
 

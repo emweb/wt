@@ -85,8 +85,8 @@ chart->setPlotAreaPadding(120, Wt::Right);
  * Add all (but first) column as bar series.
  */
 for (int column = 1; column < model->columnCount(); ++column) {
-    Wt::Chart::WDataSeries series(column, Wt::Chart::BarSeries);
-    series.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+    Wt::Chart::WDataSeries *series = new Wt::Chart::WDataSeries(column, Wt::Chart::BarSeries);
+    series->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
     chart->addSeries(series);
 }
 

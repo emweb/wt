@@ -157,6 +157,9 @@ public:
    */
   const std::string cssText(bool withAlpha = false) const;
 
+  void toHSL(WT_ARRAY double hsl[3]) const;
+  static WColor fromHSL(double h, double s, double l, int alpha);
+
 private:
   bool default_;
   int red_, green_, blue_, alpha_;

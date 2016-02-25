@@ -53,7 +53,7 @@ namespace {
 
   int seriesIndexOf(WCartesianChart* chart, int modelColumn) {
     for (unsigned i = 0; i < chart->series().size(); ++i)
-      if (chart->series()[i].modelColumn() == modelColumn)
+      if (chart->series()[i]->modelColumn() == modelColumn)
 	return i;
     
     return -1;
@@ -194,6 +194,10 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   addEntry(markers, "Cross");
   addEntry(markers, "X cross");
   addEntry(markers, "Triangle");
+  addEntry(markers, "Pipe");
+  addEntry(markers, "Star");
+  addEntry(markers, "Inverted triangle");
+  addEntry(markers, "Asterisk");
   addEntry(markers, "Diamond");
 
   WStandardItemModel *axes = new WStandardItemModel(0, 1, this);
@@ -223,7 +227,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   for (int j = 1; j < chart->model()->columnCount(); ++j) {
     SeriesControl sc;
 
-    new WText(asString(chart->model()->headerData(j)),
+    new WText(chart->model()->headerData(j),
 	      seriesConfig->elementAt(j, 0));
 
     sc.enabledEdit = new WCheckBox(seriesConfig->elementAt(j, 1));
@@ -436,98 +440,95 @@ void ChartConfig::setValueFill(FillRangeType fill)
 void ChartConfig::update()
 {
   bool haveLegend = false;
-  std::vector<WDataSeries> series;
+  std::vector<WDataSeries *> series;
 
   for (int i = 1; i < chart_->model()->columnCount(); ++i) {
     SeriesControl& sc = seriesControls_[i-1];
 
     if (sc.enabledEdit->isChecked()) {
-      WDataSeries s(i);
+      WDataSeries *s = new WDataSeries(i);
 
       switch (sc.typeEdit->currentIndex()) {
       case 0:
-	s.setType(PointSeries);
+	s->setType(PointSeries);
 	if (sc.markerEdit->currentIndex() == 0)
 	  sc.markerEdit->setCurrentIndex(1);
 	break;
       case 1:
-	s.setType(LineSeries);
+	s->setType(LineSeries);
 	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 2:
-	s.setType(CurveSeries);
+	s->setType(CurveSeries);
 	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 3:
-	s.setType(BarSeries);
+	s->setType(BarSeries);
 	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 4:
-	s.setType(LineSeries);
-	s.setFillRange(fill_);
+	s->setType(LineSeries);
+	s->setFillRange(fill_);
 	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 5:
-	s.setType(CurveSeries);
-	s.setFillRange(fill_);
+	s->setType(CurveSeries);
+	s->setFillRange(fill_);
 	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 6:
-	s.setType(BarSeries);
-	s.setStacked(true);
+	s->setType(BarSeries);
+	s->setStacked(true);
 	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 7:
-	s.setType(LineSeries);
-	s.setFillRange(fill_);
-	s.setStacked(true);
+	s->setType(LineSeries);
+	s->setFillRange(fill_);
+	s->setStacked(true);
 	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 8:
-	s.setType(CurveSeries);
-	s.setFillRange(fill_);
-	s.setStacked(true);
+	s->setType(CurveSeries);
+	s->setFillRange(fill_);
+	s->setStacked(true);
 	sc.markerEdit->setCurrentIndex(0);
       }
 
-      //set WPainterPath to draw a diamond
+      //set WPainterPath to draw a pipe
       if(sc.markerEdit->currentIndex() == CustomMarker){
 	WPainterPath pp = WPainterPath();
-	pp.moveTo(-6, 0);
+	pp.moveTo(0, -6);
 	pp.lineTo(0, 6);
-	pp.lineTo(6, 0);
-	pp.lineTo(0, -6);
-	pp.lineTo(-6, 0);
-	s.setCustomMarker(pp);
+	s->setCustomMarker(pp);
       }
 
-      s.setMarker(static_cast<MarkerType>(sc.markerEdit->currentIndex()));
+      s->setMarker(static_cast<MarkerType>(sc.markerEdit->currentIndex()));
 
       if (sc.axisEdit->currentIndex() == 1) {
-	s.bindToAxis(Y2Axis);
+	s->bindToAxis(Y2Axis);
       }
 
       if (sc.legendEdit->isChecked()) {
-	s.setLegendEnabled(true);
+	s->setLegendEnabled(true);
 	haveLegend = true;
       } else
-	s.setLegendEnabled(false);
+	s->setLegendEnabled(false);
 
       if (sc.shadowEdit->isChecked()) {
-	s.setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+	s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
       } else
-	s.setShadow(WShadow());
+	s->setShadow(WShadow());
 
       switch (sc.labelsEdit->currentIndex()) {
       case 1:
-	s.setLabelsEnabled(XAxis);
+	s->setLabelsEnabled(XAxis);
 	break;
       case 2:
-	s.setLabelsEnabled(YAxis);
+	s->setLabelsEnabled(YAxis);
 	break;
       case 3:
-	s.setLabelsEnabled(XAxis);	
-	s.setLabelsEnabled(YAxis);
+	s->setLabelsEnabled(XAxis);
+	s->setLabelsEnabled(YAxis);
 	break;
       }
 

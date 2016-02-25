@@ -112,8 +112,8 @@ public:
 			   Request::State state) = 0;
 
   virtual void consumeWebSocketMessage(ws_opcode opcode,
-				       Buffer::const_iterator begin,
-				       Buffer::const_iterator end,
+				       const char* begin,
+				       const char* end,
 				       Request::State state);
 
   void setConnection(ConnectionPtr connection);

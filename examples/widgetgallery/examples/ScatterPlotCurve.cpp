@@ -39,8 +39,8 @@ chart->setPlotAreaPadding(120, Wt::Right);
 chart->setPlotAreaPadding(40, Wt::Top | Wt::Bottom);
 
 // Add the curves
-Wt::Chart::WDataSeries s(1, Wt::Chart::CurveSeries);
-s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(1, Wt::Chart::CurveSeries);
+s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
 chart->addSeries(s);
 
 chart->resize(800, 300); // WPaintedWidget must be given explicit size.

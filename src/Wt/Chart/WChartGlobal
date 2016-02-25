@@ -39,7 +39,11 @@ enum MarkerType {
   CrossMarker,    //!< Mark points using a cross (+).
   XCrossMarker,   //!< Mark points using a cross (x).
   TriangleMarker, //!< Mark points using a triangle.
-  CustomMarker    //!< Mark points using a custom marker.
+  CustomMarker,    //!< Mark points using a custom marker.
+  StarMarker,     //!< Mark points using a star.
+  InvertedTriangleMarker, //!< Mark points using an inverted (upside-down) triangle.
+  AsteriskMarker, //!< Mark points using an asterisk (*).
+  DiamondMarker   //!< Mark points using a diamond.
 };
 
 /*! \brief Enumeration that specifies how an area should be filled.

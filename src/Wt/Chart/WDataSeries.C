@@ -14,6 +14,7 @@ namespace Wt {
 
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
   : chart_(0),
+    model_(0),
     modelColumn_(modelColumn),
     XSeriesColumn_(-1),
     stacked_(false),
@@ -27,8 +28,74 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     xLabel_(false),
     yLabel_(false),
     barWidth_(0.8),
-    hidden_(false)
+    hidden_(false),
+    offset_(0.0),
+    scale_(1.0),
+    offsetDirty_(true),
+    scaleDirty_(true)
 { }
+
+WDataSeries::WDataSeries(const WDataSeries &other)
+  : chart_(0),
+    model_(other.model_),
+    modelColumn_(other.modelColumn_),
+    XSeriesColumn_(other.XSeriesColumn_),
+    stacked_(other.stacked_),
+    type_(other.type_),
+    axis_(other.axis_),
+    customFlags_(other.customFlags_),
+    pen_(other.pen_),
+    markerPen_(other.markerPen_),
+    brush_(other.brush_),
+    markerBrush_(other.markerBrush_),
+    labelColor_(other.labelColor_),
+    shadow_(other.shadow_),
+    fillRange_(other.fillRange_),
+    marker_(other.marker_),
+    markerSize_(other.markerSize_),
+    legend_(other.legend_),
+    xLabel_(other.xLabel_),
+    yLabel_(other.yLabel_),
+    barWidth_(other.barWidth_),
+    hidden_(other.hidden_),
+    customMarker_(other.customMarker_),
+    offset_(other.offset_),
+    scale_(other.scale_),
+    offsetDirty_(true),
+    scaleDirty_(true)
+{ }
+
+WDataSeries &WDataSeries::operator=(const WDataSeries &rhs)
+{
+  model_ = rhs.model_;
+  modelColumn_ = rhs.modelColumn_;
+  XSeriesColumn_ = rhs.XSeriesColumn_;
+  stacked_ = rhs.stacked_;
+  type_ = rhs.type_;
+  axis_ = rhs.axis_;
+  customFlags_ = rhs.customFlags_;
+  pen_ = rhs.pen_;
+  markerPen_ = rhs.markerPen_;
+  brush_ = rhs.brush_;
+  markerBrush_ = rhs.markerBrush_;
+  labelColor_ = rhs.labelColor_;
+  shadow_ = rhs.shadow_;
+  fillRange_ = rhs.fillRange_;
+  marker_ = rhs.marker_;
+  markerSize_ = rhs.markerSize_;
+  legend_ = rhs.legend_;
+  xLabel_ = rhs.xLabel_;
+  yLabel_ = rhs.yLabel_;
+  barWidth_ = rhs.barWidth_;
+  hidden_ = rhs.hidden_;
+  customMarker_ = rhs.customMarker_;
+  offset_ = rhs.offset_;
+  scale_ = rhs.scale_;
+  offsetDirty_ = true;
+  scaleDirty_ = true;
+
+  return *this;
+}
 
 void WDataSeries::setBarWidth(const double width) 
 {
@@ -90,13 +157,14 @@ WPen WDataSeries::pen() const
     if (chart_)
       if (type_ == BarSeries)
 	return chart_->palette()
-	  ->borderPen(chart_->seriesIndexOf(modelColumn_));
+	  ->borderPen(chart_->seriesIndexOf(*this));
       else
 	return chart_->palette()
-	  ->strokePen(chart_->seriesIndexOf(modelColumn_));
+	  ->strokePen(chart_->seriesIndexOf(*this));
     else {
       WPen defaultPen;
-      defaultPen.setCapStyle(SquareCap);
+      defaultPen.setCapStyle(RoundCap);
+      defaultPen.setJoinStyle(RoundJoin);
       return defaultPen;
     }
 }
@@ -114,7 +182,7 @@ WBrush WDataSeries::brush() const
     return brush_;
   else
     if (chart_)
-      return chart_->palette()->brush(chart_->seriesIndexOf(modelColumn_));
+      return chart_->palette()->brush(chart_->seriesIndexOf(*this));
     else
       return WBrush();
 }
@@ -125,7 +193,7 @@ WColor WDataSeries::labelColor() const
     return labelColor_;
   else
     if (chart_)
-      return chart_->palette()->fontColor(chart_->seriesIndexOf(modelColumn_));
+      return chart_->palette()->fontColor(chart_->seriesIndexOf(*this));
     else
       return black;
 }
@@ -267,6 +335,40 @@ WPointF WDataSeries::mapToDevice(const boost::any& xValue,
 void WDataSeries::setXSeriesColumn(int modelColumn) 
 {
   XSeriesColumn_ = modelColumn;
+}
+
+void WDataSeries::setOffset(double offset)
+{
+  if (offset_ != offset) {
+    offset_ = offset;
+    update();
+  }
+  offsetDirty_ =  true;
+}
+
+void WDataSeries::setScale(double scale)
+{
+  if (scale_ != scale) {
+    scale_ = scale;
+    update();
+  }
+  scaleDirty_ = true;
+}
+
+void WDataSeries::setModel(const WAbstractChartModel *model)
+{
+  model_ = model;
+  if (chart_)
+    chart_->update();
+}
+
+const WAbstractChartModel *WDataSeries::model() const
+{
+  if (model_)
+    return model_;
+  if (chart_)
+    return chart_->model();
+  return 0;
 }
 
   }

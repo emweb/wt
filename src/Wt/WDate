@@ -339,13 +339,16 @@ public:
    *
    * This method uses browser information to retrieve the date that is
    * configured in the client.
+   *
+   * \sa WLocalDateTime::currentDate()
    */
   static WDate currentDate();
 
   /*! \brief Reports the current server date.
    *
-   * This method returns the date as indicated by the system clock of
-   * the server.
+   * This method returns the local date on the server.
+   *
+   * \sa WDateTime::currentDateTime(), WLocalDateTime::currentServerDateTime()
    */
   static WDate currentServerDate();
 

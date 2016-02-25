@@ -7,10 +7,10 @@
 #include <cmath>
 #include <cstdio>
 
+#include "Wt/Chart/WAbstractChartModel"
 #include "Wt/Chart/WPieChart"
 #include "Wt/Chart/WStandardPalette"
 
-#include "Wt/WAbstractItemModel"
 #include "Wt/WContainerWidget"
 #include "Wt/WCssDecorationStyle"
 #include "Wt/WText"
@@ -19,6 +19,7 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WException"
+#include "Wt/WModelIndex"
 
 #include "WebUtils.h"
 
@@ -159,18 +160,18 @@ WWidget* WPieChart::createLegendItemWidget(int index,
 
   if (dataColumn_ != -1)
     for (int i = 0; i < model()->rowCount(); ++i) {
-      double v = asNumber(model()->data(i, dataColumn_));
+      double v = model()->data(i, dataColumn_);
       if (!Utils::isNaN(v))
 	total += v;
     }
 
-  double value = asNumber(model()->data(index, dataColumn_));
+  double value = model()->data(index, dataColumn_);
   if (!Utils::isNaN(value)) {
     WString label = labelText(index, value, total, options);
     if (!label.empty()) {
       WText* l = new WText(label);
       l->setPadding(5, Left);
-      l->setToolTip(asString(model()->data(index, dataColumn_, ToolTipRole)));
+      l->setToolTip(model()->toolTip(index, dataColumn_));
       legendItem->addWidget(l);
     }
   }
@@ -184,7 +185,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 
   if (dataColumn_ != -1)
     for (int i = 0; i < model()->rowCount(); ++i) {
-      double v = asNumber(model()->data(i, dataColumn_));
+      double v = model()->data(i, dataColumn_);
       if (!Utils::isNaN(v))
 	total += v;
     }
@@ -232,7 +233,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
       double currentAngle = startAngle_;
 
       for (int i = 0; i < model()->rowCount(); ++i) {
-	double v = asNumber(model()->data(i, dataColumn_));
+	double v = model()->data(i, dataColumn_);
 	if (Utils::isNaN(v))
 	  continue;
 
@@ -316,7 +317,7 @@ WString WPieChart::labelText(int index, double v, double total,
 
   if (options & TextLabel)
     if (labelsColumn_ != -1)
-      text += asString(model()->data(index, labelsColumn_));
+      text += model()->displayData(index, labelsColumn_);
 
   if (options & TextPercentage) {
     std::string label;
@@ -393,7 +394,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
       for (int i = 0; i < model()->rowCount(); ++i) {
 	startAngles[i] = currentAngle;
 
-	double v = asNumber(model()->data(i, dataColumn_));
+	double v = model()->data(i, dataColumn_);
 	if (Utils::isNaN(v))
 	  continue;
 
@@ -421,7 +422,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
       for (int j = 0; j < model()->rowCount(); ++j) {
 	int i = (index90 + j) % model()->rowCount();
 
-	double v = asNumber(model()->data(i, dataColumn_));
+	double v = model()->data(i, dataColumn_);
 	if (Utils::isNaN(v))
 	  continue;
 
@@ -454,7 +455,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
       for (int j = model()->rowCount(); j > 0; --j) {
 	int i = (index90 + j) % model()->rowCount();
 
-	double v = asNumber(model()->data(i, dataColumn_));
+	double v = model()->data(i, dataColumn_);
 	if (Utils::isNaN(v))
 	  continue;
 
@@ -486,7 +487,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
       for (int j = 0; j < model()->rowCount(); ++j) {
 	int i = (index90 + j) % model()->rowCount();
 
-	double v = asNumber(model()->data(i, dataColumn_));
+	double v = model()->data(i, dataColumn_);
 	if (Utils::isNaN(v))
 	  continue;
 
@@ -533,7 +534,7 @@ void WPieChart::drawSlices(WPainter& painter,
   double currentAngle = startAngle_;
 
   for (int i = 0; i < model()->rowCount(); ++i) {
-    double v = asNumber(model()->data(i, dataColumn_));
+    double v = model()->data(i, dataColumn_);
     if (Utils::isNaN(v))
       continue;
 
@@ -557,9 +558,7 @@ void WPieChart::drawSlices(WPainter& painter,
      * See if we need to add an interactive area
      */
     if (!shadow) {
-      WModelIndex index = model()->index(i, dataColumn_);
-      
-      boost::any toolTip = index.data(ToolTipRole);
+      WString toolTip = model()->toolTip(i, dataColumn_);
       if (!toolTip.empty()) {
 	const int SEGMENT_ANGLE = 20;
 
@@ -584,9 +583,9 @@ void WPieChart::drawSlices(WPainter& painter,
 	area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
 				     pcy + r * std::sin(-a / 180.0 * M_PI))));
 
-	area->setToolTip(asString(toolTip));
+	area->setToolTip(toolTip);
 
-	addDataPointArea(index, area);
+	addDataPointArea(i, dataColumn_, area);
       }
     }
 
@@ -598,7 +597,7 @@ void WPieChart::drawSlices(WPainter& painter,
   }
 }
 
-void WPieChart::addDataPointArea(const WModelIndex& index, WAbstractArea *area) const
+void WPieChart::addDataPointArea(int row, int column, WAbstractArea *area) const
 {
   (const_cast<WPieChart *>(this))->addArea(area);
 }
@@ -658,7 +657,7 @@ int WPieChart::nextIndex(int i) const
 {
   int r = model()->rowCount();
   for (int n = (i + 1) % r; n != i; ++n) {
-    double v = asNumber(model()->data(n, dataColumn_));
+    double v = model()->data(n, dataColumn_);
     if (!Utils::isNaN(v))
       return n;
   }
@@ -672,7 +671,7 @@ int WPieChart::prevIndex(int i) const
   for (int p = i - 1; p != i; --p) {
     if (p < 0)
       p += r;
-    double v = asNumber(model()->data(p, dataColumn_));
+    double v = model()->data(p, dataColumn_);
     if (!Utils::isNaN(v))
       return p;
   }
@@ -694,77 +693,6 @@ void WPieChart::modelChanged()
   pie_.insert(pie_.begin(), model()->rowCount(), PieData());
 
   update();
-}
-
-void WPieChart::modelColumnsInserted(const WModelIndex& parent,
-				     int start, int end)
-{
-  if (labelsColumn_ >= start)
-    labelsColumn_ += (end - start + 1);
-
-  if (dataColumn_ >= start)
-    dataColumn_ += (end - start + 1);
-}
-
-void WPieChart::modelColumnsRemoved(const WModelIndex& parent,
-				    int start, int end)
-{
-  bool needUpdate = false;
-
-  if (labelsColumn_ >= start) {
-    if (labelsColumn_ <= end) {
-      labelsColumn_ = -1;
-      needUpdate = true;
-    } else
-      labelsColumn_ -= (end - start + 1);
-  }
-
-  if (dataColumn_ >= start) {
-    if (dataColumn_ <= end) {
-      dataColumn_ = -1;
-      needUpdate = true;
-    } else
-      dataColumn_ -= (end - start + 1);
-  }
-
-  if (needUpdate)
-    update();
-}
-
-void WPieChart::modelRowsInserted(const WModelIndex& parent,
-				  int start, int end)
-{
-  for (int i = start; i <= end; ++i)
-    pie_.insert(pie_.begin() + i, PieData());
-
-  update();
-}
-
-void WPieChart::modelRowsRemoved(const WModelIndex& parent,
-				 int start, int end)
-{
-  for (int i = end; i >= start; --i)
-    pie_.erase(pie_.begin() + i);
-
-  update();
-}
-
-void WPieChart::modelDataChanged(const WModelIndex& topLeft,
-				 const WModelIndex& bottomRight)
-{
-  if ((labelsColumn_ >= topLeft.column() &&
-       labelsColumn_ <= bottomRight.column()) ||
-      (dataColumn_ >= topLeft.column() && 
-       dataColumn_ <= bottomRight.column()))
-    update();
-}
-
-void WPieChart::modelHeaderDataChanged(Orientation orientation,
-				       int start, int end)
-{
-  if ((labelsColumn_ >= start && labelsColumn_ <= end) ||
-      (dataColumn_ >= start && dataColumn_ <= end))
-    update();
 }
 
   }

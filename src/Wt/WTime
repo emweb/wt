@@ -246,10 +246,20 @@ public:
    */
   static WTime fromString(const WT_USTRING& s, const WT_USTRING& format);
 
-  /*! \brief Reports the current time (UTC clock).
+  /*! \brief Reports the current client date.
    *
-   * This method returns the time as indicated by the system clock
-   * of the server, in UTC.
+   * This method uses browser information to retrieve the time that is
+   * configured in the client.
+   *
+   * \sa WLocalDateTime::currentDate()
+   */
+  static WTime currentTime();
+
+  /*! \brief Reports the current server time.
+   *
+   * This method returns the local time on the server.
+   *
+   * \sa WDateTime::currentDateTime(), WLocalDateTime::currentServerDateTime()
    */
   static WTime currentServerTime();
 

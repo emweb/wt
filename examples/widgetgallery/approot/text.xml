@@ -4315,14 +4315,11 @@
 
     <p><a href="#scatter-plot">Top</a></p>
 
-    <h3>Interactive features and axis slider widget</h3>
+    <h3>Interactive features</h3>
     <p>
       WCartesianChart supports some forms of interaction that do not require a server roundtrip.
       You can zoom in on the chart below using ctrl+scroll, or with a pinch movement, and pan it
-      with the scrollwheel, click and drag, or touch and drag. If you have a long range of X values,
-      and want to easily focus on a particular range, you can use a WAxisSliderWidget. You can change
-      the size of the focused region by dragging the blue handles, and change the position by dragging
-      the selected area. When using touch, the size of this area can also be changed using a pinch movement.
+      with the scrollwheel, click and drag, or touch and drag.
     </p>
 
     <fieldset class="example">
@@ -4333,6 +4330,40 @@
 
     <p><a href="#scatter-plot">Top</a></p>
 
+  </message>
+
+  <message id="graphics-AxisSliderWidget">
+    <h2 id="axis-slider-widget">Axis slider widget</h2>
+    <p>
+      If you have a chart with a long range of X values,
+      and want to easily focus on a particular range, you can use a ${doc-link 'Chart::WAxisSliderWidget'}. You can change
+      the size of the focused region by dragging the blue handles, and change the position by dragging
+      the selected area. When using touch, the size of this area can also be changed using a pinch movement.
+    </p>
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${AxisSliderWidget}
+      ${src AxisSliderWidget}
+    </fieldset>
+    <h3>Using an alternative WDataSeries</h3>
+    <p>
+      If a series is assigned to a ${doc-link 'Chart::WAxisSliderWidget'}, but is hidden on the chart,
+      then it will still be drawn on the WAxisSliderWidget. Combined with the
+      zoomRangeChanged method of ${doc-link 'Chart::WAxis'}, this can be used to have a
+      rough version of the data to present in the WAxisSliderWidget, and as the
+      user zooms in, present a more detailed version of the data.
+    </p>
+    <p>
+      The example below shows a rough version of the data in the slider, and as
+      you zoom in, a more fine version will be loaded on demand of the zoomed in
+      area.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${AxisSliderWidgetDifferentDataSeries}
+      ${src AxisSliderWidgetDifferentDataSeries}
+    </fieldset>
   </message>
 
   <message id="graphics-PieChart">

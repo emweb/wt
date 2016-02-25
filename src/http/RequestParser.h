@@ -23,6 +23,10 @@
 #include "Buffer.h"
 #include "Reply.h"
 
+#ifdef WTHTTP_WITH_ZLIB
+#include <zlib.h>
+#endif
+
 namespace http {
 namespace server {
 
@@ -41,6 +45,7 @@ public:
 
   /// Construct ready to parse the request method.
   RequestParser(Server *server);
+  ~RequestParser();
 
   /// Reset to initial parser state.
   void reset();
@@ -59,6 +64,11 @@ public:
 		 Buffer::iterator& begin, Buffer::iterator end);
 
   bool initialState() const;
+  
+
+#ifdef WTHTTP_WITH_ZLIB
+  bool frameCompressed_;
+#endif
 
 
 private:
@@ -88,6 +98,12 @@ private:
   bool doWebSocketHandshake00(const Request& req);
   std::string doWebSocketHandshake13(const Request& req);
   bool parseCrazyWebSocketKey(const buffer_string& key, ::uint32_t& number);
+
+#ifdef WTHTTP_WITH_ZLIB
+  bool doWebSocketPerMessageDeflateNegociation(const Request& req, std::string& compressHeader);
+  bool inflate(unsigned char* in, size_t size, unsigned char out[], bool& hasMore);
+  bool initInflate();
+#endif
 
   /// The current state of the request parser.
   enum http_state
@@ -129,6 +145,13 @@ private:
     ws13_mask,
     ws13_payload
   } wsState_;
+
+
+#ifdef WTHTTP_WITH_ZLIB
+  z_stream zInState_;
+  bool inflateInitialized_;
+#endif
+  uint64_t read_;
 
   // used for ws00 frameType or ws13 opcode byte
   unsigned char wsFrameType_;

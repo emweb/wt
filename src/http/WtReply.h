@@ -16,6 +16,10 @@
 #include "../web/Configuration.h"
 #include "../web/WebRequest.h"
 
+#ifdef WTHTTP_WITH_ZLIB
+#include <zlib.h>
+#endif
+
 namespace http {
 namespace server {
 
@@ -44,8 +48,8 @@ public:
 			   Request::State state);
 
   virtual void consumeWebSocketMessage(ws_opcode opcode,
-				       Buffer::const_iterator begin,
-				       Buffer::const_iterator end,
+				       const char* begin,
+				       const char* end,
 				       Request::State state);
 
   void setContentLength(::int64_t length);
@@ -79,6 +83,10 @@ protected:
   HTTPRequest *httpRequest_;
 
   char gatherBuf_[16];
+#ifdef WTHTTP_WITH_ZLIB
+  std::vector<asio::const_buffer> compressedBuffers_;
+  bool deflateInitialized_;
+#endif
 
   virtual std::string contentType();
   virtual std::string location();
@@ -93,6 +101,12 @@ private:
 			  Buffer::const_iterator end,
 			  Request::State state);
   void formatResponse(std::vector<asio::const_buffer>& result);
+#ifdef WTHTTP_WITH_ZLIB
+  int deflate(const unsigned char* in, size_t in_size, unsigned char out[], bool& hasMore);
+  bool initDeflate();
+
+  z_stream zOutState_;
+#endif
 };
 
 } // namespace server

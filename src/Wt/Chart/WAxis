@@ -11,10 +11,15 @@
 #include <Wt/WDateTime>
 #include <Wt/WFont>
 #include <Wt/WPen>
+#include <Wt/WSignal>
 #include <Wt/WString>
 #include <Wt/WTransform>
 
 #include <boost/any.hpp>
+#ifndef WT_TARGET_JAVA
+#include <boost/function.hpp>
+#endif
+#include <boost/unordered_map.hpp>
 #include <cfloat>
 
 namespace Wt {
@@ -53,6 +58,20 @@ enum AxisValue {
   MaximumValue = 0x2,  //!< At the maximum value.
   ZeroValue = 0x4,     //!< At the zero value (if displayed).
   BothSides = 0x8      //!< At both sides (MinimumValue and MaximumValue).
+};
+
+/*! \brief Axis configuration.
+ * 
+ * This describes the configuration of an axis determining how
+ * it should be drawn. To be passed into getLabelTicks().
+ */
+struct AxisConfig {
+  AxisConfig()
+    : side(MinimumValue), zoomLevel(1)
+  { }
+
+  AxisValue side; //!< The side the axis is drawn on, should be MinimumValue, MaximumValue, or ZeroValue
+  int zoomLevel; //!< The zoom level. Different axis labels can be drawn depending on the zoom level. These are requested by WCartesianChart in powers of 2 (1, 2, 4, 8,...)
 };
 
 /*! \brief Enumeration that indicates which way the axis ticks point.
@@ -366,6 +385,9 @@ public:
    * instead you need to use setBreak() to specify the value range
    * that needs to be omitted from the axis. The omission is rendered
    * in the axis and in BarSeries that cross the break.
+   *
+   * \note This feature is incompatible with the interactive features
+   *       of WCartesianChart.
    */
   void setBreak(double minimum, double maximum);
 
@@ -614,37 +636,109 @@ public:
    */
   virtual WString label(double u) const;
 
+  /*! \brief Set the range to zoom to on this axis.
+   *
+   * The minimum is the lowest value to be displayed, and
+   * the maximum is the highest value to be displayed.
+   *
+   * If the difference between minimum and maximum is less
+   * than minimumZoomRange(), the zoom range will be made
+   * more narrow around the center of minimum and maximum.
+   *
+   * If the given minimum is larger than the given maximum, the
+   * two values are swapped.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
+   */
+  void setZoomRange(double minimum, double maximum);
+
+  /*! \brief Get the zoom range minimum for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * \sa setZoomRange()
+   */
+  double zoomMinimum() const;
+
+  /*! \brief Get the zoom range maximum for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * \sa setZoomRange()
+   */
+  double zoomMaximum() const;
+
+  /*! \brief A signal triggered when the zoom range is changed on the client side.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * \note If you want to use this signal, you must connect a signal listener
+   *       before the chart is rendered.
+   */
+  Signal<double, double>& zoomRangeChanged() { return zoomRangeChanged_; }
+
   /*! \brief Sets the zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
    * The zoom level should be >= 1 and smaller than maxZoom()
    *
    * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
+   *
+   * \deprecated Use setZoomRange() instead.
    */
   void setZoom(double zoom);
 
   /*! \brief Get the zoom level for this axis.
    *
-   * \note If the zoom level has been changed on the client side, this may not reflect the actual zoom level.
+   * Only applies to a WCartesianChart in interactive mode.
    *
    * \see setZoom()
+   *
+   * \deprecated Use zoomMinimum() and zoomMaximum() instead.
    */
   double zoom() const;
   
   /*! \brief Sets the maximum zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
-   * The zoom level should be >= 1 (no zoom).
+   * The zoom level should be >= 1 (1 = no zoom).
    *
    * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
+   *
+   * \deprecated Use setMinimumZoomRange(double) instead
    */
   void setMaxZoom(double maxZoom);
 
   /*! \brief Get the maximum zoom level for this axis.
    *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
    * \see setMaxZoom()
+   *
+   * \deprecated Use minimumZoomRange() instead
    */
   double maxZoom() const;
+
+  /*! \brief Sets the minimum zoom range for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * This range is the smallest difference there can be between
+   * zoomMinimum() and zoomMaximum().
+   *
+   * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
+   */
+  void setMinimumZoomRange(double size);
+
+  /*! \brief Get the minimum zoom range for this axis.
+   *
+   * Only applies to a WCartesianChart in interactive mode.
+   *
+   * \sa setMinimumZoomRange()
+   */
+  double minimumZoomRange() const;
 
   /*! \brief Sets the value to pan to for this axis.
    *
@@ -659,14 +753,18 @@ public:
    * \note This is only implemented for the X and first Y axis. It has no effect on the second Y axis.
    *
    * \note If the pan position has been changed on the client side, this may not reflect the actual pan position.
+   *
+   * \deprecated Use setZoomRange() instead.
    */
   void setPan(double pan);
 
   /*! \brief Get the value to pan to for this axis, when pan is enabled on the chart.
    *
-   * \note 
+   * Only applies to a WCartesianChart in interactive mode.
    *
-   *  \see setPan()
+   * \sa setPan()
+   *
+   * \deprecated Use zoomMinimum() instead.
    */
   double pan() const;
 
@@ -729,7 +827,7 @@ public:
    */
   void setSoftLabelClipping(bool enabled);
 
-  /*! \brief Returns whether soft lable clipping is enabled
+  /*! \brief Returns whether soft label clipping is enabled
    *
    * \sa setSoftLabelCLipping()
    */
@@ -747,10 +845,11 @@ public:
 	      const WPointF& axisEnd,
 	      double tickStart, double tickEnd, double labelPos,
 	      WFlags<AlignmentFlag> labelFlags,
-	      const WTransform &transform = WTransform()) const {
+	      const WTransform &transform = WTransform(),
+	      AxisValue side = MinimumValue) const {
     std::vector<WPen> pens;
     std::vector<WPen> textPens;
-    render(painter, properties, axisStart, axisEnd, tickStart, tickEnd, labelPos, labelFlags, transform, pens, textPens);
+    render(painter, properties, axisStart, axisEnd, tickStart, tickEnd, labelPos, labelFlags, transform, side, pens, textPens);
   }
 
   void render(WPainter& painter,
@@ -760,15 +859,88 @@ public:
 	      double tickStart, double tickEnd, double labelPos,
 	      WFlags<AlignmentFlag> labelFlags,
 	      const WTransform &transform,
+	      AxisValue side,
 	      std::vector<WPen> pens,
 	      std::vector<WPen> textPens) const;
 
-  /*! \brief Returns the positions for grid lines on this axis.
+  std::vector<double> gridLinePositions(AxisConfig config) const;
+
+  /*! \brief Set whether this axis should be inverted.
    *
-   * This returns a list of logical values at which a grid line should
-   * be drawn on this axis.
+   * When inverted, the axis will be drawn in the opposite direction, e.g.
+   * if normally, the low values are on the left and high values on the right,
+   * when inverted, the low values will be on the right and high values on the left.
    */
-  virtual std::vector<double> gridLinePositions() const;
+  void setInverted(bool inverted = true);
+
+  /*! \brief Get whether this axis is inverted.
+   *
+   * \sa setInverted()
+   */
+  bool inverted() const { return inverted_; }
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief A label transform function.
+   *
+   * The label transform is a function from double to double.
+   *
+   * \sa WAxis::setLabelTransform()
+   */
+  typedef boost::function<double (double)> LabelTransform;
+#else
+  /*! \brief A label transform function.
+   *
+   * The label transform is a function from double to double.
+   *
+   * \sa WAxis::setLabelTransform()
+   */
+  class LabelTransform {
+  public:
+    /*! \brief Apply the label transform.
+     */
+    virtual double apply(double d) const = 0;
+  };
+private:
+  class IdentityLabelTransform : public LabelTransform {
+  public:
+    virtual double apply(double d) const {
+      return d;
+    }
+  };
+public:
+#endif
+
+  /*! \brief Set the transform function to apply to a given side.
+   *
+   * The label transform must be a function from double to double,
+   * and will be applied on the double value of the model coordinate
+   * of every axis tick.
+   *
+   * The label transform will not move the position of the axis
+   * ticks, only change the labels displayed at the ticks.
+   *
+   * This can be useful in combination with a location() set to
+   * BothSides, to show different labels on each side.
+   *
+   * If DateScale or DateTimeScale are used, the double value will be
+   * in seconds since the Epoch (00:00:00 UTC, January 1, 1970).
+   *
+   * Only MinimumValue, ZeroValue and MaximumValue are accepted for
+   * side. If you set a label transform for another side, the label
+   * transform will not be used.
+   *
+   * The label transform will not be used if the scale() is CategoryScale.
+   */
+  void setLabelTransform(const LabelTransform& transform, AxisValue side);
+
+  /*! \brief Get the label transform configured for the given side.
+   *
+   * If no transform is configured for the given side, the identity
+   * function is returned.
+   *
+   * \sa setLabelTransform()
+   */
+  LabelTransform labelTransform(AxisValue side) const;
 
   void renderLabel(WPainter& painter,
 		   const WString& text, const WPointF& p,
@@ -808,7 +980,7 @@ protected:
 
   /*! \brief Returns the label (and ticks) information for this axis.
    */
-  virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment, int zoomLevel) const;
+  virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig config) const;
 
   /*! \brief Returns the Date format 
    */
@@ -838,16 +1010,20 @@ private:
   WPen             textPen_;
   Orientation      titleOrientation_;
   double	   maxZoom_;
-  double	   zoom_;
-  double           pan_;
-  bool		   zoomDirty_;
-  bool             panDirty_;
+  double	   minimumZoomRange_;
+  double           zoomMin_;
+  double           zoomMax_;
+  bool 		   zoomRangeDirty_;
   int              padding_;
   TickDirection    tickDirection_;
   bool             partialLabelClipping_;
+  bool		   inverted_;
+  boost::unordered_map<AxisValue, LabelTransform > labelTransforms_;
 
   // for 3D charts, don't call update when the labelangle is tempor. changed
   bool             renderingMirror_;
+
+  Signal<double, double> zoomRangeChanged_;
 
   struct Segment {
     double minimum, maximum;
@@ -856,11 +1032,13 @@ private:
     mutable int dateTimeRenderInterval;
 
     Segment();
+    Segment(const Segment &other); // Explicit copy constructor for JWt
   };
 
   std::vector<Segment> segments_;
 
   mutable double renderInterval_;
+  mutable double fullRenderLength_; // Render length including padding
 
   void init(WAbstractChartImplementation* chart, Axis axis);
   void update();
@@ -869,7 +1047,6 @@ private:
   bool set(T& m, const T& v);
 
   void computeRange(const Segment& segment) const;
-  void setOtherAxisLocation(AxisValue otherLocation) const;
 
   double getValue(const boost::any& v) const;
   static double getDateValue(const boost::any& value);
@@ -878,17 +1055,31 @@ private:
   WString defaultDateTimeFormat(const Segment& s) const;
 
   double mapFromDevice(double d) const;
-  double mapToDevice(const boost::any& value, int segment = 0) const;
-  double mapToDevice(double value, int segment = 0) const;
+  double mapToDevice(const boost::any &value) const;
+  double mapToDevice(const boost::any& value, int segment) const;
+  double mapToDevice(double value) const;
+  double mapToDevice(double value, int segment) const;
+  // Check whether the given point is within the limits of this axis
+  bool isOnAxis(double d) const;
+
+  // The smallest value that is shown on the chart, including padding
+  // (smaller than minimum())
+  double drawnMinimum() const;
+
+  // The largest value that is shown on the chart, including padding
+  // (larger than maximum())
+  double drawnMaximum() const;
 
   long long getDateNumber(Wt::WDateTime dt) const;
-  void setZoomFromClient(double zoom);
-  void setPanFromClient(double pan);
+  void setZoomRangeFromClient(double minimum, double maximum);
+
+  bool hasLabelTransformOnSide(AxisValue side) const;
 
   friend class WCartesianChart;
   friend class WCartesian3DChart;
   friend class WChart2DRenderer;
   friend class WAxisSliderWidget;
+  friend class LineSeriesRenderer;
 };
 
 template <typename T>

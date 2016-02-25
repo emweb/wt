@@ -53,7 +53,11 @@ WTransform& WTransform::operator= (const WTransform& rhs)
 #ifndef WT_TARGET_JAVA
   WJavaScriptExposableObject::operator=(rhs);
 #else
-  if (rhs.isJavaScriptBound()) assignBinding(rhs);
+  if (rhs.isJavaScriptBound()) {
+    assignBinding(rhs);
+  } else {
+    clientBinding_ = 0;
+  }
 #endif
 
   for (unsigned i = 0; i < 6; ++i)

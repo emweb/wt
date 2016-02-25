@@ -8,6 +8,7 @@
 #define CHART_WCARTESIAN_CHART_H_
 
 #include <Wt/Chart/WAbstractChart>
+#include <Wt/Chart/WAbstractChartModel>
 #include <Wt/Chart/WAxis>
 #include <Wt/Chart/WDataSeries>
 #include <Wt/Chart/WLegend>
@@ -84,8 +85,8 @@ public:
    * stacked.
    */
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY, const WModelIndex& xIndex,
-			const WModelIndex& yIndex);
+			double stackY, int xRow, int xColumn,
+			int yRow, int yColumn);
 
   /*! \brief Returns the current X segment.
    */
@@ -95,18 +96,164 @@ public:
    */
   int currentYSegment() const { return currentYSegment_; }
 
-  static void setPenColor(WPen& pen,
-			  const WModelIndex& xIndex,
-			  const WModelIndex& yIndex,
-			  int colorRole);
+  static void setPenColor(WPen& pen, const WDataSeries& series,
+		   int xRow, int xColumn,
+		   int yRow, int yColumn,
+		   int colorRole);
 
-  static void setBrushColor(WBrush& brush,
-			    const WModelIndex& xIndex,
-			    const WModelIndex& yIndex,
-			    int colorRole);
+  static void setBrushColor(WBrush& brush, const WDataSeries& series,
+		     int xRow, int xColumn,
+		     int yRow, int yColumn,
+		     int colorRole);
 
 private:
   int currentXSegment_, currentYSegment_;
+};
+
+/*! \brief A curve label
+ *
+ * Curve labels can be added with WCartesianChart::addCurveLabel().
+ * They are associated with a particular series, and are drawn at
+ * the given point in model coordinates.
+ * When the chart is transformed (zoom or pan)
+ * or the associated series is manipulated, the curve label's position
+ * will change, but not its size.
+ *
+ * \image html CurveLabel.png "A curve label"
+ */
+class CurveLabel {
+public:
+  /*! \brief Create a new curve label.
+   *
+   * Create a new curve label for given series,
+   * at the given point with the given text.
+   */
+  CurveLabel(const WDataSeries &series, const WPointF &point, const WT_USTRING &label);
+
+  /*! \brief Set the series this curve label is associated with.
+   */
+  void setSeries(const WDataSeries &series);
+
+  /*! \brief Get the series this curve label is associated with.
+   *
+   * \sa setSeries()
+   */
+  const WDataSeries &series() const { return *series_; }
+
+  /*! \brief Set the point in model coordinates this label is associated with.
+   */
+  void setPoint(const WPointF &point);
+
+  /*! \brief Get the point in model coordinates this label is associated with.
+   *
+   * \sa setPoint()
+   */
+  const WPointF &point() const { return point_; }
+
+  /*! \brief Set the label that should be drawn in the box.
+   */
+  void setLabel(const WT_USTRING &label);
+
+  /*! \brief Get the label that should be drawn in the box.
+   *
+   * \sa setLabel()
+   */
+  const WT_USTRING &label() const { return label_; }
+
+  /*! \brief Set the offset the text should be placed at.
+   *
+   * The offset is defined in pixels, with x values
+   * going from left to right, and y values from top
+   * to bottom.
+   *
+   * The default offset is (60, -20), which means the middle
+   * of the label() is drawn 60 pixels to the right, and 20 pixels
+   * above the point.
+   */
+  void setOffset(const WPointF &offset);
+
+  /*! \brief Get the offset the text should be placed at.
+   *
+   * \sa setOffset()
+   */
+  const WPointF &offset() const { return offset_; }
+
+  /*! \brief Set the width of the box in pixels.
+   *
+   * If the width is 0 (the default), server side font metrics
+   * will be used to determine the size of the box.
+   */
+  void setWidth(int width);
+
+  /*! \brief Get the width of the box in pixels.
+   *
+   * \sa setWidth()
+   */
+  int width() const { return width_; }
+
+  /*! \brief Set the pen to use for the connecting line.
+   *
+   * This sets the pen to use for the line connecting the
+   * \link point() point\endlink to the box with the
+   * \link label() label\endlink at \link offset() offset\endlink
+   * pixels from the point.
+   */
+  void setLinePen(const WPen &pen);
+
+  /*! \brief Get the pen to use for the connecting line.
+   *
+   * \sa setLinePen()
+   */
+  const WPen &linePen() const { return linePen_; }
+
+  /*! \brief Set the pen for the text in the box.
+   */
+  void setTextPen(const WPen &pen);
+
+  /*! \brief Get the pen for the text in the box.
+   *
+   * \sa setTextPen()
+   */
+  const WPen &textPen() const { return textPen_; }
+
+  /*! \brief Set the brush to use for the box around the text.
+   *
+   * This sets the brush used to fill the box with the
+   * text defined in label().
+   */
+  void setBoxBrush(const WBrush &brush);
+
+  /*! \brief Get the brush to use for the box around the text.
+   *
+   * \sa setBoxBrush()
+   */
+  const WBrush &boxBrush() const { return boxBrush_; }
+
+  /*! \brief Set the brush used to fill the circle at point().
+   */
+  void setMarkerBrush(const WBrush &brush);
+
+  /*! \brief Get the brush used to fill the circle at point().
+   *
+   * \sa setMarkerBrush()
+   */
+  const WBrush &markerBrush() const { return markerBrush_; }
+
+  void render(WPainter &painter) const;
+
+private:
+  const WDataSeries *series_;
+  WPointF point_;
+  WT_USTRING label_;
+  WPointF offset_;
+  int width_;
+  WPen linePen_;
+  WPen textPen_;
+  WBrush boxBrush_;
+  WBrush markerBrush_;
+
+  static bool checkIntersectHorizontal(const WPointF &p1, const WPointF &p2, double minX, double maxX, double y);
+  static bool checkIntersectVertical(const WPointF &p1, const WPointF &p2, double minY, double maxY, double x);
 };
 
 class WChart2DImplementation;
@@ -148,7 +295,7 @@ typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
  * To use a cartesian chart, the minimum you need to do is set a model
  * using setModel(), set the model column that holds the X data using
  * setXSeriesColumn(int modelColumn), and add one or more series using
- * addSeries(const WDataSeries&). Each series corresponds to one data
+ * addSeries(WDataSeries*). Each series corresponds to one data
  * column that holds Y data.
  *
  * A cartesian chart is either a \link Chart::CategoryChart
@@ -214,11 +361,15 @@ typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
  * crosshair and follow curve functionality.
  * 
  * \note Client side interaction is only available if the chart is drawn
- *       on an HTML canvas. This is the default rendering method on modern browsers.
+ *       on an HTML canvas. This is the default rendering method on
+ *       modern browsers, see WPaintedWidget::setPreferredMethod()
+ *
  * \note Some features are currently not supported in interactive mode:
- *	  - Axes set at ZeroValue position will not always be drawn correctly.
- *	    They may be clipped off outside of the chart area, and when zooming,
- *	    the axis ticks will change size.
+ *       - Axes set at ZeroValue position will not always be drawn correctly.
+ *	     They may be clipped off outside of the chart area, and when
+ *         zooming, the axis ticks will change size.
+ *       - WAxis::setBreak() is incompatible with interactive mode
+ *
  * \endif
  *
  * \sa WDataSeries, WAxis
@@ -328,6 +479,7 @@ public:
   //void setXYData(int modelColumnX, int modelColumnY);
   //bool is3D() const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Adds a data series.
    *
    * A single chart may display one or more data series. Each data series
@@ -339,8 +491,29 @@ public:
    * series.
    *
    * \sa removeSeries(), setSeries()
+   *
+   * \deprecated Use addSeries(WDataSeries *) instead
    */
   void addSeries(const WDataSeries& series);
+#endif
+
+  /*! \brief Adds a data series.
+   *
+   * A single chart may display one or more data series. Each data series
+   * displays data from a single model column in the chart. Series are
+   * plotted in the order that they have been added to the chart.
+   *
+   * The series column is reset to -1 when the model is set (or
+   * changed). Thus you need to set a model before configuring the
+   * series.
+   *
+   * \if cpp
+   * The chart will take ownership of the given series.
+   * \endif
+   *
+   * \sa removeSeries(), setSeries()
+   */
+  void addSeries(WDataSeries *series);
 
   /*! \brief Removes a data series.
    *
@@ -348,16 +521,48 @@ public:
    * \p modelColumn.
    *
    * \sa addSeries(), setSeries()
+   *
+   * \deprecated Use removeSeries(WDataSeries *) instead
    */
   void removeSeries(int modelColumn);
+
+  /*! \brief Removes a data series.
+   *
+   * \if cpp
+   * The series will be deleted.
+   * \endif
+   *
+   * This will disassociate the given series from any WAxisSliderWidgets.
+   *
+   * \sa addSeries(), setSeries()
+   */
+  void removeSeries(WDataSeries *series);
 
   /*! \brief Sets all data series.
    *
    * Replaces the current list of series with the new list.
    *
    * \sa series(), addSeries(), removeSeries()
+   *
+   * \deprecated Use setSeries(const std::vector<WDataSeries *> &series) instead
    */
   void setSeries(const std::vector<WDataSeries>& series);
+
+
+  /*! \brief Sets all data series.
+   *
+   * Replaces the current list of series with the new list.
+   * \if cpp
+   * The chart takes ownership of all of the series.
+   * \endif
+   *
+   * \note All series currently associated with the chart will be deleted.
+   *       Hence, these series should be distinct from the currently associated
+   *       series of this chart!
+   *
+   * \sa series(), addSeries(WDataSeries *), removeSeries(WDataSeries *)
+   */
+  void setSeries(const std::vector<WDataSeries *> &series);
 
   /*! \brief Returns a data series corresponding to a data column.
    *
@@ -379,7 +584,7 @@ public:
    *
    * \sa setSeries(const std::vector<WDataSeries>&)
    */
-  const std::vector<WDataSeries>& series() const { return series_; }
+  const std::vector<WDataSeries *>& series() const { return series_; }
 
   /*! \brief Returns a chart axis.
    *
@@ -663,7 +868,7 @@ public:
    *       at the data point is not empty.
    */
   virtual void addDataPointArea(const WDataSeries& series,
-				const WModelIndex& xIndex,
+				int xRow, int xColumn,
 				WAbstractArea *area);
 
   /*! \brief Sets the padding between the chart area and the axes.
@@ -697,6 +902,30 @@ public:
    */
   const WPen& borderPen() const { return borderPen_; }
 
+  /*! \brief Add a curve label.
+   *
+   * \sa CurveLabel::CurveLabel()
+   */
+  void addCurveLabel(const CurveLabel &label);
+
+  /*! \brief Configure all curve labels at once.
+   *
+   * \sa addCurveLabel()
+   */
+  void setCurveLabels(const std::vector<CurveLabel>& labels);
+
+  /*! \brief Clear all curve labels
+   *
+   * \sa addCurveLabel()
+   */
+  void clearCurveLabels();
+
+  /*! \brief Get all of the registered curve labels
+   *
+   * \sa setCurveLabels()
+   */
+  const std::vector<CurveLabel>& curveLabels() const { return curveLabels_; }
+
   /*! @name Client side interaction
    *
    * These methods allow to activate the client side interactive features of
@@ -710,9 +939,17 @@ public:
    *       - Axes set at ZeroValue position will not always be drawn correctly.
    *	     They may be clipped off outside of the chart area, and when
    *         zooming, the axis ticks will change size.
+   *       - WAxis::setBreak() is incompatible with interactive mode
    *
    * @{
    */
+
+  /*! \brief Returns whether this chart is interactive.
+   *
+   * Return true iff one of the interactive features is enabled, and
+   * the chart is being rendered on an HTML canvas.
+   */
+  bool isInteractive() const;
 
   /*! \brief Enables zoom functionality.
    *
@@ -801,8 +1038,32 @@ public:
    *
    * \note The follow curve functionality requires that the X axis values
    *       of the data series are monotonically increasing or decreasing.
+   *
+   * \deprecated Use setFollowCurve(const WDataSeries*) instead
    */
   void setFollowCurve(int modelColumn);
+
+  /*! \brief Enabled the follow curve funtionality for a data series.
+   *
+   * This enables follow curve functionality for the data series
+   * corresponding to the given column.
+   *
+   * If the data series is of type LineSeries or CurveSeries, the
+   * crosshair can only be moved in the x direction. The y position of
+   * the crosshair will be determined by the value of the data
+   * series. The crosshair will snap to the nearest point that is
+   * defined in the data series.
+   *
+   * When using the mouse, the x position will change on mouseover.
+   * When using touch, the x position can be moved with a drag. The
+   * follow curve functionality has priority over the crosshair functionality.
+   *
+   * Set to null to disable the follow curve feature.
+   *
+   * \note The follow curve functionality requires that the X axis values
+   *       of the data series are monotonically increasing or decreasing.
+   */
+  void setFollowCurve(const WDataSeries *series);
 
   /*! \brief Disable the follow curve functionality.
    *
@@ -816,7 +1077,7 @@ public:
    *
    * \sa setFollowCurve()
    */
-  int followCurve() const;
+  const WDataSeries *followCurve() const;
 
   /*! \brief Enables/disables the inertial scrolling and rubberband effect.
    *
@@ -826,7 +1087,7 @@ public:
 
   /*! \brief Checks whether the rubberband effect is enabled.
    * 
-   * \see setRubberBandEffect()
+   * \see setRubberBandEffectEnabled()
    */
   bool rubberBandEffectEnabled() const;
 
@@ -848,6 +1109,77 @@ public:
    */
   void setSoftLabelClipping(bool enabled);
 
+  /*! \brief Sets whether series selection is enabled.
+   *
+   * If series selection is enabled, series can be selected with a mouse
+   * click or long press. If the selected series is a LineSeries or CurveSeries,
+   * it can be manipulated if \link setCurveManipulationEnabled()
+   * curve manipulation\endlink is enabled. The series that are not selected,
+   * will be shown in a lighter color.
+   */
+  void setSeriesSelectionEnabled(bool enabled = true);
+
+  /*! \brief Returns whether series selection is enabled.
+   *
+   * \sa setSeriesSelectionEnabled()
+   */
+  bool seriesSelectionEnabled() const { return seriesSelectionEnabled_; }
+
+  /*! \brief A signal that notifies the selection of a new curve.
+   *
+   * This signal is emitted if a series is selected using a mouse
+   * click or long press. The first argument is the model column of the selected
+   * series. The second argument is the point that was selected, in model
+   * coordinates.
+   *
+   * \sa setSeriesSelectionEnabled()
+   */
+  Signal<const WDataSeries *, WPointF>& seriesSelected() { return seriesSelected_; }
+
+  /*! \brief Sets the series that is currently selected.
+   *
+   * The series with the given model column will be selected. The other
+   * series will be shown in a lighter color. The series that is currently
+   * selected is the one that can be manipulated if \link setCurveManipulationEnabled()
+   * curve manipulation\endlink is enabled, and it is a LineSeries or CurveSeries.
+   *
+   * The selected series can be changed using a long touch or mouse click.
+   *
+   * If the argument provided is -1 or \link setSeriesSelectionEnabled() series
+   * selection\endlink is not enabled, no series will be selected.
+   *
+   * \sa setCurveManipulationEnabled()
+   * \sa setSeriesSelectionEnabled()
+   */
+  void setSelectedSeries(const WDataSeries *series);
+
+  /*! \brief Get the currently selected curve.
+   *
+   * -1 means that no curve is currently selected.
+   *
+   * \sa setSelectedSeries()
+   */
+  const WDataSeries *selectedSeries() const { return selectedSeries_; }
+
+  /*! \brief Enable curve manipulation.
+   *
+   * If curve manipulation is enabled, the \link WDataSeries::setScale() scale\endlink
+   * and \link WDataSeries::setOffset() offset\endlink of the \link selectedSeries()
+   * selected curve\endlink can be manipulated interactively using drag, scroll,
+   * and pinch.
+   *
+   * \sa WDataSeries::setOffset()
+   * \sa WDataSeries::setScale()
+   * \sa WDataSeries::selectedSeries()
+   */
+  void setCurveManipulationEnabled(bool enabled = true);
+
+  /*! \brief Returns whether curve manipulation is enabled.
+   *
+   * \sa setCurveManipulationEnabled()
+   */
+  bool curveManipulationEnabled() const { return curveManipulationEnabled_; }
+
   /*! @}
    */
 
@@ -864,7 +1196,7 @@ private:
   Orientation orientation_;
   int XSeriesColumn_;
   ChartType type_;
-  std::vector<WDataSeries> series_;
+  std::vector<WDataSeries *> series_;
   WAxis *axes_[3];
   double barMargin_;
   WLegend legend_;
@@ -876,17 +1208,30 @@ private:
   mutable int width_, height_;
   mutable WRectF chartArea_;
   mutable AxisValue location_[3];
+  mutable bool hasToolTips_; // Saves doing roundtrips when there are no tooltips
 
   bool zoomEnabled_;
   bool panEnabled_;
   bool rubberBandEnabled_;
   bool crosshairEnabled_;
-  int followCurve_;
+  bool seriesSelectionEnabled_;
+  const WDataSeries *selectedSeries_;
+  const WDataSeries *followCurve_;
+  bool curveManipulationEnabled_;
   bool cObjCreated_;
+  JSignal<> xTransformChanged_;
+  JSignal<> yTransformChanged_;
 
-  typedef std::map<int, WJavaScriptHandle<WPainterPath> > PainterPathMap;
+  Signal<const WDataSeries *, WPointF> seriesSelected_;
+  JSignal<double, double> jsSeriesSelected_;
+
+  typedef std::map<const WDataSeries *, WJavaScriptHandle<WPainterPath> > PainterPathMap;
   PainterPathMap curvePaths_;
   std::vector<WJavaScriptHandle<WPainterPath> > freePainterPaths_;
+
+  typedef std::map<const WDataSeries *, WJavaScriptHandle<WTransform> > TransformMap;
+  TransformMap curveTransforms_;
+  std::vector<WJavaScriptHandle<WTransform> > freeTransforms_;
 
   mutable WTransform xTransform_;
   mutable WTransform yTransform_;
@@ -896,36 +1241,47 @@ private:
   struct PenAssignment {
     WJavaScriptHandle<WPen> pen;
     WJavaScriptHandle<WPen> textPen;
+    WJavaScriptHandle<WPen> gridPen;
 
-    PenAssignment(const WJavaScriptHandle<WPen>& pen, const WJavaScriptHandle<WPen>& textPen)
-      : pen(pen), textPen(textPen)
+    PenAssignment(const WJavaScriptHandle<WPen>& pen,
+		  const WJavaScriptHandle<WPen>& textPen,
+		  const WJavaScriptHandle<WPen>& gridPen)
+      : pen(pen), textPen(textPen), gridPen(gridPen)
     { }
   };
   typedef std::map<Axis,std::vector<PenAssignment> > PenMap;
   PenMap pens_;
   std::vector<WJavaScriptHandle<WPen> > freePens_;
 
+  std::vector<CurveLabel> curveLabels_;
+
   std::vector<WAxisSliderWidget *> axisSliderWidgets_;
 
   WheelActions wheelActions_;
 
+  JSignal<double, double> loadTooltip_;
+  struct BarTooltip {
+    BarTooltip(const WDataSeries &series, int xRow, int xColumn, int yRow, int yColumn)
+      : series(&series),
+	xRow(xRow),
+	xColumn(xColumn),
+	yRow(yRow),
+	yColumn(yColumn)
+    { }
+
+    double xs[4];
+    double ys[4];
+    const WDataSeries *series;
+    int xRow, xColumn, yRow, yColumn;
+  };
+  mutable std::vector<BarTooltip> barTooltips_;
+
   void init();
   static std::string wheelActionsToJson(WheelActions wheelActions);
 
-protected:
-  virtual void modelColumnsInserted(const WModelIndex& parent,
-				    int start, int end) WT_CXX11ONLY(override);
-  virtual void modelColumnsRemoved(const WModelIndex& parent,
-				   int start, int end) WT_CXX11ONLY(override);
-  virtual void modelRowsInserted(const WModelIndex& parent,
-				 int start, int end) WT_CXX11ONLY(override);
-  virtual void modelRowsRemoved(const WModelIndex& parent,
-				int start, int end) WT_CXX11ONLY(override);
-  virtual void modelDataChanged(const WModelIndex& topLeft,
-			        const WModelIndex& bottomRight) WT_CXX11ONLY(override);
-  virtual void modelHeaderDataChanged(Orientation orientation,
-				      int start, int end) WT_CXX11ONLY(override);
+  static WColor lightenColor(const WColor &in);
 
+protected:
   virtual void modelChanged() WT_CXX11ONLY(override);
   virtual void modelReset() WT_CXX11ONLY(override);
 
@@ -960,6 +1316,7 @@ protected:
    *   renderSeries(painter);
    *   renderAxes(painter, Labels);
    *   renderBorder(painter);
+   *   renderCurveLabels(painter);
    *   renderLegend(painter);
    * }
    *
@@ -1020,7 +1377,7 @@ protected:
    * This segment area is used for clipping when rendering in a
    * particular segment.
    */
-  WRectF chartSegmentArea(WAxis yAxis, int xSegment, int ySegment) const;
+  WRectF chartSegmentArea(const WAxis& yAxis, int xSegment, int ySegment) const;
 
   /*! \brief Calculates the chart area.
    *
@@ -1064,6 +1421,13 @@ protected:
    */
   virtual void renderBorder(WPainter& painter) const;
 
+  /*! \brief Renders the curve labels.
+   *
+   * \sa render()
+   * \sa addCurveLabel()
+   */
+  virtual void renderCurveLabels(WPainter& painter) const;
+
   /*! \brief Renders all series data, including value labels.
    *
    * \sa render()
@@ -1095,10 +1459,6 @@ protected:
 
   //@}
 
-  virtual DomElement *createDomElement(WApplication *app) WT_CXX11ONLY(override) ;
-  virtual void getDomChanges(std::vector<DomElement *>& result,
-				    WApplication *app) WT_CXX11ONLY(override) ;
-
   virtual void render(WFlags<RenderFlag> flags) WT_CXX11ONLY(override) ;
 
   virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override) ;
@@ -1106,24 +1466,38 @@ protected:
 private:
   int calcNumBarGroups() const;
   int seriesIndexOf(int modelColumn) const;
+  int seriesIndexOf(const WDataSeries &series) const;
   void clearPens();
   void createPensForAxis(Axis axis);
   std::string cObjJsRef() const; // WCartesianChart JS object
-  void assignJSPathsForSeries(const WDataSeries& series);
-  void freeJSPathsForSeries(int modelColumn);
+  void assignJSHandlesForAllSeries();
+  void freeJSHandlesForAllSeries();
+  void assignJSPathsForSeries(const WDataSeries &series);
+  void freeJSPathsForSeries(const WDataSeries &series);
   void freeAllJSPaths();
+  void assignJSTransformsForSeries(const WDataSeries &series);
+  void freeJSTransformsForSeries(const WDataSeries &series);
+  void freeAllJSTransforms();
   void updateJSPens(WStringStream& js) const;
   void updateJSPensForAxis(WStringStream& js, Axis axis) const;
   void updateJSConfig(const std::string &key, boost::any value);
-  bool isInteractive() const;
-  WPainterPath pathForSeries(int modelColumn) const; // For use in WAxisSliderWidget
+  WPainterPath pathForSeries(const WDataSeries &series) const; // For use in WAxisSliderWidget
   WTransform combinedTransform() const;
   WTransform combinedTransform(WTransform xTransform, WTransform yTransform) const;
+  WTransform calculateCurveTransform(const WDataSeries &series) const;
+  WTransform curveTransform(const WDataSeries &series) const;
   void setZoomAndPan();
   void addAreaMask();
-
+  void xTransformChanged();
+  void yTransformChanged();
+  void jsSeriesSelected(double x, double y);
+  void loadTooltip(double x, double y);
   WPointF hv(double x, double y, double width) const;
   WPointF inverseHv(double x, double y, double width) const;
+  WPointF inverseHv(const WPointF &p) const;
+  WRectF insideChartArea() const;
+
+  bool axisSliderWidgetForSeries(WDataSeries *series) const;
 
   class IconWidget : public WPaintedWidget {
   public:
@@ -1145,6 +1519,7 @@ private:
   friend class BarSeriesRenderer;
   friend class LabelRenderIterator;
   friend class MarkerRenderIterator;
+  friend class MarkerMatchIterator;
   friend class WChart2DImplementation;
   friend class WAxisSliderWidget;
 };

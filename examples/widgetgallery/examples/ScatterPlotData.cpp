@@ -76,8 +76,8 @@ chart->setPlotAreaPadding(120, Wt::Right);
  * Add the second and the third column as line series.
  */
 for (int i = 2; i < 4; ++i) {
-    Wt::Chart::WDataSeries s(i, Wt::Chart::LineSeries);
-    s.setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
+    Wt::Chart::WDataSeries *s = new Wt::Chart::WDataSeries(i, Wt::Chart::LineSeries);
+    s->setShadow(Wt::WShadow(3, 3, Wt::WColor(0, 0, 0, 127), 3));
     chart->addSeries(s);
 }
 
