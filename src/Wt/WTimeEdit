@@ -96,12 +96,9 @@ private:
     WPopupWidget *popup_;
     WTimePicker *timePicker_;
 
-    bool init_ = true;
-
-    std::string checkFormat() const;
-
     void defineJavaScript();
-    void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
+    void connectJavaScript(Wt::EventSignalBase& s,
+			   const std::string& methodName);
 };
 
 }

@@ -13,11 +13,18 @@ form->addFunction("id", &Wt::WTemplate::Functions::id);
 
 Wt::WTimeEdit *de1 = new Wt::WTimeEdit();
 form->bindWidget("from", de1);
-de1->setTime(Wt::WTime::currentServerTime());
+form->bindString("from-format", de1->format());
+de1->setTime(Wt::WTime::currentTime());
 
 Wt::WTimeEdit *de2 = new Wt::WTimeEdit();
 form->bindWidget("to", de2);
-de2->setFormat("HH:mm:ss"); // Apply a different date format.
+#ifndef WT_TARGET_JAVA
+de2->setFormat("h:mm:ss.zzz A");
+#else
+de2->setFormat("h:mm:ss.SSS a");
+#endif
+de2->setTime(Wt::WTime::currentTime().addSecs(60*15));
+form->bindString("to-format", de2->format());
 
 Wt::WPushButton *button = new Wt::WPushButton("Save");
 form->bindWidget("save", button);
@@ -27,31 +34,30 @@ form->bindWidget("out", out);
 
 de1->changed().connect(std::bind([=] () {
     if (de1->validate() == Wt::WValidator::Valid) {
-    out->setText("Time picker 1 is changed.");
+      out->setText("Time picker 1 is changed.");
     }
 }));
 
 de2->changed().connect(std::bind([=] () {
     if (de1->validate() == Wt::WValidator::Valid) {
-    out->setText("Time picker 2 is changed.");
+      out->setText("Time picker 2 is changed.");
     }
 }));
 
 button->clicked().connect(std::bind([=] () {
     if (de1->text().empty() || de2->text().empty())
-	out->setText("You should enter two time!");
+	out->setText("You should enter two times!");
     else {
     long secs = de1->time().secsTo(de2->time()) + 1;
-	if (secs <= 3600)
-	    out->setText("This is a really small range of time");
-	else if (secs > 3600) 
-        out->setText(Wt::WString("So, you want your package to be delivered between "
-				     "{1} and {2} ?...").arg(de1->time().toString()).arg(de2->time().toString()));
+	if (secs <= 60*10)
+	  out->setText("This is a really small range of time");
 	else
-	    out->setText("Invalid period!");
-    }
-
-  
+	  out->setText
+	    (Wt::WString("So, you want your package to be delivered between "
+			 "{1} and {2} ?...")
+	     .arg(de1->time().toString())
+	     .arg(de2->time().toString()));
+    }  
 }));
 
 

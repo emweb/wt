@@ -307,8 +307,10 @@ private:
   static RegExpInfo formatMSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
   static RegExpInfo formatAPToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
   static RegExpInfo processChar(RegExpInfo &result, const std::string& format, unsigned& i);
+  static bool usesAmPm(const WString& format);
 
   friend class WDateTime;
+  friend class WTimePicker;
 };
 
 }

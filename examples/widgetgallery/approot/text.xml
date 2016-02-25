@@ -1470,13 +1470,13 @@
 
     <div class="form-horizontal">
       <div class="form-group">
-        <label class="control-label col-sm-3" for="${id:from}">From</label>
+        <label class="control-label col-sm-3" for="${id:from}">From (format ${from-format})</label>
         <div class="col-sm-4">${from}</div>
       </div>
 
       <div class="form-group">
         <label class="control-label col-sm-3" for="${id:to}">
-          To (format HH:mm::ss)
+          To (format ${to-format})
         </label>
         <div class="col-sm-4">${to}</div>
       </div>
@@ -1938,11 +1938,6 @@
     <p>
       The ${doc-link WTimeEdit} widget is a line edit with support for
       time entry.
-    </p>
-    <p>
-      By default the selected time is shown in the format "HH:mm" as in
-      the first example. In the second example the format is set to
-      "HH:mm::ss".
     </p>
 
     <fieldset class="example">

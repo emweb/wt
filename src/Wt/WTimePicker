@@ -49,25 +49,17 @@ public:
 
     /*! \brief Returns the time
      */
-    WTime time();
+    WTime time() const;
 
     /*! \brief Sets the time
-	 */
+     */
     void setTime(const WTime& time);
 
-    /*! \brief Sets the time
-     *
-     * Used when format is 'AP' format. In this case string must contain the AM or PM value.
+    /*! \brief Signal emitted when the value is changed
      */
-    void setTime(const WTime &time, std::string &ampm);
-
-	/*! \brief Signal emitted when the value is changed
-	 */
     Signal<>& selectionChanged() { return selectionChanged_; }
 
     void configure();
-
-    std::string ampm() const;
 
 private:
 
@@ -89,8 +81,8 @@ private:
     void secondValueChanged();
     void msecValueChanged();
     void ampmValueChanged();
-    bool formatAp();
-    bool formatMs();
+    bool formatAp() const;
+    bool formatMs() const;
 
     Signal<> selectionChanged_;
 };

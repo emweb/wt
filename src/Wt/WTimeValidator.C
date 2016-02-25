@@ -39,12 +39,12 @@ WTimeValidator::WTimeValidator(const WT_USTRING &format, const WTime &bottom,
       bottom_(bottom),
       top_(top)
 {
-    setFormat(format);
+  setFormat(format);
 }
 
 void WTimeValidator::setFormat(const WT_USTRING& format)
 {
-  if(formats_.empty() || formats_[0] != format){
+  if (formats_.empty() || formats_[0] != format){
       formats_.clear();
       formats_.push_back(format);
       repaint();

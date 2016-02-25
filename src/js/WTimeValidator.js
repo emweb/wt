@@ -17,9 +17,9 @@ WT_DECLARE_WT_MEMBER
 	     results = r.exec(text);
 	     if(results != null){
 		 h = f.getHour(results);
-		 if(text.indexOf("P") > -1 && h < 12)
+		 if(text.toUpperCase().indexOf("P") > -1 && h < 12)
 		     h += 12;
-		 else if(text.indexOf("A") > -1 && h == 12)
+		 else if(text.toUpperCase().indexOf("A") > -1 && h == 12)
 		     h = 0;
 		 m = f.getMinutes(results);
 		 s = f.getSeconds(results);
@@ -34,7 +34,7 @@ WT_DECLARE_WT_MEMBER
 
 	 var dt = new Date(0, 0, 0, h, m, s, ms);
 	 if(dt.getHours() != h || dt.getMinutes() != m ||
-	    dt.getSeconds() != s || dt.getMilliseconds != ms)
+	    dt.getSeconds() != s || dt.getMilliseconds() != ms)
 	     return { valid: false, message: formatError };
 
 	 if(bottom){

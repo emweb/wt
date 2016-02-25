@@ -478,35 +478,9 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
    * We need to scan the format first to determine whether it contains
    * 'A(P)' or 'a(p)'
    */
-  bool useAMPM = false;
-
-  if (time) {
-    for (unsigned i = 0; i < f.length() - 3; ++i) {
-      if (inQuote) {
-	if (f[i] != '\'') {
-	  if (gotQuoteInQuote) {
-	    gotQuoteInQuote = false;
-	    inQuote = false;
-	  }
-	} else {
-	  if (gotQuoteInQuote)
-	    gotQuoteInQuote = false;
-	  else
-	    gotQuoteInQuote = true;
-	}
-      }
-
-      if (!inQuote) {
-	if (f[i] == 'a' || f[i] == 'A') {
-	  useAMPM = true;
-	  break;
-	} else if (f[i] == '\'') {
-	  inQuote = true;
-	  gotQuoteInQuote = false;
-	}
-      }
-    }
-  }
+  bool useAmPm = false;
+  if (time)
+    useAmPm = WTime::usesAmPm(format);
  
   for (unsigned i = 0; i < f.length() - 3; ++i) {
     if (inQuote) {
@@ -530,7 +504,7 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
       if (date)
 	handled = date->writeSpecial(f, i, result, localized);
       if (!handled && time)
-        handled = time->writeSpecial(f, i, result, useAMPM, zoneOffset);
+        handled = time->writeSpecial(f, i, result, useAmPm, zoneOffset);
 
       if (!handled) {
 	if (f[i] == '\'') {

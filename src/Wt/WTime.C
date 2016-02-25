@@ -716,4 +716,41 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
   return result;
 }
 
+bool WTime::usesAmPm(const WString& format)
+{
+  std::string f = format.toUTF8() + std::string(3, 0);
+
+  bool inQuote = false;
+  bool gotQuoteInQuote = false;
+  bool useAMPM = false;
+
+  for (unsigned i = 0; i < f.length() - 3; ++i) {
+    if (inQuote) {
+      if (f[i] != '\'') {
+	if (gotQuoteInQuote) {
+	  gotQuoteInQuote = false;
+	  inQuote = false;
+	}
+      } else {
+	if (gotQuoteInQuote)
+	  gotQuoteInQuote = false;
+	else
+	  gotQuoteInQuote = true;
+      }
+    }
+
+    if (!inQuote) {
+      if (f[i] == 'a' || f[i] == 'A') {
+	useAMPM = true;
+	break;
+      } else if (f[i] == '\'') {
+	inQuote = true;
+	gotQuoteInQuote = false;
+      }
+    }
+  }
+  
+  return useAMPM;
+}
+
 }

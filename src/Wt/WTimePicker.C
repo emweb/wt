@@ -49,7 +49,7 @@ void WTimePicker::init(const WTime &time)
     configure();
 }
 
-WTime WTimePicker::time()
+WTime WTimePicker::time() const
 {
     int hours = 0, minutes = 0, seconds = 0, milliseconds = 0;
 
@@ -57,63 +57,54 @@ WTime WTimePicker::time()
         hours = boost::lexical_cast<int>(sbhour_->text().toUTF8());
         minutes = boost::lexical_cast<int>(sbminute_->text().toUTF8());
         seconds = boost::lexical_cast<int>(sbsecond_->text().toUTF8());
-        if(formatMs())
+
+        if (formatMs())
             milliseconds = boost::lexical_cast<int>(sbmillisecond_->text().toUTF8());
+	if (formatAp()) {
+	  if (cbAP_->currentIndex() == 1) {
+	    if (hours != 12)
+	      hours += 12;
+	  } else
+	    if (hours == 12)
+	      hours = 0;
+	}
     } catch(const boost::bad_lexical_cast& ex) {
         LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
     }
-    if(formatMs())
-        return WTime(hours, minutes, seconds, milliseconds);
-    return WTime(hours, minutes, seconds);
+
+    return WTime(hours, minutes, seconds, milliseconds);
 }
 
 void WTimePicker::setTime(const WTime& time)
 {
-    if(!time.isValid()) {
+    if (!time.isValid()) {
         LOG_ERROR("Time is invalid!");
         return;
     }
 
-    std::string hoursStr("0"), minutesStr("00"), secondsStr("00"), millisecondStr("000");
+    int hours = 0;
 
-    try {
-        hoursStr = time.toString("hh").toUTF8();
-        if(formatAp()){
-            int hours = boost::lexical_cast<int>(hoursStr);
-            if(hours > 12){
-                hours -= 12;
-                hoursStr = boost::lexical_cast<std::string>(hours);
-            }
-        }
-        minutesStr = time.toString("mm").toUTF8();
-		secondsStr = time.toString("ss").toUTF8();
-        millisecondStr = time.toString("z").toUTF8();
-    } catch(const boost::bad_lexical_cast& ex) {
-        LOG_ERROR("boost::bad_lexical_cast caught in WTimePicker::time()");
+    if (formatAp()) {
+      hours = time.pmhour();
+
+      if (time.hour() < 12)
+	cbAP_->setCurrentIndex(0);
+      else
+	cbAP_->setCurrentIndex(1);
+    } else
+      hours = time.hour();
+
+    int minutes = time.minute();
+    int seconds = time.second();
+    int millisecond = time.msec();
+
+    sbhour_->setValue(hours);
+    sbminute_->setValue(minutes);
+    sbsecond_->setValue(seconds);
+
+    if (formatMs()) {
+        sbmillisecond_->setValue(millisecond);
     }
-
-    sbhour_->setText(hoursStr);
-    sbminute_->setText(minutesStr);
-    sbsecond_->setText(secondsStr);
-
-    if(formatMs()){
-        sbmillisecond_->setText(millisecondStr);
-    }
-
-}
-
-void WTimePicker::setTime(const WTime &time, std::string &ampm)
-{
-    setTime(time);
-    if(ampm == "AM")
-        cbAP_->setCurrentIndex(0);
-    else
-        cbAP_->setCurrentIndex(1);
-}
-
-std::string WTimePicker::ampm() const
-{
-    return cbAP_->currentText().toUTF8();
 }
 
 void WTimePicker::configure()
@@ -131,7 +122,7 @@ void WTimePicker::configure()
     }
 
     if (formatAp()) {
-      sbhour_->setRange(0, 13);
+      sbhour_->setRange(1, 12);
       container->bindWidget("ampm", cbAP_);
     } else {
       container->takeWidget("ampm");
@@ -174,38 +165,27 @@ void WTimePicker::createWidgets()
 
 void WTimePicker::hourValueChanged()
 {
-    if (sbhour_->validate() == Wt::WValidator::Valid){
-      if (formatAp()) {
-	if (sbhour_->value() == 13) {
-	  sbhour_->setValue(1);
-	  cbAP_->setCurrentIndex(1 - cbAP_->currentIndex());
-        } else if (sbhour_->value() == 0) {
-	  sbhour_->setValue(12);
-	  cbAP_->setCurrentIndex(1 - cbAP_->currentIndex());
-	}
-      }
-
+    if (sbhour_->validate() == Wt::WValidator::Valid)
       selectionChanged_.emit();
-    }
 }
 
 void WTimePicker::minuteValueChanged()
 {
-    if(sbminute_->validate() == Wt::WValidator::Valid){
+    if (sbminute_->validate() == Wt::WValidator::Valid){
         selectionChanged_.emit();
     }
 }
 
 void WTimePicker::secondValueChanged()
 {
-    if(sbsecond_->validate() == Wt::WValidator::Valid){
+    if (sbsecond_->validate() == Wt::WValidator::Valid){
         selectionChanged_.emit();
     }
 }
 
 void WTimePicker::msecValueChanged()
 {
-    if(sbmillisecond_->validate() == Wt::WValidator::Valid){
+    if (sbmillisecond_->validate() == Wt::WValidator::Valid){
         selectionChanged_.emit();
     }
 }
@@ -217,22 +197,17 @@ void WTimePicker::ampmValueChanged()
     }
 }
 
-bool WTimePicker::formatAp()
+bool WTimePicker::formatAp() const
 {
-    std::string format = timeEdit_->format().toUTF8();
-    if(!format.empty())
-        if(format.find("A") != std::string::npos || format.find("a") != std::string::npos)
-            return true;
-    return false;
+    return WTime::usesAmPm(timeEdit_->format());
 }
 
-bool WTimePicker::formatMs()
+bool WTimePicker::formatMs() const
 {
-    std::string format = timeEdit_->format().toUTF8();
-    if(!format.empty())
-      if(format.find("z") != std::string::npos || format.find("Z") != std::string::npos)
-	return true;
-    return false;
+    WT_USTRING format = timeEdit_->format();
+
+    return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
+			     format).msec() == 123;
 }
 
 } // end namespace Wt

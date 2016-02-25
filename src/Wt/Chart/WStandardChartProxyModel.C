@@ -66,7 +66,8 @@ const WColor *WStandardChartProxyModel::color(int row, int column, int colorData
     color_ = boost::any_cast<WColor>(result);
     return &color_;
 #else
-    return &boost::any_cast<WColor>(result);
+    WColor c = boost::any_cast<WColor>(result);
+    return &c;
 #endif
   }
 }
