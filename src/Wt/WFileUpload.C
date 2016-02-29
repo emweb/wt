@@ -322,25 +322,22 @@ void WFileUpload::updateDom(DomElement& element, bool all)
           WApplication::instance()->maximumRequestSize());
 
     std::string command =
-        "{"
-        "var submit = false; "
-        "var x = " WT_CLASS ".$('in" + id() + "');"
-        "  if (x.files != null) {"
-        "    for (var i = 0; i < x.files.length; i++) { "
-        "      var f = x.files[i];"
-        "      if(f.size < " + maxFileSize + ") { "
-        "         submit = true;"
-        "      } else { "
-        "         submit = false;"
-        "         " + fileTooLarge().createCall("f.size") + ";"
-        "         break;"
-        "           }"
-        "    }"
-        "  } else "
-        "    submit = true;"
-        "  if (submit)"
-        "    " + jsRef() + ".submit(); "
-        " };";
+      "{"
+      """var submit = true;"
+      """var x = " WT_CLASS ".$('in" + id() + "');"
+      """if (x.files != null) {"
+      ""  "for (var i = 0; i < x.files.length; i++) {"
+      ""    "var f = x.files[i];"
+      ""      "if (f.size > " + maxFileSize + ") {"
+      ""        "submit = false;"
+      ""       + fileTooLarge().createCall("f.size") + ";"
+      ""        "break;"
+      ""      "}"
+      ""    "}"
+      """}"
+      """if (submit)"
+      ""  + jsRef() + ".submit(); "
+      "}";
 
     element.callJavaScript(command);
     flags_.reset(BIT_DO_UPLOAD);

@@ -274,6 +274,9 @@ this.initAjaxComm = function(url, handler) {
 
 	  clearTimeout(timer);
 
+	  if (!sessionUrl)
+	    return;
+
 	  if (good) {
 	    handled = true;
 	    handler(0, request.responseText, userData);
@@ -308,6 +311,9 @@ this.initAjaxComm = function(url, handler) {
 	}
 
 	function handleTimeout() {
+	  if (!sessionUrl)
+	    return;
+
 	  request.onreadystatechange = new Function;
 	  request = null;
 	  handled = true;
@@ -315,7 +321,7 @@ this.initAjaxComm = function(url, handler) {
 	}
 
 	this.abort = function() {
-	  if(request != null){
+	  if (request != null) {
 	    request.onreadystatechange = new Function;
 	    handled = true;
 	    request.abort();
@@ -348,7 +354,13 @@ this.initAjaxComm = function(url, handler) {
       this.responseReceived = function(updateId) { };
 
       this.sendUpdate = function(data, userData, id, timeout) {
+	if (!sessionUrl)
+	  return null;
 	return new Request(data, userData, id, timeout);
+      };
+
+      this.cancel = function() {
+	sessionUrl = null;
       };
 
       this.setUrl = function(url) {
@@ -394,8 +406,14 @@ this.initAjaxComm = function(url, handler) {
       };
 
       this.sendUpdate = function(data, userData, id, timeout) {
+	if (!sessionUrl)
+	  return null;
         request = new Request(data, userData, id, timeout);
         return request;
+      };
+
+      this.cancel = function() {
+	sessionUrl = null;
       };
 
       this.setUrl = function(url) {
@@ -2634,8 +2652,8 @@ function encodePendingEvents() {
 }
 
 var sessionUrl,
-  quitted = false,
-  quittedStr = _$_QUITTED_STR_$_,
+  hasQuit = false,
+  quitStr = _$_QUITTED_STR_$_,
   loaded = false,
   responsePending = null,
   pollTimer = null,
@@ -2644,13 +2662,18 @@ var sessionUrl,
   serverPush = false,
   updateTimeout = null;
 
-function quit(quittedMessage) {
-  quitted = true;
-  quittedStr = quittedMessage;
+function quit(hasQuitMessage) {
+  hasQuit = true;
+  quitStr = hasQuitMessage;
   if (keepAliveTimer) {
     clearInterval(keepAliveTimer);
     keepAliveTimer = null;
   }
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+  comm.cancel();
   var tr = $('#Wt-timers');
   if (tr.size() > 0)
     WT.setHtml(tr.get(0), '', false);
@@ -2707,7 +2730,7 @@ function load(fullapp) {
   if (fullapp)
     window._$_APP_CLASS_$_LoadWidgetTree();
 
-  if (!quitted) {
+  if (!hasQuit) {
     if (!keepAliveTimer) {
       keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
     }
@@ -2780,7 +2803,7 @@ function handleResponse(status, msg, timer) {
   if (connectionMonitor)
     connectionMonitor.onStatusChange('connectionStatus', status == 0 ? 1 : 0);
 
-  if (quitted)
+  if (hasQuit)
     return;
 
   if (waitingForJavaScript) {
@@ -2829,7 +2852,7 @@ _$_$endif_$_();
   else
     commErrors = 0;
 
-  if (quitted)
+  if (hasQuit)
     return;
 
   if (websocket.state == WebSocketAckConnect)
@@ -2863,7 +2886,7 @@ function doPollTimeout() {
   responsePending = null;
   pollTimer = null;
 
-  if (!quitted)
+  if (!hasQuit)
     sendUpdate();
 }
 
@@ -2937,15 +2960,15 @@ function schedulePing() {
 }
 
 function scheduleUpdate() {
-  if (quitted) {
-    if (!quittedStr)
+  if (hasQuit) {
+    if (!quitStr)
       return;
-    if (confirm(quittedStr)) {
+    if (confirm(quitStr)) {
       document.location = document.location;
-      quittedStr = null;
+      quitStr = null;
       return;
     } else {
-      quittedStr = null;
+      quitStr = null;
       return;
     }
   }
@@ -2963,7 +2986,7 @@ _$_$if_WEB_SOCKETS_$_();
 	  websocket.state = WebSocketUnavailable;
 	else {
 	  function reconnect() {
-	    if (!quitted) {
+	    if (!hasQuit) {
 	      ++websocket.reconnectTries;
 	      var ms = Math.min(120000, Math.exp(websocket.reconnectTries)
 				* 500);
@@ -3142,7 +3165,7 @@ function sendUpdate() {
 
   if (WT.isIEMobile) feedback = false;
 
-  if (quitted)
+  if (hasQuit)
     return;
 
   var data, tm, poll;
@@ -3485,7 +3508,7 @@ function ieAlternative(d)
 
 window.onunload = function()
 {
-  if (!quitted) {
+  if (!hasQuit) {
     self.emit(self, "Wt-unload");
     scheduleUpdate();
     sendUpdate();

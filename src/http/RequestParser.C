@@ -64,7 +64,9 @@ namespace http {
 namespace server {
 
 RequestParser::RequestParser(Server *):
+#ifdef WTHTTP_WITH_ZLIB
   inflateInitialized_(false)
+#endif
 {
   reset();
 }

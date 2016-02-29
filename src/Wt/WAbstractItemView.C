@@ -1348,7 +1348,7 @@ void WAbstractItemView::handleMouseDown(const WModelIndex& index,
 
   delayedClearAndSelectIndex_ = WModelIndex();
 
-  if (index.isValid())
+  if (index.isValid() && event.button() == WMouseEvent::LeftButton)
     selectionHandleClick(index, event.modifiers());
 
   if (doEdit)

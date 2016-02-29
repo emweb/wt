@@ -517,6 +517,15 @@ void DomElement::setProperty(Property property, const std::string& value)
 
 void DomElement::addPropertyWord(Property property, const std::string& value)
 {
+  PropertyMap::const_iterator i = properties_.find(property);
+  
+  if (i != properties_.end()) {
+    Utils::SplitSet words;
+    Utils::split(words, i->second, " ", true);
+    if (words.find(value) != words.end())
+      return;
+  }
+
   setProperty(property, Utils::addWord(getProperty(property), value));
 }
 
