@@ -241,10 +241,7 @@
   </message>
 
   <message id="Wt.WTreeViewNode.template">
-    <div class="Wt-item ${trunk-class} ${selected}">
-      ${cols-row}${expand}${no-expand}${col0}
-    </div>
-    ${children}
+    ${cols-row}${expand}${no-expand}${col0}
   </message>
 
   <message id="Wt.WTreeNode.template">

@@ -211,7 +211,7 @@ private:
   int height_;
 };
 
-class WTreeViewNode : public WTemplate
+class WTreeViewNode : public WContainerWidget
 {
 public:
   WTreeViewNode(WTreeView *view, const WModelIndex& index,
@@ -277,6 +277,8 @@ public:
 
 private:
   WTreeView *view_;
+  WTemplate *nodeWidget_;
+  WContainerWidget *childContainer_;
   WModelIndex index_;
   int childrenHeight_;
   WTreeViewNode *parentNode_;
@@ -323,19 +325,20 @@ int RowSpacer::renderedRow(int lowerBound, int upperBound)
 WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 			     int childrenHeight, bool isLast,
 			     WTreeViewNode *parent)
-  : WTemplate(tr("Wt.WTreeViewNode.template")),
-    view_(view),
+  : view_(view),
+    nodeWidget_(0),
+    childContainer_(0),
     index_(index),
     childrenHeight_(childrenHeight),
     parentNode_(parent),
     childrenLoaded_(false)
 {
-  bindEmpty("cols-row");
-  bindEmpty("selected");
-  bindEmpty("expand");
-  bindEmpty("no-expand");
-  bindEmpty("col0");
-  bindEmpty("children");
+  nodeWidget_ = new WTemplate(tr("Wt.WTreeViewNode.template"), this);    
+  nodeWidget_->setStyleClass("Wt-item");
+  nodeWidget_->bindEmpty("cols-row");
+  nodeWidget_->bindEmpty("expand");
+  nodeWidget_->bindEmpty("no-expand");
+  nodeWidget_->bindEmpty("col0");
 
   int selfHeight = 0;
   bool needLoad = view_->isExpanded(index_);
@@ -435,18 +438,17 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
     return;
 
   if (index_.parent() == view_->rootIndex() && !view_->rootIsDecorated()) {
-    bindEmpty("expand");
-    bindEmpty("no-expand");
-    bindEmpty("trunk-class");
+    nodeWidget_->bindEmpty("expand");
+    nodeWidget_->bindEmpty("no-expand");
     return;
   }
 
   if (!isEmpty) {
-    ToggleButton *expandButton = resolve<ToggleButton *>("expand");
+    ToggleButton *expandButton = nodeWidget_->resolve<ToggleButton *>("expand");
     if (!expandButton) {
-      bindEmpty("no-expand");
+      nodeWidget_->bindEmpty("no-expand");
       expandButton = new ToggleButton(view_->expandConfig_);
-      bindWidget("expand", expandButton);
+      nodeWidget_->bindWidget("expand", expandButton);
 
       if (WApplication::instance()->environment().agentIsIE())
 	expandButton->setWidth(19);
@@ -457,11 +459,11 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
       expandButton->setState(isExpanded() ? 1 : 0);
     }
   } else {
-    WText *noExpandIcon = resolve<WText *>("no-expand");
+    WText *noExpandIcon = nodeWidget_->resolve<WText *>("no-expand");
     if (!noExpandIcon) {
-      bindEmpty("expand");
+      nodeWidget_->bindEmpty("expand");
       noExpandIcon = new WText();
-      bindWidget("no-expand", noExpandIcon);
+      nodeWidget_->bindWidget("no-expand", noExpandIcon);
       noExpandIcon->setInline(false);
       noExpandIcon->setStyleClass("Wt-ctrl rh noexpand");
       if (WApplication::instance()->environment().agentIsIE())
@@ -470,12 +472,13 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
   }
 
   toggleStyleClass("Wt-trunk", !isLast);
-  bindString("trunk-class", isLast ? "Wt-end" : "Wt-trunk");
+  nodeWidget_->toggleStyleClass("Wt-end", isLast);
+  nodeWidget_->toggleStyleClass("Wt-trunk", !isLast);
 }
 
 void WTreeViewNode::insertColumns(int column, int count)
 {
-  WContainerWidget *row = resolve<WContainerWidget *>("cols-row");
+  WContainerWidget *row = nodeWidget_->resolve<WContainerWidget *>("cols-row");
 
   if (view_->columnCount() > 1) {
     if (!row) {
@@ -490,7 +493,7 @@ void WTreeViewNode::insertColumns(int column, int count)
 
       row->setStyleClass("Wt-tv-row rh");
 
-      bindWidget("cols-row", row);
+      nodeWidget_->bindWidget("cols-row", row);
     }
   } else 
     delete row;
@@ -535,9 +538,10 @@ void WTreeViewNode::setCellWidget(int column, WWidget *newW)
 
   if (column == 0) {
     newW->setInline(false);
-    bindWidget("col0", newW);
+    nodeWidget_->bindWidget("col0", newW);
   } else {
-    WContainerWidget *row = resolve<WContainerWidget *>("cols-row");
+    WContainerWidget *row 
+      = nodeWidget_->resolve<WContainerWidget *>("cols-row");
     if (view_->rowHeaderCount())
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
@@ -556,9 +560,10 @@ void WTreeViewNode::setCellWidget(int column, WWidget *newW)
 WWidget *WTreeViewNode::cellWidget(int column)
 {
   if (column == 0)
-    return resolveWidget("col0");
+    return nodeWidget_->resolveWidget("col0");
   else {
-    WContainerWidget *row = resolve<WContainerWidget *>("cols-row");
+    WContainerWidget *row 
+      = nodeWidget_->resolve<WContainerWidget *>("cols-row");
 
     if (view_->rowHeaderCount())
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
@@ -574,7 +579,7 @@ void WTreeViewNode::doExpand()
 
   loadChildren();
 
-  ToggleButton *expandButton = resolve<ToggleButton *>("expand");
+  ToggleButton *expandButton = nodeWidget_->resolve<ToggleButton *>("expand");
   if (expandButton)
     expandButton->setState(1);
 
@@ -596,7 +601,7 @@ void WTreeViewNode::doCollapse()
   if (!isExpanded())
     return;
 
-  ToggleButton *expandButton = resolve<ToggleButton *>("expand");
+  ToggleButton *expandButton = nodeWidget_->resolve<ToggleButton *>("expand");
   if (expandButton)
     expandButton->setState(0);
 
@@ -676,17 +681,15 @@ void WTreeViewNode::adjustChildrenHeight(int diff)
 
 WContainerWidget *WTreeViewNode::childContainer()
 {
-  WContainerWidget *result = resolve<WContainerWidget *>("children");
-  if (!result) {
-    result = new WContainerWidget();
-    bindWidget("children", result);
-    result->setList(true);
+  if (!childContainer_) {
+    childContainer_ = new WContainerWidget(this);
+    childContainer_->setList(true);
 
     if (index_ == view_->rootIndex())
-      result->addStyleClass("Wt-tv-root");
+      childContainer_->addStyleClass("Wt-tv-root");
   }
 
-  return result;
+  return childContainer_;
 }
 
 WWidget *WTreeViewNode::widgetForModelRow(int modelRow)
@@ -901,7 +904,7 @@ void WTreeViewNode::renderSelected(bool selected, int column)
   std::string cl = WApplication::instance()->theme()->activeClass();
 
   if (view_->selectionBehavior() == SelectRows) {
-    bindString("selected", selected ? cl : std::string());
+    nodeWidget_->toggleStyleClass(cl, selected);
   } else {
     WWidget *w = cellWidget(column);
     w->toggleStyleClass(cl, selected);
