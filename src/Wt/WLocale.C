@@ -70,6 +70,11 @@ void WLocale::setTimeFormat(const WT_USTRING &format)
   timeFormat_ = format;
 }
 
+void WLocale::setDateTimeFormat(const WT_USTRING& format)
+{
+  dateTimeFormat_ = format;
+}
+
 void WLocale::setTimeZone(const std::string& posixTimeZone)
 {
   time_zone_.reset(new boost::local_time::posix_time_zone(posixTimeZone));

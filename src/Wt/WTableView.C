@@ -60,7 +60,9 @@ WTableView::WTableView(WContainerWidget *parent)
     viewportLeft_(0),
     viewportWidth_(1000),
     viewportTop_(0),
-    viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT)
+    viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
+    scrollToRow_(-1),
+    scrollToHint_(EnsureVisible)
 {
   setSelectable(false);
 
@@ -190,6 +192,11 @@ void WTableView::resize(const WLength& width, const WLength& height)
       viewportHeight_
 	= static_cast<int>(std::ceil((height.toPixels()
 				      - headerHeight().toPixels())));
+      if (scrollToRow_ != -1) {
+	WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
+	scrollToRow_ = -1;
+	scrollTo(index, scrollToHint_);
+      }
     } else
       viewportHeight_ = UNKNOWN_VIEWPORT_HEIGHT;
   } else { // Plain HTML mode
@@ -1486,11 +1493,16 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
 {
   assert(ajaxMode());
 
-  
   viewportLeft_ = left;
   viewportWidth_ = width;
   viewportTop_ = top;
   viewportHeight_ = height;
+
+  if (scrollToRow_ != -1) {
+    WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
+    scrollToRow_ = -1;
+    scrollTo(index, scrollToHint_);
+  }
 
   computeRenderedArea();
 
@@ -1868,6 +1880,9 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
 	  scheduleRerender(NeedAdjustViewPort);
 	}
+      } else {
+	scrollToRow_ = index.row();
+	scrollToHint_ = hint;
       }
 
       if (isRendered()) {
@@ -1886,7 +1901,8 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
   }
 }
 
-void WTableView::scrollTo(int x, int y) {
+void WTableView::scrollTo(int x, int y)
+{
   if (ajaxMode()) {
     if (isRendered()) {
       WStringStream s;

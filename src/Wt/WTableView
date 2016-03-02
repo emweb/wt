@@ -173,6 +173,10 @@ private:
   int renderedFirstRow_, renderedLastRow_,
     renderedFirstColumn_, renderedLastColumn_;
 
+  /* Scroll to to process after viewport height is known */
+  int scrollToRow_;
+  ScrollHint scrollToHint_;
+
   void updateTableBackground();
 
   ColumnWidget *columnContainer(int renderedColumn) const;

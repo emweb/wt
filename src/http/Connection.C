@@ -32,7 +32,7 @@ namespace Wt {
 namespace http {
 namespace server {
 
-static const int CONNECTION_TIMEOUT = 120; // 2 minutes
+static const int CONNECTION_TIMEOUT = 300; // 5 minutes
 static const int BODY_TIMEOUT = 600;       // 10 minutes
 static const int KEEPALIVE_TIMEOUT  = 10;  // 10 seconds
 
