@@ -3361,7 +3361,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
     WFont f = painter.font();
 
     if (isAutoLayoutEnabled() &&
-	((painter.device()->features() & WPaintDevice::HasFontMetrics) != 0)) {
+	(painter.device()->features() & WPaintDevice::HasFontMetrics)) {
       int columnWidth = 0;
       for (unsigned i = 0; i < series().size(); ++i)
 	if (series()[i]->isLegendEnabled()) {
@@ -3370,8 +3370,13 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 	  columnWidth = std::max(columnWidth, (int)t.width());
 	}
 
+      columnWidth += 25;
       WCartesianChart *self = const_cast<WCartesianChart *>(this);
-      self->legend_.setLegendColumnWidth(columnWidth + 25);
+      self->legend_.setLegendColumnWidth(columnWidth);
+
+      if (legendSide() == Top || legendSide() == Bottom) {
+	self->legend_.setLegendColumns(std::max(1, w / columnWidth - 1));
+      }
     }
 
     int numLegendRows = (numSeriesWithLegend - 1) / legendColumns() + 1;

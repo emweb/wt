@@ -188,7 +188,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
    * see WWebWidget: other attributes need not be moved.
    *
    * But -- bug #423, disabled and readonly are properties that should be
-   * kept on the interior element.
+   * kept on the interior element. And also tabindex
    */
   if (&element != input) {
     if (element.properties().find(PropertyClass) != element.properties().end())
@@ -206,6 +206,12 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     if (!v.empty()) {
       input->setProperty(Wt::PropertyReadOnly, v);
       element.removeProperty(Wt::PropertyReadOnly);
+    }
+
+    v = element.getProperty(Wt::PropertyTabIndex);
+    if (!v.empty()) {
+      input->setProperty(Wt::PropertyTabIndex, v);
+      element.removeProperty(Wt::PropertyTabIndex);
     }
 
     v = input->getAttribute("title");
