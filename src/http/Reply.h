@@ -157,6 +157,7 @@ protected:
 
   ConnectionPtr connection() const { return connection_; }
   bool transmitting() const { return transmitting_; }
+  asio::const_buffer buf(const std::string &s);
 
 private:
 
@@ -181,7 +182,6 @@ private:
   // pointers in the asio buffer lists to become invalid
   std::list<std::string> bufs_;
 
-  asio::const_buffer buf(const std::string &s);
 
   bool encodeNextContentBuffer(std::vector<asio::const_buffer>& result,
 			       int& originalSize, int& encodedSize);

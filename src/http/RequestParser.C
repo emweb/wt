@@ -305,13 +305,14 @@ bool RequestParser::doWebSocketPerMessageDeflateNegociation(const Request& req, 
 {
   req.pmdState_.enabled = false;
   response = "";
+
   const Request::Header *k = req.getHeader("Sec-WebSocket-Extensions");
-  if(k) {
+  if (k) {
 	std::string key = k->value.str();
 	std::vector<std::string> negociatedHeaders;
 	boost::split(negociatedHeaders, key, boost::is_any_of(";"));
 
-	if(key.find("permessage-deflate") != std::string::npos)  {
+	if (key.find("permessage-deflate") != std::string::npos) {
 	  req.pmdState_.enabled = true;
 	  response = "permessage-deflate";
 	} else return false;
@@ -324,21 +325,21 @@ bool RequestParser::doWebSocketPerMessageDeflateNegociation(const Request& req, 
 	req.pmdState_.server_max_window_bits = SERVER_MAX_WINDOW_BITS;
 	req.pmdState_.client_max_window_bits = CLIENT_MAX_WINDOW_BITS;
 
-	for(unsigned int i = 0; i < negociatedHeaders.size(); ++i) {
+	for (unsigned int i = 0; i < negociatedHeaders.size(); ++i) {
 	  std::string key = negociatedHeaders[i];
-	  if(key.find("permessage-deflate") != std::string::npos)  {
+	  if(key.find("permessage-deflate") != std::string::npos) {
 		continue; // already parsed
-	  } else if(key.find("client_no_context_takeover") != std::string::npos) {
+	  } else if (key.find("client_no_context_takeover") != std::string::npos) {
 
-		if(hasClientWBit) return false;
+		if (hasClientWBit) return false;
 
 		hasClientNoCtx = true;
 
 		req.pmdState_.client_max_window_bits = -1;
 		response+="; client_no_context_takeover";
-	  } else if(key.find("server_no_context_takeover") != std::string::npos) {
+	  } else if (key.find("server_no_context_takeover") != std::string::npos) {
 
-		if(hasServerWBit) return false;
+		if (hasServerWBit) return false;
 
 		hasServerNoCtx = true;
 
@@ -346,30 +347,30 @@ bool RequestParser::doWebSocketPerMessageDeflateNegociation(const Request& req, 
 		response+="; server_no_context_takeover";
 	  } else if (key.find("server_max_window_bits") != std::string::npos) {
 
-		if( hasServerNoCtx ) return false;
+		if (hasServerNoCtx) return false;
 
 		boost::trim(key);
 		size_t pos = key.find("=");
-		if( pos != std::string::npos) {
+		if (pos != std::string::npos) {
 		  hasServerWBit = true; 
 		  int ws = boost::lexical_cast<int>(key.substr(pos + 1));
 		  
-		  if(ws < 8 || ws > 15) return false;
+		  if (ws < 8 || ws > 15) return false;
 
 		  req.pmdState_.server_max_window_bits  = ws;
 		  response+="; server_max_window_bits = " + key.substr(pos + 1);
 		} else return false;
 	  } else if (key.find("client_max_window_bits") != std::string::npos) {
 
-		if( hasClientNoCtx) return false;
+		if (hasClientNoCtx) return false;
 
 		boost::trim(key);
 		size_t pos = key.find("=");
-		if( pos != std::string::npos) {
+		if (pos != std::string::npos) {
 		  hasClientWBit = true; 
 		  int ws = boost::lexical_cast<int>(key.substr(pos + 1));
 		  
-		  if(ws < 8 || ws > 15) return false;
+		  if (ws < 8 || ws > 15) return false;
 
 		  req.pmdState_.client_max_window_bits = ws;
 		  response+="; client_max_window_bits = " + key.substr(pos + 1);
@@ -738,7 +739,6 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  } while (hasMore);
 	  
 	  bool ret2 = inflate(appendBlock, 4, reinterpret_cast<unsigned char*>(buffer), hasMore);
-
 	  if(!ret2) return Request::Error;
 
 	  return state;
@@ -764,7 +764,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 bool RequestParser::inflate(unsigned char* in, size_t size, unsigned char out[], bool& hasMore)
 {
   LOG_DEBUG("wthttp: ws: inflate frame");
-  if( !hasMore) {
+  if (!hasMore) {
 	zInState_.avail_in = size;
 	zInState_.next_in = in;
   }
@@ -788,7 +788,7 @@ bool RequestParser::inflate(unsigned char* in, size_t size, unsigned char out[],
 	}
 	read_ += 16384 - zInState_.avail_out;
 	LOG_DEBUG("wthttp: ws: inflate - Size before " << size << " size after " << 16384 - zInState_.avail_out);
-  }while(zInState_.avail_out == 0);
+  } while (zInState_.avail_out == 0);
   return true;
 }
 

@@ -567,15 +567,24 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
 	  bool hasMore = false;
 	  payloadLength = 0;
 	  do {
-		unsigned char buffer[16384];
+		unsigned char buffer[16 * 1024];
 		int bs = deflate(data, size, buffer, hasMore);
-		if(!hasMore) bs = bs-4;
-		buffers.push_back(boost::asio::const_buffer(buffer, bs));
+
+		if (!hasMore) {
+		  // strip trailing for 0x0 0x0 0xff 0xff bytes
+		  bs = bs - 4;
+		}
+		
+		buffers.push_back(buf(std::string((char*)buffer, bs)));
 		payloadLength+=bs;
 	  } while (hasMore);
+
+	  assert(zOutState_.avail_in == 0);
+
 	  //TODO need to free out_buf
-	  if(request_.pmdState_.server_max_window_bits < 0) // context_takeover
+	  if (request_.pmdState_.server_max_window_bits < 0) // context_takeover
 		deflateReset(&zOutState_);
+
 	  if(payloadLength <= 0) {
 		LOG_ERROR("ws: deflate failed");
 		sending_ = 0;
@@ -686,7 +695,7 @@ bool WtReply::initDeflate()
 int WtReply::deflate(const unsigned char* in, size_t size, unsigned char out[], bool& hasMore)
 {
   size_t output = 0;
-  const int bufferSize = 16384;
+  const int bufferSize = 16 * 1024;
 
   LOG_DEBUG("wthttp: wt: deflate frame");
 
@@ -697,23 +706,27 @@ int WtReply::deflate(const unsigned char* in, size_t size, unsigned char out[], 
   
   // If it's the first iteration init the data
   if(!hasMore) {
-	zOutState_.avail_in = size;
-	zOutState_.next_in = const_cast<unsigned char *>(in);
+    // Set only at the first iteration
+    zOutState_.avail_in = size;
+    zOutState_.next_in = const_cast<unsigned char *>(in);
   }
-
-  hasMore = true;
 
   // Output to local buffer
   zOutState_.avail_out = bufferSize;
   zOutState_.next_out = out;
 
-  ::deflate(&zOutState_, Z_SYNC_FLUSH);
+  hasMore = true;
+
+  int ret = ::deflate(&zOutState_, 
+      request_.pmdState_.server_max_window_bits < 0 
+      ? Z_FULL_FLUSH : Z_SYNC_FLUSH);
+  
+  assert(ret != Z_STREAM_ERROR);
 
   output = bufferSize - zOutState_.avail_out;
 
-  if(zOutState_.avail_out != 0) hasMore = false;
-  
-  LOG_DEBUG("wthttp: ws: deflate - Size before " << size << " size after " << output);
+  if (zOutState_.avail_out != 0) 
+    hasMore = false;
 
   return output; 
 }
