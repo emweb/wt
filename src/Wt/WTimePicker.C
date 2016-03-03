@@ -157,7 +157,7 @@ void WTimePicker::createWidgets()
     sbmillisecond_->changed().connect(this, &WTimePicker::msecValueChanged);
 
     cbAP_ = new WComboBox();
-    cbAP_->setWidth(70);
+    cbAP_->setWidth(90);
     cbAP_->addItem("AM");
     cbAP_->addItem("PM");
     cbAP_->changed().connect(this, &WTimePicker::ampmValueChanged);

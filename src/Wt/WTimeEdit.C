@@ -137,6 +137,7 @@ void WTimeEdit::propagateSetEnabled(bool enabled)
 void WTimeEdit::setFromTimePicker()
 {
   setTime(timePicker_->time());
+  changed().emit();
 }
 
 void WTimeEdit::setFromLineEdit()
