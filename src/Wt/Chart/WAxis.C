@@ -407,7 +407,8 @@ void WAxis::setLabelFont(const WFont& labelFont)
   set(labelFont_, labelFont);
 }
 
-double WAxis::calcTitleSize(WPaintDevice *d, Orientation orientation) const {
+double WAxis::calcTitleSize(WPaintDevice *d, Orientation orientation) const 
+{
   WMeasurePaintDevice device(d);
 
   WPainter painter(&device);
@@ -417,12 +418,15 @@ double WAxis::calcTitleSize(WPaintDevice *d, Orientation orientation) const {
 
   painter.drawText( 0, 0, 100, 100, AlignCenter, title());
   
-  return orientation == Vertical ? device.boundingRect().height() : device.boundingRect().width();
+  return orientation == Vertical ? 
+    device.boundingRect().height() : device.boundingRect().width();
 
 
 }
 
-double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation) const {
+double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation)
+  const
+{
   WMeasurePaintDevice device(d);
 
   WPainter painter(&device);
@@ -450,12 +454,13 @@ double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation) con
     }
   }
 
-  for(unsigned int i = 0; i< ticks.size(); ++i) {
-	painter.drawText(0, 0, 100, 100, AlignRight, ticks[i].label);
+  painter.rotate(-labelAngle_);
+  for (unsigned int i = 0; i < ticks.size(); ++i) {
+    painter.drawText(0, 0, 100, 100, AlignRight, ticks[i].label);
   }
 
-  return orientation == Vertical ? device.boundingRect().height() : device.boundingRect().width();
-
+  return orientation == Vertical ? 
+    device.boundingRect().height() : device.boundingRect().width();
 }
 
 void WAxis::update()
@@ -1642,12 +1647,18 @@ long long WAxis::getDateNumber(WDateTime dt) const
 
 double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
 {
-  if (orientation == Horizontal)
-    return s.renderLength
-      / std::max((double)AUTO_H_LABEL_PIXELS,
-		 WLength(defaultDateTimeFormat(s).value().size(),
-			 WLength::FontEm).toPixels());
-  else
+  if (orientation == Horizontal) {
+    if (std::fabs(labelAngle_) <= 15) {
+      return s.renderLength
+	/ std::max((double)AUTO_H_LABEL_PIXELS,
+		   WLength(defaultDateTimeFormat(s).value().size(),
+			   WLength::FontEm).toPixels());
+    } else if (std::fabs(labelAngle_) <= 40) {
+      return s.renderLength / (2 * AUTO_V_LABEL_PIXELS);
+    } else {
+      return s.renderLength / AUTO_V_LABEL_PIXELS;
+    }
+  } else
     return s.renderLength / AUTO_V_LABEL_PIXELS;
 }
 
@@ -1793,7 +1804,7 @@ void WAxis::render(WPainter& painter,
 	    labelP = WPointF(p.x(), p.y() + labelPos);
 
 	  renderLabel(painter, ticks[i].label, labelP,
-		       labelFlags, labelAngle(), 3, transform, textPens[level-1]);
+		      labelFlags, labelAngle(), 3, transform, textPens[level-1]);
 	}
       }
 

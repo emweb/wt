@@ -468,8 +468,7 @@ public:
   /*! \brief Sets the label angle.
    *
    * Sets the angle used for displaying the labels (in degrees). A 0 angle
-   * corresponds to horizontal text. Note that this option is only supported
-   * by the InlineSvgVml renderers, but not by HtmlCanvas.
+   * corresponds to horizontal text.
    *
    * The default value is 0.0.
    *
