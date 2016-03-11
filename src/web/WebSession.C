@@ -364,7 +364,10 @@ void WebSession::setState(State state, int timeout)
 
 std::string WebSession::sessionQuery() const
 {
-  return "?wtd=" + DomElement::urlEncodeS(sessionId_);
+  std::string result ="?wtd=" + DomElement::urlEncodeS(sessionId_);
+  if (type() == WidgetSet)
+    result += "&wtt=widgetset";
+  return result;
 }
 
 void WebSession::init(const WebRequest& request)

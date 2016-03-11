@@ -351,6 +351,7 @@ private:
 
   JSlot           repaintSlot_;
   WJavaScriptObjectStorage jsObjects_;
+  bool              jsDefined_;
 
   void resizeCanvas(int width, int height);
   bool createPainter();

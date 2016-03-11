@@ -149,12 +149,16 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
     sessionProcess_ = sessionManager_.sessionProcess(sessionId);
 
     if (sessionId.empty() || !sessionProcess_) {
-      if (!sessionId.empty()) {
+
+      Wt::Http::ParameterMap::const_iterator wtt = queryParams_.find("wtt");
+
+      if (!sessionId.empty() && (wtt == queryParams_.end() || wtt->second[0] != "widgetset")) {
 	/*
 	 * Do not spawn a new process only to indicate that the request
 	 * is illegal. We also handle obvious 'reload' indications here.
 	 */
 	Wt::Http::ParameterMap::const_iterator i = queryParams_.find("request");
+
 	if (i != queryParams_.end()) {
 	  if (i->second[0] == "resource" || i->second[0] == "style") {
 	    LOG_INFO("resource request from dead session, not responding.");
@@ -168,6 +172,7 @@ bool ProxyReply::consumeData(Buffer::const_iterator begin,
 	} else if (request_.method.icontains("POST") &&
 		   queryParams_.size() == 1) {
 	  sendReload();
+
 	  return true;
 	}
       }
@@ -557,6 +562,16 @@ bool ProxyReply::sendReload()
 
   if (jsRequest) {
     LOG_INFO("signal from dead session, sending reload.");
+    const Request::Header* horigin = request_.getHeader("Origin");
+    std::string origin;
+    if(!horigin)
+      origin = "*";
+    else 
+      origin = horigin->value.str();
+
+    addHeader("Access-Control-Allow-Origin", origin);
+    addHeader("Access-Control-Allow-Credentials", "true");
+
     setStatus(ok);
     contentType_ = "text/javascript; charset=UTF-8";
     out_ <<

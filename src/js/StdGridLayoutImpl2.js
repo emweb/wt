@@ -1192,9 +1192,12 @@ WT_DECLARE_WT_MEMBER
 
 	     var factor = toDistribute / totalStretch;
 
+	     var r = 0;
 	     for (di = 0; di < dirCount; ++di) {
 	       if (stretch[di] > 0) {
-		 targetSize[di] += Math.round(stretch[di] * factor);
+		 var oldr = r;
+		 r += stretch[di] * factor;
+		 targetSize[di] += Math.round(r) - Math.round(oldr);
 		 DC.stretched[di] = true;
 	       }
 	     }
@@ -1209,18 +1212,21 @@ WT_DECLARE_WT_MEMBER
 
 	   var factor;
 
-	   if (totalPreferred[category] - totalMinimum[category] > 0)
+	   if (totalPreferred[category] - totalMinimum[category] > 0) {
 	     factor = (toDistribute - totalMinimum[category])
 	       / (totalPreferred[category] - totalMinimum[category]);
-	   else
+	   } else
 	     factor = 0;
 
+	   var r = 0;
 	   for (di = 0; di < dirCount; ++di) {
 	     if (stretch[di] > 0) {
-	       var s = measures[PREFERRED_SIZE][di]
+	       var s = measures[PREFERRED_SIZE][di] 
 		 - measures[MINIMUM_SIZE][di];
-	       targetSize[di] = measures[MINIMUM_SIZE][di]
-		 + Math.round(s * factor);
+	       var oldr = r;
+	       r += s * factor;
+	       targetSize[di] = measures[MINIMUM_SIZE][di] 
+		 + Math.round(r) - Math.round(oldr);
 	     }
 	   }
 	 }
@@ -1238,18 +1244,21 @@ WT_DECLARE_WT_MEMBER
 
 	 var factor;
 
-	 if (totalPreferred[category] - totalMinimum[category] > 0)
+	 if (totalPreferred[category] - totalMinimum[category] > 0) {
 	   factor = (toDistribute - totalMinimum[category])
 	     / (totalPreferred[category] - totalMinimum[category]);
-	 else
+	 } else
 	   factor = 0;
 
+	 var r = 0;
 	 for (di = 0; di < dirCount; ++di) {
 	   if (stretch[di] == 0) {
 	     var s = measures[PREFERRED_SIZE][di]
 	       - measures[MINIMUM_SIZE][di];
+	     var oldr = r;
+	     r += s * factor;
 	     targetSize[di] = measures[MINIMUM_SIZE][di]
-	       + Math.round(s * factor);
+	       + Math.round(r) - Math.round(oldr);
 	   }
 	 }
        }

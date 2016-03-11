@@ -33,6 +33,25 @@
 
 //#include <SkForceLinking.h>
 
+// Skia does not have official releases, which is annoying because
+// this implies that there are no API version numberings. I'm not
+// aware of any preprocessor define that can help us identifying
+// skia version. Therefore, for binary builds of Wt, we use
+// specific git versions of skia to build against wt.
+// Wt can build against the following skia git versions:
+// - 394c7bb04d89667d2164a554f310e8e6f819abc2
+//   Used for all binary builds up to wt 3.3.5. This version does
+//   not support MSVS 2015, so we needed to upgrade skia for this.
+//   Wt binary builds newer than 3.3.5 for compilers older than
+//   MSVS 2015 will still use this version, since newer skia
+//   version don't support old compilers.
+//   If you use this version, WT_SKIA_OLD must be defined while
+//   compiling this file.
+// - a2b340f8a8d5f219eb62f5f9b654cf19c988c578
+//   Used for MSVS 2015 builds, starting in Wt 3.3.5.
+//   Do not define WT_SKIA_OLD when you use this version.
+// Other skia versions may work too.
+//#define WT_SKIA_OLD
 
 namespace {
   inline SkColor fromWColor(const Wt::WColor &color)
@@ -86,14 +105,22 @@ WRasterImage::WRasterImage(const std::string& type,
     impl_->bitmap_ = 0;
     return;
   }
-  
+#ifdef WT_SKIA_OLD
   impl_->bitmap_ = new SkBitmap();
   impl_->bitmap_->setConfig(SkBitmap::kARGB_8888_Config, impl_->w_, impl_->h_);
   impl_->bitmap_->allocPixels();
   impl_->bitmap_->eraseARGB(0, 0, 0, 0);
   impl_->device_ = new SkBitmapDevice(*impl_->bitmap_);
   impl_->canvas_ = new SkCanvas(impl_->device_);
-  
+#else
+  impl_->bitmap_ = new SkBitmap();
+  SkImageInfo ii = SkImageInfo::MakeN32Premul(impl_->w_, impl_->h_);
+  impl_->bitmap_->allocPixels(ii);
+  impl_->bitmap_->eraseARGB(0, 0, 0, 0);
+  impl_->device_ = new SkBitmapDevice(*impl_->bitmap_);
+  impl_->canvas_ = new SkCanvas(impl_->device_);
+#endif
+
   impl_->textPaint_.setStyle(SkPaint::kStrokeAndFill_Style);
   impl_->textPaint_.setTextEncoding(SkPaint::kUTF8_TextEncoding);
   impl_->strokePaint_.setStyle(SkPaint::kStroke_Style);
@@ -253,14 +280,24 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	break;
       case DashLine: {
 	const SkScalar dasharray[] = { SkIntToScalar(4), SkIntToScalar(2) };
+#ifdef WT_SKIA_OLD
 	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
 							false))->unref();
+#else
+	impl_->strokePaint_.setPathEffect(
+		SkDashPathEffect::Create(dasharray, 2, 0));
+#endif
 	break;
       }
       case DotLine: {
 	const SkScalar dasharray[] = { SkIntToScalar(1), SkIntToScalar(2) };
+#ifdef WT_SKIA_OLD
 	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
 							false))->unref();
+#else
+	impl_->strokePaint_.setPathEffect(
+		SkDashPathEffect::Create(dasharray, 2, 0));
+#endif
 	break;
       }
       case DashDotLine: {
@@ -270,9 +307,14 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	  SkIntToScalar(1),
 	  SkIntToScalar(2)
 	};
+#ifdef WT_SKIA_OLD
 	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 4,
 							false))->unref();
-	break;
+#else
+impl_->strokePaint_.setPathEffect(
+	SkDashPathEffect::Create(dasharray, 4, 0));
+#endif
+break;
       }
       case DashDotDotLine: {
 	const SkScalar dasharray[] = {
@@ -283,9 +325,14 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	  SkIntToScalar(1),
 	  SkIntToScalar(2)
 	};
+#ifdef WT_SKIA_OLD
 	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 6,
 							false))->unref();
-	break;
+#else
+impl_->strokePaint_.setPathEffect(
+	SkDashPathEffect::Create(dasharray, 6, 0));
+#endif
+break;
       }
       }
 
@@ -366,7 +413,12 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     DataUri uri(imgUri);
     success =
       SkImageDecoder::DecodeMemory(&uri.data[0], uri.data.size(),
-				   &bitmap, SkBitmap::kARGB_8888_Config,
+				   &bitmap,
+#ifdef WT_SKIA_OLD
+				   SkBitmap::kARGB_8888_Config,
+#else
+				   kN32_SkColorType,
+#endif
 				   SkImageDecoder::kDecodePixels_Mode, 0);
     if (!success)
       throw WException("WRasterImage: could not decode data URL (mime type "
@@ -374,8 +426,13 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   } else {
     success =
       SkImageDecoder::DecodeFile(imgUri.c_str(),
-				 &bitmap, SkBitmap::kARGB_8888_Config,
-				 SkImageDecoder::kDecodePixels_Mode, 0);
+				 &bitmap,
+#ifdef WT_SKIA_OLD
+				 SkBitmap::kARGB_8888_Config,
+#else
+				 kN32_SkColorType,
+#endif
+				SkImageDecoder::kDecodePixels_Mode, 0);
     if (!success)
       throw WException("WRasterImage: could not load file " + imgUri);
   }
@@ -388,7 +445,12 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 				SkDoubleToScalar(rect.top()),
 				SkDoubleToScalar(rect.right()),
 				SkDoubleToScalar(rect.bottom()));
+#ifdef WT_SKIA_OLD
   impl_->canvas_->drawBitmapRectToRect(bitmap, &src, dst);
+#else
+  impl_->canvas_->drawBitmapRect(bitmap, src, dst, 0);
+#endif
+
 }
 
 void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
@@ -631,11 +693,17 @@ public:
 
   virtual bool write(const void* buffer, size_t size) {
     os_.write((const char *)buffer, size);
+    bytesWritten_ += size;
     return os_.good();
+  }
+
+  size_t bytesWritten() const {
+    return bytesWritten_;
   }
 
 private:
   std::ostream &os_;
+  size_t bytesWritten_;
 };
 
 void WRasterImage::handleRequest(const Http::Request& request,

@@ -118,7 +118,8 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
 	"var o=" + this->objJsRef() + ";"
 	"if(o){o.repaint();}"
 	"}", this),
-    jsObjects_(this->objJsRef())
+    jsObjects_(this->objJsRef()),
+    jsDefined_(false)
 {
   if (WApplication::instance()) {
     const WEnvironment& env = WApplication::instance()->environment();
@@ -129,12 +130,6 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   }
 
   setInline(false);
-  if (WApplication::instance()) {
-    setFormObject(true);
-
-    WApplication *app = WApplication::instance();
-    LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs2);
-  }
 }
 
 WPaintedWidget::~WPaintedWidget()
@@ -205,12 +200,22 @@ void WPaintedWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs1);
+  if (app && jsObjects_.size() > 0) {
+    setFormObject(true);
+
+    WApplication *app = WApplication::instance();
+    LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs2);
+    LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs1);
+
+    jsDefined_ = true;
+  } else {
+    jsDefined_ = false;
+  }
 }
 
 void WPaintedWidget::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull) {
+  if (flags & RenderFull || !jsDefined_) {
     defineJavaScript();
   }
 

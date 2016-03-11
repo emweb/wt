@@ -1130,6 +1130,7 @@ WCartesianChart::WCartesianChart(WContainerWidget *parent)
     axisPadding_(5),
     borderPen_(NoPen),
     hasToolTips_(false),
+    jsDefined_(false),
     zoomEnabled_(false),
     panEnabled_(false),
     rubberBandEnabled_(true),
@@ -1157,6 +1158,7 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
     axisPadding_(5),
     borderPen_(NoPen),
     hasToolTips_(false),
+    jsDefined_(false),
     zoomEnabled_(false),
     panEnabled_(false),
     rubberBandEnabled_(true),
@@ -1217,12 +1219,6 @@ void WCartesianChart::init()
   yTransform_ = WTransform();
 
   if (WApplication::instance() != 0) {
-    WApplication *app = WApplication::instance();
-    LOAD_JAVASCRIPT(app, "js/ChartCommon.js", "ChartCommon", wtjs2);
-    app->doJavaScript(std::string("if (!" WT_CLASS ".chartCommon) {"
-				  WT_CLASS ".chartCommon = new ") +
-		      WT_CLASS ".ChartCommon(" + app->javaScriptClass() + "); }", false);
-
     mouseWentDown().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDown(o, e);}}");
     mouseWentUp().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseUp(o, e);}}");
     mouseDragged().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDrag(o, e);}}");
@@ -1594,13 +1590,30 @@ WPointF WCartesianChart::inverseHv(double x, double y, double width) const
     return WPointF(y, width - x); 
 }
 
+void WCartesianChart::defineJavaScript()
+{
+  WApplication *app = WApplication::instance();
+
+  if (app && isInteractive()) {
+    LOAD_JAVASCRIPT(app, "js/ChartCommon.js", "ChartCommon", wtjs2);
+    app->doJavaScript(std::string("if (!" WT_CLASS ".chartCommon) {"
+				  WT_CLASS ".chartCommon = new ") +
+		      WT_CLASS ".ChartCommon(" + app->javaScriptClass() + "); }", false);
+
+    LOAD_JAVASCRIPT(app, "js/WCartesianChart.js", "WCartesianChart", wtjs1);
+    jsDefined_ = true;
+  } else {
+    jsDefined_ = false;
+  }
+}
+
 void WCartesianChart::render(WFlags<RenderFlag> flags)
 {
   WAbstractChart::render(flags);
 
-  WApplication *app = WApplication::instance();
-
-  LOAD_JAVASCRIPT(app, "js/WCartesianChart.js", "WCartesianChart", wtjs1);
+  if (flags & RenderFull | !jsDefined_) {
+    defineJavaScript();
+  }
 }
 
 void WCartesianChart::setFormData(const FormData& formData)

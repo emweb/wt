@@ -121,7 +121,7 @@ private:
  *
  * \image html CurveLabel.png "A curve label"
  */
-class CurveLabel {
+class WT_API CurveLabel {
 public:
   /*! \brief Create a new curve label.
    *
@@ -1145,7 +1145,7 @@ public:
    *
    * The selected series can be changed using a long touch or mouse click.
    *
-   * If the argument provided is -1 or \link setSeriesSelectionEnabled() series
+   * If the argument provided is null or \link setSeriesSelectionEnabled() series
    * selection\endlink is not enabled, no series will be selected.
    *
    * \sa setCurveManipulationEnabled()
@@ -1210,6 +1210,7 @@ private:
   mutable AxisValue location_[3];
   mutable bool hasToolTips_; // Saves doing roundtrips when there are no tooltips
 
+  bool jsDefined_;
   bool zoomEnabled_;
   bool panEnabled_;
   bool rubberBandEnabled_;
@@ -1496,6 +1497,7 @@ private:
   WPointF inverseHv(double x, double y, double width) const;
   WPointF inverseHv(const WPointF &p) const;
   WRectF insideChartArea() const;
+  void defineJavaScript();
 
   bool axisSliderWidgetForSeries(WDataSeries *series) const;
 
