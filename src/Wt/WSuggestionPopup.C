@@ -292,6 +292,9 @@ void WSuggestionPopup::modelLayoutChanged()
 
 void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 {
+  if(Utils::indexOf(edits_, edit) != -1)
+	return;
+
   EventSignalBase& b = edit->keyPressed();
 
   connectObjJS(b, "editKeyDown");

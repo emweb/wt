@@ -169,6 +169,8 @@ private:
 	      std::ostream& result);
   bool _id(const std::vector<WString>& args, 
 	   std::ostream& result);
+  bool _fwId(const std::vector<WString>& args,
+	  std::ostream& result);
 
 public:
 #ifndef WT_TARGET_JAVA
@@ -327,6 +329,11 @@ public:
 #else
     static Function& id = IdFunction();
 #endif // WT_TARGET_JAVA
+
+	static bool fwId(WTemplate *t, const std::vector<WString>& args,
+		std::ostream& result);
+
+	//Please add Java Implementation
   };
 
   /*! \brief Enumeration that indicates how a widget's ID may be set.

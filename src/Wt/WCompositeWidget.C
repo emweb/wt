@@ -12,6 +12,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WException"
 #include "Wt/WLogger"
+#include "Wt/WFormWidget"
 
 namespace Wt {
 
@@ -19,7 +20,8 @@ LOGGER("WCompositeWidget");
 
 WCompositeWidget::WCompositeWidget(WContainerWidget *parent)
   : WWidget(parent),
-    impl_(0)
+    impl_(0),
+	skipImplPropagateSetEnabled_(false)
 {
   if (parent)
     parent->addWidget(this);
@@ -223,8 +225,21 @@ bool WCompositeWidget::isVisible() const
 
 void WCompositeWidget::setDisabled(bool disabled)
 {
+  bool wasEnabled = isEnabled();
   impl_->setDisabled(disabled);
-  propagateSetEnabled(!disabled);
+
+  bool shouldBeEnabled = !disabled;
+  if(shouldBeEnabled && parent())
+	  shouldBeEnabled = parent()->isEnabled();
+
+  if(shouldBeEnabled != wasEnabled)
+  {
+	  //Skipping impl_->propagateSetEnabled() BECAUSE impl_->setDisabled() should already call it
+	  //Therefore propagateSetEnabled inherited from WCompositeWidget should work as expected without calling impl's propagateSetEnabled twice
+	  skipImplPropagateSetEnabled_ = true;
+	  propagateSetEnabled(shouldBeEnabled);
+	  skipImplPropagateSetEnabled_ = false;
+  }
 }
 
 bool WCompositeWidget::isDisabled() const
@@ -507,6 +522,20 @@ void WCompositeWidget::setImplementation(WWidget *widget)
   widget->setParentWidget(this);
 }
 
+void WCompositeWidget::setFormWidgetImpl(WFormWidget *formWidget)
+{
+  fwImpl_ = formWidget;
+}
+
+WFormWidget *WCompositeWidget::getFormWidget(WWidget *widget)
+{
+  WCompositeWidget *cw = dynamic_cast<WCompositeWidget*>(widget);
+  if(cw && cw->formWidgetImpl())
+    return cw->formWidgetImpl();
+
+  return dynamic_cast<WFormWidget*>(widget);
+}
+
 WWidget *WCompositeWidget::takeImplementation()
 {
   WWidget *result = impl_;
@@ -514,6 +543,7 @@ WWidget *WCompositeWidget::takeImplementation()
   if (result) {
     removeChild(result);
     impl_ = 0;
+    fwImpl_ = 0;
   }
 
   return result;
@@ -568,7 +598,8 @@ int WCompositeWidget::boxBorder(Orientation orientation) const
 
 void WCompositeWidget::propagateSetEnabled(bool enabled)
 {
-  impl_->webWidget()->propagateSetEnabled(enabled);
+  if(!skipImplPropagateSetEnabled_)
+    impl_->webWidget()->propagateSetEnabled(enabled);
 }
 
 }

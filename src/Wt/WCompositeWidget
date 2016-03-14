@@ -150,6 +150,9 @@ public:
   virtual void doJavaScript(const std::string& js);
   virtual void propagateSetEnabled(bool enabled);
 
+  static WFormWidget *getFormWidget(WWidget *widget);
+  WFormWidget* formWidgetImpl() { return fwImpl_; };
+
 #ifndef WT_TARGET_JAVA
   using WWidget::setFocus;
 #endif
@@ -171,6 +174,7 @@ protected:
    *       it has been rendered.
    */
   void setImplementation(WWidget *widget);
+  void setFormWidgetImpl(WFormWidget *formWidget);
  
   /*! \brief Get the implementation widget
    *
@@ -190,6 +194,8 @@ protected:
 
 private:
   WWidget *impl_;
+  WFormWidget *fwImpl_;
+  bool skipImplPropagateSetEnabled_;
 
   virtual void setLayout(WLayout *layout);
   virtual WLayout *layout();

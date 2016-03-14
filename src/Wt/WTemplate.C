@@ -13,6 +13,8 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WLogger"
 #include "Wt/WTemplate"
+#include "Wt/WCompositeWidget"
+#include "Wt/WFormWidget"
 
 #include "EscapeOStream.h"
 #include "WebUtils.h"
@@ -77,9 +79,31 @@ bool WTemplate::_id(const std::vector<WString>& args,
     } else
       return false;
   } else {
-    LOG_ERROR("Functions::tr(): expects exactly one argument");
+    LOG_ERROR("Functions::id(): expects exactly one argument");
     return false;
   }
+}
+
+bool WTemplate::_fwId(const std::vector<WString>& args,
+		    std::ostream& result)
+{
+	if(args.size() == 1) {
+		WWidget *w = this->resolveWidget(args[0].toUTF8());
+		if(w) {
+			WCompositeWidget *cw = dynamic_cast<WCompositeWidget *>(w);
+			if(cw && cw->formWidgetImpl())
+				result << cw->formWidgetImpl()->id();
+			else
+				result << w->id();
+			return true;
+		}
+		else
+			return false;
+	}
+	else {
+		LOG_ERROR("Functions::fwId(): expects exactly one argument");
+		return false;
+	}
 }
 
 #ifndef WT_TARGET_JAVA
@@ -105,6 +129,11 @@ bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
 			      std::ostream& result)
 {
   return t->_id(args, result);
+}
+
+bool WTemplate::Functions::fwId(WTemplate *t, const std::vector<WString>& args, std::ostream& result)
+{
+  return t->_fwId(args, result);
 }
 
 #else

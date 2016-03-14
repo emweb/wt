@@ -11,6 +11,7 @@
 #include "Wt/WText"
 #include "Wt/WTemplateFormView"
 #include "Wt/WTheme"
+#include "Wt/WCompositeWidget"
 
 #include "WebUtils.h"
 
@@ -143,14 +144,22 @@ void WTemplateFormView::updateViewField(WFormModel *model,
       bindWidget(var, edit);
     }
 
-    WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
-    if (fedit) {
-      if (fedit->validator() != model->validator(field) &&
-	  model->validator(field))
-	fedit->setValidator(model->validator(field));
-      updateViewValue(model, field, fedit);
-    } else
-      updateViewValue(model, field, edit);
+	WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
+    if(fedit)
+	{
+		if(fedit->validator() != model->validator(field) && model->validator(field))
+			fedit->setValidator(model->validator(field));
+
+		updateViewValue(model, field, fedit);
+    }
+	else
+	{
+		fedit = WCompositeWidget::getFormWidget(edit);
+		if(fedit && fedit->validator() != model->validator(field) && model->validator(field))
+			fedit->setValidator(model->validator(field));
+
+		updateViewValue(model, field, edit);
+	}
 
     WText *info = resolve<WText *>(var + "-info");
     if (!info) {
