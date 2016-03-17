@@ -130,11 +130,11 @@ ELSEIF(APPLE)
   ENDIF(SKIA_BASE_INCLUDE_DIR AND SKIA_CORE_LIB_R)
 ENDIF(WIN32)
 
-IF (${SKIA_FOUND})
-  # used for binary builds against older versions of skia
-  SET(WT_SKIA_OLD OFF CACHE BOOL "Use older version of skia (see WRasterImage-skia.C)")
+# used for binary builds against older versions of skia
+SET(WT_SKIA_OLD OFF CACHE BOOL "Use older version of skia (see WRasterImage-skia.C)")
+IF (SKIA_FOUND)
   IF(WT_SKIA_OLD)
     SET(SKIA_DEFINES "${SKIA_DEFINES} -DWT_SKIA_OLD")
   ENDIF(WT_SKIA_OLD)
-ENDIF (${SKIA_FOUND})
+ENDIF (SKIA_FOUND)
 

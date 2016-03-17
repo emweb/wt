@@ -726,7 +726,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  }
 	  unsigned char appendBlock[] = { 0x00, 0x00, 0xff, 0xff };
 	  bool hasMore = false;
-	  char buffer[16384];
+	  char buffer[16 * 1024];
 	  do {
 		read_ = 0;
 		bool ret1 =  inflate(reinterpret_cast<unsigned char*>(&*beg), 
@@ -737,7 +737,6 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 		reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
 
 	  } while (hasMore);
-	  
 	  bool ret2 = inflate(appendBlock, 4, reinterpret_cast<unsigned char*>(buffer), hasMore);
 	  if(!ret2) return Request::Error;
 
@@ -768,29 +767,34 @@ bool RequestParser::inflate(unsigned char* in, size_t size, unsigned char out[],
 	zInState_.avail_in = size;
 	zInState_.next_in = in;
   }
+  hasMore = true;
 
-  do {
-	zInState_.avail_out = 16384;;
-	zInState_.next_out = out;
-	int ret = ::inflate(&zInState_, Z_FINISH);
-	switch(ret) {
-	  case Z_NEED_DICT:
-		LOG_ERROR("inflate : no dictionary found in frame");
-		return false;
-	  case Z_DATA_ERROR:
-		LOG_ERROR("inflate : data error");
-		return false;
-	  case Z_MEM_ERROR:
-		LOG_ERROR("inflate : memory error");
-		return false;
-	  default:
-		break;
-	}
-	read_ += 16384 - zInState_.avail_out;
-	LOG_DEBUG("wthttp: ws: inflate - Size before " << size << " size after " << 16384 - zInState_.avail_out);
-  } while (zInState_.avail_out == 0);
+  zInState_.avail_out = 16 * 1024;
+  zInState_.next_out = out;
+  int ret = ::inflate(&zInState_, Z_FINISH);
+
+  switch(ret) {
+    case Z_NEED_DICT:
+      LOG_ERROR("inflate : no dictionary found in frame");
+      return false;
+    case Z_DATA_ERROR:
+      LOG_ERROR("inflate : data error");
+      return false;
+    case Z_MEM_ERROR:
+      LOG_ERROR("inflate : memory error");
+      return false;
+    default:
+      break;
+  }
+
+  read_ += 16384 - zInState_.avail_out;
+  LOG_DEBUG("wthttp: ws: inflate - Size before " << size << " size after " << 16384 - zInState_.avail_out);
+
+  if(zInState_.avail_out != 0)
+    hasMore = false;
+
   return true;
-}
+  }
 
 #endif
 
