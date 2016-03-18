@@ -48,7 +48,7 @@ static int MAX_FIELD_VALUE_SIZE = 80*1024;
 static int MAX_FIELD_NAME_SIZE = 256;
 static int MAX_METHOD_SIZE = 16;
 
-static int MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
+static int64_t MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
 
 #ifdef WTHTTP_WITH_ZLIB
 static int SERVER_DEFAULT_WINDOW_BITS = 15;
@@ -63,11 +63,12 @@ namespace Wt {
 namespace http {
 namespace server {
 
-RequestParser::RequestParser(Server *):
+RequestParser::RequestParser(Server * server):
 #ifdef WTHTTP_WITH_ZLIB
   inflateInitialized_(false)
 #endif
 {
+  MAX_WEBSOCKET_MESSAGE_LENGTH = server->configuration().maxMemoryRequestSize();
   reset();
 }
 
@@ -718,7 +719,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	char* beg = &*dataBegin;
 	char* end = &*dataEnd;
 #ifdef WTHTTP_WITH_ZLIB
-	if(frameCompressed_) {
+	if (frameCompressed_) {
 	  Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
 	  if (wsState_ < ws13_frame_start) {
 		if (wsFrameType_ == 0x00)
@@ -737,8 +738,10 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 		reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
 
 	  } while (hasMore);
-	  bool ret2 = inflate(appendBlock, 4, reinterpret_cast<unsigned char*>(buffer), hasMore);
-	  if(!ret2) return Request::Error;
+
+	  if (state == Request::Complete) 
+	    if(!inflate(appendBlock, 4, reinterpret_cast<unsigned char*>(buffer), hasMore))
+	      return Request::Error;
 
 	  return state;
 	}
@@ -771,7 +774,7 @@ bool RequestParser::inflate(unsigned char* in, size_t size, unsigned char out[],
 
   zInState_.avail_out = 16 * 1024;
   zInState_.next_out = out;
-  int ret = ::inflate(&zInState_, Z_FINISH);
+  int ret = ::inflate(&zInState_, Z_SYNC_FLUSH);
 
   switch(ret) {
     case Z_NEED_DICT:
