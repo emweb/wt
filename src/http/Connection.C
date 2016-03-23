@@ -276,14 +276,22 @@ void Connection::handleError(const asio_error_code& e)
 
 void Connection::handleReadBody(ReplyPtr reply)
 {
-  haveResponse_ = false;
-  waitingResponse_ = true;
+  if (request_.type != Request::WebSocket) {
+    /*
+     * For a WebSocket: reading and writing may happen in parallel,
+     * And writing and reading is asynchronous (post() from within
+     * WtReply::consumeWebSocketMessage()
+     */
+    haveResponse_ = false;
+    waitingResponse_ = true;
+  }
 
   RequestParser::ParseResult result = request_parser_
     .parseBody(request_, reply, rcv_remaining_,
 	       rcv_buffers_.back().data() + rcv_buffer_size_);
 
-  waitingResponse_ = false;
+  if (request_.type != Request::WebSocket)
+    waitingResponse_ = false;
 
   if (result == RequestParser::ReadMore) {
     readMore(reply, BODY_TIMEOUT);

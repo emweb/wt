@@ -2797,15 +2797,14 @@ void WebSession::notifySignal(const WEvent& e)
     if (!signalE)
       return;
 
-    renderer_.setRendered(true);
-
     LOG_DEBUG("signal: " << *signalE);
+
+    if (type() != WidgetSet ||
+	(*signalE != "none" && *signalE != "load"))
+      renderer_.setRendered(true);
 
     if (*signalE == "none" || *signalE == "load") {
       if (*signalE == "load") {
-	if (type() == WidgetSet)
-	  renderer_.setRendered(false);
-
 	if (!renderer_.checkResponsePuzzle(request))
 	  app_->quit();
 	else
