@@ -1611,7 +1611,7 @@ void WCartesianChart::render(WFlags<RenderFlag> flags)
 {
   WAbstractChart::render(flags);
 
-  if (flags & RenderFull | !jsDefined_) {
+  if (flags & RenderFull || !jsDefined_) {
     defineJavaScript();
   }
 }
@@ -2605,6 +2605,15 @@ bool WCartesianChart::prepareAxes() const
   Orientation yDir = orientation_;
   Orientation xDir = orientation_ == Vertical ? Horizontal : Vertical;
 
+  if (!xAxis.prepareRender(xDir, chartArea_.width()))
+    return false;
+
+  if (!yAxis.prepareRender(yDir, chartArea_.height()))
+    return false;
+
+  if (!y2Axis.prepareRender(yDir, chartArea_.height()))
+    return false;
+
   if (xAxis.scale() == CategoryScale) {
     switch (xAxis.location()) {
     case MinimumValue:
@@ -2655,15 +2664,6 @@ bool WCartesianChart::prepareAxes() const
     location_[Y2Axis] = MaximumValue;
   } else
     location_[Y2Axis] = MaximumValue;
-
-  if (!xAxis.prepareRender(xDir, chartArea_.width()))
-    return false;
-
-  if (!yAxis.prepareRender(yDir, chartArea_.height()))
-    return false;
-
-  if (!y2Axis.prepareRender(yDir, chartArea_.height()))
-    return false;
 
   return true;
 }

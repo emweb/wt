@@ -203,7 +203,6 @@ void WPaintedWidget::defineJavaScript()
   if (app && jsObjects_.size() > 0) {
     setFormObject(true);
 
-    WApplication *app = WApplication::instance();
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs2);
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs1);
 

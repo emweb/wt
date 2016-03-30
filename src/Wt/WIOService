@@ -9,6 +9,7 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/function.hpp>
 
 namespace boost {
@@ -96,6 +97,7 @@ public:
 
 private:
   WIOServiceImpl *impl_;
+  strand strand_;
   void handleTimeout(boost::asio::deadline_timer *timer,
 		     const boost::function<void ()>& function,
 		     const boost::system::error_code& e);

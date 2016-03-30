@@ -27,10 +27,14 @@ ENDIF(SKIA_BASE_INCLUDE_DIR)
 SET(SKIA_DEBUG
   ${SKIA_PREFIX}/out/gyp/Debug
   ${SKIA_PREFIX}/out/gyp/Debug/lib
+  ${SKIA_PREFIX}/out/Debug/obj/gyp
+  ${SKIA_PREFIX}/out/Debug
 )
 SET(SKIA_RELEASE
   ${SKIA_PREFIX}/out/gyp/Release
   ${SKIA_PREFIX}/out/gyp/Release/lib
+  ${SKIA_PREFIX}/out/Release/obj/gyp
+  ${SKIA_PREFIX}/out/Release
 )
 FIND_LIBRARY(SKIA_CORE_LIB_D NAMES skia_core PATHS ${SKIA_DEBUG})
 FIND_LIBRARY(SKIA_PORTS_LIB_D NAMES skia_ports PATHS ${SKIA_DEBUG})

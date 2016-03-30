@@ -930,6 +930,7 @@ void WTableView::rerenderHeader()
 
   if (ajaxMode()) {
     headers_->clear();
+    headerColumnsHeaderContainer_->clear();
 
     for (int i = 0; i < columnCount(); ++i) {
       WWidget *w = createHeaderWidget(i);

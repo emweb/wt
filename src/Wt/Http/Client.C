@@ -411,8 +411,6 @@ private:
       std::stringstream ss;
       ss << &responseBuf_;
 
-      LOG_DEBUG(ss.str());
-
       addBodyText(ss.str());
 
       // Continue reading remaining data until EOF.
@@ -447,6 +445,8 @@ private:
     } else {
       if (maximumResponseSize_)
 	response_.addBodyText(text);
+
+      LOG_DEBUG("Data: " << text);
       haveBodyData(text);
     }
   }
@@ -521,6 +521,8 @@ private:
 	std::string text = std::string(pos, pos + thisChunk);
 	if (maximumResponseSize_)
 	  response_.addBodyText(text);
+
+	LOG_DEBUG("Chunked data: " << text);
 	haveBodyData(text);
 	chunkState_.size -= thisChunk;
 	pos += thisChunk;
@@ -554,7 +556,7 @@ private:
       emitDone();
   }
 
-  void haveBodyData(const std::string& text)
+  void haveBodyData(std::string text)
   {
     if (bodyDataReceived_.isConnected()) {
       if (server_)
@@ -575,7 +577,7 @@ private:
     headersReceived_.emit(response_);
   }
 
-  void emitBodyReceived(const std::string& text) {
+  void emitBodyReceived(std::string text) {
     bodyDataReceived_.emit(text);
   }
 

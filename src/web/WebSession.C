@@ -960,6 +960,8 @@ ApplicationEvent WebSession::popQueuedEvent()
 
   ApplicationEvent result;
 
+  LOG_DEBUG("popQueuedEvent(): " << eventQueue_.size());
+
   if (!eventQueue_.empty()) {
     result = eventQueue_.front();
     eventQueue_.pop_front();
@@ -983,6 +985,8 @@ void WebSession::queueEvent(const ApplicationEvent& event)
 #endif // WT_BOOST_THREADS
 
   eventQueue_.push_back(event);
+
+  LOG_DEBUG("queueEvent(): " << eventQueue_.size());
 
 #ifdef WT_TARGET_JAVA
   eventQueueMutex_.unlock();

@@ -47,7 +47,8 @@ public:
 };
 
 WIOService::WIOService()
-  : impl_(new WIOServiceImpl())
+  : impl_(new WIOServiceImpl()),
+    strand_(*this)
 { }
 
 WIOService::~WIOService()
@@ -125,7 +126,7 @@ void WIOService::post(const boost::function<void ()>& function)
 void WIOService::schedule(int millis, const boost::function<void()>& function)
 {
   if (millis == 0)
-    boost::asio::io_service::post(function);
+    strand_.post(function); // guarantees execution order
   else {
     boost::asio::deadline_timer *timer = new boost::asio::deadline_timer(*this);
     timer->expires_from_now(boost::posix_time::milliseconds(millis));
