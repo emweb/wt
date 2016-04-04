@@ -933,21 +933,41 @@ void Client::setMaxRedirects(int maxRedirects)
 
 void Client::handleRedirect(Http::Method method, boost::system::error_code err, const Message& response, const Message& request)
 {
-  int status = response.status();
-  // Status codes 303 and 307 are implemented, although this should not
-  // occur when using HTTP/1.0
-  if (!err && (((status == 301 || status == 302 || status == 307) && method == Get) || status == 303)) {
-    const std::string *newUrl = response.getHeader("Location");
-    ++ redirectCount_;
-    if (newUrl) {
-      if (redirectCount_ <= maxRedirects_) {
-	get(*newUrl, request.headers());
-	return;
-      } else {
-	LOG_WARN("Redirect count of " << maxRedirects_ << " exceeded! Redirect URL: " << *newUrl);
+  if(!err)
+  {
+      // 301-303 non-HEAD request = new request with GET method
+      // 301-303 HEAD request, or 307-308 = new request with same method
+      auto http_status_code = response.status;
+      auto is_redirected_1 = (http_status_code > 300 && http_status_code < 304);
+      auto is_redirected_2 = (http_status_code > 306 && http_status_code < 309);
+      if(is_redirected_1 || is_redirected_2)
+      {
+          // Technically a 302 should not change the method, but browsers treat 302 as 303,
+          // which seems to meet most user expectations, hence emulating the behaviour should both be
+          // less suprising and encourage use of the explict 303/307 status codes.
+          Wt::Http::Method meth = ( is_redirected_2 || (is_redirected_1 && (method == Head))) ? method : Get;
+
+          const std::string *next_location = response.getHeader("Location");
+          if(!next_location)
+          {
+              LOG_WARN("No 'Location' header present after : " << maxRedirects_ << " redirects");
+              goto done;
+          }
+
+          ++ redirectCount_;
+          if (redirectCount_ > maxRedirects_)
+          {
+              LOG_WARN("Redirect count of " << maxRedirects_ << " exceeded! Redirect URL: " << *next_location);
+              goto done;
+          }
+
+          if(request(meth, *next_location, request))
+              return;
+
+          LOG_WARN("Scheduling request failed after : " << redirectCount_ << " redirects");
       }
-    }
   }
+done:
   emitDone(err, response);
 }
 
