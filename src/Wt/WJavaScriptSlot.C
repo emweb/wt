@@ -101,7 +101,7 @@ void JSlot::setJavaScript(const std::string& js, int nbArgs)
     WApplication::instance()->declareJavaScriptFunction(jsFunctionName(), js);
   else {
     std::stringstream ss;
-    ss << "{var f=" << js << ";f(o,e";
+    ss << "{var f=" << js << ";return f(o,e";
     for (int i = 1; i <= nbArgs; ++i) {
       ss << ",a" << i;
     }
