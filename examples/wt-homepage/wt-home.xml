@@ -5,7 +5,7 @@
       <div id="top_content">
 	${languages}
 	<div id="top_wt">
-	  <a href="http://www.emweb.be/">
+	  <a href="//www.emweb.be/">
 	    <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
 	  </a>
 	</div>
@@ -37,16 +37,16 @@
     <div id="footer_wrapper">
       <div id="footer_content">
 	<div id="footer_copyright"> 
-	  <a href="http://www.emweb.be/">
+	  <a href="//www.emweb.be/">
 	    <img src="/css/wt/emweb_large.jpg" height="25" width="101"
 		 alt="Emweb.be" title="emweb.be"/></a>
 	  Solutions for web-based systems<br/>
-	  <a href="http://www.emweb.be/">www.emweb.be</a>
+	  <a href="//www.emweb.be/">www.emweb.be</a>
 	</div>
 
 	<div id="footer_menu"> 
-	  <a href="http://www.webtoolkit.eu/wt">Home</a>
-	  | <a href="http://www.emweb.be/contact">Contact</a>
+	  <a href="//www.webtoolkit.eu/wt">Home</a>
+	  | <a href="//www.emweb.be/contact">Contact</a>
 
 	</div>
 
@@ -54,7 +54,7 @@
 	<script type="text/javascript">
 	    /*<![CDATA[*/
 	  setTimeout(function() {
-	    loadScript("http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
+	    loadScript("//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
 	  }, 0);
             /* ]]> */
 	</script>
@@ -150,26 +150,26 @@ with other web servers.</p>
 
 <ul>
 <li>Layout using <a
-href="http://www.webtoolkit.eu/widgets/layout/html-templates">HTML
+href="//www.webtoolkit.eu/widgets/layout/html-templates">HTML
 templates</a> or intelligent <a
-href="http://www.webtoolkit.eu/widgets/layout/layout-managers">layout
+href="//www.webtoolkit.eu/widgets/layout/layout-managers">layout
 managers</a> and themable look-and-feel, including support for <a
 href="http://getbootstrap.com">Twitter Bootstrap</a> versions 2 or 3.</li>
 <li>Create and maintain complexity by using and building reusable and
 self-contained widgets.</li>
-<li>Comes with a large set of feature-rich widgets that include <a href="http://www.webtoolkit.eu/widgets/forms/">form
-widgets</a>, <a href="http://www.webtoolkit.eu/widgets/trees-tables/mvc-table-views">table</a> and <a
-href="http://www.webtoolkit.eu/widgets/trees-tables/mvc-tree-views">tree
+<li>Comes with a large set of feature-rich widgets that include <a href="//www.webtoolkit.eu/widgets/forms/">form
+widgets</a>, <a href="//www.webtoolkit.eu/widgets/trees-tables/mvc-table-views">table</a> and <a
+href="//www.webtoolkit.eu/widgets/trees-tables/mvc-tree-views">tree
 views</a>, <a
-href="http://www.webtoolkit.eu/widgets/layout/dialogs">dialogs</a>, <a
-href="http://www.webtoolkit.eu/widgets/navigation/popup-menu">popup
+href="//www.webtoolkit.eu/widgets/layout/dialogs">dialogs</a>, <a
+href="//www.webtoolkit.eu/widgets/navigation/popup-menu">popup
 menu's</a>, etc...</li>
 <li>Unified <a
-href="http://www.webtoolkit.eu/widgets/graphics-charts">graphics</a>
+href="//www.webtoolkit.eu/widgets/graphics-charts">graphics</a>
 APIs, 2D (SVG, HTML5 Canvas, VML, PNG, and PDF) &amp; 3D (client side
 WebGL and server-side OpenGL).</li>
 <li>Feature rich <a
-href="http://www.webtoolkit.eu/widgets/media/pdf-output">HTML
+href="//www.webtoolkit.eu/widgets/media/pdf-output">HTML
 to PDF renderer</a> for dynamic report generation.</li>
 <li>Elegant template-based C++ Database abstraction layer (Wt::Dbo)</li>
 <li>Built-in security against common vulnerabiliets such as <a
@@ -286,7 +286,7 @@ the library can also be used for other applications, and does not
 depend on Wt.
 
 The ORM library (see also <a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">this
+href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">this
 tutorial</a>) has the following features:
 
 <ul>
@@ -320,7 +320,7 @@ tutorial</a>) has the following features:
 
 With Wt, event handling code constructs and manipulates a widget tree,
 which can easily be inspected by test code. Therefore, a <a href="
-http://webtoolkit.eu/wt/doc/reference/html/classWt_1_1Test_1_1WTestEnvironment.html">test
+//webtoolkit.eu/wt/doc/reference/html/classWt_1_1Test_1_1WTestEnvironment.html">test
 environment</a> allows your application to be instantiated and events
 to be simulated in absence of a browser, short-cutting the underlying
 request/response cycle that would otherwise require a simulated browser.
@@ -381,7 +381,7 @@ option is a matter of (re)linking to one of these connector libraries!
 
 <p>
   Cross-linked source code for these examples is also in
-  <a href="http://www.webtoolkit.eu/wt/doc/examples/html/modules.html" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/doc/examples/html/modules.html" target="_blank">
   doxygen documentation (in a new window)</a>.
 </p>
 
@@ -391,7 +391,7 @@ option is a matter of (re)linking to one of these connector libraries!
 <h4 class="example">Hello world!</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/hello/hello.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/hello/hello.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
@@ -401,7 +401,7 @@ option is a matter of (re)linking to one of these connector libraries!
   <li>
     How to make a minimal Wt application, using <b>WRun()</b> to start
     the web server, and a function to create a new <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html"
     target="_blank">WApplication</a>, corresponding to a new session.
   </li>
   <li>
@@ -437,9 +437,9 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
 
 <p>
   Navigation is provided by a <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenu.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenu.html"
   target="_blank">WMenu</a> and <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTabWidget.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTabWidget.html"
   target="_blank">WTabWidget</a>. These widgets share the same feature
   set. For Ajax sessions, they support <b>pre-loading</b> and <b>lazy
   loading</b> of the contents associated with each item. Pre-loaded
@@ -455,7 +455,7 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
   therefore results in <b>client-side</b> event handling
   code. Optionally, CSS3 animations can be used to animate the
   transition of contents managed by a <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStackedWidget.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStackedWidget.html"
   target="_blank">WStackedWidget</a>.
 </p>
 
@@ -463,7 +463,7 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
   URLs are associated with each menu/tab entry, and in this way
   participate in browser navigation history and bookmarking. When the
   user browses through the history, the menu reacts
-  to <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html#a674fd6a2522d66d07908e8f3d82424a9"
+  to <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html#a674fd6a2522d66d07908e8f3d82424a9"
   target="_blank">navigation events</a>. Similarly, when a user
   bookmarks a URL to revisit it later, or follows an external link to
   your application, the menu reacts to the initial internal
@@ -485,7 +485,7 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
 <h4 class="example">Treeview</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
@@ -495,15 +495,15 @@ Views (WTreeView, WTableView and PieChart) and models.
 
 <ul>
   <li>
-    The example uses <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html"
+    The example uses <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html"
     target="_blank">WTreeView</a>
-    and <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
+    and <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
     target="_blank">WTableView</a> widgets for rendering a Model's
     data in a tree or a table.
   </li>
   <li>
     A <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
     target="_blank">WSortFilterProxyModel</a>
     implement sorting and filtering for another model.
   </li>
@@ -513,18 +513,18 @@ Views (WTreeView, WTableView and PieChart) and models.
   <li>
     You can use nested layout managers (horizontal and
     vertical
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
       WBoxLayout</a>)
     for an automatic window-filling layout, with optional resize handles.
   </li>
   <li>
     Modal (and non-modal) <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WDialog.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WDialog.html"
     target="_blank">dialogs</a> can be used to prompt for input.
   </li>
   <li>
     You may show a context-sensitive
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
       WPopupMenu</a>.
   </li>
 </ul>
@@ -536,28 +536,28 @@ Views (WTreeView, WTableView and PieChart) and models.
 <h4 class="example">Charts example</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/charts/charts.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/charts/charts.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
 <p>This example demonstrates the <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/group__charts.html" target="_blank">Wt
+href="//www.webtoolkit.eu/wt/doc/reference/html/group__charts.html" target="_blank">Wt
 charting widgets</a> that are implemented on top of Wt's cross-browser
 painting API. This painting API uses built-in browser support for
 generating high quality graphics. Depending on the browser,
 inline VML, inline SVG, HTML5 canvas, or a PNG image is used to
 render painted contents in a <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
 target="_blank">WPaintedWidget</a>.
 </p>
 
 <p>This example also demonstrates how a Model can be shared by several
 Views, and pass modification events to each connected View. The <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
+href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
 target="_blank">table view</a> and the chart implement a <i>View</i>
 on the same <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
 target="_blank">item model</a>.</p>
 </div>
   </message>
@@ -567,7 +567,7 @@ target="_blank">item model</a>.</p>
 <h4 class="example">Git explorer</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
@@ -575,17 +575,17 @@ target="_blank">item model</a>.</p>
 <p>
   This example serves as a demo for a custom model implementation which can
   be used by Wt's item View classes, such as
-  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
     WTreeView</a>.
 </p>
 <p>
   A <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStandardItemModel"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStandardItemModel.html"
   target="_blank">WStandardItemModel</a> can be populated with data
   retrieved from for example a database. A draw-back is however that
   all data must be retrieved in advance and is kept in session
   memory. By reimplementing <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
   target="_blank">WAbstractItemModel</a>, you can however implement a
   model that reads (or computes) the data only when needed, and
   provides a trade-off between keeping data in memory or fetching it
@@ -597,7 +597,7 @@ target="_blank">item model</a>.</p>
   git. Initially we thought the SHA-1 id's could be used, but folders
   with the same content in different places of the git repository have
   the same SHA-1 ID's while representing different <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WModelIndex.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WModelIndex.html"
   target="_blank">model indexes</a>.
 </p>
 </div>
@@ -608,7 +608,7 @@ target="_blank">item model</a>.</p>
 <h4 class="example">Mail composer</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/composer/composer.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/composer/composer.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
@@ -624,15 +624,15 @@ target="_blank">item model</a>.</p>
     <li>
       The <i>ContactSuggestions</i> class provides auto-completion of
       the addressees in the To: Cc: and Bcc: fields. The widget
-      derives from <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
+      derives from <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
 	     target="_blank">WSuggestionPopup</a>.
     </li>
     <li>
       The <i>AttachmentEdit</i> widget uses a <a
-      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileUpload.html"
+      href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileUpload.html"
       target="_blank">WFileUpload</a> to asynchronously
       upload files. The upload <a
-      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WProgressBar.html"
+      href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WProgressBar.html"
       target="_blank">progress bar</a> will work even in IE6.
     </li>
     <li>
@@ -654,7 +654,7 @@ target="_blank">item model</a>.</p>
 <h4 class="example">Simple Chat</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a> (or ventilate your thoughts down here)
 </p>
@@ -680,7 +680,7 @@ target="_blank">item model</a>.</p>
   embedded the chat also in this very homepage as follows:
 </p>
   <pre>    &lt;div id="chat"&gt;&lt;/div&gt;
-    &lt;script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"&gt;&lt;/script&gt;</pre>
+    &lt;script src="//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"&gt;&lt;/script&gt;</pre>
 <p>
   This uses Cross-Origin Ajax/WebSocket requests (if the browser
   supports this, falling back to old tricks if not) to communicate
@@ -707,7 +707,7 @@ target="_blank">item model</a>.</p>
 <h4 class="example">Hangman</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/hangman-game/hangman.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/hangman-game/hangman.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
@@ -722,9 +722,9 @@ target="_blank">item model</a>.</p>
 <ul>
   <li>
     Different approaches to layout: using an <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
     target="_blank">HTML template</a>, a <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
     target="_blank">layout manager</a>, or by compositing basic
     widgets and CSS.
   </li>
@@ -737,21 +737,21 @@ target="_blank">item model</a>.</p>
 
   <li>
     Navigation is implemented using <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
     target="_blank">WAnchor</a> which reference an internal path.
     Action is taken by reacting to internal path changes.
   </li>
 
   <li>
     The example uses <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/group__auth.html">the
+    href="//www.webtoolkit.eu/wt/doc/reference/html/group__auth.html">the
     authentication module (Wt::Auth)</a> to authenticate users using a
     username/password, or using Google's beta OAuth 2.0 service.
   </li>
 
   <li>
     A database which contains user information is accessed and updated
-    using <a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>.
+    using <a href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>.
   </li>
 </ul>
 
@@ -764,7 +764,7 @@ target="_blank">item model</a>.</p>
 <h4 class="example">Widget gallery</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/widgets" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/widgets" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Go to widget gallery
   </a>
 </p>
@@ -879,11 +879,11 @@ version released during one year.
     </th>
     <td class="multiline">
       <div><span class="price">&euro;175</span> <span class="cart" /></div>
-      <div><a href="http://www.webtoolkit.eu/wt/license/WtDbo%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
+      <div><a href="//www.webtoolkit.eu/wt/license/WtDbo%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
     </td>
     <td class="multiline">
       <div><span class="price">&euro;599</span> <span class="cart" /></div>
-      <div><a href="http://www.webtoolkit.eu/wt/license/Wt%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
+      <div><a href="//www.webtoolkit.eu/wt/license/Wt%20License%20Agreement.pdf" class="smallprint">(license text)</a></div>
     </td>
   </tr>
 </table>
@@ -953,7 +953,7 @@ download software using <tt>wget</tt>.
 
 <p>
 Download the package
-(<a href="http://www.webtoolkit.eu/packages/winst-0.4.tar.gz">winst-0.4.tar.gz</a>)
+(<a href="//www.webtoolkit.eu/packages/winst-0.4.tar.gz">winst-0.4.tar.gz</a>)
 or get the latest git version:
 <div class="fragment">
   <pre class="fragment">$ git clone git://github.com/kdeforche/winst.git</pre>
@@ -991,11 +991,11 @@ features in Wt:
 
   <li><a href="http://www.openssl.org/">OpenSSL</a>: if available,
     then the HTTPS protocol will be supported by the web client
-    (<a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Http_1_1Client.html">Http::Client</a>) and web server (wthttp connector)
+    (<a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Http_1_1Client.html">Http::Client</a>) and web server (wthttp connector)
   </li>
   <li><a href="https://github.com/libharu/libharu/wiki">libharu</a>: if
     available, a
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
     paint device will be included, which provides rendering support for PDF
     documents. For more complete support for TrueType fonts and Unicode, you'll
     want <a href="https://github.com/libharu/libharu">the latest git version</a>
@@ -1004,7 +1004,7 @@ features in Wt:
   </li>
   <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>: if
     available,
-    a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
+    a <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
     paint device will be included, which outputs to raster images like PNG
     or GIF.</li>
   <li><a href="http://www.pango.org/">pango</a> (LGPL): if available,
@@ -1017,7 +1017,7 @@ features in Wt:
     href="http://mariadb.org/">MariaDB</a>, and <a
     href="http://firebirdsql.org">Firebird</a>: if available,
     connectors for these databases for the ORM library (<a
-    href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">
+    href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">
     Wt::Dbo</a>) will be built (alongside the Sqlite3 connector which
     is distributed with Wt).
   </li>
@@ -1062,7 +1062,7 @@ the browser:</p>
 </ul>
 
 Follow the <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">Installation
+href="//www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">Installation
 instructions</a> to build Wt and run the examples, or see if your
 platform is listed in the <a
 href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">platform specific
@@ -1090,7 +1090,7 @@ Alternatively checkout the repository using:
 <h4>Support and Training</h4>
 
 <p>
-  You can get <a href="http://www.emweb.be/services">support and
+  You can get <a href="//www.emweb.be/services">support and
   training</a> directly from the library authors, with a
   guaranteed three-day response time.
 </p>
@@ -1110,7 +1110,7 @@ Alternatively checkout the repository using:
 
 <p>
   To get up to speed with Wt and/or Wt::Dbo, you may also obtain <a
-  href="http://www.emweb.be/services">training</a> directly from
+  href="//www.emweb.be/services">training</a> directly from
   the library authors.
 </p>
 
@@ -1119,7 +1119,7 @@ Alternatively checkout the repository using:
 <p>
 The software was originally developed by <a
 href="mailto:koen@emweb.be">Koen Deforche</a>, and is currently
-maintained by <a href="http://www.emweb.be/">Emweb bvba</a>.</p>
+maintained by <a href="//www.emweb.be/">Emweb bvba</a>.</p>
 
 <p>We are greateful to these projects from which we borrowed code:</p>
 <ul>
@@ -1160,7 +1160,7 @@ organisations:</p>
 <p>
 <table>
   <tr>
-    <td class="sponsor-logo"><a href="http://www.emweb.be/">
+    <td class="sponsor-logo"><a href="//www.emweb.be/">
       Emweb bvba</a>
     </td>
     <td class="sponsor-role">
@@ -1187,7 +1187,7 @@ widgets, widget sets, and core improvements.</p>
 commercial license, and to legally protect the code base of Wt as a
 whole by one entity without having to worry about the copyrights for
 different pieces, we require a copyright assignment from contributors
-to <a href="http://www.emweb.be/">Emweb</a> before
+to <a href="//www.emweb.be/">Emweb</a> before
 accepting the contribution.</p>
 
 <h4>Translations</h4>
@@ -1214,7 +1214,7 @@ in other languages:
 <div>
 <img class="java-language-icon" src="/icons/java-logo.png" alt="Java"></img>
 
-You can use <a href="http://www.webtoolkit.eu/jwt">JWt</a>, a native <b>Java</b> version of Wt
+You can use <a href="//www.webtoolkit.eu/jwt">JWt</a>, a native <b>Java</b> version of Wt
 developed and maintained together with the C++ version. It has, with
 few exceptions, the same features as Wt, but runs natively in the JVM
 and can be deployed into any Servlet container.
@@ -1278,7 +1278,7 @@ the "Hello World!" program in Jython in <a href="http://www.nan-tic.com/en/from-
 
 <p>
 Generic installation instructions (UNIX)
-are <a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">here</a>, which
+are <a href="//www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">here</a>, which
 are also included in the source package (INSTALL or INSTALL.html).</p>
 <p>
 In addition, the <a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Wt
@@ -1292,27 +1292,27 @@ specific installation notes</a>.
 <ul>
 <li>Learn about the benefits of Wt compared to traditional web
 application frameworks using our <a
-href="http://www.webtoolkit.eu/doc/Wt-WhitePaper.pdf">white
+href="//www.webtoolkit.eu/doc/Wt-WhitePaper.pdf">white
 paper</a>.</li>
 
 <li>The <a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/wt.html">online
+href="//www.webtoolkit.eu/wt/doc/tutorial/wt.html">online
 tutorial</a> (<a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/wt.pdf">download
+href="//www.webtoolkit.eu/wt/doc/tutorial/wt.pdf">download
 PDF</a>) brings you up to speed on developing web applications using
 Wt (revised December 2011).</li>
 
 <li>The ORM framework (Wt::Dbo) is covered in a separate <a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo.html">online
+href="//www.webtoolkit.eu/wt/doc/tutorial/dbo.html">online
 tutorial</a> (<a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo.pdf">download
+href="//www.webtoolkit.eu/wt/doc/tutorial/dbo.pdf">download
 PDF</a>) (revised July 2011).</li>
 
 <li>Dr Dobbs Journal has a good <a href="http://www.ddj.com/cpp/206401952">
 introductary article on Wt</a> (February 2008).</li>
 
 <li>The reference manual contains a <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html">library
+href="//www.webtoolkit.eu/wt/doc/reference/html/overview.html">library
 overview</a> which is recommended reading with information about
 configuration and deployment options.</li>
 
@@ -1325,14 +1325,14 @@ the <a href="#/examples/">hello world example</a>.</li>
 <h4>Reference manual</h4>
 
 <p>The <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/index.html"
+href="//www.webtoolkit.eu/wt/doc/reference/html/index.html"
 target="_blank"> reference manual</a> has been generated from the
 source code using doxygen.</p>
 
 <h4>Annotated examples</h4>
 
 <p>Source-level documentation has also been generated for the examples
-and can be viewed <a href="http://www.webtoolkit.eu/wt/doc/examples/html/modules.html"
+and can be viewed <a href="//www.webtoolkit.eu/wt/doc/examples/html/modules.html"
 target="_blank">here (in a new window)</a>.</p>
 
 <h4>Wiki</h4>

@@ -591,6 +591,8 @@ WT_DECLARE_WT_MEMBER
 	       if (!item.span || item.span[dir] == 1) {
 		 if (wPreferred > dPreferred)
 		   dPreferred = wPreferred;
+		 if (wMinimum > dMinimum)
+		   dMinimum = wMinimum;
 	       } else
 		 spanned = true;
 	     } else {
@@ -776,7 +778,6 @@ WT_DECLARE_WT_MEMBER
       * mark the corresponding cell as dirty if the TOTAL_PREFERRED_SIZE
       * has changed (or force).
       */
-
      if (parent && parentItemWidget.id) {
        var piw = WT.$(parentItemWidget.id);
        if (piw) {

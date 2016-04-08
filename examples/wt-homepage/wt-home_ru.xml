@@ -5,7 +5,7 @@
       <div id="top_content">
 	${languages}
 	<div id="top_wt">
-	  <a href="http://www.emweb.be/">
+	  <a href="//www.emweb.be/">
 	    <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
 	  </a>
 	</div>
@@ -37,21 +37,21 @@
     <div id="footer_wrapper">
       <div id="footer_content">
 	<div id="footer_copyright"> 
-	  <a href="http://www.emweb.be/">
+	  <a href="//www.emweb.be/">
 	    <img src="/css/wt/emweb_large.jpg" height="25" width="101"
 		 alt="Emweb.be" title="emweb.be"/></a>
 	  Решения для систем на базе web<br/>
-	  <a href="http://www.emweb.be/">www.emweb.be</a>
+	  <a href="//www.emweb.be/">www.emweb.be</a>
 	</div>
 
 	<div id="footer_menu"> 
-	  <a href="http://www.webtoolkit.eu/wt">Главная</a>
-	  | <a href="http://www.emweb.be/contact">Контакты</a>
+	  <a href="//www.webtoolkit.eu/wt">Главная</a>
+	  | <a href="//www.emweb.be/contact">Контакты</a>
 
 	</div>
 
 	<div id="chat"></div>
-	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
+	<script src="//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
 
 	<div class="clearall"></div>
       </div>
@@ -302,7 +302,7 @@ Ajax-приложения, если это оказывается возможн
 
 <h4>Компоненты GUI</h4>
 
-Смотрите <a href="http://www.webtoolkit.eu/widgets">Галерею
+Смотрите <a href="//www.webtoolkit.eu/widgets">Галерею
 виджетов</a> для интерактивного обзора встроенной функциональности.
 
 <h4>Встроенная безопасность</h4>
@@ -343,7 +343,7 @@ Wt имеет в своём составе Wt::Dbo, самодостаточну
 для оффлайн и других приложений (она не зависит от Wt).
 
 Библиотека ORM (которая заслуживает отдельного рассмотрения, изложенного в <a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">этом
+href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">этом
 пособии</a>) обладает следующими возможностями:
 
 <ul>
@@ -447,7 +447,7 @@ href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">этом
 
 <p>
   Исходный код этих примеров также доступен из
-  <a href="http://www.webtoolkit.eu/wt/doc/examples/html/modules.html" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/doc/examples/html/modules.html" target="_blank">
   документации, сгенерированной системой doxygen (в новом окне)</a>.
 </p>
 
@@ -457,7 +457,7 @@ href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">этом
 <h4 class="example">Здравствуй, мир!</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/hello/hello.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/hello/hello.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/> Запуск
   </a>
 </p>
@@ -467,7 +467,7 @@ href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">этом
   <li>
     Создание минимального приложения Wt, используя <b>WRun()</b> для запуска
     web-сервера, и функцию создания объекта <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html"
     target="_blank">WApplication</a>, представляющего новую сессию.
   </li>
   <li>
@@ -505,9 +505,9 @@ target="_blank">прекрасное введение в Wt</a>, написан�
 
 <p>
   Навигация обеспечивается посредством <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenu.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenu.html"
   target="_blank">WMenu</a> и <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTabWidget.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTabWidget.html"
   target="_blank">WTabWidget</a>. Эти виджеты обладают схожим набором
   возможностей. Для сессий Ajax они поддерживают <b>предзагрузку</b> и
   <b>отложенную загрузку</b> содержимого, ассоциированного
@@ -524,7 +524,7 @@ target="_blank">прекрасное введение в Wt</a>, написан�
   slots) C++, и, следовательно, в результате этого код обработки событий
   выполняется на <b>стороне клиента</b>. По желанию, с помощью CSS3 можно
   украсить смену содержимого виджета <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStackedWidget.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStackedWidget.html"
   target="_blank">WStackedWidget</a> анимацией.
 </p>
 
@@ -532,7 +532,7 @@ target="_blank">прекрасное введение в Wt</a>, написан�
   С каждым пунктом меню или вкладкой ассоциирован URL, что позволяет
   им сохраняться в истории браузера и закладках. Когда пользователь
   просматривает страницы в истории, меню  <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html#a674fd6a2522d66d07908e8f3d82424a9"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html#a674fd6a2522d66d07908e8f3d82424a9"
   target="_blank">адекватно реагирует</a>.
   Аналогично, когда пользователь добавляет URL в закладки с тем, чтобы
   посетить его позже, или переходит по некой (внешней) ссылке к приложению,
@@ -555,7 +555,7 @@ target="_blank">прекрасное введение в Wt</a>, написан�
 <h4 class="example">Treeview</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Запуск
   </a>
 </p>
@@ -565,15 +565,15 @@ target="_blank">прекрасное введение в Wt</a>, написан�
 
 <ul>
   <li>
-    Пример использует виджеты <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html"
+    Пример использует виджеты <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html"
     target="_blank">WTreeView</a>
-    и <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
+    и <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
     target="_blank">WTableView</a> для отображения данных модели
     в древовидном или табличном виде.
   </li>
   <li>
     Класс <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
     target="_blank">WSortFilterProxyModel</a>
     обеспечивает сортировку и фильтрацию данных другой модели.
   </li>
@@ -583,19 +583,19 @@ target="_blank">прекрасное введение в Wt</a>, написан�
   <li>
     Вы можете использовать вложенные менеджеры компоновки (горизонтальной и
     вертикальной
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
       WBoxLayout</a>)
     для автоматической компоновки в пределах окна, и, по желанию, задавать
     нужные размеры.
   </li>
   <li>
     Для ввода данных могут быть использованы модальные (или немодальные) <a
-    href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WDialog.html"
+    href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WDialog.html"
     target="_blank">диалоги</a>.
   </li>
   <li>
     Можно пользоваться контекстным меню
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
       WPopupMenu</a>.
   </li>
 </ul>
@@ -607,29 +607,29 @@ target="_blank">прекрасное введение в Wt</a>, написан�
 <h4 class="example">Графики (диаграммы)</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/charts/charts.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/charts/charts.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Запуск
   </a>
 </p>
 
 <p>Этот пример демонстрирует <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/group__charts.html" target="_blank">виджеты Wt
+href="//www.webtoolkit.eu/wt/doc/reference/html/group__charts.html" target="_blank">виджеты Wt
 для рисования графиков (диаграмм)</a>, которые реализованы на основе
 кросс-браузерного API рисования. Этот API использует возможности самих
 браузеров для отрисовки высококачественной графики. В зависимости от браузера,
 встроенный VML, встроенный SVG, HTML 5 canvas, или изображение PNG
 используется для отрисовки содержимого в <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
 target="_blank">WPaintedWidget</a>.
 </p>
 
 <p>Этот пример также демонстрирует то, как одна модель может быть использована
 несколькими видами, и как она может оповещать об изменениях каждый из этих
 видов. <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
+href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableView.html"
 target="_blank">Табличный вид</a> и диаграмма образуют <i>вид</i>
 на базе одной <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
 target="_blank">модели элементов</a>.</p>
 </div>
   </message>
@@ -639,7 +639,7 @@ target="_blank">модели элементов</a>.</p>
 <h4 class="example">Обозреватель Git</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Запуск
   </a>
 </p>
@@ -647,17 +647,17 @@ target="_blank">модели элементов</a>.</p>
 <p>
   Этот пример служит демонстрацией реализации специфической модели данных,
   которая может быть использована такими классами видов, как
-  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
     WTreeView</a>.
 </p>
 <p>
   <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStandardItemModel"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WStandardItemModel.html"
   target="_blank">WStandardItemModel</a> может быть наполнена данными,
   полученными, например, из базы данных. Недостаток заключается в том, что все
   данные при этом должны быть получены заранее и находиться в памяти сессии.
   Однако, наследуя  <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
   target="_blank">WAbstractItemModel</a>, Вы можете реализовать модель
   которая получает (или вычисляет) данные только при необходимости,
   обеспечивая компромис между размещением данных в памяти или получением их
@@ -671,7 +671,7 @@ target="_blank">модели элементов</a>.</p>
   идентификаторов подойдут суммы SHA-1, однако папки с одинаковым содержимым
   в разных частях репозитория git обладают одинаковыми идентификаторами SHA-1,
   тогда как на деле они представляются различными <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WModelIndex.html"
+  href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WModelIndex.html"
   target="_blank">индексами модели</a>.
 </p>
 </div>
@@ -682,7 +682,7 @@ target="_blank">модели элементов</a>.</p>
 <h4 class="example">Почтовый редактор</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/composer/composer.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/composer/composer.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Запуск
   </a>
 </p>
@@ -699,15 +699,15 @@ target="_blank">модели элементов</a>.</p>
     <li>
       Класс <i>ContactSuggestions</i> осуществляет авто-подстановку
       адресов в поля To: Cc: и Bcc:. Виджет наследует
-      класс <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
+      класс <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
 	     target="_blank">WSuggestionPopup</a>.
     </li>
     <li>
       Виджет <i>AttachmentEdit</i> использует <a
-      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileUpload.html"
+      href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileUpload.html"
       target="_blank">WFileUpload</a> для асинхронной
       загрузки файлов. <a
-      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WProgressBar.html"
+      href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WProgressBar.html"
       target="_blank">Индикатор выполнения загрузки</a> будет работать даже
       в IE6.
     </li>
@@ -731,7 +731,7 @@ target="_blank">модели элементов</a>.</p>
 <h4 class="example">Простой чат</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Запуск
   </a> (или дайте волю своим мыслям в окне чата внизу)
 </p>
@@ -759,7 +759,7 @@ target="_blank">модели элементов</a>.</p>
   разместили чат прямо на домашней странице следующим образом:
 </p>
   <pre>    &lt;div id="chat"&gt;&lt;/div&gt;
-    &lt;script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"&gt;&lt;/script&gt;</pre>
+    &lt;script src="//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"&gt;&lt;/script&gt;</pre>
 <p>
   Это работает посредством кросс-доменных (Cross-Origin) Ajax/WebSocket
   запросов (если имеется поддержка со стороны браузера, а если нет, - то
@@ -787,7 +787,7 @@ target="_blank">модели элементов</a>.</p>
 <h4 class="example">Виселица</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/hangman/hangman.wt" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/wt/examples/hangman/hangman.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/> Запуск
   </a>
 </p>
@@ -802,9 +802,9 @@ target="_blank">модели элементов</a>.</p>
 <ul>
   <li>
     Различные подходы к компоновке:
-    с помощью <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
+    с помощью <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTemplate.html"
     target="_blank">шаблона HTML</a>,
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WBoxLayout.html"
     target="_blank">менеджера компоновки</a>, или совмещая простые
     виджеты и CSS.
   </li>
@@ -815,13 +815,13 @@ target="_blank">модели элементов</a>.</p>
   </li>
   <li>
     Навигация реализована
-    с помощью <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
+    с помощью <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAnchor.html"
     target="_blank">WAnchor</a> который ссылается на внутренний путь. Дейстие выполняется
     по реакции на смену внутреннего пути.
   </li>
   <li>
     Работа с базой данных, содержащей информацию о пользователе, осуществляется
-    посредством <a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>.
+    посредством <a href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>.
   </li>
 </ul>
 
@@ -834,7 +834,7 @@ target="_blank">модели элементов</a>.</p>
 <h4 class="example">Галерея виджетов</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/widgets" class="run" target="_blank">
+  <a href="//www.webtoolkit.eu/widgets" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Перейти в галерею виджетов
   </a>
 </p>
@@ -927,11 +927,11 @@ Wt::Dbo) для разработки приложений, используя с
     </th>
     <td class="multiline">
       <div><span class="price">&euro;175</span> <span class="cart" /></div>
-      <div><a href="http://www.webtoolkit.eu/wt/license/Wt%20License%20Agreement.pdf" class="smallprint">(текст лицензии на английском)</a></div>
+      <div><a href="//www.webtoolkit.eu/wt/license/Wt%20License%20Agreement.pdf" class="smallprint">(текст лицензии на английском)</a></div>
     </td>
     <td class="multiline">
       <div><span class="price">&euro;599</span> <span class="cart" /></div>
-      <div><a href="http://www.webtoolkit.eu/wt/license/WtDbo%20License%20Agreement.pdf" class="smallprint">(текст лицензии на английском)</a></div>
+      <div><a href="//www.webtoolkit.eu/wt/license/WtDbo%20License%20Agreement.pdf" class="smallprint">(текст лицензии на английском)</a></div>
     </td>
   </tr>
 </table>
@@ -986,10 +986,10 @@ Wt::Dbo) для разработки приложений, используя с
 
 <p>
 Загрузите пакет
-(<a href="http://www.webtoolkit.eu/packages/winst-0.3.tar.gz">winst-0.3.tar.gz</a>)
+(<a href="//www.webtoolkit.eu/packages/winst-0.3.tar.gz">winst-0.3.tar.gz</a>)
 или получите последнюю версию git:
 <div class="fragment">
-  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/winst.git</pre>
+  <pre class="fragment">$ git clone git://github.com/kdeforche/winst.git</pre>
 </div>
 </p>
 
@@ -1021,19 +1021,19 @@ Wt дополнительными возможностями:
 <ul>
   <li><a href="http://www.postgresql.org/">PostgreSQL</a>: если
     доступен, то будет доступен и
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">коннектор postgres</a> для ORM библиотеки
-    (<a href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>).
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">коннектор postgres</a> для ORM библиотеки
+    (<a href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>).
    </li>
   <li><a href="https://github.com/libharu/libharu/wiki">libharu</a>: если
     доступен, то будет доступен и класс
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>,
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>,
     который позволяет формировать данные в PDF. Для более полной
     поддержки шрифтов TrueType и Юникода, Вам потребуется
     <a href="https://github.com/kdeforche/libharu">модифицированная libharu</a>.
   </li>
   <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>: если
     доступен, то будет доступен и класс
-    <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>,
+    <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>,
     который позволяет формировать растровые изображения, такие как PNG
     или GIF.</li>
   <li><a href="http://www.pango.org/">pango</a> (LGPL): если доступен, то
@@ -1083,7 +1083,7 @@ Wt дополнительными возможностями:
 </ul>
 
 Следуйте <a
-href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">инструкциям
+href="//www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">инструкциям
 по установке</a> для сборки Wt и запуска примеров, или смотрите
 <a
 href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">инструкции по
@@ -1108,7 +1108,7 @@ href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">инстр�
 <h4>Поддержка и обучение</h4>
 
 <p>
-  Вы можете приобрести <a href="http://www.emweb.be/services">поддержку и
+  Вы можете приобрести <a href="//www.emweb.be/services">поддержку и
   обучение</a> с гарантией ответа в течении трёх дней прямо от авторов
   библиотеки.
 </p>
@@ -1129,7 +1129,7 @@ href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">инстр�
 
 <p>
   Чтобы быстро вникнуть в Wt и/или Wt::Dbo, Вы также можете приобрести <a
-  href="http://www.emweb.be/services">тренинг</a> прямо от авторов
+  href="//www.emweb.be/services">тренинг</a> прямо от авторов
   библиотеки.
 </p>
 
@@ -1138,7 +1138,7 @@ href="http://redmine.webtoolkit.eu/projects/wt/wiki/Wt_Installation">инстр�
 <p>
 Данное программное обеспечение было изначально разработано <a
 href="mailto:koen@emweb.be">Коеном Дефоржем (Koen Deforche)</a>, и в настоящее
-время сопровождается фирмой <a href="http://www.emweb.be/">Emweb bvba</a>.</p>
+время сопровождается фирмой <a href="//www.emweb.be/">Emweb bvba</a>.</p>
 
 <p>Мы признательны проектам, у которых позаимствовали код:</p>
 <ul>
@@ -1173,7 +1173,7 @@ href="http://redmine.webtoolkit.eu/projects/wt/wiki">Вики Wt</a>, содер
 <p>
 <table>
   <tr>
-    <td class="sponsor-logo"><a href="http://www.emweb.be/">
+    <td class="sponsor-logo"><a href="//www.emweb.be/">
       Emweb bvba</a>
     </td>
     <td class="sponsor-role">
@@ -1200,7 +1200,7 @@ href="http://redmine.webtoolkit.eu/projects/wt/wiki">Вики Wt</a>, содер
 программного обеспечения и коммерческой лицензии, для того, чтобы законно
 защитить весь код  Wt в целом - как один субъект, - не заботясь об авторских
 правах отдельных частей, мы требуем передачи авторских прав от контрибуторов
-к фирме <a href="http://www.emweb.be/">Emweb</a> для принятия контрибуций.</p>
+к фирме <a href="//www.emweb.be/">Emweb</a> для принятия контрибуций.</p>
 
 <h4>Переводы на другие языки</h4>
 
@@ -1230,7 +1230,7 @@ href="http://redmine.webtoolkit.eu/projects/wt/wiki">Вики Wt</a>, содер
 <div>
 <img class="java-language-icon" src="/icons/java-logo.png" alt="Java"></img>
 
-Вы можете использовать <a href="http://www.webtoolkit.eu/jwt">JWt</a>
+Вы можете использовать <a href="//www.webtoolkit.eu/jwt">JWt</a>
 - полноценную версию Wt для <b>Java</b>,
 разрабатываемую и сопровождаемую вместе с версией C++. Она обладает, за
 малыми исключениями, такими же возможностями, что и Wt, но выполняется
@@ -1296,7 +1296,7 @@ JWt прямо из Clojure</a>, документируя опыты в своё
 
 <p>
 Общие инструкции по установке (UNIX)
-находятся <a href="http://www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">здесь</a>, а также
+находятся <a href="//www.webtoolkit.eu/wt/doc/reference/html/InstallationUnix.html">здесь</a>, а также
 включены в исходный дистрибутив (файлы INSTALL или INSTALL.html).</p>
 <p>
 В дополнении, <a href="http://redmine.webtoolkit.eu/projects/wt/wiki">Вики
@@ -1310,22 +1310,22 @@ Wt</a> содержит раздел, посвящённый
 <ul>
 <li>Узнайте о преимуществах использования Wt перед традиционными
 фреймворками web-приложений из нашего <a
-href="http://www.webtoolkit.eu/doc/Wt-WhitePaper.pdf">официального
+href="//www.webtoolkit.eu/doc/Wt-WhitePaper.pdf">официального
 документа</a>.</li>
 
 <li>Журнал Dr Dobbs содержит хорошую <a href="http://www.ddj.com/cpp/206401952">
 вводную статью</a> (февраль 2008 года).</li>
 
 <li>Справочное руководство содержит
-<a href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html">обзор
+<a href="//www.webtoolkit.eu/wt/doc/reference/html/overview.html">обзор
 библиотеки</a>, который является хорошей отправной точкой для начинающих.</li>
 
 <li>Журнал Software Developers содержит (слегка устаревшее) пособие
 (апрель 2006 года). Пособие использует пример кода "виселица" (смотрите также в
 примерах!). Вы можете просмотреть копию статьи <a
-href="http://www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.xhtml">здесь</a> или
+href="//www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.xhtml">здесь</a> или
 загрузить
-<a href="http://www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.pdf">PDF версию</a>.</li>
+<a href="//www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.pdf">PDF версию</a>.</li>
 
 <li>Виктор Венкман (Victor Venkman) написал
 <a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">прекрасное введение в Wt</a>, 
@@ -1335,7 +1335,7 @@ href="http://www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.xhtml">здесь</a> ил
 
 <h4>Справочное руководство</h4>
 
-<p>Доступно <a href="http://www.webtoolkit.eu/wt/doc/reference/html/index.html"
+<p>Доступно <a href="//www.webtoolkit.eu/wt/doc/reference/html/index.html"
 target="_blank"> справочное руководство (в новом окне)</a>, сгенерированное
 из исходных кодов с помощью doxygen. Оно также содержит небольшое пособие
 на примере tree list, обращая особое внимание на механизм реализации
@@ -1345,7 +1345,7 @@ target="_blank"> справочное руководство (в новом ок
 <h4>Аннотированные примеры</h4>
 
 <p>Документация сгенерирована также и для примеров из их исходных кодов
-и может быть просмотрена <a href="http://www.webtoolkit.eu/wt/doc/examples/html/modules.html"
+и может быть просмотрена <a href="//www.webtoolkit.eu/wt/doc/examples/html/modules.html"
 target="_blank">здесь (в новом окне)</a>.</p>
 
 <h4>Вики</h4>

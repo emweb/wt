@@ -3791,7 +3791,8 @@ void WCartesianChart::clearPens()
 
 void WCartesianChart::createPensForAxis(Axis ax)
 {
-  if (!axis(ax).isVisible()) return;
+  if (!axis(ax).isVisible() || axis(ax).scale() == LogScale)
+    return;
 
   double zoom = axis(ax).zoom();
   if (zoom > axis(ax).maxZoom()) {

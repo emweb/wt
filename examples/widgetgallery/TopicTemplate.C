@@ -19,11 +19,11 @@ TopicTemplate::TopicTemplate(const char *trKey)
 #ifndef WT_TARGET_JAVA
   setCondition("if:cpp", true);
   setCondition("if:java", false);
-  bindString("doc-url", "http://www.webtoolkit.eu/wt/doc/reference/html/");
+  bindString("doc-url", "//www.webtoolkit.eu/wt/doc/reference/html/");
 #else
   setCondition("if:cpp", false);
   setCondition("if:java", true);
-  bindString("doc-url", "http://www.webtoolkit.eu/"
+  bindString("doc-url", "//www.webtoolkit.eu/"
 	     "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/");
 #endif
 }
