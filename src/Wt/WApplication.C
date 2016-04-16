@@ -280,7 +280,7 @@ WApplication::WApplication(const WEnvironment& env
       prefix = "moz-";
 
     useStyleSheet(WApplication::relativeResourcesUrl()
-		  + prefix + "transitions.css");
+		  + prefix + "transitions.min.css");
   }
 
   setLoadingIndicator(new WDefaultLoadingIndicator());

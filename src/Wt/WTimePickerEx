@@ -1,0 +1,105 @@
+
+#ifndef WTIME_PICKER_EX_H_
+#define WTIME_PICKER_EX_H_
+
+#include "WCompositeWidget"
+#include "WContainerWidget"
+#include "WTime"
+#include "WInPlaceEdit"
+
+namespace Wt {
+
+/*! \class WTimePickerEx Wt/WTimePickerEx Wt/WTimePickerEx
+ *  \brief An Extended Time Picker
+ *
+ *  \sa WTimeEdit
+ *  \sa WTime
+ *  \sa WTimeValidator
+ *
+ * Styling through CSS is not applicable.
+ *
+ */
+class WT_API WTimePickerEx : public WCompositeWidget
+{
+public:
+    /*! \brief Creates a new time picker.
+     */
+    WTimePickerEx(WContainerWidget *parent = 0);
+    
+	/*! \brief Creates a new time picker.
+     */
+    WTimePickerEx(const WTime &time, WContainerWidget *parent = 0);
+
+    WTime time();
+
+	/*! \brief sets the time
+	 */
+    void setTime(const WTime& time);
+
+	/*! \brief returns the hours step
+	 */
+    int hourStep() const { return hourStep_; }
+	
+	/*! \brief sets the minute step
+	 */
+    void setHourStep(int step) { hourStep_ = step; }
+
+    int minuteStep() const { return minuteStep_; }
+
+        /*! \brief sets the minute step
+         */
+    void setMinuteStep(int step) { minuteStep_ = step; }
+
+    int secondStep() const { return secondStep_; }
+
+        /*! \brief sets the second step
+         */
+    void setSecondStep(int step) { secondStep_ = step; }
+
+    int millisecondStep() const { return millisecondStep_; }
+
+        /*! \brief sets the millisecond step
+         */
+    void setMillisecondStep(int step) { millisecondStep_ = step; }
+
+	/*! \brief Signal emitted when the value is changed
+	 */
+    Signal<>& selectionChanged() { return selectionChanged_; }
+
+protected:
+    void incrementMilliseconds();
+    void decrementMilliseconds();
+
+    void incrementSeconds();
+    void decrementSeconds();
+
+    void incrementMinutes();
+    void decrementMinutes();
+
+    void incrementHours();
+    void decrementHours();
+
+private:
+    void changeTime(WInPlaceEdit* _timeText, int increment, int rollover);
+
+    int hourStep_;
+    int minuteStep_;
+    int secondStep_;
+    int millisecondStep_;
+
+    void init(const WTime &time = WTime());
+
+    WInPlaceEdit *hourText_;
+    WInPlaceEdit *minuteText_;
+    WInPlaceEdit *secondText_;
+    WInPlaceEdit *millisecondText_;
+
+    void fire();
+    Signal<> selectionChanged_;
+
+};
+
+
+} // end namespace Wt
+
+#endif // WTIME_PICKER_H_

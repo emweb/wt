@@ -75,23 +75,27 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
   std::stringstream themeVersionDir;
   themeVersionDir << themeDir << version_ << "/";
 
-  result.push_back(WCssStyleSheet
-		   (WLink(themeVersionDir.str() 
-			  + "bootstrap.css")));
+  if(version_ == Version::Version2) result.push_back(WCssStyleSheet("//maxcdn.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css"));
+  if(version_ == Version::Version3) result.push_back(WCssStyleSheet("//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"));
 
+/*
+  result.push_back(WCssStyleSheet
+		   (WLink(themeVersionDir.str()
+			  + "bootstrap.min.css")));
+*/
   WApplication *app = WApplication::instance();
- 
+
   if (responsive_) {
     if (version_ < Version3)
       result.push_back(WCssStyleSheet
 		       (WLink(themeVersionDir.str()
-			      + "bootstrap-responsive.css")));
+			      + "bootstrap-responsive.min.css")));
     else if (app)
       app->addMetaHeader("viewport",
 			 "width=device-width, initial-scale=1");
   }
 
-  result.push_back(WCssStyleSheet(WLink(themeVersionDir.str() + "wt.css")));
+  result.push_back(WCssStyleSheet(WLink(themeVersionDir.str() + "wt.min.css")));
 
   return result;
 }

@@ -231,6 +231,7 @@ Wt/WTimeEdit.C
 Wt/WTimer.C
 Wt/WTimerWidget.C
 Wt/WTimePicker.C
+Wt/WTimePickerEx.C
 Wt/WTimeValidator.C
 Wt/WToolBar.C
 Wt/WTransform.C
