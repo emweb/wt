@@ -232,7 +232,7 @@ void Server::start()
     ssl_endpoint = *resolver.resolve(ssl_query);
 #else // !NO_RESOLVE_ACCEPT_ADDRESS
     ssl_endpoint.address(asio::ip::address::from_string(config_.httpsAddress()));
-    ssl_endpoint.port(atoi(httpsPort.c_str()));
+    ssl_endpoint.port(atoi(config_.httpsPort().c_str()));
 #endif // NO_RESOLVE_ACCEPT_ADDRESS
 
     ssl_acceptor_.open(ssl_endpoint.protocol());

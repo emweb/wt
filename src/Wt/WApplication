@@ -186,7 +186,7 @@ public:
  *
  * The %WApplication object provides access to session-wide settings, including:
  *
- * - circumstancial information through environment(), which gives
+ * - circumstantial information through environment(), which gives
  *   details about the user, start-up arguments, and user agent
  *   capabilities.
  * - the application title with setTitle().

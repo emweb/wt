@@ -26,7 +26,11 @@
 #include <SkBitmap.h>
 #include <SkBitmapDevice.h>
 #include <SkDashPathEffect.h>
+#ifdef WT_SKIA_OLD
 #include <SkImageDecoder.h>
+#else
+#include <SkCodec.h>
+#endif
 #include <SkImageEncoder.h>
 #include <SkStream.h>
 #include <SkTypeface.h>
@@ -47,7 +51,7 @@
 //   version don't support old compilers.
 //   If you use this version, WT_SKIA_OLD must be defined while
 //   compiling this file.
-// - a2b340f8a8d5f219eb62f5f9b654cf19c988c578
+// - 834d9e109298ae704043128005f8c1bc622350f4
 //   Used for MSVS 2015 builds, starting in Wt 3.3.5.
 //   Do not define WT_SKIA_OLD when you use this version.
 // Other skia versions may work too.
@@ -270,9 +274,13 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	break;
       }
 
+#ifdef WT_SKIA_OLD
       SkPathEffect *pe = impl_->strokePaint_.setPathEffect(0);
       if (pe)
 	pe->unref();
+#else
+      impl_->strokePaint_.setPathEffect(0);
+#endif
       switch (pen.style()) {
       case NoPen:
 	break;
@@ -285,7 +293,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 							false))->unref();
 #else
 	impl_->strokePaint_.setPathEffect(
-		SkDashPathEffect::Create(dasharray, 2, 0));
+		SkDashPathEffect::Make(dasharray, 2, 0));
 #endif
 	break;
       }
@@ -296,7 +304,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 							false))->unref();
 #else
 	impl_->strokePaint_.setPathEffect(
-		SkDashPathEffect::Create(dasharray, 2, 0));
+		SkDashPathEffect::Make(dasharray, 2, 0));
 #endif
 	break;
       }
@@ -312,7 +320,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 							false))->unref();
 #else
 impl_->strokePaint_.setPathEffect(
-	SkDashPathEffect::Create(dasharray, 4, 0));
+	SkDashPathEffect::Make(dasharray, 4, 0));
 #endif
 break;
       }
@@ -330,7 +338,7 @@ break;
 							false))->unref();
 #else
 impl_->strokePaint_.setPathEffect(
-	SkDashPathEffect::Create(dasharray, 6, 0));
+	SkDashPathEffect::Make(dasharray, 6, 0));
 #endif
 break;
       }
@@ -407,6 +415,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 			     int imgWidth, int imgHeight,
 			     const WRectF& srect)
 {
+#ifdef WT_SKIA_OLD
   SkBitmap bitmap;
   bool success = false;
   if (DataUri::isDataUri(imgUri)) {
@@ -414,11 +423,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     success =
       SkImageDecoder::DecodeMemory(&uri.data[0], uri.data.size(),
 				   &bitmap,
-#ifdef WT_SKIA_OLD
 				   SkBitmap::kARGB_8888_Config,
-#else
-				   kN32_SkColorType,
-#endif
 				   SkImageDecoder::kDecodePixels_Mode, 0);
     if (!success)
       throw WException("WRasterImage: could not decode data URL (mime type "
@@ -427,30 +432,52 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     success =
       SkImageDecoder::DecodeFile(imgUri.c_str(),
 				 &bitmap,
-#ifdef WT_SKIA_OLD
 				 SkBitmap::kARGB_8888_Config,
-#else
-				 kN32_SkColorType,
-#endif
 				SkImageDecoder::kDecodePixels_Mode, 0);
     if (!success)
       throw WException("WRasterImage: could not load file " + imgUri);
   }
+#else
+  SkBitmap bitmap;
+  SkAutoTDelete<SkCodec> codec;
+  if (DataUri::isDataUri(imgUri)) {
+    DataUri uri(imgUri);
+    sk_sp<SkData> data = SkData::MakeWithoutCopy(&uri.data[0], uri.data.size());
+    codec = SkCodec::NewFromData(data.get());
+    if (!codec) {
+      throw WException("WRasterImage: could not interprete data URL (mime type "
+	+ uri.mimeType);
+    }
+  } else {
+    SkAutoTDelete<SkStream> stream = SkStream::NewFromFile(imgUri.c_str());
+    if (!stream)
+      throw WException("WRasterImage: could not open file " + imgUri);
+    SkAutoTDelete<SkCodec> codec = SkCodec::NewFromStream(stream);
+    if (!codec)
+      throw WException("WRasterImage: could not interprete file " + imgUri);
+  }
+
+  bitmap.allocPixels(codec->getInfo().makeColorType(kN32_SkColorType));
+  SkCodec::Result result = codec->getPixels(bitmap.info(),
+    bitmap.getPixels(), bitmap.rowBytes());
+  if (result != SkCodec::kSuccess)
+    throw WException("WRasterImage: could not decode image");
+
+#endif
 
   SkRect src = SkRect::MakeLTRB(SkDoubleToScalar(srect.left()),
-				SkDoubleToScalar(srect.top()),
-				SkDoubleToScalar(srect.right()),
-				SkDoubleToScalar(srect.bottom()));
+    SkDoubleToScalar(srect.top()),
+    SkDoubleToScalar(srect.right()),
+    SkDoubleToScalar(srect.bottom()));
   SkRect dst = SkRect::MakeLTRB(SkDoubleToScalar(rect.left()),
-				SkDoubleToScalar(rect.top()),
-				SkDoubleToScalar(rect.right()),
-				SkDoubleToScalar(rect.bottom()));
+    SkDoubleToScalar(rect.top()),
+    SkDoubleToScalar(rect.right()),
+    SkDoubleToScalar(rect.bottom()));
 #ifdef WT_SKIA_OLD
   impl_->canvas_->drawBitmapRectToRect(bitmap, &src, dst);
 #else
   impl_->canvas_->drawBitmapRect(bitmap, src, dst, 0);
 #endif
-
 }
 
 void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
@@ -493,7 +520,7 @@ void WRasterImage::getPixels(void *data)
   unsigned char *d = (unsigned char *)data;
   if (pixel) {
     int i = 0;
-    for (int p = 0; p < impl_->w_ * impl_->h_; ++p) {
+    for (unsigned p = 0; p < impl_->w_ * impl_->h_; ++p) {
       d[i++] = SkColorGetR(*pixel);
       d[i++] = SkColorGetG(*pixel);
       d[i++] = SkColorGetB(*pixel);

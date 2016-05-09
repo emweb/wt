@@ -177,7 +177,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
   if (index.flags() & ItemHasDeferredTooltip){
     widgetRef.w->setDeferredToolTip(true, (index.flags() & ItemIsXHTMLText) ?
-                                      XHTMLText : PlainText);
+				    XHTMLText : PlainText);
   } else {
   WString tooltip = asString(index.data(ToolTipRole));
   if (!tooltip.empty() || !isNew)

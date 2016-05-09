@@ -55,6 +55,29 @@ WString WStandardChartProxyModel::toolTip(int row, int column) const
   return asString(sourceModel_->data(row, column, ToolTipRole));
 }
 
+WFlags<ItemFlag> WStandardChartProxyModel::flags(int row, int column) const
+{
+  return sourceModel_->index(row, column).flags();
+}
+
+WLink *WStandardChartProxyModel::link(int row, int column) const
+{
+  boost::any result = sourceModel_->data(row, column, LinkRole);
+
+  if (result.empty())
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    link_ = boost::any_cast<WLink>(result);
+    return &link_;
+#else
+    WLink c = boost::any_cast<WLink>(result);
+    return &c;
+#endif
+  }
+}
+
+
 const WColor *WStandardChartProxyModel::color(int row, int column, int colorDataRole) const
 {
   boost::any result = sourceModel_->data(row, column, colorDataRole);

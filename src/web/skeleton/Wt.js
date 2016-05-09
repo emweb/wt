@@ -3536,6 +3536,75 @@ function setCloseMessage(m)
     window.onbeforeunload = null;
 };
 
+var firstCall = true;
+var globalEventsFunctions = null;
+var keyEvents = [ 'keydown', 'keyup', 'keypress' ];
+
+function updateGlobal(id) {
+  firstCall = false;
+  var domId;
+  if (id == null) {
+    domId = $('.Wt-domRoot').get(0).id
+  } else {
+    domId = id;
+  }
+
+  for (var i = 0; i < keyEvents.length ; ++i) {
+    var elemEvents = globalEventsFunctions[domId]
+    var eventFunc = null;
+
+    if (elemEvents) 
+      eventFunc = elemEvents[keyEvents[i]];
+
+    var bindEvent = function(evtfunc) {
+      return function(event) {
+	var g=event||window.event;
+	var t=g.target||g.srcElement;
+	if ((!t| WT.hasTag(t,'DIV')
+	  || WT.hasTag(t,'BODY')
+	    || WT.hasTag(t,'HTML'))) {
+	      var func = evtfunc;
+	      if(func)
+		func(event);
+	    }
+      };
+    };
+
+    if (eventFunc)
+      document['on' + keyEvents[i] ] = bindEvent(eventFunc);
+    else 
+      document['on' + keyEvents[i] ] = null;
+
+  }
+
+  // cleanup functions of widgets that do no longer exist
+  for (var i in globalEventsFunctions) {
+    if (! document.getElementById(i) ) {
+      delete globalEventsFunctions[i];
+    }
+  }
+
+}
+
+function bindGlobal(event, id, f) {
+  var init = false;
+  if (!globalEventsFunctions) {
+    globalEventsFunctions = {};
+    init = true;
+  }
+
+  // Saves the event functions
+  if (!globalEventsFunctions[id])
+    globalEventsFunctions[id] = {};
+
+  globalEventsFunctions[id][event]=f;
+  if(init)
+    setTimeout(function() {
+      if(firstCall)
+	updateGlobal(null);
+    }, 0);
+}
+
 this._p_ = {
   ieAlternative : ieAlternative,
   loadScript : loadScript,
@@ -3569,6 +3638,8 @@ this._p_ = {
   setPage : setPage,
   setCloseMessage : setCloseMessage,
   setConnectionMonitor : setConnectionMonitor,
+  updateGlobal: updateGlobal,
+  bindGlobal: bindGlobal,
 
   propagateSize : propagateSize
 };

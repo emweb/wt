@@ -641,7 +641,7 @@ WT_DECLARE_WT_MEMBER
 		     + id + ': ' + dir + " ps " + preferredSize + " ms " + minimumSize);
 
        function handleOverspanned(getItemSize, sizes) {
-	 for (di = 0; di < dirCount; ++di) {
+	 for (di = dirCount - 1; di >= 0; --di) {
 	   for (oi = 0; oi < otherCount; ++oi) {
 	     var item = DC.getItem(di, oi);
 

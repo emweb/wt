@@ -191,7 +191,8 @@ DomElement::DomElement(Mode mode, DomElementType type)
     insertBefore_(0),
     type_(type),
     numManipulations_(0),
-    timeOut_(-1)
+    timeOut_(-1),
+    globalUnfocused_(false)
 { }
 
 DomElement::~DomElement()
@@ -710,29 +711,21 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
 {
   // events on the dom root container are events received by the whole
   // document when no element has focus
-  bool globalUnfocused = (id_ == app->domRoot()->id());
 
   int fid = nextId_++;
 
   out << "function f" << fid << "(event) { ";
 
-  if (globalUnfocused)
-    out << "var g=event||window.event; "
-      "var t=g.target||g.srcElement;"
-      "if ((!t||" WT_CLASS ".hasTag(t,'DIV') "
-      ""     "||" WT_CLASS ".hasTag(t,'BODY') "
-      ""     "||" WT_CLASS ".hasTag(t,'HTML'))) {";
-
   out << handler.jsCode;
-
-  if (globalUnfocused)
-    out << '}';
 
   out << "}\n";
 
-  if (globalUnfocused)
-    out << "document";
-  else {
+  if (globalUnfocused_) {
+    out << app->javaScriptClass() 
+      <<  "._p_.bindGlobal('" << std::string(eventName) <<"', '" << id_ << "', f" << fid 
+      << ")\n";
+    return;
+  } else {
     declare(out);
     out << var_;
   }
@@ -938,7 +931,7 @@ void DomElement::asHTML(EscapeOStream& out,
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
 	 i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
-	if (id_ == app->domRoot()->id()
+	if (globalUnfocused_ 
 	    || (i->first == WInteractWidget::WHEEL_SIGNAL
 		&& app->environment().agentIsIE() && app->environment().agent() >= WEnvironment::IE9))
 	  setJavaScriptEvent(javaScript, i->first, i->second, app);
@@ -1730,6 +1723,11 @@ std::string DomElement::tagName(DomElementType type)
 const std::string& DomElement::cssName(Property property)
 {
   return cssNames_[property - PropertyStylePosition];
+}
+
+void DomElement::setGlobalUnfocused(bool b)
+{
+  globalUnfocused_ = b;
 }
 
 

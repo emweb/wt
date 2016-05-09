@@ -87,7 +87,7 @@ UpdatePasswordWidget::UpdatePasswordWidget(const User& user,
 
 }
 
-WFormWidget *UpdatePasswordWidget::createFormWidget(WFormModel::Field field)
+WWidget *UpdatePasswordWidget::createFormWidget(WFormModel::Field field)
 {
   WFormWidget *result = 0;
 

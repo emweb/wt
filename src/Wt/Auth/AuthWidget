@@ -349,7 +349,7 @@ protected:
    */
   virtual RegistrationModel *createRegistrationModel();
 
-  virtual WFormWidget *createFormWidget(AuthModel::Field field);
+  virtual WWidget *createFormWidget(AuthModel::Field field);
 
   virtual void render(WFlags<RenderFlag> flags);
 

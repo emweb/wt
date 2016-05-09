@@ -166,6 +166,7 @@ WApplication::WApplication(const WEnvironment& env
   }
 
   domRoot_ = new WContainerWidget();
+  domRoot_->setGlobalUnfocused(true);
   domRoot_->setStyleClass("Wt-domRoot");
   domRoot_->load();
 

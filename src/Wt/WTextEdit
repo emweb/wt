@@ -49,10 +49,13 @@ namespace Wt {
  * default value for <i>tinyMCEBaseURL</i> for TinyMCE 4 (or later) is
  * is <i>resourcesURL</i><tt>/tinymce</tt> (i.e., we assume by default that you
  * copy the <tt>tiny_mce</tt> folder to the <tt>resources/</tt>
- * folder). If name of main TinyMCE JavaScript file is non-default
- * (e.g., CDN <tt>//tinymce.cachefly.net/4.0/tinymce.min.js</tt> or
- * <tt>//cdnjs.cloudflare.com/ajax/libs/tinymce/3.5.8/tiny_mce.js</tt>)
- * it should be specified via <i>tinyMCEURL</i>.
+ * folder).
+ *
+ * If the name of the main TinyMCE JavaScript file is not tinymce.js
+ * (e.g., you are using the minified version from the release package,
+ * or the CDN <tt>//tinymce.cachefly.net/4.0/tinymce.min.js</tt> or
+ * <tt>//cdnjs.cloudflare.com/ajax/libs/tinymce/3.5.8/tiny_mce.js</tt>),
+ * the URL to the main script file should be specified via <i>tinyMCEURL</i>.
  *
  * Because the default folder names are different ("tiny_mce" for
  * version 3 versus "tinymce" for version 4, you can have the

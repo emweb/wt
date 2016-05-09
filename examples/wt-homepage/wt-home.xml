@@ -906,8 +906,10 @@ can be used only in conjunction with a Commercial License for Wt::Dbo.
   If you are looking to use Wt using <b>MSVC on Windows platforms</b>,
   then you can save yourself some hassle to build Wt with its optional
   dependencies from source, and download one of the <a
-  href="http://sourceforge.net/projects/witty/files/wt/">binary builds
-  instead</a> which allow you to quickly experiment with the examples
+  href="https://github.com/kdeforche/wt/releases">binary builds
+  instead</a> (<a
+  href="http://sourceforge.net/projects/witty/files/wt/">old releases</a>)
+  which allow you to quickly experiment with the examples
   that ship with Wt.
 </p>
 

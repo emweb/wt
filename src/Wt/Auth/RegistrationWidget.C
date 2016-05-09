@@ -59,7 +59,7 @@ void RegistrationWidget::render(WFlags<RenderFlag> flags)
   WTemplateFormView::render(flags);
 }
 
-WFormWidget *RegistrationWidget::createFormWidget(WFormModel::Field field)
+WWidget *RegistrationWidget::createFormWidget(WFormModel::Field field)
 {
   WFormWidget *result = 0;
 

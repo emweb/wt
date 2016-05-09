@@ -329,7 +329,7 @@ void AuthWidget::createPasswordLoginView()
   updatePasswordLoginView();
 }
 
-WFormWidget *AuthWidget::createFormWidget(WFormModel::Field field)
+WWidget *AuthWidget::createFormWidget(WFormModel::Field field)
 {
   WFormWidget *result = 0;
 

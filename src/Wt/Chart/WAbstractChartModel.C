@@ -33,6 +33,16 @@ WString WAbstractChartModel::toolTip(int row, int column) const
   return Wt::WString();
 }
 
+WFlags<ItemFlag> WAbstractChartModel::flags(int row, int column) const
+{
+  return 0;
+}
+
+WLink *WAbstractChartModel::link(int row, int column) const
+{
+  return 0;
+}
+
 const WColor *WAbstractChartModel::markerPenColor(int row, int column) const
 {
   return 0;

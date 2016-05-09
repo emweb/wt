@@ -366,9 +366,53 @@ public:
   /*! \brief %Signal emitted when the dialog is being moved by the user.
    *
    * The information passed are the new x and y position
-   * (relative to the window).
+   * (relative to the wietdow).
    */
   JSignal<int, int>& moved() { return moved_; }
+
+  /** @name keyboard and mouse events
+   */
+  //@{
+  /*! \brief Event signal emitted when a keyboard key is pushed down.
+   *
+   *  The event will be triggered if nothing in the WDialog has focus
+   *  
+   *  \sa WInteractiveWidget::keyWentDown
+   */
+  EventSignal<WKeyEvent>& keyWentDown();
+
+  /*! \brief Event signal emitted when a "character" was entered.
+   *
+   *  The event will be triggered if nothing in the WDialog has focus
+   *  
+   *  \sa WInteractiveWidget::keyPressed
+   */
+  EventSignal<WKeyEvent>& keyPressed();
+    
+  /*! \brief Event signal emitted when a keyboard key is released.
+   *
+   *  The event will be triggered if nothing in the WDialog has focus
+   *  
+   *  \sa WInteractiveWidget::keyWentUp
+   */
+  EventSignal<WKeyEvent>& keyWentUp();
+
+  /*! \brief Event signal emitted when enter was pressed.
+   *
+   *  The event will be triggered if nothing in the WDialog has focus
+   *  
+   *  \sa WInteractiveWidget::enterPressed
+   */
+  EventSignal<>& enterPressed();
+
+  /*! \brief Event signal emitted when escape was pressed.
+   *
+   *  The event will be triggered if nothing in the WDialog has focus
+   *  
+   *  \sa WInteractiveWidget::escapePressed
+   *
+   */
+  EventSignal<>& escapePressed();
 
 protected:
   virtual void render(WFlags<RenderFlag> flags);
@@ -379,6 +423,7 @@ private:
   WText *closeIcon_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
+  WContainerWidget *layoutContainer_;
   mutable WContainerWidget *footer_;
   bool modal_, resizable_, escapeIsReject_, autoFocus_;
   JSignal<int,int> moved_, resized_;
@@ -396,6 +441,8 @@ private:
   void bringToFront(const WMouseEvent &e);
 
   DialogCover *cover();
+
+  friend class DialogCover;
 };
 
 }

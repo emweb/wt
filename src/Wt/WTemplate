@@ -54,6 +54,10 @@ class EscapeOStream;
  * \endcode
  * \endif
  *
+ * The ownership of the widgets bound to a WTemplate widget are transfered
+ * to the WTemplate widdget, and they are deleted when the WTemplate is
+ * deleted.
+ *
  * There are currently three syntactic constructs defined: variable
  * place holders, functions and conditional blocks.
  *
@@ -435,6 +439,9 @@ public:
    * widget may be instantiated only once in a template, the variable
    * \p varName may occur at most once in the template, and the
    * \p widget must not yet be bound to another variable.
+   *
+   * The widget is reparented to the WTemplate, so that it is deleted
+   * when the WTemplate is deleted.
    *
    * If a widget was already bound to the variable, it is deleted
    * first. If previously a string or other value was bound to the

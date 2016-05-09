@@ -8,6 +8,7 @@
 #define WSTANDARD_CHART_PROXY_MODEL_H_
 
 #include "Wt/Chart/WAbstractChartModel"
+#include "Wt/WLink"
 
 namespace Wt {
 
@@ -69,6 +70,24 @@ public:
    * \sa WAbstractItemModel::data()
    */
   virtual WString toolTip(int row, int column) const WT_CXX11ONLY(override);
+
+  /*! \brief Returns the item flags for the given row and column.
+   *
+   * Returns the result of WAbstractItemModel::index(row, column).flags()
+   * for the given row and column.
+   *
+   * \sa WModelIndex::flags()
+   */
+  virtual WFlags<ItemFlag> flags(int row, int column) const WT_CXX11ONLY(override);
+
+  /*! \brief Returns the link to use on a given row and column.
+   *
+   * Returns the result of WAbstractItemModel::data() for the given
+   * row and column with the \link ItemDataRole LinkRole\endlink as a WLink.
+   *
+   * \sa WAbstractItemModel::data()
+   */
+  virtual WLink *link(int row, int column) const WT_CXX11ONLY(override);
 
   /*!\brief Returns the marker pen color to use for a given row and column.
    *
@@ -140,6 +159,7 @@ private:
   WAbstractItemModel *sourceModel_;
 #ifndef WT_TARGET_JAVA
   mutable WColor color_;
+  mutable WLink link_;
 #endif
 
   void sourceModelModified();

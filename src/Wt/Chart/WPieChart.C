@@ -559,8 +559,9 @@ void WPieChart::drawSlices(WPainter& painter,
      */
     if (!shadow) {
       WString toolTip = model()->toolTip(i, dataColumn_);
-      if (!toolTip.empty()) {
-	const int SEGMENT_ANGLE = 20;
+      WLink *link = model()->link(i, dataColumn_);
+      if (!toolTip.empty() || link) {
+        const int SEGMENT_ANGLE = 20;
 
 	WPolygonArea *area = new WPolygonArea();
 	WTransform t = painter.worldTransform();
@@ -583,7 +584,9 @@ void WPieChart::drawSlices(WPainter& painter,
 	area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
 				     pcy + r * std::sin(-a / 180.0 * M_PI))));
 
-	area->setToolTip(toolTip);
+        area->setToolTip(toolTip);
+        if (link)
+          area->setLink(*link);
 
 	addDataPointArea(i, dataColumn_, area);
       }
@@ -656,7 +659,7 @@ void WPieChart::paintEvent(WPaintDevice *paintDevice)
 int WPieChart::nextIndex(int i) const
 {
   int r = model()->rowCount();
-  for (int n = (i + 1) % r; n != i; ++n) {
+  for (int n = (i + 1) % r; n != i; n = (n + 1) % r) {
     double v = model()->data(n, dataColumn_);
     if (!Utils::isNaN(v))
       return n;

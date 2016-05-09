@@ -30,6 +30,10 @@
 
 #endif // WT_WITH_SSL
 
+#ifdef WT_WIN32
+#define strcasecmp _stricmp
+#endif
+
 using boost::asio::ip::tcp;
 
 namespace Wt {
@@ -86,7 +90,7 @@ public:
     bool haveContentLength = false;
     for (unsigned i = 0; i < message.headers().size(); ++i) {
       const Message::Header& h = message.headers()[i];
-      if (h.name() == "Content-Length")
+      if (strcasecmp(h.name().c_str(), "Content-Length") == 0)
 	haveContentLength = true;
       request_stream << h.name() << ": " << h.value() << "\r\n";
     }
@@ -112,15 +116,17 @@ public:
 				boost::asio::placeholders::iterator)));
   }
 
-  void asyncStop()
+  void asyncStop(boost::shared_ptr<Impl> *impl)
   {
     ioService_.post
-      (strand_.wrap(boost::bind(&Impl::stop, shared_from_this())));
+      (strand_.wrap(boost::bind(&Impl::stop, shared_from_this(), impl)));
   }
 
   Signal<boost::system::error_code, Message>& done() { return done_; }
   Signal<Message>& headersReceived() { return headersReceived_; }
   Signal<std::string>& bodyDataReceived() { return bodyDataReceived_; }
+
+  bool hasServer() { return server_ != 0; }
 
 protected:
   typedef boost::function<void(const boost::system::error_code&)>
@@ -138,7 +144,7 @@ protected:
   virtual void asyncRead(const IOHandler& handler) = 0;
 
 private:
-  void stop()
+  void stop(boost::shared_ptr<Impl> *impl)
   {
     /* Within strand */
 
@@ -153,6 +159,9 @@ private:
     } catch (std::exception& e) {
       LOG_INFO("Client::abort(), stop(), ignoring error: " << e.what());
     }
+
+    if (impl)
+      impl->reset();
   }
 
   void startTimer()
@@ -548,7 +557,7 @@ private:
 
   void complete()
   {
-    stop();
+    stop(0);
     if (server_)
       server_->post(sessionId_,
 		    boost::bind(&Impl::emitDone, shared_from_this()));
@@ -758,11 +767,17 @@ void Client::setSslCertificateVerificationEnabled(bool enabled)
 
 void Client::abort()
 {
-  if (impl_)
-    impl_->asyncStop();
-
-  impl_.reset();
-  redirectCount_ = 0;
+  boost::shared_ptr<Impl> impl = impl_;
+  if (impl) {
+    if (impl->hasServer()) {
+      // handling of redirect happens in the WApplication
+      impl->asyncStop(0);
+      impl_.reset();
+    } else {
+      // handling of redirect happens in the strand of impl
+      impl->asyncStop(&impl_);
+    }
+  }
 }
 
 void Client::setTimeout(int seconds)
@@ -933,9 +948,12 @@ void Client::setMaxRedirects(int maxRedirects)
 
 void Client::handleRedirect(Http::Method method, boost::system::error_code err, const Message& response, const Message& request)
 {
+  if (!impl_) {
+    emitDone(err, response);
+    return;
+  }
+  impl_.reset();
   int status = response.status();
-  // Status codes 303 and 307 are implemented, although this should not
-  // occur when using HTTP/1.0
   if (!err && (((status == 301 || status == 302 || status == 307) && method == Get) || status == 303)) {
     const std::string *newUrl = response.getHeader("Location");
     ++ redirectCount_;
@@ -953,6 +971,7 @@ void Client::handleRedirect(Http::Method method, boost::system::error_code err, 
 
 void Client::emitDone(boost::system::error_code err, const Message& response)
 {
+  impl_.reset();
   redirectCount_ = 0;
   done_.emit(err, response);
 }

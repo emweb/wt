@@ -626,7 +626,6 @@ public:
 
     WString toolTip = series_.model()->toolTip(yRow, yColumn);
     if (!toolTip.empty()) {
-      chart_.hasToolTips_ = true;
       WTransform t = painter_.worldTransform();
 
       WPointF tl = t.map(segmentPoint(bar, 0));
@@ -634,7 +633,10 @@ public:
       WPointF br = t.map(segmentPoint(bar, 2));
       WPointF bl = t.map(segmentPoint(bar, 3));
 
-      if (chart_.isInteractive()) {
+      if (series_.model()->flags(yRow, yColumn) & ItemHasDeferredTooltip ||
+	  // Force deferred tooltips if XHTML text
+	  series_.model()->flags(yRow, yColumn) & ItemIsXHTMLText) {
+	chart_.hasDeferredToolTips_ = true;
 	WCartesianChart::BarTooltip btt(series_, xRow, xColumn, yRow, yColumn);
 	btt.xs[0] = tl.x();
 	btt.ys[0] = tl.y();
@@ -1001,8 +1003,9 @@ public:
       if (series.type() != BarSeries) {
 	WString toolTip = series.model()->toolTip(yRow, yColumn);
 	if (!toolTip.empty()) {
-	  chart_.hasToolTips_ = true;
-	  if (!chart_.isInteractive()) {
+	  if (!(series.model()->flags(yRow, yColumn) & ItemHasDeferredTooltip ||
+		// We force deferred tooltips if it is XHTML
+		series.model()->flags(yRow, yColumn) & ItemIsXHTMLText)) {
 	    WTransform t = painter_.worldTransform();
 
 	    p = t.map(hv(p));
@@ -1014,6 +1017,8 @@ public:
 
 	    const_cast<WCartesianChart&>(chart_)
 	      .addDataPointArea(series, xRow, xColumn, circleArea);
+	  } else {
+	    chart_.hasDeferredToolTips_ = true;
 	  }
 	}
       }
@@ -1129,7 +1134,7 @@ WCartesianChart::WCartesianChart(WContainerWidget *parent)
     barMargin_(0),
     axisPadding_(5),
     borderPen_(NoPen),
-    hasToolTips_(false),
+    hasDeferredToolTips_(false),
     jsDefined_(false),
     zoomEnabled_(false),
     panEnabled_(false),
@@ -1157,7 +1162,7 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
     barMargin_(0),
     axisPadding_(5),
     borderPen_(NoPen),
-    hasToolTips_(false),
+    hasDeferredToolTips_(false),
     jsDefined_(false),
     zoomEnabled_(false),
     panEnabled_(false),
@@ -1547,7 +1552,16 @@ void WCartesianChart::addDataPointArea(const WDataSeries& series,
   addArea(area);
 }
 
-WPointF WCartesianChart::mapFromDevice(const WPointF& point, Axis ordinateAxis)
+WPointF WCartesianChart::mapFromDevice(const WPointF &point, Axis ordinateAxis) const
+{
+  if (isInteractive()) {
+    return mapFromDeviceWithoutTransform(combinedTransform(xTransformHandle_.value(), yTransformHandle_.value()).inverted().map(point), ordinateAxis);
+  } else {
+    return mapFromDeviceWithoutTransform(point, ordinateAxis);
+  }
+}
+
+WPointF WCartesianChart::mapFromDeviceWithoutTransform(const WPointF& point, Axis ordinateAxis)
   const
 {
   const WAxis& xAxis = axis(XAxis);
@@ -1559,7 +1573,18 @@ WPointF WCartesianChart::mapFromDevice(const WPointF& point, Axis ordinateAxis)
 		 yAxis.mapFromDevice(chartArea_.bottom() - p.y()));
 }
 
-WPointF WCartesianChart::mapToDevice(const boost::any& xValue,
+WPointF WCartesianChart::mapToDevice(const boost::any &xValue,
+				     const boost::any &yValue,
+				     Axis axis, int xSegment, int ySegment) const
+{
+  if (isInteractive()) {
+    return combinedTransform(xTransformHandle_.value(), yTransformHandle_.value()).map(mapToDeviceWithoutTransform(xValue, yValue, axis, xSegment, ySegment));
+  } else {
+    return mapToDeviceWithoutTransform(xValue, yValue, axis, xSegment, ySegment);
+  }
+}
+
+WPointF WCartesianChart::mapToDeviceWithoutTransform(const boost::any& xValue,
 				     const boost::any& yValue,
 				     Axis ordinateAxis, int xSegment,
 				     int ySegment) const
@@ -1594,7 +1619,7 @@ void WCartesianChart::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  if (app && isInteractive()) {
+  if (app && (isInteractive() || hasDeferredToolTips_)) {
     LOAD_JAVASCRIPT(app, "js/ChartCommon.js", "ChartCommon", wtjs2);
     app->doJavaScript(std::string("if (!" WT_CLASS ".chartCommon) {"
 				  WT_CLASS ".chartCommon = new ") +
@@ -1663,9 +1688,9 @@ void WCartesianChart::setFormData(const FormData& formData)
 	  Axis yAxis = s.axis();
 	  double origin;
 	  if (orientation() == Horizontal) {
-	    origin = mapToDevice(0.0, 0.0, yAxis).x();
+	    origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).x();
 	  } else {
-	    origin = mapToDevice(0.0, 0.0, yAxis).y();
+	    origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).y();
 	  }
 	  double dy = curveTransforms_[&s].value().dy();
 	  double scale = curveTransforms_[&s].value().m22();
@@ -2211,13 +2236,19 @@ void WCartesianChart::setZoomAndPan()
 
 void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
 {
-  hasToolTips_ = false;
+  hasDeferredToolTips_ = false;
 
   WPainter painter(paintDevice);
   painter.setRenderHint(WPainter::Antialiasing);
   paint(painter);
 
-  if (isInteractive()) {
+  if (hasDeferredToolTips_ && !jsDefined_) {
+    // We need to define the JavaScript after all, because we need to be able
+    // to load deferred tooltips.
+    defineJavaScript();
+  }
+
+  if (isInteractive() || hasDeferredToolTips_) {
     setZoomAndPan();
 
     double modelBottom = axis(Y1Axis).mapFromDevice(0);
@@ -2280,7 +2311,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
 	  "area:" << hv(chartArea_).jsRef() << ","
 	  "insideArea:" << hv(insideArea).jsRef() << ","
 	  "modelArea:" << modelArea.jsRef() << ","
-	  "hasToolTips:" << asString(hasToolTips_).toUTF8() << ","
+	  "hasToolTips:" << asString(hasDeferredToolTips_).toUTF8() << ","
 	  "notifyTransform:{x:" << asString(axis(XAxis).zoomRangeChanged().isConnected()).toUTF8() << ","
 			   "y:" << asString(axis(YAxis).zoomRangeChanged().isConnected()).toUTF8() << "},"
 	  "ToolTipInnerStyle:" << jsStringLiteral(app->theme()->utilityCssClass(ToolTipInner)) << ","
@@ -3250,7 +3281,7 @@ void WCartesianChart::renderCurveLabels(WPainter &painter) const
 	// Only draw the label if it is actually on a segment
 	if (xSegment < axis(XAxis).segmentCount() && ySegment < axis(series.axis()).segmentCount()) {
 	  // Figure out the device coordinates of the point to draw a label at.
-	  WPointF devicePoint = mapToDevice(label.point().x(), label.point().y(), series.axis(), xSegment, ySegment);
+	  WPointF devicePoint = mapToDeviceWithoutTransform(label.point().x(), label.point().y(), series.axis(), xSegment, ySegment);
 	  WTransform translation = WTransform().translate(t.map(devicePoint));
 	  painter.save();
 	  painter.setWorldTransform(translation);
@@ -3714,7 +3745,7 @@ bool WCartesianChart::crosshairEnabled() const
 void WCartesianChart::setFollowCurve(int followCurve)
 {
   if (followCurve == -1) {
-    followCurve_ = 0;
+    setFollowCurve((const WDataSeries *) 0);
   } else {
     for (std::size_t i = 0; i < series_.size(); ++i) {
       if (series_[i]->modelColumn() == followCurve)
@@ -3733,7 +3764,7 @@ void WCartesianChart::setFollowCurve(const WDataSeries *series)
 
 void WCartesianChart::disableFollowCurve()
 {
-  setFollowCurve(-1);
+  setFollowCurve((const WDataSeries *) 0);
 }
 
 const WDataSeries *WCartesianChart::followCurve() const
@@ -3866,9 +3897,9 @@ WTransform WCartesianChart::calculateCurveTransform(const WDataSeries &series) c
   Axis yAxis = series.axis();
   double origin;
   if (orientation() == Horizontal) {
-    origin = mapToDevice(0.0, 0.0, yAxis).x();
+    origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).x();
   } else {
-    origin = mapToDevice(0.0, 0.0, yAxis).y();
+    origin = mapToDeviceWithoutTransform(0.0, 0.0, yAxis).y();
   }
   double offset = axis(yAxis).mapToDevice(0.0, 0) - axis(yAxis).mapToDevice(series.offset(), 0);
   if (orientation() == Horizontal) offset = -offset;
@@ -3995,9 +4026,9 @@ void WCartesianChart::jsSeriesSelected(double x, double y)
   setSelectedSeries(closestSeries);
   if (closestSeries) {
     seriesSelected_.emit(closestSeries,
-		   mapFromDevice(closestPoint, closestSeries->axis()));
+		   mapFromDeviceWithoutTransform(closestPoint, closestSeries->axis()));
   } else {
-    seriesSelected_.emit(0, mapFromDevice(closestPoint, YAxis));
+    seriesSelected_.emit(0, mapFromDeviceWithoutTransform(closestPoint, YAxis));
   }
 }
 
@@ -4010,8 +4041,18 @@ void WCartesianChart::loadTooltip(double x, double y)
   if (iterator.matchedSeries()) {
     const WDataSeries &series = *iterator.matchedSeries();
     WString tooltip = series.model()->toolTip(iterator.yRow(), iterator.yColumn());
-    if (!tooltip.empty()) {
-      doJavaScript(cObjJsRef() + ".updateTooltip(" + escapeText(tooltip, false).jsStringLiteral() + ");");
+    bool isDeferred = series.model()->flags(iterator.yRow(), iterator.yColumn()) & ItemHasDeferredTooltip;
+    bool isXHTML = series.model()->flags(iterator.yRow(), iterator.yColumn()) & ItemIsXHTMLText;
+    if (!tooltip.empty() && (isDeferred | isXHTML)) {
+      if (isXHTML) {
+	bool res = removeScript(tooltip);
+	if (!res) {
+	  tooltip = escapeText(tooltip);
+	}
+      } else {
+	tooltip = escapeText(tooltip);
+      }
+      doJavaScript(cObjJsRef() + ".updateTooltip(" + tooltip.jsStringLiteral() + ");");
     }
   } else {
     for (std::size_t btt = 0; btt < barTooltips_.size(); ++btt) {

@@ -5,13 +5,22 @@
  */
 
 #include "Wt/WJavaScript"
+#include <Wt/WWidget>
 
 namespace Wt {
 #ifndef WT_CNOR
 JSignal<void>::JSignal(WObject *object, const std::string& name,
 		       bool collectSlotJavaScript)
   : JSignal<>(object, name, collectSlotJavaScript)
-{ }
+{
+}
 #endif
+
+void addSignalToWidget(WObject* object, EventSignalBase* signal) {
+  WWidget* w = dynamic_cast<WWidget*>(object);
+  if(w)
+    w->addJSignal(signal);
+  
+}
 
 }

@@ -21,7 +21,10 @@ WT_DECLARE_WT_MEMBER
              var showTimer = null, checkInt = null, coords = null, toolTipEl = null;
              /* const */ var MouseDistance = 10;
              /* const */ var Delay = 500;
+             /* const */ var HideDelay = 200;
              var waitingForText = false, toolTipText = text;
+
+             var overTooltip = false;
 
              function checkIsOver() {
                  if (!$('#' + id + ':hover').length) {
@@ -61,19 +64,30 @@ WT_DECLARE_WT_MEMBER
                      var x = coords.x, y = coords.y;
                      WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance,
                                     x - MouseDistance, y - MouseDistance);
+
+                     $(toolTipEl).mouseenter(function() {
+                       overTooltip = true;
+                     });
+                     $(toolTipEl).mouseleave(function() {
+                       overTooltip = false;
+                     });
                  }
 
                  checkInt = setInterval(function() { checkIsOver(); }, 200);
              }
 
              function hideToolTip() {
-                 clearTimeout(showTimer);
+               clearTimeout(showTimer);
+               setTimeout(function() {
+                 if (overTooltip)
+                   return;
                  if (toolTipEl) {
-                     $(toolTipEl).parent().remove();
-                     toolTipEl = null;
-                     clearInterval(checkInt);
-                     checkInt = null;
+                   $(toolTipEl).parent().remove();
+                   toolTipEl = null;
+                   clearInterval(checkInt);
+                   checkInt = null;
                  }
+               }, HideDelay);
              }
 
              function resetTimer(e) {

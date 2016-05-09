@@ -1144,21 +1144,24 @@ void WTableView::setRowHeight(const WLength& rowHeight)
 {
   int renderedRowCount = model() ? lastRow() - firstRow() + 1 : 0;
 
-  WAbstractItemView::setRowHeight(rowHeight);
+  // Avoid floating point error which might lead to incorrect viewport calculation
+  WLength len = WLength((int)rowHeight.toPixels()); 
+
+  WAbstractItemView::setRowHeight(len);
 
   if (ajaxMode()) {
-    canvas_->setLineHeight(rowHeight);
-    headerColumnsCanvas_->setLineHeight(rowHeight);
+    canvas_->setLineHeight(len);
+    headerColumnsCanvas_->setLineHeight(len);
 
     if (model()) {
       double ch = canvasHeight();
       canvas_->resize(canvas_->width(), ch);
       headerColumnsCanvas_->setHeight(ch);
-      double th = renderedRowCount * rowHeight.toPixels();
+      double th = renderedRowCount * len.toPixels();
       setRenderedHeight(th);
     }
   } else { // Plain HTML mode
-    plainTable_->setLineHeight(rowHeight);
+    plainTable_->setLineHeight(len);
     resize(width(), height());
   }
 

@@ -811,6 +811,9 @@ public:
    * the mapping reflect model changes since the last rendering, you should
    * call initLayout() first.
    *
+   * If the chart is interactive, mapFromDevice will correctly take the current
+   * zoom range into account.
+   *
    * \sa mapToDevice()
    */
   WPointF mapFromDevice(const WPointF& point,
@@ -830,6 +833,9 @@ public:
    * the corresponding axis is broken using WAxis::setBreak(). Then,
    * its possible values may be 0 (below the break) or 1 (above the
    * break).
+   *
+   * If the chart is interactive, mapToDevice will correctly take the current
+   * zoom range into account.
    *
    * \sa mapFromDevice()
    */
@@ -1208,7 +1214,7 @@ private:
   mutable int width_, height_;
   mutable WRectF chartArea_;
   mutable AxisValue location_[3];
-  mutable bool hasToolTips_; // Saves doing roundtrips when there are no tooltips
+  mutable bool hasDeferredToolTips_;
 
   bool jsDefined_;
   bool zoomEnabled_;
@@ -1500,6 +1506,12 @@ private:
   void defineJavaScript();
 
   bool axisSliderWidgetForSeries(WDataSeries *series) const;
+
+  WPointF mapFromDeviceWithoutTransform(const WPointF& point,
+			Axis ordinateAxis = OrdinateAxis) const;
+  WPointF mapToDeviceWithoutTransform(const boost::any& xValue, const boost::any& yValue,
+		      Axis axis = OrdinateAxis, int xSegment = 0,
+		      int ySegment = 0) const;
 
   class IconWidget : public WPaintedWidget {
   public:

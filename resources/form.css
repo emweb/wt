@@ -49,7 +49,7 @@
     text-align: right;
 }
 
-.Wt-form .Wt-fields input {
+.Wt-form .Wt-fields input, .Wt-form .Wt-fields select{
     float: left;
     padding: 5px 2px;
     border: solid 1px #aacfe4;

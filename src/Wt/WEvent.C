@@ -255,8 +255,8 @@ Key WKeyEvent::key() const
     key = jsEvent_.charCode;
 
 #ifndef WT_TARGET_JAVA
-  if (key >= 'a' && key <= 'z')
-    key -= ('a' - 'A');
+  if (key >= 96 && key <= 105)
+      key -= int('0');
 
   if (key >= 'A' && key <= 'Z')
     return static_cast<Key>(key);
@@ -264,7 +264,8 @@ Key WKeyEvent::key() const
 	   || (key >= 16 && key <= 18)
 	   || (key >= 33 && key <= 40)
 	   || (key >= 45 && key <= 46)
-	   || (key >= 48 && key <= 57))
+       || (key >= 48 && key <= 57)
+       || (key >= 112 && key <= 123))
     return static_cast<Key>(key);
   else
     return Key_unknown;

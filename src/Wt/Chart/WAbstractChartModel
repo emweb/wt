@@ -9,6 +9,7 @@
 
 #include "Wt/WObject"
 #include "Wt/WColor"
+#include "Wt/WModelIndex"
 #include "Wt/WSignal"
 #include "Wt/WString"
 
@@ -59,6 +60,32 @@ public:
    * should be shown.
    */
   virtual WString toolTip(int row, int column) const;
+
+  /*! \brief Returns the item flags for the given row and column.
+   *
+   * Only the ItemIsXHTMLText and ItemHasDeferredTooltip flags
+   * are supported for charts.
+   *
+   * ItemIsXHTMLText determines whether the tooltip text should be
+   * rendered as XHTML or as plain text, and ItemHasDeferredTooltip
+   * makes it so that tooltips are only loaded on demand.
+   *
+   * \note An XHTML text tooltip will be forced to be deferred. Non-deferred
+   *       XHTML tooltips are not supported.
+   *
+   * \note When not using deferred tooltips, the HTML <area> tag will be
+   *       used. If there are many tooltips and the chart is interactive
+   *       this may cause client-side performance issues. If deferred tooltips
+   *       are used, this will cause some load on the server, as it calculates
+   *       server-side what marker or bar the user is hovering over.
+   */
+  virtual WFlags<ItemFlag> flags(int row, int column) const;
+
+  /*! \brief Returns the link for a given row and column.
+   *
+   * Defaults to an empty link, signifying that no link should be shown.
+   */
+  virtual WLink *link(int row, int column) const;
 
   /*!\brief Returns the marker pen color to use for a given row and column.
    *

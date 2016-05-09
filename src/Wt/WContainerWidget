@@ -349,6 +349,26 @@ public:
    */
   EventSignal<WScrollEvent>& scrolled();
 
+  /*! \brief return the number of pixels the container is scrolled horizontally
+   *
+   *  This value is only set if setOverflow() has been called 
+   * \sa setOverflow()
+   * \sa scrollLeft();
+   */
+  int scrollTop() const { return scrollTop_;}
+
+  /*! \brief return the number of pixels the container is scrolled vertically
+   *
+   *  This value is only set if setOverflow() has been called 
+   * \sa setOverflow()
+   * \sa scrollTop();
+   */
+  int scrollLeft() const { return scrollLeft_;}
+
+  void setGlobalUnfocused(bool b);
+
+  bool isGlobalUnfocussed() const;
+
 private:
   static const char *SCROLL_SIGNAL;
 
@@ -361,6 +381,7 @@ private:
   static const int BIT_LAYOUT_NEEDS_RERENDER = 6;
   static const int BIT_LAYOUT_NEEDS_UPDATE = 7;
 
+
   /*
    * Frequently used attributes.
    */
@@ -369,6 +390,8 @@ private:
   Overflow        *WT_ARRAY overflow_;
   WLength	  *WT_ARRAY padding_;
   WLayout                  *layout_;
+  bool globalUnfocused_;
+  int scrollTop_, scrollLeft_;
 
   bool wasEmpty() const;
 
@@ -397,6 +420,7 @@ protected:
 
   virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *item);
   StdLayoutImpl *layoutImpl() const;
+  virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override);
 
   friend class StdLayoutImpl;
   friend class StdGridLayoutImpl;

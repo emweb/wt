@@ -17,18 +17,20 @@ namespace {
 	}
 
 	virtual void setData(const boost::any &data, int role = Wt::UserRole) {
-	    boost::any dt;
+    if (role == Wt::EditRole) {
+      boost::any dt;
 
-	    if (role == Wt::EditRole) {
-		double d = Wt::asNumber(data);
+      double d = Wt::asNumber(data);
 
-		if (d != d)
-		    dt = data;
-		else
-		    dt = boost::any(d);
-	    }
+      if (d != d)
+        dt = data;
+      else
+        dt = boost::any(d);
+      Wt::WStandardItem::setData(dt, role);
 
-	    Wt::WStandardItem::setData(dt, role);
+    } else {
+      Wt::WStandardItem::setData(data, role);
+    }
 	}
     };
 }

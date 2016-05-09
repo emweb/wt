@@ -41,7 +41,10 @@ WContainerWidget::WContainerWidget(WContainerWidget *parent)
     contentAlignment_(AlignLeft),
     overflow_(0),
     padding_(0),
-    layout_(0)
+    layout_(0),
+    globalUnfocused_(false),
+    scrollTop_(0),
+    scrollLeft_(0)
 {
   setInline(false);
   setLoadLaterWhenInvisible(false);
@@ -424,6 +427,7 @@ WLength WContainerWidget::padding(Side side) const
 
 void WContainerWidget::updateDom(DomElement& element, bool all)
 {
+  element.setGlobalUnfocused(globalUnfocused_);
   if (all && element.type() == DomElement_LI && isInline())
     element.setProperty(PropertyStyleDisplay, "inline");
 
@@ -536,6 +540,15 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 
     element.setProperty(PropertyStyleOverflowX, cssText[overflow_[0]]);
     element.setProperty(PropertyStyleOverflowY, cssText[overflow_[1]]);
+    // enable form object to retrieve scroll state
+    setFormObject(true);
+    
+    //declare javascript function Wt.encodeValue()
+    this->doJavaScript(this->jsRef()
+	+ ".wtEncodeValue = function() {"
+	+ "return " + this->jsRef() + ".scrollTop"
+	+ " + ';' + " + this->jsRef() + ".scrollLeft;"
+	+ "}");
 
     flags_.reset(BIT_OVERFLOW_CHANGED);
 
@@ -835,6 +848,36 @@ void WContainerWidget::layoutChanged(bool rerender, bool deleted)
   repaint(RepaintSizeAffected);
 
 #endif // WT_NO_LAYOUT
+}
+
+void WContainerWidget::setGlobalUnfocused(bool b)
+{
+  globalUnfocused_ = b;
+}
+
+bool WContainerWidget::isGlobalUnfocussed() const 
+{
+  return globalUnfocused_;
+}
+
+void WContainerWidget::setFormData(const FormData& formData)
+{
+  if (!Utils::isEmpty(formData.values)) {
+    std::vector<std::string> attributes;
+    boost::split(attributes, formData.values[0], boost::is_any_of(";"));
+
+    if (attributes.size() == 2) {
+      try {
+        scrollTop_ = (int)boost::lexical_cast<double>(attributes[0]);
+        scrollLeft_ = (int)boost::lexical_cast<double>(attributes[1]);
+
+      }catch (const std::exception& e) {
+	throw WException("WContainerWidget: error parsing: " + formData.values[0] + ": " + e.what());
+      }
+    } else 
+      throw WException("WContainerWidget: error parsing: " + formData.values[0]);
+	  }
+
 }
 
 }

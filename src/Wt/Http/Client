@@ -128,7 +128,7 @@ public:
 
   /*! \brief Sets an I/O timeout.
    *
-   * This sets a timeout wiating for I/O operations. The timeout does
+   * This sets a timeout waiting for I/O operations. The timeout does
    * not bound the total timeout, since the timer is reset on each I/O
    * progress.
    *

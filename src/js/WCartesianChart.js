@@ -174,6 +174,7 @@ WT_DECLARE_WT_MEMBER
    /*const*/ var SERIES_SELECTION_TIMEOUT = 200; // ms
    /*const*/ var TRANSFORM_CHANGED_TIMEOUT = 250; // ms
    /*const*/ var TOOLTIP_TIMEOUT = 500; // ms
+   /*const*/ var TOOLTIP_HIDE_DELAY = 200; // ms
    
    /*const*/ var FRICTION_FACTOR = 0.003, // Determines how strongly the speed decreases, when animating
        SPRING_CONSTANT = 0.0002, // How strongly the spring pulls, relative to how extended it is
@@ -310,16 +311,19 @@ WT_DECLARE_WT_MEMBER
 
    var tobj = jQuery.data(widget, 'tobj');
    if (!tobj) {
-      tobj = {};
+      tobj = {overTooltip:false};
       jQuery.data(widget, 'tobj', tobj);
    }
 
    function hideTooltip() {
       if (!tobj)
-	 return; // TODO(Roel): is this a bug?
+	 return;
       if (tobj.tooltipTimeout) {
 	 clearTimeout(tobj.tooltipTimeout);
 	 tobj.tooltipTimeout = null;
+      }
+      if (tobj.overTooltip) {
+	 return;
       }
       if (tobj.tooltipOuterDiv) {
 	 document.body.removeChild(tobj.tooltipOuterDiv);
@@ -600,6 +604,13 @@ WT_DECLARE_WT_MEMBER
 	 var y = tobj.tooltipPosition[Y] + c.y;
 	 WT.fitToWindow(tobj.tooltipOuterDiv, x + MouseDistance, y + MouseDistance,
 	       x - MouseDistance, y - MouseDistance);
+
+	 $(tobj.toolTipEl).mouseenter(function() {
+	   tobj.overTooltip = true;
+	 });
+	 $(tobj.toolTipEl).mouseleave(function() {
+	   tobj.overTooltip = false;
+	 });
       }
    }
 
@@ -608,12 +619,12 @@ WT_DECLARE_WT_MEMBER
       // mousemove first, but we actually want to
       // handle it after pointer events.
       setTimeout(function() {
-         hideTooltip();
+	 setTimeout(hideTooltip, TOOLTIP_HIDE_DELAY);
          if (pointerActive) return;
 	 var c = WT.widgetCoordinates(target.canvas, event);
 	 if (!isPointInRect(c, configArea())) return;
 
-	 if (hasToolTips()) {
+	 if (!tobj.tooltipEl && hasToolTips()) {
 	    tobj.tooltipPosition = [c.x,c.y];
 	    tobj.tooltipTimeout = setTimeout(function() {
 	       loadTooltip();
@@ -628,7 +639,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.mouseOut = function(o, event) {
-      hideTooltip();
+      setTimeout(hideTooltip, TOOLTIP_HIDE_DELAY);
    }
 
    this.mouseDown = function(o, event) {
