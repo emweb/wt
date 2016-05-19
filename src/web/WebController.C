@@ -700,7 +700,7 @@ void WebController::handleRequest(WebRequest *request)
 			     appSessionCookie(request->scriptName())
 			     + "=" + sessionId + "; Version=1;"
 			     + " Path=" + session->env().deploymentPath()
-			     + "; httponly;");
+			     + "; httponly;" + (session->env().urlScheme() == "https" ? " secure;" : ""));
 
 	sessions_[sessionId] = session;
 	++plainHtmlSessions_;

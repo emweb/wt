@@ -288,10 +288,10 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	  c = palette()->fontColor(i);
 	}
 
-	if ((v / total * 100) >= avoidLabelRendering_) {
-	  painter.setPen(WPen(c));
-	  painter.drawText(WRectF(left, top, width, height),
-			   alignment, labelText(i, v, total, labelOptions_));
+  if ((v / total * 100) >= avoidLabelRendering_) {
+    painter.setPen(WPen(c));
+    drawLabel(&painter, WRectF(left, top, width, height),
+             alignment, labelText(i, v, total, labelOptions_), i);
 	}
 
 	currentAngle = endAngle;
@@ -308,6 +308,63 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   }
 
   painter.restore();
+}
+
+WContainerWidget *WPieChart::createLabelWidget(WWidget *textWidget,
+    WPainter* painter, const WRectF& rect,
+    Wt::WFlags<Wt::AlignmentFlag> alignmentFlags) const
+{
+  AlignmentFlag verticalAlign = alignmentFlags & AlignVerticalMask;
+  AlignmentFlag horizontalAlign = alignmentFlags & AlignHorizontalMask;
+
+  // style parent container
+  WContainerWidget *c = new WContainerWidget();
+  c->addWidget(textWidget);
+  c->setPositionScheme(Wt::Absolute);
+  c->setAttributeValue("style", "display: flex;");
+
+  const WRectF& normRect = rect.normalized();
+  Wt::WTransform t = painter->worldTransform();
+  Wt::WPointF p = t.map(Wt::WPointF(normRect.left(), normRect.top()));
+
+  c->setWidth(WLength(normRect.width() * t.m11()));
+  c->setHeight(WLength(normRect.height() * t.m22()));
+  c->decorationStyle().setFont(painter->font());
+
+  std::stringstream containerStyle;
+  containerStyle << "top:" << p.y() << "px; left:" << p.x() << "px; "
+    << "display: flex;";
+
+  switch (horizontalAlign) {
+  case AlignLeft: containerStyle << " justify-content: flex-start;"; break;
+  case AlignRight: containerStyle << " justify-content: flex-end;"; break;
+  case AlignCenter: containerStyle << " justify-content: center;"; break;
+  default: break;
+  }
+
+  c->setAttributeValue("style", containerStyle.str());
+
+  // style inner text.
+
+  std::stringstream innerStyle;
+
+  switch (verticalAlign) {
+  case AlignTop: innerStyle << "align-self: flex-start;"; break;
+  case AlignBottom: innerStyle << "align-self: flex-end;"; break;
+  case AlignMiddle: innerStyle << " align-self: center;"; break;
+  default: break;
+  }
+
+  textWidget->setAttributeValue("style", innerStyle.str());
+
+  return c;
+}
+
+void WPieChart::drawLabel(WPainter* painter, const WRectF& rect,
+                         WFlags<AlignmentFlag> alignmentFlags,
+                         const WString& text, int row) const
+{
+  painter->drawText(rect, alignmentFlags, text);
 }
 
 WString WPieChart::labelText(int index, double v, double total, 

@@ -557,7 +557,7 @@
 .dropdown-menu.typeahead {
   cursor: pointer;
 }
-.dropdown-menu.typeahead li > a:hover {
+.dropdown-menu.typeahead li:not(.active) > a:hover {
   color: inherit;
   background: inherit;
 }

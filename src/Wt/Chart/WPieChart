@@ -260,11 +260,69 @@ public:
   virtual void addDataPointArea(int row, int column, WAbstractArea *area)
     const;
 
+  /**
+   * @brief createLabelWidget possition textWidget where the text would be
+   * rendered.
+   * Assuming that textWidget is added to a container with same dimentions as
+   * the WPieChart.
+   * This should be used in combinaltion with drawLabel().
+   *
+   * @return The new WContainerWidget that contains textWidget and can be placed
+   * on an other layer that has the same dimentions as the WPieChart.
+   * \sa drawLabel()
+   *
+   * Usage example, PieChart with label links.
+   * \code
+   * class PChart : public Wt::Chart::WPieChart {
+   * private:
+   *   Wt::WContainerWidget *widgetsLayer_;
+   * public:
+   *   PChart(Wt::WContainerWidget *widgetsLayer) :
+   *     Wt::Chart::WPieChart(widgetsLayer),
+   *     widgetsLayer_(widgetsLayer)
+   *   {
+   *     widgetsLayer_->resize(800, 300);
+   *     resize(800, 300);
+   *     widgetsLayer_->setPositionScheme(Wt::Relative);
+   *   }
+   *   virtual void drawLabel(Wt::WPainter* painter, const Wt::WRectF& rect,
+   *                            Wt::WFlags<Wt::AlignmentFlag> alignmentFlags,
+   *                            const Wt::WString& text, int row) const
+   *   {
+   *     if (model()->link(row, dataColumn()) == 0){
+   *       Wt::Chart::WPieChart::drawLabel(painter, rect, alignmentFlags,
+   *                                     text, row);
+   *   } else {
+   *      Wt::WAnchor *a = new Wt::WAnchor(*model()->link(row, dataColumn()),
+   *                                        text);
+   *       widgetsLayer_->addWidget(createLabelWidget(a, painter, rect,
+   *                                                  alignmentFlags));
+   *     }
+   *   }
+   * };
+   * \endcode
+   */
+  virtual WContainerWidget *createLabelWidget(WWidget *textWidget,
+      WPainter* painter, const WRectF& rect,
+      Wt::WFlags<AlignmentFlag> alignmentFlags) const;
+
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
     const;
 
 protected:
   void paintEvent(Wt::WPaintDevice *paintDevice);
+
+  /**
+   * @brief drawLabel draw a label on the chart. Will be called by paint.
+   *
+   * You may want to specialize this if you wish to replace the label by
+   * a widget.
+   * \sa createLabelWidget() if you wish to replace the label by a Widget.
+   *
+   */
+  virtual void drawLabel(WPainter* painter, const WRectF& rect,
+                           WFlags<AlignmentFlag> alignmentFlags,
+                           const WString& text, int row) const;
 
 private:
   int                  labelsColumn_;

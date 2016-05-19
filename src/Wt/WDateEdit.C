@@ -28,31 +28,46 @@ namespace Wt {
 LOGGER("WDateEdit");
 
 WDateEdit::WDateEdit(WContainerWidget *parent)
-  : WLineEdit(parent)
+  : WLineEdit(parent),
+    popup_(0)
 {
   changed().connect(this, &WDateEdit::setFromLineEdit);
+
+  calendar_ = new WCalendar();
+  calendar_->setSingleClickSelect(true);
+  calendar_->activated().connect(this, &WWidget::setFocus);
+  calendar_->selectionChanged().connect(this, &WDateEdit::setFromCalendar);
+
+  setValidator(new WDateValidator("dd/MM/yyyy", this));
+}
+
+void WDateEdit::load()
+{
+  bool wasLoaded = loaded();
+
+  WLineEdit::load();
+  // Loading of popup_ is deferred (see issue #4897)
+
+  if (wasLoaded)
+    return;
 
   const char *TEMPLATE = "${calendar}";
 
   WTemplate *t = new WTemplate(WString::fromUTF8(TEMPLATE));
   popup_ = new WPopupWidget(t, this);
+  if (isHidden()) {
+    popup_->setHidden(true);
+  }
   popup_->setAnchorWidget(this);
   popup_->setTransient(true);
 
-  calendar_ = new WCalendar();
-  calendar_->setSingleClickSelect(true);
   calendar_->activated().connect(popup_, &WPopupWidget::hide);
-  calendar_->activated().connect(this, &WWidget::setFocus);
-  calendar_->selectionChanged().connect(this, &WDateEdit::setFromCalendar);
-
   t->bindWidget("calendar", calendar_);
 
   WApplication::instance()->theme()->apply(this, popup_, DatePickerPopupRole);
 
   escapePressed().connect(popup_, &WPopupWidget::hide);
   escapePressed().connect(this, &WWidget::setFocus);
-
-  setValidator(new WDateValidator("dd/MM/yyyy", this));
 }
 
 WDateValidator *WDateEdit::validator() const
@@ -140,7 +155,7 @@ void WDateEdit::setHidden(bool hidden, const WAnimation& animation)
   // rationale: when calling hide(), line edit and popup should go away. When
   // calling show(), line edit becomes visible, but popup is only shown when
   // using the widget.
-  if (hidden)
+  if (popup_ && hidden)
     popup_->setHidden(hidden, animation);
 }
 
@@ -192,7 +207,7 @@ void WDateEdit::defineJavaScript()
 
   std::string jsObj = "new " WT_CLASS ".WDateEdit("
     + app->javaScriptClass() + "," + jsRef() + "," 
-    + popup_->jsRef() + ");";
+    + jsStringLiteral(popup_->id()) + ");";
 
   setJavaScriptMember(" WDateEdit", jsObj);
 

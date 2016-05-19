@@ -538,6 +538,7 @@ public:
    */
   void removeSeries(WDataSeries *series);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Sets all data series.
    *
    * Replaces the current list of series with the new list.
@@ -547,6 +548,7 @@ public:
    * \deprecated Use setSeries(const std::vector<WDataSeries *> &series) instead
    */
   void setSeries(const std::vector<WDataSeries>& series);
+#endif
 
 
   /*! \brief Sets all data series.

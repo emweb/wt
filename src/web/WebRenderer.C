@@ -107,6 +107,7 @@ WebRenderer::WebRenderer(WebSession& session)
     expectedAckId_(0),
     scriptId_(0),
     linkedCssCount_(-1),
+    currentStatelessSlotIsActuallyStateless_(true),
     formObjectsChanged_(true),
     updateLayout_(false),
     learning_(false)
@@ -1789,10 +1790,15 @@ void WebRenderer::preLearnStateless(WApplication *app, WStringStream& out)
 
 std::string WebRenderer::learn(WStatelessSlot* slot)
 {
+  if (slot->invalidated())
+    return std::string();
+
   if (slot->type() == WStatelessSlot::PreLearnStateless)
     learning_ = true;
 
   learningIncomplete_ = false;
+
+  currentStatelessSlotIsActuallyStateless_ = true;
 
   slot->trigger();
 
@@ -1813,8 +1819,11 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
     statelessJS_ << result;
   }
 
-  if (!learningIncomplete_)
+  if (currentStatelessSlotIsActuallyStateless_ && !learningIncomplete_) {
     slot->setJavaScript(result);
+  } else if (!currentStatelessSlotIsActuallyStateless_) {
+    slot->invalidate();
+  }
 
   collectJS(&statelessJS_);
 

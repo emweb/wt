@@ -19,7 +19,7 @@ de1->setTime(Wt::WTime::currentTime());
 Wt::WTimeEdit *de2 = new Wt::WTimeEdit();
 form->bindWidget("to", de2);
 #ifndef WT_TARGET_JAVA
-de2->setFormat("h:mm:ss.zzz A");
+de2->setFormat("h:mm:ss.zzz AP");
 #else
 de2->setFormat("h:mm:ss.SSS a");
 #endif

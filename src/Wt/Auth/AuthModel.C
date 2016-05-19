@@ -175,7 +175,9 @@ void AuthModel::setRememberMeCookie(const User& user)
   app->setCookie(s->authTokenCookieName(),
 		 s->createAuthToken(user),
 		 s->authTokenValidity() * 60,
-		 s->authTokenCookieDomain());
+		 s->authTokenCookieDomain(),
+		 "",
+		 app->environment().urlScheme() == "https");
 }
 
 bool AuthModel::login(Login& login)
@@ -237,11 +239,11 @@ User AuthModel::processAuthToken()
 	 * Only extend the validity from what we had currently.
 	 */
 	app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
-		       result.newTokenValidity());
+		       result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
 
 	return result.user();
       case AuthTokenResult::Invalid:
-	app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0);
+	app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0, "", "", app->environment().urlScheme() == "https");
 
 	return User();
       }

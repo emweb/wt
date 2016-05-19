@@ -343,7 +343,7 @@ void Session::implDelete(MetaDbo<C>& dbo)
     int modifiedCount = statement->affectedRowCount();
     if (modifiedCount != 1)
       throw StaleObjectException(boost::lexical_cast<std::string>(dbo.id()),
-				 version);
+				 this->tableName<C>(), version);
   }
 }
 

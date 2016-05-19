@@ -571,4 +571,9 @@ void WCompositeWidget::propagateSetEnabled(bool enabled)
   impl_->webWidget()->propagateSetEnabled(enabled);
 }
 
+void WCompositeWidget::propagateSetVisible(bool visible)
+{
+  impl_->webWidget()->propagateSetVisible(visible);
+}
+
 }

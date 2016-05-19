@@ -86,6 +86,8 @@ public:
 
   void setJSSynced(bool invisibleToo);
 
+  void setStatelessSlotNotStateless() { currentStatelessSlotIsActuallyStateless_ = false; }
+
 private:
   struct CookieValue {
     std::string value;
@@ -105,6 +107,8 @@ private:
   int twoPhaseThreshold_, pageId_, expectedAckId_, scriptId_;
   int linkedCssCount_;
   std::string solution_;
+
+  bool currentStatelessSlotIsActuallyStateless_;
 
   std::map<std::string, CookieValue> cookiesToSet_;
 

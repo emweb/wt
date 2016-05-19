@@ -328,6 +328,7 @@ protected:
   virtual std::string renderRemoveJs(bool recursive);
 
   virtual void propagateSetEnabled(bool enabled);
+  virtual void propagateSetVisible(bool visible);
   virtual bool isStubbed() const;
   virtual void enableAjax();
 

@@ -118,7 +118,7 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
     currentIndex_ = index;
 
     for (int i = 0; i < count(); ++i)
-      if (widget(i)->isHidden() != (currentIndex_ != i))
+      if (!canOptimizeUpdates() || (widget(i)->isHidden() != (currentIndex_ != i)))
 	widget(i)->setHidden(currentIndex_ != i);
 
     if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_)
@@ -169,7 +169,7 @@ void WStackedWidget::render(WFlags<RenderFlag> flags)
 {
   if (widgetsAdded_ || (flags & RenderFull)) {
     for (int i = 0; i < count(); ++i)
-      if (widget(i)->isHidden() != (currentIndex_ != i))
+      if (!canOptimizeUpdates() || (widget(i)->isHidden() != (currentIndex_ != i)))
 	widget(i)->setHidden(currentIndex_ != i);
     widgetsAdded_ = false;
   }

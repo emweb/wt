@@ -91,6 +91,11 @@ bool WStatelessSlot::learned() const
   return learned_;
 }
 
+bool WStatelessSlot::invalidated() const
+{
+  return !learned_ && !method_;
+}
+
 void WStatelessSlot::setJavaScript(const std::string& javaScript)
 {
   jscript_ = javaScript;
@@ -98,6 +103,13 @@ void WStatelessSlot::setJavaScript(const std::string& javaScript)
 
   for (size_t i = 0; i < connectingSignals_.size(); i++)
     connectingSignals_[i]->senderRepaint();
+}
+
+void WStatelessSlot::invalidate()
+{
+  /* Is not actually a stateless slot, see WObject::isNotStateless() */
+  setNotLearned();
+  method_ = 0;
 }
 
 void WStatelessSlot::setNotLearned()

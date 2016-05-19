@@ -504,10 +504,6 @@ fieldset[disabled] .Wt-slider-v .handle.active {
 .dropdown-menu.typeahead {
   cursor: pointer;
 }
-.dropdown-menu.typeahead li > a:hover {
-  color: inherit;
-  background: inherit;
-}
 /*
  * WAbstractItemView (WTableView and WTreeView)
  */

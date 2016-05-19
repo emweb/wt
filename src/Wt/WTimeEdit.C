@@ -21,25 +21,41 @@ namespace Wt {
 LOGGER("WTimeEdit");
 
 WTimeEdit::WTimeEdit(WContainerWidget *parent)
-  : WLineEdit(parent)
+  : WLineEdit(parent),
+    popup_(0)
 {
   setValidator(new WTimeValidator(this));
   changed().connect(this, &WTimeEdit::setFromLineEdit);
-  const char *TEMPLATE = "${timePicker}";
-  WTemplate *t = new WTemplate(WString::fromUTF8(TEMPLATE));
-  popup_ = new WPopupWidget(t, this);
-  popup_->setAnchorWidget(this);
-  popup_->setTransient(true);
 
   timePicker_ = new WTimePicker(this);
   timePicker_->selectionChanged().connect(this, &WTimeEdit::setFromTimePicker);
+}
+
+void WTimeEdit::load()
+{
+  bool wasLoaded = loaded();
+
+  WLineEdit::load();
+  // Loading of popup_ is deferred (see issue #4897)
+
+  if (wasLoaded)
+    return;
+
+  const char *TEMPLATE = "${timePicker}";
+  WTemplate *t = new WTemplate(WString::fromUTF8(TEMPLATE));
+  popup_ = new WPopupWidget(t, this);
+  if (isHidden()) {
+    popup_->setHidden(true);
+  }
+  popup_->setAnchorWidget(this);
+  popup_->setTransient(true);
+
   t->bindWidget("timePicker", timePicker_);
 
   WApplication::instance()->theme()->apply(this, popup_, TimePickerPopupRole);
 
   escapePressed().connect(popup_, &WPopupWidget::hide);
   escapePressed().connect(this, &WWidget::setFocus);
-
 }
 
 void WTimeEdit::setTime(const WTime& time)
@@ -118,7 +134,9 @@ WTime WTimeEdit::top() const
 void WTimeEdit::setHidden(bool hidden, const WAnimation& animation)
 {
   WLineEdit::setHidden(hidden, animation);
-  popup_->setHidden(hidden, animation);
+  if (popup_) {
+    popup_->setHidden(hidden, animation);
+  }
 }
 
 void WTimeEdit::render(WFlags<RenderFlag> flags)
@@ -153,7 +171,7 @@ void WTimeEdit::defineJavaScript()
   LOAD_JAVASCRIPT(app, "js/WTimeEdit.js", "WTimeEdit", wtjs1);
   std::string jsObj = "new " WT_CLASS ".WTimeEdit("
                       + app->javaScriptClass() + "," + jsRef() + ","
-                      + popup_->jsRef() + ");";
+		      + jsStringLiteral(popup_->id()) + ");";
   setJavaScriptMember(" WTimeEdit", jsObj);
 #ifdef WT_CNOR
   EventSignalBase& b = mouseMoved();

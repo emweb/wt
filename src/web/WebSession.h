@@ -83,7 +83,7 @@ public:
   WEnvironment&  env() { return *env_; }
   WApplication  *app() { return app_; }
   WebRenderer&   renderer() { return renderer_; }
-  bool useUrlRewriting() { return useUrlRewriting_; }
+  bool useUrlRewriting();
 
   bool debug() const { return debug_; }
 
@@ -280,7 +280,6 @@ private:
   std::string favicon_;
   State state_;
 
-  bool useUrlRewriting_;
   std::string sessionId_, sessionIdCookie_;
   bool sessionIdChanged_, sessionIdCookieChanged_, sessionIdInUrl_;
 

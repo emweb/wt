@@ -22,11 +22,11 @@ WT_DECLARE_WT_MEMBER
    }
 
    function isPopupVisible() {
-     return popup.style.display === '';
+     return $('#' + popup).style.display === '';
    }
 
    function getPopup() {
-     var p = $('#' + popup.id).get(0);
+     var p = $('#' + popup).get(0);
      return jQuery.data(p, 'popup');
    }
 

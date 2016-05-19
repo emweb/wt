@@ -80,6 +80,8 @@ public:
      */
     WTime top() const;
 
+    virtual void load();
+
 protected:
     virtual void render(WFlags<RenderFlag> flags);
     virtual void propagateSetEnabled(bool enabled);

@@ -293,8 +293,8 @@ void LoadDbAction<C>::visit(C& obj)
     statement_->execute();
 
     if (!statement_->nextRow()) {
-      throw ObjectNotFoundException
-	(boost::lexical_cast<std::string>(dbo_.id()));
+      throw ObjectNotFoundException(session->template tableName<C>(), 
+				    boost::lexical_cast<std::string>(dbo_.id()));
     }
   }
 
@@ -515,7 +515,9 @@ void SaveDbAction<C>::visit(C& obj)
 	MetaDbo<C>& dbo = static_cast< MetaDbo<C>& >(dbo_);
 	std::string idString = boost::lexical_cast<std::string>(dbo.id());
 
-	throw StaleObjectException(idString, dbo_.version());
+	throw StaleObjectException(idString, 
+				   dbo_.session()->template tableName<C>(), 
+				   dbo_.version());
       }
     }
   }

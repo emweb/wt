@@ -19,7 +19,7 @@ RegistrationView::RegistrationView(Session& session,
   updateView(detailsModel_);
 }
 
-Wt::WFormWidget *RegistrationView::createFormWidget(Wt::WFormModel::Field field)
+Wt::WWidget *RegistrationView::createFormWidget(Wt::WFormModel::Field field)
 {
   if (field == UserDetailsModel::FavouritePetField)
     return new Wt::WLineEdit();

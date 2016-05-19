@@ -149,6 +149,7 @@ public:
   virtual void setSelectable(bool selectable);  
   virtual void doJavaScript(const std::string& js);
   virtual void propagateSetEnabled(bool enabled);
+  virtual void propagateSetVisible(bool visible);
 
 #ifndef WT_TARGET_JAVA
   using WWidget::setFocus;

@@ -820,6 +820,10 @@ WT_DECLARE_WT_MEMBER
 	 WT.capture(null);
 	 WT.capture(target.canvas);
       } else if (doubleTouch && (config.zoom || curveManipulation())) {
+	 if (seriesSelectionTimeout) {
+	    window.clearTimeout(seriesSelectionTimeout);
+	    seriesSelectionTimeout = null;
+	 }
 	 animating = false;
 	touches = [
 	   WT.widgetCoordinates(target.canvas,event.touches[0]),

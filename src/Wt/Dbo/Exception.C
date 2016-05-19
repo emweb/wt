@@ -18,13 +18,16 @@ Exception::Exception(const std::string& error, const std::string& code)
 
 Exception::~Exception() throw() { }
 
-StaleObjectException::StaleObjectException(const std::string& id, int version)
-  : Exception("Stale object, id = " + id + ", version = "
-	      + boost::lexical_cast<std::string>(version))
+StaleObjectException::StaleObjectException(const std::string& id, 
+					   const char *table,
+					   int version)
+  : Exception(std::string("Stale object, ") + table + ", id = " + id +
+	      ", version = " + boost::lexical_cast<std::string>(version))
 { }
 
-ObjectNotFoundException::ObjectNotFoundException(const std::string& id)
-  : Exception("Object not found, id = " + id)
+ObjectNotFoundException::ObjectNotFoundException(const char *table,
+						 const std::string& id)
+  : Exception(std::string("Object not found in ") + table + ", id = " + id)
 { }
 
 NoUniqueResultException::NoUniqueResultException()

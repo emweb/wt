@@ -1428,6 +1428,7 @@ const WDataSeries& WCartesianChart::series(int modelColumn) const
 		   + " not in plot");
 }
 
+#ifndef WT_TARGET_JAVA
 void WCartesianChart::setSeries(const std::vector<WDataSeries>& series)
 {
   std::vector<WDataSeries *> seriesCopy;
@@ -1437,6 +1438,7 @@ void WCartesianChart::setSeries(const std::vector<WDataSeries>& series)
   }
   setSeries(seriesCopy);
 }
+#endif
 
 void WCartesianChart::setSeries(const std::vector<WDataSeries *> &series)
 {

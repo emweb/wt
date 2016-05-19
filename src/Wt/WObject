@@ -391,6 +391,17 @@ public:
     WStatelessSlot *implementStateless(T1 method, T2 undoMethod);
 #endif // WT_TARGET_JAVA
 
+  /*! \brief Marks the current function as not stateless.
+   *
+   * This may be useful if your current function is manipulating the
+   * UI in a way that is not stateless (i.e. does depend on some
+   * state), but which happens to be called from within a function
+   * that is marked stateless (such as WWidget::setHidden()). This
+   * will reject stateless slot pre-learning in this case, reverting
+   * to plain server-side dynamic UI updates.
+   */
+  void isNotStateless();
+
   /*! \brief Provides a JavaScript implementation for a method
    *
    * This method sets the JavaScript implementation for a method. As a

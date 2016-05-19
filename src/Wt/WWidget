@@ -787,8 +787,9 @@ public:
 
   /*! \brief Loads content just before the widget is used.
    *
-   * When the widget is inserted in the widget hierarchy, this method
-   * is called. Widgets that get inserted in the widget hierarchy will
+   * This method is called after a widget is inserted in the widget
+   * hierarchy and fully constructed, but before the widget is rendered.
+   * Widgets that get inserted in the widget hierarchy will
    * be rendered. Visible widgets are rendered immediately, and
    * invisible widgets in the back-ground (or not for a plain HTML
    * session). This method is called when the widget is directly or
@@ -1172,6 +1173,8 @@ protected:
    * propagate the signal to all children.
    */
   virtual void propagateSetEnabled(bool enabled) = 0;
+
+  virtual void propagateSetVisible(bool visible) = 0;
 
   void getDrop(const std::string sourceId, const std::string mimeType,
 	       WMouseEvent event);

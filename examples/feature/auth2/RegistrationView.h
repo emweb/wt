@@ -18,7 +18,7 @@ public:
   RegistrationView(Session& session, Wt::Auth::AuthWidget *authWidget = 0);
 
   /* specialize to create user details fields */
-  virtual Wt::WFormWidget *createFormWidget(Wt::WFormModel::Field field);
+  virtual Wt::WWidget *createFormWidget(Wt::WFormModel::Field field);
 
 protected:
   /* specialize to also validate the user details */

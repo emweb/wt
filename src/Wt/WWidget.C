@@ -354,6 +354,8 @@ void WWidget::dropEvent(WDropEvent event)
 
 DomElement *WWidget::createSDomElement(WApplication *app)
 {
+  if (!loaded())
+    load();
   if (!needsToBeRendered()) {
     DomElement *result = webWidget()->createStubElement(app);
     renderOk();

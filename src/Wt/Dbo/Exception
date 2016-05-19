@@ -66,7 +66,7 @@ class WTDBO_API StaleObjectException : public Exception
 public:
   /*! \brief Constructor.
    */
-  StaleObjectException(const std::string& id, int version);
+  StaleObjectException(const std::string& id, const char *table, int version);
 };
 
 /*! \class ObjectNotFoundException Wt/Dbo/Exception Wt/Dbo/Exception
@@ -82,7 +82,7 @@ class WTDBO_API ObjectNotFoundException : public Exception
 public:
   /*! \brief Constructor.
    */
-  ObjectNotFoundException(const std::string& id);
+  ObjectNotFoundException(const char *table, const std::string& id);
 };
 
 /*! \class NoUniqueResultException Wt/Dbo/Exception Wt/Dbo/Exception

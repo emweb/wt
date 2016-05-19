@@ -10,6 +10,7 @@
 #include <boost/foreach.hpp>
 
 #include <Wt/Auth/AbstractUserDatabase>
+#include <Wt/Auth/AuthService>
 #include <Wt/Auth/Dbo/AuthInfo>
 #include <Wt/WLogger>
 
@@ -40,9 +41,16 @@ class UserDatabase : public AbstractUserDatabase
 
 public:
   /*! \brief Constructor
+   *
+   * The AuthService parameter is optional, and decides some of the
+   * UserDatabase's behaviour. Currently, this decides whether findWithIdentity()
+   * should be case sensitive or not. If the identity policy of the AuthService is
+   * EmailAddressIdentity, then findWithIdentity() will be case insensitive. Otherwise
+   * it is case sensitive.
    */
-  UserDatabase(Wt::Dbo::Session& session)
+  UserDatabase(Wt::Dbo::Session& session, const AuthService *authService = 0)
     : session_(session),
+      authService_(authService),
       newUserStatus_(User::Normal),
       maxAuthTokensPerUser_(50)
   { }
@@ -89,13 +97,18 @@ public:
 				const WString& identity) const {
     if (userProvider_ != provider || userIdentity_ != identity) {
       Wt::Dbo::Transaction t(session_);
-      setUser(session_.query< Wt::Dbo::ptr<DboType> >
-	      (std::string() +
+      Wt::Dbo::Query<Wt::Dbo::ptr<DboType> > query =
+	  session_.query<Wt::Dbo::ptr<DboType> >(std::string() +
 	       "select u from " + session_.tableNameQuoted<DboType>() + " u "
 	       "join " + session_.tableNameQuoted<AuthIdentityType>() + " i "
 	       "on u.id = i.\"" + session_.tableName<DboType>() + "_id\"")
-	      .where("i.\"provider\" = ?").bind(provider)
-	      .where("i.\"identity\" = ?").bind(identity));
+	      .where("i.\"provider\" = ?").bind(provider);
+      if (authService_ && authService_->identityPolicy() == EmailAddressIdentity) {
+	query.where("lower(i.\"identity\") = lower(?)").bind(identity);
+      } else {
+	query.where("i.\"identity\" = ?").bind(identity);
+      }
+      setUser(query.resultValue());
       t.commit();
     }
 
@@ -240,7 +253,7 @@ public:
 
   virtual User findWithEmail(const std::string& address) const {
     Wt::Dbo::Transaction t(session_);
-    setUser(session_.find<DboType>().where("\"email\" = ?").bind(address));
+    setUser(session_.find<DboType>().where("lower(\"email\") = lower(?)").bind(address));
     t.commit();
 
     if (user_)
@@ -394,6 +407,7 @@ public:
 
 private:
   Wt::Dbo::Session& session_;
+  const AuthService *authService_;
   User::Status newUserStatus_;
   mutable Wt::Dbo::ptr<DboType> user_;
   mutable std::string userProvider_;

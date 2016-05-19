@@ -3,11 +3,15 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WApplication"
 #include "Wt/WException"
 #include "Wt/WObject"
 #include "Wt/WStatelessSlot"
 #include "Wt/WSignal"
 #include "WebUtils.h"
+
+#include "web/WebRenderer.h"
+#include "web/WebSession.h"
 
 namespace Wt {
 
@@ -219,6 +223,13 @@ WStatelessSlot *WObject::implementAutolearn(Method method)
   WStatelessSlot *result = new WStatelessSlot(this, method);
   statelessSlots_.push_back(result);
   return result;
+}
+
+void WObject::isNotStateless()
+{
+  if (wApp) {
+    wApp->session()->renderer().setStatelessSlotNotStateless();
+  }
 }
 
 WStatelessSlot *WObject::implementPrelearn(Method method, Method undoMethod)

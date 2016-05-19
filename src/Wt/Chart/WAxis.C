@@ -1827,7 +1827,7 @@ void WAxis::renderLabel(WPainter& painter,
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
   double width = 1000;
-  double height = 20;
+  double height = 14;
 
   WPointF pos = p;
 
@@ -1866,6 +1866,14 @@ void WAxis::renderLabel(WPainter& painter,
 
   std::vector<WString> splitText = splitLabel(text);
 
+  double lineHeight = height;
+  if (splitText.size() > 1 && painter.device()->features() & WPaintDevice::HasFontMetrics) {
+    WMeasurePaintDevice device(painter.device());
+    WPainter measPainter(&device);
+    measPainter.drawText(WRectF(0,0,100,100), AlignMiddle | AlignCenter, TextSingleLine, splitText[0], 0);
+    lineHeight = device.boundingRect().height();
+  }
+
   bool clipping = painter.hasClipping();
   if (!partialLabelClipping_ && clipping && tickDirection() == Outwards && location() != ZeroValue) {
     painter.setClipping(false);
@@ -1873,7 +1881,7 @@ void WAxis::renderLabel(WPainter& painter,
   WPointF transformedPoint = transform.map(pos);
   if (angle == 0) {
     for (int i = 0; i < splitText.size(); ++i) {
-      double yOffset = calcYOffset(i, splitText.size(), height, verticalAlign);
+      double yOffset = calcYOffset(i, splitText.size(), lineHeight, verticalAlign);
       WTransform offsetTransform = WTransform(1, 0, 0, 1, 0, yOffset);
       painter.drawText((offsetTransform * transform).map(WRectF(left, top, width, height)),
 			horizontalAlign | verticalAlign, TextSingleLine, splitText[i],
@@ -1885,7 +1893,7 @@ void WAxis::renderLabel(WPainter& painter,
     painter.rotate(-angle);
     transformedPoint = painter.worldTransform().inverted().map(transformedPoint);
     for (int i = 0; i < splitText.size(); ++i) {
-      double yOffset = calcYOffset(i, splitText.size(), height, verticalAlign);
+      double yOffset = calcYOffset(i, splitText.size(), lineHeight, verticalAlign);
       painter.drawText(WRectF(left - pos.x(), top - pos.y() + yOffset, width, height),
 		       horizontalAlign | verticalAlign, TextSingleLine, splitText[i],
 		       clipping && !partialLabelClipping_ ? &transformedPoint : 0);

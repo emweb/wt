@@ -35,6 +35,8 @@ public:
   SlotType type() const; 
   bool learned() const;
   void setNotLearned();
+  void invalidate();
+  bool invalidated() const;
   void setJavaScript(const std::string& javaScript);
 
   bool addConnection(EventSignalBase *);
