@@ -91,7 +91,7 @@ private:
 
   TextMethod  textMethod_;
 
-  bool        busyWithPath_, currentNoPen_, currentNoBrush_;
+  bool        busyWithPath_, currentNoPen_, currentNoBrush_, lastTransformWasIdentity_;
 
   WTransform  currentTransform_;
   WBrush      currentBrush_;

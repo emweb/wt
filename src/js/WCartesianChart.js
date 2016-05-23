@@ -661,20 +661,18 @@ WT_DECLARE_WT_MEMBER
       var c = WT.widgetCoordinates(target.canvas, event);
       if (!isPointInRect(c, configArea())) return;
       if (WT.buttons === 1) {
-	 if (curveManipulation()) {
+	 if (curveManipulation() && configSeries(configSelectedCurve())) {
 	    var curve = configSelectedCurve();
-	    if (configSeries(curve)) {
-	       var dy;
-	       if (isHorizontal()) {
-		  dy = c.x - dragPreviousXY.x;
-	       } else {
-		  dy = c.y - dragPreviousXY.y;
-	       }
-           assign(seriesTransform(curve),
-		     mult([1,0,0,1,0,dy / transform(Y)[3]],
-			  seriesTransform(curve)));
-	       repaint();
+	    var dy;
+	    if (isHorizontal()) {
+	       dy = c.x - dragPreviousXY.x;
+	    } else {
+	       dy = c.y - dragPreviousXY.y;
 	    }
+	    assign(seriesTransform(curve),
+		  mult([1,0,0,1,0,dy / transform(Y)[3]],
+		       seriesTransform(curve)));
+	    repaint();
 	 } else if (config.pan) {
 	    translate({
 	       x: c.x - dragPreviousXY.x,
@@ -750,8 +748,8 @@ WT_DECLARE_WT_MEMBER
 	       mult([1,0,0,s_y,0,middle-s_y*middle],
 	       seriesTransform(curve)));
 	    repaint();
+	    return;
 	 }
-	 return;
       }
       if ((action === WHEEL_PAN_X || action === WHEEL_PAN_Y || action === WHEEL_PAN_MATCHING) && config.pan) {
 	 var xBefore = transform(X)[4];
@@ -1057,7 +1055,7 @@ WT_DECLARE_WT_MEMBER
       // setTimeout prevents high animation velocity due to looking
       // at events that are further apart.
       if (!moveTimeout) moveTimeout = setTimeout(function(){
-        if (singleTouch && curveManipulation()) {
+        if (singleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
 	   var curve = configSelectedCurve();
 	   if (configSeries(curve)) {
 	      var c = c1;
@@ -1092,7 +1090,7 @@ WT_DECLARE_WT_MEMBER
 	      translate(d, config.rubberBand ? DAMPEN : 0);
 	   }
 	   dragPreviousXY = c;
-	} else if (doubleTouch && curveManipulation()) {
+	} else if (doubleTouch && curveManipulation() && configSeries(configSelectedCurve())) {
 	   var yAxis = isHorizontal() ? X : Y;
 	   var newTouches = [ c1, c2 ].map(function(t){
 	      if (isHorizontal()) {

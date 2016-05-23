@@ -159,8 +159,10 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
 	<< width().value() << "," << height().value() << ");";
   }
 
-  tmp << "ctx.save();ctx.save();" << js_.str() 
-      << "ctx.restore();ctx.restore();}";
+  lastTransformWasIdentity_ = true;
+
+  tmp << "ctx.save();" << js_.str()
+      << "ctx.restore();}";
 
   if (!images_.empty()) {
     tmp << ");";
@@ -177,12 +179,13 @@ void WCanvasPaintDevice::renderPaintCommands(std::stringstream& js_target,
 {
   js_target << "var ctx=" << canvasElement << ".getContext('2d');";
   js_target << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
-  js_target << "ctx.save();ctx.save();" << js_.str() 
-	    << "ctx.restore();ctx.restore();";
+  js_target << "ctx.save();" << js_.str()
+	    << "ctx.restore();";
 }
 
 void WCanvasPaintDevice::init()
 {
+  lastTransformWasIdentity_ = true;
   currentBrush_ = WBrush();
   currentNoBrush_ = false;
   currentPen_ = WPen();
@@ -681,16 +684,17 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
 					 const WTransform& t)
 {
   if (t.isJavaScriptBound()) {
-    s << "ctx.transform.apply(ctx, " << t.jsRef() << ");";
-  } else if (!t.isIdentity()) {
+    s << "ctx.setTransform.apply(ctx, " << t.jsRef() << ");";
+  } else if (!(t.isIdentity() && lastTransformWasIdentity_)) {
     char buf[30];
-    s << "ctx.transform(" << Utils::round_js_str(t.m11(), 3, buf) << ",";
+    s << "ctx.setTransform(" << Utils::round_js_str(t.m11(), 3, buf) << ",";
     s			  << Utils::round_js_str(t.m12(), 3, buf) << ",";
     s			  << Utils::round_js_str(t.m21(), 3, buf) << ",";
     s			  << Utils::round_js_str(t.m22(), 3, buf) << ",";
     s			  << Utils::round_js_str(t.m31(), 3, buf) << ",";
     s                     << Utils::round_js_str(t.m32(), 3, buf) << ");";
   }
+  lastTransformWasIdentity_ = t.isIdentity();
 }
 
 void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
@@ -743,7 +747,9 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
     if (changeFlags_ & Clipping) {
       finishPath();
 
-      js_ << "ctx.restore();ctx.restore();ctx.save();";
+      js_ << "ctx.restore();ctx.save();";
+
+      lastTransformWasIdentity_ = true;
 
       const WTransform& t = painter()->clipPathTransform();
 
@@ -761,10 +767,15 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 	}
 	busyWithPath_ = false;
       }
-      renderTransform(js_, t.inverted());
+      renderTransform(js_, WTransform());
 
-      js_ << "ctx.save();";
-
+      penChanged = true;
+      penColorChanged = true;
+      brushChanged = true;
+      shadowChanged = true;
+      fontChanged = true;
+      currentTextHAlign_ = currentTextVAlign_ = AlignSuper;
+      init();
       resetTransform = true;
     } else if (changeFlags_ & Transform) {
       WTransform f = painter()->combinedTransform();
@@ -822,7 +833,6 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 
       if (resetTransform) {
 	finishPath();
-	js_ << "ctx.restore();ctx.save();";
       }
     }
 
@@ -831,13 +841,6 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       renderTransform(js_, currentTransform_);
       pathTranslation_.setX(0);
       pathTranslation_.setY(0);
-      penChanged = true;
-      penColorChanged = true;
-      brushChanged = true;
-      shadowChanged = true;
-      fontChanged = true;
-      currentTextHAlign_ = currentTextVAlign_ = AlignSuper;
-      init();
     }
   }
 
