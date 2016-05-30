@@ -139,6 +139,8 @@ void InitSchema::actCollection(const CollectionRef<C>& field)
   mapping_.sets.push_back
     (Impl::SetInfo(joinTableName, field.type(), joinName, field.joinId(),
 		      field.fkConstraints()));
+  if (field.literalJoinId())
+    mapping_.sets.back().flags |= Impl::SetInfo::LiteralSelfId;
 }
 
     /*

@@ -2798,45 +2798,126 @@ void uniform2iv(const UniformLocation &location,
    *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
    *			    the \c TouchEvent.
    *
-   *   Example:
-   *   If the variable <code>mouseHandler</code> contains the following JavaScript,
-   *   and uses the <a href="glmatrix.net">glMatrix</a> library:
-   *  \code
-function(cameraMatrix) {
-  var target = null;
-
-  this.setTarget = function(newTarget) {
-    target = newTarget;
-  };
-
-  this.mouseWheel = function(o, event) {
-    var fix = jQuery.event.fix(event);
-    fix.preventDefault();
-    fix.stopPropagation();
-    var d = wheelDelta(event);
-    var s = Math.pow(1.2, delta);
-    mat4.scale(cameraMatrix, cameraMatrix, [s, s, s]);
-    target.paintGL();
-  };
-
-  function wheelDelta(e) {
-    var delta = 0;
-    if (e.wheelDelta) {
-      delta = e.wheelDelta > 0 ? 1 : -1;
-    } else if (e.detail) {
-      delta = e.detail < 0 ? 1 : -1;
-    }
-    return delta;
-  }
-}
-      \endcode
    *
-   *  This mouse handler can be set as such:
-   *  \code
-setClientSideMouseHandler("new " + mouseHandler + "(" + cameraMatrix.jsRef() + ")");
-      \endcode
-   *  where \c mouseHandler is the code of the mouse handler, and \c cameraMatrix is a
-   *  WGLWidget::JavaScriptMatrix4x4.
+   * For example, if we wanted to scale some object when we scroll, we could create
+   * a JavaScriptMatrix4x4 called \p transform_:
+   *
+   * \if cpp
+   * \code
+private:
+  JavaScriptMatrix4x4 transform_;
+     \endcode
+   * \endif
+   *
+   * \if java
+   * \code
+private JavaScriptMatrix4x4 transform_;
+     \endcode
+   * \endif
+   *
+   * We can add this in the constructor:
+   *
+   * \if cpp
+   * \code
+addJavaScriptMatrix4(transform_);
+     \endcode
+   * \endif
+   *
+   * \if java
+   * \code
+transform_ = new JavaScriptMatrix4x4();
+addJavaScriptMatrix4(transform_);
+     \endcode
+   * \endif
+   *
+   * Then, in initializeGL(), we can initialize it and set the value:
+   *
+   * \if cpp
+   * \code
+initJavaScriptMatrix4(transform_);
+setJavaScriptMatrix4(transform_, WMatrix4x4()); // Set to identity matrix
+     \endcode
+   * \endif
+   *
+   * \if java
+   * \code
+initJavaScriptMatrix4(transform_);
+setJavaScriptMatrix4(transform_, new WMatrix4x4()); // Set to identity matrix
+     \endcode
+   * \endif
+   *
+   * Then, still in initializeGL(), we can set a mouse handler as such:
+   *
+   * \if cpp
+   * \code
+setClientSideMouseHandler(std::string("(function(){") +
+  "var MouseHandler = function(transform) {"
+    "var target = null;"
+    "this.setTarget = function(newTarget) {"
+      "target = newTarget;"
+    "};"
+    "this.mouseWheel = function(o, event) {"
+      "var fix = jQuery.event.fix(event);"
+      "fix.preventDefault();"
+      "fix.stopPropagation();"
+      "var d = wheelDelta(event);"
+      "var s = Math.pow(1.2, d);"
+      "transform[0] *= s;" // Scale X
+      "transform[5] *= s;" // Scale Y
+      "transform[10] *= s;" // Scale Z
+      "target.paintGL();" // Repaint
+    "};"
+    "function wheelDelta(e) {"
+      "var delta = 0;"
+      "if (e.wheelDelta) {"
+	"delta = e.wheelDelta > 0 ? 1 : -1;"
+      "} else if (e.detail) {"
+	"delta = e.detail < 0 ? 1 : -1;"
+      "}"
+      "return delta;"
+    "}"
+  "};"
+  "return new MouseHandler(" + transform_.jsRef() + ");"
+"})()");
+     \endcode
+   * \endif
+   *
+   * \if java
+   * \code
+setClientSideMouseHandler("(function(){") +
+  "var MouseHandler = function(transform) {" +
+    "var target = null;" +
+    "this.setTarget = function(newTarget) {" +
+      "target = newTarget;" +
+    "};" +
+    "this.mouseWheel = function(o, event) {" +
+      "var fix = jQuery.event.fix(event);" +
+      "fix.preventDefault();" +
+      "fix.stopPropagation();" +
+      "var d = wheelDelta(event);" +
+      "var s = Math.pow(1.2, d);" +
+      "transform[0] *= s;" + // Scale X
+      "transform[5] *= s;" + // Scale Y
+      "transform[10] *= s;" + // Scale Z
+      "target.paintGL();" + // Repaint
+    "};" +
+    "function wheelDelta(e) {" +
+      "var delta = 0;" +
+      "if (e.wheelDelta) {" +
+	"delta = e.wheelDelta > 0 ? 1 : -1;" +
+      "} else if (e.detail) {" +
+	"delta = e.detail < 0 ? 1 : -1;" +
+      "}" +
+      "return delta;" +
+    "}" +
+  "};" +
+  "return new MouseHandler(" + transform_.jsRef() + ");" +
+"})()");
+     \endcode
+   * \endif
+   *
+   * All that's left to do then is to use this transform somewhere as a uniform variable,
+   * see getUniformLocation() and uniformMatrix4().
    */
   void setClientSideMouseHandler(const std::string& handlerCode);
 

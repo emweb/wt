@@ -117,7 +117,8 @@ public:
     Mutable = 0x8,     //!< Field can be edited
     NeedsQuotes = 0x10,//!< Field name needs quotes when using in SQL
     ForeignKey = 0x20, //!< Field is (part of) a foreign key
-    FirstDboField = 0x40
+    FirstDboField = 0x40,
+    LiteralJoinId = 0x80
   };
 
   /*! \brief Creates a field description.
@@ -182,6 +183,7 @@ public:
   bool isForeignKey() const { return (flags_ & ForeignKey) != 0; }
 
   bool isFirstDboField() const { return (flags_ & FirstDboField) != 0; }
+  bool literalJoinId() const { return (flags_ & LiteralJoinId) != 0; }
   std::string foreignKeyName() const { return foreignKeyName_; }
   std::string foreignKeyTable() const { return foreignKeyTable_; }
   int fkConstraints() const { return fkConstraints_; }

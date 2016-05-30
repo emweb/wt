@@ -226,7 +226,7 @@ public:
   virtual bool setEmail(const User& user, const std::string& address) {
     WithUser find(*this, user);
 
-    if (session_.find<DboType>().where("\"email\" = ?")
+    if (session_.find<DboType>().where("lower(\"email\") = lower(?)")
 	.bind(address).resultList().size() != 0)
       return false;
 

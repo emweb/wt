@@ -1018,6 +1018,10 @@ void DomElement::asHTML(EscapeOStream& out,
       out << " label=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
+    case PropertyPlaceholder:
+      out << " placeholder=";
+      fastHtmlAttributeValue(out, attributeValues, i->second);
+      break;
     default:
       break;
     }
@@ -1596,6 +1600,15 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       break;
     case PropertyLabel:
       out << var_ << ".label=";
+      if (!pushed) {
+	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+	pushed = true;
+      }
+      fastJsStringLiteral(out, escaped, i->second);
+      out << ';';
+      break;
+    case PropertyPlaceholder:
+      out << var_ << ".placeholder=";
       if (!pushed) {
 	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
 	pushed = true;

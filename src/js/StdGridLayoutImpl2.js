@@ -157,7 +157,7 @@ WT_DECLARE_WT_MEMBER
        return overflow == 'visible' || overflow == 'none';
      }
 
-    if (WT.isGecko &&
+     if (WT.isGecko &&
 	 !element.style[DC.size] &&
 	 dir == HORIZONTAL &&
 	 isNone(WT.css(element, 'overflow'))) {
@@ -233,7 +233,7 @@ WT_DECLARE_WT_MEMBER
      if (asSet)
        return [scrollSize, scrollBar];
 
-     if (WT.isGecko && 
+     if ((WT.isGecko || WT.isWebKit) &&
 	 dir == HORIZONTAL && 
 	 element.getBoundingClientRect().width != 
 	 Math.ceil(element.getBoundingClientRect().width))
@@ -374,8 +374,7 @@ WT_DECLARE_WT_MEMBER
          OC = DirConfig[dir ^ 1],
          measures = DC.measures,
          dirCount = DC.config.length,
-         otherCount = OC.config.length,
-         maxSize = DC.maxSize;
+         otherCount = OC.config.length;
 
      var prevMeasures = measures.slice();
      if (prevMeasures.length == 5) {

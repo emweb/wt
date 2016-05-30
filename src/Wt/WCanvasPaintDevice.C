@@ -91,6 +91,7 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
     painter_(0),
     paintUpdate_(paintUpdate),
     busyWithPath_(false),
+    currentClippingEnabled_(false),
     fontMetrics_(0)
 { 
   textMethod_ = Html5Text;
@@ -741,10 +742,22 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
   bool fontChanged = (changeFlags_ & Font)
     && (currentFont_ != painter()->font());
 
-  if (changeFlags_ & (Transform | Clipping)) {
+  bool clippingChanged = (changeFlags_ & Clipping)
+    && (currentClippingEnabled_ != painter()->hasClipping() ||
+	 currentClipPath_ != painter()->clipPath() ||
+	 currentClipTransform_ != painter()->clipPathTransform());
+  if (!painter()->hasClipping() && !currentClippingEnabled_) {
+    // Clipping wasn't enabled and won't be enabled, so path or transform changes
+    // don't matter.
+    clippingChanged = false;
+  }
+
+  changeFlags_.clear(Clipping);
+
+  if (changeFlags_ & Transform || clippingChanged) {
     bool resetTransform = false;
 
-    if (changeFlags_ & Clipping) {
+    if (clippingChanged) {
       finishPath();
 
       js_ << "ctx.restore();ctx.save();";
@@ -754,6 +767,7 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       const WTransform& t = painter()->clipPathTransform();
 
       renderTransform(js_, t);
+      currentClipTransform_ = painter()->clipPathTransform();
       if (painter()->hasClipping()) {
 	pathTranslation_.setX(0);
 	pathTranslation_.setY(0);
@@ -766,6 +780,9 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 	  js_ << "ctx.clip();";
 	}
 	busyWithPath_ = false;
+	currentClipPath_ = painter()->clipPath();
+      } else {
+	currentClipPath_ = WPainterPath();
       }
       renderTransform(js_, WTransform());
 
@@ -777,6 +794,8 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       currentTextHAlign_ = currentTextVAlign_ = AlignSuper;
       init();
       resetTransform = true;
+
+      currentClippingEnabled_ = painter()->hasClipping();
     } else if (changeFlags_ & Transform) {
       WTransform f = painter()->combinedTransform();
 

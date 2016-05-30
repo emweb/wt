@@ -263,12 +263,12 @@ public:
   /**
    * @brief createLabelWidget possition textWidget where the text would be
    * rendered.
-   * Assuming that textWidget is added to a container with same dimentions as
+   * Assuming that textWidget is added to a container with same dimensions as
    * the WPieChart.
    * This should be used in combinaltion with drawLabel().
    *
    * @return The new WContainerWidget that contains textWidget and can be placed
-   * on an other layer that has the same dimentions as the WPieChart.
+   * on an other layer that has the same dimensions as the WPieChart.
    * \sa drawLabel()
    *
    * Usage example, PieChart with label links.

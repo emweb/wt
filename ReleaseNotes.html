@@ -22,6 +22,125 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.3.6 (?, 2016)</h2>
+<p>
+ This release has a focus on bug fixes and some new features:
+</p>
+<dl>
+  <dt>
+    Support for WebSocket compression in wthttp
+  </dt>
+  <dd>
+    WebSocket traffic is now compressed, if possible.
+  </dd>
+  <dt>
+    Time entry improvements
+  </dt>
+  <dd>
+    <a href="classWt_1_1WTimeEdit.html">WTimeEdit</a> now supports AM/PM in its format,
+    <a href="classWt_1_1WTimeValidator.html">WTimeValidator</a> now allows to select a minimum
+    and maximum time and supports multiple formats,
+    <a href="classWt_1_1WTimePicker.html">WTimePicker</a> can now work up to
+    millisecond precision, and is now rendered with spinboxes.
+  </dd>
+  <dt>
+    Skia version updated
+  </dt>
+  <dd>
+    The Skia backend for <a href="classWt_1_1WRasterImage.html">WRasterImage</a> is now compatible with more recent versions of Skia. If you need
+    to support an older version of Skia, use <tt>-DWT_SKIA_OLD=ON</tt>. The Skia version of the Windows builds
+    has been updated from 394c7bb to 834d9e1.
+  </dd>
+  <dt>
+    Wt::Dbo
+  </dt>
+  <dd>
+    It's now possible to mark foreign keys as literal with a &ldquo;&gt;&rdquo; prefix, so Wt::Dbo can better map to
+    an existing schema. Note that for consistency, this also means that the schema generated for ManyToMany relationships
+    has been changed to include the id column names if a joinId has been specified. If you specify a joinId for ManyToMany
+    relationships, you'll have to change it to include a &ldquo;&gt;&rdquo; before it in order to keep the same database schema.
+  </dd>
+  <dt>
+    Scroll position
+  </dt>
+  <dd>
+    It's now possible to retrieve the scroll position of a
+    <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>
+    with
+    <a href="classWt_1_1WContainerWidget.html#a0a7ce553b2b5107412a3bed8700355cb">scrollTop()</a>
+    and
+    <a href="classWt_1_1WContainerWidget.html#a9a60d382fcd1490081087ce4f3649864">scrollLeft()</a>.
+  </dd>
+  <dt>
+    Invalidation of stateless slots
+  </dt>
+  <dd>
+    <a href="classWt_1_1WObject.html#a6dde4ce1e833a9966709daf3c0dedc9f">WObject::isNotStateless()</a>
+    has been added, so functions called from functions that are marked as stateless can unmark
+    it as stateless, reverting to plain server-side dynamic UI updates.
+  </dd>
+  <dt>
+    <a href="classWt_1_1Auth_1_1Dbo_1_1UserDatabase.html">Auth::Dbo::UserDatabase</a>
+  </dt>
+  <dd>
+    The <a href="classWt_1_1Auth_1_1Dbo_1_1UserDatabase.html">Dbo UserDatabase</a> implementation now
+    compares e-mail addresses case insensitively. The <a href="classWt_1_1Auth_1_1AuthService.html">AuthService</a>
+    can be passed in the constructor, so the <a href="classWt_1_1Auth_1_1Dbo_1_1UserDatabase.html">UserDatabase</a>
+    knows whether the IdentityPolicy is EmailAddressIdentity.
+  </dd>
+  <dt>
+    Charting library
+  </dt>
+  <dd>
+    There have been many bug fixes and improvements to the charting library and the interactive features
+    introduced in Wt 3.3.5:
+    <ul>
+      <li>Series <a href="classWt_1_1Chart_1_1WCartesianChart.html#ad05997dbc2d59862e38272985abda9a9">can be selected</a>
+      on a <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>.
+      LineSeries <a href="classWt_1_1Chart_1_1WCartesianChart.html#a6078b67f146e686bd482d846dfe463cb">can be manipulated</a>.</li>
+      <li><a href="classWt_1_1Chart_1_1WAxis.html#a16d188d56c2b62b7b3f2ddb6fa96d7cc">WAxis::setZoom()</a> and
+	  <a href="classWt_1_1Chart_1_1WAxis.html#a2f6a11d9d47036f8806c5a8412dfd24c">WAxis::setPan()</a>
+	  have been deprecated in favor of the easier to use
+	  <a href="classWt_1_1Chart_1_1WAxis.html#a0be187399e7cb4877f2c5e3837eba6ea">WAxis::setZoomRange()</a>.
+	  You can listen to changes in zoom range with the
+	  <a href="classWt_1_1Chart_1_1WAxis.html#a7e432917f0f23f18db3a043397a81904">WAxis::zoomRangeChanged()</a> signal.</li>
+       <li>Series set as hidden will still be shown on a <a href="classWt_1_1Chart_1_1WAxisSliderWidget.html">WAxisSliderWidget</a>.
+	   The typical application for this is to show a coarse model on the slider widget, and a more detailed one on the chart.</li>
+      <li>
+	  In order to provide better performance for charts containing a lot of data, the charting library has been
+	  overhauled to use <a href="classWt_1_1Chart_1_1WAbstractChartModel.html">WAbstractChartModel</a>s,
+	  instead of <a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>s, avoiding the use of
+	  boost::any. The <a href="classWt_1_1Chart_1_1WStandardChartProxyModel.html">WStandardChartProxyModel</a>
+	  wraps a <a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a> so that those can still be used with charts.
+	  Note that this changes the return type of the
+	  <a href="classWt_1_1Chart_1_1WAbstractChart.html#a477522bb1720fb20006c81be455b3366">WAbstractChart::model()</a> method.
+      </li>
+      <li>A chart's axes can now be <a href="classWt_1_1Chart_1_1WAxis.html#a2bb7c8ec67ed2ff0b57953ea40cd87ef">inverted</a>.
+      <li>Stacked series: negative values are now stacked separately from positive values.</li>
+      <li><a href="classWt_1_1Chart_1_1CurveLabel.html">Curve labels</a> can now be drawn on charts, so that curves,
+          or certain points on curves, can be labeled.</li>
+	  <li><a href="classWt_1_1Chart_1_1WAxis.html#afca24479982f10759be69703de5f4cd4">WAxis::getLabelTicks()</a>
+	  has been modified with an argument
+          <a href="structWt_1_1Chart_1_1AxisConfig.html">AxisConfig</a>, so that different axis ticks can be drawn depending
+	  on the side that the axis is dawn on, or the zoom level it is drawn at. This is a breaking change if you override getLabelTicks.
+	  <a href="classWt_1_1Chart_1_1WAxis.html#a71928aabf753854274d753e266aabfc2">WAxis::setLabelTransform()</a>
+	  as a simpler method to change the tick
+	  labels depending on the side the axis is drawn on.</li>
+      <li><a href="classWt_1_1Chart_1_1WDataSeries.html">WDataSeries</a> is no longer a simple value class. The interface of
+          <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a> has been modified to reflect that: the old
+	  interface that copies WDataSeries over has been deprecated in favor of an interface that takes pointers to
+	  <a href="classWt_1_1Chart_1_1WDataSeries.html">WDataSeries</a>.</li>
+      <li>It's now possible to <a href="classWt_1_1Chart_1_1WDataSeries.html#ae668a1a90ccf668e426fc2d9e370bf2c">specify a different model</a>
+      for each <a href="classWt_1_1Chart_1_1WDataSeries.html">WDataSeries</a>.</li>
+      <li><a href="classWt_1_1Chart_1_1WPieChart.html#a0ff69f626136fa56e7de27f6a10d770d">Chart::WPieChart::createLabelWidget()</a>
+      has been added, making it possible to replace the labels of a
+      <a href="classWt_1_1Chart_1_1WPieChart.html">WPieChart</a>
+      with widgets.</li>
+      <li>Tooltips on charts can now be deferred, which can improve performance of interactive charts, and if you have a lot of tooltips.</li>
+    </ul>
+  </dd>
+</dl>
+
 <h2>Release 3.3.5 (Dec 31, 2015)</h2>
 <p>
  This release has a focus on bug fixes but also one or two new features:

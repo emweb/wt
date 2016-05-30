@@ -99,6 +99,19 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.centerDialog = function() {
+     var pctMaxWidth = WT.parsePct(WT.css(el, 'max-width'), 0);
+     var pctMaxHeight = WT.parsePct(WT.css(el, 'max-height'), 0);
+
+     if (pctMaxWidth !== 0) {
+       var ws = WT.windowSize();
+       
+       var layout = jQuery.data(layoutContainer.firstChild, 'layout');
+       if (layout) {
+	 layout.setMaxSize(ws.x * pctMaxWidth / 100,
+			   ws.y * pctMaxHeight / 100);
+       }
+     }
+
      if (el.parentNode == null) {
        el = titlebar = null;
        return;
@@ -154,7 +167,6 @@ WT_DECLARE_WT_MEMBER
      el.style.width = Math.max(0, w) + 'px';
 
      newSize(w, h);
-
 
      self.centerDialog();
 

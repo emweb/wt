@@ -197,8 +197,9 @@ private:
   static const int BIT_READONLY_CHANGED = 2;
   static const int BIT_JS_OBJECT        = 3;
   static const int BIT_VALIDATION_CHANGED = 4;
+  static const int BIT_PLACEHOLDER_CHANGED = 5;
 
-  std::bitset<5> flags_;
+  std::bitset<6> flags_;
   Signal<WValidator::Result> validated_;
   WString validationToolTip_;
 

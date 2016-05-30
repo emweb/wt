@@ -3550,7 +3550,7 @@ function updateGlobal(id) {
   }
 
   for (var i = 0; i < keyEvents.length ; ++i) {
-    var elemEvents = globalEventsFunctions[domId]
+    var elemEvents = globalEventsFunctions ? globalEventsFunctions[domId] : null;
     var eventFunc = null;
 
     if (elemEvents) 
@@ -3578,12 +3578,13 @@ function updateGlobal(id) {
   }
 
   // cleanup functions of widgets that do no longer exist
-  for (var i in globalEventsFunctions) {
-    if (! document.getElementById(i) ) {
-      delete globalEventsFunctions[i];
+  if (globalEventsFunctions) {
+    for (var i in globalEventsFunctions) {
+      if (!document.getElementById(i)) {
+	delete globalEventsFunctions[i];
+      }
     }
   }
-
 }
 
 function bindGlobal(event, id, f) {

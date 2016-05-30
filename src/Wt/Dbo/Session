@@ -29,9 +29,17 @@ namespace Wt {
       template <class C, typename T> struct LoadHelper;
 
       struct WTDBO_API SetInfo {
+	enum SetInfoFlags {
+	  // Normally, if there is no surrogate key, the field name of the natural id
+	  // is appended to joinSelfId/joinOtherId. These flags prevent that.
+	  LiteralSelfId = 0x1, // joinSelfId is literal, don't append primary key name
+	  LiteralOtherId = 0x2 // joinOtherId is literal, don't append primary key name
+	};
+
 	const char *tableName;
 	std::string joinName;
 	std::string joinSelfId, joinOtherId;
+	int flags;
 	RelationType type;
 	int fkConstraints, otherFkConstraints;
 
@@ -559,7 +567,8 @@ private:
                              std::string foreignKeyName);
 
   std::vector<JoinId> getJoinIds(Impl::MappingInfo *mapping, 
-				 const std::string& joinId);
+				 const std::string& joinId,
+				 bool literalJoinId);
 
   void createTable(Impl::MappingInfo *mapping,
 		   std::set<std::string>& tablesCreated,
@@ -580,11 +589,13 @@ private:
 		       const std::string& joinId1,
 		       const std::string& joinId2,
 		       int fkConstraints1, int fkConstraints2,
+		       bool literalJoinId1, bool literalJoinId2,
 		       std::set<std::string>& tablesCreated,
 		       std::ostream *sout);
   void addJoinTableFields(Impl::MappingInfo& joinTableMapping,
 			  Impl::MappingInfo *mapping, const std::string& joinId,
-			  const std::string& foreignKeyName, int fkConstraints);
+			  const std::string& foreignKeyName, int fkConstraints,
+			  bool literalJoinId);
   void createJoinIndex(Impl::MappingInfo& joinTableMapping,
 		       Impl::MappingInfo *mapping,
 		       const std::string& joinId,

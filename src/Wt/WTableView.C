@@ -96,16 +96,16 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->setPositionScheme(Relative);
     canvas_->clicked()
       .connect(boost::bind(&WTableView::handleSingleClick, this, false, _1));
-
-	canvas_->clicked().connect(
-		"function(o, e) { "
-		  "$(document).trigger('click', e);"
-		"}");
-
+    canvas_->clicked().connect("function(o, e) { "
+			       "$(document).trigger('click', e);"
+			       "}");
     canvas_->clicked().preventPropagation();
     canvas_->mouseWentDown()
       .connect(boost::bind(&WTableView::handleMouseWentDown, this, false, _1)); 
     canvas_->mouseWentDown().preventPropagation();
+    canvas_->mouseWentDown().connect("function(o, e) { "
+				     "$(document).trigger('mousedown', e);"
+				     "}");
     canvas_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleMouseWentUp, this, false, _1)); 
     canvas_->mouseWentUp().preventPropagation();

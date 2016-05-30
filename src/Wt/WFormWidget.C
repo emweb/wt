@@ -105,33 +105,38 @@ void WFormWidget::setPlaceholderText(const WString& placeholderText)
 
   WApplication* app = WApplication::instance();
   const WEnvironment& env = app->environment();
+  if (!env.agentIsIElt(10) &&
+    (domElementType() == DomElement_INPUT || domElementType() == DomElement_TEXTAREA)) {
+    flags_.set(BIT_PLACEHOLDER_CHANGED);
+    repaint();
+  } else {
+    if (env.ajax()) {
+      if (!emptyText_.empty()) {
+	if (!flags_.test(BIT_JS_OBJECT))
+	  defineJavaScript();
+	else
+	  updateEmptyText();
 
-  if (env.ajax()) {
-    if (!emptyText_.empty()) {
-      if (!flags_.test(BIT_JS_OBJECT))
-	defineJavaScript();
-      else
-	updateEmptyText();
+	if (!removeEmptyText_) {
+	  removeEmptyText_ = new JSlot(this);
 
-      if (!removeEmptyText_) {
-	removeEmptyText_ = new JSlot(this);
-      
-	focussed().connect(*removeEmptyText_);
-	blurred().connect(*removeEmptyText_);
-	keyWentDown().connect(*removeEmptyText_);
+	  focussed().connect(*removeEmptyText_);
+	  blurred().connect(*removeEmptyText_);
+	  keyWentDown().connect(*removeEmptyText_);
 
-	std::string jsFunction = 
-	  "function(obj, event) {"
-	  """jQuery.data(" + jsRef() + ", 'obj').applyEmptyText();"
-	  "}";
-	removeEmptyText_->setJavaScript(jsFunction);
+	  std::string jsFunction =
+	    "function(obj, event) {"
+	    """jQuery.data(" + jsRef() + ", 'obj').applyEmptyText();"
+	    "}";
+	  removeEmptyText_->setJavaScript(jsFunction);
+	}
+      } else {
+	delete removeEmptyText_;
+	removeEmptyText_ = 0;
       }
     } else {
-      delete removeEmptyText_;
-      removeEmptyText_ = 0;
+      setToolTip(placeholderText);
     }
-  } else {
-    setToolTip(placeholderText);
   }
 }
 
@@ -172,14 +177,18 @@ void WFormWidget::render(WFlags<RenderFlag> flags)
 
 void WFormWidget::updateEmptyText()
 {
-  if (isRendered())
+  WApplication *app = WApplication::instance();
+  const WEnvironment &env = app->environment();
+  if (env.agentIsIElt(10) && isRendered())
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
 		 ".setEmptyText(" + emptyText_.jsStringLiteral() + ");");
 }
 
 void WFormWidget::applyEmptyText()
 {
-  if (isRendered() && !emptyText_.empty())
+  WApplication *app = WApplication::instance();
+  const WEnvironment &env = app->environment();
+  if (env.agentIsIElt(10) && isRendered() && !emptyText_.empty())
     doJavaScript("jQuery.data(" + jsRef() + ", 'obj').applyEmptyText();");
 }
 
@@ -274,6 +283,12 @@ void WFormWidget::updateDom(DomElement& element, bool all)
       element.setProperty(Wt::PropertyReadOnly,
 			  isReadOnly() ? "true" : "false");
     flags_.reset(BIT_READONLY_CHANGED);
+  }
+
+  if (flags_.test(BIT_PLACEHOLDER_CHANGED) || all) {
+    if (!all || !emptyText_.empty())
+      element.setProperty(Wt::PropertyPlaceholder, emptyText_.toUTF8());
+    flags_.reset(BIT_PLACEHOLDER_CHANGED);
   }
 
   WInteractWidget::updateDom(element, all);

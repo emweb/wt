@@ -15,7 +15,8 @@ WT_DECLARE_WT_MEMBER
        WT = APP.WT,
        hideTimeout = null,
        entered = false,
-       current = null;
+       current = null,
+       haveMouseDown = false;
 
    function doHide() {
      setOthersInactive(el, null);
@@ -151,13 +152,15 @@ WT_DECLARE_WT_MEMBER
    }
 
    function onDocumentDown(event) {
+     haveMouseDown = true;
      if (stillExist() && WT.button(event) != 1)
        doHide();
    }
 
    function onDocumentClick(event) {
-	 if(stillExist())
-	   doHide();
+     /* Only if we've recorded a mousedown ? This is not needed actually? */ 
+     if (haveMouseDown && stillExist())
+       doHide();
    }
 
    function onDocumentKeyDown(event) {

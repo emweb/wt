@@ -66,18 +66,33 @@ CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 				const std::string& joinName,
 				const std::string& joinId,
 				int fkConstraints)
-  : value_(value), joinName_(joinName), joinId_(joinId), type_(type),
-    fkConstraints_(fkConstraints)
-{ }
+  : value_(value), joinName_(joinName), joinId_(joinId),
+    literalJoinId_(false),
+    type_(type), fkConstraints_(fkConstraints)
+{
+  if (type == ManyToOne && !joinName.empty() && joinName[0] == '>') {
+    joinName_ = std::string(joinName.c_str() + 1, joinName.size() - 1);
+  }
+  if (type == ManyToMany && !joinId.empty() && joinId[0] == '>') {
+    joinId_ = std::string(joinId.c_str() + 1, joinId.size() - 1);
+    literalJoinId_ = true;
+  }
+}
 
 template <class C>
 PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name, int size,
 		  int fkConstraints)
   : value_(value),
     name_(name),
+    literalForeignKey_(false),
     size_(size),
     fkConstraints_(fkConstraints)
-{ }
+{
+  if (!name.empty() && name[0] == '>') {
+    name_ = std::string(name.c_str() + 1, name.size() - 1);
+    literalForeignKey_ = true;
+  }
+}
 
 template <class C, class A, class Enable = void>
 struct LoadLazyHelper
@@ -124,7 +139,11 @@ void PtrRef<C>::visit(A& action, Session *session) const
       idFieldName = mapping->surrogateIdFieldName;
   }
 
-  field(action, id, name_ + "_" + idFieldName, size);
+  if (literalForeignKey()) {
+    field(action, id, name_, size);
+  } else {
+    field(action, id, name_ + "_" + idFieldName, size);
+  }
 
   LoadLazyHelper<C, A>::loadLazy(value_, id, session);
 }
@@ -133,7 +152,11 @@ template <class C>
 WeakPtrRef<C>::WeakPtrRef(weak_ptr<C>& value, const std::string& joinName)
   : value_(value),
     joinName_(joinName)
-{ }
+{
+  if (!joinName.empty() && joinName[0] == '>') {
+    joinName_ = std::string(joinName.c_str() + 1, joinName.size() - 1);
+  }
+}
 
 template <class C>
 const std::type_info *PtrRef<C>::type() const

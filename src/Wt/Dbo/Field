@@ -181,12 +181,14 @@ public:
   collection< ptr<C> >& value() const { return value_; }
   const std::string& joinName() const { return joinName_; }
   const std::string& joinId() const { return joinId_; }
+  bool literalJoinId() const { return literalJoinId_; }
   RelationType type() const { return type_; }
   int fkConstraints() const { return fkConstraints_; }
 
 private:
   collection< ptr<C> >& value_;
   std::string joinName_, joinId_;
+  bool literalJoinId_;
   RelationType type_;
   int fkConstraints_;
 };
@@ -198,6 +200,7 @@ public:
   PtrRef(ptr<C>& value, const std::string& name, int size, int fkConstraints);
 
   const std::string& name() const { return name_; }
+  bool literalForeignKey() const { return literalForeignKey_; }
   int fkConstraints() const { return fkConstraints_; }
   ptr<C>& value() const { return value_; }
   typename dbo_traits<C>::IdType id() const { return value_.id(); }
@@ -213,6 +216,7 @@ public:
 private:
   ptr<C>& value_;
   std::string name_;
+  bool literalForeignKey_;
   int size_;
   int fkConstraints_;
 };
@@ -321,6 +325,12 @@ void field(Action& action, ptr<C>& value, const std::string& name,
  * This function binds the pointer field \p value to the database
  * foreign key field(s) \p name <tt>+ "_" +</tt> (C's primary key(s)).
  *
+ * If the name starts with a <tt>&gt;</tt>, the <tt>&gt;</tt> is omitted and
+ * the name is used literally, instead of \p name <tt>+ "_" +</tt> (C's primary key(s)),
+ * e.g. if the primary key of C is <tt>id</tt>, then the name <tt>foo</tt> translates to a
+ * column with the name <tt>foo_id</tt>, and the name <tt>&gt;foo</tt> translates to
+ * a column with the name <tt>foo</tt>.
+ *
  * If the name is omitted or empty, then C's mapped table name is used.
  *
  * A belongsTo() will usually have a counter-part hasMany() or
@@ -371,11 +381,13 @@ void belongsTo(Action& action, ptr<C>& value,
  * from how a hasMany() call backs a collection by a SQL query).
  *
  * The query is defined by the database field(s) \p name <tt>+ "_" +
- * </tt> (C's primary key(s))</tt>, in the mapped table for C. This
+ * </tt> (C's primary key(s)), in the mapped table for C. This
  * should be the same <i>name</i> as passed to the matching
  * belongsTo() method for the other side of the relation. If the \p
  * name is omitted or empty, then the mapped table name of the current
- * class is used.
+ * class is used. If the name starts with <tt>&gt;</tt>, the <tt>&gt;</tt>
+ * is discarded, and the name is used literally, instead of \p name <tt>+ "_" +
+ * </tt> (C's primary key(s)).
  *
  * A hasOne() must have a counter-part belongsTo() declaration in the
  * referenced class \p C.
@@ -433,8 +445,13 @@ void hasMany(Action& action, collection< ptr<C> >& value,
  * Wt::Dbo::ManyToMany ManyToMany\endlink.
  *
  * The \p joinId is used to reference this side of the relationship in
- * the join table. If \p joinId is left blank, the value will be table
- * name <tt>+ "_" +</tt> (primary key(s)) of the current class.
+ * the join table, e.g. if \p joinId is <tt>foo</tt> and the primary key
+ * is <tt>id</tt>, then this side of the join table will be named <tt>foo_id</tt>.
+ * If \p joinId is left blank, the value will be table
+ * name <tt>+ "_" +</tt> (primary key(s)) of the current class. If \p joinId
+ * starts with <tt>&gt;</tt>, the <tt>&gt;</tt> is omitted, and the joinId
+ * is used literally (the primary key of the current class is not appended),
+ * e.g. <tt>&gt;foo</tt> maps to the column name <tt>foo</tt>.
  *
  * A hasMany() must have a counter-part belongsTo() or hasMany()
  * declaration in the referenced class \p C.

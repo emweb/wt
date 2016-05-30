@@ -63,9 +63,9 @@ namespace Wt {
 namespace http {
 namespace server {
 
-RequestParser::RequestParser(Server * server):
+RequestParser::RequestParser(Server * server)
 #ifdef WTHTTP_WITH_ZLIB
-  inflateInitialized_(false)
+  : inflateInitialized_(false)
 #endif
 {
   MAX_WEBSOCKET_MESSAGE_LENGTH = server->configuration().maxMemoryRequestSize();

@@ -11,6 +11,7 @@
 #include <Wt/WFont>
 #include <Wt/WObject>
 #include <Wt/WPaintDevice>
+#include <Wt/WPainterPath>
 #include <Wt/WPen>
 #include <Wt/WPointF>
 #include <Wt/WShadow>
@@ -100,6 +101,9 @@ private:
   WFont       currentFont_;
   WPointF     pathTranslation_;
   AlignmentFlag currentTextHAlign_, currentTextVAlign_;
+  WPainterPath currentClipPath_;
+  WTransform currentClipTransform_;
+  bool currentClippingEnabled_;
   ServerSideFontMetrics *fontMetrics_;
 
   std::stringstream js_;
