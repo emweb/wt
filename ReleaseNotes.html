@@ -55,10 +55,18 @@ behaviour.
     Wt::Dbo
   </dt>
   <dd>
-    It's now possible to mark foreign keys as literal with a &ldquo;&gt;&rdquo; prefix, so Wt::Dbo can better map to
-    an existing schema. Note that for consistency, this also means that the schema generated for ManyToMany relationships
-    has been changed to include the id column names if a joinId has been specified. If you specify a joinId for ManyToMany
-    relationships, you'll have to change it to include a &ldquo;&gt;&rdquo; before it in order to keep the same database schema.
+    <ul>
+      <li>
+      It's now possible to mark foreign keys as literal with a &ldquo;&gt;&rdquo; prefix, so Wt::Dbo can better map to
+      an existing schema. Note that for consistency, this also means that the schema generated for ManyToMany relationships
+      has been changed to include the id column names if a joinId has been specified. If you specify a joinId for ManyToMany
+      relationships, you'll have to change it to include a &ldquo;&gt;&rdquo; before it in order to keep the same database schema.
+      </li>
+      <li>
+	The <tt>size</tt> argument of <a href="group__dbo.html#gac089020eff000d9e2c4ef72cf715bd21">belongsTo()</a> has been
+	removed, since it served no actual purpose.
+      </li>
+    </li>
   </dd>
   <dt>
     Scroll position

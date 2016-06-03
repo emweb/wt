@@ -80,12 +80,11 @@ CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 }
 
 template <class C>
-PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name, int size,
+PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name,
 		  int fkConstraints)
   : value_(value),
     name_(name),
     literalForeignKey_(false),
-    size_(size),
     fkConstraints_(fkConstraints)
 {
   if (!name.empty() && name[0] == '>') {
@@ -127,7 +126,7 @@ void PtrRef<C>::visit(A& action, Session *session) const
     id = value_.id();
 
   std::string idFieldName = "stub";
-  int size = size_;
+  int size = -1;
 
   if (session) {
     Impl::MappingInfo *mapping = session->getMapping<C>();
@@ -184,40 +183,40 @@ void field(A& action, V& value, const std::string& name, int size)
 }
 
 template <class A, class C>
-void field(A& action, ptr<C>& value, const std::string& name, int size)
+void field(A& action, ptr<C>& value, const std::string& name)
 {
-  action.actPtr(PtrRef<C>(value, name, size, 0));
+  action.actPtr(PtrRef<C>(value, name, 0));
 }
 
 template <class A, class C>
 void belongsToImpl(A& action, ptr<C>& value, const std::string& name,
-		   int fkConstraints, int size)
+		   int fkConstraints)
 {
   if (name.empty() && action.session())
     action.actPtr(PtrRef<C>(value, action.session()->template tableName<C>(),
-			    size, fkConstraints));
+			    fkConstraints));
   else
-    action.actPtr(PtrRef<C>(value, name, size, fkConstraints));
+    action.actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
 template <class A, class C>
-void belongsTo(A& action, ptr<C>& value, const std::string& name, int size)
+void belongsTo(A& action, ptr<C>& value, const std::string& name)
 {
-  belongsToImpl(action, value, name, 0, size);
+  belongsToImpl(action, value, name, 0);
 }
 
 template <class A, class C>
 void belongsTo(A& action, ptr<C>& value, const std::string& name,
-	       ForeignKeyConstraint constraint, int size)
+	       ForeignKeyConstraint constraint)
 {
-  belongsToImpl(action, value, name, constraint.value(), size);
+  belongsToImpl(action, value, name, constraint.value());
 }
 
 template <class A, class C>
 void belongsTo(A& action, ptr<C>& value,
-	       ForeignKeyConstraint constraint, int size)
+	       ForeignKeyConstraint constraint)
 {
-  belongsToImpl(action, value, std::string(), constraint.value(), size);
+  belongsToImpl(action, value, std::string(), constraint.value());
 }
 
 template <class A, class C>

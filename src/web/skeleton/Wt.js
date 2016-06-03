@@ -511,6 +511,17 @@ this.remove = function(id)
   }
 };
 
+this.replaceWith = function(w1Id, $w2)
+{
+  var $w1 = $("#" + w1Id);
+  $w1.replaceWith($w2);
+
+  /* Reapply client-side validation, bootstrap applys validation classes
+     also outside the element into its ancestors */
+  if ($w2.get(0).wtValidate && WT.validate)
+    WT.validate($w2.get(0));
+}
+
 this.contains = function(w1, w2) {
   var p = w2.parentNode;
 

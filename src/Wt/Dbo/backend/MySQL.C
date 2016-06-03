@@ -20,6 +20,7 @@
 #include <winsock2.h>
 #endif
 #include <mysql.h>
+#include <errmsg.h>
 
 #define BYTEAOID 17
 
@@ -934,33 +935,25 @@ bool MySQL::connect(const std::string &db,  const std::string &dbuser,
     throw MySQLException("MySQL : Already connected, disconnect first");
 
   if((impl_->mysql = mysql_init(NULL))){
-    my_bool reconnect = true;
-    if(!mysql_options(impl_->mysql, MYSQL_OPT_RECONNECT, &reconnect)) {
-      if(mysql_real_connect(impl_->mysql, dbhost.c_str(), dbuser.c_str(),
-	dbpasswd.empty() ? 0 : dbpasswd.c_str(),
-	db.c_str(), dbport,
-	dbsocket.c_str(),
-	CLIENT_FOUND_ROWS) != impl_->mysql) {
-	  std::string errtext = mysql_error(impl_->mysql);
-	  mysql_close(impl_->mysql);
-	  impl_->mysql = 0;
-	  throw MySQLException(
-	    std::string("MySQL : Failed to connect to database server: ")
-	    + errtext);
-      } else {
-	// success!
-	dbname_ = db;
-	dbuser_ = dbuser;
-	dbpasswd_ = dbpasswd;
-	dbhost_ = dbhost;
-	dbsocket_ = dbsocket;
-	dbport_ = dbport;
-        mysqlId_ = mysql_thread_id(impl_->mysql);
-      }
+    if(mysql_real_connect(impl_->mysql, dbhost.c_str(), dbuser.c_str(),
+      dbpasswd.empty() ? 0 : dbpasswd.c_str(),
+      db.c_str(), dbport,
+      dbsocket.c_str(),
+      CLIENT_FOUND_ROWS) != impl_->mysql) {
+	std::string errtext = mysql_error(impl_->mysql);
+	mysql_close(impl_->mysql);
+	impl_->mysql = 0;
+	throw MySQLException(
+	  std::string("MySQL : Failed to connect to database server: ")
+	  + errtext);
     } else {
-      mysql_close(impl_->mysql);
-      impl_->mysql = 0;
-      throw MySQLException("MySQL : Failed to set the reconnect option");
+      // success!
+      dbname_ = db;
+      dbuser_ = dbuser;
+      dbpasswd_ = dbpasswd;
+      dbhost_ = dbhost;
+      dbsocket_ = dbsocket;
+      dbport_ = dbport;
     }
   } else {
     throw MySQLException(
@@ -982,25 +975,37 @@ void MySQL::init()
 void MySQL::checkConnection()
 {
   /*
-   * If MySQL connection is lost, it automatically reconnects, but it looses
-   * state. The statements in the 'init' class must be re-issued, and any
-   * saved prepared statement is lost. Here we check if we had been reconnected,
-   * and process the event appropriately.
+   * We used to rely on MySQL's ability to automatically reconnect,
+   * but it's not possible to reliably detect whether a reconnect has
+   * occurred, so we'll just check the connection, and manually reconnect
+   * if it's lost.
    *
    * This function must be called *before* any interaction with the mysql
    * server.
    */
-  if (mysql_ping(impl_->mysql) != 0) {
-    throw MySQLException("checkConnection: MySQL ping error: " +
-      std::string(mysql_error(impl_->mysql)));
+  int err_nb = CR_SERVER_GONE_ERROR;
+  int res = 0;
+  if (impl_->mysql) {
+    err_nb = 0;
+    res = mysql_ping(impl_->mysql);
   }
-  unsigned long oldId = mysqlId_;
-  mysqlId_ = mysql_thread_id(impl_->mysql);
-  if (mysqlId_ != oldId) {
-    std::cerr << "warning: checkConnection: MySQL reconnect " <<
-      mysql_thread_id(impl_->mysql) << std::endl;
+  std::string err;
+  if (res != 0) {
+    err_nb = mysql_errno(impl_->mysql);
+    err = std::string(mysql_error(impl_->mysql));
+  }
+  if (err_nb == CR_SERVER_GONE_ERROR) {
     clearStatementCache();
-    init();
+    mysql_close(impl_->mysql);
+    impl_->mysql = 0;
+    try {
+      connect(dbname_, dbuser_, dbpasswd_, dbhost_, dbport_, dbsocket_);
+    } catch (MySQLException e) {
+      throw MySQLException("checkConnection: Error when reconnecting: " + std::string(e.what()));
+    }
+  }
+  if (res != 0) {
+    throw MySQLException("checkConnection: MySQL ping error: " + err);
   }
 }
 

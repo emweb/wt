@@ -51,10 +51,10 @@ WtReply::WtReply(Request& request, const Wt::EntryPoint& entryPoint,
     contentLength_(-1),
     bodyReceived_(0),
     sendingMessages_(false),
-#ifdef WTHTTP_WITH_ZLIB
-	deflateInitialized_(false),
-#endif
     httpRequest_(0)
+#ifdef WTHTTP_WITH_ZLIB
+    ,deflateInitialized_(false)
+#endif
 {
   reset(&entryPoint);
 }
@@ -620,7 +620,7 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
 #ifdef WTHTTP_WITH_ZLIB
 	// Compress frame if compression is enabled
 	if(request_.pmdState_.enabled) 
-	  for(int i = 0; i < buffers.size() ; ++i) 
+	  for(unsigned i = 0; i < buffers.size() ; ++i) 
 		result.push_back(buffers[i]);
 	else 
 #endif
@@ -664,7 +664,7 @@ bool WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
     formatResponse(result);
   }
 
-  return httpRequest_->done();
+  return httpRequest_ ? httpRequest_->done() : true;
 }
 
 

@@ -154,7 +154,6 @@ private:
   std::string dbhost_;
   std::string dbsocket_;
   unsigned int dbport_;
-  unsigned long mysqlId_;
 
   int fractionalSecondsPart_;
   std::string dateType_, timeType_;

@@ -197,7 +197,7 @@ template <class C>
 class PtrRef
 {
 public:
-  PtrRef(ptr<C>& value, const std::string& name, int size, int fkConstraints);
+  PtrRef(ptr<C>& value, const std::string& name, int fkConstraints);
 
   const std::string& name() const { return name_; }
   bool literalForeignKey() const { return literalForeignKey_; }
@@ -217,7 +217,6 @@ private:
   ptr<C>& value_;
   std::string name_;
   bool literalForeignKey_;
-  int size_;
   int fkConstraints_;
 };
 
@@ -317,8 +316,7 @@ void field(Action& action, V& value, const std::string& name, int size = -1);
  * this method also to allow foreign key constraints.
  */
 template <class Action, class C>
-void field(Action& action, ptr<C>& value, const std::string& name,
-	   int size = -1);
+void field(Action& action, ptr<C>& value, const std::string& name);
 
 /*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
@@ -342,7 +340,7 @@ void field(Action& action, ptr<C>& value, const std::string& name,
  */
 template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value,
-	       const std::string& name = std::string(), int size = -1);
+	       const std::string& name = std::string());
 
 /*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
@@ -355,7 +353,7 @@ void belongsTo(Action& action, ptr<C>& value,
  */
 template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value, const std::string& name,
-	       ForeignKeyConstraint constraints, int size = -1);
+	       ForeignKeyConstraint constraints);
 
 /*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
@@ -368,7 +366,7 @@ void belongsTo(Action& action, ptr<C>& value, const std::string& name,
  */
 template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value,
-	       ForeignKeyConstraint constraints, int size = -1);
+	       ForeignKeyConstraint constraints);
 
 /*! \brief Maps the "One"-side of a OneToOne relation.
  *
