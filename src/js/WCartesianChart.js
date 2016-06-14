@@ -1332,7 +1332,7 @@ WT_DECLARE_WT_MEMBER
       notifyAreaChanged();
    }
 
-   this.setXRange = function(seriesNb, lowerBound, upperBound) {
+   this.setXRange = function(seriesNb, lowerBound, upperBound, updateYAxis) {
       lowerBound = modelArea()[0] + modelArea()[2] * lowerBound;
       upperBound = modelArea()[0] + modelArea()[2] * upperBound;
       //Constrain given range
@@ -1358,10 +1358,10 @@ WT_DECLARE_WT_MEMBER
       var crosshairBefore = toModelCoord(crosshair);
 
       transform(X)[0] = xZoom;
-      if (yZoom)
+      if (yZoom && updateYAxis)
           transform(Y)[3] = yZoom;
       transform(X)[4] = -panPoint[X] * xZoom;
-      if (yZoom)
+      if (yZoom && updateYAxis)
           transform(Y)[5] = -panPoint[Y] * yZoom;
       setTransformChangedTimeout();
 

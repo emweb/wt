@@ -136,6 +136,18 @@ public:
    */
   bool isLabelsEnabled() const { return labelsEnabled_; }
 
+  /*! \brief Set whether the Y axis of the associated chart should be updated to fit the series.
+   *
+   * Y axis zoom is enabled by default.
+   */
+  void setYAxisZoomEnabled(bool enabled = true);
+
+  /*! \brief Returns whether the Y axis of the associated chart should be updated to fit the series.
+   *
+   * \sa setYAxisZoomEnabled()
+   */
+  bool isYAxisZoomEnabled() const { return yAxisZoomEnabled_; }
+
   WDataSeries *series() { return series_; }
   const WDataSeries *series() const { return series_; }
 
@@ -160,6 +172,7 @@ private:
   WBrush selectedAreaBrush_;
   bool autoPadding_;
   bool labelsEnabled_;
+  bool yAxisZoomEnabled_;
   int padding_[4];
 
   WJavaScriptHandle<WTransform> transform_;

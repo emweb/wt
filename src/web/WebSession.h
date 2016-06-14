@@ -129,8 +129,7 @@ public:
    */
 
   const std::string& applicationName() const { return applicationName_; }
-  const std::string applicationUrl() const
-    { return applicationUrl_ + sessionQuery(); }
+  const std::string applicationUrl() const { return applicationUrl_; }
   const std::string& deploymentPath() const { return deploymentPath_; }
 
   bool hasSessionIdInUrl() const { return sessionIdInUrl_; }

@@ -316,7 +316,7 @@ void field(Action& action, V& value, const std::string& name, int size = -1);
  * this method also to allow foreign key constraints.
  */
 template <class Action, class C>
-void field(Action& action, ptr<C>& value, const std::string& name);
+void field(Action& action, ptr<C>& value, const std::string& name, int size = -1);
 
 /*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *

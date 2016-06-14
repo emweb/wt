@@ -69,7 +69,7 @@ void InitSchema::actId(ptr<C>& value, const std::string& name, int size,
 		    "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
 
   idField_ = true;
-  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+  actPtr(PtrRef<C>(value, name, fkConstraints));
   idField_ = false;
 }
 
@@ -326,7 +326,7 @@ template<class D>
 void LoadDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
 			    int fkConstraints)
 { 
-  actPtr(PtrRef<D>(value, name, size, fkConstraints));
+  actPtr(PtrRef<D>(value, name, fkConstraints));
 
   dbo_.setId(value);
 }
@@ -552,7 +552,7 @@ template<class D>
 void SaveDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
 			   int fkConstraints)
 { 
-  actPtr(PtrRef<D>(value, name, size, fkConstraints));
+  actPtr(PtrRef<D>(value, name, fkConstraints));
 
   /* Later, we may also want to support id changes ? */
   if (pass_ == Self && isInsert_)
@@ -580,7 +580,7 @@ template<class C>
 void TransactionDoneAction::actId(ptr<C>& value, const std::string& name,
 				  int size, int fkConstraints)
 { 
-  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+  actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
 template<typename V>
@@ -641,7 +641,7 @@ template<class C>
 void SessionAddAction::actId(ptr<C>& value, const std::string& name,
 			     int size, int fkConstraints)
 { 
-  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+  actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
 template<typename V>
@@ -686,7 +686,7 @@ template<class C>
 void SetReciproceAction::actId(ptr<C>& value, const std::string& name,
 			       int size, int fkConstraints)
 { 
-  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+  actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
 template<typename V>
@@ -767,7 +767,7 @@ template<class C>
 void ToAnysAction::actId(ptr<C>& value, const std::string& name,
 			 int size, int fkConstraints)
 { 
-  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+  actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
 template<typename V>
@@ -849,7 +849,7 @@ template<class C>
 void FromAnyAction::actId(ptr<C>& value, const std::string& name, int size,
 			  int fkConstraints)
 {
-  actPtr(PtrRef<C>(value, name, size, fkConstraints));
+  actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
 template<typename V>

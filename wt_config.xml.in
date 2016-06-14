@@ -340,10 +340,6 @@
 	   a special hand-shake mechanism, and requires
            that all (reverse) proxy servers also have explicit support
            for this protocol.
-
-           This feature is still experimental: the Web Sockets RFC is
-           still a draft. Wt implements up to version 17 of the draft
-	   (latest as of November 2011).
 	  -->
 	<web-sockets>false</web-sockets>
 

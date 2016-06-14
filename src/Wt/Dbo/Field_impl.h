@@ -183,7 +183,7 @@ void field(A& action, V& value, const std::string& name, int size)
 }
 
 template <class A, class C>
-void field(A& action, ptr<C>& value, const std::string& name)
+void field(A& action, ptr<C>& value, const std::string& name, int)
 {
   action.actPtr(PtrRef<C>(value, name, 0));
 }

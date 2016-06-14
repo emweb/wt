@@ -30,6 +30,12 @@ BOOST_AUTO_TEST_CASE( Utf8_test1 )
 
 BOOST_AUTO_TEST_CASE( Utf8_test2 )
 {
+  /*
+   * This test is broken on FreeBSD and Mac OS X. There is a bug in their libc.
+   *
+   * See: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=209907
+   */
+#if !(defined(__APPLE__) || defined(__FreeBSD__))
 #ifndef WT_NO_STD_WSTRING
   std::wstring w = L"This costs 100\x20AC (greek \x0194)";
 
@@ -39,6 +45,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test2 )
   // The following will work only if locale is classic.
   // If locale is UTF8, we have the original back.
   BOOST_REQUIRE(s == "This costs 100? (greek ?)" || s == ws.toUTF8());
+#endif
 #endif
 }
 

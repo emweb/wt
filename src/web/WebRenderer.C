@@ -968,10 +968,16 @@ void WebRenderer::serveMainscript(WebResponse& response)
      */
     std::string params;
     if (session_.type() == WidgetSet) {
-      const Http::ParameterMap& m = session_.env().getParameterMap();
-
-      for (Http::ParameterMap::const_iterator i = m.begin();
-	   i != m.end(); ++i) {
+      const Http::ParameterMap *m = &session_.env().getParameterMap();
+      Http::ParameterMap::const_iterator it = m->find("Wt-params");
+      Http::ParameterMap wtParams;
+      if (it != m->end() && it->second.size() == 1) {
+	// Parse and reencode Wt-params, so it's definitely safe
+	Http::Request::parseFormUrlEncoded(it->second[0], wtParams);
+	m = &wtParams;
+      }
+      for (Http::ParameterMap::const_iterator i = m->begin();
+	   i != m->end(); ++i) {
 	if (!params.empty())
 	  params += '&';
 	params

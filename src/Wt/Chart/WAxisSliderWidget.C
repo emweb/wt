@@ -7,6 +7,7 @@
 #include "Wt/Chart/WAxisSliderWidget"
 
 #include "Wt/WApplication"
+#include "Wt/WBoostAny"
 #include "Wt/WBrush"
 #include "Wt/WColor"
 #include "Wt/WJavaScript"
@@ -34,7 +35,8 @@ WAxisSliderWidget::WAxisSliderWidget(WContainerWidget *parent)
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
     autoPadding_(false),
-    labelsEnabled_(true)
+    labelsEnabled_(true),
+    yAxisZoomEnabled_(true)
 {
   init();
 }
@@ -47,7 +49,8 @@ WAxisSliderWidget::WAxisSliderWidget(WDataSeries *series, WContainerWidget *pare
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
     autoPadding_(false),
-    labelsEnabled_(true)
+    labelsEnabled_(true),
+    yAxisZoomEnabled_(true)
 {
   init();
 }
@@ -183,6 +186,14 @@ void WAxisSliderWidget::setLabelsEnabled(bool enabled)
 {
   if (enabled != labelsEnabled_) {
     labelsEnabled_ = enabled;
+    update();
+  }
+}
+
+void WAxisSliderWidget::setYAxisZoomEnabled(bool enabled)
+{
+  if (enabled != yAxisZoomEnabled_) {
+    yAxisZoomEnabled_ = enabled;
     update();
   }
 }
@@ -469,7 +480,8 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
        "transform:" << transform_.jsRef() << ","
        "rect:function(){return " << rect.jsRef() << "},"
        "drawArea:" << drawArea.jsRef() << ","
-       "series:" << chart()->seriesIndexOf(*series_) <<
+       "series:" << chart()->seriesIndexOf(*series_) << ","
+       "updateYAxis:" << asString(yAxisZoomEnabled_).toUTF8() <<
        "});";
     doJavaScript(ss.str());
   }

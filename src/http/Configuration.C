@@ -111,7 +111,8 @@ void Configuration::createOptions(po::options_description& options,
 
     ("accesslog",
      po::value<std::string>(&accessLog_),
-     "access log file (defaults to stdout)")
+     "access log file (defaults to stdout), "
+     "to disable access logging completely, use --accesslog=-")
 
     ("no-compression",
      "do not use compression")

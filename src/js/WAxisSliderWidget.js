@@ -10,7 +10,7 @@ WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WAxisSliderWidget",
  function(APP, widget, target, config) {
    // draw area: inside of the margins of the widget
-   // config: { chart:, rect:(function), transform:, drawArea:, series: }
+   // config: { chart:, rect:(function), transform:, drawArea:, series:, updateYAxis: }
    var rqAnimFrame = (function(){
       return window.requestAnimationFrame       ||
 	     window.webkitRequestAnimationFrame ||
@@ -177,7 +177,7 @@ WT_DECLARE_WT_MEMBER
        var drawArea = config.drawArea;
        var u = transform[4] / drawArea[2];
        var v = transform[0] + u;
-       config.chart.setXRange(config.series, u, v);
+       config.chart.setXRange(config.series, u, v, config.updateYAxis);
      }
    }
 

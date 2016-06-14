@@ -3213,7 +3213,7 @@ function sendUpdate() {
 
   var params = "_$_PARAMS_$_";
   if (params.length > 0)
-    data.result += '&' + params;
+    data.result += '&Wt-params=' + encodeURIComponent(params);
 
   if ((websocket.socket != null) &&
       (websocket.socket.readyState == 1) &&
@@ -3285,7 +3285,7 @@ function emit(object, config) {
       r = 0;
     else if (a === true)
       r = 1;
-    else if (a.toDateString)
+    else if (a && a.toDateString)
       r = a.toDateString();
     else
       r = a;
