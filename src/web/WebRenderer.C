@@ -971,7 +971,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
       const Http::ParameterMap *m = &session_.env().getParameterMap();
       Http::ParameterMap::const_iterator it = m->find("Wt-params");
       Http::ParameterMap wtParams;
-      if (it != m->end() && it->second.size() == 1) {
+      if (it != m->end()) {
 	// Parse and reencode Wt-params, so it's definitely safe
 	Http::Request::parseFormUrlEncoded(it->second[0], wtParams);
 	m = &wtParams;

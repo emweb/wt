@@ -2402,8 +2402,8 @@ bool WCartesianChart::initLayout(const WRectF& rectangle, WPaintDevice *device)
     location_[i] = MinimumValue;
 
   bool autoLayout = isAutoLayoutEnabled();
-  if (autoLayout && 
-      ((device->features() & WPaintDevice::HasFontMetrics) == 0)) {
+  if (autoLayout &&
+      (!device || (device->features() & WPaintDevice::HasFontMetrics) == 0)) {
     LOG_ERROR("setAutoLayout(): device does not have font metrics "
       "(not even server-side font metrics).");
     autoLayout = false;
