@@ -1301,7 +1301,8 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 
   switch (scale_) {
   case CategoryScale: {
-    int renderInterval = std::max(1, static_cast<int>(renderInterval_));
+    int renderInterval = std::max(1, 
+				  static_cast<int>(renderInterval_ / divisor));
     if (renderInterval == 1) {
       ticks.push_back(TickLabel(s.renderMinimum, TickLabel::Long));
       for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum; ++i) {

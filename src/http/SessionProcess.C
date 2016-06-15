@@ -151,7 +151,9 @@ void SessionProcess::exec(const Configuration& config,
   ++i;
   c_options[i] = 0;
 
+#if BOOST_VERSION >= 104700
   io_service_.notify_fork(boost::asio::io_service::fork_prepare);
+#endif
 
   pid_ = fork();
   if (pid_ < 0) {
@@ -193,7 +195,9 @@ void SessionProcess::exec(const Configuration& config,
     exit(1);
   } else {
     /* parent process */
+#if BOOST_VERSION >= 104700
     io_service_.notify_fork(boost::asio::io_service::fork_parent);
+#endif
   }
 
   delete[] c_options;

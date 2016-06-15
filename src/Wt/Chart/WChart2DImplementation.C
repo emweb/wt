@@ -67,7 +67,10 @@ Orientation WChart2DImplementation::orientation() const
 WString WChart2DImplementation::categoryLabel(int u, Axis axis) const
 {
   if (chart_->XSeriesColumn() != -1) {
-    return chart_->model()->displayData(u, chart_->XSeriesColumn());
+    if (u < chart_->model()->rowCount())
+      return chart_->model()->displayData(u, chart_->XSeriesColumn());
+    else
+      return WString();
   } else {
     return WString();
   }

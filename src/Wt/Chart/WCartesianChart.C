@@ -277,8 +277,6 @@ void SeriesIterator::setBrushColor(WBrush& brush, const WDataSeries &series,
 
   if (color)
     brush.setColor(*color);
-
-  delete color;
 }
 
 class SeriesRenderer;
@@ -1059,8 +1057,6 @@ private:
   dScale = markerSize / 6 * dScale;
 
   scale_ = WTransform(dScale, 0, 0, dScale, 0, 0);
-
-  delete scale;
 }
 
 };

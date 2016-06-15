@@ -2317,6 +2317,39 @@ BOOST_AUTO_TEST_CASE( dbo_test25 )
 #endif // FIREBIRD
 }
 
+namespace {
+
+struct CheckExpected : Wt::WObject {
+  DboFixture& f_;
+  dbo::Session *session2_;
+
+  CheckExpected(DboFixture &f) : f_(f) {
+    session2_ = new dbo::Session();
+    session2_->setConnectionPool(*f_.connectionPool_);
+    session2_->mapClass<F>(SCHEMA "table_f");
+  }
+
+  virtual ~CheckExpected() {
+    delete session2_;
+  }
+
+  bool operator() (std::string &expected) {
+    {
+      dbo::Transaction t2(*session2_);
+      dbo::ptr<F> c = session2_->find<F>();
+      if (c->firstName != expected)
+	BOOST_ERROR(std::string("CheckExpected: firstName != expected, firstName: '") +
+		    c->firstName + "', expected: '" + expected + "'");
+      else
+	BOOST_TEST_MESSAGE(std::string("CheckExpected OK: firstName: '") +
+			   c->firstName + "', expected: '" + expected + "'");
+    }
+    return true;
+  }
+};
+
+}
+
 BOOST_AUTO_TEST_CASE( dbo_test26 )
 {
 #ifndef SQLITE3  // sqlite3 ":memory:" does not share database between sessions
@@ -2324,34 +2357,7 @@ BOOST_AUTO_TEST_CASE( dbo_test26 )
 
   dbo::Session *session_ = f.session_;
 
-  struct CheckExpected : Wt::WObject {
-    DboFixture& f_;
-    dbo::Session *session2_;
-
-    CheckExpected(DboFixture &f) : f_(f) {
-      session2_ = new dbo::Session();
-      session2_->setConnectionPool(*f_.connectionPool_);
-      session2_->mapClass<F>(SCHEMA "table_f");
-    }
-
-    virtual ~CheckExpected() {
-      delete session2_;
-    }
-
-    bool operator() (std::string &expected) {
-      {
-        dbo::Transaction t2(*session2_);
-        dbo::ptr<F> c = session2_->find<F>();
-        if (c->firstName != expected)
-          BOOST_ERROR(std::string("CheckExpected: firstName != expected, firstName: '") +
-              c->firstName + "', expected: '" + expected + "'");
-        else
-          BOOST_TEST_MESSAGE(std::string("CheckExpected OK: firstName: '") +
-              c->firstName + "', expected: '" + expected + "'");
-      }
-      return true;
-    }
-  } checkExpected(f);
+  CheckExpected checkExpected(f);
 
   {
     dbo::Transaction t(*session_);

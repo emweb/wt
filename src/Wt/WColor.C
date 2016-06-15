@@ -10,6 +10,8 @@
 #include "WebUtils.h"
 #include "ColorUtils.h"
 
+#include <cmath>
+
 namespace Wt {
 
 LOGGER("WColor");
