@@ -1081,7 +1081,7 @@ public:
 
   bool startSeries(const WDataSeries &series, double groupWidth, int numBarGroups, int currentBarGroup)
   {
-    return matchedSeries_ == 0 && series.type() == PointSeries;
+    return matchedSeries_ == 0 && (series.type() == PointSeries || series.type() == LineSeries || series.type() == CurveSeries);
   }
 
   void newValue(const WDataSeries &series, double x, double y, double stackY, int xRow, int xColumn, int yRow, int yColumn)

@@ -11,6 +11,7 @@
 #include <Wt/WFont>
 #include <Wt/WPen>
 #include <Wt/WPointF>
+#include <Wt/WRectF>
 #include <Wt/WResource>
 #include <Wt/WShadow>
 #include <Wt/WStringStream>
@@ -115,6 +116,7 @@ private:
   int         currentShadowId_, nextShadowId_;
 
   WPointF     pathTranslation_;
+  WRectF      pathBoundingBox_;
 
   WStringStream shapes_;
   ServerSideFontMetrics *fontMetrics_;

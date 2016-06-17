@@ -491,6 +491,16 @@ void WSvgImage::finishPath()
 
 void WSvgImage::drawPath(const WPainterPath& path)
 {
+  WRectF bbox = painter()->worldTransform().map(path.controlPointRect());
+  if (busyWithPath_) {
+    if (pathBoundingBox_.intersects(bbox))
+      finishPath();
+    else
+      pathBoundingBox_ = pathBoundingBox_.united(bbox);
+  } else {
+    pathBoundingBox_ = bbox;
+  }
+
   makeNewGroup();
 
   drawPlainPath(shapes_, path);

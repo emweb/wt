@@ -176,6 +176,7 @@ private:
   /* Scroll to to process after viewport height is known */
   int scrollToRow_;
   ScrollHint scrollToHint_;
+  bool columnResizeConnected_;
 
   void updateTableBackground();
 
@@ -217,6 +218,7 @@ private:
   virtual WWidget *headerWidget(int column, bool contentsOnly = true);
 
   void onViewportChange(int left, int top, int width, int height);
+  void onColumnResize();
   void resetGeometry();
   
   void handleSingleClick(bool headerColumns, const WMouseEvent& event);

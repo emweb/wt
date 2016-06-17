@@ -62,7 +62,8 @@ WTableView::WTableView(WContainerWidget *parent)
     viewportTop_(0),
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
     scrollToRow_(-1),
-    scrollToHint_(EnsureVisible)
+    scrollToHint_(EnsureVisible),
+    columnResizeConnected_(false)
 {
   setSelectable(false);
 
@@ -746,6 +747,11 @@ void WTableView::defineJavaScript()
 
   if (!scrolled_.isConnected())
     scrolled_.connect(this, &WTableView::onViewportChange);
+
+  if (!columnResizeConnected_) {
+    columnResized().connect(this, &WTableView::onColumnResize);
+    columnResizeConnected_ = true;
+  }
 
   if (viewportTop_ != 0) {
     WStringStream s;
@@ -1511,6 +1517,13 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
   computeRenderedArea();
 
   scheduleRerender(NeedAdjustViewPort);  
+}
+
+void WTableView::onColumnResize()
+{
+  computeRenderedArea();
+
+  scheduleRerender(NeedAdjustViewPort);
 }
 
 void WTableView::computeRenderedArea()

@@ -163,8 +163,8 @@ enum ItemFlag {
    */
   ItemIsTristate = 0x20,
   ItemIsXHTMLText = 0x40,       //!< Item's text (DisplayRole, ToolTipRole) is HTML
-  ItemHasDeferredTooltip = 0x60, //!< Item's tooltip is deferred
-  ItemIsDirty = 0x80            //!< Item's value has been modified
+  ItemIsDirty = 0x80,            //!< Item's value has been modified
+  ItemHasDeferredTooltip = 0x100 //!< Item's tooltip is deferred
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ItemFlag)
