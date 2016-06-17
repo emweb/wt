@@ -351,7 +351,8 @@ public:
 		     const WDataSeries& series,
 		     SeriesRenderIterator& it)
     : SeriesRenderer(chart, painter, series, it),
-      curveLength_(0)
+      curveLength_(0),
+      curveFragmentLength_(0)
   {
     curve_.setOpenSubPathsEnabled(true);
   }
@@ -361,7 +362,7 @@ public:
     WPointF p = chart_.map(x, y, series_.axis(),
 			   it_.currentXSegment(), it_.currentYSegment());
 
-    if (curveLength_ == 0) {
+    if (curveFragmentLength_ == 0) {
       curve_.moveTo(hv(p));
 
       if (series_.fillRange() != NoFill
@@ -374,7 +375,7 @@ public:
 	curve_.lineTo(hv(p));
 	fill_.lineTo(hv(p));
       } else {
-	if (curveLength_ == 1) {
+	if (curveFragmentLength_ == 1) {
 	  computeC(p0, p, c_);
 	} else {
 	  WPointF c1, c2;
@@ -390,11 +391,12 @@ public:
     p0 = p;
     lastX_ = x;
     ++curveLength_;
+    ++curveFragmentLength_;
   }
 
   virtual void addBreak()
   {
-    if (curveLength_ > 1) {
+    if (curveFragmentLength_ > 1) {
       if (series_.type() == CurveSeries) {
 	WPointF c1;
 	computeC(p0, p_1, c1);
@@ -408,7 +410,7 @@ public:
 	fill_.closeSubPath();
       }
     }
-    curveLength_ = 0;
+    curveFragmentLength_ = 0;
   }
 
   virtual void paint() {
@@ -477,12 +479,14 @@ public:
     }
 
     curveLength_ = 0;
+    curveFragmentLength_ = 0;
     curve_ = WPainterPath();
     fill_ = WPainterPath();
   }
 
 private:
   int curveLength_;
+  int curveFragmentLength_;
   WPainterPath curve_;
   WPainterPath fill_;
 
