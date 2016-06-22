@@ -413,6 +413,7 @@ public:
    *
    */
   EventSignal<>& escapePressed();
+  //@}
 
 protected:
   virtual void render(WFlags<RenderFlag> flags);

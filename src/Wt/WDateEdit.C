@@ -41,6 +41,14 @@ WDateEdit::WDateEdit(WContainerWidget *parent)
   setValidator(new WDateValidator("dd/MM/yyyy", this));
 }
 
+WDateEdit::~WDateEdit()
+{
+  if (!popup_) {
+    // calendar_ is not owned by popup_, because it doesn't exist
+    delete calendar_;
+  }
+}
+
 void WDateEdit::load()
 {
   bool wasLoaded = loaded();

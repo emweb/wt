@@ -219,7 +219,13 @@
 <span class="k">struct</span> <span class="n">ChartState</span> <span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span> <span class="p">{</span>
   <span class="n">ChartState</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span> <span class="o">*</span><span class="n">parent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
     <span class="o">:</span> <span class="n">Wt</span><span class="o">::</span><span class="n">WObject</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+      <span class="p">,</span> <span class="n">model</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
   <span class="p">{</span> <span class="p">}</span>
+
+  <span class="k">virtual</span> <span class="o">~</span><span class="n">ChartState</span><span class="p">()</span>
+  <span class="p">{</span>
+    <span class="k">delete</span> <span class="n">model</span><span class="p">;</span>
+  <span class="p">}</span>
 
   <span class="n">SinModel</span> <span class="o">*</span><span class="n">model</span><span class="p">;</span>
 <span class="p">};</span>

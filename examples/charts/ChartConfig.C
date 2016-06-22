@@ -240,7 +240,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
     sc.markerEdit = new WComboBox(seriesConfig->elementAt(j, 3));
     sc.markerEdit->setModel(markers);
-	sc.markerEdit->setCurrentIndex(0);
+    sc.markerEdit->setCurrentIndex(0);
     connectSignals(sc.markerEdit);
 
     sc.axisEdit = new WComboBox(seriesConfig->elementAt(j, 4));
@@ -456,42 +456,34 @@ void ChartConfig::update()
 	break;
       case 1:
 	s->setType(LineSeries);
-	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 2:
 	s->setType(CurveSeries);
-	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 3:
 	s->setType(BarSeries);
-	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 4:
 	s->setType(LineSeries);
 	s->setFillRange(fill_);
-	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 5:
 	s->setType(CurveSeries);
 	s->setFillRange(fill_);
-	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 6:
 	s->setType(BarSeries);
 	s->setStacked(true);
-	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 7:
 	s->setType(LineSeries);
 	s->setFillRange(fill_);
 	s->setStacked(true);
-	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 8:
 	s->setType(CurveSeries);
 	s->setFillRange(fill_);
 	s->setStacked(true);
-	sc.markerEdit->setCurrentIndex(0);
       }
 
       //set WPainterPath to draw a pipe

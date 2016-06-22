@@ -32,6 +32,8 @@ public:
    */
   WDateEdit(WContainerWidget *parent = 0);
 
+  virtual ~WDateEdit();
+
   /*! \brief Sets the date.
    *
    * Does nothing if the current date is \p Null.

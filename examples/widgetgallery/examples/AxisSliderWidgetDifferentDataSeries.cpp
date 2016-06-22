@@ -52,7 +52,17 @@ private:
 struct ChartState : Wt::WObject {
   ChartState(Wt::WObject *parent = 0)
     : Wt::WObject(parent)
+#ifndef WT_TARGET_JAVA
+      , model(0)
+#endif
   { }
+
+#ifndef WT_TARGET_JAVA
+  virtual ~ChartState()
+  {
+    delete model;
+  }
+#endif
 
   SinModel *model;
 };

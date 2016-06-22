@@ -1277,7 +1277,7 @@ void WebSession::handleRequest(Handler& handler)
 	response->setStatus(200);
 	response->addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
 	response->addHeader("Access-Control-Max-Age", "1728000");
-	response->flush();
+	handler.flushResponse();
 
 	return;
       }
