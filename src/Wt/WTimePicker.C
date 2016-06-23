@@ -39,6 +39,24 @@ WTimePicker::WTimePicker(const WTime &time, WTimeEdit *timeEdit, WContainerWidge
     init(time);
 }
 
+WTimePicker::~WTimePicker()
+{
+  // The widgets may or may not be bound to the template. Take them and delete them
+  // to make sure they're all properly deleted.
+  WTemplate *container = dynamic_cast<WTemplate *>(implementation());
+  container->takeWidget("hour");
+  container->takeWidget("minute");
+  container->takeWidget("second");
+  container->takeWidget("millisecond");
+  container->takeWidget("ampm");
+
+  delete sbhour_;
+  delete sbminute_;
+  delete sbsecond_;
+  delete sbmillisecond_;
+  delete cbAP_;
+}
+
 void WTimePicker::init(const WTime &time)
 {
     WTemplate *container = new WTemplate();

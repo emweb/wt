@@ -100,7 +100,7 @@ private:
   bool parseCrazyWebSocketKey(const buffer_string& key, ::uint32_t& number);
 
 #ifdef WTHTTP_WITH_ZLIB
-  bool doWebSocketPerMessageDeflateNegociation(const Request& req, std::string& compressHeader);
+  bool doWebSocketPerMessageDeflateNegotiation(const Request& req, std::string& compressHeader);
   bool inflate(unsigned char* in, size_t size, unsigned char out[], bool& hasMore);
   bool initInflate();
 #endif
@@ -170,6 +170,8 @@ private:
   buffer_string *currentString_;
   unsigned maxSize_;
   bool haveHeader_;
+
+  Server *server_;
 };
 
 } // namespace server

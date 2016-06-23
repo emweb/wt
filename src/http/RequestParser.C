@@ -63,10 +63,11 @@ namespace Wt {
 namespace http {
 namespace server {
 
-RequestParser::RequestParser(Server * server)
+RequestParser::RequestParser(Server *server) :
 #ifdef WTHTTP_WITH_ZLIB
-  : inflateInitialized_(false)
+  inflateInitialized_(false),
 #endif
+  server_(server)
 {
   MAX_WEBSOCKET_MESSAGE_LENGTH = server->configuration().maxMemoryRequestSize();
   reset();
@@ -302,21 +303,21 @@ std::string RequestParser::doWebSocketHandshake13(const Request& req)
 }
 
 #ifdef WTHTTP_WITH_ZLIB
-bool RequestParser::doWebSocketPerMessageDeflateNegociation(const Request& req, std::string& response) 
+bool RequestParser::doWebSocketPerMessageDeflateNegotiation(const Request& req, std::string& response) 
 {
   req.pmdState_.enabled = false;
   response = "";
 
   const Request::Header *k = req.getHeader("Sec-WebSocket-Extensions");
-  if (k) {
+  if (server_->configuration().compression() && k) {
 	std::string key = k->value.str();
-	std::vector<std::string> negociatedHeaders;
-	boost::split(negociatedHeaders, key, boost::is_any_of(";"));
+	std::vector<std::string> negotiatedHeaders;
+	boost::split(negotiatedHeaders, key, boost::is_any_of(";"));
 
 	if (key.find("permessage-deflate") != std::string::npos) {
 	  req.pmdState_.enabled = true;
 	  response = "permessage-deflate";
-	} else return false;
+	} else return true;
   
 	bool hasClientWBit = false;
 	bool hasServerWBit = false;
@@ -326,8 +327,8 @@ bool RequestParser::doWebSocketPerMessageDeflateNegociation(const Request& req, 
 	req.pmdState_.server_max_window_bits = SERVER_MAX_WINDOW_BITS;
 	req.pmdState_.client_max_window_bits = CLIENT_MAX_WINDOW_BITS;
 
-	for (unsigned int i = 0; i < negociatedHeaders.size(); ++i) {
-	  std::string key = negociatedHeaders[i];
+	for (unsigned int i = 0; i < negotiatedHeaders.size(); ++i) {
+	  std::string key = negotiatedHeaders[i];
 	  if(key.find("permessage-deflate") != std::string::npos) {
 		continue; // already parsed
 	  } else if (key.find("client_no_context_takeover") != std::string::npos) {
@@ -379,8 +380,6 @@ bool RequestParser::doWebSocketPerMessageDeflateNegociation(const Request& req, 
 
 	  }
 	}
-  } else {
-	  return false; // 400 bad request
   }
   return true;
 }
@@ -450,7 +449,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 	  reply->addHeader("Sec-WebSocket-Accept", accept);
 #ifdef WTHTTP_WITH_ZLIB
 	  std::string compressHeader;
-	  if(!doWebSocketPerMessageDeflateNegociation(req, compressHeader))
+	  if(!doWebSocketPerMessageDeflateNegotiation(req, compressHeader))
 		return Request::Error;
 	  
 	  if(!compressHeader.empty())  {

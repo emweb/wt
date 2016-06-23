@@ -289,7 +289,9 @@ std::string fromUTF8(const std::string& s, CharEncoding encoding)
 {
   switch(encoding) {
 #ifndef WT_NO_STD_WSTRING
-    case LocalEncoding: return narrow(fromUTF8(s));
+    case DefaultEncoding:
+    case LocalEncoding:
+      return narrow(fromUTF8(s));
 #else
     case DefaultEncoding:
     case LocalEncoding:

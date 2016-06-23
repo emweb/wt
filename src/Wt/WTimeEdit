@@ -30,6 +30,8 @@ public:
      */
     WTimeEdit(WContainerWidget *parent = 0);
 
+    virtual ~WTimeEdit();
+
     /*! \brief Sets the time
      *
      *  Does nothing if the current time is \p Null.

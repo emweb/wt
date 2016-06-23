@@ -47,6 +47,8 @@ public:
      */
     WTimePicker(const WTime &time, WTimeEdit *timeEdit, WContainerWidget *parent = 0);
 
+    virtual ~WTimePicker();
+
     /*! \brief Returns the time
      */
     WTime time() const;

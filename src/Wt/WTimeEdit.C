@@ -31,6 +31,14 @@ WTimeEdit::WTimeEdit(WContainerWidget *parent)
   timePicker_->selectionChanged().connect(this, &WTimeEdit::setFromTimePicker);
 }
 
+WTimeEdit::~WTimeEdit()
+{
+  if (!popup_) {
+    // timePicker_ is not owned by popup_, because it doesn't exist
+    delete timePicker_;
+  }
+}
+
 void WTimeEdit::load()
 {
   bool wasLoaded = loaded();
