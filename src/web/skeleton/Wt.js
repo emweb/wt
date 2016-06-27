@@ -518,8 +518,11 @@ this.replaceWith = function(w1Id, $w2)
 
   /* Reapply client-side validation, bootstrap applys validation classes
      also outside the element into its ancestors */
-  if ($w2.get(0).wtValidate && WT.validate)
-    WT.validate($w2.get(0));
+  if ($w2.get(0).wtValidate && WT.validate) {
+    setTimeout(function() { 
+      WT.validate($w2.get(0));
+    }, 0);
+  }
 }
 
 this.contains = function(w1, w2) {

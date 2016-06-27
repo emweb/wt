@@ -187,6 +187,8 @@ void WDatePicker::setEnabled(bool enabled)
 
 void WDatePicker::setDisabled(bool disabled)
 {
+  WCompositeWidget::setDisabled(disabled);
+
   forEdit_->setDisabled(disabled);
   displayWidget_->setHidden(disabled);
 }

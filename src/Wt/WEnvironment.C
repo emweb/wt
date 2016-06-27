@@ -467,7 +467,7 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     }
   }
 
-  if (userAgent_.find("Edge/12") != std::string::npos) {
+  if (userAgent_.find("Edge/") != std::string::npos) {
     agent_ = Edge;
   }
 

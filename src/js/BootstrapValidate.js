@@ -10,9 +10,12 @@ WT_DECLARE_WT_MEMBER
 (1, JavaScriptFunction, "validate",
  function(edit) {
      var v;
-     if (edit.options)
-	 v = edit.options.item(edit.selectedIndex).text;
-     else
+     if (edit.options) {
+	if (edit.options.item(edit.selectedIndex) == null) 
+	  v = "";
+	else
+	  v = edit.options.item(edit.selectedIndex).text;
+     } else
 	 v = edit.value;
 
      v = edit.wtValidate.validate(v);
