@@ -93,7 +93,7 @@ void WMeasurePaintDevice::drawText(const WRectF& rect,
 				   TextFlag textFlag, const WString& text,
 				   const WPointF *clipPoint)
 {
-  if (clipPoint && painter()) {
+  if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
 	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;

@@ -804,7 +804,7 @@ void WRasterImage::drawText(const WRectF& rect,
   if (textFlag == TextWordWrap)
     throw WException("WRasterImage::drawText() TextWordWrap is not supported");
 
-  if (clipPoint && painter()) {
+  if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
 	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;
