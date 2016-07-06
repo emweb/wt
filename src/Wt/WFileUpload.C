@@ -466,8 +466,9 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
      ""    "if (data.fu == '" + id() + "')"
      +        app->javaScriptClass()
      +        "._p_.update(null, data.signal, null, true);"
-     ""  "} else if (data.type === 'file_too_large')"
+     ""  "} else if (data.type === 'file_too_large') {"
      ""    + fileTooLarge().createCall("data.fileTooLargeSize") +
+		 "  ""}"
 		 """}"
 		 "};"
 		 "if (window.addEventListener) "
@@ -545,6 +546,20 @@ void WFileUpload::propagateSetEnabled(bool enabled)
   repaint();
 
   WWebWidget::propagateSetEnabled(enabled);
+}
+
+
+std::string WFileUpload::renderRemoveJs(bool recursive)
+{
+  bool isIE =
+      WApplication::instance()->environment().agentIsIE();
+  if (isRendered() && isIE) {
+    std::string result = WT_CLASS ".$('if" +  id() + "').innerHTML = \"\";";
+    if (!recursive)
+      result += WT_CLASS ".remove('" + id() + "');";
+    return result;
+  } else
+    return WWebWidget::renderRemoveJs(recursive);
 }
 
 }

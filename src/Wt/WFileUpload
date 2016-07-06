@@ -352,6 +352,7 @@ protected:
   virtual void           getDomChanges(std::vector<DomElement *>& result,
 				       WApplication *app);
   virtual void propagateSetEnabled(bool enabled);
+  virtual std::string renderRemoveJs(bool recursive);
 
 private:
   void handleFileTooLarge(::int64_t fileSize);

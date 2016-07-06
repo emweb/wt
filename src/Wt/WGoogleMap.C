@@ -370,7 +370,8 @@ void WGoogleMap::addCircle(const Coordinate& center, double radius,
             "  strokeColor:\"" << strokeColor.cssText() << "\","
             "  strokeOpacity: " << strokeOpacity <<
             "} "
-            ");";
+            ");"
+            << jsRef() << ".map.overlays.push(circle);";
 
     doGmJavaScript(strm.str());
   }

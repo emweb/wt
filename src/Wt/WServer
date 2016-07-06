@@ -402,7 +402,7 @@ public:
    * The max_length parameter is informational and indicates that the
    * underlying implementation will truncate the password to this length.
    */
-  WT_API void setSslPasswordCallback(
+  WTCONNECTOR_API void setSslPasswordCallback(
     boost::function<std::string (std::size_t max_length, int purpose)> cb);
 
 #endif // WT_TARGET_JAVA
