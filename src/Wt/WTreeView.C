@@ -945,10 +945,14 @@ WTreeView::WTreeView(WContainerWidget *parent)
     expanded_(this),
     viewportTop_(0),
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
+    firstRenderedRow_(0),
+    validRowCount_(0),
     nodeLoad_(0),
     headerContainer_(0),
     contentsContainer_(0),
     scrollBarC_(0),
+    firstRemovedRow_(0),
+    removedHeight_(0),
     itemEvent_(impl_, "itemEvent")
 {
   setSelectable(false);
