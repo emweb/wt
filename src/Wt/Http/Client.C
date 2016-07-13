@@ -671,7 +671,13 @@ public:
       socket_(ioService_, context),
       verifyEnabled_(verifyEnabled),
       hostName_(hostName)
-  { }
+  {
+#ifndef OPENSSL_NO_TLSEXT
+    if (!SSL_set_tlsext_host_name(socket_.native_handle(), hostName.c_str())) {
+      LOG_ERROR("could not set tlsext host.");
+    }
+#endif
+  }
 
 protected:
   virtual tcp::socket& socket()
@@ -870,7 +876,7 @@ bool Client::request(Http::Method method, const std::string& url,
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
     boost::asio::ssl::context context
-      (*ioService, boost::asio::ssl::context::sslv23);
+      (*ioService, boost::asio::ssl::context::tlsv1);
 
 #ifdef VERIFY_CERTIFICATE
     if (verifyEnabled_)

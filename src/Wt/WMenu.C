@@ -114,6 +114,19 @@ void WMenu::init()
   ul_->setList(true);
 }
 
+void WMenu::load()
+{
+  bool wasLoaded = loaded();
+
+  WCompositeWidget::load();
+
+  if (wasLoaded)
+    return;
+
+  if (currentItem())
+    currentItem()->loadContents();
+}
+
 void WMenu::contentsDestroyed()
 {
   for (int i = 0; i < count(); ++i)
@@ -262,7 +275,6 @@ void WMenu::insertItem(int index, WMenuItem *item)
 	  contentsStack_->setCurrentWidget(contents);
 
 	renderSelected(item, true);
-	item->loadContents();
       } else
 	renderSelected(item, false);
     } else
@@ -323,7 +335,8 @@ void WMenu::select(int index, bool changePath)
   if (index != -1) {
     WMenuItem *item = itemAt(index);
     item->show();
-    item->loadContents();
+    if (loaded())
+      item->loadContents();
 
     DeletionTracker guard(this);
 

@@ -104,6 +104,8 @@ void WInPlaceEdit::setEmptyText(const WString& text)
 
 void WInPlaceEdit::setPlaceholderText(const WString& text)
 {
+  placeholderText_ = text;
+
   edit_->setPlaceholderText(text);
   if (empty_)
     text_->setText(text);
@@ -111,7 +113,7 @@ void WInPlaceEdit::setPlaceholderText(const WString& text)
 
 const WString& WInPlaceEdit::placeholderText() const
 {
-  return edit_->placeholderText();
+  return placeholderText_;
 }
 
 void WInPlaceEdit::save()

@@ -607,6 +607,8 @@ public:
    */
   WMenuItem *parentItem() const { return parentItem_; }
 
+  virtual void load();
+
 protected:
   virtual void render(WFlags<RenderFlag> flags);
 
