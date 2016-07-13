@@ -824,15 +824,16 @@ public:
   /*! \brief Maps from device coordinates to model coordinates, ignoring the current zoom range
    *
    * Maps a position in the chart back to model coordinates, as if the
-   * chart was zoomed in on, or panned.
+   * chart was not zoomed in (nor panned).
    *
    * This uses the axis dimensions that are based on the latest chart
    * rendering. If you have not yet rendered the chart, or wish that
    * the mapping already reflects model changes since the last rendering,
    * you should call initLayout() first.
    *
-   * mapFromDeviceWithoutTransform will not take the current zoom range into account.
-   * The mapping will be performed as if zoomRangeTransform() is the identity transform.
+   * This function will not take the current zoom range into
+   * account. The mapping will be performed as if zoomRangeTransform()
+   * is the identity transform.
    *
    * \sa mapToDeviceWithoutTransform()
    */
@@ -878,8 +879,9 @@ public:
    * its possible values may be 0 (below the break) or 1 (above the
    * break).
    *
-   * mapToDeviceWithoutTransform will not take the current zoom range into account.
-   * The mapping will be performed as if zoomRangeTransform() is the identity transform.
+   * This function will not take the current zoom range into
+   * account.The mapping will be performed as if zoomRangeTransform()
+   * is the identity transform.
    *
    * \sa mapFromDeviceWithoutTransform()
    */
@@ -1515,12 +1517,13 @@ protected:
    * the chart.
    *
    * Chart coordinates can be mapped to device coordinates with
-   * mapToDeviceWithoutTransform(). If these need to
-   * move and scale along with the zoom range, those points can
-   * be transformed with zoomRangeTransform().
+   * mapToDeviceWithoutTransform(). If these need to move and scale
+   * along with the zoom range, those points can be transformed with
+   * zoomRangeTransform().
    *
-   * This method is called last by default. If you want to render other
-   * things at some other moment, you can override render(WPainter&, const WRectF&).
+   * This method is called last by default. If you want to render
+   * other things at some other moment, you can override
+   * render(WPainter&, const WRectF&).
    */
   virtual void renderOther(WPainter& painter) const;
 
@@ -1539,9 +1542,10 @@ protected:
    * This transform maps device coordinates from the fully zoomed out position
    * to the current zoom range.
    *
-   * This transform is a \link WTransform::isJavaScriptBound() JavaScript bound\endlink
-   * transform if this chart is interactive. Otherwise, this transform is just the
-   * identity transform.
+   * This transform is a \link WTransform::isJavaScriptBound()
+   * JavaScript bound\endlink transform if this chart is
+   * interactive. Otherwise, this transform is just the identity
+   * transform.
    *
    * \sa setZoomEnabled()
    * \sa setPanEnabled
