@@ -425,7 +425,8 @@ WString Home::tr(const char *key)
 
 void Home::googleAnalyticsLogger()
 {
-  doJavaScript("if (window.ga) ga('send','pageview','"
-	       + environment().deploymentPath() + internalPath() + "');");
+  doJavaScript("if (window.ga) ga('send','pageview',"
+	       + WWebWidget::jsStringLiteral(environment().deploymentPath() 
+					     + internalPath()) + ");");
 }
 

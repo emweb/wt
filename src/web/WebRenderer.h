@@ -104,7 +104,7 @@ private:
   WebSession& session_;
 
   bool visibleOnly_, rendered_, initialStyleRendered_;
-  int twoPhaseThreshold_, pageId_, expectedAckId_, scriptId_;
+  int twoPhaseThreshold_, pageId_, expectedAckId_, scriptId_, ackErrs_;
   int linkedCssCount_;
   std::string solution_;
 
