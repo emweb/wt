@@ -135,7 +135,7 @@ void DialogExample::messageBoxDone(StandardButton result)
   case No:
     setStatus("Me neither!"); break;
   default:
-    setStatus("Unkonwn result?");
+    setStatus("Unknown result?");
   }
 
   delete messageBox_;

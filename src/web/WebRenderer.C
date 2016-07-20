@@ -211,7 +211,6 @@ bool WebRenderer::ackUpdate(int updateId)
   if (updateId == expectedAckId_) {
     LOG_DEBUG("jsSynced(false) after ackUpdate okay");
     setJSSynced(false);
-    ++expectedAckId_;
     ackErrs_ = 0;
     return true;
   } else if ((updateId < expectedAckId_ && expectedAckId_ - updateId < 5)
@@ -691,7 +690,7 @@ void WebRenderer::addResponseAckPuzzle(WStringStream& out)
    * continue. TO BE DONE.
    */
   out << session_.app()->javaScriptClass()
-      << "._p_.response(" << expectedAckId_;
+      << "._p_.response(" << ++expectedAckId_;
   if (!puzzle.empty())
     out << "," << puzzle;
   out << ");";

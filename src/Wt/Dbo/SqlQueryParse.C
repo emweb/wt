@@ -144,7 +144,8 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
         >> no_case["select"][
 			     boost::bind(&Self::handleSelect, this)
 			     ]
-	>> -( no_case["distinct"][
+	>> -( (no_case["distinct"] >>
+	      -(no_case["on"] >> '(' >> (raw[field] % ',') >>  ')'))[
 				  boost::bind(&Self::notSimple,this)
 				  ]
 	      | no_case["all"][

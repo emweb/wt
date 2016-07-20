@@ -149,7 +149,7 @@ void Form::countryChanged()
   case 4:
     cityEdit_->addItem("Boston");
     cityEdit_->addItem("Chicago");
-    cityEdit_->addItem("Los Angelos");
+    cityEdit_->addItem("Los Angeles");
     cityEdit_->addItem("New York");
     break;
   }    
