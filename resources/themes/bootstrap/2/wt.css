@@ -138,7 +138,7 @@
 /*
  * Dialog extensions
  */
-.modal .modal-header {
+.modal .movable .modal-header {
   cursor: move;
 }
 .modal .modal-body .modal-footer {

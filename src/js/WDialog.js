@@ -8,7 +8,8 @@
 
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WDialog",
- function(APP, el, titlebar, centerX, centerY, movedSignal, resizedSignal) {
+ function(APP, el, titlebar, movable, centerX, centerY, movedSignal, resizedSignal)
+ {
    jQuery.data(el, 'obj', this);
 
    var self = this;
@@ -78,7 +79,7 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
-   if (titlebar) {
+   if (titlebar && movable) {
      titlebar.onmousedown = function(event) {
        var e = event||window.event;
        WT.capture(titlebar);

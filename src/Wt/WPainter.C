@@ -30,7 +30,39 @@
 #include "ImageUtils.h"
 #include "UriUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace Wt {
+
+namespace {
+  static std::vector<WString> splitLabel(WString text)
+  {
+    std::string s = text.toUTF8();
+    std::vector<std::string> splitText;
+    boost::split(splitText, s, boost::is_any_of("\n"));
+    std::vector<WString> result;
+    for (std::size_t i = 0; i < splitText.size(); ++i) {
+      result.push_back(splitText[i]);
+    }
+    return result;
+  }
+
+  static double calcYOffset(int lineNb,
+			    int nbLines,
+			    double lineHeight,
+			    WFlags<AlignmentFlag> verticalAlign)
+  {
+    if (verticalAlign == AlignMiddle) {
+      return - ((nbLines - 1) * lineHeight / 2.0) + lineNb * lineHeight;
+    } else if (verticalAlign == AlignTop) {
+      return lineNb * lineHeight;
+    } else if (verticalAlign == AlignBottom) {
+      return - (nbLines - 1 - lineNb) * lineHeight;
+    } else {
+      return 0;
+    }
+  }
+}
 
 #ifndef WT_TARGET_JAVA
 
@@ -389,6 +421,32 @@ void WPainter::drawPath(const WPainterPath& path)
   device_->drawPath(path);
 }
 
+void WPainter::drawStencilAlongPath(const WPainterPath &stencil,
+				    const WPainterPath &path,
+				    bool softClipping)
+{
+  WCanvasPaintDevice *cDevice = dynamic_cast<WCanvasPaintDevice*>(device_);
+  if (cDevice) {
+    cDevice->drawStencilAlongPath(stencil, path, softClipping);
+  } else {
+    for (std::size_t i = 0; i < path.segments().size(); ++i) {
+      const WPainterPath::Segment &seg = path.segments()[i];
+      if (softClipping && !clipPath().isEmpty() &&
+	  !clipPathTransform().map(clipPath())
+	    .isPointInPath(worldTransform().map(WPointF(seg.x(),seg.y())))) {
+	continue;
+      }
+      if (seg.type() == WPainterPath::Segment::LineTo ||
+	  seg.type() == WPainterPath::Segment::MoveTo ||
+	  seg.type() == WPainterPath::Segment::CubicEnd ||
+	  seg.type() == WPainterPath::Segment::QuadEnd) {
+	WPointF p = WPointF(seg.x(), seg.y());
+	drawPath((WTransform().translate(p)).map(stencil));
+      }
+    }
+  }
+}
+
 void WPainter::drawPie(const WRectF& rectangle, int startAngle, int spanAngle)
 {
   WTransform oldTransform = WTransform(worldTransform());
@@ -601,6 +659,49 @@ void WPainter::drawText(double x, double y, double width, double height,
 			WFlags<AlignmentFlag> flags, const WString& text)
 {
   drawText(WRectF(x, y, width, height), flags, text);
+}
+
+void WPainter::drawTextOnPath(const WRectF &rect,
+			      WFlags<AlignmentFlag> alignmentFlags,
+			      const std::vector<WString> &text,
+			      const WTransform &transform,
+			      const WPainterPath &path,
+			      double angle, double lineHeight,
+			      bool softClipping)
+{
+  if (!(alignmentFlags & AlignVerticalMask))
+    alignmentFlags |= AlignTop;
+  if (!(alignmentFlags & AlignHorizontalMask))
+    alignmentFlags |= AlignLeft;
+  WCanvasPaintDevice *cDevice = dynamic_cast<WCanvasPaintDevice*>(device_);
+  if (cDevice) {
+    cDevice->drawTextOnPath(rect, alignmentFlags, text, transform, path, angle, lineHeight, softClipping);
+  } else {
+    WPainterPath tpath = transform.map(path);
+    for (std::size_t i = 0; i < path.segments().size(); ++i) {
+      if (i >= text.size())
+	break;
+      const WPainterPath::Segment &seg = path.segments()[i];
+      const WPainterPath::Segment &tseg = tpath.segments()[i];
+      std::vector<WString> splitText = splitLabel(text[i]);
+      if (seg.type() == WPainterPath::Segment::MoveTo ||
+	  seg.type() == WPainterPath::Segment::LineTo ||
+	  seg.type() == WPainterPath::Segment::QuadEnd ||
+	  seg.type() == WPainterPath::Segment::CubicEnd) {
+	save();
+	setClipping(false);
+	translate(tseg.x(), tseg.y());
+	rotate(-angle);
+	for (std::size_t j = 0; j < splitText.size(); ++j) {
+	  double yOffset = calcYOffset(j, splitText.size(), lineHeight, alignmentFlags & AlignVerticalMask);
+	  WPointF p(tseg.x(), tseg.y());
+	  drawText(WRectF(rect.left(), rect.top() + yOffset, rect.width(), rect.height()),
+			      alignmentFlags, TextSingleLine, splitText[j], softClipping ? &p : 0);
+	}
+	restore();
+      }
+    }
+  }
 }
 
 void WPainter::fillPath(const WPainterPath& path, const WBrush& b)

@@ -112,7 +112,7 @@
 .modal-dialog {
   display: block;
 }
-.modal-dialog .modal-header {
+.modal-dialog .movable .modal-header {
   cursor: move;
 }
 .modal-dialog .modal-header h3 {

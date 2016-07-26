@@ -216,9 +216,12 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 .Wt-dialog .titlebar {
     color: #FFFFFF;
     background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
-    cursor: move;
     font: bold 12px Verdana;
     padding: 3px 6px;
+}
+
+.Wt-dialog .movable .titlebar {
+    cursor: move;
 }
 
 .Wt-dialog .closeicon {

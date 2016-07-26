@@ -313,6 +313,8 @@ public:
    * to provide other values for minimum width and height to allow the
    * dialog to be reduced in size.
    *
+   * The default value is \c false.
+   *
    * \sa setMinimumSize(), setMaximumSize()
    */
   void setResizable(bool resizable);
@@ -322,6 +324,20 @@ public:
    * \sa setResizable()
    */
   bool resizable() const { return resizable_; }
+
+  /*! \brief Allows the dialog to be moved.
+   *
+   * The dialog can be moved by grabbing the titlebar.
+   *
+   * The default value is \c true.
+   */
+  void setMovable(bool movable);
+
+  /*! \brief Returns whether the dialog can be moved.
+   *
+   * \sa setMovable()
+   */
+  bool movable() const { return movable_; }
 
   /*! \brief Adds a close button to the titlebar.
    *
@@ -426,7 +442,7 @@ private:
   WContainerWidget *contents_;
   WContainerWidget *layoutContainer_;
   mutable WContainerWidget *footer_;
-  bool modal_, resizable_, escapeIsReject_, autoFocus_;
+  bool modal_, resizable_, movable_, escapeIsReject_, autoFocus_;
   JSignal<int,int> moved_, resized_;
 
   Signal<DialogCode> finished_;

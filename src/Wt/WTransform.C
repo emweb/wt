@@ -236,18 +236,27 @@ WTransform& WTransform::translate(double dx, double dy)
 
 WTransform& WTransform::translate(const WPointF& p)
 {
+  bool identity = isIdentity();
   std::string refBefore = jsRef();
   translate(p.x(), p.y());
 
   if (isJavaScriptBound() || p.isJavaScriptBound()) {
     const WJavaScriptExposableObject *o = this;
     if (!isJavaScriptBound()) o = &p;
-    assignBinding(*o,
-	WT_CLASS ".gfxUtils.transform_mult((function(){"
-	  "var p="
-	  + p.jsRef() + ";"
+    if (identity) {
+      assignBinding(*o,
+	"((function(){"
+	  "var p=" + p.jsRef() + ";"
 	  "return [1,0,0,1,p[0],p[1]];"
-	"})(),(" + refBefore + "))");
+	"})())");
+    } else {
+      assignBinding(*o,
+	  WT_CLASS ".gfxUtils.transform_mult((function(){"
+	    "var p="
+	    + p.jsRef() + ";"
+	    "return [1,0,0,1,p[0],p[1]];"
+	  "})(),(" + refBefore + "))");
+    }
   }
 
   return *this;

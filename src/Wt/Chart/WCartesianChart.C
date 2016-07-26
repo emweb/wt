@@ -17,6 +17,7 @@
 #include "Wt/WAbstractArea"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WApplication"
+#include "Wt/WCanvasPaintDevice"
 #include "Wt/WCircleArea"
 #include "Wt/WException"
 #include "Wt/WJavaScriptHandle"
@@ -933,7 +934,9 @@ class MarkerRenderIterator : public SeriesIterator
 public:
   MarkerRenderIterator(const WCartesianChart& chart, WPainter& painter)
     : chart_(chart),
-      painter_(painter)
+      painter_(painter),
+      currentScale_(0),
+      series_(0)
   { }
 
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
@@ -953,6 +956,9 @@ public:
 
   virtual void endSeries()
   {
+    finishPathFragment(*series_);
+    series_ = 0;
+
     if (needRestore_)
       painter_.restore();
   }
@@ -967,8 +973,6 @@ public:
 			     currentXSegment(), currentYSegment());
 
       if (!marker_.isEmpty()) {
-	painter_.save();
-
 	WPen pen = WPen(series.markerPen());
 	SeriesIterator::setPenColor(pen, series, xRow, xColumn, yRow, yColumn, MarkerPenColorRole);
 	if (chart_.seriesSelectionEnabled() &&
@@ -979,27 +983,28 @@ public:
 
 	WBrush brush = WBrush(series.markerBrush());
 	SeriesIterator::setBrushColor(brush, series, xRow, xColumn, yRow, yColumn, MarkerBrushColorRole);
-	setMarkerSize(painter_, series, xRow, xColumn, yRow, yColumn, series.markerSize());
+	double scale = calculateMarkerScale(series, xRow, xColumn, yRow, yColumn, series.markerSize());
 	if (chart_.seriesSelectionEnabled() &&
 	    chart_.selectedSeries() != 0 &&
 	    chart_.selectedSeries() != &series) {
 	  brush.setColor(WCartesianChart::lightenColor(brush.color()));
 	}
 
-	WTransform currentTransform = ((WTransform()).translate(chart_.zoomRangeTransform().map(hv(p)))) * scale_;
-	painter_.setWorldTransform(currentTransform, false);
+	if (!series_ ||
+	    brush != currentBrush_ ||
+	    pen != currentPen_ ||
+	    scale != currentScale_) {
+	  if (series_) {
+	    finishPathFragment(*series_);
+	  }
 
-	painter_.setShadow(series.shadow());
-	if (series.marker() != CrossMarker &&
-	    series.marker() != XCrossMarker &&
-	    series.marker() != AsteriskMarker &&
-	    series.marker() != StarMarker) {
-	  painter_.fillPath(marker_, brush);
-	  painter_.setShadow(WShadow());
+	  series_ = &series;
+	  currentBrush_ = brush;
+	  currentPen_ = pen;
+	  currentScale_ = scale;
 	}
-	painter_.strokePath(marker_, pen);
 
-	painter_.restore();
+	pathFragment_.moveTo(hv(p));
       }
 
       if (series.type() != BarSeries) {
@@ -1040,9 +1045,14 @@ private:
   WPainter& painter_;
   WPainterPath marker_;
   bool needRestore_;
-  WTransform scale_;
 
-  void setMarkerSize(WPainter& painter, const WDataSeries &series,
+  WPainterPath pathFragment_;
+  WPen currentPen_;
+  WBrush currentBrush_;
+  double currentScale_;
+  const WDataSeries *series_;
+
+  double calculateMarkerScale(const WDataSeries &series,
 		     int xRow, int xColumn,
 		     int yRow, int yColumn,
 		     double markerSize)
@@ -1058,11 +1068,46 @@ private:
     if (scale)
       dScale = *scale;
 
-  dScale = markerSize / 6 * dScale;
+    dScale = markerSize / 6 * dScale;
 
-  scale_ = WTransform(dScale, 0, 0, dScale, 0, 0);
-}
+    return dScale;
+  }
 
+  void finishPathFragment(const WDataSeries &series)
+  {
+    if (pathFragment_.segments().empty())
+      return;
+
+    painter_.save();
+
+    painter_.setWorldTransform(WTransform(currentScale_, 0, 0, currentScale_, 0, 0));
+
+    WTransform currentTransform = WTransform(1.0 / currentScale_, 0, 0, 1.0 / currentScale_, 0, 0) * chart_.zoomRangeTransform();
+
+    painter_.setPen(NoPen);
+    painter_.setBrush(NoBrush);
+    painter_.setShadow(series.shadow());
+    if (series.marker() != CrossMarker &&
+	series.marker() != XCrossMarker &&
+	series.marker() != AsteriskMarker &&
+	series.marker() != StarMarker) {
+      painter_.setBrush(currentBrush_);
+
+      if (!series.shadow().none())
+	painter_.drawStencilAlongPath(marker_, currentTransform.map(pathFragment_), false);
+
+      painter_.setShadow(WShadow());
+    }
+    painter_.setPen(currentPen_);
+    if (!series.shadow().none())
+      painter_.setBrush(NoBrush);
+
+    painter_.drawStencilAlongPath(marker_, currentTransform.map(pathFragment_), false);
+
+    painter_.restore();
+
+    pathFragment_ = WPainterPath();
+  }
 };
 
 // Used to find if a given point matches a marker, for tooltips
@@ -2872,7 +2917,7 @@ void WCartesianChart::renderAxis(WPainter& painter, const WAxis& axis,
 
   bool vertical = axis.id() != XAxis;
 
-  if (isInteractive()) {
+  if (isInteractive() && dynamic_cast<WCanvasPaintDevice*>(painter.device())) {
     WRectF clipRect;
     WRectF area = hv(chartArea_);
     if (axis.location() == ZeroValue && location_[axis.id()] == ZeroValue) {

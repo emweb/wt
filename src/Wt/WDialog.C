@@ -309,6 +309,8 @@ void WDialog::create()
   } else
     setPositionScheme(app->environment().agent() == WEnvironment::IE6
 		      ? Absolute : Fixed);
+
+  setMovable(true);
 }
 
 WDialog::~WDialog()
@@ -354,6 +356,13 @@ void WDialog::setResizable(bool resizable)
   }
 }
 
+void WDialog::setMovable(bool movable)
+{
+  movable_ = movable;
+
+  layoutContainer_->toggleStyleClass("movable", movable_);
+}
+
 void WDialog::setMaximumSize(const WLength& width, const WLength& height)
 {
   WPopupWidget::setMaximumSize(width, height);
@@ -393,6 +402,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
     doJavaScript("new " WT_CLASS ".WDialog("
 		 + app->javaScriptClass() + "," + jsRef()
 		 + "," + titleBar_->jsRef()
+		 + "," + (movable_ ? "1" : "0")
 		 + "," + (centerX ? "1" : "0")
 		 + "," + (centerY ? "1" : "0") 
 		 + "," + (moved_.isConnected()

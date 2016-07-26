@@ -1766,7 +1766,8 @@ void WAxis::render(WPainter& painter,
       textPens.push_back(textPen());
     }
     for (unsigned level = 1; level <= pens.size(); ++level) {
-      WPainterPath ticksPath;
+      WPainterPath shortTicksPath;
+      WPainterPath longTicksPath;
 
       std::vector<WAxis::TickLabel> ticks;
       AxisConfig cfg;
@@ -1774,67 +1775,79 @@ void WAxis::render(WPainter& painter,
       cfg.side = side;
       getLabelTicks(ticks, segment, cfg);
 
+      std::vector<WString> labels;
+      WPainterPath path;
       for (unsigned i = 0; i < ticks.size(); ++i) {
 	double u = mapToDevice(ticks[i].u, segment);
 	WPointF p = interpolate(axisStart, axisEnd, u);
 
 	if ((properties & Line) &&
 	    ticks[i].tickLength != WAxis::TickLabel::Zero) {
-	  double ts = tickStart;
-	  double te = tickEnd;
-
 	  if (ticks[i].tickLength == WAxis::TickLabel::Short) {
-	    ts = tickStart / 2;
-	    te = tickEnd / 2;
-	  }
-
-	  if (vertical) {
-	    ticksPath.moveTo(WPointF(p.x() + ts, p.y()));
-	    ticksPath.lineTo(WPointF(p.x() + te, p.y()));
-	  } else {
-	    ticksPath.moveTo(WPointF(p.x(), p.y() + ts));
-	    ticksPath.lineTo(WPointF(p.x(), p.y() + te));
+	    shortTicksPath.moveTo(p);
+	  } else { // Long
+	    longTicksPath.moveTo(p);
 	  }
 	}
 
 	if ((properties & Labels) && !ticks[i].label.empty()) {
-	  WPointF labelP;
-
-	  if (vertical)
-	    labelP = WPointF(p.x() + labelPos, p.y());
-	  else
-	    labelP = WPointF(p.x(), p.y() + labelPos);
-
-	  renderLabel(painter, ticks[i].label, labelP,
-		      labelFlags, labelAngle(), 3, transform, textPens[level-1]);
+	  path.moveTo(p);
+	  labels.push_back(ticks[i].label);
 	}
       }
+      WTransform t = vertical ? WTransform(1,0,0,1, labelPos, 0) : WTransform(1,0,0,1,0, labelPos);
+      renderLabels(painter, labels, path, labelFlags, labelAngle(), 3,
+		   t * transform, textPens[level-1]);
 
-      if (!ticksPath.isEmpty())
-	painter.strokePath(transform.map(ticksPath).crisp(), pens[level-1]);
+      WPen oldPen = painter.pen();
+      painter.setPen(pens[level-1]);
+      if (shortTicksPath.segments().size() != 0) {
+	WPainterPath stencil;
+	if (vertical) {
+	  stencil.moveTo(tickStart / 2, 0);
+	  stencil.lineTo(tickEnd / 2, 0);
+	} else {
+	  stencil.moveTo(0, tickStart / 2);
+	  stencil.lineTo(0, tickEnd / 2);
+	}
+	painter.drawStencilAlongPath(stencil, transform.map(shortTicksPath).crisp(), false);
+      }
+      if (longTicksPath.segments().size() != 0) {
+	WPainterPath stencil;
+	if (vertical) {
+	  stencil.moveTo(tickStart, 0);
+	  stencil.lineTo(tickEnd, 0);
+	} else {
+	  stencil.moveTo(0, tickStart);
+	  stencil.lineTo(0, tickEnd);
+	}
+	painter.drawStencilAlongPath(stencil, transform.map(longTicksPath).crisp(), false);
+      }
+      painter.setPen(oldPen);
     }
   }
 
   painter.setFont(oldFont1);
 }
 
-void WAxis::renderLabel(WPainter& painter,
-			const WString& text, const WPointF& p,
+void WAxis::renderLabels(WPainter &painter,
+			const std::vector<WString> &labels,
+			const WPainterPath &path,
 			WFlags<AlignmentFlag> flags,
 			double angle, int margin,
-			WTransform transform,
-			const WPen& pen) const
+			const WTransform &transform,
+			const WPen &pen) const
 {
+  if (path.segments().size() == 0)
+    return;
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
   double width = 1000;
   double height = 14;
 
-  WPointF pos = p;
-
-  double left = pos.x();
-  double top = pos.y();
+  double left = 0.0;
+  double top = 0.0;
 
   switch (horizontalAlign) {
   case AlignLeft:
@@ -1866,13 +1879,11 @@ void WAxis::renderLabel(WPainter& painter,
   painter.setPen(pen);
 #endif
 
-  std::vector<WString> splitText = splitLabel(text);
-
   double lineHeight = height;
-  if (splitText.size() > 1 && painter.device()->features() & WPaintDevice::HasFontMetrics) {
+  if (painter.device()->features() & WPaintDevice::HasFontMetrics) {
     WMeasurePaintDevice device(painter.device());
     WPainter measPainter(&device);
-    measPainter.drawText(WRectF(0,0,100,100), AlignMiddle | AlignCenter, TextSingleLine, splitText[0], 0);
+    measPainter.drawText(WRectF(0,0,100,100), AlignMiddle | AlignCenter, TextSingleLine, "Sfjh", 0);
     lineHeight = device.boundingRect().height();
   }
 
@@ -1880,28 +1891,14 @@ void WAxis::renderLabel(WPainter& painter,
   if (!partialLabelClipping_ && clipping && tickDirection() == Outwards && location() != ZeroValue) {
     painter.setClipping(false);
   }
-  WPointF transformedPoint = transform.map(pos);
-  if (angle == 0) {
-    for (int i = 0; i < splitText.size(); ++i) {
-      double yOffset = calcYOffset(i, splitText.size(), lineHeight, verticalAlign);
-      WTransform offsetTransform = WTransform(1, 0, 0, 1, 0, yOffset);
-      painter.drawText((offsetTransform * transform).map(WRectF(left, top, width, height)),
-			horizontalAlign | verticalAlign, TextSingleLine, splitText[i],
-			clipping && !partialLabelClipping_ ? &transformedPoint : 0);
-    }
-  } else {
-    painter.save();
-    painter.translate(transform.map(pos));
-    painter.rotate(-angle);
-    transformedPoint = painter.worldTransform().inverted().map(transformedPoint);
-    for (int i = 0; i < splitText.size(); ++i) {
-      double yOffset = calcYOffset(i, splitText.size(), lineHeight, verticalAlign);
-      painter.drawText(WRectF(left - pos.x(), top - pos.y() + yOffset, width, height),
-		       horizontalAlign | verticalAlign, TextSingleLine, splitText[i],
-		       clipping && !partialLabelClipping_ ? &transformedPoint : 0);
-    }
-    painter.restore();
-  }
+
+  painter.drawTextOnPath(WRectF(left, top, width, height),
+			 horizontalAlign | verticalAlign,
+			 labels, transform,
+			 path,
+			 angle, lineHeight,
+			 clipping && !partialLabelClipping_);
+
   painter.setClipping(clipping);
 
   painter.setPen(oldPen);

@@ -430,6 +430,25 @@ public:
    */  
   void drawPath(const WPainterPath& path);
 
+  /*! \brief Draws a WPainterPath on every anchor point of a path.
+   *
+   * Draws the first WPainterPath on every anchor point of the second path.
+   * When rendering to an HTML canvas, this will cause far less JavaScript
+   * to be generated than separate calls to drawPath. Also, it's possible
+   * for either path to be
+   * \link WJavaScriptExposableObject::isJavaScriptBound JavaScript bound\endlink
+   * through, e.g. applying a JavaScript bound WTransform without deforming
+   * the other path. This is used by WCartesianChart to draw data series markers
+   * that don't change size when zooming in.
+   *
+   * If one of the anchor points of the path is outside of the current clipping
+   * area, the stencil will be drawn if softClipping is disabled, and it will
+   * not be drawn when softClipping is enabled.
+   */
+  void drawStencilAlongPath(const WPainterPath &stencil,
+			    const WPainterPath &path,
+			    bool softClipping = false);
+
   /*! \brief Draws a pie.
    *
    * Draws an arc using the current pen, and connects start and end
@@ -582,6 +601,17 @@ public:
 		TextFlag textFlag,
 		const WString& text,
 		const WPointF *clipPoint = 0);
+
+  void drawTextOnPath(const WRectF& rect,
+		      WFlags<AlignmentFlag> alignmentFlags,
+		      const std::vector<WString> &text,
+		      const WTransform &transform,
+		      const WPainterPath &path,
+		      // lineHeight could be calculated inside of this
+		      // method, but let's leave it like this for now,
+		      // with this method undocumented.
+		      double angle, double lineHeight,
+		      bool softClipping);
 
   /*! \brief Draws text.
    *

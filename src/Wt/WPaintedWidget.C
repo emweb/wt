@@ -200,10 +200,13 @@ void WPaintedWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  if (app && jsObjects_.size() > 0) {
+  if (getMethod() == HtmlCanvas) {
+    LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs2);
+  }
+
+  if (app && getMethod() == HtmlCanvas && jsObjects_.size() > 0) {
     setFormObject(true);
 
-    LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs2);
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs1);
 
     jsDefined_ = true;

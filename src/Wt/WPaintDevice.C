@@ -10,6 +10,8 @@
 #include "Wt/WRectF"
 #include "Wt/WPointF"
 
+#include "Wt/WPainter"
+
 namespace Wt {
 
 WTextItem::WTextItem(const WString& text, double width, double nextWidth)

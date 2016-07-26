@@ -45,6 +45,22 @@ WT_DECLARE_WT_MEMBER
       var M11 = 0, M12 = 1, M21 = 2, M22 = 3, M13 = 4, M23 = 5;
       var MOVE_TO = 0, LINE_TO = 1, CUBIC_C1 = 2, CUBIC_C2 = 3, CUBIC_END = 4,
 	  QUAD_C = 5, QUAD_END = 6, ARC_C = 7, ARC_R = 8, ARC_ANGLE_SWEEP = 9;
+      var ALIGN_LEFT = 0x1,
+	  ALIGN_RIGHT = 0x2,
+	  ALIGN_CENTER = 0x4,
+	  ALIGN_JUSTIFY = 0x8, // unsupporetd?
+	  ALIGN_BASELINE = 0x10, // unsupported?
+	  ALIGN_SUB = 0x20, // unsupported?
+	  ALIGN_SUPER = 0x40, // unsupported?
+	  ALIGN_TOP = 0x80,
+	  ALIGN_TEXT_TOP = 0x100, // unsupported?
+          ALIGN_MIDDLE = 0x200,
+	  ALIGN_BOTTOM = 0x400,
+	  ALIGN_TEXT_BOTTOM = 0x800; // unsupported?
+      var ALIGN_VERTICAL_MASK =
+            ALIGN_BASELINE | ALIGN_SUB | ALIGN_SUPER | ALIGN_TOP | ALIGN_TEXT_TOP | ALIGN_MIDDLE | ALIGN_BOTTOM | ALIGN_TEXT_BOTTOM;
+      var ALIGN_HORIZONTAL_MASK =
+	    ALIGN_LEFT | ALIGN_RIGHT | ALIGN_CENTER | ALIGN_JUSTIFY;
 
       function Utils() {
 	 var self = this;
@@ -286,6 +302,140 @@ WT_DECLARE_WT_MEMBER
 	    if (fill) ctx.fill();
 	    if (stroke) ctx.stroke();
 	    if (clip) ctx.clip();
+	 };
+	 this.drawStencilAlongPath = function(ctx, stencil, path, fill, stroke, softClipping) {
+	    var i = 0;
+	    function x(segment) { return segment[0]; }
+	    function y(segment) { return segment[1]; }
+	    function type(segment) { return segment[2]; }
+	    for (i = 0; i < path.length; i++) {
+	       var s = path[i];
+	       if (softClipping &&
+		 ctx.wtClipPath &&
+		 !self.pnpoly(s,
+		    self.transform_apply(ctx.wtClipPathTransform,
+					 ctx.wtClipPath))) {
+		continue;
+	      }
+	      if (type(s) == MOVE_TO || type(s) == LINE_TO ||
+		  type(s) == QUAD_END || type(s) == CUBIC_END) {
+		var translatedStencil = self.transform_apply([1,0,0,1,x(s),y(s)], stencil);
+		self.drawPath(ctx, translatedStencil, fill, stroke, false);
+	      }
+	    }
+	 };
+	 this.drawText = function(ctx, rect, align, text, clipPoint) {
+	   if (clipPoint &&
+	       ctx.wtClipPath &&
+	       !self.pnpoly(clipPoint,
+		  self.transform_apply(ctx.wtClipPathTransform,
+				       ctx.wtClipPath))) {
+	     return;
+	   }
+	   var hAlign = align & ALIGN_HORIZONTAL_MASK;
+	   var vAlign = align & ALIGN_VERTICAL_MASK;
+	   var x = null, y = null;
+	   switch (hAlign) {
+	     case ALIGN_LEFT:
+	       ctx.textAlign = 'left';
+	       x = self.rect_left(rect);
+	       break;
+	     case ALIGN_RIGHT:
+	       ctx.textAlign = 'right';
+	       x = self.rect_right(rect);
+	       break;
+	     case ALIGN_CENTER:
+	       ctx.textAlign = 'center';
+	       x = self.rect_center(rect).x;
+	       break;
+	   }
+	   switch (vAlign) {
+	     case ALIGN_TOP:
+	       ctx.textBaseline = 'top';
+	       y = self.rect_top(rect);
+	       break;
+	     case ALIGN_BOTTOM:
+	       ctx.textBaseline = 'bottom';
+	       y = self.rect_bottom(rect);
+	       break;
+	     case ALIGN_MIDDLE:
+	       ctx.textBaseline = 'middle';
+	       y = self.rect_center(rect).y;
+	       break;
+	   }
+	   if (x == null || y == null)
+	     return;
+
+	   var oldFillStyle = ctx.fillStyle;
+	   ctx.fillStyle = ctx.strokeStyle;
+	   ctx.fillText(text, x, y);
+	   ctx.fillStyle = oldFillStyle;
+	 };
+	 this.calcYOffset = function(lineNb, nbLines, lineHeight, valign) {
+           if (valign === ALIGN_MIDDLE) {
+	     return - ((nbLines - 1) * lineHeight / 2.0) + lineNb * lineHeight;
+	   } else if (valign === ALIGN_TOP) {
+	     return lineNb * lineHeight;
+	   } else if (valign === ALIGN_BOTTOM) {
+	     return - (nbLines - 1 - lineNb) * lineHeight;
+	   } else {
+	     return 0;
+	   }
+	 };
+	 this.drawTextOnPath = function(ctx, text, rect, transform, path, angle, lineHeight, align, softClipping) {
+	   // text: array of text labels, may have newlines!
+	   // path: the path that the text should be drawn along, could be transformed and stuff
+	   // angle: the rotational angle the text should be drawn at, in radians
+	   // lineHeight: the height of a line, duh
+	   var i = 0, j = 0;
+	   function x(segment) { return segment[0]; }
+	   function y(segment) { return segment[1]; }
+	   function type(segment) { return segment[2]; }
+	   var tpath = self.transform_apply(transform, path);
+	   for (i = 0; i < path.length; i++) {
+	     if (i >= text.length)
+	       break;
+	     var seg = path[i];
+	     var tseg = tpath[i];
+	     var split = text[i].split("\n");
+	     if (type(seg) == MOVE_TO || type(seg) == LINE_TO ||
+	         type(seg) == QUAD_END || type(seg) == CUBIC_END) {
+	       if (angle == 0) {
+		 for (j = 0; j < split.length; j++) {
+		   var yOffset = self.calcYOffset(j, split.length, lineHeight, align & ALIGN_VERTICAL_MASK);
+		   self.drawText(ctx,[rect[0] + x(tseg), rect[1] + y(tseg) + yOffset, rect[2], rect[3]], align,
+			 split[j], softClipping ? [x(tseg), y(tseg)] : null);
+		 }
+	       } else {
+		 var radAngle = angle * Math.PI / 180; 
+		 var r11 = Math.cos(-radAngle);
+		 var r12 = -Math.sin(-radAngle);
+		 var r21 = -r12;
+		 var r22 = r11;
+		 ctx.save();
+		 ctx.transform(r11, r21, r12, r22, x(tseg), y(tseg));
+		 for (j = 0; j < split.length; j++) {
+		   var yOffset = self.calcYOffset(j, split.length, lineHeight, align & ALIGN_VERTICAL_MASK);
+		   self.drawText(ctx,[rect[0], rect[1] + yOffset, rect[2], rect[3]], align, split[j], softClipping ? [x(tseg), y(tseg)] : null);
+		 }
+		 ctx.restore();
+	       }
+	     }
+	   }
+	 };
+	 this.setClipPath = function(ctx, clipPath, clipPathTransform, clip) {
+	   if (clip) {
+	     ctx.setTransform.apply(ctx, clipPathTransform);
+	     self.drawPath(ctx, clipPath, false, false, true);
+	     ctx.setTransform(1, 0, 0, 1, 0, 0);
+	   }
+
+	   ctx.wtClipPath = clipPath;
+	   ctx.wtClipPathTransform = clipPathTransform;
+	 };
+	 this.removeClipPath = function(ctx) {
+	   delete ctx.wtClipPath;
+	   delete ctx.wtClipPathTransform;
 	 };
 	 this.rect_top = function(rect) {
 	    return rect[1];

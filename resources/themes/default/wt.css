@@ -232,8 +232,11 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 
 .Wt-dialog .titlebar {
     background: #888888; color: #FFFFFF;
-    cursor: move;
     padding: 2px 6px 3px;
+}
+
+.Wt-dialog .movable .titlebar {
+    cursor: move;
 }
 
 .Wt-dialog .titlebar h4 {

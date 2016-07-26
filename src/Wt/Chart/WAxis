@@ -10,6 +10,7 @@
 #include <Wt/Chart/WChartGlobal>
 #include <Wt/WDateTime>
 #include <Wt/WFont>
+#include <Wt/WPainterPath>
 #include <Wt/WPen>
 #include <Wt/WSignal>
 #include <Wt/WString>
@@ -941,12 +942,6 @@ public:
    */
   LabelTransform labelTransform(AxisValue side) const;
 
-  void renderLabel(WPainter& painter,
-		   const WString& text, const WPointF& p,
-		   WFlags<AlignmentFlag> flags,
-		   double angle, int margin, WTransform transform,
-		   const WPen& pen) const;
-
   void setRenderMirror(bool enable) { renderingMirror_ = enable; }
   double calcTitleSize(WPaintDevice *device, Orientation orientation) const;
   double calcMaxTickLabelSize(WPaintDevice *device, Orientation orientation) const;
@@ -1073,6 +1068,14 @@ private:
   void setZoomRangeFromClient(double minimum, double maximum);
 
   bool hasLabelTransformOnSide(AxisValue side) const;
+
+  void renderLabels(WPainter &painter,
+		   const std::vector<WString> &labels,
+		   const WPainterPath &path,
+		   WFlags<AlignmentFlag> flags,
+		   double angle, int margin,
+		   const WTransform &transform,
+		   const WPen& pen) const;
 
   friend class WCartesianChart;
   friend class WCartesian3DChart;
