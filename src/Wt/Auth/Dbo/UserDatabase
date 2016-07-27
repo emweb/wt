@@ -73,7 +73,7 @@ public:
   /*! \brief Returns the %Dbo user type corresponding to an Auth::User.
    */
   Wt::Dbo::ptr<DboType> find(const User& user) const {
-    getUser(user.id());
+    getUser(user.id(), false);
     return user_;
   }
 
@@ -85,7 +85,7 @@ public:
   }
 
   virtual User findWithId(const std::string& id) const {
-    getUser(id);
+    getUser(id, false);
 
     if (user_)
       return User(id, *this);
@@ -372,22 +372,22 @@ public:
   }
 
   virtual void setFailedLoginAttempts(const User& user, int count) {
-    WithUser find(*this, user);
+    WithUser find(*this, user, true);
     return user_.modify()->setFailedLoginAttempts(count);
   }
 
   virtual int failedLoginAttempts(const User& user) const {
-    WithUser find(*this, user);
+    WithUser find(*this, user, true);
     return user_->failedLoginAttempts();    
   }
 
   virtual void setLastLoginAttempt(const User& user, const WDateTime& t) {
-    WithUser find(*this, user);
+    WithUser find(*this, user, true);
     return user_.modify()->setLastLoginAttempt(t);
   }
 
   virtual WDateTime lastLoginAttempt(const User& user) const {
-    WithUser find(*this, user);
+    WithUser find(*this, user, true);
     return user_->lastLoginAttempt();    
   }
 
@@ -415,10 +415,11 @@ private:
   unsigned maxAuthTokensPerUser_;
 
   struct WithUser {
-    WithUser(const UserDatabase<DboType>& self, const User& user)
+    WithUser(const UserDatabase<DboType>& self, const User& user, 
+	     bool reread = false)
       : transaction(self.session_)
     {
-      self.getUser(user.id());
+      self.getUser(user.id(), reread);
       if (!self.user_)
 	throw WException("Invalid user");
     }
@@ -430,12 +431,14 @@ private:
     Wt::Dbo::Transaction transaction;
   };
 
-  void getUser(const std::string& id) const {
+  void getUser(const std::string& id, bool reread) const {
     if (!user_ || boost::lexical_cast<std::string>(user_.id()) != id) {
       Wt::Dbo::Transaction t(session_);
       setUser(session_.load<DboType>(boost::lexical_cast<long long>(id)));
       t.commit();
-    }
+    } else
+      if (reread && !user_.isDirty())
+	user_.reread();
   }
 
   void setUser(Wt::Dbo::ptr<DboType> user) const {
