@@ -1698,7 +1698,7 @@ public:
    */
   void removeMetaLink(const std::string &href);
 
-  /*! \brief Adds an HTML meta header.
+  /*! \brief Adds a "name" HTML meta header.
    *
    * \sa addMetaHeader(MetaHeaderType, const std::string&, const WString&, const std::string&)
    */
@@ -1735,6 +1735,12 @@ public:
    */
   void addMetaHeader(MetaHeaderType type, const std::string& name,
 		     const WString& content, const std::string& lang = "");
+
+  /*! \brief Returns a meta header value.
+   *
+   * \sa addMetaHeader()
+   */
+  WString metaHeader(MetaHeaderType type, const std::string& name) const;
 
   /*! \brief Removes one or all meta headers.
    *

@@ -86,9 +86,12 @@ std::vector<WCssStyleSheet> WBootstrapTheme::styleSheets() const
       result.push_back(WCssStyleSheet
 		       (WLink(themeVersionDir.str()
 			      + "bootstrap-responsive.css")));
-    else if (app)
-      app->addMetaHeader("viewport",
-			 "width=device-width, initial-scale=1");
+    else if (app) {
+      WString v = app->metaHeader(MetaName, "viewport");
+      if (v.empty())
+	app->addMetaHeader("viewport",
+			   "width=device-width, initial-scale=1");
+    }
   }
 
   result.push_back(WCssStyleSheet(WLink(themeVersionDir.str() + "wt.css")));

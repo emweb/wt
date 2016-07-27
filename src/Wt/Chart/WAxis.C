@@ -472,6 +472,10 @@ void WAxis::update()
 
 bool WAxis::prepareRender(Orientation orientation, double length) const
 {
+  double zmin = zoomMinimum();
+  double zmax = zoomMaximum();
+  double z = zoom();
+
   fullRenderLength_ = length;
   double totalRenderRange = 0;
 
@@ -821,6 +825,11 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
       rs += s.renderLength + SEGMENT_MARGIN;
     }
   }
+
+  if (z <= 1.01) // wasn't zoomed in, keep it 'unzoomed'
+    (const_cast<WAxis *>(this))->setZoomRange(drawnMinimum(), drawnMaximum());
+  else           // was zoomed in, preserve zoom range
+    (const_cast<WAxis *>(this))->setZoomRange(zmin, zmax);
 
   return true;
 }

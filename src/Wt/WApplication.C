@@ -1116,6 +1116,18 @@ void WApplication::addMetaHeader(const std::string& name,
   addMetaHeader(MetaName, name, content, lang);
 }
 
+WString WApplication::metaHeader(MetaHeaderType type, const std::string& name) const
+{
+  for (unsigned i = 0; i < metaHeaders_.size(); ++i) {
+    const MetaHeader& m = metaHeaders_[i];
+
+    if (m.type == type && m.name == name)
+      return m.content;
+  }
+
+  return WString::Empty;
+}
+
 void WApplication::addMetaHeader(MetaHeaderType type,
 				 const std::string& name,
 				 const WString& content,
