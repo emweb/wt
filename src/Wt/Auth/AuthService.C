@@ -15,13 +15,9 @@
 #include "Wt/WApplication"
 #include "Wt/WRandom"
 
-#include <memory>
+#include "Wt/WDllDefs.h"
 
-#ifndef WT_CXX11
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-#define WT_CXX11
-#endif
-#endif
+#include <memory>
 
 #ifdef WT_CXX11
 #define AUTO_PTR std::unique_ptr

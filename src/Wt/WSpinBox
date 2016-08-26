@@ -86,6 +86,10 @@ public:
   void setValue(int value);
 
   /*! \brief Returns the value.
+   *
+   * \note This value may not correctly reflect the valueText()
+   *       of the spin box if valueText() is empty or if the
+   *       contents are not in a \link WFormWidget::validate() valid state\endlink.
    */
   int value() const { return value_; }
 

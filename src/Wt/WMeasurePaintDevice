@@ -21,7 +21,7 @@ namespace Wt {
  * The only output of the device is the computation of a bounding rect
  * which is returned by boundingRect().
  */
-class WMeasurePaintDevice : public WPaintDevice
+class WT_API WMeasurePaintDevice : public WPaintDevice
 {
 public:
   /*! \brief Creates a paint device to measure for the underlying device.

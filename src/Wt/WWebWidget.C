@@ -1118,7 +1118,8 @@ bool WWebWidget::isVisible() const
     if (parent())
       return parent()->isVisible();
     else
-      return loaded();
+      return this == WApplication::instance()->domRoot() ||
+	     this == WApplication::instance()->domRoot2();
 }
 
 void WWebWidget::setDisabled(bool disabled)

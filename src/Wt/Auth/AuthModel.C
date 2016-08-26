@@ -19,7 +19,15 @@
 #include "js/AuthModel.min.js"
 #endif
 
+#include "Wt/WDllDefs.h"
+
 #include <memory>
+
+#ifdef WT_CXX11
+#define AUTO_PTR std::unique_ptr
+#else
+#define AUTO_PTR std::auto_ptr
+#endif
 
 namespace Wt {
 
@@ -156,7 +164,7 @@ bool AuthModel::validateField(Field field)
 
 bool AuthModel::validate()
 {
-  std::auto_ptr<AbstractUserDatabase::Transaction>
+  AUTO_PTR<AbstractUserDatabase::Transaction>
     t(users().startTransaction());
 
   bool result = WFormModel::validate();

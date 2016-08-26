@@ -75,6 +75,10 @@ public:
    */
   WCssDecorationStyle();
 
+  /*! \brief Copy constructor
+   */
+  WCssDecorationStyle(const WCssDecorationStyle& other);
+
   /*! \brief Destructor.
    */
   ~WCssDecorationStyle();

@@ -99,8 +99,15 @@ WPdfImage::~WPdfImage()
 {
   beingDeleted();
 
-  if (myPdf_)
+  if (myPdf_) {
+    // clear graphics state stack to avoid leaking memory in libharu
+    // see bug #3979
+    HPDF_Page page = HPDF_GetCurrentPage(pdf_);
+    if (page)
+      while (HPDF_Page_GetGStateDepth(page) > 1)
+        HPDF_Page_GRestore(page);
     HPDF_Free(pdf_);
+  }
 
   delete trueTypeFonts_;
 }

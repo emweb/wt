@@ -126,6 +126,7 @@ void WDoubleSpinBox::onChange()
 WValidator *WDoubleSpinBox::createValidator()
 {
   WDoubleValidator *validator = new WDoubleValidator();
+  validator->setMandatory(true);
   validator->setRange(min_, max_);
   return validator;
 }

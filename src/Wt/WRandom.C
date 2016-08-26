@@ -49,6 +49,14 @@
 #include <stdlib.h>
 #endif
 
+#include "Wt/WDllDefs.h"
+
+#ifdef WT_CXX11
+#define AUTO_PTR std::unique_ptr
+#else
+#define AUTO_PTR std::auto_ptr
+#endif
+
 namespace {
   class RandomDevice
   {
@@ -67,7 +75,7 @@ namespace {
   boost::mutex randomInstanceMutex;
 #endif // WT_THREADED
 
-  std::auto_ptr<RandomDevice> instance;
+  AUTO_PTR<RandomDevice> instance;
 }
 
 namespace Wt {

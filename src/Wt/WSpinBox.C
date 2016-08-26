@@ -117,6 +117,7 @@ void WSpinBox::onChange()
 WValidator *WSpinBox::createValidator()
 {
   WIntValidator *validator = new WIntValidator();
+  validator->setMandatory(true);
   validator->setRange(min_, max_);
   return validator;
 }

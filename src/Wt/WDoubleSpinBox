@@ -104,6 +104,10 @@ public:
   void setValue(double value);
 
   /*! \brief Returns the value.
+   *
+   * \note This value may not correctly reflect the valueText()
+   *       of the spin box if valueText() is empty or if the
+   *       contents are not in a \link WFormWidget::validate() valid state\endlink.
    */
   double value() const { return value_; }
 

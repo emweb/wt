@@ -245,8 +245,15 @@ void WFormWidget::validatorChanged()
       ("function(o,e){" WT_CLASS ".filter(o,e,"
        + jsStringLiteral(inputFilter) + ")}");
   } else {
+#ifndef WT_TARGET_JAVA
     delete filterInput_;
     filterInput_ = 0;
+#else 
+    if(filterInput_) {
+      keyPressed().disconnect(*filterInput_);
+      filterInput_ = 0;
+    }
+#endif
   }
 
   validate();

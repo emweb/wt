@@ -9,7 +9,15 @@
 #include "Wt/Auth/PasswordService"
 #include "Wt/Auth/User"
 
+#include "Wt/WDllDefs.h"
+
 #include <memory>
+
+#ifdef WT_CXX11
+#define AUTO_PTR std::unique_ptr
+#else
+#define AUTO_PTR std::auto_ptr
+#endif
 
 /*
  * Global throttling:
@@ -89,7 +97,7 @@ int PasswordService::getPasswordThrottle(int failedAttempts) const
 PasswordResult PasswordService::verifyPassword(const User& user,
 					    const WT_USTRING& password) const
 {
-  std::auto_ptr<AbstractUserDatabase::Transaction> t
+  AUTO_PTR<AbstractUserDatabase::Transaction> t
     (user.database()->startTransaction());
 
   if (delayForNextAttempt(user) > 0)

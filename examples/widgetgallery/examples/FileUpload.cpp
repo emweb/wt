@@ -9,7 +9,7 @@ SAMPLE_BEGIN(FileUpload)
 Wt::WContainerWidget *container = new Wt::WContainerWidget();
 
 Wt::WFileUpload *fu = new Wt::WFileUpload(container);
-fu->setFileTextSize(50); // Set the maximum file size to 50 kB.
+fu->setFileTextSize(50); // Set the width of the widget to 50 characters
 fu->setProgressBar(new Wt::WProgressBar());
 fu->setMargin(10, Wt::Right);
 

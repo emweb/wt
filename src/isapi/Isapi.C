@@ -19,6 +19,7 @@ namespace {
 
 BOOL WINAPI GetExtensionVersion(HSE_VERSION_INFO* pVer)
 {
+  //DebugBreak();
 #if 0
 //#ifdef _DEBUG
   char buffer[2048];

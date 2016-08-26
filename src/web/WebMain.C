@@ -59,9 +59,17 @@ void WebMain::run()
     if (shutdown_)
       break;
 
-    if (request)
-      server_->ioService().post(boost::bind(&WebController::handleRequest,
-					    &controller(), request));
+    if (request) {
+      // Attention: WIOService::post() uses a global strand to ensure keeping
+      // the order in which events were posted. For processing WebRequests,
+      // this is very bad since at most one handleRequest() will be executed
+      // simultaneously. Additionaly, this breaks recursive event loops.
+      // Asio's io_service::post does no such thing, so calling the function
+      // of the superclass if fine.
+      static_cast<boost::asio::io_service&>(server_->ioService())
+	.post(boost::bind(&WebController::handleRequest,
+	      &controller(), request));
+    }
   }
 
   server_->ioService().stop();

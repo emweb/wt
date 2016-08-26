@@ -37,6 +37,14 @@ WCssDecorationStyle::~WCssDecorationStyle()
     delete border_[i];
 }
 
+WCssDecorationStyle::WCssDecorationStyle(const WCssDecorationStyle& other):
+  widget_(0)
+{
+  for (unsigned i = 0; i < 4; ++i)
+    border_[i] = 0;
+  *this = other;
+}
+
 WCssDecorationStyle&
 WCssDecorationStyle::operator= (const WCssDecorationStyle& other)
 {

@@ -117,6 +117,8 @@ bool WServer::start()
     WebMain requestServer(this, &isapiStream);
     webMain = &requestServer;
 
+    isapi::IsapiServer::instance()->setServerStarted();
+
     requestServer.run();
 
     webMain = 0;
@@ -129,6 +131,7 @@ bool WServer::start()
     log("fatal") << "ISAPI server: caught unknown, unhandled exception.";
     throw;
   }
+
   return true;
 }
 

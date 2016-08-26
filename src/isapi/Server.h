@@ -24,6 +24,9 @@ class IsapiServer {
 public:
   ~IsapiServer();
 
+  // to be called from the server thread when the WServer is properly started
+  void setServerStarted();
+
   void serverEntry();
 
   void pushRequest(IsapiRequest *ecb);
@@ -54,6 +57,10 @@ private:
   static IsapiServer *instance_;
 
   boost::thread serverThread_;
+
+  boost::mutex startedMutex_;
+  boost::condition_variable startedCondition_;
+  bool started_;
 
   boost::mutex queueMutex_;
   boost::condition_variable queueCond_;

@@ -995,8 +995,10 @@ void DomElement::asHTML(EscapeOStream& out,
       if (type_ != DomElement_TEXTAREA) {
 	out << " value=";
 	fastHtmlAttributeValue(out, attributeValues, i->second);
-      } else
-	innerHTML += i->second;
+      } else {
+	std::string v = i->second;
+  innerHTML += WWebWidget::escapeText(v, false);
+      }
       break;
     case PropertySrc:
       out << " src=";

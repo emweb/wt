@@ -422,14 +422,16 @@ private:
 
       addBodyText(ss.str());
 
-      // Continue reading remaining data until EOF.
-      startTimer();
-      asyncRead
-	(strand_.wrap
-	 (boost::bind(&Impl::handleReadContent,
-		      shared_from_this(),
-		      boost::asio::placeholders::error,
-		      boost::asio::placeholders::bytes_transferred)));
+      if (!aborted_) {
+	// Continue reading remaining data until EOF.
+	startTimer();
+	asyncRead
+	  (strand_.wrap
+	   (boost::bind(&Impl::handleReadContent,
+			shared_from_this(),
+			boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred)));
+      }
     } else if (err != boost::asio::error::eof
 	       && err != boost::asio::error::shut_down
 	       && err != boost::asio::error::bad_descriptor

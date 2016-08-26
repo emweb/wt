@@ -2092,7 +2092,6 @@
       max-request-size</tt> (Kb). See the <a href=
       "http://www.webtoolkit.eu/wt/doc/reference/html/overview.html#config_general"
       target="blank">Library overview</a> for more details.
-      You can change this value with the function <tt>setFileTextSize()</tt>;
     </p>
     <p>
       Also check using <tt>canUpload()</tt> if <tt>upload()</tt> will schedule

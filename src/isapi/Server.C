@@ -53,7 +53,13 @@ IsapiServer::IsapiServer():
   server_(0),
   terminated_(false)
 {
+  boost::mutex::scoped_lock l(startedMutex_);
+  started_ = false;
+  instance_ = this; // must be set before serverEntry() is called
   serverThread_ = boost::thread(boost::bind(&IsapiServer::serverEntry, this));
+  // don't return before WRun was executed and the server is actually running
+  while (!started_)
+    startedCondition_.wait(l);
 }
 
 IsapiServer::~IsapiServer()
@@ -61,6 +67,12 @@ IsapiServer::~IsapiServer()
   //delete configuration_;
 }
 
+void IsapiServer::setServerStarted()
+{
+  // unblock the constructor, ISAPI init function may return
+  started_ = true;
+  startedCondition_.notify_all();
+}
 namespace {
   HMODULE GetCurrentModule()
   {
@@ -162,6 +174,9 @@ void IsapiServer::shutdown()
 IsapiServer *IsapiServer::instance()
 {
   if (!instance_) {
+    // note: this is too late to set instance_ since instance() is already
+    // called from the constructor call graph. instance_ must be set
+    // in the constructor.
     instance_ = new IsapiServer();
   }
   return instance_;
