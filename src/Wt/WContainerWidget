@@ -154,7 +154,7 @@ public:
    *
    * \sa layout()
    */
-  void setLayout(WLayout *layout);  
+  void setLayout(WLayout *layout) WT_CXX11ONLY(override);
 
   /*! \brief Sets a layout manager for the container (<b>deprecated</b>).
    *
@@ -197,7 +197,7 @@ public:
    *
    * \sa setLayout(WLayout *)
    */
-  WLayout *layout() { return layout_; }
+  virtual WLayout *layout() WT_CXX11ONLY(override) { return layout_; }
 
   /*! \brief Adds a child widget to this container.
    *
@@ -402,23 +402,23 @@ private:
 protected:
   using WWidget::removeChild;
 
-  virtual void removeChild(WWidget *child);
+  virtual void removeChild(WWidget *child) WT_CXX11ONLY(override);
   virtual int firstChildIndex() const;
 
-  virtual void childResized(WWidget *child, WFlags<Orientation> directions);
-  virtual void parentResized(WWidget *parent, WFlags<Orientation> directions);
+  virtual void childResized(WWidget *child, WFlags<Orientation> directions) WT_CXX11ONLY(override);
+  virtual void parentResized(WWidget *parent, WFlags<Orientation> directions) WT_CXX11ONLY(override);
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
+			     WApplication *app) WT_CXX11ONLY(override);
   DomElement *createDomElement(WApplication *app, bool addChildren);
   void createDomChildren(DomElement& parent, WApplication *app);
   void updateDomChildren(DomElement& parent, WApplication *app);
 
-  virtual DomElementType domElementType() const;
-  virtual void           updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual DomElement    *createDomElement(WApplication *app);
+  virtual DomElementType domElementType() const WT_CXX11ONLY(override);
+  virtual void           updateDom(DomElement& element, bool all) WT_CXX11ONLY(override);
+  virtual void propagateRenderOk(bool deep) WT_CXX11ONLY(override);
+  virtual DomElement    *createDomElement(WApplication *app) WT_CXX11ONLY(override);
 
-  virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *item);
+  virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *item) WT_CXX11ONLY(override);
   StdLayoutImpl *layoutImpl() const;
   virtual void setFormData(const FormData& formData) WT_CXX11ONLY(override);
 
