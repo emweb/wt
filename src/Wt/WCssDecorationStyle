@@ -239,6 +239,8 @@ private:
   void backgroundImageResourceChanged();
   WBorder borderI(unsigned i) const;
 
+  void copy(const WCssDecorationStyle& other);
+
   void setWebWidget(WWebWidget *widget);
   friend class WWebWidget;
 };

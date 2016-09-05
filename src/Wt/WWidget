@@ -43,7 +43,7 @@ class WCssTextRule;
  *  \brief The abstract base class for a user-interface component.
  *
  * The user-interface is organized in a tree structure, in which each
- * nodes is a widgets. All widgets, except for the application's root
+ * node is a widget. All widgets, except for the application's root
  * widget and dialogs, have a parent which is usually a
  * WContainerWidget.
  *
@@ -1034,6 +1034,71 @@ public:
    */
   bool layoutSizeAware() const;
 
+  /*! \brief Returns whether scroll visibility detection is enabled for this widget.
+   *
+   * \sa setScrollVisibilityEnabled()
+   */
+  virtual bool scrollVisibilityEnabled() const = 0;
+
+  /*! \brief Sets whether scroll visibility detection is enabled for this widget.
+   *
+   * Disabled by default. When enabled, the client keeps track of whether this widget
+   * is currently visible inside of the browser window. A widget is "scroll visible"
+   * if it is currently visible according to isVisible(), and its position is
+   * inside of the browser window, with an extra margin determined by scrollVisibilityMargin().
+   *
+   * If scroll visibility changes, the scrollVisibilityChanged() signal is fired,
+   * and isScrollVisible() is updated.
+   *
+   * This feature can be useful to implement infinite scroll, where a sentinel widget
+   * placed at the bottom of the page causes more content to be loaded when it
+   * becomes visible, see the <tt>infinite-scroll</tt> example.
+   *
+   * This feature can also be used to lazy load widgets when they become visible.
+   *
+   * \note If the widget is "scroll visible" when scroll visibility detection is first enabled,
+   *       the scrollVisibilityChanged() signal will be emitted. If it is outside of the
+   *       browser's viewport when first enabled, the scrollVisibilityChanged() signal will
+   *       not be emitted.
+   * \note If scroll visibility is enabled, disabled, and then enabled again,
+   *       isScrollVisible() may not be correctly updated, and scrollVisibilityChanged()
+   *       may not be correctly emitted, because then Wt can't properly keep track of
+   *       the state that the widget is in on the client side.
+   *       This feature is not intended to be toggled on and off, but rather enabled
+   * 	   once and disabled once after that.
+   */
+  virtual void setScrollVisibilityEnabled(bool enabled) = 0;
+
+  /*! \brief Returns the margin around the viewport within which the widget is considered visible.
+   *
+   * \sa setScrollVisibilityMargin()
+   */
+  virtual int scrollVisibilityMargin() const = 0;
+
+  /*! \brief Sets the margin around the viewport within which the widget is considered visible.
+   *
+   * This causes the widget to be considered "scroll visible" before it is within
+   * the viewport. Setting this margin could be useful to trigger the loading
+   * of content before it is in view.
+   */
+  virtual void setScrollVisibilityMargin(int margin) = 0;
+
+  /*! \brief Signal triggered when the scroll visibility of this widget changes.
+   *
+   * The boolean parameter indicates whether the widget is currently scroll visible.
+   *
+   * \sa setScrollVisibilityEnabled()
+   */
+  virtual Signal<bool> &scrollVisibilityChanged() = 0;
+
+  /*! \brief Returns whether this widget is currently considered scroll visible.
+   *
+   * isScrollVisible() is initially false.
+   *
+   * \sa setScrollVisibilityEnabled()
+   */
+  virtual bool isScrollVisible() const = 0;
+
   DomElement *createSDomElement(WApplication *app);
 
   static void setTabOrder(WWidget *first, WWidget *second);
@@ -1255,7 +1320,8 @@ private:
   static const int BIT_NEED_RERENDER_SIZE_CHANGE = 3;
   static const int BIT_HAS_PARENT = 4;
   static const int BIT_RESIZE_AWARE = 5;
-  std::bitset<6> flags_;
+  static const int BIT_SCROLL_VISIBILITY_ENABLED = 6;
+  std::bitset<7> flags_;
 
   EventSignalList eventSignals_;
   std::vector<EventSignalBase*> jsignals_;

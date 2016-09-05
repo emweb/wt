@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, JavaScriptConstructor, "WPaintedWidget",
+(10, JavaScriptConstructor, "WPaintedWidget",
  function(APP, widget) {
    this.canvas = document.getElementById('c' + widget.id);
    var ctx = this.canvas.getContext('2d');
@@ -40,7 +40,7 @@ WT_DECLARE_WT_MEMBER
 
 // This should be refactored to something, somewhere?
 WT_DECLARE_WT_MEMBER
-(2, JavaScriptObject, "gfxUtils",
+(11, JavaScriptObject, "gfxUtils",
    (function() {
       var M11 = 0, M12 = 1, M21 = 2, M22 = 3, M13 = 4, M23 = 5;
       var MOVE_TO = 0, LINE_TO = 1, CUBIC_C1 = 2, CUBIC_C2 = 3, CUBIC_END = 4,

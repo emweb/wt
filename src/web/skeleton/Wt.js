@@ -504,6 +504,7 @@ this.insertAt = function(p, c, pos) {
 
 this.remove = function(id)
 {
+  // TODO(Roel): what about removal?
   var e = WT.getElement(id);
   if (e) {
     WT.saveReparented(e);

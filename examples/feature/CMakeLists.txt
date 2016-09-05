@@ -10,6 +10,7 @@ SUBDIRS(
   multiple_servers
   oauth
   paypal
+  scrollvisibility
   serverpush
   socketnotifier
   suggestionpopup

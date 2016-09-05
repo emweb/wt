@@ -42,11 +42,39 @@ WCssDecorationStyle::WCssDecorationStyle(const WCssDecorationStyle& other):
 {
   for (unsigned i = 0; i < 4; ++i)
     border_[i] = 0;
-  *this = other;
+
+  copy(other);
+  // *this = other;
 }
 
 WCssDecorationStyle&
 WCssDecorationStyle::operator= (const WCssDecorationStyle& other)
+{
+  copy(other);
+  // setCursor(other.cursor_);
+  // setBackgroundColor(other.backgroundColor());
+  // setBackgroundImage(other.backgroundImage(),
+  // 		     other.backgroundImageRepeat(),
+  // 		     other.backgroundImageLocation_);
+  // setForegroundColor(other.foregroundColor());
+
+  // for (unsigned i = 0; i < 4; ++i) {
+  //   delete border_[i];
+  //   if (other.border_[i])
+  //     border_[i] = new WBorder(*other.border_[i]);
+  //   else
+  //     border_[i] = 0;
+  // }
+
+  // borderChanged_ = true;
+
+  // setFont(other.font_);
+  // setTextDecoration(other.textDecoration());
+
+  return *this;
+}
+
+void WCssDecorationStyle::copy(const WCssDecorationStyle& other)
 {
   setCursor(other.cursor_);
   setBackgroundColor(other.backgroundColor());
@@ -67,8 +95,6 @@ WCssDecorationStyle::operator= (const WCssDecorationStyle& other)
 
   setFont(other.font_);
   setTextDecoration(other.textDecoration());
-
-  return *this;
 }
 
 void WCssDecorationStyle::setWebWidget(WWebWidget *w)

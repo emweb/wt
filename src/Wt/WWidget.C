@@ -556,5 +556,4 @@ void WWidget::addJSignal(EventSignalBase* signal)
   jsignals_.push_back(signal);
 }
 
-
 }

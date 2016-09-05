@@ -576,4 +576,34 @@ void WCompositeWidget::propagateSetVisible(bool visible)
   impl_->webWidget()->propagateSetVisible(visible);
 }
 
+bool WCompositeWidget::scrollVisibilityEnabled() const
+{
+  return impl_->webWidget()->scrollVisibilityEnabled();
+}
+
+void WCompositeWidget::setScrollVisibilityEnabled(bool enabled)
+{
+  impl_->webWidget()->setScrollVisibilityEnabled(enabled);
+}
+
+int WCompositeWidget::scrollVisibilityMargin() const
+{
+  return impl_->webWidget()->scrollVisibilityMargin();
+}
+
+void WCompositeWidget::setScrollVisibilityMargin(int margin)
+{
+  impl_->webWidget()->setScrollVisibilityMargin(margin);
+}
+
+Signal<bool> &WCompositeWidget::scrollVisibilityChanged()
+{
+  return impl_->webWidget()->scrollVisibilityChanged();
+}
+
+bool WCompositeWidget::isScrollVisible() const
+{
+  return impl_->webWidget()->isScrollVisible();
+}
+
 }

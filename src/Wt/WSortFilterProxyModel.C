@@ -473,7 +473,7 @@ void WSortFilterProxyModel::sourceRowsAboutToBeInserted
 void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
 					       int start, int end)
 {
-  shiftModelIndexes(parent, start, (end - start + 1), mappedIndexes_);
+  shiftModelIndexes(parent, end + 1, (end - start + 1), mappedIndexes_);
 
   if (inserting_)
     return;

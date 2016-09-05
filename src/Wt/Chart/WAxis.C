@@ -472,10 +472,6 @@ void WAxis::update()
 
 bool WAxis::prepareRender(Orientation orientation, double length) const
 {
-  double zmin = zoomMinimum();
-  double zmax = zoomMaximum();
-  double z = zoom();
-
   fullRenderLength_ = length;
   double totalRenderRange = 0;
 
@@ -522,7 +518,8 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
    * Iterate twice, since we adjust the render extrema based on the size
    * and vice-versa
    */
-  for (unsigned it = 0; it < 2; ++it) {
+  unsigned numIterations = 2;
+  for (unsigned it = 0; it < numIterations; ++it) {
     double rs = totalRenderStart; 
     double TRR = totalRenderRange;
     totalRenderRange = 0;
@@ -537,7 +534,8 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
       s.renderStart = rs;
       s.renderLength = diff / TRR * totalRenderLength;
 
-      if (i == 0) {
+      if (i == 0 && it != 2) {
+	double oldRenderInterval = renderInterval_;
 	renderInterval_ = labelInterval_;
 	if (renderInterval_ == 0) {
 	  if (scale_ == CategoryScale) {
@@ -550,6 +548,12 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 	    double numLabels = calcAutoNumLabels(orientation, s);
 
 	    renderInterval_ = round125(diff / numLabels);
+
+	    if (it == 1 && renderInterval_ != oldRenderInterval) {
+	      // If render interval changes in the second iteration,
+	      // iterate once more
+	      numIterations = 3;
+	    }
 	  }
 	}
       }
@@ -560,7 +564,7 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
       }
 
       if (scale_ == LinearScale) {
-	if (it == 0) {
+	if (it < numIterations - 1) {
 	  if (roundMinimumLimit) {
 	    s.renderMinimum
 	      = roundDown125(s.renderMinimum, renderInterval_);
@@ -825,11 +829,6 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
       rs += s.renderLength + SEGMENT_MARGIN;
     }
   }
-
-  if (z <= 1.01) // wasn't zoomed in, keep it 'unzoomed'
-    (const_cast<WAxis *>(this))->setZoomRange(drawnMinimum(), drawnMaximum());
-  else           // was zoomed in, preserve zoom range
-    (const_cast<WAxis *>(this))->setZoomRange(zmin, zmax);
 
   return true;
 }
@@ -1237,10 +1236,11 @@ void WAxis::setZoomRangeFromClient(double minimum, double maximum)
   }
   double min = drawnMinimum();
   double max = drawnMaximum();
-  if (minimum <= min) {
+  double zoom = (max - min) / (maximum - minimum);
+  if (minimum <= min || !(zoom > 1.01)) {
     minimum = AUTO_MINIMUM;
   }
-  if (maximum >= max) {
+  if (maximum >= max || !(zoom > 1.01)) {
     maximum = AUTO_MAXIMUM;
   }
   zoomMin_ = minimum;
@@ -1334,15 +1334,29 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
   }
   case LinearScale: {
     double interval = renderInterval_ / divisor;
+    // Start labels at a round minimum
+    double minimum = roundUp125(s.renderMinimum, interval);
+    bool firstTickIsLong = true;
+    if (labelBasePoint_ >= minimum &&
+	labelBasePoint_ <= s.renderMaximum) {
+      // Make sure the base point label is included as a long tick
+      int n = (int)((minimum - labelBasePoint_) / (- 2.0 * interval));
+      minimum = labelBasePoint_ - n * 2.0 * interval;
+      if (minimum - interval >= s.renderMinimum) {
+	// We can still put a short tick before the first long tick
+	minimum -= interval;
+	firstTickIsLong = false;
+      }
+    }
     for (int i = 0;; ++i) {
-      double v = s.renderMinimum + interval * i;
+      double v = minimum + interval * i;
 
       if (v - s.renderMaximum > EPSILON * interval)
 	break;
 
       WString t;
 
-      if (i % 2 == 0) {
+      if (i % 2 == (firstTickIsLong ? 0 : 1)) {
 	if (hasLabelTransformOnSide(config.side)) {
 #ifndef WT_TARGET_JAVA
 	  t = label(labelTransform(config.side)(v));
@@ -1355,7 +1369,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
       }
  
       ticks.push_back
-	(TickLabel(v, i % 2 == 0 ? TickLabel::Long : TickLabel::Short, t));
+	(TickLabel(v, i % 2 == (firstTickIsLong ? 0 : 1) ? TickLabel::Long : TickLabel::Short, t));
     }
 
     break;

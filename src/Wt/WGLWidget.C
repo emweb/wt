@@ -36,6 +36,7 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/WGLWidget.min.js"
+#include "js/WPaintedWidget.min.js"
 #include "js/WtGlMatrix.min.js"
 #endif
 
@@ -232,6 +233,10 @@ void WGLWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
+  if (renderOptions_ & ClientSideRendering &&
+      WApplication::instance()->environment().webGL()) {
+    LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "gfxUtils", wtjs11);
+  }
   LOAD_JAVASCRIPT(app, "js/WtGlMatrix.js", "glMatrix", wtjs2);
   LOAD_JAVASCRIPT(app, "js/WGLWidget.js", "WGLWidget", wtjs1);
 }

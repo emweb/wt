@@ -129,14 +129,24 @@ void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
   std::vector<BaseItem *> shifted;
   std::vector<BaseItem *> erased;
 
-  for (ItemMap::iterator it
-	 = items.lower_bound(sourceModel()->index(start, 0, sourceParent));
+  WModelIndex startIndex;
+  if (sourceModel()->rowCount(sourceParent) == 0)
+    startIndex = sourceParent;
+  else if (start >= sourceModel()->rowCount(sourceParent))
+    startIndex = sourceModel()->index(sourceModel()->rowCount(sourceParent)-1,0,
+				     sourceParent);
+  else
+    startIndex = sourceModel()->index(start, 0, sourceParent);
+  
+  for (ItemMap::iterator it = items.lower_bound(startIndex);
        it != items.end();) {
 #ifndef WT_TARGET_JAVA
     ItemMap::iterator n = it;
     ++n;
 #endif
     WModelIndex i = it->first;
+    if (i == sourceParent)
+      continue;
 
     if (i.isValid()) {
       WModelIndex p = i.parent();
