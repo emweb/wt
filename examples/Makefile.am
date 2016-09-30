@@ -1,0 +1,1 @@
+SUBDIRS = composer hello
