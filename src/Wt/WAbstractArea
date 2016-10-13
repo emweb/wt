@@ -403,6 +403,9 @@ public:
    */
   EventSignal<WMouseEvent>& mouseWheel();
 
+  virtual void setAttributeValue(const std::string& name,
+				 const WT_USTRING& value);
+				 
 private:
   struct AnchorImpl {
     AnchorImpl(){}
