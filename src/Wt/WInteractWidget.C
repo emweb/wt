@@ -466,9 +466,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
     js << CheckDisabled;
 
-    if (mouseDrag)
-      js << "if (" WT_CLASS ".dragged()) return;";
-
     if (mouseDblClick && mouseDblClick->needsUpdate(all)) {
       /*
        * Click: if timer is running:
@@ -490,6 +487,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	    js << ",0x1);";
 	}
       }
+      
+      if (mouseDrag)
+        js << "if (" WT_CLASS ".dragged()) return;";
 
       js << "if(" WT_CLASS ".isDblClick(o, e)) {"
 	 << mouseDblClick->javaScript();
@@ -524,8 +524,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       const Configuration& conf = app->environment().server()->configuration();
       js << "}," << conf.doubleClickTimeout() << ");}";
     } else {
+    
       if (mouseClick && mouseClick->needsUpdate(all)) {
 	js << mouseClick->javaScript();
+
+      if (mouseDrag)
+        js << "if (" WT_CLASS ".dragged()) return;";
 
 	if (mouseClick->isExposedSignal()) {
 	  js << app->javaScriptClass()
