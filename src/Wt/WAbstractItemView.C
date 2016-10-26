@@ -1394,7 +1394,7 @@ void WAbstractItemView::closeEditorWidget(WWidget *editor, bool saveData)
   for (EditorMap::iterator i = editedItems_.begin();
        i != editedItems_.end(); ++i)
     if (i->second.widget == editor) {
-      if (editOptions_ & LeaveEditorsOpen) {
+      if (editOptions_ & (LeaveEditorsOpen | AlwaysShowEditors)) {
 	// Save data, but keep editor open
 	if (saveData)
 	  saveEditedValue(i->first, i->second);

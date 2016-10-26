@@ -57,10 +57,11 @@ public:
    * \sa setEditOptions()
    */
   enum EditOption {
-    SingleEditor = 0x1,    //!< Never show more than one active editor
-    MultipleEditors = 0x2, //!< Allow multiple editors at the same time
-    SaveWhenClosed = 0x4,  //!< Always save the current edit value when closing
-    LeaveEditorsOpen = 0x8 //!< Editors can only be closed using closeEditor()
+    SingleEditor = 0x1,      //!< Never show more than one active editor
+    MultipleEditors = 0x2,   //!< Allow multiple editors at the same time
+    SaveWhenClosed = 0x4,    //!< Always save the current edit value when closing
+    LeaveEditorsOpen = 0x8,  //!< Editors can only be closed using closeEditor()
+    AlwaysShowEditors = 0x10 //!< Editors are always displayed and can't be closed()
   };
 
   /*! \brief Enumeration that specifies a scrolling option.
