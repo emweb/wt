@@ -14,15 +14,15 @@ class WidgetFunction
 {
 public:
   typedef boost::function<Wt::WWidget *(const std::vector<Wt::WString>&)>
-    InstatiateWidget;
+    InstantiateWidget;
 
   bool operator()(Wt::WTemplate *t, const std::vector<Wt::WString>& args,
 		  std::ostream& result);
 
-  void registerType(const std::string& name, InstatiateWidget instatiate);
+  void registerType(const std::string& name, InstantiateWidget instantiate);
 
 private:
-  typedef std::map<std::string, InstatiateWidget> RegistryMap;
+  typedef std::map<std::string, InstantiateWidget> RegistryMap;
   RegistryMap registeredTypes_;
 
   static std::string getArg(const std::string& name,

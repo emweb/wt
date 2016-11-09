@@ -111,7 +111,8 @@ MiniWebGL::MiniWebGL(const WEnvironment& env)
   setTitle("Minimalistic WebGL Demo");
 
   new WText("This is a minimalistic demonstration "
-    "application for WebGL. If your browser supports WebGL, you will "
+    "application for WebGL. If your browser supports WebGL, or if Wt is built "
+    "with OpenGL support, you will "
     "see a black square with a triangle inside.", root());
 
   new WBreak(root());

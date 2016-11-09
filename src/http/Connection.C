@@ -29,6 +29,12 @@ namespace Wt {
   LOGGER("wthttp/async");
 }
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+typedef std::chrono::seconds asio_timer_seconds;
+#else
+typedef boost::posix_time::seconds asio_timer_seconds;
+#endif
+
 namespace http {
 namespace server {
 
@@ -105,7 +111,7 @@ void Connection::setReadTimeout(int seconds)
 	      << request_.webSocketVersion << ")");
     state_ |= Reading;
 
-    readTimer_.expires_from_now(boost::posix_time::seconds(seconds));
+    readTimer_.expires_from_now(asio_timer_seconds(seconds));
     readTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
 				      asio::placeholders::error));
   }
@@ -117,7 +123,7 @@ void Connection::setWriteTimeout(int seconds)
 	    << request_.webSocketVersion << ")");
   state_ |= Writing;
 
-  writeTimer_.expires_from_now(boost::posix_time::seconds(seconds));
+  writeTimer_.expires_from_now(asio_timer_seconds(seconds));
   writeTimer_.async_wait(boost::bind(&Connection::timeout, shared_from_this(),
 				      asio::placeholders::error));
 }
@@ -321,6 +327,9 @@ bool Connection::readAvailable()
 void Connection::detectDisconnect(ReplyPtr reply,
 				  const boost::function<void()>& callback)
 {
+  if (disconnectCallback_)
+    return; // We're already detecting the disconnect
+
   disconnectCallback_ = callback;
 
   readMore(reply, 0);
@@ -333,14 +342,17 @@ void Connection::handleReadBody(ReplyPtr reply,
   LOG_DEBUG(socket().native() << ": handleReadBody(): " << e.message());
 
   if (disconnectCallback_) {
+    rcv_body_buffer_ = false;
+    rcv_buffers_.pop_back();
+
     if (e && e != asio::error::operation_aborted) {
       boost::function<void()> f = disconnectCallback_;
       disconnectCallback_ = boost::function<void()>();
       f();
-    } else if (e != asio::error::operation_aborted) {
+    } else if (!e) {
       LOG_ERROR(socket().native()
 		<< ": handleReadBody(): while waiting for disconnect, "
-		"unexpected error code: " << e.message());
+		"received unexpected data, closing");
       close();
     }
 

@@ -23,6 +23,8 @@
 
 namespace Wt {
 
+LOGGER("WAbstractItemView");
+
 class DefaultPagingBar : public WContainerWidget
 {
 public:
@@ -243,10 +245,12 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     doubleClicked_(this),
     mouseWentDown_(this),
     mouseWentUp_(this),
+    touchStart_(this),
     selectionChanged_(this),
     pageChanged_(this),
     editTriggers_(DoubleClicked),
-    editOptions_(SingleEditor)
+    editOptions_(SingleEditor),
+    touchRegistered_(false)
 {
   setImplementation(impl_);
 
@@ -969,6 +973,34 @@ void WAbstractItemView::selectionHandleClick(const WModelIndex& index,
   }
 }
 
+void WAbstractItemView::selectionHandleTouch(const WModelIndex& index,
+					     const WTouchEvent& event)
+{
+  if (selectionMode_ == NoSelection)
+    return;
+
+  if (selectionMode_ == ExtendedSelection) {
+    if (event.touches().size() > 1)
+      extendSelection(index);
+    else {
+      if (!dragEnabled_)
+        select(index, ToggleSelect);
+      else {
+        if (!isSelected(index))
+          select(index, ToggleSelect);
+        else 
+          delayedClearAndSelectIndex_ = index;
+       }
+    }
+  } else {
+    if (isSelected(index)) {
+      clearSelection();
+      selectionChanged_.emit();
+    } else
+      select(index, ClearAndSelect);
+  }
+}
+
 WModelIndexSet WAbstractItemView::selectedIndexes() const
 {
   return selectionModel_->selection_;
@@ -1343,11 +1375,14 @@ void WAbstractItemView::handleDoubleClick(const WModelIndex& index,
 void WAbstractItemView::handleMouseDown(const WModelIndex& index,
 					const WMouseEvent& event)
 {
+  // Needed because mousedown signal is emitted after a touchstart signal
+  if (touchRegistered_)
+    return;
+
   bool doEdit = index.isValid() &&
     (editTriggers() & SelectedClicked) && isSelected(index);
 
   delayedClearAndSelectIndex_ = WModelIndex();
-
   if (index.isValid() && event.button() == WMouseEvent::LeftButton)
     selectionHandleClick(index, event.modifiers());
 
@@ -1355,12 +1390,31 @@ void WAbstractItemView::handleMouseDown(const WModelIndex& index,
     edit(index);
 
   mouseWentDown_.emit(index, event);
+  touchRegistered_ = false;
 }
 
 void WAbstractItemView::handleMouseUp(const WModelIndex& index,
 				      const WMouseEvent& event)
 {
   mouseWentUp_.emit(index, event);
+}
+
+void WAbstractItemView::handleTouchStart(const WModelIndex& index,
+					   const WTouchEvent& event)
+{
+  touchRegistered_ = true;
+
+  bool doEdit = index.isValid() &&
+	(editTriggers() & SelectedClicked) && isSelected(index);
+
+  delayedClearAndSelectIndex_ = WModelIndex();
+  if (index.isValid())
+    selectionHandleTouch(index, event);
+
+  if (doEdit)
+    edit(index);
+
+  touchStart_.emit(index, event);
 }
 
 void WAbstractItemView::setEditTriggers(WFlags<EditTrigger> editTriggers)
@@ -1698,6 +1752,11 @@ EventSignal<WKeyEvent>& WAbstractItemView::keyWentUp()
 {
   impl_->setCanReceiveFocus(true);
   return impl_->keyWentUp();
+}
+
+void WAbstractItemView::setColumnBorder(const WColor &)
+{
+  LOG_WARN("setColumnBorder has no effect and has been deprecated. Use CSS instead!");
 }
 
 }

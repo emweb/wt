@@ -175,8 +175,18 @@ void WTextEdit::initTinyMCE()
     if (tinyMCEURL.empty()) {
       int version = getTinyMCEVersion();
 
-      std::string folder = version == 3 ? "tiny_mce/" : "tinymce/";
-      std::string jsFile = version == 3 ? "tiny_mce.js" : "tinymce.js";
+      std::string folder;
+      std::string jsFile;
+      if (version < 3) {
+	folder = "tinymce/";
+	jsFile = "tinymce.js";
+      } else if (version == 3) {
+	folder = "tiny_mce/";
+	jsFile = "tiny_mce.js";
+      } else {
+	folder = "tinymce/";
+	jsFile = "tinymce.min.js";
+      }
 
       std::string tinyMCEBaseURL = WApplication::relativeResourcesUrl() + folder;
       WApplication::readConfigurationProperty("tinyMCEBaseURL", tinyMCEBaseURL);

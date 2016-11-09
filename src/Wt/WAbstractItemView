@@ -534,11 +534,13 @@ public:
    */
   void showColumn(int column);
 
-  /*! \brief Sets the column border color
+  /*! \brief Sets the column border color (deprecated)
    *
-   * The default border color is defined by the CSS theme. 
+   * This method has no effect. The border color should be set using CSS.
+   *
+   * \deprecated
    */
-  virtual void setColumnBorder(const WColor& color) = 0;
+  virtual void setColumnBorder(const WColor& color);
 
   /*! \brief Sets the header height.
    *
@@ -737,6 +739,13 @@ public:
    */
   Signal<WModelIndex, WMouseEvent>& mouseWentUp() { return mouseWentUp_; }
 
+  /*! \brief %Signal emitted when a finger is placed on the screen.
+   *
+   * When the event happened over an item, the first argument
+   * indicates the item that was touched.
+   */
+  Signal<WModelIndex, WTouchEvent>& touchStart() { return touchStart_; }
+
   /*! \brief %Signal emitted when the selection is changed.
    *
    * \sa select(), setSelectionMode(), setSelectionBehavior()
@@ -890,7 +899,7 @@ public:
    * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyWentUp();
-
+ 
 protected:
   /*! \brief Creates a new item view.
    */
@@ -1052,6 +1061,11 @@ protected:
    */
   virtual void handleMouseUp(const WModelIndex& index,
 			     const WMouseEvent& event);
+
+  /*! \brief Handles a touch started event.
+   */
+  virtual void handleTouchStart(const WModelIndex& index,
+				       const WTouchEvent& event);
   
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
@@ -1124,11 +1138,14 @@ private:
   Signal<WModelIndex, WMouseEvent> doubleClicked_;
   Signal<WModelIndex, WMouseEvent> mouseWentDown_;
   Signal<WModelIndex, WMouseEvent> mouseWentUp_;
+  Signal<WModelIndex, WTouchEvent> touchStart_;
   Signal<> selectionChanged_;
   Signal<> pageChanged_;
 
   WFlags<EditTrigger> editTriggers_;
   WFlags<EditOption> editOptions_;
+
+  bool touchRegistered_;
 
   void closeEditorWidget(WWidget *editor, bool saveData);
   void saveEditedValue(const WModelIndex& index, Editor& editor);
@@ -1139,6 +1156,7 @@ private:
 
   void selectionHandleClick(const WModelIndex& index,
 			    WFlags<KeyboardModifier> modifiers);
+  void selectionHandleTouch(const WModelIndex& index, const WTouchEvent& event);
   void extendSelection(const WModelIndex& index);
   virtual void selectRange(const WModelIndex& first, const WModelIndex& last)
     = 0;
@@ -1164,8 +1182,8 @@ private:
   void initDragDrop();
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractItemView::EditOption);
-W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractItemView::EditTrigger);
+W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractItemView::EditOption)
+W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractItemView::EditTrigger)
 
 }
 

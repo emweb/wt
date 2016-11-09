@@ -13,6 +13,7 @@
 
 #include <fstream>
 #include <streambuf>
+#include <iostream>
 
 #if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104100
 #  define JSON_PARSER
@@ -30,9 +31,9 @@ BOOST_AUTO_TEST_CASE( json_generate_object )
 	      "  \"second\" : true,"
 	      "  \"third\" : null,"
 	      "  \"fourth\" : false,"
-	      "  \"fifth\" : 2.7182818,"
+	      "  \"fifth\" : 1.25,"
 	      "  \"sixth\" : 1.54e99,"
-	      "  \"seventh\" : 9.87E88,"
+	      "  \"seventh\" : 9.870000000000001e88,"
 	      "  \"eight\" : \"a string type value\","
 	      "  \"ninth\" : {"
 	      "    \"sub-first\" : 1,"
@@ -108,6 +109,19 @@ BOOST_AUTO_TEST_CASE( json_generate_UTF8 )
   Json::parse(generated, reconstructed);
 
   BOOST_REQUIRE(initial == reconstructed);
+}
+
+BOOST_AUTO_TEST_CASE( json_test_double_dim )
+{
+  Json::Value v(2.0487042606859837E-309);  
+  Json::Object obj;
+  obj["test"] = v;
+  std::string generated = Json::serialize(obj);
+
+  Json::Object reconstructed;
+  Json::parse(generated, reconstructed);
+
+  BOOST_REQUIRE(obj == reconstructed);
 }
 
 #endif // JSON_PARSER

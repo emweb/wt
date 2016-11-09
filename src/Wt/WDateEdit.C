@@ -29,7 +29,8 @@ LOGGER("WDateEdit");
 
 WDateEdit::WDateEdit(WContainerWidget *parent)
   : WLineEdit(parent),
-    popup_(0)
+    popup_(0),
+    customFormat_(false)
 {
   changed().connect(this, &WDateEdit::setFromLineEdit);
 
@@ -38,7 +39,7 @@ WDateEdit::WDateEdit(WContainerWidget *parent)
   calendar_->activated().connect(this, &WWidget::setFocus);
   calendar_->selectionChanged().connect(this, &WDateEdit::setFromCalendar);
 
-  setValidator(new WDateValidator("dd/MM/yyyy", this));
+  setValidator(new WDateValidator( Wt::WApplication::instance()-> locale().dateFormat(), this));
 }
 
 WDateEdit::~WDateEdit()
@@ -78,6 +79,21 @@ void WDateEdit::load()
   escapePressed().connect(this, &WWidget::setFocus);
 }
 
+void WDateEdit::refresh()
+{
+  WLineEdit::refresh();
+
+  WDateValidator *dv = validator();
+
+  if (!customFormat_ && dv) {
+    WDate d = this->date();
+    dv->setFormat(Wt::WApplication::instance()->locale().dateFormat());
+    setDate(d);
+  } else {
+    LOG_WARN("setFormat() ignored since validator is not a WDateValidator");
+  }
+}
+
 WDateValidator *WDateEdit::validator() const
 {
   return dynamic_cast<WDateValidator *>(WLineEdit::validator());
@@ -91,6 +107,7 @@ void WDateEdit::setFormat(const WT_USTRING& format)
     WDate d = this->date();
     dv->setFormat(format);
     setDate(d);
+    customFormat_ = true;
   } else {
     LOG_WARN("setFormat() ignored since validator is not a WDateValidator");
   }
@@ -238,7 +255,6 @@ void WDateEdit::render(WFlags<RenderFlag> flags)
     if (dv) {
       setTop(dv->top());
       setBottom(dv->bottom());
-      setFormat(dv->format());
     }
   }
 

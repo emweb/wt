@@ -18,6 +18,7 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
     min_(0),
     max_(99),
     step_(1),
+    wrapAroundEnabled_(false),
     valueChanged_(this)
 { 
   setValidator(createValidator());
@@ -93,6 +94,10 @@ void WSpinBox::updateDom(DomElement& element, bool all)
       /* Make sure the JavaScript validator is loaded */
       WIntValidator v;
       v.javaScriptValidate();
+
+      doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+		   + ".setWrapAroundEnabled("
+		   + (wrapAroundEnabled() ? "true" : "false") + ");");
     }
   }
 
@@ -157,4 +162,18 @@ WValidator::Result WSpinBox::validateRange() const
   return validator.validate(WString("{1}").arg(value_));
 }
 
+void WSpinBox::setWrapAroundEnabled(bool enabled)
+{
+  if (wrapAroundEnabled_ != enabled) {
+    wrapAroundEnabled_ = enabled;
+    changed_ = true;
+    repaint();
+  }
+}
+
+bool WSpinBox::wrapAroundEnabled() const
+{
+  return wrapAroundEnabled_;
+}
+  
 }

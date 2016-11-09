@@ -665,6 +665,10 @@ public:
    * the absolute URL at which the application is deployed, up to the
    * last '/'.
    *
+   * The default implementation is not complete: it does not handle relative
+   * URL path segments with '..'. It just handles the cases that are necessary for
+   * Wt.
+   *
    * This is not used in the library, except when a public URL is
    * needed, e.g. for inclusion in an email.
    *

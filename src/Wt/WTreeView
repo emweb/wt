@@ -240,7 +240,6 @@ public:
 #ifndef WT_CNOR
   using WAbstractItemView::setHeaderHeight;
 #endif
-  virtual void setColumnBorder(const WColor& color);
   virtual void setColumnHidden(int column, bool hidden);
   virtual void setRowHeaderCount(int count);
 
@@ -268,7 +267,7 @@ private:
   WTreeViewNode       *rootNode_;
   WCssTemplateRule    *rowHeightRule_, *rowWidthRule_, 
                       *rowContentsWidthRule_;
-  WCssRule            *borderColorRule_, *c0StyleRule_;
+  WCssRule            *c0StyleRule_;
 
   bool                 rootIsDecorated_;
   bool                 column1Fixed_;
@@ -303,6 +302,8 @@ private:
 
   JSignal<std::string, std::string, std::string,
           std::string, WMouseEvent> itemEvent_;
+  JSignal<std::string, std::string, std::string,
+	  std::string, WTouchEvent> itemTouchEvent_;
 
   ToggleButtonConfig *expandConfig_;
 
@@ -331,8 +332,11 @@ private:
 
   void onViewportChange(WScrollEvent event);
   void contentsSizeChanged(int width, int height);
-  void onItemEvent(std::string nodeId, std::string type,
+  void onItemEvent(std::string nodeAndColumnId, std::string type,
 		   std::string extra1, std::string extra2, WMouseEvent event);
+  void onItemTouchEvent(std::string nodeAndColumnId, std::string type,
+			std::string extra1, std::string extra2, WTouchEvent event);
+  WModelIndex calculateModelIndex(std::string nodeAndColumnId);
   void setRootNodeStyle();
   void setCollapsed(const WModelIndex& index);
 

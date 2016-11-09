@@ -31,6 +31,12 @@
 
 #endif // HTTP_WITH_SSL
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+typedef std::chrono::seconds asio_timer_seconds;
+#else
+typedef boost::posix_time::seconds asio_timer_seconds;
+#endif
+
 namespace {
   std::string bindError(asio::ip::tcp::endpoint ep, 
 			boost::system::system_error e) {
@@ -122,7 +128,7 @@ Wt::WebController *Server::controller()
 void Server::start()
 {
   if (config_.parentPort() != -1) {
-    expireSessionsTimer_.expires_from_now(boost::posix_time::seconds(SESSION_EXPIRE_INTERVAL));
+    expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
     expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
 	  asio::placeholders::error));
   }
@@ -182,7 +188,7 @@ void Server::start()
     if (config_.hasSslPasswordCallback())
       ssl_context_.set_password_callback(config_.sslPasswordCallback());
 
-    int sslOptions = asio::ssl::context::default_workarounds
+    long sslOptions = asio::ssl::context::default_workarounds
       | asio::ssl::context::no_sslv2
       | asio::ssl::context::single_dh_use;
 
@@ -426,7 +432,7 @@ void Server::expireSessions(boost::system::error_code ec)
     if (!wt_.expireSessions())
       wt_.scheduleStop();
     else {
-      expireSessionsTimer_.expires_from_now(boost::posix_time::seconds(SESSION_EXPIRE_INTERVAL));
+      expireSessionsTimer_.expires_from_now(asio_timer_seconds(SESSION_EXPIRE_INTERVAL));
       expireSessionsTimer_.async_wait(boost::bind(&Server::expireSessions, this,
 						  asio::placeholders::error));
     }

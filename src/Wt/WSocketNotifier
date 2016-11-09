@@ -15,7 +15,7 @@ namespace Wt {
 /*! \class WSocketNotifier Wt/WSocketNotifier Wt/WSocketNotifier
  *  \brief A utility class for asynchronous notification of socket activity.
  *
- * Use a aocket notifier to integrate listening for socket events into
+ * Use a socket notifier to integrate listening for socket events into
  * the %Wt event loop. In this way, you do not need a separate thread
  * to listen for socket activity. Socket activity is either the
  * availability of data to be read (\link WSocketNotifier::Read Read

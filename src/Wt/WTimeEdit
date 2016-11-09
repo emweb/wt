@@ -82,6 +82,21 @@ public:
      */
     WTime top() const;
 
+    void setHourStep(int step);
+    int hourStep() const;
+
+    void setMinuteStep(int step);
+    int minuteStep() const;
+
+    void setSecondStep(int step);
+    int secondStep() const;
+
+    void setMillisecondStep(int step);
+    int millisecondStep() const;
+
+    void setWrapAroundEnabled(bool rollover);
+    bool wrapAroundEnabled() const;
+
     virtual void load();
 
 protected:

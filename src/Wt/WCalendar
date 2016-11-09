@@ -243,17 +243,20 @@ public:
     */
   Signal<WDate>& selected() { return activated_; }
   
-  /*! \brief Configures the calendar to use single click for activation (<b>deprecated</b>)
+  /*! \brief Configures the calendar to use single click for activation
    *
    * By default, double click will trigger activate(). Use this method
    * if you want a single click to trigger activate() (and the now
    * deprecated selected() method). This only applies to a
    * single-selection calendar.
    *
+   * If selectionMode() is set to \link Wt::SingleSelection SingleSelection\endlink,
+   * this will cause the selection to change on a single click instead of a double click.
+   *
    * Instead of enabling single click, you can also listen to the clicked()
    * signal to process a single click.
    *
-   * \sa setMultipleSelection()
+   * \sa setSelectionMode()
    */
   void setSingleClickSelect(bool single);
 

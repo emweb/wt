@@ -7,7 +7,7 @@
 # - PNG_PREFIX
 
 IF(NOT PNG_NAMES)
-  SET(PNG_NAMES png png12 png14)
+  SET(PNG_NAMES png libpng png12 libpng12 png14 libpng14)
 ENDIF(NOT PNG_NAMES)
 
 foreach(l ${PNG_NAMES})

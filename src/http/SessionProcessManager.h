@@ -15,6 +15,13 @@
 #include "SessionProcess.h"
 #include "Wt/WServer"
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#include <boost/asio/steady_timer.hpp>
+typedef boost::asio::steady_timer asio_timer;
+#else
+typedef boost::asio::deadline_timer asio_timer;
+#endif
+
 namespace http {
 namespace server {
 
@@ -51,7 +58,7 @@ private:
 #if !defined(WT_WIN32) && BOOST_VERSION >= 104700
   boost::asio::signal_set signals_;
 #else
-  boost::asio::deadline_timer timer_;
+  asio_timer timer_;
 #endif
 
   int numSessions_;

@@ -47,8 +47,6 @@ void BlogLoginWidget::createLoginView()
   WLineEdit *password = resolve<WLineEdit *>("password");
   password->setEmptyText("password");
   password->setToolTip("password");
-  password->enterPressed().connect(this,
-				   &BlogLoginWidget::attemptPasswordLogin);
 }
 
 void BlogLoginWidget::createLoggedInView()

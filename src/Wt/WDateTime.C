@@ -291,8 +291,8 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
                 return years > 1 ? tr("Wt.WDateTime.years").arg(years) :
                   tr("Wt.WDateTime.year");
               } else {
-                return years > 1 ? tr("Wt.WDateTime.years").arg(years) :
-                  tr("Wt.WDateTime.year");
+		return boost::lexical_cast<std::string>(years) + " year"
+		  + multiple(years, "s");
               }
 	    }
 	  }

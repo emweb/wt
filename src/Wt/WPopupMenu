@@ -221,6 +221,7 @@ public:
 protected:
   virtual void renderSelected(WMenuItem *item, bool selected);
   virtual void setCurrent(int index);
+  virtual void getSDomChanges(std::vector<DomElement *>& result, WApplication *app);
 
 private:
   WPopupMenu *topLevel_;
@@ -233,6 +234,7 @@ private:
   JSignal<> cancel_;
 
   bool recursiveEventLoop_;
+  bool willPopup_;
   int autoHideDelay_;
 
   void exec();

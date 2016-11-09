@@ -20,6 +20,7 @@
 #include "Wt/WCanvasPaintDevice"
 #include "Wt/WCircleArea"
 #include "Wt/WException"
+#include "Wt/WEnvironment"
 #include "Wt/WJavaScriptHandle"
 #include "Wt/WJavaScriptObjectStorage"
 #include "Wt/WMeasurePaintDevice"
@@ -1268,7 +1269,7 @@ void WCartesianChart::init()
   xTransform_ = WTransform();
   yTransform_ = WTransform();
 
-  if (WApplication::instance() != 0) {
+  if (WApplication::instance() != 0 && WApplication::instance()->environment().ajax()) {
     mouseWentDown().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDown(o, e);}}");
     mouseWentUp().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseUp(o, e);}}");
     mouseDragged().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDrag(o, e);}}");
@@ -3310,6 +3311,9 @@ void WCartesianChart::renderCurveLabels(WPainter &painter) const
     const CurveLabel &label = curveLabels_[i];
     for (std::size_t j = 0; j < series_.size(); ++j) {
       const WDataSeries &series = *series_[j];
+      // Don't draw curve labels for hidden series
+      if (series.isHidden())
+	continue;
       if (&series == &label.series()) {
 	WTransform t = zoomRangeTransform();
 	if (series.type() == LineSeries || series.type() == CurveSeries) {

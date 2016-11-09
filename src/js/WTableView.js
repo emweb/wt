@@ -217,7 +217,7 @@ WT_DECLARE_WT_MEMBER
 
    this.mouseUp = function(obj, event) {
      clearTimeout(startDrag);
-   }
+   };
 
    this.resizeHandleMDown = function(obj, event) {
      var header = obj.parentNode,
@@ -237,6 +237,29 @@ WT_DECLARE_WT_MEMBER
 		       function (delta) {
 			 resizeColumn(header, delta);
 		       }, obj, el, event, -2, -1);
+   };
+
+   var touchStartTimer;
+
+   this.touchStart = function(obj, event) {
+     if (event.touches.length > 1)
+       touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 1000);
+     else
+       touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 50);
+   };
+
+   function emitTouchStart(obj, event) {
+     APP.emit(el, { name: 'itemTouchEvent', eventObject: obj, event: event});
+   };
+
+   this.touchMove = function(obj, event) {
+     if (event.touches.length == 1 && touchStartTimer)
+       clearTimeout(touchStartTimer);
+   };
+
+   this.touchEnd = function(obj, event) {
+     if (touchStartTimer)
+       clearTimeout(touchStartTimer);
    };
 
    this.scrolled = function(X1, X2, Y1, Y2) {

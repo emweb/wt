@@ -93,6 +93,18 @@ public:
    */
   int value() const { return value_; }
 
+  /*! \brief Sets if this spinbox wraps around to stay in the valid range.
+   *
+   * \note Not supported by the native controls.
+   */
+  void setWrapAroundEnabled(bool enabled);
+
+  /*! \brief Returns if the spinbox wraps around
+   *
+   * \sa setWrapAroundEnabled()
+   */
+  bool wrapAroundEnabled() const;
+
   /*! \brief A %signal that indicates when the value has changed.
    *
    * This signal is emitted when setValue() is called.
@@ -100,6 +112,7 @@ public:
    * \sa setValue()
    */
   Signal<int>& valueChanged() { return valueChanged_; }
+
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
@@ -114,6 +127,7 @@ protected:
 
 private:
   int value_, min_, max_, step_;
+  bool wrapAroundEnabled_;
 
   Signal<int> valueChanged_;
 

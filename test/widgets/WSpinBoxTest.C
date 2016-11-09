@@ -22,5 +22,6 @@ BOOST_AUTO_TEST_CASE( spinbox_validate )
     sb->setValue(150);
     WValidator::State result = sb->validate();
     BOOST_REQUIRE(result == WValidator::Valid);
+    delete sb;
   }
 }

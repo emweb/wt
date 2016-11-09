@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/test/unit_test.hpp>
+#include <iostream>
 
 #include <Wt/WStandardItemModel>
 #include <Wt/WStandardItem>
@@ -204,7 +205,7 @@ BOOST_AUTO_TEST_CASE( batchedit_test1 )
 
   f.clearEvents();
 
-  pm->removeRow(2);
+  pm->removeRow(3);
   pm->removeRow(1);
 
   BOOST_REQUIRE(pm->rowCount() == 2);

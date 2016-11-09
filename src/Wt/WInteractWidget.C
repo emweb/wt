@@ -49,12 +49,16 @@ const char *WInteractWidget::GESTURE_END_SIGNAL = "gestureend";
 WInteractWidget::WInteractWidget(WContainerWidget *parent)
   : WWebWidget(parent),
     dragSlot_(0),
+    dragTouchSlot_(0),
+    dragTouchEndSlot_(0),
     mouseOverDelay_(0)
 { }
 
 WInteractWidget::~WInteractWidget()
 {
   delete dragSlot_;
+  delete dragTouchSlot_;
+  delete dragTouchEndSlot_;
 }
 
 void WInteractWidget::setPopup(bool popup)
@@ -365,6 +369,84 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
     element.setEvent("mousemove", actions);
   }
+  /*
+   * -- allow computation of dragged touch distance
+   */
+  EventSignal<WTouchEvent> *touchStart
+    = touchEventSignal(TOUCH_START_SIGNAL, false);
+  EventSignal<WTouchEvent> *touchEnd
+    = touchEventSignal(TOUCH_END_SIGNAL, false);
+  EventSignal<WTouchEvent> *touchMove
+    = touchEventSignal(TOUCH_MOVE_SIGNAL, false);
+
+  bool updateTouchMove
+    = (touchMove && touchMove->needsUpdate(all));
+
+  bool updateTouchStart
+    = (touchStart && touchStart->needsUpdate(all))
+    || updateTouchMove;
+
+  bool updateTouchEnd
+    = (touchEnd && touchEnd->needsUpdate(all))
+    || updateTouchMove;
+
+  if (updateTouchStart) {
+    /*
+     * when we have a touchStart event, we also need a touchEnd event
+     * to be able to compute dragDX/Y.
+     *
+     * When we have:
+     *  - a touchStart + (touchMove or touchEnd),
+     * we need to capture everything after on touch start, and keep track of the
+     * down button if we have a touchMove 
+     */
+    WStringStream js;
+
+    js << CheckDisabled;
+
+    if (touchEnd && touchEnd->isConnected())
+      js << app->javaScriptClass() << "._p_.saveDownPos(event);";
+
+    if ((touchStart && touchStart->isConnected()
+	    && ((touchEnd && touchEnd->isConnected())
+		|| (touchMove && touchMove->isConnected()))))
+      js << WT_CLASS ".capture(this);";
+
+    if (touchStart) {
+      js << touchStart->javaScript();
+      element.setEvent("touchstart", js.str(),
+		       touchStart->encodeCmd(), touchStart->isExposedSignal());
+      touchStart->updateOk();
+    } else
+      element.setEvent("touchstart", js.str(), std::string(), false);
+  }
+
+  if (updateTouchEnd) {
+    WStringStream js;
+
+    /*
+     * when we have a touchMove, we need to keep track
+     * of removing touch.
+     */
+    js << CheckDisabled;
+
+    if (touchEnd) {
+      js << touchEnd->javaScript();
+      element.setEvent("touchend", js.str(),
+		         touchEnd->encodeCmd(), touchEnd->isExposedSignal());
+      touchEnd->updateOk();
+    } else
+      element.setEvent("touchend", js.str(), std::string(), false);
+  }
+
+  if (updateTouchMove) {
+    
+    if (touchMove) {
+      element.setEvent("touchmove", touchMove->javaScript(),
+			touchMove->encodeCmd(), touchMove->isExposedSignal());
+      touchMove->updateOk();
+    }
+  }
 
   /*
    * -- mix mouseClick and mouseDblClick events in mouseclick since we
@@ -625,7 +707,22 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
 			     + "._p_.dragStart(o,e);" + "}");
   }
 
+  if (!dragTouchSlot_) {
+    dragTouchSlot_ = new JSlot();
+    dragTouchSlot_->setJavaScript("function(o,e){" + app->javaScriptClass()
+				+ "._p_.touchStart(o,e);" + "}");
+  }
+
+  if (!dragTouchEndSlot_) {
+    dragTouchEndSlot_ = new JSlot();
+    dragTouchEndSlot_->setJavaScript("function(){" + app->javaScriptClass()
+				+ "._p_.touchEnded();" + "}");
+  }
+
   mouseWentDown().connect(*dragSlot_);
+  touchStarted().connect(*dragTouchSlot_);
+  touchStarted().preventDefaultAction(true);
+  touchEnded().connect(*dragTouchEndSlot_);
 }
 
 void WInteractWidget::unsetDraggable()
@@ -634,6 +731,18 @@ void WInteractWidget::unsetDraggable()
     mouseWentDown().disconnect(*dragSlot_);
     delete dragSlot_;
     dragSlot_ = 0;
+  }
+
+  if (dragTouchSlot_) {
+    touchStarted().disconnect(*dragTouchSlot_);
+    delete dragTouchSlot_;
+    dragTouchSlot_ = 0;
+  }
+
+  if (dragTouchEndSlot_) {
+    touchEnded().disconnect(*dragTouchEndSlot_);
+    delete dragTouchEndSlot_;
+    dragTouchEndSlot_ = 0;
   }
 }
 

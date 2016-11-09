@@ -55,6 +55,7 @@ WTableView::WTableView(WContainerWidget *parent)
     plainTable_(0),
     dropEvent_(impl_, "dropEvent"),
     scrolled_(impl_, "scrolled"),
+    itemTouchEvent_(impl_, "itemTouchEvent"),
     firstColumn_(-1),
     lastColumn_(-1),
     viewportLeft_(0),
@@ -98,14 +99,14 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->clicked()
       .connect(boost::bind(&WTableView::handleSingleClick, this, false, _1));
     canvas_->clicked().connect("function(o, e) { "
-			       "$(document).trigger('click', e);"
+			       "$(document).trigger(e);"
 			       "}");
     canvas_->clicked().preventPropagation();
     canvas_->mouseWentDown()
       .connect(boost::bind(&WTableView::handleMouseWentDown, this, false, _1)); 
     canvas_->mouseWentDown().preventPropagation();
     canvas_->mouseWentDown().connect("function(o, e) { "
-				     "$(document).trigger('mousedown', e);"
+				     "$(document).trigger(e);"
 				     "}");
     canvas_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleMouseWentUp, this, false, _1)); 
@@ -748,6 +749,9 @@ void WTableView::defineJavaScript()
   if (!scrolled_.isConnected())
     scrolled_.connect(this, &WTableView::onViewportChange);
 
+  if (!itemTouchEvent_.isConnected())
+    itemTouchEvent_.connect(this, &WTableView::handleTouchStarted);
+
   if (!columnResizeConnected_) {
     columnResized().connect(this, &WTableView::onColumnResize);
     columnResizeConnected_ = true;
@@ -772,6 +776,16 @@ void WTableView::defineJavaScript()
   
     connectObjJS(canvas_->mouseWentDown(), "mouseDown");
     connectObjJS(canvas_->mouseWentUp(), "mouseUp");
+
+#ifdef WT_CNOR
+    // workaround because cnor is a bit dumb and does not understand that it
+    // can convert EventSignal<TouchEvent>& to EventSignalBase&
+    EventSignalBase& a = canvas_->touchStarted();
+#endif
+
+    connectObjJS(canvas_->touchStarted(), "touchStart");
+    connectObjJS(canvas_->touchMoved(), "touchMove");
+    connectObjJS(canvas_->touchEnded(), "touchEnd");
 
     /* Two-lines needed for WT_PORT */
     EventSignalBase& ccScrolled = contentsContainer_->scrolled();
@@ -1204,11 +1218,6 @@ WWidget* WTableView::headerWidget(int column, bool contentsOnly)
     return result->find("contents");
   else
     return result;
-}
-
-void WTableView::setColumnBorder(const WColor& color)
-{
-  // FIXME
 }
 
 void WTableView::shiftModelIndexRows(int start, int count)
@@ -1650,6 +1659,12 @@ void WTableView::handleMouseWentUp(bool headerColumns, const WMouseEvent& event)
   handleMouseUp(index, event);
 }
 
+void WTableView::handleTouchStarted(const WTouchEvent& event)
+{
+  WModelIndex index = translateModelIndex(event.changedTouches()[0]);
+  handleTouchStart(index, event);
+}
+
 void WTableView::handleRootSingleClick(int u, const WMouseEvent& event)
 {
   handleClick(WModelIndex(), event);
@@ -1723,6 +1738,29 @@ WModelIndex WTableView::translateModelIndex(bool headerColumns,
 	column = i;
 	break;
       }
+    }
+  }
+
+  if (column >= 0 && row >= 0 && row < model()->rowCount(rootIndex()))
+    return model()->index(row, column, rootIndex());
+  else
+    return WModelIndex();
+}
+
+WModelIndex WTableView::translateModelIndex(const Touch& touch)
+{
+  int row = (int)(touch.widget().y / rowHeight().toPixels());
+  int column = -1;
+
+  int total = 0;
+
+  for (int i = rowHeaderCount(); i < columnCount(); i++) {
+    if (!columnInfo(i).hidden)
+      total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+
+    if (touch.widget().x < total) {
+      column = i;
+      break;
     }
   }
 

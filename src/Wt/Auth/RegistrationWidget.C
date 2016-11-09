@@ -116,6 +116,8 @@ void RegistrationWidget::update()
 
     if (password && password2 && password2Info)
       model_->validatePasswordsMatchJS(password, password2, password2Info);
+    else
+      bindEmpty("password-description");
   }
 
   WAnchor *isYou = resolve<WAnchor *>("confirm-is-you");

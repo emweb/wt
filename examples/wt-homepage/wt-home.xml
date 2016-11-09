@@ -172,8 +172,8 @@ WebGL and server-side OpenGL).</li>
 href="//www.webtoolkit.eu/widgets/media/pdf-output">HTML
 to PDF renderer</a> for dynamic report generation.</li>
 <li>Elegant template-based C++ Database abstraction layer (Wt::Dbo)</li>
-<li>Built-in security against common vulnerabiliets such as <a
-href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS(Cross-Site-Scripting)</a> or <a
+<li>Built-in security against common vulnerabilities such as <a
+href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS (Cross-Site Scripting)</a> or <a
 href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
 (Cross-Site Request Forgery)</a></li>
 </ul>
@@ -1205,7 +1205,7 @@ The Wt project is hosted at sourceforge <a href="http://sourceforge.net/projects
 
 <h3><span>!C++ ?</span></h3>
 
-<p>You like the library functionality, but do not grock C++ for your
+<p>You like the library functionality, but do not grok C++ for your
 project?</p>
 
 <p>Do not despair. Wt exists in a native variant or through bindings

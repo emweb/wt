@@ -46,7 +46,7 @@ class Time;
  *
  * A WTimer is only usable inside of a %Wt event loop.
  * \if cpp
- * If you want to create a timer outside the %Wt event loop, take a look at asio deadline_timer.
+ * If you want to create a timer outside the %Wt event loop, take a look at asio deadline_timer or steady_timer.
  * \else
  * If you want to create a timer outside the %Wt event loop, take a look at {javadoclink java.util.Timer}.
  * \endif

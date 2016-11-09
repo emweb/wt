@@ -387,7 +387,7 @@ public:
   operator std::wstring() const;
 #endif
 
-  /*! \brief Retuns whether the string is literal or localized.
+  /*! \brief Returns whether the string is literal or localized.
    *
    * \sa tr()
    */
@@ -554,13 +554,13 @@ private:
 
 #ifndef WT_CNOR
 
-/* \brief Short hand for WString(const char * value, UTF8)
+/*! \brief Short hand for WString(const char * value, UTF8)
  *
  * \relates WString
  */
 extern WString utf8(const char *value);
 
-/* \brief Short hand for WString(const std::string& value, UTF8)
+/*! \brief Short hand for WString(const std::string& value, UTF8)
  *
  * \relates WString
  */

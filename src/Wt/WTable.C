@@ -111,8 +111,8 @@ WTableRow* WTable::insertRow(int row, WTableRow *tableRow)
   if (!tableRow)
     tableRow = createRow(row);
   tableRow->table_ = this;
-  tableRow->expand(columnCount());
   rows_.insert(rows_.begin() + row, tableRow);
+  tableRow->expand(columnCount());
   repaint(RepaintSizeAffected);
 
   return tableRow;

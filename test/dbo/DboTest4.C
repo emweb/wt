@@ -157,6 +157,7 @@ BOOST_AUTO_TEST_CASE( dbo4_test1 )
     Door *d = new Door;
     session.add(d);
     Person *p = new Person;
+    p->name = 13;
     session.add(p);
     transaction.commit();
   }

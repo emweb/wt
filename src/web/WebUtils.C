@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fstream>
+#include <iomanip>
 
 #ifdef WT_WIN32
 #include <windows.h>
@@ -254,10 +255,19 @@ static inline char *generic_double_to_str(double d, int precision, char *buf)
   using namespace boost::spirit::karma;
   char *p = buf;
   if (d != 0) {
-    if (precision <= 7)
-      generate(p, KarmaJavaScriptReal(), d);
-    else
-      generate(p, KarmaJavaScriptDouble(), d);
+      if (fabs(d) < DBL_MIN) {
+        std::stringstream ss;
+        ss.imbue(std::locale("C"));
+        ss << std::setprecision(precision) << d;
+        std::string str = ss.str();
+        memcpy(p, str.c_str(), str.length());
+        p += str.length();
+      } else {
+        if (precision <= 7)
+          generate(p, KarmaJavaScriptReal(), d);
+        else
+          generate(p, KarmaJavaScriptDouble(), d);
+      }
   }  else
     *p++ = '0';
   *p = '\0';

@@ -24,7 +24,7 @@
     </fieldset>
 
     <p>
-      Alternative to consider are a <a
+      Alternatives to consider are a <a
       href="#/layout/html-templates">WTemplate</a>, which puts widgets
       inside an HTML fragment using placeholder substitution, or a <a
       href="#/trees-tables/table">WTable</a> for organizing children
@@ -1174,7 +1174,7 @@
       </div>
 
       <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:first-name}">
+        <label class="control-label col-sm-2"  for="${id:last-name}">
           Last name
         </label>
         <div class="col-sm-5">
@@ -1186,7 +1186,7 @@
       </div>
 
       <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:first-name}">
+        <label class="control-label col-sm-2"  for="${id:country}">
           Country
         </label>
         <div class="col-sm-5">
@@ -1198,7 +1198,7 @@
       </div>
 
       <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:first-name}">
+        <label class="control-label col-sm-2"  for="${id:city}">
           City
         </label>
         <div class="col-sm-5">
@@ -1210,7 +1210,7 @@
       </div>
 
       <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:first-name}">
+        <label class="control-label col-sm-2"  for="${id:birth}">
           Birth date
         </label>
         <div class="col-sm-5">
@@ -1222,7 +1222,7 @@
       </div>
 
       <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:first-name}">
+        <label class="control-label col-sm-2"  for="${id:children}">
           Children
         </label>
         <div class="col-sm-5">
@@ -1234,7 +1234,7 @@
       </div>
 
       <div class="form-group">
-        <label class="control-label col-sm-2"  for="${id:first-name}">
+        <label class="control-label col-sm-2"  for="${id:remarks}">
           Remarks
         </label>
         <div class="col-sm-5">
@@ -1922,8 +1922,7 @@
       use browser support for easy date entry.
     </p>
     <p>
-      By default the selected date is shown in the format "dd/MM/yyyy" as in
-      the first example. In the second example the format is set to
+      By default the selected date is shown in the format defined by your WLocale settings as in the first example. In the second example the format is set to
       "dd MM yyyy".
     </p>
 

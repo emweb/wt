@@ -92,7 +92,6 @@ public:
 #ifndef WT_CNOR
   using WAbstractItemView::setHeaderHeight;
 #endif
-  virtual void setColumnBorder(const WColor& color);
   virtual void resize(const WLength& width, const WLength& height);
   virtual void setColumnHidden(int column, bool hidden);
   virtual void setRowHeaderCount(int count);
@@ -158,6 +157,7 @@ private:
 
   JSignal<int, int, std::string, std::string, WMouseEvent> dropEvent_;
   JSignal<int, int, int, int> scrolled_;
+  JSignal<WTouchEvent> itemTouchEvent_;
 
   /* Ajax only: First and last columns rendered (this somewhat
    * redundant with the state contained in the widgets, but because
@@ -225,7 +225,9 @@ private:
   void handleDblClick(bool headerColumns, const WMouseEvent& event);
   void handleMouseWentDown(bool headerColumns, const WMouseEvent& event);
   void handleMouseWentUp(bool headerColumns, const WMouseEvent& event);
+  void handleTouchStarted(const WTouchEvent& event);
   WModelIndex translateModelIndex(bool headerColumns, const WMouseEvent& event);
+  WModelIndex translateModelIndex(const Touch& touch);
 
   void handleRootSingleClick(int u, const WMouseEvent& event);
   void handleRootDoubleClick(int u, const WMouseEvent& event);

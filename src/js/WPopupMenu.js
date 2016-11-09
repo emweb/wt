@@ -159,8 +159,10 @@ WT_DECLARE_WT_MEMBER
 
    function onDocumentClick(event) {
      /* Only if we've recorded a mousedown ? This is not needed actually? */ 
-     if (haveMouseDown && stillExist())
+     if (haveMouseDown && stillExist()) {
+       haveMouseDown = false;
        doHide();
+     }
    }
 
    function onDocumentKeyDown(event) {
@@ -169,6 +171,9 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.setHidden = function(hidden) {
+     if (!hidden)
+       haveMouseDown = false; // cancel pending hide
+
      if (hideTimeout) {
        clearTimeout(hideTimeout);
        hideTimeout = null;

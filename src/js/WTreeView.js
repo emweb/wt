@@ -91,6 +91,33 @@ WT_DECLARE_WT_MEMBER
 		item.nodeId + ':' + item.columnId, 'mouseup', '', '');
      }
    };
+  
+   var touchStartTimer;
+
+   this.touchStart = function(obj, event) {
+     if (event.touches.length > 1)
+	touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 1000);
+     else
+	touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 50);
+   };
+
+   function emitTouchStart(obj, event) {
+     var item = getItem(event);
+     if (item.columnId != -1) {
+       APP.emit(el, { name: 'itemTouchEvent', eventObject: obj, event: event},
+		item.nodeId + ':' + item.columnId, 'touchstart', '', '');
+     }
+   };
+
+   this.touchMove = function(obj, event) {
+     if (event.touches.length == 1 && touchStartTimer)
+       clearTimeout(touchStartTimer);
+   };
+
+   this.touchEnd = function(obj, event) {
+     if (touchStartTimer)
+       clearTimeout(touchStartTimer);
+   };
 
    this.rootClick = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },

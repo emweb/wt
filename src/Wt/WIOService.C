@@ -20,6 +20,14 @@
 #endif // !_WIN32
 #endif // WT_THREADED
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+typedef boost::asio::steady_timer asio_timer;
+typedef std::chrono::milliseconds asio_timer_milliseconds;
+#else
+typedef boost::asio::deadline_timer asio_timer;
+typedef boost::posix_time::milliseconds asio_timer_milliseconds;
+#endif
+
 namespace Wt {
 
 LOGGER("WIOService");
@@ -128,15 +136,15 @@ void WIOService::schedule(int millis, const boost::function<void()>& function)
   if (millis == 0)
     strand_.post(function); // guarantees execution order
   else {
-    boost::asio::deadline_timer *timer = new boost::asio::deadline_timer(*this);
-    timer->expires_from_now(boost::posix_time::milliseconds(millis));
+    asio_timer *timer = new asio_timer(*this);
+    timer->expires_from_now(asio_timer_milliseconds(millis));
     timer->async_wait
       (boost::bind(&WIOService::handleTimeout, this, timer, function,
 		   boost::asio::placeholders::error));
   }
 }
 
-void WIOService::handleTimeout(boost::asio::deadline_timer *timer,
+void WIOService::handleTimeout(asio_timer *timer,
 			       const boost::function<void ()>& function,
 			       const boost::system::error_code& e)
 {

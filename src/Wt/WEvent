@@ -415,6 +415,11 @@ public:
   WDropEvent(WObject *source, const std::string& mimeType,
 	     const WMouseEvent& mouseEvent);
 
+  /*! \brief Constructor.
+   */
+  WDropEvent(WObject *source, const std::string& mimeType,
+	     const WTouchEvent& touchEvent);
+
   /*! \brief Returns the source of the drag&drop operation.
    *
    * The source is the widget that was set draggable using
@@ -430,10 +435,15 @@ public:
    */
   const WMouseEvent& mouseEvent() const { return mouseEvent_; }
 
+  /*! \brief Returns the original touch event.
+   */
+  const WTouchEvent& touchEvent() const { return touchEvent_; }
+
 private:
   WObject            *dropSource_;
   std::string         dropMimeType_;
   const WMouseEvent&  mouseEvent_;
+  const WTouchEvent&  touchEvent_;
 };
 
 /*! \class WScrollEvent Wt/WEvent Wt/WEvent

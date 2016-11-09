@@ -33,7 +33,7 @@ enum LabelOption {
   TextPercentage = 0x20  //!< Display the value (as percentage)
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption);
+W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption)
 
 /*! \class WPieChart Wt/Chart/WPieChart Wt/Chart/WPieChart
  *  \brief A pie chart.

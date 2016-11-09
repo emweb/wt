@@ -9,6 +9,7 @@
 #include "WSpinBox"
 #include "WTimeValidator"
 #include "WTimeEdit"
+#include "WJavaScriptSlot"
 
 namespace Wt {
 
@@ -16,25 +17,29 @@ LOGGER("WTimePicker");
 
 WTimePicker::WTimePicker(WContainerWidget *parent)
     : WCompositeWidget(parent),
-      selectionChanged_(this)
+      selectionChanged_(this),
+      toggleAmPm_(2, this)
 {
     init();
 }
 
 WTimePicker::WTimePicker(const WTime &time, WContainerWidget *parent)
-    : WCompositeWidget(parent)
+    : WCompositeWidget(parent),
+      toggleAmPm_(2, this)
 {
     init(time);
 }
 
 WTimePicker::WTimePicker(WTimeEdit *timeEdit, WContainerWidget *parent)
-    : WCompositeWidget(parent), timeEdit_(timeEdit)
+    : WCompositeWidget(parent), timeEdit_(timeEdit),
+      toggleAmPm_(2, this)
 {
     init();
 }
 
 WTimePicker::WTimePicker(const WTime &time, WTimeEdit *timeEdit, WContainerWidget *parent)
-    : WCompositeWidget(parent), timeEdit_(timeEdit)
+    : WCompositeWidget(parent), timeEdit_(timeEdit),
+      toggleAmPm_(2, this)
 {
     init(time);
 }
@@ -130,7 +135,13 @@ void WTimePicker::configure()
     WTemplate *container = dynamic_cast<WTemplate *>(implementation());
     container->bindWidget("hour", sbhour_);
     container->bindWidget("minute", sbminute_);
-    container->bindWidget("second", sbsecond_);
+
+    if (formatS())
+      container->bindWidget("second", sbsecond_);
+    else {
+      container->takeWidget("second");
+      container->bindEmpty("second");
+    }
 
     if (formatMs())
       container->bindWidget("millisecond", sbmillisecond_);
@@ -179,33 +190,67 @@ void WTimePicker::createWidgets()
     cbAP_->addItem("AM");
     cbAP_->addItem("PM");
     cbAP_->changed().connect(this, &WTimePicker::ampmValueChanged);
+
+    WStringStream jsValueChanged;
+
+    jsValueChanged << "function(o,e,oldv,v){"
+                   << "var obj = " << cbAP_->jsRef() << ";"
+                   << "if(obj){"
+                   << "if (v==12 && oldv==11) {"
+                   << "obj.selectedIndex = (obj.selectedIndex + 1) % 2;"
+                   << "}"
+                   << "if (v==11 && oldv==12) {"
+                   << "obj.selectedIndex = (obj.selectedIndex + 1) % 2;"
+                   << "}"
+                   << "}"
+                   <<"}";
+
+    toggleAmPm_.setJavaScript(jsValueChanged.str());
+}
+
+void WTimePicker::setWrapAroundEnabled(bool enabled)
+{
+  sbhour_->setWrapAroundEnabled(enabled);
+  sbminute_->setWrapAroundEnabled(enabled);
+  sbsecond_->setWrapAroundEnabled(enabled);
+  sbmillisecond_->setWrapAroundEnabled(enabled);
+  if (enabled) {
+    sbhour_->jsValueChanged().connect(toggleAmPm_);
+  } else {
+    sbhour_->jsValueChanged().disconnect(toggleAmPm_);
+  }
+}
+
+bool WTimePicker::wrapAroundEnabled() const
+{
+  return sbhour_->wrapAroundEnabled();
 }
 
 void WTimePicker::hourValueChanged()
 {
-    if (sbhour_->validate() == Wt::WValidator::Valid)
-      selectionChanged_.emit();
+  if (sbhour_->validate() == Wt::WValidator::Valid)
+    selectionChanged_.emit();
 }
 
 void WTimePicker::minuteValueChanged()
 {
-    if (sbminute_->validate() == Wt::WValidator::Valid){
-        selectionChanged_.emit();
-    }
+  if (sbminute_->validate() == Wt::WValidator::Valid) {
+    selectionChanged_.emit();
+  }
 }
 
 void WTimePicker::secondValueChanged()
 {
-    if (sbsecond_->validate() == Wt::WValidator::Valid){
-        selectionChanged_.emit();
-    }
+  if (sbsecond_->validate() == Wt::WValidator::Valid) {
+    selectionChanged_.emit();
+  }
 }
 
 void WTimePicker::msecValueChanged()
 {
-    if (sbmillisecond_->validate() == Wt::WValidator::Valid){
-        selectionChanged_.emit();
-    }
+  if (sbmillisecond_->validate() == Wt::WValidator::Valid) {
+    selectionChanged_.emit();
+  }
 }
 
 void WTimePicker::ampmValueChanged()
@@ -227,5 +272,54 @@ bool WTimePicker::formatMs() const
     return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
 			     format).msec() == 123;
 }
+
+bool WTimePicker::formatS() const
+{
+    WT_USTRING format = timeEdit_->format();
+
+    return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
+			     format).second() == 6;
+}
+
+void WTimePicker::setHourStep(int step)
+{
+  sbhour_->setSingleStep(step);
+}
+
+int WTimePicker::hourStep() const
+{
+  return sbhour_->singleStep();
+}
+
+void WTimePicker::setMinuteStep(int step)
+{
+  sbminute_->setSingleStep(step);
+}
+
+int WTimePicker::minuteStep() const
+{
+  return sbminute_->singleStep();
+}
+
+void WTimePicker::setSecondStep(int step)
+{
+  sbsecond_->setSingleStep(step);
+}
+
+int WTimePicker::secondStep() const
+{
+  return sbsecond_->singleStep();
+}
+
+void WTimePicker::setMillisecondStep(int step)
+{
+  sbmillisecond_->setSingleStep(step);
+}
+
+int WTimePicker::millisecondStep() const
+{
+  return sbmillisecond_->singleStep();
+}
+
 
 } // end namespace Wt

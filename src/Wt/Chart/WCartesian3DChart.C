@@ -85,6 +85,7 @@ WCartesian3DChart::WCartesian3DChart(WContainerWidget* parent)
 
 WCartesian3DChart::WCartesian3DChart(ChartType type, WContainerWidget *parent)
   : WGLWidget(parent),
+    isViewSet_(false),
     chartType_(type),
     background_(white),
     chartPalette_(new WStandardPalette(WStandardPalette::Muted)),

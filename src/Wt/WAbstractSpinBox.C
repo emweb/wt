@@ -52,7 +52,8 @@ WAbstractSpinBox::WAbstractSpinBox(WContainerWidget *parent)
     changed_(false),
     valueChangedConnection_(false),
     preferNative_(false),
-    setup_(false)
+    setup_(false),
+    jsValueChanged_(this, "spinboxValueChanged", true)
 { }
 
 void WAbstractSpinBox::setNativeControl(bool nativeControl)
@@ -107,6 +108,18 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
     setup();
   }
 
+  if (jsValueChanged().needsUpdate(true)) {
+    WStringStream function;
+    function << "jQuery.data(" + jsRef() + ",'obj').jsValueChanged=";
+    if (jsValueChanged().isConnected()) {
+      function << "function(oldv, v){"
+               << "var o=null;var e=null;" << jsValueChanged().createCall("oldv", "v") << "};";
+    } else {
+      function << "function() {};";
+    }
+    doJavaScript(function.str());
+  }
+
   WLineEdit::render(flags);
 }
 
@@ -128,16 +141,19 @@ void WAbstractSpinBox::defineJavaScript()
 
   LOAD_JAVASCRIPT(app, "js/WSpinBox.js", "WSpinBox", wtjs1);
 
-  std::string jsObj = "new " WT_CLASS ".WSpinBox("
-    + app->javaScriptClass() + "," + jsRef() + ","
-    + boost::lexical_cast<std::string>(decimals()) + ","
-    + prefix().jsStringLiteral() + ","
-    + suffix().jsStringLiteral() + ","
-    + jsMinMaxStep() + ","
-    + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
-    + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");";
+  WStringStream ss;
 
-  setJavaScriptMember(" WSpinBox", jsObj);
+
+  ss << "new " WT_CLASS ".WSpinBox("
+    << app->javaScriptClass() << "," << jsRef() << "," << decimals() << ","
+    << prefix().jsStringLiteral() << ","
+    << suffix().jsStringLiteral() << ","
+    << jsMinMaxStep() << ","
+    << jsStringLiteral(WLocale::currentLocale().decimalPoint()) << ","
+    << jsStringLiteral(WLocale::currentLocale().groupSeparator())
+    << ");";
+
+  setJavaScriptMember(" WSpinBox", ss.str());
 }
 
 void WAbstractSpinBox::setText(const WT_USTRING& text)
@@ -164,7 +180,7 @@ void WAbstractSpinBox::updateDom(DomElement& element, bool all)
 		     + boost::lexical_cast<std::string>(decimals()) + ","
 		     + prefix().jsStringLiteral() + ","
 		     + suffix().jsStringLiteral() + ","
-		     + jsMinMaxStep()+ ");");
+		     + jsMinMaxStep() + ");");
       else
 	setValidator(createValidator());
     }
@@ -263,6 +279,5 @@ bool WAbstractSpinBox::parseValue(const WT_USTRING& text)
 
   return valid;
 }
-
 
 }

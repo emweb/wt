@@ -518,7 +518,7 @@ protected:
   virtual void render(WFlags<RenderFlag> flags);
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WSuggestionPopup::PopupTrigger);
+W_DECLARE_OPERATORS_FOR_FLAGS(WSuggestionPopup::PopupTrigger)
 
 }
 

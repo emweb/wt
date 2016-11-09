@@ -504,6 +504,8 @@ private:
     // drag source id, drag mime type
     JSignal<std::string, std::string, WMouseEvent,
 	    struct NoClass, struct NoClass, struct NoClass> *dropSignal_;
+    JSignal<std::string, std::string, WTouchEvent,
+	    struct NoClass, struct NoClass, struct NoClass> *dropSignal2_;
 
     typedef std::map<std::string, DropMimeType>   MimeTypesMap;
     MimeTypesMap                                 *acceptedDropMimeTypes_;

@@ -352,6 +352,8 @@ protected:
   void updateEventSignals(DomElement& element, bool all);
 
   JSlot *dragSlot_;
+  JSlot *dragTouchSlot_;
+  JSlot *dragTouchEndSlot_;
 
 protected:
   // also used in WAbstractToggleButton

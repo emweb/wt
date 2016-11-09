@@ -308,7 +308,16 @@ WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
 		       const WMouseEvent& mouseEvent)
   : dropSource_(source),
     dropMimeType_(mimeType),
-    mouseEvent_(mouseEvent)
+    mouseEvent_(mouseEvent),
+    touchEvent_(WTouchEvent())
+{ }
+
+WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
+		       const WTouchEvent& touchEvent)
+  : dropSource_(source),
+    dropMimeType_(mimeType),
+    mouseEvent_(WMouseEvent()),
+    touchEvent_(touchEvent)
 { }
 
 WScrollEvent::WScrollEvent()

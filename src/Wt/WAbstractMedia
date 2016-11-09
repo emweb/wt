@@ -252,7 +252,7 @@ private:
   void loadJavaScript();
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractMedia::Options);
+W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractMedia::Options)
 
 }
 

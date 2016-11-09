@@ -66,10 +66,10 @@ namespace {
 
   void WColorToPixelPacket(const Wt::WColor& color, PixelPacket *pp)
   {
-    pp->red = static_cast<unsigned char>(color.red());
-    pp->green = static_cast<unsigned char>(color.green());
-    pp->blue = static_cast<unsigned char>(color.blue());
-    pp->opacity = 255 - static_cast<unsigned char>(color.alpha());
+    pp->red = ScaleCharToQuantum(color.red());
+    pp->green = ScaleCharToQuantum(color.green());
+    pp->blue = ScaleCharToQuantum(color.blue());
+    pp->opacity = ScaleCharToQuantum(255 - color.alpha());
   }
 
   bool isTranslation(const Wt::WTransform& t) 
@@ -970,7 +970,7 @@ void WRasterImage::drawText(const WRectF& rect,
 	unsigned char bit = bitmap.value(x, y);
 
 	if (bit > 0) {
-	  double alpha = (255 - bit) * (255.0 - pc.opacity) / 255.0;
+	  double alpha = ScaleCharToQuantum(255 - bit) * (MaxRGBDouble - pc.opacity) / MaxRGBDouble;
 	  AlphaCompositePixel(pixel, &pc, alpha,
 			      pixel, pixel->opacity);
 	}

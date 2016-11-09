@@ -330,6 +330,7 @@ void WWidget::acceptDrops(const std::string& mimeType,
 
   if (thisWebWidget->setAcceptDropsImpl(mimeType, true, hoverStyleClass)) {
     thisWebWidget->otherImpl_->dropSignal_->connect(this, &WWidget::getDrop);
+    thisWebWidget->otherImpl_->dropSignal2_->connect(this, &WWidget::getDropTouch);
   }
 }
 
@@ -346,6 +347,15 @@ void WWidget::getDrop(const std::string sourceId, const std::string mimeType,
   WDropEvent e(WApplication::instance()->decodeObject(sourceId), mimeType,
 	       event);
 
+  dropEvent(e);
+}
+
+void WWidget::getDropTouch(const std::string sourceId, const std::string mimeType,
+		      WTouchEvent event)
+{
+  WDropEvent e(WApplication::instance()->decodeObject(sourceId), mimeType,
+	       event);
+ 
   dropEvent(e);
 }
 

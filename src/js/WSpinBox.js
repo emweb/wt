@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WSpinBox",
  function(APP, edit, precision, prefix, suffix, minValue, maxValue,
-	  stepValue, decimalPoint, groupSeparator) {
+      stepValue, decimalPoint, groupSeparator) {
    /** @const */ var TYPE_INTEGER = 0;
    /** @const */ var TYPE_FLOAT = 1;
 
@@ -26,12 +26,14 @@ WT_DECLARE_WT_MEMBER
    var self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = 'crosshair',
      $edit = $(edit);
 
+
    var dragStartXY = null, dragStartValue, changed = false;
    var validator = null;
    var isDoubleSpinBox = false;
+   var wrapAround = false;
 
    function isReadOnly() {
-	 return edit.readOnly;
+     return edit.readOnly;
    }
 
    function addGrouping(input) {
@@ -48,7 +50,7 @@ WT_DECLARE_WT_MEMBER
      if (lineEdit !== undefined) {
        v = lineEdit.getValue();
        if (v === "") {
-	 v = prefix + "0" + suffix;
+     v = prefix + "0" + suffix;
        }
      } else {
        v = edit.value;
@@ -56,13 +58,13 @@ WT_DECLARE_WT_MEMBER
      if (v.substr(0, prefix.length) == prefix) {
        v = v.substr(prefix.length);
        if (v.length > suffix.length
-	   && v.substr(v.length - suffix.length, suffix.length) == suffix) {
-	 v = v.substr(0, v.length - suffix.length);
-	 if (groupSeparator) {
-	   v = v.split(groupSeparator).join("");
-	 }
-	 v = v.replace(decimalPoint, ".");
-	 return Number(v);
+       && v.substr(v.length - suffix.length, suffix.length) == suffix) {
+     v = v.substr(0, v.length - suffix.length);
+     if (groupSeparator) {
+       v = v.split(groupSeparator).join("");
+     }
+     v = v.replace(decimalPoint, ".");
+     return Number(v);
        }
      }
 
@@ -72,26 +74,38 @@ WT_DECLARE_WT_MEMBER
    function setValue(v) {
      var lineEdit = $edit.data("lobj");
      if (v > maxValue)
-       v = maxValue;
+       if (wrapAround) {
+     range = maxValue - minValue ;
+     v = minValue + ( (v-minValue) % (range+1) );
+       } else {
+     v = maxValue;
+       }
      else if (v < minValue)
-       v = minValue;
-    
+       if (wrapAround) {
+     range = maxValue - minValue;
+     v = maxValue - ( (Math.abs(v-minValue)-1) % (range+1) )
+       } else {
+     v = minValue;
+       }
+
+
      var newValue = v.toFixed(precision);
      newValue = newValue.replace(".", decimalPoint);
      var dotPos = newValue.indexOf(decimalPoint);
      var result = "";
      if (dotPos !== -1) {
        for (var i = 0; i < dotPos; i++) {
-	 result += newValue.charAt(i);
-	 if (i < dotPos - 1 && ((dotPos - i - 1) % 3 === 0)) {
-	   result += groupSeparator;
-	 }
+     result += newValue.charAt(i);
+     if (i < dotPos - 1 && ((dotPos - i - 1) % 3 === 0)) {
+       result += groupSeparator;
+     }
        }
        result += newValue.substr(dotPos);
      } else {
        result = newValue;
      }
 
+     var oldv = edit.value;
      if (lineEdit !== undefined) {
        lineEdit.setValue(prefix + result + suffix);
      } else {
@@ -99,6 +113,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      changed = true;
+     self.jsValueChanged(oldv, v);
    }
 
    function inc() {
@@ -123,8 +138,12 @@ WT_DECLARE_WT_MEMBER
      this.configure(precision, prefix, suffix, minValue, maxValue, stepValue);
    };
 
+   this.setWrapAroundEnabled = function(enabled) {
+     wrapAround = enabled;
+   };
+
    this.configure = function(newPrecision, newPrefix, newSuffix,
-			     newMinValue, newMaxValue, newStepValue) {
+                 newMinValue, newMaxValue, newStepValue) {
      precision = newPrecision;
      prefix = newPrefix;
      suffix = newSuffix;
@@ -132,14 +151,14 @@ WT_DECLARE_WT_MEMBER
      maxValue = newMaxValue;
      stepValue = newStepValue;
 
-     var Validator = (isDoubleSpinBox || 
-		      typeof WT.WIntValidator === 'undefined') ? 
+     var Validator = (isDoubleSpinBox ||
+              typeof WT.WIntValidator === 'undefined') ?
        WT.WDoubleValidator : WT.WIntValidator;
 
      validator = new Validator(true, minValue, maxValue,
-			       NaNError, NaNError,
-			       tooSmallError + minValue,
-			       tooLargeError + maxValue);
+                   NaNError, NaNError,
+                   tooSmallError + minValue,
+                   tooLargeError + maxValue);
    };
 
    this.mouseOut = function(o, event) {
@@ -154,29 +173,29 @@ WT_DECLARE_WT_MEMBER
        var xy = WT.widgetCoordinates(edit, event);
 
        if ($edit.hasClass(CLASS_DOWN) || $edit.hasClass(CLASS_UP))
-	 $edit.removeClass(CLASS_DOWN).removeClass(CLASS_UP);
+     $edit.removeClass(CLASS_DOWN).removeClass(CLASS_UP);
 
        if (xy.x > edit.offsetWidth - 16) {
-	 var mid = edit.offsetHeight/2;
-	 if (xy.y >= mid - 1 && xy.y <= mid + 1)
-	   edit.style.cursor = CH;
-	 else {
-	   edit.style.cursor = 'default';
-	   if (xy.y < mid - 1)
-	     $edit.addClass(CLASS_UP);
-	   else
-	     $edit.addClass(CLASS_DOWN);
-	 }
+     var mid = edit.offsetHeight/2;
+     if (xy.y >= mid - 1 && xy.y <= mid + 1)
+       edit.style.cursor = CH;
+     else {
+       edit.style.cursor = 'default';
+       if (xy.y < mid - 1)
+         $edit.addClass(CLASS_UP);
+       else
+         $edit.addClass(CLASS_DOWN);
+     }
        } else
-	 if (edit.style.cursor != '')
-	   edit.style.cursor = '';
+     if (edit.style.cursor != '')
+       edit.style.cursor = '';
      } else {
        var dy = WT.pageCoordinates(event).y - dragStartXY.y;
 
        var v = dragStartValue;
        if (v !== null) {
-	 v = v - dy*stepValue;
-	 setValue(v);
+     v = v - dy*stepValue;
+     setValue(v);
        }
      }
    };
@@ -196,16 +215,16 @@ WT_DECLARE_WT_MEMBER
      } else {
        var xy = WT.widgetCoordinates(edit, event);
        if (xy.x > edit.offsetWidth - 16) {
-	 // suppress selection, focus
-	 WT.cancelEvent(event);
-	 WT.capture(edit);
-	 $edit.addClass(CLASS_UNSELECTABLE);
+     // suppress selection, focus
+     WT.cancelEvent(event);
+     WT.capture(edit);
+     $edit.addClass(CLASS_UNSELECTABLE);
 
-	 var mid = edit.offsetHeight/2;
-	 if (xy.y < mid)
-	   WT.eventRepeat(function() { inc(); });
-	 else
-	   WT.eventRepeat(function() { dec(); });
+     var mid = edit.offsetHeight/2;
+     if (xy.y < mid)
+       WT.eventRepeat(function() { inc(); });
+     else
+       WT.eventRepeat(function() { dec(); });
        }
      }
    };
@@ -261,6 +280,8 @@ WT_DECLARE_WT_MEMBER
 
      return validator.validate(v);
    };
+
+   this.jsValueChanged = function() {};
 
    this.setIsDoubleSpinBox(isDoubleSpinBox);
  });

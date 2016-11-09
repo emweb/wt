@@ -33,6 +33,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     triggered_(this),
     cancel_(this, "cancel"),
     recursiveEventLoop_(false),
+    willPopup_(false),
     autoHideDelay_(-1)
 {
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
@@ -132,6 +133,9 @@ void WPopupMenu::done(WMenuItem *result)
 
 void WPopupMenu::cancel()
 {
+  if (willPopup_)
+    return;
+
   if (!isHidden())
     done(0);
 }
@@ -146,6 +150,8 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
 	       + location->jsRef() + ");");
 
   positionAt(location, orientation);
+
+  willPopup_ = true;
 }
 
 void WPopupMenu::popup(const WMouseEvent& e)
@@ -174,6 +180,8 @@ void WPopupMenu::popup(const WPoint& p)
   doJavaScript(WT_CLASS ".positionXY('" + id() + "',"
 	       + boost::lexical_cast<std::string>(p.x()) + ","
 	       + boost::lexical_cast<std::string>(p.y()) + ");");
+
+  willPopup_ = true;
 }
 
 void WPopupMenu::prepareRender(WApplication *app)
@@ -294,5 +302,11 @@ void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
 
 void WPopupMenu::renderSelected(WMenuItem *item, bool selected)
 { }
+
+void WPopupMenu::getSDomChanges(std::vector<DomElement *> &result, WApplication *app)
+{
+  WMenu::getSDomChanges(result, app);
+  willPopup_ = false;
+}
 
 }

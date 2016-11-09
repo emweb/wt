@@ -100,6 +100,10 @@ Value::Value(double value)
   : v_(value)
 { }
 
+Value::Value(const char* value)
+  : v_(WString(value))
+{ }
+
 Value::Value(Type type)
 { 
   switch (type) {
@@ -126,25 +130,30 @@ bool Value::operator== (const Value& other) const
 {
   if (typeid(v_) != typeid(other.v_))
     return false;
-  else if (v_.empty() == other.v_.empty())
-    return true;
-  else if (typeid(v_) == typeid(Json::Object))
+  else if (v_.empty() || other.v_.empty())
+    return v_.empty() == other.v_.empty();
+  else if (v_.type() == typeid(Json::Object))
     return boost::any_cast<Json::Object>(v_) ==
       boost::any_cast<Json::Object>(other.v_);
-  else if (typeid(v_) == typeid(Json::Array))
+  else if (v_.type() == typeid(Json::Array))
     return boost::any_cast<Json::Array>(v_) ==
       boost::any_cast<Json::Array>(other.v_);
-  else if (typeid(v_) == typeid(bool))
+  else if (v_.type() == typeid(bool))
     return boost::any_cast<bool>(v_) == boost::any_cast<bool>(other.v_);
-  else if (typeid(v_) == typeid(int))
+  else if (v_.type() == typeid(int))
     return boost::any_cast<int>(v_) == boost::any_cast<int>(other.v_);
-  else if (typeid(v_) == typeid(long long))
+  else if (v_.type() == typeid(long long))
     return boost::any_cast<long long>(v_) ==
       boost::any_cast<long long>(other.v_);
-  else if (typeid(v_) == typeid(double))
+  else if (v_.type() == typeid(double))
     return boost::any_cast<double>(v_) == boost::any_cast<double>(other.v_);
-  else
-    throw WException("Value::operator== : unknown value type\n");
+  else if (v_.type() == typeid(Wt::WString))
+    return boost::any_cast<Wt::WString>(v_) == boost::any_cast<Wt::WString>(other.v_);
+  else {
+    WStringStream ss;
+    ss << "Value::operator== : unknown value type: " << std::string(v_.type().name());
+    throw WException(ss.str());
+  }
 }
 
 bool Value::operator!= (const Value& other) const

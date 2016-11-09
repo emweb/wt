@@ -58,6 +58,6 @@ private:
   int x_, y_;
 };
 
-};
+}
 
 #endif // WPOINT_H_

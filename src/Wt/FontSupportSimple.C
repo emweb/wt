@@ -51,7 +51,8 @@ FontSupport::FontMatch::FontMatch(const std::string& fileName, double quality)
     quality_(quality)
 { }
 
-FontSupport::FontSupport(WPaintDevice *device)
+// FontSupportSimple only supports TrueType fonts, so can ignore enabledFontFormats
+FontSupport::FontSupport(WPaintDevice *device, EnabledFontFormats /* enabledFontFormats */)
   : device_(device),
     font_(0)
 { 

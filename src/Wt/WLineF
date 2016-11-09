@@ -83,6 +83,6 @@ private:
   double x1_, y1_, x2_, y2_;
 };
 
-};
+}
 
 #endif // WLINEF_H_

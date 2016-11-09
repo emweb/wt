@@ -50,6 +50,12 @@ public:
   };
 #endif
 
+  /*  For limiting font formats in FontMatch constructor
+   */
+  enum EnabledFontFormats { AnyFont,      // Any available font format
+                            TrueTypeOnly  // Only .ttf or .ttc fonts
+  };
+
   class FontMatch {
   public:
 #ifdef HAVE_PANGO
@@ -84,7 +90,7 @@ public:
 #endif
   };
 
-  FontSupport(WPaintDevice *device);
+  FontSupport(WPaintDevice *device, EnabledFontFormats enabledFontFormats=AnyFont);
   ~FontSupport();
 
   void setDevice(WPaintDevice *device);
@@ -159,6 +165,7 @@ private:
 
   PangoContext *context_;
   PangoFont *currentFont_;
+  EnabledFontFormats enabledFontFormats_;
 
   struct Matched {
     WFont font;

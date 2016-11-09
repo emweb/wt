@@ -188,6 +188,9 @@ BOOST_AUTO_TEST_CASE( CssSelector_test5 )
   // FAIL h1/h1 to "h1 h1 h1"
   BOOST_REQUIRE( !Match::isMatch(childBlock(&b, list_of(0)(0)),
 				 style->rulesetAt(0).selector() ).isValid() );
+
+  delete style;
+  delete doc;
 }
 
 #endif // CSS_PARSER

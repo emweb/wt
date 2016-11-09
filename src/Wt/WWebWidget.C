@@ -120,6 +120,7 @@ WWebWidget::OtherImpl::OtherImpl(WWebWidget *const self)
     resized_(0),
     tabIndex_(std::numeric_limits<int>::min()),
     dropSignal_(0),
+    dropSignal2_(0),
     acceptedDropMimeTypes_(0),
     childrenChanged_(self),
     scrollVisibilityMargin_(0),
@@ -136,6 +137,7 @@ WWebWidget::OtherImpl::~OtherImpl()
   delete jsMembers_;
   delete jsStatements_;
   delete dropSignal_;
+  delete dropSignal2_;
   delete acceptedDropMimeTypes_;
   delete resized_;
 }
@@ -2453,14 +2455,15 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
       mimeTypes
 	+= "{" + j->first + ":" + j->second.hoverStyleClass.toUTF8() + "}";
     }
-
     setAttributeValue("amts", mimeTypes);
-  }
+  } 
 
   if (result && !otherImpl_->dropSignal_)
     otherImpl_->dropSignal_
       = new JSignal<std::string,std::string, WMouseEvent>(this, "_drop");
-
+  if (result && !otherImpl_->dropSignal2_)
+    otherImpl_->dropSignal2_
+      = new JSignal<std::string,std::string, WTouchEvent>(this, "_drop2");
   return result;
 }
 

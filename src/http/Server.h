@@ -39,6 +39,13 @@ namespace asio = boost::asio;
 
 #include "Wt/WLogger"
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#include <boost/asio/steady_timer.hpp>
+typedef boost::asio::steady_timer asio_timer;
+#else
+typedef boost::asio::deadline_timer asio_timer;
+#endif
+
 namespace http {
 namespace server {
 
@@ -132,7 +139,7 @@ private:
   SslConnectionPtr new_sslconnection_;
 #endif // HTTP_WITH_SSL
 
-void handleTimeout(asio::deadline_timer *timer,
+void handleTimeout(asio_timer *timer,
 		   const boost::function<void ()>& function,
 		   const asio_error_code& err);
 
@@ -150,7 +157,7 @@ void handleTimeout(asio::deadline_timer *timer,
 
   /// For dedicated process deployment: timer to periodically
   /// call WebController::expireSessions()
-  asio::deadline_timer expireSessionsTimer_;
+  asio_timer expireSessionsTimer_;
 };
 
 } // namespace server

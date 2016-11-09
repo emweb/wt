@@ -938,7 +938,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
     rowHeightRule_(0),
     rowWidthRule_(0),
     rowContentsWidthRule_(0),
-    borderColorRule_(0),
     c0StyleRule_(0),
     rootIsDecorated_(true),
     collapsed_(this),
@@ -953,7 +952,8 @@ WTreeView::WTreeView(WContainerWidget *parent)
     scrollBarC_(0),
     firstRemovedRow_(0),
     removedHeight_(0),
-    itemEvent_(impl_, "itemEvent")
+    itemEvent_(impl_, "itemEvent"),
+    itemTouchEvent_(impl_, "itemTouchEvent")
 {
   setSelectable(false);
 
@@ -973,8 +973,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
       /* bottom scrollbar */
       addCssRule
 	(".Wt-treeview .Wt-tv-rowc", "position: relative;", CSS_RULES_NAME);
-
-  setColumnBorder(white);
 
   if (parent)
     parent->addWidget(this);
@@ -1147,6 +1145,9 @@ WTreeView::~WTreeView()
 { 
   delete expandConfig_;
   delete rowHeightRule_;
+  delete rowWidthRule_;
+  delete rowContentsWidthRule_;
+  delete c0StyleRule_;
 
   impl_->clear();
 }
@@ -1218,19 +1219,6 @@ void WTreeView::setColumnHidden(int column, bool hidden)
 
     setColumnWidth(column, columnWidth(column));
   }
-}
-
-void WTreeView::setColumnBorder(const WColor& color)
-{
-  delete borderColorRule_;
-  borderColorRule_
-    = new WCssTextRule
-    (".Wt-treeview .Wt-tv-br, "          // header columns 1-n
-     ".Wt-treeview .header .Wt-tv-row, " // header column 0
-     ".Wt-treeview li .Wt-tv-c",         // data columns 0-n
-     "border-color: " + color.cssText(),
-     this);
-  WApplication::instance()->styleSheet().addRule(borderColorRule_);
 }
 
 void WTreeView::setHeaderHeight(const WLength& height)
@@ -1396,6 +1384,9 @@ void WTreeView::render(WFlags<RenderFlag> flags)
 
   if (flags & RenderFull) {
     defineJavaScript();
+
+    if (!itemTouchEvent_.isConnected()) 
+      itemTouchEvent_.connect(this, &WTreeView::onItemTouchEvent);
 
     if (!itemEvent_.isConnected()) {
       itemEvent_.connect(this, &WTreeView::onItemEvent);
@@ -1569,6 +1560,16 @@ void WTreeView::rerenderTree()
       if (firstTime)
 	connectObjJS(contentsContainer_->mouseWentUp(), "rootMouseUp");
     }
+
+#ifdef WT_CNOR
+    // workaround because cnor is a bit dumb and does not understand that it
+    // can convert EventSignal<TouchEvent>& to EventSignalBase&
+    EventSignalBase& a = rootNode_->touchStarted();
+#endif
+   
+    connectObjJS(rootNode_->touchStarted(), "touchStart");
+    connectObjJS(rootNode_->touchMoved(), "touchMove");
+    connectObjJS(rootNode_->touchEnded(), "touchEnd");
   }
 
   setRootNodeStyle();
@@ -1602,51 +1603,13 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
 {
   // nodeId and columnId are combined because WSignal needed to be changed
   // since MSVS 2012 does not support >5 arguments in std::bind()
-  std::vector<std::string> nodeAndColumnSplit;
-  boost::split(nodeAndColumnSplit, nodeAndColumnId, boost::is_any_of(":"));
-
-  WModelIndex index;
-
-  if (nodeAndColumnSplit.size() == 2) {
-    std::string nodeId = nodeAndColumnSplit[0];
-    int columnId = -1;
-    try {
-      columnId = boost::lexical_cast<int>(nodeAndColumnSplit[1]);
-    } catch (boost::bad_lexical_cast &e) {
-      LOG_ERROR("WTreeview::onEventItem: bad value for format 1: "
-		<< nodeAndColumnSplit[1]);
-    }
-
-    int column = (columnId == 0 ? 0 : -1);
-    for (unsigned i = 0; i < columns_.size(); ++i)
-      if (columns_[i].id == columnId) {
-	column = i;
-      break;
-    }
-
-    if (column != -1) {
-      WModelIndex c0index;
-      for (NodeMap::const_iterator i = renderedNodes_.begin();
-	   i != renderedNodes_.end(); ++i) {
-	if (i->second->id() == nodeId) {
-	  c0index = i->second->modelIndex();
-	  break;
-	}
-      }
-
-      if (c0index.isValid()) {
-	index = model()->index(c0index.row(), column, c0index.parent());
-      } else
-	LOG_ERROR("WTreeView::onEventItem: illegal node id: " << nodeId);
-    }
-  }
+  WModelIndex index = calculateModelIndex(nodeAndColumnId);
 
   /*
    * Every mouse event is emitted twice (because we don't prevent
    * the propagation because it will block the mouseWentUp event
    * and therefore result in mouseDragged being emitted (See #3879)
    */
-
   if (nodeAndColumnId.empty() && skipNextMouseEvent_) {
     skipNextMouseEvent_ = false; 
     return;
@@ -1666,6 +1629,60 @@ void WTreeView::onItemEvent(std::string nodeAndColumnId, std::string type,
     WDropEvent e(WApplication::instance()->decodeObject(extra1), extra2, event);
     dropEvent(e, index);
   }
+}
+
+void WTreeView::onItemTouchEvent(std::string nodeAndColumnId, std::string type,
+				 std::string extra1, std::string extra2, WTouchEvent event)
+{
+  // nodeId and columnId are combined because WSignal needed to be changed
+  // since MSVS 2012 does not support >5 arguments in std::bind()
+  WModelIndex index = calculateModelIndex(nodeAndColumnId);
+
+  if (type == "touchstart")
+    handleTouchStart(index, event);
+}
+
+WModelIndex WTreeView::calculateModelIndex(std::string nodeAndColumnId)
+{
+  std::vector<std::string> nodeAndColumnSplit;
+  boost::split(nodeAndColumnSplit, nodeAndColumnId, boost::is_any_of(":"));
+
+  WModelIndex index;
+
+  if (nodeAndColumnSplit.size() == 2) {
+    std::string nodeId = nodeAndColumnSplit[0];
+    int columnId = -1;
+    try {
+      columnId = boost::lexical_cast<int>(nodeAndColumnSplit[1]);
+    } catch (boost::bad_lexical_cast &e) {
+      LOG_ERROR("WTreeView::calculateModelIndex: bad value for format 1: "
+	<< nodeAndColumnSplit[1]);
+    }
+
+    int column = (columnId == 0 ? 0 : -1);
+    for (unsigned i = 0; i < columns_.size(); ++i)
+      if (columns_[i].id == columnId) {
+	column = i;
+	break;
+      }
+
+    if (column != -1) {
+      WModelIndex c0index;
+      for (NodeMap::const_iterator i = renderedNodes_.begin();
+	    i != renderedNodes_.end(); ++i) {
+	if (i->second->id() == nodeId) {
+          c0index = i->second->modelIndex();
+ 	  break;
+	}
+      }
+
+      if (c0index.isValid())
+	index = model()->index(c0index.row(), column, c0index.parent());
+      else
+        LOG_ERROR("WTreeView::calculateModelIndex: illegal node id: " << nodeId);
+    }
+  }
+  return index;
 }
 
 int WTreeView::subTreeHeight(const WModelIndex& index,

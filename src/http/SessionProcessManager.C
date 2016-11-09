@@ -23,6 +23,12 @@ namespace Wt {
   LOGGER("wthttp/proxy");
 }
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+typedef std::chrono::seconds asio_timer_seconds;
+#else
+typedef boost::posix_time::seconds asio_timer_seconds;
+#endif
+
 namespace http {
 namespace server {
 
@@ -49,7 +55,7 @@ SessionProcessManager::SessionProcessManager(boost::asio::io_service &ioService,
   signals_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
 	boost::asio::placeholders::error));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(boost::posix_time::seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.expires_from_now(asio_timer_seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
 	boost::asio::placeholders::error));
 #endif // SIGNAL_SET
@@ -205,7 +211,7 @@ void SessionProcessManager::processDeadChildren(boost::system::error_code ec)
   signals_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
 	boost::asio::placeholders::error));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(boost::posix_time::seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.expires_from_now(asio_timer_seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait(boost::bind(&SessionProcessManager::processDeadChildren, this,
 	boost::asio::placeholders::error));
 #endif // SIGNAL_SET

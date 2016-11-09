@@ -431,6 +431,18 @@ public:
   EventSignal<>& escapePressed();
   //@}
 
+  /*! \brief Event signal emitted when a finger is placed on the screen.
+   */
+  EventSignal<WTouchEvent>& touchStarted();
+
+  /*! \brief Event signal emitted when a finger is removed from the screen.
+   */
+  EventSignal<WTouchEvent>& touchEnded();
+
+  /*! \brief Event signal emitted when a finger, which is already placed on the screen, is moved across the screen.
+   */
+  EventSignal<WTouchEvent>& touchMoved();
+
 protected:
   virtual void render(WFlags<RenderFlag> flags);
 

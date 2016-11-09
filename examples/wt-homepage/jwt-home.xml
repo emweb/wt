@@ -166,8 +166,8 @@ WebGL and server-side OpenGL).</li>
 <li>Feature rich <a
 href="http://jwt.emweb.be/jwt-gallery/gallery/media/pdf-output">HTML
 to PDF renderer</a> for dynamic report generation.</li>
-<li>Built-in security against common vulnerabiliets such as <a
-href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS(Cross-Site-Scripting)</a> or <a
+<li>Built-in security against common vulnerabilities such as <a
+href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS (Cross-Site Scripting)</a> or <a
 href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
 (Cross-Site Request Forgery)</a></li>
 <li>Open-source or commercial license model.</li>
@@ -667,7 +667,7 @@ repository</a>.</p>
 
 <h3><span>!Java ?</span></h3>
 
-<p>You like the functionality, but do not grock Java for your project?</p>
+<p>You like the functionality, but do not grok Java for your project?</p>
 
 <p>Do not despair. JWt exists in a native variant or through bindings
 in other languages:

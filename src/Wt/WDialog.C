@@ -600,7 +600,7 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
       }
 
       if (escapeIsReject_) {
-	escapeConnection1_ = escapePressed()
+	escapeConnection1_ = app->globalEscapePressed()
 	  .connect(this, &WDialog::onEscapePressed);
 
 	escapeConnection2_ = impl_->escapePressed()
@@ -709,6 +709,21 @@ EventSignal<>& WDialog::enterPressed()
 EventSignal<>& WDialog::escapePressed()
 {
   return layoutContainer_->escapePressed();
+}
+
+EventSignal<WTouchEvent>& WDialog::touchStarted()
+{
+  return layoutContainer_->touchStarted();
+}
+
+EventSignal<WTouchEvent>& WDialog::touchEnded()
+{
+  return layoutContainer_->touchEnded();
+}
+
+EventSignal<WTouchEvent>& WDialog::touchMoved()
+{
+  return layoutContainer_->touchMoved();
 }
 
 }

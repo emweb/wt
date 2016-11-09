@@ -12,8 +12,8 @@ See the README in the parent directory.
 
 Additional arguments: `-c wt_config.xml`
 
-The configuration file specifies the configuration for using Google as
-an authentication provider (you need to register with Google for this to
+The configuration file specifies the configuration for using Google and/or Facebook as
+an authentication provider (you need to register with Google and/or Facebook for this to
 work).
 
 What it illustrates

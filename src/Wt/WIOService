@@ -8,9 +8,14 @@
 #define WCORE_SERVER_H_
 
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/function.hpp>
+
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#include <boost/asio/steady_timer.hpp>
+#else
+#include <boost/asio/deadline_timer.hpp>
+#endif
 
 namespace boost {
   class thread;
@@ -98,9 +103,15 @@ public:
 private:
   WIOServiceImpl *impl_;
   strand strand_;
-  void handleTimeout(boost::asio::deadline_timer *timer,
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+  void handleTimeout(boost::asio::steady_timer *timer,
 		     const boost::function<void ()>& function,
 		     const boost::system::error_code& e);
+#else
+  void handleTimeout(boost::asio::deadline_timer *timer,
+                     const boost::function<void ()>& function,
+                     const boost::system::error_code& e);
+#endif
   void run();
 };
 

@@ -21,6 +21,12 @@
 namespace asio = boost::asio;
 typedef boost::system::error_code asio_error_code;
 typedef boost::system::system_error asio_system_error;
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+#include <boost/asio/steady_timer.hpp>
+typedef boost::asio::steady_timer asio_timer;
+#else
+typedef boost::asio::deadline_timer asio_timer;
+#endif
 
 #include <boost/array.hpp>
 #include <boost/noncopyable.hpp>
@@ -82,6 +88,9 @@ public:
   void handleReadBody(ReplyPtr reply);
   void readMore(ReplyPtr reply, int timeout);
   bool readAvailable();
+
+  // NOTE: detectDisconnect will only register one callback at a time,
+  //       further calls to detectDisconnect are ignored
   void detectDisconnect(ReplyPtr reply,
 			const boost::function<void()>& callback);
 
@@ -152,7 +161,7 @@ private:
   void doTimeout();
 
   /// Timer for reading data.
-  asio::deadline_timer readTimer_, writeTimer_;
+  asio_timer readTimer_, writeTimer_;
 
   /// Current request buffer data
   std::list<Buffer> rcv_buffers_;

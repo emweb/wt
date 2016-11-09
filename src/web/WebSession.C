@@ -558,7 +558,10 @@ std::string WebSession::makeAbsoluteUrl(const std::string& url) const
   if (isAbsoluteUrl(url))
     return url;
   else {
-    if (url.empty() || url[0] != '/')
+    if (!url.empty() && url[0] == '.' &&
+	(url.length() == 1 || url[1] != '.'))
+      return absoluteBaseUrl_ + (url.c_str() + 1);
+    else if (url.empty() || url[0] != '/')
       return absoluteBaseUrl_ + url;
     else
       return host(absoluteBaseUrl_) + url;
@@ -1847,6 +1850,12 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 	    lock->webSocketConnected_ = true;
 	  }
 
+	  const std::string *wsRqIdE = message->getParameter("wsRqId");
+	  if (wsRqIdE) {
+	    int wsRqId = boost::lexical_cast<int>(*wsRqIdE);
+	    lock->renderer_.addWsRequestId(wsRqId);
+	  }
+
 	  const std::string *signalE = message->getParameter("signal");
 
 	  if (signalE && *signalE == "ping") {
@@ -2055,7 +2064,8 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 
 void WebSession::externalNotify(const WEvent::Impl& event)
 {
-  if (recursiveEventHandler_) {
+  if (recursiveEventHandler_ &&
+      !newRecursiveEvent_) {
 #ifdef WT_BOOST_THREADS
     newRecursiveEvent_ = new WEvent::Impl(event);
     recursiveEvent_.notify_one();

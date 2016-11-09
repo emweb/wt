@@ -36,6 +36,14 @@
 
 using boost::asio::ip::tcp;
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+typedef boost::asio::steady_timer asio_timer;
+typedef std::chrono::seconds asio_timer_seconds;
+#else
+typedef boost::asio::deadline_timer asio_timer;
+typedef boost::posix_time::seconds asio_timer_seconds;
+#endif
+
 namespace Wt {
 
 LOGGER("Http.Client");
@@ -166,7 +174,7 @@ private:
 
   void startTimer()
   {
-    timer_.expires_from_now(boost::posix_time::seconds(timeout_));
+    timer_.expires_from_now(asio_timer_seconds(timeout_));
     timer_.async_wait
       (strand_.wrap(boost::bind(&Impl::timeout, shared_from_this(),
 				boost::asio::placeholders::error)));
@@ -600,7 +608,7 @@ protected:
   boost::asio::streambuf responseBuf_;
 
 private:
-  boost::asio::deadline_timer timer_;
+  asio_timer timer_;
   WServer *server_;
   std::string sessionId_;
   int timeout_;
@@ -850,7 +858,7 @@ bool Client::request(Http::Method method, const std::string& url,
     return false;
   }
 
-  if (app) {
+  if (app && !ioService) {
     sessionId = app->sessionId();
     server = app->environment().server();
     ioService = &server->ioService();

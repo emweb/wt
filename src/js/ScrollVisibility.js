@@ -120,7 +120,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    var mutObserver = null;
-   if ('MutationObserver' in window) {
+   if (window.hasOwnProperty('MutationObserver')) {
      mutObserver = new MutationObserver(visibilityChecker);
    }
 

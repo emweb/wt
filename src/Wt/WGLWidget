@@ -484,7 +484,7 @@ public:
      */
     bool initialized() const { return initialized_; }
 
-    /** \brief Retuns whether this JavaScriptMatrix4x4 has been assigned
+    /** \brief Returns whether this JavaScriptMatrix4x4 has been assigned
      *         to a WGLWidget.
      */
     bool hasContext() const { return context_ != 0; }

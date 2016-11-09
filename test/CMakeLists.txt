@@ -6,6 +6,7 @@ IF(ENABLE_LIBWTTEST)
     chart/WChartTest.C
     json/JsonParserTest.C
     json/JsonSerializerTest.C
+    json/JsonValueTest.C
     http/HttpClientTest.C
     mail/MailClientTest.C
     models/WBatchEditProxyModelTest.C

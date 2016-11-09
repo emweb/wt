@@ -26,6 +26,12 @@ namespace Wt {
   LOGGER("wthttp/async");
 }
 
+#if BOOST_VERSION >= 104900 && defined(BOOST_ASIO_HAS_STD_CHRONO)
+typedef std::chrono::seconds asio_timer_seconds;
+#else
+typedef boost::posix_time::seconds asio_timer_seconds;
+#endif
+
 namespace http {
 namespace server {
 
@@ -101,7 +107,7 @@ void SslConnection::stop()
   boost::shared_ptr<SslConnection> sft 
     = boost::dynamic_pointer_cast<SslConnection>(shared_from_this());
 
-  sslShutdownTimer_.expires_from_now(boost::posix_time::seconds(1));
+  sslShutdownTimer_.expires_from_now(asio_timer_seconds(1));
   sslShutdownTimer_.async_wait(strand_.wrap(
     boost::bind(&SslConnection::stopNextLayer,
     sft, asio::placeholders::error)));

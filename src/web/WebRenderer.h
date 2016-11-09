@@ -117,6 +117,8 @@ private:
   bool formObjectsChanged_;
   bool updateLayout_;
 
+  std::vector<int> wsRequestsToHandle_;
+
   void setHeaders(WebResponse& request, const std::string mimeType);
   void setCaching(WebResponse& response, bool allowCache);
 
@@ -165,6 +167,9 @@ private:
   bool learning_, learningIncomplete_, moreUpdates_;
 
   std::string safeJsStringLiteral(const std::string& value);
+
+  void addWsRequestId(int wsRqId);
+  void renderWsRequestsDone(WStringStream &out);
 
 public:
   std::string       learn(WStatelessSlot* slot);

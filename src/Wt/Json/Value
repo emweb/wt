@@ -142,6 +142,20 @@ public:
    */
   Value(double value);
 
+#ifndef WT_TARGET_JAVA
+
+  /*! \brief Creates a value from a const char*.
+   *
+   * This creates a \link Wt::Json::StringType
+   * Json::StringType\endlink value.
+   *
+   * This constructor first converts const char*
+   * to WString using \link Wt::WString(const char*,CharEncoding) WString(const char *)\endlink
+   */
+  Value(const char* value);
+
+#endif
+
   /*! \brief Creates a value with a given type.
    *
    * This creates a value of the given type, using a default constructed value

@@ -75,7 +75,7 @@ private:
       } else {
 	std::string id = me.get("id");
 	WT_USTRING userName = me.get("name");
-	std::string email = me.get("email");
+	std::string email = me.get("email").orIfNull("");
 	bool emailVerified = me.get("verified").orIfNull(false);
 
 	authenticated().emit(Identity(service().name(), id, userName,

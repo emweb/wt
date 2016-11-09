@@ -864,8 +864,12 @@ void DomElement::asHTML(EscapeOStream& out,
       out << '"';
 
       std::string wrapStyle = cssStyle();
-      if (!isDefaultInline())
-	wrapStyle += "display: block;";
+      if (!isDefaultInline()) {
+	// Put display: block; first, because it might
+	// still be overridden if a widget is set to be inlined,
+	// but isn't inline by default.
+	wrapStyle = "display: block;" + wrapStyle;
+      }
 
       if (!wrapStyle.empty()) {
 	out << " style=";

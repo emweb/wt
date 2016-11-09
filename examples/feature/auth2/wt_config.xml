@@ -1,12 +1,11 @@
 <server>
     <application-settings location="*">
 	<properties>
-
-	    <!-- You need to register at google for this to work, and enter
+	    <!-- You need to register at Google for this to work, and enter
                  there the same values as you do here. -->
             <!--
 	    <property name="google-oauth2-redirect-endpoint">
-		http://localhost:8080/oauth2callback
+		http://localhost:8080/google-oauth2callback
 	    </property>
 	    <property name="google-oauth2-client-id">
 		00000000000.apps.googleusercontent.com
@@ -15,6 +14,20 @@
 		abcdefghijk-123456789xyz
 	    </property>
             -->
+
+	    <!-- You need to register at Facebook for this to work, and enter
+		 there the same values as you do here. -->
+	    <!--
+	    <property name="facebook-oauth2-redirect-endpoint">
+		http://localhost:8080/facebook-oauth2callback
+	    </property>
+	    <property name="facebook-oauth2-app-id">
+                000000000000000
+	    </property>
+	    <property name="facebook-oauth2-app-secret">
+		0123456789abcdef0123456789abcdef
+	    </property>
+	    -->
 	</properties>
     </application-settings>
 </server>

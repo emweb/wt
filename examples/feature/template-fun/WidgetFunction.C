@@ -51,7 +51,7 @@ bool WidgetFunction::operator()(Wt::WTemplate *t,
 }
 
 void WidgetFunction::registerType(const std::string& name,
-				  InstatiateWidget instantiate)
+				  InstantiateWidget instantiate)
 {
   registeredTypes_[name] = instantiate;
 }

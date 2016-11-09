@@ -157,7 +157,8 @@ bool WebRenderer::isDirty() const
     || session_.app()->internalPathIsChanged_
     || !collectedJS1_.empty()
     || !collectedJS2_.empty()
-    || !invisibleJS_.empty();
+    || !invisibleJS_.empty()
+    || !wsRequestsToHandle_.empty();
 }
 
 const WebRenderer::FormObjectsMap& WebRenderer::formObjects() const
@@ -610,12 +611,29 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
     out << collectedJS1_.str() << collectedJS2_.str();
 
     if (response.isWebSocketMessage()) {
+      renderWsRequestsDone(out);
+
       LOG_DEBUG("jsSynced(false) after rendering websocket message");
       setJSSynced(false);
     }
   }
 
   out.spool(response.out());
+}
+
+void WebRenderer::renderWsRequestsDone(WStringStream &out)
+{
+  if (!wsRequestsToHandle_.empty()) {
+    out << session_.app()->javaScriptClass()
+	<< "._p_.wsRqsDone(";
+    for (std::size_t i = 0; i < wsRequestsToHandle_.size(); ++i) {
+      if (i != 0)
+	out << ',';
+      out << wsRequestsToHandle_[i];
+    }
+    out << ");";
+    wsRequestsToHandle_.clear();
+  }
 }
 
 void WebRenderer::addContainerWidgets(WWebWidget *w,
@@ -1978,6 +1996,11 @@ std::string WebRenderer::headDeclarations() const
   }
 
   return result.str();
+}
+
+void WebRenderer::addWsRequestId(int wsRqId)
+{
+  wsRequestsToHandle_.push_back(wsRqId);
 }
 
 }

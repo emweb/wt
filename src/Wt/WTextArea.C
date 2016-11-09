@@ -181,8 +181,13 @@ WT_USTRING WTextArea::selectedText() const
   if (selectionStart() != -1) {
     WApplication *app = WApplication::instance();
 
-    return UTF8Substr(text().toUTF8(), app->selectionStart(),
-		    app->selectionEnd() - app->selectionStart());
+    std::string result = UTF8Substr(text().toUTF8(), app->selectionStart(),
+				    app->selectionEnd() - app->selectionStart());
+#ifdef WT_TARGET_JAVA
+    return result;
+#else
+    return WString::fromUTF8(result);
+#endif
   } else
     return WString::Empty;
 }

@@ -282,8 +282,13 @@ WT_USTRING WLineEdit::selectedText() const
   if (selectionStart() != -1) {
     WApplication *app = WApplication::instance();
 
-    return WString::fromUTF8(UTF8Substr(text().toUTF8(), app->selectionStart(),
-		    app->selectionEnd() - app->selectionStart()));
+    std::string result = UTF8Substr(text().toUTF8(), app->selectionStart(),
+				    app->selectionEnd() - app->selectionStart());
+#ifdef WT_TARGET_JAVA
+    return result;
+#else
+    return WString::fromUTF8(result);
+#endif
   } else
     return WString::Empty;
 }
@@ -297,7 +302,7 @@ void WLineEdit::setSelection(int start, int length)
 {
   std::string s = boost::lexical_cast<std::string>(start);
   std::string e = boost::lexical_cast<std::string>(start + length);
-  doJavaScript(WT_CLASS".setSelectionRange(" + jsRef() + "," + s + "," + e + ")" );
+  doJavaScript(WT_CLASS".setUnicodeSelectionRange(" + jsRef() + "," + s + "," + e + ")" );
 }
 
 int WLineEdit::cursorPosition() const

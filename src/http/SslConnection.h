@@ -73,7 +73,7 @@ private:
   ssl_socket socket_;
 
   // SSL shutdown takes many seconds sometimes. Put a limit on it.
-  asio::deadline_timer sslShutdownTimer_;
+  asio_timer sslShutdownTimer_;
 };
 
 typedef boost::shared_ptr<SslConnection> SslConnectionPtr;
