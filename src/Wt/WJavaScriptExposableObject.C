@@ -13,8 +13,6 @@
 
 namespace Wt {
 
-LOGGER("WJavaScriptExposableObject");
-
 WJavaScriptExposableObject::WJavaScriptExposableObject()
   : clientBinding_(0)
 { }

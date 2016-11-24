@@ -150,8 +150,6 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
 	       + location->jsRef() + ");");
 
   positionAt(location, orientation);
-
-  willPopup_ = true;
 }
 
 void WPopupMenu::popup(const WMouseEvent& e)
@@ -167,6 +165,9 @@ void WPopupMenu::popupImpl()
   prepareRender(app);
 
   show();
+
+  willPopup_ = true;
+  scheduleRender();
 }
 
 void WPopupMenu::popup(const WPoint& p)
@@ -180,8 +181,6 @@ void WPopupMenu::popup(const WPoint& p)
   doJavaScript(WT_CLASS ".positionXY('" + id() + "',"
 	       + boost::lexical_cast<std::string>(p.x()) + ","
 	       + boost::lexical_cast<std::string>(p.y()) + ");");
-
-  willPopup_ = true;
 }
 
 void WPopupMenu::prepareRender(WApplication *app)

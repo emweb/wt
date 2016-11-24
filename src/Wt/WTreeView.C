@@ -1636,7 +1636,8 @@ void WTreeView::onItemTouchEvent(std::string nodeAndColumnId, std::string type,
 {
   // nodeId and columnId are combined because WSignal needed to be changed
   // since MSVS 2012 does not support >5 arguments in std::bind()
-  WModelIndex index = calculateModelIndex(nodeAndColumnId);
+  std::vector<WModelIndex> index;
+  index.push_back(calculateModelIndex(nodeAndColumnId));
 
   if (type == "touchstart")
     handleTouchStart(index, event);
@@ -1686,7 +1687,7 @@ WModelIndex WTreeView::calculateModelIndex(std::string nodeAndColumnId)
 }
 
 int WTreeView::subTreeHeight(const WModelIndex& index,
-			     int lowerBound, int upperBound)
+			     int lowerBound, int upperBound) const
 {
   int result = 0;
 
@@ -1868,9 +1869,11 @@ WWidget *WTreeView::widgetForIndex(const WModelIndex& index) const
     WWidget *parent = widgetForIndex(index.parent());
     WTreeViewNode *parentNode = dynamic_cast<WTreeViewNode *>(parent);
 
-    if (parentNode)
-      return parentNode->widgetForModelRow(index.row());
-    else
+    if (parentNode) {
+      int row = getIndexRow(index, parentNode->modelIndex(), 0,
+			    std::numeric_limits<int>::max());
+      return parentNode->widgetForModelRow(row);
+    } else
       return parent;
   }
 }
@@ -2159,9 +2162,54 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 	      delete node;
 	    }
 	  }
+	} /* else:
+	     children not loaded -- so we do not need to bother
+	  */
+      } else {
+	/*
+	 * Only if the parent is in fact expanded, the spacer reduces
+	 * in size
+	 */
+	if (isExpanded(parent)) {
+	  RowSpacer *s = dynamic_cast<RowSpacer *>(parentWidget);
 
+	  for (int i = start; i <= end; ++i) {
+	    WModelIndex childIndex = model()->index(i, 0, parent);
+	    int childHeight = subTreeHeight(childIndex);
+
+	    if (renderedRowsChange) {
+	      removedHeight_ += childHeight;
+
+	      if (i == start)
+		firstRemovedRow_ = renderedRow(childIndex, s);
+	    }
+	  }
+        }
+      }
+    } else {
+      /*
+	parentWidget is 0: it means it is not even part of any spacer.
+      */
+    }
+  }
+
+  shiftModelIndexes(parent, start, -count);
+}
+
+void WTreeView::modelRowsRemoved(const WModelIndex& parent,
+				 int start, int end)
+{
+  int count = end - start + 1;
+
+  if (renderState_ != NeedRerender && renderState_ != NeedRerenderData) {
+    WWidget *parentWidget = widgetForIndex(parent);
+
+    if (parentWidget) {
+      WTreeViewNode *parentNode = dynamic_cast<WTreeViewNode *>(parentWidget);
+
+      if (parentNode) {
+	if (parentNode->childrenLoaded()) {
 	  parentNode->normalizeSpacers();
-
 	  parentNode->adjustChildrenHeight(-removedHeight_);
 	  parentNode->shiftModelIndexes(start, -count);
 
@@ -2190,19 +2238,6 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 	 */
 	if (isExpanded(parent)) {
 	  RowSpacer *s = dynamic_cast<RowSpacer *>(parentWidget);
-
-	  for (int i = start; i <= end; ++i) {
-	    WModelIndex childIndex = model()->index(i, 0, parent);
-	    int childHeight = subTreeHeight(childIndex);
-
-	    if (renderedRowsChange) {
-	      removedHeight_ += childHeight;
-
-	      if (i == start)
-		firstRemovedRow_ = renderedRow(childIndex, s);
-	    }
-	  }
-
 	  WTreeViewNode *node = s->node();
 	  s->setRows(s->rows() - removedHeight_); // could delete s!
 	  node->adjustChildrenHeight(-removedHeight_);
@@ -2215,12 +2250,6 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
     }
   }
 
-  shiftModelIndexes(parent, start, -count);
-}
-
-void WTreeView::modelRowsRemoved(const WModelIndex& parent,
-				 int start, int end)
-{
   if (renderState_ != NeedRerender && renderState_ != NeedRerenderData)
     renderedRowsChanged(firstRemovedRow_, -removedHeight_);
 }
@@ -2312,7 +2341,7 @@ int WTreeView::renderedRow(const WModelIndex& index, WWidget *w,
 
 int WTreeView::getIndexRow(const WModelIndex& child,
 			   const WModelIndex& ancestor,
-			   int lowerBound, int upperBound)
+			   int lowerBound, int upperBound) const
 {
   if (!child.isValid() || child == ancestor)
     return 0;

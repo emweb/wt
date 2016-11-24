@@ -1020,7 +1020,7 @@ double WAxis::mapToDevice(double value) const
   if (Utils::isNaN(value))
       return value;
 
-  for (int i = 0; i < segments_.size(); ++i) {
+  for (std::size_t i = 0; i < segments_.size(); ++i) {
     if (value <= segments_[i].renderMaximum ||
 	i == segments_.size() - 1) {
       return mapToDevice(value, i);
@@ -1061,7 +1061,7 @@ double WAxis::mapToDevice(double u, int segment) const
 
 bool WAxis::isOnAxis(double d) const
 {
-  for (int i = 0; i < segments_.size(); ++i) {
+  for (std::size_t i = 0; i < segments_.size(); ++i) {
     if (d >= segments_[i].renderMinimum &&
 	d <= segments_[i].renderMaximum) {
       return true;
@@ -1685,36 +1685,6 @@ double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
     }
   } else
     return s.renderLength / AUTO_V_LABEL_PIXELS;
-}
-
-namespace {
-  static std::vector<WString> splitLabel(WString text)
-  {
-    std::string s = text.toUTF8();
-    std::vector<std::string> splitText;
-    boost::split(splitText, s, boost::is_any_of("\n"));
-    std::vector<WString> result;
-    for (std::size_t i = 0; i < splitText.size(); ++i) {
-      result.push_back(splitText[i]);
-    }
-    return result;
-  }
-
-  static double calcYOffset(int lineNb,
-			    int nbLines,
-			    double lineHeight,
-			    WFlags<AlignmentFlag> verticalAlign)
-  {
-    if (verticalAlign == AlignMiddle) {
-      return - ((nbLines - 1) * lineHeight / 2.0) + lineNb * lineHeight;
-    } else if (verticalAlign == AlignTop) {
-      return lineNb * lineHeight;
-    } else if (verticalAlign == AlignBottom) {
-      return - (nbLines - 1 - lineNb) * lineHeight;
-    } else {
-      return 0;
-    }
-  }
 }
 
 void WAxis::render(WPainter& painter,

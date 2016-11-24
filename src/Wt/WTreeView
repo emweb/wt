@@ -360,7 +360,7 @@ private:
 
   int subTreeHeight(const WModelIndex& index,
 		    int lowerBound = 0,
-		    int upperBound = std::numeric_limits<int>::max());
+		    int upperBound = std::numeric_limits<int>::max()) const;
   int renderedRow(const WModelIndex& index,
 		  WWidget *w,
 		  int lowerBound = 0,
@@ -368,7 +368,7 @@ private:
   int getIndexRow(const WModelIndex& index,
 		  const WModelIndex& ancestor,
 		  int lowerBound = 0,
-		  int upperBound = std::numeric_limits<int>::max());
+		  int upperBound = std::numeric_limits<int>::max()) const;
 
   std::string columnStyleClass(int column) const;
 

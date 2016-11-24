@@ -48,7 +48,8 @@ bool WText::RichText::setFormat(TextFormat newFormat)
 
 bool WText::RichText::checkWellFormed()
 {
-  if (format == XHTMLText && text.literal()) {
+  if (format == XHTMLText && 
+      (text.literal() || !text.args().empty())) {
     return removeScript(text);
   } else
     return true;

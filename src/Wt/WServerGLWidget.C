@@ -49,23 +49,6 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 
 namespace {
   GLenum serverGLenum(Wt::WGLWidget::GLenum e);
-
-  std::vector<std::string> split(std::string str, const char *c) {
-    std::vector<std::string> list;
-
-    std::string splitter(c); int len = splitter.size();
-    std::size_t pos = str.find(c);
-    while (pos != std::string::npos) {
-      std::string token = str.substr(0, pos);
-      list.push_back(token);
-      str = str.substr(pos+len);
-      pos = str.find(c);
-    }
-    if (str != "")
-      list.push_back(str);
-
-    return list;
-  }
 }
 
 namespace Wt {

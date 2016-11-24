@@ -11,6 +11,8 @@
 
 namespace Wt {
 
+class WFileDropWidget;
+
 /*! \class WFileUpload Wt/WFileUpload Wt/WFileUpload
  *  \brief A widget that allows a file to be uploaded.
  *
@@ -314,6 +316,12 @@ public:
   ///
   void setFilters(const std::string& acceptAttributes);
 
+  /*! \brief Let this widget react to drop-events.
+   */
+  void registerDropWidget(WFileDropWidget *dropWidget);
+  
+  void registerDropWidgetInternal(WFileDropWidget *dropWidget);
+
 private:
   static const char *CHANGE_SIGNAL;
   static const char *UPLOADED_SIGNAL;
@@ -331,6 +339,7 @@ private:
   std::vector<Http::UploadedFile> uploadedFiles_;
 
   JSignal< ::int64_t > fileTooLarge_;
+  JSignal<> startUpload_;
 
   Signal< ::uint64_t, ::uint64_t > dataReceived_;
 

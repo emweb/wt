@@ -527,6 +527,8 @@ private:
   std::vector<WStatelessSlot *> statelessSlots_;
 
   WObject(const WObject&);
+  WObject &operator =(const WObject &);
+
   unsigned    id_;
   std::string name_;
 

@@ -78,8 +78,15 @@ public:
   };
 
   enum SessionTracking { 
-    CookiesURL,
-    URL
+    CookiesURL, // Use cookies if available, or fallback to URL-based,
+		// does not support multiple sessions in same browser when
+		// using cookies
+    URL, // Use URL-based session tracking, support multiple sessions in the same
+	 // browser
+    Combined // Use a combination of multi-session cookie + URL-based session tracking
+	     // Will error if cookies are not available (no fallback)
+	     // This should be the most secure option, and supports multiple sessions
+	     // in the same browser.
   };
 
   enum ErrorReporting {
@@ -133,6 +140,7 @@ public:
   SessionTracking sessionTracking() const;
   bool reloadIsNewSession() const;
   int sessionTimeout() const;
+  int keepAlive() const; // sessionTimeout() / 2, or if sessionTimeout == -1, 1000000
   int bootstrapTimeout() const;
   int indicatorTimeout() const;
   int doubleClickTimeout() const;

@@ -114,7 +114,7 @@ public:
     (*value_) = v;
 
     value_->clientBinding_ = binding;
-    value_->clientBinding_->context_->dirty[id_] = true;
+    value_->clientBinding_->context_->dirty_[id_] = true;
   }
 
   /*! \brief Get the value for this handle.

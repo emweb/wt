@@ -1157,3 +1157,18 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
 table.x-grid3-row-table {
     table-layout: fixed;
 }
+
+.Wt-filedropzone {
+    width: 200px;
+    height: 200px;
+    border: thick dashed grey;
+    background-color: lightgrey;
+}
+
+.Wt-filedropzone-hover {
+    border-color: green;
+}
+
+.Wt-filedropzone-hover * {
+    pointer-events: none;
+}

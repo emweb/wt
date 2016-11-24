@@ -95,10 +95,15 @@ WT_DECLARE_WT_MEMBER
    var touchStartTimer;
 
    this.touchStart = function(obj, event) {
-     if (event.touches.length > 1)
-	touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 1000);
-     else
-	touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 50);
+     if (event.touches.length > 1){
+       clearTimeout(touchStartTimer);
+       touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 1000);
+     }
+     else{
+       clearTimeout(touchStartTimer);
+       touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 50);
+     }
+
    };
 
    function emitTouchStart(obj, event) {

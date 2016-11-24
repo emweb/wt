@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( performance_test2 )
   long time_required = 0L;
   long expected;
   int current_objects = 0;
-  for (int i = start_total_objects;
+  for (unsigned i = start_total_objects;
       (i <= total_added_objects) && ((time_required * 6) < benchmark_time_limit); i *= 2) {
     expected = i * (i + 1) / 2;
     int total_objects = i;

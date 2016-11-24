@@ -995,18 +995,6 @@ void WApplication::redirect(const std::string& url)
   session_->redirect(url);
 }
 
-void WApplication::redirectToSession(const std::string& newSessionId)
-{
-  std::string redirectUrl = bookmarkUrl();
-  if (!session_->useUrlRewriting()) {
-    std::string cookieName = environment().deploymentPath();
-    setCookie(cookieName, newSessionId, -1, "", "", environment().urlScheme() == "https");
-  } else
-    redirectUrl += "?wtd=" + DomElement::urlEncodeS(newSessionId);
-
-  redirect(redirectUrl);
-}
-
 std::string WApplication::encodeUntrustedUrl(const std::string& url) const
 {
   /*

@@ -137,6 +137,11 @@ void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
 				     sourceParent);
   else
     startIndex = sourceModel()->index(start, 0, sourceParent);
+
+#ifdef WT_TARGET_JAVA
+  if (!startIndex.isValid())
+    return;
+#endif
   
   for (ItemMap::iterator it = items.lower_bound(startIndex);
        it != items.end();) {

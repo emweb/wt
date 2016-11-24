@@ -9,33 +9,11 @@
 WT_DECLARE_WT_MEMBER
 (10, JavaScriptConstructor, "WPaintedWidget",
  function(APP, widget) {
-   this.canvas = document.getElementById('c' + widget.id);
-   var ctx = this.canvas.getContext('2d');
-
    jQuery.data(widget, 'obj', this);
 
-   var self = this;
-   var WT = APP.WT;
-
-   this.jsValues = []
+   this.canvas = document.getElementById('c' + widget.id);
    this.repaint = function() {};
    this.widget = widget;
-
-   function encodeJSValues() {
-      var res = [];
-      var value;
-      var i;
-      for (i = 0; i < self.jsValues.length; ++i) {
-	 value = self.jsValues[i];
-	 if (jQuery.isArray(value) && value.length > 6) {
-	    res.push([]); // Omit painter paths, FIXME: this is kind of hacky?
-	 } else {
-	    res.push(value);
-	 }
-      }
-      return JSON.stringify(res);
-   }
-   widget.wtEncodeValue = encodeJSValues;
  });
 
 // This should be refactored to something, somewhere?

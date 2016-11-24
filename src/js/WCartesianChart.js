@@ -26,6 +26,7 @@ WT_DECLARE_WT_MEMBER
  //	zoom (bool)
  //	pan (bool)
  //	crosshair (bool)
+ //	crosshairColor (css text)
  //	followCurve (int, -1 for disabled)
  //	notifyTransform {x: bool, y: bool} // Whether we should emit a signal on X or Y transform change
  //	series {modelColumn: {curve: curve ref, transform: transform ref},...}
@@ -488,6 +489,7 @@ WT_DECLARE_WT_MEMBER
       p = [modelArea()[0] + u[X] * modelArea()[2],
 	   modelArea()[1] + u[Y] * modelArea()[3]];
 
+      ctx.fillStyle = ctx.strokeStyle = config.crosshairColor;
       ctx.font = '16px sans-serif';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
@@ -792,6 +794,13 @@ WT_DECLARE_WT_MEMBER
       APP.emit(target.widget, 'seriesSelected', dragPreviousXY.x, dragPreviousXY.y);
    }
 
+   function topElement() {
+      if (overlay)
+	 return overlay;
+      else
+	 return target.canvas;
+   }
+
    // fromDoubleTouch: indicates that this start of a touch comes from releasing of a double touch,
    //                  so should not be interpreted for series selection
    touchHandlers.start = function(o, event, fromDoubleTouch) {
@@ -816,7 +825,7 @@ WT_DECLARE_WT_MEMBER
 	    addEventListener('contextmenu', eobj2.contextmenuListener);
 	 }
 	 WT.capture(null);
-	 WT.capture(target.canvas);
+	 WT.capture(topElement());
       } else if (doubleTouch && (config.zoom || curveManipulation())) {
 	 if (seriesSelectionTimeout) {
 	    window.clearTimeout(seriesSelectionTimeout);
@@ -832,7 +841,7 @@ WT_DECLARE_WT_MEMBER
 	   return;
 	}
 	WT.capture(null);
-	WT.capture(target.canvas);
+	WT.capture(topElement());
 	zoomAngle = Math.atan2(touches[1][1] - touches[0][1], touches[1][0] - touches[0][0]);
 	zoomMiddle = [
 	   (touches[0][0] + touches[1][0]) / 2,

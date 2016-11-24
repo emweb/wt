@@ -308,17 +308,54 @@ WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
 		       const WMouseEvent& mouseEvent)
   : dropSource_(source),
     dropMimeType_(mimeType),
-    mouseEvent_(mouseEvent),
-    touchEvent_(WTouchEvent())
+#ifndef WT_TARGET_JAVA
+    mouseEvent_(new WMouseEvent(mouseEvent)),
+#else
+    mouseEvent_(&mouseEvent),
+#endif
+    touchEvent_(0)
 { }
 
 WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
 		       const WTouchEvent& touchEvent)
   : dropSource_(source),
     dropMimeType_(mimeType),
-    mouseEvent_(WMouseEvent()),
-    touchEvent_(touchEvent)
+    mouseEvent_(0),
+#ifndef WT_TARGET_JAVA
+    touchEvent_(new WTouchEvent(touchEvent))
+#else
+    touchEvent_(&touchEvent)
+#endif
 { }
+
+#ifndef WT_TARGET_JAVA
+WDropEvent::WDropEvent(const WDropEvent &other)
+  : dropSource_(other.dropSource_),
+    dropMimeType_(other.dropMimeType_),
+    mouseEvent_(other.mouseEvent_ ? new WMouseEvent(*other.mouseEvent_) : 0),
+    touchEvent_(other.touchEvent_ ? new WTouchEvent(*other.touchEvent_) : 0)
+{ }
+
+WDropEvent &WDropEvent::operator=(const WDropEvent &other)
+{
+  if (this != &other) {
+    delete mouseEvent_;
+    delete touchEvent_;
+    dropSource_ = other.dropSource_;
+    dropMimeType_ = other.dropMimeType_;
+    mouseEvent_ = other.mouseEvent_ ? new WMouseEvent(*other.mouseEvent_) : 0;
+    touchEvent_ = other.touchEvent_ ? new WTouchEvent(*other.touchEvent_) : 0;
+  }
+
+  return *this;
+}
+
+WDropEvent::~WDropEvent()
+{
+  delete mouseEvent_;
+  delete touchEvent_;
+}
+#endif
 
 WScrollEvent::WScrollEvent()
 { }

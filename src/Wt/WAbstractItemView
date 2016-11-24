@@ -1064,9 +1064,8 @@ protected:
 
   /*! \brief Handles a touch started event.
    */
-  virtual void handleTouchStart(const WModelIndex& index,
+  virtual void handleTouchStart(const std::vector<WModelIndex>& indices,
 				       const WTouchEvent& event);
-  
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
 
@@ -1156,8 +1155,9 @@ private:
 
   void selectionHandleClick(const WModelIndex& index,
 			    WFlags<KeyboardModifier> modifiers);
-  void selectionHandleTouch(const WModelIndex& index, const WTouchEvent& event);
+  void selectionHandleTouch(const std::vector<WModelIndex>& indices, const WTouchEvent& event);
   void extendSelection(const WModelIndex& index);
+  void extendSelection(const std::vector<WModelIndex>& index);
   virtual void selectRange(const WModelIndex& first, const WModelIndex& last)
     = 0;
 
