@@ -1098,7 +1098,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
 	      if (item.nextWidth() < 0) {
 		for (unsigned i = utf8Pos; i <= s.length(); ++i) {
 		  if (i == s.length() || isWhitespace(s[i])) {
-		    WString word = s.substr(utf8Pos, i - utf8Pos);
+                    WString word = WString::fromUTF8(s.substr(utf8Pos, i - utf8Pos));
 		    double wordWidth = device->measureText(word).width();
 
 		    w = wordWidth;

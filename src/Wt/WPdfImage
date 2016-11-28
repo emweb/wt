@@ -183,6 +183,7 @@ private:
   bool trueTypeFont_;
   std::map<std::string, const char *> ttfFonts_;
   WFont currentFont_;
+  std::string currentTtfFont_;
 
   bool myPdf_;
   double x_, y_;
