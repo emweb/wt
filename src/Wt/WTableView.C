@@ -99,14 +99,14 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->clicked()
       .connect(boost::bind(&WTableView::handleSingleClick, this, false, _1));
     canvas_->clicked().connect("function(o, e) { "
-			       "$(document).trigger(e);"
+                               "$(document).trigger($.event.fix(e));"
 			       "}");
     canvas_->clicked().preventPropagation();
     canvas_->mouseWentDown()
       .connect(boost::bind(&WTableView::handleMouseWentDown, this, false, _1)); 
     canvas_->mouseWentDown().preventPropagation();
     canvas_->mouseWentDown().connect("function(o, e) { "
-				     "$(document).trigger(e);"
+                                     "$(document).trigger($.event.fix(e));"
 				     "}");
     canvas_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleMouseWentUp, this, false, _1)); 
@@ -1661,8 +1661,11 @@ void WTableView::handleMouseWentUp(bool headerColumns, const WMouseEvent& event)
 
 void WTableView::handleTouchStarted(const WTouchEvent& event)
 {
-  WModelIndex index = translateModelIndex(event.changedTouches()[0]);
-  handleTouchStart(index, event);
+  std::vector<WModelIndex> indices;
+  for(std::size_t i = 0; i < event.touches().size(); i++){
+    indices.push_back(translateModelIndex(event.touches()[i]));
+  }
+  handleTouchStart(indices, event);
 }
 
 void WTableView::handleRootSingleClick(int u, const WMouseEvent& event)

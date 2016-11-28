@@ -410,6 +410,13 @@ private:
 class WT_API WDropEvent
 {
 public:
+  /*! \brief The type of the original event.
+   */
+  enum OriginalEventType {
+    MouseEvent, //!< The original event was a WMouseEvent
+    TouchEvent //!< The original event was a WTouchEvent
+  };
+
   /*! \brief Constructor.
    */
   WDropEvent(WObject *source, const std::string& mimeType,
@@ -419,6 +426,12 @@ public:
    */
   WDropEvent(WObject *source, const std::string& mimeType,
 	     const WTouchEvent& touchEvent);
+
+#ifndef WT_TARGET_JAVA
+  WDropEvent(const WDropEvent &other);
+  WDropEvent &operator=(const WDropEvent &other);
+  ~WDropEvent();
+#endif
 
   /*! \brief Returns the source of the drag&drop operation.
    *
@@ -432,18 +445,28 @@ public:
   const std::string& mimeType() const { return dropMimeType_; }
 
   /*! \brief Returns the original mouse event.
+   *
+   * If eventType() == MouseEvent, this returns the original mouse event,
+   * otherwise this returns null.
    */
-  const WMouseEvent& mouseEvent() const { return mouseEvent_; }
+  const WMouseEvent *mouseEvent() const { return mouseEvent_; }
 
   /*! \brief Returns the original touch event.
+   *
+   * If eventType() == TouchEvent, this returns the original touch event,
+   * otherwise this returns null.
    */
-  const WTouchEvent& touchEvent() const { return touchEvent_; }
+  const WTouchEvent *touchEvent() const { return touchEvent_; }
+
+  /*! \brief Returns the type of the original event.
+   */
+  OriginalEventType originalEventType() const { return mouseEvent_ ? MouseEvent : TouchEvent; }
 
 private:
   WObject            *dropSource_;
   std::string         dropMimeType_;
-  const WMouseEvent&  mouseEvent_;
-  const WTouchEvent&  touchEvent_;
+  const WMouseEvent  *mouseEvent_;
+  const WTouchEvent  *touchEvent_;
 };
 
 /*! \class WScrollEvent Wt/WEvent Wt/WEvent

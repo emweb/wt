@@ -238,7 +238,7 @@ namespace {
       rule<ScannerT> const& start() const { return valuelist; }
     };
   };
-};
+}
 
 std::string WebRequest::parsePreferredAcceptValue(const char *str) const
 {

@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test2 )
   {
     dbo::Transaction transaction(session);
 
-    for (int i = 0; i < USER_COUNT; i++) {
+    for (size_t i = 0; i < USER_COUNT; i++) {
       User *user = new User();
       std::ostringstream os;
       os << "User" << i;

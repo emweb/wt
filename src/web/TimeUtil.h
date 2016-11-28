@@ -26,7 +26,7 @@ public:
   Time& operator+= (int msec);
   Time& operator= (const Time &other);
 
-  int operator- (const Time& other) const;
+  int operator- (const Time& other) const; // milliseconds
 
 private:
   // Pointer to avoid inclusion of windows header files in wt

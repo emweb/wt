@@ -71,7 +71,7 @@ namespace Wt
 	  lastId_ = -1;
 	  row_ = affectedRows_ = 0;
 	  
-	  snprintf(name_, 64, "SQL%p%08X", this, rand());
+          snprintf(name_, 64, "SQL%p%08X", (void*)this, rand());
 	  
 	  DEBUG(std::cerr << this << " for: " << sql_ << std::endl);
 	  

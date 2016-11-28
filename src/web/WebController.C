@@ -642,6 +642,12 @@ void WebController::handleRequest(WebRequest *request)
 				  request->scriptName(),
 				  conf_.sessionIdLength());
 
+  std::string multiSessionCookie;
+  if (conf_.sessionTracking() == Configuration::Combined)
+    multiSessionCookie = sessionFromCookie(request->headerValue("Cookie"),
+                                           "ms" + request->scriptName(),
+                                           conf_.sessionIdLength());
+
   if (sessionId.empty() && wtdE)
     sessionId = *wtdE;
 
@@ -677,8 +683,23 @@ void WebController::handleRequest(WebRequest *request)
 
     SessionMap::iterator i = sessions_.find(sessionId);
 
-    if (i == sessions_.end() || i->second->dead()) {
+    Configuration::SessionTracking sessionTracking = configuration().sessionTracking();
+
+    if (i == sessions_.end() || i->second->dead() ||
+        (sessionTracking == Configuration::Combined &&
+	 (multiSessionCookie.empty() || multiSessionCookie != i->second->multiSessionId()))) {
       try {
+        if (sessionTracking == Configuration::Combined &&
+            i != sessions_.end() && !i->second->dead()) {
+          if (!request->headerValue("Cookie")) {
+            LOG_ERROR_S(&server_, "Valid session id: " << sessionId << ", but "
+                        "no cookie received (expecting multi session cookie)");
+            request->setStatus(403);
+	    request->flush(WebResponse::ResponseDone);
+	    return;
+	  }
+	}
+
 	if (singleSessionId_.empty()) {
 	  do {
 	    sessionId = conf_.generateSessionId();
@@ -695,7 +716,13 @@ void WebController::handleRequest(WebRequest *request)
 				     request->entryPoint_->type(),
 				     favicon, request));
 
-	if (configuration().sessionTracking() == Configuration::CookiesURL)
+        if (sessionTracking == Configuration::Combined) {
+          if (multiSessionCookie.empty())
+            multiSessionCookie = conf_.generateSessionId();
+          session->setMultiSessionId(multiSessionCookie);
+        }
+
+        if (sessionTracking == Configuration::CookiesURL)
 	  request->addHeader("Set-Cookie",
 			     appSessionCookie(request->scriptName())
 			     + "=" + sessionId + "; Version=1;"

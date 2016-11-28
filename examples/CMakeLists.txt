@@ -221,6 +221,7 @@ SUBDIRS(
   dragdrop
   feature
   filetreetable
+  filedrop
   form
   gitmodel
   hangman

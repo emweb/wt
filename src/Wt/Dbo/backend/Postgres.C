@@ -60,7 +60,7 @@ public:
     paramValues_ = 0;
     paramTypes_ = paramLengths_ = paramFormats_ = 0;
  
-    snprintf(name_, 64, "SQL%p%08X", this, rand());
+    snprintf(name_, 64, "SQL%p%08X", (void*)this, rand());
 
     DEBUG(std::cerr << this << " for: " << sql_ << std::endl);
 

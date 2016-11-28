@@ -69,10 +69,14 @@
 	    <!-- Session tracking strategy.
 
 	       Possible values:
-		 Auto: cookies is available, otherwise URL rewriting
+		 Auto: cookies if available, otherwise URL rewriting
 		 URL:  only URL rewriting
+		 Combined: uses URL rewriting, with a multi-session cookie to
+			   prevent stealing of sessions through the URL. Will
+			   not fall back to URL rewriting if cookies are not
+			   available. This is the most secure strategy.
 
-               It is recommended to stick to URL rewriting for session
+               It is recommended to stick to URL rewriting or Combined for session
 	       tracking as this is more secure (it avoids the risk of attacks
 	       like CSRF or BREACH), and also provides proper support for
 	       concurrent sessions in a single browser.
@@ -347,11 +351,11 @@
 
 	     When this is enabled, the browser will try to create a
 	     webgl-context when loading to verify that it is possible. This
-	     is neccesary when using WGLWidget.
+             is necessary when using WGLWidget.
 
 	     This can take up some load time. When your application does not
 	     use WGLWidget, this option can be set to false. It will improve
-	     the initial loading time of the web-application.
+             the initial loading time of the web application.
 	-->
 	<webgl-detection>true</webgl-detection>
 

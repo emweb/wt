@@ -1186,6 +1186,7 @@ WCartesianChart::WCartesianChart(WContainerWidget *parent)
     panEnabled_(false),
     rubberBandEnabled_(true),
     crosshairEnabled_(false),
+    crosshairColor_(black),
     seriesSelectionEnabled_(false),
     selectedSeries_(0),
     followCurve_(0),
@@ -1984,7 +1985,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
     if (scatterPlot) {
       startSeries = endSeries = g;
     } else if (series_[g]->model() == model()) {
-      for (unsigned i = 0; i < rowCount; ++i)
+      for (int i = 0; i < rowCount; ++i)
 	posStackedValuesInit[i] = minStackedValuesInit[i] = 0.0;
 
       if (reverseStacked) {
@@ -1999,7 +2000,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 	    if (series_[g]->type() == BarSeries)
 	      containsBars = true;
 
-	    for (unsigned row = 0; row < rowCount; ++row) {
+            for (int row = 0; row < rowCount; ++row) {
 	      double y = asNumber(model()->data(row, series_[g]->modelColumn()));
 
 	      if (!Utils::isNaN(y)) {
@@ -2089,7 +2090,7 @@ void WCartesianChart::iterateSeries(SeriesIterator *iterator,
 				     WRectF());
 	    }
 
-	    for (unsigned row = 0; row < (series_[i]->model() ? series_[i]->model()->rowCount() : 0); ++row) {
+            for (int row = 0; row < (series_[i]->model() ? series_[i]->model()->rowCount() : 0); ++row) {
 	      int xIndex[] = {-1, -1};
 	      int yIndex[] = {-1, -1};
 
@@ -2353,6 +2354,7 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
 	  "zoom:" << asString(zoomEnabled_).toUTF8() << ","
 	  "pan:" << asString(panEnabled_).toUTF8() << ","
 	  "crosshair:" << asString(crosshairEnabled_).toUTF8() << ","
+          "crosshairColor:" << jsStringLiteral(crosshairColor_.cssText(true)) << ","
 	  "followCurve:" << followCurve << ","
 	  "xTransform:" << xTransformHandle_.jsRef() << ","
 	  "yTransform:" << yTransformHandle_.jsRef() << ","
@@ -3799,6 +3801,14 @@ void WCartesianChart::setCrosshairEnabled(bool crosshair)
 bool WCartesianChart::crosshairEnabled() const
 {
   return crosshairEnabled_;
+}
+
+void WCartesianChart::setCrosshairColor(const WColor &color)
+{
+  if (crosshairColor_ != color) {
+    crosshairColor_ = color;
+    updateJSConfig("crosshairColor", jsStringLiteral(color.cssText(true)));
+  }
 }
 
 void WCartesianChart::setFollowCurve(int followCurve)

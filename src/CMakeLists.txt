@@ -109,6 +109,7 @@ Wt/WDoubleValidator.C
 Wt/WEnvironment.C
 Wt/WEvent.C
 Wt/WException.C
+Wt/WFileDropWidget.C
 Wt/WFileResource.C
 Wt/WFileUpload.C
 Wt/WFitLayout.C

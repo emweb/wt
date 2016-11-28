@@ -88,7 +88,7 @@ public:
 
   virtual void refresh();
 
-  JSignal<int> &jsValueChanged() { return jsValueChanged_; }
+  JSignal<int,int> &jsValueChanged() { return jsValueChanged_; }
 
 protected:
   /*! \brief Constructor.
@@ -122,7 +122,7 @@ private:
   void setup();
   bool parseValue(const WT_USTRING& text);
 
-  JSignal<int> jsValueChanged_;
+  JSignal<int,int> jsValueChanged_;
 
   friend class SpinBoxValidator;
 };

@@ -1,0 +1,77 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2016 Emweb bvba, Herent, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WFILEDROPCONTAINER_WIDGET_H_
+#define WFILEDROPCONTAINER_WIDGET_H_
+
+#include "Wt/WContainerWidget"
+
+namespace Wt {
+
+class WFileUpload;
+
+/*! \class WFileDropWidget Wt/WFileDropWidget Wt/WFileDropWidget
+ *  \brief A widget that allows dropping files for upload.
+ *
+ * This widget is a %WContainerWidget in which files can be dropped in order to
+ * upload them to the server. The widget uses a %WFileUpload widget to do the
+ * upload and all of its functionality is available through this widget.
+ * 
+ * By default the widget contains a hidden WFileUpload. You can retrieve this
+ * object with the method \link fileUpload() to set options and listen to its
+ * signals. As with a stand-alone WFileUpload the widget can only do a single
+ * upload (of one or multiple files). The method \link resetUpload() will 
+ * construct a new hidden WFileUpload object allowing a new upload. It is also 
+ * possible to manage your own WFileUpload widget that listens to drops on 
+ * this widget.
+ *
+ * The widget has a default style so it can be used out of the box.
+ */
+class WFileDropWidget : public WContainerWidget {
+public:
+  /*! \brief Constructs a new widget with its own WFileUpload.
+   */
+  WFileDropWidget(WContainerWidget *parent = 0);
+
+  /*! \brief Constructs a new widget using the WFileUpload that is passed in.
+   */
+  WFileDropWidget(WFileUpload *upload, WContainerWidget *parent = 0);
+
+  /*! \brief Creates a new hidden %WFileUpload to allow a new upload.
+   *
+   * Note that any previously returned values from \link fileUpload become
+   * idle.
+   */
+  void resetUpload();
+
+  /*! Sets the given WFileUpload widget to handle the upload.
+   *
+   * This does not add the WFileUpload to the container and thus also does not
+   * take ownership of it.
+   */
+  void setFileUpload(WFileUpload *fileUpload);
+  
+  /*! Returns the WFileUpload that is currently configured to handle the upload.
+   */
+  WFileUpload* fileUpload() { return fileUpload_; }
+
+  /*! Remove the default style used to render this widget.
+   */
+  void removeDefaultStyling();
+
+  /*! Set the style class that is added to the widget when hovering a file.
+   */
+  void setHoverStyleClass(const std::string& className);
+  
+private:
+  WFileUpload *fileUpload_;
+
+  void init();
+};
+  
+}
+
+#endif

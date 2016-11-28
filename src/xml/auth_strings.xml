@@ -131,7 +131,7 @@
 
   <!-- LostPasswordDialog -->
 
-  <message id="Wt.Auth.lostpassword">Password forgotten? No sweat!</message>
+  <message id="Wt.Auth.lostpassword">Forgot your password? No sweat!</message>
   <message id="Wt.Auth.lost-password-form-title">Recover your password</message>
   <message id="Wt.Auth.lost-password-form-info">Please enter below the
   email address which you used during registration. A mail will be

@@ -32,8 +32,11 @@ BOOST_AUTO_TEST_CASE( json_generate_object )
 	      "  \"third\" : null,"
 	      "  \"fourth\" : false,"
 	      "  \"fifth\" : 1.25,"
-	      "  \"sixth\" : 1.54e99,"
-	      "  \"seventh\" : 9.870000000000001e88,"
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700
+              // We lose precision in earlier versions of boost
+	      "  \"sixth\" : 2.418980221897202e90,"
+	      "  \"seventh\" : 2.713877091499598e75,"
+#endif
 	      "  \"eight\" : \"a string type value\","
 	      "  \"ninth\" : {"
 	      "    \"sub-first\" : 1,"
@@ -111,6 +114,8 @@ BOOST_AUTO_TEST_CASE( json_generate_UTF8 )
   BOOST_REQUIRE(initial == reconstructed);
 }
 
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700
+// We lose precision in earlier versions of boost
 BOOST_AUTO_TEST_CASE( json_test_double_dim )
 {
   Json::Value v(2.0487042606859837E-309);  
@@ -123,5 +128,6 @@ BOOST_AUTO_TEST_CASE( json_test_double_dim )
 
   BOOST_REQUIRE(obj == reconstructed);
 }
+#endif
 
 #endif // JSON_PARSER

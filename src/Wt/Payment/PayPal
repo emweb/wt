@@ -46,7 +46,11 @@ class PayPalService;
  * -# completePayment() - DoExpressCheckoutPayment API call returns a result
  *    signal.
  *
- * For an example, see the paypal feature example.
+ * For an example, see the paypal feature example. This example reads the necessary variables from the wt_config.xml file.
+ *
+ * For the api server url you should use API signature with the SOAP format. More information about the necessary url's and SOAP: https://developer.paypal.com/docs/classic/api/endpoints/ and https://developer.paypal.com/docs/integration/direct/identity/seamless-checkout/#nvp-soap-credentials.
+ *
+ * The login credentials can be found in a paypal business account. You can create a sandbox test account by following the documentantion: https://developer.paypal.com/docs/classic/lifecycle/sb_create-accounts.
  *
  * \sa PayPalService
  *

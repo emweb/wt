@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <iomanip>
+#include <cfloat>
 
 #ifdef WT_WIN32
 #include <windows.h>

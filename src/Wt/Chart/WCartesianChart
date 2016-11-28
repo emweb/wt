@@ -1070,6 +1070,20 @@ public:
    */
   bool crosshairEnabled() const;
 
+  /*! \brief Sets the crosshair color.
+   *
+   * The crosshair color is black by default.
+   *
+   * \sa setCrosshairEnabled()
+   */
+  void setCrosshairColor(const WColor &color);
+
+  /*! \brief Returns the crosshair color.
+   *
+   * \sa setCrosshairEnabled(), setCrosshairColor()
+   */
+  const WColor& crosshairColor() const { return crosshairColor_; }
+
   /*! \brief Enables the follow curve functionality for a data series.
    *
    * This enables follow curve functionality for the data series
@@ -1267,6 +1281,7 @@ private:
   bool panEnabled_;
   bool rubberBandEnabled_;
   bool crosshairEnabled_;
+  WColor crosshairColor_;
   bool seriesSelectionEnabled_;
   const WDataSeries *selectedSeries_;
   const WDataSeries *followCurve_;

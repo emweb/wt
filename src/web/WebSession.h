@@ -78,6 +78,8 @@ public:
   std::string docType() const;
 
   std::string sessionId() const { return sessionId_; }
+  std::string multiSessionId() const { return multiSessionId_; }
+  void setMultiSessionId(const std::string &multiSessionId);
 
   WebController *controller() const { return controller_; }
   WEnvironment&  env() { return *env_; }
@@ -253,7 +255,12 @@ public:
   void generateNewSessionId();
   void queueEvent(const ApplicationEvent& event);
 
+#ifdef WT_TARGET_JAVA
+  void handleWebSocketMessage(Handler& handler);
+#endif
+
 private:
+#ifndef WT_TARGET_JAVA
   void handleWebSocketRequest(Handler& handler);
   static void handleWebSocketMessage(boost::weak_ptr<WebSession> session,
 				     WebReadEvent event);
@@ -261,6 +268,7 @@ private:
 			       WebWriteEvent event);
   static void webSocketReady(boost::weak_ptr<WebSession> session,
 			     WebWriteEvent event);
+#endif
 
   void checkTimers();
   void hibernate();
@@ -279,7 +287,7 @@ private:
   std::string favicon_;
   State state_;
 
-  std::string sessionId_, sessionIdCookie_;
+  std::string sessionId_, sessionIdCookie_, multiSessionId_;
   bool sessionIdChanged_, sessionIdCookieChanged_, sessionIdInUrl_;
 
   WebController *controller_;
@@ -363,6 +371,7 @@ private:
 
   friend class WebSocketMessage;
   friend class WebRenderer;
+  friend class WebSocketSupport;
 };
 
 struct WEvent::Impl {

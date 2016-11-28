@@ -297,6 +297,15 @@ int Configuration::sessionTimeout() const
   return sessionTimeout_;
 }
 
+int Configuration::keepAlive() const
+{
+  int timeout = sessionTimeout();
+  if (timeout == -1)
+    return 1000000;
+  else
+    return timeout / 2;
+}
+
 int Configuration::bootstrapTimeout() const
 {
   READ_LOCK;
@@ -629,9 +638,11 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 	sessionTracking_ = CookiesURL;
       else if (tracking == "URL")
 	sessionTracking_ = URL;
+      else if (tracking == "Combined")
+	sessionTracking_ = Combined;
       else
-	throw WServer::Exception("<session-tracking>: expecting 'Auto' "
-				 "or 'URL'");
+	throw WServer::Exception("<session-tracking>: expecting 'Auto', "
+				 "'URL', or 'Combined'");
     }
 
     setInt(sess, "timeout", sessionTimeout_);

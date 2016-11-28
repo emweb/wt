@@ -711,7 +711,6 @@ protected:
 	(boost::asio::ssl::rfc2818_verification(hostName_));
     }
 #endif // VERIFY_CERTIFICATE
-
     socket_.async_handshake(boost::asio::ssl::stream_base::client, handler);
   }
 
@@ -886,7 +885,10 @@ bool Client::request(Http::Method method, const std::string& url,
 #ifdef WT_WITH_SSL
   } else if (parsedUrl.protocol == "https") {
     boost::asio::ssl::context context
-      (*ioService, boost::asio::ssl::context::tlsv1);
+      (*ioService, boost::asio::ssl::context::sslv23);
+    long sslOptions = boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3;
+    context.set_options(sslOptions);
+
 
 #ifdef VERIFY_CERTIFICATE
     if (verifyEnabled_)

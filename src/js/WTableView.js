@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WTableView",
  function(APP, el, contentsContainer, headerContainer, headerColumnsContainer,
-	  selectedClass) {
+      selectedClass) {
    jQuery.data(el, 'obj', this);
 
    var self = this;
@@ -24,9 +24,9 @@ WT_DECLARE_WT_MEMBER
    function rtlScrollLeft(o) {
      if (rtl) {
        if (WT.isGecko)
-	 return -o.scrollLeft;
+     return -o.scrollLeft;
        else
-	 return o.scrollWidth - o.clientWidth - o.scrollLeft;
+     return o.scrollWidth - o.clientWidth - o.scrollLeft;
      } else
        return o.scrollLeft;
    }
@@ -47,9 +47,9 @@ WT_DECLARE_WT_MEMBER
 
    this.onContentsContainerScroll = function() {
      scrollLeft = headerContainer.scrollLeft
-		   = contentsContainer.scrollLeft;
+           = contentsContainer.scrollLeft;
      scrollTop = headerColumnsContainer.scrollTop
-		    = contentsContainer.scrollTop;
+            = contentsContainer.scrollTop;
 
      if (contentsContainer.scrollTop == 0 && WT.isAndroid)
        return;
@@ -57,14 +57,14 @@ WT_DECLARE_WT_MEMBER
      if (contentsContainer.clientWidth && contentsContainer.clientHeight
          && (!scrollToPending)
          && (contentsContainer.scrollTop < scrollY1
-	 || contentsContainer.scrollTop > scrollY2
-	 || contentsContainer.scrollLeft < scrollX1
-	 || contentsContainer.scrollLeft > scrollX2)) {
+     || contentsContainer.scrollTop > scrollY2
+     || contentsContainer.scrollLeft < scrollX1
+     || contentsContainer.scrollLeft > scrollX2)) {
        APP.emit(el, 'scrolled',
-		Math.round(rtlScrollLeft(contentsContainer)),
-	        Math.round(contentsContainer.scrollTop),
-		Math.round(contentsContainer.clientWidth),
-	        Math.round(contentsContainer.clientHeight));
+        Math.round(rtlScrollLeft(contentsContainer)),
+            Math.round(contentsContainer.scrollTop),
+        Math.round(contentsContainer.clientWidth),
+            Math.round(contentsContainer.clientHeight));
      }
    };
 
@@ -76,10 +76,10 @@ WT_DECLARE_WT_MEMBER
          ? -1
          : o.clientHeight;
        APP.emit(el, 'scrolled',
-		Math.round(rtlScrollLeft(o)),
-		Math.round(o.scrollTop),
-		Math.round(o.clientWidth),
-		Math.round(height));
+        Math.round(rtlScrollLeft(o)),
+        Math.round(o.scrollTop),
+        Math.round(o.clientWidth),
+        Math.round(height));
      }
    };
 
@@ -97,23 +97,23 @@ WT_DECLARE_WT_MEMBER
      while (t) {
        var $t = $(t);
        if ($t.hasClass('Wt-tv-contents')) {
-	 break;
+     break;
        } else if ($t.hasClass('Wt-tv-c')) {
-	 if (t.getAttribute('drop') === 'true')
-	   drop = true;
-	 if ($t.hasClass(selectedClass))
-	   selected = true;
-	 ele = t;
-	 t = t.parentNode;
-	 columnId = t.className.split(' ')[0].substring(7) * 1;
-	 rowIdx = $t.index();
-	 break;
+     if (t.getAttribute('drop') === 'true')
+       drop = true;
+     if ($t.hasClass(selectedClass))
+       selected = true;
+     ele = t;
+     t = t.parentNode;
+     columnId = t.className.split(' ')[0].substring(7) * 1;
+     rowIdx = $t.index();
+     break;
        }
        t = t.parentNode;
      }
 
      return { columnId: columnId, rowIdx: rowIdx, selected: selected,
-	      drop: drop, el: ele };
+          drop: drop, el: ele };
    };
 
    function rowHeight() {
@@ -125,7 +125,7 @@ WT_DECLARE_WT_MEMBER
 
      for (i = 0, il = plist.length; i < il; ++i)
        if (plist[i] == child)
-	 return i;
+     return i;
 
      return -1;
    }
@@ -138,14 +138,14 @@ WT_DECLARE_WT_MEMBER
 
      var columnClass = header.className.split(' ')[0],
          columnId = columnClass.substring(7) * 1,
-	 headers = header.parentNode,
-	 headerColumn = headers.parentNode !== headerContainer,
-	 contents = headerColumn
-		      ? headerColumnsContainer.firstChild
-		      : contentsContainer.firstChild,
-	 wt_tv_contents = contents.firstChild,
-	 column = $(contents).find('.' + columnClass).get(0),
-	 h = header.nextSibling, c = column.nextSibling,
+     headers = header.parentNode,
+     headerColumn = headers.parentNode !== headerContainer,
+     contents = headerColumn
+              ? headerColumnsContainer.firstChild
+              : contentsContainer.firstChild,
+     wt_tv_contents = contents.firstChild,
+     column = $(contents).find('.' + columnClass).get(0),
+     h = header.nextSibling, c = column.nextSibling,
          newWidth = WT.pxself(header, 'width') - 1 + delta;
 
      var cwidth = (WT.pxself(headers, 'width') + delta) + 'px';
@@ -168,11 +168,11 @@ WT_DECLARE_WT_MEMBER
 
      for (; h; h = h.nextSibling) {
        if (c) {
-	 if (!rtl)
-	   c.style.left = (WT.pxself(c, 'left') + delta) + 'px';
-	 else
-	   c.style.right = (WT.pxself(c, 'right') + delta) + 'px';
-	 c = c.nextSibling;
+     if (!rtl)
+       c.style.left = (WT.pxself(c, 'left') + delta) + 'px';
+     else
+       c.style.right = (WT.pxself(c, 'right') + delta) + 'px';
+     c = c.nextSibling;
        }
      }
 
@@ -189,28 +189,28 @@ WT_DECLARE_WT_MEMBER
 
      if (!event.ctrlKey && !event.shiftKey) {
        /*
-	* For IE, there is only global event object which does not survive
-	* the event lifetime
-	*/
+    * For IE, there is only global event object which does not survive
+    * the event lifetime
+    */
        var e = {
          ctrlKey: event.ctrlKey,
-	 shiftKey: event.shiftKey,
-	 target: event.target,
-	 srcElement: event.srcElement,
-	 type: event.type,
-	 which: event.which,
-	 touches: event.touches,
-	 changedTouches: event.changedTouches,
-	 pageX: event.pageX,
-	 pageY: event.pageY,
-	 clientX: event.clientX,
-	 clientY: event.clientY
+     shiftKey: event.shiftKey,
+     target: event.target,
+     srcElement: event.srcElement,
+     type: event.type,
+     which: event.which,
+     touches: event.touches,
+     changedTouches: event.changedTouches,
+     pageX: event.pageX,
+     pageY: event.pageY,
+     clientX: event.clientX,
+     clientY: event.clientY
        };
 
        startDrag = setTimeout(function() {
-	 if (el.getAttribute('drag') === 'true' && isSelected(item)) {
-	   APP._p_.dragStart(el, e);
-	 }
+     if (el.getAttribute('drag') === 'true' && isSelected(item)) {
+       APP._p_.dragStart(el, e);
+     }
        }, 400);
      }
    };
@@ -233,19 +233,55 @@ WT_DECLARE_WT_MEMBER
      }
 
      new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.offsetHeight,
-		       minDelta, maxDelta, 'Wt-hsh2',
-		       function (delta) {
-			 resizeColumn(header, delta);
-		       }, obj, el, event, -2, -1);
+               minDelta, maxDelta, 'Wt-hsh2',
+               function (delta) {
+             resizeColumn(header, delta);
+               }, obj, el, event, -2, -1);
    };
 
    var touchStartTimer;
 
+   var touches = 0;
    this.touchStart = function(obj, event) {
-     if (event.touches.length > 1)
+
+     var item = getItem(event);
+
+     if (!event.ctrlKey && !event.shiftKey) {
+       /*
+    * For IE, there is only global event object which does not survive
+    * the event lifetime
+    */
+       var e = {
+         ctrlKey: event.ctrlKey,
+     shiftKey: event.shiftKey,
+     target: event.target,
+     srcElement: event.srcElement,
+     type: event.type,
+     which: event.which,
+     touches: event.touches,
+     changedTouches: event.changedTouches,
+     pageX: event.pageX,
+     pageY: event.pageY,
+     clientX: event.clientX,
+     clientY: event.clientY
+       };
+
+       startDrag = setTimeout(function() {
+     if (el.getAttribute('drag') === 'true' && isSelected(item)) {
+       APP._p_.dragStart(el, e);
+     }
+       }, 400);
+     }
+     if (event.touches.length > 1) {
+       clearTimeout(touchStartTimer);
        touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 1000);
-     else
+       touches = event.touches.length;
+     }
+     else{
+       clearTimeout(touchStartTimer);
        touchStartTimer = setTimeout(function(){emitTouchStart(obj, event);}, 50);
+       touches = 1;
+     }
    };
 
    function emitTouchStart(obj, event) {
@@ -258,7 +294,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.touchEnd = function(obj, event) {
-     if (touchStartTimer)
+     if (touchStartTimer && touches != 1)
        clearTimeout(touchStartTimer);
    };
 
@@ -290,12 +326,12 @@ WT_DECLARE_WT_MEMBER
      scrollToPending = false;
      if (y != -1) {
        var top = contentsContainer.scrollTop,
-	   height = contentsContainer.clientHeight;
+       height = contentsContainer.clientHeight;
        if (hint == EnsureVisible) {
-	 if (top + height < y)
-	   hint = PositionAtTop;
-	 else if (y < top)
-	   hint = PositionAtBottom;
+     if (top + height < y)
+       hint = PositionAtTop;
+     else if (y < top)
+       hint = PositionAtBottom;
        }
 
        switch (hint) {
@@ -326,8 +362,8 @@ WT_DECLARE_WT_MEMBER
 
      if (!item.selected && item.drop) {
        if (action == 'drop') {
-	 APP.emit(el, { name: 'dropEvent', eventObject: object, event: event },
-		  item.rowIdx, item.columnId, sourceId, mimeType);
+     APP.emit(el, { name: 'dropEvent', eventObject: object, event: event },
+          item.rowIdx, item.columnId, sourceId, mimeType);
        } else {
          object.className = 'Wt-valid-drop';
          dropEl = item.el;
@@ -354,43 +390,43 @@ WT_DECLARE_WT_MEMBER
        /* Find next/prev input element, first by row, then by column */
        var item = getItem(event);
        if (!item.el)
-	 return;
+     return;
 
        var col = item.el.parentNode,
            rowi = indexOf(item.el),
            coli = indexOf(col),
            cols = col.parentNode.childNodes.length,
            rows = col.childNodes.length,
-	   back = event.shiftKey,
-	   wrapped = false;
+       back = event.shiftKey,
+       wrapped = false;
 
        var i = rowi, j;
 
        for (;;) {
-	 for (;
-	      back ? i >= 0 : i < rows;
-	      i = (back ? i-1 : i+1)) {
-	   if (i == rowi && !wrapped)
-	     j = back ? coli - 1 : coli + 1;
-	   else
-	     j = back ? cols - 1 : 0;
-	   for (;
-		back ? j >= 0 : j < cols;
-		j = (back ? j-1 : j+1)) {
-	     /* We have wrapped and arrived back at the beginning */
-	     if (i == rowi && j == coli)
-	       return;
-	     col = col.parentNode.childNodes[j];
-	     var elij = col.childNodes[i];
-	     var inputs = $(elij).find(":input");
-	     if (inputs.size() > 0) {
-	       setTimeout(function() { inputs.focus(); inputs.select();}, 0);
-	       return;
-	     }
-	   }
-	 }
-	 i = back ? rows - 1 : 0;
-	 wrapped = true;
+     for (;
+          back ? i >= 0 : i < rows;
+          i = (back ? i-1 : i+1)) {
+       if (i == rowi && !wrapped)
+         j = back ? coli - 1 : coli + 1;
+       else
+         j = back ? cols - 1 : 0;
+       for (;
+        back ? j >= 0 : j < cols;
+        j = (back ? j-1 : j+1)) {
+         /* We have wrapped and arrived back at the beginning */
+         if (i == rowi && j == coli)
+           return;
+         col = col.parentNode.childNodes[j];
+         var elij = col.childNodes[i];
+         var inputs = $(elij).find(":input");
+         if (inputs.size() > 0) {
+           setTimeout(function() { inputs.focus(); inputs.select();}, 0);
+           return;
+         }
+       }
+     }
+     i = back ? rows - 1 : 0;
+     wrapped = true;
        }
      }
 
@@ -399,57 +435,57 @@ WT_DECLARE_WT_MEMBER
        var currentEl = WT.target(event);
 
        function isInput(el) {
-	 return (WT.hasTag(el,'INPUT') && el.type == 'text')
-	   || WT.hasTag(el, 'TEXTAREA');
+     return (WT.hasTag(el,'INPUT') && el.type == 'text')
+       || WT.hasTag(el, 'TEXTAREA');
        }
 
        // do not allow arrow navigation from select
        if (WT.hasTag(currentEl, 'SELECT'))
-	 return;
+     return;
 
        var item = getItem(event);
        if (!item.el)
-	 return;
+     return;
 
        var col = item.el.parentNode,
            rowi = indexOf(item.el),
            coli = indexOf(col),
            cols = col.parentNode.childNodes.length,
-	   rows = col.childNodes.length;
+       rows = col.childNodes.length;
 
        switch (event.keyCode) {
-	 case rightKey:
-	 if (isInput(currentEl)) {
-	     var range = WT.getSelectionRange(currentEl);
-	     if (range.start != currentEl.value.length)
-	       return;
-	   }
-	   coli++; break;
-	 case upKey:
-	   rowi--; break;
-	 case leftKey:
-	   if (isInput(currentEl)) {
-	     var range = WT.getSelectionRange(currentEl);
-	     if (range.start != 0)
-	       return;
-	   }
-	   coli--; break;
-	 case downKey:
-	   rowi++; break;
-	 default:
-	   return;
+     case rightKey:
+     if (isInput(currentEl)) {
+         var range = WT.getSelectionRange(currentEl);
+         if (range.start != currentEl.value.length)
+           return;
+       }
+       coli++; break;
+     case upKey:
+       rowi--; break;
+     case leftKey:
+       if (isInput(currentEl)) {
+         var range = WT.getSelectionRange(currentEl);
+         if (range.start != 0)
+           return;
+       }
+       coli--; break;
+     case downKey:
+       rowi++; break;
+     default:
+       return;
        }
 
        WT.cancelEvent(event);
 
        if (rowi > -1 && rowi < rows && coli > -1 && coli < cols) {
-	 col = col.parentNode.childNodes[coli];
-	 var elToSelect = col.childNodes[rowi];
-	 var inputs = $(elToSelect).find(":input");
-	 if (inputs.size() > 0) {
-	   setTimeout(function() { inputs.focus(); }, 0);
-	   return;
-	 }
+     col = col.parentNode.childNodes[coli];
+     var elToSelect = col.childNodes[rowi];
+     var inputs = $(elToSelect).find(":input");
+     if (inputs.size() > 0) {
+       setTimeout(function() { inputs.focus(); }, 0);
+       return;
+     }
        }
      }
    };
@@ -467,22 +503,22 @@ WT_DECLARE_WT_MEMBER
      if (!WT.isIE && (scrollTop != contentsContainer.scrollTop
          || scrollLeft != contentsContainer.scrollLeft)) {
        if (typeof scrollLeft === 'undefined') {
-	 if (rtl && WT.isGecko) {	   
-	   headerContainer.scrollLeft = contentsContainer.scrollLeft
-	     = scrollLeft = 0;
-	 } else {
-	   scrollLeft = contentsContainer.scrollLeft;
-	 }
+     if (rtl && WT.isGecko) {
+       headerContainer.scrollLeft = contentsContainer.scrollLeft
+         = scrollLeft = 0;
+     } else {
+       scrollLeft = contentsContainer.scrollLeft;
+     }
        } else {
-	 headerContainer.scrollLeft = contentsContainer.scrollLeft
-	   = scrollLeft;
+     headerContainer.scrollLeft = contentsContainer.scrollLeft
+       = scrollLeft;
        }
        headerColumnsContainer.scrollTop = contentsContainer.scrollTop
-	 = scrollTop;	 
+     = scrollTop;
      }
 
      var tw = el.offsetWidth - WT.px(el, 'borderLeftWidth')
-	      - WT.px(el, 'borderRightWidth');
+          - WT.px(el, 'borderRightWidth');
 
      var scrollwidth = contentsContainer.offsetWidth
        - contentsContainer.clientWidth;

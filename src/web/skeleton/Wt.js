@@ -2830,7 +2830,7 @@ function quit(hasQuitMessage) {
 function doKeepAlive() {
   WT.history._initTimeout();
   if (commErrors == 0)
-    update(null, 'none', null, false);
+    update(null, 'keepAlive', null, false);
 }
 
 function debug(s) {
@@ -3180,10 +3180,14 @@ _$_$if_WEB_SOCKETS_$_();
 	  } else {
 	    var query = sessionUrl.substr(sessionUrl.indexOf('?'));
 	    wsurl = "ws" + location.protocol.substr(4)
-	      + "//" + location.host + deployUrl + query;
+	      + "//" + location.host + _$_WS_PATH_$_ + query;
 	  }
 
 	  wsurl += "&request=ws";
+
+	  var wsid = _$_WS_ID_$_;
+	  if (wsid.length > 0)
+	    wsurl += "&wsid=" + wsid;
 
 	  if (typeof window.WebSocket !== UNDEFINED)
 	    websocket.socket = ws = new WebSocket(wsurl);
@@ -3805,6 +3809,10 @@ function bindGlobal(event, id, f) {
     }, 0);
 }
 
+function refreshMultiSessionCookie() {
+  comm.sendUpdate('request=jsupdate&signal=keepAlive&ackId=' + ackUpdateId, false, ackUpdateId, -1);
+}
+
 this._p_ = {
   ieAlternative : ieAlternative,
   loadScript : loadScript,
@@ -3843,6 +3851,7 @@ this._p_ = {
   setConnectionMonitor : setConnectionMonitor,
   updateGlobal: updateGlobal,
   bindGlobal: bindGlobal,
+  refreshCookie: refreshMultiSessionCookie,
 
   propagateSize : propagateSize
 };

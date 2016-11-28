@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WFileUpload"
+#include "Wt/WFileDropWidget"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
@@ -130,11 +131,14 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
     textSize_(20),
     fileTooLarge_(this, "fileTooLarge"),
+    startUpload_(this, "startUpload"),
     dataReceived_(this),
     progressBar_(0)
 {
   setInline(true);
   create();
+
+  startUpload_.connect(this, &WFileUpload::upload);
 }
 
 void WFileUpload::create()
@@ -297,6 +301,27 @@ bool WFileUpload::emptyFileName() const
 bool WFileUpload::empty() const
 {
   return uploadedFiles_.empty();
+}
+
+void WFileUpload::registerDropWidget(WFileDropWidget *dropWidget)
+{
+  dropWidget->setFileUpload(this);
+}
+  
+void WFileUpload::registerDropWidgetInternal(WFileDropWidget *dropWidget)
+{
+  std::string setupDropHandler =
+    dropWidget->jsRef() + ".ondrop = function(e) {"
+    "e.preventDefault();"
+    "if (e.dataTransfer.files != null && e.dataTransfer.files.length > 0) {"
+    "" "var x = " WT_CLASS ".$('in" + id() + "');"
+    "" "x.files = e.dataTransfer.files;"
+    "" + startUpload_.createCall() +
+    "}" +
+    dropWidget->jsRef() + ".setHoverStyle(false);"
+    "};";
+
+    dropWidget->doJavaScript(setupDropHandler);
 }
 
 void WFileUpload::updateDom(DomElement& element, bool all)

@@ -27,6 +27,7 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/WPaintedWidget.min.js"
+#include "js/WJavaScriptObjectStorage.min.js"
 #endif
 
 namespace Wt {
@@ -118,7 +119,7 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
 	"var o=" + this->objJsRef() + ";"
 	"if(o){o.repaint();}"
 	"}", this),
-    jsObjects_(this->objJsRef()),
+    jsObjects_(this),
     jsDefined_(false)
 {
   if (WApplication::instance()) {
@@ -208,6 +209,7 @@ void WPaintedWidget::defineJavaScript()
     setFormObject(true);
 
     LOAD_JAVASCRIPT(app, "js/WPaintedWidget.js", "WPaintedWidget", wtjs10);
+    LOAD_JAVASCRIPT(app, "js/WJavaScriptObjectStorage.js", "WJavaScriptObjectStorage", wtjs20);
 
     jsDefined_ = true;
   } else {
@@ -647,6 +649,8 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
     WApplication *app = WApplication::instance();
     ss << "new " WT_CLASS ".WPaintedWidget("
       << app->javaScriptClass() << "," << widget_->jsRef() << ");";
+    ss << "new " WT_CLASS ".WJavaScriptObjectStorage("
+       << app->javaScriptClass() << "," << widget_->jsRef() << ");";
     widget_->jsObjects_.updateJs(ss);
     el->callJavaScript(ss.str());
   }

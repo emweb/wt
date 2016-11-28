@@ -16,10 +16,11 @@
 namespace Wt {
 
 class WStringStream;
+class WWidget;
 
 class WJavaScriptObjectStorage {
 public:
-  WJavaScriptObjectStorage(const std::string &jsRef);
+  WJavaScriptObjectStorage(WWidget *widget);
 
   ~WJavaScriptObjectStorage();
 
@@ -38,15 +39,17 @@ public:
 
   void assignFromJSON(const std::string &json);
 
+  std::string jsRef() const;
+
 private:
   template<typename T>
   friend class WJavaScriptHandle;
 
   int doAddObject(WJavaScriptExposableObject *o);
 
-  std::vector<WJavaScriptExposableObject *> jsValues;
-  std::vector<bool> dirty;
-  std::string jsRef;
+  std::vector<WJavaScriptExposableObject *> jsValues_;
+  std::vector<bool> dirty_;
+  WWidget *widget_;
 };
 
 }

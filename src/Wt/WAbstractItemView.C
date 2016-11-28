@@ -906,8 +906,9 @@ void WAbstractItemView::extendSelection(const WModelIndex& index)
       extendSelection(model_->index(index.row(), 0, index.parent()));
       return;
     }
+  }
 
-    /*
+  /*
      * Expand current selection. If index is within or below the
      * current selection, we select from the top item to index. If index
      * is above the current selection, select everything from the
@@ -916,15 +917,28 @@ void WAbstractItemView::extendSelection(const WModelIndex& index)
      * For a WTreeView, only indexes with expanded ancestors can be
      * part of the selection: this is asserted when collapsing a index.
      */
-    WModelIndex top = Utils::first(selectionModel_->selection_);
-    if (top < index) {
-      clearSelection();
-      selectRange(top, index);
-    } else {
-      WModelIndex bottom = Utils::last(selectionModel_->selection_);
-      clearSelection();
-      selectRange(index, bottom);
-    }
+  WModelIndex top = Utils::first(selectionModel_->selection_);
+  if (top < index) {
+    clearSelection();
+    selectRange(top, index);
+  } else {
+    WModelIndex bottom = Utils::last(selectionModel_->selection_);
+    clearSelection();
+    selectRange(index, bottom);
+  }
+  selectionChanged_.emit();
+}
+
+
+void WAbstractItemView::extendSelection(const std::vector<WModelIndex>& indices)
+{
+  const WModelIndex &firstIndex = indices[0];
+  const WModelIndex &secondIndex = indices[indices.size()-1];
+  if (indices.size() > 1) {
+    if(firstIndex.row() > secondIndex.row())
+      selectRange(secondIndex, firstIndex);
+    else
+      selectRange(firstIndex, secondIndex);
   }
 
   selectionChanged_.emit();
@@ -973,15 +987,17 @@ void WAbstractItemView::selectionHandleClick(const WModelIndex& index,
   }
 }
 
-void WAbstractItemView::selectionHandleTouch(const WModelIndex& index,
+void WAbstractItemView::selectionHandleTouch(const std::vector<WModelIndex>& indices,
 					     const WTouchEvent& event)
 {
   if (selectionMode_ == NoSelection)
     return;
 
+  const WModelIndex &index = indices[0];
+
   if (selectionMode_ == ExtendedSelection) {
     if (event.touches().size() > 1)
-      extendSelection(index);
+      extendSelection(indices);
     else {
       if (!dragEnabled_)
         select(index, ToggleSelect);
@@ -1399,20 +1415,23 @@ void WAbstractItemView::handleMouseUp(const WModelIndex& index,
   mouseWentUp_.emit(index, event);
 }
 
-void WAbstractItemView::handleTouchStart(const WModelIndex& index,
+void WAbstractItemView::handleTouchStart(const std::vector<WModelIndex>& indices,
 					   const WTouchEvent& event)
 {
+  const WModelIndex& index = indices[0];
   touchRegistered_ = true;
-
-  bool doEdit = index.isValid() &&
-	(editTriggers() & SelectedClicked) && isSelected(index);
-
   delayedClearAndSelectIndex_ = WModelIndex();
-  if (index.isValid())
-    selectionHandleTouch(index, event);
+  if (indices.size() == 1) {
 
-  if (doEdit)
-    edit(index);
+    bool doEdit = index.isValid() &&
+        (editTriggers() & SelectedClicked) && isSelected(index);
+
+    if (doEdit)
+      edit(index);
+  }
+  if (indices[0].isValid() && indices[indices.size()-1].isValid()){
+    selectionHandleTouch(indices, event);
+  }
 
   touchStart_.emit(index, event);
 }
