@@ -254,25 +254,21 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
   if (flags & Font) {
     const WFont& font = painter()->font();
 
-    if (font == currentFont_)
+    if (font == currentFont_ && !trueTypeFonts_->busy())
       return;
 
     currentFont_ = font;
-
-    const char *font_name = 0;
-
-    font_ = 0;
 
     /*
      * First, try a true type font.
      */
     std::string ttfFont;
-    if (trueTypeFonts_->busy())
+    if (trueTypeFonts_->busy()) {
       /*
        * We have a resolved true type font.
        */
       ttfFont = trueTypeFonts_->drawingFontPath();
-    else {
+    } else {
       FontSupport::FontMatch match = trueTypeFonts_->matchFont(font);
 
       if (match.matched())
@@ -281,7 +277,14 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 
     LOG_DEBUG("font: " << ttfFont);
 
+    if (!ttfFont.empty() && currentTtfFont_ == ttfFont)
+      return;
+
+    const char *font_name = 0;
+    font_ = 0;
+
     if (!ttfFont.empty()) {
+
       bool fontOk = false;
 
       std::map<std::string, const char *>::const_iterator i
@@ -321,12 +324,15 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 
       if (!font_)
 	HPDF_ResetError (pdf_);
-      else
+      else {
 	trueTypeFont_ = true;
+        currentTtfFont_ = ttfFont;
+      }
     }
 
     if (!font_) {
       trueTypeFont_ = false;
+      currentTtfFont_.clear();
 
       std::string name = Pdf::toBase14Font(font);
       font_ = HPDF_GetFont(pdf_, name.c_str(), 0);
