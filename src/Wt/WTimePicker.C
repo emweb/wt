@@ -18,6 +18,7 @@ LOGGER("WTimePicker");
 WTimePicker::WTimePicker(WContainerWidget *parent)
     : WCompositeWidget(parent),
       selectionChanged_(this),
+      timeEdit_(new WTimeEdit()),
       toggleAmPm_(2, this)
 {
     init();
@@ -25,6 +26,7 @@ WTimePicker::WTimePicker(WContainerWidget *parent)
 
 WTimePicker::WTimePicker(const WTime &time, WContainerWidget *parent)
     : WCompositeWidget(parent),
+      timeEdit_(new WTimeEdit()),
       toggleAmPm_(2, this)
 {
     init(time);
