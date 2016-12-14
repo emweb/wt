@@ -819,8 +819,11 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       break;
     }
 
+    char buf[30];
+    double lw = painter()->normalizedPenWidth(painter()->pen().width(), true).value();
+
     js_ << "ctx.lineWidth="
-	<< painter()->normalizedPenWidth(painter()->pen().width(), true).value()
+        << Utils::round_js_str(lw, 3, buf)
 	<< ';';
 
     if (currentPen_.capStyle() != painter()->pen().capStyle())
@@ -870,9 +873,14 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
   if (shadowChanged) {
     currentShadow_ = painter_->shadow();
 
-    js_ << "ctx.shadowOffsetX=" << currentShadow_.offsetX() << ';'
-	<< "ctx.shadowOffsetY=" << currentShadow_.offsetY() << ';'
-	<< "ctx.shadowBlur=" << currentShadow_.blur() << ';'
+    double offsetX = currentShadow_.offsetX();
+    double offsetY = currentShadow_.offsetY();
+    double blur = currentShadow_.blur();
+
+    char buf[30];
+    js_ << "ctx.shadowOffsetX=" << Utils::round_js_str(offsetX, 3, buf) << ';';
+    js_ << "ctx.shadowOffsetY=" << Utils::round_js_str(offsetY, 3, buf) << ';';
+    js_ << "ctx.shadowBlur=" << Utils::round_js_str(blur, 3, buf) << ';'
 	<< "ctx.shadowColor=" 
 	<< WWebWidget::jsStringLiteral(currentShadow_.color().cssText(true))
 	<< ";";

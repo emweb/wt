@@ -467,6 +467,29 @@ const char *IsapiRequest::headerValue(const char *name) const
   return retval ? retval->c_str() : 0;
 }
 
+Wt::Http::HeaderMap IsapiRequest::headers() const
+{
+  Wt::Http::HeaderMap headerMap;
+  std::string *pAllRaw = persistentEnvValue("ALL_RAW");
+  if (!pAllRaw)
+    return headerMap;
+  std::string all_raw = *pAllRaw;
+
+  std::size_t headerStart = 0;
+  std::size_t headerEnd = all_raw.find("\r\n");
+  while (headerEnd != std::string::npos) {
+    std::size_t colonPos = all_raw.find(':', headerStart);
+    std::string name = all_raw.substr(headerStart, colonPos - headerStart);
+    std::string value = all_raw.substr(colonPos + 2, headerEnd - (colonPos + 2));
+    headerMap[name] = value;
+
+    headerStart = headerEnd + 2;
+    headerEnd = all_raw.find("\r\n", headerEnd + 2);
+  }
+
+  return headerMap;
+}
+
 std::string *IsapiRequest::persistentEnvValue(const char *hdr) const
 {
   std::string name = boost::algorithm::to_upper_copy(std::string(hdr));

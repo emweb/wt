@@ -161,6 +161,10 @@ public:
   const char *userAgent() const;
   const char *referer() const;
 
+#ifndef WT_TARGET_JAVA
+  virtual Http::HeaderMap headers() const = 0;
+#endif
+
   virtual const char *contentType() const;
   virtual ::int64_t contentLength() const;
 

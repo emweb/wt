@@ -243,7 +243,7 @@ void RegistrationWidget::doRegister()
     User user = model_->doRegister();
     if (user.isValid()) {
       registerUserDetails(user);
-      if (!model_->baseAuth()->emailVerificationRequired())
+      if (!model_->baseAuth()->emailVerificationRequired() || user.unverifiedEmail().empty())
 	model_->loginUser(model_->login(), user);
       else {
 	if (authWidget_)

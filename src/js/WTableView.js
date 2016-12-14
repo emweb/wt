@@ -266,11 +266,6 @@ WT_DECLARE_WT_MEMBER
      clientY: event.clientY
        };
 
-       startDrag = setTimeout(function() {
-     if (el.getAttribute('drag') === 'true' && isSelected(item)) {
-       APP._p_.dragStart(el, e);
-     }
-       }, 400);
      }
      if (event.touches.length > 1) {
        clearTimeout(touchStartTimer);

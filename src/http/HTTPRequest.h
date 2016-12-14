@@ -43,6 +43,7 @@ public:
 
   virtual const char *envValue(const char *name) const;
   virtual const char *headerValue(const char *name) const;
+  virtual Wt::Http::HeaderMap headers() const;
   virtual const std::string& serverName() const;
   virtual const std::string& serverPort() const;
   virtual const std::string& scriptName() const;

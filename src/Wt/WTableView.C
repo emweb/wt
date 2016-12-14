@@ -111,6 +111,9 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->mouseWentUp()
       .connect(boost::bind(&WTableView::handleMouseWentUp, this, false, _1)); 
     canvas_->mouseWentUp().preventPropagation();
+    canvas_->mouseWentUp().connect("function(o, e) { "
+                                     "$(document).trigger($.event.fix(e));"
+                                     "}");
     canvas_->addWidget(table_);
 
     contentsContainer_ = new WContainerWidget();

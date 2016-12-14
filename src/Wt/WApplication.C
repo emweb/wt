@@ -16,6 +16,7 @@
 #include "Wt/WException"
 #include "Wt/WMemoryResource"
 #include "Wt/WServer"
+#include "Wt/WTimer"
 
 #include "WebSession.h"
 #include "DomElement.h"
@@ -376,6 +377,12 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
+  // Fix issue #5331: if WTimer is a child of WApplication,
+  // it will outlive timerRoot_. Delete it now already.
+  std::vector<WObject *> children = this->children();
+  for (std::size_t i = 0; i < children.size(); ++i) {
+    delete dynamic_cast<WTimer*>(children[i]);
+  }
   timerRoot_ = 0; // marker for being deleted
 
   WContainerWidget *r = domRoot_;

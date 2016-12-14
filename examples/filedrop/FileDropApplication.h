@@ -9,11 +9,11 @@
 #define FILEDROPAPPLICATION_H_
 
 #include <Wt/WApplication>
+#include <Wt/WFileDropWidget>
 
 using namespace Wt;
-
 namespace Wt {
-  class WFileDropWidget;
+  class WContainerWidget;
 }
 
 class FileDropApplication : public WApplication
@@ -24,10 +24,18 @@ public:
 private:
   WText *log_;
   WFileDropWidget *drop_;
+  int nbUploads_;
 
-  void saveFile();
-  void fileTooBig();
-  void connectFileUpload();
+  std::map<WFileDropWidget::File*, Wt::WContainerWidget*> icons_;
+
+  void handleDrop(std::vector<WFileDropWidget::File *> files);
+  void tooLarge(WFileDropWidget::File *file);
+  void failed(WFileDropWidget::File *file);
+  void saveFile(WFileDropWidget::File *file);
+  void cancelUpload();
+  void updateProgressListener();
+  
+  void showProgress(::uint64_t current, ::uint64_t total);
 };
 
 

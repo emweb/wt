@@ -2229,7 +2229,7 @@ void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 	  */
 
 	// Update graphics for parent when all rows have been removed
-	if (model()->rowCount(parent) == count)
+        if (model()->rowCount(parent) == 0 && count != 0)
 	  parentNode->updateGraphics(parentNode->isLast(), true);
       } else {
 	/*

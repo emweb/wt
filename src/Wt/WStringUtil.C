@@ -95,14 +95,14 @@ std::string narrow(const std::wstring& s, const std::locale &loc)
 
   int size = s.length() + 1;
 
-  char *pstr = new char [size];
+  char *pstr = (char*)std::malloc(size);
   char *pc = pstr;
 
   std::mbstate_t mystate = std::mbstate_t();
   bool error = false;
 
   for (;;) {
-    myresult = myfacet.out(mystate, pwc, pwend, pwc, pc, pc + size, pc);
+    myresult = myfacet.out(mystate, pwc, pwend, pwc, pc, pstr + size, pc);
 
     if (myresult == Cvt::ok) {
       break;
@@ -127,7 +127,7 @@ std::string narrow(const std::wstring& s, const std::locale &loc)
   if (error)
     LOG_WARN("narrow(): loss of detail: " << result);
 
-  delete[] pstr;
+  std::free(pstr);
 
   return result;
 }

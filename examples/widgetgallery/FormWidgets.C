@@ -236,11 +236,13 @@ Wt::WWidget *FormWidgets::progressBar()
 
 
 #include "examples/FileUpload.cpp"
+#include "examples/FileDrop.cpp"
 
 Wt::WWidget *FormWidgets::fileUpload()
 {
   Wt::WTemplate *result = new TopicTemplate("forms-fileUpload");
   result->bindWidget("FileUpload", FileUpload());
+  result->bindWidget("FileDrop", FileDrop());
 
   return result;
 }

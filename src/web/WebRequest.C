@@ -18,7 +18,8 @@
 #if BOOST_VERSION < 103600
 #include <boost/spirit.hpp>
 #else
-#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_attribute.hpp>
 #endif
 
 #include <boost/bind.hpp>

@@ -9,6 +9,14 @@
 #include <Wt/WStringUtil>
 #include <iostream>
 
+namespace {
+  bool endswith(const std::string &s, const std::string &suffix)
+  {
+    return s.size() >= suffix.size() &&
+           s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+  }
+}
+
 BOOST_AUTO_TEST_CASE( Utf8_test1 )
 {
 #ifndef WT_NO_STD_WSTRING
@@ -31,11 +39,12 @@ BOOST_AUTO_TEST_CASE( Utf8_test1 )
 BOOST_AUTO_TEST_CASE( Utf8_test2 )
 {
   /*
-   * This test is broken on FreeBSD and Mac OS X. There is a bug in their libc.
+   * This test is broken on FreeBSD < 11 and was broken on macOS before Sierra.
+   * There was a bug in their libc.
    *
    * See: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=209907
    */
-#if !(defined(__APPLE__) || defined(__FreeBSD__))
+#if !(defined(__FreeBSD__) && __FreeBSD__ < 11)
 #ifndef WT_NO_STD_WSTRING
   std::wstring w = L"This costs 100\x20AC (greek \x0194)";
 
@@ -51,21 +60,27 @@ BOOST_AUTO_TEST_CASE( Utf8_test2 )
 
 BOOST_AUTO_TEST_CASE( Utf8_test3 )
 {
-  /*
-   * This is broken on MacOSX 10.6, std::locale("") throws runtime_exception
-   */
-#if 0
+  std::locale sys_locale("");
+  std::locale other_locale = sys_locale;
+  if (!(endswith(sys_locale.name(), ".UTF-8") ||
+        endswith(sys_locale.name(), ".utf8"))) {
+    try {
+      other_locale = std::locale("en_US.utf8");
+    } catch (const std::runtime_error&) {
+      return; // Give up
+    }
+  }
+
   std::wstring w = L"\x20AC\x20AC\x20AC\x20AC (greek \x0194)";
 
   Wt::WString ws = w;
 
-  std::locale l(std::locale("C"), std::locale(""),
+  std::locale l(std::locale("C"), other_locale,
 		std::locale::collate | std::locale::ctype);
 
   std::string s = ws.narrow(l);
 
   BOOST_REQUIRE(s == ws.toUTF8());
-#endif
 }
  
 BOOST_AUTO_TEST_CASE( Utf8_test4 )
@@ -103,4 +118,28 @@ BOOST_AUTO_TEST_CASE( Utf8_test4 )
   ss = Wt::UTF8Substr(u8, 23, 9);
   BOOST_REQUIRE(ss == u8f);
 
+}
+
+// Run this test with address sanitizer or valgrind
+// There was an issue in Wt::narrow that caused a heap buffer overflow.
+BOOST_AUTO_TEST_CASE( Utf8_test5 )
+{
+  std::locale sys_locale("");
+  std::locale other_locale = sys_locale;
+  if (!(endswith(sys_locale.name(), ".UTF-8") ||
+        endswith(sys_locale.name(), ".utf8"))) {
+    try {
+      other_locale = std::locale("en_US.utf8");
+    } catch (const std::runtime_error&) {
+      return; // Give up
+    }
+  }
+
+  std::locale l(std::locale("C"), other_locale,
+                std::locale::collate | std::locale::ctype);
+
+  std::wstring s1 = L"\U0001F638\U0001F631";
+  std::string s2 = "\xF0\x9F\x98\xB8\xF0\x9F\x98\xB1";
+
+  BOOST_REQUIRE(Wt::narrow(s1, l) == s2);
 }

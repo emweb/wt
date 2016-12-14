@@ -568,9 +568,13 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dt><strong>tracking</strong></dt>
 
     <dd>How session tracking is implemented: automatically (using
-      cookies when available, otherwise using URL rewriting) or
+      cookies when available, otherwise using URL rewriting),
       strictly using URL rewriting (which allows multiple concurrent
-      sessions from one user).  </dd>
+      sessions from one user), or a combined tracking strategy that uses
+	  URL rewriting in combination with a shared cookie between
+	  sessions in the same browser for extra session hijacking protection.
+	  The combined strategy does not fall back to only URL rewriting when
+	  cookies are not available: it will simply refuse access.</dd>
 
     <dt><strong>reload-is-new-session</strong></dt>
 
