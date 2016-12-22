@@ -31,7 +31,8 @@ using namespace Wt::rapidxml;
 #include <boost/spirit.hpp>
 #include <boost/spirit/phoenix/binders.hpp>
 #else
-#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_attribute.hpp>
 #include <boost/spirit/include/phoenix1_binders.hpp>
 #endif
 

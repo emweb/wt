@@ -101,6 +101,22 @@ const char *HTTPRequest::headerValue(const char *name) const
     return 0;
 }
 
+Wt::Http::HeaderMap HTTPRequest::headers() const
+{
+  Wt::Http::HeaderMap headerMap;
+  WtReplyPtr p = reply_;
+  if (!p.get())
+    return headerMap;
+
+  std::list<Request::Header> headers =  p->request().headers;
+
+  for (std::list<Request::Header>::const_iterator it=headers.begin(); it != headers.end(); ++it){
+    headerMap.insert(std::pair<std::string,std::string>(cstr(it->name),cstr(it->value)));
+  }
+
+  return headerMap;
+}
+
 const char *HTTPRequest::cstr(const buffer_string& bs) const {
   if (!bs.next)
     return bs.data;

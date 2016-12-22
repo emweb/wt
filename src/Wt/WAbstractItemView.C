@@ -999,14 +999,7 @@ void WAbstractItemView::selectionHandleTouch(const std::vector<WModelIndex>& ind
     if (event.touches().size() > 1)
       extendSelection(indices);
     else {
-      if (!dragEnabled_)
-        select(index, ToggleSelect);
-      else {
-        if (!isSelected(index))
-          select(index, ToggleSelect);
-        else 
-          delayedClearAndSelectIndex_ = index;
-       }
+      select(index, ToggleSelect);
     }
   } else {
     if (isSelected(index)) {

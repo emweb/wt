@@ -1150,14 +1150,6 @@
     </div>
   </message>
 
-  <message id="form-field">
-    <div class="form-group">
-      <label class="control-label col-sm-2" for="${id:{2}}"> ${1} </label>
-      <div class="col-sm-5"> ${2} </div>
-      <div class="help-block col-sm-5"> ${3} </div>
-    </div>
-  </message>
-
   <message id="userForm-template">
     <legend>${title}</legend>
     <div class="form-horizontal">
@@ -2116,6 +2108,16 @@
         ${src FileUpload}
     </fieldset>
 
+    <h2>File Drop</h2>
+
+    <p>Try dropping files in the widget below. It accepts a maximum of 5 files. You can drop one or multiple files at a time.</p>
+    
+    <fieldset class="example">
+        <legend>Example</legend>
+        ${FileDrop}
+	${src FileDrop}
+    </fieldset>
+    
     <p><a href="#file-upload">Top</a></p>
 
   </message>

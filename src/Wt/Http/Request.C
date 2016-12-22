@@ -31,6 +31,9 @@ namespace {
 namespace Wt {
   namespace Http {
 
+UploadedFile::UploadedFile()
+{}
+    
 UploadedFile::UploadedFile(const std::string& spoolName,
 			   const std::string& clientFileName,
 			   const std::string& contentType)
@@ -166,6 +169,13 @@ std::string Request::headerValue(const std::string& field) const
 {
   return request_ ? str(request_->headerValue(field.c_str())) : std::string();
 }
+
+#ifndef WT_TARGET_JAVA
+HeaderMap Request::headers() const
+{
+  return request_->headers();
+}
+#endif
 
 ::int64_t Request::tooLarge() const
 {

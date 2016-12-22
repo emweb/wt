@@ -133,6 +133,32 @@ namespace {
       return envValue(cgiEnvName(name).c_str());
     }
 
+    Http::HeaderMap headers() const {
+      Http::HeaderMap headerMap;
+      std::string header_prefix("HTTP_");
+      int prefix_length = header_prefix.length();
+
+      for(int i=0; request_->envp[i];++i){
+	std::string env_string(request_->envp[i]);
+	if (env_string.compare(0,prefix_length, header_prefix) == 0){
+	  std::string name = env_string.substr(prefix_length, env_string.find("=") - prefix_length);
+	  std::string value = env_string.substr(env_string.find("=") + 1);
+	  headerMap.insert(std::pair<std::string,std::string>(name,value));
+	}
+	const char *contentLength = envValue("CONTENT_LENGTH");
+	if (contentLength) {
+	  headerMap.insert(std::pair<std::string,std::string>("CONTENT_LENGTH", contentLength));
+	}
+	const char *contentType = envValue("CONTENT_TYPE");
+	if (contentType){
+	  headerMap.insert(std::pair<std::string,std::string>("CONTENT_TYPE",contentType));
+	}
+      }
+
+      return headerMap;
+    }
+
+
     virtual const char *envValue(const char *name) const {
       char *result = FCGX_GetParam(name, request_->envp);
       if (result)

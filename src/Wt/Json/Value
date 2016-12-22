@@ -653,6 +653,12 @@ public:
    */
   static const Value False;
 
+#ifdef WT_TARGET_JAVA
+  std::string getAsString();
+  long getAsLong();
+  int getAsInt();
+#endif
+
 private:
   boost::any v_;
 

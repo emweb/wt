@@ -48,9 +48,6 @@ namespace Wt {
 template <class C>
 MetaDbo<C>::~MetaDbo()
 {
-  if (refCount_)
-    throw std::logic_error("Dbo: refCount > 0");
-
   if ((!isOrphaned()) && session())
     session()->prune(this);
 
