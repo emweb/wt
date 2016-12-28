@@ -29,6 +29,8 @@
 #include "js/WTreeView.min.js"
 #endif
 
+#include <limits>
+
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 namespace {
   double round(double x)
